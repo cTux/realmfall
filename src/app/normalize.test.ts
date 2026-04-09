@@ -15,6 +15,9 @@ describe('normalizeLoadedGame', () => {
       tiles: {
         '0,0': {
           ...game.tiles['0,0'],
+          structure: 'tree',
+          structureHp: undefined,
+          structureMaxHp: undefined,
           items: [
             {
               id: 'food-1',
@@ -38,6 +41,7 @@ describe('normalizeLoadedGame', () => {
         ...game.player,
         mana: undefined,
         baseMaxMana: undefined,
+        skills: { logging: { level: 3, xp: 2 } },
         gold: 9,
         inventory: [
           {
@@ -132,6 +136,9 @@ describe('normalizeLoadedGame', () => {
     expect(loaded.logs.map((entry) => entry.id)).toEqual(['l-1', 'l-2']);
     expect(loaded.combat?.enemyIds).toEqual([]);
     expect(loaded.tiles['0,0'].enemyIds).toEqual(['legacy-enemy']);
+    expect(loaded.tiles['0,0'].structureHp).toBe(5);
+    expect(loaded.player.skills.logging).toEqual({ level: 3, xp: 2 });
+    expect(loaded.player.skills.mining).toEqual({ level: 1, xp: 0 });
     expect(
       loaded.player.inventory.find((item) => item.name === 'Trail Ration')
         ?.quantity,

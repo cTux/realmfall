@@ -99,7 +99,7 @@ export function renderScene(
         42,
         emphasized ? 1 : 0.82,
       );
-      marker.position.set(point.x, point.y + 8);
+      marker.position.set(point.x, point.y);
       world.addChild(marker);
     }
 

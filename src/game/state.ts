@@ -11,8 +11,20 @@ export type Terrain =
   | 'mountain'
   | 'desert'
   | 'swamp';
-export type StructureType = 'forge' | 'town' | 'dungeon';
+export type GatheringStructureType =
+  | 'tree'
+  | 'copper-ore'
+  | 'iron-ore'
+  | 'coal-ore'
+  | 'pond'
+  | 'lake';
+export type StructureType =
+  | 'forge'
+  | 'town'
+  | 'dungeon'
+  | GatheringStructureType;
 export type ItemRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+export type SkillName = 'logging' | 'mining' | 'skinning' | 'fishing';
 
 export type EquipmentSlot =
   | 'weapon'
@@ -67,6 +79,8 @@ export interface Tile {
   coord: HexCoord;
   terrain: Terrain;
   structure?: StructureType;
+  structureHp?: number;
+  structureMaxHp?: number;
   items: Item[];
   enemyIds: string[];
 }
@@ -84,13 +98,24 @@ export interface Player {
   hunger: number;
   baseAttack: number;
   baseDefense: number;
+  skills: Record<SkillName, SkillProgress>;
   inventory: Item[];
   equipment: Equipment;
+}
+
+export interface SkillProgress {
+  level: number;
+  xp: number;
 }
 
 export interface CombatState {
   coord: HexCoord;
   enemyIds: string[];
+}
+
+export interface TownStockEntry {
+  item: Item;
+  price: number;
 }
 
 export interface GameState {
@@ -187,6 +212,7 @@ export function createGame(
       hunger: 100,
       baseAttack: 4,
       baseDefense: 1,
+      skills: makeStartingSkills(),
       inventory: [
         makeStarterWeapon(),
         makeStarterArmor('chest', 'Scout Jerkin', 1, 1),
@@ -279,6 +305,7 @@ export function getPlayerStats(player: Player) {
     level: player.level,
     xp: player.xp,
     nextLevelXp,
+    skills: player.skills,
   };
 }
 
@@ -342,6 +369,7 @@ export function attackCombatEnemy(
   if (enemy.hp <= 0) {
     gainXp(next, enemy.xp);
     maybeDropEnemyGold(next, enemy);
+    maybeSkinEnemy(next, enemy);
     addLog(next, 'combat', `You defeated the ${enemy.name}.`);
     delete next.enemies[enemy.id];
   }
@@ -494,8 +522,102 @@ export function takeTileItem(state: GameState, itemId: string): GameState {
 
   const [item] = tile.items.splice(itemIndex, 1);
   addItemToInventory(next.player.inventory, item);
-  next.tiles[key] = { ...tile, items: [...tile.items] };
+  next.tiles[key] = normalizeStructureState({
+    ...tile,
+    items: [...tile.items],
+  });
   addLog(next, 'loot', `You take ${describeItemStack(item)}.`);
+  return next;
+}
+
+export function interactWithStructure(state: GameState): GameState {
+  if (state.gameOver) return state;
+  if (state.combat) return message(state, 'Finish the current battle first.');
+
+  const tile = getCurrentTile(state);
+  if (!isGatheringStructure(tile.structure))
+    return message(state, 'There is nothing here to gather.');
+
+  const next = clone(state);
+  ensureTileState(next, next.player.coord);
+  const key = hexKey(next.player.coord);
+  const currentTile = next.tiles[key];
+  if (!isGatheringStructure(currentTile.structure))
+    return message(state, 'There is nothing here to gather.');
+
+  next.turn += 1;
+  next.player.hunger = Math.max(0, next.player.hunger - 1);
+
+  if (next.player.hunger === 0) {
+    next.player.hp = Math.max(0, next.player.hp - 1);
+    addLog(next, 'survival', 'You are starving.');
+    if (next.player.hp <= 0) {
+      respawnAtNearestTown(next, next.player.coord);
+      return next;
+    }
+  }
+
+  const definition = structureDefinition(currentTile.structure);
+  const skill = next.player.skills[definition.skill];
+  const damage = Math.min(
+    currentTile.structureHp ?? definition.maxHp,
+    1 + Math.floor(skill.level / 3),
+  );
+  const quantity = definition.baseYield + Math.floor((skill.level - 1) / 4);
+
+  currentTile.structureHp = Math.max(
+    0,
+    (currentTile.structureHp ?? definition.maxHp) - damage,
+  );
+  addItemToInventory(
+    next.player.inventory,
+    makeResourceStack(definition.reward, definition.rewardTier, quantity),
+  );
+  gainSkillXp(next, definition.skill, damage);
+
+  addLog(
+    next,
+    'loot',
+    `${definition.verb} and bring in ${describeItemStack(makeResourceStack(definition.reward, definition.rewardTier, quantity))}.`,
+  );
+
+  if (currentTile.structureHp <= 0) {
+    addLog(next, 'system', `${definition.depletedText}`);
+  }
+
+  next.tiles[key] = normalizeStructureState({
+    ...currentTile,
+    items: [...currentTile.items],
+  });
+  return next;
+}
+
+export function getTownStock(state: GameState): TownStockEntry[] {
+  const tile = getCurrentTile(state);
+  if (tile.structure !== 'town') return [];
+  return buildTownStock(state.seed, tile.coord);
+}
+
+export function buyTownItem(state: GameState, itemId: string): GameState {
+  const tile = getCurrentTile(state);
+  if (tile.structure !== 'town')
+    return message(state, 'You can buy only while standing in town.');
+
+  const stock = buildTownStock(state.seed, tile.coord);
+  const entry = stock.find((candidate) => candidate.item.id === itemId);
+  if (!entry) return message(state, 'That item is not available here.');
+
+  const gold = getGoldAmount(state.player.inventory);
+  if (gold < entry.price)
+    return message(
+      state,
+      `You need ${entry.price} gold to buy ${entry.item.name}.`,
+    );
+
+  const next = clone(state);
+  spendGold(next.player.inventory, entry.price);
+  addItemToInventory(next.player.inventory, { ...entry.item });
+  addLog(next, 'system', `You buy ${entry.item.name} for ${entry.price} gold.`);
   return next;
 }
 
@@ -508,7 +630,7 @@ export function takeAllTileItems(state: GameState): GameState {
     return message(state, 'There is nothing here to take.');
 
   tile.items.forEach((item) => addItemToInventory(next.player.inventory, item));
-  next.tiles[key] = { ...tile, items: [] };
+  next.tiles[key] = normalizeStructureState({ ...tile, items: [] });
   addLog(
     next,
     'loot',
@@ -583,6 +705,8 @@ function cacheSafeStart(state: GameState) {
       terrain: 'plains',
       items: [],
       structure: undefined,
+      structureHp: undefined,
+      structureMaxHp: undefined,
       enemyIds: [],
     };
   });
@@ -622,11 +746,20 @@ function buildTile(seed: string, coord: HexCoord): Tile {
 
   const terrain = pickTerrain(seed, coord);
   const structure = isPassable(terrain)
-    ? pickStructure(seed, coord)
+    ? pickStructure(seed, coord, terrain)
     : undefined;
+  const structureStats = structure ? makeStructureState(structure) : undefined;
   const enemyIds = buildEnemyIds(seed, coord, terrain, structure);
   const items = maybeLoot(seed, coord, terrain, enemyIds.length > 0, structure);
-  return { coord, terrain, structure, items, enemyIds };
+  return {
+    coord,
+    terrain,
+    structure,
+    structureHp: structureStats?.hp,
+    structureMaxHp: structureStats?.maxHp,
+    items,
+    enemyIds,
+  };
 }
 
 function buildEnemyIds(
@@ -637,7 +770,7 @@ function buildEnemyIds(
 ) {
   if (!isPassable(terrain)) return [];
   if (hexDistance(coord, { q: 0, r: 0 }) <= 1) return [];
-  if (structure === 'town' || structure === 'forge') return [];
+  if (structure && structure !== 'dungeon') return [];
   if (structure === 'dungeon') {
     const count = 1 + scaledIndex(`${seed}:dungeon-count`, coord, 3);
     return Array.from({ length: count }, (_, index) => enemyKey(coord, index));
@@ -648,11 +781,21 @@ function buildEnemyIds(
 function pickStructure(
   seed: string,
   coord: HexCoord,
+  terrain: Terrain,
 ): StructureType | undefined {
   const roll = noise(`${seed}:structure`, coord);
   if (roll > 0.992) return 'dungeon';
   if (roll > 0.984) return 'forge';
   if (roll > 0.976) return 'town';
+  const resourceRoll = noise(`${seed}:resource-structure`, coord);
+  if (terrain === 'forest' && resourceRoll > 0.55) return 'tree';
+  if (terrain === 'desert' && resourceRoll > 0.76) return 'coal-ore';
+  if (terrain === 'swamp' && resourceRoll > 0.72) return 'pond';
+  if (terrain === 'plains' && resourceRoll > 0.82) return 'lake';
+  if ((terrain === 'plains' || terrain === 'desert') && resourceRoll > 0.64)
+    return 'copper-ore';
+  if ((terrain === 'swamp' || terrain === 'forest') && resourceRoll > 0.7)
+    return 'iron-ore';
   return undefined;
 }
 
@@ -680,8 +823,9 @@ function maybeLoot(
 ) {
   const roll = noise(`${seed}:loot`, coord);
   const tier = terrainTier(coord, terrain) + (structure === 'dungeon' ? 2 : 0);
-  const lootChance =
-    structure === 'dungeon'
+  const lootChance = isGatheringStructure(structure)
+    ? 1
+    : structure === 'dungeon'
       ? 0.3
       : guarded
         ? Math.max(0.52, 0.7 - tier * 0.02)
@@ -753,7 +897,7 @@ function makeEnemy(
 
   return {
     id: enemyKey(coord, index),
-    name: roll > 0.66 ? 'Raider' : roll > 0.33 ? 'Wolf' : 'Marauder',
+    name: pickEnemyName(terrain, roll, elite),
     coord,
     tier: elite ? tier + 1 : tier,
     maxHp: hp,
@@ -1002,6 +1146,20 @@ function gainXp(state: GameState, amount: number) {
   }
 }
 
+function gainSkillXp(state: GameState, skill: SkillName, amount: number) {
+  const progress = state.player.skills[skill];
+  progress.xp += amount;
+  while (progress.xp >= skillLevelThreshold(progress.level)) {
+    progress.xp -= skillLevelThreshold(progress.level);
+    progress.level += 1;
+    addLog(
+      state,
+      'system',
+      `Your ${skill} skill reaches level ${progress.level}.`,
+    );
+  }
+}
+
 function respawnAtNearestTown(state: GameState, from: HexCoord) {
   const town = findNearestStructure(state.seed, from, 'town') ?? { q: 0, r: 0 };
   state.player.coord = town;
@@ -1025,7 +1183,10 @@ function syncCombatEnemies(state: GameState) {
   const enemyIds = tile.enemyIds.filter((enemyId) =>
     Boolean(state.enemies[enemyId]),
   );
-  state.tiles[hexKey(state.combat.coord)] = { ...tile, enemyIds };
+  state.tiles[hexKey(state.combat.coord)] = normalizeStructureState({
+    ...tile,
+    enemyIds,
+  });
   state.combat.enemyIds = enemyIds;
   if (enemyIds.length === 0) {
     state.combat = null;
@@ -1062,6 +1223,36 @@ function terrainTier(coord: HexCoord, terrain: Terrain) {
 
 function isPassable(terrain: Terrain) {
   return terrain !== 'water' && terrain !== 'mountain';
+}
+
+export function isGatheringStructure(
+  structure?: StructureType,
+): structure is GatheringStructureType {
+  return (
+    structure === 'tree' ||
+    structure === 'copper-ore' ||
+    structure === 'iron-ore' ||
+    structure === 'coal-ore' ||
+    structure === 'pond' ||
+    structure === 'lake'
+  );
+}
+
+export function structureActionLabel(structure?: StructureType) {
+  if (!structure) return null;
+  switch (structure) {
+    case 'tree':
+      return 'Chop tree';
+    case 'copper-ore':
+    case 'iron-ore':
+    case 'coal-ore':
+      return `Mine ${structureLabel(structure)}`;
+    case 'pond':
+    case 'lake':
+      return `Fish ${structure}`;
+    default:
+      return null;
+  }
 }
 
 function pickEquipmentRarity(
@@ -1181,6 +1372,12 @@ function clone(state: GameState): GameState {
     player: {
       ...state.player,
       coord: { ...state.player.coord },
+      skills: Object.fromEntries(
+        Object.entries(state.player.skills).map(([key, value]) => [
+          key,
+          { ...value },
+        ]),
+      ) as Record<SkillName, SkillProgress>,
       inventory: state.player.inventory.map((item) => ({ ...item })),
       equipment: Object.fromEntries(
         Object.entries(state.player.equipment).map(([key, item]) => [
@@ -1285,6 +1482,26 @@ function maybeDropEnemyGold(state: GameState, enemy: Enemy) {
   addLog(state, 'loot', `${enemy.name} dropped ${quantity} gold.`);
 }
 
+function maybeSkinEnemy(state: GameState, enemy: Enemy) {
+  if (!isAnimalEnemy(enemy.name)) return;
+
+  ensureTileState(state, enemy.coord);
+  const key = hexKey(enemy.coord);
+  const tile = state.tiles[key];
+  const quantity = Math.max(1, Math.ceil(enemy.tier / 2));
+  addItemToInventory(
+    tile.items,
+    makeResourceStack('Leather Scraps', enemy.tier, quantity),
+  );
+  state.tiles[key] = { ...tile, items: [...tile.items] };
+  gainSkillXp(state, 'skinning', quantity);
+  addLog(
+    state,
+    'loot',
+    `You skin the ${enemy.name} for ${quantity} Leather Scraps.`,
+  );
+}
+
 export function makeGoldStack(quantity: number): Item {
   return {
     id: 'resource-gold-1',
@@ -1299,6 +1516,26 @@ export function makeGoldStack(quantity: number): Item {
     healing: 0,
     hunger: 0,
   };
+}
+
+export function describeStructure(structure?: StructureType) {
+  if (!structure) return 'None';
+  switch (structure) {
+    case 'copper-ore':
+      return 'Copper Vein';
+    case 'iron-ore':
+      return 'Iron Vein';
+    case 'coal-ore':
+      return 'Coal Seam';
+    case 'tree':
+      return 'Tree';
+    case 'pond':
+      return 'Pond';
+    case 'lake':
+      return 'Lake';
+    default:
+      return structure.charAt(0).toUpperCase() + structure.slice(1);
+  }
 }
 
 export function canEquipItem(item: Item) {
@@ -1317,6 +1554,193 @@ export function getGoldAmount(inventory: Item[]) {
         : sum,
     0,
   );
+}
+
+function makeStartingSkills(): Record<SkillName, SkillProgress> {
+  return {
+    logging: { level: 1, xp: 0 },
+    mining: { level: 1, xp: 0 },
+    skinning: { level: 1, xp: 0 },
+    fishing: { level: 1, xp: 0 },
+  };
+}
+
+function makeStructureState(structure: StructureType) {
+  if (!isGatheringStructure(structure)) return undefined;
+  const maxHp = structureDefinition(structure).maxHp;
+  return { hp: maxHp, maxHp };
+}
+
+function buildTownStock(seed: string, coord: HexCoord): TownStockEntry[] {
+  const ration = makeConsumable(
+    `town-ration-${hexKey(coord)}`,
+    'Trail Ration',
+    1,
+    8,
+    12,
+    2,
+  );
+  const jerky = makeConsumable(
+    `town-jerky-${hexKey(coord)}`,
+    'Jerky Pack',
+    2,
+    6,
+    20,
+  );
+  const hood = applyRarityToItem({
+    ...makeStarterArmor('head', 'Scout Hood', 1, 1),
+    id: `town-hood-${hexKey(coord)}`,
+    rarity: noise(`${seed}:town-stock`, coord) > 0.6 ? 'uncommon' : 'common',
+  });
+  const knife = {
+    ...makeStarterWeapon(),
+    id: `town-knife-${hexKey(coord)}`,
+    name: 'Town Knife',
+  };
+
+  return [
+    { item: ration, price: 6 },
+    { item: jerky, price: 10 },
+    { item: hood, price: 18 + RARITY_ORDER.indexOf(hood.rarity) * 6 },
+    { item: knife, price: 16 },
+  ];
+}
+
+function normalizeStructureState(tile: Tile): Tile {
+  if (tile.structure === 'dungeon') {
+    if (tile.enemyIds.length === 0 && tile.items.length === 0) {
+      return {
+        ...tile,
+        structure: undefined,
+        structureHp: undefined,
+        structureMaxHp: undefined,
+      };
+    }
+    return tile;
+  }
+
+  if (isGatheringStructure(tile.structure) && (tile.structureHp ?? 0) <= 0) {
+    return {
+      ...tile,
+      structure: undefined,
+      structureHp: undefined,
+      structureMaxHp: undefined,
+    };
+  }
+
+  return tile;
+}
+
+function structureDefinition(structure: GatheringStructureType) {
+  switch (structure) {
+    case 'tree':
+      return {
+        maxHp: 5,
+        skill: 'logging' as const,
+        reward: 'Logs',
+        rewardTier: 1,
+        baseYield: 2,
+        verb: 'You chop the tree',
+        depletedText: 'The tree falls, leaving only a stump behind.',
+      };
+    case 'copper-ore':
+      return {
+        maxHp: 6,
+        skill: 'mining' as const,
+        reward: 'Copper Ore',
+        rewardTier: 1,
+        baseYield: 1,
+        verb: 'You mine the copper vein',
+        depletedText: 'The copper vein is spent.',
+      };
+    case 'iron-ore':
+      return {
+        maxHp: 8,
+        skill: 'mining' as const,
+        reward: 'Iron Ore',
+        rewardTier: 2,
+        baseYield: 1,
+        verb: 'You mine the iron vein',
+        depletedText: 'The iron vein is spent.',
+      };
+    case 'coal-ore':
+      return {
+        maxHp: 7,
+        skill: 'mining' as const,
+        reward: 'Coal',
+        rewardTier: 2,
+        baseYield: 1,
+        verb: 'You mine the coal seam',
+        depletedText: 'The coal seam is spent.',
+      };
+    case 'pond':
+      return {
+        maxHp: 4,
+        skill: 'fishing' as const,
+        reward: 'Raw Fish',
+        rewardTier: 1,
+        baseYield: 1,
+        verb: 'You fish the pond',
+        depletedText: 'The pond goes quiet for now.',
+      };
+    case 'lake':
+      return {
+        maxHp: 6,
+        skill: 'fishing' as const,
+        reward: 'Raw Fish',
+        rewardTier: 2,
+        baseYield: 2,
+        verb: 'You fish the lake',
+        depletedText: 'The lake settles after your catch.',
+      };
+  }
+}
+
+function structureLabel(structure: GatheringStructureType) {
+  switch (structure) {
+    case 'copper-ore':
+      return 'copper vein';
+    case 'iron-ore':
+      return 'iron vein';
+    case 'coal-ore':
+      return 'coal seam';
+    default:
+      return structure;
+  }
+}
+
+function skillLevelThreshold(level: number) {
+  return 5 + level * 3;
+}
+
+function pickEnemyName(terrain: Terrain, roll: number, elite: boolean) {
+  if (elite) return roll > 0.5 ? 'Marauder' : 'Raider';
+  if (terrain === 'forest')
+    return roll > 0.66 ? 'Wolf' : roll > 0.33 ? 'Boar' : 'Raider';
+  if (terrain === 'plains')
+    return roll > 0.66 ? 'Stag' : roll > 0.33 ? 'Boar' : 'Marauder';
+  if (terrain === 'swamp') return roll > 0.5 ? 'Boar' : 'Wolf';
+  return roll > 0.5 ? 'Raider' : 'Marauder';
+}
+
+function isAnimalEnemy(name: string) {
+  return name === 'Wolf' || name === 'Boar' || name === 'Stag';
+}
+
+function spendGold(inventory: Item[], amount: number) {
+  let remaining = amount;
+  for (
+    let index = inventory.length - 1;
+    index >= 0 && remaining > 0;
+    index -= 1
+  ) {
+    const item = inventory[index];
+    if (item.kind !== 'resource' || item.name !== 'Gold') continue;
+    const spent = Math.min(item.quantity, remaining);
+    item.quantity -= spent;
+    remaining -= spent;
+    if (item.quantity <= 0) inventory.splice(index, 1);
+  }
 }
 
 function isSameStackable(left: Item, right: Item) {

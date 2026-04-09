@@ -157,8 +157,10 @@ describe('App', () => {
     expect(renderScene).toHaveBeenCalled();
     expect(saveEncryptedState).toHaveBeenCalled();
     expect(host.textContent).toContain('Hero Info');
+    expect(host.textContent).toContain('Hex Info');
     expect(host.textContent).not.toContain('Hunger penalty');
     expect(host.textContent).toContain('Loot');
+    expect(host.textContent).toContain('Prospect');
 
     const heroToggle = Array.from(host.querySelectorAll('button')).find(
       (button) => button.textContent === 'expand',

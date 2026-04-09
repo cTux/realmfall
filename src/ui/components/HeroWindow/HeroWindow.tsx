@@ -46,6 +46,19 @@ export const HeroWindow = memo(function HeroWindow({
             ? `-${stats.hungerPenalty} Atk / -${stats.hungerPenalty} Def`
             : 'None'}
         </div>
+        <div className={styles.skillBlock}>
+          <div className={styles.skillTitle}>Skills</div>
+          <div className={styles.skillGrid}>
+            {Object.entries(stats.skills).map(([name, skill]) => (
+              <div key={name} className={styles.skillRow}>
+                <span>{name}</span>
+                <span>
+                  Lv {skill.level} · {skill.xp} XP
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </DraggableWindow>
   );

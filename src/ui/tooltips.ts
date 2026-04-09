@@ -1,4 +1,11 @@
-import type { Enemy, Item, ItemRarity, StructureType } from '../game/state';
+import {
+  isGatheringStructure,
+  type Enemy,
+  type Item,
+  type ItemRarity,
+  type StructureType,
+  type Tile,
+} from '../game/state';
 
 export interface TooltipLine {
   text?: string;
@@ -109,8 +116,76 @@ export function enemyTooltip(
   };
 }
 
+export function structureTooltip(
+  tile: Tile,
+): { title: string; lines: TooltipLine[] } | null {
+  if (!tile.structure) return null;
+
+  if (isGatheringStructure(tile.structure)) {
+    const skill =
+      tile.structure === 'tree'
+        ? 'Logging'
+        : tile.structure === 'pond' || tile.structure === 'lake'
+          ? 'Fishing'
+          : 'Mining';
+    const reward =
+      tile.structure === 'tree'
+        ? 'Logs'
+        : tile.structure === 'copper-ore'
+          ? 'Copper Ore'
+          : tile.structure === 'iron-ore'
+            ? 'Iron Ore'
+            : tile.structure === 'coal-ore'
+              ? 'Coal'
+              : 'Raw Fish';
+
+    return {
+      title: structureTitle(tile.structure),
+      lines: [
+        { kind: 'text', text: 'GATHERING NODE' },
+        {
+          kind: 'bar',
+          label: 'HP',
+          current: tile.structureHp ?? tile.structureMaxHp ?? 0,
+          max: tile.structureMaxHp ?? tile.structureHp ?? 0,
+        },
+        { kind: 'stat', label: 'Skill', value: skill },
+        { kind: 'stat', label: 'Yield', value: reward },
+      ],
+    };
+  }
+
+  return {
+    title: structureTitle(tile.structure),
+    lines: [
+      {
+        kind: 'text',
+        text:
+          tile.structure === 'town'
+            ? 'SAFE HAVEN'
+            : tile.structure === 'forge'
+              ? 'WORKSITE'
+              : 'DANGER ZONE',
+      },
+    ],
+  };
+}
+
 function enemyRarity(enemies: Enemy[]): ItemRarity {
   if (enemies.some((enemy) => enemy.elite)) return 'rare';
   if (enemies.length >= 3) return 'uncommon';
   return 'common';
+}
+
+function structureTitle(structure: StructureType) {
+  switch (structure) {
+    case 'copper-ore':
+      return 'Copper Vein';
+    case 'iron-ore':
+      return 'Iron Vein';
+    case 'coal-ore':
+      return 'Coal Seam';
+    default:
+      return structure.charAt(0).toUpperCase() + structure.slice(1);
+  }
 }

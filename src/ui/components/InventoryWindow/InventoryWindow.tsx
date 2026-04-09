@@ -12,11 +12,7 @@ export const InventoryWindow = memo(function InventoryWindow({
   onCollapsedChange,
   inventory,
   equipment,
-  canProspect,
-  canSell,
   onSort,
-  onProspect,
-  onSellAll,
   onEquip,
   onContextItem,
   onHoverItem,
@@ -34,12 +30,6 @@ export const InventoryWindow = memo(function InventoryWindow({
       <div className={styles.toolbar}>
         <div className={styles.actions}>
           <button onClick={onSort}>Sort</button>
-          <button onClick={onProspect} disabled={!canProspect}>
-            Prospect
-          </button>
-          <button onClick={onSellAll} disabled={!canSell}>
-            Sell all equippable
-          </button>
         </div>
       </div>
       <div className={styles.grid}>

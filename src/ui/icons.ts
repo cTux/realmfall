@@ -14,6 +14,9 @@ import spikedArmorIcon from '../assets/icons/spiked-armor.svg';
 import villageIcon from '../assets/icons/village.svg';
 import dungeonGateIcon from '../assets/icons/dungeon-gate.svg';
 import anvilIcon from '../assets/icons/anvil.svg';
+import stonePileIcon from '../assets/icons/stone-pile.svg';
+import axeInStumpIcon from '../assets/icons/axe-in-stump.svg';
+import spillIcon from '../assets/icons/spill.svg';
 import type { StructureType } from '../game/state';
 
 export const Icons = {
@@ -32,12 +35,17 @@ export const Icons = {
   Village: villageIcon,
   DungeonGate: dungeonGateIcon,
   Anvil: anvilIcon,
+  StonePile: stonePileIcon,
+  AxeInStump: axeInStumpIcon,
+  Spill: spillIcon,
 } as const;
 
 export const EnemyType = {
   Raider: 'Raider',
   Marauder: 'Marauder',
   Wolf: 'Wolf',
+  Boar: 'Boar',
+  Stag: 'Stag',
 } as const;
 
 export const ResourceType = {
@@ -50,6 +58,7 @@ export const ResourceType = {
   IronOre: 'Iron Ore',
   IronChunks: 'Iron Chunks',
   Coal: 'Coal',
+  RawFish: 'Raw Fish',
   Cloth: 'Cloth',
   LeatherScraps: 'Leather Scraps',
   ArcaneDust: 'Arcane Dust',
@@ -64,12 +73,16 @@ export const EnemyIcon: Record<string, string> = {
   [EnemyType.Raider]: Icons.Hood,
   [EnemyType.Marauder]: Icons.HornedHelm,
   [EnemyType.Wolf]: Icons.Enemy,
+  [EnemyType.Boar]: Icons.Enemy,
+  [EnemyType.Stag]: Icons.Enemy,
 };
 
 export const EnemyTint: Record<string, number> = {
   [EnemyType.Raider]: 0xef4444,
   [EnemyType.Marauder]: 0xa855f7,
   [EnemyType.Wolf]: 0x60a5fa,
+  [EnemyType.Boar]: 0xf59e0b,
+  [EnemyType.Stag]: 0x22c55e,
 };
 
 export const ItemIcon: Record<EquipmentSlot, string> = {
@@ -91,12 +104,24 @@ export const StructureIcon: Record<StructureType, string> = {
   town: Icons.Village,
   dungeon: Icons.DungeonGate,
   forge: Icons.Anvil,
+  tree: Icons.AxeInStump,
+  'copper-ore': Icons.StonePile,
+  'iron-ore': Icons.StonePile,
+  'coal-ore': Icons.StonePile,
+  pond: Icons.Spill,
+  lake: Icons.Spill,
 };
 
 export const StructureTint: Record<StructureType, number> = {
   town: 0xfbbf24,
   forge: 0xf97316,
   dungeon: 0xa855f7,
+  tree: 0x22c55e,
+  'copper-ore': 0xf59e0b,
+  'iron-ore': 0x94a3b8,
+  'coal-ore': 0x475569,
+  pond: 0x38bdf8,
+  lake: 0x2563eb,
 };
 
 export const ResourceIcon: Record<string, string> = {
@@ -109,6 +134,7 @@ export const ResourceIcon: Record<string, string> = {
   [ResourceType.IronOre]: Icons.Armor,
   [ResourceType.IronChunks]: Icons.Armor,
   [ResourceType.Coal]: Icons.HornedHelm,
+  [ResourceType.RawFish]: Icons.Consumable,
   [ResourceType.Cloth]: Icons.Hood,
   [ResourceType.LeatherScraps]: Icons.Hood,
   [ResourceType.ArcaneDust]: Icons.Orb,

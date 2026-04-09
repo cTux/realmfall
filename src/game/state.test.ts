@@ -1,5 +1,6 @@
 import {
   attackCombatEnemy,
+  buyTownItem,
   createGame,
   dropInventoryItem,
   EQUIPMENT_SLOTS,
@@ -9,7 +10,9 @@ import {
   getGoldAmount,
   getPlayerStats,
   getTileAt,
+  getTownStock,
   getVisibleTiles,
+  interactWithStructure,
   moveToTile,
   prospectInventory,
   sellAllItems,
@@ -95,8 +98,140 @@ describe('game state', () => {
     expect(resolved.combat).toBeNull();
     expect(getEnemiesAt(resolved, target)).toHaveLength(0);
     expect(
-      getTileAt(resolved, target).items.every((item) => item.name === 'Gold'),
+      getTileAt(resolved, target).items.every((item) =>
+        ['Gold', 'Leather Scraps'].includes(item.name),
+      ),
     ).toBe(true);
+  });
+
+  it('gathers from structures, grants resources, and levels the matching skill', () => {
+    const game = createGame(3, 'gather-seed');
+    game.tiles['0,0'] = {
+      ...game.tiles['0,0'],
+      structure: 'tree',
+      structureHp: 2,
+      structureMaxHp: 2,
+      items: [],
+      enemyIds: [],
+    };
+
+    const chopped = interactWithStructure(game);
+
+    expect(chopped.player.inventory.some((item) => item.name === 'Logs')).toBe(
+      true,
+    );
+    expect(chopped.player.skills.logging.xp).toBeGreaterThan(0);
+
+    const cleared = interactWithStructure(chopped);
+    expect(getTileAt(cleared, { q: 0, r: 0 }).structure).toBeUndefined();
+  });
+
+  it('automatically skins animal enemies on kill', () => {
+    const game = createGame(3, 'skinning-seed');
+    const target = { q: 2, r: 0 };
+    game.tiles['2,0'] = {
+      coord: target,
+      terrain: 'forest',
+      items: [],
+      structure: undefined,
+      enemyIds: ['enemy-2,0-0'],
+    };
+    game.enemies['enemy-2,0-0'] = {
+      id: 'enemy-2,0-0',
+      name: 'Wolf',
+      coord: target,
+      tier: 2,
+      hp: 1,
+      maxHp: 1,
+      attack: 0,
+      defense: 0,
+      xp: 5,
+      elite: false,
+    };
+    game.player.coord = { q: 1, r: 0 };
+
+    const engaged = moveToTile(game, target);
+    const resolved = attackCombatEnemy(engaged, 'enemy-2,0-0');
+
+    expect(
+      getTileAt(resolved, target).items.some(
+        (item) => item.name === 'Leather Scraps',
+      ),
+    ).toBe(true);
+    expect(resolved.player.skills.skinning.xp).toBeGreaterThan(0);
+  });
+
+  it('turns an emptied dungeon back into a regular hex', () => {
+    const game = createGame(3, 'dungeon-clear-seed');
+    const target = { q: 2, r: 0 };
+    game.tiles['2,0'] = {
+      coord: target,
+      terrain: 'plains',
+      structure: 'dungeon',
+      items: [
+        {
+          id: 'resource-gold-1',
+          kind: 'resource',
+          name: 'Gold',
+          quantity: 3,
+          tier: 1,
+          rarity: 'common',
+          power: 0,
+          defense: 0,
+          maxHp: 0,
+          healing: 0,
+          hunger: 0,
+        },
+      ],
+      enemyIds: ['enemy-2,0-0'],
+    };
+    game.enemies['enemy-2,0-0'] = {
+      id: 'enemy-2,0-0',
+      name: 'Raider',
+      coord: target,
+      tier: 1,
+      hp: 1,
+      maxHp: 1,
+      attack: 0,
+      defense: 0,
+      xp: 5,
+      elite: true,
+    };
+    game.player.coord = { q: 1, r: 0 };
+
+    const engaged = moveToTile(game, target);
+    const clearedCombat = attackCombatEnemy(engaged, 'enemy-2,0-0');
+    expect(getTileAt(clearedCombat, target).structure).toBe('dungeon');
+
+    const looted = takeAllTileItems(clearedCombat);
+    expect(getTileAt(looted, target).structure).toBeUndefined();
+  });
+
+  it('lets the player buy items from town stock', () => {
+    const game = createGame(3, 'town-stock-seed');
+    game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'town' };
+    game.player.inventory.push({
+      id: 'resource-gold-1',
+      kind: 'resource',
+      name: 'Gold',
+      quantity: 40,
+      tier: 1,
+      rarity: 'common',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+    });
+
+    const stock = getTownStock(game);
+    const bought = buyTownItem(game, stock[0].item.id);
+
+    expect(stock.length).toBeGreaterThan(0);
+    expect(
+      bought.player.inventory.some((item) => item.name === stock[0].item.name),
+    ).toBe(true);
+    expect(getGoldAmount(bought.player.inventory)).toBeLessThan(40);
   });
 
   it('leaves loot on the tile until the player takes it', () => {

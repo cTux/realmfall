@@ -64,6 +64,27 @@ export const LegendWindow = memo(function LegendWindow({
           />
           Dungeon · elite enemies
         </div>
+        <div className={styles.row}>
+          <span
+            className={styles.marker}
+            style={iconMaskStyle(structureIconFor('tree'), '#22c55e')}
+          />
+          Tree · logging, logs
+        </div>
+        <div className={styles.row}>
+          <span
+            className={styles.marker}
+            style={iconMaskStyle(structureIconFor('iron-ore'), '#94a3b8')}
+          />
+          Ore vein · mining, ore
+        </div>
+        <div className={styles.row}>
+          <span
+            className={styles.marker}
+            style={iconMaskStyle(structureIconFor('lake'), '#2563eb')}
+          />
+          Pond or lake · fishing, raw fish
+        </div>
       </div>
     </DraggableWindow>
   );

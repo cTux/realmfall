@@ -17,3 +17,31 @@
   color: #fb923c;
   font-weight: 700;
 }
+
+.skillBlock {
+  margin-top: 0.35rem;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.skillTitle {
+  color: #e2e8f0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.skillGrid {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.skillRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: #94a3b8;
+  font-size: 0.86rem;
+  text-transform: capitalize;
+}

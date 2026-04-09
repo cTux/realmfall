@@ -1,4 +1,5 @@
 import type { WindowPosition } from '../../../app/constants';
+import type { SkillName } from '../../../game/state';
 
 export interface HeroWindowStats {
   hp: number;
@@ -11,6 +12,7 @@ export interface HeroWindowStats {
   attack: number;
   defense: number;
   level: number;
+  skills: Record<SkillName, { level: number; xp: number }>;
 }
 
 export interface HeroWindowProps {

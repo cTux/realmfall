@@ -11,6 +11,7 @@ export interface WindowPosition {
 export interface WindowPositions {
   hero: WindowPosition;
   legend: WindowPosition;
+  hexInfo: WindowPosition;
   equipment: WindowPosition;
   inventory: WindowPosition;
   loot: WindowPosition;
@@ -21,6 +22,7 @@ export interface WindowPositions {
 export interface WindowCollapsedState {
   hero: boolean;
   legend: boolean;
+  hexInfo: boolean;
   equipment: boolean;
   inventory: boolean;
   loot: boolean;
@@ -31,6 +33,7 @@ export interface WindowCollapsedState {
 export const DEFAULT_WINDOWS: WindowPositions = {
   hero: { x: 20, y: 20 },
   legend: { x: 20, y: 240 },
+  hexInfo: { x: 280, y: 20 },
   equipment: { x: 1000, y: 20 },
   inventory: { x: 820, y: 290 },
   loot: { x: 820, y: 20 },
@@ -41,6 +44,7 @@ export const DEFAULT_WINDOWS: WindowPositions = {
 export const DEFAULT_WINDOW_COLLAPSED: WindowCollapsedState = {
   hero: false,
   legend: false,
+  hexInfo: false,
   equipment: false,
   inventory: false,
   loot: false,

@@ -9,11 +9,7 @@ export interface InventoryWindowProps {
   onCollapsedChange?: (collapsed: boolean) => void;
   inventory: Item[];
   equipment: Equipment;
-  canProspect: boolean;
-  canSell: boolean;
   onSort: () => void;
-  onProspect: () => void;
-  onSellAll: () => void;
   onEquip: (itemId: string) => void;
   onContextItem: (event: ReactMouseEvent<HTMLElement>, item: Item) => void;
   onHoverItem: (

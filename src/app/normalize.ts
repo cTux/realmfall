@@ -1,4 +1,10 @@
-import { makeGoldStack, type GameState, type Item } from '../game/state';
+import {
+  isGatheringStructure,
+  makeGoldStack,
+  type GameState,
+  type Item,
+  type SkillName,
+} from '../game/state';
 
 export function normalizeLoadedGame(game: GameState): GameState {
   const { gold: legacyGoldValue, ...player } =
@@ -28,15 +34,7 @@ export function normalizeLoadedGame(game: GameState): GameState {
   const tiles = Object.fromEntries(
     Object.entries(game.tiles ?? {}).map(([key, tile]) => [
       key,
-      {
-        ...tile,
-        items: (tile.items ?? []).map(normalizeItem),
-        enemyIds:
-          tile.enemyIds ??
-          (((tile as unknown as { enemyId?: string }).enemyId
-            ? [(tile as unknown as { enemyId?: string }).enemyId as string]
-            : []) as string[]),
-      },
+      normalizeTile(tile),
     ]),
   );
 
@@ -55,6 +53,15 @@ export function normalizeLoadedGame(game: GameState): GameState {
       ...player,
       mana: game.player.mana ?? 12,
       baseMaxMana: game.player.baseMaxMana ?? 12,
+      skills: normalizeSkills(
+        (
+          game.player as GameState['player'] & {
+            skills?: Partial<
+              Record<SkillName, { level?: number; xp?: number }>
+            >;
+          }
+        ).skills,
+      ),
       inventory,
       equipment,
     },
@@ -67,6 +74,68 @@ function normalizeItem(item: Item): Item {
     quantity: item.quantity ?? 1,
     rarity: item.rarity ?? 'common',
   };
+}
+
+function normalizeTile(tile: GameState['tiles'][string]) {
+  const structureHp =
+    isGatheringStructure(tile.structure) && tile.structureHp == null
+      ? defaultStructureHp(tile.structure)
+      : tile.structureHp;
+  const structureMaxHp =
+    isGatheringStructure(tile.structure) && tile.structureMaxHp == null
+      ? defaultStructureHp(tile.structure)
+      : tile.structureMaxHp;
+
+  return {
+    ...tile,
+    structureHp,
+    structureMaxHp,
+    items: (tile.items ?? []).map(normalizeItem),
+    enemyIds:
+      tile.enemyIds ??
+      (((tile as unknown as { enemyId?: string }).enemyId
+        ? [(tile as unknown as { enemyId?: string }).enemyId as string]
+        : []) as string[]),
+  };
+}
+
+function normalizeSkills(
+  skills?: Partial<Record<SkillName, { level?: number; xp?: number }>>,
+) {
+  return {
+    logging: normalizeSkill(skills?.logging),
+    mining: normalizeSkill(skills?.mining),
+    skinning: normalizeSkill(skills?.skinning),
+    fishing: normalizeSkill(skills?.fishing),
+  };
+}
+
+function normalizeSkill(skill?: { level?: number; xp?: number }) {
+  return {
+    level: Math.max(1, Number(skill?.level ?? 1) || 1),
+    xp: Math.max(0, Number(skill?.xp ?? 0) || 0),
+  };
+}
+
+function defaultStructureHp(
+  structure: Extract<GameState['tiles'][string]['structure'], string>,
+) {
+  switch (structure) {
+    case 'tree':
+      return 5;
+    case 'copper-ore':
+      return 6;
+    case 'iron-ore':
+      return 8;
+    case 'coal-ore':
+      return 7;
+    case 'pond':
+      return 4;
+    case 'lake':
+      return 6;
+    default:
+      return undefined;
+  }
 }
 
 function consolidateInventory(inventory: Item[]) {

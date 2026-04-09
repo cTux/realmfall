@@ -8,7 +8,12 @@ import {
   DEFAULT_WINDOW_COLLAPSED,
   DEFAULT_WINDOWS,
 } from '../app/constants';
-import { comparisonLines, enemyTooltip, itemTooltipLines } from './tooltips';
+import {
+  comparisonLines,
+  enemyTooltip,
+  itemTooltipLines,
+  structureTooltip,
+} from './tooltips';
 import {
   enemyIconFor,
   enemyTint,
@@ -22,6 +27,7 @@ import { DraggableWindow } from './components/DraggableWindow';
 import { EquipmentWindow } from './components/EquipmentWindow';
 import { GameTooltip } from './components/GameTooltip';
 import { HeroWindow } from './components/HeroWindow';
+import { HexInfoWindow } from './components/HexInfoWindow';
 import { InventoryWindow } from './components/InventoryWindow';
 import { ItemContextMenu } from './components/ItemContextMenu';
 import { LegendWindow } from './components/LegendWindow';
@@ -47,6 +53,7 @@ describe('ui helpers and components', () => {
     expect(enemyIconFor('Unknown Foe')).toBe(enemyIconFor('Wolf'));
     expect(enemyTint('Unknown Foe')).toBe(0x60a5fa);
     expect(structureIconFor('town')).toBeTruthy();
+    expect(structureIconFor('tree')).toBeTruthy();
     expect(structureTint('forge')).toBe(0xf97316);
   });
 
@@ -172,6 +179,20 @@ describe('ui helpers and components', () => {
     );
     expect(groupEnemy?.title).toBe('Dungeon');
     expect(groupEnemy?.lines.some((line) => line.label === 'Types')).toBe(true);
+
+    const treeTooltip = structureTooltip({
+      coord: { q: 0, r: 0 },
+      terrain: 'forest',
+      structure: 'tree',
+      structureHp: 3,
+      structureMaxHp: 5,
+      items: [],
+      enemyIds: [],
+    });
+    expect(treeTooltip?.title).toBe('Tree');
+    expect(treeTooltip?.lines.some((line) => line.label === 'Skill')).toBe(
+      true,
+    );
   });
 
   it('renders all major windows to static markup', () => {
@@ -215,6 +236,32 @@ describe('ui helpers and components', () => {
           hunger={45}
         />
         <LegendWindow position={DEFAULT_WINDOWS.legend} onMove={() => {}} />
+        <HexInfoWindow
+          position={DEFAULT_WINDOWS.hexInfo}
+          onMove={() => {}}
+          terrain="Forest"
+          structure="Tree"
+          enemyCount={0}
+          interactLabel="Chop tree"
+          canInteract
+          canProspect={false}
+          canSell={false}
+          onInteract={() => {}}
+          onProspect={() => {}}
+          onSellAll={() => {}}
+          structureHp={3}
+          structureMaxHp={5}
+          townStock={[
+            {
+              item: equippedItem,
+              price: 12,
+            },
+          ]}
+          gold={20}
+          onBuyItem={() => {}}
+          onHoverItem={() => {}}
+          onLeaveItem={() => {}}
+        />
         <EquipmentWindow
           position={DEFAULT_WINDOWS.equipment}
           onMove={() => {}}
@@ -229,11 +276,7 @@ describe('ui helpers and components', () => {
           onMove={() => {}}
           inventory={[inventoryItem, equippedItem]}
           equipment={{ ...game.player.equipment, head: equippedItem }}
-          canProspect
-          canSell={false}
           onSort={() => {}}
-          onProspect={() => {}}
-          onSellAll={() => {}}
           onEquip={() => {}}
           onContextItem={() => {}}
           onHoverItem={() => {}}
@@ -244,11 +287,7 @@ describe('ui helpers and components', () => {
           onMove={() => {}}
           inventory={[]}
           equipment={game.player.equipment}
-          canProspect={false}
-          canSell={false}
           onSort={() => {}}
-          onProspect={() => {}}
-          onSellAll={() => {}}
           onEquip={() => {}}
           onContextItem={() => {}}
           onHoverItem={() => {}}
@@ -327,6 +366,10 @@ describe('ui helpers and components', () => {
 
     expect(markup).toContain('Hero Info');
     expect(markup).toContain('Hunger penalty');
+    expect(markup).toContain('Skills');
+    expect(markup).toContain('Hex Info');
+    expect(markup).toContain('Structure HP');
+    expect(markup).toContain('Town Stock');
     expect(markup).toContain('Horned Helm');
     expect(markup).toContain('Empty');
     expect(markup).toContain('Take all');

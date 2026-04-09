@@ -9,22 +9,28 @@ import {
 import { Application } from 'pixi.js';
 import {
   attackCombatEnemy,
+  buyTownItem,
   canEquipItem,
   canUseItem,
   createGame,
+  describeStructure,
   dropEquippedItem,
   dropInventoryItem,
   equipItem,
   getCurrentTile,
   getEnemiesAt,
+  getGoldAmount,
   getPlayerStats,
   getTileAt,
+  getTownStock,
   getVisibleTiles,
   hexAtPoint,
   hexDistance,
+  interactWithStructure,
   moveToTile,
   prospectInventory,
   sellAllItems,
+  structureActionLabel,
   takeAllTileItems,
   takeTileItem,
   sortInventory,
@@ -48,11 +54,16 @@ import {
   loadEncryptedState,
   saveEncryptedState,
 } from '../../persistence/storage';
-import { enemyTooltip, itemTooltipLines } from '../../ui/tooltips';
+import {
+  enemyTooltip,
+  itemTooltipLines,
+  structureTooltip,
+} from '../../ui/tooltips';
 import { rarityColor } from '../../ui/rarity';
 import { renderScene } from '../../ui/world/renderScene';
 import { HeroWindow } from '../../ui/components/HeroWindow';
 import { LegendWindow } from '../../ui/components/LegendWindow';
+import { HexInfoWindow } from '../../ui/components/HexInfoWindow';
 import { EquipmentWindow } from '../../ui/components/EquipmentWindow';
 import { InventoryWindow } from '../../ui/components/InventoryWindow';
 import { LogWindow } from '../../ui/components/LogWindow';
@@ -93,6 +104,12 @@ export function App() {
   const currentTile = useMemo(() => getCurrentTile(game), [game]);
   const canProspect = currentTile.structure === 'forge';
   const canSell = currentTile.structure === 'town';
+  const interactLabel = structureActionLabel(currentTile.structure);
+  const townStock = useMemo(() => getTownStock(game), [game]);
+  const gold = useMemo(
+    () => getGoldAmount(game.player.inventory),
+    [game.player.inventory],
+  );
   const combatEnemies = useMemo(
     () => (game.combat ? getEnemiesAt(game, game.combat.coord) : []),
     [game],
@@ -249,6 +266,7 @@ export function App() {
       const enemyInfo = withinVisibleMap
         ? enemyTooltip(enemies, tile.structure)
         : null;
+      const structureInfo = withinVisibleMap ? structureTooltip(tile) : null;
 
       canvas.style.cursor = clickable ? 'pointer' : 'default';
       setHoveredMove((currentHovered) => {
@@ -266,6 +284,14 @@ export function App() {
           x: event.clientX + 16,
           y: event.clientY + 16,
           borderColor: tile.structure === 'dungeon' ? '#a855f7' : '#ef4444',
+        });
+      } else if (structureInfo) {
+        setTooltip({
+          title: structureInfo.title,
+          lines: structureInfo.lines,
+          x: event.clientX + 16,
+          y: event.clientY + 16,
+          borderColor: '#38bdf8',
         });
       } else {
         setTooltip(null);
@@ -357,6 +383,11 @@ export function App() {
     [moveWindow],
   );
 
+  const handleHexInfoMove = useCallback(
+    (position: WindowPositions['hexInfo']) => moveWindow('hexInfo', position),
+    [moveWindow],
+  );
+
   const handleEquipmentMove = useCallback(
     (position: WindowPositions['equipment']) =>
       moveWindow('equipment', position),
@@ -396,6 +427,14 @@ export function App() {
 
   const handleSellAll = useCallback(() => {
     setGame((current) => sellAllItems(current));
+  }, []);
+
+  const handleInteract = useCallback(() => {
+    setGame((current) => interactWithStructure(current));
+  }, []);
+
+  const handleBuyTownItem = useCallback((itemId: string) => {
+    setGame((current) => buyTownItem(current, itemId));
   }, []);
 
   const handleEquip = useCallback((itemId: string) => {
@@ -488,6 +527,36 @@ export function App() {
           setCollapsedWindow('legend', collapsed)
         }
       />
+      <HexInfoWindow
+        position={windows.hexInfo}
+        onMove={handleHexInfoMove}
+        collapsed={windowCollapsed.hexInfo}
+        onCollapsedChange={(collapsed) =>
+          setCollapsedWindow('hexInfo', collapsed)
+        }
+        terrain={
+          currentTile.terrain.charAt(0).toUpperCase() +
+          currentTile.terrain.slice(1)
+        }
+        structure={describeStructure(currentTile.structure)}
+        enemyCount={
+          game.combat ? combatEnemies.length : currentTile.enemyIds.length
+        }
+        interactLabel={interactLabel}
+        canInteract={Boolean(interactLabel)}
+        canProspect={canProspect}
+        canSell={canSell}
+        onInteract={handleInteract}
+        onProspect={handleProspect}
+        onSellAll={handleSellAll}
+        structureHp={currentTile.structureHp}
+        structureMaxHp={currentTile.structureMaxHp}
+        townStock={townStock}
+        gold={gold}
+        onBuyItem={handleBuyTownItem}
+        onHoverItem={showItemTooltip}
+        onLeaveItem={closeTooltip}
+      />
       <EquipmentWindow
         position={windows.equipment}
         onMove={handleEquipmentMove}
@@ -510,11 +579,7 @@ export function App() {
         }
         inventory={game.player.inventory}
         equipment={game.player.equipment}
-        canProspect={canProspect}
-        canSell={canSell}
         onSort={handleSort}
-        onProspect={handleProspect}
-        onSellAll={handleSellAll}
         onEquip={handleEquip}
         onContextItem={handleContextItem}
         onHoverItem={showItemTooltip}
