@@ -4,36 +4,27 @@ import type { LogWindowProps } from './types';
 import styles from './styles.module.css';
 
 const TYPE_DELAY_MS = 16;
-const ENTRY_STAGGER_MS = 90;
 const MATRIX_GLYPHS = ['#', '%', '&', '/', '+', '*'];
 
-function AnimatedLogLine({ text, delayMs }: { text: string; delayMs: number }) {
+function AnimatedLogLine({ text }: { text: string }) {
   const [visibleCount, setVisibleCount] = useState(0);
 
   useEffect(() => {
-    let intervalId: number | undefined;
-    const timeoutId = window.setTimeout(() => {
-      intervalId = window.setInterval(() => {
-        setVisibleCount((current) => {
-          if (current >= text.length) {
-            if (intervalId !== undefined) {
-              window.clearInterval(intervalId);
-            }
-            return current;
-          }
+    const intervalId = window.setInterval(() => {
+      setVisibleCount((current) => {
+        if (current >= text.length) {
+          window.clearInterval(intervalId);
+          return current;
+        }
 
-          return current + 1;
-        });
-      }, TYPE_DELAY_MS);
-    }, delayMs);
+        return current + 1;
+      });
+    }, TYPE_DELAY_MS);
 
     return () => {
-      window.clearTimeout(timeoutId);
-      if (intervalId !== undefined) {
-        window.clearInterval(intervalId);
-      }
+      window.clearInterval(intervalId);
     };
-  }, [delayMs, text]);
+  }, [text]);
 
   const isComplete = visibleCount >= text.length;
   const cursor = MATRIX_GLYPHS[visibleCount % MATRIX_GLYPHS.length];
@@ -90,7 +81,7 @@ export const LogWindow = memo(function LogWindow({
         ) : null}
       </div>
       <div className={styles.logList}>
-        {logs.map((entry, index) => (
+        {logs.map((entry) => (
           <div
             key={entry.id}
             className={`${styles.logEntry} ${styles[entry.kind] ?? ''}`.trim()}
@@ -98,10 +89,7 @@ export const LogWindow = memo(function LogWindow({
             <span className={styles.logMeta}>
               [{entry.kind}] t{entry.turn}
             </span>
-            <AnimatedLogLine
-              text={entry.text}
-              delayMs={index * ENTRY_STAGGER_MS}
-            />
+            <AnimatedLogLine text={entry.text} />
           </div>
         ))}
       </div>

@@ -75,32 +75,28 @@
 
 .logList {
   display: grid;
-  gap: 0.2rem;
+  gap: 0.05rem;
   max-height: min(42vh, 420px);
   overflow: auto;
-  padding: 0.1rem 0;
+  padding: 0;
 }
 
 .logEntry {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.35rem;
   align-items: baseline;
-  padding: 0.28rem 0.45rem;
-  border-radius: 0.45rem;
-  border: 1px solid rgba(74, 222, 128, 0.1);
-  background: rgba(2, 8, 4, 0.9);
-  box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.03);
+  padding: 0.08rem 0;
   font-family: 'Consolas', 'Courier New', monospace;
-  font-size: 0.82rem;
-  line-height: 1.35;
+  font-size: 0.79rem;
+  line-height: 1.2;
 }
 
 .logMeta {
   flex: 0 0 auto;
   color: #4ade80;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   opacity: 0.82;
 }
 
@@ -119,26 +115,24 @@
 }
 
 .combat {
-  border-color: rgba(248, 113, 113, 0.18);
-  box-shadow: inset 0 0 16px rgba(127, 29, 29, 0.16);
+  color: #fca5a5;
 }
 
 .loot {
-  border-color: rgba(74, 222, 128, 0.18);
-  box-shadow: inset 0 0 16px rgba(20, 83, 45, 0.14);
+  color: #bbf7d0;
 }
 
 .movement {
-  border-color: rgba(74, 222, 128, 0.16);
+  color: #dcfce7;
 }
 
 .rumor,
 .motd {
-  border-color: rgba(52, 211, 153, 0.2);
+  color: #a7f3d0;
 }
 
 .survival {
-  border-color: rgba(250, 204, 21, 0.18);
+  color: #fde68a;
 }
 
 @keyframes cursorPulse {
