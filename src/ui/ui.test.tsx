@@ -1,6 +1,7 @@
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { vi } from 'vitest';
 import { createGame, getPlayerStats, type Item } from '../game/state';
 import {
   DEFAULT_LOG_FILTERS,
@@ -32,6 +33,10 @@ describe('ui helpers and components', () => {
     (
       globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }
     ).IS_REACT_ACT_ENVIRONMENT = true;
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('exposes shared constants and lookup helpers', () => {
@@ -442,6 +447,44 @@ describe('ui helpers and components', () => {
       root?.unmount();
     });
     root = null;
+    host.remove();
+  });
+
+  it('animates log text like a terminal line', async () => {
+    vi.useFakeTimers();
+
+    const game = createGame(2, 'log-animation-test');
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+
+    await act(async () => {
+      root.render(
+        <LogWindow
+          position={DEFAULT_WINDOWS.log}
+          onMove={() => {}}
+          filters={DEFAULT_LOG_FILTERS}
+          defaultFilters={DEFAULT_LOG_FILTERS}
+          showFilterMenu={false}
+          onToggleMenu={() => {}}
+          onToggleFilter={() => {}}
+          logs={game.logs.slice(0, 1)}
+        />,
+      );
+    });
+
+    expect(host.textContent).toContain('Log');
+    expect(host.textContent).not.toContain(game.logs[0]?.text ?? '');
+
+    await act(async () => {
+      vi.advanceTimersByTime(2_000);
+    });
+
+    expect(host.textContent).toContain(game.logs[0]?.text ?? '');
+
+    await act(async () => {
+      root.unmount();
+    });
     host.remove();
   });
 });
