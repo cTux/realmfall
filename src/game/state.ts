@@ -534,6 +534,26 @@ export function dropInventoryItem(state: GameState, itemId: string): GameState {
   return next;
 }
 
+export function dropEquippedItem(
+  state: GameState,
+  slot: EquipmentSlot,
+): GameState {
+  const equipped = state.player.equipment[slot];
+  if (!equipped) return message(state, 'That slot is already empty.');
+
+  const next = clone(state);
+  delete next.player.equipment[slot];
+  ensureTileState(next, next.player.coord);
+  const key = hexKey(next.player.coord);
+  const tile = next.tiles[key];
+  addItemToInventory(tile.items, equipped);
+  next.tiles[key] = { ...tile, items: [...tile.items] };
+  const maxHp = getPlayerStats(next.player).maxHp;
+  next.player.hp = Math.min(maxHp, next.player.hp);
+  addLog(next, 'loot', `You drop ${equipped.name}.`);
+  return next;
+}
+
 function consumeItem(state: GameState, itemIndex: number, item: Item) {
   if (item.quantity > 1) {
     state.player.inventory[itemIndex] = {

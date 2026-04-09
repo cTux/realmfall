@@ -1,4 +1,4 @@
-import type { Item, LogKind } from '../../game/state';
+import type { EquipmentSlot, Item, LogKind } from '../../game/state';
 import type { TooltipLine } from '../../ui/tooltips';
 
 export interface TooltipState {
@@ -19,4 +19,5 @@ export interface ItemContextMenuState {
   item: Item;
   x: number;
   y: number;
+  slot?: EquipmentSlot;
 }

@@ -13,6 +13,7 @@ export const EquipmentWindow = memo(function EquipmentWindow({
   onHoverItem,
   onLeaveItem,
   onUnequip,
+  onContextItem,
 }: EquipmentWindowProps) {
   return (
     <DraggableWindow title="Equipment" position={position} onMove={onMove}>
@@ -29,6 +30,11 @@ export const EquipmentWindow = memo(function EquipmentWindow({
                 }
                 onMouseLeave={onLeaveItem}
                 onClick={equipped ? () => onUnequip(slot) : undefined}
+                onContextMenu={
+                  equipped
+                    ? (event) => onContextItem(event, equipped, slot)
+                    : undefined
+                }
               >
                 <span
                   className={styles.slotIcon}

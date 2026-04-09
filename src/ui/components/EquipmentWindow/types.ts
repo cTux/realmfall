@@ -9,4 +9,9 @@ export interface EquipmentWindowProps {
   onHoverItem: (event: ReactMouseEvent<HTMLElement>, item: Item) => void;
   onLeaveItem: () => void;
   onUnequip: (slot: EquipmentSlot) => void;
+  onContextItem: (
+    event: ReactMouseEvent<HTMLElement>,
+    item: Item,
+    slot: EquipmentSlot,
+  ) => void;
 }

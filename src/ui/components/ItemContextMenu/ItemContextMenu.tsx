@@ -6,6 +6,7 @@ export const ItemContextMenu = memo(function ItemContextMenu({
   item,
   x,
   y,
+  equipLabel,
   canEquip,
   canUse,
   onEquip,
@@ -42,7 +43,7 @@ export const ItemContextMenu = memo(function ItemContextMenu({
     >
       {canEquip ? (
         <button className={styles.action} onClick={onEquip}>
-          Equip
+          {equipLabel ?? 'Equip'}
         </button>
       ) : null}
       {canUse ? (

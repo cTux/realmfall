@@ -4,6 +4,7 @@ export interface ItemContextMenuProps {
   item: Item;
   x: number;
   y: number;
+  equipLabel?: string;
   canEquip: boolean;
   canUse: boolean;
   onEquip: () => void;

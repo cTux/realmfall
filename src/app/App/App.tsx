@@ -12,6 +12,7 @@ import {
   canEquipItem,
   canUseItem,
   createGame,
+  dropEquippedItem,
   dropInventoryItem,
   equipItem,
   getCurrentTile,
@@ -385,10 +386,29 @@ export function App() {
     setGame((current) => dropInventoryItem(current, itemId));
   }, []);
 
+  const handleDropEquippedItem = useCallback(
+    (slot: Parameters<typeof unequipItem>[1]) => {
+      setGame((current) => dropEquippedItem(current, slot));
+    },
+    [],
+  );
+
   const handleContextItem = useCallback(
     (event: ReactMouseEvent<HTMLElement>, item: TooltipItem) => {
       event.preventDefault();
       setItemMenu({ item, x: event.clientX, y: event.clientY });
+    },
+    [],
+  );
+
+  const handleEquippedContextItem = useCallback(
+    (
+      event: ReactMouseEvent<HTMLElement>,
+      item: TooltipItem,
+      slot: Parameters<typeof unequipItem>[1],
+    ) => {
+      event.preventDefault();
+      setItemMenu({ item, x: event.clientX, y: event.clientY, slot });
     },
     [],
   );
@@ -442,6 +462,7 @@ export function App() {
         onHoverItem={handleEquipmentHover}
         onLeaveItem={closeTooltip}
         onUnequip={handleUnequip}
+        onContextItem={handleEquippedContextItem}
       />
       <InventoryWindow
         position={windows.inventory}
@@ -476,10 +497,15 @@ export function App() {
           item={itemMenu.item}
           x={itemMenu.x}
           y={itemMenu.y}
-          canEquip={canEquipItem(itemMenu.item)}
+          equipLabel={itemMenu.slot ? 'Unequip' : 'Equip'}
+          canEquip={itemMenu.slot ? true : canEquipItem(itemMenu.item)}
           canUse={canUseItem(itemMenu.item)}
           onEquip={() => {
-            handleEquip(itemMenu.item.id);
+            if (itemMenu.slot) {
+              handleUnequip(itemMenu.slot);
+            } else {
+              handleEquip(itemMenu.item.id);
+            }
             closeItemMenu();
           }}
           onUse={() => {
@@ -487,7 +513,11 @@ export function App() {
             closeItemMenu();
           }}
           onDrop={() => {
-            handleDropItem(itemMenu.item.id);
+            if (itemMenu.slot) {
+              handleDropEquippedItem(itemMenu.slot);
+            } else {
+              handleDropItem(itemMenu.item.id);
+            }
             closeItemMenu();
           }}
           onClose={closeItemMenu}
