@@ -1,0 +1,8 @@
+node_modules
+dist
+coverage
+.husky/_
+.env
+.env.*
+*.log
+*.tsbuildinfo

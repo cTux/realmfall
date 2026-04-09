@@ -1,0 +1,129 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, system-ui, sans-serif;
+  background: #050816;
+  color: #e5eefb;
+}
+
+* {
+  box-sizing: border-box;
+  scrollbar-color: #334155 rgba(15, 23, 42, 0.85);
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.85);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #334155, #1e293b);
+  border: 2px solid rgba(15, 23, 42, 0.95);
+  border-radius: 999px;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: radial-gradient(circle at top, #13213c, #050816 55%);
+  font-size: 17px;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  border: 1px solid #334155;
+  background: #10182d;
+  color: inherit;
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.65rem;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #17233f;
+}
+
+.appRoot {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.mapViewport {
+  position: absolute;
+  inset: 0;
+}
+
+.floatingWindow {
+  position: fixed;
+  z-index: 20;
+  width: min(320px, calc(100vw - 16px));
+  background: rgba(8, 15, 30, 0.86);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 1rem;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.inventoryWindow {
+  width: min(520px, calc(100vw - 16px));
+}
+
+.logWindow {
+  width: min(560px, calc(100vw - 16px));
+}
+
+.windowHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1rem;
+  cursor: grab;
+  user-select: none;
+  background: rgba(15, 23, 42, 0.95);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.windowHeader h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.windowBody {
+  padding: 0.9rem 1rem 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.muted {
+  color: #94a3b8;
+}
+
+.tiny {
+  font-size: 0.8rem;
+}
+
+@media (max-width: 980px) {
+  .floatingWindow,
+  .inventoryWindow,
+  .logWindow {
+    width: min(92vw, 420px);
+  }
+}

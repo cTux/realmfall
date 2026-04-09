@@ -1,0 +1,70 @@
+.window {
+  width: min(520px, calc(100vw - 16px));
+}
+
+.toolbar {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.goldLine {
+  font-size: 1rem;
+  color: #fbbf24;
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 0.8rem;
+  max-height: min(48vh, 480px);
+  overflow: auto;
+}
+
+.itemCard {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem;
+}
+
+.itemIcon {
+  width: 2.9rem;
+  height: 2.9rem;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+}
+
+.stackBadge {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 999px;
+  padding: 0.08rem 0.38rem;
+  font-size: 0.76rem;
+}
+
+.empty {
+  color: #94a3b8;
+}
+
+@media (max-width: 980px) {
+  .window {
+    width: min(92vw, 420px);
+  }
+
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  }
+}

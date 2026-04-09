@@ -1,0 +1,11 @@
+.appRoot {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.mapViewport {
+  position: absolute;
+  inset: 0;
+}
