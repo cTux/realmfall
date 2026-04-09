@@ -8,8 +8,11 @@ import {
 } from 'react';
 import { Application } from 'pixi.js';
 import {
+  attackCombatEnemy,
   createGame,
   equipItem,
+  getCurrentTile,
+  getEnemiesAt,
   getPlayerStats,
   getTileAt,
   getVisibleTiles,
@@ -44,6 +47,7 @@ import { EquipmentWindow } from '../../ui/components/EquipmentWindow';
 import { InventoryWindow } from '../../ui/components/InventoryWindow';
 import { LogWindow } from '../../ui/components/LogWindow';
 import { GameTooltip } from '../../ui/components/GameTooltip';
+import { CombatWindow } from '../../ui/components/CombatWindow';
 import type { PersistedUiState, TooltipItem, TooltipState } from './types';
 import styles from './styles.module.css';
 
@@ -63,6 +67,11 @@ export function App() {
 
   const stats = useMemo(() => getPlayerStats(game.player), [game.player]);
   const visibleTiles = useMemo(() => getVisibleTiles(game), [game]);
+  const currentTile = useMemo(() => getCurrentTile(game), [game]);
+  const combatEnemies = useMemo(
+    () => (game.combat ? getEnemiesAt(game, game.combat.coord) : []),
+    [game],
+  );
   const filteredLogs = useMemo(
     () => game.logs.filter((entry) => logFilters[entry.kind]),
     [game.logs, logFilters],
@@ -256,6 +265,10 @@ export function App() {
     setGame((current) => equipItem(current, itemId));
   }, []);
 
+  const handleAttackEnemy = useCallback((enemyId: string) => {
+    setGame((current) => attackCombatEnemy(current, enemyId));
+  }, []);
+
   const toggleFilterMenu = useCallback(() => {
     setShowFilterMenu((current) => !current);
   }, []);
@@ -296,6 +309,8 @@ export function App() {
         gold={game.player.gold}
         inventory={game.player.inventory}
         equipment={game.player.equipment}
+        canProspect={currentTile.structure === 'forge'}
+        canSell={currentTile.structure === 'town'}
         onSort={handleSort}
         onProspect={handleProspect}
         onSellAll={handleSellAll}
@@ -313,6 +328,21 @@ export function App() {
         onToggleFilter={toggleLogFilter}
         logs={filteredLogs}
       />
+      {game.combat ? (
+        <CombatWindow
+          position={windows.combat}
+          onMove={(position) => moveWindow('combat', position)}
+          combat={game.combat}
+          enemies={combatEnemies}
+          player={{
+            hp: stats.hp,
+            maxHp: stats.maxHp,
+            attack: stats.attack,
+            defense: stats.defense,
+          }}
+          onAttack={handleAttackEnemy}
+        />
+      ) : null}
       <GameTooltip tooltip={tooltip} />
     </div>
   );

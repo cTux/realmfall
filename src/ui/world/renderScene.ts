@@ -7,7 +7,7 @@ import {
   type Application,
 } from 'pixi.js';
 import {
-  getEnemyAt,
+  getEnemiesAt,
   getVisibleTiles,
   hexDistance,
   type GameState,
@@ -65,7 +65,44 @@ export function renderScene(
       world.addChild(lootBorder);
     }
 
-    const enemy = getEnemyAt(state, tile.coord);
+    if (tile.structure && emphasized) {
+      const marker = new Graphics();
+      const color =
+        tile.structure === 'town'
+          ? 0xfbbf24
+          : tile.structure === 'forge'
+            ? 0xf97316
+            : 0xa855f7;
+      marker.beginFill(color, 0.95);
+      if (tile.structure === 'town') {
+        marker.drawRect(point.x - 6, point.y + 6, 12, 12);
+      } else if (tile.structure === 'forge') {
+        marker.drawPolygon([
+          point.x,
+          point.y + 2,
+          point.x + 8,
+          point.y + 10,
+          point.x,
+          point.y + 18,
+          point.x - 8,
+          point.y + 10,
+        ]);
+      } else {
+        marker.drawPolygon([
+          point.x,
+          point.y + 2,
+          point.x + 8,
+          point.y + 18,
+          point.x - 8,
+          point.y + 18,
+        ]);
+      }
+      marker.endFill();
+      world.addChild(marker);
+    }
+
+    const enemies = getEnemiesAt(state, tile.coord);
+    const enemy = enemies[0];
     if (enemy && emphasized) {
       const sprite = Sprite.from(enemyIconFor(enemy.name));
       sprite.anchor.set(0.5);
@@ -76,11 +113,20 @@ export function renderScene(
       world.addChild(sprite);
 
       const level = new Text(
-        `L${enemy.tier}`,
+        `L${Math.max(...enemies.map((foe) => foe.tier))}`,
         new TextStyle({ fill: 0xfef2f2, fontSize: 12, fontWeight: '700' }),
       );
       level.position.set(point.x - 12, point.y - 32);
       labels.addChild(level);
+
+      if (enemies.length > 1) {
+        const groupLabel = new Text(
+          `x${enemies.length}`,
+          new TextStyle({ fill: 0xfef3c7, fontSize: 11, fontWeight: '700' }),
+        );
+        groupLabel.position.set(point.x + 8, point.y - 26);
+        labels.addChild(groupLabel);
+      }
     }
   });
 

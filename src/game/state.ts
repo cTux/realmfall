@@ -11,6 +11,8 @@ export type Terrain =
   | 'mountain'
   | 'desert'
   | 'swamp';
+export type StructureType = 'forge' | 'town' | 'dungeon';
+export type ItemRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
 
 export type EquipmentSlot =
   | 'weapon'
@@ -40,6 +42,7 @@ export interface Item {
   name: string;
   quantity: number;
   tier: number;
+  rarity: ItemRarity;
   power: number;
   defense: number;
   maxHp: number;
@@ -57,13 +60,15 @@ export interface Enemy {
   attack: number;
   defense: number;
   xp: number;
+  elite: boolean;
 }
 
 export interface Tile {
   coord: HexCoord;
   terrain: Terrain;
+  structure?: StructureType;
   items: Item[];
-  enemyId?: string;
+  enemyIds: string[];
 }
 
 export type Equipment = Partial<Record<EquipmentSlot, Item>>;
@@ -84,6 +89,11 @@ export interface Player {
   equipment: Equipment;
 }
 
+export interface CombatState {
+  coord: HexCoord;
+  enemyIds: string[];
+}
+
 export interface GameState {
   seed: string;
   radius: number;
@@ -94,6 +104,7 @@ export interface GameState {
   tiles: Record<string, Tile>;
   enemies: Record<string, Enemy>;
   player: Player;
+  combat: CombatState | null;
 }
 
 export type LogKind =
@@ -127,6 +138,14 @@ export const EQUIPMENT_SLOTS: EquipmentSlot[] = [
   'relic',
 ];
 
+export const RARITY_ORDER: ItemRarity[] = [
+  'common',
+  'uncommon',
+  'rare',
+  'epic',
+  'legendary',
+];
+
 const ARTIFACT_PREFIXES = [
   'Ashen',
   'Auric',
@@ -141,8 +160,8 @@ const ARTIFACT_PREFIXES = [
   'Moss',
   'Night',
 ];
-
 const ARTIFACT_FORMS = ['Idol', 'Sigil', 'Charm', 'Lens', 'Shard', 'Totem'];
+const TOWN_SEARCH_LIMIT = 24;
 
 export function createGame(
   radius = 6,
@@ -157,6 +176,7 @@ export function createGame(
     logs: createInitialLogs(seed),
     tiles: {},
     enemies: {},
+    combat: null,
     player: {
       coord: { q: 0, r: 0 },
       level: 1,
@@ -200,12 +220,29 @@ export function getTileAt(state: GameState, coord: HexCoord) {
   return state.tiles[hexKey(coord)] ?? buildTile(state.seed, coord);
 }
 
-export function getEnemyAt(state: GameState, coord: HexCoord) {
+export function getCurrentTile(state: GameState) {
+  return getTileAt(state, state.player.coord);
+}
+
+export function getEnemiesAt(state: GameState, coord: HexCoord) {
   const tile = getTileAt(state, coord);
-  if (!tile.enemyId) return undefined;
-  return (
-    state.enemies[tile.enemyId] ?? makeEnemy(state.seed, coord, tile.terrain)
-  );
+  return tile.enemyIds
+    .map(
+      (enemyId) =>
+        state.enemies[enemyId] ??
+        makeEnemy(
+          state.seed,
+          coord,
+          tile.terrain,
+          enemyIndexFromId(enemyId),
+          tile.structure,
+        ),
+    )
+    .filter(Boolean);
+}
+
+export function getEnemyAt(state: GameState, coord: HexCoord) {
+  return getEnemiesAt(state, coord)[0];
 }
 
 export function getPlayerStats(player: Player) {
@@ -249,68 +286,91 @@ export function getPlayerStats(player: Player) {
 
 export function moveToTile(state: GameState, target: HexCoord): GameState {
   if (state.gameOver) return state;
+  if (state.combat) return message(state, 'Finish the current battle first.');
 
   const current = state.player.coord;
-  if (hexDistance(current, target) !== 1) {
+  if (hexDistance(current, target) !== 1)
     return message(state, 'Move one hex at a time.');
-  }
 
   const next = clone(state);
   ensureTileState(next, target);
   const tile = next.tiles[hexKey(target)];
 
-  if (!isPassable(tile.terrain)) {
+  if (!isPassable(tile.terrain))
     return message(next, 'The terrain blocks your path.');
-  }
 
   next.turn += 1;
   next.player.hunger = Math.max(0, next.player.hunger - 1);
+  next.player.coord = target;
 
   if (next.player.hunger === 0) {
     next.player.hp = Math.max(0, next.player.hp - 1);
     addLog(next, 'survival', 'You are starving.');
     if (next.player.hp <= 0) {
-      next.gameOver = true;
-      addLog(next, 'combat', 'You were defeated.');
+      respawnAtNearestTown(next, target);
       return next;
     }
   }
 
-  const enemy = tile.enemyId ? next.enemies[tile.enemyId] : undefined;
-  if (enemy) {
-    const damage = Math.max(
-      1,
-      getPlayerStats(next.player).attack - enemy.defense,
+  if (tile.enemyIds.length > 0) {
+    next.combat = { coord: target, enemyIds: [...tile.enemyIds] };
+    addLog(
+      next,
+      'combat',
+      `You engage ${tile.enemyIds.length} foe${tile.enemyIds.length > 1 ? 's' : ''}.`,
     );
-    enemy.hp -= damage;
-    addLog(next, 'combat', `You strike the ${enemy.name} for ${damage}.`);
-
-    if (enemy.hp <= 0) {
-      delete next.enemies[enemy.id];
-      next.tiles[hexKey(target)] = { ...tile, enemyId: undefined };
-      next.player.coord = target;
-      gainXp(next, enemy.xp);
-      addLog(next, 'combat', `You defeated the ${enemy.name}.`);
-      pickUpLoot(next, target);
-    } else {
-      const retaliation = Math.max(
-        1,
-        enemy.attack - getPlayerStats(next.player).defense,
-      );
-      next.player.hp = Math.max(0, next.player.hp - retaliation);
-      addLog(next, 'combat', `The ${enemy.name} hits back for ${retaliation}.`);
-      if (next.player.hp <= 0) {
-        next.gameOver = true;
-        addLog(next, 'combat', 'You were defeated.');
-      }
-    }
-
     return next;
   }
 
-  next.player.coord = target;
   pickUpLoot(next, target);
   addLog(next, 'movement', `You travel to ${target.q}, ${target.r}.`);
+  return next;
+}
+
+export function attackCombatEnemy(
+  state: GameState,
+  enemyId: string,
+): GameState {
+  if (!state.combat) return message(state, 'There is no active battle.');
+
+  const next = clone(state);
+  const enemy = next.enemies[enemyId];
+  if (!enemy) return message(state, 'That enemy is already defeated.');
+
+  const playerStats = getPlayerStats(next.player);
+  const damage = Math.max(1, playerStats.attack - enemy.defense);
+  enemy.hp = Math.max(0, enemy.hp - damage);
+  addLog(next, 'combat', `You strike the ${enemy.name} for ${damage}.`);
+
+  if (enemy.hp <= 0) {
+    gainXp(next, enemy.xp);
+    addLog(next, 'combat', `You defeated the ${enemy.name}.`);
+    delete next.enemies[enemy.id];
+  }
+
+  syncCombatEnemies(next);
+
+  if (!next.combat) {
+    pickUpLoot(next, state.combat.coord);
+    return next;
+  }
+
+  const survivingEnemies = next.combat.enemyIds
+    .map((id) => next.enemies[id])
+    .filter(Boolean);
+  survivingEnemies.forEach((foe) => {
+    const retaliation = Math.max(
+      1,
+      foe.attack - getPlayerStats(next.player).defense,
+    );
+    next.player.hp = Math.max(0, next.player.hp - retaliation);
+    addLog(next, 'combat', `The ${foe.name} hits back for ${retaliation}.`);
+  });
+
+  if (next.player.hp <= 0) {
+    respawnAtNearestTown(next, state.combat.coord);
+  }
+
   return next;
 }
 
@@ -326,33 +386,18 @@ export function equipItem(state: GameState, itemId: string): GameState {
   const next = clone(state);
 
   if (item.kind === 'consumable') {
-    if (item.quantity > 1) {
-      next.player.inventory[itemIndex] = {
-        ...item,
-        quantity: item.quantity - 1,
-      };
-    } else {
-      next.player.inventory.splice(itemIndex, 1);
-    }
-    const maxHp = getPlayerStats(next.player).maxHp;
-    next.player.hp = Math.min(maxHp, next.player.hp + item.healing);
-    next.player.hunger = Math.min(100, next.player.hunger + item.hunger);
-    addLog(
-      next,
-      'survival',
-      `You use ${item.name}${item.healing > 0 ? ` and recover ${item.healing} HP` : ''}${
-        item.hunger > 0 ? ` and ${item.hunger} hunger` : ''
-      }.`,
-    );
+    consumeItem(next, itemIndex, item);
     return next;
   }
 
-  next.player.inventory.splice(itemIndex, 1);
+  if (item.kind === 'resource')
+    return message(state, 'Resources cannot be equipped.');
 
+  next.player.inventory.splice(itemIndex, 1);
   if (!item.slot) return message(state, 'That item cannot be equipped.');
 
   const replaced = next.player.equipment[item.slot];
-  if (replaced) next.player.inventory.push(replaced);
+  if (replaced) addItemToInventory(next.player.inventory, replaced);
   next.player.equipment[item.slot] = item;
   const maxHp = getPlayerStats(next.player).maxHp;
   next.player.hp = Math.min(maxHp, next.player.hp);
@@ -387,6 +432,8 @@ export function sortInventory(state: GameState): GameState {
 }
 
 export function sellAllItems(state: GameState): GameState {
+  if (getCurrentTile(state).structure !== 'town')
+    return message(state, 'You can sell only while standing in town.');
   const sellable = state.player.inventory.filter(isEquippableItem);
   if (sellable.length === 0)
     return message(state, 'No equippable items to sell.');
@@ -402,19 +449,17 @@ export function sellAllItems(state: GameState): GameState {
 }
 
 export function prospectInventory(state: GameState): GameState {
-  const next = clone(state);
-  const prospectable = next.player.inventory.filter(
-    (item) => item.kind !== 'consumable' && item.kind !== 'resource',
-  );
+  if (getCurrentTile(state).structure !== 'forge')
+    return message(state, 'You can prospect only while standing at a forge.');
 
-  if (prospectable.length === 0) {
+  const next = clone(state);
+  const prospectable = next.player.inventory.filter(isEquippableItem);
+  if (prospectable.length === 0)
     return message(state, 'Nothing in your pack can be prospected.');
-  }
 
   next.player.inventory = next.player.inventory.filter(
-    (item) => item.kind === 'consumable' || item.kind === 'resource',
+    (item) => !isEquippableItem(item),
   );
-
   prospectable.forEach((item) => {
     prospectYield(item).forEach((resource) =>
       addItemToInventory(next.player.inventory, resource),
@@ -426,16 +471,36 @@ export function prospectInventory(state: GameState): GameState {
   return next;
 }
 
+function consumeItem(state: GameState, itemIndex: number, item: Item) {
+  if (item.quantity > 1) {
+    state.player.inventory[itemIndex] = {
+      ...item,
+      quantity: item.quantity - 1,
+    };
+  } else {
+    state.player.inventory.splice(itemIndex, 1);
+  }
+
+  const maxHp = getPlayerStats(state.player).maxHp;
+  state.player.hp = Math.min(maxHp, state.player.hp + item.healing);
+  state.player.hunger = Math.min(100, state.player.hunger + item.hunger);
+  addLog(
+    state,
+    'survival',
+    `You use ${item.name}${item.healing > 0 ? ` and recover ${item.healing} HP` : ''}${item.hunger > 0 ? ` and ${item.hunger} hunger` : ''}.`,
+  );
+}
+
 function cacheSafeStart(state: GameState) {
   const center = { q: 0, r: 0 };
   state.tiles[hexKey(center)] = buildTile(state.seed, center);
-
   hexNeighbors(center).forEach((coord) => {
     state.tiles[hexKey(coord)] = {
       coord,
       terrain: 'plains',
       items: [],
-      enemyId: undefined,
+      structure: undefined,
+      enemyIds: [],
     };
   });
 }
@@ -445,33 +510,71 @@ function ensureTileState(state: GameState, coord: HexCoord) {
   if (!state.tiles[key]) {
     const tile = buildTile(state.seed, coord);
     state.tiles[key] = tile;
-    if (tile.enemyId) {
-      state.enemies[tile.enemyId] = makeEnemy(state.seed, coord, tile.terrain);
-    }
-  } else {
-    const tile = state.tiles[key];
-    if (tile.enemyId && !state.enemies[tile.enemyId]) {
-      state.enemies[tile.enemyId] = makeEnemy(state.seed, coord, tile.terrain);
-    }
   }
+
+  const tile = state.tiles[key];
+  tile.enemyIds.forEach((enemyId) => {
+    if (!state.enemies[enemyId]) {
+      state.enemies[enemyId] = makeEnemy(
+        state.seed,
+        coord,
+        tile.terrain,
+        enemyIndexFromId(enemyId),
+        tile.structure,
+      );
+    }
+  });
 }
 
 function buildTile(seed: string, coord: HexCoord): Tile {
   if (coord.q === 0 && coord.r === 0) {
-    return { coord, terrain: 'plains', items: [], enemyId: undefined };
+    return {
+      coord,
+      terrain: 'plains',
+      structure: 'town',
+      items: [],
+      enemyIds: [],
+    };
   }
 
   const terrain = pickTerrain(seed, coord);
-  const enemyId = shouldSpawnEnemy(seed, coord, terrain)
-    ? enemyKey(coord)
+  const structure = isPassable(terrain)
+    ? pickStructure(seed, coord)
     : undefined;
-  const items = maybeLoot(seed, coord, terrain, Boolean(enemyId));
-  return { coord, terrain, items, enemyId };
+  const enemyIds = buildEnemyIds(seed, coord, terrain, structure);
+  const items = maybeLoot(seed, coord, terrain, enemyIds.length > 0, structure);
+  return { coord, terrain, structure, items, enemyIds };
+}
+
+function buildEnemyIds(
+  seed: string,
+  coord: HexCoord,
+  terrain: Terrain,
+  structure?: StructureType,
+) {
+  if (!isPassable(terrain)) return [];
+  if (hexDistance(coord, { q: 0, r: 0 }) <= 1) return [];
+  if (structure === 'town' || structure === 'forge') return [];
+  if (structure === 'dungeon') {
+    const count = 1 + scaledIndex(`${seed}:dungeon-count`, coord, 3);
+    return Array.from({ length: count }, (_, index) => enemyKey(coord, index));
+  }
+  return shouldSpawnEnemy(seed, coord, terrain) ? [enemyKey(coord, 0)] : [];
+}
+
+function pickStructure(
+  seed: string,
+  coord: HexCoord,
+): StructureType | undefined {
+  const roll = noise(`${seed}:structure`, coord);
+  if (roll > 0.992) return 'dungeon';
+  if (roll > 0.984) return 'forge';
+  if (roll > 0.976) return 'town';
+  return undefined;
 }
 
 function shouldSpawnEnemy(seed: string, coord: HexCoord, terrain: Terrain) {
   if (!isPassable(terrain)) return false;
-  if (hexDistance(coord, { q: 0, r: 0 }) <= 1) return false;
   return noise(`${seed}:enemy:spawn`, coord) > 0.8;
 }
 
@@ -490,16 +593,32 @@ function maybeLoot(
   coord: HexCoord,
   terrain: Terrain,
   guarded: boolean,
+  structure?: StructureType,
 ) {
   const roll = noise(`${seed}:loot`, coord);
-  const tier = terrainTier(coord, terrain);
-  const lootChance = guarded ? Math.max(0.52, 0.7 - tier * 0.02) : 0.965;
+  const tier = terrainTier(coord, terrain) + (structure === 'dungeon' ? 2 : 0);
+  const lootChance =
+    structure === 'dungeon'
+      ? 0.3
+      : guarded
+        ? Math.max(0.52, 0.7 - tier * 0.02)
+        : 0.985;
   if (roll < lootChance) return [];
 
   const items: Item[] = [];
-  items.push(makeGeneratedItem(seed, coord, tier, roll));
+  items.push(makeGeneratedItem(seed, coord, tier, roll, structure));
 
-  if (roll > 0.95) {
+  if (structure === 'dungeon') {
+    items.push(
+      makeGeneratedItem(
+        `${seed}:dungeon-chest`,
+        coord,
+        tier + 1,
+        roll + 0.18,
+        structure,
+      ),
+    );
+  } else if (roll > 0.95) {
     items.push(
       makeConsumable(`${hexKey(coord)}-cache`, 'Jerky Pack', tier, 6, 20),
     );
@@ -513,10 +632,17 @@ function makeGeneratedItem(
   coord: HexCoord,
   tier: number,
   roll: number,
+  structure?: StructureType,
 ) {
-  if (roll > 0.985) return makeResource(seed, coord, tier);
-  if (roll > 0.92 || tier >= 7) return makeArtifact(seed, coord, tier);
-  if (roll > 0.82) return makeWeapon(seed, coord, tier + (tier >= 6 ? 1 : 0));
+  if (roll > 0.988) return makeResource(seed, coord, tier);
+  if (roll > 0.92 || tier >= 7 || structure === 'dungeon')
+    return makeArtifact(
+      seed,
+      coord,
+      tier,
+      structure === 'dungeon' ? 'rare' : undefined,
+    );
+  if (roll > 0.82) return makeWeapon(seed, coord, tier);
   if (roll > 0.72) return makeOffhand(seed, coord, tier);
   if (roll > 0.66) return makeArmor(seed, coord, tier);
   return makeConsumable(
@@ -528,23 +654,40 @@ function makeGeneratedItem(
   );
 }
 
-function makeEnemy(seed: string, coord: HexCoord, terrain: Terrain): Enemy {
-  const tier = terrainTier(coord, terrain);
-  const roll = noise(`${seed}:enemy:type`, coord);
+function makeEnemy(
+  seed: string,
+  coord: HexCoord,
+  terrain: Terrain,
+  index = 0,
+  structure?: StructureType,
+): Enemy {
+  const tier = terrainTier(coord, terrain) + (structure === 'dungeon' ? 2 : 0);
+  const roll = noise(`${seed}:enemy:type:${index}`, coord);
+  const elite = structure === 'dungeon';
+  const hp = 8 + tier * 6 + (elite ? 10 : 0);
+  const attack = 2 + tier * 2 + (elite ? 3 : 0);
+  const defense = 1 + tier + (elite ? 2 : 0);
+
   return {
-    id: enemyKey(coord),
+    id: enemyKey(coord, index),
     name: roll > 0.66 ? 'Raider' : roll > 0.33 ? 'Wolf' : 'Marauder',
     coord,
-    tier,
-    maxHp: 8 + tier * 6,
-    hp: 8 + tier * 6,
-    attack: 2 + tier * 2,
-    defense: 1 + tier,
-    xp: 18 + tier * 14,
+    tier: elite ? tier + 1 : tier,
+    maxHp: hp,
+    hp,
+    attack,
+    defense,
+    xp: 18 + tier * 14 + (elite ? 25 : 0),
+    elite,
   };
 }
 
-function makeWeapon(seed: string, coord: HexCoord, tier: number): Item {
+function makeWeapon(
+  seed: string,
+  coord: HexCoord,
+  tier: number,
+  minimumRarity?: ItemRarity,
+): Item {
   const names = ['Blade', 'Spear', 'Axe', 'Bow', 'Glaive', 'Hammer'];
   const prefixes = ['Hunter', 'Warden', 'Drifter', 'Riven', 'Storm', 'Ember'];
   const index = scaledIndex(`${seed}:weapon`, coord, names.length);
@@ -553,40 +696,52 @@ function makeWeapon(seed: string, coord: HexCoord, tier: number): Item {
     coord,
     prefixes.length,
   );
-  return {
+  return applyRarityToItem({
     id: itemId('weapon', coord, seed),
     kind: 'weapon',
     slot: 'weapon',
     name: `${prefixes[prefixIndex]} ${names[index]}`,
     quantity: 1,
     tier,
+    rarity: pickEquipmentRarity(seed, coord, tier, minimumRarity),
     power: 2 + tier * 2,
     defense: 0,
-    maxHp: 0,
+    maxHp: tier >= 5 ? 1 : 0,
     healing: 0,
     hunger: 0,
-  };
+  });
 }
 
-function makeOffhand(seed: string, coord: HexCoord, tier: number): Item {
+function makeOffhand(
+  seed: string,
+  coord: HexCoord,
+  tier: number,
+  minimumRarity?: ItemRarity,
+): Item {
   const names = ['Buckler', 'Lantern Shield', 'Mirror Guard', 'Ward Board'];
   const index = scaledIndex(`${seed}:offhand`, coord, names.length);
-  return {
+  return applyRarityToItem({
     id: itemId('offhand', coord, seed),
     kind: 'armor',
     slot: 'offhand',
     name: names[index],
     quantity: 1,
     tier,
+    rarity: pickEquipmentRarity(seed, coord, tier, minimumRarity),
     power: tier > 2 ? 1 : 0,
     defense: 1 + tier * 2,
     maxHp: tier,
     healing: 0,
     hunger: 0,
-  };
+  });
 }
 
-function makeArmor(seed: string, coord: HexCoord, tier: number): Item {
+function makeArmor(
+  seed: string,
+  coord: HexCoord,
+  tier: number,
+  minimumRarity?: ItemRarity,
+): Item {
   const slots: EquipmentSlot[] = ['head', 'chest', 'hands', 'legs', 'feet'];
   const slot = slots[scaledIndex(`${seed}:armor:slot`, coord, slots.length)];
   const names: Record<EquipmentSlot, string[]> = {
@@ -606,10 +761,28 @@ function makeArmor(seed: string, coord: HexCoord, tier: number): Item {
   const slotNames = names[slot];
   const name =
     slotNames[scaledIndex(`${seed}:armor:name`, coord, slotNames.length)];
-  return makeStarterArmor(slot, name, tier, 1 + tier);
+  return applyRarityToItem({
+    id: `${slot}-${name.toLowerCase().replace(/\s+/g, '-')}-${hexKey(coord)}`,
+    kind: 'armor',
+    slot,
+    name,
+    quantity: 1,
+    tier,
+    rarity: pickEquipmentRarity(seed, coord, tier, minimumRarity),
+    power: tier >= 6 ? 1 : 0,
+    defense: 1 + tier,
+    maxHp: tier,
+    healing: 0,
+    hunger: 0,
+  });
 }
 
-function makeArtifact(seed: string, coord: HexCoord, tier: number): Item {
+function makeArtifact(
+  seed: string,
+  coord: HexCoord,
+  tier: number,
+  minimumRarity?: ItemRarity,
+): Item {
   const slots: EquipmentSlot[] = [
     'ringLeft',
     'ringRight',
@@ -626,19 +799,25 @@ function makeArtifact(seed: string, coord: HexCoord, tier: number): Item {
     ARTIFACT_FORMS[
       scaledIndex(`${seed}:artifact:form`, coord, ARTIFACT_FORMS.length)
     ];
-  return {
+  return applyRarityToItem({
     id: itemId('artifact', coord, seed),
     kind: 'artifact',
     slot,
     name: `${prefix} ${form}`,
     quantity: 1,
     tier,
+    rarity: pickEquipmentRarity(
+      seed,
+      coord,
+      tier + 1,
+      minimumRarity ?? 'uncommon',
+    ),
     power: slot === 'relic' ? tier + 1 : slot.includes('ring') ? tier : 0,
     defense: slot === 'cloak' ? tier + 1 : slot === 'amulet' ? tier : 0,
     maxHp: slot === 'amulet' || slot === 'relic' ? tier * 3 : tier,
     healing: 0,
     hunger: 0,
-  };
+  });
 }
 
 function makeResource(seed: string, coord: HexCoord, tier: number): Item {
@@ -654,6 +833,7 @@ function makeResource(seed: string, coord: HexCoord, tier: number): Item {
     name,
     quantity,
     tier,
+    rarity: 'common',
     power: 0,
     defense: 0,
     maxHp: 0,
@@ -670,6 +850,7 @@ function makeStarterWeapon(): Item {
     name: 'Rust Knife',
     quantity: 1,
     tier: 1,
+    rarity: 'common',
     power: 2,
     defense: 0,
     maxHp: 0,
@@ -691,6 +872,7 @@ function makeStarterArmor(
     name,
     quantity: 1,
     tier,
+    rarity: 'common',
     power: 0,
     defense,
     maxHp: tier,
@@ -713,6 +895,7 @@ function makeConsumable(
     name,
     quantity,
     tier,
+    rarity: 'common',
     power: 0,
     defense: 0,
     maxHp: 0,
@@ -751,6 +934,54 @@ function gainXp(state: GameState, amount: number) {
   }
 }
 
+function respawnAtNearestTown(state: GameState, from: HexCoord) {
+  const town = findNearestStructure(state.seed, from, 'town') ?? { q: 0, r: 0 };
+  state.player.coord = town;
+  state.player.hp = getPlayerStats(state.player).maxHp;
+  state.player.mana = state.player.baseMaxMana;
+  state.player.hunger = 100;
+  state.combat = null;
+  addLog(state, 'combat', 'You were defeated.');
+  addLog(
+    state,
+    'system',
+    `You awaken in the nearest town at ${town.q}, ${town.r}.`,
+  );
+}
+
+function syncCombatEnemies(state: GameState) {
+  if (!state.combat) return;
+  const tile =
+    state.tiles[hexKey(state.combat.coord)] ??
+    buildTile(state.seed, state.combat.coord);
+  const enemyIds = tile.enemyIds.filter((enemyId) =>
+    Boolean(state.enemies[enemyId]),
+  );
+  state.tiles[hexKey(state.combat.coord)] = { ...tile, enemyIds };
+  state.combat.enemyIds = enemyIds;
+  if (enemyIds.length === 0) {
+    state.combat = null;
+    addLog(state, 'combat', 'The battle is over.');
+  }
+}
+
+function findNearestStructure(
+  seed: string,
+  from: HexCoord,
+  structure: StructureType,
+) {
+  for (let radius = 0; radius <= TOWN_SEARCH_LIMIT; radius += 1) {
+    for (let q = from.q - radius; q <= from.q + radius; q += 1) {
+      for (let r = from.r - radius; r <= from.r + radius; r += 1) {
+        const coord = { q, r };
+        if (hexDistance(from, coord) !== radius) continue;
+        if (buildTile(seed, coord).structure === structure) return coord;
+      }
+    }
+  }
+  return undefined;
+}
+
 function levelThreshold(level: number) {
   return 40 + level * 25;
 }
@@ -765,14 +996,81 @@ function isPassable(terrain: Terrain) {
   return terrain !== 'water' && terrain !== 'mountain';
 }
 
+function pickEquipmentRarity(
+  seed: string,
+  coord: HexCoord,
+  tier: number,
+  minimum: ItemRarity = 'common',
+): ItemRarity {
+  const roll = noise(`${seed}:rarity`, coord) + tier * 0.03;
+  const rarity =
+    roll > 1.18
+      ? 'legendary'
+      : roll > 0.96
+        ? 'epic'
+        : roll > 0.74
+          ? 'rare'
+          : roll > 0.52
+            ? 'uncommon'
+            : 'common';
+  return (
+    RARITY_ORDER[
+      Math.max(RARITY_ORDER.indexOf(minimum), RARITY_ORDER.indexOf(rarity))
+    ] ?? minimum
+  );
+}
+
+function applyRarityToItem(item: Item): Item {
+  const multiplier = rarityMultiplier(item.rarity);
+  return {
+    ...item,
+    power: Math.round(item.power * multiplier),
+    defense: Math.round(item.defense * multiplier),
+    maxHp: Math.round(item.maxHp * multiplier + rarityBonus(item.rarity)),
+  };
+}
+
+function rarityMultiplier(rarity: ItemRarity) {
+  switch (rarity) {
+    case 'uncommon':
+      return 1.2;
+    case 'rare':
+      return 1.45;
+    case 'epic':
+      return 1.8;
+    case 'legendary':
+      return 2.2;
+    default:
+      return 1;
+  }
+}
+
+function rarityBonus(rarity: ItemRarity) {
+  switch (rarity) {
+    case 'rare':
+      return 1;
+    case 'epic':
+      return 2;
+    case 'legendary':
+      return 4;
+    default:
+      return 0;
+  }
+}
+
 function message(state: GameState, text: string): GameState {
   const next = clone(state);
   addLog(next, 'system', text);
   return next;
 }
 
-function enemyKey(coord: HexCoord) {
-  return `enemy-${hexKey(coord)}`;
+function enemyKey(coord: HexCoord, index: number) {
+  return `enemy-${hexKey(coord)}-${index}`;
+}
+
+function enemyIndexFromId(enemyId: string) {
+  const parts = enemyId.split('-');
+  return Number(parts[parts.length - 1] ?? '0') || 0;
 }
 
 function itemId(kind: string, coord: HexCoord, seed: string) {
@@ -788,14 +1086,29 @@ function clone(state: GameState): GameState {
     ...state,
     logSequence: state.logSequence,
     logs: [...state.logs],
+    combat: state.combat
+      ? {
+          ...state.combat,
+          coord: { ...state.combat.coord },
+          enemyIds: [...state.combat.enemyIds],
+        }
+      : null,
     tiles: Object.fromEntries(
       Object.entries(state.tiles).map(([key, tile]) => [
         key,
-        { ...tile, items: tile.items.map((item) => ({ ...item })) },
+        {
+          ...tile,
+          coord: { ...tile.coord },
+          items: tile.items.map((item) => ({ ...item })),
+          enemyIds: [...tile.enemyIds],
+        },
       ]),
     ),
     enemies: Object.fromEntries(
-      Object.entries(state.enemies).map(([key, enemy]) => [key, { ...enemy }]),
+      Object.entries(state.enemies).map(([key, enemy]) => [
+        key,
+        { ...enemy, coord: { ...enemy.coord } },
+      ]),
     ),
     player: {
       ...state.player,
@@ -817,7 +1130,7 @@ function addItemToInventory(inventory: Item[], item: Item) {
     return;
   }
 
-  const existing = inventory.find((entry) => isSameConsumable(entry, item));
+  const existing = inventory.find((entry) => isSameStackable(entry, item));
   if (existing) {
     existing.quantity += item.quantity;
     return;
@@ -831,6 +1144,9 @@ function compareItems(left: Item, right: Item) {
   const kindDelta =
     kindOrder.indexOf(left.kind) - kindOrder.indexOf(right.kind);
   if (kindDelta !== 0) return kindDelta;
+  const rarityDelta =
+    RARITY_ORDER.indexOf(right.rarity) - RARITY_ORDER.indexOf(left.rarity);
+  if (rarityDelta !== 0) return rarityDelta;
   if (right.tier !== left.tier) return right.tier - left.tier;
   return left.name.localeCompare(right.name);
 }
@@ -852,7 +1168,10 @@ function sellValue(item: Item) {
           : item.kind === 'resource'
             ? 2
             : 3;
-  return (base + item.tier * 2) * item.quantity;
+  return Math.round(
+    (base + item.tier * 2 + RARITY_ORDER.indexOf(item.rarity) * 6) *
+      item.quantity,
+  );
 }
 
 function prospectYield(item: Item): Item[] {
@@ -883,6 +1202,7 @@ function makeResourceStack(name: string, tier: number, quantity: number): Item {
     name,
     quantity,
     tier,
+    rarity: 'common',
     power: 0,
     defense: 0,
     maxHp: 0,
@@ -891,12 +1211,12 @@ function makeResourceStack(name: string, tier: number, quantity: number): Item {
   };
 }
 
-function isSameConsumable(left: Item, right: Item) {
+function isSameStackable(left: Item, right: Item) {
   return (
     (left.kind === 'consumable' || left.kind === 'resource') &&
     left.kind === right.kind &&
     left.name === right.name &&
-    left.tier === right.tier &&
+    left.rarity === right.rarity &&
     left.healing === right.healing &&
     left.hunger === right.hunger
   );
@@ -929,20 +1249,15 @@ function makeLog(
   turn: number,
   text: string,
 ): LogEntry {
-  return {
-    id: `l-${sequence}`,
-    kind,
-    text,
-    turn,
-  };
+  return { id: `l-${sequence}`, kind, text, turn };
 }
 
 function rumorForSeed(seed: string) {
   const rumors = [
-    'Rumor: the best relics show up where the marches have already taken a toll on weaker travelers.',
-    'Rumor: raiders beyond the tenth ring fight like veterans and dress like kings.',
-    'Rumor: swamp relics tend to harden the body, desert relics tend to sharpen the hand.',
-    'Rumor: if you return alive from far enough out, your pack will not be empty.',
+    'Rumor: dungeon vaults hide the finest relics, but their guardians do not fight alone.',
+    'Rumor: every forge can tease hidden materials from gear if your hands are patient enough.',
+    'Rumor: merchants only trust business done inside town walls.',
+    'Rumor: the farther you walk, the sharper the steel and the harsher the teeth.',
   ];
   return (
     rumors[Math.floor(createRng(`${seed}:rumor`)() * rumors.length)] ??

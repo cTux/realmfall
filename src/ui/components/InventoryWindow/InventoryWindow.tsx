@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { iconForItem } from '../../icons';
+import { rarityColor } from '../../rarity';
 import { DraggableWindow } from '../DraggableWindow';
 import type { InventoryWindowProps } from './types';
 import styles from './styles.module.css';
@@ -10,6 +11,8 @@ export const InventoryWindow = memo(function InventoryWindow({
   gold,
   inventory,
   equipment,
+  canProspect,
+  canSell,
   onSort,
   onProspect,
   onSellAll,
@@ -28,8 +31,12 @@ export const InventoryWindow = memo(function InventoryWindow({
         <div className={styles.goldLine}>Gold: {gold}</div>
         <div className={styles.actions}>
           <button onClick={onSort}>Sort</button>
-          <button onClick={onProspect}>Prospect</button>
-          <button onClick={onSellAll}>Sell all</button>
+          <button onClick={onProspect} disabled={!canProspect}>
+            Prospect
+          </button>
+          <button onClick={onSellAll} disabled={!canSell}>
+            Sell all
+          </button>
         </div>
       </div>
       <div className={styles.grid}>
@@ -37,6 +44,10 @@ export const InventoryWindow = memo(function InventoryWindow({
           <button
             key={item.id}
             className={styles.itemCard}
+            style={{
+              borderColor: rarityColor(item.rarity),
+              boxShadow: `0 0 0 1px ${rarityColor(item.rarity)}33 inset`,
+            }}
             onClick={() => onEquip(item.id)}
             onMouseEnter={(event) =>
               onHoverItem(
@@ -47,10 +58,10 @@ export const InventoryWindow = memo(function InventoryWindow({
             }
             onMouseLeave={onLeaveItem}
           >
-            <img
+            <span
               className={styles.itemIcon}
-              src={iconForItem(item)}
-              alt={item.kind}
+              style={iconMaskStyle(iconForItem(item), rarityColor(item.rarity))}
+              aria-label={item.kind}
             />
             {item.quantity > 1 ? (
               <span className={styles.stackBadge}>x{item.quantity}</span>
@@ -64,3 +75,12 @@ export const InventoryWindow = memo(function InventoryWindow({
     </DraggableWindow>
   );
 });
+
+function iconMaskStyle(icon: string, color: string) {
+  const mask = `url("${icon}") center / contain no-repeat`;
+  return {
+    backgroundColor: color,
+    WebkitMask: mask,
+    mask,
+  };
+}

@@ -19,6 +19,11 @@ export function normalizeLoadedGame(game: GameState): GameState {
       {
         ...tile,
         items: (tile.items ?? []).map(normalizeItem),
+        enemyIds:
+          tile.enemyIds ??
+          (((tile as unknown as { enemyId?: string }).enemyId
+            ? [(tile as unknown as { enemyId?: string }).enemyId as string]
+            : []) as string[]),
       },
     ]),
   );
@@ -28,6 +33,12 @@ export function normalizeLoadedGame(game: GameState): GameState {
     logSequence: Math.max(game.logSequence ?? 0, logs.length),
     logs,
     tiles,
+    combat: game.combat
+      ? {
+          ...game.combat,
+          enemyIds: game.combat.enemyIds ?? [],
+        }
+      : null,
     player: {
       ...game.player,
       gold: game.player.gold ?? 0,
@@ -43,5 +54,6 @@ function normalizeItem(item: Item): Item {
   return {
     ...item,
     quantity: item.quantity ?? 1,
+    rarity: item.rarity ?? 'common',
   };
 }

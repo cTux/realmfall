@@ -35,12 +35,19 @@
   align-items: center;
   justify-content: center;
   padding: 0.6rem;
+  border-width: 2px;
 }
 
 .itemIcon {
   width: 2.9rem;
   height: 2.9rem;
-  object-fit: contain;
+  display: inline-block;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
 }
 

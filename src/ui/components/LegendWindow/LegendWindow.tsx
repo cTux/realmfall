@@ -34,6 +34,18 @@ export const LegendWindow = memo(function LegendWindow({
           <span className={`${styles.swatch} ${styles.mountain}`} /> Mountain ·
           blocked
         </div>
+        <div className={styles.row}>
+          <span className={`${styles.marker} ${styles.town}`} /> Town · sell
+          items
+        </div>
+        <div className={styles.row}>
+          <span className={`${styles.marker} ${styles.forge}`} /> Forge ·
+          prospect items
+        </div>
+        <div className={styles.row}>
+          <span className={`${styles.marker} ${styles.dungeon}`} /> Dungeon ·
+          elite enemies
+        </div>
       </div>
     </DraggableWindow>
   );

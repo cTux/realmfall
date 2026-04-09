@@ -1,8 +1,10 @@
 import {
+  attackCombatEnemy,
   createGame,
   EQUIPMENT_SLOTS,
   equipItem,
   getEnemyAt,
+  getEnemiesAt,
   getPlayerStats,
   getTileAt,
   getVisibleTiles,
@@ -46,13 +48,46 @@ describe('game state', () => {
       coord: target,
       terrain: 'plains',
       items: [],
-      enemyId: undefined,
+      structure: undefined,
+      enemyIds: [],
     };
     game.player.coord = { q: 1, r: 0 };
 
     const next = moveToTile(game, target);
     expect(next.player.coord).toEqual(target);
     expect(next.turn).toBe(1);
+  });
+
+  it('opens and resolves combat encounters on enemy tiles', () => {
+    const game = createGame(3, 'combat-seed');
+    const target = { q: 2, r: 0 };
+    game.tiles['2,0'] = {
+      coord: target,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: ['enemy-2,0-0'],
+    };
+    game.enemies['enemy-2,0-0'] = {
+      id: 'enemy-2,0-0',
+      name: 'Wolf',
+      coord: target,
+      tier: 1,
+      hp: 1,
+      maxHp: 1,
+      attack: 0,
+      defense: 0,
+      xp: 5,
+      elite: false,
+    };
+    game.player.coord = { q: 1, r: 0 };
+
+    const engaged = moveToTile(game, target);
+    expect(engaged.combat).not.toBeNull();
+
+    const resolved = attackCombatEnemy(engaged, 'enemy-2,0-0');
+    expect(resolved.combat).toBeNull();
+    expect(getEnemiesAt(resolved, target)).toHaveLength(0);
   });
 
   it('supports many equipment slots and artifact loadouts', () => {
@@ -65,6 +100,7 @@ describe('game state', () => {
       name: `Item ${index}`,
       quantity: 1,
       tier: 2,
+      rarity: 'rare',
       power: slot === 'weapon' || slot === 'relic' ? 3 : 0,
       defense: slot === 'weapon' ? 0 : 2,
       maxHp: 1,
@@ -96,6 +132,7 @@ describe('game state', () => {
         name: 'Rust Blade',
         quantity: 1,
         tier: 2,
+        rarity: 'common',
         power: 4,
         defense: 0,
         maxHp: 0,
@@ -108,6 +145,7 @@ describe('game state', () => {
         name: 'Trail Ration',
         quantity: 2,
         tier: 1,
+        rarity: 'common',
         power: 0,
         defense: 0,
         maxHp: 0,
@@ -115,16 +153,14 @@ describe('game state', () => {
         hunger: 12,
       },
     ];
+    game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'forge' };
 
     const sorted = sortInventory(game);
     expect(sorted.player.inventory[0]?.kind).toBe('weapon');
     expect(sorted.player.inventory[1]?.kind).toBe('consumable');
 
     const sold = sellAllItems(sorted);
-    expect(sold.player.gold).toBeGreaterThan(0);
-    expect(sold.player.inventory.every((item) => item.kind !== 'weapon')).toBe(
-      true,
-    );
+    expect(sold.logs[0]?.text).toMatch(/only while standing in town/i);
 
     const prospected = prospectInventory(sorted);
     expect(
@@ -134,6 +170,10 @@ describe('game state', () => {
     expect(
       prospected.player.inventory.some((item) => item.kind === 'resource'),
     ).toBe(true);
+
+    sorted.tiles['0,0'] = { ...sorted.tiles['0,0'], structure: 'town' };
+    const soldInTown = sellAllItems(sorted);
+    expect(soldInTown.player.gold).toBeGreaterThan(0);
   });
 });
 

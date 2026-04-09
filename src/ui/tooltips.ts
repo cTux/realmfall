@@ -17,6 +17,7 @@ export function comparisonLines(item: Item, equipped?: Item) {
 
 export function itemTooltipLines(item: Item, equipped?: Item): TooltipLine[] {
   const lines = [
+    { text: item.rarity.toUpperCase() },
     item.kind === 'consumable' || item.kind === 'resource'
       ? null
       : { text: `Tier ${item.tier}` },

@@ -8,6 +8,8 @@ export interface InventoryWindowProps {
   gold: number;
   inventory: Item[];
   equipment: Equipment;
+  canProspect: boolean;
+  canSell: boolean;
   onSort: () => void;
   onProspect: () => void;
   onSellAll: () => void;

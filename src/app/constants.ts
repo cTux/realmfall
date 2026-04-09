@@ -14,6 +14,7 @@ export interface WindowPositions {
   equipment: WindowPosition;
   inventory: WindowPosition;
   log: WindowPosition;
+  combat: WindowPosition;
 }
 
 export const DEFAULT_WINDOWS: WindowPositions = {
@@ -22,6 +23,7 @@ export const DEFAULT_WINDOWS: WindowPositions = {
   equipment: { x: 1000, y: 20 },
   inventory: { x: 820, y: 290 },
   log: { x: 420, y: 20 },
+  combat: { x: 420, y: 470 },
 };
 
 export const DEFAULT_LOG_FILTERS: Record<LogKind, boolean> = {

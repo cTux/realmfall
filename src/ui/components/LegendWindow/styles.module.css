@@ -17,6 +17,14 @@
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
+.marker {
+  width: 1.1rem;
+  height: 1.1rem;
+  display: inline-block;
+  border-radius: 0.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
 .plains {
   background: #3f7d3f;
 }
@@ -39,4 +47,16 @@
 
 .mountain {
   background: rgba(185, 28, 28, 0.16);
+}
+
+.town {
+  background: #fbbf24;
+}
+
+.forge {
+  background: #f97316;
+}
+
+.dungeon {
+  background: #a855f7;
 }

@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { EQUIPMENT_SLOTS, type EquipmentSlot } from '../../../game/state';
 import { iconForItem } from '../../icons';
+import { rarityColor } from '../../rarity';
 import { DraggableWindow } from '../DraggableWindow';
 import type { EquipmentWindowProps } from './types';
 import styles from './styles.module.css';
@@ -29,12 +30,23 @@ export const EquipmentWindow = memo(function EquipmentWindow({
                 onMouseLeave={onLeaveItem}
                 onClick={equipped ? () => onUnequip(slot) : undefined}
               >
-                <img
+                <span
                   className={styles.slotIcon}
-                  src={iconForItem(equipped, slot)}
-                  alt="Slot icon"
+                  style={iconMaskStyle(
+                    iconForItem(equipped, slot),
+                    equipped
+                      ? rarityColor(equipped.rarity)
+                      : 'rgba(148, 163, 184, 0.32)',
+                  )}
                 />
-                <strong className={equipped ? undefined : styles.slotEmpty}>
+                <strong
+                  className={equipped ? undefined : styles.slotEmpty}
+                  style={
+                    equipped
+                      ? { color: rarityColor(equipped.rarity) }
+                      : undefined
+                  }
+                >
                   {equipped?.name ?? 'Empty'}
                 </strong>
               </div>
@@ -50,4 +62,13 @@ function formatSlot(slot: EquipmentSlot) {
   return slot
     .replace(/([A-Z])/g, ' $1')
     .replace(/^./, (char) => char.toUpperCase());
+}
+
+function iconMaskStyle(icon: string, color: string) {
+  const mask = `url("${icon}") center / contain no-repeat`;
+  return {
+    backgroundColor: color,
+    WebkitMask: mask,
+    mask,
+  };
 }
