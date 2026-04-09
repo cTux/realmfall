@@ -65,7 +65,7 @@ export function renderScene(
       world.addChild(lootBorder);
     }
 
-    if (tile.structure && emphasized) {
+    if (tile.structure) {
       const marker = new Graphics();
       const color =
         tile.structure === 'town'
@@ -102,21 +102,28 @@ export function renderScene(
     }
 
     const enemies = getEnemiesAt(state, tile.coord);
-    const enemy = enemies[0];
-    if (enemy && emphasized) {
-      const sprite = Sprite.from(enemyIconFor(enemy.name));
-      sprite.anchor.set(0.5);
-      sprite.position.set(point.x, point.y - 2);
-      sprite.width = 44;
-      sprite.height = 44;
-      sprite.tint = enemyTint(enemy.name);
-      world.addChild(sprite);
+    if (enemies.length > 0) {
+      const offsets = enemyOffsets(enemies.length);
+      enemies.forEach((enemy, index) => {
+        const sprite = Sprite.from(enemyIconFor(enemy.name));
+        sprite.anchor.set(0.5);
+        sprite.position.set(
+          point.x + offsets[index].x,
+          point.y - 2 + offsets[index].y,
+        );
+        sprite.width = 32;
+        sprite.height = 32;
+        sprite.tint = enemyTint(enemy.name);
+        sprite.alpha = emphasized ? 1 : 0.72;
+        world.addChild(sprite);
+      });
 
       const level = new Text(
         `L${Math.max(...enemies.map((foe) => foe.tier))}`,
         new TextStyle({ fill: 0xfef2f2, fontSize: 12, fontWeight: '700' }),
       );
       level.position.set(point.x - 12, point.y - 32);
+      level.alpha = emphasized ? 1 : 0.78;
       labels.addChild(level);
 
       if (enemies.length > 1) {
@@ -125,6 +132,7 @@ export function renderScene(
           new TextStyle({ fill: 0xfef3c7, fontSize: 11, fontWeight: '700' }),
         );
         groupLabel.position.set(point.x + 8, point.y - 26);
+        groupLabel.alpha = emphasized ? 1 : 0.78;
         labels.addChild(groupLabel);
       }
     }
@@ -157,6 +165,19 @@ function makeHex(x: number, y: number, size: number) {
     points.push(x + size * Math.cos(angle), y + size * Math.sin(angle));
   }
   return points;
+}
+
+function enemyOffsets(count: number) {
+  const radius = count > 1 ? 14 : 0;
+  return Array.from({ length: count }, (_, index) => {
+    if (count === 1) return { x: 0, y: 0 };
+    const angle =
+      (-Math.PI / 2 + (Math.PI * 2 * index) / count) % (Math.PI * 2);
+    return {
+      x: Math.round(Math.cos(angle) * radius),
+      y: Math.round(Math.sin(angle) * radius),
+    };
+  });
 }
 
 function tileStyle(terrain: string) {
