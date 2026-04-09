@@ -1,6 +1,5 @@
 .floatingWindow {
   position: fixed;
-  z-index: 20;
   width: min(320px, calc(100vw - 16px));
   background: rgba(8, 15, 30, 0.86);
   border: 1px solid rgba(148, 163, 184, 0.2);
@@ -8,6 +7,21 @@
   backdrop-filter: blur(14px);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
   overflow: hidden;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    transform 120ms ease;
+}
+
+.floatingWindow[data-window-emphasis='hovered'],
+.floatingWindow[data-window-emphasis='active'] {
+  border-color: rgba(226, 232, 240, 0.5);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+}
+
+.floatingWindow[data-window-emphasis='active'] {
+  border-color: rgba(248, 250, 252, 0.72);
+  transform: translateY(-1px);
 }
 
 .windowHeader {

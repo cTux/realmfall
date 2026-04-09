@@ -380,7 +380,7 @@ describe('ui helpers and components', () => {
     expect(iconForItem(undefined, 'weapon')).toBeTruthy();
   });
 
-  it('supports drag, collapse, and context menu dismissal interactions', async () => {
+  it('raises hovered and active windows during interactions', async () => {
     const moves: Array<{ x: number; y: number }> = [];
     const collapsedChanges: boolean[] = [];
     const close = vi.fn();
@@ -409,6 +409,13 @@ describe('ui helpers and components', () => {
       root?.render(
         <>
           <DraggableWindow
+            title="Background Window"
+            position={{ x: 12, y: 18 }}
+            onMove={() => {}}
+          >
+            <button type="button">Background action</button>
+          </DraggableWindow>
+          <DraggableWindow
             title="Test Window"
             position={{ x: 40, y: 50 }}
             onMove={(position) => moves.push(position)}
@@ -432,34 +439,75 @@ describe('ui helpers and components', () => {
       );
     });
 
-    const header = host.querySelector('div[class*="windowHeader"]');
+    const floatingWindows = Array.from(
+      host.querySelectorAll('section[class*="floatingWindow"]'),
+    );
+    expect(floatingWindows).toHaveLength(2);
+
+    const backgroundWindow = floatingWindows[0] as HTMLElement;
+    const testWindow = floatingWindows[1] as HTMLElement;
+
+    const initialBackgroundZIndex = Number(backgroundWindow.style.zIndex);
+    const initialTestZIndex = Number(testWindow.style.zIndex);
+    expect(initialTestZIndex).toBeGreaterThan(initialBackgroundZIndex);
+    expect(testWindow.dataset.windowEmphasis).toBe('idle');
+
+    await act(async () => {
+      testWindow.dispatchEvent(
+        new MouseEvent('pointerover', {
+          bubbles: true,
+          clientX: 80,
+          clientY: 90,
+        }),
+      );
+    });
+    expect(testWindow.dataset.windowEmphasis).toBe('hovered');
+
+    await act(async () => {
+      backgroundWindow.dispatchEvent(
+        new MouseEvent('pointerdown', {
+          bubbles: true,
+          clientX: 20,
+          clientY: 24,
+        }),
+      );
+    });
+    expect(backgroundWindow.dataset.windowEmphasis).toBe('active');
+    expect(Number(backgroundWindow.style.zIndex)).toBeGreaterThan(
+      Number(testWindow.style.zIndex),
+    );
+    close.mockClear();
+
+    const header = testWindow.querySelector('div[class*="windowHeader"]');
     expect(header).not.toBeNull();
-    header?.dispatchEvent(
-      new MouseEvent('pointerdown', {
-        bubbles: true,
-        clientX: 80,
-        clientY: 100,
-      }),
-    );
-    window.dispatchEvent(
-      new MouseEvent('pointermove', {
-        bubbles: true,
-        clientX: 5,
-        clientY: 6,
-      }),
-    );
-    window.dispatchEvent(new MouseEvent('pointerup', { bubbles: true }));
+    await act(async () => {
+      header?.dispatchEvent(
+        new MouseEvent('pointerdown', {
+          bubbles: true,
+          clientX: 80,
+          clientY: 100,
+        }),
+      );
+      window.dispatchEvent(
+        new MouseEvent('pointermove', {
+          bubbles: true,
+          clientX: 5,
+          clientY: 6,
+        }),
+      );
+      window.dispatchEvent(new MouseEvent('pointerup', { bubbles: true }));
+    });
 
     expect(moves.at(-1)).toEqual({ x: 8, y: 8 });
 
-    const collapseButton = Array.from(host.querySelectorAll('button')).find(
-      (button) => button.textContent === 'collapse',
-    );
-    expect(host.textContent).toContain('Body');
+    const collapseButton = Array.from(
+      testWindow.querySelectorAll('button'),
+    ).find((button) => button.textContent === 'collapse');
+    expect(testWindow.textContent).toContain('Body');
     await act(async () => {
       collapseButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
-    expect(host.textContent).not.toContain('Body');
+    expect(testWindow.textContent).not.toContain('Body');
     expect(collapsedChanges).toEqual([true]);
 
     const menuButtons = Array.from(host.querySelectorAll('button')).filter(
