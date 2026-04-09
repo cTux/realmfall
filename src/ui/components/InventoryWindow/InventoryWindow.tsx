@@ -1,27 +1,7 @@
-import type { MouseEvent as ReactMouseEvent } from 'react';
-import type { WindowPosition } from '../../app/constants';
-import type { Equipment, Item } from '../../game/state';
-import { iconForItem } from '../icons';
-import { DraggableWindow } from './DraggableWindow';
-import styles from './InventoryWindow.module.css';
-
-interface InventoryWindowProps {
-  position: WindowPosition;
-  onMove: (position: WindowPosition) => void;
-  gold: number;
-  inventory: Item[];
-  equipment: Equipment;
-  onSort: () => void;
-  onProspect: () => void;
-  onSellAll: () => void;
-  onEquip: (itemId: string) => void;
-  onHoverItem: (
-    event: ReactMouseEvent<HTMLElement>,
-    item: Item,
-    equipped?: Item,
-  ) => void;
-  onLeaveItem: () => void;
-}
+import { iconForItem } from '../../icons';
+import { DraggableWindow } from '../DraggableWindow';
+import type { InventoryWindowProps } from './types';
+import styles from './styles.module.css';
 
 export function InventoryWindow({
   position,

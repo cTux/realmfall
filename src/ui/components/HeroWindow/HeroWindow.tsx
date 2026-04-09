@@ -1,24 +1,7 @@
-import { DraggableWindow } from './DraggableWindow';
-import type { WindowPosition } from '../../app/constants';
-import styles from './HeroWindow.module.css';
-
-interface HeroWindowProps {
-  position: WindowPosition;
-  onMove: (position: WindowPosition) => void;
-  stats: {
-    hp: number;
-    maxHp: number;
-    mana: number;
-    maxMana: number;
-    xp: number;
-    nextLevelXp: number;
-    hungerPenalty: number;
-    attack: number;
-    defense: number;
-    level: number;
-  };
-  hunger: number;
-}
+import { DraggableWindow } from '../DraggableWindow';
+import { StatBar } from './components/StatBar';
+import type { HeroWindowProps } from './types';
+import styles from './styles.module.css';
 
 export function HeroWindow({
   position,
@@ -60,35 +43,5 @@ export function HeroWindow({
         </div>
       </div>
     </DraggableWindow>
-  );
-}
-
-function StatBar({
-  label,
-  value,
-  max,
-  color,
-}: {
-  label: string;
-  value: number;
-  max: number;
-  color: 'hp' | 'mana' | 'xp' | 'hunger';
-}) {
-  const width = Math.max(0, Math.min(100, (value / Math.max(1, max)) * 100));
-  return (
-    <div className={styles.barBlock}>
-      <div className={styles.barLabel}>
-        <span>{label}</span>
-        <strong>
-          {value}/{max}
-        </strong>
-      </div>
-      <div className={styles.barTrack}>
-        <div
-          className={`${styles.barFill} ${styles[color]}`}
-          style={{ width: `${width}%` }}
-        />
-      </div>
-    </div>
   );
 }

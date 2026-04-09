@@ -1,19 +1,8 @@
-import type { MouseEvent as ReactMouseEvent } from 'react';
-import type { Equipment, EquipmentSlot, Item } from '../../game/state';
-import type { WindowPosition } from '../../app/constants';
-import { EQUIPMENT_SLOTS } from '../../game/state';
-import { iconForItem } from '../icons';
-import { DraggableWindow } from './DraggableWindow';
-import styles from './EquipmentWindow.module.css';
-
-interface EquipmentWindowProps {
-  position: WindowPosition;
-  onMove: (position: WindowPosition) => void;
-  equipment: Equipment;
-  onHoverItem: (event: ReactMouseEvent<HTMLElement>, item: Item) => void;
-  onLeaveItem: () => void;
-  onUnequip: (slot: EquipmentSlot) => void;
-}
+import { EQUIPMENT_SLOTS, type EquipmentSlot } from '../../../game/state';
+import { iconForItem } from '../../icons';
+import { DraggableWindow } from '../DraggableWindow';
+import type { EquipmentWindowProps } from './types';
+import styles from './styles.module.css';
 
 export function EquipmentWindow({
   position,

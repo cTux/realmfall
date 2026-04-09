@@ -1,14 +1,5 @@
-import type { TooltipLine } from '../tooltips';
-import styles from './GameTooltip.module.css';
-
-interface GameTooltipProps {
-  tooltip: {
-    title: string;
-    lines: TooltipLine[];
-    x: number;
-    y: number;
-  } | null;
-}
+import type { GameTooltipProps } from './types';
+import styles from './styles.module.css';
 
 export function GameTooltip({ tooltip }: GameTooltipProps) {
   if (!tooltip) return null;

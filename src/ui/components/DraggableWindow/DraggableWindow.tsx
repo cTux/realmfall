@@ -1,18 +1,6 @@
-import {
-  useRef,
-  type PointerEvent as ReactPointerEvent,
-  type ReactNode,
-} from 'react';
-import type { WindowPosition } from '../../app/constants';
-import styles from './DraggableWindow.module.css';
-
-interface DraggableWindowProps {
-  title: string;
-  position: WindowPosition;
-  onMove: (position: WindowPosition) => void;
-  children: ReactNode;
-  className?: string;
-}
+import { useRef, type PointerEvent as ReactPointerEvent } from 'react';
+import type { DraggableWindowProps } from './types';
+import styles from './styles.module.css';
 
 export function DraggableWindow({
   title,

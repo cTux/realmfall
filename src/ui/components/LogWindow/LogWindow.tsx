@@ -1,18 +1,6 @@
-import type { WindowPosition } from '../../app/constants';
-import type { LogEntry, LogKind } from '../../game/state';
-import { DraggableWindow } from './DraggableWindow';
-import styles from './LogWindow.module.css';
-
-interface LogWindowProps {
-  position: WindowPosition;
-  onMove: (position: WindowPosition) => void;
-  filters: Record<LogKind, boolean>;
-  defaultFilters: Record<LogKind, boolean>;
-  showFilterMenu: boolean;
-  onToggleMenu: () => void;
-  onToggleFilter: (kind: LogKind) => void;
-  logs: LogEntry[];
-}
+import { DraggableWindow } from '../DraggableWindow';
+import type { LogWindowProps } from './types';
+import styles from './styles.module.css';
 
 export function LogWindow({
   position,
@@ -40,8 +28,8 @@ export function LogWindow({
                 <input
                   className={styles.styledCheckbox}
                   type="checkbox"
-                  checked={filters[kind as LogKind]}
-                  onChange={() => onToggleFilter(kind as LogKind)}
+                  checked={filters[kind as keyof typeof filters]}
+                  onChange={() => onToggleFilter(kind as keyof typeof filters)}
                 />
                 {kind}
               </label>

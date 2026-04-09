@@ -1,0 +1,19 @@
+.stats {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.heroNumbers {
+  font-size: 1rem;
+  color: #cbd5e1;
+}
+
+.hungerPenalty {
+  font-size: 0.95rem;
+  color: #94a3b8;
+}
+
+.activePenalty {
+  color: #fb923c;
+  font-weight: 700;
+}
