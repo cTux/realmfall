@@ -8,7 +8,14 @@ export const GameTooltip = memo(function GameTooltip({
   if (!tooltip) return null;
 
   return (
-    <div className={styles.tooltip} style={{ left: tooltip.x, top: tooltip.y }}>
+    <div
+      className={styles.tooltip}
+      style={{
+        left: tooltip.x,
+        top: tooltip.y,
+        borderColor: tooltip.borderColor,
+      }}
+    >
       <strong className={styles.title}>{tooltip.title}</strong>
       {tooltip.lines.map((line) => (
         <div

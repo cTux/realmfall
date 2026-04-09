@@ -2,23 +2,20 @@ import { memo, useLayoutEffect, useRef, useState } from 'react';
 import { iconForItem } from '../../icons';
 import { rarityColor } from '../../rarity';
 import { DraggableWindow } from '../DraggableWindow';
-import type { InventoryWindowProps } from './types';
-import styles from './styles.module.css';
+import type { LootWindowProps } from './types';
+import styles from '../InventoryWindow/styles.module.css';
 
-export const InventoryWindow = memo(function InventoryWindow({
+export const LootWindow = memo(function LootWindow({
   position,
   onMove,
-  inventory,
+  loot,
   equipment,
-  canProspect,
-  canSell,
-  onSort,
-  onProspect,
-  onSellAll,
-  onEquip,
+  onClose,
+  onTakeAll,
+  onTakeItem,
   onHoverItem,
   onLeaveItem,
-}: InventoryWindowProps) {
+}: LootWindowProps) {
   const gridRef = useRef<HTMLDivElement | null>(null);
   const [hasOverflow, setHasOverflow] = useState(false);
 
@@ -33,23 +30,20 @@ export const InventoryWindow = memo(function InventoryWindow({
     updateOverflow();
     window.addEventListener('resize', updateOverflow);
     return () => window.removeEventListener('resize', updateOverflow);
-  }, [inventory.length]);
+  }, [loot.length]);
 
   return (
     <DraggableWindow
-      title="Inventory"
+      title="Loot"
       position={position}
       onMove={onMove}
       className={styles.window}
     >
       <div className={styles.toolbar}>
         <div className={styles.actions}>
-          <button onClick={onSort}>Sort</button>
-          <button onClick={onProspect} disabled={!canProspect}>
-            Prospect
-          </button>
-          <button onClick={onSellAll} disabled={!canSell}>
-            Sell all equippable
+          <button onClick={onClose}>Close</button>
+          <button onClick={onTakeAll} disabled={loot.length === 0}>
+            Take all
           </button>
         </div>
       </div>
@@ -57,7 +51,7 @@ export const InventoryWindow = memo(function InventoryWindow({
         ref={gridRef}
         className={`${styles.grid} ${hasOverflow ? styles.gridOverflow : ''}`.trim()}
       >
-        {inventory.map((item) => (
+        {loot.map((item) => (
           <button
             key={item.id}
             className={styles.itemCard}
@@ -65,7 +59,7 @@ export const InventoryWindow = memo(function InventoryWindow({
               borderColor: rarityColor(item.rarity),
               boxShadow: `0 0 0 1px ${rarityColor(item.rarity)}33 inset`,
             }}
-            onClick={() => onEquip(item.id)}
+            onClick={() => onTakeItem(item.id)}
             onMouseEnter={(event) =>
               onHoverItem(
                 event,
@@ -85,9 +79,7 @@ export const InventoryWindow = memo(function InventoryWindow({
             ) : null}
           </button>
         ))}
-        {inventory.length === 0 ? (
-          <div className={styles.empty}>Empty</div>
-        ) : null}
+        {loot.length === 0 ? <div className={styles.empty}>Empty</div> : null}
       </div>
     </DraggableWindow>
   );

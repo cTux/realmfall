@@ -34,6 +34,7 @@ export const EnemyType = {
 } as const;
 
 export const ResourceType = {
+  Gold: 'Gold',
   Herbs: 'Herbs',
   Logs: 'Logs',
   Sticks: 'Sticks',
@@ -80,6 +81,7 @@ export const ItemIcon: Record<EquipmentSlot, string> = {
 };
 
 export const ResourceIcon: Record<string, string> = {
+  [ResourceType.Gold]: Icons.Orb,
   [ResourceType.Herbs]: Icons.Consumable,
   [ResourceType.Logs]: Icons.Weapon,
   [ResourceType.Sticks]: Icons.Weapon,

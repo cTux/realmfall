@@ -21,6 +21,8 @@ import {
   moveToTile,
   prospectInventory,
   sellAllItems,
+  takeAllTileItems,
+  takeTileItem,
   sortInventory,
   unequipItem,
   type GameState,
@@ -40,6 +42,7 @@ import {
   saveEncryptedState,
 } from '../../persistence/storage';
 import { itemTooltipLines } from '../../ui/tooltips';
+import { rarityColor } from '../../ui/rarity';
 import { renderScene } from '../../ui/world/renderScene';
 import { HeroWindow } from '../../ui/components/HeroWindow';
 import { LegendWindow } from '../../ui/components/LegendWindow';
@@ -48,6 +51,7 @@ import { InventoryWindow } from '../../ui/components/InventoryWindow';
 import { LogWindow } from '../../ui/components/LogWindow';
 import { GameTooltip } from '../../ui/components/GameTooltip';
 import { CombatWindow } from '../../ui/components/CombatWindow';
+import { LootWindow } from '../../ui/components/LootWindow';
 import type { PersistedUiState, TooltipItem, TooltipState } from './types';
 import styles from './styles.module.css';
 
@@ -64,6 +68,7 @@ export function App() {
   const [hydrated, setHydrated] = useState(false);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+  const [dismissedLootKey, setDismissedLootKey] = useState<string | null>(null);
 
   const stats = useMemo(() => getPlayerStats(game.player), [game.player]);
   const visibleTiles = useMemo(() => getVisibleTiles(game), [game]);
@@ -71,6 +76,13 @@ export function App() {
   const combatEnemies = useMemo(
     () => (game.combat ? getEnemiesAt(game, game.combat.coord) : []),
     [game],
+  );
+  const lootWindowKey = useMemo(() => {
+    if (currentTile.items.length === 0) return null;
+    return `${currentTile.coord.q},${currentTile.coord.r}:${currentTile.items.map((item) => `${item.id}:${item.quantity}`).join('|')}`;
+  }, [currentTile]);
+  const showLootWindow = Boolean(
+    !game.combat && lootWindowKey && lootWindowKey !== dismissedLootKey,
   );
   const filteredLogs = useMemo(
     () => game.logs.filter((entry) => logFilters[entry.kind]),
@@ -81,6 +93,23 @@ export function App() {
     playerCoordRef.current = game.player.coord;
     gameRef.current = game;
   }, [game]);
+
+  useEffect(() => {
+    if (!game.combat || combatEnemies.length === 0) return;
+
+    const timeout = window.setTimeout(() => {
+      setGame((current) => {
+        const enemyId = current.combat?.enemyIds[0];
+        return enemyId ? attackCombatEnemy(current, enemyId) : current;
+      });
+    }, 450);
+
+    return () => window.clearTimeout(timeout);
+  }, [combatEnemies, game.combat]);
+
+  useEffect(() => {
+    if (!lootWindowKey) setDismissedLootKey(null);
+  }, [lootWindowKey]);
 
   useEffect(() => {
     let alive = true;
@@ -210,6 +239,7 @@ export function App() {
         lines: itemTooltipLines(item, equipped),
         x: rect.right + 12,
         y: rect.top,
+        borderColor: rarityColor(item.rarity),
       });
     },
     [],
@@ -242,6 +272,11 @@ export function App() {
     [moveWindow],
   );
 
+  const handleLootMove = useCallback(
+    (position: WindowPositions['loot']) => moveWindow('loot', position),
+    [moveWindow],
+  );
+
   const handleUnequip = useCallback(
     (slot: Parameters<typeof unequipItem>[1]) => {
       setGame((current) => unequipItem(current, slot));
@@ -264,6 +299,18 @@ export function App() {
   const handleEquip = useCallback((itemId: string) => {
     setGame((current) => equipItem(current, itemId));
   }, []);
+
+  const handleTakeLootItem = useCallback((itemId: string) => {
+    setGame((current) => takeTileItem(current, itemId));
+  }, []);
+
+  const handleTakeAllLoot = useCallback(() => {
+    setGame((current) => takeAllTileItems(current));
+  }, []);
+
+  const handleCloseLoot = useCallback(() => {
+    if (lootWindowKey) setDismissedLootKey(lootWindowKey);
+  }, [lootWindowKey]);
 
   const handleAttackEnemy = useCallback((enemyId: string) => {
     setGame((current) => attackCombatEnemy(current, enemyId));
@@ -306,7 +353,6 @@ export function App() {
       <InventoryWindow
         position={windows.inventory}
         onMove={handleInventoryMove}
-        gold={game.player.gold}
         inventory={game.player.inventory}
         equipment={game.player.equipment}
         canProspect={currentTile.structure === 'forge'}
@@ -318,6 +364,19 @@ export function App() {
         onHoverItem={showItemTooltip}
         onLeaveItem={closeTooltip}
       />
+      {showLootWindow ? (
+        <LootWindow
+          position={windows.loot}
+          onMove={handleLootMove}
+          loot={currentTile.items}
+          equipment={game.player.equipment}
+          onClose={handleCloseLoot}
+          onTakeAll={handleTakeAllLoot}
+          onTakeItem={handleTakeLootItem}
+          onHoverItem={showItemTooltip}
+          onLeaveItem={closeTooltip}
+        />
+      ) : null}
       <LogWindow
         position={windows.log}
         onMove={handleLogMove}

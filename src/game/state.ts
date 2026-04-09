@@ -77,7 +77,6 @@ export interface Player {
   coord: HexCoord;
   level: number;
   xp: number;
-  gold: number;
   hp: number;
   baseMaxHp: number;
   mana: number;
@@ -164,7 +163,7 @@ const ARTIFACT_FORMS = ['Idol', 'Sigil', 'Charm', 'Lens', 'Shard', 'Totem'];
 const TOWN_SEARCH_LIMIT = 24;
 
 export function createGame(
-  radius = 6,
+  radius = 8,
   seed = `world-${Date.now()}`,
 ): GameState {
   const state: GameState = {
@@ -181,7 +180,6 @@ export function createGame(
       coord: { q: 0, r: 0 },
       level: 1,
       xp: 0,
-      gold: 0,
       hp: 30,
       baseMaxHp: 30,
       mana: 12,
@@ -322,7 +320,6 @@ export function moveToTile(state: GameState, target: HexCoord): GameState {
     return next;
   }
 
-  pickUpLoot(next, target);
   addLog(next, 'movement', `You travel to ${target.q}, ${target.r}.`);
   return next;
 }
@@ -350,10 +347,7 @@ export function attackCombatEnemy(
 
   syncCombatEnemies(next);
 
-  if (!next.combat) {
-    pickUpLoot(next, state.combat.coord);
-    return next;
-  }
+  if (!next.combat) return next;
 
   const survivingEnemies = next.combat.enemyIds
     .map((id) => next.enemies[id])
@@ -440,10 +434,10 @@ export function sellAllItems(state: GameState): GameState {
 
   const next = clone(state);
   const gold = sellable.reduce((sum, item) => sum + sellValue(item), 0);
-  next.player.gold += gold;
   next.player.inventory = next.player.inventory.filter(
     (item) => !isEquippableItem(item),
   );
+  addItemToInventory(next.player.inventory, makeGoldStack(gold));
   addLog(next, 'system', `You sell your spare gear for ${gold} gold.`);
   return next;
 }
@@ -468,6 +462,39 @@ export function prospectInventory(state: GameState): GameState {
 
   next.player.inventory.sort(compareItems);
   addLog(next, 'loot', 'You prospect your spare gear into raw materials.');
+  return next;
+}
+
+export function takeTileItem(state: GameState, itemId: string): GameState {
+  const next = clone(state);
+  ensureTileState(next, next.player.coord);
+  const key = hexKey(next.player.coord);
+  const tile = next.tiles[key];
+  const itemIndex = tile.items.findIndex((item) => item.id === itemId);
+  if (itemIndex < 0) return message(state, 'That item is no longer here.');
+
+  const [item] = tile.items.splice(itemIndex, 1);
+  addItemToInventory(next.player.inventory, item);
+  next.tiles[key] = { ...tile, items: [...tile.items] };
+  addLog(next, 'loot', `You take ${describeItemStack(item)}.`);
+  return next;
+}
+
+export function takeAllTileItems(state: GameState): GameState {
+  const next = clone(state);
+  ensureTileState(next, next.player.coord);
+  const key = hexKey(next.player.coord);
+  const tile = next.tiles[key];
+  if (tile.items.length === 0)
+    return message(state, 'There is nothing here to take.');
+
+  tile.items.forEach((item) => addItemToInventory(next.player.inventory, item));
+  next.tiles[key] = { ...tile, items: [] };
+  addLog(
+    next,
+    'loot',
+    `You take ${tile.items.map((item) => describeItemStack(item)).join(', ')}.`,
+  );
   return next;
 }
 
@@ -904,21 +931,6 @@ function makeConsumable(
   };
 }
 
-function pickUpLoot(state: GameState, coord: HexCoord) {
-  ensureTileState(state, coord);
-  const tile = state.tiles[hexKey(coord)];
-  if (tile.items.length === 0) return;
-  tile.items.forEach((item) =>
-    addItemToInventory(state.player.inventory, item),
-  );
-  state.tiles[hexKey(coord)] = { ...tile, items: [] };
-  addLog(
-    state,
-    'loot',
-    `You found ${tile.items.map((item) => item.name).join(', ')}.`,
-  );
-}
-
 function gainXp(state: GameState, amount: number) {
   state.player.xp += amount;
   while (state.player.xp >= levelThreshold(state.player.level)) {
@@ -1211,6 +1223,32 @@ function makeResourceStack(name: string, tier: number, quantity: number): Item {
   };
 }
 
+export function makeGoldStack(quantity: number): Item {
+  return {
+    id: 'resource-gold-1',
+    kind: 'resource',
+    name: 'Gold',
+    quantity,
+    tier: 1,
+    rarity: 'common',
+    power: 0,
+    defense: 0,
+    maxHp: 0,
+    healing: 0,
+    hunger: 0,
+  };
+}
+
+export function getGoldAmount(inventory: Item[]) {
+  return inventory.reduce(
+    (sum, item) =>
+      item.kind === 'resource' && item.name === 'Gold'
+        ? sum + item.quantity
+        : sum,
+    0,
+  );
+}
+
 function isSameStackable(left: Item, right: Item) {
   return (
     (left.kind === 'consumable' || left.kind === 'resource') &&
@@ -1220,6 +1258,10 @@ function isSameStackable(left: Item, right: Item) {
     left.healing === right.healing &&
     left.hunger === right.hunger
   );
+}
+
+function describeItemStack(item: Item) {
+  return item.quantity > 1 ? `${item.quantity}x ${item.name}` : item.name;
 }
 
 function createInitialLogs(seed: string): LogEntry[] {
@@ -1240,7 +1282,7 @@ function addLog(state: GameState, kind: LogKind, text: string) {
   state.logs = [
     makeLog(state.logSequence, kind, state.turn, text),
     ...state.logs,
-  ].slice(0, 250);
+  ].slice(0, 100);
 }
 
 function makeLog(

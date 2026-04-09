@@ -5,6 +5,7 @@ import {
   equipItem,
   getEnemyAt,
   getEnemiesAt,
+  getGoldAmount,
   getPlayerStats,
   getTileAt,
   getVisibleTiles,
@@ -12,6 +13,8 @@ import {
   prospectInventory,
   sellAllItems,
   sortInventory,
+  takeAllTileItems,
+  takeTileItem,
   type Item,
 } from './state';
 
@@ -88,6 +91,144 @@ describe('game state', () => {
     const resolved = attackCombatEnemy(engaged, 'enemy-2,0-0');
     expect(resolved.combat).toBeNull();
     expect(getEnemiesAt(resolved, target)).toHaveLength(0);
+    expect(getTileAt(resolved, target).items).toHaveLength(0);
+  });
+
+  it('leaves loot on the tile until the player takes it', () => {
+    const game = createGame(3, 'manual-loot-seed');
+    game.tiles['0,0'] = {
+      ...game.tiles['0,0'],
+      items: [
+        {
+          id: 'resource-gold-1',
+          kind: 'resource',
+          name: 'Gold',
+          quantity: 12,
+          tier: 1,
+          rarity: 'common',
+          power: 0,
+          defense: 0,
+          maxHp: 0,
+          healing: 0,
+          hunger: 0,
+        },
+      ],
+    };
+
+    const taken = takeTileItem(game, 'resource-gold-1');
+
+    expect(getGoldAmount(taken.player.inventory)).toBe(12);
+    expect(getTileAt(taken, { q: 0, r: 0 }).items).toHaveLength(0);
+  });
+
+  it('takes all loot from the current tile at once', () => {
+    const game = createGame(3, 'take-all-loot-seed');
+    game.tiles['0,0'] = {
+      ...game.tiles['0,0'],
+      items: [
+        {
+          id: 'food-1',
+          kind: 'consumable',
+          name: 'Trail Ration',
+          quantity: 2,
+          tier: 1,
+          rarity: 'common',
+          power: 0,
+          defense: 0,
+          maxHp: 0,
+          healing: 10,
+          hunger: 15,
+        },
+        {
+          id: 'resource-gold-1',
+          kind: 'resource',
+          name: 'Gold',
+          quantity: 7,
+          tier: 1,
+          rarity: 'common',
+          power: 0,
+          defense: 0,
+          maxHp: 0,
+          healing: 0,
+          hunger: 0,
+        },
+      ],
+    };
+
+    const taken = takeAllTileItems(game);
+
+    expect(getGoldAmount(taken.player.inventory)).toBe(7);
+    expect(
+      taken.player.inventory.find((item) => item.name === 'Trail Ration')
+        ?.quantity,
+    ).toBe(4);
+    expect(getTileAt(taken, { q: 0, r: 0 }).items).toHaveLength(0);
+  });
+
+  it('lets every enemy on the tile retaliate during combat', () => {
+    const game = createGame(3, 'group-combat-seed');
+    const target = { q: 2, r: 0 };
+    game.tiles['2,0'] = {
+      coord: target,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: ['enemy-2,0-0', 'enemy-2,0-1'],
+    };
+    game.enemies['enemy-2,0-0'] = {
+      id: 'enemy-2,0-0',
+      name: 'Wolf',
+      coord: target,
+      tier: 1,
+      hp: 5,
+      maxHp: 5,
+      attack: 2,
+      defense: 0,
+      xp: 5,
+      elite: false,
+    };
+    game.enemies['enemy-2,0-1'] = {
+      id: 'enemy-2,0-1',
+      name: 'Bandit',
+      coord: target,
+      tier: 1,
+      hp: 5,
+      maxHp: 5,
+      attack: 3,
+      defense: 0,
+      xp: 5,
+      elite: false,
+    };
+    game.player.coord = { q: 1, r: 0 };
+
+    const engaged = moveToTile(game, target);
+    const resolvedRound = attackCombatEnemy(engaged, 'enemy-2,0-0');
+
+    expect(resolvedRound.combat?.enemyIds).toHaveLength(2);
+    expect(resolvedRound.player.hp).toBe(27);
+  });
+
+  it('caps the log at 100 messages', () => {
+    let game = createGame(3, 'log-cap-seed');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: [],
+    };
+    game.tiles['0,0'] = {
+      ...game.tiles['0,0'],
+      items: [],
+      enemyIds: [],
+    };
+
+    for (let turn = 0; turn < 120; turn += 1) {
+      game = moveToTile(game, turn % 2 === 0 ? { q: 1, r: 0 } : { q: 0, r: 0 });
+    }
+
+    expect(game.logs).toHaveLength(100);
+    expect(game.logs[0]?.text).toMatch(/you travel to/i);
   });
 
   it('supports many equipment slots and artifact loadouts', () => {
@@ -173,7 +314,7 @@ describe('game state', () => {
 
     sorted.tiles['0,0'] = { ...sorted.tiles['0,0'], structure: 'town' };
     const soldInTown = sellAllItems(sorted);
-    expect(soldInTown.player.gold).toBeGreaterThan(0);
+    expect(getGoldAmount(soldInTown.player.inventory)).toBeGreaterThan(0);
   });
 });
 

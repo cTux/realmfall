@@ -6,6 +6,7 @@ export interface TooltipState {
   lines: TooltipLine[];
   x: number;
   y: number;
+  borderColor?: string;
 }
 
 export interface PersistedUiState {

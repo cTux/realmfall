@@ -2,17 +2,14 @@ import type { MouseEvent as ReactMouseEvent } from 'react';
 import type { WindowPosition } from '../../../app/constants';
 import type { Equipment, Item } from '../../../game/state';
 
-export interface InventoryWindowProps {
+export interface LootWindowProps {
   position: WindowPosition;
   onMove: (position: WindowPosition) => void;
-  inventory: Item[];
+  loot: Item[];
   equipment: Equipment;
-  canProspect: boolean;
-  canSell: boolean;
-  onSort: () => void;
-  onProspect: () => void;
-  onSellAll: () => void;
-  onEquip: (itemId: string) => void;
+  onClose: () => void;
+  onTakeAll: () => void;
+  onTakeItem: (itemId: string) => void;
   onHoverItem: (
     event: ReactMouseEvent<HTMLElement>,
     item: Item,

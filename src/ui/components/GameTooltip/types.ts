@@ -5,6 +5,7 @@ export interface GameTooltipData {
   lines: TooltipLine[];
   x: number;
   y: number;
+  borderColor?: string;
 }
 
 export interface GameTooltipProps {
