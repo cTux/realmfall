@@ -24,10 +24,6 @@
   scrollbar-gutter: stable;
 }
 
-.gridOverflow {
-  grid-template-columns: repeat(4, 84px);
-}
-
 .itemCard {
   position: relative;
   width: 84px;
@@ -75,9 +71,5 @@
 
   .grid {
     grid-template-columns: repeat(4, 84px);
-  }
-
-  .gridOverflow {
-    grid-template-columns: repeat(3, 84px);
   }
 }

@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { structureIconFor } from '../../icons';
 import { DraggableWindow } from '../DraggableWindow';
 import type { LegendWindowProps } from './types';
 import styles from './styles.module.css';
@@ -35,18 +36,36 @@ export const LegendWindow = memo(function LegendWindow({
           blocked
         </div>
         <div className={styles.row}>
-          <span className={`${styles.marker} ${styles.town}`} /> Town · sell
-          items
+          <span
+            className={styles.marker}
+            style={iconMaskStyle(structureIconFor('town'), '#fbbf24')}
+          />
+          Town · sell items
         </div>
         <div className={styles.row}>
-          <span className={`${styles.marker} ${styles.forge}`} /> Forge ·
-          prospect items
+          <span
+            className={styles.marker}
+            style={iconMaskStyle(structureIconFor('forge'), '#f97316')}
+          />
+          Forge · prospect items
         </div>
         <div className={styles.row}>
-          <span className={`${styles.marker} ${styles.dungeon}`} /> Dungeon ·
-          elite enemies
+          <span
+            className={styles.marker}
+            style={iconMaskStyle(structureIconFor('dungeon'), '#a855f7')}
+          />
+          Dungeon · elite enemies
         </div>
       </div>
     </DraggableWindow>
   );
 });
+
+function iconMaskStyle(icon: string, color: string) {
+  const mask = `url("${icon}") center / contain no-repeat`;
+  return {
+    backgroundColor: color,
+    WebkitMask: mask,
+    mask,
+  };
+}

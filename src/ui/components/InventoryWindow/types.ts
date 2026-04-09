@@ -13,6 +13,7 @@ export interface InventoryWindowProps {
   onProspect: () => void;
   onSellAll: () => void;
   onEquip: (itemId: string) => void;
+  onContextItem: (event: ReactMouseEvent<HTMLElement>, item: Item) => void;
   onHoverItem: (
     event: ReactMouseEvent<HTMLElement>,
     item: Item,

@@ -1,4 +1,4 @@
-import { memo, useLayoutEffect, useRef, useState } from 'react';
+import { memo } from 'react';
 import { iconForItem } from '../../icons';
 import { rarityColor } from '../../rarity';
 import { DraggableWindow } from '../DraggableWindow';
@@ -16,22 +16,6 @@ export const LootWindow = memo(function LootWindow({
   onHoverItem,
   onLeaveItem,
 }: LootWindowProps) {
-  const gridRef = useRef<HTMLDivElement | null>(null);
-  const [hasOverflow, setHasOverflow] = useState(false);
-
-  useLayoutEffect(() => {
-    const grid = gridRef.current;
-    if (!grid) return;
-
-    const updateOverflow = () => {
-      setHasOverflow(grid.scrollHeight > grid.clientHeight + 1);
-    };
-
-    updateOverflow();
-    window.addEventListener('resize', updateOverflow);
-    return () => window.removeEventListener('resize', updateOverflow);
-  }, [loot.length]);
-
   return (
     <DraggableWindow
       title="Loot"
@@ -47,10 +31,7 @@ export const LootWindow = memo(function LootWindow({
           </button>
         </div>
       </div>
-      <div
-        ref={gridRef}
-        className={`${styles.grid} ${hasOverflow ? styles.gridOverflow : ''}`.trim()}
-      >
+      <div className={styles.grid}>
         {loot.map((item) => (
           <button
             key={item.id}

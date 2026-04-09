@@ -10,9 +10,15 @@ export function normalizeLoadedGame(game: GameState): GameState {
     id: `l-${index + 1}`,
   }));
 
-  const inventory = (game.player.inventory ?? []).map(normalizeItem);
+  const inventory = consolidateInventory(
+    (game.player.inventory ?? []).map(normalizeItem),
+  );
   const legacyGold = Math.max(0, Number(legacyGoldValue ?? 0));
-  if (legacyGold > 0) inventory.push(normalizeItem(makeGoldStack(legacyGold)));
+  const hasInventoryGold = inventory.some(
+    (item) => item.kind === 'resource' && item.name === 'Gold',
+  );
+  if (legacyGold > 0 && !hasInventoryGold)
+    mergeStackable(inventory, normalizeItem(makeGoldStack(legacyGold)));
   const equipment = Object.fromEntries(
     Object.entries(game.player.equipment ?? {}).map(([key, item]) => [
       key,
@@ -61,4 +67,37 @@ function normalizeItem(item: Item): Item {
     quantity: item.quantity ?? 1,
     rarity: item.rarity ?? 'common',
   };
+}
+
+function consolidateInventory(inventory: Item[]) {
+  return inventory.reduce<Item[]>((merged, item) => {
+    mergeStackable(merged, item);
+    return merged;
+  }, []);
+}
+
+function mergeStackable(inventory: Item[], item: Item) {
+  if (item.kind !== 'consumable' && item.kind !== 'resource') {
+    inventory.push(item);
+    return;
+  }
+
+  const existing = inventory.find((entry) => isSameStackable(entry, item));
+  if (existing) {
+    existing.quantity += item.quantity;
+    return;
+  }
+
+  inventory.push(item);
+}
+
+function isSameStackable(left: Item, right: Item) {
+  return (
+    (left.kind === 'consumable' || left.kind === 'resource') &&
+    left.kind === right.kind &&
+    left.name === right.name &&
+    left.rarity === right.rarity &&
+    left.healing === right.healing &&
+    left.hunger === right.hunger
+  );
 }

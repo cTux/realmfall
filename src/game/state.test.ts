@@ -1,6 +1,7 @@
 import {
   attackCombatEnemy,
   createGame,
+  dropInventoryItem,
   EQUIPMENT_SLOTS,
   equipItem,
   getEnemyAt,
@@ -15,8 +16,10 @@ import {
   sortInventory,
   takeAllTileItems,
   takeTileItem,
+  useItem,
   type Item,
 } from './state';
+import { normalizeLoadedGame } from '../app/normalize';
 
 describe('game state', () => {
   it('creates a centered start in a visible hex viewport', () => {
@@ -163,6 +166,28 @@ describe('game state', () => {
         ?.quantity,
     ).toBe(4);
     expect(getTileAt(taken, { q: 0, r: 0 }).items).toHaveLength(0);
+  });
+
+  it('can use consumables and drop inventory items onto the ground', () => {
+    const game = createGame(3, 'use-drop-seed');
+    game.player.hp = 20;
+
+    const used = useItem(game, 'starter-ration');
+    expect(used.player.hunger).toBe(100);
+    expect(
+      used.player.inventory.find((item) => item.id === 'starter-ration')
+        ?.quantity,
+    ).toBe(1);
+
+    const dropped = dropInventoryItem(used, 'starter-ration');
+    expect(
+      dropped.player.inventory.find((item) => item.id === 'starter-ration'),
+    ).toBeUndefined();
+    expect(
+      getTileAt(dropped, { q: 0, r: 0 }).items.find(
+        (item) => item.id === 'starter-ration',
+      ),
+    ).toBeDefined();
   });
 
   it('lets every enemy on the tile retaliate during combat', () => {
@@ -315,6 +340,81 @@ describe('game state', () => {
     sorted.tiles['0,0'] = { ...sorted.tiles['0,0'], structure: 'town' };
     const soldInTown = sellAllItems(sorted);
     expect(getGoldAmount(soldInTown.player.inventory)).toBeGreaterThan(0);
+  });
+
+  it('merges duplicate gold stacks when sorting inventory', () => {
+    const game = createGame(3, 'gold-sort-seed');
+    game.player.inventory = [
+      {
+        id: 'resource-gold-1',
+        kind: 'resource',
+        name: 'Gold',
+        quantity: 5,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'resource-gold-1-copy',
+        kind: 'resource',
+        name: 'Gold',
+        quantity: 7,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    ];
+
+    const sorted = sortInventory(game);
+
+    expect(getGoldAmount(sorted.player.inventory)).toBe(12);
+    expect(
+      sorted.player.inventory.filter(
+        (item) => item.kind === 'resource' && item.name === 'Gold',
+      ),
+    ).toHaveLength(1);
+  });
+
+  it('does not duplicate gold when loading migrated saves', () => {
+    const game = createGame(3, 'gold-load-seed');
+    const loaded = normalizeLoadedGame({
+      ...game,
+      player: {
+        ...game.player,
+        inventory: [
+          {
+            id: 'resource-gold-1',
+            kind: 'resource',
+            name: 'Gold',
+            quantity: 11,
+            tier: 1,
+            rarity: 'common',
+            power: 0,
+            defense: 0,
+            maxHp: 0,
+            healing: 0,
+            hunger: 0,
+          },
+        ],
+        gold: 11,
+      } as typeof game.player & { gold: number },
+    });
+
+    expect(getGoldAmount(loaded.player.inventory)).toBe(11);
+    expect(
+      loaded.player.inventory.filter(
+        (item) => item.kind === 'resource' && item.name === 'Gold',
+      ),
+    ).toHaveLength(1);
+    expect('gold' in loaded.player).toBe(false);
   });
 });
 

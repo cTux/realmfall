@@ -14,3 +14,9 @@ export interface PersistedUiState {
 }
 
 export type TooltipItem = Item;
+
+export interface ItemContextMenuState {
+  item: Item;
+  x: number;
+  y: number;
+}

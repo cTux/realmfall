@@ -9,7 +9,10 @@ import {
 import { Application } from 'pixi.js';
 import {
   attackCombatEnemy,
+  canEquipItem,
+  canUseItem,
   createGame,
+  dropInventoryItem,
   equipItem,
   getCurrentTile,
   getEnemiesAt,
@@ -25,6 +28,7 @@ import {
   takeTileItem,
   sortInventory,
   unequipItem,
+  useItem as applyItemUse,
   type GameState,
   type HexCoord,
   type LogKind,
@@ -52,7 +56,13 @@ import { LogWindow } from '../../ui/components/LogWindow';
 import { GameTooltip } from '../../ui/components/GameTooltip';
 import { CombatWindow } from '../../ui/components/CombatWindow';
 import { LootWindow } from '../../ui/components/LootWindow';
-import type { PersistedUiState, TooltipItem, TooltipState } from './types';
+import { ItemContextMenu } from '../../ui/components/ItemContextMenu';
+import type {
+  ItemContextMenuState,
+  PersistedUiState,
+  TooltipItem,
+  TooltipState,
+} from './types';
 import styles from './styles.module.css';
 
 export function App() {
@@ -63,16 +73,20 @@ export function App() {
   const gameRef = useRef<GameState>(initialGameRef.current);
   const [game, setGame] = useState<GameState>(initialGameRef.current);
   const [selected, setSelected] = useState<HexCoord>(game.player.coord);
+  const [hoveredMove, setHoveredMove] = useState<HexCoord | null>(null);
   const [windows, setWindows] = useState<WindowPositions>(DEFAULT_WINDOWS);
   const [logFilters, setLogFilters] = useState(DEFAULT_LOG_FILTERS);
   const [hydrated, setHydrated] = useState(false);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+  const [itemMenu, setItemMenu] = useState<ItemContextMenuState | null>(null);
   const [dismissedLootKey, setDismissedLootKey] = useState<string | null>(null);
 
   const stats = useMemo(() => getPlayerStats(game.player), [game.player]);
   const visibleTiles = useMemo(() => getVisibleTiles(game), [game]);
   const currentTile = useMemo(() => getCurrentTile(game), [game]);
+  const canProspect = currentTile.structure === 'forge';
+  const canSell = currentTile.structure === 'town';
   const combatEnemies = useMemo(
     () => (game.combat ? getEnemiesAt(game, game.combat.coord) : []),
     [game],
@@ -192,12 +206,51 @@ export function App() {
       setGame((currentState) => moveToTile(currentState, target));
     };
 
+    const onPointerMove = (event: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      const hoveredOffset = hexAtPoint(x, y, {
+        centerX: app.screen.width / 2,
+        centerY: app.screen.height / 2,
+        size: HEX_SIZE,
+      });
+      const target = {
+        q: playerCoordRef.current.q + hoveredOffset.q,
+        r: playerCoordRef.current.r + hoveredOffset.r,
+      };
+      const current = gameRef.current;
+      const tile = getTileAt(current, target);
+      const clickable =
+        hexDistance(playerCoordRef.current, target) === 1 &&
+        tile.terrain !== 'water' &&
+        tile.terrain !== 'mountain';
+
+      canvas.style.cursor = clickable ? 'pointer' : 'default';
+      setHoveredMove((currentHovered) => {
+        if (!clickable) return currentHovered ? null : currentHovered;
+        if (currentHovered?.q === target.q && currentHovered?.r === target.r) {
+          return currentHovered;
+        }
+        return target;
+      });
+    };
+
+    const onPointerLeave = () => {
+      canvas.style.cursor = 'default';
+      setHoveredMove(null);
+    };
+
     canvas.addEventListener('pointerdown', onPointerDown as EventListener);
+    canvas.addEventListener('pointermove', onPointerMove as EventListener);
+    canvas.addEventListener('pointerleave', onPointerLeave);
 
     return () => {
       observer.disconnect();
       window.removeEventListener('resize', resize);
       canvas.removeEventListener('pointerdown', onPointerDown as EventListener);
+      canvas.removeEventListener('pointermove', onPointerMove as EventListener);
+      canvas.removeEventListener('pointerleave', onPointerLeave);
       app.destroy(true, { children: true, texture: true, baseTexture: true });
       appRef.current = null;
     };
@@ -206,11 +259,12 @@ export function App() {
   useEffect(() => {
     const app = appRef.current;
     if (!app) return;
-    renderScene(app, game, visibleTiles, selected);
-  }, [game, selected, visibleTiles]);
+    renderScene(app, game, visibleTiles, selected, hoveredMove);
+  }, [game, hoveredMove, selected, visibleTiles]);
 
   useEffect(() => {
     setSelected(game.player.coord);
+    setHoveredMove(null);
   }, [game.player.coord]);
 
   const moveWindow = useCallback(
@@ -225,6 +279,10 @@ export function App() {
 
   const closeTooltip = useCallback(() => {
     setTooltip(null);
+  }, []);
+
+  const closeItemMenu = useCallback(() => {
+    setItemMenu(null);
   }, []);
 
   const showItemTooltip = useCallback(
@@ -300,6 +358,22 @@ export function App() {
     setGame((current) => equipItem(current, itemId));
   }, []);
 
+  const handleUseItem = useCallback((itemId: string) => {
+    setGame((current) => applyItemUse(current, itemId));
+  }, []);
+
+  const handleDropItem = useCallback((itemId: string) => {
+    setGame((current) => dropInventoryItem(current, itemId));
+  }, []);
+
+  const handleContextItem = useCallback(
+    (event: ReactMouseEvent<HTMLElement>, item: TooltipItem) => {
+      event.preventDefault();
+      setItemMenu({ item, x: event.clientX, y: event.clientY });
+    },
+    [],
+  );
+
   const handleTakeLootItem = useCallback((itemId: string) => {
     setGame((current) => takeTileItem(current, itemId));
   }, []);
@@ -355,12 +429,13 @@ export function App() {
         onMove={handleInventoryMove}
         inventory={game.player.inventory}
         equipment={game.player.equipment}
-        canProspect={currentTile.structure === 'forge'}
-        canSell={currentTile.structure === 'town'}
+        canProspect={canProspect}
+        canSell={canSell}
         onSort={handleSort}
         onProspect={handleProspect}
         onSellAll={handleSellAll}
         onEquip={handleEquip}
+        onContextItem={handleContextItem}
         onHoverItem={showItemTooltip}
         onLeaveItem={closeTooltip}
       />
@@ -375,6 +450,28 @@ export function App() {
           onTakeItem={handleTakeLootItem}
           onHoverItem={showItemTooltip}
           onLeaveItem={closeTooltip}
+        />
+      ) : null}
+      {itemMenu ? (
+        <ItemContextMenu
+          item={itemMenu.item}
+          x={itemMenu.x}
+          y={itemMenu.y}
+          canEquip={canEquipItem(itemMenu.item)}
+          canUse={canUseItem(itemMenu.item)}
+          onEquip={() => {
+            handleEquip(itemMenu.item.id);
+            closeItemMenu();
+          }}
+          onUse={() => {
+            handleUseItem(itemMenu.item.id);
+            closeItemMenu();
+          }}
+          onDrop={() => {
+            handleDropItem(itemMenu.item.id);
+            closeItemMenu();
+          }}
+          onClose={closeItemMenu}
         />
       ) : null}
       <LogWindow

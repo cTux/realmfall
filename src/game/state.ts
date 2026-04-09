@@ -399,6 +399,23 @@ export function equipItem(state: GameState, itemId: string): GameState {
   return next;
 }
 
+export function useItem(state: GameState, itemId: string): GameState {
+  if (state.gameOver) return state;
+
+  const itemIndex = state.player.inventory.findIndex(
+    (item) => item.id === itemId,
+  );
+  if (itemIndex < 0) return message(state, 'That item is not in your pack.');
+
+  const item = state.player.inventory[itemIndex];
+  if (item.kind !== 'consumable')
+    return message(state, 'That item cannot be used.');
+
+  const next = clone(state);
+  consumeItem(next, itemIndex, item);
+  return next;
+}
+
 export function unequipItem(state: GameState, slot: EquipmentSlot): GameState {
   if (state.gameOver) return state;
 
@@ -416,6 +433,7 @@ export function unequipItem(state: GameState, slot: EquipmentSlot): GameState {
 
 export function sortInventory(state: GameState): GameState {
   const next = clone(state);
+  next.player.inventory = consolidateInventory(next.player.inventory);
   const equippable = next.player.inventory
     .filter(isEquippableItem)
     .sort(compareItems);
@@ -495,6 +513,23 @@ export function takeAllTileItems(state: GameState): GameState {
     'loot',
     `You take ${tile.items.map((item) => describeItemStack(item)).join(', ')}.`,
   );
+  return next;
+}
+
+export function dropInventoryItem(state: GameState, itemId: string): GameState {
+  const next = clone(state);
+  const itemIndex = next.player.inventory.findIndex(
+    (item) => item.id === itemId,
+  );
+  if (itemIndex < 0) return message(state, 'That item is not in your pack.');
+
+  const [item] = next.player.inventory.splice(itemIndex, 1);
+  ensureTileState(next, next.player.coord);
+  const key = hexKey(next.player.coord);
+  const tile = next.tiles[key];
+  addItemToInventory(tile.items, item);
+  next.tiles[key] = { ...tile, items: [...tile.items] };
+  addLog(next, 'loot', `You drop ${describeItemStack(item)}.`);
   return next;
 }
 
@@ -645,7 +680,7 @@ function maybeLoot(
         structure,
       ),
     );
-  } else if (roll > 0.95) {
+  } else if (roll > 0.82) {
     items.push(
       makeConsumable(`${hexKey(coord)}-cache`, 'Jerky Pack', tier, 6, 20),
     );
@@ -662,16 +697,16 @@ function makeGeneratedItem(
   structure?: StructureType,
 ) {
   if (roll > 0.988) return makeResource(seed, coord, tier);
-  if (roll > 0.92 || tier >= 7 || structure === 'dungeon')
+  if (roll > 0.94 || tier >= 7 || structure === 'dungeon')
     return makeArtifact(
       seed,
       coord,
       tier,
       structure === 'dungeon' ? 'rare' : undefined,
     );
-  if (roll > 0.82) return makeWeapon(seed, coord, tier);
-  if (roll > 0.72) return makeOffhand(seed, coord, tier);
-  if (roll > 0.66) return makeArmor(seed, coord, tier);
+  if (roll > 0.84) return makeWeapon(seed, coord, tier);
+  if (roll > 0.74) return makeOffhand(seed, coord, tier);
+  if (roll > 0.62) return makeArmor(seed, coord, tier);
   return makeConsumable(
     itemId('consumable', coord, seed),
     'Trail Ration',
@@ -1014,15 +1049,15 @@ function pickEquipmentRarity(
   tier: number,
   minimum: ItemRarity = 'common',
 ): ItemRarity {
-  const roll = noise(`${seed}:rarity`, coord) + tier * 0.03;
+  const roll = noise(`${seed}:rarity`, coord) + Math.min(0.06, tier * 0.0025);
   const rarity =
-    roll > 1.18
+    roll > 0.995
       ? 'legendary'
-      : roll > 0.96
+      : roll > 0.945
         ? 'epic'
-        : roll > 0.74
+        : roll > 0.745
           ? 'rare'
-          : roll > 0.52
+          : roll > 0.145
             ? 'uncommon'
             : 'common';
   return (
@@ -1137,18 +1172,7 @@ function clone(state: GameState): GameState {
 }
 
 function addItemToInventory(inventory: Item[], item: Item) {
-  if (item.kind !== 'consumable' && item.kind !== 'resource') {
-    inventory.push(item);
-    return;
-  }
-
-  const existing = inventory.find((entry) => isSameStackable(entry, item));
-  if (existing) {
-    existing.quantity += item.quantity;
-    return;
-  }
-
-  inventory.push(item);
+  consolidateStackInto(inventory, item);
 }
 
 function compareItems(left: Item, right: Item) {
@@ -1239,6 +1263,14 @@ export function makeGoldStack(quantity: number): Item {
   };
 }
 
+export function canEquipItem(item: Item) {
+  return isEquippableItem(item);
+}
+
+export function canUseItem(item: Item) {
+  return item.kind === 'consumable';
+}
+
 export function getGoldAmount(inventory: Item[]) {
   return inventory.reduce(
     (sum, item) =>
@@ -1262,6 +1294,28 @@ function isSameStackable(left: Item, right: Item) {
 
 function describeItemStack(item: Item) {
   return item.quantity > 1 ? `${item.quantity}x ${item.name}` : item.name;
+}
+
+function consolidateInventory(inventory: Item[]) {
+  return inventory.reduce<Item[]>((merged, item) => {
+    consolidateStackInto(merged, item);
+    return merged;
+  }, []);
+}
+
+function consolidateStackInto(inventory: Item[], item: Item) {
+  if (item.kind !== 'consumable' && item.kind !== 'resource') {
+    inventory.push(item);
+    return;
+  }
+
+  const existing = inventory.find((entry) => isSameStackable(entry, item));
+  if (existing) {
+    existing.quantity += item.quantity;
+    return;
+  }
+
+  inventory.push(item);
 }
 
 function createInitialLogs(seed: string): LogEntry[] {

@@ -1,4 +1,4 @@
-import { memo, useLayoutEffect, useRef, useState } from 'react';
+import { memo } from 'react';
 import { iconForItem } from '../../icons';
 import { rarityColor } from '../../rarity';
 import { DraggableWindow } from '../DraggableWindow';
@@ -16,25 +16,10 @@ export const InventoryWindow = memo(function InventoryWindow({
   onProspect,
   onSellAll,
   onEquip,
+  onContextItem,
   onHoverItem,
   onLeaveItem,
 }: InventoryWindowProps) {
-  const gridRef = useRef<HTMLDivElement | null>(null);
-  const [hasOverflow, setHasOverflow] = useState(false);
-
-  useLayoutEffect(() => {
-    const grid = gridRef.current;
-    if (!grid) return;
-
-    const updateOverflow = () => {
-      setHasOverflow(grid.scrollHeight > grid.clientHeight + 1);
-    };
-
-    updateOverflow();
-    window.addEventListener('resize', updateOverflow);
-    return () => window.removeEventListener('resize', updateOverflow);
-  }, [inventory.length]);
-
   return (
     <DraggableWindow
       title="Inventory"
@@ -53,10 +38,7 @@ export const InventoryWindow = memo(function InventoryWindow({
           </button>
         </div>
       </div>
-      <div
-        ref={gridRef}
-        className={`${styles.grid} ${hasOverflow ? styles.gridOverflow : ''}`.trim()}
-      >
+      <div className={styles.grid}>
         {inventory.map((item) => (
           <button
             key={item.id}
@@ -66,6 +48,7 @@ export const InventoryWindow = memo(function InventoryWindow({
               boxShadow: `0 0 0 1px ${rarityColor(item.rarity)}33 inset`,
             }}
             onClick={() => onEquip(item.id)}
+            onContextMenu={(event) => onContextItem(event, item)}
             onMouseEnter={(event) =>
               onHoverItem(
                 event,

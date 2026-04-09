@@ -5,6 +5,7 @@ import {
   Text,
   TextStyle,
   type Application,
+  type DisplayObject,
 } from 'pixi.js';
 import {
   getEnemiesAt,
@@ -13,7 +14,13 @@ import {
   type GameState,
   type HexCoord,
 } from '../../game/state';
-import { enemyIconFor, enemyTint, Icons } from '../icons';
+import {
+  enemyIconFor,
+  enemyTint,
+  Icons,
+  structureIconFor,
+  structureTint,
+} from '../icons';
 import { HEX_SIZE } from '../../app/constants';
 
 export function renderScene(
@@ -21,6 +28,7 @@ export function renderScene(
   state: GameState,
   visibleTiles: ReturnType<typeof getVisibleTiles>,
   selected: HexCoord,
+  hoveredMove: HexCoord | null,
 ) {
   app.stage
     .removeChildren()
@@ -47,13 +55,25 @@ export function renderScene(
 
     const shape = new Graphics();
     const style = tileStyle(tile.terrain);
-    shape.beginFill(style.color, emphasized ? style.alpha : 0.12);
+    const hovered =
+      hoveredMove?.q === tile.coord.q && hoveredMove?.r === tile.coord.r;
+    const fillAlpha = hovered
+      ? Math.min(1, style.alpha + 0.18)
+      : emphasized
+        ? style.alpha
+        : 0.12;
+    shape.beginFill(style.color, fillAlpha);
     shape.lineStyle(1, 0x1e293b, 0.9);
     shape.drawPolygon(poly);
     shape.endFill();
     world.addChild(shape);
 
-    if (selected.q === tile.coord.q && selected.r === tile.coord.r) {
+    if (hovered) {
+      const outline = new Graphics();
+      outline.lineStyle(3, 0xe2e8f0, 0.85);
+      outline.drawPolygon(poly);
+      world.addChild(outline);
+    } else if (selected.q === tile.coord.q && selected.r === tile.coord.r) {
       const outline = new Graphics();
       outline.lineStyle(3, 0xf8fafc, 0.65);
       outline.drawPolygon(poly);
@@ -66,55 +86,32 @@ export function renderScene(
     }
 
     if (tile.structure) {
-      const marker = new Graphics();
-      const color =
-        tile.structure === 'town'
-          ? 0xfbbf24
-          : tile.structure === 'forge'
-            ? 0xf97316
-            : 0xa855f7;
-      marker.beginFill(color, 0.95);
-      if (tile.structure === 'town') {
-        marker.drawRect(point.x - 6, point.y + 6, 12, 12);
-      } else if (tile.structure === 'forge') {
-        marker.drawPolygon([
-          point.x,
-          point.y + 2,
-          point.x + 8,
-          point.y + 10,
-          point.x,
-          point.y + 18,
-          point.x - 8,
-          point.y + 10,
-        ]);
-      } else {
-        marker.drawPolygon([
-          point.x,
-          point.y + 2,
-          point.x + 8,
-          point.y + 18,
-          point.x - 8,
-          point.y + 18,
-        ]);
-      }
-      marker.endFill();
+      const marker = makeShadowedSprite(
+        structureIconFor(tile.structure),
+        structureTint(tile.structure),
+        26,
+        26,
+        emphasized ? 1 : 0.82,
+      );
+      marker.position.set(point.x, point.y + 10);
       world.addChild(marker);
     }
 
     const enemies = getEnemiesAt(state, tile.coord);
-    if (enemies.length > 0) {
+    if (enemies.length > 0 && tile.structure !== 'dungeon') {
       const offsets = enemyOffsets(enemies.length);
       enemies.forEach((enemy, index) => {
-        const sprite = Sprite.from(enemyIconFor(enemy.name));
-        sprite.anchor.set(0.5);
+        const sprite = makeShadowedSprite(
+          enemyIconFor(enemy.name),
+          enemyTint(enemy.name),
+          32,
+          32,
+          emphasized ? 1 : 0.72,
+        );
         sprite.position.set(
           point.x + offsets[index].x,
           point.y - 2 + offsets[index].y,
         );
-        sprite.width = 32;
-        sprite.height = 32;
-        sprite.tint = enemyTint(enemy.name);
-        sprite.alpha = emphasized ? 1 : 0.72;
         world.addChild(sprite);
       });
 
@@ -138,12 +135,8 @@ export function renderScene(
     }
   });
 
-  const player = Sprite.from(Icons.Player);
-  player.anchor.set(0.5);
+  const player = makeShadowedSprite(Icons.Player, 0xffffff, 46, 46, 1);
   player.position.set(originX, originY);
-  player.width = 46;
-  player.height = 46;
-  player.tint = 0xfbbf24;
   world.addChild(player);
 }
 
@@ -178,6 +171,34 @@ function enemyOffsets(count: number) {
       y: Math.round(Math.sin(angle) * radius),
     };
   });
+}
+
+function makeShadowedSprite(
+  icon: string,
+  tint: number,
+  width: number,
+  height: number,
+  alpha: number,
+) {
+  const wrapper = new Container();
+  wrapper.alpha = alpha;
+
+  const shadow = Sprite.from(icon);
+  shadow.anchor.set(0.5);
+  shadow.position.set(2, 3);
+  shadow.width = width;
+  shadow.height = height;
+  shadow.tint = 0x000000;
+  shadow.alpha = 0.42;
+
+  const sprite = Sprite.from(icon);
+  sprite.anchor.set(0.5);
+  sprite.width = width;
+  sprite.height = height;
+  sprite.tint = tint;
+
+  wrapper.addChild(shadow, sprite);
+  return wrapper as DisplayObject & Container;
 }
 
 function tileStyle(terrain: string) {

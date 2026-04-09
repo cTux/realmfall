@@ -11,6 +11,10 @@ import steeltoeBootsIcon from '../assets/icons/steeltoe-boots.svg';
 import crystalBallIcon from '../assets/icons/crystal-ball.svg';
 import hornedHelmIcon from '../assets/icons/horned-helm.svg';
 import spikedArmorIcon from '../assets/icons/spiked-armor.svg';
+import villageIcon from '../assets/icons/village.svg';
+import dungeonGateIcon from '../assets/icons/dungeon-gate.svg';
+import anvilIcon from '../assets/icons/anvil.svg';
+import type { StructureType } from '../game/state';
 
 export const Icons = {
   Player: playerIcon,
@@ -25,6 +29,9 @@ export const Icons = {
   Orb: crystalBallIcon,
   HornedHelm: hornedHelmIcon,
   Chest: spikedArmorIcon,
+  Village: villageIcon,
+  DungeonGate: dungeonGateIcon,
+  Anvil: anvilIcon,
 } as const;
 
 export const EnemyType = {
@@ -80,6 +87,18 @@ export const ItemIcon: Record<EquipmentSlot, string> = {
   relic: Icons.Orb,
 };
 
+export const StructureIcon: Record<StructureType, string> = {
+  town: Icons.Village,
+  dungeon: Icons.DungeonGate,
+  forge: Icons.Anvil,
+};
+
+export const StructureTint: Record<StructureType, number> = {
+  town: 0xfbbf24,
+  forge: 0xf97316,
+  dungeon: 0xa855f7,
+};
+
 export const ResourceIcon: Record<string, string> = {
   [ResourceType.Gold]: Icons.Orb,
   [ResourceType.Herbs]: Icons.Consumable,
@@ -126,4 +145,12 @@ export function iconForItem(item?: Item, slot?: EquipmentSlot) {
     DEFAULT_ITEM_ICON ??
     DEFAULT_RESOURCE_ICON
   );
+}
+
+export function structureIconFor(structure: StructureType) {
+  return StructureIcon[structure];
+}
+
+export function structureTint(structure: StructureType) {
+  return StructureTint[structure];
 }

@@ -58,6 +58,15 @@ button:hover {
   background: #17233f;
 }
 
+button:disabled,
+button:disabled:hover {
+  background: #0f172a;
+  color: #64748b;
+  border-color: #1e293b;
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 .appRoot {
   position: relative;
   width: 100vw;
