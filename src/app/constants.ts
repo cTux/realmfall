@@ -18,6 +18,16 @@ export interface WindowPositions {
   combat: WindowPosition;
 }
 
+export interface WindowCollapsedState {
+  hero: boolean;
+  legend: boolean;
+  equipment: boolean;
+  inventory: boolean;
+  loot: boolean;
+  log: boolean;
+  combat: boolean;
+}
+
 export const DEFAULT_WINDOWS: WindowPositions = {
   hero: { x: 20, y: 20 },
   legend: { x: 20, y: 240 },
@@ -26,6 +36,16 @@ export const DEFAULT_WINDOWS: WindowPositions = {
   loot: { x: 820, y: 20 },
   log: { x: 420, y: 20 },
   combat: { x: 420, y: 470 },
+};
+
+export const DEFAULT_WINDOW_COLLAPSED: WindowCollapsedState = {
+  hero: false,
+  legend: false,
+  equipment: false,
+  inventory: false,
+  loot: false,
+  log: false,
+  combat: false,
 };
 
 export const DEFAULT_LOG_FILTERS: Record<LogKind, boolean> = {

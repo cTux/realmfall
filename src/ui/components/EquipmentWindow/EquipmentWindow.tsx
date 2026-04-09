@@ -9,6 +9,8 @@ import styles from './styles.module.css';
 export const EquipmentWindow = memo(function EquipmentWindow({
   position,
   onMove,
+  collapsed,
+  onCollapsedChange,
   equipment,
   onHoverItem,
   onLeaveItem,
@@ -16,7 +18,13 @@ export const EquipmentWindow = memo(function EquipmentWindow({
   onContextItem,
 }: EquipmentWindowProps) {
   return (
-    <DraggableWindow title="Equipment" position={position} onMove={onMove}>
+    <DraggableWindow
+      title="Equipment"
+      position={position}
+      onMove={onMove}
+      collapsed={collapsed}
+      onCollapsedChange={onCollapsedChange}
+    >
       <div className={styles.inventory}>
         {EQUIPMENT_SLOTS.map((slot) => {
           const equipped = equipment[slot];

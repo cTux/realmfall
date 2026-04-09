@@ -7,9 +7,17 @@ import styles from './styles.module.css';
 export const LegendWindow = memo(function LegendWindow({
   position,
   onMove,
+  collapsed,
+  onCollapsedChange,
 }: LegendWindowProps) {
   return (
-    <DraggableWindow title="Legend" position={position} onMove={onMove}>
+    <DraggableWindow
+      title="Legend"
+      position={position}
+      onMove={onMove}
+      collapsed={collapsed}
+      onCollapsedChange={onCollapsedChange}
+    >
       <div className={styles.legend}>
         <div className={styles.row}>
           <span className={`${styles.swatch} ${styles.plains}`} /> Plains ·

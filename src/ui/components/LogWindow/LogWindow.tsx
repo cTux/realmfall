@@ -6,6 +6,8 @@ import styles from './styles.module.css';
 export const LogWindow = memo(function LogWindow({
   position,
   onMove,
+  collapsed,
+  onCollapsedChange,
   filters,
   defaultFilters,
   showFilterMenu,
@@ -19,6 +21,8 @@ export const LogWindow = memo(function LogWindow({
       position={position}
       onMove={onMove}
       className={styles.window}
+      collapsed={collapsed}
+      onCollapsedChange={onCollapsedChange}
     >
       <div className={styles.toolbar}>
         <button onClick={onToggleMenu}>Filters</button>

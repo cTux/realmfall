@@ -8,7 +8,10 @@ describe('encrypted storage', () => {
   it('round-trips persisted state through localStorage', async () => {
     const payload = {
       game: { turn: 7, player: { hp: 12 } },
-      ui: { windows: { hero: { x: 10, y: 20 } } },
+      ui: {
+        windows: { hero: { x: 10, y: 20 } },
+        windowCollapsed: { hero: true },
+      },
     };
 
     await saveEncryptedState(payload);

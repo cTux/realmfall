@@ -5,6 +5,8 @@ import type { Equipment, EquipmentSlot, Item } from '../../../game/state';
 export interface EquipmentWindowProps {
   position: WindowPosition;
   onMove: (position: WindowPosition) => void;
+  collapsed?: boolean;
+  onCollapsedChange?: (collapsed: boolean) => void;
   equipment: Equipment;
   onHoverItem: (event: ReactMouseEvent<HTMLElement>, item: Item) => void;
   onLeaveItem: () => void;

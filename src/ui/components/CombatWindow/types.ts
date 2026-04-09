@@ -4,6 +4,8 @@ import type { CombatState, Enemy } from '../../../game/state';
 export interface CombatWindowProps {
   position: WindowPosition;
   onMove: (position: WindowPosition) => void;
+  collapsed?: boolean;
+  onCollapsedChange?: (collapsed: boolean) => void;
   combat: CombatState;
   enemies: Enemy[];
   player: {

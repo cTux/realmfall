@@ -2,7 +2,11 @@ import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { createGame, getPlayerStats, type Item } from '../game/state';
-import { DEFAULT_LOG_FILTERS, DEFAULT_WINDOWS } from '../app/constants';
+import {
+  DEFAULT_LOG_FILTERS,
+  DEFAULT_WINDOW_COLLAPSED,
+  DEFAULT_WINDOWS,
+} from '../app/constants';
 import { comparisonLines, enemyTooltip, itemTooltipLines } from './tooltips';
 import {
   enemyIconFor,
@@ -32,6 +36,7 @@ describe('ui helpers and components', () => {
 
   it('exposes shared constants and lookup helpers', () => {
     expect(DEFAULT_WINDOWS.hero).toEqual({ x: 20, y: 20 });
+    expect(DEFAULT_WINDOW_COLLAPSED.hero).toBe(false);
     expect(DEFAULT_LOG_FILTERS.combat).toBe(true);
     expect(rarityColor('legendary')).toBe('#fb923c');
     expect(enemyIconFor('Unknown Foe')).toBe(enemyIconFor('Wolf'));
@@ -329,6 +334,7 @@ describe('ui helpers and components', () => {
 
   it('supports drag, collapse, and context menu dismissal interactions', async () => {
     const moves: Array<{ x: number; y: number }> = [];
+    const collapsedChanges: boolean[] = [];
     const close = vi.fn();
     const equip = vi.fn();
     const use = vi.fn();
@@ -358,6 +364,7 @@ describe('ui helpers and components', () => {
             title="Test Window"
             position={{ x: 40, y: 50 }}
             onMove={(position) => moves.push(position)}
+            onCollapsedChange={(collapsed) => collapsedChanges.push(collapsed)}
           >
             <div>Body</div>
           </DraggableWindow>
@@ -405,6 +412,7 @@ describe('ui helpers and components', () => {
       collapseButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
     expect(host.textContent).not.toContain('Body');
+    expect(collapsedChanges).toEqual([true]);
 
     const menuButtons = Array.from(host.querySelectorAll('button')).filter(
       (button) => button.textContent !== 'expand',

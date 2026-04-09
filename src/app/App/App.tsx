@@ -35,9 +35,11 @@ import {
   type LogKind,
 } from '../../game/state';
 import {
+  DEFAULT_WINDOW_COLLAPSED,
   DEFAULT_LOG_FILTERS,
   DEFAULT_WINDOWS,
   HEX_SIZE,
+  type WindowCollapsedState,
   WORLD_RADIUS,
   type WindowPositions,
 } from '../constants';
@@ -76,6 +78,9 @@ export function App() {
   const [selected, setSelected] = useState<HexCoord>(game.player.coord);
   const [hoveredMove, setHoveredMove] = useState<HexCoord | null>(null);
   const [windows, setWindows] = useState<WindowPositions>(DEFAULT_WINDOWS);
+  const [windowCollapsed, setWindowCollapsed] = useState<WindowCollapsedState>(
+    DEFAULT_WINDOW_COLLAPSED,
+  );
   const [logFilters, setLogFilters] = useState(DEFAULT_LOG_FILTERS);
   const [hydrated, setHydrated] = useState(false);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
@@ -135,8 +140,17 @@ export function App() {
         setGame(normalizeLoadedGame(saved.game as GameState));
       }
       if (saved?.ui) {
-        const ui = saved.ui as { windows?: WindowPositions } & PersistedUiState;
+        const ui = saved.ui as {
+          windows?: WindowPositions;
+          windowCollapsed?: WindowCollapsedState;
+        } & PersistedUiState;
         if (ui.windows) setWindows({ ...DEFAULT_WINDOWS, ...ui.windows });
+        if (ui.windowCollapsed) {
+          setWindowCollapsed({
+            ...DEFAULT_WINDOW_COLLAPSED,
+            ...ui.windowCollapsed,
+          });
+        }
         if (ui.logFilters) {
           setLogFilters({ ...DEFAULT_LOG_FILTERS, ...ui.logFilters });
         }
@@ -151,8 +165,11 @@ export function App() {
 
   useEffect(() => {
     if (!hydrated) return;
-    void saveEncryptedState({ game, ui: { windows, logFilters } });
-  }, [game, hydrated, logFilters, windows]);
+    void saveEncryptedState({
+      game,
+      ui: { windows, windowCollapsed, logFilters },
+    });
+  }, [game, hydrated, logFilters, windowCollapsed, windows]);
 
   useEffect(() => {
     if (!hostRef.current || appRef.current) return;
@@ -293,6 +310,13 @@ export function App() {
       position: WindowPositions[keyof WindowPositions],
     ) => {
       setWindows((current) => ({ ...current, [key]: position }));
+    },
+    [],
+  );
+
+  const setCollapsedWindow = useCallback(
+    (key: keyof WindowCollapsedState, collapsed: boolean) => {
+      setWindowCollapsed((current) => ({ ...current, [key]: collapsed }));
     },
     [],
   );
@@ -451,13 +475,26 @@ export function App() {
       <HeroWindow
         position={windows.hero}
         onMove={handleHeroMove}
+        collapsed={windowCollapsed.hero}
+        onCollapsedChange={(collapsed) => setCollapsedWindow('hero', collapsed)}
         stats={stats}
         hunger={game.player.hunger}
       />
-      <LegendWindow position={windows.legend} onMove={handleLegendMove} />
+      <LegendWindow
+        position={windows.legend}
+        onMove={handleLegendMove}
+        collapsed={windowCollapsed.legend}
+        onCollapsedChange={(collapsed) =>
+          setCollapsedWindow('legend', collapsed)
+        }
+      />
       <EquipmentWindow
         position={windows.equipment}
         onMove={handleEquipmentMove}
+        collapsed={windowCollapsed.equipment}
+        onCollapsedChange={(collapsed) =>
+          setCollapsedWindow('equipment', collapsed)
+        }
         equipment={game.player.equipment}
         onHoverItem={handleEquipmentHover}
         onLeaveItem={closeTooltip}
@@ -467,6 +504,10 @@ export function App() {
       <InventoryWindow
         position={windows.inventory}
         onMove={handleInventoryMove}
+        collapsed={windowCollapsed.inventory}
+        onCollapsedChange={(collapsed) =>
+          setCollapsedWindow('inventory', collapsed)
+        }
         inventory={game.player.inventory}
         equipment={game.player.equipment}
         canProspect={canProspect}
@@ -483,6 +524,10 @@ export function App() {
         <LootWindow
           position={windows.loot}
           onMove={handleLootMove}
+          collapsed={windowCollapsed.loot}
+          onCollapsedChange={(collapsed) =>
+            setCollapsedWindow('loot', collapsed)
+          }
           loot={currentTile.items}
           equipment={game.player.equipment}
           onClose={handleCloseLoot}
@@ -526,6 +571,8 @@ export function App() {
       <LogWindow
         position={windows.log}
         onMove={handleLogMove}
+        collapsed={windowCollapsed.log}
+        onCollapsedChange={(collapsed) => setCollapsedWindow('log', collapsed)}
         filters={logFilters}
         defaultFilters={DEFAULT_LOG_FILTERS}
         showFilterMenu={showFilterMenu}
@@ -537,6 +584,10 @@ export function App() {
         <CombatWindow
           position={windows.combat}
           onMove={(position) => moveWindow('combat', position)}
+          collapsed={windowCollapsed.combat}
+          onCollapsedChange={(collapsed) =>
+            setCollapsedWindow('combat', collapsed)
+          }
           combat={game.combat}
           enemies={combatEnemies}
           player={{

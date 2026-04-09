@@ -7,6 +7,8 @@ import styles from './styles.module.css';
 export const HeroWindow = memo(function HeroWindow({
   position,
   onMove,
+  collapsed,
+  onCollapsedChange,
   stats,
   hunger,
 }: HeroWindowProps) {
@@ -15,6 +17,8 @@ export const HeroWindow = memo(function HeroWindow({
       title={`Hero Info · Lv ${stats.level}`}
       position={position}
       onMove={onMove}
+      collapsed={collapsed}
+      onCollapsedChange={onCollapsedChange}
     >
       <div className={styles.stats}>
         <StatBar label="HP" value={stats.hp} max={stats.maxHp} color="hp" />

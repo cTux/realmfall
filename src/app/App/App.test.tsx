@@ -138,6 +138,7 @@ describe('App', () => {
       game,
       ui: {
         windows: { hero: { x: 30, y: 40 } },
+        windowCollapsed: { hero: true },
         logFilters: { rumor: false },
       },
     });
@@ -156,7 +157,16 @@ describe('App', () => {
     expect(renderScene).toHaveBeenCalled();
     expect(saveEncryptedState).toHaveBeenCalled();
     expect(host.textContent).toContain('Hero Info');
+    expect(host.textContent).not.toContain('Hunger penalty');
     expect(host.textContent).toContain('Loot');
+
+    const heroToggle = Array.from(host.querySelectorAll('button')).find(
+      (button) => button.textContent === 'expand',
+    );
+    await act(async () => {
+      heroToggle?.click();
+    });
+    expect(host.textContent).toContain('Hunger penalty');
 
     const filterButton = Array.from(host.querySelectorAll('button')).find(
       (button) => button.textContent === 'Filters',
@@ -233,6 +243,13 @@ describe('App', () => {
     });
 
     expect(renderScene.mock.calls.length).toBeGreaterThan(1);
+    expect(saveEncryptedState).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        ui: expect.objectContaining({
+          windowCollapsed: expect.objectContaining({ hero: false }),
+        }),
+      }),
+    );
 
     await act(async () => {
       root?.unmount();

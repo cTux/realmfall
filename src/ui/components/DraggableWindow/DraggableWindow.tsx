@@ -12,9 +12,20 @@ export function DraggableWindow({
   onMove,
   children,
   className,
+  collapsed: collapsedProp,
+  onCollapsedChange,
 }: DraggableWindowProps) {
   const dragRef = useRef<{ dx: number; dy: number } | null>(null);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsedState, setCollapsedState] = useState(false);
+  const collapsed = collapsedProp ?? collapsedState;
+
+  const toggleCollapsed = () => {
+    const nextCollapsed = !collapsed;
+    if (collapsedProp === undefined) {
+      setCollapsedState(nextCollapsed);
+    }
+    onCollapsedChange?.(nextCollapsed);
+  };
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     dragRef.current = {
@@ -51,7 +62,7 @@ export function DraggableWindow({
           type="button"
           className={styles.collapseToggle}
           onPointerDown={(event) => event.stopPropagation()}
-          onClick={() => setCollapsed((current) => !current)}
+          onClick={toggleCollapsed}
           aria-expanded={!collapsed}
         >
           {collapsed ? 'expand' : 'collapse'}

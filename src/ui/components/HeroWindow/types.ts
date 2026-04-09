@@ -16,6 +16,8 @@ export interface HeroWindowStats {
 export interface HeroWindowProps {
   position: WindowPosition;
   onMove: (position: WindowPosition) => void;
+  collapsed?: boolean;
+  onCollapsedChange?: (collapsed: boolean) => void;
   stats: HeroWindowStats;
   hunger: number;
 }

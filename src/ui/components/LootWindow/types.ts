@@ -5,6 +5,8 @@ import type { Equipment, Item } from '../../../game/state';
 export interface LootWindowProps {
   position: WindowPosition;
   onMove: (position: WindowPosition) => void;
+  collapsed?: boolean;
+  onCollapsedChange?: (collapsed: boolean) => void;
   loot: Item[];
   equipment: Equipment;
   onClose: () => void;
