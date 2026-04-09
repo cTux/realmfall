@@ -1,7 +1,10 @@
+import { memo } from 'react';
 import type { GameTooltipProps } from './types';
 import styles from './styles.module.css';
 
-export function GameTooltip({ tooltip }: GameTooltipProps) {
+export const GameTooltip = memo(function GameTooltip({
+  tooltip,
+}: GameTooltipProps) {
   if (!tooltip) return null;
 
   return (
@@ -23,4 +26,4 @@ export function GameTooltip({ tooltip }: GameTooltipProps) {
       ))}
     </div>
   );
-}
+});

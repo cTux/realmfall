@@ -1,10 +1,11 @@
+import { memo } from 'react';
 import { EQUIPMENT_SLOTS, type EquipmentSlot } from '../../../game/state';
 import { iconForItem } from '../../icons';
 import { DraggableWindow } from '../DraggableWindow';
 import type { EquipmentWindowProps } from './types';
 import styles from './styles.module.css';
 
-export function EquipmentWindow({
+export const EquipmentWindow = memo(function EquipmentWindow({
   position,
   onMove,
   equipment,
@@ -43,7 +44,7 @@ export function EquipmentWindow({
       </div>
     </DraggableWindow>
   );
-}
+});
 
 function formatSlot(slot: EquipmentSlot) {
   return slot

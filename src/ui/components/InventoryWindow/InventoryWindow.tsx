@@ -1,9 +1,10 @@
+import { memo } from 'react';
 import { iconForItem } from '../../icons';
 import { DraggableWindow } from '../DraggableWindow';
 import type { InventoryWindowProps } from './types';
 import styles from './styles.module.css';
 
-export function InventoryWindow({
+export const InventoryWindow = memo(function InventoryWindow({
   position,
   onMove,
   gold,
@@ -62,4 +63,4 @@ export function InventoryWindow({
       </div>
     </DraggableWindow>
   );
-}
+});

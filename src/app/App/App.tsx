@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -21,6 +22,7 @@ import {
   unequipItem,
   type GameState,
   type HexCoord,
+  type LogKind,
 } from '../../game/state';
 import {
   DEFAULT_LOG_FILTERS,
@@ -173,26 +175,101 @@ export function App() {
     setSelected(game.player.coord);
   }, [game.player.coord]);
 
-  const moveWindow = (
-    key: keyof WindowPositions,
-    position: WindowPositions[keyof WindowPositions],
-  ) => {
-    setWindows((current) => ({ ...current, [key]: position }));
-  };
+  const moveWindow = useCallback(
+    (
+      key: keyof WindowPositions,
+      position: WindowPositions[keyof WindowPositions],
+    ) => {
+      setWindows((current) => ({ ...current, [key]: position }));
+    },
+    [],
+  );
 
-  const showItemTooltip = (
-    event: ReactMouseEvent<HTMLElement>,
-    item: TooltipItem,
-    equipped?: TooltipItem,
-  ) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    setTooltip({
-      title: item.name,
-      lines: itemTooltipLines(item, equipped),
-      x: rect.right + 12,
-      y: rect.top,
-    });
-  };
+  const closeTooltip = useCallback(() => {
+    setTooltip(null);
+  }, []);
+
+  const showItemTooltip = useCallback(
+    (
+      event: ReactMouseEvent<HTMLElement>,
+      item: TooltipItem,
+      equipped?: TooltipItem,
+    ) => {
+      const rect = event.currentTarget.getBoundingClientRect();
+      setTooltip({
+        title: item.name,
+        lines: itemTooltipLines(item, equipped),
+        x: rect.right + 12,
+        y: rect.top,
+      });
+    },
+    [],
+  );
+
+  const handleHeroMove = useCallback(
+    (position: WindowPositions['hero']) => moveWindow('hero', position),
+    [moveWindow],
+  );
+
+  const handleLegendMove = useCallback(
+    (position: WindowPositions['legend']) => moveWindow('legend', position),
+    [moveWindow],
+  );
+
+  const handleEquipmentMove = useCallback(
+    (position: WindowPositions['equipment']) =>
+      moveWindow('equipment', position),
+    [moveWindow],
+  );
+
+  const handleInventoryMove = useCallback(
+    (position: WindowPositions['inventory']) =>
+      moveWindow('inventory', position),
+    [moveWindow],
+  );
+
+  const handleLogMove = useCallback(
+    (position: WindowPositions['log']) => moveWindow('log', position),
+    [moveWindow],
+  );
+
+  const handleUnequip = useCallback(
+    (slot: Parameters<typeof unequipItem>[1]) => {
+      setGame((current) => unequipItem(current, slot));
+    },
+    [],
+  );
+
+  const handleSort = useCallback(() => {
+    setGame((current) => sortInventory(current));
+  }, []);
+
+  const handleProspect = useCallback(() => {
+    setGame((current) => prospectInventory(current));
+  }, []);
+
+  const handleSellAll = useCallback(() => {
+    setGame((current) => sellAllItems(current));
+  }, []);
+
+  const handleEquip = useCallback((itemId: string) => {
+    setGame((current) => equipItem(current, itemId));
+  }, []);
+
+  const toggleFilterMenu = useCallback(() => {
+    setShowFilterMenu((current) => !current);
+  }, []);
+
+  const toggleLogFilter = useCallback((kind: LogKind) => {
+    setLogFilters((current) => ({ ...current, [kind]: !current[kind] }));
+  }, []);
+
+  const handleEquipmentHover = useCallback(
+    (event: ReactMouseEvent<HTMLElement>, item: TooltipItem) => {
+      showItemTooltip(event, item);
+    },
+    [showItemTooltip],
+  );
 
   return (
     <div className={styles.appRoot}>
@@ -200,45 +277,40 @@ export function App() {
 
       <HeroWindow
         position={windows.hero}
-        onMove={(position) => moveWindow('hero', position)}
+        onMove={handleHeroMove}
         stats={stats}
         hunger={game.player.hunger}
       />
-      <LegendWindow
-        position={windows.legend}
-        onMove={(position) => moveWindow('legend', position)}
-      />
+      <LegendWindow position={windows.legend} onMove={handleLegendMove} />
       <EquipmentWindow
         position={windows.equipment}
-        onMove={(position) => moveWindow('equipment', position)}
+        onMove={handleEquipmentMove}
         equipment={game.player.equipment}
-        onHoverItem={(event, item) => showItemTooltip(event, item)}
-        onLeaveItem={() => setTooltip(null)}
-        onUnequip={(slot) => setGame((current) => unequipItem(current, slot))}
+        onHoverItem={handleEquipmentHover}
+        onLeaveItem={closeTooltip}
+        onUnequip={handleUnequip}
       />
       <InventoryWindow
         position={windows.inventory}
-        onMove={(position) => moveWindow('inventory', position)}
+        onMove={handleInventoryMove}
         gold={game.player.gold}
         inventory={game.player.inventory}
         equipment={game.player.equipment}
-        onSort={() => setGame((current) => sortInventory(current))}
-        onProspect={() => setGame((current) => prospectInventory(current))}
-        onSellAll={() => setGame((current) => sellAllItems(current))}
-        onEquip={(itemId) => setGame((current) => equipItem(current, itemId))}
+        onSort={handleSort}
+        onProspect={handleProspect}
+        onSellAll={handleSellAll}
+        onEquip={handleEquip}
         onHoverItem={showItemTooltip}
-        onLeaveItem={() => setTooltip(null)}
+        onLeaveItem={closeTooltip}
       />
       <LogWindow
         position={windows.log}
-        onMove={(position) => moveWindow('log', position)}
+        onMove={handleLogMove}
         filters={logFilters}
         defaultFilters={DEFAULT_LOG_FILTERS}
         showFilterMenu={showFilterMenu}
-        onToggleMenu={() => setShowFilterMenu((current) => !current)}
-        onToggleFilter={(kind) =>
-          setLogFilters((current) => ({ ...current, [kind]: !current[kind] }))
-        }
+        onToggleMenu={toggleFilterMenu}
+        onToggleFilter={toggleLogFilter}
         logs={filteredLogs}
       />
       <GameTooltip tooltip={tooltip} />

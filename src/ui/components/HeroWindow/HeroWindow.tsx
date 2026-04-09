@@ -1,9 +1,10 @@
+import { memo } from 'react';
 import { DraggableWindow } from '../DraggableWindow';
 import { StatBar } from './components/StatBar';
 import type { HeroWindowProps } from './types';
 import styles from './styles.module.css';
 
-export function HeroWindow({
+export const HeroWindow = memo(function HeroWindow({
   position,
   onMove,
   stats,
@@ -44,4 +45,4 @@ export function HeroWindow({
       </div>
     </DraggableWindow>
   );
-}
+});

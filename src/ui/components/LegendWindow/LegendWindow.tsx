@@ -1,8 +1,12 @@
+import { memo } from 'react';
 import { DraggableWindow } from '../DraggableWindow';
 import type { LegendWindowProps } from './types';
 import styles from './styles.module.css';
 
-export function LegendWindow({ position, onMove }: LegendWindowProps) {
+export const LegendWindow = memo(function LegendWindow({
+  position,
+  onMove,
+}: LegendWindowProps) {
   return (
     <DraggableWindow title="Legend" position={position} onMove={onMove}>
       <div className={styles.legend}>
@@ -33,4 +37,4 @@ export function LegendWindow({ position, onMove }: LegendWindowProps) {
       </div>
     </DraggableWindow>
   );
-}
+});

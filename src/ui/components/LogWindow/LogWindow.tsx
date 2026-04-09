@@ -1,8 +1,9 @@
+import { memo } from 'react';
 import { DraggableWindow } from '../DraggableWindow';
 import type { LogWindowProps } from './types';
 import styles from './styles.module.css';
 
-export function LogWindow({
+export const LogWindow = memo(function LogWindow({
   position,
   onMove,
   filters,
@@ -52,4 +53,4 @@ export function LogWindow({
       </div>
     </DraggableWindow>
   );
-}
+});
