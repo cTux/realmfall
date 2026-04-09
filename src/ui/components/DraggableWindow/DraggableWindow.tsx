@@ -9,6 +9,7 @@ import type { DraggableWindowProps } from './types';
 import styles from './styles.module.css';
 
 const WINDOW_BASE_Z_INDEX = 20;
+const WINDOW_TRANSITION_MS = 180;
 
 let nextWindowZIndex = WINDOW_BASE_Z_INDEX;
 
@@ -25,6 +26,7 @@ export function DraggableWindow({
   className,
   collapsed: collapsedProp,
   onCollapsedChange,
+  visible = true,
 }: DraggableWindowProps) {
   const dragRef = useRef<{ dx: number; dy: number } | null>(null);
   const [collapsedState, setCollapsedState] = useState(false);
@@ -32,6 +34,8 @@ export function DraggableWindow({
   const [active, setActive] = useState(false);
   const [zIndex, setZIndex] = useState(() => claimWindowZIndex());
   const collapsed = collapsedProp ?? collapsedState;
+  const [bodyVisible, setBodyVisible] = useState(() => !collapsed);
+  const [bodyExpanded, setBodyExpanded] = useState(() => !collapsed);
 
   const elevateWindow = () => {
     setZIndex(claimWindowZIndex());
@@ -41,6 +45,21 @@ export function DraggableWindow({
     if (!active && !hovered) return;
     elevateWindow();
   }, [active, hovered]);
+
+  useEffect(() => {
+    if (!collapsed) {
+      setBodyVisible(true);
+      const frame = window.requestAnimationFrame(() => setBodyExpanded(true));
+      return () => window.cancelAnimationFrame(frame);
+    }
+
+    setBodyExpanded(false);
+    const timeout = window.setTimeout(
+      () => setBodyVisible(false),
+      WINDOW_TRANSITION_MS,
+    );
+    return () => window.clearTimeout(timeout);
+  }, [collapsed]);
 
   const toggleCollapsed = () => {
     const nextCollapsed = !collapsed;
@@ -88,6 +107,7 @@ export function DraggableWindow({
     <section
       className={`${styles.floatingWindow} ${className ?? ''}`.trim()}
       data-window-emphasis={emphasis}
+      data-window-visible={visible}
       style={{ left: position.x, top: position.y, zIndex }}
       onPointerEnter={() => setHovered(true)}
       onPointerLeave={() => setHovered(false)}
@@ -113,7 +133,15 @@ export function DraggableWindow({
           {collapsed ? 'expand' : 'collapse'}
         </button>
       </div>
-      {collapsed ? null : <div className={styles.windowBody}>{children}</div>}
+      {bodyVisible ? (
+        <div
+          className={styles.windowBodyFrame}
+          data-window-body-state={bodyExpanded ? 'open' : 'closed'}
+          aria-hidden={!bodyExpanded}
+        >
+          <div className={styles.windowBody}>{children}</div>
+        </div>
+      ) : null}
     </section>
   );
 }

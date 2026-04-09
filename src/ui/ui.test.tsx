@@ -33,6 +33,7 @@ import { ItemContextMenu } from './components/ItemContextMenu';
 import { LegendWindow } from './components/LegendWindow';
 import { LogWindow } from './components/LogWindow';
 import { LootWindow } from './components/LootWindow';
+import { SkillsWindow } from './components/SkillsWindow';
 
 describe('ui helpers and components', () => {
   beforeAll(() => {
@@ -47,6 +48,7 @@ describe('ui helpers and components', () => {
 
   it('exposes shared constants and lookup helpers', () => {
     expect(DEFAULT_WINDOWS.hero).toEqual({ x: 20, y: 20 });
+    expect(DEFAULT_WINDOWS.skills).toEqual({ x: 20, y: 430 });
     expect(DEFAULT_WINDOW_COLLAPSED.hero).toBe(false);
     expect(DEFAULT_LOG_FILTERS.combat).toBe(true);
     expect(rarityColor('legendary')).toBe('#fb923c');
@@ -235,6 +237,11 @@ describe('ui helpers and components', () => {
           stats={{ ...stats, hungerPenalty: 2 }}
           hunger={45}
         />
+        <SkillsWindow
+          position={DEFAULT_WINDOWS.skills}
+          onMove={() => {}}
+          skills={stats.skills}
+        />
         <LegendWindow position={DEFAULT_WINDOWS.legend} onMove={() => {}} />
         <HexInfoWindow
           position={DEFAULT_WINDOWS.hexInfo}
@@ -367,6 +374,7 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('Hero Info');
     expect(markup).toContain('Hunger penalty');
     expect(markup).toContain('Skills');
+    expect(markup).toContain('logging');
     expect(markup).toContain('Hex Info');
     expect(markup).toContain('Structure HP');
     expect(markup).toContain('Town Stock');
@@ -381,6 +389,8 @@ describe('ui helpers and components', () => {
   });
 
   it('raises hovered and active windows during interactions', async () => {
+    vi.useFakeTimers();
+
     const moves: Array<{ x: number; y: number }> = [];
     const collapsedChanges: boolean[] = [];
     const close = vi.fn();
@@ -507,6 +517,10 @@ describe('ui helpers and components', () => {
     await act(async () => {
       collapseButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
+    expect(testWindow.textContent).toContain('Body');
+    await act(async () => {
+      vi.advanceTimersByTime(200);
+    });
     expect(testWindow.textContent).not.toContain('Body');
     expect(collapsedChanges).toEqual([true]);
 
@@ -572,6 +586,51 @@ describe('ui helpers and components', () => {
     });
 
     expect(host.textContent).toContain(game.logs[0]?.text ?? '');
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('animates tooltip visibility changes', async () => {
+    vi.useFakeTimers();
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+
+    await act(async () => {
+      root.render(
+        <GameTooltip
+          tooltip={{
+            title: 'Knight Blade',
+            x: 50,
+            y: 70,
+            borderColor: rarityColor('rare'),
+            lines: [{ kind: 'text', text: 'LEVEL 2 RARE ITEM' }],
+          }}
+        />,
+      );
+    });
+
+    await act(async () => {
+      vi.advanceTimersByTime(20);
+    });
+
+    const tooltip = host.querySelector('div[class*="tooltip"]') as HTMLElement;
+    expect(tooltip.dataset.tooltipVisible).toBe('true');
+
+    await act(async () => {
+      root.render(<GameTooltip tooltip={null} />);
+    });
+    expect(tooltip.dataset.tooltipVisible).toBe('false');
+
+    await act(async () => {
+      vi.advanceTimersByTime(160);
+    });
+
+    expect(host.querySelector('div[class*="tooltip"]')).toBeNull();
 
     await act(async () => {
       root.unmount();

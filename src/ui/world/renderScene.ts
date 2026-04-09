@@ -29,6 +29,7 @@ export function renderScene(
   visibleTiles: ReturnType<typeof getVisibleTiles>,
   selected: HexCoord,
   hoveredMove: HexCoord | null,
+  viewCenter: { q: number; r: number } = state.player.coord,
 ) {
   app.stage
     .removeChildren()
@@ -47,8 +48,8 @@ export function renderScene(
       distance === 1 && tile.terrain !== 'water' && tile.terrain !== 'mountain';
     const emphasized = distance === 0 || clickable;
     const relative = {
-      q: tile.coord.q - state.player.coord.q,
-      r: tile.coord.r - state.player.coord.r,
+      q: tile.coord.q - viewCenter.q,
+      r: tile.coord.r - viewCenter.r,
     };
     const point = tileToPoint(relative, originX, originY, HEX_SIZE);
     const poly = makeHex(point.x, point.y, HEX_SIZE - 1);
@@ -141,7 +142,16 @@ export function renderScene(
   });
 
   const player = makeShadowedSprite(Icons.Player, 0xffffff, 46, 46, 1);
-  player.position.set(originX, originY);
+  const playerPoint = tileToPoint(
+    {
+      q: state.player.coord.q - viewCenter.q,
+      r: state.player.coord.r - viewCenter.r,
+    },
+    originX,
+    originY,
+    HEX_SIZE,
+  );
+  player.position.set(playerPoint.x, playerPoint.y);
   world.addChild(player);
 }
 

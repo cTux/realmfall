@@ -153,10 +153,15 @@ describe('App', () => {
       await Promise.resolve();
     });
 
+    await act(async () => {
+      vi.advanceTimersByTime(200);
+    });
+
     expect(loadEncryptedState).toHaveBeenCalledTimes(1);
     expect(renderScene).toHaveBeenCalled();
     expect(saveEncryptedState).toHaveBeenCalled();
     expect(host.textContent).toContain('Hero Info');
+    expect(host.textContent).toContain('Skills');
     expect(host.textContent).toContain('Hex Info');
     expect(host.textContent).not.toContain('Hunger penalty');
     expect(host.textContent).toContain('Loot');

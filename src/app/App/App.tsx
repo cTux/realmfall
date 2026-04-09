@@ -62,6 +62,7 @@ import {
 import { rarityColor } from '../../ui/rarity';
 import { renderScene } from '../../ui/world/renderScene';
 import { HeroWindow } from '../../ui/components/HeroWindow';
+import { SkillsWindow } from '../../ui/components/SkillsWindow';
 import { LegendWindow } from '../../ui/components/LegendWindow';
 import { HexInfoWindow } from '../../ui/components/HexInfoWindow';
 import { EquipmentWindow } from '../../ui/components/EquipmentWindow';
@@ -98,6 +99,11 @@ export function App() {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [itemMenu, setItemMenu] = useState<ItemContextMenuState | null>(null);
   const [dismissedLootKey, setDismissedLootKey] = useState<string | null>(null);
+  const [viewCenter, setViewCenter] = useState(() => ({
+    q: initialGameRef.current.player.coord.q,
+    r: initialGameRef.current.player.coord.r,
+  }));
+  const viewCenterRef = useRef(viewCenter);
 
   const stats = useMemo(() => getPlayerStats(game.player), [game.player]);
   const visibleTiles = useMemo(() => getVisibleTiles(game), [game]);
@@ -121,15 +127,34 @@ export function App() {
   const showLootWindow = Boolean(
     !game.combat && lootWindowKey && lootWindowKey !== dismissedLootKey,
   );
+  const [renderLootWindow, setRenderLootWindow] = useState(showLootWindow);
+  const [lootWindowVisible, setLootWindowVisible] = useState(showLootWindow);
+  const [lootSnapshot, setLootSnapshot] = useState(currentTile.items);
   const filteredLogs = useMemo(
     () => game.logs.filter((entry) => logFilters[entry.kind]),
     [game.logs, logFilters],
+  );
+  const [renderCombatWindow, setRenderCombatWindow] = useState(
+    Boolean(game.combat),
+  );
+  const [combatWindowVisible, setCombatWindowVisible] = useState(
+    Boolean(game.combat),
+  );
+  const [combatSnapshot, setCombatSnapshot] = useState<{
+    combat: NonNullable<GameState['combat']>;
+    enemies: typeof combatEnemies;
+  } | null>(
+    game.combat ? { combat: game.combat, enemies: combatEnemies } : null,
   );
 
   useEffect(() => {
     playerCoordRef.current = game.player.coord;
     gameRef.current = game;
   }, [game]);
+
+  useEffect(() => {
+    viewCenterRef.current = viewCenter;
+  }, [viewCenter]);
 
   useEffect(() => {
     if (!game.combat || combatEnemies.length === 0) return;
@@ -147,6 +172,65 @@ export function App() {
   useEffect(() => {
     if (!lootWindowKey) setDismissedLootKey(null);
   }, [lootWindowKey]);
+
+  useEffect(() => {
+    const target = game.player.coord;
+    const start = viewCenterRef.current;
+    if (start.q === target.q && start.r === target.r) {
+      setViewCenter(target);
+      return;
+    }
+
+    const startedAt = performance.now();
+    const duration = 220;
+    let frame = 0;
+    const easeOut = (progress: number) => 1 - (1 - progress) ** 3;
+
+    const animate = (now: number) => {
+      const progress = Math.min(1, (now - startedAt) / duration);
+      const eased = easeOut(progress);
+      setViewCenter({
+        q: start.q + (target.q - start.q) * eased,
+        r: start.r + (target.r - start.r) * eased,
+      });
+      if (progress < 1) {
+        frame = window.requestAnimationFrame(animate);
+      }
+    };
+
+    frame = window.requestAnimationFrame(animate);
+    return () => window.cancelAnimationFrame(frame);
+  }, [game.player.coord.q, game.player.coord.r]);
+
+  useEffect(() => {
+    if (showLootWindow) {
+      setLootSnapshot(currentTile.items);
+      setRenderLootWindow(true);
+      const frame = window.requestAnimationFrame(() =>
+        setLootWindowVisible(true),
+      );
+      return () => window.cancelAnimationFrame(frame);
+    }
+
+    setLootWindowVisible(false);
+    const timeout = window.setTimeout(() => setRenderLootWindow(false), 180);
+    return () => window.clearTimeout(timeout);
+  }, [currentTile.items, showLootWindow]);
+
+  useEffect(() => {
+    if (game.combat) {
+      setCombatSnapshot({ combat: game.combat, enemies: combatEnemies });
+      setRenderCombatWindow(true);
+      const frame = window.requestAnimationFrame(() =>
+        setCombatWindowVisible(true),
+      );
+      return () => window.cancelAnimationFrame(frame);
+    }
+
+    setCombatWindowVisible(false);
+    const timeout = window.setTimeout(() => setRenderCombatWindow(false), 180);
+    return () => window.clearTimeout(timeout);
+  }, [combatEnemies, game.combat]);
 
   useEffect(() => {
     let alive = true;
@@ -322,13 +406,13 @@ export function App() {
   useEffect(() => {
     const app = appRef.current;
     if (!app) return;
-    renderScene(app, game, visibleTiles, selected, hoveredMove);
-  }, [game, hoveredMove, selected, visibleTiles]);
+    renderScene(app, game, visibleTiles, selected, hoveredMove, viewCenter);
+  }, [game, hoveredMove, selected, viewCenter, visibleTiles]);
 
   useEffect(() => {
     setSelected(game.player.coord);
     setHoveredMove(null);
-  }, [game.player.coord]);
+  }, [game.player.coord.q, game.player.coord.r]);
 
   const moveWindow = useCallback(
     (
@@ -380,6 +464,11 @@ export function App() {
 
   const handleLegendMove = useCallback(
     (position: WindowPositions['legend']) => moveWindow('legend', position),
+    [moveWindow],
+  );
+
+  const handleSkillsMove = useCallback(
+    (position: WindowPositions['skills']) => moveWindow('skills', position),
     [moveWindow],
   );
 
@@ -519,6 +608,15 @@ export function App() {
         stats={stats}
         hunger={game.player.hunger}
       />
+      <SkillsWindow
+        position={windows.skills}
+        onMove={handleSkillsMove}
+        collapsed={windowCollapsed.skills}
+        onCollapsedChange={(collapsed) =>
+          setCollapsedWindow('skills', collapsed)
+        }
+        skills={stats.skills}
+      />
       <LegendWindow
         position={windows.legend}
         onMove={handleLegendMove}
@@ -585,7 +683,7 @@ export function App() {
         onHoverItem={showItemTooltip}
         onLeaveItem={closeTooltip}
       />
-      {showLootWindow ? (
+      {renderLootWindow ? (
         <LootWindow
           position={windows.loot}
           onMove={handleLootMove}
@@ -593,7 +691,8 @@ export function App() {
           onCollapsedChange={(collapsed) =>
             setCollapsedWindow('loot', collapsed)
           }
-          loot={currentTile.items}
+          visible={lootWindowVisible}
+          loot={lootSnapshot}
           equipment={game.player.equipment}
           onClose={handleCloseLoot}
           onTakeAll={handleTakeAllLoot}
@@ -645,7 +744,7 @@ export function App() {
         onToggleFilter={toggleLogFilter}
         logs={filteredLogs}
       />
-      {game.combat ? (
+      {renderCombatWindow && combatSnapshot ? (
         <CombatWindow
           position={windows.combat}
           onMove={(position) => moveWindow('combat', position)}
@@ -653,8 +752,9 @@ export function App() {
           onCollapsedChange={(collapsed) =>
             setCollapsedWindow('combat', collapsed)
           }
-          combat={game.combat}
-          enemies={combatEnemies}
+          visible={combatWindowVisible}
+          combat={combatSnapshot.combat}
+          enemies={combatSnapshot.enemies}
           player={{
             hp: stats.hp,
             maxHp: stats.maxHp,

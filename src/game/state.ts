@@ -563,7 +563,9 @@ export function interactWithStructure(state: GameState): GameState {
     currentTile.structureHp ?? definition.maxHp,
     1 + Math.floor(skill.level / 3),
   );
-  const quantity = definition.baseYield + Math.floor((skill.level - 1) / 4);
+  const bonusLoot = rollGatheringBonus(next, definition.skill);
+  const quantity =
+    definition.baseYield + Math.floor((skill.level - 1) / 4) + bonusLoot;
 
   currentTile.structureHp = Math.max(
     0,
@@ -580,6 +582,13 @@ export function interactWithStructure(state: GameState): GameState {
     'loot',
     `${definition.verb} and bring in ${describeItemStack(makeResourceStack(definition.reward, definition.rewardTier, quantity))}.`,
   );
+  if (bonusLoot > 0) {
+    addLog(
+      next,
+      'system',
+      `Your ${definition.skill} skill nets extra ${definition.reward.toLowerCase()}.`,
+    );
+  }
 
   if (currentTile.structureHp <= 0) {
     addLog(next, 'system', `${definition.depletedText}`);
@@ -1158,6 +1167,14 @@ function gainSkillXp(state: GameState, skill: SkillName, amount: number) {
       `Your ${skill} skill reaches level ${progress.level}.`,
     );
   }
+}
+
+function rollGatheringBonus(state: GameState, skill: SkillName) {
+  const chance = Math.min(1, state.player.skills[skill].level / 100);
+  const rng = createRng(
+    `${state.seed}:gather-bonus:${skill}:${state.turn}:${hexKey(state.player.coord)}`,
+  );
+  return rng() < chance ? 1 : 0;
 }
 
 function respawnAtNearestTown(state: GameState, from: HexCoord) {

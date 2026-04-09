@@ -1,23 +1,44 @@
-import { memo } from 'react';
-import type { GameTooltipProps } from './types';
+import { memo, useEffect, useState } from 'react';
+import type { GameTooltipProps, RenderedTooltipState } from './types';
 import styles from './styles.module.css';
 
 export const GameTooltip = memo(function GameTooltip({
   tooltip,
 }: GameTooltipProps) {
-  if (!tooltip) return null;
+  const [rendered, setRendered] = useState<RenderedTooltipState | null>(
+    tooltip ? { tooltip, visible: true } : null,
+  );
+
+  useEffect(() => {
+    if (tooltip) {
+      setRendered({ tooltip, visible: false });
+      const frame = window.requestAnimationFrame(() => {
+        setRendered({ tooltip, visible: true });
+      });
+      return () => window.cancelAnimationFrame(frame);
+    }
+
+    setRendered((current) =>
+      current ? { tooltip: current.tooltip, visible: false } : null,
+    );
+    const timeout = window.setTimeout(() => setRendered(null), 140);
+    return () => window.clearTimeout(timeout);
+  }, [tooltip]);
+
+  if (!rendered) return null;
 
   return (
     <div
       className={styles.tooltip}
+      data-tooltip-visible={rendered.visible}
       style={{
-        left: tooltip.x,
-        top: tooltip.y,
-        borderColor: tooltip.borderColor,
+        left: rendered.tooltip.x,
+        top: rendered.tooltip.y,
+        borderColor: rendered.tooltip.borderColor,
       }}
     >
-      <strong className={styles.title}>{tooltip.title}</strong>
-      {tooltip.lines.map((line, index) => {
+      <strong className={styles.title}>{rendered.tooltip.title}</strong>
+      {rendered.tooltip.lines.map((line, index) => {
         const className =
           line.tone === 'positive'
             ? styles.positive
@@ -36,7 +57,7 @@ export const GameTooltip = memo(function GameTooltip({
               : 0;
           return (
             <div
-              key={`${tooltip.title}-${line.label ?? 'bar'}-${index}`}
+              key={`${rendered.tooltip.title}-${line.label ?? 'bar'}-${index}`}
               className={styles.barBlock}
             >
               <div className={styles.statRow}>
@@ -55,7 +76,7 @@ export const GameTooltip = memo(function GameTooltip({
         if (line.kind === 'stat' && line.label) {
           return (
             <div
-              key={`${tooltip.title}-${line.label}-${index}`}
+              key={`${rendered.tooltip.title}-${line.label}-${index}`}
               className={`${styles.statRow} ${className ?? ''}`.trim()}
             >
               <span>{line.label}</span>
@@ -66,7 +87,7 @@ export const GameTooltip = memo(function GameTooltip({
 
         return (
           <div
-            key={`${tooltip.title}-${line.text ?? index}`}
+            key={`${rendered.tooltip.title}-${line.text ?? index}`}
             className={className}
           >
             {line.text}

@@ -1,4 +1,7 @@
 .floatingWindow {
+  --window-press-y: 0px;
+  --window-visibility-y: 0px;
+  --window-scale: 1;
   position: fixed;
   width: min(320px, calc(100vw - 16px));
   background: rgba(8, 15, 30, 0.86);
@@ -7,10 +10,16 @@
   backdrop-filter: blur(14px);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
   overflow: hidden;
+  opacity: 1;
+  transform: translateY(
+      calc(var(--window-press-y) + var(--window-visibility-y))
+    )
+    scale(var(--window-scale));
   transition:
     border-color 120ms ease,
     box-shadow 120ms ease,
-    transform 120ms ease;
+    transform 180ms ease,
+    opacity 180ms ease;
 }
 
 .floatingWindow[data-window-emphasis='hovered'],
@@ -21,7 +30,14 @@
 
 .floatingWindow[data-window-emphasis='active'] {
   border-color: rgba(248, 250, 252, 0.72);
-  transform: translateY(-1px);
+  --window-press-y: -1px;
+}
+
+.floatingWindow[data-window-visible='false'] {
+  --window-visibility-y: 10px;
+  --window-scale: 0.98;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .windowHeader {
@@ -54,10 +70,26 @@
   color: #e2e8f0;
 }
 
+.windowBodyFrame {
+  display: grid;
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transition:
+    grid-template-rows 180ms ease,
+    opacity 180ms ease;
+}
+
+.windowBodyFrame[data-window-body-state='closed'] {
+  grid-template-rows: 0fr;
+  opacity: 0;
+}
+
 .windowBody {
   padding: 0.9rem 1rem 1rem;
   display: grid;
   gap: 0.75rem;
+  min-height: 0;
+  overflow: hidden;
 }
 
 @media (max-width: 980px) {

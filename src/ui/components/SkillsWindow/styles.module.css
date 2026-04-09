@@ -1,0 +1,51 @@
+.window {
+  width: min(320px, calc(100vw - 16px));
+}
+
+.note {
+  color: #94a3b8;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.skillRow {
+  display: grid;
+  gap: 0.24rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: baseline;
+}
+
+.name {
+  color: #e2e8f0;
+  text-transform: capitalize;
+}
+
+.value {
+  color: #94a3b8;
+  font-size: 0.82rem;
+}
+
+.barTrack {
+  width: 100%;
+  height: 0.3rem;
+  background: rgba(30, 41, 59, 0.8);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #14b8a6, #38bdf8);
+  transition: width 220ms ease;
+}

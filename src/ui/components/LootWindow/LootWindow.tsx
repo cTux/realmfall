@@ -10,6 +10,7 @@ export const LootWindow = memo(function LootWindow({
   onMove,
   collapsed,
   onCollapsedChange,
+  visible,
   loot,
   equipment,
   onClose,
@@ -26,6 +27,7 @@ export const LootWindow = memo(function LootWindow({
       className={styles.window}
       collapsed={collapsed}
       onCollapsedChange={onCollapsedChange}
+      visible={visible}
     >
       <div className={styles.toolbar}>
         <div className={styles.actions}>

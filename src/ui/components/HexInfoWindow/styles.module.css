@@ -57,6 +57,7 @@
 .barFill {
   height: 100%;
   background: linear-gradient(90deg, #38bdf8, #22c55e);
+  transition: width 220ms ease;
 }
 
 .shop {

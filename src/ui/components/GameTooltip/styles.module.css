@@ -10,6 +10,16 @@
   pointer-events: none;
   display: grid;
   gap: 0.2rem;
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
+}
+
+.tooltip[data-tooltip-visible='false'] {
+  opacity: 0;
+  transform: translateY(6px);
 }
 
 .title {
@@ -42,6 +52,7 @@
 .barFill {
   height: 100%;
   background: linear-gradient(90deg, #ef4444, #f97316);
+  transition: width 220ms ease;
 }
 
 .positive {

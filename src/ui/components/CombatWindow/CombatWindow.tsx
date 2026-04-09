@@ -7,6 +7,7 @@ export function CombatWindow({
   onMove,
   collapsed,
   onCollapsedChange,
+  visible,
   combat,
   enemies,
   player,
@@ -20,6 +21,7 @@ export function CombatWindow({
       className={styles.window}
       collapsed={collapsed}
       onCollapsedChange={onCollapsedChange}
+      visible={visible}
     >
       <div className={styles.summary}>
         <div>

@@ -126,6 +126,27 @@ describe('game state', () => {
     expect(getTileAt(cleared, { q: 0, r: 0 }).structure).toBeUndefined();
   });
 
+  it('uses skill level as the extra gathering loot chance', () => {
+    const game = createGame(3, 'gather-bonus-seed');
+    game.player.skills.logging.level = 100;
+    game.tiles['0,0'] = {
+      ...game.tiles['0,0'],
+      structure: 'tree',
+      structureHp: 5,
+      structureMaxHp: 5,
+      items: [],
+      enemyIds: [],
+    };
+
+    const gathered = interactWithStructure(game);
+    const logs = gathered.player.inventory.find((item) => item.name === 'Logs');
+
+    expect(logs?.quantity).toBe(27);
+    expect(gathered.logs.some((entry) => /extra logs/i.test(entry.text))).toBe(
+      true,
+    );
+  });
+
   it('automatically skins animal enemies on kill', () => {
     const game = createGame(3, 'skinning-seed');
     const target = { q: 2, r: 0 };

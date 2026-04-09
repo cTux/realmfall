@@ -6,6 +6,7 @@ export interface CombatWindowProps {
   onMove: (position: WindowPosition) => void;
   collapsed?: boolean;
   onCollapsedChange?: (collapsed: boolean) => void;
+  visible?: boolean;
   combat: CombatState;
   enemies: Enemy[];
   player: {

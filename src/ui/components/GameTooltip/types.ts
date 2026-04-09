@@ -8,6 +8,11 @@ export interface GameTooltipData {
   borderColor?: string;
 }
 
+export interface RenderedTooltipState {
+  tooltip: GameTooltipData;
+  visible: boolean;
+}
+
 export interface GameTooltipProps {
   tooltip: GameTooltipData | null;
 }

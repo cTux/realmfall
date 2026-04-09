@@ -7,6 +7,7 @@ export interface LootWindowProps {
   onMove: (position: WindowPosition) => void;
   collapsed?: boolean;
   onCollapsedChange?: (collapsed: boolean) => void;
+  visible?: boolean;
   loot: Item[];
   equipment: Equipment;
   onClose: () => void;
