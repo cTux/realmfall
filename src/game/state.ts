@@ -341,6 +341,7 @@ export function attackCombatEnemy(
 
   if (enemy.hp <= 0) {
     gainXp(next, enemy.xp);
+    maybeDropEnemyGold(next, enemy);
     addLog(next, 'combat', `You defeated the ${enemy.name}.`);
     delete next.enemies[enemy.id];
   }
@@ -1245,6 +1246,23 @@ function makeResourceStack(name: string, tier: number, quantity: number): Item {
     healing: 0,
     hunger: 0,
   };
+}
+
+function maybeDropEnemyGold(state: GameState, enemy: Enemy) {
+  const rng = createRng(`${state.seed}:enemy-gold:${enemy.id}:${state.turn}`);
+  const chance = enemy.elite ? 0.85 : Math.min(0.7, 0.22 + enemy.tier * 0.06);
+  if (rng() > chance) return;
+
+  const quantity = Math.max(
+    1,
+    Math.floor(enemy.tier + rng() * (enemy.elite ? 10 : 5)),
+  );
+  ensureTileState(state, enemy.coord);
+  const key = hexKey(enemy.coord);
+  const tile = state.tiles[key];
+  addItemToInventory(tile.items, makeGoldStack(quantity));
+  state.tiles[key] = { ...tile, items: [...tile.items] };
+  addLog(state, 'loot', `${enemy.name} dropped ${quantity} gold.`);
 }
 
 export function makeGoldStack(quantity: number): Item {

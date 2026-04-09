@@ -45,7 +45,7 @@ import {
   loadEncryptedState,
   saveEncryptedState,
 } from '../../persistence/storage';
-import { itemTooltipLines } from '../../ui/tooltips';
+import { enemyTooltip, itemTooltipLines } from '../../ui/tooltips';
 import { rarityColor } from '../../ui/rarity';
 import { renderScene } from '../../ui/world/renderScene';
 import { HeroWindow } from '../../ui/components/HeroWindow';
@@ -221,10 +221,16 @@ export function App() {
       };
       const current = gameRef.current;
       const tile = getTileAt(current, target);
+      const enemies = getEnemiesAt(current, target);
+      const withinVisibleMap =
+        hexDistance(playerCoordRef.current, target) <= current.radius;
       const clickable =
         hexDistance(playerCoordRef.current, target) === 1 &&
         tile.terrain !== 'water' &&
         tile.terrain !== 'mountain';
+      const enemyInfo = withinVisibleMap
+        ? enemyTooltip(enemies, tile.structure)
+        : null;
 
       canvas.style.cursor = clickable ? 'pointer' : 'default';
       setHoveredMove((currentHovered) => {
@@ -234,11 +240,24 @@ export function App() {
         }
         return target;
       });
+
+      if (enemyInfo) {
+        setTooltip({
+          title: enemyInfo.title,
+          lines: enemyInfo.lines,
+          x: event.clientX + 16,
+          y: event.clientY + 16,
+          borderColor: tile.structure === 'dungeon' ? '#a855f7' : '#ef4444',
+        });
+      } else {
+        setTooltip(null);
+      }
     };
 
     const onPointerLeave = () => {
       canvas.style.cursor = 'default';
       setHoveredMove(null);
+      setTooltip(null);
     };
 
     canvas.addEventListener('pointerdown', onPointerDown as EventListener);

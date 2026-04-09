@@ -37,8 +37,8 @@ export const LootWindow = memo(function LootWindow({
             key={item.id}
             className={styles.itemCard}
             style={{
-              borderColor: rarityColor(item.rarity),
-              boxShadow: `0 0 0 1px ${rarityColor(item.rarity)}33 inset`,
+              borderColor: itemColor(item),
+              boxShadow: `0 0 0 1px ${itemColor(item)}33 inset`,
             }}
             onClick={() => onTakeItem(item.id)}
             onMouseEnter={(event) =>
@@ -52,7 +52,7 @@ export const LootWindow = memo(function LootWindow({
           >
             <span
               className={styles.itemIcon}
-              style={iconMaskStyle(iconForItem(item), rarityColor(item.rarity))}
+              style={iconMaskStyle(iconForItem(item), itemColor(item))}
               aria-label={item.kind}
             />
             {item.quantity > 1 ? (
@@ -73,4 +73,10 @@ function iconMaskStyle(icon: string, color: string) {
     WebkitMask: mask,
     mask,
   };
+}
+
+function itemColor(item: LootWindowProps['loot'][number]) {
+  return item.kind === 'resource' && item.name === 'Gold'
+    ? '#fbbf24'
+    : rarityColor(item.rarity);
 }

@@ -94,7 +94,9 @@ describe('game state', () => {
     const resolved = attackCombatEnemy(engaged, 'enemy-2,0-0');
     expect(resolved.combat).toBeNull();
     expect(getEnemiesAt(resolved, target)).toHaveLength(0);
-    expect(getTileAt(resolved, target).items).toHaveLength(0);
+    expect(
+      getTileAt(resolved, target).items.every((item) => item.name === 'Gold'),
+    ).toBe(true);
   });
 
   it('leaves loot on the tile until the player takes it', () => {

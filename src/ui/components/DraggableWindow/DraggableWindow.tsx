@@ -1,4 +1,8 @@
-import { useRef, type PointerEvent as ReactPointerEvent } from 'react';
+import {
+  useState,
+  useRef,
+  type PointerEvent as ReactPointerEvent,
+} from 'react';
 import type { DraggableWindowProps } from './types';
 import styles from './styles.module.css';
 
@@ -10,6 +14,7 @@ export function DraggableWindow({
   className,
 }: DraggableWindowProps) {
   const dragRef = useRef<{ dx: number; dy: number } | null>(null);
+  const [collapsed, setCollapsed] = useState(false);
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     dragRef.current = {
@@ -42,9 +47,17 @@ export function DraggableWindow({
     >
       <div className={styles.windowHeader} onPointerDown={onPointerDown}>
         <h2 className={styles.windowTitle}>{title}</h2>
-        <span className={styles.muted}>drag</span>
+        <button
+          type="button"
+          className={styles.collapseToggle}
+          onPointerDown={(event) => event.stopPropagation()}
+          onClick={() => setCollapsed((current) => !current)}
+          aria-expanded={!collapsed}
+        >
+          {collapsed ? 'expand' : 'collapse'}
+        </button>
       </div>
-      <div className={styles.windowBody}>{children}</div>
+      {collapsed ? null : <div className={styles.windowBody}>{children}</div>}
     </section>
   );
 }

@@ -85,19 +85,24 @@ export function renderScene(
       world.addChild(lootBorder);
     }
 
+    const enemies = getEnemiesAt(state, tile.coord);
+
     if (tile.structure) {
+      const structureColor =
+        tile.structure === 'dungeon' && enemies.length === 0
+          ? 0x94a3b8
+          : structureTint(tile.structure);
       const marker = makeShadowedSprite(
         structureIconFor(tile.structure),
-        structureTint(tile.structure),
-        26,
-        26,
+        structureColor,
+        42,
+        42,
         emphasized ? 1 : 0.82,
       );
-      marker.position.set(point.x, point.y + 10);
+      marker.position.set(point.x, point.y + 8);
       world.addChild(marker);
     }
 
-    const enemies = getEnemiesAt(state, tile.coord);
     if (enemies.length > 0 && tile.structure !== 'dungeon') {
       const offsets = enemyOffsets(enemies.length);
       enemies.forEach((enemy, index) => {
