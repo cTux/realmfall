@@ -21,29 +21,31 @@ import {
   unequipItem,
   type GameState,
   type HexCoord,
-  type Item,
-  type LogKind,
-} from './game/state';
+} from '../../game/state';
 import {
   DEFAULT_LOG_FILTERS,
   DEFAULT_WINDOWS,
   HEX_SIZE,
   WORLD_RADIUS,
   type WindowPositions,
-} from './app/constants';
-import { normalizeLoadedGame } from './app/normalize';
-import { loadEncryptedState, saveEncryptedState } from './persistence/storage';
-import { itemTooltipLines, type TooltipLine } from './ui/tooltips';
-import { renderScene } from './ui/world/renderScene';
-import { HeroWindow } from './ui/components/HeroWindow';
-import { LegendWindow } from './ui/components/LegendWindow';
-import { EquipmentWindow } from './ui/components/EquipmentWindow';
-import { InventoryWindow } from './ui/components/InventoryWindow';
-import { LogWindow } from './ui/components/LogWindow';
-import { GameTooltip } from './ui/components/GameTooltip';
-import styles from './App.module.css';
+} from '../constants';
+import { normalizeLoadedGame } from '../normalize';
+import {
+  loadEncryptedState,
+  saveEncryptedState,
+} from '../../persistence/storage';
+import { itemTooltipLines } from '../../ui/tooltips';
+import { renderScene } from '../../ui/world/renderScene';
+import { HeroWindow } from '../../ui/components/HeroWindow';
+import { LegendWindow } from '../../ui/components/LegendWindow';
+import { EquipmentWindow } from '../../ui/components/EquipmentWindow';
+import { InventoryWindow } from '../../ui/components/InventoryWindow';
+import { LogWindow } from '../../ui/components/LogWindow';
+import { GameTooltip } from '../../ui/components/GameTooltip';
+import type { PersistedUiState, TooltipItem, TooltipState } from './types';
+import styles from './styles.module.css';
 
-function App() {
+export function App() {
   const initialGameRef = useRef<GameState>(createGame(WORLD_RADIUS));
   const hostRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<Application | null>(null);
@@ -55,12 +57,7 @@ function App() {
   const [logFilters, setLogFilters] = useState(DEFAULT_LOG_FILTERS);
   const [hydrated, setHydrated] = useState(false);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
-  const [tooltip, setTooltip] = useState<{
-    title: string;
-    lines: TooltipLine[];
-    x: number;
-    y: number;
-  } | null>(null);
+  const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
   const stats = useMemo(() => getPlayerStats(game.player), [game.player]);
   const visibleTiles = useMemo(() => getVisibleTiles(game), [game]);
@@ -83,10 +80,7 @@ function App() {
         setGame(normalizeLoadedGame(saved.game as GameState));
       }
       if (saved?.ui) {
-        const ui = saved.ui as {
-          windows?: WindowPositions;
-          logFilters?: Record<LogKind, boolean>;
-        };
+        const ui = saved.ui as { windows?: WindowPositions } & PersistedUiState;
         if (ui.windows) setWindows({ ...DEFAULT_WINDOWS, ...ui.windows });
         if (ui.logFilters) {
           setLogFilters({ ...DEFAULT_LOG_FILTERS, ...ui.logFilters });
@@ -188,8 +182,8 @@ function App() {
 
   const showItemTooltip = (
     event: ReactMouseEvent<HTMLElement>,
-    item: Item,
-    equipped?: Item,
+    item: TooltipItem,
+    equipped?: TooltipItem,
   ) => {
     const rect = event.currentTarget.getBoundingClientRect();
     setTooltip({
@@ -251,5 +245,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
