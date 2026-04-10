@@ -13,11 +13,13 @@ import {
   canEquipItem,
   canUseItem,
   createGame,
+  createFreshLogs,
   describeStructure,
   dropEquippedItem,
   dropInventoryItem,
   equipItem,
   getCurrentTile,
+  hasEquippableInventoryItems,
   getEnemiesAt,
   getGoldAmount,
   getPlayerStats,
@@ -86,6 +88,8 @@ export function App() {
   const appRef = useRef<Application | null>(null);
   const playerCoordRef = useRef<HexCoord>({ q: 0, r: 0 });
   const gameRef = useRef<GameState>(initialGameRef.current);
+  const selectedRef = useRef<HexCoord>(initialGameRef.current.player.coord);
+  const hoveredMoveRef = useRef<HexCoord | null>(null);
   const [game, setGame] = useState<GameState>(initialGameRef.current);
   const [selected, setSelected] = useState<HexCoord>(game.player.coord);
   const [hoveredMove, setHoveredMove] = useState<HexCoord | null>(null);
@@ -103,8 +107,20 @@ export function App() {
   const stats = useMemo(() => getPlayerStats(game.player), [game.player]);
   const visibleTiles = useMemo(() => getVisibleTiles(game), [game]);
   const currentTile = useMemo(() => getCurrentTile(game), [game]);
-  const canProspect = currentTile.structure === 'forge';
-  const canSell = currentTile.structure === 'town';
+  const hasEquippableItems = useMemo(
+    () => hasEquippableInventoryItems(game),
+    [game],
+  );
+  const canProspect = currentTile.structure === 'forge' && hasEquippableItems;
+  const canSell = currentTile.structure === 'town' && hasEquippableItems;
+  const prospectExplanation =
+    currentTile.structure === 'forge' && !hasEquippableItems
+      ? 'Nothing in your pack can be prospected.'
+      : null;
+  const sellExplanation =
+    currentTile.structure === 'town' && !hasEquippableItems
+      ? 'No equippable items to sell.'
+      : null;
   const interactLabel = structureActionLabel(currentTile.structure);
   const townStock = useMemo(() => getTownStock(game), [game]);
   const gold = useMemo(
@@ -146,6 +162,14 @@ export function App() {
     playerCoordRef.current = game.player.coord;
     gameRef.current = game;
   }, [game]);
+
+  useEffect(() => {
+    selectedRef.current = selected;
+  }, [selected]);
+
+  useEffect(() => {
+    hoveredMoveRef.current = hoveredMove;
+  }, [hoveredMove]);
 
   useEffect(() => {
     if (!game.combat || combatEnemies.length === 0) return;
@@ -200,7 +224,12 @@ export function App() {
     void loadEncryptedState().then((saved) => {
       if (!alive) return;
       if (saved?.game) {
-        setGame(normalizeLoadedGame(saved.game as GameState));
+        const loadedGame = normalizeLoadedGame(saved.game as GameState);
+        setGame({
+          ...loadedGame,
+          logSequence: 3,
+          logs: createFreshLogs(loadedGame.seed),
+        });
       }
       if (saved?.ui) {
         const ui = saved.ui as {
@@ -229,7 +258,7 @@ export function App() {
   useEffect(() => {
     if (!hydrated) return;
     void saveEncryptedState({
-      game,
+      game: { ...game, logs: [] },
       ui: { windows, windowCollapsed, logFilters },
     });
   }, [game, hydrated, logFilters, windowCollapsed, windows]);
@@ -256,6 +285,20 @@ export function App() {
     };
 
     resize();
+
+    const renderFrame = () => {
+      renderScene(
+        app,
+        gameRef.current,
+        getVisibleTiles(gameRef.current),
+        selectedRef.current,
+        hoveredMoveRef.current,
+        performance.now(),
+      );
+    };
+
+    renderFrame();
+    app.ticker.add(renderFrame);
 
     const observer = new ResizeObserver(() => resize());
     observer.observe(hostRef.current);
@@ -360,6 +403,7 @@ export function App() {
       canvas.removeEventListener('pointerdown', onPointerDown as EventListener);
       canvas.removeEventListener('pointermove', onPointerMove as EventListener);
       canvas.removeEventListener('pointerleave', onPointerLeave);
+      app.ticker.remove(renderFrame);
       app.destroy(true, { children: true, texture: true, baseTexture: true });
       appRef.current = null;
     };
@@ -606,6 +650,8 @@ export function App() {
         canInteract={Boolean(interactLabel)}
         canProspect={canProspect}
         canSell={canSell}
+        prospectExplanation={prospectExplanation}
+        sellExplanation={sellExplanation}
         onInteract={handleInteract}
         onProspect={handleProspect}
         onSellAll={handleSellAll}

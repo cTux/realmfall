@@ -17,6 +17,8 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   canInteract,
   canProspect,
   canSell,
+  prospectExplanation,
+  sellExplanation,
   onInteract,
   onProspect,
   onSellAll,
@@ -84,6 +86,13 @@ export const HexInfoWindow = memo(function HexInfoWindow({
             <button onClick={onSellAll}>Sell all equippable</button>
           ) : null}
         </div>
+
+        {prospectExplanation ? (
+          <div className={styles.empty}>{prospectExplanation}</div>
+        ) : null}
+        {sellExplanation ? (
+          <div className={styles.empty}>{sellExplanation}</div>
+        ) : null}
 
         {townStock.length > 0 ? (
           <div className={styles.shop}>

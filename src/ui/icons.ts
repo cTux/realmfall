@@ -17,6 +17,9 @@ import anvilIcon from '../assets/icons/anvil.svg';
 import stonePileIcon from '../assets/icons/stone-pile.svg';
 import axeInStumpIcon from '../assets/icons/axe-in-stump.svg';
 import spillIcon from '../assets/icons/spill.svg';
+import sunCloudIcon from '../assets/icons/sun-cloud.svg';
+import rainingIcon from '../assets/icons/raining.svg';
+import snowingIcon from '../assets/icons/snowing.svg';
 import type { StructureType } from '../game/state';
 
 export const Icons = {
@@ -38,6 +41,9 @@ export const Icons = {
   StonePile: stonePileIcon,
   AxeInStump: axeInStumpIcon,
   Spill: spillIcon,
+  SunCloud: sunCloudIcon,
+  Raining: rainingIcon,
+  Snowing: snowingIcon,
 } as const;
 
 export const EnemyType = {

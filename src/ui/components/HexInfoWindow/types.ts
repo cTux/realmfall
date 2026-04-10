@@ -14,6 +14,8 @@ export interface HexInfoWindowProps {
   canInteract: boolean;
   canProspect: boolean;
   canSell: boolean;
+  prospectExplanation?: string | null;
+  sellExplanation?: string | null;
   onInteract: () => void;
   onProspect: () => void;
   onSellAll: () => void;

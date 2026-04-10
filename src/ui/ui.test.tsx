@@ -253,6 +253,8 @@ describe('ui helpers and components', () => {
           canInteract
           canProspect={false}
           canSell={false}
+          prospectExplanation={null}
+          sellExplanation={null}
           onInteract={() => {}}
           onProspect={() => {}}
           onSellAll={() => {}}
@@ -386,6 +388,60 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('Knight Blade');
     expect(iconForItem(inventoryItem)).toBeTruthy();
     expect(iconForItem(undefined, 'weapon')).toBeTruthy();
+  });
+
+  it('shows explanations instead of unavailable prospect and sell buttons', () => {
+    const markup = renderToStaticMarkup(
+      <>
+        <HexInfoWindow
+          position={DEFAULT_WINDOWS.hexInfo}
+          onMove={() => {}}
+          terrain="Plains"
+          structure="Forge"
+          enemyCount={0}
+          interactLabel={null}
+          canInteract={false}
+          canProspect={false}
+          canSell={false}
+          prospectExplanation="Nothing in your pack can be prospected."
+          sellExplanation={null}
+          onInteract={() => {}}
+          onProspect={() => {}}
+          onSellAll={() => {}}
+          townStock={[]}
+          gold={0}
+          onBuyItem={() => {}}
+          onHoverItem={() => {}}
+          onLeaveItem={() => {}}
+        />
+        <HexInfoWindow
+          position={DEFAULT_WINDOWS.hexInfo}
+          onMove={() => {}}
+          terrain="Plains"
+          structure="Town"
+          enemyCount={0}
+          interactLabel={null}
+          canInteract={false}
+          canProspect={false}
+          canSell={false}
+          prospectExplanation={null}
+          sellExplanation="No equippable items to sell."
+          onInteract={() => {}}
+          onProspect={() => {}}
+          onSellAll={() => {}}
+          townStock={[]}
+          gold={0}
+          onBuyItem={() => {}}
+          onHoverItem={() => {}}
+          onLeaveItem={() => {}}
+        />
+      </>,
+    );
+
+    expect(markup).toContain('Nothing in your pack can be prospected.');
+    expect(markup).toContain('No equippable items to sell.');
+    expect(markup).not.toContain('Sell all equippable');
+    expect(markup).not.toContain('>Prospect<');
   });
 
   it('raises hovered and active windows during interactions', async () => {

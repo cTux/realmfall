@@ -29,14 +29,17 @@ export function renderScene(
   visibleTiles: ReturnType<typeof getVisibleTiles>,
   selected: HexCoord,
   hoveredMove: HexCoord | null,
+  animationMs = 0,
 ) {
   app.stage
     .removeChildren()
     .forEach((child) => child.destroy({ children: true }));
 
   const world = new Container();
+  const cloudShadows = new Container();
   const labels = new Container();
-  app.stage.addChild(world, labels);
+  const clouds = new Container();
+  app.stage.addChild(world, cloudShadows, labels, clouds);
 
   const originX = app.screen.width / 2;
   const originY = app.screen.height / 2;
@@ -143,6 +146,8 @@ export function renderScene(
   const player = makeShadowedSprite(Icons.Player, 0xffffff, 46, 46, 1);
   player.position.set(originX, originY);
   world.addChild(player);
+
+  renderCloudLayer(app, cloudShadows, clouds, animationMs);
 }
 
 function tileToPoint(
@@ -204,6 +209,86 @@ function makeShadowedSprite(
 
   wrapper.addChild(shadow, sprite);
   return wrapper as DisplayObject & Container;
+}
+
+function renderCloudLayer(
+  app: Application,
+  shadowLayer: Container,
+  cloudLayer: Container,
+  animationMs: number,
+) {
+  const cloudCount = 22;
+  const speed = 0.01;
+  const weatherIcons = [Icons.SunCloud, Icons.Raining, Icons.Snowing];
+  const clusterOffsets = [
+    { x: -38, y: 12, scale: 0.72 },
+    { x: -16, y: -6, scale: 0.9 },
+    { x: 14, y: 6, scale: 1 },
+    { x: 40, y: -8, scale: 0.82 },
+  ];
+
+  for (let index = 0; index < cloudCount; index += 1) {
+    const scale = 0.9 + (index % 4) * 0.16;
+    const width = 92 * scale;
+    const height = 92 * scale;
+    const spacing = app.screen.width / cloudCount;
+    const travel = app.screen.width + spacing * cloudCount + width * 2;
+    const progress = (animationMs * speed + spacing * index * 1.35) % travel;
+    const x = progress - width;
+    const y =
+      app.screen.height * (0.08 + (index % 6) * 0.1) +
+      Math.sin(animationMs * 0.00045 + index * 1.7) * 8;
+    const icon = weatherIcons[index % weatherIcons.length];
+    const shadowOpacity = 0.12 + (index % 3) * 0.02;
+    const cloudOpacity = 0.14 + (index % 4) * 0.024;
+
+    clusterOffsets.forEach((offset) => {
+      const spriteWidth = width * offset.scale;
+      const spriteHeight = height * offset.scale;
+
+      const shadow = makeWeatherSprite(
+        icon,
+        0x020617,
+        spriteWidth * 1.05,
+        spriteHeight * 1.05,
+        shadowOpacity,
+      );
+      shadow.position.set(
+        x + width * 0.5 + offset.x * scale,
+        y + height * 1.02 + offset.y * scale,
+      );
+      shadowLayer.addChild(shadow);
+
+      const cloud = makeWeatherSprite(
+        icon,
+        0xf8fafc,
+        spriteWidth,
+        spriteHeight,
+        cloudOpacity,
+      );
+      cloud.position.set(
+        x + width * 0.5 + offset.x * scale,
+        y + height * 0.5 + offset.y * scale,
+      );
+      cloudLayer.addChild(cloud);
+    });
+  }
+}
+
+function makeWeatherSprite(
+  icon: string,
+  tint: number,
+  width: number,
+  height: number,
+  alpha: number,
+) {
+  const sprite = Sprite.from(icon);
+  sprite.anchor.set(0.5);
+  sprite.width = width;
+  sprite.height = height;
+  sprite.tint = tint;
+  sprite.alpha = alpha;
+  return sprite;
 }
 
 function tileStyle(terrain: string) {

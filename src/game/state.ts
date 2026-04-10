@@ -197,7 +197,7 @@ export function createGame(
     turn: 0,
     gameOver: false,
     logSequence: 3,
-    logs: createInitialLogs(seed),
+    logs: createFreshLogs(seed),
     tiles: {},
     enemies: {},
     combat: null,
@@ -224,6 +224,10 @@ export function createGame(
 
   cacheSafeStart(state);
   return state;
+}
+
+export function createFreshLogs(seed: string) {
+  return createInitialLogs(seed);
 }
 
 export function getVisibleTiles(state: GameState) {
@@ -605,6 +609,10 @@ export function getTownStock(state: GameState): TownStockEntry[] {
   const tile = getCurrentTile(state);
   if (tile.structure !== 'town') return [];
   return buildTownStock(state.seed, tile.coord);
+}
+
+export function hasEquippableInventoryItems(state: GameState) {
+  return state.player.inventory.some(isEquippableItem);
 }
 
 export function buyTownItem(state: GameState, itemId: string): GameState {
@@ -1833,6 +1841,14 @@ function rumorForSeed(seed: string) {
     'Rumor: every forge can tease hidden materials from gear if your hands are patient enough.',
     'Rumor: merchants only trust business done inside town walls.',
     'Rumor: the farther you walk, the sharper the steel and the harsher the teeth.',
+    'Rumor: tree lines near the center regrow slowly, so greedy chopping leaves long hungry roads.',
+    'Rumor: shallow ponds feed the patient, but lakes hide deeper rewards and deeper trouble.',
+    'Rumor: coal veins tend to sit where the land already looks half-burned and bitter.',
+    'Rumor: the best armor comes from surviving one more trip than you thought you could.',
+    'Rumor: some ruins look empty until the first step wakes everything inside.',
+    'Rumor: a full pack is safer than a sharp blade right up until the fighting starts.',
+    'Rumor: iron pays for persistence, copper pays for speed, and both punish dull tools.',
+    'Rumor: hunger kills more heroes than wolves ever will.',
   ];
   return (
     rumors[Math.floor(createRng(`${seed}:rumor`)() * rumors.length)] ??

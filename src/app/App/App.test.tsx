@@ -18,6 +18,7 @@ class MockApplication {
   stage = new MockStage();
   screen = { width: 800, height: 600 };
   renderer = { resize: vi.fn() };
+  ticker = { add: vi.fn(), remove: vi.fn() };
   view = document.createElement('canvas');
   destroy = vi.fn();
 
@@ -135,11 +136,15 @@ describe('App', () => {
     };
 
     loadEncryptedState.mockResolvedValue({
-      game,
+      game: {
+        ...game,
+        logs: [
+          { id: 'persisted-log', kind: 'system', text: 'old log', turn: 99 },
+        ],
+      },
       ui: {
         windows: { hero: { x: 30, y: 40 } },
         windowCollapsed: { hero: true },
-        logFilters: { rumor: false },
       },
     });
 
@@ -163,6 +168,9 @@ describe('App', () => {
     expect(host.textContent).toContain('Hero Info');
     expect(host.textContent).toContain('Skills');
     expect(host.textContent).toContain('Hex Info');
+    expect(host.textContent).not.toContain('old log');
+    expect(host.textContent).toContain('MOTD');
+    expect(host.textContent).toContain('Rumor:');
     expect(host.textContent).not.toContain('Hunger penalty');
     expect(host.textContent).toContain('Loot');
     expect(host.textContent).toContain('Prospect');
@@ -252,6 +260,7 @@ describe('App', () => {
     expect(renderScene.mock.calls.length).toBeGreaterThan(1);
     expect(saveEncryptedState).toHaveBeenLastCalledWith(
       expect.objectContaining({
+        game: expect.objectContaining({ logs: [] }),
         ui: expect.objectContaining({
           windowCollapsed: expect.objectContaining({ hero: false }),
         }),
