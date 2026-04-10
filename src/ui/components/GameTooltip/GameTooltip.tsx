@@ -1,4 +1,5 @@
 import { memo, useEffect, useState } from 'react';
+import { formatCompactNumber, formatCompactNumberish } from '../../formatters';
 import type { GameTooltipProps, RenderedTooltipState } from './types';
 import styles from './styles.module.css';
 
@@ -63,7 +64,8 @@ export const GameTooltip = memo(function GameTooltip({
               <div className={styles.statRow}>
                 <span>{line.label}</span>
                 <span>
-                  {line.current}/{line.max}
+                  {formatCompactNumber(line.current)}/
+                  {formatCompactNumber(line.max)}
                 </span>
               </div>
               <div className={styles.barTrack}>
@@ -80,7 +82,7 @@ export const GameTooltip = memo(function GameTooltip({
               className={`${styles.statRow} ${className ?? ''}`.trim()}
             >
               <span>{line.label}</span>
-              <span>{line.value}</span>
+              <span>{formatCompactNumberish(line.value ?? '')}</span>
             </div>
           );
         }

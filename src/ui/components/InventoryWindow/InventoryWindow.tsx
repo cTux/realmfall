@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { formatCompactNumber } from '../../formatters';
 import { iconForItem } from '../../icons';
 import { rarityColor } from '../../rarity';
 import { DraggableWindow } from '../DraggableWindow';
@@ -26,12 +27,16 @@ export const InventoryWindow = memo(function InventoryWindow({
       className={styles.window}
       collapsed={collapsed}
       onCollapsedChange={onCollapsedChange}
-    >
-      <div className={styles.toolbar}>
-        <div className={styles.actions}>
-          <button onClick={onSort}>Sort</button>
+      headerActions={
+        <div className={styles.toolbar}>
+          <div className={styles.actions}>
+            <button className={styles.headerButton} onClick={onSort}>
+              Sort
+            </button>
+          </div>
         </div>
-      </div>
+      }
+    >
       <div className={styles.grid}>
         {inventory.map((item) => (
           <button
@@ -58,7 +63,9 @@ export const InventoryWindow = memo(function InventoryWindow({
               aria-label={item.kind}
             />
             {item.quantity > 1 ? (
-              <span className={styles.stackBadge}>x{item.quantity}</span>
+              <span className={styles.stackBadge}>
+                x{formatCompactNumber(item.quantity)}
+              </span>
             ) : null}
           </button>
         ))}

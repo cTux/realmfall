@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { formatCompactNumber } from '../../formatters';
 import { iconForItem } from '../../icons';
 import { rarityColor } from '../../rarity';
 import { DraggableWindow } from '../DraggableWindow';
@@ -28,15 +29,23 @@ export const LootWindow = memo(function LootWindow({
       collapsed={collapsed}
       onCollapsedChange={onCollapsedChange}
       visible={visible}
-    >
-      <div className={styles.toolbar}>
-        <div className={styles.actions}>
-          <button onClick={onClose}>Close</button>
-          <button onClick={onTakeAll} disabled={loot.length === 0}>
-            Take all
-          </button>
+      headerActions={
+        <div className={styles.toolbar}>
+          <div className={styles.actions}>
+            <button className={styles.headerButton} onClick={onClose}>
+              Close
+            </button>
+            <button
+              className={styles.headerButton}
+              onClick={onTakeAll}
+              disabled={loot.length === 0}
+            >
+              Take all
+            </button>
+          </div>
         </div>
-      </div>
+      }
+    >
       <div className={styles.grid}>
         {loot.map((item) => (
           <button
@@ -62,7 +71,9 @@ export const LootWindow = memo(function LootWindow({
               aria-label={item.kind}
             />
             {item.quantity > 1 ? (
-              <span className={styles.stackBadge}>x{item.quantity}</span>
+              <span className={styles.stackBadge}>
+                x{formatCompactNumber(item.quantity)}
+              </span>
             ) : null}
           </button>
         ))}

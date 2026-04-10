@@ -1,6 +1,6 @@
 .tooltip {
   position: fixed;
-  z-index: 2000;
+  z-index: 40;
   max-width: 260px;
   padding: 0.65rem 0.75rem;
   background: rgba(8, 15, 30, 0.96);

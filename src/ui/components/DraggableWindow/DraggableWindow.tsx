@@ -8,55 +8,38 @@ import {
 import type { DraggableWindowProps } from './types';
 import styles from './styles.module.css';
 
-const WINDOW_BASE_Z_INDEX = 20;
 const WINDOW_TRANSITION_MS = 180;
 const WINDOW_ACTIVATED_EVENT = 'opencode-window-activated';
-
-let nextWindowZIndex = WINDOW_BASE_Z_INDEX;
-
-const claimWindowZIndex = () => {
-  nextWindowZIndex += 1;
-  return nextWindowZIndex;
-};
 
 export function DraggableWindow({
   title,
   position,
   onMove,
   children,
+  titleClassName,
+  headerActions,
   className,
   collapsed: collapsedProp,
   onCollapsedChange,
   visible = true,
 }: DraggableWindowProps) {
-  const windowIdRef = useRef(`window-${claimWindowZIndex()}`);
+  const windowIdRef = useRef(`window-${Math.random().toString(36).slice(2)}`);
   const dragRef = useRef<{ dx: number; dy: number } | null>(null);
   const [collapsedState, setCollapsedState] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [active, setActive] = useState(false);
-  const [zIndex, setZIndex] = useState(() => claimWindowZIndex());
   const collapsed = collapsedProp ?? collapsedState;
   const [bodyVisible, setBodyVisible] = useState(() => !collapsed);
   const [bodyExpanded, setBodyExpanded] = useState(() => !collapsed);
 
-  const elevateWindow = () => {
-    setZIndex(claimWindowZIndex());
-  };
-
   const activateWindow = () => {
     setActive(true);
-    elevateWindow();
     window.dispatchEvent(
       new CustomEvent(WINDOW_ACTIVATED_EVENT, {
         detail: windowIdRef.current,
       }),
     );
   };
-
-  useEffect(() => {
-    if (!active && !hovered) return;
-    elevateWindow();
-  }, [active, hovered]);
 
   useEffect(() => {
     const onWindowActivated = (event: Event) => {
@@ -132,7 +115,7 @@ export function DraggableWindow({
       className={`${styles.floatingWindow} ${className ?? ''}`.trim()}
       data-window-emphasis={emphasis}
       data-window-visible={visible}
-      style={{ left: position.x, top: position.y, zIndex }}
+      style={{ left: position.x, top: position.y }}
       onPointerEnter={() => setHovered(true)}
       onPointerLeave={() => setHovered(false)}
       onPointerDown={activateWindow}
@@ -140,16 +123,28 @@ export function DraggableWindow({
       onBlurCapture={onBlurCapture}
     >
       <div className={styles.windowHeader} onPointerDown={onPointerDown}>
-        <h2 className={styles.windowTitle}>{title}</h2>
-        <button
-          type="button"
-          className={styles.collapseToggle}
-          onPointerDown={(event) => event.stopPropagation()}
-          onClick={toggleCollapsed}
-          aria-expanded={!collapsed}
-        >
-          {collapsed ? 'expand' : 'collapse'}
-        </button>
+        <h2 className={`${styles.windowTitle} ${titleClassName ?? ''}`.trim()}>
+          {title}
+        </h2>
+        <div className={styles.windowHeaderActions}>
+          {headerActions ? (
+            <div
+              className={styles.headerActions}
+              onPointerDown={(event) => event.stopPropagation()}
+            >
+              {headerActions}
+            </div>
+          ) : null}
+          <button
+            type="button"
+            className={styles.collapseToggle}
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={toggleCollapsed}
+            aria-expanded={!collapsed}
+          >
+            {collapsed ? 'expand' : 'collapse'}
+          </button>
+        </div>
       </div>
       {bodyVisible ? (
         <div

@@ -14,6 +14,7 @@ import {
   itemTooltipLines,
   structureTooltip,
 } from './tooltips';
+import { formatCompactNumber, formatCompactNumberish } from './formatters';
 import {
   enemyIconFor,
   enemyTint,
@@ -57,6 +58,9 @@ describe('ui helpers and components', () => {
     expect(structureIconFor('town')).toBeTruthy();
     expect(structureIconFor('tree')).toBeTruthy();
     expect(structureTint('forge')).toBe(0xf97316);
+    expect(formatCompactNumber(1_250)).toBe('1.3K');
+    expect(formatCompactNumber(1_250_000)).toBe('1.3M');
+    expect(formatCompactNumberish('+1250')).toBe('+1.3K');
   });
 
   it('builds item and enemy tooltip lines for multiple branches', () => {
@@ -513,9 +517,6 @@ describe('ui helpers and components', () => {
     const backgroundWindow = floatingWindows[0] as HTMLElement;
     const testWindow = floatingWindows[1] as HTMLElement;
 
-    const initialBackgroundZIndex = Number(backgroundWindow.style.zIndex);
-    const initialTestZIndex = Number(testWindow.style.zIndex);
-    expect(initialTestZIndex).toBeGreaterThan(initialBackgroundZIndex);
     expect(testWindow.dataset.windowEmphasis).toBe('idle');
 
     await act(async () => {
@@ -539,9 +540,6 @@ describe('ui helpers and components', () => {
       );
     });
     expect(backgroundWindow.dataset.windowEmphasis).toBe('active');
-    expect(Number(backgroundWindow.style.zIndex)).toBeGreaterThan(
-      Number(testWindow.style.zIndex),
-    );
     close.mockClear();
 
     const header = testWindow.querySelector('div[class*="windowHeader"]');

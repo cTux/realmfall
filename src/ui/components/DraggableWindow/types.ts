@@ -6,6 +6,8 @@ export interface DraggableWindowProps {
   position: WindowPosition;
   onMove: (position: WindowPosition) => void;
   children: ReactNode;
+  titleClassName?: string;
+  headerActions?: ReactNode;
   className?: string;
   collapsed?: boolean;
   onCollapsedChange?: (collapsed: boolean) => void;

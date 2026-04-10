@@ -59,27 +59,34 @@ export const LogWindow = memo(function LogWindow({
       position={position}
       onMove={onMove}
       className={styles.window}
+      titleClassName={styles.windowTitle}
       collapsed={collapsed}
       onCollapsedChange={onCollapsedChange}
+      headerActions={
+        <div className={styles.toolbar}>
+          <button className={styles.headerButton} onClick={onToggleMenu}>
+            Filters
+          </button>
+          {showFilterMenu ? (
+            <div className={styles.filterMenu}>
+              {Object.keys(defaultFilters).map((kind) => (
+                <label key={kind} className={styles.filterChip}>
+                  <input
+                    className={styles.styledCheckbox}
+                    type="checkbox"
+                    checked={filters[kind as keyof typeof filters]}
+                    onChange={() =>
+                      onToggleFilter(kind as keyof typeof filters)
+                    }
+                  />
+                  {kind}
+                </label>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      }
     >
-      <div className={styles.toolbar}>
-        <button onClick={onToggleMenu}>Filters</button>
-        {showFilterMenu ? (
-          <div className={styles.filterMenu}>
-            {Object.keys(defaultFilters).map((kind) => (
-              <label key={kind} className={styles.filterChip}>
-                <input
-                  className={styles.styledCheckbox}
-                  type="checkbox"
-                  checked={filters[kind as keyof typeof filters]}
-                  onChange={() => onToggleFilter(kind as keyof typeof filters)}
-                />
-                {kind}
-              </label>
-            ))}
-          </div>
-        ) : null}
-      </div>
       <div className={styles.logList}>
         {logs.map((entry) => (
           <div
