@@ -28,6 +28,22 @@
 .name {
   color: #e2e8f0;
   text-transform: capitalize;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.icon {
+  width: 0.95rem;
+  height: 0.95rem;
+  display: inline-block;
+  background: linear-gradient(180deg, #f8fafc, #cbd5e1);
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
 }
 
 .value {

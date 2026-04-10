@@ -1,4 +1,4 @@
-import type { EquipmentSlot, Item } from '../game/state';
+import type { EquipmentSlot, Item, SkillName } from '../game/state';
 import playerIcon from '../assets/icons/visored-helm.svg';
 import enemyIcon from '../assets/icons/wolf-head.svg';
 import weaponIcon from '../assets/icons/plain-dagger.svg';
@@ -31,6 +31,10 @@ import rainingIcon from '../assets/icons/raining.svg';
 import snowingIcon from '../assets/icons/snowing.svg';
 import totemIcon from '../assets/icons/totem.svg';
 import woodStickIcon from '../assets/icons/wood-stick.svg';
+import bookCoverIcon from '../assets/icons/book-cover.svg';
+import friedFishIcon from '../assets/icons/fried-fish.svg';
+import campCookingPotIcon from '../assets/icons/camp-cooking-pot.svg';
+import stoneCraftingIcon from '../assets/icons/stone-crafting.svg';
 import type { StructureType } from '../game/state';
 import { rarityColor } from './rarity';
 
@@ -67,6 +71,10 @@ export const Icons = {
   Snowing: snowingIcon,
   Totem: totemIcon,
   WoodStick: woodStickIcon,
+  BookCover: bookCoverIcon,
+  FriedFish: friedFishIcon,
+  CampCookingPot: campCookingPotIcon,
+  StoneCrafting: stoneCraftingIcon,
 } as const;
 
 export const EnemyType = {
@@ -88,10 +96,21 @@ export const ResourceType = {
   IronChunks: 'Iron Chunks',
   Coal: 'Coal',
   RawFish: 'Raw Fish',
+  CookedFish: 'Cooked Fish',
   Cloth: 'Cloth',
   LeatherScraps: 'Leather Scraps',
   ArcaneDust: 'Arcane Dust',
+  RecipeBook: 'Recipe Book',
 } as const;
+
+export const SkillIcon: Record<SkillName, string> = {
+  logging: Icons.AxeInStump,
+  mining: Icons.Ore,
+  skinning: Icons.AnimalHide,
+  fishing: Icons.Salmon,
+  cooking: Icons.CampCookingPot,
+  crafting: Icons.StoneCrafting,
+};
 
 const DEFAULT_ENEMY_ICON = Icons.Enemy;
 const DEFAULT_ENEMY_TINT = 0x60a5fa;
@@ -133,6 +152,8 @@ export const StructureIcon: Record<StructureType, string> = {
   town: Icons.Village,
   dungeon: Icons.DungeonGate,
   forge: Icons.Anvil,
+  camp: Icons.CampCookingPot,
+  workshop: Icons.StoneCrafting,
   tree: Icons.AxeInStump,
   'copper-ore': Icons.Ore,
   'iron-ore': Icons.Ore,
@@ -145,6 +166,8 @@ export const StructureTint: Record<StructureType, number> = {
   town: 0xfbbf24,
   forge: 0xf97316,
   dungeon: 0xa855f7,
+  camp: 0xef4444,
+  workshop: 0x22c55e,
   tree: 0x22c55e,
   'copper-ore': 0xf59e0b,
   'iron-ore': 0x94a3b8,
@@ -164,15 +187,19 @@ export const ResourceIcon: Record<string, string> = {
   [ResourceType.IronChunks]: Icons.Armor,
   [ResourceType.Coal]: Icons.StonePile,
   [ResourceType.RawFish]: Icons.Salmon,
+  [ResourceType.CookedFish]: Icons.FriedFish,
   [ResourceType.Cloth]: Icons.Hood,
   [ResourceType.LeatherScraps]: Icons.AnimalHide,
   [ResourceType.ArcaneDust]: Icons.Sparkles,
+  [ResourceType.RecipeBook]: Icons.BookCover,
 };
 
 const NamedItemIcon: Record<string, string> = {
   'Jerky Pack': Icons.ShinyApple,
   Totem: Icons.Totem,
   'Iron Chunks': Icons.StonePile,
+  'Cooked Fish': Icons.FriedFish,
+  'Recipe Book': Icons.BookCover,
 };
 
 const NamedItemTint: Record<string, string> = {
@@ -181,6 +208,8 @@ const NamedItemTint: Record<string, string> = {
   'Iron Ore': '#94a3b8',
   'Iron Chunks': '#94a3b8',
   Coal: '#475569',
+  'Cooked Fish': '#f59e0b',
+  'Recipe Book': '#c084fc',
 };
 
 const ItemKindIcon: Record<Exclude<Item['kind'], 'resource'>, string> = {

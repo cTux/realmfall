@@ -107,6 +107,8 @@ function normalizeSkills(
     mining: normalizeSkill(skills?.mining),
     skinning: normalizeSkill(skills?.skinning),
     fishing: normalizeSkill(skills?.fishing),
+    cooking: normalizeSkill(skills?.cooking),
+    crafting: normalizeSkill(skills?.crafting),
   };
 }
 

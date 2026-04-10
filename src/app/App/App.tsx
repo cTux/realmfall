@@ -12,6 +12,7 @@ import {
   buyTownItem,
   canEquipItem,
   canUseItem,
+  craftRecipe,
   createGame,
   createFreshLogs,
   describeStructure,
@@ -23,12 +24,15 @@ import {
   getEnemiesAt,
   getGoldAmount,
   getPlayerStats,
+  getRecipeBookRecipes,
   getTileAt,
   getTownStock,
   getVisibleTiles,
+  hasRecipeBook,
   hexAtPoint,
   hexDistance,
   interactWithStructure,
+  isRecipeBook,
   moveToTile,
   prospectInventory,
   sellAllItems,
@@ -70,6 +74,7 @@ import { LegendWindow } from '../../ui/components/LegendWindow';
 import { HexInfoWindow } from '../../ui/components/HexInfoWindow';
 import { EquipmentWindow } from '../../ui/components/EquipmentWindow';
 import { InventoryWindow } from '../../ui/components/InventoryWindow';
+import { RecipeBookWindow } from '../../ui/components/RecipeBookWindow';
 import { LogWindow } from '../../ui/components/LogWindow';
 import { GameTooltip } from '../../ui/components/GameTooltip';
 import { CombatWindow } from '../../ui/components/CombatWindow';
@@ -88,6 +93,7 @@ import styles from './styles.module.css';
 const DOCK_WINDOW_ICONS: Record<keyof WindowVisibilityState, string> = {
   hero: Icons.Player,
   skills: Icons.Sparkles,
+  recipes: Icons.BookCover,
   legend: Icons.Totem,
   hexInfo: Icons.Village,
   equipment: Icons.Armor,
@@ -100,6 +106,7 @@ const DOCK_WINDOW_ICONS: Record<keyof WindowVisibilityState, string> = {
 const WINDOW_HOTKEYS: Partial<Record<string, keyof WindowVisibilityState>> = {
   c: 'hero',
   s: 'skills',
+  r: 'recipes',
   l: 'legend',
   h: 'hexInfo',
   e: 'equipment',
@@ -143,6 +150,19 @@ export function App() {
   const stats = useMemo(() => getPlayerStats(game.player), [game.player]);
   const visibleTiles = useMemo(() => getVisibleTiles(game), [game]);
   const currentTile = useMemo(() => getCurrentTile(game), [game]);
+  const recipeBookKnown = useMemo(
+    () => hasRecipeBook(game.player.inventory),
+    [game.player.inventory],
+  );
+  const recipes = useMemo(() => getRecipeBookRecipes(), []);
+  const inventoryCounts = useMemo(
+    () =>
+      game.player.inventory.reduce<Record<string, number>>((counts, item) => {
+        counts[item.name] = (counts[item.name] ?? 0) + item.quantity;
+        return counts;
+      }, {}),
+    [game.player.inventory],
+  );
   const hasEquippableItems = useMemo(
     () => hasEquippableInventoryItems(game),
     [game],
@@ -520,6 +540,11 @@ export function App() {
     [moveWindow],
   );
 
+  const handleRecipesMove = useCallback(
+    (position: WindowPositions['recipes']) => moveWindow('recipes', position),
+    [moveWindow],
+  );
+
   const handleHexInfoMove = useCallback(
     (position: WindowPositions['hexInfo']) => moveWindow('hexInfo', position),
     [moveWindow],
@@ -574,12 +599,36 @@ export function App() {
     setGame((current) => buyTownItem(current, itemId));
   }, []);
 
-  const handleEquip = useCallback((itemId: string) => {
-    setGame((current) => equipItem(current, itemId));
-  }, []);
+  const handleEquip = useCallback(
+    (itemId: string) => {
+      const item = gameRef.current.player.inventory.find(
+        (entry) => entry.id === itemId,
+      );
+      if (item && isRecipeBook(item)) {
+        setWindowVisibility('recipes', true);
+        return;
+      }
+      setGame((current) => equipItem(current, itemId));
+    },
+    [setWindowVisibility],
+  );
 
-  const handleUseItem = useCallback((itemId: string) => {
-    setGame((current) => applyItemUse(current, itemId));
+  const handleUseItem = useCallback(
+    (itemId: string) => {
+      const item = gameRef.current.player.inventory.find(
+        (entry) => entry.id === itemId,
+      );
+      if (item && isRecipeBook(item)) {
+        setWindowVisibility('recipes', true);
+        return;
+      }
+      setGame((current) => applyItemUse(current, itemId));
+    },
+    [setWindowVisibility],
+  );
+
+  const handleCraftRecipe = useCallback((recipeId: string) => {
+    setGame((current) => craftRecipe(current, recipeId));
   }, []);
 
   const handleDropItem = useCallback((itemId: string) => {
@@ -644,6 +693,7 @@ export function App() {
     const keys: Array<keyof WindowVisibilityState> = [
       'hero',
       'skills',
+      'recipes',
       'legend',
       'hexInfo',
       'equipment',
@@ -712,6 +762,17 @@ export function App() {
           visible={windowShown.skills}
           onClose={() => setWindowVisibility('skills', false)}
           skills={stats.skills}
+        />
+        <RecipeBookWindow
+          position={windows.recipes}
+          onMove={handleRecipesMove}
+          visible={windowShown.recipes}
+          onClose={() => setWindowVisibility('recipes', false)}
+          hasRecipeBook={recipeBookKnown}
+          currentStructure={describeStructure(currentTile.structure)}
+          recipes={recipes}
+          inventoryCounts={inventoryCounts}
+          onCraft={handleCraftRecipe}
         />
         <LegendWindow
           position={windows.legend}

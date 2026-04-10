@@ -1,0 +1,107 @@
+import { memo } from 'react';
+import { DraggableWindow } from '../DraggableWindow';
+import { WINDOW_LABELS, renderWindowLabel } from '../windowLabels';
+import labelStyles from '../windowLabels.module.css';
+import type { RecipeBookWindowProps } from './types';
+import styles from './styles.module.css';
+
+export const RecipeBookWindow = memo(function RecipeBookWindow({
+  position,
+  onMove,
+  visible,
+  onClose,
+  hasRecipeBook,
+  currentStructure,
+  recipes,
+  inventoryCounts,
+  onCraft,
+}: RecipeBookWindowProps) {
+  return (
+    <DraggableWindow
+      title={renderWindowLabel(WINDOW_LABELS.recipes, labelStyles.hotkey)}
+      position={position}
+      onMove={onMove}
+      className={styles.window}
+      visible={visible}
+      onClose={onClose}
+    >
+      <div className={styles.note}>
+        Cooking consumes one fuel source automatically: coal, logs, then sticks.
+      </div>
+      {!hasRecipeBook ? (
+        <div className={styles.empty}>
+          Find a recipe book to use these notes.
+        </div>
+      ) : (
+        <div className={styles.list}>
+          {recipes.map((recipe) => {
+            const missingIngredient = recipe.ingredients.some(
+              (ingredient) =>
+                (inventoryCounts[ingredient.name] ?? 0) < ingredient.quantity,
+            );
+            const hasFuel =
+              !recipe.fuelOptions ||
+              recipe.fuelOptions.some(
+                (fuel) => (inventoryCounts[fuel.name] ?? 0) >= fuel.quantity,
+              );
+            const requiredStructure =
+              recipe.skill === 'cooking' ? 'Campfire' : 'Workshop';
+            const atRequiredStructure = currentStructure === requiredStructure;
+            const canCraft =
+              !missingIngredient && hasFuel && atRequiredStructure;
+
+            return (
+              <div key={recipe.id} className={styles.card}>
+                <div className={styles.header}>
+                  <span className={styles.title}>{recipe.name}</span>
+                  <span className={styles.skill}>{recipe.skill}</span>
+                </div>
+                <div className={styles.description}>{recipe.description}</div>
+                <div className={styles.requirements}>
+                  {recipe.ingredients.map((ingredient) => {
+                    const owned = inventoryCounts[ingredient.name] ?? 0;
+                    const met = owned >= ingredient.quantity;
+                    return (
+                      <div
+                        key={`${recipe.id}-${ingredient.name}`}
+                        className={met ? styles.met : styles.missing}
+                      >
+                        {ingredient.name} x{ingredient.quantity} ({owned})
+                      </div>
+                    );
+                  })}
+                  {recipe.fuelOptions ? (
+                    <div className={hasFuel ? styles.met : styles.missing}>
+                      Fuel:{' '}
+                      {recipe.fuelOptions
+                        .map((fuel) => `${fuel.name} x${fuel.quantity}`)
+                        .join(' or ')}
+                    </div>
+                  ) : null}
+                  <div
+                    className={
+                      atRequiredStructure ? styles.met : styles.missing
+                    }
+                  >
+                    Hex: {requiredStructure}
+                  </div>
+                </div>
+                <div className={styles.actions}>
+                  <span className={styles.output}>
+                    Makes {recipe.output.name}
+                  </span>
+                  <button
+                    onClick={() => onCraft(recipe.id)}
+                    disabled={!canCraft}
+                  >
+                    {recipe.skill === 'cooking' ? 'Cook' : 'Craft'}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </DraggableWindow>
+  );
+});

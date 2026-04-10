@@ -165,7 +165,11 @@ export function structureTooltip(
             ? 'SAFE HAVEN'
             : tile.structure === 'forge'
               ? 'WORKSITE'
-              : 'DANGER ZONE',
+              : tile.structure === 'camp'
+                ? 'COOKING SITE'
+                : tile.structure === 'workshop'
+                  ? 'CRAFTING SITE'
+                  : 'DANGER ZONE',
       },
     ],
   };
@@ -179,6 +183,10 @@ function enemyRarity(enemies: Enemy[]): ItemRarity {
 
 function structureTitle(structure: StructureType) {
   switch (structure) {
+    case 'camp':
+      return 'Campfire';
+    case 'workshop':
+      return 'Workshop';
     case 'copper-ore':
       return 'Copper Vein';
     case 'iron-ore':

@@ -20,6 +20,12 @@ export const WINDOW_LABELS = {
     hotkey: 'S',
     suffix: ')kills',
   },
+  recipes: {
+    plain: 'Recipe book',
+    prefix: '(',
+    hotkey: 'R',
+    suffix: ')ecipe book',
+  },
   legend: {
     plain: 'Legend',
     prefix: '(',

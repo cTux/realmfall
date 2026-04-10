@@ -1,6 +1,7 @@
 import {
   attackCombatEnemy,
   buyTownItem,
+  craftRecipe,
   createGame,
   dropInventoryItem,
   EQUIPMENT_SLOTS,
@@ -9,9 +10,11 @@ import {
   getEnemiesAt,
   getGoldAmount,
   getPlayerStats,
+  getRecipeBookRecipes,
   getTileAt,
   getTownStock,
   getVisibleTiles,
+  hasRecipeBook,
   interactWithStructure,
   moveToTile,
   prospectInventory,
@@ -30,6 +33,8 @@ describe('game state', () => {
     expect(game.player.coord).toEqual({ q: 0, r: 0 });
     expect(getTileAt(game, { q: 0, r: 0 }).terrain).toBe('plains');
     expect(getVisibleTiles(game)).toHaveLength(37);
+    expect(hasRecipeBook(game.player.inventory)).toBe(true);
+    expect(getRecipeBookRecipes()).toHaveLength(EQUIPMENT_SLOTS.length + 1);
   });
 
   it('generates deterministic distant tiles for an infinite world', () => {
@@ -346,6 +351,125 @@ describe('game state', () => {
         (item) => item.id === 'starter-ration',
       ),
     ).toBeDefined();
+  });
+
+  it('cooks raw fish with available burnable fuel and levels cooking', () => {
+    const game = createGame(3, 'cooking-seed');
+    game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'camp' };
+    game.player.inventory.push(
+      {
+        id: 'raw-fish-1',
+        kind: 'resource',
+        name: 'Raw Fish',
+        quantity: 1,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'coal-1',
+        kind: 'resource',
+        name: 'Coal',
+        quantity: 1,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    );
+
+    const cooked = craftRecipe(game, 'cook-cooked-fish');
+
+    expect(
+      cooked.player.inventory.some((item) => item.name === 'Cooked Fish'),
+    ).toBe(true);
+    expect(
+      cooked.player.inventory.some((item) => item.name === 'Raw Fish'),
+    ).toBe(false);
+    expect(cooked.player.skills.cooking.xp).toBeGreaterThan(0);
+  });
+
+  it('crafts slot gear from recipe requirements and levels crafting', () => {
+    const game = createGame(3, 'crafting-seed');
+    game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'workshop' };
+    game.player.inventory.push(
+      {
+        id: 'chunks-1',
+        kind: 'resource',
+        name: 'Iron Chunks',
+        quantity: 2,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'sticks-1',
+        kind: 'resource',
+        name: 'Sticks',
+        quantity: 2,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    );
+
+    const crafted = craftRecipe(game, 'craft-weapon');
+
+    expect(
+      crafted.player.inventory.some((item) => item.name === 'Camp Spear'),
+    ).toBe(true);
+    expect(crafted.player.skills.crafting.xp).toBeGreaterThan(0);
+  });
+
+  it('requires the matching hex type for cooking and crafting recipes', () => {
+    const game = createGame(3, 'recipe-station-seed');
+    game.player.inventory.push(
+      {
+        id: 'raw-fish-1',
+        kind: 'resource',
+        name: 'Raw Fish',
+        quantity: 1,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'coal-1',
+        kind: 'resource',
+        name: 'Coal',
+        quantity: 1,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    );
+
+    const denied = craftRecipe(game, 'cook-cooked-fish');
+
+    expect(denied.logs[0]?.text).toMatch(/campfire hex/i);
   });
 
   it('lets every enemy on the tile retaliate during combat', () => {

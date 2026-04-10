@@ -34,6 +34,7 @@ import { ItemContextMenu } from './components/ItemContextMenu';
 import { LegendWindow } from './components/LegendWindow';
 import { LogWindow } from './components/LogWindow';
 import { LootWindow } from './components/LootWindow';
+import { RecipeBookWindow } from './components/RecipeBookWindow';
 import { SkillsWindow } from './components/SkillsWindow';
 
 describe('ui helpers and components', () => {
@@ -56,8 +57,12 @@ describe('ui helpers and components', () => {
     expect(enemyIconFor('Unknown Foe')).toBe(enemyIconFor('Wolf'));
     expect(enemyTint('Unknown Foe')).toBe(0x60a5fa);
     expect(structureIconFor('town')).toBeTruthy();
+    expect(structureIconFor('camp')).toBeTruthy();
+    expect(structureIconFor('workshop')).toBeTruthy();
     expect(structureIconFor('tree')).toBeTruthy();
     expect(structureTint('forge')).toBe(0xf97316);
+    expect(structureTint('camp')).toBe(0xef4444);
+    expect(structureTint('workshop')).toBe(0x22c55e);
     expect(formatCompactNumber(1_250)).toBe('1.3k');
     expect(formatCompactNumber(1_250_000)).toBe('1.3M');
     expect(formatCompactNumberish('+1250')).toBe('+1.3k');
@@ -246,6 +251,15 @@ describe('ui helpers and components', () => {
           onMove={() => {}}
           skills={stats.skills}
         />
+        <RecipeBookWindow
+          position={DEFAULT_WINDOWS.recipes}
+          onMove={() => {}}
+          hasRecipeBook
+          currentStructure="Campfire"
+          recipes={[]}
+          inventoryCounts={{}}
+          onCraft={() => {}}
+        />
         <LegendWindow position={DEFAULT_WINDOWS.legend} onMove={() => {}} />
         <HexInfoWindow
           position={DEFAULT_WINDOWS.hexInfo}
@@ -381,6 +395,7 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('Hunger penalty');
     expect(markup).toContain(')kills');
     expect(markup).toContain('logging');
+    expect(markup).toContain(')ecipe book');
     expect(markup).toContain(')ex info');
     expect(markup).toContain('Structure HP');
     expect(markup).toContain('Town Stock');
@@ -472,6 +487,8 @@ describe('ui helpers and components', () => {
             mining: { level: 1, xp: 0 },
             skinning: { level: 1, xp: 0 },
             fishing: { level: 1, xp: 0 },
+            cooking: { level: 1, xp: 0 },
+            crafting: { level: 1, xp: 0 },
           },
         }}
       />,

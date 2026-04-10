@@ -11,6 +11,7 @@ export interface WindowPosition {
 export interface WindowPositions {
   hero: WindowPosition;
   skills: WindowPosition;
+  recipes: WindowPosition;
   legend: WindowPosition;
   hexInfo: WindowPosition;
   equipment: WindowPosition;
@@ -23,6 +24,7 @@ export interface WindowPositions {
 export interface WindowVisibilityState {
   hero: boolean;
   skills: boolean;
+  recipes: boolean;
   legend: boolean;
   hexInfo: boolean;
   equipment: boolean;
@@ -35,6 +37,7 @@ export interface WindowVisibilityState {
 export const DEFAULT_WINDOWS: WindowPositions = {
   hero: { x: 96, y: 20 },
   skills: { x: 96, y: 430 },
+  recipes: { x: 620, y: 470 },
   legend: { x: 96, y: 240 },
   hexInfo: { x: 280, y: 20 },
   equipment: { x: 1000, y: 20 },
@@ -47,6 +50,7 @@ export const DEFAULT_WINDOWS: WindowPositions = {
 export const DEFAULT_WINDOW_VISIBILITY: WindowVisibilityState = {
   hero: false,
   skills: false,
+  recipes: false,
   legend: false,
   hexInfo: false,
   equipment: false,

@@ -1,0 +1,78 @@
+.window {
+  width: min(420px, calc(100vw - 16px));
+}
+
+.note {
+  color: #94a3b8;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.empty {
+  color: #94a3b8;
+}
+
+.list {
+  display: grid;
+  gap: 0.75rem;
+  max-height: min(52vh, 520px);
+  overflow-y: auto;
+  padding-right: 0.2rem;
+}
+
+.card {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.7rem;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.66);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+
+.title {
+  color: #e2e8f0;
+}
+
+.skill {
+  color: #94a3b8;
+  font-size: 0.78rem;
+  text-transform: capitalize;
+}
+
+.description {
+  color: #cbd5e1;
+  font-size: 0.82rem;
+}
+
+.requirements {
+  display: grid;
+  gap: 0.2rem;
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.met {
+  color: #86efac;
+}
+
+.missing {
+  color: #fca5a5;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.output {
+  color: #cbd5e1;
+  font-size: 0.82rem;
+}

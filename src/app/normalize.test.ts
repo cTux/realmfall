@@ -139,6 +139,8 @@ describe('normalizeLoadedGame', () => {
     expect(loaded.tiles['0,0'].structureHp).toBe(5);
     expect(loaded.player.skills.logging).toEqual({ level: 3, xp: 2 });
     expect(loaded.player.skills.mining).toEqual({ level: 1, xp: 0 });
+    expect(loaded.player.skills.cooking).toEqual({ level: 1, xp: 0 });
+    expect(loaded.player.skills.crafting).toEqual({ level: 1, xp: 0 });
     expect(
       loaded.player.inventory.find((item) => item.name === 'Trail Ration')
         ?.quantity,

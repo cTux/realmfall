@@ -62,6 +62,20 @@ export const LegendWindow = memo(function LegendWindow({
         <div className={styles.row}>
           <span
             className={styles.marker}
+            style={iconMaskStyle(structureIconFor('camp'), '#ef4444')}
+          />
+          Campfire · cook recipes
+        </div>
+        <div className={styles.row}>
+          <span
+            className={styles.marker}
+            style={iconMaskStyle(structureIconFor('workshop'), '#22c55e')}
+          />
+          Workshop · craft recipes
+        </div>
+        <div className={styles.row}>
+          <span
+            className={styles.marker}
             style={iconMaskStyle(structureIconFor('dungeon'), '#a855f7')}
           />
           Dungeon · elite enemies

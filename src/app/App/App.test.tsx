@@ -167,6 +167,7 @@ describe('App', () => {
           windowShown: {
             hero: false,
             skills: true,
+            recipes: true,
             legend: true,
             hexInfo: true,
             equipment: true,
@@ -190,6 +191,7 @@ describe('App', () => {
     expect(host.textContent).not.toContain('Loading...');
     expect(host.textContent).not.toContain('(C)haracter info');
     expect(host.textContent).toContain('(S)kills');
+    expect(host.textContent).toContain('(R)ecipe book');
     expect(host.textContent).toContain('(H)ex info');
     expect(host.textContent).not.toContain('old log');
     expect(host.textContent).toContain('MOTD');

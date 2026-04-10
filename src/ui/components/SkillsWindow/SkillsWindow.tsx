@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { SkillIcon } from '../../icons';
 import { DraggableWindow } from '../DraggableWindow';
 import { WINDOW_LABELS, renderWindowLabel } from '../windowLabels';
 import labelStyles from '../windowLabels.module.css';
@@ -32,7 +33,15 @@ export const SkillsWindow = memo(function SkillsWindow({
           return (
             <div key={name} className={styles.skillRow}>
               <div className={styles.header}>
-                <span className={styles.name}>{name}</span>
+                <span className={styles.name}>
+                  <span
+                    className={styles.icon}
+                    style={iconMaskStyle(
+                      SkillIcon[name as keyof typeof SkillIcon],
+                    )}
+                  />
+                  {name}
+                </span>
                 <span className={styles.value}>
                   Lv {skill.level} · {skill.xp}/{xpMax}
                 </span>
@@ -47,3 +56,11 @@ export const SkillsWindow = memo(function SkillsWindow({
     </DraggableWindow>
   );
 });
+
+function iconMaskStyle(icon: string) {
+  const mask = `url("${icon}") center / contain no-repeat`;
+  return {
+    WebkitMask: mask,
+    mask,
+  };
+}

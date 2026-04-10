@@ -20,11 +20,19 @@ export type GatheringStructureType =
   | 'lake';
 export type StructureType =
   | 'forge'
+  | 'camp'
+  | 'workshop'
   | 'town'
   | 'dungeon'
   | GatheringStructureType;
 export type ItemRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
-export type SkillName = 'logging' | 'mining' | 'skinning' | 'fishing';
+export type SkillName =
+  | 'logging'
+  | 'mining'
+  | 'skinning'
+  | 'fishing'
+  | 'cooking'
+  | 'crafting';
 
 export type EquipmentSlot =
   | 'weapon'
@@ -118,6 +126,21 @@ export interface TownStockEntry {
   price: number;
 }
 
+export interface RecipeRequirement {
+  name: string;
+  quantity: number;
+}
+
+export interface RecipeDefinition {
+  id: string;
+  name: string;
+  description: string;
+  skill: Extract<SkillName, 'cooking' | 'crafting'>;
+  output: Item;
+  ingredients: RecipeRequirement[];
+  fuelOptions?: RecipeRequirement[];
+}
+
 export interface GameState {
   seed: string;
   radius: number;
@@ -170,6 +193,9 @@ export const RARITY_ORDER: ItemRarity[] = [
   'legendary',
 ];
 
+const RECIPE_BOOK_ITEM_NAME = 'Recipe Book';
+const COOKED_FISH_ITEM_NAME = 'Cooked Fish';
+
 const ARTIFACT_PREFIXES = [
   'Ashen',
   'Auric',
@@ -217,6 +243,7 @@ export function createGame(
         makeStarterWeapon(),
         makeStarterArmor('chest', 'Scout Jerkin', 1, 1),
         makeConsumable('starter-ration', 'Trail Ration', 1, 10, 15, 2),
+        makeRecipeBook(),
       ],
       equipment: {},
     },
@@ -228,6 +255,15 @@ export function createGame(
 
 export function createFreshLogs(seed: string) {
   return createInitialLogs(seed);
+}
+
+export function getRecipeBookRecipes(): RecipeDefinition[] {
+  return RECIPE_BOOK_RECIPES.map((recipe) => ({
+    ...recipe,
+    output: { ...recipe.output },
+    ingredients: recipe.ingredients.map((ingredient) => ({ ...ingredient })),
+    fuelOptions: recipe.fuelOptions?.map((option) => ({ ...option })),
+  }));
 }
 
 export function getVisibleTiles(state: GameState) {
@@ -441,6 +477,8 @@ export function useItem(state: GameState, itemId: string): GameState {
   if (itemIndex < 0) return message(state, 'That item is not in your pack.');
 
   const item = state.player.inventory[itemIndex];
+  if (isRecipeBook(item))
+    return message(state, 'Open the recipe book from your pack.');
   if (item.kind !== 'consumable')
     return message(state, 'That item cannot be used.');
 
@@ -693,6 +731,57 @@ export function dropEquippedItem(
   return next;
 }
 
+export function craftRecipe(state: GameState, recipeId: string): GameState {
+  if (state.gameOver) return state;
+
+  const recipe = RECIPE_BOOK_RECIPES.find((entry) => entry.id === recipeId);
+  if (!recipe) return message(state, 'That recipe is not in your book.');
+  if (!hasRecipeBook(state.player.inventory)) {
+    return message(state, 'You need a recipe book to follow that recipe.');
+  }
+  const requiredStructure = recipe.skill === 'cooking' ? 'camp' : 'workshop';
+  const requiredLabel = recipe.skill === 'cooking' ? 'campfire' : 'workshop';
+  if (getCurrentTile(state).structure !== requiredStructure) {
+    return message(
+      state,
+      `You need to stand on a ${requiredLabel} hex to ${recipe.skill === 'cooking' ? 'cook' : 'craft'}.`,
+    );
+  }
+  if (!hasAllRequirements(state.player.inventory, recipe.ingredients)) {
+    return message(
+      state,
+      `You lack the materials to make ${recipe.output.name}.`,
+    );
+  }
+
+  const chosenFuel = recipe.fuelOptions
+    ? pickSatisfiedRequirement(state.player.inventory, recipe.fuelOptions)
+    : undefined;
+  if (recipe.fuelOptions && !chosenFuel) {
+    return message(
+      state,
+      'You need burnable fuel: sticks x8, logs x2, or coal x1.',
+    );
+  }
+
+  const next = clone(state);
+  consumeRequirements(next.player.inventory, recipe.ingredients);
+  if (chosenFuel) consumeRequirements(next.player.inventory, [chosenFuel]);
+  addItemToInventory(
+    next.player.inventory,
+    materializeRecipeOutput(recipe, next),
+  );
+  gainSkillXp(next, recipe.skill, recipe.output.tier);
+  addLog(
+    next,
+    'system',
+    recipe.skill === 'cooking'
+      ? `You cook ${recipe.output.name}${chosenFuel ? ` with ${describeRequirement(chosenFuel)}` : ''}.`
+      : `You craft ${recipe.output.name}.`,
+  );
+  return next;
+}
+
 function consumeItem(state: GameState, itemIndex: number, item: Item) {
   if (item.quantity > 1) {
     state.player.inventory[itemIndex] = {
@@ -804,6 +893,8 @@ function pickStructure(
   if (roll > 0.992) return 'dungeon';
   if (roll > 0.984) return 'forge';
   if (roll > 0.976) return 'town';
+  if (roll > 0.968) return 'workshop';
+  if (roll > 0.96) return 'camp';
   const resourceRoll = noise(`${seed}:resource-structure`, coord);
   if (terrain === 'forest' && resourceRoll > 0.55) return 'tree';
   if (terrain === 'desert' && resourceRoll > 0.76) return 'coal-ore';
@@ -1120,6 +1211,22 @@ function makeStarterArmor(
     power: 0,
     defense,
     maxHp: tier,
+    healing: 0,
+    hunger: 0,
+  };
+}
+
+function makeRecipeBook(): Item {
+  return {
+    id: 'recipe-book',
+    kind: 'resource',
+    name: RECIPE_BOOK_ITEM_NAME,
+    quantity: 1,
+    tier: 1,
+    rarity: 'common',
+    power: 0,
+    defense: 0,
+    maxHp: 0,
     healing: 0,
     hunger: 0,
   };
@@ -1546,6 +1653,10 @@ export function makeGoldStack(quantity: number): Item {
 export function describeStructure(structure?: StructureType) {
   if (!structure) return 'None';
   switch (structure) {
+    case 'camp':
+      return 'Campfire';
+    case 'workshop':
+      return 'Workshop';
     case 'copper-ore':
       return 'Copper Vein';
     case 'iron-ore':
@@ -1568,7 +1679,15 @@ export function canEquipItem(item: Item) {
 }
 
 export function canUseItem(item: Item) {
-  return item.kind === 'consumable';
+  return item.kind === 'consumable' || isRecipeBook(item);
+}
+
+export function isRecipeBook(item: Item) {
+  return item.kind === 'resource' && item.name === RECIPE_BOOK_ITEM_NAME;
+}
+
+export function hasRecipeBook(inventory: Item[]) {
+  return inventory.some(isRecipeBook);
 }
 
 export function getGoldAmount(inventory: Item[]) {
@@ -1587,6 +1706,8 @@ function makeStartingSkills(): Record<SkillName, SkillProgress> {
     mining: { level: 1, xp: 0 },
     skinning: { level: 1, xp: 0 },
     fishing: { level: 1, xp: 0 },
+    cooking: { level: 1, xp: 0 },
+    crafting: { level: 1, xp: 0 },
   };
 }
 
@@ -1779,6 +1900,100 @@ function isSameStackable(left: Item, right: Item) {
   );
 }
 
+function hasAllRequirements(
+  inventory: Item[],
+  requirements: RecipeRequirement[],
+) {
+  return requirements.every((requirement) =>
+    inventory.some(
+      (item) =>
+        item.name === requirement.name && item.quantity >= requirement.quantity,
+    ),
+  );
+}
+
+function pickSatisfiedRequirement(
+  inventory: Item[],
+  requirements: RecipeRequirement[],
+) {
+  return requirements.find((requirement) =>
+    inventory.some(
+      (item) =>
+        item.name === requirement.name && item.quantity >= requirement.quantity,
+    ),
+  );
+}
+
+function consumeRequirements(
+  inventory: Item[],
+  requirements: RecipeRequirement[],
+) {
+  requirements.forEach((requirement) => {
+    const itemIndex = inventory.findIndex(
+      (item) =>
+        item.name === requirement.name && item.quantity >= requirement.quantity,
+    );
+    if (itemIndex < 0) return;
+    const item = inventory[itemIndex];
+    if (item.quantity === requirement.quantity) {
+      inventory.splice(itemIndex, 1);
+      return;
+    }
+    inventory[itemIndex] = {
+      ...item,
+      quantity: item.quantity - requirement.quantity,
+    };
+  });
+}
+
+function describeRequirement(requirement: RecipeRequirement) {
+  return `${requirement.quantity} ${requirement.name}`;
+}
+
+function makeCraftedItem(
+  id: string,
+  kind: Exclude<ItemKind, 'consumable' | 'resource'>,
+  slot: EquipmentSlot,
+  name: string,
+  stats: Pick<Item, 'power' | 'defense' | 'maxHp'>,
+): Item {
+  return {
+    id,
+    kind,
+    slot,
+    name,
+    quantity: 1,
+    tier: 1,
+    rarity: 'common',
+    power: stats.power,
+    defense: stats.defense,
+    maxHp: stats.maxHp,
+    healing: 0,
+    hunger: 0,
+  };
+}
+
+function makeCookedFish(): Item {
+  return makeConsumable('cooked-fish', COOKED_FISH_ITEM_NAME, 1, 4, 24);
+}
+
+function materializeRecipeOutput(
+  recipe: RecipeDefinition,
+  state: GameState,
+): Item {
+  if (
+    recipe.output.kind === 'consumable' ||
+    recipe.output.kind === 'resource'
+  ) {
+    return { ...recipe.output };
+  }
+
+  return {
+    ...recipe.output,
+    id: `${recipe.output.id}-${state.turn}-${state.logSequence}`,
+  };
+}
+
 function describeItemStack(item: Item) {
   return item.quantity > 1 ? `${item.quantity}x ${item.name}` : item.name;
 }
@@ -1804,6 +2019,246 @@ function consolidateStackInto(inventory: Item[], item: Item) {
 
   inventory.push(item);
 }
+
+const RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
+  {
+    id: 'cook-cooked-fish',
+    name: 'Cooked Fish',
+    description: 'Cook raw fish over a small fire.',
+    skill: 'cooking',
+    output: makeCookedFish(),
+    ingredients: [{ name: 'Raw Fish', quantity: 1 }],
+    fuelOptions: [
+      { name: 'Coal', quantity: 1 },
+      { name: 'Logs', quantity: 2 },
+      { name: 'Sticks', quantity: 8 },
+    ],
+  },
+  {
+    id: 'craft-weapon',
+    name: 'Camp Spear',
+    description: 'A basic weapon for the weapon slot.',
+    skill: 'crafting',
+    output: makeCraftedItem(
+      'crafted-weapon',
+      'weapon',
+      'weapon',
+      'Camp Spear',
+      {
+        power: 3,
+        defense: 0,
+        maxHp: 0,
+      },
+    ),
+    ingredients: [
+      { name: 'Iron Chunks', quantity: 2 },
+      { name: 'Sticks', quantity: 2 },
+    ],
+  },
+  {
+    id: 'craft-offhand',
+    name: 'Hide Buckler',
+    description: 'A basic offhand for the offhand slot.',
+    skill: 'crafting',
+    output: makeCraftedItem(
+      'crafted-offhand',
+      'armor',
+      'offhand',
+      'Hide Buckler',
+      {
+        power: 0,
+        defense: 2,
+        maxHp: 1,
+      },
+    ),
+    ingredients: [
+      { name: 'Leather Scraps', quantity: 3 },
+      { name: 'Logs', quantity: 1 },
+    ],
+  },
+  {
+    id: 'craft-head',
+    name: 'Patchwork Hood',
+    description: 'A basic helm for the head slot.',
+    skill: 'crafting',
+    output: makeCraftedItem('crafted-head', 'armor', 'head', 'Patchwork Hood', {
+      power: 0,
+      defense: 1,
+      maxHp: 1,
+    }),
+    ingredients: [
+      { name: 'Cloth', quantity: 2 },
+      { name: 'Leather Scraps', quantity: 2 },
+    ],
+  },
+  {
+    id: 'craft-chest',
+    name: 'Settler Vest',
+    description: 'A basic chest piece for the chest slot.',
+    skill: 'crafting',
+    output: makeCraftedItem('crafted-chest', 'armor', 'chest', 'Settler Vest', {
+      power: 0,
+      defense: 2,
+      maxHp: 1,
+    }),
+    ingredients: [
+      { name: 'Cloth', quantity: 4 },
+      { name: 'Leather Scraps', quantity: 4 },
+      { name: 'Iron Chunks', quantity: 1 },
+    ],
+  },
+  {
+    id: 'craft-hands',
+    name: 'Work Gloves',
+    description: 'A basic hand piece for the hands slot.',
+    skill: 'crafting',
+    output: makeCraftedItem('crafted-hands', 'armor', 'hands', 'Work Gloves', {
+      power: 0,
+      defense: 1,
+      maxHp: 1,
+    }),
+    ingredients: [
+      { name: 'Leather Scraps', quantity: 3 },
+      { name: 'Cloth', quantity: 1 },
+    ],
+  },
+  {
+    id: 'craft-legs',
+    name: 'Trail Leggings',
+    description: 'A basic leg piece for the legs slot.',
+    skill: 'crafting',
+    output: makeCraftedItem('crafted-legs', 'armor', 'legs', 'Trail Leggings', {
+      power: 0,
+      defense: 1,
+      maxHp: 1,
+    }),
+    ingredients: [
+      { name: 'Cloth', quantity: 3 },
+      { name: 'Leather Scraps', quantity: 2 },
+    ],
+  },
+  {
+    id: 'craft-feet',
+    name: 'Field Boots',
+    description: 'A basic boot piece for the feet slot.',
+    skill: 'crafting',
+    output: makeCraftedItem('crafted-feet', 'armor', 'feet', 'Field Boots', {
+      power: 0,
+      defense: 1,
+      maxHp: 1,
+    }),
+    ingredients: [
+      { name: 'Leather Scraps', quantity: 3 },
+      { name: 'Sticks', quantity: 1 },
+    ],
+  },
+  {
+    id: 'craft-ring-left',
+    name: 'Copper Loop',
+    description: 'A basic ring for the left ring slot.',
+    skill: 'crafting',
+    output: makeCraftedItem(
+      'crafted-ring-left',
+      'artifact',
+      'ringLeft',
+      'Copper Loop',
+      {
+        power: 1,
+        defense: 0,
+        maxHp: 1,
+      },
+    ),
+    ingredients: [
+      { name: 'Copper Ore', quantity: 2 },
+      { name: 'Arcane Dust', quantity: 1 },
+    ],
+  },
+  {
+    id: 'craft-ring-right',
+    name: 'Copper Band',
+    description: 'A basic ring for the right ring slot.',
+    skill: 'crafting',
+    output: makeCraftedItem(
+      'crafted-ring-right',
+      'artifact',
+      'ringRight',
+      'Copper Band',
+      {
+        power: 1,
+        defense: 0,
+        maxHp: 1,
+      },
+    ),
+    ingredients: [
+      { name: 'Copper Ore', quantity: 2 },
+      { name: 'Arcane Dust', quantity: 1 },
+    ],
+  },
+  {
+    id: 'craft-amulet',
+    name: 'Charm Necklace',
+    description: 'A basic amulet for the amulet slot.',
+    skill: 'crafting',
+    output: makeCraftedItem(
+      'crafted-amulet',
+      'artifact',
+      'amulet',
+      'Charm Necklace',
+      {
+        power: 0,
+        defense: 1,
+        maxHp: 2,
+      },
+    ),
+    ingredients: [
+      { name: 'Iron Chunks', quantity: 1 },
+      { name: 'Arcane Dust', quantity: 2 },
+    ],
+  },
+  {
+    id: 'craft-cloak',
+    name: 'Wayfarer Cloak',
+    description: 'A basic cloak for the cloak slot.',
+    skill: 'crafting',
+    output: makeCraftedItem(
+      'crafted-cloak',
+      'artifact',
+      'cloak',
+      'Wayfarer Cloak',
+      {
+        power: 0,
+        defense: 1,
+        maxHp: 1,
+      },
+    ),
+    ingredients: [
+      { name: 'Cloth', quantity: 3 },
+      { name: 'Arcane Dust', quantity: 1 },
+    ],
+  },
+  {
+    id: 'craft-relic',
+    name: 'Hearth Totem',
+    description: 'A basic relic for the relic slot.',
+    skill: 'crafting',
+    output: makeCraftedItem(
+      'crafted-relic',
+      'artifact',
+      'relic',
+      'Hearth Totem',
+      {
+        power: 1,
+        defense: 0,
+        maxHp: 3,
+      },
+    ),
+    ingredients: [
+      { name: 'Coal', quantity: 1 },
+      { name: 'Arcane Dust', quantity: 3 },
+      { name: 'Logs', quantity: 1 },
+    ],
+  },
+];
 
 function createInitialLogs(seed: string): LogEntry[] {
   return [
