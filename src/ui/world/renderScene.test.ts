@@ -131,7 +131,6 @@ describe('renderScene', () => {
       getVisibleTiles(game),
       { q: 0, r: 1 },
       { q: 1, r: 0 },
-      game.player.coord,
     );
 
     expect(app.stage.children).toHaveLength(2);

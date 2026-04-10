@@ -99,11 +99,6 @@ export function App() {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [itemMenu, setItemMenu] = useState<ItemContextMenuState | null>(null);
   const [dismissedLootKey, setDismissedLootKey] = useState<string | null>(null);
-  const [viewCenter, setViewCenter] = useState(() => ({
-    q: initialGameRef.current.player.coord.q,
-    r: initialGameRef.current.player.coord.r,
-  }));
-  const viewCenterRef = useRef(viewCenter);
 
   const stats = useMemo(() => getPlayerStats(game.player), [game.player]);
   const visibleTiles = useMemo(() => getVisibleTiles(game), [game]);
@@ -153,10 +148,6 @@ export function App() {
   }, [game]);
 
   useEffect(() => {
-    viewCenterRef.current = viewCenter;
-  }, [viewCenter]);
-
-  useEffect(() => {
     if (!game.combat || combatEnemies.length === 0) return;
 
     const timeout = window.setTimeout(() => {
@@ -172,35 +163,6 @@ export function App() {
   useEffect(() => {
     if (!lootWindowKey) setDismissedLootKey(null);
   }, [lootWindowKey]);
-
-  useEffect(() => {
-    const target = game.player.coord;
-    const start = viewCenterRef.current;
-    if (start.q === target.q && start.r === target.r) {
-      setViewCenter(target);
-      return;
-    }
-
-    const startedAt = performance.now();
-    const duration = 220;
-    let frame = 0;
-    const easeOut = (progress: number) => 1 - (1 - progress) ** 3;
-
-    const animate = (now: number) => {
-      const progress = Math.min(1, (now - startedAt) / duration);
-      const eased = easeOut(progress);
-      setViewCenter({
-        q: start.q + (target.q - start.q) * eased,
-        r: start.r + (target.r - start.r) * eased,
-      });
-      if (progress < 1) {
-        frame = window.requestAnimationFrame(animate);
-      }
-    };
-
-    frame = window.requestAnimationFrame(animate);
-    return () => window.cancelAnimationFrame(frame);
-  }, [game.player.coord.q, game.player.coord.r]);
 
   useEffect(() => {
     if (showLootWindow) {
@@ -406,8 +368,8 @@ export function App() {
   useEffect(() => {
     const app = appRef.current;
     if (!app) return;
-    renderScene(app, game, visibleTiles, selected, hoveredMove, viewCenter);
-  }, [game, hoveredMove, selected, viewCenter, visibleTiles]);
+    renderScene(app, game, visibleTiles, selected, hoveredMove);
+  }, [game, hoveredMove, selected, visibleTiles]);
 
   useEffect(() => {
     setSelected(game.player.coord);
