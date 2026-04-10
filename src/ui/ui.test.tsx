@@ -509,6 +509,8 @@ describe('ui helpers and components', () => {
     });
 
     expect(moves.at(-1)).toEqual({ x: 8, y: 8 });
+    expect(testWindow.dataset.windowEmphasis).toBe('active');
+    expect(backgroundWindow.dataset.windowEmphasis).toBe('idle');
 
     const collapseButton = Array.from(
       testWindow.querySelectorAll('button'),

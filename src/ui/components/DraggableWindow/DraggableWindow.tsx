@@ -10,6 +10,7 @@ import styles from './styles.module.css';
 
 const WINDOW_BASE_Z_INDEX = 20;
 const WINDOW_TRANSITION_MS = 180;
+const WINDOW_ACTIVATED_EVENT = 'opencode-window-activated';
 
 let nextWindowZIndex = WINDOW_BASE_Z_INDEX;
 
@@ -28,6 +29,7 @@ export function DraggableWindow({
   onCollapsedChange,
   visible = true,
 }: DraggableWindowProps) {
+  const windowIdRef = useRef(`window-${claimWindowZIndex()}`);
   const dragRef = useRef<{ dx: number; dy: number } | null>(null);
   const [collapsedState, setCollapsedState] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -41,10 +43,33 @@ export function DraggableWindow({
     setZIndex(claimWindowZIndex());
   };
 
+  const activateWindow = () => {
+    setActive(true);
+    elevateWindow();
+    window.dispatchEvent(
+      new CustomEvent(WINDOW_ACTIVATED_EVENT, {
+        detail: windowIdRef.current,
+      }),
+    );
+  };
+
   useEffect(() => {
     if (!active && !hovered) return;
     elevateWindow();
   }, [active, hovered]);
+
+  useEffect(() => {
+    const onWindowActivated = (event: Event) => {
+      const activatedWindowId = (event as CustomEvent<string>).detail;
+      if (activatedWindowId !== windowIdRef.current) {
+        setActive(false);
+      }
+    };
+
+    window.addEventListener(WINDOW_ACTIVATED_EVENT, onWindowActivated);
+    return () =>
+      window.removeEventListener(WINDOW_ACTIVATED_EVENT, onWindowActivated);
+  }, []);
 
   useEffect(() => {
     if (!collapsed) {
@@ -70,8 +95,7 @@ export function DraggableWindow({
   };
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    setActive(true);
-    elevateWindow();
+    activateWindow();
     dragRef.current = {
       dx: event.clientX - position.x,
       dy: event.clientY - position.y,
@@ -111,14 +135,8 @@ export function DraggableWindow({
       style={{ left: position.x, top: position.y, zIndex }}
       onPointerEnter={() => setHovered(true)}
       onPointerLeave={() => setHovered(false)}
-      onPointerDown={() => {
-        setActive(true);
-        elevateWindow();
-      }}
-      onFocusCapture={() => {
-        setActive(true);
-        elevateWindow();
-      }}
+      onPointerDown={activateWindow}
+      onFocusCapture={activateWindow}
       onBlurCapture={onBlurCapture}
     >
       <div className={styles.windowHeader} onPointerDown={onPointerDown}>
