@@ -600,7 +600,7 @@ describe('ui helpers and components', () => {
 
     const collapseButton = Array.from(
       testWindow.querySelectorAll('button'),
-    ).find((button) => button.textContent === 'collapse');
+    ).find((button) => button.textContent === 'Collapse');
     expect(testWindow.textContent).toContain('Body');
     await act(async () => {
       collapseButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -613,7 +613,7 @@ describe('ui helpers and components', () => {
     expect(collapsedChanges).toEqual([true]);
 
     const menuButtons = Array.from(host.querySelectorAll('button')).filter(
-      (button) => button.textContent !== 'expand',
+      (button) => button.textContent !== 'Expand',
     );
     await act(async () => {
       menuButtons.find((button) => button.textContent === 'Equip now')?.click();

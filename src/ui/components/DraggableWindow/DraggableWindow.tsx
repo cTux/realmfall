@@ -137,12 +137,12 @@ export function DraggableWindow({
           ) : null}
           <button
             type="button"
-            className={styles.collapseToggle}
+            className={styles.headerButton}
             onPointerDown={(event) => event.stopPropagation()}
             onClick={toggleCollapsed}
             aria-expanded={!collapsed}
           >
-            {collapsed ? 'expand' : 'collapse'}
+            {collapsed ? 'Expand' : 'Collapse'}
           </button>
         </div>
       </div>

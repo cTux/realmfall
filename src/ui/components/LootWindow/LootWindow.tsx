@@ -14,7 +14,6 @@ export const LootWindow = memo(function LootWindow({
   visible,
   loot,
   equipment,
-  onClose,
   onTakeAll,
   onTakeItem,
   onHoverItem,
@@ -22,7 +21,7 @@ export const LootWindow = memo(function LootWindow({
 }: LootWindowProps) {
   return (
     <DraggableWindow
-      title="Loot"
+      title="Loot on the Ground"
       position={position}
       onMove={onMove}
       className={styles.window}
@@ -32,9 +31,6 @@ export const LootWindow = memo(function LootWindow({
       headerActions={
         <div className={styles.toolbar}>
           <div className={styles.actions}>
-            <button className={styles.headerButton} onClick={onClose}>
-              Close
-            </button>
             <button
               className={styles.headerButton}
               onClick={onTakeAll}

@@ -71,18 +71,10 @@
   gap: 0.4rem;
 }
 
-.collapseToggle {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--window-action-color);
-  font-size: 0.9rem;
-  text-transform: lowercase;
-}
-
-.collapseToggle:hover {
-  background: transparent;
-  color: var(--window-action-hover-color);
+.headerButton {
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.15;
 }
 
 .windowBodyFrame {
