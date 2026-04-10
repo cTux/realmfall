@@ -1,7 +1,6 @@
 import { memo } from 'react';
 import { formatCompactNumber } from '../../formatters';
-import { iconForItem } from '../../icons';
-import { rarityColor } from '../../rarity';
+import { iconForItem, itemTint } from '../../icons';
 import { DraggableWindow } from '../DraggableWindow';
 import type { InventoryWindowProps } from './types';
 import styles from './styles.module.css';
@@ -43,8 +42,8 @@ export const InventoryWindow = memo(function InventoryWindow({
             key={item.id}
             className={styles.itemCard}
             style={{
-              borderColor: itemColor(item),
-              boxShadow: `0 0 0 1px ${itemColor(item)}33 inset`,
+              borderColor: itemTint(item),
+              boxShadow: `0 0 0 1px ${itemTint(item)}33 inset`,
             }}
             onClick={() => onEquip(item.id)}
             onContextMenu={(event) => onContextItem(event, item)}
@@ -59,7 +58,7 @@ export const InventoryWindow = memo(function InventoryWindow({
           >
             <span
               className={styles.itemIcon}
-              style={iconMaskStyle(iconForItem(item), itemColor(item))}
+              style={iconMaskStyle(iconForItem(item), itemTint(item))}
               aria-label={item.kind}
             />
             {item.quantity > 1 ? (
@@ -84,10 +83,4 @@ function iconMaskStyle(icon: string, color: string) {
     WebkitMask: mask,
     mask,
   };
-}
-
-function itemColor(item: InventoryWindowProps['inventory'][number]) {
-  return item.kind === 'resource' && item.name === 'Gold'
-    ? '#fbbf24'
-    : rarityColor(item.rarity);
 }

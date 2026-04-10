@@ -14,13 +14,25 @@ import spikedArmorIcon from '../assets/icons/spiked-armor.svg';
 import villageIcon from '../assets/icons/village.svg';
 import dungeonGateIcon from '../assets/icons/dungeon-gate.svg';
 import anvilIcon from '../assets/icons/anvil.svg';
+import animalHideIcon from '../assets/icons/animal-hide.svg';
 import stonePileIcon from '../assets/icons/stone-pile.svg';
 import axeInStumpIcon from '../assets/icons/axe-in-stump.svg';
+import coinsIcon from '../assets/icons/coins.svg';
+import herbsBundleIcon from '../assets/icons/herbs-bundle.svg';
+import logIcon from '../assets/icons/log.svg';
+import oreIcon from '../assets/icons/ore.svg';
+import salmonIcon from '../assets/icons/salmon.svg';
+import shinyAppleIcon from '../assets/icons/shiny-apple.svg';
+import sparklesIcon from '../assets/icons/sparkles.svg';
+import stoneBlockIcon from '../assets/icons/stone-block.svg';
 import spillIcon from '../assets/icons/spill.svg';
 import sunCloudIcon from '../assets/icons/sun-cloud.svg';
 import rainingIcon from '../assets/icons/raining.svg';
 import snowingIcon from '../assets/icons/snowing.svg';
+import totemIcon from '../assets/icons/totem.svg';
+import woodStickIcon from '../assets/icons/wood-stick.svg';
 import type { StructureType } from '../game/state';
+import { rarityColor } from './rarity';
 
 export const Icons = {
   Player: playerIcon,
@@ -38,12 +50,23 @@ export const Icons = {
   Village: villageIcon,
   DungeonGate: dungeonGateIcon,
   Anvil: anvilIcon,
+  AnimalHide: animalHideIcon,
   StonePile: stonePileIcon,
   AxeInStump: axeInStumpIcon,
+  Coins: coinsIcon,
+  HerbsBundle: herbsBundleIcon,
+  Log: logIcon,
+  Ore: oreIcon,
+  Salmon: salmonIcon,
+  ShinyApple: shinyAppleIcon,
+  Sparkles: sparklesIcon,
+  StoneBlock: stoneBlockIcon,
   Spill: spillIcon,
   SunCloud: sunCloudIcon,
   Raining: rainingIcon,
   Snowing: snowingIcon,
+  Totem: totemIcon,
+  WoodStick: woodStickIcon,
 } as const;
 
 export const EnemyType = {
@@ -111,9 +134,9 @@ export const StructureIcon: Record<StructureType, string> = {
   dungeon: Icons.DungeonGate,
   forge: Icons.Anvil,
   tree: Icons.AxeInStump,
-  'copper-ore': Icons.StonePile,
-  'iron-ore': Icons.StonePile,
-  'coal-ore': Icons.StonePile,
+  'copper-ore': Icons.Ore,
+  'iron-ore': Icons.Ore,
+  'coal-ore': Icons.Ore,
   pond: Icons.Spill,
   lake: Icons.Spill,
 };
@@ -131,19 +154,33 @@ export const StructureTint: Record<StructureType, number> = {
 };
 
 export const ResourceIcon: Record<string, string> = {
-  [ResourceType.Gold]: Icons.Orb,
-  [ResourceType.Herbs]: Icons.Consumable,
-  [ResourceType.Logs]: Icons.Weapon,
-  [ResourceType.Sticks]: Icons.Weapon,
-  [ResourceType.Stone]: Icons.Orb,
-  [ResourceType.CopperOre]: Icons.Armor,
-  [ResourceType.IronOre]: Icons.Armor,
+  [ResourceType.Gold]: Icons.Coins,
+  [ResourceType.Herbs]: Icons.HerbsBundle,
+  [ResourceType.Logs]: Icons.Log,
+  [ResourceType.Sticks]: Icons.WoodStick,
+  [ResourceType.Stone]: Icons.StoneBlock,
+  [ResourceType.CopperOre]: Icons.Ore,
+  [ResourceType.IronOre]: Icons.Ore,
   [ResourceType.IronChunks]: Icons.Armor,
-  [ResourceType.Coal]: Icons.HornedHelm,
-  [ResourceType.RawFish]: Icons.Consumable,
+  [ResourceType.Coal]: Icons.StonePile,
+  [ResourceType.RawFish]: Icons.Salmon,
   [ResourceType.Cloth]: Icons.Hood,
-  [ResourceType.LeatherScraps]: Icons.Hood,
-  [ResourceType.ArcaneDust]: Icons.Orb,
+  [ResourceType.LeatherScraps]: Icons.AnimalHide,
+  [ResourceType.ArcaneDust]: Icons.Sparkles,
+};
+
+const NamedItemIcon: Record<string, string> = {
+  'Jerky Pack': Icons.ShinyApple,
+  Totem: Icons.Totem,
+  'Iron Chunks': Icons.StonePile,
+};
+
+const NamedItemTint: Record<string, string> = {
+  Gold: '#fbbf24',
+  'Copper Ore': '#f59e0b',
+  'Iron Ore': '#94a3b8',
+  'Iron Chunks': '#94a3b8',
+  Coal: '#475569',
 };
 
 const ItemKindIcon: Record<Exclude<Item['kind'], 'resource'>, string> = {
@@ -164,12 +201,19 @@ export function enemyTint(name: string) {
 export function iconForItem(item?: Item, slot?: EquipmentSlot) {
   const slotIcon = slot ? ItemIcon[slot] : undefined;
   const itemSlotIcon = item?.slot ? ItemIcon[item.slot] : undefined;
+  const namedItemIcon =
+    item?.name && item.name.endsWith(' Totem')
+      ? Icons.Totem
+      : item?.name
+        ? NamedItemIcon[item.name]
+        : undefined;
   const resourceIcon =
     item?.kind === 'resource' ? ResourceIcon[item.name] : undefined;
   const kindIcon =
     item && item.kind !== 'resource' ? ItemKindIcon[item.kind] : undefined;
 
   return (
+    namedItemIcon ??
     resourceIcon ??
     itemSlotIcon ??
     kindIcon ??
@@ -185,4 +229,9 @@ export function structureIconFor(structure: StructureType) {
 
 export function structureTint(structure: StructureType) {
   return StructureTint[structure];
+}
+
+export function itemTint(item?: Item) {
+  if (!item) return rarityColor('common');
+  return NamedItemTint[item.name] ?? rarityColor(item.rarity);
 }

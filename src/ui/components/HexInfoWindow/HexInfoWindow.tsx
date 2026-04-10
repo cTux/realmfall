@@ -1,6 +1,5 @@
 import { memo } from 'react';
-import { iconForItem } from '../../icons';
-import { rarityColor } from '../../rarity';
+import { iconForItem, itemTint } from '../../icons';
 import { DraggableWindow } from '../DraggableWindow';
 import type { HexInfoWindowProps } from './types';
 import styles from './styles.module.css';
@@ -106,10 +105,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
                 >
                   <span
                     className={styles.shopIcon}
-                    style={iconMaskStyle(
-                      iconForItem(item),
-                      rarityColor(item.rarity),
-                    )}
+                    style={iconMaskStyle(iconForItem(item), itemTint(item))}
                   />
                   <span>{item.name}</span>
                 </button>
