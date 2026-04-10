@@ -50,7 +50,7 @@ describe('ui helpers and components', () => {
   it('exposes shared constants and lookup helpers', () => {
     expect(DEFAULT_WINDOWS.hero).toEqual({ x: 20, y: 20 });
     expect(DEFAULT_WINDOWS.skills).toEqual({ x: 20, y: 430 });
-    expect(DEFAULT_WINDOW_COLLAPSED.hero).toBe(false);
+    expect(DEFAULT_WINDOW_COLLAPSED.hero).toBe(true);
     expect(DEFAULT_LOG_FILTERS.combat).toBe(true);
     expect(rarityColor('legendary')).toBe('#fb923c');
     expect(enemyIconFor('Unknown Foe')).toBe(enemyIconFor('Wolf'));

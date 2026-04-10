@@ -99,10 +99,12 @@ export function App() {
   );
   const [logFilters, setLogFilters] = useState(DEFAULT_LOG_FILTERS);
   const [hydrated, setHydrated] = useState(false);
+  const [canvasReady, setCanvasReady] = useState(false);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [itemMenu, setItemMenu] = useState<ItemContextMenuState | null>(null);
   const [dismissedLootKey, setDismissedLootKey] = useState<string | null>(null);
+  const isReady = hydrated && canvasReady;
 
   const stats = useMemo(() => getPlayerStats(game.player), [game.player]);
   const visibleTiles = useMemo(() => getVisibleTiles(game), [game]);
@@ -299,6 +301,7 @@ export function App() {
 
     renderFrame();
     app.ticker.add(renderFrame);
+    setCanvasReady(true);
 
     const observer = new ResizeObserver(() => resize());
     observer.observe(hostRef.current);
@@ -604,175 +607,182 @@ export function App() {
 
   return (
     <div className={styles.appRoot}>
-      <div ref={hostRef} className={styles.mapViewport} />
+      <div className={isReady ? undefined : styles.hiddenUntilReady}>
+        <div ref={hostRef} className={styles.mapViewport} />
 
-      <HeroWindow
-        position={windows.hero}
-        onMove={handleHeroMove}
-        collapsed={windowCollapsed.hero}
-        onCollapsedChange={(collapsed) => setCollapsedWindow('hero', collapsed)}
-        stats={stats}
-        hunger={game.player.hunger}
-      />
-      <SkillsWindow
-        position={windows.skills}
-        onMove={handleSkillsMove}
-        collapsed={windowCollapsed.skills}
-        onCollapsedChange={(collapsed) =>
-          setCollapsedWindow('skills', collapsed)
-        }
-        skills={stats.skills}
-      />
-      <LegendWindow
-        position={windows.legend}
-        onMove={handleLegendMove}
-        collapsed={windowCollapsed.legend}
-        onCollapsedChange={(collapsed) =>
-          setCollapsedWindow('legend', collapsed)
-        }
-      />
-      <HexInfoWindow
-        position={windows.hexInfo}
-        onMove={handleHexInfoMove}
-        collapsed={windowCollapsed.hexInfo}
-        onCollapsedChange={(collapsed) =>
-          setCollapsedWindow('hexInfo', collapsed)
-        }
-        terrain={
-          currentTile.terrain.charAt(0).toUpperCase() +
-          currentTile.terrain.slice(1)
-        }
-        structure={describeStructure(currentTile.structure)}
-        enemyCount={
-          game.combat ? combatEnemies.length : currentTile.enemyIds.length
-        }
-        interactLabel={interactLabel}
-        canInteract={Boolean(interactLabel)}
-        canProspect={canProspect}
-        canSell={canSell}
-        prospectExplanation={prospectExplanation}
-        sellExplanation={sellExplanation}
-        onInteract={handleInteract}
-        onProspect={handleProspect}
-        onSellAll={handleSellAll}
-        structureHp={currentTile.structureHp}
-        structureMaxHp={currentTile.structureMaxHp}
-        townStock={townStock}
-        gold={gold}
-        onBuyItem={handleBuyTownItem}
-        onHoverItem={showItemTooltip}
-        onLeaveItem={closeTooltip}
-      />
-      <EquipmentWindow
-        position={windows.equipment}
-        onMove={handleEquipmentMove}
-        collapsed={windowCollapsed.equipment}
-        onCollapsedChange={(collapsed) =>
-          setCollapsedWindow('equipment', collapsed)
-        }
-        equipment={game.player.equipment}
-        onHoverItem={handleEquipmentHover}
-        onLeaveItem={closeTooltip}
-        onUnequip={handleUnequip}
-        onContextItem={handleEquippedContextItem}
-      />
-      <InventoryWindow
-        position={windows.inventory}
-        onMove={handleInventoryMove}
-        collapsed={windowCollapsed.inventory}
-        onCollapsedChange={(collapsed) =>
-          setCollapsedWindow('inventory', collapsed)
-        }
-        inventory={game.player.inventory}
-        equipment={game.player.equipment}
-        onSort={handleSort}
-        onEquip={handleEquip}
-        onContextItem={handleContextItem}
-        onHoverItem={showItemTooltip}
-        onLeaveItem={closeTooltip}
-      />
-      {renderLootWindow ? (
-        <LootWindow
-          position={windows.loot}
-          onMove={handleLootMove}
-          collapsed={windowCollapsed.loot}
+        <HeroWindow
+          position={windows.hero}
+          onMove={handleHeroMove}
+          collapsed={windowCollapsed.hero}
           onCollapsedChange={(collapsed) =>
-            setCollapsedWindow('loot', collapsed)
+            setCollapsedWindow('hero', collapsed)
           }
-          visible={lootWindowVisible}
-          loot={lootSnapshot}
-          equipment={game.player.equipment}
-          onClose={handleCloseLoot}
-          onTakeAll={handleTakeAllLoot}
-          onTakeItem={handleTakeLootItem}
+          stats={stats}
+          hunger={game.player.hunger}
+        />
+        <SkillsWindow
+          position={windows.skills}
+          onMove={handleSkillsMove}
+          collapsed={windowCollapsed.skills}
+          onCollapsedChange={(collapsed) =>
+            setCollapsedWindow('skills', collapsed)
+          }
+          skills={stats.skills}
+        />
+        <LegendWindow
+          position={windows.legend}
+          onMove={handleLegendMove}
+          collapsed={windowCollapsed.legend}
+          onCollapsedChange={(collapsed) =>
+            setCollapsedWindow('legend', collapsed)
+          }
+        />
+        <HexInfoWindow
+          position={windows.hexInfo}
+          onMove={handleHexInfoMove}
+          collapsed={windowCollapsed.hexInfo}
+          onCollapsedChange={(collapsed) =>
+            setCollapsedWindow('hexInfo', collapsed)
+          }
+          terrain={
+            currentTile.terrain.charAt(0).toUpperCase() +
+            currentTile.terrain.slice(1)
+          }
+          structure={describeStructure(currentTile.structure)}
+          enemyCount={
+            game.combat ? combatEnemies.length : currentTile.enemyIds.length
+          }
+          interactLabel={interactLabel}
+          canInteract={Boolean(interactLabel)}
+          canProspect={canProspect}
+          canSell={canSell}
+          prospectExplanation={prospectExplanation}
+          sellExplanation={sellExplanation}
+          onInteract={handleInteract}
+          onProspect={handleProspect}
+          onSellAll={handleSellAll}
+          structureHp={currentTile.structureHp}
+          structureMaxHp={currentTile.structureMaxHp}
+          townStock={townStock}
+          gold={gold}
+          onBuyItem={handleBuyTownItem}
           onHoverItem={showItemTooltip}
           onLeaveItem={closeTooltip}
         />
-      ) : null}
-      {itemMenu ? (
-        <ItemContextMenu
-          item={itemMenu.item}
-          x={itemMenu.x}
-          y={itemMenu.y}
-          equipLabel={itemMenu.slot ? 'Unequip' : 'Equip'}
-          canEquip={itemMenu.slot ? true : canEquipItem(itemMenu.item)}
-          canUse={canUseItem(itemMenu.item)}
-          onEquip={() => {
-            if (itemMenu.slot) {
-              handleUnequip(itemMenu.slot);
-            } else {
-              handleEquip(itemMenu.item.id);
-            }
-            closeItemMenu();
-          }}
-          onUse={() => {
-            handleUseItem(itemMenu.item.id);
-            closeItemMenu();
-          }}
-          onDrop={() => {
-            if (itemMenu.slot) {
-              handleDropEquippedItem(itemMenu.slot);
-            } else {
-              handleDropItem(itemMenu.item.id);
-            }
-            closeItemMenu();
-          }}
-          onClose={closeItemMenu}
-        />
-      ) : null}
-      <LogWindow
-        position={windows.log}
-        onMove={handleLogMove}
-        collapsed={windowCollapsed.log}
-        onCollapsedChange={(collapsed) => setCollapsedWindow('log', collapsed)}
-        filters={logFilters}
-        defaultFilters={DEFAULT_LOG_FILTERS}
-        showFilterMenu={showFilterMenu}
-        onToggleMenu={toggleFilterMenu}
-        onToggleFilter={toggleLogFilter}
-        logs={filteredLogs}
-      />
-      {renderCombatWindow && combatSnapshot ? (
-        <CombatWindow
-          position={windows.combat}
-          onMove={(position) => moveWindow('combat', position)}
-          collapsed={windowCollapsed.combat}
+        <EquipmentWindow
+          position={windows.equipment}
+          onMove={handleEquipmentMove}
+          collapsed={windowCollapsed.equipment}
           onCollapsedChange={(collapsed) =>
-            setCollapsedWindow('combat', collapsed)
+            setCollapsedWindow('equipment', collapsed)
           }
-          visible={combatWindowVisible}
-          combat={combatSnapshot.combat}
-          enemies={combatSnapshot.enemies}
-          player={{
-            hp: stats.hp,
-            maxHp: stats.maxHp,
-            attack: stats.attack,
-            defense: stats.defense,
-          }}
-          onAttack={handleAttackEnemy}
+          equipment={game.player.equipment}
+          onHoverItem={handleEquipmentHover}
+          onLeaveItem={closeTooltip}
+          onUnequip={handleUnequip}
+          onContextItem={handleEquippedContextItem}
         />
-      ) : null}
-      <GameTooltip tooltip={tooltip} />
+        <InventoryWindow
+          position={windows.inventory}
+          onMove={handleInventoryMove}
+          collapsed={windowCollapsed.inventory}
+          onCollapsedChange={(collapsed) =>
+            setCollapsedWindow('inventory', collapsed)
+          }
+          inventory={game.player.inventory}
+          equipment={game.player.equipment}
+          onSort={handleSort}
+          onEquip={handleEquip}
+          onContextItem={handleContextItem}
+          onHoverItem={showItemTooltip}
+          onLeaveItem={closeTooltip}
+        />
+        {renderLootWindow ? (
+          <LootWindow
+            position={windows.loot}
+            onMove={handleLootMove}
+            collapsed={windowCollapsed.loot}
+            onCollapsedChange={(collapsed) =>
+              setCollapsedWindow('loot', collapsed)
+            }
+            visible={lootWindowVisible}
+            loot={lootSnapshot}
+            equipment={game.player.equipment}
+            onClose={handleCloseLoot}
+            onTakeAll={handleTakeAllLoot}
+            onTakeItem={handleTakeLootItem}
+            onHoverItem={showItemTooltip}
+            onLeaveItem={closeTooltip}
+          />
+        ) : null}
+        {itemMenu ? (
+          <ItemContextMenu
+            item={itemMenu.item}
+            x={itemMenu.x}
+            y={itemMenu.y}
+            equipLabel={itemMenu.slot ? 'Unequip' : 'Equip'}
+            canEquip={itemMenu.slot ? true : canEquipItem(itemMenu.item)}
+            canUse={canUseItem(itemMenu.item)}
+            onEquip={() => {
+              if (itemMenu.slot) {
+                handleUnequip(itemMenu.slot);
+              } else {
+                handleEquip(itemMenu.item.id);
+              }
+              closeItemMenu();
+            }}
+            onUse={() => {
+              handleUseItem(itemMenu.item.id);
+              closeItemMenu();
+            }}
+            onDrop={() => {
+              if (itemMenu.slot) {
+                handleDropEquippedItem(itemMenu.slot);
+              } else {
+                handleDropItem(itemMenu.item.id);
+              }
+              closeItemMenu();
+            }}
+            onClose={closeItemMenu}
+          />
+        ) : null}
+        <LogWindow
+          position={windows.log}
+          onMove={handleLogMove}
+          collapsed={windowCollapsed.log}
+          onCollapsedChange={(collapsed) =>
+            setCollapsedWindow('log', collapsed)
+          }
+          filters={logFilters}
+          defaultFilters={DEFAULT_LOG_FILTERS}
+          showFilterMenu={showFilterMenu}
+          onToggleMenu={toggleFilterMenu}
+          onToggleFilter={toggleLogFilter}
+          logs={filteredLogs}
+        />
+        {renderCombatWindow && combatSnapshot ? (
+          <CombatWindow
+            position={windows.combat}
+            onMove={(position) => moveWindow('combat', position)}
+            collapsed={windowCollapsed.combat}
+            onCollapsedChange={(collapsed) =>
+              setCollapsedWindow('combat', collapsed)
+            }
+            visible={combatWindowVisible}
+            combat={combatSnapshot.combat}
+            enemies={combatSnapshot.enemies}
+            player={{
+              hp: stats.hp,
+              maxHp: stats.maxHp,
+              attack: stats.attack,
+              defense: stats.defense,
+            }}
+            onAttack={handleAttackEnemy}
+          />
+        ) : null}
+        <GameTooltip tooltip={tooltip} />
+      </div>
+      {isReady ? null : <div className={styles.loadingScreen}>Loading...</div>}
     </div>
   );
 }

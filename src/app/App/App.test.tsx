@@ -135,18 +135,13 @@ describe('App', () => {
       elite: false,
     };
 
-    loadEncryptedState.mockResolvedValue({
-      game: {
-        ...game,
-        logs: [
-          { id: 'persisted-log', kind: 'system', text: 'old log', turn: 99 },
-        ],
-      },
-      ui: {
-        windows: { hero: { x: 30, y: 40 } },
-        windowCollapsed: { hero: true },
-      },
-    });
+    let resolveLoad: ((value: unknown) => void) | null = null;
+    loadEncryptedState.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveLoad = resolve;
+        }),
+    );
 
     const { App } = await import('./index');
     const host = document.createElement('div');
@@ -155,6 +150,33 @@ describe('App', () => {
 
     await act(async () => {
       root?.render(<App />);
+    });
+
+    expect(host.textContent).toContain('Loading...');
+
+    await act(async () => {
+      resolveLoad?.({
+        game: {
+          ...game,
+          logs: [
+            { id: 'persisted-log', kind: 'system', text: 'old log', turn: 99 },
+          ],
+        },
+        ui: {
+          windows: { hero: { x: 30, y: 40 } },
+          windowCollapsed: {
+            hero: true,
+            skills: false,
+            legend: false,
+            hexInfo: false,
+            equipment: false,
+            inventory: false,
+            loot: false,
+            log: false,
+            combat: false,
+          },
+        },
+      });
       await Promise.resolve();
     });
 
@@ -165,6 +187,7 @@ describe('App', () => {
     expect(loadEncryptedState).toHaveBeenCalledTimes(1);
     expect(renderScene).toHaveBeenCalled();
     expect(saveEncryptedState).toHaveBeenCalled();
+    expect(host.textContent).not.toContain('Loading...');
     expect(host.textContent).toContain('Hero Info');
     expect(host.textContent).toContain('Skills');
     expect(host.textContent).toContain('Hex Info');
@@ -176,8 +199,9 @@ describe('App', () => {
     expect(host.textContent).toContain('Prospect');
 
     const heroToggle = Array.from(host.querySelectorAll('button')).find(
-      (button) => button.textContent === 'expand',
+      (button) => button.textContent?.toLowerCase() === 'expand',
     );
+    expect(heroToggle).not.toBeUndefined();
     await act(async () => {
       heroToggle?.click();
     });

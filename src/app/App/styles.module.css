@@ -9,3 +9,16 @@
   position: absolute;
   inset: 0;
 }
+
+.hiddenUntilReady {
+  visibility: hidden;
+}
+
+.loadingScreen {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #f8fafc;
+  font-size: 1.5rem;
+}

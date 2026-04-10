@@ -45,15 +45,15 @@ export const DEFAULT_WINDOWS: WindowPositions = {
 };
 
 export const DEFAULT_WINDOW_COLLAPSED: WindowCollapsedState = {
-  hero: false,
-  skills: false,
-  legend: false,
-  hexInfo: false,
-  equipment: false,
-  inventory: false,
-  loot: false,
-  log: false,
-  combat: false,
+  hero: true,
+  skills: true,
+  legend: true,
+  hexInfo: true,
+  equipment: true,
+  inventory: true,
+  loot: true,
+  log: true,
+  combat: true,
 };
 
 export const DEFAULT_LOG_FILTERS: Record<LogKind, boolean> = {
