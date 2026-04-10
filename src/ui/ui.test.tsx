@@ -58,9 +58,9 @@ describe('ui helpers and components', () => {
     expect(structureIconFor('town')).toBeTruthy();
     expect(structureIconFor('tree')).toBeTruthy();
     expect(structureTint('forge')).toBe(0xf97316);
-    expect(formatCompactNumber(1_250)).toBe('1.3K');
+    expect(formatCompactNumber(1_250)).toBe('1.3k');
     expect(formatCompactNumber(1_250_000)).toBe('1.3M');
-    expect(formatCompactNumberish('+1250')).toBe('+1.3K');
+    expect(formatCompactNumberish('+1250')).toBe('+1.3k');
   });
 
   it('builds item and enemy tooltip lines for multiple branches', () => {
@@ -446,6 +446,38 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('No equippable items to sell.');
     expect(markup).not.toContain('Sell all equippable');
     expect(markup).not.toContain('>Prospect<');
+  });
+
+  it('renders hero stat bars with compact large values', () => {
+    const markup = renderToStaticMarkup(
+      <HeroWindow
+        position={DEFAULT_WINDOWS.hero}
+        onMove={() => {}}
+        collapsed={false}
+        onCollapsedChange={() => {}}
+        hunger={100}
+        stats={{
+          level: 10,
+          hp: 1127,
+          maxHp: 1128,
+          mana: 25,
+          maxMana: 30,
+          xp: 450,
+          nextLevelXp: 1000,
+          attack: 20,
+          defense: 15,
+          hungerPenalty: 0,
+          skills: {
+            logging: { level: 1, xp: 0 },
+            mining: { level: 1, xp: 0 },
+            skinning: { level: 1, xp: 0 },
+            fishing: { level: 1, xp: 0 },
+          },
+        }}
+      />,
+    );
+
+    expect(markup).toContain('1.1k/1.1k');
   });
 
   it('raises hovered and active windows during interactions', async () => {

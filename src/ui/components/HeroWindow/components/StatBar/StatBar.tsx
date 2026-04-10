@@ -1,3 +1,4 @@
+import { formatCompactNumber } from '../../../../formatters';
 import type { StatBarProps } from './types';
 import styles from './styles.module.css';
 
@@ -9,7 +10,7 @@ export function StatBar({ label, value, max, color }: StatBarProps) {
       <div className={styles.barLabel}>
         <span>{label}</span>
         <strong>
-          {value}/{max}
+          {formatCompactNumber(value)}/{formatCompactNumber(max)}
         </strong>
       </div>
       <div className={styles.barTrack}>
