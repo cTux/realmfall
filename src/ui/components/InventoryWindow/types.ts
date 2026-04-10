@@ -5,8 +5,8 @@ import type { Equipment, Item } from '../../../game/state';
 export interface InventoryWindowProps {
   position: WindowPosition;
   onMove: (position: WindowPosition) => void;
-  collapsed?: boolean;
-  onCollapsedChange?: (collapsed: boolean) => void;
+  visible?: boolean;
+  onClose?: () => void;
   inventory: Item[];
   equipment: Equipment;
   onSort: () => void;

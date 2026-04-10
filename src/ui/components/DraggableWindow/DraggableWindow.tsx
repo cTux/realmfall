@@ -19,18 +19,17 @@ export function DraggableWindow({
   titleClassName,
   headerActions,
   className,
-  collapsed: collapsedProp,
-  onCollapsedChange,
-  visible = true,
+  visible: visibleProp,
+  onClose,
 }: DraggableWindowProps) {
   const windowIdRef = useRef(`window-${Math.random().toString(36).slice(2)}`);
   const dragRef = useRef<{ dx: number; dy: number } | null>(null);
-  const [collapsedState, setCollapsedState] = useState(false);
+  const [visibleState, setVisibleState] = useState(true);
   const [hovered, setHovered] = useState(false);
   const [active, setActive] = useState(false);
-  const collapsed = collapsedProp ?? collapsedState;
-  const [bodyVisible, setBodyVisible] = useState(() => !collapsed);
-  const [bodyExpanded, setBodyExpanded] = useState(() => !collapsed);
+  const visible = visibleProp === undefined ? visibleState : visibleProp;
+  const [renderWindow, setRenderWindow] = useState(() => visible);
+  const [animatedVisible, setAnimatedVisible] = useState(false);
 
   const activateWindow = () => {
     setActive(true);
@@ -55,26 +54,28 @@ export function DraggableWindow({
   }, []);
 
   useEffect(() => {
-    if (!collapsed) {
-      setBodyVisible(true);
-      const frame = window.requestAnimationFrame(() => setBodyExpanded(true));
+    if (visible) {
+      setRenderWindow(true);
+      setAnimatedVisible(false);
+      const frame = window.requestAnimationFrame(() =>
+        setAnimatedVisible(true),
+      );
       return () => window.cancelAnimationFrame(frame);
     }
 
-    setBodyExpanded(false);
+    setAnimatedVisible(false);
     const timeout = window.setTimeout(
-      () => setBodyVisible(false),
+      () => setRenderWindow(false),
       WINDOW_TRANSITION_MS,
     );
     return () => window.clearTimeout(timeout);
-  }, [collapsed]);
+  }, [visible]);
 
-  const toggleCollapsed = () => {
-    const nextCollapsed = !collapsed;
-    if (collapsedProp === undefined) {
-      setCollapsedState(nextCollapsed);
+  const closeWindow = () => {
+    if (visibleProp === undefined) {
+      setVisibleState(false);
     }
-    onCollapsedChange?.(nextCollapsed);
+    onClose?.();
   };
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -110,11 +111,13 @@ export function DraggableWindow({
 
   const emphasis = active ? 'active' : hovered ? 'hovered' : 'idle';
 
+  if (!renderWindow) return null;
+
   return (
     <section
       className={`${styles.floatingWindow} ${className ?? ''}`.trim()}
       data-window-emphasis={emphasis}
-      data-window-visible={visible}
+      data-window-visible={animatedVisible}
       style={{ left: position.x, top: position.y }}
       onPointerEnter={() => setHovered(true)}
       onPointerLeave={() => setHovered(false)}
@@ -139,22 +142,13 @@ export function DraggableWindow({
             type="button"
             className={styles.headerButton}
             onPointerDown={(event) => event.stopPropagation()}
-            onClick={toggleCollapsed}
-            aria-expanded={!collapsed}
+            onClick={closeWindow}
           >
-            {collapsed ? 'Expand' : 'Collapse'}
+            Close
           </button>
         </div>
       </div>
-      {bodyVisible ? (
-        <div
-          className={styles.windowBodyFrame}
-          data-window-body-state={bodyExpanded ? 'open' : 'closed'}
-          aria-hidden={!bodyExpanded}
-        >
-          <div className={styles.windowBody}>{children}</div>
-        </div>
-      ) : null}
+      <div className={styles.windowBody}>{children}</div>
     </section>
   );
 }

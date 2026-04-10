@@ -3,14 +3,16 @@ import { EQUIPMENT_SLOTS, type EquipmentSlot } from '../../../game/state';
 import { iconForItem } from '../../icons';
 import { rarityColor } from '../../rarity';
 import { DraggableWindow } from '../DraggableWindow';
+import { WINDOW_LABELS, renderWindowLabel } from '../windowLabels';
+import labelStyles from '../windowLabels.module.css';
 import type { EquipmentWindowProps } from './types';
 import styles from './styles.module.css';
 
 export const EquipmentWindow = memo(function EquipmentWindow({
   position,
   onMove,
-  collapsed,
-  onCollapsedChange,
+  visible,
+  onClose,
   equipment,
   onHoverItem,
   onLeaveItem,
@@ -19,11 +21,11 @@ export const EquipmentWindow = memo(function EquipmentWindow({
 }: EquipmentWindowProps) {
   return (
     <DraggableWindow
-      title="Equipment"
+      title={renderWindowLabel(WINDOW_LABELS.equipment, labelStyles.hotkey)}
       position={position}
       onMove={onMove}
-      collapsed={collapsed}
-      onCollapsedChange={onCollapsedChange}
+      visible={visible}
+      onClose={onClose}
     >
       <div className={styles.inventory}>
         {EQUIPMENT_SLOTS.map((slot) => {

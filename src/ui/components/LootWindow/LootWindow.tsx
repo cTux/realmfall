@@ -8,11 +8,10 @@ import styles from '../InventoryWindow/styles.module.css';
 export const LootWindow = memo(function LootWindow({
   position,
   onMove,
-  collapsed,
-  onCollapsedChange,
   visible,
   loot,
   equipment,
+  onClose,
   onTakeAll,
   onTakeItem,
   onHoverItem,
@@ -24,9 +23,8 @@ export const LootWindow = memo(function LootWindow({
       position={position}
       onMove={onMove}
       className={styles.window}
-      collapsed={collapsed}
-      onCollapsedChange={onCollapsedChange}
       visible={visible}
+      onClose={onClose}
       headerActions={
         <div className={styles.toolbar}>
           <div className={styles.actions}>

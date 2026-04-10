@@ -1,0 +1,96 @@
+.dock {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  z-index: 35;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  justify-content: flex-start;
+  padding: 0.75rem 0.75rem 0.75rem 0;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-right-color: rgba(148, 163, 184, 0.2);
+  box-sizing: border-box;
+}
+
+.dockButton {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  display: grid;
+  place-items: center;
+  padding: 0.4rem;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(8, 15, 30, 0.9);
+  color: #cbd5e1;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    color 120ms ease,
+    transform 120ms ease,
+    background-color 120ms ease;
+}
+
+.dockButton:hover {
+  border-color: rgba(226, 232, 240, 0.6);
+  color: #f8fafc;
+}
+
+.dockButton:hover .tooltip,
+.dockButton:focus-visible .tooltip {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+.dockButton:active {
+  transform: translateY(1px);
+}
+
+.dockButton[data-opened='true'] {
+  border-color: rgba(56, 189, 248, 0.85);
+  background: rgba(8, 47, 73, 0.92);
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.3);
+  color: #f8fafc;
+}
+
+.buttonIcon {
+  width: 2rem;
+  height: 2rem;
+  display: inline-block;
+  background: currentColor;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+}
+
+.tooltip {
+  position: absolute;
+  left: calc(100% + 0.6rem);
+  top: 50%;
+  transform: translate(-6px, -50%);
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
+  white-space: nowrap;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(8, 15, 30, 0.96);
+  color: #e2e8f0;
+  font-size: 0.8rem;
+  line-height: 1.1;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32);
+}
+
+@media (max-width: 980px) {
+  .dock {
+    padding-right: 0.5rem;
+  }
+}

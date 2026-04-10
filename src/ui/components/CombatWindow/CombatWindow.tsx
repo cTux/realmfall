@@ -5,9 +5,8 @@ import styles from './styles.module.css';
 export function CombatWindow({
   position,
   onMove,
-  collapsed,
-  onCollapsedChange,
   visible,
+  onClose,
   combat,
   enemies,
   player,
@@ -19,9 +18,8 @@ export function CombatWindow({
       position={position}
       onMove={onMove}
       className={styles.window}
-      collapsed={collapsed}
-      onCollapsedChange={onCollapsedChange}
       visible={visible}
+      onClose={onClose}
     >
       <div className={styles.summary}>
         <div>

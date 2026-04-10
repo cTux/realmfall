@@ -1,5 +1,7 @@
 import { memo } from 'react';
 import { DraggableWindow } from '../DraggableWindow';
+import { WINDOW_LABELS, renderWindowLabel } from '../windowLabels';
+import labelStyles from '../windowLabels.module.css';
 import { StatBar } from './components/StatBar';
 import type { HeroWindowProps } from './types';
 import styles from './styles.module.css';
@@ -7,18 +9,26 @@ import styles from './styles.module.css';
 export const HeroWindow = memo(function HeroWindow({
   position,
   onMove,
-  collapsed,
-  onCollapsedChange,
+  visible,
+  onClose,
   stats,
   hunger,
 }: HeroWindowProps) {
   return (
     <DraggableWindow
-      title={`Hero Info · Lv ${stats.level}`}
+      title={renderWindowLabel(
+        WINDOW_LABELS.hero,
+        labelStyles.hotkey,
+        <>
+          {' '}
+          {' · Lv '}
+          {stats.level}
+        </>,
+      )}
       position={position}
       onMove={onMove}
-      collapsed={collapsed}
-      onCollapsedChange={onCollapsedChange}
+      visible={visible}
+      onClose={onClose}
     >
       <div className={styles.stats}>
         <StatBar label="HP" value={stats.hp} max={stats.maxHp} color="hp" />

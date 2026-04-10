@@ -1,14 +1,16 @@
 import { memo } from 'react';
 import { iconForItem, itemTint } from '../../icons';
 import { DraggableWindow } from '../DraggableWindow';
+import { WINDOW_LABELS, renderWindowLabel } from '../windowLabels';
+import labelStyles from '../windowLabels.module.css';
 import type { HexInfoWindowProps } from './types';
 import styles from './styles.module.css';
 
 export const HexInfoWindow = memo(function HexInfoWindow({
   position,
   onMove,
-  collapsed,
-  onCollapsedChange,
+  visible,
+  onClose,
   terrain,
   structure,
   enemyCount,
@@ -36,12 +38,12 @@ export const HexInfoWindow = memo(function HexInfoWindow({
 
   return (
     <DraggableWindow
-      title="Hex Info"
+      title={renderWindowLabel(WINDOW_LABELS.hexInfo, labelStyles.hotkey)}
       position={position}
       onMove={onMove}
       className={styles.window}
-      collapsed={collapsed}
-      onCollapsedChange={onCollapsedChange}
+      visible={visible}
+      onClose={onClose}
     >
       <div className={styles.meta}>
         <div className={styles.row}>

@@ -1,22 +1,24 @@
 import { memo } from 'react';
 import { structureIconFor } from '../../icons';
 import { DraggableWindow } from '../DraggableWindow';
+import { WINDOW_LABELS, renderWindowLabel } from '../windowLabels';
+import labelStyles from '../windowLabels.module.css';
 import type { LegendWindowProps } from './types';
 import styles from './styles.module.css';
 
 export const LegendWindow = memo(function LegendWindow({
   position,
   onMove,
-  collapsed,
-  onCollapsedChange,
+  visible,
+  onClose,
 }: LegendWindowProps) {
   return (
     <DraggableWindow
-      title="Legend"
+      title={renderWindowLabel(WINDOW_LABELS.legend, labelStyles.hotkey)}
       position={position}
       onMove={onMove}
-      collapsed={collapsed}
-      onCollapsedChange={onCollapsedChange}
+      visible={visible}
+      onClose={onClose}
     >
       <div className={styles.legend}>
         <div className={styles.row}>

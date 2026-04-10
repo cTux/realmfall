@@ -5,7 +5,7 @@ import { vi } from 'vitest';
 import { createGame, getPlayerStats, type Item } from '../game/state';
 import {
   DEFAULT_LOG_FILTERS,
-  DEFAULT_WINDOW_COLLAPSED,
+  DEFAULT_WINDOW_VISIBILITY,
   DEFAULT_WINDOWS,
 } from '../app/constants';
 import {
@@ -48,9 +48,9 @@ describe('ui helpers and components', () => {
   });
 
   it('exposes shared constants and lookup helpers', () => {
-    expect(DEFAULT_WINDOWS.hero).toEqual({ x: 20, y: 20 });
-    expect(DEFAULT_WINDOWS.skills).toEqual({ x: 20, y: 430 });
-    expect(DEFAULT_WINDOW_COLLAPSED.hero).toBe(true);
+    expect(DEFAULT_WINDOWS.hero).toEqual({ x: 96, y: 20 });
+    expect(DEFAULT_WINDOWS.skills).toEqual({ x: 96, y: 430 });
+    expect(DEFAULT_WINDOW_VISIBILITY.hero).toBe(false);
     expect(DEFAULT_LOG_FILTERS.combat).toBe(true);
     expect(rarityColor('legendary')).toBe('#fb923c');
     expect(enemyIconFor('Unknown Foe')).toBe(enemyIconFor('Wolf'));
@@ -377,11 +377,11 @@ describe('ui helpers and components', () => {
       </>,
     );
 
-    expect(markup).toContain('Hero Info');
+    expect(markup).toContain(')haracter info');
     expect(markup).toContain('Hunger penalty');
-    expect(markup).toContain('Skills');
+    expect(markup).toContain(')kills');
     expect(markup).toContain('logging');
-    expect(markup).toContain('Hex Info');
+    expect(markup).toContain(')ex info');
     expect(markup).toContain('Structure HP');
     expect(markup).toContain('Town Stock');
     expect(markup).toContain('Horned Helm');
@@ -453,8 +453,8 @@ describe('ui helpers and components', () => {
       <HeroWindow
         position={DEFAULT_WINDOWS.hero}
         onMove={() => {}}
-        collapsed={false}
-        onCollapsedChange={() => {}}
+        visible
+        onClose={() => {}}
         hunger={100}
         stats={{
           level: 10,
@@ -484,7 +484,7 @@ describe('ui helpers and components', () => {
     vi.useFakeTimers();
 
     const moves: Array<{ x: number; y: number }> = [];
-    const collapsedChanges: boolean[] = [];
+    const closeWindow = vi.fn();
     const close = vi.fn();
     const equip = vi.fn();
     const use = vi.fn();
@@ -521,7 +521,7 @@ describe('ui helpers and components', () => {
             title="Test Window"
             position={{ x: 40, y: 50 }}
             onMove={(position) => moves.push(position)}
-            onCollapsedChange={(collapsed) => collapsedChanges.push(collapsed)}
+            onClose={closeWindow}
           >
             <div>Body</div>
           </DraggableWindow>
@@ -598,23 +598,21 @@ describe('ui helpers and components', () => {
     expect(testWindow.dataset.windowEmphasis).toBe('active');
     expect(backgroundWindow.dataset.windowEmphasis).toBe('idle');
 
-    const collapseButton = Array.from(
-      testWindow.querySelectorAll('button'),
-    ).find((button) => button.textContent === 'Collapse');
+    const closeButton = Array.from(testWindow.querySelectorAll('button')).find(
+      (button) => button.textContent === 'Close',
+    );
     expect(testWindow.textContent).toContain('Body');
     await act(async () => {
-      collapseButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      closeButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
     expect(testWindow.textContent).toContain('Body');
     await act(async () => {
       vi.advanceTimersByTime(200);
     });
-    expect(testWindow.textContent).not.toContain('Body');
-    expect(collapsedChanges).toEqual([true]);
+    expect(host.textContent).not.toContain('Body');
+    expect(closeWindow).toHaveBeenCalledTimes(1);
 
-    const menuButtons = Array.from(host.querySelectorAll('button')).filter(
-      (button) => button.textContent !== 'Expand',
-    );
+    const menuButtons = Array.from(host.querySelectorAll('button'));
     await act(async () => {
       menuButtons.find((button) => button.textContent === 'Equip now')?.click();
       menuButtons.find((button) => button.textContent === 'Use')?.click();
@@ -666,7 +664,7 @@ describe('ui helpers and components', () => {
       );
     });
 
-    expect(host.textContent).toContain('Log');
+    expect(host.textContent).toContain('Lo(g)');
     expect(host.textContent).not.toContain(game.logs[0]?.text ?? '');
 
     await act(async () => {

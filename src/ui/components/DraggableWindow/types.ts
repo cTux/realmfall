@@ -2,14 +2,13 @@ import type { ReactNode } from 'react';
 import type { WindowPosition } from '../../../app/constants';
 
 export interface DraggableWindowProps {
-  title: string;
+  title: ReactNode;
   position: WindowPosition;
   onMove: (position: WindowPosition) => void;
   children: ReactNode;
   titleClassName?: string;
   headerActions?: ReactNode;
   className?: string;
-  collapsed?: boolean;
-  onCollapsedChange?: (collapsed: boolean) => void;
   visible?: boolean;
+  onClose?: () => void;
 }

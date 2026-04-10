@@ -77,20 +77,6 @@
   line-height: 1.15;
 }
 
-.windowBodyFrame {
-  display: grid;
-  grid-template-rows: 1fr;
-  opacity: 1;
-  transition:
-    grid-template-rows 180ms ease,
-    opacity 180ms ease;
-}
-
-.windowBodyFrame[data-window-body-state='closed'] {
-  grid-template-rows: 0fr;
-  opacity: 0;
-}
-
 .windowBody {
   padding: 0.9rem 1rem 1rem;
   display: grid;

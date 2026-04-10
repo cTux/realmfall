@@ -5,8 +5,8 @@ import type { Item, TownStockEntry } from '../../../game/state';
 export interface HexInfoWindowProps {
   position: WindowPosition;
   onMove: (position: WindowPosition) => void;
-  collapsed?: boolean;
-  onCollapsedChange?: (collapsed: boolean) => void;
+  visible?: boolean;
+  onClose?: () => void;
   terrain: string;
   structure: string;
   enemyCount: number;

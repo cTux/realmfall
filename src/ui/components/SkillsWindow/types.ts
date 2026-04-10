@@ -4,7 +4,7 @@ import type { SkillName } from '../../../game/state';
 export interface SkillsWindowProps {
   position: WindowPosition;
   onMove: (position: WindowPosition) => void;
-  collapsed?: boolean;
-  onCollapsedChange?: (collapsed: boolean) => void;
+  visible?: boolean;
+  onClose?: () => void;
   skills: Record<SkillName, { level: number; xp: number }>;
 }

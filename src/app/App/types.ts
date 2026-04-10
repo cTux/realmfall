@@ -1,5 +1,5 @@
 import type { EquipmentSlot, Item, LogKind } from '../../game/state';
-import type { WindowCollapsedState } from '../constants';
+import type { WindowVisibilityState } from '../constants';
 import type { TooltipLine } from '../../ui/tooltips';
 
 export interface TooltipState {
@@ -12,7 +12,8 @@ export interface TooltipState {
 
 export interface PersistedUiState {
   logFilters?: Record<LogKind, boolean>;
-  windowCollapsed?: WindowCollapsedState;
+  windowShown?: WindowVisibilityState;
+  windowCollapsed?: Partial<WindowVisibilityState>;
 }
 
 export type TooltipItem = Item;

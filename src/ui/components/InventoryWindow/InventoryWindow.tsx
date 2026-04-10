@@ -2,14 +2,16 @@ import { memo } from 'react';
 import { formatCompactNumber } from '../../formatters';
 import { iconForItem, itemTint } from '../../icons';
 import { DraggableWindow } from '../DraggableWindow';
+import { WINDOW_LABELS, renderWindowLabel } from '../windowLabels';
+import labelStyles from '../windowLabels.module.css';
 import type { InventoryWindowProps } from './types';
 import styles from './styles.module.css';
 
 export const InventoryWindow = memo(function InventoryWindow({
   position,
   onMove,
-  collapsed,
-  onCollapsedChange,
+  visible,
+  onClose,
   inventory,
   equipment,
   onSort,
@@ -20,12 +22,12 @@ export const InventoryWindow = memo(function InventoryWindow({
 }: InventoryWindowProps) {
   return (
     <DraggableWindow
-      title="Inventory"
+      title={renderWindowLabel(WINDOW_LABELS.inventory, labelStyles.hotkey)}
       position={position}
       onMove={onMove}
       className={styles.window}
-      collapsed={collapsed}
-      onCollapsedChange={onCollapsedChange}
+      visible={visible}
+      onClose={onClose}
       headerActions={
         <div className={styles.toolbar}>
           <div className={styles.actions}>

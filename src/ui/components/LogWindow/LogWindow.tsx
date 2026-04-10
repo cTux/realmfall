@@ -1,5 +1,7 @@
 import { memo, useEffect, useState } from 'react';
 import { DraggableWindow } from '../DraggableWindow';
+import { WINDOW_LABELS, renderWindowLabel } from '../windowLabels';
+import labelStyles from '../windowLabels.module.css';
 import type { LogWindowProps } from './types';
 import styles from './styles.module.css';
 
@@ -44,8 +46,8 @@ function AnimatedLogLine({ text }: { text: string }) {
 export const LogWindow = memo(function LogWindow({
   position,
   onMove,
-  collapsed,
-  onCollapsedChange,
+  visible,
+  onClose,
   filters,
   defaultFilters,
   showFilterMenu,
@@ -55,13 +57,13 @@ export const LogWindow = memo(function LogWindow({
 }: LogWindowProps) {
   return (
     <DraggableWindow
-      title="Log"
+      title={renderWindowLabel(WINDOW_LABELS.log, labelStyles.hotkey)}
       position={position}
       onMove={onMove}
       className={styles.window}
       titleClassName={styles.windowTitle}
-      collapsed={collapsed}
-      onCollapsedChange={onCollapsedChange}
+      visible={visible}
+      onClose={onClose}
       headerActions={
         <div className={styles.toolbar}>
           <button className={styles.headerButton} onClick={onToggleMenu}>

@@ -43,11 +43,11 @@ import {
   type LogKind,
 } from '../../game/state';
 import {
-  DEFAULT_WINDOW_COLLAPSED,
+  DEFAULT_WINDOW_VISIBILITY,
   DEFAULT_LOG_FILTERS,
   DEFAULT_WINDOWS,
   HEX_SIZE,
-  type WindowCollapsedState,
+  type WindowVisibilityState,
   WORLD_RADIUS,
   type WindowPositions,
 } from '../constants';
@@ -62,6 +62,7 @@ import {
   structureTooltip,
 } from '../../ui/tooltips';
 import { rarityColor } from '../../ui/rarity';
+import { Icons } from '../../ui/icons';
 import { renderScene } from '../../ui/world/renderScene';
 import { HeroWindow } from '../../ui/components/HeroWindow';
 import { SkillsWindow } from '../../ui/components/SkillsWindow';
@@ -74,6 +75,8 @@ import { GameTooltip } from '../../ui/components/GameTooltip';
 import { CombatWindow } from '../../ui/components/CombatWindow';
 import { LootWindow } from '../../ui/components/LootWindow';
 import { ItemContextMenu } from '../../ui/components/ItemContextMenu';
+import { WindowDock } from '../../ui/components/WindowDock';
+import { WINDOW_LABELS } from '../../ui/components/windowLabels';
 import type {
   ItemContextMenuState,
   PersistedUiState,
@@ -81,6 +84,38 @@ import type {
   TooltipState,
 } from './types';
 import styles from './styles.module.css';
+
+const DOCK_WINDOW_ICONS: Record<keyof WindowVisibilityState, string> = {
+  hero: Icons.Player,
+  skills: Icons.Sparkles,
+  legend: Icons.Totem,
+  hexInfo: Icons.Village,
+  equipment: Icons.Armor,
+  inventory: Icons.Coins,
+  loot: Icons.StonePile,
+  log: Icons.Log,
+  combat: Icons.Enemy,
+};
+
+const WINDOW_HOTKEYS: Partial<Record<string, keyof WindowVisibilityState>> = {
+  c: 'hero',
+  s: 'skills',
+  l: 'legend',
+  h: 'hexInfo',
+  e: 'equipment',
+  i: 'inventory',
+  g: 'log',
+};
+
+function isEditableTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return false;
+  return (
+    target instanceof HTMLInputElement ||
+    target instanceof HTMLTextAreaElement ||
+    target instanceof HTMLSelectElement ||
+    target.isContentEditable
+  );
+}
 
 export function App() {
   const initialGameRef = useRef<GameState>(createGame(WORLD_RADIUS));
@@ -94,8 +129,8 @@ export function App() {
   const [selected, setSelected] = useState<HexCoord>(game.player.coord);
   const [hoveredMove, setHoveredMove] = useState<HexCoord | null>(null);
   const [windows, setWindows] = useState<WindowPositions>(DEFAULT_WINDOWS);
-  const [windowCollapsed, setWindowCollapsed] = useState<WindowCollapsedState>(
-    DEFAULT_WINDOW_COLLAPSED,
+  const [windowShown, setWindowShown] = useState<WindowVisibilityState>(
+    DEFAULT_WINDOW_VISIBILITY,
   );
   const [logFilters, setLogFilters] = useState(DEFAULT_LOG_FILTERS);
   const [hydrated, setHydrated] = useState(false);
@@ -103,7 +138,6 @@ export function App() {
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [itemMenu, setItemMenu] = useState<ItemContextMenuState | null>(null);
-  const [dismissedLootKey, setDismissedLootKey] = useState<string | null>(null);
   const isReady = hydrated && canvasReady;
 
   const stats = useMemo(() => getPlayerStats(game.player), [game.player]);
@@ -137,9 +171,7 @@ export function App() {
     if (currentTile.items.length === 0) return null;
     return `${currentTile.coord.q},${currentTile.coord.r}:${currentTile.items.map((item) => `${item.id}:${item.quantity}`).join('|')}`;
   }, [currentTile]);
-  const showLootWindow = Boolean(
-    !game.combat && lootWindowKey && lootWindowKey !== dismissedLootKey,
-  );
+  const showLootWindow = Boolean(!game.combat && lootWindowKey);
   const [renderLootWindow, setRenderLootWindow] = useState(showLootWindow);
   const [lootWindowVisible, setLootWindowVisible] = useState(showLootWindow);
   const [lootSnapshot, setLootSnapshot] = useState(currentTile.items);
@@ -187,10 +219,6 @@ export function App() {
   }, [combatEnemies, game.combat]);
 
   useEffect(() => {
-    if (!lootWindowKey) setDismissedLootKey(null);
-  }, [lootWindowKey]);
-
-  useEffect(() => {
     if (showLootWindow) {
       setLootSnapshot(currentTile.items);
       setRenderLootWindow(true);
@@ -236,14 +264,25 @@ export function App() {
       if (saved?.ui) {
         const ui = saved.ui as {
           windows?: WindowPositions;
-          windowCollapsed?: WindowCollapsedState;
+          windowShown?: WindowVisibilityState;
+          windowCollapsed?: Partial<WindowVisibilityState>;
         } & PersistedUiState;
         if (ui.windows) setWindows({ ...DEFAULT_WINDOWS, ...ui.windows });
-        if (ui.windowCollapsed) {
-          setWindowCollapsed({
-            ...DEFAULT_WINDOW_COLLAPSED,
-            ...ui.windowCollapsed,
+        if (ui.windowShown) {
+          setWindowShown({
+            ...DEFAULT_WINDOW_VISIBILITY,
+            ...ui.windowShown,
           });
+        } else if (ui.windowCollapsed) {
+          setWindowShown({
+            ...DEFAULT_WINDOW_VISIBILITY,
+            ...Object.fromEntries(
+              Object.entries(ui.windowCollapsed).map(([key, collapsed]) => [
+                key,
+                !collapsed,
+              ]),
+            ),
+          } as WindowVisibilityState);
         }
         if (ui.logFilters) {
           setLogFilters({ ...DEFAULT_LOG_FILTERS, ...ui.logFilters });
@@ -261,9 +300,9 @@ export function App() {
     if (!hydrated) return;
     void saveEncryptedState({
       game: { ...game, logs: [] },
-      ui: { windows, windowCollapsed, logFilters },
+      ui: { windows, windowShown, logFilters },
     });
-  }, [game, hydrated, logFilters, windowCollapsed, windows]);
+  }, [game, hydrated, logFilters, windowShown, windows]);
 
   useEffect(() => {
     if (!hostRef.current || appRef.current) return;
@@ -433,9 +472,9 @@ export function App() {
     [],
   );
 
-  const setCollapsedWindow = useCallback(
-    (key: keyof WindowCollapsedState, collapsed: boolean) => {
-      setWindowCollapsed((current) => ({ ...current, [key]: collapsed }));
+  const setWindowVisibility = useCallback(
+    (key: keyof WindowVisibilityState, shown: boolean) => {
+      setWindowShown((current) => ({ ...current, [key]: shown }));
     },
     [],
   );
@@ -582,10 +621,6 @@ export function App() {
     setGame((current) => takeAllTileItems(current));
   }, []);
 
-  const handleCloseLoot = useCallback(() => {
-    if (lootWindowKey) setDismissedLootKey(lootWindowKey);
-  }, [lootWindowKey]);
-
   const handleAttackEnemy = useCallback((enemyId: string) => {
     setGame((current) => attackCombatEnemy(current, enemyId));
   }, []);
@@ -605,45 +640,90 @@ export function App() {
     [showItemTooltip],
   );
 
+  const dockEntries = useMemo(() => {
+    const keys: Array<keyof WindowVisibilityState> = [
+      'hero',
+      'skills',
+      'legend',
+      'hexInfo',
+      'equipment',
+      'inventory',
+    ];
+
+    if (renderLootWindow) keys.push('loot');
+    keys.push('log');
+    if (renderCombatWindow) keys.push('combat');
+
+    return keys.map((key) => ({
+      key,
+      label: WINDOW_LABELS[key].plain,
+      title: WINDOW_LABELS[key],
+      icon: DOCK_WINDOW_ICONS[key],
+      shown: windowShown[key],
+    }));
+  }, [renderCombatWindow, renderLootWindow, windowShown]);
+
+  const toggleDockWindow = useCallback((key: keyof WindowVisibilityState) => {
+    setWindowShown((current) => {
+      return { ...current, [key]: !current[key] };
+    });
+  }, []);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey ||
+        isEditableTarget(event.target)
+      ) {
+        return;
+      }
+
+      const key = WINDOW_HOTKEYS[event.key.toLowerCase()];
+      if (!key) return;
+
+      event.preventDefault();
+      toggleDockWindow(key);
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [toggleDockWindow]);
+
   return (
     <div className={styles.appRoot}>
       <div className={isReady ? undefined : styles.hiddenUntilReady}>
         <div ref={hostRef} className={styles.mapViewport} />
+        <WindowDock entries={dockEntries} onToggle={toggleDockWindow} />
 
         <HeroWindow
           position={windows.hero}
           onMove={handleHeroMove}
-          collapsed={windowCollapsed.hero}
-          onCollapsedChange={(collapsed) =>
-            setCollapsedWindow('hero', collapsed)
-          }
+          visible={windowShown.hero}
+          onClose={() => setWindowVisibility('hero', false)}
           stats={stats}
           hunger={game.player.hunger}
         />
         <SkillsWindow
           position={windows.skills}
           onMove={handleSkillsMove}
-          collapsed={windowCollapsed.skills}
-          onCollapsedChange={(collapsed) =>
-            setCollapsedWindow('skills', collapsed)
-          }
+          visible={windowShown.skills}
+          onClose={() => setWindowVisibility('skills', false)}
           skills={stats.skills}
         />
         <LegendWindow
           position={windows.legend}
           onMove={handleLegendMove}
-          collapsed={windowCollapsed.legend}
-          onCollapsedChange={(collapsed) =>
-            setCollapsedWindow('legend', collapsed)
-          }
+          visible={windowShown.legend}
+          onClose={() => setWindowVisibility('legend', false)}
         />
         <HexInfoWindow
           position={windows.hexInfo}
           onMove={handleHexInfoMove}
-          collapsed={windowCollapsed.hexInfo}
-          onCollapsedChange={(collapsed) =>
-            setCollapsedWindow('hexInfo', collapsed)
-          }
+          visible={windowShown.hexInfo}
+          onClose={() => setWindowVisibility('hexInfo', false)}
           terrain={
             currentTile.terrain.charAt(0).toUpperCase() +
             currentTile.terrain.slice(1)
@@ -672,10 +752,8 @@ export function App() {
         <EquipmentWindow
           position={windows.equipment}
           onMove={handleEquipmentMove}
-          collapsed={windowCollapsed.equipment}
-          onCollapsedChange={(collapsed) =>
-            setCollapsedWindow('equipment', collapsed)
-          }
+          visible={windowShown.equipment}
+          onClose={() => setWindowVisibility('equipment', false)}
           equipment={game.player.equipment}
           onHoverItem={handleEquipmentHover}
           onLeaveItem={closeTooltip}
@@ -685,10 +763,8 @@ export function App() {
         <InventoryWindow
           position={windows.inventory}
           onMove={handleInventoryMove}
-          collapsed={windowCollapsed.inventory}
-          onCollapsedChange={(collapsed) =>
-            setCollapsedWindow('inventory', collapsed)
-          }
+          visible={windowShown.inventory}
+          onClose={() => setWindowVisibility('inventory', false)}
           inventory={game.player.inventory}
           equipment={game.player.equipment}
           onSort={handleSort}
@@ -701,14 +777,10 @@ export function App() {
           <LootWindow
             position={windows.loot}
             onMove={handleLootMove}
-            collapsed={windowCollapsed.loot}
-            onCollapsedChange={(collapsed) =>
-              setCollapsedWindow('loot', collapsed)
-            }
-            visible={lootWindowVisible}
+            visible={windowShown.loot && lootWindowVisible}
             loot={lootSnapshot}
             equipment={game.player.equipment}
-            onClose={handleCloseLoot}
+            onClose={() => setWindowVisibility('loot', false)}
             onTakeAll={handleTakeAllLoot}
             onTakeItem={handleTakeLootItem}
             onHoverItem={showItemTooltip}
@@ -749,10 +821,8 @@ export function App() {
         <LogWindow
           position={windows.log}
           onMove={handleLogMove}
-          collapsed={windowCollapsed.log}
-          onCollapsedChange={(collapsed) =>
-            setCollapsedWindow('log', collapsed)
-          }
+          visible={windowShown.log}
+          onClose={() => setWindowVisibility('log', false)}
           filters={logFilters}
           defaultFilters={DEFAULT_LOG_FILTERS}
           showFilterMenu={showFilterMenu}
@@ -764,11 +834,8 @@ export function App() {
           <CombatWindow
             position={windows.combat}
             onMove={(position) => moveWindow('combat', position)}
-            collapsed={windowCollapsed.combat}
-            onCollapsedChange={(collapsed) =>
-              setCollapsedWindow('combat', collapsed)
-            }
-            visible={combatWindowVisible}
+            visible={windowShown.combat && combatWindowVisible}
+            onClose={() => setWindowVisibility('combat', false)}
             combat={combatSnapshot.combat}
             enemies={combatSnapshot.enemies}
             player={{

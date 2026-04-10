@@ -164,16 +164,16 @@ describe('App', () => {
         },
         ui: {
           windows: { hero: { x: 30, y: 40 } },
-          windowCollapsed: {
-            hero: true,
-            skills: false,
-            legend: false,
-            hexInfo: false,
-            equipment: false,
-            inventory: false,
-            loot: false,
-            log: false,
-            combat: false,
+          windowShown: {
+            hero: false,
+            skills: true,
+            legend: true,
+            hexInfo: true,
+            equipment: true,
+            inventory: true,
+            loot: true,
+            log: true,
+            combat: true,
           },
         },
       });
@@ -188,9 +188,9 @@ describe('App', () => {
     expect(renderScene).toHaveBeenCalled();
     expect(saveEncryptedState).toHaveBeenCalled();
     expect(host.textContent).not.toContain('Loading...');
-    expect(host.textContent).toContain('Hero Info');
-    expect(host.textContent).toContain('Skills');
-    expect(host.textContent).toContain('Hex Info');
+    expect(host.textContent).not.toContain('(C)haracter info');
+    expect(host.textContent).toContain('(S)kills');
+    expect(host.textContent).toContain('(H)ex info');
     expect(host.textContent).not.toContain('old log');
     expect(host.textContent).toContain('MOTD');
     expect(host.textContent).toContain('Rumor:');
@@ -198,14 +198,20 @@ describe('App', () => {
     expect(host.textContent).toContain('Loot');
     expect(host.textContent).toContain('Prospect');
 
-    const heroToggle = Array.from(host.querySelectorAll('button')).find(
-      (button) => button.textContent?.toLowerCase() === 'expand',
-    );
-    expect(heroToggle).not.toBeUndefined();
+    const heroDockButton = host.querySelector(
+      '[aria-label="Toggle Character info window"]',
+    ) as HTMLButtonElement | null;
+    expect(heroDockButton).not.toBeNull();
+    expect(heroDockButton?.getAttribute('aria-pressed')).toBe('false');
+
     await act(async () => {
-      heroToggle?.click();
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'c' }),
+      );
     });
+    expect(host.textContent).toContain('(C)haracter info');
     expect(host.textContent).toContain('Hunger penalty');
+    expect(heroDockButton?.getAttribute('aria-pressed')).toBe('true');
 
     const filterButton = Array.from(host.querySelectorAll('button')).find(
       (button) => button.textContent === 'Filters',
@@ -219,6 +225,24 @@ describe('App', () => {
     await act(async () => {
       checkbox?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
+
+    const logDockButton = host.querySelector(
+      '[aria-label="Toggle Log window"]',
+    ) as HTMLButtonElement | null;
+    expect(logDockButton?.getAttribute('aria-pressed')).toBe('true');
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'g' }),
+      );
+    });
+
+    await act(async () => {
+      vi.advanceTimersByTime(200);
+    });
+
+    expect(host.textContent).not.toContain('MOTD');
+    expect(logDockButton?.getAttribute('aria-pressed')).toBe('false');
 
     const inventoryConsumable = host.querySelector('[aria-label="consumable"]')
       ?.parentElement as HTMLButtonElement | null;
@@ -286,7 +310,7 @@ describe('App', () => {
       expect.objectContaining({
         game: expect.objectContaining({ logs: [] }),
         ui: expect.objectContaining({
-          windowCollapsed: expect.objectContaining({ hero: false }),
+          windowShown: expect.objectContaining({ hero: true }),
         }),
       }),
     );

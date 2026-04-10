@@ -10,7 +10,7 @@ describe('encrypted storage', () => {
       game: { turn: 7, player: { hp: 12 } },
       ui: {
         windows: { hero: { x: 10, y: 20 } },
-        windowCollapsed: { hero: true },
+        windowShown: { hero: true },
       },
     };
 

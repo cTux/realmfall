@@ -1,23 +1,25 @@
 import { memo } from 'react';
 import { DraggableWindow } from '../DraggableWindow';
+import { WINDOW_LABELS, renderWindowLabel } from '../windowLabels';
+import labelStyles from '../windowLabels.module.css';
 import type { SkillsWindowProps } from './types';
 import styles from './styles.module.css';
 
 export const SkillsWindow = memo(function SkillsWindow({
   position,
   onMove,
-  collapsed,
-  onCollapsedChange,
+  visible,
+  onClose,
   skills,
 }: SkillsWindowProps) {
   return (
     <DraggableWindow
-      title="Skills"
+      title={renderWindowLabel(WINDOW_LABELS.skills, labelStyles.hotkey)}
       position={position}
       onMove={onMove}
       className={styles.window}
-      collapsed={collapsed}
-      onCollapsedChange={onCollapsedChange}
+      visible={visible}
+      onClose={onClose}
     >
       <div className={styles.note}>
         Gathering level equals the percent chance to pull +1 extra resource.
