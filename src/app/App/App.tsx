@@ -134,12 +134,18 @@ export function App() {
   const appRef = useRef<Application | null>(null);
   const playerCoordRef = useRef<HexCoord>({ q: 0, r: 0 });
   const gameRef = useRef<GameState>(initialGameRef.current);
+  const visibleTilesRef = useRef(getVisibleTiles(initialGameRef.current));
   const selectedRef = useRef<HexCoord>(initialGameRef.current.player.coord);
   const hoveredMoveRef = useRef<HexCoord | null>(null);
   const worldTimeMsRef = useRef(initialGameRef.current.worldTimeMs);
   const worldTimeTickRef = useRef<number | null>(null);
   const frameCountRef = useRef(0);
   const lastFpsSampleRef = useRef(0);
+  const lastDisplayedWorldMinuteRef = useRef(
+    Math.floor(
+      getWorldTimeMinutesFromTimestamp(initialGameRef.current.worldTimeMs),
+    ),
+  );
   const [game, setGame] = useState<GameState>(initialGameRef.current);
   const [selected, setSelected] = useState<HexCoord>(game.player.coord);
   const [hoveredMove, setHoveredMove] = useState<HexCoord | null>(null);
@@ -241,6 +247,10 @@ export function App() {
   }, [game]);
 
   useEffect(() => {
+    visibleTilesRef.current = visibleTiles;
+  }, [visibleTiles]);
+
+  useEffect(() => {
     let frameId = 0;
 
     const updateHud = (timestamp: number) => {
@@ -250,7 +260,14 @@ export function App() {
       }
       worldTimeMsRef.current %= 60 * 1000;
       worldTimeTickRef.current = timestamp;
-      setWorldTimeMs(worldTimeMsRef.current);
+
+      const displayedWorldMinute = Math.floor(
+        getWorldTimeMinutesFromTimestamp(worldTimeMsRef.current),
+      );
+      if (displayedWorldMinute !== lastDisplayedWorldMinuteRef.current) {
+        lastDisplayedWorldMinuteRef.current = displayedWorldMinute;
+        setWorldTimeMs(worldTimeMsRef.current);
+      }
 
       if (lastFpsSampleRef.current === 0) {
         lastFpsSampleRef.current = timestamp;
@@ -333,6 +350,9 @@ export function App() {
         const loadedGame = normalizeLoadedGame(saved.game as GameState);
         worldTimeMsRef.current = loadedGame.worldTimeMs;
         worldTimeTickRef.current = null;
+        lastDisplayedWorldMinuteRef.current = Math.floor(
+          getWorldTimeMinutesFromTimestamp(loadedGame.worldTimeMs),
+        );
         setWorldTimeMs(loadedGame.worldTimeMs);
         setGame({
           ...loadedGame,
@@ -428,7 +448,7 @@ export function App() {
       renderScene(
         app,
         gameRef.current,
-        getVisibleTiles(gameRef.current),
+        visibleTilesRef.current,
         selectedRef.current,
         hoveredMoveRef.current,
         getWorldTimeMinutesFromTimestamp(worldTimeMsRef.current),
@@ -558,14 +578,14 @@ export function App() {
       visibleTiles,
       selected,
       hoveredMove,
-      worldTimeMinutes,
+      getWorldTimeMinutesFromTimestamp(worldTimeMsRef.current),
     );
-  }, [game, hoveredMove, selected, visibleTiles, worldTimeMinutes]);
+  }, [game, hoveredMove, selected, visibleTiles]);
 
   useEffect(() => {
     setSelected(game.player.coord);
     setHoveredMove(null);
-  }, [game.player.coord.q, game.player.coord.r]);
+  }, [game.player.coord]);
 
   const moveWindow = useCallback(
     (
