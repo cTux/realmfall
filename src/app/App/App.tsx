@@ -68,6 +68,10 @@ import {
 import { rarityColor } from '../../ui/rarity';
 import { Icons } from '../../ui/icons';
 import { renderScene } from '../../ui/world/renderScene';
+import {
+  formatWorldTime,
+  getWorldTimeMinutesFromTimestamp,
+} from '../../ui/world/timeOfDay';
 import { HeroWindow } from '../../ui/components/HeroWindow';
 import { SkillsWindow } from '../../ui/components/SkillsWindow';
 import { LegendWindow } from '../../ui/components/LegendWindow';
@@ -132,6 +136,8 @@ export function App() {
   const gameRef = useRef<GameState>(initialGameRef.current);
   const selectedRef = useRef<HexCoord>(initialGameRef.current.player.coord);
   const hoveredMoveRef = useRef<HexCoord | null>(null);
+  const frameCountRef = useRef(0);
+  const lastFpsSampleRef = useRef(0);
   const [game, setGame] = useState<GameState>(initialGameRef.current);
   const [selected, setSelected] = useState<HexCoord>(game.player.coord);
   const [hoveredMove, setHoveredMove] = useState<HexCoord | null>(null);
@@ -145,6 +151,10 @@ export function App() {
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [itemMenu, setItemMenu] = useState<ItemContextMenuState | null>(null);
+  const [worldClockTimestamp, setWorldClockTimestamp] = useState(() =>
+    Date.now(),
+  );
+  const [fps, setFps] = useState(0);
   const isReady = hydrated && canvasReady;
 
   const stats = useMemo(() => getPlayerStats(game.player), [game.player]);
@@ -202,6 +212,14 @@ export function App() {
     () => game.logs.filter((entry) => logFilters[entry.kind]),
     [game.logs, logFilters],
   );
+  const worldTimeMinutes = useMemo(
+    () => getWorldTimeMinutesFromTimestamp(worldClockTimestamp),
+    [worldClockTimestamp],
+  );
+  const worldTimeLabel = useMemo(
+    () => formatWorldTime(worldTimeMinutes),
+    [worldTimeMinutes],
+  );
   const [renderCombatWindow, setRenderCombatWindow] = useState(
     Boolean(game.combat),
   );
@@ -219,6 +237,29 @@ export function App() {
     playerCoordRef.current = game.player.coord;
     gameRef.current = game;
   }, [game]);
+
+  useEffect(() => {
+    let frameId = 0;
+
+    const updateHud = (timestamp: number) => {
+      setWorldClockTimestamp(timestamp);
+      if (lastFpsSampleRef.current === 0) {
+        lastFpsSampleRef.current = timestamp;
+      }
+
+      const elapsed = timestamp - lastFpsSampleRef.current;
+      if (elapsed >= 250) {
+        setFps(Math.round((frameCountRef.current * 1000) / elapsed));
+        frameCountRef.current = 0;
+        lastFpsSampleRef.current = timestamp;
+      }
+
+      frameId = window.requestAnimationFrame(updateHud);
+    };
+
+    frameId = window.requestAnimationFrame(updateHud);
+    return () => window.cancelAnimationFrame(frameId);
+  }, []);
 
   useEffect(() => {
     selectedRef.current = selected;
@@ -351,12 +392,14 @@ export function App() {
     resize();
 
     const renderFrame = () => {
+      frameCountRef.current += 1;
       renderScene(
         app,
         gameRef.current,
         getVisibleTiles(gameRef.current),
         selectedRef.current,
         hoveredMoveRef.current,
+        getWorldTimeMinutesFromTimestamp(Date.now()),
         performance.now(),
       );
     };
@@ -477,8 +520,15 @@ export function App() {
   useEffect(() => {
     const app = appRef.current;
     if (!app) return;
-    renderScene(app, game, visibleTiles, selected, hoveredMove);
-  }, [game, hoveredMove, selected, visibleTiles]);
+    renderScene(
+      app,
+      game,
+      visibleTiles,
+      selected,
+      hoveredMove,
+      worldTimeMinutes,
+    );
+  }, [game, hoveredMove, selected, visibleTiles, worldTimeMinutes]);
 
   useEffect(() => {
     setSelected(game.player.coord);
@@ -781,6 +831,16 @@ export function App() {
     <div className={styles.appRoot}>
       <div className={isReady ? undefined : styles.hiddenUntilReady}>
         <div ref={hostRef} className={styles.mapViewport} />
+        <div className={styles.worldClock} aria-label="World time">
+          <div className={styles.worldClockMetric}>
+            <span className={styles.worldClockLabel}>World Time</span>
+            <strong className={styles.worldClockValue}>{worldTimeLabel}</strong>
+          </div>
+          <div className={styles.worldClockMetric}>
+            <span className={styles.worldClockLabel}>FPS</span>
+            <strong className={styles.worldClockValue}>{fps}</strong>
+          </div>
+        </div>
         <WindowDock entries={dockEntries} onToggle={toggleDockWindow} />
 
         <HeroWindow

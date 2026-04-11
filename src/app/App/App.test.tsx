@@ -189,6 +189,8 @@ describe('App', () => {
     expect(renderScene).toHaveBeenCalled();
     expect(saveEncryptedState).toHaveBeenCalled();
     expect(host.textContent).not.toContain('Loading...');
+    expect(host.textContent).toContain('World Time');
+    expect(host.textContent).toContain('FPS');
     expect(host.textContent).not.toContain('(C)haracter info');
     expect(host.textContent).toContain('(S)kills');
     expect(host.textContent).toContain('(R)ecipe book');

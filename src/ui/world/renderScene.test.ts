@@ -34,6 +34,7 @@ class MockGraphics extends MockContainer {
   lineStyle = vi.fn();
   drawPolygon = vi.fn();
   drawEllipse = vi.fn();
+  drawRect = vi.fn();
   endFill = vi.fn();
 }
 
@@ -132,15 +133,16 @@ describe('renderScene', () => {
       getVisibleTiles(game),
       { q: 0, r: 1 },
       { q: 1, r: 0 },
+      12 * 60,
     );
 
-    expect(app.stage.children).toHaveLength(4);
+    expect(app.stage.children).toHaveLength(8);
     expect(spriteFrom).toHaveBeenCalled();
     expect(
       spriteFrom.mock.calls.some(([icon]) => typeof icon === 'string'),
     ).toBe(true);
 
-    const labels = app.stage.children[2] as MockContainer;
+    const labels = app.stage.children[4] as MockContainer;
     expect(
       labels.children.some(
         (child) => child instanceof MockText && child.text.startsWith('L'),
