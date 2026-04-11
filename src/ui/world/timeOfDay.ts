@@ -1,8 +1,19 @@
-export const GAME_DAY_MINUTES = 24 * 60;
-export const GAME_DAY_DURATION_MS = 60 * 1000;
-export const MOONRISE_START = 18 * 60;
-export const MOONRISE_END = 20 * 60;
-export const DAYLIGHT_START = 7 * 60;
+import {
+  DAYLIGHT_START,
+  GAME_DAY_DURATION_MS,
+  GAME_DAY_MINUTES,
+  MOONRISE_END,
+  MOONRISE_START,
+  SUNRISE_START,
+} from '../../game/config';
+
+export {
+  DAYLIGHT_START,
+  GAME_DAY_DURATION_MS,
+  GAME_DAY_MINUTES,
+  MOONRISE_END,
+  MOONRISE_START,
+};
 
 interface LightingProfile {
   skyColor: number;
@@ -31,7 +42,6 @@ interface TimeOfDayLighting {
   moonShaftOpacity: number;
 }
 
-const SUNRISE_START = 5 * 60;
 const SUNRISE_END = DAYLIGHT_START;
 const SUNSET_START = MOONRISE_START;
 const SUNSET_END = MOONRISE_END;
@@ -52,7 +62,7 @@ const LIGHTING_KEYFRAMES: Array<{ minute: number; profile: LightingProfile }> =
       },
     },
     {
-      minute: 5 * 60,
+      minute: SUNRISE_START,
       profile: {
         skyColor: 0x06101f,
         overlayColor: 0x020617,

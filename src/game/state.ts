@@ -1,4 +1,21 @@
 import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
+import {
+  ARTIFACT_FORMS,
+  ARTIFACT_PREFIXES,
+  BLOOD_MOON_CHANCE,
+  BLOOD_MOON_RESET_START,
+  BLOOD_MOON_RISE_END,
+  BLOOD_MOON_RISE_START,
+  BLOOD_MOON_SPAWN_RADIUS,
+  BLOOD_MOON_STAT_SCALE,
+  COOKED_FISH_ITEM_NAME,
+  GAME_DAY_MINUTES,
+  MAX_PLAYER_LEVEL,
+  RECIPE_BOOK_ITEM_NAME,
+  STARTING_RECIPE_IDS,
+  TOWN_SEARCH_LIMIT,
+  WORLD_RADIUS,
+} from './config';
 import { createRng } from './random';
 
 export { hexAtPoint, hexDistance } from './hex';
@@ -204,35 +221,8 @@ export const RARITY_ORDER: ItemRarity[] = [
   'legendary',
 ];
 
-const RECIPE_BOOK_ITEM_NAME = 'Recipe Book';
-const COOKED_FISH_ITEM_NAME = 'Cooked Fish';
-const STARTING_RECIPE_IDS = ['cook-cooked-fish'];
-
-const ARTIFACT_PREFIXES = [
-  'Ashen',
-  'Auric',
-  'Blood',
-  'Cinder',
-  'Dawn',
-  'Echo',
-  'Frost',
-  'Gloom',
-  'Iron',
-  'Lunar',
-  'Moss',
-  'Night',
-];
-const ARTIFACT_FORMS = ['Idol', 'Sigil', 'Charm', 'Lens', 'Shard', 'Totem'];
-const TOWN_SEARCH_LIMIT = 24;
-const BLOOD_MOON_SPAWN_RADIUS = 6;
-const BLOOD_MOON_CHANCE = 0.1;
-const BLOOD_MOON_STAT_SCALE = 0.1;
-const BLOOD_MOON_RISE_START = 18 * 60;
-const BLOOD_MOON_RISE_END = 20 * 60;
-const BLOOD_MOON_RESET_START = 7 * 60;
-
 export function createGame(
-  radius = 8,
+  radius = WORLD_RADIUS,
   seed = `world-${Date.now()}`,
 ): GameState {
   const state: GameState = {
@@ -1476,8 +1466,6 @@ function findNearestStructure(
   return undefined;
 }
 
-const MAX_PLAYER_LEVEL = 100;
-
 function levelThreshold(level: number) {
   return 40 + level * 25;
 }
@@ -2537,8 +2525,10 @@ function addLog(state: GameState, kind: LogKind, text: string) {
 }
 
 function normalizeWorldMinutes(worldTimeMinutes: number) {
-  const dayMinutes = 24 * 60;
-  return ((worldTimeMinutes % dayMinutes) + dayMinutes) % dayMinutes;
+  return (
+    ((worldTimeMinutes % GAME_DAY_MINUTES) + GAME_DAY_MINUTES) %
+    GAME_DAY_MINUTES
+  );
 }
 
 function getDayPhase(worldTimeMinutes: number) {

@@ -1,0 +1,51 @@
+{
+  "world": {
+    "radius": 8,
+    "revealRadius": 4,
+    "hexSize": 34
+  },
+  "time": {
+    "dayMinutes": 1440,
+    "dayDurationMs": 60000,
+    "sunriseStart": 300,
+    "daylightStart": 420,
+    "moonriseStart": 1080,
+    "moonriseEnd": 1200
+  },
+  "player": {
+    "maxLevel": 100,
+    "startingRecipeIds": ["cook-cooked-fish"]
+  },
+  "items": {
+    "recipeBookItemName": "Recipe Book",
+    "cookedFishItemName": "Cooked Fish"
+  },
+  "search": {
+    "townLimit": 24
+  },
+  "bloodMoon": {
+    "spawnRadius": 6,
+    "chance": 0.1,
+    "statScale": 0.1,
+    "riseStart": 1080,
+    "riseEnd": 1200,
+    "resetStart": 420
+  },
+  "artifacts": {
+    "prefixes": [
+      "Ashen",
+      "Auric",
+      "Blood",
+      "Cinder",
+      "Dawn",
+      "Echo",
+      "Frost",
+      "Gloom",
+      "Iron",
+      "Lunar",
+      "Moss",
+      "Night"
+    ],
+    "forms": ["Idol", "Sigil", "Charm", "Lens", "Shard", "Totem"]
+  }
+}

@@ -1,8 +1,7 @@
 import type { LogKind } from '../game/state';
+import { HEX_SIZE, WORLD_RADIUS, WORLD_REVEAL_RADIUS } from '../game/config';
 
-export const WORLD_RADIUS = 8;
-export const WORLD_REVEAL_RADIUS = 4;
-export const HEX_SIZE = 34;
+export { WORLD_RADIUS, WORLD_REVEAL_RADIUS, HEX_SIZE };
 
 export interface WindowPosition {
   x: number;
