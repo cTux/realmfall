@@ -1,0 +1,233 @@
+import {
+  Container,
+  Graphics,
+  Sprite,
+  Text,
+  type DisplayObject,
+  type TextStyle,
+} from 'pixi.js';
+
+export interface GraphicsPool {
+  parent: Container;
+  items: Graphics[];
+  used: number;
+}
+
+export interface TextPool {
+  parent: Container;
+  items: Text[];
+  used: number;
+}
+
+export interface ShadowedSpriteEntry {
+  wrapper: Container & DisplayObject;
+  shadows: Sprite[];
+  sprite: Sprite;
+}
+
+export interface ShadowedSpritePool {
+  parent: Container;
+  itemsByIcon: Map<string, ShadowedSpriteEntry[]>;
+  usedByIcon: Map<string, number>;
+}
+
+export interface SpritePool {
+  parent: Container;
+  itemsByIcon: Map<string, Sprite[]>;
+  usedByIcon: Map<string, number>;
+}
+
+export function createGraphicsPool(parent: Container): GraphicsPool {
+  return { parent, items: [], used: 0 };
+}
+
+export function resetGraphicsPool(pool: GraphicsPool) {
+  pool.used = 0;
+}
+
+export function takeGraphics(pool: GraphicsPool) {
+  let graphics = pool.items[pool.used];
+  if (!graphics) {
+    graphics = new Graphics();
+    pool.items.push(graphics);
+    pool.parent.addChild(graphics);
+  }
+  graphics.visible = true;
+  graphics.clear();
+  pool.used += 1;
+  return graphics;
+}
+
+export function finishGraphicsPool(pool: GraphicsPool) {
+  for (let index = pool.used; index < pool.items.length; index += 1) {
+    pool.items[index].visible = false;
+    pool.items[index].clear();
+  }
+}
+
+export function createTextPool(parent: Container): TextPool {
+  return { parent, items: [], used: 0 };
+}
+
+export function resetTextPool(pool: TextPool) {
+  pool.used = 0;
+}
+
+export function takeText(pool: TextPool, style: TextStyle) {
+  let text = pool.items[pool.used];
+  if (!text) {
+    text = new Text('', style);
+    pool.items.push(text);
+    pool.parent.addChild(text);
+  }
+  text.visible = true;
+  text.style = style;
+  pool.used += 1;
+  return text;
+}
+
+export function finishTextPool(pool: TextPool) {
+  for (let index = pool.used; index < pool.items.length; index += 1) {
+    pool.items[index].visible = false;
+  }
+}
+
+export function createShadowedSpritePool(
+  parent: Container,
+): ShadowedSpritePool {
+  return { parent, itemsByIcon: new Map(), usedByIcon: new Map() };
+}
+
+export function resetShadowedSpritePool(pool: ShadowedSpritePool) {
+  pool.usedByIcon.clear();
+}
+
+export function takeShadowedSprite(pool: ShadowedSpritePool, icon: string) {
+  const items = pool.itemsByIcon.get(icon) ?? [];
+  const used = pool.usedByIcon.get(icon) ?? 0;
+
+  let item = items[used];
+  if (!item) {
+    item = createShadowedSprite(icon);
+    items.push(item);
+    pool.itemsByIcon.set(icon, items);
+    pool.parent.addChild(item.wrapper);
+  }
+
+  item.wrapper.visible = true;
+  pool.usedByIcon.set(icon, used + 1);
+  return item;
+}
+
+export function finishShadowedSpritePool(pool: ShadowedSpritePool) {
+  pool.itemsByIcon.forEach((items, icon) => {
+    const used = pool.usedByIcon.get(icon) ?? 0;
+    for (let index = used; index < items.length; index += 1) {
+      items[index].wrapper.visible = false;
+    }
+  });
+}
+
+export function createSpritePool(parent: Container): SpritePool {
+  return { parent, itemsByIcon: new Map(), usedByIcon: new Map() };
+}
+
+export function resetSpritePool(pool: SpritePool) {
+  pool.usedByIcon.clear();
+}
+
+export function takeSprite(pool: SpritePool, icon: string) {
+  const items = pool.itemsByIcon.get(icon) ?? [];
+  const used = pool.usedByIcon.get(icon) ?? 0;
+
+  let item = items[used];
+  if (!item) {
+    item = Sprite.from(icon);
+    item.anchor.set(0.5);
+    items.push(item);
+    pool.itemsByIcon.set(icon, items);
+    pool.parent.addChild(item);
+  }
+
+  item.visible = true;
+  pool.usedByIcon.set(icon, used + 1);
+  return item;
+}
+
+export function finishSpritePool(pool: SpritePool) {
+  pool.itemsByIcon.forEach((items, icon) => {
+    const used = pool.usedByIcon.get(icon) ?? 0;
+    for (let index = used; index < items.length; index += 1) {
+      items[index].visible = false;
+    }
+  });
+}
+
+export function createShadowedSprite(icon: string): ShadowedSpriteEntry {
+  const wrapper = new Container() as DisplayObject & Container;
+  const shadows = [0.4, 0.75, 1].map(() => {
+    const shadow = Sprite.from(icon);
+    shadow.anchor.set(0.5);
+    wrapper.addChild(shadow);
+    return shadow;
+  });
+  const sprite = Sprite.from(icon);
+  sprite.anchor.set(0.5);
+  wrapper.addChild(sprite);
+  return { wrapper, shadows, sprite };
+}
+
+export function configureShadowedSprite(
+  entry: ShadowedSpriteEntry,
+  tint: number,
+  width: number,
+  height: number,
+  alpha: number,
+  shadowOffset: { x: number; y: number },
+  point: { x: number; y: number },
+) {
+  entry.wrapper.visible = true;
+  entry.wrapper.alpha = alpha;
+  entry.wrapper.position.set(point.x, point.y);
+
+  const shadowLayers = [
+    { offset: 0.4, alpha: 0.18, scale: 1.06 },
+    { offset: 0.75, alpha: 0.12, scale: 1.03 },
+    { offset: 1, alpha: 0.08, scale: 1 },
+  ];
+
+  shadowLayers.forEach((layer, index) => {
+    const shadow = entry.shadows[index];
+    shadow.visible = true;
+    shadow.position.set(
+      shadowOffset.x * layer.offset,
+      shadowOffset.y * layer.offset,
+    );
+    shadow.width = width * layer.scale;
+    shadow.height = height * layer.scale;
+    shadow.tint = 0x000000;
+    shadow.alpha = layer.alpha;
+  });
+
+  entry.sprite.visible = true;
+  entry.sprite.width = width;
+  entry.sprite.height = height;
+  entry.sprite.tint = tint;
+  entry.sprite.alpha = 1;
+}
+
+export function configureSprite(
+  sprite: Sprite,
+  tint: number,
+  width: number,
+  height: number,
+  alpha: number,
+  point: { x: number; y: number },
+) {
+  sprite.visible = true;
+  sprite.position.set(point.x, point.y);
+  sprite.width = width;
+  sprite.height = height;
+  sprite.tint = tint;
+  sprite.alpha = alpha;
+}

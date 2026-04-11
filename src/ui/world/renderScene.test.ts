@@ -9,11 +9,13 @@ const spriteFrom = vi.fn((icon: string) => ({
   height: 0,
   tint: 0,
   alpha: 1,
+  visible: true,
 }));
 
 class MockContainer {
   children: unknown[] = [];
   alpha = 1;
+  visible = true;
   position = { set: vi.fn() };
 
   addChild(...children: unknown[]) {
@@ -31,6 +33,7 @@ class MockContainer {
 }
 
 class MockGraphics extends MockContainer {
+  clear = vi.fn();
   beginFill = vi.fn();
   lineStyle = vi.fn();
   drawPolygon = vi.fn();
@@ -46,6 +49,15 @@ class MockText extends MockContainer {
   ) {
     super();
   }
+}
+
+function collectDescendants(root: MockContainer): unknown[] {
+  return root.children.flatMap((child) => {
+    if (child instanceof MockContainer) {
+      return [child, ...collectDescendants(child)];
+    }
+    return [child];
+  });
 }
 
 class MockTextStyle {
@@ -174,7 +186,7 @@ describe('renderScene', () => {
     );
 
     const world = app.stage.children[2] as MockContainer;
-    const selectionOutlines = world.children.filter(
+    const selectionOutlines = collectDescendants(world).filter(
       (child) =>
         child instanceof MockGraphics &&
         child.lineStyle.mock.calls.some(
@@ -211,7 +223,8 @@ describe('renderScene', () => {
     );
 
     const world = app.stage.children[2] as MockContainer;
-    const hoverOutlines = world.children.filter(
+    const worldDescendants = collectDescendants(world);
+    const hoverOutlines = worldDescendants.filter(
       (child) =>
         child instanceof MockGraphics &&
         child.lineStyle.mock.calls.some(
@@ -219,7 +232,7 @@ describe('renderScene', () => {
             width === 3 && color === 0xe2e8f0 && alpha === 0.85,
         ),
     );
-    const brightHoveredFill = world.children.some(
+    const brightHoveredFill = worldDescendants.some(
       (child) =>
         child instanceof MockGraphics &&
         child.beginFill.mock.calls.some(
@@ -277,7 +290,7 @@ describe('renderScene', () => {
 
     const world = app.stage.children[2] as MockContainer;
     const clouds = app.stage.children[6] as MockContainer;
-    const grassSprites = world.children.filter(
+    const grassSprites = collectDescendants(world).filter(
       (child) => (child as { icon?: string }).icon === Icons.HighGrass,
     );
     const cloudYPositions = clouds.children.map(
@@ -292,5 +305,40 @@ describe('renderScene', () => {
     expect(grassSprites.length).toBeGreaterThanOrEqual(4);
     expect(grassSprites.length).toBeLessThanOrEqual(12);
     expect(uniqueCloudYBands.size).toBeGreaterThanOrEqual(8);
+  });
+
+  it('reuses persistent stage layers and sprite instances across renders', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-reuse');
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      400,
+    );
+
+    const initialStageChildren = [...app.stage.children];
+    const initialSpriteCalls = spriteFrom.mock.calls.length;
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      { q: 1, r: 0 },
+      12 * 60,
+      800,
+    );
+
+    expect(app.stage.children).toEqual(initialStageChildren);
+    expect(spriteFrom.mock.calls).toHaveLength(initialSpriteCalls);
   });
 });
