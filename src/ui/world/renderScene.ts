@@ -40,6 +40,7 @@ import {
   takeShadowedSprite,
   takeText,
 } from './renderScenePools';
+import { updateWorldMapFishEyeFilter } from './worldMapFishEye';
 
 export function renderScene(
   app: Application,
@@ -55,6 +56,12 @@ export function renderScene(
 
   const { lighting, origin, sunPosition, moonPosition, shadowOffset } =
     getLightingState(app, worldTimeMinutes, animationMs, state.bloodMoonActive);
+
+  scene.worldMapFilterArea.width = app.screen.width;
+  scene.worldMapFilterArea.height = app.screen.height;
+  scene.worldMapFilters.forEach((filter) => {
+    updateWorldMapFishEyeFilter(filter, app.screen, origin);
+  });
 
   renderSkyLayer(app, scene.skyFill, lighting.skyColor);
   renderAtmosphere(

@@ -21,6 +21,7 @@ import { renderScene } from '../../ui/world/renderScene';
 import { getWorldTimeMinutesFromTimestamp } from '../../ui/world/timeOfDay';
 import { HEX_SIZE } from '../constants';
 import type { TooltipState } from './types';
+import { mapWorldMapFishEyeDisplayPointToSourcePoint } from '../../ui/world/worldMapFishEye';
 
 interface UsePixiWorldArgs {
   game: GameState;
@@ -109,9 +110,16 @@ export function usePixiWorld({
 
     const onPointerDown = (event: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      const clickedOffset = hexAtPoint(x, y, {
+      const displayPoint = {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+      };
+      const sourcePoint = mapWorldMapFishEyeDisplayPointToSourcePoint(
+        displayPoint,
+        app.screen,
+        { x: app.screen.width / 2, y: app.screen.height / 2 },
+      );
+      const clickedOffset = hexAtPoint(sourcePoint.x, sourcePoint.y, {
         centerX: app.screen.width / 2,
         centerY: app.screen.height / 2,
         size: HEX_SIZE,
@@ -140,9 +148,16 @@ export function usePixiWorld({
 
     const onPointerMove = (event: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      const hoveredOffset = hexAtPoint(x, y, {
+      const displayPoint = {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+      };
+      const sourcePoint = mapWorldMapFishEyeDisplayPointToSourcePoint(
+        displayPoint,
+        app.screen,
+        { x: app.screen.width / 2, y: app.screen.height / 2 },
+      );
+      const hoveredOffset = hexAtPoint(sourcePoint.x, sourcePoint.y, {
         centerX: app.screen.width / 2,
         centerY: app.screen.height / 2,
         size: HEX_SIZE,

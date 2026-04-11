@@ -64,10 +64,29 @@ class MockTextStyle {
   constructor(public value: unknown) {}
 }
 
+class MockFilter {
+  constructor(
+    public vertexSrc: string | undefined,
+    public fragmentSrc: string,
+    public uniforms: Record<string, unknown>,
+  ) {}
+}
+
+class MockRectangle {
+  constructor(
+    public x: number,
+    public y: number,
+    public width: number,
+    public height: number,
+  ) {}
+}
+
 vi.mock('pixi.js', () => ({
   BLEND_MODES: { ADD: 'add' },
   Container: MockContainer,
+  Filter: MockFilter,
   Graphics: MockGraphics,
+  Rectangle: MockRectangle,
   Sprite: { from: spriteFrom },
   Text: MockText,
   TextStyle: MockTextStyle,

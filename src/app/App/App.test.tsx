@@ -1,6 +1,8 @@
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { createGame } from '../../game/state';
+import { tileToPoint } from '../../ui/world/renderSceneMath';
+import { mapWorldMapFishEyeSourcePointToDisplayPoint } from '../../ui/world/worldMapFishEye';
 
 const renderScene = vi.fn();
 const loadEncryptedState = vi.fn();
@@ -14,25 +16,28 @@ class MockStage {
   addChild() {}
 }
 
-class MockApplication {
-  stage = new MockStage();
-  screen = { width: 800, height: 600 };
-  renderer = { resize: vi.fn() };
-  ticker = { add: vi.fn(), remove: vi.fn() };
-  view = document.createElement('canvas');
-  destroy = vi.fn();
+vi.mock('pixi.js', () => {
+  class MockApplication {
+    stage = new MockStage();
+    screen = { width: 800, height: 600 };
+    renderer = { resize: vi.fn() };
+    ticker = { add: vi.fn(), remove: vi.fn() };
+    view = document.createElement('canvas');
+    destroy = vi.fn();
 
-  constructor(options: { width: number; height: number }) {
-    this.screen = { width: options.width, height: options.height };
-    Object.defineProperty(this.view, 'getBoundingClientRect', {
-      value: () => ({ left: 0, top: 0, width: 800, height: 600 }),
-    });
+    constructor(options: { width: number; height: number }) {
+      this.screen = { width: options.width, height: options.height };
+      Object.defineProperty(this.view, 'getBoundingClientRect', {
+        value: () => ({ left: 0, top: 0, width: 800, height: 600 }),
+      });
+    }
   }
-}
 
-vi.mock('pixi.js', () => ({
-  Application: MockApplication,
-}));
+  return {
+    Application: MockApplication,
+    Filter: class MockFilter {},
+  };
+});
 
 vi.mock('../../persistence/storage', () => ({
   loadEncryptedState,
@@ -296,8 +301,26 @@ describe('App', () => {
 
     const canvas = host.querySelector('canvas');
     expect(canvas).not.toBeNull();
-    const adjacentX = 400 + Math.sqrt(3) * 34;
-    const adjacentY = 300;
+    const screenCenter = {
+      x: Math.max(window.innerWidth, 640) / 2,
+      y: Math.max(window.innerHeight, 480) / 2,
+    };
+    const adjacentPoint = tileToPoint(
+      { q: 1, r: 0 },
+      screenCenter.x,
+      screenCenter.y,
+      34,
+    );
+    const adjacentDisplayPoint = mapWorldMapFishEyeSourcePointToDisplayPoint(
+      adjacentPoint,
+      {
+        width: Math.max(window.innerWidth, 640),
+        height: Math.max(window.innerHeight, 480),
+      },
+      screenCenter,
+    );
+    const adjacentX = adjacentDisplayPoint.x;
+    const adjacentY = adjacentDisplayPoint.y;
 
     await act(async () => {
       canvas?.dispatchEvent(

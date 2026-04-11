@@ -1,4 +1,10 @@
-import { Container, Graphics, TextStyle, type Application } from 'pixi.js';
+import {
+  Container,
+  Graphics,
+  Rectangle,
+  TextStyle,
+  type Application,
+} from 'pixi.js';
 import { Icons } from '../icons';
 import {
   createGraphicsPool,
@@ -20,6 +26,10 @@ import {
   type SpritePool,
   type TextPool,
 } from './renderScenePools';
+import {
+  createWorldMapFishEyeFilter,
+  type WorldMapFishEyeFilter,
+} from './worldMapFishEye';
 
 const SCENE_CACHE_KEY = Symbol('renderSceneCache');
 
@@ -40,6 +50,11 @@ type CachedApplication = Application & { [SCENE_CACHE_KEY]?: SceneCache };
 export interface SceneCache {
   skyFill: Graphics;
   overlayFill: Graphics;
+  world: Container;
+  waterfalls: Container;
+  labels: Container;
+  worldMapFilterArea: Rectangle;
+  worldMapFilters: WorldMapFishEyeFilter[];
   atmosphereShaftGraphics: GraphicsPool;
   atmosphereCelestialGraphics: GraphicsPool;
   worldGroundGraphics: GraphicsPool;
@@ -71,6 +86,24 @@ export function getSceneCache(app: Application) {
   const clouds = new Container();
   const overlay = new Container();
 
+  const worldMapFilterArea = new Rectangle(
+    0,
+    0,
+    app.screen.width,
+    app.screen.height,
+  );
+  const worldMapFilters = [
+    createWorldMapFishEyeFilter(),
+    createWorldMapFishEyeFilter(),
+    createWorldMapFishEyeFilter(),
+  ];
+  world.filters = [worldMapFilters[0]];
+  waterfalls.filters = [worldMapFilters[1]];
+  labels.filters = [worldMapFilters[2]];
+  world.filterArea = worldMapFilterArea;
+  waterfalls.filterArea = worldMapFilterArea;
+  labels.filterArea = worldMapFilterArea;
+
   world.addChild(worldGround, worldDetail, worldMarkers, worldPlayer);
   app.stage.addChild(
     sky,
@@ -96,6 +129,11 @@ export function getSceneCache(app: Application) {
   const scene: SceneCache = {
     skyFill,
     overlayFill,
+    world,
+    waterfalls,
+    labels,
+    worldMapFilterArea,
+    worldMapFilters,
     atmosphereShaftGraphics: createGraphicsPool(atmosphereShafts),
     atmosphereCelestialGraphics: createGraphicsPool(atmosphereCelestials),
     worldGroundGraphics: createGraphicsPool(worldGround),
