@@ -76,9 +76,12 @@ export interface Enemy {
   name: string;
   coord: HexCoord;
   tier: number;
+  baseMaxHp?: number;
   hp: number;
   maxHp: number;
+  baseAttack?: number;
   attack: number;
+  baseDefense?: number;
   defense: number;
   xp: number;
   elite: boolean;
@@ -149,6 +152,10 @@ export interface GameState {
   radius: number;
   turn: number;
   worldTimeMs: number;
+  dayPhase: 'day' | 'night';
+  bloodMoonActive: boolean;
+  bloodMoonCheckedTonight: boolean;
+  bloodMoonCycle: number;
   gameOver: boolean;
   logSequence: number;
   logs: LogEntry[];
@@ -217,6 +224,12 @@ const ARTIFACT_PREFIXES = [
 ];
 const ARTIFACT_FORMS = ['Idol', 'Sigil', 'Charm', 'Lens', 'Shard', 'Totem'];
 const TOWN_SEARCH_LIMIT = 24;
+const BLOOD_MOON_SPAWN_RADIUS = 6;
+const BLOOD_MOON_CHANCE = 0.1;
+const BLOOD_MOON_STAT_SCALE = 0.1;
+const BLOOD_MOON_RISE_START = 18 * 60;
+const BLOOD_MOON_RISE_END = 20 * 60;
+const BLOOD_MOON_RESET_START = 7 * 60;
 
 export function createGame(
   radius = 8,
@@ -227,6 +240,10 @@ export function createGame(
     radius,
     turn: 0,
     worldTimeMs: 0,
+    dayPhase: 'night',
+    bloodMoonActive: false,
+    bloodMoonCheckedTonight: false,
+    bloodMoonCycle: 0,
     gameOver: false,
     logSequence: 3,
     logs: createFreshLogs(seed),
@@ -316,6 +333,7 @@ export function getEnemiesAt(state: GameState, coord: HexCoord) {
           tile.terrain,
           enemyIndexFromId(enemyId),
           tile.structure,
+          state.bloodMoonActive,
         ),
     )
     .filter(Boolean);
@@ -411,6 +429,71 @@ export function moveToTile(state: GameState, target: HexCoord): GameState {
   return next;
 }
 
+export function syncBloodMoon(
+  state: GameState,
+  worldTimeMinutes: number,
+): GameState {
+  const minutes = normalizeWorldMinutes(worldTimeMinutes);
+  const phase = getDayPhase(minutes);
+
+  if (state.dayPhase !== phase) {
+    const next = clone(state);
+    next.worldTimeMs = worldTimeMsFromMinutes(minutes);
+    next.dayPhase = phase;
+    addLog(
+      next,
+      'system',
+      phase === 'night'
+        ? 'Night falls across the wilds.'
+        : 'Morning breaks over the wilds.',
+    );
+    return syncBloodMoon(next, minutes);
+  }
+
+  if (isBloodMoonRiseWindow(minutes)) {
+    if (state.bloodMoonCheckedTonight) return state;
+
+    const next = clone(state);
+    next.worldTimeMs = worldTimeMsFromMinutes(minutes);
+    next.bloodMoonCheckedTonight = true;
+
+    const rng = createRng(`${state.seed}:blood-moon:${state.bloodMoonCycle}`);
+    if (rng() >= BLOOD_MOON_CHANCE) return next;
+
+    next.bloodMoonActive = true;
+    syncEnemyBloodMoonState(next, true);
+    const spawnedCount = spawnBloodMoonEnemies(next);
+    addLog(next, 'combat', 'Blood moon begins. A red hunger sweeps the wilds.');
+    if (spawnedCount > 0) {
+      addLog(
+        next,
+        'combat',
+        `Blood moon horrors gather nearby (${spawnedCount} foe${spawnedCount === 1 ? '' : 's'}).`,
+      );
+    }
+    return next;
+  }
+
+  if (
+    phase === 'day' &&
+    (state.bloodMoonActive || state.bloodMoonCheckedTonight)
+  ) {
+    const next = clone(state);
+    next.worldTimeMs = worldTimeMsFromMinutes(minutes);
+    const wasBloodMoonActive = next.bloodMoonActive;
+    next.bloodMoonActive = false;
+    next.bloodMoonCheckedTonight = false;
+    next.bloodMoonCycle += 1;
+    syncEnemyBloodMoonState(next, false);
+    if (wasBloodMoonActive) {
+      addLog(next, 'combat', 'Blood moon ends. The night loosens its grip.');
+    }
+    return next;
+  }
+
+  return state;
+}
+
 export function attackCombatEnemy(
   state: GameState,
   enemyId: string,
@@ -430,6 +513,7 @@ export function attackCombatEnemy(
     gainXp(next, enemy.xp);
     maybeDropEnemyGold(next, enemy);
     maybeDropEnemyRecipe(next, enemy);
+    maybeDropBloodMoonLoot(next, enemy);
     maybeSkinEnemy(next, enemy);
     addLog(next, 'combat', `You defeated the ${enemy.name}.`);
     delete next.enemies[enemy.id];
@@ -864,6 +948,7 @@ function ensureTileState(state: GameState, coord: HexCoord) {
         tile.terrain,
         enemyIndexFromId(enemyId),
         tile.structure,
+        state.bloodMoonActive,
       );
     }
   });
@@ -1025,26 +1110,32 @@ function makeEnemy(
   terrain: Terrain,
   index = 0,
   structure?: StructureType,
+  bloodMoonActive = false,
 ): Enemy {
   const tier = terrainTier(coord, terrain) + (structure === 'dungeon' ? 2 : 0);
   const roll = noise(`${seed}:enemy:type:${index}`, coord);
   const elite = structure === 'dungeon';
-  const hp = 8 + tier * 6 + (elite ? 10 : 0);
-  const attack = 2 + tier * 2 + (elite ? 3 : 0);
-  const defense = 1 + tier + (elite ? 2 : 0);
-
-  return {
+  const baseMaxHp = 8 + tier * 6 + (elite ? 10 : 0);
+  const baseAttack = 2 + tier * 2 + (elite ? 3 : 0);
+  const baseDefense = 1 + tier + (elite ? 2 : 0);
+  const enemy: Enemy = {
     id: enemyKey(coord, index),
     name: pickEnemyName(terrain, roll, elite),
     coord,
     tier: elite ? tier + 1 : tier,
-    maxHp: hp,
-    hp,
-    attack,
-    defense,
+    baseMaxHp,
+    maxHp: baseMaxHp,
+    hp: baseMaxHp,
+    baseAttack,
+    attack: baseAttack,
+    baseDefense,
+    defense: baseDefense,
     xp: 18 + tier * 14 + (elite ? 25 : 0),
     elite,
   };
+
+  setEnemyBloodMoonState(enemy, bloodMoonActive);
+  return enemy;
 }
 
 function makeWeapon(
@@ -1647,19 +1738,26 @@ function makeResourceStack(name: string, tier: number, quantity: number): Item {
 
 function maybeDropEnemyGold(state: GameState, enemy: Enemy) {
   const rng = createRng(`${state.seed}:enemy-gold:${enemy.id}:${state.turn}`);
-  const chance = enemy.elite ? 0.85 : Math.min(0.7, 0.22 + enemy.tier * 0.06);
+  const chance = state.bloodMoonActive
+    ? 1
+    : enemy.elite
+      ? 0.85
+      : Math.min(0.7, 0.22 + enemy.tier * 0.06);
   if (rng() > chance) return;
 
   const quantity = Math.max(
     1,
     Math.floor(enemy.tier + rng() * (enemy.elite ? 10 : 5)),
   );
+  const bloodMoonQuantity = state.bloodMoonActive
+    ? Math.max(quantity + enemy.tier, Math.ceil(quantity * 2.5))
+    : quantity;
   ensureTileState(state, enemy.coord);
   const key = hexKey(enemy.coord);
   const tile = state.tiles[key];
-  addItemToInventory(tile.items, makeGoldStack(quantity));
+  addItemToInventory(tile.items, makeGoldStack(bloodMoonQuantity));
   state.tiles[key] = { ...tile, items: [...tile.items] };
-  addLog(state, 'loot', `${enemy.name} dropped ${quantity} gold.`);
+  addLog(state, 'loot', `${enemy.name} dropped ${bloodMoonQuantity} gold.`);
 }
 
 function maybeDropEnemyRecipe(state: GameState, enemy: Enemy) {
@@ -1669,7 +1767,14 @@ function maybeDropEnemyRecipe(state: GameState, enemy: Enemy) {
   if (unlearnedRecipes.length === 0) return;
 
   const rng = createRng(`${state.seed}:enemy-recipe:${enemy.id}:${state.turn}`);
-  const chance = enemy.elite ? 0.45 : Math.min(0.3, 0.08 + enemy.tier * 0.025);
+  const chance = state.bloodMoonActive
+    ? Math.min(
+        1,
+        (enemy.elite ? 0.45 : Math.min(0.3, 0.08 + enemy.tier * 0.025)) + 0.25,
+      )
+    : enemy.elite
+      ? 0.45
+      : Math.min(0.3, 0.08 + enemy.tier * 0.025);
   if (rng() >= chance) return;
 
   const recipe = unlearnedRecipes[Math.floor(rng() * unlearnedRecipes.length)];
@@ -1681,13 +1786,41 @@ function maybeDropEnemyRecipe(state: GameState, enemy: Enemy) {
   addLog(state, 'loot', `${enemy.name} dropped Recipe: ${recipe.name}.`);
 }
 
+function maybeDropBloodMoonLoot(state: GameState, enemy: Enemy) {
+  if (!state.bloodMoonActive) return;
+
+  ensureTileState(state, enemy.coord);
+  const key = hexKey(enemy.coord);
+  const tile = state.tiles[key];
+  const baseTier = Math.max(1, enemy.tier + (enemy.elite ? 1 : 0));
+  const minimumRarity = enemy.elite ? 'epic' : 'rare';
+  const firstDrop = makeBloodMoonDrop(state, enemy, 0, baseTier, minimumRarity);
+  addItemToInventory(tile.items, firstDrop);
+
+  const rng = createRng(
+    `${state.seed}:blood-moon-loot:${enemy.id}:${state.turn}`,
+  );
+  if (enemy.elite || rng() < 0.45) {
+    addItemToInventory(
+      tile.items,
+      makeBloodMoonDrop(state, enemy, 1, baseTier + 1, minimumRarity),
+    );
+  }
+
+  state.tiles[key] = { ...tile, items: [...tile.items] };
+  addLog(state, 'loot', `${enemy.name} left blood moon spoils behind.`);
+}
+
 function maybeSkinEnemy(state: GameState, enemy: Enemy) {
   if (!isAnimalEnemy(enemy.name)) return;
 
   ensureTileState(state, enemy.coord);
   const key = hexKey(enemy.coord);
   const tile = state.tiles[key];
-  const quantity = Math.max(1, Math.ceil(enemy.tier / 2));
+  const quantity = Math.max(
+    1,
+    Math.ceil(enemy.tier / 2) + (state.bloodMoonActive ? 1 : 0),
+  );
   addItemToInventory(
     tile.items,
     makeResourceStack('Leather Scraps', enemy.tier, quantity),
@@ -2398,9 +2531,140 @@ function createInitialLogs(seed: string): LogEntry[] {
 function addLog(state: GameState, kind: LogKind, text: string) {
   state.logSequence += 1;
   state.logs = [
-    makeLog(state.logSequence, kind, state.turn, text),
+    makeLog(state.logSequence, kind, state.turn, text, state.worldTimeMs),
     ...state.logs,
   ].slice(0, 100);
+}
+
+function normalizeWorldMinutes(worldTimeMinutes: number) {
+  const dayMinutes = 24 * 60;
+  return ((worldTimeMinutes % dayMinutes) + dayMinutes) % dayMinutes;
+}
+
+function getDayPhase(worldTimeMinutes: number) {
+  return worldTimeMinutes >= BLOOD_MOON_RISE_START ||
+    worldTimeMinutes < BLOOD_MOON_RESET_START
+    ? 'night'
+    : 'day';
+}
+
+function isBloodMoonRiseWindow(worldTimeMinutes: number) {
+  return (
+    worldTimeMinutes >= BLOOD_MOON_RISE_START &&
+    worldTimeMinutes < BLOOD_MOON_RISE_END
+  );
+}
+
+function spawnBloodMoonEnemies(state: GameState) {
+  let spawned = 0;
+
+  for (
+    let dq = -BLOOD_MOON_SPAWN_RADIUS;
+    dq <= BLOOD_MOON_SPAWN_RADIUS;
+    dq += 1
+  ) {
+    for (
+      let dr = -BLOOD_MOON_SPAWN_RADIUS;
+      dr <= BLOOD_MOON_SPAWN_RADIUS;
+      dr += 1
+    ) {
+      const coord = {
+        q: state.player.coord.q + dq,
+        r: state.player.coord.r + dr,
+      };
+      const distance = hexDistance(state.player.coord, coord);
+      if (distance === 0 || distance > BLOOD_MOON_SPAWN_RADIUS) continue;
+
+      ensureTileState(state, coord);
+      const key = hexKey(coord);
+      const tile = state.tiles[key];
+      if (!canSpawnBloodMoonEnemiesOnTile(tile)) continue;
+
+      const rng = createRng(
+        `${state.seed}:blood-moon-spawn:${state.bloodMoonCycle}:${key}`,
+      );
+      const spawnChance = distance <= 2 ? 0.82 : distance <= 4 ? 0.58 : 0.36;
+      if (rng() >= spawnChance) continue;
+
+      const count = 1 + Math.floor(rng() * (distance <= 2 ? 3 : 2));
+      let nextIndex = nextEnemySpawnIndex(tile.enemyIds);
+      for (let index = 0; index < count; index += 1) {
+        const enemy = makeEnemy(
+          state.seed,
+          coord,
+          tile.terrain,
+          nextIndex,
+          tile.structure,
+          true,
+        );
+        tile.enemyIds.push(enemy.id);
+        state.enemies[enemy.id] = enemy;
+        nextIndex += 1;
+        spawned += 1;
+      }
+
+      state.tiles[key] = { ...tile, enemyIds: [...tile.enemyIds] };
+    }
+  }
+
+  return spawned;
+}
+
+function canSpawnBloodMoonEnemiesOnTile(tile: Tile) {
+  if (!isPassable(tile.terrain)) return false;
+  if (tile.structure && tile.structure !== 'dungeon') return false;
+  return true;
+}
+
+function nextEnemySpawnIndex(enemyIds: string[]) {
+  return (
+    enemyIds.reduce(
+      (highest, enemyId) => Math.max(highest, enemyIndexFromId(enemyId)),
+      -1,
+    ) + 1
+  );
+}
+
+function syncEnemyBloodMoonState(state: GameState, active: boolean) {
+  Object.values(state.enemies).forEach((enemy) => {
+    setEnemyBloodMoonState(enemy, active);
+  });
+}
+
+function setEnemyBloodMoonState(enemy: Enemy, active: boolean) {
+  const baseMaxHp = enemy.baseMaxHp ?? enemy.maxHp;
+  const baseAttack = enemy.baseAttack ?? enemy.attack;
+  const baseDefense = enemy.baseDefense ?? enemy.defense;
+  const currentRatio = enemy.maxHp > 0 ? enemy.hp / enemy.maxHp : 1;
+  const maxHp = active ? scaledBloodMoonStat(baseMaxHp) : baseMaxHp;
+
+  enemy.baseMaxHp = baseMaxHp;
+  enemy.baseAttack = baseAttack;
+  enemy.baseDefense = baseDefense;
+  enemy.maxHp = maxHp;
+  enemy.hp = Math.max(0, Math.min(maxHp, Math.round(maxHp * currentRatio)));
+  enemy.attack = active ? scaledBloodMoonStat(baseAttack) : baseAttack;
+  enemy.defense = active ? scaledBloodMoonStat(baseDefense) : baseDefense;
+}
+
+function scaledBloodMoonStat(value: number) {
+  return Math.max(1, Math.round(value * BLOOD_MOON_STAT_SCALE));
+}
+
+function makeBloodMoonDrop(
+  state: GameState,
+  enemy: Enemy,
+  index: number,
+  tier: number,
+  minimumRarity: ItemRarity,
+) {
+  const coord = enemy.coord;
+  const seed = `${state.seed}:blood-moon-drop:${enemy.id}:${state.turn}:${index}`;
+  const roll = noise(`${seed}:roll`, coord);
+  if (roll > 0.8) return makeArtifact(seed, coord, tier, minimumRarity);
+  if (roll > 0.5) return makeWeapon(seed, coord, tier, minimumRarity);
+  if (roll > 0.25) return makeOffhand(seed, coord, tier, minimumRarity);
+  return makeArmor(seed, coord, tier, minimumRarity);
 }
 
 function makeLog(
@@ -2408,8 +2672,29 @@ function makeLog(
   kind: LogKind,
   turn: number,
   text: string,
+  worldTimeMs = 0,
 ): LogEntry {
-  return { id: `l-${sequence}`, kind, text, turn };
+  return {
+    id: `l-${sequence}`,
+    kind,
+    text: `${formatLogPrefix(worldTimeMs)} ${text}`,
+    turn,
+  };
+}
+
+function formatLogPrefix(worldTimeMs: number) {
+  const totalMinutes = normalizeWorldMinutes((worldTimeMs / 60000) * 1440);
+  const hours = Math.floor(totalMinutes / 60)
+    .toString()
+    .padStart(2, '0');
+  const minutes = Math.floor(totalMinutes % 60)
+    .toString()
+    .padStart(2, '0');
+  return `[${hours}:${minutes}]`;
+}
+
+function worldTimeMsFromMinutes(worldTimeMinutes: number) {
+  return (normalizeWorldMinutes(worldTimeMinutes) / 1440) * 60000;
 }
 
 function rumorForSeed(seed: string) {

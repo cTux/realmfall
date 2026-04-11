@@ -1,5 +1,8 @@
 export const GAME_DAY_MINUTES = 24 * 60;
 export const GAME_DAY_DURATION_MS = 60 * 1000;
+export const MOONRISE_START = 18 * 60;
+export const MOONRISE_END = 20 * 60;
+export const DAYLIGHT_START = 7 * 60;
 
 interface LightingProfile {
   skyColor: number;
@@ -12,10 +15,26 @@ interface LightingProfile {
   cloudAlphaBoost: number;
 }
 
+interface TimeOfDayLighting {
+  skyColor: number;
+  overlayColor: number;
+  overlayAlpha: number;
+  ambientBrightness: number;
+  shaftAlpha: number;
+  celestialBody: 'sun' | 'moon';
+  celestialTint: number;
+  celestialAlpha: number;
+  cloudAlphaBoost: number;
+  sunOpacity: number;
+  moonOpacity: number;
+  sunShaftOpacity: number;
+  moonShaftOpacity: number;
+}
+
 const SUNRISE_START = 5 * 60;
-const SUNRISE_END = 7 * 60;
-const SUNSET_START = 18 * 60;
-const SUNSET_END = 20 * 60;
+const SUNRISE_END = DAYLIGHT_START;
+const SUNSET_START = MOONRISE_START;
+const SUNSET_END = MOONRISE_END;
 
 const LIGHTING_KEYFRAMES: Array<{ minute: number; profile: LightingProfile }> =
   [
@@ -97,19 +116,6 @@ const LIGHTING_KEYFRAMES: Array<{ minute: number; profile: LightingProfile }> =
         cloudAlphaBoost: -0.02,
       },
     },
-    {
-      minute: GAME_DAY_MINUTES,
-      profile: {
-        skyColor: 0x020617,
-        overlayColor: 0x020617,
-        overlayAlpha: 0.48,
-        ambientBrightness: 0.52,
-        shaftAlpha: 0.08,
-        celestialTint: 0xdbeafe,
-        celestialAlpha: 0.62,
-        cloudAlphaBoost: -0.04,
-      },
-    },
   ];
 
 export function getWorldTimeMinutesFromTimestamp(timestampMs: number) {
@@ -130,69 +136,46 @@ export function formatWorldTime(totalMinutes: number) {
     .padStart(2, '0')}`;
 }
 
-export function getTimeOfDayLighting(totalMinutes: number) {
+export function getTimeOfDayLighting(
+  totalMinutes: number,
+  options?: { bloodMoon?: boolean },
+): TimeOfDayLighting {
   const minutes =
     ((totalMinutes % GAME_DAY_MINUTES) + GAME_DAY_MINUTES) % GAME_DAY_MINUTES;
-  const nextIndex = LIGHTING_KEYFRAMES.findIndex(
-    (keyframe) => keyframe.minute >= minutes,
-  );
-  const upperIndex = nextIndex <= 0 ? 1 : nextIndex;
-  const lower = LIGHTING_KEYFRAMES[upperIndex - 1];
-  const upper = LIGHTING_KEYFRAMES[upperIndex];
-  const segmentProgress =
-    (minutes - lower.minute) / Math.max(1, upper.minute - lower.minute);
-  const progress = smoothstep(segmentProgress);
+  const profile = sampleLightingProfile(minutes);
   const sunOpacity = getSunOpacity(minutes);
   const moonOpacity = getMoonOpacity(minutes);
 
-  return {
-    skyColor: mixColor(
-      lower.profile.skyColor,
-      upper.profile.skyColor,
-      progress,
-    ),
-    overlayColor: mixColor(
-      lower.profile.overlayColor,
-      upper.profile.overlayColor,
-      progress,
-    ),
-    overlayAlpha: lerp(
-      lower.profile.overlayAlpha,
-      upper.profile.overlayAlpha,
-      progress,
-    ),
-    ambientBrightness: lerp(
-      lower.profile.ambientBrightness,
-      upper.profile.ambientBrightness,
-      progress,
-    ),
-    shaftAlpha: lerp(
-      lower.profile.shaftAlpha,
-      upper.profile.shaftAlpha,
-      progress,
-    ),
+  const lighting = {
+    skyColor: profile.skyColor,
+    overlayColor: profile.overlayColor,
+    overlayAlpha: profile.overlayAlpha,
+    ambientBrightness: profile.ambientBrightness,
+    shaftAlpha: profile.shaftAlpha,
     celestialBody:
       sunOpacity >= moonOpacity ? ('sun' as const) : ('moon' as const),
-    celestialTint: mixColor(
-      lower.profile.celestialTint,
-      upper.profile.celestialTint,
-      progress,
-    ),
-    celestialAlpha: lerp(
-      lower.profile.celestialAlpha,
-      upper.profile.celestialAlpha,
-      progress,
-    ),
-    cloudAlphaBoost: lerp(
-      lower.profile.cloudAlphaBoost,
-      upper.profile.cloudAlphaBoost,
-      progress,
-    ),
+    celestialTint: profile.celestialTint,
+    celestialAlpha: profile.celestialAlpha,
+    cloudAlphaBoost: profile.cloudAlphaBoost,
     sunOpacity,
     moonOpacity,
-    sunShaftOpacity: sunOpacity * lerp(0.35, 1, progress),
-    moonShaftOpacity: moonOpacity * lerp(0.2, 0.55, 1 - progress),
+    sunShaftOpacity: sunOpacity * smoothLerp(0.35, 1, sunOpacity),
+    moonShaftOpacity: moonOpacity * smoothLerp(0.2, 0.55, moonOpacity),
   };
+
+  return options?.bloodMoon ? applyBloodMoonLighting(lighting) : lighting;
+}
+
+export function isMoonRising(totalMinutes: number) {
+  const minutes =
+    ((totalMinutes % GAME_DAY_MINUTES) + GAME_DAY_MINUTES) % GAME_DAY_MINUTES;
+  return minutes >= MOONRISE_START && minutes < MOONRISE_END;
+}
+
+export function isDaylight(totalMinutes: number) {
+  const minutes =
+    ((totalMinutes % GAME_DAY_MINUTES) + GAME_DAY_MINUTES) % GAME_DAY_MINUTES;
+  return minutes >= DAYLIGHT_START && minutes < MOONRISE_START;
 }
 
 function getSunOpacity(minutes: number) {
@@ -224,9 +207,18 @@ function lerp(start: number, end: number, progress: number) {
   return start + (end - start) * clamp(progress);
 }
 
+function smoothLerp(start: number, end: number, progress: number) {
+  return lerp(start, end, smootherstep(progress));
+}
+
 function smoothstep(progress: number) {
   const amount = clamp(progress);
   return amount * amount * (3 - 2 * amount);
+}
+
+function smootherstep(progress: number) {
+  const amount = clamp(progress);
+  return amount * amount * amount * (amount * (amount * 6 - 15) + 10);
 }
 
 function clamp(value: number) {
@@ -235,18 +227,193 @@ function clamp(value: number) {
 
 function mixColor(from: number, to: number, progress: number) {
   const amount = clamp(progress);
-  const fromR = (from >> 16) & 0xff;
-  const fromG = (from >> 8) & 0xff;
-  const fromB = from & 0xff;
-  const toR = (to >> 16) & 0xff;
-  const toG = (to >> 8) & 0xff;
-  const toB = to & 0xff;
+  const fromRgb = unpackColor(from).map(toLinearChannel);
+  const toRgb = unpackColor(to).map(toLinearChannel);
 
-  const red = Math.round(lerp(fromR, toR, amount));
-  const green = Math.round(lerp(fromG, toG, amount));
-  const blue = Math.round(lerp(fromB, toB, amount));
+  const red = Math.round(
+    toSrgbChannel(lerp(fromRgb[0] ?? 0, toRgb[0] ?? 0, amount)),
+  );
+  const green = Math.round(
+    toSrgbChannel(lerp(fromRgb[1] ?? 0, toRgb[1] ?? 0, amount)),
+  );
+  const blue = Math.round(
+    toSrgbChannel(lerp(fromRgb[2] ?? 0, toRgb[2] ?? 0, amount)),
+  );
 
   return (red << 16) | (green << 8) | blue;
+}
+
+function sampleLightingProfile(minutes: number): LightingProfile {
+  const upperIndex =
+    LIGHTING_KEYFRAMES.findIndex((keyframe) => keyframe.minute > minutes) === -1
+      ? 0
+      : LIGHTING_KEYFRAMES.findIndex((keyframe) => keyframe.minute > minutes);
+  const lowerIndex =
+    (upperIndex - 1 + LIGHTING_KEYFRAMES.length) % LIGHTING_KEYFRAMES.length;
+  const previousIndex =
+    (lowerIndex - 1 + LIGHTING_KEYFRAMES.length) % LIGHTING_KEYFRAMES.length;
+  const nextIndex = (upperIndex + 1) % LIGHTING_KEYFRAMES.length;
+  const lowerMinute = LIGHTING_KEYFRAMES[lowerIndex]?.minute ?? 0;
+  const upperMinute = wrappedMinuteForIndex(upperIndex, lowerMinute);
+  const progress = smootherstep(
+    (minutes - lowerMinute) / Math.max(1, upperMinute - lowerMinute),
+  );
+  const previous =
+    LIGHTING_KEYFRAMES[previousIndex]?.profile ??
+    LIGHTING_KEYFRAMES[lowerIndex]!.profile;
+  const lower = LIGHTING_KEYFRAMES[lowerIndex]!.profile;
+  const upper = LIGHTING_KEYFRAMES[upperIndex]!.profile;
+  const next =
+    LIGHTING_KEYFRAMES[nextIndex]?.profile ??
+    LIGHTING_KEYFRAMES[upperIndex]!.profile;
+
+  return {
+    skyColor: mixColorSpline(
+      previous.skyColor,
+      lower.skyColor,
+      upper.skyColor,
+      next.skyColor,
+      progress,
+    ),
+    overlayColor: mixColorSpline(
+      previous.overlayColor,
+      lower.overlayColor,
+      upper.overlayColor,
+      next.overlayColor,
+      progress,
+    ),
+    overlayAlpha: catmullRom(
+      previous.overlayAlpha,
+      lower.overlayAlpha,
+      upper.overlayAlpha,
+      next.overlayAlpha,
+      progress,
+    ),
+    ambientBrightness: catmullRom(
+      previous.ambientBrightness,
+      lower.ambientBrightness,
+      upper.ambientBrightness,
+      next.ambientBrightness,
+      progress,
+    ),
+    shaftAlpha: catmullRom(
+      previous.shaftAlpha,
+      lower.shaftAlpha,
+      upper.shaftAlpha,
+      next.shaftAlpha,
+      progress,
+    ),
+    celestialTint: mixColorSpline(
+      previous.celestialTint,
+      lower.celestialTint,
+      upper.celestialTint,
+      next.celestialTint,
+      progress,
+    ),
+    celestialAlpha: catmullRom(
+      previous.celestialAlpha,
+      lower.celestialAlpha,
+      upper.celestialAlpha,
+      next.celestialAlpha,
+      progress,
+    ),
+    cloudAlphaBoost: catmullRom(
+      previous.cloudAlphaBoost,
+      lower.cloudAlphaBoost,
+      upper.cloudAlphaBoost,
+      next.cloudAlphaBoost,
+      progress,
+    ),
+  };
+}
+
+function wrappedMinuteForIndex(index: number, referenceMinute: number) {
+  const minute = LIGHTING_KEYFRAMES[index]?.minute ?? 0;
+  return minute <= referenceMinute ? minute + GAME_DAY_MINUTES : minute;
+}
+
+function catmullRom(
+  p0: number,
+  p1: number,
+  p2: number,
+  p3: number,
+  progress: number,
+) {
+  const t = clamp(progress);
+  const t2 = t * t;
+  const t3 = t2 * t;
+  return (
+    0.5 *
+    (2 * p1 +
+      (-p0 + p2) * t +
+      (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 +
+      (-p0 + 3 * p1 - 3 * p2 + p3) * t3)
+  );
+}
+
+function mixColorSpline(
+  c0: number,
+  c1: number,
+  c2: number,
+  c3: number,
+  progress: number,
+) {
+  const [r0, g0, b0] = unpackColor(c0).map(toLinearChannel);
+  const [r1, g1, b1] = unpackColor(c1).map(toLinearChannel);
+  const [r2, g2, b2] = unpackColor(c2).map(toLinearChannel);
+  const [r3, g3, b3] = unpackColor(c3).map(toLinearChannel);
+  const red = clamp01(catmullRom(r0 ?? 0, r1 ?? 0, r2 ?? 0, r3 ?? 0, progress));
+  const green = clamp01(
+    catmullRom(g0 ?? 0, g1 ?? 0, g2 ?? 0, g3 ?? 0, progress),
+  );
+  const blue = clamp01(
+    catmullRom(b0 ?? 0, b1 ?? 0, b2 ?? 0, b3 ?? 0, progress),
+  );
+  return (
+    (Math.round(toSrgbChannel(red)) << 16) |
+    (Math.round(toSrgbChannel(green)) << 8) |
+    Math.round(toSrgbChannel(blue))
+  );
+}
+
+function unpackColor(color: number) {
+  return [(color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff] as const;
+}
+
+function toLinearChannel(channel: number) {
+  const value = channel / 255;
+  return value <= 0.04045
+    ? value / 12.92
+    : Math.pow((value + 0.055) / 1.055, 2.4);
+}
+
+function toSrgbChannel(channel: number) {
+  const value = clamp01(channel);
+  return (
+    255 *
+    (value <= 0.0031308
+      ? value * 12.92
+      : 1.055 * Math.pow(value, 1 / 2.4) - 0.055)
+  );
+}
+
+function clamp01(value: number) {
+  return Math.max(0, Math.min(1, value));
+}
+
+function applyBloodMoonLighting(
+  lighting: TimeOfDayLighting,
+): TimeOfDayLighting {
+  return {
+    ...lighting,
+    skyColor: mixColor(lighting.skyColor, 0x220409, 0.68),
+    overlayColor: mixColor(lighting.overlayColor, 0x2a0208, 0.82),
+    overlayAlpha: Math.min(0.74, lighting.overlayAlpha + 0.16),
+    ambientBrightness: Math.max(0.34, lighting.ambientBrightness * 0.7),
+    celestialTint: mixColor(lighting.celestialTint, 0xff4d5d, 0.88),
+    celestialAlpha: Math.min(1, lighting.celestialAlpha + 0.1),
+    moonShaftOpacity: Math.min(1, lighting.moonShaftOpacity + 0.18),
+  };
 }
 
 export function scaleColor(color: number, brightness: number) {

@@ -1,6 +1,8 @@
 import {
   formatWorldTime,
   GAME_DAY_DURATION_MS,
+  isDaylight,
+  isMoonRising,
   getTimeOfDayLighting,
   getWorldTimeMinutesFromTimestamp,
 } from './timeOfDay';
@@ -51,4 +53,48 @@ describe('timeOfDay', () => {
     expect(dusk.sunShaftOpacity).toBeGreaterThan(0);
     expect(dusk.moonShaftOpacity).toBeGreaterThan(0);
   });
+
+  it('tints the world red and tracks the blood moon rise window', () => {
+    const normalNight = getTimeOfDayLighting(19 * 60);
+    const bloodMoonNight = getTimeOfDayLighting(19 * 60, { bloodMoon: true });
+
+    expect(isMoonRising(19 * 60)).toBe(true);
+    expect(isMoonRising(12 * 60)).toBe(false);
+    expect(isDaylight(12 * 60)).toBe(true);
+    expect(isDaylight(19 * 60)).toBe(false);
+    expect(bloodMoonNight.skyColor).not.toBe(normalNight.skyColor);
+    expect(bloodMoonNight.overlayAlpha).toBeGreaterThan(
+      normalNight.overlayAlpha,
+    );
+    expect(bloodMoonNight.celestialTint).not.toBe(normalNight.celestialTint);
+  });
+
+  it('keeps sky transitions very smooth around keyframes', () => {
+    const beforeSunrise = getTimeOfDayLighting(7 * 60 - 1);
+    const atSunrise = getTimeOfDayLighting(7 * 60);
+    const afterSunrise = getTimeOfDayLighting(7 * 60 + 1);
+
+    expect(
+      colorDistance(beforeSunrise.skyColor, atSunrise.skyColor),
+    ).toBeLessThan(18);
+    expect(
+      colorDistance(atSunrise.skyColor, afterSunrise.skyColor),
+    ).toBeLessThan(18);
+    expect(
+      Math.abs(beforeSunrise.ambientBrightness - atSunrise.ambientBrightness),
+    ).toBeLessThan(0.03);
+    expect(
+      Math.abs(atSunrise.ambientBrightness - afterSunrise.ambientBrightness),
+    ).toBeLessThan(0.03);
+  });
 });
+
+function colorDistance(from: number, to: number) {
+  const fromR = (from >> 16) & 0xff;
+  const fromG = (from >> 8) & 0xff;
+  const fromB = from & 0xff;
+  const toR = (to >> 16) & 0xff;
+  const toG = (to >> 8) & 0xff;
+  const toB = to & 0xff;
+  return Math.abs(fromR - toR) + Math.abs(fromG - toG) + Math.abs(fromB - toB);
+}

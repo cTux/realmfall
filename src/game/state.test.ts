@@ -20,6 +20,7 @@ import {
   prospectInventory,
   sellAllItems,
   sortInventory,
+  syncBloodMoon,
   takeAllTileItems,
   takeTileItem,
   useItem,
@@ -58,6 +59,7 @@ describe('game state', () => {
 
   it('moves onto generated adjacent tiles beyond the starting cache', () => {
     const game = createGame(3, 'loot-seed');
+    game.worldTimeMs = ((18 * 60 + 33) / 1440) * 60000;
     const target = { q: 2, r: 0 };
     game.tiles['2,0'] = {
       coord: target,
@@ -71,6 +73,7 @@ describe('game state', () => {
     const next = moveToTile(game, target);
     expect(next.player.coord).toEqual(target);
     expect(next.turn).toBe(1);
+    expect(next.logs[0]?.text).toMatch(/^\[18:33\] /);
   });
 
   it('opens and resolves combat encounters on enemy tiles', () => {
@@ -186,6 +189,122 @@ describe('game state', () => {
       ),
     ).toBe(true);
     expect(resolved.player.skills.skinning.xp).toBeGreaterThan(0);
+  });
+
+  it('can trigger a blood moon that weakens enemies and floods nearby tiles', () => {
+    let bloodMoonGame = createGame(6, 'blood-moon-seed');
+    bloodMoonGame.player.coord = { q: 4, r: -2 };
+    bloodMoonGame.enemies['enemy-test'] = {
+      id: 'enemy-test',
+      name: 'Bandit',
+      coord: { q: 5, r: -2 },
+      tier: 4,
+      hp: 32,
+      maxHp: 32,
+      attack: 9,
+      defense: 5,
+      xp: 20,
+      elite: false,
+    };
+
+    for (let cycle = 0; cycle < 200; cycle += 1) {
+      const candidate = { ...bloodMoonGame, bloodMoonCycle: cycle };
+      const synced = syncBloodMoon(candidate, 18 * 60);
+      if (synced.bloodMoonActive) {
+        bloodMoonGame = synced;
+        break;
+      }
+    }
+
+    expect(bloodMoonGame.bloodMoonActive).toBe(true);
+    expect(bloodMoonGame.bloodMoonCheckedTonight).toBe(true);
+    expect(
+      bloodMoonGame.logs.some((entry) => /blood moon begins/i.test(entry.text)),
+    ).toBe(true);
+    expect(bloodMoonGame.enemies['enemy-test']?.maxHp).toBe(3);
+    expect(bloodMoonGame.enemies['enemy-test']?.attack).toBe(1);
+    expect(bloodMoonGame.enemies['enemy-test']?.defense).toBe(1);
+
+    const nearbyEnemyCount = Object.values(bloodMoonGame.enemies).filter(
+      (enemy) =>
+        enemy.id !== 'enemy-test' &&
+        Math.max(
+          Math.abs(enemy.coord.q - bloodMoonGame.player.coord.q),
+          Math.abs(enemy.coord.r - bloodMoonGame.player.coord.r),
+          Math.abs(
+            -(enemy.coord.q - bloodMoonGame.player.coord.q) -
+              (enemy.coord.r - bloodMoonGame.player.coord.r),
+          ),
+        ) <= 6,
+    ).length;
+
+    expect(nearbyEnemyCount).toBeGreaterThan(0);
+
+    const sunrise = syncBloodMoon(bloodMoonGame, 7 * 60);
+    expect(sunrise.bloodMoonActive).toBe(false);
+    expect(sunrise.bloodMoonCheckedTonight).toBe(false);
+    expect(sunrise.bloodMoonCycle).toBe(bloodMoonGame.bloodMoonCycle + 1);
+    expect(sunrise.enemies['enemy-test']?.maxHp).toBe(32);
+    expect(sunrise.logs[0]?.text).toMatch(/blood moon ends/i);
+  });
+
+  it('logs ordinary nightfall and morning transitions', () => {
+    const game = createGame(3, 'day-phase-seed');
+    game.dayPhase = 'day';
+
+    const night = syncBloodMoon(game, 18 * 60);
+    expect(night.dayPhase).toBe('night');
+    expect(night.logs[0]?.text).toMatch(/night falls across the wilds/i);
+
+    const morning = syncBloodMoon(night, 7 * 60);
+    expect(morning.dayPhase).toBe('day');
+    expect(
+      morning.logs.some((entry) =>
+        /morning breaks over the wilds/i.test(entry.text),
+      ),
+    ).toBe(true);
+    expect(
+      morning.logs.some((entry) => /blood moon ends/i.test(entry.text)),
+    ).toBe(false);
+  });
+
+  it('drops extra higher-rarity loot during a blood moon', () => {
+    const game = createGame(3, 'blood-moon-loot-seed');
+    const target = { q: 2, r: 0 };
+    game.bloodMoonActive = true;
+    game.tiles['2,0'] = {
+      coord: target,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: ['enemy-2,0-0'],
+    };
+    game.enemies['enemy-2,0-0'] = {
+      id: 'enemy-2,0-0',
+      name: 'Raider',
+      coord: target,
+      tier: 3,
+      hp: 1,
+      maxHp: 1,
+      attack: 1,
+      defense: 0,
+      xp: 5,
+      elite: false,
+    };
+    game.player.coord = { q: 1, r: 0 };
+
+    const engaged = moveToTile(game, target);
+    const resolved = attackCombatEnemy(engaged, 'enemy-2,0-0');
+    const tileItems = getTileAt(resolved, target).items;
+
+    expect(tileItems.some((item) => item.name === 'Gold')).toBe(true);
+    expect(
+      tileItems.some(
+        (item) =>
+          ['weapon', 'armor', 'artifact'].includes(item.kind) &&
+          ['rare', 'epic', 'legendary'].includes(item.rarity),
+      ),
+    ).toBe(true);
   });
 
   it('turns an emptied dungeon back into a regular hex', () => {

@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { DraggableWindow } from '../DraggableWindow';
 import { WINDOW_LABELS, renderWindowLabel } from '../windowLabels';
 import labelStyles from '../windowLabels.module.css';
@@ -7,14 +7,17 @@ import styles from './styles.module.css';
 
 const TYPE_DELAY_MS = 16;
 const MATRIX_GLYPHS = ['#', '%', '&', '/', '+', '*'];
+const LOG_PREFIX_PATTERN = /^\[[0-9]{2}:[0-9]{2}\]\s/;
 
 function AnimatedLogLine({ text }: { text: string }) {
+  const prefix = text.match(LOG_PREFIX_PATTERN)?.[0] ?? '';
+  const message = text.slice(prefix.length);
   const [visibleCount, setVisibleCount] = useState(0);
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
       setVisibleCount((current) => {
-        if (current >= text.length) {
+        if (current >= message.length) {
           window.clearInterval(intervalId);
           return current;
         }
@@ -26,14 +29,15 @@ function AnimatedLogLine({ text }: { text: string }) {
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [text]);
+  }, [message]);
 
-  const isComplete = visibleCount >= text.length;
+  const isComplete = visibleCount >= message.length;
   const cursor = MATRIX_GLYPHS[visibleCount % MATRIX_GLYPHS.length];
 
   return (
     <span className={styles.logText}>
-      {text.slice(0, visibleCount)}
+      {prefix}
+      {message.slice(0, visibleCount)}
       {isComplete ? null : (
         <span className={styles.logCursor} aria-hidden="true">
           {cursor}
@@ -55,6 +59,16 @@ export const LogWindow = memo(function LogWindow({
   onToggleFilter,
   logs,
 }: LogWindowProps) {
+  const orderedLogs = [...logs].reverse();
+  const logListRef = useRef<HTMLDivElement | null>(null);
+  const newestLogId = orderedLogs[orderedLogs.length - 1]?.id;
+
+  useEffect(() => {
+    const list = logListRef.current;
+    if (!list) return;
+    list.scrollTop = list.scrollHeight;
+  }, [newestLogId]);
+
   return (
     <DraggableWindow
       title={renderWindowLabel(WINDOW_LABELS.log, labelStyles.hotkey)}
@@ -89,15 +103,12 @@ export const LogWindow = memo(function LogWindow({
         </div>
       }
     >
-      <div className={styles.logList}>
-        {logs.map((entry) => (
+      <div ref={logListRef} className={styles.logList}>
+        {orderedLogs.map((entry) => (
           <div
             key={entry.id}
             className={`${styles.logEntry} ${styles[entry.kind] ?? ''}`.trim()}
           >
-            <span className={styles.logMeta}>
-              [{entry.kind}] t{entry.turn}
-            </span>
             <AnimatedLogLine text={entry.text} />
           </div>
         ))}

@@ -31,6 +31,7 @@ import {
   takeAllTileItems,
   takeTileItem,
   sortInventory,
+  syncBloodMoon,
   unequipItem,
   useItem as applyItemUse,
   type GameState,
@@ -168,6 +169,16 @@ export function App() {
     () => formatWorldTime(worldTimeMinutes),
     [worldTimeMinutes],
   );
+
+  useEffect(() => {
+    setGame((current) =>
+      syncBloodMoon(
+        { ...current, worldTimeMs: worldTimeMsRef.current },
+        worldTimeMinutes,
+      ),
+    );
+  }, [worldTimeMinutes]);
+
   const [renderCombatWindow, setRenderCombatWindow] = useState(
     Boolean(game.combat),
   );
@@ -263,7 +274,12 @@ export function App() {
     const timeout = window.setTimeout(() => {
       setGame((current) => {
         const enemyId = current.combat?.enemyIds[0];
-        return enemyId ? attackCombatEnemy(current, enemyId) : current;
+        return enemyId
+          ? attackCombatEnemy(
+              { ...current, worldTimeMs: worldTimeMsRef.current },
+              enemyId,
+            )
+          : current;
       });
     }, 450);
 
@@ -429,29 +445,44 @@ export function App() {
 
   const handleUnequip = useCallback(
     (slot: Parameters<typeof unequipItem>[1]) => {
-      setGame((current) => unequipItem(current, slot));
+      setGame((current) =>
+        unequipItem({ ...current, worldTimeMs: worldTimeMsRef.current }, slot),
+      );
     },
     [],
   );
 
   const handleSort = useCallback(() => {
-    setGame((current) => sortInventory(current));
+    setGame((current) =>
+      sortInventory({ ...current, worldTimeMs: worldTimeMsRef.current }),
+    );
   }, []);
 
   const handleProspect = useCallback(() => {
-    setGame((current) => prospectInventory(current));
+    setGame((current) =>
+      prospectInventory({ ...current, worldTimeMs: worldTimeMsRef.current }),
+    );
   }, []);
 
   const handleSellAll = useCallback(() => {
-    setGame((current) => sellAllItems(current));
+    setGame((current) =>
+      sellAllItems({ ...current, worldTimeMs: worldTimeMsRef.current }),
+    );
   }, []);
 
   const handleInteract = useCallback(() => {
-    setGame((current) => interactWithStructure(current));
+    setGame((current) =>
+      interactWithStructure({
+        ...current,
+        worldTimeMs: worldTimeMsRef.current,
+      }),
+    );
   }, []);
 
   const handleBuyTownItem = useCallback((itemId: string) => {
-    setGame((current) => buyTownItem(current, itemId));
+    setGame((current) =>
+      buyTownItem({ ...current, worldTimeMs: worldTimeMsRef.current }, itemId),
+    );
   }, []);
 
   const handleEquip = useCallback(
@@ -465,10 +496,17 @@ export function App() {
         return;
       }
       if (action === 'use') {
-        setGame((current) => applyItemUse(current, itemId));
+        setGame((current) =>
+          applyItemUse(
+            { ...current, worldTimeMs: worldTimeMsRef.current },
+            itemId,
+          ),
+        );
         return;
       }
-      setGame((current) => equipItem(current, itemId));
+      setGame((current) =>
+        equipItem({ ...current, worldTimeMs: worldTimeMsRef.current }, itemId),
+      );
     },
     [setWindowVisibility],
   );
@@ -482,22 +520,42 @@ export function App() {
         setWindowVisibility('recipes', true);
         return;
       }
-      setGame((current) => applyItemUse(current, itemId));
+      setGame((current) =>
+        applyItemUse(
+          { ...current, worldTimeMs: worldTimeMsRef.current },
+          itemId,
+        ),
+      );
     },
     [setWindowVisibility],
   );
 
   const handleCraftRecipe = useCallback((recipeId: string) => {
-    setGame((current) => craftRecipe(current, recipeId));
+    setGame((current) =>
+      craftRecipe(
+        { ...current, worldTimeMs: worldTimeMsRef.current },
+        recipeId,
+      ),
+    );
   }, []);
 
   const handleDropItem = useCallback((itemId: string) => {
-    setGame((current) => dropInventoryItem(current, itemId));
+    setGame((current) =>
+      dropInventoryItem(
+        { ...current, worldTimeMs: worldTimeMsRef.current },
+        itemId,
+      ),
+    );
   }, []);
 
   const handleDropEquippedItem = useCallback(
     (slot: Parameters<typeof unequipItem>[1]) => {
-      setGame((current) => dropEquippedItem(current, slot));
+      setGame((current) =>
+        dropEquippedItem(
+          { ...current, worldTimeMs: worldTimeMsRef.current },
+          slot,
+        ),
+      );
     },
     [],
   );
@@ -523,15 +581,24 @@ export function App() {
   );
 
   const handleTakeLootItem = useCallback((itemId: string) => {
-    setGame((current) => takeTileItem(current, itemId));
+    setGame((current) =>
+      takeTileItem({ ...current, worldTimeMs: worldTimeMsRef.current }, itemId),
+    );
   }, []);
 
   const handleTakeAllLoot = useCallback(() => {
-    setGame((current) => takeAllTileItems(current));
+    setGame((current) =>
+      takeAllTileItems({ ...current, worldTimeMs: worldTimeMsRef.current }),
+    );
   }, []);
 
   const handleAttackEnemy = useCallback((enemyId: string) => {
-    setGame((current) => attackCombatEnemy(current, enemyId));
+    setGame((current) =>
+      attackCombatEnemy(
+        { ...current, worldTimeMs: worldTimeMsRef.current },
+        enemyId,
+      ),
+    );
   }, []);
 
   const toggleFilterMenu = useCallback(() => {

@@ -130,7 +130,12 @@ export function usePixiWorld({
       if (!clickable) return;
 
       setSelected(target);
-      setGame((currentState) => moveToTile(currentState, target));
+      setGame((currentState) =>
+        moveToTile(
+          { ...currentState, worldTimeMs: worldTimeMsRef.current },
+          target,
+        ),
+      );
     };
 
     const onPointerMove = (event: PointerEvent) => {

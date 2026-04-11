@@ -197,7 +197,7 @@ describe('App', () => {
     expect(host.textContent).toContain('(H)ex info');
     expect(host.textContent).not.toContain('old log');
     expect(host.textContent).toContain('MOTD');
-    expect(host.textContent).toContain('Rumor:');
+    expect(host.textContent).toContain('[00:00]');
     expect(host.textContent).not.toContain('Hunger penalty');
     expect(host.textContent).toContain('Loot');
     expect(host.textContent).toContain('Prospect');

@@ -15,8 +15,9 @@ export function getLightingState(
   app: Application,
   worldTimeMinutes: number,
   animationMs: number,
+  bloodMoon = false,
 ) {
-  const lighting = getTimeOfDayLighting(worldTimeMinutes);
+  const lighting = getTimeOfDayLighting(worldTimeMinutes, { bloodMoon });
   const originX = app.screen.width / 2;
   const originY = app.screen.height / 2;
   const sunPosition = getCelestialPosition(
@@ -74,6 +75,7 @@ export function renderAtmosphere(
   sunPosition: { x: number; y: number },
   moonPosition: { x: number; y: number },
   focalPoint: { x: number; y: number },
+  bloodMoon = false,
 ) {
   if (lighting.shaftAlpha > 0.01) {
     renderLightShafts(
@@ -91,7 +93,7 @@ export function renderAtmosphere(
       animationMs,
       moonPosition,
       focalPoint,
-      0xcbd5ff,
+      bloodMoon ? 0xff4d5d : 0xcbd5ff,
       lighting.shaftAlpha * lighting.moonShaftOpacity,
     );
   }
@@ -99,7 +101,10 @@ export function renderAtmosphere(
   renderCelestialBody(
     celestialGraphicsPool,
     moonPosition,
-    scaleColor(0xdbeafe, lighting.ambientBrightness + 0.1),
+    scaleColor(
+      bloodMoon ? 0xff5c6c : 0xdbeafe,
+      lighting.ambientBrightness + 0.1,
+    ),
     lighting.moonOpacity * lighting.celestialAlpha * 0.72,
     24,
   );

@@ -54,7 +54,7 @@ export function renderScene(
   beginSceneRender(scene);
 
   const { lighting, origin, sunPosition, moonPosition, shadowOffset } =
-    getLightingState(app, worldTimeMinutes, animationMs);
+    getLightingState(app, worldTimeMinutes, animationMs, state.bloodMoonActive);
 
   renderSkyLayer(app, scene.skyFill, lighting.skyColor);
   renderAtmosphere(
@@ -66,6 +66,7 @@ export function renderScene(
     sunPosition,
     moonPosition,
     origin,
+    state.bloodMoonActive,
   );
 
   visibleTiles.forEach((tile) => {

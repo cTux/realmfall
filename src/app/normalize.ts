@@ -42,6 +42,16 @@ export function normalizeLoadedGame(game: GameState): GameState {
   return {
     ...game,
     worldTimeMs: Math.max(0, Number(game.worldTimeMs ?? 0) || 0),
+    dayPhase:
+      game.dayPhase ??
+      ((Math.max(0, Number(game.worldTimeMs ?? 0) || 0) / 60000) * 1440 >=
+        18 * 60 ||
+      (Math.max(0, Number(game.worldTimeMs ?? 0) || 0) / 60000) * 1440 < 7 * 60
+        ? 'night'
+        : 'day'),
+    bloodMoonActive: Boolean(game.bloodMoonActive),
+    bloodMoonCheckedTonight: Boolean(game.bloodMoonCheckedTonight),
+    bloodMoonCycle: Math.max(0, Number(game.bloodMoonCycle ?? 0) || 0),
     logSequence: Math.max(game.logSequence ?? 0, logs.length),
     logs,
     tiles,

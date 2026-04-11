@@ -733,6 +733,76 @@ describe('ui helpers and components', () => {
     host.remove();
   });
 
+  it('scrolls the log window to the newest message', async () => {
+    vi.useFakeTimers();
+    const game = createGame(2, 'log-scroll-test');
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    const scrollHeightDescriptor = Object.getOwnPropertyDescriptor(
+      HTMLDivElement.prototype,
+      'scrollHeight',
+    );
+    Object.defineProperty(HTMLDivElement.prototype, 'scrollHeight', {
+      configurable: true,
+      get: () => 240,
+    });
+
+    await act(async () => {
+      root.render(
+        <LogWindow
+          position={DEFAULT_WINDOWS.log}
+          onMove={() => {}}
+          filters={DEFAULT_LOG_FILTERS}
+          defaultFilters={DEFAULT_LOG_FILTERS}
+          showFilterMenu={false}
+          onToggleMenu={() => {}}
+          onToggleFilter={() => {}}
+          logs={game.logs.slice(0, 2)}
+        />,
+      );
+    });
+
+    const logList = host.querySelector(
+      'div[class*="logList"]',
+    ) as HTMLDivElement;
+
+    await act(async () => {
+      root.render(
+        <LogWindow
+          position={DEFAULT_WINDOWS.log}
+          onMove={() => {}}
+          filters={DEFAULT_LOG_FILTERS}
+          defaultFilters={DEFAULT_LOG_FILTERS}
+          showFilterMenu={false}
+          onToggleMenu={() => {}}
+          onToggleFilter={() => {}}
+          logs={game.logs}
+        />,
+      );
+      vi.runOnlyPendingTimers();
+    });
+
+    expect(logList.scrollTop).toBe(240);
+
+    await act(async () => {
+      vi.runOnlyPendingTimers();
+      root.unmount();
+    });
+    if (scrollHeightDescriptor) {
+      Object.defineProperty(
+        HTMLDivElement.prototype,
+        'scrollHeight',
+        scrollHeightDescriptor,
+      );
+    } else {
+      delete (HTMLDivElement.prototype as { scrollHeight?: number })
+        .scrollHeight;
+    }
+    vi.useRealTimers();
+    host.remove();
+  });
+
   it('animates tooltip visibility changes', async () => {
     vi.useFakeTimers();
 
