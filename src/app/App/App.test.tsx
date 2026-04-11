@@ -197,7 +197,13 @@ describe('App', () => {
     expect(host.textContent).toContain('(H)ex info');
     expect(host.textContent).not.toContain('old log');
     expect(host.textContent).toContain('MOTD');
-    expect(host.textContent).toContain('[00:00]');
+    expect(host.textContent).toContain('Day 1, 00:00');
+
+    await act(async () => {
+      vi.advanceTimersByTime(60 * 1000);
+    });
+
+    expect(host.textContent).toMatch(/Day 2, 00:0\d/);
     expect(host.textContent).not.toContain('Hunger penalty');
     expect(host.textContent).toContain('Loot');
     expect(host.textContent).toContain('Prospect');

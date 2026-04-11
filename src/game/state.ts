@@ -438,7 +438,7 @@ export function syncBloodMoon(
 
   if (state.dayPhase !== phase) {
     const next = clone(state);
-    next.worldTimeMs = worldTimeMsFromMinutes(minutes);
+    next.worldTimeMs = worldTimeMsFromMinutes(minutes, state.worldTimeMs);
     next.dayPhase = phase;
     addLog(
       next,
@@ -454,7 +454,7 @@ export function syncBloodMoon(
     if (state.bloodMoonCheckedTonight) return state;
 
     const next = clone(state);
-    next.worldTimeMs = worldTimeMsFromMinutes(minutes);
+    next.worldTimeMs = worldTimeMsFromMinutes(minutes, state.worldTimeMs);
     next.bloodMoonCheckedTonight = true;
 
     const rng = createRng(`${state.seed}:blood-moon:${state.bloodMoonCycle}`);
@@ -479,7 +479,7 @@ export function syncBloodMoon(
     (state.bloodMoonActive || state.bloodMoonCheckedTonight)
   ) {
     const next = clone(state);
-    next.worldTimeMs = worldTimeMsFromMinutes(minutes);
+    next.worldTimeMs = worldTimeMsFromMinutes(minutes, state.worldTimeMs);
     const wasBloodMoonActive = next.bloodMoonActive;
     next.bloodMoonActive = false;
     next.bloodMoonCheckedTonight = false;
@@ -2684,17 +2684,28 @@ function makeLog(
 
 function formatLogPrefix(worldTimeMs: number) {
   const totalMinutes = normalizeWorldMinutes((worldTimeMs / 60000) * 1440);
+  const day = getWorldDayIndex(worldTimeMs) + 1;
   const hours = Math.floor(totalMinutes / 60)
     .toString()
     .padStart(2, '0');
   const minutes = Math.floor(totalMinutes % 60)
     .toString()
     .padStart(2, '0');
-  return `[${hours}:${minutes}]`;
+  return `[Day ${day}, ${hours}:${minutes}]`;
 }
 
-function worldTimeMsFromMinutes(worldTimeMinutes: number) {
-  return (normalizeWorldMinutes(worldTimeMinutes) / 1440) * 60000;
+function getWorldDayIndex(worldTimeMs: number) {
+  return Math.max(0, Math.floor(worldTimeMs / 60000));
+}
+
+function worldTimeMsFromMinutes(
+  worldTimeMinutes: number,
+  currentWorldTimeMs = 0,
+) {
+  return (
+    getWorldDayIndex(currentWorldTimeMs) * 60000 +
+    (normalizeWorldMinutes(worldTimeMinutes) / 1440) * 60000
+  );
 }
 
 function rumorForSeed(seed: string) {

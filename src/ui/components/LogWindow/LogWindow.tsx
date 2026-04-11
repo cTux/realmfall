@@ -7,7 +7,7 @@ import styles from './styles.module.css';
 
 const TYPE_DELAY_MS = 16;
 const MATRIX_GLYPHS = ['#', '%', '&', '/', '+', '*'];
-const LOG_PREFIX_PATTERN = /^\[[0-9]{2}:[0-9]{2}\]\s/;
+const LOG_PREFIX_PATTERN = /^\[Day \d+, [0-9]{2}:[0-9]{2}\]\s/;
 
 function AnimatedLogLine({ text }: { text: string }) {
   const prefix = text.match(LOG_PREFIX_PATTERN)?.[0] ?? '';

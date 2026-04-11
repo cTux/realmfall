@@ -125,6 +125,10 @@ export function getWorldTimeMinutesFromTimestamp(timestampMs: number) {
   return (normalizedMs / GAME_DAY_DURATION_MS) * GAME_DAY_MINUTES;
 }
 
+export function getWorldDayFromTimestamp(timestampMs: number) {
+  return Math.max(1, Math.floor(timestampMs / GAME_DAY_DURATION_MS) + 1);
+}
+
 export function formatWorldTime(totalMinutes: number) {
   const normalizedMinutes =
     ((Math.floor(totalMinutes) % GAME_DAY_MINUTES) + GAME_DAY_MINUTES) %
@@ -134,6 +138,12 @@ export function formatWorldTime(totalMinutes: number) {
   return `${hours.toString().padStart(2, '0')}:${minutes
     .toString()
     .padStart(2, '0')}`;
+}
+
+export function formatWorldDateTime(timestampMs: number) {
+  return `Day ${getWorldDayFromTimestamp(timestampMs)}, ${formatWorldTime(
+    getWorldTimeMinutesFromTimestamp(timestampMs),
+  )}`;
 }
 
 export function getTimeOfDayLighting(

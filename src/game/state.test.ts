@@ -73,7 +73,24 @@ describe('game state', () => {
     const next = moveToTile(game, target);
     expect(next.player.coord).toEqual(target);
     expect(next.turn).toBe(1);
-    expect(next.logs[0]?.text).toMatch(/^\[18:33\] /);
+    expect(next.logs[0]?.text).toMatch(/^\[Day 1, 18:33\] /);
+  });
+
+  it('keeps the day number after rolling past 23:59', () => {
+    const game = createGame(3, 'day-rollover-seed');
+    game.worldTimeMs = 60000 + ((18 * 60 + 33) / 1440) * 60000;
+    const target = { q: 2, r: 0 };
+    game.tiles['2,0'] = {
+      coord: target,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: [],
+    };
+    game.player.coord = { q: 1, r: 0 };
+
+    const next = moveToTile(game, target);
+    expect(next.logs[0]?.text).toMatch(/^\[Day 2, 18:33\] /);
   });
 
   it('opens and resolves combat encounters on enemy tiles', () => {

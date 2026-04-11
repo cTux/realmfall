@@ -1,6 +1,8 @@
 import {
+  formatWorldDateTime,
   formatWorldTime,
   GAME_DAY_DURATION_MS,
+  getWorldDayFromTimestamp,
   isDaylight,
   isMoonRising,
   getTimeOfDayLighting,
@@ -22,6 +24,19 @@ describe('timeOfDay', () => {
     expect(formatWorldTime(0)).toBe('00:00');
     expect(formatWorldTime(61)).toBe('01:01');
     expect(formatWorldTime(1439)).toBe('23:59');
+  });
+
+  it('tracks the current world day from elapsed time', () => {
+    expect(getWorldDayFromTimestamp(0)).toBe(1);
+    expect(getWorldDayFromTimestamp(GAME_DAY_DURATION_MS - 1)).toBe(1);
+    expect(getWorldDayFromTimestamp(GAME_DAY_DURATION_MS)).toBe(2);
+  });
+
+  it('formats world date-time labels with the day number', () => {
+    expect(formatWorldDateTime(0)).toBe('Day 1, 00:00');
+    expect(
+      formatWorldDateTime(GAME_DAY_DURATION_MS + GAME_DAY_DURATION_MS / 2),
+    ).toBe('Day 2, 12:00');
   });
 
   it('brightens the world during the day and darkens it at night', () => {

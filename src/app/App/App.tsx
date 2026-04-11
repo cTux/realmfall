@@ -54,7 +54,7 @@ import {
 import { itemTooltipLines } from '../../ui/tooltips';
 import { rarityColor } from '../../ui/rarity';
 import {
-  formatWorldTime,
+  formatWorldDateTime,
   getWorldTimeMinutesFromTimestamp,
 } from '../../ui/world/timeOfDay';
 import type {
@@ -166,8 +166,8 @@ export function App() {
     [worldTimeMs],
   );
   const worldTimeLabel = useMemo(
-    () => formatWorldTime(worldTimeMinutes),
-    [worldTimeMinutes],
+    () => formatWorldDateTime(worldTimeMs),
+    [worldTimeMs],
   );
 
   useEffect(() => {
@@ -228,7 +228,6 @@ export function App() {
       if (lastTick != null) {
         worldTimeMsRef.current += timestamp - lastTick;
       }
-      worldTimeMsRef.current %= 60 * 1000;
       worldTimeTickRef.current = timestamp;
 
       const displayedWorldMinute = Math.floor(
