@@ -29,6 +29,7 @@ import spillIcon from '../assets/icons/spill.svg';
 import sunCloudIcon from '../assets/icons/sun-cloud.svg';
 import rainingIcon from '../assets/icons/raining.svg';
 import snowingIcon from '../assets/icons/snowing.svg';
+import highGrassIcon from '../assets/icons/high-grass.svg';
 import totemIcon from '../assets/icons/totem.svg';
 import woodStickIcon from '../assets/icons/wood-stick.svg';
 import bookCoverIcon from '../assets/icons/book-cover.svg';
@@ -69,6 +70,7 @@ export const Icons = {
   SunCloud: sunCloudIcon,
   Raining: rainingIcon,
   Snowing: snowingIcon,
+  HighGrass: highGrassIcon,
   Totem: totemIcon,
   WoodStick: woodStickIcon,
   BookCover: bookCoverIcon,

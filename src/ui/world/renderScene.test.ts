@@ -1,4 +1,5 @@
 import { createGame, getVisibleTiles } from '../../game/state';
+import { Icons } from '../icons';
 
 const spriteFrom = vi.fn((icon: string) => ({
   icon,
@@ -153,5 +154,98 @@ describe('renderScene', () => {
         (child) => child instanceof MockText && child.text.startsWith('x'),
       ),
     ).toBe(true);
+  });
+
+  it('does not draw the selected outline on the player tile', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-player-selection');
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    const world = app.stage.children[2] as MockContainer;
+    const selectionOutlines = world.children.filter(
+      (child) =>
+        child instanceof MockGraphics &&
+        child.lineStyle.mock.calls.some(
+          ([width, color, alpha]) =>
+            width === 3 && color === 0xf8fafc && alpha === 0.65,
+        ),
+    );
+
+    expect(selectionOutlines).toHaveLength(0);
+  });
+
+  it('renders clouds with stronger opacity', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-cloud-opacity');
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    const clouds = app.stage.children[6] as MockContainer;
+    const cloudAlphas = clouds.children.map(
+      (child) => (child as { alpha: number }).alpha,
+    );
+
+    expect(cloudAlphas.length).toBeGreaterThan(0);
+    expect(Math.min(...cloudAlphas)).toBeGreaterThanOrEqual(0.38);
+  });
+
+  it('spreads clouds across varied heights and adds terrain grass cover', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(3, 'render-scene-ground-cover');
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 960, height: 720 },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      1600,
+    );
+
+    const world = app.stage.children[2] as MockContainer;
+    const clouds = app.stage.children[6] as MockContainer;
+    const grassSprites = world.children.filter(
+      (child) => (child as { icon?: string }).icon === Icons.HighGrass,
+    );
+    const cloudYPositions = clouds.children.map(
+      (child) =>
+        (child as { position: { set: ReturnType<typeof vi.fn> } }).position.set
+          .mock.calls[0]?.[1],
+    );
+    const uniqueCloudYBands = new Set(
+      cloudYPositions.map((value) => Math.round(value / 24)),
+    );
+
+    expect(grassSprites.length).toBeGreaterThanOrEqual(4);
+    expect(grassSprites.length).toBeLessThanOrEqual(12);
+    expect(uniqueCloudYBands.size).toBeGreaterThanOrEqual(8);
   });
 });

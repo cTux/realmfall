@@ -14,6 +14,7 @@ import {
   type GameState,
   type HexCoord,
 } from '../../game/state';
+import { createRng } from '../../game/random';
 import {
   enemyIconFor,
   enemyTint,
@@ -104,6 +105,9 @@ export function renderScene(
 
   visibleTiles.forEach((tile) => {
     const distance = hexDistance(state.player.coord, tile.coord);
+    const isPlayerTile =
+      tile.coord.q === state.player.coord.q &&
+      tile.coord.r === state.player.coord.r;
     const clickable =
       distance === 1 && tile.terrain !== 'water' && tile.terrain !== 'mountain';
     const emphasized = distance === 0 || clickable;
@@ -130,6 +134,14 @@ export function renderScene(
     shape.endFill();
     world.addChild(shape);
 
+    renderTileGroundCover(
+      world,
+      tile,
+      point,
+      lighting.ambientBrightness,
+      state.seed,
+    );
+
     if (tile.terrain === 'water' && distance === state.radius) {
       renderEdgeWaterfall(
         waterfalls,
@@ -145,7 +157,11 @@ export function renderScene(
       outline.lineStyle(3, 0xe2e8f0, 0.85);
       outline.drawPolygon(poly);
       world.addChild(outline);
-    } else if (selected.q === tile.coord.q && selected.r === tile.coord.r) {
+    } else if (
+      !isPlayerTile &&
+      selected.q === tile.coord.q &&
+      selected.r === tile.coord.r
+    ) {
       const outline = new Graphics();
       outline.lineStyle(3, 0xf8fafc, 0.65);
       outline.drawPolygon(poly);
@@ -231,6 +247,7 @@ export function renderScene(
     clouds,
     animationMs,
     lighting,
+    state.seed,
     shadowOffset,
   );
   renderWorldOverlay(
@@ -258,38 +275,20 @@ function renderAtmosphere(
   moonPosition: { x: number; y: number },
   focalPoint: { x: number; y: number },
 ) {
-  const activePosition =
-    lighting.celestialBody === 'sun' ? sunPosition : moonPosition;
   renderCelestialBody(
     layer,
     moonPosition,
-    0xcbd5ff,
-    lighting.moonOpacity * 0.62,
+    scaleColor(0xdbeafe, lighting.ambientBrightness + 0.1),
+    lighting.moonOpacity * lighting.celestialAlpha * 0.72,
     24,
   );
   renderCelestialBody(
     layer,
     sunPosition,
-    0xfbbf24,
-    lighting.sunOpacity * 0.9,
+    scaleColor(0xfff7d6, lighting.ambientBrightness + 0.08),
+    lighting.sunOpacity * lighting.celestialAlpha,
     30,
   );
-
-  const bodyGlow = new Graphics();
-  bodyGlow.beginFill(lighting.celestialTint, lighting.celestialAlpha * 0.22);
-  bodyGlow.drawEllipse(activePosition.x, activePosition.y, 78, 78);
-  bodyGlow.endFill();
-
-  const body = new Graphics();
-  body.beginFill(lighting.celestialTint, lighting.celestialAlpha);
-  body.drawEllipse(
-    activePosition.x,
-    activePosition.y,
-    lighting.celestialBody === 'sun' ? 30 : 24,
-    lighting.celestialBody === 'sun' ? 30 : 24,
-  );
-  body.endFill();
-  layer.addChild(bodyGlow, body);
 
   if (lighting.shaftAlpha <= 0.01) return;
 
@@ -367,9 +366,31 @@ function renderCelestialBody(
   alpha: number,
   radius: number,
 ) {
+  if (alpha <= 0.01) return;
+
+  const haloLayers = [
+    { scale: 3.6, alpha: 0.08 },
+    { scale: 2.6, alpha: 0.14 },
+    { scale: 1.9, alpha: 0.22 },
+    { scale: 1.45, alpha: 0.3 },
+  ];
+
+  haloLayers.forEach((halo) => {
+    const glow = new Graphics();
+    glow.beginFill(tint, alpha * halo.alpha);
+    glow.drawEllipse(
+      position.x,
+      position.y,
+      radius * halo.scale,
+      radius * halo.scale,
+    );
+    glow.endFill();
+    layer.addChild(glow);
+  });
+
   const glow = new Graphics();
-  glow.beginFill(tint, alpha * 0.25);
-  glow.drawEllipse(position.x, position.y, radius * 2.2, radius * 2.2);
+  glow.beginFill(tint, alpha * 0.36);
+  glow.drawEllipse(position.x, position.y, radius * 1.25, radius * 1.25);
   glow.endFill();
 
   const body = new Graphics();
@@ -474,10 +495,10 @@ function renderCloudLayer(
   cloudLayer: Container,
   animationMs: number,
   lighting: ReturnType<typeof getTimeOfDayLighting>,
+  worldSeed: string,
   shadowOffset: { x: number; y: number },
 ) {
   const cloudCount = 22;
-  const speed = 0.01;
   const weatherIcons = [Icons.SunCloud, Icons.Raining, Icons.Snowing];
   const clusterOffsets = [
     { x: -38, y: 12, scale: 0.72 },
@@ -487,21 +508,26 @@ function renderCloudLayer(
   ];
 
   for (let index = 0; index < cloudCount; index += 1) {
-    const scale = 0.9 + (index % 4) * 0.16;
+    const rng = createRng(`${worldSeed}-cloud-${index}`);
+    const scale = 0.88 + rng() * 0.68;
     const width = 92 * scale;
     const height = 92 * scale;
-    const spacing = app.screen.width / cloudCount;
-    const travel = app.screen.width + spacing * cloudCount + width * 2;
-    const progress = (animationMs * speed + spacing * index * 1.35) % travel;
-    const x = progress - width;
+    const travelPadding = 180 + rng() * 220;
+    const travel = app.screen.width + travelPadding + width * 2;
+    const baseOffset = rng() * travel;
+    const speed = 0.0048 + rng() * 0.0062;
+    const progress = (animationMs * speed + baseOffset) % travel;
+    const x = progress - width - travelPadding * 0.5;
+    const yBase = app.screen.height * (0.05 + rng() * 0.56);
     const y =
-      app.screen.height * (0.08 + (index % 6) * 0.1) +
-      Math.sin(animationMs * 0.00045 + index * 1.7) * 8;
-    const icon = weatherIcons[index % weatherIcons.length];
-    const shadowOpacity = 0.12 + (index % 3) * 0.02;
+      yBase +
+      Math.sin(animationMs * (0.00024 + rng() * 0.0002) + rng() * Math.PI * 2) *
+        (4 + rng() * 10);
+    const icon = weatherIcons[Math.floor(rng() * weatherIcons.length)];
+    const shadowOpacity = 0.1 + rng() * 0.06;
     const cloudOpacity = Math.max(
-      0.06,
-      0.14 + (index % 4) * 0.024 + lighting.cloudAlphaBoost,
+      0.24,
+      0.34 + rng() * 0.12 + lighting.cloudAlphaBoost,
     );
 
     clusterOffsets.forEach((offset) => {
@@ -536,7 +562,7 @@ function renderCloudLayer(
 
       const cloud = makeWeatherSprite(
         icon,
-        scaleColor(0xf8fafc, Math.max(0.7, lighting.ambientBrightness + 0.12)),
+        scaleColor(0xffffff, Math.max(0.82, lighting.ambientBrightness + 0.16)),
         spriteWidth,
         spriteHeight,
         cloudOpacity,
@@ -564,6 +590,35 @@ function makeWeatherSprite(
   sprite.tint = tint;
   sprite.alpha = alpha;
   return sprite;
+}
+
+function renderTileGroundCover(
+  layer: Container,
+  tile: GameState['tiles'][string],
+  point: { x: number; y: number },
+  ambientBrightness: number,
+  worldSeed: string,
+) {
+  const groundCover = groundCoverStyle(tile.terrain);
+  if (!groundCover) return;
+
+  const rng = createRng(
+    `${worldSeed}-ground-cover-${tile.coord.q},${tile.coord.r}-${tile.terrain}`,
+  );
+  if (rng() > 0.3) return;
+
+  const grass = makeWeatherSprite(
+    Icons.HighGrass,
+    scaleColor(
+      groundCover.tint,
+      ambientBrightness + groundCover.brightnessBoost,
+    ),
+    groundCover.width,
+    groundCover.height,
+    groundCover.alpha,
+  );
+  grass.position.set(point.x, point.y + HEX_SIZE * 0.42 + (rng() - 0.5) * 4);
+  layer.addChild(grass);
 }
 
 function renderEdgeWaterfall(
@@ -624,6 +679,45 @@ function tileStyle(terrain: string) {
       return { color: 0xca8a04, alpha: 1 };
     default:
       return { color: 0x3f7d3f, alpha: 1 };
+  }
+}
+
+function groundCoverStyle(terrain: string) {
+  switch (terrain) {
+    case 'plains':
+      return {
+        tint: 0x86efac,
+        alpha: 0.34,
+        width: 28,
+        height: 28,
+        brightnessBoost: 0.02,
+      };
+    case 'forest':
+      return {
+        tint: 0x4ade80,
+        alpha: 0.28,
+        width: 30,
+        height: 30,
+        brightnessBoost: -0.02,
+      };
+    case 'swamp':
+      return {
+        tint: 0x6ee7b7,
+        alpha: 0.26,
+        width: 28,
+        height: 28,
+        brightnessBoost: -0.04,
+      };
+    case 'desert':
+      return {
+        tint: 0xfde68a,
+        alpha: 0.22,
+        width: 24,
+        height: 24,
+        brightnessBoost: 0.05,
+      };
+    default:
+      return null;
   }
 }
 
