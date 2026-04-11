@@ -18,7 +18,7 @@ export function normalizeLoadedGame(game: GameState): GameState {
   }));
 
   const inventory = consolidateInventory(
-    (game.player.inventory ?? []).map(normalizeItem),
+    uniquifyItemIds((game.player.inventory ?? []).map(normalizeItem)),
   );
   const legacyGold = Math.max(0, Number(legacyGoldValue ?? 0));
   const hasInventoryGold = inventory.some(
@@ -106,7 +106,7 @@ function normalizeTile(tile: GameState['tiles'][string]) {
     ...tile,
     structureHp,
     structureMaxHp,
-    items: (tile.items ?? []).map(normalizeItem),
+    items: uniquifyItemIds((tile.items ?? []).map(normalizeItem)),
     enemyIds:
       tile.enemyIds ??
       (((tile as unknown as { enemyId?: string }).enemyId
@@ -188,4 +188,28 @@ function isSameStackable(left: Item, right: Item) {
     left.healing === right.healing &&
     left.hunger === right.hunger
   );
+}
+
+function uniquifyItemIds(items: Item[]) {
+  const usedIds = new Set<string>();
+
+  return items.map((item) => {
+    if (!usedIds.has(item.id)) {
+      usedIds.add(item.id);
+      return item;
+    }
+
+    let suffix = 2;
+    let candidateId = `${item.id}-${suffix}`;
+    while (usedIds.has(candidateId)) {
+      suffix += 1;
+      candidateId = `${item.id}-${suffix}`;
+    }
+
+    usedIds.add(candidateId);
+    return {
+      ...item,
+      id: candidateId,
+    };
+  });
 }

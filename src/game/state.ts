@@ -1208,7 +1208,7 @@ function makeArmor(
   const name =
     slotNames[scaledIndex(`${seed}:armor:name`, coord, slotNames.length)];
   return applyRarityToItem({
-    id: `${slot}-${name.toLowerCase().replace(/\s+/g, '-')}-${hexKey(coord)}`,
+    id: itemId('armor', coord, seed),
     kind: 'armor',
     slot,
     name,
@@ -1650,6 +1650,22 @@ function clone(state: GameState): GameState {
 
 function addItemToInventory(inventory: Item[], item: Item) {
   consolidateStackInto(inventory, item);
+}
+
+function ensureUniqueItemId(collection: Item[], item: Item) {
+  if (!collection.some((entry) => entry.id === item.id)) return item;
+
+  let suffix = 2;
+  let candidateId = `${item.id}-${suffix}`;
+  while (collection.some((entry) => entry.id === candidateId)) {
+    suffix += 1;
+    candidateId = `${item.id}-${suffix}`;
+  }
+
+  return {
+    ...item,
+    id: candidateId,
+  };
 }
 
 function compareItems(left: Item, right: Item) {
@@ -2250,7 +2266,7 @@ function consolidateInventory(inventory: Item[]) {
 
 function consolidateStackInto(inventory: Item[], item: Item) {
   if (item.kind !== 'consumable' && item.kind !== 'resource') {
-    inventory.push(item);
+    inventory.push(ensureUniqueItemId(inventory, item));
     return;
   }
 
@@ -2260,7 +2276,7 @@ function consolidateStackInto(inventory: Item[], item: Item) {
     return;
   }
 
-  inventory.push(item);
+  inventory.push(ensureUniqueItemId(inventory, item));
 }
 
 const RECIPE_BOOK_RECIPES: RecipeDefinition[] = [

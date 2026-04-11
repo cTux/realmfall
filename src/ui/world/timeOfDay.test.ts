@@ -72,14 +72,21 @@ describe('timeOfDay', () => {
   it('tints the world red and tracks the blood moon rise window', () => {
     const normalNight = getTimeOfDayLighting(19 * 60);
     const bloodMoonNight = getTimeOfDayLighting(19 * 60, { bloodMoon: true });
+    const midnight = getTimeOfDayLighting(0);
 
     expect(isMoonRising(19 * 60)).toBe(true);
     expect(isMoonRising(12 * 60)).toBe(false);
     expect(isDaylight(12 * 60)).toBe(true);
     expect(isDaylight(19 * 60)).toBe(false);
+    expect(midnight.ambientBrightness).toBeGreaterThan(0.6);
+    expect(midnight.moonShaftOpacity).toBeGreaterThan(0.65);
     expect(bloodMoonNight.skyColor).not.toBe(normalNight.skyColor);
     expect(bloodMoonNight.overlayAlpha).toBeGreaterThan(
       normalNight.overlayAlpha,
+    );
+    expect(bloodMoonNight.ambientBrightness).toBeGreaterThan(0.6);
+    expect(bloodMoonNight.moonShaftOpacity).toBeGreaterThan(
+      normalNight.moonShaftOpacity,
     );
     expect(bloodMoonNight.celestialTint).not.toBe(normalNight.celestialTint);
   });

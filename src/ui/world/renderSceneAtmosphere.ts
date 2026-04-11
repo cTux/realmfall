@@ -103,10 +103,10 @@ export function renderAtmosphere(
     moonPosition,
     scaleColor(
       bloodMoon ? 0xff5c6c : 0xdbeafe,
-      lighting.ambientBrightness + 0.1,
+      lighting.ambientBrightness + (bloodMoon ? 0.28 : 0.2),
     ),
-    lighting.moonOpacity * lighting.celestialAlpha * 0.72,
-    24,
+    lighting.moonOpacity * lighting.celestialAlpha * (bloodMoon ? 0.98 : 0.88),
+    bloodMoon ? 30 : 28,
   );
   renderCelestialBody(
     celestialGraphicsPool,

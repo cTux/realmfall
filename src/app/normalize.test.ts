@@ -194,4 +194,87 @@ describe('normalizeLoadedGame', () => {
     ).toHaveLength(1);
     expect(loaded.player.inventory[0]?.quantity).toBe(4);
   });
+
+  it('uniquifies duplicate non-stackable item ids in saves', () => {
+    const game = createGame(3, 'normalize-duplicate-ids');
+
+    const loaded = normalizeLoadedGame({
+      ...game,
+      tiles: {
+        '0,0': {
+          ...game.tiles['0,0'],
+          items: [
+            {
+              id: 'feet-wolf-treads--18,143',
+              kind: 'armor',
+              slot: 'feet',
+              name: 'Wolf Treads',
+              quantity: 1,
+              tier: 3,
+              rarity: 'common',
+              power: 0,
+              defense: 4,
+              maxHp: 3,
+              healing: 0,
+              hunger: 0,
+            },
+            {
+              id: 'feet-wolf-treads--18,143',
+              kind: 'armor',
+              slot: 'feet',
+              name: 'Wolf Treads',
+              quantity: 1,
+              tier: 3,
+              rarity: 'common',
+              power: 0,
+              defense: 4,
+              maxHp: 3,
+              healing: 0,
+              hunger: 0,
+            },
+          ],
+        },
+      },
+      player: {
+        ...game.player,
+        inventory: [
+          {
+            id: 'feet-wolf-treads--18,143',
+            kind: 'armor',
+            slot: 'feet',
+            name: 'Wolf Treads',
+            quantity: 1,
+            tier: 3,
+            rarity: 'common',
+            power: 0,
+            defense: 4,
+            maxHp: 3,
+            healing: 0,
+            hunger: 0,
+          },
+          {
+            id: 'feet-wolf-treads--18,143',
+            kind: 'armor',
+            slot: 'feet',
+            name: 'Wolf Treads',
+            quantity: 1,
+            tier: 3,
+            rarity: 'common',
+            power: 0,
+            defense: 4,
+            maxHp: 3,
+            healing: 0,
+            hunger: 0,
+          },
+        ],
+      },
+    });
+
+    expect(new Set(loaded.player.inventory.map((item) => item.id)).size).toBe(
+      2,
+    );
+    expect(new Set(loaded.tiles['0,0'].items.map((item) => item.id)).size).toBe(
+      2,
+    );
+  });
 });

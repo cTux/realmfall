@@ -1039,6 +1039,39 @@ describe('game state', () => {
     expect('gold' in loaded.player).toBe(false);
   });
 
+  it('assigns unique ids when buying the same non-stackable town item twice', () => {
+    const game = createGame(3, 'town-duplicate-id-seed');
+    game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'town' };
+    game.player.inventory = [
+      {
+        id: 'resource-gold-town-test',
+        kind: 'resource',
+        name: 'Gold',
+        quantity: 100,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    ];
+
+    const stock = getTownStock(game);
+    const hood = stock.find((entry) => entry.item.name === 'Scout Hood');
+    expect(hood).toBeDefined();
+
+    const boughtOnce = buyTownItem(game, hood!.item.id);
+    const boughtTwice = buyTownItem(boughtOnce, hood!.item.id);
+    const hoodIds = boughtTwice.player.inventory
+      .filter((item) => item.name === 'Scout Hood')
+      .map((item) => item.id);
+
+    expect(hoodIds).toHaveLength(2);
+    expect(new Set(hoodIds).size).toBe(2);
+  });
+
   it('keeps old saves fully unlocked when learned recipes are missing', () => {
     const game = createGame(3, 'legacy-recipe-seed');
     const loaded = normalizeLoadedGame({

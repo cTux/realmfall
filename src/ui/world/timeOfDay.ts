@@ -53,11 +53,11 @@ const LIGHTING_KEYFRAMES: Array<{ minute: number; profile: LightingProfile }> =
       profile: {
         skyColor: 0x020617,
         overlayColor: 0x020617,
-        overlayAlpha: 0.48,
-        ambientBrightness: 0.52,
-        shaftAlpha: 0.08,
+        overlayAlpha: 0.4,
+        ambientBrightness: 0.66,
+        shaftAlpha: 0.11,
         celestialTint: 0xdbeafe,
-        celestialAlpha: 0.62,
+        celestialAlpha: 0.74,
         cloudAlphaBoost: -0.04,
       },
     },
@@ -66,11 +66,11 @@ const LIGHTING_KEYFRAMES: Array<{ minute: number; profile: LightingProfile }> =
       profile: {
         skyColor: 0x06101f,
         overlayColor: 0x020617,
-        overlayAlpha: 0.42,
-        ambientBrightness: 0.58,
-        shaftAlpha: 0.06,
+        overlayAlpha: 0.36,
+        ambientBrightness: 0.72,
+        shaftAlpha: 0.09,
         celestialTint: 0xcbd5ff,
-        celestialAlpha: 0.5,
+        celestialAlpha: 0.62,
         cloudAlphaBoost: -0.02,
       },
     },
@@ -118,11 +118,11 @@ const LIGHTING_KEYFRAMES: Array<{ minute: number; profile: LightingProfile }> =
       profile: {
         skyColor: 0x1e293b,
         overlayColor: 0x020617,
-        overlayAlpha: 0.3,
-        ambientBrightness: 0.62,
-        shaftAlpha: 0.08,
+        overlayAlpha: 0.24,
+        ambientBrightness: 0.74,
+        shaftAlpha: 0.11,
         celestialTint: 0xcbd5ff,
-        celestialAlpha: 0.66,
+        celestialAlpha: 0.8,
         cloudAlphaBoost: -0.02,
       },
     },
@@ -180,7 +180,7 @@ export function getTimeOfDayLighting(
     sunOpacity,
     moonOpacity,
     sunShaftOpacity: sunOpacity * smoothLerp(0.35, 1, sunOpacity),
-    moonShaftOpacity: moonOpacity * smoothLerp(0.2, 0.55, moonOpacity),
+    moonShaftOpacity: moonOpacity * smoothLerp(0.3, 0.72, moonOpacity),
   };
 
   return options?.bloodMoon ? applyBloodMoonLighting(lighting) : lighting;
@@ -428,11 +428,11 @@ function applyBloodMoonLighting(
     ...lighting,
     skyColor: mixColor(lighting.skyColor, 0x220409, 0.68),
     overlayColor: mixColor(lighting.overlayColor, 0x2a0208, 0.82),
-    overlayAlpha: Math.min(0.74, lighting.overlayAlpha + 0.16),
-    ambientBrightness: Math.max(0.34, lighting.ambientBrightness * 0.7),
+    overlayAlpha: Math.min(0.66, lighting.overlayAlpha + 0.1),
+    ambientBrightness: Math.max(0.6, lighting.ambientBrightness * 0.9),
     celestialTint: mixColor(lighting.celestialTint, 0xff4d5d, 0.88),
-    celestialAlpha: Math.min(1, lighting.celestialAlpha + 0.1),
-    moonShaftOpacity: Math.min(1, lighting.moonShaftOpacity + 0.18),
+    celestialAlpha: Math.min(1, lighting.celestialAlpha + 0.18),
+    moonShaftOpacity: Math.min(1, lighting.moonShaftOpacity + 0.26),
   };
 }
 

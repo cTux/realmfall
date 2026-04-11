@@ -1,5 +1,6 @@
 import { Filter } from 'pixi.js';
-import { HEX_SIZE } from '../../app/constants';
+import { WORLD_RADIUS } from '../../game/config';
+import { getWorldHexSize } from './renderSceneMath';
 
 // Keep the fisheye implementation available, but disabled for now.
 export const WORLD_MAP_FISHEYE_ENABLED = false;
@@ -161,8 +162,9 @@ function mapFishEyeOffsetToSource(
 }
 
 function getWorldMapFishEyeRadiusPx(screen: { width: number; height: number }) {
+  const hexSize = getWorldHexSize(screen, WORLD_RADIUS);
   return Math.min(
-    HEX_SIZE * WORLD_MAP_FISHEYE_RADIUS_IN_HEXES,
+    hexSize * WORLD_MAP_FISHEYE_RADIUS_IN_HEXES,
     Math.min(screen.width, screen.height) * 0.48,
   );
 }

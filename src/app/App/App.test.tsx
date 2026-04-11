@@ -1,7 +1,7 @@
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { createGame } from '../../game/state';
-import { tileToPoint } from '../../ui/world/renderSceneMath';
+import { getWorldHexSize, tileToPoint } from '../../ui/world/renderSceneMath';
 import { mapWorldMapFishEyeSourcePointToDisplayPoint } from '../../ui/world/worldMapFishEye';
 
 const renderScene = vi.fn();
@@ -305,11 +305,18 @@ describe('App', () => {
       x: Math.max(window.innerWidth, 640) / 2,
       y: Math.max(window.innerHeight, 480) / 2,
     };
+    const hexSize = getWorldHexSize(
+      {
+        width: Math.max(window.innerWidth, 640),
+        height: Math.max(window.innerHeight, 480),
+      },
+      game.radius,
+    );
     const adjacentPoint = tileToPoint(
       { q: 1, r: 0 },
       screenCenter.x,
       screenCenter.y,
-      34,
+      hexSize,
     );
     const adjacentDisplayPoint = mapWorldMapFishEyeSourcePointToDisplayPoint(
       adjacentPoint,

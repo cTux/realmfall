@@ -1,7 +1,7 @@
 import { BLEND_MODES } from 'pixi.js';
+import { HEX_SIZE } from '../../app/constants';
 import { createRng } from '../../game/random';
 import { type GameState, type HexCoord } from '../../game/state';
-import { HEX_SIZE } from '../../app/constants';
 import { Icons } from '../icons';
 import { scaleColor, type getTimeOfDayLighting } from './timeOfDay';
 import { normalizeVector } from './renderSceneMath';
@@ -104,6 +104,7 @@ export function renderTileGroundCover(
   spritePool: SpritePool,
   tile: GameState['tiles'][string],
   point: { x: number; y: number },
+  hexSize: number,
   ambientBrightness: number,
   worldSeed: string,
 ) {
@@ -122,10 +123,10 @@ export function renderTileGroundCover(
       groundCover.tint,
       ambientBrightness + groundCover.brightnessBoost,
     ),
-    groundCover.width,
-    groundCover.height,
+    groundCover.width * (hexSize / 34),
+    groundCover.height * (hexSize / 34),
     groundCover.alpha,
-    { x: point.x, y: point.y + HEX_SIZE * 0.42 + (rng() - 0.5) * 4 },
+    { x: point.x, y: point.y + hexSize * 0.42 + (rng() - 0.5) * 4 },
   );
 }
 
@@ -175,6 +176,7 @@ export function renderEdgeWaterfall(
 export function renderCampfireLight(
   graphicsPool: GraphicsPool,
   point: { x: number; y: number },
+  hexSize: number,
   ambientBrightness: number,
   lighting: ReturnType<typeof getTimeOfDayLighting>,
   animationMs: number,
@@ -205,9 +207,9 @@ export function renderCampfireLight(
     glow.beginFill(haloTint, layer.alpha * nightGlow * pulse);
     glow.drawEllipse(
       point.x,
-      point.y + HEX_SIZE * 0.2,
-      HEX_SIZE * layer.width * scale,
-      HEX_SIZE * layer.height * scale,
+      point.y + hexSize * 0.2,
+      hexSize * layer.width * scale,
+      hexSize * layer.height * scale,
     );
     glow.endFill();
   });
@@ -223,9 +225,9 @@ export function renderCampfireLight(
     bloom.beginFill(emberTint, layer.alpha * nightGlow * (1 + flicker * 0.08));
     bloom.drawEllipse(
       point.x,
-      point.y + HEX_SIZE * layer.yOffset - index,
-      HEX_SIZE * layer.width,
-      HEX_SIZE * layer.height,
+      point.y + hexSize * layer.yOffset - index,
+      hexSize * layer.width,
+      hexSize * layer.height,
     );
     bloom.endFill();
   });
@@ -235,9 +237,9 @@ export function renderCampfireLight(
   heatWash.beginFill(haloTint, 0.12 * nightGlow);
   heatWash.drawEllipse(
     point.x,
-    point.y + HEX_SIZE * 0.08,
-    HEX_SIZE * 1.16,
-    HEX_SIZE * 0.8,
+    point.y + hexSize * 0.08,
+    hexSize * 1.16,
+    hexSize * 0.8,
   );
   heatWash.endFill();
 
@@ -246,9 +248,9 @@ export function renderCampfireLight(
   emberCore.beginFill(emberTint, 0.22 * nightGlow * (1.02 + flicker * 0.08));
   emberCore.drawEllipse(
     point.x,
-    point.y + HEX_SIZE * 0.1,
-    HEX_SIZE * 0.46,
-    HEX_SIZE * 0.3,
+    point.y + hexSize * 0.1,
+    hexSize * 0.46,
+    hexSize * 0.3,
   );
   emberCore.endFill();
 }

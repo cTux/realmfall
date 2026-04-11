@@ -18,8 +18,9 @@ import {
 } from '../../game/state';
 import { enemyTooltip, structureTooltip } from '../../ui/tooltips';
 import { renderScene } from '../../ui/world/renderScene';
+import { getWorldHexSize } from '../../ui/world/renderSceneMath';
 import { getWorldTimeMinutesFromTimestamp } from '../../ui/world/timeOfDay';
-import { HEX_SIZE, WORLD_REVEAL_RADIUS } from '../constants';
+import { WORLD_REVEAL_RADIUS } from '../constants';
 import type { TooltipState } from './types';
 import {
   mapWorldMapFishEyeDisplayPointToSourcePoint,
@@ -127,10 +128,11 @@ export function usePixiWorld({
             },
           )
         : displayPoint;
+      const hexSize = getWorldHexSize(app.screen, gameRef.current.radius);
       const clickedOffset = hexAtPoint(sourcePoint.x, sourcePoint.y, {
         centerX: app.screen.width / 2,
         centerY: app.screen.height / 2,
-        size: HEX_SIZE,
+        size: hexSize,
       });
       const target = {
         q: playerCoordRef.current.q + clickedOffset.q,
@@ -170,10 +172,11 @@ export function usePixiWorld({
             },
           )
         : displayPoint;
+      const hexSize = getWorldHexSize(app.screen, gameRef.current.radius);
       const hoveredOffset = hexAtPoint(sourcePoint.x, sourcePoint.y, {
         centerX: app.screen.width / 2,
         centerY: app.screen.height / 2,
-        size: HEX_SIZE,
+        size: hexSize,
       });
       const target = {
         q: playerCoordRef.current.q + hoveredOffset.q,

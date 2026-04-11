@@ -12,7 +12,7 @@ import {
   structureIconFor,
   structureTint,
 } from '../icons';
-import { HEX_SIZE, WORLD_REVEAL_RADIUS } from '../../app/constants';
+import { WORLD_REVEAL_RADIUS } from '../../app/constants';
 import { scaleColor } from './timeOfDay';
 import {
   beginSceneRender,
@@ -25,7 +25,7 @@ import {
   renderSkyLayer,
   renderWorldOverlay,
 } from './renderSceneAtmosphere';
-import { makeHex, tileToPoint } from './renderSceneMath';
+import { getWorldHexSize, makeHex, tileToPoint } from './renderSceneMath';
 import {
   renderCampfireLight,
   renderCloudLayer,
@@ -56,6 +56,10 @@ export function renderScene(
 
   const { lighting, origin, sunPosition, moonPosition, shadowOffset } =
     getLightingState(app, worldTimeMinutes, animationMs, state.bloodMoonActive);
+  const hexSize = getWorldHexSize(app.screen, state.radius);
+  const structureIconSize = hexSize * 1.42;
+  const enemyIconSize = hexSize * 1.26;
+  const playerIconSize = hexSize * 1.58;
 
   if (WORLD_MAP_FISHEYE_ENABLED) {
     scene.worldMapFilterArea.width = app.screen.width;
@@ -89,8 +93,8 @@ export function renderScene(
       q: tile.coord.q - state.player.coord.q,
       r: tile.coord.r - state.player.coord.r,
     };
-    const point = tileToPoint(relative, origin.x, origin.y, HEX_SIZE);
-    const poly = makeHex(point.x, point.y, HEX_SIZE);
+    const point = tileToPoint(relative, origin.x, origin.y, hexSize);
+    const poly = makeHex(point.x, point.y, hexSize);
     const style = tileStyle(tile.terrain);
     const hovered =
       hoveredMove?.q === tile.coord.q && hoveredMove?.r === tile.coord.r;
@@ -122,6 +126,7 @@ export function renderScene(
       scene.worldDetailSprites,
       tile,
       point,
+      hexSize,
       lighting.ambientBrightness,
       state.seed,
     );
@@ -130,6 +135,7 @@ export function renderScene(
       renderCampfireLight(
         scene.worldDetailGraphics,
         point,
+        hexSize,
         lighting.ambientBrightness,
         lighting,
         animationMs,
@@ -165,8 +171,8 @@ export function renderScene(
       configureShadowedSprite(
         marker,
         scaleColor(structureColor, lighting.ambientBrightness + 0.08),
-        42,
-        42,
+        structureIconSize,
+        structureIconSize,
         emphasized ? 1 : 0.82,
         shadowOffset,
         point,
@@ -185,8 +191,8 @@ export function renderScene(
           enemyTint(leadEnemy.name),
           lighting.ambientBrightness + 0.04,
         ),
-        32,
-        32,
+        enemyIconSize,
+        enemyIconSize,
         emphasized ? 1 : 0.72,
         shadowOffset,
         {
@@ -200,8 +206,8 @@ export function renderScene(
   configureShadowedSprite(
     scene.player,
     scaleColor(0xffffff, Math.max(0.84, lighting.ambientBrightness + 0.08)),
-    46,
-    46,
+    playerIconSize,
+    playerIconSize,
     1,
     shadowOffset,
     origin,

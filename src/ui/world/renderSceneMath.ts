@@ -1,5 +1,21 @@
 import type { HexCoord } from '../../game/state';
 
+const WORLD_MAP_WIDTH_PADDING = 0.94;
+const WORLD_MAP_HEIGHT_PADDING = 0.9;
+
+export function getWorldHexSize(
+  viewport: { width: number; height: number },
+  radius: number,
+) {
+  const diameter = radius * 2 + 1;
+  const maxWidth = Math.max(1, viewport.width * WORLD_MAP_WIDTH_PADDING);
+  const maxHeight = Math.max(1, viewport.height * WORLD_MAP_HEIGHT_PADDING);
+  const widthLimitedSize = maxWidth / (Math.sqrt(3) * diameter);
+  const heightLimitedSize = maxHeight / (radius * 3 + 2);
+
+  return Math.max(1, Math.min(widthLimitedSize, heightLimitedSize));
+}
+
 export function tileToPoint(
   coord: HexCoord,
   originX: number,
