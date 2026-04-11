@@ -24,6 +24,9 @@ import {
 import { HEX_SIZE } from '../../app/constants';
 import { getTimeOfDayLighting, scaleColor } from './timeOfDay';
 
+let smoothedShadowSource: { x: number; y: number } | null = null;
+let lastShadowAnimationMs: number | null = null;
+
 export function renderScene(
   app: Application,
   state: GameState,
@@ -69,11 +72,16 @@ export function renderScene(
     app.screen.height,
     worldTimeMinutes + 12 * 60,
   );
-  const celestialPosition =
-    lighting.celestialBody === 'sun' ? sunPosition : moonPosition;
+  const targetShadowSource = blendLightSources(
+    sunPosition,
+    moonPosition,
+    lighting.sunOpacity,
+    lighting.moonOpacity,
+  );
+  const shadowSource = smoothShadowSource(targetShadowSource, animationMs);
   const lightVector = normalizeVector({
-    x: originX - celestialPosition.x,
-    y: originY - celestialPosition.y,
+    x: originX - shadowSource.x,
+    y: originY - shadowSource.y,
   });
   const shadowOffset = {
     x: lightVector.x * 10,
@@ -252,14 +260,19 @@ function renderAtmosphere(
 ) {
   const activePosition =
     lighting.celestialBody === 'sun' ? sunPosition : moonPosition;
-  const passivePosition =
-    lighting.celestialBody === 'sun' ? moonPosition : sunPosition;
   renderCelestialBody(
     layer,
-    passivePosition,
-    lighting.celestialBody === 'sun' ? 0xcbd5ff : 0xfbbf24,
-    lighting.celestialBody === 'sun' ? 0.16 : 0.1,
-    18,
+    moonPosition,
+    0xcbd5ff,
+    lighting.moonOpacity * 0.62,
+    24,
+  );
+  renderCelestialBody(
+    layer,
+    sunPosition,
+    0xfbbf24,
+    lighting.sunOpacity * 0.9,
+    30,
   );
 
   const bodyGlow = new Graphics();
@@ -280,11 +293,42 @@ function renderAtmosphere(
 
   if (lighting.shaftAlpha <= 0.01) return;
 
+  renderLightShafts(
+    app,
+    layer,
+    animationMs,
+    sunPosition,
+    focalPoint,
+    0xfbbf24,
+    lighting.shaftAlpha * lighting.sunShaftOpacity,
+  );
+  renderLightShafts(
+    app,
+    layer,
+    animationMs,
+    moonPosition,
+    focalPoint,
+    0xcbd5ff,
+    lighting.shaftAlpha * lighting.moonShaftOpacity,
+  );
+}
+
+function renderLightShafts(
+  app: Application,
+  layer: Container,
+  animationMs: number,
+  sourcePosition: { x: number; y: number },
+  focalPoint: { x: number; y: number },
+  tint: number,
+  opacity: number,
+) {
+  if (opacity <= 0.01) return;
+
   const shaftDrift = Math.sin(animationMs * 0.00035) * 24;
   const shaftConfigs = [
-    { width: 90, reach: 0.62, alpha: lighting.shaftAlpha * 0.6 },
-    { width: 140, reach: 0.74, alpha: lighting.shaftAlpha * 0.38 },
-    { width: 210, reach: 0.88, alpha: lighting.shaftAlpha * 0.22 },
+    { width: 90, reach: 0.62, alpha: opacity * 0.6 },
+    { width: 140, reach: 0.74, alpha: opacity * 0.38 },
+    { width: 210, reach: 0.88, alpha: opacity * 0.22 },
   ];
 
   shaftConfigs.forEach((shaft, index) => {
@@ -295,17 +339,17 @@ function renderAtmosphere(
       y: focalPoint.y + app.screen.height * (shaft.reach - 0.6),
     };
     const beamVector = normalizeVector({
-      x: focusPoint.x - activePosition.x,
-      y: focusPoint.y - activePosition.y,
+      x: focusPoint.x - sourcePosition.x,
+      y: focusPoint.y - sourcePosition.y,
     });
     const perpendicular = { x: -beamVector.y, y: beamVector.x };
     const nearSpread = 14 + index * 6;
-    beam.beginFill(lighting.celestialTint, shaft.alpha);
+    beam.beginFill(tint, shaft.alpha);
     beam.drawPolygon([
-      activePosition.x - perpendicular.x * nearSpread,
-      activePosition.y - perpendicular.y * nearSpread,
-      activePosition.x + perpendicular.x * nearSpread,
-      activePosition.y + perpendicular.y * nearSpread,
+      sourcePosition.x - perpendicular.x * nearSpread,
+      sourcePosition.y - perpendicular.y * nearSpread,
+      sourcePosition.x + perpendicular.x * nearSpread,
+      sourcePosition.y + perpendicular.y * nearSpread,
       focusPoint.x + perpendicular.x * spread,
       focusPoint.y + perpendicular.y * spread,
       focusPoint.x - perpendicular.x * spread,
@@ -394,13 +438,25 @@ function makeShadowedSprite(
   const wrapper = new Container();
   wrapper.alpha = alpha;
 
-  const shadow = Sprite.from(icon);
-  shadow.anchor.set(0.5);
-  shadow.position.set(shadowOffset.x, shadowOffset.y);
-  shadow.width = width;
-  shadow.height = height;
-  shadow.tint = 0x000000;
-  shadow.alpha = 0.42;
+  const shadowLayers = [
+    { offset: 0.4, alpha: 0.18, scale: 1.06 },
+    { offset: 0.75, alpha: 0.12, scale: 1.03 },
+    { offset: 1, alpha: 0.08, scale: 1 },
+  ];
+
+  shadowLayers.forEach((layer) => {
+    const shadow = Sprite.from(icon);
+    shadow.anchor.set(0.5);
+    shadow.position.set(
+      shadowOffset.x * layer.offset,
+      shadowOffset.y * layer.offset,
+    );
+    shadow.width = width * layer.scale;
+    shadow.height = height * layer.scale;
+    shadow.tint = 0x000000;
+    shadow.alpha = layer.alpha;
+    wrapper.addChild(shadow);
+  });
 
   const sprite = Sprite.from(icon);
   sprite.anchor.set(0.5);
@@ -408,7 +464,7 @@ function makeShadowedSprite(
   sprite.height = height;
   sprite.tint = tint;
 
-  wrapper.addChild(shadow, sprite);
+  wrapper.addChild(sprite);
   return wrapper as DisplayObject & Container;
 }
 
@@ -464,6 +520,19 @@ function renderCloudLayer(
         y + height * 0.5 + offset.y * scale + shadowOffset.y * 2.2,
       );
       shadowLayer.addChild(shadow);
+
+      const shadowSoftener = makeWeatherSprite(
+        icon,
+        scaleColor(0x020617, Math.max(0.8, lighting.ambientBrightness * 0.68)),
+        spriteWidth * 1.12,
+        spriteHeight * 1.12,
+        shadowOpacity * 0.45,
+      );
+      shadowSoftener.position.set(
+        x + width * 0.5 + offset.x * scale + shadowOffset.x * 1.6,
+        y + height * 0.5 + offset.y * scale + shadowOffset.y * 1.6,
+      );
+      shadowLayer.addChild(shadowSoftener);
 
       const cloud = makeWeatherSprite(
         icon,
@@ -578,4 +647,48 @@ function getCelestialPosition(
 function normalizeVector(vector: { x: number; y: number }) {
   const length = Math.hypot(vector.x, vector.y) || 1;
   return { x: vector.x / length, y: vector.y / length };
+}
+
+function blendLightSources(
+  sunPosition: { x: number; y: number },
+  moonPosition: { x: number; y: number },
+  sunOpacity: number,
+  moonOpacity: number,
+) {
+  const totalOpacity = Math.max(0.0001, sunOpacity + moonOpacity);
+  return {
+    x:
+      (sunPosition.x * sunOpacity + moonPosition.x * moonOpacity) /
+      totalOpacity,
+    y:
+      (sunPosition.y * sunOpacity + moonPosition.y * moonOpacity) /
+      totalOpacity,
+  };
+}
+
+function smoothShadowSource(
+  target: { x: number; y: number },
+  animationMs: number,
+) {
+  if (smoothedShadowSource == null || lastShadowAnimationMs == null) {
+    smoothedShadowSource = { ...target };
+    lastShadowAnimationMs = animationMs;
+    return smoothedShadowSource;
+  }
+
+  const deltaMs = Math.max(
+    0,
+    Math.min(1000, animationMs - lastShadowAnimationMs),
+  );
+  const progress = Math.min(1, deltaMs / 1000);
+  smoothedShadowSource = {
+    x: lerp(smoothedShadowSource.x, target.x, progress),
+    y: lerp(smoothedShadowSource.y, target.y, progress),
+  };
+  lastShadowAnimationMs = animationMs;
+  return smoothedShadowSource;
+}
+
+function lerp(start: number, end: number, progress: number) {
+  return start + (end - start) * progress;
 }

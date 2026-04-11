@@ -12,6 +12,11 @@ interface LightingProfile {
   cloudAlphaBoost: number;
 }
 
+const SUNRISE_START = 5 * 60;
+const SUNRISE_END = 7 * 60;
+const SUNSET_START = 18 * 60;
+const SUNSET_END = 20 * 60;
+
 const LIGHTING_KEYFRAMES: Array<{ minute: number; profile: LightingProfile }> =
   [
     {
@@ -137,6 +142,8 @@ export function getTimeOfDayLighting(totalMinutes: number) {
   const segmentProgress =
     (minutes - lower.minute) / Math.max(1, upper.minute - lower.minute);
   const progress = smoothstep(segmentProgress);
+  const sunOpacity = getSunOpacity(minutes);
+  const moonOpacity = getMoonOpacity(minutes);
 
   return {
     skyColor: mixColor(
@@ -165,9 +172,7 @@ export function getTimeOfDayLighting(totalMinutes: number) {
       progress,
     ),
     celestialBody:
-      minutes >= 6 * 60 && minutes < 19 * 60
-        ? ('sun' as const)
-        : ('moon' as const),
+      sunOpacity >= moonOpacity ? ('sun' as const) : ('moon' as const),
     celestialTint: mixColor(
       lower.profile.celestialTint,
       upper.profile.celestialTint,
@@ -183,7 +188,36 @@ export function getTimeOfDayLighting(totalMinutes: number) {
       upper.profile.cloudAlphaBoost,
       progress,
     ),
+    sunOpacity,
+    moonOpacity,
+    sunShaftOpacity: sunOpacity * lerp(0.35, 1, progress),
+    moonShaftOpacity: moonOpacity * lerp(0.2, 0.55, 1 - progress),
   };
+}
+
+function getSunOpacity(minutes: number) {
+  if (minutes < SUNRISE_START || minutes >= SUNSET_END) return 0;
+  if (minutes < SUNRISE_END) {
+    return smoothstep(
+      (minutes - SUNRISE_START) / (SUNRISE_END - SUNRISE_START),
+    );
+  }
+  if (minutes < SUNSET_START) return 1;
+  return 1 - smoothstep((minutes - SUNSET_START) / (SUNSET_END - SUNSET_START));
+}
+
+function getMoonOpacity(minutes: number) {
+  if (minutes < SUNRISE_START) return 1;
+  if (minutes < SUNRISE_END) {
+    return (
+      1 - smoothstep((minutes - SUNRISE_START) / (SUNRISE_END - SUNRISE_START))
+    );
+  }
+  if (minutes < SUNSET_START) return 0;
+  if (minutes < SUNSET_END) {
+    return smoothstep((minutes - SUNSET_START) / (SUNSET_END - SUNSET_START));
+  }
+  return 1;
 }
 
 function lerp(start: number, end: number, progress: number) {

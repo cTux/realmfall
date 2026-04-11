@@ -32,4 +32,23 @@ describe('timeOfDay', () => {
     expect(noon.shaftAlpha).toBeGreaterThan(midnight.shaftAlpha);
     expect(noon.overlayAlpha).toBeLessThan(midnight.overlayAlpha);
   });
+
+  it('crossfades sun and moon opacity through sunrise and sunset', () => {
+    const dawn = getTimeOfDayLighting(6 * 60);
+    const dusk = getTimeOfDayLighting(19 * 60);
+
+    expect(dawn.sunOpacity).toBeGreaterThan(0);
+    expect(dawn.moonOpacity).toBeGreaterThan(0);
+    expect(dawn.sunOpacity).toBeLessThan(1);
+    expect(dawn.moonOpacity).toBeLessThan(1);
+
+    expect(dusk.sunOpacity).toBeGreaterThan(0);
+    expect(dusk.moonOpacity).toBeGreaterThan(0);
+    expect(dusk.sunOpacity).toBeLessThan(1);
+    expect(dusk.moonOpacity).toBeLessThan(1);
+    expect(dawn.sunShaftOpacity).toBeGreaterThan(0);
+    expect(dawn.moonShaftOpacity).toBeGreaterThan(0);
+    expect(dusk.sunShaftOpacity).toBeGreaterThan(0);
+    expect(dusk.moonShaftOpacity).toBeGreaterThan(0);
+  });
 });

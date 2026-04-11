@@ -41,6 +41,7 @@ export function normalizeLoadedGame(game: GameState): GameState {
 
   return {
     ...game,
+    worldTimeMs: Math.max(0, Number(game.worldTimeMs ?? 0) || 0),
     logSequence: Math.max(game.logSequence ?? 0, logs.length),
     logs,
     tiles,

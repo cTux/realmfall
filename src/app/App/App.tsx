@@ -136,6 +136,8 @@ export function App() {
   const gameRef = useRef<GameState>(initialGameRef.current);
   const selectedRef = useRef<HexCoord>(initialGameRef.current.player.coord);
   const hoveredMoveRef = useRef<HexCoord | null>(null);
+  const worldTimeMsRef = useRef(initialGameRef.current.worldTimeMs);
+  const worldTimeTickRef = useRef<number | null>(null);
   const frameCountRef = useRef(0);
   const lastFpsSampleRef = useRef(0);
   const [game, setGame] = useState<GameState>(initialGameRef.current);
@@ -151,8 +153,8 @@ export function App() {
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [itemMenu, setItemMenu] = useState<ItemContextMenuState | null>(null);
-  const [worldClockTimestamp, setWorldClockTimestamp] = useState(() =>
-    Date.now(),
+  const [worldTimeMs, setWorldTimeMs] = useState(
+    initialGameRef.current.worldTimeMs,
   );
   const [fps, setFps] = useState(0);
   const isReady = hydrated && canvasReady;
@@ -213,8 +215,8 @@ export function App() {
     [game.logs, logFilters],
   );
   const worldTimeMinutes = useMemo(
-    () => getWorldTimeMinutesFromTimestamp(worldClockTimestamp),
-    [worldClockTimestamp],
+    () => getWorldTimeMinutesFromTimestamp(worldTimeMs),
+    [worldTimeMs],
   );
   const worldTimeLabel = useMemo(
     () => formatWorldTime(worldTimeMinutes),
@@ -242,7 +244,14 @@ export function App() {
     let frameId = 0;
 
     const updateHud = (timestamp: number) => {
-      setWorldClockTimestamp(timestamp);
+      const lastTick = worldTimeTickRef.current;
+      if (lastTick != null) {
+        worldTimeMsRef.current += timestamp - lastTick;
+      }
+      worldTimeMsRef.current %= 60 * 1000;
+      worldTimeTickRef.current = timestamp;
+      setWorldTimeMs(worldTimeMsRef.current);
+
       if (lastFpsSampleRef.current === 0) {
         lastFpsSampleRef.current = timestamp;
       }
@@ -258,7 +267,10 @@ export function App() {
     };
 
     frameId = window.requestAnimationFrame(updateHud);
-    return () => window.cancelAnimationFrame(frameId);
+    return () => {
+      worldTimeTickRef.current = null;
+      window.cancelAnimationFrame(frameId);
+    };
   }, []);
 
   useEffect(() => {
@@ -319,6 +331,9 @@ export function App() {
       if (!alive) return;
       if (saved?.game) {
         const loadedGame = normalizeLoadedGame(saved.game as GameState);
+        worldTimeMsRef.current = loadedGame.worldTimeMs;
+        worldTimeTickRef.current = null;
+        setWorldTimeMs(loadedGame.worldTimeMs);
         setGame({
           ...loadedGame,
           logSequence: 3,
@@ -363,10 +378,27 @@ export function App() {
   useEffect(() => {
     if (!hydrated) return;
     void saveEncryptedState({
-      game: { ...game, logs: [] },
+      game: { ...game, worldTimeMs: worldTimeMsRef.current, logs: [] },
       ui: { windows, windowShown, logFilters },
     });
   }, [game, hydrated, logFilters, windowShown, windows]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+
+    const interval = window.setInterval(() => {
+      void saveEncryptedState({
+        game: {
+          ...gameRef.current,
+          worldTimeMs: worldTimeMsRef.current,
+          logs: [],
+        },
+        ui: { windows, windowShown, logFilters },
+      });
+    }, 5000);
+
+    return () => window.clearInterval(interval);
+  }, [hydrated, logFilters, windowShown, windows]);
 
   useEffect(() => {
     if (!hostRef.current || appRef.current) return;
@@ -399,7 +431,7 @@ export function App() {
         getVisibleTiles(gameRef.current),
         selectedRef.current,
         hoveredMoveRef.current,
-        getWorldTimeMinutesFromTimestamp(Date.now()),
+        getWorldTimeMinutesFromTimestamp(worldTimeMsRef.current),
         performance.now(),
       );
     };

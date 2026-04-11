@@ -147,6 +147,7 @@ export interface GameState {
   seed: string;
   radius: number;
   turn: number;
+  worldTimeMs: number;
   gameOver: boolean;
   logSequence: number;
   logs: LogEntry[];
@@ -224,6 +225,7 @@ export function createGame(
     seed,
     radius,
     turn: 0,
+    worldTimeMs: 0,
     gameOver: false,
     logSequence: 3,
     logs: createFreshLogs(seed),
