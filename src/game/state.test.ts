@@ -644,6 +644,46 @@ describe('game state', () => {
     expect(game.logs[0]?.text).toMatch(/you travel to/i);
   });
 
+  it('caps player level at 100 and gains infinite mastery levels after that', () => {
+    const game = createGame(3, 'mastery-seed');
+    const level100Xp = 40 + 99 * 25;
+    const firstMasteryXp = (40 + 100 * 25) * 20;
+    const secondMasteryXp = (40 + 101 * 25) * 20;
+
+    game.player.level = 99;
+    game.player.xp = 0;
+    game.player.masteryLevel = 0;
+    game.enemies['enemy-1'] = {
+      id: 'enemy-1',
+      name: 'Training Dummy',
+      coord: { q: 0, r: 0 },
+      tier: 1,
+      hp: 1,
+      maxHp: 1,
+      attack: 0,
+      defense: 0,
+      xp: level100Xp + firstMasteryXp + secondMasteryXp,
+      elite: false,
+    };
+    game.tiles['0,0'] = {
+      ...game.tiles['0,0'],
+      enemyIds: ['enemy-1'],
+      items: [],
+    };
+    game.combat = { coord: { q: 0, r: 0 }, enemyIds: ['enemy-1'] };
+
+    const resolved = attackCombatEnemy(game, 'enemy-1');
+    const stats = getPlayerStats(resolved.player);
+
+    expect(resolved.player.level).toBe(100);
+    expect(resolved.player.masteryLevel).toBe(2);
+    expect(resolved.player.xp).toBe(0);
+    expect(stats.nextLevelXp).toBe((40 + 102 * 25) * 20);
+    expect(
+      resolved.logs.some((entry) => /mastery level 2/i.test(entry.text)),
+    ).toBe(true);
+  });
+
   it('supports many equipment slots and artifact loadouts', () => {
     const game = createGame(3, 'equip-seed');
     const inventory: Item[] = EQUIPMENT_SLOTS.map((slot, index) => ({

@@ -474,6 +474,7 @@ describe('ui helpers and components', () => {
         hunger={100}
         stats={{
           level: 10,
+          masteryLevel: 0,
           hp: 1127,
           maxHp: 1128,
           mana: 25,
@@ -496,6 +497,41 @@ describe('ui helpers and components', () => {
     );
 
     expect(markup).toContain('1.1k/1.1k');
+  });
+
+  it('renders mastery level in the hero title after level 100', () => {
+    const markup = renderToStaticMarkup(
+      <HeroWindow
+        position={DEFAULT_WINDOWS.hero}
+        onMove={() => {}}
+        visible
+        onClose={() => {}}
+        hunger={100}
+        stats={{
+          level: 100,
+          masteryLevel: 1,
+          hp: 100,
+          maxHp: 100,
+          mana: 20,
+          maxMana: 20,
+          xp: 100,
+          nextLevelXp: 1000,
+          attack: 20,
+          defense: 15,
+          hungerPenalty: 0,
+          skills: {
+            logging: { level: 1, xp: 0 },
+            mining: { level: 1, xp: 0 },
+            skinning: { level: 1, xp: 0 },
+            fishing: { level: 1, xp: 0 },
+            cooking: { level: 1, xp: 0 },
+            crafting: { level: 1, xp: 0 },
+          },
+        }}
+      />,
+    );
+
+    expect(markup).toContain('Lv 100 (1)');
   });
 
   it('raises hovered and active windows during interactions', async () => {

@@ -23,6 +23,7 @@ export const HeroWindow = memo(function HeroWindow({
           {' '}
           {' · Lv '}
           {stats.level}
+          {stats.masteryLevel > 0 ? ` (${stats.masteryLevel})` : ''}
         </>,
       )}
       position={position}

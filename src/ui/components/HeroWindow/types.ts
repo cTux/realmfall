@@ -12,6 +12,7 @@ export interface HeroWindowStats {
   attack: number;
   defense: number;
   level: number;
+  masteryLevel: number;
   skills: Record<SkillName, { level: number; xp: number }>;
 }
 

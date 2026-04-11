@@ -53,6 +53,7 @@ export function normalizeLoadedGame(game: GameState): GameState {
       : null,
     player: {
       ...player,
+      masteryLevel: Math.max(0, Number(game.player.masteryLevel ?? 0) || 0),
       mana: game.player.mana ?? 12,
       baseMaxMana: game.player.baseMaxMana ?? 12,
       skills: normalizeSkills(

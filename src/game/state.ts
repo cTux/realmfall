@@ -99,6 +99,7 @@ export type Equipment = Partial<Record<EquipmentSlot, Item>>;
 export interface Player {
   coord: HexCoord;
   level: number;
+  masteryLevel: number;
   xp: number;
   hp: number;
   baseMaxHp: number;
@@ -235,6 +236,7 @@ export function createGame(
     player: {
       coord: { q: 0, r: 0 },
       level: 1,
+      masteryLevel: 0,
       xp: 0,
       hp: 30,
       baseMaxHp: 30,
@@ -337,7 +339,10 @@ export function getPlayerStats(player: Player) {
     (sum, item) => sum + (item?.maxHp ?? 0),
     0,
   );
-  const nextLevelXp = levelThreshold(player.level);
+  const nextLevelXp =
+    player.level >= MAX_PLAYER_LEVEL
+      ? masteryLevelThreshold(player.masteryLevel)
+      : levelThreshold(player.level);
   const maxHp = player.baseMaxHp + maxHpBonus;
   const hungerPenalty =
     player.hunger >= 70
@@ -357,6 +362,7 @@ export function getPlayerStats(player: Player) {
     defense: Math.max(0, player.baseDefense + defenseBonus - hungerPenalty),
     hungerPenalty,
     level: player.level,
+    masteryLevel: player.masteryLevel,
     xp: player.xp,
     nextLevelXp,
     skills: player.skills,
@@ -1281,8 +1287,10 @@ function makeConsumable(
 
 function gainXp(state: GameState, amount: number) {
   state.player.xp += amount;
-  while (state.player.xp >= levelThreshold(state.player.level)) {
-    state.player.xp -= levelThreshold(state.player.level);
+  while (state.player.level < MAX_PLAYER_LEVEL) {
+    const requiredXp = levelThreshold(state.player.level);
+    if (state.player.xp < requiredXp) return;
+    state.player.xp -= requiredXp;
     state.player.level += 1;
     state.player.baseMaxHp += 6;
     state.player.baseMaxMana += 2;
@@ -1291,6 +1299,16 @@ function gainXp(state: GameState, amount: number) {
     state.player.hp = getPlayerStats(state.player).maxHp;
     state.player.mana = state.player.baseMaxMana;
     addLog(state, 'system', `You reached level ${state.player.level}.`);
+  }
+
+  while (state.player.xp >= masteryLevelThreshold(state.player.masteryLevel)) {
+    state.player.xp -= masteryLevelThreshold(state.player.masteryLevel);
+    state.player.masteryLevel += 1;
+    addLog(
+      state,
+      'system',
+      `You reached mastery level ${state.player.masteryLevel}.`,
+    );
   }
 }
 
@@ -1367,8 +1385,14 @@ function findNearestStructure(
   return undefined;
 }
 
+const MAX_PLAYER_LEVEL = 100;
+
 function levelThreshold(level: number) {
   return 40 + level * 25;
+}
+
+function masteryLevelThreshold(masteryLevel: number) {
+  return levelThreshold(MAX_PLAYER_LEVEL + masteryLevel) * 20;
 }
 
 function terrainTier(coord: HexCoord, terrain: Terrain) {

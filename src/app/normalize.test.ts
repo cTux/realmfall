@@ -132,6 +132,7 @@ describe('normalizeLoadedGame', () => {
 
     expect(loaded.player.mana).toBe(12);
     expect(loaded.player.baseMaxMana).toBe(12);
+    expect(loaded.player.masteryLevel).toBe(0);
     expect(loaded.logSequence).toBe(2);
     expect(loaded.logs.map((entry) => entry.id)).toEqual(['l-1', 'l-2']);
     expect(loaded.combat?.enemyIds).toEqual([]);
