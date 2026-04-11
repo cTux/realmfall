@@ -19,9 +19,12 @@ import {
 import { enemyTooltip, structureTooltip } from '../../ui/tooltips';
 import { renderScene } from '../../ui/world/renderScene';
 import { getWorldTimeMinutesFromTimestamp } from '../../ui/world/timeOfDay';
-import { HEX_SIZE } from '../constants';
+import { HEX_SIZE, WORLD_REVEAL_RADIUS } from '../constants';
 import type { TooltipState } from './types';
-import { mapWorldMapFishEyeDisplayPointToSourcePoint } from '../../ui/world/worldMapFishEye';
+import {
+  mapWorldMapFishEyeDisplayPointToSourcePoint,
+  WORLD_MAP_FISHEYE_ENABLED,
+} from '../../ui/world/worldMapFishEye';
 
 interface UsePixiWorldArgs {
   game: GameState;
@@ -114,11 +117,16 @@ export function usePixiWorld({
         x: event.clientX - rect.left,
         y: event.clientY - rect.top,
       };
-      const sourcePoint = mapWorldMapFishEyeDisplayPointToSourcePoint(
-        displayPoint,
-        app.screen,
-        { x: app.screen.width / 2, y: app.screen.height / 2 },
-      );
+      const sourcePoint = WORLD_MAP_FISHEYE_ENABLED
+        ? mapWorldMapFishEyeDisplayPointToSourcePoint(
+            displayPoint,
+            app.screen,
+            {
+              x: app.screen.width / 2,
+              y: app.screen.height / 2,
+            },
+          )
+        : displayPoint;
       const clickedOffset = hexAtPoint(sourcePoint.x, sourcePoint.y, {
         centerX: app.screen.width / 2,
         centerY: app.screen.height / 2,
@@ -152,11 +160,16 @@ export function usePixiWorld({
         x: event.clientX - rect.left,
         y: event.clientY - rect.top,
       };
-      const sourcePoint = mapWorldMapFishEyeDisplayPointToSourcePoint(
-        displayPoint,
-        app.screen,
-        { x: app.screen.width / 2, y: app.screen.height / 2 },
-      );
+      const sourcePoint = WORLD_MAP_FISHEYE_ENABLED
+        ? mapWorldMapFishEyeDisplayPointToSourcePoint(
+            displayPoint,
+            app.screen,
+            {
+              x: app.screen.width / 2,
+              y: app.screen.height / 2,
+            },
+          )
+        : displayPoint;
       const hoveredOffset = hexAtPoint(sourcePoint.x, sourcePoint.y, {
         centerX: app.screen.width / 2,
         centerY: app.screen.height / 2,
@@ -170,7 +183,7 @@ export function usePixiWorld({
       const tile = getTileAt(current, target);
       const enemies = getEnemiesAt(current, target);
       const withinVisibleMap =
-        hexDistance(playerCoordRef.current, target) <= current.radius;
+        hexDistance(playerCoordRef.current, target) <= WORLD_REVEAL_RADIUS;
       const clickable =
         hexDistance(playerCoordRef.current, target) === 1 &&
         tile.terrain !== 'water' &&

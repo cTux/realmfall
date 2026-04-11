@@ -803,6 +803,45 @@ describe('ui helpers and components', () => {
     host.remove();
   });
 
+  it('marks blood moon log entries with a dedicated red style', async () => {
+    vi.useFakeTimers();
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+
+    await act(async () => {
+      root.render(
+        <LogWindow
+          position={DEFAULT_WINDOWS.log}
+          onMove={() => {}}
+          filters={DEFAULT_LOG_FILTERS}
+          defaultFilters={DEFAULT_LOG_FILTERS}
+          showFilterMenu={false}
+          onToggleMenu={() => {}}
+          onToggleFilter={() => {}}
+          logs={[
+            {
+              id: 'blood-moon-log',
+              kind: 'combat',
+              text: '[Day 5, 18:00] Blood moon begins. A red hunger sweeps the wilds.',
+              turn: 12,
+            },
+          ]}
+        />,
+      );
+      vi.advanceTimersByTime(2_000);
+    });
+
+    const bloodMoonEntry = host.querySelector('div[class*="bloodMoon"]');
+
+    expect(bloodMoonEntry).not.toBeNull();
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
   it('animates tooltip visibility changes', async () => {
     vi.useFakeTimers();
 

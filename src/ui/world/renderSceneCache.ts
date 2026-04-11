@@ -28,6 +28,7 @@ import {
 } from './renderScenePools';
 import {
   createWorldMapFishEyeFilter,
+  WORLD_MAP_FISHEYE_ENABLED,
   type WorldMapFishEyeFilter,
 } from './worldMapFishEye';
 
@@ -50,11 +51,12 @@ type CachedApplication = Application & { [SCENE_CACHE_KEY]?: SceneCache };
 export interface SceneCache {
   skyFill: Graphics;
   overlayFill: Graphics;
+  worldMap: Container;
   world: Container;
   waterfalls: Container;
   labels: Container;
   worldMapFilterArea: Rectangle;
-  worldMapFilters: WorldMapFishEyeFilter[];
+  worldMapFilter: WorldMapFishEyeFilter;
   atmosphereShaftGraphics: GraphicsPool;
   atmosphereCelestialGraphics: GraphicsPool;
   worldGroundGraphics: GraphicsPool;
@@ -73,6 +75,7 @@ export function getSceneCache(app: Application) {
   if (cachedApp[SCENE_CACHE_KEY]) return cachedApp[SCENE_CACHE_KEY];
 
   const sky = new Container();
+  const worldMap = new Container();
   const world = new Container();
   const worldGround = new Container();
   const worldDetail = new Container();
@@ -92,24 +95,17 @@ export function getSceneCache(app: Application) {
     app.screen.width,
     app.screen.height,
   );
-  const worldMapFilters = [
-    createWorldMapFishEyeFilter(),
-    createWorldMapFishEyeFilter(),
-    createWorldMapFishEyeFilter(),
-  ];
-  world.filters = [worldMapFilters[0]];
-  waterfalls.filters = [worldMapFilters[1]];
-  labels.filters = [worldMapFilters[2]];
-  world.filterArea = worldMapFilterArea;
-  waterfalls.filterArea = worldMapFilterArea;
-  labels.filterArea = worldMapFilterArea;
+  const worldMapFilter = createWorldMapFishEyeFilter();
+  if (WORLD_MAP_FISHEYE_ENABLED) {
+    worldMap.filters = [worldMapFilter];
+    worldMap.filterArea = worldMapFilterArea;
+  }
 
   world.addChild(worldGround, worldDetail, worldMarkers, worldPlayer);
+  worldMap.addChild(world, waterfalls, labels);
   app.stage.addChild(
     sky,
-    world,
-    waterfalls,
-    labels,
+    worldMap,
     atmosphereShafts,
     atmosphereCelestials,
     cloudShadows,
@@ -129,11 +125,12 @@ export function getSceneCache(app: Application) {
   const scene: SceneCache = {
     skyFill,
     overlayFill,
+    worldMap,
     world,
     waterfalls,
     labels,
     worldMapFilterArea,
-    worldMapFilters,
+    worldMapFilter,
     atmosphereShaftGraphics: createGraphicsPool(atmosphereShafts),
     atmosphereCelestialGraphics: createGraphicsPool(atmosphereCelestials),
     worldGroundGraphics: createGraphicsPool(worldGround),

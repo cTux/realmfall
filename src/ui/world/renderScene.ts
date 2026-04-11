@@ -12,11 +12,9 @@ import {
   structureIconFor,
   structureTint,
 } from '../icons';
-import { HEX_SIZE } from '../../app/constants';
+import { HEX_SIZE, WORLD_REVEAL_RADIUS } from '../../app/constants';
 import { scaleColor } from './timeOfDay';
 import {
-  ENEMY_GROUP_LABEL_STYLE,
-  ENEMY_LEVEL_LABEL_STYLE,
   beginSceneRender,
   completeSceneRender,
   getSceneCache,
@@ -27,7 +25,7 @@ import {
   renderSkyLayer,
   renderWorldOverlay,
 } from './renderSceneAtmosphere';
-import { enemyOffsets, makeHex, tileToPoint } from './renderSceneMath';
+import { makeHex, tileToPoint } from './renderSceneMath';
 import {
   renderCampfireLight,
   renderCloudLayer,
@@ -38,9 +36,11 @@ import {
   configureShadowedSprite,
   takeGraphics,
   takeShadowedSprite,
-  takeText,
 } from './renderScenePools';
-import { updateWorldMapFishEyeFilter } from './worldMapFishEye';
+import {
+  updateWorldMapFishEyeFilter,
+  WORLD_MAP_FISHEYE_ENABLED,
+} from './worldMapFishEye';
 
 export function renderScene(
   app: Application,
@@ -57,11 +57,11 @@ export function renderScene(
   const { lighting, origin, sunPosition, moonPosition, shadowOffset } =
     getLightingState(app, worldTimeMinutes, animationMs, state.bloodMoonActive);
 
-  scene.worldMapFilterArea.width = app.screen.width;
-  scene.worldMapFilterArea.height = app.screen.height;
-  scene.worldMapFilters.forEach((filter) => {
-    updateWorldMapFishEyeFilter(filter, app.screen, origin);
-  });
+  if (WORLD_MAP_FISHEYE_ENABLED) {
+    scene.worldMapFilterArea.width = app.screen.width;
+    scene.worldMapFilterArea.height = app.screen.height;
+    updateWorldMapFishEyeFilter(scene.worldMapFilter, app.screen, origin);
+  }
 
   renderSkyLayer(app, scene.skyFill, lighting.skyColor);
   renderAtmosphere(
@@ -84,6 +84,7 @@ export function renderScene(
     const clickable =
       distance === 1 && tile.terrain !== 'water' && tile.terrain !== 'mountain';
     const emphasized = distance === 0 || clickable;
+    const revealed = distance <= WORLD_REVEAL_RADIUS;
     const relative = {
       q: tile.coord.q - state.player.coord.q,
       r: tile.coord.r - state.player.coord.r,
@@ -108,6 +109,14 @@ export function renderScene(
     shape.lineStyle(1, 0x1e293b, 0.9);
     shape.drawPolygon(poly);
     shape.endFill();
+
+    if (!revealed) {
+      const fog = takeGraphics(scene.worldDetailGraphics);
+      fog.beginFill(0x020617, 0.78);
+      fog.drawPolygon(poly);
+      fog.endFill();
+      return;
+    }
 
     renderTileGroundCover(
       scene.worldDetailSprites,
@@ -165,37 +174,26 @@ export function renderScene(
     }
 
     if (enemies.length > 0 && tile.structure !== 'dungeon') {
-      const offsets = enemyOffsets(enemies.length);
-      enemies.forEach((enemy, index) => {
-        const sprite = takeShadowedSprite(
-          scene.worldMarkerSprites,
-          enemyIconFor(enemy.name),
-        );
-        configureShadowedSprite(
-          sprite,
-          scaleColor(enemyTint(enemy.name), lighting.ambientBrightness + 0.04),
-          32,
-          32,
-          emphasized ? 1 : 0.72,
-          shadowOffset,
-          {
-            x: point.x + offsets[index].x,
-            y: point.y - 2 + offsets[index].y,
-          },
-        );
-      });
-
-      const level = takeText(scene.labelTexts, ENEMY_LEVEL_LABEL_STYLE);
-      level.text = `L${Math.max(...enemies.map((foe) => foe.tier))}`;
-      level.position.set(point.x - 12, point.y - 32);
-      level.alpha = emphasized ? 1 : 0.78;
-
-      if (enemies.length > 1) {
-        const groupLabel = takeText(scene.labelTexts, ENEMY_GROUP_LABEL_STYLE);
-        groupLabel.text = `x${enemies.length}`;
-        groupLabel.position.set(point.x + 8, point.y - 26);
-        groupLabel.alpha = emphasized ? 1 : 0.78;
-      }
+      const leadEnemy = enemies[0];
+      const sprite = takeShadowedSprite(
+        scene.worldMarkerSprites,
+        enemyIconFor(leadEnemy.name),
+      );
+      configureShadowedSprite(
+        sprite,
+        scaleColor(
+          enemyTint(leadEnemy.name),
+          lighting.ambientBrightness + 0.04,
+        ),
+        32,
+        32,
+        emphasized ? 1 : 0.72,
+        shadowOffset,
+        {
+          x: point.x,
+          y: point.y - 2,
+        },
+      );
     }
   });
 

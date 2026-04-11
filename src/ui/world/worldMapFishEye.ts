@@ -1,6 +1,9 @@
 import { Filter } from 'pixi.js';
 import { HEX_SIZE } from '../../app/constants';
 
+// Keep the fisheye implementation available, but disabled for now.
+export const WORLD_MAP_FISHEYE_ENABLED = false;
+
 const WORLD_MAP_FISHEYE_FRAGMENT = `
 precision mediump float;
 
@@ -34,8 +37,8 @@ void main(void) {
 }
 `;
 
-const WORLD_MAP_FISHEYE_STRENGTH = 0.3;
-const WORLD_MAP_FISHEYE_FALLOFF_POWER = 0.1;
+const WORLD_MAP_FISHEYE_STRENGTH = 0.7;
+const WORLD_MAP_FISHEYE_FALLOFF_POWER = 0.6;
 const WORLD_MAP_FISHEYE_RADIUS_IN_HEXES = 13;
 
 export type WorldMapFishEyeFilter = Filter & {

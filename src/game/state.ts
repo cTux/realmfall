@@ -2557,6 +2557,7 @@ function isBloodMoonRiseWindow(worldTimeMinutes: number) {
 
 function spawnBloodMoonEnemies(state: GameState) {
   let spawned = 0;
+  const maxEnemiesPerTile = 3;
 
   for (
     let dq = -BLOOD_MOON_SPAWN_RADIUS;
@@ -2586,7 +2587,16 @@ function spawnBloodMoonEnemies(state: GameState) {
       const spawnChance = distance <= 2 ? 0.82 : distance <= 4 ? 0.58 : 0.36;
       if (rng() >= spawnChance) continue;
 
-      const count = 1 + Math.floor(rng() * (distance <= 2 ? 3 : 2));
+      const availableSlots = Math.max(
+        0,
+        maxEnemiesPerTile - tile.enemyIds.length,
+      );
+      if (availableSlots === 0) continue;
+
+      const count = Math.min(
+        availableSlots,
+        1 + Math.floor(rng() * (distance <= 2 ? 3 : 2)),
+      );
       let nextIndex = nextEnemySpawnIndex(tile.enemyIds);
       for (let index = 0; index < count; index += 1) {
         const enemy = makeEnemy(

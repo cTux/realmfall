@@ -256,6 +256,11 @@ describe('game state', () => {
     ).length;
 
     expect(nearbyEnemyCount).toBeGreaterThan(0);
+    expect(
+      Object.values(bloodMoonGame.tiles).every(
+        (tile) => tile.enemyIds.length <= 3,
+      ),
+    ).toBe(true);
 
     const sunrise = syncBloodMoon(bloodMoonGame, 7 * 60);
     expect(sunrise.bloodMoonActive).toBe(false);
@@ -263,6 +268,59 @@ describe('game state', () => {
     expect(sunrise.bloodMoonCycle).toBe(bloodMoonGame.bloodMoonCycle + 1);
     expect(sunrise.enemies['enemy-test']?.maxHp).toBe(32);
     expect(sunrise.logs[0]?.text).toMatch(/blood moon ends/i);
+  });
+
+  it('does not let blood moon spawns stack more than three enemies on one tile', () => {
+    const game = createGame(6, 'blood-moon-stack-cap');
+    game.player.coord = { q: 0, r: 0 };
+    game.bloodMoonCycle = 12;
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: ['enemy-1,0-0', 'enemy-1,0-1', 'enemy-1,0-2'],
+    };
+    game.enemies['enemy-1,0-0'] = {
+      id: 'enemy-1,0-0',
+      name: 'Wolf',
+      coord: { q: 1, r: 0 },
+      tier: 1,
+      hp: 4,
+      maxHp: 4,
+      attack: 2,
+      defense: 1,
+      xp: 3,
+      elite: false,
+    };
+    game.enemies['enemy-1,0-1'] = {
+      id: 'enemy-1,0-1',
+      name: 'Wolf',
+      coord: { q: 1, r: 0 },
+      tier: 1,
+      hp: 4,
+      maxHp: 4,
+      attack: 2,
+      defense: 1,
+      xp: 3,
+      elite: false,
+    };
+    game.enemies['enemy-1,0-2'] = {
+      id: 'enemy-1,0-2',
+      name: 'Wolf',
+      coord: { q: 1, r: 0 },
+      tier: 1,
+      hp: 4,
+      maxHp: 4,
+      attack: 2,
+      defense: 1,
+      xp: 3,
+      elite: false,
+    };
+
+    const synced = syncBloodMoon(game, 18 * 60);
+
+    expect(getTileAt(synced, { q: 1, r: 0 }).enemyIds).toHaveLength(3);
   });
 
   it('logs ordinary nightfall and morning transitions', () => {

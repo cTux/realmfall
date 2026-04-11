@@ -8,6 +8,7 @@ import styles from './styles.module.css';
 const TYPE_DELAY_MS = 16;
 const MATRIX_GLYPHS = ['#', '%', '&', '/', '+', '*'];
 const LOG_PREFIX_PATTERN = /^\[Day \d+, [0-9]{2}:[0-9]{2}\]\s/;
+const BLOOD_MOON_PATTERN = /blood moon/i;
 
 function AnimatedLogLine({ text }: { text: string }) {
   const prefix = text.match(LOG_PREFIX_PATTERN)?.[0] ?? '';
@@ -107,7 +108,7 @@ export const LogWindow = memo(function LogWindow({
         {orderedLogs.map((entry) => (
           <div
             key={entry.id}
-            className={`${styles.logEntry} ${styles[entry.kind] ?? ''}`.trim()}
+            className={`${styles.logEntry} ${styles[entry.kind] ?? ''} ${BLOOD_MOON_PATTERN.test(entry.text) ? styles.bloodMoon : ''}`.trim()}
           >
             <AnimatedLogLine text={entry.text} />
           </div>

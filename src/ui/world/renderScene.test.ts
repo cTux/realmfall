@@ -169,23 +169,17 @@ describe('renderScene', () => {
       12 * 60,
     );
 
-    expect(app.stage.children).toHaveLength(9);
+    expect(app.stage.children).toHaveLength(7);
     expect(spriteFrom).toHaveBeenCalled();
     expect(
       spriteFrom.mock.calls.some(([icon]) => typeof icon === 'string'),
     ).toBe(true);
 
-    const labels = app.stage.children[3] as MockContainer;
-    expect(
-      labels.children.some(
-        (child) => child instanceof MockText && child.text.startsWith('L'),
-      ),
-    ).toBe(true);
-    expect(
-      labels.children.some(
-        (child) => child instanceof MockText && child.text.startsWith('x'),
-      ),
-    ).toBe(true);
+    const worldMap = app.stage.children[1] as MockContainer;
+    const labels = worldMap.children[2] as MockContainer;
+    expect(labels.children.some((child) => child instanceof MockText)).toBe(
+      false,
+    );
   });
 
   it('does not draw the selected outline on the player tile', async () => {
@@ -338,7 +332,7 @@ describe('renderScene', () => {
       12 * 60,
     );
 
-    const clouds = app.stage.children[7] as MockContainer;
+    const clouds = app.stage.children[5] as MockContainer;
     const cloudAlphas = clouds.children.map(
       (child) => (child as { alpha: number }).alpha,
     );
@@ -366,7 +360,7 @@ describe('renderScene', () => {
     );
 
     const world = app.stage.children[1] as MockContainer;
-    const clouds = app.stage.children[7] as MockContainer;
+    const clouds = app.stage.children[5] as MockContainer;
     const grassSprites = collectDescendants(world).filter(
       (child) => (child as { icon?: string }).icon === Icons.HighGrass,
     );
@@ -417,5 +411,60 @@ describe('renderScene', () => {
 
     expect(app.stage.children).toEqual(initialStageChildren);
     expect(spriteFrom.mock.calls).toHaveLength(initialSpriteCalls);
+  });
+
+  it('covers hexes beyond the reveal radius with fog of war', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(6, 'render-scene-fog-of-war');
+    game.tiles['5,0'] = {
+      coord: { q: 5, r: 0 },
+      terrain: 'forest',
+      structure: 'town',
+      items: [],
+      enemyIds: ['enemy-5,0-0'],
+    };
+    game.enemies['enemy-5,0-0'] = {
+      id: 'enemy-5,0-0',
+      name: 'Raider',
+      coord: { q: 5, r: 0 },
+      tier: 9,
+      hp: 10,
+      maxHp: 10,
+      attack: 5,
+      defense: 2,
+      xp: 12,
+      elite: false,
+    };
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 960, height: 720 },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    const worldMap = app.stage.children[1] as MockContainer;
+    const world = worldMap.children[0] as MockContainer;
+    const fogPolygons = collectDescendants(world).filter(
+      (child) =>
+        child instanceof MockGraphics &&
+        child.beginFill.mock.calls.some(
+          ([color, alpha]) => color === 0x020617 && alpha === 0.78,
+        ),
+    );
+    const labels = worldMap.children[2] as MockContainer;
+
+    expect(fogPolygons.length).toBeGreaterThan(0);
+    expect(
+      labels.children.some(
+        (child) => child instanceof MockText && child.text === 'L9',
+      ),
+    ).toBe(false);
   });
 });

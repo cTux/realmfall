@@ -122,6 +122,11 @@
   color: #fca5a5;
 }
 
+.bloodMoon {
+  color: #f87171;
+  text-shadow: 0 0 10px rgba(127, 29, 29, 0.45);
+}
+
 .loot {
   color: #bbf7d0;
 }
