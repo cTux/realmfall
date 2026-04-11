@@ -29,6 +29,7 @@ import {
 } from './renderSceneAtmosphere';
 import { enemyOffsets, makeHex, tileToPoint } from './renderSceneMath';
 import {
+  renderCampfireLight,
   renderCloudLayer,
   renderEdgeWaterfall,
   renderTileGroundCover,
@@ -107,6 +108,16 @@ export function renderScene(
       lighting.ambientBrightness,
       state.seed,
     );
+
+    if (tile.structure === 'camp') {
+      renderCampfireLight(
+        scene.worldDetailGraphics,
+        point,
+        lighting.ambientBrightness,
+        lighting,
+        animationMs,
+      );
+    }
 
     if (tile.terrain === 'water' && distance === state.radius) {
       renderEdgeWaterfall(

@@ -65,6 +65,7 @@ class MockTextStyle {
 }
 
 vi.mock('pixi.js', () => ({
+  BLEND_MODES: { ADD: 'add' },
   Container: MockContainer,
   Graphics: MockGraphics,
   Sprite: { from: spriteFrom },
@@ -242,6 +243,63 @@ describe('renderScene', () => {
 
     expect(hoverOutlines).toHaveLength(0);
     expect(brightHoveredFill).toBe(true);
+  });
+
+  it('adds animated campfire glow only once the world gets dark', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-campfire-glow');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      structure: 'camp',
+      items: [],
+      enemyIds: [],
+    };
+
+    const nightApp = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+    renderScene(
+      nightApp as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      0,
+      1600,
+    );
+
+    const nightWorld = nightApp.stage.children[2] as MockContainer;
+    const nightGlowEllipses = collectDescendants(nightWorld).filter(
+      (child) =>
+        child instanceof MockGraphics &&
+        child.drawEllipse.mock.calls.length > 0,
+    );
+
+    const dayApp = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+    renderScene(
+      dayApp as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      1600,
+    );
+
+    const dayWorld = dayApp.stage.children[2] as MockContainer;
+    const dayGlowEllipses = collectDescendants(dayWorld).filter(
+      (child) =>
+        child instanceof MockGraphics &&
+        child.drawEllipse.mock.calls.length > 0,
+    );
+
+    expect(nightGlowEllipses.length).toBeGreaterThan(0);
+    expect(dayGlowEllipses).toHaveLength(0);
   });
 
   it('renders clouds with stronger opacity', async () => {

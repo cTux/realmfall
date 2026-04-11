@@ -1,3 +1,4 @@
+import { BLEND_MODES } from 'pixi.js';
 import { createRng } from '../../game/random';
 import { type GameState, type HexCoord } from '../../game/state';
 import { HEX_SIZE } from '../../app/constants';
@@ -169,6 +170,87 @@ export function renderEdgeWaterfall(
     ]);
     stream.endFill();
   }
+}
+
+export function renderCampfireLight(
+  graphicsPool: GraphicsPool,
+  point: { x: number; y: number },
+  ambientBrightness: number,
+  lighting: ReturnType<typeof getTimeOfDayLighting>,
+  animationMs: number,
+) {
+  const nightGlow = Math.max(
+    0,
+    Math.min(1, lighting.moonOpacity * 0.78 + lighting.overlayAlpha - 0.24),
+  );
+  if (nightGlow <= 0.01) return;
+
+  const flicker = 0.88 + Math.sin(animationMs * 0.008) * 0.08;
+  const pulse = 0.94 + Math.sin(animationMs * 0.0035 + point.x * 0.01) * 0.06;
+  const haloTint = scaleColor(0xfb923c, 0.84 + ambientBrightness * 0.38);
+  const emberTint = scaleColor(0xfef08a, 0.8 + ambientBrightness * 0.24);
+  const haloLayers = [
+    { width: 4.05, height: 2.95, alpha: 0.024 },
+    { width: 3.6, height: 2.58, alpha: 0.032 },
+    { width: 3.1, height: 2.24, alpha: 0.044 },
+    { width: 2.68, height: 1.92, alpha: 0.06 },
+    { width: 2.18, height: 1.56, alpha: 0.084 },
+    { width: 1.74, height: 1.22, alpha: 0.114 },
+  ];
+
+  haloLayers.forEach((layer, index) => {
+    const glow = takeGraphics(graphicsPool);
+    const scale = flicker + index * 0.03;
+    glow.blendMode = BLEND_MODES.ADD;
+    glow.beginFill(haloTint, layer.alpha * nightGlow * pulse);
+    glow.drawEllipse(
+      point.x,
+      point.y + HEX_SIZE * 0.2,
+      HEX_SIZE * layer.width * scale,
+      HEX_SIZE * layer.height * scale,
+    );
+    glow.endFill();
+  });
+
+  const bloomLayers = [
+    { width: 1.92, height: 1.18, alpha: 0.082, yOffset: 0.12 },
+    { width: 1.46, height: 0.9, alpha: 0.114, yOffset: 0.08 },
+    { width: 1.06, height: 0.64, alpha: 0.152, yOffset: 0.04 },
+  ];
+  bloomLayers.forEach((layer, index) => {
+    const bloom = takeGraphics(graphicsPool);
+    bloom.blendMode = BLEND_MODES.ADD;
+    bloom.beginFill(emberTint, layer.alpha * nightGlow * (1 + flicker * 0.08));
+    bloom.drawEllipse(
+      point.x,
+      point.y + HEX_SIZE * layer.yOffset - index,
+      HEX_SIZE * layer.width,
+      HEX_SIZE * layer.height,
+    );
+    bloom.endFill();
+  });
+
+  const heatWash = takeGraphics(graphicsPool);
+  heatWash.blendMode = BLEND_MODES.ADD;
+  heatWash.beginFill(haloTint, 0.12 * nightGlow);
+  heatWash.drawEllipse(
+    point.x,
+    point.y + HEX_SIZE * 0.08,
+    HEX_SIZE * 1.16,
+    HEX_SIZE * 0.8,
+  );
+  heatWash.endFill();
+
+  const emberCore = takeGraphics(graphicsPool);
+  emberCore.blendMode = BLEND_MODES.ADD;
+  emberCore.beginFill(emberTint, 0.22 * nightGlow * (1.02 + flicker * 0.08));
+  emberCore.drawEllipse(
+    point.x,
+    point.y + HEX_SIZE * 0.1,
+    HEX_SIZE * 0.46,
+    HEX_SIZE * 0.3,
+  );
+  emberCore.endFill();
 }
 
 export function tileStyle(terrain: string) {
