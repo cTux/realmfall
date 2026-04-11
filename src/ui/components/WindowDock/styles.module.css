@@ -8,8 +8,9 @@
   flex-direction: column;
   gap: 5px;
   justify-content: flex-start;
-  padding: 0.75rem 0.75rem 0.75rem 0;
-  background: rgba(15, 23, 42, 0.95);
+  padding: 4px;
+  background: rgba(8, 15, 30, 0.86);
+  backdrop-filter: blur(14px);
   border: 1px solid rgba(148, 163, 184, 0.2);
   border-right-color: rgba(148, 163, 184, 0.2);
   box-sizing: border-box;
@@ -31,6 +32,7 @@
     color 120ms ease,
     transform 120ms ease,
     background-color 120ms ease;
+  border-radius: 0;
 }
 
 .dockButton:hover {
@@ -56,8 +58,8 @@
 }
 
 .buttonIcon {
-  width: 2rem;
-  height: 2rem;
+  width: 3rem;
+  height: 3rem;
   display: inline-block;
   background: currentColor;
   mask-repeat: no-repeat;
@@ -84,7 +86,7 @@
   border: 1px solid rgba(148, 163, 184, 0.28);
   background: rgba(8, 15, 30, 0.96);
   color: #e2e8f0;
-  font-size: 0.8rem;
+  font-size: 1.2rem;
   line-height: 1.1;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32);
 }
