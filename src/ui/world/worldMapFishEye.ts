@@ -35,7 +35,7 @@ void main(void) {
 `;
 
 const WORLD_MAP_FISHEYE_STRENGTH = 0.3;
-const WORLD_MAP_FISHEYE_FALLOFF_POWER = 0.6;
+const WORLD_MAP_FISHEYE_FALLOFF_POWER = 0.1;
 const WORLD_MAP_FISHEYE_RADIUS_IN_HEXES = 13;
 
 export type WorldMapFishEyeFilter = Filter & {
