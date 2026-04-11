@@ -6,16 +6,12 @@ import {
   useState,
   type MouseEvent as ReactMouseEvent,
 } from 'react';
-import { Application } from 'pixi.js';
 import {
   attackCombatEnemy,
   buyTownItem,
-  canEquipItem,
-  canUseItem,
   craftRecipe,
   createGame,
   createFreshLogs,
-  describeStructure,
   dropEquippedItem,
   dropInventoryItem,
   equipItem,
@@ -25,15 +21,10 @@ import {
   getGoldAmount,
   getPlayerStats,
   getRecipeBookRecipes,
-  getTileAt,
   getTownStock,
   getVisibleTiles,
   hasRecipeBook,
-  hexAtPoint,
-  hexDistance,
   interactWithStructure,
-  isRecipeBook,
-  moveToTile,
   prospectInventory,
   sellAllItems,
   structureActionLabel,
@@ -50,7 +41,6 @@ import {
   DEFAULT_WINDOW_VISIBILITY,
   DEFAULT_LOG_FILTERS,
   DEFAULT_WINDOWS,
-  HEX_SIZE,
   type WindowVisibilityState,
   WORLD_RADIUS,
   type WindowPositions,
@@ -60,78 +50,30 @@ import {
   loadEncryptedState,
   saveEncryptedState,
 } from '../../persistence/storage';
-import {
-  enemyTooltip,
-  itemTooltipLines,
-  structureTooltip,
-} from '../../ui/tooltips';
+import { itemTooltipLines } from '../../ui/tooltips';
 import { rarityColor } from '../../ui/rarity';
-import { Icons } from '../../ui/icons';
-import { renderScene } from '../../ui/world/renderScene';
 import {
   formatWorldTime,
   getWorldTimeMinutesFromTimestamp,
 } from '../../ui/world/timeOfDay';
-import { HeroWindow } from '../../ui/components/HeroWindow';
-import { SkillsWindow } from '../../ui/components/SkillsWindow';
-import { LegendWindow } from '../../ui/components/LegendWindow';
-import { HexInfoWindow } from '../../ui/components/HexInfoWindow';
-import { EquipmentWindow } from '../../ui/components/EquipmentWindow';
-import { InventoryWindow } from '../../ui/components/InventoryWindow';
-import { RecipeBookWindow } from '../../ui/components/RecipeBookWindow';
-import { LogWindow } from '../../ui/components/LogWindow';
-import { GameTooltip } from '../../ui/components/GameTooltip';
-import { CombatWindow } from '../../ui/components/CombatWindow';
-import { LootWindow } from '../../ui/components/LootWindow';
-import { ItemContextMenu } from '../../ui/components/ItemContextMenu';
-import { WindowDock } from '../../ui/components/WindowDock';
-import { WINDOW_LABELS } from '../../ui/components/windowLabels';
 import type {
   ItemContextMenuState,
   PersistedUiState,
   TooltipItem,
   TooltipState,
 } from './types';
+import { AppWindows } from './AppWindows';
+import {
+  getDockEntries,
+  getInventoryItemAction,
+  isEditableTarget,
+  WINDOW_HOTKEYS,
+} from './appHelpers';
+import { usePixiWorld } from './usePixiWorld';
 import styles from './styles.module.css';
-
-const DOCK_WINDOW_ICONS: Record<keyof WindowVisibilityState, string> = {
-  hero: Icons.Player,
-  skills: Icons.Sparkles,
-  recipes: Icons.BookCover,
-  legend: Icons.Totem,
-  hexInfo: Icons.Village,
-  equipment: Icons.Armor,
-  inventory: Icons.Coins,
-  loot: Icons.StonePile,
-  log: Icons.Log,
-  combat: Icons.Enemy,
-};
-
-const WINDOW_HOTKEYS: Partial<Record<string, keyof WindowVisibilityState>> = {
-  c: 'hero',
-  s: 'skills',
-  r: 'recipes',
-  l: 'legend',
-  h: 'hexInfo',
-  e: 'equipment',
-  i: 'inventory',
-  g: 'log',
-};
-
-function isEditableTarget(target: EventTarget | null) {
-  if (!(target instanceof HTMLElement)) return false;
-  return (
-    target instanceof HTMLInputElement ||
-    target instanceof HTMLTextAreaElement ||
-    target instanceof HTMLSelectElement ||
-    target.isContentEditable
-  );
-}
 
 export function App() {
   const initialGameRef = useRef<GameState>(createGame(WORLD_RADIUS));
-  const hostRef = useRef<HTMLDivElement | null>(null);
-  const appRef = useRef<Application | null>(null);
   const playerCoordRef = useRef<HexCoord>({ q: 0, r: 0 });
   const gameRef = useRef<GameState>(initialGameRef.current);
   const visibleTilesRef = useRef(getVisibleTiles(initialGameRef.current));
@@ -155,7 +97,6 @@ export function App() {
   );
   const [logFilters, setLogFilters] = useState(DEFAULT_LOG_FILTERS);
   const [hydrated, setHydrated] = useState(false);
-  const [canvasReady, setCanvasReady] = useState(false);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [itemMenu, setItemMenu] = useState<ItemContextMenuState | null>(null);
@@ -163,7 +104,6 @@ export function App() {
     initialGameRef.current.worldTimeMs,
   );
   const [fps, setFps] = useState(0);
-  const isReady = hydrated && canvasReady;
 
   const stats = useMemo(() => getPlayerStats(game.player), [game.player]);
   const visibleTiles = useMemo(() => getVisibleTiles(game), [game]);
@@ -240,6 +180,25 @@ export function App() {
   } | null>(
     game.combat ? { combat: game.combat, enemies: combatEnemies } : null,
   );
+
+  const { hostRef, canvasReady } = usePixiWorld({
+    game,
+    visibleTiles,
+    selected,
+    hoveredMove,
+    worldTimeMsRef,
+    frameCountRef,
+    playerCoordRef,
+    gameRef,
+    visibleTilesRef,
+    selectedRef,
+    hoveredMoveRef,
+    setGame,
+    setSelected,
+    setHoveredMove,
+    setTooltip,
+  });
+  const isReady = hydrated && canvasReady;
 
   useEffect(() => {
     playerCoordRef.current = game.player.coord;
@@ -421,168 +380,6 @@ export function App() {
   }, [hydrated, logFilters, windowShown, windows]);
 
   useEffect(() => {
-    if (!hostRef.current || appRef.current) return;
-
-    const app = new Application({
-      width: Math.max(window.innerWidth, 640),
-      height: Math.max(window.innerHeight, 480),
-      backgroundColor: 0x0b1020,
-      antialias: true,
-      resolution: window.devicePixelRatio || 1,
-    });
-
-    appRef.current = app;
-    const canvas = app.view as HTMLCanvasElement;
-    hostRef.current.replaceChildren(canvas);
-
-    const resize = () => {
-      const width = hostRef.current?.clientWidth ?? window.innerWidth;
-      const height = hostRef.current?.clientHeight ?? window.innerHeight;
-      app.renderer.resize(width, height);
-    };
-
-    resize();
-
-    const renderFrame = () => {
-      frameCountRef.current += 1;
-      renderScene(
-        app,
-        gameRef.current,
-        visibleTilesRef.current,
-        selectedRef.current,
-        hoveredMoveRef.current,
-        getWorldTimeMinutesFromTimestamp(worldTimeMsRef.current),
-        performance.now(),
-      );
-    };
-
-    renderFrame();
-    app.ticker.add(renderFrame);
-    setCanvasReady(true);
-
-    const observer = new ResizeObserver(() => resize());
-    observer.observe(hostRef.current);
-    window.addEventListener('resize', resize);
-
-    const onPointerDown = (event: PointerEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      const clickedOffset = hexAtPoint(x, y, {
-        centerX: app.screen.width / 2,
-        centerY: app.screen.height / 2,
-        size: HEX_SIZE,
-      });
-      const target = {
-        q: playerCoordRef.current.q + clickedOffset.q,
-        r: playerCoordRef.current.r + clickedOffset.r,
-      };
-      const current = gameRef.current;
-      const tile = getTileAt(current, target);
-      const clickable =
-        hexDistance(playerCoordRef.current, target) === 1 &&
-        tile.terrain !== 'water' &&
-        tile.terrain !== 'mountain';
-
-      if (!clickable) return;
-
-      setSelected(target);
-      setGame((currentState) => moveToTile(currentState, target));
-    };
-
-    const onPointerMove = (event: PointerEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      const hoveredOffset = hexAtPoint(x, y, {
-        centerX: app.screen.width / 2,
-        centerY: app.screen.height / 2,
-        size: HEX_SIZE,
-      });
-      const target = {
-        q: playerCoordRef.current.q + hoveredOffset.q,
-        r: playerCoordRef.current.r + hoveredOffset.r,
-      };
-      const current = gameRef.current;
-      const tile = getTileAt(current, target);
-      const enemies = getEnemiesAt(current, target);
-      const withinVisibleMap =
-        hexDistance(playerCoordRef.current, target) <= current.radius;
-      const clickable =
-        hexDistance(playerCoordRef.current, target) === 1 &&
-        tile.terrain !== 'water' &&
-        tile.terrain !== 'mountain';
-      const enemyInfo = withinVisibleMap
-        ? enemyTooltip(enemies, tile.structure)
-        : null;
-      const structureInfo = withinVisibleMap ? structureTooltip(tile) : null;
-
-      canvas.style.cursor = clickable ? 'pointer' : 'default';
-      setHoveredMove((currentHovered) => {
-        if (!clickable) return currentHovered ? null : currentHovered;
-        if (currentHovered?.q === target.q && currentHovered?.r === target.r) {
-          return currentHovered;
-        }
-        return target;
-      });
-
-      if (enemyInfo) {
-        setTooltip({
-          title: enemyInfo.title,
-          lines: enemyInfo.lines,
-          x: event.clientX + 16,
-          y: event.clientY + 16,
-          borderColor: tile.structure === 'dungeon' ? '#a855f7' : '#ef4444',
-        });
-      } else if (structureInfo) {
-        setTooltip({
-          title: structureInfo.title,
-          lines: structureInfo.lines,
-          x: event.clientX + 16,
-          y: event.clientY + 16,
-          borderColor: '#38bdf8',
-        });
-      } else {
-        setTooltip(null);
-      }
-    };
-
-    const onPointerLeave = () => {
-      canvas.style.cursor = 'default';
-      setHoveredMove(null);
-      setTooltip(null);
-    };
-
-    canvas.addEventListener('pointerdown', onPointerDown as EventListener);
-    canvas.addEventListener('pointermove', onPointerMove as EventListener);
-    canvas.addEventListener('pointerleave', onPointerLeave);
-
-    return () => {
-      observer.disconnect();
-      window.removeEventListener('resize', resize);
-      canvas.removeEventListener('pointerdown', onPointerDown as EventListener);
-      canvas.removeEventListener('pointermove', onPointerMove as EventListener);
-      canvas.removeEventListener('pointerleave', onPointerLeave);
-      app.ticker.remove(renderFrame);
-      app.destroy(true, { children: true, texture: true, baseTexture: true });
-      appRef.current = null;
-    };
-  }, []);
-
-  useEffect(() => {
-    const app = appRef.current;
-    if (!app) return;
-    renderScene(
-      app,
-      game,
-      visibleTiles,
-      selected,
-      hoveredMove,
-      getWorldTimeMinutesFromTimestamp(worldTimeMsRef.current),
-    );
-  }, [game, hoveredMove, selected, visibleTiles]);
-
-  useEffect(() => {
     setSelected(game.player.coord);
     setHoveredMove(null);
   }, [game.player.coord]);
@@ -630,53 +427,6 @@ export function App() {
     [],
   );
 
-  const handleHeroMove = useCallback(
-    (position: WindowPositions['hero']) => moveWindow('hero', position),
-    [moveWindow],
-  );
-
-  const handleLegendMove = useCallback(
-    (position: WindowPositions['legend']) => moveWindow('legend', position),
-    [moveWindow],
-  );
-
-  const handleSkillsMove = useCallback(
-    (position: WindowPositions['skills']) => moveWindow('skills', position),
-    [moveWindow],
-  );
-
-  const handleRecipesMove = useCallback(
-    (position: WindowPositions['recipes']) => moveWindow('recipes', position),
-    [moveWindow],
-  );
-
-  const handleHexInfoMove = useCallback(
-    (position: WindowPositions['hexInfo']) => moveWindow('hexInfo', position),
-    [moveWindow],
-  );
-
-  const handleEquipmentMove = useCallback(
-    (position: WindowPositions['equipment']) =>
-      moveWindow('equipment', position),
-    [moveWindow],
-  );
-
-  const handleInventoryMove = useCallback(
-    (position: WindowPositions['inventory']) =>
-      moveWindow('inventory', position),
-    [moveWindow],
-  );
-
-  const handleLogMove = useCallback(
-    (position: WindowPositions['log']) => moveWindow('log', position),
-    [moveWindow],
-  );
-
-  const handleLootMove = useCallback(
-    (position: WindowPositions['loot']) => moveWindow('loot', position),
-    [moveWindow],
-  );
-
   const handleUnequip = useCallback(
     (slot: Parameters<typeof unequipItem>[1]) => {
       setGame((current) => unequipItem(current, slot));
@@ -709,11 +459,12 @@ export function App() {
       const item = gameRef.current.player.inventory.find(
         (entry) => entry.id === itemId,
       );
-      if (item && isRecipeBook(item)) {
+      const action = getInventoryItemAction(item);
+      if (action === 'open-recipes') {
         setWindowVisibility('recipes', true);
         return;
       }
-      if (item && canUseItem(item)) {
+      if (action === 'use') {
         setGame((current) => applyItemUse(current, itemId));
         return;
       }
@@ -727,7 +478,7 @@ export function App() {
       const item = gameRef.current.player.inventory.find(
         (entry) => entry.id === itemId,
       );
-      if (item && isRecipeBook(item)) {
+      if (getInventoryItemAction(item) === 'open-recipes') {
         setWindowVisibility('recipes', true);
         return;
       }
@@ -798,29 +549,10 @@ export function App() {
     [showItemTooltip],
   );
 
-  const dockEntries = useMemo(() => {
-    const keys: Array<keyof WindowVisibilityState> = [
-      'hero',
-      'skills',
-      'recipes',
-      'legend',
-      'hexInfo',
-      'equipment',
-      'inventory',
-    ];
-
-    if (renderLootWindow) keys.push('loot');
-    keys.push('log');
-    if (renderCombatWindow) keys.push('combat');
-
-    return keys.map((key) => ({
-      key,
-      label: WINDOW_LABELS[key].plain,
-      title: WINDOW_LABELS[key],
-      icon: DOCK_WINDOW_ICONS[key],
-      shown: windowShown[key],
-    }));
-  }, [renderCombatWindow, renderLootWindow, windowShown]);
+  const dockEntries = useMemo(
+    () => getDockEntries(windowShown, renderLootWindow, renderCombatWindow),
+    [renderCombatWindow, renderLootWindow, windowShown],
+  );
 
   const toggleDockWindow = useCallback((key: keyof WindowVisibilityState) => {
     setWindowShown((current) => {
@@ -893,169 +625,60 @@ export function App() {
             <strong className={styles.worldClockValue}>{fps}</strong>
           </div>
         </div>
-        <WindowDock entries={dockEntries} onToggle={toggleDockWindow} />
-
-        <HeroWindow
-          position={windows.hero}
-          onMove={handleHeroMove}
-          visible={windowShown.hero}
-          onClose={() => setWindowVisibility('hero', false)}
+        <AppWindows
+          windows={windows}
+          windowShown={windowShown}
+          dockEntries={dockEntries}
           stats={stats}
-          hunger={game.player.hunger}
-        />
-        <SkillsWindow
-          position={windows.skills}
-          onMove={handleSkillsMove}
-          visible={windowShown.skills}
-          onClose={() => setWindowVisibility('skills', false)}
-          skills={stats.skills}
-        />
-        <RecipeBookWindow
-          position={windows.recipes}
-          onMove={handleRecipesMove}
-          visible={windowShown.recipes}
-          onClose={() => setWindowVisibility('recipes', false)}
-          hasRecipeBook={recipeBookKnown}
-          currentStructure={describeStructure(currentTile.structure)}
+          game={game}
+          currentTile={currentTile}
+          recipeBookKnown={recipeBookKnown}
           recipes={recipes}
           inventoryCounts={inventoryCounts}
-          onCraft={handleCraftRecipe}
-        />
-        <LegendWindow
-          position={windows.legend}
-          onMove={handleLegendMove}
-          visible={windowShown.legend}
-          onClose={() => setWindowVisibility('legend', false)}
-        />
-        <HexInfoWindow
-          position={windows.hexInfo}
-          onMove={handleHexInfoMove}
-          visible={windowShown.hexInfo}
-          onClose={() => setWindowVisibility('hexInfo', false)}
-          terrain={
-            currentTile.terrain.charAt(0).toUpperCase() +
-            currentTile.terrain.slice(1)
-          }
-          structure={describeStructure(currentTile.structure)}
-          enemyCount={
-            game.combat ? combatEnemies.length : currentTile.enemyIds.length
-          }
           interactLabel={interactLabel}
-          canInteract={Boolean(interactLabel)}
           canProspect={canProspect}
           canSell={canSell}
           prospectExplanation={prospectExplanation}
           sellExplanation={sellExplanation}
+          townStock={townStock}
+          gold={gold}
+          renderLootWindow={renderLootWindow}
+          lootWindowVisible={lootWindowVisible}
+          lootSnapshot={lootSnapshot}
+          renderCombatWindow={renderCombatWindow}
+          combatWindowVisible={combatWindowVisible}
+          combatSnapshot={combatSnapshot}
+          showFilterMenu={showFilterMenu}
+          logFilters={logFilters}
+          filteredLogs={filteredLogs}
+          tooltip={tooltip}
+          itemMenu={itemMenu}
+          onMoveWindow={moveWindow}
+          onSetWindowVisibility={setWindowVisibility}
+          onToggleDockWindow={toggleDockWindow}
+          onShowItemTooltip={showItemTooltip}
+          onCloseTooltip={closeTooltip}
+          onCloseItemMenu={closeItemMenu}
+          onUnequip={handleUnequip}
+          onSort={handleSort}
+          onEquip={handleEquip}
+          onUseItem={handleUseItem}
+          onCraftRecipe={handleCraftRecipe}
+          onDropItem={handleDropItem}
+          onDropEquippedItem={handleDropEquippedItem}
+          onContextItem={handleContextItem}
+          onEquippedContextItem={handleEquippedContextItem}
+          onTakeLootItem={handleTakeLootItem}
+          onTakeAllLoot={handleTakeAllLoot}
+          onAttackEnemy={handleAttackEnemy}
+          onToggleFilterMenu={toggleFilterMenu}
+          onToggleLogFilter={toggleLogFilter}
+          onEquipmentHover={handleEquipmentHover}
           onInteract={handleInteract}
           onProspect={handleProspect}
           onSellAll={handleSellAll}
-          structureHp={currentTile.structureHp}
-          structureMaxHp={currentTile.structureMaxHp}
-          townStock={townStock}
-          gold={gold}
-          onBuyItem={handleBuyTownItem}
-          onHoverItem={showItemTooltip}
-          onLeaveItem={closeTooltip}
+          onBuyTownItem={handleBuyTownItem}
         />
-        <EquipmentWindow
-          position={windows.equipment}
-          onMove={handleEquipmentMove}
-          visible={windowShown.equipment}
-          onClose={() => setWindowVisibility('equipment', false)}
-          equipment={game.player.equipment}
-          onHoverItem={handleEquipmentHover}
-          onLeaveItem={closeTooltip}
-          onUnequip={handleUnequip}
-          onContextItem={handleEquippedContextItem}
-        />
-        <InventoryWindow
-          position={windows.inventory}
-          onMove={handleInventoryMove}
-          visible={windowShown.inventory}
-          onClose={() => setWindowVisibility('inventory', false)}
-          inventory={game.player.inventory}
-          equipment={game.player.equipment}
-          onSort={handleSort}
-          onEquip={handleEquip}
-          onContextItem={handleContextItem}
-          onHoverItem={showItemTooltip}
-          onLeaveItem={closeTooltip}
-        />
-        {renderLootWindow ? (
-          <LootWindow
-            position={windows.loot}
-            onMove={handleLootMove}
-            visible={windowShown.loot && lootWindowVisible}
-            loot={lootSnapshot}
-            equipment={game.player.equipment}
-            onClose={() => setWindowVisibility('loot', false)}
-            onTakeAll={handleTakeAllLoot}
-            onTakeItem={handleTakeLootItem}
-            onHoverItem={showItemTooltip}
-            onLeaveItem={closeTooltip}
-          />
-        ) : null}
-        {itemMenu ? (
-          <ItemContextMenu
-            item={itemMenu.item}
-            x={itemMenu.x}
-            y={itemMenu.y}
-            equipLabel={itemMenu.slot ? 'Unequip' : 'Equip'}
-            canEquip={itemMenu.slot ? true : canEquipItem(itemMenu.item)}
-            canUse={canUseItem(itemMenu.item)}
-            onEquip={() => {
-              if (itemMenu.slot) {
-                handleUnequip(itemMenu.slot);
-              } else {
-                handleEquip(itemMenu.item.id);
-              }
-              closeItemMenu();
-            }}
-            onUse={() => {
-              handleUseItem(itemMenu.item.id);
-              closeItemMenu();
-            }}
-            onDrop={() => {
-              if (itemMenu.slot) {
-                handleDropEquippedItem(itemMenu.slot);
-              } else {
-                handleDropItem(itemMenu.item.id);
-              }
-              closeItemMenu();
-            }}
-            onClose={closeItemMenu}
-          />
-        ) : null}
-        <LogWindow
-          position={windows.log}
-          onMove={handleLogMove}
-          visible={windowShown.log}
-          onClose={() => setWindowVisibility('log', false)}
-          filters={logFilters}
-          defaultFilters={DEFAULT_LOG_FILTERS}
-          showFilterMenu={showFilterMenu}
-          onToggleMenu={toggleFilterMenu}
-          onToggleFilter={toggleLogFilter}
-          logs={filteredLogs}
-        />
-        {renderCombatWindow && combatSnapshot ? (
-          <CombatWindow
-            position={windows.combat}
-            onMove={(position) => moveWindow('combat', position)}
-            visible={windowShown.combat && combatWindowVisible}
-            onClose={() => setWindowVisibility('combat', false)}
-            combat={combatSnapshot.combat}
-            enemies={combatSnapshot.enemies}
-            player={{
-              hp: stats.hp,
-              maxHp: stats.maxHp,
-              attack: stats.attack,
-              defense: stats.defense,
-            }}
-            onAttack={handleAttackEnemy}
-          />
-        ) : null}
-        <GameTooltip tooltip={tooltip} />
       </div>
       {isReady ? null : <div className={styles.loadingScreen}>Loading...</div>}
     </div>
