@@ -59,7 +59,8 @@ export function renderScene(
   renderSkyLayer(app, scene.skyFill, lighting.skyColor);
   renderAtmosphere(
     app,
-    scene.atmosphereGraphics,
+    scene.atmosphereShaftGraphics,
+    scene.atmosphereCelestialGraphics,
     lighting,
     animationMs,
     sunPosition,

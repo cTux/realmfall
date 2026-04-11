@@ -67,7 +67,8 @@ export function renderSkyLayer(
 
 export function renderAtmosphere(
   app: Application,
-  graphicsPool: GraphicsPool,
+  shaftGraphicsPool: GraphicsPool,
+  celestialGraphicsPool: GraphicsPool,
   lighting: ReturnType<typeof getTimeOfDayLighting>,
   animationMs: number,
   sunPosition: { x: number; y: number },
@@ -77,7 +78,7 @@ export function renderAtmosphere(
   if (lighting.shaftAlpha > 0.01) {
     renderLightShafts(
       app,
-      graphicsPool,
+      shaftGraphicsPool,
       animationMs,
       sunPosition,
       focalPoint,
@@ -86,7 +87,7 @@ export function renderAtmosphere(
     );
     renderLightShafts(
       app,
-      graphicsPool,
+      shaftGraphicsPool,
       animationMs,
       moonPosition,
       focalPoint,
@@ -96,14 +97,14 @@ export function renderAtmosphere(
   }
 
   renderCelestialBody(
-    graphicsPool,
+    celestialGraphicsPool,
     moonPosition,
     scaleColor(0xdbeafe, lighting.ambientBrightness + 0.1),
     lighting.moonOpacity * lighting.celestialAlpha * 0.72,
     24,
   );
   renderCelestialBody(
-    graphicsPool,
+    celestialGraphicsPool,
     sunPosition,
     scaleColor(0xfff7d6, lighting.ambientBrightness + 0.08),
     lighting.sunOpacity * lighting.celestialAlpha,

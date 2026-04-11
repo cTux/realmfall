@@ -150,13 +150,13 @@ describe('renderScene', () => {
       12 * 60,
     );
 
-    expect(app.stage.children).toHaveLength(8);
+    expect(app.stage.children).toHaveLength(9);
     expect(spriteFrom).toHaveBeenCalled();
     expect(
       spriteFrom.mock.calls.some(([icon]) => typeof icon === 'string'),
     ).toBe(true);
 
-    const labels = app.stage.children[4] as MockContainer;
+    const labels = app.stage.children[3] as MockContainer;
     expect(
       labels.children.some(
         (child) => child instanceof MockText && child.text.startsWith('L'),
@@ -186,7 +186,7 @@ describe('renderScene', () => {
       12 * 60,
     );
 
-    const world = app.stage.children[2] as MockContainer;
+    const world = app.stage.children[1] as MockContainer;
     const selectionOutlines = collectDescendants(world).filter(
       (child) =>
         child instanceof MockGraphics &&
@@ -223,7 +223,7 @@ describe('renderScene', () => {
       12 * 60,
     );
 
-    const world = app.stage.children[2] as MockContainer;
+    const world = app.stage.children[1] as MockContainer;
     const worldDescendants = collectDescendants(world);
     const hoverOutlines = worldDescendants.filter(
       (child) =>
@@ -270,7 +270,7 @@ describe('renderScene', () => {
       1600,
     );
 
-    const nightWorld = nightApp.stage.children[2] as MockContainer;
+    const nightWorld = nightApp.stage.children[1] as MockContainer;
     const nightGlowEllipses = collectDescendants(nightWorld).filter(
       (child) =>
         child instanceof MockGraphics &&
@@ -291,7 +291,7 @@ describe('renderScene', () => {
       1600,
     );
 
-    const dayWorld = dayApp.stage.children[2] as MockContainer;
+    const dayWorld = dayApp.stage.children[1] as MockContainer;
     const dayGlowEllipses = collectDescendants(dayWorld).filter(
       (child) =>
         child instanceof MockGraphics &&
@@ -319,7 +319,7 @@ describe('renderScene', () => {
       12 * 60,
     );
 
-    const clouds = app.stage.children[6] as MockContainer;
+    const clouds = app.stage.children[7] as MockContainer;
     const cloudAlphas = clouds.children.map(
       (child) => (child as { alpha: number }).alpha,
     );
@@ -346,8 +346,8 @@ describe('renderScene', () => {
       1600,
     );
 
-    const world = app.stage.children[2] as MockContainer;
-    const clouds = app.stage.children[6] as MockContainer;
+    const world = app.stage.children[1] as MockContainer;
+    const clouds = app.stage.children[7] as MockContainer;
     const grassSprites = collectDescendants(world).filter(
       (child) => (child as { icon?: string }).icon === Icons.HighGrass,
     );

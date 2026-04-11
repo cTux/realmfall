@@ -40,7 +40,8 @@ type CachedApplication = Application & { [SCENE_CACHE_KEY]?: SceneCache };
 export interface SceneCache {
   skyFill: Graphics;
   overlayFill: Graphics;
-  atmosphereGraphics: GraphicsPool;
+  atmosphereShaftGraphics: GraphicsPool;
+  atmosphereCelestialGraphics: GraphicsPool;
   worldGroundGraphics: GraphicsPool;
   worldDetailGraphics: GraphicsPool;
   waterfallGraphics: GraphicsPool;
@@ -57,7 +58,6 @@ export function getSceneCache(app: Application) {
   if (cachedApp[SCENE_CACHE_KEY]) return cachedApp[SCENE_CACHE_KEY];
 
   const sky = new Container();
-  const atmosphere = new Container();
   const world = new Container();
   const worldGround = new Container();
   const worldDetail = new Container();
@@ -65,6 +65,8 @@ export function getSceneCache(app: Application) {
   const worldPlayer = new Container();
   const waterfalls = new Container();
   const labels = new Container();
+  const atmosphereShafts = new Container();
+  const atmosphereCelestials = new Container();
   const cloudShadows = new Container();
   const clouds = new Container();
   const overlay = new Container();
@@ -72,10 +74,11 @@ export function getSceneCache(app: Application) {
   world.addChild(worldGround, worldDetail, worldMarkers, worldPlayer);
   app.stage.addChild(
     sky,
-    atmosphere,
     world,
     waterfalls,
     labels,
+    atmosphereShafts,
+    atmosphereCelestials,
     cloudShadows,
     clouds,
     overlay,
@@ -93,7 +96,8 @@ export function getSceneCache(app: Application) {
   const scene: SceneCache = {
     skyFill,
     overlayFill,
-    atmosphereGraphics: createGraphicsPool(atmosphere),
+    atmosphereShaftGraphics: createGraphicsPool(atmosphereShafts),
+    atmosphereCelestialGraphics: createGraphicsPool(atmosphereCelestials),
     worldGroundGraphics: createGraphicsPool(worldGround),
     worldDetailGraphics: createGraphicsPool(worldDetail),
     waterfallGraphics: createGraphicsPool(waterfalls),
@@ -110,7 +114,8 @@ export function getSceneCache(app: Application) {
 }
 
 export function beginSceneRender(scene: SceneCache) {
-  resetGraphicsPool(scene.atmosphereGraphics);
+  resetGraphicsPool(scene.atmosphereShaftGraphics);
+  resetGraphicsPool(scene.atmosphereCelestialGraphics);
   resetGraphicsPool(scene.worldGroundGraphics);
   resetGraphicsPool(scene.worldDetailGraphics);
   resetGraphicsPool(scene.waterfallGraphics);
@@ -122,7 +127,8 @@ export function beginSceneRender(scene: SceneCache) {
 }
 
 export function completeSceneRender(scene: SceneCache) {
-  finishGraphicsPool(scene.atmosphereGraphics);
+  finishGraphicsPool(scene.atmosphereShaftGraphics);
+  finishGraphicsPool(scene.atmosphereCelestialGraphics);
   finishGraphicsPool(scene.worldGroundGraphics);
   finishGraphicsPool(scene.worldDetailGraphics);
   finishGraphicsPool(scene.waterfallGraphics);
