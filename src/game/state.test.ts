@@ -34,7 +34,8 @@ describe('game state', () => {
     expect(getTileAt(game, { q: 0, r: 0 }).terrain).toBe('plains');
     expect(getVisibleTiles(game)).toHaveLength(37);
     expect(hasRecipeBook(game.player.inventory)).toBe(true);
-    expect(getRecipeBookRecipes()).toHaveLength(EQUIPMENT_SLOTS.length + 1);
+    expect(game.player.learnedRecipeIds).toEqual(['cook-cooked-fish']);
+    expect(getRecipeBookRecipes(game.player.learnedRecipeIds)).toHaveLength(1);
   });
 
   it('generates deterministic distant tiles for an infinite world', () => {
@@ -399,6 +400,7 @@ describe('game state', () => {
   it('crafts slot gear from recipe requirements and levels crafting', () => {
     const game = createGame(3, 'crafting-seed');
     game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'workshop' };
+    game.player.learnedRecipeIds.push('craft-weapon');
     game.player.inventory.push(
       {
         id: 'chunks-1',
@@ -470,6 +472,110 @@ describe('game state', () => {
     const denied = craftRecipe(game, 'cook-cooked-fish');
 
     expect(denied.logs[0]?.text).toMatch(/campfire hex/i);
+  });
+
+  it('requires learning a recipe before crafting it', () => {
+    const game = createGame(3, 'recipe-learning-seed');
+    game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'workshop' };
+    game.player.inventory.push(
+      {
+        id: 'chunks-1',
+        kind: 'resource',
+        name: 'Iron Chunks',
+        quantity: 2,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'sticks-1',
+        kind: 'resource',
+        name: 'Sticks',
+        quantity: 2,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    );
+
+    const denied = craftRecipe(game, 'craft-weapon');
+
+    expect(denied.logs[0]?.text).toMatch(/have not learned/i);
+  });
+
+  it('learns a dropped recipe page when used', () => {
+    const game = createGame(3, 'recipe-use-seed');
+    game.player.inventory.push({
+      id: 'recipe-craft-weapon',
+      recipeId: 'craft-weapon',
+      kind: 'resource',
+      name: 'Recipe: Camp Spear',
+      quantity: 1,
+      tier: 1,
+      rarity: 'uncommon',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+    });
+
+    const learned = useItem(game, 'recipe-craft-weapon');
+
+    expect(learned.player.learnedRecipeIds).toContain('craft-weapon');
+    expect(
+      learned.player.inventory.some(
+        (item) => item.id === 'recipe-craft-weapon',
+      ),
+    ).toBe(false);
+  });
+
+  it('can drop an unlearned recipe from enemies', () => {
+    let dropped = false;
+
+    for (let index = 0; index < 200; index += 1) {
+      const game = createGame(3, `recipe-drop-seed-${index}`);
+      const target = { q: 2, r: 0 };
+      game.player.learnedRecipeIds = ['cook-cooked-fish'];
+      game.tiles['2,0'] = {
+        coord: target,
+        terrain: 'plains',
+        items: [],
+        structure: undefined,
+        enemyIds: ['enemy-2,0-0'],
+      };
+      game.enemies['enemy-2,0-0'] = {
+        id: 'enemy-2,0-0',
+        name: 'Bandit',
+        coord: target,
+        tier: 4,
+        hp: 1,
+        maxHp: 1,
+        attack: 0,
+        defense: 0,
+        xp: 5,
+        elite: true,
+      };
+      game.player.coord = { q: 1, r: 0 };
+
+      const engaged = moveToTile(game, target);
+      const resolved = attackCombatEnemy(engaged, 'enemy-2,0-0');
+
+      if (getTileAt(resolved, target).items.some((item) => item.recipeId)) {
+        dropped = true;
+        break;
+      }
+    }
+
+    expect(dropped).toBe(true);
   });
 
   it('lets every enemy on the tile retaliate during combat', () => {
@@ -697,6 +803,21 @@ describe('game state', () => {
       ),
     ).toHaveLength(1);
     expect('gold' in loaded.player).toBe(false);
+  });
+
+  it('keeps old saves fully unlocked when learned recipes are missing', () => {
+    const game = createGame(3, 'legacy-recipe-seed');
+    const loaded = normalizeLoadedGame({
+      ...game,
+      player: {
+        ...game.player,
+        learnedRecipeIds: undefined,
+      } as unknown as typeof game.player,
+    });
+
+    expect(loaded.player.learnedRecipeIds).toHaveLength(
+      getRecipeBookRecipes().length,
+    );
   });
 });
 

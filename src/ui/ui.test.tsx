@@ -397,11 +397,12 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('logging');
     expect(markup).toContain(')ecipe book');
     expect(markup).toContain(')ex info');
+    expect(markup).toContain('(Q) Chop tree');
     expect(markup).toContain('Structure HP');
     expect(markup).toContain('Town Stock');
     expect(markup).toContain('Horned Helm');
     expect(markup).toContain('Empty');
-    expect(markup).toContain('Take all');
+    expect(markup).toContain('Tak(e) all');
     expect(markup).toContain('Filters');
     expect(markup).toContain('Elite');
     expect(markup).toContain('Knight Blade');

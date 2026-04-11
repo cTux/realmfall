@@ -1,4 +1,5 @@
 import {
+  getRecipeBookRecipes,
   isGatheringStructure,
   makeGoldStack,
   type GameState,
@@ -62,6 +63,9 @@ export function normalizeLoadedGame(game: GameState): GameState {
           }
         ).skills,
       ),
+      learnedRecipeIds:
+        game.player.learnedRecipeIds ??
+        getRecipeBookRecipes().map((recipe) => recipe.id),
       inventory,
       equipment,
     },
@@ -166,6 +170,7 @@ function isSameStackable(left: Item, right: Item) {
   return (
     (left.kind === 'consumable' || left.kind === 'resource') &&
     left.kind === right.kind &&
+    left.recipeId === right.recipeId &&
     left.name === right.name &&
     left.rarity === right.rarity &&
     left.healing === right.healing &&

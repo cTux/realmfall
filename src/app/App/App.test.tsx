@@ -275,11 +275,16 @@ describe('App', () => {
     });
 
     const takeAllButton = Array.from(host.querySelectorAll('button')).find(
-      (button) => button.textContent === 'Take all',
+      (button) => button.textContent === 'Tak(e) all',
     );
     await act(async () => {
-      takeAllButton?.click();
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'e' }),
+      );
+      await Promise.resolve();
     });
+
+    expect(takeAllButton).not.toBeNull();
 
     const canvas = host.querySelector('canvas');
     expect(canvas).not.toBeNull();

@@ -33,7 +33,7 @@ export const LootWindow = memo(function LootWindow({
               onClick={onTakeAll}
               disabled={loot.length === 0}
             >
-              Take all
+              Tak(e) all
             </button>
           </div>
         </div>

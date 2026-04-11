@@ -154,7 +154,10 @@ export function App() {
     () => hasRecipeBook(game.player.inventory),
     [game.player.inventory],
   );
-  const recipes = useMemo(() => getRecipeBookRecipes(), []);
+  const recipes = useMemo(
+    () => getRecipeBookRecipes(game.player.learnedRecipeIds),
+    [game.player.learnedRecipeIds],
+  );
   const inventoryCounts = useMemo(
     () =>
       game.player.inventory.reduce<Record<string, number>>((counts, item) => {
@@ -608,6 +611,10 @@ export function App() {
         setWindowVisibility('recipes', true);
         return;
       }
+      if (item && canUseItem(item)) {
+        setGame((current) => applyItemUse(current, itemId));
+        return;
+      }
       setGame((current) => equipItem(current, itemId));
     },
     [setWindowVisibility],
@@ -731,7 +738,26 @@ export function App() {
         return;
       }
 
-      const key = WINDOW_HOTKEYS[event.key.toLowerCase()];
+      const lowerKey = event.key.toLowerCase();
+      if (
+        lowerKey === 'e' &&
+        renderLootWindow &&
+        windowShown.loot &&
+        lootWindowVisible &&
+        lootSnapshot.length > 0
+      ) {
+        event.preventDefault();
+        handleTakeAllLoot();
+        return;
+      }
+
+      if (lowerKey === 'q' && interactLabel) {
+        event.preventDefault();
+        handleInteract();
+        return;
+      }
+
+      const key = WINDOW_HOTKEYS[lowerKey];
       if (!key) return;
 
       event.preventDefault();
@@ -740,7 +766,16 @@ export function App() {
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [toggleDockWindow]);
+  }, [
+    handleInteract,
+    handleTakeAllLoot,
+    interactLabel,
+    lootSnapshot.length,
+    lootWindowVisible,
+    renderLootWindow,
+    toggleDockWindow,
+    windowShown.loot,
+  ]);
 
   return (
     <div className={styles.appRoot}>

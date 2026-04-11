@@ -79,7 +79,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
         <div className={styles.actions}>
           {interactLabel ? (
             <button onClick={onInteract} disabled={!canInteract}>
-              {interactLabel}
+              ({'Q'}) {interactLabel}
             </button>
           ) : null}
           {canProspect ? <button onClick={onProspect}>Prospect</button> : null}

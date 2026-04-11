@@ -32,6 +32,8 @@ export const RecipeBookWindow = memo(function RecipeBookWindow({
         <div className={styles.empty}>
           Find a recipe book to use these notes.
         </div>
+      ) : recipes.length === 0 ? (
+        <div className={styles.empty}>Defeat enemies to find new recipes.</div>
       ) : (
         <div className={styles.list}>
           {recipes.map((recipe) => {

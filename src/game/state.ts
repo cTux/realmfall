@@ -58,6 +58,7 @@ export type ItemKind =
 export interface Item {
   id: string;
   kind: ItemKind;
+  recipeId?: string;
   slot?: EquipmentSlot;
   name: string;
   quantity: number;
@@ -107,6 +108,7 @@ export interface Player {
   baseAttack: number;
   baseDefense: number;
   skills: Record<SkillName, SkillProgress>;
+  learnedRecipeIds: string[];
   inventory: Item[];
   equipment: Equipment;
 }
@@ -195,6 +197,7 @@ export const RARITY_ORDER: ItemRarity[] = [
 
 const RECIPE_BOOK_ITEM_NAME = 'Recipe Book';
 const COOKED_FISH_ITEM_NAME = 'Cooked Fish';
+const STARTING_RECIPE_IDS = ['cook-cooked-fish'];
 
 const ARTIFACT_PREFIXES = [
   'Ashen',
@@ -239,6 +242,7 @@ export function createGame(
       baseAttack: 4,
       baseDefense: 1,
       skills: makeStartingSkills(),
+      learnedRecipeIds: [...STARTING_RECIPE_IDS],
       inventory: [
         makeStarterWeapon(),
         makeStarterArmor('chest', 'Scout Jerkin', 1, 1),
@@ -257,8 +261,16 @@ export function createFreshLogs(seed: string) {
   return createInitialLogs(seed);
 }
 
-export function getRecipeBookRecipes(): RecipeDefinition[] {
-  return RECIPE_BOOK_RECIPES.map((recipe) => ({
+export function getRecipeBookRecipes(
+  learnedRecipeIds?: string[],
+): RecipeDefinition[] {
+  const visibleRecipes = learnedRecipeIds
+    ? RECIPE_BOOK_RECIPES.filter((recipe) =>
+        learnedRecipeIds.includes(recipe.id),
+      )
+    : RECIPE_BOOK_RECIPES;
+
+  return visibleRecipes.map((recipe) => ({
     ...recipe,
     output: { ...recipe.output },
     ingredients: recipe.ingredients.map((ingredient) => ({ ...ingredient })),
@@ -409,6 +421,7 @@ export function attackCombatEnemy(
   if (enemy.hp <= 0) {
     gainXp(next, enemy.xp);
     maybeDropEnemyGold(next, enemy);
+    maybeDropEnemyRecipe(next, enemy);
     maybeSkinEnemy(next, enemy);
     addLog(next, 'combat', `You defeated the ${enemy.name}.`);
     delete next.enemies[enemy.id];
@@ -479,6 +492,12 @@ export function useItem(state: GameState, itemId: string): GameState {
   const item = state.player.inventory[itemIndex];
   if (isRecipeBook(item))
     return message(state, 'Open the recipe book from your pack.');
+  if (isRecipePage(item)) {
+    const next = clone(state);
+    learnRecipe(next, item);
+    consumeInventoryItem(next.player.inventory, itemIndex, item);
+    return next;
+  }
   if (item.kind !== 'consumable')
     return message(state, 'That item cannot be used.');
 
@@ -738,6 +757,9 @@ export function craftRecipe(state: GameState, recipeId: string): GameState {
   if (!recipe) return message(state, 'That recipe is not in your book.');
   if (!hasRecipeBook(state.player.inventory)) {
     return message(state, 'You need a recipe book to follow that recipe.');
+  }
+  if (!state.player.learnedRecipeIds.includes(recipe.id)) {
+    return message(state, 'You have not learned that recipe yet.');
   }
   const requiredStructure = recipe.skill === 'cooking' ? 'camp' : 'workshop';
   const requiredLabel = recipe.skill === 'cooking' ? 'campfire' : 'workshop';
@@ -1614,6 +1636,25 @@ function maybeDropEnemyGold(state: GameState, enemy: Enemy) {
   addLog(state, 'loot', `${enemy.name} dropped ${quantity} gold.`);
 }
 
+function maybeDropEnemyRecipe(state: GameState, enemy: Enemy) {
+  const unlearnedRecipes = RECIPE_BOOK_RECIPES.filter(
+    (recipe) => !state.player.learnedRecipeIds.includes(recipe.id),
+  );
+  if (unlearnedRecipes.length === 0) return;
+
+  const rng = createRng(`${state.seed}:enemy-recipe:${enemy.id}:${state.turn}`);
+  const chance = enemy.elite ? 0.45 : Math.min(0.3, 0.08 + enemy.tier * 0.025);
+  if (rng() >= chance) return;
+
+  const recipe = unlearnedRecipes[Math.floor(rng() * unlearnedRecipes.length)];
+  ensureTileState(state, enemy.coord);
+  const key = hexKey(enemy.coord);
+  const tile = state.tiles[key];
+  addItemToInventory(tile.items, makeRecipePage(recipe));
+  state.tiles[key] = { ...tile, items: [...tile.items] };
+  addLog(state, 'loot', `${enemy.name} dropped Recipe: ${recipe.name}.`);
+}
+
 function maybeSkinEnemy(state: GameState, enemy: Enemy) {
   if (!isAnimalEnemy(enemy.name)) return;
 
@@ -1679,11 +1720,15 @@ export function canEquipItem(item: Item) {
 }
 
 export function canUseItem(item: Item) {
-  return item.kind === 'consumable' || isRecipeBook(item);
+  return item.kind === 'consumable' || isRecipeBook(item) || isRecipePage(item);
 }
 
 export function isRecipeBook(item: Item) {
   return item.kind === 'resource' && item.name === RECIPE_BOOK_ITEM_NAME;
+}
+
+export function isRecipePage(item: Item) {
+  return item.kind === 'resource' && Boolean(item.recipeId);
 }
 
 export function hasRecipeBook(inventory: Item[]) {
@@ -1893,6 +1938,7 @@ function isSameStackable(left: Item, right: Item) {
   return (
     (left.kind === 'consumable' || left.kind === 'resource') &&
     left.kind === right.kind &&
+    left.recipeId === right.recipeId &&
     left.name === right.name &&
     left.rarity === right.rarity &&
     left.healing === right.healing &&
@@ -1946,6 +1992,39 @@ function consumeRequirements(
   });
 }
 
+function consumeInventoryItem(
+  inventory: Item[],
+  itemIndex: number,
+  item: Item,
+) {
+  if (item.quantity > 1) {
+    inventory[itemIndex] = {
+      ...item,
+      quantity: item.quantity - 1,
+    };
+    return;
+  }
+
+  inventory.splice(itemIndex, 1);
+}
+
+function learnRecipe(state: GameState, item: Item) {
+  if (!item.recipeId) return;
+
+  const recipe = RECIPE_BOOK_RECIPES.find(
+    (entry) => entry.id === item.recipeId,
+  );
+  if (!recipe) return;
+  if (state.player.learnedRecipeIds.includes(recipe.id)) {
+    addLog(state, 'system', `You already know how to make ${recipe.name}.`);
+    return;
+  }
+
+  state.player.learnedRecipeIds.push(recipe.id);
+  state.player.learnedRecipeIds.sort();
+  addLog(state, 'system', `You learn the ${recipe.name} recipe.`);
+}
+
 function describeRequirement(requirement: RecipeRequirement) {
   return `${requirement.quantity} ${requirement.name}`;
 }
@@ -1975,6 +2054,23 @@ function makeCraftedItem(
 
 function makeCookedFish(): Item {
   return makeConsumable('cooked-fish', COOKED_FISH_ITEM_NAME, 1, 4, 24);
+}
+
+function makeRecipePage(recipe: RecipeDefinition): Item {
+  return {
+    id: `recipe-${recipe.id}`,
+    recipeId: recipe.id,
+    kind: 'resource',
+    name: `Recipe: ${recipe.name}`,
+    quantity: 1,
+    tier: recipe.output.tier,
+    rarity: 'uncommon',
+    power: 0,
+    defense: 0,
+    maxHp: 0,
+    healing: 0,
+    hunger: 0,
+  };
 }
 
 function materializeRecipeOutput(
