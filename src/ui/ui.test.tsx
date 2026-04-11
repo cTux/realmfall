@@ -741,4 +741,41 @@ describe('ui helpers and components', () => {
     });
     host.remove();
   });
+
+  it('does not blink when only tooltip position changes', async () => {
+    vi.useFakeTimers();
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    const tooltipData = {
+      title: 'Town',
+      x: 50,
+      y: 70,
+      borderColor: '#38bdf8',
+      lines: [{ kind: 'text' as const, text: 'Safe rest and trade.' }],
+    };
+
+    await act(async () => {
+      root.render(<GameTooltip tooltip={tooltipData} />);
+    });
+
+    await act(async () => {
+      vi.advanceTimersByTime(20);
+    });
+
+    await act(async () => {
+      root.render(<GameTooltip tooltip={{ ...tooltipData, x: 90, y: 120 }} />);
+    });
+
+    const tooltip = host.querySelector('div[class*="tooltip"]') as HTMLElement;
+    expect(tooltip.dataset.tooltipVisible).toBe('true');
+    expect(tooltip.style.left).toBe('90px');
+    expect(tooltip.style.top).toBe('120px');
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
 });

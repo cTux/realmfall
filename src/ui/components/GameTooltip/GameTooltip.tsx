@@ -1,7 +1,17 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { formatCompactNumber, formatCompactNumberish } from '../../formatters';
 import type { GameTooltipProps, RenderedTooltipState } from './types';
 import styles from './styles.module.css';
+
+function tooltipContentKey(tooltip: GameTooltipProps['tooltip']) {
+  if (!tooltip) return null;
+
+  return JSON.stringify({
+    title: tooltip.title,
+    lines: tooltip.lines,
+    borderColor: tooltip.borderColor ?? null,
+  });
+}
 
 export const GameTooltip = memo(function GameTooltip({
   tooltip,
@@ -9,9 +19,27 @@ export const GameTooltip = memo(function GameTooltip({
   const [rendered, setRendered] = useState<RenderedTooltipState | null>(
     tooltip ? { tooltip, visible: true } : null,
   );
+  const lastContentKeyRef = useRef<string | null>(tooltipContentKey(tooltip));
 
   useEffect(() => {
     if (tooltip) {
+      const nextContentKey = tooltipContentKey(tooltip);
+
+      if (nextContentKey === lastContentKeyRef.current) {
+        setRendered((current) =>
+          !current
+            ? { tooltip, visible: true }
+            : current.tooltip.x === tooltip.x &&
+                current.tooltip.y === tooltip.y &&
+                current.tooltip.borderColor === tooltip.borderColor
+              ? current
+              : { tooltip, visible: current.visible },
+        );
+        return;
+      }
+
+      lastContentKeyRef.current = nextContentKey;
+
       setRendered({ tooltip, visible: false });
       const frame = window.requestAnimationFrame(() => {
         setRendered({ tooltip, visible: true });
@@ -19,6 +47,7 @@ export const GameTooltip = memo(function GameTooltip({
       return () => window.cancelAnimationFrame(frame);
     }
 
+    lastContentKeyRef.current = null;
     setRendered((current) =>
       current ? { tooltip: current.tooltip, visible: false } : null,
     );

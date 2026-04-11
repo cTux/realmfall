@@ -186,6 +186,51 @@ describe('renderScene', () => {
     expect(selectionOutlines).toHaveLength(0);
   });
 
+  it('removes hover outline and brightens the hovered hex fill', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-hovered-tile');
+    const hoveredHex = { q: 1, r: 0 };
+    game.tiles['1,0'] = {
+      coord: hoveredHex,
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      hoveredHex,
+      12 * 60,
+    );
+
+    const world = app.stage.children[2] as MockContainer;
+    const hoverOutlines = world.children.filter(
+      (child) =>
+        child instanceof MockGraphics &&
+        child.lineStyle.mock.calls.some(
+          ([width, color, alpha]) =>
+            width === 3 && color === 0xe2e8f0 && alpha === 0.85,
+        ),
+    );
+    const brightHoveredFill = world.children.some(
+      (child) =>
+        child instanceof MockGraphics &&
+        child.beginFill.mock.calls.some(
+          ([color, alpha]) => color === 0x57ad57 && alpha === 1,
+        ),
+    );
+
+    expect(hoverOutlines).toHaveLength(0);
+    expect(brightHoveredFill).toBe(true);
+  });
+
   it('renders clouds with stronger opacity', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-cloud-opacity');

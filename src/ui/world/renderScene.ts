@@ -120,11 +120,14 @@ export function renderScene(
 
     const shape = new Graphics();
     const style = tileStyle(tile.terrain);
-    const litTileColor = scaleColor(style.color, lighting.ambientBrightness);
     const hovered =
       hoveredMove?.q === tile.coord.q && hoveredMove?.r === tile.coord.r;
+    const tileBrightness = hovered
+      ? lighting.ambientBrightness + 0.2
+      : lighting.ambientBrightness;
+    const litTileColor = scaleColor(style.color, tileBrightness);
     const fillAlpha = hovered
-      ? Math.min(1, style.alpha + 0.18)
+      ? Math.min(1, style.alpha + 0.26)
       : emphasized
         ? style.alpha
         : 0.8;
@@ -152,12 +155,8 @@ export function renderScene(
       );
     }
 
-    if (hovered) {
-      const outline = new Graphics();
-      outline.lineStyle(3, 0xe2e8f0, 0.85);
-      outline.drawPolygon(poly);
-      world.addChild(outline);
-    } else if (
+    if (
+      !hovered &&
       !isPlayerTile &&
       selected.q === tile.coord.q &&
       selected.r === tile.coord.r
@@ -275,6 +274,27 @@ function renderAtmosphere(
   moonPosition: { x: number; y: number },
   focalPoint: { x: number; y: number },
 ) {
+  if (lighting.shaftAlpha > 0.01) {
+    renderLightShafts(
+      app,
+      layer,
+      animationMs,
+      sunPosition,
+      focalPoint,
+      0xfbbf24,
+      lighting.shaftAlpha * lighting.sunShaftOpacity,
+    );
+    renderLightShafts(
+      app,
+      layer,
+      animationMs,
+      moonPosition,
+      focalPoint,
+      0xcbd5ff,
+      lighting.shaftAlpha * lighting.moonShaftOpacity,
+    );
+  }
+
   renderCelestialBody(
     layer,
     moonPosition,
@@ -288,27 +308,6 @@ function renderAtmosphere(
     scaleColor(0xfff7d6, lighting.ambientBrightness + 0.08),
     lighting.sunOpacity * lighting.celestialAlpha,
     30,
-  );
-
-  if (lighting.shaftAlpha <= 0.01) return;
-
-  renderLightShafts(
-    app,
-    layer,
-    animationMs,
-    sunPosition,
-    focalPoint,
-    0xfbbf24,
-    lighting.shaftAlpha * lighting.sunShaftOpacity,
-  );
-  renderLightShafts(
-    app,
-    layer,
-    animationMs,
-    moonPosition,
-    focalPoint,
-    0xcbd5ff,
-    lighting.shaftAlpha * lighting.moonShaftOpacity,
   );
 }
 
@@ -369,10 +368,14 @@ function renderCelestialBody(
   if (alpha <= 0.01) return;
 
   const haloLayers = [
-    { scale: 3.6, alpha: 0.08 },
-    { scale: 2.6, alpha: 0.14 },
-    { scale: 1.9, alpha: 0.22 },
-    { scale: 1.45, alpha: 0.3 },
+    { scale: 4.2, alpha: 0.025 },
+    { scale: 3.75, alpha: 0.04 },
+    { scale: 3.3, alpha: 0.06 },
+    { scale: 2.9, alpha: 0.085 },
+    { scale: 2.5, alpha: 0.12 },
+    { scale: 2.15, alpha: 0.16 },
+    { scale: 1.8, alpha: 0.22 },
+    { scale: 1.48, alpha: 0.3 },
   ];
 
   haloLayers.forEach((halo) => {
@@ -389,8 +392,8 @@ function renderCelestialBody(
   });
 
   const glow = new Graphics();
-  glow.beginFill(tint, alpha * 0.36);
-  glow.drawEllipse(position.x, position.y, radius * 1.25, radius * 1.25);
+  glow.beginFill(tint, alpha * 0.34);
+  glow.drawEllipse(position.x, position.y, radius * 1.18, radius * 1.18);
   glow.endFill();
 
   const body = new Graphics();
