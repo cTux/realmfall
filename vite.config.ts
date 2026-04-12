@@ -1,6 +1,32 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
+function getVendorChunk(id: string) {
+  const normalizedId = id.replace(/\\/g, '/');
+
+  if (!normalizedId.includes('/node_modules/')) {
+    return undefined;
+  }
+
+  if (
+    normalizedId.includes('/node_modules/pixi.js/') ||
+    normalizedId.includes('/node_modules/@pixi/') ||
+    normalizedId.includes('/node_modules/eventemitter3/')
+  ) {
+    return 'pixi';
+  }
+
+  if (
+    normalizedId.includes('/node_modules/react/') ||
+    normalizedId.includes('/node_modules/react-dom/') ||
+    normalizedId.includes('/node_modules/scheduler/')
+  ) {
+    return 'react-vendor';
+  }
+
+  return 'vendor';
+}
+
 export default defineConfig({
   plugins: [react()],
   build: {
@@ -9,9 +35,7 @@ export default defineConfig({
         entryFileNames: 'assets/js/[name]-[hash].js',
         chunkFileNames: 'assets/js/[name]-[hash].js',
         manualChunks(id) {
-          if (id.includes('node_modules')) {
-            return 'vendors';
-          }
+          return getVendorChunk(id);
         },
         assetFileNames: (assetInfo) => {
           const name = assetInfo.names[0] ?? assetInfo.name ?? '';

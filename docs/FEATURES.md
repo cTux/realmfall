@@ -102,6 +102,7 @@
     * Choosing stat to reforge and paying money causes this stat to be replaced with the random one
     * Reforging the same item again should be limited by choosing the already reforged stat, not all the item stats
     * Reforged stat should have another color (pink) to be visible between regular stats
+* Corrupting item
 * Parties and mercenaries with their own eqipment
     * On death they should drop all their equipment
 * Party vs party battles

@@ -60,9 +60,10 @@ vi.mock('../../ui/world/renderScene', () => ({
 describe('App', () => {
   const flushLazyModules = async () => {
     await act(async () => {
-      await vi.dynamicImportSettled();
-      await Promise.resolve();
-      await Promise.resolve();
+      for (let index = 0; index < 3; index += 1) {
+        await vi.dynamicImportSettled();
+        await Promise.resolve();
+      }
     });
   };
 

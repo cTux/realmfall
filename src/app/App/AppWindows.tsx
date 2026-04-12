@@ -1,4 +1,10 @@
-import { lazy, Suspense, type MutableRefObject } from 'react';
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useState,
+  type MutableRefObject,
+} from 'react';
 import {
   canEquipItem,
   canUseItem,
@@ -15,20 +21,61 @@ import {
   type WindowPositions,
   type WindowVisibilityState,
 } from '../constants';
-import { HeroWindow } from '../../ui/components/HeroWindow';
-import { SkillsWindow } from '../../ui/components/SkillsWindow';
-import { HexInfoWindow } from '../../ui/components/HexInfoWindow';
-import { EquipmentWindow } from '../../ui/components/EquipmentWindow';
-import { InventoryWindow } from '../../ui/components/InventoryWindow';
-import { RecipeBookWindow } from '../../ui/components/RecipeBookWindow';
-import { LogWindow } from '../../ui/components/LogWindow';
 import { GameTooltip } from '../../ui/components/GameTooltip';
-import { CombatWindow } from '../../ui/components/CombatWindow';
-import { LootWindow } from '../../ui/components/LootWindow';
+import { HeroWindow } from '../../ui/components/HeroWindow';
+import { WindowLoadingState } from '../../ui/components/WindowLoadingState';
 import { WindowDock } from '../../ui/components/WindowDock';
 import type { ItemContextMenuState, TooltipItem, TooltipState } from './types';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import { formatTerrainLabel } from './appHelpers';
+
+const SkillsWindow = lazy(() =>
+  import('../../ui/components/SkillsWindow').then((module) => ({
+    default: module.SkillsWindow,
+  })),
+);
+
+const HexInfoWindow = lazy(() =>
+  import('../../ui/components/HexInfoWindow').then((module) => ({
+    default: module.HexInfoWindow,
+  })),
+);
+
+const EquipmentWindow = lazy(() =>
+  import('../../ui/components/EquipmentWindow').then((module) => ({
+    default: module.EquipmentWindow,
+  })),
+);
+
+const InventoryWindow = lazy(() =>
+  import('../../ui/components/InventoryWindow').then((module) => ({
+    default: module.InventoryWindow,
+  })),
+);
+
+const RecipeBookWindow = lazy(() =>
+  import('../../ui/components/RecipeBookWindow').then((module) => ({
+    default: module.RecipeBookWindow,
+  })),
+);
+
+const LogWindow = lazy(() =>
+  import('../../ui/components/LogWindow').then((module) => ({
+    default: module.LogWindow,
+  })),
+);
+
+const CombatWindow = lazy(() =>
+  import('../../ui/components/CombatWindow').then((module) => ({
+    default: module.CombatWindow,
+  })),
+);
+
+const LootWindow = lazy(() =>
+  import('../../ui/components/LootWindow').then((module) => ({
+    default: module.LootWindow,
+  })),
+);
 
 const ItemContextMenu = lazy(() =>
   import('../../ui/components/ItemContextMenu').then((module) => ({
@@ -170,6 +217,40 @@ export function AppWindows({
   onSellAll,
   onBuyTownItem,
 }: AppWindowsProps) {
+  const [loadedWindows, setLoadedWindows] = useState(() => ({
+    skills: windowShown.skills,
+    recipes: windowShown.recipes,
+    hexInfo: windowShown.hexInfo,
+    equipment: windowShown.equipment,
+    inventory: windowShown.inventory,
+    loot: renderLootWindow,
+    log: windowShown.log,
+    combat: renderCombatWindow,
+  }));
+
+  useEffect(() => {
+    setLoadedWindows((current) => {
+      const next = {
+        skills: current.skills || windowShown.skills,
+        recipes: current.recipes || windowShown.recipes,
+        hexInfo: current.hexInfo || windowShown.hexInfo,
+        equipment: current.equipment || windowShown.equipment,
+        inventory: current.inventory || windowShown.inventory,
+        loot: current.loot || renderLootWindow,
+        log: current.log || windowShown.log,
+        combat: current.combat || renderCombatWindow,
+      };
+
+      return Object.keys(next).every(
+        (key) =>
+          current[key as keyof typeof current] ===
+          next[key as keyof typeof next],
+      )
+        ? current
+        : next;
+    });
+  }, [renderCombatWindow, renderLootWindow, windowShown]);
+
   return (
     <>
       <WindowDock entries={dockEntries} onToggle={onToggleDockWindow} />
@@ -182,90 +263,112 @@ export function AppWindows({
         stats={stats}
         hunger={game.player.hunger}
       />
-      <SkillsWindow
-        position={windows.skills}
-        onMove={(position) => onMoveWindow('skills', position)}
-        visible={windowShown.skills}
-        onClose={() => onSetWindowVisibility('skills', false)}
-        skills={stats.skills}
-      />
-      <RecipeBookWindow
-        position={windows.recipes}
-        onMove={(position) => onMoveWindow('recipes', position)}
-        visible={windowShown.recipes}
-        onClose={() => onSetWindowVisibility('recipes', false)}
-        hasRecipeBook={recipeBookKnown}
-        currentStructure={describeStructure(currentTile.structure)}
-        recipes={recipes}
-        inventoryCounts={inventoryCounts}
-        onCraft={onCraftRecipe}
-      />
-      <HexInfoWindow
-        position={windows.hexInfo}
-        onMove={(position) => onMoveWindow('hexInfo', position)}
-        visible={windowShown.hexInfo}
-        onClose={() => onSetWindowVisibility('hexInfo', false)}
-        terrain={formatTerrainLabel(currentTile.terrain)}
-        structure={describeStructure(currentTile.structure)}
-        enemyCount={
-          game.combat
-            ? (combatSnapshot?.enemies.length ?? 0)
-            : currentTile.enemyIds.length
-        }
-        interactLabel={interactLabel}
-        canInteract={Boolean(interactLabel)}
-        canProspect={canProspect}
-        canSell={canSell}
-        prospectExplanation={prospectExplanation}
-        sellExplanation={sellExplanation}
-        onInteract={onInteract}
-        onProspect={onProspect}
-        onSellAll={onSellAll}
-        structureHp={currentTile.structureHp}
-        structureMaxHp={currentTile.structureMaxHp}
-        townStock={townStock}
-        gold={gold}
-        onBuyItem={onBuyTownItem}
-        onHoverItem={onShowItemTooltip}
-        onLeaveItem={onCloseTooltip}
-      />
-      <EquipmentWindow
-        position={windows.equipment}
-        onMove={(position) => onMoveWindow('equipment', position)}
-        visible={windowShown.equipment}
-        onClose={() => onSetWindowVisibility('equipment', false)}
-        equipment={game.player.equipment}
-        onHoverItem={onEquipmentHover}
-        onLeaveItem={onCloseTooltip}
-        onUnequip={onUnequip}
-        onContextItem={onEquippedContextItem}
-      />
-      <InventoryWindow
-        position={windows.inventory}
-        onMove={(position) => onMoveWindow('inventory', position)}
-        visible={windowShown.inventory}
-        onClose={() => onSetWindowVisibility('inventory', false)}
-        inventory={game.player.inventory}
-        equipment={game.player.equipment}
-        onSort={onSort}
-        onEquip={onEquip}
-        onContextItem={onContextItem}
-        onHoverItem={onShowItemTooltip}
-        onLeaveItem={onCloseTooltip}
-      />
-      {renderLootWindow ? (
-        <LootWindow
-          position={windows.loot}
-          onMove={(position) => onMoveWindow('loot', position)}
-          visible={windowShown.loot && lootWindowVisible}
-          loot={lootSnapshot}
-          equipment={game.player.equipment}
-          onClose={() => onSetWindowVisibility('loot', false)}
-          onTakeAll={onTakeAllLoot}
-          onTakeItem={onTakeLootItem}
-          onHoverItem={onShowItemTooltip}
-          onLeaveItem={onCloseTooltip}
-        />
+      {loadedWindows.skills ? (
+        <Suspense fallback={<WindowLoadingState />}>
+          <SkillsWindow
+            position={windows.skills}
+            onMove={(position) => onMoveWindow('skills', position)}
+            visible={windowShown.skills}
+            onClose={() => onSetWindowVisibility('skills', false)}
+            skills={stats.skills}
+          />
+        </Suspense>
+      ) : null}
+      {loadedWindows.recipes ? (
+        <Suspense fallback={<WindowLoadingState />}>
+          <RecipeBookWindow
+            position={windows.recipes}
+            onMove={(position) => onMoveWindow('recipes', position)}
+            visible={windowShown.recipes}
+            onClose={() => onSetWindowVisibility('recipes', false)}
+            hasRecipeBook={recipeBookKnown}
+            currentStructure={describeStructure(currentTile.structure)}
+            recipes={recipes}
+            inventoryCounts={inventoryCounts}
+            onCraft={onCraftRecipe}
+          />
+        </Suspense>
+      ) : null}
+      {loadedWindows.hexInfo ? (
+        <Suspense fallback={<WindowLoadingState />}>
+          <HexInfoWindow
+            position={windows.hexInfo}
+            onMove={(position) => onMoveWindow('hexInfo', position)}
+            visible={windowShown.hexInfo}
+            onClose={() => onSetWindowVisibility('hexInfo', false)}
+            terrain={formatTerrainLabel(currentTile.terrain)}
+            structure={describeStructure(currentTile.structure)}
+            enemyCount={
+              game.combat
+                ? (combatSnapshot?.enemies.length ?? 0)
+                : currentTile.enemyIds.length
+            }
+            interactLabel={interactLabel}
+            canInteract={Boolean(interactLabel)}
+            canProspect={canProspect}
+            canSell={canSell}
+            prospectExplanation={prospectExplanation}
+            sellExplanation={sellExplanation}
+            onInteract={onInteract}
+            onProspect={onProspect}
+            onSellAll={onSellAll}
+            structureHp={currentTile.structureHp}
+            structureMaxHp={currentTile.structureMaxHp}
+            townStock={townStock}
+            gold={gold}
+            onBuyItem={onBuyTownItem}
+            onHoverItem={onShowItemTooltip}
+            onLeaveItem={onCloseTooltip}
+          />
+        </Suspense>
+      ) : null}
+      {loadedWindows.equipment ? (
+        <Suspense fallback={<WindowLoadingState />}>
+          <EquipmentWindow
+            position={windows.equipment}
+            onMove={(position) => onMoveWindow('equipment', position)}
+            visible={windowShown.equipment}
+            onClose={() => onSetWindowVisibility('equipment', false)}
+            equipment={game.player.equipment}
+            onHoverItem={onEquipmentHover}
+            onLeaveItem={onCloseTooltip}
+            onUnequip={onUnequip}
+            onContextItem={onEquippedContextItem}
+          />
+        </Suspense>
+      ) : null}
+      {loadedWindows.inventory ? (
+        <Suspense fallback={<WindowLoadingState />}>
+          <InventoryWindow
+            position={windows.inventory}
+            onMove={(position) => onMoveWindow('inventory', position)}
+            visible={windowShown.inventory}
+            onClose={() => onSetWindowVisibility('inventory', false)}
+            inventory={game.player.inventory}
+            equipment={game.player.equipment}
+            onSort={onSort}
+            onEquip={onEquip}
+            onContextItem={onContextItem}
+            onHoverItem={onShowItemTooltip}
+            onLeaveItem={onCloseTooltip}
+          />
+        </Suspense>
+      ) : null}
+      {loadedWindows.loot ? (
+        <Suspense fallback={<WindowLoadingState />}>
+          <LootWindow
+            position={windows.loot}
+            onMove={(position) => onMoveWindow('loot', position)}
+            visible={windowShown.loot && lootWindowVisible}
+            loot={lootSnapshot}
+            equipment={game.player.equipment}
+            onClose={() => onSetWindowVisibility('loot', false)}
+            onTakeAll={onTakeAllLoot}
+            onTakeItem={onTakeLootItem}
+            onHoverItem={onShowItemTooltip}
+            onLeaveItem={onCloseTooltip}
+          />
+        </Suspense>
       ) : null}
       {itemMenu ? (
         <Suspense fallback={null}>
@@ -300,34 +403,40 @@ export function AppWindows({
           />
         </Suspense>
       ) : null}
-      <LogWindow
-        position={windows.log}
-        onMove={(position) => onMoveWindow('log', position)}
-        visible={windowShown.log}
-        onClose={() => onSetWindowVisibility('log', false)}
-        filters={logFilters}
-        defaultFilters={DEFAULT_LOG_FILTERS}
-        showFilterMenu={showFilterMenu}
-        onToggleMenu={onToggleFilterMenu}
-        onToggleFilter={onToggleLogFilter}
-        logs={filteredLogs}
-      />
-      {renderCombatWindow && combatSnapshot ? (
-        <CombatWindow
-          position={windows.combat}
-          onMove={(position) => onMoveWindow('combat', position)}
-          visible={windowShown.combat && combatWindowVisible}
-          onClose={() => onSetWindowVisibility('combat', false)}
-          combat={combatSnapshot.combat}
-          enemies={combatSnapshot.enemies}
-          player={{
-            hp: stats.hp,
-            maxHp: stats.maxHp,
-            attack: stats.attack,
-            defense: stats.defense,
-          }}
-          onAttack={onAttackEnemy}
-        />
+      {loadedWindows.log ? (
+        <Suspense fallback={<WindowLoadingState />}>
+          <LogWindow
+            position={windows.log}
+            onMove={(position) => onMoveWindow('log', position)}
+            visible={windowShown.log}
+            onClose={() => onSetWindowVisibility('log', false)}
+            filters={logFilters}
+            defaultFilters={DEFAULT_LOG_FILTERS}
+            showFilterMenu={showFilterMenu}
+            onToggleMenu={onToggleFilterMenu}
+            onToggleFilter={onToggleLogFilter}
+            logs={filteredLogs}
+          />
+        </Suspense>
+      ) : null}
+      {loadedWindows.combat && combatSnapshot ? (
+        <Suspense fallback={<WindowLoadingState />}>
+          <CombatWindow
+            position={windows.combat}
+            onMove={(position) => onMoveWindow('combat', position)}
+            visible={windowShown.combat && combatWindowVisible}
+            onClose={() => onSetWindowVisibility('combat', false)}
+            combat={combatSnapshot.combat}
+            enemies={combatSnapshot.enemies}
+            player={{
+              hp: stats.hp,
+              maxHp: stats.maxHp,
+              attack: stats.attack,
+              defense: stats.defense,
+            }}
+            onAttack={onAttackEnemy}
+          />
+        </Suspense>
       ) : null}
       <GameTooltip tooltip={tooltip} positionRef={tooltipPositionRef} />
     </>

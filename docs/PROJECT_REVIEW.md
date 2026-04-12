@@ -34,9 +34,6 @@
 - Cache deterministic render inputs.
   Precompute cloud seeds, tile background variants, and any stable terrain presentation values so the render loop spends more time drawing and less time recomputing unchanged randomness.
 
-- Improve bundle splitting.
-  Split Pixi-related code from the rest of the vendor bundle, and keep checking whether secondary UI and world-only code can stay off the initial payload.
-
 - Clarify persistence language everywhere.
   Keep documenting browser-side save handling as local obfuscation rather than encryption, unless persistence moves to a server-backed or signed model.
 
