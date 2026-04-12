@@ -37,6 +37,31 @@ import { RecipeBookWindow } from './components/RecipeBookWindow';
 import { SkillsWindow } from './components/SkillsWindow';
 
 describe('ui helpers and components', () => {
+  const renderMarkup = async (node: React.ReactNode) => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+
+    await act(async () => {
+      root.render(node);
+    });
+
+    await act(async () => {
+      await vi.dynamicImportSettled();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const markup = host.innerHTML;
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+
+    return markup;
+  };
+
   beforeAll(() => {
     (
       globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -207,7 +232,7 @@ describe('ui helpers and components', () => {
     );
   });
 
-  it('renders all major windows to static markup', () => {
+  it('renders all major windows to static markup', async () => {
     const game = createGame(3, 'ui-render-seed');
     const stats = getPlayerStats(game.player);
     const equippedItem: Item = {
@@ -239,7 +264,7 @@ describe('ui helpers and components', () => {
     };
     const combat = { coord: { q: 1, r: 0 }, enemyIds: ['enemy-1'] };
 
-    const markup = renderToStaticMarkup(
+    const markup = await renderMarkup(
       <>
         <HeroWindow
           position={DEFAULT_WINDOWS.hero}
@@ -410,8 +435,8 @@ describe('ui helpers and components', () => {
     expect(iconForItem(undefined, 'weapon')).toBeTruthy();
   });
 
-  it('shows explanations instead of unavailable prospect and sell buttons', () => {
-    const markup = renderToStaticMarkup(
+  it('shows explanations instead of unavailable prospect and sell buttons', async () => {
+    const markup = await renderMarkup(
       <>
         <HexInfoWindow
           position={DEFAULT_WINDOWS.hexInfo}
@@ -464,8 +489,8 @@ describe('ui helpers and components', () => {
     expect(markup).not.toContain('>Prospect<');
   });
 
-  it('renders hero stat bars with compact large values', () => {
-    const markup = renderToStaticMarkup(
+  it('renders hero stat bars with compact large values', async () => {
+    const markup = await renderMarkup(
       <HeroWindow
         position={DEFAULT_WINDOWS.hero}
         onMove={() => {}}

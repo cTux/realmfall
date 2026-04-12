@@ -8,6 +8,11 @@ export default defineConfig({
       output: {
         entryFileNames: 'assets/js/[name]-[hash].js',
         chunkFileNames: 'assets/js/[name]-[hash].js',
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return 'vendors';
+          }
+        },
         assetFileNames: (assetInfo) => {
           const name = assetInfo.names[0] ?? assetInfo.name ?? '';
           const extension = name.split('.').pop()?.toLowerCase() ?? '';

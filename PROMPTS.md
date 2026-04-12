@@ -18,4 +18,13 @@
 * Some useful information like "Pros" can be found in "PROJECT_REVIEW.md".
 * These rules should be automatically added to the future prompts if they are relevant to the prompt's context.
 * Update README.md to describe all the current project's state and rules.
+* If any prompt contains "add rule" statement it should be immediately added to the corresponsing rule.
+```
+
+## Commit
+
+```
+* Commit all the existing changes.
+* Automatically generate commit messages based on the changes.
+* Commit messages should respect Conventional Commits rules.
 ```

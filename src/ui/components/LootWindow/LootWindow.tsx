@@ -1,9 +1,14 @@
-import { memo } from 'react';
-import { formatCompactNumber } from '../../formatters';
-import { iconForItem, itemTint } from '../../icons';
+import { lazy, memo, Suspense } from 'react';
 import { DraggableWindow } from '../DraggableWindow';
+import { WindowLoadingState } from '../WindowLoadingState';
 import type { LootWindowProps } from './types';
 import styles from '../InventoryWindow/styles.module.css';
+
+const LootWindowContent = lazy(() =>
+  import('./LootWindowContent').then((module) => ({
+    default: module.LootWindowContent,
+  })),
+);
 
 export const LootWindow = memo(function LootWindow({
   position,
@@ -39,48 +44,15 @@ export const LootWindow = memo(function LootWindow({
         </div>
       }
     >
-      <div className={styles.grid}>
-        {loot.map((item) => (
-          <button
-            key={item.id}
-            className={styles.itemCard}
-            style={{
-              borderColor: itemTint(item),
-              boxShadow: `0 0 0 1px ${itemTint(item)}33 inset`,
-            }}
-            onClick={() => onTakeItem(item.id)}
-            onMouseEnter={(event) =>
-              onHoverItem(
-                event,
-                item,
-                item.slot ? equipment[item.slot] : undefined,
-              )
-            }
-            onMouseLeave={onLeaveItem}
-          >
-            <span
-              className={styles.itemIcon}
-              style={iconMaskStyle(iconForItem(item), itemTint(item))}
-              aria-label={item.kind}
-            />
-            {item.quantity > 1 ? (
-              <span className={styles.stackBadge}>
-                x{formatCompactNumber(item.quantity)}
-              </span>
-            ) : null}
-          </button>
-        ))}
-        {loot.length === 0 ? <div className={styles.empty}>Empty</div> : null}
-      </div>
+      <Suspense fallback={<WindowLoadingState />}>
+        <LootWindowContent
+          loot={loot}
+          equipment={equipment}
+          onTakeItem={onTakeItem}
+          onHoverItem={onHoverItem}
+          onLeaveItem={onLeaveItem}
+        />
+      </Suspense>
     </DraggableWindow>
   );
 });
-
-function iconMaskStyle(icon: string, color: string) {
-  const mask = `url("${icon}") center / contain no-repeat`;
-  return {
-    backgroundColor: color,
-    WebkitMask: mask,
-    mask,
-  };
-}

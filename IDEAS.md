@@ -120,6 +120,10 @@
 * Game stages
     * Some game mechanics should be available after reaching specific requirements (game stage)
 * Researches
+* Every trader should have its own gold capacity to buy player's stuff
+* Trading
+    * SHIFT+LMB should buy x5 items (pressing and holding SHIFT should change text to "Buy x5")
+    * CTRL+LMB should buy/sell x100 items (pressing and holding SHIFT should change text to "Buy x100")
 
 ## IMPROVEMENTS
 
@@ -140,8 +144,9 @@
     * Game title in index.html
 * Window's loading spinner should be shown only if loading takes more than 1s
 * Rename Jerky Pack -> Apple
-* Trading
-    * SHIFT+LMB should buy x5 items (pressing and holding SHIFT should change text to "Buy x5")
-    * CTRL+LMB should buy/sell x100 items (pressing and holding SHIFT should change text to "Buy x100")
 * Optimizing
     * Optimize .png images
+
+## RESTRICTIONS
+
+* Game won't support mods

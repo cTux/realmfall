@@ -1,11 +1,16 @@
-import { memo } from 'react';
-import { formatCompactNumber } from '../../formatters';
-import { iconForItem, itemTint } from '../../icons';
+import { lazy, memo, Suspense } from 'react';
 import { DraggableWindow } from '../DraggableWindow';
+import { WindowLoadingState } from '../WindowLoadingState';
 import { WINDOW_LABELS, renderWindowLabel } from '../windowLabels';
 import labelStyles from '../windowLabels.module.css';
 import type { InventoryWindowProps } from './types';
 import styles from './styles.module.css';
+
+const InventoryWindowContent = lazy(() =>
+  import('./InventoryWindowContent').then((module) => ({
+    default: module.InventoryWindowContent,
+  })),
+);
 
 export const InventoryWindow = memo(function InventoryWindow({
   position,
@@ -38,51 +43,16 @@ export const InventoryWindow = memo(function InventoryWindow({
         </div>
       }
     >
-      <div className={styles.grid}>
-        {inventory.map((item) => (
-          <button
-            key={item.id}
-            className={styles.itemCard}
-            style={{
-              borderColor: itemTint(item),
-              boxShadow: `0 0 0 1px ${itemTint(item)}33 inset`,
-            }}
-            onClick={() => onEquip(item.id)}
-            onContextMenu={(event) => onContextItem(event, item)}
-            onMouseEnter={(event) =>
-              onHoverItem(
-                event,
-                item,
-                item.slot ? equipment[item.slot] : undefined,
-              )
-            }
-            onMouseLeave={onLeaveItem}
-          >
-            <span
-              className={styles.itemIcon}
-              style={iconMaskStyle(iconForItem(item), itemTint(item))}
-              aria-label={item.kind}
-            />
-            {item.quantity > 1 ? (
-              <span className={styles.stackBadge}>
-                x{formatCompactNumber(item.quantity)}
-              </span>
-            ) : null}
-          </button>
-        ))}
-        {inventory.length === 0 ? (
-          <div className={styles.empty}>Empty</div>
-        ) : null}
-      </div>
+      <Suspense fallback={<WindowLoadingState />}>
+        <InventoryWindowContent
+          inventory={inventory}
+          equipment={equipment}
+          onEquip={onEquip}
+          onContextItem={onContextItem}
+          onHoverItem={onHoverItem}
+          onLeaveItem={onLeaveItem}
+        />
+      </Suspense>
     </DraggableWindow>
   );
 });
-
-function iconMaskStyle(icon: string, color: string) {
-  const mask = `url("${icon}") center / contain no-repeat`;
-  return {
-    backgroundColor: color,
-    WebkitMask: mask,
-    mask,
-  };
-}

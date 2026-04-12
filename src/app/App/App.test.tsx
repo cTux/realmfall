@@ -3,6 +3,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { createGame } from '../../game/state';
 import { getWorldHexSize, tileToPoint } from '../../ui/world/renderSceneMath';
 import { mapWorldMapFishEyeSourcePointToDisplayPoint } from '../../ui/world/worldMapFishEye';
+import styles from './styles.module.css';
 
 const renderScene = vi.fn();
 const loadEncryptedState = vi.fn();
@@ -165,7 +166,8 @@ describe('App', () => {
       root?.render(<App />);
     });
 
-    expect(host.textContent).toContain('Loading...');
+    expect(host.querySelector(`.${styles.loadingScreen}`)).not.toBeNull();
+    expect(host.querySelector(`.${styles.loadingSpinner}`)).not.toBeNull();
 
     await act(async () => {
       resolveLoad?.({
@@ -202,7 +204,7 @@ describe('App', () => {
     expect(loadEncryptedState).toHaveBeenCalledTimes(1);
     expect(renderScene).toHaveBeenCalled();
     expect(saveEncryptedState).toHaveBeenCalled();
-    expect(host.textContent).not.toContain('Loading...');
+    expect(host.querySelector(`.${styles.loadingScreen}`)).toBeNull();
     expect(host.textContent).toContain('World Time');
     expect(host.textContent).toContain('FPS');
     expect(host.textContent).not.toContain('(C)haracter info');

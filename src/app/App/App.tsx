@@ -333,7 +333,15 @@ export function App() {
           onBuyTownItem={handleBuyTownItem}
         />
       </div>
-      {isReady ? null : <div className={styles.loadingScreen}>Loading...</div>}
+      {isReady ? null : (
+        <div
+          className={styles.loadingScreen}
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <div className={styles.loadingSpinner} aria-hidden="true" />
+        </div>
+      )}
     </div>
   );
 }
