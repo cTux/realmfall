@@ -4,8 +4,8 @@ Hex-based adventure survival RPG built with React, TypeScript, Vite, Pixi.js, Vi
 
 ## Scripts
 
-- `npm run dev`
-- `npm run build`
-- `npm run lint`
-- `npm run typecheck`
-- `npm run test`
+- `pnpm dev`
+- `pnpm build`
+- `pnpm lint`
+- `pnpm typecheck`
+- `pnpm test`
