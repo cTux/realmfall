@@ -9,6 +9,7 @@ export interface WindowPosition {
 }
 
 export interface WindowPositions {
+  worldTime: WindowPosition;
   hero: WindowPosition;
   skills: WindowPosition;
   recipes: WindowPosition;
@@ -21,6 +22,7 @@ export interface WindowPositions {
 }
 
 export interface WindowVisibilityState {
+  worldTime: boolean;
   hero: boolean;
   skills: boolean;
   recipes: boolean;
@@ -33,6 +35,7 @@ export interface WindowVisibilityState {
 }
 
 export const DEFAULT_WINDOWS: WindowPositions = {
+  worldTime: { x: 420, y: 20 },
   hero: { x: 96, y: 20 },
   skills: { x: 96, y: 430 },
   recipes: { x: 620, y: 470 },
@@ -45,6 +48,7 @@ export const DEFAULT_WINDOWS: WindowPositions = {
 };
 
 export const DEFAULT_WINDOW_VISIBILITY: WindowVisibilityState = {
+  worldTime: true,
   hero: false,
   skills: false,
   recipes: false,

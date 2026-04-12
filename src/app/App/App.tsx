@@ -15,8 +15,13 @@ import {
   type GameState,
   type HexCoord,
 } from '../../game/state';
-import { getWorldTimeMinutesFromTimestamp } from '../../ui/world/timeOfDay';
 import { WORLD_RADIUS } from '../constants';
+import { DraggableWindow } from '../../ui/components/DraggableWindow';
+import {
+  WINDOW_LABELS,
+  renderWindowLabel,
+} from '../../ui/components/windowLabels';
+import labelStyles from '../../ui/components/windowLabels.module.css';
 import { AppWindows } from './AppWindows';
 import { getDockEntries } from './appHelpers';
 import { useAppControllers } from './useAppControllers';
@@ -39,10 +44,8 @@ export function App() {
   const worldTimeTickRef = useRef<number | null>(null);
   const frameCountRef = useRef(0);
   const lastFpsSampleRef = useRef(0);
-  const lastDisplayedWorldMinuteRef = useRef(
-    Math.floor(
-      getWorldTimeMinutesFromTimestamp(initialGameRef.current.worldTimeMs),
-    ),
+  const lastDisplayedWorldSecondRef = useRef(
+    Math.floor(initialGameRef.current.worldTimeMs / 1000),
   );
 
   const [game, setGame] = useState<GameState>(initialGameRef.current);
@@ -94,7 +97,7 @@ export function App() {
       worldTimeTickRef,
       frameCountRef,
       lastFpsSampleRef,
-      lastDisplayedWorldMinuteRef,
+      lastDisplayedWorldSecondRef,
     });
 
   const stats = useMemo(() => getPlayerStats(game.player), [game.player]);
@@ -188,7 +191,7 @@ export function App() {
     windowShown,
     worldTimeMsRef,
     worldTimeTickRef,
-    lastDisplayedWorldMinuteRef,
+    lastDisplayedWorldSecondRef,
   });
   const isReady = hydrated && canvasReady;
 
@@ -250,16 +253,31 @@ export function App() {
     <div className={styles.appRoot}>
       <div className={isReady ? undefined : styles.hiddenUntilReady}>
         <div ref={hostRef} className={styles.mapViewport} />
-        <div className={styles.worldClock} aria-label="World time">
-          <div className={styles.worldClockMetric}>
-            <span className={styles.worldClockLabel}>World Time</span>
-            <strong className={styles.worldClockValue}>{worldTimeLabel}</strong>
-          </div>
-          <div className={styles.worldClockMetric}>
-            <span className={styles.worldClockLabel}>FPS</span>
-            <strong className={styles.worldClockValue}>{fps}</strong>
-          </div>
-        </div>
+        {windowShown.worldTime ? (
+          <DraggableWindow
+            title={renderWindowLabel(
+              WINDOW_LABELS.worldTime,
+              labelStyles.hotkey,
+            )}
+            position={windows.worldTime}
+            onMove={(position) => moveWindow('worldTime', position)}
+            onClose={() => setWindowVisibility('worldTime', false)}
+            className={styles.worldClockWindow}
+          >
+            <div className={styles.worldClock} aria-label="World time">
+              <div className={styles.worldClockMetric}>
+                <span className={styles.worldClockLabel}>World Time</span>
+                <strong className={styles.worldClockValue}>
+                  {worldTimeLabel}
+                </strong>
+              </div>
+              <div className={styles.worldClockMetric}>
+                <span className={styles.worldClockLabel}>FPS</span>
+                <strong className={styles.worldClockValue}>{fps}</strong>
+              </div>
+            </div>
+          </DraggableWindow>
+        ) : null}
         <AppWindows
           windows={windows}
           windowShown={windowShown}

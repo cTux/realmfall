@@ -49,6 +49,14 @@ vi.mock('../../ui/world/renderScene', () => ({
 }));
 
 describe('App', () => {
+  const flushLazyModules = async () => {
+    await act(async () => {
+      await vi.dynamicImportSettled();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+  };
+
   beforeAll(() => {
     (
       globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -170,6 +178,7 @@ describe('App', () => {
         ui: {
           windows: { hero: { x: 30, y: 40 } },
           windowShown: {
+            worldTime: true,
             hero: false,
             skills: true,
             recipes: true,
@@ -188,6 +197,7 @@ describe('App', () => {
     await act(async () => {
       vi.advanceTimersByTime(200);
     });
+    await flushLazyModules();
 
     expect(loadEncryptedState).toHaveBeenCalledTimes(1);
     expect(renderScene).toHaveBeenCalled();
@@ -200,14 +210,22 @@ describe('App', () => {
     expect(host.textContent).toContain('(R)ecipe book');
     expect(host.textContent).toContain('(H)ex info');
     expect(host.textContent).not.toContain('old log');
-    expect(host.textContent).toContain('MOTD');
+    expect(host.textContent).toContain('Lo(g)');
     expect(host.textContent).toContain('Day 1, 00:00');
+
+    const worldTimePanel = host.querySelector(
+      '[aria-label="World time"]',
+    ) as HTMLDivElement | null;
+    const initialWorldTimePanelText = worldTimePanel?.textContent;
 
     await act(async () => {
       vi.advanceTimersByTime(60 * 1000);
     });
 
-    expect(host.textContent).toMatch(/Day 2, 00:0\d/);
+    expect(worldTimePanel?.textContent).not.toBe(initialWorldTimePanelText);
+    expect(worldTimePanel?.textContent).toMatch(
+      /World TimeDay \d+, \d{2}:\d{2}FPS\d+/,
+    );
     expect(host.textContent).not.toContain('Hunger penalty');
     expect(host.textContent).toContain('Loot');
     expect(host.textContent).toContain('Prospect');
@@ -215,14 +233,27 @@ describe('App', () => {
     const heroDockButton = host.querySelector(
       '[aria-label="Toggle Character info window"]',
     ) as HTMLButtonElement | null;
+    const worldTimeDockButton = host.querySelector(
+      '[aria-label="Toggle World time window"]',
+    ) as HTMLButtonElement | null;
     expect(heroDockButton).not.toBeNull();
+    expect(worldTimeDockButton?.getAttribute('aria-pressed')).toBe('true');
     expect(heroDockButton?.getAttribute('aria-pressed')).toBe('false');
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'w' }),
+      );
+    });
+    expect(host.textContent).not.toContain('World Time');
+    expect(worldTimeDockButton?.getAttribute('aria-pressed')).toBe('false');
 
     await act(async () => {
       window.dispatchEvent(
         new KeyboardEvent('keydown', { bubbles: true, key: 'c' }),
       );
     });
+    await flushLazyModules();
     expect(host.textContent).toContain('(C)haracter info');
     expect(host.textContent).toContain('Hunger penalty');
     expect(heroDockButton?.getAttribute('aria-pressed')).toBe('true');
@@ -255,7 +286,7 @@ describe('App', () => {
       vi.advanceTimersByTime(200);
     });
 
-    expect(host.textContent).not.toContain('MOTD');
+    expect(host.textContent).not.toContain('Filters');
     expect(logDockButton?.getAttribute('aria-pressed')).toBe('false');
 
     const inventoryConsumable = host.querySelector('[aria-label="consumable"]')
@@ -277,6 +308,7 @@ describe('App', () => {
         }),
       );
     });
+    await flushLazyModules();
     expect(host.textContent).toContain('Use');
 
     const useButton = Array.from(host.querySelectorAll('button')).find(

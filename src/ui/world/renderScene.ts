@@ -6,7 +6,7 @@ import {
   type GameState,
   type HexCoord,
 } from '../../game/state';
-import { enemyIconFor, structureIconFor } from '../icons';
+import { enemyIconFor, structureIconFor } from './worldIcons';
 import { WORLD_REVEAL_RADIUS } from '../../app/constants';
 import { scaleColor } from './timeOfDay';
 import {
@@ -191,7 +191,7 @@ export function renderScene(
       );
       configureShadowedSprite(
         sprite,
-        scaleColor(0xffffff, lighting.ambientBrightness + 0.04),
+        scaleColor(0xef4444, lighting.ambientBrightness + 0.04),
         enemyIconSize,
         enemyIconSize,
         1,

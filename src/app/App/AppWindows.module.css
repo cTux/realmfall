@@ -1,0 +1,34 @@
+.loadingState {
+  display: grid;
+  place-items: center;
+  gap: 0.8rem;
+  min-width: 260px;
+  min-height: 180px;
+  color: #cbd5e1;
+}
+
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid rgb(148 163 184 / 28%);
+  border-top-color: #38bdf8;
+  border-radius: 999px;
+  animation: spin 0.8s linear infinite;
+}
+
+.loadingLabel {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

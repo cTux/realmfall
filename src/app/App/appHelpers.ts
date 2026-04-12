@@ -4,25 +4,36 @@ import {
   type Item,
   type Terrain,
 } from '../../game/state';
-import { Icons } from '../../ui/icons';
+import playerIcon from '../../assets/icons/visored-helm.svg';
+import sunCloudIcon from '../../assets/icons/sun-cloud.svg';
+import sparklesIcon from '../../assets/icons/sparkles.svg';
+import bookCoverIcon from '../../assets/icons/book-cover.svg';
+import villageIcon from '../../assets/icons/village.svg';
+import armorIcon from '../../assets/icons/checked-shield.svg';
+import coinsIcon from '../../assets/icons/coins.svg';
+import stonePileIcon from '../../assets/icons/stone-pile.svg';
+import logIcon from '../../assets/icons/log.svg';
+import enemyIcon from '../../assets/icons/wolf-head.svg';
 import { WINDOW_LABELS } from '../../ui/components/windowLabels';
 import type { WindowVisibilityState } from '../constants';
 
 export const DOCK_WINDOW_ICONS: Record<keyof WindowVisibilityState, string> = {
-  hero: Icons.Player,
-  skills: Icons.Sparkles,
-  recipes: Icons.BookCover,
-  hexInfo: Icons.Village,
-  equipment: Icons.Armor,
-  inventory: Icons.Coins,
-  loot: Icons.StonePile,
-  log: Icons.Log,
-  combat: Icons.Enemy,
+  worldTime: sunCloudIcon,
+  hero: playerIcon,
+  skills: sparklesIcon,
+  recipes: bookCoverIcon,
+  hexInfo: villageIcon,
+  equipment: armorIcon,
+  inventory: coinsIcon,
+  loot: stonePileIcon,
+  log: logIcon,
+  combat: enemyIcon,
 };
 
 export const WINDOW_HOTKEYS: Partial<
   Record<string, keyof WindowVisibilityState>
 > = {
+  w: 'worldTime',
   c: 'hero',
   s: 'skills',
   r: 'recipes',
@@ -48,6 +59,7 @@ export function getDockEntries(
   renderCombatWindow: boolean,
 ) {
   const keys: Array<keyof WindowVisibilityState> = [
+    'worldTime',
     'hero',
     'skills',
     'recipes',

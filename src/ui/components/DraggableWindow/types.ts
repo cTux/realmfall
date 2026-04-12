@@ -11,4 +11,5 @@ export interface DraggableWindowProps {
   className?: string;
   visible?: boolean;
   onClose?: () => void;
+  showCloseButton?: boolean;
 }

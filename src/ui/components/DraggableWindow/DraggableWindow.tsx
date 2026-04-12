@@ -21,6 +21,7 @@ export function DraggableWindow({
   className,
   visible: visibleProp,
   onClose,
+  showCloseButton = true,
 }: DraggableWindowProps) {
   const windowIdRef = useRef(`window-${Math.random().toString(36).slice(2)}`);
   const dragRef = useRef<{ dx: number; dy: number } | null>(null);
@@ -138,14 +139,16 @@ export function DraggableWindow({
               {headerActions}
             </div>
           ) : null}
-          <button
-            type="button"
-            className={styles.headerButton}
-            onPointerDown={(event) => event.stopPropagation()}
-            onClick={closeWindow}
-          >
-            Close
-          </button>
+          {showCloseButton ? (
+            <button
+              type="button"
+              className={styles.headerButton}
+              onPointerDown={(event) => event.stopPropagation()}
+              onClick={closeWindow}
+            >
+              Close
+            </button>
+          ) : null}
         </div>
       </div>
       <div className={styles.windowBody}>{children}</div>

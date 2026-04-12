@@ -10,7 +10,7 @@ interface UseWorldClockFpsOptions {
   worldTimeTickRef: MutableRefObject<number | null>;
   frameCountRef: MutableRefObject<number>;
   lastFpsSampleRef: MutableRefObject<number>;
-  lastDisplayedWorldMinuteRef: MutableRefObject<number>;
+  lastDisplayedWorldSecondRef: MutableRefObject<number>;
 }
 
 export function useWorldClockFps({
@@ -19,7 +19,7 @@ export function useWorldClockFps({
   worldTimeTickRef,
   frameCountRef,
   lastFpsSampleRef,
-  lastDisplayedWorldMinuteRef,
+  lastDisplayedWorldSecondRef,
 }: UseWorldClockFpsOptions) {
   const [worldTimeMs, setWorldTimeMs] = useState(initialWorldTimeMs);
   const [fps, setFps] = useState(0);
@@ -34,12 +34,9 @@ export function useWorldClockFps({
       }
       worldTimeTickRef.current = timestamp;
 
-      const displayedWorldMinute = Math.floor(
-        getWorldTimeMinutesFromTimestamp(worldTimeMsRef.current),
-      );
-      if (displayedWorldMinute !== lastDisplayedWorldMinuteRef.current) {
-        lastDisplayedWorldMinuteRef.current = displayedWorldMinute;
-        setWorldTimeMs(worldTimeMsRef.current);
+      const displayedWorldSecond = Math.floor(worldTimeMsRef.current / 1000);
+      if (displayedWorldSecond !== lastDisplayedWorldSecondRef.current) {
+        lastDisplayedWorldSecondRef.current = displayedWorldSecond;
       }
 
       if (lastFpsSampleRef.current === 0) {
@@ -47,7 +44,8 @@ export function useWorldClockFps({
       }
 
       const elapsed = timestamp - lastFpsSampleRef.current;
-      if (elapsed >= 250) {
+      if (elapsed >= 1000) {
+        setWorldTimeMs(worldTimeMsRef.current);
         setFps(Math.round((frameCountRef.current * 1000) / elapsed));
         frameCountRef.current = 0;
         lastFpsSampleRef.current = timestamp;
@@ -63,7 +61,7 @@ export function useWorldClockFps({
     };
   }, [
     frameCountRef,
-    lastDisplayedWorldMinuteRef,
+    lastDisplayedWorldSecondRef,
     lastFpsSampleRef,
     worldTimeMsRef,
     worldTimeTickRef,

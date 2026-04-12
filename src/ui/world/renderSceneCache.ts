@@ -5,7 +5,7 @@ import {
   TextStyle,
   type Application,
 } from 'pixi.js';
-import { Icons } from '../icons';
+import { WorldIcons } from './worldIcons';
 import {
   createGraphicsPool,
   createShadowedSprite,
@@ -119,7 +119,7 @@ export function getSceneCache(app: Application) {
   const overlayFill = new Graphics();
   overlay.addChild(overlayFill);
 
-  const player = createShadowedSprite(Icons.Player);
+  const player = createShadowedSprite(WorldIcons.Player);
   worldPlayer.addChild(player.wrapper);
 
   const scene: SceneCache = {

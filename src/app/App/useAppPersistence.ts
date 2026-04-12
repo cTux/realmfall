@@ -14,7 +14,6 @@ import {
   loadEncryptedState,
   saveEncryptedState,
 } from '../../persistence/storage';
-import { getWorldTimeMinutesFromTimestamp } from '../../ui/world/timeOfDay';
 import {
   DEFAULT_WINDOWS,
   DEFAULT_WINDOW_VISIBILITY,
@@ -37,7 +36,7 @@ interface UseAppPersistenceOptions {
   windowShown: WindowVisibilityState;
   worldTimeMsRef: MutableRefObject<number>;
   worldTimeTickRef: MutableRefObject<number | null>;
-  lastDisplayedWorldMinuteRef: MutableRefObject<number>;
+  lastDisplayedWorldSecondRef: MutableRefObject<number>;
 }
 
 export function useAppPersistence({
@@ -53,7 +52,7 @@ export function useAppPersistence({
   windowShown,
   worldTimeMsRef,
   worldTimeTickRef,
-  lastDisplayedWorldMinuteRef,
+  lastDisplayedWorldSecondRef,
 }: UseAppPersistenceOptions) {
   const [hydrated, setHydrated] = useState(false);
 
@@ -67,8 +66,8 @@ export function useAppPersistence({
         const loadedGame = normalizeLoadedGame(saved.game as GameState);
         worldTimeMsRef.current = loadedGame.worldTimeMs;
         worldTimeTickRef.current = null;
-        lastDisplayedWorldMinuteRef.current = Math.floor(
-          getWorldTimeMinutesFromTimestamp(loadedGame.worldTimeMs),
+        lastDisplayedWorldSecondRef.current = Math.floor(
+          loadedGame.worldTimeMs / 1000,
         );
         setWorldTimeMs(loadedGame.worldTimeMs);
         setGame({
@@ -114,7 +113,7 @@ export function useAppPersistence({
       alive = false;
     };
   }, [
-    lastDisplayedWorldMinuteRef,
+    lastDisplayedWorldSecondRef,
     setGame,
     setLogFilters,
     setWindowShown,

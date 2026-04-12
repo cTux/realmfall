@@ -1,28 +1,5 @@
 # Project Review
 
-## Scope
-
-Review based on the current repository contents, configuration, and local validation of the existing scripts.
-
-## Stack Observed
-
-- React 18
-- TypeScript 5 with `strict: true`
-- Vite 6
-- Pixi.js 7
-- Vitest
-- ESLint 9 flat config
-- Prettier 3
-- Husky
-
-## Validation Summary
-
-- `pnpm test`: passed, 12 files and 82 tests
-- `pnpm typecheck`: passed
-- `pnpm build`: passed
-- `pnpm lint`: passed with 1 warning
-- Build output includes a large chunk warning: main JS bundle is about `791.78 kB` minified
-
 ## Pros
 
 - Strong baseline tooling. The repo already has type checking, linting, formatting, tests, and git hooks configured.
@@ -56,13 +33,6 @@ Review based on the current repository contents, configuration, and local valida
 
 ### Medium Priority
 
-5. Reduce bundle size.
-
-- Analyze the bundle and identify the largest contributors.
-- Lazy-load non-critical UI windows if practical.
-- Review large static assets and whether all of them must ship at initial load.
-- Consider manual chunking only after understanding actual bundle composition.
-
 7. Fix the Fast Refresh lint warning.
 
 - Move `WINDOW_LABELS` or `renderWindowLabel` out of `src/ui/components/windowLabels.tsx` into a non-component utility/constants file, or make the file export only one concern.
@@ -81,11 +51,3 @@ Review based on the current repository contents, configuration, and local valida
 10. Add explicit performance guidance for the rendering path.
 
 - The Pixi layer is central to user experience. A short internal note about frame-budget expectations, redraw strategy, and asset-loading constraints would help future contributors avoid accidental regressions.
-
-## Overall Assessment
-
-This project has a good technical foundation for an indie browser game: strict TypeScript, passing tests, clear gameplay configuration, and a meaningful amount of automated verification. The biggest gaps are maintainability and delivery maturity rather than correctness. The code works, but the two largest files now carry too much responsibility, the save security story is misleading if interpreted literally, and the repo would benefit from CI, better docs, and bundle optimization.
-
-## Best Next Steps
-
-4. Address bundle size after measuring the biggest contributors.

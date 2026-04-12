@@ -119,16 +119,12 @@
     * Increasing reputation causes NPCs prices and buildings services to become cheaper
 * Game stages
     * Some game mechanics should be available after reaching specific requirements (game stage)
+* Researches
 
 ## IMPROVEMENTS
 
 * Review the project
-    * [+] Get review feeback document
-    * Optimize the code
-    * Optimize project structure
-        * Split the bundle
-            * Main bundle should contain only critical styles for loading screen
-            * Loading phases should be shown on the loading screen on the left top (like the Linux systems load)
+    * Review pixi.js and canvas rendering for possible improvements to the performance
     * Write rules to be applied automatically
         * All the color (or position) transitions should be smoothest transitions ever spotted
 * Review Chrome's performance recording
@@ -142,3 +138,10 @@
 * Game favicon
     * Light and dark favicons based on the selected browser's theme
     * Game title in index.html
+* Window's loading spinner should be shown only if loading takes more than 1s
+* Rename Jerky Pack -> Apple
+* Trading
+    * SHIFT+LMB should buy x5 items (pressing and holding SHIFT should change text to "Buy x5")
+    * CTRL+LMB should buy/sell x100 items (pressing and holding SHIFT should change text to "Buy x100")
+* Optimizing
+    * Optimize .png images

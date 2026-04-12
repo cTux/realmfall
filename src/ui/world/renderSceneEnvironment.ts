@@ -20,9 +20,9 @@ import forestVillageIcon from '../../assets/forest-pack/forest_15_village.png';
 import forestRuinsIcon from '../../assets/forest-pack/forest_17_ruins.png';
 import forestBlastIcon from '../../assets/forest-pack/forest_18_blast.png';
 import forestTempleIcon from '../../assets/forest-pack/forest_20_temple.png';
-import { Icons } from '../icons';
 import { scaleColor, type getTimeOfDayLighting } from './timeOfDay';
 import { normalizeVector } from './renderSceneMath';
+import { WorldIcons } from './worldIcons';
 import {
   configureSprite,
   takeGraphics,
@@ -45,7 +45,11 @@ export function renderCloudLayer(
   shadowOffset: { x: number; y: number },
 ) {
   const cloudCount = 22;
-  const weatherIcons = [Icons.SunCloud, Icons.Raining, Icons.Snowing];
+  const weatherIcons = [
+    WorldIcons.SunCloud,
+    WorldIcons.Raining,
+    WorldIcons.Snowing,
+  ];
   const clusterOffsets = [
     { x: -38, y: 12, scale: 0.72 },
     { x: -16, y: -6, scale: 0.9 },
