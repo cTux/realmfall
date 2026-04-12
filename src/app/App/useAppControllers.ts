@@ -34,17 +34,20 @@ import {
   type WindowVisibilityState,
 } from '../constants';
 import type { ItemContextMenuState, TooltipItem, TooltipState } from './types';
+import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import { getInventoryItemAction } from './appHelpers';
 
 interface UseAppControllersOptions {
   gameRef: MutableRefObject<GameState>;
   setGame: Dispatch<SetStateAction<GameState>>;
+  tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
   worldTimeMsRef: MutableRefObject<number>;
 }
 
 export function useAppControllers({
   gameRef,
   setGame,
+  tooltipPositionRef,
   worldTimeMsRef,
 }: UseAppControllersOptions) {
   const [windows, setWindows] = useState<WindowPositions>(DEFAULT_WINDOWS);
@@ -79,8 +82,9 @@ export function useAppControllers({
   }, []);
 
   const closeTooltip = useCallback(() => {
+    tooltipPositionRef.current = null;
     setTooltip(null);
-  }, []);
+  }, [tooltipPositionRef]);
 
   const closeItemMenu = useCallback(() => {
     setItemMenu(null);
@@ -93,15 +97,20 @@ export function useAppControllers({
       equipped?: TooltipItem,
     ) => {
       const rect = event.currentTarget.getBoundingClientRect();
+      const position = {
+        x: rect.right + 12,
+        y: rect.top,
+      };
+      tooltipPositionRef.current = position;
       setTooltip({
         title: item.name,
         lines: itemTooltipLines(item, equipped),
-        x: rect.right + 12,
-        y: rect.top,
+        x: position.x,
+        y: position.y,
         borderColor: rarityColor(item.rarity),
       });
     },
-    [],
+    [tooltipPositionRef],
   );
 
   const handleUnequip = useCallback(

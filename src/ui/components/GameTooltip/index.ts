@@ -1,2 +1,6 @@
 export { GameTooltip } from './GameTooltip';
-export type { GameTooltipData, GameTooltipProps } from './types';
+export type {
+  GameTooltipData,
+  GameTooltipProps,
+  TooltipPosition,
+} from './types';

@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, type MutableRefObject } from 'react';
 import {
   canEquipItem,
   canUseItem,
@@ -27,6 +27,7 @@ import { CombatWindow } from '../../ui/components/CombatWindow';
 import { LootWindow } from '../../ui/components/LootWindow';
 import { WindowDock } from '../../ui/components/WindowDock';
 import type { ItemContextMenuState, TooltipItem, TooltipState } from './types';
+import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import { formatTerrainLabel } from './appHelpers';
 
 const ItemContextMenu = lazy(() =>
@@ -65,6 +66,7 @@ interface AppWindowsProps {
   logFilters: Record<LogKind, boolean>;
   filteredLogs: GameState['logs'];
   tooltip: TooltipState | null;
+  tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
   itemMenu: ItemContextMenuState | null;
   onMoveWindow: (
     key: keyof WindowPositions,
@@ -140,6 +142,7 @@ export function AppWindows({
   logFilters,
   filteredLogs,
   tooltip,
+  tooltipPositionRef,
   itemMenu,
   onMoveWindow,
   onSetWindowVisibility,
@@ -326,7 +329,7 @@ export function AppWindows({
           onAttack={onAttackEnemy}
         />
       ) : null}
-      <GameTooltip tooltip={tooltip} />
+      <GameTooltip tooltip={tooltip} positionRef={tooltipPositionRef} />
     </>
   );
 }

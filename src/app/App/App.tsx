@@ -31,6 +31,8 @@ import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { usePixiWorld } from './usePixiWorld';
 import { useWindowTransitions } from './useWindowTransitions';
 import { useWorldClockFps } from './useWorldClockFps';
+import type { TooltipPosition } from '../../ui/components/GameTooltip';
+import type { TooltipState } from './types';
 import styles from './styles.module.css';
 
 export function App() {
@@ -40,6 +42,8 @@ export function App() {
   const visibleTilesRef = useRef(getVisibleTiles(initialGameRef.current));
   const selectedRef = useRef<HexCoord>(initialGameRef.current.player.coord);
   const hoveredMoveRef = useRef<HexCoord | null>(null);
+  const tooltipRef = useRef<TooltipState | null>(null);
+  const tooltipPositionRef = useRef<TooltipPosition | null>(null);
   const worldTimeMsRef = useRef(initialGameRef.current.worldTimeMs);
   const worldTimeTickRef = useRef<number | null>(null);
   const frameCountRef = useRef(0);
@@ -88,7 +92,12 @@ export function App() {
     tooltip,
     windowShown,
     windows,
-  } = useAppControllers({ gameRef, setGame, worldTimeMsRef });
+  } = useAppControllers({
+    gameRef,
+    setGame,
+    tooltipPositionRef,
+    worldTimeMsRef,
+  });
 
   const { fps, setWorldTimeMs, worldTimeLabel, worldTimeMinutes } =
     useWorldClockFps({
@@ -173,6 +182,8 @@ export function App() {
     visibleTilesRef,
     selectedRef,
     hoveredMoveRef,
+    tooltipPositionRef,
+    tooltipRef,
     setGame,
     setSelected,
     setHoveredMove,
@@ -220,6 +231,10 @@ export function App() {
   useEffect(() => {
     hoveredMoveRef.current = hoveredMove;
   }, [hoveredMove]);
+
+  useEffect(() => {
+    tooltipRef.current = tooltip;
+  }, [tooltip]);
 
   useCombatAutomation({
     combat: game.combat,
@@ -305,6 +320,7 @@ export function App() {
           logFilters={logFilters}
           filteredLogs={filteredLogs}
           tooltip={tooltip}
+          tooltipPositionRef={tooltipPositionRef}
           itemMenu={itemMenu}
           onMoveWindow={moveWindow}
           onSetWindowVisibility={setWindowVisibility}

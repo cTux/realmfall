@@ -8,6 +8,7 @@ export interface TooltipState {
   x: number;
   y: number;
   borderColor?: string;
+  followCursor?: boolean;
 }
 
 export interface PersistedUiState {

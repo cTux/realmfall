@@ -971,4 +971,51 @@ describe('ui helpers and components', () => {
     });
     host.remove();
   });
+
+  it('follows pointer refs without changing tooltip visibility', async () => {
+    vi.useFakeTimers();
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    const positionRef = {
+      current: { x: 50, y: 70 },
+    };
+
+    await act(async () => {
+      root.render(
+        <GameTooltip
+          tooltip={{
+            title: 'Dungeon',
+            x: 50,
+            y: 70,
+            followCursor: true,
+            borderColor: '#a855f7',
+            lines: [{ kind: 'text', text: 'Enemies gather here.' }],
+          }}
+          positionRef={positionRef}
+        />,
+      );
+    });
+
+    await act(async () => {
+      vi.advanceTimersByTime(20);
+    });
+
+    positionRef.current = { x: 110, y: 130 };
+
+    await act(async () => {
+      vi.advanceTimersByTime(20);
+    });
+
+    const tooltip = host.querySelector('div[class*="tooltip"]') as HTMLElement;
+    expect(tooltip.dataset.tooltipVisible).toBe('true');
+    expect(tooltip.style.left).toBe('110px');
+    expect(tooltip.style.top).toBe('130px');
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
 });

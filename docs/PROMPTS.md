@@ -14,7 +14,7 @@
 * Review this project for all the known possible best practices and approaches based on used tech stack.
     * Do not forget about browser performance review (including React.js re-renders)
     * Do not forget about pixi.js performance review
-* Write "docs/PROJECT_REVIEW.md" about "Pros", "Cons" and "Improvements" at the root of the project.
+* Write / update "docs/PROJECT_REVIEW.md" about "Pros", "Cons" and "Improvements" at the root of the project.
 * Improvements should be split by priorities.
 * Do not write "Scope", "Stack Observed", "Summary" or "Overall Assessment".
 ```

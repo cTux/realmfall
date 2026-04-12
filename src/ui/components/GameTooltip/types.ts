@@ -1,3 +1,4 @@
+import type { MutableRefObject } from 'react';
 import type { TooltipLine } from '../../tooltips';
 
 export interface GameTooltipData {
@@ -6,6 +7,12 @@ export interface GameTooltipData {
   x: number;
   y: number;
   borderColor?: string;
+  followCursor?: boolean;
+}
+
+export interface TooltipPosition {
+  x: number;
+  y: number;
 }
 
 export interface RenderedTooltipState {
@@ -15,4 +22,5 @@ export interface RenderedTooltipState {
 
 export interface GameTooltipProps {
   tooltip: GameTooltipData | null;
+  positionRef?: MutableRefObject<TooltipPosition | null>;
 }

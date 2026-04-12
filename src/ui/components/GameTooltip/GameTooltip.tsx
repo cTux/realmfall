@@ -19,11 +19,13 @@ function isSubtitleLine(text?: string) {
 
 export const GameTooltip = memo(function GameTooltip({
   tooltip,
+  positionRef,
 }: GameTooltipProps) {
   const [rendered, setRendered] = useState<RenderedTooltipState | null>(
     tooltip ? { tooltip, visible: true } : null,
   );
   const lastContentKeyRef = useRef<string | null>(tooltipContentKey(tooltip));
+  const tooltipRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (tooltip) {
@@ -59,15 +61,42 @@ export const GameTooltip = memo(function GameTooltip({
     return () => window.clearTimeout(timeout);
   }, [tooltip]);
 
+  useEffect(() => {
+    if (!rendered?.tooltip.followCursor || !positionRef) return;
+
+    let frame = 0;
+
+    const syncPosition = () => {
+      const element = tooltipRef.current;
+      const position = positionRef.current;
+
+      if (element && position) {
+        element.style.left = `${position.x}px`;
+        element.style.top = `${position.y}px`;
+      }
+
+      frame = window.requestAnimationFrame(syncPosition);
+    };
+
+    syncPosition();
+    return () => window.cancelAnimationFrame(frame);
+  }, [positionRef, rendered]);
+
   if (!rendered) return null;
+
+  const displayPosition =
+    rendered.tooltip.followCursor && positionRef?.current
+      ? positionRef.current
+      : rendered.tooltip;
 
   return (
     <div
+      ref={tooltipRef}
       className={styles.tooltip}
       data-tooltip-visible={rendered.visible}
       style={{
-        left: rendered.tooltip.x,
-        top: rendered.tooltip.y,
+        left: displayPosition.x,
+        top: displayPosition.y,
         borderColor: rendered.tooltip.borderColor,
       }}
     >

@@ -18,6 +18,7 @@ import {
 } from '../../game/state';
 import { enemyTooltip, structureTooltip } from '../../ui/tooltips';
 import { renderScene } from '../../ui/world/renderScene';
+import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import { getWorldHexSize } from '../../ui/world/renderSceneMath';
 import { getWorldTimeMinutesFromTimestamp } from '../../ui/world/timeOfDay';
 import { WORLD_REVEAL_RADIUS } from '../constants';
@@ -41,6 +42,8 @@ interface UsePixiWorldArgs {
   >;
   selectedRef: MutableRefObject<HexCoord>;
   hoveredMoveRef: MutableRefObject<HexCoord | null>;
+  tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
+  tooltipRef: MutableRefObject<TooltipState | null>;
   setGame: Dispatch<SetStateAction<GameState>>;
   setSelected: Dispatch<SetStateAction<HexCoord>>;
   setHoveredMove: Dispatch<SetStateAction<HexCoord | null>>;
@@ -59,6 +62,8 @@ export function usePixiWorld({
   visibleTilesRef,
   selectedRef,
   hoveredMoveRef,
+  tooltipPositionRef,
+  tooltipRef,
   setGame,
   setSelected,
   setHoveredMove,
@@ -66,6 +71,7 @@ export function usePixiWorld({
 }: UsePixiWorldArgs) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<Application | null>(null);
+  const worldTooltipKeyRef = useRef<string | null>(null);
   const [canvasReady, setCanvasReady] = useState(false);
 
   useEffect(() => {
@@ -195,41 +201,82 @@ export function usePixiWorld({
         ? enemyTooltip(enemies, tile.structure)
         : null;
       const structureInfo = withinVisibleMap ? structureTooltip(tile) : null;
+      const nextTooltipPosition = {
+        x: event.clientX + 16,
+        y: event.clientY + 16,
+      };
 
       canvas.style.cursor = clickable ? 'pointer' : 'default';
-      setHoveredMove((currentHovered) => {
-        if (!clickable) return currentHovered ? null : currentHovered;
-        if (currentHovered?.q === target.q && currentHovered?.r === target.r) {
-          return currentHovered;
+      const currentHovered = hoveredMoveRef.current;
+      if (!clickable) {
+        if (currentHovered) {
+          hoveredMoveRef.current = null;
+          setHoveredMove(null);
         }
-        return target;
-      });
+      } else if (
+        currentHovered?.q !== target.q ||
+        currentHovered?.r !== target.r
+      ) {
+        hoveredMoveRef.current = target;
+        setHoveredMove(target);
+      }
+
+      tooltipPositionRef.current = nextTooltipPosition;
 
       if (enemyInfo) {
+        const nextTooltipKey = `enemy:${target.q},${target.r}:${tile.structure ?? 'none'}`;
+        if (
+          worldTooltipKeyRef.current === nextTooltipKey &&
+          tooltipRef.current?.followCursor
+        ) {
+          return;
+        }
+        worldTooltipKeyRef.current = nextTooltipKey;
         setTooltip({
           title: enemyInfo.title,
           lines: enemyInfo.lines,
-          x: event.clientX + 16,
-          y: event.clientY + 16,
+          x: nextTooltipPosition.x,
+          y: nextTooltipPosition.y,
           borderColor: tile.structure === 'dungeon' ? '#a855f7' : '#ef4444',
+          followCursor: true,
         });
       } else if (structureInfo) {
+        const nextTooltipKey = `structure:${target.q},${target.r}:${tile.structure ?? 'none'}`;
+        if (
+          worldTooltipKeyRef.current === nextTooltipKey &&
+          tooltipRef.current?.followCursor
+        ) {
+          return;
+        }
+        worldTooltipKeyRef.current = nextTooltipKey;
         setTooltip({
           title: structureInfo.title,
           lines: structureInfo.lines,
-          x: event.clientX + 16,
-          y: event.clientY + 16,
+          x: nextTooltipPosition.x,
+          y: nextTooltipPosition.y,
           borderColor: '#38bdf8',
+          followCursor: true,
         });
       } else {
-        setTooltip(null);
+        tooltipPositionRef.current = null;
+        if (worldTooltipKeyRef.current || tooltipRef.current?.followCursor) {
+          worldTooltipKeyRef.current = null;
+          setTooltip(null);
+        }
       }
     };
 
     const onPointerLeave = () => {
       canvas.style.cursor = 'default';
-      setHoveredMove(null);
-      setTooltip(null);
+      tooltipPositionRef.current = null;
+      worldTooltipKeyRef.current = null;
+      if (hoveredMoveRef.current) {
+        hoveredMoveRef.current = null;
+        setHoveredMove(null);
+      }
+      if (tooltipRef.current?.followCursor) {
+        setTooltip(null);
+      }
     };
 
     canvas.addEventListener('pointerdown', onPointerDown as EventListener);
@@ -256,6 +303,8 @@ export function usePixiWorld({
     setHoveredMove,
     setSelected,
     setTooltip,
+    tooltipPositionRef,
+    tooltipRef,
     visibleTilesRef,
     worldTimeMsRef,
   ]);

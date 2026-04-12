@@ -2,52 +2,60 @@
 
 ## Pros
 
-- Strong baseline tooling. The repo already has type checking, linting, formatting, tests, and git hooks configured.
-- Good TypeScript posture. `tsconfig.json` uses strict mode and modern bundler settings, which is a solid default for a React + Vite codebase.
-- Domain logic is heavily test-covered. `src/game/state.test.ts` is extensive and shows good attention to deterministic world generation, combat, progression, and edge cases.
-- Configurable gameplay values. `src/game/config.ts` pulls from `game.config.json`, which is a good separation between code and balancing data.
-- Persistence has a normalization step before hydration. That is a good practice for save compatibility and future migrations.
-- Rendering is separated from game rules. Pixi rendering helpers and game-state functions are not completely mixed together, which gives the project a workable architectural base.
-- The project builds cleanly in production today, so this is not just a prototype held together by dev-only assumptions.
+- Tooling and delivery basics are in good shape. The project uses strict TypeScript, ESLint, Prettier, Vitest, Husky, and a working GitHub Actions workflow that runs typecheck, lint, test, and build.
+- The codebase mostly respects the intended architectural split. Gameplay rules live in `src/game`, app orchestration lives in `src/app`, presentational windows live in `src/ui/components`, and Pixi rendering is isolated in `src/ui/world`.
+- Save compatibility has a solid baseline. `src/app/normalize.ts` normalizes older save shapes before hydration instead of assuming a fresh save format.
+- The UI layer already uses several good React containment patterns. Many window components are wrapped in `memo`, and window contents are lazy-loaded so secondary UI does not all land on the initial path.
+- Pixi rendering already has some important performance-aware structure. `src/ui/world/renderSceneCache.ts` and `src/ui/world/renderScenePools.ts` reuse containers, graphics, sprites, and text instead of recreating display objects every frame.
+- Rendering math and visual helpers have dedicated tests. `src/ui/world/renderScene.test.ts`, `src/ui/world/timeOfDay.test.ts`, and `src/ui/world/worldMapFishEye.test.ts` give the rendering path more protection than most browser-game prototypes have.
+- The project currently builds and tests cleanly, which reduces the risk that the review is describing an architecture that only works in development.
 
 ## Cons
 
-- `src/app/App/App.tsx` is too large for a React root container at 752 lines. It currently owns hydration, autosave, world time, FPS sampling, keyboard shortcuts, combat timers, loot window transitions, item actions, and most UI orchestration. This increases regression risk and makes state flow harder to reason about.
-- `src/game/state.ts` is too large for one domain module at 2758 lines. The file appears to contain world generation, combat, inventory, crafting, economy, progression, logging, and helpers in one place. That reduces navigability and makes future changes harder to isolate and test.
-- The save "encryption" is not meaningful security. `src/persistence/storage.ts` uses a hardcoded passphrase (`PASSPHRASE`) in client code, so any user can recover it from the bundle. This is fine as obfuscation, but it should not be treated as real protection.
-- Package-manager usage is inconsistent. `package.json` declares `pnpm@10.7.1`, but `README.md` and `.husky/pre-commit` use `npm run ...`. That creates avoidable drift in contributor setup.
-- The pre-commit hook only runs `typecheck` and `lint`. It does not run tests or build verification, so a broken runtime or production bundle could still be committed.
-- There is no CI workflow in `.github/workflows/`. For a repo with tests and build steps already available, that is a notable process gap.
-- The production bundle is large for a browser game of this scale. Vite reports one chunk over the warning threshold, which usually means code splitting and asset-loading strategy need attention.
-- Lint is not fully clean. `src/ui/components/windowLabels.tsx` mixes exported non-component helpers in a component-related file and triggers the React Fast Refresh warning.
-- The README is too thin for the current complexity. It lists scripts, but does not document setup, architecture, save behavior, gameplay config, testing expectations, or deployment notes.
+- React work is still too tightly coupled to map pointer movement. In `src/app/App/usePixiWorld.ts:159-226`, every pointer move can call `setHoveredMove` and `setTooltip`, which pushes high-frequency map interaction back through React state and can trigger avoidable rerenders while the Pixi canvas is already repainting every frame.
+- The Pixi scene is fully redrawn on every ticker frame even when most layers are static. `src/ui/world/renderScene.ts:50-52` resets the pools, then `:79-232` rebuilds visible tiles, markers, clouds, overlays, and effects every tick. That is simple and correct, but it will become expensive as world detail grows.
+- The rendering path currently does duplicate work around updates. `src/app/App/usePixiWorld.ts:94-108` renders from the Pixi ticker, and `:263-274` also calls `renderScene` again from a React effect whenever `game`, `selected`, `hoveredMove`, or `visibleTiles` change.
+- The world renderer still does avoidable per-frame deterministic recomputation. `src/ui/world/renderSceneEnvironment.ts:61` creates a new RNG for every cloud on every frame, and `:141` does the same for tile background selection. Those values are stable enough to cache per tile or per scene.
+- Browser persistence is more expensive than it needs to be. `src/app/App/useAppPersistence.ts:126-149` serializes and encrypts the whole save on every relevant state change and also repeats the same work every 5 seconds. That means gameplay actions can trigger full JSON serialization, AES work, and `localStorage` writes far more often than necessary.
+- The save protection is still only obfuscation. `src/persistence/storage.ts:2-59` derives the AES key from a hardcoded client-side passphrase, so it should not be treated as real security.
+- Pixi initialization favors visual quality over frame budget on weaker devices. `src/app/App/usePixiWorld.ts:74-80` enables antialiasing and uses full `window.devicePixelRatio`, which can multiply fill-rate cost on high-DPI mobile or laptop displays.
+- The production bundle is still heavier than it should be for the current app shape. `pnpm build` produces a `vendors` chunk at about 619 kB minified, and the current Vite config groups all `node_modules` code into one manual vendor chunk instead of splitting heavier dependencies more intentionally.
+- Lint is not fully clean. `src/ui/components/windowLabels.tsx:73` still triggers the React Fast Refresh warning because the file exports non-component helpers alongside JSX.
 
 ## Improvements
 
 ### High Priority
 
-3. Clarify or redesign persistence security.
+- Stop redrawing the whole world scene every frame.
+  Separate static terrain and structure layers from animated layers such as clouds, overlays, campfire glow, and selection state so unchanged map geometry does not get rebuilt on every ticker step.
 
-- If the goal is convenience only, document it as local save obfuscation, not encryption.
-- If tamper resistance matters, move to signed or server-backed persistence; client-only symmetric secrets do not provide real security.
+- Remove duplicate `renderScene` calls.
+  Pick one render scheduler for the Pixi world path, preferably the ticker, and let React update refs or lightweight invalidation flags instead of forcing an additional immediate redraw effect.
+
+- Debounce or batch autosave work.
+  Save after meaningful state changes with a short debounce, keep the interval as a fallback only if needed, and avoid encrypting and writing identical snapshots repeatedly.
+
+- Add a device-aware Pixi quality budget.
+  Cap renderer resolution, consider making antialiasing optional, and profile the world view on high-DPI screens so visual defaults do not quietly consume too much frame time.
 
 ### Medium Priority
 
-7. Fix the Fast Refresh lint warning.
+- Cache deterministic render inputs.
+  Precompute cloud seeds, tile background variants, and any stable terrain presentation values so the render loop spends more time drawing and less time recomputing unchanged randomness.
 
-- Move `WINDOW_LABELS` or `renderWindowLabel` out of `src/ui/components/windowLabels.tsx` into a non-component utility/constants file, or make the file export only one concern.
+- Improve bundle splitting.
+  Split Pixi-related code from the rest of the vendor bundle, and keep checking whether secondary UI and world-only code can stay off the initial payload.
 
-8. Strengthen test and quality gates.
+- Clarify persistence language everywhere.
+  Keep documenting browser-side save handling as local obfuscation rather than encryption, unless persistence moves to a server-backed or signed model.
 
-- The repo already depends on `@vitest/coverage-v8`; either expose a coverage script and document expectations, or remove the unused dependency.
-- Consider running tests in pre-push if pre-commit becomes too slow.
+- Fix the Fast Refresh lint warning.
+  Move shared window-label constants or helpers into a non-component module so component files only export component concerns.
 
 ### Low Priority
 
-9. Expand the README.
+- Add lightweight performance budgets to contributor docs.
+  A short note covering expected FPS targets, acceptable bundle growth, and how to evaluate React rerenders versus Pixi redraw cost would help keep future changes disciplined.
 
-- Add local setup, package manager expectations, architecture overview, save-system notes, and a short explanation of how Pixi and React divide responsibilities.
-
-10. Add explicit performance guidance for the rendering path.
-
-- The Pixi layer is central to user experience. A short internal note about frame-budget expectations, redraw strategy, and asset-loading constraints would help future contributors avoid accidental regressions.
+- Consider exposing coverage reporting in scripts or CI output.
+  The project already depends on `@vitest/coverage-v8`; either use it explicitly or remove the unused dependency to keep the toolchain intentional.
