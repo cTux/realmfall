@@ -171,10 +171,6 @@ export function App() {
   });
 
   const { hostRef, canvasReady } = usePixiWorld({
-    game,
-    visibleTiles,
-    selected,
-    hoveredMove,
     worldTimeMsRef,
     frameCountRef,
     playerCoordRef,

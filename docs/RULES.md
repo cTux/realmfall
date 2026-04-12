@@ -52,6 +52,7 @@
 - Smooth visual transitions are preferred for color and position changes when they are part of visible world feedback.
 - Consider React rerender cost and Pixi redraw cost together for world-facing changes.
 - Prefer a single clear render scheduler for the world path. Avoid duplicate immediate redraw triggers layered on top of the ticker unless there is a measured reason.
+- When React-driven world state changes need a redraw, prefer updating refs or lightweight invalidation flags that the ticker consumes instead of adding a second immediate `renderScene` effect path.
 - Cache deterministic per-tile or per-scene render inputs instead of recomputing stable randomness and presentation values every frame.
 - Separate static world layers from animated or transient layers when doing so reduces repeated redraw cost without making the renderer harder to reason about.
 - Keep world-map terrain geometry, fog, ground cover, and stable structure or enemy markers on cached static Pixi layers. Do not redraw unchanged map geometry on every ticker frame just because time-based animation is advancing.

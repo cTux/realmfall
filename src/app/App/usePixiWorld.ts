@@ -29,10 +29,6 @@ import {
 } from '../../ui/world/worldMapFishEye';
 
 interface UsePixiWorldArgs {
-  game: GameState;
-  visibleTiles: ReturnType<typeof import('../../game/state').getVisibleTiles>;
-  selected: HexCoord;
-  hoveredMove: HexCoord | null;
   worldTimeMsRef: MutableRefObject<number>;
   frameCountRef: MutableRefObject<number>;
   playerCoordRef: MutableRefObject<HexCoord>;
@@ -51,10 +47,6 @@ interface UsePixiWorldArgs {
 }
 
 export function usePixiWorld({
-  game,
-  visibleTiles,
-  selected,
-  hoveredMove,
   worldTimeMsRef,
   frameCountRef,
   playerCoordRef,
@@ -308,19 +300,6 @@ export function usePixiWorld({
     visibleTilesRef,
     worldTimeMsRef,
   ]);
-
-  useEffect(() => {
-    const app = appRef.current;
-    if (!app) return;
-    renderScene(
-      app,
-      game,
-      visibleTiles,
-      selected,
-      hoveredMove,
-      getWorldTimeMinutesFromTimestamp(worldTimeMsRef.current),
-    );
-  }, [game, hoveredMove, selected, visibleTiles, worldTimeMsRef]);
 
   return { hostRef, canvasReady };
 }

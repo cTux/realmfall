@@ -93,6 +93,7 @@ The world view is the most performance-sensitive path in the project.
 
 - Avoid avoidable React rerenders caused by high-frequency map interaction state.
 - Avoid duplicate world redraw scheduling when the Pixi ticker already owns rendering.
+- Prefer React-updated refs or lightweight invalidation flags over a second immediate `renderScene` path when world state changes need to reach Pixi.
 - Cache deterministic render inputs when they do not need to be recomputed every frame.
 - Prefer separating static and animated render work when it meaningfully reduces redraw cost.
 - Keep Pixi quality settings device-aware so high-DPI or weaker devices do not quietly pay an excessive frame-time cost.
@@ -123,6 +124,7 @@ Important workflow expectations:
 - Protect world-rendering performance and prefer smooth visible transitions where appropriate.
 - Avoid high-frequency world interaction state flowing through broad React state when a narrower path is sufficient.
 - Prefer one clear world render scheduler and intentional caching for deterministic render inputs.
+- On the Pixi world path, prefer ticker-owned rendering with refs or invalidation flags instead of duplicate React effect redraws.
 
 ## Prompt Workflow
 

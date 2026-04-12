@@ -26,9 +26,6 @@
 
 ### High Priority
 
-- Remove duplicate `renderScene` calls.
-  Pick one render scheduler for the Pixi world path, preferably the ticker, and let React update refs or lightweight invalidation flags instead of forcing an additional immediate redraw effect.
-
 - Debounce or batch autosave work.
   Save after meaningful state changes with a short debounce, keep the interval as a fallback only if needed, and avoid encrypting and writing identical snapshots repeatedly.
 

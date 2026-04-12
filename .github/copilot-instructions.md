@@ -10,6 +10,7 @@ Use `docs/RULES.md` as the source of truth for project-specific instructions.
 - If a prompt or task includes `add rule`, update `docs/RULES.md` immediately in the corresponding section.
 - Keep `README.md` and `docs/PROMPTS.md` aligned when workflow expectations change.
 - Prefer keeping project-specific rules in `docs/RULES.md` instead of restating them here.
+- For Pixi world performance tasks, apply the relevant `React UI` and `Pixi And Performance` rules from `docs/RULES.md`, including the single render scheduler guidance.
 
 ## Important References
 

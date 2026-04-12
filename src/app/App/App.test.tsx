@@ -8,6 +8,7 @@ import styles from './styles.module.css';
 const renderScene = vi.fn();
 const loadEncryptedState = vi.fn();
 const saveEncryptedState = vi.fn();
+const tickerCallbacks = new Set<() => void>();
 
 class MockStage {
   removeChildren() {
@@ -22,7 +23,14 @@ vi.mock('pixi.js', () => {
     stage = new MockStage();
     screen = { width: 800, height: 600 };
     renderer = { resize: vi.fn() };
-    ticker = { add: vi.fn(), remove: vi.fn() };
+    ticker = {
+      add: vi.fn((callback: () => void) => {
+        tickerCallbacks.add(callback);
+      }),
+      remove: vi.fn((callback: () => void) => {
+        tickerCallbacks.delete(callback);
+      }),
+    };
     view = document.createElement('canvas');
     destroy = vi.fn();
 
@@ -77,6 +85,7 @@ describe('App', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    tickerCallbacks.clear();
   });
 
   it('hydrates saved state, handles ui interactions, and responds to map input', async () => {
@@ -379,6 +388,10 @@ describe('App', () => {
           clientY: adjacentY,
         }),
       );
+    });
+
+    await act(async () => {
+      tickerCallbacks.forEach((callback) => callback());
     });
 
     expect(renderScene.mock.calls.length).toBeGreaterThan(1);

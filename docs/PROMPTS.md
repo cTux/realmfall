@@ -32,6 +32,7 @@
 * If any prompt contains "add rule" statement it should be immediately added to the corresponding rule.
 * If rule changes affect future prompt execution, also update the shared prompt instructions in this file.
 * Also adjust AI-specific files.
+* For Pixi world performance work, prefer one render scheduler, usually the ticker, and use refs or lightweight invalidation flags instead of layering an immediate redraw effect on top.
 ```
 
 ## Commit
