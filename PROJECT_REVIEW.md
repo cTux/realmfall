@@ -64,10 +64,6 @@ Review based on the current repository contents, configuration, and local valida
 - If the goal is convenience only, document it as local save obfuscation, not encryption.
 - If tamper resistance matters, move to signed or server-backed persistence; client-only symmetric secrets do not provide real security.
 
-4. Add CI.
-
-- Add a workflow that runs `pnpm install --frozen-lockfile`, `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` on pull requests.
-
 ### Medium Priority
 
 5. Reduce bundle size.
@@ -76,11 +72,6 @@ Review based on the current repository contents, configuration, and local valida
 - Lazy-load non-critical UI windows if practical.
 - Review large static assets and whether all of them must ship at initial load.
 - Consider manual chunking only after understanding actual bundle composition.
-
-6. Make package-manager usage consistent.
-
-- Update README commands to `pnpm`.
-- Update `.husky/pre-commit` to use `pnpm` as well.
 
 7. Fix the Fast Refresh lint warning.
 

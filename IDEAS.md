@@ -51,9 +51,6 @@
 * Server logic and multiplayer
     * Google Auth
     * Rename defaults, set profile picture
-* CI and GitHub Actions
-    * For Pull Requests
-    * For pushes to the main branch
 
 ## IMPROVEMENTS
 
