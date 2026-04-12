@@ -26,9 +26,6 @@
 
 ### High Priority
 
-- Debounce or batch autosave work.
-  Save after meaningful state changes with a short debounce, keep the interval as a fallback only if needed, and avoid encrypting and writing identical snapshots repeatedly.
-
 - Add a device-aware Pixi quality budget.
   Cap renderer resolution, consider making antialiasing optional, and profile the world view on high-DPI screens so visual defaults do not quietly consume too much frame time.
 

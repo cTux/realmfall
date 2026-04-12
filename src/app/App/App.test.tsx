@@ -212,7 +212,7 @@ describe('App', () => {
 
     expect(loadEncryptedState).toHaveBeenCalledTimes(1);
     expect(renderScene).toHaveBeenCalled();
-    expect(saveEncryptedState).toHaveBeenCalled();
+    expect(saveEncryptedState).not.toHaveBeenCalled();
     expect(host.querySelector(`.${styles.loadingScreen}`)).toBeNull();
     expect(host.textContent).toContain('World Time');
     expect(host.textContent).toContain('FPS');
@@ -233,6 +233,7 @@ describe('App', () => {
       vi.advanceTimersByTime(60 * 1000);
     });
 
+    expect(saveEncryptedState).not.toHaveBeenCalled();
     expect(worldTimePanel?.textContent).not.toBe(initialWorldTimePanelText);
     expect(worldTimePanel?.textContent).toMatch(
       /World TimeDay \d+, \d{2}:\d{2}FPS\d+/,
@@ -394,7 +395,13 @@ describe('App', () => {
       tickerCallbacks.forEach((callback) => callback());
     });
 
+    await act(async () => {
+      vi.advanceTimersByTime(600);
+      await Promise.resolve();
+    });
+
     expect(renderScene.mock.calls.length).toBeGreaterThan(1);
+    expect(saveEncryptedState).toHaveBeenCalled();
     expect(saveEncryptedState).toHaveBeenLastCalledWith(
       expect.objectContaining({
         game: expect.objectContaining({ logs: [] }),
