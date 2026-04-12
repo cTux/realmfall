@@ -1,5 +1,3 @@
-import type { ReactNode } from 'react';
-
 export interface WindowLabelDefinition {
   plain: string;
   prefix: string;
@@ -69,20 +67,3 @@ export const WINDOW_LABELS = {
     suffix: 'Combat',
   },
 } as const;
-
-export function renderWindowLabel(
-  label: WindowLabelDefinition,
-  hotkeyClassName: string,
-  suffix?: ReactNode,
-) {
-  return (
-    <>
-      {label.prefix}
-      {label.hotkey ? (
-        <span className={hotkeyClassName}>{label.hotkey}</span>
-      ) : null}
-      {label.suffix}
-      {suffix}
-    </>
-  );
-}

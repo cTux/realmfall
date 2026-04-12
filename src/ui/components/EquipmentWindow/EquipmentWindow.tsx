@@ -2,8 +2,9 @@ import { memo } from 'react';
 import { EQUIPMENT_SLOTS, type EquipmentSlot } from '../../../game/state';
 import { iconForItem } from '../../icons';
 import { rarityColor } from '../../rarity';
+import { WINDOW_LABELS } from '../../windowLabels';
 import { DraggableWindow } from '../DraggableWindow';
-import { WINDOW_LABELS, renderWindowLabel } from '../windowLabels';
+import { WindowLabel } from '../WindowLabel/WindowLabel';
 import labelStyles from '../windowLabels.module.css';
 import type { EquipmentWindowProps } from './types';
 import styles from './styles.module.css';
@@ -21,7 +22,12 @@ export const EquipmentWindow = memo(function EquipmentWindow({
 }: EquipmentWindowProps) {
   return (
     <DraggableWindow
-      title={renderWindowLabel(WINDOW_LABELS.equipment, labelStyles.hotkey)}
+      title={
+        <WindowLabel
+          label={WINDOW_LABELS.equipment}
+          hotkeyClassName={labelStyles.hotkey}
+        />
+      }
       position={position}
       onMove={onMove}
       visible={visible}

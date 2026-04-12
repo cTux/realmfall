@@ -47,6 +47,7 @@
 - Maintain mobile-aware and desktop-safe behavior when changing interactions, even if the full mobile adaptation is still incomplete.
 - Keep high-frequency pointer, hover, and world-interaction updates off broad React state paths when refs, invalidation flags, or narrower state can avoid avoidable rerenders.
 - Keep component modules compatible with React Fast Refresh expectations; move shared non-component exports out of component files when needed.
+- Keep shared window labels, hotkey metadata, and similar reusable UI constants in plain non-component modules so component files only export component concerns.
 
 ## Pixi And Performance
 

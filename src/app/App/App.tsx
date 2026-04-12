@@ -17,11 +17,9 @@ import {
 } from '../../game/state';
 import { WORLD_RADIUS } from '../constants';
 import { DraggableWindow } from '../../ui/components/DraggableWindow';
-import {
-  WINDOW_LABELS,
-  renderWindowLabel,
-} from '../../ui/components/windowLabels';
+import { WindowLabel } from '../../ui/components/WindowLabel/WindowLabel';
 import labelStyles from '../../ui/components/windowLabels.module.css';
+import { WINDOW_LABELS } from '../../ui/windowLabels';
 import { AppWindows } from './AppWindows';
 import { getDockEntries } from './appHelpers';
 import { useAppControllers } from './useAppControllers';
@@ -266,10 +264,12 @@ export function App() {
         <div ref={hostRef} className={styles.mapViewport} />
         {windowShown.worldTime ? (
           <DraggableWindow
-            title={renderWindowLabel(
-              WINDOW_LABELS.worldTime,
-              labelStyles.hotkey,
-            )}
+            title={
+              <WindowLabel
+                label={WINDOW_LABELS.worldTime}
+                hotkeyClassName={labelStyles.hotkey}
+              />
+            }
             position={windows.worldTime}
             onMove={(position) => moveWindow('worldTime', position)}
             onClose={() => setWindowVisibility('worldTime', false)}

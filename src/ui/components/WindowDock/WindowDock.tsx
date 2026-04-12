@@ -1,7 +1,7 @@
 import { memo, useState } from 'react';
 import type { WindowVisibilityState } from '../../../app/constants';
-import type { WindowLabelDefinition } from '../windowLabels';
-import { renderWindowLabel } from '../windowLabels';
+import type { WindowLabelDefinition } from '../../windowLabels';
+import { WindowLabel } from '../WindowLabel/WindowLabel';
 import labelStyles from '../windowLabels.module.css';
 import styles from './styles.module.css';
 
@@ -55,7 +55,10 @@ export const WindowDock = memo(function WindowDock({
           />
           {activeTooltip === entry.key ? (
             <span className={styles.tooltip} aria-hidden="true">
-              {renderWindowLabel(entry.title, labelStyles.hotkey)}
+              <WindowLabel
+                label={entry.title}
+                hotkeyClassName={labelStyles.hotkey}
+              />
             </span>
           ) : null}
         </button>

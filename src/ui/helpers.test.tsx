@@ -12,8 +12,9 @@ import {
   enemyTooltip,
   structureTooltip,
 } from './tooltips';
+import { WindowLabel } from './components/WindowLabel/WindowLabel';
 import { WindowDock } from './components/WindowDock';
-import { WINDOW_LABELS, renderWindowLabel } from './components/windowLabels';
+import { WINDOW_LABELS } from './windowLabels';
 
 function createItem(overrides: Partial<Item> = {}): Item {
   return {
@@ -200,11 +201,11 @@ describe('ui helper coverage', () => {
 
   it('renders window labels without a hotkey span when absent', () => {
     const markup = renderToStaticMarkup(
-      renderWindowLabel(
-        { plain: 'Loot', prefix: '', hotkey: '', suffix: 'Loot' },
-        'hotkey',
-        ' window',
-      ),
+      <WindowLabel
+        label={{ plain: 'Loot', prefix: '', hotkey: '', suffix: 'Loot' }}
+        hotkeyClassName="hotkey"
+        suffix=" window"
+      />,
     );
 
     expect(markup).toBe('Loot window');

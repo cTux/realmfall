@@ -20,7 +20,6 @@
 - The save protection is still only obfuscation. `src/persistence/storage.ts:2-59` derives the AES key from a hardcoded client-side passphrase, so it should not be treated as real security.
 - Pixi initialization favors visual quality over frame budget on weaker devices. `src/app/App/usePixiWorld.ts:74-80` enables antialiasing and uses full `window.devicePixelRatio`, which can multiply fill-rate cost on high-DPI mobile or laptop displays.
 - The production bundle is still heavier than it should be for the current app shape. `pnpm build` produces a `vendors` chunk at about 619 kB minified, and the current Vite config groups all `node_modules` code into one manual vendor chunk instead of splitting heavier dependencies more intentionally.
-- Lint is not fully clean. `src/ui/components/windowLabels.tsx:73` still triggers the React Fast Refresh warning because the file exports non-component helpers alongside JSX.
 
 ## Improvements
 
@@ -33,9 +32,6 @@
 
 - Clarify persistence language everywhere.
   Keep documenting browser-side save handling as local obfuscation rather than encryption, unless persistence moves to a server-backed or signed model.
-
-- Fix the Fast Refresh lint warning.
-  Move shared window-label constants or helpers into a non-component module so component files only export component concerns.
 
 ### Low Priority
 

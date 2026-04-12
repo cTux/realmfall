@@ -1,7 +1,8 @@
 import { lazy, memo, Suspense } from 'react';
+import { WINDOW_LABELS } from '../../windowLabels';
 import { DraggableWindow } from '../DraggableWindow';
+import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
-import { WINDOW_LABELS, renderWindowLabel } from '../windowLabels';
 import labelStyles from '../windowLabels.module.css';
 import type { HexInfoWindowProps } from './types';
 import styles from './styles.module.css';
@@ -39,7 +40,12 @@ export const HexInfoWindow = memo(function HexInfoWindow({
 }: HexInfoWindowProps) {
   return (
     <DraggableWindow
-      title={renderWindowLabel(WINDOW_LABELS.hexInfo, labelStyles.hotkey)}
+      title={
+        <WindowLabel
+          label={WINDOW_LABELS.hexInfo}
+          hotkeyClassName={labelStyles.hotkey}
+        />
+      }
       position={position}
       onMove={onMove}
       className={styles.window}
