@@ -9,13 +9,72 @@
         * Clouds enabling / disabling
 * Better item stats
     * More stats
-    * Colored stats view
+        * Attack Speed (decreases global cooldown and cooldown of abilities)
+        * Critical Strike Chance
+            * Default Critical Strike Damage is 150%
+        * Critical Strike Damage
+        * Lifesteal Chance
+            * Default Lifesteal Amount is 0.5%
+        * Lifesteal Amount
+    * If player has more than 100% of some stats it means that it procs 1 time for sure and has a chance to proc one more time (Chance - 100%)
 * Global cooldown
     * All the battle entities should have global cooldown value that should be respected between casting abilities
     * Global cooldown values can be decreased by increasing corresponding stat rating value
 * Abilities
+    * Default battle entity ability (player + enemies) is Kick which has 1.5s cooldown and instant (has no casting time)
     * Each ability should have mana amount to be spent on cast
     * Each ability has cooldown
+    * Each ability has its casting time
+    * Common enemies should not have abilities
+    * Uncommon and Rare enemies should have one random ability
+    * Epic enemies should have two random abilities
+    * Legendary enemies should have three random abilities
+    * Abilities that are available in the game:
+        * Knockback
+            * CD: 5s
+            * Instant
+            * Small damage
+            * Causing debuff "Stunned" that doesn't allow to take actions for 3s
+        * Fireball
+            * CD: 3s
+            * Casting time: 1.5s
+            * Regular damage
+            * Doing AOE damage (10% of initial) on hit to all the party members
+        * Frostbolt
+            * CD: 4s
+            * Casting time: 1s
+            * Regular damage
+            * Causing debuff "Chilled" that increases the time of battle entity's global cooldown by 20%
+        * Flash Heal
+            * CD: 3s
+            * Casting time: 1.5s
+            * 5% of HP healed to the caster
+        * Great Heal
+            * CD: 10s
+            * Casting time: 3s
+            * 15% of HP healed to the caster
+        * Interrupt
+            * CD: 10s
+            * Instant
+            * Can be casted on the enemy that is casting something right now
+            * Interrupts the cast for enemy and causing debuff "Silence" that prevents from casting for 5s
+        * Slash
+            * CD: 2s
+            * Instant
+            * Small damage to all of the enemies party members
+        * Warcry
+            * CD: 10s
+            * Instant
+            * Buffs all your party members with "Constitution" which grants 20% HP
+        * Battlecry
+            * CD: 10s
+            * Instant
+            * Buffs all your party members with "Motivation" which grants 10% of attack damage and 10% of magical damage
+    * When battle starts player and enemies start casting their abilities simultaneously (not depending on each other)
+* Buffs and Debuffs
+    * Battle window should show set of buffs and debuff for player and every enemy
+    * Buffs should have green border
+    * Debuffs should have red border
 * (R)ecipe book (+window and its button working with hotkey)
     * Should have right-side tabs with professions player can learn recipes for
     * Should look like a real book with animated pages
@@ -48,6 +107,12 @@
 * Party vs party battles
 * Summoner enemies
 * World bosses
+    * Takes 7 hexes to be rendered (centered one and 6 neighbours)
+    * World boss icon should be rendered as a size of 7 hexes diameter
+    * Should have x100 more HP
+    * Should have x5 more attack damage
+    * Should have more defense
+    * Guarantee to drop epic / legendary rarity item and a lot of gold
 * Dungeons with their own map with (entrance + exit)
 * Fractions
     * Have several (7-25) hexes to be located on

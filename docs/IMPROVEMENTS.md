@@ -28,3 +28,8 @@
     * Hexes are too bright in the daytime (light hex + light hex icon)
 * Using consumables should check if they will be useful
     * If consumable will do nothing (nothing to heal or nothing to increase) they shound not be consumed (+log warning message about it)
+* Experience
+    * Level-ups logic should be re-written
+    * Experience needed to level-up should be based on the current level and some exponential function (which means every next level is a little bit harder to achieve, while levelling at levels 90-100 should take approximately 1h to level-up)
+    * Enemies should give static amount of experience across all the levels, but rarer enemies give more experience
+    * Experience gain can be increased by wearing items with a corresponding stat
