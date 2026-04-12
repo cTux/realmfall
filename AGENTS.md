@@ -5,9 +5,11 @@ This repository uses `docs/RULES.md` as the source of truth for project-specific
 ## Required Behavior
 
 - Before acting on a task, load and apply the relevant sections from `docs/RULES.md`.
+- Treat those relevant rules as part of the default working context, even if the prompt does not restate them explicitly.
 - Apply only the rules that are relevant to the current task.
 - If a prompt contains `add rule`, update `docs/RULES.md` immediately in the corresponding section before considering the task complete.
 - If rule changes affect workflow or contributor expectations, keep `README.md` and `docs/PROMPTS.md` in sync.
+- Prefer updating `docs/RULES.md` over duplicating project-specific rules in this file.
 
 ## Supporting Docs
 
@@ -18,7 +20,5 @@ This repository uses `docs/RULES.md` as the source of truth for project-specific
 
 ## Repo Expectations
 
-- Use `pnpm` for commands.
-- Keep gameplay logic in `src/game`, app orchestration in `src/app`, UI components in `src/ui/components`, and Pixi rendering logic in `src/ui/world`.
-- Preserve save normalization and treat browser-side save encryption as obfuscation, not real security.
-- Protect rendering performance and avoid unnecessary growth in already-large coordinator files.
+- Follow the project-specific expectations defined in `docs/RULES.md`.
+- Use the supporting docs above when they are relevant to the current task.

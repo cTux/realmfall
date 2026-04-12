@@ -5,7 +5,9 @@
 ```
 * Before acting on a prompt, load and apply the relevant sections from "docs/RULES.md" automatically.
 * Apply only the rules that are relevant to the prompt's context.
+* Treat the relevant rules as part of the default context for future prompts, even when the prompt does not restate them.
 * If a prompt contains "add rule", update "docs/RULES.md" immediately in the corresponding section and keep related docs in sync.
+* If a rule changes prompt workflow or contributor expectations, also update "README.md" and this file.
 ```
 
 ## Review
@@ -28,6 +30,8 @@
 * These rules should be automatically added to the future prompts if they are relevant to the prompt's context.
 * Update README.md to describe all the current project's state and rules.
 * If any prompt contains "add rule" statement it should be immediately added to the corresponding rule.
+* If rule changes affect future prompt execution, also update the shared prompt instructions in this file.
+* Also adjust AI-specific files.
 ```
 
 ## Commit

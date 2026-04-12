@@ -5,9 +5,11 @@ Follow `docs/RULES.md` as the canonical source of project rules.
 ## Required Behavior
 
 - Load and apply the relevant sections from `docs/RULES.md` before acting.
+- Treat those relevant rules as default task context, even when the prompt does not repeat them.
 - Apply only rules relevant to the current task.
 - If a prompt includes `add rule`, update `docs/RULES.md` immediately in the matching section.
 - If the rule changes workflow or contributor expectations, update `README.md` and `docs/PROMPTS.md` too.
+- Prefer keeping project-specific guidance in `docs/RULES.md` instead of duplicating it here.
 
 ## Reference Files
 
@@ -18,8 +20,5 @@ Follow `docs/RULES.md` as the canonical source of project rules.
 
 ## Project Expectations
 
-- Use `pnpm`.
-- Keep architecture boundaries intact across `src/game`, `src/app`, `src/ui/components`, and `src/ui/world`.
-- Preserve normalize-before-hydrate persistence behavior.
-- Treat local save encryption as obfuscation only.
-- Protect Pixi and React performance on world-facing changes.
+- Follow the project-specific expectations in `docs/RULES.md`.
+- Use the reference files above when they are relevant to the current task.
