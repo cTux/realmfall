@@ -16,7 +16,6 @@ import {
 } from '../constants';
 import { HeroWindow } from '../../ui/components/HeroWindow';
 import { SkillsWindow } from '../../ui/components/SkillsWindow';
-import { LegendWindow } from '../../ui/components/LegendWindow';
 import { HexInfoWindow } from '../../ui/components/HexInfoWindow';
 import { EquipmentWindow } from '../../ui/components/EquipmentWindow';
 import { InventoryWindow } from '../../ui/components/InventoryWindow';
@@ -191,12 +190,6 @@ export function AppWindows({
         recipes={recipes}
         inventoryCounts={inventoryCounts}
         onCraft={onCraftRecipe}
-      />
-      <LegendWindow
-        position={windows.legend}
-        onMove={(position) => onMoveWindow('legend', position)}
-        visible={windowShown.legend}
-        onClose={() => onSetWindowVisibility('legend', false)}
       />
       <HexInfoWindow
         position={windows.hexInfo}

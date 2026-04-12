@@ -173,7 +173,6 @@ describe('App', () => {
             hero: false,
             skills: true,
             recipes: true,
-            legend: true,
             hexInfo: true,
             equipment: true,
             inventory: true,
@@ -338,8 +337,6 @@ describe('App', () => {
         }),
       );
     });
-    expect(host.textContent).toContain('ENEMY');
-
     await act(async () => {
       canvas?.dispatchEvent(
         new MouseEvent('pointerdown', {

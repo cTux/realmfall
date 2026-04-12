@@ -26,12 +26,6 @@ export const WINDOW_LABELS = {
     hotkey: 'R',
     suffix: ')ecipe book',
   },
-  legend: {
-    plain: 'Legend',
-    prefix: '(',
-    hotkey: 'L',
-    suffix: ')egend',
-  },
   hexInfo: {
     plain: 'Hex info',
     prefix: '(',

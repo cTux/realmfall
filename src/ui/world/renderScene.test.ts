@@ -1,5 +1,7 @@
 import { createGame, getVisibleTiles } from '../../game/state';
-import { Icons } from '../icons';
+import forestClearingIcon from '../../assets/forest-pack/forest_03_clearing.png';
+import forestFewTreesIcon from '../../assets/forest-pack/forest_02_fewTrees.png';
+import forestTempleIcon from '../../assets/forest-pack/forest_20_temple.png';
 
 const spriteFrom = vi.fn((icon: string) => ({
   icon,
@@ -112,7 +114,7 @@ describe('renderScene', () => {
     };
     game.tiles['-1,0'] = {
       coord: { q: -1, r: 0 },
-      terrain: 'water',
+      terrain: 'rift',
       items: [
         {
           id: 'gold-1',
@@ -249,9 +251,7 @@ describe('renderScene', () => {
     const brightHoveredFill = worldDescendants.some(
       (child) =>
         child instanceof MockGraphics &&
-        child.beginFill.mock.calls.some(
-          ([color, alpha]) => color === 0x57ad57 && alpha === 1,
-        ),
+        child.beginFill.mock.calls.some(([, alpha]) => alpha === 0.2),
     );
 
     expect(hoverOutlines).toHaveLength(0);
@@ -341,7 +341,7 @@ describe('renderScene', () => {
     expect(Math.min(...cloudAlphas)).toBeGreaterThanOrEqual(0.38);
   });
 
-  it('spreads clouds across varied heights and adds terrain grass cover', async () => {
+  it('spreads clouds across varied heights and adds terrain background art', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(3, 'render-scene-ground-cover');
     const app = {
@@ -361,8 +361,10 @@ describe('renderScene', () => {
 
     const world = app.stage.children[1] as MockContainer;
     const clouds = app.stage.children[5] as MockContainer;
-    const grassSprites = collectDescendants(world).filter(
-      (child) => (child as { icon?: string }).icon === Icons.HighGrass,
+    const terrainSprites = collectDescendants(world).filter((child) =>
+      [forestClearingIcon, forestFewTreesIcon, forestTempleIcon].includes(
+        (child as { icon?: string }).icon ?? '',
+      ),
     );
     const cloudYPositions = clouds.children.map(
       (child) =>
@@ -373,8 +375,7 @@ describe('renderScene', () => {
       cloudYPositions.map((value) => Math.round(value / 24)),
     );
 
-    expect(grassSprites.length).toBeGreaterThanOrEqual(4);
-    expect(grassSprites.length).toBeLessThanOrEqual(12);
+    expect(terrainSprites.length).toBeGreaterThanOrEqual(4);
     expect(uniqueCloudYBands.size).toBeGreaterThanOrEqual(8);
   });
 

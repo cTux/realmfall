@@ -12,7 +12,6 @@ export const DOCK_WINDOW_ICONS: Record<keyof WindowVisibilityState, string> = {
   hero: Icons.Player,
   skills: Icons.Sparkles,
   recipes: Icons.BookCover,
-  legend: Icons.Totem,
   hexInfo: Icons.Village,
   equipment: Icons.Armor,
   inventory: Icons.Coins,
@@ -27,7 +26,6 @@ export const WINDOW_HOTKEYS: Partial<
   c: 'hero',
   s: 'skills',
   r: 'recipes',
-  l: 'legend',
   h: 'hexInfo',
   e: 'equipment',
   i: 'inventory',
@@ -53,7 +51,6 @@ export function getDockEntries(
     'hero',
     'skills',
     'recipes',
-    'legend',
     'hexInfo',
     'equipment',
     'inventory',
@@ -73,6 +70,7 @@ export function getDockEntries(
 }
 
 export function formatTerrainLabel(terrain: Terrain) {
+  if (terrain === 'rift') return 'Rift';
   return terrain.charAt(0).toUpperCase() + terrain.slice(1);
 }
 

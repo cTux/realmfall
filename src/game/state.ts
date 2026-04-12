@@ -24,7 +24,7 @@ export type { HexCoord } from './hex';
 export type Terrain =
   | 'plains'
   | 'forest'
-  | 'water'
+  | 'rift'
   | 'mountain'
   | 'desert'
   | 'swamp';
@@ -1019,7 +1019,7 @@ function shouldSpawnEnemy(seed: string, coord: HexCoord, terrain: Terrain) {
 
 function pickTerrain(seed: string, coord: HexCoord): Terrain {
   const roll = noise(seed, coord);
-  if (roll < 0.1) return 'water';
+  if (roll < 0.1) return 'rift';
   if (roll < 0.2) return 'mountain';
   if (roll < 0.4) return 'forest';
   if (roll < 0.53) return 'swamp';
@@ -1481,7 +1481,7 @@ function terrainTier(coord: HexCoord, terrain: Terrain) {
 }
 
 function isPassable(terrain: Terrain) {
-  return terrain !== 'water' && terrain !== 'mountain';
+  return terrain !== 'rift' && terrain !== 'mountain';
 }
 
 export function isGatheringStructure(
@@ -2070,10 +2070,17 @@ function skillLevelThreshold(level: number) {
 function pickEnemyName(terrain: Terrain, roll: number, elite: boolean) {
   if (elite) return roll > 0.5 ? 'Marauder' : 'Raider';
   if (terrain === 'forest')
-    return roll > 0.66 ? 'Wolf' : roll > 0.33 ? 'Boar' : 'Raider';
+    return roll > 0.72
+      ? 'Wolf'
+      : roll > 0.44
+        ? 'Boar'
+        : roll > 0.18
+          ? 'Spider'
+          : 'Raider';
   if (terrain === 'plains')
     return roll > 0.66 ? 'Stag' : roll > 0.33 ? 'Boar' : 'Marauder';
-  if (terrain === 'swamp') return roll > 0.5 ? 'Boar' : 'Wolf';
+  if (terrain === 'swamp')
+    return roll > 0.6 ? 'Boar' : roll > 0.25 ? 'Spider' : 'Wolf';
   return roll > 0.5 ? 'Raider' : 'Marauder';
 }
 

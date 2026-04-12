@@ -6,12 +6,7 @@ import {
   type GameState,
   type HexCoord,
 } from '../../game/state';
-import {
-  enemyIconFor,
-  enemyTint,
-  structureIconFor,
-  structureTint,
-} from '../icons';
+import { enemyIconFor, structureIconFor } from '../icons';
 import { WORLD_REVEAL_RADIUS } from '../../app/constants';
 import { scaleColor } from './timeOfDay';
 import {
@@ -27,6 +22,7 @@ import {
 } from './renderSceneAtmosphere';
 import { getWorldHexSize, makeHex, tileToPoint } from './renderSceneMath';
 import {
+  hasTileGroundCover,
   renderCampfireLight,
   renderCloudLayer,
   renderTileGroundCover,
@@ -57,8 +53,8 @@ export function renderScene(
   const { lighting, origin, sunPosition, moonPosition, shadowOffset } =
     getLightingState(app, worldTimeMinutes, animationMs, state.bloodMoonActive);
   const hexSize = getWorldHexSize(app.screen, state.radius);
-  const structureIconSize = hexSize * 1.42;
-  const enemyIconSize = hexSize * 1.26;
+  const structureIconSize = hexSize * 1.065;
+  const enemyIconSize = hexSize * 0.945;
   const playerIconSize = hexSize * 1.58;
 
   if (WORLD_MAP_FISHEYE_ENABLED) {
@@ -86,7 +82,7 @@ export function renderScene(
       tile.coord.q === state.player.coord.q &&
       tile.coord.r === state.player.coord.r;
     const clickable =
-      distance === 1 && tile.terrain !== 'water' && tile.terrain !== 'mountain';
+      distance === 1 && tile.terrain !== 'rift' && tile.terrain !== 'mountain';
     const emphasized = distance === 0 || clickable;
     const revealed = distance <= WORLD_REVEAL_RADIUS;
     const relative = {
@@ -102,11 +98,16 @@ export function renderScene(
       ? lighting.ambientBrightness + 0.2
       : lighting.ambientBrightness;
     const litTileColor = scaleColor(style.color, tileBrightness);
+    const hasBackground = hasTileGroundCover(tile.terrain);
     const fillAlpha = hovered
-      ? Math.min(1, style.alpha + 0.26)
-      : emphasized
-        ? style.alpha
-        : 0.8;
+      ? hasBackground
+        ? 0.2
+        : Math.min(1, style.alpha + 0.26)
+      : hasBackground
+        ? 0.2
+        : emphasized
+          ? style.alpha
+          : 0.8;
 
     const shape = takeGraphics(scene.worldGroundGraphics);
     shape.beginFill(litTileColor, fillAlpha);
@@ -122,9 +123,12 @@ export function renderScene(
       return;
     }
 
+    const enemies = getEnemiesAt(state, tile.coord);
+
     renderTileGroundCover(
       scene.worldDetailSprites,
       tile,
+      enemies,
       point,
       hexSize,
       lighting.ambientBrightness,
@@ -157,13 +161,13 @@ export function renderScene(
       lootBorder.drawPolygon(poly);
     }
 
-    const enemies = getEnemiesAt(state, tile.coord);
-
     if (tile.structure) {
       const structureColor =
-        tile.structure === 'dungeon' && enemies.length === 0
-          ? 0x94a3b8
-          : structureTint(tile.structure);
+        tile.structure === 'pond'
+          ? 0x38bdf8
+          : tile.structure === 'lake'
+            ? 0x2563eb
+            : 0xffffff;
       const marker = takeShadowedSprite(
         scene.worldMarkerSprites,
         structureIconFor(tile.structure),
@@ -187,10 +191,7 @@ export function renderScene(
       );
       configureShadowedSprite(
         sprite,
-        scaleColor(
-          enemyTint(leadEnemy.name),
-          lighting.ambientBrightness + 0.04,
-        ),
+        scaleColor(0xffffff, lighting.ambientBrightness + 0.04),
         enemyIconSize,
         enemyIconSize,
         emphasized ? 1 : 0.72,

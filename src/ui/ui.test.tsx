@@ -31,7 +31,6 @@ import { HeroWindow } from './components/HeroWindow';
 import { HexInfoWindow } from './components/HexInfoWindow';
 import { InventoryWindow } from './components/InventoryWindow';
 import { ItemContextMenu } from './components/ItemContextMenu';
-import { LegendWindow } from './components/LegendWindow';
 import { LogWindow } from './components/LogWindow';
 import { LootWindow } from './components/LootWindow';
 import { RecipeBookWindow } from './components/RecipeBookWindow';
@@ -260,7 +259,6 @@ describe('ui helpers and components', () => {
           inventoryCounts={{}}
           onCraft={() => {}}
         />
-        <LegendWindow position={DEFAULT_WINDOWS.legend} onMove={() => {}} />
         <HexInfoWindow
           position={DEFAULT_WINDOWS.hexInfo}
           onMove={() => {}}

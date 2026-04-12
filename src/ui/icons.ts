@@ -36,6 +36,7 @@ import bookCoverIcon from '../assets/icons/book-cover.svg';
 import friedFishIcon from '../assets/icons/fried-fish.svg';
 import campCookingPotIcon from '../assets/icons/camp-cooking-pot.svg';
 import stoneCraftingIcon from '../assets/icons/stone-crafting.svg';
+import spiderAltIcon from '../assets/icons/spider-alt.svg';
 import type { StructureType } from '../game/state';
 import { rarityColor } from './rarity';
 
@@ -77,6 +78,7 @@ export const Icons = {
   FriedFish: friedFishIcon,
   CampCookingPot: campCookingPotIcon,
   StoneCrafting: stoneCraftingIcon,
+  Spider: spiderAltIcon,
 } as const;
 
 export const EnemyType = {
@@ -85,6 +87,7 @@ export const EnemyType = {
   Wolf: 'Wolf',
   Boar: 'Boar',
   Stag: 'Stag',
+  Spider: 'Spider',
 } as const;
 
 export const ResourceType = {
@@ -125,6 +128,7 @@ export const EnemyIcon: Record<string, string> = {
   [EnemyType.Wolf]: Icons.Enemy,
   [EnemyType.Boar]: Icons.Enemy,
   [EnemyType.Stag]: Icons.Enemy,
+  [EnemyType.Spider]: Icons.Spider,
 };
 
 export const EnemyTint: Record<string, number> = {
@@ -133,6 +137,7 @@ export const EnemyTint: Record<string, number> = {
   [EnemyType.Wolf]: 0x60a5fa,
   [EnemyType.Boar]: 0xf59e0b,
   [EnemyType.Stag]: 0x22c55e,
+  [EnemyType.Spider]: 0x8b5cf6,
 };
 
 export const ItemIcon: Record<EquipmentSlot, string> = {

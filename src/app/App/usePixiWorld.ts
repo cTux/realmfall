@@ -142,7 +142,7 @@ export function usePixiWorld({
       const tile = getTileAt(current, target);
       const clickable =
         hexDistance(playerCoordRef.current, target) === 1 &&
-        tile.terrain !== 'water' &&
+        tile.terrain !== 'rift' &&
         tile.terrain !== 'mountain';
 
       if (!clickable) return;
@@ -189,7 +189,7 @@ export function usePixiWorld({
         hexDistance(playerCoordRef.current, target) <= WORLD_REVEAL_RADIUS;
       const clickable =
         hexDistance(playerCoordRef.current, target) === 1 &&
-        tile.terrain !== 'water' &&
+        tile.terrain !== 'rift' &&
         tile.terrain !== 'mountain';
       const enemyInfo = withinVisibleMap
         ? enemyTooltip(enemies, tile.structure)
