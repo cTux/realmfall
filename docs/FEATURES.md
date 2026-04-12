@@ -1,6 +1,4 @@
-# IDEAS
-
-## FEATURES
+# FEATURES
 
 * Better context menu for items
     * Locking items to be excluded from prospecting / selling it
@@ -124,29 +122,3 @@
 * Trading
     * SHIFT+LMB should buy x5 items (pressing and holding SHIFT should change text to "Buy x5")
     * CTRL+LMB should buy/sell x100 items (pressing and holding SHIFT should change text to "Buy x100")
-
-## IMPROVEMENTS
-
-* Review the project
-    * Review pixi.js and canvas rendering for possible improvements to the performance
-    * Write rules to be applied automatically
-        * All the color (or position) transitions should be smoothest transitions ever spotted
-* Review Chrome's performance recording
-    * Review bottlenecks
-    * Optimize code
-* Battle balances
-* Crafting
-    * It should be possible to craft something without any requirement for the hex (hand-crafting recipes)
-    * There should be possibility to build structures on the claimed hexed that provide additional crafting options
-    * There should be additonal crafting building over the world that provide very unique set of addiotional craftings to the player
-* Game favicon
-    * Light and dark favicons based on the selected browser's theme
-    * Game title in index.html
-* Window's loading spinner should be shown only if loading takes more than 1s
-* Rename Jerky Pack -> Apple
-* Optimizing
-    * Optimize .png images
-
-## RESTRICTIONS
-
-* Game won't support mods
