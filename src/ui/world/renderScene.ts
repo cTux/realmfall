@@ -177,7 +177,7 @@ export function renderScene(
         scaleColor(structureColor, lighting.ambientBrightness + 0.08),
         structureIconSize,
         structureIconSize,
-        emphasized ? 1 : 0.82,
+        1,
         shadowOffset,
         point,
       );
@@ -194,7 +194,7 @@ export function renderScene(
         scaleColor(0xffffff, lighting.ambientBrightness + 0.04),
         enemyIconSize,
         enemyIconSize,
-        emphasized ? 1 : 0.72,
+        1,
         shadowOffset,
         {
           x: point.x,
