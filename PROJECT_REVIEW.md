@@ -49,16 +49,6 @@ Review based on the current repository contents, configuration, and local valida
 
 ### High Priority
 
-1. Split `App.tsx` by responsibility.
-
-- Extract dedicated hooks or controller modules for hydration/persistence, world clock + FPS, keyboard shortcuts, combat automation, and loot/combat window transitions.
-- Keep `App.tsx` focused on composition.
-
-2. Split `src/game/state.ts` into domain modules.
-
-- Suggested seams: `world`, `combat`, `inventory`, `crafting`, `economy`, `progression`, `logs`, and shared `types`.
-- Keep pure functions and existing tests, but reduce the blast radius of edits.
-
 3. Clarify or redesign persistence security.
 
 - If the goal is convenience only, document it as local save obfuscation, not encryption.
@@ -98,7 +88,4 @@ This project has a good technical foundation for an indie browser game: strict T
 
 ## Best Next Steps
 
-1. Add CI and align all scripts/hooks on `pnpm`.
-2. Refactor `App.tsx` into smaller orchestration hooks.
-3. Break `src/game/state.ts` into domain modules without changing behavior.
 4. Address bundle size after measuring the biggest contributors.
