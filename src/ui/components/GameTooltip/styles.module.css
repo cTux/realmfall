@@ -29,6 +29,23 @@
   margin-bottom: 0.15rem;
 }
 
+.subtitle {
+  font-size: 0.68rem;
+  line-height: 1.25;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.sectionLabel {
+  margin-top: 0.45rem;
+  font-size: 0.62rem;
+  line-height: 1.25;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
 .statRow {
   display: flex;
   justify-content: space-between;
@@ -57,6 +74,11 @@
 
 .positive {
   color: #4ade80;
+}
+
+.item {
+  color: #16a34a;
+  font-weight: 700;
 }
 
 .negative {

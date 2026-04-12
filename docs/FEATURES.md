@@ -4,16 +4,9 @@
     * Locking items to be excluded from prospecting / selling it
     * Unlocking items
     * Using items for different party members (sliding sub-menu to choose party member), if no party members except the player only, there should not be sub-menu, only Use action to use it on the player
-* Better hexes
-    * Review canvas layers structure
-    * Do better background for hexes + background image (transparent?)
-    * Hexes are too bright in the daytime (light hex + light hex icon)
-* Game settings (+window)
+* Ga(m)e settings (+window and its button working with hotkey)
     * Graphic settings
         * Clouds enabling / disabling
-        * Windows transparency (including left panel and tooltip transparency)
-* Better tooltips
-    * Diablo-like tooltip for items and enemies
 * Better item stats
     * More stats
     * Colored stats view
@@ -23,7 +16,7 @@
 * Abilities
     * Each ability should have mana amount to be spent on cast
     * Each ability has cooldown
-* Recipe book (+window)
+* (R)ecipe book (+window and its button working with hotkey)
     * Should have right-side tabs with professions player can learn recipes for
     * Should look like a real book with animated pages
 * Recipes as items to be learned
@@ -68,13 +61,21 @@
 * Adaptive game design for mobile
     * Focuses on tap
     * Context menu opening on holding tap
-* Talent tree
+* (T)alent tree (+window and its button working with hotkey)
     * Similar to "Hero Siege", "Path of exile" talent tree
     * It should contain at least 2000 nodes to choose from
     * There should be several "root" nodes to start allocating talents from
     * Next nodes can be allocated only after allocating previous neighbour nodes
     * One hero level adds one talent point
-* Content talent tree
+    * Should be rendered with canvas
+    * Window should be resizable, canvas should adapt to the window size
+    * Should have "rendering window" which means that user is focused on the center of the talent tree and a lot of tree nodes are rendered outside of "rendering window" and hidden
+    * Holding LMB and dragging outside of any tree node should scroll (move) the canvas "rendering window"
+    * Nodes should be visually linked with the dependent nodes
+* Resizable windows
+    * Inventory
+    * Log
+* Co(n)tent talent tree (+window and its button working with hotkey)
     * The same as "talent tree", but for the content player facing in the world
     * Content talent tree should have at least 1000 nodes to be allocated from
         * Dungeons
@@ -89,7 +90,7 @@
 * Minimap
     * Shows player, hexes content, other players
     * Shows claimed area borders and owner name
-* Quests (+Quest Book Window)
+* (Q)uests (+window and its button working with hotkey)
     * Fractions provide quests to be complete
     * Quest types varies
         * Gather resources
@@ -109,7 +110,7 @@
         * Additional information about NPC name, its location, quest requirements and rewards should be also shown
     * There should be a possibility to abandon the quest
         * Abandonned quest can be taken one more time from the source NPC
-* Reputation
+* Rep(u)tation (+window and its button working with hotkey)
     * Instead of killing neutral NPCs and ruining buildings player can complete quests and increase reputation with this fraction
     * Increasing reputation above neutral causes NPCs to become friendly and non-targetable for a battle
     * Killing neutral NPCs causes decreasing reputation for this fraction

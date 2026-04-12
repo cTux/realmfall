@@ -13,6 +13,10 @@ function tooltipContentKey(tooltip: GameTooltipProps['tooltip']) {
   });
 }
 
+function isSubtitleLine(text?: string) {
+  return Boolean(text && /\b(TIER|LEVEL)\b/.test(text));
+}
+
 export const GameTooltip = memo(function GameTooltip({
   tooltip,
 }: GameTooltipProps) {
@@ -67,14 +71,27 @@ export const GameTooltip = memo(function GameTooltip({
         borderColor: rendered.tooltip.borderColor,
       }}
     >
-      <strong className={styles.title}>{rendered.tooltip.title}</strong>
+      <strong
+        className={styles.title}
+        style={
+          rendered.tooltip.borderColor
+            ? { color: rendered.tooltip.borderColor }
+            : undefined
+        }
+      >
+        {rendered.tooltip.title}
+      </strong>
       {rendered.tooltip.lines.map((line, index) => {
         const className =
-          line.tone === 'positive'
-            ? styles.positive
-            : line.tone === 'negative'
-              ? styles.negative
-              : undefined;
+          line.tone === 'section'
+            ? styles.sectionLabel
+            : line.tone === 'item'
+              ? styles.item
+              : line.tone === 'positive'
+                ? styles.positive
+                : line.tone === 'negative'
+                  ? styles.negative
+                  : undefined;
 
         if (
           line.kind === 'bar' &&
@@ -119,7 +136,11 @@ export const GameTooltip = memo(function GameTooltip({
         return (
           <div
             key={`${rendered.tooltip.title}-${line.text ?? index}`}
-            className={className}
+            className={
+              isSubtitleLine(line.text)
+                ? styles.subtitle
+                : (className ?? undefined)
+            }
           >
             {line.text}
           </div>

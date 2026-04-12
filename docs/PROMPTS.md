@@ -28,6 +28,7 @@
 * Commit all the existing changes.
 * Automatically generate commit messages based on the changes.
 * Commit messages should respect Conventional Commits rules.
+* If there are some changes in FEATURES.md, IMPROVEMENTS.md, ISSUES.md, PROMPTS.md or RESTRICTIONS.md just ignore them inside commit message.
 ```
 
 ## TODOs

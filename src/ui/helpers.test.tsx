@@ -98,7 +98,10 @@ describe('ui helper coverage', () => {
     );
 
     expect(uncommonPack?.title).toBe('Enemy Party');
-    expect(uncommonPack?.lines[0]?.text).toContain('UNCOMMON ENEMY');
+    expect(uncommonPack?.lines).toEqual([
+      { kind: 'stat', label: 'Level', value: '3' },
+      { kind: 'stat', label: 'Enemies', value: '3' },
+    ]);
 
     expect(structureTooltip(createTile())).toBeNull();
 
@@ -109,16 +112,12 @@ describe('ui helper coverage', () => {
       }),
     );
     expect(pondTooltip?.title).toBe('Pond');
-    expect(pondTooltip?.lines).toContainEqual({
-      kind: 'stat',
-      label: 'Skill',
-      value: 'Fishing',
-    });
-    expect(pondTooltip?.lines).toContainEqual({
-      kind: 'stat',
-      label: 'Yield',
-      value: 'Raw Fish',
-    });
+    expect(pondTooltip?.lines).toEqual([
+      {
+        kind: 'text',
+        text: 'A fishing spot that yields raw fish when worked.',
+      },
+    ]);
 
     expect(
       structureTooltip(createTile({ structure: 'copper-ore' }))?.title,
@@ -132,19 +131,19 @@ describe('ui helper coverage', () => {
 
     expect(
       structureTooltip(createTile({ structure: 'town' }))?.lines[0]?.text,
-    ).toBe('SAFE HAVEN');
+    ).toBe('A safe haven for trade, supplies, and a brief respite.');
     expect(
       structureTooltip(createTile({ structure: 'forge' }))?.lines[0]?.text,
-    ).toBe('WORKSITE');
+    ).toBe('A blazing forge where gear can be prospected into gold.');
     expect(
       structureTooltip(createTile({ structure: 'camp' }))?.lines[0]?.text,
-    ).toBe('COOKING SITE');
+    ).toBe('A campfire used to cook provisions into better meals.');
     expect(
       structureTooltip(createTile({ structure: 'workshop' }))?.lines[0]?.text,
-    ).toBe('CRAFTING SITE');
+    ).toBe('A workbench for turning gathered materials into equipment.');
     expect(
       structureTooltip(createTile({ structure: 'dungeon' }))?.lines[0]?.text,
-    ).toBe('DANGER ZONE');
+    ).toBe('A hostile den packed with stronger enemies and danger.');
   });
 
   it('covers tooltip comparison branches without equipment and with negative deltas', () => {
@@ -166,14 +165,36 @@ describe('ui helper coverage', () => {
       maxHp: 3,
     });
 
-    expect(comparisonLines(weakerWeapon)).toEqual([{ label: 'ATK', value: 1 }]);
+    expect(comparisonLines(weakerWeapon)).toEqual([
+      { label: 'Attack', value: 1 },
+    ]);
 
     const tooltipLines = itemTooltipLines(weakerWeapon, equippedWeapon);
     expect(tooltipLines).toContainEqual({
+      kind: 'text',
+      text: 'Comparing to equipped',
+      tone: 'section',
+    });
+    expect(tooltipLines).toContainEqual({
       kind: 'stat',
-      label: 'ATK Delta',
+      label: 'Attack Change',
       value: '-3',
       tone: 'negative',
+    });
+
+    const sameWeapon = createItem({
+      id: 'item-3',
+      kind: 'weapon',
+      slot: 'weapon',
+      name: 'Knight Blade Copy',
+      power: 4,
+      defense: 2,
+      maxHp: 3,
+    });
+
+    expect(itemTooltipLines(sameWeapon, equippedWeapon)).toContainEqual({
+      kind: 'text',
+      text: 'Same as equipped',
     });
   });
 

@@ -149,20 +149,36 @@ describe('ui helpers and components', () => {
     expect(comparisonLines(consumable)).toEqual([]);
     expect(comparisonLines(resource)).toEqual([]);
     expect(comparisonLines(weapon, equipped)).toEqual([
-      { label: 'ATK', value: 3 },
-      { label: 'DEF', value: 2 },
-      { label: 'HP', value: 3 },
+      { label: 'Attack', value: 3 },
+      { label: 'Defense', value: 2 },
+      { label: 'Max Health', value: 3 },
     ]);
 
     const tooltipLines = itemTooltipLines(weapon, equipped);
-    expect(tooltipLines[0]?.text).toContain('LEVEL 2 RARE ITEM');
-    expect(tooltipLines.some((line) => line.label === 'ATK Delta')).toBe(true);
+    expect(tooltipLines[0]?.text).toContain('RARE TIER 2 WEAPON');
+    expect(tooltipLines).toContainEqual({
+      kind: 'stat',
+      label: 'Attack',
+      value: '+4',
+      tone: 'item',
+    });
+    expect(tooltipLines).toContainEqual({
+      kind: 'text',
+      text: 'Comparing to equipped',
+      tone: 'section',
+    });
+    expect(tooltipLines.some((line) => line.label === 'Attack Change')).toBe(
+      true,
+    );
     expect(
       itemTooltipLines(resource).some((line) => line.label === 'Type'),
     ).toBe(true);
     expect(
-      itemTooltipLines(consumable).some((line) => line.label === 'Heal'),
-    ).toBe(true);
+      itemTooltipLines(resource).some((line) => line.text?.includes('TIER')),
+    ).toBe(false);
+    expect(itemTooltipLines(consumable)).toEqual([
+      { kind: 'text', text: 'Use to recover 12 HP and restore 8 hunger.' },
+    ]);
 
     expect(enemyTooltip([], undefined)).toBeNull();
 
@@ -184,6 +200,10 @@ describe('ui helpers and components', () => {
       'town',
     );
     expect(singleEnemy?.title).toBe('Wolf');
+    expect(singleEnemy?.lines).toEqual([
+      { kind: 'stat', label: 'Level', value: '2' },
+      { kind: 'stat', label: 'Enemies', value: '1' },
+    ]);
 
     const groupEnemy = enemyTooltip(
       [
@@ -215,7 +235,10 @@ describe('ui helpers and components', () => {
       'dungeon',
     );
     expect(groupEnemy?.title).toBe('Dungeon');
-    expect(groupEnemy?.lines.some((line) => line.label === 'Types')).toBe(true);
+    expect(groupEnemy?.lines).toEqual([
+      { kind: 'stat', label: 'Level', value: '3' },
+      { kind: 'stat', label: 'Enemies', value: '2' },
+    ]);
 
     const treeTooltip = structureTooltip({
       coord: { q: 0, r: 0 },
@@ -227,9 +250,9 @@ describe('ui helpers and components', () => {
       enemyIds: [],
     });
     expect(treeTooltip?.title).toBe('Tree');
-    expect(treeTooltip?.lines.some((line) => line.label === 'Skill')).toBe(
-      true,
-    );
+    expect(treeTooltip?.lines).toEqual([
+      { kind: 'text', text: 'A logging node that yields logs when harvested.' },
+    ]);
   });
 
   it('renders all major windows to static markup', async () => {
@@ -405,9 +428,9 @@ describe('ui helpers and components', () => {
             y: 70,
             borderColor: rarityColor('rare'),
             lines: [
-              { kind: 'text', text: 'LEVEL 2 RARE ITEM' },
-              { kind: 'stat', label: 'ATK', value: '4', tone: 'positive' },
-              { kind: 'stat', label: 'DEF', value: '-1', tone: 'negative' },
+              { kind: 'text', text: 'RARE TIER 2 WEAPON' },
+              { kind: 'stat', label: 'Attack', value: '+4', tone: 'item' },
+              { kind: 'stat', label: 'Defense', value: '+1', tone: 'item' },
               { kind: 'bar', label: 'HP', current: 3, max: 10 },
             ],
           }}
@@ -882,7 +905,7 @@ describe('ui helpers and components', () => {
             x: 50,
             y: 70,
             borderColor: rarityColor('rare'),
-            lines: [{ kind: 'text', text: 'LEVEL 2 RARE ITEM' }],
+            lines: [{ kind: 'text', text: 'RARE TIER 2 WEAPON' }],
           }}
         />,
       );

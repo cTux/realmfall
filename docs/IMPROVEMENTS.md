@@ -22,3 +22,9 @@
 * Loading
     * Initial loading should include loading images for initial state of loaded world
     * Loading images after the initial loading should show loading spinner in the place where that image should be shown
+* Better hexes
+    * Review canvas layers structure
+    * Do better background for hexes + background image (transparent?)
+    * Hexes are too bright in the daytime (light hex + light hex icon)
+* Using consumables should check if they will be useful
+    * If consumable will do nothing (nothing to heal or nothing to increase) they shound not be consumed (+log warning message about it)
