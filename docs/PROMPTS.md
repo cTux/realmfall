@@ -7,7 +7,8 @@
 * Apply only the rules that are relevant to the prompt's context.
 * Treat the relevant rules as part of the default context for future prompts, even when the prompt does not restate them.
 * If a prompt contains "add rule", update "docs/RULES.md" immediately in the corresponding section and keep related docs in sync.
-* If a rule changes prompt workflow or contributor expectations, also update "README.md" and this file.
+* If a rule changes prompt workflow or contributor expectations, also update "README.md", this file, and the AI-specific instruction files.
+* Use "docs/PROJECT_REVIEW.md" and this file as inputs for recurring guidance, but keep "docs/RULES.md" as the canonical rules source.
 ```
 
 ## Review
@@ -32,6 +33,7 @@
 * If any prompt contains "add rule" statement it should be immediately added to the corresponding rule.
 * If rule changes affect future prompt execution, also update the shared prompt instructions in this file.
 * Also adjust AI-specific files.
+* Keep "docs/RULES.md" as the canonical source and sync the shared workflow expectations into README and AI entrypoints instead of duplicating divergent project rules.
 * For Pixi world performance work, prefer one render scheduler, usually the ticker, and use refs or lightweight invalidation flags instead of layering an immediate redraw effect on top.
 ```
 

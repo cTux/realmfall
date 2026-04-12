@@ -414,6 +414,58 @@ describe('renderScene', () => {
     expect(spriteFrom.mock.calls).toHaveLength(initialSpriteCalls);
   });
 
+  it('caches deterministic cloud and terrain presentation inputs', async () => {
+    const randomModule = await import('../../game/random');
+    const createRngSpy = vi.spyOn(randomModule, 'createRng');
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-deterministic-cache');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      structure: 'dungeon',
+      items: [],
+      enemyIds: [],
+    };
+    const visibleTiles = getVisibleTiles(game);
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+
+    createRngSpy.mockClear();
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      400,
+    );
+
+    expect(createRngSpy).toHaveBeenCalled();
+
+    createRngSpy.mockClear();
+
+    renderScene(
+      app as never,
+      { ...game, turn: game.turn + 1 },
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      800,
+    );
+
+    const rerenderSeeds = createRngSpy.mock.calls.map(([seed]) => seed);
+
+    expect(rerenderSeeds.some((seed) => seed.includes('-cloud-'))).toBe(false);
+    expect(
+      rerenderSeeds.some((seed) => seed.includes('-terrain-background-')),
+    ).toBe(false);
+  });
+
   it('keeps static world polygons cached across animation-only frames', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-static-cache');

@@ -8,6 +8,8 @@
 - If a prompt contains an `add rule` statement, update this file immediately in the matching section before considering the task complete.
 - If a prompt contains an optimization request, update the relevant rules when the project guidance should change, not only the implementation.
 - When a rule changes project workflow or contributor expectations, reflect that change in `README.md` and adjust `docs/PROMPTS.md` if the prompt templates should change too.
+- Keep AI-specific instruction entrypoints such as `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md` aligned with this file when shared prompt behavior changes.
+- Use `docs/PROJECT_REVIEW.md` and `docs/PROMPTS.md` as inputs when refining recurring project rules, but keep this file as the canonical rules source.
 
 ## General
 
@@ -41,6 +43,7 @@
 - Follow the existing window-based desktop-style UI instead of introducing unrelated navigation patterns.
 - Keep heavy app coordination in dedicated hooks when possible, following patterns already used in `src/app/App`.
 - Lazy-load secondary UI only when it matches the existing usage pattern and helps keep the initial app path lighter.
+- Preserve existing React containment patterns such as memoized window components when extending the current UI.
 - Maintain mobile-aware and desktop-safe behavior when changing interactions, even if the full mobile adaptation is still incomplete.
 - Keep high-frequency pointer, hover, and world-interaction updates off broad React state paths when refs, invalidation flags, or narrower state can avoid avoidable rerenders.
 - Keep component modules compatible with React Fast Refresh expectations; move shared non-component exports out of component files when needed.
@@ -49,6 +52,7 @@
 
 - Protect frame rate on the world map path. Avoid unnecessary rerenders, reallocation-heavy render steps, and asset churn in Pixi code.
 - Prefer extending existing render helpers, caches, math utilities, and pools in `src/ui/world` over duplicating render logic.
+- Preserve and extend the existing pooling and persistent-stage-layer approach before introducing new world-render allocation paths.
 - Smooth visual transitions are preferred for color and position changes when they are part of visible world feedback.
 - Consider React rerender cost and Pixi redraw cost together for world-facing changes.
 - Prefer a single clear render scheduler for the world path. Avoid duplicate immediate redraw triggers layered on top of the ticker unless there is a measured reason.
@@ -59,11 +63,13 @@
 - Put hover, selection, and other short-lived interaction highlights on their own invalidated layer so pointer-state changes do not force a rebuild of the full world scene.
 - Reserve per-frame ticker redraws for genuinely animated layers such as clouds, atmosphere, overlays, firelight, and similar time-driven effects; static layers should refresh only when their actual inputs change.
 - Use device-aware quality budgets for Pixi rendering. Cap expensive defaults such as full-resolution rendering or unconditional antialiasing when they threaten frame time on weaker or high-DPI devices.
+- Prefer small, focused render tests for world math, lighting, filters, caches, and deterministic presentation behavior when changing Pixi logic.
 
 ## Build And Bundle
 
 - Keep the production bundle intentional. Avoid pushing heavy world-only or secondary UI code onto the initial path when existing lazy-loading or chunking patterns can keep it deferred.
 - Prefer targeted code splitting for heavier dependencies instead of collapsing all third-party code into one growing vendor chunk.
+- Treat bundle growth as a real performance cost, especially on the initial app path and in Pixi-heavy features.
 
 ## Testing
 
@@ -78,6 +84,7 @@
 - Keep prompt templates in `docs/PROMPTS.md` aligned with actual project workflow.
 - Prefer documenting real project constraints and current behavior over aspirational wording.
 - When prompts establish recurring workflow expectations, capture them here so future prompt handling stays consistent.
+- Keep rule and workflow updates synchronized across `README.md`, `docs/PROMPTS.md`, and the AI-specific instruction files when those updates affect future prompt execution.
 
 ## Current Project Constraints
 

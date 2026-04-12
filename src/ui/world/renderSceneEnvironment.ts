@@ -34,6 +34,78 @@ import {
 const FOREST_TILE_ASPECT_RATIO = 222 / 255;
 const FOREST_TILE_HEX_HEIGHT = 2.24;
 const TERRAIN_BACKGROUND_ALPHA = 0.2;
+const CLOUD_COUNT = 22;
+const WEATHER_ICONS = [
+  WorldIcons.SunCloud,
+  WorldIcons.Raining,
+  WorldIcons.Snowing,
+];
+const CLOUD_CLUSTER_OFFSETS = [
+  { x: -38, y: 12, scale: 0.72 },
+  { x: -16, y: -6, scale: 0.9 },
+  { x: 14, y: 6, scale: 1 },
+  { x: 40, y: -8, scale: 0.82 },
+];
+
+export interface CloudRenderInput {
+  scale: number;
+  travelPadding: number;
+  baseOffsetRatio: number;
+  speed: number;
+  yRatio: number;
+  bobSpeed: number;
+  bobPhase: number;
+  bobAmplitude: number;
+  icon: string;
+  shadowOpacity: number;
+  cloudOpacity: number;
+}
+
+export interface TileGroundCoverPresentation {
+  background: ReturnType<typeof backgroundVariant> | null;
+}
+
+export function buildCloudRenderInputs(worldSeed: string) {
+  const inputs: CloudRenderInput[] = [];
+
+  for (let index = 0; index < CLOUD_COUNT; index += 1) {
+    const rng = createRng(`${worldSeed}-cloud-${index}`);
+    inputs.push({
+      scale: 0.88 + rng() * 0.68,
+      travelPadding: 180 + rng() * 220,
+      baseOffsetRatio: rng(),
+      speed: 0.0048 + rng() * 0.0062,
+      yRatio: rng(),
+      bobSpeed: 0.00024 + rng() * 0.0002,
+      bobPhase: rng() * Math.PI * 2,
+      bobAmplitude: 4 + rng() * 10,
+      icon: WEATHER_ICONS[Math.floor(rng() * WEATHER_ICONS.length)],
+      shadowOpacity: 0.1 + rng() * 0.06,
+      cloudOpacity: 0.34 + rng() * 0.12,
+    });
+  }
+
+  return inputs;
+}
+
+export function getTileGroundCoverPresentation(
+  tile: Tile,
+  enemies: Enemy[],
+  worldSeed: string,
+): TileGroundCoverPresentation {
+  const variants = tileBackgroundVariants(tile, enemies);
+  if (variants.length === 0) {
+    return { background: null };
+  }
+
+  const rng = createRng(
+    `${worldSeed}-terrain-background-${tile.coord.q},${tile.coord.r}-${tile.terrain}-${tile.structure ?? 'none'}-${enemies.length}`,
+  );
+
+  return {
+    background: variants[Math.floor(rng() * variants.length)],
+  };
+}
 
 export function renderCloudLayer(
   screen: { width: number; height: number },
@@ -41,46 +113,32 @@ export function renderCloudLayer(
   cloudPool: SpritePool,
   animationMs: number,
   lighting: ReturnType<typeof getTimeOfDayLighting>,
-  worldSeed: string,
+  cloudInputs: CloudRenderInput[],
   shadowOffset: { x: number; y: number },
 ) {
-  const cloudCount = 22;
-  const weatherIcons = [
-    WorldIcons.SunCloud,
-    WorldIcons.Raining,
-    WorldIcons.Snowing,
-  ];
-  const clusterOffsets = [
-    { x: -38, y: 12, scale: 0.72 },
-    { x: -16, y: -6, scale: 0.9 },
-    { x: 14, y: 6, scale: 1 },
-    { x: 40, y: -8, scale: 0.82 },
-  ];
-
-  for (let index = 0; index < cloudCount; index += 1) {
-    const rng = createRng(`${worldSeed}-cloud-${index}`);
-    const scale = 0.88 + rng() * 0.68;
+  cloudInputs.forEach((cloudInput) => {
+    const scale = cloudInput.scale;
     const width = 92 * scale;
     const height = 92 * scale;
-    const travelPadding = 180 + rng() * 220;
+    const travelPadding = cloudInput.travelPadding;
     const travel = screen.width + travelPadding + width * 2;
-    const baseOffset = rng() * travel;
-    const speed = 0.0048 + rng() * 0.0062;
+    const baseOffset = cloudInput.baseOffsetRatio * travel;
+    const speed = cloudInput.speed;
     const progress = (animationMs * speed + baseOffset) % travel;
     const x = progress - width - travelPadding * 0.5;
-    const yBase = screen.height * rng();
+    const yBase = screen.height * cloudInput.yRatio;
     const y =
       yBase +
-      Math.sin(animationMs * (0.00024 + rng() * 0.0002) + rng() * Math.PI * 2) *
-        (4 + rng() * 10);
-    const icon = weatherIcons[Math.floor(rng() * weatherIcons.length)];
-    const shadowOpacity = 0.1 + rng() * 0.06;
+      Math.sin(animationMs * cloudInput.bobSpeed + cloudInput.bobPhase) *
+        cloudInput.bobAmplitude;
+    const icon = cloudInput.icon;
+    const shadowOpacity = cloudInput.shadowOpacity;
     const cloudOpacity = Math.max(
       0.24,
-      0.34 + rng() * 0.12 + lighting.cloudAlphaBoost,
+      cloudInput.cloudOpacity + lighting.cloudAlphaBoost,
     );
 
-    clusterOffsets.forEach((offset) => {
+    CLOUD_CLUSTER_OFFSETS.forEach((offset) => {
       const spriteWidth = width * offset.scale;
       const spriteHeight = height * offset.scale;
 
@@ -123,25 +181,19 @@ export function renderCloudLayer(
         },
       );
     });
-  }
+  });
 }
 
 export function renderTileGroundCover(
   spritePool: SpritePool,
-  tile: Tile,
-  enemies: Enemy[],
+  presentation: TileGroundCoverPresentation,
   point: { x: number; y: number },
   hexSize: number,
   ambientBrightness: number,
-  worldSeed: string,
 ) {
-  const variants = tileBackgroundVariants(tile, enemies);
-  if (variants.length === 0) return;
+  const background = presentation.background;
+  if (!background) return;
 
-  const rng = createRng(
-    `${worldSeed}-terrain-background-${tile.coord.q},${tile.coord.r}-${tile.terrain}-${tile.structure ?? 'none'}-${enemies.length}`,
-  );
-  const background = variants[Math.floor(rng() * variants.length)];
   const spriteHeight = hexSize * FOREST_TILE_HEX_HEIGHT * background.scale;
   const spriteWidth = spriteHeight * FOREST_TILE_ASPECT_RATIO;
   const grass = takeSprite(spritePool, background.icon);

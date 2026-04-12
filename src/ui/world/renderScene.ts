@@ -3,8 +3,10 @@ import {
   getEnemiesAt,
   getVisibleTiles,
   hexDistance,
+  type Enemy,
   type GameState,
   type HexCoord,
+  type Tile,
 } from '../../game/state';
 import { enemyIconFor, structureIconFor } from './worldIcons';
 import { WORLD_REVEAL_RADIUS } from '../../app/constants';
@@ -26,6 +28,8 @@ import {
 } from './renderSceneAtmosphere';
 import { getWorldHexSize, makeHex, tileToPoint } from './renderSceneMath';
 import {
+  buildCloudRenderInputs,
+  getTileGroundCoverPresentation,
   hasTileGroundCover,
   renderCampfireLight,
   renderCloudLayer,
@@ -52,6 +56,7 @@ export function renderScene(
   animationMs = 0,
 ) {
   const scene = getSceneCache(app);
+  const cloudInputs = getCloudRenderInputs(scene, state.seed);
 
   const { lighting, origin, sunPosition, moonPosition, shadowOffset } =
     getLightingState(app, worldTimeMinutes, animationMs, state.bloodMoonActive);
@@ -148,14 +153,19 @@ export function renderScene(
     const enemies = getEnemiesAt(state, tile.coord);
 
     if (shouldRenderStatic) {
-      renderTileGroundCover(
-        scene.worldStaticDetailSprites,
+      const groundCoverPresentation = getTileGroundCoverPresentationCached(
+        scene,
         tile,
         enemies,
+        state.seed,
+      );
+
+      renderTileGroundCover(
+        scene.worldStaticDetailSprites,
+        groundCoverPresentation,
         point,
         hexSize,
         lighting.ambientBrightness,
-        state.seed,
       );
 
       if (tile.structure) {
@@ -275,7 +285,7 @@ export function renderScene(
     scene.cloudSprites,
     animationMs,
     lighting,
-    state.seed,
+    cloudInputs,
     shadowOffset,
   );
   renderWorldOverlay(
@@ -285,6 +295,38 @@ export function renderScene(
     lighting.overlayAlpha,
   );
   completeAnimatedSceneRender(scene);
+}
+
+function getCloudRenderInputs(
+  scene: ReturnType<typeof getSceneCache>,
+  seed: string,
+) {
+  let cloudInputs = scene.cloudInputsBySeed.get(seed);
+  if (!cloudInputs) {
+    cloudInputs = buildCloudRenderInputs(seed);
+    scene.cloudInputsBySeed.set(seed, cloudInputs);
+  }
+
+  return cloudInputs;
+}
+
+function getTileGroundCoverPresentationCached(
+  scene: ReturnType<typeof getSceneCache>,
+  tile: Tile,
+  enemies: Enemy[],
+  worldSeed: string,
+) {
+  const herbs = tile.items.some((item) => item.name === 'Herbs')
+    ? 'herbs'
+    : 'none';
+  const key = `${worldSeed}:${tile.coord.q},${tile.coord.r}:${tile.terrain}:${tile.structure ?? 'none'}:${enemies.length}:${herbs}`;
+  let presentation = scene.tileGroundCoverPresentationByKey.get(key);
+  if (!presentation) {
+    presentation = getTileGroundCoverPresentation(tile, enemies, worldSeed);
+    scene.tileGroundCoverPresentationByKey.set(key, presentation);
+  }
+
+  return presentation;
 }
 
 function sameCoord(left: HexCoord | null, right: HexCoord | null) {

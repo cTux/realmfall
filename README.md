@@ -20,7 +20,8 @@ Current project strengths reflected in the codebase and docs:
 
 - Clear architectural separation between gameplay rules, app orchestration, React windows, and Pixi world rendering.
 - Existing React containment patterns such as memoized windows and lazy-loaded secondary UI.
-- Rendering-specific tests for world math and time-of-day behavior.
+- Rendering-specific tests for world math, time-of-day behavior, filters, and cached render behavior.
+- Pixi render caches and pools already reuse containers, graphics, sprites, and text instead of recreating display objects each frame.
 - Save compatibility handled through normalization before hydration.
 
 The game currently does not support mods. See `docs/RESTRICTIONS.md`.
@@ -96,8 +97,23 @@ The world view is the most performance-sensitive path in the project.
 - Prefer React-updated refs or lightweight invalidation flags over a second immediate `renderScene` path when world state changes need to reach Pixi.
 - Cache deterministic render inputs when they do not need to be recomputed every frame.
 - Prefer separating static and animated render work when it meaningfully reduces redraw cost.
+- Extend the existing Pixi pools, caches, and persistent stage layers before adding new allocation-heavy render paths.
 - Keep Pixi quality settings device-aware so high-DPI or weaker devices do not quietly pay an excessive frame-time cost.
 - Keep bundle growth intentional, especially for Pixi-heavy or secondary UI code.
+
+## Engineering Expectations
+
+- Use `pnpm` for contributor commands and documentation.
+- Keep TypeScript strictness, ESLint, Prettier, tests, Husky hooks, and production builds working.
+- Prefer the smallest correct change that fits existing patterns.
+- Keep gameplay and simulation rules in `src/game`, app orchestration in `src/app`, React UI components in `src/ui/components`, and Pixi world rendering in `src/ui/world`.
+- Avoid growing already-large coordinator modules when a focused helper or hook is a better fit.
+- Keep balancing and world constants in config or focused modules instead of scattering magic numbers through UI code.
+- Preserve save normalization when persisted shapes evolve.
+- Treat browser-side save protection as local obfuscation, not real security.
+- Prefer debounced or meaningfully-triggered persistence work over repeated identical writes.
+- Keep React component files compatible with Fast Refresh expectations.
+- Prefer deterministic tests for gameplay and render-math changes, especially when performance-sensitive behavior changes.
 
 ## Project Rules
 
@@ -114,6 +130,8 @@ Important workflow expectations:
 - Future prompts should automatically apply the relevant sections from `docs/RULES.md`.
 - Relevant rules should be treated as default context for future prompts, even when they are not repeated explicitly.
 - If a prompt contains `add rule`, the rule must be added to `docs/RULES.md` immediately and related docs should be updated if needed.
+- If a rule changes future prompt execution or contributor workflow, sync `README.md`, `docs/PROMPTS.md`, `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md`.
+- Use `docs/PROJECT_REVIEW.md` and `docs/PROMPTS.md` as inputs when refining recurring rules, but keep `docs/RULES.md` as the source of truth.
 - Use `pnpm`, not `npm`, in contributor guidance and commands.
 - Keep gameplay logic in `src/game`, app orchestration in `src/app`, component UI in `src/ui/components`, and Pixi rendering concerns in `src/ui/world`.
 - Avoid growing large coordinator files when a focused hook, helper, or domain module is a better fit.
@@ -125,6 +143,8 @@ Important workflow expectations:
 - Avoid high-frequency world interaction state flowing through broad React state when a narrower path is sufficient.
 - Prefer one clear world render scheduler and intentional caching for deterministic render inputs.
 - On the Pixi world path, prefer ticker-owned rendering with refs or invalidation flags instead of duplicate React effect redraws.
+- Prefer extending the current render pools, caches, and stage-layer structure before introducing new rendering systems.
+- Treat bundle growth as a real performance budget, especially on the initial app path.
 
 ## Prompt Workflow
 

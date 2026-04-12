@@ -6,6 +6,10 @@ import {
   type Application,
 } from 'pixi.js';
 import type { GameState, HexCoord, getVisibleTiles } from '../../game/state';
+import type {
+  CloudRenderInput,
+  TileGroundCoverPresentation,
+} from './renderSceneEnvironment';
 import { WorldIcons } from './worldIcons';
 import {
   createGraphicsPool,
@@ -70,6 +74,8 @@ export interface SceneCache {
   worldStaticMarkerSprites: ShadowedSpritePool;
   cloudShadowSprites: SpritePool;
   cloudSprites: SpritePool;
+  cloudInputsBySeed: Map<string, CloudRenderInput[]>;
+  tileGroundCoverPresentationByKey: Map<string, TileGroundCoverPresentation>;
   player: ShadowedSpriteEntry;
   staticState: GameState | null;
   staticVisibleTiles: ReturnType<typeof getVisibleTiles> | null;
@@ -165,6 +171,8 @@ export function getSceneCache(app: Application) {
     worldStaticMarkerSprites: createShadowedSpritePool(worldMarkers),
     cloudShadowSprites: createSpritePool(cloudShadows),
     cloudSprites: createSpritePool(clouds),
+    cloudInputsBySeed: new Map(),
+    tileGroundCoverPresentationByKey: new Map(),
     player,
     staticState: null,
     staticVisibleTiles: null,

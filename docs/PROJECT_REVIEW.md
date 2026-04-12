@@ -31,9 +31,6 @@
 
 ### Medium Priority
 
-- Cache deterministic render inputs.
-  Precompute cloud seeds, tile background variants, and any stable terrain presentation values so the render loop spends more time drawing and less time recomputing unchanged randomness.
-
 - Clarify persistence language everywhere.
   Keep documenting browser-side save handling as local obfuscation rather than encryption, unless persistence moves to a server-backed or signed model.
 
