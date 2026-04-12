@@ -414,6 +414,62 @@ describe('renderScene', () => {
     expect(spriteFrom.mock.calls).toHaveLength(initialSpriteCalls);
   });
 
+  it('keeps static world polygons cached across animation-only frames', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-static-cache');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      structure: 'camp',
+      items: [],
+      enemyIds: [],
+    };
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+    const visibleTiles = getVisibleTiles(game);
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      0,
+      1200,
+    );
+
+    const world = (app.stage.children[1] as MockContainer)
+      .children[0] as MockContainer;
+    const initialPolygonCalls = collectDescendants(world)
+      .filter((child) => child instanceof MockGraphics)
+      .reduce((sum, child) => sum + child.drawPolygon.mock.calls.length, 0);
+    const initialEllipseCalls = collectDescendants(world)
+      .filter((child) => child instanceof MockGraphics)
+      .reduce((sum, child) => sum + child.drawEllipse.mock.calls.length, 0);
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      0,
+      1800,
+    );
+
+    const finalPolygonCalls = collectDescendants(world)
+      .filter((child) => child instanceof MockGraphics)
+      .reduce((sum, child) => sum + child.drawPolygon.mock.calls.length, 0);
+    const finalEllipseCalls = collectDescendants(world)
+      .filter((child) => child instanceof MockGraphics)
+      .reduce((sum, child) => sum + child.drawEllipse.mock.calls.length, 0);
+
+    expect(finalPolygonCalls).toBe(initialPolygonCalls);
+    expect(finalEllipseCalls).toBeGreaterThan(initialEllipseCalls);
+  });
+
   it('covers hexes beyond the reveal radius with fog of war', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(6, 'render-scene-fog-of-war');

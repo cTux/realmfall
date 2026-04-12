@@ -5,6 +5,7 @@ import {
   TextStyle,
   type Application,
 } from 'pixi.js';
+import type { GameState, HexCoord, getVisibleTiles } from '../../game/state';
 import { WorldIcons } from './worldIcons';
 import {
   createGraphicsPool,
@@ -60,14 +61,26 @@ export interface SceneCache {
   atmosphereShaftGraphics: GraphicsPool;
   atmosphereCelestialGraphics: GraphicsPool;
   worldGroundGraphics: GraphicsPool;
-  worldDetailGraphics: GraphicsPool;
+  worldStaticDetailGraphics: GraphicsPool;
+  worldInteractionGraphics: GraphicsPool;
+  worldAnimatedDetailGraphics: GraphicsPool;
   waterfallGraphics: GraphicsPool;
   labelTexts: TextPool;
-  worldDetailSprites: SpritePool;
-  worldMarkerSprites: ShadowedSpritePool;
+  worldStaticDetailSprites: SpritePool;
+  worldStaticMarkerSprites: ShadowedSpritePool;
   cloudShadowSprites: SpritePool;
   cloudSprites: SpritePool;
   player: ShadowedSpriteEntry;
+  staticState: GameState | null;
+  staticVisibleTiles: ReturnType<typeof getVisibleTiles> | null;
+  staticWorldTimeMinutes: number | null;
+  interactionState: GameState | null;
+  interactionVisibleTiles: ReturnType<typeof getVisibleTiles> | null;
+  interactionWorldTimeMinutes: number | null;
+  interactionSelected: HexCoord | null;
+  interactionHoveredMove: HexCoord | null;
+  screenWidth: number;
+  screenHeight: number;
 }
 
 export function getSceneCache(app: Application) {
@@ -78,8 +91,10 @@ export function getSceneCache(app: Application) {
   const worldMap = new Container();
   const world = new Container();
   const worldGround = new Container();
-  const worldDetail = new Container();
+  const worldStaticDetail = new Container();
+  const worldInteraction = new Container();
   const worldMarkers = new Container();
+  const worldAnimatedDetail = new Container();
   const worldPlayer = new Container();
   const waterfalls = new Container();
   const labels = new Container();
@@ -101,7 +116,14 @@ export function getSceneCache(app: Application) {
     worldMap.filterArea = worldMapFilterArea;
   }
 
-  world.addChild(worldGround, worldDetail, worldMarkers, worldPlayer);
+  world.addChild(
+    worldGround,
+    worldStaticDetail,
+    worldInteraction,
+    worldMarkers,
+    worldAnimatedDetail,
+    worldPlayer,
+  );
   worldMap.addChild(world, waterfalls, labels);
   app.stage.addChild(
     sky,
@@ -134,42 +156,70 @@ export function getSceneCache(app: Application) {
     atmosphereShaftGraphics: createGraphicsPool(atmosphereShafts),
     atmosphereCelestialGraphics: createGraphicsPool(atmosphereCelestials),
     worldGroundGraphics: createGraphicsPool(worldGround),
-    worldDetailGraphics: createGraphicsPool(worldDetail),
+    worldStaticDetailGraphics: createGraphicsPool(worldStaticDetail),
+    worldInteractionGraphics: createGraphicsPool(worldInteraction),
+    worldAnimatedDetailGraphics: createGraphicsPool(worldAnimatedDetail),
     waterfallGraphics: createGraphicsPool(waterfalls),
     labelTexts: createTextPool(labels),
-    worldDetailSprites: createSpritePool(worldDetail),
-    worldMarkerSprites: createShadowedSpritePool(worldMarkers),
+    worldStaticDetailSprites: createSpritePool(worldStaticDetail),
+    worldStaticMarkerSprites: createShadowedSpritePool(worldMarkers),
     cloudShadowSprites: createSpritePool(cloudShadows),
     cloudSprites: createSpritePool(clouds),
     player,
+    staticState: null,
+    staticVisibleTiles: null,
+    staticWorldTimeMinutes: null,
+    interactionState: null,
+    interactionVisibleTiles: null,
+    interactionWorldTimeMinutes: null,
+    interactionSelected: null,
+    interactionHoveredMove: null,
+    screenWidth: app.screen.width,
+    screenHeight: app.screen.height,
   };
 
   cachedApp[SCENE_CACHE_KEY] = scene;
   return scene;
 }
 
-export function beginSceneRender(scene: SceneCache) {
+export function beginAnimatedSceneRender(scene: SceneCache) {
   resetGraphicsPool(scene.atmosphereShaftGraphics);
   resetGraphicsPool(scene.atmosphereCelestialGraphics);
-  resetGraphicsPool(scene.worldGroundGraphics);
-  resetGraphicsPool(scene.worldDetailGraphics);
+  resetGraphicsPool(scene.worldAnimatedDetailGraphics);
   resetGraphicsPool(scene.waterfallGraphics);
   resetTextPool(scene.labelTexts);
-  resetSpritePool(scene.worldDetailSprites);
-  resetShadowedSpritePool(scene.worldMarkerSprites);
   resetSpritePool(scene.cloudShadowSprites);
   resetSpritePool(scene.cloudSprites);
 }
 
-export function completeSceneRender(scene: SceneCache) {
+export function completeAnimatedSceneRender(scene: SceneCache) {
   finishGraphicsPool(scene.atmosphereShaftGraphics);
   finishGraphicsPool(scene.atmosphereCelestialGraphics);
-  finishGraphicsPool(scene.worldGroundGraphics);
-  finishGraphicsPool(scene.worldDetailGraphics);
+  finishGraphicsPool(scene.worldAnimatedDetailGraphics);
   finishGraphicsPool(scene.waterfallGraphics);
   finishTextPool(scene.labelTexts);
-  finishSpritePool(scene.worldDetailSprites);
-  finishShadowedSpritePool(scene.worldMarkerSprites);
   finishSpritePool(scene.cloudShadowSprites);
   finishSpritePool(scene.cloudSprites);
+}
+
+export function beginStaticSceneRender(scene: SceneCache) {
+  resetGraphicsPool(scene.worldGroundGraphics);
+  resetGraphicsPool(scene.worldStaticDetailGraphics);
+  resetSpritePool(scene.worldStaticDetailSprites);
+  resetShadowedSpritePool(scene.worldStaticMarkerSprites);
+}
+
+export function completeStaticSceneRender(scene: SceneCache) {
+  finishGraphicsPool(scene.worldGroundGraphics);
+  finishGraphicsPool(scene.worldStaticDetailGraphics);
+  finishSpritePool(scene.worldStaticDetailSprites);
+  finishShadowedSpritePool(scene.worldStaticMarkerSprites);
+}
+
+export function beginInteractionSceneRender(scene: SceneCache) {
+  resetGraphicsPool(scene.worldInteractionGraphics);
+}
+
+export function completeInteractionSceneRender(scene: SceneCache) {
+  finishGraphicsPool(scene.worldInteractionGraphics);
 }

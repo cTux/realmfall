@@ -26,9 +26,6 @@
 
 ### High Priority
 
-- Stop redrawing the whole world scene every frame.
-  Separate static terrain and structure layers from animated layers such as clouds, overlays, campfire glow, and selection state so unchanged map geometry does not get rebuilt on every ticker step.
-
 - Remove duplicate `renderScene` calls.
   Pick one render scheduler for the Pixi world path, preferably the ticker, and let React update refs or lightweight invalidation flags instead of forcing an additional immediate redraw effect.
 

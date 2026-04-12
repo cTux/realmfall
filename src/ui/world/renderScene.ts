@@ -10,8 +10,12 @@ import { enemyIconFor, structureIconFor } from './worldIcons';
 import { WORLD_REVEAL_RADIUS } from '../../app/constants';
 import { scaleColor } from './timeOfDay';
 import {
-  beginSceneRender,
-  completeSceneRender,
+  beginAnimatedSceneRender,
+  beginInteractionSceneRender,
+  beginStaticSceneRender,
+  completeAnimatedSceneRender,
+  completeInteractionSceneRender,
+  completeStaticSceneRender,
   getSceneCache,
 } from './renderSceneCache';
 import {
@@ -48,7 +52,6 @@ export function renderScene(
   animationMs = 0,
 ) {
   const scene = getSceneCache(app);
-  beginSceneRender(scene);
 
   const { lighting, origin, sunPosition, moonPosition, shadowOffset } =
     getLightingState(app, worldTimeMinutes, animationMs, state.bloodMoonActive);
@@ -64,6 +67,7 @@ export function renderScene(
   }
 
   renderSkyLayer(app, scene.skyFill, lighting.skyColor);
+  beginAnimatedSceneRender(scene);
   renderAtmosphere(
     app,
     scene.atmosphereShaftGraphics,
@@ -75,6 +79,29 @@ export function renderScene(
     origin,
     state.bloodMoonActive,
   );
+
+  const screenChanged =
+    scene.screenWidth !== app.screen.width ||
+    scene.screenHeight !== app.screen.height;
+  const shouldRenderStatic =
+    screenChanged ||
+    scene.staticState !== state ||
+    scene.staticVisibleTiles !== visibleTiles ||
+    scene.staticWorldTimeMinutes !== worldTimeMinutes;
+  const shouldRenderInteraction =
+    shouldRenderStatic ||
+    scene.interactionState !== state ||
+    scene.interactionVisibleTiles !== visibleTiles ||
+    scene.interactionWorldTimeMinutes !== worldTimeMinutes ||
+    !sameCoord(scene.interactionSelected, selected) ||
+    !sameCoord(scene.interactionHoveredMove, hoveredMove);
+
+  if (shouldRenderStatic) {
+    beginStaticSceneRender(scene);
+  }
+  if (shouldRenderInteraction) {
+    beginInteractionSceneRender(scene);
+  }
 
   visibleTiles.forEach((tile) => {
     const distance = hexDistance(state.player.coord, tile.coord);
@@ -94,50 +121,89 @@ export function renderScene(
     const style = tileStyle(tile.terrain);
     const hovered =
       hoveredMove?.q === tile.coord.q && hoveredMove?.r === tile.coord.r;
-    const tileBrightness = hovered
-      ? lighting.ambientBrightness + 0.2
-      : lighting.ambientBrightness;
-    const litTileColor = scaleColor(style.color, tileBrightness);
     const hasBackground = hasTileGroundCover(tile.terrain);
-    const fillAlpha = hovered
-      ? hasBackground
-        ? 0.2
-        : Math.min(1, style.alpha + 0.26)
-      : hasBackground
-        ? 0.2
-        : emphasized
-          ? style.alpha
-          : 0.8;
+    if (shouldRenderStatic) {
+      const fillAlpha = hasBackground ? 0.2 : emphasized ? style.alpha : 0.8;
+      const shape = takeGraphics(scene.worldGroundGraphics);
+      shape.beginFill(
+        scaleColor(style.color, lighting.ambientBrightness),
+        fillAlpha,
+      );
+      shape.lineStyle(1, 0x1e293b, 0.9);
+      shape.drawPolygon(poly);
+      shape.endFill();
 
-    const shape = takeGraphics(scene.worldGroundGraphics);
-    shape.beginFill(litTileColor, fillAlpha);
-    shape.lineStyle(1, 0x1e293b, 0.9);
-    shape.drawPolygon(poly);
-    shape.endFill();
+      if (!revealed) {
+        const fog = takeGraphics(scene.worldStaticDetailGraphics);
+        fog.beginFill(0x020617, 0.78);
+        fog.drawPolygon(poly);
+        fog.endFill();
+      }
+    }
 
     if (!revealed) {
-      const fog = takeGraphics(scene.worldDetailGraphics);
-      fog.beginFill(0x020617, 0.78);
-      fog.drawPolygon(poly);
-      fog.endFill();
       return;
     }
 
     const enemies = getEnemiesAt(state, tile.coord);
 
-    renderTileGroundCover(
-      scene.worldDetailSprites,
-      tile,
-      enemies,
-      point,
-      hexSize,
-      lighting.ambientBrightness,
-      state.seed,
-    );
+    if (shouldRenderStatic) {
+      renderTileGroundCover(
+        scene.worldStaticDetailSprites,
+        tile,
+        enemies,
+        point,
+        hexSize,
+        lighting.ambientBrightness,
+        state.seed,
+      );
+
+      if (tile.structure) {
+        const structureColor =
+          tile.structure === 'pond'
+            ? 0x38bdf8
+            : tile.structure === 'lake'
+              ? 0x2563eb
+              : 0xffffff;
+        const marker = takeShadowedSprite(
+          scene.worldStaticMarkerSprites,
+          structureIconFor(tile.structure),
+        );
+        configureShadowedSprite(
+          marker,
+          scaleColor(structureColor, lighting.ambientBrightness + 0.08),
+          structureIconSize,
+          structureIconSize,
+          1,
+          shadowOffset,
+          point,
+        );
+      }
+
+      if (enemies.length > 0 && tile.structure !== 'dungeon') {
+        const leadEnemy = enemies[0];
+        const sprite = takeShadowedSprite(
+          scene.worldStaticMarkerSprites,
+          enemyIconFor(leadEnemy.name),
+        );
+        configureShadowedSprite(
+          sprite,
+          scaleColor(0xef4444, lighting.ambientBrightness + 0.04),
+          enemyIconSize,
+          enemyIconSize,
+          1,
+          shadowOffset,
+          {
+            x: point.x,
+            y: point.y - 2,
+          },
+        );
+      }
+    }
 
     if (tile.structure === 'camp') {
       renderCampfireLight(
-        scene.worldDetailGraphics,
+        scene.worldAnimatedDetailGraphics,
         point,
         hexSize,
         lighting.ambientBrightness,
@@ -146,63 +212,52 @@ export function renderScene(
       );
     }
 
-    if (
-      !hovered &&
-      !isPlayerTile &&
-      selected.q === tile.coord.q &&
-      selected.r === tile.coord.r
-    ) {
-      const outline = takeGraphics(scene.worldDetailGraphics);
-      outline.lineStyle(3, 0xf8fafc, 0.65);
-      outline.drawPolygon(poly);
-    } else if (tile.items.length > 0 && emphasized) {
-      const lootBorder = takeGraphics(scene.worldDetailGraphics);
-      lootBorder.lineStyle(3, 0x22c55e, 0.95);
-      lootBorder.drawPolygon(poly);
-    }
+    if (shouldRenderInteraction) {
+      if (hovered) {
+        const hoverOverlay = takeGraphics(scene.worldInteractionGraphics);
+        hoverOverlay.beginFill(
+          scaleColor(style.color, lighting.ambientBrightness + 0.2),
+          hasBackground ? 0.2 : Math.min(1, style.alpha + 0.26),
+        );
+        hoverOverlay.drawPolygon(poly);
+        hoverOverlay.endFill();
+      }
 
-    if (tile.structure) {
-      const structureColor =
-        tile.structure === 'pond'
-          ? 0x38bdf8
-          : tile.structure === 'lake'
-            ? 0x2563eb
-            : 0xffffff;
-      const marker = takeShadowedSprite(
-        scene.worldMarkerSprites,
-        structureIconFor(tile.structure),
-      );
-      configureShadowedSprite(
-        marker,
-        scaleColor(structureColor, lighting.ambientBrightness + 0.08),
-        structureIconSize,
-        structureIconSize,
-        1,
-        shadowOffset,
-        point,
-      );
-    }
-
-    if (enemies.length > 0 && tile.structure !== 'dungeon') {
-      const leadEnemy = enemies[0];
-      const sprite = takeShadowedSprite(
-        scene.worldMarkerSprites,
-        enemyIconFor(leadEnemy.name),
-      );
-      configureShadowedSprite(
-        sprite,
-        scaleColor(0xef4444, lighting.ambientBrightness + 0.04),
-        enemyIconSize,
-        enemyIconSize,
-        1,
-        shadowOffset,
-        {
-          x: point.x,
-          y: point.y - 2,
-        },
-      );
+      if (
+        !hovered &&
+        !isPlayerTile &&
+        selected.q === tile.coord.q &&
+        selected.r === tile.coord.r
+      ) {
+        const outline = takeGraphics(scene.worldInteractionGraphics);
+        outline.lineStyle(3, 0xf8fafc, 0.65);
+        outline.drawPolygon(poly);
+      } else if (tile.items.length > 0 && emphasized) {
+        const lootBorder = takeGraphics(scene.worldInteractionGraphics);
+        lootBorder.lineStyle(3, 0x22c55e, 0.95);
+        lootBorder.drawPolygon(poly);
+      }
     }
   });
+
+  if (shouldRenderStatic) {
+    completeStaticSceneRender(scene);
+    scene.staticState = state;
+    scene.staticVisibleTiles = visibleTiles;
+    scene.staticWorldTimeMinutes = worldTimeMinutes;
+  }
+
+  if (shouldRenderInteraction) {
+    completeInteractionSceneRender(scene);
+    scene.interactionState = state;
+    scene.interactionVisibleTiles = visibleTiles;
+    scene.interactionWorldTimeMinutes = worldTimeMinutes;
+    scene.interactionSelected = { ...selected };
+    scene.interactionHoveredMove = hoveredMove ? { ...hoveredMove } : null;
+  }
+
+  scene.screenWidth = app.screen.width;
+  scene.screenHeight = app.screen.height;
 
   configureShadowedSprite(
     scene.player,
@@ -229,5 +284,13 @@ export function renderScene(
     lighting.overlayColor,
     lighting.overlayAlpha,
   );
-  completeSceneRender(scene);
+  completeAnimatedSceneRender(scene);
+}
+
+function sameCoord(left: HexCoord | null, right: HexCoord | null) {
+  if (left == null || right == null) {
+    return left === right;
+  }
+
+  return left.q === right.q && left.r === right.r;
 }
