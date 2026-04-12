@@ -33,3 +33,4 @@
     * Experience needed to level-up should be based on the current level and some exponential function (which means every next level is a little bit harder to achieve, while levelling at levels 90-100 should take approximately 1h to level-up)
     * Enemies should give static amount of experience across all the levels, but rarer enemies give more experience
     * Experience gain can be increased by wearing items with a corresponding stat
+* Tooltip border should not have border radius
