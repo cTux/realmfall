@@ -326,12 +326,9 @@ export function useAppControllers({
     [showItemTooltip],
   );
 
-  const setTooltip = useCallback(
-    (nextTooltip: TooltipState | null) => {
-      setTooltipState(nextTooltip);
-    },
-    [],
-  );
+  const setTooltip = useCallback((nextTooltip: TooltipState | null) => {
+    setTooltipState(nextTooltip);
+  }, []);
 
   return {
     closeItemMenu,
