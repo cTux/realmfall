@@ -9,6 +9,7 @@ import {
   type HexCoord,
   type Tile,
 } from '../../game/state';
+import { hexKey } from '../../game/hex';
 import { enemyIconFor, structureIconFor } from './worldIcons';
 import { WORLD_REVEAL_RADIUS } from '../../app/constants';
 import { scaleColor } from './timeOfDay';
@@ -55,6 +56,7 @@ export function renderScene(
   hoveredMove: HexCoord | null,
   worldTimeMinutes = 12 * 60,
   animationMs = 0,
+  hoveredSafePath: HexCoord[] | null = null,
 ) {
   const scene = getSceneCache(app);
   const cloudInputs = getCloudRenderInputs(scene, state.seed);
@@ -107,7 +109,12 @@ export function renderScene(
     scene.interactionVisibleTiles !== visibleTiles ||
     scene.interactionWorldTimeMinutes !== worldTimeMinutes ||
     !sameCoord(scene.interactionSelected, selected) ||
-    !sameCoord(scene.interactionHoveredMove, hoveredMove);
+    !sameCoord(scene.interactionHoveredMove, hoveredMove) ||
+    scene.interactionHoveredSafePathKey !== pathKey(hoveredSafePath);
+
+  const hoveredSafePathKeys = new Set(
+    (hoveredSafePath ?? []).map((coord) => hexKey(coord)),
+  );
 
   if (shouldRenderStatic) {
     beginStaticSceneRender(scene);
@@ -134,6 +141,7 @@ export function renderScene(
     const style = tileStyle(tile.terrain);
     const hovered =
       hoveredMove?.q === tile.coord.q && hoveredMove?.r === tile.coord.r;
+    const highlightedInSafePath = hoveredSafePathKeys.has(hexKey(tile.coord));
     const isHomeTile =
       tile.coord.q === state.homeHex.q && tile.coord.r === state.homeHex.r;
     const hasBackground = hasTileGroundCover(tile.terrain);
@@ -244,6 +252,12 @@ export function renderScene(
         hoverOverlay.endFill();
       }
 
+      if (highlightedInSafePath) {
+        const safePathOverlay = takeGraphics(scene.worldInteractionGraphics);
+        safePathOverlay.lineStyle(3, 0x38bdf8, hovered ? 0.9 : 0.72);
+        safePathOverlay.drawPolygon(poly);
+      }
+
       if (
         !hovered &&
         !isPlayerTile &&
@@ -275,6 +289,7 @@ export function renderScene(
     scene.interactionWorldTimeMinutes = worldTimeMinutes;
     scene.interactionSelected = { ...selected };
     scene.interactionHoveredMove = hoveredMove ? { ...hoveredMove } : null;
+    scene.interactionHoveredSafePathKey = pathKey(hoveredSafePath);
   }
 
   scene.screenWidth = app.screen.width;
@@ -346,4 +361,8 @@ function sameCoord(left: HexCoord | null, right: HexCoord | null) {
   }
 
   return left.q === right.q && left.r === right.r;
+}
+
+function pathKey(path: HexCoord[] | null) {
+  return path?.map((coord) => hexKey(coord)).join('|') ?? null;
 }

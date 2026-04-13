@@ -295,6 +295,40 @@ describe('renderScene', () => {
     expect(homeOutlines).toHaveLength(1);
   });
 
+  it('highlights each hovered safe-path hex on the interaction layer', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(3, 'render-scene-safe-path');
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      { q: 2, r: 0 },
+      12 * 60,
+      0,
+      [
+        { q: 1, r: 0 },
+        { q: 2, r: 0 },
+      ],
+    );
+
+    const world = app.stage.children[1] as MockContainer;
+    const safePathOutlines = collectDescendants(world).filter(
+      (child) =>
+        child instanceof MockGraphics &&
+        child.lineStyle.mock.calls.some(
+          ([width, color]) => width === 3 && color === 0x38bdf8,
+        ),
+    );
+
+    expect(safePathOutlines).toHaveLength(2);
+  });
+
   it('adds animated campfire glow only once the world gets dark', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-campfire-glow');

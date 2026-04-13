@@ -10,12 +10,14 @@ import {
   getGoldAmount,
   getPlayerStats,
   getRecipeBookRecipes,
+  getSafePathToTile,
   getTileAt,
   getTownStock,
   getVisibleTiles,
   hasRecipeBook,
   interactWithStructure,
   moveToTile,
+  moveAlongSafePath,
   progressCombat,
   prospectInventory,
   sellAllItems,
@@ -86,6 +88,86 @@ describe('game state', () => {
     expect(next.player.coord).toEqual(target);
     expect(next.turn).toBe(1);
     expect(next.logs[0]?.text).toMatch(/^\[Day 1, 18:33\] /);
+  });
+
+  it('finds a safe path around blocked and hostile hexes', () => {
+    const game = createGame(4, 'safe-path-seed');
+
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'mountain',
+      items: [],
+      enemyIds: [],
+    };
+    game.tiles['0,1'] = {
+      coord: { q: 0, r: 1 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: ['enemy-0,1-0'],
+    };
+    game.tiles['1,-1'] = {
+      coord: { q: 1, r: -1 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+    game.tiles['2,-1'] = {
+      coord: { q: 2, r: -1 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+    game.tiles['2,0'] = {
+      coord: { q: 2, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+
+    expect(getSafePathToTile(game, { q: 2, r: 0 })).toEqual([
+      { q: 1, r: -1 },
+      { q: 2, r: -1 },
+      { q: 2, r: 0 },
+    ]);
+  });
+
+  it('moves across each step of a safe path', () => {
+    const game = createGame(4, 'safe-path-move-seed');
+    game.player.hunger = 100;
+    game.player.thirst = 100;
+
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'mountain',
+      items: [],
+      enemyIds: [],
+    };
+    game.tiles['1,-1'] = {
+      coord: { q: 1, r: -1 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+    game.tiles['2,-1'] = {
+      coord: { q: 2, r: -1 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+    game.tiles['2,0'] = {
+      coord: { q: 2, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+
+    const moved = moveAlongSafePath(game, { q: 2, r: 0 });
+
+    expect(moved.player.coord).toEqual({ q: 2, r: 0 });
+    expect(moved.turn).toBe(3);
+    expect(
+      moved.logs.filter((entry) => entry.kind === 'movement'),
+    ).toHaveLength(3);
   });
 
   it('damages the player each move while hunger and thirst debuffs are active', () => {

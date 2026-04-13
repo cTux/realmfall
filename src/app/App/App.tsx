@@ -41,6 +41,7 @@ export function App() {
   const visibleTilesRef = useRef(getVisibleTiles(initialGameRef.current));
   const selectedRef = useRef<HexCoord>(initialGameRef.current.player.coord);
   const hoveredMoveRef = useRef<HexCoord | null>(null);
+  const hoveredSafePathRef = useRef<HexCoord[] | null>(null);
   const tooltipRef = useRef<TooltipState | null>(null);
   const tooltipPositionRef = useRef<TooltipPosition | null>(null);
   const worldTimeMsRef = useRef(initialGameRef.current.worldTimeMs);
@@ -54,6 +55,9 @@ export function App() {
   const [game, setGame] = useState<GameState>(initialGameRef.current);
   const [selected, setSelected] = useState<HexCoord>(game.player.coord);
   const [hoveredMove, setHoveredMove] = useState<HexCoord | null>(null);
+  const [hoveredSafePath, setHoveredSafePath] = useState<HexCoord[] | null>(
+    null,
+  );
   const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
 
   const {
@@ -179,11 +183,13 @@ export function App() {
     visibleTilesRef,
     selectedRef,
     hoveredMoveRef,
+    hoveredSafePathRef,
     tooltipPositionRef,
     tooltipRef,
     setGame,
     setSelected,
     setHoveredMove,
+    setHoveredSafePath,
     setTooltip,
   });
   const hydrated = useAppPersistence({
@@ -240,6 +246,10 @@ export function App() {
   }, [hoveredMove]);
 
   useEffect(() => {
+    hoveredSafePathRef.current = hoveredSafePath;
+  }, [hoveredSafePath]);
+
+  useEffect(() => {
     tooltipRef.current = tooltip;
   }, [tooltip]);
 
@@ -252,6 +262,7 @@ export function App() {
   useEffect(() => {
     setSelected(game.player.coord);
     setHoveredMove(null);
+    setHoveredSafePath(null);
   }, [game.player.coord]);
 
   useEffect(() => {

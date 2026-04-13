@@ -85,6 +85,7 @@ export interface SceneCache {
   interactionWorldTimeMinutes: number | null;
   interactionSelected: HexCoord | null;
   interactionHoveredMove: HexCoord | null;
+  interactionHoveredSafePathKey: string | null;
   screenWidth: number;
   screenHeight: number;
 }
@@ -182,6 +183,7 @@ export function getSceneCache(app: Application) {
     interactionWorldTimeMinutes: null,
     interactionSelected: null,
     interactionHoveredMove: null,
+    interactionHoveredSafePathKey: null,
     screenWidth: app.screen.width,
     screenHeight: app.screen.height,
   };

@@ -22,11 +22,13 @@ interface UsePixiWorldArgs {
   >;
   selectedRef: MutableRefObject<HexCoord>;
   hoveredMoveRef: MutableRefObject<HexCoord | null>;
+  hoveredSafePathRef: MutableRefObject<HexCoord[] | null>;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
   tooltipRef: MutableRefObject<TooltipState | null>;
   setGame: Dispatch<SetStateAction<GameState>>;
   setSelected: Dispatch<SetStateAction<HexCoord>>;
   setHoveredMove: Dispatch<SetStateAction<HexCoord | null>>;
+  setHoveredSafePath: Dispatch<SetStateAction<HexCoord[] | null>>;
   setTooltip: Dispatch<SetStateAction<TooltipState | null>>;
 }
 
@@ -38,11 +40,13 @@ export function usePixiWorld({
   visibleTilesRef,
   selectedRef,
   hoveredMoveRef,
+  hoveredSafePathRef,
   tooltipPositionRef,
   tooltipRef,
   setGame,
   setSelected,
   setHoveredMove,
+  setHoveredSafePath,
   setTooltip,
 }: UsePixiWorldArgs) {
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -122,6 +126,7 @@ export function usePixiWorld({
               worldTimeMsRef.current,
             ),
             performance.now(),
+            hoveredSafePathRef.current,
           );
         };
 
@@ -158,19 +163,33 @@ export function usePixiWorld({
           };
           const current = gameRef.current;
           const tile = stateModule.getTileAt(current, target);
+          const distance = stateModule.hexDistance(
+            playerCoordRef.current,
+            target,
+          );
+          const safePath =
+            distance > 1
+              ? stateModule.getSafePathToTile(current, target)
+              : null;
           const clickable =
-            stateModule.hexDistance(playerCoordRef.current, target) === 1 &&
-            tile.terrain !== 'rift' &&
-            tile.terrain !== 'mountain';
+            (distance === 1 &&
+              tile.terrain !== 'rift' &&
+              tile.terrain !== 'mountain') ||
+            Boolean(safePath);
 
           if (!clickable) return;
 
           setSelected(target);
           setGame((currentState) =>
-            stateModule.moveToTile(
-              { ...currentState, worldTimeMs: worldTimeMsRef.current },
-              target,
-            ),
+            distance === 1
+              ? stateModule.moveToTile(
+                  { ...currentState, worldTimeMs: worldTimeMsRef.current },
+                  target,
+                )
+              : stateModule.moveAlongSafePath(
+                  { ...currentState, worldTimeMs: worldTimeMsRef.current },
+                  target,
+                ),
           );
         };
 
@@ -203,10 +222,19 @@ export function usePixiWorld({
           const withinVisibleMap =
             stateModule.hexDistance(playerCoordRef.current, target) <=
             WORLD_REVEAL_RADIUS;
+          const distance = stateModule.hexDistance(
+            playerCoordRef.current,
+            target,
+          );
+          const safePath =
+            distance > 1
+              ? stateModule.getSafePathToTile(current, target)
+              : null;
           const clickable =
-            stateModule.hexDistance(playerCoordRef.current, target) === 1 &&
-            tile.terrain !== 'rift' &&
-            tile.terrain !== 'mountain';
+            (distance === 1 &&
+              tile.terrain !== 'rift' &&
+              tile.terrain !== 'mountain') ||
+            Boolean(safePath);
           const enemyInfo = withinVisibleMap
             ? tooltipModule.enemyTooltip(enemies, tile.structure)
             : null;
@@ -220,10 +248,15 @@ export function usePixiWorld({
 
           canvas.style.cursor = clickable ? 'pointer' : 'default';
           const currentHovered = hoveredMoveRef.current;
+          const currentHoveredPath = hoveredSafePathRef.current;
           if (!clickable) {
             if (currentHovered) {
               hoveredMoveRef.current = null;
               setHoveredMove(null);
+            }
+            if (currentHoveredPath) {
+              hoveredSafePathRef.current = null;
+              setHoveredSafePath(null);
             }
           } else if (
             currentHovered?.q !== target.q ||
@@ -231,6 +264,13 @@ export function usePixiWorld({
           ) {
             hoveredMoveRef.current = target;
             setHoveredMove(target);
+          }
+
+          const nextHoveredPath =
+            safePath && safePath.length > 1 ? safePath : null;
+          if (!samePath(currentHoveredPath, nextHoveredPath)) {
+            hoveredSafePathRef.current = nextHoveredPath;
+            setHoveredSafePath(nextHoveredPath);
           }
 
           tooltipPositionRef.current = nextTooltipPosition;
@@ -289,6 +329,10 @@ export function usePixiWorld({
             hoveredMoveRef.current = null;
             setHoveredMove(null);
           }
+          if (hoveredSafePathRef.current) {
+            hoveredSafePathRef.current = null;
+            setHoveredSafePath(null);
+          }
           if (tooltipRef.current?.followCursor) {
             setTooltip(null);
           }
@@ -330,10 +374,12 @@ export function usePixiWorld({
     frameCountRef,
     gameRef,
     hoveredMoveRef,
+    hoveredSafePathRef,
     playerCoordRef,
     selectedRef,
     setGame,
     setHoveredMove,
+    setHoveredSafePath,
     setSelected,
     setTooltip,
     tooltipPositionRef,
@@ -343,4 +389,19 @@ export function usePixiWorld({
   ]);
 
   return { hostRef, canvasReady };
+}
+
+function samePath(left: HexCoord[] | null, right: HexCoord[] | null) {
+  if (left == null || right == null) {
+    return left === right;
+  }
+
+  if (left.length !== right.length) {
+    return false;
+  }
+
+  return left.every(
+    (coord, index) =>
+      coord.q === right[index]?.q && coord.r === right[index]?.r,
+  );
 }

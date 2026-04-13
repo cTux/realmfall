@@ -217,8 +217,3 @@
     * Automatically handled by Github Action
     * New version added to changelog should appear on the top, it should contain all the changes from previous version
 * Electron
-* Safe path to the far hex
-    * Hovering hex that are not neighbour to the current hex should highlight all the "safe" (hexes without battles) path from current hex to the destination hex (if exists)
-    * If "safe" path exists:
-        * This hex should have cursor: pointer
-        * User can click that hex to move directly to it skipping stepping on the hexes in its path

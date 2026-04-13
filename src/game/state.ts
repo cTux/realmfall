@@ -1,4 +1,4 @@
-import { hexDistance, hexKey, type HexCoord } from './hex';
+import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
 import {
   BLOOD_MOON_CHANCE,
   BLOOD_MOON_SPAWN_RADIUS,
@@ -256,6 +256,45 @@ export function getEnemyAt(state: GameState, coord: HexCoord) {
   return getEnemiesAt(state, coord)[0];
 }
 
+export function getSafePathToTile(state: GameState, target: HexCoord) {
+  if (state.gameOver || state.combat) return null;
+
+  const start = state.player.coord;
+  const targetDistance = hexDistance(start, target);
+  if (targetDistance === 0) return [];
+  if (targetDistance > state.radius) return null;
+
+  const visited = new Set([hexKey(start)]);
+  const queue: Array<{ coord: HexCoord; path: HexCoord[] }> = [
+    { coord: start, path: [] },
+  ];
+
+  while (queue.length > 0) {
+    const next = queue.shift();
+    if (!next) break;
+
+    for (const neighbor of hexNeighbors(next.coord)) {
+      if (hexDistance(start, neighbor) > state.radius) continue;
+
+      const key = hexKey(neighbor);
+      if (visited.has(key)) continue;
+      visited.add(key);
+
+      const tile = getTileAt(state, neighbor);
+      if (!isPassable(tile.terrain) || tile.enemyIds.length > 0) continue;
+
+      const path = [...next.path, neighbor];
+      if (neighbor.q === target.q && neighbor.r === target.r) {
+        return path;
+      }
+
+      queue.push({ coord: neighbor, path });
+    }
+  }
+
+  return null;
+}
+
 export function moveToTile(state: GameState, target: HexCoord): GameState {
   if (state.gameOver) return state;
   if (state.combat) return message(state, 'Finish the current battle first.');
@@ -293,6 +332,26 @@ export function moveToTile(state: GameState, target: HexCoord): GameState {
   }
 
   addLog(next, 'movement', `You travel to ${target.q}, ${target.r}.`);
+  return next;
+}
+
+export function moveAlongSafePath(
+  state: GameState,
+  target: HexCoord,
+): GameState {
+  const path = getSafePathToTile(state, target);
+  if (!path || path.length === 0) {
+    return path ? state : message(state, 'No safe path reaches that hex.');
+  }
+
+  let next = state;
+  for (const step of path) {
+    next = moveToTile(next, step);
+    if (next === state || next.gameOver || next.combat) {
+      return next;
+    }
+  }
+
   return next;
 }
 
