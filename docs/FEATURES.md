@@ -214,9 +214,6 @@
 * i18n
     * https://github.com/hemengke1997/vite-plugin-i18n-ally
 * Themes
-* Add CHANGELOG.md
-    * Automatically handled by Github Action
-    * New version added to changelog should appear on the top, it should contain all the changes from previous version
 * Electron
 * Reload the page if game version was updated
     * Polling game version
