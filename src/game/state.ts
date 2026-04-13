@@ -44,7 +44,7 @@ import {
 import { buildTownStock } from './economy';
 import {
   addLog,
-  createFreshLogs,
+  createFreshLogsAtTime,
   getDayPhase,
   getWorldDayIndex,
   isBloodMoonRiseWindow,
@@ -138,7 +138,7 @@ export {
   gatheringYieldBonus,
   canEquipItem,
   canUseItem,
-  createFreshLogs,
+  createFreshLogsAtTime,
   describeStructure,
   getEnemyConfig,
   getItemConfig,
@@ -187,7 +187,7 @@ export function createGame(
     lastEarthshakeDay: -1,
     gameOver: false,
     logSequence: 3,
-    logs: createFreshLogs(seed),
+    logs: createFreshLogsAtTime(seed, 0),
     tiles: {},
     enemies: {},
     combat: null,
@@ -291,6 +291,7 @@ export function getSafePathToTile(state: GameState, target: HexCoord) {
 
     for (const neighbor of hexNeighbors(next.coord)) {
       if (hexDistance(start, neighbor) > state.radius) continue;
+      if (hexDistance(start, neighbor) > WORLD_REVEAL_RADIUS) continue;
 
       const key = hexKey(neighbor);
       if (visited.has(key)) continue;

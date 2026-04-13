@@ -13,6 +13,10 @@ export function createFreshLogs(seed: string) {
   return createInitialLogs(seed);
 }
 
+export function createFreshLogsAtTime(seed: string, worldTimeMs: number) {
+  return createInitialLogs(seed, worldTimeMs);
+}
+
 export function addLog(state: GameState, kind: LogKind, text: string) {
   state.logSequence += 1;
   state.logs = [
@@ -57,11 +61,11 @@ export function getWorldDayIndex(worldTimeMs: number) {
   return Math.max(0, Math.floor(worldTimeMs / GAME_DAY_DURATION_MS));
 }
 
-function createInitialLogs(seed: string): LogEntry[] {
+function createInitialLogs(seed: string, worldTimeMs = 0): LogEntry[] {
   return [
-    makeLog(3, 'motd', 0, t('game.log.initial.motd')),
-    makeLog(2, 'rumor', 0, rumorForSeed(seed)),
-    makeLog(1, 'system', 0, t('game.log.initial.wake')),
+    makeLog(3, 'motd', 0, t('game.log.initial.motd'), worldTimeMs),
+    makeLog(2, 'rumor', 0, rumorForSeed(seed), worldTimeMs),
+    makeLog(1, 'system', 0, t('game.log.initial.wake'), worldTimeMs),
   ];
 }
 
@@ -84,14 +88,17 @@ function formatLogPrefix(worldTimeMs: number) {
   const totalMinutes = normalizeWorldMinutes(
     (worldTimeMs / GAME_DAY_DURATION_MS) * GAME_DAY_MINUTES,
   );
-  const day = getWorldDayIndex(worldTimeMs) + 1;
+  const absoluteDay = getWorldDayIndex(worldTimeMs) + 1;
+  const year = Math.floor((absoluteDay - 1) / 365) + 1;
+  const day = ((absoluteDay - 1) % 365) + 1;
   const hours = Math.floor(totalMinutes / 60)
     .toString()
     .padStart(2, '0');
   const minutes = Math.floor(totalMinutes % 60)
     .toString()
     .padStart(2, '0');
-  return t('game.log.prefix.dayTime', {
+  return t('game.log.prefix.calendarDateTime', {
+    year,
     day,
     hours,
     minutes,

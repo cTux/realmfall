@@ -7,7 +7,7 @@ import {
   type SetStateAction,
 } from 'react';
 import {
-  createFreshLogs,
+  createFreshLogsAtTime,
   type GameState,
   type LogKind,
 } from '../../game/state';
@@ -192,7 +192,7 @@ export function useAppPersistence({
         setGame({
           ...loadedGame,
           logSequence: 3,
-          logs: createFreshLogs(loadedGame.seed),
+          logs: createFreshLogsAtTime(loadedGame.seed, loadedGame.worldTimeMs),
         });
 
         const snapshotUi = saved.ui as

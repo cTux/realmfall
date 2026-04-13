@@ -89,7 +89,7 @@ describe('game state', () => {
     const next = moveToTile(game, target);
     expect(next.player.coord).toEqual(target);
     expect(next.turn).toBe(1);
-    expect(next.logs[0]?.text).toMatch(/^\[Day 1, 18:33\] /);
+    expect(next.logs[0]?.text).toMatch(/^\[Year 1, Day 1, 18:33\] /);
   });
 
   it('finds a safe path around blocked and hostile hexes', () => {
@@ -180,6 +180,39 @@ describe('game state', () => {
     ).toBeNull();
   });
 
+  it('does not route around obstacles through fogged hexes', () => {
+    const game = createGame(WORLD_REVEAL_RADIUS + 2, 'fog-detour-path-seed');
+    const edge = WORLD_REVEAL_RADIUS;
+    const target = { q: edge, r: 0 };
+
+    game.tiles[`${edge - 1},0`] = {
+      coord: { q: edge - 1, r: 0 },
+      terrain: 'mountain',
+      items: [],
+      enemyIds: [],
+    };
+    game.tiles[`${edge - 1},1`] = {
+      coord: { q: edge - 1, r: 1 },
+      terrain: 'mountain',
+      items: [],
+      enemyIds: [],
+    };
+    game.tiles[`${edge},-1`] = {
+      coord: { q: edge, r: -1 },
+      terrain: 'mountain',
+      items: [],
+      enemyIds: [],
+    };
+    game.tiles[`${edge},0`] = {
+      coord: target,
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+
+    expect(getSafePathToTile(game, target)).toBeNull();
+  });
+
   it('damages the player each move while hunger and thirst debuffs are active', () => {
     const game = createGame(3, 'survival-debuff-damage-seed');
     const target = { q: 2, r: 0 };
@@ -220,7 +253,7 @@ describe('game state', () => {
     game.player.coord = { q: 1, r: 0 };
 
     const next = moveToTile(game, target);
-    expect(next.logs[0]?.text).toMatch(/^\[Day 2, 18:33\] /);
+    expect(next.logs[0]?.text).toMatch(/^\[Year 1, Day 2, 18:33\] /);
   });
 
   it('opens and resolves combat encounters on enemy tiles', () => {

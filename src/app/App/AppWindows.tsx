@@ -318,7 +318,11 @@ export function AppWindows({
             }
             onSetHome={onSetHome}
             terrain={formatTerrainLabel(currentTile.terrain)}
-            structure={describeStructure(currentTile.structure)}
+            structure={
+              currentTile.structure
+                ? describeStructure(currentTile.structure)
+                : null
+            }
             enemyCount={
               game.combat
                 ? (combatSnapshot?.enemies.length ?? 0)

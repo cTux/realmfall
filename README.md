@@ -2,6 +2,8 @@
 
 Hex-based browser survival RPG `Realmfall`, built with React, TypeScript, Vite, Pixi.js, Vitest, ESLint, Prettier, and Husky.
 
+Genres: survival RPG, hex-crawl, turn-based exploration, inventory management, roguelite.
+
 ## Current State
 
 The project is a working single-player browser prototype with a strong gameplay, rendering, and tooling baseline.
