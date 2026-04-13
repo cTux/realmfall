@@ -1240,7 +1240,13 @@ describe('ui helpers and components', () => {
     positionRef.current = { x: 110, y: 130 };
 
     await act(async () => {
-      vi.advanceTimersByTime(20);
+      window.dispatchEvent(
+        new MouseEvent('pointermove', {
+          bubbles: true,
+          clientX: 110,
+          clientY: 130,
+        }),
+      );
     });
 
     const tooltip = host.querySelector('div[class*="tooltip"]') as HTMLElement;

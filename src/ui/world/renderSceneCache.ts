@@ -38,6 +38,8 @@ import {
 } from './worldMapFishEye';
 
 const SCENE_CACHE_KEY = Symbol('renderSceneCache');
+const MAX_CLOUD_INPUT_CACHE_ENTRIES = 4;
+const MAX_TILE_GROUND_COVER_CACHE_ENTRIES = 4096;
 
 export const ENEMY_LEVEL_LABEL_STYLE = new TextStyle({
   fill: 0xfef2f2,
@@ -229,3 +231,43 @@ export function beginInteractionSceneRender(scene: SceneCache) {
 export function completeInteractionSceneRender(scene: SceneCache) {
   finishGraphicsPool(scene.worldInteractionGraphics);
 }
+
+export function getCachedValue<K, V>(cache: Map<K, V>, key: K) {
+  const value = cache.get(key);
+  if (value === undefined) {
+    return null;
+  }
+
+  cache.delete(key);
+  cache.set(key, value);
+  return value;
+}
+
+export function setBoundedCachedValue<K, V>(
+  cache: Map<K, V>,
+  key: K,
+  value: V,
+  maxEntries: number,
+) {
+  if (cache.has(key)) {
+    cache.delete(key);
+  }
+
+  cache.set(key, value);
+
+  if (cache.size <= maxEntries) {
+    return value;
+  }
+
+  const oldestKey = cache.keys().next().value;
+  if (oldestKey !== undefined) {
+    cache.delete(oldestKey);
+  }
+
+  return value;
+}
+
+export const SCENE_CACHE_LIMITS = {
+  cloudInputsBySeed: MAX_CLOUD_INPUT_CACHE_ENTRIES,
+  tileGroundCoverPresentationByKey: MAX_TILE_GROUND_COVER_CACHE_ENTRIES,
+} as const;
