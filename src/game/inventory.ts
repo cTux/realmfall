@@ -1,8 +1,5 @@
-import {
-  COOKED_FISH_ITEM_NAME,
-  HOME_SCROLL_ITEM_NAME,
-  RECIPE_BOOK_ITEM_NAME,
-} from './config';
+import { HOME_SCROLL_ITEM_NAME, RECIPE_BOOK_ITEM_NAME } from './config';
+import { buildItemFromConfig, getItemConfigByName } from './content/items';
 import type {
   EquipmentSlot,
   GameState,
@@ -12,20 +9,7 @@ import type {
 } from './types';
 
 export function makeStarterWeapon(): Item {
-  return {
-    id: 'starter-knife',
-    kind: 'weapon',
-    slot: 'weapon',
-    name: 'Rust Knife',
-    quantity: 1,
-    tier: 1,
-    rarity: 'common',
-    power: 2,
-    defense: 0,
-    maxHp: 0,
-    healing: 0,
-    hunger: 0,
-  };
+  return buildItemFromConfig('rust-knife', { id: 'starter-knife' });
 }
 
 export function makeStarterArmor(
@@ -34,6 +18,13 @@ export function makeStarterArmor(
   tier: number,
   defense: number,
 ): Item {
+  const configured = getItemConfigByName(name);
+  if (configured) {
+    return buildItemFromConfig(configured.key, {
+      id: `${slot}-${name.toLowerCase().replace(/\s+/g, '-')}`,
+    });
+  }
+
   return {
     id: `${slot}-${name.toLowerCase().replace(/\s+/g, '-')}`,
     kind: 'armor',
@@ -47,23 +38,12 @@ export function makeStarterArmor(
     maxHp: tier,
     healing: 0,
     hunger: 0,
+    thirst: 0,
   };
 }
 
 export function makeRecipeBook(): Item {
-  return {
-    id: 'recipe-book',
-    kind: 'resource',
-    name: RECIPE_BOOK_ITEM_NAME,
-    quantity: 1,
-    tier: 1,
-    rarity: 'common',
-    power: 0,
-    defense: 0,
-    maxHp: 0,
-    healing: 0,
-    hunger: 0,
-  };
+  return buildItemFromConfig('recipe-book');
 }
 
 export function makeHomeScroll(id: string): Item {
@@ -78,6 +58,18 @@ export function makeConsumable(
   hunger: number,
   quantity = 1,
 ): Item {
+  const configured = getItemConfigByName(name);
+  if (configured) {
+    return buildItemFromConfig(configured.key, {
+      id,
+      quantity,
+      tier,
+      healing,
+      hunger,
+      thirst: configured.thirst ?? 0,
+    });
+  }
+
   return {
     id,
     kind: 'consumable',
@@ -90,23 +82,12 @@ export function makeConsumable(
     maxHp: 0,
     healing,
     hunger,
+    thirst: 0,
   };
 }
 
 export function makeGoldStack(quantity: number): Item {
-  return {
-    id: 'resource-gold-1',
-    kind: 'resource',
-    name: 'Gold',
-    quantity,
-    tier: 1,
-    rarity: 'common',
-    power: 0,
-    defense: 0,
-    maxHp: 0,
-    healing: 0,
-    hunger: 0,
-  };
+  return buildItemFromConfig('gold', { id: 'resource-gold-1', quantity });
 }
 
 export function makeResourceStack(
@@ -114,6 +95,15 @@ export function makeResourceStack(
   tier: number,
   quantity: number,
 ): Item {
+  const configured = getItemConfigByName(name);
+  if (configured) {
+    return buildItemFromConfig(configured.key, {
+      id: `resource-${name.toLowerCase().replace(/\s+/g, '-')}-${tier}`,
+      quantity,
+      tier,
+    });
+  }
+
   return {
     id: `resource-${name.toLowerCase().replace(/\s+/g, '-')}-${tier}`,
     kind: 'resource',
@@ -126,6 +116,7 @@ export function makeResourceStack(
     maxHp: 0,
     healing: 0,
     hunger: 0,
+    thirst: 0,
   };
 }
 
@@ -136,6 +127,11 @@ export function makeCraftedItem(
   name: string,
   stats: Pick<Item, 'power' | 'defense' | 'maxHp'>,
 ): Item {
+  const configured = getItemConfigByName(name);
+  if (configured) {
+    return buildItemFromConfig(configured.key, { id });
+  }
+
   return {
     id,
     kind,
@@ -149,11 +145,12 @@ export function makeCraftedItem(
     maxHp: stats.maxHp,
     healing: 0,
     hunger: 0,
+    thirst: 0,
   };
 }
 
 export function makeCookedFish(): Item {
-  return makeConsumable('cooked-fish', COOKED_FISH_ITEM_NAME, 1, 4, 24);
+  return buildItemFromConfig('cooked-fish');
 }
 
 export function makeRecipePage(recipe: RecipeDefinition): Item {
@@ -170,6 +167,7 @@ export function makeRecipePage(recipe: RecipeDefinition): Item {
     maxHp: 0,
     healing: 0,
     hunger: 0,
+    thirst: 0,
   };
 }
 

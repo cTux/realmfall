@@ -1,9 +1,6 @@
 import { hexKey, type HexCoord } from './hex';
-import {
-  makeConsumable,
-  makeStarterArmor,
-  makeStarterWeapon,
-} from './inventory';
+import { buildItemFromConfig } from './content/items';
+import { makeConsumable, makeStarterArmor } from './inventory';
 import { applyRarityToItem, noise } from './shared';
 import { RARITY_ORDER, type TownStockEntry } from './types';
 
@@ -21,7 +18,7 @@ export function buildTownStock(
   );
   const jerky = makeConsumable(
     `town-jerky-${hexKey(coord)}`,
-    'Jerky Pack',
+    'Apple',
     2,
     6,
     20,
@@ -32,9 +29,8 @@ export function buildTownStock(
     rarity: noise(`${seed}:town-stock`, coord) > 0.6 ? 'uncommon' : 'common',
   });
   const knife = {
-    ...makeStarterWeapon(),
+    ...buildItemFromConfig('town-knife'),
     id: `town-knife-${hexKey(coord)}`,
-    name: 'Town Knife',
   };
 
   return [

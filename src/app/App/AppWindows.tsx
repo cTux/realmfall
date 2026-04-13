@@ -272,6 +272,7 @@ export function AppWindows({
         onClose={() => onSetWindowVisibility('hero', false)}
         stats={stats}
         hunger={game.player.hunger}
+        thirst={game.player.thirst}
         worldTimeMs={game.worldTimeMs}
         onHoverDetail={onShowTooltip}
         onLeaveDetail={onCloseTooltip}

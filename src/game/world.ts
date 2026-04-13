@@ -1,4 +1,10 @@
 import { ARTIFACT_FORMS, ARTIFACT_PREFIXES, TOWN_SEARCH_LIMIT } from './config';
+import {
+  getGatheringStructureConfig,
+  getStructureConfig,
+  isGatheringStructureType,
+  pickStructureType,
+} from './content/structures';
 import { enemyIndexFromId, enemyKey, makeEnemy } from './combat';
 import { makeConsumable } from './inventory';
 import {
@@ -118,60 +124,19 @@ export function findNearestStructure(
 export function isGatheringStructure(
   structure?: StructureType,
 ): structure is GatheringStructureType {
-  return (
-    structure === 'herbs' ||
-    structure === 'tree' ||
-    structure === 'copper-ore' ||
-    structure === 'iron-ore' ||
-    structure === 'coal-ore' ||
-    structure === 'pond' ||
-    structure === 'lake'
-  );
+  return isGatheringStructureType(structure);
 }
 
 export function structureActionLabel(structure?: StructureType) {
   if (!structure) return null;
-  switch (structure) {
-    case 'herbs':
-      return 'Gather herbs';
-    case 'tree':
-      return 'Chop tree';
-    case 'copper-ore':
-    case 'iron-ore':
-    case 'coal-ore':
-      return `Mine ${structureLabel(structure)}`;
-    case 'pond':
-    case 'lake':
-      return `Fish ${structure}`;
-    default:
-      return null;
-  }
+  return isGatheringStructure(structure)
+    ? getGatheringStructureConfig(structure).gathering.actionLabel
+    : null;
 }
 
 export function describeStructure(structure?: StructureType) {
   if (!structure) return 'None';
-  switch (structure) {
-    case 'camp':
-      return 'Campfire';
-    case 'workshop':
-      return 'Workshop';
-    case 'copper-ore':
-      return 'Copper Vein';
-    case 'iron-ore':
-      return 'Iron Vein';
-    case 'coal-ore':
-      return 'Coal Seam';
-    case 'herbs':
-      return 'Herb Patch';
-    case 'tree':
-      return 'Tree';
-    case 'pond':
-      return 'Pond';
-    case 'lake':
-      return 'Lake';
-    default:
-      return structure.charAt(0).toUpperCase() + structure.slice(1);
-  }
+  return getStructureConfig(structure).title;
 }
 
 export function normalizeStructureState(tile: Tile): Tile {
@@ -200,78 +165,7 @@ export function normalizeStructureState(tile: Tile): Tile {
 }
 
 export function structureDefinition(structure: GatheringStructureType) {
-  switch (structure) {
-    case 'herbs':
-      return {
-        maxHp: 3,
-        skill: 'crafting' as const,
-        reward: 'Herbs',
-        rewardTier: 1,
-        baseYield: 2,
-        verb: 'You gather the herb patch',
-        depletedText: 'The herb patch is picked clean.',
-      };
-    case 'tree':
-      return {
-        maxHp: 5,
-        skill: 'logging' as const,
-        reward: 'Logs',
-        rewardTier: 1,
-        baseYield: 2,
-        verb: 'You chop the tree',
-        depletedText: 'The tree falls, leaving only a stump behind.',
-      };
-    case 'copper-ore':
-      return {
-        maxHp: 6,
-        skill: 'mining' as const,
-        reward: 'Copper Ore',
-        rewardTier: 1,
-        baseYield: 1,
-        verb: 'You mine the copper vein',
-        depletedText: 'The copper vein is spent.',
-      };
-    case 'iron-ore':
-      return {
-        maxHp: 8,
-        skill: 'mining' as const,
-        reward: 'Iron Ore',
-        rewardTier: 2,
-        baseYield: 1,
-        verb: 'You mine the iron vein',
-        depletedText: 'The iron vein is spent.',
-      };
-    case 'coal-ore':
-      return {
-        maxHp: 7,
-        skill: 'mining' as const,
-        reward: 'Coal',
-        rewardTier: 2,
-        baseYield: 1,
-        verb: 'You mine the coal seam',
-        depletedText: 'The coal seam is spent.',
-      };
-    case 'pond':
-      return {
-        maxHp: 4,
-        skill: 'fishing' as const,
-        reward: 'Raw Fish',
-        rewardTier: 1,
-        baseYield: 1,
-        verb: 'You fish the pond',
-        depletedText: 'The pond goes quiet for now.',
-      };
-    case 'lake':
-      return {
-        maxHp: 6,
-        skill: 'fishing' as const,
-        reward: 'Raw Fish',
-        rewardTier: 2,
-        baseYield: 2,
-        verb: 'You fish the lake',
-        depletedText: 'The lake settles after your catch.',
-      };
-  }
+  return getGatheringStructureConfig(structure).gathering;
 }
 
 function buildEnemyIds(
@@ -296,21 +190,8 @@ function pickStructure(
   terrain: Terrain,
 ): StructureType | undefined {
   const roll = noise(`${seed}:structure`, coord);
-  if (roll > 0.992) return 'dungeon';
-  if (roll > 0.984) return 'forge';
-  if (roll > 0.976) return 'town';
-  if (roll > 0.968) return 'workshop';
-  if (roll > 0.96) return 'camp';
   const resourceRoll = noise(`${seed}:resource-structure`, coord);
-  if (terrain === 'forest' && resourceRoll > 0.55) return 'tree';
-  if (terrain === 'desert' && resourceRoll > 0.76) return 'coal-ore';
-  if (terrain === 'swamp' && resourceRoll > 0.72) return 'pond';
-  if (terrain === 'plains' && resourceRoll > 0.82) return 'lake';
-  if ((terrain === 'plains' || terrain === 'desert') && resourceRoll > 0.64)
-    return 'copper-ore';
-  if ((terrain === 'swamp' || terrain === 'forest') && resourceRoll > 0.7)
-    return 'iron-ore';
-  return undefined;
+  return pickStructureType(roll, resourceRoll, terrain);
 }
 
 function shouldSpawnEnemy(seed: string, coord: HexCoord, terrain: Terrain) {
@@ -360,9 +241,7 @@ function maybeLoot(
       ),
     );
   } else if (roll > 0.82) {
-    items.push(
-      makeConsumable(`${hexKey(coord)}-cache`, 'Jerky Pack', tier, 6, 20),
-    );
+    items.push(makeConsumable(`${hexKey(coord)}-cache`, 'Apple', tier, 6, 20));
   }
 
   return items;
@@ -422,6 +301,7 @@ export function makeWeapon(
     maxHp: tier >= 5 ? 1 : 0,
     healing: 0,
     hunger: 0,
+    thirst: 0,
   });
 }
 
@@ -446,6 +326,7 @@ export function makeOffhand(
     maxHp: tier,
     healing: 0,
     hunger: 0,
+    thirst: 0,
   });
 }
 
@@ -487,6 +368,7 @@ export function makeArmor(
     maxHp: tier,
     healing: 0,
     hunger: 0,
+    thirst: 0,
   });
 }
 
@@ -530,6 +412,7 @@ export function makeArtifact(
     maxHp: slot === 'amulet' || slot === 'relic' ? tier * 3 : tier,
     healing: 0,
     hunger: 0,
+    thirst: 0,
   });
 }
 
@@ -537,19 +420,4 @@ function makeStructureState(structure: StructureType) {
   if (!isGatheringStructure(structure)) return undefined;
   const maxHp = structureDefinition(structure).maxHp;
   return { hp: maxHp, maxHp };
-}
-
-function structureLabel(structure: GatheringStructureType) {
-  switch (structure) {
-    case 'herbs':
-      return 'herb patch';
-    case 'copper-ore':
-      return 'copper vein';
-    case 'iron-ore':
-      return 'iron vein';
-    case 'coal-ore':
-      return 'coal seam';
-    default:
-      return structure;
-  }
 }

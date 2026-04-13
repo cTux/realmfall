@@ -19,6 +19,7 @@ export const HeroWindow = memo(function HeroWindow({
   onClose,
   stats,
   hunger,
+  thirst,
   worldTimeMs,
   onHoverDetail,
   onLeaveDetail,
@@ -48,6 +49,7 @@ export const HeroWindow = memo(function HeroWindow({
         <HeroWindowContent
           stats={stats}
           hunger={hunger}
+          thirst={thirst}
           worldTimeMs={worldTimeMs}
           onHoverDetail={onHoverDetail}
           onLeaveDetail={onLeaveDetail}

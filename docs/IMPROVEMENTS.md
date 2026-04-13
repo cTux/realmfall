@@ -16,7 +16,6 @@
     * Light and dark favicons based on the selected browser's theme
     * Game title in index.html
 * Window's loading spinner should be shown only if loading takes more than 1s
-* Rename Jerky Pack -> Apple
 * Optimizing
     * Optimize images in "src/assets/" directory
 * Loading
@@ -33,4 +32,4 @@
     * Experience needed to level-up should be based on the current level and some exponential function (which means every next level is a little bit harder to achieve, while levelling at levels 90-100 should take approximately 1h to level-up)
     * Enemies should give static amount of experience across all the levels, but rarer enemies give more experience
     * Experience gain can be increased by wearing items with a corresponding stat
-* Tooltip border should not have border radius
+* Trader's list of items should be changed every game day

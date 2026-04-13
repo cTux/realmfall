@@ -11,6 +11,9 @@ import {
   WORLD_RADIUS,
 } from './config';
 import { createRng } from './random';
+import { getEnemyConfig, isAnimalEnemyType } from './content/enemies';
+import { buildItemFromConfig, getItemConfigByName } from './content/items';
+import { getStructureConfig } from './content/structures';
 import {
   createCombatActorState,
   enemyKey,
@@ -124,10 +127,14 @@ export {
   canUseItem,
   createFreshLogs,
   describeStructure,
+  getEnemyConfig,
+  getItemConfigByName,
   getGoldAmount,
   getPlayerStats,
+  getStructureConfig,
   hasRecipeBook,
   isGatheringStructure,
+  isAnimalEnemyType,
   isRecipeBook,
   isRecipePage,
   makeGoldStack,
@@ -179,6 +186,7 @@ export function createGame(
       mana: 12,
       baseMaxMana: 12,
       hunger: 100,
+      thirst: 100,
       baseAttack: 4,
       baseDefense: 1,
       skills: makeStartingSkills(),
@@ -266,16 +274,12 @@ export function moveToTile(state: GameState, target: HexCoord): GameState {
   }
 
   next.turn += 1;
-  next.player.hunger = Math.max(0, next.player.hunger - 1);
+  applySurvivalDecay(next);
   next.player.coord = target;
 
-  if (next.player.hunger === 0) {
-    next.player.hp = Math.max(0, next.player.hp - 1);
-    addLog(next, 'survival', 'You are starving.');
-    if (next.player.hp <= 0) {
-      respawnAtNearestTown(next, target);
-      return next;
-    }
+  if (next.player.hp <= 0) {
+    respawnAtNearestTown(next, target);
+    return next;
   }
 
   if (tile.enemyIds.length > 0) {
@@ -632,7 +636,13 @@ function startPlayerCasts(state: GameState) {
   if (!targetId) return false;
 
   state.player.mana -= getAbilityDefinition(abilityId).manaCost;
-  startAbilityCast(actor, abilityId, targetId, now);
+  startAbilityCast(
+    actor,
+    abilityId,
+    targetId,
+    now,
+    getPlayerStats(state.player).attackSpeed ?? 1,
+  );
   return true;
 }
 
@@ -667,15 +677,34 @@ function startAbilityCast(
   abilityId: AbilityId,
   targetId: string,
   now: number,
+  attackSpeed = 1,
 ) {
   const ability = getAbilityDefinition(abilityId);
-  actor.globalCooldownEndsAt = now + actor.globalCooldownMs;
-  actor.cooldownEndsAt[abilityId] = now + ability.cooldownMs;
+  const effectiveGlobalCooldownMs = scaledCooldownMs(
+    actor.globalCooldownMs,
+    attackSpeed,
+  );
+  const effectiveAbilityCooldownMs = scaledCooldownMs(
+    ability.cooldownMs,
+    attackSpeed,
+  );
+  actor.effectiveGlobalCooldownMs = effectiveGlobalCooldownMs;
+  actor.effectiveCooldownMs = {
+    ...(actor.effectiveCooldownMs ?? {}),
+    [abilityId]: effectiveAbilityCooldownMs,
+  };
+  actor.globalCooldownEndsAt = now + effectiveGlobalCooldownMs;
+  actor.cooldownEndsAt[abilityId] = now + effectiveAbilityCooldownMs;
   actor.casting = {
     abilityId,
     targetId,
     endsAt: now + ability.castTimeMs,
   };
+}
+
+function scaledCooldownMs(baseCooldownMs: number, attackSpeed: number) {
+  const safeAttackSpeed = Math.max(0.01, attackSpeed);
+  return Math.max(1, Math.round(baseCooldownMs / safeAttackSpeed));
 }
 
 function applyPlayerAbility(
@@ -696,6 +725,7 @@ function applyPlayerAbility(
   if (enemy.hp <= 0) {
     gainXp(state, enemy.xp, addLog);
     maybeDropEnemyGold(state, enemy);
+    maybeDropEnemyConsumables(state, enemy);
     maybeDropEnemyRecipe(state, enemy);
     maybeDropHomeScroll(state, enemy);
     maybeDropBloodMoonLoot(state, enemy);
@@ -871,15 +901,11 @@ export function interactWithStructure(state: GameState): GameState {
   }
 
   next.turn += 1;
-  next.player.hunger = Math.max(0, next.player.hunger - 1);
+  applySurvivalDecay(next);
 
-  if (next.player.hunger === 0) {
-    next.player.hp = Math.max(0, next.player.hp - 1);
-    addLog(next, 'survival', 'You are starving.');
-    if (next.player.hp <= 0) {
-      respawnAtNearestTown(next, next.player.coord);
-      return next;
-    }
+  if (next.player.hp <= 0) {
+    respawnAtNearestTown(next, next.player.coord);
+    return next;
   }
 
   const definition = structureDefinition(currentTile.structure);
@@ -1087,10 +1113,14 @@ function consumeItem(state: GameState, itemIndex: number, item: Item) {
   const maxHp = getPlayerStats(state.player).maxHp;
   state.player.hp = Math.min(maxHp, state.player.hp + item.healing);
   state.player.hunger = Math.min(100, state.player.hunger + item.hunger);
+  state.player.thirst = Math.min(
+    100,
+    (state.player.thirst ?? 100) + (item.thirst ?? 0),
+  );
   addLog(
     state,
     'survival',
-    `You use ${item.name}${item.healing > 0 ? ` and recover ${item.healing} HP` : ''}${item.hunger > 0 ? ` and ${item.hunger} hunger` : ''}.`,
+    `You use ${item.name}${item.healing > 0 ? ` and recover ${item.healing} HP` : ''}${item.hunger > 0 ? ` and ${item.hunger} hunger` : ''}${(item.thirst ?? 0) > 0 ? ` and ${item.thirst} thirst` : ''}.`,
   );
 }
 
@@ -1111,6 +1141,7 @@ function respawnAtNearestTown(state: GameState, from: HexCoord) {
   state.player.hp = getPlayerStats(state.player).maxHp;
   state.player.mana = state.player.baseMaxMana;
   state.player.hunger = 100;
+  state.player.thirst = 100;
   state.combat = null;
   addLog(state, 'combat', 'You were defeated.');
   addLog(
@@ -1118,6 +1149,25 @@ function respawnAtNearestTown(state: GameState, from: HexCoord) {
     'system',
     `You awaken in the nearest town at ${town.q}, ${town.r}.`,
   );
+}
+
+function applySurvivalDecay(state: GameState) {
+  state.player.hunger = Math.max(0, state.player.hunger - 1);
+  state.player.thirst = Math.max(0, (state.player.thirst ?? 100) - 1);
+
+  let damage = 0;
+  if (state.player.hunger <= 30) {
+    damage += 1;
+    addLog(state, 'survival', 'You are starving.');
+  }
+  if ((state.player.thirst ?? 100) <= 30) {
+    damage += 1;
+    addLog(state, 'survival', 'You are dehydrated.');
+  }
+
+  if (damage > 0) {
+    state.player.hp = Math.max(0, state.player.hp - damage);
+  }
 }
 
 function syncCombatEnemies(state: GameState) {
@@ -1296,6 +1346,42 @@ function maybeDropEnemyGold(state: GameState, enemy: import('./types').Enemy) {
   addItemToInventory(tile.items, makeGoldStack(bloodMoonQuantity));
   state.tiles[key] = { ...tile, items: [...tile.items] };
   addLog(state, 'loot', `${enemy.name} dropped ${bloodMoonQuantity} gold.`);
+}
+
+function maybeDropEnemyConsumables(
+  state: GameState,
+  enemy: import('./types').Enemy,
+) {
+  const dropKeys = ['apple', 'water-flask'] as const;
+
+  dropKeys.forEach((itemKey) => {
+    const configured = getItemConfigByName(
+      itemKey === 'apple' ? 'Apple' : 'Water Flask',
+    );
+    const chance = configured?.dropChance ?? 0;
+    if (chance <= 0) return;
+
+    const rng = createRng(
+      `${state.seed}:enemy-consumable:${itemKey}:${enemy.id}:${state.turn}`,
+    );
+    if (rng() >= chance) return;
+
+    ensureTileState(state, enemy.coord);
+    const key = hexKey(enemy.coord);
+    const tile = state.tiles[key];
+    addItemToInventory(
+      tile.items,
+      buildItemFromConfig(itemKey, {
+        id: `${itemKey}:${enemy.id}:${state.turn}`,
+      }),
+    );
+    state.tiles[key] = { ...tile, items: [...tile.items] };
+    addLog(
+      state,
+      'loot',
+      `${enemy.name} dropped ${configured?.name ?? itemKey}.`,
+    );
+  });
 }
 
 function maybeDropEnemyRecipe(

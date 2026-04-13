@@ -1,5 +1,6 @@
 import { type Application } from 'pixi.js';
 import {
+  getStructureConfig,
   getEnemiesAt,
   getVisibleTiles,
   hexDistance,
@@ -178,14 +179,7 @@ export function renderScene(
       );
 
       if (tile.structure) {
-        const structureColor =
-          tile.structure === 'herbs'
-            ? 0x22d3ee
-            : tile.structure === 'pond'
-              ? 0x38bdf8
-              : tile.structure === 'lake'
-                ? 0x2563eb
-                : 0xffffff;
+        const structureColor = getStructureConfig(tile.structure).tint;
         const marker = takeShadowedSprite(
           scene.worldStaticMarkerSprites,
           structureIconFor(tile.structure),

@@ -1,0 +1,17 @@
+import { ContentIcons } from '../icons';
+import type { ItemConfig } from '../types';
+
+export const rawFishItemConfig: ItemConfig = {
+  key: 'raw-fish',
+  name: 'Raw Fish',
+  kind: 'resource',
+  icon: ContentIcons.Salmon,
+  tier: 1,
+  rarity: 'common',
+  power: 0,
+  defense: 0,
+  maxHp: 0,
+  healing: 0,
+  hunger: 0,
+  defaultQuantity: 1,
+};

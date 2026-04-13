@@ -1,4 +1,11 @@
-import type { EquipmentSlot, Item, SkillName } from '../game/state';
+import {
+  getEnemyConfig,
+  type EquipmentSlot,
+  getItemConfigByName,
+  type Item,
+  type SkillName,
+  getStructureConfig,
+} from '../game/state';
 import playerIcon from '../assets/icons/visored-helm.svg';
 import enemyIcon from '../assets/icons/wolf-head.svg';
 import weaponIcon from '../assets/icons/plain-dagger.svg';
@@ -85,33 +92,6 @@ export const Icons = {
   ArrowDunk: arrowDunkIcon,
 } as const;
 
-export const EnemyType = {
-  Raider: 'Raider',
-  Marauder: 'Marauder',
-  Wolf: 'Wolf',
-  Boar: 'Boar',
-  Stag: 'Stag',
-  Spider: 'Spider',
-} as const;
-
-export const ResourceType = {
-  Gold: 'Gold',
-  Herbs: 'Herbs',
-  Logs: 'Logs',
-  Sticks: 'Sticks',
-  Stone: 'Stone',
-  CopperOre: 'Copper Ore',
-  IronOre: 'Iron Ore',
-  IronChunks: 'Iron Chunks',
-  Coal: 'Coal',
-  RawFish: 'Raw Fish',
-  CookedFish: 'Cooked Fish',
-  Cloth: 'Cloth',
-  LeatherScraps: 'Leather Scraps',
-  ArcaneDust: 'Arcane Dust',
-  RecipeBook: 'Recipe Book',
-} as const;
-
 export const SkillIcon: Record<SkillName, string> = {
   logging: Icons.AxeInStump,
   mining: Icons.Ore,
@@ -124,25 +104,6 @@ export const SkillIcon: Record<SkillName, string> = {
 const DEFAULT_ENEMY_ICON = Icons.Enemy;
 const DEFAULT_ENEMY_TINT = 0x60a5fa;
 const DEFAULT_ITEM_ICON = Icons.Artifact;
-const DEFAULT_RESOURCE_ICON = Icons.Artifact;
-
-export const EnemyIcon: Record<string, string> = {
-  [EnemyType.Raider]: Icons.Hood,
-  [EnemyType.Marauder]: Icons.HornedHelm,
-  [EnemyType.Wolf]: Icons.Enemy,
-  [EnemyType.Boar]: Icons.Enemy,
-  [EnemyType.Stag]: Icons.Enemy,
-  [EnemyType.Spider]: Icons.Spider,
-};
-
-export const EnemyTint: Record<string, number> = {
-  [EnemyType.Raider]: 0xef4444,
-  [EnemyType.Marauder]: 0xa855f7,
-  [EnemyType.Wolf]: 0x60a5fa,
-  [EnemyType.Boar]: 0xf59e0b,
-  [EnemyType.Stag]: 0x22c55e,
-  [EnemyType.Spider]: 0x8b5cf6,
-};
 
 export const ItemIcon: Record<EquipmentSlot, string> = {
   weapon: Icons.Weapon,
@@ -159,74 +120,6 @@ export const ItemIcon: Record<EquipmentSlot, string> = {
   relic: Icons.Orb,
 };
 
-export const StructureIcon: Record<StructureType, string> = {
-  town: Icons.Village,
-  dungeon: Icons.DungeonGate,
-  forge: Icons.Anvil,
-  camp: Icons.CampCookingPot,
-  workshop: Icons.StoneCrafting,
-  herbs: Icons.HerbsBundle,
-  tree: Icons.AxeInStump,
-  'copper-ore': Icons.Ore,
-  'iron-ore': Icons.Ore,
-  'coal-ore': Icons.Ore,
-  pond: Icons.Spill,
-  lake: Icons.Spill,
-};
-
-export const StructureTint: Record<StructureType, number> = {
-  town: 0xfbbf24,
-  forge: 0xf97316,
-  dungeon: 0xa855f7,
-  camp: 0xef4444,
-  workshop: 0x22c55e,
-  herbs: 0x22d3ee,
-  tree: 0x22c55e,
-  'copper-ore': 0xf59e0b,
-  'iron-ore': 0x94a3b8,
-  'coal-ore': 0x475569,
-  pond: 0x38bdf8,
-  lake: 0x2563eb,
-};
-
-export const ResourceIcon: Record<string, string> = {
-  [ResourceType.Gold]: Icons.Coins,
-  [ResourceType.Herbs]: Icons.HerbsBundle,
-  [ResourceType.Logs]: Icons.Log,
-  [ResourceType.Sticks]: Icons.WoodStick,
-  [ResourceType.Stone]: Icons.StoneBlock,
-  [ResourceType.CopperOre]: Icons.Ore,
-  [ResourceType.IronOre]: Icons.Ore,
-  [ResourceType.IronChunks]: Icons.Armor,
-  [ResourceType.Coal]: Icons.StonePile,
-  [ResourceType.RawFish]: Icons.Salmon,
-  [ResourceType.CookedFish]: Icons.FriedFish,
-  [ResourceType.Cloth]: Icons.Hood,
-  [ResourceType.LeatherScraps]: Icons.AnimalHide,
-  [ResourceType.ArcaneDust]: Icons.Sparkles,
-  [ResourceType.RecipeBook]: Icons.BookCover,
-};
-
-const NamedItemIcon: Record<string, string> = {
-  'Jerky Pack': Icons.ShinyApple,
-  Totem: Icons.Totem,
-  'Iron Chunks': Icons.StonePile,
-  'Cooked Fish': Icons.FriedFish,
-  'Recipe Book': Icons.BookCover,
-  'Hearthshard Wayscroll': Icons.TiedScroll,
-};
-
-const NamedItemTint: Record<string, string> = {
-  Gold: '#fbbf24',
-  'Copper Ore': '#f59e0b',
-  'Iron Ore': '#94a3b8',
-  'Iron Chunks': '#94a3b8',
-  Coal: '#475569',
-  'Cooked Fish': '#f59e0b',
-  'Recipe Book': '#c084fc',
-  'Hearthshard Wayscroll': '#a78bfa',
-};
-
 const ItemKindIcon: Record<Exclude<Item['kind'], 'resource'>, string> = {
   weapon: Icons.Weapon,
   armor: DEFAULT_ITEM_ICON,
@@ -235,47 +128,43 @@ const ItemKindIcon: Record<Exclude<Item['kind'], 'resource'>, string> = {
 };
 
 export function enemyIconFor(name: string) {
-  return EnemyIcon[name] ?? DEFAULT_ENEMY_ICON;
+  return getEnemyConfig(name)?.icon ?? DEFAULT_ENEMY_ICON;
 }
 
 export function enemyTint(name: string) {
-  return EnemyTint[name] ?? DEFAULT_ENEMY_TINT;
+  return getEnemyConfig(name)?.tint ?? DEFAULT_ENEMY_TINT;
 }
 
 export function iconForItem(item?: Item, slot?: EquipmentSlot) {
   const slotIcon = slot ? ItemIcon[slot] : undefined;
   const itemSlotIcon = item?.slot ? ItemIcon[item.slot] : undefined;
-  const namedItemIcon =
+  const configuredItemIcon =
     item?.name && item.name.endsWith(' Totem')
       ? Icons.Totem
       : item?.name
-        ? NamedItemIcon[item.name]
+        ? getItemConfigByName(item.name)?.icon
         : undefined;
-  const resourceIcon =
-    item?.kind === 'resource' ? ResourceIcon[item.name] : undefined;
   const kindIcon =
     item && item.kind !== 'resource' ? ItemKindIcon[item.kind] : undefined;
 
   return (
-    namedItemIcon ??
-    resourceIcon ??
+    configuredItemIcon ??
     itemSlotIcon ??
     kindIcon ??
     slotIcon ??
-    DEFAULT_ITEM_ICON ??
-    DEFAULT_RESOURCE_ICON
+    DEFAULT_ITEM_ICON
   );
 }
 
 export function structureIconFor(structure: StructureType) {
-  return StructureIcon[structure];
+  return getStructureConfig(structure).icon;
 }
 
 export function structureTint(structure: StructureType) {
-  return StructureTint[structure];
+  return getStructureConfig(structure).tint;
 }
 
 export function itemTint(item?: Item) {
   if (!item) return rarityColor('common');
-  return NamedItemTint[item.name] ?? rarityColor(item.rarity);
+  return getItemConfigByName(item.name)?.tint ?? rarityColor(item.rarity);
 }

@@ -14,6 +14,7 @@ Use `docs/RULES.md` as the source of truth for project-specific instructions.
 - For Pixi world performance tasks, apply the relevant `React UI` and `Pixi And Performance` rules from `docs/RULES.md`, including the single render scheduler guidance.
 - When adding new draggable windows, follow the `docs/RULES.md` expectation that window content stays lazy-loaded and bundle-split.
 - When generating world-facing content, follow the lore canon in `docs/lore/REALMFALL.md`.
+- When adding or changing unique items, enemies, or structures, keep each one in its own dedicated configuration file rather than extending a catch-all content-definition module.
 
 ## Important References
 

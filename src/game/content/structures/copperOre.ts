@@ -1,0 +1,25 @@
+import { ContentIcons } from '../icons';
+import type { StructureConfig } from '../types';
+
+export const copperOreStructureConfig: StructureConfig = {
+  type: 'copper-ore',
+  title: 'Copper Vein',
+  description: 'A mining vein that yields copper ore when harvested.',
+  icon: ContentIcons.Ore,
+  tint: 0xf59e0b,
+  functionsProvided: ['mine-copper'],
+  appearanceChanceByTerrain: {
+    plains: 0.36,
+    desert: 0.36,
+  },
+  gathering: {
+    actionLabel: 'Mine Copper Vein',
+    maxHp: 6,
+    skill: 'mining',
+    reward: 'Copper Ore',
+    rewardTier: 1,
+    baseYield: 1,
+    verb: 'You mine the copper vein',
+    depletedText: 'The copper vein is spent.',
+  },
+};

@@ -206,11 +206,19 @@
     * More rumors
     * Quests
 * Use lore for:
-    * Check and replace current names / titles / descriptions
-* Add rules for:
-    * Every unique type of item should have its own configuration file (including icon, chance of drop, etc.)
-    * Every unique enemy should have its own configuration file (including icon, chance of appearing of this type, etc.)
-    * Every unique structure should have its own configuration file (including icon, list of functions provided by this structure)
-* Check what have not been done respecting rules and fix it
+    * Check and replace current names / titles / descriptions / other texts
 * Building skill
     * Requires less resources
+* Mono-repository
+    * Common package with all the entities definitions
+* i18n
+* Themes
+* Add CHANGELOG.md
+    * Automatically handled by Github Action
+    * New version added to changelog should appear on the top, it should contain all the changes from previous version
+* Electron
+* Safe path to the far hex
+    * Hovering hex that are not neighbour to the current hex should highlight all the "safe" (hexes without battles) path from current hex to the destination hex (if exists)
+    * If "safe" path exists:
+        * This hex should have cursor: pointer
+        * User can click that hex to move directly to it skipping stepping on the hexes in its path

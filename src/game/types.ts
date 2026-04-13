@@ -70,6 +70,7 @@ export interface Item {
   maxHp: number;
   healing: number;
   hunger: number;
+  thirst?: number;
 }
 
 export interface Enemy {
@@ -107,8 +108,10 @@ export interface CombatCastState {
 export interface CombatActorState {
   abilityIds: AbilityId[];
   globalCooldownMs: number;
+  effectiveGlobalCooldownMs?: number;
   globalCooldownEndsAt: number;
   cooldownEndsAt: Partial<Record<AbilityId, number>>;
+  effectiveCooldownMs?: Partial<Record<AbilityId, number>>;
   casting: CombatCastState | null;
 }
 
@@ -134,6 +137,7 @@ export interface Player {
   mana: number;
   baseMaxMana: number;
   hunger: number;
+  thirst?: number;
   baseAttack: number;
   baseDefense: number;
   skills: Record<SkillName, SkillProgress>;

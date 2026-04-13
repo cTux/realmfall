@@ -110,6 +110,7 @@ The world view is the most performance-sensitive path in the project.
 - Keep gameplay and simulation rules in `src/game`, app orchestration in `src/app`, React UI components in `src/ui/components`, and Pixi world rendering in `src/ui/world`.
 - Avoid growing already-large coordinator modules when a focused helper or hook is a better fit.
 - Keep balancing and world constants in config or focused modules instead of scattering magic numbers through UI code.
+- Keep each unique item, enemy, and structure in its own dedicated configuration file so gameplay and presentation data such as icons, drop or appearance chances, and structure-provided functions stay localized by content type.
 - Preserve save normalization when persisted shapes evolve.
 - Treat browser-side save protection as local obfuscation, not real security.
 - Prefer debounced or meaningfully-triggered persistence work over repeated identical writes.
@@ -141,6 +142,7 @@ Important workflow expectations:
 - Keep gameplay logic in `src/game`, app orchestration in `src/app`, component UI in `src/ui/components`, and Pixi rendering concerns in `src/ui/world`.
 - Avoid growing large coordinator files when a focused hook, helper, or domain module is a better fit.
 - Keep balancing and world constants configurable instead of scattering hardcoded values through UI code.
+- Keep each unique item, enemy, and structure in its own dedicated configuration file instead of centralizing all content definitions in one broad module.
 - Preserve save normalization when persistence shape changes.
 - Treat browser-side save encryption language as obfuscation unless the security model changes.
 - Prefer debounced or meaningfully-triggered autosave work over repeated identical writes.

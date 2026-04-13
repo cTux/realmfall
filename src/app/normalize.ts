@@ -1,4 +1,5 @@
 import { GAME_DAY_DURATION_MS, GAME_DAY_MINUTES } from '../game/config';
+import { getGatheringStructureConfig } from '../game/content/structures';
 import {
   getRecipeBookRecipes,
   isGatheringStructure,
@@ -91,11 +92,17 @@ export function normalizeLoadedGame(game: GameState): GameState {
                 ...game.combat.player,
                 abilityIds: game.combat.player.abilityIds ?? ['kick'],
                 globalCooldownMs: game.combat.player.globalCooldownMs ?? 1500,
+                effectiveGlobalCooldownMs:
+                  game.combat.player.effectiveGlobalCooldownMs ??
+                  game.combat.player.globalCooldownMs ??
+                  1500,
                 globalCooldownEndsAt: Math.max(
                   0,
                   Number(game.combat.player.globalCooldownEndsAt ?? 0) || 0,
                 ),
                 cooldownEndsAt: game.combat.player.cooldownEndsAt ?? {},
+                effectiveCooldownMs:
+                  game.combat.player.effectiveCooldownMs ?? {},
                 casting: game.combat.player.casting
                   ? { ...game.combat.player.casting }
                   : null,
@@ -113,11 +120,16 @@ export function normalizeLoadedGame(game: GameState): GameState {
                       ...actor,
                       abilityIds: actor.abilityIds ?? ['kick'],
                       globalCooldownMs: actor.globalCooldownMs ?? 1500,
+                      effectiveGlobalCooldownMs:
+                        actor.effectiveGlobalCooldownMs ??
+                        actor.globalCooldownMs ??
+                        1500,
                       globalCooldownEndsAt: Math.max(
                         0,
                         Number(actor.globalCooldownEndsAt ?? 0) || 0,
                       ),
                       cooldownEndsAt: actor.cooldownEndsAt ?? {},
+                      effectiveCooldownMs: actor.effectiveCooldownMs ?? {},
                       casting: actor.casting ? { ...actor.casting } : null,
                     }
                   : createCombatActorState(
@@ -133,6 +145,23 @@ export function normalizeLoadedGame(game: GameState): GameState {
       masteryLevel: Math.max(0, Number(game.player.masteryLevel ?? 0) || 0),
       mana: game.player.mana ?? 12,
       baseMaxMana: game.player.baseMaxMana ?? 12,
+      hunger: Math.max(
+        0,
+        Math.min(100, Number(game.player.hunger ?? 100) || 100),
+      ),
+      thirst: Math.max(
+        0,
+        Math.min(
+          100,
+          Number(
+            (
+              game.player as GameState['player'] & {
+                thirst?: number;
+              }
+            ).thirst ?? 100,
+          ) || 100,
+        ),
+      ),
       skills: normalizeSkills(
         (
           game.player as GameState['player'] & {
@@ -156,6 +185,10 @@ function normalizeItem(item: Item): Item {
     ...item,
     quantity: item.quantity ?? 1,
     rarity: item.rarity ?? 'common',
+    thirst: Math.max(
+      0,
+      Number((item as Item & { thirst?: number }).thirst ?? 0) || 0,
+    ),
   };
 }
 
@@ -205,23 +238,12 @@ function normalizeSkill(skill?: { level?: number; xp?: number }) {
 function defaultStructureHp(
   structure: Extract<GameState['tiles'][string]['structure'], string>,
 ) {
-  switch (structure) {
-    case 'tree':
-      return 5;
-    case 'herbs':
-      return 3;
-    case 'copper-ore':
-      return 6;
-    case 'iron-ore':
-      return 8;
-    case 'coal-ore':
-      return 7;
-    case 'pond':
-      return 4;
-    case 'lake':
-      return 6;
-    default:
-      return undefined;
+  if (!isGatheringStructure(structure)) return undefined;
+
+  try {
+    return getGatheringStructureConfig(structure).gathering.maxHp;
+  } catch {
+    return undefined;
   }
 }
 

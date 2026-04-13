@@ -1,4 +1,5 @@
 import {
+  getStructureConfig,
   isGatheringStructure,
   type Enemy,
   type Item,
@@ -155,11 +156,13 @@ function consumableEffectDescription(item: Item) {
   const effects = [
     item.healing > 0 ? `recover ${item.healing} HP` : null,
     item.hunger > 0 ? `restore ${item.hunger} hunger` : null,
+    (item.thirst ?? 0) > 0 ? `restore ${item.thirst} thirst` : null,
   ].filter((effect): effect is string => Boolean(effect));
 
   if (effects.length === 0) return 'Use to trigger its effect.';
   if (effects.length === 1) return `Use to ${effects[0]}.`;
-  return `Use to ${effects[0]} and ${effects[1]}.`;
+  if (effects.length === 2) return `Use to ${effects[0]} and ${effects[1]}.`;
+  return `Use to ${effects[0]}, ${effects[1]}, and ${effects[2]}.`;
 }
 
 function itemTypeLabel(item: Item) {
@@ -188,49 +191,9 @@ function slotLabel(slot: NonNullable<Item['slot']>) {
 }
 
 function structureTitle(structure: StructureType) {
-  switch (structure) {
-    case 'camp':
-      return 'Campfire';
-    case 'workshop':
-      return 'Workshop';
-    case 'copper-ore':
-      return 'Copper Vein';
-    case 'iron-ore':
-      return 'Iron Vein';
-    case 'coal-ore':
-      return 'Coal Seam';
-    case 'herbs':
-      return 'Herb Patch';
-    default:
-      return structure.charAt(0).toUpperCase() + structure.slice(1);
-  }
+  return getStructureConfig(structure).title;
 }
 
 function structureDescription(structure: StructureType) {
-  switch (structure) {
-    case 'town':
-      return 'A safe haven for trade, supplies, and a brief respite.';
-    case 'forge':
-      return 'A blazing forge where gear can be prospected into gold.';
-    case 'camp':
-      return 'A campfire used to cook provisions into better meals.';
-    case 'workshop':
-      return 'A workbench for turning gathered materials into equipment.';
-    case 'dungeon':
-      return 'A hostile den packed with stronger enemies and danger.';
-    case 'tree':
-      return 'A logging node that yields logs when harvested.';
-    case 'herbs':
-      return 'A fragrant patch that yields herbs when gathered.';
-    case 'pond':
-      return 'A fishing spot that yields raw fish when worked.';
-    case 'lake':
-      return 'A broad fishing spot that yields raw fish when worked.';
-    case 'copper-ore':
-      return 'A mining vein that yields copper ore when harvested.';
-    case 'iron-ore':
-      return 'A mining vein that yields iron ore when harvested.';
-    case 'coal-ore':
-      return 'A mining seam that yields coal when harvested.';
-  }
+  return getStructureConfig(structure).description;
 }

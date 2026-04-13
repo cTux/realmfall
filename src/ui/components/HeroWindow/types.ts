@@ -14,6 +14,7 @@ export interface HeroWindowStats {
   rawDefense: number;
   attack: number;
   defense: number;
+  attackSpeed?: number;
   buffs: string[];
   debuffs: string[];
   abilityIds: AbilityId[];
@@ -29,6 +30,7 @@ export interface HeroWindowProps {
   onClose?: () => void;
   stats: HeroWindowStats;
   hunger: number;
+  thirst?: number;
   worldTimeMs?: number;
   onHoverDetail?: (
     event: ReactMouseEvent<HTMLElement>,

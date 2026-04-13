@@ -88,6 +88,30 @@ describe('game state', () => {
     expect(next.logs[0]?.text).toMatch(/^\[Day 1, 18:33\] /);
   });
 
+  it('damages the player each move while hunger and thirst debuffs are active', () => {
+    const game = createGame(3, 'survival-debuff-damage-seed');
+    const target = { q: 2, r: 0 };
+    game.tiles['2,0'] = {
+      coord: target,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: [],
+    };
+    game.player.coord = { q: 1, r: 0 };
+    game.player.hunger = 30;
+    game.player.thirst = 30;
+    game.player.hp = 20;
+
+    const moved = moveToTile(game, target);
+
+    expect(moved.player.hp).toBe(18);
+    expect(moved.logs.some((entry) => /starving/i.test(entry.text))).toBe(true);
+    expect(moved.logs.some((entry) => /dehydrated/i.test(entry.text))).toBe(
+      true,
+    );
+  });
+
   it('keeps the day number after rolling past 23:59', () => {
     const game = createGame(3, 'day-rollover-seed');
     game.worldTimeMs =
@@ -366,6 +390,52 @@ describe('game state', () => {
     });
 
     expect(afterGlobalCooldown.enemies['enemy-2,0-0']?.hp).toBe(42);
+  });
+
+  it('slows player cooldowns when thirst applies the debuff', () => {
+    const game = createGame(3, 'thirst-cooldown-seed');
+    const target = { q: 2, r: 0 };
+    game.tiles['2,0'] = {
+      coord: target,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: ['enemy-2,0-0'],
+    };
+    game.enemies['enemy-2,0-0'] = {
+      id: 'enemy-2,0-0',
+      name: 'Training Dummy',
+      coord: target,
+      tier: 1,
+      hp: 50,
+      maxHp: 50,
+      attack: 0,
+      defense: 0,
+      xp: 0,
+      elite: false,
+    };
+    game.player.coord = { q: 1, r: 0 };
+    game.player.thirst = 20;
+
+    const encountered = moveToTile(game, target);
+    const firstCast = startCombat(encountered);
+
+    expect(firstCast.combat?.player.effectiveGlobalCooldownMs).toBe(1875);
+    expect(firstCast.combat?.player.effectiveCooldownMs?.kick).toBe(1250);
+
+    const afterBaseAbilityCooldown = progressCombat({
+      ...firstCast,
+      worldTimeMs: 1500,
+    });
+
+    expect(afterBaseAbilityCooldown.enemies['enemy-2,0-0']?.hp).toBe(46);
+
+    const afterScaledCooldown = progressCombat({
+      ...firstCast,
+      worldTimeMs: 1875,
+    });
+
+    expect(afterScaledCooldown.enemies['enemy-2,0-0']?.hp).toBe(42);
   });
 
   it('lets enemies cast Kick on their own cooldown loop', () => {
@@ -1255,6 +1325,8 @@ describe('game state', () => {
       items: [],
       enemyIds: [],
     };
+    game.player.hunger = 999;
+    game.player.thirst = 999;
 
     for (let turn = 0; turn < 120; turn += 1) {
       game = moveToTile(game, turn % 2 === 0 ? { q: 1, r: 0 } : { q: 0, r: 0 });

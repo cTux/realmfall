@@ -1,4 +1,5 @@
 import { BLOOD_MOON_STAT_SCALE } from './config';
+import { isAnimalEnemyType, pickEnemyConfig } from './content/enemies';
 import type {
   AbilityDefinition,
   AbilityId,
@@ -34,8 +35,10 @@ export function createCombatActorState(
   return {
     abilityIds: [...abilityIds],
     globalCooldownMs,
+    effectiveGlobalCooldownMs: globalCooldownMs,
     globalCooldownEndsAt: worldTimeMs,
     cooldownEndsAt: {},
+    effectiveCooldownMs: {},
     casting: null,
   };
 }
@@ -60,12 +63,13 @@ export function makeEnemy(
   const tier = terrainTier(coord, terrain) + (structure === 'dungeon' ? 2 : 0);
   const roll = noise(`${seed}:enemy:type:${index}`, coord);
   const elite = structure === 'dungeon';
+  const config = pickEnemyConfig(terrain, roll, elite);
   const baseMaxHp = 8 + tier * 6 + (elite ? 10 : 0);
   const baseAttack = 2 + tier * 2 + (elite ? 3 : 0);
   const baseDefense = 1 + tier + (elite ? 2 : 0);
   const enemy: Enemy = {
     id: enemyKey(coord, index),
-    name: pickEnemyName(terrain, roll, elite),
+    name: config.name,
     coord,
     tier: elite ? tier + 1 : tier,
     baseMaxHp,
@@ -111,7 +115,7 @@ export function makeBloodMoonDropKind(
 }
 
 export function isAnimalEnemy(name: string) {
-  return name === 'Wolf' || name === 'Boar' || name === 'Stag';
+  return isAnimalEnemyType(name);
 }
 
 export function scaledBloodMoonStat(value: number) {
@@ -132,24 +136,4 @@ function setEnemyBloodMoonState(enemy: Enemy, active: boolean) {
   enemy.hp = Math.max(0, Math.min(maxHp, Math.round(maxHp * currentRatio)));
   enemy.attack = active ? scaledBloodMoonStat(baseAttack) : baseAttack;
   enemy.defense = active ? scaledBloodMoonStat(baseDefense) : baseDefense;
-}
-
-function pickEnemyName(terrain: Terrain, roll: number, elite: boolean) {
-  if (elite) return roll > 0.5 ? 'Marauder' : 'Raider';
-  if (terrain === 'forest') {
-    return roll > 0.72
-      ? 'Wolf'
-      : roll > 0.44
-        ? 'Boar'
-        : roll > 0.18
-          ? 'Spider'
-          : 'Raider';
-  }
-  if (terrain === 'plains') {
-    return roll > 0.66 ? 'Stag' : roll > 0.33 ? 'Boar' : 'Marauder';
-  }
-  if (terrain === 'swamp') {
-    return roll > 0.6 ? 'Boar' : roll > 0.25 ? 'Spider' : 'Wolf';
-  }
-  return roll > 0.5 ? 'Raider' : 'Marauder';
 }

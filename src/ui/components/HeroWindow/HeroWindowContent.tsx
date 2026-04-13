@@ -13,12 +13,18 @@ const KICK_ICON_PATH =
 
 type HeroWindowContentProps = Pick<
   HeroWindowProps,
-  'stats' | 'hunger' | 'worldTimeMs' | 'onHoverDetail' | 'onLeaveDetail'
+  | 'stats'
+  | 'hunger'
+  | 'thirst'
+  | 'worldTimeMs'
+  | 'onHoverDetail'
+  | 'onLeaveDetail'
 >;
 
 export function HeroWindowContent({
   stats,
   hunger,
+  thirst,
   worldTimeMs = 0,
   onHoverDetail,
   onLeaveDetail,
@@ -34,6 +40,7 @@ export function HeroWindowContent({
       />
       <StatBar label="XP" value={stats.xp} max={stats.nextLevelXp} color="xp" />
       <StatBar label="Hunger" value={hunger} max={100} color="hunger" />
+      <StatBar label="Thirst" value={thirst ?? 100} max={100} color="thirst" />
       <div className={styles.statList}>
         <div className={styles.statRow}>
           <span>Attack</span>
@@ -131,15 +138,28 @@ function EffectList({
                       tone: 'negative',
                     },
                   ]
-                : [
-                    {
-                      kind: 'text',
-                      text:
-                        tone === 'buff'
-                          ? 'Active positive effect.'
-                          : 'Active negative effect.',
-                    },
-                  ],
+                : item === 'Thirst'
+                  ? [
+                      {
+                        kind: 'text',
+                        text: 'You are thirsty and act 20% slower.',
+                      },
+                      {
+                        kind: 'stat',
+                        label: 'Attack Speed',
+                        value: '-20%',
+                        tone: 'negative',
+                      },
+                    ]
+                  : [
+                      {
+                        kind: 'text',
+                        text:
+                          tone === 'buff'
+                            ? 'Active positive effect.'
+                            : 'Active negative effect.',
+                      },
+                    ],
               tone === 'buff'
                 ? 'rgba(34, 197, 94, 0.9)'
                 : 'rgba(239, 68, 68, 0.9)',

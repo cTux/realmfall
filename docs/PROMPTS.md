@@ -37,6 +37,7 @@
 * For Pixi world performance work, prefer one render scheduler, usually the ticker, and use refs or lightweight invalidation flags instead of layering an immediate redraw effect on top.
 * When adding a new draggable window, keep its content bundle-split by following the existing lazy window or lazy `*WindowContent` pattern.
 * If a prompt needs new world content, names, factions, places, enemies, items, structures, or flavor text, align it with `docs/lore/REALMFALL.md`.
+* Keep each unique item, enemy, and structure in its own dedicated configuration file instead of adding more entries to one catch-all content-definition module.
 ```
 
 ## Commit

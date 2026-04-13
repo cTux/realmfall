@@ -12,6 +12,7 @@ This repository uses `docs/RULES.md` as the source of truth for project-specific
 - If rule changes affect future prompt execution, also sync `CLAUDE.md` and `.github/copilot-instructions.md`.
 - Prefer updating `docs/RULES.md` over duplicating project-specific rules in this file.
 - For Pixi world performance tasks, make sure the relevant `React UI` and `Pixi And Performance` rules from `docs/RULES.md` are applied, especially the single render scheduler guidance.
+- When adding or changing unique items, enemies, or structures, keep each one in its own dedicated configuration file rather than extending a catch-all content-definition module.
 
 ## Supporting Docs
 

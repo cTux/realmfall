@@ -173,8 +173,9 @@ function EntityCard({
             entity.actor.cooldownEndsAt[abilityId] ?? worldTimeMs,
           );
           const totalCooldownMs = Math.max(
-            entity.actor.globalCooldownMs,
-            ability.cooldownMs,
+            entity.actor.effectiveGlobalCooldownMs ??
+              entity.actor.globalCooldownMs,
+            entity.actor.effectiveCooldownMs?.[abilityId] ?? ability.cooldownMs,
             1,
           );
           const remainingMs = Math.max(0, readyAt - worldTimeMs);
