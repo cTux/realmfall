@@ -217,7 +217,10 @@ export function skillTooltip(skill: SkillName, level: number): TooltipLine[] {
 }
 
 function consumableEffectDescription(item: Item) {
-  if (item.name === t(HOME_SCROLL_ITEM_NAME_KEY)) {
+  if (
+    item.itemKey === 'home-scroll' ||
+    item.name === t(HOME_SCROLL_ITEM_NAME_KEY)
+  ) {
     return t('ui.tooltip.consumable.homeScroll');
   }
 

@@ -1,7 +1,7 @@
 import {
   getEnemyConfig,
   type EquipmentSlot,
-  getItemConfigByName,
+  getItemConfig,
   type Item,
   type SkillName,
   getStructureConfig,
@@ -140,12 +140,11 @@ export function enemyTint(name: string) {
 export function iconForItem(item?: Item, slot?: EquipmentSlot) {
   const slotIcon = slot ? ItemIcon[slot] : undefined;
   const itemSlotIcon = item?.slot ? ItemIcon[item.slot] : undefined;
+  const configuredItem = item ? getItemConfig(item) : undefined;
   const configuredItemIcon =
     item?.name && item.name.endsWith(' Totem')
       ? Icons.Totem
-      : item?.name
-        ? getItemConfigByName(item.name)?.icon
-        : undefined;
+      : configuredItem?.icon;
   const kindIcon =
     item && item.kind !== 'resource' ? ItemKindIcon[item.kind] : undefined;
 
@@ -168,5 +167,5 @@ export function structureTint(structure: StructureType) {
 
 export function itemTint(item?: Item) {
   if (!item) return rarityColor('common');
-  return getItemConfigByName(item.name)?.tint ?? rarityColor(item.rarity);
+  return getItemConfig(item)?.tint ?? rarityColor(item.rarity);
 }

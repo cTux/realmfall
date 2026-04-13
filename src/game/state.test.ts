@@ -1069,8 +1069,9 @@ describe('game state', () => {
     game.player.coord = { q: 2, r: -1 };
     game.player.inventory.push({
       id: 'home-scroll-1',
+      itemKey: 'home-scroll',
       kind: 'consumable',
-      name: t(HOME_SCROLL_ITEM_NAME_KEY),
+      name: 'Pergamino del hogar',
       quantity: 1,
       tier: 1,
       rarity: 'common',

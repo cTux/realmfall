@@ -107,6 +107,7 @@ export function buildItemFromConfig(
 
   return {
     id: overrides.id ?? config.key,
+    itemKey: config.key,
     recipeId: overrides.recipeId,
     kind: config.kind,
     slot: config.slot,
@@ -123,8 +124,15 @@ export function buildItemFromConfig(
   };
 }
 
+export function getItemConfig(item: Pick<Item, 'itemKey' | 'name'>) {
+  return (
+    (item.itemKey ? getItemConfigByKey(item.itemKey) : undefined) ??
+    getItemConfigByName(item.name)
+  );
+}
+
 export function cloneConfiguredItem(item: Item) {
-  const config = getItemConfigByName(item.name);
+  const config = getItemConfig(item);
   if (!config) return { ...item };
   return buildItemFromConfig(config.key, {
     id: item.id,

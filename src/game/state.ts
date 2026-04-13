@@ -16,7 +16,11 @@ import {
 import { createRng } from './random';
 import { itemName } from './content/i18n';
 import { getEnemyConfig, isAnimalEnemyType } from './content/enemies';
-import { buildItemFromConfig, getItemConfigByName } from './content/items';
+import {
+  buildItemFromConfig,
+  getItemConfig,
+  getItemConfigByName,
+} from './content/items';
 import { getStructureConfig } from './content/structures';
 import {
   createCombatActorState,
@@ -137,6 +141,7 @@ export {
   createFreshLogs,
   describeStructure,
   getEnemyConfig,
+  getItemConfig,
   getItemConfigByName,
   getGoldAmount,
   getPlayerStats,
@@ -602,7 +607,10 @@ export function useItem(state: GameState, itemId: string): GameState {
     return message(state, 'That item cannot be used.');
 
   const next = clone(state);
-  if (item.name === t(HOME_SCROLL_ITEM_NAME_KEY)) {
+  if (
+    item.itemKey === 'home-scroll' ||
+    item.name === t(HOME_SCROLL_ITEM_NAME_KEY)
+  ) {
     teleportHome(next, itemIndex, item);
     return next;
   }

@@ -1,4 +1,5 @@
 import { GAME_DAY_DURATION_MS, GAME_DAY_MINUTES } from '../game/config';
+import { getItemConfig } from '../game/content/items';
 import { getGatheringStructureConfig } from '../game/content/structures';
 import {
   getRecipeBookRecipes,
@@ -25,7 +26,9 @@ export function normalizeLoadedGame(game: GameState): GameState {
   );
   const legacyGold = Math.max(0, Number(legacyGoldValue ?? 0));
   const hasInventoryGold = inventory.some(
-    (item) => item.kind === 'resource' && item.name === 'Gold',
+    (item) =>
+      item.kind === 'resource' &&
+      (item.itemKey === 'gold' || item.name === 'Gold'),
   );
   if (legacyGold > 0 && !hasInventoryGold)
     mergeStackable(inventory, normalizeItem(makeGoldStack(legacyGold)));
@@ -181,10 +184,13 @@ export function normalizeLoadedGame(game: GameState): GameState {
 }
 
 function normalizeItem(item: Item): Item {
+  const configured = getItemConfig(item);
   const normalizedName =
-    item.name === 'Arcane Dust' ? 'Aether Dust' : item.name;
+    configured?.name ??
+    (item.name === 'Arcane Dust' ? 'Aether Dust' : item.name);
   return {
     ...item,
+    itemKey: configured?.key ?? item.itemKey,
     name: normalizedName,
     quantity: item.quantity ?? 1,
     rarity: item.rarity ?? 'common',
@@ -277,11 +283,19 @@ function isSameStackable(left: Item, right: Item) {
     (left.kind === 'consumable' || left.kind === 'resource') &&
     left.kind === right.kind &&
     left.recipeId === right.recipeId &&
-    left.name === right.name &&
+    sameStackIdentity(left, right) &&
     left.rarity === right.rarity &&
     left.healing === right.healing &&
     left.hunger === right.hunger
   );
+}
+
+function sameStackIdentity(left: Item, right: Item) {
+  if (left.itemKey && right.itemKey) {
+    return left.itemKey === right.itemKey;
+  }
+
+  return left.name === right.name;
 }
 
 function uniquifyItemIds(items: Item[]) {
