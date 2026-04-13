@@ -31,7 +31,6 @@ import { usePixiWorld } from './usePixiWorld';
 import { useWindowTransitions } from './useWindowTransitions';
 import { useWorldClockFps } from './useWorldClockFps';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
-import type { TooltipState } from './types';
 import { getWorldHexSize, tileToPoint } from '../../ui/world/renderSceneMath';
 import styles from './styles.module.scss';
 
@@ -43,7 +42,6 @@ export function App() {
   const selectedRef = useRef<HexCoord>(initialGameRef.current.player.coord);
   const hoveredMoveRef = useRef<HexCoord | null>(null);
   const hoveredSafePathRef = useRef<HexCoord[] | null>(null);
-  const tooltipRef = useRef<TooltipState | null>(null);
   const tooltipPositionRef = useRef<TooltipPosition | null>(null);
   const worldTimeMsRef = useRef(initialGameRef.current.worldTimeMs);
   const worldTimeTickRef = useRef<number | null>(null);
@@ -55,10 +53,6 @@ export function App() {
 
   const [game, setGame] = useState<GameState>(initialGameRef.current);
   const [selected, setSelected] = useState<HexCoord>(game.player.coord);
-  const [hoveredMove, setHoveredMove] = useState<HexCoord | null>(null);
-  const [hoveredSafePath, setHoveredSafePath] = useState<HexCoord[] | null>(
-    null,
-  );
   const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
 
   const {
@@ -95,7 +89,6 @@ export function App() {
     toggleDockWindow,
     toggleFilterMenu,
     toggleLogFilter,
-    tooltip,
     windowShown,
     windows,
   } = useAppControllers({
@@ -186,11 +179,8 @@ export function App() {
     hoveredMoveRef,
     hoveredSafePathRef,
     tooltipPositionRef,
-    tooltipRef,
     setGame,
     setSelected,
-    setHoveredMove,
-    setHoveredSafePath,
     setTooltip,
   });
   const hydrated = useAppPersistence({
@@ -242,18 +232,6 @@ export function App() {
     selectedRef.current = selected;
   }, [selected]);
 
-  useEffect(() => {
-    hoveredMoveRef.current = hoveredMove;
-  }, [hoveredMove]);
-
-  useEffect(() => {
-    hoveredSafePathRef.current = hoveredSafePath;
-  }, [hoveredSafePath]);
-
-  useEffect(() => {
-    tooltipRef.current = tooltip;
-  }, [tooltip]);
-
   useCombatAutomation({
     combat: game.combat,
     setGame,
@@ -262,8 +240,8 @@ export function App() {
 
   useEffect(() => {
     setSelected(game.player.coord);
-    setHoveredMove(null);
-    setHoveredSafePath(null);
+    hoveredMoveRef.current = null;
+    hoveredSafePathRef.current = null;
   }, [game.player.coord]);
 
   useEffect(() => {
@@ -400,7 +378,6 @@ export function App() {
           showFilterMenu={showFilterMenu}
           logFilters={logFilters}
           filteredLogs={filteredLogs}
-          tooltip={tooltip}
           tooltipPositionRef={tooltipPositionRef}
           itemMenu={itemMenu}
           onMoveWindow={moveWindow}

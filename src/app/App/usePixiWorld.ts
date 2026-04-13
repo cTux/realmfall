@@ -15,6 +15,7 @@ import { getWorldHexSize } from '../../ui/world/renderSceneMath';
 import { getWorldTimeMinutesFromTimestamp } from '../../ui/world/timeOfDay';
 import { WORLD_REVEAL_RADIUS } from '../constants';
 import type { TooltipState } from './types';
+import { getTooltipState } from './tooltipStore';
 
 interface UsePixiWorldArgs {
   worldTimeMsRef: MutableRefObject<number>;
@@ -28,12 +29,9 @@ interface UsePixiWorldArgs {
   hoveredMoveRef: MutableRefObject<HexCoord | null>;
   hoveredSafePathRef: MutableRefObject<HexCoord[] | null>;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
-  tooltipRef: MutableRefObject<TooltipState | null>;
   setGame: Dispatch<SetStateAction<GameState>>;
   setSelected: Dispatch<SetStateAction<HexCoord>>;
-  setHoveredMove: Dispatch<SetStateAction<HexCoord | null>>;
-  setHoveredSafePath: Dispatch<SetStateAction<HexCoord[] | null>>;
-  setTooltip: Dispatch<SetStateAction<TooltipState | null>>;
+  setTooltip: (nextTooltip: TooltipState | null) => void;
 }
 
 export function usePixiWorld({
@@ -46,11 +44,8 @@ export function usePixiWorld({
   hoveredMoveRef,
   hoveredSafePathRef,
   tooltipPositionRef,
-  tooltipRef,
   setGame,
   setSelected,
-  setHoveredMove,
-  setHoveredSafePath,
   setTooltip,
 }: UsePixiWorldArgs) {
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -230,25 +225,21 @@ export function usePixiWorld({
         if (!clickable) {
           if (currentHovered) {
             hoveredMoveRef.current = null;
-            setHoveredMove(null);
           }
           if (currentHoveredPath) {
             hoveredSafePathRef.current = null;
-            setHoveredSafePath(null);
           }
         } else if (
           currentHovered?.q !== target.q ||
           currentHovered?.r !== target.r
         ) {
           hoveredMoveRef.current = target;
-          setHoveredMove(target);
         }
 
         const nextHoveredPath =
           safePath && safePath.length > 1 ? safePath : null;
         if (!samePath(currentHoveredPath, nextHoveredPath)) {
           hoveredSafePathRef.current = nextHoveredPath;
-          setHoveredSafePath(nextHoveredPath);
         }
 
         tooltipPositionRef.current = nextTooltipPosition;
@@ -257,7 +248,7 @@ export function usePixiWorld({
           const nextTooltipKey = `enemy:${target.q},${target.r}:${tile.structure ?? 'none'}`;
           if (
             worldTooltipKeyRef.current === nextTooltipKey &&
-            tooltipRef.current?.followCursor
+            getTooltipState()?.followCursor
           ) {
             return;
           }
@@ -274,7 +265,7 @@ export function usePixiWorld({
           const nextTooltipKey = `structure:${target.q},${target.r}:${tile.structure ?? 'none'}`;
           if (
             worldTooltipKeyRef.current === nextTooltipKey &&
-            tooltipRef.current?.followCursor
+            getTooltipState()?.followCursor
           ) {
             return;
           }
@@ -289,7 +280,7 @@ export function usePixiWorld({
           });
         } else {
           tooltipPositionRef.current = null;
-          if (worldTooltipKeyRef.current || tooltipRef.current?.followCursor) {
+          if (worldTooltipKeyRef.current || getTooltipState()?.followCursor) {
             worldTooltipKeyRef.current = null;
             setTooltip(null);
           }
@@ -302,13 +293,11 @@ export function usePixiWorld({
         worldTooltipKeyRef.current = null;
         if (hoveredMoveRef.current) {
           hoveredMoveRef.current = null;
-          setHoveredMove(null);
         }
         if (hoveredSafePathRef.current) {
           hoveredSafePathRef.current = null;
-          setHoveredSafePath(null);
         }
-        if (tooltipRef.current?.followCursor) {
+        if (getTooltipState()?.followCursor) {
           setTooltip(null);
         }
       };
@@ -352,12 +341,9 @@ export function usePixiWorld({
     playerCoordRef,
     selectedRef,
     setGame,
-    setHoveredMove,
-    setHoveredSafePath,
     setSelected,
     setTooltip,
     tooltipPositionRef,
-    tooltipRef,
     visibleTilesRef,
     worldTimeMsRef,
   ]);
