@@ -34,6 +34,15 @@ interface UsePixiWorldArgs {
   setTooltip: (nextTooltip: TooltipState | null) => void;
 }
 
+interface WorldHoverSnapshot {
+  target: HexCoord | null;
+  clickable: boolean;
+  hoveredMove: HexCoord | null;
+  hoveredSafePath: HexCoord[] | null;
+  tooltip: TooltipState | null;
+  tooltipKey: string | null;
+}
+
 export function usePixiWorld({
   worldTimeMsRef,
   frameCountRef,
@@ -51,6 +60,14 @@ export function usePixiWorld({
   const hostRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<Application | null>(null);
   const worldTooltipKeyRef = useRef<string | null>(null);
+  const hoverSnapshotRef = useRef<WorldHoverSnapshot>({
+    target: null,
+    clickable: false,
+    hoveredMove: null,
+    hoveredSafePath: null,
+    tooltip: null,
+    tooltipKey: null,
+  });
   const [canvasReady, setCanvasReady] = useState(false);
 
   useEffect(() => {
@@ -193,6 +210,52 @@ export function usePixiWorld({
           q: playerCoordRef.current.q + hoveredOffset.q,
           r: playerCoordRef.current.r + hoveredOffset.r,
         };
+        const nextTooltipPosition = {
+          x: event.clientX + 16,
+          y: event.clientY + 16,
+        };
+        const hoverSnapshot = hoverSnapshotRef.current;
+
+        if (sameCoord(hoverSnapshot.target, target)) {
+          canvas.style.cursor = hoverSnapshot.clickable ? 'pointer' : 'default';
+
+          if (!sameCoord(hoveredMoveRef.current, hoverSnapshot.hoveredMove)) {
+            hoveredMoveRef.current = hoverSnapshot.hoveredMove;
+          }
+
+          if (
+            !samePath(hoveredSafePathRef.current, hoverSnapshot.hoveredSafePath)
+          ) {
+            hoveredSafePathRef.current = hoverSnapshot.hoveredSafePath;
+          }
+
+          if (hoverSnapshot.tooltip?.followCursor) {
+            tooltipPositionRef.current = nextTooltipPosition;
+            const currentTooltip = getTooltipState();
+
+            if (
+              worldTooltipKeyRef.current !== hoverSnapshot.tooltipKey ||
+              !currentTooltip?.followCursor
+            ) {
+              worldTooltipKeyRef.current = hoverSnapshot.tooltipKey;
+              setTooltip({
+                ...hoverSnapshot.tooltip,
+                x: nextTooltipPosition.x,
+                y: nextTooltipPosition.y,
+              });
+            }
+          } else {
+            tooltipPositionRef.current = null;
+
+            if (worldTooltipKeyRef.current || getTooltipState()?.followCursor) {
+              worldTooltipKeyRef.current = null;
+              setTooltip(null);
+            }
+          }
+
+          return;
+        }
+
         const current = gameRef.current;
         const tile = stateModule.getTileAt(current, target);
         const enemies = stateModule.getEnemiesAt(current, target);
@@ -214,10 +277,6 @@ export function usePixiWorld({
         const structureInfo = withinVisibleMap
           ? tooltipModule.structureTooltip(tile)
           : null;
-        const nextTooltipPosition = {
-          x: event.clientX + 16,
-          y: event.clientY + 16,
-        };
 
         canvas.style.cursor = clickable ? 'pointer' : 'default';
         const currentHovered = hoveredMoveRef.current;
@@ -242,42 +301,58 @@ export function usePixiWorld({
           hoveredSafePathRef.current = nextHoveredPath;
         }
 
-        tooltipPositionRef.current = nextTooltipPosition;
+        let nextTooltip: TooltipState | null = null;
+        let nextTooltipKey: string | null = null;
 
         if (enemyInfo) {
-          const nextTooltipKey = `enemy:${target.q},${target.r}:${tile.structure ?? 'none'}`;
-          if (
-            worldTooltipKeyRef.current === nextTooltipKey &&
-            getTooltipState()?.followCursor
-          ) {
-            return;
-          }
-          worldTooltipKeyRef.current = nextTooltipKey;
-          setTooltip({
+          nextTooltipKey = `enemy:${target.q},${target.r}:${tile.structure ?? 'none'}`;
+          nextTooltip = {
             title: enemyInfo.title,
             lines: enemyInfo.lines,
             x: nextTooltipPosition.x,
             y: nextTooltipPosition.y,
             borderColor: tile.structure === 'dungeon' ? '#a855f7' : '#ef4444',
             followCursor: true,
-          });
-        } else if (structureInfo) {
-          const nextTooltipKey = `structure:${target.q},${target.r}:${tile.structure ?? 'none'}`;
+          };
+
           if (
             worldTooltipKeyRef.current === nextTooltipKey &&
             getTooltipState()?.followCursor
           ) {
             return;
           }
-          worldTooltipKeyRef.current = nextTooltipKey;
-          setTooltip({
+        } else if (structureInfo) {
+          nextTooltipKey = `structure:${target.q},${target.r}:${tile.structure ?? 'none'}`;
+          nextTooltip = {
             title: structureInfo.title,
             lines: structureInfo.lines,
             x: nextTooltipPosition.x,
             y: nextTooltipPosition.y,
             borderColor: '#38bdf8',
             followCursor: true,
-          });
+          };
+
+          if (
+            worldTooltipKeyRef.current === nextTooltipKey &&
+            getTooltipState()?.followCursor
+          ) {
+            return;
+          }
+        }
+
+        hoverSnapshotRef.current = {
+          target,
+          clickable,
+          hoveredMove: clickable ? target : null,
+          hoveredSafePath: nextHoveredPath,
+          tooltip: nextTooltip,
+          tooltipKey: nextTooltipKey,
+        };
+
+        if (nextTooltip) {
+          tooltipPositionRef.current = nextTooltipPosition;
+          worldTooltipKeyRef.current = nextTooltipKey;
+          setTooltip(nextTooltip);
         } else {
           tooltipPositionRef.current = null;
           if (worldTooltipKeyRef.current || getTooltipState()?.followCursor) {
@@ -291,6 +366,14 @@ export function usePixiWorld({
         canvas.style.cursor = 'default';
         tooltipPositionRef.current = null;
         worldTooltipKeyRef.current = null;
+        hoverSnapshotRef.current = {
+          target: null,
+          clickable: false,
+          hoveredMove: null,
+          hoveredSafePath: null,
+          tooltip: null,
+          tooltipKey: null,
+        };
         if (hoveredMoveRef.current) {
           hoveredMoveRef.current = null;
         }
@@ -364,4 +447,8 @@ function samePath(left: HexCoord[] | null, right: HexCoord[] | null) {
     (coord, index) =>
       coord.q === right[index]?.q && coord.r === right[index]?.r,
   );
+}
+
+function sameCoord(left: HexCoord | null, right: HexCoord | null) {
+  return left?.q === right?.q && left?.r === right?.r;
 }
