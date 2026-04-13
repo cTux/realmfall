@@ -3,7 +3,7 @@ import { WINDOW_LABELS } from '../../windowLabels';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
-import labelStyles from '../windowLabels.module.css';
+import labelStyles from '../windowLabels.module.scss';
 import type { HeroWindowProps } from './types';
 
 const HeroWindowContent = lazy(() =>

@@ -1,0 +1,55 @@
+$mobile-window-width: min(92vw, 420px);
+$window-border: rgb(148 163 184 / 20%);
+$panel-bg: rgb(15 23 42 / 85%);
+$panel-shadow: inset 0 0 0 1px rgb(255 255 255 / 3%);
+$fill-transition: width 220ms ease;
+$tile-transition:
+  transform 120ms ease,
+  border-color 120ms ease,
+  background-color 120ms ease;
+
+@mixin masked-icon($width, $height: $width, $background: null, $shadow: null) {
+  width: $width;
+  height: $height;
+  display: inline-block;
+
+  @if $background {
+    background: $background;
+  }
+
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+
+  @if $shadow {
+    filter: drop-shadow($shadow);
+  }
+}
+
+@mixin compact-button {
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.15;
+}
+
+@mixin progress-fill($gradient) {
+  height: 100%;
+  background: $gradient;
+  transition: $fill-transition;
+}
+
+@mixin icon-tile($size: 2.35rem) {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: $size;
+  height: $size;
+  overflow: hidden;
+  background: $panel-bg;
+  box-shadow: $panel-shadow;
+  transition: $tile-transition;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+}

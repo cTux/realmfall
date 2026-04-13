@@ -1,6 +1,6 @@
 import { SkillIcon } from '../../icons';
 import type { SkillsWindowProps } from './types';
-import styles from './styles.module.css';
+import styles from './styles.module.scss';
 
 type SkillsWindowContentProps = Pick<SkillsWindowProps, 'skills'>;
 

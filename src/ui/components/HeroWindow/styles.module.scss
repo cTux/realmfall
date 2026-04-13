@@ -1,3 +1,5 @@
+@use '../../../styles/ui';
+
 .stats {
   display: grid;
   gap: 0.45rem;
@@ -23,26 +25,12 @@
 }
 
 .effectChip {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 2.35rem;
-  height: 2.35rem;
-  overflow: hidden;
+  @include ui.icon-tile;
+
   appearance: none;
   cursor: default;
   padding: 0;
   border-radius: 0;
-  background: rgb(15 23 42 / 85%);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 3%);
-  transition:
-    transform 120ms ease,
-    border-color 120ms ease,
-    background-color 120ms ease;
-}
-
-.effectChip:hover {
-  transform: translateY(-1px);
 }
 
 .buffChip {
@@ -60,24 +48,10 @@
 }
 
 .abilitySquare {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 2.35rem;
-  height: 2.35rem;
-  overflow: hidden;
-  border: 1px solid rgb(148 163 184 / 35%);
-  background: rgb(15 23 42 / 85%);
-  color: #f8fafc;
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 3%);
-  transition:
-    transform 120ms ease,
-    border-color 120ms ease,
-    background-color 120ms ease;
-}
+  @include ui.icon-tile;
 
-.abilitySquare:hover {
-  transform: translateY(-1px);
+  border: 1px solid rgb(148 163 184 / 35%);
+  color: #f8fafc;
 }
 
 .abilityIcon {

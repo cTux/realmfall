@@ -1,9 +1,9 @@
 import { lazy, Suspense } from 'react';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLoadingState } from '../WindowLoadingState';
-import inventoryStyles from '../InventoryWindow/styles.module.css';
+import inventoryStyles from '../InventoryWindow/styles.module.scss';
 import type { CombatWindowProps } from './types';
-import styles from './styles.module.css';
+import styles from './styles.module.scss';
 
 const CombatWindowContent = lazy(() =>
   import('./CombatWindowContent').then((module) => ({

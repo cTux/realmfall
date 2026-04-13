@@ -1,6 +1,6 @@
 import { iconForItem, itemTint } from '../../icons';
 import type { HexInfoWindowProps } from './types';
-import styles from './styles.module.css';
+import styles from './styles.module.scss';
 
 type HexInfoWindowContentProps = Omit<
   HexInfoWindowProps,

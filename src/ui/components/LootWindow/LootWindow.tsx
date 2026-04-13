@@ -2,7 +2,7 @@ import { lazy, memo, Suspense } from 'react';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLoadingState } from '../WindowLoadingState';
 import type { LootWindowProps } from './types';
-import styles from '../InventoryWindow/styles.module.css';
+import styles from '../InventoryWindow/styles.module.scss';
 
 const LootWindowContent = lazy(() =>
   import('./LootWindowContent').then((module) => ({

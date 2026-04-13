@@ -3,9 +3,9 @@ import { WINDOW_LABELS } from '../../windowLabels';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
-import labelStyles from '../windowLabels.module.css';
+import labelStyles from '../windowLabels.module.scss';
 import type { InventoryWindowProps } from './types';
-import styles from './styles.module.css';
+import styles from './styles.module.scss';
 
 const InventoryWindowContent = lazy(() =>
   import('./InventoryWindowContent').then((module) => ({

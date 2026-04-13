@@ -1,6 +1,12 @@
+@use '../../../styles/ui';
+
 .window {
   width: min(410px, calc(100vw - 16px));
   overflow: visible;
+
+  @media (width <= 980px) {
+    width: min(390px, calc(100vw - 16px));
+  }
 }
 
 .toolbar {
@@ -14,9 +20,7 @@
 }
 
 .headerButton {
-  padding: 0.2rem 0.5rem;
-  font-size: 0.75rem;
-  line-height: 1.15;
+  @include ui.compact-button;
 }
 
 .grid {
@@ -43,13 +47,7 @@
 }
 
 .itemIcon {
-  width: 2.2rem;
-  height: 2.2rem;
-  display: inline-block;
-  mask-repeat: no-repeat;
-  mask-position: center;
-  mask-size: contain;
-  filter: drop-shadow(0 2px 4px rgb(0 0 0 / 45%));
+  @include ui.masked-icon(2.2rem, $shadow: 0 2px 4px rgb(0 0 0 / 45%));
 }
 
 .stackBadge {
@@ -67,10 +65,4 @@
 
 .empty {
   color: #94a3b8;
-}
-
-@media (width <= 980px) {
-  .window {
-    width: min(390px, calc(100vw - 16px));
-  }
 }

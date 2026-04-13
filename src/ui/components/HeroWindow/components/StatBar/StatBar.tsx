@@ -1,6 +1,6 @@
 import { formatCompactNumber } from '../../../../formatters';
 import type { StatBarProps } from './types';
-import styles from './styles.module.css';
+import styles from './styles.module.scss';
 
 export function StatBar({ label, value, max, color }: StatBarProps) {
   const width = Math.max(0, Math.min(100, (value / Math.max(1, max)) * 100));

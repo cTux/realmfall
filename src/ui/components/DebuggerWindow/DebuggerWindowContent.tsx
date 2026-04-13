@@ -1,6 +1,6 @@
 import FPSStats from 'react-fps-stats';
 import type { DebuggerWindowProps } from './types';
-import styles from './styles.module.css';
+import styles from './styles.module.scss';
 
 type DebuggerWindowContentProps = Pick<
   DebuggerWindowProps,

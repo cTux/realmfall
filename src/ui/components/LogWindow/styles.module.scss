@@ -1,5 +1,16 @@
+@use '../../../styles/ui';
+
 .window {
   width: min(520px, calc(100vw - 16px));
+
+  button:hover {
+    background: rgb(8 22 12 / 96%);
+    color: #dcfce7;
+  }
+
+  @media (width <= 980px) {
+    width: ui.$mobile-window-width;
+  }
 }
 
 .windowTitle {
@@ -13,14 +24,7 @@
 }
 
 .headerButton {
-  padding: 0.2rem 0.5rem;
-  font-size: 0.75rem;
-  line-height: 1.15;
-}
-
-.window button:hover {
-  background: rgb(8 22 12 / 96%);
-  color: #dcfce7;
+  @include ui.compact-button;
 }
 
 .filterMenu {
@@ -61,20 +65,20 @@
   background: rgb(4 12 7 / 95%);
   display: inline-grid;
   place-content: center;
-}
 
-.styledCheckbox::before {
-  content: '';
-  width: 0.55rem;
-  height: 0.55rem;
-  transform: scale(0);
-  transition: transform 120ms ease-in-out;
-  box-shadow: inset 1rem 1rem #4ade80;
-  clip-path: polygon(14% 44%, 0 65%, 42% 100%, 100% 16%, 80% 0%, 43% 62%);
-}
+  &::before {
+    content: '';
+    width: 0.55rem;
+    height: 0.55rem;
+    transform: scale(0);
+    transition: transform 120ms ease-in-out;
+    box-shadow: inset 1rem 1rem #4ade80;
+    clip-path: polygon(14% 44%, 0 65%, 42% 100%, 100% 16%, 80% 0%, 43% 62%);
+  }
 
-.styledCheckbox:checked::before {
-  transform: scale(1);
+  &:checked::before {
+    transform: scale(1);
+  }
 }
 
 .logList {
@@ -157,11 +161,5 @@
   50%,
   100% {
     opacity: 0.35;
-  }
-}
-
-@media (width <= 980px) {
-  .window {
-    width: min(92vw, 420px);
   }
 }

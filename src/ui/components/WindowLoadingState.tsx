@@ -1,4 +1,4 @@
-import styles from './WindowLoadingState.module.css';
+import styles from './WindowLoadingState.module.scss';
 
 export function WindowLoadingState() {
   return (

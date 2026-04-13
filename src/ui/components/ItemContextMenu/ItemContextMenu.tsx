@@ -1,6 +1,6 @@
 import { memo, useEffect, useRef } from 'react';
 import type { ItemContextMenuProps } from './types';
-import styles from './styles.module.css';
+import styles from './styles.module.scss';
 
 export const ItemContextMenu = memo(function ItemContextMenu({
   item,

@@ -3,7 +3,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { createGame } from '../../game/state';
 import { getWorldHexSize, tileToPoint } from '../../ui/world/renderSceneMath';
 import { mapWorldMapFishEyeSourcePointToDisplayPoint } from '../../ui/world/worldMapFishEye';
-import styles from './styles.module.css';
+import styles from './styles.module.scss';
 
 const renderScene = vi.fn();
 const loadEncryptedState = vi.fn();

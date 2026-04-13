@@ -23,13 +23,13 @@
 .graph {
   min-height: 92px;
   position: relative;
-}
 
-.graph > div {
-  position: static !important;
-  inset: auto !important;
-  width: 100% !important;
-  max-width: 100%;
+  > div {
+    position: static !important;
+    inset: auto !important;
+    width: 100% !important;
+    max-width: 100%;
+  }
 }
 
 @media (width <= 720px) {

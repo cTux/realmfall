@@ -1,3 +1,5 @@
+@use '../../../styles/ui';
+
 .floatingWindow {
   --window-press-y: 0px;
   --window-visibility-y: 0px;
@@ -22,27 +24,31 @@
     box-shadow 120ms ease,
     transform 180ms ease,
     opacity 180ms ease;
-}
 
-.floatingWindow[data-window-emphasis='hovered'],
-.floatingWindow[data-window-emphasis='active'] {
-  border-color: rgb(226 232 240 / 50%);
-  box-shadow: 0 24px 70px rgb(0 0 0 / 42%);
-}
+  &[data-window-emphasis='hovered'],
+  &[data-window-emphasis='active'] {
+    border-color: rgb(226 232 240 / 50%);
+    box-shadow: 0 24px 70px rgb(0 0 0 / 42%);
+  }
 
-.floatingWindow[data-window-emphasis='active'] {
-  z-index: 30;
-  border-color: rgb(248 250 252 / 72%);
+  &[data-window-emphasis='active'] {
+    z-index: 30;
+    border-color: rgb(248 250 252 / 72%);
 
-  --window-press-y: -1px;
-}
+    --window-press-y: -1px;
+  }
 
-.floatingWindow[data-window-visible='false'] {
-  --window-visibility-y: 10px;
-  --window-scale: 0.98;
+  &[data-window-visible='false'] {
+    --window-visibility-y: 10px;
+    --window-scale: 0.98;
 
-  opacity: 0;
-  pointer-events: none;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  @media (width <= 980px) {
+    width: ui.$mobile-window-width;
+  }
 }
 
 .windowHeader {
@@ -74,19 +80,13 @@
 }
 
 .headerButton {
-  padding: 0.2rem 0.5rem;
-  font-size: 0.75rem;
-  line-height: 1.15;
+  @include ui.compact-button;
 }
 
 .headerButtonIcon {
+  @include ui.masked-icon(0.95rem, $background: currentcolor);
+
   display: block;
-  width: 0.95rem;
-  height: 0.95rem;
-  background: currentcolor;
-  mask-position: center;
-  mask-repeat: no-repeat;
-  mask-size: contain;
 }
 
 .windowBody {
@@ -95,10 +95,4 @@
   gap: 0.75rem;
   min-height: 0;
   overflow: visible;
-}
-
-@media (width <= 980px) {
-  .floatingWindow {
-    width: min(92vw, 420px);
-  }
 }

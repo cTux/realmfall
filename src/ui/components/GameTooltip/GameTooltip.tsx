@@ -1,7 +1,7 @@
 import { memo, useEffect, useRef, useState } from 'react';
 import { formatCompactNumber, formatCompactNumberish } from '../../formatters';
 import type { GameTooltipProps, RenderedTooltipState } from './types';
-import styles from './styles.module.css';
+import styles from './styles.module.scss';
 
 function tooltipContentKey(tooltip: GameTooltipProps['tooltip']) {
   if (!tooltip) return null;

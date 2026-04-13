@@ -32,7 +32,7 @@ import { useWorldClockFps } from './useWorldClockFps';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import type { TooltipState } from './types';
 import { getWorldHexSize, tileToPoint } from '../../ui/world/renderSceneMath';
-import styles from './styles.module.css';
+import styles from './styles.module.scss';
 
 export function App() {
   const initialGameRef = useRef<GameState>(createGame(WORLD_RADIUS));

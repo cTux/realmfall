@@ -1,7 +1,7 @@
 import { formatCompactNumber } from '../../formatters';
 import { iconForItem, itemTint } from '../../icons';
 import type { InventoryWindowProps } from './types';
-import styles from './styles.module.css';
+import styles from './styles.module.scss';
 
 type InventoryWindowContentProps = Pick<
   InventoryWindowProps,

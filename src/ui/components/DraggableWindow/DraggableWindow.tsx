@@ -6,7 +6,7 @@ import {
   type FocusEvent as ReactFocusEvent,
 } from 'react';
 import type { DraggableWindowProps } from './types';
-import styles from './styles.module.css';
+import styles from './styles.module.scss';
 import { Icons } from '../../icons';
 
 const WINDOW_TRANSITION_MS = 180;

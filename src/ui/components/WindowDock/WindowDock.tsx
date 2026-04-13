@@ -2,8 +2,8 @@ import { memo, useState } from 'react';
 import type { WindowVisibilityState } from '../../../app/constants';
 import type { WindowLabelDefinition } from '../../windowLabels';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
-import labelStyles from '../windowLabels.module.css';
-import styles from './styles.module.css';
+import labelStyles from '../windowLabels.module.scss';
+import styles from './styles.module.scss';
 
 export interface WindowDockEntry {
   key: keyof WindowVisibilityState;

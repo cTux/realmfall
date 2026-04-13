@@ -3,10 +3,10 @@ import { WINDOW_LABELS } from '../../windowLabels';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
-import inventoryStyles from '../InventoryWindow/styles.module.css';
-import labelStyles from '../windowLabels.module.css';
+import inventoryStyles from '../InventoryWindow/styles.module.scss';
+import labelStyles from '../windowLabels.module.scss';
 import type { HexInfoWindowProps } from './types';
-import styles from './styles.module.css';
+import styles from './styles.module.scss';
 
 const HexInfoWindowContent = lazy(() =>
   import('./HexInfoWindowContent').then((module) => ({

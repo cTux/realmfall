@@ -1,3 +1,5 @@
+@use '../../../../../styles/ui';
+
 .barBlock {
   display: block;
 }
@@ -12,7 +14,7 @@
 
 .barFill {
   height: 100%;
-  transition: width 220ms ease;
+  transition: ui.$fill-transition;
 }
 
 .barContent {

@@ -1,16 +1,20 @@
+@use '../../../styles/ui';
+
 .window {
   width: min(360px, calc(100vw - 16px));
 }
 
-.homeButton[aria-pressed='true'] {
-  color: #f8fafc;
-  border-color: rgb(56 189 248 / 65%);
-  background: rgb(14 165 233 / 18%);
-}
+.homeButton {
+  &[aria-pressed='true'] {
+    color: #f8fafc;
+    border-color: rgb(56 189 248 / 65%);
+    background: rgb(14 165 233 / 18%);
+  }
 
-.homeButton:disabled {
-  cursor: default;
-  opacity: 1;
+  &:disabled {
+    cursor: default;
+    opacity: 1;
+  }
 }
 
 .meta {
@@ -66,9 +70,7 @@
 }
 
 .barFill {
-  height: 100%;
-  background: linear-gradient(90deg, #38bdf8, #22c55e);
-  transition: width 220ms ease;
+  @include ui.progress-fill(linear-gradient(90deg, #38bdf8, #22c55e));
 }
 
 .shop {
@@ -97,12 +99,7 @@
 }
 
 .shopIcon {
-  width: 1.35rem;
-  height: 1.35rem;
-  display: inline-block;
-  mask-repeat: no-repeat;
-  mask-position: center;
-  mask-size: contain;
+  @include ui.masked-icon(1.35rem);
 }
 
 .empty {

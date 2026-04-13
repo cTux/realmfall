@@ -1,5 +1,5 @@
 import type { RecipeBookWindowProps } from './types';
-import styles from './styles.module.css';
+import styles from './styles.module.scss';
 
 type RecipeBookWindowContentProps = Pick<
   RecipeBookWindowProps,

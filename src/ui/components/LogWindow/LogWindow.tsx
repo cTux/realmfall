@@ -3,9 +3,9 @@ import { WINDOW_LABELS } from '../../windowLabels';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
-import labelStyles from '../windowLabels.module.css';
+import labelStyles from '../windowLabels.module.scss';
 import type { LogWindowProps } from './types';
-import styles from './styles.module.css';
+import styles from './styles.module.scss';
 
 const LogWindowContent = lazy(() =>
   import('./LogWindowContent').then((module) => ({

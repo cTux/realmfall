@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { LogWindowProps } from './types';
-import styles from './styles.module.css';
+import styles from './styles.module.scss';
 
 const TYPE_DELAY_MS = 16;
 const MATRIX_GLYPHS = ['#', '%', '&', '/', '+', '*'];

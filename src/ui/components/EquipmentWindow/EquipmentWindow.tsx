@@ -5,9 +5,9 @@ import { rarityColor } from '../../rarity';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
-import labelStyles from '../windowLabels.module.css';
+import labelStyles from '../windowLabels.module.scss';
 import type { EquipmentWindowProps } from './types';
-import styles from './styles.module.css';
+import styles from './styles.module.scss';
 
 export const EquipmentWindow = memo(function EquipmentWindow({
   position,
