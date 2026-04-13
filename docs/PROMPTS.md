@@ -3,7 +3,7 @@
 ## Git
 
 ```
-Create a branch from local master branch for the updates in this prompt.
+Create a branch from local default branch for the updates in this prompt.
 ```
 
 ## Shared Rules
