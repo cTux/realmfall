@@ -1,27 +1,33 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { useEffect, useState } from 'react';
 import { createCombatActorState } from '../../../game/combat';
 import type { CombatActorState, CombatState, Enemy } from '../../../game/types';
-import { CombatWindowContent } from './CombatWindowContent';
+import { CombatWindow } from './CombatWindow';
 import type { CombatPartyMember, CombatWindowProps } from './types';
 
 const WORLD_TIME_MS = 12_000;
+const WINDOW_POSITION = { x: 64, y: 48 };
 const noopHoverDetail: CombatWindowProps['onHoverDetail'] = () => undefined;
 const noopLeaveDetail: CombatWindowProps['onLeaveDetail'] = () => undefined;
 const noopStart = () => undefined;
+const noopMove = () => undefined;
+const noopClose = () => undefined;
 
 const meta = {
-  title: 'Windows/Combat/Content',
-  component: CombatWindowContent,
+  title: 'Windows/Combat/Window',
+  component: CombatWindow,
   decorators: [
     (Story) => (
-      <div style={{ padding: '24px', minHeight: '100vh' }}>
-        <div style={{ width: 'min(920px, calc(100vw - 48px))' }}>
-          <Story />
-        </div>
+      <div style={{ minHeight: '100vh', padding: '24px' }}>
+        <Story />
       </div>
     ),
   ],
   args: {
+    position: WINDOW_POSITION,
+    onMove: noopMove,
+    visible: true,
+    onClose: noopClose,
     worldTimeMs: WORLD_TIME_MS,
     onStart: noopStart,
     onHoverDetail: noopHoverDetail,
@@ -29,10 +35,17 @@ const meta = {
   },
   parameters: {
     controls: {
-      exclude: ['onStart', 'onHoverDetail', 'onLeaveDetail'],
+      exclude: [
+        'onMove',
+        'onClose',
+        'onStart',
+        'onHoverDetail',
+        'onLeaveDetail',
+      ],
     },
   },
-} satisfies Meta<typeof CombatWindowContent>;
+  render: (args) => <CombatWindowStory {...args} />,
+} satisfies Meta<typeof CombatWindow>;
 
 export default meta;
 
@@ -40,6 +53,14 @@ type Story = StoryObj<typeof meta>;
 
 export const EncounterWaitingForStart: Story = {
   args: buildBattleScenario({ started: false }),
+};
+
+export const EncounterStartsFromButton: Story = {
+  args: buildBattleScenario({ started: false }),
+  play: async ({ canvasElement }) => {
+    const startButton = await waitForButton(canvasElement, '(Q) Start');
+    startButton.click();
+  },
 };
 
 export const SkirmishInProgress: Story = {
@@ -73,6 +94,56 @@ export const EliteRaid: Story = {
     },
   }),
 };
+
+function CombatWindowStory(args: CombatWindowProps) {
+  const [combat, setCombat] = useState(args.combat);
+
+  useEffect(() => {
+    setCombat(args.combat);
+  }, [args.combat]);
+
+  return (
+    <CombatWindow
+      {...args}
+      combat={combat}
+      onStart={() => {
+        args.onStart();
+        setCombat((current) => ({
+          ...current,
+          started: true,
+        }));
+      }}
+    />
+  );
+}
+
+async function waitForButton(
+  canvasElement: HTMLElement,
+  label: string,
+): Promise<HTMLButtonElement> {
+  const timeoutMs = 2_000;
+  const startedAt = Date.now();
+
+  return new Promise((resolve, reject) => {
+    const check = () => {
+      const buttons = Array.from(canvasElement.querySelectorAll('button'));
+      const match = buttons.find((button): button is HTMLButtonElement =>
+        button.textContent?.includes(label),
+      );
+      if (match) {
+        resolve(match);
+        return;
+      }
+      if (Date.now() - startedAt >= timeoutMs) {
+        reject(new Error(`Timed out waiting for button: ${label}`));
+        return;
+      }
+      window.requestAnimationFrame(check);
+    };
+
+    check();
+  });
+}
 
 function buildBattleScenario({
   started,

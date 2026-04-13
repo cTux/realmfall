@@ -191,3 +191,12 @@
 * Trading
     * SHIFT+LMB should buy x5 items (pressing and holding SHIFT should change text to "Buy x5")
     * CTRL+LMB should buy/sell x100 items (pressing and holding SHIFT should change text to "Buy x100")
+* Harvest moon (+message in log with cyan color, +moon, moon shafts and game background in cyan shades)
+    * 10% to appear
+    * Resources (that can be gathered) are appearing around
+    * Empty hex should not have resources while initialization
+    * Herbs can be gathered via hex type = herbs with this icon https://game-icons.net/1x1/delapouite/herbs-bundle.html
+    * Gathering logs can also have a chance to gather sticks
+    * Gathering ore can also have a chance to gather stone
+* Every morning there is a 5% chance that earthshake appear
+    * Dungeon openes nearby on an empty hex

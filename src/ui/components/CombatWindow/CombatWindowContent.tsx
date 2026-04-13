@@ -12,7 +12,6 @@ type CombatWindowContentProps = Pick<
   | 'playerParty'
   | 'enemies'
   | 'worldTimeMs'
-  | 'onStart'
   | 'onHoverDetail'
   | 'onLeaveDetail'
 >;
@@ -35,7 +34,6 @@ export function CombatWindowContent({
   playerParty,
   enemies,
   worldTimeMs,
-  onStart,
   onHoverDetail,
   onLeaveDetail,
 }: CombatWindowContentProps) {
@@ -57,12 +55,6 @@ export function CombatWindowContent({
 
   return (
     <div className={styles.layout}>
-      <div className={styles.header}>
-        <div>
-          <strong>Battle at</strong> {combat.coord.q}, {combat.coord.r}
-        </div>
-        {!combat.started ? <button onClick={onStart}>(Q) Start</button> : null}
-      </div>
       <div className={styles.columns}>
         <PartyColumn
           title="Player Party"

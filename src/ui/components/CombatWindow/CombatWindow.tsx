@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLoadingState } from '../WindowLoadingState';
+import inventoryStyles from '../InventoryWindow/styles.module.css';
 import type { CombatWindowProps } from './types';
 import styles from './styles.module.css';
 
@@ -23,9 +24,24 @@ export function CombatWindow({
   onHoverDetail,
   onLeaveDetail,
 }: CombatWindowProps) {
+  const startButton = !combat.started ? (
+    <button
+      type="button"
+      className={inventoryStyles.headerButton}
+      onPointerDown={(event) => event.stopPropagation()}
+      onClick={(event) => {
+        event.stopPropagation();
+        onStart();
+      }}
+    >
+      (Q) Start
+    </button>
+  ) : null;
+
   return (
     <DraggableWindow
       title="Combat"
+      headerActions={startButton}
       position={position}
       onMove={onMove}
       className={styles.window}
@@ -38,7 +54,6 @@ export function CombatWindow({
           playerParty={playerParty}
           enemies={enemies}
           worldTimeMs={worldTimeMs}
-          onStart={onStart}
           onHoverDetail={onHoverDetail}
           onLeaveDetail={onLeaveDetail}
         />
