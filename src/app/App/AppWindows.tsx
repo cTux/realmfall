@@ -25,10 +25,11 @@ import { GameTooltip } from '../../ui/components/GameTooltip';
 import { HeroWindow } from '../../ui/components/HeroWindow';
 import { WindowLoadingState } from '../../ui/components/WindowLoadingState';
 import { WindowDock } from '../../ui/components/WindowDock';
-import type { ItemContextMenuState, TooltipItem, TooltipState } from './types';
+import type { ItemContextMenuState, TooltipItem } from './types';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import type { TooltipLine } from '../../ui/tooltips';
 import { formatTerrainLabel } from './appHelpers';
+import { useTooltipState } from './tooltipStore';
 
 const SkillsWindow = lazy(() =>
   import('../../ui/components/SkillsWindow').then((module) => ({
@@ -113,7 +114,6 @@ interface AppWindowsProps {
   showFilterMenu: boolean;
   logFilters: Record<LogKind, boolean>;
   filteredLogs: GameState['logs'];
-  tooltip: TooltipState | null;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
   itemMenu: ItemContextMenuState | null;
   onMoveWindow: (
@@ -196,7 +196,6 @@ export function AppWindows({
   showFilterMenu,
   logFilters,
   filteredLogs,
-  tooltip,
   tooltipPositionRef,
   itemMenu,
   onMoveWindow,
@@ -227,6 +226,7 @@ export function AppWindows({
   onBuyTownItem,
   onSetHome,
 }: AppWindowsProps) {
+  const tooltip = useTooltipState();
   const [loadedWindows, setLoadedWindows] = useState(() => ({
     skills: windowShown.skills,
     recipes: windowShown.recipes,

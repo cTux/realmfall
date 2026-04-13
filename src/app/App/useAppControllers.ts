@@ -37,6 +37,7 @@ import type { ItemContextMenuState, TooltipItem, TooltipState } from './types';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import { getInventoryItemAction } from './appHelpers';
 import type { TooltipLine } from '../../ui/tooltips';
+import { setTooltipState } from './tooltipStore';
 
 interface UseAppControllersOptions {
   gameRef: MutableRefObject<GameState>;
@@ -58,7 +59,6 @@ export function useAppControllers({
   const [logFilters, setLogFilters] =
     useState<Record<LogKind, boolean>>(DEFAULT_LOG_FILTERS);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
-  const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [itemMenu, setItemMenu] = useState<ItemContextMenuState | null>(null);
 
   const moveWindow = useCallback(
@@ -84,7 +84,7 @@ export function useAppControllers({
 
   const closeTooltip = useCallback(() => {
     tooltipPositionRef.current = null;
-    setTooltip(null);
+    setTooltipState(null);
   }, [tooltipPositionRef]);
 
   const closeItemMenu = useCallback(() => {
@@ -103,7 +103,7 @@ export function useAppControllers({
         y: rect.top,
       };
       tooltipPositionRef.current = position;
-      setTooltip({
+      setTooltipState({
         title: item.name,
         lines: itemTooltipLines(item, equipped),
         x: position.x,
@@ -127,7 +127,7 @@ export function useAppControllers({
         y: rect.top,
       };
       tooltipPositionRef.current = position;
-      setTooltip({
+      setTooltipState({
         title,
         lines,
         x: position.x,
@@ -326,6 +326,10 @@ export function useAppControllers({
     [showItemTooltip],
   );
 
+  const setTooltip = useCallback((nextTooltip: TooltipState | null) => {
+    setTooltipState(nextTooltip);
+  }, []);
+
   return {
     closeItemMenu,
     closeTooltip,
@@ -360,7 +364,6 @@ export function useAppControllers({
     toggleDockWindow,
     toggleFilterMenu,
     toggleLogFilter,
-    tooltip,
     windowShown,
     windows,
   };
