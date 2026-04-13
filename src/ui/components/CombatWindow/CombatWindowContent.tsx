@@ -267,7 +267,6 @@ function EffectList({
           type="button"
           className={`${styles.effectChip} ${tone === 'buff' ? styles.buffChip : styles.debuffChip}`}
           aria-label={formatStatusEffectLabel(item)}
-          title={formatStatusEffectLabel(item)}
           onMouseEnter={(event) =>
             onHoverDetail(
               event,
@@ -348,7 +347,6 @@ function AbilitySquare({
     <div
       className={styles.abilitySquare}
       aria-label={label}
-      title={label}
       onMouseEnter={(event) =>
         onHoverDetail(event, label, tooltipLines, 'rgba(148, 163, 184, 0.9)')
       }

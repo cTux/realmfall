@@ -131,6 +131,8 @@ The world view is the most performance-sensitive path in the project.
 - Keep React component files compatible with Fast Refresh expectations.
 - New draggable windows should keep their content behind a lazy-loaded bundle, either by splitting the whole window module or a dedicated `*WindowContent` module.
 - Keep user-facing copy in i18n resources, default to `en`, add new keys instead of inline strings, and use dot-separated keys such as `{feature}.{area}.{property}`.
+- For ability, buff, and debuff icons rendered through CSS masks, use transparent SVG assets with no full-canvas background shape so the UI does not show solid squares.
+- For UI elements that already use the custom game tooltip system, do not add native browser `title` tooltips. Buffs, debuffs, abilities, and similar interactive affordances should use the shared custom tooltip consistently.
 - Prefer deterministic tests for gameplay and render-math changes, especially when performance-sensitive behavior changes.
 - Keep generated world content aligned with `docs/lore/REALMFALL.md`.
 
@@ -168,6 +170,8 @@ Important workflow expectations:
 - Prefer extending the current render pools, caches, and stage-layer structure before introducing new rendering systems.
 - Treat bundle growth as a real performance budget, especially on the initial app path.
 - Keep new window content out of the initial bundle unless there is a clear reason not to split it.
+- For ability, buff, and debuff icons rendered through CSS masks, use transparent SVG assets with no full-canvas background shape, preferring transparent exports or stripped background paths.
+- For UI elements that already use the custom game tooltip system, do not add native browser `title` tooltips for buffs, debuffs, abilities, or similar interactive affordances.
 
 ## Prompt Workflow
 

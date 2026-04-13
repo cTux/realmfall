@@ -145,6 +145,20 @@ export interface Player {
   learnedRecipeIds: string[];
   inventory: Item[];
   equipment: Equipment;
+  statusEffects: PlayerStatusEffect[];
+}
+
+export type StatusEffectId =
+  | 'hunger'
+  | 'thirst'
+  | 'recentDeath'
+  | 'restoration';
+
+export interface PlayerStatusEffect {
+  id: StatusEffectId;
+  expiresAt?: number;
+  tickIntervalMs?: number;
+  lastProcessedAt?: number;
 }
 
 export interface SkillProgress {

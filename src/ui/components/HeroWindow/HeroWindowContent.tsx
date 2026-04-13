@@ -135,13 +135,12 @@ function EffectList({
           type="button"
           className={`${styles.effectChip} ${tone === 'buff' ? styles.buffChip : styles.debuffChip}`}
           aria-label={formatStatusEffectLabel(item)}
-          title={formatStatusEffectLabel(item)}
           onMouseEnter={(event) => {
             if (!onHoverDetail) return;
             onHoverDetail(
               event,
               formatStatusEffectLabel(item),
-              item === 'Hunger'
+              item === 'hunger'
                 ? [
                     {
                       kind: 'text',
@@ -160,7 +159,7 @@ function EffectList({
                       tone: 'negative',
                     },
                   ]
-                : item === 'Thirst'
+                : item === 'thirst'
                   ? [
                       {
                         kind: 'text',
@@ -173,15 +172,47 @@ function EffectList({
                         tone: 'negative',
                       },
                     ]
-                  : [
-                      {
-                        kind: 'text',
-                        text:
-                          tone === 'buff'
-                            ? t('ui.hero.effect.buff')
-                            : t('ui.hero.effect.debuff'),
-                      },
-                    ],
+                  : item === 'recentDeath'
+                    ? [
+                        {
+                          kind: 'text',
+                          text: t('ui.hero.effect.recentDeath.description'),
+                        },
+                        {
+                          kind: 'stat',
+                          label: t('ui.hero.hp'),
+                          value: '-10%',
+                          tone: 'negative',
+                        },
+                      ]
+                    : item === 'restoration'
+                      ? [
+                          {
+                            kind: 'text',
+                            text: t('ui.hero.effect.restoration.description'),
+                          },
+                          {
+                            kind: 'stat',
+                            label: t('ui.hero.hp'),
+                            value: '+1% / s',
+                            tone: 'positive',
+                          },
+                          {
+                            kind: 'stat',
+                            label: t('ui.combat.mp'),
+                            value: '+1% / s',
+                            tone: 'positive',
+                          },
+                        ]
+                      : [
+                          {
+                            kind: 'text',
+                            text:
+                              tone === 'buff'
+                                ? t('ui.hero.effect.buff')
+                                : t('ui.hero.effect.debuff'),
+                          },
+                        ],
               tone === 'buff'
                 ? 'rgba(34, 197, 94, 0.9)'
                 : 'rgba(239, 68, 68, 0.9)',
@@ -250,7 +281,6 @@ function AbilitySquare({
     <div
       className={styles.abilitySquare}
       aria-label={label}
-      title={label}
       onMouseEnter={(event) =>
         onHoverDetail?.(event, label, tooltipLines, 'rgba(148, 163, 184, 0.9)')
       }

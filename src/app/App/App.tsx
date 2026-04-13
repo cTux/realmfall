@@ -3,6 +3,7 @@ import {
   createGame,
   setHomeHex,
   syncBloodMoon,
+  syncPlayerStatusEffects,
   type GameState,
 } from '../../game/state';
 import { WORLD_RADIUS } from '../constants';
@@ -79,7 +80,7 @@ export function App() {
     worldTimeMsRef,
   });
 
-  const { debuggerTimeLabel, setWorldTimeMs, worldTimeMinutes } =
+  const { debuggerTimeLabel, setWorldTimeMs, worldTimeMinutes, worldTimeMs } =
     useWorldClockFps({
       initialWorldTimeMs: initialGameRef.current.worldTimeMs,
       worldTimeMsRef,
@@ -171,6 +172,12 @@ export function App() {
       ),
     );
   }, [worldTimeMinutes]);
+
+  useEffect(() => {
+    setGame((current) =>
+      syncPlayerStatusEffects(current, worldTimeMsRef.current),
+    );
+  }, [worldTimeMs]);
 
   useEffect(() => {
     gameRef.current = game;

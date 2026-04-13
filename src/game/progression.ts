@@ -18,6 +18,9 @@ export function makeStartingSkills(): Record<SkillName, SkillProgress> {
 
 export function getPlayerStats(player: Player) {
   const equipped = Object.values(player.equipment);
+  const recentDeathActive = player.statusEffects.some(
+    (effect) => effect.id === 'recentDeath',
+  );
   const attackBonus = equipped.reduce(
     (sum, item) => sum + (item?.power ?? 0),
     0,
@@ -34,7 +37,11 @@ export function getPlayerStats(player: Player) {
     player.level >= MAX_PLAYER_LEVEL
       ? masteryLevelThreshold(player.masteryLevel)
       : levelThreshold(player.level);
-  const maxHp = player.baseMaxHp + maxHpBonus;
+  const rawMaxHp = player.baseMaxHp + maxHpBonus;
+  const maxHp = Math.max(
+    1,
+    Math.floor(rawMaxHp * (recentDeathActive ? 0.9 : 1)),
+  );
   const rawAttack = Math.max(0, player.baseAttack + attackBonus);
   const rawDefense = Math.max(0, player.baseDefense + defenseBonus);
   const hungerDebuffActive = player.hunger <= 30;
@@ -54,10 +61,17 @@ export function getPlayerStats(player: Player) {
     rawAttack,
     rawDefense,
     attackSpeed,
-    buffs: [] as string[],
+    buffs: [
+      ...player.statusEffects
+        .filter((effect) => effect.id === 'restoration')
+        .map((effect) => effect.id),
+    ] as Array<'restoration'>,
     debuffs: [
-      ...(hungerDebuffActive ? (['Hunger'] as string[]) : []),
-      ...(thirstDebuffActive ? (['Thirst'] as string[]) : []),
+      ...player.statusEffects
+        .filter((effect) => effect.id === 'recentDeath')
+        .map((effect) => effect.id),
+      ...(hungerDebuffActive ? (['hunger'] as string[]) : []),
+      ...(thirstDebuffActive ? (['thirst'] as string[]) : []),
     ],
     abilityIds: ['kick'] as Array<'kick'>,
     level: player.level,

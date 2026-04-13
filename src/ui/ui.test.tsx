@@ -358,7 +358,7 @@ describe('ui helpers and components', () => {
             rawAttack: stats.attack + 2,
             rawDefense: stats.defense + 2,
             buffs: [],
-            debuffs: ['Hunger'],
+            debuffs: ['hunger'],
             abilityIds: ['kick'],
           }}
           hunger={45}

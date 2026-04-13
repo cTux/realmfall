@@ -43,6 +43,14 @@ describe('normalizeLoadedGame', () => {
         mana: undefined,
         baseMaxMana: undefined,
         skills: { logging: { level: 3, xp: 2 } },
+        statusEffects: [
+          {
+            id: 'restoration',
+            expiresAt: '12000',
+            tickIntervalMs: '1000',
+            lastProcessedAt: '5000',
+          },
+        ],
         gold: 9,
         inventory: [
           {
@@ -143,6 +151,14 @@ describe('normalizeLoadedGame', () => {
     expect(loaded.player.skills.mining).toEqual({ level: 1, xp: 0 });
     expect(loaded.player.skills.cooking).toEqual({ level: 1, xp: 0 });
     expect(loaded.player.skills.crafting).toEqual({ level: 1, xp: 0 });
+    expect(loaded.player.statusEffects).toEqual([
+      {
+        id: 'restoration',
+        expiresAt: 12000,
+        tickIntervalMs: 1000,
+        lastProcessedAt: 5000,
+      },
+    ]);
     expect(loaded.homeHex).toEqual({ q: 2, r: -1 });
     expect(
       loaded.player.inventory.find((item) => item.name === 'Trail Ration')
