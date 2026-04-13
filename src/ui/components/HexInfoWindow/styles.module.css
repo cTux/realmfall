@@ -4,8 +4,8 @@
 
 .homeButton[aria-pressed='true'] {
   color: #f8fafc;
-  border-color: rgba(56, 189, 248, 0.65);
-  background: rgba(14, 165, 233, 0.18);
+  border-color: rgb(56 189 248 / 65%);
+  background: rgb(14 165 233 / 18%);
 }
 
 .homeButton:disabled {
@@ -59,8 +59,8 @@
 .barTrack {
   width: 100%;
   height: 0.7rem;
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgb(15 23 42 / 90%);
+  border: 1px solid rgb(148 163 184 / 25%);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -103,9 +103,6 @@
   mask-repeat: no-repeat;
   mask-position: center;
   mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  -webkit-mask-size: contain;
 }
 
 .empty {

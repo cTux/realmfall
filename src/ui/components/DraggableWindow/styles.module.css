@@ -4,12 +4,13 @@
   --window-scale: 1;
   --window-action-color: #94a3b8;
   --window-action-hover-color: #e2e8f0;
+
   z-index: 20;
   position: fixed;
   width: min(320px, calc(100vw - 16px));
   background: #08101e;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgb(148 163 184 / 20%);
+  box-shadow: 0 20px 60px rgb(0 0 0 / 35%);
   overflow: hidden;
   opacity: 1;
   transform: translateY(
@@ -25,19 +26,21 @@
 
 .floatingWindow[data-window-emphasis='hovered'],
 .floatingWindow[data-window-emphasis='active'] {
-  border-color: rgba(226, 232, 240, 0.5);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+  border-color: rgb(226 232 240 / 50%);
+  box-shadow: 0 24px 70px rgb(0 0 0 / 42%);
 }
 
 .floatingWindow[data-window-emphasis='active'] {
   z-index: 30;
-  border-color: rgba(248, 250, 252, 0.72);
+  border-color: rgb(248 250 252 / 72%);
+
   --window-press-y: -1px;
 }
 
 .floatingWindow[data-window-visible='false'] {
   --window-visibility-y: 10px;
   --window-scale: 0.98;
+
   opacity: 0;
   pointer-events: none;
 }
@@ -50,7 +53,7 @@
   cursor: grab;
   user-select: none;
   background: #0f172a;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+  border-bottom: 1px solid rgb(148 163 184 / 15%);
 }
 
 .windowTitle {
@@ -80,13 +83,10 @@
   display: block;
   width: 0.95rem;
   height: 0.95rem;
-  background: currentColor;
+  background: currentcolor;
   mask-position: center;
   mask-repeat: no-repeat;
   mask-size: contain;
-  -webkit-mask-position: center;
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-size: contain;
 }
 
 .windowBody {
@@ -97,7 +97,7 @@
   overflow: visible;
 }
 
-@media (max-width: 980px) {
+@media (width <= 980px) {
   .floatingWindow {
     width: min(92vw, 420px);
   }

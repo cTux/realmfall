@@ -6,8 +6,8 @@
   position: relative;
   height: 0.85rem;
   overflow: hidden;
-  background: rgba(30, 41, 59, 0.85);
-  border: 1px solid rgba(148, 163, 184, 0.15);
+  background: rgb(30 41 59 / 85%);
+  border: 1px solid rgb(148 163 184 / 15%);
 }
 
 .barFill {
@@ -25,7 +25,7 @@
   font-size: 0.72rem;
   line-height: 1;
   color: #f8fafc;
-  text-shadow: 0 1px 1px rgba(15, 23, 42, 0.9);
+  text-shadow: 0 1px 1px rgb(15 23 42 / 90%);
   pointer-events: none;
 }
 

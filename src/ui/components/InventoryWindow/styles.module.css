@@ -24,8 +24,7 @@
   flex-wrap: wrap;
   align-content: flex-start;
   max-height: min(48vh, 480px);
-  overflow-y: auto;
-  overflow-x: visible;
+  overflow: visible auto;
   scrollbar-gutter: stable;
   padding-bottom: 5px;
   gap: 5px;
@@ -50,10 +49,7 @@
   mask-repeat: no-repeat;
   mask-position: center;
   mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  -webkit-mask-size: contain;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 2px 4px rgb(0 0 0 / 45%));
 }
 
 .stackBadge {
@@ -61,8 +57,8 @@
   left: 50%;
   bottom: -6px;
   transform: translateX(-50%);
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgb(15 23 42 / 90%);
+  border: 1px solid rgb(148 163 184 / 25%);
   border-radius: 999px;
   padding: 0.04rem 0.26rem;
   font-size: 0.74rem;
@@ -73,7 +69,7 @@
   color: #94a3b8;
 }
 
-@media (max-width: 980px) {
+@media (width <= 980px) {
   .window {
     width: min(390px, calc(100vw - 16px));
   }

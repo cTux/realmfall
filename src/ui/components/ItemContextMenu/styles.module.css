@@ -5,10 +5,10 @@
   padding: 0.35rem;
   display: grid;
   gap: 0.25rem;
-  background: rgba(8, 15, 30, 0.96);
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgb(8 15 30 / 96%);
+  border: 1px solid rgb(148 163 184 / 20%);
   border-radius: 0.8rem;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 16px 40px rgb(0 0 0 / 45%);
 }
 
 .action {
