@@ -76,6 +76,19 @@
   line-height: 1.15;
 }
 
+.headerButtonIcon {
+  display: block;
+  width: 0.95rem;
+  height: 0.95rem;
+  background: currentColor;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+}
+
 .windowBody {
   padding: 0.9rem 1rem 1rem;
   display: grid;

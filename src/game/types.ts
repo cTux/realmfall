@@ -194,6 +194,7 @@ export interface LogEntry {
 export interface GameState {
   seed: string;
   radius: number;
+  homeHex: HexCoord;
   turn: number;
   worldTimeMs: number;
   dayPhase: 'day' | 'night';

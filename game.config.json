@@ -18,7 +18,8 @@
   },
   "items": {
     "recipeBookItemName": "Recipe Book",
-    "cookedFishItemName": "Cooked Fish"
+    "cookedFishItemName": "Cooked Fish",
+    "homeScrollItemName": "Hearthshard Wayscroll"
   },
   "search": {
     "townLimit": 24

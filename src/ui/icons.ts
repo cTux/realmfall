@@ -37,6 +37,8 @@ import friedFishIcon from '../assets/icons/fried-fish.svg';
 import campCookingPotIcon from '../assets/icons/camp-cooking-pot.svg';
 import stoneCraftingIcon from '../assets/icons/stone-crafting.svg';
 import spiderAltIcon from '../assets/icons/spider-alt.svg';
+import tiedScrollIcon from '../assets/icons/tied-scroll.svg';
+import arrowDunkIcon from '../assets/icons/arrow-dunk.svg';
 import type { StructureType } from '../game/state';
 import { rarityColor } from './rarity';
 
@@ -79,6 +81,8 @@ export const Icons = {
   CampCookingPot: campCookingPotIcon,
   StoneCrafting: stoneCraftingIcon,
   Spider: spiderAltIcon,
+  TiedScroll: tiedScrollIcon,
+  ArrowDunk: arrowDunkIcon,
 } as const;
 
 export const EnemyType = {
@@ -209,6 +213,7 @@ const NamedItemIcon: Record<string, string> = {
   'Iron Chunks': Icons.StonePile,
   'Cooked Fish': Icons.FriedFish,
   'Recipe Book': Icons.BookCover,
+  'Hearthshard Wayscroll': Icons.TiedScroll,
 };
 
 const NamedItemTint: Record<string, string> = {
@@ -219,6 +224,7 @@ const NamedItemTint: Record<string, string> = {
   Coal: '#475569',
   'Cooked Fish': '#f59e0b',
   'Recipe Book': '#c084fc',
+  'Hearthshard Wayscroll': '#a78bfa',
 };
 
 const ItemKindIcon: Record<Exclude<Item['kind'], 'resource'>, string> = {

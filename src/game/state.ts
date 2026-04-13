@@ -6,6 +6,7 @@ import {
   EARTHSHAKE_SPAWN_RADIUS,
   HARVEST_MOON_CHANCE,
   HARVEST_MOON_SPAWN_RADIUS,
+  HOME_SCROLL_ITEM_NAME,
   STARTING_RECIPE_IDS,
   WORLD_RADIUS,
 } from './config';
@@ -49,6 +50,7 @@ import {
   describeItemStack,
   getGoldAmount,
   hasRecipeBook,
+  makeHomeScroll,
   isEquippableItem,
   isRecipeBook,
   isRecipePage,
@@ -150,6 +152,7 @@ export function createGame(
   const state: GameState = {
     seed,
     radius,
+    homeHex: { q: 0, r: 0 },
     turn: 0,
     worldTimeMs: 0,
     dayPhase: 'night',
@@ -407,6 +410,28 @@ export function triggerEarthshake(state: GameState): GameState {
   return next;
 }
 
+export function setHomeHex(
+  state: GameState,
+  coord: HexCoord = state.player.coord,
+) {
+  const next = clone(state);
+  next.homeHex = { ...coord };
+
+  const key = hexKey(coord);
+  const existingTile = next.tiles[key] ?? buildTile(next.seed, coord);
+  existingTile.enemyIds.forEach((enemyId) => {
+    delete next.enemies[enemyId];
+  });
+  next.tiles[key] = sanitizeHomeTile(existingTile);
+
+  if (next.combat?.coord.q === coord.q && next.combat.coord.r === coord.r) {
+    next.combat = null;
+  }
+
+  addLog(next, 'system', `You set home at ${coord.q}, ${coord.r}.`);
+  return next;
+}
+
 export function attackCombatEnemy(state: GameState): GameState {
   if (!state.combat) return message(state, 'There is no active battle.');
   if (!state.combat.started)
@@ -490,6 +515,10 @@ export function useItem(state: GameState, itemId: string): GameState {
     return message(state, 'That item cannot be used.');
 
   const next = clone(state);
+  if (item.name === HOME_SCROLL_ITEM_NAME) {
+    teleportHome(next, itemIndex, item);
+    return next;
+  }
   consumeItem(next, itemIndex, item);
   return next;
 }
@@ -668,6 +697,7 @@ function applyPlayerAbility(
     gainXp(state, enemy.xp, addLog);
     maybeDropEnemyGold(state, enemy);
     maybeDropEnemyRecipe(state, enemy);
+    maybeDropHomeScroll(state, enemy);
     maybeDropBloodMoonLoot(state, enemy);
     maybeSkinEnemy(state, enemy);
     addLog(state, 'combat', `You defeated the ${enemy.name}.`);
@@ -1064,6 +1094,17 @@ function consumeItem(state: GameState, itemIndex: number, item: Item) {
   );
 }
 
+function teleportHome(state: GameState, itemIndex: number, item: Item) {
+  consumeInventoryItem(state.player.inventory, itemIndex, item);
+  state.player.coord = { ...state.homeHex };
+  state.combat = null;
+  addLog(
+    state,
+    'system',
+    `The ${item.name} tears a safe path through the Fracture and returns you home.`,
+  );
+}
+
 function respawnAtNearestTown(state: GameState, from: HexCoord) {
   const town = findNearestStructure(state.seed, from, 'town') ?? { q: 0, r: 0 };
   state.player.coord = town;
@@ -1124,6 +1165,7 @@ function clone(state: GameState): GameState {
 
   return {
     ...state,
+    homeHex: { ...state.homeHex },
     logSequence: state.logSequence,
     logs: [...state.logs],
     combat: state.combat
@@ -1185,6 +1227,21 @@ function clone(state: GameState): GameState {
         ]),
       ),
     },
+  };
+}
+
+function isHomeHex(state: GameState, coord: HexCoord) {
+  return state.homeHex.q === coord.q && state.homeHex.r === coord.r;
+}
+
+function sanitizeHomeTile(tile: GameState['tiles'][string]) {
+  return {
+    ...tile,
+    items: [],
+    structure: undefined,
+    structureHp: undefined,
+    structureMaxHp: undefined,
+    enemyIds: [],
   };
 }
 
@@ -1270,6 +1327,23 @@ function maybeDropEnemyRecipe(
   addLog(state, 'loot', `${enemy.name} dropped Recipe: ${recipe.name}.`);
 }
 
+function maybeDropHomeScroll(state: GameState, enemy: import('./types').Enemy) {
+  const rng = createRng(
+    `${state.seed}:enemy-home-scroll:${enemy.id}:${state.turn}`,
+  );
+  if (rng() >= 0.02) return;
+
+  ensureTileState(state, enemy.coord);
+  const key = hexKey(enemy.coord);
+  const tile = state.tiles[key];
+  addItemToInventory(
+    tile.items,
+    makeHomeScroll(`home-scroll:${enemy.id}:${state.turn}`),
+  );
+  state.tiles[key] = { ...tile, items: [...tile.items] };
+  addLog(state, 'loot', `${enemy.name} dropped ${HOME_SCROLL_ITEM_NAME}.`);
+}
+
 function maybeDropBloodMoonLoot(
   state: GameState,
   enemy: import('./types').Enemy,
@@ -1343,6 +1417,7 @@ function spawnBloodMoonEnemies(state: GameState) {
       };
       const distance = hexDistance(state.player.coord, coord);
       if (distance === 0 || distance > BLOOD_MOON_SPAWN_RADIUS) continue;
+      if (isHomeHex(state, coord)) continue;
 
       ensureTileState(state, coord);
       const key = hexKey(coord);
@@ -1415,6 +1490,7 @@ function spawnHarvestMoonResources(state: GameState) {
       };
       const distance = hexDistance(state.player.coord, coord);
       if (distance === 0 || distance > HARVEST_MOON_SPAWN_RADIUS) continue;
+      if (isHomeHex(state, coord)) continue;
 
       ensureTileState(state, coord);
       const key = hexKey(coord);
@@ -1511,6 +1587,7 @@ function findNearbyDungeonSpawn(
       };
       const distance = hexDistance(state.player.coord, coord);
       if (distance === 0 || distance > searchRadius) continue;
+      if (isHomeHex(state, coord)) continue;
 
       ensureTileState(state, coord);
       const tile = state.tiles[hexKey(coord)];

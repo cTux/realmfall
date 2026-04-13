@@ -133,6 +133,8 @@ export function renderScene(
     const style = tileStyle(tile.terrain);
     const hovered =
       hoveredMove?.q === tile.coord.q && hoveredMove?.r === tile.coord.r;
+    const isHomeTile =
+      tile.coord.q === state.homeHex.q && tile.coord.r === state.homeHex.r;
     const hasBackground = hasTileGroundCover(tile.terrain);
     if (shouldRenderStatic) {
       const fillAlpha = hasBackground ? 0.2 : emphasized ? style.alpha : 0.8;
@@ -232,6 +234,12 @@ export function renderScene(
     }
 
     if (shouldRenderInteraction) {
+      if (isHomeTile) {
+        const homeOutline = takeGraphics(scene.worldInteractionGraphics);
+        homeOutline.lineStyle(3, 0xa855f7, 0.92);
+        homeOutline.drawPolygon(poly);
+      }
+
       if (hovered) {
         const hoverOverlay = takeGraphics(scene.worldInteractionGraphics);
         hoverOverlay.beginFill(

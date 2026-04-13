@@ -24,7 +24,15 @@ import type {
 
 export function cacheSafeStart(state: GameState) {
   const center = { q: 0, r: 0 };
-  state.tiles[hexKey(center)] = buildTile(state.seed, center);
+  state.tiles[hexKey(center)] = {
+    coord: center,
+    terrain: 'plains',
+    items: [],
+    structure: undefined,
+    structureHp: undefined,
+    structureMaxHp: undefined,
+    enemyIds: [],
+  };
   hexNeighbors(center).forEach((coord) => {
     state.tiles[hexKey(coord)] = {
       coord,
@@ -64,8 +72,10 @@ export function buildTile(seed: string, coord: HexCoord): Tile {
     return {
       coord,
       terrain: 'plains',
-      structure: 'town',
+      structure: undefined,
       items: [],
+      structureHp: undefined,
+      structureMaxHp: undefined,
       enemyIds: [],
     };
   }

@@ -21,6 +21,7 @@ interface GameConfig {
   items: {
     recipeBookItemName: string;
     cookedFishItemName: string;
+    homeScrollItemName: string;
   };
   search: {
     townLimit: number;
@@ -65,6 +66,7 @@ export const STARTING_RECIPE_IDS = GAME_CONFIG.player.startingRecipeIds;
 
 export const RECIPE_BOOK_ITEM_NAME = GAME_CONFIG.items.recipeBookItemName;
 export const COOKED_FISH_ITEM_NAME = GAME_CONFIG.items.cookedFishItemName;
+export const HOME_SCROLL_ITEM_NAME = GAME_CONFIG.items.homeScrollItemName;
 
 export const TOWN_SEARCH_LIMIT = GAME_CONFIG.search.townLimit;
 

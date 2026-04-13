@@ -40,9 +40,23 @@ export function normalizeLoadedGame(game: GameState): GameState {
       normalizeTile(tile),
     ]),
   );
+  const homeHex = game.homeHex ?? { ...game.player.coord };
+  const homeKey = `${homeHex.q},${homeHex.r}`;
+  const existingHomeTile = tiles[homeKey];
+  if (game.homeHex && existingHomeTile) {
+    tiles[homeKey] = {
+      ...existingHomeTile,
+      items: [],
+      structure: undefined,
+      structureHp: undefined,
+      structureMaxHp: undefined,
+      enemyIds: [],
+    };
+  }
 
   return {
     ...game,
+    homeHex,
     worldTimeMs: Math.max(0, Number(game.worldTimeMs ?? 0) || 0),
     dayPhase:
       game.dayPhase ??

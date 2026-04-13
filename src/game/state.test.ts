@@ -19,6 +19,7 @@ import {
   progressCombat,
   prospectInventory,
   sellAllItems,
+  setHomeHex,
   sortInventory,
   startCombat,
   syncBloodMoon,
@@ -29,7 +30,11 @@ import {
   type GameState,
   type Item,
 } from './state';
-import { GAME_DAY_DURATION_MS, GAME_DAY_MINUTES } from './config';
+import {
+  GAME_DAY_DURATION_MS,
+  GAME_DAY_MINUTES,
+  HOME_SCROLL_ITEM_NAME,
+} from './config';
 import { normalizeLoadedGame } from '../app/normalize';
 
 describe('game state', () => {
@@ -37,6 +42,8 @@ describe('game state', () => {
     const game = createGame(3, 'test-seed');
     expect(game.player.coord).toEqual({ q: 0, r: 0 });
     expect(getTileAt(game, { q: 0, r: 0 }).terrain).toBe('plains');
+    expect(getTileAt(game, { q: 0, r: 0 }).structure).toBeUndefined();
+    expect(getTileAt(game, { q: 0, r: 0 }).enemyIds).toEqual([]);
     expect(getVisibleTiles(game)).toHaveLength(37);
     expect(hasRecipeBook(game.player.inventory)).toBe(true);
     expect(game.player.learnedRecipeIds).toEqual(['cook-cooked-fish']);
@@ -516,6 +523,53 @@ describe('game state', () => {
     expect(getTileAt(synced, { q: 1, r: 0 }).enemyIds).toHaveLength(3);
   });
 
+  it('clears the home hex when home is set', () => {
+    const game = createGame(3, 'set-home-empty-seed');
+    game.player.coord = { q: 1, r: 0 };
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      items: [
+        {
+          id: 'resource-gold-home',
+          kind: 'resource',
+          name: 'Gold',
+          quantity: 4,
+          tier: 1,
+          rarity: 'common',
+          power: 0,
+          defense: 0,
+          maxHp: 0,
+          healing: 0,
+          hunger: 0,
+        },
+      ],
+      structure: 'camp',
+      enemyIds: ['enemy-1,0-0'],
+    };
+    game.enemies['enemy-1,0-0'] = {
+      id: 'enemy-1,0-0',
+      name: 'Wolf',
+      coord: { q: 1, r: 0 },
+      tier: 1,
+      hp: 3,
+      maxHp: 3,
+      attack: 1,
+      defense: 0,
+      xp: 1,
+      elite: false,
+    };
+
+    const next = setHomeHex(game);
+    const homeTile = getTileAt(next, { q: 1, r: 0 });
+
+    expect(next.homeHex).toEqual({ q: 1, r: 0 });
+    expect(homeTile.structure).toBeUndefined();
+    expect(homeTile.items).toEqual([]);
+    expect(homeTile.enemyIds).toEqual([]);
+    expect(next.enemies['enemy-1,0-0']).toBeUndefined();
+  });
+
   it('logs ordinary nightfall and morning transitions', () => {
     const game = createGame(3, 'day-phase-seed');
     game.dayPhase = 'day';
@@ -568,6 +622,9 @@ describe('game state', () => {
         (tile) => tile.structure === 'herbs',
       ),
     ).toBe(true);
+    expect(getTileAt(harvestMoonGame, harvestMoonGame.homeHex).structure).toBe(
+      undefined,
+    );
 
     const sunrise = syncBloodMoon(harvestMoonGame, 7 * 60);
     expect(sunrise.harvestMoonActive).toBe(false);
@@ -623,6 +680,7 @@ describe('game state', () => {
         (tile) => tile.structure === 'dungeon' && tile.enemyIds.length > 0,
       ),
     ).toBe(true);
+    expect(getTileAt(shaken, shaken.homeHex).structure).toBeUndefined();
   });
 
   it('does not seed loose resource items onto freshly generated tiles', () => {
@@ -840,6 +898,80 @@ describe('game state', () => {
         (item) => item.id === 'starter-ration',
       ),
     ).toBeDefined();
+  });
+
+  it('uses a hearthshard wayscroll to return to the home hex', () => {
+    const game = createGame(3, 'home-scroll-use-seed');
+    game.homeHex = { q: -2, r: 1 };
+    game.player.coord = { q: 2, r: -1 };
+    game.player.inventory.push({
+      id: 'home-scroll-1',
+      kind: 'consumable',
+      name: HOME_SCROLL_ITEM_NAME,
+      quantity: 1,
+      tier: 1,
+      rarity: 'common',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+    });
+
+    const returned = useItem(game, 'home-scroll-1');
+
+    expect(returned.player.coord).toEqual(game.homeHex);
+    expect(
+      returned.player.inventory.some((item) => item.id === 'home-scroll-1'),
+    ).toBe(false);
+    expect(
+      returned.logs.some((entry) => /returns you home/i.test(entry.text)),
+    ).toBe(true);
+  });
+
+  it('can drop a hearthshard wayscroll from a defeated enemy', () => {
+    let dropped: GameState | null = null;
+
+    for (let attempt = 0; attempt < 800; attempt += 1) {
+      const game = createGame(3, `home-scroll-drop-seed-${attempt}`);
+      const target = { q: 2, r: 0 };
+      game.homeHex = { q: -2, r: 1 };
+      game.tiles['2,0'] = {
+        coord: target,
+        terrain: 'plains',
+        items: [],
+        structure: undefined,
+        enemyIds: ['enemy-2,0-0'],
+      };
+      game.enemies['enemy-2,0-0'] = {
+        id: 'enemy-2,0-0',
+        name: 'Wolf',
+        coord: target,
+        tier: 1,
+        hp: 1,
+        maxHp: 1,
+        attack: 0,
+        defense: 0,
+        xp: 1,
+        elite: false,
+      };
+      game.player.coord = { q: 1, r: 0 };
+
+      const encountered = moveToTile(game, target);
+      const resolved = startCombat(encountered);
+      const tile = getTileAt(resolved, target);
+      if (tile.items.some((item) => item.name === HOME_SCROLL_ITEM_NAME)) {
+        dropped = resolved;
+        break;
+      }
+    }
+
+    expect(dropped).not.toBeNull();
+    expect(
+      getTileAt(dropped!, { q: 2, r: 0 }).items.some(
+        (item) => item.name === HOME_SCROLL_ITEM_NAME,
+      ),
+    ).toBe(true);
   });
 
   it('cooks raw fish with available burnable fuel and levels cooking', () => {

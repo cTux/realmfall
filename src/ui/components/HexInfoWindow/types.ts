@@ -7,6 +7,8 @@ export interface HexInfoWindowProps {
   onMove: (position: WindowPosition) => void;
   visible?: boolean;
   onClose?: () => void;
+  isHome: boolean;
+  onSetHome: () => void;
   terrain: string;
   structure: string;
   enemyCount: number;

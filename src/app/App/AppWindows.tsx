@@ -167,6 +167,7 @@ interface AppWindowsProps {
   onProspect: () => void;
   onSellAll: () => void;
   onBuyTownItem: (itemId: string) => void;
+  onSetHome: () => void;
 }
 
 export function AppWindows({
@@ -224,6 +225,7 @@ export function AppWindows({
   onProspect,
   onSellAll,
   onBuyTownItem,
+  onSetHome,
 }: AppWindowsProps) {
   const [loadedWindows, setLoadedWindows] = useState(() => ({
     skills: windowShown.skills,
@@ -307,6 +309,11 @@ export function AppWindows({
             onMove={(position) => onMoveWindow('hexInfo', position)}
             visible={windowShown.hexInfo}
             onClose={() => onSetWindowVisibility('hexInfo', false)}
+            isHome={
+              game.homeHex.q === game.player.coord.q &&
+              game.homeHex.r === game.player.coord.r
+            }
+            onSetHome={onSetHome}
             terrain={formatTerrainLabel(currentTile.terrain)}
             structure={describeStructure(currentTile.structure)}
             enemyCount={

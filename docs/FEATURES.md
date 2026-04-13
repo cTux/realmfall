@@ -196,8 +196,6 @@
 * Admin functions
     * Blood Moon
     * Harvest Moon
-* Set hex as Home (favorite)
-    * Showing an arrow to the Home direction
 * More enemies
     * Enemies specific loot
 * More fantasy names for everything
@@ -207,4 +205,12 @@
     * Items
     * More rumors
     * Quests
-* Game name: Realmfall
+* Use lore for:
+    * Check and replace current names / titles / descriptions
+* Add rules for:
+    * Every unique type of item should have its own configuration file (including icon, chance of drop, etc.)
+    * Every unique enemy should have its own configuration file (including icon, chance of appearing of this type, etc.)
+    * Every unique structure should have its own configuration file (including icon, list of functions provided by this structure)
+* Check what have not been done respecting rules and fix it
+* Building skill
+    * Requires less resources

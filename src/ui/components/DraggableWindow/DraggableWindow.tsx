@@ -7,6 +7,7 @@ import {
 } from 'react';
 import type { DraggableWindowProps } from './types';
 import styles from './styles.module.css';
+import { Icons } from '../../icons';
 
 const WINDOW_TRANSITION_MS = 180;
 const WINDOW_ACTIVATED_EVENT = 'opencode-window-activated';
@@ -143,10 +144,18 @@ export function DraggableWindow({
             <button
               type="button"
               className={styles.headerButton}
+              aria-label="Close"
               onPointerDown={(event) => event.stopPropagation()}
               onClick={closeWindow}
             >
-              Close
+              <span
+                className={styles.headerButtonIcon}
+                style={{
+                  WebkitMaskImage: `url("${Icons.ArrowDunk}")`,
+                  maskImage: `url("${Icons.ArrowDunk}")`,
+                }}
+                aria-hidden="true"
+              />
             </button>
           ) : null}
         </div>

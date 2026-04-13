@@ -5,6 +5,7 @@ import {
   type StructureType,
   type Tile,
 } from '../game/state';
+import { HOME_SCROLL_ITEM_NAME } from '../game/config';
 
 export interface TooltipLine {
   text?: string;
@@ -147,6 +148,10 @@ export function structureTooltip(
 }
 
 function consumableEffectDescription(item: Item) {
+  if (item.name === HOME_SCROLL_ITEM_NAME) {
+    return 'Use to return instantly to your home hex.';
+  }
+
   const effects = [
     item.healing > 0 ? `recover ${item.healing} HP` : null,
     item.hunger > 0 ? `restore ${item.hunger} hunger` : null,

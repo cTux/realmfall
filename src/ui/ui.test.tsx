@@ -339,6 +339,8 @@ describe('ui helpers and components', () => {
         <HexInfoWindow
           position={DEFAULT_WINDOWS.hexInfo}
           onMove={() => {}}
+          isHome={false}
+          onSetHome={() => {}}
           terrain="Forest"
           structure="Tree"
           enemyCount={0}
@@ -514,6 +516,8 @@ describe('ui helpers and components', () => {
         <HexInfoWindow
           position={DEFAULT_WINDOWS.hexInfo}
           onMove={() => {}}
+          isHome={false}
+          onSetHome={() => {}}
           terrain="Plains"
           structure="Forge"
           enemyCount={0}
@@ -535,6 +539,8 @@ describe('ui helpers and components', () => {
         <HexInfoWindow
           position={DEFAULT_WINDOWS.hexInfo}
           onMove={() => {}}
+          isHome={false}
+          onSetHome={() => {}}
           terrain="Plains"
           structure="Town"
           enemyCount={0}
@@ -762,9 +768,9 @@ describe('ui helpers and components', () => {
     expect(testWindow.dataset.windowEmphasis).toBe('active');
     expect(backgroundWindow.dataset.windowEmphasis).toBe('idle');
 
-    const closeButton = Array.from(testWindow.querySelectorAll('button')).find(
-      (button) => button.textContent === 'Close',
-    );
+    const closeButton = testWindow.querySelector(
+      'button[aria-label="Close"]',
+    ) as HTMLButtonElement | null;
     expect(testWindow.textContent).toContain('Body');
     await act(async () => {
       closeButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));

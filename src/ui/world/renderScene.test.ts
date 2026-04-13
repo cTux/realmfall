@@ -258,6 +258,43 @@ describe('renderScene', () => {
     expect(brightHoveredFill).toBe(true);
   });
 
+  it('draws a purple outline around the home hex', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-home-hex');
+    game.homeHex = { q: 1, r: 0 };
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    const world = app.stage.children[1] as MockContainer;
+    const homeOutlines = collectDescendants(world).filter(
+      (child) =>
+        child instanceof MockGraphics &&
+        child.lineStyle.mock.calls.some(
+          ([width, color, alpha]) =>
+            width === 3 && color === 0xa855f7 && alpha === 0.92,
+        ),
+    );
+
+    expect(homeOutlines).toHaveLength(1);
+  });
+
   it('adds animated campfire glow only once the world gets dark', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-campfire-glow');

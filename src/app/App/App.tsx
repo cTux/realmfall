@@ -6,17 +6,19 @@ import {
   getGoldAmount,
   getPlayerStats,
   getRecipeBookRecipes,
+  setHomeHex,
   getTownStock,
   getVisibleTiles,
   hasEquippableInventoryItems,
   hasRecipeBook,
+  hexDistance,
   structureActionLabel,
   syncBloodMoon,
   triggerEarthshake,
   type GameState,
   type HexCoord,
 } from '../../game/state';
-import { WORLD_RADIUS } from '../constants';
+import { WORLD_RADIUS, WORLD_REVEAL_RADIUS } from '../constants';
 import { AppWindows } from './AppWindows';
 import { getDockEntries } from './appHelpers';
 import { DebuggerWindow } from '../../ui/components/DebuggerWindow';
@@ -29,6 +31,7 @@ import { useWindowTransitions } from './useWindowTransitions';
 import { useWorldClockFps } from './useWorldClockFps';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import type { TooltipState } from './types';
+import { getWorldHexSize, tileToPoint } from '../../ui/world/renderSceneMath';
 import styles from './styles.module.css';
 
 export function App() {
@@ -51,6 +54,7 @@ export function App() {
   const [game, setGame] = useState<GameState>(initialGameRef.current);
   const [selected, setSelected] = useState<HexCoord>(game.player.coord);
   const [hoveredMove, setHoveredMove] = useState<HexCoord | null>(null);
+  const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
 
   const {
     closeItemMenu,
@@ -205,6 +209,10 @@ export function App() {
     );
   };
 
+  const handleSetHome = () => {
+    setGame((current) => setHomeHex(current));
+  };
+
   useEffect(() => {
     setGame((current) =>
       syncBloodMoon(
@@ -246,6 +254,62 @@ export function App() {
     setHoveredMove(null);
   }, [game.player.coord]);
 
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host) return;
+
+    const updateViewportSize = () => {
+      setViewportSize({
+        width: host.clientWidth,
+        height: host.clientHeight,
+      });
+    };
+
+    updateViewportSize();
+    const observer = new ResizeObserver(updateViewportSize);
+    observer.observe(host);
+    return () => observer.disconnect();
+  }, [hostRef, isReady]);
+
+  const homeIndicator = useMemo(() => {
+    if (!viewportSize.width || !viewportSize.height) return null;
+
+    const homeDistance = hexDistance(game.player.coord, game.homeHex);
+    if (homeDistance <= WORLD_REVEAL_RADIUS) return null;
+
+    const center = {
+      x: viewportSize.width / 2,
+      y: viewportSize.height / 2,
+    };
+    const homePoint = tileToPoint(
+      {
+        q: game.homeHex.q - game.player.coord.q,
+        r: game.homeHex.r - game.player.coord.r,
+      },
+      center.x,
+      center.y,
+      getWorldHexSize(viewportSize, game.radius),
+    );
+    const vector = {
+      x: homePoint.x - center.x,
+      y: homePoint.y - center.y,
+    };
+    const magnitude = Math.hypot(vector.x, vector.y);
+    if (!magnitude) return null;
+    const ringScale = WORLD_REVEAL_RADIUS / homeDistance;
+    const borderOffset = 18;
+    const normalized = {
+      x: vector.x / magnitude,
+      y: vector.y / magnitude,
+    };
+
+    return {
+      x: center.x + vector.x * ringScale + normalized.x * borderOffset,
+      y: center.y + vector.y * ringScale + normalized.y * borderOffset,
+      angle: Math.atan2(vector.y, vector.x),
+    };
+  }, [game.homeHex, game.player.coord, game.radius, viewportSize]);
+
   const dockEntries = useMemo(
     () => getDockEntries(windowShown, renderLootWindow, renderCombatWindow),
     [renderCombatWindow, renderLootWindow, windowShown],
@@ -268,6 +332,27 @@ export function App() {
     <div className={styles.appRoot}>
       <div className={isReady ? undefined : styles.hiddenUntilReady}>
         <div ref={hostRef} className={styles.mapViewport} />
+        {homeIndicator ? (
+          <div
+            className={styles.homeIndicator}
+            style={{
+              left: homeIndicator.x,
+              top: homeIndicator.y,
+              transform: `translate(-50%, -50%) rotate(${homeIndicator.angle + Math.PI / 2}rad)`,
+            }}
+            aria-label="Home direction"
+          >
+            <span className={styles.homeIndicatorArrow}>▲</span>
+            <span
+              className={styles.homeIndicatorLabel}
+              style={{
+                transform: `translate(-50%, 0) rotate(${-homeIndicator.angle - Math.PI / 2}rad)`,
+              }}
+            >
+              Home
+            </span>
+          </div>
+        ) : null}
         {windowShown.worldTime ? (
           <DebuggerWindow
             position={windows.worldTime}
@@ -332,6 +417,7 @@ export function App() {
           onProspect={handleProspect}
           onSellAll={handleSellAll}
           onBuyTownItem={handleBuyTownItem}
+          onSetHome={handleSetHome}
         />
       </div>
       {isReady ? null : (

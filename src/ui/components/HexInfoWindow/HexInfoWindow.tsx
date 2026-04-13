@@ -3,6 +3,7 @@ import { WINDOW_LABELS } from '../../windowLabels';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
+import inventoryStyles from '../InventoryWindow/styles.module.css';
 import labelStyles from '../windowLabels.module.css';
 import type { HexInfoWindowProps } from './types';
 import styles from './styles.module.css';
@@ -18,6 +19,8 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   onMove,
   visible,
   onClose,
+  isHome,
+  onSetHome,
   terrain,
   structure,
   enemyCount,
@@ -51,6 +54,21 @@ export const HexInfoWindow = memo(function HexInfoWindow({
       className={styles.window}
       visible={visible}
       onClose={onClose}
+      headerActions={
+        <button
+          type="button"
+          className={`${inventoryStyles.headerButton} ${styles.homeButton}`}
+          aria-pressed={isHome}
+          disabled={isHome}
+          onPointerDown={(event) => event.stopPropagation()}
+          onClick={(event) => {
+            event.stopPropagation();
+            onSetHome();
+          }}
+        >
+          Home
+        </button>
+      }
     >
       <Suspense fallback={<WindowLoadingState />}>
         <HexInfoWindowContent

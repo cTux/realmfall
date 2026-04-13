@@ -4,7 +4,7 @@ import styles from './styles.module.css';
 
 type HexInfoWindowContentProps = Omit<
   HexInfoWindowProps,
-  'position' | 'onMove' | 'visible' | 'onClose'
+  'position' | 'onMove' | 'visible' | 'onClose' | 'isHome' | 'onSetHome'
 >;
 
 export function HexInfoWindowContent({

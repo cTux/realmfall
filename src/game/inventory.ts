@@ -1,4 +1,8 @@
-import { COOKED_FISH_ITEM_NAME, RECIPE_BOOK_ITEM_NAME } from './config';
+import {
+  COOKED_FISH_ITEM_NAME,
+  HOME_SCROLL_ITEM_NAME,
+  RECIPE_BOOK_ITEM_NAME,
+} from './config';
 import type {
   EquipmentSlot,
   GameState,
@@ -60,6 +64,10 @@ export function makeRecipeBook(): Item {
     healing: 0,
     hunger: 0,
   };
+}
+
+export function makeHomeScroll(id: string): Item {
+  return makeConsumable(id, HOME_SCROLL_ITEM_NAME, 1, 0, 0);
 }
 
 export function makeConsumable(

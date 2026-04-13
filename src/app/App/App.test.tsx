@@ -95,6 +95,7 @@ describe('App', () => {
 
   it('hydrates saved state, handles ui interactions, and responds to map input', async () => {
     const game = createGame(3, 'app-test-seed');
+    game.homeHex = { q: 2, r: -1 };
     game.tiles['0,0'] = {
       ...game.tiles['0,0'],
       structure: 'forge',

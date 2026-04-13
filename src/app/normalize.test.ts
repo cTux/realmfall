@@ -6,6 +6,7 @@ describe('normalizeLoadedGame', () => {
     const game = createGame(3, 'normalize-seed');
     const loaded = normalizeLoadedGame({
       ...game,
+      homeHex: { q: 2, r: -1 },
       logSequence: 0,
       logs: [
         { id: 'old-1', kind: 'system', turn: 1, text: 'first' },
@@ -142,6 +143,7 @@ describe('normalizeLoadedGame', () => {
     expect(loaded.player.skills.mining).toEqual({ level: 1, xp: 0 });
     expect(loaded.player.skills.cooking).toEqual({ level: 1, xp: 0 });
     expect(loaded.player.skills.crafting).toEqual({ level: 1, xp: 0 });
+    expect(loaded.homeHex).toEqual({ q: 2, r: -1 });
     expect(
       loaded.player.inventory.find((item) => item.name === 'Trail Ration')
         ?.quantity,
@@ -195,11 +197,51 @@ describe('normalizeLoadedGame', () => {
     expect(loaded.player.inventory[0]?.quantity).toBe(4);
   });
 
+  it('preserves saved home hex coordinates', () => {
+    const game = createGame(3, 'normalize-home-hex');
+
+    const loaded = normalizeLoadedGame({
+      ...game,
+      homeHex: { q: 2, r: -1 },
+      tiles: {
+        '2,-1': {
+          coord: { q: 2, r: -1 },
+          terrain: 'plains',
+          structure: 'camp',
+          items: [
+            {
+              id: 'resource-gold-home',
+              kind: 'resource',
+              name: 'Gold',
+              quantity: 4,
+              tier: 1,
+              rarity: 'common',
+              power: 0,
+              defense: 0,
+              maxHp: 0,
+              healing: 0,
+              hunger: 0,
+            },
+          ],
+          enemyIds: ['enemy-2,-1-0'],
+        },
+      },
+    });
+
+    expect(loaded.homeHex).toEqual({ q: 2, r: -1 });
+    expect(loaded.tiles['2,-1']).toMatchObject({
+      structure: undefined,
+      items: [],
+      enemyIds: [],
+    });
+  });
+
   it('uniquifies duplicate non-stackable item ids in saves', () => {
     const game = createGame(3, 'normalize-duplicate-ids');
 
     const loaded = normalizeLoadedGame({
       ...game,
+      homeHex: { q: 2, r: -1 },
       tiles: {
         '0,0': {
           ...game.tiles['0,0'],
