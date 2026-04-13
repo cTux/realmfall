@@ -1,3 +1,4 @@
+import { GAME_DAY_DURATION_MS, GAME_DAY_MINUTES } from '../game/config';
 import {
   getRecipeBookRecipes,
   isGatheringStructure,
@@ -45,14 +46,24 @@ export function normalizeLoadedGame(game: GameState): GameState {
     worldTimeMs: Math.max(0, Number(game.worldTimeMs ?? 0) || 0),
     dayPhase:
       game.dayPhase ??
-      ((Math.max(0, Number(game.worldTimeMs ?? 0) || 0) / 60000) * 1440 >=
+      ((Math.max(0, Number(game.worldTimeMs ?? 0) || 0) /
+        GAME_DAY_DURATION_MS) *
+        GAME_DAY_MINUTES >=
         18 * 60 ||
-      (Math.max(0, Number(game.worldTimeMs ?? 0) || 0) / 60000) * 1440 < 7 * 60
+      (Math.max(0, Number(game.worldTimeMs ?? 0) || 0) / GAME_DAY_DURATION_MS) *
+        GAME_DAY_MINUTES <
+        7 * 60
         ? 'night'
         : 'day'),
     bloodMoonActive: Boolean(game.bloodMoonActive),
     bloodMoonCheckedTonight: Boolean(game.bloodMoonCheckedTonight),
     bloodMoonCycle: Math.max(0, Number(game.bloodMoonCycle ?? 0) || 0),
+    harvestMoonActive: Boolean(game.harvestMoonActive),
+    harvestMoonCheckedTonight: Boolean(game.harvestMoonCheckedTonight),
+    harvestMoonCycle: Math.max(0, Number(game.harvestMoonCycle ?? 0) || 0),
+    lastEarthshakeDay: Number.isFinite(game.lastEarthshakeDay)
+      ? Math.floor(game.lastEarthshakeDay)
+      : -1,
     logSequence: Math.max(game.logSequence ?? 0, logs.length),
     logs,
     tiles,
@@ -183,6 +194,8 @@ function defaultStructureHp(
   switch (structure) {
     case 'tree':
       return 5;
+    case 'herbs':
+      return 3;
     case 'copper-ore':
       return 6;
     case 'iron-ore':

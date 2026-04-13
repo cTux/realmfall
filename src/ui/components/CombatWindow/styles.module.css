@@ -108,12 +108,26 @@
 }
 
 .effectChip {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  overflow: hidden;
   appearance: none;
   cursor: default;
-  padding: 0.18rem 0.35rem;
-  font-size: 0.72rem;
-  color: #cbd5e1;
-  background: rgba(15, 23, 42, 0.55);
+  padding: 0;
+  border-radius: 0;
+  background: rgba(15, 23, 42, 0.85);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  transition:
+    transform 120ms ease,
+    border-color 120ms ease,
+    background-color 120ms ease;
+}
+
+.effectChip:hover {
+  transform: translateY(-1px);
 }
 
 .buffChip {
@@ -142,9 +156,22 @@
   background: rgba(15, 23, 42, 0.85);
   color: #f8fafc;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  transition:
+    transform 120ms ease,
+    border-color 120ms ease,
+    background-color 120ms ease;
+}
+
+.abilitySquare:hover {
+  transform: translateY(-1px);
 }
 
 .abilityIcon {
+  width: 1.45rem;
+  height: 1.45rem;
+}
+
+.effectIcon {
   width: 1.45rem;
   height: 1.45rem;
 }

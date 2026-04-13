@@ -1,6 +1,6 @@
-# Survival RPG
+# Realmfall
 
-Hex-based browser survival RPG built with React, TypeScript, Vite, Pixi.js, Vitest, ESLint, Prettier, and Husky.
+Hex-based browser survival RPG `Realmfall`, built with React, TypeScript, Vite, Pixi.js, Vitest, ESLint, Prettier, and Husky.
 
 ## Current State
 
@@ -20,6 +20,7 @@ Current project strengths reflected in the codebase and docs:
 
 - Clear architectural separation between gameplay rules, app orchestration, React windows, and Pixi world rendering.
 - Existing React containment patterns such as memoized windows and lazy-loaded secondary UI.
+- Window content is expected to stay bundle-split instead of being folded into the initial app path.
 - Rendering-specific tests for world math, time-of-day behavior, filters, and cached render behavior.
 - Pixi render caches and pools already reuse containers, graphics, sprites, and text instead of recreating display objects each frame.
 - Save compatibility handled through normalization before hydration.
@@ -113,11 +114,15 @@ The world view is the most performance-sensitive path in the project.
 - Treat browser-side save protection as local obfuscation, not real security.
 - Prefer debounced or meaningfully-triggered persistence work over repeated identical writes.
 - Keep React component files compatible with Fast Refresh expectations.
+- New draggable windows should keep their content behind a lazy-loaded bundle, either by splitting the whole window module or a dedicated `*WindowContent` module.
 - Prefer deterministic tests for gameplay and render-math changes, especially when performance-sensitive behavior changes.
+- Keep generated world content aligned with `docs/lore/REALMFALL.md`.
 
 ## Project Rules
 
 Shared project rules live in `docs/RULES.md`.
+
+World lore lives in `docs/lore/REALMFALL.md`.
 
 AI-facing instruction entrypoints also exist in:
 
@@ -145,6 +150,7 @@ Important workflow expectations:
 - On the Pixi world path, prefer ticker-owned rendering with refs or invalidation flags instead of duplicate React effect redraws.
 - Prefer extending the current render pools, caches, and stage-layer structure before introducing new rendering systems.
 - Treat bundle growth as a real performance budget, especially on the initial app path.
+- Keep new window content out of the initial bundle unless there is a clear reason not to split it.
 
 ## Prompt Workflow
 

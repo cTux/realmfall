@@ -59,7 +59,13 @@ export function renderScene(
   const cloudInputs = getCloudRenderInputs(scene, state.seed);
 
   const { lighting, origin, sunPosition, moonPosition, shadowOffset } =
-    getLightingState(app, worldTimeMinutes, animationMs, state.bloodMoonActive);
+    getLightingState(
+      app,
+      worldTimeMinutes,
+      animationMs,
+      state.bloodMoonActive,
+      state.harvestMoonActive,
+    );
   const hexSize = getWorldHexSize(app.screen, state.radius);
   const structureIconSize = hexSize * 1.065;
   const enemyIconSize = hexSize * 0.945;
@@ -83,6 +89,7 @@ export function renderScene(
     moonPosition,
     origin,
     state.bloodMoonActive,
+    state.harvestMoonActive,
   );
 
   const screenChanged =
@@ -170,11 +177,13 @@ export function renderScene(
 
       if (tile.structure) {
         const structureColor =
-          tile.structure === 'pond'
-            ? 0x38bdf8
-            : tile.structure === 'lake'
-              ? 0x2563eb
-              : 0xffffff;
+          tile.structure === 'herbs'
+            ? 0x22d3ee
+            : tile.structure === 'pond'
+              ? 0x38bdf8
+              : tile.structure === 'lake'
+                ? 0x2563eb
+                : 0xffffff;
         const marker = takeShadowedSprite(
           scene.worldStaticMarkerSprites,
           structureIconFor(tile.structure),

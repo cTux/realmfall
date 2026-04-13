@@ -12,6 +12,8 @@ Use `docs/RULES.md` as the source of truth for project-specific instructions.
 - If a rule changes future prompt execution, also sync `AGENTS.md` and `CLAUDE.md`.
 - Prefer keeping project-specific rules in `docs/RULES.md` instead of restating them here.
 - For Pixi world performance tasks, apply the relevant `React UI` and `Pixi And Performance` rules from `docs/RULES.md`, including the single render scheduler guidance.
+- When adding new draggable windows, follow the `docs/RULES.md` expectation that window content stays lazy-loaded and bundle-split.
+- When generating world-facing content, follow the lore canon in `docs/lore/REALMFALL.md`.
 
 ## Important References
 
@@ -19,6 +21,7 @@ Use `docs/RULES.md` as the source of truth for project-specific instructions.
 - `docs/PROMPTS.md`
 - `docs/PROJECT_REVIEW.md`
 - `docs/RESTRICTIONS.md`
+- `docs/lore/REALMFALL.md`
 
 ## Local Expectations
 

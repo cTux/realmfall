@@ -6,6 +6,7 @@ import villageIcon from '../../assets/icons/village.svg';
 import dungeonGateIcon from '../../assets/icons/dungeon-gate.svg';
 import anvilIcon from '../../assets/icons/anvil.svg';
 import axeInStumpIcon from '../../assets/icons/axe-in-stump.svg';
+import herbsBundleIcon from '../../assets/icons/herbs-bundle.svg';
 import oreIcon from '../../assets/icons/ore.svg';
 import spillIcon from '../../assets/icons/spill.svg';
 import sunCloudIcon from '../../assets/icons/sun-cloud.svg';
@@ -25,6 +26,7 @@ export const WorldIcons = {
   DungeonGate: dungeonGateIcon,
   Anvil: anvilIcon,
   AxeInStump: axeInStumpIcon,
+  HerbsBundle: herbsBundleIcon,
   Ore: oreIcon,
   Spill: spillIcon,
   SunCloud: sunCloudIcon,
@@ -52,6 +54,7 @@ const STRUCTURE_ICONS: Record<StructureType, string> = {
   forge: WorldIcons.Anvil,
   camp: WorldIcons.CampCookingPot,
   workshop: WorldIcons.StoneCrafting,
+  herbs: WorldIcons.HerbsBundle,
   tree: WorldIcons.AxeInStump,
   'copper-ore': WorldIcons.Ore,
   'iron-ore': WorldIcons.Ore,

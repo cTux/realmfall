@@ -156,9 +156,18 @@ export function formatWorldDateTime(timestampMs: number) {
   )}`;
 }
 
+export function formatWorldCalendarDateTime(timestampMs: number) {
+  const day = getWorldDayFromTimestamp(timestampMs);
+  const year = Math.floor((day - 1) / 365) + 1;
+  const dayOfYear = ((day - 1) % 365) + 1;
+  return `Year ${year}, Day ${dayOfYear}, ${formatWorldTime(
+    getWorldTimeMinutesFromTimestamp(timestampMs),
+  )}`;
+}
+
 export function getTimeOfDayLighting(
   totalMinutes: number,
-  options?: { bloodMoon?: boolean },
+  options?: { bloodMoon?: boolean; harvestMoon?: boolean },
 ): TimeOfDayLighting {
   const minutes =
     ((totalMinutes % GAME_DAY_MINUTES) + GAME_DAY_MINUTES) % GAME_DAY_MINUTES;
@@ -183,7 +192,9 @@ export function getTimeOfDayLighting(
     moonShaftOpacity: moonOpacity * smoothLerp(0.3, 0.72, moonOpacity),
   };
 
-  return options?.bloodMoon ? applyBloodMoonLighting(lighting) : lighting;
+  if (options?.bloodMoon) return applyBloodMoonLighting(lighting);
+  if (options?.harvestMoon) return applyHarvestMoonLighting(lighting);
+  return lighting;
 }
 
 export function isMoonRising(totalMinutes: number) {
@@ -433,6 +444,21 @@ function applyBloodMoonLighting(
     celestialTint: mixColor(lighting.celestialTint, 0xff4d5d, 0.88),
     celestialAlpha: Math.min(1, lighting.celestialAlpha + 0.18),
     moonShaftOpacity: Math.min(1, lighting.moonShaftOpacity + 0.26),
+  };
+}
+
+function applyHarvestMoonLighting(
+  lighting: TimeOfDayLighting,
+): TimeOfDayLighting {
+  return {
+    ...lighting,
+    skyColor: mixColor(lighting.skyColor, 0x083344, 0.68),
+    overlayColor: mixColor(lighting.overlayColor, 0x0c4a6e, 0.74),
+    overlayAlpha: Math.min(0.56, lighting.overlayAlpha + 0.08),
+    ambientBrightness: Math.max(0.68, lighting.ambientBrightness * 0.94),
+    celestialTint: mixColor(lighting.celestialTint, 0x67e8f9, 0.9),
+    celestialAlpha: Math.min(1, lighting.celestialAlpha + 0.14),
+    moonShaftOpacity: Math.min(1, lighting.moonShaftOpacity + 0.28),
   };
 }
 

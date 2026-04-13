@@ -126,6 +126,11 @@
   text-shadow: 0 0 10px rgba(127, 29, 29, 0.45);
 }
 
+.harvestMoon {
+  color: #67e8f9;
+  text-shadow: 0 0 10px rgba(8, 145, 178, 0.45);
+}
+
 .loot {
   color: #bbf7d0;
 }

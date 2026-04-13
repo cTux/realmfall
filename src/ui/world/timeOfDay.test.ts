@@ -17,7 +17,7 @@ describe('timeOfDay', () => {
     );
     expect(
       getWorldTimeMinutesFromTimestamp(GAME_DAY_DURATION_MS - 1),
-    ).toBeCloseTo(1439.976, 3);
+    ).toBeCloseTo(1440 - 1440 / GAME_DAY_DURATION_MS, 3);
   });
 
   it('formats world times as zero-padded hours and minutes', () => {
@@ -89,6 +89,22 @@ describe('timeOfDay', () => {
       normalNight.moonShaftOpacity,
     );
     expect(bloodMoonNight.celestialTint).not.toBe(normalNight.celestialTint);
+  });
+
+  it('tints the world cyan during a harvest moon', () => {
+    const normalNight = getTimeOfDayLighting(19 * 60);
+    const harvestMoonNight = getTimeOfDayLighting(19 * 60, {
+      harvestMoon: true,
+    });
+
+    expect(harvestMoonNight.skyColor).not.toBe(normalNight.skyColor);
+    expect(harvestMoonNight.overlayAlpha).toBeGreaterThan(
+      normalNight.overlayAlpha,
+    );
+    expect(harvestMoonNight.moonShaftOpacity).toBeGreaterThan(
+      normalNight.moonShaftOpacity,
+    );
+    expect(harvestMoonNight.celestialTint).not.toBe(normalNight.celestialTint);
   });
 
   it('keeps sky transitions very smooth around keyframes', () => {

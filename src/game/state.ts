@@ -2,12 +2,17 @@ import { hexDistance, hexKey, type HexCoord } from './hex';
 import {
   BLOOD_MOON_CHANCE,
   BLOOD_MOON_SPAWN_RADIUS,
+  EARTHSHAKE_CHANCE,
+  EARTHSHAKE_SPAWN_RADIUS,
+  HARVEST_MOON_CHANCE,
+  HARVEST_MOON_SPAWN_RADIUS,
   STARTING_RECIPE_IDS,
   WORLD_RADIUS,
 } from './config';
 import { createRng } from './random';
 import {
   createCombatActorState,
+  enemyKey,
   enemyIndexFromId,
   getAbilityDefinition,
   isAnimalEnemy,
@@ -29,6 +34,7 @@ import {
   addLog,
   createFreshLogs,
   getDayPhase,
+  getWorldDayIndex,
   isBloodMoonRiseWindow,
   normalizeWorldMinutes,
   worldTimeMsFromMinutes,
@@ -150,6 +156,10 @@ export function createGame(
     bloodMoonActive: false,
     bloodMoonCheckedTonight: false,
     bloodMoonCycle: 0,
+    harvestMoonActive: false,
+    harvestMoonCheckedTonight: false,
+    harvestMoonCycle: 0,
+    lastEarthshakeDay: -1,
     gameOver: false,
     logSequence: 3,
     logs: createFreshLogs(seed),
@@ -301,47 +311,100 @@ export function syncBloodMoon(
   }
 
   if (isBloodMoonRiseWindow(minutes)) {
-    if (state.bloodMoonCheckedTonight) return state;
+    if (state.bloodMoonCheckedTonight && state.harvestMoonCheckedTonight) {
+      return state;
+    }
 
     const next = clone(state);
     next.worldTimeMs = worldTimeMsFromMinutes(minutes, state.worldTimeMs);
     next.bloodMoonCheckedTonight = true;
+    next.harvestMoonCheckedTonight = true;
 
     const rng = createRng(`${state.seed}:blood-moon:${state.bloodMoonCycle}`);
-    if (rng() >= BLOOD_MOON_CHANCE) return next;
-
-    next.bloodMoonActive = true;
-    syncEnemyBloodMoonState(next.enemies, true);
-    const spawnedCount = spawnBloodMoonEnemies(next);
-    addLog(next, 'combat', 'Blood moon begins. A red hunger sweeps the wilds.');
-    if (spawnedCount > 0) {
+    if (rng() < BLOOD_MOON_CHANCE) {
+      next.bloodMoonActive = true;
+      next.harvestMoonActive = false;
+      syncEnemyBloodMoonState(next.enemies, true);
+      const spawnedCount = spawnBloodMoonEnemies(next);
       addLog(
         next,
         'combat',
-        `Blood moon horrors gather nearby (${spawnedCount} foe${spawnedCount === 1 ? '' : 's'}).`,
+        'Blood moon begins. A red hunger sweeps the wilds.',
       );
+      if (spawnedCount > 0) {
+        addLog(
+          next,
+          'combat',
+          `Blood moon horrors gather nearby (${spawnedCount} foe${spawnedCount === 1 ? '' : 's'}).`,
+        );
+      }
+      return next;
+    }
+
+    const harvestRng = createRng(
+      `${state.seed}:harvest-moon:${state.harvestMoonCycle}`,
+    );
+    if (harvestRng() < HARVEST_MOON_CHANCE) {
+      next.harvestMoonActive = true;
+      const spawnedCount = spawnHarvestMoonResources(next);
+      addLog(
+        next,
+        'system',
+        'Harvest moon rises. A cyan glow stirs the wild herbs and veins.',
+      );
+      if (spawnedCount > 0) {
+        addLog(
+          next,
+          'loot',
+          `Harvest moon abundance spreads nearby (${spawnedCount} gathering hex${spawnedCount === 1 ? '' : 'es'}).`,
+        );
+      }
     }
     return next;
   }
 
   if (
     phase === 'day' &&
-    (state.bloodMoonActive || state.bloodMoonCheckedTonight)
+    (state.bloodMoonActive ||
+      state.bloodMoonCheckedTonight ||
+      state.harvestMoonActive ||
+      state.harvestMoonCheckedTonight ||
+      state.lastEarthshakeDay !== getWorldDayIndex(state.worldTimeMs))
   ) {
     const next = clone(state);
     next.worldTimeMs = worldTimeMsFromMinutes(minutes, state.worldTimeMs);
     const wasBloodMoonActive = next.bloodMoonActive;
+    const wasHarvestMoonActive = next.harvestMoonActive;
     next.bloodMoonActive = false;
     next.bloodMoonCheckedTonight = false;
     next.bloodMoonCycle += 1;
+    next.harvestMoonActive = false;
+    next.harvestMoonCheckedTonight = false;
+    next.harvestMoonCycle += 1;
     syncEnemyBloodMoonState(next.enemies, false);
+    maybeTriggerEarthshake(next);
     if (wasBloodMoonActive) {
       addLog(next, 'combat', 'Blood moon ends. The night loosens its grip.');
+    }
+    if (wasHarvestMoonActive) {
+      addLog(
+        next,
+        'system',
+        'Harvest moon fades and the cyan glow drains away.',
+      );
     }
     return next;
   }
 
   return state;
+}
+
+export function triggerEarthshake(state: GameState): GameState {
+  const next = clone(state);
+  if (!openEarthshakeDungeon(next, true)) {
+    addLog(next, 'system', 'Earthshake fails. No empty hex can open nearby.');
+  }
+  return next;
 }
 
 export function attackCombatEnemy(state: GameState): GameState {
@@ -809,6 +872,11 @@ export function interactWithStructure(state: GameState): GameState {
     quantity,
   );
   addItemToInventory(next.player.inventory, reward);
+  const byproduct = maybeGatherByproduct(
+    next,
+    currentTile.structure,
+    definition,
+  );
   gainSkillXp(next, definition.skill, damage, addLog);
 
   addLog(
@@ -822,6 +890,11 @@ export function interactWithStructure(state: GameState): GameState {
       'system',
       `Your ${definition.skill} skill nets extra ${definition.reward.toLowerCase()}.`,
     );
+  }
+
+  if (byproduct) {
+    addItemToInventory(next.player.inventory, byproduct.item);
+    addLog(next, 'loot', byproduct.text);
   }
 
   if (currentTile.structureHp <= 0) {
@@ -1115,6 +1188,35 @@ function clone(state: GameState): GameState {
   };
 }
 
+function maybeGatherByproduct(
+  state: GameState,
+  structure: import('./types').GatheringStructureType,
+  definition: ReturnType<typeof structureDefinition>,
+) {
+  const byproductName =
+    structure === 'tree'
+      ? 'Sticks'
+      : structure === 'copper-ore' ||
+          structure === 'iron-ore' ||
+          structure === 'coal-ore'
+        ? 'Stone'
+        : null;
+  if (!byproductName) return null;
+
+  const rng = createRng(
+    `${state.seed}:gather-byproduct:${structure}:${state.turn}:${hexKey(state.player.coord)}`,
+  );
+  if (rng() >= (structure === 'tree' ? 0.35 : 0.3)) return null;
+
+  return {
+    item: makeResourceStack(byproductName, definition.rewardTier, 1),
+    text:
+      structure === 'tree'
+        ? 'You also gather a few sticks from the chopped wood.'
+        : 'You also gather some stone from the broken ore seam.',
+  };
+}
+
 function maybeDropEnemyGold(state: GameState, enemy: import('./types').Enemy) {
   const rng = createRng(`${state.seed}:enemy-gold:${enemy.id}:${state.turn}`);
   const chance = state.bloodMoonActive
@@ -1285,6 +1387,164 @@ function spawnBloodMoonEnemies(state: GameState) {
   }
 
   return spawned;
+}
+
+function spawnHarvestMoonResources(state: GameState) {
+  let spawned = 0;
+  const resourceTypes: Array<import('./types').GatheringStructureType> = [
+    'herbs',
+    'tree',
+    'copper-ore',
+    'iron-ore',
+    'coal-ore',
+  ];
+
+  for (
+    let dq = -HARVEST_MOON_SPAWN_RADIUS;
+    dq <= HARVEST_MOON_SPAWN_RADIUS;
+    dq += 1
+  ) {
+    for (
+      let dr = -HARVEST_MOON_SPAWN_RADIUS;
+      dr <= HARVEST_MOON_SPAWN_RADIUS;
+      dr += 1
+    ) {
+      const coord = {
+        q: state.player.coord.q + dq,
+        r: state.player.coord.r + dr,
+      };
+      const distance = hexDistance(state.player.coord, coord);
+      if (distance === 0 || distance > HARVEST_MOON_SPAWN_RADIUS) continue;
+
+      ensureTileState(state, coord);
+      const key = hexKey(coord);
+      const tile = state.tiles[key];
+      if (!canSpawnHarvestMoonResourceOnTile(tile)) continue;
+
+      const rng = createRng(
+        `${state.seed}:harvest-moon-spawn:${state.harvestMoonCycle}:${key}`,
+      );
+      if (rng() >= (distance <= 2 ? 0.8 : 0.45)) continue;
+
+      const structure =
+        resourceTypes[Math.floor(rng() * resourceTypes.length)] ?? 'herbs';
+      const definition = structureDefinition(structure);
+      state.tiles[key] = {
+        ...tile,
+        structure,
+        structureHp: definition.maxHp,
+        structureMaxHp: definition.maxHp,
+      };
+      spawned += 1;
+    }
+  }
+
+  return spawned;
+}
+
+function maybeTriggerEarthshake(state: GameState) {
+  const dayIndex = getWorldDayIndex(state.worldTimeMs);
+  if (state.lastEarthshakeDay === dayIndex) return;
+  state.lastEarthshakeDay = dayIndex;
+
+  const rng = createRng(`${state.seed}:earthshake:${dayIndex}`);
+  if (rng() >= EARTHSHAKE_CHANCE) return;
+
+  openEarthshakeDungeon(state, false);
+}
+
+function openEarthshakeDungeon(state: GameState, forced: boolean) {
+  const dayIndex = getWorldDayIndex(state.worldTimeMs);
+  const earthshakeRng = createRng(
+    `${state.seed}:earthshake:${dayIndex}:${forced ? 'forced' : 'daily'}`,
+  );
+  const coord = findNearbyDungeonSpawn(
+    state,
+    earthshakeRng,
+    forced ? EARTHSHAKE_SPAWN_RADIUS + 6 : EARTHSHAKE_SPAWN_RADIUS + 3,
+  );
+  if (!coord) return false;
+
+  const key = hexKey(coord);
+  const tile = state.tiles[key];
+  const enemyIds = Array.from(
+    { length: 1 + Math.floor(earthshakeRng() * 3) },
+    (_, index) => enemyKey(coord, index),
+  );
+  state.tiles[key] = {
+    ...tile,
+    structure: 'dungeon',
+    structureHp: undefined,
+    structureMaxHp: undefined,
+    enemyIds,
+  };
+  enemyIds.forEach((enemyId, index) => {
+    state.enemies[enemyId] = makeEnemy(
+      state.seed,
+      coord,
+      tile.terrain,
+      index,
+      'dungeon',
+      state.bloodMoonActive,
+    );
+  });
+  addLog(
+    state,
+    'system',
+    `Earthshake. A dungeon opens nearby at ${coord.q}, ${coord.r}.`,
+  );
+  return true;
+}
+
+function findNearbyDungeonSpawn(
+  state: GameState,
+  rng: () => number,
+  searchRadius: number,
+) {
+  const candidates: HexCoord[] = [];
+
+  for (let dq = -searchRadius; dq <= searchRadius; dq += 1) {
+    for (let dr = -searchRadius; dr <= searchRadius; dr += 1) {
+      const coord = {
+        q: state.player.coord.q + dq,
+        r: state.player.coord.r + dr,
+      };
+      const distance = hexDistance(state.player.coord, coord);
+      if (distance === 0 || distance > searchRadius) continue;
+
+      ensureTileState(state, coord);
+      const tile = state.tiles[hexKey(coord)];
+      if (!isPassable(tile.terrain)) continue;
+      if (tile.structure || tile.enemyIds.length > 0 || tile.items.length > 0) {
+        continue;
+      }
+      candidates.push(coord);
+    }
+  }
+
+  if (candidates.length === 0) return null;
+  candidates.sort(
+    (left, right) =>
+      hexDistance(state.player.coord, left) -
+      hexDistance(state.player.coord, right),
+  );
+  const nearestCandidates = candidates.filter(
+    (candidate) =>
+      hexDistance(state.player.coord, candidate) ===
+      hexDistance(state.player.coord, candidates[0] ?? state.player.coord),
+  );
+  return (
+    nearestCandidates[Math.floor(rng() * nearestCandidates.length)] ?? null
+  );
+}
+
+function canSpawnHarvestMoonResourceOnTile(tile: import('./types').Tile) {
+  return (
+    isPassable(tile.terrain) &&
+    !tile.structure &&
+    tile.enemyIds.length === 0 &&
+    tile.items.length === 0
+  );
 }
 
 function canSpawnBloodMoonEnemiesOnTile(

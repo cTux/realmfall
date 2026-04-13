@@ -194,6 +194,8 @@ function structureTitle(structure: StructureType) {
       return 'Iron Vein';
     case 'coal-ore':
       return 'Coal Seam';
+    case 'herbs':
+      return 'Herb Patch';
     default:
       return structure.charAt(0).toUpperCase() + structure.slice(1);
   }
@@ -213,6 +215,8 @@ function structureDescription(structure: StructureType) {
       return 'A hostile den packed with stronger enemies and danger.';
     case 'tree':
       return 'A logging node that yields logs when harvested.';
+    case 'herbs':
+      return 'A fragrant patch that yields herbs when gathered.';
     case 'pond':
       return 'A fishing spot that yields raw fish when worked.';
     case 'lake':

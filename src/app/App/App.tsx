@@ -12,16 +12,14 @@ import {
   hasRecipeBook,
   structureActionLabel,
   syncBloodMoon,
+  triggerEarthshake,
   type GameState,
   type HexCoord,
 } from '../../game/state';
 import { WORLD_RADIUS } from '../constants';
-import { DraggableWindow } from '../../ui/components/DraggableWindow';
-import { WindowLabel } from '../../ui/components/WindowLabel/WindowLabel';
-import labelStyles from '../../ui/components/windowLabels.module.css';
-import { WINDOW_LABELS } from '../../ui/windowLabels';
 import { AppWindows } from './AppWindows';
 import { getDockEntries } from './appHelpers';
+import { DebuggerWindow } from '../../ui/components/DebuggerWindow';
 import { useAppControllers } from './useAppControllers';
 import { useAppPersistence } from './useAppPersistence';
 import { useCombatAutomation } from './useCombatAutomation';
@@ -98,7 +96,7 @@ export function App() {
     worldTimeMsRef,
   });
 
-  const { fps, setWorldTimeMs, worldTimeLabel, worldTimeMinutes } =
+  const { debuggerTimeLabel, setWorldTimeMs, worldTimeMinutes } =
     useWorldClockFps({
       initialWorldTimeMs: initialGameRef.current.worldTimeMs,
       worldTimeMsRef,
@@ -201,6 +199,12 @@ export function App() {
   });
   const isReady = hydrated && canvasReady;
 
+  const handleTriggerEarthshake = () => {
+    setGame((current) =>
+      triggerEarthshake({ ...current, worldTimeMs: worldTimeMsRef.current }),
+    );
+  };
+
   useEffect(() => {
     setGame((current) =>
       syncBloodMoon(
@@ -265,31 +269,13 @@ export function App() {
       <div className={isReady ? undefined : styles.hiddenUntilReady}>
         <div ref={hostRef} className={styles.mapViewport} />
         {windowShown.worldTime ? (
-          <DraggableWindow
-            title={
-              <WindowLabel
-                label={WINDOW_LABELS.worldTime}
-                hotkeyClassName={labelStyles.hotkey}
-              />
-            }
+          <DebuggerWindow
             position={windows.worldTime}
             onMove={(position) => moveWindow('worldTime', position)}
             onClose={() => setWindowVisibility('worldTime', false)}
-            className={styles.worldClockWindow}
-          >
-            <div className={styles.worldClock} aria-label="World time">
-              <div className={styles.worldClockMetric}>
-                <span className={styles.worldClockLabel}>World Time</span>
-                <strong className={styles.worldClockValue}>
-                  {worldTimeLabel}
-                </strong>
-              </div>
-              <div className={styles.worldClockMetric}>
-                <span className={styles.worldClockLabel}>FPS</span>
-                <strong className={styles.worldClockValue}>{fps}</strong>
-              </div>
-            </div>
-          </DraggableWindow>
+            timeLabel={debuggerTimeLabel}
+            onTriggerEarthshake={handleTriggerEarthshake}
+          />
         ) : null}
         <AppWindows
           windows={windows}

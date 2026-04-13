@@ -33,6 +33,14 @@ interface GameConfig {
     riseEnd: number;
     resetStart: number;
   };
+  harvestMoon: {
+    spawnRadius: number;
+    chance: number;
+  };
+  earthshake: {
+    spawnRadius: number;
+    chance: number;
+  };
   artifacts: {
     prefixes: string[];
     forms: string[];
@@ -66,6 +74,12 @@ export const BLOOD_MOON_STAT_SCALE = GAME_CONFIG.bloodMoon.statScale;
 export const BLOOD_MOON_RISE_START = GAME_CONFIG.bloodMoon.riseStart;
 export const BLOOD_MOON_RISE_END = GAME_CONFIG.bloodMoon.riseEnd;
 export const BLOOD_MOON_RESET_START = GAME_CONFIG.bloodMoon.resetStart;
+
+export const HARVEST_MOON_SPAWN_RADIUS = GAME_CONFIG.harvestMoon.spawnRadius;
+export const HARVEST_MOON_CHANCE = GAME_CONFIG.harvestMoon.chance;
+
+export const EARTHSHAKE_SPAWN_RADIUS = GAME_CONFIG.earthshake.spawnRadius;
+export const EARTHSHAKE_CHANCE = GAME_CONFIG.earthshake.chance;
 
 export const ARTIFACT_PREFIXES = GAME_CONFIG.artifacts.prefixes;
 export const ARTIFACT_FORMS = GAME_CONFIG.artifacts.forms;

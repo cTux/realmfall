@@ -24,10 +24,12 @@ import {
   syncBloodMoon,
   takeAllTileItems,
   takeTileItem,
+  triggerEarthshake,
   useItem,
   type GameState,
   type Item,
 } from './state';
+import { GAME_DAY_DURATION_MS, GAME_DAY_MINUTES } from './config';
 import { normalizeLoadedGame } from '../app/normalize';
 
 describe('game state', () => {
@@ -61,7 +63,8 @@ describe('game state', () => {
 
   it('moves onto generated adjacent tiles beyond the starting cache', () => {
     const game = createGame(3, 'loot-seed');
-    game.worldTimeMs = ((18 * 60 + 33) / 1440) * 60000;
+    game.worldTimeMs =
+      ((18 * 60 + 33) / GAME_DAY_MINUTES) * GAME_DAY_DURATION_MS;
     const target = { q: 2, r: 0 };
     game.tiles['2,0'] = {
       coord: target,
@@ -80,7 +83,9 @@ describe('game state', () => {
 
   it('keeps the day number after rolling past 23:59', () => {
     const game = createGame(3, 'day-rollover-seed');
-    game.worldTimeMs = 60000 + ((18 * 60 + 33) / 1440) * 60000;
+    game.worldTimeMs =
+      GAME_DAY_DURATION_MS +
+      ((18 * 60 + 33) / GAME_DAY_MINUTES) * GAME_DAY_DURATION_MS;
     const target = { q: 2, r: 0 };
     game.tiles['2,0'] = {
       coord: target,
@@ -208,6 +213,67 @@ describe('game state', () => {
     expect(gathered.logs.some((entry) => /extra logs/i.test(entry.text))).toBe(
       true,
     );
+  });
+
+  it('gathers herbs from herb patches', () => {
+    const game = createGame(3, 'herb-patch-seed');
+    game.tiles['0,0'] = {
+      ...game.tiles['0,0'],
+      structure: 'herbs',
+      structureHp: 1,
+      structureMaxHp: 1,
+      items: [],
+      enemyIds: [],
+    };
+
+    const gathered = interactWithStructure(game);
+
+    expect(
+      gathered.player.inventory.some((item) => item.name === 'Herbs'),
+    ).toBe(true);
+    expect(getTileAt(gathered, { q: 0, r: 0 }).structure).toBeUndefined();
+  });
+
+  it('can gather sticks from logging and stone from mining byproducts', () => {
+    let sticksFound = false;
+    let stoneFound = false;
+
+    for (
+      let index = 0;
+      index < 300 && (!sticksFound || !stoneFound);
+      index += 1
+    ) {
+      const treeGame = createGame(3, `tree-byproduct-${index}`);
+      treeGame.tiles['0,0'] = {
+        ...treeGame.tiles['0,0'],
+        structure: 'tree',
+        structureHp: 5,
+        structureMaxHp: 5,
+        items: [],
+        enemyIds: [],
+      };
+      const chopped = interactWithStructure(treeGame);
+      sticksFound ||= chopped.player.inventory.some(
+        (item) => item.name === 'Sticks',
+      );
+
+      const oreGame = createGame(3, `ore-byproduct-${index}`);
+      oreGame.tiles['0,0'] = {
+        ...oreGame.tiles['0,0'],
+        structure: 'copper-ore',
+        structureHp: 6,
+        structureMaxHp: 6,
+        items: [],
+        enemyIds: [],
+      };
+      const mined = interactWithStructure(oreGame);
+      stoneFound ||= mined.player.inventory.some(
+        (item) => item.name === 'Stone',
+      );
+    }
+
+    expect(sticksFound).toBe(true);
+    expect(stoneFound).toBe(true);
   });
 
   it('automatically skins animal enemies on kill', () => {
@@ -468,6 +534,107 @@ describe('game state', () => {
     expect(
       morning.logs.some((entry) => /blood moon ends/i.test(entry.text)),
     ).toBe(false);
+  });
+
+  it('can trigger a harvest moon that spawns gathering nodes nearby', () => {
+    let harvestMoonGame = createGame(6, 'harvest-moon-seed');
+    harvestMoonGame.player.coord = { q: 2, r: -1 };
+
+    for (let cycle = 0; cycle < 200; cycle += 1) {
+      const candidate = {
+        ...harvestMoonGame,
+        bloodMoonCycle: cycle,
+        harvestMoonCycle: cycle,
+        bloodMoonCheckedTonight: false,
+        harvestMoonCheckedTonight: false,
+        bloodMoonActive: false,
+        harvestMoonActive: false,
+      };
+      const synced = syncBloodMoon(candidate, 18 * 60);
+      if (synced.harvestMoonActive) {
+        harvestMoonGame = synced;
+        break;
+      }
+    }
+
+    expect(harvestMoonGame.harvestMoonActive).toBe(true);
+    expect(
+      harvestMoonGame.logs.some((entry) =>
+        /harvest moon rises/i.test(entry.text),
+      ),
+    ).toBe(true);
+    expect(
+      Object.values(harvestMoonGame.tiles).some(
+        (tile) => tile.structure === 'herbs',
+      ),
+    ).toBe(true);
+
+    const sunrise = syncBloodMoon(harvestMoonGame, 7 * 60);
+    expect(sunrise.harvestMoonActive).toBe(false);
+    expect(
+      sunrise.logs.some((entry) => /harvest moon fades/i.test(entry.text)),
+    ).toBe(true);
+  });
+
+  it('can trigger an earthshake that opens a nearby dungeon on an empty hex', () => {
+    let shaken: GameState | null = null;
+
+    for (let day = 0; day < 400; day += 1) {
+      const game = createGame(6, 'earthshake-seed');
+      game.player.coord = { q: 1, r: -1 };
+      game.worldTimeMs = day * GAME_DAY_DURATION_MS;
+      game.dayPhase = 'night';
+
+      const morning = syncBloodMoon(game, 7 * 60);
+      if (morning.logs.some((entry) => /earthshake\./i.test(entry.text))) {
+        shaken = morning;
+        break;
+      }
+    }
+
+    expect(shaken).not.toBeNull();
+    expect(
+      shaken?.logs.some(
+        (entry) =>
+          entry.kind === 'system' &&
+          /earthshake\. a dungeon opens nearby at/i.test(entry.text),
+      ),
+    ).toBe(true);
+    expect(
+      Object.values(shaken?.tiles ?? {}).some(
+        (tile) => tile.structure === 'dungeon' && tile.enemyIds.length > 0,
+      ),
+    ).toBe(true);
+  });
+
+  it('can force an earthshake through the debugger action', () => {
+    const game = createGame(6, 'forced-earthshake-seed');
+    game.player.coord = { q: 0, r: 0 };
+
+    const shaken = triggerEarthshake(game);
+
+    expect(
+      shaken.logs.some((entry) =>
+        /earthshake\. a dungeon opens nearby at/i.test(entry.text),
+      ),
+    ).toBe(true);
+    expect(
+      Object.values(shaken.tiles).some(
+        (tile) => tile.structure === 'dungeon' && tile.enemyIds.length > 0,
+      ),
+    ).toBe(true);
+  });
+
+  it('does not seed loose resource items onto freshly generated tiles', () => {
+    const game = createGame(8, 'no-loose-resource-seed');
+
+    for (let q = -8; q <= 8; q += 1) {
+      for (let r = -8; r <= 8; r += 1) {
+        if (Math.abs(q + r) > 8) continue;
+        const tile = getTileAt(game, { q, r });
+        expect(tile.items.some((item) => item.kind === 'resource')).toBe(false);
+      }
+    }
   });
 
   it('drops extra higher-rarity loot during a blood moon', () => {

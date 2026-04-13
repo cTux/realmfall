@@ -80,7 +80,7 @@ export function buildCloudRenderInputs(worldSeed: string) {
       bobPhase: rng() * Math.PI * 2,
       bobAmplitude: 4 + rng() * 10,
       icon: WEATHER_ICONS[Math.floor(rng() * WEATHER_ICONS.length)],
-      shadowOpacity: 0.1 + rng() * 0.06,
+      shadowOpacity: 0.035 + rng() * 0.025,
       cloudOpacity: 0.34 + rng() * 0.12,
     });
   }
@@ -142,31 +142,37 @@ export function renderCloudLayer(
       const spriteWidth = width * offset.scale;
       const spriteHeight = height * offset.scale;
 
-      const shadow = takeSprite(shadowPool, icon);
-      configureSprite(
-        shadow,
-        scaleColor(0x020617, Math.max(0.8, lighting.ambientBrightness * 0.72)),
-        spriteWidth * 1.05,
-        spriteHeight * 1.05,
-        shadowOpacity,
-        {
-          x: x + width * 0.5 + offset.x * scale + shadowOffset.x * 2.2,
-          y: y + height * 0.5 + offset.y * scale + shadowOffset.y * 2.2,
-        },
-      );
+      const shadowLayers = [
+        { scale: 1.22, alpha: shadowOpacity * 0.2, offsetScale: 0.85 },
+        { scale: 1.14, alpha: shadowOpacity * 0.34, offsetScale: 1.2 },
+        { scale: 1.08, alpha: shadowOpacity * 0.52, offsetScale: 1.65 },
+      ];
 
-      const shadowSoftener = takeSprite(shadowPool, icon);
-      configureSprite(
-        shadowSoftener,
-        scaleColor(0x020617, Math.max(0.8, lighting.ambientBrightness * 0.68)),
-        spriteWidth * 1.12,
-        spriteHeight * 1.12,
-        shadowOpacity * 0.45,
-        {
-          x: x + width * 0.5 + offset.x * scale + shadowOffset.x * 1.6,
-          y: y + height * 0.5 + offset.y * scale + shadowOffset.y * 1.6,
-        },
-      );
+      shadowLayers.forEach((layer) => {
+        const shadow = takeSprite(shadowPool, icon);
+        configureSprite(
+          shadow,
+          scaleColor(
+            0x020617,
+            Math.max(0.66, lighting.ambientBrightness * 0.58),
+          ),
+          spriteWidth * layer.scale,
+          spriteHeight * layer.scale,
+          layer.alpha,
+          {
+            x:
+              x +
+              width * 0.5 +
+              offset.x * scale +
+              shadowOffset.x * layer.offsetScale,
+            y:
+              y +
+              height * 0.5 +
+              offset.y * scale +
+              shadowOffset.y * layer.offsetScale,
+          },
+        );
+      });
 
       const cloud = takeSprite(cloudPool, icon);
       configureSprite(
@@ -355,6 +361,9 @@ export function tileStyle(terrain: string) {
 function tileBackgroundVariants(tile: Tile, enemies: Enemy[]) {
   if (tile.structure === 'tree') {
     return [backgroundVariant(forestFullIcon, 1.02, -0.01, 0.04)];
+  }
+  if (tile.structure === 'herbs') {
+    return [backgroundVariant(forestWildBushesIcon, 1, 0, 0.05)];
   }
   if (
     tile.structure === 'copper-ore' ||

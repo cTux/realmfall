@@ -2,6 +2,7 @@ import {
   BLOOD_MOON_RESET_START,
   BLOOD_MOON_RISE_END,
   BLOOD_MOON_RISE_START,
+  GAME_DAY_DURATION_MS,
   GAME_DAY_MINUTES,
 } from './config';
 import { createRng } from './random';
@@ -45,9 +46,14 @@ export function worldTimeMsFromMinutes(
   currentWorldTimeMs = 0,
 ) {
   return (
-    getWorldDayIndex(currentWorldTimeMs) * 60000 +
-    (normalizeWorldMinutes(worldTimeMinutes) / 1440) * 60000
+    getWorldDayIndex(currentWorldTimeMs) * GAME_DAY_DURATION_MS +
+    (normalizeWorldMinutes(worldTimeMinutes) / GAME_DAY_MINUTES) *
+      GAME_DAY_DURATION_MS
   );
+}
+
+export function getWorldDayIndex(worldTimeMs: number) {
+  return Math.max(0, Math.floor(worldTimeMs / GAME_DAY_DURATION_MS));
 }
 
 function createInitialLogs(seed: string): LogEntry[] {
@@ -79,7 +85,9 @@ function makeLog(
 }
 
 function formatLogPrefix(worldTimeMs: number) {
-  const totalMinutes = normalizeWorldMinutes((worldTimeMs / 60000) * 1440);
+  const totalMinutes = normalizeWorldMinutes(
+    (worldTimeMs / GAME_DAY_DURATION_MS) * GAME_DAY_MINUTES,
+  );
   const day = getWorldDayIndex(worldTimeMs) + 1;
   const hours = Math.floor(totalMinutes / 60)
     .toString()
@@ -88,10 +96,6 @@ function formatLogPrefix(worldTimeMs: number) {
     .toString()
     .padStart(2, '0');
   return `[Day ${day}, ${hours}:${minutes}]`;
-}
-
-function getWorldDayIndex(worldTimeMs: number) {
-  return Math.max(0, Math.floor(worldTimeMs / 60000));
 }
 
 function rumorForSeed(seed: string) {

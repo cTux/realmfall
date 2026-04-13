@@ -12,6 +12,8 @@ Follow `docs/RULES.md` as the canonical source of project rules.
 - If the rule changes future prompt execution, also sync `AGENTS.md` and `.github/copilot-instructions.md`.
 - Prefer keeping project-specific guidance in `docs/RULES.md` instead of duplicating it here.
 - For Pixi world performance tasks, apply the relevant `React UI` and `Pixi And Performance` rules from `docs/RULES.md`, including the single render scheduler guidance.
+- When adding new draggable windows, follow the `docs/RULES.md` expectation that window content stays lazy-loaded and bundle-split.
+- When generating world-facing content, follow the lore canon in `docs/lore/REALMFALL.md`.
 
 ## Reference Files
 
@@ -19,6 +21,7 @@ Follow `docs/RULES.md` as the canonical source of project rules.
 - `docs/PROMPTS.md`
 - `docs/PROJECT_REVIEW.md`
 - `docs/RESTRICTIONS.md`
+- `docs/lore/REALMFALL.md`
 
 ## Project Expectations
 

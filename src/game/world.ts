@@ -109,6 +109,7 @@ export function isGatheringStructure(
   structure?: StructureType,
 ): structure is GatheringStructureType {
   return (
+    structure === 'herbs' ||
     structure === 'tree' ||
     structure === 'copper-ore' ||
     structure === 'iron-ore' ||
@@ -121,6 +122,8 @@ export function isGatheringStructure(
 export function structureActionLabel(structure?: StructureType) {
   if (!structure) return null;
   switch (structure) {
+    case 'herbs':
+      return 'Gather herbs';
     case 'tree':
       return 'Chop tree';
     case 'copper-ore':
@@ -148,6 +151,8 @@ export function describeStructure(structure?: StructureType) {
       return 'Iron Vein';
     case 'coal-ore':
       return 'Coal Seam';
+    case 'herbs':
+      return 'Herb Patch';
     case 'tree':
       return 'Tree';
     case 'pond':
@@ -186,6 +191,16 @@ export function normalizeStructureState(tile: Tile): Tile {
 
 export function structureDefinition(structure: GatheringStructureType) {
   switch (structure) {
+    case 'herbs':
+      return {
+        maxHp: 3,
+        skill: 'crafting' as const,
+        reward: 'Herbs',
+        rewardTier: 1,
+        baseYield: 2,
+        verb: 'You gather the herb patch',
+        depletedText: 'The herb patch is picked clean.',
+      };
     case 'tree':
       return {
         maxHp: 5,
@@ -350,7 +365,6 @@ function makeGeneratedItem(
   roll: number,
   structure?: StructureType,
 ) {
-  if (roll > 0.988) return makeResource(seed, coord, tier);
   if (roll > 0.94 || tier >= 7 || structure === 'dungeon') {
     return makeArtifact(
       seed,
@@ -509,28 +523,6 @@ export function makeArtifact(
   });
 }
 
-function makeResource(seed: string, coord: HexCoord, tier: number): Item {
-  const names = ['Herbs', 'Logs', 'Stone', 'Copper Ore', 'Iron Ore', 'Coal'];
-  const name = names[scaledIndex(`${seed}:resource:name`, coord, names.length)];
-  const quantity =
-    2 +
-    scaledIndex(`${seed}:resource:quantity`, coord, 5) +
-    Math.floor(tier / 3);
-  return {
-    id: `resource-${hexKey(coord)}-${name.toLowerCase().replace(/\s+/g, '-')}`,
-    kind: 'resource',
-    name,
-    quantity,
-    tier,
-    rarity: 'common',
-    power: 0,
-    defense: 0,
-    maxHp: 0,
-    healing: 0,
-    hunger: 0,
-  };
-}
-
 function makeStructureState(structure: StructureType) {
   if (!isGatheringStructure(structure)) return undefined;
   const maxHp = structureDefinition(structure).maxHp;
@@ -539,6 +531,8 @@ function makeStructureState(structure: StructureType) {
 
 function structureLabel(structure: GatheringStructureType) {
   switch (structure) {
+    case 'herbs':
+      return 'herb patch';
     case 'copper-ore':
       return 'copper vein';
     case 'iron-ore':

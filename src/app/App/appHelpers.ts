@@ -33,7 +33,7 @@ export const DOCK_WINDOW_ICONS: Record<keyof WindowVisibilityState, string> = {
 export const WINDOW_HOTKEYS: Partial<
   Record<string, keyof WindowVisibilityState>
 > = {
-  w: 'worldTime',
+  d: 'worldTime',
   c: 'hero',
   s: 'skills',
   r: 'recipes',

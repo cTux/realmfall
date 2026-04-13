@@ -270,6 +270,9 @@ export function AppWindows({
         onClose={() => onSetWindowVisibility('hero', false)}
         stats={stats}
         hunger={game.player.hunger}
+        worldTimeMs={game.worldTimeMs}
+        onHoverDetail={onShowTooltip}
+        onLeaveDetail={onCloseTooltip}
       />
       {loadedWindows.skills ? (
         <Suspense fallback={<WindowLoadingState />}>

@@ -20,6 +20,7 @@
 - Favor existing project patterns over introducing new abstractions, state layers, or architectural styles without a clear need.
 - Keep documentation grounded in the current shipped behavior and known constraints, not aspirational plans.
 - Keep gameplay restrictions documented in `docs/RESTRICTIONS.md` in sync with implementation decisions.
+- When generating or naming world content such as places, factions, enemies, items, events, structures, or flavor text, align it with the established lore in `docs/lore/REALMFALL.md`.
 
 ## Architecture
 
@@ -43,6 +44,7 @@
 - Follow the existing window-based desktop-style UI instead of introducing unrelated navigation patterns.
 - Keep heavy app coordination in dedicated hooks when possible, following patterns already used in `src/app/App`.
 - Lazy-load secondary UI only when it matches the existing usage pattern and helps keep the initial app path lighter.
+- Treat draggable window content as secondary UI by default. New windows should defer their content behind a lazy-loaded bundle, either by lazy-loading the whole window module or by lazy-loading a dedicated `*WindowContent` module inside the window component.
 - Preserve existing React containment patterns such as memoized window components when extending the current UI.
 - Maintain mobile-aware and desktop-safe behavior when changing interactions, even if the full mobile adaptation is still incomplete.
 - Keep high-frequency pointer, hover, and world-interaction updates off broad React state paths when refs, invalidation flags, or narrower state can avoid avoidable rerenders.
@@ -69,6 +71,7 @@
 ## Build And Bundle
 
 - Keep the production bundle intentional. Avoid pushing heavy world-only or secondary UI code onto the initial path when existing lazy-loading or chunking patterns can keep it deferred.
+- When adding a new draggable window, preserve bundle splitting for its content instead of inlining that content into the initial app path.
 - Prefer targeted code splitting for heavier dependencies instead of collapsing all third-party code into one growing vendor chunk.
 - Treat bundle growth as a real performance cost, especially on the initial app path and in Pixi-heavy features.
 
@@ -86,6 +89,7 @@
 - Prefer documenting real project constraints and current behavior over aspirational wording.
 - When prompts establish recurring workflow expectations, capture them here so future prompt handling stays consistent.
 - Keep rule and workflow updates synchronized across `README.md`, `docs/PROMPTS.md`, and the AI-specific instruction files when those updates affect future prompt execution.
+- Keep lore-sensitive guidance aligned with the canonical world reference in `docs/lore/REALMFALL.md`.
 
 ## Current Project Constraints
 

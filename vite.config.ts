@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
+import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 
 function getVendorChunk(id: string) {
   const normalizedId = id.replace(/\\/g, '/');
@@ -28,7 +29,7 @@ function getVendorChunk(id: string) {
 }
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), ViteImageOptimizer()],
   build: {
     rollupOptions: {
       output: {

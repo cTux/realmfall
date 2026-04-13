@@ -16,8 +16,12 @@ export function getLightingState(
   worldTimeMinutes: number,
   animationMs: number,
   bloodMoon = false,
+  harvestMoon = false,
 ) {
-  const lighting = getTimeOfDayLighting(worldTimeMinutes, { bloodMoon });
+  const lighting = getTimeOfDayLighting(worldTimeMinutes, {
+    bloodMoon,
+    harvestMoon,
+  });
   const originX = app.screen.width / 2;
   const originY = app.screen.height / 2;
   const sunPosition = getCelestialPosition(
@@ -76,6 +80,7 @@ export function renderAtmosphere(
   moonPosition: { x: number; y: number },
   focalPoint: { x: number; y: number },
   bloodMoon = false,
+  harvestMoon = false,
 ) {
   if (lighting.shaftAlpha > 0.01) {
     renderLightShafts(
@@ -93,7 +98,7 @@ export function renderAtmosphere(
       animationMs,
       moonPosition,
       focalPoint,
-      bloodMoon ? 0xff4d5d : 0xcbd5ff,
+      bloodMoon ? 0xff4d5d : harvestMoon ? 0x67e8f9 : 0xcbd5ff,
       lighting.shaftAlpha * lighting.moonShaftOpacity,
     );
   }
@@ -102,11 +107,13 @@ export function renderAtmosphere(
     celestialGraphicsPool,
     moonPosition,
     scaleColor(
-      bloodMoon ? 0xff5c6c : 0xdbeafe,
-      lighting.ambientBrightness + (bloodMoon ? 0.28 : 0.2),
+      bloodMoon ? 0xff5c6c : harvestMoon ? 0x67e8f9 : 0xdbeafe,
+      lighting.ambientBrightness + (bloodMoon || harvestMoon ? 0.28 : 0.2),
     ),
-    lighting.moonOpacity * lighting.celestialAlpha * (bloodMoon ? 0.98 : 0.88),
-    bloodMoon ? 30 : 28,
+    lighting.moonOpacity *
+      lighting.celestialAlpha *
+      (bloodMoon || harvestMoon ? 0.98 : 0.88),
+    bloodMoon || harvestMoon ? 30 : 28,
   );
   renderCelestialBody(
     celestialGraphicsPool,

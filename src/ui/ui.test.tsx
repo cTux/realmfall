@@ -312,7 +312,14 @@ describe('ui helpers and components', () => {
         <HeroWindow
           position={DEFAULT_WINDOWS.hero}
           onMove={() => {}}
-          stats={{ ...stats, hungerPenalty: 2 }}
+          stats={{
+            ...stats,
+            rawAttack: stats.attack + 2,
+            rawDefense: stats.defense + 2,
+            buffs: [],
+            debuffs: ['Hunger'],
+            abilityIds: ['kick'],
+          }}
           hunger={45}
         />
         <SkillsWindow
@@ -474,7 +481,9 @@ describe('ui helpers and components', () => {
     );
 
     expect(markup).toContain(')haracter info');
-    expect(markup).toContain('Hunger penalty');
+    expect(markup).toContain('Hunger');
+    expect(markup).toContain('Attack');
+    expect(markup).toContain('Defense');
     expect(markup).toContain(')kills');
     expect(markup).toContain('logging');
     expect(markup).toContain(')ecipe book');
@@ -492,6 +501,7 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('Player Lv 10');
     expect(markup).toContain('Marauder Lv 3');
     expect(markup).toContain('MP');
+    expect(markup).toContain('Kick');
     expect(markup).toContain('(Q) Start');
     expect(markup).toContain('Knight Blade');
     expect(iconForItem(inventoryItem)).toBeTruthy();
@@ -569,9 +579,13 @@ describe('ui helpers and components', () => {
           maxMana: 30,
           xp: 450,
           nextLevelXp: 1000,
+          rawAttack: 20,
+          rawDefense: 15,
           attack: 20,
           defense: 15,
-          hungerPenalty: 0,
+          buffs: [],
+          debuffs: [],
+          abilityIds: ['kick'],
           skills: {
             logging: { level: 1, xp: 0 },
             mining: { level: 1, xp: 0 },
@@ -608,9 +622,13 @@ describe('ui helpers and components', () => {
           maxMana: 20,
           xp: 100,
           nextLevelXp: 1000,
+          rawAttack: 20,
+          rawDefense: 15,
           attack: 20,
           defense: 15,
-          hungerPenalty: 0,
+          buffs: [],
+          debuffs: [],
+          abilityIds: ['kick'],
           skills: {
             logging: { level: 1, xp: 0 },
             mining: { level: 1, xp: 0 },
@@ -927,6 +945,45 @@ describe('ui helpers and components', () => {
     const bloodMoonEntry = host.querySelector('div[class*="bloodMoon"]');
 
     expect(bloodMoonEntry).not.toBeNull();
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('marks harvest moon log entries with a dedicated cyan style', async () => {
+    vi.useFakeTimers();
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+
+    await act(async () => {
+      root.render(
+        <LogWindow
+          position={DEFAULT_WINDOWS.log}
+          onMove={() => {}}
+          filters={DEFAULT_LOG_FILTERS}
+          defaultFilters={DEFAULT_LOG_FILTERS}
+          showFilterMenu={false}
+          onToggleMenu={() => {}}
+          onToggleFilter={() => {}}
+          logs={[
+            {
+              id: 'harvest-moon-log',
+              kind: 'system',
+              text: '[Day 5, 18:00] Harvest moon rises. A cyan glow stirs the wild herbs and veins.',
+              turn: 12,
+            },
+          ]}
+        />,
+      );
+      vi.advanceTimersByTime(2_000);
+    });
+
+    const harvestMoonEntry = host.querySelector('div[class*="harvestMoon"]');
+
+    expect(harvestMoonEntry).not.toBeNull();
 
     await act(async () => {
       root.unmount();

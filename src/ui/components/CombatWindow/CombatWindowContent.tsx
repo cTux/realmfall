@@ -1,5 +1,10 @@
 import { getAbilityDefinition } from '../../../game/combat';
 import type { CombatActorState } from '../../../game/state';
+import {
+  iconMaskStyle,
+  statusEffectIcon,
+  statusEffectTint,
+} from '../../statusEffects';
 import type { CombatPartyMember, CombatWindowProps } from './types';
 import styles from './styles.module.css';
 
@@ -248,6 +253,8 @@ function EffectList({
           key={item}
           type="button"
           className={`${styles.effectChip} ${tone === 'buff' ? styles.buffChip : styles.debuffChip}`}
+          aria-label={item}
+          title={item}
           onMouseEnter={(event) =>
             onHoverDetail(
               event,
@@ -268,7 +275,14 @@ function EffectList({
           }
           onMouseLeave={onLeaveDetail}
         >
-          {item}
+          <span
+            aria-hidden="true"
+            className={styles.effectIcon}
+            style={iconMaskStyle(
+              statusEffectIcon(item),
+              statusEffectTint(item, tone),
+            )}
+          />
         </button>
       ))}
     </div>
@@ -315,6 +329,8 @@ function AbilitySquare({
   return (
     <div
       className={styles.abilitySquare}
+      aria-label={label}
+      title={label}
       onMouseEnter={(event) =>
         onHoverDetail(event, label, tooltipLines, 'rgba(148, 163, 184, 0.9)')
       }

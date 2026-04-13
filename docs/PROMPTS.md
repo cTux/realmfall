@@ -35,6 +35,8 @@
 * Also adjust AI-specific files.
 * Keep "docs/RULES.md" as the canonical source and sync the shared workflow expectations into README and AI entrypoints instead of duplicating divergent project rules.
 * For Pixi world performance work, prefer one render scheduler, usually the ticker, and use refs or lightweight invalidation flags instead of layering an immediate redraw effect on top.
+* When adding a new draggable window, keep its content bundle-split by following the existing lazy window or lazy `*WindowContent` pattern.
+* If a prompt needs new world content, names, factions, places, enemies, items, structures, or flavor text, align it with `docs/lore/REALMFALL.md`.
 ```
 
 ## Commit

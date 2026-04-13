@@ -9,6 +9,7 @@ export type Terrain =
   | 'swamp';
 
 export type GatheringStructureType =
+  | 'herbs'
   | 'tree'
   | 'copper-ore'
   | 'iron-ore'
@@ -199,6 +200,10 @@ export interface GameState {
   bloodMoonActive: boolean;
   bloodMoonCheckedTonight: boolean;
   bloodMoonCycle: number;
+  harvestMoonActive: boolean;
+  harvestMoonCheckedTonight: boolean;
+  harvestMoonCycle: number;
+  lastEarthshakeDay: number;
   gameOver: boolean;
   logSequence: number;
   logs: LogEntry[];

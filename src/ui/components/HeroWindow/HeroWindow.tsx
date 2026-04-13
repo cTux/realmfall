@@ -19,6 +19,9 @@ export const HeroWindow = memo(function HeroWindow({
   onClose,
   stats,
   hunger,
+  worldTimeMs,
+  onHoverDetail,
+  onLeaveDetail,
 }: HeroWindowProps) {
   return (
     <DraggableWindow
@@ -42,7 +45,13 @@ export const HeroWindow = memo(function HeroWindow({
       onClose={onClose}
     >
       <Suspense fallback={<WindowLoadingState />}>
-        <HeroWindowContent stats={stats} hunger={hunger} />
+        <HeroWindowContent
+          stats={stats}
+          hunger={hunger}
+          worldTimeMs={worldTimeMs}
+          onHoverDetail={onHoverDetail}
+          onLeaveDetail={onLeaveDetail}
+        />
       </Suspense>
     </DraggableWindow>
   );

@@ -1,0 +1,43 @@
+.window {
+  width: min(320px, calc(100vw - 16px));
+}
+
+.panel {
+  display: grid;
+  gap: 0.65rem;
+  color: #f8fafc;
+}
+
+.time {
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  color: #e0f2fe;
+}
+
+.button {
+  justify-self: start;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.8rem;
+}
+
+.graph {
+  min-height: 92px;
+  position: relative;
+}
+
+.graph > div {
+  position: static !important;
+  inset: auto !important;
+  width: 100% !important;
+  max-width: 100%;
+}
+
+@media (max-width: 720px) {
+  .panel {
+    gap: 0.45rem;
+  }
+
+  .time {
+    font-size: 0.92rem;
+  }
+}

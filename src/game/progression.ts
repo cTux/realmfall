@@ -33,23 +33,28 @@ export function getPlayerStats(player: Player) {
       ? masteryLevelThreshold(player.masteryLevel)
       : levelThreshold(player.level);
   const maxHp = player.baseMaxHp + maxHpBonus;
-  const hungerPenalty =
-    player.hunger >= 70
-      ? 0
-      : player.hunger >= 40
-        ? 1
-        : player.hunger >= 15
-          ? 2
-          : 3;
+  const rawAttack = Math.max(0, player.baseAttack + attackBonus);
+  const rawDefense = Math.max(0, player.baseDefense + defenseBonus);
+  const hungerDebuffActive = player.hunger <= 30;
+  const attack = hungerDebuffActive
+    ? Math.max(0, Math.floor(rawAttack * 0.9))
+    : rawAttack;
+  const defense = hungerDebuffActive
+    ? Math.max(0, Math.floor(rawDefense * 0.9))
+    : rawDefense;
 
   return {
     hp: player.hp,
     maxHp,
     mana: player.mana,
     maxMana: player.baseMaxMana,
-    attack: Math.max(0, player.baseAttack + attackBonus - hungerPenalty),
-    defense: Math.max(0, player.baseDefense + defenseBonus - hungerPenalty),
-    hungerPenalty,
+    attack,
+    defense,
+    rawAttack,
+    rawDefense,
+    buffs: [] as string[],
+    debuffs: hungerDebuffActive ? (['Hunger'] as string[]) : ([] as string[]),
+    abilityIds: ['kick'] as Array<'kick'>,
     level: player.level,
     masteryLevel: player.masteryLevel,
     xp: player.xp,

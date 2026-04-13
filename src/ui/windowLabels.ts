@@ -7,10 +7,10 @@ export interface WindowLabelDefinition {
 
 export const WINDOW_LABELS = {
   worldTime: {
-    plain: 'World time',
+    plain: 'Debugger',
     prefix: '(',
-    hotkey: 'W',
-    suffix: ')orld time',
+    hotkey: 'D',
+    suffix: ')ebugger',
   },
   hero: {
     plain: 'Character info',

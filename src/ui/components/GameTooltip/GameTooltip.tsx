@@ -97,7 +97,6 @@ export const GameTooltip = memo(function GameTooltip({
       style={{
         left: displayPosition.x,
         top: displayPosition.y,
-        borderColor: rendered.tooltip.borderColor,
       }}
     >
       <strong

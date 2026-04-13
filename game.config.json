@@ -25,11 +25,19 @@
   },
   "bloodMoon": {
     "spawnRadius": 6,
-    "chance": 0.1,
+    "chance": 0.02,
     "statScale": 0.1,
     "riseStart": 1080,
     "riseEnd": 1200,
     "resetStart": 420
+  },
+  "harvestMoon": {
+    "spawnRadius": 4,
+    "chance": 0.02
+  },
+  "earthshake": {
+    "spawnRadius": 2,
+    "chance": 0.02
   },
   "artifacts": {
     "prefixes": [

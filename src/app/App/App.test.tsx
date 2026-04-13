@@ -57,6 +57,10 @@ vi.mock('../../ui/world/renderScene', () => ({
   renderScene,
 }));
 
+vi.mock('react-fps-stats', () => ({
+  default: () => <div>FPS Graph</div>,
+}));
+
 describe('App', () => {
   const flushLazyModules = async () => {
     await act(async () => {
@@ -215,18 +219,18 @@ describe('App', () => {
     expect(renderScene).toHaveBeenCalled();
     expect(saveEncryptedState).not.toHaveBeenCalled();
     expect(host.querySelector(`.${styles.loadingScreen}`)).toBeNull();
-    expect(host.textContent).toContain('World Time');
-    expect(host.textContent).toContain('FPS');
+    expect(host.textContent).toContain('(D)ebugger');
+    expect(host.textContent).toContain('FPS Graph');
     expect(host.textContent).not.toContain('(C)haracter info');
     expect(host.textContent).toContain('(S)kills');
     expect(host.textContent).toContain('(R)ecipe book');
     expect(host.textContent).toContain('(H)ex info');
     expect(host.textContent).not.toContain('old log');
     expect(host.textContent).toContain('Lo(g)');
-    expect(host.textContent).toContain('Day 1, 00:00');
+    expect(host.textContent).toContain('Year 1, Day 1, 00:00');
 
     const worldTimePanel = host.querySelector(
-      '[aria-label="World time"]',
+      '[aria-label="Debugger"]',
     ) as HTMLDivElement | null;
     const initialWorldTimePanelText = worldTimePanel?.textContent;
 
@@ -237,8 +241,9 @@ describe('App', () => {
     expect(saveEncryptedState).not.toHaveBeenCalled();
     expect(worldTimePanel?.textContent).not.toBe(initialWorldTimePanelText);
     expect(worldTimePanel?.textContent).toMatch(
-      /World TimeDay \d+, \d{2}:\d{2}FPS\d+/,
+      /Year \d+, Day \d+, \d{2}:\d{2}/,
     );
+    expect(host.textContent).toContain('FPS Graph');
     expect(host.textContent).not.toContain('Hunger penalty');
     expect(host.textContent).toContain('Loot');
     expect(host.textContent).toContain('Prospect');
@@ -247,7 +252,7 @@ describe('App', () => {
       '[aria-label="Toggle Character info window"]',
     ) as HTMLButtonElement | null;
     const worldTimeDockButton = host.querySelector(
-      '[aria-label="Toggle World time window"]',
+      '[aria-label="Toggle Debugger window"]',
     ) as HTMLButtonElement | null;
     expect(heroDockButton).not.toBeNull();
     expect(worldTimeDockButton?.getAttribute('aria-pressed')).toBe('true');
@@ -255,10 +260,10 @@ describe('App', () => {
 
     await act(async () => {
       window.dispatchEvent(
-        new KeyboardEvent('keydown', { bubbles: true, key: 'w' }),
+        new KeyboardEvent('keydown', { bubbles: true, key: 'd' }),
       );
     });
-    expect(host.textContent).not.toContain('World Time');
+    expect(host.textContent).not.toContain('(D)ebugger');
     expect(worldTimeDockButton?.getAttribute('aria-pressed')).toBe('false');
 
     await act(async () => {
@@ -268,7 +273,7 @@ describe('App', () => {
     });
     await flushLazyModules();
     expect(host.textContent).toContain('(C)haracter info');
-    expect(host.textContent).toContain('Hunger penalty');
+    expect(host.textContent).toContain('Hunger');
     expect(heroDockButton?.getAttribute('aria-pressed')).toBe('true');
 
     const filterButton = Array.from(host.querySelectorAll('button')).find(

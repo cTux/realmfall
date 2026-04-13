@@ -165,7 +165,7 @@ export function finishSpritePool(pool: SpritePool) {
 
 export function createShadowedSprite(icon: string): ShadowedSpriteEntry {
   const wrapper = new Container() as DisplayObject & Container;
-  const shadows = [0.4, 0.75, 1].map(() => {
+  const shadows = [0.3, 0.55, 0.8, 1].map(() => {
     const shadow = Sprite.from(icon);
     shadow.anchor.set(0.5);
     wrapper.addChild(shadow);
@@ -191,9 +191,10 @@ export function configureShadowedSprite(
   entry.wrapper.position.set(point.x, point.y);
 
   const shadowLayers = [
-    { offset: 0.4, alpha: 0.18, scale: 1.06 },
-    { offset: 0.75, alpha: 0.12, scale: 1.03 },
-    { offset: 1, alpha: 0.08, scale: 1 },
+    { offset: 0.3, alpha: 0.05, scale: 1.14 },
+    { offset: 0.55, alpha: 0.045, scale: 1.1 },
+    { offset: 0.8, alpha: 0.035, scale: 1.06 },
+    { offset: 1, alpha: 0.025, scale: 1.02 },
   ];
 
   shadowLayers.forEach((layer, index) => {
