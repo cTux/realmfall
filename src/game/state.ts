@@ -93,7 +93,6 @@ import {
   cacheSafeStart,
   describeStructure,
   ensureTileState,
-  findNearestStructure,
   isGatheringStructure,
   makeArmor,
   makeArtifact,
@@ -123,10 +122,12 @@ export type {
   LogEntry,
   LogKind,
   Player,
+  PlayerStatusEffect,
   RecipeDefinition,
   RecipeRequirement,
   SkillName,
   SkillProgress,
+  StatusEffectId,
   StructureType,
   Terrain,
   Tile,
@@ -162,6 +163,7 @@ import type {
   GameState,
   Item,
   Player,
+  PlayerStatusEffect,
   TownStockEntry,
   StructureType,
   Terrain,
@@ -206,6 +208,7 @@ export function createGame(
       baseDefense: 1,
       skills: makeStartingSkills(),
       learnedRecipeIds: [...STARTING_RECIPE_IDS],
+      statusEffects: [],
       inventory: [
         makeStarterWeapon(),
         makeStarterArmor('chest', 'Scout Jerkin', 1, 1),
@@ -489,6 +492,20 @@ export function triggerEarthshake(state: GameState): GameState {
   if (!openEarthshakeDungeon(next, true)) {
     addLog(next, 'system', t('game.message.earthshake.noGround'));
   }
+  return next;
+}
+
+export function syncPlayerStatusEffects(
+  state: GameState,
+  worldTimeMs: number,
+): GameState {
+  const next = clone(state);
+  next.worldTimeMs = worldTimeMs;
+
+  if (!processPlayerStatusEffects(next)) {
+    return state;
+  }
+
   return next;
 }
 
@@ -1279,22 +1296,37 @@ function teleportHome(state: GameState, itemIndex: number, item: Item) {
 }
 
 function respawnAtNearestTown(state: GameState, from: HexCoord) {
-  const town = findNearestStructure(state.seed, from, 'town') ?? { q: 0, r: 0 };
-  state.player.coord = town;
-  state.player.hp = getPlayerStats(state.player).maxHp;
-  state.player.mana = state.player.baseMaxMana;
+  void from;
+  const homeHex = { ...state.homeHex };
+  state.player.coord = homeHex;
   state.player.hunger = 100;
   state.player.thirst = 100;
+  upsertPlayerStatusEffect(state.player.statusEffects, {
+    id: 'recentDeath',
+  });
+  upsertPlayerStatusEffect(state.player.statusEffects, {
+    id: 'restoration',
+    expiresAt: state.worldTimeMs + 100_000,
+    tickIntervalMs: 1_000,
+    lastProcessedAt: state.worldTimeMs,
+  });
+  state.player.hp = 1;
+  state.player.mana = 1;
+  state.player.hp = Math.min(
+    state.player.hp,
+    getPlayerStats(state.player).maxHp,
+  );
   state.combat = null;
   addLog(state, 'combat', t('game.message.combat.defeated'));
   addLog(
     state,
     'system',
-    t('game.message.combat.respawn', { q: town.q, r: town.r }),
+    t('game.message.combat.respawn', { q: homeHex.q, r: homeHex.r }),
   );
 }
 
 function applySurvivalDecay(state: GameState) {
+  processPlayerStatusEffects(state);
   state.player.hunger = Math.max(0, state.player.hunger - 1);
   state.player.thirst = Math.max(0, (state.player.thirst ?? 100) - 1);
 
@@ -1311,6 +1343,84 @@ function applySurvivalDecay(state: GameState) {
   if (damage > 0) {
     state.player.hp = Math.max(0, state.player.hp - damage);
   }
+}
+
+function processPlayerStatusEffects(state: GameState) {
+  let changed = false;
+  const remainingEffects: PlayerStatusEffect[] = [];
+
+  state.player.statusEffects.forEach((effect) => {
+    if (effect.id !== 'restoration') {
+      remainingEffects.push(effect);
+      return;
+    }
+
+    const lastProcessedAt = effect.lastProcessedAt ?? state.worldTimeMs;
+    const effectEndAt = effect.expiresAt ?? lastProcessedAt;
+    const effectiveNow = Math.min(state.worldTimeMs, effectEndAt);
+    const tickIntervalMs = effect.tickIntervalMs ?? 1_000;
+    const tickCount = Math.floor(
+      Math.max(0, effectiveNow - lastProcessedAt) / tickIntervalMs,
+    );
+
+    if (tickCount > 0) {
+      const stats = getPlayerStats(state.player);
+      state.player.hp = Math.min(
+        stats.maxHp,
+        state.player.hp +
+          Math.max(1, Math.floor(stats.maxHp * 0.01)) * tickCount,
+      );
+      state.player.mana = Math.min(
+        state.player.baseMaxMana,
+        state.player.mana +
+          Math.max(1, Math.floor(state.player.baseMaxMana * 0.01)) * tickCount,
+      );
+      changed = true;
+    }
+
+    if (effect.expiresAt != null && state.worldTimeMs >= effect.expiresAt) {
+      changed = true;
+      return;
+    }
+
+    const nextLastProcessedAt = lastProcessedAt + tickCount * tickIntervalMs;
+    if (nextLastProcessedAt !== effect.lastProcessedAt) {
+      changed = true;
+    }
+
+    remainingEffects.push({
+      ...effect,
+      lastProcessedAt: nextLastProcessedAt,
+    });
+  });
+
+  if (remainingEffects.length !== state.player.statusEffects.length) {
+    changed = true;
+  }
+
+  state.player.statusEffects = remainingEffects;
+  const maxHp = getPlayerStats(state.player).maxHp;
+  if (state.player.hp > maxHp) {
+    state.player.hp = maxHp;
+    changed = true;
+  }
+
+  return changed;
+}
+
+function upsertPlayerStatusEffect(
+  statusEffects: PlayerStatusEffect[],
+  effect: PlayerStatusEffect,
+) {
+  const existingIndex = statusEffects.findIndex(
+    (current) => current.id === effect.id,
+  );
+  if (existingIndex >= 0) {
+    statusEffects[existingIndex] = effect;
+    return;
+  }
+
+  statusEffects.push(effect);
 }
 
 function syncCombatEnemies(state: GameState) {
@@ -1419,6 +1529,9 @@ function clone(state: GameState): GameState {
           item ? { ...item } : item,
         ]),
       ),
+      statusEffects: state.player.statusEffects.map((effect) => ({
+        ...effect,
+      })),
     },
   };
 }

@@ -177,6 +177,21 @@ export function normalizeLoadedGame(game: GameState): GameState {
       learnedRecipeIds:
         game.player.learnedRecipeIds ??
         getRecipeBookRecipes().map((recipe) => recipe.id),
+      statusEffects: (game.player.statusEffects ?? []).map((effect) => ({
+        ...effect,
+        expiresAt:
+          effect.expiresAt == null
+            ? undefined
+            : Math.max(0, Number(effect.expiresAt) || 0),
+        tickIntervalMs:
+          effect.tickIntervalMs == null
+            ? undefined
+            : Math.max(1, Number(effect.tickIntervalMs) || 1_000),
+        lastProcessedAt:
+          effect.lastProcessedAt == null
+            ? undefined
+            : Math.max(0, Number(effect.lastProcessedAt) || 0),
+      })),
       inventory,
       equipment,
     },

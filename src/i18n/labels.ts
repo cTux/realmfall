@@ -28,5 +28,5 @@ export function formatLogKindLabel(kind: LogKind) {
 }
 
 export function formatStatusEffectLabel(statusEffectName: string) {
-  return t(`ui.statusEffect.${statusEffectName.toLowerCase()}.label`);
+  return t(`ui.statusEffect.${statusEffectName}.label`);
 }
