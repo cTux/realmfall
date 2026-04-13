@@ -70,11 +70,14 @@ import {
   spendGold,
 } from './inventory';
 import {
+  gatheringBonusChance,
+  gatheringYieldBonus,
   gainSkillXp,
   gainXp,
   getPlayerStats,
   makeStartingSkills,
   rollGatheringBonus,
+  skillLevelThreshold,
 } from './progression';
 import { isPassable, noise } from './shared';
 import {
@@ -123,6 +126,8 @@ export type {
 } from './types';
 export { EQUIPMENT_SLOTS, RARITY_ORDER } from './types';
 export {
+  gatheringBonusChance,
+  gatheringYieldBonus,
   canEquipItem,
   canUseItem,
   createFreshLogs,
@@ -138,6 +143,7 @@ export {
   isRecipeBook,
   isRecipePage,
   makeGoldStack,
+  skillLevelThreshold,
   structureActionLabel,
 };
 
@@ -973,13 +979,10 @@ export function interactWithStructure(state: GameState): GameState {
 
   const definition = structureDefinition(currentTile.structure);
   const skill = next.player.skills[definition.skill];
-  const damage = Math.min(
-    currentTile.structureHp ?? definition.maxHp,
-    1 + Math.floor(skill.level / 3),
-  );
+  const damage = Math.min(currentTile.structureHp ?? definition.maxHp, 1);
   const bonusLoot = rollGatheringBonus(next, definition.skill);
   const quantity =
-    definition.baseYield + Math.floor((skill.level - 1) / 4) + bonusLoot;
+    definition.baseYield + gatheringYieldBonus(skill.level) + bonusLoot;
 
   currentTile.structureHp = Math.max(
     0,

@@ -12,6 +12,7 @@ import {
   comparisonLines,
   enemyTooltip,
   itemTooltipLines,
+  skillTooltip,
   structureTooltip,
 } from './tooltips';
 import { formatCompactNumber, formatCompactNumberish } from './formatters';
@@ -204,6 +205,23 @@ describe('ui helpers and components', () => {
       { kind: 'stat', label: 'Level', value: '2' },
       { kind: 'stat', label: 'Enemies', value: '1' },
     ]);
+
+    expect(skillTooltip('logging', 12)).toContainEqual({
+      kind: 'stat',
+      label: 'Base Yield Bonus',
+      value: '+2',
+      tone: 'item',
+    });
+    expect(skillTooltip('logging', 12)).toContainEqual({
+      kind: 'stat',
+      label: 'Extra Resource Chance',
+      value: '12%',
+      tone: 'item',
+    });
+    expect(skillTooltip('crafting', 4)).toContainEqual({
+      kind: 'text',
+      text: 'Skill level does not change recipe costs, output, or quality directly yet.',
+    });
 
     const groupEnemy = enemyTooltip(
       [
@@ -490,7 +508,7 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('logging');
     expect(markup).toContain(')ecipe book');
     expect(markup).toContain(')ex info');
-    expect(markup).toContain('(Q) Chop tree');
+    expect(markup).toContain('(Q) Gather');
     expect(markup).toContain('Structure HP');
     expect(markup).toContain('Town Stock');
     expect(markup).toContain('Horned Helm');

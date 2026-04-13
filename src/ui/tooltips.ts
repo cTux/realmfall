@@ -1,8 +1,12 @@
 import {
+  gatheringBonusChance,
+  gatheringYieldBonus,
   getStructureConfig,
   isGatheringStructure,
+  skillLevelThreshold,
   type Enemy,
   type Item,
+  type SkillName,
   type StructureType,
   type Tile,
 } from '../game/state';
@@ -148,6 +152,50 @@ export function structureTooltip(
   };
 }
 
+export function skillTooltip(skill: SkillName, level: number): TooltipLine[] {
+  const nextLevelXp = skillLevelThreshold(level);
+
+  if (isGatheringSkill(skill)) {
+    return [
+      {
+        kind: 'text',
+        text: 'Improves gathering actions tied to this skill.',
+      },
+      {
+        kind: 'stat',
+        label: 'Base Yield Bonus',
+        value: `+${gatheringYieldBonus(level)}`,
+        tone: 'item',
+      },
+      {
+        kind: 'stat',
+        label: 'Extra Resource Chance',
+        value: `${Math.round(gatheringBonusChance(level) * 100)}%`,
+        tone: 'item',
+      },
+      {
+        kind: 'text',
+        text: `Next level needs ${nextLevelXp} XP in this skill.`,
+      },
+    ];
+  }
+
+  return [
+    {
+      kind: 'text',
+      text: 'Used to track recipe practice and level progression for this profession.',
+    },
+    {
+      kind: 'text',
+      text: 'Skill level does not change recipe costs, output, or quality directly yet.',
+    },
+    {
+      kind: 'text',
+      text: `Next level needs ${nextLevelXp} XP in this skill.`,
+    },
+  ];
+}
+
 function consumableEffectDescription(item: Item) {
   if (item.name === HOME_SCROLL_ITEM_NAME) {
     return 'Use to return instantly to your hearthmark.';
@@ -196,4 +244,13 @@ function structureTitle(structure: StructureType) {
 
 function structureDescription(structure: StructureType) {
   return getStructureConfig(structure).description;
+}
+
+function isGatheringSkill(skill: SkillName) {
+  return (
+    skill === 'logging' ||
+    skill === 'mining' ||
+    skill === 'skinning' ||
+    skill === 'fishing'
+  );
 }

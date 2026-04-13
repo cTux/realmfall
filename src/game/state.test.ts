@@ -302,6 +302,7 @@ describe('game state', () => {
       true,
     );
     expect(chopped.player.skills.logging.xp).toBeGreaterThan(0);
+    expect(getTileAt(chopped, { q: 0, r: 0 }).structureHp).toBe(1);
 
     const cleared = interactWithStructure(chopped);
     expect(getTileAt(cleared, { q: 0, r: 0 }).structure).toBeUndefined();

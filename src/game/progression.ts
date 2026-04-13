@@ -117,7 +117,7 @@ export function gainSkillXp(
 }
 
 export function rollGatheringBonus(state: GameState, skill: SkillName) {
-  const chance = Math.min(1, state.player.skills[skill].level / 100);
+  const chance = gatheringBonusChance(state.player.skills[skill].level);
   const rng = createRng(
     `${state.seed}:gather-bonus:${skill}:${state.turn}:${hexKey(state.player.coord)}`,
   );
@@ -132,6 +132,14 @@ export function masteryLevelThreshold(masteryLevel: number) {
   return levelThreshold(MAX_PLAYER_LEVEL + masteryLevel) * 20;
 }
 
-function skillLevelThreshold(level: number) {
+export function skillLevelThreshold(level: number) {
   return 5 + level * 3;
+}
+
+export function gatheringYieldBonus(level: number) {
+  return Math.floor((level - 1) / 4);
+}
+
+export function gatheringBonusChance(level: number) {
+  return Math.min(1, level / 100);
 }

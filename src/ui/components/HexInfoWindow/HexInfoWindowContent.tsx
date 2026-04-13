@@ -12,12 +12,10 @@ export function HexInfoWindowContent({
   structure,
   enemyCount,
   interactLabel,
-  canInteract,
   canProspect,
   canSell,
   prospectExplanation,
   sellExplanation,
-  onInteract,
   onProspect,
   onSellAll,
   structureHp,
@@ -66,11 +64,6 @@ export function HexInfoWindowContent({
       ) : null}
 
       <div className={styles.actions}>
-        {interactLabel ? (
-          <button onClick={onInteract} disabled={!canInteract}>
-            (Q) {interactLabel}
-          </button>
-        ) : null}
         {canProspect ? <button onClick={onProspect}>Prospect</button> : null}
         {canSell ? (
           <button onClick={onSellAll}>Sell all equippable</button>

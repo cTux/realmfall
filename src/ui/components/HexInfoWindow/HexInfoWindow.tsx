@@ -55,19 +55,35 @@ export const HexInfoWindow = memo(function HexInfoWindow({
       visible={visible}
       onClose={onClose}
       headerActions={
-        <button
-          type="button"
-          className={`${inventoryStyles.headerButton} ${styles.homeButton}`}
-          aria-pressed={isHome}
-          disabled={isHome}
-          onPointerDown={(event) => event.stopPropagation()}
-          onClick={(event) => {
-            event.stopPropagation();
-            onSetHome();
-          }}
-        >
-          Home
-        </button>
+        <>
+          {interactLabel ? (
+            <button
+              type="button"
+              className={`${inventoryStyles.headerButton} ${styles.homeButton}`}
+              disabled={!canInteract}
+              onPointerDown={(event) => event.stopPropagation()}
+              onClick={(event) => {
+                event.stopPropagation();
+                onInteract();
+              }}
+            >
+              (Q) Gather
+            </button>
+          ) : null}
+          <button
+            type="button"
+            className={`${inventoryStyles.headerButton} ${styles.homeButton}`}
+            aria-pressed={isHome}
+            disabled={isHome}
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={(event) => {
+              event.stopPropagation();
+              onSetHome();
+            }}
+          >
+            Home
+          </button>
+        </>
       }
     >
       <Suspense fallback={<WindowLoadingState />}>
