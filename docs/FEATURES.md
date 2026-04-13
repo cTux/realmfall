@@ -212,8 +212,18 @@
 * Mono-repository
     * Common package with all the entities definitions
 * i18n
+    * https://github.com/hemengke1997/vite-plugin-i18n-ally
 * Themes
 * Add CHANGELOG.md
     * Automatically handled by Github Action
     * New version added to changelog should appear on the top, it should contain all the changes from previous version
 * Electron
+* Reload the page if game version was updated
+    * Polling game version
+    * If there is a new version user should see a message that new version exists and can press "update" button to reload the page and get new updates
+* Game font
+    * https://github.com/a3mitskevich/vite-font-extractor-plugin
+* Tests cache
+    * https://github.com/raegen/vite-plugin-vitest-cache
+* Bundle obfuscator
+    * https://github.com/z0ffy/vite-plugin-bundle-obfuscator

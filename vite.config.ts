@@ -1,6 +1,9 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
-import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
+import checker from 'vite-plugin-checker';
+import minipic from 'vite-plugin-minipic';
+import { VitePWA } from 'vite-plugin-pwa';
+import detectDuplicatedDeps from 'unplugin-detect-duplicated-deps/vite';
 
 function getVendorChunk(id: string) {
   const normalizedId = id.replace(/\\/g, '/');
@@ -29,7 +32,20 @@ function getVendorChunk(id: string) {
 }
 
 export default defineConfig({
-  plugins: [react(), ViteImageOptimizer()],
+  plugins: [
+    react(),
+    checker({
+      typescript: true,
+      eslint: {
+        lintCommand: 'eslint .',
+      },
+    }),
+    VitePWA({
+      registerType: 'autoUpdate',
+    }),
+    detectDuplicatedDeps(),
+    minipic(),
+  ],
   build: {
     rollupOptions: {
       output: {
