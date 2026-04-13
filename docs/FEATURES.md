@@ -5,8 +5,9 @@
     * Unlocking items
     * Using items for different party members (sliding sub-menu to choose party member), if no party members except the player only, there should not be sub-menu, only Use action to use it on the player
 * Ga(m)e settings (+window and its button working with hotkey)
-    * Graphic settings
-        * Clouds enabling / disabling
+    * Contains tabs:
+        * Graphic settings
+            * Clouds enabling / disabling
 * Better item stats
     * More stats
         * Attack Speed (decreases global cooldown and cooldown of abilities)
@@ -18,18 +19,24 @@
         * Lifesteal Amount
     * If player has more than 100% of some stats it means that it procs 1 time for sure and has a chance to proc one more time (Chance - 100%)
 * Global cooldown
-    * All the battle entities should have global cooldown value that should be respected between casting abilities
-    * Global cooldown values can be decreased by increasing corresponding stat rating value
+    * Every battle entity should have global cooldown
+    * Global cooldown value should be respected between casting abilities
+    * Default global cooldown value is 1.5s
+    * Global cooldown values can be decreased by increasing Attack Speed stat
 * Abilities
-    * Default battle entity ability (player + enemies) is Kick which has 1.5s cooldown and instant (has no casting time)
+    * Default battle entity ability (player + enemies) is Kick
     * Each ability should have mana amount to be spent on cast
     * Each ability has cooldown
-    * Each ability has its casting time
-    * Common enemies should not have abilities
-    * Uncommon and Rare enemies should have one random ability
-    * Epic enemies should have two random abilities
-    * Legendary enemies should have three random abilities
+    * Each ability has its casting time (or be instant)
+    * Common and Uncommon and Rare enemies should have one additional random ability
+    * Epic enemies should have two additional random abilities
+    * Legendary enemies should have three additional random abilities
     * Abilities that are available in the game:
+        * Kick
+            * CD: 1s
+            * Instant
+            * Regular damage
+            * Target: first available enemy in the enemy group
         * Knockback
             * CD: 5s
             * Instant
@@ -71,10 +78,6 @@
             * Instant
             * Buffs all your party members with "Motivation" which grants 10% of attack damage and 10% of magical damage
     * When battle starts player and enemies start casting their abilities simultaneously (not depending on each other)
-* Buffs and Debuffs
-    * Battle window should show set of buffs and debuff for player and every enemy
-    * Buffs should have green border
-    * Debuffs should have red border
 * (R)ecipe book (+window and its button working with hotkey)
     * Should have right-side tabs with professions player can learn recipes for
     * Should look like a real book with animated pages
@@ -105,7 +108,6 @@
 * Corrupting item
 * Parties and mercenaries with their own eqipment
     * On death they should drop all their equipment
-* Party vs party battles
 * Summoner enemies
 * World bosses
     * Takes 7 hexes to be rendered (centered one and 6 neighbours)
