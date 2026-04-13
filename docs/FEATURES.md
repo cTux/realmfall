@@ -220,3 +220,7 @@
     * If there is a new version user should see a message that new version exists and can press "update" button to reload the page and get new updates
 * Game font
     * https://github.com/a3mitskevich/vite-font-extractor-plugin
+* On player death:
+    * Debuff "Recent Death" should be added
+        * Icon: https://game-icons.net/1x1/lorc/scythe.html
+        * Buff decreases hitpoints by 10%

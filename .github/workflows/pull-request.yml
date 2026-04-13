@@ -35,5 +35,11 @@ jobs:
       - name: Test
         run: pnpm test
 
+      - name: Generate changelog
+        run: pnpm changelog:build
+
+      - name: Verify changelog is current
+        run: git diff --exit-code -- CHANGELOG.md
+
       - name: Build
         run: pnpm build
