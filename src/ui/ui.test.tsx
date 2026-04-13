@@ -806,7 +806,7 @@ describe('ui helpers and components', () => {
       window.dispatchEvent(new MouseEvent('pointerup', { bubbles: true }));
     });
 
-    expect(moves.at(-1)).toEqual({ x: 8, y: 8 });
+    expect(moves[moves.length - 1]).toEqual({ x: 8, y: 8 });
     expect(testWindow.dataset.windowEmphasis).toBe('active');
     expect(backgroundWindow.dataset.windowEmphasis).toBe('idle');
 
