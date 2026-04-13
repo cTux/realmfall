@@ -8,6 +8,7 @@ import {
 import type { DraggableWindowProps } from './types';
 import styles from './styles.module.scss';
 import { Icons } from '../../icons';
+import { t } from '../../../i18n';
 
 const WINDOW_TRANSITION_MS = 180;
 const WINDOW_ACTIVATED_EVENT = 'opencode-window-activated';
@@ -144,7 +145,7 @@ export function DraggableWindow({
             <button
               type="button"
               className={styles.headerButton}
-              aria-label="Close"
+              aria-label={t('ui.common.close')}
               onPointerDown={(event) => event.stopPropagation()}
               onClick={closeWindow}
             >

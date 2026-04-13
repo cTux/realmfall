@@ -3,6 +3,14 @@ import type {
   StructureType,
   Terrain,
 } from '../../types';
+import {
+  itemName,
+  structureActionLabel as localizedStructureActionLabel,
+  structureDepletedText,
+  structureDescription,
+  structureGatherVerb,
+  structureTitle,
+} from '../i18n';
 import type { StructureConfig } from '../types';
 import { campStructureConfig } from './camp';
 import { coalOreStructureConfig } from './coalOre';
@@ -17,7 +25,7 @@ import { townStructureConfig } from './town';
 import { treeStructureConfig } from './tree';
 import { workshopStructureConfig } from './workshop';
 
-export const STRUCTURE_CONFIGS = [
+const RAW_STRUCTURE_CONFIGS = [
   dungeonStructureConfig,
   forgeStructureConfig,
   townStructureConfig,
@@ -31,6 +39,25 @@ export const STRUCTURE_CONFIGS = [
   pondStructureConfig,
   lakeStructureConfig,
 ] as const;
+
+export const STRUCTURE_CONFIGS: StructureConfig[] = RAW_STRUCTURE_CONFIGS.map(
+  (config) => ({
+    ...config,
+    title: structureTitle(config.type),
+    description: structureDescription(config.type),
+    gathering: config.gathering
+      ? {
+          ...config.gathering,
+          actionLabel: localizedStructureActionLabel(config.type),
+          reward: itemName(
+            config.gathering.reward.toLowerCase().replace(/\s+/g, '-'),
+          ),
+          verb: structureGatherVerb(config.type),
+          depletedText: structureDepletedText(config.type),
+        }
+      : undefined,
+  }),
+);
 
 const STRUCTURE_CONFIG_BY_TYPE = Object.fromEntries(
   STRUCTURE_CONFIGS.map((config) => [config.type, config]),

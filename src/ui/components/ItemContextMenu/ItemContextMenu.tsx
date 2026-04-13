@@ -1,4 +1,5 @@
 import { memo, useEffect, useRef } from 'react';
+import { t } from '../../../i18n';
 import type { ItemContextMenuProps } from './types';
 import styles from './styles.module.scss';
 
@@ -43,16 +44,18 @@ export const ItemContextMenu = memo(function ItemContextMenu({
     >
       {canEquip ? (
         <button className={styles.action} onClick={onEquip}>
-          {equipLabel ?? 'Equip'}
+          {equipLabel ?? t('ui.itemMenu.equipAction')}
         </button>
       ) : null}
       {canUse ? (
         <button className={styles.action} onClick={onUse}>
-          Use
+          {t('ui.itemMenu.useAction')}
         </button>
       ) : null}
       <button className={styles.action} onClick={onDrop}>
-        Drop {item.quantity > 1 ? `x${item.quantity}` : ''}
+        {t('ui.itemMenu.dropAction', {
+          quantity: item.quantity > 1 ? `x${item.quantity}` : '',
+        }).trim()}
       </button>
     </div>
   );

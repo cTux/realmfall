@@ -35,9 +35,10 @@ import {
 import {
   GAME_DAY_DURATION_MS,
   GAME_DAY_MINUTES,
-  HOME_SCROLL_ITEM_NAME,
+  HOME_SCROLL_ITEM_NAME_KEY,
   WORLD_REVEAL_RADIUS,
 } from './config';
+import { t } from '../i18n';
 import { normalizeLoadedGame } from '../app/normalize';
 
 describe('game state', () => {
@@ -1069,7 +1070,7 @@ describe('game state', () => {
     game.player.inventory.push({
       id: 'home-scroll-1',
       kind: 'consumable',
-      name: HOME_SCROLL_ITEM_NAME,
+      name: t(HOME_SCROLL_ITEM_NAME_KEY),
       quantity: 1,
       tier: 1,
       rarity: 'common',
@@ -1122,7 +1123,9 @@ describe('game state', () => {
       const encountered = moveToTile(game, target);
       const resolved = startCombat(encountered);
       const tile = getTileAt(resolved, target);
-      if (tile.items.some((item) => item.name === HOME_SCROLL_ITEM_NAME)) {
+      if (
+        tile.items.some((item) => item.name === t(HOME_SCROLL_ITEM_NAME_KEY))
+      ) {
         dropped = resolved;
         break;
       }
@@ -1131,7 +1134,7 @@ describe('game state', () => {
     expect(dropped).not.toBeNull();
     expect(
       getTileAt(dropped!, { q: 2, r: 0 }).items.some(
-        (item) => item.name === HOME_SCROLL_ITEM_NAME,
+        (item) => item.name === t(HOME_SCROLL_ITEM_NAME_KEY),
       ),
     ).toBe(true);
   });

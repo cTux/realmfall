@@ -21,6 +21,7 @@ import {
 import { WORLD_RADIUS, WORLD_REVEAL_RADIUS } from '../constants';
 import { AppWindows } from './AppWindows';
 import { getDockEntries } from './appHelpers';
+import { t } from '../../i18n';
 import { DebuggerWindow } from '../../ui/components/DebuggerWindow';
 import { useAppControllers } from './useAppControllers';
 import { useAppPersistence } from './useAppPersistence';
@@ -141,11 +142,11 @@ export function App() {
   const canSell = currentTile.structure === 'town' && hasEquippableItems;
   const prospectExplanation =
     currentTile.structure === 'forge' && !hasEquippableItems
-      ? 'Nothing in your pack can be prospected.'
+      ? t('game.message.prospect.empty')
       : null;
   const sellExplanation =
     currentTile.structure === 'town' && !hasEquippableItems
-      ? 'No equippable items to sell.'
+      ? t('game.message.sell.empty')
       : null;
   const interactLabel = structureActionLabel(currentTile.structure);
   const townStock = useMemo(() => getTownStock(game), [game]);
@@ -351,7 +352,7 @@ export function App() {
               top: homeIndicator.y,
               transform: `translate(-50%, -50%) rotate(${homeIndicator.angle + Math.PI / 2}rad)`,
             }}
-            aria-label="Home direction"
+            aria-label={t('app.home.directionLabel')}
           >
             <span className={styles.homeIndicatorArrow}>▲</span>
             <span
@@ -360,7 +361,7 @@ export function App() {
                 transform: `translate(-50%, 0) rotate(${-homeIndicator.angle - Math.PI / 2}rad)`,
               }}
             >
-              Home
+              {t('app.home.label')}
             </span>
           </div>
         ) : null}

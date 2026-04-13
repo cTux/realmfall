@@ -1,10 +1,10 @@
-import { COOKED_FISH_ITEM_NAME } from '../../config';
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import type { ItemConfig } from '../types';
 
 export const cookedFishItemConfig: ItemConfig = {
   key: 'cooked-fish',
-  name: COOKED_FISH_ITEM_NAME,
+  name: itemName('cooked-fish'),
   kind: 'consumable',
   icon: ContentIcons.FriedFish,
   tint: '#f59e0b',

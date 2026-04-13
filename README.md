@@ -128,6 +128,7 @@ The world view is the most performance-sensitive path in the project.
 - Prefer debounced or meaningfully-triggered persistence work over repeated identical writes.
 - Keep React component files compatible with Fast Refresh expectations.
 - New draggable windows should keep their content behind a lazy-loaded bundle, either by splitting the whole window module or a dedicated `*WindowContent` module.
+- Keep user-facing copy in i18n resources, default to `en`, add new keys instead of inline strings, and use dot-separated keys such as `{feature}.{area}.{property}`.
 - Prefer deterministic tests for gameplay and render-math changes, especially when performance-sensitive behavior changes.
 - Keep generated world content aligned with `docs/lore/REALMFALL.md`.
 

@@ -5,6 +5,7 @@ import {
   GAME_DAY_DURATION_MS,
   GAME_DAY_MINUTES,
 } from './config';
+import { t } from '../i18n';
 import { createRng } from './random';
 import type { GameState, LogEntry, LogKind } from './types';
 
@@ -58,19 +59,9 @@ export function getWorldDayIndex(worldTimeMs: number) {
 
 function createInitialLogs(seed: string): LogEntry[] {
   return [
-    makeLog(
-      3,
-      'motd',
-      0,
-      'MOTD: The Fracture shows no mercy, and neither does an empty pack.',
-    ),
+    makeLog(3, 'motd', 0, t('game.log.initial.motd')),
     makeLog(2, 'rumor', 0, rumorForSeed(seed)),
-    makeLog(
-      1,
-      'system',
-      0,
-      'You wake amid the shattered Shards with Aether in your bones.',
-    ),
+    makeLog(1, 'system', 0, t('game.log.initial.wake')),
   ];
 }
 
@@ -100,23 +91,27 @@ function formatLogPrefix(worldTimeMs: number) {
   const minutes = Math.floor(totalMinutes % 60)
     .toString()
     .padStart(2, '0');
-  return `[Day ${day}, ${hours}:${minutes}]`;
+  return t('game.log.prefix.dayTime', {
+    day,
+    hours,
+    minutes,
+  });
 }
 
 function rumorForSeed(seed: string) {
   const rumors = [
-    'Rumor: rift ruins hide the finest relics, but their guardians do not wake alone.',
-    'Rumor: every forge can strip hidden worth from broken gear if your hands stay steady.',
-    'Rumor: shardside merchants only trust business done under guarded roofs.',
-    'Rumor: the farther you walk, the sharper the steel and the harsher the teeth.',
-    'Rumor: tree lines near the center regrow slowly, so greedy chopping leaves long hungry roads.',
-    'Rumor: shallow ponds feed the patient, but lakes hide deeper rewards and deeper trouble.',
-    'Rumor: coal veins tend to sit where the land already looks half-burned and bitter.',
-    'Rumor: the best armor comes from surviving one more trip than you thought you could.',
-    'Rumor: some ruins look empty until the first step wakes everything inside.',
-    'Rumor: a full pack is safer than a sharp blade right up until the fighting starts.',
-    'Rumor: iron pays for persistence, copper pays for speed, and both punish dull tools.',
-    'Rumor: hunger kills more heroes than wolves ever will.',
+    t('game.log.rumor.1'),
+    t('game.log.rumor.2'),
+    t('game.log.rumor.3'),
+    t('game.log.rumor.4'),
+    t('game.log.rumor.5'),
+    t('game.log.rumor.6'),
+    t('game.log.rumor.7'),
+    t('game.log.rumor.8'),
+    t('game.log.rumor.9'),
+    t('game.log.rumor.10'),
+    t('game.log.rumor.11'),
+    t('game.log.rumor.12'),
   ];
   return (
     rumors[Math.floor(createRng(`${seed}:rumor`)() * rumors.length)] ??

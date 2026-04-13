@@ -1,4 +1,5 @@
 import { iconForItem, itemTint } from '../../icons';
+import { t } from '../../../i18n';
 import type { HexInfoWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -34,22 +35,22 @@ export function HexInfoWindowContent({
   return (
     <div className={styles.meta}>
       <div className={styles.row}>
-        <span className={styles.label}>Terrain</span>
+        <span className={styles.label}>{t('ui.hexInfo.terrainLabel')}</span>
         <span className={styles.value}>{terrain}</span>
       </div>
       <div className={styles.row}>
-        <span className={styles.label}>Structure</span>
+        <span className={styles.label}>{t('ui.hexInfo.structureLabel')}</span>
         <span className={styles.value}>{structure}</span>
       </div>
       <div className={styles.row}>
-        <span className={styles.label}>Enemies</span>
+        <span className={styles.label}>{t('ui.hexInfo.enemiesLabel')}</span>
         <span className={styles.value}>{enemyCount}</span>
       </div>
 
       {structureHp != null && structureMaxHp != null ? (
         <div className={styles.barBlock}>
           <div className={styles.barLabel}>
-            <span>Structure HP</span>
+            <span>{t('ui.hexInfo.structureHpLabel')}</span>
             <span>
               {structureHp}/{structureMaxHp}
             </span>
@@ -64,9 +65,11 @@ export function HexInfoWindowContent({
       ) : null}
 
       <div className={styles.actions}>
-        {canProspect ? <button onClick={onProspect}>Prospect</button> : null}
+        {canProspect ? (
+          <button onClick={onProspect}>{t('ui.hexInfo.prospectAction')}</button>
+        ) : null}
         {canSell ? (
-          <button onClick={onSellAll}>Sell all equippable</button>
+          <button onClick={onSellAll}>{t('ui.hexInfo.sellAllAction')}</button>
         ) : null}
       </div>
 
@@ -79,7 +82,9 @@ export function HexInfoWindowContent({
 
       {townStock.length > 0 ? (
         <div className={styles.shop}>
-          <div className={styles.shopTitle}>Town Stock · {gold} gold</div>
+          <div className={styles.shopTitle}>
+            {t('ui.hexInfo.townStockTitle', { gold })}
+          </div>
           {townStock.map(({ item, price }) => (
             <div key={item.id} className={styles.shopRow}>
               <button
@@ -98,7 +103,7 @@ export function HexInfoWindowContent({
                 onClick={() => onBuyItem(item.id)}
                 disabled={gold < price}
               >
-                Buy
+                {t('ui.hexInfo.buyAction')}
               </button>
             </div>
           ))}
@@ -106,7 +111,7 @@ export function HexInfoWindowContent({
       ) : null}
 
       {!interactLabel && !canProspect && !canSell && townStock.length === 0 ? (
-        <div className={styles.empty}>Nothing of note stirs here.</div>
+        <div className={styles.empty}>{t('ui.hexInfo.empty')}</div>
       ) : null}
     </div>
   );

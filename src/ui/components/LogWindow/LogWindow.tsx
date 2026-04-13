@@ -1,4 +1,6 @@
 import { lazy, memo, Suspense } from 'react';
+import { t } from '../../../i18n';
+import { formatLogKindLabel } from '../../../i18n/labels';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
@@ -42,7 +44,7 @@ export const LogWindow = memo(function LogWindow({
       headerActions={
         <div className={styles.toolbar}>
           <button className={styles.headerButton} onClick={onToggleMenu}>
-            Filters
+            {t('ui.log.filtersAction')}
           </button>
           {showFilterMenu ? (
             <div className={styles.filterMenu}>
@@ -56,7 +58,7 @@ export const LogWindow = memo(function LogWindow({
                       onToggleFilter(kind as keyof typeof filters)
                     }
                   />
-                  {kind}
+                  {formatLogKindLabel(kind as keyof typeof filters)}
                 </label>
               ))}
             </div>

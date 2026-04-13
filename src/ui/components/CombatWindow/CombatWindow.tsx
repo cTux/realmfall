@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import { t } from '../../../i18n';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLoadingState } from '../WindowLoadingState';
 import inventoryStyles from '../InventoryWindow/styles.module.scss';
@@ -34,13 +35,13 @@ export function CombatWindow({
         onStart();
       }}
     >
-      (Q) Start
+      {t('ui.combat.startAction')}
     </button>
   ) : null;
 
   return (
     <DraggableWindow
-      title="Combat"
+      title={t('ui.window.combat.plain')}
       headerActions={startButton}
       position={position}
       onMove={onMove}

@@ -15,6 +15,8 @@ Follow `docs/RULES.md` as the canonical source of project rules.
 - When adding new draggable windows, follow the `docs/RULES.md` expectation that window content stays lazy-loaded and bundle-split.
 - When generating world-facing content, follow the lore canon in `docs/lore/REALMFALL.md`.
 - When adding or changing unique items, enemies, or structures, keep each one in its own dedicated configuration file rather than extending a catch-all content-definition module.
+- When tasks touch user-facing text, keep it in i18n resources, add new keys instead of inline strings, and use the `{feature}.{area}.{property}` key pattern from `docs/RULES.md`.
+- For label formatters that map stable identifiers such as status effects to i18n, prefer direct patterned key lookups over conditional branches when the key can be derived safely.
 
 ## Reference Files
 

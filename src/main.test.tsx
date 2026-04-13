@@ -16,6 +16,8 @@ describe('main bootstrap', () => {
     document.body.innerHTML = '<div id="root"></div>';
 
     await import('./main');
+    await vi.dynamicImportSettled();
+    await Promise.resolve();
 
     expect(createRoot).toHaveBeenCalledWith(document.getElementById('root'));
     expect(render).toHaveBeenCalledTimes(1);

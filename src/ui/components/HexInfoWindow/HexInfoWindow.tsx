@@ -1,4 +1,5 @@
 import { lazy, memo, Suspense } from 'react';
+import { t } from '../../../i18n';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
@@ -67,7 +68,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
                 onInteract();
               }}
             >
-              (Q) Gather
+              {t('ui.hexInfo.interactAction')}
             </button>
           ) : null}
           <button
@@ -81,7 +82,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
               onSetHome();
             }}
           >
-            Home
+            {t('ui.hexInfo.setHomeAction')}
           </button>
         </>
       }

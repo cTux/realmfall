@@ -1,5 +1,6 @@
 import type { Item } from '../../types';
-import type { ItemBuildOverrides } from '../types';
+import { itemName } from '../i18n';
+import type { ItemBuildOverrides, ItemConfig } from '../types';
 import { arcaneDustItemConfig } from './arcaneDust';
 import { appleItemConfig } from './apple';
 import { campSpearItemConfig } from './campSpear';
@@ -36,7 +37,7 @@ import { wayfarerCloakItemConfig } from './wayfarerCloak';
 import { waterFlaskItemConfig } from './waterFlask';
 import { workGlovesItemConfig } from './workGloves';
 
-export const ITEM_CONFIGS = [
+const RAW_ITEM_CONFIGS = [
   trailRationItemConfig,
   appleItemConfig,
   recipeBookItemConfig,
@@ -73,6 +74,11 @@ export const ITEM_CONFIGS = [
   hearthTotemItemConfig,
   waterFlaskItemConfig,
 ] as const;
+
+export const ITEM_CONFIGS: ItemConfig[] = RAW_ITEM_CONFIGS.map((config) => ({
+  ...config,
+  name: itemName(config.key),
+}));
 
 const ITEM_CONFIG_BY_KEY = Object.fromEntries(
   ITEM_CONFIGS.map((config) => [config.key, config]),

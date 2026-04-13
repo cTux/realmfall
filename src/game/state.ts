@@ -1,4 +1,6 @@
 import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
+import { t } from '../i18n';
+import { formatEquipmentSlotLabel, formatSkillLabel } from '../i18n/labels';
 import {
   BLOOD_MOON_CHANCE,
   BLOOD_MOON_SPAWN_RADIUS,
@@ -6,12 +8,13 @@ import {
   EARTHSHAKE_SPAWN_RADIUS,
   HARVEST_MOON_CHANCE,
   HARVEST_MOON_SPAWN_RADIUS,
-  HOME_SCROLL_ITEM_NAME,
+  HOME_SCROLL_ITEM_NAME_KEY,
   STARTING_RECIPE_IDS,
   WORLD_RADIUS,
   WORLD_REVEAL_RADIUS,
 } from './config';
 import { createRng } from './random';
+import { itemName } from './content/i18n';
 import { getEnemyConfig, isAnimalEnemyType } from './content/enemies';
 import { buildItemFromConfig, getItemConfigByName } from './content/items';
 import { getStructureConfig } from './content/structures';
@@ -339,7 +342,11 @@ export function moveToTile(state: GameState, target: HexCoord): GameState {
     return next;
   }
 
-  addLog(next, 'movement', `You travel to ${target.q}, ${target.r}.`);
+  addLog(
+    next,
+    'movement',
+    t('game.message.travel.toHex', { q: target.q, r: target.r }),
+  );
   return next;
 }
 
@@ -378,8 +385,8 @@ export function syncBloodMoon(
       next,
       'system',
       phase === 'night'
-        ? 'Night falls across the wilds.'
-        : 'Morning breaks over the wilds.',
+        ? t('game.message.time.nightFalls')
+        : t('game.message.time.morningBreaks'),
     );
     return syncBloodMoon(next, minutes);
   }
@@ -400,16 +407,17 @@ export function syncBloodMoon(
       next.harvestMoonActive = false;
       syncEnemyBloodMoonState(next.enemies, true);
       const spawnedCount = spawnBloodMoonEnemies(next);
-      addLog(
-        next,
-        'combat',
-        'Blood moon begins. A red hunger sweeps the wilds.',
-      );
+      addLog(next, 'combat', t('game.message.bloodMoon.begin'));
       if (spawnedCount > 0) {
         addLog(
           next,
           'combat',
-          `Blood moon horrors gather nearby (${spawnedCount} foe${spawnedCount === 1 ? '' : 's'}).`,
+          t(
+            spawnedCount === 1
+              ? 'game.message.bloodMoon.foes.one'
+              : 'game.message.bloodMoon.foes.other',
+            { count: spawnedCount },
+          ),
         );
       }
       return next;
@@ -421,16 +429,17 @@ export function syncBloodMoon(
     if (harvestRng() < HARVEST_MOON_CHANCE) {
       next.harvestMoonActive = true;
       const spawnedCount = spawnHarvestMoonResources(next);
-      addLog(
-        next,
-        'system',
-        'Harvest moon rises. A cyan glow stirs the wild herbs and veins.',
-      );
+      addLog(next, 'system', t('game.message.harvestMoon.begin'));
       if (spawnedCount > 0) {
         addLog(
           next,
           'loot',
-          `Harvest moon abundance spreads nearby (${spawnedCount} gathering hex${spawnedCount === 1 ? '' : 'es'}).`,
+          t(
+            spawnedCount === 1
+              ? 'game.message.harvestMoon.hexes.one'
+              : 'game.message.harvestMoon.hexes.other',
+            { count: spawnedCount },
+          ),
         );
       }
     }
@@ -458,14 +467,10 @@ export function syncBloodMoon(
     syncEnemyBloodMoonState(next.enemies, false);
     maybeTriggerEarthshake(next);
     if (wasBloodMoonActive) {
-      addLog(next, 'combat', 'Blood moon ends. The night loosens its grip.');
+      addLog(next, 'combat', t('game.message.bloodMoon.end'));
     }
     if (wasHarvestMoonActive) {
-      addLog(
-        next,
-        'system',
-        'Harvest moon fades and the cyan glow drains away.',
-      );
+      addLog(next, 'system', t('game.message.harvestMoon.end'));
     }
     return next;
   }
@@ -476,11 +481,7 @@ export function syncBloodMoon(
 export function triggerEarthshake(state: GameState): GameState {
   const next = clone(state);
   if (!openEarthshakeDungeon(next, true)) {
-    addLog(
-      next,
-      'system',
-      'Earthshake fades. No empty ground can split nearby.',
-    );
+    addLog(next, 'system', t('game.message.earthshake.noGround'));
   }
   return next;
 }
@@ -503,7 +504,11 @@ export function setHomeHex(
     next.combat = null;
   }
 
-  addLog(next, 'system', `You set home at ${coord.q}, ${coord.r}.`);
+  addLog(
+    next,
+    'system',
+    t('game.message.home.set', { q: coord.q, r: coord.r }),
+  );
   return next;
 }
 
@@ -565,7 +570,14 @@ export function equipItem(state: GameState, itemId: string): GameState {
   next.player.equipment[item.slot] = item;
   const maxHp = getPlayerStats(next.player).maxHp;
   next.player.hp = Math.min(maxHp, next.player.hp);
-  addLog(next, 'system', `You equip ${item.name} in ${item.slot}.`);
+  addLog(
+    next,
+    'system',
+    t('game.message.equipment.equip', {
+      item: item.name,
+      slot: item.slot ? formatEquipmentSlotLabel(item.slot) : '',
+    }),
+  );
   return next;
 }
 
@@ -590,7 +602,7 @@ export function useItem(state: GameState, itemId: string): GameState {
     return message(state, 'That item cannot be used.');
 
   const next = clone(state);
-  if (item.name === HOME_SCROLL_ITEM_NAME) {
+  if (item.name === t(HOME_SCROLL_ITEM_NAME_KEY)) {
     teleportHome(next, itemIndex, item);
     return next;
   }
@@ -791,7 +803,11 @@ function applyPlayerAbility(
   const playerStats = getPlayerStats(state.player);
   const damage = Math.max(1, playerStats.attack - enemy.defense);
   enemy.hp = Math.max(0, enemy.hp - damage);
-  addLog(state, 'combat', `You kick the ${enemy.name} for ${damage}.`);
+  addLog(
+    state,
+    'combat',
+    t('game.message.combat.playerKick', { enemy: enemy.name, damage }),
+  );
 
   if (enemy.hp <= 0) {
     gainXp(state, enemy.xp, addLog);
@@ -801,7 +817,11 @@ function applyPlayerAbility(
     maybeDropHomeScroll(state, enemy);
     maybeDropBloodMoonLoot(state, enemy);
     maybeSkinEnemy(state, enemy);
-    addLog(state, 'combat', `You defeated the ${enemy.name}.`);
+    addLog(
+      state,
+      'combat',
+      t('game.message.combat.enemyDefeated', { enemy: enemy.name }),
+    );
     delete state.enemies[enemy.id];
     syncCombatEnemies(state);
   }
@@ -859,7 +879,11 @@ function applyEnemyAbility(
     enemy.attack - getPlayerStats(state.player).defense,
   );
   state.player.hp = Math.max(0, state.player.hp - damage);
-  addLog(state, 'combat', `The ${enemy.name} kicks you for ${damage}.`);
+  addLog(
+    state,
+    'combat',
+    t('game.message.combat.enemyKick', { enemy: enemy.name, damage }),
+  );
 
   if (state.player.hp <= 0) {
     respawnAtNearestTown(state, state.combat.coord);
@@ -877,7 +901,11 @@ export function unequipItem(state: GameState, slot: EquipmentSlot): GameState {
   addItemToInventory(next.player.inventory, equipped);
   const maxHp = getPlayerStats(next.player).maxHp;
   next.player.hp = Math.min(maxHp, next.player.hp);
-  addLog(next, 'system', `You unequip ${equipped.name}.`);
+  addLog(
+    next,
+    'system',
+    t('game.message.equipment.unequip', { item: equipped.name }),
+  );
   return next;
 }
 
@@ -889,7 +917,7 @@ export function sortInventory(state: GameState): GameState {
     .sort(compareItems);
   const other = next.player.inventory.filter((item) => !isEquippableItem(item));
   next.player.inventory = [...equippable, ...other];
-  addLog(next, 'system', 'You sort your inventory.');
+  addLog(next, 'system', t('game.message.inventory.sort'));
   return next;
 }
 
@@ -907,7 +935,7 @@ export function sellAllItems(state: GameState): GameState {
     (item) => !isEquippableItem(item),
   );
   addItemToInventory(next.player.inventory, makeGoldStack(gold));
-  addLog(next, 'system', `You sell your spare gear for ${gold} gold.`);
+  addLog(next, 'system', t('game.message.sell.success', { gold }));
   return next;
 }
 
@@ -932,7 +960,7 @@ export function prospectInventory(state: GameState): GameState {
   });
 
   next.player.inventory.sort(compareItems);
-  addLog(next, 'loot', 'You prospect your spare gear into raw materials.');
+  addLog(next, 'loot', t('game.message.prospect.success'));
   return next;
 }
 
@@ -950,7 +978,11 @@ export function takeTileItem(state: GameState, itemId: string): GameState {
     ...tile,
     items: [...tile.items],
   });
-  addLog(next, 'loot', `You take ${describeItemStack(item)}.`);
+  addLog(
+    next,
+    'loot',
+    t('game.message.loot.takeOne', { item: describeItemStack(item) }),
+  );
   return next;
 }
 
@@ -1006,13 +1038,19 @@ export function interactWithStructure(state: GameState): GameState {
   addLog(
     next,
     'loot',
-    `${definition.verb} and bring in ${describeItemStack(reward)}.`,
+    t('game.message.gather.success', {
+      action: definition.verb,
+      item: describeItemStack(reward),
+    }),
   );
   if (bonusLoot > 0) {
     addLog(
       next,
       'system',
-      `Your ${definition.skill} skill nets extra ${definition.reward.toLowerCase()}.`,
+      t('game.message.gather.bonus', {
+        skill: formatSkillLabel(definition.skill),
+        reward: definition.reward.toLowerCase(),
+      }),
     );
   }
 
@@ -1063,7 +1101,14 @@ export function buyTownItem(state: GameState, itemId: string): GameState {
   const next = clone(state);
   spendGold(next.player.inventory, entry.price);
   addItemToInventory(next.player.inventory, { ...entry.item });
-  addLog(next, 'system', `You buy ${entry.item.name} for ${entry.price} gold.`);
+  addLog(
+    next,
+    'system',
+    t('game.message.buy.success', {
+      item: entry.item.name,
+      price: entry.price,
+    }),
+  );
   return next;
 }
 
@@ -1080,7 +1125,9 @@ export function takeAllTileItems(state: GameState): GameState {
   addLog(
     next,
     'loot',
-    `You take ${tile.items.map((item) => describeItemStack(item)).join(', ')}.`,
+    t('game.message.loot.takeMany', {
+      items: tile.items.map((item) => describeItemStack(item)).join(', '),
+    }),
   );
   return next;
 }
@@ -1098,7 +1145,11 @@ export function dropInventoryItem(state: GameState, itemId: string): GameState {
   const tile = next.tiles[key];
   addItemToInventory(tile.items, item);
   next.tiles[key] = { ...tile, items: [...tile.items] };
-  addLog(next, 'loot', `You drop ${describeItemStack(item)}.`);
+  addLog(
+    next,
+    'loot',
+    t('game.message.loot.drop', { item: describeItemStack(item) }),
+  );
   return next;
 }
 
@@ -1118,7 +1169,7 @@ export function dropEquippedItem(
   next.tiles[key] = { ...tile, items: [...tile.items] };
   const maxHp = getPlayerStats(next.player).maxHp;
   next.player.hp = Math.min(maxHp, next.player.hp);
-  addLog(next, 'loot', `You drop ${equipped.name}.`);
+  addLog(next, 'loot', t('game.message.loot.drop', { item: equipped.name }));
   return next;
 }
 
@@ -1170,8 +1221,13 @@ export function craftRecipe(state: GameState, recipeId: string): GameState {
     next,
     'system',
     recipe.skill === 'cooking'
-      ? `You cook ${recipe.output.name}${chosenFuel ? ` with ${describeRequirement(chosenFuel)}` : ''}.`
-      : `You craft ${recipe.output.name}.`,
+      ? t('game.message.craft.cook', {
+          item: recipe.output.name,
+          fuel: chosenFuel
+            ? ` ${t('ui.common.with')} ${describeRequirement(chosenFuel)}`
+            : '',
+        })
+      : t('game.message.craft.make', { item: recipe.output.name }),
   );
   return next;
 }
@@ -1188,7 +1244,21 @@ function consumeItem(state: GameState, itemIndex: number, item: Item) {
   addLog(
     state,
     'survival',
-    `You use ${item.name}${item.healing > 0 ? ` and recover ${item.healing} HP` : ''}${item.hunger > 0 ? ` and ${item.hunger} hunger` : ''}${(item.thirst ?? 0) > 0 ? ` and ${item.thirst} thirst` : ''}.`,
+    t('game.message.useItem', {
+      item: item.name,
+      healing:
+        item.healing > 0
+          ? ` ${t('ui.common.and')} ${t('game.message.useItem.healing', { amount: item.healing })}`
+          : '',
+      hunger:
+        item.hunger > 0
+          ? ` ${t('ui.common.and')} ${t('game.message.useItem.hunger', { amount: item.hunger })}`
+          : '',
+      thirst:
+        (item.thirst ?? 0) > 0
+          ? ` ${t('ui.common.and')} ${t('game.message.useItem.thirst', { amount: item.thirst ?? 0 })}`
+          : '',
+    }),
   );
 }
 
@@ -1196,11 +1266,7 @@ function teleportHome(state: GameState, itemIndex: number, item: Item) {
   consumeInventoryItem(state.player.inventory, itemIndex, item);
   state.player.coord = { ...state.homeHex };
   state.combat = null;
-  addLog(
-    state,
-    'system',
-    `The ${item.name} tears a safe path through the Fracture and returns you home.`,
-  );
+  addLog(state, 'system', t('game.message.home.scroll', { item: item.name }));
 }
 
 function respawnAtNearestTown(state: GameState, from: HexCoord) {
@@ -1211,11 +1277,11 @@ function respawnAtNearestTown(state: GameState, from: HexCoord) {
   state.player.hunger = 100;
   state.player.thirst = 100;
   state.combat = null;
-  addLog(state, 'combat', 'You were defeated.');
+  addLog(state, 'combat', t('game.message.combat.defeated'));
   addLog(
     state,
     'system',
-    `You awaken in the nearest refuge at ${town.q}, ${town.r}.`,
+    t('game.message.combat.respawn', { q: town.q, r: town.r }),
   );
 }
 
@@ -1226,11 +1292,11 @@ function applySurvivalDecay(state: GameState) {
   let damage = 0;
   if (state.player.hunger <= 30) {
     damage += 1;
-    addLog(state, 'survival', 'You are starving.');
+    addLog(state, 'survival', t('game.message.survival.starving'));
   }
   if ((state.player.thirst ?? 100) <= 30) {
     damage += 1;
-    addLog(state, 'survival', 'You are dehydrated.');
+    addLog(state, 'survival', t('game.message.survival.dehydrated'));
   }
 
   if (damage > 0) {
@@ -1260,7 +1326,7 @@ function syncCombatEnemies(state: GameState) {
   state.combat.enemyIds = enemyIds;
   if (enemyIds.length === 0) {
     state.combat = null;
-    addLog(state, 'combat', 'The battle is over.');
+    addLog(state, 'combat', t('game.message.combat.over'));
   }
 }
 
@@ -1413,7 +1479,14 @@ function maybeDropEnemyGold(state: GameState, enemy: import('./types').Enemy) {
   const tile = state.tiles[key];
   addItemToInventory(tile.items, makeGoldStack(bloodMoonQuantity));
   state.tiles[key] = { ...tile, items: [...tile.items] };
-  addLog(state, 'loot', `${enemy.name} dropped ${bloodMoonQuantity} gold.`);
+  addLog(
+    state,
+    'loot',
+    t('game.message.enemyDrop.gold', {
+      enemy: enemy.name,
+      amount: bloodMoonQuantity,
+    }),
+  );
 }
 
 function maybeDropEnemyConsumables(
@@ -1447,7 +1520,10 @@ function maybeDropEnemyConsumables(
     addLog(
       state,
       'loot',
-      `${enemy.name} dropped ${configured?.name ?? itemKey}.`,
+      t('game.message.enemyDrop.item', {
+        enemy: enemy.name,
+        item: configured?.name ?? itemKey,
+      }),
     );
   });
 }
@@ -1478,7 +1554,14 @@ function maybeDropEnemyRecipe(
   const tile = state.tiles[key];
   addItemToInventory(tile.items, makeRecipePage(recipe));
   state.tiles[key] = { ...tile, items: [...tile.items] };
-  addLog(state, 'loot', `${enemy.name} dropped Recipe: ${recipe.name}.`);
+  addLog(
+    state,
+    'loot',
+    t('game.message.enemyDrop.recipe', {
+      enemy: enemy.name,
+      recipe: recipe.name,
+    }),
+  );
 }
 
 function maybeDropHomeScroll(state: GameState, enemy: import('./types').Enemy) {
@@ -1495,7 +1578,14 @@ function maybeDropHomeScroll(state: GameState, enemy: import('./types').Enemy) {
     makeHomeScroll(`home-scroll:${enemy.id}:${state.turn}`),
   );
   state.tiles[key] = { ...tile, items: [...tile.items] };
-  addLog(state, 'loot', `${enemy.name} dropped ${HOME_SCROLL_ITEM_NAME}.`);
+  addLog(
+    state,
+    'loot',
+    t('game.message.enemyDrop.item', {
+      enemy: enemy.name,
+      item: t(HOME_SCROLL_ITEM_NAME_KEY),
+    }),
+  );
 }
 
 function maybeDropBloodMoonLoot(
@@ -1525,7 +1615,11 @@ function maybeDropBloodMoonLoot(
   }
 
   state.tiles[key] = { ...tile, items: [...tile.items] };
-  addLog(state, 'loot', `${enemy.name} left blood moon spoils behind.`);
+  addLog(
+    state,
+    'loot',
+    t('game.message.enemyDrop.bloodMoon', { enemy: enemy.name }),
+  );
 }
 
 function maybeSkinEnemy(state: GameState, enemy: import('./types').Enemy) {
@@ -1547,7 +1641,11 @@ function maybeSkinEnemy(state: GameState, enemy: import('./types').Enemy) {
   addLog(
     state,
     'loot',
-    `You skin the ${enemy.name} for ${quantity} Leather Scraps.`,
+    t('game.message.skinning.success', {
+      enemy: enemy.name,
+      quantity,
+      item: itemName('leather-scraps'),
+    }),
   );
 }
 
@@ -1721,7 +1819,7 @@ function openEarthshakeDungeon(state: GameState, forced: boolean) {
   addLog(
     state,
     'system',
-    `Earthshake. A rift ruin opens nearby at ${coord.q}, ${coord.r}.`,
+    t('game.message.earthshake.open', { q: coord.q, r: coord.r }),
   );
   return true;
 }

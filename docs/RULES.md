@@ -46,6 +46,11 @@
 
 - Follow the existing window-based desktop-style UI instead of introducing unrelated navigation patterns.
 - Keep heavy app coordination in dedicated hooks when possible, following patterns already used in `src/app/App`.
+- Keep user-facing UI copy in i18n resources instead of inline string literals in components, gameplay modules, or content definitions.
+- Default to `en` and keep locale resources lazy-loadable so additional languages can stay off the initial path when they are not needed.
+- When new user-facing text is required, add a new i18n key instead of hardcoding a fallback string in code.
+- Use dot-separated i18n keys in the form `{feature}.{area}.{property}` and extend with deeper segments only when needed for clarity.
+- For label formatters that map stable identifiers such as status effects to i18n, prefer direct patterned key lookups over conditional `if` or `switch` chains when the key can be derived safely.
 - Lazy-load secondary UI only when it matches the existing usage pattern and helps keep the initial app path lighter.
 - Treat draggable window content as secondary UI by default. New windows should defer their content behind a lazy-loaded bundle, either by lazy-loading the whole window module or by lazy-loading a dedicated `*WindowContent` module inside the window component.
 - Preserve existing React containment patterns such as memoized window components when extending the current UI.

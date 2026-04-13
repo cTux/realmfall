@@ -1,5 +1,7 @@
 import type { SkillName } from '../../../game/state';
 import { skillLevelThreshold } from '../../../game/state';
+import { t } from '../../../i18n';
+import { formatSkillLabel } from '../../../i18n/labels';
 import { skillTooltip } from '../../tooltips';
 import { SkillIcon } from '../../icons';
 import type { SkillsWindowProps } from './types';
@@ -17,9 +19,7 @@ export function SkillsWindowContent({
 }: SkillsWindowContentProps) {
   return (
     <>
-      <div className={styles.note}>
-        Gathering level equals the percent chance to pull +1 extra resource.
-      </div>
+      <div className={styles.note}>{t('ui.skills.note')}</div>
       <div className={styles.list}>
         {Object.entries(skills).map(([name, skill]) => {
           const xpMax = skillLevelThreshold(skill.level);
@@ -33,7 +33,7 @@ export function SkillsWindowContent({
               onMouseEnter={(event) =>
                 onHoverDetail?.(
                   event,
-                  name.toUpperCase(),
+                  formatSkillLabel(name as SkillName).toUpperCase(),
                   tooltipLines,
                   'rgba(56, 189, 248, 0.9)',
                 )
@@ -48,10 +48,14 @@ export function SkillsWindowContent({
                       SkillIcon[name as keyof typeof SkillIcon],
                     )}
                   />
-                  {name}
+                  {formatSkillLabel(name as SkillName)}
                 </span>
                 <span className={styles.value}>
-                  Lv {skill.level} · {skill.xp}/{xpMax}
+                  {t('ui.skills.levelProgress', {
+                    level: skill.level,
+                    current: skill.xp,
+                    max: xpMax,
+                  })}
                 </span>
               </div>
               <div className={styles.barTrack}>

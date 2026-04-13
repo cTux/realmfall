@@ -1,4 +1,5 @@
 import { makeCookedFish, makeCraftedItem } from './inventory';
+import { t } from '../i18n';
 import type {
   GameState,
   Item,
@@ -79,20 +80,28 @@ export function learnRecipe(
   const recipe = recipes.find((entry) => entry.id === item.recipeId);
   if (!recipe) return;
   if (state.player.learnedRecipeIds.includes(recipe.id)) {
-    addLog(state, 'system', `You already know how to make ${recipe.name}.`);
+    addLog(
+      state,
+      'system',
+      t('game.crafting.alreadyKnown', { recipe: recipe.name }),
+    );
     return;
   }
 
   state.player.learnedRecipeIds.push(recipe.id);
   state.player.learnedRecipeIds.sort();
-  addLog(state, 'system', `You learn the ${recipe.name} recipe.`);
+  addLog(
+    state,
+    'system',
+    t('game.crafting.learnRecipe', { recipe: recipe.name }),
+  );
 }
 
 export function describeRequirement(requirement: RecipeRequirement) {
   return `${requirement.quantity} ${requirement.name}`;
 }
 
-export const RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
+const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
   {
     id: 'cook-cooked-fish',
     name: 'Cooked Fish',
@@ -338,3 +347,10 @@ export const RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     ],
   },
 ];
+
+export const RECIPE_BOOK_RECIPES: RecipeDefinition[] =
+  RAW_RECIPE_BOOK_RECIPES.map((recipe) => ({
+    ...recipe,
+    name: t(`game.recipe.${recipe.id}.name`),
+    description: t(`game.recipe.${recipe.id}.description`),
+  }));

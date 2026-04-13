@@ -16,9 +16,10 @@ This is why the world is now called Realmfall.
 ## The World Now
 
 Reality is fractured into Shards—floating regions of land drifting in a violent sky known as the Fracture.
-* Some Shards are stable, rich with forests and ruins
-* Others decay, collapsing into the abyss below
-* A few are infected—warped beyond recognition
+
+- Some Shards are stable, rich with forests and ruins
+- Others decay, collapsing into the abyss below
+- A few are infected—warped beyond recognition
 
 Between them lies the Voidstorm, a deadly expanse of lightning, ash, and broken gravity.
 
@@ -29,9 +30,10 @@ Survival means moving, adapting, rebuilding—again and again.
 Fragments of the Veins still pulse through the world as Aether.
 
 It is:
-* a source of power (fuel, crafting, enchantments)
-* a corrupting force (mutations, madness, monsters)
-* the key to understanding what remains of reality
+
+- a source of power (fuel, crafting, enchantments)
+- a corrupting force (mutations, madness, monsters)
+- the key to understanding what remains of reality
 
 Those who learn to control Aether can shape the world.
 Those who don’t are consumed by it.
@@ -39,22 +41,25 @@ Those who don’t are consumed by it.
 ## The Forgotten Civilizations
 
 Ruins scattered across the Shards tell of those who came before:
-* The Arken — masters of Aether engineering, builders of massive rune structures that still hum with power
-* The Valeborn — guardians of nature, who tried to contain the collapse and vanished
-* The Iron Tribes — survivors who turned to war and industry, leaving behind fortresses and weapons
+
+- The Arken — masters of Aether engineering, builders of massive rune structures that still hum with power
+- The Valeborn — guardians of nature, who tried to contain the collapse and vanished
+- The Iron Tribes — survivors who turned to war and industry, leaving behind fortresses and weapons
 
 Their dungeons still hold:
-* lost technologies
-* cursed artifacts
-* echoes of their final moments
+
+- lost technologies
+- cursed artifacts
+- echoes of their final moments
 
 ## Creatures of the Fall
 
 The Fall reshaped life itself.
-* Hollows — former humans drained of will, drawn to Aether
-* Shardbeasts — mutated animals adapted to fractured reality
-* Veinspawn — entities born directly from broken Aether flows
-* Wardens — ancient constructs still guarding ruins with purpose long forgotten
+
+- Hollows — former humans drained of will, drawn to Aether
+- Shardbeasts — mutated animals adapted to fractured reality
+- Veinspawn — entities born directly from broken Aether flows
+- Wardens — ancient constructs still guarding ruins with purpose long forgotten
 
 Every dungeon tells a story. Most end in death.
 
@@ -64,9 +69,9 @@ You awaken with no memory, marked by a strange connection to Aether.
 
 Unlike others, you can:
 
-* *stabilize fragments of the world
-* harness Aether without immediate corruption
-* rebuild structures that anchor reality
+- \*stabilize fragments of the world
+- harness Aether without immediate corruption
+- rebuild structures that anchor reality
 
 Some believe you are a remnant of the old world.
 Others think you are something new.
@@ -81,9 +86,10 @@ Restore or reshape the world.
 Deep within the largest Shards lie Core Ruins—ancient mechanisms tied to the Veins of Aether.
 
 If activated, they could:
-* reconnect the Shards
-* stabilize the Fracture
-* or tear reality apart completely
+
+- reconnect the Shards
+- stabilize the Fracture
+- or tear reality apart completely
 
 ## The Question at the Heart of Realmfall
 

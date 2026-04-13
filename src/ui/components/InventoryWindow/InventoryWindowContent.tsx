@@ -1,4 +1,6 @@
 import { formatCompactNumber } from '../../formatters';
+import { formatItemKindLabel } from '../../../i18n/labels';
+import { t } from '../../../i18n';
 import { iconForItem, itemTint } from '../../icons';
 import type { InventoryWindowProps } from './types';
 import styles from './styles.module.scss';
@@ -45,7 +47,7 @@ export function InventoryWindowContent({
           <span
             className={styles.itemIcon}
             style={iconMaskStyle(iconForItem(item), itemTint(item))}
-            aria-label={item.kind}
+            aria-label={formatItemKindLabel(item.kind)}
           />
           {item.quantity > 1 ? (
             <span className={styles.stackBadge}>
@@ -55,7 +57,7 @@ export function InventoryWindowContent({
         </button>
       ))}
       {inventory.length === 0 ? (
-        <div className={styles.empty}>Empty</div>
+        <div className={styles.empty}>{t('ui.common.empty')}</div>
       ) : null}
     </div>
   );

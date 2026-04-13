@@ -1,5 +1,7 @@
 import { getAbilityDefinition } from '../../../game/combat';
 import type { CombatActorState } from '../../../game/state';
+import { t } from '../../../i18n';
+import { formatStatusEffectLabel } from '../../../i18n/labels';
 import {
   iconMaskStyle,
   statusEffectIcon,
@@ -47,7 +49,7 @@ export function CombatWindowContent({
   );
   const enemyParty: CombatEntityView[] = enemies.map((enemy) => ({
     id: enemy.id,
-    title: `${enemy.name} Lv ${enemy.tier}`,
+    title: t('ui.combat.entityTitle', { name: enemy.name, level: enemy.tier }),
     hp: enemy.hp,
     maxHp: enemy.maxHp,
     mana: 0,
@@ -62,14 +64,14 @@ export function CombatWindowContent({
     <div className={styles.layout}>
       <div className={styles.columns}>
         <PartyColumn
-          title="Player Party"
+          title={t('ui.combat.playerPartyTitle')}
           entities={alliedParty}
           worldTimeMs={worldTimeMs}
           onHoverDetail={onHoverDetail}
           onLeaveDetail={onLeaveDetail}
         />
         <PartyColumn
-          title="Enemy Party"
+          title={t('ui.combat.enemyPartyTitle')}
           entities={enemyParty}
           worldTimeMs={worldTimeMs}
           onHoverDetail={onHoverDetail}
@@ -83,7 +85,10 @@ export function CombatWindowContent({
 function toPlayerEntity(member: CombatPartyMember): CombatEntityView {
   return {
     id: member.id,
-    title: `${member.name} Lv ${member.level}`,
+    title: t('ui.combat.entityTitle', {
+      name: member.name,
+      level: member.level,
+    }),
     hp: member.hp,
     maxHp: member.maxHp,
     mana: member.mana,
@@ -140,11 +145,18 @@ function EntityCard({
     <article className={styles.entityCard}>
       <div className={styles.entityHeader}>
         <strong>{entity.title}</strong>
-        {entity.elite ? <span className={styles.elite}>Elite</span> : null}
+        {entity.elite ? (
+          <span className={styles.elite}>{t('ui.combat.elite')}</span>
+        ) : null}
       </div>
-      <ResourceBar label="HP" value={entity.hp} max={entity.maxHp} tone="hp" />
       <ResourceBar
-        label="MP"
+        label={t('ui.hero.hp')}
+        value={entity.hp}
+        max={entity.maxHp}
+        tone="hp"
+      />
+      <ResourceBar
+        label={t('ui.combat.mp')}
         value={entity.mana}
         max={entity.maxMana}
         tone="mp"
@@ -254,19 +266,19 @@ function EffectList({
           key={item}
           type="button"
           className={`${styles.effectChip} ${tone === 'buff' ? styles.buffChip : styles.debuffChip}`}
-          aria-label={item}
-          title={item}
+          aria-label={formatStatusEffectLabel(item)}
+          title={formatStatusEffectLabel(item)}
           onMouseEnter={(event) =>
             onHoverDetail(
               event,
-              item,
+              formatStatusEffectLabel(item),
               [
                 {
                   kind: 'text',
                   text:
                     tone === 'buff'
-                      ? 'Active positive effect.'
-                      : 'Active negative effect.',
+                      ? t('ui.hero.effect.buff')
+                      : t('ui.hero.effect.debuff'),
                 },
               ],
               tone === 'buff'
@@ -310,20 +322,25 @@ function AbilitySquare({
   onLeaveDetail: CombatWindowProps['onLeaveDetail'];
 }) {
   const tooltipLines = [
-    { kind: 'stat' as const, label: 'Aether Cost', value: `${manaCost}` },
     {
       kind: 'stat' as const,
-      label: 'Cooldown',
+      label: t('ui.ability.aetherCost'),
+      value: `${manaCost}`,
+    },
+    {
+      kind: 'stat' as const,
+      label: t('ui.ability.cooldown'),
       value: `${cooldownMs / 1000}s`,
     },
     {
       kind: 'stat' as const,
-      label: 'Cast Time',
-      value: castTimeMs === 0 ? 'Instant' : `${castTimeMs / 1000}s`,
+      label: t('ui.ability.castTime'),
+      value:
+        castTimeMs === 0 ? t('ui.ability.instant') : `${castTimeMs / 1000}s`,
     },
     {
       kind: 'text' as const,
-      text: 'Targets the first available enemy in the opposing party.',
+      text: t('ui.ability.targeting'),
     },
   ];
 

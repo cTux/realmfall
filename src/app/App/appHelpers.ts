@@ -14,6 +14,7 @@ import coinsIcon from '../../assets/icons/coins.svg';
 import stonePileIcon from '../../assets/icons/stone-pile.svg';
 import logIcon from '../../assets/icons/log.svg';
 import enemyIcon from '../../assets/icons/wolf-head.svg';
+import { formatTerrainLabel as formatLocalizedTerrainLabel } from '../../i18n/labels';
 import { WINDOW_LABELS } from '../../ui/windowLabels';
 import type { WindowVisibilityState } from '../constants';
 
@@ -82,8 +83,7 @@ export function getDockEntries(
 }
 
 export function formatTerrainLabel(terrain: Terrain) {
-  if (terrain === 'rift') return 'Rift';
-  return terrain.charAt(0).toUpperCase() + terrain.slice(1);
+  return formatLocalizedTerrainLabel(terrain);
 }
 
 export function getInventoryItemAction(item: Item | undefined) {

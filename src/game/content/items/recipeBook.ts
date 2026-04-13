@@ -1,10 +1,10 @@
-import { RECIPE_BOOK_ITEM_NAME } from '../../config';
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import type { ItemConfig } from '../types';
 
 export const recipeBookItemConfig: ItemConfig = {
   key: 'recipe-book',
-  name: RECIPE_BOOK_ITEM_NAME,
+  name: itemName('recipe-book'),
   kind: 'resource',
   icon: ContentIcons.BookCover,
   tint: '#c084fc',

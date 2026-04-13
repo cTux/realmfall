@@ -17,9 +17,9 @@
     "startingRecipeIds": ["cook-cooked-fish"]
   },
   "items": {
-    "recipeBookItemName": "Recipe Book",
-    "cookedFishItemName": "Cooked Fish",
-    "homeScrollItemName": "Hearthshard Wayscroll"
+    "recipeBookItemNameKey": "game.item.recipe-book.name",
+    "cookedFishItemNameKey": "game.item.cooked-fish.name",
+    "homeScrollItemNameKey": "game.item.home-scroll.name"
   },
   "search": {
     "townLimit": 24
@@ -41,20 +41,27 @@
     "chance": 0.02
   },
   "artifacts": {
-    "prefixes": [
-      "Ashen",
-      "Auric",
-      "Blood",
-      "Cinder",
-      "Dawn",
-      "Echo",
-      "Frost",
-      "Gloom",
-      "Iron",
-      "Lunar",
-      "Moss",
-      "Night"
+    "prefixKeys": [
+      "game.artifact.prefix.ashen.label",
+      "game.artifact.prefix.auric.label",
+      "game.artifact.prefix.blood.label",
+      "game.artifact.prefix.cinder.label",
+      "game.artifact.prefix.dawn.label",
+      "game.artifact.prefix.echo.label",
+      "game.artifact.prefix.frost.label",
+      "game.artifact.prefix.gloom.label",
+      "game.artifact.prefix.iron.label",
+      "game.artifact.prefix.lunar.label",
+      "game.artifact.prefix.moss.label",
+      "game.artifact.prefix.night.label"
     ],
-    "forms": ["Idol", "Sigil", "Charm", "Lens", "Shard", "Totem"]
+    "formKeys": [
+      "game.artifact.form.idol.label",
+      "game.artifact.form.sigil.label",
+      "game.artifact.form.charm.label",
+      "game.artifact.form.lens.label",
+      "game.artifact.form.shard.label",
+      "game.artifact.form.totem.label"
+    ]
   }
 }

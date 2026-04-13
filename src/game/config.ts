@@ -19,9 +19,9 @@ interface GameConfig {
     startingRecipeIds: string[];
   };
   items: {
-    recipeBookItemName: string;
-    cookedFishItemName: string;
-    homeScrollItemName: string;
+    recipeBookItemNameKey: string;
+    cookedFishItemNameKey: string;
+    homeScrollItemNameKey: string;
   };
   search: {
     townLimit: number;
@@ -43,8 +43,8 @@ interface GameConfig {
     chance: number;
   };
   artifacts: {
-    prefixes: string[];
-    forms: string[];
+    prefixKeys: string[];
+    formKeys: string[];
   };
 }
 
@@ -64,9 +64,12 @@ export const MOONRISE_END = GAME_CONFIG.time.moonriseEnd;
 export const MAX_PLAYER_LEVEL = GAME_CONFIG.player.maxLevel;
 export const STARTING_RECIPE_IDS = GAME_CONFIG.player.startingRecipeIds;
 
-export const RECIPE_BOOK_ITEM_NAME = GAME_CONFIG.items.recipeBookItemName;
-export const COOKED_FISH_ITEM_NAME = GAME_CONFIG.items.cookedFishItemName;
-export const HOME_SCROLL_ITEM_NAME = GAME_CONFIG.items.homeScrollItemName;
+export const RECIPE_BOOK_ITEM_NAME_KEY =
+  GAME_CONFIG.items.recipeBookItemNameKey;
+export const COOKED_FISH_ITEM_NAME_KEY =
+  GAME_CONFIG.items.cookedFishItemNameKey;
+export const HOME_SCROLL_ITEM_NAME_KEY =
+  GAME_CONFIG.items.homeScrollItemNameKey;
 
 export const TOWN_SEARCH_LIMIT = GAME_CONFIG.search.townLimit;
 
@@ -83,5 +86,5 @@ export const HARVEST_MOON_CHANCE = GAME_CONFIG.harvestMoon.chance;
 export const EARTHSHAKE_SPAWN_RADIUS = GAME_CONFIG.earthshake.spawnRadius;
 export const EARTHSHAKE_CHANCE = GAME_CONFIG.earthshake.chance;
 
-export const ARTIFACT_PREFIXES = GAME_CONFIG.artifacts.prefixes;
-export const ARTIFACT_FORMS = GAME_CONFIG.artifacts.forms;
+export const ARTIFACT_PREFIX_KEYS = GAME_CONFIG.artifacts.prefixKeys;
+export const ARTIFACT_FORM_KEYS = GAME_CONFIG.artifacts.formKeys;

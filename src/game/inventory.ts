@@ -1,4 +1,5 @@
-import { HOME_SCROLL_ITEM_NAME, RECIPE_BOOK_ITEM_NAME } from './config';
+import { t } from '../i18n';
+import { RECIPE_BOOK_ITEM_NAME_KEY } from './config';
 import { buildItemFromConfig, getItemConfigByName } from './content/items';
 import type {
   EquipmentSlot,
@@ -47,7 +48,7 @@ export function makeRecipeBook(): Item {
 }
 
 export function makeHomeScroll(id: string): Item {
-  return makeConsumable(id, HOME_SCROLL_ITEM_NAME, 1, 0, 0);
+  return buildItemFromConfig('home-scroll', { id });
 }
 
 export function makeConsumable(
@@ -220,7 +221,7 @@ export function canUseItem(item: Item) {
 }
 
 export function isRecipeBook(item: Item) {
-  return item.kind === 'resource' && item.name === RECIPE_BOOK_ITEM_NAME;
+  return item.kind === 'resource' && item.name === t(RECIPE_BOOK_ITEM_NAME_KEY);
 }
 
 export function isRecipePage(item: Item) {

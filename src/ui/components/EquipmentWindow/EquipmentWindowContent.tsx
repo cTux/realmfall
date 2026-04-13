@@ -1,4 +1,6 @@
 import { EQUIPMENT_SLOTS, type EquipmentSlot } from '../../../game/state';
+import { formatEquipmentSlotLabel } from '../../../i18n/labels';
+import { t } from '../../../i18n';
 import { iconForItem } from '../../icons';
 import { rarityColor } from '../../rarity';
 import type { EquipmentWindowProps } from './types';
@@ -51,7 +53,7 @@ export function EquipmentWindowContent({
                   equipped ? { color: rarityColor(equipped.rarity) } : undefined
                 }
               >
-                {equipped?.name ?? 'Empty'}
+                {equipped?.name ?? t('ui.common.empty')}
               </strong>
             </div>
           </div>
@@ -62,9 +64,7 @@ export function EquipmentWindowContent({
 }
 
 function formatSlot(slot: EquipmentSlot) {
-  return slot
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, (char) => char.toUpperCase());
+  return formatEquipmentSlotLabel(slot);
 }
 
 function iconMaskStyle(icon: string, color: string) {

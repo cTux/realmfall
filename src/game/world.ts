@@ -1,4 +1,9 @@
-import { ARTIFACT_FORMS, ARTIFACT_PREFIXES, TOWN_SEARCH_LIMIT } from './config';
+import { t } from '../i18n';
+import {
+  ARTIFACT_FORM_KEYS,
+  ARTIFACT_PREFIX_KEYS,
+  TOWN_SEARCH_LIMIT,
+} from './config';
 import {
   getGatheringStructureConfig,
   getStructureConfig,
@@ -386,14 +391,16 @@ export function makeArtifact(
     'relic',
   ];
   const slot = slots[scaledIndex(`${seed}:artifact:slot`, coord, slots.length)];
-  const prefix =
-    ARTIFACT_PREFIXES[
-      scaledIndex(`${seed}:artifact:prefix`, coord, ARTIFACT_PREFIXES.length)
-    ];
-  const form =
-    ARTIFACT_FORMS[
-      scaledIndex(`${seed}:artifact:form`, coord, ARTIFACT_FORMS.length)
-    ];
+  const prefix = t(
+    ARTIFACT_PREFIX_KEYS[
+      scaledIndex(`${seed}:artifact:prefix`, coord, ARTIFACT_PREFIX_KEYS.length)
+    ],
+  );
+  const form = t(
+    ARTIFACT_FORM_KEYS[
+      scaledIndex(`${seed}:artifact:form`, coord, ARTIFACT_FORM_KEYS.length)
+    ],
+  );
   return applyRarityToItem({
     id: itemId('artifact', coord, seed),
     kind: 'artifact',
