@@ -468,7 +468,11 @@ export function syncBloodMoon(
 export function triggerEarthshake(state: GameState): GameState {
   const next = clone(state);
   if (!openEarthshakeDungeon(next, true)) {
-    addLog(next, 'system', 'Earthshake fails. No empty hex can open nearby.');
+    addLog(
+      next,
+      'system',
+      'Earthshake fades. No empty ground can split nearby.',
+    );
   }
   return next;
 }
@@ -1129,7 +1133,7 @@ export function craftRecipe(state: GameState, recipeId: string): GameState {
   if (getCurrentTile(state).structure !== requiredStructure) {
     return message(
       state,
-      `You need to stand on a ${requiredLabel} hex to ${recipe.skill === 'cooking' ? 'cook' : 'craft'}.`,
+      `You need to stand at a ${requiredLabel} to ${recipe.skill === 'cooking' ? 'cook' : 'craft'}.`,
     );
   }
   if (!hasAllRequirements(state.player.inventory, recipe.ingredients)) {
@@ -1206,7 +1210,7 @@ function respawnAtNearestTown(state: GameState, from: HexCoord) {
   addLog(
     state,
     'system',
-    `You awaken in the nearest town at ${town.q}, ${town.r}.`,
+    `You awaken in the nearest refuge at ${town.q}, ${town.r}.`,
   );
 }
 
@@ -1712,7 +1716,7 @@ function openEarthshakeDungeon(state: GameState, forced: boolean) {
   addLog(
     state,
     'system',
-    `Earthshake. A dungeon opens nearby at ${coord.q}, ${coord.r}.`,
+    `Earthshake. A rift ruin opens nearby at ${coord.q}, ${coord.r}.`,
   );
   return true;
 }

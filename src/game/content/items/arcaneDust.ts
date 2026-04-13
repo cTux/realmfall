@@ -3,7 +3,7 @@ import type { ItemConfig } from '../types';
 
 export const arcaneDustItemConfig: ItemConfig = {
   key: 'arcane-dust',
-  name: 'Arcane Dust',
+  name: 'Aether Dust',
   kind: 'resource',
   icon: ContentIcons.Sparkles,
   tier: 1,

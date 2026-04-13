@@ -122,7 +122,7 @@ export function enemyTooltip(
   const maxTier = Math.max(...enemies.map((enemy) => enemy.tier));
 
   return {
-    title: structure === 'dungeon' ? 'Dungeon' : 'Enemy Party',
+    title: structure === 'dungeon' ? structureTitle('dungeon') : 'Enemy Party',
     lines: [
       { kind: 'stat', label: 'Level', value: `${maxTier}` },
       { kind: 'stat', label: 'Enemies', value: `${enemies.length}` },
@@ -150,7 +150,7 @@ export function structureTooltip(
 
 function consumableEffectDescription(item: Item) {
   if (item.name === HOME_SCROLL_ITEM_NAME) {
-    return 'Use to return instantly to your home hex.';
+    return 'Use to return instantly to your hearthmark.';
   }
 
   const effects = [

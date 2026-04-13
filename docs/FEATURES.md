@@ -212,7 +212,12 @@
 * Mono-repository
     * Common package with all the entities definitions
 * i18n
-    * https://github.com/hemengke1997/vite-plugin-i18n-ally
+    * https://github.com/hemengke1997/vite-plugin-i18n-ally [optional]
+    * Default language: en (en.json)
+    * All user-faced texts should be located in i18n files
+    * Add rule for creating new keys if we need to add some user-faced strings
+    * Should be laze-loaded
+    * Main loading screen should wait for i18n to be loaded
 * Themes
 * Electron
 * Reload the page if game version was updated
@@ -224,3 +229,5 @@
     * Debuff "Recent Death" should be added
         * Icon: https://game-icons.net/1x1/lorc/scythe.html
         * Buff decreases hitpoints by 10%
+* Rework of equipment window
+    * Place item slots in specific absolute locations

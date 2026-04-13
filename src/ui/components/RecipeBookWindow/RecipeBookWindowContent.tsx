@@ -79,7 +79,7 @@ export function RecipeBookWindowContent({
                       atRequiredStructure ? styles.met : styles.missing
                     }
                   >
-                    Hex: {requiredStructure}
+                    Site: {requiredStructure}
                   </div>
                 </div>
                 <div className={styles.actions}>

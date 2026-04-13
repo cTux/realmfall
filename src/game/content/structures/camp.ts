@@ -4,7 +4,8 @@ import type { StructureConfig } from '../types';
 export const campStructureConfig: StructureConfig = {
   type: 'camp',
   title: 'Campfire',
-  description: 'A campfire used to cook provisions into better meals.',
+  description:
+    'A banked campfire where raw provisions can be made safe to eat.',
   icon: ContentIcons.CampCookingPot,
   tint: 0xef4444,
   functionsProvided: ['cook'],

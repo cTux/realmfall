@@ -62,10 +62,15 @@ function createInitialLogs(seed: string): LogEntry[] {
       3,
       'motd',
       0,
-      'MOTD: The world never ends, but your supplies absolutely do.',
+      'MOTD: The Fracture shows no mercy, and neither does an empty pack.',
     ),
     makeLog(2, 'rumor', 0, rumorForSeed(seed)),
-    makeLog(1, 'system', 0, 'You wake in an endless hostile hex world.'),
+    makeLog(
+      1,
+      'system',
+      0,
+      'You wake amid the shattered Shards with Aether in your bones.',
+    ),
   ];
 }
 
@@ -100,9 +105,9 @@ function formatLogPrefix(worldTimeMs: number) {
 
 function rumorForSeed(seed: string) {
   const rumors = [
-    'Rumor: dungeon vaults hide the finest relics, but their guardians do not fight alone.',
-    'Rumor: every forge can tease hidden materials from gear if your hands are patient enough.',
-    'Rumor: merchants only trust business done inside town walls.',
+    'Rumor: rift ruins hide the finest relics, but their guardians do not wake alone.',
+    'Rumor: every forge can strip hidden worth from broken gear if your hands stay steady.',
+    'Rumor: shardside merchants only trust business done under guarded roofs.',
     'Rumor: the farther you walk, the sharper the steel and the harsher the teeth.',
     'Rumor: tree lines near the center regrow slowly, so greedy chopping leaves long hungry roads.',
     'Rumor: shallow ponds feed the patient, but lakes hide deeper rewards and deeper trouble.',

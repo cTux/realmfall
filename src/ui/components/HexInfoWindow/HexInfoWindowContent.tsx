@@ -113,7 +113,7 @@ export function HexInfoWindowContent({
       ) : null}
 
       {!interactLabel && !canProspect && !canSell && townStock.length === 0 ? (
-        <div className={styles.empty}>No special activity on this hex.</div>
+        <div className={styles.empty}>Nothing of note stirs here.</div>
       ) : null}
     </div>
   );

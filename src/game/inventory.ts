@@ -293,7 +293,7 @@ export function prospectYield(item: Item): Item[] {
       makeResourceStack('Iron Chunks', item.tier, 1),
     ];
   }
-  return [makeResourceStack('Arcane Dust', item.tier, quantity + 1)];
+  return [makeResourceStack('Aether Dust', item.tier, quantity + 1)];
 }
 
 export function consumeInventoryItem(

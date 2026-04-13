@@ -806,7 +806,7 @@ describe('game state', () => {
       shaken?.logs.some(
         (entry) =>
           entry.kind === 'system' &&
-          /earthshake\. a dungeon opens nearby at/i.test(entry.text),
+          /earthshake\. a rift ruin opens nearby at/i.test(entry.text),
       ),
     ).toBe(true);
     expect(
@@ -824,7 +824,7 @@ describe('game state', () => {
 
     expect(
       shaken.logs.some((entry) =>
-        /earthshake\. a dungeon opens nearby at/i.test(entry.text),
+        /earthshake\. a rift ruin opens nearby at/i.test(entry.text),
       ),
     ).toBe(true);
     expect(
@@ -1243,7 +1243,7 @@ describe('game state', () => {
 
     const denied = craftRecipe(game, 'cook-cooked-fish');
 
-    expect(denied.logs[0]?.text).toMatch(/campfire hex/i);
+    expect(denied.logs[0]?.text).toMatch(/stand at a campfire/i);
   });
 
   it('requires learning a recipe before crafting it', () => {

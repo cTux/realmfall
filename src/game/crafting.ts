@@ -109,7 +109,7 @@ export const RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-weapon',
     name: 'Camp Spear',
-    description: 'A basic weapon for the weapon slot.',
+    description: 'A rough spear suited to the long roads between Shards.',
     skill: 'crafting',
     output: makeCraftedItem(
       'crafted-weapon',
@@ -130,7 +130,7 @@ export const RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-offhand',
     name: 'Hide Buckler',
-    description: 'A basic offhand for the offhand slot.',
+    description: 'A hide-wrapped buckler built to catch desperate blows.',
     skill: 'crafting',
     output: makeCraftedItem(
       'crafted-offhand',
@@ -151,7 +151,8 @@ export const RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-head',
     name: 'Patchwork Hood',
-    description: 'A basic helm for the head slot.',
+    description:
+      'A stitched hood that keeps ash, rain, and cinders off your face.',
     skill: 'crafting',
     output: makeCraftedItem('crafted-head', 'armor', 'head', 'Patchwork Hood', {
       power: 0,
@@ -166,7 +167,8 @@ export const RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-chest',
     name: 'Settler Vest',
-    description: 'A basic chest piece for the chest slot.',
+    description:
+      'A layered vest worn by settlers who expect hard weather and harder work.',
     skill: 'crafting',
     output: makeCraftedItem('crafted-chest', 'armor', 'chest', 'Settler Vest', {
       power: 0,
@@ -182,7 +184,8 @@ export const RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-hands',
     name: 'Work Gloves',
-    description: 'A basic hand piece for the hands slot.',
+    description:
+      'A practical pair of gloves for rope, tools, and rough salvage.',
     skill: 'crafting',
     output: makeCraftedItem('crafted-hands', 'armor', 'hands', 'Work Gloves', {
       power: 0,
@@ -197,7 +200,7 @@ export const RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-legs',
     name: 'Trail Leggings',
-    description: 'A basic leg piece for the legs slot.',
+    description: 'Tough leggings meant for brush, stone, and broken roads.',
     skill: 'crafting',
     output: makeCraftedItem('crafted-legs', 'armor', 'legs', 'Trail Leggings', {
       power: 0,
@@ -212,7 +215,8 @@ export const RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-feet',
     name: 'Field Boots',
-    description: 'A basic boot piece for the feet slot.',
+    description:
+      'Sturdy boots made to keep moving when the ground turns cruel.',
     skill: 'crafting',
     output: makeCraftedItem('crafted-feet', 'armor', 'feet', 'Field Boots', {
       power: 0,
@@ -227,7 +231,7 @@ export const RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-ring-left',
     name: 'Copper Loop',
-    description: 'A basic ring for the left ring slot.',
+    description: 'A simple copper loop dusted with faint Aether residue.',
     skill: 'crafting',
     output: makeCraftedItem(
       'crafted-ring-left',
@@ -242,13 +246,13 @@ export const RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     ),
     ingredients: [
       { name: 'Copper Ore', quantity: 2 },
-      { name: 'Arcane Dust', quantity: 1 },
+      { name: 'Aether Dust', quantity: 1 },
     ],
   },
   {
     id: 'craft-ring-right',
     name: 'Copper Band',
-    description: 'A basic ring for the right ring slot.',
+    description: 'A hammered copper band that hums with a trace of Aether.',
     skill: 'crafting',
     output: makeCraftedItem(
       'crafted-ring-right',
@@ -263,13 +267,14 @@ export const RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     ),
     ingredients: [
       { name: 'Copper Ore', quantity: 2 },
-      { name: 'Arcane Dust', quantity: 1 },
+      { name: 'Aether Dust', quantity: 1 },
     ],
   },
   {
     id: 'craft-amulet',
     name: 'Charm Necklace',
-    description: 'A basic amulet for the amulet slot.',
+    description:
+      'A warding charm strung for travelers who sleep near the wilds.',
     skill: 'crafting',
     output: makeCraftedItem(
       'crafted-amulet',
@@ -284,13 +289,14 @@ export const RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     ),
     ingredients: [
       { name: 'Iron Chunks', quantity: 1 },
-      { name: 'Arcane Dust', quantity: 2 },
+      { name: 'Aether Dust', quantity: 2 },
     ],
   },
   {
     id: 'craft-cloak',
     name: 'Wayfarer Cloak',
-    description: 'A basic cloak for the cloak slot.',
+    description:
+      'A weathered cloak for crossing cold winds and stranger skies.',
     skill: 'crafting',
     output: makeCraftedItem(
       'crafted-cloak',
@@ -305,13 +311,14 @@ export const RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     ),
     ingredients: [
       { name: 'Cloth', quantity: 3 },
-      { name: 'Arcane Dust', quantity: 1 },
+      { name: 'Aether Dust', quantity: 1 },
     ],
   },
   {
     id: 'craft-relic',
     name: 'Hearth Totem',
-    description: 'A basic relic for the relic slot.',
+    description:
+      'A steady relic meant to hold a little warmth against the Fracture.',
     skill: 'crafting',
     output: makeCraftedItem(
       'crafted-relic',
@@ -326,7 +333,7 @@ export const RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     ),
     ingredients: [
       { name: 'Coal', quantity: 1 },
-      { name: 'Arcane Dust', quantity: 3 },
+      { name: 'Aether Dust', quantity: 3 },
       { name: 'Logs', quantity: 1 },
     ],
   },
