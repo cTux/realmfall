@@ -35,6 +35,7 @@ interface UsePixiWorldArgs {
 }
 
 interface WorldHoverSnapshot {
+  game: GameState | null;
   target: HexCoord | null;
   clickable: boolean;
   hoveredMove: HexCoord | null;
@@ -61,6 +62,7 @@ export function usePixiWorld({
   const appRef = useRef<Application | null>(null);
   const worldTooltipKeyRef = useRef<string | null>(null);
   const hoverSnapshotRef = useRef<WorldHoverSnapshot>({
+    game: null,
     target: null,
     clickable: false,
     hoveredMove: null,
@@ -214,9 +216,13 @@ export function usePixiWorld({
           x: event.clientX + 16,
           y: event.clientY + 16,
         };
+        const current = gameRef.current;
         const hoverSnapshot = hoverSnapshotRef.current;
 
-        if (sameCoord(hoverSnapshot.target, target)) {
+        if (
+          hoverSnapshot.game === current &&
+          sameCoord(hoverSnapshot.target, target)
+        ) {
           canvas.style.cursor = hoverSnapshot.clickable ? 'pointer' : 'default';
 
           if (!sameCoord(hoveredMoveRef.current, hoverSnapshot.hoveredMove)) {
@@ -256,7 +262,6 @@ export function usePixiWorld({
           return;
         }
 
-        const current = gameRef.current;
         const tile = stateModule.getTileAt(current, target);
         const enemies = stateModule.getEnemiesAt(current, target);
         const distance = stateModule.hexDistance(
@@ -341,6 +346,7 @@ export function usePixiWorld({
         }
 
         hoverSnapshotRef.current = {
+          game: current,
           target,
           clickable,
           hoveredMove: clickable ? target : null,
@@ -367,6 +373,7 @@ export function usePixiWorld({
         tooltipPositionRef.current = null;
         worldTooltipKeyRef.current = null;
         hoverSnapshotRef.current = {
+          game: null,
           target: null,
           clickable: false,
           hoveredMove: null,
