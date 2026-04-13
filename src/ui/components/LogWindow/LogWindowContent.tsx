@@ -4,7 +4,7 @@ import styles from './styles.module.scss';
 
 const TYPE_DELAY_MS = 16;
 const MATRIX_GLYPHS = ['#', '%', '&', '/', '+', '*'];
-const LOG_PREFIX_PATTERN = /^\[Day \d+, [0-9]{2}:[0-9]{2}\]\s/;
+const LOG_PREFIX_PATTERN = /^\[Year \d+, Day \d+, [0-9]{2}:[0-9]{2}\]\s/;
 const BLOOD_MOON_PATTERN = /blood moon/i;
 const HARVEST_MOON_PATTERN = /harvest moon/i;
 

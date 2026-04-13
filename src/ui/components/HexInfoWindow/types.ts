@@ -10,7 +10,7 @@ export interface HexInfoWindowProps {
   isHome: boolean;
   onSetHome: () => void;
   terrain: string;
-  structure: string;
+  structure?: string | null;
   enemyCount: number;
   interactLabel?: string | null;
   canInteract: boolean;

@@ -1,6 +1,7 @@
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { createGame } from '../../game/state';
+import { GAME_DAY_DURATION_MS, GAME_DAY_MINUTES } from '../../game/config';
 import { getWorldHexSize, tileToPoint } from '../../ui/world/renderSceneMath';
 import { mapWorldMapFishEyeSourcePointToDisplayPoint } from '../../ui/world/worldMapFishEye';
 import styles from './styles.module.scss';
@@ -96,6 +97,8 @@ describe('App', () => {
   it('hydrates saved state, handles ui interactions, and responds to map input', async () => {
     const game = createGame(3, 'app-test-seed');
     game.homeHex = { q: 2, r: -1 };
+    game.worldTimeMs =
+      2 * GAME_DAY_DURATION_MS + (15 / GAME_DAY_MINUTES) * GAME_DAY_DURATION_MS;
     game.tiles['0,0'] = {
       ...game.tiles['0,0'],
       structure: 'forge',
@@ -228,7 +231,7 @@ describe('App', () => {
     expect(host.textContent).toContain('(H)ex info');
     expect(host.textContent).not.toContain('old log');
     expect(host.textContent).toContain('Lo(g)');
-    expect(host.textContent).toContain('Year 1, Day 1, 00:00');
+    expect(host.textContent).toContain('Year 1, Day 3, 00:15');
 
     const worldTimePanel = host.querySelector(
       '[aria-label="Debugger"]',

@@ -6,5 +6,4 @@ export interface DebuggerWindowProps {
   visible?: boolean;
   onClose?: () => void;
   timeLabel: string;
-  onTriggerEarthshake: () => void;
 }

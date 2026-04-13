@@ -19,7 +19,6 @@ export const DebuggerWindow = memo(function DebuggerWindow({
   visible,
   onClose,
   timeLabel,
-  onTriggerEarthshake,
 }: DebuggerWindowProps) {
   return (
     <DraggableWindow
@@ -36,10 +35,7 @@ export const DebuggerWindow = memo(function DebuggerWindow({
       className={styles.window}
     >
       <Suspense fallback={<WindowLoadingState />}>
-        <DebuggerWindowContent
-          timeLabel={timeLabel}
-          onTriggerEarthshake={onTriggerEarthshake}
-        />
+        <DebuggerWindowContent timeLabel={timeLabel} />
       </Suspense>
     </DraggableWindow>
   );

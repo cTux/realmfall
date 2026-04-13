@@ -534,6 +534,7 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('(Q) Gather');
     expect(markup).toContain('Structure HP');
     expect(markup).toContain('Town Stock');
+    expect(markup).not.toContain('Enemies0');
     expect(markup).toContain('Horned Helm');
     expect(markup).toContain('Empty');
     expect(markup).toContain('Tak(e) all');
@@ -1066,7 +1067,7 @@ describe('ui helpers and components', () => {
             {
               id: 'blood-moon-log',
               kind: 'combat',
-              text: '[Day 5, 18:00] Blood moon begins. A red hunger sweeps the wilds.',
+              text: '[Year 1, Day 5, 18:00] Blood moon begins. A red hunger sweeps the wilds.',
               turn: 12,
             },
           ]}
@@ -1105,7 +1106,7 @@ describe('ui helpers and components', () => {
             {
               id: 'harvest-moon-log',
               kind: 'system',
-              text: '[Day 5, 18:00] Harvest moon rises. A cyan glow stirs the wild herbs and veins.',
+              text: '[Year 1, Day 5, 18:00] Harvest moon rises. A cyan glow stirs the wild herbs and veins.',
               turn: 12,
             },
           ]}

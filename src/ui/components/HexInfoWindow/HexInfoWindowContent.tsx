@@ -38,14 +38,18 @@ export function HexInfoWindowContent({
         <span className={styles.label}>{t('ui.hexInfo.terrainLabel')}</span>
         <span className={styles.value}>{terrain}</span>
       </div>
-      <div className={styles.row}>
-        <span className={styles.label}>{t('ui.hexInfo.structureLabel')}</span>
-        <span className={styles.value}>{structure}</span>
-      </div>
-      <div className={styles.row}>
-        <span className={styles.label}>{t('ui.hexInfo.enemiesLabel')}</span>
-        <span className={styles.value}>{enemyCount}</span>
-      </div>
+      {structure ? (
+        <div className={styles.row}>
+          <span className={styles.label}>{t('ui.hexInfo.structureLabel')}</span>
+          <span className={styles.value}>{structure}</span>
+        </div>
+      ) : null}
+      {enemyCount > 0 ? (
+        <div className={styles.row}>
+          <span className={styles.label}>{t('ui.hexInfo.enemiesLabel')}</span>
+          <span className={styles.value}>{enemyCount}</span>
+        </div>
+      ) : null}
 
       {structureHp != null && structureMaxHp != null ? (
         <div className={styles.barBlock}>

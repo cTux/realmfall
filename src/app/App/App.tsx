@@ -3,7 +3,6 @@ import {
   createGame,
   setHomeHex,
   syncBloodMoon,
-  triggerEarthshake,
   type GameState,
 } from '../../game/state';
 import { WORLD_RADIUS } from '../constants';
@@ -150,12 +149,6 @@ export function App() {
   });
   const isReady = hydrated && canvasReady;
 
-  const handleTriggerEarthshake = () => {
-    setGame((current) =>
-      triggerEarthshake({ ...current, worldTimeMs: worldTimeMsRef.current }),
-    );
-  };
-
   const handleSetHome = () => {
     setGame((current) => setHomeHex(current));
   };
@@ -223,7 +216,6 @@ export function App() {
             onMove={(position) => moveWindow('worldTime', position)}
             onClose={() => setWindowVisibility('worldTime', false)}
             timeLabel={debuggerTimeLabel}
-            onTriggerEarthshake={handleTriggerEarthshake}
           />
         ) : null}
         <AppWindows
