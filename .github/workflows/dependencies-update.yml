@@ -26,7 +26,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Installing dependencies
-        run: pnpm i
+        run: pnpm i --frozen-lockfile
 
       - name: Updating dependencies
         run: pnpm run update:minor
@@ -50,6 +50,6 @@ jobs:
         uses: ctux/simple-pull-request-gh-action@1.1.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch_main_name: "'develop'"
+          branch_main_name: "'master'"
           branch_pr_name: "'dependencies-update'"
           commit_message: "'chore(dependencies): automatic updates'"
