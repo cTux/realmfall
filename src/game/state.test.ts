@@ -36,6 +36,7 @@ import {
   GAME_DAY_DURATION_MS,
   GAME_DAY_MINUTES,
   HOME_SCROLL_ITEM_NAME,
+  WORLD_REVEAL_RADIUS,
 } from './config';
 import { normalizeLoadedGame } from '../app/normalize';
 
@@ -168,6 +169,14 @@ describe('game state', () => {
     expect(
       moved.logs.filter((entry) => entry.kind === 'movement'),
     ).toHaveLength(3);
+  });
+
+  it('does not find a safe path into fogged hexes beyond the reveal radius', () => {
+    const game = createGame(WORLD_REVEAL_RADIUS + 2, 'fogged-safe-path-seed');
+
+    expect(
+      getSafePathToTile(game, { q: WORLD_REVEAL_RADIUS + 1, r: 0 }),
+    ).toBeNull();
   });
 
   it('damages the player each move while hunger and thirst debuffs are active', () => {

@@ -2,7 +2,12 @@ import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { vi } from 'vitest';
-import { createGame, getPlayerStats, type Item } from '../game/state';
+import {
+  createGame,
+  getItemConfigByName,
+  getPlayerStats,
+  type Item,
+} from '../game/state';
 import {
   DEFAULT_LOG_FILTERS,
   DEFAULT_WINDOW_VISIBILITY,
@@ -271,6 +276,24 @@ describe('ui helpers and components', () => {
     expect(treeTooltip?.lines).toEqual([
       { kind: 'text', text: 'A logging node that yields logs when harvested.' },
     ]);
+  });
+
+  it('uses the rolled cloth icon for Cloth items', () => {
+    const cloth: Item = {
+      id: 'cloth-1',
+      kind: 'resource',
+      name: 'Cloth',
+      quantity: 1,
+      tier: 1,
+      rarity: 'common',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+    };
+
+    expect(iconForItem(cloth)).toBe(getItemConfigByName('Cloth')?.icon);
   });
 
   it('renders all major windows to static markup', async () => {

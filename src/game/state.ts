@@ -9,6 +9,7 @@ import {
   HOME_SCROLL_ITEM_NAME,
   STARTING_RECIPE_IDS,
   WORLD_RADIUS,
+  WORLD_REVEAL_RADIUS,
 } from './config';
 import { createRng } from './random';
 import { getEnemyConfig, isAnimalEnemyType } from './content/enemies';
@@ -269,6 +270,7 @@ export function getSafePathToTile(state: GameState, target: HexCoord) {
   const targetDistance = hexDistance(start, target);
   if (targetDistance === 0) return [];
   if (targetDistance > state.radius) return null;
+  if (targetDistance > WORLD_REVEAL_RADIUS) return null;
 
   const visited = new Set([hexKey(start)]);
   const queue: Array<{ coord: HexCoord; path: HexCoord[] }> = [

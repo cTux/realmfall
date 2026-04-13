@@ -5,7 +5,7 @@ export const clothItemConfig: ItemConfig = {
   key: 'cloth',
   name: 'Cloth',
   kind: 'resource',
-  icon: ContentIcons.Hood,
+  icon: ContentIcons.RolledCloth,
   tier: 1,
   rarity: 'common',
   power: 0,
