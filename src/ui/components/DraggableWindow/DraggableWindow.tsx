@@ -2,10 +2,12 @@ import {
   useEffect,
   useState,
   useRef,
+  useCallback,
   type PointerEvent as ReactPointerEvent,
   type FocusEvent as ReactFocusEvent,
 } from 'react';
 import type { DraggableWindowProps } from './types';
+import type { WindowPosition } from '../../../app/constants';
 import styles from './styles.module.scss';
 import { Icons } from '../../icons';
 import { t } from '../../../i18n';
@@ -25,14 +27,34 @@ export function DraggableWindow({
   onClose,
   showCloseButton = true,
 }: DraggableWindowProps) {
+  const windowRef = useRef<HTMLElement | null>(null);
   const windowIdRef = useRef(`window-${Math.random().toString(36).slice(2)}`);
   const dragRef = useRef<{ dx: number; dy: number } | null>(null);
+  const frameRef = useRef<number | null>(null);
+  const pendingMoveRef = useRef<WindowPosition | null>(null);
+  const visualPositionRef = useRef(position);
   const [visibleState, setVisibleState] = useState(true);
   const [hovered, setHovered] = useState(false);
   const [active, setActive] = useState(false);
   const visible = visibleProp === undefined ? visibleState : visibleProp;
   const [renderWindow, setRenderWindow] = useState(() => visible);
   const [animatedVisible, setAnimatedVisible] = useState(false);
+
+  const applyVisualPosition = useCallback((nextPosition: WindowPosition) => {
+    visualPositionRef.current = nextPosition;
+    const node = windowRef.current;
+    if (!node) return;
+    node.style.left = `${nextPosition.x}px`;
+    node.style.top = `${nextPosition.y}px`;
+  }, []);
+
+  const flushPendingMove = useCallback(() => {
+    frameRef.current = null;
+    const nextPosition = pendingMoveRef.current;
+    if (!nextPosition) return;
+    pendingMoveRef.current = null;
+    onMove(nextPosition);
+  }, [onMove]);
 
   const activateWindow = () => {
     setActive(true);
@@ -74,6 +96,20 @@ export function DraggableWindow({
     return () => window.clearTimeout(timeout);
   }, [visible]);
 
+  useEffect(() => {
+    if (dragRef.current) return;
+    applyVisualPosition(position);
+  }, [applyVisualPosition, position]);
+
+  useEffect(
+    () => () => {
+      if (frameRef.current !== null) {
+        window.cancelAnimationFrame(frameRef.current);
+      }
+    },
+    [],
+  );
+
   const closeWindow = () => {
     if (visibleProp === undefined) {
       setVisibleState(false);
@@ -83,21 +119,31 @@ export function DraggableWindow({
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     activateWindow();
+    const currentPosition = visualPositionRef.current;
     dragRef.current = {
-      dx: event.clientX - position.x,
-      dy: event.clientY - position.y,
+      dx: event.clientX - currentPosition.x,
+      dy: event.clientY - currentPosition.y,
     };
 
     const onPointerMove = (moveEvent: PointerEvent) => {
       if (!dragRef.current) return;
-      onMove({
+      const nextPosition = {
         x: Math.max(8, moveEvent.clientX - dragRef.current.dx),
         y: Math.max(8, moveEvent.clientY - dragRef.current.dy),
-      });
+      };
+      applyVisualPosition(nextPosition);
+      pendingMoveRef.current = nextPosition;
+      if (frameRef.current === null) {
+        frameRef.current = window.requestAnimationFrame(flushPendingMove);
+      }
     };
 
     const onPointerUp = () => {
       dragRef.current = null;
+      if (frameRef.current !== null) {
+        window.cancelAnimationFrame(frameRef.current);
+        flushPendingMove();
+      }
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);
     };
@@ -118,6 +164,7 @@ export function DraggableWindow({
 
   return (
     <section
+      ref={windowRef}
       className={`${styles.floatingWindow} ${className ?? ''}`.trim()}
       data-window-emphasis={emphasis}
       data-window-visible={animatedVisible}
