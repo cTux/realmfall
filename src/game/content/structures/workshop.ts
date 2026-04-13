@@ -4,7 +4,8 @@ import type { StructureConfig } from '../types';
 export const workshopStructureConfig: StructureConfig = {
   type: 'workshop',
   title: 'Workshop',
-  description: 'A workbench for turning gathered materials into equipment.',
+  description:
+    "A survivor's bench for binding scavenged materials into usable gear.",
   icon: ContentIcons.StoneCrafting,
   tint: 0x22c55e,
   functionsProvided: ['craft'],

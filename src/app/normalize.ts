@@ -181,8 +181,11 @@ export function normalizeLoadedGame(game: GameState): GameState {
 }
 
 function normalizeItem(item: Item): Item {
+  const normalizedName =
+    item.name === 'Arcane Dust' ? 'Aether Dust' : item.name;
   return {
     ...item,
+    name: normalizedName,
     quantity: item.quantity ?? 1,
     rarity: item.rarity ?? 'common',
     thirst: Math.max(

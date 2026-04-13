@@ -33,7 +33,7 @@ export function HeroWindowContent({
     <div className={styles.stats}>
       <StatBar label="HP" value={stats.hp} max={stats.maxHp} color="hp" />
       <StatBar
-        label="Mana"
+        label="Aether"
         value={stats.mana}
         max={stats.maxMana}
         color="mana"
@@ -202,7 +202,7 @@ function AbilitySquare({
   onLeaveDetail?: HeroWindowProps['onLeaveDetail'];
 }) {
   const tooltipLines = [
-    { kind: 'stat' as const, label: 'Mana Cost', value: `${manaCost}` },
+    { kind: 'stat' as const, label: 'Aether Cost', value: `${manaCost}` },
     {
       kind: 'stat' as const,
       label: 'Cooldown',

@@ -310,7 +310,7 @@ function AbilitySquare({
   onLeaveDetail: CombatWindowProps['onLeaveDetail'];
 }) {
   const tooltipLines = [
-    { kind: 'stat' as const, label: 'Mana Cost', value: `${manaCost}` },
+    { kind: 'stat' as const, label: 'Aether Cost', value: `${manaCost}` },
     {
       kind: 'stat' as const,
       label: 'Cooldown',

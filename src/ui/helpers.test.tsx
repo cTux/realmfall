@@ -132,19 +132,27 @@ describe('ui helper coverage', () => {
 
     expect(
       structureTooltip(createTile({ structure: 'town' }))?.lines[0]?.text,
-    ).toBe('A safe haven for trade, supplies, and a brief respite.');
+    ).toBe(
+      'A shardside refuge where survivors trade, resupply, and catch their breath.',
+    );
     expect(
       structureTooltip(createTile({ structure: 'forge' }))?.lines[0]?.text,
-    ).toBe('A blazing forge where gear can be prospected into gold.');
+    ).toBe(
+      'A salvage forge where broken gear is stripped down into tradeable worth.',
+    );
     expect(
       structureTooltip(createTile({ structure: 'camp' }))?.lines[0]?.text,
-    ).toBe('A campfire used to cook provisions into better meals.');
+    ).toBe('A banked campfire where raw provisions can be made safe to eat.');
     expect(
       structureTooltip(createTile({ structure: 'workshop' }))?.lines[0]?.text,
-    ).toBe('A workbench for turning gathered materials into equipment.');
+    ).toBe(
+      "A survivor's bench for binding scavenged materials into usable gear.",
+    );
     expect(
       structureTooltip(createTile({ structure: 'dungeon' }))?.lines[0]?.text,
-    ).toBe('A hostile den packed with stronger enemies and danger.');
+    ).toBe(
+      'A broken ruin where stronger foes and old spoils gather beneath the fracture.',
+    );
   });
 
   it('covers tooltip comparison branches without equipment and with negative deltas', () => {

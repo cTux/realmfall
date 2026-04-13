@@ -234,7 +234,7 @@ describe('ui helpers and components', () => {
       ],
       'dungeon',
     );
-    expect(groupEnemy?.title).toBe('Dungeon');
+    expect(groupEnemy?.title).toBe('Rift Ruin');
     expect(groupEnemy?.lines).toEqual([
       { kind: 'stat', label: 'Level', value: '3' },
       { kind: 'stat', label: 'Enemies', value: '2' },
@@ -606,7 +606,7 @@ describe('ui helpers and components', () => {
 
     expect(markup).toContain('1.1k/1.1k');
     expect(markup).toContain('HP');
-    expect(markup).toContain('Mana');
+    expect(markup).toContain('Aether');
     expect(markup).toContain('XP');
     expect(markup).toContain('Hunger');
   });
@@ -1093,7 +1093,7 @@ describe('ui helpers and components', () => {
       root.render(
         <GameTooltip
           tooltip={{
-            title: 'Dungeon',
+            title: 'Rift Ruin',
             x: 50,
             y: 70,
             followCursor: true,

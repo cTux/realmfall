@@ -1,5 +1,11 @@
 # PROMPTS
 
+## Git
+
+```
+Create a branch from local default branch for the updates in this prompt.
+```
+
 ## Shared Rules
 
 ```
