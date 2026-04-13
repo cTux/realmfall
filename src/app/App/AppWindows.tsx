@@ -27,6 +27,7 @@ import { WindowLoadingState } from '../../ui/components/WindowLoadingState';
 import { WindowDock } from '../../ui/components/WindowDock';
 import type { ItemContextMenuState, TooltipItem, TooltipState } from './types';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
+import type { TooltipLine } from '../../ui/tooltips';
 import { formatTerrainLabel } from './appHelpers';
 
 const SkillsWindow = lazy(() =>
@@ -129,6 +130,12 @@ interface AppWindowsProps {
     item: TooltipItem,
     equipped?: TooltipItem,
   ) => void;
+  onShowTooltip: (
+    event: React.MouseEvent<HTMLElement>,
+    title: string,
+    lines: TooltipLine[],
+    borderColor?: string,
+  ) => void;
   onCloseTooltip: () => void;
   onCloseItemMenu: () => void;
   onUnequip: (slot: EquipmentSlot) => void;
@@ -149,7 +156,7 @@ interface AppWindowsProps {
   ) => void;
   onTakeLootItem: (itemId: string) => void;
   onTakeAllLoot: () => void;
-  onAttackEnemy: (enemyId: string) => void;
+  onStartCombat: () => void;
   onToggleFilterMenu: () => void;
   onToggleLogFilter: (kind: LogKind) => void;
   onEquipmentHover: (
@@ -195,6 +202,7 @@ export function AppWindows({
   onSetWindowVisibility,
   onToggleDockWindow,
   onShowItemTooltip,
+  onShowTooltip,
   onCloseTooltip,
   onCloseItemMenu,
   onUnequip,
@@ -208,7 +216,7 @@ export function AppWindows({
   onEquippedContextItem,
   onTakeLootItem,
   onTakeAllLoot,
-  onAttackEnemy,
+  onStartCombat,
   onToggleFilterMenu,
   onToggleLogFilter,
   onEquipmentHover,
@@ -427,14 +435,23 @@ export function AppWindows({
             visible={windowShown.combat && combatWindowVisible}
             onClose={() => onSetWindowVisibility('combat', false)}
             combat={combatSnapshot.combat}
+            playerParty={[
+              {
+                id: 'player',
+                name: 'Player',
+                level: stats.level,
+                hp: stats.hp,
+                maxHp: stats.maxHp,
+                mana: game.player.mana,
+                maxMana: stats.maxMana,
+                actor: combatSnapshot.combat.player,
+              },
+            ]}
             enemies={combatSnapshot.enemies}
-            player={{
-              hp: stats.hp,
-              maxHp: stats.maxHp,
-              attack: stats.attack,
-              defense: stats.defense,
-            }}
-            onAttack={onAttackEnemy}
+            worldTimeMs={game.worldTimeMs}
+            onStart={onStartCombat}
+            onHoverDetail={onShowTooltip}
+            onLeaveDetail={onCloseTooltip}
           />
         </Suspense>
       ) : null}

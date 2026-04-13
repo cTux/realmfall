@@ -57,7 +57,6 @@ export function App() {
   const {
     closeItemMenu,
     closeTooltip,
-    handleAttackEnemy,
     handleBuyTownItem,
     handleContextItem,
     handleCraftRecipe,
@@ -70,6 +69,7 @@ export function App() {
     handleProspect,
     handleSellAll,
     handleSort,
+    handleStartCombat,
     handleTakeAllLoot,
     handleTakeLootItem,
     handleUnequip,
@@ -77,6 +77,7 @@ export function App() {
     itemMenu,
     logFilters,
     moveWindow,
+    showTooltip,
     setLogFilters,
     setTooltip,
     setWindowShown,
@@ -232,7 +233,6 @@ export function App() {
 
   useCombatAutomation({
     combat: game.combat,
-    combatEnemyCount: combatEnemies.length,
     setGame,
     worldTimeMsRef,
   });
@@ -248,9 +248,11 @@ export function App() {
   );
 
   useKeyboardShortcuts({
+    combatStartAvailable: Boolean(game.combat && !game.combat.started),
     interactLabel,
     lootSnapshotLength: lootSnapshot.length,
     lootWindowVisible,
+    onStartCombat: handleStartCombat,
     renderLootWindow,
     onInteract: handleInteract,
     onTakeAllLoot: handleTakeAllLoot,
@@ -322,6 +324,7 @@ export function App() {
           onSetWindowVisibility={setWindowVisibility}
           onToggleDockWindow={toggleDockWindow}
           onShowItemTooltip={showItemTooltip}
+          onShowTooltip={showTooltip}
           onCloseTooltip={closeTooltip}
           onCloseItemMenu={closeItemMenu}
           onUnequip={handleUnequip}
@@ -335,7 +338,7 @@ export function App() {
           onEquippedContextItem={handleEquippedContextItem}
           onTakeLootItem={handleTakeLootItem}
           onTakeAllLoot={handleTakeAllLoot}
-          onAttackEnemy={handleAttackEnemy}
+          onStartCombat={handleStartCombat}
           onToggleFilterMenu={toggleFilterMenu}
           onToggleLogFilter={toggleLogFilter}
           onEquipmentHover={handleEquipmentHover}

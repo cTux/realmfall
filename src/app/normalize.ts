@@ -6,6 +6,7 @@ import {
   type Item,
   type SkillName,
 } from '../game/state';
+import { createCombatActorState } from '../game/combat';
 
 export function normalizeLoadedGame(game: GameState): GameState {
   const { gold: legacyGoldValue, ...player } =
@@ -59,6 +60,47 @@ export function normalizeLoadedGame(game: GameState): GameState {
       ? {
           ...game.combat,
           enemyIds: game.combat.enemyIds ?? [],
+          started: Boolean(game.combat.started),
+          player: game.combat.player
+            ? {
+                ...game.combat.player,
+                abilityIds: game.combat.player.abilityIds ?? ['kick'],
+                globalCooldownMs: game.combat.player.globalCooldownMs ?? 1500,
+                globalCooldownEndsAt: Math.max(
+                  0,
+                  Number(game.combat.player.globalCooldownEndsAt ?? 0) || 0,
+                ),
+                cooldownEndsAt: game.combat.player.cooldownEndsAt ?? {},
+                casting: game.combat.player.casting
+                  ? { ...game.combat.player.casting }
+                  : null,
+              }
+            : createCombatActorState(
+                Math.max(0, Number(game.worldTimeMs ?? 0) || 0),
+              ),
+          enemies: Object.fromEntries(
+            (game.combat.enemyIds ?? []).map((enemyId) => {
+              const actor = game.combat?.enemies?.[enemyId];
+              return [
+                enemyId,
+                actor
+                  ? {
+                      ...actor,
+                      abilityIds: actor.abilityIds ?? ['kick'],
+                      globalCooldownMs: actor.globalCooldownMs ?? 1500,
+                      globalCooldownEndsAt: Math.max(
+                        0,
+                        Number(actor.globalCooldownEndsAt ?? 0) || 0,
+                      ),
+                      cooldownEndsAt: actor.cooldownEndsAt ?? {},
+                      casting: actor.casting ? { ...actor.casting } : null,
+                    }
+                  : createCombatActorState(
+                      Math.max(0, Number(game.worldTimeMs ?? 0) || 0),
+                    ),
+              ];
+            }),
+          ),
         }
       : null,
     player: {

@@ -87,6 +87,30 @@ export interface Enemy {
   elite: boolean;
 }
 
+export type AbilityId = 'kick';
+
+export interface AbilityDefinition {
+  id: AbilityId;
+  name: string;
+  manaCost: number;
+  cooldownMs: number;
+  castTimeMs: number;
+}
+
+export interface CombatCastState {
+  abilityId: AbilityId;
+  targetId: string;
+  endsAt: number;
+}
+
+export interface CombatActorState {
+  abilityIds: AbilityId[];
+  globalCooldownMs: number;
+  globalCooldownEndsAt: number;
+  cooldownEndsAt: Partial<Record<AbilityId, number>>;
+  casting: CombatCastState | null;
+}
+
 export interface Tile {
   coord: HexCoord;
   terrain: Terrain;
@@ -125,6 +149,9 @@ export interface SkillProgress {
 export interface CombatState {
   coord: HexCoord;
   enemyIds: string[];
+  started: boolean;
+  player: CombatActorState;
+  enemies: Record<string, CombatActorState>;
 }
 
 export interface TownStockEntry {

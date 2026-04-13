@@ -3,9 +3,11 @@ import type { WindowVisibilityState } from '../constants';
 import { isEditableTarget, WINDOW_HOTKEYS } from './appHelpers';
 
 interface UseKeyboardShortcutsOptions {
+  combatStartAvailable: boolean;
   interactLabel: string | null;
   lootSnapshotLength: number;
   lootWindowVisible: boolean;
+  onStartCombat: () => void;
   renderLootWindow: boolean;
   onInteract: () => void;
   onTakeAllLoot: () => void;
@@ -14,9 +16,11 @@ interface UseKeyboardShortcutsOptions {
 }
 
 export function useKeyboardShortcuts({
+  combatStartAvailable,
   interactLabel,
   lootSnapshotLength,
   lootWindowVisible,
+  onStartCombat,
   renderLootWindow,
   onInteract,
   onTakeAllLoot,
@@ -48,6 +52,12 @@ export function useKeyboardShortcuts({
         return;
       }
 
+      if (lowerKey === 'q' && combatStartAvailable) {
+        event.preventDefault();
+        onStartCombat();
+        return;
+      }
+
       if (lowerKey === 'q' && interactLabel) {
         event.preventDefault();
         onInteract();
@@ -64,10 +74,12 @@ export function useKeyboardShortcuts({
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [
+    combatStartAvailable,
     interactLabel,
     lootSnapshotLength,
     lootWindowVisible,
     onInteract,
+    onStartCombat,
     onTakeAllLoot,
     onToggleDockWindow,
     renderLootWindow,

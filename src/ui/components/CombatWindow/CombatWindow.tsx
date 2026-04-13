@@ -16,9 +16,12 @@ export function CombatWindow({
   visible,
   onClose,
   combat,
+  playerParty,
   enemies,
-  player,
-  onAttack,
+  worldTimeMs,
+  onStart,
+  onHoverDetail,
+  onLeaveDetail,
 }: CombatWindowProps) {
   return (
     <DraggableWindow
@@ -32,9 +35,12 @@ export function CombatWindow({
       <Suspense fallback={<WindowLoadingState />}>
         <CombatWindowContent
           combat={combat}
+          playerParty={playerParty}
           enemies={enemies}
-          player={player}
-          onAttack={onAttack}
+          worldTimeMs={worldTimeMs}
+          onStart={onStart}
+          onHoverDetail={onHoverDetail}
+          onLeaveDetail={onLeaveDetail}
         />
       </Suspense>
     </DraggableWindow>

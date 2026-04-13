@@ -285,7 +285,27 @@ describe('ui helpers and components', () => {
       healing: 0,
       hunger: 0,
     };
-    const combat = { coord: { q: 1, r: 0 }, enemyIds: ['enemy-1'] };
+    const combat = {
+      coord: { q: 1, r: 0 },
+      enemyIds: ['enemy-1'],
+      player: {
+        abilityIds: ['kick'] as Array<'kick'>,
+        globalCooldownMs: 1500,
+        globalCooldownEndsAt: 900,
+        cooldownEndsAt: { kick: 1000 },
+        casting: null,
+      },
+      started: false,
+      enemies: {
+        'enemy-1': {
+          abilityIds: ['kick'] as Array<'kick'>,
+          globalCooldownMs: 1500,
+          globalCooldownEndsAt: 900,
+          cooldownEndsAt: { kick: 1000 },
+          casting: null,
+        },
+      },
+    };
 
     const markup = await renderMarkup(
       <>
@@ -404,6 +424,18 @@ describe('ui helpers and components', () => {
           position={DEFAULT_WINDOWS.combat}
           onMove={() => {}}
           combat={combat}
+          playerParty={[
+            {
+              id: 'player',
+              name: 'Player',
+              level: 10,
+              hp: 20,
+              maxHp: 30,
+              mana: 12,
+              maxMana: 20,
+              actor: combat.player,
+            },
+          ]}
           enemies={[
             {
               id: 'enemy-1',
@@ -418,8 +450,10 @@ describe('ui helpers and components', () => {
               elite: true,
             },
           ]}
-          player={{ hp: 20, maxHp: 30, attack: 7, defense: 4 }}
-          onAttack={() => {}}
+          worldTimeMs={0}
+          onStart={() => {}}
+          onHoverDetail={() => {}}
+          onLeaveDetail={() => {}}
         />
         <GameTooltip
           tooltip={{
@@ -453,6 +487,12 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('Tak(e) all');
     expect(markup).toContain('Filters');
     expect(markup).toContain('Elite');
+    expect(markup).toContain('Player Party');
+    expect(markup).toContain('Enemy Party');
+    expect(markup).toContain('Player Lv 10');
+    expect(markup).toContain('Marauder Lv 3');
+    expect(markup).toContain('MP');
+    expect(markup).toContain('(Q) Start');
     expect(markup).toContain('Knight Blade');
     expect(iconForItem(inventoryItem)).toBeTruthy();
     expect(iconForItem(undefined, 'weapon')).toBeTruthy();
@@ -545,6 +585,10 @@ describe('ui helpers and components', () => {
     );
 
     expect(markup).toContain('1.1k/1.1k');
+    expect(markup).toContain('HP');
+    expect(markup).toContain('Mana');
+    expect(markup).toContain('XP');
+    expect(markup).toContain('Hunger');
   });
 
   it('renders mastery level in the hero title after level 100', () => {

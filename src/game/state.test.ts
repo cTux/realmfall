@@ -1,5 +1,4 @@
 import {
-  attackCombatEnemy,
   buyTownItem,
   craftRecipe,
   createGame,
@@ -17,13 +16,16 @@ import {
   hasRecipeBook,
   interactWithStructure,
   moveToTile,
+  progressCombat,
   prospectInventory,
   sellAllItems,
   sortInventory,
+  startCombat,
   syncBloodMoon,
   takeAllTileItems,
   takeTileItem,
   useItem,
+  type GameState,
   type Item,
 } from './state';
 import { normalizeLoadedGame } from '../app/normalize';
@@ -117,15 +119,50 @@ describe('game state', () => {
     };
     game.player.coord = { q: 1, r: 0 };
 
-    const engaged = moveToTile(game, target);
-    expect(engaged.combat).not.toBeNull();
+    const encountered = moveToTile(game, target);
+    expect(encountered.combat).not.toBeNull();
 
-    const resolved = attackCombatEnemy(engaged, 'enemy-2,0-0');
+    const resolved = startCombat(encountered);
     expect(resolved.combat).toBeNull();
     expect(getEnemiesAt(resolved, target)).toHaveLength(0);
     expect(
       getTileAt(resolved, target).items.every((item) =>
         ['Gold', 'Leather Scraps'].includes(item.name),
+      ),
+    ).toBe(true);
+  });
+
+  it('creates an encounter that waits for Start before battle begins', () => {
+    const game = createGame(3, 'combat-start-seed');
+    const target = { q: 2, r: 0 };
+    game.tiles['2,0'] = {
+      coord: target,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: ['enemy-2,0-0'],
+    };
+    game.enemies['enemy-2,0-0'] = {
+      id: 'enemy-2,0-0',
+      name: 'Wolf',
+      coord: target,
+      tier: 1,
+      hp: 5,
+      maxHp: 5,
+      attack: 2,
+      defense: 0,
+      xp: 5,
+      elite: false,
+    };
+    game.player.coord = { q: 1, r: 0 };
+
+    const encountered = moveToTile(game, target);
+    expect(encountered.combat?.started).toBe(false);
+    expect(progressCombat(encountered)).toBe(encountered);
+    expect(encountered.enemies['enemy-2,0-0']?.hp).toBe(5);
+    expect(
+      encountered.logs.some((entry) =>
+        /press start to begin the battle/i.test(entry.text),
       ),
     ).toBe(true);
   });
@@ -197,8 +234,8 @@ describe('game state', () => {
     };
     game.player.coord = { q: 1, r: 0 };
 
-    const engaged = moveToTile(game, target);
-    const resolved = attackCombatEnemy(engaged, 'enemy-2,0-0');
+    const encountered = moveToTile(game, target);
+    const resolved = startCombat(encountered);
 
     expect(
       getTileAt(resolved, target).items.some(
@@ -206,6 +243,96 @@ describe('game state', () => {
       ),
     ).toBe(true);
     expect(resolved.player.skills.skinning.xp).toBeGreaterThan(0);
+  });
+
+  it('respects global cooldown and ability cooldown between player casts', () => {
+    const game = createGame(3, 'kick-cooldown-seed');
+    const target = { q: 2, r: 0 };
+    game.tiles['2,0'] = {
+      coord: target,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: ['enemy-2,0-0'],
+    };
+    game.enemies['enemy-2,0-0'] = {
+      id: 'enemy-2,0-0',
+      name: 'Training Dummy',
+      coord: target,
+      tier: 1,
+      hp: 50,
+      maxHp: 50,
+      attack: 0,
+      defense: 0,
+      xp: 0,
+      elite: false,
+    };
+    game.player.coord = { q: 1, r: 0 };
+
+    const encountered = moveToTile(game, target);
+    const firstCast = startCombat(encountered);
+    const secondCastTooEarly = progressCombat(firstCast);
+
+    expect(secondCastTooEarly.enemies['enemy-2,0-0']?.hp).toBe(46);
+    expect(
+      secondCastTooEarly.logs.filter((entry) =>
+        /you kick the/i.test(entry.text),
+      ),
+    ).toHaveLength(1);
+
+    const afterAbilityCooldown = progressCombat({
+      ...firstCast,
+      worldTimeMs: 1000,
+    });
+
+    expect(afterAbilityCooldown.enemies['enemy-2,0-0']?.hp).toBe(46);
+
+    const afterGlobalCooldown = progressCombat({
+      ...firstCast,
+      worldTimeMs: 1500,
+    });
+
+    expect(afterGlobalCooldown.enemies['enemy-2,0-0']?.hp).toBe(42);
+  });
+
+  it('lets enemies cast Kick on their own cooldown loop', () => {
+    const game = createGame(3, 'enemy-kick-seed');
+    const target = { q: 2, r: 0 };
+    game.tiles['2,0'] = {
+      coord: target,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: ['enemy-2,0-0'],
+    };
+    game.enemies['enemy-2,0-0'] = {
+      id: 'enemy-2,0-0',
+      name: 'Wolf',
+      coord: target,
+      tier: 1,
+      hp: 8,
+      maxHp: 8,
+      attack: 2,
+      defense: 0,
+      xp: 1,
+      elite: false,
+    };
+    game.player.coord = { q: 1, r: 0 };
+
+    const encountered = moveToTile(game, target);
+    const firstTick = progressCombat(startCombat(encountered));
+
+    expect(firstTick.player.hp).toBe(29);
+
+    const beforeSecondKick = progressCombat({
+      ...firstTick,
+      worldTimeMs: 1000,
+    });
+    expect(beforeSecondKick.player.hp).toBe(29);
+
+    const afterSecondKick = progressCombat({ ...firstTick, worldTimeMs: 1500 });
+    expect(afterSecondKick.player.hp).toBe(29);
+    expect(afterSecondKick.combat).toBeNull();
   });
 
   it('can trigger a blood moon that weakens enemies and floods nearby tiles', () => {
@@ -368,8 +495,8 @@ describe('game state', () => {
     };
     game.player.coord = { q: 1, r: 0 };
 
-    const engaged = moveToTile(game, target);
-    const resolved = attackCombatEnemy(engaged, 'enemy-2,0-0');
+    const encountered = moveToTile(game, target);
+    const resolved = startCombat(encountered);
     const tileItems = getTileAt(resolved, target).items;
 
     expect(tileItems.some((item) => item.name === 'Gold')).toBe(true);
@@ -420,8 +547,8 @@ describe('game state', () => {
     };
     game.player.coord = { q: 1, r: 0 };
 
-    const engaged = moveToTile(game, target);
-    const clearedCombat = attackCombatEnemy(engaged, 'enemy-2,0-0');
+    const encountered = moveToTile(game, target);
+    const clearedCombat = startCombat(encountered);
     expect(getTileAt(clearedCombat, target).structure).toBe('dungeon');
 
     const looted = takeAllTileItems(clearedCombat);
@@ -760,8 +887,8 @@ describe('game state', () => {
       };
       game.player.coord = { q: 1, r: 0 };
 
-      const engaged = moveToTile(game, target);
-      const resolved = attackCombatEnemy(engaged, 'enemy-2,0-0');
+      const encountered = moveToTile(game, target);
+      const resolved = startCombat(encountered);
 
       if (getTileAt(resolved, target).items.some((item) => item.recipeId)) {
         dropped = true;
@@ -808,8 +935,8 @@ describe('game state', () => {
     };
     game.player.coord = { q: 1, r: 0 };
 
-    const engaged = moveToTile(game, target);
-    const resolvedRound = attackCombatEnemy(engaged, 'enemy-2,0-0');
+    const encountered = moveToTile(game, target);
+    const resolvedRound = startCombat(encountered);
 
     expect(resolvedRound.combat?.enemyIds).toHaveLength(2);
     expect(resolvedRound.player.hp).toBe(27);
@@ -864,9 +991,13 @@ describe('game state', () => {
       enemyIds: ['enemy-1'],
       items: [],
     };
-    game.combat = { coord: { q: 0, r: 0 }, enemyIds: ['enemy-1'] };
+    game.combat = makeCombatState(
+      { q: 0, r: 0 },
+      ['enemy-1'],
+      game.worldTimeMs,
+    );
 
-    const resolved = attackCombatEnemy(game, 'enemy-1');
+    const resolved = progressCombat(game);
     const stats = getPlayerStats(resolved.player);
 
     expect(resolved.player.level).toBe(100);
@@ -1103,4 +1234,36 @@ function findEnemy(
   }
 
   return undefined;
+}
+
+function makeCombatState(
+  coord: { q: number; r: number },
+  enemyIds: string[],
+  worldTimeMs: number,
+  started = true,
+): GameState['combat'] {
+  return {
+    coord,
+    enemyIds,
+    started,
+    player: {
+      abilityIds: ['kick'],
+      globalCooldownMs: 1500,
+      globalCooldownEndsAt: worldTimeMs,
+      cooldownEndsAt: {},
+      casting: null,
+    },
+    enemies: Object.fromEntries(
+      enemyIds.map((enemyId) => [
+        enemyId,
+        {
+          abilityIds: ['kick'],
+          globalCooldownMs: 1500,
+          globalCooldownEndsAt: worldTimeMs,
+          cooldownEndsAt: {},
+          casting: null,
+        },
+      ]),
+    ),
+  };
 }

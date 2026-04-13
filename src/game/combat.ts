@@ -1,10 +1,47 @@
 import { BLOOD_MOON_STAT_SCALE } from './config';
-import type { Enemy, StructureType, Terrain } from './types';
+import type {
+  AbilityDefinition,
+  AbilityId,
+  CombatActorState,
+  Enemy,
+  StructureType,
+  Terrain,
+} from './types';
 import type { HexCoord } from './hex';
 import { noise, terrainTier } from './shared';
 
+export const DEFAULT_GLOBAL_COOLDOWN_MS = 1500;
+
+export const ABILITIES: Record<AbilityId, AbilityDefinition> = {
+  kick: {
+    id: 'kick',
+    name: 'Kick',
+    manaCost: 0,
+    cooldownMs: 1000,
+    castTimeMs: 0,
+  },
+};
+
 export function enemyKey(coord: HexCoord, index: number) {
   return `enemy-${coord.q},${coord.r}-${index}`;
+}
+
+export function createCombatActorState(
+  worldTimeMs: number,
+  abilityIds: AbilityId[] = ['kick'],
+  globalCooldownMs = DEFAULT_GLOBAL_COOLDOWN_MS,
+): CombatActorState {
+  return {
+    abilityIds: [...abilityIds],
+    globalCooldownMs,
+    globalCooldownEndsAt: worldTimeMs,
+    cooldownEndsAt: {},
+    casting: null,
+  };
+}
+
+export function getAbilityDefinition(abilityId: AbilityId) {
+  return ABILITIES[abilityId];
 }
 
 export function enemyIndexFromId(enemyId: string) {

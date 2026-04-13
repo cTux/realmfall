@@ -7,7 +7,9 @@ import {
 } from './config';
 import { createRng } from './random';
 import {
+  createCombatActorState,
   enemyIndexFromId,
+  getAbilityDefinition,
   isAnimalEnemy,
   makeEnemy,
   nextEnemySpawnIndex,
@@ -83,6 +85,10 @@ import {
 export { hexAtPoint, hexDistance } from './hex';
 export type { HexCoord } from './hex';
 export type {
+  AbilityDefinition,
+  AbilityId,
+  CombatActorState,
+  CombatCastState,
   CombatState,
   Enemy,
   Equipment,
@@ -121,6 +127,7 @@ export {
 };
 
 import type {
+  AbilityId,
   EquipmentSlot,
   GameState,
   Item,
@@ -259,11 +266,11 @@ export function moveToTile(state: GameState, target: HexCoord): GameState {
   }
 
   if (tile.enemyIds.length > 0) {
-    next.combat = { coord: target, enemyIds: [...tile.enemyIds] };
+    next.combat = createCombatState(target, tile.enemyIds, next.worldTimeMs);
     addLog(
       next,
       'combat',
-      `You engage ${tile.enemyIds.length} foe${tile.enemyIds.length > 1 ? 's' : ''}.`,
+      `You encounter ${tile.enemyIds.length} foe${tile.enemyIds.length > 1 ? 's' : ''}. Press Start to begin the battle.`,
     );
     return next;
   }
@@ -337,51 +344,34 @@ export function syncBloodMoon(
   return state;
 }
 
-export function attackCombatEnemy(
-  state: GameState,
-  enemyId: string,
-): GameState {
+export function attackCombatEnemy(state: GameState): GameState {
   if (!state.combat) return message(state, 'There is no active battle.');
+  if (!state.combat.started)
+    return message(state, 'Press Start to begin the battle.');
+
+  return progressCombat(state);
+}
+
+export function progressCombat(state: GameState): GameState {
+  if (!state.combat || !state.combat.started) return state;
 
   const next = clone(state);
-  const enemy = next.enemies[enemyId];
-  if (!enemy) return message(state, 'That enemy is already defeated.');
+  const changed = resolveCombat(next);
+  return changed ? next : state;
+}
 
-  const playerStats = getPlayerStats(next.player);
-  const damage = Math.max(1, playerStats.attack - enemy.defense);
-  enemy.hp = Math.max(0, enemy.hp - damage);
-  addLog(next, 'combat', `You strike the ${enemy.name} for ${damage}.`);
+export function startCombat(state: GameState): GameState {
+  if (!state.combat) return message(state, 'There is no active battle.');
+  if (state.combat.started) return state;
 
-  if (enemy.hp <= 0) {
-    gainXp(next, enemy.xp, addLog);
-    maybeDropEnemyGold(next, enemy);
-    maybeDropEnemyRecipe(next, enemy);
-    maybeDropBloodMoonLoot(next, enemy);
-    maybeSkinEnemy(next, enemy);
-    addLog(next, 'combat', `You defeated the ${enemy.name}.`);
-    delete next.enemies[enemy.id];
-  }
-
-  syncCombatEnemies(next);
-
-  if (!next.combat) return next;
-
-  const survivingEnemies = next.combat.enemyIds
-    .map((id) => next.enemies[id])
-    .filter(Boolean);
-  survivingEnemies.forEach((foe) => {
-    const retaliation = Math.max(
-      1,
-      foe.attack - getPlayerStats(next.player).defense,
-    );
-    next.player.hp = Math.max(0, next.player.hp - retaliation);
-    addLog(next, 'combat', `The ${foe.name} hits back for ${retaliation}.`);
-  });
-
-  if (next.player.hp <= 0) {
-    respawnAtNearestTown(next, state.combat.coord);
-  }
-
+  const next = clone(state);
+  next.combat!.started = true;
+  addLog(
+    next,
+    'combat',
+    `Battle begins against ${next.combat!.enemyIds.length} foe${next.combat!.enemyIds.length > 1 ? 's' : ''}.`,
+  );
+  resolveCombat(next);
   return next;
 }
 
@@ -439,6 +429,247 @@ export function useItem(state: GameState, itemId: string): GameState {
   const next = clone(state);
   consumeItem(next, itemIndex, item);
   return next;
+}
+
+export function getCombatAutomationDelay(
+  combat: GameState['combat'],
+  worldTimeMs: number,
+) {
+  if (!combat || combat.enemyIds.length === 0) return null;
+
+  const eventTimes = [
+    combat.player.casting?.endsAt,
+    getNextActorReadyAt(combat.player, worldTimeMs),
+    ...combat.enemyIds.flatMap((enemyId) => {
+      const actor = combat.enemies[enemyId];
+      if (!actor) return [] as Array<number | undefined>;
+
+      return [actor.casting?.endsAt, getNextActorReadyAt(actor, worldTimeMs)];
+    }),
+  ].filter((value): value is number => Number.isFinite(value));
+
+  if (eventTimes.length === 0) return null;
+
+  return Math.max(0, Math.min(...eventTimes) - worldTimeMs);
+}
+
+function createCombatState(
+  coord: HexCoord,
+  enemyIds: string[],
+  worldTimeMs: number,
+): GameState['combat'] {
+  return {
+    coord,
+    enemyIds: [...enemyIds],
+    started: false,
+    player: createCombatActorState(worldTimeMs),
+    enemies: Object.fromEntries(
+      enemyIds.map((enemyId) => [enemyId, createCombatActorState(worldTimeMs)]),
+    ),
+  };
+}
+
+function resolveCombat(state: GameState) {
+  if (!state.combat) return false;
+
+  let changed = false;
+  let keepResolving = true;
+
+  while (state.combat && keepResolving) {
+    keepResolving = false;
+
+    const duePlayerCast =
+      state.combat.player.casting &&
+      state.combat.player.casting.endsAt <= state.worldTimeMs
+        ? state.combat.player.casting
+        : null;
+    const dueEnemyCasts = state.combat.enemyIds
+      .map((enemyId) => ({ enemyId, actor: state.combat?.enemies[enemyId] }))
+      .filter((entry) => Boolean(entry.actor?.casting))
+      .map(({ enemyId, actor }) => ({ enemyId, cast: actor!.casting! }))
+      .filter(({ cast }) => cast.endsAt <= state.worldTimeMs);
+
+    if (duePlayerCast || dueEnemyCasts.length > 0) {
+      changed = true;
+      keepResolving = true;
+      if (duePlayerCast) state.combat.player.casting = null;
+      dueEnemyCasts.forEach(({ enemyId }) => {
+        const actor = state.combat?.enemies[enemyId];
+        if (actor) actor.casting = null;
+      });
+
+      if (duePlayerCast) {
+        applyPlayerAbility(
+          state,
+          duePlayerCast.abilityId,
+          duePlayerCast.targetId,
+        );
+      }
+      dueEnemyCasts.forEach(({ enemyId, cast }) => {
+        applyEnemyAbility(state, enemyId, cast.abilityId);
+      });
+      if (!state.combat) return true;
+    }
+
+    const startedPlayerCast = startPlayerCasts(state);
+    const startedEnemyCast = startEnemyCasts(state);
+    changed = changed || startedPlayerCast || startedEnemyCast;
+    keepResolving = keepResolving || startedPlayerCast || startedEnemyCast;
+  }
+
+  return changed;
+}
+
+function startPlayerCasts(state: GameState) {
+  if (!state.combat) return false;
+
+  const actor = state.combat.player;
+  const now = state.worldTimeMs;
+  if (actor.casting) return false;
+
+  const abilityId = actor.abilityIds.find((candidate) => {
+    const ability = getAbilityDefinition(candidate);
+    return (
+      canActorCastAbility(actor, candidate, now) &&
+      state.player.mana >= ability.manaCost
+    );
+  });
+  if (!abilityId) return false;
+
+  const targetId = selectEnemyGroupTarget(state);
+  if (!targetId) return false;
+
+  state.player.mana -= getAbilityDefinition(abilityId).manaCost;
+  startAbilityCast(actor, abilityId, targetId, now);
+  return true;
+}
+
+function startEnemyCasts(state: GameState) {
+  if (!state.combat) return false;
+
+  const now = state.worldTimeMs;
+  let changed = false;
+
+  state.combat.enemyIds.forEach((enemyId) => {
+    const actor = state.combat?.enemies[enemyId];
+    if (!actor || actor.casting || !state.enemies[enemyId]) return;
+
+    const abilityId = actor.abilityIds.find((candidate) =>
+      canActorCastAbility(actor, candidate, now),
+    );
+
+    if (!abilityId) return;
+
+    const targetId = selectPlayerGroupTarget(state);
+    if (!targetId) return;
+
+    startAbilityCast(actor, abilityId, targetId, now);
+    changed = true;
+  });
+
+  return changed;
+}
+
+function startAbilityCast(
+  actor: NonNullable<GameState['combat']>['player'],
+  abilityId: AbilityId,
+  targetId: string,
+  now: number,
+) {
+  const ability = getAbilityDefinition(abilityId);
+  actor.globalCooldownEndsAt = now + actor.globalCooldownMs;
+  actor.cooldownEndsAt[abilityId] = now + ability.cooldownMs;
+  actor.casting = {
+    abilityId,
+    targetId,
+    endsAt: now + ability.castTimeMs,
+  };
+}
+
+function applyPlayerAbility(
+  state: GameState,
+  abilityId: AbilityId,
+  targetId: string,
+) {
+  if (abilityId !== 'kick') return;
+
+  const enemy = state.enemies[targetId];
+  if (!enemy) return;
+
+  const playerStats = getPlayerStats(state.player);
+  const damage = Math.max(1, playerStats.attack - enemy.defense);
+  enemy.hp = Math.max(0, enemy.hp - damage);
+  addLog(state, 'combat', `You kick the ${enemy.name} for ${damage}.`);
+
+  if (enemy.hp <= 0) {
+    gainXp(state, enemy.xp, addLog);
+    maybeDropEnemyGold(state, enemy);
+    maybeDropEnemyRecipe(state, enemy);
+    maybeDropBloodMoonLoot(state, enemy);
+    maybeSkinEnemy(state, enemy);
+    addLog(state, 'combat', `You defeated the ${enemy.name}.`);
+    delete state.enemies[enemy.id];
+    syncCombatEnemies(state);
+  }
+}
+
+function canActorCastAbility(
+  actor: NonNullable<GameState['combat']>['player'],
+  abilityId: AbilityId,
+  now: number,
+) {
+  return (
+    actor.globalCooldownEndsAt <= now &&
+    (actor.cooldownEndsAt[abilityId] ?? 0) <= now
+  );
+}
+
+function getNextActorReadyAt(
+  actor: NonNullable<GameState['combat']>['player'],
+  worldTimeMs: number,
+) {
+  if (actor.casting) return undefined;
+
+  return actor.abilityIds.reduce((soonest, abilityId) => {
+    const readyAt = Math.max(
+      actor.globalCooldownEndsAt,
+      actor.cooldownEndsAt[abilityId] ?? worldTimeMs,
+    );
+    return Math.min(soonest, readyAt);
+  }, Number.POSITIVE_INFINITY);
+}
+
+function selectEnemyGroupTarget(state: GameState) {
+  return (
+    state.combat?.enemyIds.find((enemyId) => Boolean(state.enemies[enemyId])) ??
+    null
+  );
+}
+
+function selectPlayerGroupTarget(state: GameState) {
+  return state.player.hp > 0 ? 'player' : null;
+}
+
+function applyEnemyAbility(
+  state: GameState,
+  enemyId: string,
+  abilityId: AbilityId,
+) {
+  if (!state.combat || abilityId !== 'kick') return;
+
+  const enemy = state.enemies[enemyId];
+  if (!enemy) return;
+
+  const damage = Math.max(
+    1,
+    enemy.attack - getPlayerStats(state.player).defense,
+  );
+  state.player.hp = Math.max(0, state.player.hp - damage);
+  addLog(state, 'combat', `The ${enemy.name} kicks you for ${damage}.`);
+
+  if (state.player.hp <= 0) {
+    respawnAtNearestTown(state, state.combat.coord);
+  }
 }
 
 export function unequipItem(state: GameState, slot: EquipmentSlot): GameState {
@@ -787,6 +1018,13 @@ function syncCombatEnemies(state: GameState) {
     ...tile,
     enemyIds,
   });
+  const worldTimeMs = state.worldTimeMs;
+  state.combat.enemies = Object.fromEntries(
+    enemyIds.map((enemyId) => [
+      enemyId,
+      state.combat?.enemies[enemyId] ?? createCombatActorState(worldTimeMs),
+    ]),
+  );
   state.combat.enemyIds = enemyIds;
   if (enemyIds.length === 0) {
     state.combat = null;
@@ -801,6 +1039,16 @@ function message(state: GameState, text: string): GameState {
 }
 
 function clone(state: GameState): GameState {
+  const worldTimeMs = state.worldTimeMs;
+  const combatPlayer =
+    state.combat?.player ?? createCombatActorState(worldTimeMs);
+  const combatEnemies = Object.fromEntries(
+    (state.combat?.enemyIds ?? []).map((enemyId) => [
+      enemyId,
+      state.combat?.enemies?.[enemyId] ?? createCombatActorState(worldTimeMs),
+    ]),
+  );
+
   return {
     ...state,
     logSequence: state.logSequence,
@@ -810,6 +1058,24 @@ function clone(state: GameState): GameState {
           ...state.combat,
           coord: { ...state.combat.coord },
           enemyIds: [...state.combat.enemyIds],
+          started: state.combat.started,
+          player: {
+            ...combatPlayer,
+            abilityIds: [...combatPlayer.abilityIds],
+            cooldownEndsAt: { ...combatPlayer.cooldownEndsAt },
+            casting: combatPlayer.casting ? { ...combatPlayer.casting } : null,
+          },
+          enemies: Object.fromEntries(
+            Object.entries(combatEnemies).map(([enemyId, actor]) => [
+              enemyId,
+              {
+                ...actor,
+                abilityIds: [...actor.abilityIds],
+                cooldownEndsAt: { ...actor.cooldownEndsAt },
+                casting: actor.casting ? { ...actor.casting } : null,
+              },
+            ]),
+          ),
         }
       : null,
     tiles: Object.fromEntries(

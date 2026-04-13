@@ -1,49 +1,355 @@
-import type { CombatWindowProps } from './types';
+import { getAbilityDefinition } from '../../../game/combat';
+import type { CombatActorState } from '../../../game/state';
+import type { CombatPartyMember, CombatWindowProps } from './types';
 import styles from './styles.module.css';
+
+const KICK_ICON_PATH =
+  'M198.844 64.75c-.985 0-1.974.03-2.97.094-15.915 1.015-32.046 11.534-37.78 26.937-34.072 91.532-51.085 128.865-61.5 222.876 14.633 13.49 31.63 26.45 50.25 38.125l66.406-196.467 17.688 5.968L163.28 362.5c19.51 10.877 40.43 20.234 62 27.28l75.407-201.53 17.5 6.53-74.937 200.282c19.454 5.096 39.205 8.2 58.78 8.875L381.345 225.5l17.094 7.594-75.875 170.656c21.82-1.237 43.205-5.768 63.437-14.28 43.317-53.844 72.633-109.784 84.5-172.69 5.092-26.992-14.762-53.124-54.22-54.81l-6.155-.282-2.188-5.75c-8.45-22.388-19.75-30.093-31.5-32.47-11.75-2.376-25.267 1.535-35.468 7.376l-13.064 7.47-.906-15c-.99-16.396-10.343-29.597-24.313-35.626-13.97-6.03-33.064-5.232-54.812 9.906l-10.438 7.25-3.812-12.125c-6.517-20.766-20.007-27.985-34.78-27.97zM103.28 188.344C71.143 233.448 47.728 299.56 51.407 359.656c27.54 21.84 54.61 33.693 80.063 35.438 14.155.97 27.94-1.085 41.405-6.438-35.445-17.235-67.36-39.533-92.594-63.53l-3.343-3.157.5-4.595c5.794-54.638 13.946-91.5 25.844-129.03z';
 
 type CombatWindowContentProps = Pick<
   CombatWindowProps,
-  'combat' | 'enemies' | 'player' | 'onAttack'
+  | 'combat'
+  | 'playerParty'
+  | 'enemies'
+  | 'worldTimeMs'
+  | 'onStart'
+  | 'onHoverDetail'
+  | 'onLeaveDetail'
 >;
+
+interface CombatEntityView {
+  id: string;
+  title: string;
+  hp: number;
+  maxHp: number;
+  mana: number;
+  maxMana: number;
+  elite?: boolean;
+  actor: CombatActorState;
+  buffs: string[];
+  debuffs: string[];
+}
 
 export function CombatWindowContent({
   combat,
+  playerParty,
   enemies,
-  player,
-  onAttack,
+  worldTimeMs,
+  onStart,
+  onHoverDetail,
+  onLeaveDetail,
 }: CombatWindowContentProps) {
+  const alliedParty: CombatEntityView[] = playerParty.map((member) =>
+    toPlayerEntity(member),
+  );
+  const enemyParty: CombatEntityView[] = enemies.map((enemy) => ({
+    id: enemy.id,
+    title: `${enemy.name} Lv ${enemy.tier}`,
+    hp: enemy.hp,
+    maxHp: enemy.maxHp,
+    mana: 0,
+    maxMana: 0,
+    elite: enemy.elite,
+    actor: combat.enemies[enemy.id] ?? combat.player,
+    buffs: [],
+    debuffs: [],
+  }));
+
   return (
-    <>
-      <div className={styles.summary}>
+    <div className={styles.layout}>
+      <div className={styles.header}>
         <div>
-          Battle at {combat.coord.q}, {combat.coord.r}
+          <strong>Battle at</strong> {combat.coord.q}, {combat.coord.r}
         </div>
-        <div>
-          HP {player.hp}/{player.maxHp}
-        </div>
-        <div>
-          Atk {player.attack} Def {player.defense}
-        </div>
+        {!combat.started ? <button onClick={onStart}>(Q) Start</button> : null}
       </div>
-      <div className={styles.enemyList}>
-        {enemies.map((enemy) => (
-          <div key={enemy.id} className={styles.enemyCard}>
-            <div className={styles.enemyHeader}>
-              <strong>
-                {enemy.name} L{enemy.tier}
-              </strong>
-              {enemy.elite ? <span className={styles.elite}>Elite</span> : null}
-            </div>
-            <div>
-              HP {enemy.hp}/{enemy.maxHp}
-            </div>
-            <div>
-              Atk {enemy.attack} Def {enemy.defense}
-            </div>
-            <button onClick={() => onAttack(enemy.id)}>Attack</button>
-          </div>
+      <div className={styles.columns}>
+        <PartyColumn
+          title="Player Party"
+          entities={alliedParty}
+          worldTimeMs={worldTimeMs}
+          onHoverDetail={onHoverDetail}
+          onLeaveDetail={onLeaveDetail}
+        />
+        <PartyColumn
+          title="Enemy Party"
+          entities={enemyParty}
+          worldTimeMs={worldTimeMs}
+          onHoverDetail={onHoverDetail}
+          onLeaveDetail={onLeaveDetail}
+        />
+      </div>
+    </div>
+  );
+}
+
+function toPlayerEntity(member: CombatPartyMember): CombatEntityView {
+  return {
+    id: member.id,
+    title: `${member.name} Lv ${member.level}`,
+    hp: member.hp,
+    maxHp: member.maxHp,
+    mana: member.mana,
+    maxMana: member.maxMana,
+    actor: member.actor,
+    buffs: [],
+    debuffs: [],
+  };
+}
+
+function PartyColumn({
+  title,
+  entities,
+  worldTimeMs,
+  onHoverDetail,
+  onLeaveDetail,
+}: {
+  title: string;
+  entities: CombatEntityView[];
+  worldTimeMs: number;
+  onHoverDetail: CombatWindowProps['onHoverDetail'];
+  onLeaveDetail: CombatWindowProps['onLeaveDetail'];
+}) {
+  return (
+    <section className={styles.partySection}>
+      <div className={styles.partyTitle}>{title}</div>
+      <div className={styles.partyList}>
+        {entities.map((entity) => (
+          <EntityCard
+            key={entity.id}
+            entity={entity}
+            worldTimeMs={worldTimeMs}
+            onHoverDetail={onHoverDetail}
+            onLeaveDetail={onLeaveDetail}
+          />
         ))}
       </div>
-    </>
+    </section>
+  );
+}
+
+function EntityCard({
+  entity,
+  worldTimeMs,
+  onHoverDetail,
+  onLeaveDetail,
+}: {
+  entity: CombatEntityView;
+  worldTimeMs: number;
+  onHoverDetail: CombatWindowProps['onHoverDetail'];
+  onLeaveDetail: CombatWindowProps['onLeaveDetail'];
+}) {
+  return (
+    <article className={styles.entityCard}>
+      <div className={styles.entityHeader}>
+        <strong>{entity.title}</strong>
+        {entity.elite ? <span className={styles.elite}>Elite</span> : null}
+      </div>
+      <ResourceBar label="HP" value={entity.hp} max={entity.maxHp} tone="hp" />
+      <ResourceBar
+        label="MP"
+        value={entity.mana}
+        max={entity.maxMana}
+        tone="mp"
+      />
+      {entity.buffs.length > 0 ? (
+        <EffectList
+          items={entity.buffs}
+          tone="buff"
+          onHoverDetail={onHoverDetail}
+          onLeaveDetail={onLeaveDetail}
+        />
+      ) : null}
+      {entity.debuffs.length > 0 ? (
+        <EffectList
+          items={entity.debuffs}
+          tone="debuff"
+          onHoverDetail={onHoverDetail}
+          onLeaveDetail={onLeaveDetail}
+        />
+      ) : null}
+      <div className={styles.abilitiesGrid}>
+        {entity.actor.abilityIds.map((abilityId) => {
+          const ability = getAbilityDefinition(abilityId);
+          const readyAt = Math.max(
+            entity.actor.globalCooldownEndsAt,
+            entity.actor.cooldownEndsAt[abilityId] ?? worldTimeMs,
+          );
+          const totalCooldownMs = Math.max(
+            entity.actor.globalCooldownMs,
+            ability.cooldownMs,
+            1,
+          );
+          const remainingMs = Math.max(0, readyAt - worldTimeMs);
+          const cooldownRatio = Math.max(
+            0,
+            Math.min(1, remainingMs / totalCooldownMs),
+          );
+
+          return (
+            <AbilitySquare
+              key={ability.id}
+              label={ability.name}
+              cooldownRatio={cooldownRatio}
+              remainingMs={remainingMs}
+              manaCost={ability.manaCost}
+              cooldownMs={ability.cooldownMs}
+              castTimeMs={ability.castTimeMs}
+              onHoverDetail={onHoverDetail}
+              onLeaveDetail={onLeaveDetail}
+            />
+          );
+        })}
+      </div>
+    </article>
+  );
+}
+
+function ResourceBar({
+  label,
+  value,
+  max,
+  tone,
+}: {
+  label: string;
+  value: number;
+  max: number;
+  tone: 'hp' | 'mp';
+}) {
+  const normalizedMax = Math.max(0, max);
+  const width =
+    normalizedMax > 0
+      ? Math.max(0, Math.min(100, (value / normalizedMax) * 100))
+      : 0;
+
+  return (
+    <div className={styles.barTrack}>
+      <div
+        className={`${styles.barFill} ${tone === 'hp' ? styles.hpBar : styles.mpBar}`}
+        style={{ width: `${width}%` }}
+      />
+      <div className={styles.barText}>
+        <span>{label}</span>
+        <strong>
+          {value}/{normalizedMax}
+        </strong>
+      </div>
+    </div>
+  );
+}
+
+function EffectList({
+  items,
+  tone,
+  onHoverDetail,
+  onLeaveDetail,
+}: {
+  items: string[];
+  tone: 'buff' | 'debuff';
+  onHoverDetail: CombatWindowProps['onHoverDetail'];
+  onLeaveDetail: CombatWindowProps['onLeaveDetail'];
+}) {
+  return (
+    <div className={styles.effectList}>
+      {items.map((item) => (
+        <button
+          key={item}
+          type="button"
+          className={`${styles.effectChip} ${tone === 'buff' ? styles.buffChip : styles.debuffChip}`}
+          onMouseEnter={(event) =>
+            onHoverDetail(
+              event,
+              item,
+              [
+                {
+                  kind: 'text',
+                  text:
+                    tone === 'buff'
+                      ? 'Active positive effect.'
+                      : 'Active negative effect.',
+                },
+              ],
+              tone === 'buff'
+                ? 'rgba(34, 197, 94, 0.9)'
+                : 'rgba(239, 68, 68, 0.9)',
+            )
+          }
+          onMouseLeave={onLeaveDetail}
+        >
+          {item}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function AbilitySquare({
+  label,
+  cooldownRatio,
+  remainingMs,
+  manaCost,
+  cooldownMs,
+  castTimeMs,
+  onHoverDetail,
+  onLeaveDetail,
+}: {
+  label: string;
+  cooldownRatio: number;
+  remainingMs: number;
+  manaCost: number;
+  cooldownMs: number;
+  castTimeMs: number;
+  onHoverDetail: CombatWindowProps['onHoverDetail'];
+  onLeaveDetail: CombatWindowProps['onLeaveDetail'];
+}) {
+  const tooltipLines = [
+    { kind: 'stat' as const, label: 'Mana Cost', value: `${manaCost}` },
+    {
+      kind: 'stat' as const,
+      label: 'Cooldown',
+      value: `${cooldownMs / 1000}s`,
+    },
+    {
+      kind: 'stat' as const,
+      label: 'Cast Time',
+      value: castTimeMs === 0 ? 'Instant' : `${castTimeMs / 1000}s`,
+    },
+    {
+      kind: 'text' as const,
+      text: 'Targets the first available enemy in the opposing party.',
+    },
+  ];
+
+  return (
+    <div
+      className={styles.abilitySquare}
+      onMouseEnter={(event) =>
+        onHoverDetail(event, label, tooltipLines, 'rgba(148, 163, 184, 0.9)')
+      }
+      onMouseLeave={onLeaveDetail}
+    >
+      <KickIcon />
+      {cooldownRatio > 0 ? (
+        <div
+          className={styles.cooldownOverlay}
+          style={{
+            ['--cooldown-start' as string]: `${cooldownRatio * 360}deg`,
+            ['--cooldown-duration' as string]: `${remainingMs}ms`,
+          }}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function KickIcon() {
+  return (
+    <svg
+      viewBox="0 0 512 512"
+      aria-hidden="true"
+      className={styles.abilityIcon}
+    >
+      <path fill="currentColor" d={KICK_ICON_PATH} />
+    </svg>
   );
 }

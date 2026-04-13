@@ -7,7 +7,6 @@ import {
   type SetStateAction,
 } from 'react';
 import {
-  attackCombatEnemy,
   buyTownItem,
   craftRecipe,
   dropEquippedItem,
@@ -17,6 +16,7 @@ import {
   prospectInventory,
   sellAllItems,
   sortInventory,
+  startCombat,
   takeAllTileItems,
   takeTileItem,
   unequipItem,
@@ -36,6 +36,7 @@ import {
 import type { ItemContextMenuState, TooltipItem, TooltipState } from './types';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import { getInventoryItemAction } from './appHelpers';
+import type { TooltipLine } from '../../ui/tooltips';
 
 interface UseAppControllersOptions {
   gameRef: MutableRefObject<GameState>;
@@ -108,6 +109,30 @@ export function useAppControllers({
         x: position.x,
         y: position.y,
         borderColor: rarityColor(item.rarity),
+      });
+    },
+    [tooltipPositionRef],
+  );
+
+  const showTooltip = useCallback(
+    (
+      event: ReactMouseEvent<HTMLElement>,
+      title: string,
+      lines: TooltipLine[],
+      borderColor?: string,
+    ) => {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const position = {
+        x: rect.right + 12,
+        y: rect.top,
+      };
+      tooltipPositionRef.current = position;
+      setTooltip({
+        title,
+        lines,
+        x: position.x,
+        y: position.y,
+        borderColor,
       });
     },
     [tooltipPositionRef],
@@ -280,17 +305,11 @@ export function useAppControllers({
     );
   }, [setGame, worldTimeMsRef]);
 
-  const handleAttackEnemy = useCallback(
-    (enemyId: string) => {
-      setGame((current) =>
-        attackCombatEnemy(
-          { ...current, worldTimeMs: worldTimeMsRef.current },
-          enemyId,
-        ),
-      );
-    },
-    [setGame, worldTimeMsRef],
-  );
+  const handleStartCombat = useCallback(() => {
+    setGame((current) =>
+      startCombat({ ...current, worldTimeMs: worldTimeMsRef.current }),
+    );
+  }, [setGame, worldTimeMsRef]);
 
   const toggleFilterMenu = useCallback(() => {
     setShowFilterMenu((current) => !current);
@@ -310,7 +329,6 @@ export function useAppControllers({
   return {
     closeItemMenu,
     closeTooltip,
-    handleAttackEnemy,
     handleBuyTownItem,
     handleContextItem,
     handleCraftRecipe,
@@ -323,6 +341,7 @@ export function useAppControllers({
     handleProspect,
     handleSellAll,
     handleSort,
+    handleStartCombat,
     handleTakeAllLoot,
     handleTakeLootItem,
     handleUnequip,
@@ -330,6 +349,7 @@ export function useAppControllers({
     itemMenu,
     logFilters,
     moveWindow,
+    showTooltip,
     setLogFilters,
     setTooltip,
     setWindowShown,
