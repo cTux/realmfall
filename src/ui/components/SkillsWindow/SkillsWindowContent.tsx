@@ -1,22 +1,45 @@
+import type { SkillName } from '../../../game/state';
+import { skillLevelThreshold } from '../../../game/state';
+import { t } from '../../../i18n';
+import { formatSkillLabel } from '../../../i18n/labels';
+import { skillTooltip } from '../../tooltips';
 import { SkillIcon } from '../../icons';
 import type { SkillsWindowProps } from './types';
 import styles from './styles.module.scss';
 
-type SkillsWindowContentProps = Pick<SkillsWindowProps, 'skills'>;
+type SkillsWindowContentProps = Pick<
+  SkillsWindowProps,
+  'skills' | 'onHoverDetail' | 'onLeaveDetail'
+>;
 
-export function SkillsWindowContent({ skills }: SkillsWindowContentProps) {
+export function SkillsWindowContent({
+  skills,
+  onHoverDetail,
+  onLeaveDetail,
+}: SkillsWindowContentProps) {
   return (
     <>
-      <div className={styles.note}>
-        Gathering level equals the percent chance to pull +1 extra resource.
-      </div>
+      <div className={styles.note}>{t('ui.skills.note')}</div>
       <div className={styles.list}>
         {Object.entries(skills).map(([name, skill]) => {
-          const xpMax = 5 + skill.level * 3;
+          const xpMax = skillLevelThreshold(skill.level);
           const fill = Math.max(0, Math.min(100, (skill.xp / xpMax) * 100));
+          const tooltipLines = skillTooltip(name as SkillName, skill.level);
 
           return (
-            <div key={name} className={styles.skillRow}>
+            <div
+              key={name}
+              className={styles.skillRow}
+              onMouseEnter={(event) =>
+                onHoverDetail?.(
+                  event,
+                  formatSkillLabel(name as SkillName).toUpperCase(),
+                  tooltipLines,
+                  'rgba(56, 189, 248, 0.9)',
+                )
+              }
+              onMouseLeave={onLeaveDetail}
+            >
               <div className={styles.header}>
                 <span className={styles.name}>
                   <span
@@ -25,10 +48,14 @@ export function SkillsWindowContent({ skills }: SkillsWindowContentProps) {
                       SkillIcon[name as keyof typeof SkillIcon],
                     )}
                   />
-                  {name}
+                  {formatSkillLabel(name as SkillName)}
                 </span>
                 <span className={styles.value}>
-                  Lv {skill.level} · {skill.xp}/{xpMax}
+                  {t('ui.skills.levelProgress', {
+                    level: skill.level,
+                    current: skill.xp,
+                    max: xpMax,
+                  })}
                 </span>
               </div>
               <div className={styles.barTrack}>

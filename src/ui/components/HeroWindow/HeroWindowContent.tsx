@@ -1,4 +1,6 @@
 import { getAbilityDefinition } from '../../../game/combat';
+import { t } from '../../../i18n';
+import { formatStatusEffectLabel } from '../../../i18n/labels';
 import {
   iconMaskStyle,
   statusEffectIcon,
@@ -31,23 +33,43 @@ export function HeroWindowContent({
 }: HeroWindowContentProps) {
   return (
     <div className={styles.stats}>
-      <StatBar label="HP" value={stats.hp} max={stats.maxHp} color="hp" />
       <StatBar
-        label="Aether"
+        label={t('ui.hero.hp')}
+        value={stats.hp}
+        max={stats.maxHp}
+        color="hp"
+      />
+      <StatBar
+        label={t('ui.hero.aether')}
         value={stats.mana}
         max={stats.maxMana}
         color="mana"
       />
-      <StatBar label="XP" value={stats.xp} max={stats.nextLevelXp} color="xp" />
-      <StatBar label="Hunger" value={hunger} max={100} color="hunger" />
-      <StatBar label="Thirst" value={thirst ?? 100} max={100} color="thirst" />
+      <StatBar
+        label={t('ui.hero.xp')}
+        value={stats.xp}
+        max={stats.nextLevelXp}
+        color="xp"
+      />
+      <StatBar
+        label={t('ui.hero.hunger')}
+        value={hunger}
+        max={100}
+        color="hunger"
+      />
+      <StatBar
+        label={t('ui.hero.thirst')}
+        value={thirst ?? 100}
+        max={100}
+        color="thirst"
+      />
       <div className={styles.statList}>
         <div className={styles.statRow}>
-          <span>Attack</span>
+          <span>{t('ui.hero.attack')}</span>
           <span>{stats.attack}</span>
         </div>
         <div className={styles.statRow}>
-          <span>Defense</span>
+          <span>{t('ui.hero.defense')}</span>
           <span>{stats.defense}</span>
         </div>
       </div>
@@ -112,28 +134,28 @@ function EffectList({
           key={item}
           type="button"
           className={`${styles.effectChip} ${tone === 'buff' ? styles.buffChip : styles.debuffChip}`}
-          aria-label={item}
-          title={item}
+          aria-label={formatStatusEffectLabel(item)}
+          title={formatStatusEffectLabel(item)}
           onMouseEnter={(event) => {
             if (!onHoverDetail) return;
             onHoverDetail(
               event,
-              item,
+              formatStatusEffectLabel(item),
               item === 'Hunger'
                 ? [
                     {
                       kind: 'text',
-                      text: 'You are hungry and fight at reduced strength.',
+                      text: t('ui.hero.effect.hunger.description'),
                     },
                     {
                       kind: 'stat',
-                      label: 'Attack',
+                      label: t('ui.hero.attack'),
                       value: `-${stats.rawAttack - stats.attack}`,
                       tone: 'negative',
                     },
                     {
                       kind: 'stat',
-                      label: 'Defense',
+                      label: t('ui.hero.defense'),
                       value: `-${stats.rawDefense - stats.defense}`,
                       tone: 'negative',
                     },
@@ -142,11 +164,11 @@ function EffectList({
                   ? [
                       {
                         kind: 'text',
-                        text: 'You are thirsty and act 20% slower.',
+                        text: t('ui.hero.effect.thirst.description'),
                       },
                       {
                         kind: 'stat',
-                        label: 'Attack Speed',
+                        label: t('ui.hero.effect.attackSpeed'),
                         value: '-20%',
                         tone: 'negative',
                       },
@@ -156,8 +178,8 @@ function EffectList({
                         kind: 'text',
                         text:
                           tone === 'buff'
-                            ? 'Active positive effect.'
-                            : 'Active negative effect.',
+                            ? t('ui.hero.effect.buff')
+                            : t('ui.hero.effect.debuff'),
                       },
                     ],
               tone === 'buff'
@@ -202,20 +224,25 @@ function AbilitySquare({
   onLeaveDetail?: HeroWindowProps['onLeaveDetail'];
 }) {
   const tooltipLines = [
-    { kind: 'stat' as const, label: 'Aether Cost', value: `${manaCost}` },
     {
       kind: 'stat' as const,
-      label: 'Cooldown',
+      label: t('ui.ability.aetherCost'),
+      value: `${manaCost}`,
+    },
+    {
+      kind: 'stat' as const,
+      label: t('ui.ability.cooldown'),
       value: `${cooldownMs / 1000}s`,
     },
     {
       kind: 'stat' as const,
-      label: 'Cast Time',
-      value: castTimeMs === 0 ? 'Instant' : `${castTimeMs / 1000}s`,
+      label: t('ui.ability.castTime'),
+      value:
+        castTimeMs === 0 ? t('ui.ability.instant') : `${castTimeMs / 1000}s`,
     },
     {
       kind: 'text' as const,
-      text: 'Targets the first available enemy in the opposing party.',
+      text: t('ui.ability.targeting'),
     },
   ];
 

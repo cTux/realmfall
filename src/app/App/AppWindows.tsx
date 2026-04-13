@@ -285,6 +285,8 @@ export function AppWindows({
             visible={windowShown.skills}
             onClose={() => onSetWindowVisibility('skills', false)}
             skills={stats.skills}
+            onHoverDetail={onShowTooltip}
+            onLeaveDetail={onCloseTooltip}
           />
         </Suspense>
       ) : null}

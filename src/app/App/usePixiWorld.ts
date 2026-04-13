@@ -153,13 +153,14 @@ export function usePixiWorld({
           playerCoordRef.current,
           target,
         );
+        const withinVisibleMap = distance <= WORLD_REVEAL_RADIUS;
         const safePath =
           distance > 1 ? stateModule.getSafePathToTile(current, target) : null;
         const clickable =
           (distance === 1 &&
             tile.terrain !== 'rift' &&
             tile.terrain !== 'mountain') ||
-          Boolean(safePath);
+          (withinVisibleMap && Boolean(safePath));
 
         if (!clickable) return;
 
@@ -200,20 +201,18 @@ export function usePixiWorld({
         const current = gameRef.current;
         const tile = stateModule.getTileAt(current, target);
         const enemies = stateModule.getEnemiesAt(current, target);
-        const withinVisibleMap =
-          stateModule.hexDistance(playerCoordRef.current, target) <=
-          WORLD_REVEAL_RADIUS;
         const distance = stateModule.hexDistance(
           playerCoordRef.current,
           target,
         );
+        const withinVisibleMap = distance <= WORLD_REVEAL_RADIUS;
         const safePath =
           distance > 1 ? stateModule.getSafePathToTile(current, target) : null;
         const clickable =
           (distance === 1 &&
             tile.terrain !== 'rift' &&
             tile.terrain !== 'mountain') ||
-          Boolean(safePath);
+          (withinVisibleMap && Boolean(safePath));
         const enemyInfo = withinVisibleMap
           ? tooltipModule.enemyTooltip(enemies, tile.structure)
           : null;

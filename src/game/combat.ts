@@ -1,4 +1,5 @@
 import { BLOOD_MOON_STAT_SCALE } from './config';
+import { t } from '../i18n';
 import { isAnimalEnemyType, pickEnemyConfig } from './content/enemies';
 import type {
   AbilityDefinition,
@@ -16,7 +17,7 @@ export const DEFAULT_GLOBAL_COOLDOWN_MS = 1500;
 export const ABILITIES: Record<AbilityId, AbilityDefinition> = {
   kick: {
     id: 'kick',
-    name: 'Kick',
+    name: t('game.ability.kick.name'),
     manaCost: 0,
     cooldownMs: 1000,
     castTimeMs: 0,

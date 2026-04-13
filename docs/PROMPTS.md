@@ -15,6 +15,8 @@ Create a branch from local default branch for the updates in this prompt.
 * If a prompt contains "add rule", update "docs/RULES.md" immediately in the corresponding section and keep related docs in sync.
 * If a rule changes prompt workflow or contributor expectations, also update "README.md", this file, and the AI-specific instruction files.
 * Use "docs/PROJECT_REVIEW.md" and this file as inputs for recurring guidance, but keep "docs/RULES.md" as the canonical rules source.
+* When a task adds or changes user-facing text, update the i18n resources instead of hardcoding the copy and follow the `{feature}.{area}.{property}` key pattern.
+* For label formatters that map stable identifiers such as status effects to i18n, prefer direct patterned key lookups over conditional branches when the key can be derived safely.
 ```
 
 ## Review
@@ -44,6 +46,8 @@ Create a branch from local default branch for the updates in this prompt.
 * When adding a new draggable window, keep its content bundle-split by following the existing lazy window or lazy `*WindowContent` pattern.
 * If a prompt needs new world content, names, factions, places, enemies, items, structures, or flavor text, align it with `docs/lore/REALMFALL.md`.
 * Keep each unique item, enemy, and structure in its own dedicated configuration file instead of adding more entries to one catch-all content-definition module.
+* Keep user-facing text in i18n resources, default to `en`, add new keys instead of inline strings, and use dot-separated keys like `{feature}.{area}.{property}`.
+* For label formatters that map stable identifiers such as status effects to i18n, prefer direct patterned key lookups over conditional branches when the key can be derived safely.
 ```
 
 ## Commit

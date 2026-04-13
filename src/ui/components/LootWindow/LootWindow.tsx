@@ -1,4 +1,5 @@
 import { lazy, memo, Suspense } from 'react';
+import { t } from '../../../i18n';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLoadingState } from '../WindowLoadingState';
 import type { LootWindowProps } from './types';
@@ -24,7 +25,7 @@ export const LootWindow = memo(function LootWindow({
 }: LootWindowProps) {
   return (
     <DraggableWindow
-      title="Loot on the Ground"
+      title={t('ui.loot.title')}
       position={position}
       onMove={onMove}
       className={styles.window}
@@ -38,7 +39,7 @@ export const LootWindow = memo(function LootWindow({
               onClick={onTakeAll}
               disabled={loot.length === 0}
             >
-              Tak(e) all
+              {t('ui.loot.takeAllAction')}
             </button>
           </div>
         </div>

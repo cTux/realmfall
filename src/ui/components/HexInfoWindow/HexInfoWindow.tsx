@@ -1,4 +1,5 @@
 import { lazy, memo, Suspense } from 'react';
+import { t } from '../../../i18n';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
@@ -55,19 +56,35 @@ export const HexInfoWindow = memo(function HexInfoWindow({
       visible={visible}
       onClose={onClose}
       headerActions={
-        <button
-          type="button"
-          className={`${inventoryStyles.headerButton} ${styles.homeButton}`}
-          aria-pressed={isHome}
-          disabled={isHome}
-          onPointerDown={(event) => event.stopPropagation()}
-          onClick={(event) => {
-            event.stopPropagation();
-            onSetHome();
-          }}
-        >
-          Home
-        </button>
+        <>
+          {interactLabel ? (
+            <button
+              type="button"
+              className={`${inventoryStyles.headerButton} ${styles.homeButton}`}
+              disabled={!canInteract}
+              onPointerDown={(event) => event.stopPropagation()}
+              onClick={(event) => {
+                event.stopPropagation();
+                onInteract();
+              }}
+            >
+              {t('ui.hexInfo.interactAction')}
+            </button>
+          ) : null}
+          <button
+            type="button"
+            className={`${inventoryStyles.headerButton} ${styles.homeButton}`}
+            aria-pressed={isHome}
+            disabled={isHome}
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={(event) => {
+              event.stopPropagation();
+              onSetHome();
+            }}
+          >
+            {t('ui.hexInfo.setHomeAction')}
+          </button>
+        </>
       }
     >
       <Suspense fallback={<WindowLoadingState />}>

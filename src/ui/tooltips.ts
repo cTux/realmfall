@@ -1,12 +1,17 @@
 import {
+  gatheringBonusChance,
+  gatheringYieldBonus,
   getStructureConfig,
   isGatheringStructure,
+  skillLevelThreshold,
   type Enemy,
   type Item,
+  type SkillName,
   type StructureType,
   type Tile,
 } from '../game/state';
-import { HOME_SCROLL_ITEM_NAME } from '../game/config';
+import { HOME_SCROLL_ITEM_NAME_KEY } from '../game/config';
+import { t } from '../i18n';
 
 export interface TooltipLine {
   text?: string;
@@ -22,9 +27,9 @@ export function comparisonLines(item: Item, equipped?: Item) {
   if (item.kind === 'consumable' || item.kind === 'resource') return [];
   const compare = equipped ?? { power: 0, defense: 0, maxHp: 0 };
   return [
-    { label: 'Attack', value: item.power - compare.power },
-    { label: 'Defense', value: item.defense - compare.defense },
-    { label: 'Max Health', value: item.maxHp - compare.maxHp },
+    { label: t('ui.tooltip.attack'), value: item.power - compare.power },
+    { label: t('ui.tooltip.defense'), value: item.defense - compare.defense },
+    { label: t('ui.tooltip.maxHealth'), value: item.maxHp - compare.maxHp },
   ].filter((line) => line.value !== 0);
 }
 
@@ -39,38 +44,50 @@ export function itemTooltipLines(item: Item, equipped?: Item): TooltipLine[] {
       : [
           {
             kind: 'text',
-            text: `${item.rarity.toUpperCase()} TIER ${item.tier} ${itemTypeLabel(item)}`,
+            text: t('ui.tooltip.itemTier', {
+              rarity: item.rarity.toUpperCase(),
+              tier: item.tier,
+              type: itemTypeLabel(item),
+            }),
           },
         ];
 
   if (item.kind === 'resource') {
-    lines.push({ kind: 'stat', label: 'Type', value: 'Resource' });
+    lines.push({
+      kind: 'stat',
+      label: t('ui.tooltip.type'),
+      value: t('ui.itemKind.resource.label'),
+    });
   } else {
     if (item.power !== 0)
       lines.push({
         kind: 'stat',
-        label: 'Attack',
+        label: t('ui.tooltip.attack'),
         value: `+${item.power}`,
         tone: 'item',
       });
     if (item.defense !== 0)
       lines.push({
         kind: 'stat',
-        label: 'Defense',
+        label: t('ui.tooltip.defense'),
         value: `+${item.defense}`,
         tone: 'item',
       });
     if (item.maxHp !== 0)
       lines.push({
         kind: 'stat',
-        label: 'Max Health',
+        label: t('ui.tooltip.maxHealth'),
         value: `+${item.maxHp}`,
         tone: 'item',
       });
   }
 
   if (item.quantity > 1) {
-    lines.push({ kind: 'stat', label: 'Qty', value: `${item.quantity}` });
+    lines.push({
+      kind: 'stat',
+      label: t('ui.tooltip.quantity'),
+      value: `${item.quantity}`,
+    });
   }
 
   if (equipped) {
@@ -78,20 +95,20 @@ export function itemTooltipLines(item: Item, equipped?: Item): TooltipLine[] {
 
     lines.push({
       kind: 'text',
-      text: 'Comparing to equipped',
+      text: t('ui.tooltip.comparingToEquipped'),
       tone: 'section',
     });
 
     if (deltas.length === 0) {
       lines.push({
         kind: 'text',
-        text: 'Same as equipped',
+        text: t('ui.tooltip.sameAsEquipped'),
       });
     } else {
       deltas.forEach((line) => {
         lines.push({
           kind: 'stat',
-          label: `${line.label} Change`,
+          label: t('ui.tooltip.statChange', { stat: line.label }),
           value: `${line.value >= 0 ? '+' : ''}${line.value}`,
           tone: line.value < 0 ? 'negative' : 'item',
         });
@@ -113,8 +130,8 @@ export function enemyTooltip(
     return {
       title: enemy.name,
       lines: [
-        { kind: 'stat', label: 'Level', value: `${enemy.tier}` },
-        { kind: 'stat', label: 'Enemies', value: '1' },
+        { kind: 'stat', label: t('ui.tooltip.level'), value: `${enemy.tier}` },
+        { kind: 'stat', label: t('ui.tooltip.enemies'), value: '1' },
       ],
     };
   }
@@ -122,10 +139,17 @@ export function enemyTooltip(
   const maxTier = Math.max(...enemies.map((enemy) => enemy.tier));
 
   return {
-    title: structure === 'dungeon' ? structureTitle('dungeon') : 'Enemy Party',
+    title:
+      structure === 'dungeon'
+        ? structureTitle('dungeon')
+        : t('ui.combat.enemyPartyTitle'),
     lines: [
-      { kind: 'stat', label: 'Level', value: `${maxTier}` },
-      { kind: 'stat', label: 'Enemies', value: `${enemies.length}` },
+      { kind: 'stat', label: t('ui.tooltip.level'), value: `${maxTier}` },
+      {
+        kind: 'stat',
+        label: t('ui.tooltip.enemies'),
+        value: `${enemies.length}`,
+      },
     ],
   };
 }
@@ -148,9 +172,56 @@ export function structureTooltip(
   };
 }
 
+export function skillTooltip(skill: SkillName, level: number): TooltipLine[] {
+  const nextLevelXp = skillLevelThreshold(level);
+
+  if (isGatheringSkill(skill)) {
+    return [
+      {
+        kind: 'text',
+        text: t('ui.skills.tooltip.gatheringDescription'),
+      },
+      {
+        kind: 'stat',
+        label: t('ui.skills.tooltip.baseYieldBonus'),
+        value: `+${gatheringYieldBonus(level)}`,
+        tone: 'item',
+      },
+      {
+        kind: 'stat',
+        label: t('ui.skills.tooltip.extraResourceChance'),
+        value: `${Math.round(gatheringBonusChance(level) * 100)}%`,
+        tone: 'item',
+      },
+      {
+        kind: 'text',
+        text: t('ui.skills.tooltip.nextLevelNeeds', { xp: nextLevelXp }),
+      },
+    ];
+  }
+
+  return [
+    {
+      kind: 'text',
+      text: t('ui.skills.tooltip.professionDescription'),
+    },
+    {
+      kind: 'text',
+      text: t('ui.skills.tooltip.noRecipeScaling'),
+    },
+    {
+      kind: 'text',
+      text: t('ui.skills.tooltip.nextLevelNeeds', { xp: nextLevelXp }),
+    },
+  ];
+}
+
 function consumableEffectDescription(item: Item) {
-  if (item.name === HOME_SCROLL_ITEM_NAME) {
-    return 'Use to return instantly to your hearthmark.';
+  if (
+    item.itemKey === 'home-scroll' ||
+    item.name === t(HOME_SCROLL_ITEM_NAME_KEY)
+  ) {
+    return t('ui.tooltip.consumable.homeScroll');
   }
 
   const effects = [
@@ -159,19 +230,32 @@ function consumableEffectDescription(item: Item) {
     (item.thirst ?? 0) > 0 ? `restore ${item.thirst} thirst` : null,
   ].filter((effect): effect is string => Boolean(effect));
 
-  if (effects.length === 0) return 'Use to trigger its effect.';
-  if (effects.length === 1) return `Use to ${effects[0]}.`;
-  if (effects.length === 2) return `Use to ${effects[0]} and ${effects[1]}.`;
-  return `Use to ${effects[0]}, ${effects[1]}, and ${effects[2]}.`;
+  if (effects.length === 0) return t('ui.tooltip.consumable.generic');
+  if (effects.length === 1)
+    return t('ui.tooltip.consumable.oneEffect', { first: effects[0] });
+  if (effects.length === 2)
+    return t('ui.tooltip.consumable.twoEffects', {
+      first: effects[0],
+      second: effects[1],
+    });
+  return t('ui.tooltip.consumable.threeEffects', {
+    first: effects[0],
+    second: effects[1],
+    third: effects[2],
+  });
 }
 
 function itemTypeLabel(item: Item) {
-  if (item.kind === 'weapon') return 'WEAPON';
+  if (item.kind === 'weapon') return t('ui.tooltip.itemType.weapon');
   if (item.kind === 'artifact') {
-    return item.slot ? `${slotLabel(item.slot)} ARTIFACT` : 'ARTIFACT';
+    return item.slot
+      ? t('ui.tooltip.itemType.slottedArtifact', { slot: slotLabel(item.slot) })
+      : t('ui.tooltip.itemType.artifact');
   }
   if (item.kind === 'armor') {
-    return item.slot ? `${slotLabel(item.slot)} ARMOR` : 'ARMOR';
+    return item.slot
+      ? t('ui.tooltip.itemType.slottedArmor', { slot: slotLabel(item.slot) })
+      : t('ui.tooltip.itemType.armor');
   }
   return item.kind.toUpperCase();
 }
@@ -179,14 +263,11 @@ function itemTypeLabel(item: Item) {
 function slotLabel(slot: NonNullable<Item['slot']>) {
   switch (slot) {
     case 'ringLeft':
-      return 'LEFT RING';
+      return t('ui.tooltip.slot.leftRing');
     case 'ringRight':
-      return 'RIGHT RING';
+      return t('ui.tooltip.slot.rightRing');
     default:
-      return slot
-        .replace(/([A-Z])/g, ' $1')
-        .trim()
-        .toUpperCase();
+      return t(`ui.tooltip.slot.${slot}`);
   }
 }
 
@@ -196,4 +277,13 @@ function structureTitle(structure: StructureType) {
 
 function structureDescription(structure: StructureType) {
   return getStructureConfig(structure).description;
+}
+
+function isGatheringSkill(skill: SkillName) {
+  return (
+    skill === 'logging' ||
+    skill === 'mining' ||
+    skill === 'skinning' ||
+    skill === 'fishing'
+  );
 }

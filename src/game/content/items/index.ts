@@ -1,5 +1,6 @@
 import type { Item } from '../../types';
-import type { ItemBuildOverrides } from '../types';
+import { itemName } from '../i18n';
+import type { ItemBuildOverrides, ItemConfig } from '../types';
 import { arcaneDustItemConfig } from './arcaneDust';
 import { appleItemConfig } from './apple';
 import { campSpearItemConfig } from './campSpear';
@@ -36,7 +37,7 @@ import { wayfarerCloakItemConfig } from './wayfarerCloak';
 import { waterFlaskItemConfig } from './waterFlask';
 import { workGlovesItemConfig } from './workGloves';
 
-export const ITEM_CONFIGS = [
+const RAW_ITEM_CONFIGS = [
   trailRationItemConfig,
   appleItemConfig,
   recipeBookItemConfig,
@@ -74,6 +75,11 @@ export const ITEM_CONFIGS = [
   waterFlaskItemConfig,
 ] as const;
 
+export const ITEM_CONFIGS: ItemConfig[] = RAW_ITEM_CONFIGS.map((config) => ({
+  ...config,
+  name: itemName(config.key),
+}));
+
 const ITEM_CONFIG_BY_KEY = Object.fromEntries(
   ITEM_CONFIGS.map((config) => [config.key, config]),
 );
@@ -101,6 +107,7 @@ export function buildItemFromConfig(
 
   return {
     id: overrides.id ?? config.key,
+    itemKey: config.key,
     recipeId: overrides.recipeId,
     kind: config.kind,
     slot: config.slot,
@@ -117,8 +124,15 @@ export function buildItemFromConfig(
   };
 }
 
+export function getItemConfig(item: Pick<Item, 'itemKey' | 'name'>) {
+  return (
+    (item.itemKey ? getItemConfigByKey(item.itemKey) : undefined) ??
+    getItemConfigByName(item.name)
+  );
+}
+
 export function cloneConfiguredItem(item: Item) {
-  const config = getItemConfigByName(item.name);
+  const config = getItemConfig(item);
   if (!config) return { ...item };
   return buildItemFromConfig(config.key, {
     id: item.id,

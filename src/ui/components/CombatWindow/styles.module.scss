@@ -43,6 +43,7 @@
   gap: 9px;
   align-content: start;
   overflow-y: auto;
+  max-height: calc(3 * var(--entity-height, 11.8rem) + 18px);
   padding-right: 0.25rem;
 }
 

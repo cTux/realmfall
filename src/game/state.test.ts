@@ -35,8 +35,10 @@ import {
 import {
   GAME_DAY_DURATION_MS,
   GAME_DAY_MINUTES,
-  HOME_SCROLL_ITEM_NAME,
+  HOME_SCROLL_ITEM_NAME_KEY,
+  WORLD_REVEAL_RADIUS,
 } from './config';
+import { t } from '../i18n';
 import { normalizeLoadedGame } from '../app/normalize';
 
 describe('game state', () => {
@@ -168,6 +170,14 @@ describe('game state', () => {
     expect(
       moved.logs.filter((entry) => entry.kind === 'movement'),
     ).toHaveLength(3);
+  });
+
+  it('does not find a safe path into fogged hexes beyond the reveal radius', () => {
+    const game = createGame(WORLD_REVEAL_RADIUS + 2, 'fogged-safe-path-seed');
+
+    expect(
+      getSafePathToTile(game, { q: WORLD_REVEAL_RADIUS + 1, r: 0 }),
+    ).toBeNull();
   });
 
   it('damages the player each move while hunger and thirst debuffs are active', () => {
@@ -302,6 +312,7 @@ describe('game state', () => {
       true,
     );
     expect(chopped.player.skills.logging.xp).toBeGreaterThan(0);
+    expect(getTileAt(chopped, { q: 0, r: 0 }).structureHp).toBe(1);
 
     const cleared = interactWithStructure(chopped);
     expect(getTileAt(cleared, { q: 0, r: 0 }).structure).toBeUndefined();
@@ -1058,8 +1069,9 @@ describe('game state', () => {
     game.player.coord = { q: 2, r: -1 };
     game.player.inventory.push({
       id: 'home-scroll-1',
+      itemKey: 'home-scroll',
       kind: 'consumable',
-      name: HOME_SCROLL_ITEM_NAME,
+      name: 'Pergamino del hogar',
       quantity: 1,
       tier: 1,
       rarity: 'common',
@@ -1112,7 +1124,9 @@ describe('game state', () => {
       const encountered = moveToTile(game, target);
       const resolved = startCombat(encountered);
       const tile = getTileAt(resolved, target);
-      if (tile.items.some((item) => item.name === HOME_SCROLL_ITEM_NAME)) {
+      if (
+        tile.items.some((item) => item.name === t(HOME_SCROLL_ITEM_NAME_KEY))
+      ) {
         dropped = resolved;
         break;
       }
@@ -1121,7 +1135,7 @@ describe('game state', () => {
     expect(dropped).not.toBeNull();
     expect(
       getTileAt(dropped!, { q: 2, r: 0 }).items.some(
-        (item) => item.name === HOME_SCROLL_ITEM_NAME,
+        (item) => item.name === t(HOME_SCROLL_ITEM_NAME_KEY),
       ),
     ).toBe(true);
   });

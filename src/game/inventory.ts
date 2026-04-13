@@ -1,4 +1,5 @@
-import { HOME_SCROLL_ITEM_NAME, RECIPE_BOOK_ITEM_NAME } from './config';
+import { t } from '../i18n';
+import { RECIPE_BOOK_ITEM_NAME_KEY } from './config';
 import { buildItemFromConfig, getItemConfigByName } from './content/items';
 import type {
   EquipmentSlot,
@@ -47,7 +48,7 @@ export function makeRecipeBook(): Item {
 }
 
 export function makeHomeScroll(id: string): Item {
-  return makeConsumable(id, HOME_SCROLL_ITEM_NAME, 1, 0, 0);
+  return buildItemFromConfig('home-scroll', { id });
 }
 
 export function makeConsumable(
@@ -220,7 +221,11 @@ export function canUseItem(item: Item) {
 }
 
 export function isRecipeBook(item: Item) {
-  return item.kind === 'resource' && item.name === RECIPE_BOOK_ITEM_NAME;
+  return (
+    item.kind === 'resource' &&
+    (item.itemKey === 'recipe-book' ||
+      item.name === t(RECIPE_BOOK_ITEM_NAME_KEY))
+  );
 }
 
 export function isRecipePage(item: Item) {
@@ -234,7 +239,8 @@ export function hasRecipeBook(inventory: Item[]) {
 export function getGoldAmount(inventory: Item[]) {
   return inventory.reduce(
     (sum, item) =>
-      item.kind === 'resource' && item.name === 'Gold'
+      item.kind === 'resource' &&
+      (item.itemKey === 'gold' || item.name === 'Gold')
         ? sum + item.quantity
         : sum,
     0,
@@ -249,7 +255,12 @@ export function spendGold(inventory: Item[], amount: number) {
     index -= 1
   ) {
     const item = inventory[index];
-    if (item.kind !== 'resource' || item.name !== 'Gold') continue;
+    if (
+      item.kind !== 'resource' ||
+      (item.itemKey !== 'gold' && item.name !== 'Gold')
+    ) {
+      continue;
+    }
     const spent = Math.min(item.quantity, remaining);
     item.quantity -= spent;
     remaining -= spent;
@@ -355,9 +366,17 @@ function isSameStackable(left: Item, right: Item) {
     (left.kind === 'consumable' || left.kind === 'resource') &&
     left.kind === right.kind &&
     left.recipeId === right.recipeId &&
-    left.name === right.name &&
+    sameStackIdentity(left, right) &&
     left.rarity === right.rarity &&
     left.healing === right.healing &&
     left.hunger === right.hunger
   );
+}
+
+function sameStackIdentity(left: Item, right: Item) {
+  if (left.itemKey && right.itemKey) {
+    return left.itemKey === right.itemKey;
+  }
+
+  return left.name === right.name;
 }

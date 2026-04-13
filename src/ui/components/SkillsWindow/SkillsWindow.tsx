@@ -19,6 +19,8 @@ export const SkillsWindow = memo(function SkillsWindow({
   visible,
   onClose,
   skills,
+  onHoverDetail,
+  onLeaveDetail,
 }: SkillsWindowProps) {
   return (
     <DraggableWindow
@@ -35,7 +37,11 @@ export const SkillsWindow = memo(function SkillsWindow({
       onClose={onClose}
     >
       <Suspense fallback={<WindowLoadingState />}>
-        <SkillsWindowContent skills={skills} />
+        <SkillsWindowContent
+          skills={skills}
+          onHoverDetail={onHoverDetail}
+          onLeaveDetail={onLeaveDetail}
+        />
       </Suspense>
     </DraggableWindow>
   );

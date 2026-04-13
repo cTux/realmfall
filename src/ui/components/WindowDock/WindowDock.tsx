@@ -1,5 +1,6 @@
 import { memo, useState } from 'react';
 import type { WindowVisibilityState } from '../../../app/constants';
+import { t } from '../../../i18n';
 import type { WindowLabelDefinition } from '../../windowLabels';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
 import labelStyles from '../windowLabels.module.scss';
@@ -25,7 +26,7 @@ export const WindowDock = memo(function WindowDock({
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
 
   return (
-    <aside className={styles.dock} aria-label="Window dock">
+    <aside className={styles.dock} aria-label={t('ui.dock.ariaLabel')}>
       {entries.map((entry) => (
         <button
           key={entry.key}
@@ -33,7 +34,7 @@ export const WindowDock = memo(function WindowDock({
           className={styles.dockButton}
           data-opened={entry.shown}
           aria-pressed={entry.shown}
-          aria-label={`Toggle ${entry.label} window`}
+          aria-label={t('ui.dock.toggleWindow', { label: entry.label })}
           onClick={() => onToggle(entry.key)}
           onPointerEnter={() => setActiveTooltip(entry.key)}
           onPointerLeave={() =>

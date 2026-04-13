@@ -1,3 +1,3 @@
 # RESTRICTIONS
 
-* Game won't support mods
+- Game won't support mods

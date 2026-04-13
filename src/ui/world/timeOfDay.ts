@@ -6,6 +6,7 @@ import {
   MOONRISE_START,
   SUNRISE_START,
 } from '../../game/config';
+import { t } from '../../i18n';
 
 export {
   DAYLIGHT_START,
@@ -151,18 +152,21 @@ export function formatWorldTime(totalMinutes: number) {
 }
 
 export function formatWorldDateTime(timestampMs: number) {
-  return `Day ${getWorldDayFromTimestamp(timestampMs)}, ${formatWorldTime(
-    getWorldTimeMinutesFromTimestamp(timestampMs),
-  )}`;
+  return t('game.time.dayDateTime', {
+    day: getWorldDayFromTimestamp(timestampMs),
+    time: formatWorldTime(getWorldTimeMinutesFromTimestamp(timestampMs)),
+  });
 }
 
 export function formatWorldCalendarDateTime(timestampMs: number) {
   const day = getWorldDayFromTimestamp(timestampMs);
   const year = Math.floor((day - 1) / 365) + 1;
   const dayOfYear = ((day - 1) % 365) + 1;
-  return `Year ${year}, Day ${dayOfYear}, ${formatWorldTime(
-    getWorldTimeMinutesFromTimestamp(timestampMs),
-  )}`;
+  return t('game.time.calendarDateTime', {
+    year,
+    day: dayOfYear,
+    time: formatWorldTime(getWorldTimeMinutesFromTimestamp(timestampMs)),
+  });
 }
 
 export function getTimeOfDayLighting(

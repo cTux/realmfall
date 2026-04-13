@@ -64,7 +64,7 @@ vi.mock('react-fps-stats', () => ({
 describe('App', () => {
   const flushLazyModules = async () => {
     await act(async () => {
-      for (let index = 0; index < 3; index += 1) {
+      for (let index = 0; index < 6; index += 1) {
         await vi.dynamicImportSettled();
         await Promise.resolve();
       }
@@ -238,6 +238,7 @@ describe('App', () => {
     await act(async () => {
       vi.advanceTimersByTime(60 * 1000);
     });
+    await flushLazyModules();
 
     expect(saveEncryptedState).not.toHaveBeenCalled();
     expect(worldTimePanel?.textContent).not.toBe(initialWorldTimePanelText);

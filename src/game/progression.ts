@@ -1,4 +1,6 @@
 import { MAX_PLAYER_LEVEL } from './config';
+import { t } from '../i18n';
+import { formatSkillLabel } from '../i18n/labels';
 import { createRng } from './random';
 import { hexKey } from './hex';
 import type { GameState, Player, SkillName, SkillProgress } from './types';
@@ -83,7 +85,11 @@ export function gainXp(
     state.player.baseDefense += 1;
     state.player.hp = getPlayerStats(state.player).maxHp;
     state.player.mana = state.player.baseMaxMana;
-    addLog(state, 'system', `You reached level ${state.player.level}.`);
+    addLog(
+      state,
+      'system',
+      t('game.progression.levelUp', { level: state.player.level }),
+    );
   }
 
   while (state.player.xp >= masteryLevelThreshold(state.player.masteryLevel)) {
@@ -92,7 +98,9 @@ export function gainXp(
     addLog(
       state,
       'system',
-      `You reached mastery level ${state.player.masteryLevel}.`,
+      t('game.progression.masteryLevelUp', {
+        level: state.player.masteryLevel,
+      }),
     );
   }
 }
@@ -111,13 +119,16 @@ export function gainSkillXp(
     addLog(
       state,
       'system',
-      `Your ${skill} skill reaches level ${progress.level}.`,
+      t('game.progression.skillLevelUp', {
+        skill: formatSkillLabel(skill),
+        level: progress.level,
+      }),
     );
   }
 }
 
 export function rollGatheringBonus(state: GameState, skill: SkillName) {
-  const chance = Math.min(1, state.player.skills[skill].level / 100);
+  const chance = gatheringBonusChance(state.player.skills[skill].level);
   const rng = createRng(
     `${state.seed}:gather-bonus:${skill}:${state.turn}:${hexKey(state.player.coord)}`,
   );
@@ -132,6 +143,14 @@ export function masteryLevelThreshold(masteryLevel: number) {
   return levelThreshold(MAX_PLAYER_LEVEL + masteryLevel) * 20;
 }
 
-function skillLevelThreshold(level: number) {
+export function skillLevelThreshold(level: number) {
   return 5 + level * 3;
+}
+
+export function gatheringYieldBonus(level: number) {
+  return Math.floor((level - 1) / 4);
+}
+
+export function gatheringBonusChance(level: number) {
+  return Math.min(1, level / 100);
 }

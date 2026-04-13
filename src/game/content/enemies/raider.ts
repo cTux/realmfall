@@ -1,8 +1,9 @@
 import { ContentIcons } from '../icons';
+import { enemyName } from '../i18n';
 import type { EnemyConfig } from '../types';
 
 export const raiderEnemyConfig: EnemyConfig = {
-  name: 'Raider',
+  name: enemyName('raider'),
   icon: ContentIcons.Hood,
   tint: 0xef4444,
   appearanceChanceByTerrain: {

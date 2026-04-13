@@ -37,6 +37,7 @@ import campCookingPotIcon from '../../assets/icons/camp-cooking-pot.svg';
 import stoneCraftingIcon from '../../assets/icons/stone-crafting.svg';
 import spiderAltIcon from '../../assets/icons/spider-alt.svg';
 import tiedScrollIcon from '../../assets/icons/tied-scroll.svg';
+import rolledClothIcon from '../../assets/icons/rolled-cloth.svg';
 
 export const ContentIcons = {
   Player: playerIcon,
@@ -78,4 +79,5 @@ export const ContentIcons = {
   StoneCrafting: stoneCraftingIcon,
   Spider: spiderAltIcon,
   TiedScroll: tiedScrollIcon,
+  RolledCloth: rolledClothIcon,
 } as const;

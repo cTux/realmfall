@@ -319,4 +319,36 @@ describe('normalizeLoadedGame', () => {
       2,
     );
   });
+
+  it('hydrates configured item keys into locale-safe items', () => {
+    const game = createGame(3, 'normalize-item-key');
+
+    const loaded = normalizeLoadedGame({
+      ...game,
+      player: {
+        ...game.player,
+        inventory: [
+          {
+            id: 'home-scroll-1',
+            itemKey: 'home-scroll',
+            kind: 'consumable',
+            name: 'Pergamino del hogar',
+            quantity: 1,
+            tier: 1,
+            rarity: 'common',
+            power: 0,
+            defense: 0,
+            maxHp: 0,
+            healing: 0,
+            hunger: 0,
+          },
+        ],
+      },
+    });
+
+    expect(loaded.player.inventory[0]).toMatchObject({
+      itemKey: 'home-scroll',
+      name: 'Hearthshard Wayscroll',
+    });
+  });
 });

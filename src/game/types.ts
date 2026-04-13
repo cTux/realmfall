@@ -58,6 +58,7 @@ export type ItemKind =
 
 export interface Item {
   id: string;
+  itemKey?: string;
   kind: ItemKind;
   recipeId?: string;
   slot?: EquipmentSlot;

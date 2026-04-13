@@ -2,7 +2,12 @@ import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { vi } from 'vitest';
-import { createGame, getPlayerStats, type Item } from '../game/state';
+import {
+  createGame,
+  getItemConfigByName,
+  getPlayerStats,
+  type Item,
+} from '../game/state';
 import {
   DEFAULT_LOG_FILTERS,
   DEFAULT_WINDOW_VISIBILITY,
@@ -12,6 +17,7 @@ import {
   comparisonLines,
   enemyTooltip,
   itemTooltipLines,
+  skillTooltip,
   structureTooltip,
 } from './tooltips';
 import { formatCompactNumber, formatCompactNumberish } from './formatters';
@@ -205,6 +211,23 @@ describe('ui helpers and components', () => {
       { kind: 'stat', label: 'Enemies', value: '1' },
     ]);
 
+    expect(skillTooltip('logging', 12)).toContainEqual({
+      kind: 'stat',
+      label: 'Base Yield Bonus',
+      value: '+2',
+      tone: 'item',
+    });
+    expect(skillTooltip('logging', 12)).toContainEqual({
+      kind: 'stat',
+      label: 'Extra Resource Chance',
+      value: '12%',
+      tone: 'item',
+    });
+    expect(skillTooltip('crafting', 4)).toContainEqual({
+      kind: 'text',
+      text: 'Skill level does not change recipe costs, output, or quality directly yet.',
+    });
+
     const groupEnemy = enemyTooltip(
       [
         {
@@ -253,6 +276,24 @@ describe('ui helpers and components', () => {
     expect(treeTooltip?.lines).toEqual([
       { kind: 'text', text: 'A logging node that yields logs when harvested.' },
     ]);
+  });
+
+  it('uses the rolled cloth icon for Cloth items', () => {
+    const cloth: Item = {
+      id: 'cloth-1',
+      kind: 'resource',
+      name: 'Cloth',
+      quantity: 1,
+      tier: 1,
+      rarity: 'common',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+    };
+
+    expect(iconForItem(cloth)).toBe(getItemConfigByName('Cloth')?.icon);
   });
 
   it('renders all major windows to static markup', async () => {
@@ -490,7 +531,7 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('logging');
     expect(markup).toContain(')ecipe book');
     expect(markup).toContain(')ex info');
-    expect(markup).toContain('(Q) Chop tree');
+    expect(markup).toContain('(Q) Gather');
     expect(markup).toContain('Structure HP');
     expect(markup).toContain('Town Stock');
     expect(markup).toContain('Horned Helm');
