@@ -195,7 +195,6 @@ export function renderTileGroundCover(
   presentation: TileGroundCoverPresentation,
   point: { x: number; y: number },
   hexSize: number,
-  ambientBrightness: number,
 ) {
   const background = presentation.background;
   if (!background) return;
@@ -205,7 +204,7 @@ export function renderTileGroundCover(
   const grass = takeSprite(spritePool, background.icon);
   configureSprite(
     grass,
-    scaleColor(0xffffff, ambientBrightness + background.brightnessBoost),
+    scaleColor(0xffffff, 1 + background.brightnessBoost),
     spriteWidth,
     spriteHeight,
     background.alpha,

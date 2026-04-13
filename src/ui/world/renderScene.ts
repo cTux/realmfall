@@ -101,13 +101,11 @@ export function renderScene(
   const shouldRenderStatic =
     screenChanged ||
     scene.staticState !== state ||
-    scene.staticVisibleTiles !== visibleTiles ||
-    scene.staticWorldTimeMinutes !== worldTimeMinutes;
+    scene.staticVisibleTiles !== visibleTiles;
   const shouldRenderInteraction =
     shouldRenderStatic ||
     scene.interactionState !== state ||
     scene.interactionVisibleTiles !== visibleTiles ||
-    scene.interactionWorldTimeMinutes !== worldTimeMinutes ||
     !sameCoord(scene.interactionSelected, selected) ||
     !sameCoord(scene.interactionHoveredMove, hoveredMove) ||
     scene.interactionHoveredSafePathKey !== pathKey(hoveredSafePath);
@@ -148,10 +146,7 @@ export function renderScene(
     if (shouldRenderStatic) {
       const fillAlpha = hasBackground ? 0.2 : emphasized ? style.alpha : 0.8;
       const shape = takeGraphics(scene.worldGroundGraphics);
-      shape.beginFill(
-        scaleColor(style.color, lighting.ambientBrightness),
-        fillAlpha,
-      );
+      shape.beginFill(style.color, fillAlpha);
       shape.lineStyle(1, 0x1e293b, 0.9);
       shape.drawPolygon(poly);
       shape.endFill();
@@ -183,7 +178,6 @@ export function renderScene(
         groundCoverPresentation,
         point,
         hexSize,
-        lighting.ambientBrightness,
       );
 
       if (tile.structure) {
@@ -194,7 +188,7 @@ export function renderScene(
         );
         configureShadowedSprite(
           marker,
-          scaleColor(structureColor, lighting.ambientBrightness + 0.08),
+          structureColor,
           structureIconSize,
           structureIconSize,
           1,
@@ -211,7 +205,7 @@ export function renderScene(
         );
         configureShadowedSprite(
           sprite,
-          scaleColor(0xef4444, lighting.ambientBrightness + 0.04),
+          0xef4444,
           enemyIconSize,
           enemyIconSize,
           1,
@@ -245,7 +239,7 @@ export function renderScene(
       if (hovered) {
         const hoverOverlay = takeGraphics(scene.worldInteractionGraphics);
         hoverOverlay.beginFill(
-          scaleColor(style.color, lighting.ambientBrightness + 0.2),
+          style.color,
           hasBackground ? 0.2 : Math.min(1, style.alpha + 0.26),
         );
         hoverOverlay.drawPolygon(poly);
@@ -279,14 +273,12 @@ export function renderScene(
     completeStaticSceneRender(scene);
     scene.staticState = state;
     scene.staticVisibleTiles = visibleTiles;
-    scene.staticWorldTimeMinutes = worldTimeMinutes;
   }
 
   if (shouldRenderInteraction) {
     completeInteractionSceneRender(scene);
     scene.interactionState = state;
     scene.interactionVisibleTiles = visibleTiles;
-    scene.interactionWorldTimeMinutes = worldTimeMinutes;
     scene.interactionSelected = { ...selected };
     scene.interactionHoveredMove = hoveredMove ? { ...hoveredMove } : null;
     scene.interactionHoveredSafePathKey = pathKey(hoveredSafePath);

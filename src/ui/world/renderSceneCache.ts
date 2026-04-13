@@ -79,10 +79,8 @@ export interface SceneCache {
   player: ShadowedSpriteEntry;
   staticState: GameState | null;
   staticVisibleTiles: ReturnType<typeof getVisibleTiles> | null;
-  staticWorldTimeMinutes: number | null;
   interactionState: GameState | null;
   interactionVisibleTiles: ReturnType<typeof getVisibleTiles> | null;
-  interactionWorldTimeMinutes: number | null;
   interactionSelected: HexCoord | null;
   interactionHoveredMove: HexCoord | null;
   interactionHoveredSafePathKey: string | null;
@@ -177,10 +175,8 @@ export function getSceneCache(app: Application) {
     player,
     staticState: null,
     staticVisibleTiles: null,
-    staticWorldTimeMinutes: null,
     interactionState: null,
     interactionVisibleTiles: null,
-    interactionWorldTimeMinutes: null,
     interactionSelected: null,
     interactionHoveredMove: null,
     interactionHoveredSafePathKey: null,
