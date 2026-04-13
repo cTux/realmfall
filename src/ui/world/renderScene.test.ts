@@ -95,6 +95,30 @@ vi.mock('pixi.js', () => ({
 }));
 
 describe('renderScene', () => {
+  it('bounds scene caches with LRU-style eviction', async () => {
+    const { getCachedValue, SCENE_CACHE_LIMITS, setBoundedCachedValue } =
+      await import('./renderSceneCache');
+
+    const cache = new Map<string, string>();
+    const maxEntries = 3;
+
+    setBoundedCachedValue(cache, 'a', 'A', maxEntries);
+    setBoundedCachedValue(cache, 'b', 'B', maxEntries);
+    setBoundedCachedValue(cache, 'c', 'C', maxEntries);
+    expect(getCachedValue(cache, 'a')).toBe('A');
+
+    setBoundedCachedValue(cache, 'd', 'D', maxEntries);
+
+    expect(cache.size).toBe(maxEntries);
+    expect(cache.has('a')).toBe(true);
+    expect(cache.has('c')).toBe(true);
+    expect(cache.has('d')).toBe(true);
+    expect(cache.has('b')).toBe(false);
+    expect(SCENE_CACHE_LIMITS.tileGroundCoverPresentationByKey).toBeGreaterThan(
+      SCENE_CACHE_LIMITS.cloudInputsBySeed,
+    );
+  });
+
   it('renders highlighted tiles, structures, enemies, and player markers', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-seed');

@@ -64,8 +64,6 @@ export const GameTooltip = memo(function GameTooltip({
   useEffect(() => {
     if (!rendered?.tooltip.followCursor || !positionRef) return;
 
-    let frame = 0;
-
     const syncPosition = () => {
       const element = tooltipRef.current;
       const position = positionRef.current;
@@ -74,12 +72,13 @@ export const GameTooltip = memo(function GameTooltip({
         element.style.left = `${position.x}px`;
         element.style.top = `${position.y}px`;
       }
-
-      frame = window.requestAnimationFrame(syncPosition);
     };
 
     syncPosition();
-    return () => window.cancelAnimationFrame(frame);
+    window.addEventListener('pointermove', syncPosition, { passive: true });
+    return () => {
+      window.removeEventListener('pointermove', syncPosition);
+    };
   }, [positionRef, rendered]);
 
   if (!rendered) return null;

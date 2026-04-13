@@ -2,6 +2,7 @@ import {
   lazy,
   Suspense,
   useEffect,
+  useMemo,
   useState,
   type MutableRefObject,
 } from 'react';
@@ -227,6 +228,42 @@ export function AppWindows({
   onSetHome,
 }: AppWindowsProps) {
   const tooltip = useTooltipState();
+  const windowMoveHandlers = useMemo(
+    () => ({
+      hero: (position: WindowPositions['hero']) =>
+        onMoveWindow('hero', position),
+      skills: (position: WindowPositions['skills']) =>
+        onMoveWindow('skills', position),
+      recipes: (position: WindowPositions['recipes']) =>
+        onMoveWindow('recipes', position),
+      hexInfo: (position: WindowPositions['hexInfo']) =>
+        onMoveWindow('hexInfo', position),
+      equipment: (position: WindowPositions['equipment']) =>
+        onMoveWindow('equipment', position),
+      inventory: (position: WindowPositions['inventory']) =>
+        onMoveWindow('inventory', position),
+      loot: (position: WindowPositions['loot']) =>
+        onMoveWindow('loot', position),
+      log: (position: WindowPositions['log']) => onMoveWindow('log', position),
+      combat: (position: WindowPositions['combat']) =>
+        onMoveWindow('combat', position),
+    }),
+    [onMoveWindow],
+  );
+  const windowCloseHandlers = useMemo(
+    () => ({
+      hero: () => onSetWindowVisibility('hero', false),
+      skills: () => onSetWindowVisibility('skills', false),
+      recipes: () => onSetWindowVisibility('recipes', false),
+      hexInfo: () => onSetWindowVisibility('hexInfo', false),
+      equipment: () => onSetWindowVisibility('equipment', false),
+      inventory: () => onSetWindowVisibility('inventory', false),
+      loot: () => onSetWindowVisibility('loot', false),
+      log: () => onSetWindowVisibility('log', false),
+      combat: () => onSetWindowVisibility('combat', false),
+    }),
+    [onSetWindowVisibility],
+  );
   const [loadedWindows, setLoadedWindows] = useState(() => ({
     skills: windowShown.skills,
     recipes: windowShown.recipes,
@@ -267,9 +304,9 @@ export function AppWindows({
 
       <HeroWindow
         position={windows.hero}
-        onMove={(position) => onMoveWindow('hero', position)}
+        onMove={windowMoveHandlers.hero}
         visible={windowShown.hero}
-        onClose={() => onSetWindowVisibility('hero', false)}
+        onClose={windowCloseHandlers.hero}
         stats={stats}
         hunger={game.player.hunger}
         thirst={game.player.thirst}
@@ -281,9 +318,9 @@ export function AppWindows({
         <Suspense fallback={<WindowLoadingState />}>
           <SkillsWindow
             position={windows.skills}
-            onMove={(position) => onMoveWindow('skills', position)}
+            onMove={windowMoveHandlers.skills}
             visible={windowShown.skills}
-            onClose={() => onSetWindowVisibility('skills', false)}
+            onClose={windowCloseHandlers.skills}
             skills={stats.skills}
             onHoverDetail={onShowTooltip}
             onLeaveDetail={onCloseTooltip}
@@ -294,9 +331,9 @@ export function AppWindows({
         <Suspense fallback={<WindowLoadingState />}>
           <RecipeBookWindow
             position={windows.recipes}
-            onMove={(position) => onMoveWindow('recipes', position)}
+            onMove={windowMoveHandlers.recipes}
             visible={windowShown.recipes}
-            onClose={() => onSetWindowVisibility('recipes', false)}
+            onClose={windowCloseHandlers.recipes}
             hasRecipeBook={recipeBookKnown}
             currentStructure={describeStructure(currentTile.structure)}
             recipes={recipes}
@@ -309,9 +346,9 @@ export function AppWindows({
         <Suspense fallback={<WindowLoadingState />}>
           <HexInfoWindow
             position={windows.hexInfo}
-            onMove={(position) => onMoveWindow('hexInfo', position)}
+            onMove={windowMoveHandlers.hexInfo}
             visible={windowShown.hexInfo}
-            onClose={() => onSetWindowVisibility('hexInfo', false)}
+            onClose={windowCloseHandlers.hexInfo}
             isHome={
               game.homeHex.q === game.player.coord.q &&
               game.homeHex.r === game.player.coord.r
@@ -351,9 +388,9 @@ export function AppWindows({
         <Suspense fallback={<WindowLoadingState />}>
           <EquipmentWindow
             position={windows.equipment}
-            onMove={(position) => onMoveWindow('equipment', position)}
+            onMove={windowMoveHandlers.equipment}
             visible={windowShown.equipment}
-            onClose={() => onSetWindowVisibility('equipment', false)}
+            onClose={windowCloseHandlers.equipment}
             equipment={game.player.equipment}
             onHoverItem={onEquipmentHover}
             onLeaveItem={onCloseTooltip}
@@ -366,9 +403,9 @@ export function AppWindows({
         <Suspense fallback={<WindowLoadingState />}>
           <InventoryWindow
             position={windows.inventory}
-            onMove={(position) => onMoveWindow('inventory', position)}
+            onMove={windowMoveHandlers.inventory}
             visible={windowShown.inventory}
-            onClose={() => onSetWindowVisibility('inventory', false)}
+            onClose={windowCloseHandlers.inventory}
             inventory={game.player.inventory}
             equipment={game.player.equipment}
             onSort={onSort}
@@ -383,11 +420,11 @@ export function AppWindows({
         <Suspense fallback={<WindowLoadingState />}>
           <LootWindow
             position={windows.loot}
-            onMove={(position) => onMoveWindow('loot', position)}
+            onMove={windowMoveHandlers.loot}
             visible={windowShown.loot && lootWindowVisible}
             loot={lootSnapshot}
             equipment={game.player.equipment}
-            onClose={() => onSetWindowVisibility('loot', false)}
+            onClose={windowCloseHandlers.loot}
             onTakeAll={onTakeAllLoot}
             onTakeItem={onTakeLootItem}
             onHoverItem={onShowItemTooltip}
@@ -432,9 +469,9 @@ export function AppWindows({
         <Suspense fallback={<WindowLoadingState />}>
           <LogWindow
             position={windows.log}
-            onMove={(position) => onMoveWindow('log', position)}
+            onMove={windowMoveHandlers.log}
             visible={windowShown.log}
-            onClose={() => onSetWindowVisibility('log', false)}
+            onClose={windowCloseHandlers.log}
             filters={logFilters}
             defaultFilters={DEFAULT_LOG_FILTERS}
             showFilterMenu={showFilterMenu}
@@ -448,9 +485,9 @@ export function AppWindows({
         <Suspense fallback={<WindowLoadingState />}>
           <CombatWindow
             position={windows.combat}
-            onMove={(position) => onMoveWindow('combat', position)}
+            onMove={windowMoveHandlers.combat}
             visible={windowShown.combat && combatWindowVisible}
-            onClose={() => onSetWindowVisibility('combat', false)}
+            onClose={windowCloseHandlers.combat}
             combat={combatSnapshot.combat}
             playerParty={[
               {

@@ -20,7 +20,10 @@ import {
   completeAnimatedSceneRender,
   completeInteractionSceneRender,
   completeStaticSceneRender,
+  getCachedValue,
   getSceneCache,
+  SCENE_CACHE_LIMITS,
+  setBoundedCachedValue,
 } from './renderSceneCache';
 import {
   getLightingState,
@@ -319,10 +322,15 @@ function getCloudRenderInputs(
   scene: ReturnType<typeof getSceneCache>,
   seed: string,
 ) {
-  let cloudInputs = scene.cloudInputsBySeed.get(seed);
+  let cloudInputs = getCachedValue(scene.cloudInputsBySeed, seed);
   if (!cloudInputs) {
     cloudInputs = buildCloudRenderInputs(seed);
-    scene.cloudInputsBySeed.set(seed, cloudInputs);
+    setBoundedCachedValue(
+      scene.cloudInputsBySeed,
+      seed,
+      cloudInputs,
+      SCENE_CACHE_LIMITS.cloudInputsBySeed,
+    );
   }
 
   return cloudInputs;
@@ -338,10 +346,18 @@ function getTileGroundCoverPresentationCached(
     ? 'herbs'
     : 'none';
   const key = `${worldSeed}:${tile.coord.q},${tile.coord.r}:${tile.terrain}:${tile.structure ?? 'none'}:${enemies.length}:${herbs}`;
-  let presentation = scene.tileGroundCoverPresentationByKey.get(key);
+  let presentation = getCachedValue(
+    scene.tileGroundCoverPresentationByKey,
+    key,
+  );
   if (!presentation) {
     presentation = getTileGroundCoverPresentation(tile, enemies, worldSeed);
-    scene.tileGroundCoverPresentationByKey.set(key, presentation);
+    setBoundedCachedValue(
+      scene.tileGroundCoverPresentationByKey,
+      key,
+      presentation,
+      SCENE_CACHE_LIMITS.tileGroundCoverPresentationByKey,
+    );
   }
 
   return presentation;
