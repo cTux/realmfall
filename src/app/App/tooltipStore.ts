@@ -23,6 +23,10 @@ export function setTooltipState(nextTooltip: TooltipState | null) {
   emitChange();
 }
 
+export function resetTooltipState() {
+  setTooltipState(null);
+}
+
 export function subscribeToTooltip(listener: TooltipListener) {
   listeners.add(listener);
   return () => listeners.delete(listener);

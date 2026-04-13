@@ -28,6 +28,7 @@ import { useAppPersistence } from './useAppPersistence';
 import { useCombatAutomation } from './useCombatAutomation';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { usePixiWorld } from './usePixiWorld';
+import { resetTooltipState } from './tooltipStore';
 import { useWindowTransitions } from './useWindowTransitions';
 import { useWorldClockFps } from './useWorldClockFps';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
@@ -209,6 +210,16 @@ export function App() {
   const handleSetHome = () => {
     setGame((current) => setHomeHex(current));
   };
+
+  useEffect(() => {
+    resetTooltipState();
+    tooltipPositionRef.current = null;
+
+    return () => {
+      resetTooltipState();
+      tooltipPositionRef.current = null;
+    };
+  }, []);
 
   useEffect(() => {
     setGame((current) =>
