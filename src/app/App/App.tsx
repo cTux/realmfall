@@ -1,29 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   createGame,
-  getCurrentTile,
-  getEnemiesAt,
-  getGoldAmount,
-  getPlayerStats,
-  getRecipeBookRecipes,
   setHomeHex,
-  getTownStock,
-  getVisibleTiles,
-  hasEquippableInventoryItems,
-  hasRecipeBook,
-  hexDistance,
-  structureActionLabel,
   syncBloodMoon,
   triggerEarthshake,
   type GameState,
-  type HexCoord,
 } from '../../game/state';
-import { WORLD_RADIUS, WORLD_REVEAL_RADIUS } from '../constants';
+import { WORLD_RADIUS } from '../constants';
 import { AppWindows } from './AppWindows';
 import { getDockEntries } from './appHelpers';
-import { t } from '../../i18n';
+import { HomeIndicator } from './HomeIndicator';
 import { DebuggerWindow } from '../../ui/components/DebuggerWindow';
 import { useAppControllers } from './useAppControllers';
+import { useAppGameView } from './useAppGameView';
 import { useAppPersistence } from './useAppPersistence';
 import { useCombatAutomation } from './useCombatAutomation';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
@@ -32,17 +21,11 @@ import { resetTooltipState } from './tooltipStore';
 import { useWindowTransitions } from './useWindowTransitions';
 import { useWorldClockFps } from './useWorldClockFps';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
-import { getWorldHexSize, tileToPoint } from '../../ui/world/renderSceneMath';
 import styles from './styles.module.scss';
 
 export function App() {
   const initialGameRef = useRef<GameState>(createGame(WORLD_RADIUS));
-  const playerCoordRef = useRef<HexCoord>({ q: 0, r: 0 });
   const gameRef = useRef<GameState>(initialGameRef.current);
-  const visibleTilesRef = useRef(getVisibleTiles(initialGameRef.current));
-  const selectedRef = useRef<HexCoord>(initialGameRef.current.player.coord);
-  const hoveredMoveRef = useRef<HexCoord | null>(null);
-  const hoveredSafePathRef = useRef<HexCoord[] | null>(null);
   const tooltipPositionRef = useRef<TooltipPosition | null>(null);
   const worldTimeMsRef = useRef(initialGameRef.current.worldTimeMs);
   const worldTimeTickRef = useRef<number | null>(null);
@@ -53,8 +36,6 @@ export function App() {
   );
 
   const [game, setGame] = useState<GameState>(initialGameRef.current);
-  const [selected, setSelected] = useState<HexCoord>(game.player.coord);
-  const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
 
   const {
     closeItemMenu,
@@ -109,53 +90,25 @@ export function App() {
       lastDisplayedWorldSecondRef,
     });
 
-  const stats = useMemo(() => getPlayerStats(game.player), [game.player]);
-  const visibleTiles = useMemo(() => getVisibleTiles(game), [game]);
-  const currentTile = useMemo(() => getCurrentTile(game), [game]);
-  const recipeBookKnown = useMemo(
-    () => hasRecipeBook(game.player.inventory),
-    [game.player.inventory],
-  );
-  const recipes = useMemo(
-    () => getRecipeBookRecipes(game.player.learnedRecipeIds),
-    [game.player.learnedRecipeIds],
-  );
-  const inventoryCounts = useMemo(
-    () =>
-      game.player.inventory.reduce<Record<string, number>>((counts, item) => {
-        counts[item.name] = (counts[item.name] ?? 0) + item.quantity;
-        return counts;
-      }, {}),
-    [game.player.inventory],
-  );
-  const hasEquippableItems = useMemo(
-    () => hasEquippableInventoryItems(game),
-    [game],
-  );
-  const canProspect = currentTile.structure === 'forge' && hasEquippableItems;
-  const canSell = currentTile.structure === 'town' && hasEquippableItems;
-  const prospectExplanation =
-    currentTile.structure === 'forge' && !hasEquippableItems
-      ? t('game.message.prospect.empty')
-      : null;
-  const sellExplanation =
-    currentTile.structure === 'town' && !hasEquippableItems
-      ? t('game.message.sell.empty')
-      : null;
-  const interactLabel = structureActionLabel(currentTile.structure);
-  const townStock = useMemo(() => getTownStock(game), [game]);
-  const gold = useMemo(
-    () => getGoldAmount(game.player.inventory),
-    [game.player.inventory],
-  );
-  const combatEnemies = useMemo(
-    () => (game.combat ? getEnemiesAt(game, game.combat.coord) : []),
-    [game],
-  );
-  const filteredLogs = useMemo(
-    () => game.logs.filter((entry) => logFilters[entry.kind]),
-    [game.logs, logFilters],
-  );
+  const {
+    canProspect,
+    canSell,
+    combatEnemies,
+    currentTile,
+    filteredLogs,
+    gold,
+    interactLabel,
+    inventoryCounts,
+    prospectExplanation,
+    recipeBookKnown,
+    recipes,
+    sellExplanation,
+    stats,
+    townStock,
+  } = useAppGameView({
+    game,
+    logFilters,
+  });
 
   const {
     combatSnapshot,
@@ -171,19 +124,15 @@ export function App() {
   });
 
   const { hostRef, canvasReady } = usePixiWorld({
+    game,
     worldTimeMsRef,
     frameCountRef,
-    playerCoordRef,
     gameRef,
-    visibleTilesRef,
-    selectedRef,
-    hoveredMoveRef,
-    hoveredSafePathRef,
     tooltipPositionRef,
     setGame,
-    setSelected,
     setTooltip,
   });
+
   const hydrated = useAppPersistence({
     game,
     gameRef,
@@ -231,85 +180,14 @@ export function App() {
   }, [worldTimeMinutes]);
 
   useEffect(() => {
-    playerCoordRef.current = game.player.coord;
     gameRef.current = game;
   }, [game]);
-
-  useEffect(() => {
-    visibleTilesRef.current = visibleTiles;
-  }, [visibleTiles]);
-
-  useEffect(() => {
-    selectedRef.current = selected;
-  }, [selected]);
 
   useCombatAutomation({
     combat: game.combat,
     setGame,
     worldTimeMsRef,
   });
-
-  useEffect(() => {
-    setSelected(game.player.coord);
-    hoveredMoveRef.current = null;
-    hoveredSafePathRef.current = null;
-  }, [game.player.coord]);
-
-  useEffect(() => {
-    const host = hostRef.current;
-    if (!host) return;
-
-    const updateViewportSize = () => {
-      setViewportSize({
-        width: host.clientWidth,
-        height: host.clientHeight,
-      });
-    };
-
-    updateViewportSize();
-    const observer = new ResizeObserver(updateViewportSize);
-    observer.observe(host);
-    return () => observer.disconnect();
-  }, [hostRef, isReady]);
-
-  const homeIndicator = useMemo(() => {
-    if (!viewportSize.width || !viewportSize.height) return null;
-
-    const homeDistance = hexDistance(game.player.coord, game.homeHex);
-    if (homeDistance <= WORLD_REVEAL_RADIUS) return null;
-
-    const center = {
-      x: viewportSize.width / 2,
-      y: viewportSize.height / 2,
-    };
-    const homePoint = tileToPoint(
-      {
-        q: game.homeHex.q - game.player.coord.q,
-        r: game.homeHex.r - game.player.coord.r,
-      },
-      center.x,
-      center.y,
-      getWorldHexSize(viewportSize, game.radius),
-    );
-    const vector = {
-      x: homePoint.x - center.x,
-      y: homePoint.y - center.y,
-    };
-    const magnitude = Math.hypot(vector.x, vector.y);
-    if (!magnitude) return null;
-    const ringScale = WORLD_REVEAL_RADIUS / homeDistance;
-    const borderOffset = 18;
-    const normalized = {
-      x: vector.x / magnitude,
-      y: vector.y / magnitude,
-    };
-
-    return {
-      x: center.x + vector.x * ringScale + normalized.x * borderOffset,
-      y: center.y + vector.y * ringScale + normalized.y * borderOffset,
-      angle: Math.atan2(vector.y, vector.x),
-    };
-  }, [game.homeHex, game.player.coord, game.radius, viewportSize]);
 
   const dockEntries = useMemo(
     () => getDockEntries(windowShown, renderLootWindow, renderCombatWindow),
@@ -333,27 +211,12 @@ export function App() {
     <div className={styles.appRoot}>
       <div className={isReady ? undefined : styles.hiddenUntilReady}>
         <div ref={hostRef} className={styles.mapViewport} />
-        {homeIndicator ? (
-          <div
-            className={styles.homeIndicator}
-            style={{
-              left: homeIndicator.x,
-              top: homeIndicator.y,
-              transform: `translate(-50%, -50%) rotate(${homeIndicator.angle + Math.PI / 2}rad)`,
-            }}
-            aria-label={t('app.home.directionLabel')}
-          >
-            <span className={styles.homeIndicatorArrow}>▲</span>
-            <span
-              className={styles.homeIndicatorLabel}
-              style={{
-                transform: `translate(-50%, 0) rotate(${-homeIndicator.angle - Math.PI / 2}rad)`,
-              }}
-            >
-              {t('app.home.label')}
-            </span>
-          </div>
-        ) : null}
+        <HomeIndicator
+          hostRef={hostRef}
+          homeHex={game.homeHex}
+          playerCoord={game.player.coord}
+          radius={game.radius}
+        />
         {windowShown.worldTime ? (
           <DebuggerWindow
             position={windows.worldTime}

@@ -8,7 +8,7 @@ import {
 } from 'react';
 import type { Application } from 'pixi.js';
 import * as stateModule from '../../game/state';
-import type { GameState, HexCoord } from '../../game/state';
+import type { GameState } from '../../game/state';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import * as tooltipModule from '../../ui/tooltips';
 import { getWorldHexSize } from '../../ui/world/renderSceneMath';
@@ -18,49 +18,42 @@ import type { TooltipState } from './types';
 import { getTooltipState } from './tooltipStore';
 
 interface UsePixiWorldArgs {
+  game: GameState;
   worldTimeMsRef: MutableRefObject<number>;
   frameCountRef: MutableRefObject<number>;
-  playerCoordRef: MutableRefObject<HexCoord>;
   gameRef: MutableRefObject<GameState>;
-  visibleTilesRef: MutableRefObject<
-    ReturnType<typeof stateModule.getVisibleTiles>
-  >;
-  selectedRef: MutableRefObject<HexCoord>;
-  hoveredMoveRef: MutableRefObject<HexCoord | null>;
-  hoveredSafePathRef: MutableRefObject<HexCoord[] | null>;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
   setGame: Dispatch<SetStateAction<GameState>>;
-  setSelected: Dispatch<SetStateAction<HexCoord>>;
   setTooltip: (nextTooltip: TooltipState | null) => void;
 }
 
 interface WorldHoverSnapshot {
   game: GameState | null;
-  target: HexCoord | null;
+  target: stateModule.HexCoord | null;
   clickable: boolean;
-  hoveredMove: HexCoord | null;
-  hoveredSafePath: HexCoord[] | null;
+  hoveredMove: stateModule.HexCoord | null;
+  hoveredSafePath: stateModule.HexCoord[] | null;
   tooltip: TooltipState | null;
   tooltipKey: string | null;
 }
 
 export function usePixiWorld({
+  game,
   worldTimeMsRef,
   frameCountRef,
-  playerCoordRef,
   gameRef,
-  visibleTilesRef,
-  selectedRef,
-  hoveredMoveRef,
-  hoveredSafePathRef,
   tooltipPositionRef,
   setGame,
-  setSelected,
   setTooltip,
 }: UsePixiWorldArgs) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<Application | null>(null);
   const worldTooltipKeyRef = useRef<string | null>(null);
+  const playerCoordRef = useRef(game.player.coord);
+  const visibleTilesRef = useRef(stateModule.getVisibleTiles(game));
+  const selectedRef = useRef(game.player.coord);
+  const hoveredMoveRef = useRef<stateModule.HexCoord | null>(null);
+  const hoveredSafePathRef = useRef<stateModule.HexCoord[] | null>(null);
   const hoverSnapshotRef = useRef<WorldHoverSnapshot>({
     game: null,
     target: null,
@@ -71,6 +64,27 @@ export function usePixiWorld({
     tooltipKey: null,
   });
   const [canvasReady, setCanvasReady] = useState(false);
+
+  useEffect(() => {
+    playerCoordRef.current = game.player.coord;
+    visibleTilesRef.current = stateModule.getVisibleTiles(game);
+    gameRef.current = game;
+  }, [game, gameRef]);
+
+  useEffect(() => {
+    selectedRef.current = game.player.coord;
+    hoveredMoveRef.current = null;
+    hoveredSafePathRef.current = null;
+    hoverSnapshotRef.current = {
+      game: null,
+      target: null,
+      clickable: false,
+      hoveredMove: null,
+      hoveredSafePath: null,
+      tooltip: null,
+      tooltipKey: null,
+    };
+  }, [game.player.coord]);
 
   useEffect(() => {
     if (!hostRef.current || appRef.current) return;
@@ -178,7 +192,7 @@ export function usePixiWorld({
 
         if (!clickable) return;
 
-        setSelected(target);
+        selectedRef.current = target;
         setGame((currentState) =>
           distance === 1
             ? stateModule.moveToTile(
@@ -426,22 +440,19 @@ export function usePixiWorld({
   }, [
     frameCountRef,
     gameRef,
-    hoveredMoveRef,
-    hoveredSafePathRef,
-    playerCoordRef,
-    selectedRef,
     setGame,
-    setSelected,
     setTooltip,
     tooltipPositionRef,
-    visibleTilesRef,
     worldTimeMsRef,
   ]);
 
   return { hostRef, canvasReady };
 }
 
-function samePath(left: HexCoord[] | null, right: HexCoord[] | null) {
+function samePath(
+  left: stateModule.HexCoord[] | null,
+  right: stateModule.HexCoord[] | null,
+) {
   if (left == null || right == null) {
     return left === right;
   }
@@ -456,6 +467,9 @@ function samePath(left: HexCoord[] | null, right: HexCoord[] | null) {
   );
 }
 
-function sameCoord(left: HexCoord | null, right: HexCoord | null) {
+function sameCoord(
+  left: stateModule.HexCoord | null,
+  right: stateModule.HexCoord | null,
+) {
   return left?.q === right?.q && left?.r === right?.r;
 }
