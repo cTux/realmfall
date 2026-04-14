@@ -142,36 +142,18 @@ Shared project rules live in `docs/RULES.md`.
 
 World lore lives in `docs/lore/REALMFALL.md`.
 
+Implementation-facing specs live in `docs/specs`, with current reference specs in:
+
+- `docs/specs/reference/gameplay-features/README.md`
+- `docs/specs/reference/technical-solutions/README.md`
+
 AI-facing instruction entrypoints also exist in:
 
 - `AGENTS.md`
 - `CLAUDE.md`
 - `.github/copilot-instructions.md`
 
-Important workflow expectations:
-
-- Future prompts should automatically apply the relevant sections from `docs/RULES.md`.
-- Relevant rules should be treated as default context for future prompts, even when they are not repeated explicitly.
-- If a prompt contains `add rule`, the rule must be added to `docs/RULES.md` immediately and related docs should be updated if needed.
-- If a rule changes future prompt execution or contributor workflow, sync `README.md`, `docs/PROMPTS.md`, `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md`.
-- Use `docs/PROJECT_REVIEW.md` and `docs/PROMPTS.md` as inputs when refining recurring rules, but keep `docs/RULES.md` as the source of truth.
-- Use `pnpm`, not `npm`, in contributor guidance and commands.
-- Keep gameplay logic in `src/game`, app orchestration in `src/app`, component UI in `src/ui/components`, and Pixi rendering concerns in `src/ui/world`.
-- Avoid growing large coordinator files when a focused hook, helper, or domain module is a better fit.
-- Keep balancing and world constants configurable instead of scattering hardcoded values through UI code.
-- Keep each unique item, enemy, and structure in its own dedicated configuration file instead of centralizing all content definitions in one broad module.
-- Preserve save normalization when persistence shape changes.
-- Treat browser-side save encryption language as obfuscation unless the security model changes.
-- Prefer debounced or meaningfully-triggered autosave work over repeated identical writes.
-- Protect world-rendering performance and prefer smooth visible transitions where appropriate.
-- Avoid high-frequency world interaction state flowing through broad React state when a narrower path is sufficient.
-- Prefer one clear world render scheduler and intentional caching for deterministic render inputs.
-- On the Pixi world path, prefer ticker-owned rendering with refs or invalidation flags instead of duplicate React effect redraws.
-- Prefer extending the current render pools, caches, and stage-layer structure before introducing new rendering systems.
-- Treat bundle growth as a real performance budget, especially on the initial app path.
-- Keep new window content out of the initial bundle unless there is a clear reason not to split it.
-- For ability, buff, and debuff icons rendered through CSS masks, use transparent SVG assets with no full-canvas background shape, preferring transparent exports or stripped background paths.
-- For UI elements that already use the custom game tooltip system, do not add native browser `title` tooltips for buffs, debuffs, abilities, or similar interactive affordances.
+Workflow expectations are defined in `docs/RULES.md`. Keep this file concise and update the canonical rules there first.
 
 ## Prompt Workflow
 

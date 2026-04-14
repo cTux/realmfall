@@ -10,6 +10,7 @@
 - When a rule changes project workflow or contributor expectations, reflect that change in `README.md` and adjust `docs/PROMPTS.md` if the prompt templates should change too.
 - Keep AI-specific instruction entrypoints such as `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md` aligned with this file when shared prompt behavior changes.
 - Use `docs/PROJECT_REVIEW.md` and `docs/PROMPTS.md` as inputs when refining recurring project rules, but keep this file as the canonical rules source.
+- Keep supporting markdown files compact. Prefer short references back to this file instead of repeating long rule lists across multiple docs.
 
 ## General
 
@@ -88,6 +89,7 @@
 ## Testing
 
 - Add or update tests for non-trivial gameplay, rendering math, persistence normalization, and bug-fix changes when practical.
+- Every issue fix should be followed by adding or adjusting tests that cover the fixed behavior, unless the repository cannot reasonably test that path yet. In that case, document the gap explicitly.
 - Favor deterministic tests for game-state changes and rendering calculations.
 - Keep production buildability in mind, not only local dev behavior.
 - When performance-sensitive behavior changes, verify both correctness and the likely rerender or redraw impact.
@@ -100,6 +102,11 @@
 - When prompts establish recurring workflow expectations, capture them here so future prompt handling stays consistent.
 - Keep rule and workflow updates synchronized across `README.md`, `docs/PROMPTS.md`, and the AI-specific instruction files when those updates affect future prompt execution.
 - Keep lore-sensitive guidance aligned with the canonical world reference in `docs/lore/REALMFALL.md`.
+- Keep current-system specs under `docs/specs` for implemented gameplay features and technical solutions.
+- Every implemented feature should be followed by creating or updating the relevant spec in `docs/specs` before the task is considered complete.
+- When changing an existing feature, update the matching spec in the same task so the spec stays aligned with shipped behavior.
+- Each gameplay feature and each technical solution should have its own dedicated spec file. Do not merge multiple implemented features or multiple technical solutions into one general reference spec.
+- Use index documents only as navigation over dedicated spec files, not as replacements for them.
 
 ## Current Project Constraints
 
