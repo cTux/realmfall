@@ -31,14 +31,20 @@ function getVendorChunk(id: string) {
 }
 
 export default defineConfig({
-  plugins: [
-    react(),
-    VitePWA({
-      registerType: 'autoUpdate',
-    }),
-    detectDuplicatedDeps(),
-    minipic(),
-  ],
+  plugins: (() => {
+    const isStorybookScript =
+      process.env.npm_lifecycle_event?.includes('storybook') ?? false;
+
+    return [
+      react(),
+      !isStorybookScript &&
+        VitePWA({
+          registerType: 'autoUpdate',
+        }),
+      detectDuplicatedDeps(),
+      !isStorybookScript && minipic(),
+    ].filter(Boolean);
+  })(),
   build: {
     rollupOptions: {
       output: {
