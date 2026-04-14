@@ -271,19 +271,24 @@ export function getCurrentHexClaimStatus(state: GameState) {
     return {
       canClaim: false,
       reason: isPlayerClaim(tile.claim)
-        ? 'This hex already belongs to your territory.'
-        : `This hex belongs to ${tile.claim.ownerName}.`,
+        ? t('game.message.claim.status.alreadyYours')
+        : t('game.message.claim.status.belongsTo', {
+            ownerName: tile.claim.ownerName,
+          }),
     };
   }
 
   if (!isPassable(tile.terrain)) {
-    return { canClaim: false, reason: 'Only passable ground can be claimed.' };
+    return {
+      canClaim: false,
+      reason: t('game.message.claim.status.passableOnly'),
+    };
   }
 
   if (tile.structure || tile.enemyIds.length > 0 || tile.items.length > 0) {
     return {
       canClaim: false,
-      reason: 'Only empty hexes can be claimed.',
+      reason: t('game.message.claim.status.emptyOnly'),
     };
   }
 
@@ -297,7 +302,7 @@ export function getCurrentHexClaimStatus(state: GameState) {
   ) {
     return {
       canClaim: false,
-      reason: 'New territory must connect to your existing border.',
+      reason: t('game.message.claim.status.mustConnect'),
     };
   }
 
@@ -309,7 +314,7 @@ export function getCurrentHexClaimStatus(state: GameState) {
   ) {
     return {
       canClaim: false,
-      reason: 'You cannot claim next to another territory.',
+      reason: t('game.message.claim.status.nearOtherTerritory'),
     };
   }
 
@@ -318,7 +323,7 @@ export function getCurrentHexClaimStatus(state: GameState) {
   if (clothCount < 1 || stickCount < 1) {
     return {
       canClaim: false,
-      reason: 'Claiming needs 1 Cloth and 1 Sticks for a banner.',
+      reason: t('game.message.claim.status.needsBannerMaterials'),
     };
   }
 
