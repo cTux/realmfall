@@ -17,6 +17,7 @@ Current implemented areas include:
 - Desktop-style draggable windows for hero, skills, hex info, equipment, inventory, recipe book, combat, loot, logs, and docked controls.
 - Local autosave with normalization during load to keep save compatibility across shape changes.
 - Automated quality tooling with type checking, linting, formatting, tests, Husky hooks, and CI coverage for typecheck, lint, test, and build.
+- Storybook coverage for UI components plus catalog views for items, enemies, and structures.
 
 Current project strengths reflected in the codebase and docs:
 
@@ -65,7 +66,9 @@ pnpm dev
 - `pnpm changelog:build`
 - `pnpm changelog:release`
 - `pnpm dev`
+- `pnpm dev:storybook`
 - `pnpm build`
+- `pnpm build:storybook`
 - `pnpm serve`
 - `pnpm preview`
 - `pnpm typecheck`
@@ -130,6 +133,7 @@ The world view is the most performance-sensitive path in the project.
 - Prefer debounced or meaningfully-triggered persistence work over repeated identical writes.
 - Keep React component files compatible with Fast Refresh expectations.
 - New draggable windows should keep their content behind a lazy-loaded bundle, either by splitting the whole window module or a dedicated `*WindowContent` module.
+- Keep Storybook coverage current for every UI component and for aggregate entity catalogs so component and content changes stay visible in reviewable UI fixtures.
 - Keep user-facing copy in i18n resources, default to `en`, add new keys instead of inline strings, and use dot-separated keys such as `{feature}.{area}.{property}`.
 - For ability, buff, and debuff icons rendered through CSS masks, use transparent SVG assets with no full-canvas background shape so the UI does not show solid squares.
 - For UI elements that already use the custom game tooltip system, do not add native browser `title` tooltips. Buffs, debuffs, abilities, and similar interactive affordances should use the shared custom tooltip consistently.

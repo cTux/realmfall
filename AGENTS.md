@@ -23,5 +23,6 @@ This repository uses `docs/RULES.md` as the source of truth for project-specific
 ## Repo Expectations
 
 - Follow the project-specific expectations defined in `docs/RULES.md`.
+- Keep Storybook stories aligned with component and entity dictionary changes when the task touches UI or content definitions.
 - Use the supporting docs above when they are relevant to the current task.
 - Use `docs/PROJECT_REVIEW.md` as input for recurring best-practice updates, while keeping `docs/RULES.md` canonical.

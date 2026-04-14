@@ -47,6 +47,8 @@
 
 - Follow the existing window-based desktop-style UI instead of introducing unrelated navigation patterns.
 - Keep heavy app coordination in dedicated hooks when possible, following patterns already used in `src/app/App`.
+- Keep Storybook stories for every component under `src/ui/components`, including shared leaf components and window wrappers.
+- Keep aggregate Storybook catalogs for entity dictionaries such as `ITEM_CONFIGS`, `ENEMY_CONFIGS`, and `STRUCTURE_CONFIGS`, and prefer rendering those catalogs directly from the live config arrays so entity additions, removals, and edits appear automatically.
 - Keep user-facing UI copy in i18n resources instead of inline string literals in components, gameplay modules, or content definitions.
 - Default to `en` and keep locale resources lazy-loadable so additional languages can stay off the initial path when they are not needed.
 - When new user-facing text is required, add a new i18n key instead of hardcoding a fallback string in code.
@@ -93,6 +95,7 @@
 - Favor deterministic tests for game-state changes and rendering calculations.
 - Keep production buildability in mind, not only local dev behavior.
 - When performance-sensitive behavior changes, verify both correctness and the likely rerender or redraw impact.
+- Keep a coverage test for Storybook parity so component additions or removals in `src/ui/components` fail fast when corresponding stories are missing.
 
 ## Documentation
 
