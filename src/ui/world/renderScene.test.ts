@@ -491,6 +491,50 @@ describe('renderScene', () => {
     expect(safePathTint).toHaveLength(2);
   });
 
+  it('keeps claim borders visible above hovered safe-path overlays', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(3, 'render-scene-safe-path-claim-border');
+    game.tiles['1,0'] = {
+      ...game.tiles['1,0'],
+      claim: {
+        ownerId: 'faction-1',
+        ownerType: 'faction',
+        ownerName: 'Ghostline',
+        borderColor: '#ffffff',
+      },
+    };
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      { q: 2, r: 0 },
+      12 * 60,
+      0,
+      [
+        { q: 1, r: 0 },
+        { q: 2, r: 0 },
+      ],
+    );
+
+    const world = app.stage.children[1] as MockContainer;
+    const territoryBorders = collectDescendants(world).filter(
+      (child) =>
+        child instanceof MockGraphics &&
+        child.lineStyle.mock.calls.some(
+          ([width, color, alpha]) =>
+            width === 3 && color === 0xffffff && alpha === 0.92,
+        ),
+    ) as MockGraphics[];
+
+    expect(territoryBorders).toHaveLength(6);
+  });
+
   it('adds animated campfire glow only once the world gets dark', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-campfire-glow');
@@ -877,7 +921,7 @@ describe('renderScene', () => {
 
     const worldMap = app.stage.children[1] as MockContainer;
     const world = worldMap.children[0] as MockContainer;
-    const markerLayer = world.children[3] as MockContainer;
+    const markerLayer = world.children[4] as MockContainer;
 
     const markerWrappers = markerLayer.children.filter(
       (child): child is MockContainer => child instanceof MockContainer,
@@ -919,7 +963,7 @@ describe('renderScene', () => {
 
     const worldMap = app.stage.children[1] as MockContainer;
     const world = worldMap.children[0] as MockContainer;
-    const markerLayer = world.children[3] as MockContainer;
+    const markerLayer = world.children[4] as MockContainer;
     const markerWrappers = markerLayer.children.filter(
       (child): child is MockContainer => child instanceof MockContainer,
     );
