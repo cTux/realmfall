@@ -12,6 +12,8 @@ export function HexInfoWindowContent({
   terrain,
   structure,
   enemyCount,
+  interactLabel,
+  canInteract,
   canClaim,
   claimExplanation,
   canProspect,
@@ -145,6 +147,7 @@ export function HexInfoWindowContent({
       ) : null}
 
       {!canClaim &&
+      !(interactLabel && canInteract) &&
       !canProspect &&
       !canSell &&
       townStock.length === 0 &&

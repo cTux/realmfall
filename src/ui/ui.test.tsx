@@ -628,6 +628,43 @@ describe('ui helpers and components', () => {
     expect(markup).not.toContain('>Prospect<');
   });
 
+  it('does not show empty-state text when a hex has an available interact action', async () => {
+    const markup = await renderMarkup(
+      <HexInfoWindow
+        position={DEFAULT_WINDOWS.hexInfo}
+        onMove={() => {}}
+        isHome={false}
+        onSetHome={() => {}}
+        terrain="Forest"
+        structure="Tree"
+        enemyCount={0}
+        interactLabel="Chop tree"
+        canInteract
+        canClaim={false}
+        canProspect={false}
+        canSell={false}
+        claimExplanation={null}
+        prospectExplanation={null}
+        sellExplanation={null}
+        onInteract={() => {}}
+        onClaim={() => {}}
+        onProspect={() => {}}
+        onSellAll={() => {}}
+        territoryName={null}
+        territoryOwnerType={null}
+        territoryNpc={null}
+        townStock={[]}
+        gold={0}
+        onBuyItem={() => {}}
+        onHoverItem={() => {}}
+        onLeaveItem={() => {}}
+      />,
+    );
+
+    expect(markup).toContain('(Q) Gather');
+    expect(markup).not.toContain('Nothing of note stirs here.');
+  });
+
   it('renders hero stat bars with compact large values', async () => {
     const markup = await renderMarkup(
       <HeroWindow
