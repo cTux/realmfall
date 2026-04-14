@@ -4,15 +4,18 @@ import { WINDOW_LABELS } from '../../windowLabels';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
+import { loadRetryingWindowModule } from '../lazyWindowComponent';
 import inventoryStyles from '../InventoryWindow/styles.module.scss';
 import labelStyles from '../windowLabels.module.scss';
 import type { HexInfoWindowProps } from './types';
 import styles from './styles.module.scss';
 
 const HexInfoWindowContent = lazy(() =>
-  import('./HexInfoWindowContent').then((module) => ({
-    default: module.HexInfoWindowContent,
-  })),
+  loadRetryingWindowModule(() =>
+    import('./HexInfoWindowContent').then((module) => ({
+      default: module.HexInfoWindowContent,
+    })),
+  ),
 );
 
 export const HexInfoWindow = memo(function HexInfoWindow({

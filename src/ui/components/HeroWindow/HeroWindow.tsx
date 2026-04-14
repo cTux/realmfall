@@ -3,13 +3,16 @@ import { WINDOW_LABELS } from '../../windowLabels';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
+import { loadRetryingWindowModule } from '../lazyWindowComponent';
 import labelStyles from '../windowLabels.module.scss';
 import type { HeroWindowProps } from './types';
 
 const HeroWindowContent = lazy(() =>
-  import('./HeroWindowContent').then((module) => ({
-    default: module.HeroWindowContent,
-  })),
+  loadRetryingWindowModule(() =>
+    import('./HeroWindowContent').then((module) => ({
+      default: module.HeroWindowContent,
+    })),
+  ),
 );
 
 export const HeroWindow = memo(function HeroWindow({

@@ -5,14 +5,17 @@ import { WINDOW_LABELS } from '../../windowLabels';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
+import { loadRetryingWindowModule } from '../lazyWindowComponent';
 import labelStyles from '../windowLabels.module.scss';
 import type { LogWindowProps } from './types';
 import styles from './styles.module.scss';
 
 const LogWindowContent = lazy(() =>
-  import('./LogWindowContent').then((module) => ({
-    default: module.LogWindowContent,
-  })),
+  loadRetryingWindowModule(() =>
+    import('./LogWindowContent').then((module) => ({
+      default: module.LogWindowContent,
+    })),
+  ),
 );
 
 export const LogWindow = memo(function LogWindow({

@@ -1,7 +1,20 @@
-import styles from './WindowLoadingState.module.scss';
+import { useEffect, useState } from 'react';
 import { t } from '../../i18n';
+import styles from './WindowLoadingState.module.scss';
+
+export const WINDOW_LOADING_WARNING_DELAY_MS = 3000;
 
 export function WindowLoadingState() {
+  const [showWarning, setShowWarning] = useState(false);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setShowWarning(true);
+    }, WINDOW_LOADING_WARNING_DELAY_MS);
+
+    return () => window.clearTimeout(timeout);
+  }, []);
+
   return (
     <div
       className={styles.loadingState}
@@ -10,6 +23,9 @@ export function WindowLoadingState() {
       aria-label={t('ui.loading.window')}
     >
       <div className={styles.spinner} aria-hidden="true" />
+      {showWarning ? (
+        <p className={styles.message}>{t('ui.loading.windowDelayed')}</p>
+      ) : null}
     </div>
   );
 }

@@ -3,14 +3,17 @@ import { WINDOW_LABELS } from '../../windowLabels';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
+import { loadRetryingWindowModule } from '../lazyWindowComponent';
 import labelStyles from '../windowLabels.module.scss';
 import type { SkillsWindowProps } from './types';
 import styles from './styles.module.scss';
 
 const SkillsWindowContent = lazy(() =>
-  import('./SkillsWindowContent').then((module) => ({
-    default: module.SkillsWindowContent,
-  })),
+  loadRetryingWindowModule(() =>
+    import('./SkillsWindowContent').then((module) => ({
+      default: module.SkillsWindowContent,
+    })),
+  ),
 );
 
 export const SkillsWindow = memo(function SkillsWindow({

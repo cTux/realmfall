@@ -12,6 +12,8 @@ This spec covers the top-level React hook composition and derived view-model pat
 - This keeps presentational components mostly declarative.
 - The game uses a desktop-style draggable window model with persisted positions and visibility.
 - Secondary window content is separated into dedicated components and lazy-loaded bundles following the current project pattern.
+- Deferred window-content imports retry indefinitely when a bundle fails to load, keeping the rest of the game interactive while the affected window shell stays mounted on its loading fallback.
+- Window loading fallbacks keep the spinner visible and add delayed explanatory copy when the deferred content is still unavailable after several seconds.
 
 ## Main Implementation Areas
 

@@ -1,11 +1,4 @@
-import {
-  lazy,
-  Suspense,
-  useEffect,
-  useMemo,
-  useState,
-  type MutableRefObject,
-} from 'react';
+import { useEffect, useMemo, useState, type MutableRefObject } from 'react';
 import {
   canEquipItem,
   canUseItem,
@@ -25,67 +18,21 @@ import {
 } from '../constants';
 import { GameTooltip } from '../../ui/components/GameTooltip';
 import { HeroWindow } from '../../ui/components/HeroWindow';
-import { WindowLoadingState } from '../../ui/components/WindowLoadingState';
+import { SkillsWindow } from '../../ui/components/SkillsWindow';
+import { HexInfoWindow } from '../../ui/components/HexInfoWindow';
+import { EquipmentWindow } from '../../ui/components/EquipmentWindow';
+import { InventoryWindow } from '../../ui/components/InventoryWindow';
+import { RecipeBookWindow } from '../../ui/components/RecipeBookWindow';
+import { LogWindow } from '../../ui/components/LogWindow';
+import { CombatWindow } from '../../ui/components/CombatWindow';
+import { LootWindow } from '../../ui/components/LootWindow';
+import { ItemContextMenu } from '../../ui/components/ItemContextMenu';
 import { WindowDock } from '../../ui/components/WindowDock';
 import type { ItemContextMenuState, TooltipItem } from './types';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import type { TooltipLine } from '../../ui/tooltips';
 import { formatTerrainLabel } from './appHelpers';
 import { useTooltipState } from './tooltipStore';
-
-const SkillsWindow = lazy(() =>
-  import('../../ui/components/SkillsWindow').then((module) => ({
-    default: module.SkillsWindow,
-  })),
-);
-
-const HexInfoWindow = lazy(() =>
-  import('../../ui/components/HexInfoWindow').then((module) => ({
-    default: module.HexInfoWindow,
-  })),
-);
-
-const EquipmentWindow = lazy(() =>
-  import('../../ui/components/EquipmentWindow').then((module) => ({
-    default: module.EquipmentWindow,
-  })),
-);
-
-const InventoryWindow = lazy(() =>
-  import('../../ui/components/InventoryWindow').then((module) => ({
-    default: module.InventoryWindow,
-  })),
-);
-
-const RecipeBookWindow = lazy(() =>
-  import('../../ui/components/RecipeBookWindow').then((module) => ({
-    default: module.RecipeBookWindow,
-  })),
-);
-
-const LogWindow = lazy(() =>
-  import('../../ui/components/LogWindow').then((module) => ({
-    default: module.LogWindow,
-  })),
-);
-
-const CombatWindow = lazy(() =>
-  import('../../ui/components/CombatWindow').then((module) => ({
-    default: module.CombatWindow,
-  })),
-);
-
-const LootWindow = lazy(() =>
-  import('../../ui/components/LootWindow').then((module) => ({
-    default: module.LootWindow,
-  })),
-);
-
-const ItemContextMenu = lazy(() =>
-  import('../../ui/components/ItemContextMenu').then((module) => ({
-    default: module.ItemContextMenu,
-  })),
-);
 
 interface AppWindowsProps {
   windows: WindowPositions;
@@ -322,208 +269,190 @@ export function AppWindows({
         onLeaveDetail={onCloseTooltip}
       />
       {loadedWindows.skills ? (
-        <Suspense fallback={<WindowLoadingState />}>
-          <SkillsWindow
-            position={windows.skills}
-            onMove={windowMoveHandlers.skills}
-            visible={windowShown.skills}
-            onClose={windowCloseHandlers.skills}
-            skills={stats.skills}
-            onHoverDetail={onShowTooltip}
-            onLeaveDetail={onCloseTooltip}
-          />
-        </Suspense>
+        <SkillsWindow
+          position={windows.skills}
+          onMove={windowMoveHandlers.skills}
+          visible={windowShown.skills}
+          onClose={windowCloseHandlers.skills}
+          skills={stats.skills}
+          onHoverDetail={onShowTooltip}
+          onLeaveDetail={onCloseTooltip}
+        />
       ) : null}
       {loadedWindows.recipes ? (
-        <Suspense fallback={<WindowLoadingState />}>
-          <RecipeBookWindow
-            position={windows.recipes}
-            onMove={windowMoveHandlers.recipes}
-            visible={windowShown.recipes}
-            onClose={windowCloseHandlers.recipes}
-            hasRecipeBook={recipeBookKnown}
-            currentStructure={describeStructure(currentTile.structure)}
-            recipes={recipes}
-            inventoryCounts={inventoryCounts}
-            onCraft={onCraftRecipe}
-          />
-        </Suspense>
+        <RecipeBookWindow
+          position={windows.recipes}
+          onMove={windowMoveHandlers.recipes}
+          visible={windowShown.recipes}
+          onClose={windowCloseHandlers.recipes}
+          hasRecipeBook={recipeBookKnown}
+          currentStructure={describeStructure(currentTile.structure)}
+          recipes={recipes}
+          inventoryCounts={inventoryCounts}
+          onCraft={onCraftRecipe}
+        />
       ) : null}
       {loadedWindows.hexInfo ? (
-        <Suspense fallback={<WindowLoadingState />}>
-          <HexInfoWindow
-            position={windows.hexInfo}
-            onMove={windowMoveHandlers.hexInfo}
-            visible={windowShown.hexInfo}
-            onClose={windowCloseHandlers.hexInfo}
-            isHome={
-              game.homeHex.q === game.player.coord.q &&
-              game.homeHex.r === game.player.coord.r
-            }
-            canSetHome={
-              !currentTile.claim || currentTile.claim.ownerType === 'player'
-            }
-            onSetHome={onSetHome}
-            terrain={formatTerrainLabel(currentTile.terrain)}
-            structure={
-              currentTile.structure
-                ? describeStructure(currentTile.structure)
-                : null
-            }
-            enemyCount={
-              game.combat
-                ? (combatSnapshot?.enemies.length ?? 0)
-                : getHostileEnemyIds(game, currentTile.coord).length
-            }
-            interactLabel={interactLabel}
-            canInteract={Boolean(interactLabel)}
-            canProspect={canProspect}
-            canSell={canSell}
-            canClaim={claimStatus.canClaim}
-            claimExplanation={claimStatus.reason}
-            prospectExplanation={prospectExplanation}
-            sellExplanation={sellExplanation}
-            onInteract={onInteract}
-            onProspect={onProspect}
-            onSellAll={onSellAll}
-            onClaim={onClaimHex}
-            structureHp={currentTile.structureHp}
-            structureMaxHp={currentTile.structureMaxHp}
-            territoryName={currentTile.claim?.ownerName ?? null}
-            territoryOwnerType={currentTile.claim?.ownerType ?? null}
-            territoryNpc={currentTile.claim?.npc ?? null}
-            townStock={townStock}
-            gold={gold}
-            onBuyItem={onBuyTownItem}
-            onHoverItem={onShowItemTooltip}
-            onLeaveItem={onCloseTooltip}
-          />
-        </Suspense>
+        <HexInfoWindow
+          position={windows.hexInfo}
+          onMove={windowMoveHandlers.hexInfo}
+          visible={windowShown.hexInfo}
+          onClose={windowCloseHandlers.hexInfo}
+          isHome={
+            game.homeHex.q === game.player.coord.q &&
+            game.homeHex.r === game.player.coord.r
+          }
+          canSetHome={
+            !currentTile.claim || currentTile.claim.ownerType === 'player'
+          }
+          onSetHome={onSetHome}
+          terrain={formatTerrainLabel(currentTile.terrain)}
+          structure={
+            currentTile.structure
+              ? describeStructure(currentTile.structure)
+              : null
+          }
+          enemyCount={
+            game.combat
+              ? (combatSnapshot?.enemies.length ?? 0)
+              : getHostileEnemyIds(game, currentTile.coord).length
+          }
+          interactLabel={interactLabel}
+          canInteract={Boolean(interactLabel)}
+          canProspect={canProspect}
+          canSell={canSell}
+          canClaim={claimStatus.canClaim}
+          claimExplanation={claimStatus.reason}
+          prospectExplanation={prospectExplanation}
+          sellExplanation={sellExplanation}
+          onInteract={onInteract}
+          onProspect={onProspect}
+          onSellAll={onSellAll}
+          onClaim={onClaimHex}
+          structureHp={currentTile.structureHp}
+          structureMaxHp={currentTile.structureMaxHp}
+          territoryName={currentTile.claim?.ownerName ?? null}
+          territoryOwnerType={currentTile.claim?.ownerType ?? null}
+          territoryNpc={currentTile.claim?.npc ?? null}
+          townStock={townStock}
+          gold={gold}
+          onBuyItem={onBuyTownItem}
+          onHoverItem={onShowItemTooltip}
+          onLeaveItem={onCloseTooltip}
+        />
       ) : null}
       {loadedWindows.equipment ? (
-        <Suspense fallback={<WindowLoadingState />}>
-          <EquipmentWindow
-            position={windows.equipment}
-            onMove={windowMoveHandlers.equipment}
-            visible={windowShown.equipment}
-            onClose={windowCloseHandlers.equipment}
-            equipment={game.player.equipment}
-            onHoverItem={onEquipmentHover}
-            onLeaveItem={onCloseTooltip}
-            onUnequip={onUnequip}
-            onContextItem={onEquippedContextItem}
-          />
-        </Suspense>
+        <EquipmentWindow
+          position={windows.equipment}
+          onMove={windowMoveHandlers.equipment}
+          visible={windowShown.equipment}
+          onClose={windowCloseHandlers.equipment}
+          equipment={game.player.equipment}
+          onHoverItem={onEquipmentHover}
+          onLeaveItem={onCloseTooltip}
+          onUnequip={onUnequip}
+          onContextItem={onEquippedContextItem}
+        />
       ) : null}
       {loadedWindows.inventory ? (
-        <Suspense fallback={<WindowLoadingState />}>
-          <InventoryWindow
-            position={windows.inventory}
-            onMove={windowMoveHandlers.inventory}
-            visible={windowShown.inventory}
-            onClose={windowCloseHandlers.inventory}
-            inventory={game.player.inventory}
-            equipment={game.player.equipment}
-            onSort={onSort}
-            onEquip={onEquip}
-            onContextItem={onContextItem}
-            onHoverItem={onShowItemTooltip}
-            onLeaveItem={onCloseTooltip}
-          />
-        </Suspense>
+        <InventoryWindow
+          position={windows.inventory}
+          onMove={windowMoveHandlers.inventory}
+          visible={windowShown.inventory}
+          onClose={windowCloseHandlers.inventory}
+          inventory={game.player.inventory}
+          equipment={game.player.equipment}
+          onSort={onSort}
+          onEquip={onEquip}
+          onContextItem={onContextItem}
+          onHoverItem={onShowItemTooltip}
+          onLeaveItem={onCloseTooltip}
+        />
       ) : null}
       {loadedWindows.loot ? (
-        <Suspense fallback={<WindowLoadingState />}>
-          <LootWindow
-            position={windows.loot}
-            onMove={windowMoveHandlers.loot}
-            visible={windowShown.loot && lootWindowVisible}
-            loot={lootSnapshot}
-            equipment={game.player.equipment}
-            onClose={windowCloseHandlers.loot}
-            onTakeAll={onTakeAllLoot}
-            onTakeItem={onTakeLootItem}
-            onHoverItem={onShowItemTooltip}
-            onLeaveItem={onCloseTooltip}
-          />
-        </Suspense>
+        <LootWindow
+          position={windows.loot}
+          onMove={windowMoveHandlers.loot}
+          visible={windowShown.loot && lootWindowVisible}
+          loot={lootSnapshot}
+          equipment={game.player.equipment}
+          onClose={windowCloseHandlers.loot}
+          onTakeAll={onTakeAllLoot}
+          onTakeItem={onTakeLootItem}
+          onHoverItem={onShowItemTooltip}
+          onLeaveItem={onCloseTooltip}
+        />
       ) : null}
       {itemMenu ? (
-        <Suspense fallback={null}>
-          <ItemContextMenu
-            item={itemMenu.item}
-            x={itemMenu.x}
-            y={itemMenu.y}
-            equipLabel={itemMenu.slot ? 'Unequip' : 'Equip'}
-            canEquip={itemMenu.slot ? true : canEquipItem(itemMenu.item)}
-            canUse={canUseItem(itemMenu.item)}
-            onEquip={() => {
-              if (itemMenu.slot) {
-                onUnequip(itemMenu.slot);
-              } else {
-                onEquip(itemMenu.item.id);
-              }
-              onCloseItemMenu();
-            }}
-            onUse={() => {
-              onUseItem(itemMenu.item.id);
-              onCloseItemMenu();
-            }}
-            onDrop={() => {
-              if (itemMenu.slot) {
-                onDropEquippedItem(itemMenu.slot);
-              } else {
-                onDropItem(itemMenu.item.id);
-              }
-              onCloseItemMenu();
-            }}
-            onClose={onCloseItemMenu}
-          />
-        </Suspense>
+        <ItemContextMenu
+          item={itemMenu.item}
+          x={itemMenu.x}
+          y={itemMenu.y}
+          equipLabel={itemMenu.slot ? 'Unequip' : 'Equip'}
+          canEquip={itemMenu.slot ? true : canEquipItem(itemMenu.item)}
+          canUse={canUseItem(itemMenu.item)}
+          onEquip={() => {
+            if (itemMenu.slot) {
+              onUnequip(itemMenu.slot);
+            } else {
+              onEquip(itemMenu.item.id);
+            }
+            onCloseItemMenu();
+          }}
+          onUse={() => {
+            onUseItem(itemMenu.item.id);
+            onCloseItemMenu();
+          }}
+          onDrop={() => {
+            if (itemMenu.slot) {
+              onDropEquippedItem(itemMenu.slot);
+            } else {
+              onDropItem(itemMenu.item.id);
+            }
+            onCloseItemMenu();
+          }}
+          onClose={onCloseItemMenu}
+        />
       ) : null}
       {loadedWindows.log ? (
-        <Suspense fallback={<WindowLoadingState />}>
-          <LogWindow
-            position={windows.log}
-            onMove={windowMoveHandlers.log}
-            visible={windowShown.log}
-            onClose={windowCloseHandlers.log}
-            filters={logFilters}
-            defaultFilters={DEFAULT_LOG_FILTERS}
-            showFilterMenu={showFilterMenu}
-            onToggleMenu={onToggleFilterMenu}
-            onToggleFilter={onToggleLogFilter}
-            logs={filteredLogs}
-          />
-        </Suspense>
+        <LogWindow
+          position={windows.log}
+          onMove={windowMoveHandlers.log}
+          visible={windowShown.log}
+          onClose={windowCloseHandlers.log}
+          filters={logFilters}
+          defaultFilters={DEFAULT_LOG_FILTERS}
+          showFilterMenu={showFilterMenu}
+          onToggleMenu={onToggleFilterMenu}
+          onToggleFilter={onToggleLogFilter}
+          logs={filteredLogs}
+        />
       ) : null}
       {loadedWindows.combat && combatSnapshot ? (
-        <Suspense fallback={<WindowLoadingState />}>
-          <CombatWindow
-            position={windows.combat}
-            onMove={windowMoveHandlers.combat}
-            visible={windowShown.combat && combatWindowVisible}
-            onClose={windowCloseHandlers.combat}
-            combat={combatSnapshot.combat}
-            playerParty={[
-              {
-                id: 'player',
-                name: 'Player',
-                level: stats.level,
-                hp: stats.hp,
-                maxHp: stats.maxHp,
-                mana: game.player.mana,
-                maxMana: stats.maxMana,
-                actor: combatSnapshot.combat.player,
-              },
-            ]}
-            enemies={combatSnapshot.enemies}
-            worldTimeMs={game.worldTimeMs}
-            onStart={onStartCombat}
-            onHoverDetail={onShowTooltip}
-            onLeaveDetail={onCloseTooltip}
-          />
-        </Suspense>
+        <CombatWindow
+          position={windows.combat}
+          onMove={windowMoveHandlers.combat}
+          visible={windowShown.combat && combatWindowVisible}
+          onClose={windowCloseHandlers.combat}
+          combat={combatSnapshot.combat}
+          playerParty={[
+            {
+              id: 'player',
+              name: 'Player',
+              level: stats.level,
+              hp: stats.hp,
+              maxHp: stats.maxHp,
+              mana: game.player.mana,
+              maxMana: stats.maxMana,
+              actor: combatSnapshot.combat.player,
+            },
+          ]}
+          enemies={combatSnapshot.enemies}
+          worldTimeMs={game.worldTimeMs}
+          onStart={onStartCombat}
+          onHoverDetail={onShowTooltip}
+          onLeaveDetail={onCloseTooltip}
+        />
       ) : null}
       <GameTooltip tooltip={tooltip} positionRef={tooltipPositionRef} />
     </>

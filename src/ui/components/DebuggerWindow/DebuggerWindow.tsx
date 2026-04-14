@@ -3,14 +3,17 @@ import { WINDOW_LABELS } from '../../windowLabels';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
+import { loadRetryingWindowModule } from '../lazyWindowComponent';
 import labelStyles from '../windowLabels.module.scss';
 import type { DebuggerWindowProps } from './types';
 import styles from './styles.module.scss';
 
 const DebuggerWindowContent = lazy(() =>
-  import('./DebuggerWindowContent').then((module) => ({
-    default: module.DebuggerWindowContent,
-  })),
+  loadRetryingWindowModule(() =>
+    import('./DebuggerWindowContent').then((module) => ({
+      default: module.DebuggerWindowContent,
+    })),
+  ),
 );
 
 export const DebuggerWindow = memo(function DebuggerWindow({

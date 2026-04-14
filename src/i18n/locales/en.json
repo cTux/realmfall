@@ -294,6 +294,7 @@
   "ui.loot.takeAllAction": "Tak(e) all",
   "ui.loot.title": "Loot on the Ground",
   "ui.loading.window": "Loading window",
+  "ui.loading.windowDelayed": "This window is taking longer to load than expected. Trying again…",
   "ui.log.filtersAction": "Filters",
   "ui.log.kind.combat.label": "combat",
   "ui.log.kind.loot.label": "loot",
