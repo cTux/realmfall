@@ -4,7 +4,6 @@ import type { ItemConfig } from '../types';
 export const trailRationItemConfig: ItemConfig = {
   key: 'trail-ration',
   name: 'Trail Ration',
-  kind: 'consumable',
   icon: ContentIcons.ShinyApple,
   tier: 1,
   rarity: 'common',

@@ -5,7 +5,6 @@ import type { ItemConfig } from '../types';
 export const charmNecklaceItemConfig: ItemConfig = {
   key: 'charm-necklace',
   name: 'Charm Necklace',
-  kind: 'artifact',
   slot: EquipmentSlotId.Amulet,
   icon: ContentIcons.Artifact,
   tier: 1,

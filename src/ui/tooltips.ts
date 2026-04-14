@@ -1,6 +1,6 @@
 import { getStatusEffectTags } from '../game/content/statusEffects';
 import { getSkillTags } from '../game/content/tags';
-import { inferItemTags } from '../game/content/items';
+import { getItemCategory, inferItemTags } from '../game/content/items';
 import { EquipmentSlotId } from '../game/content/ids';
 import {
   gatheringBonusChance,
@@ -28,7 +28,8 @@ export interface TooltipLine {
 }
 
 export function comparisonLines(item: Item, equipped?: Item) {
-  if (item.kind === 'consumable' || item.kind === 'resource') return [];
+  const category = getItemCategory(item);
+  if (category === 'consumable' || category === 'resource') return [];
   const compare = equipped ?? { power: 0, defense: 0, maxHp: 0 };
   return [
     { label: t('ui.tooltip.attack'), value: item.power - compare.power },
@@ -39,6 +40,7 @@ export function comparisonLines(item: Item, equipped?: Item) {
 
 export function itemTooltipLines(item: Item, equipped?: Item): TooltipLine[] {
   const tags = item.tags ?? inferItemTags(item);
+  const category = getItemCategory(item);
   const slotLine = item.slot
     ? {
         kind: 'text' as const,
@@ -47,7 +49,7 @@ export function itemTooltipLines(item: Item, equipped?: Item): TooltipLine[] {
       }
     : null;
 
-  if (item.kind === 'consumable') {
+  if (category === 'consumable') {
     return [
       { kind: 'text', text: consumableEffectDescription(item) },
       ...tagTooltipLines(tags),
@@ -55,7 +57,7 @@ export function itemTooltipLines(item: Item, equipped?: Item): TooltipLine[] {
   }
 
   const lines: TooltipLine[] =
-    item.kind === 'resource'
+    category === 'resource'
       ? []
       : [
           {
@@ -65,7 +67,7 @@ export function itemTooltipLines(item: Item, equipped?: Item): TooltipLine[] {
           },
         ];
 
-  if (item.kind === 'resource') {
+  if (category === 'resource') {
     lines.push({
       kind: 'stat',
       label: t('ui.tooltip.type'),
@@ -329,17 +331,7 @@ function itemTypeLabel(item: Item) {
     return formatEquipmentSlotLabel(item.slot).toLowerCase();
   }
 
-  if (
-    item.kind === 'weapon' ||
-    item.kind === 'artifact' ||
-    item.kind === 'armor' ||
-    item.kind === 'consumable' ||
-    item.kind === 'resource'
-  ) {
-    return t(`ui.itemKind.${item.kind}.label`);
-  }
-
-  return item.kind;
+  return t(`ui.itemKind.${getItemCategory(item)}.label`);
 }
 
 function itemTierLabel(item: Item) {

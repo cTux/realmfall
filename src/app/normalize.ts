@@ -1,9 +1,13 @@
 import { GAME_DAY_DURATION_MS, GAME_DAY_MINUTES } from '../game/config';
-import { inferItemTags } from '../game/content/items';
-import { getItemConfig } from '../game/content/items';
+import {
+  getItemCategory,
+  getItemConfig,
+  inferItemTags,
+} from '../game/content/items';
 import { getEnemyConfig } from '../game/content/enemies';
 import { getStatusEffectTags } from '../game/content/statusEffects';
 import { getGatheringStructureConfig } from '../game/content/structures';
+import { GAME_TAGS } from '../game/content/tags';
 import {
   getRecipeBookRecipes,
   isGatheringStructure,
@@ -29,7 +33,9 @@ export function normalizeLoadedGame(game: GameState): GameState {
   );
   const legacyGold = Math.max(0, Number(legacyGoldValue ?? 0));
   const hasInventoryGold = inventory.some(
-    (item) => item.kind === 'resource' && item.itemKey === 'gold',
+    (item) =>
+      item.itemKey === 'gold' &&
+      (item.tags ?? []).includes(GAME_TAGS.item.resource),
   );
   if (legacyGold > 0 && !hasInventoryGold)
     mergeStackable(inventory, normalizeItem(makeGoldStack(legacyGold)));
@@ -310,7 +316,7 @@ function consolidateInventory(inventory: Item[]) {
 }
 
 function mergeStackable(inventory: Item[], item: Item) {
-  if (item.kind !== 'consumable' && item.kind !== 'resource') {
+  if (!(item.tags ?? []).includes(GAME_TAGS.item.stackable)) {
     inventory.push(item);
     return;
   }
@@ -326,8 +332,8 @@ function mergeStackable(inventory: Item[], item: Item) {
 
 function isSameStackable(left: Item, right: Item) {
   return (
-    (left.kind === 'consumable' || left.kind === 'resource') &&
-    left.kind === right.kind &&
+    (left.tags ?? []).includes(GAME_TAGS.item.stackable) &&
+    getItemCategory(left) === getItemCategory(right) &&
     left.recipeId === right.recipeId &&
     sameStackIdentity(left, right) &&
     left.rarity === right.rarity &&

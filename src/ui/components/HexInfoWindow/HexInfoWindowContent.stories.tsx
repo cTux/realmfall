@@ -1,11 +1,13 @@
 import type { ComponentProps } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { buildItemFromConfig } from '../../../game/content/items';
+import { ItemId } from '../../../game/content/ids';
 import {
   describeStructure,
   structureActionLabel,
   structureDefinition,
 } from '../../../game/world';
-import type { Item, StructureType } from '../../../game/types';
+import type { StructureType } from '../../../game/types';
 import { HexInfoWindowContent } from './HexInfoWindowContent';
 import type { HexInfoWindowProps } from './types';
 
@@ -79,13 +81,23 @@ export const Town: Story = {
     canSell: true,
     gold: 48,
     townStock: [
-      { item: makeItem('iron-sword', 'weapon', 'Iron Sword', 2), price: 18 },
       {
-        item: makeItem('travel-ration', 'consumable', 'Travel Ration', 1),
+        item: buildItemFromConfig(ItemId.TownKnife, {
+          id: 'iron-sword',
+          tier: 2,
+        }),
+        price: 18,
+      },
+      {
+        item: buildItemFromConfig(ItemId.TrailRation, { id: 'travel-ration' }),
         price: 6,
       },
       {
-        item: makeItem('amber-charm', 'artifact', 'Amber Charm', 2),
+        item: buildItemFromConfig(ItemId.CopperLoop, {
+          id: 'amber-charm',
+          tier: 2,
+          name: 'Amber Charm',
+        }),
         price: 28,
       },
     ],
@@ -183,27 +195,6 @@ function buildGatheringStructureArgs(
     structureHp: overrides.structureHp ?? Math.max(1, definition.maxHp - 2),
     structureMaxHp: overrides.structureMaxHp ?? definition.maxHp,
   });
-}
-
-function makeItem(
-  id: string,
-  kind: Item['kind'],
-  name: string,
-  tier: number,
-): Item {
-  return {
-    id,
-    kind,
-    name,
-    quantity: 1,
-    tier,
-    rarity: tier >= 2 ? 'uncommon' : 'common',
-    power: kind === 'weapon' || kind === 'artifact' ? tier * 3 : 0,
-    defense: kind === 'armor' ? tier * 2 : 0,
-    maxHp: kind === 'artifact' ? tier * 4 : 0,
-    healing: kind === 'consumable' ? 14 : 0,
-    hunger: kind === 'consumable' ? 10 : 0,
-  };
 }
 
 type StoryArgs = Omit<

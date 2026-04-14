@@ -5,7 +5,6 @@ import type { ItemConfig } from '../types';
 export const campSpearItemConfig: ItemConfig = {
   key: 'camp-spear',
   name: 'Camp Spear',
-  kind: 'weapon',
   slot: EquipmentSlotId.Weapon,
   icon: ContentIcons.Weapon,
   tier: 1,

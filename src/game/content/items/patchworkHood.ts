@@ -5,7 +5,6 @@ import type { ItemConfig } from '../types';
 export const patchworkHoodItemConfig: ItemConfig = {
   key: 'patchwork-hood',
   name: 'Patchwork Hood',
-  kind: 'armor',
   slot: EquipmentSlotId.Head,
   icon: ContentIcons.Hood,
   tier: 1,

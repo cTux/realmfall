@@ -5,7 +5,6 @@ import type { ItemConfig } from '../types';
 export const recipeBookItemConfig: ItemConfig = {
   key: 'recipe-book',
   name: itemName('recipe-book'),
-  kind: 'resource',
   icon: ContentIcons.BookCover,
   tint: '#c084fc',
   tier: 1,

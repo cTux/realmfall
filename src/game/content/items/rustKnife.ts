@@ -5,7 +5,6 @@ import type { ItemConfig } from '../types';
 export const rustKnifeItemConfig: ItemConfig = {
   key: 'rust-knife',
   name: 'Rust Knife',
-  kind: 'weapon',
   slot: EquipmentSlotId.Weapon,
   icon: ContentIcons.Weapon,
   tier: 1,

@@ -23,7 +23,6 @@ describe('normalizeLoadedGame', () => {
           items: [
             {
               id: 'food-1',
-              kind: 'consumable',
               name: 'Trail Ration',
               quantity: 1,
               tier: 1,
@@ -56,7 +55,6 @@ describe('normalizeLoadedGame', () => {
         inventory: [
           {
             id: 'food-a',
-            kind: 'consumable',
             name: 'Trail Ration',
             quantity: 2,
             tier: 1,
@@ -69,7 +67,6 @@ describe('normalizeLoadedGame', () => {
           },
           {
             id: 'food-b',
-            kind: 'consumable',
             name: 'Trail Ration',
             quantity: 1,
             tier: 1,
@@ -82,7 +79,6 @@ describe('normalizeLoadedGame', () => {
           },
           {
             id: 'ore-a',
-            kind: 'resource',
             name: 'Iron Ore',
             quantity: 2,
             tier: 1,
@@ -95,7 +91,6 @@ describe('normalizeLoadedGame', () => {
           },
           {
             id: 'ore-b',
-            kind: 'resource',
             name: 'Iron Ore',
             quantity: 3,
             tier: 1,
@@ -108,7 +103,6 @@ describe('normalizeLoadedGame', () => {
           },
           {
             id: 'weapon-1',
-            kind: 'weapon',
             slot: EquipmentSlotId.Weapon,
             name: 'Rust Blade',
             quantity: 1,
@@ -124,7 +118,6 @@ describe('normalizeLoadedGame', () => {
         equipment: {
           weapon: {
             id: 'equip-1',
-            kind: 'weapon',
             slot: EquipmentSlotId.Weapon,
             name: 'Sword',
             quantity: 1,
@@ -172,11 +165,13 @@ describe('normalizeLoadedGame', () => {
     ).toBe(5);
     expect(
       loaded.player.inventory.find(
-        (item) => item.kind === 'resource' && item.name === 'Gold',
+        (item) => item.itemKey === 'gold' && item.name === 'Gold',
       )?.quantity,
     ).toBe(9);
     expect(
-      loaded.player.inventory.filter((item) => item.kind === 'weapon'),
+      loaded.player.inventory.filter(
+        (item) => item.slot === EquipmentSlotId.Weapon,
+      ),
     ).toHaveLength(1);
     expect(loaded.player.equipment.weapon?.rarity).toBe('common');
   });
@@ -192,7 +187,6 @@ describe('normalizeLoadedGame', () => {
         inventory: [
           {
             id: 'resource-gold-1',
-            kind: 'resource',
             name: 'Gold',
             quantity: 4,
             tier: 1,
@@ -209,7 +203,7 @@ describe('normalizeLoadedGame', () => {
 
     expect(
       loaded.player.inventory.filter(
-        (item) => item.kind === 'resource' && item.name === 'Gold',
+        (item) => item.itemKey === 'gold' && item.name === 'Gold',
       ),
     ).toHaveLength(1);
     expect(loaded.player.inventory[0]?.quantity).toBe(4);
@@ -229,7 +223,6 @@ describe('normalizeLoadedGame', () => {
           items: [
             {
               id: 'resource-gold-home',
-              kind: 'resource',
               name: 'Gold',
               quantity: 4,
               tier: 1,
@@ -266,7 +259,6 @@ describe('normalizeLoadedGame', () => {
           items: [
             {
               id: 'feet-wolf-treads--18,143',
-              kind: 'armor',
               slot: EquipmentSlotId.Feet,
               name: 'Wolf Treads',
               quantity: 1,
@@ -280,7 +272,6 @@ describe('normalizeLoadedGame', () => {
             },
             {
               id: 'feet-wolf-treads--18,143',
-              kind: 'armor',
               slot: EquipmentSlotId.Feet,
               name: 'Wolf Treads',
               quantity: 1,
@@ -300,7 +291,6 @@ describe('normalizeLoadedGame', () => {
         inventory: [
           {
             id: 'feet-wolf-treads--18,143',
-            kind: 'armor',
             slot: EquipmentSlotId.Feet,
             name: 'Wolf Treads',
             quantity: 1,
@@ -314,7 +304,6 @@ describe('normalizeLoadedGame', () => {
           },
           {
             id: 'feet-wolf-treads--18,143',
-            kind: 'armor',
             slot: EquipmentSlotId.Feet,
             name: 'Wolf Treads',
             quantity: 1,
@@ -349,7 +338,6 @@ describe('normalizeLoadedGame', () => {
           {
             id: 'home-scroll-1',
             itemKey: 'home-scroll',
-            kind: 'consumable',
             name: 'Pergamino del hogar',
             quantity: 1,
             tier: 1,
@@ -379,7 +367,6 @@ describe('normalizeLoadedGame', () => {
         equipment: {
           weapon: {
             id: 'legacy-weapon',
-            kind: 'weapon',
             slot: EquipmentSlotId.Weapon,
             name: 'Legacy Blade',
             quantity: 1,

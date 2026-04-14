@@ -5,7 +5,6 @@ import type { ItemConfig } from '../types';
 export const trailLeggingsItemConfig: ItemConfig = {
   key: 'trail-leggings',
   name: 'Trail Leggings',
-  kind: 'armor',
   slot: EquipmentSlotId.Legs,
   icon: ContentIcons.Chest,
   tier: 1,

@@ -107,7 +107,6 @@ describe('ui helpers and components', () => {
   it('builds item and enemy tooltip lines for multiple branches', () => {
     const equipped: Item = {
       id: 'weapon-equipped',
-      kind: 'weapon',
       slot: EquipmentSlotId.Weapon,
       name: 'Old Blade',
       quantity: 1,
@@ -132,7 +131,6 @@ describe('ui helpers and components', () => {
     };
     const consumable: Item = {
       id: 'food-1',
-      kind: 'consumable',
       name: 'Meal',
       tags: [GameTag.ItemFood, GameTag.ItemHealing],
       quantity: 2,
@@ -146,7 +144,6 @@ describe('ui helpers and components', () => {
     };
     const resource: Item = {
       id: 'gold-1',
-      kind: 'resource',
       name: 'Gold',
       tags: [GameTag.ItemResource, GameTag.ItemCurrency],
       quantity: 7,
@@ -370,7 +367,6 @@ describe('ui helpers and components', () => {
   it('uses the rolled cloth icon for Cloth items', () => {
     const cloth: Item = {
       id: 'cloth-1',
-      kind: 'resource',
       name: 'Cloth',
       quantity: 1,
       tier: 1,
@@ -390,7 +386,6 @@ describe('ui helpers and components', () => {
     const stats = getPlayerStats(game.player);
     const equippedItem: Item = {
       id: 'equip-helm',
-      kind: 'armor',
       slot: EquipmentSlotId.Head,
       name: 'Horned Helm',
       quantity: 1,
@@ -404,7 +399,6 @@ describe('ui helpers and components', () => {
     };
     const inventoryItem: Item = {
       id: 'resource-gold',
-      kind: 'resource',
       name: 'Gold',
       quantity: 12,
       tier: 1,
@@ -851,7 +845,6 @@ describe('ui helpers and components', () => {
 
     const menuItem: Item = {
       id: 'starter-ration',
-      kind: 'consumable',
       name: 'Trail Ration',
       quantity: 2,
       tier: 1,

@@ -4,7 +4,6 @@ import type { ItemConfig } from '../types';
 export const sticksItemConfig: ItemConfig = {
   key: 'sticks',
   name: 'Sticks',
-  kind: 'resource',
   icon: ContentIcons.WoodStick,
   tier: 1,
   rarity: 'common',

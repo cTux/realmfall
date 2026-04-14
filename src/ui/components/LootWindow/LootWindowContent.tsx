@@ -1,5 +1,5 @@
 import { formatCompactNumber } from '../../formatters';
-import { formatItemKindLabel } from '../../../i18n/labels';
+import { formatItemLabel } from '../../../i18n/labels';
 import { t } from '../../../i18n';
 import { iconForItem, itemTint } from '../../icons';
 import type { LootWindowProps } from './types';
@@ -40,7 +40,7 @@ export function LootWindowContent({
           <span
             className={styles.itemIcon}
             style={iconMaskStyle(iconForItem(item), itemTint(item))}
-            aria-label={formatItemKindLabel(item.kind)}
+            aria-label={formatItemLabel(item)}
           />
           {item.quantity > 1 ? (
             <span className={styles.stackBadge}>

@@ -45,18 +45,10 @@ export type SkillName =
 
 export type EquipmentSlot = EquipmentSlotValue;
 
-export type ItemKind =
-  | 'weapon'
-  | 'armor'
-  | 'artifact'
-  | 'consumable'
-  | 'resource';
-
 export interface Item {
   id: string;
   itemKey?: ItemKey;
   tags?: GameTag[];
-  kind: ItemKind;
   recipeId?: string;
   slot?: EquipmentSlot;
   name: string;

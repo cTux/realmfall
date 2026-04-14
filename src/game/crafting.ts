@@ -127,7 +127,6 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     skill: 'crafting',
     output: makeCraftedItem(
       'crafted-weapon',
-      'weapon',
       EquipmentSlotId.Weapon,
       'camp-spear',
       {
@@ -148,7 +147,6 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     skill: 'crafting',
     output: makeCraftedItem(
       'crafted-offhand',
-      'armor',
       EquipmentSlotId.Offhand,
       'hide-buckler',
       {
@@ -170,7 +168,6 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     skill: 'crafting',
     output: makeCraftedItem(
       'crafted-head',
-      'armor',
       EquipmentSlotId.Head,
       'patchwork-hood',
       {
@@ -192,7 +189,6 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     skill: 'crafting',
     output: makeCraftedItem(
       'crafted-chest',
-      'armor',
       EquipmentSlotId.Chest,
       'settler-vest',
       {
@@ -215,7 +211,6 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     skill: 'crafting',
     output: makeCraftedItem(
       'crafted-hands',
-      'armor',
       EquipmentSlotId.Hands,
       'work-gloves',
       {
@@ -236,7 +231,6 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     skill: 'crafting',
     output: makeCraftedItem(
       'crafted-legs',
-      'armor',
       EquipmentSlotId.Legs,
       'trail-leggings',
       {
@@ -258,7 +252,6 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     skill: 'crafting',
     output: makeCraftedItem(
       'crafted-feet',
-      'armor',
       EquipmentSlotId.Feet,
       'field-boots',
       {
@@ -279,7 +272,6 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     skill: 'crafting',
     output: makeCraftedItem(
       'crafted-ring-left',
-      'artifact',
       EquipmentSlotId.RingLeft,
       'copper-loop',
       {
@@ -300,7 +292,6 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     skill: 'crafting',
     output: makeCraftedItem(
       'crafted-ring-right',
-      'artifact',
       EquipmentSlotId.RingRight,
       'copper-band',
       {
@@ -322,7 +313,6 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     skill: 'crafting',
     output: makeCraftedItem(
       'crafted-amulet',
-      'artifact',
       EquipmentSlotId.Amulet,
       'charm-necklace',
       {
@@ -344,7 +334,6 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     skill: 'crafting',
     output: makeCraftedItem(
       'crafted-cloak',
-      'artifact',
       EquipmentSlotId.Cloak,
       'wayfarer-cloak',
       {
@@ -366,7 +355,6 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     skill: 'crafting',
     output: makeCraftedItem(
       'crafted-relic',
-      'artifact',
       EquipmentSlotId.Relic,
       'hearth-totem',
       {

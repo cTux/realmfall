@@ -5,7 +5,6 @@ import type { ItemConfig } from '../types';
 export const cookedFishItemConfig: ItemConfig = {
   key: 'cooked-fish',
   name: itemName('cooked-fish'),
-  kind: 'consumable',
   icon: ContentIcons.FriedFish,
   tint: '#f59e0b',
   tier: 1,

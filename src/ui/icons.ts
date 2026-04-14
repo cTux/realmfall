@@ -8,6 +8,7 @@ import {
   getStructureConfig,
 } from '../game/state';
 import { EquipmentSlotId } from '../game/content/ids';
+import { getItemCategory } from '../game/content/items';
 import playerIcon from '../assets/icons/visored-helm.svg';
 import enemyIcon from '../assets/icons/wolf-head.svg';
 import weaponIcon from '../assets/icons/plain-dagger.svg';
@@ -125,7 +126,10 @@ export const ItemIcon: Record<EquipmentSlot, string> = {
   [EquipmentSlotId.Relic]: Icons.Orb,
 };
 
-const ItemKindIcon: Record<Exclude<Item['kind'], 'resource'>, string> = {
+const ItemKindIcon: Record<
+  Exclude<ReturnType<typeof getItemCategory>, 'resource'>,
+  string
+> = {
   weapon: Icons.Weapon,
   armor: DEFAULT_ITEM_ICON,
   artifact: DEFAULT_ITEM_ICON,
@@ -158,8 +162,9 @@ export function iconForItem(item?: Item, slot?: EquipmentSlot) {
       item.name.endsWith(' Totem'))
       ? Icons.Totem
       : configuredItem?.icon;
+  const category = item ? getItemCategory(item) : undefined;
   const kindIcon =
-    item && item.kind !== 'resource' ? ItemKindIcon[item.kind] : undefined;
+    category && category !== 'resource' ? ItemKindIcon[category] : undefined;
 
   return (
     configuredItemIcon ??

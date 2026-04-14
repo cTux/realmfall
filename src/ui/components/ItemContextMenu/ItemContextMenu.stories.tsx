@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { getItemCategory } from '../../../game/content/items';
 import {
   createStorybookFixtures,
   noop,
@@ -34,8 +35,9 @@ export const Equippable: Story = {};
 export const Consumable: Story = {
   args: {
     item:
-      fixtures.inventory.find((item) => item.kind === 'consumable') ??
-      fixtures.inventory[0],
+      fixtures.inventory.find(
+        (item) => getItemCategory(item) === 'consumable',
+      ) ?? fixtures.inventory[0],
     canEquip: false,
     canUse: true,
   },

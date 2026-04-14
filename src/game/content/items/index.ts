@@ -1,5 +1,5 @@
 import type { Item } from '../../types';
-import { ItemId } from '../ids';
+import { EquipmentSlotId, ItemId } from '../ids';
 import { itemName } from '../i18n';
 import type { ItemBuildOverrides, ItemConfig } from '../types';
 import {
@@ -82,6 +82,55 @@ const RAW_ITEM_CONFIGS = [
   waterFlaskItemConfig,
 ] as const;
 
+export type ItemCategory =
+  | 'weapon'
+  | 'armor'
+  | 'artifact'
+  | 'consumable'
+  | 'resource';
+
+type ItemClassificationInput = Pick<Item, 'name'> &
+  Partial<
+    Pick<
+      Item,
+      | 'itemKey'
+      | 'slot'
+      | 'recipeId'
+      | 'power'
+      | 'defense'
+      | 'maxHp'
+      | 'healing'
+      | 'hunger'
+      | 'thirst'
+      | 'tags'
+    >
+  >;
+
+const CONSUMABLE_ITEM_KEYS = new Set<string>([
+  ItemId.TrailRation,
+  ItemId.Apple,
+  ItemId.CookedFish,
+  ItemId.HomeScroll,
+  ItemId.WaterFlask,
+]);
+
+const ARTIFACT_SLOTS = new Set<string>([
+  EquipmentSlotId.RingLeft,
+  EquipmentSlotId.RingRight,
+  EquipmentSlotId.Amulet,
+  EquipmentSlotId.Cloak,
+  EquipmentSlotId.Relic,
+]);
+
+const ARMOR_SLOTS = new Set<string>([
+  EquipmentSlotId.Offhand,
+  EquipmentSlotId.Head,
+  EquipmentSlotId.Chest,
+  EquipmentSlotId.Hands,
+  EquipmentSlotId.Legs,
+  EquipmentSlotId.Feet,
+]);
+
 export const ITEM_CONFIGS: ItemConfig[] = RAW_ITEM_CONFIGS.map((config) => ({
   ...config,
   name: itemName(config.key),
@@ -118,7 +167,6 @@ export function buildItemFromConfig(
     itemKey: config.key,
     tags: overrides.tags ?? [...(config.tags ?? [])],
     recipeId: overrides.recipeId,
-    kind: config.kind,
     slot: config.slot,
     name: overrides.name ?? config.name,
     quantity: overrides.quantity ?? config.defaultQuantity ?? 1,
@@ -164,56 +212,33 @@ export function cloneConfiguredItem(item: Item) {
   });
 }
 
-export function hasItemTag(
-  item: Pick<
-    Item,
-    | 'itemKey'
-    | 'name'
-    | 'kind'
-    | 'slot'
-    | 'healing'
-    | 'hunger'
-    | 'thirst'
-    | 'tags'
-  >,
-  tag: GameTag,
-) {
+export function hasItemTag(item: ItemClassificationInput, tag: GameTag) {
   return (item.tags ?? inferItemTags(item)).includes(tag);
 }
 
-export function inferItemTags(
-  item: Pick<
-    Item,
-    | 'itemKey'
-    | 'name'
-    | 'kind'
-    | 'slot'
-    | 'healing'
-    | 'hunger'
-    | 'thirst'
-    | 'tags'
-  >,
-) {
+export function inferItemTags(item: ItemClassificationInput) {
   const configured =
     (item.itemKey ? getItemConfigByKey(item.itemKey) : undefined) ??
     getItemConfigByName(item.name);
   if (configured) return [...(configured.tags ?? [])];
 
+  const category = getItemCategory(item);
+
   return uniqueTags(
-    item.kind === 'consumable' || item.kind === 'resource'
+    category === 'consumable' || category === 'resource'
       ? GAME_TAGS.item.stackable
       : undefined,
-    item.kind === 'consumable' ? GAME_TAGS.item.consumable : undefined,
-    item.kind === 'resource' ? GAME_TAGS.item.resource : undefined,
-    item.kind === 'weapon' || item.kind === 'armor' || item.kind === 'artifact'
+    category === 'consumable' ? GAME_TAGS.item.consumable : undefined,
+    category === 'resource' ? GAME_TAGS.item.resource : undefined,
+    category === 'weapon' || category === 'armor' || category === 'artifact'
       ? GAME_TAGS.item.equipment
       : undefined,
-    item.kind === 'weapon' ? GAME_TAGS.item.weapon : undefined,
-    item.kind === 'armor' ? GAME_TAGS.item.armor : undefined,
-    item.kind === 'artifact' ? GAME_TAGS.item.artifact : undefined,
+    category === 'weapon' ? GAME_TAGS.item.weapon : undefined,
+    category === 'armor' ? GAME_TAGS.item.armor : undefined,
+    category === 'artifact' ? GAME_TAGS.item.artifact : undefined,
     item.slot ? getEquipmentSlotTag(item.slot) : undefined,
-    item.healing > 0 ? GAME_TAGS.item.healing : undefined,
-    item.hunger > 0 ? GAME_TAGS.item.food : undefined,
+    (item.healing ?? 0) > 0 ? GAME_TAGS.item.healing : undefined,
+    (item.hunger ?? 0) > 0 ? GAME_TAGS.item.food : undefined,
     (item.thirst ?? 0) > 0 ? GAME_TAGS.item.drink : undefined,
     item.name.endsWith(' Totem') ? GAME_TAGS.item.totem : undefined,
   );
@@ -222,6 +247,7 @@ export function inferItemTags(
 function buildItemConfigTags(
   config: Omit<ItemConfig, 'name' | 'tags'> & { name?: string },
 ) {
+  const category = getItemConfigCategory(config);
   const keyTags: Partial<Record<string, GameTag[]>> = {
     [ItemId.Gold]: [GAME_TAGS.item.currency, GAME_TAGS.item.resource],
     [ItemId.RecipeBook]: [GAME_TAGS.item.recipeBook],
@@ -263,23 +289,83 @@ function buildItemConfigTags(
   };
 
   return uniqueTags(
-    config.kind === 'consumable' || config.kind === 'resource'
+    category === 'consumable' || category === 'resource'
       ? GAME_TAGS.item.stackable
       : undefined,
-    config.kind === 'consumable' ? GAME_TAGS.item.consumable : undefined,
-    config.kind === 'resource' ? GAME_TAGS.item.resource : undefined,
-    config.kind === 'weapon' ||
-      config.kind === 'armor' ||
-      config.kind === 'artifact'
+    category === 'consumable' ? GAME_TAGS.item.consumable : undefined,
+    category === 'resource' ? GAME_TAGS.item.resource : undefined,
+    category === 'weapon' || category === 'armor' || category === 'artifact'
       ? GAME_TAGS.item.equipment
       : undefined,
-    config.kind === 'weapon' ? GAME_TAGS.item.weapon : undefined,
-    config.kind === 'armor' ? GAME_TAGS.item.armor : undefined,
-    config.kind === 'artifact' ? GAME_TAGS.item.artifact : undefined,
+    category === 'weapon' ? GAME_TAGS.item.weapon : undefined,
+    category === 'armor' ? GAME_TAGS.item.armor : undefined,
+    category === 'artifact' ? GAME_TAGS.item.artifact : undefined,
     config.slot ? getEquipmentSlotTag(config.slot) : undefined,
     config.hunger > 0 ? GAME_TAGS.item.food : undefined,
     (config.thirst ?? 0) > 0 ? GAME_TAGS.item.drink : undefined,
     config.healing > 0 ? GAME_TAGS.item.healing : undefined,
     ...(keyTags[config.key] ?? []),
+  );
+}
+
+export function getItemCategory(item: ItemClassificationInput): ItemCategory {
+  const configured =
+    (item.itemKey ? getItemConfigByKey(item.itemKey) : undefined) ??
+    getItemConfigByName(item.name);
+  if (configured) {
+    return getItemConfigCategory(configured);
+  }
+
+  const tags = item.tags ?? [];
+  if (tags.includes(GAME_TAGS.item.weapon)) return 'weapon';
+  if (tags.includes(GAME_TAGS.item.armor)) return 'armor';
+  if (tags.includes(GAME_TAGS.item.artifact)) return 'artifact';
+  if (tags.includes(GAME_TAGS.item.consumable)) return 'consumable';
+  if (tags.includes(GAME_TAGS.item.resource)) return 'resource';
+
+  if (item.slot === EquipmentSlotId.Weapon) return 'weapon';
+  if (item.slot && ARTIFACT_SLOTS.has(item.slot)) return 'artifact';
+  if (item.slot && ARMOR_SLOTS.has(item.slot)) return 'armor';
+  if (item.recipeId) return 'resource';
+  if (
+    (item.power ?? 0) > 0 &&
+    (item.defense ?? 0) <= 0 &&
+    (item.maxHp ?? 0) <= 0
+  ) {
+    return 'weapon';
+  }
+  if ((item.defense ?? 0) > 0 && (item.power ?? 0) <= 0) {
+    return 'armor';
+  }
+  if ((item.power ?? 0) > 0 || (item.maxHp ?? 0) > 0) {
+    return 'artifact';
+  }
+  if (
+    (item.healing ?? 0) > 0 ||
+    (item.hunger ?? 0) > 0 ||
+    (item.thirst ?? 0) > 0
+  )
+    return 'consumable';
+  if (item.itemKey && CONSUMABLE_ITEM_KEYS.has(item.itemKey))
+    return 'consumable';
+  return 'resource';
+}
+
+export function getItemConfigCategory(
+  config: Pick<ItemConfig, 'key' | 'slot' | 'healing' | 'hunger' | 'thirst'>,
+): ItemCategory {
+  if (config.slot === EquipmentSlotId.Weapon) return 'weapon';
+  if (config.slot && ARTIFACT_SLOTS.has(config.slot)) return 'artifact';
+  if (config.slot && ARMOR_SLOTS.has(config.slot)) return 'armor';
+  if (CONSUMABLE_ITEM_KEYS.has(config.key)) return 'consumable';
+  if (config.healing > 0 || config.hunger > 0 || (config.thirst ?? 0) > 0) {
+    return 'consumable';
+  }
+  return 'resource';
+}
+
+export function isEquippableItemCategory(category: ItemCategory) {
+  return (
+    category === 'weapon' || category === 'armor' || category === 'artifact'
   );
 }

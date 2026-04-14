@@ -5,7 +5,6 @@ import type { ItemConfig } from '../types';
 export const scoutHoodItemConfig: ItemConfig = {
   key: 'scout-hood',
   name: 'Scout Hood',
-  kind: 'armor',
   slot: EquipmentSlotId.Head,
   icon: ContentIcons.Hood,
   tier: 1,

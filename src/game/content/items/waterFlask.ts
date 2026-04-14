@@ -4,7 +4,6 @@ import type { ItemConfig } from '../types';
 export const waterFlaskItemConfig: ItemConfig = {
   key: 'water-flask',
   name: 'Water Flask',
-  kind: 'consumable',
   icon: ContentIcons.Consumable,
   tier: 1,
   rarity: 'common',

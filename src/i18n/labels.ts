@@ -1,6 +1,7 @@
+import { getItemCategory, type ItemCategory } from '../game/content/items';
 import type {
   EquipmentSlot,
-  ItemKind,
+  Item,
   LogKind,
   SkillName,
   Terrain,
@@ -19,8 +20,29 @@ export function formatEquipmentSlotLabel(slot: EquipmentSlot) {
   return t(`ui.equipmentSlot.${slot}.label`);
 }
 
-export function formatItemKindLabel(kind: ItemKind) {
+export function formatItemKindLabel(kind: ItemCategory) {
   return t(`ui.itemKind.${kind}.label`);
+}
+
+export function formatItemLabel(
+  item: Pick<Item, 'name'> &
+    Partial<
+      Pick<
+        Item,
+        | 'itemKey'
+        | 'slot'
+        | 'recipeId'
+        | 'power'
+        | 'defense'
+        | 'maxHp'
+        | 'healing'
+        | 'hunger'
+        | 'thirst'
+        | 'tags'
+      >
+    >,
+) {
+  return formatItemKindLabel(getItemCategory(item));
 }
 
 export function formatLogKindLabel(kind: LogKind) {

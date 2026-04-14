@@ -6,7 +6,11 @@ import {
 } from '../../../game/state';
 import { EquipmentSlotId } from '../../../game/content/ids';
 import { addLog } from '../../../game/logs';
-import { buildItemFromConfig, ITEM_CONFIGS } from '../../../game/content/items';
+import {
+  buildItemFromConfig,
+  getItemConfigCategory,
+  ITEM_CONFIGS,
+} from '../../../game/content/items';
 import { ENEMY_CONFIGS } from '../../../game/content/enemies';
 import { STRUCTURE_CONFIGS } from '../../../game/content/structures';
 import { DEFAULT_LOG_FILTERS } from '../../../app/constants';
@@ -129,7 +133,8 @@ function buildInventoryFixture() {
   return ITEM_CONFIGS.map((config, index) =>
     buildItemFromConfig(config.key, {
       id: `inventory-${config.key}-${index}`,
-      quantity: config.kind === 'resource' ? (index % 4) + 1 : 1,
+      quantity:
+        getItemConfigCategory(config) === 'resource' ? (index % 4) + 1 : 1,
     }),
   );
 }
@@ -138,7 +143,7 @@ function buildLootFixture() {
   return ITEM_CONFIGS.slice(-8).map((config, index) =>
     buildItemFromConfig(config.key, {
       id: `loot-${config.key}-${index}`,
-      quantity: config.kind === 'resource' ? 2 : 1,
+      quantity: getItemConfigCategory(config) === 'resource' ? 2 : 1,
     }),
   );
 }

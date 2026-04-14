@@ -5,7 +5,6 @@ import type { ItemConfig } from '../types';
 export const wayfarerCloakItemConfig: ItemConfig = {
   key: 'wayfarer-cloak',
   name: 'Wayfarer Cloak',
-  kind: 'artifact',
   slot: EquipmentSlotId.Cloak,
   icon: ContentIcons.Hood,
   tier: 1,

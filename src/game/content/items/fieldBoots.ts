@@ -5,7 +5,6 @@ import type { ItemConfig } from '../types';
 export const fieldBootsItemConfig: ItemConfig = {
   key: 'field-boots',
   name: 'Field Boots',
-  kind: 'armor',
   slot: EquipmentSlotId.Feet,
   icon: ContentIcons.Boots,
   tier: 1,

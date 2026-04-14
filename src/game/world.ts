@@ -395,7 +395,6 @@ export function makeWeapon(
   );
   return applyRarityToItem({
     id: itemId('weapon', coord, seed),
-    kind: 'weapon',
     slot: EquipmentSlotId.Weapon,
     name: `${prefixes[prefixIndex]} ${names[index]}`,
     quantity: 1,
@@ -420,7 +419,6 @@ export function makeOffhand(
   const index = scaledIndex(`${seed}:offhand`, coord, names.length);
   return applyRarityToItem({
     id: itemId('offhand', coord, seed),
-    kind: 'armor',
     slot: EquipmentSlotId.Offhand,
     name: names[index],
     quantity: 1,
@@ -468,7 +466,6 @@ export function makeArmor(
     slotNames[scaledIndex(`${seed}:armor:name`, coord, slotNames.length)];
   return applyRarityToItem({
     id: itemId('armor', coord, seed),
-    kind: 'armor',
     slot,
     name,
     quantity: 1,
@@ -509,7 +506,6 @@ export function makeArtifact(
   );
   return applyRarityToItem({
     id: itemId('artifact', coord, seed),
-    kind: 'artifact',
     slot,
     name: `${prefix} ${form}`,
     quantity: 1,

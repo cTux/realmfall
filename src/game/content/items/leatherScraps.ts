@@ -4,7 +4,6 @@ import type { ItemConfig } from '../types';
 export const leatherScrapsItemConfig: ItemConfig = {
   key: 'leather-scraps',
   name: 'Leather Scraps',
-  kind: 'resource',
   icon: ContentIcons.AnimalHide,
   tier: 1,
   rarity: 'common',

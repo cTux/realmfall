@@ -3,19 +3,15 @@ import { RECIPE_BOOK_ITEM_NAME_KEY } from './config';
 import { EquipmentSlotId, ItemId } from './content/ids';
 import {
   buildItemFromConfig,
+  getItemCategory,
   getItemConfigByKey,
   getItemConfigByName,
   hasItemTag,
   inferItemTags,
+  isEquippableItemCategory,
 } from './content/items';
 import { GAME_TAGS } from './content/tags';
-import type {
-  EquipmentSlot,
-  GameState,
-  Item,
-  ItemKind,
-  RecipeDefinition,
-} from './types';
+import type { EquipmentSlot, GameState, Item, RecipeDefinition } from './types';
 
 export function makeStarterWeapon(): Item {
   return buildItemFromConfig(ItemId.RustKnife, { id: 'starter-knife' });
@@ -37,11 +33,9 @@ export function makeStarterArmor(
 
   return {
     id: `${slot}-${itemKeyOrName.toLowerCase().replace(/\s+/g, '-')}`,
-    kind: 'armor',
     slot,
     name: itemKeyOrName,
     tags: inferItemTags({
-      kind: 'armor',
       slot,
       name: itemKeyOrName,
       healing: 0,
@@ -91,10 +85,8 @@ export function makeConsumable(
 
   return {
     id,
-    kind: 'consumable',
     name: itemKeyOrName,
     tags: inferItemTags({
-      kind: 'consumable',
       name: itemKeyOrName,
       healing,
       hunger,
@@ -133,10 +125,8 @@ export function makeResourceStack(
 
   return {
     id: `resource-${itemKeyOrName.toLowerCase().replace(/\s+/g, '-')}-${tier}`,
-    kind: 'resource',
     name: itemKeyOrName,
     tags: inferItemTags({
-      kind: 'resource',
       name: itemKeyOrName,
       healing: 0,
       hunger: 0,
@@ -156,7 +146,6 @@ export function makeResourceStack(
 
 export function makeCraftedItem(
   id: string,
-  kind: Exclude<ItemKind, 'consumable' | 'resource'>,
   slot: EquipmentSlot,
   itemKeyOrName: string,
   stats: Pick<Item, 'power' | 'defense' | 'maxHp'>,
@@ -169,11 +158,9 @@ export function makeCraftedItem(
 
   return {
     id,
-    kind,
     slot,
     name: itemKeyOrName,
     tags: inferItemTags({
-      kind,
       slot,
       name: itemKeyOrName,
       healing: 0,
@@ -201,7 +188,6 @@ export function makeRecipePage(recipe: RecipeDefinition): Item {
     id: `recipe-${recipe.id}`,
     itemKey: recipe.output.itemKey,
     recipeId: recipe.id,
-    kind: 'resource',
     name: `Recipe: ${recipe.name}`,
     tags: [GAME_TAGS.item.resource, GAME_TAGS.item.recipe],
     quantity: 1,
@@ -220,10 +206,7 @@ export function materializeRecipeOutput(
   recipe: RecipeDefinition,
   state: GameState,
 ): Item {
-  if (
-    recipe.output.kind === 'consumable' ||
-    recipe.output.kind === 'resource'
-  ) {
+  if (hasItemTag(recipe.output, GAME_TAGS.item.stackable)) {
     return { ...recipe.output };
   }
 
@@ -240,7 +223,8 @@ export function describeItemStack(item: Item) {
 export function compareItems(left: Item, right: Item) {
   const kindOrder = ['resource', 'consumable', 'artifact', 'armor', 'weapon'];
   const kindDelta =
-    kindOrder.indexOf(left.kind) - kindOrder.indexOf(right.kind);
+    kindOrder.indexOf(getItemCategory(left)) -
+    kindOrder.indexOf(getItemCategory(right));
   if (kindDelta !== 0) return kindDelta;
   const rarityOrder = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
   const rarityDelta =
@@ -251,9 +235,7 @@ export function compareItems(left: Item, right: Item) {
 }
 
 export function isEquippableItem(item: Item) {
-  return (
-    item.kind === 'weapon' || item.kind === 'armor' || item.kind === 'artifact'
-  );
+  return isEquippableItemCategory(getItemCategory(item));
 }
 
 export function canEquipItem(item: Item) {
@@ -261,12 +243,16 @@ export function canEquipItem(item: Item) {
 }
 
 export function canUseItem(item: Item) {
-  return item.kind === 'consumable' || isRecipeBook(item) || isRecipePage(item);
+  return (
+    hasItemTag(item, GAME_TAGS.item.consumable) ||
+    isRecipeBook(item) ||
+    isRecipePage(item)
+  );
 }
 
 export function isRecipeBook(item: Item) {
   return (
-    item.kind === 'resource' &&
+    hasItemTag(item, GAME_TAGS.item.resource) &&
     (item.itemKey === ItemId.RecipeBook ||
       hasItemTag(item, GAME_TAGS.item.recipeBook) ||
       item.name === t(RECIPE_BOOK_ITEM_NAME_KEY))
@@ -274,7 +260,7 @@ export function isRecipeBook(item: Item) {
 }
 
 export function isRecipePage(item: Item) {
-  return item.kind === 'resource' && Boolean(item.recipeId);
+  return hasItemTag(item, GAME_TAGS.item.resource) && Boolean(item.recipeId);
 }
 
 export function hasRecipeBook(inventory: Item[]) {
@@ -284,7 +270,7 @@ export function hasRecipeBook(inventory: Item[]) {
 export function getGoldAmount(inventory: Item[]) {
   return inventory.reduce(
     (sum, item) =>
-      item.kind === 'resource' &&
+      hasItemTag(item, GAME_TAGS.item.resource) &&
       (item.itemKey === ItemId.Gold ||
         hasItemTag(item, GAME_TAGS.item.currency))
         ? sum + item.quantity
@@ -302,7 +288,7 @@ export function spendGold(inventory: Item[], amount: number) {
   ) {
     const item = inventory[index];
     if (
-      item.kind !== 'resource' ||
+      !hasItemTag(item, GAME_TAGS.item.resource) ||
       (item.itemKey !== ItemId.Gold &&
         !hasItemTag(item, GAME_TAGS.item.currency))
     ) {
@@ -317,14 +303,15 @@ export function spendGold(inventory: Item[], amount: number) {
 
 export function sellValue(item: Item) {
   const rarityOrder = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
+  const category = getItemCategory(item);
   const base =
-    item.kind === 'artifact'
+    category === 'artifact'
       ? 16
-      : item.kind === 'weapon'
+      : category === 'weapon'
         ? 10
-        : item.kind === 'armor'
+        : category === 'armor'
           ? 8
-          : item.kind === 'resource'
+          : category === 'resource'
             ? 2
             : 3;
   return Math.round(
@@ -335,13 +322,14 @@ export function sellValue(item: Item) {
 
 export function prospectYield(item: Item): Item[] {
   const quantity = Math.max(1, Math.ceil(item.tier / 2));
-  if (item.kind === 'weapon') {
+  const category = getItemCategory(item);
+  if (category === 'weapon') {
     return [
       makeResourceStack(ItemId.IronChunks, item.tier, quantity),
       makeResourceStack(ItemId.Sticks, item.tier, 1),
     ];
   }
-  if (item.kind === 'armor') {
+  if (category === 'armor') {
     return [
       makeResourceStack(
         item.slot === EquipmentSlotId.Chest
@@ -380,7 +368,7 @@ export function consolidateInventory(inventory: Item[]) {
 }
 
 export function addItemToInventory(inventory: Item[], item: Item) {
-  if (item.kind !== 'consumable' && item.kind !== 'resource') {
+  if (!hasItemTag(item, GAME_TAGS.item.stackable)) {
     inventory.push(ensureUniqueItemId(inventory, item));
     return;
   }
@@ -412,8 +400,8 @@ function ensureUniqueItemId(collection: Item[], item: Item) {
 
 function isSameStackable(left: Item, right: Item) {
   return (
-    (left.kind === 'consumable' || left.kind === 'resource') &&
-    left.kind === right.kind &&
+    hasItemTag(left, GAME_TAGS.item.stackable) &&
+    getItemCategory(left) === getItemCategory(right) &&
     left.recipeId === right.recipeId &&
     sameStackIdentity(left, right) &&
     left.rarity === right.rarity &&

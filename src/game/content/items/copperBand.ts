@@ -5,7 +5,6 @@ import type { ItemConfig } from '../types';
 export const copperBandItemConfig: ItemConfig = {
   key: 'copper-band',
   name: 'Copper Band',
-  kind: 'artifact',
   slot: EquipmentSlotId.RingRight,
   icon: ContentIcons.Artifact,
   tier: 1,

@@ -22,6 +22,7 @@ import {
   getItemConfig,
   getItemConfigByKey,
   getItemConfigByName,
+  hasItemTag,
 } from './content/items';
 import { ItemId, StatusEffectTypeId } from './content/ids';
 import { getStructureConfig } from './content/structures';
@@ -80,6 +81,7 @@ import {
   sellValue,
   spendGold,
 } from './inventory';
+import { GAME_TAGS } from './content/tags';
 import {
   gatheringBonusChance,
   gatheringYieldBonus,
@@ -125,7 +127,6 @@ export type {
   GameState,
   GatheringStructureType,
   Item,
-  ItemKind,
   ItemRarity,
   LogEntry,
   LogKind,
@@ -693,12 +694,12 @@ export function equipItem(state: GameState, itemId: string): GameState {
   const item = state.player.inventory[itemIndex];
   const next = clone(state);
 
-  if (item.kind === 'consumable') {
+  if (canUseItem(item) && !isRecipeBook(item) && !isRecipePage(item)) {
     consumeItem(next, itemIndex, item);
     return next;
   }
 
-  if (item.kind === 'resource')
+  if (hasItemTag(item, GAME_TAGS.item.resource))
     return message(state, 'Resources cannot be equipped.');
 
   next.player.inventory.splice(itemIndex, 1);
@@ -737,7 +738,7 @@ export function useItem(state: GameState, itemId: string): GameState {
     consumeInventoryItem(next.player.inventory, itemIndex, item);
     return next;
   }
-  if (item.kind !== 'consumable')
+  if (!hasItemTag(item, GAME_TAGS.item.consumable))
     return message(state, 'That item cannot be used.');
 
   const next = clone(state);
@@ -1597,7 +1598,7 @@ function countInventoryResource(
   itemKey: 'cloth' | 'sticks',
 ) {
   return inventory.reduce((total, item) => {
-    if (item.kind !== 'resource') return total;
+    if (!hasItemTag(item, GAME_TAGS.item.resource)) return total;
     return item.itemKey === itemKey ? total + item.quantity : total;
   }, 0);
 }
@@ -1614,7 +1615,10 @@ function consumeInventoryResource(
     index -= 1
   ) {
     const item = inventory[index];
-    if (item.kind !== 'resource' || item.itemKey !== itemKey) {
+    if (
+      !hasItemTag(item, GAME_TAGS.item.resource) ||
+      item.itemKey !== itemKey
+    ) {
       continue;
     }
 

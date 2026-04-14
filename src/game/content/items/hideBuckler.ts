@@ -5,7 +5,6 @@ import type { ItemConfig } from '../types';
 export const hideBucklerItemConfig: ItemConfig = {
   key: 'hide-buckler',
   name: 'Hide Buckler',
-  kind: 'armor',
   slot: EquipmentSlotId.Offhand,
   icon: ContentIcons.Armor,
   tier: 1,

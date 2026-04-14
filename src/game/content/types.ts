@@ -1,7 +1,6 @@
 import type {
   EquipmentSlot,
   Item,
-  ItemKind,
   ItemRarity,
   SkillName,
   StructureType,
@@ -13,7 +12,6 @@ import type { GameTag } from './tags';
 export interface ItemConfig {
   key: ItemKey;
   name: string;
-  kind: ItemKind;
   slot?: EquipmentSlot;
   icon: string;
   tint?: string;

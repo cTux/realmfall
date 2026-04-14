@@ -5,7 +5,6 @@ import type { ItemConfig } from '../types';
 export const settlerVestItemConfig: ItemConfig = {
   key: 'settler-vest',
   name: 'Settler Vest',
-  kind: 'armor',
   slot: EquipmentSlotId.Chest,
   icon: ContentIcons.Chest,
   tier: 1,

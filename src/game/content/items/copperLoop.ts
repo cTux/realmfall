@@ -5,7 +5,6 @@ import type { ItemConfig } from '../types';
 export const copperLoopItemConfig: ItemConfig = {
   key: 'copper-loop',
   name: 'Copper Loop',
-  kind: 'artifact',
   slot: EquipmentSlotId.RingLeft,
   icon: ContentIcons.Artifact,
   tier: 1,

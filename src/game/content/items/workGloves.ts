@@ -5,7 +5,6 @@ import type { ItemConfig } from '../types';
 export const workGlovesItemConfig: ItemConfig = {
   key: 'work-gloves',
   name: 'Work Gloves',
-  kind: 'armor',
   slot: EquipmentSlotId.Hands,
   icon: ContentIcons.Gauntlet,
   tier: 1,

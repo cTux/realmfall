@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { getItemConfigCategory } from '../../../game/content/items';
 import { enemyIconFor, enemyTint, iconForItem } from '../../icons';
 import { rarityColor } from '../../rarity';
 import { structureIconFor, structureTint } from '../../icons';
@@ -28,7 +29,7 @@ export const Items: Story = {
       entries={fixtures.items.map((config) => ({
         id: config.key,
         title: config.name,
-        subtitle: `${config.kind} · tier ${config.tier} · ${config.rarity}`,
+        subtitle: `${getItemConfigCategory(config)} · tier ${config.tier} · ${config.rarity}`,
         details: [
           `Power ${config.power}`,
           `Defense ${config.defense}`,
@@ -38,7 +39,6 @@ export const Items: Story = {
         icon: iconForItem({
           id: config.key,
           itemKey: config.key,
-          kind: config.kind,
           slot: config.slot,
           name: config.name,
           quantity: 1,
@@ -50,6 +50,7 @@ export const Items: Story = {
           healing: config.healing,
           hunger: config.hunger,
           thirst: config.thirst,
+          tags: config.tags,
         }),
         tint: config.tint ?? rarityColor(config.rarity),
       }))}
