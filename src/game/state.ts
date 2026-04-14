@@ -1,5 +1,5 @@
 import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
-import { getPlacedWorldBossCenter, isWorldBossEnemyId } from './worldBoss';
+import { isWorldBossEnemyId } from './worldBoss';
 import { t } from '../i18n';
 import { formatEquipmentSlotLabel, formatSkillLabel } from '../i18n/labels';
 import {
@@ -2246,10 +2246,7 @@ function canSpawnBloodMoonEnemiesOnTile(
 }
 
 function isWorldBossFootprintOccupied(state: GameState, coord: HexCoord) {
-  const center = getPlacedWorldBossCenter(
-    coord,
-    (bossCoord) => state.tiles[hexKey(bossCoord)]?.enemyIds,
-  );
+  const center = getWorldBossCenterFromStateOrGeneration(state, coord);
   if (!center) return false;
   if (center.q === coord.q && center.r === coord.r) return false;
 
@@ -2258,6 +2255,28 @@ function isWorldBossFootprintOccupied(state: GameState, coord: HexCoord) {
   return centerTile.enemyIds.some(
     (enemyId) => Boolean(state.enemies[enemyId]) || isWorldBossEnemyId(enemyId),
   );
+}
+
+function getWorldBossCenterFromStateOrGeneration(
+  state: GameState,
+  coord: HexCoord,
+) {
+  for (const candidate of [coord, ...hexNeighbors(coord)]) {
+    const loadedEnemyIds = state.tiles[hexKey(candidate)]?.enemyIds;
+    if (loadedEnemyIds) {
+      if (loadedEnemyIds.some(isWorldBossEnemyId)) {
+        return candidate;
+      }
+      continue;
+    }
+
+    const generatedTile = buildTile(state.seed, candidate);
+    if (generatedTile.enemyIds.some(isWorldBossEnemyId)) {
+      return candidate;
+    }
+  }
+
+  return null;
 }
 
 function makeBloodMoonDrop(

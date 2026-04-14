@@ -4,6 +4,8 @@ import { noise } from './shared';
 
 const WORLD_BOSS_MIN_DISTANCE = 4;
 const WORLD_BOSS_SPAWN_THRESHOLD = 0.5;
+const WORLD_BOSS_DISTANCE_WEIGHT = 0.03;
+const WORLD_BOSS_DISTANCE_WEIGHT_CAP = 8;
 
 export function isWorldBossCenter(
   seed: string,
@@ -67,7 +69,11 @@ export function worldBossEnemyId(coord: HexCoord) {
 }
 
 function worldBossScore(seed: string, coord: HexCoord) {
-  const ringWeight = hexDistance(coord, { q: 0, r: 0 }) * 0.03;
+  const ringWeight =
+    Math.min(
+      hexDistance(coord, { q: 0, r: 0 }),
+      WORLD_BOSS_DISTANCE_WEIGHT_CAP,
+    ) * WORLD_BOSS_DISTANCE_WEIGHT;
   return noise(`${seed}:world-boss`, coord) + ringWeight;
 }
 

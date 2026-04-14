@@ -44,6 +44,7 @@ import {
 } from './config';
 import { t } from '../i18n';
 import { normalizeLoadedGame } from '../app/normalize';
+import { buildTile } from './world';
 
 describe('game state', () => {
   function createPlacedWorldBossEncounter() {
@@ -1402,6 +1403,56 @@ describe('game state', () => {
     expect(getTileAt(claimed, footprintHex!).claim?.ownerType).toBe('player');
   });
 
+  it('reserves generated boss footprint hexes even before the center tile is loaded', () => {
+    const { game, center } = createGeneratedWorldBossEncounter();
+    const footprintHex =
+      hexNeighbors(center).find((coord) => {
+        const tile = buildTile(game.seed, coord);
+        return tile.terrain !== 'rift' && tile.terrain !== 'mountain';
+      }) ?? hexNeighbors(center)[0]!;
+
+    game.player.coord = footprintHex;
+    game.tiles[hexKey(footprintHex)] = buildTile(game.seed, footprintHex);
+    delete game.tiles[hexKey(center)];
+    game.player.inventory.push(
+      {
+        id: 'generated-claim-cloth',
+        itemKey: 'cloth',
+        kind: 'resource',
+        name: 'Cloth',
+        quantity: 1,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'generated-claim-sticks',
+        itemKey: 'sticks',
+        kind: 'resource',
+        name: 'Sticks',
+        quantity: 1,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    );
+
+    const blocked = claimCurrentHex(game);
+
+    expect(getTileAt(blocked, footprintHex).claim).toBeUndefined();
+    expect(blocked.logs[0]?.text).toContain(
+      t('game.message.claim.status.emptyOnly'),
+    );
+  });
+
   it('turns an emptied dungeon back into a regular hex', () => {
     const game = createGame(3, 'dungeon-clear-seed');
     const target = { q: 2, r: 0 };
@@ -2242,6 +2293,29 @@ function findFactionTownTile(
   }
 
   return undefined;
+}
+
+function createGeneratedWorldBossEncounter() {
+  for (let seedIndex = 0; seedIndex < 32; seedIndex += 1) {
+    const game = createGame(20, `generated-footprint-reservation-${seedIndex}`);
+
+    for (let q = -20; q <= 20; q += 1) {
+      for (let r = -20; r <= 20; r += 1) {
+        const distance = Math.max(Math.abs(q), Math.abs(r), Math.abs(-q - r));
+        if (distance > 20) continue;
+        const coord = { q, r };
+        if (
+          buildTile(game.seed, coord).enemyIds.some((enemyId) =>
+            enemyId.startsWith('world-boss-'),
+          )
+        ) {
+          return { game, center: coord };
+        }
+      }
+    }
+  }
+
+  throw new Error('Expected to find a generated world boss encounter');
 }
 
 function makeCombatState(
