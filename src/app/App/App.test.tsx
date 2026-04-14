@@ -1,7 +1,16 @@
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
+import { Provider } from 'react-redux';
 import { createGame } from '../../game/state';
 import { GAME_DAY_DURATION_MS, GAME_DAY_MINUTES } from '../../game/config';
+import {
+  DEFAULT_LOG_FILTERS,
+  DEFAULT_WINDOWS,
+  DEFAULT_WINDOW_VISIBILITY,
+} from '../constants';
+import { gameActions } from '../store/gameSlice';
+import { store } from '../store/store';
+import { uiActions } from '../store/uiSlice';
 import { getWorldHexSize, tileToPoint } from '../../ui/world/renderSceneMath';
 import { mapWorldMapFishEyeSourcePointToDisplayPoint } from '../../ui/world/worldMapFishEye';
 import styles from './styles.module.scss';
@@ -106,6 +115,16 @@ describe('App', () => {
     vi.clearAllMocks();
     tickerCallbacks.clear();
     applicationOptions.length = 0;
+    store.dispatch(gameActions.hydrateGame(createGame()));
+    store.dispatch(
+      uiActions.hydrateUi({
+        windows: DEFAULT_WINDOWS,
+        windowShown: DEFAULT_WINDOW_VISIBILITY,
+        logFilters: DEFAULT_LOG_FILTERS,
+        showFilterMenu: false,
+        itemMenu: null,
+      }),
+    );
   });
 
   it('creates the Pixi canvas with density-aware sizing', async () => {
@@ -118,7 +137,11 @@ describe('App', () => {
     const root = createRoot(host);
 
     await act(async () => {
-      root.render(<App />);
+      root.render(
+        <Provider store={store}>
+          <App />
+        </Provider>,
+      );
     });
     await flushLazyModules();
 
@@ -220,7 +243,11 @@ describe('App', () => {
     let root: Root | null = createRoot(host);
 
     await act(async () => {
-      root?.render(<App />);
+      root?.render(
+        <Provider store={store}>
+          <App />
+        </Provider>,
+      );
     });
 
     expect(host.querySelector(`.${styles.loadingScreen}`)).not.toBeNull();

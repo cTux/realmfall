@@ -1,1 +1,1 @@
-export { HexInfoWindow } from './HexInfoWindow';
+export { HexInfoWindowConnected as HexInfoWindow } from './HexInfoWindow.connect';

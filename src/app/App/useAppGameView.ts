@@ -1,74 +1,38 @@
-import { useMemo } from 'react';
+import { useAppSelector } from '../store/hooks';
 import {
-  getCurrentHexClaimStatus,
-  getCurrentTile,
-  getEnemiesAt,
-  getGoldAmount,
-  getPlayerStats,
-  getRecipeBookRecipes,
-  getTownStock,
-  hasEquippableInventoryItems,
-  hasRecipeBook,
-  structureActionLabel,
-  type GameState,
-  type LogKind,
-} from '../../game/state';
-import { t } from '../../i18n';
+  selectCanProspect,
+  selectCanSell,
+  selectClaimStatus,
+  selectCombatEnemies,
+  selectCurrentTile,
+  selectGold,
+  selectInteractLabel,
+  selectInventoryCounts,
+  selectPlayerStats,
+  selectProspectExplanation,
+  selectRecipeBookKnown,
+  selectRecipes,
+  selectSellExplanation,
+  selectTownStock,
+} from '../store/selectors/gameSelectors';
+import { selectFilteredLogs } from '../store/selectors/uiSelectors';
 
-interface UseAppGameViewOptions {
-  game: GameState;
-  logFilters: Record<LogKind, boolean>;
-}
-
-export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
-  const stats = useMemo(() => getPlayerStats(game.player), [game.player]);
-  const currentTile = useMemo(() => getCurrentTile(game), [game]);
-  const recipeBookKnown = useMemo(
-    () => hasRecipeBook(game.player.inventory),
-    [game.player.inventory],
-  );
-  const recipes = useMemo(
-    () => getRecipeBookRecipes(game.player.learnedRecipeIds),
-    [game.player.learnedRecipeIds],
-  );
-  const inventoryCounts = useMemo(
-    () =>
-      game.player.inventory.reduce<Record<string, number>>((counts, item) => {
-        counts[item.name] = (counts[item.name] ?? 0) + item.quantity;
-        return counts;
-      }, {}),
-    [game.player.inventory],
-  );
-  const hasEquippableItems = useMemo(
-    () => hasEquippableInventoryItems(game),
-    [game],
-  );
-  const townStock = useMemo(() => getTownStock(game), [game]);
-  const gold = useMemo(
-    () => getGoldAmount(game.player.inventory),
-    [game.player.inventory],
-  );
-  const combatEnemies = useMemo(
-    () => (game.combat ? getEnemiesAt(game, game.combat.coord) : []),
-    [game],
-  );
-  const filteredLogs = useMemo(
-    () => game.logs.filter((entry) => logFilters[entry.kind]),
-    [game.logs, logFilters],
-  );
-
-  const canProspect = currentTile.structure === 'forge' && hasEquippableItems;
-  const canSell = currentTile.structure === 'town' && hasEquippableItems;
-  const prospectExplanation =
-    currentTile.structure === 'forge' && !hasEquippableItems
-      ? t('game.message.prospect.empty')
-      : null;
-  const sellExplanation =
-    currentTile.structure === 'town' && !hasEquippableItems
-      ? t('game.message.sell.empty')
-      : null;
-  const interactLabel = structureActionLabel(currentTile.structure);
-  const claimStatus = useMemo(() => getCurrentHexClaimStatus(game), [game]);
+export function useAppGameView() {
+  const claimStatus = useAppSelector(selectClaimStatus);
+  const canProspect = useAppSelector(selectCanProspect);
+  const canSell = useAppSelector(selectCanSell);
+  const combatEnemies = useAppSelector(selectCombatEnemies);
+  const currentTile = useAppSelector(selectCurrentTile);
+  const filteredLogs = useAppSelector(selectFilteredLogs);
+  const gold = useAppSelector(selectGold);
+  const interactLabel = useAppSelector(selectInteractLabel);
+  const inventoryCounts = useAppSelector(selectInventoryCounts);
+  const prospectExplanation = useAppSelector(selectProspectExplanation);
+  const recipeBookKnown = useAppSelector(selectRecipeBookKnown);
+  const recipes = useAppSelector(selectRecipes);
+  const sellExplanation = useAppSelector(selectSellExplanation);
+  const stats = useAppSelector(selectPlayerStats);
+  const townStock = useAppSelector(selectTownStock);
 
   return {
     claimStatus,

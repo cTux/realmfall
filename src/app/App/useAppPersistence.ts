@@ -13,8 +13,8 @@ import {
 } from '../../game/state';
 import {
   loadEncryptedState,
-  type PersistedData,
   saveEncryptedState,
+  type PersistedData,
 } from '../../persistence/storage';
 import {
   DEFAULT_LOG_FILTERS,
@@ -24,6 +24,9 @@ import {
   type WindowVisibilityState,
 } from '../constants';
 import { normalizeLoadedGame } from '../normalize';
+import { gameActions } from '../store/gameSlice';
+import { useAppDispatch } from '../store/hooks';
+import { uiActions } from '../store/uiSlice';
 import type { PersistedUiState } from './types';
 
 const AUTOSAVE_DEBOUNCE_MS = 300;
@@ -36,12 +39,7 @@ type PendingSave = {
 
 interface UseAppPersistenceOptions {
   game: GameState;
-  gameRef: MutableRefObject<GameState>;
   logFilters: Record<LogKind, boolean>;
-  setGame: Dispatch<SetStateAction<GameState>>;
-  setLogFilters: Dispatch<SetStateAction<Record<LogKind, boolean>>>;
-  setWindows: Dispatch<SetStateAction<WindowPositions>>;
-  setWindowShown: Dispatch<SetStateAction<WindowVisibilityState>>;
   setWorldTimeMs: Dispatch<SetStateAction<number>>;
   windows: WindowPositions;
   windowShown: WindowVisibilityState;
@@ -157,10 +155,6 @@ function scheduleSave({
 export function useAppPersistence({
   game,
   logFilters,
-  setGame,
-  setLogFilters,
-  setWindows,
-  setWindowShown,
   setWorldTimeMs,
   windows,
   windowShown,
@@ -168,6 +162,7 @@ export function useAppPersistence({
   worldTimeTickRef,
   lastDisplayedWorldSecondRef,
 }: UseAppPersistenceOptions) {
+  const dispatch = useAppDispatch();
   const [hydrated, setHydrated] = useState(false);
   const pendingSaveRef = useRef<PendingSave | null>(null);
   const lastSavedSnapshotRef = useRef<string | null>(null);
@@ -189,11 +184,16 @@ export function useAppPersistence({
           loadedGame.worldTimeMs / 1000,
         );
         setWorldTimeMs(loadedGame.worldTimeMs);
-        setGame({
-          ...loadedGame,
-          logSequence: 3,
-          logs: createFreshLogsAtTime(loadedGame.seed, loadedGame.worldTimeMs),
-        });
+        dispatch(
+          gameActions.hydrateGame({
+            ...loadedGame,
+            logSequence: 3,
+            logs: createFreshLogsAtTime(
+              loadedGame.seed,
+              loadedGame.worldTimeMs,
+            ),
+          }),
+        );
 
         const snapshotUi = saved.ui as
           | ({
@@ -239,26 +239,31 @@ export function useAppPersistence({
           windowCollapsed?: Partial<WindowVisibilityState>;
         } & PersistedUiState;
 
-        if (ui.windows) setWindows({ ...DEFAULT_WINDOWS, ...ui.windows });
-        if (ui.windowShown) {
-          setWindowShown({
-            ...DEFAULT_WINDOW_VISIBILITY,
-            ...ui.windowShown,
-          });
-        } else if (ui.windowCollapsed) {
-          setWindowShown({
-            ...DEFAULT_WINDOW_VISIBILITY,
-            ...Object.fromEntries(
-              Object.entries(ui.windowCollapsed).map(([key, collapsed]) => [
-                key,
-                !collapsed,
-              ]),
-            ),
-          } as WindowVisibilityState);
-        }
-        if (ui.logFilters) {
-          setLogFilters((current) => ({ ...current, ...ui.logFilters }));
-        }
+        dispatch(
+          uiActions.hydrateUi({
+            windows: ui.windows
+              ? { ...DEFAULT_WINDOWS, ...ui.windows }
+              : DEFAULT_WINDOWS,
+            windowShown: ui.windowShown
+              ? {
+                  ...DEFAULT_WINDOW_VISIBILITY,
+                  ...ui.windowShown,
+                }
+              : ui.windowCollapsed
+                ? ({
+                    ...DEFAULT_WINDOW_VISIBILITY,
+                    ...Object.fromEntries(
+                      Object.entries(ui.windowCollapsed).map(
+                        ([key, collapsed]) => [key, !collapsed],
+                      ),
+                    ),
+                  } as WindowVisibilityState)
+                : DEFAULT_WINDOW_VISIBILITY,
+            logFilters: ui.logFilters
+              ? { ...DEFAULT_LOG_FILTERS, ...ui.logFilters }
+              : DEFAULT_LOG_FILTERS,
+          }),
+        );
       }
 
       setHydrated(true);
@@ -268,11 +273,8 @@ export function useAppPersistence({
       alive = false;
     };
   }, [
+    dispatch,
     lastDisplayedWorldSecondRef,
-    setGame,
-    setLogFilters,
-    setWindowShown,
-    setWindows,
     setWorldTimeMs,
     worldTimeMsRef,
     worldTimeTickRef,

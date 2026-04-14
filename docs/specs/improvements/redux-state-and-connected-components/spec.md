@@ -2,7 +2,7 @@
 
 **Feature Branch**: `master`  
 **Created**: 2026-04-14  
-**Status**: Draft  
+**Status**: Implemented  
 **Input**: User description: "Move all the state to redux; decrease amount of passing props to the component by creating `{ComponentName}.connect.ts(x)` files; evaluate optional `useGameState()`."
 
 ## User Scenarios & Testing _(mandatory)_
@@ -113,6 +113,14 @@ As a maintainer, I want clear guidance for when to use connected components vers
 - **SC-004**: Hydration and autosave continue to work with normalized save data and without duplicate writes for unchanged persisted snapshots.
 - **SC-005**: The documented architecture clearly distinguishes Redux-owned shared state from ref-owned transient runtime state.
 - **SC-006**: Contributors can determine from the spec and plan when to use a connected component versus `useGameState()` without relying on tribal knowledge.
+
+## Implementation Notes
+
+- Shared gameplay state now lives in `src/app/store/gameSlice.ts`, with reducers wrapping the existing pure transition helpers from `src/game/state.ts`.
+- Persisted shared UI state now lives in `src/app/store/uiSlice.ts`, including window positions, optional sizes, visibility, log filters, and the shared item context menu state.
+- `src/app/App/useAppPersistence.ts` hydrates Redux slices and keeps the existing normalized save-loading and duplicate-save suppression behavior.
+- Component-root `index.ts` files for the major windows and item context menu now export connected entry points from adjacent `.connect.tsx` files, while tests and stories can still import the presentational files directly.
+- `src/app/store/useGameState.ts` exists as a narrow hook for the root orchestration layer that truly needs the full game slice, but connected component entry points remain the default pattern for UI containers.
 
 ## Assumptions
 

@@ -28,10 +28,12 @@
     "update:minor": "pnpm exec npm-check-updates -u --target minor --packageManager pnpm"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.11.2",
     "pixi.js": "^7.4.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-fps-stats": "^0.3.2"
+    "react-fps-stats": "^0.3.2",
+    "react-redux": "^9.2.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",

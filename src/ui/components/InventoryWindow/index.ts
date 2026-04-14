@@ -1,2 +1,2 @@
-export { InventoryWindow } from './InventoryWindow';
+export { InventoryWindowConnected as InventoryWindow } from './InventoryWindow.connect';
 export type { InventoryWindowProps } from './types';
