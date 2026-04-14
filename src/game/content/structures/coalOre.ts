@@ -9,7 +9,7 @@ export const coalOreStructureConfig: StructureConfig = {
   tint: 0x475569,
   functionsProvided: ['mine-coal'],
   appearanceChanceByTerrain: {
-    desert: 0.24,
+    desert: 0.81,
   },
   gathering: {
     actionLabel: 'Mine Coal Seam',

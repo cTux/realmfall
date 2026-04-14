@@ -3,7 +3,7 @@ import type { Terrain } from './types';
 import { noise } from './shared';
 
 const WORLD_BOSS_MIN_DISTANCE = 4;
-const WORLD_BOSS_SPAWN_THRESHOLD = 0.72;
+const WORLD_BOSS_SPAWN_THRESHOLD = 0.5;
 
 export function isWorldBossCenter(
   seed: string,
@@ -15,13 +15,7 @@ export function isWorldBossCenter(
     return false;
   }
 
-  const score = worldBossScore(seed, coord);
-  if (score < WORLD_BOSS_SPAWN_THRESHOLD) return false;
-
-  return hexNeighbors(coord).every((neighbor) => {
-    if (pickWorldBossTerrain(seed, neighbor) !== 'forest') return true;
-    return worldBossScore(seed, neighbor) < score;
-  });
+  return worldBossScore(seed, coord) >= WORLD_BOSS_SPAWN_THRESHOLD;
 }
 
 export function getWorldBossCenter(seed: string, coord: HexCoord) {
@@ -39,6 +33,21 @@ export function getWorldBossCenter(seed: string, coord: HexCoord) {
 
 export function isWorldBossFootprint(seed: string, coord: HexCoord) {
   return getWorldBossCenter(seed, coord) !== null;
+}
+
+export function getPlacedWorldBossCenter(
+  coord: HexCoord,
+  getEnemyIds: (coord: HexCoord) => string[] | undefined,
+) {
+  if (getEnemyIds(coord)?.some(isWorldBossEnemyId)) {
+    return coord;
+  }
+
+  return (
+    hexNeighbors(coord).find((neighbor) =>
+      getEnemyIds(neighbor)?.some(isWorldBossEnemyId),
+    ) ?? null
+  );
 }
 
 export function isWorldBossEnemy(

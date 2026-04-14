@@ -34,7 +34,7 @@ import {
   type GameState,
   type Item,
 } from './state';
-import { hexDistance } from './hex';
+import { hexDistance, hexKey, hexNeighbors } from './hex';
 import { makeEnemy } from './combat';
 import {
   GAME_DAY_DURATION_MS,
@@ -42,26 +42,42 @@ import {
   HOME_SCROLL_ITEM_NAME_KEY,
   WORLD_REVEAL_RADIUS,
 } from './config';
-import { isWorldBossCenter } from './worldBoss';
 import { t } from '../i18n';
 import { normalizeLoadedGame } from '../app/normalize';
 
 describe('game state', () => {
-  function findWorldBossEncounter() {
-    for (let seedIndex = 0; seedIndex < 40; seedIndex += 1) {
-      const game = createGame(8, `world-boss-seed-${seedIndex}`);
-      for (let q = -8; q <= 8; q += 1) {
-        for (let r = -8; r <= 8; r += 1) {
-          if (Math.abs(q + r) > 8) continue;
-          const coord = { q, r };
-          const tile = getTileAt(game, coord);
-          if (!isWorldBossCenter(game.seed, coord, tile.terrain)) continue;
-          return { game, center: coord };
-        }
-      }
-    }
+  function createPlacedWorldBossEncounter() {
+    const game = createGame(8, 'placed-world-boss-seed');
+    const center = { q: 4, r: 0 };
+    const bossId = `world-boss-${hexKey(center)}`;
 
-    throw new Error('Expected to find a deterministic world boss center');
+    game.tiles[hexKey(center)] = {
+      coord: center,
+      terrain: 'forest',
+      items: [],
+      structure: undefined,
+      enemyIds: [bossId],
+    };
+    hexNeighbors(center).forEach((coord) => {
+      game.tiles[hexKey(coord)] = {
+        coord,
+        terrain: 'forest',
+        items: [],
+        structure: undefined,
+        enemyIds: [],
+      };
+    });
+    game.enemies[bossId] = makeEnemy(
+      game.seed,
+      center,
+      'forest',
+      0,
+      undefined,
+      false,
+      { enemyId: bossId, worldBoss: true },
+    );
+
+    return { game, center, bossId };
   }
 
   it('creates a centered start in a visible hex viewport', () => {
@@ -216,8 +232,12 @@ describe('game state', () => {
   it('generates faction territories with borders, neutral residents, and safe interiors', () => {
     const game = createGame(6, 'faction-territory-seed');
     const factionNpcTile = findFactionNpcTile(game, 36);
+    const factionTownTile = findFactionTownTile(game, 36);
 
     expect(factionNpcTile).toBeDefined();
+    expect(factionTownTile).toBeDefined();
+    expect(factionTownTile?.claim?.ownerType).toBe('faction');
+    expect(factionTownTile?.structure).toBe('town');
     expect(factionNpcTile?.claim?.ownerType).toBe('faction');
     expect(factionNpcTile?.claim?.npc).toBeDefined();
     expect(factionNpcTile?.enemyIds).toEqual([
@@ -1222,7 +1242,7 @@ describe('game state', () => {
   });
 
   it('spawns world bosses with boosted stats, a footprint, and guaranteed premium loot', () => {
-    const { game, center } = findWorldBossEncounter();
+    const { game, center } = createPlacedWorldBossEncounter();
     const centerTile = getTileAt(game, center);
     const worldBoss = getEnemyAt(game, center);
     const ordinaryEnemy = makeEnemy(
@@ -1295,7 +1315,7 @@ describe('game state', () => {
   });
 
   it('does not promote ordinary spawns on a boss-center hex into world bosses', () => {
-    const { game, center } = findWorldBossEncounter();
+    const { game, center } = createPlacedWorldBossEncounter();
     const centerTile = getTileAt(game, center);
 
     const ordinarySpawn = makeEnemy(
@@ -1324,8 +1344,7 @@ describe('game state', () => {
   });
 
   it('treats non-center world boss footprint hexes as occupied until the boss dies', () => {
-    const { game, center } = findWorldBossEncounter();
-    const bossId = getTileAt(game, center).enemyIds[0];
+    const { game, center, bossId } = createPlacedWorldBossEncounter();
     const footprintHex = getVisibleTiles({
       ...game,
       player: { ...game.player, coord: center },
@@ -2199,6 +2218,24 @@ function findFactionNpcTile(
       if (distance > maxDistance) continue;
       const tile = getTileAt(game, { q, r });
       if (tile.claim?.npc?.enemyId) {
+        return tile;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+function findFactionTownTile(
+  game: ReturnType<typeof createGame>,
+  maxDistance: number,
+) {
+  for (let q = -maxDistance; q <= maxDistance; q += 1) {
+    for (let r = -maxDistance; r <= maxDistance; r += 1) {
+      const distance = Math.max(Math.abs(q), Math.abs(r), Math.abs(-q - r));
+      if (distance > maxDistance) continue;
+      const tile = getTileAt(game, { q, r });
+      if (tile.claim?.ownerType === 'faction' && tile.structure === 'town') {
         return tile;
       }
     }

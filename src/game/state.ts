@@ -1,9 +1,5 @@
 import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
-import {
-  getWorldBossCenter,
-  isWorldBossCenter,
-  isWorldBossEnemyId,
-} from './worldBoss';
+import { getPlacedWorldBossCenter, isWorldBossEnemyId } from './worldBoss';
 import { t } from '../i18n';
 import { formatEquipmentSlotLabel, formatSkillLabel } from '../i18n/labels';
 import {
@@ -358,7 +354,7 @@ export function getEnemiesAt(state: GameState, coord: HexCoord) {
         enemyId,
         aggressive: hostile,
         name: enemyName,
-        worldBoss: isWorldBossCenter(state.seed, coord, tile.terrain),
+        worldBoss: isWorldBossEnemyId(enemyId),
       },
     );
   });
@@ -2250,7 +2246,10 @@ function canSpawnBloodMoonEnemiesOnTile(
 }
 
 function isWorldBossFootprintOccupied(state: GameState, coord: HexCoord) {
-  const center = getWorldBossCenter(state.seed, coord);
+  const center = getPlacedWorldBossCenter(
+    coord,
+    (bossCoord) => state.tiles[hexKey(bossCoord)]?.enemyIds,
+  );
   if (!center) return false;
   if (center.q === coord.q && center.r === coord.r) return false;
 

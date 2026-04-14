@@ -9,7 +9,7 @@ export const lakeStructureConfig: StructureConfig = {
   tint: 0x2563eb,
   functionsProvided: ['fish'],
   appearanceChanceByTerrain: {
-    plains: 0.18,
+    plains: 0.79,
   },
   gathering: {
     actionLabel: 'Fish lake',

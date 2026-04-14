@@ -9,8 +9,8 @@ export const copperOreStructureConfig: StructureConfig = {
   tint: 0xf59e0b,
   functionsProvided: ['mine-copper'],
   appearanceChanceByTerrain: {
-    plains: 0.36,
-    desert: 0.36,
+    plains: 0.84,
+    desert: 0.84,
   },
   gathering: {
     actionLabel: 'Mine Copper Vein',
