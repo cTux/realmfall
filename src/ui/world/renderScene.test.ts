@@ -404,6 +404,59 @@ describe('renderScene', () => {
     expect(territoryBorders.length).toBeGreaterThan(0);
   });
 
+  it('does not split a territory border when a same-owner neighbor is off-screen', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-offscreen-claim-neighbor');
+    game.player.coord = { q: -1, r: 0 };
+    game.homeHex = { q: -2, r: 0 };
+    game.tiles['0,0'] = {
+      ...game.tiles['0,0'],
+      claim: {
+        ownerId: 'faction-1',
+        ownerType: 'faction',
+        ownerName: 'Ghostline',
+        borderColor: '#ffffff',
+      },
+    };
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+      claim: {
+        ownerId: 'faction-1',
+        ownerType: 'faction',
+        ownerName: 'Ghostline',
+        borderColor: '#ffffff',
+      },
+    };
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      [game.tiles['0,0']],
+      { q: 0, r: 0 },
+      null,
+      12 * 60,
+    );
+
+    const world = app.stage.children[1] as MockContainer;
+    const territoryBorders = collectDescendants(world).filter(
+      (child) =>
+        child instanceof MockGraphics &&
+        child.lineStyle.mock.calls.some(
+          ([width, color, alpha]) =>
+            width === 3 && color === 0xffffff && alpha === 0.92,
+        ),
+    ) as MockGraphics[];
+
+    expect(territoryBorders).toHaveLength(5);
+  });
+
   it('highlights each hovered safe-path hex on the interaction layer', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(3, 'render-scene-safe-path');

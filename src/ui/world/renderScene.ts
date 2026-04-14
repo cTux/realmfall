@@ -10,6 +10,7 @@ import {
   type Tile,
 } from '../../game/state';
 import { hexKey } from '../../game/hex';
+import { buildTile } from '../../game/world';
 import {
   getPlacedWorldBossCenter,
   isWorldBossEnemyId,
@@ -286,6 +287,7 @@ export function renderScene(
       if (tile.claim) {
         renderClaimBorder(
           scene.worldStaticDetailGraphics,
+          state,
           tile,
           poly,
           visibleTileMap,
@@ -388,6 +390,7 @@ export function renderScene(
 
 function renderClaimBorder(
   graphicsPool: ReturnType<typeof getSceneCache>['worldStaticDetailGraphics'],
+  state: GameState,
   tile: Tile,
   poly: number[],
   visibleTileMap: Map<string, Tile>,
@@ -408,7 +411,7 @@ function renderClaimBorder(
   ];
 
   neighbors.forEach((neighbor, sideIndex) => {
-    const neighborClaim = visibleTileMap.get(hexKey(neighbor))?.claim;
+    const neighborClaim = resolveNeighborClaim(state, visibleTileMap, neighbor);
     if (
       neighborClaim?.ownerId === claim.ownerId &&
       neighborClaim?.ownerType === claim.ownerType
@@ -423,6 +426,19 @@ function renderClaimBorder(
     border.moveTo(poly[startVertexIndex * 2], poly[startVertexIndex * 2 + 1]);
     border.lineTo(poly[endVertexIndex * 2], poly[endVertexIndex * 2 + 1]);
   });
+}
+
+function resolveNeighborClaim(
+  state: GameState,
+  visibleTileMap: Map<string, Tile>,
+  coord: HexCoord,
+) {
+  const key = hexKey(coord);
+  return (
+    visibleTileMap.get(key)?.claim ??
+    state.tiles[key]?.claim ??
+    buildTile(state.seed, coord).claim
+  );
 }
 
 function getCloudRenderInputs(
