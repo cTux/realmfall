@@ -5,7 +5,7 @@ import snowingIcon from '../../assets/icons/snowing.svg';
 import tearTracksIcon from '../../assets/icons/tear-tracks.svg';
 import { getEnemyConfig } from '../../game/content/enemies';
 import { getStructureConfig } from '../../game/content/structures';
-import type { StructureType } from '../../game/state';
+import type { Enemy, StructureType } from '../../game/state';
 
 export const WorldIcons = {
   Player: playerIcon,
@@ -15,10 +15,14 @@ export const WorldIcons = {
   Village: tearTracksIcon,
 } as const;
 
-export function enemyIconFor(name: string) {
+export function enemyIconFor(
+  enemy: Pick<Enemy, 'enemyTypeId' | 'name'> | string,
+) {
+  const lookup =
+    typeof enemy === 'string' ? enemy : (enemy.enemyTypeId ?? enemy.name);
   return (
-    getEnemyConfig(name)?.icon ??
-    getEnemyConfig('Wolf')?.icon ??
+    getEnemyConfig(lookup)?.icon ??
+    getEnemyConfig('wolf')?.icon ??
     WorldIcons.Player
   );
 }

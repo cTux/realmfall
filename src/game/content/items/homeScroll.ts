@@ -5,7 +5,6 @@ import type { ItemConfig } from '../types';
 export const homeScrollItemConfig: ItemConfig = {
   key: 'home-scroll',
   name: itemName('home-scroll'),
-  kind: 'consumable',
   icon: ContentIcons.TiedScroll,
   tint: '#a78bfa',
   tier: 1,

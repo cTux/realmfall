@@ -144,7 +144,6 @@ describe('App', () => {
       items: [
         {
           id: 'loot-gold',
-          kind: 'resource',
           name: 'Gold',
           quantity: 5,
           tier: 1,
@@ -160,7 +159,6 @@ describe('App', () => {
     game.player.inventory = [
       {
         id: 'food-1',
-        kind: 'consumable',
         name: 'Trail Ration',
         quantity: 1,
         tier: 1,
@@ -173,7 +171,6 @@ describe('App', () => {
       },
       {
         id: 'armor-1',
-        kind: 'armor',
         slot: 'head',
         name: 'Scout Hood',
         quantity: 1,

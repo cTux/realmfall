@@ -4,7 +4,6 @@ import type { ItemConfig } from '../types';
 export const herbsItemConfig: ItemConfig = {
   key: 'herbs',
   name: 'Herbs',
-  kind: 'resource',
   icon: ContentIcons.HerbsBundle,
   tier: 1,
   rarity: 'common',

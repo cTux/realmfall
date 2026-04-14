@@ -1,11 +1,11 @@
 import { ContentIcons } from '../icons';
+import { EquipmentSlotId } from '../ids';
 import type { ItemConfig } from '../types';
 
 export const townKnifeItemConfig: ItemConfig = {
   key: 'town-knife',
   name: 'Town Knife',
-  kind: 'weapon',
-  slot: 'weapon',
+  slot: EquipmentSlotId.Weapon,
   icon: ContentIcons.Weapon,
   tier: 1,
   rarity: 'common',

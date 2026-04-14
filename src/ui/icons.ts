@@ -1,11 +1,14 @@
 import {
   getEnemyConfig,
   type EquipmentSlot,
+  type Enemy,
   getItemConfig,
   type Item,
   type SkillName,
   getStructureConfig,
 } from '../game/state';
+import { EquipmentSlotId } from '../game/content/ids';
+import { getItemCategory } from '../game/content/items';
 import playerIcon from '../assets/icons/visored-helm.svg';
 import enemyIcon from '../assets/icons/wolf-head.svg';
 import weaponIcon from '../assets/icons/plain-dagger.svg';
@@ -48,6 +51,7 @@ import tiedScrollIcon from '../assets/icons/tied-scroll.svg';
 import arrowDunkIcon from '../assets/icons/arrow-dunk.svg';
 import rolledClothIcon from '../assets/icons/rolled-cloth.svg';
 import type { StructureType } from '../game/state';
+import { GAME_TAGS } from '../game/content/tags';
 import { rarityColor } from './rarity';
 
 export const Icons = {
@@ -108,33 +112,44 @@ const DEFAULT_ENEMY_TINT = 0x60a5fa;
 const DEFAULT_ITEM_ICON = Icons.Artifact;
 
 export const ItemIcon: Record<EquipmentSlot, string> = {
-  weapon: Icons.Weapon,
-  offhand: Icons.Armor,
-  head: Icons.Hood,
-  chest: Icons.Chest,
-  hands: Icons.Gauntlet,
-  legs: Icons.Chest,
-  feet: Icons.Boots,
-  ringLeft: Icons.Artifact,
-  ringRight: Icons.Artifact,
-  amulet: Icons.Artifact,
-  cloak: Icons.Hood,
-  relic: Icons.Orb,
+  [EquipmentSlotId.Weapon]: Icons.Weapon,
+  [EquipmentSlotId.Offhand]: Icons.Armor,
+  [EquipmentSlotId.Head]: Icons.Hood,
+  [EquipmentSlotId.Chest]: Icons.Chest,
+  [EquipmentSlotId.Hands]: Icons.Gauntlet,
+  [EquipmentSlotId.Legs]: Icons.Chest,
+  [EquipmentSlotId.Feet]: Icons.Boots,
+  [EquipmentSlotId.RingLeft]: Icons.Artifact,
+  [EquipmentSlotId.RingRight]: Icons.Artifact,
+  [EquipmentSlotId.Amulet]: Icons.Artifact,
+  [EquipmentSlotId.Cloak]: Icons.Hood,
+  [EquipmentSlotId.Relic]: Icons.Orb,
 };
 
-const ItemKindIcon: Record<Exclude<Item['kind'], 'resource'>, string> = {
+const ItemKindIcon: Record<
+  Exclude<ReturnType<typeof getItemCategory>, 'resource'>,
+  string
+> = {
   weapon: Icons.Weapon,
   armor: DEFAULT_ITEM_ICON,
   artifact: DEFAULT_ITEM_ICON,
   consumable: Icons.Consumable,
 };
 
-export function enemyIconFor(name: string) {
-  return getEnemyConfig(name)?.icon ?? DEFAULT_ENEMY_ICON;
+export function enemyIconFor(
+  enemy: Pick<Enemy, 'enemyTypeId' | 'name'> | string,
+) {
+  const configured = getEnemyConfig(
+    typeof enemy === 'string' ? enemy : (enemy.enemyTypeId ?? enemy.name),
+  );
+  return configured?.icon ?? DEFAULT_ENEMY_ICON;
 }
 
-export function enemyTint(name: string) {
-  return getEnemyConfig(name)?.tint ?? DEFAULT_ENEMY_TINT;
+export function enemyTint(enemy: Pick<Enemy, 'enemyTypeId' | 'name'> | string) {
+  const configured = getEnemyConfig(
+    typeof enemy === 'string' ? enemy : (enemy.enemyTypeId ?? enemy.name),
+  );
+  return configured?.tint ?? DEFAULT_ENEMY_TINT;
 }
 
 export function iconForItem(item?: Item, slot?: EquipmentSlot) {
@@ -142,11 +157,14 @@ export function iconForItem(item?: Item, slot?: EquipmentSlot) {
   const itemSlotIcon = item?.slot ? ItemIcon[item.slot] : undefined;
   const configuredItem = item ? getItemConfig(item) : undefined;
   const configuredItemIcon =
-    item?.name && item.name.endsWith(' Totem')
+    item &&
+    ((item.tags ?? []).includes(GAME_TAGS.item.totem) ||
+      item.name.endsWith(' Totem'))
       ? Icons.Totem
       : configuredItem?.icon;
+  const category = item ? getItemCategory(item) : undefined;
   const kindIcon =
-    item && item.kind !== 'resource' ? ItemKindIcon[item.kind] : undefined;
+    category && category !== 'resource' ? ItemKindIcon[category] : undefined;
 
   return (
     configuredItemIcon ??

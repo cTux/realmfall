@@ -186,7 +186,6 @@ describe('renderScene', () => {
       items: [
         {
           id: 'gold-1',
-          kind: 'resource',
           name: 'Gold',
           quantity: 3,
           tier: 1,

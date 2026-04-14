@@ -4,7 +4,6 @@ import type { ItemConfig } from '../types';
 export const appleItemConfig: ItemConfig = {
   key: 'apple',
   name: 'Apple',
-  kind: 'consumable',
   icon: ContentIcons.ShinyApple,
   tier: 2,
   rarity: 'common',

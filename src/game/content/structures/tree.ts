@@ -1,5 +1,7 @@
 import { ContentIcons } from '../icons';
+import { ItemId } from '../ids';
 import type { StructureConfig } from '../types';
+import { Skill } from '../../types';
 
 export const treeStructureConfig: StructureConfig = {
   type: 'tree',
@@ -14,7 +16,8 @@ export const treeStructureConfig: StructureConfig = {
   gathering: {
     actionLabel: 'Chop tree',
     maxHp: 5,
-    skill: 'logging',
+    skill: Skill.Logging,
+    rewardItemKey: ItemId.Logs,
     reward: 'Logs',
     rewardTier: 1,
     baseYield: 2,

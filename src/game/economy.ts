@@ -10,7 +10,7 @@ export function buildTownStock(
 ): TownStockEntry[] {
   const ration = makeConsumable(
     `town-ration-${hexKey(coord)}`,
-    'Trail Ration',
+    'trail-ration',
     1,
     8,
     12,
@@ -18,13 +18,13 @@ export function buildTownStock(
   );
   const jerky = makeConsumable(
     `town-jerky-${hexKey(coord)}`,
-    'Apple',
+    'apple',
     2,
     6,
     20,
   );
   const hood = applyRarityToItem({
-    ...makeStarterArmor('head', 'Scout Hood', 1, 1),
+    ...makeStarterArmor('head', 'scout-hood', 1, 1),
     id: `town-hood-${hexKey(coord)}`,
     rarity: noise(`${seed}:town-stock`, coord) > 0.6 ? 'uncommon' : 'common',
   });

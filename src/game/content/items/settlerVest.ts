@@ -1,11 +1,11 @@
 import { ContentIcons } from '../icons';
+import { EquipmentSlotId } from '../ids';
 import type { ItemConfig } from '../types';
 
 export const settlerVestItemConfig: ItemConfig = {
   key: 'settler-vest',
   name: 'Settler Vest',
-  kind: 'armor',
-  slot: 'chest',
+  slot: EquipmentSlotId.Chest,
   icon: ContentIcons.Chest,
   tier: 1,
   rarity: 'common',

@@ -45,6 +45,9 @@ import {
 import { t } from '../i18n';
 import { normalizeLoadedGame } from '../app/normalize';
 import { buildTile } from './world';
+import { getItemCategory } from './content/items';
+import { getStructureConfig } from './content/structures';
+import { Skill } from './types';
 
 describe('game state', () => {
   function createPlacedWorldBossEncounter() {
@@ -137,7 +140,6 @@ describe('game state', () => {
       {
         id: 'cloth-1',
         itemKey: 'cloth',
-        kind: 'resource',
         name: 'Cloth',
         quantity: 1,
         tier: 1,
@@ -151,7 +153,6 @@ describe('game state', () => {
       {
         id: 'sticks-1',
         itemKey: 'sticks',
-        kind: 'resource',
         name: 'Sticks',
         quantity: 1,
         tier: 1,
@@ -184,7 +185,6 @@ describe('game state', () => {
       {
         id: 'cloth-1',
         itemKey: 'cloth',
-        kind: 'resource',
         name: 'Cloth',
         quantity: 2,
         tier: 1,
@@ -198,7 +198,6 @@ describe('game state', () => {
       {
         id: 'sticks-1',
         itemKey: 'sticks',
-        kind: 'resource',
         name: 'Sticks',
         quantity: 2,
         tier: 1,
@@ -499,7 +498,7 @@ describe('game state', () => {
     expect(chopped.player.inventory.some((item) => item.name === 'Logs')).toBe(
       true,
     );
-    expect(chopped.player.skills.logging.xp).toBeGreaterThan(0);
+    expect(chopped.player.skills[Skill.Logging].xp).toBeGreaterThan(0);
     expect(getTileAt(chopped, { q: 0, r: 0 }).structureHp).toBe(1);
 
     const cleared = interactWithStructure(chopped);
@@ -508,7 +507,7 @@ describe('game state', () => {
 
   it('uses skill level as the extra gathering loot chance', () => {
     const game = createGame(3, 'gather-bonus-seed');
-    game.player.skills.logging.level = 100;
+    game.player.skills[Skill.Logging].level = 100;
     game.tiles['0,0'] = {
       ...game.tiles['0,0'],
       structure: 'tree',
@@ -544,6 +543,39 @@ describe('game state', () => {
       gathered.player.inventory.some((item) => item.name === 'Herbs'),
     ).toBe(true);
     expect(getTileAt(gathered, { q: 0, r: 0 }).structure).toBeUndefined();
+  });
+
+  it('uses canonical reward item keys even when structure reward labels change', () => {
+    const game = createGame(3, 'localized-gather-reward-seed');
+    const treeConfig = getStructureConfig('tree');
+    const gathering = treeConfig.gathering;
+    if (!gathering) {
+      throw new Error('Expected tree gathering config');
+    }
+
+    const originalReward = gathering.reward;
+    gathering.reward = 'Bosque antiguo';
+
+    try {
+      game.tiles['0,0'] = {
+        ...game.tiles['0,0'],
+        structure: 'tree',
+        structureHp: 1,
+        structureMaxHp: 1,
+        items: [],
+        enemyIds: [],
+      };
+
+      const gathered = interactWithStructure(game);
+      const logs = gathered.player.inventory.find(
+        (item) => item.itemKey === 'logs',
+      );
+
+      expect(logs).toBeDefined();
+      expect(logs?.name).toBe('Logs');
+    } finally {
+      gathering.reward = originalReward;
+    }
   });
 
   it('can gather sticks from logging and stone from mining byproducts', () => {
@@ -620,7 +652,7 @@ describe('game state', () => {
         (item) => item.name === 'Leather Scraps',
       ),
     ).toBe(true);
-    expect(resolved.player.skills.skinning.xp).toBeGreaterThan(0);
+    expect(resolved.player.skills[Skill.Skinning].xp).toBeGreaterThan(0);
   });
 
   it('respects global cooldown and ability cooldown between player casts', () => {
@@ -967,7 +999,6 @@ describe('game state', () => {
       items: [
         {
           id: 'resource-gold-home',
-          kind: 'resource',
           name: 'Gold',
           quantity: 4,
           tier: 1,
@@ -1014,7 +1045,6 @@ describe('game state', () => {
       items: [
         {
           id: 'resource-gold-home',
-          kind: 'resource',
           name: 'Gold',
           quantity: 4,
           tier: 1,
@@ -1058,7 +1088,6 @@ describe('game state', () => {
       items: [
         {
           id: 'resource-gold-home',
-          kind: 'resource',
           name: 'Gold',
           quantity: 4,
         },
@@ -1198,7 +1227,9 @@ describe('game state', () => {
       for (let r = -8; r <= 8; r += 1) {
         if (Math.abs(q + r) > 8) continue;
         const tile = getTileAt(game, { q, r });
-        expect(tile.items.some((item) => item.kind === 'resource')).toBe(false);
+        expect(
+          tile.items.some((item) => getItemCategory(item) === 'resource'),
+        ).toBe(false);
       }
     }
   });
@@ -1236,7 +1267,7 @@ describe('game state', () => {
     expect(
       tileItems.some(
         (item) =>
-          ['weapon', 'armor', 'artifact'].includes(item.kind) &&
+          ['weapon', 'armor', 'artifact'].includes(getItemCategory(item)) &&
           ['rare', 'epic', 'legendary'].includes(item.rarity),
       ),
     ).toBe(true);
@@ -1302,14 +1333,14 @@ describe('game state', () => {
     expect(
       loot.some(
         (item) =>
-          ['weapon', 'armor', 'artifact'].includes(item.kind) &&
+          ['weapon', 'armor', 'artifact'].includes(getItemCategory(item)) &&
           ['epic', 'legendary'].includes(item.rarity),
       ),
     ).toBe(true);
     expect(
       loot.some(
         (item) =>
-          ['weapon', 'armor', 'artifact'].includes(item.kind) &&
+          ['weapon', 'armor', 'artifact'].includes(getItemCategory(item)) &&
           item.rarity === 'legendary',
       ),
     ).toBe(true);
@@ -1358,7 +1389,6 @@ describe('game state', () => {
       {
         id: 'claim-cloth',
         itemKey: 'cloth',
-        kind: 'resource',
         name: 'Cloth',
         quantity: 1,
         tier: 1,
@@ -1373,7 +1403,6 @@ describe('game state', () => {
       {
         id: 'claim-sticks',
         itemKey: 'sticks',
-        kind: 'resource',
         name: 'Sticks',
         quantity: 1,
         tier: 1,
@@ -1418,7 +1447,6 @@ describe('game state', () => {
       {
         id: 'generated-claim-cloth',
         itemKey: 'cloth',
-        kind: 'resource',
         name: 'Cloth',
         quantity: 1,
         tier: 1,
@@ -1432,7 +1460,6 @@ describe('game state', () => {
       {
         id: 'generated-claim-sticks',
         itemKey: 'sticks',
-        kind: 'resource',
         name: 'Sticks',
         quantity: 1,
         tier: 1,
@@ -1463,7 +1490,6 @@ describe('game state', () => {
       items: [
         {
           id: 'resource-gold-1',
-          kind: 'resource',
           name: 'Gold',
           quantity: 3,
           tier: 1,
@@ -1504,7 +1530,6 @@ describe('game state', () => {
     game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'town' };
     game.player.inventory.push({
       id: 'resource-gold-1',
-      kind: 'resource',
       name: 'Gold',
       quantity: 40,
       tier: 1,
@@ -1533,7 +1558,6 @@ describe('game state', () => {
       items: [
         {
           id: 'resource-gold-1',
-          kind: 'resource',
           name: 'Gold',
           quantity: 12,
           tier: 1,
@@ -1560,7 +1584,6 @@ describe('game state', () => {
       items: [
         {
           id: 'food-1',
-          kind: 'consumable',
           name: 'Trail Ration',
           quantity: 2,
           tier: 1,
@@ -1573,7 +1596,6 @@ describe('game state', () => {
         },
         {
           id: 'resource-gold-1',
-          kind: 'resource',
           name: 'Gold',
           quantity: 7,
           tier: 1,
@@ -1626,7 +1648,6 @@ describe('game state', () => {
     game.player.inventory.push({
       id: 'home-scroll-1',
       itemKey: 'home-scroll',
-      kind: 'consumable',
       name: 'Pergamino del hogar',
       quantity: 1,
       tier: 1,
@@ -1702,7 +1723,6 @@ describe('game state', () => {
     game.player.inventory.push(
       {
         id: 'raw-fish-1',
-        kind: 'resource',
         name: 'Raw Fish',
         quantity: 1,
         tier: 1,
@@ -1715,7 +1735,6 @@ describe('game state', () => {
       },
       {
         id: 'coal-1',
-        kind: 'resource',
         name: 'Coal',
         quantity: 1,
         tier: 1,
@@ -1736,7 +1755,7 @@ describe('game state', () => {
     expect(
       cooked.player.inventory.some((item) => item.name === 'Raw Fish'),
     ).toBe(false);
-    expect(cooked.player.skills.cooking.xp).toBeGreaterThan(0);
+    expect(cooked.player.skills[Skill.Cooking].xp).toBeGreaterThan(0);
   });
 
   it('crafts slot gear from recipe requirements and levels crafting', () => {
@@ -1746,7 +1765,6 @@ describe('game state', () => {
     game.player.inventory.push(
       {
         id: 'chunks-1',
-        kind: 'resource',
         name: 'Iron Chunks',
         quantity: 2,
         tier: 1,
@@ -1759,7 +1777,6 @@ describe('game state', () => {
       },
       {
         id: 'sticks-1',
-        kind: 'resource',
         name: 'Sticks',
         quantity: 2,
         tier: 1,
@@ -1777,7 +1794,7 @@ describe('game state', () => {
     expect(
       crafted.player.inventory.some((item) => item.name === 'Camp Spear'),
     ).toBe(true);
-    expect(crafted.player.skills.crafting.xp).toBeGreaterThan(0);
+    expect(crafted.player.skills[Skill.Crafting].xp).toBeGreaterThan(0);
   });
 
   it('requires the matching hex type for cooking and crafting recipes', () => {
@@ -1785,7 +1802,6 @@ describe('game state', () => {
     game.player.inventory.push(
       {
         id: 'raw-fish-1',
-        kind: 'resource',
         name: 'Raw Fish',
         quantity: 1,
         tier: 1,
@@ -1798,7 +1814,6 @@ describe('game state', () => {
       },
       {
         id: 'coal-1',
-        kind: 'resource',
         name: 'Coal',
         quantity: 1,
         tier: 1,
@@ -1822,7 +1837,6 @@ describe('game state', () => {
     game.player.inventory.push(
       {
         id: 'chunks-1',
-        kind: 'resource',
         name: 'Iron Chunks',
         quantity: 2,
         tier: 1,
@@ -1835,7 +1849,6 @@ describe('game state', () => {
       },
       {
         id: 'sticks-1',
-        kind: 'resource',
         name: 'Sticks',
         quantity: 2,
         tier: 1,
@@ -1858,7 +1871,6 @@ describe('game state', () => {
     game.player.inventory.push({
       id: 'recipe-craft-weapon',
       recipeId: 'craft-weapon',
-      kind: 'resource',
       name: 'Recipe: Camp Spear',
       quantity: 1,
       tier: 1,
@@ -2069,7 +2081,6 @@ describe('game state', () => {
     game.player.inventory = [
       {
         id: 'weapon-1',
-        kind: 'weapon',
         slot: 'weapon',
         name: 'Rust Blade',
         quantity: 1,
@@ -2083,7 +2094,6 @@ describe('game state', () => {
       },
       {
         id: 'food-1',
-        kind: 'consumable',
         name: 'Trail Ration',
         quantity: 2,
         tier: 1,
@@ -2098,19 +2108,23 @@ describe('game state', () => {
     game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'forge' };
 
     const sorted = sortInventory(game);
-    expect(sorted.player.inventory[0]?.kind).toBe('weapon');
-    expect(sorted.player.inventory[1]?.kind).toBe('consumable');
+    expect(getItemCategory(sorted.player.inventory[0]!)).toBe('weapon');
+    expect(getItemCategory(sorted.player.inventory[1]!)).toBe('consumable');
 
     const sold = sellAllItems(sorted);
     expect(sold.logs[0]?.text).toMatch(/only while standing in town/i);
 
     const prospected = prospectInventory(sorted);
     expect(
-      prospected.player.inventory.some((item) => item.kind === 'resource'),
+      prospected.player.inventory.some(
+        (item) => getItemCategory(item) === 'resource',
+      ),
     ).toBe(true);
 
     expect(
-      prospected.player.inventory.some((item) => item.kind === 'resource'),
+      prospected.player.inventory.some(
+        (item) => getItemCategory(item) === 'resource',
+      ),
     ).toBe(true);
 
     sorted.tiles['0,0'] = { ...sorted.tiles['0,0'], structure: 'town' };
@@ -2123,7 +2137,6 @@ describe('game state', () => {
     game.player.inventory = [
       {
         id: 'resource-gold-1',
-        kind: 'resource',
         name: 'Gold',
         quantity: 5,
         tier: 1,
@@ -2136,7 +2149,6 @@ describe('game state', () => {
       },
       {
         id: 'resource-gold-1-copy',
-        kind: 'resource',
         name: 'Gold',
         quantity: 7,
         tier: 1,
@@ -2154,7 +2166,7 @@ describe('game state', () => {
     expect(getGoldAmount(sorted.player.inventory)).toBe(12);
     expect(
       sorted.player.inventory.filter(
-        (item) => item.kind === 'resource' && item.name === 'Gold',
+        (item) => getItemCategory(item) === 'resource' && item.name === 'Gold',
       ),
     ).toHaveLength(1);
   });
@@ -2168,7 +2180,6 @@ describe('game state', () => {
         inventory: [
           {
             id: 'resource-gold-1',
-            kind: 'resource',
             name: 'Gold',
             quantity: 11,
             tier: 1,
@@ -2187,7 +2198,7 @@ describe('game state', () => {
     expect(getGoldAmount(loaded.player.inventory)).toBe(11);
     expect(
       loaded.player.inventory.filter(
-        (item) => item.kind === 'resource' && item.name === 'Gold',
+        (item) => getItemCategory(item) === 'resource' && item.name === 'Gold',
       ),
     ).toHaveLength(1);
     expect('gold' in loaded.player).toBe(false);
@@ -2199,7 +2210,6 @@ describe('game state', () => {
     game.player.inventory = [
       {
         id: 'resource-gold-town-test',
-        kind: 'resource',
         name: 'Gold',
         quantity: 100,
         tier: 1,

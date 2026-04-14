@@ -2,6 +2,7 @@ import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
 import { isWorldBossEnemyId } from './worldBoss';
 import { t } from '../i18n';
 import { formatEquipmentSlotLabel, formatSkillLabel } from '../i18n/labels';
+import { Skill } from './types';
 import {
   BLOOD_MOON_CHANCE,
   BLOOD_MOON_SPAWN_RADIUS,
@@ -20,8 +21,11 @@ import { getEnemyConfig, isAnimalEnemyType } from './content/enemies';
 import {
   buildItemFromConfig,
   getItemConfig,
+  getItemConfigByKey,
   getItemConfigByName,
+  hasItemTag,
 } from './content/items';
+import { ItemId, StatusEffectTypeId } from './content/ids';
 import { getStructureConfig } from './content/structures';
 import {
   createCombatActorState,
@@ -78,6 +82,7 @@ import {
   sellValue,
   spendGold,
 } from './inventory';
+import { GAME_TAGS } from './content/tags';
 import {
   gatheringBonusChance,
   gatheringYieldBonus,
@@ -123,7 +128,6 @@ export type {
   GameState,
   GatheringStructureType,
   Item,
-  ItemKind,
   ItemRarity,
   LogEntry,
   LogKind,
@@ -141,6 +145,7 @@ export type {
   Tile,
   TownStockEntry,
 } from './types';
+export { Skill } from './types';
 export { EQUIPMENT_SLOTS, RARITY_ORDER } from './types';
 export {
   gatheringBonusChance,
@@ -218,8 +223,8 @@ export function createGame(
       statusEffects: [],
       inventory: [
         makeStarterWeapon(),
-        makeStarterArmor('chest', 'Scout Jerkin', 1, 1),
-        makeConsumable('starter-ration', 'Trail Ration', 1, 10, 15, 2),
+        makeStarterArmor('chest', ItemId.ScoutJerkin, 1, 1),
+        makeConsumable('starter-ration', ItemId.TrailRation, 1, 10, 15, 2),
         makeRecipeBook(),
       ],
       equipment: {},
@@ -691,12 +696,12 @@ export function equipItem(state: GameState, itemId: string): GameState {
   const item = state.player.inventory[itemIndex];
   const next = clone(state);
 
-  if (item.kind === 'consumable') {
+  if (canUseItem(item) && !isRecipeBook(item) && !isRecipePage(item)) {
     consumeItem(next, itemIndex, item);
     return next;
   }
 
-  if (item.kind === 'resource')
+  if (hasItemTag(item, GAME_TAGS.item.resource))
     return message(state, 'Resources cannot be equipped.');
 
   next.player.inventory.splice(itemIndex, 1);
@@ -735,14 +740,11 @@ export function useItem(state: GameState, itemId: string): GameState {
     consumeInventoryItem(next.player.inventory, itemIndex, item);
     return next;
   }
-  if (item.kind !== 'consumable')
+  if (!hasItemTag(item, GAME_TAGS.item.consumable))
     return message(state, 'That item cannot be used.');
 
   const next = clone(state);
-  if (
-    item.itemKey === 'home-scroll' ||
-    item.name === t(HOME_SCROLL_ITEM_NAME_KEY)
-  ) {
+  if (item.itemKey === ItemId.HomeScroll) {
     teleportHome(next, itemIndex, item);
     return next;
   }
@@ -1193,7 +1195,7 @@ export function interactWithStructure(state: GameState): GameState {
     (currentTile.structureHp ?? definition.maxHp) - damage,
   );
   const reward = makeResourceStack(
-    definition.reward,
+    definition.rewardItemKey,
     definition.rewardTier,
     quantity,
   );
@@ -1219,7 +1221,7 @@ export function interactWithStructure(state: GameState): GameState {
       'system',
       t('game.message.gather.bonus', {
         skill: formatSkillLabel(definition.skill),
-        reward: definition.reward.toLowerCase(),
+        reward: definition.reward.toLocaleLowerCase(),
       }),
     );
   }
@@ -1354,12 +1356,14 @@ export function craftRecipe(state: GameState, recipeId: string): GameState {
   if (!state.player.learnedRecipeIds.includes(recipe.id)) {
     return message(state, 'You have not learned that recipe yet.');
   }
-  const requiredStructure = recipe.skill === 'cooking' ? 'camp' : 'workshop';
-  const requiredLabel = recipe.skill === 'cooking' ? 'campfire' : 'workshop';
+  const requiredStructure =
+    recipe.skill === Skill.Cooking ? 'camp' : 'workshop';
+  const requiredLabel =
+    recipe.skill === Skill.Cooking ? 'campfire' : 'workshop';
   if (getCurrentTile(state).structure !== requiredStructure) {
     return message(
       state,
-      `You need to stand at a ${requiredLabel} to ${recipe.skill === 'cooking' ? 'cook' : 'craft'}.`,
+      `You need to stand at a ${requiredLabel} to ${recipe.skill === Skill.Cooking ? 'cook' : 'craft'}.`,
     );
   }
   if (!hasAllRequirements(state.player.inventory, recipe.ingredients)) {
@@ -1390,7 +1394,7 @@ export function craftRecipe(state: GameState, recipeId: string): GameState {
   addLog(
     next,
     'system',
-    recipe.skill === 'cooking'
+    recipe.skill === Skill.Cooking
       ? t('game.message.craft.cook', {
           item: recipe.output.name,
           fuel: chosenFuel
@@ -1446,10 +1450,10 @@ function respawnAtNearestTown(state: GameState, from: HexCoord) {
   state.player.hunger = 100;
   state.player.thirst = 100;
   upsertPlayerStatusEffect(state.player.statusEffects, {
-    id: 'recentDeath',
+    id: StatusEffectTypeId.RecentDeath,
   });
   upsertPlayerStatusEffect(state.player.statusEffects, {
-    id: 'restoration',
+    id: StatusEffectTypeId.Restoration,
     expiresAt: state.worldTimeMs + 100_000,
     tickIntervalMs: 1_000,
     lastProcessedAt: state.worldTimeMs,
@@ -1598,15 +1602,8 @@ function countInventoryResource(
   itemKey: 'cloth' | 'sticks',
 ) {
   return inventory.reduce((total, item) => {
-    if (item.kind !== 'resource') return total;
-    if (item.itemKey === itemKey) return total + item.quantity;
-    if (
-      (itemKey === 'cloth' && item.name === itemName('cloth')) ||
-      (itemKey === 'sticks' && item.name === itemName('sticks'))
-    ) {
-      return total + item.quantity;
-    }
-    return total;
+    if (!hasItemTag(item, GAME_TAGS.item.resource)) return total;
+    return item.itemKey === itemKey ? total + item.quantity : total;
   }, 0);
 }
 
@@ -1623,12 +1620,8 @@ function consumeInventoryResource(
   ) {
     const item = inventory[index];
     if (
-      item.kind !== 'resource' ||
-      (item.itemKey !== itemKey &&
-        !(
-          (itemKey === 'cloth' && item.name === itemName('cloth')) ||
-          (itemKey === 'sticks' && item.name === itemName('sticks'))
-        ))
+      !hasItemTag(item, GAME_TAGS.item.resource) ||
+      item.itemKey !== itemKey
     ) {
       continue;
     }
@@ -1771,7 +1764,11 @@ function maybeGatherByproduct(
   if (rng() >= (structure === 'tree' ? 0.35 : 0.3)) return null;
 
   return {
-    item: makeResourceStack(byproductName, definition.rewardTier, 1),
+    item: makeResourceStack(
+      byproductName === 'Sticks' ? ItemId.Sticks : ItemId.Stone,
+      definition.rewardTier,
+      1,
+    ),
     text:
       structure === 'tree'
         ? 'You also gather a few sticks from the chopped wood.'
@@ -1835,9 +1832,7 @@ function maybeDropEnemyConsumables(
   const dropKeys = ['apple', 'water-flask'] as const;
 
   dropKeys.forEach((itemKey) => {
-    const configured = getItemConfigByName(
-      itemKey === 'apple' ? 'Apple' : 'Water Flask',
-    );
+    const configured = getItemConfigByKey(itemKey);
     const chance = configured?.dropChance ?? 0;
     if (chance <= 0) return;
 
@@ -1971,7 +1966,7 @@ function maybeDropBloodMoonLoot(
 }
 
 function maybeSkinEnemy(state: GameState, enemy: import('./types').Enemy) {
-  if (!isAnimalEnemy(enemy.name)) return;
+  if (!isAnimalEnemy(enemy)) return;
 
   ensureTileState(state, enemy.coord);
   const key = hexKey(enemy.coord);
@@ -1982,10 +1977,10 @@ function maybeSkinEnemy(state: GameState, enemy: import('./types').Enemy) {
   );
   addItemToInventory(
     tile.items,
-    makeResourceStack('Leather Scraps', enemy.tier, quantity),
+    makeResourceStack(ItemId.LeatherScraps, enemy.tier, quantity),
   );
   state.tiles[key] = { ...tile, items: [...tile.items] };
-  gainSkillXp(state, 'skinning', quantity, addLog);
+  gainSkillXp(state, Skill.Skinning, quantity, addLog);
   addLog(
     state,
     'loot',

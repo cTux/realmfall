@@ -1,12 +1,20 @@
 import { GAME_DAY_DURATION_MS, GAME_DAY_MINUTES } from '../game/config';
-import { getItemConfig } from '../game/content/items';
+import {
+  getItemCategory,
+  getItemConfig,
+  inferItemTags,
+} from '../game/content/items';
+import { getEnemyConfig } from '../game/content/enemies';
+import { getStatusEffectTags } from '../game/content/statusEffects';
 import { getGatheringStructureConfig } from '../game/content/structures';
+import { GAME_TAGS } from '../game/content/tags';
 import {
   getRecipeBookRecipes,
   isGatheringStructure,
   makeGoldStack,
   type GameState,
   type Item,
+  Skill,
   type SkillName,
 } from '../game/state';
 import { createCombatActorState } from '../game/combat';
@@ -27,8 +35,8 @@ export function normalizeLoadedGame(game: GameState): GameState {
   const legacyGold = Math.max(0, Number(legacyGoldValue ?? 0));
   const hasInventoryGold = inventory.some(
     (item) =>
-      item.kind === 'resource' &&
-      (item.itemKey === 'gold' || item.name === 'Gold'),
+      item.itemKey === 'gold' &&
+      (item.tags ?? []).includes(GAME_TAGS.item.resource),
   );
   if (legacyGold > 0 && !hasInventoryGold)
     mergeStackable(inventory, normalizeItem(makeGoldStack(legacyGold)));
@@ -42,6 +50,12 @@ export function normalizeLoadedGame(game: GameState): GameState {
     Object.entries(game.tiles ?? {}).map(([key, tile]) => [
       key,
       normalizeTile(tile),
+    ]),
+  );
+  const enemies = Object.fromEntries(
+    Object.entries(game.enemies ?? {}).map(([key, enemy]) => [
+      key,
+      normalizeEnemy(enemy),
     ]),
   );
   const homeHex = game.homeHex ?? { ...game.player.coord };
@@ -85,6 +99,7 @@ export function normalizeLoadedGame(game: GameState): GameState {
     logSequence: Math.max(game.logSequence ?? 0, logs.length),
     logs,
     tiles,
+    enemies,
     combat: game.combat
       ? {
           ...game.combat,
@@ -179,6 +194,7 @@ export function normalizeLoadedGame(game: GameState): GameState {
         getRecipeBookRecipes().map((recipe) => recipe.id),
       statusEffects: (game.player.statusEffects ?? []).map((effect) => ({
         ...effect,
+        tags: effect.tags ?? getStatusEffectTags(effect.id),
         expiresAt:
           effect.expiresAt == null
             ? undefined
@@ -206,6 +222,7 @@ function normalizeItem(item: Item): Item {
   return {
     ...item,
     itemKey: configured?.key ?? item.itemKey,
+    tags: item.tags ?? configured?.tags ?? inferItemTags(item),
     name: normalizedName,
     quantity: item.quantity ?? 1,
     rarity: item.rarity ?? 'common',
@@ -250,16 +267,26 @@ function normalizeTile(tile: GameState['tiles'][string]) {
   };
 }
 
+function normalizeEnemy(enemy: GameState['enemies'][string]) {
+  const configured = getEnemyConfig(enemy.enemyTypeId ?? enemy.name);
+  return {
+    ...enemy,
+    enemyTypeId: configured?.id ?? enemy.enemyTypeId,
+    name: enemy.name || configured?.name,
+    tags: enemy.tags ?? configured?.tags,
+  };
+}
+
 function normalizeSkills(
   skills?: Partial<Record<SkillName, { level?: number; xp?: number }>>,
 ) {
   return {
-    logging: normalizeSkill(skills?.logging),
-    mining: normalizeSkill(skills?.mining),
-    skinning: normalizeSkill(skills?.skinning),
-    fishing: normalizeSkill(skills?.fishing),
-    cooking: normalizeSkill(skills?.cooking),
-    crafting: normalizeSkill(skills?.crafting),
+    [Skill.Logging]: normalizeSkill(skills?.[Skill.Logging]),
+    [Skill.Mining]: normalizeSkill(skills?.[Skill.Mining]),
+    [Skill.Skinning]: normalizeSkill(skills?.[Skill.Skinning]),
+    [Skill.Fishing]: normalizeSkill(skills?.[Skill.Fishing]),
+    [Skill.Cooking]: normalizeSkill(skills?.[Skill.Cooking]),
+    [Skill.Crafting]: normalizeSkill(skills?.[Skill.Crafting]),
   };
 }
 
@@ -290,7 +317,7 @@ function consolidateInventory(inventory: Item[]) {
 }
 
 function mergeStackable(inventory: Item[], item: Item) {
-  if (item.kind !== 'consumable' && item.kind !== 'resource') {
+  if (!(item.tags ?? []).includes(GAME_TAGS.item.stackable)) {
     inventory.push(item);
     return;
   }
@@ -306,8 +333,8 @@ function mergeStackable(inventory: Item[], item: Item) {
 
 function isSameStackable(left: Item, right: Item) {
   return (
-    (left.kind === 'consumable' || left.kind === 'resource') &&
-    left.kind === right.kind &&
+    (left.tags ?? []).includes(GAME_TAGS.item.stackable) &&
+    getItemCategory(left) === getItemCategory(right) &&
     left.recipeId === right.recipeId &&
     sameStackIdentity(left, right) &&
     left.rarity === right.rarity &&

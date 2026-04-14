@@ -1,17 +1,17 @@
 import type {
   EquipmentSlot,
   Item,
-  ItemKind,
   ItemRarity,
   SkillName,
   StructureType,
   Terrain,
 } from '../types';
+import type { EnemyTypeKey, ItemKey } from './ids';
+import type { GameTag } from './tags';
 
 export interface ItemConfig {
-  key: string;
+  key: ItemKey;
   name: string;
-  kind: ItemKind;
   slot?: EquipmentSlot;
   icon: string;
   tint?: string;
@@ -25,9 +25,11 @@ export interface ItemConfig {
   thirst?: number;
   defaultQuantity?: number;
   dropChance?: number;
+  tags?: GameTag[];
 }
 
 export interface EnemyConfig {
+  id: EnemyTypeKey;
   name: string;
   icon: string;
   tint: number;
@@ -35,12 +37,14 @@ export interface EnemyConfig {
   eliteAppearanceChance?: number;
   animal?: boolean;
   worldBoss?: boolean;
+  tags?: GameTag[];
 }
 
 export interface GatheringConfig {
   actionLabel: string;
   maxHp: number;
   skill: SkillName;
+  rewardItemKey: ItemKey;
   reward: string;
   rewardTier: number;
   baseYield: number;
@@ -55,6 +59,7 @@ export interface StructureConfig {
   icon: string;
   tint: number;
   functionsProvided: string[];
+  tags?: GameTag[];
   globalAppearanceThreshold?: number;
   appearanceChanceByTerrain?: Partial<Record<Terrain, number>>;
   gathering?: GatheringConfig;
@@ -73,4 +78,5 @@ export interface ItemBuildOverrides {
   thirst?: number;
   recipeId?: Item['recipeId'];
   name?: string;
+  tags?: Item['tags'];
 }

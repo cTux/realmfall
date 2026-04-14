@@ -1,11 +1,11 @@
 import { ContentIcons } from '../icons';
+import { EquipmentSlotId } from '../ids';
 import type { ItemConfig } from '../types';
 
 export const copperBandItemConfig: ItemConfig = {
   key: 'copper-band',
   name: 'Copper Band',
-  kind: 'artifact',
-  slot: 'ringRight',
+  slot: EquipmentSlotId.RingRight,
   icon: ContentIcons.Artifact,
   tier: 1,
   rarity: 'common',

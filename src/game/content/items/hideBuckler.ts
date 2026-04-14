@@ -1,11 +1,11 @@
 import { ContentIcons } from '../icons';
+import { EquipmentSlotId } from '../ids';
 import type { ItemConfig } from '../types';
 
 export const hideBucklerItemConfig: ItemConfig = {
   key: 'hide-buckler',
   name: 'Hide Buckler',
-  kind: 'armor',
-  slot: 'offhand',
+  slot: EquipmentSlotId.Offhand,
   icon: ContentIcons.Armor,
   tier: 1,
   rarity: 'common',

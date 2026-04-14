@@ -1,5 +1,6 @@
 import { normalizeLoadedGame } from './normalize';
-import { createGame, type GameState } from '../game/state';
+import { EquipmentSlotId } from '../game/content/ids';
+import { createGame, Skill, type GameState } from '../game/state';
 
 describe('normalizeLoadedGame', () => {
   it('repairs legacy saves and consolidates stackable inventory', () => {
@@ -22,7 +23,6 @@ describe('normalizeLoadedGame', () => {
           items: [
             {
               id: 'food-1',
-              kind: 'consumable',
               name: 'Trail Ration',
               quantity: 1,
               tier: 1,
@@ -42,7 +42,7 @@ describe('normalizeLoadedGame', () => {
         ...game.player,
         mana: undefined,
         baseMaxMana: undefined,
-        skills: { logging: { level: 3, xp: 2 } },
+        skills: { [Skill.Logging]: { level: 3, xp: 2 } },
         statusEffects: [
           {
             id: 'restoration',
@@ -55,7 +55,6 @@ describe('normalizeLoadedGame', () => {
         inventory: [
           {
             id: 'food-a',
-            kind: 'consumable',
             name: 'Trail Ration',
             quantity: 2,
             tier: 1,
@@ -68,7 +67,6 @@ describe('normalizeLoadedGame', () => {
           },
           {
             id: 'food-b',
-            kind: 'consumable',
             name: 'Trail Ration',
             quantity: 1,
             tier: 1,
@@ -81,7 +79,6 @@ describe('normalizeLoadedGame', () => {
           },
           {
             id: 'ore-a',
-            kind: 'resource',
             name: 'Iron Ore',
             quantity: 2,
             tier: 1,
@@ -94,7 +91,6 @@ describe('normalizeLoadedGame', () => {
           },
           {
             id: 'ore-b',
-            kind: 'resource',
             name: 'Iron Ore',
             quantity: 3,
             tier: 1,
@@ -107,8 +103,7 @@ describe('normalizeLoadedGame', () => {
           },
           {
             id: 'weapon-1',
-            kind: 'weapon',
-            slot: 'weapon',
+            slot: EquipmentSlotId.Weapon,
             name: 'Rust Blade',
             quantity: 1,
             tier: 2,
@@ -123,8 +118,7 @@ describe('normalizeLoadedGame', () => {
         equipment: {
           weapon: {
             id: 'equip-1',
-            kind: 'weapon',
-            slot: 'weapon',
+            slot: EquipmentSlotId.Weapon,
             name: 'Sword',
             quantity: 1,
             tier: 2,
@@ -147,17 +141,18 @@ describe('normalizeLoadedGame', () => {
     expect(loaded.combat?.enemyIds).toEqual([]);
     expect(loaded.tiles['0,0'].enemyIds).toEqual(['legacy-enemy']);
     expect(loaded.tiles['0,0'].structureHp).toBe(5);
-    expect(loaded.player.skills.logging).toEqual({ level: 3, xp: 2 });
-    expect(loaded.player.skills.mining).toEqual({ level: 1, xp: 0 });
-    expect(loaded.player.skills.cooking).toEqual({ level: 1, xp: 0 });
-    expect(loaded.player.skills.crafting).toEqual({ level: 1, xp: 0 });
+    expect(loaded.player.skills[Skill.Logging]).toEqual({ level: 3, xp: 2 });
+    expect(loaded.player.skills[Skill.Mining]).toEqual({ level: 1, xp: 0 });
+    expect(loaded.player.skills[Skill.Cooking]).toEqual({ level: 1, xp: 0 });
+    expect(loaded.player.skills[Skill.Crafting]).toEqual({ level: 1, xp: 0 });
     expect(loaded.player.statusEffects).toEqual([
-      {
+      expect.objectContaining({
         id: 'restoration',
         expiresAt: 12000,
         tickIntervalMs: 1000,
         lastProcessedAt: 5000,
-      },
+        tags: ['status.buff', 'status.restoration'],
+      }),
     ]);
     expect(loaded.homeHex).toEqual({ q: 2, r: -1 });
     expect(
@@ -170,11 +165,13 @@ describe('normalizeLoadedGame', () => {
     ).toBe(5);
     expect(
       loaded.player.inventory.find(
-        (item) => item.kind === 'resource' && item.name === 'Gold',
+        (item) => item.itemKey === 'gold' && item.name === 'Gold',
       )?.quantity,
     ).toBe(9);
     expect(
-      loaded.player.inventory.filter((item) => item.kind === 'weapon'),
+      loaded.player.inventory.filter(
+        (item) => item.slot === EquipmentSlotId.Weapon,
+      ),
     ).toHaveLength(1);
     expect(loaded.player.equipment.weapon?.rarity).toBe('common');
   });
@@ -190,7 +187,6 @@ describe('normalizeLoadedGame', () => {
         inventory: [
           {
             id: 'resource-gold-1',
-            kind: 'resource',
             name: 'Gold',
             quantity: 4,
             tier: 1,
@@ -207,7 +203,7 @@ describe('normalizeLoadedGame', () => {
 
     expect(
       loaded.player.inventory.filter(
-        (item) => item.kind === 'resource' && item.name === 'Gold',
+        (item) => item.itemKey === 'gold' && item.name === 'Gold',
       ),
     ).toHaveLength(1);
     expect(loaded.player.inventory[0]?.quantity).toBe(4);
@@ -227,7 +223,6 @@ describe('normalizeLoadedGame', () => {
           items: [
             {
               id: 'resource-gold-home',
-              kind: 'resource',
               name: 'Gold',
               quantity: 4,
               tier: 1,
@@ -264,8 +259,7 @@ describe('normalizeLoadedGame', () => {
           items: [
             {
               id: 'feet-wolf-treads--18,143',
-              kind: 'armor',
-              slot: 'feet',
+              slot: EquipmentSlotId.Feet,
               name: 'Wolf Treads',
               quantity: 1,
               tier: 3,
@@ -278,8 +272,7 @@ describe('normalizeLoadedGame', () => {
             },
             {
               id: 'feet-wolf-treads--18,143',
-              kind: 'armor',
-              slot: 'feet',
+              slot: EquipmentSlotId.Feet,
               name: 'Wolf Treads',
               quantity: 1,
               tier: 3,
@@ -298,8 +291,7 @@ describe('normalizeLoadedGame', () => {
         inventory: [
           {
             id: 'feet-wolf-treads--18,143',
-            kind: 'armor',
-            slot: 'feet',
+            slot: EquipmentSlotId.Feet,
             name: 'Wolf Treads',
             quantity: 1,
             tier: 3,
@@ -312,8 +304,7 @@ describe('normalizeLoadedGame', () => {
           },
           {
             id: 'feet-wolf-treads--18,143',
-            kind: 'armor',
-            slot: 'feet',
+            slot: EquipmentSlotId.Feet,
             name: 'Wolf Treads',
             quantity: 1,
             tier: 3,
@@ -347,7 +338,6 @@ describe('normalizeLoadedGame', () => {
           {
             id: 'home-scroll-1',
             itemKey: 'home-scroll',
-            kind: 'consumable',
             name: 'Pergamino del hogar',
             quantity: 1,
             tier: 1,
@@ -366,6 +356,37 @@ describe('normalizeLoadedGame', () => {
       itemKey: 'home-scroll',
       name: 'Hearthshard Wayscroll',
     });
+  });
+
+  it('backfills inferred tags for equippable items without hydrated tags', () => {
+    const game = createGame(3, 'normalize-equipment-tags');
+    const loaded = normalizeLoadedGame({
+      ...game,
+      player: {
+        ...game.player,
+        equipment: {
+          weapon: {
+            id: 'legacy-weapon',
+            slot: EquipmentSlotId.Weapon,
+            name: 'Legacy Blade',
+            quantity: 1,
+            tier: 2,
+            rarity: 'common',
+            power: 3,
+            defense: 0,
+            maxHp: 0,
+            healing: 0,
+            hunger: 0,
+          },
+        },
+      },
+    });
+
+    expect(loaded.player.equipment.weapon?.tags).toEqual([
+      'item.equipment',
+      'item.weapon',
+      'item.slot.weapon',
+    ]);
   });
 
   it('preserves claim metadata and neutral residents on tiles', () => {
@@ -396,6 +417,51 @@ describe('normalizeLoadedGame', () => {
       ownerName: 'Arkenreach',
       borderColor: '#f59e0b',
       npc: { name: 'Araken' },
+    });
+  });
+
+  it('preserves persisted custom enemy names when config ids are present', () => {
+    const game = createGame(3, 'normalize-enemy-name');
+
+    const loaded = normalizeLoadedGame({
+      ...game,
+      enemies: {
+        'npc-1': {
+          id: 'npc-1',
+          enemyTypeId: 'raider',
+          name: 'Araken',
+          coord: { q: 1, r: 0 },
+          tier: 2,
+          hp: 12,
+          maxHp: 12,
+          attack: 4,
+          defense: 2,
+          xp: 10,
+          elite: false,
+        },
+      },
+      tiles: {
+        ...game.tiles,
+        '1,0': {
+          coord: { q: 1, r: 0 },
+          terrain: 'plains',
+          items: [],
+          enemyIds: ['npc-1'],
+          claim: {
+            ownerId: 'faction-1',
+            ownerType: 'faction',
+            ownerName: 'Arkenreach',
+            borderColor: '#f59e0b',
+            npc: { name: 'Araken', enemyId: 'npc-1' },
+          },
+        },
+      },
+    });
+
+    expect(loaded.enemies['npc-1']).toMatchObject({
+      enemyTypeId: 'raider',
+      name: 'Araken',
+      tags: ['enemy.hostile', 'enemy.humanoid'],
     });
   });
 });

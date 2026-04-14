@@ -4,7 +4,6 @@ import type { ItemConfig } from '../types';
 export const clothItemConfig: ItemConfig = {
   key: 'cloth',
   name: 'Cloth',
-  kind: 'resource',
   icon: ContentIcons.RolledCloth,
   tier: 1,
   rarity: 'common',

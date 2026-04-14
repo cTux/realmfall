@@ -46,7 +46,6 @@ describe('appHelpers', () => {
     );
     const consumable = {
       id: 'food-1',
-      kind: 'consumable' as const,
       name: 'Trail Ration',
       quantity: 1,
       tier: 1,
@@ -59,7 +58,6 @@ describe('appHelpers', () => {
     };
     const equipment = {
       id: 'armor-1',
-      kind: 'armor' as const,
       slot: 'head' as const,
       name: 'Scout Hood',
       quantity: 1,

@@ -1,4 +1,12 @@
 import type { HexCoord } from './hex';
+import {
+  EquipmentSlotId,
+  type EnemyTypeKey,
+  type EquipmentSlotValue,
+  type ItemKey,
+  type StatusEffectIdValue,
+} from './content/ids';
+import type { GameTag } from './content/tags';
 
 export type Terrain =
   | 'plains'
@@ -27,39 +35,23 @@ export type StructureType =
 
 export type ItemRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
 
-export type SkillName =
-  | 'logging'
-  | 'mining'
-  | 'skinning'
-  | 'fishing'
-  | 'cooking'
-  | 'crafting';
+export enum Skill {
+  Logging = 'logging',
+  Mining = 'mining',
+  Skinning = 'skinning',
+  Fishing = 'fishing',
+  Cooking = 'cooking',
+  Crafting = 'crafting',
+}
 
-export type EquipmentSlot =
-  | 'weapon'
-  | 'offhand'
-  | 'head'
-  | 'chest'
-  | 'hands'
-  | 'legs'
-  | 'feet'
-  | 'ringLeft'
-  | 'ringRight'
-  | 'amulet'
-  | 'cloak'
-  | 'relic';
+export type SkillName = Skill;
 
-export type ItemKind =
-  | 'weapon'
-  | 'armor'
-  | 'artifact'
-  | 'consumable'
-  | 'resource';
+export type EquipmentSlot = EquipmentSlotValue;
 
 export interface Item {
   id: string;
-  itemKey?: string;
-  kind: ItemKind;
+  itemKey?: ItemKey;
+  tags?: GameTag[];
   recipeId?: string;
   slot?: EquipmentSlot;
   name: string;
@@ -76,6 +68,8 @@ export interface Item {
 
 export interface Enemy {
   id: string;
+  enemyTypeId?: EnemyTypeKey;
+  tags?: GameTag[];
   name: string;
   coord: HexCoord;
   tier: number;
@@ -115,6 +109,7 @@ export interface AbilityDefinition {
   manaCost: number;
   cooldownMs: number;
   castTimeMs: number;
+  tags?: GameTag[];
 }
 
 export interface CombatCastState {
@@ -166,14 +161,11 @@ export interface Player {
   statusEffects: PlayerStatusEffect[];
 }
 
-export type StatusEffectId =
-  | 'hunger'
-  | 'thirst'
-  | 'recentDeath'
-  | 'restoration';
+export type StatusEffectId = StatusEffectIdValue;
 
 export interface PlayerStatusEffect {
   id: StatusEffectId;
+  tags?: GameTag[];
   expiresAt?: number;
   tickIntervalMs?: number;
   lastProcessedAt?: number;
@@ -198,6 +190,7 @@ export interface TownStockEntry {
 }
 
 export interface RecipeRequirement {
+  itemKey?: string;
   name: string;
   quantity: number;
 }
@@ -206,7 +199,7 @@ export interface RecipeDefinition {
   id: string;
   name: string;
   description: string;
-  skill: Extract<SkillName, 'cooking' | 'crafting'>;
+  skill: Skill.Cooking | Skill.Crafting;
   output: Item;
   ingredients: RecipeRequirement[];
   fuelOptions?: RecipeRequirement[];
@@ -252,18 +245,18 @@ export interface GameState {
 }
 
 export const EQUIPMENT_SLOTS: EquipmentSlot[] = [
-  'weapon',
-  'offhand',
-  'head',
-  'chest',
-  'hands',
-  'legs',
-  'feet',
-  'ringLeft',
-  'ringRight',
-  'amulet',
-  'cloak',
-  'relic',
+  EquipmentSlotId.Weapon,
+  EquipmentSlotId.Offhand,
+  EquipmentSlotId.Head,
+  EquipmentSlotId.Chest,
+  EquipmentSlotId.Hands,
+  EquipmentSlotId.Legs,
+  EquipmentSlotId.Feet,
+  EquipmentSlotId.RingLeft,
+  EquipmentSlotId.RingRight,
+  EquipmentSlotId.Amulet,
+  EquipmentSlotId.Cloak,
+  EquipmentSlotId.Relic,
 ];
 
 export const RARITY_ORDER: ItemRarity[] = [

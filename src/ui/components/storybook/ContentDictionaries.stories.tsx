@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { getItemConfigCategory } from '../../../game/content/items';
 import { enemyIconFor, enemyTint, iconForItem } from '../../icons';
 import { rarityColor } from '../../rarity';
 import { structureIconFor, structureTint } from '../../icons';
@@ -28,16 +29,16 @@ export const Items: Story = {
       entries={fixtures.items.map((config) => ({
         id: config.key,
         title: config.name,
-        subtitle: `${config.kind} · tier ${config.tier} · ${config.rarity}`,
+        subtitle: `${getItemConfigCategory(config)} · tier ${config.tier} · ${config.rarity}`,
         details: [
           `Power ${config.power}`,
           `Defense ${config.defense}`,
           `Max HP ${config.maxHp}`,
+          `Tags ${config.tags?.join(', ') ?? 'none'}`,
         ],
         icon: iconForItem({
           id: config.key,
           itemKey: config.key,
-          kind: config.kind,
           slot: config.slot,
           name: config.name,
           quantity: 1,
@@ -49,6 +50,7 @@ export const Items: Story = {
           healing: config.healing,
           hunger: config.hunger,
           thirst: config.thirst,
+          tags: config.tags,
         }),
         tint: config.tint ?? rarityColor(config.rarity),
       }))}
@@ -61,19 +63,16 @@ export const Enemies: Story = {
     <CatalogGrid
       title={`Enemies (${fixtures.enemies.length})`}
       entries={fixtures.enemies.map((config) => ({
-        id: config.name,
+        id: config.id,
         title: config.name,
-        subtitle: config.worldBoss
-          ? 'world boss'
-          : config.animal
-            ? 'animal'
-            : 'hostile',
+        subtitle: config.id,
         details: [
           `Elite chance ${Math.round((config.eliteAppearanceChance ?? 0) * 100)}%`,
           `Terrains ${Object.keys(config.appearanceChanceByTerrain).join(', ') || 'none'}`,
+          `Tags ${config.tags?.join(', ') ?? 'none'}`,
         ],
-        icon: enemyIconFor(config.name),
-        tint: `#${enemyTint(config.name).toString(16).padStart(6, '0')}`,
+        icon: enemyIconFor(config.id),
+        tint: `#${enemyTint(config.id).toString(16).padStart(6, '0')}`,
       }))}
     />
   ),

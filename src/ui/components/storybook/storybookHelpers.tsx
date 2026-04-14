@@ -3,9 +3,15 @@ import {
   createGame,
   getPlayerStats,
   getRecipeBookRecipes,
+  Skill,
 } from '../../../game/state';
+import { EquipmentSlotId } from '../../../game/content/ids';
 import { addLog } from '../../../game/logs';
-import { buildItemFromConfig, ITEM_CONFIGS } from '../../../game/content/items';
+import {
+  buildItemFromConfig,
+  getItemConfigCategory,
+  ITEM_CONFIGS,
+} from '../../../game/content/items';
 import { ENEMY_CONFIGS } from '../../../game/content/enemies';
 import { STRUCTURE_CONFIGS } from '../../../game/content/structures';
 import { DEFAULT_LOG_FILTERS } from '../../../app/constants';
@@ -56,12 +62,12 @@ export function createStorybookFixtures() {
   state.player.thirst = 18;
   state.player.statusEffects = [{ id: 'restoration' }, { id: 'recentDeath' }];
   state.player.skills = {
-    logging: { level: 8, xp: 7 },
-    mining: { level: 6, xp: 5 },
-    skinning: { level: 5, xp: 2 },
-    fishing: { level: 4, xp: 6 },
-    cooking: { level: 7, xp: 1 },
-    crafting: { level: 9, xp: 3 },
+    [Skill.Logging]: { level: 8, xp: 7 },
+    [Skill.Mining]: { level: 6, xp: 5 },
+    [Skill.Skinning]: { level: 5, xp: 2 },
+    [Skill.Fishing]: { level: 4, xp: 6 },
+    [Skill.Cooking]: { level: 7, xp: 1 },
+    [Skill.Crafting]: { level: 9, xp: 3 },
   };
   state.player.equipment = equipment;
   state.player.inventory = inventory;
@@ -128,7 +134,8 @@ function buildInventoryFixture() {
   return ITEM_CONFIGS.map((config, index) =>
     buildItemFromConfig(config.key, {
       id: `inventory-${config.key}-${index}`,
-      quantity: config.kind === 'resource' ? (index % 4) + 1 : 1,
+      quantity:
+        getItemConfigCategory(config) === 'resource' ? (index % 4) + 1 : 1,
     }),
   );
 }
@@ -137,23 +144,23 @@ function buildLootFixture() {
   return ITEM_CONFIGS.slice(-8).map((config, index) =>
     buildItemFromConfig(config.key, {
       id: `loot-${config.key}-${index}`,
-      quantity: config.kind === 'resource' ? 2 : 1,
+      quantity: getItemConfigCategory(config) === 'resource' ? 2 : 1,
     }),
   );
 }
 
 function buildEquipmentFixture(): Equipment {
   return {
-    weapon: buildEquippedItem('weapon'),
-    offhand: buildEquippedItem('offhand'),
-    head: buildEquippedItem('head'),
-    chest: buildEquippedItem('chest'),
-    hands: buildEquippedItem('hands'),
-    legs: buildEquippedItem('legs'),
-    feet: buildEquippedItem('feet'),
-    ringLeft: buildEquippedItem('ringLeft'),
-    amulet: buildEquippedItem('amulet'),
-    cloak: buildEquippedItem('cloak'),
+    [EquipmentSlotId.Weapon]: buildEquippedItem(EquipmentSlotId.Weapon),
+    [EquipmentSlotId.Offhand]: buildEquippedItem(EquipmentSlotId.Offhand),
+    [EquipmentSlotId.Head]: buildEquippedItem(EquipmentSlotId.Head),
+    [EquipmentSlotId.Chest]: buildEquippedItem(EquipmentSlotId.Chest),
+    [EquipmentSlotId.Hands]: buildEquippedItem(EquipmentSlotId.Hands),
+    [EquipmentSlotId.Legs]: buildEquippedItem(EquipmentSlotId.Legs),
+    [EquipmentSlotId.Feet]: buildEquippedItem(EquipmentSlotId.Feet),
+    [EquipmentSlotId.RingLeft]: buildEquippedItem(EquipmentSlotId.RingLeft),
+    [EquipmentSlotId.Amulet]: buildEquippedItem(EquipmentSlotId.Amulet),
+    [EquipmentSlotId.Cloak]: buildEquippedItem(EquipmentSlotId.Cloak),
   };
 }
 

@@ -2,6 +2,7 @@ import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { vi } from 'vitest';
+import { GameTag } from '../game/content/tags';
 import type { Enemy, Item, Tile } from '../game/state';
 import { formatCompactNumber, formatCompactNumberish } from './formatters';
 import { Icons, iconForItem, itemTint } from './icons';
@@ -19,8 +20,8 @@ import { WINDOW_LABELS } from './windowLabels';
 function createItem(overrides: Partial<Item> = {}): Item {
   return {
     id: 'item-1',
-    kind: 'artifact',
     name: 'Relic',
+    slot: 'relic',
     quantity: 1,
     tier: 1,
     rarity: 'common',
@@ -73,27 +74,46 @@ describe('ui helper coverage', () => {
 
   it('covers item icon and tint fallback branches', () => {
     expect(iconForItem(createItem({ name: 'Forest Totem' }))).toBe(Icons.Totem);
-    expect(iconForItem(createItem({ kind: 'resource', name: 'Gold' }))).toBe(
-      Icons.Coins,
-    );
-    expect(iconForItem(createItem({ kind: 'consumable', name: 'Meal' }))).toBe(
-      Icons.Consumable,
-    );
+    expect(
+      iconForItem(
+        createItem({ itemKey: 'gold', name: 'Gold', slot: undefined }),
+      ),
+    ).toBe(Icons.Coins);
+    expect(
+      iconForItem(
+        createItem({ name: 'Meal', slot: undefined, healing: 4, hunger: 6 }),
+      ),
+    ).toBe(Icons.Consumable);
     expect(iconForItem(undefined, 'feet')).toBe(Icons.Boots);
 
     expect(itemTint()).toBe(rarityColor('common'));
-    expect(itemTint(createItem({ kind: 'resource', name: 'Gold' }))).toBe(
-      '#fbbf24',
-    );
+    expect(
+      itemTint(createItem({ itemKey: 'gold', name: 'Gold', slot: undefined })),
+    ).toBe('#fbbf24');
     expect(itemTint(createItem({ rarity: 'rare' }))).toBe(rarityColor('rare'));
   });
 
   it('covers tooltip branches for grouped enemies and structure variants', () => {
     const uncommonPack = enemyTooltip(
       [
-        createEnemy({ id: 'wolf-1', tier: 2 }),
-        createEnemy({ id: 'wolf-2', name: 'Boar', tier: 3, attack: 4 }),
-        createEnemy({ id: 'wolf-3', name: 'Stag', defense: 2 }),
+        createEnemy({
+          id: 'wolf-1',
+          tier: 2,
+          tags: [GameTag.EnemyHostile],
+        }),
+        createEnemy({
+          id: 'wolf-2',
+          name: 'Boar',
+          tier: 3,
+          attack: 4,
+          tags: [GameTag.EnemyHostile, GameTag.EnemyAnimal],
+        }),
+        createEnemy({
+          id: 'wolf-3',
+          name: 'Stag',
+          defense: 2,
+          tags: [GameTag.EnemyAnimal],
+        }),
       ],
       'town',
     );
@@ -102,6 +122,11 @@ describe('ui helper coverage', () => {
     expect(uncommonPack?.lines).toEqual([
       { kind: 'stat', label: 'Level', value: '3' },
       { kind: 'stat', label: 'Enemies', value: '3' },
+      {
+        kind: 'text',
+        text: 'Tags: enemy.hostile, enemy.animal',
+        tone: 'subtle',
+      },
     ]);
 
     expect(structureTooltip(createTile())).toBeNull();
@@ -117,6 +142,11 @@ describe('ui helper coverage', () => {
       {
         kind: 'text',
         text: 'A fishing spot that yields raw fish when worked.',
+      },
+      {
+        kind: 'text',
+        text: 'Tags: structure.gathering, structure.fishing, skill.gathering, skill.fishing',
+        tone: 'subtle',
       },
     ]);
 
@@ -153,11 +183,17 @@ describe('ui helper coverage', () => {
     ).toBe(
       'A broken ruin where stronger foes and old spoils gather beneath the fracture.',
     );
+    expect(
+      structureTooltip(createTile({ structure: 'dungeon' }))?.lines[1],
+    ).toEqual({
+      kind: 'text',
+      text: 'Tags: structure.combat, structure.dungeon',
+      tone: 'subtle',
+    });
   });
 
   it('covers tooltip comparison branches without equipment and with negative deltas', () => {
     const weakerWeapon = createItem({
-      kind: 'weapon',
       slot: 'weapon',
       name: 'Rusty Blade',
       power: 1,
@@ -166,7 +202,6 @@ describe('ui helper coverage', () => {
     });
     const equippedWeapon = createItem({
       id: 'item-2',
-      kind: 'weapon',
       slot: 'weapon',
       name: 'Knight Blade',
       power: 4,
@@ -193,7 +228,6 @@ describe('ui helper coverage', () => {
 
     const sameWeapon = createItem({
       id: 'item-3',
-      kind: 'weapon',
       slot: 'weapon',
       name: 'Knight Blade Copy',
       power: 4,

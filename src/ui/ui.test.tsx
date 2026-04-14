@@ -2,6 +2,9 @@ import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { vi } from 'vitest';
+import { EquipmentSlotId } from '../game/content/ids';
+import { GameTag } from '../game/content/tags';
+import { Skill } from '../game/types';
 import {
   createGame,
   getItemConfigByName,
@@ -14,10 +17,12 @@ import {
   DEFAULT_WINDOWS,
 } from '../app/constants';
 import {
+  abilityTooltipLines,
   comparisonLines,
   enemyTooltip,
   itemTooltipLines,
   skillTooltip,
+  statusEffectTooltipLines,
   structureTooltip,
 } from './tooltips';
 import { formatCompactNumber, formatCompactNumberish } from './formatters';
@@ -103,8 +108,7 @@ describe('ui helpers and components', () => {
   it('builds item and enemy tooltip lines for multiple branches', () => {
     const equipped: Item = {
       id: 'weapon-equipped',
-      kind: 'weapon',
-      slot: 'weapon',
+      slot: EquipmentSlotId.Weapon,
       name: 'Old Blade',
       quantity: 1,
       tier: 1,
@@ -119,6 +123,7 @@ describe('ui helpers and components', () => {
       ...equipped,
       id: 'weapon-new',
       name: 'Knight Blade',
+      tags: undefined,
       tier: 2,
       rarity: 'rare',
       power: 4,
@@ -127,8 +132,8 @@ describe('ui helpers and components', () => {
     };
     const consumable: Item = {
       id: 'food-1',
-      kind: 'consumable',
       name: 'Meal',
+      tags: [GameTag.ItemFood, GameTag.ItemHealing],
       quantity: 2,
       tier: 1,
       rarity: 'common',
@@ -140,8 +145,8 @@ describe('ui helpers and components', () => {
     };
     const resource: Item = {
       id: 'gold-1',
-      kind: 'resource',
       name: 'Gold',
+      tags: [GameTag.ItemResource, GameTag.ItemCurrency],
       quantity: 7,
       tier: 1,
       rarity: 'common',
@@ -161,7 +166,16 @@ describe('ui helpers and components', () => {
     ]);
 
     const tooltipLines = itemTooltipLines(weapon, equipped);
-    expect(tooltipLines[0]?.text).toContain('RARE TIER 2 WEAPON');
+    expect(tooltipLines[0]).toEqual({
+      kind: 'text',
+      text: 'Rare T2 weapon',
+      tone: 'subtle',
+    });
+    expect(tooltipLines).toContainEqual({
+      kind: 'text',
+      text: 'Slot: slot.weapon',
+      tone: 'subtle',
+    });
     expect(tooltipLines).toContainEqual({
       kind: 'stat',
       label: 'Attack',
@@ -173,6 +187,19 @@ describe('ui helpers and components', () => {
       text: 'Comparing to equipped',
       tone: 'section',
     });
+    expect(tooltipLines).toContainEqual({
+      kind: 'text',
+      text: 'Tags: item.equipment, item.weapon, item.slot.weapon',
+      tone: 'subtle',
+    });
+    expect(
+      tooltipLines.findIndex((line) => line.text === 'Slot: slot.weapon'),
+    ).toBe(
+      tooltipLines.findIndex(
+        (line) =>
+          line.text === 'Tags: item.equipment, item.weapon, item.slot.weapon',
+      ) - 1,
+    );
     expect(tooltipLines.some((line) => line.label === 'Attack Change')).toBe(
       true,
     );
@@ -184,7 +211,19 @@ describe('ui helpers and components', () => {
     ).toBe(false);
     expect(itemTooltipLines(consumable)).toEqual([
       { kind: 'text', text: 'Use to recover 12 HP and restore 8 hunger.' },
+      {
+        kind: 'text',
+        text: 'Tags: item.food, item.healing',
+        tone: 'subtle',
+      },
     ]);
+    expect(
+      itemTooltipLines(resource).some(
+        (line) =>
+          line.text === 'Tags: item.resource, item.currency' &&
+          line.tone === 'subtle',
+      ),
+    ).toBe(true);
 
     expect(enemyTooltip([], undefined)).toBeNull();
 
@@ -199,6 +238,7 @@ describe('ui helpers and components', () => {
           maxHp: 8,
           attack: 3,
           defense: 1,
+          tags: [GameTag.EnemyHostile, GameTag.EnemyAnimal],
           xp: 4,
           elite: false,
         },
@@ -209,23 +249,33 @@ describe('ui helpers and components', () => {
     expect(singleEnemy?.lines).toEqual([
       { kind: 'stat', label: 'Level', value: '2' },
       { kind: 'stat', label: 'Enemies', value: '1' },
+      {
+        kind: 'text',
+        text: 'Tags: enemy.hostile, enemy.animal',
+        tone: 'subtle',
+      },
     ]);
 
-    expect(skillTooltip('logging', 12)).toContainEqual({
+    expect(skillTooltip(Skill.Logging, 12)).toContainEqual({
       kind: 'stat',
       label: 'Base Yield Bonus',
       value: '+2',
       tone: 'item',
     });
-    expect(skillTooltip('logging', 12)).toContainEqual({
+    expect(skillTooltip(Skill.Logging, 12)).toContainEqual({
       kind: 'stat',
       label: 'Extra Resource Chance',
       value: '12%',
       tone: 'item',
     });
-    expect(skillTooltip('crafting', 4)).toContainEqual({
+    expect(skillTooltip(Skill.Crafting, 4)).toContainEqual({
       kind: 'text',
       text: 'Skill level does not change recipe costs, output, or quality directly yet.',
+    });
+    expect(skillTooltip(Skill.Crafting, 4)).toContainEqual({
+      kind: 'text',
+      text: 'Tags: skill.profession, skill.crafting',
+      tone: 'subtle',
     });
 
     const groupEnemy = enemyTooltip(
@@ -275,13 +325,49 @@ describe('ui helpers and components', () => {
     expect(treeTooltip?.title).toBe('Tree');
     expect(treeTooltip?.lines).toEqual([
       { kind: 'text', text: 'A logging node that yields logs when harvested.' },
+      {
+        kind: 'text',
+        text: 'Tags: structure.gathering, structure.tree, skill.gathering, skill.logging',
+        tone: 'subtle',
+      },
     ]);
+
+    expect(
+      abilityTooltipLines({
+        manaCost: 0,
+        cooldownMs: 1000,
+        castTimeMs: 0,
+        tags: [
+          GameTag.AbilityCombat,
+          GameTag.AbilityMelee,
+          GameTag.AbilityPhysical,
+        ],
+      }),
+    ).toContainEqual({
+      kind: 'text',
+      text: 'Tags: ability.combat, ability.melee, ability.physical',
+      tone: 'subtle',
+    });
+
+    expect(
+      statusEffectTooltipLines('restoration', 'buff', [
+        {
+          kind: 'stat',
+          label: 'HP',
+          value: '+1% / s',
+          tone: 'positive',
+        },
+      ]),
+    ).toContainEqual({
+      kind: 'text',
+      text: 'Tags: status.buff, status.restoration',
+      tone: 'subtle',
+    });
   });
 
   it('uses the rolled cloth icon for Cloth items', () => {
     const cloth: Item = {
       id: 'cloth-1',
-      kind: 'resource',
       name: 'Cloth',
       quantity: 1,
       tier: 1,
@@ -301,8 +387,7 @@ describe('ui helpers and components', () => {
     const stats = getPlayerStats(game.player);
     const equippedItem: Item = {
       id: 'equip-helm',
-      kind: 'armor',
-      slot: 'head',
+      slot: EquipmentSlotId.Head,
       name: 'Horned Helm',
       quantity: 1,
       tier: 2,
@@ -315,7 +400,6 @@ describe('ui helpers and components', () => {
     };
     const inventoryItem: Item = {
       id: 'resource-gold',
-      kind: 'resource',
       name: 'Gold',
       quantity: 12,
       tier: 1,
@@ -555,7 +639,7 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('(Q) Start');
     expect(markup).toContain('Knight Blade');
     expect(iconForItem(inventoryItem)).toBeTruthy();
-    expect(iconForItem(undefined, 'weapon')).toBeTruthy();
+    expect(iconForItem(undefined, EquipmentSlotId.Weapon)).toBeTruthy();
   });
 
   it('shows explanations instead of unavailable prospect and sell buttons', async () => {
@@ -762,7 +846,6 @@ describe('ui helpers and components', () => {
 
     const menuItem: Item = {
       id: 'starter-ration',
-      kind: 'consumable',
       name: 'Trail Ration',
       quantity: 2,
       tier: 1,

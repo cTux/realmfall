@@ -4,7 +4,6 @@ import type { ItemConfig } from '../types';
 export const goldItemConfig: ItemConfig = {
   key: 'gold',
   name: 'Gold',
-  kind: 'resource',
   icon: ContentIcons.Coins,
   tint: '#fbbf24',
   tier: 1,

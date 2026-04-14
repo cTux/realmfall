@@ -4,7 +4,6 @@ import type { ItemConfig } from '../types';
 export const copperOreItemConfig: ItemConfig = {
   key: 'copper-ore',
   name: 'Copper Ore',
-  kind: 'resource',
   icon: ContentIcons.Ore,
   tint: '#f59e0b',
   tier: 1,

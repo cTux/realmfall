@@ -4,7 +4,6 @@ import type { ItemConfig } from '../types';
 export const rawFishItemConfig: ItemConfig = {
   key: 'raw-fish',
   name: 'Raw Fish',
-  kind: 'resource',
   icon: ContentIcons.Salmon,
   tier: 1,
   rarity: 'common',

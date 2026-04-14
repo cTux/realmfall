@@ -1,5 +1,6 @@
 import { t } from '../../../i18n';
 import { formatSkillLabel } from '../../../i18n/labels';
+import { Skill } from '../../../game/types';
 import type { RecipeBookWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -39,7 +40,7 @@ export function RecipeBookWindowContent({
                 (fuel) => (inventoryCounts[fuel.name] ?? 0) >= fuel.quantity,
               );
             const requiredStructure =
-              recipe.skill === 'cooking'
+              recipe.skill === Skill.Cooking
                 ? t('game.structure.camp.title')
                 : t('game.structure.workshop.title');
             const atRequiredStructure = currentStructure === requiredStructure;
@@ -94,7 +95,7 @@ export function RecipeBookWindowContent({
                     onClick={() => onCraft(recipe.id)}
                     disabled={!canCraft}
                   >
-                    {recipe.skill === 'cooking'
+                    {recipe.skill === Skill.Cooking
                       ? t('ui.recipeBook.cookAction')
                       : t('ui.recipeBook.craftAction')}
                   </button>

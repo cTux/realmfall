@@ -263,13 +263,14 @@ export function renderScene(
         if (!worldBossCenter || isBossCenter) {
           const sprite = takeShadowedSprite(
             scene.worldStaticMarkerSprites,
-            enemyIconFor(leadEnemy.name),
+            enemyIconFor(leadEnemy),
           );
           configureShadowedSprite(
             sprite,
             isBossCenter
               ? WORLD_BOSS_ICON_TINT
-              : (getEnemyConfig(leadEnemy.name)?.tint ?? 0xef4444),
+              : (getEnemyConfig(leadEnemy.enemyTypeId ?? leadEnemy.name)
+                  ?.tint ?? 0xef4444),
             isBossCenter ? worldBossIconSize : enemyIconSize,
             isBossCenter ? worldBossIconSize : enemyIconSize,
             1,

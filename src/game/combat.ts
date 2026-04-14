@@ -1,6 +1,7 @@
 import { BLOOD_MOON_STAT_SCALE } from './config';
 import { t } from '../i18n';
 import { isAnimalEnemyType, pickEnemyConfig } from './content/enemies';
+import { GAME_TAGS, uniqueTags } from './content/tags';
 import type {
   AbilityDefinition,
   AbilityId,
@@ -22,6 +23,13 @@ export const ABILITIES: Record<AbilityId, AbilityDefinition> = {
     manaCost: 0,
     cooldownMs: 1000,
     castTimeMs: 0,
+    tags: uniqueTags(
+      GAME_TAGS.ability.combat,
+      GAME_TAGS.ability.melee,
+      GAME_TAGS.ability.physical,
+      GAME_TAGS.ability.instant,
+      GAME_TAGS.ability.singleTarget,
+    ),
   },
 };
 
@@ -86,6 +94,12 @@ export function makeEnemy(
     : baseDefense;
   const enemy: Enemy = {
     id: options?.enemyId ?? enemyKey(coord, index),
+    enemyTypeId: config.id,
+    tags: uniqueTags(
+      ...(config.tags ?? []),
+      elite ? GAME_TAGS.enemy.elite : undefined,
+      structure === 'dungeon' ? GAME_TAGS.enemy.dungeon : undefined,
+    ),
     name: options?.name ?? config.name,
     coord,
     tier: worldBoss ? tier + 3 : elite ? tier + 1 : tier,
@@ -133,8 +147,17 @@ export function makeBloodMoonDropKind(
   return 'armor';
 }
 
-export function isAnimalEnemy(name: string) {
-  return isAnimalEnemyType(name);
+export function isAnimalEnemy(
+  enemy: Pick<Enemy, 'enemyTypeId' | 'name' | 'tags'> | string,
+) {
+  if (typeof enemy === 'string') {
+    return isAnimalEnemyType(enemy);
+  }
+
+  return (
+    enemy.tags?.includes(GAME_TAGS.enemy.animal) ??
+    isAnimalEnemyType(enemy.enemyTypeId ?? enemy.name)
+  );
 }
 
 export function scaledBloodMoonStat(value: number) {

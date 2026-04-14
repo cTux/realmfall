@@ -12,6 +12,7 @@ import {
   structureTitle,
 } from '../i18n';
 import type { StructureConfig } from '../types';
+import { GAME_TAGS, getSkillTags, uniqueTags } from '../tags';
 import { campStructureConfig } from './camp';
 import { coalOreStructureConfig } from './coalOre';
 import { copperOreStructureConfig } from './copperOre';
@@ -43,15 +44,14 @@ const RAW_STRUCTURE_CONFIGS = [
 export const STRUCTURE_CONFIGS: StructureConfig[] = RAW_STRUCTURE_CONFIGS.map(
   (config) => ({
     ...config,
+    tags: buildStructureTags(config),
     title: structureTitle(config.type),
     description: structureDescription(config.type),
     gathering: config.gathering
       ? {
           ...config.gathering,
           actionLabel: localizedStructureActionLabel(config.type),
-          reward: itemName(
-            config.gathering.reward.toLowerCase().replace(/\s+/g, '-'),
-          ),
+          reward: itemName(config.gathering.rewardItemKey),
           verb: structureGatherVerb(config.type),
           depletedText: structureDepletedText(config.type),
         }
@@ -110,4 +110,49 @@ export function pickStructureType(
   );
 
   return resourceStructure?.type;
+}
+
+function buildStructureTags(config: StructureConfig) {
+  const categoryTag =
+    config.gathering != null
+      ? GAME_TAGS.structure.gathering
+      : config.type === 'dungeon'
+        ? GAME_TAGS.structure.combat
+        : config.type === 'camp' ||
+            config.type === 'forge' ||
+            config.type === 'workshop'
+          ? GAME_TAGS.structure.crafting
+          : config.type === 'town'
+            ? GAME_TAGS.structure.settlement
+            : GAME_TAGS.structure.utility;
+
+  const typeTag =
+    config.type === 'camp'
+      ? GAME_TAGS.structure.camp
+      : config.type === 'town'
+        ? GAME_TAGS.structure.town
+        : config.type === 'forge'
+          ? GAME_TAGS.structure.forge
+          : config.type === 'workshop'
+            ? GAME_TAGS.structure.workshop
+            : config.type === 'dungeon'
+              ? GAME_TAGS.structure.dungeon
+              : config.type === 'tree'
+                ? GAME_TAGS.structure.tree
+                : config.type === 'herbs'
+                  ? GAME_TAGS.structure.herbs
+                  : config.type === 'pond' || config.type === 'lake'
+                    ? GAME_TAGS.structure.fishing
+                    : config.type === 'copper-ore' ||
+                        config.type === 'iron-ore' ||
+                        config.type === 'coal-ore'
+                      ? GAME_TAGS.structure.ore
+                      : undefined;
+
+  return uniqueTags(
+    ...(config.tags ?? []),
+    categoryTag,
+    typeTag,
+    ...(config.gathering ? getSkillTags(config.gathering.skill) : []),
+  );
 }

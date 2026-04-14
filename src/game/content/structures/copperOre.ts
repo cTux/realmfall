@@ -1,5 +1,7 @@
 import { ContentIcons } from '../icons';
+import { ItemId } from '../ids';
 import type { StructureConfig } from '../types';
+import { Skill } from '../../types';
 
 export const copperOreStructureConfig: StructureConfig = {
   type: 'copper-ore',
@@ -15,7 +17,8 @@ export const copperOreStructureConfig: StructureConfig = {
   gathering: {
     actionLabel: 'Mine Copper Vein',
     maxHp: 6,
-    skill: 'mining',
+    skill: Skill.Mining,
+    rewardItemKey: ItemId.CopperOre,
     reward: 'Copper Ore',
     rewardTier: 1,
     baseYield: 1,
