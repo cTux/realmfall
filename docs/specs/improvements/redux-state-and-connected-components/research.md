@@ -33,7 +33,7 @@
 ## Observation 6: Persistence and hydration should be store-driven after migration
 
 - **Finding**: `src/app/App/useAppPersistence.ts` currently hydrates top-level React state and autosaves combined gameplay and UI snapshots.
-- **Rationale**: It owns loading, normalization, window state hydration, log filter hydration, and debounced save scheduling.
+- **Rationale**: It owns loading, normalization, window layout hydration, window visibility hydration, log filter hydration, and debounced save scheduling. After the latest master changes, `WindowPosition` also includes optional `width` and `height`, so persisted UI state now covers resizable window dimensions in addition to `x` and `y`.
 - **Planning implication**: After Redux adoption, persistence should subscribe to store slices and dispatch hydration actions, while preserving the existing normalize-before-hydrate behavior and duplicate-save avoidance.
 
 ## Observation 7: Connected containers fit the existing presentational component split
@@ -54,7 +54,7 @@
 - Keep `src/game` as the source of gameplay rules and wrap existing pure transitions in reducers or thunks instead of moving gameplay logic into UI code.
 - Move durable shared state to Redux:
   - gameplay state
-  - persisted UI state such as window positions, visibility, and log filters
+  - persisted UI state such as window positions, window sizes, visibility, and log filters
   - stable derived selectors
   - semantic tooltip or menu state only if it meaningfully participates in React rendering
 - Keep non-Redux state local or ref-based:

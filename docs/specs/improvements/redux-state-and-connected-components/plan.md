@@ -111,6 +111,7 @@ src/ui/components/<ComponentName>/
 3. Keep `worldTimeMs` handling explicit so current `worldTimeMsRef.current` semantics are preserved or cleanly redesigned.
 4. Move stable shared UI state from `useAppControllers` into Redux:
    - window positions
+   - window sizes
    - window visibility
    - log filters
    - item context menu if it remains shared React UI state

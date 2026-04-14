@@ -80,7 +80,7 @@ As a maintainer, I want clear guidance for when to use connected components vers
 ### Functional Requirements
 
 - **FR-001**: The system MUST introduce a Redux store as the source of truth for shared gameplay state.
-- **FR-002**: The system MUST move persisted shared UI state, including window positions, window visibility, and log filters, into Redux-managed state.
+- **FR-002**: The system MUST move persisted shared UI state, including window positions, window sizes, window visibility, and log filters, into Redux-managed state.
 - **FR-003**: The system MUST preserve the existing normalize-before-hydrate save loading behavior when hydrating Redux state.
 - **FR-004**: The system MUST keep gameplay and simulation rules in `src/game` rather than moving those rules into React components or UI-specific reducers.
 - **FR-005**: The system MUST provide connected component entry points named `{ComponentName}.connect.ts` or `{ComponentName}.connect.tsx` for components that consume store state directly.
@@ -98,7 +98,7 @@ As a maintainer, I want clear guidance for when to use connected components vers
 
 - **Redux Store**: The top-level application store that owns shared gameplay state and persisted shared UI state.
 - **Game Slice**: The Redux-managed state domain that wraps the existing pure gameplay transitions from `src/game/state.ts`.
-- **UI Slice**: The Redux-managed state domain for persisted UI concerns such as window positions, window visibility, and log filters.
+- **UI Slice**: The Redux-managed state domain for persisted UI concerns such as window positions, window sizes, window visibility, and log filters.
 - **Connected Component Entry Point**: A `{ComponentName}.connect.ts(x)` file that selects store data and dispatches actions for a presentational component.
 - **Selector Hook**: A narrow custom hook, optionally including `useGameState()`, that composes a cohesive subset of selectors and actions for a specific feature boundary.
 - **Transient Runtime State**: Non-serializable or high-frequency values such as refs, timers, Pixi instances, pointer-hot-path hover data, and similar runtime-only objects that remain outside Redux.
