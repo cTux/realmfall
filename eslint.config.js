@@ -8,7 +8,13 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['dist', 'coverage', 'node_modules', 'prettier.config.cjs'],
+    ignores: [
+      'dist',
+      'coverage',
+      'node_modules',
+      'storybook-static',
+      'prettier.config.cjs',
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
@@ -26,7 +32,8 @@ export default tseslint.config(
       prettier,
     },
     rules: {
-      ...reactHooks.configs.recommended.rules,
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
