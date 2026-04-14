@@ -88,6 +88,22 @@ export interface Enemy {
   defense: number;
   xp: number;
   elite: boolean;
+  aggressive?: boolean;
+}
+
+export interface TerritoryNpc {
+  name: string;
+  enemyId?: string;
+}
+
+export type TerritoryOwnerType = 'player' | 'faction';
+
+export interface TileClaim {
+  ownerId: string;
+  ownerType: TerritoryOwnerType;
+  ownerName: string;
+  borderColor: string;
+  npc?: TerritoryNpc;
 }
 
 export type AbilityId = 'kick';
@@ -124,6 +140,7 @@ export interface Tile {
   structureMaxHp?: number;
   items: Item[];
   enemyIds: string[];
+  claim?: TileClaim;
 }
 
 export type Equipment = Partial<Record<EquipmentSlot, Item>>;

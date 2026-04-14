@@ -41,6 +41,7 @@ export function App() {
     closeItemMenu,
     closeTooltip,
     handleBuyTownItem,
+    handleClaimHex,
     handleContextItem,
     handleCraftRecipe,
     handleDropEquippedItem,
@@ -91,6 +92,7 @@ export function App() {
     });
 
   const {
+    claimStatus,
     canProspect,
     canSell,
     combatEnemies,
@@ -238,6 +240,7 @@ export function App() {
           interactLabel={interactLabel}
           canProspect={canProspect}
           canSell={canSell}
+          claimStatus={claimStatus}
           prospectExplanation={prospectExplanation}
           sellExplanation={sellExplanation}
           townStock={townStock}
@@ -279,6 +282,7 @@ export function App() {
           onProspect={handleProspect}
           onSellAll={handleSellAll}
           onBuyTownItem={handleBuyTownItem}
+          onClaimHex={handleClaimHex}
           onSetHome={handleSetHome}
         />
       </div>

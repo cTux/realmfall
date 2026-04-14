@@ -13,6 +13,12 @@ import {
 import { enemyIndexFromId, enemyKey, makeEnemy } from './combat';
 import { makeConsumable } from './inventory';
 import {
+  isFactionNpcEnemyId,
+  makeFactionNpcEnemyId,
+  getFactionClaim,
+  getFactionStructure,
+} from './territories';
+import {
   applyRarityToItem,
   isPassable,
   itemId,
@@ -28,6 +34,7 @@ import type {
   GatheringStructureType,
   Item,
   ItemRarity,
+  TileClaim,
   StructureType,
   Terrain,
   Tile,
@@ -43,6 +50,7 @@ export function cacheSafeStart(state: GameState) {
     structureHp: undefined,
     structureMaxHp: undefined,
     enemyIds: [],
+    claim: undefined,
   };
   hexNeighbors(center).forEach((coord) => {
     state.tiles[hexKey(coord)] = {
@@ -53,6 +61,7 @@ export function cacheSafeStart(state: GameState) {
       structureHp: undefined,
       structureMaxHp: undefined,
       enemyIds: [],
+      claim: undefined,
     };
   });
 }
@@ -66,6 +75,8 @@ export function ensureTileState(state: GameState, coord: HexCoord) {
   const tile = state.tiles[key];
   tile.enemyIds.forEach((enemyId) => {
     if (!state.enemies[enemyId]) {
+      const enemyName =
+        tile.claim?.npc?.enemyId === enemyId ? tile.claim?.npc.name : undefined;
       state.enemies[enemyId] = makeEnemy(
         state.seed,
         coord,
@@ -73,6 +84,11 @@ export function ensureTileState(state: GameState, coord: HexCoord) {
         enemyIndexFromId(enemyId),
         tile.structure,
         state.bloodMoonActive,
+        {
+          enemyId,
+          name: enemyName,
+          aggressive: !isFactionNpcEnemyId(enemyId),
+        },
       );
     }
   });
@@ -92,12 +108,32 @@ export function buildTile(seed: string, coord: HexCoord): Tile {
   }
 
   const terrain = pickTerrain(seed, coord);
-  const structure = isPassable(terrain)
-    ? pickStructure(seed, coord, terrain)
+  const factionClaim = getFactionClaim(seed, coord);
+  const territoryNpcEnemyId = makeFactionNpcEnemyId(coord);
+  const structureCandidate = isPassable(terrain)
+    ? (getFactionStructure(seed, coord) ?? pickStructure(seed, coord, terrain))
     : undefined;
+  const structure =
+    factionClaim?.npc && structureCandidate !== undefined
+      ? undefined
+      : structureCandidate;
   const structureStats = structure ? makeStructureState(structure) : undefined;
-  const enemyIds = buildEnemyIds(seed, coord, terrain, structure);
-  const items = maybeLoot(seed, coord, terrain, enemyIds.length > 0, structure);
+  const enemyIds = buildEnemyIds(
+    seed,
+    coord,
+    terrain,
+    structure,
+    factionClaim ?? undefined,
+    territoryNpcEnemyId,
+  );
+  const items = maybeLoot(
+    seed,
+    coord,
+    terrain,
+    enemyIds.length > 0,
+    structure,
+    Boolean(factionClaim),
+  );
   return {
     coord,
     terrain,
@@ -106,6 +142,7 @@ export function buildTile(seed: string, coord: HexCoord): Tile {
     structureMaxHp: structureStats?.maxHp,
     items,
     enemyIds,
+    claim: factionClaim ?? undefined,
   };
 }
 
@@ -178,8 +215,11 @@ function buildEnemyIds(
   coord: HexCoord,
   terrain: Terrain,
   structure?: StructureType,
+  claim?: TileClaim,
+  npcEnemyId = makeFactionNpcEnemyId(coord),
 ) {
   if (!isPassable(terrain)) return [];
+  if (claim) return claim.npc ? [claim.npc.enemyId ?? npcEnemyId] : [];
   if (hexDistance(coord, { q: 0, r: 0 }) <= 1) return [];
   if (structure && structure !== 'dungeon') return [];
   if (structure === 'dungeon') {
@@ -220,7 +260,9 @@ function maybeLoot(
   terrain: Terrain,
   guarded: boolean,
   structure?: StructureType,
+  claimed = false,
 ) {
+  if (claimed) return [];
   const roll = noise(`${seed}:loot`, coord);
   const tier = terrainTier(coord, terrain) + (structure === 'dungeon' ? 2 : 0);
   const lootChance = isGatheringStructure(structure)

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import {
+  getCurrentHexClaimStatus,
   getCurrentTile,
   getEnemiesAt,
   getGoldAmount,
@@ -67,8 +68,10 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
       ? t('game.message.sell.empty')
       : null;
   const interactLabel = structureActionLabel(currentTile.structure);
+  const claimStatus = useMemo(() => getCurrentHexClaimStatus(game), [game]);
 
   return {
+    claimStatus,
     canProspect,
     canSell,
     combatEnemies,

@@ -60,6 +60,11 @@ export function makeEnemy(
   index = 0,
   structure?: StructureType,
   bloodMoonActive = false,
+  options?: {
+    enemyId?: string;
+    aggressive?: boolean;
+    name?: string;
+  },
 ): Enemy {
   const tier = terrainTier(coord, terrain) + (structure === 'dungeon' ? 2 : 0);
   const roll = noise(`${seed}:enemy:type:${index}`, coord);
@@ -69,8 +74,8 @@ export function makeEnemy(
   const baseAttack = 2 + tier * 2 + (elite ? 3 : 0);
   const baseDefense = 1 + tier + (elite ? 2 : 0);
   const enemy: Enemy = {
-    id: enemyKey(coord, index),
-    name: config.name,
+    id: options?.enemyId ?? enemyKey(coord, index),
+    name: options?.name ?? config.name,
     coord,
     tier: elite ? tier + 1 : tier,
     baseMaxHp,
@@ -82,6 +87,7 @@ export function makeEnemy(
     defense: baseDefense,
     xp: 18 + tier * 14 + (elite ? 25 : 0),
     elite,
+    aggressive: options?.aggressive ?? true,
   };
 
   setEnemyBloodMoonState(enemy, bloodMoonActive);

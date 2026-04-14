@@ -22,6 +22,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   onClose,
   isHome,
   onSetHome,
+  canSetHome = true,
   terrain,
   structure,
   enemyCount,
@@ -29,13 +30,19 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   canInteract,
   canProspect,
   canSell,
+  canClaim,
+  claimExplanation,
   prospectExplanation,
   sellExplanation,
   onInteract,
   onProspect,
   onSellAll,
+  onClaim,
   structureHp,
   structureMaxHp,
+  territoryName,
+  territoryOwnerType,
+  territoryNpc,
   townStock,
   gold,
   onBuyItem,
@@ -75,7 +82,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
             type="button"
             className={`${inventoryStyles.headerButton} ${styles.homeButton}`}
             aria-pressed={isHome}
-            disabled={isHome}
+            disabled={!canSetHome || isHome}
             onPointerDown={(event) => event.stopPropagation()}
             onClick={(event) => {
               event.stopPropagation();
@@ -96,13 +103,19 @@ export const HexInfoWindow = memo(function HexInfoWindow({
           canInteract={canInteract}
           canProspect={canProspect}
           canSell={canSell}
+          canClaim={canClaim}
+          claimExplanation={claimExplanation}
           prospectExplanation={prospectExplanation}
           sellExplanation={sellExplanation}
           onInteract={onInteract}
           onProspect={onProspect}
           onSellAll={onSellAll}
+          onClaim={onClaim}
           structureHp={structureHp}
           structureMaxHp={structureMaxHp}
+          territoryName={territoryName}
+          territoryOwnerType={territoryOwnerType}
+          territoryNpc={territoryNpc}
           townStock={townStock}
           gold={gold}
           onBuyItem={onBuyItem}

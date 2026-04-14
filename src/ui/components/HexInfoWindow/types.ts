@@ -1,6 +1,6 @@
 import type { MouseEvent as ReactMouseEvent } from 'react';
 import type { WindowPosition } from '../../../app/constants';
-import type { Item, TownStockEntry } from '../../../game/state';
+import type { Item, TerritoryNpc, TownStockEntry } from '../../../game/state';
 
 export interface HexInfoWindowProps {
   position: WindowPosition;
@@ -9,6 +9,7 @@ export interface HexInfoWindowProps {
   onClose?: () => void;
   isHome: boolean;
   onSetHome: () => void;
+  canSetHome?: boolean;
   terrain: string;
   structure?: string | null;
   enemyCount: number;
@@ -16,13 +17,19 @@ export interface HexInfoWindowProps {
   canInteract: boolean;
   canProspect: boolean;
   canSell: boolean;
+  canClaim: boolean;
+  claimExplanation?: string | null;
   prospectExplanation?: string | null;
   sellExplanation?: string | null;
   onInteract: () => void;
   onProspect: () => void;
   onSellAll: () => void;
+  onClaim: () => void;
   structureHp?: number;
   structureMaxHp?: number;
+  territoryName?: string | null;
+  territoryOwnerType?: 'player' | 'faction' | null;
+  territoryNpc: TerritoryNpc | null;
   townStock: TownStockEntry[];
   gold: number;
   onBuyItem: (itemId: string) => void;

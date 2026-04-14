@@ -225,12 +225,23 @@ function normalizeTile(tile: GameState['tiles'][string]) {
     isGatheringStructure(tile.structure) && tile.structureMaxHp == null
       ? defaultStructureHp(tile.structure)
       : tile.structureMaxHp;
+  const legacyNpc = (
+    tile.claim as {
+      npcs?: { name: string; enemyId?: string }[];
+    }
+  )?.npcs?.[0];
 
   return {
     ...tile,
     structureHp,
     structureMaxHp,
     items: uniquifyItemIds((tile.items ?? []).map(normalizeItem)),
+    claim: tile.claim
+      ? {
+          ...tile.claim,
+          npc: tile.claim.npc ?? legacyNpc,
+        }
+      : undefined,
     enemyIds:
       tile.enemyIds ??
       (((tile as unknown as { enemyId?: string }).enemyId

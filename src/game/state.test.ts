@@ -1,5 +1,6 @@
 import {
   buyTownItem,
+  claimCurrentHex,
   craftRecipe,
   createGame,
   dropInventoryItem,
@@ -91,6 +92,118 @@ describe('game state', () => {
     expect(next.player.coord).toEqual(target);
     expect(next.turn).toBe(1);
     expect(next.logs[0]?.text).toMatch(/^\[Year 1, Day 1, 18:33\] /);
+  });
+
+  it('claims an empty passable hex by consuming cloth and sticks', () => {
+    const game = createGame(3, 'claim-hex-seed');
+    game.player.inventory.push(
+      {
+        id: 'cloth-1',
+        itemKey: 'cloth',
+        kind: 'resource',
+        name: 'Cloth',
+        quantity: 1,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'sticks-1',
+        itemKey: 'sticks',
+        kind: 'resource',
+        name: 'Sticks',
+        quantity: 1,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    );
+
+    const claimed = claimCurrentHex(game);
+
+    expect(getTileAt(claimed, { q: 0, r: 0 }).claim).toMatchObject({
+      ownerType: 'player',
+      ownerId: 'player-territory',
+    });
+    expect(
+      claimed.player.inventory.some((item) => item.itemKey === 'cloth'),
+    ).toBe(false);
+    expect(
+      claimed.player.inventory.some((item) => item.itemKey === 'sticks'),
+    ).toBe(false);
+  });
+
+  it('requires new claims to connect to the existing player territory', () => {
+    let game = createGame(4, 'claim-connect-seed');
+    game.player.inventory.push(
+      {
+        id: 'cloth-1',
+        itemKey: 'cloth',
+        kind: 'resource',
+        name: 'Cloth',
+        quantity: 2,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'sticks-1',
+        itemKey: 'sticks',
+        kind: 'resource',
+        name: 'Sticks',
+        quantity: 2,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    );
+    game = claimCurrentHex(game);
+    game.player.coord = { q: 2, r: 0 };
+    game.tiles['2,0'] = {
+      coord: { q: 2, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+      claim: undefined,
+    };
+
+    const denied = claimCurrentHex(game);
+
+    expect(getTileAt(denied, { q: 2, r: 0 }).claim).toBeUndefined();
+    expect(
+      denied.logs.some((entry) =>
+        /must connect to your existing border/i.test(entry.text),
+      ),
+    ).toBe(true);
+  });
+
+  it('generates faction territories with borders, neutral residents, and safe interiors', () => {
+    const game = createGame(6, 'faction-territory-seed');
+    const factionNpcTile = findFactionNpcTile(game, 36);
+
+    expect(factionNpcTile).toBeDefined();
+    expect(factionNpcTile?.claim?.ownerType).toBe('faction');
+    expect(factionNpcTile?.claim?.npc).toBeDefined();
+    expect(factionNpcTile?.enemyIds).toEqual([
+      factionNpcTile?.claim?.npc?.enemyId,
+    ]);
+    expect(factionNpcTile?.structure).toBeUndefined();
   });
 
   it('finds a safe path around blocked and hostile hexes', () => {
@@ -849,6 +962,79 @@ describe('game state', () => {
     expect(homeTile.items).toEqual([]);
     expect(homeTile.enemyIds).toEqual([]);
     expect(next.enemies['enemy-1,0-0']).toBeUndefined();
+  });
+
+  it('prevents setting home on another territory', () => {
+    const game = createGame(3, 'set-home-claimed-seed');
+    game.player.coord = { q: 1, r: 0 };
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      items: [
+        {
+          id: 'resource-gold-home',
+          kind: 'resource',
+          name: 'Gold',
+          quantity: 4,
+          tier: 1,
+          rarity: 'common',
+          power: 0,
+          defense: 0,
+          maxHp: 0,
+          healing: 0,
+          hunger: 0,
+        },
+      ],
+      structure: 'camp',
+      enemyIds: ['enemy-1,0-0'],
+      claim: {
+        ownerId: 'faction-claims',
+        ownerType: 'faction',
+        ownerName: 'Ghostline',
+        borderColor: '#ffffff',
+      },
+    };
+    game.enemies['enemy-1,0-0'] = {
+      id: 'enemy-1,0-0',
+      name: 'Wolf',
+      coord: { q: 1, r: 0 },
+      tier: 1,
+      hp: 3,
+      maxHp: 3,
+      attack: 1,
+      defense: 0,
+      xp: 1,
+      elite: false,
+    };
+
+    const next = setHomeHex(game);
+    const blockedTile = getTileAt(next, { q: 1, r: 0 });
+
+    expect(next.homeHex).toEqual(game.homeHex);
+    expect(blockedTile).toMatchObject({
+      terrain: 'plains',
+      structure: 'camp',
+      items: [
+        {
+          id: 'resource-gold-home',
+          kind: 'resource',
+          name: 'Gold',
+          quantity: 4,
+        },
+      ],
+      enemyIds: ['enemy-1,0-0'],
+      claim: {
+        ownerId: 'faction-claims',
+        ownerType: 'faction',
+        ownerName: 'Ghostline',
+      },
+    });
+    expect(next.enemies['enemy-1,0-0']).toBeDefined();
+    expect(
+      next.logs.some((entry) =>
+        entry.text.includes(t('game.message.home.blockedByTerritory')),
+      ),
+    ).toBe(true);
   });
 
   it('logs ordinary nightfall and morning transitions', () => {
@@ -1815,6 +2001,24 @@ function findEnemy(
       if (distance < min || distance > max) continue;
       const enemy = getEnemyAt(game, { q, r });
       if (enemy) return enemy;
+    }
+  }
+
+  return undefined;
+}
+
+function findFactionNpcTile(
+  game: ReturnType<typeof createGame>,
+  maxDistance: number,
+) {
+  for (let q = -maxDistance; q <= maxDistance; q += 1) {
+    for (let r = -maxDistance; r <= maxDistance; r += 1) {
+      const distance = Math.max(Math.abs(q), Math.abs(r), Math.abs(-q - r));
+      if (distance > maxDistance) continue;
+      const tile = getTileAt(game, { q, r });
+      if (tile.claim?.npc?.enemyId) {
+        return tile;
+      }
     }
   }
 

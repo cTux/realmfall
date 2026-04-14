@@ -8,6 +8,7 @@ import {
 } from 'react';
 import {
   buyTownItem,
+  claimCurrentHex,
   craftRecipe,
   dropEquippedItem,
   dropInventoryItem,
@@ -174,6 +175,15 @@ export function useAppControllers({
     );
   }, [setGame, worldTimeMsRef]);
 
+  const handleClaimHex = useCallback(() => {
+    setGame((current) =>
+      claimCurrentHex({
+        ...current,
+        worldTimeMs: worldTimeMsRef.current,
+      }),
+    );
+  }, [setGame, worldTimeMsRef]);
+
   const handleBuyTownItem = useCallback(
     (itemId: string) => {
       setGame((current) =>
@@ -334,6 +344,7 @@ export function useAppControllers({
     closeItemMenu,
     closeTooltip,
     handleBuyTownItem,
+    handleClaimHex,
     handleContextItem,
     handleCraftRecipe,
     handleDropEquippedItem,
