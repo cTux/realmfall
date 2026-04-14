@@ -24,5 +24,6 @@ Follow `docs/RULES.md` as the canonical source of project rules.
 ## Project Expectations
 
 - Follow the project-specific expectations in `docs/RULES.md`.
+- Keep Storybook stories aligned with component and entity dictionary changes when the task touches UI or content definitions.
 - Use the reference files above when they are relevant to the current task.
 - Use `docs/PROJECT_REVIEW.md` as input for recurring best-practice updates, while keeping `docs/RULES.md` canonical.
