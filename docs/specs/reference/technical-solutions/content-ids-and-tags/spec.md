@@ -2,19 +2,23 @@
 
 ## Scope
 
-This spec covers canonical type ids and gameplay tags for item configs, enemy configs, status effects, and their hydrated runtime entities.
+This spec covers canonical type ids and gameplay tags for item configs, enemy configs, status effects, abilities, professions, structures, equipment slots, and their hydrated runtime entities or tooltip-facing definitions.
 
 ## Current Solution
 
-- `src/game/content/ids.ts` provides enum-backed canonical ids for item types, enemy types, and status effects.
+- `src/game/content/ids.ts` provides enum-backed canonical ids for item types, enemy types, status effects, and equipment slots.
 - Every configured item type uses its stable enum-backed `key` as the canonical item type id.
+- Equippable items use the shared equipment-slot enum instead of raw slot strings in content definitions and generator paths.
 - Every configured enemy type defines a stable enum-backed `id` separate from its localized display name.
 - Every status effect id resolves through a shared enum-backed status-effect definition registry.
 - `src/game/content/tags.ts` provides enum-backed gameplay tags plus grouped lookup objects for ergonomic usage.
-- Configured items and enemies hydrate with tag arrays derived from their canonical definitions.
+- Configured items, enemies, and structures hydrate with tag arrays derived from their canonical definitions.
+- Equippable items also receive slot-specific tags derived from the shared equipment-slot enum, such as `item.slot.weapon` and `item.slot.head`.
 - Runtime item instances, enemy instances, and player status effects carry hydrated tags so gameplay logic can branch on ids or tags instead of localized labels.
+- Ability definitions and profession skill lookups expose enum-backed tags through shared helpers instead of ad hoc UI strings.
 - Inventory, crafting, loot, enemy classification, icon selection, and status-effect presentation now prefer canonical ids and tags over display-name matching.
-- Save normalization backfills missing item keys, enemy type ids, enemy tags, and status-effect tags for older saves.
+- Tooltip surfaces for items, resources, enemies, buffs, debuffs, abilities, professions, and structures render shared tag lines from those canonical definitions.
+- Save normalization backfills missing item keys, enemy type ids, enemy tags, status-effect tags, and inferred equippable slot tags for older saves.
 
 ## Main Implementation Areas
 
@@ -22,7 +26,10 @@ This spec covers canonical type ids and gameplay tags for item configs, enemy co
 - `src/game/content/items/index.ts`
 - `src/game/content/enemies`
 - `src/game/content/statusEffects.ts`
+- `src/game/content/structures`
 - `src/game/inventory.ts`
 - `src/game/crafting.ts`
+- `src/game/combat.ts`
 - `src/game/state.ts`
 - `src/app/normalize.ts`
+- `src/ui/tooltips.ts`

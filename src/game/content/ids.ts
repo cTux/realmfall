@@ -58,3 +58,20 @@ export enum StatusEffectTypeId {
 }
 
 export type StatusEffectIdValue = `${StatusEffectTypeId}`;
+
+export enum EquipmentSlotId {
+  Weapon = 'weapon',
+  Offhand = 'offhand',
+  Head = 'head',
+  Chest = 'chest',
+  Hands = 'hands',
+  Legs = 'legs',
+  Feet = 'feet',
+  RingLeft = 'ringLeft',
+  RingRight = 'ringRight',
+  Amulet = 'amulet',
+  Cloak = 'cloak',
+  Relic = 'relic',
+}
+
+export type EquipmentSlotValue = `${EquipmentSlotId}`;

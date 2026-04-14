@@ -1,4 +1,5 @@
 import { t } from '../i18n';
+import { EquipmentSlotId } from './content/ids';
 import {
   ARTIFACT_FORM_KEYS,
   ARTIFACT_PREFIX_KEYS,
@@ -395,7 +396,7 @@ export function makeWeapon(
   return applyRarityToItem({
     id: itemId('weapon', coord, seed),
     kind: 'weapon',
-    slot: 'weapon',
+    slot: EquipmentSlotId.Weapon,
     name: `${prefixes[prefixIndex]} ${names[index]}`,
     quantity: 1,
     tier,
@@ -420,7 +421,7 @@ export function makeOffhand(
   return applyRarityToItem({
     id: itemId('offhand', coord, seed),
     kind: 'armor',
-    slot: 'offhand',
+    slot: EquipmentSlotId.Offhand,
     name: names[index],
     quantity: 1,
     tier,
@@ -440,21 +441,27 @@ export function makeArmor(
   tier: number,
   minimumRarity?: ItemRarity,
 ): Item {
-  const slots: EquipmentSlot[] = ['head', 'chest', 'hands', 'legs', 'feet'];
+  const slots: EquipmentSlot[] = [
+    EquipmentSlotId.Head,
+    EquipmentSlotId.Chest,
+    EquipmentSlotId.Hands,
+    EquipmentSlotId.Legs,
+    EquipmentSlotId.Feet,
+  ];
   const slot = slots[scaledIndex(`${seed}:armor:slot`, coord, slots.length)];
   const names: Record<EquipmentSlot, string[]> = {
-    weapon: [],
-    offhand: [],
-    head: ['Scout Hood', 'Iron Cap', 'Ranger Circlet'],
-    chest: ['Warden Coat', 'Scale Vest', 'Nomad Harness'],
-    hands: ['Grip Gloves', 'Hide Mitts', 'Bone Gauntlets'],
-    legs: ['Trail Greaves', 'Strider Leggings', 'Dust Wraps'],
-    feet: ['Dune Boots', 'Wolf Treads', 'Marsh Walkers'],
-    ringLeft: [],
-    ringRight: [],
-    amulet: [],
-    cloak: [],
-    relic: [],
+    [EquipmentSlotId.Weapon]: [],
+    [EquipmentSlotId.Offhand]: [],
+    [EquipmentSlotId.Head]: ['Scout Hood', 'Iron Cap', 'Ranger Circlet'],
+    [EquipmentSlotId.Chest]: ['Warden Coat', 'Scale Vest', 'Nomad Harness'],
+    [EquipmentSlotId.Hands]: ['Grip Gloves', 'Hide Mitts', 'Bone Gauntlets'],
+    [EquipmentSlotId.Legs]: ['Trail Greaves', 'Strider Leggings', 'Dust Wraps'],
+    [EquipmentSlotId.Feet]: ['Dune Boots', 'Wolf Treads', 'Marsh Walkers'],
+    [EquipmentSlotId.RingLeft]: [],
+    [EquipmentSlotId.RingRight]: [],
+    [EquipmentSlotId.Amulet]: [],
+    [EquipmentSlotId.Cloak]: [],
+    [EquipmentSlotId.Relic]: [],
   };
   const slotNames = names[slot];
   const name =
@@ -483,11 +490,11 @@ export function makeArtifact(
   minimumRarity?: ItemRarity,
 ): Item {
   const slots: EquipmentSlot[] = [
-    'ringLeft',
-    'ringRight',
-    'amulet',
-    'cloak',
-    'relic',
+    EquipmentSlotId.RingLeft,
+    EquipmentSlotId.RingRight,
+    EquipmentSlotId.Amulet,
+    EquipmentSlotId.Cloak,
+    EquipmentSlotId.Relic,
   ];
   const slot = slots[scaledIndex(`${seed}:artifact:slot`, coord, slots.length)];
   const prefix = t(
@@ -513,9 +520,23 @@ export function makeArtifact(
       tier + 1,
       minimumRarity ?? 'uncommon',
     ),
-    power: slot === 'relic' ? tier + 1 : slot.includes('ring') ? tier : 0,
-    defense: slot === 'cloak' ? tier + 1 : slot === 'amulet' ? tier : 0,
-    maxHp: slot === 'amulet' || slot === 'relic' ? tier * 3 : tier,
+    power:
+      slot === EquipmentSlotId.Relic
+        ? tier + 1
+        : slot === EquipmentSlotId.RingLeft ||
+            slot === EquipmentSlotId.RingRight
+          ? tier
+          : 0,
+    defense:
+      slot === EquipmentSlotId.Cloak
+        ? tier + 1
+        : slot === EquipmentSlotId.Amulet
+          ? tier
+          : 0,
+    maxHp:
+      slot === EquipmentSlotId.Amulet || slot === EquipmentSlotId.Relic
+        ? tier * 3
+        : tier,
     healing: 0,
     hunger: 0,
     thirst: 0,

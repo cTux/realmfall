@@ -4,6 +4,7 @@ import {
   getPlayerStats,
   getRecipeBookRecipes,
 } from '../../../game/state';
+import { EquipmentSlotId } from '../../../game/content/ids';
 import { addLog } from '../../../game/logs';
 import { buildItemFromConfig, ITEM_CONFIGS } from '../../../game/content/items';
 import { ENEMY_CONFIGS } from '../../../game/content/enemies';
@@ -144,16 +145,16 @@ function buildLootFixture() {
 
 function buildEquipmentFixture(): Equipment {
   return {
-    weapon: buildEquippedItem('weapon'),
-    offhand: buildEquippedItem('offhand'),
-    head: buildEquippedItem('head'),
-    chest: buildEquippedItem('chest'),
-    hands: buildEquippedItem('hands'),
-    legs: buildEquippedItem('legs'),
-    feet: buildEquippedItem('feet'),
-    ringLeft: buildEquippedItem('ringLeft'),
-    amulet: buildEquippedItem('amulet'),
-    cloak: buildEquippedItem('cloak'),
+    [EquipmentSlotId.Weapon]: buildEquippedItem(EquipmentSlotId.Weapon),
+    [EquipmentSlotId.Offhand]: buildEquippedItem(EquipmentSlotId.Offhand),
+    [EquipmentSlotId.Head]: buildEquippedItem(EquipmentSlotId.Head),
+    [EquipmentSlotId.Chest]: buildEquippedItem(EquipmentSlotId.Chest),
+    [EquipmentSlotId.Hands]: buildEquippedItem(EquipmentSlotId.Hands),
+    [EquipmentSlotId.Legs]: buildEquippedItem(EquipmentSlotId.Legs),
+    [EquipmentSlotId.Feet]: buildEquippedItem(EquipmentSlotId.Feet),
+    [EquipmentSlotId.RingLeft]: buildEquippedItem(EquipmentSlotId.RingLeft),
+    [EquipmentSlotId.Amulet]: buildEquippedItem(EquipmentSlotId.Amulet),
+    [EquipmentSlotId.Cloak]: buildEquippedItem(EquipmentSlotId.Cloak),
   };
 }
 

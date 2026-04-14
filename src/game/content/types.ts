@@ -60,6 +60,7 @@ export interface StructureConfig {
   icon: string;
   tint: number;
   functionsProvided: string[];
+  tags?: GameTag[];
   globalAppearanceThreshold?: number;
   appearanceChanceByTerrain?: Partial<Record<Terrain, number>>;
   gathering?: GatheringConfig;

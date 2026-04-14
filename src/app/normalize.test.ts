@@ -1,4 +1,5 @@
 import { normalizeLoadedGame } from './normalize';
+import { EquipmentSlotId } from '../game/content/ids';
 import { createGame, type GameState } from '../game/state';
 
 describe('normalizeLoadedGame', () => {
@@ -108,7 +109,7 @@ describe('normalizeLoadedGame', () => {
           {
             id: 'weapon-1',
             kind: 'weapon',
-            slot: 'weapon',
+            slot: EquipmentSlotId.Weapon,
             name: 'Rust Blade',
             quantity: 1,
             tier: 2,
@@ -124,7 +125,7 @@ describe('normalizeLoadedGame', () => {
           weapon: {
             id: 'equip-1',
             kind: 'weapon',
-            slot: 'weapon',
+            slot: EquipmentSlotId.Weapon,
             name: 'Sword',
             quantity: 1,
             tier: 2,
@@ -266,7 +267,7 @@ describe('normalizeLoadedGame', () => {
             {
               id: 'feet-wolf-treads--18,143',
               kind: 'armor',
-              slot: 'feet',
+              slot: EquipmentSlotId.Feet,
               name: 'Wolf Treads',
               quantity: 1,
               tier: 3,
@@ -280,7 +281,7 @@ describe('normalizeLoadedGame', () => {
             {
               id: 'feet-wolf-treads--18,143',
               kind: 'armor',
-              slot: 'feet',
+              slot: EquipmentSlotId.Feet,
               name: 'Wolf Treads',
               quantity: 1,
               tier: 3,
@@ -300,7 +301,7 @@ describe('normalizeLoadedGame', () => {
           {
             id: 'feet-wolf-treads--18,143',
             kind: 'armor',
-            slot: 'feet',
+            slot: EquipmentSlotId.Feet,
             name: 'Wolf Treads',
             quantity: 1,
             tier: 3,
@@ -314,7 +315,7 @@ describe('normalizeLoadedGame', () => {
           {
             id: 'feet-wolf-treads--18,143',
             kind: 'armor',
-            slot: 'feet',
+            slot: EquipmentSlotId.Feet,
             name: 'Wolf Treads',
             quantity: 1,
             tier: 3,
@@ -367,6 +368,38 @@ describe('normalizeLoadedGame', () => {
       itemKey: 'home-scroll',
       name: 'Hearthshard Wayscroll',
     });
+  });
+
+  it('backfills inferred tags for equippable items without hydrated tags', () => {
+    const game = createGame(3, 'normalize-equipment-tags');
+    const loaded = normalizeLoadedGame({
+      ...game,
+      player: {
+        ...game.player,
+        equipment: {
+          weapon: {
+            id: 'legacy-weapon',
+            kind: 'weapon',
+            slot: EquipmentSlotId.Weapon,
+            name: 'Legacy Blade',
+            quantity: 1,
+            tier: 2,
+            rarity: 'common',
+            power: 3,
+            defense: 0,
+            maxHp: 0,
+            healing: 0,
+            hunger: 0,
+          },
+        },
+      },
+    });
+
+    expect(loaded.player.equipment.weapon?.tags).toEqual([
+      'item.equipment',
+      'item.weapon',
+      'item.slot.weapon',
+    ]);
   });
 
   it('preserves claim metadata and neutral residents on tiles', () => {

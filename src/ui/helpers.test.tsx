@@ -139,6 +139,11 @@ describe('ui helper coverage', () => {
         kind: 'text',
         text: 'A fishing spot that yields raw fish when worked.',
       },
+      {
+        kind: 'text',
+        text: 'Tags: structure.gathering, structure.fishing, skill.gathering, skill.fishing',
+        tone: 'subtle',
+      },
     ]);
 
     expect(
@@ -174,6 +179,13 @@ describe('ui helper coverage', () => {
     ).toBe(
       'A broken ruin where stronger foes and old spoils gather beneath the fracture.',
     );
+    expect(
+      structureTooltip(createTile({ structure: 'dungeon' }))?.lines[1],
+    ).toEqual({
+      kind: 'text',
+      text: 'Tags: structure.combat, structure.dungeon',
+      tone: 'subtle',
+    });
   });
 
   it('covers tooltip comparison branches without equipment and with negative deltas', () => {

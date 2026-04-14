@@ -1,6 +1,6 @@
 import { t } from '../i18n';
 import { RECIPE_BOOK_ITEM_NAME_KEY } from './config';
-import { ItemId } from './content/ids';
+import { EquipmentSlotId, ItemId } from './content/ids';
 import {
   buildItemFromConfig,
   getItemConfigByKey,
@@ -344,7 +344,9 @@ export function prospectYield(item: Item): Item[] {
   if (item.kind === 'armor') {
     return [
       makeResourceStack(
-        item.slot === 'chest' ? ItemId.Cloth : ItemId.LeatherScraps,
+        item.slot === EquipmentSlotId.Chest
+          ? ItemId.Cloth
+          : ItemId.LeatherScraps,
         item.tier,
         quantity,
       ),

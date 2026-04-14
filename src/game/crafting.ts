@@ -1,5 +1,6 @@
 import { makeCookedFish, makeCraftedItem } from './inventory';
 import { t } from '../i18n';
+import { EquipmentSlotId } from './content/ids';
 import { getItemConfig, getItemConfigByKey } from './content/items';
 import type {
   GameState,
@@ -127,7 +128,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     output: makeCraftedItem(
       'crafted-weapon',
       'weapon',
-      'weapon',
+      EquipmentSlotId.Weapon,
       'camp-spear',
       {
         power: 3,
@@ -148,7 +149,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     output: makeCraftedItem(
       'crafted-offhand',
       'armor',
-      'offhand',
+      EquipmentSlotId.Offhand,
       'hide-buckler',
       {
         power: 0,
@@ -167,11 +168,17 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     description:
       'A stitched hood that keeps ash, rain, and cinders off your face.',
     skill: 'crafting',
-    output: makeCraftedItem('crafted-head', 'armor', 'head', 'patchwork-hood', {
-      power: 0,
-      defense: 1,
-      maxHp: 1,
-    }),
+    output: makeCraftedItem(
+      'crafted-head',
+      'armor',
+      EquipmentSlotId.Head,
+      'patchwork-hood',
+      {
+        power: 0,
+        defense: 1,
+        maxHp: 1,
+      },
+    ),
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 2 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 2 },
@@ -183,11 +190,17 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     description:
       'A layered vest worn by settlers who expect hard weather and harder work.',
     skill: 'crafting',
-    output: makeCraftedItem('crafted-chest', 'armor', 'chest', 'settler-vest', {
-      power: 0,
-      defense: 2,
-      maxHp: 1,
-    }),
+    output: makeCraftedItem(
+      'crafted-chest',
+      'armor',
+      EquipmentSlotId.Chest,
+      'settler-vest',
+      {
+        power: 0,
+        defense: 2,
+        maxHp: 1,
+      },
+    ),
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 4 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 4 },
@@ -200,11 +213,17 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     description:
       'A practical pair of gloves for rope, tools, and rough salvage.',
     skill: 'crafting',
-    output: makeCraftedItem('crafted-hands', 'armor', 'hands', 'work-gloves', {
-      power: 0,
-      defense: 1,
-      maxHp: 1,
-    }),
+    output: makeCraftedItem(
+      'crafted-hands',
+      'armor',
+      EquipmentSlotId.Hands,
+      'work-gloves',
+      {
+        power: 0,
+        defense: 1,
+        maxHp: 1,
+      },
+    ),
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 3 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
@@ -215,11 +234,17 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     name: 'Trail Leggings',
     description: 'Tough leggings meant for brush, stone, and broken roads.',
     skill: 'crafting',
-    output: makeCraftedItem('crafted-legs', 'armor', 'legs', 'trail-leggings', {
-      power: 0,
-      defense: 1,
-      maxHp: 1,
-    }),
+    output: makeCraftedItem(
+      'crafted-legs',
+      'armor',
+      EquipmentSlotId.Legs,
+      'trail-leggings',
+      {
+        power: 0,
+        defense: 1,
+        maxHp: 1,
+      },
+    ),
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 3 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 2 },
@@ -231,11 +256,17 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     description:
       'Sturdy boots made to keep moving when the ground turns cruel.',
     skill: 'crafting',
-    output: makeCraftedItem('crafted-feet', 'armor', 'feet', 'field-boots', {
-      power: 0,
-      defense: 1,
-      maxHp: 1,
-    }),
+    output: makeCraftedItem(
+      'crafted-feet',
+      'armor',
+      EquipmentSlotId.Feet,
+      'field-boots',
+      {
+        power: 0,
+        defense: 1,
+        maxHp: 1,
+      },
+    ),
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 3 },
       { itemKey: 'sticks', name: 'Sticks', quantity: 1 },
@@ -249,7 +280,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     output: makeCraftedItem(
       'crafted-ring-left',
       'artifact',
-      'ringLeft',
+      EquipmentSlotId.RingLeft,
       'copper-loop',
       {
         power: 1,
@@ -270,7 +301,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     output: makeCraftedItem(
       'crafted-ring-right',
       'artifact',
-      'ringRight',
+      EquipmentSlotId.RingRight,
       'copper-band',
       {
         power: 1,
@@ -292,7 +323,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     output: makeCraftedItem(
       'crafted-amulet',
       'artifact',
-      'amulet',
+      EquipmentSlotId.Amulet,
       'charm-necklace',
       {
         power: 0,
@@ -314,7 +345,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     output: makeCraftedItem(
       'crafted-cloak',
       'artifact',
-      'cloak',
+      EquipmentSlotId.Cloak,
       'wayfarer-cloak',
       {
         power: 0,
@@ -336,7 +367,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     output: makeCraftedItem(
       'crafted-relic',
       'artifact',
-      'relic',
+      EquipmentSlotId.Relic,
       'hearth-totem',
       {
         power: 1,

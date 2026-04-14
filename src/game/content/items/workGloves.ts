@@ -1,11 +1,12 @@
 import { ContentIcons } from '../icons';
+import { EquipmentSlotId } from '../ids';
 import type { ItemConfig } from '../types';
 
 export const workGlovesItemConfig: ItemConfig = {
   key: 'work-gloves',
   name: 'Work Gloves',
   kind: 'armor',
-  slot: 'hands',
+  slot: EquipmentSlotId.Hands,
   icon: ContentIcons.Gauntlet,
   tier: 1,
   rarity: 'common',

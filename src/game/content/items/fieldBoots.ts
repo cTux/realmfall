@@ -1,11 +1,12 @@
 import { ContentIcons } from '../icons';
+import { EquipmentSlotId } from '../ids';
 import type { ItemConfig } from '../types';
 
 export const fieldBootsItemConfig: ItemConfig = {
   key: 'field-boots',
   name: 'Field Boots',
   kind: 'armor',
-  slot: 'feet',
+  slot: EquipmentSlotId.Feet,
   icon: ContentIcons.Boots,
   tier: 1,
   rarity: 'common',

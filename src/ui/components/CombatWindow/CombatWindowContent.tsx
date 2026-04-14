@@ -1,5 +1,6 @@
 import { getAbilityDefinition } from '../../../game/combat';
 import type { CombatActorState } from '../../../game/state';
+import type { StatusEffectId } from '../../../game/types';
 import { t } from '../../../i18n';
 import { formatStatusEffectLabel } from '../../../i18n/labels';
 import {
@@ -7,6 +8,7 @@ import {
   statusEffectIcon,
   statusEffectTint,
 } from '../../statusEffects';
+import { abilityTooltipLines, statusEffectTooltipLines } from '../../tooltips';
 import type { CombatPartyMember, CombatWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -32,8 +34,8 @@ interface CombatEntityView {
   maxMana: number;
   elite?: boolean;
   actor: CombatActorState;
-  buffs: string[];
-  debuffs: string[];
+  buffs: StatusEffectId[];
+  debuffs: StatusEffectId[];
 }
 
 export function CombatWindowContent({
@@ -204,11 +206,9 @@ function EntityCard({
             <AbilitySquare
               key={ability.id}
               label={ability.name}
+              tooltipLines={abilityTooltipLines(ability)}
               cooldownRatio={cooldownRatio}
               remainingMs={remainingMs}
-              manaCost={ability.manaCost}
-              cooldownMs={ability.cooldownMs}
-              castTimeMs={ability.castTimeMs}
               onHoverDetail={onHoverDetail}
               onLeaveDetail={onLeaveDetail}
             />
@@ -281,7 +281,7 @@ function EffectList({
   onHoverDetail,
   onLeaveDetail,
 }: {
-  items: string[];
+  items: StatusEffectId[];
   tone: 'buff' | 'debuff';
   onHoverDetail: CombatWindowProps['onHoverDetail'];
   onLeaveDetail: CombatWindowProps['onLeaveDetail'];
@@ -298,15 +298,7 @@ function EffectList({
             onHoverDetail(
               event,
               formatStatusEffectLabel(item),
-              [
-                {
-                  kind: 'text',
-                  text:
-                    tone === 'buff'
-                      ? t('ui.hero.effect.buff')
-                      : t('ui.hero.effect.debuff'),
-                },
-              ],
+              statusEffectTooltipLines(item, tone),
               tone === 'buff'
                 ? 'rgba(34, 197, 94, 0.9)'
                 : 'rgba(239, 68, 68, 0.9)',
@@ -330,46 +322,19 @@ function EffectList({
 
 function AbilitySquare({
   label,
+  tooltipLines,
   cooldownRatio,
   remainingMs,
-  manaCost,
-  cooldownMs,
-  castTimeMs,
   onHoverDetail,
   onLeaveDetail,
 }: {
   label: string;
+  tooltipLines: ReturnType<typeof abilityTooltipLines>;
   cooldownRatio: number;
   remainingMs: number;
-  manaCost: number;
-  cooldownMs: number;
-  castTimeMs: number;
   onHoverDetail: CombatWindowProps['onHoverDetail'];
   onLeaveDetail: CombatWindowProps['onLeaveDetail'];
 }) {
-  const tooltipLines = [
-    {
-      kind: 'stat' as const,
-      label: t('ui.ability.aetherCost'),
-      value: `${manaCost}`,
-    },
-    {
-      kind: 'stat' as const,
-      label: t('ui.ability.cooldown'),
-      value: `${cooldownMs / 1000}s`,
-    },
-    {
-      kind: 'stat' as const,
-      label: t('ui.ability.castTime'),
-      value:
-        castTimeMs === 0 ? t('ui.ability.instant') : `${castTimeMs / 1000}s`,
-    },
-    {
-      kind: 'text' as const,
-      text: t('ui.ability.targeting'),
-    },
-  ];
-
   return (
     <div
       className={styles.abilitySquare}

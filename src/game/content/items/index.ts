@@ -2,7 +2,12 @@ import type { Item } from '../../types';
 import { ItemId } from '../ids';
 import { itemName } from '../i18n';
 import type { ItemBuildOverrides, ItemConfig } from '../types';
-import { GAME_TAGS, uniqueTags, type GameTag } from '../tags';
+import {
+  GAME_TAGS,
+  getEquipmentSlotTag,
+  uniqueTags,
+  type GameTag,
+} from '../tags';
 import { arcaneDustItemConfig } from './arcaneDust';
 import { appleItemConfig } from './apple';
 import { campSpearItemConfig } from './campSpear';
@@ -206,6 +211,7 @@ export function inferItemTags(
     item.kind === 'weapon' ? GAME_TAGS.item.weapon : undefined,
     item.kind === 'armor' ? GAME_TAGS.item.armor : undefined,
     item.kind === 'artifact' ? GAME_TAGS.item.artifact : undefined,
+    item.slot ? getEquipmentSlotTag(item.slot) : undefined,
     item.healing > 0 ? GAME_TAGS.item.healing : undefined,
     item.hunger > 0 ? GAME_TAGS.item.food : undefined,
     (item.thirst ?? 0) > 0 ? GAME_TAGS.item.drink : undefined,
@@ -270,6 +276,7 @@ function buildItemConfigTags(
     config.kind === 'weapon' ? GAME_TAGS.item.weapon : undefined,
     config.kind === 'armor' ? GAME_TAGS.item.armor : undefined,
     config.kind === 'artifact' ? GAME_TAGS.item.artifact : undefined,
+    config.slot ? getEquipmentSlotTag(config.slot) : undefined,
     config.hunger > 0 ? GAME_TAGS.item.food : undefined,
     (config.thirst ?? 0) > 0 ? GAME_TAGS.item.drink : undefined,
     config.healing > 0 ? GAME_TAGS.item.healing : undefined,

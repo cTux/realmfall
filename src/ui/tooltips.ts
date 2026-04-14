@@ -1,8 +1,11 @@
+import { getStatusEffectTags } from '../game/content/statusEffects';
+import { getSkillTags } from '../game/content/tags';
+import { inferItemTags } from '../game/content/items';
+import { EquipmentSlotId } from '../game/content/ids';
 import {
   gatheringBonusChance,
   gatheringYieldBonus,
   getStructureConfig,
-  isGatheringStructure,
   skillLevelThreshold,
   type Enemy,
   type Item,
@@ -10,7 +13,9 @@ import {
   type StructureType,
   type Tile,
 } from '../game/state';
+import type { AbilityDefinition, StatusEffectId } from '../game/types';
 import { t } from '../i18n';
+import { formatEquipmentSlotLabel } from '../i18n/labels';
 
 export interface TooltipLine {
   text?: string;
@@ -33,10 +38,19 @@ export function comparisonLines(item: Item, equipped?: Item) {
 }
 
 export function itemTooltipLines(item: Item, equipped?: Item): TooltipLine[] {
+  const tags = item.tags ?? inferItemTags(item);
+  const slotLine = item.slot
+    ? {
+        kind: 'text' as const,
+        text: `${t('ui.tooltip.slotLabel')}: ${slotLabel(item.slot)}`,
+        tone: 'subtle' as const,
+      }
+    : null;
+
   if (item.kind === 'consumable') {
     return [
       { kind: 'text', text: consumableEffectDescription(item) },
-      ...tagTooltipLines(item.tags),
+      ...tagTooltipLines(tags),
     ];
   }
 
@@ -46,11 +60,8 @@ export function itemTooltipLines(item: Item, equipped?: Item): TooltipLine[] {
       : [
           {
             kind: 'text',
-            text: t('ui.tooltip.itemTier', {
-              rarity: item.rarity.toUpperCase(),
-              tier: item.tier,
-              type: itemTypeLabel(item),
-            }),
+            text: itemTierLabel(item),
+            tone: 'subtle',
           },
         ];
 
@@ -118,7 +129,10 @@ export function itemTooltipLines(item: Item, equipped?: Item): TooltipLine[] {
     }
   }
 
-  lines.push(...tagTooltipLines(item.tags));
+  if (slotLine) {
+    lines.push(slotLine);
+  }
+  lines.push(...tagTooltipLines(tags));
   return lines;
 }
 
@@ -165,22 +179,20 @@ export function structureTooltip(
   tile: Tile,
 ): { title: string; lines: TooltipLine[] } | null {
   if (!tile.structure) return null;
-
-  if (isGatheringStructure(tile.structure)) {
-    return {
-      title: structureTitle(tile.structure),
-      lines: [{ kind: 'text', text: structureDescription(tile.structure) }],
-    };
-  }
+  const config = getStructureConfig(tile.structure);
 
   return {
-    title: structureTitle(tile.structure),
-    lines: [{ kind: 'text', text: structureDescription(tile.structure) }],
+    title: config.title,
+    lines: [
+      { kind: 'text', text: config.description },
+      ...tagTooltipLines(config.tags),
+    ],
   };
 }
 
 export function skillTooltip(skill: SkillName, level: number): TooltipLine[] {
   const nextLevelXp = skillLevelThreshold(level);
+  const tags = tagTooltipLines(getSkillTags(skill));
 
   if (isGatheringSkill(skill)) {
     return [
@@ -204,6 +216,7 @@ export function skillTooltip(skill: SkillName, level: number): TooltipLine[] {
         kind: 'text',
         text: t('ui.skills.tooltip.nextLevelNeeds', { xp: nextLevelXp }),
       },
+      ...tags,
     ];
   }
 
@@ -220,6 +233,68 @@ export function skillTooltip(skill: SkillName, level: number): TooltipLine[] {
       kind: 'text',
       text: t('ui.skills.tooltip.nextLevelNeeds', { xp: nextLevelXp }),
     },
+    ...tags,
+  ];
+}
+
+export function abilityTooltipLines(
+  ability: Pick<
+    AbilityDefinition,
+    'manaCost' | 'cooldownMs' | 'castTimeMs' | 'tags'
+  >,
+): TooltipLine[] {
+  return [
+    {
+      kind: 'stat',
+      label: t('ui.ability.aetherCost'),
+      value: `${ability.manaCost}`,
+    },
+    {
+      kind: 'stat',
+      label: t('ui.ability.cooldown'),
+      value: `${ability.cooldownMs / 1000}s`,
+    },
+    {
+      kind: 'stat',
+      label: t('ui.ability.castTime'),
+      value:
+        ability.castTimeMs === 0
+          ? t('ui.ability.instant')
+          : `${ability.castTimeMs / 1000}s`,
+    },
+    {
+      kind: 'text',
+      text: t('ui.ability.targeting'),
+    },
+    ...tagTooltipLines(ability.tags),
+  ];
+}
+
+export function statusEffectTooltipLines(
+  effectId: StatusEffectId,
+  tone: 'buff' | 'debuff',
+  extraLines: TooltipLine[] = [],
+): TooltipLine[] {
+  const description =
+    effectId === 'hunger'
+      ? t('ui.hero.effect.hunger.description')
+      : effectId === 'thirst'
+        ? t('ui.hero.effect.thirst.description')
+        : effectId === 'recentDeath'
+          ? t('ui.hero.effect.recentDeath.description')
+          : effectId === 'restoration'
+            ? t('ui.hero.effect.restoration.description')
+            : tone === 'buff'
+              ? t('ui.hero.effect.buff')
+              : t('ui.hero.effect.debuff');
+
+  return [
+    {
+      kind: 'text',
+      text: description,
+    },
+    ...extraLines,
+    ...tagTooltipLines(getStatusEffectTags(effectId)),
   ];
 }
 
@@ -250,25 +325,32 @@ function consumableEffectDescription(item: Item) {
 }
 
 function itemTypeLabel(item: Item) {
-  if (item.kind === 'weapon') return t('ui.tooltip.itemType.weapon');
-  if (item.kind === 'artifact') {
-    return item.slot
-      ? t('ui.tooltip.itemType.slottedArtifact', { slot: slotLabel(item.slot) })
-      : t('ui.tooltip.itemType.artifact');
+  if (item.slot) {
+    return formatEquipmentSlotLabel(item.slot).toLowerCase();
   }
-  if (item.kind === 'armor') {
-    return item.slot
-      ? t('ui.tooltip.itemType.slottedArmor', { slot: slotLabel(item.slot) })
-      : t('ui.tooltip.itemType.armor');
+
+  if (
+    item.kind === 'weapon' ||
+    item.kind === 'artifact' ||
+    item.kind === 'armor' ||
+    item.kind === 'consumable' ||
+    item.kind === 'resource'
+  ) {
+    return t(`ui.itemKind.${item.kind}.label`);
   }
-  return item.kind.toUpperCase();
+
+  return item.kind;
+}
+
+function itemTierLabel(item: Item) {
+  return `${capitalize(item.rarity)} T${item.tier} ${itemTypeLabel(item)}`;
 }
 
 function slotLabel(slot: NonNullable<Item['slot']>) {
   switch (slot) {
-    case 'ringLeft':
+    case EquipmentSlotId.RingLeft:
       return t('ui.tooltip.slot.leftRing');
-    case 'ringRight':
+    case EquipmentSlotId.RingRight:
       return t('ui.tooltip.slot.rightRing');
     default:
       return t(`ui.tooltip.slot.${slot}`);
@@ -277,10 +359,6 @@ function slotLabel(slot: NonNullable<Item['slot']>) {
 
 function structureTitle(structure: StructureType) {
   return getStructureConfig(structure).title;
-}
-
-function structureDescription(structure: StructureType) {
-  return getStructureConfig(structure).description;
 }
 
 function isGatheringSkill(skill: SkillName) {
@@ -292,7 +370,7 @@ function isGatheringSkill(skill: SkillName) {
   );
 }
 
-function tagTooltipLines(tags?: string[]): TooltipLine[] {
+export function tagTooltipLines(tags?: string[]): TooltipLine[] {
   if (!tags || tags.length === 0) return [];
 
   return [
@@ -306,4 +384,9 @@ function tagTooltipLines(tags?: string[]): TooltipLine[] {
 
 function uniqueTag(tag: string, index: number, values: string[]) {
   return values.indexOf(tag) === index;
+}
+
+function capitalize(value: string) {
+  if (value.length === 0) return value;
+  return value[0].toUpperCase() + value.slice(1);
 }

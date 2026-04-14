@@ -1,5 +1,11 @@
 import type { HexCoord } from './hex';
-import type { EnemyTypeKey, ItemKey, StatusEffectIdValue } from './content/ids';
+import {
+  EquipmentSlotId,
+  type EnemyTypeKey,
+  type EquipmentSlotValue,
+  type ItemKey,
+  type StatusEffectIdValue,
+} from './content/ids';
 import type { GameTag } from './content/tags';
 
 export type Terrain =
@@ -37,19 +43,7 @@ export type SkillName =
   | 'cooking'
   | 'crafting';
 
-export type EquipmentSlot =
-  | 'weapon'
-  | 'offhand'
-  | 'head'
-  | 'chest'
-  | 'hands'
-  | 'legs'
-  | 'feet'
-  | 'ringLeft'
-  | 'ringRight'
-  | 'amulet'
-  | 'cloak'
-  | 'relic';
+export type EquipmentSlot = EquipmentSlotValue;
 
 export type ItemKind =
   | 'weapon'
@@ -120,6 +114,7 @@ export interface AbilityDefinition {
   manaCost: number;
   cooldownMs: number;
   castTimeMs: number;
+  tags?: GameTag[];
 }
 
 export interface CombatCastState {
@@ -255,18 +250,18 @@ export interface GameState {
 }
 
 export const EQUIPMENT_SLOTS: EquipmentSlot[] = [
-  'weapon',
-  'offhand',
-  'head',
-  'chest',
-  'hands',
-  'legs',
-  'feet',
-  'ringLeft',
-  'ringRight',
-  'amulet',
-  'cloak',
-  'relic',
+  EquipmentSlotId.Weapon,
+  EquipmentSlotId.Offhand,
+  EquipmentSlotId.Head,
+  EquipmentSlotId.Chest,
+  EquipmentSlotId.Hands,
+  EquipmentSlotId.Legs,
+  EquipmentSlotId.Feet,
+  EquipmentSlotId.RingLeft,
+  EquipmentSlotId.RingRight,
+  EquipmentSlotId.Amulet,
+  EquipmentSlotId.Cloak,
+  EquipmentSlotId.Relic,
 ];
 
 export const RARITY_ORDER: ItemRarity[] = [

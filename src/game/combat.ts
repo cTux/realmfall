@@ -23,6 +23,13 @@ export const ABILITIES: Record<AbilityId, AbilityDefinition> = {
     manaCost: 0,
     cooldownMs: 1000,
     castTimeMs: 0,
+    tags: uniqueTags(
+      GAME_TAGS.ability.combat,
+      GAME_TAGS.ability.melee,
+      GAME_TAGS.ability.physical,
+      GAME_TAGS.ability.instant,
+      GAME_TAGS.ability.singleTarget,
+    ),
   },
 };
 

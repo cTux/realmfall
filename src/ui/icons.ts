@@ -7,6 +7,7 @@ import {
   type SkillName,
   getStructureConfig,
 } from '../game/state';
+import { EquipmentSlotId } from '../game/content/ids';
 import playerIcon from '../assets/icons/visored-helm.svg';
 import enemyIcon from '../assets/icons/wolf-head.svg';
 import weaponIcon from '../assets/icons/plain-dagger.svg';
@@ -110,18 +111,18 @@ const DEFAULT_ENEMY_TINT = 0x60a5fa;
 const DEFAULT_ITEM_ICON = Icons.Artifact;
 
 export const ItemIcon: Record<EquipmentSlot, string> = {
-  weapon: Icons.Weapon,
-  offhand: Icons.Armor,
-  head: Icons.Hood,
-  chest: Icons.Chest,
-  hands: Icons.Gauntlet,
-  legs: Icons.Chest,
-  feet: Icons.Boots,
-  ringLeft: Icons.Artifact,
-  ringRight: Icons.Artifact,
-  amulet: Icons.Artifact,
-  cloak: Icons.Hood,
-  relic: Icons.Orb,
+  [EquipmentSlotId.Weapon]: Icons.Weapon,
+  [EquipmentSlotId.Offhand]: Icons.Armor,
+  [EquipmentSlotId.Head]: Icons.Hood,
+  [EquipmentSlotId.Chest]: Icons.Chest,
+  [EquipmentSlotId.Hands]: Icons.Gauntlet,
+  [EquipmentSlotId.Legs]: Icons.Chest,
+  [EquipmentSlotId.Feet]: Icons.Boots,
+  [EquipmentSlotId.RingLeft]: Icons.Artifact,
+  [EquipmentSlotId.RingRight]: Icons.Artifact,
+  [EquipmentSlotId.Amulet]: Icons.Artifact,
+  [EquipmentSlotId.Cloak]: Icons.Hood,
+  [EquipmentSlotId.Relic]: Icons.Orb,
 };
 
 const ItemKindIcon: Record<Exclude<Item['kind'], 'resource'>, string> = {

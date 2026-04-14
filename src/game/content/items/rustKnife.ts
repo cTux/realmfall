@@ -1,11 +1,12 @@
 import { ContentIcons } from '../icons';
+import { EquipmentSlotId } from '../ids';
 import type { ItemConfig } from '../types';
 
 export const rustKnifeItemConfig: ItemConfig = {
   key: 'rust-knife',
   name: 'Rust Knife',
   kind: 'weapon',
-  slot: 'weapon',
+  slot: EquipmentSlotId.Weapon,
   icon: ContentIcons.Weapon,
   tier: 1,
   rarity: 'common',

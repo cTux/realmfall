@@ -1,4 +1,5 @@
 import { GAME_DAY_DURATION_MS, GAME_DAY_MINUTES } from '../game/config';
+import { inferItemTags } from '../game/content/items';
 import { getItemConfig } from '../game/content/items';
 import { getEnemyConfig } from '../game/content/enemies';
 import { getStatusEffectTags } from '../game/content/statusEffects';
@@ -214,7 +215,7 @@ function normalizeItem(item: Item): Item {
   return {
     ...item,
     itemKey: configured?.key ?? item.itemKey,
-    tags: item.tags ?? configured?.tags,
+    tags: item.tags ?? configured?.tags ?? inferItemTags(item),
     name: normalizedName,
     quantity: item.quantity ?? 1,
     rarity: item.rarity ?? 'common',

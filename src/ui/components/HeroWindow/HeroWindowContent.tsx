@@ -1,4 +1,5 @@
 import { getAbilityDefinition } from '../../../game/combat';
+import type { StatusEffectId } from '../../../game/types';
 import { t } from '../../../i18n';
 import { formatStatusEffectLabel } from '../../../i18n/labels';
 import {
@@ -6,6 +7,7 @@ import {
   statusEffectIcon,
   statusEffectTint,
 } from '../../statusEffects';
+import { abilityTooltipLines, statusEffectTooltipLines } from '../../tooltips';
 import { StatBar } from './components/StatBar';
 import type { HeroWindowProps } from './types';
 import styles from './styles.module.scss';
@@ -90,7 +92,7 @@ export function HeroWindowContent({
       </div>
       {stats.buffs.length > 0 ? (
         <EffectList
-          items={stats.buffs}
+          items={stats.buffs as StatusEffectId[]}
           tone="buff"
           onHoverDetail={onHoverDetail}
           onLeaveDetail={onLeaveDetail}
@@ -99,7 +101,7 @@ export function HeroWindowContent({
       ) : null}
       {stats.debuffs.length > 0 ? (
         <EffectList
-          items={stats.debuffs}
+          items={stats.debuffs as StatusEffectId[]}
           tone="debuff"
           onHoverDetail={onHoverDetail}
           onLeaveDetail={onLeaveDetail}
@@ -113,9 +115,7 @@ export function HeroWindowContent({
             <AbilitySquare
               key={ability.id}
               label={ability.name}
-              manaCost={ability.manaCost}
-              cooldownMs={ability.cooldownMs}
-              castTimeMs={ability.castTimeMs}
+              tooltipLines={abilityTooltipLines(ability)}
               remainingMs={0}
               cooldownRatio={0}
               worldTimeMs={worldTimeMs}
@@ -136,7 +136,7 @@ function EffectList({
   onLeaveDetail,
   stats,
 }: {
-  items: string[];
+  items: StatusEffectId[];
   tone: 'buff' | 'debuff';
   onHoverDetail?: HeroWindowProps['onHoverDetail'];
   onLeaveDetail?: HeroWindowProps['onLeaveDetail'];
@@ -152,82 +152,60 @@ function EffectList({
           aria-label={formatStatusEffectLabel(item)}
           onMouseEnter={(event) => {
             if (!onHoverDetail) return;
-            onHoverDetail(
-              event,
-              formatStatusEffectLabel(item),
+            const extraLines =
               item === 'hunger'
                 ? [
                     {
-                      kind: 'text',
-                      text: t('ui.hero.effect.hunger.description'),
-                    },
-                    {
-                      kind: 'stat',
+                      kind: 'stat' as const,
                       label: t('ui.hero.attack'),
                       value: `-${stats.rawAttack - stats.attack}`,
-                      tone: 'negative',
+                      tone: 'negative' as const,
                     },
                     {
-                      kind: 'stat',
+                      kind: 'stat' as const,
                       label: t('ui.hero.defense'),
                       value: `-${stats.rawDefense - stats.defense}`,
-                      tone: 'negative',
+                      tone: 'negative' as const,
                     },
                   ]
                 : item === 'thirst'
                   ? [
                       {
-                        kind: 'text',
-                        text: t('ui.hero.effect.thirst.description'),
-                      },
-                      {
-                        kind: 'stat',
+                        kind: 'stat' as const,
                         label: t('ui.hero.effect.attackSpeed'),
                         value: '-20%',
-                        tone: 'negative',
+                        tone: 'negative' as const,
                       },
                     ]
                   : item === 'recentDeath'
                     ? [
                         {
-                          kind: 'text',
-                          text: t('ui.hero.effect.recentDeath.description'),
-                        },
-                        {
-                          kind: 'stat',
+                          kind: 'stat' as const,
                           label: t('ui.hero.hp'),
                           value: '-10%',
-                          tone: 'negative',
+                          tone: 'negative' as const,
                         },
                       ]
                     : item === 'restoration'
                       ? [
                           {
-                            kind: 'text',
-                            text: t('ui.hero.effect.restoration.description'),
-                          },
-                          {
-                            kind: 'stat',
+                            kind: 'stat' as const,
                             label: t('ui.hero.hp'),
                             value: '+1% / s',
-                            tone: 'positive',
+                            tone: 'positive' as const,
                           },
                           {
-                            kind: 'stat',
+                            kind: 'stat' as const,
                             label: t('ui.combat.mp'),
                             value: '+1% / s',
-                            tone: 'positive',
+                            tone: 'positive' as const,
                           },
                         ]
-                      : [
-                          {
-                            kind: 'text',
-                            text:
-                              tone === 'buff'
-                                ? t('ui.hero.effect.buff')
-                                : t('ui.hero.effect.debuff'),
-                          },
-                        ],
+                      : [];
+            onHoverDetail(
+              event,
+              formatStatusEffectLabel(item),
+              statusEffectTooltipLines(item, tone, extraLines),
               tone === 'buff'
                 ? 'rgba(34, 197, 94, 0.9)'
                 : 'rgba(239, 68, 68, 0.9)',
@@ -253,45 +231,18 @@ function AbilitySquare({
   label,
   cooldownRatio,
   remainingMs,
-  manaCost,
-  cooldownMs,
-  castTimeMs,
+  tooltipLines,
   onHoverDetail,
   onLeaveDetail,
 }: {
   label: string;
   cooldownRatio: number;
   remainingMs: number;
-  manaCost: number;
-  cooldownMs: number;
-  castTimeMs: number;
+  tooltipLines: ReturnType<typeof abilityTooltipLines>;
   worldTimeMs: number;
   onHoverDetail?: HeroWindowProps['onHoverDetail'];
   onLeaveDetail?: HeroWindowProps['onLeaveDetail'];
 }) {
-  const tooltipLines = [
-    {
-      kind: 'stat' as const,
-      label: t('ui.ability.aetherCost'),
-      value: `${manaCost}`,
-    },
-    {
-      kind: 'stat' as const,
-      label: t('ui.ability.cooldown'),
-      value: `${cooldownMs / 1000}s`,
-    },
-    {
-      kind: 'stat' as const,
-      label: t('ui.ability.castTime'),
-      value:
-        castTimeMs === 0 ? t('ui.ability.instant') : `${castTimeMs / 1000}s`,
-    },
-    {
-      kind: 'text' as const,
-      text: t('ui.ability.targeting'),
-    },
-  ];
-
   return (
     <div
       className={styles.abilitySquare}
