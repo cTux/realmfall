@@ -41,6 +41,7 @@ export const LogWindow = memo(function LogWindow({
       titleClassName={styles.windowTitle}
       visible={visible}
       onClose={onClose}
+      resizeBounds={{ minWidth: 360, minHeight: 240 }}
       headerActions={
         <div className={styles.toolbar}>
           <button className={styles.headerButton} onClick={onToggleMenu}>

@@ -1032,6 +1032,84 @@ describe('ui helpers and components', () => {
     host.remove();
   });
 
+  it('resizes draggable windows through the shared resize handle', async () => {
+    const moves: Array<{
+      x: number;
+      y: number;
+      width?: number;
+      height?: number;
+    }> = [];
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    let root: Root | null = createRoot(host);
+
+    await act(async () => {
+      root?.render(
+        <DraggableWindow
+          title="Resizable Window"
+          position={{ x: 40, y: 50, width: 320, height: 240 }}
+          onMove={(position) => moves.push(position)}
+          resizeBounds={{ minWidth: 280, minHeight: 200 }}
+        >
+          <div>Body</div>
+        </DraggableWindow>,
+      );
+    });
+
+    const windowElement = host.querySelector(
+      'section[class*="floatingWindow"]',
+    ) as HTMLElement | null;
+    const resizeHandle = host.querySelector(
+      'div[class*="resizeHandle"]',
+    ) as HTMLDivElement | null;
+
+    expect(windowElement).not.toBeNull();
+    expect(resizeHandle).not.toBeNull();
+
+    vi.spyOn(windowElement!, 'getBoundingClientRect').mockReturnValue({
+      x: 40,
+      y: 50,
+      top: 50,
+      left: 40,
+      bottom: 290,
+      right: 360,
+      width: 320,
+      height: 240,
+      toJSON: () => ({}),
+    });
+
+    await act(async () => {
+      resizeHandle?.dispatchEvent(
+        new MouseEvent('pointerdown', {
+          bubbles: true,
+          clientX: 360,
+          clientY: 290,
+        }),
+      );
+      window.dispatchEvent(
+        new MouseEvent('pointermove', {
+          bubbles: true,
+          clientX: 420,
+          clientY: 340,
+        }),
+      );
+      window.dispatchEvent(new MouseEvent('pointerup', { bubbles: true }));
+    });
+
+    expect(moves[moves.length - 1]).toEqual({
+      x: 40,
+      y: 50,
+      width: 380,
+      height: 290,
+    });
+
+    await act(async () => {
+      root?.unmount();
+    });
+    root = null;
+    host.remove();
+  });
+
   it('scrolls the log window to the newest message', async () => {
     vi.useFakeTimers();
     const game = createGame(2, 'log-scroll-test');

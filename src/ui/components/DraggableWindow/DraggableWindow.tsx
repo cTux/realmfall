@@ -26,12 +26,19 @@ export function DraggableWindow({
   visible: visibleProp,
   onClose,
   showCloseButton = true,
+  resizeBounds,
 }: DraggableWindowProps) {
   const windowRef = useRef<HTMLElement | null>(null);
   const windowIdRef = useRef(`window-${Math.random().toString(36).slice(2)}`);
   const dragRef = useRef<{ dx: number; dy: number } | null>(null);
+  const resizeRef = useRef<{
+    startX: number;
+    startY: number;
+    startWidth: number;
+    startHeight: number;
+  } | null>(null);
   const frameRef = useRef<number | null>(null);
-  const pendingMoveRef = useRef<WindowPosition | null>(null);
+  const pendingLayoutRef = useRef<WindowPosition | null>(null);
   const visualPositionRef = useRef(position);
   const [visibleState, setVisibleState] = useState(true);
   const [hovered, setHovered] = useState(false);
@@ -46,13 +53,17 @@ export function DraggableWindow({
     if (!node) return;
     node.style.left = `${nextPosition.x}px`;
     node.style.top = `${nextPosition.y}px`;
+    node.style.width =
+      nextPosition.width === undefined ? '' : `${nextPosition.width}px`;
+    node.style.height =
+      nextPosition.height === undefined ? '' : `${nextPosition.height}px`;
   }, []);
 
-  const flushPendingMove = useCallback(() => {
+  const flushPendingLayout = useCallback(() => {
     frameRef.current = null;
-    const nextPosition = pendingMoveRef.current;
+    const nextPosition = pendingLayoutRef.current;
     if (!nextPosition) return;
-    pendingMoveRef.current = null;
+    pendingLayoutRef.current = null;
     onMove(nextPosition);
   }, [onMove]);
 
@@ -130,11 +141,13 @@ export function DraggableWindow({
       const nextPosition = {
         x: Math.max(8, moveEvent.clientX - dragRef.current.dx),
         y: Math.max(8, moveEvent.clientY - dragRef.current.dy),
+        width: visualPositionRef.current.width,
+        height: visualPositionRef.current.height,
       };
       applyVisualPosition(nextPosition);
-      pendingMoveRef.current = nextPosition;
+      pendingLayoutRef.current = nextPosition;
       if (frameRef.current === null) {
-        frameRef.current = window.requestAnimationFrame(flushPendingMove);
+        frameRef.current = window.requestAnimationFrame(flushPendingLayout);
       }
     };
 
@@ -142,7 +155,58 @@ export function DraggableWindow({
       dragRef.current = null;
       if (frameRef.current !== null) {
         window.cancelAnimationFrame(frameRef.current);
-        flushPendingMove();
+        flushPendingLayout();
+      }
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+    };
+
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+  };
+
+  const onResizePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!resizeBounds) return;
+    event.stopPropagation();
+    activateWindow();
+    const node = windowRef.current;
+    if (!node) return;
+    const rect = node.getBoundingClientRect();
+    resizeRef.current = {
+      startX: event.clientX,
+      startY: event.clientY,
+      startWidth: rect.width,
+      startHeight: rect.height,
+    };
+
+    const onPointerMove = (moveEvent: PointerEvent) => {
+      if (!resizeRef.current) return;
+      const nextPosition = {
+        x: visualPositionRef.current.x,
+        y: visualPositionRef.current.y,
+        width: Math.max(
+          resizeBounds.minWidth,
+          resizeRef.current.startWidth +
+            (moveEvent.clientX - resizeRef.current.startX),
+        ),
+        height: Math.max(
+          resizeBounds.minHeight,
+          resizeRef.current.startHeight +
+            (moveEvent.clientY - resizeRef.current.startY),
+        ),
+      };
+      applyVisualPosition(nextPosition);
+      pendingLayoutRef.current = nextPosition;
+      if (frameRef.current === null) {
+        frameRef.current = window.requestAnimationFrame(flushPendingLayout);
+      }
+    };
+
+    const onPointerUp = () => {
+      resizeRef.current = null;
+      if (frameRef.current !== null) {
+        window.cancelAnimationFrame(frameRef.current);
+        flushPendingLayout();
       }
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);
@@ -209,6 +273,13 @@ export function DraggableWindow({
         </div>
       </div>
       <div className={styles.windowBody}>{children}</div>
+      {resizeBounds ? (
+        <div
+          className={styles.resizeHandle}
+          onPointerDown={onResizePointerDown}
+          aria-hidden="true"
+        />
+      ) : null}
     </section>
   );
 }

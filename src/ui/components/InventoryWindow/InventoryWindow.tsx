@@ -39,6 +39,7 @@ export const InventoryWindow = memo(function InventoryWindow({
       className={styles.window}
       visible={visible}
       onClose={onClose}
+      resizeBounds={{ minWidth: 320, minHeight: 220 }}
       headerActions={
         <div className={styles.toolbar}>
           <div className={styles.actions}>

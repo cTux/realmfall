@@ -9,7 +9,7 @@ describe('encrypted storage', () => {
     const payload = {
       game: { turn: 7, player: { hp: 12 } },
       ui: {
-        windows: { hero: { x: 10, y: 20 } },
+        windows: { hero: { x: 10, y: 20, width: 420, height: 280 } },
         windowShown: { hero: true },
       },
     };

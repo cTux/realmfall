@@ -12,4 +12,8 @@ export interface DraggableWindowProps {
   visible?: boolean;
   onClose?: () => void;
   showCloseButton?: boolean;
+  resizeBounds?: {
+    minWidth: number;
+    minHeight: number;
+  };
 }
