@@ -11,7 +11,7 @@ import type {
 } from './types';
 import type { HexCoord } from './hex';
 import { noise, terrainTier } from './shared';
-import { isWorldBossEnemy } from './worldBoss';
+import { isWorldBossEnemyId } from './worldBoss';
 
 export const DEFAULT_GLOBAL_COOLDOWN_MS = 1500;
 
@@ -72,7 +72,7 @@ export function makeEnemy(
   const roll = noise(`${seed}:enemy:type:${index}`, coord);
   const elite = structure === 'dungeon';
   const worldBoss =
-    options?.worldBoss ?? isWorldBossEnemy(seed, coord, terrain);
+    options?.worldBoss ?? isWorldBossEnemyId(options?.enemyId ?? '');
   const config = worldBoss
     ? pickEnemyConfig(terrain, roll, false, true)
     : pickEnemyConfig(terrain, roll, elite);

@@ -1294,6 +1294,95 @@ describe('game state', () => {
     ).toBe(true);
   });
 
+  it('does not promote ordinary spawns on a boss-center hex into world bosses', () => {
+    const { game, center } = findWorldBossEncounter();
+    const centerTile = getTileAt(game, center);
+
+    const ordinarySpawn = makeEnemy(
+      game.seed,
+      center,
+      centerTile.terrain,
+      1,
+      undefined,
+      false,
+      { enemyId: 'enemy-boss-center-1' },
+    );
+    const explicitBoss = makeEnemy(
+      game.seed,
+      center,
+      centerTile.terrain,
+      0,
+      undefined,
+      false,
+      { enemyId: centerTile.enemyIds[0], worldBoss: true },
+    );
+
+    expect(ordinarySpawn.worldBoss).toBe(false);
+    expect(ordinarySpawn.maxHp).toBeLessThan(explicitBoss.maxHp);
+    expect(ordinarySpawn.attack).toBeLessThan(explicitBoss.attack);
+    expect(ordinarySpawn.defense).toBeLessThan(explicitBoss.defense);
+  });
+
+  it('treats non-center world boss footprint hexes as occupied until the boss dies', () => {
+    const { game, center } = findWorldBossEncounter();
+    const bossId = getTileAt(game, center).enemyIds[0];
+    const footprintHex = getVisibleTiles({
+      ...game,
+      player: { ...game.player, coord: center },
+    }).find((tile) => hexDistance(tile.coord, center) === 1)?.coord;
+
+    expect(footprintHex).toBeDefined();
+
+    game.player.coord = footprintHex!;
+    game.player.inventory.push(
+      {
+        id: 'claim-cloth',
+        itemKey: 'cloth',
+        kind: 'resource',
+        name: 'Cloth',
+        quantity: 1,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+        thirst: 0,
+      },
+      {
+        id: 'claim-sticks',
+        itemKey: 'sticks',
+        kind: 'resource',
+        name: 'Sticks',
+        quantity: 1,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+        thirst: 0,
+      },
+    );
+
+    const blocked = claimCurrentHex(game);
+    expect(getTileAt(blocked, footprintHex!).claim).toBeUndefined();
+    expect(blocked.logs[0]?.text).toContain(
+      t('game.message.claim.status.emptyOnly'),
+    );
+
+    delete game.enemies[bossId];
+    game.tiles[`${center.q},${center.r}`] = {
+      ...getTileAt(game, center),
+      enemyIds: [],
+    };
+
+    const claimed = claimCurrentHex(game);
+    expect(getTileAt(claimed, footprintHex!).claim?.ownerType).toBe('player');
+  });
+
   it('turns an emptied dungeon back into a regular hex', () => {
     const game = createGame(3, 'dungeon-clear-seed');
     const target = { q: 2, r: 0 };

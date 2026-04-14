@@ -1,5 +1,9 @@
 import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
-import { isWorldBossCenter } from './worldBoss';
+import {
+  getWorldBossCenter,
+  isWorldBossCenter,
+  isWorldBossEnemyId,
+} from './worldBoss';
 import { t } from '../i18n';
 import { formatEquipmentSlotLabel, formatSkillLabel } from '../i18n/labels';
 import {
@@ -172,11 +176,8 @@ import type {
   Item,
   Player,
   PlayerStatusEffect,
-  TileClaim,
   Tile,
   TownStockEntry,
-  StructureType,
-  Terrain,
 } from './types';
 
 export function createGame(
@@ -286,7 +287,12 @@ export function getCurrentHexClaimStatus(state: GameState) {
     };
   }
 
-  if (tile.structure || tile.enemyIds.length > 0 || tile.items.length > 0) {
+  if (
+    tile.structure ||
+    tile.enemyIds.length > 0 ||
+    tile.items.length > 0 ||
+    isWorldBossFootprintOccupied(state, tile.coord)
+  ) {
     return {
       canClaim: false,
       reason: t('game.message.claim.status.emptyOnly'),
@@ -2020,14 +2026,7 @@ function spawnBloodMoonEnemies(state: GameState) {
       ensureTileState(state, coord);
       const key = hexKey(coord);
       const tile = state.tiles[key];
-      if (
-        !canSpawnBloodMoonEnemiesOnTile(
-          tile.terrain,
-          tile.structure,
-          tile.claim,
-        )
-      )
-        continue;
+      if (!canSpawnBloodMoonEnemiesOnTile(state, tile)) continue;
 
       const rng = createRng(
         `${state.seed}:blood-moon-spawn:${state.bloodMoonCycle}:${key}`,
@@ -2099,7 +2098,7 @@ function spawnHarvestMoonResources(state: GameState) {
       ensureTileState(state, coord);
       const key = hexKey(coord);
       const tile = state.tiles[key];
-      if (!canSpawnHarvestMoonResourceOnTile(tile)) continue;
+      if (!canSpawnHarvestMoonResourceOnTile(state, tile)) continue;
 
       const rng = createRng(
         `${state.seed}:harvest-moon-spawn:${state.harvestMoonCycle}:${key}`,
@@ -2200,7 +2199,8 @@ function findNearbyDungeonSpawn(
         tile.structure ||
         tile.enemyIds.length > 0 ||
         tile.items.length > 0 ||
-        tile.claim
+        tile.claim ||
+        isWorldBossFootprintOccupied(state, coord)
       ) {
         continue;
       }
@@ -2224,25 +2224,41 @@ function findNearbyDungeonSpawn(
   );
 }
 
-function canSpawnHarvestMoonResourceOnTile(tile: import('./types').Tile) {
+function canSpawnHarvestMoonResourceOnTile(
+  state: GameState,
+  tile: import('./types').Tile,
+) {
   return (
     isPassable(tile.terrain) &&
     !tile.claim &&
     !tile.structure &&
     tile.enemyIds.length === 0 &&
-    tile.items.length === 0
+    tile.items.length === 0 &&
+    !isWorldBossFootprintOccupied(state, tile.coord)
   );
 }
 
 function canSpawnBloodMoonEnemiesOnTile(
-  terrain: Terrain,
-  structure?: StructureType,
-  claim?: TileClaim,
+  state: GameState,
+  tile: import('./types').Tile,
 ) {
-  if (!isPassable(terrain)) return false;
-  if (claim) return false;
-  if (structure && structure !== 'dungeon') return false;
+  if (!isPassable(tile.terrain)) return false;
+  if (tile.claim) return false;
+  if (tile.structure && tile.structure !== 'dungeon') return false;
+  if (isWorldBossFootprintOccupied(state, tile.coord)) return false;
   return true;
+}
+
+function isWorldBossFootprintOccupied(state: GameState, coord: HexCoord) {
+  const center = getWorldBossCenter(state.seed, coord);
+  if (!center) return false;
+  if (center.q === coord.q && center.r === coord.r) return false;
+
+  const centerTile =
+    state.tiles[hexKey(center)] ?? buildTile(state.seed, center);
+  return centerTile.enemyIds.some(
+    (enemyId) => Boolean(state.enemies[enemyId]) || isWorldBossEnemyId(enemyId),
+  );
 }
 
 function makeBloodMoonDrop(
