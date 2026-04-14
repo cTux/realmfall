@@ -1,4 +1,5 @@
 import { ContentIcons } from '../icons';
+import { ItemId } from '../ids';
 import type { StructureConfig } from '../types';
 
 export const treeStructureConfig: StructureConfig = {
@@ -15,6 +16,7 @@ export const treeStructureConfig: StructureConfig = {
     actionLabel: 'Chop tree',
     maxHp: 5,
     skill: 'logging',
+    rewardItemKey: ItemId.Logs,
     reward: 'Logs',
     rewardTier: 1,
     baseYield: 2,

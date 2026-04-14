@@ -265,7 +265,7 @@ function normalizeEnemy(enemy: GameState['enemies'][string]) {
   return {
     ...enemy,
     enemyTypeId: configured?.id ?? enemy.enemyTypeId,
-    name: configured?.name ?? enemy.name,
+    name: enemy.name || configured?.name,
     tags: enemy.tags ?? configured?.tags,
   };
 }

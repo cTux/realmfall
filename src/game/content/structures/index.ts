@@ -51,9 +51,7 @@ export const STRUCTURE_CONFIGS: StructureConfig[] = RAW_STRUCTURE_CONFIGS.map(
       ? {
           ...config.gathering,
           actionLabel: localizedStructureActionLabel(config.type),
-          reward: itemName(
-            config.gathering.reward.toLowerCase().replace(/\s+/g, '-'),
-          ),
+          reward: itemName(config.gathering.rewardItemKey),
           verb: structureGatherVerb(config.type),
           depletedText: structureDepletedText(config.type),
         }

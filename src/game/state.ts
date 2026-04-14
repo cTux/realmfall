@@ -1192,7 +1192,7 @@ export function interactWithStructure(state: GameState): GameState {
     (currentTile.structureHp ?? definition.maxHp) - damage,
   );
   const reward = makeResourceStack(
-    definition.reward.toLowerCase().replace(/\s+/g, '-'),
+    definition.rewardItemKey,
     definition.rewardTier,
     quantity,
   );
@@ -1218,7 +1218,7 @@ export function interactWithStructure(state: GameState): GameState {
       'system',
       t('game.message.gather.bonus', {
         skill: formatSkillLabel(definition.skill),
-        reward: definition.reward.toLowerCase(),
+        reward: definition.reward.toLocaleLowerCase(),
       }),
     );
   }

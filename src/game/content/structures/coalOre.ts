@@ -1,4 +1,5 @@
 import { ContentIcons } from '../icons';
+import { ItemId } from '../ids';
 import type { StructureConfig } from '../types';
 
 export const coalOreStructureConfig: StructureConfig = {
@@ -15,6 +16,7 @@ export const coalOreStructureConfig: StructureConfig = {
     actionLabel: 'Mine Coal Seam',
     maxHp: 7,
     skill: 'mining',
+    rewardItemKey: ItemId.Coal,
     reward: 'Coal',
     rewardTier: 2,
     baseYield: 1,

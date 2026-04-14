@@ -8,6 +8,7 @@ This spec covers canonical type ids and gameplay tags for item configs, enemy co
 
 - `src/game/content/ids.ts` provides enum-backed canonical ids for item types, enemy types, status effects, and equipment slots.
 - Every configured item type uses its stable enum-backed `key` as the canonical item type id.
+- Gathering structures keep canonical `rewardItemKey` values separate from localized reward labels so harvesting never derives item ids from display text.
 - Equippable items use the shared equipment-slot enum instead of raw slot strings in content definitions and generator paths.
 - Every configured enemy type defines a stable enum-backed `id` separate from its localized display name.
 - Every status effect id resolves through a shared enum-backed status-effect definition registry.

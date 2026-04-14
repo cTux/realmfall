@@ -432,4 +432,49 @@ describe('normalizeLoadedGame', () => {
       npc: { name: 'Araken' },
     });
   });
+
+  it('preserves persisted custom enemy names when config ids are present', () => {
+    const game = createGame(3, 'normalize-enemy-name');
+
+    const loaded = normalizeLoadedGame({
+      ...game,
+      enemies: {
+        'npc-1': {
+          id: 'npc-1',
+          enemyTypeId: 'raider',
+          name: 'Araken',
+          coord: { q: 1, r: 0 },
+          tier: 2,
+          hp: 12,
+          maxHp: 12,
+          attack: 4,
+          defense: 2,
+          xp: 10,
+          elite: false,
+        },
+      },
+      tiles: {
+        ...game.tiles,
+        '1,0': {
+          coord: { q: 1, r: 0 },
+          terrain: 'plains',
+          items: [],
+          enemyIds: ['npc-1'],
+          claim: {
+            ownerId: 'faction-1',
+            ownerType: 'faction',
+            ownerName: 'Arkenreach',
+            borderColor: '#f59e0b',
+            npc: { name: 'Araken', enemyId: 'npc-1' },
+          },
+        },
+      },
+    });
+
+    expect(loaded.enemies['npc-1']).toMatchObject({
+      enemyTypeId: 'raider',
+      name: 'Araken',
+      tags: ['enemy.hostile', 'enemy.humanoid'],
+    });
+  });
 });

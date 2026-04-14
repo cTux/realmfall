@@ -45,6 +45,7 @@ import {
 import { t } from '../i18n';
 import { normalizeLoadedGame } from '../app/normalize';
 import { buildTile } from './world';
+import { getStructureConfig } from './content/structures';
 
 describe('game state', () => {
   function createPlacedWorldBossEncounter() {
@@ -544,6 +545,39 @@ describe('game state', () => {
       gathered.player.inventory.some((item) => item.name === 'Herbs'),
     ).toBe(true);
     expect(getTileAt(gathered, { q: 0, r: 0 }).structure).toBeUndefined();
+  });
+
+  it('uses canonical reward item keys even when structure reward labels change', () => {
+    const game = createGame(3, 'localized-gather-reward-seed');
+    const treeConfig = getStructureConfig('tree');
+    const gathering = treeConfig.gathering;
+    if (!gathering) {
+      throw new Error('Expected tree gathering config');
+    }
+
+    const originalReward = gathering.reward;
+    gathering.reward = 'Bosque antiguo';
+
+    try {
+      game.tiles['0,0'] = {
+        ...game.tiles['0,0'],
+        structure: 'tree',
+        structureHp: 1,
+        structureMaxHp: 1,
+        items: [],
+        enemyIds: [],
+      };
+
+      const gathered = interactWithStructure(game);
+      const logs = gathered.player.inventory.find(
+        (item) => item.itemKey === 'logs',
+      );
+
+      expect(logs).toBeDefined();
+      expect(logs?.name).toBe('Logs');
+    } finally {
+      gathering.reward = originalReward;
+    }
   });
 
   it('can gather sticks from logging and stone from mining byproducts', () => {

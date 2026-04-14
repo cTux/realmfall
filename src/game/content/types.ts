@@ -46,6 +46,7 @@ export interface GatheringConfig {
   actionLabel: string;
   maxHp: number;
   skill: SkillName;
+  rewardItemKey: ItemKey;
   reward: string;
   rewardTier: number;
   baseYield: number;

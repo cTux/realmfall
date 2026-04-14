@@ -1,4 +1,5 @@
 import { ContentIcons } from '../icons';
+import { ItemId } from '../ids';
 import type { StructureConfig } from '../types';
 
 export const ironOreStructureConfig: StructureConfig = {
@@ -16,6 +17,7 @@ export const ironOreStructureConfig: StructureConfig = {
     actionLabel: 'Mine Iron Vein',
     maxHp: 8,
     skill: 'mining',
+    rewardItemKey: ItemId.IronOre,
     reward: 'Iron Ore',
     rewardTier: 2,
     baseYield: 1,
