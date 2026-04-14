@@ -1,6 +1,7 @@
 import { ContentIcons } from '../icons';
 import { ItemId } from '../ids';
 import type { StructureConfig } from '../types';
+import { Skill } from '../../types';
 
 export const pondStructureConfig: StructureConfig = {
   type: 'pond',
@@ -15,7 +16,7 @@ export const pondStructureConfig: StructureConfig = {
   gathering: {
     actionLabel: 'Fish pond',
     maxHp: 4,
-    skill: 'fishing',
+    skill: Skill.Fishing,
     rewardItemKey: ItemId.RawFish,
     reward: 'Raw Fish',
     rewardTier: 1,

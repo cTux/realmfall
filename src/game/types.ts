@@ -35,13 +35,16 @@ export type StructureType =
 
 export type ItemRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
 
-export type SkillName =
-  | 'logging'
-  | 'mining'
-  | 'skinning'
-  | 'fishing'
-  | 'cooking'
-  | 'crafting';
+export enum Skill {
+  Logging = 'logging',
+  Mining = 'mining',
+  Skinning = 'skinning',
+  Fishing = 'fishing',
+  Cooking = 'cooking',
+  Crafting = 'crafting',
+}
+
+export type SkillName = Skill;
 
 export type EquipmentSlot = EquipmentSlotValue;
 
@@ -196,7 +199,7 @@ export interface RecipeDefinition {
   id: string;
   name: string;
   description: string;
-  skill: Extract<SkillName, 'cooking' | 'crafting'>;
+  skill: Skill.Cooking | Skill.Crafting;
   output: Item;
   ingredients: RecipeRequirement[];
   fuelOptions?: RecipeRequirement[];

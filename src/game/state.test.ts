@@ -47,6 +47,7 @@ import { normalizeLoadedGame } from '../app/normalize';
 import { buildTile } from './world';
 import { getItemCategory } from './content/items';
 import { getStructureConfig } from './content/structures';
+import { Skill } from './types';
 
 describe('game state', () => {
   function createPlacedWorldBossEncounter() {
@@ -497,7 +498,7 @@ describe('game state', () => {
     expect(chopped.player.inventory.some((item) => item.name === 'Logs')).toBe(
       true,
     );
-    expect(chopped.player.skills.logging.xp).toBeGreaterThan(0);
+    expect(chopped.player.skills[Skill.Logging].xp).toBeGreaterThan(0);
     expect(getTileAt(chopped, { q: 0, r: 0 }).structureHp).toBe(1);
 
     const cleared = interactWithStructure(chopped);
@@ -506,7 +507,7 @@ describe('game state', () => {
 
   it('uses skill level as the extra gathering loot chance', () => {
     const game = createGame(3, 'gather-bonus-seed');
-    game.player.skills.logging.level = 100;
+    game.player.skills[Skill.Logging].level = 100;
     game.tiles['0,0'] = {
       ...game.tiles['0,0'],
       structure: 'tree',
@@ -651,7 +652,7 @@ describe('game state', () => {
         (item) => item.name === 'Leather Scraps',
       ),
     ).toBe(true);
-    expect(resolved.player.skills.skinning.xp).toBeGreaterThan(0);
+    expect(resolved.player.skills[Skill.Skinning].xp).toBeGreaterThan(0);
   });
 
   it('respects global cooldown and ability cooldown between player casts', () => {
@@ -1754,7 +1755,7 @@ describe('game state', () => {
     expect(
       cooked.player.inventory.some((item) => item.name === 'Raw Fish'),
     ).toBe(false);
-    expect(cooked.player.skills.cooking.xp).toBeGreaterThan(0);
+    expect(cooked.player.skills[Skill.Cooking].xp).toBeGreaterThan(0);
   });
 
   it('crafts slot gear from recipe requirements and levels crafting', () => {
@@ -1793,7 +1794,7 @@ describe('game state', () => {
     expect(
       crafted.player.inventory.some((item) => item.name === 'Camp Spear'),
     ).toBe(true);
-    expect(crafted.player.skills.crafting.xp).toBeGreaterThan(0);
+    expect(crafted.player.skills[Skill.Crafting].xp).toBeGreaterThan(0);
   });
 
   it('requires the matching hex type for cooking and crafting recipes', () => {

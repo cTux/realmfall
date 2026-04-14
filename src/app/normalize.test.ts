@@ -1,6 +1,6 @@
 import { normalizeLoadedGame } from './normalize';
 import { EquipmentSlotId } from '../game/content/ids';
-import { createGame, type GameState } from '../game/state';
+import { createGame, Skill, type GameState } from '../game/state';
 
 describe('normalizeLoadedGame', () => {
   it('repairs legacy saves and consolidates stackable inventory', () => {
@@ -42,7 +42,7 @@ describe('normalizeLoadedGame', () => {
         ...game.player,
         mana: undefined,
         baseMaxMana: undefined,
-        skills: { logging: { level: 3, xp: 2 } },
+        skills: { [Skill.Logging]: { level: 3, xp: 2 } },
         statusEffects: [
           {
             id: 'restoration',
@@ -141,10 +141,10 @@ describe('normalizeLoadedGame', () => {
     expect(loaded.combat?.enemyIds).toEqual([]);
     expect(loaded.tiles['0,0'].enemyIds).toEqual(['legacy-enemy']);
     expect(loaded.tiles['0,0'].structureHp).toBe(5);
-    expect(loaded.player.skills.logging).toEqual({ level: 3, xp: 2 });
-    expect(loaded.player.skills.mining).toEqual({ level: 1, xp: 0 });
-    expect(loaded.player.skills.cooking).toEqual({ level: 1, xp: 0 });
-    expect(loaded.player.skills.crafting).toEqual({ level: 1, xp: 0 });
+    expect(loaded.player.skills[Skill.Logging]).toEqual({ level: 3, xp: 2 });
+    expect(loaded.player.skills[Skill.Mining]).toEqual({ level: 1, xp: 0 });
+    expect(loaded.player.skills[Skill.Cooking]).toEqual({ level: 1, xp: 0 });
+    expect(loaded.player.skills[Skill.Crafting]).toEqual({ level: 1, xp: 0 });
     expect(loaded.player.statusEffects).toEqual([
       expect.objectContaining({
         id: 'restoration',

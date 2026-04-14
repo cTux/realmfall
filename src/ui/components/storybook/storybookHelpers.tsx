@@ -3,6 +3,7 @@ import {
   createGame,
   getPlayerStats,
   getRecipeBookRecipes,
+  Skill,
 } from '../../../game/state';
 import { EquipmentSlotId } from '../../../game/content/ids';
 import { addLog } from '../../../game/logs';
@@ -61,12 +62,12 @@ export function createStorybookFixtures() {
   state.player.thirst = 18;
   state.player.statusEffects = [{ id: 'restoration' }, { id: 'recentDeath' }];
   state.player.skills = {
-    logging: { level: 8, xp: 7 },
-    mining: { level: 6, xp: 5 },
-    skinning: { level: 5, xp: 2 },
-    fishing: { level: 4, xp: 6 },
-    cooking: { level: 7, xp: 1 },
-    crafting: { level: 9, xp: 3 },
+    [Skill.Logging]: { level: 8, xp: 7 },
+    [Skill.Mining]: { level: 6, xp: 5 },
+    [Skill.Skinning]: { level: 5, xp: 2 },
+    [Skill.Fishing]: { level: 4, xp: 6 },
+    [Skill.Cooking]: { level: 7, xp: 1 },
+    [Skill.Crafting]: { level: 9, xp: 3 },
   };
   state.player.equipment = equipment;
   state.player.inventory = inventory;

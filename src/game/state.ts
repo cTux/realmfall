@@ -2,6 +2,7 @@ import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
 import { isWorldBossEnemyId } from './worldBoss';
 import { t } from '../i18n';
 import { formatEquipmentSlotLabel, formatSkillLabel } from '../i18n/labels';
+import { Skill } from './types';
 import {
   BLOOD_MOON_CHANCE,
   BLOOD_MOON_SPAWN_RADIUS,
@@ -144,6 +145,7 @@ export type {
   Tile,
   TownStockEntry,
 } from './types';
+export { Skill } from './types';
 export { EQUIPMENT_SLOTS, RARITY_ORDER } from './types';
 export {
   gatheringBonusChance,
@@ -1354,12 +1356,14 @@ export function craftRecipe(state: GameState, recipeId: string): GameState {
   if (!state.player.learnedRecipeIds.includes(recipe.id)) {
     return message(state, 'You have not learned that recipe yet.');
   }
-  const requiredStructure = recipe.skill === 'cooking' ? 'camp' : 'workshop';
-  const requiredLabel = recipe.skill === 'cooking' ? 'campfire' : 'workshop';
+  const requiredStructure =
+    recipe.skill === Skill.Cooking ? 'camp' : 'workshop';
+  const requiredLabel =
+    recipe.skill === Skill.Cooking ? 'campfire' : 'workshop';
   if (getCurrentTile(state).structure !== requiredStructure) {
     return message(
       state,
-      `You need to stand at a ${requiredLabel} to ${recipe.skill === 'cooking' ? 'cook' : 'craft'}.`,
+      `You need to stand at a ${requiredLabel} to ${recipe.skill === Skill.Cooking ? 'cook' : 'craft'}.`,
     );
   }
   if (!hasAllRequirements(state.player.inventory, recipe.ingredients)) {
@@ -1390,7 +1394,7 @@ export function craftRecipe(state: GameState, recipeId: string): GameState {
   addLog(
     next,
     'system',
-    recipe.skill === 'cooking'
+    recipe.skill === Skill.Cooking
       ? t('game.message.craft.cook', {
           item: recipe.output.name,
           fuel: chosenFuel
@@ -1976,7 +1980,7 @@ function maybeSkinEnemy(state: GameState, enemy: import('./types').Enemy) {
     makeResourceStack(ItemId.LeatherScraps, enemy.tier, quantity),
   );
   state.tiles[key] = { ...tile, items: [...tile.items] };
-  gainSkillXp(state, 'skinning', quantity, addLog);
+  gainSkillXp(state, Skill.Skinning, quantity, addLog);
   addLog(
     state,
     'loot',

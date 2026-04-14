@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { vi } from 'vitest';
 import { EquipmentSlotId } from '../game/content/ids';
 import { GameTag } from '../game/content/tags';
+import { Skill } from '../game/types';
 import {
   createGame,
   getItemConfigByName,
@@ -255,23 +256,23 @@ describe('ui helpers and components', () => {
       },
     ]);
 
-    expect(skillTooltip('logging', 12)).toContainEqual({
+    expect(skillTooltip(Skill.Logging, 12)).toContainEqual({
       kind: 'stat',
       label: 'Base Yield Bonus',
       value: '+2',
       tone: 'item',
     });
-    expect(skillTooltip('logging', 12)).toContainEqual({
+    expect(skillTooltip(Skill.Logging, 12)).toContainEqual({
       kind: 'stat',
       label: 'Extra Resource Chance',
       value: '12%',
       tone: 'item',
     });
-    expect(skillTooltip('crafting', 4)).toContainEqual({
+    expect(skillTooltip(Skill.Crafting, 4)).toContainEqual({
       kind: 'text',
       text: 'Skill level does not change recipe costs, output, or quality directly yet.',
     });
-    expect(skillTooltip('crafting', 4)).toContainEqual({
+    expect(skillTooltip(Skill.Crafting, 4)).toContainEqual({
       kind: 'text',
       text: 'Tags: skill.profession, skill.crafting',
       tone: 'subtle',

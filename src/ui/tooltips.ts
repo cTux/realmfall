@@ -6,6 +6,7 @@ import {
   gatheringBonusChance,
   gatheringYieldBonus,
   getStructureConfig,
+  Skill,
   skillLevelThreshold,
   type Enemy,
   type Item,
@@ -355,10 +356,10 @@ function structureTitle(structure: StructureType) {
 
 function isGatheringSkill(skill: SkillName) {
   return (
-    skill === 'logging' ||
-    skill === 'mining' ||
-    skill === 'skinning' ||
-    skill === 'fishing'
+    skill === Skill.Logging ||
+    skill === Skill.Mining ||
+    skill === Skill.Skinning ||
+    skill === Skill.Fishing
   );
 }
 

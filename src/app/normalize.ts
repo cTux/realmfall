@@ -14,6 +14,7 @@ import {
   makeGoldStack,
   type GameState,
   type Item,
+  Skill,
   type SkillName,
 } from '../game/state';
 import { createCombatActorState } from '../game/combat';
@@ -280,12 +281,12 @@ function normalizeSkills(
   skills?: Partial<Record<SkillName, { level?: number; xp?: number }>>,
 ) {
   return {
-    logging: normalizeSkill(skills?.logging),
-    mining: normalizeSkill(skills?.mining),
-    skinning: normalizeSkill(skills?.skinning),
-    fishing: normalizeSkill(skills?.fishing),
-    cooking: normalizeSkill(skills?.cooking),
-    crafting: normalizeSkill(skills?.crafting),
+    [Skill.Logging]: normalizeSkill(skills?.[Skill.Logging]),
+    [Skill.Mining]: normalizeSkill(skills?.[Skill.Mining]),
+    [Skill.Skinning]: normalizeSkill(skills?.[Skill.Skinning]),
+    [Skill.Fishing]: normalizeSkill(skills?.[Skill.Fishing]),
+    [Skill.Cooking]: normalizeSkill(skills?.[Skill.Cooking]),
+    [Skill.Crafting]: normalizeSkill(skills?.[Skill.Crafting]),
   };
 }
 

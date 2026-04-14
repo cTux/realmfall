@@ -4,16 +4,22 @@ import { t } from '../i18n';
 import { formatSkillLabel } from '../i18n/labels';
 import { createRng } from './random';
 import { hexKey } from './hex';
-import type { GameState, Player, SkillName, SkillProgress } from './types';
+import {
+  Skill,
+  type GameState,
+  type Player,
+  type SkillName,
+  type SkillProgress,
+} from './types';
 
 export function makeStartingSkills(): Record<SkillName, SkillProgress> {
   return {
-    logging: { level: 1, xp: 0 },
-    mining: { level: 1, xp: 0 },
-    skinning: { level: 1, xp: 0 },
-    fishing: { level: 1, xp: 0 },
-    cooking: { level: 1, xp: 0 },
-    crafting: { level: 1, xp: 0 },
+    [Skill.Logging]: { level: 1, xp: 0 },
+    [Skill.Mining]: { level: 1, xp: 0 },
+    [Skill.Skinning]: { level: 1, xp: 0 },
+    [Skill.Fishing]: { level: 1, xp: 0 },
+    [Skill.Cooking]: { level: 1, xp: 0 },
+    [Skill.Crafting]: { level: 1, xp: 0 },
   };
 }
 

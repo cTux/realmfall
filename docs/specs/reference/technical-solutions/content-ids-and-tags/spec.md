@@ -16,6 +16,7 @@ This spec covers canonical type ids and gameplay tags for item configs, enemy co
 - `src/game/content/tags.ts` provides enum-backed gameplay tags plus grouped lookup objects for ergonomic usage.
 - Configured items, enemies, and structures hydrate with tag arrays derived from their canonical definitions.
 - Equippable items also receive slot-specific tags derived from the shared equipment-slot enum, such as `item.slot.weapon` and `item.slot.head`.
+- Skills use the shared `Skill` enum instead of raw string ids so progression, structures, recipes, normalization, and UI all reference the same canonical identifiers.
 - Runtime item instances, enemy instances, and player status effects carry hydrated tags so gameplay logic can branch on ids or tags instead of localized labels.
 - Ability definitions and profession skill lookups expose enum-backed tags through shared helpers instead of ad hoc UI strings.
 - Inventory, crafting, loot, enemy classification, icon selection, and status-effect presentation now prefer canonical ids and tags over display-name matching.

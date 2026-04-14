@@ -1,4 +1,4 @@
-import type { SkillName } from '../types';
+import { Skill, type SkillName } from '../types';
 import { EquipmentSlotId, type EquipmentSlotValue } from './ids';
 
 export enum GameTag {
@@ -183,17 +183,17 @@ export function uniqueTags(...tags: Array<GameTag | undefined>) {
 
 export function getSkillTags(skill: SkillName) {
   switch (skill) {
-    case 'logging':
+    case Skill.Logging:
       return uniqueTags(GAME_TAGS.skill.gathering, GAME_TAGS.skill.logging);
-    case 'mining':
+    case Skill.Mining:
       return uniqueTags(GAME_TAGS.skill.gathering, GAME_TAGS.skill.mining);
-    case 'skinning':
+    case Skill.Skinning:
       return uniqueTags(GAME_TAGS.skill.gathering, GAME_TAGS.skill.skinning);
-    case 'fishing':
+    case Skill.Fishing:
       return uniqueTags(GAME_TAGS.skill.gathering, GAME_TAGS.skill.fishing);
-    case 'cooking':
+    case Skill.Cooking:
       return uniqueTags(GAME_TAGS.skill.profession, GAME_TAGS.skill.cooking);
-    case 'crafting':
+    case Skill.Crafting:
       return uniqueTags(GAME_TAGS.skill.profession, GAME_TAGS.skill.crafting);
   }
 }

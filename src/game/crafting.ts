@@ -2,6 +2,7 @@ import { makeCookedFish, makeCraftedItem } from './inventory';
 import { t } from '../i18n';
 import { EquipmentSlotId } from './content/ids';
 import { getItemConfig, getItemConfigByKey } from './content/items';
+import { Skill } from './types';
 import type {
   GameState,
   Item,
@@ -111,7 +112,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     id: 'cook-cooked-fish',
     name: 'Cooked Fish',
     description: 'Cook raw fish over a small fire.',
-    skill: 'cooking',
+    skill: Skill.Cooking,
     output: makeCookedFish(),
     ingredients: [{ itemKey: 'raw-fish', name: 'Raw Fish', quantity: 1 }],
     fuelOptions: [
@@ -124,7 +125,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     id: 'craft-weapon',
     name: 'Camp Spear',
     description: 'A rough spear suited to the long roads between Shards.',
-    skill: 'crafting',
+    skill: Skill.Crafting,
     output: makeCraftedItem(
       'crafted-weapon',
       EquipmentSlotId.Weapon,
@@ -144,7 +145,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     id: 'craft-offhand',
     name: 'Hide Buckler',
     description: 'A hide-wrapped buckler built to catch desperate blows.',
-    skill: 'crafting',
+    skill: Skill.Crafting,
     output: makeCraftedItem(
       'crafted-offhand',
       EquipmentSlotId.Offhand,
@@ -165,7 +166,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     name: 'Patchwork Hood',
     description:
       'A stitched hood that keeps ash, rain, and cinders off your face.',
-    skill: 'crafting',
+    skill: Skill.Crafting,
     output: makeCraftedItem(
       'crafted-head',
       EquipmentSlotId.Head,
@@ -186,7 +187,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     name: 'Settler Vest',
     description:
       'A layered vest worn by settlers who expect hard weather and harder work.',
-    skill: 'crafting',
+    skill: Skill.Crafting,
     output: makeCraftedItem(
       'crafted-chest',
       EquipmentSlotId.Chest,
@@ -208,7 +209,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     name: 'Work Gloves',
     description:
       'A practical pair of gloves for rope, tools, and rough salvage.',
-    skill: 'crafting',
+    skill: Skill.Crafting,
     output: makeCraftedItem(
       'crafted-hands',
       EquipmentSlotId.Hands,
@@ -228,7 +229,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     id: 'craft-legs',
     name: 'Trail Leggings',
     description: 'Tough leggings meant for brush, stone, and broken roads.',
-    skill: 'crafting',
+    skill: Skill.Crafting,
     output: makeCraftedItem(
       'crafted-legs',
       EquipmentSlotId.Legs,
@@ -249,7 +250,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     name: 'Field Boots',
     description:
       'Sturdy boots made to keep moving when the ground turns cruel.',
-    skill: 'crafting',
+    skill: Skill.Crafting,
     output: makeCraftedItem(
       'crafted-feet',
       EquipmentSlotId.Feet,
@@ -269,7 +270,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     id: 'craft-ring-left',
     name: 'Copper Loop',
     description: 'A simple copper loop dusted with faint Aether residue.',
-    skill: 'crafting',
+    skill: Skill.Crafting,
     output: makeCraftedItem(
       'crafted-ring-left',
       EquipmentSlotId.RingLeft,
@@ -289,7 +290,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     id: 'craft-ring-right',
     name: 'Copper Band',
     description: 'A hammered copper band that hums with a trace of Aether.',
-    skill: 'crafting',
+    skill: Skill.Crafting,
     output: makeCraftedItem(
       'crafted-ring-right',
       EquipmentSlotId.RingRight,
@@ -310,7 +311,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     name: 'Charm Necklace',
     description:
       'A warding charm strung for travelers who sleep near the wilds.',
-    skill: 'crafting',
+    skill: Skill.Crafting,
     output: makeCraftedItem(
       'crafted-amulet',
       EquipmentSlotId.Amulet,
@@ -331,7 +332,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     name: 'Wayfarer Cloak',
     description:
       'A weathered cloak for crossing cold winds and stranger skies.',
-    skill: 'crafting',
+    skill: Skill.Crafting,
     output: makeCraftedItem(
       'crafted-cloak',
       EquipmentSlotId.Cloak,
@@ -352,7 +353,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     name: 'Hearth Totem',
     description:
       'A steady relic meant to hold a little warmth against the Fracture.',
-    skill: 'crafting',
+    skill: Skill.Crafting,
     output: makeCraftedItem(
       'crafted-relic',
       EquipmentSlotId.Relic,

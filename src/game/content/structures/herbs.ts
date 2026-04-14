@@ -1,6 +1,7 @@
 import { ContentIcons } from '../icons';
 import { ItemId } from '../ids';
 import type { StructureConfig } from '../types';
+import { Skill } from '../../types';
 
 export const herbsStructureConfig: StructureConfig = {
   type: 'herbs',
@@ -12,7 +13,7 @@ export const herbsStructureConfig: StructureConfig = {
   gathering: {
     actionLabel: 'Gather herbs',
     maxHp: 3,
-    skill: 'crafting',
+    skill: Skill.Crafting,
     rewardItemKey: ItemId.Herbs,
     reward: 'Herbs',
     rewardTier: 1,
