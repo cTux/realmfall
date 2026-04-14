@@ -2,6 +2,7 @@ import { lazy, memo, Suspense } from 'react';
 import { t } from '../../../i18n';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { DraggableWindow } from '../DraggableWindow';
+import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
 import { loadRetryingWindowModule } from '../lazyWindowComponent';
@@ -51,26 +52,22 @@ export const InventoryWindow = memo(function InventoryWindow({
       headerActions={
         <div className={styles.toolbar}>
           <div className={styles.actions}>
-            <button
+            <WindowHeaderActionButton
               className={styles.headerButton}
               onClick={onSort}
-              onMouseEnter={(event) =>
-                onHoverDetail?.(
-                  event,
-                  t('ui.inventory.sortAction'),
-                  [
-                    {
-                      kind: 'text',
-                      text: t('ui.tooltip.window.sortInventory'),
-                    },
-                  ],
-                  'rgba(74, 222, 128, 0.9)',
-                )
-              }
-              onMouseLeave={onLeaveDetail}
+              tooltipTitle={t('ui.inventory.sortAction')}
+              tooltipLines={[
+                {
+                  kind: 'text',
+                  text: t('ui.tooltip.window.sortInventory'),
+                },
+              ]}
+              tooltipBorderColor="rgba(74, 222, 128, 0.9)"
+              onHoverDetail={onHoverDetail}
+              onLeaveDetail={onLeaveDetail}
             >
               {t('ui.inventory.sortAction')}
-            </button>
+            </WindowHeaderActionButton>
           </div>
         </div>
       }

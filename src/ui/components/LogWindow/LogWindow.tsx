@@ -3,6 +3,7 @@ import { t } from '../../../i18n';
 import { formatLogKindLabel } from '../../../i18n/labels';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { DraggableWindow } from '../DraggableWindow';
+import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
 import { loadRetryingWindowModule } from '../lazyWindowComponent';
@@ -51,21 +52,19 @@ export const LogWindow = memo(function LogWindow({
       onLeaveDetail={onLeaveDetail}
       headerActions={
         <div className={styles.toolbar}>
-          <button
+          <WindowHeaderActionButton
             className={styles.headerButton}
             onClick={onToggleMenu}
-            onMouseEnter={(event) =>
-              onHoverDetail?.(
-                event,
-                t('ui.log.filtersAction'),
-                [{ kind: 'text', text: t('ui.tooltip.window.logFilters') }],
-                'rgba(74, 222, 128, 0.9)',
-              )
-            }
-            onMouseLeave={onLeaveDetail}
+            tooltipTitle={t('ui.log.filtersAction')}
+            tooltipLines={[
+              { kind: 'text', text: t('ui.tooltip.window.logFilters') },
+            ]}
+            tooltipBorderColor="rgba(74, 222, 128, 0.9)"
+            onHoverDetail={onHoverDetail}
+            onLeaveDetail={onLeaveDetail}
           >
             {t('ui.log.filtersAction')}
-          </button>
+          </WindowHeaderActionButton>
           {showFilterMenu ? (
             <div className={styles.filterMenu}>
               {Object.keys(defaultFilters).map((kind) => (

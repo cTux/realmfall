@@ -1,17 +1,9 @@
-import type { MouseEvent as ReactMouseEvent } from 'react';
-import type { TooltipLine } from '../../../../tooltips';
+import type { WindowDetailTooltipHandlers } from '../../../windowTooltipTypes';
 
-export interface StatBarProps {
+export interface StatBarProps extends WindowDetailTooltipHandlers {
   label: string;
   value: number;
   max: number;
   color: 'hp' | 'mana' | 'xp' | 'hunger' | 'thirst';
   description?: string;
-  onHoverDetail?: (
-    event: ReactMouseEvent<HTMLElement>,
-    title: string,
-    lines: TooltipLine[],
-    borderColor?: string,
-  ) => void;
-  onLeaveDetail?: () => void;
 }

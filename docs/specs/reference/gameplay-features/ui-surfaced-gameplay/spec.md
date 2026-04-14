@@ -9,6 +9,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - Gameplay state is exposed through draggable desktop-style windows.
 - Current windows cover hero stats, equipment, inventory, recipes, combat, loot, log output, hex info, skills, debugger, and docked controls.
 - The game uses a custom tooltip system for world objects and item affordances.
+- Window chrome is consistent across the desktop UI, including shared close-button tooltips and resizable inventory, loot, and log surfaces.
 - Logs provide system, movement, combat, loot, and other gameplay feedback.
 - Filtered log viewing is part of the current gameplay readability loop.
 - Current and maximum value bars surface their meaning through the shared tooltip system.

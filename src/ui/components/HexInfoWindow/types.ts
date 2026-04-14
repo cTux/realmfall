@@ -1,9 +1,9 @@
 import type { MouseEvent as ReactMouseEvent } from 'react';
 import type { WindowPosition } from '../../../app/constants';
 import type { Item, TerritoryNpc, TownStockEntry } from '../../../game/state';
-import type { TooltipLine } from '../../tooltips';
+import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 
-export interface HexInfoWindowProps {
+export interface HexInfoWindowProps extends WindowDetailTooltipHandlers {
   position: WindowPosition;
   onMove: (position: WindowPosition) => void;
   visible?: boolean;
@@ -40,11 +40,4 @@ export interface HexInfoWindowProps {
     equipped?: Item,
   ) => void;
   onLeaveItem: () => void;
-  onHoverDetail?: (
-    event: ReactMouseEvent<HTMLElement>,
-    title: string,
-    lines: TooltipLine[],
-    borderColor?: string,
-  ) => void;
-  onLeaveDetail?: () => void;
 }

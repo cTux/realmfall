@@ -38,6 +38,8 @@ export const SkillsWindow = memo(function SkillsWindow({
       className={styles.window}
       visible={visible}
       onClose={onClose}
+      onHoverDetail={onHoverDetail}
+      onLeaveDetail={onLeaveDetail}
     >
       <Suspense fallback={<WindowLoadingState />}>
         <SkillsWindowContent

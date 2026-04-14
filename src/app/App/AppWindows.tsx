@@ -34,6 +34,93 @@ import type { TooltipLine } from '../../ui/tooltips';
 import { formatTerrainLabel } from './appHelpers';
 import { useTooltipState } from './tooltipStore';
 
+const WINDOW_HANDLER_KEYS = [
+  'hero',
+  'skills',
+  'recipes',
+  'hexInfo',
+  'equipment',
+  'inventory',
+  'loot',
+  'log',
+  'combat',
+] as const;
+
+const DEFERRED_WINDOW_KEYS = [
+  'skills',
+  'recipes',
+  'hexInfo',
+  'equipment',
+  'inventory',
+  'loot',
+  'log',
+  'combat',
+] as const;
+
+type ManagedWindowKey = (typeof WINDOW_HANDLER_KEYS)[number];
+type DeferredWindowKey = (typeof DEFERRED_WINDOW_KEYS)[number];
+
+const createWindowMoveHandlers = (
+  onMoveWindow: AppWindowsProps['onMoveWindow'],
+) =>
+  WINDOW_HANDLER_KEYS.reduce(
+    (handlers, key) => {
+      handlers[key] = (position) => onMoveWindow(key, position);
+      return handlers;
+    },
+    {} as {
+      [K in ManagedWindowKey]: (position: WindowPositions[K]) => void;
+    },
+  );
+
+const createWindowCloseHandlers = (
+  onSetWindowVisibility: AppWindowsProps['onSetWindowVisibility'],
+) =>
+  WINDOW_HANDLER_KEYS.reduce(
+    (handlers, key) => {
+      handlers[key] = () => onSetWindowVisibility(key, false);
+      return handlers;
+    },
+    {} as { [K in ManagedWindowKey]: () => void },
+  );
+
+const createLoadedWindowState = (
+  windowShown: WindowVisibilityState,
+  renderLootWindow: boolean,
+  renderCombatWindow: boolean,
+) =>
+  ({
+    skills: windowShown.skills,
+    recipes: windowShown.recipes,
+    hexInfo: windowShown.hexInfo,
+    equipment: windowShown.equipment,
+    inventory: windowShown.inventory,
+    loot: renderLootWindow,
+    log: windowShown.log,
+    combat: renderCombatWindow,
+  }) satisfies Record<DeferredWindowKey, boolean>;
+
+const mergeLoadedWindowState = (
+  current: Record<DeferredWindowKey, boolean>,
+  windowShown: WindowVisibilityState,
+  renderLootWindow: boolean,
+  renderCombatWindow: boolean,
+) => {
+  const next = createLoadedWindowState(
+    windowShown,
+    renderLootWindow,
+    renderCombatWindow,
+  );
+
+  for (const key of DEFERRED_WINDOW_KEYS) {
+    next[key] = current[key] || next[key];
+  }
+
+  return DEFERRED_WINDOW_KEYS.every((key) => current[key] === next[key])
+    ? current
+    : next;
+};
+
 interface AppWindowsProps {
   windows: WindowPositions;
   windowShown: WindowVisibilityState;
@@ -183,73 +270,26 @@ export function AppWindows({
 }: AppWindowsProps) {
   const tooltip = useTooltipState();
   const windowMoveHandlers = useMemo(
-    () => ({
-      hero: (position: WindowPositions['hero']) =>
-        onMoveWindow('hero', position),
-      skills: (position: WindowPositions['skills']) =>
-        onMoveWindow('skills', position),
-      recipes: (position: WindowPositions['recipes']) =>
-        onMoveWindow('recipes', position),
-      hexInfo: (position: WindowPositions['hexInfo']) =>
-        onMoveWindow('hexInfo', position),
-      equipment: (position: WindowPositions['equipment']) =>
-        onMoveWindow('equipment', position),
-      inventory: (position: WindowPositions['inventory']) =>
-        onMoveWindow('inventory', position),
-      loot: (position: WindowPositions['loot']) =>
-        onMoveWindow('loot', position),
-      log: (position: WindowPositions['log']) => onMoveWindow('log', position),
-      combat: (position: WindowPositions['combat']) =>
-        onMoveWindow('combat', position),
-    }),
+    () => createWindowMoveHandlers(onMoveWindow),
     [onMoveWindow],
   );
   const windowCloseHandlers = useMemo(
-    () => ({
-      hero: () => onSetWindowVisibility('hero', false),
-      skills: () => onSetWindowVisibility('skills', false),
-      recipes: () => onSetWindowVisibility('recipes', false),
-      hexInfo: () => onSetWindowVisibility('hexInfo', false),
-      equipment: () => onSetWindowVisibility('equipment', false),
-      inventory: () => onSetWindowVisibility('inventory', false),
-      loot: () => onSetWindowVisibility('loot', false),
-      log: () => onSetWindowVisibility('log', false),
-      combat: () => onSetWindowVisibility('combat', false),
-    }),
+    () => createWindowCloseHandlers(onSetWindowVisibility),
     [onSetWindowVisibility],
   );
-  const [loadedWindows, setLoadedWindows] = useState(() => ({
-    skills: windowShown.skills,
-    recipes: windowShown.recipes,
-    hexInfo: windowShown.hexInfo,
-    equipment: windowShown.equipment,
-    inventory: windowShown.inventory,
-    loot: renderLootWindow,
-    log: windowShown.log,
-    combat: renderCombatWindow,
-  }));
+  const [loadedWindows, setLoadedWindows] = useState(() =>
+    createLoadedWindowState(windowShown, renderLootWindow, renderCombatWindow),
+  );
 
   useEffect(() => {
-    setLoadedWindows((current) => {
-      const next = {
-        skills: current.skills || windowShown.skills,
-        recipes: current.recipes || windowShown.recipes,
-        hexInfo: current.hexInfo || windowShown.hexInfo,
-        equipment: current.equipment || windowShown.equipment,
-        inventory: current.inventory || windowShown.inventory,
-        loot: current.loot || renderLootWindow,
-        log: current.log || windowShown.log,
-        combat: current.combat || renderCombatWindow,
-      };
-
-      return Object.keys(next).every(
-        (key) =>
-          current[key as keyof typeof current] ===
-          next[key as keyof typeof next],
-      )
-        ? current
-        : next;
-    });
+    setLoadedWindows((current) =>
+      mergeLoadedWindowState(
+        current,
+        windowShown,
+        renderLootWindow,
+        renderCombatWindow,
+      ),
+    );
   }, [renderCombatWindow, renderLootWindow, windowShown]);
 
   return (
@@ -290,6 +330,8 @@ export function AppWindows({
           recipes={recipes}
           inventoryCounts={inventoryCounts}
           onCraft={onCraftRecipe}
+          onHoverDetail={onShowTooltip}
+          onLeaveDetail={onCloseTooltip}
         />
       ) : null}
       {loadedWindows.hexInfo ? (
@@ -354,6 +396,8 @@ export function AppWindows({
           onLeaveItem={onCloseTooltip}
           onUnequip={onUnequip}
           onContextItem={onEquippedContextItem}
+          onHoverDetail={onShowTooltip}
+          onLeaveDetail={onCloseTooltip}
         />
       ) : null}
       {loadedWindows.inventory ? (

@@ -47,6 +47,8 @@ export const HeroWindow = memo(function HeroWindow({
       onMove={onMove}
       visible={visible}
       onClose={onClose}
+      onHoverDetail={onHoverDetail}
+      onLeaveDetail={onLeaveDetail}
     >
       <Suspense fallback={<WindowLoadingState />}>
         <HeroWindowContent
