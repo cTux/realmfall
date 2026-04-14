@@ -106,6 +106,7 @@ export function usePixiWorld({
         height: Math.max(window.innerHeight, 480),
         backgroundColor: 0x0b1020,
         antialias: true,
+        autoDensity: true,
         resolution: window.devicePixelRatio || 1,
       });
 
@@ -116,6 +117,10 @@ export function usePixiWorld({
       const resize = () => {
         const width = hostRef.current?.clientWidth ?? window.innerWidth;
         const height = hostRef.current?.clientHeight ?? window.innerHeight;
+        const resolution = window.devicePixelRatio || 1;
+        if (app.renderer.resolution !== resolution) {
+          app.renderer.resolution = resolution;
+        }
         app.renderer.resize(width, height);
       };
 

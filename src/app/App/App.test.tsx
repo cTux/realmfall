@@ -10,6 +10,7 @@ const renderScene = vi.fn();
 const loadEncryptedState = vi.fn();
 const saveEncryptedState = vi.fn();
 const tickerCallbacks = new Set<() => void>();
+const applicationOptions: Array<Record<string, unknown>> = [];
 
 class MockStage {
   removeChildren() {
@@ -23,7 +24,12 @@ vi.mock('pixi.js', () => {
   class MockApplication {
     stage = new MockStage();
     screen = { width: 800, height: 600 };
-    renderer = { resize: vi.fn() };
+    renderer = {
+      resize: vi.fn((width: number, height: number) => {
+        this.screen = { width, height };
+      }),
+      resolution: 1,
+    };
     ticker = {
       add: vi.fn((callback: () => void) => {
         tickerCallbacks.add(callback);
@@ -35,8 +41,15 @@ vi.mock('pixi.js', () => {
     view = document.createElement('canvas');
     destroy = vi.fn();
 
-    constructor(options: { width: number; height: number }) {
+    constructor(options: {
+      width: number;
+      height: number;
+      resolution?: number;
+      autoDensity?: boolean;
+    }) {
+      applicationOptions.push(options as unknown as Record<string, unknown>);
       this.screen = { width: options.width, height: options.height };
+      this.renderer.resolution = options.resolution ?? 1;
       Object.defineProperty(this.view, 'getBoundingClientRect', {
         value: () => ({ left: 0, top: 0, width: 800, height: 600 }),
       });
@@ -92,6 +105,32 @@ describe('App', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     tickerCallbacks.clear();
+    applicationOptions.length = 0;
+  });
+
+  it('creates the Pixi canvas with density-aware sizing', async () => {
+    vi.stubGlobal('devicePixelRatio', 1.5);
+    loadEncryptedState.mockResolvedValue(null);
+
+    const { App } = await import('./index');
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+
+    await act(async () => {
+      root.render(<App />);
+    });
+    await flushLazyModules();
+
+    expect(applicationOptions[0]).toMatchObject({
+      autoDensity: true,
+      resolution: 1.5,
+    });
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
   });
 
   it('hydrates saved state, handles ui interactions, and responds to map input', async () => {
