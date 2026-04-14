@@ -14,6 +14,7 @@ import {
 import type { TooltipItem } from '../../../app/App/types';
 import { rarityColor } from '../../rarity';
 import { itemTooltipLines, type TooltipLine } from '../../tooltips';
+import { getTooltipPlacementForRect } from '../../tooltipPlacement';
 import { GameTooltip, type TooltipPosition } from '../GameTooltip';
 
 type StoryArgs = Record<string, unknown>;
@@ -31,10 +32,7 @@ function showTooltipAtTarget(
   borderColor?: string,
 ) {
   const rect = event.currentTarget.getBoundingClientRect();
-  const position = {
-    x: rect.right + 12,
-    y: rect.top,
-  };
+  const position = getTooltipPlacementForRect(rect);
 
   tooltipPositionRef.current = position;
   setTooltipState({
@@ -42,6 +40,7 @@ function showTooltipAtTarget(
     lines,
     x: position.x,
     y: position.y,
+    placement: position.placement,
     borderColor,
   });
 }

@@ -27,6 +27,9 @@ export function DraggableWindow({
   onClose,
   showCloseButton = true,
   resizeBounds,
+  onHoverDetail,
+  onLeaveDetail,
+  closeButtonTooltip,
 }: DraggableWindowProps) {
   const windowRef = useRef<HTMLElement | null>(null);
   const windowIdRef = useRef(`window-${Math.random().toString(36).slice(2)}`);
@@ -259,6 +262,20 @@ export function DraggableWindow({
               aria-label={t('ui.common.close')}
               onPointerDown={(event) => event.stopPropagation()}
               onClick={closeWindow}
+              onMouseEnter={(event) =>
+                onHoverDetail?.(
+                  event,
+                  t('ui.common.close'),
+                  [
+                    {
+                      kind: 'text',
+                      text: closeButtonTooltip ?? t('ui.tooltip.window.close'),
+                    },
+                  ],
+                  'rgba(248, 113, 113, 0.9)',
+                )
+              }
+              onMouseLeave={onLeaveDetail}
             >
               <span
                 className={styles.headerButtonIcon}

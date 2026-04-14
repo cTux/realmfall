@@ -1,6 +1,7 @@
 import type { MouseEvent as ReactMouseEvent } from 'react';
 import type { WindowPosition } from '../../../app/constants';
 import type { Equipment, Item } from '../../../game/state';
+import type { TooltipLine } from '../../tooltips';
 
 export interface InventoryWindowProps {
   position: WindowPosition;
@@ -18,4 +19,11 @@ export interface InventoryWindowProps {
     equipped?: Item,
   ) => void;
   onLeaveItem: () => void;
+  onHoverDetail?: (
+    event: ReactMouseEvent<HTMLElement>,
+    title: string,
+    lines: TooltipLine[],
+    borderColor?: string,
+  ) => void;
+  onLeaveDetail?: () => void;
 }

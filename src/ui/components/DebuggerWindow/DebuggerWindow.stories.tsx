@@ -18,7 +18,7 @@ const meta = {
     onMove: noop,
     visible: true,
     onClose: noop,
-    timeLabel: fixtures.debuggerTimeLabel,
+    worldTimeMs: fixtures.worldTimeMs,
   },
   parameters: {
     controls: {

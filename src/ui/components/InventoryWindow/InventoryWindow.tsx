@@ -1,4 +1,5 @@
 import { lazy, memo, Suspense } from 'react';
+import { t } from '../../../i18n';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
@@ -28,6 +29,8 @@ export const InventoryWindow = memo(function InventoryWindow({
   onContextItem,
   onHoverItem,
   onLeaveItem,
+  onHoverDetail,
+  onLeaveDetail,
 }: InventoryWindowProps) {
   return (
     <DraggableWindow
@@ -43,11 +46,30 @@ export const InventoryWindow = memo(function InventoryWindow({
       visible={visible}
       onClose={onClose}
       resizeBounds={{ minWidth: 320, minHeight: 220 }}
+      onHoverDetail={onHoverDetail}
+      onLeaveDetail={onLeaveDetail}
       headerActions={
         <div className={styles.toolbar}>
           <div className={styles.actions}>
-            <button className={styles.headerButton} onClick={onSort}>
-              Sort
+            <button
+              className={styles.headerButton}
+              onClick={onSort}
+              onMouseEnter={(event) =>
+                onHoverDetail?.(
+                  event,
+                  t('ui.inventory.sortAction'),
+                  [
+                    {
+                      kind: 'text',
+                      text: t('ui.tooltip.window.sortInventory'),
+                    },
+                  ],
+                  'rgba(74, 222, 128, 0.9)',
+                )
+              }
+              onMouseLeave={onLeaveDetail}
+            >
+              {t('ui.inventory.sortAction')}
             </button>
           </div>
         </div>

@@ -27,6 +27,7 @@ export function CombatWindow({
   onStart,
   onHoverDetail,
   onLeaveDetail,
+  onHoverHeaderAction,
 }: CombatWindowProps) {
   const startButton = !combat.started ? (
     <button
@@ -37,6 +38,15 @@ export function CombatWindow({
         event.stopPropagation();
         onStart();
       }}
+      onMouseEnter={(event) =>
+        onHoverHeaderAction?.(
+          event,
+          t('ui.combat.startAction'),
+          [{ kind: 'text', text: t('ui.tooltip.window.startCombat') }],
+          'rgba(248, 250, 252, 0.9)',
+        )
+      }
+      onMouseLeave={onLeaveDetail}
     >
       {t('ui.combat.startAction')}
     </button>
@@ -51,6 +61,8 @@ export function CombatWindow({
       className={styles.window}
       visible={visible}
       onClose={onClose}
+      onHoverDetail={onHoverDetail}
+      onLeaveDetail={onLeaveDetail}
     >
       <Suspense fallback={<WindowLoadingState />}>
         <CombatWindowContent

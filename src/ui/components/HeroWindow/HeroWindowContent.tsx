@@ -38,30 +38,45 @@ export function HeroWindowContent({
         value={stats.hp}
         max={stats.maxHp}
         color="hp"
+        description={t('ui.tooltip.bar.heroHp')}
+        onHoverDetail={onHoverDetail}
+        onLeaveDetail={onLeaveDetail}
       />
       <StatBar
         label={t('ui.hero.aether')}
         value={stats.mana}
         max={stats.maxMana}
         color="mana"
+        description={t('ui.tooltip.bar.heroAether')}
+        onHoverDetail={onHoverDetail}
+        onLeaveDetail={onLeaveDetail}
       />
       <StatBar
         label={t('ui.hero.xp')}
         value={stats.xp}
         max={stats.nextLevelXp}
         color="xp"
+        description={t('ui.tooltip.bar.heroXp')}
+        onHoverDetail={onHoverDetail}
+        onLeaveDetail={onLeaveDetail}
       />
       <StatBar
         label={t('ui.hero.hunger')}
         value={hunger}
         max={100}
         color="hunger"
+        description={t('ui.tooltip.bar.heroHunger')}
+        onHoverDetail={onHoverDetail}
+        onLeaveDetail={onLeaveDetail}
       />
       <StatBar
         label={t('ui.hero.thirst')}
         value={thirst ?? 100}
         max={100}
         color="thirst"
+        description={t('ui.tooltip.bar.heroThirst')}
+        onHoverDetail={onHoverDetail}
+        onLeaveDetail={onLeaveDetail}
       />
       <div className={styles.statList}>
         <div className={styles.statRow}>

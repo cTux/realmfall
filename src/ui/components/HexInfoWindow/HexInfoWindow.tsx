@@ -51,6 +51,8 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   onBuyItem,
   onHoverItem,
   onLeaveItem,
+  onHoverDetail,
+  onLeaveDetail,
 }: HexInfoWindowProps) {
   return (
     <DraggableWindow
@@ -65,6 +67,8 @@ export const HexInfoWindow = memo(function HexInfoWindow({
       className={styles.window}
       visible={visible}
       onClose={onClose}
+      onHoverDetail={onHoverDetail}
+      onLeaveDetail={onLeaveDetail}
       headerActions={
         <>
           {interactLabel ? (
@@ -77,6 +81,15 @@ export const HexInfoWindow = memo(function HexInfoWindow({
                 event.stopPropagation();
                 onInteract();
               }}
+              onMouseEnter={(event) =>
+                onHoverDetail?.(
+                  event,
+                  t('ui.hexInfo.interactAction'),
+                  [{ kind: 'text', text: t('ui.tooltip.window.interact') }],
+                  'rgba(74, 222, 128, 0.9)',
+                )
+              }
+              onMouseLeave={onLeaveDetail}
             >
               {t('ui.hexInfo.interactAction')}
             </button>
@@ -91,6 +104,15 @@ export const HexInfoWindow = memo(function HexInfoWindow({
               event.stopPropagation();
               onSetHome();
             }}
+            onMouseEnter={(event) =>
+              onHoverDetail?.(
+                event,
+                t('ui.hexInfo.setHomeAction'),
+                [{ kind: 'text', text: t('ui.tooltip.window.setHome') }],
+                'rgba(125, 211, 252, 0.9)',
+              )
+            }
+            onMouseLeave={onLeaveDetail}
           >
             {t('ui.hexInfo.setHomeAction')}
           </button>
@@ -124,6 +146,8 @@ export const HexInfoWindow = memo(function HexInfoWindow({
           onBuyItem={onBuyItem}
           onHoverItem={onHoverItem}
           onLeaveItem={onLeaveItem}
+          onHoverDetail={onHoverDetail}
+          onLeaveDetail={onLeaveDetail}
         />
       </Suspense>
     </DraggableWindow>
