@@ -10,7 +10,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - This reduces pressure on the top-level app component and keeps domain logic testable.
 - `useAppGameView` computes the current tile, filtered logs, town stock, recipe visibility, claim status, player stats, and other UI-ready derived values.
 - This keeps presentational components mostly declarative.
-- The game uses a desktop-style draggable window model with persisted positions and visibility.
+- The game uses a desktop-style draggable window model with persisted positions, optional per-window dimensions for resizable windows, and visibility.
 - Secondary window content is separated into dedicated components and lazy-loaded bundles following the current project pattern.
 
 ## Main Implementation Areas

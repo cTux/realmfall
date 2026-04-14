@@ -6,6 +6,8 @@ export { WORLD_RADIUS, WORLD_REVEAL_RADIUS, HEX_SIZE };
 export interface WindowPosition {
   x: number;
   y: number;
+  width?: number;
+  height?: number;
 }
 
 export interface WindowPositions {

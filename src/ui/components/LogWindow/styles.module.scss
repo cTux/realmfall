@@ -2,6 +2,9 @@
 
 .window {
   width: min(520px, calc(100vw - 16px));
+  height: min(360px, calc(100vh - 16px));
+  display: flex;
+  flex-direction: column;
 
   button:hover {
     background: rgb(8 22 12 / 96%);
@@ -82,9 +85,8 @@
 }
 
 .logList {
-  display: grid;
-  gap: 0.05rem;
-  max-height: min(42vh, 420px);
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: auto;
   padding: 0;
 }

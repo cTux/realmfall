@@ -2,6 +2,9 @@
 
 .window {
   width: min(410px, calc(100vw - 16px));
+  height: min(360px, calc(100vh - 16px));
+  display: flex;
+  flex-direction: column;
   overflow: visible;
 
   @media (width <= 980px) {
@@ -27,7 +30,8 @@
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;
-  max-height: min(48vh, 480px);
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: visible auto;
   scrollbar-gutter: stable;
   padding-bottom: 5px;
