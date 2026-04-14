@@ -387,15 +387,21 @@ describe('ui helpers and components', () => {
           enemyCount={0}
           interactLabel="Chop tree"
           canInteract
+          canClaim
           canProspect={false}
           canSell={false}
+          claimExplanation={null}
           prospectExplanation={null}
           sellExplanation={null}
           onInteract={() => {}}
+          onClaim={() => {}}
           onProspect={() => {}}
           onSellAll={() => {}}
           structureHp={3}
           structureMaxHp={5}
+          territoryName={null}
+          territoryOwnerType={null}
+          territoryNpc={null}
           townStock={[
             {
               item: equippedItem,
@@ -565,13 +571,19 @@ describe('ui helpers and components', () => {
           enemyCount={0}
           interactLabel={null}
           canInteract={false}
+          canClaim={false}
           canProspect={false}
           canSell={false}
+          claimExplanation={null}
           prospectExplanation="Nothing in your pack can be prospected."
           sellExplanation={null}
           onInteract={() => {}}
+          onClaim={() => {}}
           onProspect={() => {}}
           onSellAll={() => {}}
+          territoryName={null}
+          territoryOwnerType={null}
+          territoryNpc={null}
           townStock={[]}
           gold={0}
           onBuyItem={() => {}}
@@ -588,13 +600,19 @@ describe('ui helpers and components', () => {
           enemyCount={0}
           interactLabel={null}
           canInteract={false}
+          canClaim={false}
           canProspect={false}
           canSell={false}
+          claimExplanation={null}
           prospectExplanation={null}
           sellExplanation="No equippable items to sell."
           onInteract={() => {}}
+          onClaim={() => {}}
           onProspect={() => {}}
           onSellAll={() => {}}
+          territoryName={null}
+          territoryOwnerType={null}
+          territoryNpc={null}
           townStock={[]}
           gold={0}
           onBuyItem={() => {}}

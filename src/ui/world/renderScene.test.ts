@@ -2,6 +2,9 @@ import { createGame, getVisibleTiles } from '../../game/state';
 import forestClearingIcon from '../../assets/forest-pack/forest_03_clearing.png';
 import forestFewTreesIcon from '../../assets/forest-pack/forest_02_fewTrees.png';
 import forestTempleIcon from '../../assets/forest-pack/forest_20_temple.png';
+import playerIcon from '../../assets/icons/visored-helm.svg';
+import wolfHeadIcon from '../../assets/icons/wolf-head.svg';
+import tearTracksIcon from '../../assets/icons/tear-tracks.svg';
 
 const spriteFrom = vi.fn((icon: string) => ({
   icon,
@@ -38,6 +41,8 @@ class MockGraphics extends MockContainer {
   clear = vi.fn();
   beginFill = vi.fn();
   lineStyle = vi.fn();
+  moveTo = vi.fn();
+  lineTo = vi.fn();
   drawPolygon = vi.fn();
   drawEllipse = vi.fn();
   drawRect = vi.fn();
@@ -282,7 +287,7 @@ describe('renderScene', () => {
     expect(brightHoveredFill).toBe(true);
   });
 
-  it('draws a purple outline around the home hex', async () => {
+  it('draws a purple tint around the home hex', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-home-hex');
     game.homeHex = { q: 1, r: 0 };
@@ -307,16 +312,55 @@ describe('renderScene', () => {
     );
 
     const world = app.stage.children[1] as MockContainer;
-    const homeOutlines = collectDescendants(world).filter(
+    const homeTint = collectDescendants(world).filter(
+      (child) =>
+        child instanceof MockGraphics &&
+        child.beginFill.mock.calls.some(
+          ([color, alpha]) => color === 0xa855f7 && alpha === 0.22,
+        ),
+    );
+
+    expect(homeTint).toHaveLength(1);
+  });
+
+  it('draws player territory borders without a banner marker', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-player-claim');
+    game.homeHex = { q: 2, r: -2 };
+    game.tiles['0,0'] = {
+      ...game.tiles['0,0'],
+      claim: {
+        ownerId: 'player-territory',
+        ownerType: 'player',
+        ownerName: 'Bound Territory',
+        borderColor: '#ffffff',
+      },
+    };
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    const world = app.stage.children[1] as MockContainer;
+    const territoryBorders = collectDescendants(world).filter(
       (child) =>
         child instanceof MockGraphics &&
         child.lineStyle.mock.calls.some(
           ([width, color, alpha]) =>
-            width === 3 && color === 0xa855f7 && alpha === 0.92,
+            width === 4 && color === 0xffffff && alpha === 0.92,
         ),
     );
 
-    expect(homeOutlines).toHaveLength(1);
+    expect(territoryBorders.length).toBeGreaterThan(0);
   });
 
   it('highlights each hovered safe-path hex on the interaction layer', async () => {
@@ -342,15 +386,15 @@ describe('renderScene', () => {
     );
 
     const world = app.stage.children[1] as MockContainer;
-    const safePathOutlines = collectDescendants(world).filter(
+    const safePathTint = collectDescendants(world).filter(
       (child) =>
         child instanceof MockGraphics &&
-        child.lineStyle.mock.calls.some(
-          ([width, color]) => width === 3 && color === 0x38bdf8,
+        child.beginFill.mock.calls.some(
+          ([color, alpha]) => color === 0x38bdf8 && alpha === 0.34,
         ),
     );
 
-    expect(safePathOutlines).toHaveLength(2);
+    expect(safePathTint).toHaveLength(2);
   });
 
   it('adds animated campfire glow only once the world gets dark', async () => {
@@ -710,5 +754,61 @@ describe('renderScene', () => {
         (child) => child instanceof MockText && child.text === 'L9',
       ),
     ).toBe(false);
+  });
+
+  it('uses NPC marker icon on faction claim tiles', async () => {
+    const { renderScene } = await import('./renderScene');
+    spriteFrom.mockClear();
+    const game = createGame(0, 'render-scene-faction-npc-icon');
+    game.tiles['0,0'] = {
+      coord: { q: 0, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: ['faction-npc:2'],
+      claim: {
+        ownerId: 'faction-claims',
+        ownerType: 'faction',
+        ownerName: 'Ghostline',
+        borderColor: '#ffffff',
+        npc: { name: 'Araken', enemyId: 'faction-npc:2' },
+      },
+    };
+
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    const worldMap = app.stage.children[1] as MockContainer;
+    const world = worldMap.children[0] as MockContainer;
+    const markerLayer = world.children[3] as MockContainer;
+
+    const markerWrappers = markerLayer.children.filter(
+      (child): child is MockContainer => child instanceof MockContainer,
+    );
+    expect(markerWrappers).toHaveLength(1);
+
+    const markerChildren = markerWrappers[0].children as Array<{
+      icon: string;
+    }>;
+    expect(markerChildren.length).toBe(5);
+    expect(
+      markerChildren.every((sprite) => sprite.icon === tearTracksIcon),
+    ).toBe(true);
+    expect(markerChildren.every((sprite) => sprite.icon !== wolfHeadIcon)).toBe(
+      true,
+    );
+    expect(markerChildren.every((sprite) => sprite.icon !== playerIcon)).toBe(
+      true,
+    );
   });
 });

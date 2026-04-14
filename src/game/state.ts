@@ -89,6 +89,11 @@ import {
 } from './progression';
 import { isPassable, noise } from './shared';
 import {
+  isFactionNpcEnemyId,
+  isPlayerClaim,
+  makePlayerClaim,
+} from './territories';
+import {
   buildTile,
   cacheSafeStart,
   describeStructure,
@@ -130,6 +135,8 @@ export type {
   StatusEffectId,
   StructureType,
   Terrain,
+  TerritoryNpc,
+  TileClaim,
   Tile,
   TownStockEntry,
 } from './types';
@@ -164,6 +171,8 @@ import type {
   Item,
   Player,
   PlayerStatusEffect,
+  TileClaim,
+  Tile,
   TownStockEntry,
   StructureType,
   Terrain,
@@ -252,26 +261,112 @@ export function getCurrentTile(state: GameState) {
   return getTileAt(state, state.player.coord);
 }
 
+export function getPlayerClaimedTiles(state: GameState) {
+  return Object.values(state.tiles).filter((tile) => isPlayerClaim(tile.claim));
+}
+
+export function getCurrentHexClaimStatus(state: GameState) {
+  const tile = getCurrentTile(state);
+  if (tile.claim) {
+    return {
+      canClaim: false,
+      reason: isPlayerClaim(tile.claim)
+        ? 'This hex already belongs to your territory.'
+        : `This hex belongs to ${tile.claim.ownerName}.`,
+    };
+  }
+
+  if (!isPassable(tile.terrain)) {
+    return { canClaim: false, reason: 'Only passable ground can be claimed.' };
+  }
+
+  if (tile.structure || tile.enemyIds.length > 0 || tile.items.length > 0) {
+    return {
+      canClaim: false,
+      reason: 'Only empty hexes can be claimed.',
+    };
+  }
+
+  const playerClaims = getPlayerClaimedTiles(state);
+  if (
+    playerClaims.length > 0 &&
+    !hexNeighbors(tile.coord).some((neighbor) => {
+      const neighborTile = state.tiles[hexKey(neighbor)];
+      return isPlayerClaim(neighborTile?.claim);
+    })
+  ) {
+    return {
+      canClaim: false,
+      reason: 'New territory must connect to your existing border.',
+    };
+  }
+
+  if (
+    hexNeighbors(tile.coord).some((neighbor) => {
+      const neighborTile = getTileAt(state, neighbor);
+      return neighborTile.claim && !isPlayerClaim(neighborTile.claim);
+    })
+  ) {
+    return {
+      canClaim: false,
+      reason: 'You cannot claim next to another territory.',
+    };
+  }
+
+  const clothCount = countInventoryResource(state.player.inventory, 'cloth');
+  const stickCount = countInventoryResource(state.player.inventory, 'sticks');
+  if (clothCount < 1 || stickCount < 1) {
+    return {
+      canClaim: false,
+      reason: 'Claiming needs 1 Cloth and 1 Sticks for a banner.',
+    };
+  }
+
+  return { canClaim: true, reason: null };
+}
+
 export function getEnemiesAt(state: GameState, coord: HexCoord) {
   const tile = getTileAt(state, coord);
-  return tile.enemyIds
-    .map(
-      (enemyId) =>
-        state.enemies[enemyId] ??
-        makeEnemy(
-          state.seed,
-          coord,
-          tile.terrain,
-          enemyIndexFromId(enemyId),
-          tile.structure,
-          state.bloodMoonActive,
-        ),
-    )
-    .filter(Boolean);
+  return tile.enemyIds.map((enemyId) => {
+    const enemy = state.enemies[enemyId];
+    if (enemy) return enemy;
+
+    const hostile = isHostileTileEnemy(state, tile, enemyId);
+    const enemyName =
+      tile.claim?.npc?.enemyId === enemyId ? tile.claim.npc?.name : undefined;
+
+    return makeEnemy(
+      state.seed,
+      coord,
+      tile.terrain,
+      enemyIndexFromId(enemyId),
+      tile.structure,
+      state.bloodMoonActive,
+      {
+        enemyId,
+        aggressive: hostile,
+        name: enemyName,
+      },
+    );
+  });
 }
 
 export function getEnemyAt(state: GameState, coord: HexCoord) {
   return getEnemiesAt(state, coord)[0];
+}
+
+export function getHostileEnemyIds(state: GameState, coord: HexCoord) {
+  const tile = getTileAt(state, coord);
+  return tile.enemyIds.filter((enemyId) =>
+    isHostileTileEnemy(state, tile, enemyId),
+  );
+}
+
+function isHostileTileEnemy(state: GameState, tile: Tile, enemyId: string) {
+  if (tile.claim?.npc?.enemyId === enemyId) return false;
+  if (isFactionNpcEnemyId(enemyId)) return false;
+  const enemy = state.enemies[enemyId];
+  return enemy?.aggressive !== false;
 }
 
 export function getSafePathToTile(state: GameState, target: HexCoord) {
@@ -301,7 +396,11 @@ export function getSafePathToTile(state: GameState, target: HexCoord) {
       visited.add(key);
 
       const tile = getTileAt(state, neighbor);
-      if (!isPassable(tile.terrain) || tile.enemyIds.length > 0) continue;
+      if (
+        !isPassable(tile.terrain) ||
+        getHostileEnemyIds(state, neighbor).length > 0
+      )
+        continue;
 
       const path = [...next.path, neighbor];
       if (neighbor.q === target.q && neighbor.r === target.r) {
@@ -341,12 +440,13 @@ export function moveToTile(state: GameState, target: HexCoord): GameState {
     return next;
   }
 
-  if (tile.enemyIds.length > 0) {
-    next.combat = createCombatState(target, tile.enemyIds, next.worldTimeMs);
+  const hostileEnemyIds = getHostileEnemyIds(next, target);
+  if (hostileEnemyIds.length > 0) {
+    next.combat = createCombatState(target, hostileEnemyIds, next.worldTimeMs);
     addLog(
       next,
       'combat',
-      `You encounter ${tile.enemyIds.length} foe${tile.enemyIds.length > 1 ? 's' : ''}. Press Start to begin the battle.`,
+      `You encounter ${hostileEnemyIds.length} foe${hostileEnemyIds.length > 1 ? 's' : ''}. Press Start to begin the battle.`,
     );
     return next;
   }
@@ -513,6 +613,11 @@ export function setHomeHex(
   state: GameState,
   coord: HexCoord = state.player.coord,
 ) {
+  const targetTile = getTileAt(state, coord);
+  if (targetTile.claim && !isPlayerClaim(targetTile.claim)) {
+    return message(state, t('game.message.home.blockedByTerritory'));
+  }
+
   const next = clone(state);
   next.homeHex = { ...coord };
 
@@ -1012,6 +1117,36 @@ export function takeTileItem(state: GameState, itemId: string): GameState {
   return next;
 }
 
+export function claimCurrentHex(state: GameState): GameState {
+  if (state.gameOver) return state;
+  if (state.combat) return message(state, 'Finish the current battle first.');
+
+  const status = getCurrentHexClaimStatus(state);
+  if (!status.canClaim) {
+    return message(state, status.reason ?? 'This hex cannot be claimed.');
+  }
+
+  const next = clone(state);
+  ensureTileState(next, next.player.coord);
+  const key = hexKey(next.player.coord);
+  const tile = next.tiles[key];
+
+  consumeInventoryResource(next.player.inventory, 'cloth', 1);
+  consumeInventoryResource(next.player.inventory, 'sticks', 1);
+  tile.claim = makePlayerClaim();
+  next.tiles[key] = { ...tile };
+
+  addLog(
+    next,
+    'system',
+    t('game.message.claim.success', {
+      q: next.player.coord.q,
+      r: next.player.coord.r,
+    }),
+  );
+  return next;
+}
+
 export function interactWithStructure(state: GameState): GameState {
   if (state.gameOver) return state;
   if (state.combat) return message(state, 'Finish the current battle first.');
@@ -1449,6 +1584,55 @@ function syncCombatEnemies(state: GameState) {
   }
 }
 
+function countInventoryResource(
+  inventory: Item[],
+  itemKey: 'cloth' | 'sticks',
+) {
+  return inventory.reduce((total, item) => {
+    if (item.kind !== 'resource') return total;
+    if (item.itemKey === itemKey) return total + item.quantity;
+    if (
+      (itemKey === 'cloth' && item.name === itemName('cloth')) ||
+      (itemKey === 'sticks' && item.name === itemName('sticks'))
+    ) {
+      return total + item.quantity;
+    }
+    return total;
+  }, 0);
+}
+
+function consumeInventoryResource(
+  inventory: Item[],
+  itemKey: 'cloth' | 'sticks',
+  quantity: number,
+) {
+  let remaining = quantity;
+  for (
+    let index = inventory.length - 1;
+    index >= 0 && remaining > 0;
+    index -= 1
+  ) {
+    const item = inventory[index];
+    if (
+      item.kind !== 'resource' ||
+      (item.itemKey !== itemKey &&
+        !(
+          (itemKey === 'cloth' && item.name === itemName('cloth')) ||
+          (itemKey === 'sticks' && item.name === itemName('sticks'))
+        ))
+    ) {
+      continue;
+    }
+
+    const spent = Math.min(item.quantity, remaining);
+    item.quantity -= spent;
+    remaining -= spent;
+    if (item.quantity <= 0) {
+      inventory.splice(index, 1);
+    }
+  }
+}
+
 function message(state: GameState, text: string): GameState {
   const next = clone(state);
   addLog(next, 'system', text);
@@ -1504,6 +1688,12 @@ function clone(state: GameState): GameState {
           coord: { ...tile.coord },
           items: tile.items.map((item) => ({ ...item })),
           enemyIds: [...tile.enemyIds],
+          claim: tile.claim
+            ? {
+                ...tile.claim,
+                npc: tile.claim.npc ? { ...tile.claim.npc } : undefined,
+              }
+            : undefined,
         },
       ]),
     ),
@@ -1796,7 +1986,13 @@ function spawnBloodMoonEnemies(state: GameState) {
       ensureTileState(state, coord);
       const key = hexKey(coord);
       const tile = state.tiles[key];
-      if (!canSpawnBloodMoonEnemiesOnTile(tile.terrain, tile.structure))
+      if (
+        !canSpawnBloodMoonEnemiesOnTile(
+          tile.terrain,
+          tile.structure,
+          tile.claim,
+        )
+      )
         continue;
 
       const rng = createRng(
@@ -1966,7 +2162,12 @@ function findNearbyDungeonSpawn(
       ensureTileState(state, coord);
       const tile = state.tiles[hexKey(coord)];
       if (!isPassable(tile.terrain)) continue;
-      if (tile.structure || tile.enemyIds.length > 0 || tile.items.length > 0) {
+      if (
+        tile.structure ||
+        tile.enemyIds.length > 0 ||
+        tile.items.length > 0 ||
+        tile.claim
+      ) {
         continue;
       }
       candidates.push(coord);
@@ -1992,6 +2193,7 @@ function findNearbyDungeonSpawn(
 function canSpawnHarvestMoonResourceOnTile(tile: import('./types').Tile) {
   return (
     isPassable(tile.terrain) &&
+    !tile.claim &&
     !tile.structure &&
     tile.enemyIds.length === 0 &&
     tile.items.length === 0
@@ -2001,8 +2203,10 @@ function canSpawnHarvestMoonResourceOnTile(tile: import('./types').Tile) {
 function canSpawnBloodMoonEnemiesOnTile(
   terrain: Terrain,
   structure?: StructureType,
+  claim?: TileClaim,
 ) {
   if (!isPassable(terrain)) return false;
+  if (claim) return false;
   if (structure && structure !== 'dungeon') return false;
   return true;
 }

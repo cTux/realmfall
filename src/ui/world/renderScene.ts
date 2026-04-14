@@ -10,7 +10,7 @@ import {
   type Tile,
 } from '../../game/state';
 import { hexKey } from '../../game/hex';
-import { enemyIconFor, structureIconFor } from './worldIcons';
+import { WorldIcons, enemyIconFor, structureIconFor } from './worldIcons';
 import { WORLD_REVEAL_RADIUS } from '../../app/constants';
 import { scaleColor } from './timeOfDay';
 import {
@@ -50,6 +50,21 @@ import {
   updateWorldMapFishEyeFilter,
   WORLD_MAP_FISHEYE_ENABLED,
 } from './worldMapFishEye';
+
+const HEX_SIDE_VERTEX_INDICES = [
+  [0, 1],
+  [5, 0],
+  [4, 5],
+  [3, 4],
+  [2, 3],
+  [1, 2],
+] as const;
+const HOME_HEX_TINT_COLOR = 0xa855f7;
+const HOME_HEX_TINT_ALPHA = 0.22;
+const SAFE_PATH_TINT_COLOR = 0x38bdf8;
+const SAFE_PATH_TINT_ALPHA = 0.34;
+const SAFE_PATH_HEX_INSET = 2;
+const HOME_HEX_TINT_INSET = 3;
 
 export function renderScene(
   app: Application,
@@ -116,6 +131,9 @@ export function renderScene(
   const hoveredSafePathKeys = new Set(
     (hoveredSafePath ?? []).map((coord) => hexKey(coord)),
   );
+  const visibleTileMap = new Map(
+    visibleTiles.map((tile) => [hexKey(tile.coord), tile] as const),
+  );
 
   if (shouldRenderStatic) {
     beginStaticSceneRender(scene);
@@ -140,11 +158,17 @@ export function renderScene(
     const point = tileToPoint(relative, origin.x, origin.y, hexSize);
     const poly = makeHex(point.x, point.y, hexSize);
     const style = tileStyle(tile.terrain);
+    const isHomeTile =
+      tile.coord.q === state.homeHex.q && tile.coord.r === state.homeHex.r;
     const hovered =
       hoveredMove?.q === tile.coord.q && hoveredMove?.r === tile.coord.r;
     const highlightedInSafePath = hoveredSafePathKeys.has(hexKey(tile.coord));
-    const isHomeTile =
-      tile.coord.q === state.homeHex.q && tile.coord.r === state.homeHex.r;
+    const insetPx = isHomeTile
+      ? HOME_HEX_TINT_INSET
+      : highlightedInSafePath
+        ? SAFE_PATH_HEX_INSET
+        : 0;
+    const safePolygon = makeInsetHex(point, hexSize, insetPx);
     const hasBackground = hasTileGroundCover(tile.terrain);
     if (shouldRenderStatic) {
       const fillAlpha = hasBackground ? 0.2 : emphasized ? style.alpha : 0.8;
@@ -153,6 +177,13 @@ export function renderScene(
       shape.lineStyle(1, 0x1e293b, 0.9);
       shape.drawPolygon(poly);
       shape.endFill();
+
+      if (isHomeTile) {
+        const homeTint = takeGraphics(scene.worldStaticDetailGraphics);
+        homeTint.beginFill(HOME_HEX_TINT_COLOR, HOME_HEX_TINT_ALPHA);
+        homeTint.drawPolygon(safePolygon);
+        homeTint.endFill();
+      }
 
       if (!revealed) {
         const fog = takeGraphics(scene.worldStaticDetailGraphics);
@@ -200,8 +231,26 @@ export function renderScene(
         );
       }
 
-      if (enemies.length > 0 && tile.structure !== 'dungeon') {
-        const leadEnemy = enemies[0];
+      const hostileEnemies = enemies.filter(
+        (enemy) => enemy.aggressive !== false,
+      );
+
+      if (tile.claim?.npc?.enemyId) {
+        const marker = takeShadowedSprite(
+          scene.worldStaticMarkerSprites,
+          WorldIcons.Village,
+        );
+        configureShadowedSprite(
+          marker,
+          0xffffff,
+          enemyIconSize,
+          enemyIconSize,
+          1,
+          shadowOffset,
+          point,
+        );
+      } else if (hostileEnemies.length > 0 && tile.structure !== 'dungeon') {
+        const leadEnemy = hostileEnemies[0];
         const sprite = takeShadowedSprite(
           scene.worldStaticMarkerSprites,
           enemyIconFor(leadEnemy.name),
@@ -219,6 +268,16 @@ export function renderScene(
           },
         );
       }
+
+      if (tile.claim) {
+        renderClaimBorder(
+          scene.worldStaticDetailGraphics,
+          tile,
+          poly,
+          visibleTileMap,
+          isHomeTile || highlightedInSafePath,
+        );
+      }
     }
 
     if (tile.structure === 'camp') {
@@ -233,12 +292,6 @@ export function renderScene(
     }
 
     if (shouldRenderInteraction) {
-      if (isHomeTile) {
-        const homeOutline = takeGraphics(scene.worldInteractionGraphics);
-        homeOutline.lineStyle(3, 0xa855f7, 0.92);
-        homeOutline.drawPolygon(poly);
-      }
-
       if (hovered) {
         const hoverOverlay = takeGraphics(scene.worldInteractionGraphics);
         hoverOverlay.beginFill(
@@ -251,8 +304,9 @@ export function renderScene(
 
       if (highlightedInSafePath) {
         const safePathOverlay = takeGraphics(scene.worldInteractionGraphics);
-        safePathOverlay.lineStyle(3, 0x38bdf8, hovered ? 0.9 : 0.72);
-        safePathOverlay.drawPolygon(poly);
+        safePathOverlay.beginFill(SAFE_PATH_TINT_COLOR, SAFE_PATH_TINT_ALPHA);
+        safePathOverlay.drawPolygon(safePolygon);
+        safePathOverlay.endFill();
       }
 
       if (
@@ -318,6 +372,45 @@ export function renderScene(
   completeAnimatedSceneRender(scene);
 }
 
+function renderClaimBorder(
+  graphicsPool: ReturnType<typeof getSceneCache>['worldStaticDetailGraphics'],
+  tile: Tile,
+  poly: number[],
+  visibleTileMap: Map<string, Tile>,
+  suppressBorder: boolean,
+) {
+  const claim = tile.claim;
+  if (suppressBorder) return;
+  if (!claim) return;
+  const borderColor = 0xffffff;
+
+  const neighbors = [
+    { q: tile.coord.q + 1, r: tile.coord.r },
+    { q: tile.coord.q + 1, r: tile.coord.r - 1 },
+    { q: tile.coord.q, r: tile.coord.r - 1 },
+    { q: tile.coord.q - 1, r: tile.coord.r },
+    { q: tile.coord.q - 1, r: tile.coord.r + 1 },
+    { q: tile.coord.q, r: tile.coord.r + 1 },
+  ];
+
+  neighbors.forEach((neighbor, sideIndex) => {
+    const neighborClaim = visibleTileMap.get(hexKey(neighbor))?.claim;
+    if (
+      neighborClaim?.ownerId === claim.ownerId &&
+      neighborClaim?.ownerType === claim.ownerType
+    ) {
+      return;
+    }
+
+    const [startVertexIndex, endVertexIndex] =
+      HEX_SIDE_VERTEX_INDICES[sideIndex];
+    const border = takeGraphics(graphicsPool);
+    border.lineStyle(claim.ownerType === 'player' ? 4 : 3, borderColor, 0.92);
+    border.moveTo(poly[startVertexIndex * 2], poly[startVertexIndex * 2 + 1]);
+    border.lineTo(poly[endVertexIndex * 2], poly[endVertexIndex * 2 + 1]);
+  });
+}
+
 function getCloudRenderInputs(
   scene: ReturnType<typeof getSceneCache>,
   seed: string,
@@ -334,6 +427,14 @@ function getCloudRenderInputs(
   }
 
   return cloudInputs;
+}
+
+function makeInsetHex(
+  point: ReturnType<typeof tileToPoint>,
+  size: number,
+  inset: number,
+) {
+  return makeHex(point.x, point.y, Math.max(1, size - inset));
 }
 
 function getTileGroundCoverPresentationCached(

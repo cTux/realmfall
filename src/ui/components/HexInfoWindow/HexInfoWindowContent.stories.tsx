@@ -28,6 +28,7 @@ const meta = {
   ],
   args: {
     onInteract: noopAction,
+    onClaim: noopAction,
     onProspect: noopAction,
     onSellAll: noopAction,
     onBuyItem: noopBuyItem,
@@ -38,6 +39,7 @@ const meta = {
     controls: {
       exclude: [
         'onInteract',
+        'onClaim',
         'onProspect',
         'onSellAll',
         'onBuyItem',
@@ -149,12 +151,17 @@ function buildStructureArgs(
     enemyCount: overrides.enemyCount ?? (structure === 'dungeon' ? 2 : 0),
     interactLabel: overrides.interactLabel ?? structureActionLabel(structure),
     canInteract: overrides.canInteract ?? false,
+    canClaim: overrides.canClaim ?? true,
     canProspect: overrides.canProspect ?? false,
     canSell: overrides.canSell ?? false,
+    claimExplanation: overrides.claimExplanation ?? null,
     prospectExplanation: overrides.prospectExplanation ?? null,
     sellExplanation: overrides.sellExplanation ?? null,
     structureHp: overrides.structureHp,
     structureMaxHp: overrides.structureMaxHp,
+    territoryName: overrides.territoryName ?? null,
+    territoryOwnerType: overrides.territoryOwnerType ?? null,
+    territoryNpc: overrides.territoryNpc ?? null,
     townStock: overrides.townStock ?? [],
     gold: overrides.gold ?? 0,
   };
@@ -202,6 +209,7 @@ function makeItem(
 type StoryArgs = Omit<
   ComponentProps<typeof HexInfoWindowContent>,
   | 'onInteract'
+  | 'onClaim'
   | 'onProspect'
   | 'onSellAll'
   | 'onBuyItem'

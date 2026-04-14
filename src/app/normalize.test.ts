@@ -367,4 +367,35 @@ describe('normalizeLoadedGame', () => {
       name: 'Hearthshard Wayscroll',
     });
   });
+
+  it('preserves claim metadata and neutral residents on tiles', () => {
+    const game = createGame(3, 'normalize-claims');
+
+    const loaded = normalizeLoadedGame({
+      ...game,
+      tiles: {
+        '1,0': {
+          coord: { q: 1, r: 0 },
+          terrain: 'plains',
+          items: [],
+          enemyIds: [],
+          claim: {
+            ownerId: 'faction-1',
+            ownerType: 'faction',
+            ownerName: 'Arkenreach',
+            borderColor: '#f59e0b',
+            npc: { name: 'Araken' },
+          },
+        },
+      },
+    });
+
+    expect(loaded.tiles['1,0'].claim).toEqual({
+      ownerId: 'faction-1',
+      ownerType: 'faction',
+      ownerName: 'Arkenreach',
+      borderColor: '#f59e0b',
+      npc: { name: 'Araken' },
+    });
+  });
 });

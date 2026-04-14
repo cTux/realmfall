@@ -15,6 +15,7 @@ import {
   type Item,
   type LogKind,
   getPlayerStats,
+  getHostileEnemyIds,
   type Tile,
 } from '../../game/state';
 import {
@@ -99,6 +100,9 @@ interface AppWindowsProps {
   interactLabel: string | null;
   canProspect: boolean;
   canSell: boolean;
+  claimStatus: ReturnType<
+    typeof import('../../game/state').getCurrentHexClaimStatus
+  >;
   prospectExplanation: string | null;
   sellExplanation: string | null;
   townStock: ReturnType<typeof import('../../game/state').getTownStock>;
@@ -168,6 +172,7 @@ interface AppWindowsProps {
   onProspect: () => void;
   onSellAll: () => void;
   onBuyTownItem: (itemId: string) => void;
+  onClaimHex: () => void;
   onSetHome: () => void;
 }
 
@@ -184,6 +189,7 @@ export function AppWindows({
   interactLabel,
   canProspect,
   canSell,
+  claimStatus,
   prospectExplanation,
   sellExplanation,
   townStock,
@@ -225,6 +231,7 @@ export function AppWindows({
   onProspect,
   onSellAll,
   onBuyTownItem,
+  onClaimHex,
   onSetHome,
 }: AppWindowsProps) {
   const tooltip = useTooltipState();
@@ -353,6 +360,9 @@ export function AppWindows({
               game.homeHex.q === game.player.coord.q &&
               game.homeHex.r === game.player.coord.r
             }
+            canSetHome={
+              !currentTile.claim || currentTile.claim.ownerType === 'player'
+            }
             onSetHome={onSetHome}
             terrain={formatTerrainLabel(currentTile.terrain)}
             structure={
@@ -363,19 +373,25 @@ export function AppWindows({
             enemyCount={
               game.combat
                 ? (combatSnapshot?.enemies.length ?? 0)
-                : currentTile.enemyIds.length
+                : getHostileEnemyIds(game, currentTile.coord).length
             }
             interactLabel={interactLabel}
             canInteract={Boolean(interactLabel)}
             canProspect={canProspect}
             canSell={canSell}
+            canClaim={claimStatus.canClaim}
+            claimExplanation={claimStatus.reason}
             prospectExplanation={prospectExplanation}
             sellExplanation={sellExplanation}
             onInteract={onInteract}
             onProspect={onProspect}
             onSellAll={onSellAll}
+            onClaim={onClaimHex}
             structureHp={currentTile.structureHp}
             structureMaxHp={currentTile.structureMaxHp}
+            territoryName={currentTile.claim?.ownerName ?? null}
+            territoryOwnerType={currentTile.claim?.ownerType ?? null}
+            territoryNpc={currentTile.claim?.npc ?? null}
             townStock={townStock}
             gold={gold}
             onBuyItem={onBuyTownItem}

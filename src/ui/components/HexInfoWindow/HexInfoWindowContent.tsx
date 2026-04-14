@@ -12,15 +12,20 @@ export function HexInfoWindowContent({
   terrain,
   structure,
   enemyCount,
-  interactLabel,
+  canClaim,
+  claimExplanation,
   canProspect,
   canSell,
   prospectExplanation,
   sellExplanation,
+  territoryNpc,
+  onClaim,
   onProspect,
   onSellAll,
   structureHp,
   structureMaxHp,
+  territoryName,
+  territoryOwnerType,
   townStock,
   gold,
   onBuyItem,
@@ -50,6 +55,17 @@ export function HexInfoWindowContent({
           <span className={styles.value}>{enemyCount}</span>
         </div>
       ) : null}
+      {territoryName ? (
+        <div className={styles.row}>
+          <span className={styles.label}>{t('ui.hexInfo.territoryLabel')}</span>
+          <span className={styles.value}>
+            {territoryName}
+            {territoryOwnerType === 'player'
+              ? ` (${t('ui.hexInfo.playerTerritoryValue')})`
+              : ''}
+          </span>
+        </div>
+      ) : null}
 
       {structureHp != null && structureMaxHp != null ? (
         <div className={styles.barBlock}>
@@ -69,6 +85,9 @@ export function HexInfoWindowContent({
       ) : null}
 
       <div className={styles.actions}>
+        <button onClick={onClaim} disabled={!canClaim}>
+          {t('ui.hexInfo.claimAction')}
+        </button>
         {canProspect ? (
           <button onClick={onProspect}>{t('ui.hexInfo.prospectAction')}</button>
         ) : null}
@@ -77,11 +96,22 @@ export function HexInfoWindowContent({
         ) : null}
       </div>
 
+      {claimExplanation ? (
+        <div className={styles.empty}>{claimExplanation}</div>
+      ) : null}
       {prospectExplanation ? (
         <div className={styles.empty}>{prospectExplanation}</div>
       ) : null}
       {sellExplanation ? (
         <div className={styles.empty}>{sellExplanation}</div>
+      ) : null}
+      {territoryNpc ? (
+        <div className={styles.shop}>
+          <div className={styles.shopTitle}>{t('ui.hexInfo.npcsTitle')}</div>
+          <div className={styles.shopRow}>
+            <span>{territoryNpc.name}</span>
+          </div>
+        </div>
       ) : null}
 
       {townStock.length > 0 ? (
@@ -114,7 +144,11 @@ export function HexInfoWindowContent({
         </div>
       ) : null}
 
-      {!interactLabel && !canProspect && !canSell && townStock.length === 0 ? (
+      {!canClaim &&
+      !canProspect &&
+      !canSell &&
+      townStock.length === 0 &&
+      !territoryName ? (
         <div className={styles.empty}>{t('ui.hexInfo.empty')}</div>
       ) : null}
     </div>
