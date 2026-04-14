@@ -18,12 +18,14 @@
 - Keep TypeScript strictness, ESLint, Prettier, tests, and Husky hooks working. New changes should not weaken existing quality gates.
 - Prefer the smallest correct change that fits the existing structure.
 - Apply the DRY principle. When logic, UI structure, or configuration patterns repeat, prefer extracting or extending an existing shared helper, component, or module instead of copying the pattern again.
+- When a requested JavaScript or TypeScript syntax preference can be enforced mechanically, prefer enabling or adjusting the corresponding ESLint rule instead of relying only on contributor discipline.
 - Preserve existing behavior unless the task explicitly changes behavior.
 - Favor existing project patterns over introducing new abstractions, state layers, or architectural styles without a clear need.
 - Keep documentation grounded in the current shipped behavior and known constraints, not aspirational plans.
 - Keep gameplay restrictions documented in `docs/RESTRICTIONS.md` in sync with implementation decisions.
 - When generating or naming world content such as places, factions, enemies, items, events, structures, or flavor text, align it with the established lore in `docs/lore/REALMFALL.md`.
 - In JavaScript and TypeScript, when a function immediately returns an expression, prefer concise arrow functions without a block body.
+- Keep ESLint syntax rules aligned with the current JavaScript and TypeScript style expectations so these conventions are auto-checked and auto-fixable when practical.
 
 ## Architecture
 

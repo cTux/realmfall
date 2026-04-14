@@ -125,11 +125,13 @@ The world view is the most performance-sensitive path in the project.
 - Keep TypeScript strictness, ESLint, Prettier, tests, Husky hooks, and production builds working.
 - Prefer the smallest correct change that fits existing patterns.
 - Apply the DRY principle and prefer extending existing shared helpers, components, and config modules over duplicating similar logic.
+- When a JavaScript or TypeScript syntax convention should change, prefer enforcing it through an ESLint rule when that is practical.
 - Keep gameplay and simulation rules in `src/game`, app orchestration in `src/app`, React UI components in `src/ui/components`, and Pixi world rendering in `src/ui/world`.
 - Avoid growing already-large coordinator modules when a focused helper or hook is a better fit.
 - Keep balancing and world constants in config or focused modules instead of scattering magic numbers through UI code.
 - Keep each unique item, enemy, and structure in its own dedicated configuration file so gameplay and presentation data such as icons, drop or appearance chances, and structure-provided functions stay localized by content type.
 - In JavaScript and TypeScript, prefer concise arrow functions for immediate expression returns.
+- Keep ESLint style rules aligned with the current JavaScript and TypeScript syntax conventions so the preferred style is enforced automatically when possible.
 - Preserve save normalization when persisted shapes evolve.
 - Treat browser-side save protection as local obfuscation, not real security.
 - Prefer debounced or meaningfully-triggered persistence work over repeated identical writes.
