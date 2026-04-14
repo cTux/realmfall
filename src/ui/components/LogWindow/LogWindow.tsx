@@ -29,6 +29,8 @@ export const LogWindow = memo(function LogWindow({
   onToggleMenu,
   onToggleFilter,
   logs,
+  onHoverDetail,
+  onLeaveDetail,
 }: LogWindowProps) {
   return (
     <DraggableWindow
@@ -45,9 +47,23 @@ export const LogWindow = memo(function LogWindow({
       visible={visible}
       onClose={onClose}
       resizeBounds={{ minWidth: 360, minHeight: 240 }}
+      onHoverDetail={onHoverDetail}
+      onLeaveDetail={onLeaveDetail}
       headerActions={
         <div className={styles.toolbar}>
-          <button className={styles.headerButton} onClick={onToggleMenu}>
+          <button
+            className={styles.headerButton}
+            onClick={onToggleMenu}
+            onMouseEnter={(event) =>
+              onHoverDetail?.(
+                event,
+                t('ui.log.filtersAction'),
+                [{ kind: 'text', text: t('ui.tooltip.window.logFilters') }],
+                'rgba(74, 222, 128, 0.9)',
+              )
+            }
+            onMouseLeave={onLeaveDetail}
+          >
             {t('ui.log.filtersAction')}
           </button>
           {showFilterMenu ? (
@@ -71,7 +87,11 @@ export const LogWindow = memo(function LogWindow({
       }
     >
       <Suspense fallback={<WindowLoadingState />}>
-        <LogWindowContent logs={logs} />
+        <LogWindowContent
+          logs={logs}
+          onHoverDetail={onHoverDetail}
+          onLeaveDetail={onLeaveDetail}
+        />
       </Suspense>
     </DraggableWindow>
   );

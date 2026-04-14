@@ -154,12 +154,16 @@ function EntityCard({
         value={entity.hp}
         max={entity.maxHp}
         tone="hp"
+        onHoverDetail={onHoverDetail}
+        onLeaveDetail={onLeaveDetail}
       />
       <ResourceBar
         label={t('ui.combat.mp')}
         value={entity.mana}
         max={entity.maxMana}
         tone="mp"
+        onHoverDetail={onHoverDetail}
+        onLeaveDetail={onLeaveDetail}
       />
       {entity.buffs.length > 0 ? (
         <EffectList
@@ -220,11 +224,15 @@ function ResourceBar({
   value,
   max,
   tone,
+  onHoverDetail,
+  onLeaveDetail,
 }: {
   label: string;
   value: number;
   max: number;
   tone: 'hp' | 'mp';
+  onHoverDetail: CombatWindowProps['onHoverDetail'];
+  onLeaveDetail: CombatWindowProps['onLeaveDetail'];
 }) {
   const normalizedMax = Math.max(0, max);
   const width =
@@ -233,7 +241,26 @@ function ResourceBar({
       : 0;
 
   return (
-    <div className={styles.barTrack}>
+    <div
+      className={styles.barTrack}
+      onMouseEnter={(event) =>
+        onHoverDetail(
+          event,
+          label,
+          [
+            {
+              kind: 'text',
+              text:
+                tone === 'hp'
+                  ? t('ui.tooltip.bar.combatHp')
+                  : t('ui.tooltip.bar.combatMp'),
+            },
+          ],
+          'rgba(148, 163, 184, 0.9)',
+        )
+      }
+      onMouseLeave={onLeaveDetail}
+    >
       <div
         className={`${styles.barFill} ${tone === 'hp' ? styles.hpBar : styles.mpBar}`}
         style={{ width: `${width}%` }}

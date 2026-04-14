@@ -169,6 +169,37 @@ export function formatWorldCalendarDateTime(timestampMs: number) {
   });
 }
 
+export function parseWorldCalendarDateTime(timestampLabel: string) {
+  const match = timestampLabel.match(
+    /^Year (\d+), Day (\d+), (\d{2}):(\d{2})$/,
+  );
+  if (!match) return null;
+
+  const [, yearText, dayText, hourText, minuteText] = match;
+  const year = Number(yearText);
+  const day = Number(dayText);
+  const hours = Number(hourText);
+  const minutes = Number(minuteText);
+
+  if (
+    !Number.isFinite(year) ||
+    !Number.isFinite(day) ||
+    !Number.isFinite(hours) ||
+    !Number.isFinite(minutes)
+  ) {
+    return null;
+  }
+
+  const absoluteDay = (year - 1) * 365 + day;
+  const totalMinutes = hours * 60 + minutes;
+  const minuteOffsetMs =
+    totalMinutes === 0
+      ? 0
+      : Math.ceil((totalMinutes * GAME_DAY_DURATION_MS) / GAME_DAY_MINUTES);
+
+  return (absoluteDay - 1) * GAME_DAY_DURATION_MS + minuteOffsetMs;
+}
+
 export function getTimeOfDayLighting(
   totalMinutes: number,
   options?: { bloodMoon?: boolean; harvestMoon?: boolean },

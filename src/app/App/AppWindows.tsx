@@ -339,6 +339,8 @@ export function AppWindows({
           onBuyItem={onBuyTownItem}
           onHoverItem={onShowItemTooltip}
           onLeaveItem={onCloseTooltip}
+          onHoverDetail={onShowTooltip}
+          onLeaveDetail={onCloseTooltip}
         />
       ) : null}
       {loadedWindows.equipment ? (
@@ -367,6 +369,8 @@ export function AppWindows({
           onContextItem={onContextItem}
           onHoverItem={onShowItemTooltip}
           onLeaveItem={onCloseTooltip}
+          onHoverDetail={onShowTooltip}
+          onLeaveDetail={onCloseTooltip}
         />
       ) : null}
       {loadedWindows.loot ? (
@@ -381,6 +385,8 @@ export function AppWindows({
           onTakeItem={onTakeLootItem}
           onHoverItem={onShowItemTooltip}
           onLeaveItem={onCloseTooltip}
+          onHoverDetail={onShowTooltip}
+          onLeaveDetail={onCloseTooltip}
         />
       ) : null}
       {itemMenu ? (
@@ -426,6 +432,8 @@ export function AppWindows({
           onToggleMenu={onToggleFilterMenu}
           onToggleFilter={onToggleLogFilter}
           logs={filteredLogs}
+          onHoverDetail={onShowTooltip}
+          onLeaveDetail={onCloseTooltip}
         />
       ) : null}
       {loadedWindows.combat && combatSnapshot ? (
@@ -452,6 +460,7 @@ export function AppWindows({
           onStart={onStartCombat}
           onHoverDetail={onShowTooltip}
           onLeaveDetail={onCloseTooltip}
+          onHoverHeaderAction={onShowTooltip}
         />
       ) : null}
       <GameTooltip tooltip={tooltip} positionRef={tooltipPositionRef} />

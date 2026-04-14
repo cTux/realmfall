@@ -21,7 +21,9 @@ export const DebuggerWindow = memo(function DebuggerWindow({
   onMove,
   visible,
   onClose,
-  timeLabel,
+  worldTimeMs,
+  onHoverDetail,
+  onLeaveDetail,
 }: DebuggerWindowProps) {
   return (
     <DraggableWindow
@@ -36,9 +38,15 @@ export const DebuggerWindow = memo(function DebuggerWindow({
       visible={visible}
       onClose={onClose}
       className={styles.window}
+      onHoverDetail={onHoverDetail}
+      onLeaveDetail={onLeaveDetail}
     >
       <Suspense fallback={<WindowLoadingState />}>
-        <DebuggerWindowContent timeLabel={timeLabel} />
+        <DebuggerWindowContent
+          worldTimeMs={worldTimeMs}
+          onHoverDetail={onHoverDetail}
+          onLeaveDetail={onLeaveDetail}
+        />
       </Suspense>
     </DraggableWindow>
   );

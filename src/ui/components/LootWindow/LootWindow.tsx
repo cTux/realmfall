@@ -25,6 +25,8 @@ export const LootWindow = memo(function LootWindow({
   onTakeItem,
   onHoverItem,
   onLeaveItem,
+  onHoverDetail,
+  onLeaveDetail,
 }: LootWindowProps) {
   return (
     <DraggableWindow
@@ -34,6 +36,8 @@ export const LootWindow = memo(function LootWindow({
       className={styles.window}
       visible={visible}
       onClose={onClose}
+      onHoverDetail={onHoverDetail}
+      onLeaveDetail={onLeaveDetail}
       headerActions={
         <div className={styles.toolbar}>
           <div className={styles.actions}>
@@ -41,6 +45,15 @@ export const LootWindow = memo(function LootWindow({
               className={styles.headerButton}
               onClick={onTakeAll}
               disabled={loot.length === 0}
+              onMouseEnter={(event) =>
+                onHoverDetail?.(
+                  event,
+                  t('ui.loot.takeAllAction'),
+                  [{ kind: 'text', text: t('ui.tooltip.window.takeAllLoot') }],
+                  'rgba(74, 222, 128, 0.9)',
+                )
+              }
+              onMouseLeave={onLeaveDetail}
             >
               {t('ui.loot.takeAllAction')}
             </button>

@@ -1,10 +1,12 @@
 import {
+  formatWorldCalendarDateTime,
   formatWorldDateTime,
   formatWorldTime,
   GAME_DAY_DURATION_MS,
   getWorldDayFromTimestamp,
   isDaylight,
   isMoonRising,
+  parseWorldCalendarDateTime,
   getTimeOfDayLighting,
   getWorldTimeMinutesFromTimestamp,
 } from './timeOfDay';
@@ -37,6 +39,29 @@ describe('timeOfDay', () => {
     expect(
       formatWorldDateTime(GAME_DAY_DURATION_MS + GAME_DAY_DURATION_MS / 2),
     ).toBe('Day 2, 12:00');
+  });
+
+  it('round-trips full calendar timestamps through the shared formatter', () => {
+    const timestampMs =
+      410 * GAME_DAY_DURATION_MS + (75 / 1440) * GAME_DAY_DURATION_MS;
+
+    const formatted = formatWorldCalendarDateTime(timestampMs);
+
+    expect(formatted).toBe('Year 2, Day 46, 01:15');
+    expect(parseWorldCalendarDateTime(formatted)).toBeCloseTo(timestampMs, 3);
+  });
+
+  it('preserves exact formatted minutes when parsing calendar timestamps', () => {
+    expect(
+      formatWorldCalendarDateTime(
+        parseWorldCalendarDateTime('Year 1, Day 1, 00:01') ?? -1,
+      ),
+    ).toBe('Year 1, Day 1, 00:01');
+    expect(
+      formatWorldCalendarDateTime(
+        parseWorldCalendarDateTime('Year 1, Day 1, 23:59') ?? -1,
+      ),
+    ).toBe('Year 1, Day 1, 23:59');
   });
 
   it('brightens the world during the day and darkens it at night', () => {

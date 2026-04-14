@@ -1,15 +1,28 @@
 import FPSStats from 'react-fps-stats';
+import { CalendarTimestamp } from '../CalendarTimestamp';
 import type { DebuggerWindowProps } from './types';
 import styles from './styles.module.scss';
 
-type DebuggerWindowContentProps = Pick<DebuggerWindowProps, 'timeLabel'>;
+type DebuggerWindowContentProps = Pick<
+  DebuggerWindowProps,
+  'worldTimeMs' | 'onHoverDetail' | 'onLeaveDetail'
+>;
 
 export function DebuggerWindowContent({
-  timeLabel,
+  worldTimeMs,
+  onHoverDetail,
+  onLeaveDetail,
 }: DebuggerWindowContentProps) {
   return (
     <div className={styles.panel} aria-label="Debugger">
-      <strong className={styles.time}>{timeLabel}</strong>
+      <strong className={styles.time}>
+        <CalendarTimestamp
+          timestampMs={worldTimeMs}
+          display="full"
+          onHoverDetail={onHoverDetail}
+          onLeaveDetail={onLeaveDetail}
+        />
+      </strong>
       <div className={styles.graph}>
         <FPSStats
           top="auto"

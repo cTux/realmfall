@@ -39,6 +39,7 @@ import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import { getInventoryItemAction } from './appHelpers';
 import type { TooltipLine } from '../../ui/tooltips';
 import { setTooltipState } from './tooltipStore';
+import { getTooltipPlacementForRect } from '../../ui/tooltipPlacement';
 
 interface UseAppControllersOptions {
   gameRef: MutableRefObject<GameState>;
@@ -99,16 +100,14 @@ export function useAppControllers({
       equipped?: TooltipItem,
     ) => {
       const rect = event.currentTarget.getBoundingClientRect();
-      const position = {
-        x: rect.right + 12,
-        y: rect.top,
-      };
+      const position = getTooltipPlacementForRect(rect);
       tooltipPositionRef.current = position;
       setTooltipState({
         title: item.name,
         lines: itemTooltipLines(item, equipped),
         x: position.x,
         y: position.y,
+        placement: position.placement,
         borderColor: rarityColor(item.rarity),
       });
     },
@@ -123,16 +122,14 @@ export function useAppControllers({
       borderColor?: string,
     ) => {
       const rect = event.currentTarget.getBoundingClientRect();
-      const position = {
-        x: rect.right + 12,
-        y: rect.top,
-      };
+      const position = getTooltipPlacementForRect(rect);
       tooltipPositionRef.current = position;
       setTooltipState({
         title,
         lines,
         x: position.x,
         y: position.y,
+        placement: position.placement,
         borderColor,
       });
     },

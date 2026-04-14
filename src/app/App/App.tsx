@@ -81,15 +81,14 @@ export function App() {
     worldTimeMsRef,
   });
 
-  const { debuggerTimeLabel, setWorldTimeMs, worldTimeMinutes, worldTimeMs } =
-    useWorldClockFps({
-      initialWorldTimeMs: initialGameRef.current.worldTimeMs,
-      worldTimeMsRef,
-      worldTimeTickRef,
-      frameCountRef,
-      lastFpsSampleRef,
-      lastDisplayedWorldSecondRef,
-    });
+  const { setWorldTimeMs, worldTimeMinutes, worldTimeMs } = useWorldClockFps({
+    initialWorldTimeMs: initialGameRef.current.worldTimeMs,
+    worldTimeMsRef,
+    worldTimeTickRef,
+    frameCountRef,
+    lastFpsSampleRef,
+    lastDisplayedWorldSecondRef,
+  });
 
   const {
     claimStatus,
@@ -224,7 +223,9 @@ export function App() {
             position={windows.worldTime}
             onMove={(position) => moveWindow('worldTime', position)}
             onClose={() => setWindowVisibility('worldTime', false)}
-            timeLabel={debuggerTimeLabel}
+            worldTimeMs={worldTimeMs}
+            onHoverDetail={showTooltip}
+            onLeaveDetail={closeTooltip}
           />
         ) : null}
         <AppWindows

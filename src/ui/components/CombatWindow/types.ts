@@ -31,4 +31,10 @@ export interface CombatWindowProps {
     borderColor?: string,
   ) => void;
   onLeaveDetail: () => void;
+  onHoverHeaderAction?: (
+    event: ReactMouseEvent<HTMLElement>,
+    title: string,
+    lines: TooltipLine[],
+    borderColor?: string,
+  ) => void;
 }

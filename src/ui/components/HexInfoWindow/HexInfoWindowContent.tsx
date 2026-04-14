@@ -33,6 +33,8 @@ export function HexInfoWindowContent({
   onBuyItem,
   onHoverItem,
   onLeaveItem,
+  onHoverDetail,
+  onLeaveDetail,
 }: HexInfoWindowContentProps) {
   const hpPercent =
     structureHp != null && structureMaxHp
@@ -77,7 +79,18 @@ export function HexInfoWindowContent({
               {structureHp}/{structureMaxHp}
             </span>
           </div>
-          <div className={styles.barTrack}>
+          <div
+            className={styles.barTrack}
+            onMouseEnter={(event) =>
+              onHoverDetail?.(
+                event,
+                t('ui.hexInfo.structureHpLabel'),
+                [{ kind: 'text', text: t('ui.tooltip.bar.structureHp') }],
+                'rgba(248, 113, 113, 0.9)',
+              )
+            }
+            onMouseLeave={onLeaveDetail}
+          >
             <div
               className={styles.barFill}
               style={{ width: `${hpPercent}%` }}

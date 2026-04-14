@@ -37,6 +37,7 @@ export const GameTooltip = memo(function GameTooltip({
             ? { tooltip, visible: true }
             : current.tooltip.x === tooltip.x &&
                 current.tooltip.y === tooltip.y &&
+                current.tooltip.placement === tooltip.placement &&
                 current.tooltip.borderColor === tooltip.borderColor
               ? current
               : { tooltip, visible: current.visible },
@@ -96,6 +97,10 @@ export const GameTooltip = memo(function GameTooltip({
       style={{
         left: displayPosition.x,
         top: displayPosition.y,
+        transform:
+          rendered.tooltip.placement === 'left'
+            ? 'translateX(-100%)'
+            : undefined,
       }}
     >
       <strong

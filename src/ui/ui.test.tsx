@@ -933,12 +933,44 @@ describe('ui helpers and components', () => {
 
     expect(host.textContent).toContain('Lo(g)');
     expect(host.textContent).not.toContain(game.logs[0]?.text ?? '');
+    expect(host.textContent).toContain('00:00');
 
     await act(async () => {
       vi.advanceTimersByTime(2_000);
     });
 
-    expect(host.textContent).toContain(game.logs[0]?.text ?? '');
+    expect(host.textContent).toContain('00:00');
+    expect(host.textContent).toContain(
+      (game.logs[0]?.text ?? '').replace(/^\[.*?\]\s/, ''),
+    );
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('anchors left-placed tooltips against the hovered element', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+
+    await act(async () => {
+      root.render(
+        <GameTooltip
+          tooltip={{
+            title: 'Town',
+            x: 120,
+            y: 80,
+            placement: 'left',
+            lines: [{ kind: 'text', text: 'Safe rest and trade.' }],
+          }}
+        />,
+      );
+    });
+
+    const tooltip = host.querySelector('div[class*="tooltip"]') as HTMLElement;
+    expect(tooltip.style.transform).toBe('translateX(-100%)');
 
     await act(async () => {
       root.unmount();

@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState, type MutableRefObject } from 'react';
 import {
-  formatWorldCalendarDateTime,
   formatWorldDateTime,
   getWorldTimeMinutesFromTimestamp,
 } from '../../ui/world/timeOfDay';
@@ -76,13 +75,7 @@ export function useWorldClockFps({
     () => formatWorldDateTime(worldTimeMs),
     [worldTimeMs],
   );
-  const debuggerTimeLabel = useMemo(
-    () => formatWorldCalendarDateTime(worldTimeMs),
-    [worldTimeMs],
-  );
-
   return {
-    debuggerTimeLabel,
     fps,
     setWorldTimeMs,
     worldTimeLabel,

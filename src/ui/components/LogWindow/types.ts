@@ -1,5 +1,6 @@
 import type { WindowPosition } from '../../../app/constants';
 import type { LogEntry, LogKind } from '../../../game/state';
+import type { TooltipLine } from '../../tooltips';
 
 export interface LogWindowProps {
   position: WindowPosition;
@@ -12,4 +13,11 @@ export interface LogWindowProps {
   onToggleMenu: () => void;
   onToggleFilter: (kind: LogKind) => void;
   logs: LogEntry[];
+  onHoverDetail?: (
+    event: React.MouseEvent<HTMLElement>,
+    title: string,
+    lines: TooltipLine[],
+    borderColor?: string,
+  ) => void;
+  onLeaveDetail?: () => void;
 }

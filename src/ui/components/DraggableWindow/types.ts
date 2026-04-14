@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { WindowPosition } from '../../../app/constants';
+import type { TooltipLine } from '../../tooltips';
 
 export interface DraggableWindowProps {
   title: ReactNode;
@@ -16,4 +17,12 @@ export interface DraggableWindowProps {
     minWidth: number;
     minHeight: number;
   };
+  onHoverDetail?: (
+    event: React.MouseEvent<HTMLElement>,
+    title: string,
+    lines: TooltipLine[],
+    borderColor?: string,
+  ) => void;
+  onLeaveDetail?: () => void;
+  closeButtonTooltip?: string;
 }
