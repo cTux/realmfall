@@ -1,4 +1,5 @@
 import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
+import { isWorldBossEnemyId } from './worldBoss';
 import { t } from '../i18n';
 import { formatEquipmentSlotLabel, formatSkillLabel } from '../i18n/labels';
 import {
@@ -171,11 +172,8 @@ import type {
   Item,
   Player,
   PlayerStatusEffect,
-  TileClaim,
   Tile,
   TownStockEntry,
-  StructureType,
-  Terrain,
 } from './types';
 
 export function createGame(
@@ -285,7 +283,12 @@ export function getCurrentHexClaimStatus(state: GameState) {
     };
   }
 
-  if (tile.structure || tile.enemyIds.length > 0 || tile.items.length > 0) {
+  if (
+    tile.structure ||
+    tile.enemyIds.length > 0 ||
+    tile.items.length > 0 ||
+    isWorldBossFootprintOccupied(state, tile.coord)
+  ) {
     return {
       canClaim: false,
       reason: t('game.message.claim.status.emptyOnly'),
@@ -351,6 +354,7 @@ export function getEnemiesAt(state: GameState, coord: HexCoord) {
         enemyId,
         aggressive: hostile,
         name: enemyName,
+        worldBoss: isWorldBossEnemyId(enemyId),
       },
     );
   });
@@ -1777,6 +1781,24 @@ function maybeGatherByproduct(
 
 function maybeDropEnemyGold(state: GameState, enemy: import('./types').Enemy) {
   const rng = createRng(`${state.seed}:enemy-gold:${enemy.id}:${state.turn}`);
+  if (enemy.worldBoss) {
+    const quantity = Math.max(40, enemy.tier * 12 + Math.floor(rng() * 40));
+    ensureTileState(state, enemy.coord);
+    const key = hexKey(enemy.coord);
+    const tile = state.tiles[key];
+    addItemToInventory(tile.items, makeGoldStack(quantity));
+    state.tiles[key] = { ...tile, items: [...tile.items] };
+    addLog(
+      state,
+      'loot',
+      t('game.message.enemyDrop.gold', {
+        enemy: enemy.name,
+        amount: quantity,
+      }),
+    );
+    return;
+  }
+
   const chance = state.bloodMoonActive
     ? 1
     : enemy.elite
@@ -1909,13 +1931,17 @@ function maybeDropBloodMoonLoot(
   state: GameState,
   enemy: import('./types').Enemy,
 ) {
-  if (!state.bloodMoonActive) return;
+  if (!state.bloodMoonActive && !enemy.worldBoss) return;
 
   ensureTileState(state, enemy.coord);
   const key = hexKey(enemy.coord);
   const tile = state.tiles[key];
   const baseTier = Math.max(1, enemy.tier + (enemy.elite ? 1 : 0));
-  const minimumRarity = enemy.elite ? 'epic' : 'rare';
+  const minimumRarity = enemy.worldBoss
+    ? 'epic'
+    : enemy.elite
+      ? 'epic'
+      : 'rare';
   addItemToInventory(
     tile.items,
     makeBloodMoonDrop(state, enemy, 0, baseTier, minimumRarity),
@@ -1924,7 +1950,12 @@ function maybeDropBloodMoonLoot(
   const rng = createRng(
     `${state.seed}:blood-moon-loot:${enemy.id}:${state.turn}`,
   );
-  if (enemy.elite || rng() < 0.45) {
+  if (enemy.worldBoss) {
+    addItemToInventory(
+      tile.items,
+      makeBloodMoonDrop(state, enemy, 1, baseTier + 1, 'legendary'),
+    );
+  } else if (enemy.elite || rng() < 0.45) {
     addItemToInventory(
       tile.items,
       makeBloodMoonDrop(state, enemy, 1, baseTier + 1, minimumRarity),
@@ -1991,14 +2022,7 @@ function spawnBloodMoonEnemies(state: GameState) {
       ensureTileState(state, coord);
       const key = hexKey(coord);
       const tile = state.tiles[key];
-      if (
-        !canSpawnBloodMoonEnemiesOnTile(
-          tile.terrain,
-          tile.structure,
-          tile.claim,
-        )
-      )
-        continue;
+      if (!canSpawnBloodMoonEnemiesOnTile(state, tile)) continue;
 
       const rng = createRng(
         `${state.seed}:blood-moon-spawn:${state.bloodMoonCycle}:${key}`,
@@ -2070,7 +2094,7 @@ function spawnHarvestMoonResources(state: GameState) {
       ensureTileState(state, coord);
       const key = hexKey(coord);
       const tile = state.tiles[key];
-      if (!canSpawnHarvestMoonResourceOnTile(tile)) continue;
+      if (!canSpawnHarvestMoonResourceOnTile(state, tile)) continue;
 
       const rng = createRng(
         `${state.seed}:harvest-moon-spawn:${state.harvestMoonCycle}:${key}`,
@@ -2171,7 +2195,8 @@ function findNearbyDungeonSpawn(
         tile.structure ||
         tile.enemyIds.length > 0 ||
         tile.items.length > 0 ||
-        tile.claim
+        tile.claim ||
+        isWorldBossFootprintOccupied(state, coord)
       ) {
         continue;
       }
@@ -2195,25 +2220,63 @@ function findNearbyDungeonSpawn(
   );
 }
 
-function canSpawnHarvestMoonResourceOnTile(tile: import('./types').Tile) {
+function canSpawnHarvestMoonResourceOnTile(
+  state: GameState,
+  tile: import('./types').Tile,
+) {
   return (
     isPassable(tile.terrain) &&
     !tile.claim &&
     !tile.structure &&
     tile.enemyIds.length === 0 &&
-    tile.items.length === 0
+    tile.items.length === 0 &&
+    !isWorldBossFootprintOccupied(state, tile.coord)
   );
 }
 
 function canSpawnBloodMoonEnemiesOnTile(
-  terrain: Terrain,
-  structure?: StructureType,
-  claim?: TileClaim,
+  state: GameState,
+  tile: import('./types').Tile,
 ) {
-  if (!isPassable(terrain)) return false;
-  if (claim) return false;
-  if (structure && structure !== 'dungeon') return false;
+  if (!isPassable(tile.terrain)) return false;
+  if (tile.claim) return false;
+  if (tile.structure && tile.structure !== 'dungeon') return false;
+  if (isWorldBossFootprintOccupied(state, tile.coord)) return false;
   return true;
+}
+
+function isWorldBossFootprintOccupied(state: GameState, coord: HexCoord) {
+  const center = getWorldBossCenterFromStateOrGeneration(state, coord);
+  if (!center) return false;
+  if (center.q === coord.q && center.r === coord.r) return false;
+
+  const centerTile =
+    state.tiles[hexKey(center)] ?? buildTile(state.seed, center);
+  return centerTile.enemyIds.some(
+    (enemyId) => Boolean(state.enemies[enemyId]) || isWorldBossEnemyId(enemyId),
+  );
+}
+
+function getWorldBossCenterFromStateOrGeneration(
+  state: GameState,
+  coord: HexCoord,
+) {
+  for (const candidate of [coord, ...hexNeighbors(coord)]) {
+    const loadedEnemyIds = state.tiles[hexKey(candidate)]?.enemyIds;
+    if (loadedEnemyIds) {
+      if (loadedEnemyIds.some(isWorldBossEnemyId)) {
+        return candidate;
+      }
+      continue;
+    }
+
+    const generatedTile = buildTile(state.seed, candidate);
+    if (generatedTile.enemyIds.some(isWorldBossEnemyId)) {
+      return candidate;
+    }
+  }
+
+  return null;
 }
 
 function makeBloodMoonDrop(
@@ -2221,7 +2284,7 @@ function makeBloodMoonDrop(
   enemy: import('./types').Enemy,
   index: number,
   tier: number,
-  minimumRarity: 'rare' | 'epic',
+  minimumRarity: 'rare' | 'epic' | 'legendary',
 ) {
   const coord = enemy.coord;
   const seed = `${state.seed}:blood-moon-drop:${enemy.id}:${state.turn}:${index}`;

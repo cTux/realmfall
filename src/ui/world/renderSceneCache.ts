@@ -6,10 +6,7 @@ import {
   type Application,
 } from 'pixi.js';
 import type { GameState, HexCoord, getVisibleTiles } from '../../game/state';
-import type {
-  CloudRenderInput,
-  TileGroundCoverPresentation,
-} from './renderSceneEnvironment';
+import type { CloudRenderInput } from './renderSceneEnvironment';
 import { WorldIcons } from './worldIcons';
 import {
   createGraphicsPool,
@@ -39,7 +36,6 @@ import {
 
 const SCENE_CACHE_KEY = Symbol('renderSceneCache');
 const MAX_CLOUD_INPUT_CACHE_ENTRIES = 4;
-const MAX_TILE_GROUND_COVER_CACHE_ENTRIES = 4096;
 
 export const ENEMY_LEVEL_LABEL_STYLE = new TextStyle({
   fill: 0xfef2f2,
@@ -77,7 +73,6 @@ export interface SceneCache {
   cloudShadowSprites: SpritePool;
   cloudSprites: SpritePool;
   cloudInputsBySeed: Map<string, CloudRenderInput[]>;
-  tileGroundCoverPresentationByKey: Map<string, TileGroundCoverPresentation>;
   player: ShadowedSpriteEntry;
   staticState: GameState | null;
   staticVisibleTiles: ReturnType<typeof getVisibleTiles> | null;
@@ -173,7 +168,6 @@ export function getSceneCache(app: Application) {
     cloudShadowSprites: createSpritePool(cloudShadows),
     cloudSprites: createSpritePool(clouds),
     cloudInputsBySeed: new Map(),
-    tileGroundCoverPresentationByKey: new Map(),
     player,
     staticState: null,
     staticVisibleTiles: null,
@@ -269,5 +263,4 @@ export function setBoundedCachedValue<K, V>(
 
 export const SCENE_CACHE_LIMITS = {
   cloudInputsBySeed: MAX_CLOUD_INPUT_CACHE_ENTRIES,
-  tileGroundCoverPresentationByKey: MAX_TILE_GROUND_COVER_CACHE_ENTRIES,
 } as const;

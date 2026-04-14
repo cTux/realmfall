@@ -34,6 +34,8 @@ import {
   type GameState,
   type Item,
 } from './state';
+import { hexDistance, hexKey, hexNeighbors } from './hex';
+import { makeEnemy } from './combat';
 import {
   GAME_DAY_DURATION_MS,
   GAME_DAY_MINUTES,
@@ -42,8 +44,43 @@ import {
 } from './config';
 import { t } from '../i18n';
 import { normalizeLoadedGame } from '../app/normalize';
+import { buildTile } from './world';
 
 describe('game state', () => {
+  function createPlacedWorldBossEncounter() {
+    const game = createGame(8, 'placed-world-boss-seed');
+    const center = { q: 4, r: 0 };
+    const bossId = `world-boss-${hexKey(center)}`;
+
+    game.tiles[hexKey(center)] = {
+      coord: center,
+      terrain: 'forest',
+      items: [],
+      structure: undefined,
+      enemyIds: [bossId],
+    };
+    hexNeighbors(center).forEach((coord) => {
+      game.tiles[hexKey(coord)] = {
+        coord,
+        terrain: 'forest',
+        items: [],
+        structure: undefined,
+        enemyIds: [],
+      };
+    });
+    game.enemies[bossId] = makeEnemy(
+      game.seed,
+      center,
+      'forest',
+      0,
+      undefined,
+      false,
+      { enemyId: bossId, worldBoss: true },
+    );
+
+    return { game, center, bossId };
+  }
+
   it('creates a centered start in a visible hex viewport', () => {
     const game = createGame(3, 'test-seed');
     expect(game.player.coord).toEqual({ q: 0, r: 0 });
@@ -196,8 +233,12 @@ describe('game state', () => {
   it('generates faction territories with borders, neutral residents, and safe interiors', () => {
     const game = createGame(6, 'faction-territory-seed');
     const factionNpcTile = findFactionNpcTile(game, 36);
+    const factionTownTile = findFactionTownTile(game, 36);
 
     expect(factionNpcTile).toBeDefined();
+    expect(factionTownTile).toBeDefined();
+    expect(factionTownTile?.claim?.ownerType).toBe('faction');
+    expect(factionTownTile?.structure).toBe('town');
     expect(factionNpcTile?.claim?.ownerType).toBe('faction');
     expect(factionNpcTile?.claim?.npc).toBeDefined();
     expect(factionNpcTile?.enemyIds).toEqual([
@@ -1201,6 +1242,217 @@ describe('game state', () => {
     ).toBe(true);
   });
 
+  it('spawns world bosses with boosted stats, a footprint, and guaranteed premium loot', () => {
+    const { game, center } = createPlacedWorldBossEncounter();
+    const centerTile = getTileAt(game, center);
+    const worldBoss = getEnemyAt(game, center);
+    const ordinaryEnemy = makeEnemy(
+      game.seed,
+      center,
+      centerTile.terrain,
+      0,
+      undefined,
+      false,
+      { worldBoss: false },
+    );
+
+    expect(centerTile.enemyIds).toHaveLength(1);
+    expect(worldBoss?.worldBoss).toBe(true);
+    expect(worldBoss?.maxHp).toBe(ordinaryEnemy.maxHp * 50);
+    expect(worldBoss?.attack).toBe(ordinaryEnemy.attack * 5);
+    expect(worldBoss?.defense).toBeGreaterThan(ordinaryEnemy.defense);
+
+    const footprintTiles = getVisibleTiles({
+      ...game,
+      player: { ...game.player, coord: center },
+    }).filter((tile) => hexDistance(tile.coord, center) <= 1);
+    expect(footprintTiles).toHaveLength(7);
+    expect(
+      footprintTiles.every((tile) =>
+        tile.coord.q === center.q && tile.coord.r === center.r
+          ? tile.enemyIds.length === 1
+          : tile.enemyIds.length === 0 &&
+            tile.items.length === 0 &&
+            tile.structure === undefined,
+      ),
+    ).toBe(true);
+
+    const approach = footprintTiles.find(
+      (tile) =>
+        hexDistance(tile.coord, center) === 1 &&
+        tile.terrain !== 'rift' &&
+        tile.terrain !== 'mountain',
+    )?.coord;
+    expect(approach).toBeDefined();
+
+    game.player.coord = approach!;
+    game.enemies[centerTile.enemyIds[0]] = {
+      ...worldBoss!,
+      hp: 1,
+      maxHp: 1,
+      attack: 0,
+      defense: 0,
+    };
+
+    const encountered = moveToTile(game, center);
+    const resolved = startCombat(encountered);
+    const loot = getTileAt(resolved, center).items;
+
+    expect(loot.some((item) => item.name === 'Gold')).toBe(true);
+    expect(
+      loot.some(
+        (item) =>
+          ['weapon', 'armor', 'artifact'].includes(item.kind) &&
+          ['epic', 'legendary'].includes(item.rarity),
+      ),
+    ).toBe(true);
+    expect(
+      loot.some(
+        (item) =>
+          ['weapon', 'armor', 'artifact'].includes(item.kind) &&
+          item.rarity === 'legendary',
+      ),
+    ).toBe(true);
+  });
+
+  it('does not promote ordinary spawns on a boss-center hex into world bosses', () => {
+    const { game, center } = createPlacedWorldBossEncounter();
+    const centerTile = getTileAt(game, center);
+
+    const ordinarySpawn = makeEnemy(
+      game.seed,
+      center,
+      centerTile.terrain,
+      1,
+      undefined,
+      false,
+      { enemyId: 'enemy-boss-center-1' },
+    );
+    const explicitBoss = makeEnemy(
+      game.seed,
+      center,
+      centerTile.terrain,
+      0,
+      undefined,
+      false,
+      { enemyId: centerTile.enemyIds[0], worldBoss: true },
+    );
+
+    expect(ordinarySpawn.worldBoss).toBe(false);
+    expect(ordinarySpawn.maxHp).toBeLessThan(explicitBoss.maxHp);
+    expect(ordinarySpawn.attack).toBeLessThan(explicitBoss.attack);
+    expect(ordinarySpawn.defense).toBeLessThan(explicitBoss.defense);
+  });
+
+  it('treats non-center world boss footprint hexes as occupied until the boss dies', () => {
+    const { game, center, bossId } = createPlacedWorldBossEncounter();
+    const footprintHex = getVisibleTiles({
+      ...game,
+      player: { ...game.player, coord: center },
+    }).find((tile) => hexDistance(tile.coord, center) === 1)?.coord;
+
+    expect(footprintHex).toBeDefined();
+
+    game.player.coord = footprintHex!;
+    game.player.inventory.push(
+      {
+        id: 'claim-cloth',
+        itemKey: 'cloth',
+        kind: 'resource',
+        name: 'Cloth',
+        quantity: 1,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+        thirst: 0,
+      },
+      {
+        id: 'claim-sticks',
+        itemKey: 'sticks',
+        kind: 'resource',
+        name: 'Sticks',
+        quantity: 1,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+        thirst: 0,
+      },
+    );
+
+    const blocked = claimCurrentHex(game);
+    expect(getTileAt(blocked, footprintHex!).claim).toBeUndefined();
+    expect(blocked.logs[0]?.text).toContain(
+      t('game.message.claim.status.emptyOnly'),
+    );
+
+    delete game.enemies[bossId];
+    game.tiles[`${center.q},${center.r}`] = {
+      ...getTileAt(game, center),
+      enemyIds: [],
+    };
+
+    const claimed = claimCurrentHex(game);
+    expect(getTileAt(claimed, footprintHex!).claim?.ownerType).toBe('player');
+  });
+
+  it('reserves generated boss footprint hexes even before the center tile is loaded', () => {
+    const { game, center } = createGeneratedWorldBossEncounter();
+    const footprintHex =
+      hexNeighbors(center).find((coord) => {
+        const tile = buildTile(game.seed, coord);
+        return tile.terrain !== 'rift' && tile.terrain !== 'mountain';
+      }) ?? hexNeighbors(center)[0]!;
+
+    game.player.coord = footprintHex;
+    game.tiles[hexKey(footprintHex)] = buildTile(game.seed, footprintHex);
+    delete game.tiles[hexKey(center)];
+    game.player.inventory.push(
+      {
+        id: 'generated-claim-cloth',
+        itemKey: 'cloth',
+        kind: 'resource',
+        name: 'Cloth',
+        quantity: 1,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'generated-claim-sticks',
+        itemKey: 'sticks',
+        kind: 'resource',
+        name: 'Sticks',
+        quantity: 1,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    );
+
+    const blocked = claimCurrentHex(game);
+
+    expect(getTileAt(blocked, footprintHex).claim).toBeUndefined();
+    expect(blocked.logs[0]?.text).toContain(
+      t('game.message.claim.status.emptyOnly'),
+    );
+  });
+
   it('turns an emptied dungeon back into a regular hex', () => {
     const game = createGame(3, 'dungeon-clear-seed');
     const target = { q: 2, r: 0 };
@@ -2023,6 +2275,47 @@ function findFactionNpcTile(
   }
 
   return undefined;
+}
+
+function findFactionTownTile(
+  game: ReturnType<typeof createGame>,
+  maxDistance: number,
+) {
+  for (let q = -maxDistance; q <= maxDistance; q += 1) {
+    for (let r = -maxDistance; r <= maxDistance; r += 1) {
+      const distance = Math.max(Math.abs(q), Math.abs(r), Math.abs(-q - r));
+      if (distance > maxDistance) continue;
+      const tile = getTileAt(game, { q, r });
+      if (tile.claim?.ownerType === 'faction' && tile.structure === 'town') {
+        return tile;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+function createGeneratedWorldBossEncounter() {
+  for (let seedIndex = 0; seedIndex < 32; seedIndex += 1) {
+    const game = createGame(20, `generated-footprint-reservation-${seedIndex}`);
+
+    for (let q = -20; q <= 20; q += 1) {
+      for (let r = -20; r <= 20; r += 1) {
+        const distance = Math.max(Math.abs(q), Math.abs(r), Math.abs(-q - r));
+        if (distance > 20) continue;
+        const coord = { q, r };
+        if (
+          buildTile(game.seed, coord).enemyIds.some((enemyId) =>
+            enemyId.startsWith('world-boss-'),
+          )
+        ) {
+          return { game, center: coord };
+        }
+      }
+    }
+  }
+
+  throw new Error('Expected to find a generated world boss encounter');
 }
 
 function makeCombatState(

@@ -9,8 +9,8 @@ export const ironOreStructureConfig: StructureConfig = {
   tint: 0x94a3b8,
   functionsProvided: ['mine-iron'],
   appearanceChanceByTerrain: {
-    swamp: 0.3,
-    forest: 0.3,
+    swamp: 0.82,
+    forest: 0.82,
   },
   gathering: {
     actionLabel: 'Mine Iron Vein',

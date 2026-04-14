@@ -28,6 +28,11 @@ import {
   terrainTier,
 } from './shared';
 import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
+import {
+  isWorldBossCenter,
+  isWorldBossEnemyId,
+  worldBossEnemyId,
+} from './worldBoss';
 import type {
   EquipmentSlot,
   GameState,
@@ -88,6 +93,7 @@ export function ensureTileState(state: GameState, coord: HexCoord) {
           enemyId,
           name: enemyName,
           aggressive: !isFactionNpcEnemyId(enemyId),
+          worldBoss: isWorldBossEnemyId(enemyId),
         },
       );
     }
@@ -108,42 +114,39 @@ export function buildTile(seed: string, coord: HexCoord): Tile {
   }
 
   const terrain = pickTerrain(seed, coord);
-  const factionClaim = getFactionClaim(seed, coord);
-  const territoryNpcEnemyId = makeFactionNpcEnemyId(coord);
-  const structureCandidate = isPassable(terrain)
-    ? (getFactionStructure(seed, coord) ?? pickStructure(seed, coord, terrain))
-    : undefined;
-  const structure =
-    factionClaim?.npc && structureCandidate !== undefined
-      ? undefined
-      : structureCandidate;
-  const structureStats = structure ? makeStructureState(structure) : undefined;
-  const enemyIds = buildEnemyIds(
-    seed,
-    coord,
-    terrain,
-    structure,
-    factionClaim ?? undefined,
-    territoryNpcEnemyId,
-  );
-  const items = maybeLoot(
-    seed,
-    coord,
-    terrain,
-    enemyIds.length > 0,
-    structure,
-    Boolean(factionClaim),
-  );
-  return {
-    coord,
-    terrain,
-    structure,
-    structureHp: structureStats?.hp,
-    structureMaxHp: structureStats?.maxHp,
-    items,
-    enemyIds,
-    claim: factionClaim ?? undefined,
-  };
+  const worldBossCenter = getSpawnedWorldBossCenter(seed, coord);
+  if (worldBossCenter) {
+    const isBossCenter =
+      worldBossCenter.q === coord.q && worldBossCenter.r === coord.r;
+    return {
+      coord,
+      terrain,
+      structure: undefined,
+      items: [],
+      structureHp: undefined,
+      structureMaxHp: undefined,
+      enemyIds: isBossCenter ? [worldBossEnemyId(coord)] : [],
+    };
+  }
+  return buildRegularTile(seed, coord, terrain);
+}
+
+function getSpawnedWorldBossCenter(seed: string, coord: HexCoord) {
+  const candidates = [coord, ...hexNeighbors(coord)];
+
+  for (const candidate of candidates) {
+    const terrain = pickTerrain(seed, candidate);
+    if (!isWorldBossCenter(seed, candidate, terrain)) continue;
+
+    const footprint = [candidate, ...hexNeighbors(candidate)].map((tileCoord) =>
+      buildRegularTile(seed, tileCoord, pickTerrain(seed, tileCoord)),
+    );
+    if (footprint.every(isEmptyWorldBossSpawnTile)) {
+      return candidate;
+    }
+  }
+
+  return null;
 }
 
 export function findNearestStructure(
@@ -227,6 +230,60 @@ function buildEnemyIds(
     return Array.from({ length: count }, (_, index) => enemyKey(coord, index));
   }
   return shouldSpawnEnemy(seed, coord, terrain) ? [enemyKey(coord, 0)] : [];
+}
+
+function buildRegularTile(
+  seed: string,
+  coord: HexCoord,
+  terrain: Terrain,
+): Tile {
+  const factionClaim = getFactionClaim(seed, coord);
+  const territoryNpcEnemyId = makeFactionNpcEnemyId(coord);
+  const structureCandidate = isPassable(terrain)
+    ? (getFactionStructure(seed, coord) ?? pickStructure(seed, coord, terrain))
+    : undefined;
+  const structure =
+    factionClaim?.npc && structureCandidate !== undefined
+      ? undefined
+      : structureCandidate;
+  const structureStats = structure ? makeStructureState(structure) : undefined;
+  const enemyIds = buildEnemyIds(
+    seed,
+    coord,
+    terrain,
+    structure,
+    factionClaim ?? undefined,
+    territoryNpcEnemyId,
+  );
+  const items = maybeLoot(
+    seed,
+    coord,
+    terrain,
+    enemyIds.length > 0,
+    structure,
+    Boolean(factionClaim),
+  );
+
+  return {
+    coord,
+    terrain,
+    structure,
+    structureHp: structureStats?.hp,
+    structureMaxHp: structureStats?.maxHp,
+    items,
+    enemyIds,
+    claim: factionClaim ?? undefined,
+  };
+}
+
+function isEmptyWorldBossSpawnTile(tile: Tile) {
+  return (
+    isPassable(tile.terrain) &&
+    !tile.structure &&
+    tile.enemyIds.length === 0 &&
+    tile.items.length === 0 &&
+    !tile.claim
+  );
 }
 
 function pickStructure(

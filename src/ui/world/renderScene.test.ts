@@ -1,7 +1,6 @@
 import { createGame, getVisibleTiles } from '../../game/state';
-import forestClearingIcon from '../../assets/forest-pack/forest_03_clearing.png';
-import forestFewTreesIcon from '../../assets/forest-pack/forest_02_fewTrees.png';
-import forestTempleIcon from '../../assets/forest-pack/forest_20_temple.png';
+import { hexKey, hexNeighbors } from '../../game/hex';
+import gluttonyIcon from '../../assets/icons/gluttony.svg';
 import playerIcon from '../../assets/icons/visored-helm.svg';
 import wolfHeadIcon from '../../assets/icons/wolf-head.svg';
 import tearTracksIcon from '../../assets/icons/tear-tracks.svg';
@@ -100,6 +99,48 @@ vi.mock('pixi.js', () => ({
 }));
 
 describe('renderScene', () => {
+  function createPlacedWorldBossRenderGame() {
+    const game = createGame(8, 'render-scene-world-boss');
+    const center = { q: 4, r: 0 };
+    const bossId = `world-boss-${hexKey(center)}`;
+
+    game.tiles[hexKey(center)] = {
+      coord: center,
+      terrain: 'forest',
+      items: [],
+      structure: undefined,
+      enemyIds: [bossId],
+    };
+    hexNeighbors(center).forEach((coord) => {
+      game.tiles[hexKey(coord)] = {
+        coord,
+        terrain: 'forest',
+        items: [],
+        structure: undefined,
+        enemyIds: [],
+      };
+    });
+    game.enemies[bossId] = {
+      id: bossId,
+      name: 'Gluttony',
+      coord: center,
+      tier: 10,
+      hp: 100,
+      maxHp: 100,
+      baseMaxHp: 100,
+      attack: 25,
+      baseAttack: 25,
+      defense: 12,
+      baseDefense: 12,
+      xp: 100,
+      elite: true,
+      worldBoss: true,
+    };
+    game.player.coord = center;
+
+    return { game, center };
+  }
+
   it('bounds scene caches with LRU-style eviction', async () => {
     const { getCachedValue, SCENE_CACHE_LIMITS, setBoundedCachedValue } =
       await import('./renderSceneCache');
@@ -119,9 +160,7 @@ describe('renderScene', () => {
     expect(cache.has('c')).toBe(true);
     expect(cache.has('d')).toBe(true);
     expect(cache.has('b')).toBe(false);
-    expect(SCENE_CACHE_LIMITS.tileGroundCoverPresentationByKey).toBeGreaterThan(
-      SCENE_CACHE_LIMITS.cloudInputsBySeed,
-    );
+    expect(SCENE_CACHE_LIMITS.cloudInputsBySeed).toBe(maxEntries + 1);
   });
 
   it('renders highlighted tiles, structures, enemies, and player markers', async () => {
@@ -280,7 +319,9 @@ describe('renderScene', () => {
     const brightHoveredFill = worldDescendants.some(
       (child) =>
         child instanceof MockGraphics &&
-        child.beginFill.mock.calls.some(([, alpha]) => alpha === 0.2),
+        child.beginFill.mock.calls.some(
+          ([color, alpha]) => color === 0x38bdf8 && alpha === 0.34,
+        ),
     );
 
     expect(hoverOutlines).toHaveLength(0);
@@ -480,7 +521,7 @@ describe('renderScene', () => {
     expect(Math.min(...cloudAlphas)).toBeGreaterThanOrEqual(0.38);
   });
 
-  it('spreads clouds across varied heights and adds terrain background art', async () => {
+  it('spreads clouds across varied heights', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(3, 'render-scene-ground-cover');
     const app = {
@@ -498,13 +539,7 @@ describe('renderScene', () => {
       1600,
     );
 
-    const world = app.stage.children[1] as MockContainer;
     const clouds = app.stage.children[5] as MockContainer;
-    const terrainSprites = collectDescendants(world).filter((child) =>
-      [forestClearingIcon, forestFewTreesIcon, forestTempleIcon].includes(
-        (child as { icon?: string }).icon ?? '',
-      ),
-    );
     const cloudYPositions = clouds.children.map(
       (child) =>
         (child as { position: { set: ReturnType<typeof vi.fn> } }).position.set
@@ -514,7 +549,6 @@ describe('renderScene', () => {
       cloudYPositions.map((value) => Math.round(value / 24)),
     );
 
-    expect(terrainSprites.length).toBeGreaterThanOrEqual(4);
     expect(uniqueCloudYBands.size).toBeGreaterThanOrEqual(8);
   });
 
@@ -810,5 +844,64 @@ describe('renderScene', () => {
     expect(markerChildren.every((sprite) => sprite.icon !== playerIcon)).toBe(
       true,
     );
+  });
+
+  it('renders world bosses across a dead-forest footprint', async () => {
+    const { renderScene } = await import('./renderScene');
+    spriteFrom.mockClear();
+    const { game } = createPlacedWorldBossRenderGame();
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 960, height: 720 },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    const worldMap = app.stage.children[1] as MockContainer;
+    const world = worldMap.children[0] as MockContainer;
+    const markerLayer = world.children[3] as MockContainer;
+    const markerWrappers = markerLayer.children.filter(
+      (child): child is MockContainer => child instanceof MockContainer,
+    );
+    const worldBossWrapper = markerWrappers.find((wrapper) =>
+      (wrapper.children as Array<{ icon?: string }>).some(
+        (child) => child.icon === gluttonyIcon,
+      ),
+    );
+
+    expect(worldBossWrapper).toBeDefined();
+    const worldBossHexTints = collectDescendants(world).filter(
+      (child) =>
+        child instanceof MockGraphics &&
+        child.beginFill.mock.calls.some(
+          ([color, alpha]) => color === 0x7f1d1d && alpha === 0.22,
+        ),
+    );
+    expect(worldBossHexTints.length).toBe(7);
+
+    const worldBossSprites = (worldBossWrapper?.children ?? []) as Array<{
+      icon?: string;
+      width?: number;
+      height?: number;
+      tint?: number;
+    }>;
+    expect(
+      worldBossSprites.some(
+        (child) =>
+          child.icon === gluttonyIcon &&
+          (child.width ?? 0) >= 75 &&
+          (child.width ?? 0) < 130 &&
+          (child.height ?? 0) >= 75 &&
+          (child.height ?? 0) < 130 &&
+          child.tint === 0x7f1d1d,
+      ),
+    ).toBe(true);
   });
 });

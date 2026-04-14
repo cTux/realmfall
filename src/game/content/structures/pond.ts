@@ -9,7 +9,7 @@ export const pondStructureConfig: StructureConfig = {
   tint: 0x38bdf8,
   functionsProvided: ['fish'],
   appearanceChanceByTerrain: {
-    swamp: 0.28,
+    swamp: 0.81,
   },
   gathering: {
     actionLabel: 'Fish pond',

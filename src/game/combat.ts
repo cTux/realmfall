@@ -11,6 +11,7 @@ import type {
 } from './types';
 import type { HexCoord } from './hex';
 import { noise, terrainTier } from './shared';
+import { isWorldBossEnemyId } from './worldBoss';
 
 export const DEFAULT_GLOBAL_COOLDOWN_MS = 1500;
 
@@ -64,29 +65,40 @@ export function makeEnemy(
     enemyId?: string;
     aggressive?: boolean;
     name?: string;
+    worldBoss?: boolean;
   },
 ): Enemy {
   const tier = terrainTier(coord, terrain) + (structure === 'dungeon' ? 2 : 0);
   const roll = noise(`${seed}:enemy:type:${index}`, coord);
   const elite = structure === 'dungeon';
-  const config = pickEnemyConfig(terrain, roll, elite);
+  const worldBoss =
+    options?.worldBoss ?? isWorldBossEnemyId(options?.enemyId ?? '');
+  const config = worldBoss
+    ? pickEnemyConfig(terrain, roll, false, true)
+    : pickEnemyConfig(terrain, roll, elite);
   const baseMaxHp = 8 + tier * 6 + (elite ? 10 : 0);
   const baseAttack = 2 + tier * 2 + (elite ? 3 : 0);
   const baseDefense = 1 + tier + (elite ? 2 : 0);
+  const scaledMaxHp = worldBoss ? baseMaxHp * 50 : baseMaxHp;
+  const scaledAttack = worldBoss ? baseAttack * 5 : baseAttack;
+  const scaledDefense = worldBoss
+    ? Math.max(baseDefense + tier * 3, baseDefense * 3)
+    : baseDefense;
   const enemy: Enemy = {
     id: options?.enemyId ?? enemyKey(coord, index),
     name: options?.name ?? config.name,
     coord,
-    tier: elite ? tier + 1 : tier,
-    baseMaxHp,
-    maxHp: baseMaxHp,
-    hp: baseMaxHp,
-    baseAttack,
-    attack: baseAttack,
-    baseDefense,
-    defense: baseDefense,
-    xp: 18 + tier * 14 + (elite ? 25 : 0),
-    elite,
+    tier: worldBoss ? tier + 3 : elite ? tier + 1 : tier,
+    baseMaxHp: worldBoss ? scaledMaxHp : baseMaxHp,
+    maxHp: scaledMaxHp,
+    hp: scaledMaxHp,
+    baseAttack: worldBoss ? scaledAttack : baseAttack,
+    attack: scaledAttack,
+    baseDefense: worldBoss ? scaledDefense : baseDefense,
+    defense: scaledDefense,
+    xp: (18 + tier * 14 + (elite ? 25 : 0)) * (worldBoss ? 10 : 1),
+    elite: elite || worldBoss,
+    worldBoss,
     aggressive: options?.aggressive ?? true,
   };
 

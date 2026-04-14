@@ -149,7 +149,11 @@ function generateFactionTerritory(seed: string, region: HexCoord) {
 
   const name = makeFactionName(regionSeed, region);
   const color = pickFactionColor(regionSeed, region);
-  const structuresByTileKey = assignFactionStructures(regionSeed, tiles);
+  const structuresByTileKey = assignFactionStructures(
+    regionSeed,
+    center,
+    tiles,
+  );
   const npcsByTileKey = assignFactionNpcs(
     regionSeed,
     tiles,
@@ -223,10 +227,15 @@ function territoryExpansionScore(
   );
 }
 
-function assignFactionStructures(regionSeed: string, tiles: HexCoord[]) {
+function assignFactionStructures(
+  regionSeed: string,
+  center: HexCoord,
+  tiles: HexCoord[],
+) {
+  const centerKey = hexKey(center);
   const entries: Array<[string, StructureType | undefined]> = tiles.map(
-    (tile, index) => {
-      if (index === 0) {
+    (tile) => {
+      if (hexKey(tile) === centerKey) {
         return [hexKey(tile), 'town'];
       }
 

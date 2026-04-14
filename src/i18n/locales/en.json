@@ -23,6 +23,7 @@
   "game.crafting.alreadyKnown": "You already know how to make {recipe}.",
   "game.crafting.learnRecipe": "You learn the {recipe} recipe.",
   "game.enemy.boar.name": "Boar",
+  "game.enemy.gluttony.name": "Gluttony",
   "game.enemy.marauder.name": "Marauder",
   "game.enemy.raider.name": "Raider",
   "game.enemy.spider.name": "Spider",

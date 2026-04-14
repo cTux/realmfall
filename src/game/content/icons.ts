@@ -38,6 +38,7 @@ import stoneCraftingIcon from '../../assets/icons/stone-crafting.svg';
 import spiderAltIcon from '../../assets/icons/spider-alt.svg';
 import tiedScrollIcon from '../../assets/icons/tied-scroll.svg';
 import rolledClothIcon from '../../assets/icons/rolled-cloth.svg';
+import gluttonyIcon from '../../assets/icons/gluttony.svg';
 
 export const ContentIcons = {
   Player: playerIcon,
@@ -80,4 +81,5 @@ export const ContentIcons = {
   Spider: spiderAltIcon,
   TiedScroll: tiedScrollIcon,
   RolledCloth: rolledClothIcon,
+  Gluttony: gluttonyIcon,
 } as const;

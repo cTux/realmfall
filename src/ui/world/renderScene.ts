@@ -1,15 +1,19 @@
 import { type Application } from 'pixi.js';
 import {
+  getEnemyConfig,
   getStructureConfig,
   getEnemiesAt,
   getVisibleTiles,
   hexDistance,
-  type Enemy,
   type GameState,
   type HexCoord,
   type Tile,
 } from '../../game/state';
 import { hexKey } from '../../game/hex';
+import {
+  getPlacedWorldBossCenter,
+  isWorldBossEnemyId,
+} from '../../game/worldBoss';
 import { WorldIcons, enemyIconFor, structureIconFor } from './worldIcons';
 import { WORLD_REVEAL_RADIUS } from '../../app/constants';
 import { scaleColor } from './timeOfDay';
@@ -34,11 +38,8 @@ import {
 import { getWorldHexSize, makeHex, tileToPoint } from './renderSceneMath';
 import {
   buildCloudRenderInputs,
-  getTileGroundCoverPresentation,
-  hasTileGroundCover,
   renderCampfireLight,
   renderCloudLayer,
-  renderTileGroundCover,
   tileStyle,
 } from './renderSceneEnvironment';
 import {
@@ -65,6 +66,9 @@ const SAFE_PATH_TINT_COLOR = 0x38bdf8;
 const SAFE_PATH_TINT_ALPHA = 0.34;
 const SAFE_PATH_HEX_INSET = 2;
 const HOME_HEX_TINT_INSET = 3;
+const WORLD_BOSS_ICON_TINT = 0x7f1d1d;
+const WORLD_BOSS_HEX_TINT_COLOR = 0x7f1d1d;
+const WORLD_BOSS_HEX_TINT_ALPHA = 0.22;
 
 export function renderScene(
   app: Application,
@@ -90,6 +94,7 @@ export function renderScene(
   const hexSize = getWorldHexSize(app.screen, state.radius);
   const structureIconSize = hexSize * 1.065;
   const enemyIconSize = hexSize * 0.945;
+  const worldBossIconSize = hexSize * 3.4;
   const playerIconSize = hexSize * 1.58;
 
   if (WORLD_MAP_FISHEYE_ENABLED) {
@@ -149,7 +154,7 @@ export function renderScene(
       tile.coord.r === state.player.coord.r;
     const clickable =
       distance === 1 && tile.terrain !== 'rift' && tile.terrain !== 'mountain';
-    const emphasized = distance === 0 || clickable;
+    const emphasized = isPlayerTile;
     const revealed = distance <= WORLD_REVEAL_RADIUS;
     const relative = {
       q: tile.coord.q - state.player.coord.q,
@@ -158,6 +163,11 @@ export function renderScene(
     const point = tileToPoint(relative, origin.x, origin.y, hexSize);
     const poly = makeHex(point.x, point.y, hexSize);
     const style = tileStyle(tile.terrain);
+    const worldBossCenter = getPlacedWorldBossCenter(
+      tile.coord,
+      (bossCoord) => visibleTileMap.get(hexKey(bossCoord))?.enemyIds,
+    );
+    const isWorldBossFootprint = worldBossCenter !== null;
     const isHomeTile =
       tile.coord.q === state.homeHex.q && tile.coord.r === state.homeHex.r;
     const hovered =
@@ -169,9 +179,8 @@ export function renderScene(
         ? SAFE_PATH_HEX_INSET
         : 0;
     const safePolygon = makeInsetHex(point, hexSize, insetPx);
-    const hasBackground = hasTileGroundCover(tile.terrain);
     if (shouldRenderStatic) {
-      const fillAlpha = hasBackground ? 0.2 : emphasized ? style.alpha : 0.8;
+      const fillAlpha = emphasized ? style.alpha : 0.8;
       const shape = takeGraphics(scene.worldGroundGraphics);
       shape.beginFill(style.color, fillAlpha);
       shape.lineStyle(1, 0x1e293b, 0.9);
@@ -183,6 +192,16 @@ export function renderScene(
         homeTint.beginFill(HOME_HEX_TINT_COLOR, HOME_HEX_TINT_ALPHA);
         homeTint.drawPolygon(safePolygon);
         homeTint.endFill();
+      }
+
+      if (isWorldBossFootprint) {
+        const worldBossTint = takeGraphics(scene.worldStaticDetailGraphics);
+        worldBossTint.beginFill(
+          WORLD_BOSS_HEX_TINT_COLOR,
+          WORLD_BOSS_HEX_TINT_ALPHA,
+        );
+        worldBossTint.drawPolygon(poly);
+        worldBossTint.endFill();
       }
 
       if (!revealed) {
@@ -200,20 +219,6 @@ export function renderScene(
     const enemies = getEnemiesAt(state, tile.coord);
 
     if (shouldRenderStatic) {
-      const groundCoverPresentation = getTileGroundCoverPresentationCached(
-        scene,
-        tile,
-        enemies,
-        state.seed,
-      );
-
-      renderTileGroundCover(
-        scene.worldStaticDetailSprites,
-        groundCoverPresentation,
-        point,
-        hexSize,
-      );
-
       if (tile.structure) {
         const structureColor = getStructureConfig(tile.structure).tint;
         const marker = takeShadowedSprite(
@@ -251,22 +256,31 @@ export function renderScene(
         );
       } else if (hostileEnemies.length > 0 && tile.structure !== 'dungeon') {
         const leadEnemy = hostileEnemies[0];
-        const sprite = takeShadowedSprite(
-          scene.worldStaticMarkerSprites,
-          enemyIconFor(leadEnemy.name),
+        const isBossCenter = tile.enemyIds.some((enemyId) =>
+          isWorldBossEnemyId(enemyId),
         );
-        configureShadowedSprite(
-          sprite,
-          0xef4444,
-          enemyIconSize,
-          enemyIconSize,
-          1,
-          shadowOffset,
-          {
-            x: point.x,
-            y: point.y - 2,
-          },
-        );
+        if (!worldBossCenter || isBossCenter) {
+          const sprite = takeShadowedSprite(
+            scene.worldStaticMarkerSprites,
+            enemyIconFor(leadEnemy.name),
+          );
+          configureShadowedSprite(
+            sprite,
+            isBossCenter
+              ? WORLD_BOSS_ICON_TINT
+              : (getEnemyConfig(leadEnemy.name)?.tint ?? 0xef4444),
+            isBossCenter ? worldBossIconSize : enemyIconSize,
+            isBossCenter ? worldBossIconSize : enemyIconSize,
+            1,
+            shadowOffset,
+            isBossCenter
+              ? point
+              : {
+                  x: point.x,
+                  y: point.y - 2,
+                },
+          );
+        }
       }
 
       if (tile.claim) {
@@ -295,10 +309,10 @@ export function renderScene(
       if (hovered) {
         const hoverOverlay = takeGraphics(scene.worldInteractionGraphics);
         hoverOverlay.beginFill(
-          style.color,
-          hasBackground ? 0.2 : Math.min(1, style.alpha + 0.26),
+          clickable ? SAFE_PATH_TINT_COLOR : style.color,
+          clickable ? SAFE_PATH_TINT_ALPHA : Math.min(1, style.alpha + 0.26),
         );
-        hoverOverlay.drawPolygon(poly);
+        hoverOverlay.drawPolygon(clickable ? safePolygon : poly);
         hoverOverlay.endFill();
       }
 
@@ -435,33 +449,6 @@ function makeInsetHex(
   inset: number,
 ) {
   return makeHex(point.x, point.y, Math.max(1, size - inset));
-}
-
-function getTileGroundCoverPresentationCached(
-  scene: ReturnType<typeof getSceneCache>,
-  tile: Tile,
-  enemies: Enemy[],
-  worldSeed: string,
-) {
-  const herbs = tile.items.some((item) => item.name === 'Herbs')
-    ? 'herbs'
-    : 'none';
-  const key = `${worldSeed}:${tile.coord.q},${tile.coord.r}:${tile.terrain}:${tile.structure ?? 'none'}:${enemies.length}:${herbs}`;
-  let presentation = getCachedValue(
-    scene.tileGroundCoverPresentationByKey,
-    key,
-  );
-  if (!presentation) {
-    presentation = getTileGroundCoverPresentation(tile, enemies, worldSeed);
-    setBoundedCachedValue(
-      scene.tileGroundCoverPresentationByKey,
-      key,
-      presentation,
-      SCENE_CACHE_LIMITS.tileGroundCoverPresentationByKey,
-    );
-  }
-
-  return presentation;
 }
 
 function sameCoord(left: HexCoord | null, right: HexCoord | null) {

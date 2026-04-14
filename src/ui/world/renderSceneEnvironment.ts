@@ -1,25 +1,7 @@
 import { BLEND_MODES } from 'pixi.js';
 import { HEX_SIZE } from '../../app/constants';
 import { createRng } from '../../game/random';
-import {
-  type Enemy,
-  type HexCoord,
-  type Terrain,
-  type Tile,
-} from '../../game/state';
-import forestClearingIcon from '../../assets/forest-pack/forest_03_clearing.png';
-import forestFewTreesIcon from '../../assets/forest-pack/forest_02_fewTrees.png';
-import forestWildBushesIcon from '../../assets/forest-pack/forest_06_wildBushes.png';
-import forestRiftIcon from '../../assets/forest-pack/forest_05_rift.png';
-import forestFullIcon from '../../assets/forest-pack/forest_01_full.png';
-import forestSpiderIcon from '../../assets/forest-pack/forest_08_spider.png';
-import forestMushroomIcon from '../../assets/forest-pack/forest_10_mushroom.png';
-import forestCaveIcon from '../../assets/forest-pack/forest_11_cave.png';
-import forestHillIcon from '../../assets/forest-pack/forest_12_hill.png';
-import forestVillageIcon from '../../assets/forest-pack/forest_15_village.png';
-import forestRuinsIcon from '../../assets/forest-pack/forest_17_ruins.png';
-import forestBlastIcon from '../../assets/forest-pack/forest_18_blast.png';
-import forestTempleIcon from '../../assets/forest-pack/forest_20_temple.png';
+import { type HexCoord } from '../../game/state';
 import { scaleColor, type getTimeOfDayLighting } from './timeOfDay';
 import { normalizeVector } from './renderSceneMath';
 import { WorldIcons } from './worldIcons';
@@ -31,9 +13,6 @@ import {
   type SpritePool,
 } from './renderScenePools';
 
-const FOREST_TILE_ASPECT_RATIO = 222 / 255;
-const FOREST_TILE_HEX_HEIGHT = 2.24;
-const TERRAIN_BACKGROUND_ALPHA = 0.2;
 const CLOUD_COUNT = 22;
 const WEATHER_ICONS = [
   WorldIcons.SunCloud,
@@ -61,10 +40,6 @@ export interface CloudRenderInput {
   cloudOpacity: number;
 }
 
-export interface TileGroundCoverPresentation {
-  background: ReturnType<typeof backgroundVariant> | null;
-}
-
 export function buildCloudRenderInputs(worldSeed: string) {
   const inputs: CloudRenderInput[] = [];
 
@@ -86,25 +61,6 @@ export function buildCloudRenderInputs(worldSeed: string) {
   }
 
   return inputs;
-}
-
-export function getTileGroundCoverPresentation(
-  tile: Tile,
-  enemies: Enemy[],
-  worldSeed: string,
-): TileGroundCoverPresentation {
-  const variants = tileBackgroundVariants(tile, enemies);
-  if (variants.length === 0) {
-    return { background: null };
-  }
-
-  const rng = createRng(
-    `${worldSeed}-terrain-background-${tile.coord.q},${tile.coord.r}-${tile.terrain}-${tile.structure ?? 'none'}-${enemies.length}`,
-  );
-
-  return {
-    background: variants[Math.floor(rng() * variants.length)],
-  };
 }
 
 export function renderCloudLayer(
@@ -188,37 +144,6 @@ export function renderCloudLayer(
       );
     });
   });
-}
-
-export function renderTileGroundCover(
-  spritePool: SpritePool,
-  presentation: TileGroundCoverPresentation,
-  point: { x: number; y: number },
-  hexSize: number,
-) {
-  const background = presentation.background;
-  if (!background) return;
-
-  const spriteHeight = hexSize * FOREST_TILE_HEX_HEIGHT * background.scale;
-  const spriteWidth = spriteHeight * FOREST_TILE_ASPECT_RATIO;
-  const grass = takeSprite(spritePool, background.icon);
-  configureSprite(
-    grass,
-    scaleColor(0xffffff, 1 + background.brightnessBoost),
-    spriteWidth,
-    spriteHeight,
-    background.alpha,
-    { x: point.x, y: point.y + hexSize * background.yOffset },
-  );
-}
-
-export function hasTileGroundCover(terrain: Terrain) {
-  return (
-    tileBackgroundVariants(
-      { coord: { q: 0, r: 0 }, terrain, items: [], enemyIds: [] },
-      [],
-    ).length > 0
-  );
 }
 
 export function renderEdgeWaterfall(
@@ -355,65 +280,4 @@ export function tileStyle(terrain: string) {
     default:
       return { color: 0x166534, alpha: 1 };
   }
-}
-
-function tileBackgroundVariants(tile: Tile, enemies: Enemy[]) {
-  if (tile.structure === 'tree') {
-    return [backgroundVariant(forestFullIcon, 1.02, -0.01, 0.04)];
-  }
-  if (tile.structure === 'herbs') {
-    return [backgroundVariant(forestWildBushesIcon, 1, 0, 0.05)];
-  }
-  if (
-    tile.structure === 'copper-ore' ||
-    tile.structure === 'iron-ore' ||
-    tile.structure === 'coal-ore'
-  ) {
-    return [backgroundVariant(forestCaveIcon, 1, 0, 0.05)];
-  }
-  if (tile.structure === 'pond' || tile.structure === 'lake') {
-    return [backgroundVariant(forestClearingIcon, 1, 0, 0.06)];
-  }
-  if (tile.structure === 'dungeon') {
-    return [backgroundVariant(forestTempleIcon, 1.01, -0.01, 0.02)];
-  }
-  if (tile.structure === 'town') {
-    return [backgroundVariant(forestVillageIcon, 1.01, -0.01, 0.05)];
-  }
-  if (tile.structure === 'camp') {
-    return [backgroundVariant(forestMushroomIcon, 1, 0, 0.05)];
-  }
-  if (enemies.length > 0) {
-    return [
-      backgroundVariant(forestRuinsIcon, 1, 0, 0.03),
-      backgroundVariant(forestBlastIcon, 1, 0, 0.03),
-      backgroundVariant(forestSpiderIcon, 1, 0, 0.03),
-    ];
-  }
-  if (tile.items.some((item) => item.name === 'Herbs')) {
-    return [backgroundVariant(forestWildBushesIcon, 1, 0, 0.04)];
-  }
-  switch (tile.terrain) {
-    case 'mountain':
-      return [backgroundVariant(forestHillIcon, 1, -0.01, 0.02)];
-    case 'rift':
-      return [backgroundVariant(forestRiftIcon, 1, 0, 0.04)];
-    default:
-      return [backgroundVariant(forestFewTreesIcon, 1, 0, 0.04)];
-  }
-}
-
-function backgroundVariant(
-  icon: string,
-  scale: number,
-  yOffset: number,
-  brightnessBoost: number,
-) {
-  return {
-    icon,
-    alpha: TERRAIN_BACKGROUND_ALPHA,
-    scale,
-    yOffset,
-    brightnessBoost,
-  };
 }

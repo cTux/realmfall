@@ -9,7 +9,7 @@ export const treeStructureConfig: StructureConfig = {
   tint: 0x22c55e,
   functionsProvided: ['chop-wood'],
   appearanceChanceByTerrain: {
-    forest: 0.45,
+    forest: 0.86,
   },
   gathering: {
     actionLabel: 'Chop tree',
