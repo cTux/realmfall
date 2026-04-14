@@ -1,5 +1,7 @@
 import { memo } from 'react';
+import { t } from '../../../i18n';
 import { EQUIPMENT_SLOTS, type EquipmentSlot } from '../../../game/state';
+import { formatEquipmentSlotLabel } from '../../../i18n/labels';
 import { iconForItem } from '../../icons';
 import { rarityColor } from '../../rarity';
 import { WINDOW_LABELS } from '../../windowLabels';
@@ -19,6 +21,8 @@ export const EquipmentWindow = memo(function EquipmentWindow({
   onLeaveItem,
   onUnequip,
   onContextItem,
+  onHoverDetail,
+  onLeaveDetail,
 }: EquipmentWindowProps) {
   return (
     <DraggableWindow
@@ -32,6 +36,8 @@ export const EquipmentWindow = memo(function EquipmentWindow({
       onMove={onMove}
       visible={visible}
       onClose={onClose}
+      onHoverDetail={onHoverDetail}
+      onLeaveDetail={onLeaveDetail}
     >
       <div className={styles.inventory}>
         {EQUIPMENT_SLOTS.map((slot) => {
@@ -69,7 +75,7 @@ export const EquipmentWindow = memo(function EquipmentWindow({
                       : undefined
                   }
                 >
-                  {equipped?.name ?? 'Empty'}
+                  {equipped?.name ?? t('ui.common.empty')}
                 </strong>
               </div>
             </div>
@@ -81,9 +87,7 @@ export const EquipmentWindow = memo(function EquipmentWindow({
 });
 
 function formatSlot(slot: EquipmentSlot) {
-  return slot
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, (char) => char.toUpperCase());
+  return formatEquipmentSlotLabel(slot);
 }
 
 function iconMaskStyle(icon: string, color: string) {

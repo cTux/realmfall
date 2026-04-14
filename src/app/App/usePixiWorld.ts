@@ -1,11 +1,4 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  type Dispatch,
-  type MutableRefObject,
-  type SetStateAction,
-} from 'react';
+import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 import type { Application } from 'pixi.js';
 import * as stateModule from '../../game/state';
 import type { GameState } from '../../game/state';
@@ -23,7 +16,8 @@ interface UsePixiWorldArgs {
   frameCountRef: MutableRefObject<number>;
   gameRef: MutableRefObject<GameState>;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
-  setGame: Dispatch<SetStateAction<GameState>>;
+  moveAlongSafePath: (target: stateModule.HexCoord) => void;
+  moveToTile: (target: stateModule.HexCoord) => void;
   setTooltip: (nextTooltip: TooltipState | null) => void;
 }
 
@@ -43,7 +37,8 @@ export function usePixiWorld({
   frameCountRef,
   gameRef,
   tooltipPositionRef,
-  setGame,
+  moveAlongSafePath,
+  moveToTile,
   setTooltip,
 }: UsePixiWorldArgs) {
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -198,17 +193,12 @@ export function usePixiWorld({
         if (!clickable) return;
 
         selectedRef.current = target;
-        setGame((currentState) =>
-          distance === 1
-            ? stateModule.moveToTile(
-                { ...currentState, worldTimeMs: worldTimeMsRef.current },
-                target,
-              )
-            : stateModule.moveAlongSafePath(
-                { ...currentState, worldTimeMs: worldTimeMsRef.current },
-                target,
-              ),
-        );
+        if (distance === 1) {
+          moveToTile(target);
+          return;
+        }
+
+        moveAlongSafePath(target);
       };
 
       const onPointerMove = (event: PointerEvent) => {
@@ -445,7 +435,8 @@ export function usePixiWorld({
   }, [
     frameCountRef,
     gameRef,
-    setGame,
+    moveAlongSafePath,
+    moveToTile,
     setTooltip,
     tooltipPositionRef,
     worldTimeMsRef,

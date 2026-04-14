@@ -29,18 +29,18 @@ import {
   structureTint,
 } from './icons';
 import { rarityColor } from './rarity';
-import { CombatWindow } from './components/CombatWindow';
+import { CombatWindow } from './components/CombatWindow/CombatWindow';
 import { DraggableWindow } from './components/DraggableWindow';
-import { EquipmentWindow } from './components/EquipmentWindow';
+import { EquipmentWindow } from './components/EquipmentWindow/EquipmentWindow';
 import { GameTooltip } from './components/GameTooltip';
-import { HeroWindow } from './components/HeroWindow';
-import { HexInfoWindow } from './components/HexInfoWindow';
-import { InventoryWindow } from './components/InventoryWindow';
-import { ItemContextMenu } from './components/ItemContextMenu';
-import { LogWindow } from './components/LogWindow';
-import { LootWindow } from './components/LootWindow';
-import { RecipeBookWindow } from './components/RecipeBookWindow';
-import { SkillsWindow } from './components/SkillsWindow';
+import { HeroWindow } from './components/HeroWindow/HeroWindow';
+import { HexInfoWindow } from './components/HexInfoWindow/HexInfoWindow';
+import { InventoryWindow } from './components/InventoryWindow/InventoryWindow';
+import { ItemContextMenu } from './components/ItemContextMenu/ItemContextMenu';
+import { LogWindow } from './components/LogWindow/LogWindow';
+import { LootWindow } from './components/LootWindow/LootWindow';
+import { RecipeBookWindow } from './components/RecipeBookWindow/RecipeBookWindow';
+import { SkillsWindow } from './components/SkillsWindow/SkillsWindow';
 
 describe('ui helpers and components', () => {
   const renderMarkup = async (node: React.ReactNode) => {

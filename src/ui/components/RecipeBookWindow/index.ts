@@ -1,1 +1,1 @@
-export { RecipeBookWindow } from './RecipeBookWindow';
+export { RecipeBookWindowConnected as RecipeBookWindow } from './RecipeBookWindow.connect';

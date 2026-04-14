@@ -1,1 +1,1 @@
-export { SkillsWindow } from './SkillsWindow';
+export { SkillsWindowConnected as SkillsWindow } from './SkillsWindow.connect';

@@ -1,2 +1,2 @@
-export { HeroWindow } from './HeroWindow';
+export { HeroWindowConnected as HeroWindow } from './HeroWindow.connect';
 export type { HeroWindowProps, HeroWindowStats } from './types';

@@ -1,88 +1,68 @@
 import {
   useCallback,
-  useState,
-  type Dispatch,
   type MouseEvent as ReactMouseEvent,
   type MutableRefObject,
-  type SetStateAction,
 } from 'react';
-import {
-  buyTownItem,
-  claimCurrentHex,
-  craftRecipe,
-  dropEquippedItem,
-  dropInventoryItem,
-  equipItem,
-  interactWithStructure,
-  prospectInventory,
-  sellAllItems,
-  sortInventory,
-  startCombat,
-  takeAllTileItems,
-  takeTileItem,
-  unequipItem,
-  useItem as applyItemUse,
-  type GameState,
-  type LogKind,
-} from '../../game/state';
-import { itemTooltipLines } from '../../ui/tooltips';
+import type { EquipmentSlot, GameState } from '../../game/state';
+import { itemTooltipLines, type TooltipLine } from '../../ui/tooltips';
 import { rarityColor } from '../../ui/rarity';
-import {
-  DEFAULT_LOG_FILTERS,
-  DEFAULT_WINDOWS,
-  DEFAULT_WINDOW_VISIBILITY,
-  type WindowPositions,
-  type WindowVisibilityState,
-} from '../constants';
-import type { ItemContextMenuState, TooltipItem, TooltipState } from './types';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
-import { getInventoryItemAction } from './appHelpers';
-import type { TooltipLine } from '../../ui/tooltips';
-import { setTooltipState } from './tooltipStore';
 import { getTooltipPlacementForRect } from '../../ui/tooltipPlacement';
+import { getInventoryItemAction } from './appHelpers';
+import { setTooltipState } from './tooltipStore';
+import type { TooltipItem, TooltipState } from './types';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { gameActions } from '../store/gameSlice';
+import { uiActions } from '../store/uiSlice';
+import {
+  selectItemMenu,
+  selectLogFilters,
+  selectShowFilterMenu,
+  selectWindowShown,
+  selectWindows,
+} from '../store/selectors/uiSelectors';
 
 interface UseAppControllersOptions {
   gameRef: MutableRefObject<GameState>;
-  setGame: Dispatch<SetStateAction<GameState>>;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
   worldTimeMsRef: MutableRefObject<number>;
 }
 
 export function useAppControllers({
   gameRef,
-  setGame,
   tooltipPositionRef,
   worldTimeMsRef,
 }: UseAppControllersOptions) {
-  const [windows, setWindows] = useState<WindowPositions>(DEFAULT_WINDOWS);
-  const [windowShown, setWindowShown] = useState<WindowVisibilityState>(
-    DEFAULT_WINDOW_VISIBILITY,
-  );
-  const [logFilters, setLogFilters] =
-    useState<Record<LogKind, boolean>>(DEFAULT_LOG_FILTERS);
-  const [showFilterMenu, setShowFilterMenu] = useState(false);
-  const [itemMenu, setItemMenu] = useState<ItemContextMenuState | null>(null);
+  const dispatch = useAppDispatch();
+  const windows = useAppSelector(selectWindows);
+  const windowShown = useAppSelector(selectWindowShown);
+  const logFilters = useAppSelector(selectLogFilters);
+  const showFilterMenu = useAppSelector(selectShowFilterMenu);
+  const itemMenu = useAppSelector(selectItemMenu);
 
   const moveWindow = useCallback(
     (
-      key: keyof WindowPositions,
-      position: WindowPositions[keyof WindowPositions],
+      key: keyof typeof windows,
+      position: (typeof windows)[keyof typeof windows],
     ) => {
-      setWindows((current) => ({ ...current, [key]: position }));
+      dispatch(uiActions.moveWindow({ key, position }));
     },
-    [],
+    [dispatch],
   );
 
   const setWindowVisibility = useCallback(
-    (key: keyof WindowVisibilityState, shown: boolean) => {
-      setWindowShown((current) => ({ ...current, [key]: shown }));
+    (key: keyof typeof windowShown, shown: boolean) => {
+      dispatch(uiActions.setWindowVisibility({ key, shown }));
     },
-    [],
+    [dispatch],
   );
 
-  const toggleDockWindow = useCallback((key: keyof WindowVisibilityState) => {
-    setWindowShown((current) => ({ ...current, [key]: !current[key] }));
-  }, []);
+  const toggleDockWindow = useCallback(
+    (key: keyof typeof windowShown) => {
+      dispatch(uiActions.toggleDockWindow(key));
+    },
+    [dispatch],
+  );
 
   const closeTooltip = useCallback(() => {
     tooltipPositionRef.current = null;
@@ -90,8 +70,8 @@ export function useAppControllers({
   }, [tooltipPositionRef]);
 
   const closeItemMenu = useCallback(() => {
-    setItemMenu(null);
-  }, []);
+    dispatch(uiActions.closeItemMenu());
+  }, [dispatch]);
 
   const showItemTooltip = useCallback(
     (
@@ -137,60 +117,67 @@ export function useAppControllers({
   );
 
   const handleUnequip = useCallback(
-    (slot: Parameters<typeof unequipItem>[1]) => {
-      setGame((current) =>
-        unequipItem({ ...current, worldTimeMs: worldTimeMsRef.current }, slot),
+    (slot: EquipmentSlot) => {
+      dispatch(
+        gameActions.unequipItemAtTime({
+          slot,
+          worldTimeMs: worldTimeMsRef.current,
+        }),
       );
     },
-    [setGame, worldTimeMsRef],
+    [dispatch, worldTimeMsRef],
   );
 
   const handleSort = useCallback(() => {
-    setGame((current) =>
-      sortInventory({ ...current, worldTimeMs: worldTimeMsRef.current }),
+    dispatch(
+      gameActions.sortInventoryAtTime({
+        worldTimeMs: worldTimeMsRef.current,
+      }),
     );
-  }, [setGame, worldTimeMsRef]);
+  }, [dispatch, worldTimeMsRef]);
 
   const handleProspect = useCallback(() => {
-    setGame((current) =>
-      prospectInventory({ ...current, worldTimeMs: worldTimeMsRef.current }),
+    dispatch(
+      gameActions.prospectInventoryAtTime({
+        worldTimeMs: worldTimeMsRef.current,
+      }),
     );
-  }, [setGame, worldTimeMsRef]);
+  }, [dispatch, worldTimeMsRef]);
 
   const handleSellAll = useCallback(() => {
-    setGame((current) =>
-      sellAllItems({ ...current, worldTimeMs: worldTimeMsRef.current }),
+    dispatch(
+      gameActions.sellAllItemsAtTime({
+        worldTimeMs: worldTimeMsRef.current,
+      }),
     );
-  }, [setGame, worldTimeMsRef]);
+  }, [dispatch, worldTimeMsRef]);
 
   const handleInteract = useCallback(() => {
-    setGame((current) =>
-      interactWithStructure({
-        ...current,
+    dispatch(
+      gameActions.interactWithStructureAtTime({
         worldTimeMs: worldTimeMsRef.current,
       }),
     );
-  }, [setGame, worldTimeMsRef]);
+  }, [dispatch, worldTimeMsRef]);
 
   const handleClaimHex = useCallback(() => {
-    setGame((current) =>
-      claimCurrentHex({
-        ...current,
+    dispatch(
+      gameActions.claimCurrentHexAtTime({
         worldTimeMs: worldTimeMsRef.current,
       }),
     );
-  }, [setGame, worldTimeMsRef]);
+  }, [dispatch, worldTimeMsRef]);
 
   const handleBuyTownItem = useCallback(
     (itemId: string) => {
-      setGame((current) =>
-        buyTownItem(
-          { ...current, worldTimeMs: worldTimeMsRef.current },
+      dispatch(
+        gameActions.buyTownItemAtTime({
           itemId,
-        ),
+          worldTimeMs: worldTimeMsRef.current,
+        }),
       );
     },
-    [setGame, worldTimeMsRef],
+    [dispatch, worldTimeMsRef],
   );
 
   const handleEquip = useCallback(
@@ -200,23 +187,32 @@ export function useAppControllers({
       );
       const action = getInventoryItemAction(item);
       if (action === 'open-recipes') {
-        setWindowVisibility('recipes', true);
-        return;
-      }
-      if (action === 'use') {
-        setGame((current) =>
-          applyItemUse(
-            { ...current, worldTimeMs: worldTimeMsRef.current },
-            itemId,
-          ),
+        dispatch(
+          uiActions.setWindowVisibility({
+            key: 'recipes',
+            shown: true,
+          }),
         );
         return;
       }
-      setGame((current) =>
-        equipItem({ ...current, worldTimeMs: worldTimeMsRef.current }, itemId),
+      if (action === 'use') {
+        dispatch(
+          gameActions.useItemAtTime({
+            itemId,
+            worldTimeMs: worldTimeMsRef.current,
+          }),
+        );
+        return;
+      }
+
+      dispatch(
+        gameActions.equipItemAtTime({
+          itemId,
+          worldTimeMs: worldTimeMsRef.current,
+        }),
       );
     },
-    [gameRef, setGame, setWindowVisibility, worldTimeMsRef],
+    [dispatch, gameRef, worldTimeMsRef],
   );
 
   const handleUseItem = useCallback(
@@ -225,106 +221,132 @@ export function useAppControllers({
         (entry) => entry.id === itemId,
       );
       if (getInventoryItemAction(item) === 'open-recipes') {
-        setWindowVisibility('recipes', true);
+        dispatch(
+          uiActions.setWindowVisibility({
+            key: 'recipes',
+            shown: true,
+          }),
+        );
         return;
       }
-      setGame((current) =>
-        applyItemUse(
-          { ...current, worldTimeMs: worldTimeMsRef.current },
+
+      dispatch(
+        gameActions.useItemAtTime({
           itemId,
-        ),
+          worldTimeMs: worldTimeMsRef.current,
+        }),
       );
     },
-    [gameRef, setGame, setWindowVisibility, worldTimeMsRef],
+    [dispatch, gameRef, worldTimeMsRef],
   );
 
   const handleCraftRecipe = useCallback(
     (recipeId: string) => {
-      setGame((current) =>
-        craftRecipe(
-          { ...current, worldTimeMs: worldTimeMsRef.current },
+      dispatch(
+        gameActions.craftRecipeAtTime({
           recipeId,
-        ),
+          worldTimeMs: worldTimeMsRef.current,
+        }),
       );
     },
-    [setGame, worldTimeMsRef],
+    [dispatch, worldTimeMsRef],
   );
 
   const handleDropItem = useCallback(
     (itemId: string) => {
-      setGame((current) =>
-        dropInventoryItem(
-          { ...current, worldTimeMs: worldTimeMsRef.current },
+      dispatch(
+        gameActions.dropInventoryItemAtTime({
           itemId,
-        ),
+          worldTimeMs: worldTimeMsRef.current,
+        }),
       );
     },
-    [setGame, worldTimeMsRef],
+    [dispatch, worldTimeMsRef],
   );
 
   const handleDropEquippedItem = useCallback(
-    (slot: Parameters<typeof unequipItem>[1]) => {
-      setGame((current) =>
-        dropEquippedItem(
-          { ...current, worldTimeMs: worldTimeMsRef.current },
+    (slot: EquipmentSlot) => {
+      dispatch(
+        gameActions.dropEquippedItemAtTime({
           slot,
-        ),
+          worldTimeMs: worldTimeMsRef.current,
+        }),
       );
     },
-    [setGame, worldTimeMsRef],
+    [dispatch, worldTimeMsRef],
   );
 
   const handleContextItem = useCallback(
     (event: ReactMouseEvent<HTMLElement>, item: TooltipItem) => {
       event.preventDefault();
-      setItemMenu({ item, x: event.clientX, y: event.clientY });
+      dispatch(
+        uiActions.openItemMenu({
+          item,
+          x: event.clientX,
+          y: event.clientY,
+        }),
+      );
     },
-    [],
+    [dispatch],
   );
 
   const handleEquippedContextItem = useCallback(
     (
       event: ReactMouseEvent<HTMLElement>,
       item: TooltipItem,
-      slot: Parameters<typeof unequipItem>[1],
+      slot: EquipmentSlot,
     ) => {
       event.preventDefault();
-      setItemMenu({ item, x: event.clientX, y: event.clientY, slot });
+      dispatch(
+        uiActions.openItemMenu({
+          item,
+          x: event.clientX,
+          y: event.clientY,
+          slot,
+        }),
+      );
     },
-    [],
+    [dispatch],
   );
 
   const handleTakeLootItem = useCallback(
     (itemId: string) => {
-      setGame((current) =>
-        takeTileItem(
-          { ...current, worldTimeMs: worldTimeMsRef.current },
+      dispatch(
+        gameActions.takeTileItemAtTime({
           itemId,
-        ),
+          worldTimeMs: worldTimeMsRef.current,
+        }),
       );
     },
-    [setGame, worldTimeMsRef],
+    [dispatch, worldTimeMsRef],
   );
 
   const handleTakeAllLoot = useCallback(() => {
-    setGame((current) =>
-      takeAllTileItems({ ...current, worldTimeMs: worldTimeMsRef.current }),
+    dispatch(
+      gameActions.takeAllTileItemsAtTime({
+        worldTimeMs: worldTimeMsRef.current,
+      }),
     );
-  }, [setGame, worldTimeMsRef]);
+  }, [dispatch, worldTimeMsRef]);
 
   const handleStartCombat = useCallback(() => {
-    setGame((current) =>
-      startCombat({ ...current, worldTimeMs: worldTimeMsRef.current }),
+    dispatch(
+      gameActions.startCombatAtTime({
+        worldTimeMs: worldTimeMsRef.current,
+      }),
     );
-  }, [setGame, worldTimeMsRef]);
+  }, [dispatch, worldTimeMsRef]);
 
   const toggleFilterMenu = useCallback(() => {
-    setShowFilterMenu((current) => !current);
-  }, []);
+    dispatch(uiActions.toggleFilterMenu());
+  }, [dispatch]);
 
-  const toggleLogFilter = useCallback((kind: LogKind) => {
-    setLogFilters((current) => ({ ...current, [kind]: !current[kind] }));
-  }, []);
+  const toggleLogFilter = useCallback(
+    (kind: keyof typeof logFilters) => {
+      dispatch(uiActions.toggleLogFilter(kind));
+    },
+    [dispatch],
+  );
 
   const handleEquipmentHover = useCallback(
     (event: ReactMouseEvent<HTMLElement>, item: TooltipItem) => {
@@ -361,14 +383,11 @@ export function useAppControllers({
     itemMenu,
     logFilters,
     moveWindow,
-    showTooltip,
-    setLogFilters,
-    setTooltip,
-    setWindowShown,
     setWindowVisibility,
-    setWindows,
+    setTooltip,
     showFilterMenu,
     showItemTooltip,
+    showTooltip,
     toggleDockWindow,
     toggleFilterMenu,
     toggleLogFilter,

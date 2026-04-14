@@ -26,6 +26,8 @@ export const RecipeBookWindow = memo(function RecipeBookWindow({
   recipes,
   inventoryCounts,
   onCraft,
+  onHoverDetail,
+  onLeaveDetail,
 }: RecipeBookWindowProps) {
   return (
     <DraggableWindow
@@ -40,6 +42,8 @@ export const RecipeBookWindow = memo(function RecipeBookWindow({
       className={styles.window}
       visible={visible}
       onClose={onClose}
+      onHoverDetail={onHoverDetail}
+      onLeaveDetail={onLeaveDetail}
     >
       <Suspense fallback={<WindowLoadingState />}>
         <RecipeBookWindowContent
