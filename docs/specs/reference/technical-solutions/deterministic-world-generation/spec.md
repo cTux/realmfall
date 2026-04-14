@@ -1,0 +1,22 @@
+# Deterministic World Generation
+
+## Scope
+
+This spec covers the seeded generation model used for terrain, structures, enemies, loot, and faction placement.
+
+## Current Solution
+
+- The world is generated deterministically from a seed combined with coordinates and scoped sub-seeds.
+- Terrain, structures, loot, factions, and many event outcomes rely on deterministic noise or seeded RNG helpers.
+- This keeps the world reproducible across sessions and compatible with persisted saves.
+- The origin and immediate neighbor hexes are explicitly cached as safe plains tiles.
+- This prevents the initial spawn from producing blocked or hostile world states.
+- Terrain and coordinate context are converted into progression tier data that influences enemies, loot, and generated equipment.
+- Dungeons and blood moon systems layer additional scaling on top of the base tier model.
+
+## Main Implementation Areas
+
+- `src/game/world.ts`
+- `src/game/shared.ts`
+- `src/game/random.ts`
+- `src/game/territories.ts`

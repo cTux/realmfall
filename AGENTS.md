@@ -11,10 +11,7 @@ This repository uses `docs/RULES.md` as the source of truth for project-specific
 - If rule changes affect workflow or contributor expectations, keep `README.md` and `docs/PROMPTS.md` in sync.
 - If rule changes affect future prompt execution, also sync `CLAUDE.md` and `.github/copilot-instructions.md`.
 - Prefer updating `docs/RULES.md` over duplicating project-specific rules in this file.
-- For Pixi world performance tasks, make sure the relevant `React UI` and `Pixi And Performance` rules from `docs/RULES.md` are applied, especially the single render scheduler guidance.
-- When adding or changing unique items, enemies, or structures, keep each one in its own dedicated configuration file rather than extending a catch-all content-definition module.
-- When tasks touch user-facing text, apply the i18n rules from `docs/RULES.md`: keep copy in locale files, add new keys instead of inline strings, and use the `{feature}.{area}.{property}` key pattern.
-- For label formatters that map stable identifiers such as status effects to i18n, prefer direct patterned key lookups over conditional branches when the key can be derived safely.
+- Keep this file compact and use it as an entrypoint back to the canonical rules.
 
 ## Supporting Docs
 
