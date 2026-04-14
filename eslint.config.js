@@ -32,6 +32,7 @@ export default tseslint.config(
       prettier,
     },
     rules: {
+      'arrow-body-style': ['error', 'as-needed'],
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
       'react-refresh/only-export-components': [

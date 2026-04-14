@@ -1,7 +1,6 @@
-import type { MouseEvent as ReactMouseEvent } from 'react';
 import type { WindowPosition } from '../../../app/constants';
 import type { AbilityId, SkillName } from '../../../game/state';
-import type { TooltipLine } from '../../tooltips';
+import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 
 export interface HeroWindowStats {
   hp: number;
@@ -23,7 +22,7 @@ export interface HeroWindowStats {
   skills: Record<SkillName, { level: number; xp: number }>;
 }
 
-export interface HeroWindowProps {
+export interface HeroWindowProps extends WindowDetailTooltipHandlers {
   position: WindowPosition;
   onMove: (position: WindowPosition) => void;
   visible?: boolean;
@@ -32,11 +31,4 @@ export interface HeroWindowProps {
   hunger: number;
   thirst?: number;
   worldTimeMs?: number;
-  onHoverDetail?: (
-    event: ReactMouseEvent<HTMLElement>,
-    title: string,
-    lines: TooltipLine[],
-    borderColor?: string,
-  ) => void;
-  onLeaveDetail?: () => void;
 }

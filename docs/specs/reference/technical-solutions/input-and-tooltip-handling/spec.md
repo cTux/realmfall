@@ -13,6 +13,7 @@ This spec covers canvas-pointer world interaction and the shared tooltip system.
 - The world path and window UI both use the custom tooltip system instead of native browser titles.
 - Element-anchored tooltips prefer the right side of the hovered target and automatically flip to the left when the right side would overflow the viewport.
 - Window title-bar action buttons and other UI affordances that use the shared tooltip system avoid native `title` attributes and render through the same custom tooltip surface.
+- Window close buttons and title-bar actions are routed through shared window-shell primitives so tooltip behavior stays consistent across every window.
 
 ## Main Implementation Areas
 

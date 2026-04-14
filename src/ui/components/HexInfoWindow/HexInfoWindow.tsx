@@ -2,6 +2,7 @@ import { lazy, memo, Suspense } from 'react';
 import { t } from '../../../i18n';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { DraggableWindow } from '../DraggableWindow';
+import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
 import { loadRetryingWindowModule } from '../lazyWindowComponent';
@@ -72,50 +73,36 @@ export const HexInfoWindow = memo(function HexInfoWindow({
       headerActions={
         <>
           {interactLabel ? (
-            <button
-              type="button"
+            <WindowHeaderActionButton
               className={`${inventoryStyles.headerButton} ${styles.homeButton}`}
               disabled={!canInteract}
-              onPointerDown={(event) => event.stopPropagation()}
-              onClick={(event) => {
-                event.stopPropagation();
-                onInteract();
-              }}
-              onMouseEnter={(event) =>
-                onHoverDetail?.(
-                  event,
-                  t('ui.hexInfo.interactAction'),
-                  [{ kind: 'text', text: t('ui.tooltip.window.interact') }],
-                  'rgba(74, 222, 128, 0.9)',
-                )
-              }
-              onMouseLeave={onLeaveDetail}
+              onClick={onInteract}
+              tooltipTitle={t('ui.hexInfo.interactAction')}
+              tooltipLines={[
+                { kind: 'text', text: t('ui.tooltip.window.interact') },
+              ]}
+              tooltipBorderColor="rgba(74, 222, 128, 0.9)"
+              onHoverDetail={onHoverDetail}
+              onLeaveDetail={onLeaveDetail}
             >
               {t('ui.hexInfo.interactAction')}
-            </button>
+            </WindowHeaderActionButton>
           ) : null}
-          <button
-            type="button"
+          <WindowHeaderActionButton
             className={`${inventoryStyles.headerButton} ${styles.homeButton}`}
             aria-pressed={isHome}
             disabled={!canSetHome || isHome}
-            onPointerDown={(event) => event.stopPropagation()}
-            onClick={(event) => {
-              event.stopPropagation();
-              onSetHome();
-            }}
-            onMouseEnter={(event) =>
-              onHoverDetail?.(
-                event,
-                t('ui.hexInfo.setHomeAction'),
-                [{ kind: 'text', text: t('ui.tooltip.window.setHome') }],
-                'rgba(125, 211, 252, 0.9)',
-              )
-            }
-            onMouseLeave={onLeaveDetail}
+            onClick={onSetHome}
+            tooltipTitle={t('ui.hexInfo.setHomeAction')}
+            tooltipLines={[
+              { kind: 'text', text: t('ui.tooltip.window.setHome') },
+            ]}
+            tooltipBorderColor="rgba(125, 211, 252, 0.9)"
+            onHoverDetail={onHoverDetail}
+            onLeaveDetail={onLeaveDetail}
           >
             {t('ui.hexInfo.setHomeAction')}
-          </button>
+          </WindowHeaderActionButton>
         </>
       }
     >

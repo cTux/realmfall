@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { t } from '../../../i18n';
 import { DraggableWindow } from '../DraggableWindow';
+import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
 import { WindowLoadingState } from '../WindowLoadingState';
 import { loadRetryingWindowModule } from '../lazyWindowComponent';
 import inventoryStyles from '../InventoryWindow/styles.module.scss';
@@ -15,7 +16,7 @@ const CombatWindowContent = lazy(() =>
   ),
 );
 
-export function CombatWindow({
+export const CombatWindow = ({
   position,
   onMove,
   visible,
@@ -28,28 +29,21 @@ export function CombatWindow({
   onHoverDetail,
   onLeaveDetail,
   onHoverHeaderAction,
-}: CombatWindowProps) {
+}: CombatWindowProps) => {
   const startButton = !combat.started ? (
-    <button
-      type="button"
+    <WindowHeaderActionButton
       className={inventoryStyles.headerButton}
-      onPointerDown={(event) => event.stopPropagation()}
-      onClick={(event) => {
-        event.stopPropagation();
-        onStart();
-      }}
-      onMouseEnter={(event) =>
-        onHoverHeaderAction?.(
-          event,
-          t('ui.combat.startAction'),
-          [{ kind: 'text', text: t('ui.tooltip.window.startCombat') }],
-          'rgba(248, 250, 252, 0.9)',
-        )
-      }
-      onMouseLeave={onLeaveDetail}
+      onClick={onStart}
+      tooltipTitle={t('ui.combat.startAction')}
+      tooltipLines={[
+        { kind: 'text', text: t('ui.tooltip.window.startCombat') },
+      ]}
+      tooltipBorderColor="rgba(248, 250, 252, 0.9)"
+      onHoverDetail={onHoverHeaderAction}
+      onLeaveDetail={onLeaveDetail}
     >
       {t('ui.combat.startAction')}
-    </button>
+    </WindowHeaderActionButton>
   ) : null;
 
   return (
@@ -76,4 +70,4 @@ export function CombatWindow({
       </Suspense>
     </DraggableWindow>
   );
-}
+};

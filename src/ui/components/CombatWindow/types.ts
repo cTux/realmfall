@@ -1,7 +1,6 @@
-import type { MouseEvent as ReactMouseEvent } from 'react';
 import type { WindowPosition } from '../../../app/constants';
 import type { CombatActorState, CombatState, Enemy } from '../../../game/state';
-import type { TooltipLine } from '../../tooltips';
+import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 
 export interface CombatPartyMember {
   id: string;
@@ -14,7 +13,7 @@ export interface CombatPartyMember {
   actor: CombatActorState;
 }
 
-export interface CombatWindowProps {
+export interface CombatWindowProps extends WindowDetailTooltipHandlers {
   position: WindowPosition;
   onMove: (position: WindowPosition) => void;
   visible?: boolean;
@@ -24,17 +23,7 @@ export interface CombatWindowProps {
   enemies: Enemy[];
   worldTimeMs: number;
   onStart: () => void;
-  onHoverDetail: (
-    event: ReactMouseEvent<HTMLElement>,
-    title: string,
-    lines: TooltipLine[],
-    borderColor?: string,
-  ) => void;
-  onLeaveDetail: () => void;
-  onHoverHeaderAction?: (
-    event: ReactMouseEvent<HTMLElement>,
-    title: string,
-    lines: TooltipLine[],
-    borderColor?: string,
-  ) => void;
+  onHoverDetail: NonNullable<WindowDetailTooltipHandlers['onHoverDetail']>;
+  onLeaveDetail: NonNullable<WindowDetailTooltipHandlers['onLeaveDetail']>;
+  onHoverHeaderAction?: WindowDetailTooltipHandlers['onHoverDetail'];
 }

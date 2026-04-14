@@ -1,17 +1,10 @@
 import type { WindowPosition } from '../../../app/constants';
-import type { TooltipLine } from '../../tooltips';
+import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 
-export interface DebuggerWindowProps {
+export interface DebuggerWindowProps extends WindowDetailTooltipHandlers {
   position: WindowPosition;
   onMove: (position: WindowPosition) => void;
   visible?: boolean;
   onClose?: () => void;
   worldTimeMs: number;
-  onHoverDetail?: (
-    event: React.MouseEvent<HTMLElement>,
-    title: string,
-    lines: TooltipLine[],
-    borderColor?: string,
-  ) => void;
-  onLeaveDetail?: () => void;
 }

@@ -1,6 +1,7 @@
 import { lazy, memo, Suspense } from 'react';
 import { t } from '../../../i18n';
 import { DraggableWindow } from '../DraggableWindow';
+import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
 import { WindowLoadingState } from '../WindowLoadingState';
 import { loadRetryingWindowModule } from '../lazyWindowComponent';
 import type { LootWindowProps } from './types';
@@ -36,27 +37,26 @@ export const LootWindow = memo(function LootWindow({
       className={styles.window}
       visible={visible}
       onClose={onClose}
+      resizeBounds={{ minWidth: 320, minHeight: 220 }}
       onHoverDetail={onHoverDetail}
       onLeaveDetail={onLeaveDetail}
       headerActions={
         <div className={styles.toolbar}>
           <div className={styles.actions}>
-            <button
+            <WindowHeaderActionButton
               className={styles.headerButton}
-              onClick={onTakeAll}
               disabled={loot.length === 0}
-              onMouseEnter={(event) =>
-                onHoverDetail?.(
-                  event,
-                  t('ui.loot.takeAllAction'),
-                  [{ kind: 'text', text: t('ui.tooltip.window.takeAllLoot') }],
-                  'rgba(74, 222, 128, 0.9)',
-                )
-              }
-              onMouseLeave={onLeaveDetail}
+              onClick={onTakeAll}
+              tooltipTitle={t('ui.loot.takeAllAction')}
+              tooltipLines={[
+                { kind: 'text', text: t('ui.tooltip.window.takeAllLoot') },
+              ]}
+              tooltipBorderColor="rgba(74, 222, 128, 0.9)"
+              onHoverDetail={onHoverDetail}
+              onLeaveDetail={onLeaveDetail}
             >
               {t('ui.loot.takeAllAction')}
-            </button>
+            </WindowHeaderActionButton>
           </div>
         </div>
       }

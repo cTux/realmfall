@@ -1225,6 +1225,105 @@ describe('ui helpers and components', () => {
     host.remove();
   });
 
+  it('forwards close-button tooltip handlers through shared window shells', async () => {
+    const hoverDetail = vi.fn();
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    const game = createGame(2, 'window-tooltip-forwarding');
+    const stats = getPlayerStats(game.player);
+
+    await act(async () => {
+      root.render(
+        <>
+          <HeroWindow
+            position={DEFAULT_WINDOWS.hero}
+            onMove={() => {}}
+            stats={{
+              ...stats,
+              rawAttack: stats.attack,
+              rawDefense: stats.defense,
+              buffs: [],
+              debuffs: [],
+              abilityIds: ['kick'],
+            }}
+            hunger={50}
+            onHoverDetail={hoverDetail}
+          />
+          <RecipeBookWindow
+            position={DEFAULT_WINDOWS.recipes}
+            onMove={() => {}}
+            hasRecipeBook
+            currentStructure="Campfire"
+            recipes={[]}
+            inventoryCounts={{}}
+            onCraft={() => {}}
+            onHoverDetail={hoverDetail}
+          />
+          <EquipmentWindow
+            position={DEFAULT_WINDOWS.equipment}
+            onMove={() => {}}
+            equipment={game.player.equipment}
+            onHoverItem={() => {}}
+            onLeaveItem={() => {}}
+            onUnequip={() => {}}
+            onContextItem={() => {}}
+            onHoverDetail={hoverDetail}
+          />
+        </>,
+      );
+    });
+
+    const closeButtons = Array.from(
+      host.querySelectorAll('button[aria-label="Close"]'),
+    );
+
+    expect(closeButtons).toHaveLength(3);
+
+    await act(async () => {
+      closeButtons.forEach((button) => {
+        button.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+      });
+    });
+
+    expect(hoverDetail).toHaveBeenCalledTimes(3);
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('renders the loot window with the shared resize handle', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    const game = createGame(2, 'loot-window-resize');
+
+    await act(async () => {
+      root.render(
+        <LootWindow
+          position={{ ...DEFAULT_WINDOWS.loot, width: 320, height: 240 }}
+          onMove={() => {}}
+          loot={game.player.inventory}
+          equipment={game.player.equipment}
+          onClose={() => {}}
+          onTakeAll={() => {}}
+          onTakeItem={() => {}}
+          onHoverItem={() => {}}
+          onLeaveItem={() => {}}
+        />,
+      );
+    });
+
+    expect(host.querySelector('div[class*="resizeHandle"]')).not.toBeNull();
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
   it('scrolls the log window to the newest message', async () => {
     vi.useFakeTimers();
     const game = createGame(2, 'log-scroll-test');

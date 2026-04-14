@@ -19,6 +19,8 @@ export const EquipmentWindow = memo(function EquipmentWindow({
   onLeaveItem,
   onUnequip,
   onContextItem,
+  onHoverDetail,
+  onLeaveDetail,
 }: EquipmentWindowProps) {
   return (
     <DraggableWindow
@@ -32,6 +34,8 @@ export const EquipmentWindow = memo(function EquipmentWindow({
       onMove={onMove}
       visible={visible}
       onClose={onClose}
+      onHoverDetail={onHoverDetail}
+      onLeaveDetail={onLeaveDetail}
     >
       <div className={styles.inventory}>
         {EQUIPMENT_SLOTS.map((slot) => {

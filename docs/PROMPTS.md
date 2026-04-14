@@ -12,6 +12,9 @@ Create a branch from local default branch for the updates in this prompt.
 * Load and apply the relevant sections from "docs/RULES.md" before acting.
 * Treat those relevant rules as default context for the prompt.
 * If a prompt contains "add rule", update "docs/RULES.md" first and sync the related markdown entrypoints only when workflow or prompt behavior changed.
+* Favor DRY refactors, maximally reusable components, and shared helpers over duplicated implementations.
+* In JavaScript and TypeScript, prefer concise arrow functions when a function immediately returns an expression.
+* When a JavaScript or TypeScript syntax preference can be enforced mechanically, prefer adding or adjusting the corresponding ESLint rule.
 * Keep Storybook stories in sync with UI component and entity dictionary changes when the prompt touches those areas.
 * Keep this file compact. Prefer referencing "docs/RULES.md" instead of repeating long project rule lists here.
 ```

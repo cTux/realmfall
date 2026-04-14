@@ -27,12 +27,12 @@ export function useCombatAutomation({
     if (!combat || delay == null) return;
 
     const timeout = window.setTimeout(() => {
-      setGame((current) => {
-        return progressCombat({
+      setGame((current) =>
+        progressCombat({
           ...current,
           worldTimeMs: worldTimeMsRef.current,
-        });
-      });
+        }),
+      );
     }, delay);
 
     return () => window.clearTimeout(timeout);
