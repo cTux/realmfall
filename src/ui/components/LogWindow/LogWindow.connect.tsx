@@ -12,7 +12,12 @@ import {
 import { LogWindow } from './LogWindow';
 import type { LogWindowProps } from './types';
 
-export function LogWindowConnected() {
+export type LogWindowConnectedProps = Pick<
+  LogWindowProps,
+  'onHoverDetail' | 'onLeaveDetail'
+>;
+
+export function LogWindowConnected(props: LogWindowConnectedProps) {
   const dispatch = useAppDispatch();
   const filters = useAppSelector(selectLogFilters);
   const logs = useAppSelector(selectFilteredLogs);
@@ -54,6 +59,8 @@ export function LogWindowConnected() {
       onToggleMenu={handleToggleMenu}
       onToggleFilter={handleToggleFilter}
       logs={logs}
+      onHoverDetail={props.onHoverDetail}
+      onLeaveDetail={props.onLeaveDetail}
     />
   );
 }

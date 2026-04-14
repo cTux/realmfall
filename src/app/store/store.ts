@@ -7,6 +7,16 @@ export const store = configureStore({
     game: gameReducer,
     ui: uiReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      // The game slice is a large plain-object tree. Walking all of it on every
+      // dispatch adds noticeable dev-only overhead without catching issues that
+      // are likely in this app path, so keep action checks but skip full-state
+      // serializability traversal.
+      serializableCheck: {
+        ignoreState: true,
+      },
+    }),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

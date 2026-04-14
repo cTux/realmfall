@@ -291,6 +291,8 @@
   "ui.itemKind.weapon.label": "weapon",
   "ui.itemMenu.dropAction": "Drop {quantity}",
   "ui.itemMenu.equipAction": "Equip",
+  "ui.itemMenu.openRecipesAction": "Open recipes",
+  "ui.itemMenu.unequipAction": "Unequip",
   "ui.itemMenu.useAction": "Use",
   "ui.loot.takeAllAction": "Tak(e) all",
   "ui.loot.title": "Loot on the Ground",

@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { t } from '../../../i18n';
 import { getInventoryItemAction } from '../../../app/App/appHelpers';
 import { gameActions } from '../../../app/store/gameSlice';
 import { useAppDispatch, useAppSelector } from '../../../app/store/hooks';
@@ -95,12 +96,26 @@ export function ItemContextMenuConnected() {
 
   if (!itemMenu) return null;
 
+  const action = itemMenu.slot
+    ? 'unequip'
+    : getInventoryItemAction(
+        inventory.find((entry) => entry.id === itemMenu.item.id),
+      );
+
   return (
     <ItemContextMenu
       item={itemMenu.item}
       x={itemMenu.x}
       y={itemMenu.y}
-      equipLabel={itemMenu.slot ? 'Unequip' : 'Equip'}
+      equipLabel={
+        action === 'open-recipes'
+          ? t('ui.itemMenu.openRecipesAction')
+          : action === 'use'
+            ? t('ui.itemMenu.useAction')
+            : action === 'unequip'
+              ? t('ui.itemMenu.unequipAction')
+              : t('ui.itemMenu.equipAction')
+      }
       canEquip={itemMenu.slot ? true : canEquipItem(itemMenu.item)}
       canUse={canUseItem(itemMenu.item)}
       onEquip={handleEquip}

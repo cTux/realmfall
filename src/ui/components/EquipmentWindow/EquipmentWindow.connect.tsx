@@ -15,7 +15,7 @@ import { gameActions } from '../../../app/store/gameSlice';
 
 export type EquipmentWindowConnectedProps = Pick<
   EquipmentWindowProps,
-  'onHoverItem' | 'onLeaveItem'
+  'onHoverItem' | 'onLeaveItem' | 'onHoverDetail' | 'onLeaveDetail'
 >;
 
 export function EquipmentWindowConnected(props: EquipmentWindowConnectedProps) {
@@ -69,6 +69,8 @@ export function EquipmentWindowConnected(props: EquipmentWindowConnectedProps) {
       onLeaveItem={props.onLeaveItem}
       onUnequip={handleUnequip}
       onContextItem={handleContextItem}
+      onHoverDetail={props.onHoverDetail}
+      onLeaveDetail={props.onLeaveDetail}
     />
   );
 }

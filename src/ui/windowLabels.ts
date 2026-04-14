@@ -7,65 +7,44 @@ export interface WindowLabelDefinition {
   suffix: string;
 }
 
+function buildWindowLabel(feature: string): WindowLabelDefinition {
+  return {
+    plain: t(`ui.window.${feature}.plain`),
+    prefix: t(`ui.window.${feature}.prefix`),
+    hotkey: t(`ui.window.${feature}.hotkey`),
+    suffix: t(`ui.window.${feature}.suffix`),
+  };
+}
+
 export const WINDOW_LABELS = {
-  worldTime: {
-    plain: t('ui.window.worldTime.plain'),
-    prefix: t('ui.window.worldTime.prefix'),
-    hotkey: t('ui.window.worldTime.hotkey'),
-    suffix: t('ui.window.worldTime.suffix'),
+  get worldTime() {
+    return buildWindowLabel('worldTime');
   },
-  hero: {
-    plain: t('ui.window.hero.plain'),
-    prefix: t('ui.window.hero.prefix'),
-    hotkey: t('ui.window.hero.hotkey'),
-    suffix: t('ui.window.hero.suffix'),
+  get hero() {
+    return buildWindowLabel('hero');
   },
-  skills: {
-    plain: t('ui.window.skills.plain'),
-    prefix: t('ui.window.skills.prefix'),
-    hotkey: t('ui.window.skills.hotkey'),
-    suffix: t('ui.window.skills.suffix'),
+  get skills() {
+    return buildWindowLabel('skills');
   },
-  recipes: {
-    plain: t('ui.window.recipes.plain'),
-    prefix: t('ui.window.recipes.prefix'),
-    hotkey: t('ui.window.recipes.hotkey'),
-    suffix: t('ui.window.recipes.suffix'),
+  get recipes() {
+    return buildWindowLabel('recipes');
   },
-  hexInfo: {
-    plain: t('ui.window.hexInfo.plain'),
-    prefix: t('ui.window.hexInfo.prefix'),
-    hotkey: t('ui.window.hexInfo.hotkey'),
-    suffix: t('ui.window.hexInfo.suffix'),
+  get hexInfo() {
+    return buildWindowLabel('hexInfo');
   },
-  equipment: {
-    plain: t('ui.window.equipment.plain'),
-    prefix: t('ui.window.equipment.prefix'),
-    hotkey: t('ui.window.equipment.hotkey'),
-    suffix: t('ui.window.equipment.suffix'),
+  get equipment() {
+    return buildWindowLabel('equipment');
   },
-  inventory: {
-    plain: t('ui.window.inventory.plain'),
-    prefix: t('ui.window.inventory.prefix'),
-    hotkey: t('ui.window.inventory.hotkey'),
-    suffix: t('ui.window.inventory.suffix'),
+  get inventory() {
+    return buildWindowLabel('inventory');
   },
-  loot: {
-    plain: t('ui.window.loot.plain'),
-    prefix: t('ui.window.loot.prefix'),
-    hotkey: t('ui.window.loot.hotkey'),
-    suffix: t('ui.window.loot.suffix'),
+  get loot() {
+    return buildWindowLabel('loot');
   },
-  log: {
-    plain: t('ui.window.log.plain'),
-    prefix: t('ui.window.log.prefix'),
-    hotkey: t('ui.window.log.hotkey'),
-    suffix: t('ui.window.log.suffix'),
+  get log() {
+    return buildWindowLabel('log');
   },
-  combat: {
-    plain: t('ui.window.combat.plain'),
-    prefix: t('ui.window.combat.prefix'),
-    hotkey: t('ui.window.combat.hotkey'),
-    suffix: t('ui.window.combat.suffix'),
+  get combat() {
+    return buildWindowLabel('combat');
   },
 } as const;

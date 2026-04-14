@@ -97,6 +97,10 @@ export function AppWindows({
     });
   }, [renderCombatWindow, renderLootWindow, windowShown]);
 
+  useEffect(() => {
+    onCloseTooltip();
+  }, [onCloseTooltip, renderCombatWindow, renderLootWindow, windowShown]);
+
   return (
     <>
       <WindowDock entries={dockEntries} onToggle={onToggleDockWindow} />
@@ -111,7 +115,12 @@ export function AppWindows({
           onLeaveDetail={onCloseTooltip}
         />
       ) : null}
-      {loadedWindows.recipes ? <RecipeBookWindow /> : null}
+      {loadedWindows.recipes ? (
+        <RecipeBookWindow
+          onHoverDetail={onShowTooltip}
+          onLeaveDetail={onCloseTooltip}
+        />
+      ) : null}
       {loadedWindows.hexInfo ? (
         <HexInfoWindow
           combatSnapshot={combatSnapshot}
@@ -125,6 +134,8 @@ export function AppWindows({
         <EquipmentWindow
           onHoverItem={onShowItemTooltip}
           onLeaveItem={onCloseTooltip}
+          onHoverDetail={onShowTooltip}
+          onLeaveDetail={onCloseTooltip}
         />
       ) : null}
       {loadedWindows.inventory ? (
@@ -146,7 +157,12 @@ export function AppWindows({
         />
       ) : null}
       <ItemContextMenu />
-      {loadedWindows.log ? <LogWindow /> : null}
+      {loadedWindows.log ? (
+        <LogWindow
+          onHoverDetail={onShowTooltip}
+          onLeaveDetail={onCloseTooltip}
+        />
+      ) : null}
       {loadedWindows.combat && combatSnapshot ? (
         <CombatWindow
           combatSnapshot={combatSnapshot}

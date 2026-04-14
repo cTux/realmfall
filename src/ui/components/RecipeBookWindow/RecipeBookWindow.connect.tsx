@@ -17,7 +17,14 @@ import {
 import { RecipeBookWindow } from './RecipeBookWindow';
 import type { RecipeBookWindowProps } from './types';
 
-export function RecipeBookWindowConnected() {
+export type RecipeBookWindowConnectedProps = Pick<
+  RecipeBookWindowProps,
+  'onHoverDetail' | 'onLeaveDetail'
+>;
+
+export function RecipeBookWindowConnected(
+  props: RecipeBookWindowConnectedProps,
+) {
   const dispatch = useAppDispatch();
   const currentTile = useAppSelector(selectCurrentTile);
   const hasRecipeBook = useAppSelector(selectRecipeBookKnown);
@@ -56,6 +63,8 @@ export function RecipeBookWindowConnected() {
       recipes={recipes}
       inventoryCounts={inventoryCounts}
       onCraft={handleCraft}
+      onHoverDetail={props.onHoverDetail}
+      onLeaveDetail={props.onLeaveDetail}
     />
   );
 }

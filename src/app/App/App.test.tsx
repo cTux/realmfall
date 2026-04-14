@@ -298,6 +298,8 @@ describe('App', () => {
     expect(host.textContent).not.toContain('old log');
     expect(host.textContent).toContain('Lo(g)');
     expect(host.textContent).toContain('Year 1, Day 3, 00:15');
+    expect(host.textContent).not.toContain('ui.window.');
+    expect(host.textContent).not.toContain('ui.tooltip.');
 
     const worldTimePanel = host.querySelector(
       '[aria-label="Debugger"]',
@@ -350,6 +352,17 @@ describe('App', () => {
     const filterButton = Array.from(host.querySelectorAll('button')).find(
       (button) => button.textContent === 'Filters',
     );
+    await act(async () => {
+      filterButton?.dispatchEvent(
+        new MouseEvent('mouseover', {
+          bubbles: true,
+          clientX: 120,
+          clientY: 80,
+        }),
+      );
+    });
+    expect(host.textContent).toContain('Show or hide log categories.');
+
     await act(async () => {
       filterButton?.click();
     });
