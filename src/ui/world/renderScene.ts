@@ -286,12 +286,11 @@ export function renderScene(
 
       if (tile.claim) {
         renderClaimBorder(
-          scene.worldStaticDetailGraphics,
+          scene.worldBorderGraphics,
           state,
           tile,
           poly,
           visibleTileMap,
-          isHomeTile || highlightedInSafePath,
         );
       }
     }
@@ -389,15 +388,13 @@ export function renderScene(
 }
 
 function renderClaimBorder(
-  graphicsPool: ReturnType<typeof getSceneCache>['worldStaticDetailGraphics'],
+  graphicsPool: ReturnType<typeof getSceneCache>['worldBorderGraphics'],
   state: GameState,
   tile: Tile,
   poly: number[],
   visibleTileMap: Map<string, Tile>,
-  suppressBorder: boolean,
 ) {
   const claim = tile.claim;
-  if (suppressBorder) return;
   if (!claim) return;
   const borderColor = 0xffffff;
 

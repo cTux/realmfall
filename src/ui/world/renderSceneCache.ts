@@ -64,6 +64,7 @@ export interface SceneCache {
   atmosphereCelestialGraphics: GraphicsPool;
   worldGroundGraphics: GraphicsPool;
   worldStaticDetailGraphics: GraphicsPool;
+  worldBorderGraphics: GraphicsPool;
   worldInteractionGraphics: GraphicsPool;
   worldAnimatedDetailGraphics: GraphicsPool;
   waterfallGraphics: GraphicsPool;
@@ -95,6 +96,7 @@ export function getSceneCache(app: Application) {
   const worldGround = new Container();
   const worldStaticDetail = new Container();
   const worldInteraction = new Container();
+  const worldBorders = new Container();
   const worldMarkers = new Container();
   const worldAnimatedDetail = new Container();
   const worldPlayer = new Container();
@@ -122,6 +124,7 @@ export function getSceneCache(app: Application) {
     worldGround,
     worldStaticDetail,
     worldInteraction,
+    worldBorders,
     worldMarkers,
     worldAnimatedDetail,
     worldPlayer,
@@ -159,6 +162,7 @@ export function getSceneCache(app: Application) {
     atmosphereCelestialGraphics: createGraphicsPool(atmosphereCelestials),
     worldGroundGraphics: createGraphicsPool(worldGround),
     worldStaticDetailGraphics: createGraphicsPool(worldStaticDetail),
+    worldBorderGraphics: createGraphicsPool(worldBorders),
     worldInteractionGraphics: createGraphicsPool(worldInteraction),
     worldAnimatedDetailGraphics: createGraphicsPool(worldAnimatedDetail),
     waterfallGraphics: createGraphicsPool(waterfalls),
@@ -207,6 +211,7 @@ export function completeAnimatedSceneRender(scene: SceneCache) {
 export function beginStaticSceneRender(scene: SceneCache) {
   resetGraphicsPool(scene.worldGroundGraphics);
   resetGraphicsPool(scene.worldStaticDetailGraphics);
+  resetGraphicsPool(scene.worldBorderGraphics);
   resetSpritePool(scene.worldStaticDetailSprites);
   resetShadowedSpritePool(scene.worldStaticMarkerSprites);
 }
@@ -214,6 +219,7 @@ export function beginStaticSceneRender(scene: SceneCache) {
 export function completeStaticSceneRender(scene: SceneCache) {
   finishGraphicsPool(scene.worldGroundGraphics);
   finishGraphicsPool(scene.worldStaticDetailGraphics);
+  finishGraphicsPool(scene.worldBorderGraphics);
   finishSpritePool(scene.worldStaticDetailSprites);
   finishShadowedSpritePool(scene.worldStaticMarkerSprites);
 }
