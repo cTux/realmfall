@@ -1,4 +1,5 @@
 import { MAX_PLAYER_LEVEL } from './config';
+import { StatusEffectTypeId } from './content/ids';
 import { t } from '../i18n';
 import { formatSkillLabel } from '../i18n/labels';
 import { createRng } from './random';
@@ -19,7 +20,7 @@ export function makeStartingSkills(): Record<SkillName, SkillProgress> {
 export function getPlayerStats(player: Player) {
   const equipped = Object.values(player.equipment);
   const recentDeathActive = player.statusEffects.some(
-    (effect) => effect.id === 'recentDeath',
+    (effect) => effect.id === StatusEffectTypeId.RecentDeath,
   );
   const attackBonus = equipped.reduce(
     (sum, item) => sum + (item?.power ?? 0),
@@ -63,12 +64,12 @@ export function getPlayerStats(player: Player) {
     attackSpeed,
     buffs: [
       ...player.statusEffects
-        .filter((effect) => effect.id === 'restoration')
+        .filter((effect) => effect.id === StatusEffectTypeId.Restoration)
         .map((effect) => effect.id),
-    ] as Array<'restoration'>,
+    ] as Array<`${StatusEffectTypeId.Restoration}`>,
     debuffs: [
       ...player.statusEffects
-        .filter((effect) => effect.id === 'recentDeath')
+        .filter((effect) => effect.id === StatusEffectTypeId.RecentDeath)
         .map((effect) => effect.id),
       ...(hungerDebuffActive ? (['hunger'] as string[]) : []),
       ...(thirstDebuffActive ? (['thirst'] as string[]) : []),

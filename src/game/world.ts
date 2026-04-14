@@ -345,7 +345,7 @@ function maybeLoot(
       ),
     );
   } else if (roll > 0.82) {
-    items.push(makeConsumable(`${hexKey(coord)}-cache`, 'Apple', tier, 6, 20));
+    items.push(makeConsumable(`${hexKey(coord)}-cache`, 'apple', tier, 6, 20));
   }
 
   return items;
@@ -371,7 +371,7 @@ function makeGeneratedItem(
   if (roll > 0.62) return makeArmor(seed, coord, tier);
   return makeConsumable(
     itemId('consumable', coord, seed),
-    'Trail Ration',
+    'trail-ration',
     tier,
     8,
     12,

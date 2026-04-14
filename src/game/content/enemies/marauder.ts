@@ -1,8 +1,10 @@
 import { ContentIcons } from '../icons';
+import { EnemyTypeId } from '../ids';
 import { enemyName } from '../i18n';
 import type { EnemyConfig } from '../types';
 
 export const marauderEnemyConfig: EnemyConfig = {
+  id: EnemyTypeId.Marauder,
   name: enemyName('marauder'),
   icon: ContentIcons.HornedHelm,
   tint: 0xa855f7,
@@ -13,4 +15,5 @@ export const marauderEnemyConfig: EnemyConfig = {
     plains: 0.33,
   },
   eliteAppearanceChance: 0.5,
+  tags: [],
 };

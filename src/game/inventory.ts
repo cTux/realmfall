@@ -1,6 +1,14 @@
 import { t } from '../i18n';
 import { RECIPE_BOOK_ITEM_NAME_KEY } from './config';
-import { buildItemFromConfig, getItemConfigByName } from './content/items';
+import { ItemId } from './content/ids';
+import {
+  buildItemFromConfig,
+  getItemConfigByKey,
+  getItemConfigByName,
+  hasItemTag,
+  inferItemTags,
+} from './content/items';
+import { GAME_TAGS } from './content/tags';
 import type {
   EquipmentSlot,
   GameState,
@@ -10,27 +18,36 @@ import type {
 } from './types';
 
 export function makeStarterWeapon(): Item {
-  return buildItemFromConfig('rust-knife', { id: 'starter-knife' });
+  return buildItemFromConfig(ItemId.RustKnife, { id: 'starter-knife' });
 }
 
 export function makeStarterArmor(
   slot: EquipmentSlot,
-  name: string,
+  itemKeyOrName: string,
   tier: number,
   defense: number,
 ): Item {
-  const configured = getItemConfigByName(name);
+  const configured =
+    getItemConfigByKey(itemKeyOrName) ?? getItemConfigByName(itemKeyOrName);
   if (configured) {
     return buildItemFromConfig(configured.key, {
-      id: `${slot}-${name.toLowerCase().replace(/\s+/g, '-')}`,
+      id: `${slot}-${configured.key}`,
     });
   }
 
   return {
-    id: `${slot}-${name.toLowerCase().replace(/\s+/g, '-')}`,
+    id: `${slot}-${itemKeyOrName.toLowerCase().replace(/\s+/g, '-')}`,
     kind: 'armor',
     slot,
-    name,
+    name: itemKeyOrName,
+    tags: inferItemTags({
+      kind: 'armor',
+      slot,
+      name: itemKeyOrName,
+      healing: 0,
+      hunger: 0,
+      thirst: 0,
+    }),
     quantity: 1,
     tier,
     rarity: 'common',
@@ -44,22 +61,23 @@ export function makeStarterArmor(
 }
 
 export function makeRecipeBook(): Item {
-  return buildItemFromConfig('recipe-book');
+  return buildItemFromConfig(ItemId.RecipeBook);
 }
 
 export function makeHomeScroll(id: string): Item {
-  return buildItemFromConfig('home-scroll', { id });
+  return buildItemFromConfig(ItemId.HomeScroll, { id });
 }
 
 export function makeConsumable(
   id: string,
-  name: string,
+  itemKeyOrName: string,
   tier: number,
   healing: number,
   hunger: number,
   quantity = 1,
 ): Item {
-  const configured = getItemConfigByName(name);
+  const configured =
+    getItemConfigByKey(itemKeyOrName) ?? getItemConfigByName(itemKeyOrName);
   if (configured) {
     return buildItemFromConfig(configured.key, {
       id,
@@ -74,7 +92,14 @@ export function makeConsumable(
   return {
     id,
     kind: 'consumable',
-    name,
+    name: itemKeyOrName,
+    tags: inferItemTags({
+      kind: 'consumable',
+      name: itemKeyOrName,
+      healing,
+      hunger,
+      thirst: 0,
+    }),
     quantity,
     tier,
     rarity: 'common',
@@ -88,27 +113,35 @@ export function makeConsumable(
 }
 
 export function makeGoldStack(quantity: number): Item {
-  return buildItemFromConfig('gold', { id: 'resource-gold-1', quantity });
+  return buildItemFromConfig(ItemId.Gold, { id: 'resource-gold-1', quantity });
 }
 
 export function makeResourceStack(
-  name: string,
+  itemKeyOrName: string,
   tier: number,
   quantity: number,
 ): Item {
-  const configured = getItemConfigByName(name);
+  const configured =
+    getItemConfigByKey(itemKeyOrName) ?? getItemConfigByName(itemKeyOrName);
   if (configured) {
     return buildItemFromConfig(configured.key, {
-      id: `resource-${name.toLowerCase().replace(/\s+/g, '-')}-${tier}`,
+      id: `resource-${configured.key}-${tier}`,
       quantity,
       tier,
     });
   }
 
   return {
-    id: `resource-${name.toLowerCase().replace(/\s+/g, '-')}-${tier}`,
+    id: `resource-${itemKeyOrName.toLowerCase().replace(/\s+/g, '-')}-${tier}`,
     kind: 'resource',
-    name,
+    name: itemKeyOrName,
+    tags: inferItemTags({
+      kind: 'resource',
+      name: itemKeyOrName,
+      healing: 0,
+      hunger: 0,
+      thirst: 0,
+    }),
     quantity,
     tier,
     rarity: 'common',
@@ -125,10 +158,11 @@ export function makeCraftedItem(
   id: string,
   kind: Exclude<ItemKind, 'consumable' | 'resource'>,
   slot: EquipmentSlot,
-  name: string,
+  itemKeyOrName: string,
   stats: Pick<Item, 'power' | 'defense' | 'maxHp'>,
 ): Item {
-  const configured = getItemConfigByName(name);
+  const configured =
+    getItemConfigByKey(itemKeyOrName) ?? getItemConfigByName(itemKeyOrName);
   if (configured) {
     return buildItemFromConfig(configured.key, { id });
   }
@@ -137,7 +171,15 @@ export function makeCraftedItem(
     id,
     kind,
     slot,
-    name,
+    name: itemKeyOrName,
+    tags: inferItemTags({
+      kind,
+      slot,
+      name: itemKeyOrName,
+      healing: 0,
+      hunger: 0,
+      thirst: 0,
+    }),
     quantity: 1,
     tier: 1,
     rarity: 'common',
@@ -157,9 +199,11 @@ export function makeCookedFish(): Item {
 export function makeRecipePage(recipe: RecipeDefinition): Item {
   return {
     id: `recipe-${recipe.id}`,
+    itemKey: recipe.output.itemKey,
     recipeId: recipe.id,
     kind: 'resource',
     name: `Recipe: ${recipe.name}`,
+    tags: [GAME_TAGS.item.resource, GAME_TAGS.item.recipe],
     quantity: 1,
     tier: recipe.output.tier,
     rarity: 'uncommon',
@@ -223,7 +267,8 @@ export function canUseItem(item: Item) {
 export function isRecipeBook(item: Item) {
   return (
     item.kind === 'resource' &&
-    (item.itemKey === 'recipe-book' ||
+    (item.itemKey === ItemId.RecipeBook ||
+      hasItemTag(item, GAME_TAGS.item.recipeBook) ||
       item.name === t(RECIPE_BOOK_ITEM_NAME_KEY))
   );
 }
@@ -240,7 +285,8 @@ export function getGoldAmount(inventory: Item[]) {
   return inventory.reduce(
     (sum, item) =>
       item.kind === 'resource' &&
-      (item.itemKey === 'gold' || item.name === 'Gold')
+      (item.itemKey === ItemId.Gold ||
+        hasItemTag(item, GAME_TAGS.item.currency))
         ? sum + item.quantity
         : sum,
     0,
@@ -257,7 +303,8 @@ export function spendGold(inventory: Item[], amount: number) {
     const item = inventory[index];
     if (
       item.kind !== 'resource' ||
-      (item.itemKey !== 'gold' && item.name !== 'Gold')
+      (item.itemKey !== ItemId.Gold &&
+        !hasItemTag(item, GAME_TAGS.item.currency))
     ) {
       continue;
     }
@@ -290,21 +337,21 @@ export function prospectYield(item: Item): Item[] {
   const quantity = Math.max(1, Math.ceil(item.tier / 2));
   if (item.kind === 'weapon') {
     return [
-      makeResourceStack('Iron Chunks', item.tier, quantity),
-      makeResourceStack('Sticks', item.tier, 1),
+      makeResourceStack(ItemId.IronChunks, item.tier, quantity),
+      makeResourceStack(ItemId.Sticks, item.tier, 1),
     ];
   }
   if (item.kind === 'armor') {
     return [
       makeResourceStack(
-        item.slot === 'chest' ? 'Cloth' : 'Leather Scraps',
+        item.slot === 'chest' ? ItemId.Cloth : ItemId.LeatherScraps,
         item.tier,
         quantity,
       ),
-      makeResourceStack('Iron Chunks', item.tier, 1),
+      makeResourceStack(ItemId.IronChunks, item.tier, 1),
     ];
   }
-  return [makeResourceStack('Aether Dust', item.tier, quantity + 1)];
+  return [makeResourceStack(ItemId.ArcaneDust, item.tier, quantity + 1)];
 }
 
 export function consumeInventoryItem(
@@ -369,7 +416,8 @@ function isSameStackable(left: Item, right: Item) {
     sameStackIdentity(left, right) &&
     left.rarity === right.rarity &&
     left.healing === right.healing &&
-    left.hunger === right.hunger
+    left.hunger === right.hunger &&
+    (left.thirst ?? 0) === (right.thirst ?? 0)
   );
 }
 

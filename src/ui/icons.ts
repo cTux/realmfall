@@ -1,6 +1,7 @@
 import {
   getEnemyConfig,
   type EquipmentSlot,
+  type Enemy,
   getItemConfig,
   type Item,
   type SkillName,
@@ -48,6 +49,7 @@ import tiedScrollIcon from '../assets/icons/tied-scroll.svg';
 import arrowDunkIcon from '../assets/icons/arrow-dunk.svg';
 import rolledClothIcon from '../assets/icons/rolled-cloth.svg';
 import type { StructureType } from '../game/state';
+import { GAME_TAGS } from '../game/content/tags';
 import { rarityColor } from './rarity';
 
 export const Icons = {
@@ -129,12 +131,20 @@ const ItemKindIcon: Record<Exclude<Item['kind'], 'resource'>, string> = {
   consumable: Icons.Consumable,
 };
 
-export function enemyIconFor(name: string) {
-  return getEnemyConfig(name)?.icon ?? DEFAULT_ENEMY_ICON;
+export function enemyIconFor(
+  enemy: Pick<Enemy, 'enemyTypeId' | 'name'> | string,
+) {
+  const configured = getEnemyConfig(
+    typeof enemy === 'string' ? enemy : (enemy.enemyTypeId ?? enemy.name),
+  );
+  return configured?.icon ?? DEFAULT_ENEMY_ICON;
 }
 
-export function enemyTint(name: string) {
-  return getEnemyConfig(name)?.tint ?? DEFAULT_ENEMY_TINT;
+export function enemyTint(enemy: Pick<Enemy, 'enemyTypeId' | 'name'> | string) {
+  const configured = getEnemyConfig(
+    typeof enemy === 'string' ? enemy : (enemy.enemyTypeId ?? enemy.name),
+  );
+  return configured?.tint ?? DEFAULT_ENEMY_TINT;
 }
 
 export function iconForItem(item?: Item, slot?: EquipmentSlot) {
@@ -142,7 +152,9 @@ export function iconForItem(item?: Item, slot?: EquipmentSlot) {
   const itemSlotIcon = item?.slot ? ItemIcon[item.slot] : undefined;
   const configuredItem = item ? getItemConfig(item) : undefined;
   const configuredItemIcon =
-    item?.name && item.name.endsWith(' Totem')
+    item &&
+    ((item.tags ?? []).includes(GAME_TAGS.item.totem) ||
+      item.name.endsWith(' Totem'))
       ? Icons.Totem
       : configuredItem?.icon;
   const kindIcon =

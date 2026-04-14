@@ -1,6 +1,8 @@
 import type { Item } from '../../types';
+import { ItemId } from '../ids';
 import { itemName } from '../i18n';
 import type { ItemBuildOverrides, ItemConfig } from '../types';
+import { GAME_TAGS, uniqueTags, type GameTag } from '../tags';
 import { arcaneDustItemConfig } from './arcaneDust';
 import { appleItemConfig } from './apple';
 import { campSpearItemConfig } from './campSpear';
@@ -78,6 +80,7 @@ const RAW_ITEM_CONFIGS = [
 export const ITEM_CONFIGS: ItemConfig[] = RAW_ITEM_CONFIGS.map((config) => ({
   ...config,
   name: itemName(config.key),
+  tags: buildItemConfigTags(config),
 }));
 
 const ITEM_CONFIG_BY_KEY = Object.fromEntries(
@@ -108,6 +111,7 @@ export function buildItemFromConfig(
   return {
     id: overrides.id ?? config.key,
     itemKey: config.key,
+    tags: overrides.tags ?? [...(config.tags ?? [])],
     recipeId: overrides.recipeId,
     kind: config.kind,
     slot: config.slot,
@@ -133,7 +137,12 @@ export function getItemConfig(item: Pick<Item, 'itemKey' | 'name'>) {
 
 export function cloneConfiguredItem(item: Item) {
   const config = getItemConfig(item);
-  if (!config) return { ...item };
+  if (!config) {
+    return {
+      ...item,
+      tags: item.tags ?? inferItemTags(item),
+    };
+  }
   return buildItemFromConfig(config.key, {
     id: item.id,
     recipeId: item.recipeId,
@@ -146,5 +155,124 @@ export function cloneConfiguredItem(item: Item) {
     healing: item.healing,
     hunger: item.hunger,
     thirst: item.thirst,
+    tags: item.tags ?? config.tags ?? [],
   });
+}
+
+export function hasItemTag(
+  item: Pick<
+    Item,
+    | 'itemKey'
+    | 'name'
+    | 'kind'
+    | 'slot'
+    | 'healing'
+    | 'hunger'
+    | 'thirst'
+    | 'tags'
+  >,
+  tag: GameTag,
+) {
+  return (item.tags ?? inferItemTags(item)).includes(tag);
+}
+
+export function inferItemTags(
+  item: Pick<
+    Item,
+    | 'itemKey'
+    | 'name'
+    | 'kind'
+    | 'slot'
+    | 'healing'
+    | 'hunger'
+    | 'thirst'
+    | 'tags'
+  >,
+) {
+  const configured =
+    (item.itemKey ? getItemConfigByKey(item.itemKey) : undefined) ??
+    getItemConfigByName(item.name);
+  if (configured) return [...(configured.tags ?? [])];
+
+  return uniqueTags(
+    item.kind === 'consumable' || item.kind === 'resource'
+      ? GAME_TAGS.item.stackable
+      : undefined,
+    item.kind === 'consumable' ? GAME_TAGS.item.consumable : undefined,
+    item.kind === 'resource' ? GAME_TAGS.item.resource : undefined,
+    item.kind === 'weapon' || item.kind === 'armor' || item.kind === 'artifact'
+      ? GAME_TAGS.item.equipment
+      : undefined,
+    item.kind === 'weapon' ? GAME_TAGS.item.weapon : undefined,
+    item.kind === 'armor' ? GAME_TAGS.item.armor : undefined,
+    item.kind === 'artifact' ? GAME_TAGS.item.artifact : undefined,
+    item.healing > 0 ? GAME_TAGS.item.healing : undefined,
+    item.hunger > 0 ? GAME_TAGS.item.food : undefined,
+    (item.thirst ?? 0) > 0 ? GAME_TAGS.item.drink : undefined,
+    item.name.endsWith(' Totem') ? GAME_TAGS.item.totem : undefined,
+  );
+}
+
+function buildItemConfigTags(
+  config: Omit<ItemConfig, 'name' | 'tags'> & { name?: string },
+) {
+  const keyTags: Partial<Record<string, GameTag[]>> = {
+    [ItemId.Gold]: [GAME_TAGS.item.currency, GAME_TAGS.item.resource],
+    [ItemId.RecipeBook]: [GAME_TAGS.item.recipeBook],
+    [ItemId.HomeScroll]: [GAME_TAGS.item.homeward],
+    [ItemId.Herbs]: [GAME_TAGS.item.gathered],
+    [ItemId.Logs]: [GAME_TAGS.item.gathered, GAME_TAGS.item.wood],
+    [ItemId.Sticks]: [GAME_TAGS.item.gathered, GAME_TAGS.item.wood],
+    [ItemId.Stone]: [GAME_TAGS.item.gathered],
+    [ItemId.CopperOre]: [GAME_TAGS.item.gathered, GAME_TAGS.item.ore],
+    [ItemId.IronOre]: [GAME_TAGS.item.gathered, GAME_TAGS.item.ore],
+    [ItemId.IronChunks]: [GAME_TAGS.item.ore, GAME_TAGS.item.prospectable],
+    [ItemId.Coal]: [GAME_TAGS.item.gathered],
+    [ItemId.RawFish]: [GAME_TAGS.item.gathered],
+    [ItemId.Cloth]: [GAME_TAGS.item.cloth, GAME_TAGS.item.prospectable],
+    [ItemId.LeatherScraps]: [
+      GAME_TAGS.item.animalProduct,
+      GAME_TAGS.item.prospectable,
+    ],
+    [ItemId.ArcaneDust]: [GAME_TAGS.item.aether, GAME_TAGS.item.prospectable],
+    [ItemId.CampSpear]: [GAME_TAGS.item.crafted],
+    [ItemId.HideBuckler]: [
+      GAME_TAGS.item.crafted,
+      GAME_TAGS.item.animalProduct,
+    ],
+    [ItemId.PatchworkHood]: [GAME_TAGS.item.crafted, GAME_TAGS.item.cloth],
+    [ItemId.SettlerVest]: [GAME_TAGS.item.crafted, GAME_TAGS.item.cloth],
+    [ItemId.WorkGloves]: [GAME_TAGS.item.crafted, GAME_TAGS.item.animalProduct],
+    [ItemId.TrailLeggings]: [GAME_TAGS.item.crafted, GAME_TAGS.item.cloth],
+    [ItemId.FieldBoots]: [GAME_TAGS.item.crafted, GAME_TAGS.item.animalProduct],
+    [ItemId.CopperLoop]: [GAME_TAGS.item.crafted, GAME_TAGS.item.aether],
+    [ItemId.CopperBand]: [GAME_TAGS.item.crafted, GAME_TAGS.item.aether],
+    [ItemId.CharmNecklace]: [GAME_TAGS.item.crafted, GAME_TAGS.item.aether],
+    [ItemId.WayfarerCloak]: [GAME_TAGS.item.crafted, GAME_TAGS.item.cloth],
+    [ItemId.HearthTotem]: [
+      GAME_TAGS.item.crafted,
+      GAME_TAGS.item.aether,
+      GAME_TAGS.item.totem,
+    ],
+  };
+
+  return uniqueTags(
+    config.kind === 'consumable' || config.kind === 'resource'
+      ? GAME_TAGS.item.stackable
+      : undefined,
+    config.kind === 'consumable' ? GAME_TAGS.item.consumable : undefined,
+    config.kind === 'resource' ? GAME_TAGS.item.resource : undefined,
+    config.kind === 'weapon' ||
+      config.kind === 'armor' ||
+      config.kind === 'artifact'
+      ? GAME_TAGS.item.equipment
+      : undefined,
+    config.kind === 'weapon' ? GAME_TAGS.item.weapon : undefined,
+    config.kind === 'armor' ? GAME_TAGS.item.armor : undefined,
+    config.kind === 'artifact' ? GAME_TAGS.item.artifact : undefined,
+    config.hunger > 0 ? GAME_TAGS.item.food : undefined,
+    (config.thirst ?? 0) > 0 ? GAME_TAGS.item.drink : undefined,
+    config.healing > 0 ? GAME_TAGS.item.healing : undefined,
+    ...(keyTags[config.key] ?? []),
+  );
 }

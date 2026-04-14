@@ -7,9 +7,11 @@ import type {
   StructureType,
   Terrain,
 } from '../types';
+import type { EnemyTypeKey, ItemKey } from './ids';
+import type { GameTag } from './tags';
 
 export interface ItemConfig {
-  key: string;
+  key: ItemKey;
   name: string;
   kind: ItemKind;
   slot?: EquipmentSlot;
@@ -25,9 +27,11 @@ export interface ItemConfig {
   thirst?: number;
   defaultQuantity?: number;
   dropChance?: number;
+  tags?: GameTag[];
 }
 
 export interface EnemyConfig {
+  id: EnemyTypeKey;
   name: string;
   icon: string;
   tint: number;
@@ -35,6 +39,7 @@ export interface EnemyConfig {
   eliteAppearanceChance?: number;
   animal?: boolean;
   worldBoss?: boolean;
+  tags?: GameTag[];
 }
 
 export interface GatheringConfig {
@@ -73,4 +78,5 @@ export interface ItemBuildOverrides {
   thirst?: number;
   recipeId?: Item['recipeId'];
   name?: string;
+  tags?: Item['tags'];
 }

@@ -2,6 +2,7 @@ import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { vi } from 'vitest';
+import { GameTag } from '../game/content/tags';
 import {
   createGame,
   getItemConfigByName,
@@ -129,6 +130,7 @@ describe('ui helpers and components', () => {
       id: 'food-1',
       kind: 'consumable',
       name: 'Meal',
+      tags: [GameTag.ItemFood, GameTag.ItemHealing],
       quantity: 2,
       tier: 1,
       rarity: 'common',
@@ -142,6 +144,7 @@ describe('ui helpers and components', () => {
       id: 'gold-1',
       kind: 'resource',
       name: 'Gold',
+      tags: [GameTag.ItemResource, GameTag.ItemCurrency],
       quantity: 7,
       tier: 1,
       rarity: 'common',
@@ -184,7 +187,19 @@ describe('ui helpers and components', () => {
     ).toBe(false);
     expect(itemTooltipLines(consumable)).toEqual([
       { kind: 'text', text: 'Use to recover 12 HP and restore 8 hunger.' },
+      {
+        kind: 'text',
+        text: 'Tags: item.food, item.healing',
+        tone: 'subtle',
+      },
     ]);
+    expect(
+      itemTooltipLines(resource).some(
+        (line) =>
+          line.text === 'Tags: item.resource, item.currency' &&
+          line.tone === 'subtle',
+      ),
+    ).toBe(true);
 
     expect(enemyTooltip([], undefined)).toBeNull();
 
@@ -199,6 +214,7 @@ describe('ui helpers and components', () => {
           maxHp: 8,
           attack: 3,
           defense: 1,
+          tags: [GameTag.EnemyHostile, GameTag.EnemyAnimal],
           xp: 4,
           elite: false,
         },
@@ -209,6 +225,11 @@ describe('ui helpers and components', () => {
     expect(singleEnemy?.lines).toEqual([
       { kind: 'stat', label: 'Level', value: '2' },
       { kind: 'stat', label: 'Enemies', value: '1' },
+      {
+        kind: 'text',
+        text: 'Tags: enemy.hostile, enemy.animal',
+        tone: 'subtle',
+      },
     ]);
 
     expect(skillTooltip('logging', 12)).toContainEqual({

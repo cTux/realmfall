@@ -1,5 +1,6 @@
 import { makeCookedFish, makeCraftedItem } from './inventory';
 import { t } from '../i18n';
+import { getItemConfig, getItemConfigByKey } from './content/items';
 import type {
   GameState,
   Item,
@@ -28,10 +29,7 @@ export function hasAllRequirements(
   requirements: RecipeRequirement[],
 ) {
   return requirements.every((requirement) =>
-    inventory.some(
-      (item) =>
-        item.name === requirement.name && item.quantity >= requirement.quantity,
-    ),
+    inventory.some((item) => matchesRequirement(item, requirement)),
   );
 }
 
@@ -40,10 +38,7 @@ export function pickSatisfiedRequirement(
   requirements: RecipeRequirement[],
 ) {
   return requirements.find((requirement) =>
-    inventory.some(
-      (item) =>
-        item.name === requirement.name && item.quantity >= requirement.quantity,
-    ),
+    inventory.some((item) => matchesRequirement(item, requirement)),
   );
 }
 
@@ -52,9 +47,8 @@ export function consumeRequirements(
   requirements: RecipeRequirement[],
 ) {
   requirements.forEach((requirement) => {
-    const itemIndex = inventory.findIndex(
-      (item) =>
-        item.name === requirement.name && item.quantity >= requirement.quantity,
+    const itemIndex = inventory.findIndex((item) =>
+      matchesRequirement(item, requirement),
     );
     if (itemIndex < 0) return;
     const item = inventory[itemIndex];
@@ -101,6 +95,16 @@ export function describeRequirement(requirement: RecipeRequirement) {
   return `${requirement.quantity} ${requirement.name}`;
 }
 
+function matchesRequirement(item: Item, requirement: RecipeRequirement) {
+  return (
+    item.quantity >= requirement.quantity &&
+    (requirement.itemKey
+      ? item.itemKey === requirement.itemKey ||
+        getItemConfig(item)?.key === requirement.itemKey
+      : item.name === requirement.name)
+  );
+}
+
 const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
   {
     id: 'cook-cooked-fish',
@@ -108,11 +112,11 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     description: 'Cook raw fish over a small fire.',
     skill: 'cooking',
     output: makeCookedFish(),
-    ingredients: [{ name: 'Raw Fish', quantity: 1 }],
+    ingredients: [{ itemKey: 'raw-fish', name: 'Raw Fish', quantity: 1 }],
     fuelOptions: [
-      { name: 'Coal', quantity: 1 },
-      { name: 'Logs', quantity: 2 },
-      { name: 'Sticks', quantity: 8 },
+      { itemKey: 'coal', name: 'Coal', quantity: 1 },
+      { itemKey: 'logs', name: 'Logs', quantity: 2 },
+      { itemKey: 'sticks', name: 'Sticks', quantity: 8 },
     ],
   },
   {
@@ -124,7 +128,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
       'crafted-weapon',
       'weapon',
       'weapon',
-      'Camp Spear',
+      'camp-spear',
       {
         power: 3,
         defense: 0,
@@ -132,8 +136,8 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
       },
     ),
     ingredients: [
-      { name: 'Iron Chunks', quantity: 2 },
-      { name: 'Sticks', quantity: 2 },
+      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 2 },
+      { itemKey: 'sticks', name: 'Sticks', quantity: 2 },
     ],
   },
   {
@@ -145,7 +149,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
       'crafted-offhand',
       'armor',
       'offhand',
-      'Hide Buckler',
+      'hide-buckler',
       {
         power: 0,
         defense: 2,
@@ -153,8 +157,8 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
       },
     ),
     ingredients: [
-      { name: 'Leather Scraps', quantity: 3 },
-      { name: 'Logs', quantity: 1 },
+      { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 3 },
+      { itemKey: 'logs', name: 'Logs', quantity: 1 },
     ],
   },
   {
@@ -163,14 +167,14 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     description:
       'A stitched hood that keeps ash, rain, and cinders off your face.',
     skill: 'crafting',
-    output: makeCraftedItem('crafted-head', 'armor', 'head', 'Patchwork Hood', {
+    output: makeCraftedItem('crafted-head', 'armor', 'head', 'patchwork-hood', {
       power: 0,
       defense: 1,
       maxHp: 1,
     }),
     ingredients: [
-      { name: 'Cloth', quantity: 2 },
-      { name: 'Leather Scraps', quantity: 2 },
+      { itemKey: 'cloth', name: 'Cloth', quantity: 2 },
+      { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 2 },
     ],
   },
   {
@@ -179,15 +183,15 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     description:
       'A layered vest worn by settlers who expect hard weather and harder work.',
     skill: 'crafting',
-    output: makeCraftedItem('crafted-chest', 'armor', 'chest', 'Settler Vest', {
+    output: makeCraftedItem('crafted-chest', 'armor', 'chest', 'settler-vest', {
       power: 0,
       defense: 2,
       maxHp: 1,
     }),
     ingredients: [
-      { name: 'Cloth', quantity: 4 },
-      { name: 'Leather Scraps', quantity: 4 },
-      { name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'cloth', name: 'Cloth', quantity: 4 },
+      { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 4 },
+      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
     ],
   },
   {
@@ -196,14 +200,14 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     description:
       'A practical pair of gloves for rope, tools, and rough salvage.',
     skill: 'crafting',
-    output: makeCraftedItem('crafted-hands', 'armor', 'hands', 'Work Gloves', {
+    output: makeCraftedItem('crafted-hands', 'armor', 'hands', 'work-gloves', {
       power: 0,
       defense: 1,
       maxHp: 1,
     }),
     ingredients: [
-      { name: 'Leather Scraps', quantity: 3 },
-      { name: 'Cloth', quantity: 1 },
+      { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 3 },
+      { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
   },
   {
@@ -211,14 +215,14 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     name: 'Trail Leggings',
     description: 'Tough leggings meant for brush, stone, and broken roads.',
     skill: 'crafting',
-    output: makeCraftedItem('crafted-legs', 'armor', 'legs', 'Trail Leggings', {
+    output: makeCraftedItem('crafted-legs', 'armor', 'legs', 'trail-leggings', {
       power: 0,
       defense: 1,
       maxHp: 1,
     }),
     ingredients: [
-      { name: 'Cloth', quantity: 3 },
-      { name: 'Leather Scraps', quantity: 2 },
+      { itemKey: 'cloth', name: 'Cloth', quantity: 3 },
+      { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 2 },
     ],
   },
   {
@@ -227,14 +231,14 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     description:
       'Sturdy boots made to keep moving when the ground turns cruel.',
     skill: 'crafting',
-    output: makeCraftedItem('crafted-feet', 'armor', 'feet', 'Field Boots', {
+    output: makeCraftedItem('crafted-feet', 'armor', 'feet', 'field-boots', {
       power: 0,
       defense: 1,
       maxHp: 1,
     }),
     ingredients: [
-      { name: 'Leather Scraps', quantity: 3 },
-      { name: 'Sticks', quantity: 1 },
+      { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 3 },
+      { itemKey: 'sticks', name: 'Sticks', quantity: 1 },
     ],
   },
   {
@@ -246,7 +250,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
       'crafted-ring-left',
       'artifact',
       'ringLeft',
-      'Copper Loop',
+      'copper-loop',
       {
         power: 1,
         defense: 0,
@@ -254,8 +258,8 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
       },
     ),
     ingredients: [
-      { name: 'Copper Ore', quantity: 2 },
-      { name: 'Aether Dust', quantity: 1 },
+      { itemKey: 'copper-ore', name: 'Copper Ore', quantity: 2 },
+      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 1 },
     ],
   },
   {
@@ -267,7 +271,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
       'crafted-ring-right',
       'artifact',
       'ringRight',
-      'Copper Band',
+      'copper-band',
       {
         power: 1,
         defense: 0,
@@ -275,8 +279,8 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
       },
     ),
     ingredients: [
-      { name: 'Copper Ore', quantity: 2 },
-      { name: 'Aether Dust', quantity: 1 },
+      { itemKey: 'copper-ore', name: 'Copper Ore', quantity: 2 },
+      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 1 },
     ],
   },
   {
@@ -289,7 +293,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
       'crafted-amulet',
       'artifact',
       'amulet',
-      'Charm Necklace',
+      'charm-necklace',
       {
         power: 0,
         defense: 1,
@@ -297,8 +301,8 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
       },
     ),
     ingredients: [
-      { name: 'Iron Chunks', quantity: 1 },
-      { name: 'Aether Dust', quantity: 2 },
+      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
     ],
   },
   {
@@ -311,7 +315,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
       'crafted-cloak',
       'artifact',
       'cloak',
-      'Wayfarer Cloak',
+      'wayfarer-cloak',
       {
         power: 0,
         defense: 1,
@@ -319,8 +323,8 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
       },
     ),
     ingredients: [
-      { name: 'Cloth', quantity: 3 },
-      { name: 'Aether Dust', quantity: 1 },
+      { itemKey: 'cloth', name: 'Cloth', quantity: 3 },
+      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 1 },
     ],
   },
   {
@@ -333,7 +337,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
       'crafted-relic',
       'artifact',
       'relic',
-      'Hearth Totem',
+      'hearth-totem',
       {
         power: 1,
         defense: 0,
@@ -341,9 +345,9 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
       },
     ),
     ingredients: [
-      { name: 'Coal', quantity: 1 },
-      { name: 'Aether Dust', quantity: 3 },
-      { name: 'Logs', quantity: 1 },
+      { itemKey: 'coal', name: 'Coal', quantity: 1 },
+      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 3 },
+      { itemKey: 'logs', name: 'Logs', quantity: 1 },
     ],
   },
 ];
@@ -353,4 +357,16 @@ export const RECIPE_BOOK_RECIPES: RecipeDefinition[] =
     ...recipe,
     name: t(`game.recipe.${recipe.id}.name`),
     description: t(`game.recipe.${recipe.id}.description`),
+    ingredients: recipe.ingredients.map((ingredient) => ({
+      ...ingredient,
+      name: ingredient.itemKey
+        ? (getItemConfigByKey(ingredient.itemKey)?.name ?? ingredient.name)
+        : ingredient.name,
+    })),
+    fuelOptions: recipe.fuelOptions?.map((option) => ({
+      ...option,
+      name: option.itemKey
+        ? (getItemConfigByKey(option.itemKey)?.name ?? option.name)
+        : option.name,
+    })),
   }));

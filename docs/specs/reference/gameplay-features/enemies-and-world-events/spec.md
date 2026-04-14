@@ -6,9 +6,10 @@ This spec covers enemy generation plus the blood moon, harvest moon, and earthsh
 
 ## Current Behavior
 
-- Enemy spawns are deterministic from world seed, terrain, coordinate, and structure context.
+- Enemy spawns are deterministic from world seed, terrain, coordinate, and structure context, and each spawned enemy carries a canonical enemy type id plus gameplay tags.
 - Dungeon enemies are elite by default and scale above regular terrain threats.
 - Faction NPCs use non-hostile territory-specific enemy identities so they can participate in the same world systems without behaving like ordinary hostiles.
+- Enemy classification such as animal, elite, dungeon, and world-boss behavior resolves from canonical enemy ids and tags instead of display-name checks.
 - Blood moon checks occur during the rise window at night.
 - When active, nearby enemies spawn in clusters around the player except on blocked tiles.
 - Blood moon scales enemy stats upward.

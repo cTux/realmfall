@@ -2,6 +2,7 @@ import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { vi } from 'vitest';
+import { GameTag } from '../game/content/tags';
 import type { Enemy, Item, Tile } from '../game/state';
 import { formatCompactNumber, formatCompactNumberish } from './formatters';
 import { Icons, iconForItem, itemTint } from './icons';
@@ -91,9 +92,24 @@ describe('ui helper coverage', () => {
   it('covers tooltip branches for grouped enemies and structure variants', () => {
     const uncommonPack = enemyTooltip(
       [
-        createEnemy({ id: 'wolf-1', tier: 2 }),
-        createEnemy({ id: 'wolf-2', name: 'Boar', tier: 3, attack: 4 }),
-        createEnemy({ id: 'wolf-3', name: 'Stag', defense: 2 }),
+        createEnemy({
+          id: 'wolf-1',
+          tier: 2,
+          tags: [GameTag.EnemyHostile],
+        }),
+        createEnemy({
+          id: 'wolf-2',
+          name: 'Boar',
+          tier: 3,
+          attack: 4,
+          tags: [GameTag.EnemyHostile, GameTag.EnemyAnimal],
+        }),
+        createEnemy({
+          id: 'wolf-3',
+          name: 'Stag',
+          defense: 2,
+          tags: [GameTag.EnemyAnimal],
+        }),
       ],
       'town',
     );
@@ -102,6 +118,11 @@ describe('ui helper coverage', () => {
     expect(uncommonPack?.lines).toEqual([
       { kind: 'stat', label: 'Level', value: '3' },
       { kind: 'stat', label: 'Enemies', value: '3' },
+      {
+        kind: 'text',
+        text: 'Tags: enemy.hostile, enemy.animal',
+        tone: 'subtle',
+      },
     ]);
 
     expect(structureTooltip(createTile())).toBeNull();

@@ -1,5 +1,7 @@
 import { GAME_DAY_DURATION_MS, GAME_DAY_MINUTES } from '../game/config';
 import { getItemConfig } from '../game/content/items';
+import { getEnemyConfig } from '../game/content/enemies';
+import { getStatusEffectTags } from '../game/content/statusEffects';
 import { getGatheringStructureConfig } from '../game/content/structures';
 import {
   getRecipeBookRecipes,
@@ -26,9 +28,7 @@ export function normalizeLoadedGame(game: GameState): GameState {
   );
   const legacyGold = Math.max(0, Number(legacyGoldValue ?? 0));
   const hasInventoryGold = inventory.some(
-    (item) =>
-      item.kind === 'resource' &&
-      (item.itemKey === 'gold' || item.name === 'Gold'),
+    (item) => item.kind === 'resource' && item.itemKey === 'gold',
   );
   if (legacyGold > 0 && !hasInventoryGold)
     mergeStackable(inventory, normalizeItem(makeGoldStack(legacyGold)));
@@ -42,6 +42,12 @@ export function normalizeLoadedGame(game: GameState): GameState {
     Object.entries(game.tiles ?? {}).map(([key, tile]) => [
       key,
       normalizeTile(tile),
+    ]),
+  );
+  const enemies = Object.fromEntries(
+    Object.entries(game.enemies ?? {}).map(([key, enemy]) => [
+      key,
+      normalizeEnemy(enemy),
     ]),
   );
   const homeHex = game.homeHex ?? { ...game.player.coord };
@@ -85,6 +91,7 @@ export function normalizeLoadedGame(game: GameState): GameState {
     logSequence: Math.max(game.logSequence ?? 0, logs.length),
     logs,
     tiles,
+    enemies,
     combat: game.combat
       ? {
           ...game.combat,
@@ -179,6 +186,7 @@ export function normalizeLoadedGame(game: GameState): GameState {
         getRecipeBookRecipes().map((recipe) => recipe.id),
       statusEffects: (game.player.statusEffects ?? []).map((effect) => ({
         ...effect,
+        tags: effect.tags ?? getStatusEffectTags(effect.id),
         expiresAt:
           effect.expiresAt == null
             ? undefined
@@ -206,6 +214,7 @@ function normalizeItem(item: Item): Item {
   return {
     ...item,
     itemKey: configured?.key ?? item.itemKey,
+    tags: item.tags ?? configured?.tags,
     name: normalizedName,
     quantity: item.quantity ?? 1,
     rarity: item.rarity ?? 'common',
@@ -247,6 +256,16 @@ function normalizeTile(tile: GameState['tiles'][string]) {
       (((tile as unknown as { enemyId?: string }).enemyId
         ? [(tile as unknown as { enemyId?: string }).enemyId as string]
         : []) as string[]),
+  };
+}
+
+function normalizeEnemy(enemy: GameState['enemies'][string]) {
+  const configured = getEnemyConfig(enemy.enemyTypeId ?? enemy.name);
+  return {
+    ...enemy,
+    enemyTypeId: configured?.id ?? enemy.enemyTypeId,
+    name: configured?.name ?? enemy.name,
+    tags: enemy.tags ?? configured?.tags,
   };
 }
 

@@ -33,6 +33,7 @@ export const Items: Story = {
           `Power ${config.power}`,
           `Defense ${config.defense}`,
           `Max HP ${config.maxHp}`,
+          `Tags ${config.tags?.join(', ') ?? 'none'}`,
         ],
         icon: iconForItem({
           id: config.key,
@@ -61,19 +62,16 @@ export const Enemies: Story = {
     <CatalogGrid
       title={`Enemies (${fixtures.enemies.length})`}
       entries={fixtures.enemies.map((config) => ({
-        id: config.name,
+        id: config.id,
         title: config.name,
-        subtitle: config.worldBoss
-          ? 'world boss'
-          : config.animal
-            ? 'animal'
-            : 'hostile',
+        subtitle: config.id,
         details: [
           `Elite chance ${Math.round((config.eliteAppearanceChance ?? 0) * 100)}%`,
           `Terrains ${Object.keys(config.appearanceChanceByTerrain).join(', ') || 'none'}`,
+          `Tags ${config.tags?.join(', ') ?? 'none'}`,
         ],
-        icon: enemyIconFor(config.name),
-        tint: `#${enemyTint(config.name).toString(16).padStart(6, '0')}`,
+        icon: enemyIconFor(config.id),
+        tint: `#${enemyTint(config.id).toString(16).padStart(6, '0')}`,
       }))}
     />
   ),

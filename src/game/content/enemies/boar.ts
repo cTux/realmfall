@@ -1,8 +1,10 @@
 import { ContentIcons } from '../icons';
+import { EnemyTypeId } from '../ids';
 import { enemyName } from '../i18n';
 import type { EnemyConfig } from '../types';
 
 export const boarEnemyConfig: EnemyConfig = {
+  id: EnemyTypeId.Boar,
   name: enemyName('boar'),
   icon: ContentIcons.Enemy,
   tint: 0xf59e0b,
@@ -12,4 +14,5 @@ export const boarEnemyConfig: EnemyConfig = {
     plains: 0.33,
   },
   animal: true,
+  tags: [],
 };

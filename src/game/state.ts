@@ -20,8 +20,10 @@ import { getEnemyConfig, isAnimalEnemyType } from './content/enemies';
 import {
   buildItemFromConfig,
   getItemConfig,
+  getItemConfigByKey,
   getItemConfigByName,
 } from './content/items';
+import { ItemId, StatusEffectTypeId } from './content/ids';
 import { getStructureConfig } from './content/structures';
 import {
   createCombatActorState,
@@ -218,8 +220,8 @@ export function createGame(
       statusEffects: [],
       inventory: [
         makeStarterWeapon(),
-        makeStarterArmor('chest', 'Scout Jerkin', 1, 1),
-        makeConsumable('starter-ration', 'Trail Ration', 1, 10, 15, 2),
+        makeStarterArmor('chest', ItemId.ScoutJerkin, 1, 1),
+        makeConsumable('starter-ration', ItemId.TrailRation, 1, 10, 15, 2),
         makeRecipeBook(),
       ],
       equipment: {},
@@ -739,10 +741,7 @@ export function useItem(state: GameState, itemId: string): GameState {
     return message(state, 'That item cannot be used.');
 
   const next = clone(state);
-  if (
-    item.itemKey === 'home-scroll' ||
-    item.name === t(HOME_SCROLL_ITEM_NAME_KEY)
-  ) {
+  if (item.itemKey === ItemId.HomeScroll) {
     teleportHome(next, itemIndex, item);
     return next;
   }
@@ -1193,7 +1192,7 @@ export function interactWithStructure(state: GameState): GameState {
     (currentTile.structureHp ?? definition.maxHp) - damage,
   );
   const reward = makeResourceStack(
-    definition.reward,
+    definition.reward.toLowerCase().replace(/\s+/g, '-'),
     definition.rewardTier,
     quantity,
   );
@@ -1446,10 +1445,10 @@ function respawnAtNearestTown(state: GameState, from: HexCoord) {
   state.player.hunger = 100;
   state.player.thirst = 100;
   upsertPlayerStatusEffect(state.player.statusEffects, {
-    id: 'recentDeath',
+    id: StatusEffectTypeId.RecentDeath,
   });
   upsertPlayerStatusEffect(state.player.statusEffects, {
-    id: 'restoration',
+    id: StatusEffectTypeId.Restoration,
     expiresAt: state.worldTimeMs + 100_000,
     tickIntervalMs: 1_000,
     lastProcessedAt: state.worldTimeMs,
@@ -1599,14 +1598,7 @@ function countInventoryResource(
 ) {
   return inventory.reduce((total, item) => {
     if (item.kind !== 'resource') return total;
-    if (item.itemKey === itemKey) return total + item.quantity;
-    if (
-      (itemKey === 'cloth' && item.name === itemName('cloth')) ||
-      (itemKey === 'sticks' && item.name === itemName('sticks'))
-    ) {
-      return total + item.quantity;
-    }
-    return total;
+    return item.itemKey === itemKey ? total + item.quantity : total;
   }, 0);
 }
 
@@ -1622,14 +1614,7 @@ function consumeInventoryResource(
     index -= 1
   ) {
     const item = inventory[index];
-    if (
-      item.kind !== 'resource' ||
-      (item.itemKey !== itemKey &&
-        !(
-          (itemKey === 'cloth' && item.name === itemName('cloth')) ||
-          (itemKey === 'sticks' && item.name === itemName('sticks'))
-        ))
-    ) {
+    if (item.kind !== 'resource' || item.itemKey !== itemKey) {
       continue;
     }
 
@@ -1771,7 +1756,11 @@ function maybeGatherByproduct(
   if (rng() >= (structure === 'tree' ? 0.35 : 0.3)) return null;
 
   return {
-    item: makeResourceStack(byproductName, definition.rewardTier, 1),
+    item: makeResourceStack(
+      byproductName === 'Sticks' ? ItemId.Sticks : ItemId.Stone,
+      definition.rewardTier,
+      1,
+    ),
     text:
       structure === 'tree'
         ? 'You also gather a few sticks from the chopped wood.'
@@ -1835,9 +1824,7 @@ function maybeDropEnemyConsumables(
   const dropKeys = ['apple', 'water-flask'] as const;
 
   dropKeys.forEach((itemKey) => {
-    const configured = getItemConfigByName(
-      itemKey === 'apple' ? 'Apple' : 'Water Flask',
-    );
+    const configured = getItemConfigByKey(itemKey);
     const chance = configured?.dropChance ?? 0;
     if (chance <= 0) return;
 
@@ -1971,7 +1958,7 @@ function maybeDropBloodMoonLoot(
 }
 
 function maybeSkinEnemy(state: GameState, enemy: import('./types').Enemy) {
-  if (!isAnimalEnemy(enemy.name)) return;
+  if (!isAnimalEnemy(enemy)) return;
 
   ensureTileState(state, enemy.coord);
   const key = hexKey(enemy.coord);
@@ -1982,7 +1969,7 @@ function maybeSkinEnemy(state: GameState, enemy: import('./types').Enemy) {
   );
   addItemToInventory(
     tile.items,
-    makeResourceStack('Leather Scraps', enemy.tier, quantity),
+    makeResourceStack(ItemId.LeatherScraps, enemy.tier, quantity),
   );
   state.tiles[key] = { ...tile, items: [...tile.items] };
   gainSkillXp(state, 'skinning', quantity, addLog);

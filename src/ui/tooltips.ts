@@ -10,7 +10,6 @@ import {
   type StructureType,
   type Tile,
 } from '../game/state';
-import { HOME_SCROLL_ITEM_NAME_KEY } from '../game/config';
 import { t } from '../i18n';
 
 export interface TooltipLine {
@@ -20,7 +19,7 @@ export interface TooltipLine {
   current?: number;
   max?: number;
   kind?: 'text' | 'stat' | 'bar';
-  tone?: 'positive' | 'negative' | 'item' | 'section';
+  tone?: 'positive' | 'negative' | 'item' | 'section' | 'subtle';
 }
 
 export function comparisonLines(item: Item, equipped?: Item) {
@@ -35,7 +34,10 @@ export function comparisonLines(item: Item, equipped?: Item) {
 
 export function itemTooltipLines(item: Item, equipped?: Item): TooltipLine[] {
   if (item.kind === 'consumable') {
-    return [{ kind: 'text', text: consumableEffectDescription(item) }];
+    return [
+      { kind: 'text', text: consumableEffectDescription(item) },
+      ...tagTooltipLines(item.tags),
+    ];
   }
 
   const lines: TooltipLine[] =
@@ -116,6 +118,7 @@ export function itemTooltipLines(item: Item, equipped?: Item): TooltipLine[] {
     }
   }
 
+  lines.push(...tagTooltipLines(item.tags));
   return lines;
 }
 
@@ -132,6 +135,7 @@ export function enemyTooltip(
       lines: [
         { kind: 'stat', label: t('ui.tooltip.level'), value: `${enemy.tier}` },
         { kind: 'stat', label: t('ui.tooltip.enemies'), value: '1' },
+        ...tagTooltipLines(enemy.tags),
       ],
     };
   }
@@ -150,6 +154,9 @@ export function enemyTooltip(
         label: t('ui.tooltip.enemies'),
         value: `${enemies.length}`,
       },
+      ...tagTooltipLines(
+        enemies.flatMap((enemy) => enemy.tags ?? []).filter(uniqueTag),
+      ),
     ],
   };
 }
@@ -217,10 +224,7 @@ export function skillTooltip(skill: SkillName, level: number): TooltipLine[] {
 }
 
 function consumableEffectDescription(item: Item) {
-  if (
-    item.itemKey === 'home-scroll' ||
-    item.name === t(HOME_SCROLL_ITEM_NAME_KEY)
-  ) {
+  if (item.itemKey === 'home-scroll') {
     return t('ui.tooltip.consumable.homeScroll');
   }
 
@@ -286,4 +290,20 @@ function isGatheringSkill(skill: SkillName) {
     skill === 'skinning' ||
     skill === 'fishing'
   );
+}
+
+function tagTooltipLines(tags?: string[]): TooltipLine[] {
+  if (!tags || tags.length === 0) return [];
+
+  return [
+    {
+      kind: 'text',
+      text: `Tags: ${tags.join(', ')}`,
+      tone: 'subtle',
+    },
+  ];
+}
+
+function uniqueTag(tag: string, index: number, values: string[]) {
+  return values.indexOf(tag) === index;
 }

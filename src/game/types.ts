@@ -1,4 +1,6 @@
 import type { HexCoord } from './hex';
+import type { EnemyTypeKey, ItemKey, StatusEffectIdValue } from './content/ids';
+import type { GameTag } from './content/tags';
 
 export type Terrain =
   | 'plains'
@@ -58,7 +60,8 @@ export type ItemKind =
 
 export interface Item {
   id: string;
-  itemKey?: string;
+  itemKey?: ItemKey;
+  tags?: GameTag[];
   kind: ItemKind;
   recipeId?: string;
   slot?: EquipmentSlot;
@@ -76,6 +79,8 @@ export interface Item {
 
 export interface Enemy {
   id: string;
+  enemyTypeId?: EnemyTypeKey;
+  tags?: GameTag[];
   name: string;
   coord: HexCoord;
   tier: number;
@@ -166,14 +171,11 @@ export interface Player {
   statusEffects: PlayerStatusEffect[];
 }
 
-export type StatusEffectId =
-  | 'hunger'
-  | 'thirst'
-  | 'recentDeath'
-  | 'restoration';
+export type StatusEffectId = StatusEffectIdValue;
 
 export interface PlayerStatusEffect {
   id: StatusEffectId;
+  tags?: GameTag[];
   expiresAt?: number;
   tickIntervalMs?: number;
   lastProcessedAt?: number;
@@ -198,6 +200,7 @@ export interface TownStockEntry {
 }
 
 export interface RecipeRequirement {
+  itemKey?: string;
   name: string;
   quantity: number;
 }
