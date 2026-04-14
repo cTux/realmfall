@@ -124,15 +124,18 @@ The world view is the most performance-sensitive path in the project.
 - Use `pnpm` for contributor commands and documentation.
 - Keep TypeScript strictness, ESLint, Prettier, tests, Husky hooks, and production builds working.
 - Prefer the smallest correct change that fits existing patterns.
+- Apply the DRY principle and prefer extending existing shared helpers, components, and config modules over duplicating similar logic.
 - Keep gameplay and simulation rules in `src/game`, app orchestration in `src/app`, React UI components in `src/ui/components`, and Pixi world rendering in `src/ui/world`.
 - Avoid growing already-large coordinator modules when a focused helper or hook is a better fit.
 - Keep balancing and world constants in config or focused modules instead of scattering magic numbers through UI code.
 - Keep each unique item, enemy, and structure in its own dedicated configuration file so gameplay and presentation data such as icons, drop or appearance chances, and structure-provided functions stay localized by content type.
+- In JavaScript and TypeScript, prefer concise arrow functions for immediate expression returns.
 - Preserve save normalization when persisted shapes evolve.
 - Treat browser-side save protection as local obfuscation, not real security.
 - Prefer debounced or meaningfully-triggered persistence work over repeated identical writes.
 - Keep React component files compatible with Fast Refresh expectations.
 - New draggable windows should keep their content behind a lazy-loaded bundle, either by splitting the whole window module or a dedicated `*WindowContent` module.
+- Prefer maximally reusable UI primitives. Shared window controls such as close buttons and repeated title-bar actions should come from common components and use the shared custom tooltip behavior consistently.
 - Keep Storybook coverage current for every UI component and for aggregate entity catalogs so component and content changes stay visible in reviewable UI fixtures.
 - Keep user-facing copy in i18n resources, default to `en`, add new keys instead of inline strings, and use dot-separated keys such as `{feature}.{area}.{property}`.
 - For ability, buff, and debuff icons rendered through CSS masks, use transparent SVG assets with no full-canvas background shape so the UI does not show solid squares.

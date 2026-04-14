@@ -17,11 +17,13 @@
 - Use `pnpm` for project commands. Do not switch examples or contributor guidance to `npm`.
 - Keep TypeScript strictness, ESLint, Prettier, tests, and Husky hooks working. New changes should not weaken existing quality gates.
 - Prefer the smallest correct change that fits the existing structure.
+- Apply the DRY principle. When logic, UI structure, or configuration patterns repeat, prefer extracting or extending an existing shared helper, component, or module instead of copying the pattern again.
 - Preserve existing behavior unless the task explicitly changes behavior.
 - Favor existing project patterns over introducing new abstractions, state layers, or architectural styles without a clear need.
 - Keep documentation grounded in the current shipped behavior and known constraints, not aspirational plans.
 - Keep gameplay restrictions documented in `docs/RESTRICTIONS.md` in sync with implementation decisions.
 - When generating or naming world content such as places, factions, enemies, items, events, structures, or flavor text, align it with the established lore in `docs/lore/REALMFALL.md`.
+- In JavaScript and TypeScript, when a function immediately returns an expression, prefer concise arrow functions without a block body.
 
 ## Architecture
 
@@ -49,6 +51,7 @@
 - Keep heavy app coordination in dedicated hooks when possible, following patterns already used in `src/app/App`.
 - Keep Storybook stories for every component under `src/ui/components`, including shared leaf components and window wrappers.
 - Keep aggregate Storybook catalogs for entity dictionaries such as `ITEM_CONFIGS`, `ENEMY_CONFIGS`, and `STRUCTURE_CONFIGS`, and prefer rendering those catalogs directly from the live config arrays so entity additions, removals, and edits appear automatically.
+- Prefer maximally reusable UI components and helpers. When multiple windows or controls share the same structure or behavior, reuse or extend a shared primitive instead of maintaining parallel implementations.
 - Keep user-facing UI copy in i18n resources instead of inline string literals in components, gameplay modules, or content definitions.
 - Default to `en` and keep locale resources lazy-loadable so additional languages can stay off the initial path when they are not needed.
 - When new user-facing text is required, add a new i18n key instead of hardcoding a fallback string in code.
@@ -61,6 +64,7 @@
 - Keep high-frequency pointer, hover, and world-interaction updates off broad React state paths when refs, invalidation flags, or narrower state can avoid avoidable rerenders.
 - Keep component modules compatible with React Fast Refresh expectations; move shared non-component exports out of component files when needed.
 - Keep shared window labels, hotkey metadata, and similar reusable UI constants in plain non-component modules so component files only export component concerns.
+- Window title bars should reuse shared controls wherever possible. Close actions must use the shared close button implementation and surface the shared custom tooltip consistently across every window.
 - For ability, buff, and debuff icons rendered through CSS masks, use transparent SVG assets with no full-canvas background shape. If sourcing icons externally, prefer transparent exports or strip the background path before committing so the UI does not render a solid square.
 - For UI elements that already use the custom game tooltip system, do not add native browser `title` tooltips. Buffs, debuffs, abilities, and similar interactive affordances should use the shared custom tooltip consistently so browser-default tooltips never compete with or duplicate the in-game tooltip.
 
