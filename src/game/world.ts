@@ -28,6 +28,11 @@ import {
   terrainTier,
 } from './shared';
 import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
+import {
+  getWorldBossCenter,
+  isWorldBossCenter,
+  worldBossEnemyId,
+} from './worldBoss';
 import type {
   EquipmentSlot,
   GameState,
@@ -88,6 +93,7 @@ export function ensureTileState(state: GameState, coord: HexCoord) {
           enemyId,
           name: enemyName,
           aggressive: !isFactionNpcEnemyId(enemyId),
+          worldBoss: isWorldBossCenter(state.seed, coord, tile.terrain),
         },
       );
     }
@@ -108,6 +114,20 @@ export function buildTile(seed: string, coord: HexCoord): Tile {
   }
 
   const terrain = pickTerrain(seed, coord);
+  const worldBossCenter = getWorldBossCenter(seed, coord);
+  if (worldBossCenter) {
+    const isBossCenter =
+      worldBossCenter.q === coord.q && worldBossCenter.r === coord.r;
+    return {
+      coord,
+      terrain,
+      structure: undefined,
+      items: [],
+      structureHp: undefined,
+      structureMaxHp: undefined,
+      enemyIds: isBossCenter ? [worldBossEnemyId(coord)] : [],
+    };
+  }
   const factionClaim = getFactionClaim(seed, coord);
   const territoryNpcEnemyId = makeFactionNpcEnemyId(coord);
   const structureCandidate = isPassable(terrain)

@@ -1,5 +1,6 @@
 import type { Terrain } from '../../types';
 import { boarEnemyConfig } from './boar';
+import { gluttonyEnemyConfig } from './gluttony';
 import { marauderEnemyConfig } from './marauder';
 import { raiderEnemyConfig } from './raider';
 import { spiderEnemyConfig } from './spider';
@@ -7,6 +8,7 @@ import { stagEnemyConfig } from './stag';
 import { wolfEnemyConfig } from './wolf';
 
 export const ENEMY_CONFIGS = [
+  gluttonyEnemyConfig,
   raiderEnemyConfig,
   marauderEnemyConfig,
   wolfEnemyConfig,
@@ -31,8 +33,11 @@ export function pickEnemyConfig(
   terrain: Terrain,
   roll: number,
   elite: boolean,
+  worldBoss = false,
 ) {
+  if (worldBoss) return gluttonyEnemyConfig;
   const candidates = ENEMY_CONFIGS.filter((config) => {
+    if (config.worldBoss) return false;
     const chance = elite
       ? (config.eliteAppearanceChance ?? 0)
       : (config.appearanceChanceByTerrain[terrain] ?? 0);

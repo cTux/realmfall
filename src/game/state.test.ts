@@ -34,16 +34,36 @@ import {
   type GameState,
   type Item,
 } from './state';
+import { hexDistance } from './hex';
+import { makeEnemy } from './combat';
 import {
   GAME_DAY_DURATION_MS,
   GAME_DAY_MINUTES,
   HOME_SCROLL_ITEM_NAME_KEY,
   WORLD_REVEAL_RADIUS,
 } from './config';
+import { isWorldBossCenter } from './worldBoss';
 import { t } from '../i18n';
 import { normalizeLoadedGame } from '../app/normalize';
 
 describe('game state', () => {
+  function findWorldBossEncounter() {
+    for (let seedIndex = 0; seedIndex < 40; seedIndex += 1) {
+      const game = createGame(8, `world-boss-seed-${seedIndex}`);
+      for (let q = -8; q <= 8; q += 1) {
+        for (let r = -8; r <= 8; r += 1) {
+          if (Math.abs(q + r) > 8) continue;
+          const coord = { q, r };
+          const tile = getTileAt(game, coord);
+          if (!isWorldBossCenter(game.seed, coord, tile.terrain)) continue;
+          return { game, center: coord };
+        }
+      }
+    }
+
+    throw new Error('Expected to find a deterministic world boss center');
+  }
+
   it('creates a centered start in a visible hex viewport', () => {
     const game = createGame(3, 'test-seed');
     expect(game.player.coord).toEqual({ q: 0, r: 0 });
@@ -1197,6 +1217,79 @@ describe('game state', () => {
         (item) =>
           ['weapon', 'armor', 'artifact'].includes(item.kind) &&
           ['rare', 'epic', 'legendary'].includes(item.rarity),
+      ),
+    ).toBe(true);
+  });
+
+  it('spawns world bosses with boosted stats, a footprint, and guaranteed premium loot', () => {
+    const { game, center } = findWorldBossEncounter();
+    const centerTile = getTileAt(game, center);
+    const worldBoss = getEnemyAt(game, center);
+    const ordinaryEnemy = makeEnemy(
+      game.seed,
+      center,
+      centerTile.terrain,
+      0,
+      undefined,
+      false,
+      { worldBoss: false },
+    );
+
+    expect(centerTile.enemyIds).toHaveLength(1);
+    expect(worldBoss?.worldBoss).toBe(true);
+    expect(worldBoss?.maxHp).toBe(ordinaryEnemy.maxHp * 50);
+    expect(worldBoss?.attack).toBe(ordinaryEnemy.attack * 5);
+    expect(worldBoss?.defense).toBeGreaterThan(ordinaryEnemy.defense);
+
+    const footprintTiles = getVisibleTiles({
+      ...game,
+      player: { ...game.player, coord: center },
+    }).filter((tile) => hexDistance(tile.coord, center) <= 1);
+    expect(footprintTiles).toHaveLength(7);
+    expect(
+      footprintTiles.every((tile) =>
+        tile.coord.q === center.q && tile.coord.r === center.r
+          ? tile.enemyIds.length === 1
+          : tile.enemyIds.length === 0 &&
+            tile.items.length === 0 &&
+            tile.structure === undefined,
+      ),
+    ).toBe(true);
+
+    const approach = footprintTiles.find(
+      (tile) =>
+        hexDistance(tile.coord, center) === 1 &&
+        tile.terrain !== 'rift' &&
+        tile.terrain !== 'mountain',
+    )?.coord;
+    expect(approach).toBeDefined();
+
+    game.player.coord = approach!;
+    game.enemies[centerTile.enemyIds[0]] = {
+      ...worldBoss!,
+      hp: 1,
+      maxHp: 1,
+      attack: 0,
+      defense: 0,
+    };
+
+    const encountered = moveToTile(game, center);
+    const resolved = startCombat(encountered);
+    const loot = getTileAt(resolved, center).items;
+
+    expect(loot.some((item) => item.name === 'Gold')).toBe(true);
+    expect(
+      loot.some(
+        (item) =>
+          ['weapon', 'armor', 'artifact'].includes(item.kind) &&
+          ['epic', 'legendary'].includes(item.rarity),
+      ),
+    ).toBe(true);
+    expect(
+      loot.some(
+        (item) =>
+          ['weapon', 'armor', 'artifact'].includes(item.kind) &&
+          item.rarity === 'legendary',
       ),
     ).toBe(true);
   });

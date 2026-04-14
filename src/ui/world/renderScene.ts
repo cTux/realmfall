@@ -1,5 +1,6 @@
 import { type Application } from 'pixi.js';
 import {
+  getEnemyConfig,
   getStructureConfig,
   getEnemiesAt,
   getVisibleTiles,
@@ -10,6 +11,7 @@ import {
   type Tile,
 } from '../../game/state';
 import { hexKey } from '../../game/hex';
+import { getWorldBossCenter, isWorldBossCenter } from '../../game/worldBoss';
 import { WorldIcons, enemyIconFor, structureIconFor } from './worldIcons';
 import { WORLD_REVEAL_RADIUS } from '../../app/constants';
 import { scaleColor } from './timeOfDay';
@@ -90,6 +92,7 @@ export function renderScene(
   const hexSize = getWorldHexSize(app.screen, state.radius);
   const structureIconSize = hexSize * 1.065;
   const enemyIconSize = hexSize * 0.945;
+  const worldBossIconSize = hexSize * 7;
   const playerIconSize = hexSize * 1.58;
 
   if (WORLD_MAP_FISHEYE_ENABLED) {
@@ -251,22 +254,32 @@ export function renderScene(
         );
       } else if (hostileEnemies.length > 0 && tile.structure !== 'dungeon') {
         const leadEnemy = hostileEnemies[0];
-        const sprite = takeShadowedSprite(
-          scene.worldStaticMarkerSprites,
-          enemyIconFor(leadEnemy.name),
+        const isBossCenter = isWorldBossCenter(
+          state.seed,
+          tile.coord,
+          tile.terrain,
         );
-        configureShadowedSprite(
-          sprite,
-          0xef4444,
-          enemyIconSize,
-          enemyIconSize,
-          1,
-          shadowOffset,
-          {
-            x: point.x,
-            y: point.y - 2,
-          },
-        );
+        const bossCenter = getWorldBossCenter(state.seed, tile.coord);
+        if (!bossCenter || isBossCenter) {
+          const sprite = takeShadowedSprite(
+            scene.worldStaticMarkerSprites,
+            enemyIconFor(leadEnemy.name),
+          );
+          configureShadowedSprite(
+            sprite,
+            getEnemyConfig(leadEnemy.name)?.tint ?? 0xef4444,
+            isBossCenter ? worldBossIconSize : enemyIconSize,
+            isBossCenter ? worldBossIconSize : enemyIconSize,
+            1,
+            shadowOffset,
+            isBossCenter
+              ? point
+              : {
+                  x: point.x,
+                  y: point.y - 2,
+                },
+          );
+        }
       }
 
       if (tile.claim) {

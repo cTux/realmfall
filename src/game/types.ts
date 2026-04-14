@@ -88,6 +88,7 @@ export interface Enemy {
   defense: number;
   xp: number;
   elite: boolean;
+  worldBoss?: boolean;
   aggressive?: boolean;
 }
 

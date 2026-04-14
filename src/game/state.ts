@@ -1,4 +1,5 @@
 import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
+import { isWorldBossCenter } from './worldBoss';
 import { t } from '../i18n';
 import { formatEquipmentSlotLabel, formatSkillLabel } from '../i18n/labels';
 import {
@@ -351,6 +352,7 @@ export function getEnemiesAt(state: GameState, coord: HexCoord) {
         enemyId,
         aggressive: hostile,
         name: enemyName,
+        worldBoss: isWorldBossCenter(state.seed, coord, tile.terrain),
       },
     );
   });
@@ -1777,6 +1779,24 @@ function maybeGatherByproduct(
 
 function maybeDropEnemyGold(state: GameState, enemy: import('./types').Enemy) {
   const rng = createRng(`${state.seed}:enemy-gold:${enemy.id}:${state.turn}`);
+  if (enemy.worldBoss) {
+    const quantity = Math.max(40, enemy.tier * 12 + Math.floor(rng() * 40));
+    ensureTileState(state, enemy.coord);
+    const key = hexKey(enemy.coord);
+    const tile = state.tiles[key];
+    addItemToInventory(tile.items, makeGoldStack(quantity));
+    state.tiles[key] = { ...tile, items: [...tile.items] };
+    addLog(
+      state,
+      'loot',
+      t('game.message.enemyDrop.gold', {
+        enemy: enemy.name,
+        amount: quantity,
+      }),
+    );
+    return;
+  }
+
   const chance = state.bloodMoonActive
     ? 1
     : enemy.elite
@@ -1909,13 +1929,17 @@ function maybeDropBloodMoonLoot(
   state: GameState,
   enemy: import('./types').Enemy,
 ) {
-  if (!state.bloodMoonActive) return;
+  if (!state.bloodMoonActive && !enemy.worldBoss) return;
 
   ensureTileState(state, enemy.coord);
   const key = hexKey(enemy.coord);
   const tile = state.tiles[key];
   const baseTier = Math.max(1, enemy.tier + (enemy.elite ? 1 : 0));
-  const minimumRarity = enemy.elite ? 'epic' : 'rare';
+  const minimumRarity = enemy.worldBoss
+    ? 'epic'
+    : enemy.elite
+      ? 'epic'
+      : 'rare';
   addItemToInventory(
     tile.items,
     makeBloodMoonDrop(state, enemy, 0, baseTier, minimumRarity),
@@ -1924,7 +1948,12 @@ function maybeDropBloodMoonLoot(
   const rng = createRng(
     `${state.seed}:blood-moon-loot:${enemy.id}:${state.turn}`,
   );
-  if (enemy.elite || rng() < 0.45) {
+  if (enemy.worldBoss) {
+    addItemToInventory(
+      tile.items,
+      makeBloodMoonDrop(state, enemy, 1, baseTier + 1, 'legendary'),
+    );
+  } else if (enemy.elite || rng() < 0.45) {
     addItemToInventory(
       tile.items,
       makeBloodMoonDrop(state, enemy, 1, baseTier + 1, minimumRarity),
@@ -2221,7 +2250,7 @@ function makeBloodMoonDrop(
   enemy: import('./types').Enemy,
   index: number,
   tier: number,
-  minimumRarity: 'rare' | 'epic',
+  minimumRarity: 'rare' | 'epic' | 'legendary',
 ) {
   const coord = enemy.coord;
   const seed = `${state.seed}:blood-moon-drop:${enemy.id}:${state.turn}:${index}`;

@@ -34,6 +34,7 @@ export interface EnemyConfig {
   appearanceChanceByTerrain: Partial<Record<Terrain, number>>;
   eliteAppearanceChance?: number;
   animal?: boolean;
+  worldBoss?: boolean;
 }
 
 export interface GatheringConfig {

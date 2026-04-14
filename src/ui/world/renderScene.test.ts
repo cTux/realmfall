@@ -1,10 +1,13 @@
-import { createGame, getVisibleTiles } from '../../game/state';
+import { createGame, getTileAt, getVisibleTiles } from '../../game/state';
 import forestClearingIcon from '../../assets/forest-pack/forest_03_clearing.png';
+import forestDeadIcon from '../../assets/forest-pack/forest_04_dead.png';
 import forestFewTreesIcon from '../../assets/forest-pack/forest_02_fewTrees.png';
 import forestTempleIcon from '../../assets/forest-pack/forest_20_temple.png';
+import gluttonyIcon from '../../assets/icons/gluttony.svg';
 import playerIcon from '../../assets/icons/visored-helm.svg';
 import wolfHeadIcon from '../../assets/icons/wolf-head.svg';
 import tearTracksIcon from '../../assets/icons/tear-tracks.svg';
+import { isWorldBossCenter } from '../../game/worldBoss';
 
 const spriteFrom = vi.fn((icon: string) => ({
   icon,
@@ -100,6 +103,24 @@ vi.mock('pixi.js', () => ({
 }));
 
 describe('renderScene', () => {
+  function findWorldBossRenderGame() {
+    for (let seedIndex = 0; seedIndex < 40; seedIndex += 1) {
+      const game = createGame(8, `render-scene-world-boss-${seedIndex}`);
+      for (let q = -8; q <= 8; q += 1) {
+        for (let r = -8; r <= 8; r += 1) {
+          if (Math.abs(q + r) > 8) continue;
+          const coord = { q, r };
+          const tile = getTileAt(game, coord);
+          if (!isWorldBossCenter(game.seed, coord, tile.terrain)) continue;
+          game.player.coord = coord;
+          return { game, center: coord };
+        }
+      }
+    }
+
+    throw new Error('Expected to find a renderable world boss center');
+  }
+
   it('bounds scene caches with LRU-style eviction', async () => {
     const { getCachedValue, SCENE_CACHE_LIMITS, setBoundedCachedValue } =
       await import('./renderSceneCache');
@@ -810,5 +831,55 @@ describe('renderScene', () => {
     expect(markerChildren.every((sprite) => sprite.icon !== playerIcon)).toBe(
       true,
     );
+  });
+
+  it('renders world bosses as oversized markers across a dead-forest footprint', async () => {
+    const { renderScene } = await import('./renderScene');
+    spriteFrom.mockClear();
+    const { game } = findWorldBossRenderGame();
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 960, height: 720 },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    const worldMap = app.stage.children[1] as MockContainer;
+    const world = worldMap.children[0] as MockContainer;
+    const markerLayer = world.children[3] as MockContainer;
+    const markerWrappers = markerLayer.children.filter(
+      (child): child is MockContainer => child instanceof MockContainer,
+    );
+    const worldBossWrapper = markerWrappers.find((wrapper) =>
+      (wrapper.children as Array<{ icon?: string }>).some(
+        (child) => child.icon === gluttonyIcon,
+      ),
+    );
+
+    expect(worldBossWrapper).toBeDefined();
+    expect(
+      spriteFrom.mock.calls.some(([icon]) => icon === forestDeadIcon),
+    ).toBe(true);
+
+    const worldBossSprites = (worldBossWrapper?.children ?? []) as Array<{
+      icon?: string;
+      width?: number;
+      height?: number;
+    }>;
+    expect(
+      worldBossSprites.some(
+        (child) =>
+          child.icon === gluttonyIcon &&
+          (child.width ?? 0) >= 140 &&
+          (child.height ?? 0) >= 140,
+      ),
+    ).toBe(true);
   });
 });

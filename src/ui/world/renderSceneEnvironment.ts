@@ -1,6 +1,7 @@
 import { BLEND_MODES } from 'pixi.js';
 import { HEX_SIZE } from '../../app/constants';
 import { createRng } from '../../game/random';
+import { getWorldBossCenter } from '../../game/worldBoss';
 import {
   type Enemy,
   type HexCoord,
@@ -8,6 +9,7 @@ import {
   type Tile,
 } from '../../game/state';
 import forestClearingIcon from '../../assets/forest-pack/forest_03_clearing.png';
+import forestDeadIcon from '../../assets/forest-pack/forest_04_dead.png';
 import forestFewTreesIcon from '../../assets/forest-pack/forest_02_fewTrees.png';
 import forestWildBushesIcon from '../../assets/forest-pack/forest_06_wildBushes.png';
 import forestRiftIcon from '../../assets/forest-pack/forest_05_rift.png';
@@ -93,7 +95,7 @@ export function getTileGroundCoverPresentation(
   enemies: Enemy[],
   worldSeed: string,
 ): TileGroundCoverPresentation {
-  const variants = tileBackgroundVariants(tile, enemies);
+  const variants = tileBackgroundVariants(tile, enemies, worldSeed);
   if (variants.length === 0) {
     return { background: null };
   }
@@ -217,6 +219,7 @@ export function hasTileGroundCover(terrain: Terrain) {
     tileBackgroundVariants(
       { coord: { q: 0, r: 0 }, terrain, items: [], enemyIds: [] },
       [],
+      '',
     ).length > 0
   );
 }
@@ -357,7 +360,14 @@ export function tileStyle(terrain: string) {
   }
 }
 
-function tileBackgroundVariants(tile: Tile, enemies: Enemy[]) {
+function tileBackgroundVariants(
+  tile: Tile,
+  enemies: Enemy[],
+  worldSeed: string,
+) {
+  if (worldSeed && getWorldBossCenter(worldSeed, tile.coord)) {
+    return [backgroundVariant(forestDeadIcon, 1, 0, 0.01)];
+  }
   if (tile.structure === 'tree') {
     return [backgroundVariant(forestFullIcon, 1.02, -0.01, 0.04)];
   }
