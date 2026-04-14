@@ -51,6 +51,19 @@ describe('timeOfDay', () => {
     expect(parseWorldCalendarDateTime(formatted)).toBeCloseTo(timestampMs, 3);
   });
 
+  it('preserves exact formatted minutes when parsing calendar timestamps', () => {
+    expect(
+      formatWorldCalendarDateTime(
+        parseWorldCalendarDateTime('Year 1, Day 1, 00:01') ?? -1,
+      ),
+    ).toBe('Year 1, Day 1, 00:01');
+    expect(
+      formatWorldCalendarDateTime(
+        parseWorldCalendarDateTime('Year 1, Day 1, 23:59') ?? -1,
+      ),
+    ).toBe('Year 1, Day 1, 23:59');
+  });
+
   it('brightens the world during the day and darkens it at night', () => {
     const noon = getTimeOfDayLighting(12 * 60);
     const midnight = getTimeOfDayLighting(0);

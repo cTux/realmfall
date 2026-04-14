@@ -192,11 +192,12 @@ export function parseWorldCalendarDateTime(timestampLabel: string) {
 
   const absoluteDay = (year - 1) * 365 + day;
   const totalMinutes = hours * 60 + minutes;
+  const minuteOffsetMs =
+    totalMinutes === 0
+      ? 0
+      : Math.ceil((totalMinutes * GAME_DAY_DURATION_MS) / GAME_DAY_MINUTES);
 
-  return (
-    (absoluteDay - 1) * GAME_DAY_DURATION_MS +
-    (totalMinutes / GAME_DAY_MINUTES) * GAME_DAY_DURATION_MS
-  );
+  return (absoluteDay - 1) * GAME_DAY_DURATION_MS + minuteOffsetMs;
 }
 
 export function getTimeOfDayLighting(
