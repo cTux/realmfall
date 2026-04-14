@@ -3,14 +3,17 @@ import { WINDOW_LABELS } from '../../windowLabels';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
+import { loadRetryingWindowModule } from '../lazyWindowComponent';
 import labelStyles from '../windowLabels.module.scss';
 import type { InventoryWindowProps } from './types';
 import styles from './styles.module.scss';
 
 const InventoryWindowContent = lazy(() =>
-  import('./InventoryWindowContent').then((module) => ({
-    default: module.InventoryWindowContent,
-  })),
+  loadRetryingWindowModule(() =>
+    import('./InventoryWindowContent').then((module) => ({
+      default: module.InventoryWindowContent,
+    })),
+  ),
 );
 
 export const InventoryWindow = memo(function InventoryWindow({

@@ -3,14 +3,17 @@ import { WINDOW_LABELS } from '../../windowLabels';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
+import { loadRetryingWindowModule } from '../lazyWindowComponent';
 import labelStyles from '../windowLabels.module.scss';
 import type { RecipeBookWindowProps } from './types';
 import styles from './styles.module.scss';
 
 const RecipeBookWindowContent = lazy(() =>
-  import('./RecipeBookWindowContent').then((module) => ({
-    default: module.RecipeBookWindowContent,
-  })),
+  loadRetryingWindowModule(() =>
+    import('./RecipeBookWindowContent').then((module) => ({
+      default: module.RecipeBookWindowContent,
+    })),
+  ),
 );
 
 export const RecipeBookWindow = memo(function RecipeBookWindow({

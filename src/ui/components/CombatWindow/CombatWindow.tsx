@@ -2,14 +2,17 @@ import { lazy, Suspense } from 'react';
 import { t } from '../../../i18n';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLoadingState } from '../WindowLoadingState';
+import { loadRetryingWindowModule } from '../lazyWindowComponent';
 import inventoryStyles from '../InventoryWindow/styles.module.scss';
 import type { CombatWindowProps } from './types';
 import styles from './styles.module.scss';
 
 const CombatWindowContent = lazy(() =>
-  import('./CombatWindowContent').then((module) => ({
-    default: module.CombatWindowContent,
-  })),
+  loadRetryingWindowModule(() =>
+    import('./CombatWindowContent').then((module) => ({
+      default: module.CombatWindowContent,
+    })),
+  ),
 );
 
 export function CombatWindow({

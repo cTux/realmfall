@@ -2,13 +2,16 @@ import { lazy, memo, Suspense } from 'react';
 import { t } from '../../../i18n';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowLoadingState } from '../WindowLoadingState';
+import { loadRetryingWindowModule } from '../lazyWindowComponent';
 import type { LootWindowProps } from './types';
 import styles from '../InventoryWindow/styles.module.scss';
 
 const LootWindowContent = lazy(() =>
-  import('./LootWindowContent').then((module) => ({
-    default: module.LootWindowContent,
-  })),
+  loadRetryingWindowModule(() =>
+    import('./LootWindowContent').then((module) => ({
+      default: module.LootWindowContent,
+    })),
+  ),
 );
 
 export const LootWindow = memo(function LootWindow({
