@@ -714,10 +714,14 @@ export function equipItem(state: GameState, itemId: string): GameState {
   }
 
   if (hasItemTag(item, GAME_TAGS.item.resource))
-    return message(state, t('game.message.equipment.resourcesCannotBeEquipped'));
+    return message(
+      state,
+      t('game.message.equipment.resourcesCannotBeEquipped'),
+    );
 
   next.player.inventory.splice(itemIndex, 1);
-  if (!item.slot) return message(state, t('game.message.equipment.cannotEquip'));
+  if (!item.slot)
+    return message(state, t('game.message.equipment.cannotEquip'));
 
   const replaced = next.player.equipment[item.slot];
   if (replaced) addItemToInventory(next.player.inventory, replaced);
@@ -1378,7 +1382,8 @@ export function craftRecipe(state: GameState, recipeId: string): GameState {
   }
   const requiredStructure =
     recipe.skill === Skill.Cooking ? 'camp' : 'workshop';
-  const requiredLabel = getStructureConfig(requiredStructure).title.toLowerCase();
+  const requiredLabel =
+    getStructureConfig(requiredStructure).title.toLowerCase();
   if (getCurrentTile(state).structure !== requiredStructure) {
     return message(
       state,
@@ -1399,10 +1404,7 @@ export function craftRecipe(state: GameState, recipeId: string): GameState {
     ? pickSatisfiedRequirement(state.player.inventory, recipe.fuelOptions)
     : undefined;
   if (recipe.fuelOptions && !chosenFuel) {
-    return message(
-      state,
-      t('game.message.recipe.needsFuel'),
-    );
+    return message(state, t('game.message.recipe.needsFuel'));
   }
 
   const next = clone(state);
