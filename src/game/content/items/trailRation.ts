@@ -1,9 +1,10 @@
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import type { ItemConfig } from '../types';
 
 export const trailRationItemConfig: ItemConfig = {
   key: 'trail-ration',
-  name: 'Trail Ration',
+  name: itemName('trail-ration'),
   icon: ContentIcons.ShinyApple,
   tier: 1,
   rarity: 'common',

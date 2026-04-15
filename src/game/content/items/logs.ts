@@ -1,9 +1,10 @@
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import type { ItemConfig } from '../types';
 
 export const logsItemConfig: ItemConfig = {
   key: 'logs',
-  name: 'Logs',
+  name: itemName('logs'),
   icon: ContentIcons.Log,
   tier: 1,
   rarity: 'common',

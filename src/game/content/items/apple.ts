@@ -1,9 +1,10 @@
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import type { ItemConfig } from '../types';
 
 export const appleItemConfig: ItemConfig = {
   key: 'apple',
-  name: 'Apple',
+  name: itemName('apple'),
   icon: ContentIcons.ShinyApple,
   tier: 2,
   rarity: 'common',

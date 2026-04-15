@@ -1,9 +1,10 @@
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import type { ItemConfig } from '../types';
 
 export const leatherScrapsItemConfig: ItemConfig = {
   key: 'leather-scraps',
-  name: 'Leather Scraps',
+  name: itemName('leather-scraps'),
   icon: ContentIcons.AnimalHide,
   tier: 1,
   rarity: 'common',

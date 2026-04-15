@@ -1,9 +1,10 @@
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import type { ItemConfig } from '../types';
 
 export const arcaneDustItemConfig: ItemConfig = {
   key: 'arcane-dust',
-  name: 'Aether Dust',
+  name: itemName('arcane-dust'),
   icon: ContentIcons.Sparkles,
   tier: 1,
   rarity: 'common',

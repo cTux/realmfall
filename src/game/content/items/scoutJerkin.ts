@@ -1,10 +1,11 @@
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import { EquipmentSlotId } from '../ids';
 import type { ItemConfig } from '../types';
 
 export const scoutJerkinItemConfig: ItemConfig = {
   key: 'scout-jerkin',
-  name: 'Scout Jerkin',
+  name: itemName('scout-jerkin'),
   slot: EquipmentSlotId.Chest,
   icon: ContentIcons.Chest,
   tier: 1,

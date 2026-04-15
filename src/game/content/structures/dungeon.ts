@@ -1,11 +1,11 @@
+import { structureDescription, structureTitle } from '../i18n';
 import { ContentIcons } from '../icons';
 import type { StructureConfig } from '../types';
 
 export const dungeonStructureConfig: StructureConfig = {
   type: 'dungeon',
-  title: 'Rift Ruin',
-  description:
-    'A broken ruin where stronger foes and old spoils gather beneath the fracture.',
+  title: structureTitle('dungeon'),
+  description: structureDescription('dungeon'),
   icon: ContentIcons.DungeonGate,
   tint: 0xa855f7,
   functionsProvided: ['elite-combat', 'loot'],

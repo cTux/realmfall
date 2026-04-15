@@ -1,11 +1,11 @@
+import { structureDescription, structureTitle } from '../i18n';
 import { ContentIcons } from '../icons';
 import type { StructureConfig } from '../types';
 
 export const forgeStructureConfig: StructureConfig = {
   type: 'forge',
-  title: 'Forge',
-  description:
-    'A salvage forge where broken gear is stripped down into tradeable worth.',
+  title: structureTitle('forge'),
+  description: structureDescription('forge'),
   icon: ContentIcons.Anvil,
   tint: 0xf97316,
   functionsProvided: ['prospect'],

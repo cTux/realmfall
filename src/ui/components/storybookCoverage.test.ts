@@ -15,9 +15,20 @@ describe('storybook coverage', () => {
   });
 
   it('keeps stories for standalone and nested shared components', () => {
-    expect(
-      existsSync(join(componentsDir, 'WindowLoadingState.stories.tsx')),
-    ).toBe(true);
+    const missingStandaloneComponents = readdirSync(componentsDir, {
+      withFileTypes: true,
+    })
+      .filter((entry) => entry.isFile() && entry.name.endsWith('.tsx'))
+      .map((entry) => entry.name)
+      .filter(
+        (name) => !name.endsWith('.stories.tsx') && !name.endsWith('.test.tsx'),
+      )
+      .filter((name) => {
+        const baseName = name.slice(0, -'.tsx'.length);
+        return !existsSync(join(componentsDir, `${baseName}.stories.tsx`));
+      });
+
+    expect(missingStandaloneComponents).toEqual([]);
     expect(
       existsSync(
         join(

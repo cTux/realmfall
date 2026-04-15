@@ -1,10 +1,11 @@
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import { EquipmentSlotId } from '../ids';
 import type { ItemConfig } from '../types';
 
 export const townKnifeItemConfig: ItemConfig = {
   key: 'town-knife',
-  name: 'Town Knife',
+  name: itemName('town-knife'),
   slot: EquipmentSlotId.Weapon,
   icon: ContentIcons.Weapon,
   tier: 1,

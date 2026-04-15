@@ -1,10 +1,11 @@
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import { EquipmentSlotId } from '../ids';
 import type { ItemConfig } from '../types';
 
 export const trailLeggingsItemConfig: ItemConfig = {
   key: 'trail-leggings',
-  name: 'Trail Leggings',
+  name: itemName('trail-leggings'),
   slot: EquipmentSlotId.Legs,
   icon: ContentIcons.Chest,
   tier: 1,

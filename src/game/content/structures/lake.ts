@@ -1,3 +1,11 @@
+import {
+  itemName,
+  structureActionLabel,
+  structureDepletedText,
+  structureDescription,
+  structureGatherVerb,
+  structureTitle,
+} from '../i18n';
 import { ContentIcons } from '../icons';
 import { ItemId } from '../ids';
 import type { StructureConfig } from '../types';
@@ -5,8 +13,8 @@ import { Skill } from '../../types';
 
 export const lakeStructureConfig: StructureConfig = {
   type: 'lake',
-  title: 'Lake',
-  description: 'A broad fishing spot that yields raw fish when worked.',
+  title: structureTitle('lake'),
+  description: structureDescription('lake'),
   icon: ContentIcons.Spill,
   tint: 0x2563eb,
   functionsProvided: ['fish'],
@@ -14,14 +22,14 @@ export const lakeStructureConfig: StructureConfig = {
     plains: 0.79,
   },
   gathering: {
-    actionLabel: 'Fish lake',
+    actionLabel: structureActionLabel('lake'),
     maxHp: 6,
     skill: Skill.Fishing,
     rewardItemKey: ItemId.RawFish,
-    reward: 'Raw Fish',
+    reward: itemName(ItemId.RawFish),
     rewardTier: 2,
     baseYield: 2,
-    verb: 'You fish the lake',
-    depletedText: 'The lake settles after your catch.',
+    verb: structureGatherVerb('lake'),
+    depletedText: structureDepletedText('lake'),
   },
 };

@@ -1,11 +1,11 @@
+import { structureDescription, structureTitle } from '../i18n';
 import { ContentIcons } from '../icons';
 import type { StructureConfig } from '../types';
 
 export const campStructureConfig: StructureConfig = {
   type: 'camp',
-  title: 'Campfire',
-  description:
-    'A banked campfire where raw provisions can be made safe to eat.',
+  title: structureTitle('camp'),
+  description: structureDescription('camp'),
   icon: ContentIcons.CampCookingPot,
   tint: 0xef4444,
   functionsProvided: ['cook'],

@@ -1,10 +1,11 @@
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import { EquipmentSlotId } from '../ids';
 import type { ItemConfig } from '../types';
 
 export const scoutHoodItemConfig: ItemConfig = {
   key: 'scout-hood',
-  name: 'Scout Hood',
+  name: itemName('scout-hood'),
   slot: EquipmentSlotId.Head,
   icon: ContentIcons.Hood,
   tier: 1,

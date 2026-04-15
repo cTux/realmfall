@@ -1,9 +1,10 @@
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import type { ItemConfig } from '../types';
 
 export const ironChunksItemConfig: ItemConfig = {
   key: 'iron-chunks',
-  name: 'Iron Chunks',
+  name: itemName('iron-chunks'),
   icon: ContentIcons.StonePile,
   tint: '#94a3b8',
   tier: 1,
