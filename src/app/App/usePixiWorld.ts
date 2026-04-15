@@ -9,6 +9,7 @@ import {
 import type { Application } from 'pixi.js';
 import * as stateModule from '../../game/state';
 import type { GameState } from '../../game/state';
+import { syncFollowCursorTooltipPosition } from '../../ui/components/GameTooltip/followCursorSync';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import * as tooltipModule from '../../ui/tooltips';
 import { getWorldHexSize } from '../../ui/world/renderSceneMath';
@@ -327,6 +328,7 @@ export function usePixiWorld({
       const onPointerLeave = () => {
         canvas.style.cursor = 'default';
         tooltipPositionRef.current = null;
+        syncFollowCursorTooltipPosition(null);
         worldTooltipKeyRef.current = null;
         hoverSnapshotRef.current = {
           target: null,
@@ -442,6 +444,7 @@ function applyHoverSnapshot({
 
   if (hoverSnapshot.tooltip?.followCursor) {
     tooltipPositionRef.current = nextTooltipPosition;
+    syncFollowCursorTooltipPosition(nextTooltipPosition);
     const currentTooltip = getTooltipState();
 
     if (
@@ -459,6 +462,7 @@ function applyHoverSnapshot({
   }
 
   tooltipPositionRef.current = null;
+  syncFollowCursorTooltipPosition(null);
   if (worldTooltipKeyRef.current || getTooltipState()?.followCursor) {
     worldTooltipKeyRef.current = null;
     setTooltip(null);

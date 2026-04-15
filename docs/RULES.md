@@ -69,6 +69,7 @@
 - Keep high-frequency pointer, hover, and world-interaction updates off broad React state paths when refs, invalidation flags, or narrower state can avoid avoidable rerenders.
 - Deduplicate `pointermove` world-hover work by hovered hex before doing heavier interaction logic, and avoid rerunning tooltip derivation, enemy lookups, or pathfinding while the pointer stays on the same tile.
 - On the world-hover path, only run pathfinding, enemy tooltip derivation, or similar heavier selectors when the hovered tile is actually actionable.
+- For follow-cursor world tooltips, reuse the existing world-hover pipeline to push position updates instead of adding a separate global pointer listener just to move the tooltip DOM.
 - Keep component modules compatible with React Fast Refresh expectations; move shared non-component exports out of component files when needed.
 - Keep shared window labels, hotkey metadata, and similar reusable UI constants in plain non-component modules so component files only export component concerns.
 - Window title bars should reuse shared controls wherever possible. Close actions must use the shared close button implementation and surface the shared custom tooltip consistently across every window.
