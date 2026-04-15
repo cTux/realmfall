@@ -831,6 +831,66 @@ describe('renderScene', () => {
     expect(finalPolygonCalls).toBe(initialPolygonCalls);
   });
 
+  it('keeps static and stable interaction layers cached across log-only state clones', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-log-cache');
+    game.homeHex = { q: 1, r: 0 };
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      { q: 1, r: 0 },
+      null,
+      12 * 60,
+      1200,
+    );
+
+    const world = (app.stage.children[1] as MockContainer)
+      .children[0] as MockContainer;
+    const initialPolygonCalls = collectDescendants(world)
+      .filter((child) => child instanceof MockGraphics)
+      .reduce((sum, child) => sum + child.drawPolygon.mock.calls.length, 0);
+    const logOnlyGame = {
+      ...game,
+      logs: [
+        ...game.logs,
+        {
+          id: 'log-4',
+          kind: 'system' as const,
+          text: 'A quiet wind rolls over the valley.',
+          turn: game.turn,
+        },
+      ],
+    };
+
+    renderScene(
+      app as never,
+      logOnlyGame,
+      getVisibleTiles(logOnlyGame),
+      { q: 1, r: 0 },
+      null,
+      12 * 60,
+      1800,
+    );
+
+    const finalPolygonCalls = collectDescendants(world)
+      .filter((child) => child instanceof MockGraphics)
+      .reduce((sum, child) => sum + child.drawPolygon.mock.calls.length, 0);
+
+    expect(finalPolygonCalls).toBe(initialPolygonCalls);
+  });
+
   it('covers hexes beyond the reveal radius with fog of war', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(6, 'render-scene-fog-of-war');
