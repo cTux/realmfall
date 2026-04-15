@@ -225,7 +225,13 @@ export function DraggableWindow({
       className={`${styles.floatingWindow} ${className ?? ''}`.trim()}
       data-window-emphasis={emphasis}
       data-window-visible={animatedVisible}
-      style={{ left: position.x, top: position.y }}
+      style={{
+        left: position.x,
+        top: position.y,
+        width: position.width === undefined ? undefined : `${position.width}px`,
+        height:
+          position.height === undefined ? undefined : `${position.height}px`,
+      }}
       onPointerEnter={() => setHovered(true)}
       onPointerLeave={() => setHovered(false)}
       onPointerDown={activateWindow}

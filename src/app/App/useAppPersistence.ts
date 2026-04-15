@@ -26,8 +26,8 @@ import {
 import { normalizeLoadedGame } from '../normalize';
 import type { PersistedUiState } from './types';
 
-const AUTOSAVE_DEBOUNCE_MS = 300;
 const AUTOSAVE_INTERVAL_MS = 5000;
+const AUTOSAVE_DEBOUNCE_MS = AUTOSAVE_INTERVAL_MS;
 
 type PersistedSaveSegments = {
   game: PersistedData['game'];
@@ -102,6 +102,14 @@ function clearDebounceTimer(debounceTimerRef: MutableRefObject<number | null>) {
     window.clearTimeout(debounceTimerRef.current);
     debounceTimerRef.current = null;
   }
+}
+
+function clearDebounceSchedule(
+  debounceDueAtRef: MutableRefObject<number | null>,
+  debounceTimerRef: MutableRefObject<number | null>,
+) {
+  debounceDueAtRef.current = null;
+  clearDebounceTimer(debounceTimerRef);
 }
 
 interface PersistSnapshotResult {
@@ -205,6 +213,7 @@ function flushPendingSave({
 
 function scheduleSave({
   debounceTimerRef,
+  debounceDueAtRef,
   currentSerializedRef,
   dirtySegmentsRef,
   latestSegmentsRef,
@@ -215,6 +224,7 @@ function scheduleSave({
   nextUiSegment,
 }: {
   debounceTimerRef: MutableRefObject<number | null>;
+  debounceDueAtRef: MutableRefObject<number | null>;
   currentSerializedRef: MutableRefObject<SerializedSaveSegments>;
   dirtySegmentsRef: MutableRefObject<DirtySaveSegments>;
   latestSegmentsRef: MutableRefObject<PersistedSaveSegments>;
@@ -237,12 +247,14 @@ function scheduleSave({
   }
 
   if (!dirtySegmentsRef.current.game && !dirtySegmentsRef.current.ui) {
-    clearDebounceTimer(debounceTimerRef);
+    clearDebounceSchedule(debounceDueAtRef, debounceTimerRef);
     return;
   }
 
-  clearDebounceTimer(debounceTimerRef);
+  clearDebounceSchedule(debounceDueAtRef, debounceTimerRef);
+  debounceDueAtRef.current = Date.now() + AUTOSAVE_DEBOUNCE_MS;
   debounceTimerRef.current = window.setTimeout(() => {
+    debounceDueAtRef.current = null;
     debounceTimerRef.current = null;
     flushPendingSave({
       currentSerializedRef,
@@ -295,6 +307,7 @@ export function useAppPersistence({
     ui: false,
   });
   const debounceTimerRef = useRef<number | null>(null);
+  const debounceDueAtRef = useRef<number | null>(null);
   const saveInFlightRef = useRef(false);
   const saveQueueRef = useRef<Promise<void>>(Promise.resolve());
 
@@ -408,6 +421,7 @@ export function useAppPersistence({
     });
     latestSegmentsRef.current.game = nextGameSnapshot;
     scheduleSave({
+      debounceDueAtRef,
       debounceTimerRef,
       currentSerializedRef,
       dirtySegmentsRef,
@@ -429,6 +443,7 @@ export function useAppPersistence({
     });
     latestSegmentsRef.current.ui = nextUiSnapshot;
     scheduleSave({
+      debounceDueAtRef,
       debounceTimerRef,
       currentSerializedRef,
       dirtySegmentsRef,
@@ -444,6 +459,13 @@ export function useAppPersistence({
     if (!hydrated) return;
 
     const interval = window.setInterval(() => {
+      if (
+        debounceDueAtRef.current !== null &&
+        debounceDueAtRef.current <= Date.now()
+      ) {
+        return;
+      }
+
       flushPendingSave({
         currentSerializedRef,
         dirtySegmentsRef,
@@ -456,12 +478,12 @@ export function useAppPersistence({
 
     return () => {
       window.clearInterval(interval);
-      clearDebounceTimer(debounceTimerRef);
+      clearDebounceSchedule(debounceDueAtRef, debounceTimerRef);
     };
   }, [hydrated]);
 
   const persistNow = async () => {
-    clearDebounceTimer(debounceTimerRef);
+    clearDebounceSchedule(debounceDueAtRef, debounceTimerRef);
 
     const nextGameSnapshot = buildPersistedGameSnapshot({
       game: gameRef.current,

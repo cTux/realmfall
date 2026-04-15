@@ -24,7 +24,7 @@ describe('App persistence', () => {
     });
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(400);
+      await vi.advanceTimersByTimeAsync(5000);
     });
 
     expect(saveEncryptedState).toHaveBeenCalledWith(
@@ -61,7 +61,7 @@ describe('App persistence', () => {
     });
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(400);
+      await vi.advanceTimersByTimeAsync(5000);
     });
 
     expect(saveEncryptedState).toHaveBeenCalledWith(
@@ -71,6 +71,42 @@ describe('App persistence', () => {
         }),
       }),
     );
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('opens the settings window at its saved size', async () => {
+    const game = createGame(2, 'app-settings-window-size-seed');
+    loadEncryptedState.mockResolvedValue({
+      game,
+      ui: {
+        windows: {
+          settings: { x: 240, y: 120, width: 720, height: 560 },
+        },
+      },
+    });
+
+    const { host, root } = await renderApp();
+    await flushLazyModules();
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'm' }),
+      );
+    });
+    await flushLazyModules();
+
+    const saveButton = Array.from(host.querySelectorAll('button')).find(
+      (button) => button.textContent === 'Save',
+    );
+    const settingsWindow = saveButton?.closest('section');
+
+    expect(settingsWindow).not.toBeNull();
+    expect((settingsWindow as HTMLElement).style.width).toBe('720px');
+    expect((settingsWindow as HTMLElement).style.height).toBe('560px');
 
     await act(async () => {
       root.unmount();

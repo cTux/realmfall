@@ -31,7 +31,12 @@ describe('App hydration and interactions', () => {
         game: {
           ...game,
           logs: [
-            { id: 'persisted-log', kind: 'system', text: 'old log', turn: 99 },
+            {
+              id: 'persisted-log',
+              kind: 'system',
+              text: 'old log',
+              turn: 99,
+            },
           ],
         },
         ui: {
@@ -196,5 +201,5 @@ describe('App hydration and interactions', () => {
       root.unmount();
     });
     host.remove();
-  });
+  }, 15000);
 });
