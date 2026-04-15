@@ -1,4 +1,4 @@
-import { Filter } from 'pixi.js';
+import { Filter, GlProgram, UniformGroup } from 'pixi.js';
 import { WORLD_RADIUS } from '../../game/config';
 import { getWorldHexSize } from './renderSceneMath';
 
@@ -37,28 +37,71 @@ void main(void) {
   gl_FragColor = texture2D(uSampler, mapToSource(vTextureCoord));
 }
 `;
+const DEFAULT_FILTER_VERTEX = `
+in vec2 aPosition;
+out vec2 vTextureCoord;
+
+uniform vec4 uInputSize;
+uniform vec4 uOutputFrame;
+uniform vec4 uOutputTexture;
+
+vec4 filterVertexPosition(void)
+{
+  vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+  position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+  position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
+
+  return vec4(position, 0.0, 1.0);
+}
+
+vec2 filterTextureCoord(void)
+{
+  return aPosition * (uOutputFrame.zw * uInputSize.zw);
+}
+
+void main(void)
+{
+  gl_Position = filterVertexPosition();
+  vTextureCoord = filterTextureCoord();
+}
+`;
 
 const WORLD_MAP_FISHEYE_STRENGTH = 0.7;
 const WORLD_MAP_FISHEYE_FALLOFF_POWER = 0.6;
 const WORLD_MAP_FISHEYE_RADIUS_IN_HEXES = 13;
 
+type WorldMapFishEyeUniformGroup = UniformGroup<{
+  uCenter: { value: Float32Array; type: 'vec2<f32>' };
+  uRadius: { value: number; type: 'f32' };
+  uAspect: { value: number; type: 'f32' };
+  uStrength: { value: number; type: 'f32' };
+  uFalloffPower: { value: number; type: 'f32' };
+}>;
+
 export type WorldMapFishEyeFilter = Filter & {
-  uniforms: {
-    uCenter: Float32Array;
-    uRadius: number;
-    uAspect: number;
-    uStrength: number;
-    uFalloffPower: number;
+  resources: Filter['resources'] & {
+    worldMapFishEyeUniforms: WorldMapFishEyeUniformGroup;
   };
 };
 
 export function createWorldMapFishEyeFilter() {
-  return new Filter(undefined, WORLD_MAP_FISHEYE_FRAGMENT, {
-    uCenter: new Float32Array([0.5, 0.5]),
-    uRadius: 0.25,
-    uAspect: 1,
-    uStrength: WORLD_MAP_FISHEYE_STRENGTH,
-    uFalloffPower: WORLD_MAP_FISHEYE_FALLOFF_POWER,
+  const worldMapFishEyeUniforms = new UniformGroup({
+    uCenter: { value: new Float32Array([0.5, 0.5]), type: 'vec2<f32>' },
+    uRadius: { value: 0.25, type: 'f32' },
+    uAspect: { value: 1, type: 'f32' },
+    uStrength: { value: WORLD_MAP_FISHEYE_STRENGTH, type: 'f32' },
+    uFalloffPower: { value: WORLD_MAP_FISHEYE_FALLOFF_POWER, type: 'f32' },
+  });
+
+  return new Filter({
+    glProgram: GlProgram.from({
+      vertex: DEFAULT_FILTER_VERTEX,
+      fragment: WORLD_MAP_FISHEYE_FRAGMENT,
+      name: 'world-map-fisheye',
+    }),
+    resources: {
+      worldMapFishEyeUniforms,
+    },
   }) as WorldMapFishEyeFilter;
 }
 
@@ -67,12 +110,13 @@ export function updateWorldMapFishEyeFilter(
   screen: { width: number; height: number },
   center: { x: number; y: number },
 ) {
+  const uniforms = filter.resources.worldMapFishEyeUniforms.uniforms;
   const minDimension = Math.max(1, Math.min(screen.width, screen.height));
   const radiusPx = getWorldMapFishEyeRadiusPx(screen);
-  filter.uniforms.uCenter[0] = center.x / Math.max(1, screen.width);
-  filter.uniforms.uCenter[1] = center.y / Math.max(1, screen.height);
-  filter.uniforms.uRadius = radiusPx / minDimension;
-  filter.uniforms.uAspect = screen.width / Math.max(1, screen.height);
+  uniforms.uCenter[0] = center.x / Math.max(1, screen.width);
+  uniforms.uCenter[1] = center.y / Math.max(1, screen.height);
+  uniforms.uRadius = radiusPx / minDimension;
+  uniforms.uAspect = screen.width / Math.max(1, screen.height);
 }
 
 export function mapWorldMapFishEyeDisplayPointToSourcePoint(

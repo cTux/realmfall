@@ -20,12 +20,15 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Deterministic ground-cover presentation and cloud inputs are memoized in bounded caches.
 - The world renderer includes time-of-day lighting, atmosphere passes, overlay tinting, and optional fish-eye processing.
 - Rendering quality and icon sizing derive from screen state and world radius.
+- Pixi v8 initialization happens through the async `Application.init()` path rather than constructor options.
+- The world bootstrap loads Pixi through a dedicated `pixiRuntime` module and passes `manageImports: false` so only the required Pixi extensions land on the initial world-render path.
 - The Pixi canvas uses density-aware sizing so browser zoom and high-DPI displays keep the world viewport fitted to CSS pixels while renderer resolution tracks `window.devicePixelRatio` changes on resize.
 - Persisted settings now hydrate Pixi renderer initialization flags such as antialiasing, auto density, buffer preservation, and alpha handling through a dedicated plain `localStorage` `settings` payload that is read before the initial game and Pixi setup; those init-time flags still require a reload before they affect an already-running canvas.
 
 ## Main Implementation Areas
 
 - `src/app/App/usePixiWorld.ts`
+- `src/ui/world/pixiRuntime.ts`
 - `src/ui/world/renderScene.ts`
 - `src/ui/world/renderSceneCache.ts`
 - `src/ui/world/renderScenePools.ts`

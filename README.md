@@ -123,7 +123,7 @@ The world view is the most performance-sensitive path in the project.
 Lightweight budgets to catch regressions earlier:
 
 - Frame time: treat `16.7 ms` as the default target budget for normal desktop world interaction, including hover, dragging windows, and routine movement, with headroom preferred over running exactly at the limit.
-- Startup chunks: treat the current pre-gzip output as the rough ceiling to watch closely, around `235 kB` for the main app chunk, `145 kB` for `react-vendor`, and `490 kB` for `pixi`. New deferred windows and secondary UI should stay deferred instead of increasing the initial path materially.
+- Startup chunks: treat the current pre-gzip output as the rough ceiling to watch closely, around `235 kB` for the main app chunk, `145 kB` for `react-vendor`, and `500 kB` for `pixi`. New deferred windows and secondary UI should stay deferred instead of increasing the initial path materially.
 
 ## Performance Verification
 

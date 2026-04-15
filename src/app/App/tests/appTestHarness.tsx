@@ -11,14 +11,126 @@ export const tickerCallbacks = new Set<() => void>();
 export const applicationOptions: Array<Record<string, unknown>> = [];
 
 class MockStage {
+  children: unknown[] = [];
+
   removeChildren() {
     return [];
   }
 
-  addChild() {}
+  addChild(...children: unknown[]) {
+    this.children.push(...children);
+  }
 }
 
 vi.mock('pixi.js', () => {
+  const spriteFrom = vi.fn((icon: string) => ({
+    icon,
+    anchor: { set: vi.fn() },
+    position: { set: vi.fn() },
+    width: 0,
+    height: 0,
+    tint: 0,
+    alpha: 1,
+    visible: true,
+  }));
+
+  class MockContainer {
+    children: unknown[] = [];
+    alpha = 1;
+    visible = true;
+    position = { set: vi.fn() };
+
+    addChild(...children: unknown[]) {
+      this.children.push(...children);
+      return children[0];
+    }
+  }
+
+  class MockGraphics extends MockContainer {
+    clear = vi.fn();
+    beginFill = vi.fn();
+    lineStyle = vi.fn();
+    moveTo = vi.fn(() => this);
+    lineTo = vi.fn(() => this);
+    drawPolygon = vi.fn();
+    drawEllipse = vi.fn();
+    drawRect = vi.fn();
+    endFill = vi.fn();
+    poly = vi.fn((points: number[]) => {
+      this.drawPolygon(points);
+      return this;
+    });
+    ellipse = vi.fn(
+      (x: number, y: number, radiusX: number, radiusY: number) => {
+        this.drawEllipse(x, y, radiusX, radiusY);
+        return this;
+      },
+    );
+    rect = vi.fn((x: number, y: number, width: number, height: number) => {
+      this.drawRect(x, y, width, height);
+      return this;
+    });
+    fill = vi.fn((style: number | { color?: number; alpha?: number }) => {
+      if (typeof style === 'number') {
+        this.beginFill(style, 1);
+      } else {
+        this.beginFill(style.color ?? 0, style.alpha ?? 1);
+      }
+      this.endFill();
+      return this;
+    });
+    stroke = vi.fn(
+      (style: number | { width?: number; color?: number; alpha?: number }) => {
+        if (typeof style === 'number') {
+          this.lineStyle(undefined, style, undefined);
+        } else {
+          this.lineStyle(style.width, style.color, style.alpha);
+        }
+        return this;
+      },
+    );
+  }
+
+  class MockText extends MockContainer {
+    constructor(
+      public text: string,
+      public style: unknown,
+    ) {
+      super();
+    }
+  }
+
+  class MockTextStyle {
+    constructor(public value: unknown) {}
+  }
+
+  class MockFilter {
+    resources: Record<string, unknown>;
+
+    constructor(options?: { resources?: Record<string, unknown> }) {
+      this.resources = options?.resources ?? {};
+    }
+  }
+
+  class MockUniformGroup {
+    uniforms: Record<string, unknown>;
+
+    constructor(structure: Record<string, { value: unknown; type: string }>) {
+      this.uniforms = Object.fromEntries(
+        Object.entries(structure).map(([key, value]) => [key, value.value]),
+      );
+    }
+  }
+
+  class MockRectangle {
+    constructor(
+      public x: number,
+      public y: number,
+      public width: number,
+      public height: number,
+    ) {}
+  }
+
   class MockApplication {
     stage = new MockStage();
     screen = { width: 800, height: 600 };
@@ -36,10 +148,16 @@ vi.mock('pixi.js', () => {
         tickerCallbacks.delete(callback);
       }),
     };
-    view = document.createElement('canvas');
+    canvas = document.createElement('canvas');
     destroy = vi.fn();
 
-    constructor(options: {
+    constructor() {
+      Object.defineProperty(this.canvas, 'getBoundingClientRect', {
+        value: () => ({ left: 0, top: 0, width: 800, height: 600 }),
+      });
+    }
+
+    async init(options: {
       width: number;
       height: number;
       resolution?: number;
@@ -48,15 +166,26 @@ vi.mock('pixi.js', () => {
       applicationOptions.push(options as unknown as Record<string, unknown>);
       this.screen = { width: options.width, height: options.height };
       this.renderer.resolution = options.resolution ?? 1;
-      Object.defineProperty(this.view, 'getBoundingClientRect', {
-        value: () => ({ left: 0, top: 0, width: 800, height: 600 }),
-      });
+    }
+
+    get view() {
+      return this.canvas;
     }
   }
 
   return {
     Application: MockApplication,
-    Filter: class MockFilter {},
+    Container: MockContainer,
+    Filter: MockFilter,
+    GlProgram: {
+      from: vi.fn((options: Record<string, unknown>) => options),
+    },
+    Graphics: MockGraphics,
+    Rectangle: MockRectangle,
+    Sprite: { from: spriteFrom },
+    Text: MockText,
+    TextStyle: MockTextStyle,
+    UniformGroup: MockUniformGroup,
   };
 });
 

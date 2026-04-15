@@ -100,15 +100,16 @@ export function usePixiWorld({
     let cleanup: (() => void) | null = null;
 
     void Promise.all([
-      import('pixi.js'),
+      import('../../ui/world/pixiRuntime'),
       import('../../ui/world/renderScene'),
       import('../../ui/world/worldMapFishEye'),
-    ]).then(([pixiModule, renderSceneModule, fishEyeModule]) => {
+    ]).then(async ([pixiModule, renderSceneModule, fishEyeModule]) => {
       if (disposed || !hostRef.current || appRef.current) {
         return;
       }
 
-      const app = new pixiModule.Application({
+      const app = new pixiModule.Application();
+      await app.init({
         width: Math.max(window.innerWidth, 640),
         height: Math.max(window.innerHeight, 480),
         backgroundColor: 0x0b1020,
@@ -116,13 +117,24 @@ export function usePixiWorld({
         antialias: graphicsSettings.antialias,
         autoDensity: graphicsSettings.autoDensity,
         clearBeforeRender: graphicsSettings.clearBeforeRender,
+        manageImports: false,
         preserveDrawingBuffer: graphicsSettings.preserveDrawingBuffer,
         premultipliedAlpha: graphicsSettings.premultipliedAlpha,
+        preference: 'webgl',
         resolution: window.devicePixelRatio || 1,
       });
 
+      if (disposed || !hostRef.current || appRef.current) {
+        app.destroy(true, {
+          children: true,
+          texture: true,
+          textureSource: true,
+        });
+        return;
+      }
+
       appRef.current = app;
-      const canvas = app.view as HTMLCanvasElement;
+      const canvas = app.canvas as HTMLCanvasElement;
       hostRef.current.replaceChildren(canvas);
 
       const resize = () => {
@@ -378,7 +390,7 @@ export function usePixiWorld({
         app.destroy(true, {
           children: true,
           texture: true,
-          baseTexture: true,
+          textureSource: true,
         });
         appRef.current = null;
         setCanvasReady(false);

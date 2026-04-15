@@ -47,8 +47,7 @@ function getVendorChunk(id: string) {
 
   if (
     normalizedId.includes('/node_modules/pixi.js/') ||
-    normalizedId.includes('/node_modules/@pixi/') ||
-    normalizedId.includes('/node_modules/eventemitter3/')
+    normalizedId.includes('/node_modules/@pixi/')
   ) {
     return 'pixi';
   }

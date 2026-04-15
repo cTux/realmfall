@@ -40,12 +40,43 @@ class MockGraphics extends MockContainer {
   clear = vi.fn();
   beginFill = vi.fn();
   lineStyle = vi.fn();
-  moveTo = vi.fn();
-  lineTo = vi.fn();
+  moveTo = vi.fn(() => this);
+  lineTo = vi.fn(() => this);
   drawPolygon = vi.fn();
   drawEllipse = vi.fn();
   drawRect = vi.fn();
   endFill = vi.fn();
+  poly = vi.fn((points: number[]) => {
+    this.drawPolygon(points);
+    return this;
+  });
+  ellipse = vi.fn((x: number, y: number, radiusX: number, radiusY: number) => {
+    this.drawEllipse(x, y, radiusX, radiusY);
+    return this;
+  });
+  rect = vi.fn((x: number, y: number, width: number, height: number) => {
+    this.drawRect(x, y, width, height);
+    return this;
+  });
+  fill = vi.fn((style: number | { color?: number; alpha?: number }) => {
+    if (typeof style === 'number') {
+      this.beginFill(style, 1);
+    } else {
+      this.beginFill(style.color ?? 0, style.alpha ?? 1);
+    }
+    this.endFill();
+    return this;
+  });
+  stroke = vi.fn(
+    (style: number | { width?: number; color?: number; alpha?: number }) => {
+      if (typeof style === 'number') {
+        this.lineStyle(undefined, style, undefined);
+      } else {
+        this.lineStyle(style.width, style.color, style.alpha);
+      }
+      return this;
+    },
+  );
 }
 
 class MockText extends MockContainer {
@@ -71,11 +102,23 @@ class MockTextStyle {
 }
 
 class MockFilter {
+  resources: Record<string, unknown>;
+
+  constructor(options?: { resources?: Record<string, unknown> }) {
+    this.resources = options?.resources ?? {};
+  }
+}
+
+class MockUniformGroup {
+  uniforms: Record<string, unknown>;
+
   constructor(
-    public vertexSrc: string | undefined,
-    public fragmentSrc: string,
-    public uniforms: Record<string, unknown>,
-  ) {}
+    public structure: Record<string, { value: unknown; type: string }>,
+  ) {
+    this.uniforms = Object.fromEntries(
+      Object.entries(structure).map(([key, value]) => [key, value.value]),
+    );
+  }
 }
 
 class MockRectangle {
@@ -91,11 +134,15 @@ vi.mock('pixi.js', () => ({
   BLEND_MODES: { ADD: 'add' },
   Container: MockContainer,
   Filter: MockFilter,
+  GlProgram: {
+    from: vi.fn((options: Record<string, unknown>) => options),
+  },
   Graphics: MockGraphics,
   Rectangle: MockRectangle,
   Sprite: { from: spriteFrom },
   Text: MockText,
   TextStyle: MockTextStyle,
+  UniformGroup: MockUniformGroup,
 }));
 
 describe('renderScene', () => {

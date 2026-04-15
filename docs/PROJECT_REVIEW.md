@@ -17,7 +17,7 @@
 - `src/game/state.ts` is still a very large module, which keeps too many gameplay mutations and selectors behind one ownership boundary.
 - `src/app/App/App.tsx` remains a broad composition root. The heavy derivation has been reduced, but the root still wires many gameplay, persistence, world, and window concerns together in one component.
 - `src/ui/components/LogWindow/LogWindowContent.tsx` still uses a timer-driven reveal for the newest log entry. It is only one interval now, not one per row, but it is still work that scales with message length rather than staying purely declarative.
-- Initial startup cost is now guarded, but the startup path is still non-trivial. The current enforced bundle envelope still allows roughly `240 kB` for `index`, `150 kB` for `react-vendor`, and `490 kB` for `pixi` before gzip.
+- Initial startup cost is now guarded, but the startup path is still non-trivial. The current enforced bundle envelope still allows roughly `240 kB` for `index`, `150 kB` for `react-vendor`, and `500 kB` for `pixi` before gzip.
 - Browser-side save protection is still obfuscation, not security. `src/persistence/storage.ts` ships the material needed to derive the same client-side key.
 
 ## Improvements

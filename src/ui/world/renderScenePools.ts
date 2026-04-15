@@ -1,11 +1,4 @@
-import {
-  Container,
-  Graphics,
-  Sprite,
-  Text,
-  type DisplayObject,
-  type TextStyle,
-} from 'pixi.js';
+import { Container, Graphics, Sprite, Text, type TextStyle } from 'pixi.js';
 
 export interface GraphicsPool {
   parent: Container;
@@ -20,7 +13,7 @@ export interface TextPool {
 }
 
 export interface ShadowedSpriteEntry {
-  wrapper: Container & DisplayObject;
+  wrapper: Container;
   shadows: Sprite[];
   sprite: Sprite;
 }
@@ -164,7 +157,7 @@ export function finishSpritePool(pool: SpritePool) {
 }
 
 export function createShadowedSprite(icon: string): ShadowedSpriteEntry {
-  const wrapper = new Container() as DisplayObject & Container;
+  const wrapper = new Container();
   const shadows = [0.3, 0.55, 0.8, 1].map(() => {
     const shadow = Sprite.from(icon);
     shadow.anchor.set(0.5);

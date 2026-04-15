@@ -6,7 +6,7 @@ const DIST_JS_DIR = join(process.cwd(), 'dist', 'assets', 'js');
 const BUDGETS = {
   index: 500_000,
   'react-vendor': 150_000,
-  pixi: 490_000,
+  pixi: 505_000,
 };
 
 function formatKiB(bytes) {
