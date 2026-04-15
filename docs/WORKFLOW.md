@@ -13,6 +13,7 @@
 - Split improvement recommendations by priority.
 - Keep findings grounded in the current code and docs, not aspirational architecture.
 - When performance-sensitive behavior changes, document how to verify rerender breadth, redraw breadth, hover hot paths, and startup chunk impact.
+- Run `pnpm build:budget` when changes can affect startup chunks so the enforced `index`, `react-vendor`, and `pixi` budgets fail fast during local verification and CI.
 - Do not flag Pixi startup antialiasing or full-DPR defaults during routine best-practice reviews unless the task explicitly asks for renderer quality tuning or there is measured evidence of a device-specific problem.
 
 ## Documentation Workflow

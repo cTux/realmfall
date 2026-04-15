@@ -11,6 +11,7 @@
     "dev": "vite",
     "dev:storybook": "storybook dev -p 6006",
     "build": "vite build",
+    "build:budget": "pnpm build && node scripts/check-bundle-budget.mjs",
     "build:storybook": "storybook build",
     "serve": "serve dist",
     "preview": "vite preview",

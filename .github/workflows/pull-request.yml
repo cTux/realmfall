@@ -35,5 +35,5 @@ jobs:
       - name: Test
         run: pnpm test
 
-      - name: Build
-        run: pnpm build
+      - name: Build with bundle budget
+        run: pnpm build:budget

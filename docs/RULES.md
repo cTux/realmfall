@@ -103,6 +103,7 @@
 - Prefer targeted code splitting for heavier dependencies instead of collapsing all third-party code into one growing vendor chunk.
 - Treat bundle growth as a real performance cost, especially on the initial app path and in Pixi-heavy features.
 - Document small bundle-size expectations in contributor-facing guidance so chunk regressions are easier to spot before they become large enough to require emergency refactors.
+- Keep the automated startup chunk budget check aligned with the current envelope. `pnpm build:budget` should enforce the live `index`, `react-vendor`, and `pixi` thresholds used in local verification and CI.
 
 ## Testing
 

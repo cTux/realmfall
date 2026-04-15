@@ -146,6 +146,7 @@ When work changes the performance-sensitive paths, verify the affected area expl
 - For ability, buff, and debuff icons rendered through CSS masks, use transparent SVG assets with no full-canvas background shape so the UI does not show solid squares.
 - For UI elements that already use the custom game tooltip system, do not add native browser `title` tooltips. Buffs, debuffs, abilities, and similar interactive affordances should use the shared custom tooltip consistently.
 - Prefer deterministic tests for gameplay and render-math changes, especially when performance-sensitive behavior changes.
+- Use `pnpm build:budget` for bundle-sensitive changes so the main `index`, `react-vendor`, and `pixi` chunks stay inside the current startup budget guardrails.
 - Keep generated world content aligned with `docs/lore/REALMFALL.md`.
 
 ## Project Rules
