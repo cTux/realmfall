@@ -76,7 +76,11 @@ pnpm dev
 - `pnpm quality:staged`
 - `pnpm typecheck`
 - `pnpm lint`
+- `pnpm lint:eslint`
 - `pnpm lint:fix`
+- `pnpm lint:oxlint`
+- `pnpm lint:biome`
+- `pnpm lint:bench`
 - `pnpm lint:css`
 - `pnpm format`
 - `pnpm test`
@@ -94,6 +98,8 @@ Contributors should keep these working unless a task explicitly changes the work
 - `pnpm build`
 
 For bundle-sensitive changes, also run `pnpm build:budget`.
+
+`pnpm lint` remains the enforced ESLint path. `pnpm lint:oxlint` and `pnpm lint:biome` are available alongside it for side-by-side evaluation, and `pnpm lint:bench` benchmarks all three tools against the same shared target set.
 
 The pre-commit hook runs `pnpm check:version`, `pnpm typecheck`, and `pnpm quality:staged`, then refreshes the Git index for auto-fixed tracked files. `pnpm quality:staged` runs `eslint --fix` only on staged JavaScript and TypeScript files, runs Stylelint only on staged `src` CSS and SCSS files, and runs `vitest related` for staged source, runtime JSON content, and test files. When shared test inputs such as `package.json`, `pnpm-lock.yaml`, `vite.config.ts`, TypeScript config, or `src/test/setup.ts` are staged, it falls back to the full `pnpm test` suite. `pnpm check:version` still requires `package.json` to advance by patch version relative to `HEAD`.
 
