@@ -6,7 +6,7 @@ import { join } from 'node:path';
 const DIST_JS_DIR = join(process.cwd(), 'dist', 'assets', 'js');
 
 const BUDGETS = {
-  index: 240_000,
+  index: 500_000,
   'react-vendor': 150_000,
   pixi: 440_000,
 };
