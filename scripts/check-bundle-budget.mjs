@@ -1,5 +1,3 @@
-/* global console, process */
-
 import { readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 

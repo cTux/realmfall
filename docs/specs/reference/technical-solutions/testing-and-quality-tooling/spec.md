@@ -18,12 +18,15 @@ This spec covers the repository quality baseline and current test coverage shape
 - The pull-request workflow enforces those startup chunk budgets through `pnpm build:budget`, which runs a production build and fails if the `index`, `react-vendor`, or `pixi` chunks grow past the current thresholds.
 - The scheduled dependency-update workflow bootstraps its toolchain with `pnpm i --no-frozen-lockfile` before rewriting dependency specifiers and the lockfile, then validates the refreshed dependency set with lint, test, and build steps.
 - The pre-commit workflow also enforces version progression through `pnpm check:version`, which blocks commits unless `package.json` advances by patch version relative to `HEAD`.
+- The pre-commit workflow keeps full-project typecheck global but scopes ESLint auto-fixes to staged JavaScript and TypeScript files, scopes Stylelint to staged `src` CSS and SCSS files, and scopes Vitest to tests related to staged source files, runtime JSON content, or test files.
+- When staged changes touch shared test inputs such as `package.json`, `pnpm-lock.yaml`, `vite.config.ts`, TypeScript config, or `src/test/setup.ts`, the pre-commit workflow falls back to the full `pnpm test` suite instead of a related-only run.
 
 ## Main Implementation Areas
 
 - `package.json`
 - `scripts/check-bundle-budget.mjs`
 - `scripts/check-package-version.mjs`
+- `scripts/run-staged-quality.mjs`
 - `eslint.config.js`
 - `prettier.config.cjs`
 - `src/ui/components/**/*.stories.tsx`

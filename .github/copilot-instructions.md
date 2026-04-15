@@ -14,6 +14,7 @@ Use `docs/RULES.md` as the source of truth for project-specific instructions.
 - If a performance-sensitive prompt changes React, Pixi, hover, or bundle behavior, also document how that path should be verified.
 - Keep `README.md` and `docs/WORKFLOW.md` aligned when workflow expectations change.
 - If a rule changes future prompt execution, also sync `AGENTS.md` and `CLAUDE.md`.
+- Keep the scoped pre-commit workflow expectations from `docs/RULES.md` in mind: full-project typecheck stays global, while ESLint, Stylelint, and Vitest may run against staged files unless shared test inputs require a full test run.
 - Prefer keeping project-specific rules in `docs/RULES.md` instead of restating them here.
 - Keep this file compact and use it as an entrypoint back to the canonical rules.
 
