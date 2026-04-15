@@ -90,7 +90,7 @@ The repository already has strong baseline tooling. Changes should preserve stri
 
 Saves are stored locally and passed through a normalize-before-hydrate step so older save shapes can still be loaded after schema changes.
 
-The current browser-side AES-GCM storage should be treated as local obfuscation, not real security, because the passphrase lives in client code.
+The current browser-side AES-GCM wrapper in `src/persistence/storage.ts` should be treated as local obfuscation, not real security, because the passphrase lives in client code.
 
 Autosave and persistence changes should avoid redundant full snapshot work when a debounced or meaningfully-triggered write is sufficient.
 
@@ -130,7 +130,7 @@ When work changes the performance-sensitive paths, verify the affected area expl
 - In JavaScript and TypeScript, prefer concise arrow functions for immediate expression returns.
 - Keep ESLint style rules aligned with the current JavaScript and TypeScript syntax conventions so the preferred style is enforced automatically when possible.
 - Preserve save normalization when persisted shapes evolve.
-- Treat browser-side save protection as local obfuscation, not real security.
+- Treat browser-side save protection in `src/persistence/storage.ts` as local obfuscation, not real security.
 - Prefer debounced or meaningfully-triggered persistence work over repeated identical writes.
 - Keep React component files compatible with Fast Refresh expectations.
 - New draggable windows should keep their content behind a lazy-loaded bundle, either by splitting the whole window module or a dedicated `*WindowContent` module.

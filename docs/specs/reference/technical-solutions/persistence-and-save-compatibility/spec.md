@@ -9,8 +9,8 @@ This spec covers browser save storage, hydration normalization, and autosave beh
 - Saves are stored in browser local storage.
 - Stored payloads contain both game and UI state.
 - The app persists snapshots with world time and UI window state while intentionally excluding transient log history from the saved payload.
-- Saved JSON is wrapped in AES-GCM using a client-side passphrase-derived key.
-- This is implementation obfuscation for local saves, not a real security boundary.
+- `src/persistence/storage.ts` wraps saved JSON in AES-GCM using a client-side passphrase-derived key.
+- That wrapper is implementation obfuscation for local saves, not a real security boundary or meaningful client-side secret protection.
 - Loaded saves are normalized before they are used by the app.
 - Normalization handles legacy gold shape migration, item id deduplication, missing structure HP, combat actor defaults, old window-collapsed UI state, thirst defaults, learned recipes, and legacy claim NPC fields.
 - Home tile safety is re-established during normalization when needed.
