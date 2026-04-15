@@ -47,3 +47,4 @@
 - Every component addition, removal, or behavior-affecting UI change should add or update the corresponding Storybook story in the same task.
 - The pre-commit hook should auto-fix Oxlint-managed staged JavaScript and TypeScript issues when a safe fix is available, refresh staged tracked files, and still run the remaining hook checks instead of failing only because fixable lint drift existed.
 - The pre-commit hook should scope Stylelint to staged `src` CSS and SCSS files and scope Vitest to staged related source, runtime JSON content, or test files by default, while falling back to the full `pnpm test` suite when staged changes affect shared test inputs such as package metadata, lockfile state, Vite config, TypeScript config, or shared Vitest setup.
+- When the remaining staged quality tasks are independent after any required auto-fix pass, run them through `concurrently` instead of serializing them.
