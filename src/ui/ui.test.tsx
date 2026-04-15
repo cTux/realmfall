@@ -1370,6 +1370,56 @@ describe('ui helpers and components', () => {
     host.remove();
   });
 
+  it('uses PascalCase skill labels for profession tooltip titles', async () => {
+    const hoverDetail = vi.fn();
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    const game = createGame(2, 'skills-tooltip-title');
+    const stats = getPlayerStats(game.player);
+
+    await act(async () => {
+      root.render(
+        <SkillsWindow
+          position={DEFAULT_WINDOWS.skills}
+          onMove={() => {}}
+          skills={stats.skills}
+          onHoverDetail={hoverDetail}
+          onLeaveDetail={() => {}}
+        />,
+      );
+    });
+
+    await act(async () => {
+      await vi.dynamicImportSettled();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const craftingRow = Array.from(
+      host.querySelectorAll('div[class*="skillRow"]'),
+    ).find((row) => row.textContent?.includes('crafting'));
+    expect(craftingRow).not.toBeUndefined();
+
+    await act(async () => {
+      craftingRow?.dispatchEvent(
+        new MouseEvent('mouseover', { bubbles: true }),
+      );
+    });
+
+    expect(hoverDetail).toHaveBeenCalledWith(
+      expect.anything(),
+      'Crafting',
+      expect.any(Array),
+      'rgba(56, 189, 248, 0.9)',
+    );
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
   it('renders the loot window with the shared resize handle', async () => {
     const host = document.createElement('div');
     document.body.appendChild(host);
