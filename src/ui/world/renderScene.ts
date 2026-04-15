@@ -133,13 +133,13 @@ export function renderScene(
         hoveredMove,
         hoveredSafePath,
       );
-
-  const hoveredSafePathKeys = new Set(
-    (hoveredSafePath ?? []).map((coord) => hexKey(coord)),
-  );
-  const visibleTileMap = new Map(
-    visibleTiles.map((tile) => [hexKey(tile.coord), tile] as const),
-  );
+  const hoveredSafePathKeys =
+    shouldRenderInteraction && hoveredSafePath
+      ? new Set(hoveredSafePath.map((coord) => hexKey(coord)))
+      : null;
+  const visibleTileMap = shouldRenderStatic
+    ? new Map(visibleTiles.map((tile) => [hexKey(tile.coord), tile] as const))
+    : null;
 
   if (shouldRenderStatic) {
     beginStaticSceneRender(scene);
@@ -148,198 +148,218 @@ export function renderScene(
     beginInteractionSceneRender(scene);
   }
 
-  visibleTiles.forEach((tile) => {
-    const distance = hexDistance(state.player.coord, tile.coord);
-    const isPlayerTile =
-      tile.coord.q === state.player.coord.q &&
-      tile.coord.r === state.player.coord.r;
-    const clickable =
-      distance === 1 && tile.terrain !== 'rift' && tile.terrain !== 'mountain';
-    const emphasized = isPlayerTile;
-    const revealed = distance <= WORLD_REVEAL_RADIUS;
-    const relative = {
-      q: tile.coord.q - state.player.coord.q,
-      r: tile.coord.r - state.player.coord.r,
-    };
-    const point = tileToPoint(relative, origin.x, origin.y, hexSize);
-    const poly = makeHex(point.x, point.y, hexSize);
-    const style = tileStyle(tile.terrain);
-    const worldBossCenter = getPlacedWorldBossCenter(
-      tile.coord,
-      (bossCoord) => visibleTileMap.get(hexKey(bossCoord))?.enemyIds,
-    );
-    const isWorldBossFootprint = worldBossCenter !== null;
-    const isHomeTile =
-      tile.coord.q === state.homeHex.q && tile.coord.r === state.homeHex.r;
-    const hovered =
-      hoveredMove?.q === tile.coord.q && hoveredMove?.r === tile.coord.r;
-    const highlightedInSafePath = hoveredSafePathKeys.has(hexKey(tile.coord));
-    const insetPx = isHomeTile
-      ? HOME_HEX_TINT_INSET
-      : highlightedInSafePath
-        ? SAFE_PATH_HEX_INSET
-        : 0;
-    const safePolygon = makeInsetHex(point, hexSize, insetPx);
-    if (shouldRenderStatic) {
-      const fillAlpha = emphasized ? style.alpha : 0.8;
-      const shape = takeGraphics(scene.worldGroundGraphics);
-      shape.beginFill(style.color, fillAlpha);
-      shape.lineStyle(1, 0x1e293b, 0.9);
-      shape.drawPolygon(poly);
-      shape.endFill();
+  if (shouldRenderStatic || shouldRenderInteraction) {
+    const nextCampfireLightPoints: Array<{ x: number; y: number }> = [];
 
-      if (isHomeTile) {
-        const homeTint = takeGraphics(scene.worldStaticDetailGraphics);
-        homeTint.beginFill(HOME_HEX_TINT_COLOR, HOME_HEX_TINT_ALPHA);
-        homeTint.drawPolygon(safePolygon);
-        homeTint.endFill();
-      }
+    visibleTiles.forEach((tile) => {
+      const distance = hexDistance(state.player.coord, tile.coord);
+      const isPlayerTile =
+        tile.coord.q === state.player.coord.q &&
+        tile.coord.r === state.player.coord.r;
+      const clickable =
+        distance === 1 &&
+        tile.terrain !== 'rift' &&
+        tile.terrain !== 'mountain';
+      const emphasized = isPlayerTile;
+      const revealed = distance <= WORLD_REVEAL_RADIUS;
+      const relative = {
+        q: tile.coord.q - state.player.coord.q,
+        r: tile.coord.r - state.player.coord.r,
+      };
+      const point = tileToPoint(relative, origin.x, origin.y, hexSize);
+      const poly = makeHex(point.x, point.y, hexSize);
+      const style = tileStyle(tile.terrain);
+      const isHomeTile =
+        tile.coord.q === state.homeHex.q && tile.coord.r === state.homeHex.r;
+      const hovered =
+        hoveredMove?.q === tile.coord.q && hoveredMove?.r === tile.coord.r;
+      const highlightedInSafePath =
+        hoveredSafePathKeys?.has(hexKey(tile.coord)) ?? false;
+      const insetPx = isHomeTile
+        ? HOME_HEX_TINT_INSET
+        : highlightedInSafePath
+          ? SAFE_PATH_HEX_INSET
+          : 0;
+      const safePolygon = makeInsetHex(point, hexSize, insetPx);
 
-      if (isWorldBossFootprint) {
-        const worldBossTint = takeGraphics(scene.worldStaticDetailGraphics);
-        worldBossTint.beginFill(
-          WORLD_BOSS_HEX_TINT_COLOR,
-          WORLD_BOSS_HEX_TINT_ALPHA,
+      if (shouldRenderStatic) {
+        const worldBossCenter = getPlacedWorldBossCenter(
+          tile.coord,
+          (bossCoord) => visibleTileMap?.get(hexKey(bossCoord))?.enemyIds,
         );
-        worldBossTint.drawPolygon(poly);
-        worldBossTint.endFill();
-      }
+        const isWorldBossFootprint = worldBossCenter !== null;
+        const fillAlpha = emphasized ? style.alpha : 0.8;
+        const shape = takeGraphics(scene.worldGroundGraphics);
+        shape.beginFill(style.color, fillAlpha);
+        shape.lineStyle(1, 0x1e293b, 0.9);
+        shape.drawPolygon(poly);
+        shape.endFill();
 
-      if (!revealed) {
-        const fog = takeGraphics(scene.worldStaticDetailGraphics);
-        fog.beginFill(0x020617, 0.78);
-        fog.drawPolygon(poly);
-        fog.endFill();
-      }
-    }
+        if (isHomeTile) {
+          const homeTint = takeGraphics(scene.worldStaticDetailGraphics);
+          homeTint.beginFill(HOME_HEX_TINT_COLOR, HOME_HEX_TINT_ALPHA);
+          homeTint.drawPolygon(safePolygon);
+          homeTint.endFill();
+        }
 
-    if (!revealed) {
-      return;
-    }
-
-    const enemies = getEnemiesAt(state, tile.coord);
-
-    if (shouldRenderStatic) {
-      if (tile.structure) {
-        const structureColor = getStructureConfig(tile.structure).tint;
-        const marker = takeShadowedSprite(
-          scene.worldStaticMarkerSprites,
-          structureIconFor(tile.structure),
-        );
-        configureShadowedSprite(
-          marker,
-          structureColor,
-          structureIconSize,
-          structureIconSize,
-          1,
-          shadowOffset,
-          point,
-        );
-      }
-
-      const hostileEnemies = enemies.filter(
-        (enemy) => enemy.aggressive !== false,
-      );
-
-      if (tile.claim?.npc?.enemyId) {
-        const marker = takeShadowedSprite(
-          scene.worldStaticMarkerSprites,
-          WorldIcons.Village,
-        );
-        configureShadowedSprite(
-          marker,
-          0xffffff,
-          enemyIconSize,
-          enemyIconSize,
-          1,
-          shadowOffset,
-          point,
-        );
-      } else if (hostileEnemies.length > 0 && tile.structure !== 'dungeon') {
-        const leadEnemy = hostileEnemies[0];
-        const isBossCenter = tile.enemyIds.some((enemyId) =>
-          isWorldBossEnemyId(enemyId),
-        );
-        if (!worldBossCenter || isBossCenter) {
-          const sprite = takeShadowedSprite(
-            scene.worldStaticMarkerSprites,
-            enemyIconFor(leadEnemy),
+        if (isWorldBossFootprint) {
+          const worldBossTint = takeGraphics(scene.worldStaticDetailGraphics);
+          worldBossTint.beginFill(
+            WORLD_BOSS_HEX_TINT_COLOR,
+            WORLD_BOSS_HEX_TINT_ALPHA,
           );
-          configureShadowedSprite(
-            sprite,
-            isBossCenter
-              ? WORLD_BOSS_ICON_TINT
-              : (getEnemyConfig(leadEnemy.enemyTypeId ?? leadEnemy.name)
-                  ?.tint ?? 0xef4444),
-            isBossCenter ? worldBossIconSize : enemyIconSize,
-            isBossCenter ? worldBossIconSize : enemyIconSize,
-            1,
-            shadowOffset,
-            isBossCenter
-              ? point
-              : {
-                  x: point.x,
-                  y: point.y - 2,
-                },
-          );
+          worldBossTint.drawPolygon(poly);
+          worldBossTint.endFill();
+        }
+
+        if (!revealed) {
+          const fog = takeGraphics(scene.worldStaticDetailGraphics);
+          fog.beginFill(0x020617, 0.78);
+          fog.drawPolygon(poly);
+          fog.endFill();
         }
       }
 
-      if (tile.claim) {
-        renderClaimBorder(
-          scene.worldBorderGraphics,
-          state,
-          tile,
-          poly,
-          visibleTileMap,
+      if (!revealed) {
+        return;
+      }
+
+      if (shouldRenderStatic) {
+        const enemies = getEnemiesAt(state, tile.coord);
+
+        if (tile.structure) {
+          const structureColor = getStructureConfig(tile.structure).tint;
+          const marker = takeShadowedSprite(
+            scene.worldStaticMarkerSprites,
+            structureIconFor(tile.structure),
+          );
+          configureShadowedSprite(
+            marker,
+            structureColor,
+            structureIconSize,
+            structureIconSize,
+            1,
+            shadowOffset,
+            point,
+          );
+        }
+
+        const hostileEnemies = enemies.filter(
+          (enemy) => enemy.aggressive !== false,
         );
+
+        if (tile.claim?.npc?.enemyId) {
+          const marker = takeShadowedSprite(
+            scene.worldStaticMarkerSprites,
+            WorldIcons.Village,
+          );
+          configureShadowedSprite(
+            marker,
+            0xffffff,
+            enemyIconSize,
+            enemyIconSize,
+            1,
+            shadowOffset,
+            point,
+          );
+        } else if (hostileEnemies.length > 0 && tile.structure !== 'dungeon') {
+          const worldBossCenter = getPlacedWorldBossCenter(
+            tile.coord,
+            (bossCoord) => visibleTileMap?.get(hexKey(bossCoord))?.enemyIds,
+          );
+          const leadEnemy = hostileEnemies[0];
+          const isBossCenter = tile.enemyIds.some((enemyId) =>
+            isWorldBossEnemyId(enemyId),
+          );
+          if (!worldBossCenter || isBossCenter) {
+            const sprite = takeShadowedSprite(
+              scene.worldStaticMarkerSprites,
+              enemyIconFor(leadEnemy),
+            );
+            configureShadowedSprite(
+              sprite,
+              isBossCenter
+                ? WORLD_BOSS_ICON_TINT
+                : (getEnemyConfig(leadEnemy.enemyTypeId ?? leadEnemy.name)
+                    ?.tint ?? 0xef4444),
+              isBossCenter ? worldBossIconSize : enemyIconSize,
+              isBossCenter ? worldBossIconSize : enemyIconSize,
+              1,
+              shadowOffset,
+              isBossCenter
+                ? point
+                : {
+                    x: point.x,
+                    y: point.y - 2,
+                  },
+            );
+          }
+        }
+
+        if (tile.claim && visibleTileMap) {
+          renderClaimBorder(
+            scene.worldBorderGraphics,
+            state,
+            tile,
+            poly,
+            visibleTileMap,
+          );
+        }
+
+        if (tile.structure === 'camp') {
+          nextCampfireLightPoints.push(point);
+        }
       }
+
+      if (shouldRenderInteraction) {
+        if (hovered) {
+          const hoverOverlay = takeGraphics(scene.worldInteractionGraphics);
+          hoverOverlay.beginFill(
+            clickable ? SAFE_PATH_TINT_COLOR : style.color,
+            clickable ? SAFE_PATH_TINT_ALPHA : Math.min(1, style.alpha + 0.26),
+          );
+          hoverOverlay.drawPolygon(clickable ? safePolygon : poly);
+          hoverOverlay.endFill();
+        }
+
+        if (highlightedInSafePath) {
+          const safePathOverlay = takeGraphics(scene.worldInteractionGraphics);
+          safePathOverlay.beginFill(SAFE_PATH_TINT_COLOR, SAFE_PATH_TINT_ALPHA);
+          safePathOverlay.drawPolygon(safePolygon);
+          safePathOverlay.endFill();
+        }
+
+        if (
+          !hovered &&
+          !isPlayerTile &&
+          selected.q === tile.coord.q &&
+          selected.r === tile.coord.r
+        ) {
+          const outline = takeGraphics(scene.worldInteractionGraphics);
+          outline.lineStyle(3, 0xf8fafc, 0.65);
+          outline.drawPolygon(poly);
+        } else if (tile.items.length > 0 && emphasized) {
+          const lootBorder = takeGraphics(scene.worldInteractionGraphics);
+          lootBorder.lineStyle(3, 0x22c55e, 0.95);
+          lootBorder.drawPolygon(poly);
+        }
+      }
+    });
+
+    if (shouldRenderStatic) {
+      scene.campfireLightPoints = nextCampfireLightPoints;
     }
+  }
 
-    if (tile.structure === 'camp') {
-      renderCampfireLight(
-        scene.worldAnimatedDetailGraphics,
-        point,
-        hexSize,
-        lighting.ambientBrightness,
-        lighting,
-        animationMs,
-      );
-    }
-
-    if (shouldRenderInteraction) {
-      if (hovered) {
-        const hoverOverlay = takeGraphics(scene.worldInteractionGraphics);
-        hoverOverlay.beginFill(
-          clickable ? SAFE_PATH_TINT_COLOR : style.color,
-          clickable ? SAFE_PATH_TINT_ALPHA : Math.min(1, style.alpha + 0.26),
-        );
-        hoverOverlay.drawPolygon(clickable ? safePolygon : poly);
-        hoverOverlay.endFill();
-      }
-
-      if (highlightedInSafePath) {
-        const safePathOverlay = takeGraphics(scene.worldInteractionGraphics);
-        safePathOverlay.beginFill(SAFE_PATH_TINT_COLOR, SAFE_PATH_TINT_ALPHA);
-        safePathOverlay.drawPolygon(safePolygon);
-        safePathOverlay.endFill();
-      }
-
-      if (
-        !hovered &&
-        !isPlayerTile &&
-        selected.q === tile.coord.q &&
-        selected.r === tile.coord.r
-      ) {
-        const outline = takeGraphics(scene.worldInteractionGraphics);
-        outline.lineStyle(3, 0xf8fafc, 0.65);
-        outline.drawPolygon(poly);
-      } else if (tile.items.length > 0 && emphasized) {
-        const lootBorder = takeGraphics(scene.worldInteractionGraphics);
-        lootBorder.lineStyle(3, 0x22c55e, 0.95);
-        lootBorder.drawPolygon(poly);
-      }
-    }
+  scene.campfireLightPoints.forEach((point) => {
+    renderCampfireLight(
+      scene.worldAnimatedDetailGraphics,
+      point,
+      hexSize,
+      lighting.ambientBrightness,
+      lighting,
+      animationMs,
+    );
   });
 
   if (shouldRenderStatic) {

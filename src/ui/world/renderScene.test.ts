@@ -782,6 +782,51 @@ describe('renderScene', () => {
     expect(finalPolygonCalls).toBe(initialPolygonCalls);
   });
 
+  it('skips enemy lookups on pure animation-only frames once static layers are cached', async () => {
+    const stateModule = await import('../../game/state');
+    const getEnemiesAtSpy = vi.spyOn(stateModule, 'getEnemiesAt');
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-animation-only-skip');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      structure: 'camp',
+      items: [],
+      enemyIds: [],
+    };
+    const visibleTiles = getVisibleTiles(game);
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+
+    getEnemiesAtSpy.mockClear();
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      0,
+      1200,
+    );
+
+    const initialEnemyLookupCount = getEnemiesAtSpy.mock.calls.length;
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      0,
+      1800,
+    );
+
+    expect(getEnemiesAtSpy).toHaveBeenCalledTimes(initialEnemyLookupCount);
+  });
+
   it('keeps static and stable interaction layers cached across time-only frames', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-time-cache');
