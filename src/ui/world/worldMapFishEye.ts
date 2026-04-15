@@ -8,9 +8,9 @@ export const WORLD_MAP_FISHEYE_ENABLED = false;
 const WORLD_MAP_FISHEYE_FRAGMENT = `
 precision mediump float;
 
-varying vec2 vTextureCoord;
+in vec2 vTextureCoord;
 
-uniform sampler2D uSampler;
+uniform sampler2D uTexture;
 uniform vec2 uCenter;
 uniform float uRadius;
 uniform float uAspect;
@@ -34,7 +34,7 @@ vec2 mapToSource(vec2 uv) {
 }
 
 void main(void) {
-  gl_FragColor = texture2D(uSampler, mapToSource(vTextureCoord));
+  gl_FragColor = texture2D(uTexture, mapToSource(vTextureCoord));
 }
 `;
 const DEFAULT_FILTER_VERTEX = `
