@@ -40,8 +40,6 @@ export function DraggableWindow({
     startWidth: number;
     startHeight: number;
   } | null>(null);
-  const frameRef = useRef<number | null>(null);
-  const pendingLayoutRef = useRef<WindowPosition | null>(null);
   const visualPositionRef = useRef(position);
   const [visibleState, setVisibleState] = useState(true);
   const [hovered, setHovered] = useState(false);
@@ -61,14 +59,6 @@ export function DraggableWindow({
     node.style.height =
       nextPosition.height === undefined ? '' : `${nextPosition.height}px`;
   }, []);
-
-  const flushPendingLayout = useCallback(() => {
-    frameRef.current = null;
-    const nextPosition = pendingLayoutRef.current;
-    if (!nextPosition) return;
-    pendingLayoutRef.current = null;
-    onMove(nextPosition);
-  }, [onMove]);
 
   const activateWindow = () => {
     setActive(true);
@@ -111,18 +101,9 @@ export function DraggableWindow({
   }, [visible]);
 
   useEffect(() => {
-    if (dragRef.current) return;
+    if (dragRef.current || resizeRef.current) return;
     applyVisualPosition(position);
   }, [applyVisualPosition, position]);
-
-  useEffect(
-    () => () => {
-      if (frameRef.current !== null) {
-        window.cancelAnimationFrame(frameRef.current);
-      }
-    },
-    [],
-  );
 
   const closeWindow = () => {
     if (visibleProp === undefined) {
@@ -148,18 +129,12 @@ export function DraggableWindow({
         height: visualPositionRef.current.height,
       };
       applyVisualPosition(nextPosition);
-      pendingLayoutRef.current = nextPosition;
-      if (frameRef.current === null) {
-        frameRef.current = window.requestAnimationFrame(flushPendingLayout);
-      }
     };
 
     const onPointerUp = () => {
+      const nextPosition = visualPositionRef.current;
       dragRef.current = null;
-      if (frameRef.current !== null) {
-        window.cancelAnimationFrame(frameRef.current);
-        flushPendingLayout();
-      }
+      onMove(nextPosition);
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);
     };
@@ -199,18 +174,12 @@ export function DraggableWindow({
         ),
       };
       applyVisualPosition(nextPosition);
-      pendingLayoutRef.current = nextPosition;
-      if (frameRef.current === null) {
-        frameRef.current = window.requestAnimationFrame(flushPendingLayout);
-      }
     };
 
     const onPointerUp = () => {
+      const nextPosition = visualPositionRef.current;
       resizeRef.current = null;
-      if (frameRef.current !== null) {
-        window.cancelAnimationFrame(frameRef.current);
-        flushPendingLayout();
-      }
+      onMove(nextPosition);
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);
     };
