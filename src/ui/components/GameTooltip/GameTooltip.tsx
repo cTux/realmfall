@@ -1,6 +1,10 @@
 import { memo, useEffect, useRef, useState } from 'react';
 import { formatCompactNumber, formatCompactNumberish } from '../../formatters';
 import type { GameTooltipProps, RenderedTooltipState } from './types';
+import {
+  setFollowCursorTooltipElement,
+  syncFollowCursorTooltipPosition,
+} from './followCursorSync';
 import styles from './styles.module.scss';
 
 function tooltipContentKey(tooltip: GameTooltipProps['tooltip']) {
@@ -64,21 +68,14 @@ export const GameTooltip = memo(function GameTooltip({
 
   useEffect(() => {
     if (!rendered?.tooltip.followCursor || !positionRef) return;
+    const element = tooltipRef.current;
+    setFollowCursorTooltipElement(element);
+    syncFollowCursorTooltipPosition(positionRef.current);
 
-    const syncPosition = () => {
-      const element = tooltipRef.current;
-      const position = positionRef.current;
-
-      if (element && position) {
-        element.style.left = `${position.x}px`;
-        element.style.top = `${position.y}px`;
-      }
-    };
-
-    syncPosition();
-    window.addEventListener('pointermove', syncPosition, { passive: true });
     return () => {
-      window.removeEventListener('pointermove', syncPosition);
+      if (element) {
+        setFollowCursorTooltipElement(null);
+      }
     };
   }, [positionRef, rendered]);
 

@@ -8,6 +8,7 @@ This repository uses `docs/RULES.md` as the source of truth for project-specific
 - Treat those relevant rules as part of the default working context, even if the prompt does not restate them explicitly.
 - Apply only the rules that are relevant to the current task.
 - If a prompt contains `add rule`, update `docs/RULES.md` immediately in the corresponding section before considering the task complete.
+- If a performance-sensitive prompt changes React, Pixi, hover, or bundle behavior, also document how that path should be verified.
 - If rule changes affect workflow or contributor expectations, keep `README.md` and `docs/PROMPTS.md` in sync.
 - If rule changes affect future prompt execution, also sync `CLAUDE.md` and `.github/copilot-instructions.md`.
 - Prefer updating `docs/RULES.md` over duplicating project-specific rules in this file.

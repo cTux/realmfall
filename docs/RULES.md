@@ -42,7 +42,7 @@
 ## Persistence
 
 - Preserve the normalize-before-hydrate pattern for save compatibility. If persisted data shape changes, update normalization instead of assuming fresh saves.
-- Treat local save protection as obfuscation, not real security. Do not describe client-side passphrase-based storage as secure encryption.
+- Treat `src/persistence/storage.ts` and similar local save protection as obfuscation, not real security. Do not describe client-side passphrase-based storage as secure encryption or meaningful secret protection.
 - Keep persistence concerns isolated from core game rules when possible.
 - Prefer debounced or meaningfully-triggered autosave work over repeated full serialization and storage writes on every eligible change.
 - Track gameplay persistence dirtiness separately from UI layout, window-visibility, and filter persistence dirtiness when that keeps narrow UI-only changes from rebuilding full gameplay snapshots.
@@ -53,6 +53,7 @@
 
 - Follow the existing window-based desktop-style UI instead of introducing unrelated navigation patterns.
 - Keep heavy app coordination in dedicated hooks when possible, following patterns already used in `src/app/App`.
+- When reducing React rerender fanout, move window-specific derivation, dock composition, and stable window handler ownership out of `src/app/App/App.tsx` and into narrower hooks or the window composition layer when that keeps unrelated windows from recomputing together.
 - Keep Storybook stories for every component under `src/ui/components`, including shared leaf components and window wrappers.
 - Keep aggregate Storybook catalogs for entity dictionaries such as `ITEM_CONFIGS`, `ENEMY_CONFIGS`, and `STRUCTURE_CONFIGS`, and prefer rendering those catalogs directly from the live config arrays so entity additions, removals, and edits appear automatically.
 - Prefer maximally reusable UI components and helpers. When multiple windows or controls share the same structure or behavior, reuse or extend a shared primitive instead of maintaining parallel implementations.
@@ -68,6 +69,7 @@
 - Keep high-frequency pointer, hover, and world-interaction updates off broad React state paths when refs, invalidation flags, or narrower state can avoid avoidable rerenders.
 - Deduplicate `pointermove` world-hover work by hovered hex before doing heavier interaction logic, and avoid rerunning tooltip derivation, enemy lookups, or pathfinding while the pointer stays on the same tile.
 - On the world-hover path, only run pathfinding, enemy tooltip derivation, or similar heavier selectors when the hovered tile is actually actionable.
+- For follow-cursor world tooltips, reuse the existing world-hover pipeline to push position updates instead of adding a separate global pointer listener just to move the tooltip DOM.
 - Keep component modules compatible with React Fast Refresh expectations; move shared non-component exports out of component files when needed.
 - Keep shared window labels, hotkey metadata, and similar reusable UI constants in plain non-component modules so component files only export component concerns.
 - Window title bars should reuse shared controls wherever possible. Close actions must use the shared close button implementation and surface the shared custom tooltip consistently across every window.
@@ -84,12 +86,14 @@
 - Prefer a single clear render scheduler for the world path. Avoid duplicate immediate redraw triggers layered on top of the ticker unless there is a measured reason.
 - When React-driven world state changes need a redraw, prefer updating refs or lightweight invalidation flags that the ticker consumes instead of adding a second immediate `renderScene` effect path.
 - Key static and interaction Pixi redraw invalidation off stable world-render inputs or explicit render-version tokens instead of whole `GameState` identity when broad state cloning would otherwise thrash cached layers.
+- Reuse `visibleTiles` arrays and other world-facing selector outputs across unrelated state clones when the visible tile set and relevant world data did not change, so Pixi invalidation can key off stable inputs instead of broad app state identity.
 - Cache deterministic per-tile or per-scene render inputs instead of recomputing stable randomness and presentation values every frame.
 - Separate static world layers from animated or transient layers when doing so reduces repeated redraw cost without making the renderer harder to reason about.
 - Keep world-map terrain geometry, fog, ground cover, and stable structure or enemy markers on cached static Pixi layers. Do not redraw unchanged map geometry on every ticker frame just because time-based animation is advancing.
 - Put hover, selection, and other short-lived interaction highlights on their own invalidated layer so pointer-state changes do not force a rebuild of the full world scene.
 - Reserve per-frame ticker redraws for genuinely animated layers such as clouds, atmosphere, overlays, firelight, and similar time-driven effects; static layers should refresh only when their actual inputs change.
 - Use device-aware quality budgets for Pixi rendering. Cap expensive defaults such as full-resolution rendering or unconditional antialiasing when they threaten frame time on weaker or high-DPI devices.
+- Keep lightweight performance budgets documented and visible. Treat roughly `16.7 ms` as the default desktop frame-time budget for normal world interaction, and investigate changes that push the initial startup chunks materially beyond the current envelope of about `235 kB` for the main app chunk, `145 kB` for `react-vendor`, and `435 kB` for `pixi` before gzip.
 - Prefer small, focused render tests for world math, lighting, filters, caches, and deterministic presentation behavior when changing Pixi logic.
 
 ## Build And Bundle
@@ -98,6 +102,7 @@
 - When adding a new draggable window, preserve bundle splitting for its content instead of inlining that content into the initial app path.
 - Prefer targeted code splitting for heavier dependencies instead of collapsing all third-party code into one growing vendor chunk.
 - Treat bundle growth as a real performance cost, especially on the initial app path and in Pixi-heavy features.
+- Document small bundle-size expectations in contributor-facing guidance so chunk regressions are easier to spot before they become large enough to require emergency refactors.
 
 ## Testing
 
@@ -106,6 +111,7 @@
 - Favor deterministic tests for game-state changes and rendering calculations.
 - Keep production buildability in mind, not only local dev behavior.
 - When performance-sensitive behavior changes, verify both correctness and the likely rerender or redraw impact.
+- When optimization work changes React, Pixi, hover handling, or bundle shape, document a concrete verification path for rerender breadth, redraw breadth, hover hot paths, and startup chunk growth instead of leaving performance validation implicit.
 - Keep a coverage test for Storybook parity so component additions or removals in `src/ui/components` fail fast when corresponding stories are missing.
 
 ## Documentation

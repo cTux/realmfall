@@ -90,7 +90,7 @@ The repository already has strong baseline tooling. Changes should preserve stri
 
 Saves are stored locally and passed through a normalize-before-hydrate step so older save shapes can still be loaded after schema changes.
 
-The current browser-side AES-GCM storage should be treated as local obfuscation, not real security, because the passphrase lives in client code.
+The current browser-side AES-GCM wrapper in `src/persistence/storage.ts` should be treated as local obfuscation, not real security, because the passphrase lives in client code.
 
 Autosave and persistence changes should avoid redundant full snapshot work when a debounced or meaningfully-triggered write is sufficient.
 
@@ -107,6 +107,21 @@ The world view is the most performance-sensitive path in the project.
 - Keep Pixi quality settings device-aware so high-DPI or weaker devices do not quietly pay an excessive frame-time cost.
 - Keep bundle growth intentional, especially for Pixi-heavy or secondary UI code.
 
+Lightweight budgets to catch regressions earlier:
+
+- Frame time: treat `16.7 ms` as the default target budget for normal desktop world interaction, including hover, dragging windows, and routine movement, with headroom preferred over running exactly at the limit.
+- Startup chunks: treat the current pre-gzip output as the rough ceiling to watch closely, around `235 kB` for the main app chunk, `145 kB` for `react-vendor`, and `435 kB` for `pixi`. New deferred windows and secondary UI should stay deferred instead of increasing the initial path materially.
+
+## Performance Verification
+
+When work changes the performance-sensitive paths, verify the affected area explicitly instead of relying only on correctness checks.
+
+- React rerenders: run `pnpm dev`, open React DevTools Profiler, and inspect window dragging, dock toggles, log changes, and world hover. Unrelated windows or app shells should not rerender repeatedly when only one interaction surface changes.
+- Pixi redraw breadth: inspect `src/ui/world/renderScene.ts` while the app is running or in a browser performance recording. Confirm static and interaction redraw paths only execute when their inputs change, while animation-only time updates stay on the animated layer.
+- Hover hot paths: profile pointer movement over the world canvas in browser Performance tools or with short-lived instrumentation around `usePixiWorld` hover work. Same-tile pointer moves should not keep retriggering safe-path lookup, tooltip derivation, or other heavier selectors.
+- Startup chunk growth: run `pnpm build` and inspect the Vite asset output. Watch the main app, `react-vendor`, and `pixi` chunks, and confirm new draggable windows or secondary UI still ship in deferred chunks instead of inflating the initial path.
+- Budget check: compare the new build output and observed frame behavior against the lightweight budgets above. If a change materially exceeds them, document the reason and the follow-up mitigation instead of treating the regression as invisible.
+
 ## Engineering Expectations
 
 - Use `pnpm` for contributor commands and documentation.
@@ -121,7 +136,7 @@ The world view is the most performance-sensitive path in the project.
 - In JavaScript and TypeScript, prefer concise arrow functions for immediate expression returns.
 - Keep ESLint style rules aligned with the current JavaScript and TypeScript syntax conventions so the preferred style is enforced automatically when possible.
 - Preserve save normalization when persisted shapes evolve.
-- Treat browser-side save protection as local obfuscation, not real security.
+- Treat browser-side save protection in `src/persistence/storage.ts` as local obfuscation, not real security.
 - Prefer debounced or meaningfully-triggered persistence work over repeated identical writes.
 - Keep React component files compatible with Fast Refresh expectations.
 - New draggable windows should keep their content behind a lazy-loaded bundle, either by splitting the whole window module or a dedicated `*WindowContent` module.

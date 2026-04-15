@@ -12,6 +12,7 @@ This spec covers canvas-pointer world interaction and the shared tooltip system.
 - Same-hex pointermove events reuse the cached hover snapshot instead of re-running hover selectors, tooltip builders, or pathfinding.
 - Safe-path lookup and world tooltip derivation run only for actionable hovered hexes; non-actionable tiles clear hover affordances without the heavier recomputation path.
 - Tooltips are managed through the shared app tooltip store.
+- Follow-cursor world tooltips receive their position updates from the same Pixi hover pipeline that derives the tooltip content, instead of registering a second global pointer listener for DOM syncing.
 - The world path and window UI both use the custom tooltip system instead of native browser titles.
 - Element-anchored tooltips prefer the right side of the hovered target and automatically flip to the left when the right side would overflow the viewport.
 - Window title-bar action buttons and other UI affordances that use the shared tooltip system avoid native `title` attributes and render through the same custom tooltip surface.

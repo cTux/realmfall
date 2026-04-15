@@ -38,6 +38,7 @@ import { CombatWindow } from './components/CombatWindow';
 import { DraggableWindow } from './components/DraggableWindow';
 import { EquipmentWindow } from './components/EquipmentWindow';
 import { GameTooltip } from './components/GameTooltip';
+import { syncFollowCursorTooltipPosition } from './components/GameTooltip/followCursorSync';
 import { HeroWindow } from './components/HeroWindow';
 import { HexInfoWindow } from './components/HexInfoWindow';
 import { InventoryWindow } from './components/InventoryWindow';
@@ -1587,13 +1588,7 @@ describe('ui helpers and components', () => {
     positionRef.current = { x: 110, y: 130 };
 
     await act(async () => {
-      window.dispatchEvent(
-        new MouseEvent('pointermove', {
-          bubbles: true,
-          clientX: 110,
-          clientY: 130,
-        }),
-      );
+      syncFollowCursorTooltipPosition(positionRef.current);
     });
 
     const tooltip = host.querySelector('div[class*="tooltip"]') as HTMLElement;

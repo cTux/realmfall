@@ -5,7 +5,7 @@ import {
   TextStyle,
   type Application,
 } from 'pixi.js';
-import type { GameState, getVisibleTiles } from '../../game/state';
+import type { getVisibleTiles } from '../../game/state';
 import type { CloudRenderInput } from './renderSceneEnvironment';
 import { WorldIcons } from './worldIcons';
 import {
@@ -75,8 +75,11 @@ export interface SceneCache {
   cloudSprites: SpritePool;
   cloudInputsBySeed: Map<string, CloudRenderInput[]>;
   player: ShadowedSpriteEntry;
-  derivedRenderStateSource: GameState | null;
   derivedRenderVisibleTilesSource: ReturnType<typeof getVisibleTiles> | null;
+  derivedRenderEnemiesSource: Record<string, unknown> | null;
+  derivedRenderPlayerCoordKey: string | null;
+  derivedRenderHomeHexKey: string | null;
+  derivedRenderBloodMoonActive: boolean | null;
   derivedStaticRenderVersion: string | null;
   derivedInteractionRenderVersion: string | null;
   staticRenderVersion: string | null;
@@ -172,8 +175,11 @@ export function getSceneCache(app: Application) {
     cloudSprites: createSpritePool(clouds),
     cloudInputsBySeed: new Map(),
     player,
-    derivedRenderStateSource: null,
     derivedRenderVisibleTilesSource: null,
+    derivedRenderEnemiesSource: null,
+    derivedRenderPlayerCoordKey: null,
+    derivedRenderHomeHexKey: null,
+    derivedRenderBloodMoonActive: null,
     derivedStaticRenderVersion: null,
     derivedInteractionRenderVersion: null,
     staticRenderVersion: null,

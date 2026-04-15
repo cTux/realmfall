@@ -9,6 +9,7 @@ import {
 import type { Application } from 'pixi.js';
 import * as stateModule from '../../game/state';
 import type { GameState } from '../../game/state';
+import { syncFollowCursorTooltipPosition } from '../../ui/components/GameTooltip/followCursorSync';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import * as tooltipModule from '../../ui/tooltips';
 import { getWorldHexSize } from '../../ui/world/renderSceneMath';
@@ -16,6 +17,7 @@ import { getWorldTimeMinutesFromTimestamp } from '../../ui/world/timeOfDay';
 import { WORLD_REVEAL_RADIUS } from '../constants';
 import type { TooltipState } from './types';
 import { getTooltipState } from './tooltipStore';
+import { getReusableVisibleTiles } from './worldRenderSelectors';
 
 interface UsePixiWorldArgs {
   game: GameState;
@@ -65,7 +67,10 @@ export function usePixiWorld({
 
   useEffect(() => {
     playerCoordRef.current = game.player.coord;
-    visibleTilesRef.current = stateModule.getVisibleTiles(game);
+    visibleTilesRef.current = getReusableVisibleTiles(
+      visibleTilesRef.current,
+      game,
+    );
     gameRef.current = game;
   }, [game, gameRef]);
 
@@ -323,6 +328,7 @@ export function usePixiWorld({
       const onPointerLeave = () => {
         canvas.style.cursor = 'default';
         tooltipPositionRef.current = null;
+        syncFollowCursorTooltipPosition(null);
         worldTooltipKeyRef.current = null;
         hoverSnapshotRef.current = {
           target: null,
@@ -438,6 +444,7 @@ function applyHoverSnapshot({
 
   if (hoverSnapshot.tooltip?.followCursor) {
     tooltipPositionRef.current = nextTooltipPosition;
+    syncFollowCursorTooltipPosition(nextTooltipPosition);
     const currentTooltip = getTooltipState();
 
     if (
@@ -455,6 +462,7 @@ function applyHoverSnapshot({
   }
 
   tooltipPositionRef.current = null;
+  syncFollowCursorTooltipPosition(null);
   if (worldTooltipKeyRef.current || getTooltipState()?.followCursor) {
     worldTooltipKeyRef.current = null;
     setTooltip(null);

@@ -1,6 +1,9 @@
 const STORAGE_KEY = 'survival-rpg-save';
 const PASSPHRASE = 'survival-rpg-local-save-v1';
 
+// This passphrase-derived wrapper only obscures local saves in client storage.
+// It is not a real security boundary because the key material ships with the app.
+
 export interface PersistedData {
   game: unknown;
   ui: unknown;
