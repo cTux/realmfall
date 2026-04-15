@@ -36,7 +36,7 @@ import {
 } from '../constants';
 import type { ItemContextMenuState, TooltipItem, TooltipState } from './types';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
-import { getInventoryItemAction } from './appHelpers';
+import { getInventoryItemAction } from './utils/getInventoryItemAction';
 import type { TooltipLine } from '../../ui/tooltips';
 import { setTooltipState } from './tooltipStore';
 import { getTooltipPlacementForRect } from '../../ui/tooltipPlacement';

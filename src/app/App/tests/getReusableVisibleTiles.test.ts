@@ -1,6 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { createGame } from '../../game/state';
-import { getReusableVisibleTiles } from './worldRenderSelectors';
+import { createGame } from '../../../game/state';
+import { getReusableVisibleTiles } from '../selectors/getReusableVisibleTiles';
 
 describe('getReusableVisibleTiles', () => {
   it('reuses the previous visibleTiles array for unrelated state clones', () => {

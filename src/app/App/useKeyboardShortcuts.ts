@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import type { WindowVisibilityState } from '../constants';
-import { isEditableTarget, WINDOW_HOTKEYS } from './appHelpers';
+import { isEditableTarget } from './utils/isEditableTarget';
+import { WINDOW_HOTKEYS } from './utils/windowHotkeys';
 
 interface UseKeyboardShortcutsOptions {
   combatStartAvailable: boolean;

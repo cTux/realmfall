@@ -17,7 +17,7 @@ import { getWorldTimeMinutesFromTimestamp } from '../../ui/world/timeOfDay';
 import { WORLD_REVEAL_RADIUS } from '../constants';
 import type { TooltipState } from './types';
 import { getTooltipState } from './tooltipStore';
-import { getReusableVisibleTiles } from './worldRenderSelectors';
+import { getReusableVisibleTiles } from './selectors/getReusableVisibleTiles';
 
 interface UsePixiWorldArgs {
   game: GameState;

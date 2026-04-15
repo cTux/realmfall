@@ -37,6 +37,9 @@
 
 - Every fix should add or adjust tests in the same task unless the repository cannot reasonably test that path yet. If it cannot, document the gap explicitly.
 - When a task changes project structure or recurring architectural expectations, update `docs/RULES.md` in the same task so future prompts inherit the new structure.
+- Prefer colocated `hooks/`, `selectors/`, `utils/`, and `tests/` directories for feature-local code, and promote only truly shared modules to `src/hooks`, `src/selectors`, or `src/utils`.
+- Split broad multi-export files unless they only contain tightly related types or closely related library or entity helpers.
+- Keep component and test files under roughly `250` lines when practical by splitting them by concern.
 - When a requested JavaScript or TypeScript syntax convention changes, update ESLint and Prettier configuration when the convention can be enforced mechanically.
 - When a requested CSS or SCSS syntax convention changes, update Stylelint configuration when the convention can be enforced mechanically.
 - Every component addition, removal, or behavior-affecting UI change should add or update the corresponding Storybook story in the same task.

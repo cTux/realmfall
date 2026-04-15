@@ -1,4 +1,8 @@
-import { getVisibleTiles, type GameState, type Tile } from '../../game/state';
+import {
+  getVisibleTiles,
+  type GameState,
+  type Tile,
+} from '../../../game/state';
 
 type VisibleTiles = ReturnType<typeof getVisibleTiles>;
 

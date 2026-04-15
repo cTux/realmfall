@@ -60,7 +60,7 @@ src/ui/world/renderScene.ts      # Deferred world-render entry point that should
 ## Observed Warnings
 
 1. `src/game/state.ts`
-   Statically imported by multiple app and UI entry points, including `App.tsx`, `AppWindows.tsx`, `appHelpers.ts`, `useAppControllers.ts`, `useAppPersistence.ts`, `useCombatAutomation.ts`, `normalize.ts`, `EquipmentWindow.tsx`, `ui/icons.ts`, `ui/tooltips.ts`, and `ui/world/renderScene.ts`.
+   Statically imported by multiple app and UI entry points, including `App.tsx`, `AppWindows.tsx`, focused app hooks and utils under `src/app/App`, `useAppPersistence.ts`, `useCombatAutomation.ts`, `normalize.ts`, `EquipmentWindow.tsx`, `ui/icons.ts`, `ui/tooltips.ts`, and `ui/world/renderScene.ts`.
 2. `src/ui/tooltips.ts`
    Statically imported by `src/app/App/useAppControllers.ts`.
 3. `src/ui/world/timeOfDay.ts`

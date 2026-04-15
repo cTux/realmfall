@@ -36,6 +36,9 @@
 - Keep gameplay and simulation rules in `src/game` so they stay testable and mostly UI-independent.
 - Keep React app orchestration in `src/app` and presentational UI in `src/ui/components`.
 - Keep Pixi world rendering concerns in `src/ui/world` rather than mixing them into gameplay rules.
+- Prefer colocated structure inside a feature or component directory: place single-use hooks in a local `hooks/` directory, single-use selectors in a local `selectors/` directory, single-use utilities in a local `utils/` directory, and tests in a local `tests/` directory.
+- Place shared hooks in `src/hooks`, shared selectors in `src/selectors`, and shared utilities in `src/utils` when multiple features depend on the same module.
+- When a file grows multiple exports that are not tightly related types or closely related library or entity helpers, decompose it into focused files instead of expanding one broad module.
 - Avoid adding more responsibilities to already large orchestration modules such as `src/app/App/App.tsx` and broad domain aggregators such as `src/game/state.ts`; prefer extracting focused hooks, helpers, or domain modules.
 - Keep configurable balancing and world values in `game.config.json` or dedicated config modules instead of scattering magic numbers through UI code.
 - Give every unique item its own configuration file for its gameplay and presentation data, including icon, drop chance, and similar item-specific values.
@@ -57,6 +60,7 @@
 
 - Follow the existing window-based desktop-style UI instead of introducing unrelated navigation patterns.
 - Keep heavy app coordination in dedicated hooks when possible, following patterns already used in `src/app/App`.
+- Keep component-only hooks in a colocated `hooks/` directory when just one component or feature uses them.
 - When reducing React rerender fanout, move window-specific derivation, dock composition, and stable window handler ownership out of `src/app/App/App.tsx` and into narrower hooks or the window composition layer when that keeps unrelated windows from recomputing together.
 - Keep Storybook stories for every component under `src/ui/components`, including shared leaf components and window wrappers.
 - Every component addition, removal, or behavior-affecting UI change should add or update the corresponding Storybook story in the same task.
@@ -71,6 +75,7 @@
 - Treat draggable window content as secondary UI by default. New windows should defer their content behind a lazy-loaded bundle, either by lazy-loading the whole window module or by lazy-loading a dedicated `*WindowContent` module inside the window component.
 - Preserve existing React containment patterns such as memoized window components when extending the current UI.
 - Maintain mobile-aware and desktop-safe behavior when changing interactions, even if the full mobile adaptation is still incomplete.
+- Keep component files under roughly `250` lines when practical. When a component grows past that size, prefer splitting view models, hooks, or subcomponents into neighboring files.
 - Keep high-frequency pointer, hover, and world-interaction updates off broad React state paths when refs, invalidation flags, or narrower state can avoid avoidable rerenders.
 - Deduplicate `pointermove` world-hover work by hovered hex before doing heavier interaction logic, and avoid rerunning tooltip derivation, enemy lookups, or pathfinding while the pointer stays on the same tile.
 - On the world-hover path, only run pathfinding, enemy tooltip derivation, or similar heavier selectors when the hovered tile is actually actionable.
@@ -117,6 +122,8 @@
 - Every issue fix should be followed by adding or adjusting tests that cover the fixed behavior, unless the repository cannot reasonably test that path yet. In that case, document the gap explicitly.
 - When a fix changes expected behavior, also update the corresponding spec requirement in the same task when the repository already documents that area.
 - Favor deterministic tests for game-state changes and rendering calculations.
+- Place tests in a colocated `tests/` directory for the feature or module they exercise.
+- Keep test files under roughly `250` lines when practical. Split larger suites by concern instead of accumulating all coverage in one file.
 - Keep production buildability in mind, not only local dev behavior.
 - When performance-sensitive behavior changes, verify both correctness and the likely rerender or redraw impact.
 - When optimization work changes React, Pixi, hover handling, or bundle shape, document a concrete verification path for rerender breadth, redraw breadth, hover hot paths, and startup chunk growth instead of leaving performance validation implicit.
@@ -128,6 +135,7 @@
 - Keep `docs/WORKFLOW.md` aligned with the actual contributor workflow, recurring review expectations, and commit conventions.
 - Prefer documenting real project constraints and current behavior over aspirational wording.
 - When prompts establish recurring workflow expectations, capture them here so future prompt handling stays consistent.
+- When a prompt establishes recurring structural placement rules for hooks, selectors, utilities, components, or tests, update this file and keep contributor-facing docs aligned instead of relying on one-off refactors.
 - Keep rule and workflow updates synchronized across `README.md`, `docs/WORKFLOW.md`, and the AI-specific instruction files when those updates affect future prompt execution.
 - Keep lore-sensitive guidance aligned with the canonical world reference in `docs/lore/REALMFALL.md`.
 - Keep current-system specs under `docs/specs` for implemented gameplay features and technical solutions.
