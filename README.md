@@ -99,7 +99,7 @@ Contributors should keep these working unless a task explicitly changes the work
 
 For bundle-sensitive changes, also run `pnpm build:budget`.
 
-`pnpm lint` now runs Oxlint as the enforced JavaScript and TypeScript lint path. `pnpm lint:eslint` remains available for comparison, `pnpm lint:biome` remains available for side-by-side evaluation, and `pnpm lint:bench` benchmarks all three tools against the same shared target set.
+`pnpm lint` now runs Oxlint as the enforced JavaScript and TypeScript lint path. Biome owns the migrated ESLint-compatible arrow-return, React Hooks, and React Fast Refresh checks, `pnpm lint:eslint` remains available as a baseline comparison path, and `pnpm lint:bench` benchmarks all three tools against the same shared target set.
 
 The pre-commit hook runs `pnpm check:version`, `pnpm typecheck`, and `pnpm quality:staged`, then refreshes the Git index for auto-fixed tracked files. `pnpm quality:staged` runs `oxlint --fix -c .oxlintrc.json` only on staged JavaScript and TypeScript files, runs Stylelint only on staged `src` CSS and SCSS files, and runs `vitest related` for staged source, runtime JSON content, and test files. When shared test inputs such as `package.json`, `pnpm-lock.yaml`, `vite.config.ts`, TypeScript config, or `src/test/setup.ts` are staged, it falls back to the full `pnpm test` suite. `pnpm check:version` still requires `package.json` to advance by patch version relative to `HEAD`.
 

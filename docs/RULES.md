@@ -17,6 +17,7 @@
 
 - Use `pnpm` for project commands. Do not switch examples or contributor guidance to `npm`.
 - Keep TypeScript strictness, Oxlint, Prettier, tests, and Husky hooks working. New changes should not weaken existing quality gates.
+- Keep Biome responsible for the migrated ESLint-compatible arrow-return, React Hooks, and React Fast Refresh checks. Do not move repo-specific JavaScript or TypeScript rule ownership back into `eslint.config.js` unless Biome cannot express the requirement without changing behavior.
 - Keep the pre-commit hook aligned with the linting workflow. When Oxlint can safely auto-fix staged JavaScript and TypeScript issues, prefer applying the fix during pre-commit instead of failing only on fixable drift.
 - Keep the pre-commit hook aligned with the local quality bar. It should enforce version progression, full-project typecheck, staged-file lint checks, and staged-file related tests by default, including staged runtime JSON sources that affect app behavior or content, while falling back to the full repository test suite when shared test inputs such as package metadata, TypeScript config, Vite config, lockfile data, or shared Vitest setup change.
 - Prefer the smallest correct change that fits the existing structure.

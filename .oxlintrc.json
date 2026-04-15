@@ -140,29 +140,6 @@
       "files": [
         "**/*.{ts,tsx}"
       ],
-      "rules": {
-        "arrow-body-style": [
-          "error",
-          "as-needed"
-        ],
-        "prettier/prettier": "error",
-        "react/rules-of-hooks": "error",
-        "react/exhaustive-deps": "warn",
-        "react/only-export-components": [
-          "warn",
-          {
-            "allowConstantExport": true
-          }
-        ]
-      },
-      "jsPlugins": [
-        "eslint-plugin-prettier"
-      ],
-      "plugins": [
-        "typescript",
-        "unicorn",
-        "react"
-      ],
       "env": {
         "browser": true,
         "node": true
