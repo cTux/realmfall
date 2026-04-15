@@ -140,6 +140,15 @@
       "files": [
         "**/*.{ts,tsx}"
       ],
+      "plugins": [
+        "typescript",
+        "unicorn",
+        "react"
+      ],
+      "rules": {
+        "react/rules-of-hooks": "error",
+        "react/exhaustive-deps": "warn"
+      },
       "env": {
         "browser": true,
         "node": true
