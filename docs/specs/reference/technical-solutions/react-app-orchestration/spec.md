@@ -11,7 +11,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `useAppGameView` computes the current tile, filtered logs, town stock, recipe visibility, claim status, player stats, and other UI-ready derived values.
 - This keeps presentational components mostly declarative.
 - `AppWindows` owns the dock-entry composition, stable move and close handler maps, and narrow window-specific view models so `App.tsx` does not keep expanding as the desktop window surface grows.
-- `useAppWindowViews` keeps the `AppWindows` component focused on composition by housing deferred-window bookkeeping, stable handler maps, and memoized window-specific view models behind a dedicated hook boundary.
+- Focused hooks under `src/app/App/hooks` keep `AppWindows` centered on composition by separating deferred-window bookkeeping, stable handler maps, and memoized window-specific view models.
 - The game uses a desktop-style draggable window model with persisted positions, optional per-window dimensions for resizable windows, and visibility.
 - Shared window-shell helpers are reused for move handlers, close handlers, deferred mount state, and repeated title-bar labels instead of maintaining parallel per-window implementations.
 - `useAppControllers` routes gameplay mutations through a shared timed-transition helper so controller actions inject the current world time consistently without repeating the same wrapper at every call site.
@@ -27,7 +27,11 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `src/app/App/App.tsx`
 - `src/app/App/useAppControllers.ts`
 - `src/app/App/useAppGameView.ts`
-- `src/app/App/useAppWindowViews.ts`
+- `src/app/App/hooks/useAppWindowHandlers.ts`
+- `src/app/App/hooks/useDeferredWindows.ts`
+- `src/app/App/hooks/useHexInfoView.ts`
+- `src/app/App/hooks/useRecipeWindowStructure.ts`
+- `src/app/App/hooks/useCombatPlayerParty.ts`
 - `src/app/App/useWindowTransitions.ts`
 - `src/ui/components/WindowShell.tsx`
 - `src/ui/components/lazyWindowComponent.ts`

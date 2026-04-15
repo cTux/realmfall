@@ -1,11 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import {
-  createGame,
-  setHomeHex,
-  syncBloodMoon,
-  syncPlayerStatusEffects,
-  type GameState,
-} from '../../game/state';
+import { useRef, useState } from 'react';
+import { createGame, type GameState } from '../../game/state';
 import { WORLD_RADIUS } from '../constants';
 import { AppWindows } from './AppWindows';
 import { HomeIndicator } from './HomeIndicator';
@@ -13,9 +7,9 @@ import { useAppControllers } from './useAppControllers';
 import { useAppGameView } from './useAppGameView';
 import { useAppPersistence } from './useAppPersistence';
 import { useCombatAutomation } from './useCombatAutomation';
+import { setHomeHexForApp, useAppLifecycle } from './hooks/useAppLifecycle';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { usePixiWorld } from './usePixiWorld';
-import { resetTooltipState } from './tooltipStore';
 import { useWindowTransitions } from './useWindowTransitions';
 import { useWorldClockFps } from './useWorldClockFps';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
@@ -32,9 +26,7 @@ export function App() {
   const lastDisplayedWorldSecondRef = useRef(
     Math.floor(initialGameRef.current.worldTimeMs / 1000),
   );
-
   const [game, setGame] = useState<GameState>(initialGameRef.current);
-
   const {
     closeItemMenu,
     closeTooltip,
@@ -78,7 +70,6 @@ export function App() {
     tooltipPositionRef,
     worldTimeMsRef,
   });
-
   const { setWorldTimeMs, worldTimeMinutes, worldTimeMs } = useWorldClockFps({
     initialWorldTimeMs: initialGameRef.current.worldTimeMs,
     worldTimeMsRef,
@@ -108,7 +99,6 @@ export function App() {
     game,
     logFilters,
   });
-
   const {
     combatSnapshot,
     combatWindowVisible,
@@ -121,7 +111,6 @@ export function App() {
     combatEnemies,
     currentTile,
   });
-
   const { hostRef, canvasReady } = usePixiWorld({
     game,
     worldTimeMsRef,
@@ -131,7 +120,6 @@ export function App() {
     setGame,
     setTooltip,
   });
-
   const hydrated = useAppPersistence({
     game,
     gameRef,
@@ -149,38 +137,15 @@ export function App() {
   });
   const isReady = hydrated && canvasReady;
 
-  const handleSetHome = () => {
-    setGame((current) => setHomeHex(current));
-  };
-
-  useEffect(() => {
-    resetTooltipState();
-    tooltipPositionRef.current = null;
-
-    return () => {
-      resetTooltipState();
-      tooltipPositionRef.current = null;
-    };
-  }, []);
-
-  useEffect(() => {
-    setGame((current) =>
-      syncBloodMoon(
-        { ...current, worldTimeMs: worldTimeMsRef.current },
-        worldTimeMinutes,
-      ),
-    );
-  }, [worldTimeMinutes]);
-
-  useEffect(() => {
-    setGame((current) =>
-      syncPlayerStatusEffects(current, worldTimeMsRef.current),
-    );
-  }, [worldTimeMs]);
-
-  useEffect(() => {
-    gameRef.current = game;
-  }, [game]);
+  useAppLifecycle({
+    game,
+    gameRef,
+    setGame,
+    tooltipPositionRef,
+    worldTimeMinutes,
+    worldTimeMs,
+    worldTimeMsRef,
+  });
 
   useCombatAutomation({
     combat: game.combat,
@@ -267,7 +232,7 @@ export function App() {
           onSellAll={handleSellAll}
           onBuyTownItem={handleBuyTownItem}
           onClaimHex={handleClaimHex}
-          onSetHome={handleSetHome}
+          onSetHome={() => setHomeHexForApp(setGame)}
         />
       </div>
       {isReady ? null : (

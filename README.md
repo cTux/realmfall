@@ -52,6 +52,8 @@ The game currently does not support mods.
 - `docs`: review notes, workflow guidance, rules, specs, lore, and changelog source data.
 - `game.config.json`: configurable gameplay and world values.
 
+Within feature directories, prefer colocated `hooks/`, `selectors/`, `utils/`, and `tests/` folders for feature-local code. Promote a hook, selector, or utility to `src/hooks`, `src/selectors`, or `src/utils` only when multiple parts of the app share it.
+
 ## Setup
 
 Use `pnpm` for all local commands.
@@ -140,6 +142,7 @@ When work changes the performance-sensitive paths, verify the affected area expl
 - When a JavaScript or TypeScript syntax convention should change, prefer enforcing it through an ESLint rule when that is practical.
 - Keep gameplay and simulation rules in `src/game`, app orchestration in `src/app`, React UI components in `src/ui/components`, and Pixi world rendering in `src/ui/world`.
 - Avoid growing already-large coordinator modules when a focused helper or hook is a better fit.
+- Prefer decomposing broad multi-export modules into focused files unless the file only contains tightly related types or closely related entity or library helpers.
 - Keep balancing and world constants in config or focused modules instead of scattering magic numbers through UI code.
 - Keep each unique item, enemy, and structure in its own dedicated configuration file so gameplay and presentation data such as icons, drop or appearance chances, and structure-provided functions stay localized by content type.
 - In JavaScript and TypeScript, prefer concise arrow functions for immediate expression returns.
@@ -148,6 +151,7 @@ When work changes the performance-sensitive paths, verify the affected area expl
 - Treat browser-side save protection in `src/persistence/storage.ts` as local obfuscation, not real security.
 - Prefer debounced or meaningfully-triggered persistence work over repeated identical writes.
 - Keep React component files compatible with Fast Refresh expectations.
+- Keep component and test files under roughly `250` lines when practical by splitting large view, hook, or test concerns into nearby files.
 - New draggable windows should keep their content behind a lazy-loaded bundle, either by splitting the whole window module or a dedicated `*WindowContent` module.
 - Prefer maximally reusable UI primitives. Shared window controls such as close buttons and repeated title-bar actions should come from common components and use the shared custom tooltip behavior consistently.
 - Keep Storybook coverage current for every UI component and for aggregate entity catalogs so component and content changes stay visible in reviewable UI fixtures. Component additions, removals, and behavior-affecting UI changes should update the matching stories in the same task.

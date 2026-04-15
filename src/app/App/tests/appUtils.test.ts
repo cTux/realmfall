@@ -1,12 +1,10 @@
-import { createGame } from '../../game/state';
-import { DEFAULT_WINDOW_VISIBILITY } from '../constants';
-import {
-  getDockEntries,
-  getInventoryItemAction,
-  isEditableTarget,
-} from './appHelpers';
+import { createGame } from '../../../game/state';
+import { DEFAULT_WINDOW_VISIBILITY } from '../../constants';
+import { getDockEntries } from '../utils/getDockEntries';
+import { getInventoryItemAction } from '../utils/getInventoryItemAction';
+import { isEditableTarget } from '../utils/isEditableTarget';
 
-describe('appHelpers', () => {
+describe('app utils', () => {
   it('builds dock entries for optional windows only when visible', () => {
     const baseEntries = getDockEntries(DEFAULT_WINDOW_VISIBILITY, false, false);
     expect(baseEntries.map((entry) => entry.key)).toEqual([
