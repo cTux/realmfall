@@ -1062,22 +1062,11 @@ describe('ui helpers and components', () => {
     host.remove();
   });
 
-  it('batches draggable window move commits to animation frames', async () => {
+  it('commits draggable window movement on pointer release', async () => {
     const moves: Array<{ x: number; y: number }> = [];
     const host = document.createElement('div');
     document.body.appendChild(host);
     let root: Root | null = createRoot(host);
-    const frameCallbacks: FrameRequestCallback[] = [];
-
-    const requestAnimationFrameSpy = vi
-      .spyOn(window, 'requestAnimationFrame')
-      .mockImplementation((callback: FrameRequestCallback) => {
-        frameCallbacks.push(callback);
-        return frameCallbacks.length;
-      });
-    const cancelAnimationFrameSpy = vi
-      .spyOn(window, 'cancelAnimationFrame')
-      .mockImplementation(() => {});
 
     await act(async () => {
       root?.render(
@@ -1090,8 +1079,6 @@ describe('ui helpers and components', () => {
         </DraggableWindow>,
       );
     });
-
-    frameCallbacks.length = 0;
 
     const header = host.querySelector(
       'div[class*="windowHeader"]',
@@ -1123,23 +1110,58 @@ describe('ui helpers and components', () => {
     });
 
     expect(moves).toHaveLength(0);
-    expect(frameCallbacks).toHaveLength(1);
-
-    await act(async () => {
-      frameCallbacks[0](16);
-    });
-
-    expect(moves).toEqual([{ x: 100, y: 110 }]);
 
     await act(async () => {
       window.dispatchEvent(new MouseEvent('pointerup', { bubbles: true }));
     });
 
-    expect(moves).toHaveLength(1);
-    expect(cancelAnimationFrameSpy).not.toHaveBeenCalled();
+    expect(moves).toEqual([{ x: 100, y: 110 }]);
 
-    requestAnimationFrameSpy.mockRestore();
-    cancelAnimationFrameSpy.mockRestore();
+    await act(async () => {
+      root?.unmount();
+    });
+    root = null;
+    host.remove();
+  });
+
+  it('skips draggable window movement commit when no drag delta occurred', async () => {
+    const moves: Array<{ x: number; y: number }> = [];
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    let root: Root | null = createRoot(host);
+
+    await act(async () => {
+      root?.render(
+        <DraggableWindow
+          title="Batched Window"
+          position={{ x: 40, y: 50 }}
+          onMove={(position) => moves.push(position)}
+        >
+          <div>Body</div>
+        </DraggableWindow>,
+      );
+    });
+
+    const header = host.querySelector(
+      'div[class*="windowHeader"]',
+    ) as HTMLDivElement | null;
+    expect(header).not.toBeNull();
+
+    await act(async () => {
+      header?.dispatchEvent(
+        new MouseEvent('pointerdown', {
+          bubbles: true,
+          clientX: 80,
+          clientY: 100,
+        }),
+      );
+    });
+
+    await act(async () => {
+      window.dispatchEvent(new MouseEvent('pointerup', { bubbles: true }));
+    });
+
+    expect(moves).toEqual([]);
 
     await act(async () => {
       root?.unmount();

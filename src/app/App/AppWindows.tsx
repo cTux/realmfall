@@ -1,14 +1,12 @@
-import { useEffect, useMemo, useState, type MutableRefObject } from 'react';
+import { useMemo, type MutableRefObject } from 'react';
 import {
   canEquipItem,
   canUseItem,
-  describeStructure,
   type EquipmentSlot,
   type GameState,
   type Item,
   type LogKind,
   getPlayerStats,
-  getHostileEnemyIds,
   type Tile,
 } from '../../game/state';
 import {
@@ -32,111 +30,17 @@ import { WindowDock } from '../../ui/components/WindowDock';
 import type { ItemContextMenuState, TooltipItem } from './types';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import type { TooltipLine } from '../../ui/tooltips';
-import { formatTerrainLabel, getDockEntries } from './appHelpers';
+import { getDockEntries } from './appHelpers';
 import { useTooltipState } from './tooltipStore';
+import {
+  useAppWindowHandlers,
+  useCombatPlayerParty,
+  useDeferredWindows,
+  useHexInfoView,
+  useRecipeWindowStructure,
+} from './useAppWindowViews';
 
-const WINDOW_HANDLER_KEYS = [
-  'worldTime',
-  'hero',
-  'skills',
-  'recipes',
-  'hexInfo',
-  'equipment',
-  'inventory',
-  'loot',
-  'log',
-  'combat',
-] as const;
-
-const DEFERRED_WINDOW_KEYS = [
-  'skills',
-  'recipes',
-  'hexInfo',
-  'equipment',
-  'inventory',
-  'loot',
-  'log',
-  'combat',
-] as const;
-
-type ManagedWindowKey = (typeof WINDOW_HANDLER_KEYS)[number];
-type DeferredWindowKey = (typeof DEFERRED_WINDOW_KEYS)[number];
-
-interface CombatWindowPlayerPartyEntry {
-  id: string;
-  name: string;
-  level: number;
-  hp: number;
-  maxHp: number;
-  mana: number;
-  maxMana: number;
-  actor: NonNullable<
-    NonNullable<AppWindowsProps['combatSnapshot']>['combat']
-  >['player'];
-}
-
-const createWindowMoveHandlers = (
-  onMoveWindow: AppWindowsProps['onMoveWindow'],
-) =>
-  WINDOW_HANDLER_KEYS.reduce(
-    (handlers, key) => {
-      handlers[key] = (position) => onMoveWindow(key, position);
-      return handlers;
-    },
-    {} as {
-      [K in ManagedWindowKey]: (position: WindowPositions[K]) => void;
-    },
-  );
-
-const createWindowCloseHandlers = (
-  onSetWindowVisibility: AppWindowsProps['onSetWindowVisibility'],
-) =>
-  WINDOW_HANDLER_KEYS.reduce(
-    (handlers, key) => {
-      handlers[key] = () => onSetWindowVisibility(key, false);
-      return handlers;
-    },
-    {} as { [K in ManagedWindowKey]: () => void },
-  );
-
-const createLoadedWindowState = (
-  windowShown: WindowVisibilityState,
-  renderLootWindow: boolean,
-  renderCombatWindow: boolean,
-) =>
-  ({
-    skills: windowShown.skills,
-    recipes: windowShown.recipes,
-    hexInfo: windowShown.hexInfo,
-    equipment: windowShown.equipment,
-    inventory: windowShown.inventory,
-    loot: renderLootWindow,
-    log: windowShown.log,
-    combat: renderCombatWindow,
-  }) satisfies Record<DeferredWindowKey, boolean>;
-
-const mergeLoadedWindowState = (
-  current: Record<DeferredWindowKey, boolean>,
-  windowShown: WindowVisibilityState,
-  renderLootWindow: boolean,
-  renderCombatWindow: boolean,
-) => {
-  const next = createLoadedWindowState(
-    windowShown,
-    renderLootWindow,
-    renderCombatWindow,
-  );
-
-  for (const key of DEFERRED_WINDOW_KEYS) {
-    next[key] = current[key] || next[key];
-  }
-
-  return DEFERRED_WINDOW_KEYS.every((key) => current[key] === next[key])
-    ? current
-    : next;
-};
-
-interface AppWindowsProps {
+export interface AppWindowsProps {
   windows: WindowPositions;
   windowShown: WindowVisibilityState;
   worldTimeMs: number;
@@ -288,74 +192,26 @@ export function AppWindows({
     () => getDockEntries(windowShown, renderLootWindow, renderCombatWindow),
     [renderCombatWindow, renderLootWindow, windowShown],
   );
-  const windowMoveHandlers = useMemo(
-    () => createWindowMoveHandlers(onMoveWindow),
-    [onMoveWindow],
-  );
-  const windowCloseHandlers = useMemo(
-    () => createWindowCloseHandlers(onSetWindowVisibility),
-    [onSetWindowVisibility],
-  );
-  const [loadedWindows, setLoadedWindows] = useState(() =>
-    createLoadedWindowState(windowShown, renderLootWindow, renderCombatWindow),
-  );
-  const hexInfoView = useMemo(
-    () => ({
-      isHome:
-        game.homeHex.q === game.player.coord.q &&
-        game.homeHex.r === game.player.coord.r,
-      canSetHome:
-        !currentTile.claim || currentTile.claim.ownerType === 'player',
-      terrain: formatTerrainLabel(currentTile.terrain),
-      structure: currentTile.structure
-        ? describeStructure(currentTile.structure)
-        : null,
-      enemyCount: game.combat
-        ? (combatSnapshot?.enemies.length ?? 0)
-        : getHostileEnemyIds(game, currentTile.coord).length,
-    }),
-    [combatSnapshot?.enemies.length, currentTile, game],
-  );
-  const recipeWindowStructure = useMemo(
-    () => describeStructure(currentTile.structure),
-    [currentTile.structure],
-  );
-  const combatPlayerParty = useMemo<CombatWindowPlayerPartyEntry[]>(
-    () =>
-      combatSnapshot
-        ? [
-            {
-              id: 'player',
-              name: 'Player',
-              level: stats.level,
-              hp: stats.hp,
-              maxHp: stats.maxHp,
-              mana: game.player.mana,
-              maxMana: stats.maxMana,
-              actor: combatSnapshot.combat.player,
-            },
-          ]
-        : [],
-    [
-      combatSnapshot,
-      game.player.mana,
-      stats.hp,
-      stats.level,
-      stats.maxHp,
-      stats.maxMana,
-    ],
-  );
-
-  useEffect(() => {
-    setLoadedWindows((current) =>
-      mergeLoadedWindowState(
-        current,
-        windowShown,
-        renderLootWindow,
-        renderCombatWindow,
-      ),
-    );
-  }, [renderCombatWindow, renderLootWindow, windowShown]);
+  const { windowMoveHandlers, windowCloseHandlers } = useAppWindowHandlers({
+    onMoveWindow,
+    onSetWindowVisibility,
+  });
+  const loadedWindows = useDeferredWindows({
+    windowShown,
+    renderLootWindow,
+    renderCombatWindow,
+  });
+  const hexInfoView = useHexInfoView({
+    game,
+    currentTile,
+    combatSnapshot,
+  });
+  const recipeWindowStructure = useRecipeWindowStructure(currentTile.structure);
+  const combatPlayerParty = useCombatPlayerParty({
+    combatSnapshot,
+    stats,
+    mana: game.player.mana,
+  });
 
   return (
     <>

@@ -3,9 +3,7 @@ import { EQUIPMENT_SLOTS, type EquipmentSlot } from '../../../game/state';
 import { iconForItem } from '../../icons';
 import { rarityColor } from '../../rarity';
 import { WINDOW_LABELS } from '../../windowLabels';
-import { DraggableWindow } from '../DraggableWindow';
-import { WindowLabel } from '../WindowLabel/WindowLabel';
-import labelStyles from '../windowLabels.module.scss';
+import { WindowShell } from '../WindowShell';
 import type { EquipmentWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -23,13 +21,9 @@ export const EquipmentWindow = memo(function EquipmentWindow({
   onLeaveDetail,
 }: EquipmentWindowProps) {
   return (
-    <DraggableWindow
-      title={
-        <WindowLabel
-          label={WINDOW_LABELS.equipment}
-          hotkeyClassName={labelStyles.hotkey}
-        />
-      }
+    <WindowShell
+      title={WINDOW_LABELS.equipment.plain}
+      hotkeyLabel={WINDOW_LABELS.equipment}
       position={position}
       onMove={onMove}
       visible={visible}
@@ -80,7 +74,7 @@ export const EquipmentWindow = memo(function EquipmentWindow({
           );
         })}
       </div>
-    </DraggableWindow>
+    </WindowShell>
   );
 });
 

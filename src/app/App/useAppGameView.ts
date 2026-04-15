@@ -1,18 +1,19 @@
 import { useMemo } from 'react';
 import {
   getCurrentHexClaimStatus,
-  getCurrentTile,
   getEnemiesAt,
   getGoldAmount,
   getPlayerStats,
   getRecipeBookRecipes,
-  getTownStock,
-  hasEquippableInventoryItems,
   hasRecipeBook,
   structureActionLabel,
   type GameState,
   type LogKind,
 } from '../../game/state';
+import { buildTownStock } from '../../game/economy';
+import { hexKey } from '../../game/hex';
+import { isEquippableItem } from '../../game/inventory';
+import { buildTile } from '../../game/world';
 import { t } from '../../i18n';
 
 interface UseAppGameViewOptions {
@@ -21,40 +22,51 @@ interface UseAppGameViewOptions {
 }
 
 export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
-  const stats = useMemo(() => getPlayerStats(game.player), [game.player]);
-  const currentTile = useMemo(() => getCurrentTile(game), [game]);
+  const { combat, logs, player, seed, tiles } = game;
+
+  const stats = useMemo(() => getPlayerStats(player), [player]);
+  const currentTile = useMemo(
+    () => tiles[hexKey(player.coord)] ?? buildTile(seed, player.coord),
+    [player.coord, seed, tiles],
+  );
   const recipeBookKnown = useMemo(
-    () => hasRecipeBook(game.player.inventory),
-    [game.player.inventory],
+    () => hasRecipeBook(player.inventory),
+    [player.inventory],
   );
   const recipes = useMemo(
-    () => getRecipeBookRecipes(game.player.learnedRecipeIds),
-    [game.player.learnedRecipeIds],
+    () => getRecipeBookRecipes(player.learnedRecipeIds),
+    [player.learnedRecipeIds],
   );
   const inventoryCounts = useMemo(
     () =>
-      game.player.inventory.reduce<Record<string, number>>((counts, item) => {
+      player.inventory.reduce<Record<string, number>>((counts, item) => {
         counts[item.name] = (counts[item.name] ?? 0) + item.quantity;
         return counts;
       }, {}),
-    [game.player.inventory],
+    [player.inventory],
   );
   const hasEquippableItems = useMemo(
-    () => hasEquippableInventoryItems(game),
-    [game],
+    () => player.inventory.some(isEquippableItem),
+    [player.inventory],
   );
-  const townStock = useMemo(() => getTownStock(game), [game]);
+  const townStock = useMemo(
+    () =>
+      currentTile.structure === 'town'
+        ? buildTownStock(seed, currentTile.coord)
+        : [],
+    [currentTile.coord, currentTile.structure, seed],
+  );
   const gold = useMemo(
-    () => getGoldAmount(game.player.inventory),
-    [game.player.inventory],
+    () => getGoldAmount(player.inventory),
+    [player.inventory],
   );
   const combatEnemies = useMemo(
-    () => (game.combat ? getEnemiesAt(game, game.combat.coord) : []),
-    [game],
+    () => (combat ? getEnemiesAt(game, combat.coord) : []),
+    [combat, game],
   );
   const filteredLogs = useMemo(
-    () => game.logs.filter((entry) => logFilters[entry.kind]),
-    [game.logs, logFilters],
+    () => logs.filter((entry) => logFilters[entry.kind]),
+    [logFilters, logs],
   );
 
   const canProspect = currentTile.structure === 'forge' && hasEquippableItems;

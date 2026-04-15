@@ -1,10 +1,8 @@
 import { lazy, memo, Suspense } from 'react';
 import { WINDOW_LABELS } from '../../windowLabels';
-import { DraggableWindow } from '../DraggableWindow';
-import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
 import { loadRetryingWindowModule } from '../lazyWindowComponent';
-import labelStyles from '../windowLabels.module.scss';
+import { WindowShell } from '../WindowShell';
 import type { RecipeBookWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -30,13 +28,9 @@ export const RecipeBookWindow = memo(function RecipeBookWindow({
   onLeaveDetail,
 }: RecipeBookWindowProps) {
   return (
-    <DraggableWindow
-      title={
-        <WindowLabel
-          label={WINDOW_LABELS.recipes}
-          hotkeyClassName={labelStyles.hotkey}
-        />
-      }
+    <WindowShell
+      title={WINDOW_LABELS.recipes.plain}
+      hotkeyLabel={WINDOW_LABELS.recipes}
       position={position}
       onMove={onMove}
       className={styles.window}
@@ -54,6 +48,6 @@ export const RecipeBookWindow = memo(function RecipeBookWindow({
           onCraft={onCraft}
         />
       </Suspense>
-    </DraggableWindow>
+    </WindowShell>
   );
 });

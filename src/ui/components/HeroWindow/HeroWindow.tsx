@@ -1,10 +1,8 @@
 import { lazy, memo, Suspense } from 'react';
 import { WINDOW_LABELS } from '../../windowLabels';
-import { DraggableWindow } from '../DraggableWindow';
-import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
 import { loadRetryingWindowModule } from '../lazyWindowComponent';
-import labelStyles from '../windowLabels.module.scss';
+import { WindowShell } from '../WindowShell';
 import type { HeroWindowProps } from './types';
 
 const HeroWindowContent = lazy(() =>
@@ -28,20 +26,16 @@ export const HeroWindow = memo(function HeroWindow({
   onLeaveDetail,
 }: HeroWindowProps) {
   return (
-    <DraggableWindow
-      title={
-        <WindowLabel
-          label={WINDOW_LABELS.hero}
-          hotkeyClassName={labelStyles.hotkey}
-          suffix={
-            <>
-              {' '}
-              {' · Lv '}
-              {stats.level}
-              {stats.masteryLevel > 0 ? ` (${stats.masteryLevel})` : ''}
-            </>
-          }
-        />
+    <WindowShell
+      title={WINDOW_LABELS.hero.plain}
+      hotkeyLabel={WINDOW_LABELS.hero}
+      titleSuffix={
+        <>
+          {' '}
+          {'- Lv '}
+          {stats.level}
+          {stats.masteryLevel > 0 ? ` (${stats.masteryLevel})` : ''}
+        </>
       }
       position={position}
       onMove={onMove}
@@ -60,6 +54,6 @@ export const HeroWindow = memo(function HeroWindow({
           onLeaveDetail={onLeaveDetail}
         />
       </Suspense>
-    </DraggableWindow>
+    </WindowShell>
   );
 });

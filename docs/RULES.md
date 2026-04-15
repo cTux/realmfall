@@ -7,9 +7,9 @@
 - Future prompts should assume these relevant rules are already part of their working context, even when the prompt only references a task area indirectly.
 - If a prompt contains an `add rule` statement, update this file immediately in the matching section before considering the task complete.
 - If a prompt contains an optimization request, update the relevant rules when the project guidance should change, not only the implementation.
-- When a rule changes project workflow or contributor expectations, reflect that change in `README.md` and adjust `docs/PROMPTS.md` if the prompt templates should change too.
+- When a rule changes project workflow or contributor expectations, reflect that change in `README.md` and adjust `docs/WORKFLOW.md` if contributor workflow guidance should change too.
 - Keep AI-specific instruction entrypoints such as `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md` aligned with this file when shared prompt behavior changes.
-- Use `docs/PROJECT_REVIEW.md` and `docs/PROMPTS.md` as inputs when refining recurring project rules, but keep this file as the canonical rules source.
+- Use `docs/PROJECT_REVIEW.md` and `docs/WORKFLOW.md` as inputs when refining recurring project rules, but keep this file as the canonical rules source.
 - Keep supporting markdown files compact. Prefer short references back to this file instead of repeating long rule lists across multiple docs.
 
 ## General
@@ -22,7 +22,6 @@
 - Preserve existing behavior unless the task explicitly changes behavior.
 - Favor existing project patterns over introducing new abstractions, state layers, or architectural styles without a clear need.
 - Keep documentation grounded in the current shipped behavior and known constraints, not aspirational plans.
-- Keep gameplay restrictions documented in `docs/RESTRICTIONS.md` in sync with implementation decisions.
 - When generating or naming world content such as places, factions, enemies, items, events, structures, or flavor text, align it with the established lore in `docs/lore/REALMFALL.md`.
 - In JavaScript and TypeScript, when a function immediately returns an expression, prefer concise arrow functions without a block body.
 - Keep ESLint syntax rules aligned with the current JavaScript and TypeScript style expectations so these conventions are auto-checked and auto-fixable when practical.
@@ -95,6 +94,7 @@
 - Use device-aware quality budgets for Pixi rendering. Cap expensive defaults such as full-resolution rendering or unconditional antialiasing when they threaten frame time on weaker or high-DPI devices.
 - Keep lightweight performance budgets documented and visible. Treat roughly `16.7 ms` as the default desktop frame-time budget for normal world interaction, and investigate changes that push the initial startup chunks materially beyond the current envelope of about `235 kB` for the main app chunk, `145 kB` for `react-vendor`, and `435 kB` for `pixi` before gzip.
 - Prefer small, focused render tests for world math, lighting, filters, caches, and deterministic presentation behavior when changing Pixi logic.
+- Do not flag Pixi startup antialiasing or full-DPR defaults as standalone review issues during general best-practice reviews unless the task explicitly targets renderer quality settings or there is measured evidence that those defaults are causing device-specific regressions.
 
 ## Build And Bundle
 
@@ -103,6 +103,7 @@
 - Prefer targeted code splitting for heavier dependencies instead of collapsing all third-party code into one growing vendor chunk.
 - Treat bundle growth as a real performance cost, especially on the initial app path and in Pixi-heavy features.
 - Document small bundle-size expectations in contributor-facing guidance so chunk regressions are easier to spot before they become large enough to require emergency refactors.
+- Keep the automated startup chunk budget check aligned with the current envelope. `pnpm build:budget` should enforce the live `index`, `react-vendor`, and `pixi` thresholds used in local verification and CI.
 
 ## Testing
 
@@ -117,10 +118,10 @@
 ## Documentation
 
 - Keep `README.md` accurate about the current game state, package manager, save behavior, quality commands, and contributor workflow.
-- Keep prompt templates in `docs/PROMPTS.md` aligned with actual project workflow.
+- Keep `docs/WORKFLOW.md` aligned with the actual contributor workflow, recurring review expectations, and commit conventions.
 - Prefer documenting real project constraints and current behavior over aspirational wording.
 - When prompts establish recurring workflow expectations, capture them here so future prompt handling stays consistent.
-- Keep rule and workflow updates synchronized across `README.md`, `docs/PROMPTS.md`, and the AI-specific instruction files when those updates affect future prompt execution.
+- Keep rule and workflow updates synchronized across `README.md`, `docs/WORKFLOW.md`, and the AI-specific instruction files when those updates affect future prompt execution.
 - Keep lore-sensitive guidance aligned with the canonical world reference in `docs/lore/REALMFALL.md`.
 - Keep current-system specs under `docs/specs` for implemented gameplay features and technical solutions.
 - Every implemented feature should be followed by creating or updating the relevant spec in `docs/specs` before the task is considered complete.

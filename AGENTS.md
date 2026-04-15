@@ -9,7 +9,7 @@ This repository uses `docs/RULES.md` as the source of truth for project-specific
 - Apply only the rules that are relevant to the current task.
 - If a prompt contains `add rule`, update `docs/RULES.md` immediately in the corresponding section before considering the task complete.
 - If a performance-sensitive prompt changes React, Pixi, hover, or bundle behavior, also document how that path should be verified.
-- If rule changes affect workflow or contributor expectations, keep `README.md` and `docs/PROMPTS.md` in sync.
+- If rule changes affect workflow or contributor expectations, keep `README.md` and `docs/WORKFLOW.md` in sync.
 - If rule changes affect future prompt execution, also sync `CLAUDE.md` and `.github/copilot-instructions.md`.
 - Prefer updating `docs/RULES.md` over duplicating project-specific rules in this file.
 - Keep this file compact and use it as an entrypoint back to the canonical rules.
@@ -17,9 +17,8 @@ This repository uses `docs/RULES.md` as the source of truth for project-specific
 ## Supporting Docs
 
 - `docs/RULES.md`: project rules and engineering guidance
-- `docs/PROMPTS.md`: prompt templates and prompt workflow
+- `docs/WORKFLOW.md`: contributor workflow and recurring review guidance
 - `docs/PROJECT_REVIEW.md`: observed pros, cons, and improvement guidance
-- `docs/RESTRICTIONS.md`: hard project restrictions
 
 ## Repo Expectations
 

@@ -1,10 +1,8 @@
 import { lazy, memo, Suspense } from 'react';
 import { WINDOW_LABELS } from '../../windowLabels';
-import { DraggableWindow } from '../DraggableWindow';
-import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
 import { loadRetryingWindowModule } from '../lazyWindowComponent';
-import labelStyles from '../windowLabels.module.scss';
+import { WindowShell } from '../WindowShell';
 import type { SkillsWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -26,13 +24,9 @@ export const SkillsWindow = memo(function SkillsWindow({
   onLeaveDetail,
 }: SkillsWindowProps) {
   return (
-    <DraggableWindow
-      title={
-        <WindowLabel
-          label={WINDOW_LABELS.skills}
-          hotkeyClassName={labelStyles.hotkey}
-        />
-      }
+    <WindowShell
+      title={WINDOW_LABELS.skills.plain}
+      hotkeyLabel={WINDOW_LABELS.skills}
       position={position}
       onMove={onMove}
       className={styles.window}
@@ -48,6 +42,6 @@ export const SkillsWindow = memo(function SkillsWindow({
           onLeaveDetail={onLeaveDetail}
         />
       </Suspense>
-    </DraggableWindow>
+    </WindowShell>
   );
 });

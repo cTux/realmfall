@@ -1,10 +1,8 @@
 import { lazy, memo, Suspense } from 'react';
 import { WINDOW_LABELS } from '../../windowLabels';
-import { DraggableWindow } from '../DraggableWindow';
-import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
 import { loadRetryingWindowModule } from '../lazyWindowComponent';
-import labelStyles from '../windowLabels.module.scss';
+import { WindowShell } from '../WindowShell';
 import type { DebuggerWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -26,13 +24,9 @@ export const DebuggerWindow = memo(function DebuggerWindow({
   onLeaveDetail,
 }: DebuggerWindowProps) {
   return (
-    <DraggableWindow
-      title={
-        <WindowLabel
-          label={WINDOW_LABELS.worldTime}
-          hotkeyClassName={labelStyles.hotkey}
-        />
-      }
+    <WindowShell
+      title={WINDOW_LABELS.worldTime.plain}
+      hotkeyLabel={WINDOW_LABELS.worldTime}
       position={position}
       onMove={onMove}
       visible={visible}
@@ -48,6 +42,6 @@ export const DebuggerWindow = memo(function DebuggerWindow({
           onLeaveDetail={onLeaveDetail}
         />
       </Suspense>
-    </DraggableWindow>
+    </WindowShell>
   );
 });

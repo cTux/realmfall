@@ -10,7 +10,7 @@ Follow `docs/RULES.md` as the canonical source of project rules.
 - If a prompt includes `add rule`, update `docs/RULES.md` immediately in the matching section.
 - If an optimization prompt establishes a recurring implementation pattern, capture it in `docs/RULES.md` instead of leaving it only in code changes.
 - If a performance-sensitive prompt changes React, Pixi, hover, or bundle behavior, also document how that path should be verified.
-- If the rule changes workflow or contributor expectations, update `README.md` and `docs/PROMPTS.md` too.
+- If the rule changes workflow or contributor expectations, update `README.md` and `docs/WORKFLOW.md` too.
 - If the rule changes future prompt execution, also sync `AGENTS.md` and `.github/copilot-instructions.md`.
 - Prefer keeping project-specific guidance in `docs/RULES.md` instead of duplicating it here.
 - Keep this file compact and use it as an entrypoint back to the canonical rules.
@@ -18,9 +18,8 @@ Follow `docs/RULES.md` as the canonical source of project rules.
 ## Reference Files
 
 - `docs/RULES.md`
-- `docs/PROMPTS.md`
+- `docs/WORKFLOW.md`
 - `docs/PROJECT_REVIEW.md`
-- `docs/RESTRICTIONS.md`
 - `docs/lore/REALMFALL.md`
 
 ## Project Expectations

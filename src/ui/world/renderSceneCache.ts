@@ -74,6 +74,7 @@ export interface SceneCache {
   cloudShadowSprites: SpritePool;
   cloudSprites: SpritePool;
   cloudInputsBySeed: Map<string, CloudRenderInput[]>;
+  campfireLightPoints: Array<{ x: number; y: number }>;
   player: ShadowedSpriteEntry;
   derivedRenderVisibleTilesSource: ReturnType<typeof getVisibleTiles> | null;
   derivedRenderEnemiesSource: Record<string, unknown> | null;
@@ -174,6 +175,7 @@ export function getSceneCache(app: Application) {
     cloudShadowSprites: createSpritePool(cloudShadows),
     cloudSprites: createSpritePool(clouds),
     cloudInputsBySeed: new Map(),
+    campfireLightPoints: [],
     player,
     derivedRenderVisibleTilesSource: null,
     derivedRenderEnemiesSource: null,

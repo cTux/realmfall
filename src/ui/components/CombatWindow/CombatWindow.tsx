@@ -1,10 +1,10 @@
 import { lazy, Suspense } from 'react';
 import { t } from '../../../i18n';
-import { DraggableWindow } from '../DraggableWindow';
 import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
 import { WindowLoadingState } from '../WindowLoadingState';
 import { loadRetryingWindowModule } from '../lazyWindowComponent';
 import inventoryStyles from '../InventoryWindow/styles.module.scss';
+import { WindowShell } from '../WindowShell';
 import type { CombatWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -47,7 +47,7 @@ export const CombatWindow = ({
   ) : null;
 
   return (
-    <DraggableWindow
+    <WindowShell
       title={t('ui.window.combat.plain')}
       headerActions={startButton}
       position={position}
@@ -68,6 +68,6 @@ export const CombatWindow = ({
           onLeaveDetail={onLeaveDetail}
         />
       </Suspense>
-    </DraggableWindow>
+    </WindowShell>
   );
 };

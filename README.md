@@ -28,7 +28,7 @@ Current project strengths reflected in the codebase and docs:
 - Pixi render caches and pools already reuse containers, graphics, sprites, and text instead of recreating display objects each frame.
 - Save compatibility handled through normalization before hydration.
 
-The game currently does not support mods. See `docs/RESTRICTIONS.md`.
+The game currently does not support mods.
 
 ## Stack
 
@@ -49,7 +49,7 @@ The game currently does not support mods. See `docs/RESTRICTIONS.md`.
 - `src/ui/components`: window components and other React UI pieces.
 - `src/ui/world`: Pixi/world rendering helpers, render math, caches, atmosphere, and related tests.
 - `src/persistence`: local save storage helpers.
-- `docs`: review notes, prompt templates, rules, restrictions, and changelog source data.
+- `docs`: review notes, workflow guidance, rules, specs, lore, and changelog source data.
 - `game.config.json`: configurable gameplay and world values.
 
 ## Setup
@@ -146,6 +146,7 @@ When work changes the performance-sensitive paths, verify the affected area expl
 - For ability, buff, and debuff icons rendered through CSS masks, use transparent SVG assets with no full-canvas background shape so the UI does not show solid squares.
 - For UI elements that already use the custom game tooltip system, do not add native browser `title` tooltips. Buffs, debuffs, abilities, and similar interactive affordances should use the shared custom tooltip consistently.
 - Prefer deterministic tests for gameplay and render-math changes, especially when performance-sensitive behavior changes.
+- Use `pnpm build:budget` for bundle-sensitive changes so the main `index`, `react-vendor`, and `pixi` chunks stay inside the current startup budget guardrails.
 - Keep generated world content aligned with `docs/lore/REALMFALL.md`.
 
 ## Project Rules
@@ -169,6 +170,6 @@ Workflow expectations are defined in `docs/RULES.md`. Keep this file concise and
 
 ## Prompt Workflow
 
-Prompt templates are documented in `docs/PROMPTS.md`.
+Workflow guidance is documented in `docs/WORKFLOW.md`.
 
-That file assumes that `docs/RULES.md` is part of the default project context for future prompt execution and that rule changes should be mirrored there when prompt behavior changes.
+That file assumes that `docs/RULES.md` is part of the default project context for future prompt execution and that workflow changes should be mirrored there when contributor expectations change.

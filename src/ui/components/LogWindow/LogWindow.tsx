@@ -2,12 +2,10 @@ import { lazy, memo, Suspense } from 'react';
 import { t } from '../../../i18n';
 import { formatLogKindLabel } from '../../../i18n/labels';
 import { WINDOW_LABELS } from '../../windowLabels';
-import { DraggableWindow } from '../DraggableWindow';
 import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
-import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
 import { loadRetryingWindowModule } from '../lazyWindowComponent';
-import labelStyles from '../windowLabels.module.scss';
+import { WindowShell } from '../WindowShell';
 import type { LogWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -34,13 +32,9 @@ export const LogWindow = memo(function LogWindow({
   onLeaveDetail,
 }: LogWindowProps) {
   return (
-    <DraggableWindow
-      title={
-        <WindowLabel
-          label={WINDOW_LABELS.log}
-          hotkeyClassName={labelStyles.hotkey}
-        />
-      }
+    <WindowShell
+      title={WINDOW_LABELS.log.plain}
+      hotkeyLabel={WINDOW_LABELS.log}
       position={position}
       onMove={onMove}
       className={styles.window}
@@ -92,6 +86,6 @@ export const LogWindow = memo(function LogWindow({
           onLeaveDetail={onLeaveDetail}
         />
       </Suspense>
-    </DraggableWindow>
+    </WindowShell>
   );
 });
