@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
 const packageJsonPath = path.join(rootDir, 'package.json');
-const changelogPath = path.join(rootDir, 'CHANGELOG.md');
+const changelogPath = path.join(rootDir, 'docs', 'changelog', 'README.md');
 const releasesPath = path.join(rootDir, 'docs', 'changelog', 'releases.json');
 const unreleasedPath = path.join(
   rootDir,

@@ -50,7 +50,7 @@ Create a branch from local default branch for the updates in this prompt.
 * Commit all the existing changes.
 * Automatically generate commit messages based on the changes.
 * Commit messages should respect Conventional Commits rules.
-* If there are some changes in FEATURES.md, IMPROVEMENTS.md, ISSUES.md, PROMPTS.md, RULES.md or RESTRICTIONS.md just ignore them inside commit message.
+* If there are some changes in TODO.md, PROMPTS.md, RULES.md or RESTRICTIONS.md just ignore them inside commit message.
 ```
 
 ## TODOs
