@@ -9,6 +9,7 @@ This spec covers the shipped version metadata flow from `package.json` into the 
 - `package.json` is the canonical version source and now tracks the current release as `0.1.0`.
 - Vite defines the package version as the runtime constant `__APP_VERSION__`, and app bootstrap publishes that value on the global `version` variable.
 - The Vite config serves `/version.json` during local development and emits `dist/version.json` during production builds with the shape `{ "version": "<package version>" }`.
+- `pnpm serve` runs the built `dist` output behind local HTTPS using a generated self-signed localhost certificate so release-like checks exercise the secure origin path.
 - The app polls `version.json` on an interval, compares the remote version to the local runtime version, and keeps the UI silent when fetches fail.
 - The bottom-right version widget shows a yellow status while the remote version has not been resolved yet, green when the remote and local versions match, and red when the remote version differs.
 - When the remote version differs, the widget exposes a refresh action that reloads the page so the player can pick up the new build.
