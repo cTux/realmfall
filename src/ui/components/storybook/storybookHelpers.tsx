@@ -159,8 +159,10 @@ function buildEquipmentFixture(): Equipment {
     [EquipmentSlotId.Legs]: buildEquippedItem(EquipmentSlotId.Legs),
     [EquipmentSlotId.Feet]: buildEquippedItem(EquipmentSlotId.Feet),
     [EquipmentSlotId.RingLeft]: buildEquippedItem(EquipmentSlotId.RingLeft),
+    [EquipmentSlotId.RingRight]: buildEquippedItem(EquipmentSlotId.RingRight),
     [EquipmentSlotId.Amulet]: buildEquippedItem(EquipmentSlotId.Amulet),
     [EquipmentSlotId.Cloak]: buildEquippedItem(EquipmentSlotId.Cloak),
+    [EquipmentSlotId.Relic]: buildEquippedItem(EquipmentSlotId.Relic),
   };
 }
 

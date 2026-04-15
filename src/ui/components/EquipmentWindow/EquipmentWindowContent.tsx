@@ -1,8 +1,7 @@
+import type { CSSProperties } from 'react';
+import silhouetteImage from '../../../assets/images/silhouette.png';
 import { EQUIPMENT_SLOTS, type EquipmentSlot } from '../../../game/state';
-import { formatEquipmentSlotLabel } from '../../../i18n/labels';
-import { t } from '../../../i18n';
-import { iconForItem } from '../../icons';
-import { rarityColor } from '../../rarity';
+import { ItemSlotButton } from '../ItemSlotButton/ItemSlotButton';
 import type { EquipmentWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -19,59 +18,52 @@ export function EquipmentWindowContent({
   onContextItem,
 }: EquipmentWindowContentProps) {
   return (
-    <div className={styles.inventory}>
+    <div className={styles.layout}>
+      <div
+        className={styles.figure}
+        style={{ backgroundImage: `url("${silhouetteImage}")` }}
+      />
       {EQUIPMENT_SLOTS.map((slot) => {
         const equipped = equipment[slot];
+        const position = SLOT_POSITIONS[slot];
         return (
-          <div key={slot} className={styles.slotRow}>
-            <span className={styles.slotLabel}>{formatSlot(slot)}</span>
-            <div
-              className={`${styles.slotValue} ${equipped ? styles.slotInteractive : ''}`.trim()}
-              onMouseEnter={
-                equipped ? (event) => onHoverItem(event, equipped) : undefined
-              }
-              onMouseLeave={onLeaveItem}
-              onClick={equipped ? () => onUnequip(slot) : undefined}
-              onContextMenu={
-                equipped
-                  ? (event) => onContextItem(event, equipped, slot)
-                  : undefined
-              }
-            >
-              <span
-                className={styles.slotIcon}
-                style={iconMaskStyle(
-                  iconForItem(equipped, slot),
-                  equipped
-                    ? rarityColor(equipped.rarity)
-                    : 'rgba(148, 163, 184, 0.32)',
-                )}
-              />
-              <strong
-                className={equipped ? undefined : styles.slotEmpty}
-                style={
-                  equipped ? { color: rarityColor(equipped.rarity) } : undefined
-                }
-              >
-                {equipped?.name ?? t('ui.common.empty')}
-              </strong>
-            </div>
-          </div>
+          <ItemSlotButton
+            key={slot}
+            item={equipped}
+            slot={slot}
+            className={styles.slot}
+            onClick={equipped ? () => onUnequip(slot) : undefined}
+            onContextMenu={
+              equipped ? (event) => onContextItem(event, equipped, slot) : undefined
+            }
+            onMouseEnter={
+              equipped ? (event) => onHoverItem(event, equipped) : undefined
+            }
+            onMouseLeave={onLeaveItem}
+            style={
+              {
+                '--slot-left': `${position.left}%`,
+                '--slot-top': `${position.top}%`,
+              } as CSSProperties
+            }
+          />
         );
       })}
     </div>
   );
 }
 
-function formatSlot(slot: EquipmentSlot) {
-  return formatEquipmentSlotLabel(slot);
-}
-
-function iconMaskStyle(icon: string, color: string) {
-  const mask = `url("${icon}") center / contain no-repeat`;
-  return {
-    backgroundColor: color,
-    WebkitMask: mask,
-    mask,
-  };
-}
+const SLOT_POSITIONS: Record<EquipmentSlot, { left: number; top: number }> = {
+  weapon: { left: 13, top: 35 },
+  offhand: { left: 87, top: 35 },
+  head: { left: 50, top: 8 },
+  chest: { left: 50, top: 30 },
+  hands: { left: 18, top: 48 },
+  legs: { left: 50, top: 55 },
+  feet: { left: 50, top: 82 },
+  ringLeft: { left: 14, top: 61 },
+  ringRight: { left: 86, top: 61 },
+  amulet: { left: 50, top: 18 },
+  cloak: { left: 18, top: 22 },
+  relic: { left: 82, top: 22 },
+};

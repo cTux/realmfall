@@ -12,6 +12,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - The player can equip gear into dedicated slots including weapon, offhand, armor slots, and artifact slots.
 - Equipped gear modifies derived player stats such as attack, defense, and max HP.
 - Equipping can swap currently equipped gear back into inventory.
+- The equipment window presents a silhouette-backed paper-doll layout where each slot is anchored near the matching body part and equipped items reuse the same icon-card treatment shown in inventory.
 - Tiles may spawn deterministic loot from world generation.
 - Enemies can drop gold, consumables, recipe pages, home scrolls, blood moon gear, and skinning materials depending on enemy ids and tags rather than localized names.
 - Loot can be taken item-by-item or collected from a tile in bulk.
