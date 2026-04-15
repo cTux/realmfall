@@ -17,23 +17,37 @@
   }
 }
 
+.windowBody {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .panel {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 0.9rem;
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 0;
 }
 
 .lead,
 .tabDescription,
-.reloadHint,
-.resetHint {
+.reloadHint {
   margin: 0;
   color: #94a3b8;
   line-height: 1.45;
 }
 
 .tabPanel {
-  display: grid;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
   gap: 0.9rem;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 0.2rem;
 }
 
 .switches {
@@ -45,6 +59,7 @@
   display: flex;
   gap: 0.7rem;
   flex-wrap: wrap;
+  align-items: center;
 
   button {
     @include ui.compact-button;
@@ -65,14 +80,25 @@
   }
 }
 
+.primaryActions {
+  display: flex;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
 .resetButton {
+  @include ui.compact-button;
+
   position: relative;
+  margin-left: auto;
+  width: auto;
   overflow: hidden;
-  min-height: 3rem;
+  min-height: 0;
   border: 1px solid rgb(239 68 68 / 30%);
-  background: rgb(32 11 11 / 92%);
+  background: rgb(127 29 29 / 92%);
   color: #fee2e2;
   text-align: left;
+  white-space: nowrap;
   transition:
     border-color 120ms ease,
     color 120ms ease;
@@ -96,7 +122,7 @@
   position: relative;
   z-index: 1;
   display: block;
-  padding: 0.8rem 1rem;
+  padding: 0.55rem 0.85rem;
 }
 
 @media (width <= 980px) {

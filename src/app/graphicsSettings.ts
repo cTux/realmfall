@@ -13,6 +13,8 @@ export interface GraphicsSettingsOptionDefinition {
   descriptionKey: string;
 }
 
+const GRAPHICS_SETTINGS_STORAGE_KEY = 'realmfall-graphics-settings';
+
 export const DEFAULT_GRAPHICS_SETTINGS: GraphicsSettings = {
   antialias: true,
   autoDensity: true,
@@ -54,3 +56,36 @@ export const GRAPHICS_SETTINGS_OPTIONS: GraphicsSettingsOptionDefinition[] = [
     descriptionKey: 'ui.settings.graphics.useContextAlpha.description',
   },
 ];
+
+export function loadGraphicsSettings() {
+  if (typeof window === 'undefined') {
+    return DEFAULT_GRAPHICS_SETTINGS;
+  }
+
+  try {
+    const payload = window.localStorage.getItem(GRAPHICS_SETTINGS_STORAGE_KEY);
+    if (!payload) {
+      return DEFAULT_GRAPHICS_SETTINGS;
+    }
+
+    return {
+      ...DEFAULT_GRAPHICS_SETTINGS,
+      ...(JSON.parse(payload) as Partial<GraphicsSettings>),
+    };
+  } catch {
+    return DEFAULT_GRAPHICS_SETTINGS;
+  }
+}
+
+export function saveGraphicsSettings(settings: GraphicsSettings) {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(
+    GRAPHICS_SETTINGS_STORAGE_KEY,
+    JSON.stringify(settings),
+  );
+}
+
+export function clearGraphicsSettings() {
+  if (typeof window === 'undefined') return;
+  window.localStorage.removeItem(GRAPHICS_SETTINGS_STORAGE_KEY);
+}

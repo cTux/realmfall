@@ -28,7 +28,6 @@ import {
 import { itemTooltipLines } from '../../ui/tooltips';
 import { rarityColor } from '../../ui/rarity';
 import {
-  DEFAULT_GRAPHICS_SETTINGS,
   DEFAULT_LOG_FILTERS,
   DEFAULT_WINDOWS,
   DEFAULT_WINDOW_VISIBILITY,
@@ -45,6 +44,7 @@ import { getTooltipPlacementForRect } from '../../ui/tooltipPlacement';
 
 interface UseAppControllersOptions {
   gameRef: MutableRefObject<GameState>;
+  initialGraphicsSettings: GraphicsSettings;
   setGame: Dispatch<SetStateAction<GameState>>;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
   worldTimeMsRef: MutableRefObject<number>;
@@ -52,6 +52,7 @@ interface UseAppControllersOptions {
 
 export function useAppControllers({
   gameRef,
+  initialGraphicsSettings,
   setGame,
   tooltipPositionRef,
   worldTimeMsRef,
@@ -61,7 +62,7 @@ export function useAppControllers({
     DEFAULT_WINDOW_VISIBILITY,
   );
   const [graphicsSettings, setGraphicsSettings] = useState<GraphicsSettings>(
-    DEFAULT_GRAPHICS_SETTINGS,
+    initialGraphicsSettings,
   );
   const [logFilters, setLogFilters] =
     useState<Record<LogKind, boolean>>(DEFAULT_LOG_FILTERS);

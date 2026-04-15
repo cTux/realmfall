@@ -21,6 +21,7 @@ export function DraggableWindow({
   onMove,
   children,
   titleClassName,
+  bodyClassName,
   headerActions,
   className,
   visible: visibleProp,
@@ -278,7 +279,9 @@ export function DraggableWindow({
           ) : null}
         </div>
       </div>
-      <div className={styles.windowBody}>{children}</div>
+      <div className={`${styles.windowBody} ${bodyClassName ?? ''}`.trim()}>
+        {children}
+      </div>
       {resizeBounds ? (
         <div
           className={styles.resizeHandle}

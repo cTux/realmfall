@@ -1,4 +1,5 @@
 import { act } from 'react';
+import { saveGraphicsSettings } from '../../graphicsSettings';
 import {
   applicationOptions,
   flushLazyModules,
@@ -36,18 +37,14 @@ describe('App canvas setup', () => {
   });
 
   it('hydrates Pixi initialization flags from saved graphics settings', async () => {
-    loadEncryptedState.mockResolvedValue({
-      game: null,
-      ui: {
-        graphicsSettings: {
-          antialias: false,
-          autoDensity: false,
-          clearBeforeRender: false,
-          preserveDrawingBuffer: true,
-          premultipliedAlpha: false,
-          useContextAlpha: false,
-        },
-      },
+    loadEncryptedState.mockResolvedValue(null);
+    saveGraphicsSettings({
+      antialias: false,
+      autoDensity: false,
+      clearBeforeRender: false,
+      preserveDrawingBuffer: true,
+      premultipliedAlpha: false,
+      useContextAlpha: false,
     });
 
     const { host, root } = await renderApp();
@@ -56,10 +53,10 @@ describe('App canvas setup', () => {
     expect(applicationOptions[0]).toMatchObject({
       antialias: false,
       autoDensity: false,
+      backgroundAlpha: 1,
       clearBeforeRender: false,
       preserveDrawingBuffer: true,
       premultipliedAlpha: false,
-      useContextAlpha: false,
     });
 
     await act(async () => {

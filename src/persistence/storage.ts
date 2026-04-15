@@ -9,6 +9,8 @@ export interface PersistedData {
   ui: unknown;
 }
 
+export const PERSISTED_SAVE_STORAGE_KEY = STORAGE_KEY;
+
 export async function loadEncryptedState(): Promise<PersistedData | null> {
   const payload = localStorage.getItem(STORAGE_KEY);
   if (!payload) return null;

@@ -15,11 +15,17 @@ import { useVersionStatus } from './hooks/useVersionStatus';
 import { useWindowTransitions } from './useWindowTransitions';
 import { useWorldClockFps } from './useWorldClockFps';
 import { clearEncryptedState } from '../../persistence/storage';
-import type { GraphicsSettings } from '../graphicsSettings';
+import {
+  clearGraphicsSettings,
+  loadGraphicsSettings,
+  saveGraphicsSettings,
+  type GraphicsSettings,
+} from '../graphicsSettings';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import styles from './styles.module.scss';
 
 export function App() {
+  const initialGraphicsSettingsRef = useRef(loadGraphicsSettings());
   const initialGameRef = useRef<GameState>(createGame(WORLD_RADIUS));
   const gameRef = useRef<GameState>(initialGameRef.current);
   const tooltipPositionRef = useRef<TooltipPosition | null>(null);
@@ -72,6 +78,7 @@ export function App() {
     windows,
   } = useAppControllers({
     gameRef,
+    initialGraphicsSettings: initialGraphicsSettingsRef.current,
     setGame,
     tooltipPositionRef,
     worldTimeMsRef,
@@ -108,10 +115,8 @@ export function App() {
   const { hydrated, persistNow } = useAppPersistence({
     game,
     gameRef,
-    graphicsSettings,
     logFilters,
     setGame,
-    setGraphicsSettings,
     setLogFilters,
     setWindows,
     setWindowShown,
@@ -181,7 +186,8 @@ export function App() {
     nextGraphicsSettings: GraphicsSettings,
   ) => {
     setGraphicsSettings(nextGraphicsSettings);
-    await persistNow({ graphicsSettings: nextGraphicsSettings });
+    saveGraphicsSettings(nextGraphicsSettings);
+    await persistNow();
   };
 
   const handleSaveGraphicsSettingsAndReload = async (
@@ -193,6 +199,7 @@ export function App() {
 
   const handleResetSaveData = async () => {
     clearEncryptedState();
+    clearGraphicsSettings();
     window.location.reload();
   };
 

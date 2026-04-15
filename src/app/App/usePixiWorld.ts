@@ -112,13 +112,13 @@ export function usePixiWorld({
         width: Math.max(window.innerWidth, 640),
         height: Math.max(window.innerHeight, 480),
         backgroundColor: 0x0b1020,
+        backgroundAlpha: graphicsSettings.useContextAlpha ? 0 : 1,
         antialias: graphicsSettings.antialias,
         autoDensity: graphicsSettings.autoDensity,
         clearBeforeRender: graphicsSettings.clearBeforeRender,
         preserveDrawingBuffer: graphicsSettings.preserveDrawingBuffer,
         premultipliedAlpha: graphicsSettings.premultipliedAlpha,
         resolution: window.devicePixelRatio || 1,
-        useContextAlpha: graphicsSettings.useContextAlpha,
       });
 
       appRef.current = app;

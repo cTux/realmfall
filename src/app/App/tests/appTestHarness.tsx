@@ -192,4 +192,5 @@ beforeEach(() => {
   vi.clearAllMocks();
   tickerCallbacks.clear();
   applicationOptions.length = 0;
+  window.localStorage.clear();
 });

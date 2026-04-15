@@ -116,7 +116,6 @@ export function GameSettingsWindowContent({
 
   return (
     <div className={styles.panel}>
-      <p className={styles.lead}>{t('ui.settings.summary')}</p>
       <Tabs activeTabId={activeTabId} tabs={tabs} onChange={setActiveTabId} />
       {activeTabId === GRAPHICS_TAB_ID ? (
         <section
@@ -125,9 +124,6 @@ export function GameSettingsWindowContent({
           aria-labelledby={`${GRAPHICS_TAB_ID}-tab`}
           className={styles.tabPanel}
         >
-          <p className={styles.tabDescription}>
-            {t('ui.settings.graphics.description')}
-          </p>
           <div className={styles.switches}>
             {GRAPHICS_SETTINGS_OPTIONS.map((option) => (
               <Switch
@@ -146,46 +142,46 @@ export function GameSettingsWindowContent({
           </div>
         </section>
       ) : null}
-      <p className={styles.reloadHint}>{t('ui.settings.reloadHint')}</p>
       <div className={styles.actions}>
+        <div className={styles.primaryActions}>
+          <button
+            type="button"
+            onClick={() => void handleSave()}
+            disabled={busyAction !== null || !dirty}
+          >
+            {busyAction === 'save'
+              ? t('ui.settings.actions.saving')
+              : t('ui.settings.actions.save')}
+          </button>
+          <button
+            type="button"
+            onClick={() => void handleSaveAndReload()}
+            disabled={busyAction !== null || !dirty}
+          >
+            {busyAction === 'saveReload'
+              ? t('ui.settings.actions.savingReload')
+              : t('ui.settings.actions.saveReload')}
+          </button>
+        </div>
         <button
           type="button"
-          onClick={() => void handleSave()}
-          disabled={busyAction !== null || !dirty}
+          className={styles.resetButton}
+          data-busy={busyAction === 'reset'}
+          disabled={busyAction !== null && busyAction !== 'reset'}
+          style={{ ['--reset-progress' as string]: `${resetProgress * 100}%` }}
+          onPointerDown={startResetHold}
+          onPointerUp={cancelResetHold}
+          onPointerCancel={cancelResetHold}
+          onLostPointerCapture={cancelResetHold}
         >
-          {busyAction === 'save'
-            ? t('ui.settings.actions.saving')
-            : t('ui.settings.actions.save')}
-        </button>
-        <button
-          type="button"
-          onClick={() => void handleSaveAndReload()}
-          disabled={busyAction !== null || !dirty}
-        >
-          {busyAction === 'saveReload'
-            ? t('ui.settings.actions.savingReload')
-            : t('ui.settings.actions.saveReload')}
+          <span className={styles.resetFill} aria-hidden="true" />
+          <span className={styles.resetText}>
+            {busyAction === 'reset'
+              ? t('ui.settings.actions.resetting')
+              : t('ui.settings.actions.resetSaveData')}
+          </span>
         </button>
       </div>
-      <button
-        type="button"
-        className={styles.resetButton}
-        data-busy={busyAction === 'reset'}
-        disabled={busyAction !== null && busyAction !== 'reset'}
-        style={{ ['--reset-progress' as string]: `${resetProgress * 100}%` }}
-        onPointerDown={startResetHold}
-        onPointerUp={cancelResetHold}
-        onPointerCancel={cancelResetHold}
-        onLostPointerCapture={cancelResetHold}
-      >
-        <span className={styles.resetFill} aria-hidden="true" />
-        <span className={styles.resetText}>
-          {busyAction === 'reset'
-            ? t('ui.settings.actions.resetting')
-            : t('ui.settings.actions.resetSaveData')}
-        </span>
-      </button>
-      <p className={styles.resetHint}>{t('ui.settings.resetHint')}</p>
     </div>
   );
 }

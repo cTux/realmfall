@@ -35,6 +35,7 @@ export const GameSettingsWindow = memo(function GameSettingsWindow({
         visible={visible}
         onClose={onClose}
         className={styles.window}
+        bodyClassName={styles.windowBody}
         resizeBounds={{ minWidth: 520, minHeight: 520 }}
       >
         <Suspense fallback={<WindowLoadingState />}>

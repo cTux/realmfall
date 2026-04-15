@@ -18,13 +18,11 @@ import {
 } from '../../persistence/storage';
 import {
   DEFAULT_LOG_FILTERS,
-  DEFAULT_GRAPHICS_SETTINGS,
   DEFAULT_WINDOWS,
   DEFAULT_WINDOW_VISIBILITY,
   type WindowPositions,
   type WindowVisibilityState,
 } from '../constants';
-import type { GraphicsSettings } from '../graphicsSettings';
 import { normalizeLoadedGame } from '../normalize';
 import type { PersistedUiState } from './types';
 
@@ -49,10 +47,8 @@ type DirtySaveSegments = {
 interface UseAppPersistenceOptions {
   game: GameState;
   gameRef: MutableRefObject<GameState>;
-  graphicsSettings: GraphicsSettings;
   logFilters: Record<LogKind, boolean>;
   setGame: Dispatch<SetStateAction<GameState>>;
-  setGraphicsSettings: Dispatch<SetStateAction<GraphicsSettings>>;
   setLogFilters: Dispatch<SetStateAction<Record<LogKind, boolean>>>;
   setWindows: Dispatch<SetStateAction<WindowPositions>>;
   setWindowShown: Dispatch<SetStateAction<WindowVisibilityState>>;
@@ -75,17 +71,15 @@ function buildPersistedGameSnapshot({
 }
 
 function buildPersistedUiSnapshot({
-  graphicsSettings,
   logFilters,
   windowShown,
   windows,
 }: {
-  graphicsSettings: GraphicsSettings;
   logFilters: Record<LogKind, boolean>;
   windowShown: WindowVisibilityState;
   windows: WindowPositions;
 }) {
-  return { windows, windowShown, logFilters, graphicsSettings };
+  return { windows, windowShown, logFilters };
 }
 
 function buildPersistedSnapshot(
@@ -213,10 +207,8 @@ function scheduleSave({
 export function useAppPersistence({
   game,
   gameRef,
-  graphicsSettings,
   logFilters,
   setGame,
-  setGraphicsSettings,
   setLogFilters,
   setWindows,
   setWindowShown,
@@ -234,7 +226,6 @@ export function useAppPersistence({
       worldTimeMs: worldTimeMsRef.current,
     }),
     ui: buildPersistedUiSnapshot({
-      graphicsSettings,
       logFilters,
       windowShown,
       windows,
@@ -289,13 +280,6 @@ export function useAppPersistence({
       const hydratedLogFilters = snapshotUi?.logFilters
         ? { ...DEFAULT_LOG_FILTERS, ...snapshotUi.logFilters }
         : DEFAULT_LOG_FILTERS;
-      const hydratedGraphicsSettings = snapshotUi?.graphicsSettings
-        ? {
-            ...DEFAULT_GRAPHICS_SETTINGS,
-            ...snapshotUi.graphicsSettings,
-          }
-        : DEFAULT_GRAPHICS_SETTINGS;
-
       if (saved?.game) {
         const loadedGame = normalizeLoadedGame(saved.game as GameState);
         worldTimeMsRef.current = loadedGame.worldTimeMs;
@@ -326,13 +310,9 @@ export function useAppPersistence({
             ...snapshotUi.logFilters,
           }));
         }
-        if (snapshotUi?.graphicsSettings) {
-          setGraphicsSettings(hydratedGraphicsSettings);
-        }
       }
 
       latestSegmentsRef.current.ui = buildPersistedUiSnapshot({
-        graphicsSettings: hydratedGraphicsSettings,
         logFilters: hydratedLogFilters,
         windowShown: hydratedWindowShown,
         windows: hydratedWindows,
@@ -359,7 +339,6 @@ export function useAppPersistence({
   }, [
     lastDisplayedWorldSecondRef,
     setGame,
-    setGraphicsSettings,
     setLogFilters,
     setWindowShown,
     setWindows,
@@ -391,7 +370,6 @@ export function useAppPersistence({
     if (!hydrated) return;
 
     const nextUiSnapshot = buildPersistedUiSnapshot({
-      graphicsSettings,
       logFilters,
       windowShown,
       windows,
@@ -406,7 +384,7 @@ export function useAppPersistence({
       saveInFlightRef,
       nextUiSegment: serializeSegment(nextUiSnapshot),
     });
-  }, [graphicsSettings, hydrated, logFilters, windowShown, windows]);
+  }, [hydrated, logFilters, windowShown, windows]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -427,9 +405,7 @@ export function useAppPersistence({
     };
   }, [hydrated]);
 
-  const persistNow = async (
-    overrides: { graphicsSettings?: GraphicsSettings } = {},
-  ) => {
+  const persistNow = async () => {
     clearDebounceTimer(debounceTimerRef);
 
     const nextGameSnapshot = buildPersistedGameSnapshot({
@@ -437,7 +413,6 @@ export function useAppPersistence({
       worldTimeMs: worldTimeMsRef.current,
     });
     const nextUiSnapshot = buildPersistedUiSnapshot({
-      graphicsSettings: overrides.graphicsSettings ?? graphicsSettings,
       logFilters,
       windowShown,
       windows,

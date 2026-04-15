@@ -8,6 +8,7 @@ export interface DraggableWindowProps extends WindowDetailTooltipHandlers {
   onMove: (position: WindowPosition) => void;
   children: ReactNode;
   titleClassName?: string;
+  bodyClassName?: string;
   headerActions?: ReactNode;
   className?: string;
   visible?: boolean;
