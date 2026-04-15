@@ -9,6 +9,8 @@ export interface PersistedData {
   ui: unknown;
 }
 
+export const PERSISTED_SAVE_STORAGE_KEY = STORAGE_KEY;
+
 export async function loadEncryptedState(): Promise<PersistedData | null> {
   const payload = localStorage.getItem(STORAGE_KEY);
   if (!payload) return null;
@@ -23,6 +25,10 @@ export async function loadEncryptedState(): Promise<PersistedData | null> {
 export async function saveEncryptedState(data: PersistedData) {
   const payload = await encryptJson(data);
   localStorage.setItem(STORAGE_KEY, payload);
+}
+
+export function clearEncryptedState() {
+  localStorage.removeItem(STORAGE_KEY);
 }
 
 async function encryptJson(value: unknown) {

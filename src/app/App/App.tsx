@@ -14,10 +14,18 @@ import { usePixiWorld } from './usePixiWorld';
 import { useVersionStatus } from './hooks/useVersionStatus';
 import { useWindowTransitions } from './useWindowTransitions';
 import { useWorldClockFps } from './useWorldClockFps';
+import { clearEncryptedState } from '../../persistence/storage';
+import {
+  clearGraphicsSettings,
+  loadGraphicsSettings,
+  saveGraphicsSettings,
+  type GraphicsSettings,
+} from '../graphicsSettings';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import styles from './styles.module.scss';
 
 export function App() {
+  const initialGraphicsSettingsRef = useRef(loadGraphicsSettings());
   const initialGameRef = useRef<GameState>(createGame(WORLD_RADIUS));
   const gameRef = useRef<GameState>(initialGameRef.current);
   const tooltipPositionRef = useRef<TooltipPosition | null>(null);
@@ -50,10 +58,12 @@ export function App() {
     handleTakeLootItem,
     handleUnequip,
     handleUseItem,
+    graphicsSettings,
     itemMenu,
     logFilters,
     moveWindow,
     showTooltip,
+    setGraphicsSettings,
     setLogFilters,
     setTooltip,
     setWindowShown,
@@ -68,6 +78,7 @@ export function App() {
     windows,
   } = useAppControllers({
     gameRef,
+    initialGraphicsSettings: initialGraphicsSettingsRef.current,
     setGame,
     tooltipPositionRef,
     worldTimeMsRef,
@@ -101,28 +112,7 @@ export function App() {
     game,
     logFilters,
   });
-  const {
-    combatSnapshot,
-    combatWindowVisible,
-    lootSnapshot,
-    lootWindowVisible,
-    renderCombatWindow,
-    renderLootWindow,
-  } = useWindowTransitions({
-    combat: game.combat,
-    combatEnemies,
-    currentTile,
-  });
-  const { hostRef, canvasReady } = usePixiWorld({
-    game,
-    worldTimeMsRef,
-    frameCountRef,
-    gameRef,
-    tooltipPositionRef,
-    setGame,
-    setTooltip,
-  });
-  const hydrated = useAppPersistence({
+  const { hydrated, persistNow } = useAppPersistence({
     game,
     gameRef,
     logFilters,
@@ -136,6 +126,29 @@ export function App() {
     worldTimeMsRef,
     worldTimeTickRef,
     lastDisplayedWorldSecondRef,
+  });
+  const {
+    combatSnapshot,
+    combatWindowVisible,
+    lootSnapshot,
+    lootWindowVisible,
+    renderCombatWindow,
+    renderLootWindow,
+  } = useWindowTransitions({
+    combat: game.combat,
+    combatEnemies,
+    currentTile,
+  });
+  const { hostRef, canvasReady } = usePixiWorld({
+    enabled: hydrated,
+    game,
+    graphicsSettings,
+    worldTimeMsRef,
+    frameCountRef,
+    gameRef,
+    tooltipPositionRef,
+    setGame,
+    setTooltip,
   });
   const isReady = hydrated && canvasReady;
   const versionStatus = useVersionStatus();
@@ -169,6 +182,27 @@ export function App() {
     windowShownLoot: windowShown.loot,
   });
 
+  const handleSaveGraphicsSettings = async (
+    nextGraphicsSettings: GraphicsSettings,
+  ) => {
+    setGraphicsSettings(nextGraphicsSettings);
+    saveGraphicsSettings(nextGraphicsSettings);
+    await persistNow();
+  };
+
+  const handleSaveGraphicsSettingsAndReload = async (
+    nextGraphicsSettings: GraphicsSettings,
+  ) => {
+    await handleSaveGraphicsSettings(nextGraphicsSettings);
+    window.location.reload();
+  };
+
+  const handleResetSaveData = async () => {
+    clearEncryptedState();
+    clearGraphicsSettings();
+    window.location.reload();
+  };
+
   return (
     <div className={styles.appRoot}>
       <div className={isReady ? undefined : styles.hiddenUntilReady}>
@@ -192,6 +226,7 @@ export function App() {
           stats={stats}
           game={game}
           currentTile={currentTile}
+          graphicsSettings={graphicsSettings}
           recipeBookKnown={recipeBookKnown}
           recipes={recipes}
           inventoryCounts={inventoryCounts}
@@ -241,6 +276,9 @@ export function App() {
           onSellAll={handleSellAll}
           onBuyTownItem={handleBuyTownItem}
           onClaimHex={handleClaimHex}
+          onResetSaveData={handleResetSaveData}
+          onSaveGraphicsSettings={handleSaveGraphicsSettings}
+          onSaveGraphicsSettingsAndReload={handleSaveGraphicsSettingsAndReload}
           onSetHome={() => setHomeHexForApp(setGame)}
         />
       </div>

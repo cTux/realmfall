@@ -16,6 +16,7 @@ function createLoadedWindowState(
     loot: renderLootWindow,
     log: windowShown.log,
     combat: renderCombatWindow,
+    settings: windowShown.settings,
   } satisfies Record<DeferredWindowKey, boolean>;
 }
 

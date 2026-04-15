@@ -18,6 +18,8 @@ This spec covers browser save storage, hydration normalization, and autosave beh
 - Gameplay and UI persistence dirtiness are tracked separately so UI-only changes do not rebuild the gameplay snapshot on every autosave scheduling pass.
 - The app serializes persisted segments and skips redundant writes when nothing meaningful changed.
 - Pending saves are coalesced while previous writes are in flight.
+- Manual saves are serialized behind any in-flight autosave so older writes cannot finish later and overwrite newer explicit saves.
+- Dirty tracking and the last-saved snapshot advance only after a storage write succeeds, so failed writes stay retryable on the next autosave flush or manual save.
 
 ## Main Implementation Areas
 

@@ -68,4 +68,10 @@ export const WINDOW_LABELS = {
     hotkey: t('ui.window.combat.hotkey'),
     suffix: t('ui.window.combat.suffix'),
   },
+  settings: {
+    plain: t('ui.window.settings.plain'),
+    prefix: t('ui.window.settings.prefix'),
+    hotkey: t('ui.window.settings.hotkey'),
+    suffix: t('ui.window.settings.suffix'),
+  },
 } as const;

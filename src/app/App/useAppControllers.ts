@@ -34,6 +34,7 @@ import {
   type WindowPositions,
   type WindowVisibilityState,
 } from '../constants';
+import type { GraphicsSettings } from '../graphicsSettings';
 import type { ItemContextMenuState, TooltipItem, TooltipState } from './types';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import { getInventoryItemAction } from './utils/getInventoryItemAction';
@@ -43,6 +44,7 @@ import { getTooltipPlacementForRect } from '../../ui/tooltipPlacement';
 
 interface UseAppControllersOptions {
   gameRef: MutableRefObject<GameState>;
+  initialGraphicsSettings: GraphicsSettings;
   setGame: Dispatch<SetStateAction<GameState>>;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
   worldTimeMsRef: MutableRefObject<number>;
@@ -50,6 +52,7 @@ interface UseAppControllersOptions {
 
 export function useAppControllers({
   gameRef,
+  initialGraphicsSettings,
   setGame,
   tooltipPositionRef,
   worldTimeMsRef,
@@ -57,6 +60,9 @@ export function useAppControllers({
   const [windows, setWindows] = useState<WindowPositions>(DEFAULT_WINDOWS);
   const [windowShown, setWindowShown] = useState<WindowVisibilityState>(
     DEFAULT_WINDOW_VISIBILITY,
+  );
+  const [graphicsSettings, setGraphicsSettings] = useState<GraphicsSettings>(
+    initialGraphicsSettings,
   );
   const [logFilters, setLogFilters] =
     useState<Record<LogKind, boolean>>(DEFAULT_LOG_FILTERS);
@@ -320,7 +326,9 @@ export function useAppControllers({
     itemMenu,
     logFilters,
     moveWindow,
+    graphicsSettings,
     showTooltip,
+    setGraphicsSettings,
     setLogFilters,
     setTooltip,
     setWindowShown,

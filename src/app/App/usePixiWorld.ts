@@ -15,12 +15,15 @@ import * as tooltipModule from '../../ui/tooltips';
 import { getWorldHexSize } from '../../ui/world/renderSceneMath';
 import { getWorldTimeMinutesFromTimestamp } from '../../ui/world/timeOfDay';
 import { WORLD_REVEAL_RADIUS } from '../constants';
+import type { GraphicsSettings } from '../graphicsSettings';
 import type { TooltipState } from './types';
 import { getTooltipState } from './tooltipStore';
 import { getReusableVisibleTiles } from './selectors/getReusableVisibleTiles';
 
 interface UsePixiWorldArgs {
+  enabled: boolean;
   game: GameState;
+  graphicsSettings: GraphicsSettings;
   worldTimeMsRef: MutableRefObject<number>;
   frameCountRef: MutableRefObject<number>;
   gameRef: MutableRefObject<GameState>;
@@ -39,7 +42,9 @@ interface WorldHoverSnapshot {
 }
 
 export function usePixiWorld({
+  enabled,
   game,
+  graphicsSettings,
   worldTimeMsRef,
   frameCountRef,
   gameRef,
@@ -89,7 +94,7 @@ export function usePixiWorld({
   }, [game.player.coord]);
 
   useEffect(() => {
-    if (!hostRef.current || appRef.current) return;
+    if (!enabled || !hostRef.current || appRef.current) return;
 
     let disposed = false;
     let cleanup: (() => void) | null = null;
@@ -107,8 +112,12 @@ export function usePixiWorld({
         width: Math.max(window.innerWidth, 640),
         height: Math.max(window.innerHeight, 480),
         backgroundColor: 0x0b1020,
-        antialias: true,
-        autoDensity: true,
+        backgroundAlpha: graphicsSettings.useContextAlpha ? 0 : 1,
+        antialias: graphicsSettings.antialias,
+        autoDensity: graphicsSettings.autoDensity,
+        clearBeforeRender: graphicsSettings.clearBeforeRender,
+        preserveDrawingBuffer: graphicsSettings.preserveDrawingBuffer,
+        premultipliedAlpha: graphicsSettings.premultipliedAlpha,
         resolution: window.devicePixelRatio || 1,
       });
 
@@ -386,6 +395,8 @@ export function usePixiWorld({
     setGame,
     setTooltip,
     tooltipPositionRef,
+    enabled,
+    graphicsSettings,
     worldTimeMsRef,
   ]);
 

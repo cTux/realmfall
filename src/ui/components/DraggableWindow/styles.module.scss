@@ -102,26 +102,27 @@
   position: absolute;
   right: 0;
   bottom: 0;
-  width: 1.2rem;
-  height: 1.2rem;
+  z-index: 1;
+  width: 1.8rem;
+  height: 1.8rem;
   cursor: nwse-resize;
   background:
     linear-gradient(
       135deg,
       transparent 0,
-      transparent 45%,
-      rgb(148 163 184 / 45%) 45%,
-      rgb(148 163 184 / 45%) 55%,
-      transparent 55%,
+      transparent 42%,
+      rgb(148 163 184 / 45%) 42%,
+      rgb(148 163 184 / 45%) 52%,
+      transparent 52%,
       transparent 100%
     ),
     linear-gradient(
       135deg,
       transparent 0,
-      transparent 62%,
-      rgb(148 163 184 / 65%) 62%,
-      rgb(148 163 184 / 65%) 72%,
-      transparent 72%,
+      transparent 58%,
+      rgb(148 163 184 / 65%) 58%,
+      rgb(148 163 184 / 65%) 68%,
+      transparent 68%,
       transparent 100%
     );
 }

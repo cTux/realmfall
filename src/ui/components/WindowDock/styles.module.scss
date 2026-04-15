@@ -18,6 +18,16 @@
   box-sizing: border-box;
 }
 
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  &[data-align='end'] {
+    margin-top: auto;
+  }
+}
+
 .buttonIcon {
   @include ui.masked-icon(
     3rem,

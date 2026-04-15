@@ -16,6 +16,7 @@ describe('app utils', () => {
       'equipment',
       'inventory',
       'log',
+      'settings',
     ]);
 
     const expandedEntries = getDockEntries(
@@ -34,6 +35,7 @@ describe('app utils', () => {
       'loot',
       'log',
       'combat',
+      'settings',
     ]);
   });
 

@@ -216,6 +216,14 @@ function buildWindowDockEntries(): WindowDockEntry[] {
       icon: Icons.TiedScroll,
       shown: true,
     },
+    {
+      key: 'settings',
+      label: WINDOW_LABELS.settings.plain,
+      title: WINDOW_LABELS.settings,
+      icon: Icons.Gears,
+      shown: false,
+      align: 'end',
+    },
   ];
 }
 

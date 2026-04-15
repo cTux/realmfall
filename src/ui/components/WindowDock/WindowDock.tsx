@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useState, type Dispatch, type SetStateAction } from 'react';
 import type { WindowVisibilityState } from '../../../app/constants';
 import { t } from '../../../i18n';
 import type { WindowLabelDefinition } from '../../windowLabels';
@@ -12,6 +12,7 @@ export interface WindowDockEntry {
   title: WindowLabelDefinition;
   icon: string;
   shown: boolean;
+  align?: 'start' | 'end';
 }
 
 interface WindowDockProps {
@@ -24,49 +25,85 @@ export const WindowDock = memo(function WindowDock({
   onToggle,
 }: WindowDockProps) {
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
+  const startEntries = entries.filter((entry) => entry.align !== 'end');
+  const endEntries = entries.filter((entry) => entry.align === 'end');
 
   return (
     <aside className={styles.dock} aria-label={t('ui.dock.ariaLabel')}>
-      {entries.map((entry) => (
-        <button
-          key={entry.key}
-          type="button"
-          className={styles.dockButton}
-          data-opened={entry.shown}
-          aria-pressed={entry.shown}
-          aria-label={t('ui.dock.toggleWindow', { label: entry.label })}
-          onClick={() => onToggle(entry.key)}
-          onPointerEnter={() => setActiveTooltip(entry.key)}
-          onPointerLeave={() =>
-            setActiveTooltip((current) =>
-              current === entry.key ? null : current,
-            )
-          }
-          onFocus={() => setActiveTooltip(entry.key)}
-          onBlur={() =>
-            setActiveTooltip((current) =>
-              current === entry.key ? null : current,
-            )
-          }
-        >
-          <span
-            className={styles.buttonIcon}
-            style={iconMaskStyle(entry.icon)}
-            aria-hidden="true"
+      <div className={styles.group}>
+        {startEntries.map((entry) => (
+          <DockButton
+            key={entry.key}
+            entry={entry}
+            activeTooltip={activeTooltip}
+            onToggle={onToggle}
+            setActiveTooltip={setActiveTooltip}
           />
-          {activeTooltip === entry.key ? (
-            <span className={styles.tooltip} aria-hidden="true">
-              <WindowLabel
-                label={entry.title}
-                hotkeyClassName={labelStyles.hotkey}
-              />
-            </span>
-          ) : null}
-        </button>
-      ))}
+        ))}
+      </div>
+      {endEntries.length > 0 ? (
+        <div className={styles.group} data-align="end">
+          {endEntries.map((entry) => (
+            <DockButton
+              key={entry.key}
+              entry={entry}
+              activeTooltip={activeTooltip}
+              onToggle={onToggle}
+              setActiveTooltip={setActiveTooltip}
+            />
+          ))}
+        </div>
+      ) : null}
     </aside>
   );
 });
+
+interface DockButtonProps {
+  entry: WindowDockEntry;
+  activeTooltip: string | null;
+  onToggle: (key: keyof WindowVisibilityState) => void;
+  setActiveTooltip: Dispatch<SetStateAction<string | null>>;
+}
+
+function DockButton({
+  entry,
+  activeTooltip,
+  onToggle,
+  setActiveTooltip,
+}: DockButtonProps) {
+  return (
+    <button
+      type="button"
+      className={styles.dockButton}
+      data-opened={entry.shown}
+      aria-pressed={entry.shown}
+      aria-label={t('ui.dock.toggleWindow', { label: entry.label })}
+      onClick={() => onToggle(entry.key)}
+      onPointerEnter={() => setActiveTooltip(entry.key)}
+      onPointerLeave={() =>
+        setActiveTooltip((current) => (current === entry.key ? null : current))
+      }
+      onFocus={() => setActiveTooltip(entry.key)}
+      onBlur={() =>
+        setActiveTooltip((current) => (current === entry.key ? null : current))
+      }
+    >
+      <span
+        className={styles.buttonIcon}
+        style={iconMaskStyle(entry.icon)}
+        aria-hidden="true"
+      />
+      {activeTooltip === entry.key ? (
+        <span className={styles.tooltip} aria-hidden="true">
+          <WindowLabel
+            label={entry.title}
+            hotkeyClassName={labelStyles.hotkey}
+          />
+        </span>
+      ) : null}
+    </button>
+  );
+}
 
 function iconMaskStyle(icon: string) {
   const mask = `url("${icon}") center / contain no-repeat`;

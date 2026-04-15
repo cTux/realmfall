@@ -10,6 +10,7 @@ import type {
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import type { TooltipLine } from '../../ui/tooltips';
 import type { WindowPositions, WindowVisibilityState } from '../constants';
+import type { GraphicsSettings } from '../graphicsSettings';
 import type { ItemContextMenuState, TooltipItem } from './types';
 
 export interface AppWindowsProps {
@@ -19,6 +20,7 @@ export interface AppWindowsProps {
   stats: ReturnType<typeof getPlayerStats>;
   game: GameState;
   currentTile: Tile;
+  graphicsSettings: GraphicsSettings;
   recipeBookKnown: boolean;
   recipes: ReturnType<typeof import('../../game/state').getRecipeBookRecipes>;
   inventoryCounts: Record<string, number>;
@@ -98,5 +100,10 @@ export interface AppWindowsProps {
   onSellAll: () => void;
   onBuyTownItem: (itemId: string) => void;
   onClaimHex: () => void;
+  onResetSaveData: () => void;
+  onSaveGraphicsSettings: (settings: GraphicsSettings) => Promise<void>;
+  onSaveGraphicsSettingsAndReload: (
+    settings: GraphicsSettings,
+  ) => Promise<void>;
   onSetHome: () => void;
 }
