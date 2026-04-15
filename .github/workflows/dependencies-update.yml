@@ -26,7 +26,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Installing dependencies
-        run: pnpm i --frozen-lockfile
+        run: pnpm i --no-frozen-lockfile
 
       - name: Updating dependencies
         run: pnpm run update:minor
