@@ -44,6 +44,7 @@ export function DraggableWindow({
   const dragMovedRef = useRef(false);
   const resizeMovedRef = useRef(false);
   const visualPositionRef = useRef(position);
+  const wasVisibleRef = useRef(false);
   const [visibleState, setVisibleState] = useState(true);
   const [hovered, setHovered] = useState(false);
   const [active, setActive] = useState(false);
@@ -107,6 +108,24 @@ export function DraggableWindow({
     if (dragRef.current || resizeRef.current) return;
     applyVisualPosition(position);
   }, [applyVisualPosition, position]);
+
+  useEffect(() => {
+    if (!visible) {
+      wasVisibleRef.current = false;
+      return;
+    }
+
+    const shouldFocus = !wasVisibleRef.current;
+    wasVisibleRef.current = true;
+    if (!shouldFocus) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      activateWindow();
+      windowRef.current?.focus({ preventScroll: true });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [visible]);
 
   const closeWindow = () => {
     if (visibleProp === undefined) {
@@ -225,6 +244,7 @@ export function DraggableWindow({
       className={`${styles.floatingWindow} ${className ?? ''}`.trim()}
       data-window-emphasis={emphasis}
       data-window-visible={animatedVisible}
+      tabIndex={-1}
       style={{
         left: position.x,
         top: position.y,

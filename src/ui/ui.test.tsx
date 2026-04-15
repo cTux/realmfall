@@ -1170,6 +1170,59 @@ describe('ui helpers and components', () => {
     host.remove();
   });
 
+  it('focuses a window when it becomes visible', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    let root: Root | null = createRoot(host);
+
+    await act(async () => {
+      root?.render(
+        <DraggableWindow
+          title="Focus Window"
+          position={{ x: 40, y: 50 }}
+          onMove={() => {}}
+          visible={false}
+        >
+          <div>Body</div>
+        </DraggableWindow>,
+      );
+    });
+
+    expect(host.querySelector('section[class*="floatingWindow"]')).toBeNull();
+
+    await act(async () => {
+      root?.render(
+        <DraggableWindow
+          title="Focus Window"
+          position={{ x: 40, y: 50 }}
+          onMove={() => {}}
+          visible
+        >
+          <div>Body</div>
+        </DraggableWindow>,
+      );
+    });
+
+    await act(async () => {
+      await new Promise<void>((resolve) => {
+        window.requestAnimationFrame(() => resolve());
+      });
+    });
+
+    const windowElement = host.querySelector(
+      'section[class*="floatingWindow"]',
+    ) as HTMLElement | null;
+    expect(windowElement).not.toBeNull();
+    expect(windowElement?.dataset.windowEmphasis).toBe('active');
+    expect(document.activeElement).toBe(windowElement);
+
+    await act(async () => {
+      root?.unmount();
+    });
+    root = null;
+    host.remove();
+  });
+
   it('resizes draggable windows through the shared resize handle', async () => {
     const moves: Array<{
       x: number;
