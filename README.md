@@ -71,7 +71,7 @@ pnpm dev
 - `pnpm build`
 - `pnpm build:budget`
 - `pnpm build:storybook`
-- `pnpm serve`
+- `pnpm serve` (serves `dist` over local HTTPS with a generated self-signed certificate)
 - `pnpm preview`
 - `pnpm quality:staged`
 - `pnpm typecheck`

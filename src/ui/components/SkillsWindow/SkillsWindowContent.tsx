@@ -33,7 +33,7 @@ export function SkillsWindowContent({
               onMouseEnter={(event) =>
                 onHoverDetail?.(
                   event,
-                  formatSkillLabel(name as SkillName).toUpperCase(),
+                  formatTooltipSkillTitle(name as SkillName),
                   tooltipLines,
                   'rgba(56, 189, 248, 0.9)',
                 )
@@ -75,4 +75,10 @@ function iconMaskStyle(icon: string) {
     WebkitMask: mask,
     mask,
   };
+}
+
+function formatTooltipSkillTitle(skill: SkillName) {
+  const label = formatSkillLabel(skill);
+  if (label.length === 0) return label;
+  return label[0].toUpperCase() + label.slice(1);
 }
