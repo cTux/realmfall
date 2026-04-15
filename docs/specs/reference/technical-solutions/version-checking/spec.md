@@ -12,7 +12,7 @@ This spec covers the shipped version metadata flow from `package.json` into the 
 - The app polls `version.json` on an interval, compares the remote version to the local runtime version, and keeps the UI silent when fetches fail.
 - The bottom-right version widget shows a yellow status while the remote version has not been resolved yet, green when the remote and local versions match, and red when the remote version differs.
 - When the remote version differs, the widget exposes a refresh action that reloads the page so the player can pick up the new build.
-- The pre-commit hook now enforces that `package.json` moves forward by minor version before a commit can proceed.
+- The pre-commit hook now enforces that `package.json` moves forward by patch version before a commit can proceed.
 
 ## Main Implementation Areas
 

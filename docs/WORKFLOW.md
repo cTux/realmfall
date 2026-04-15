@@ -28,7 +28,7 @@
 ## Commit Workflow
 
 - Use Conventional Commits.
-- Increase the `package.json` minor version before each commit. The pre-commit hook enforces this against `HEAD`.
+- Increase the `package.json` patch version before each commit. The pre-commit hook enforces this against `HEAD`.
 - Generate commit messages from the actual change set.
 - When commit message format expectations change, update Commitlint configuration in the same task when the repository can enforce that format automatically.
 - Keep commit messages focused on source changes rather than documentation-only housekeeping unless the commit is primarily documentation.

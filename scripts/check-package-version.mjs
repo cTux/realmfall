@@ -51,13 +51,13 @@ if (headPackage.status !== 0) {
 const previousPackageJson = JSON.parse(headPackage.stdout);
 const previousVersion = parseVersion(previousPackageJson.version);
 
-const majorIncreased = currentVersion.major > previousVersion.major;
-const minorIncreased =
+const patchIncreased =
   currentVersion.major === previousVersion.major &&
-  currentVersion.minor > previousVersion.minor;
+  currentVersion.minor === previousVersion.minor &&
+  currentVersion.patch > previousVersion.patch;
 
-if (!majorIncreased && !minorIncreased) {
+if (!patchIncreased) {
   fail(
-    `package.json version must increase its minor version before commit (HEAD: ${previousPackageJson.version}, current: ${currentPackageJson.version}).`,
+    `package.json version must increase its patch version before commit (HEAD: ${previousPackageJson.version}, current: ${currentPackageJson.version}).`,
   );
 }
