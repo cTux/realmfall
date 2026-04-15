@@ -50,16 +50,5 @@ Create a branch from local default branch for the updates in this prompt.
 * Commit all the existing changes.
 * Automatically generate commit messages based on the changes.
 * Commit messages should respect Conventional Commits rules.
-* If there are some changes in TODO.md, PROMPTS.md, RULES.md or RESTRICTIONS.md just ignore them inside commit message.
-```
-
-## TODOs
-
-```
-* Go inside "docs/TODO.md" and get any feature / improvement / issue to do.
-* Write spec and plan markdown files (under docs/specs/{type}s/{todo-name}/*.md) using [GitHub Spec Kit CLI](https://github.github.com/spec-kit/).
-* When the task changes an existing feature, update the relevant existing spec too.
-* Keep one implemented gameplay feature or one technical solution per spec file. Use index markdown files only for navigation.
-* If it's related to something visual then also add (generate) images and link them in the .md files.
-* Remove that feature / improvement / issue from the list.
+* If there are some changes in PROMPTS.md, RULES.md or RESTRICTIONS.md just ignore them inside commit message.
 ```
