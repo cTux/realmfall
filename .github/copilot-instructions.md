@@ -15,6 +15,7 @@ Use `docs/RULES.md` as the source of truth for project-specific instructions.
 - Keep `README.md` and `docs/WORKFLOW.md` aligned when workflow expectations change.
 - If a rule changes future prompt execution, also sync `AGENTS.md` and `CLAUDE.md`.
 - Keep the scoped pre-commit workflow expectations from `docs/RULES.md` in mind: full-project typecheck stays global, while Oxlint, Stylelint, and Vitest may run against staged files unless shared test inputs require a full test run.
+- Treat Oxlint as the only JavaScript and TypeScript linter unless the task explicitly changes the lint toolchain.
 - Prefer keeping project-specific rules in `docs/RULES.md` instead of restating them here.
 - Keep this file compact and use it as an entrypoint back to the canonical rules.
 
