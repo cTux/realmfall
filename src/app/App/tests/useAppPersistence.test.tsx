@@ -31,6 +31,7 @@ import { useAppPersistence } from '../useAppPersistence';
 interface PersistenceHarnessHandle {
   persistNow: () => Promise<void>;
   toggleHeroWindow: () => void;
+  setHeroWindowVisible: (visible: boolean) => void;
 }
 
 function createDeferredPromise() {
@@ -90,6 +91,8 @@ const PersistenceHarness = forwardRef<PersistenceHarnessHandle>(
       persistNow,
       toggleHeroWindow: () =>
         setWindowShown((current) => ({ ...current, hero: !current.hero })),
+      setHeroWindowVisible: (visible: boolean) =>
+        setWindowShown((current) => ({ ...current, hero: visible })),
     }));
 
     return <div data-hydrated={hydrated ? 'ready' : 'loading'} />;
@@ -220,6 +223,49 @@ describe('useAppPersistence', () => {
       expect.objectContaining({
         ui: expect.objectContaining({
           windowShown: expect.objectContaining({ hero: true }),
+        }),
+      }),
+    );
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('flushes on the interval during continuous activity', async () => {
+    loadEncryptedState.mockResolvedValue(undefined);
+    saveEncryptedState.mockResolvedValue(undefined);
+
+    const { handle, host, root } = await renderPersistenceHarness();
+
+    await act(async () => {
+      handle.setHeroWindowVisible(true);
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(4000);
+    });
+
+    await act(async () => {
+      handle.setHeroWindowVisible(false);
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(999);
+    });
+
+    expect(saveEncryptedState).toHaveBeenCalledTimes(0);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1);
+    });
+
+    expect(saveEncryptedState).toHaveBeenCalledTimes(1);
+    expect(saveEncryptedState.mock.calls[0][0]).toEqual(
+      expect.objectContaining({
+        ui: expect.objectContaining({
+          windowShown: expect.objectContaining({ hero: false }),
         }),
       }),
     );

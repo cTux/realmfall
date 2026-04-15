@@ -15,6 +15,7 @@ This spec covers browser save storage, hydration normalization, and autosave beh
 - Normalization handles legacy gold shape migration, item id deduplication, missing structure HP, combat actor defaults, old window-collapsed UI state, thirst defaults, learned recipes, and legacy claim NPC fields.
 - Home tile safety is re-established during normalization when needed.
 - Autosave uses a five-second debounce plus five-second interval-backed flush model.
+- The five-second interval flush remains active during continuous gameplay or UI churn, so repeated sub-five-second updates still persist progress without requiring a quiet period first.
 - Gameplay and UI persistence dirtiness are tracked separately so UI-only changes do not rebuild the gameplay snapshot on every autosave scheduling pass.
 - The app serializes persisted segments and skips redundant writes when nothing meaningful changed.
 - Pending saves are coalesced while previous writes are in flight.
