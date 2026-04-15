@@ -10,6 +10,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - This reduces pressure on the top-level app component and keeps domain logic testable.
 - `useAppGameView` computes the current tile, filtered logs, town stock, recipe visibility, claim status, player stats, and other UI-ready derived values.
 - This keeps presentational components mostly declarative.
+- `AppWindows` owns the dock-entry composition, stable move and close handler maps, and narrow window-specific view models so `App.tsx` does not keep expanding as the desktop window surface grows.
 - The game uses a desktop-style draggable window model with persisted positions, optional per-window dimensions for resizable windows, and visibility.
 - Shared window-shell helpers are reused for move handlers, close handlers, deferred mount state, and repeated title-bar actions instead of maintaining parallel per-window implementations.
 - Secondary window content is separated into dedicated components and lazy-loaded bundles following the current project pattern.

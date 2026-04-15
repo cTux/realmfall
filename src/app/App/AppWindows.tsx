@@ -17,6 +17,7 @@ import {
   type WindowVisibilityState,
 } from '../constants';
 import { GameTooltip } from '../../ui/components/GameTooltip';
+import { DebuggerWindow } from '../../ui/components/DebuggerWindow';
 import { HeroWindow } from '../../ui/components/HeroWindow';
 import { SkillsWindow } from '../../ui/components/SkillsWindow';
 import { HexInfoWindow } from '../../ui/components/HexInfoWindow';
@@ -31,10 +32,11 @@ import { WindowDock } from '../../ui/components/WindowDock';
 import type { ItemContextMenuState, TooltipItem } from './types';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import type { TooltipLine } from '../../ui/tooltips';
-import { formatTerrainLabel } from './appHelpers';
+import { formatTerrainLabel, getDockEntries } from './appHelpers';
 import { useTooltipState } from './tooltipStore';
 
 const WINDOW_HANDLER_KEYS = [
+  'worldTime',
   'hero',
   'skills',
   'recipes',
@@ -59,6 +61,19 @@ const DEFERRED_WINDOW_KEYS = [
 
 type ManagedWindowKey = (typeof WINDOW_HANDLER_KEYS)[number];
 type DeferredWindowKey = (typeof DEFERRED_WINDOW_KEYS)[number];
+
+interface CombatWindowPlayerPartyEntry {
+  id: string;
+  name: string;
+  level: number;
+  hp: number;
+  maxHp: number;
+  mana: number;
+  maxMana: number;
+  actor: NonNullable<
+    NonNullable<AppWindowsProps['combatSnapshot']>['combat']
+  >['player'];
+}
 
 const createWindowMoveHandlers = (
   onMoveWindow: AppWindowsProps['onMoveWindow'],
@@ -124,7 +139,7 @@ const mergeLoadedWindowState = (
 interface AppWindowsProps {
   windows: WindowPositions;
   windowShown: WindowVisibilityState;
-  dockEntries: ReturnType<typeof import('./appHelpers').getDockEntries>;
+  worldTimeMs: number;
   stats: ReturnType<typeof getPlayerStats>;
   game: GameState;
   currentTile: Tile;
@@ -213,7 +228,7 @@ interface AppWindowsProps {
 export function AppWindows({
   windows,
   windowShown,
-  dockEntries,
+  worldTimeMs,
   stats,
   game,
   currentTile,
@@ -269,6 +284,10 @@ export function AppWindows({
   onSetHome,
 }: AppWindowsProps) {
   const tooltip = useTooltipState();
+  const dockEntries = useMemo(
+    () => getDockEntries(windowShown, renderLootWindow, renderCombatWindow),
+    [renderCombatWindow, renderLootWindow, windowShown],
+  );
   const windowMoveHandlers = useMemo(
     () => createWindowMoveHandlers(onMoveWindow),
     [onMoveWindow],
@@ -279,6 +298,52 @@ export function AppWindows({
   );
   const [loadedWindows, setLoadedWindows] = useState(() =>
     createLoadedWindowState(windowShown, renderLootWindow, renderCombatWindow),
+  );
+  const hexInfoView = useMemo(
+    () => ({
+      isHome:
+        game.homeHex.q === game.player.coord.q &&
+        game.homeHex.r === game.player.coord.r,
+      canSetHome:
+        !currentTile.claim || currentTile.claim.ownerType === 'player',
+      terrain: formatTerrainLabel(currentTile.terrain),
+      structure: currentTile.structure
+        ? describeStructure(currentTile.structure)
+        : null,
+      enemyCount: game.combat
+        ? (combatSnapshot?.enemies.length ?? 0)
+        : getHostileEnemyIds(game, currentTile.coord).length,
+    }),
+    [combatSnapshot?.enemies.length, currentTile, game],
+  );
+  const recipeWindowStructure = useMemo(
+    () => describeStructure(currentTile.structure),
+    [currentTile.structure],
+  );
+  const combatPlayerParty = useMemo<CombatWindowPlayerPartyEntry[]>(
+    () =>
+      combatSnapshot
+        ? [
+            {
+              id: 'player',
+              name: 'Player',
+              level: stats.level,
+              hp: stats.hp,
+              maxHp: stats.maxHp,
+              mana: game.player.mana,
+              maxMana: stats.maxMana,
+              actor: combatSnapshot.combat.player,
+            },
+          ]
+        : [],
+    [
+      combatSnapshot,
+      game.player.mana,
+      stats.hp,
+      stats.level,
+      stats.maxHp,
+      stats.maxMana,
+    ],
   );
 
   useEffect(() => {
@@ -295,6 +360,17 @@ export function AppWindows({
   return (
     <>
       <WindowDock entries={dockEntries} onToggle={onToggleDockWindow} />
+      {windowShown.worldTime ? (
+        <DebuggerWindow
+          position={windows.worldTime}
+          onMove={windowMoveHandlers.worldTime}
+          visible={windowShown.worldTime}
+          onClose={windowCloseHandlers.worldTime}
+          worldTimeMs={worldTimeMs}
+          onHoverDetail={onShowTooltip}
+          onLeaveDetail={onCloseTooltip}
+        />
+      ) : null}
 
       <HeroWindow
         position={windows.hero}
@@ -326,7 +402,7 @@ export function AppWindows({
           visible={windowShown.recipes}
           onClose={windowCloseHandlers.recipes}
           hasRecipeBook={recipeBookKnown}
-          currentStructure={describeStructure(currentTile.structure)}
+          currentStructure={recipeWindowStructure}
           recipes={recipes}
           inventoryCounts={inventoryCounts}
           onCraft={onCraftRecipe}
@@ -340,25 +416,12 @@ export function AppWindows({
           onMove={windowMoveHandlers.hexInfo}
           visible={windowShown.hexInfo}
           onClose={windowCloseHandlers.hexInfo}
-          isHome={
-            game.homeHex.q === game.player.coord.q &&
-            game.homeHex.r === game.player.coord.r
-          }
-          canSetHome={
-            !currentTile.claim || currentTile.claim.ownerType === 'player'
-          }
+          isHome={hexInfoView.isHome}
+          canSetHome={hexInfoView.canSetHome}
           onSetHome={onSetHome}
-          terrain={formatTerrainLabel(currentTile.terrain)}
-          structure={
-            currentTile.structure
-              ? describeStructure(currentTile.structure)
-              : null
-          }
-          enemyCount={
-            game.combat
-              ? (combatSnapshot?.enemies.length ?? 0)
-              : getHostileEnemyIds(game, currentTile.coord).length
-          }
+          terrain={hexInfoView.terrain}
+          structure={hexInfoView.structure}
+          enemyCount={hexInfoView.enemyCount}
           interactLabel={interactLabel}
           canInteract={Boolean(interactLabel)}
           canProspect={canProspect}
@@ -487,20 +550,9 @@ export function AppWindows({
           visible={windowShown.combat && combatWindowVisible}
           onClose={windowCloseHandlers.combat}
           combat={combatSnapshot.combat}
-          playerParty={[
-            {
-              id: 'player',
-              name: 'Player',
-              level: stats.level,
-              hp: stats.hp,
-              maxHp: stats.maxHp,
-              mana: game.player.mana,
-              maxMana: stats.maxMana,
-              actor: combatSnapshot.combat.player,
-            },
-          ]}
+          playerParty={combatPlayerParty}
           enemies={combatSnapshot.enemies}
-          worldTimeMs={game.worldTimeMs}
+          worldTimeMs={worldTimeMs}
           onStart={onStartCombat}
           onHoverDetail={onShowTooltip}
           onLeaveDetail={onCloseTooltip}

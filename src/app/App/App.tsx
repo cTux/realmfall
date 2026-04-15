@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   createGame,
   setHomeHex,
@@ -8,9 +8,7 @@ import {
 } from '../../game/state';
 import { WORLD_RADIUS } from '../constants';
 import { AppWindows } from './AppWindows';
-import { getDockEntries } from './appHelpers';
 import { HomeIndicator } from './HomeIndicator';
-import { DebuggerWindow } from '../../ui/components/DebuggerWindow';
 import { useAppControllers } from './useAppControllers';
 import { useAppGameView } from './useAppGameView';
 import { useAppPersistence } from './useAppPersistence';
@@ -190,11 +188,6 @@ export function App() {
     worldTimeMsRef,
   });
 
-  const dockEntries = useMemo(
-    () => getDockEntries(windowShown, renderLootWindow, renderCombatWindow),
-    [renderCombatWindow, renderLootWindow, windowShown],
-  );
-
   useKeyboardShortcuts({
     combatStartAvailable: Boolean(game.combat && !game.combat.started),
     interactLabel,
@@ -218,20 +211,10 @@ export function App() {
           playerCoord={game.player.coord}
           radius={game.radius}
         />
-        {windowShown.worldTime ? (
-          <DebuggerWindow
-            position={windows.worldTime}
-            onMove={(position) => moveWindow('worldTime', position)}
-            onClose={() => setWindowVisibility('worldTime', false)}
-            worldTimeMs={worldTimeMs}
-            onHoverDetail={showTooltip}
-            onLeaveDetail={closeTooltip}
-          />
-        ) : null}
         <AppWindows
           windows={windows}
           windowShown={windowShown}
-          dockEntries={dockEntries}
+          worldTimeMs={worldTimeMs}
           stats={stats}
           game={game}
           currentTile={currentTile}
