@@ -18,7 +18,7 @@
 }
 
 .windowBody {
-  height: 100%;
+  height: calc(100% - 51px);
   min-height: 0;
   overflow: hidden;
 }
@@ -122,7 +122,6 @@
   position: relative;
   z-index: 1;
   display: block;
-  padding: 0.55rem 0.85rem;
 }
 
 @media (width <= 980px) {
