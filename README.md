@@ -72,6 +72,7 @@ pnpm dev
 - `pnpm preview`
 - `pnpm typecheck`
 - `pnpm lint`
+- `pnpm lint:fix`
 - `pnpm lint:css`
 - `pnpm format`
 - `pnpm test`
@@ -89,6 +90,8 @@ Contributors should keep these working unless a task explicitly changes the work
 - `pnpm build`
 
 For bundle-sensitive changes, also run `pnpm build:budget`.
+
+The pre-commit hook runs `pnpm typecheck`, `pnpm lint:fix`, refreshes the Git index for auto-fixed files, and then runs `pnpm lint:css`.
 
 The repository already has strong baseline tooling. Changes should preserve strict typing, lint cleanliness, deterministic tests where practical, and successful production builds.
 

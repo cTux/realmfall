@@ -40,3 +40,4 @@
 - When a requested JavaScript or TypeScript syntax convention changes, update ESLint and Prettier configuration when the convention can be enforced mechanically.
 - When a requested CSS or SCSS syntax convention changes, update Stylelint configuration when the convention can be enforced mechanically.
 - Every component addition, removal, or behavior-affecting UI change should add or update the corresponding Storybook story in the same task.
+- The pre-commit hook should auto-fix ESLint-managed formatting with `pnpm lint:fix`, refresh staged tracked files, and still run the remaining hook checks instead of failing only because formatting drift was auto-fixable.
