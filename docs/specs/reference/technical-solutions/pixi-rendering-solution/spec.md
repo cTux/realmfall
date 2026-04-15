@@ -13,7 +13,8 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Interaction layers hold hover, selection, loot borders, and safe-path overlays.
 - Animated layers hold atmosphere, clouds, campfire lighting, and overlay work.
 - The renderer reuses graphics and sprites through dedicated pool helpers.
-- Cached scene state avoids unnecessary rebuilds when screen size, selected tile, visible tiles, or path highlights have not changed.
+- Cached scene state avoids unnecessary rebuilds when screen size, derived static-world render inputs, selected tile, or path highlights have not changed.
+- Static and interaction redraw invalidation derives from render-specific version keys rather than whole `GameState` identity, so log-only or other non-world state clones do not rebuild unchanged Pixi layers.
 - Deterministic ground-cover presentation and cloud inputs are memoized in bounded caches.
 - The world renderer includes time-of-day lighting, atmosphere passes, overlay tinting, and optional fish-eye processing.
 - Rendering quality and icon sizing derive from screen state and world radius.

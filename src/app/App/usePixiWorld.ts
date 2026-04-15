@@ -28,7 +28,6 @@ interface UsePixiWorldArgs {
 }
 
 interface WorldHoverSnapshot {
-  game: GameState | null;
   target: stateModule.HexCoord | null;
   clickable: boolean;
   hoveredMove: stateModule.HexCoord | null;
@@ -55,7 +54,6 @@ export function usePixiWorld({
   const hoveredMoveRef = useRef<stateModule.HexCoord | null>(null);
   const hoveredSafePathRef = useRef<stateModule.HexCoord[] | null>(null);
   const hoverSnapshotRef = useRef<WorldHoverSnapshot>({
-    game: null,
     target: null,
     clickable: false,
     hoveredMove: null,
@@ -76,7 +74,6 @@ export function usePixiWorld({
     hoveredMoveRef.current = null;
     hoveredSafePathRef.current = null;
     hoverSnapshotRef.current = {
-      game: null,
       target: null,
       clickable: false,
       hoveredMove: null,
@@ -235,156 +232,92 @@ export function usePixiWorld({
           x: event.clientX + 16,
           y: event.clientY + 16,
         };
-        const current = gameRef.current;
         const hoverSnapshot = hoverSnapshotRef.current;
 
-        if (
-          hoverSnapshot.game === current &&
-          sameCoord(hoverSnapshot.target, target)
-        ) {
+        if (sameCoord(hoverSnapshot.target, target)) {
           canvas.style.cursor = hoverSnapshot.clickable ? 'pointer' : 'default';
-
-          if (!sameCoord(hoveredMoveRef.current, hoverSnapshot.hoveredMove)) {
-            hoveredMoveRef.current = hoverSnapshot.hoveredMove;
-          }
-
-          if (
-            !samePath(hoveredSafePathRef.current, hoverSnapshot.hoveredSafePath)
-          ) {
-            hoveredSafePathRef.current = hoverSnapshot.hoveredSafePath;
-          }
-
-          if (hoverSnapshot.tooltip?.followCursor) {
-            tooltipPositionRef.current = nextTooltipPosition;
-            const currentTooltip = getTooltipState();
-
-            if (
-              worldTooltipKeyRef.current !== hoverSnapshot.tooltipKey ||
-              !currentTooltip?.followCursor
-            ) {
-              worldTooltipKeyRef.current = hoverSnapshot.tooltipKey;
-              setTooltip({
-                ...hoverSnapshot.tooltip,
-                x: nextTooltipPosition.x,
-                y: nextTooltipPosition.y,
-              });
-            }
-          } else {
-            tooltipPositionRef.current = null;
-
-            if (worldTooltipKeyRef.current || getTooltipState()?.followCursor) {
-              worldTooltipKeyRef.current = null;
-              setTooltip(null);
-            }
-          }
-
+          applyHoverSnapshot({
+            hoverSnapshot,
+            hoveredMoveRef,
+            hoveredSafePathRef,
+            nextTooltipPosition,
+            setTooltip,
+            tooltipPositionRef,
+            worldTooltipKeyRef,
+          });
           return;
         }
 
+        const current = gameRef.current;
         const tile = stateModule.getTileAt(current, target);
-        const enemies = stateModule.getEnemiesAt(current, target);
         const distance = stateModule.hexDistance(
           playerCoordRef.current,
           target,
         );
         const withinVisibleMap = distance <= WORLD_REVEAL_RADIUS;
+        const adjacentActionable =
+          distance === 1 &&
+          tile.terrain !== 'rift' &&
+          tile.terrain !== 'mountain';
         const safePath =
-          distance > 1 ? stateModule.getSafePathToTile(current, target) : null;
-        const clickable =
-          (distance === 1 &&
-            tile.terrain !== 'rift' &&
-            tile.terrain !== 'mountain') ||
-          (withinVisibleMap && Boolean(safePath));
-        const enemyInfo = withinVisibleMap
-          ? tooltipModule.enemyTooltip(enemies, tile.structure)
-          : null;
-        const structureInfo = withinVisibleMap
-          ? tooltipModule.structureTooltip(tile)
-          : null;
+          !adjacentActionable && distance > 1 && withinVisibleMap
+            ? stateModule.getSafePathToTile(current, target)
+            : null;
+        const actionable = adjacentActionable || Boolean(safePath);
 
-        canvas.style.cursor = clickable ? 'pointer' : 'default';
-        const currentHovered = hoveredMoveRef.current;
-        const currentHoveredPath = hoveredSafePathRef.current;
-        if (!clickable) {
-          if (currentHovered) {
-            hoveredMoveRef.current = null;
-          }
-          if (currentHoveredPath) {
-            hoveredSafePathRef.current = null;
-          }
-        } else if (
-          currentHovered?.q !== target.q ||
-          currentHovered?.r !== target.r
-        ) {
-          hoveredMoveRef.current = target;
-        }
-
-        const nextHoveredPath =
-          safePath && safePath.length > 1 ? safePath : null;
-        if (!samePath(currentHoveredPath, nextHoveredPath)) {
-          hoveredSafePathRef.current = nextHoveredPath;
-        }
-
+        let nextHoveredPath: stateModule.HexCoord[] | null = null;
         let nextTooltip: TooltipState | null = null;
         let nextTooltipKey: string | null = null;
 
-        if (enemyInfo) {
-          nextTooltipKey = `enemy:${target.q},${target.r}:${tile.structure ?? 'none'}`;
-          nextTooltip = {
-            title: enemyInfo.title,
-            lines: enemyInfo.lines,
-            x: nextTooltipPosition.x,
-            y: nextTooltipPosition.y,
-            borderColor: tile.structure === 'dungeon' ? '#a855f7' : '#ef4444',
-            followCursor: true,
-          };
+        if (actionable) {
+          nextHoveredPath = safePath && safePath.length > 1 ? safePath : null;
 
-          if (
-            worldTooltipKeyRef.current === nextTooltipKey &&
-            getTooltipState()?.followCursor
-          ) {
-            return;
-          }
-        } else if (structureInfo) {
-          nextTooltipKey = `structure:${target.q},${target.r}:${tile.structure ?? 'none'}`;
-          nextTooltip = {
-            title: structureInfo.title,
-            lines: structureInfo.lines,
-            x: nextTooltipPosition.x,
-            y: nextTooltipPosition.y,
-            borderColor: '#38bdf8',
-            followCursor: true,
-          };
+          const enemies = stateModule.getEnemiesAt(current, target);
+          const enemyInfo = tooltipModule.enemyTooltip(enemies, tile.structure);
+          const structureInfo = tooltipModule.structureTooltip(tile);
 
-          if (
-            worldTooltipKeyRef.current === nextTooltipKey &&
-            getTooltipState()?.followCursor
-          ) {
-            return;
+          if (enemyInfo) {
+            nextTooltipKey = `enemy:${target.q},${target.r}:${tile.structure ?? 'none'}`;
+            nextTooltip = {
+              title: enemyInfo.title,
+              lines: enemyInfo.lines,
+              x: nextTooltipPosition.x,
+              y: nextTooltipPosition.y,
+              borderColor: tile.structure === 'dungeon' ? '#a855f7' : '#ef4444',
+              followCursor: true,
+            };
+          } else if (structureInfo) {
+            nextTooltipKey = `structure:${target.q},${target.r}:${tile.structure ?? 'none'}`;
+            nextTooltip = {
+              title: structureInfo.title,
+              lines: structureInfo.lines,
+              x: nextTooltipPosition.x,
+              y: nextTooltipPosition.y,
+              borderColor: '#38bdf8',
+              followCursor: true,
+            };
           }
         }
 
-        hoverSnapshotRef.current = {
-          game: current,
+        const nextHoverSnapshot = {
           target,
-          clickable,
-          hoveredMove: clickable ? target : null,
+          clickable: actionable,
+          hoveredMove: actionable ? target : null,
           hoveredSafePath: nextHoveredPath,
           tooltip: nextTooltip,
           tooltipKey: nextTooltipKey,
         };
-
-        if (nextTooltip) {
-          tooltipPositionRef.current = nextTooltipPosition;
-          worldTooltipKeyRef.current = nextTooltipKey;
-          setTooltip(nextTooltip);
-        } else {
-          tooltipPositionRef.current = null;
-          if (worldTooltipKeyRef.current || getTooltipState()?.followCursor) {
-            worldTooltipKeyRef.current = null;
-            setTooltip(null);
-          }
-        }
+        canvas.style.cursor = actionable ? 'pointer' : 'default';
+        hoverSnapshotRef.current = nextHoverSnapshot;
+        applyHoverSnapshot({
+          hoverSnapshot: nextHoverSnapshot,
+          hoveredMoveRef,
+          hoveredSafePathRef,
+          nextTooltipPosition,
+          setTooltip,
+          tooltipPositionRef,
+          worldTooltipKeyRef,
+        });
       };
 
       const onPointerLeave = () => {
@@ -392,7 +325,6 @@ export function usePixiWorld({
         tooltipPositionRef.current = null;
         worldTooltipKeyRef.current = null;
         hoverSnapshotRef.current = {
-          game: null,
           target: null,
           clickable: false,
           hoveredMove: null,
@@ -477,4 +409,54 @@ function sameCoord(
   right: stateModule.HexCoord | null,
 ) {
   return left?.q === right?.q && left?.r === right?.r;
+}
+
+function applyHoverSnapshot({
+  hoverSnapshot,
+  hoveredMoveRef,
+  hoveredSafePathRef,
+  nextTooltipPosition,
+  setTooltip,
+  tooltipPositionRef,
+  worldTooltipKeyRef,
+}: {
+  hoverSnapshot: WorldHoverSnapshot;
+  hoveredMoveRef: MutableRefObject<stateModule.HexCoord | null>;
+  hoveredSafePathRef: MutableRefObject<stateModule.HexCoord[] | null>;
+  nextTooltipPosition: { x: number; y: number };
+  setTooltip: (nextTooltip: TooltipState | null) => void;
+  tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
+  worldTooltipKeyRef: MutableRefObject<string | null>;
+}) {
+  if (!sameCoord(hoveredMoveRef.current, hoverSnapshot.hoveredMove)) {
+    hoveredMoveRef.current = hoverSnapshot.hoveredMove;
+  }
+
+  if (!samePath(hoveredSafePathRef.current, hoverSnapshot.hoveredSafePath)) {
+    hoveredSafePathRef.current = hoverSnapshot.hoveredSafePath;
+  }
+
+  if (hoverSnapshot.tooltip?.followCursor) {
+    tooltipPositionRef.current = nextTooltipPosition;
+    const currentTooltip = getTooltipState();
+
+    if (
+      worldTooltipKeyRef.current !== hoverSnapshot.tooltipKey ||
+      !currentTooltip?.followCursor
+    ) {
+      worldTooltipKeyRef.current = hoverSnapshot.tooltipKey;
+      setTooltip({
+        ...hoverSnapshot.tooltip,
+        x: nextTooltipPosition.x,
+        y: nextTooltipPosition.y,
+      });
+    }
+    return;
+  }
+
+  tooltipPositionRef.current = null;
+  if (worldTooltipKeyRef.current || getTooltipState()?.followCursor) {
+    worldTooltipKeyRef.current = null;
+    setTooltip(null);
+  }
 }

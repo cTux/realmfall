@@ -122,17 +122,17 @@ export function renderScene(
   const screenChanged =
     scene.screenWidth !== app.screen.width ||
     scene.screenHeight !== app.screen.height;
+  const renderVersions = getSceneRenderVersions(scene, state, visibleTiles);
   const shouldRenderStatic =
-    screenChanged ||
-    scene.staticState !== state ||
-    scene.staticVisibleTiles !== visibleTiles;
+    screenChanged || scene.staticRenderVersion !== renderVersions.static;
   const shouldRenderInteraction =
     shouldRenderStatic ||
-    scene.interactionState !== state ||
-    scene.interactionVisibleTiles !== visibleTiles ||
-    !sameCoord(scene.interactionSelected, selected) ||
-    !sameCoord(scene.interactionHoveredMove, hoveredMove) ||
-    scene.interactionHoveredSafePathKey !== pathKey(hoveredSafePath);
+    scene.interactionRenderVersion !==
+      renderVersions.interactionWithSelection(
+        selected,
+        hoveredMove,
+        hoveredSafePath,
+      );
 
   const hoveredSafePathKeys = new Set(
     (hoveredSafePath ?? []).map((coord) => hexKey(coord)),
@@ -344,17 +344,16 @@ export function renderScene(
 
   if (shouldRenderStatic) {
     completeStaticSceneRender(scene);
-    scene.staticState = state;
-    scene.staticVisibleTiles = visibleTiles;
+    scene.staticRenderVersion = renderVersions.static;
   }
 
   if (shouldRenderInteraction) {
     completeInteractionSceneRender(scene);
-    scene.interactionState = state;
-    scene.interactionVisibleTiles = visibleTiles;
-    scene.interactionSelected = { ...selected };
-    scene.interactionHoveredMove = hoveredMove ? { ...hoveredMove } : null;
-    scene.interactionHoveredSafePathKey = pathKey(hoveredSafePath);
+    scene.interactionRenderVersion = renderVersions.interactionWithSelection(
+      selected,
+      hoveredMove,
+      hoveredSafePath,
+    );
   }
 
   scene.screenWidth = app.screen.width;
@@ -457,6 +456,91 @@ function getCloudRenderInputs(
   return cloudInputs;
 }
 
+function getSceneRenderVersions(
+  scene: ReturnType<typeof getSceneCache>,
+  state: GameState,
+  visibleTiles: ReturnType<typeof getVisibleTiles>,
+) {
+  if (
+    scene.derivedRenderStateSource !== state ||
+    scene.derivedRenderVisibleTilesSource !== visibleTiles
+  ) {
+    scene.derivedRenderStateSource = state;
+    scene.derivedRenderVisibleTilesSource = visibleTiles;
+    scene.derivedStaticRenderVersion = getStaticRenderVersion(
+      state,
+      visibleTiles,
+    );
+    scene.derivedInteractionRenderVersion = getInteractionRenderVersion(
+      state,
+      visibleTiles,
+    );
+  }
+
+  const staticVersion = scene.derivedStaticRenderVersion ?? '';
+  const interactionBaseVersion = scene.derivedInteractionRenderVersion ?? '';
+
+  return {
+    static: staticVersion,
+    interactionWithSelection: (
+      selected: HexCoord,
+      hoveredMove: HexCoord | null,
+      hoveredSafePath: HexCoord[] | null,
+    ) =>
+      `${interactionBaseVersion}|selected:${coordKey(selected)}|hover:${coordKey(hoveredMove)}|path:${pathKey(hoveredSafePath) ?? 'none'}`,
+  };
+}
+
+function getStaticRenderVersion(
+  state: GameState,
+  visibleTiles: ReturnType<typeof getVisibleTiles>,
+) {
+  return [
+    `player:${coordKey(state.player.coord)}`,
+    `home:${coordKey(state.homeHex)}`,
+    `bloodMoon:${state.bloodMoonActive ? 1 : 0}`,
+    ...visibleTiles.map((tile) => getStaticTileRenderVersion(state, tile)),
+  ].join('||');
+}
+
+function getStaticTileRenderVersion(state: GameState, tile: Tile) {
+  const enemies = getEnemiesAt(state, tile.coord)
+    .map((enemy) =>
+      [
+        enemy.id,
+        enemy.enemyTypeId ?? enemy.name,
+        enemy.aggressive === false ? 'calm' : 'hostile',
+        enemy.worldBoss ? 'boss' : 'normal',
+      ].join(':'),
+    )
+    .join(',');
+
+  return [
+    coordKey(tile.coord),
+    tile.terrain,
+    tile.structure ?? 'none',
+    tile.claim
+      ? `${tile.claim.ownerType}:${tile.claim.ownerId}:${tile.claim.npc?.enemyId ?? 'none'}`
+      : 'claim:none',
+    enemies,
+  ].join('|');
+}
+
+function getInteractionRenderVersion(
+  state: GameState,
+  visibleTiles: ReturnType<typeof getVisibleTiles>,
+) {
+  const playerTile =
+    visibleTiles.find((tile) => sameCoord(tile.coord, state.player.coord)) ??
+    state.tiles[hexKey(state.player.coord)] ??
+    buildTile(state.seed, state.player.coord);
+
+  return [
+    `player:${coordKey(state.player.coord)}`,
+    `loot:${playerTile.items.length > 0 ? 1 : 0}`,
+  ].join('|');
+}
+
 function makeInsetHex(
   point: ReturnType<typeof tileToPoint>,
   size: number,
@@ -475,4 +559,8 @@ function sameCoord(left: HexCoord | null, right: HexCoord | null) {
 
 function pathKey(path: HexCoord[] | null) {
   return path?.map((coord) => hexKey(coord)).join('|') ?? null;
+}
+
+function coordKey(coord: HexCoord | null) {
+  return coord ? hexKey(coord) : 'none';
 }

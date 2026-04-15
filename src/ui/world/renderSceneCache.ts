@@ -5,7 +5,7 @@ import {
   TextStyle,
   type Application,
 } from 'pixi.js';
-import type { GameState, HexCoord, getVisibleTiles } from '../../game/state';
+import type { GameState, getVisibleTiles } from '../../game/state';
 import type { CloudRenderInput } from './renderSceneEnvironment';
 import { WorldIcons } from './worldIcons';
 import {
@@ -75,13 +75,12 @@ export interface SceneCache {
   cloudSprites: SpritePool;
   cloudInputsBySeed: Map<string, CloudRenderInput[]>;
   player: ShadowedSpriteEntry;
-  staticState: GameState | null;
-  staticVisibleTiles: ReturnType<typeof getVisibleTiles> | null;
-  interactionState: GameState | null;
-  interactionVisibleTiles: ReturnType<typeof getVisibleTiles> | null;
-  interactionSelected: HexCoord | null;
-  interactionHoveredMove: HexCoord | null;
-  interactionHoveredSafePathKey: string | null;
+  derivedRenderStateSource: GameState | null;
+  derivedRenderVisibleTilesSource: ReturnType<typeof getVisibleTiles> | null;
+  derivedStaticRenderVersion: string | null;
+  derivedInteractionRenderVersion: string | null;
+  staticRenderVersion: string | null;
+  interactionRenderVersion: string | null;
   screenWidth: number;
   screenHeight: number;
 }
@@ -173,13 +172,12 @@ export function getSceneCache(app: Application) {
     cloudSprites: createSpritePool(clouds),
     cloudInputsBySeed: new Map(),
     player,
-    staticState: null,
-    staticVisibleTiles: null,
-    interactionState: null,
-    interactionVisibleTiles: null,
-    interactionSelected: null,
-    interactionHoveredMove: null,
-    interactionHoveredSafePathKey: null,
+    derivedRenderStateSource: null,
+    derivedRenderVisibleTilesSource: null,
+    derivedStaticRenderVersion: null,
+    derivedInteractionRenderVersion: null,
+    staticRenderVersion: null,
+    interactionRenderVersion: null,
     screenWidth: app.screen.width,
     screenHeight: app.screen.height,
   };

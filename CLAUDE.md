@@ -8,6 +8,7 @@ Follow `docs/RULES.md` as the canonical source of project rules.
 - Treat those relevant rules as default task context, even when the prompt does not repeat them.
 - Apply only rules relevant to the current task.
 - If a prompt includes `add rule`, update `docs/RULES.md` immediately in the matching section.
+- If an optimization prompt establishes a recurring implementation pattern, capture it in `docs/RULES.md` instead of leaving it only in code changes.
 - If the rule changes workflow or contributor expectations, update `README.md` and `docs/PROMPTS.md` too.
 - If the rule changes future prompt execution, also sync `AGENTS.md` and `.github/copilot-instructions.md`.
 - Prefer keeping project-specific guidance in `docs/RULES.md` instead of duplicating it here.

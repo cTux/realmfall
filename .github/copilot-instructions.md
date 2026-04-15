@@ -8,6 +8,7 @@ Use `docs/RULES.md` as the source of truth for project-specific instructions.
 - Treat those relevant rules as default context, even if the prompt does not restate them.
 - Do not apply irrelevant rules.
 - If a prompt or task includes `add rule`, update `docs/RULES.md` immediately in the corresponding section.
+- If an optimization prompt establishes a recurring implementation pattern, capture it in `docs/RULES.md` instead of leaving it only in code changes.
 - Keep `README.md` and `docs/PROMPTS.md` aligned when workflow expectations change.
 - If a rule changes future prompt execution, also sync `AGENTS.md` and `CLAUDE.md`.
 - Prefer keeping project-specific rules in `docs/RULES.md` instead of restating them here.
