@@ -107,6 +107,15 @@ The world view is the most performance-sensitive path in the project.
 - Keep Pixi quality settings device-aware so high-DPI or weaker devices do not quietly pay an excessive frame-time cost.
 - Keep bundle growth intentional, especially for Pixi-heavy or secondary UI code.
 
+## Performance Verification
+
+When work changes the performance-sensitive paths, verify the affected area explicitly instead of relying only on correctness checks.
+
+- React rerenders: run `pnpm dev`, open React DevTools Profiler, and inspect window dragging, dock toggles, log changes, and world hover. Unrelated windows or app shells should not rerender repeatedly when only one interaction surface changes.
+- Pixi redraw breadth: inspect `src/ui/world/renderScene.ts` while the app is running or in a browser performance recording. Confirm static and interaction redraw paths only execute when their inputs change, while animation-only time updates stay on the animated layer.
+- Hover hot paths: profile pointer movement over the world canvas in browser Performance tools or with short-lived instrumentation around `usePixiWorld` hover work. Same-tile pointer moves should not keep retriggering safe-path lookup, tooltip derivation, or other heavier selectors.
+- Startup chunk growth: run `pnpm build` and inspect the Vite asset output. Watch the main app, `react-vendor`, and `pixi` chunks, and confirm new draggable windows or secondary UI still ship in deferred chunks instead of inflating the initial path.
+
 ## Engineering Expectations
 
 - Use `pnpm` for contributor commands and documentation.

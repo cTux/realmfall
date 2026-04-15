@@ -16,6 +16,7 @@ Create a branch from local default branch for the updates in this prompt.
 * For React rerender-fanout work, prefer moving window-specific derivation and stable window wiring into narrower hooks or the window composition layer instead of expanding root `App` ownership.
 * For Pixi-facing selector work, prefer stable reusable world-render inputs such as `visibleTiles` over recomputing renderer inputs from broad state identity on unrelated updates.
 * For tooltip-follow work on the world path, prefer reusing the existing hover pipeline to push position updates instead of adding a separate global pointer listener.
+* For performance-sensitive changes, document how to verify React rerenders, Pixi redraw breadth, hover hot paths, and startup chunk growth instead of leaving the verification path implicit.
 * Favor DRY refactors, maximally reusable components, and shared helpers over duplicated implementations.
 * In JavaScript and TypeScript, prefer concise arrow functions when a function immediately returns an expression.
 * When a JavaScript or TypeScript syntax preference can be enforced mechanically, prefer adding or adjusting the corresponding ESLint rule.
