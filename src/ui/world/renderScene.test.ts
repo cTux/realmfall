@@ -5,16 +5,27 @@ import playerIcon from '../../assets/icons/visored-helm.svg';
 import wolfHeadIcon from '../../assets/icons/wolf-head.svg';
 import tearTracksIcon from '../../assets/icons/tear-tracks.svg';
 
-const spriteFrom = vi.fn((icon: string) => ({
-  icon,
-  anchor: { set: vi.fn() },
-  position: { set: vi.fn() },
-  width: 0,
-  height: 0,
-  tint: 0,
-  alpha: 1,
-  visible: true,
-}));
+const textureFrom = vi.fn((icon: string) => ({ icon }));
+const assetsGet = vi.fn(() => undefined);
+const assetsLoad = vi.fn(async () => []);
+const extensionsAdd = vi.fn();
+
+class MockSprite {
+  icon?: string;
+  texture: { icon?: string };
+  anchor = { set: vi.fn() };
+  position = { set: vi.fn() };
+  width = 0;
+  height = 0;
+  tint = 0;
+  alpha = 1;
+  visible = true;
+
+  constructor(texture: { icon?: string }) {
+    this.texture = texture;
+    this.icon = texture.icon;
+  }
+}
 
 class MockContainer {
   children: unknown[] = [];
@@ -40,12 +51,43 @@ class MockGraphics extends MockContainer {
   clear = vi.fn();
   beginFill = vi.fn();
   lineStyle = vi.fn();
-  moveTo = vi.fn();
-  lineTo = vi.fn();
+  moveTo = vi.fn(() => this);
+  lineTo = vi.fn(() => this);
   drawPolygon = vi.fn();
   drawEllipse = vi.fn();
   drawRect = vi.fn();
   endFill = vi.fn();
+  poly = vi.fn((points: number[]) => {
+    this.drawPolygon(points);
+    return this;
+  });
+  ellipse = vi.fn((x: number, y: number, radiusX: number, radiusY: number) => {
+    this.drawEllipse(x, y, radiusX, radiusY);
+    return this;
+  });
+  rect = vi.fn((x: number, y: number, width: number, height: number) => {
+    this.drawRect(x, y, width, height);
+    return this;
+  });
+  fill = vi.fn((style: number | { color?: number; alpha?: number }) => {
+    if (typeof style === 'number') {
+      this.beginFill(style, 1);
+    } else {
+      this.beginFill(style.color ?? 0, style.alpha ?? 1);
+    }
+    this.endFill();
+    return this;
+  });
+  stroke = vi.fn(
+    (style: number | { width?: number; color?: number; alpha?: number }) => {
+      if (typeof style === 'number') {
+        this.lineStyle(undefined, style, undefined);
+      } else {
+        this.lineStyle(style.width, style.color, style.alpha);
+      }
+      return this;
+    },
+  );
 }
 
 class MockText extends MockContainer {
@@ -71,11 +113,23 @@ class MockTextStyle {
 }
 
 class MockFilter {
+  resources: Record<string, unknown>;
+
+  constructor(options?: { resources?: Record<string, unknown> }) {
+    this.resources = options?.resources ?? {};
+  }
+}
+
+class MockUniformGroup {
+  uniforms: Record<string, unknown>;
+
   constructor(
-    public vertexSrc: string | undefined,
-    public fragmentSrc: string,
-    public uniforms: Record<string, unknown>,
-  ) {}
+    public structure: Record<string, { value: unknown; type: string }>,
+  ) {
+    this.uniforms = Object.fromEntries(
+      Object.entries(structure).map(([key, value]) => [key, value.value]),
+    );
+  }
 }
 
 class MockRectangle {
@@ -88,14 +142,30 @@ class MockRectangle {
 }
 
 vi.mock('pixi.js', () => ({
+  Assets: {
+    get: assetsGet,
+    load: assetsLoad,
+  },
   BLEND_MODES: { ADD: 'add' },
   Container: MockContainer,
+  extensions: {
+    add: extensionsAdd,
+  },
   Filter: MockFilter,
+  GlProgram: {
+    from: vi.fn((options: Record<string, unknown>) => options),
+  },
   Graphics: MockGraphics,
+  loadSvg: { extension: { name: 'loadSVG' } },
+  loadTextures: { extension: { name: 'loadTextures' } },
   Rectangle: MockRectangle,
-  Sprite: { from: spriteFrom },
+  Sprite: MockSprite,
   Text: MockText,
   TextStyle: MockTextStyle,
+  Texture: {
+    from: textureFrom,
+  },
+  UniformGroup: MockUniformGroup,
 }));
 
 describe('renderScene', () => {
@@ -239,9 +309,9 @@ describe('renderScene', () => {
     );
 
     expect(app.stage.children).toHaveLength(7);
-    expect(spriteFrom).toHaveBeenCalled();
+    expect(textureFrom).toHaveBeenCalled();
     expect(
-      spriteFrom.mock.calls.some(([icon]) => typeof icon === 'string'),
+      textureFrom.mock.calls.some(([icon]) => typeof icon === 'string'),
     ).toBe(true);
 
     const worldMap = app.stage.children[1] as MockContainer;
@@ -667,7 +737,7 @@ describe('renderScene', () => {
     );
 
     const initialStageChildren = [...app.stage.children];
-    const initialSpriteCalls = spriteFrom.mock.calls.length;
+    const initialSpriteCalls = textureFrom.mock.calls.length;
 
     renderScene(
       app as never,
@@ -680,7 +750,7 @@ describe('renderScene', () => {
     );
 
     expect(app.stage.children).toEqual(initialStageChildren);
-    expect(spriteFrom.mock.calls).toHaveLength(initialSpriteCalls);
+    expect(textureFrom.mock.calls).toHaveLength(initialSpriteCalls);
   });
 
   it('caches deterministic cloud and terrain presentation inputs', async () => {
@@ -993,7 +1063,7 @@ describe('renderScene', () => {
 
   it('uses NPC marker icon on faction claim tiles', async () => {
     const { renderScene } = await import('./renderScene');
-    spriteFrom.mockClear();
+    textureFrom.mockClear();
     const game = createGame(0, 'render-scene-faction-npc-icon');
     game.tiles['0,0'] = {
       coord: { q: 0, r: 0 },
@@ -1049,7 +1119,7 @@ describe('renderScene', () => {
 
   it('renders world bosses across a dead-forest footprint', async () => {
     const { renderScene } = await import('./renderScene');
-    spriteFrom.mockClear();
+    textureFrom.mockClear();
     const { game } = createPlacedWorldBossRenderGame();
     const app = {
       stage: new MockContainer(),

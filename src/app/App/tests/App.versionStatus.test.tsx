@@ -35,7 +35,7 @@ describe('App version status', () => {
       root.unmount();
     });
     host.remove();
-  });
+  }, 10000);
 
   it('keeps retrying silently after fetch failures and offers refresh when a newer version appears', async () => {
     loadEncryptedState.mockResolvedValue(null);

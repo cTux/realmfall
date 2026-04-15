@@ -20,12 +20,17 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Deterministic ground-cover presentation and cloud inputs are memoized in bounded caches.
 - The world renderer includes time-of-day lighting, atmosphere passes, overlay tinting, and optional fish-eye processing.
 - Rendering quality and icon sizing derive from screen state and world radius.
+- Pixi v8 initialization happens through the async `Application.init()` path rather than constructor options.
+- The world bootstrap loads Pixi through a dedicated `pixiRuntime` module and passes `manageImports: false`, so every Pixi feature used on the world path must be imported there explicitly. The current manual runtime setup includes the app, graphics, text, and filter extensions because the scene cache still constructs a custom world-map `Filter`.
+- The custom world-map fisheye shader follows Pixi v8 filter shader semantics on both stages: the vertex shader emits `vTextureCoord`, and the fragment shader consumes `in vec2 vTextureCoord` and samples `uTexture` so the filter can compile cleanly when the fisheye path is enabled again.
+- World SVG icon URLs are preloaded into `ImageSource`-backed textures before the Pixi app starts, because Pixi v8 string texture creation expects already-loaded sources and otherwise falls back to asset-cache warnings instead of rendering markers reliably.
 - The Pixi canvas uses density-aware sizing so browser zoom and high-DPI displays keep the world viewport fitted to CSS pixels while renderer resolution tracks `window.devicePixelRatio` changes on resize.
 - Persisted settings now hydrate Pixi renderer initialization flags such as antialiasing, auto density, buffer preservation, and alpha handling through a dedicated plain `localStorage` `settings` payload that is read before the initial game and Pixi setup; those init-time flags still require a reload before they affect an already-running canvas.
 
 ## Main Implementation Areas
 
 - `src/app/App/usePixiWorld.ts`
+- `src/ui/world/pixiRuntime.ts`
 - `src/ui/world/renderScene.ts`
 - `src/ui/world/renderSceneCache.ts`
 - `src/ui/world/renderScenePools.ts`

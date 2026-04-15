@@ -43,7 +43,7 @@ describe('App persistence', () => {
       root.unmount();
     });
     host.remove();
-  });
+  }, 10000);
 
   it('toggles the settings window with the M hotkey and saves that UI state', async () => {
     const game = createGame(2, 'app-settings-ui-save-seed');

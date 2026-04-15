@@ -190,33 +190,30 @@ export function renderScene(
         const isWorldBossFootprint = worldBossCenter !== null;
         const fillAlpha = emphasized ? style.alpha : 0.8;
         const shape = takeGraphics(scene.worldGroundGraphics);
-        shape.beginFill(style.color, fillAlpha);
-        shape.lineStyle(1, 0x1e293b, 0.9);
-        shape.drawPolygon(poly);
-        shape.endFill();
+        shape
+          .poly(poly)
+          .fill({ color: style.color, alpha: fillAlpha })
+          .stroke({ width: 1, color: 0x1e293b, alpha: 0.9 });
 
         if (isHomeTile) {
           const homeTint = takeGraphics(scene.worldStaticDetailGraphics);
-          homeTint.beginFill(HOME_HEX_TINT_COLOR, HOME_HEX_TINT_ALPHA);
-          homeTint.drawPolygon(safePolygon);
-          homeTint.endFill();
+          homeTint.poly(safePolygon).fill({
+            color: HOME_HEX_TINT_COLOR,
+            alpha: HOME_HEX_TINT_ALPHA,
+          });
         }
 
         if (isWorldBossFootprint) {
           const worldBossTint = takeGraphics(scene.worldStaticDetailGraphics);
-          worldBossTint.beginFill(
-            WORLD_BOSS_HEX_TINT_COLOR,
-            WORLD_BOSS_HEX_TINT_ALPHA,
-          );
-          worldBossTint.drawPolygon(poly);
-          worldBossTint.endFill();
+          worldBossTint.poly(poly).fill({
+            color: WORLD_BOSS_HEX_TINT_COLOR,
+            alpha: WORLD_BOSS_HEX_TINT_ALPHA,
+          });
         }
 
         if (!revealed) {
           const fog = takeGraphics(scene.worldStaticDetailGraphics);
-          fog.beginFill(0x020617, 0.78);
-          fog.drawPolygon(poly);
-          fog.endFill();
+          fog.poly(poly).fill({ color: 0x020617, alpha: 0.78 });
         }
       }
 
@@ -314,19 +311,20 @@ export function renderScene(
       if (shouldRenderInteraction) {
         if (hovered) {
           const hoverOverlay = takeGraphics(scene.worldInteractionGraphics);
-          hoverOverlay.beginFill(
-            clickable ? SAFE_PATH_TINT_COLOR : style.color,
-            clickable ? SAFE_PATH_TINT_ALPHA : Math.min(1, style.alpha + 0.26),
-          );
-          hoverOverlay.drawPolygon(clickable ? safePolygon : poly);
-          hoverOverlay.endFill();
+          hoverOverlay.poly(clickable ? safePolygon : poly).fill({
+            color: clickable ? SAFE_PATH_TINT_COLOR : style.color,
+            alpha: clickable
+              ? SAFE_PATH_TINT_ALPHA
+              : Math.min(1, style.alpha + 0.26),
+          });
         }
 
         if (highlightedInSafePath) {
           const safePathOverlay = takeGraphics(scene.worldInteractionGraphics);
-          safePathOverlay.beginFill(SAFE_PATH_TINT_COLOR, SAFE_PATH_TINT_ALPHA);
-          safePathOverlay.drawPolygon(safePolygon);
-          safePathOverlay.endFill();
+          safePathOverlay.poly(safePolygon).fill({
+            color: SAFE_PATH_TINT_COLOR,
+            alpha: SAFE_PATH_TINT_ALPHA,
+          });
         }
 
         if (
@@ -336,12 +334,12 @@ export function renderScene(
           selected.r === tile.coord.r
         ) {
           const outline = takeGraphics(scene.worldInteractionGraphics);
-          outline.lineStyle(3, 0xf8fafc, 0.65);
-          outline.drawPolygon(poly);
+          outline.poly(poly).stroke({ width: 3, color: 0xf8fafc, alpha: 0.65 });
         } else if (tile.items.length > 0 && emphasized) {
           const lootBorder = takeGraphics(scene.worldInteractionGraphics);
-          lootBorder.lineStyle(3, 0x22c55e, 0.95);
-          lootBorder.drawPolygon(poly);
+          lootBorder
+            .poly(poly)
+            .stroke({ width: 3, color: 0x22c55e, alpha: 0.95 });
         }
       }
     });
@@ -439,9 +437,14 @@ function renderClaimBorder(
     const [startVertexIndex, endVertexIndex] =
       HEX_SIDE_VERTEX_INDICES[sideIndex];
     const border = takeGraphics(graphicsPool);
-    border.lineStyle(claim.ownerType === 'player' ? 4 : 3, borderColor, 0.92);
-    border.moveTo(poly[startVertexIndex * 2], poly[startVertexIndex * 2 + 1]);
-    border.lineTo(poly[endVertexIndex * 2], poly[endVertexIndex * 2 + 1]);
+    border
+      .moveTo(poly[startVertexIndex * 2], poly[startVertexIndex * 2 + 1])
+      .lineTo(poly[endVertexIndex * 2], poly[endVertexIndex * 2 + 1])
+      .stroke({
+        width: claim.ownerType === 'player' ? 4 : 3,
+        color: borderColor,
+        alpha: 0.92,
+      });
   });
 }
 

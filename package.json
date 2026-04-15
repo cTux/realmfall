@@ -34,7 +34,7 @@
     "update:minor": "pnpm exec npm-check-updates -u --target minor --packageManager pnpm"
   },
   "dependencies": {
-    "pixi.js": "^7.4.3",
+    "pixi.js": "^8.18.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-fps-stats": "^0.3.2"

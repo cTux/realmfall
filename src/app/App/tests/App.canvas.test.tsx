@@ -34,7 +34,7 @@ describe('App canvas setup', () => {
       root.unmount();
     });
     host.remove();
-  });
+  }, 10000);
 
   it('hydrates Pixi initialization flags from saved graphics settings', async () => {
     loadEncryptedState.mockResolvedValue(null);

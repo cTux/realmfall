@@ -65,9 +65,7 @@ export function renderSkyLayer(
 ) {
   skyFill.visible = true;
   skyFill.clear();
-  skyFill.beginFill(skyColor, 1);
-  skyFill.drawRect(0, 0, app.screen.width, app.screen.height);
-  skyFill.endFill();
+  skyFill.rect(0, 0, app.screen.width, app.screen.height).fill(skyColor);
 }
 
 export function renderAtmosphere(
@@ -138,9 +136,9 @@ export function renderWorldOverlay(
 
   overlayFill.visible = true;
   overlayFill.clear();
-  overlayFill.beginFill(color, alpha);
-  overlayFill.drawRect(0, 0, app.screen.width, app.screen.height);
-  overlayFill.endFill();
+  overlayFill
+    .rect(0, 0, app.screen.width, app.screen.height)
+    .fill({ color, alpha });
 }
 
 function renderLightShafts(
@@ -174,18 +172,18 @@ function renderLightShafts(
     });
     const perpendicular = { x: -beamVector.y, y: beamVector.x };
     const nearSpread = 14 + index * 6;
-    beam.beginFill(tint, shaft.alpha);
-    beam.drawPolygon([
-      sourcePosition.x - perpendicular.x * nearSpread,
-      sourcePosition.y - perpendicular.y * nearSpread,
-      sourcePosition.x + perpendicular.x * nearSpread,
-      sourcePosition.y + perpendicular.y * nearSpread,
-      focusPoint.x + perpendicular.x * spread,
-      focusPoint.y + perpendicular.y * spread,
-      focusPoint.x - perpendicular.x * spread,
-      focusPoint.y - perpendicular.y * spread,
-    ]);
-    beam.endFill();
+    beam
+      .poly([
+        sourcePosition.x - perpendicular.x * nearSpread,
+        sourcePosition.y - perpendicular.y * nearSpread,
+        sourcePosition.x + perpendicular.x * nearSpread,
+        sourcePosition.y + perpendicular.y * nearSpread,
+        focusPoint.x + perpendicular.x * spread,
+        focusPoint.y + perpendicular.y * spread,
+        focusPoint.x - perpendicular.x * spread,
+        focusPoint.y - perpendicular.y * spread,
+      ])
+      .fill({ color: tint, alpha: shaft.alpha });
   });
 }
 
@@ -211,25 +209,21 @@ function renderCelestialBody(
 
   haloLayers.forEach((halo) => {
     const glow = takeGraphics(graphicsPool);
-    glow.beginFill(tint, alpha * halo.alpha);
-    glow.drawEllipse(
-      position.x,
-      position.y,
-      radius * halo.scale,
-      radius * halo.scale,
-    );
-    glow.endFill();
+    glow
+      .ellipse(position.x, position.y, radius * halo.scale, radius * halo.scale)
+      .fill({ color: tint, alpha: alpha * halo.alpha });
   });
 
   const glow = takeGraphics(graphicsPool);
-  glow.beginFill(tint, alpha * 0.34);
-  glow.drawEllipse(position.x, position.y, radius * 1.18, radius * 1.18);
-  glow.endFill();
+  glow
+    .ellipse(position.x, position.y, radius * 1.18, radius * 1.18)
+    .fill({ color: tint, alpha: alpha * 0.34 });
 
   const body = takeGraphics(graphicsPool);
-  body.beginFill(tint, alpha);
-  body.drawEllipse(position.x, position.y, radius, radius);
-  body.endFill();
+  body.ellipse(position.x, position.y, radius, radius).fill({
+    color: tint,
+    alpha,
+  });
 }
 
 function smoothShadowSource(

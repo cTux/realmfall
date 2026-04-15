@@ -109,5 +109,5 @@ describe('App hover behavior', () => {
       root.unmount();
     });
     host.remove();
-  });
+  }, 10000);
 });

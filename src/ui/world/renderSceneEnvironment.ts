@@ -1,4 +1,3 @@
-import { BLEND_MODES } from 'pixi.js';
 import { HEX_SIZE } from '../../app/constants';
 import { createRng } from '../../game/random';
 import { type HexCoord } from '../../game/state';
@@ -174,18 +173,22 @@ export function renderEdgeWaterfall(
       ambientBrightness + 0.14,
     );
     const stream = takeGraphics(graphicsPool);
-    stream.beginFill(tint, Math.max(0.08, alpha));
-    stream.drawPolygon([
-      lip.x - perpendicular.x * width,
-      lip.y - perpendicular.y * width,
-      lip.x + perpendicular.x * width,
-      lip.y + perpendicular.y * width,
-      lip.x + flowDirection.x * sprayLength + perpendicular.x * (width * 0.45),
-      lip.y + flowDirection.y * sprayLength + perpendicular.y * (width * 0.45),
-      lip.x + flowDirection.x * fallLength - perpendicular.x * (width * 0.45),
-      lip.y + flowDirection.y * fallLength - perpendicular.y * (width * 0.45),
-    ]);
-    stream.endFill();
+    stream
+      .poly([
+        lip.x - perpendicular.x * width,
+        lip.y - perpendicular.y * width,
+        lip.x + perpendicular.x * width,
+        lip.y + perpendicular.y * width,
+        lip.x +
+          flowDirection.x * sprayLength +
+          perpendicular.x * (width * 0.45),
+        lip.y +
+          flowDirection.y * sprayLength +
+          perpendicular.y * (width * 0.45),
+        lip.x + flowDirection.x * fallLength - perpendicular.x * (width * 0.45),
+        lip.y + flowDirection.y * fallLength - perpendicular.y * (width * 0.45),
+      ])
+      .fill({ color: tint, alpha: Math.max(0.08, alpha) });
   }
 }
 
@@ -219,15 +222,15 @@ export function renderCampfireLight(
   haloLayers.forEach((layer, index) => {
     const glow = takeGraphics(graphicsPool);
     const scale = flicker + index * 0.03;
-    glow.blendMode = BLEND_MODES.ADD;
-    glow.beginFill(haloTint, layer.alpha * nightGlow * pulse);
-    glow.drawEllipse(
-      point.x,
-      point.y + hexSize * 0.2,
-      hexSize * layer.width * scale,
-      hexSize * layer.height * scale,
-    );
-    glow.endFill();
+    glow.blendMode = 'add';
+    glow
+      .ellipse(
+        point.x,
+        point.y + hexSize * 0.2,
+        hexSize * layer.width * scale,
+        hexSize * layer.height * scale,
+      )
+      .fill({ color: haloTint, alpha: layer.alpha * nightGlow * pulse });
   });
 
   const bloomLayers = [
@@ -237,38 +240,34 @@ export function renderCampfireLight(
   ];
   bloomLayers.forEach((layer, index) => {
     const bloom = takeGraphics(graphicsPool);
-    bloom.blendMode = BLEND_MODES.ADD;
-    bloom.beginFill(emberTint, layer.alpha * nightGlow * (1 + flicker * 0.08));
-    bloom.drawEllipse(
-      point.x,
-      point.y + hexSize * layer.yOffset - index,
-      hexSize * layer.width,
-      hexSize * layer.height,
-    );
-    bloom.endFill();
+    bloom.blendMode = 'add';
+    bloom
+      .ellipse(
+        point.x,
+        point.y + hexSize * layer.yOffset - index,
+        hexSize * layer.width,
+        hexSize * layer.height,
+      )
+      .fill({
+        color: emberTint,
+        alpha: layer.alpha * nightGlow * (1 + flicker * 0.08),
+      });
   });
 
   const heatWash = takeGraphics(graphicsPool);
-  heatWash.blendMode = BLEND_MODES.ADD;
-  heatWash.beginFill(haloTint, 0.12 * nightGlow);
-  heatWash.drawEllipse(
-    point.x,
-    point.y + hexSize * 0.08,
-    hexSize * 1.16,
-    hexSize * 0.8,
-  );
-  heatWash.endFill();
+  heatWash.blendMode = 'add';
+  heatWash
+    .ellipse(point.x, point.y + hexSize * 0.08, hexSize * 1.16, hexSize * 0.8)
+    .fill({ color: haloTint, alpha: 0.12 * nightGlow });
 
   const emberCore = takeGraphics(graphicsPool);
-  emberCore.blendMode = BLEND_MODES.ADD;
-  emberCore.beginFill(emberTint, 0.22 * nightGlow * (1.02 + flicker * 0.08));
-  emberCore.drawEllipse(
-    point.x,
-    point.y + hexSize * 0.1,
-    hexSize * 0.46,
-    hexSize * 0.3,
-  );
-  emberCore.endFill();
+  emberCore.blendMode = 'add';
+  emberCore
+    .ellipse(point.x, point.y + hexSize * 0.1, hexSize * 0.46, hexSize * 0.3)
+    .fill({
+      color: emberTint,
+      alpha: 0.22 * nightGlow * (1.02 + flicker * 0.08),
+    });
 }
 
 export function tileStyle(terrain: string) {

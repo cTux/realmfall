@@ -1,11 +1,5 @@
-import {
-  Container,
-  Graphics,
-  Sprite,
-  Text,
-  type DisplayObject,
-  type TextStyle,
-} from 'pixi.js';
+import { Container, Graphics, Sprite, Text, type TextStyle } from 'pixi.js';
+import { getWorldIconTexture } from './worldIcons';
 
 export interface GraphicsPool {
   parent: Container;
@@ -20,7 +14,7 @@ export interface TextPool {
 }
 
 export interface ShadowedSpriteEntry {
-  wrapper: Container & DisplayObject;
+  wrapper: Container;
   shadows: Sprite[];
   sprite: Sprite;
 }
@@ -142,7 +136,7 @@ export function takeSprite(pool: SpritePool, icon: string) {
 
   let item = items[used];
   if (!item) {
-    item = Sprite.from(icon);
+    item = new Sprite(getWorldIconTexture(icon));
     item.anchor.set(0.5);
     items.push(item);
     pool.itemsByIcon.set(icon, items);
@@ -164,14 +158,14 @@ export function finishSpritePool(pool: SpritePool) {
 }
 
 export function createShadowedSprite(icon: string): ShadowedSpriteEntry {
-  const wrapper = new Container() as DisplayObject & Container;
+  const wrapper = new Container();
   const shadows = [0.3, 0.55, 0.8, 1].map(() => {
-    const shadow = Sprite.from(icon);
+    const shadow = new Sprite(getWorldIconTexture(icon));
     shadow.anchor.set(0.5);
     wrapper.addChild(shadow);
     return shadow;
   });
-  const sprite = Sprite.from(icon);
+  const sprite = new Sprite(getWorldIconTexture(icon));
   sprite.anchor.set(0.5);
   wrapper.addChild(sprite);
   return { wrapper, shadows, sprite };
