@@ -16,6 +16,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - Contributor guidance now includes an explicit performance verification checklist for React rerender breadth, Pixi redraw breadth, hover hot paths, and startup chunk growth so optimization work has a repeatable review path beyond functional correctness.
 - That guidance also defines lightweight budgets for routine desktop world interaction and the main startup chunks, giving contributors a small regression envelope to compare against during reviews and build checks.
 - The pull-request workflow enforces those startup chunk budgets through `pnpm build:budget`, which runs a production build and fails if the `index`, `react-vendor`, or `pixi` chunks grow past the current thresholds.
+- The scheduled dependency-update workflow bootstraps its toolchain with `pnpm i --no-frozen-lockfile` before rewriting dependency specifiers and the lockfile, then validates the refreshed dependency set with lint, test, and build steps.
 - The pre-commit workflow also enforces version progression through `pnpm check:version`, which blocks commits unless `package.json` advances by patch version relative to `HEAD`.
 
 ## Main Implementation Areas
