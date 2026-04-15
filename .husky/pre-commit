@@ -1,6 +1,4 @@
 pnpm check:version
 pnpm typecheck
-pnpm lint:fix
+pnpm quality:staged
 git update-index --again
-pnpm lint:css
-pnpm test

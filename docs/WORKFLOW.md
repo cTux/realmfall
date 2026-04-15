@@ -44,5 +44,5 @@
 - When a requested JavaScript or TypeScript syntax convention changes, update ESLint and Prettier configuration when the convention can be enforced mechanically.
 - When a requested CSS or SCSS syntax convention changes, update Stylelint configuration when the convention can be enforced mechanically.
 - Every component addition, removal, or behavior-affecting UI change should add or update the corresponding Storybook story in the same task.
-- The pre-commit hook should auto-fix ESLint-managed formatting with `pnpm lint:fix`, refresh staged tracked files, and still run the remaining hook checks instead of failing only because formatting drift was auto-fixable.
-- The pre-commit hook should also run `pnpm test` after typecheck and lint so commits are blocked by failing tests before they leave the local machine.
+- The pre-commit hook should auto-fix ESLint-managed formatting for staged JavaScript and TypeScript files, refresh staged tracked files, and still run the remaining hook checks instead of failing only because formatting drift was auto-fixable.
+- The pre-commit hook should scope Stylelint to staged `src` CSS and SCSS files and scope Vitest to staged related source or test files by default, while falling back to the full `pnpm test` suite when staged changes affect shared test inputs such as package metadata, lockfile state, Vite config, TypeScript config, or shared Vitest setup.

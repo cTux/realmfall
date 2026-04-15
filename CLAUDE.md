@@ -14,6 +14,7 @@ Follow `docs/RULES.md` as the canonical source of project rules.
 - If a performance-sensitive prompt changes React, Pixi, hover, or bundle behavior, also document how that path should be verified.
 - If the rule changes workflow or contributor expectations, update `README.md` and `docs/WORKFLOW.md` too.
 - If the rule changes future prompt execution, also sync `AGENTS.md` and `.github/copilot-instructions.md`.
+- Keep the scoped pre-commit workflow expectations from `docs/RULES.md` in mind: full-project typecheck stays global, while ESLint, Stylelint, and Vitest may run against staged files unless shared test inputs require a full test run.
 - Prefer keeping project-specific guidance in `docs/RULES.md` instead of duplicating it here.
 - Keep this file compact and use it as an entrypoint back to the canonical rules.
 

@@ -73,6 +73,7 @@ pnpm dev
 - `pnpm build:storybook`
 - `pnpm serve`
 - `pnpm preview`
+- `pnpm quality:staged`
 - `pnpm typecheck`
 - `pnpm lint`
 - `pnpm lint:fix`
@@ -94,7 +95,7 @@ Contributors should keep these working unless a task explicitly changes the work
 
 For bundle-sensitive changes, also run `pnpm build:budget`.
 
-The pre-commit hook runs `pnpm check:version`, `pnpm typecheck`, `pnpm lint:fix`, refreshes the Git index for auto-fixed files, then runs `pnpm lint:css`, and finally runs `pnpm test`. `pnpm check:version` requires `package.json` to advance by patch version relative to `HEAD`.
+The pre-commit hook runs `pnpm check:version`, `pnpm typecheck`, and `pnpm quality:staged`, then refreshes the Git index for auto-fixed tracked files. `pnpm quality:staged` runs `eslint --fix` only on staged JavaScript and TypeScript files, runs Stylelint only on staged `src` CSS and SCSS files, and runs `vitest related` for staged source and test files. When shared test inputs such as `package.json`, `pnpm-lock.yaml`, `vite.config.ts`, TypeScript config, or `src/test/setup.ts` are staged, it falls back to the full `pnpm test` suite. `pnpm check:version` still requires `package.json` to advance by patch version relative to `HEAD`.
 
 The repository already has strong baseline tooling. Changes should preserve strict typing, lint cleanliness, deterministic tests where practical, and successful production builds.
 
