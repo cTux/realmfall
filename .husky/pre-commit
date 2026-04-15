@@ -3,3 +3,4 @@ pnpm typecheck
 pnpm lint:fix
 git update-index --again
 pnpm lint:css
+pnpm test
