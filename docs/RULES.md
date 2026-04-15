@@ -16,12 +16,12 @@
 ## General
 
 - Use `pnpm` for project commands. Do not switch examples or contributor guidance to `npm`.
-- Keep TypeScript strictness, ESLint, Prettier, tests, and Husky hooks working. New changes should not weaken existing quality gates.
-- Keep the pre-commit hook aligned with the linting workflow. When ESLint formatting is auto-fixable, prefer applying the fix during pre-commit against the staged JavaScript and TypeScript files instead of failing only on formatting drift.
+- Keep TypeScript strictness, Oxlint, Prettier, tests, and Husky hooks working. New changes should not weaken existing quality gates.
+- Keep the pre-commit hook aligned with the linting workflow. When Oxlint can safely auto-fix staged JavaScript and TypeScript issues, prefer applying the fix during pre-commit instead of failing only on fixable drift.
 - Keep the pre-commit hook aligned with the local quality bar. It should enforce version progression, full-project typecheck, staged-file lint checks, and staged-file related tests by default, including staged runtime JSON sources that affect app behavior or content, while falling back to the full repository test suite when shared test inputs such as package metadata, TypeScript config, Vite config, lockfile data, or shared Vitest setup change.
 - Prefer the smallest correct change that fits the existing structure.
 - Apply the DRY principle. When logic, UI structure, or configuration patterns repeat, prefer extracting or extending an existing shared helper, component, or module instead of copying the pattern again.
-- When a requested JavaScript or TypeScript syntax preference can be enforced mechanically, prefer enabling or adjusting the corresponding ESLint rule instead of relying only on contributor discipline.
+- When a requested JavaScript or TypeScript syntax preference can be enforced mechanically, prefer enabling or adjusting the corresponding Oxlint rule instead of relying only on contributor discipline, using Oxlint JS plugins only when the rule is not available natively.
 - When a requested JavaScript or TypeScript syntax preference also depends on formatting behavior, update the relevant Prettier configuration when that style can be enforced there as well.
 - When a requested CSS or SCSS syntax preference can be enforced mechanically, prefer enabling or adjusting the corresponding Stylelint rule instead of relying only on contributor discipline.
 - When a requested commit message format changes, update the Commitlint configuration in the same task when the repository can enforce that convention automatically.
@@ -31,7 +31,7 @@
 - Keep documentation grounded in the current shipped behavior and known constraints, not aspirational plans.
 - When generating or naming world content such as places, factions, enemies, items, events, structures, or flavor text, align it with the established lore in `docs/lore/REALMFALL.md`.
 - In JavaScript and TypeScript, when a function immediately returns an expression, prefer concise arrow functions without a block body.
-- Keep ESLint syntax rules aligned with the current JavaScript and TypeScript style expectations so these conventions are auto-checked and auto-fixable when practical.
+- Keep Oxlint rules aligned with the current JavaScript and TypeScript style expectations so these conventions are auto-checked and auto-fixable when practical.
 
 ## Architecture
 

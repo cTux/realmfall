@@ -3,7 +3,7 @@ import { existsSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
   FULL_TEST_TRIGGER_FILES,
-  isEslintFile,
+  isLintFile,
   isSrcStyleFile,
   isVitestRelatedFile,
 } from './run-staged-quality.helpers.mjs';
@@ -49,18 +49,18 @@ if (stagedFiles.length === 0) {
   process.exit(0);
 }
 
-const eslintFiles = stagedFiles.filter(isEslintFile);
+const lintFiles = stagedFiles.filter(isLintFile);
 const stylelintFiles = stagedFiles.filter(isSrcStyleFile);
 const shouldRunFullTestSuite = stagedFiles.some((file) =>
   FULL_TEST_TRIGGER_FILES.has(file),
 );
 const vitestRelatedFiles = stagedFiles.filter(isVitestRelatedFile);
 
-if (eslintFiles.length > 0) {
-  logStep(`Running ESLint --fix on ${eslintFiles.length} staged file(s)`);
-  run(pnpmBin, ['exec', 'eslint', '--fix', ...eslintFiles]);
+if (lintFiles.length > 0) {
+  logStep(`Running Oxlint --fix on ${lintFiles.length} staged file(s)`);
+  run(pnpmBin, ['exec', 'oxlint', '-c', '.oxlintrc.json', '--fix', ...lintFiles]);
 } else {
-  logStep('Skipping staged ESLint, no matching files');
+  logStep('Skipping staged Oxlint, no matching files');
 }
 
 if (stylelintFiles.length > 0) {

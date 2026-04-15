@@ -1,7 +1,7 @@
 {
   "name": "realmfall",
   "private": true,
-  "version": "0.2.10",
+  "version": "0.2.14",
   "type": "module",
   "packageManager": "pnpm@10.33.0",
   "engines": {
@@ -18,8 +18,12 @@
     "preview": "vite preview",
     "quality:staged": "node scripts/run-staged-quality.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.node.json --noEmit",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "pnpm lint:oxlint",
+    "lint:eslint": "eslint src .storybook scripts eslint.config.js vite.config.ts commitlint.config.js",
+    "lint:fix": "oxlint -c .oxlintrc.json --fix src .storybook scripts eslint.config.js vite.config.ts commitlint.config.js",
+    "lint:oxlint": "oxlint -c .oxlintrc.json src .storybook scripts eslint.config.js vite.config.ts commitlint.config.js",
+    "lint:biome": "biome lint . --files-ignore-unknown=true",
+    "lint:bench": "node scripts/benchmark-linters.mjs",
     "lint:css": "stylelint \"src/**/*.{css,scss}\"",
     "format": "prettier --check .",
     "test": "vitest run",
@@ -36,6 +40,7 @@
     "react-fps-stats": "^0.3.2"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.4.12",
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
     "@eslint/js": "^9.39.4",
@@ -54,6 +59,7 @@
     "husky": "^9.1.7",
     "jsdom": "^29.0.2",
     "npm-check-updates": "^21.0.0",
+    "oxlint": "^1.60.0",
     "prettier": "^3.8.3",
     "sass": "^1.99.0",
     "serve": "^14.2.6",
