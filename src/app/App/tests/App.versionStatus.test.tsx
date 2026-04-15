@@ -73,4 +73,38 @@ describe('App version status', () => {
     });
     host.remove();
   });
+
+  it('returns to yellow when a later poll fails after a successful match', async () => {
+    loadEncryptedState.mockResolvedValue(null);
+
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(createVersionResponse(__APP_VERSION__))
+      .mockRejectedValueOnce(new Error('offline'));
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { host, root } = await renderApp();
+    await flushLazyModules();
+
+    expect(
+      host.querySelector('[data-version-status="current"]'),
+    ).not.toBeNull();
+
+    await act(async () => {
+      vi.advanceTimersByTime(VERSION_POLL_INTERVAL_MS);
+      await Promise.resolve();
+    });
+    await flushLazyModules();
+
+    expect(
+      host.querySelector('[data-version-status="fetching"]'),
+    ).not.toBeNull();
+    expect(host.textContent).toContain('Remote: checking...');
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
 });

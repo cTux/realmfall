@@ -6,7 +6,7 @@ export const VERSION_POLL_INTERVAL_MS = 15_000;
 export type VersionStatusState =
   | {
       currentVersion: string;
-      remoteVersion: null;
+      remoteVersion: string | null;
       status: 'fetching';
     }
   | {
@@ -42,6 +42,12 @@ export function useVersionStatus(currentVersion = APP_VERSION) {
     let disposed = false;
 
     const syncVersion = async () => {
+      setState((current) => ({
+        currentVersion,
+        remoteVersion: current.remoteVersion,
+        status: 'fetching',
+      }));
+
       try {
         const response = await fetch(getVersionJsonUrl(), {
           cache: 'no-store',
@@ -71,15 +77,11 @@ export function useVersionStatus(currentVersion = APP_VERSION) {
           return;
         }
 
-        setState((current) =>
-          current.remoteVersion
-            ? current
-            : {
-                currentVersion,
-                remoteVersion: null,
-                status: 'fetching',
-              },
-        );
+        setState({
+          currentVersion,
+          remoteVersion: null,
+          status: 'fetching',
+        });
       }
     };
 
