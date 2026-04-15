@@ -135,6 +135,50 @@ describe('App', () => {
     host.remove();
   });
 
+  it('autosaves UI-only changes without requiring gameplay mutations', async () => {
+    const game = createGame(2, 'app-ui-save-seed');
+    loadEncryptedState.mockResolvedValue({ game, ui: {} });
+
+    const { App } = await import('./index');
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+
+    await act(async () => {
+      root.render(<App />);
+    });
+    await flushLazyModules();
+
+    saveEncryptedState.mockClear();
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'c' }),
+      );
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(400);
+    });
+
+    expect(saveEncryptedState).toHaveBeenCalledWith(
+      expect.objectContaining({
+        game: expect.objectContaining({
+          turn: game.turn,
+          logs: [],
+        }),
+        ui: expect.objectContaining({
+          windowShown: expect.objectContaining({ hero: true }),
+        }),
+      }),
+    );
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
   it('hydrates saved state, handles ui interactions, and responds to map input', async () => {
     const game = createGame(3, 'app-test-seed');
     game.homeHex = { q: 2, r: -1 };
@@ -445,8 +489,7 @@ describe('App', () => {
     });
 
     await act(async () => {
-      vi.advanceTimersByTime(600);
-      await Promise.resolve();
+      await vi.advanceTimersByTimeAsync(600);
     });
 
     expect(renderScene.mock.calls.length).toBeGreaterThan(1);
