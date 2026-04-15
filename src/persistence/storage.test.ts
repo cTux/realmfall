@@ -16,17 +16,35 @@ describe('encrypted storage', () => {
 
     await saveEncryptedState(payload);
 
-    const raw = localStorage.getItem('survival-rpg-save');
+    const raw = localStorage.getItem('game-state');
     expect(raw).toBeTruthy();
     expect(raw).not.toContain('"turn":7');
+    expect(localStorage.getItem('survival-rpg-save')).toBeNull();
 
     await expect(loadEncryptedState()).resolves.toEqual(payload);
+  });
+
+  it('migrates legacy save payloads to the new storage key', async () => {
+    const payload = {
+      game: { turn: 3 },
+      ui: { windowShown: { hero: true } },
+    };
+
+    await saveEncryptedState(payload);
+
+    const legacyPayload = localStorage.getItem('game-state');
+    localStorage.removeItem('game-state');
+    localStorage.setItem('survival-rpg-save', legacyPayload!);
+
+    await expect(loadEncryptedState()).resolves.toEqual(payload);
+    expect(localStorage.getItem('game-state')).toBe(legacyPayload);
+    expect(localStorage.getItem('survival-rpg-save')).toBeNull();
   });
 
   it('returns null for missing or invalid payloads', async () => {
     await expect(loadEncryptedState()).resolves.toBeNull();
 
-    localStorage.setItem('survival-rpg-save', 'not-json');
+    localStorage.setItem('game-state', 'not-json');
     await expect(loadEncryptedState()).resolves.toBeNull();
   });
 });

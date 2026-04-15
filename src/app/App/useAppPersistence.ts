@@ -26,8 +26,8 @@ import {
 import { normalizeLoadedGame } from '../normalize';
 import type { PersistedUiState } from './types';
 
-const AUTOSAVE_DEBOUNCE_MS = 300;
 const AUTOSAVE_INTERVAL_MS = 5000;
+const AUTOSAVE_DEBOUNCE_MS = AUTOSAVE_INTERVAL_MS;
 
 type PersistedSaveSegments = {
   game: PersistedData['game'];
@@ -444,6 +444,8 @@ export function useAppPersistence({
     if (!hydrated) return;
 
     const interval = window.setInterval(() => {
+      if (debounceTimerRef.current !== null) return;
+
       flushPendingSave({
         currentSerializedRef,
         dirtySegmentsRef,

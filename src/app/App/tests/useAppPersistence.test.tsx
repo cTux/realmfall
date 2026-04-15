@@ -150,7 +150,7 @@ describe('useAppPersistence', () => {
     });
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(400);
+      await vi.advanceTimersByTimeAsync(5000);
     });
 
     expect(saveEncryptedState).toHaveBeenCalledTimes(1);
@@ -206,7 +206,7 @@ describe('useAppPersistence', () => {
     });
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(400);
+      await vi.advanceTimersByTimeAsync(5000);
     });
 
     expect(saveEncryptedState).toHaveBeenCalledTimes(1);

@@ -1,4 +1,5 @@
-const STORAGE_KEY = 'survival-rpg-save';
+const STORAGE_KEY = 'game-state';
+const LEGACY_STORAGE_KEY = 'survival-rpg-save';
 const PASSPHRASE = 'survival-rpg-local-save-v1';
 
 // This passphrase-derived wrapper only obscures local saves in client storage.
@@ -12,11 +13,13 @@ export interface PersistedData {
 export const PERSISTED_SAVE_STORAGE_KEY = STORAGE_KEY;
 
 export async function loadEncryptedState(): Promise<PersistedData | null> {
-  const payload = localStorage.getItem(STORAGE_KEY);
+  const payload = getStoredPayload();
   if (!payload) return null;
 
   try {
-    return await decryptJson<PersistedData>(payload);
+    const decrypted = await decryptJson<PersistedData>(payload);
+    migrateLegacyPayload(payload);
+    return decrypted;
   } catch {
     return null;
   }
@@ -25,10 +28,31 @@ export async function loadEncryptedState(): Promise<PersistedData | null> {
 export async function saveEncryptedState(data: PersistedData) {
   const payload = await encryptJson(data);
   localStorage.setItem(STORAGE_KEY, payload);
+  localStorage.removeItem(LEGACY_STORAGE_KEY);
 }
 
 export function clearEncryptedState() {
   localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(LEGACY_STORAGE_KEY);
+}
+
+function getStoredPayload() {
+  return (
+    localStorage.getItem(STORAGE_KEY) ??
+    localStorage.getItem(LEGACY_STORAGE_KEY)
+  );
+}
+
+function migrateLegacyPayload(payload: string) {
+  if (
+    localStorage.getItem(STORAGE_KEY) ||
+    !localStorage.getItem(LEGACY_STORAGE_KEY)
+  ) {
+    return;
+  }
+
+  localStorage.setItem(STORAGE_KEY, payload);
+  localStorage.removeItem(LEGACY_STORAGE_KEY);
 }
 
 async function encryptJson(value: unknown) {

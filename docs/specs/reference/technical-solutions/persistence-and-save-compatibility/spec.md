@@ -6,7 +6,7 @@ This spec covers browser save storage, hydration normalization, and autosave beh
 
 ## Current Solution
 
-- Saves are stored in browser local storage.
+- Saves are stored in browser local storage under the `game-state` key, with legacy `survival-rpg-save` payloads migrated forward on load.
 - Stored payloads contain both game and UI state.
 - The app persists snapshots with world time and UI window state while intentionally excluding transient log history from the saved payload.
 - `src/persistence/storage.ts` wraps saved JSON in AES-GCM using a client-side passphrase-derived key.
@@ -14,7 +14,7 @@ This spec covers browser save storage, hydration normalization, and autosave beh
 - Loaded saves are normalized before they are used by the app.
 - Normalization handles legacy gold shape migration, item id deduplication, missing structure HP, combat actor defaults, old window-collapsed UI state, thirst defaults, learned recipes, and legacy claim NPC fields.
 - Home tile safety is re-established during normalization when needed.
-- Autosave uses a debounce plus interval-backed flush model.
+- Autosave uses a five-second debounce plus five-second interval-backed flush model.
 - Gameplay and UI persistence dirtiness are tracked separately so UI-only changes do not rebuild the gameplay snapshot on every autosave scheduling pass.
 - The app serializes persisted segments and skips redundant writes when nothing meaningful changed.
 - Pending saves are coalesced while previous writes are in flight.

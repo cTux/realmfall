@@ -9,14 +9,14 @@ This spec covers the desktop-style game settings window, its dock and hotkey acc
 - A dedicated game settings window can be toggled from the left dock and with the `M` hotkey.
 - The settings dock button is pinned to the bottom of the left dock instead of the main top-aligned button stack.
 - Opening the settings window shows a fullscreen black translucent underlay behind the window chrome so it behaves like a modal surface over the viewport.
-- The current settings content uses a reusable tab strip and currently exposes a `Graphic settings` tab.
 - The current settings content uses a reusable tab strip and currently exposes a `Graphics` tab.
 - The graphic settings tab uses reusable switch controls to edit persisted Pixi renderer initialization flags.
-- Graphics settings are stored in dedicated plain `localStorage` outside the encrypted save payload so startup can read them before game and renderer initialization begins.
+- Settings are stored in a dedicated plain `localStorage` `settings` payload outside the encrypted save payload so startup can read renderer-init flags before game and renderer initialization begins, and the same payload can expand to future settings tabs.
 - `Save` persists the current settings immediately without reloading.
 - `Save & Reload` persists the current settings immediately and then reloads the page so renderer-init changes apply to the live world canvas.
 - `Reset Save Data` requires a continuous five-second press-and-hold interaction with a filling progress state before it clears persisted save and UI data and reloads the page.
 - The window keeps the shared title-bar close control used by the other desktop windows.
+- Reopening the settings window reapplies its persisted width and height immediately instead of briefly rendering at the CSS default size first.
 
 ## Verification Path
 
