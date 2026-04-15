@@ -16,6 +16,7 @@ Current implemented areas include:
 - Combat, enemy encounters, progression, recipes, and crafting-related systems.
 - Desktop-style draggable windows for hero, skills, hex info, equipment, inventory, recipe book, combat, loot, logs, and docked controls.
 - Local autosave with normalization during load to keep save compatibility across shape changes.
+- Runtime version exposure, `version.json` build output, and an in-game refresh indicator for newer deployments.
 - Automated quality tooling with type checking, linting, formatting, tests, Husky hooks, and CI coverage for typecheck, lint, test, and build.
 - Storybook coverage for UI components plus catalog views for items, enemies, and structures.
 
@@ -93,7 +94,7 @@ Contributors should keep these working unless a task explicitly changes the work
 
 For bundle-sensitive changes, also run `pnpm build:budget`.
 
-The pre-commit hook runs `pnpm typecheck`, `pnpm lint:fix`, refreshes the Git index for auto-fixed files, and then runs `pnpm lint:css`.
+The pre-commit hook runs `pnpm check:version`, `pnpm typecheck`, `pnpm lint:fix`, refreshes the Git index for auto-fixed files, and then runs `pnpm lint:css`.
 
 The repository already has strong baseline tooling. Changes should preserve strict typing, lint cleanliness, deterministic tests where practical, and successful production builds.
 

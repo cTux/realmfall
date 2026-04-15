@@ -21,5 +21,8 @@ describe('main bootstrap', () => {
 
     expect(createRoot).toHaveBeenCalledWith(document.getElementById('root'));
     expect(render).toHaveBeenCalledTimes(1);
+    expect(
+      (globalThis as typeof globalThis & { version: string }).version,
+    ).toBe(__APP_VERSION__);
   });
 });
