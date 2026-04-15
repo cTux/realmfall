@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import type { AppWindowsProps } from '../AppWindows.types';
+import type { AppWindowsLayout } from '../AppWindows.types';
 import { DEFERRED_WINDOW_KEYS, type DeferredWindowKey } from './windowKeys';
 
 function createLoadedWindowState(
-  windowShown: AppWindowsProps['windowShown'],
+  windowShown: AppWindowsLayout['windowShown'],
   renderLootWindow: boolean,
   renderCombatWindow: boolean,
 ) {
@@ -22,7 +22,7 @@ function createLoadedWindowState(
 
 function mergeLoadedWindowState(
   current: Record<DeferredWindowKey, boolean>,
-  windowShown: AppWindowsProps['windowShown'],
+  windowShown: AppWindowsLayout['windowShown'],
   renderLootWindow: boolean,
   renderCombatWindow: boolean,
 ) {
@@ -46,7 +46,7 @@ export function useDeferredWindows({
   renderLootWindow,
   renderCombatWindow,
 }: Pick<
-  AppWindowsProps,
+  AppWindowsLayout,
   'windowShown' | 'renderLootWindow' | 'renderCombatWindow'
 >) {
   const [loadedWindows, setLoadedWindows] = useState(() =>

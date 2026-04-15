@@ -40,162 +40,164 @@ export function AppDeferredWindows({
   windowMoveHandlers,
   ...props
 }: AppWindowsProps & AppDeferredWindowsProps) {
+  const { actions, layout, views } = props;
+
   return (
     <>
       {loadedWindows.skills ? (
         <SkillsWindow
-          position={props.windows.skills}
+          position={layout.windows.skills}
           onMove={windowMoveHandlers.skills}
-          visible={props.windowShown.skills}
+          visible={layout.windowShown.skills}
           onClose={windowCloseHandlers.skills}
-          skills={props.stats.skills}
-          onHoverDetail={props.onShowTooltip}
-          onLeaveDetail={props.onCloseTooltip}
+          skills={views.stats.skills}
+          onHoverDetail={actions.tooltip.onShowTooltip}
+          onLeaveDetail={actions.tooltip.onCloseTooltip}
         />
       ) : null}
       {loadedWindows.recipes ? (
         <RecipeBookWindow
-          position={props.windows.recipes}
+          position={layout.windows.recipes}
           onMove={windowMoveHandlers.recipes}
-          visible={props.windowShown.recipes}
+          visible={layout.windowShown.recipes}
           onClose={windowCloseHandlers.recipes}
-          hasRecipeBook={props.recipeBookKnown}
+          hasRecipeBook={views.recipeBookKnown}
           currentStructure={recipeWindowStructure}
-          recipes={props.recipes}
-          inventoryCounts={props.inventoryCounts}
-          onCraft={props.onCraftRecipe}
-          onHoverDetail={props.onShowTooltip}
-          onLeaveDetail={props.onCloseTooltip}
+          recipes={views.recipes}
+          inventoryCounts={views.inventoryCounts}
+          onCraft={actions.inventory.onCraftRecipe}
+          onHoverDetail={actions.tooltip.onShowTooltip}
+          onLeaveDetail={actions.tooltip.onCloseTooltip}
         />
       ) : null}
       {loadedWindows.hexInfo ? (
         <HexInfoWindow
-          position={props.windows.hexInfo}
+          position={layout.windows.hexInfo}
           onMove={windowMoveHandlers.hexInfo}
-          visible={props.windowShown.hexInfo}
+          visible={layout.windowShown.hexInfo}
           onClose={windowCloseHandlers.hexInfo}
           isHome={hexInfoView.isHome}
           canSetHome={hexInfoView.canSetHome}
-          onSetHome={props.onSetHome}
+          onSetHome={actions.world.onSetHome}
           terrain={hexInfoView.terrain}
           structure={hexInfoView.structure}
           enemyCount={hexInfoView.enemyCount}
-          interactLabel={props.interactLabel}
-          canInteract={Boolean(props.interactLabel)}
-          canProspect={props.canProspect}
-          canSell={props.canSell}
-          canClaim={props.claimStatus.canClaim}
-          claimExplanation={props.claimStatus.reason}
-          prospectExplanation={props.prospectExplanation}
-          sellExplanation={props.sellExplanation}
-          onInteract={props.onInteract}
-          onProspect={props.onProspect}
-          onSellAll={props.onSellAll}
-          onClaim={props.onClaimHex}
-          structureHp={props.currentTile.structureHp}
-          structureMaxHp={props.currentTile.structureMaxHp}
-          territoryName={props.currentTile.claim?.ownerName ?? null}
-          territoryOwnerType={props.currentTile.claim?.ownerType ?? null}
-          territoryNpc={props.currentTile.claim?.npc ?? null}
-          townStock={props.townStock}
-          gold={props.gold}
-          onBuyItem={props.onBuyTownItem}
-          onHoverItem={props.onShowItemTooltip}
-          onLeaveItem={props.onCloseTooltip}
-          onHoverDetail={props.onShowTooltip}
-          onLeaveDetail={props.onCloseTooltip}
+          interactLabel={views.interactLabel}
+          canInteract={Boolean(views.interactLabel)}
+          canProspect={views.canProspect}
+          canSell={views.canSell}
+          canClaim={views.claimStatus.canClaim}
+          claimExplanation={views.claimStatus.reason}
+          prospectExplanation={views.prospectExplanation}
+          sellExplanation={views.sellExplanation}
+          onInteract={actions.world.onInteract}
+          onProspect={actions.world.onProspect}
+          onSellAll={actions.world.onSellAll}
+          onClaim={actions.world.onClaimHex}
+          structureHp={views.currentTile.structureHp}
+          structureMaxHp={views.currentTile.structureMaxHp}
+          territoryName={views.currentTile.claim?.ownerName ?? null}
+          territoryOwnerType={views.currentTile.claim?.ownerType ?? null}
+          territoryNpc={views.currentTile.claim?.npc ?? null}
+          townStock={views.townStock}
+          gold={views.gold}
+          onBuyItem={actions.world.onBuyTownItem}
+          onHoverItem={actions.tooltip.onShowItemTooltip}
+          onLeaveItem={actions.tooltip.onCloseTooltip}
+          onHoverDetail={actions.tooltip.onShowTooltip}
+          onLeaveDetail={actions.tooltip.onCloseTooltip}
         />
       ) : null}
       {loadedWindows.equipment ? (
         <EquipmentWindow
-          position={props.windows.equipment}
+          position={layout.windows.equipment}
           onMove={windowMoveHandlers.equipment}
-          visible={props.windowShown.equipment}
+          visible={layout.windowShown.equipment}
           onClose={windowCloseHandlers.equipment}
-          equipment={props.game.player.equipment}
-          onHoverItem={props.onEquipmentHover}
-          onLeaveItem={props.onCloseTooltip}
-          onUnequip={props.onUnequip}
-          onContextItem={props.onEquippedContextItem}
-          onHoverDetail={props.onShowTooltip}
-          onLeaveDetail={props.onCloseTooltip}
+          equipment={views.game.player.equipment}
+          onHoverItem={actions.tooltip.onEquipmentHover}
+          onLeaveItem={actions.tooltip.onCloseTooltip}
+          onUnequip={actions.inventory.onUnequip}
+          onContextItem={actions.inventory.onEquippedContextItem}
+          onHoverDetail={actions.tooltip.onShowTooltip}
+          onLeaveDetail={actions.tooltip.onCloseTooltip}
         />
       ) : null}
       {loadedWindows.inventory ? (
         <InventoryWindow
-          position={props.windows.inventory}
+          position={layout.windows.inventory}
           onMove={windowMoveHandlers.inventory}
-          visible={props.windowShown.inventory}
+          visible={layout.windowShown.inventory}
           onClose={windowCloseHandlers.inventory}
-          inventory={props.game.player.inventory}
-          equipment={props.game.player.equipment}
-          onSort={props.onSort}
-          onEquip={props.onEquip}
-          onContextItem={props.onContextItem}
-          onHoverItem={props.onShowItemTooltip}
-          onLeaveItem={props.onCloseTooltip}
-          onHoverDetail={props.onShowTooltip}
-          onLeaveDetail={props.onCloseTooltip}
+          inventory={views.game.player.inventory}
+          equipment={views.game.player.equipment}
+          onSort={actions.inventory.onSort}
+          onEquip={actions.inventory.onEquip}
+          onContextItem={actions.inventory.onContextItem}
+          onHoverItem={actions.tooltip.onShowItemTooltip}
+          onLeaveItem={actions.tooltip.onCloseTooltip}
+          onHoverDetail={actions.tooltip.onShowTooltip}
+          onLeaveDetail={actions.tooltip.onCloseTooltip}
         />
       ) : null}
       {loadedWindows.loot ? (
         <LootWindow
-          position={props.windows.loot}
+          position={layout.windows.loot}
           onMove={windowMoveHandlers.loot}
-          visible={props.windowShown.loot && props.lootWindowVisible}
-          loot={props.lootSnapshot}
-          equipment={props.game.player.equipment}
+          visible={layout.windowShown.loot && views.lootWindowVisible}
+          loot={views.lootSnapshot}
+          equipment={views.game.player.equipment}
           onClose={windowCloseHandlers.loot}
-          onTakeAll={props.onTakeAllLoot}
-          onTakeItem={props.onTakeLootItem}
-          onHoverItem={props.onShowItemTooltip}
-          onLeaveItem={props.onCloseTooltip}
-          onHoverDetail={props.onShowTooltip}
-          onLeaveDetail={props.onCloseTooltip}
+          onTakeAll={actions.inventory.onTakeAllLoot}
+          onTakeItem={actions.inventory.onTakeLootItem}
+          onHoverItem={actions.tooltip.onShowItemTooltip}
+          onLeaveItem={actions.tooltip.onCloseTooltip}
+          onHoverDetail={actions.tooltip.onShowTooltip}
+          onLeaveDetail={actions.tooltip.onCloseTooltip}
         />
       ) : null}
       {loadedWindows.log ? (
         <LogWindow
-          position={props.windows.log}
+          position={layout.windows.log}
           onMove={windowMoveHandlers.log}
-          visible={props.windowShown.log}
+          visible={layout.windowShown.log}
           onClose={windowCloseHandlers.log}
-          filters={props.logFilters}
+          filters={views.logFilters}
           defaultFilters={DEFAULT_LOG_FILTERS}
-          showFilterMenu={props.showFilterMenu}
-          onToggleMenu={props.onToggleFilterMenu}
-          onToggleFilter={props.onToggleLogFilter}
-          logs={props.filteredLogs}
-          onHoverDetail={props.onShowTooltip}
-          onLeaveDetail={props.onCloseTooltip}
+          showFilterMenu={views.showFilterMenu}
+          onToggleMenu={actions.logs.onToggleFilterMenu}
+          onToggleFilter={actions.logs.onToggleLogFilter}
+          logs={views.filteredLogs}
+          onHoverDetail={actions.tooltip.onShowTooltip}
+          onLeaveDetail={actions.tooltip.onCloseTooltip}
         />
       ) : null}
-      {loadedWindows.combat && props.combatSnapshot ? (
+      {loadedWindows.combat && views.combatSnapshot ? (
         <CombatWindow
-          position={props.windows.combat}
+          position={layout.windows.combat}
           onMove={windowMoveHandlers.combat}
-          visible={props.windowShown.combat && props.combatWindowVisible}
+          visible={layout.windowShown.combat && views.combatWindowVisible}
           onClose={windowCloseHandlers.combat}
-          combat={props.combatSnapshot.combat}
+          combat={views.combatSnapshot.combat}
           playerParty={combatPlayerParty}
-          enemies={props.combatSnapshot.enemies}
-          worldTimeMs={props.worldTimeMs}
-          onStart={props.onStartCombat}
-          onHoverDetail={props.onShowTooltip}
-          onLeaveDetail={props.onCloseTooltip}
-          onHoverHeaderAction={props.onShowTooltip}
+          enemies={views.combatSnapshot.enemies}
+          worldTimeMs={views.worldTimeMs}
+          onStart={actions.world.onStartCombat}
+          onHoverDetail={actions.tooltip.onShowTooltip}
+          onLeaveDetail={actions.tooltip.onCloseTooltip}
+          onHoverHeaderAction={actions.tooltip.onShowTooltip}
         />
       ) : null}
       {loadedWindows.settings ? (
         <GameSettingsWindow
-          position={props.windows.settings}
+          position={layout.windows.settings}
           onMove={windowMoveHandlers.settings}
-          visible={props.windowShown.settings}
+          visible={layout.windowShown.settings}
           onClose={windowCloseHandlers.settings}
-          graphicsSettings={props.graphicsSettings}
-          onSave={props.onSaveGraphicsSettings}
-          onSaveAndReload={props.onSaveGraphicsSettingsAndReload}
-          onResetSaveData={props.onResetSaveData}
+          graphicsSettings={views.graphicsSettings}
+          onSave={actions.settings.onSaveGraphicsSettings}
+          onSaveAndReload={actions.settings.onSaveGraphicsSettingsAndReload}
+          onResetSaveData={actions.settings.onResetSaveData}
         />
       ) : null}
     </>

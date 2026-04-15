@@ -15,33 +15,37 @@ export function AppWindows(props: AppWindowsProps) {
   const dockEntries = useMemo(
     () =>
       getDockEntries(
-        props.windowShown,
-        props.renderLootWindow,
-        props.renderCombatWindow,
+        props.layout.windowShown,
+        props.layout.renderLootWindow,
+        props.layout.renderCombatWindow,
       ),
-    [props.renderCombatWindow, props.renderLootWindow, props.windowShown],
+    [
+      props.layout.renderCombatWindow,
+      props.layout.renderLootWindow,
+      props.layout.windowShown,
+    ],
   );
   const { windowMoveHandlers, windowCloseHandlers } = useAppWindowHandlers({
-    onMoveWindow: props.onMoveWindow,
-    onSetWindowVisibility: props.onSetWindowVisibility,
+    onMoveWindow: props.actions.windows.onMoveWindow,
+    onSetWindowVisibility: props.actions.windows.onSetWindowVisibility,
   });
   const loadedWindows = useDeferredWindows({
-    windowShown: props.windowShown,
-    renderLootWindow: props.renderLootWindow,
-    renderCombatWindow: props.renderCombatWindow,
+    windowShown: props.layout.windowShown,
+    renderLootWindow: props.layout.renderLootWindow,
+    renderCombatWindow: props.layout.renderCombatWindow,
   });
   const hexInfoView = useHexInfoView({
-    game: props.game,
-    currentTile: props.currentTile,
-    combatSnapshot: props.combatSnapshot,
+    game: props.views.game,
+    currentTile: props.views.currentTile,
+    combatSnapshot: props.views.combatSnapshot,
   });
   const recipeWindowStructure = useRecipeWindowStructure(
-    props.currentTile.structure,
+    props.views.currentTile.structure,
   );
   const combatPlayerParty = useCombatPlayerParty({
-    combatSnapshot: props.combatSnapshot,
-    stats: props.stats,
-    mana: props.game.player.mana,
+    combatSnapshot: props.views.combatSnapshot,
+    stats: props.views.stats,
+    mana: props.views.game.player.mana,
   });
 
   return (

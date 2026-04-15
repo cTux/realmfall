@@ -1,14 +1,14 @@
 import { useMemo } from 'react';
 import type { GameState } from '../../../game/state';
-import type { AppWindowsProps } from '../AppWindows.types';
+import type { AppWindowsViewState } from '../AppWindows.types';
 
 export function useCombatPlayerParty({
   combatSnapshot,
   stats,
   mana,
 }: {
-  combatSnapshot: AppWindowsProps['combatSnapshot'];
-  stats: AppWindowsProps['stats'];
+  combatSnapshot: AppWindowsViewState['combatSnapshot'];
+  stats: AppWindowsViewState['stats'];
   mana: GameState['player']['mana'];
 }) {
   return useMemo(

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { AppWindowsProps } from '../AppWindows.types';
+import type { AppWindowsActions } from '../AppWindows.types';
 import {
   WINDOW_HANDLER_KEYS,
   type ManagedWindowKey,
@@ -7,7 +7,7 @@ import {
 } from './windowKeys';
 
 function createWindowMoveHandlers(
-  onMoveWindow: AppWindowsProps['onMoveWindow'],
+  onMoveWindow: AppWindowsActions['windows']['onMoveWindow'],
 ) {
   return WINDOW_HANDLER_KEYS.reduce(
     (handlers, key) => {
@@ -21,7 +21,7 @@ function createWindowMoveHandlers(
 }
 
 function createWindowCloseHandlers(
-  onSetWindowVisibility: AppWindowsProps['onSetWindowVisibility'],
+  onSetWindowVisibility: AppWindowsActions['windows']['onSetWindowVisibility'],
 ) {
   return WINDOW_HANDLER_KEYS.reduce(
     (handlers, key) => {
@@ -35,7 +35,10 @@ function createWindowCloseHandlers(
 export function useAppWindowHandlers({
   onMoveWindow,
   onSetWindowVisibility,
-}: Pick<AppWindowsProps, 'onMoveWindow' | 'onSetWindowVisibility'>) {
+}: Pick<
+  AppWindowsActions['windows'],
+  'onMoveWindow' | 'onSetWindowVisibility'
+>) {
   const windowMoveHandlers = useMemo(
     () => createWindowMoveHandlers(onMoveWindow),
     [onMoveWindow],

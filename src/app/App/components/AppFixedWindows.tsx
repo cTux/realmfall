@@ -27,33 +27,37 @@ export function AppFixedWindows({
   windowMoveHandlers,
   ...props
 }: AppWindowsProps & AppFixedWindowsProps) {
-  const { itemMenu } = props;
+  const { actions, layout, views } = props;
+  const { itemMenu } = views;
 
   return (
     <>
-      <WindowDock entries={dockEntries} onToggle={props.onToggleDockWindow} />
-      {props.windowShown.worldTime ? (
+      <WindowDock
+        entries={dockEntries}
+        onToggle={actions.windows.onToggleDockWindow}
+      />
+      {layout.windowShown.worldTime ? (
         <DebuggerWindow
-          position={props.windows.worldTime}
+          position={layout.windows.worldTime}
           onMove={windowMoveHandlers.worldTime}
-          visible={props.windowShown.worldTime}
+          visible={layout.windowShown.worldTime}
           onClose={windowCloseHandlers.worldTime}
-          worldTimeMs={props.worldTimeMs}
-          onHoverDetail={props.onShowTooltip}
-          onLeaveDetail={props.onCloseTooltip}
+          worldTimeMs={views.worldTimeMs}
+          onHoverDetail={actions.tooltip.onShowTooltip}
+          onLeaveDetail={actions.tooltip.onCloseTooltip}
         />
       ) : null}
       <HeroWindow
-        position={props.windows.hero}
+        position={layout.windows.hero}
         onMove={windowMoveHandlers.hero}
-        visible={props.windowShown.hero}
+        visible={layout.windowShown.hero}
         onClose={windowCloseHandlers.hero}
-        stats={props.stats}
-        hunger={props.game.player.hunger}
-        thirst={props.game.player.thirst}
-        worldTimeMs={props.game.worldTimeMs}
-        onHoverDetail={props.onShowTooltip}
-        onLeaveDetail={props.onCloseTooltip}
+        stats={views.stats}
+        hunger={views.game.player.hunger}
+        thirst={views.game.player.thirst}
+        worldTimeMs={views.game.worldTimeMs}
+        onHoverDetail={actions.tooltip.onShowTooltip}
+        onLeaveDetail={actions.tooltip.onCloseTooltip}
       />
       {itemMenu ? (
         <ItemContextMenu
@@ -65,28 +69,28 @@ export function AppFixedWindows({
           canUse={canUseItem(itemMenu.item)}
           onEquip={() => {
             if (itemMenu.slot) {
-              props.onUnequip(itemMenu.slot);
+              actions.inventory.onUnequip(itemMenu.slot);
             } else {
-              props.onEquip(itemMenu.item.id);
+              actions.inventory.onEquip(itemMenu.item.id);
             }
-            props.onCloseItemMenu();
+            actions.tooltip.onCloseItemMenu();
           }}
           onUse={() => {
-            props.onUseItem(itemMenu.item.id);
-            props.onCloseItemMenu();
+            actions.inventory.onUseItem(itemMenu.item.id);
+            actions.tooltip.onCloseItemMenu();
           }}
           onDrop={() => {
             if (itemMenu.slot) {
-              props.onDropEquippedItem(itemMenu.slot);
+              actions.inventory.onDropEquippedItem(itemMenu.slot);
             } else {
-              props.onDropItem(itemMenu.item.id);
+              actions.inventory.onDropItem(itemMenu.item.id);
             }
-            props.onCloseItemMenu();
+            actions.tooltip.onCloseItemMenu();
           }}
-          onClose={props.onCloseItemMenu}
+          onClose={actions.tooltip.onCloseItemMenu}
         />
       ) : null}
-      <GameTooltip tooltip={tooltip} positionRef={props.tooltipPositionRef} />
+      <GameTooltip tooltip={tooltip} positionRef={layout.tooltipPositionRef} />
     </>
   );
 }
