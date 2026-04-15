@@ -40,6 +40,8 @@ export function DraggableWindow({
     startWidth: number;
     startHeight: number;
   } | null>(null);
+  const dragMovedRef = useRef(false);
+  const resizeMovedRef = useRef(false);
   const visualPositionRef = useRef(position);
   const [visibleState, setVisibleState] = useState(true);
   const [hovered, setHovered] = useState(false);
@@ -119,6 +121,7 @@ export function DraggableWindow({
       dx: event.clientX - currentPosition.x,
       dy: event.clientY - currentPosition.y,
     };
+    dragMovedRef.current = false;
 
     const onPointerMove = (moveEvent: PointerEvent) => {
       if (!dragRef.current) return;
@@ -128,13 +131,21 @@ export function DraggableWindow({
         width: visualPositionRef.current.width,
         height: visualPositionRef.current.height,
       };
+      dragMovedRef.current =
+        dragMovedRef.current ||
+        nextPosition.x !== visualPositionRef.current.x ||
+        nextPosition.y !== visualPositionRef.current.y;
       applyVisualPosition(nextPosition);
     };
 
     const onPointerUp = () => {
       const nextPosition = visualPositionRef.current;
       dragRef.current = null;
-      onMove(nextPosition);
+      const didMove = dragMovedRef.current;
+      dragMovedRef.current = false;
+      if (didMove) {
+        onMove(nextPosition);
+      }
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);
     };
@@ -156,6 +167,7 @@ export function DraggableWindow({
       startWidth: rect.width,
       startHeight: rect.height,
     };
+    resizeMovedRef.current = false;
 
     const onPointerMove = (moveEvent: PointerEvent) => {
       if (!resizeRef.current) return;
@@ -173,13 +185,21 @@ export function DraggableWindow({
             (moveEvent.clientY - resizeRef.current.startY),
         ),
       };
+      resizeMovedRef.current =
+        resizeMovedRef.current ||
+        nextPosition.width !== visualPositionRef.current.width ||
+        nextPosition.height !== visualPositionRef.current.height;
       applyVisualPosition(nextPosition);
     };
 
     const onPointerUp = () => {
       const nextPosition = visualPositionRef.current;
       resizeRef.current = null;
-      onMove(nextPosition);
+      const didResize = resizeMovedRef.current;
+      resizeMovedRef.current = false;
+      if (didResize) {
+        onMove(nextPosition);
+      }
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);
     };
