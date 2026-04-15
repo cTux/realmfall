@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { createGame, type GameState } from '../../game/state';
 import { WORLD_RADIUS } from '../constants';
+import { VersionStatusWidget } from '../../ui/components/VersionStatusWidget/VersionStatusWidget';
 import { AppWindows } from './AppWindows';
 import { HomeIndicator } from './HomeIndicator';
 import { useAppControllers } from './useAppControllers';
@@ -10,6 +11,7 @@ import { useCombatAutomation } from './useCombatAutomation';
 import { setHomeHexForApp, useAppLifecycle } from './hooks/useAppLifecycle';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { usePixiWorld } from './usePixiWorld';
+import { useVersionStatus } from './hooks/useVersionStatus';
 import { useWindowTransitions } from './useWindowTransitions';
 import { useWorldClockFps } from './useWorldClockFps';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
@@ -136,6 +138,7 @@ export function App() {
     lastDisplayedWorldSecondRef,
   });
   const isReady = hydrated && canvasReady;
+  const versionStatus = useVersionStatus();
 
   useAppLifecycle({
     game,
@@ -175,6 +178,12 @@ export function App() {
           homeHex={game.homeHex}
           playerCoord={game.player.coord}
           radius={game.radius}
+        />
+        <VersionStatusWidget
+          currentVersion={versionStatus.currentVersion}
+          remoteVersion={versionStatus.remoteVersion}
+          status={versionStatus.status}
+          onRefresh={() => window.location.reload()}
         />
         <AppWindows
           windows={windows}

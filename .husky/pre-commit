@@ -1,3 +1,4 @@
+pnpm check:version
 pnpm typecheck
 pnpm lint:fix
 git update-index --again

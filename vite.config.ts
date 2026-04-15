@@ -3,6 +3,40 @@ import react from '@vitejs/plugin-react';
 import minipic from 'vite-plugin-minipic';
 import { VitePWA } from 'vite-plugin-pwa';
 import detectDuplicatedDeps from 'unplugin-detect-duplicated-deps/vite';
+import { readFileSync } from 'node:fs';
+import type { Plugin, ViteDevServer } from 'vite';
+
+const packageVersion = JSON.parse(
+  readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
+).version as string;
+
+function versionManifestPlugin(): Plugin {
+  const versionManifest = JSON.stringify({ version: packageVersion }, null, 2);
+
+  return {
+    name: 'realmfall-version-manifest',
+    configureServer(server: ViteDevServer) {
+      server.middlewares.use((req, res, next) => {
+        const pathname = req.url?.split('?')[0];
+
+        if (pathname !== '/version.json') {
+          next();
+          return;
+        }
+
+        res.setHeader('Content-Type', 'application/json');
+        res.end(versionManifest);
+      });
+    },
+    generateBundle() {
+      this.emitFile({
+        type: 'asset',
+        fileName: 'version.json',
+        source: `${versionManifest}\n`,
+      });
+    },
+  };
+}
 
 function getVendorChunk(id: string) {
   const normalizedId = id.replace(/\\/g, '/');
@@ -31,12 +65,16 @@ function getVendorChunk(id: string) {
 }
 
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(packageVersion),
+  },
   plugins: (() => {
     const isStorybookScript =
       process.env.npm_lifecycle_event?.includes('storybook') ?? false;
 
     return [
       react(),
+      versionManifestPlugin(),
       !isStorybookScript &&
         VitePWA({
           registerType: 'autoUpdate',

@@ -13,3 +13,4 @@ Implemented technical solutions are split into dedicated spec files:
 - [Internationalization](./internationalization/spec.md)
 - [Testing And Quality Tooling](./testing-and-quality-tooling/spec.md)
 - [Documentation Strategy](./documentation-strategy/spec.md)
+- [Version Checking](./version-checking/spec.md)
