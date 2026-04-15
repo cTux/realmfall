@@ -14,8 +14,20 @@ import type { GraphicsSettings } from '../graphicsSettings';
 import type { ItemContextMenuState, TooltipItem } from './types';
 
 export interface AppWindowsProps {
+  layout: AppWindowsLayout;
+  views: AppWindowsViewState;
+  actions: AppWindowsActions;
+}
+
+export interface AppWindowsLayout {
   windows: WindowPositions;
   windowShown: WindowVisibilityState;
+  renderLootWindow: boolean;
+  renderCombatWindow: boolean;
+  tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
+}
+
+export interface AppWindowsViewState {
   worldTimeMs: number;
   stats: ReturnType<typeof getPlayerStats>;
   game: GameState;
@@ -34,10 +46,8 @@ export interface AppWindowsProps {
   sellExplanation: string | null;
   townStock: ReturnType<typeof import('../../game/state').getTownStock>;
   gold: number;
-  renderLootWindow: boolean;
   lootWindowVisible: boolean;
   lootSnapshot: Item[];
-  renderCombatWindow: boolean;
   combatWindowVisible: boolean;
   combatSnapshot: {
     combat: NonNullable<GameState['combat']>;
@@ -46,64 +56,78 @@ export interface AppWindowsProps {
   showFilterMenu: boolean;
   logFilters: Record<LogKind, boolean>;
   filteredLogs: GameState['logs'];
-  tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
   itemMenu: ItemContextMenuState | null;
-  onMoveWindow: (
-    key: keyof WindowPositions,
-    position: WindowPositions[keyof WindowPositions],
-  ) => void;
-  onSetWindowVisibility: (
-    key: keyof WindowVisibilityState,
-    shown: boolean,
-  ) => void;
-  onToggleDockWindow: (key: keyof WindowVisibilityState) => void;
-  onShowItemTooltip: (
-    event: React.MouseEvent<HTMLElement>,
-    item: TooltipItem,
-    equipped?: TooltipItem,
-  ) => void;
-  onShowTooltip: (
-    event: React.MouseEvent<HTMLElement>,
-    title: string,
-    lines: TooltipLine[],
-    borderColor?: string,
-  ) => void;
-  onCloseTooltip: () => void;
-  onCloseItemMenu: () => void;
-  onUnequip: (slot: EquipmentSlot) => void;
-  onSort: () => void;
-  onEquip: (itemId: string) => void;
-  onUseItem: (itemId: string) => void;
-  onCraftRecipe: (recipeId: string) => void;
-  onDropItem: (itemId: string) => void;
-  onDropEquippedItem: (slot: EquipmentSlot) => void;
-  onContextItem: (
-    event: React.MouseEvent<HTMLElement>,
-    item: TooltipItem,
-  ) => void;
-  onEquippedContextItem: (
-    event: React.MouseEvent<HTMLElement>,
-    item: TooltipItem,
-    slot: EquipmentSlot,
-  ) => void;
-  onTakeLootItem: (itemId: string) => void;
-  onTakeAllLoot: () => void;
-  onStartCombat: () => void;
-  onToggleFilterMenu: () => void;
-  onToggleLogFilter: (kind: LogKind) => void;
-  onEquipmentHover: (
-    event: React.MouseEvent<HTMLElement>,
-    item: TooltipItem,
-  ) => void;
-  onInteract: () => void;
-  onProspect: () => void;
-  onSellAll: () => void;
-  onBuyTownItem: (itemId: string) => void;
-  onClaimHex: () => void;
-  onResetSaveData: () => void;
-  onSaveGraphicsSettings: (settings: GraphicsSettings) => Promise<void>;
-  onSaveGraphicsSettingsAndReload: (
-    settings: GraphicsSettings,
-  ) => Promise<void>;
-  onSetHome: () => void;
+}
+
+export interface AppWindowsActions {
+  windows: {
+    onMoveWindow: (
+      key: keyof WindowPositions,
+      position: WindowPositions[keyof WindowPositions],
+    ) => void;
+    onSetWindowVisibility: (
+      key: keyof WindowVisibilityState,
+      shown: boolean,
+    ) => void;
+    onToggleDockWindow: (key: keyof WindowVisibilityState) => void;
+  };
+  tooltip: {
+    onShowItemTooltip: (
+      event: React.MouseEvent<HTMLElement>,
+      item: TooltipItem,
+      equipped?: TooltipItem,
+    ) => void;
+    onShowTooltip: (
+      event: React.MouseEvent<HTMLElement>,
+      title: string,
+      lines: TooltipLine[],
+      borderColor?: string,
+    ) => void;
+    onCloseTooltip: () => void;
+    onCloseItemMenu: () => void;
+    onEquipmentHover: (
+      event: React.MouseEvent<HTMLElement>,
+      item: TooltipItem,
+    ) => void;
+  };
+  inventory: {
+    onUnequip: (slot: EquipmentSlot) => void;
+    onSort: () => void;
+    onEquip: (itemId: string) => void;
+    onUseItem: (itemId: string) => void;
+    onCraftRecipe: (recipeId: string) => void;
+    onDropItem: (itemId: string) => void;
+    onDropEquippedItem: (slot: EquipmentSlot) => void;
+    onContextItem: (
+      event: React.MouseEvent<HTMLElement>,
+      item: TooltipItem,
+    ) => void;
+    onEquippedContextItem: (
+      event: React.MouseEvent<HTMLElement>,
+      item: TooltipItem,
+      slot: EquipmentSlot,
+    ) => void;
+    onTakeLootItem: (itemId: string) => void;
+    onTakeAllLoot: () => void;
+  };
+  world: {
+    onStartCombat: () => void;
+    onInteract: () => void;
+    onProspect: () => void;
+    onSellAll: () => void;
+    onBuyTownItem: (itemId: string) => void;
+    onClaimHex: () => void;
+    onSetHome: () => void;
+  };
+  logs: {
+    onToggleFilterMenu: () => void;
+    onToggleLogFilter: (kind: LogKind) => void;
+  };
+  settings: {
+    onResetSaveData: () => void;
+    onSaveGraphicsSettings: (settings: GraphicsSettings) => Promise<void>;
+    onSaveGraphicsSettingsAndReload: (
+      settings: GraphicsSettings,
+    ) => Promise<void>;
+  };
 }

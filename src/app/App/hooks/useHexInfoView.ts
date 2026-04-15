@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 import { describeStructure, getHostileEnemyIds } from '../../../game/state';
-import type { AppWindowsProps } from '../AppWindows.types';
+import type { AppWindowsViewState } from '../AppWindows.types';
 import { formatTerrainLabel } from '../utils/formatTerrainLabel';
 
 export function useHexInfoView({
   game,
   currentTile,
   combatSnapshot,
-}: Pick<AppWindowsProps, 'game' | 'currentTile' | 'combatSnapshot'>) {
+}: Pick<AppWindowsViewState, 'game' | 'currentTile' | 'combatSnapshot'>) {
   return useMemo(
     () => ({
       isHome:
