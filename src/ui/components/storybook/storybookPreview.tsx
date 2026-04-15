@@ -1,4 +1,3 @@
-import type { Decorator } from '@storybook/react-vite';
 import {
   useEffect,
   useRef,
@@ -113,7 +112,3 @@ export function StorybookPreviewRuntime({
     </>
   );
 }
-
-export const storybookPreviewDecorator: Decorator = (Story, context) => (
-  <StorybookPreviewRuntime Story={Story} args={context.args as StoryArgs} />
-);

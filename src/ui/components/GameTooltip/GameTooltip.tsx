@@ -73,7 +73,7 @@ export const GameTooltip = memo(function GameTooltip({
     syncFollowCursorTooltipPosition(positionRef.current);
 
     return () => {
-      if (tooltipRef.current === element) {
+      if (element) {
         setFollowCursorTooltipElement(null);
       }
     };
