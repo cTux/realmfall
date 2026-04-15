@@ -8,8 +8,6 @@
     "node": "24.x"
   },
   "scripts": {
-    "changelog:build": "node ./scripts/changelog.mjs build",
-    "changelog:release": "node ./scripts/changelog.mjs release",
     "dev": "vite",
     "dev:storybook": "storybook dev -p 6006",
     "build": "vite build",
