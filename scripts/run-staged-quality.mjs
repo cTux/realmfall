@@ -3,6 +3,7 @@ import { existsSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
   FULL_TEST_TRIGGER_FILES,
+  getQueuedQualityTasks,
   isLintFile,
   isSrcStyleFile,
   isVitestRelatedFile,
@@ -42,6 +43,17 @@ function logStep(message) {
   console.log(`\n> ${message}`);
 }
 
+function runConcurrent(commands) {
+  const names = commands.map(({ name }) => name).join(',');
+  const args = ['exec', 'concurrently', '--names', names, '--kill-others-on-fail'];
+
+  for (const { args: commandArgs } of commands) {
+    args.push([pnpmBin, ...commandArgs].join(' '));
+  }
+
+  run(pnpmBin, args);
+}
+
 const stagedFiles = getStagedFiles();
 
 if (stagedFiles.length === 0) {
@@ -64,27 +76,37 @@ if (lintFiles.length > 0) {
 }
 
 if (stylelintFiles.length > 0) {
-  logStep(`Running Stylelint on ${stylelintFiles.length} staged file(s)`);
-  run(pnpmBin, ['exec', 'stylelint', ...stylelintFiles]);
+  logStep(`Queueing Stylelint for ${stylelintFiles.length} staged file(s)`);
 } else {
   logStep('Skipping staged Stylelint, no matching files');
 }
 
 if (shouldRunFullTestSuite) {
-  logStep('Running full Vitest suite because a shared test input changed');
-  run(pnpmBin, ['test']);
+  logStep('Queueing full Vitest suite because a shared test input changed');
 } else if (vitestRelatedFiles.length > 0) {
   logStep(
-    `Running Vitest related for ${vitestRelatedFiles.length} staged file(s)`,
+    `Queueing Vitest related for ${vitestRelatedFiles.length} staged file(s)`,
   );
-  run(pnpmBin, [
-    'exec',
-    'vitest',
-    'related',
-    '--run',
-    '--passWithNoTests',
-    ...vitestRelatedFiles,
-  ]);
 } else {
   logStep('Skipping scoped Vitest, no related staged source files');
 }
+
+const queuedTasks = getQueuedQualityTasks(
+  stylelintFiles,
+  vitestRelatedFiles,
+  shouldRunFullTestSuite,
+);
+
+if (queuedTasks.length === 0) {
+  process.exit(0);
+}
+
+if (queuedTasks.length === 1) {
+  const [{ name, args }] = queuedTasks;
+  logStep(`Running ${name} without concurrently because it is the only queued task`);
+  run(pnpmBin, args);
+  process.exit(0);
+}
+
+logStep(`Running ${queuedTasks.length} staged quality task(s) with concurrently`);
+runConcurrent(queuedTasks);

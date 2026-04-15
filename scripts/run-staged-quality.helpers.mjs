@@ -49,3 +49,42 @@ export function isVitestRelatedFile(file) {
     file.includes('.test.')
   );
 }
+
+export function getVitestCommandArgs(vitestRelatedFiles, shouldRunFullTestSuite) {
+  if (shouldRunFullTestSuite) {
+    return ['test'];
+  }
+
+  return [
+    'exec',
+    'vitest',
+    'related',
+    '--run',
+    '--passWithNoTests',
+    ...vitestRelatedFiles,
+  ];
+}
+
+export function getQueuedQualityTasks(
+  stylelintFiles,
+  vitestRelatedFiles,
+  shouldRunFullTestSuite,
+) {
+  const queuedTasks = [];
+
+  if (stylelintFiles.length > 0) {
+    queuedTasks.push({
+      name: 'stylelint',
+      args: ['exec', 'stylelint', ...stylelintFiles],
+    });
+  }
+
+  if (shouldRunFullTestSuite || vitestRelatedFiles.length > 0) {
+    queuedTasks.push({
+      name: 'vitest',
+      args: getVitestCommandArgs(vitestRelatedFiles, shouldRunFullTestSuite),
+    });
+  }
+
+  return queuedTasks;
+}

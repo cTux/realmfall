@@ -1,6 +1,8 @@
 import {
   FULL_TEST_TRIGGER_FILES,
   getExtension,
+  getQueuedQualityTasks,
+  getVitestCommandArgs,
   isLintFile,
   isSrcStyleFile,
   isVitestRelatedFile,
@@ -32,5 +34,49 @@ describe('run-staged-quality helpers', () => {
   it('extracts lowercase extensions consistently', () => {
     expect(getExtension('src/i18n/locales/EN.JSON')).toBe('.json');
     expect(getExtension('scripts/run-staged-quality')).toBe('');
+  });
+
+  it('builds related Vitest args for staged source changes', () => {
+    expect(
+      getVitestCommandArgs(['src/game/state.ts', 'game.config.json'], false),
+    ).toEqual([
+      'exec',
+      'vitest',
+      'related',
+      '--run',
+      '--passWithNoTests',
+      'src/game/state.ts',
+      'game.config.json',
+    ]);
+  });
+
+  it('builds a full Vitest command when shared inputs change', () => {
+    expect(getVitestCommandArgs(['src/game/state.ts'], true)).toEqual(['test']);
+  });
+
+  it('queues only the staged quality tasks that actually need to run', () => {
+    expect(
+      getQueuedQualityTasks(
+        ['src/ui/components/App/styles.scss'],
+        ['src/game/state.ts'],
+        false,
+      ),
+    ).toEqual([
+      {
+        name: 'stylelint',
+        args: ['exec', 'stylelint', 'src/ui/components/App/styles.scss'],
+      },
+      {
+        name: 'vitest',
+        args: [
+          'exec',
+          'vitest',
+          'related',
+          '--run',
+          '--passWithNoTests',
+          'src/game/state.ts',
+        ],
+      },
+    ]);
   });
 });
