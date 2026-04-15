@@ -75,15 +75,6 @@ pnpm dev
 - `pnpm test`
 - `pnpm test:watch`
 
-## Changelog
-
-Changelog source data is stored under `docs/changelog`.
-
-- Only shipped gameplay and player-facing fixes should be recorded in the changelog source data.
-- Tooling, CI, docs, and other infrastructure-only changes should stay out of the changelog.
-- Released entries are stored in `docs/changelog/releases.json`.
-- Upcoming game changes for the next version should be staged in `docs/changelog/unreleased.json`.
-
 ## Quality Expectations
 
 Contributors should keep these working unless a task explicitly changes the workflow:
