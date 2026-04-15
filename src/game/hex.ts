@@ -45,21 +45,21 @@ function cubeRound(q: number, r: number) {
   const z = r;
   const y = -x - z;
 
-  let rx = Math.round(x);
-  let ry = Math.round(y);
-  let rz = Math.round(z);
+  const rx = Math.round(x);
+  const ry = Math.round(y);
+  const rz = Math.round(z);
 
   const xDiff = Math.abs(rx - x);
   const yDiff = Math.abs(ry - y);
   const zDiff = Math.abs(rz - z);
 
   if (xDiff > yDiff && xDiff > zDiff) {
-    rx = -ry - rz;
-  } else if (yDiff > zDiff) {
-    ry = -rx - rz;
-  } else {
-    rz = -rx - ry;
+    return { q: -ry - rz, r: rz };
   }
 
-  return { q: rx, r: rz };
+  if (yDiff > zDiff) {
+    return { q: rx, r: rz };
+  }
+
+  return { q: rx, r: -rx - ry };
 }
