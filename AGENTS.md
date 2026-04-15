@@ -12,6 +12,7 @@ This repository uses `docs/RULES.md` as the source of truth for project-specific
 - If rule changes affect workflow or contributor expectations, keep `README.md` and `docs/WORKFLOW.md` in sync.
 - If rule changes affect future prompt execution, also sync `CLAUDE.md` and `.github/copilot-instructions.md`.
 - Keep the scoped pre-commit workflow expectations from `docs/RULES.md` in mind: full-project typecheck stays global, while Oxlint, Stylelint, and Vitest may run against staged files unless shared test inputs require a full test run.
+- Treat Oxlint as the only JavaScript and TypeScript linter unless the task explicitly changes the lint toolchain.
 - Prefer updating `docs/RULES.md` over duplicating project-specific rules in this file.
 - Keep this file compact and use it as an entrypoint back to the canonical rules.
 
