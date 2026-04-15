@@ -14,6 +14,7 @@ import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import * as tooltipModule from '../../ui/tooltips';
 import { getWorldHexSize } from '../../ui/world/renderSceneMath';
 import { getWorldTimeMinutesFromTimestamp } from '../../ui/world/timeOfDay';
+import { ensureWorldIconTexturesLoaded } from '../../ui/world/worldIcons';
 import { WORLD_REVEAL_RADIUS } from '../constants';
 import type { GraphicsSettings } from '../graphicsSettings';
 import type { TooltipState } from './types';
@@ -109,6 +110,7 @@ export function usePixiWorld({
       }
 
       const app = new pixiModule.Application();
+      await ensureWorldIconTexturesLoaded();
       await app.init({
         width: Math.max(window.innerWidth, 640),
         height: Math.max(window.innerHeight, 480),

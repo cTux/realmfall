@@ -23,16 +23,27 @@ class MockStage {
 }
 
 vi.mock('pixi.js', () => {
-  const spriteFrom = vi.fn((icon: string) => ({
-    icon,
-    anchor: { set: vi.fn() },
-    position: { set: vi.fn() },
-    width: 0,
-    height: 0,
-    tint: 0,
-    alpha: 1,
-    visible: true,
-  }));
+  const assetsGet = vi.fn(() => undefined);
+  const assetsLoad = vi.fn(async () => []);
+  const extensionsAdd = vi.fn();
+  const textureFrom = vi.fn((icon: string) => ({ icon }));
+
+  class MockSprite {
+    icon?: string;
+    texture: { icon?: string };
+    anchor = { set: vi.fn() };
+    position = { set: vi.fn() };
+    width = 0;
+    height = 0;
+    tint = 0;
+    alpha = 1;
+    visible = true;
+
+    constructor(texture: { icon?: string }) {
+      this.texture = texture;
+      this.icon = texture.icon;
+    }
+  }
 
   class MockContainer {
     children: unknown[] = [];
@@ -174,6 +185,10 @@ vi.mock('pixi.js', () => {
   }
 
   return {
+    Assets: {
+      get: assetsGet,
+      load: assetsLoad,
+    },
     Application: MockApplication,
     Container: MockContainer,
     Filter: MockFilter,
@@ -181,10 +196,18 @@ vi.mock('pixi.js', () => {
       from: vi.fn((options: Record<string, unknown>) => options),
     },
     Graphics: MockGraphics,
+    extensions: {
+      add: extensionsAdd,
+    },
+    loadSvg: { extension: { name: 'loadSVG' } },
+    loadTextures: { extension: { name: 'loadTextures' } },
     Rectangle: MockRectangle,
-    Sprite: { from: spriteFrom },
+    Sprite: MockSprite,
     Text: MockText,
     TextStyle: MockTextStyle,
+    Texture: {
+      from: textureFrom,
+    },
     UniformGroup: MockUniformGroup,
   };
 });
@@ -205,9 +228,13 @@ vi.mock('react-fps-stats', () => ({
 
 export async function flushLazyModules() {
   await act(async () => {
-    for (let index = 0; index < 6; index += 1) {
+    for (let index = 0; index < 20; index += 1) {
       await vi.dynamicImportSettled();
       await Promise.resolve();
+
+      if (applicationOptions.length > 0) {
+        break;
+      }
     }
   });
 }
