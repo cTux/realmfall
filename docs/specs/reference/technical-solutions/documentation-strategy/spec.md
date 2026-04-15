@@ -15,7 +15,7 @@ This spec covers the canonical rules model and the project spec structure itself
 ## Main Implementation Areas
 
 - `docs/RULES.md`
-- `docs/PROMPTS.md`
+- `docs/WORKFLOW.md`
 - `README.md`
 - `AGENTS.md`
 - `CLAUDE.md`

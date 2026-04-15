@@ -10,7 +10,7 @@ Use `docs/RULES.md` as the source of truth for project-specific instructions.
 - If a prompt or task includes `add rule`, update `docs/RULES.md` immediately in the corresponding section.
 - If an optimization prompt establishes a recurring implementation pattern, capture it in `docs/RULES.md` instead of leaving it only in code changes.
 - If a performance-sensitive prompt changes React, Pixi, hover, or bundle behavior, also document how that path should be verified.
-- Keep `README.md` and `docs/PROMPTS.md` aligned when workflow expectations change.
+- Keep `README.md` and `docs/WORKFLOW.md` aligned when workflow expectations change.
 - If a rule changes future prompt execution, also sync `AGENTS.md` and `CLAUDE.md`.
 - Prefer keeping project-specific rules in `docs/RULES.md` instead of restating them here.
 - Keep this file compact and use it as an entrypoint back to the canonical rules.
@@ -18,9 +18,8 @@ Use `docs/RULES.md` as the source of truth for project-specific instructions.
 ## Important References
 
 - `docs/RULES.md`
-- `docs/PROMPTS.md`
+- `docs/WORKFLOW.md`
 - `docs/PROJECT_REVIEW.md`
-- `docs/RESTRICTIONS.md`
 - `docs/lore/REALMFALL.md`
 
 ## Local Expectations
