@@ -326,6 +326,127 @@ describe('game state', () => {
     ).toHaveLength(3);
   });
 
+  it('finds a safe path to a distant hostile target without crossing hostile tiles', () => {
+    const game = createGame(4, 'safe-path-hostile-target-seed');
+
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: ['enemy-1,0-0'],
+    };
+    game.enemies['enemy-1,0-0'] = {
+      id: 'enemy-1,0-0',
+      name: 'Wolf',
+      coord: { q: 1, r: 0 },
+      tier: 1,
+      hp: 3,
+      maxHp: 3,
+      attack: 1,
+      defense: 0,
+      xp: 2,
+      elite: false,
+    };
+    game.tiles['1,-1'] = {
+      coord: { q: 1, r: -1 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+    game.tiles['2,-1'] = {
+      coord: { q: 2, r: -1 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+    game.tiles['2,0'] = {
+      coord: { q: 2, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: ['enemy-2,0-0'],
+    };
+    game.enemies['enemy-2,0-0'] = {
+      id: 'enemy-2,0-0',
+      name: 'Bandit',
+      coord: { q: 2, r: 0 },
+      tier: 2,
+      hp: 4,
+      maxHp: 4,
+      attack: 2,
+      defense: 1,
+      xp: 5,
+      elite: false,
+    };
+
+    expect(getSafePathToTile(game, { q: 2, r: 0 })).toEqual([
+      { q: 1, r: -1 },
+      { q: 2, r: -1 },
+      { q: 2, r: 0 },
+    ]);
+  });
+
+  it('can follow a safe path into a distant hostile target and start combat there', () => {
+    const game = createGame(4, 'safe-path-hostile-combat-seed');
+    game.player.hunger = 100;
+    game.player.thirst = 100;
+
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: ['enemy-1,0-0'],
+    };
+    game.enemies['enemy-1,0-0'] = {
+      id: 'enemy-1,0-0',
+      name: 'Wolf',
+      coord: { q: 1, r: 0 },
+      tier: 1,
+      hp: 3,
+      maxHp: 3,
+      attack: 1,
+      defense: 0,
+      xp: 2,
+      elite: false,
+    };
+    game.tiles['1,-1'] = {
+      coord: { q: 1, r: -1 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+    game.tiles['2,-1'] = {
+      coord: { q: 2, r: -1 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+    game.tiles['2,0'] = {
+      coord: { q: 2, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: ['enemy-2,0-0'],
+    };
+    game.enemies['enemy-2,0-0'] = {
+      id: 'enemy-2,0-0',
+      name: 'Bandit',
+      coord: { q: 2, r: 0 },
+      tier: 2,
+      hp: 4,
+      maxHp: 4,
+      attack: 2,
+      defense: 1,
+      xp: 5,
+      elite: false,
+    };
+
+    const moved = moveAlongSafePath(game, { q: 2, r: 0 });
+
+    expect(moved.player.coord).toEqual({ q: 2, r: 0 });
+    expect(moved.turn).toBe(3);
+    expect(moved.combat?.coord).toEqual({ q: 2, r: 0 });
+    expect(moved.combat?.enemyIds).toEqual(['enemy-2,0-0']);
+  });
+
   it('does not find a safe path into fogged hexes beyond the reveal radius', () => {
     const game = createGame(WORLD_REVEAL_RADIUS + 2, 'fogged-safe-path-seed');
 

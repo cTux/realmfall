@@ -410,11 +410,13 @@ export function getSafePathToTile(state: GameState, target: HexCoord) {
       visited.add(key);
 
       const tile = getTileAt(state, neighbor);
+      if (!isPassable(tile.terrain)) continue;
       if (
-        !isPassable(tile.terrain) ||
+        (neighbor.q !== target.q || neighbor.r !== target.r) &&
         getHostileEnemyIds(state, neighbor).length > 0
-      )
+      ) {
         continue;
+      }
 
       const path = [...next.path, neighbor];
       if (neighbor.q === target.q && neighbor.r === target.r) {
