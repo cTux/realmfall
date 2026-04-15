@@ -159,6 +159,8 @@
         "eslint-plugin-prettier"
       ],
       "plugins": [
+        "typescript",
+        "unicorn",
         "react"
       ],
       "env": {
