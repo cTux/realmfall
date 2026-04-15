@@ -49,7 +49,7 @@ The game currently does not support mods. See `docs/RESTRICTIONS.md`.
 - `src/ui/components`: window components and other React UI pieces.
 - `src/ui/world`: Pixi/world rendering helpers, render math, caches, atmosphere, and related tests.
 - `src/persistence`: local save storage helpers.
-- `docs`: review notes, prompt templates, rules, restrictions, and backlog documents.
+- `docs`: review notes, prompt templates, rules, restrictions, and changelog source data.
 - `game.config.json`: configurable gameplay and world values.
 
 ## Setup
@@ -63,8 +63,6 @@ pnpm dev
 
 ## Scripts
 
-- `pnpm changelog:build`
-- `pnpm changelog:release`
 - `pnpm dev`
 - `pnpm dev:storybook`
 - `pnpm build`
@@ -76,16 +74,6 @@ pnpm dev
 - `pnpm format`
 - `pnpm test`
 - `pnpm test:watch`
-
-## Changelog
-
-`CHANGELOG.md` is generated from curated game-facing release data.
-
-- Only shipped gameplay and player-facing fixes should be recorded there.
-- Tooling, CI, docs, and other infrastructure-only changes should stay out of the changelog.
-- Released entries are stored in `docs/changelog/releases.json`.
-- Upcoming game changes for the next version should be staged in `docs/changelog/unreleased.json`.
-- When `package.json` is bumped on `main` or `master`, the `Changelog` GitHub Action runs `pnpm changelog:release`, prepends the new version at the top of `CHANGELOG.md`, moves the staged unreleased notes into the release history, and clears `docs/changelog/unreleased.json`.
 
 ## Quality Expectations
 
