@@ -14,6 +14,7 @@ Create a branch from local default branch for the updates in this prompt.
 * If a prompt contains "add rule", update "docs/RULES.md" first and sync the related markdown entrypoints only when workflow or prompt behavior changed.
 * If an optimization prompt establishes a recurring render, hover, or persistence pattern, capture it in "docs/RULES.md" instead of leaving it only in the implementation.
 * For React rerender-fanout work, prefer moving window-specific derivation and stable window wiring into narrower hooks or the window composition layer instead of expanding root `App` ownership.
+* For Pixi-facing selector work, prefer stable reusable world-render inputs such as `visibleTiles` over recomputing renderer inputs from broad state identity on unrelated updates.
 * Favor DRY refactors, maximally reusable components, and shared helpers over duplicated implementations.
 * In JavaScript and TypeScript, prefer concise arrow functions when a function immediately returns an expression.
 * When a JavaScript or TypeScript syntax preference can be enforced mechanically, prefer adding or adjusting the corresponding ESLint rule.

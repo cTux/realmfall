@@ -16,6 +16,7 @@ import { getWorldTimeMinutesFromTimestamp } from '../../ui/world/timeOfDay';
 import { WORLD_REVEAL_RADIUS } from '../constants';
 import type { TooltipState } from './types';
 import { getTooltipState } from './tooltipStore';
+import { getReusableVisibleTiles } from './worldRenderSelectors';
 
 interface UsePixiWorldArgs {
   game: GameState;
@@ -65,7 +66,10 @@ export function usePixiWorld({
 
   useEffect(() => {
     playerCoordRef.current = game.player.coord;
-    visibleTilesRef.current = stateModule.getVisibleTiles(game);
+    visibleTilesRef.current = getReusableVisibleTiles(
+      visibleTilesRef.current,
+      game,
+    );
     gameRef.current = game;
   }, [game, gameRef]);
 

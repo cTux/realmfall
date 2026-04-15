@@ -461,12 +461,21 @@ function getSceneRenderVersions(
   state: GameState,
   visibleTiles: ReturnType<typeof getVisibleTiles>,
 ) {
+  const playerCoordKey = coordKey(state.player.coord);
+  const homeHexKey = coordKey(state.homeHex);
+
   if (
-    scene.derivedRenderStateSource !== state ||
-    scene.derivedRenderVisibleTilesSource !== visibleTiles
+    scene.derivedRenderVisibleTilesSource !== visibleTiles ||
+    scene.derivedRenderEnemiesSource !== state.enemies ||
+    scene.derivedRenderPlayerCoordKey !== playerCoordKey ||
+    scene.derivedRenderHomeHexKey !== homeHexKey ||
+    scene.derivedRenderBloodMoonActive !== state.bloodMoonActive
   ) {
-    scene.derivedRenderStateSource = state;
     scene.derivedRenderVisibleTilesSource = visibleTiles;
+    scene.derivedRenderEnemiesSource = state.enemies;
+    scene.derivedRenderPlayerCoordKey = playerCoordKey;
+    scene.derivedRenderHomeHexKey = homeHexKey;
+    scene.derivedRenderBloodMoonActive = state.bloodMoonActive;
     scene.derivedStaticRenderVersion = getStaticRenderVersion(
       state,
       visibleTiles,
