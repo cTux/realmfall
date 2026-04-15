@@ -1,7 +1,7 @@
 {
   "name": "realmfall",
   "private": true,
-  "version": "0.2.9",
+  "version": "0.2.10",
   "type": "module",
   "packageManager": "pnpm@10.33.0",
   "engines": {
@@ -38,14 +38,14 @@
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
-    "@eslint/js": "^10.0.1",
+    "@eslint/js": "^9.39.4",
     "@storybook/react-vite": "^10.3.5",
     "@types/node": "^24.0.0",
     "@types/react": "^18.3.28",
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^6.0.1",
     "@vitest/coverage-v8": "^4.1.4",
-    "eslint": "^10.2.0",
+    "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-react-hooks": "^7.0.1",
