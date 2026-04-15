@@ -1,29 +1,15 @@
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
+import {
+  FULL_TEST_TRIGGER_FILES,
+  isEslintFile,
+  isSrcStyleFile,
+  isVitestRelatedFile,
+} from './run-staged-quality.helpers.mjs';
 
 const gitBin = process.platform === 'win32' ? 'git.exe' : 'git';
 const pnpmBin = 'pnpm';
-
-const ESLINT_EXTENSIONS = new Set([
-  '.js',
-  '.jsx',
-  '.ts',
-  '.tsx',
-  '.mjs',
-  '.cjs',
-]);
-
-const STYLELINT_EXTENSIONS = new Set(['.css', '.scss']);
-
-const FULL_TEST_TRIGGER_FILES = new Set([
-  'package.json',
-  'pnpm-lock.yaml',
-  'vite.config.ts',
-  'tsconfig.json',
-  'tsconfig.node.json',
-  'src/test/setup.ts',
-]);
 
 function run(command, args) {
   const result = spawnSync(command, args, {
@@ -50,36 +36,6 @@ function getStagedFiles() {
       const absolutePath = resolve(file);
       return existsSync(absolutePath) && statSync(absolutePath).isFile();
     });
-}
-
-function getExtension(file) {
-  const match = file.match(/(\.[^./\\]+)$/);
-  return match?.[1].toLowerCase() ?? '';
-}
-
-function isSrcStyleFile(file) {
-  return (
-    file.startsWith('src/') &&
-    STYLELINT_EXTENSIONS.has(getExtension(file))
-  );
-}
-
-function isEslintFile(file) {
-  return ESLINT_EXTENSIONS.has(getExtension(file));
-}
-
-function isVitestRelatedFile(file) {
-  const extension = getExtension(file);
-
-  if (!ESLINT_EXTENSIONS.has(extension)) {
-    return false;
-  }
-
-  return (
-    file.startsWith('src/') ||
-    file.startsWith('scripts/') ||
-    file.includes('.test.')
-  );
 }
 
 function logStep(message) {
