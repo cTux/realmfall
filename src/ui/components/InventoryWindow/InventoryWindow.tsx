@@ -1,12 +1,10 @@
 import { lazy, memo, Suspense } from 'react';
 import { t } from '../../../i18n';
 import { WINDOW_LABELS } from '../../windowLabels';
-import { DraggableWindow } from '../DraggableWindow';
 import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
-import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
 import { loadRetryingWindowModule } from '../lazyWindowComponent';
-import labelStyles from '../windowLabels.module.scss';
+import { WindowShell } from '../WindowShell';
 import type { InventoryWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -34,13 +32,9 @@ export const InventoryWindow = memo(function InventoryWindow({
   onLeaveDetail,
 }: InventoryWindowProps) {
   return (
-    <DraggableWindow
-      title={
-        <WindowLabel
-          label={WINDOW_LABELS.inventory}
-          hotkeyClassName={labelStyles.hotkey}
-        />
-      }
+    <WindowShell
+      title={WINDOW_LABELS.inventory.plain}
+      hotkeyLabel={WINDOW_LABELS.inventory}
       position={position}
       onMove={onMove}
       className={styles.window}
@@ -82,6 +76,6 @@ export const InventoryWindow = memo(function InventoryWindow({
           onLeaveItem={onLeaveItem}
         />
       </Suspense>
-    </DraggableWindow>
+    </WindowShell>
   );
 });

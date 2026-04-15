@@ -1,9 +1,9 @@
 import { lazy, memo, Suspense } from 'react';
 import { t } from '../../../i18n';
-import { DraggableWindow } from '../DraggableWindow';
 import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
 import { WindowLoadingState } from '../WindowLoadingState';
 import { loadRetryingWindowModule } from '../lazyWindowComponent';
+import { WindowShell } from '../WindowShell';
 import type { LootWindowProps } from './types';
 import styles from '../InventoryWindow/styles.module.scss';
 
@@ -30,7 +30,7 @@ export const LootWindow = memo(function LootWindow({
   onLeaveDetail,
 }: LootWindowProps) {
   return (
-    <DraggableWindow
+    <WindowShell
       title={t('ui.loot.title')}
       position={position}
       onMove={onMove}
@@ -70,6 +70,6 @@ export const LootWindow = memo(function LootWindow({
           onLeaveItem={onLeaveItem}
         />
       </Suspense>
-    </DraggableWindow>
+    </WindowShell>
   );
 });

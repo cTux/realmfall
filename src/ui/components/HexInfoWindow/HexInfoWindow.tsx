@@ -1,13 +1,11 @@
 import { lazy, memo, Suspense } from 'react';
 import { t } from '../../../i18n';
 import { WINDOW_LABELS } from '../../windowLabels';
-import { DraggableWindow } from '../DraggableWindow';
 import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
-import { WindowLabel } from '../WindowLabel/WindowLabel';
 import { WindowLoadingState } from '../WindowLoadingState';
 import { loadRetryingWindowModule } from '../lazyWindowComponent';
 import inventoryStyles from '../InventoryWindow/styles.module.scss';
-import labelStyles from '../windowLabels.module.scss';
+import { WindowShell } from '../WindowShell';
 import type { HexInfoWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -56,13 +54,9 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   onLeaveDetail,
 }: HexInfoWindowProps) {
   return (
-    <DraggableWindow
-      title={
-        <WindowLabel
-          label={WINDOW_LABELS.hexInfo}
-          hotkeyClassName={labelStyles.hotkey}
-        />
-      }
+    <WindowShell
+      title={WINDOW_LABELS.hexInfo.plain}
+      hotkeyLabel={WINDOW_LABELS.hexInfo}
       position={position}
       onMove={onMove}
       className={styles.window}
@@ -137,6 +131,6 @@ export const HexInfoWindow = memo(function HexInfoWindow({
           onLeaveDetail={onLeaveDetail}
         />
       </Suspense>
-    </DraggableWindow>
+    </WindowShell>
   );
 });

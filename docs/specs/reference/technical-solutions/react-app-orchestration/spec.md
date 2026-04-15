@@ -12,7 +12,8 @@ This spec covers the top-level React hook composition and derived view-model pat
 - This keeps presentational components mostly declarative.
 - `AppWindows` owns the dock-entry composition, stable move and close handler maps, and narrow window-specific view models so `App.tsx` does not keep expanding as the desktop window surface grows.
 - The game uses a desktop-style draggable window model with persisted positions, optional per-window dimensions for resizable windows, and visibility.
-- Shared window-shell helpers are reused for move handlers, close handlers, deferred mount state, and repeated title-bar actions instead of maintaining parallel per-window implementations.
+- Shared window-shell helpers are reused for move handlers, close handlers, deferred mount state, and repeated title-bar labels instead of maintaining parallel per-window implementations.
+- `useAppControllers` routes gameplay mutations through a shared timed-transition helper so controller actions inject the current world time consistently without repeating the same wrapper at every call site.
 - Secondary window content is separated into dedicated components and lazy-loaded bundles following the current project pattern.
 - Deferred window-content imports retry indefinitely when a bundle fails to load, keeping the rest of the game interactive while the affected window shell stays mounted on its loading fallback.
 - Window loading fallbacks keep the spinner visible and add delayed explanatory copy when the deferred content is still unavailable after several seconds.
@@ -23,3 +24,5 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `src/app/App/useAppControllers.ts`
 - `src/app/App/useAppGameView.ts`
 - `src/app/App/useWindowTransitions.ts`
+- `src/ui/components/WindowShell.tsx`
+- `src/ui/components/lazyWindowComponent.ts`
