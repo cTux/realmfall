@@ -1,7 +1,9 @@
 import type { LogKind } from '../game/state';
 import { HEX_SIZE, WORLD_RADIUS, WORLD_REVEAL_RADIUS } from '../game/config';
+import { DEFAULT_GRAPHICS_SETTINGS } from './graphicsSettings';
 
 export { WORLD_RADIUS, WORLD_REVEAL_RADIUS, HEX_SIZE };
+export { DEFAULT_GRAPHICS_SETTINGS };
 
 export interface WindowPosition {
   x: number;
@@ -21,6 +23,7 @@ export interface WindowPositions {
   loot: WindowPosition;
   log: WindowPosition;
   combat: WindowPosition;
+  settings: WindowPosition;
 }
 
 export interface WindowVisibilityState {
@@ -34,6 +37,7 @@ export interface WindowVisibilityState {
   loot: boolean;
   log: boolean;
   combat: boolean;
+  settings: boolean;
 }
 
 export const DEFAULT_WINDOWS: WindowPositions = {
@@ -47,6 +51,7 @@ export const DEFAULT_WINDOWS: WindowPositions = {
   loot: { x: 820, y: 20 },
   log: { x: 420, y: 20 },
   combat: { x: 420, y: 470 },
+  settings: { x: 188, y: 72, width: 640, height: 640 },
 };
 
 export const DEFAULT_WINDOW_VISIBILITY: WindowVisibilityState = {
@@ -60,6 +65,7 @@ export const DEFAULT_WINDOW_VISIBILITY: WindowVisibilityState = {
   loot: false,
   log: false,
   combat: false,
+  settings: false,
 };
 
 export const DEFAULT_LOG_FILTERS: Record<LogKind, boolean> = {

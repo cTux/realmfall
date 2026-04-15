@@ -6,6 +6,7 @@ import { GAME_DAY_DURATION_MS, GAME_DAY_MINUTES } from '../../../game/config';
 export const renderScene = vi.fn();
 export const loadEncryptedState = vi.fn();
 export const saveEncryptedState = vi.fn();
+export const clearEncryptedState = vi.fn();
 export const tickerCallbacks = new Set<() => void>();
 export const applicationOptions: Array<Record<string, unknown>> = [];
 
@@ -60,6 +61,7 @@ vi.mock('pixi.js', () => {
 });
 
 vi.mock('../../../persistence/storage', () => ({
+  clearEncryptedState,
   loadEncryptedState,
   saveEncryptedState,
 }));

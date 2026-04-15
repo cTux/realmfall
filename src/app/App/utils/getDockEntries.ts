@@ -20,12 +20,18 @@ export function getDockEntries(
   if (renderLootWindow) keys.push('loot');
   keys.push('log');
   if (renderCombatWindow) keys.push('combat');
+  keys.push('settings');
 
-  return keys.map((key) => ({
-    key,
-    label: WINDOW_LABELS[key].plain,
-    title: WINDOW_LABELS[key],
-    icon: DOCK_WINDOW_ICONS[key],
-    shown: windowShown[key],
-  }));
+  return keys.map((key) => {
+    const align: 'start' | 'end' = key === 'settings' ? 'end' : 'start';
+
+    return {
+      key,
+      label: WINDOW_LABELS[key].plain,
+      title: WINDOW_LABELS[key],
+      icon: DOCK_WINDOW_ICONS[key],
+      shown: windowShown[key],
+      align,
+    };
+  });
 }

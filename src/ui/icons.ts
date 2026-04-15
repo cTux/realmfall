@@ -50,6 +50,7 @@ import spiderAltIcon from '../assets/icons/spider-alt.svg';
 import tiedScrollIcon from '../assets/icons/tied-scroll.svg';
 import arrowDunkIcon from '../assets/icons/arrow-dunk.svg';
 import rolledClothIcon from '../assets/icons/rolled-cloth.svg';
+import gearsIcon from '../assets/icons/gears.svg';
 import type { StructureType } from '../game/state';
 import { GAME_TAGS } from '../game/content/tags';
 import { rarityColor } from './rarity';
@@ -96,6 +97,7 @@ export const Icons = {
   TiedScroll: tiedScrollIcon,
   ArrowDunk: arrowDunkIcon,
   RolledCloth: rolledClothIcon,
+  Gears: gearsIcon,
 } as const;
 
 export const SkillIcon: Record<SkillName, string> = {

@@ -44,4 +44,37 @@ describe('App persistence', () => {
     });
     host.remove();
   });
+
+  it('toggles the settings window with the M hotkey and saves that UI state', async () => {
+    const game = createGame(2, 'app-settings-ui-save-seed');
+    loadEncryptedState.mockResolvedValue({ game, ui: {} });
+
+    const { host, root } = await renderApp();
+    await flushLazyModules();
+
+    saveEncryptedState.mockClear();
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'm' }),
+      );
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(400);
+    });
+
+    expect(saveEncryptedState).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ui: expect.objectContaining({
+          windowShown: expect.objectContaining({ settings: true }),
+        }),
+      }),
+    );
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
 });

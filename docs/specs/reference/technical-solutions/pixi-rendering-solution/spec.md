@@ -21,6 +21,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - The world renderer includes time-of-day lighting, atmosphere passes, overlay tinting, and optional fish-eye processing.
 - Rendering quality and icon sizing derive from screen state and world radius.
 - The Pixi canvas uses density-aware sizing so browser zoom and high-DPI displays keep the world viewport fitted to CSS pixels while renderer resolution tracks `window.devicePixelRatio` changes on resize.
+- Persisted graphics settings now hydrate Pixi renderer initialization flags such as antialiasing, auto density, buffer preservation, and alpha handling through `usePixiWorld`; those init-time flags require a reload before they affect the live canvas.
 
 ## Main Implementation Areas
 

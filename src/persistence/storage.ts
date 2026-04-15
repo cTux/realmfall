@@ -25,6 +25,10 @@ export async function saveEncryptedState(data: PersistedData) {
   localStorage.setItem(STORAGE_KEY, payload);
 }
 
+export function clearEncryptedState() {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
 async function encryptJson(value: unknown) {
   const key = await getKey();
   const iv = crypto.getRandomValues(new Uint8Array(12));

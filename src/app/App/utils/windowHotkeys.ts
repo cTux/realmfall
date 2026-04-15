@@ -11,4 +11,5 @@ export const WINDOW_HOTKEYS: Partial<
   e: 'equipment',
   i: 'inventory',
   g: 'log',
+  m: 'settings',
 };

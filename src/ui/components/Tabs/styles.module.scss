@@ -1,0 +1,32 @@
+@use '../../../styles/ui';
+
+.tabs {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.tab {
+  @include ui.compact-button;
+
+  padding: 0.5rem 0.8rem;
+  border: 1px solid rgb(148 163 184 / 20%);
+  background: rgb(8 15 30 / 78%);
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease,
+    color 120ms ease;
+
+  &[aria-selected='true'] {
+    border-color: rgb(56 189 248 / 55%);
+    background: rgb(14 116 144 / 20%);
+    color: #f8fafc;
+  }
+
+  &:hover {
+    border-color: rgb(226 232 240 / 55%);
+    color: #f8fafc;
+  }
+}

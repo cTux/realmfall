@@ -1,6 +1,7 @@
 import { DEFAULT_LOG_FILTERS } from '../../constants';
 import { CombatWindow } from '../../../ui/components/CombatWindow';
 import { EquipmentWindow } from '../../../ui/components/EquipmentWindow';
+import { GameSettingsWindow } from '../../../ui/components/GameSettingsWindow';
 import { HexInfoWindow } from '../../../ui/components/HexInfoWindow';
 import { InventoryWindow } from '../../../ui/components/InventoryWindow';
 import { LogWindow } from '../../../ui/components/LogWindow';
@@ -183,6 +184,18 @@ export function AppDeferredWindows({
           onHoverDetail={props.onShowTooltip}
           onLeaveDetail={props.onCloseTooltip}
           onHoverHeaderAction={props.onShowTooltip}
+        />
+      ) : null}
+      {loadedWindows.settings ? (
+        <GameSettingsWindow
+          position={props.windows.settings}
+          onMove={windowMoveHandlers.settings}
+          visible={props.windowShown.settings}
+          onClose={windowCloseHandlers.settings}
+          graphicsSettings={props.graphicsSettings}
+          onSave={props.onSaveGraphicsSettings}
+          onSaveAndReload={props.onSaveGraphicsSettingsAndReload}
+          onResetSaveData={props.onResetSaveData}
         />
       ) : null}
     </>

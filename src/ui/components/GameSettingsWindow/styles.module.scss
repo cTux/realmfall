@@ -1,0 +1,106 @@
+@use '../../../styles/ui';
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 44;
+  background: rgb(0 0 0 / 55%);
+}
+
+.window {
+  z-index: 45;
+  width: min(640px, calc(100vw - 112px));
+
+  &[data-window-emphasis='hovered'],
+  &[data-window-emphasis='active'] {
+    z-index: 45;
+  }
+}
+
+.panel {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.lead,
+.tabDescription,
+.reloadHint,
+.resetHint {
+  margin: 0;
+  color: #94a3b8;
+  line-height: 1.45;
+}
+
+.tabPanel {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.switches {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+
+  button {
+    @include ui.compact-button;
+
+    padding: 0.55rem 0.85rem;
+    border: 1px solid rgb(148 163 184 / 22%);
+    background: rgb(8 15 30 / 86%);
+    color: #e2e8f0;
+    transition:
+      border-color 120ms ease,
+      color 120ms ease,
+      background-color 120ms ease;
+
+    &:hover:enabled {
+      border-color: rgb(125 211 252 / 55%);
+      color: #f8fafc;
+    }
+  }
+}
+
+.resetButton {
+  position: relative;
+  overflow: hidden;
+  min-height: 3rem;
+  border: 1px solid rgb(239 68 68 / 30%);
+  background: rgb(32 11 11 / 92%);
+  color: #fee2e2;
+  text-align: left;
+  transition:
+    border-color 120ms ease,
+    color 120ms ease;
+
+  &:hover:enabled {
+    border-color: rgb(248 113 113 / 58%);
+    color: #fff1f2;
+  }
+}
+
+.resetFill {
+  @include ui.progress-fill(linear-gradient(90deg, #991b1b, #ef4444));
+
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--reset-progress, 0%);
+  opacity: 0.72;
+}
+
+.resetText {
+  position: relative;
+  z-index: 1;
+  display: block;
+  padding: 0.8rem 1rem;
+}
+
+@media (width <= 980px) {
+  .window {
+    width: min(92vw, 640px);
+  }
+}

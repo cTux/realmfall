@@ -28,12 +28,14 @@ import {
 import { itemTooltipLines } from '../../ui/tooltips';
 import { rarityColor } from '../../ui/rarity';
 import {
+  DEFAULT_GRAPHICS_SETTINGS,
   DEFAULT_LOG_FILTERS,
   DEFAULT_WINDOWS,
   DEFAULT_WINDOW_VISIBILITY,
   type WindowPositions,
   type WindowVisibilityState,
 } from '../constants';
+import type { GraphicsSettings } from '../graphicsSettings';
 import type { ItemContextMenuState, TooltipItem, TooltipState } from './types';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import { getInventoryItemAction } from './utils/getInventoryItemAction';
@@ -57,6 +59,9 @@ export function useAppControllers({
   const [windows, setWindows] = useState<WindowPositions>(DEFAULT_WINDOWS);
   const [windowShown, setWindowShown] = useState<WindowVisibilityState>(
     DEFAULT_WINDOW_VISIBILITY,
+  );
+  const [graphicsSettings, setGraphicsSettings] = useState<GraphicsSettings>(
+    DEFAULT_GRAPHICS_SETTINGS,
   );
   const [logFilters, setLogFilters] =
     useState<Record<LogKind, boolean>>(DEFAULT_LOG_FILTERS);
@@ -320,7 +325,9 @@ export function useAppControllers({
     itemMenu,
     logFilters,
     moveWindow,
+    graphicsSettings,
     showTooltip,
+    setGraphicsSettings,
     setLogFilters,
     setTooltip,
     setWindowShown,

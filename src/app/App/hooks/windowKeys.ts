@@ -11,6 +11,7 @@ export const WINDOW_HANDLER_KEYS = [
   'loot',
   'log',
   'combat',
+  'settings',
 ] as const;
 
 export const DEFERRED_WINDOW_KEYS = [
@@ -22,6 +23,7 @@ export const DEFERRED_WINDOW_KEYS = [
   'loot',
   'log',
   'combat',
+  'settings',
 ] as const;
 
 export type ManagedWindowKey = (typeof WINDOW_HANDLER_KEYS)[number];

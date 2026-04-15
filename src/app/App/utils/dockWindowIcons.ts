@@ -8,6 +8,7 @@ import coinsIcon from '../../../assets/icons/coins.svg';
 import stonePileIcon from '../../../assets/icons/stone-pile.svg';
 import logIcon from '../../../assets/icons/log.svg';
 import enemyIcon from '../../../assets/icons/wolf-head.svg';
+import gearsIcon from '../../../assets/icons/gears.svg';
 import type { WindowVisibilityState } from '../../constants';
 
 export const DOCK_WINDOW_ICONS: Record<keyof WindowVisibilityState, string> = {
@@ -21,4 +22,5 @@ export const DOCK_WINDOW_ICONS: Record<keyof WindowVisibilityState, string> = {
   loot: stonePileIcon,
   log: logIcon,
   combat: enemyIcon,
+  settings: gearsIcon,
 };
