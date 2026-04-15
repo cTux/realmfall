@@ -7,6 +7,7 @@
 - Future prompts should assume these relevant rules are already part of their working context, even when the prompt only references a task area indirectly.
 - If a prompt contains an `add rule` statement, update this file immediately in the matching section before considering the task complete.
 - If a prompt contains an optimization request, update the relevant rules when the project guidance should change, not only the implementation.
+- When a task changes project structure, architectural boundaries, or recurring file-placement expectations, update the relevant rules in this file in the same task.
 - When a rule changes project workflow or contributor expectations, reflect that change in `README.md` and adjust `docs/WORKFLOW.md` if contributor workflow guidance should change too.
 - Keep AI-specific instruction entrypoints such as `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md` aligned with this file when shared prompt behavior changes.
 - Use `docs/PROJECT_REVIEW.md` and `docs/WORKFLOW.md` as inputs when refining recurring project rules, but keep this file as the canonical rules source.
@@ -16,9 +17,13 @@
 
 - Use `pnpm` for project commands. Do not switch examples or contributor guidance to `npm`.
 - Keep TypeScript strictness, ESLint, Prettier, tests, and Husky hooks working. New changes should not weaken existing quality gates.
+- Keep the pre-commit hook aligned with the linting workflow. When ESLint formatting is auto-fixable, prefer applying the fix during pre-commit instead of failing only on formatting drift.
 - Prefer the smallest correct change that fits the existing structure.
 - Apply the DRY principle. When logic, UI structure, or configuration patterns repeat, prefer extracting or extending an existing shared helper, component, or module instead of copying the pattern again.
 - When a requested JavaScript or TypeScript syntax preference can be enforced mechanically, prefer enabling or adjusting the corresponding ESLint rule instead of relying only on contributor discipline.
+- When a requested JavaScript or TypeScript syntax preference also depends on formatting behavior, update the relevant Prettier configuration when that style can be enforced there as well.
+- When a requested CSS or SCSS syntax preference can be enforced mechanically, prefer enabling or adjusting the corresponding Stylelint rule instead of relying only on contributor discipline.
+- When a requested commit message format changes, update the Commitlint configuration in the same task when the repository can enforce that convention automatically.
 - Preserve existing behavior unless the task explicitly changes behavior.
 - Favor existing project patterns over introducing new abstractions, state layers, or architectural styles without a clear need.
 - Keep documentation grounded in the current shipped behavior and known constraints, not aspirational plans.
@@ -54,6 +59,7 @@
 - Keep heavy app coordination in dedicated hooks when possible, following patterns already used in `src/app/App`.
 - When reducing React rerender fanout, move window-specific derivation, dock composition, and stable window handler ownership out of `src/app/App/App.tsx` and into narrower hooks or the window composition layer when that keeps unrelated windows from recomputing together.
 - Keep Storybook stories for every component under `src/ui/components`, including shared leaf components and window wrappers.
+- Every component addition, removal, or behavior-affecting UI change should add or update the corresponding Storybook story in the same task.
 - Keep aggregate Storybook catalogs for entity dictionaries such as `ITEM_CONFIGS`, `ENEMY_CONFIGS`, and `STRUCTURE_CONFIGS`, and prefer rendering those catalogs directly from the live config arrays so entity additions, removals, and edits appear automatically.
 - Prefer maximally reusable UI components and helpers. When multiple windows or controls share the same structure or behavior, reuse or extend a shared primitive instead of maintaining parallel implementations.
 - Keep user-facing UI copy in i18n resources instead of inline string literals in components, gameplay modules, or content definitions.
@@ -109,6 +115,7 @@
 
 - Add or update tests for non-trivial gameplay, rendering math, persistence normalization, and bug-fix changes when practical.
 - Every issue fix should be followed by adding or adjusting tests that cover the fixed behavior, unless the repository cannot reasonably test that path yet. In that case, document the gap explicitly.
+- When a fix changes expected behavior, also update the corresponding spec requirement in the same task when the repository already documents that area.
 - Favor deterministic tests for game-state changes and rendering calculations.
 - Keep production buildability in mind, not only local dev behavior.
 - When performance-sensitive behavior changes, verify both correctness and the likely rerender or redraw impact.
@@ -126,6 +133,7 @@
 - Keep current-system specs under `docs/specs` for implemented gameplay features and technical solutions.
 - Every implemented feature should be followed by creating or updating the relevant spec in `docs/specs` before the task is considered complete.
 - When changing an existing feature, update the matching spec in the same task so the spec stays aligned with shipped behavior.
+- Every fix should update the corresponding spec in the same task when that fix adds, removes, or clarifies a documented requirement.
 - Each gameplay feature and each technical solution should have its own dedicated spec file. Do not merge multiple implemented features or multiple technical solutions into one general reference spec.
 - Use index documents only as navigation over dedicated spec files, not as replacements for them.
 

@@ -1,10 +1,11 @@
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import { EquipmentSlotId } from '../ids';
 import type { ItemConfig } from '../types';
 
 export const wayfarerCloakItemConfig: ItemConfig = {
   key: 'wayfarer-cloak',
-  name: 'Wayfarer Cloak',
+  name: itemName('wayfarer-cloak'),
   slot: EquipmentSlotId.Cloak,
   icon: ContentIcons.Hood,
   tier: 1,

@@ -1,9 +1,10 @@
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import type { ItemConfig } from '../types';
 
 export const clothItemConfig: ItemConfig = {
   key: 'cloth',
-  name: 'Cloth',
+  name: itemName('cloth'),
   icon: ContentIcons.RolledCloth,
   tier: 1,
   rarity: 'common',

@@ -1,10 +1,11 @@
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import { EquipmentSlotId } from '../ids';
 import type { ItemConfig } from '../types';
 
 export const patchworkHoodItemConfig: ItemConfig = {
   key: 'patchwork-hood',
-  name: 'Patchwork Hood',
+  name: itemName('patchwork-hood'),
   slot: EquipmentSlotId.Head,
   icon: ContentIcons.Hood,
   tier: 1,

@@ -1,9 +1,10 @@
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import type { ItemConfig } from '../types';
 
 export const waterFlaskItemConfig: ItemConfig = {
   key: 'water-flask',
-  name: 'Water Flask',
+  name: itemName('water-flask'),
   icon: ContentIcons.Consumable,
   tier: 1,
   rarity: 'common',

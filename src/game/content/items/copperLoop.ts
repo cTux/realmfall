@@ -1,10 +1,11 @@
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import { EquipmentSlotId } from '../ids';
 import type { ItemConfig } from '../types';
 
 export const copperLoopItemConfig: ItemConfig = {
   key: 'copper-loop',
-  name: 'Copper Loop',
+  name: itemName('copper-loop'),
   slot: EquipmentSlotId.RingLeft,
   icon: ContentIcons.Artifact,
   tier: 1,

@@ -1,10 +1,11 @@
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import { EquipmentSlotId } from '../ids';
 import type { ItemConfig } from '../types';
 
 export const hearthTotemItemConfig: ItemConfig = {
   key: 'hearth-totem',
-  name: 'Hearth Totem',
+  name: itemName('hearth-totem'),
   slot: EquipmentSlotId.Relic,
   icon: ContentIcons.Totem,
   tier: 1,

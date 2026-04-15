@@ -66,13 +66,17 @@ pnpm dev
 - `pnpm dev`
 - `pnpm dev:storybook`
 - `pnpm build`
+- `pnpm build:budget`
 - `pnpm build:storybook`
 - `pnpm serve`
 - `pnpm preview`
 - `pnpm typecheck`
 - `pnpm lint`
+- `pnpm lint:fix`
+- `pnpm lint:css`
 - `pnpm format`
 - `pnpm test`
+- `pnpm test:coverage`
 - `pnpm test:watch`
 
 ## Quality Expectations
@@ -81,8 +85,13 @@ Contributors should keep these working unless a task explicitly changes the work
 
 - `pnpm typecheck`
 - `pnpm lint`
+- `pnpm lint:css`
 - `pnpm test`
 - `pnpm build`
+
+For bundle-sensitive changes, also run `pnpm build:budget`.
+
+The pre-commit hook runs `pnpm typecheck`, `pnpm lint:fix`, refreshes the Git index for auto-fixed files, and then runs `pnpm lint:css`.
 
 The repository already has strong baseline tooling. Changes should preserve strict typing, lint cleanliness, deterministic tests where practical, and successful production builds.
 
@@ -141,13 +150,15 @@ When work changes the performance-sensitive paths, verify the affected area expl
 - Keep React component files compatible with Fast Refresh expectations.
 - New draggable windows should keep their content behind a lazy-loaded bundle, either by splitting the whole window module or a dedicated `*WindowContent` module.
 - Prefer maximally reusable UI primitives. Shared window controls such as close buttons and repeated title-bar actions should come from common components and use the shared custom tooltip behavior consistently.
-- Keep Storybook coverage current for every UI component and for aggregate entity catalogs so component and content changes stay visible in reviewable UI fixtures.
+- Keep Storybook coverage current for every UI component and for aggregate entity catalogs so component and content changes stay visible in reviewable UI fixtures. Component additions, removals, and behavior-affecting UI changes should update the matching stories in the same task.
 - Keep user-facing copy in i18n resources, default to `en`, add new keys instead of inline strings, and use dot-separated keys such as `{feature}.{area}.{property}`.
 - For ability, buff, and debuff icons rendered through CSS masks, use transparent SVG assets with no full-canvas background shape so the UI does not show solid squares.
 - For UI elements that already use the custom game tooltip system, do not add native browser `title` tooltips. Buffs, debuffs, abilities, and similar interactive affordances should use the shared custom tooltip consistently.
-- Prefer deterministic tests for gameplay and render-math changes, especially when performance-sensitive behavior changes.
+- Prefer deterministic tests for gameplay and render-math changes, especially when performance-sensitive behavior changes. Fixes should add or adjust tests in the same task unless that path is not reasonably testable yet.
 - Use `pnpm build:budget` for bundle-sensitive changes so the main `index`, `react-vendor`, and `pixi` chunks stay inside the current startup budget guardrails.
 - Keep generated world content aligned with `docs/lore/REALMFALL.md`.
+- Keep implemented feature, improvement, and fix specs aligned with shipped behavior in `docs/specs`. New features and improvements should create or update their dedicated spec, and fixes should update the matching requirement when applicable.
+- When requested syntax or workflow conventions can be enforced mechanically, update the corresponding lint or formatting config in the same task, including ESLint, Prettier, Stylelint, and Commitlint where applicable.
 
 ## Project Rules
 

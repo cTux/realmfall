@@ -1,9 +1,10 @@
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import type { ItemConfig } from '../types';
 
 export const sticksItemConfig: ItemConfig = {
   key: 'sticks',
-  name: 'Sticks',
+  name: itemName('sticks'),
   icon: ContentIcons.WoodStick,
   tier: 1,
   rarity: 'common',

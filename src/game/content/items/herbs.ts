@@ -1,9 +1,10 @@
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import type { ItemConfig } from '../types';
 
 export const herbsItemConfig: ItemConfig = {
   key: 'herbs',
-  name: 'Herbs',
+  name: itemName('herbs'),
   icon: ContentIcons.HerbsBundle,
   tier: 1,
   rarity: 'common',

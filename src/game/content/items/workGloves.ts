@@ -1,10 +1,11 @@
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import { EquipmentSlotId } from '../ids';
 import type { ItemConfig } from '../types';
 
 export const workGlovesItemConfig: ItemConfig = {
   key: 'work-gloves',
-  name: 'Work Gloves',
+  name: itemName('work-gloves'),
   slot: EquipmentSlotId.Hands,
   icon: ContentIcons.Gauntlet,
   tier: 1,

@@ -1,9 +1,10 @@
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import type { ItemConfig } from '../types';
 
 export const rawFishItemConfig: ItemConfig = {
   key: 'raw-fish',
-  name: 'Raw Fish',
+  name: itemName('raw-fish'),
   icon: ContentIcons.Salmon,
   tier: 1,
   rarity: 'common',

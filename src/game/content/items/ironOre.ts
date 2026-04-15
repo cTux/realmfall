@@ -1,9 +1,10 @@
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import type { ItemConfig } from '../types';
 
 export const ironOreItemConfig: ItemConfig = {
   key: 'iron-ore',
-  name: 'Iron Ore',
+  name: itemName('iron-ore'),
   icon: ContentIcons.Ore,
   tint: '#94a3b8',
   tier: 2,

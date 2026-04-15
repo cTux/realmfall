@@ -1,9 +1,10 @@
+import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import type { ItemConfig } from '../types';
 
 export const coalItemConfig: ItemConfig = {
   key: 'coal',
-  name: 'Coal',
+  name: itemName('coal'),
   icon: ContentIcons.StonePile,
   tint: '#475569',
   tier: 2,

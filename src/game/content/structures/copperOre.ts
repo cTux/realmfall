@@ -1,3 +1,11 @@
+import {
+  itemName,
+  structureActionLabel,
+  structureDepletedText,
+  structureDescription,
+  structureGatherVerb,
+  structureTitle,
+} from '../i18n';
 import { ContentIcons } from '../icons';
 import { ItemId } from '../ids';
 import type { StructureConfig } from '../types';
@@ -5,8 +13,8 @@ import { Skill } from '../../types';
 
 export const copperOreStructureConfig: StructureConfig = {
   type: 'copper-ore',
-  title: 'Copper Vein',
-  description: 'A mining vein that yields copper ore when harvested.',
+  title: structureTitle('copper-ore'),
+  description: structureDescription('copper-ore'),
   icon: ContentIcons.Ore,
   tint: 0xf59e0b,
   functionsProvided: ['mine-copper'],
@@ -15,14 +23,14 @@ export const copperOreStructureConfig: StructureConfig = {
     desert: 0.84,
   },
   gathering: {
-    actionLabel: 'Mine Copper Vein',
+    actionLabel: structureActionLabel('copper-ore'),
     maxHp: 6,
     skill: Skill.Mining,
     rewardItemKey: ItemId.CopperOre,
-    reward: 'Copper Ore',
+    reward: itemName(ItemId.CopperOre),
     rewardTier: 1,
     baseYield: 1,
-    verb: 'You mine the copper vein',
-    depletedText: 'The copper vein is spent.',
+    verb: structureGatherVerb('copper-ore'),
+    depletedText: structureDepletedText('copper-ore'),
   },
 };

@@ -430,11 +430,13 @@ export function getSafePathToTile(state: GameState, target: HexCoord) {
 
 export function moveToTile(state: GameState, target: HexCoord): GameState {
   if (state.gameOver) return state;
-  if (state.combat) return message(state, 'Finish the current battle first.');
+  if (state.combat) {
+    return message(state, t('game.message.combat.finishCurrentBattleFirst'));
+  }
 
   const current = state.player.coord;
   if (hexDistance(current, target) !== 1) {
-    return message(state, 'Move one hex at a time.');
+    return message(state, t('game.message.travel.oneHexAtATime'));
   }
 
   const next = clone(state);
@@ -442,7 +444,7 @@ export function moveToTile(state: GameState, target: HexCoord): GameState {
   const tile = next.tiles[hexKey(target)];
 
   if (!isPassable(tile.terrain)) {
-    return message(next, 'The terrain blocks your path.');
+    return message(next, t('game.message.travel.blockedTerrain'));
   }
 
   next.turn += 1;
@@ -460,7 +462,12 @@ export function moveToTile(state: GameState, target: HexCoord): GameState {
     addLog(
       next,
       'combat',
-      `You encounter ${hostileEnemyIds.length} foe${hostileEnemyIds.length > 1 ? 's' : ''}. Press Start to begin the battle.`,
+      t(
+        hostileEnemyIds.length === 1
+          ? 'game.message.combat.encounter.one'
+          : 'game.message.combat.encounter.other',
+        { count: hostileEnemyIds.length },
+      ),
     );
     return next;
   }
@@ -479,7 +486,7 @@ export function moveAlongSafePath(
 ): GameState {
   const path = getSafePathToTile(state, target);
   if (!path || path.length === 0) {
-    return path ? state : message(state, 'No safe path reaches that hex.');
+    return path ? state : message(state, t('game.message.travel.noSafePath'));
   }
 
   let next = state;
@@ -655,9 +662,9 @@ export function setHomeHex(
 }
 
 export function attackCombatEnemy(state: GameState): GameState {
-  if (!state.combat) return message(state, 'There is no active battle.');
+  if (!state.combat) return message(state, t('game.message.combat.noneActive'));
   if (!state.combat.started)
-    return message(state, 'Press Start to begin the battle.');
+    return message(state, t('game.message.combat.pressStart'));
 
   return progressCombat(state);
 }
@@ -671,7 +678,7 @@ export function progressCombat(state: GameState): GameState {
 }
 
 export function startCombat(state: GameState): GameState {
-  if (!state.combat) return message(state, 'There is no active battle.');
+  if (!state.combat) return message(state, t('game.message.combat.noneActive'));
   if (state.combat.started) return state;
 
   const next = clone(state);
@@ -679,7 +686,12 @@ export function startCombat(state: GameState): GameState {
   addLog(
     next,
     'combat',
-    `Battle begins against ${next.combat!.enemyIds.length} foe${next.combat!.enemyIds.length > 1 ? 's' : ''}.`,
+    t(
+      next.combat!.enemyIds.length === 1
+        ? 'game.message.combat.begin.one'
+        : 'game.message.combat.begin.other',
+      { count: next.combat!.enemyIds.length },
+    ),
   );
   resolveCombat(next);
   return next;
@@ -691,7 +703,7 @@ export function equipItem(state: GameState, itemId: string): GameState {
   const itemIndex = state.player.inventory.findIndex(
     (item) => item.id === itemId,
   );
-  if (itemIndex < 0) return message(state, 'That item is not in your pack.');
+  if (itemIndex < 0) return message(state, t('game.message.item.notInPack'));
 
   const item = state.player.inventory[itemIndex];
   const next = clone(state);
@@ -702,10 +714,14 @@ export function equipItem(state: GameState, itemId: string): GameState {
   }
 
   if (hasItemTag(item, GAME_TAGS.item.resource))
-    return message(state, 'Resources cannot be equipped.');
+    return message(
+      state,
+      t('game.message.equipment.resourcesCannotBeEquipped'),
+    );
 
   next.player.inventory.splice(itemIndex, 1);
-  if (!item.slot) return message(state, 'That item cannot be equipped.');
+  if (!item.slot)
+    return message(state, t('game.message.equipment.cannotEquip'));
 
   const replaced = next.player.equipment[item.slot];
   if (replaced) addItemToInventory(next.player.inventory, replaced);
@@ -729,11 +745,12 @@ export function useItem(state: GameState, itemId: string): GameState {
   const itemIndex = state.player.inventory.findIndex(
     (item) => item.id === itemId,
   );
-  if (itemIndex < 0) return message(state, 'That item is not in your pack.');
+  if (itemIndex < 0) return message(state, t('game.message.item.notInPack'));
 
   const item = state.player.inventory[itemIndex];
-  if (isRecipeBook(item))
-    return message(state, 'Open the recipe book from your pack.');
+  if (isRecipeBook(item)) {
+    return message(state, t('game.message.recipeBook.openFromPack'));
+  }
   if (isRecipePage(item)) {
     const next = clone(state);
     learnRecipe(next, item, RECIPE_BOOK_RECIPES, addLog);
@@ -741,7 +758,7 @@ export function useItem(state: GameState, itemId: string): GameState {
     return next;
   }
   if (!hasItemTag(item, GAME_TAGS.item.consumable))
-    return message(state, 'That item cannot be used.');
+    return message(state, t('game.message.item.cannotUse'));
 
   const next = clone(state);
   if (item.itemKey === ItemId.HomeScroll) {
@@ -1036,7 +1053,7 @@ export function unequipItem(state: GameState, slot: EquipmentSlot): GameState {
   if (state.gameOver) return state;
 
   const equipped = state.player.equipment[slot];
-  if (!equipped) return message(state, 'That slot is already empty.');
+  if (!equipped) return message(state, t('game.message.equipment.slotEmpty'));
 
   const next = clone(state);
   delete next.player.equipment[slot];
@@ -1065,11 +1082,11 @@ export function sortInventory(state: GameState): GameState {
 
 export function sellAllItems(state: GameState): GameState {
   if (getCurrentTile(state).structure !== 'town') {
-    return message(state, 'You can sell only while standing in town.');
+    return message(state, t('game.message.sell.townOnly'));
   }
   const sellable = state.player.inventory.filter(isEquippableItem);
   if (sellable.length === 0)
-    return message(state, 'No equippable items to sell.');
+    return message(state, t('game.message.sell.empty'));
 
   const next = clone(state);
   const gold = sellable.reduce((sum, item) => sum + sellValue(item), 0);
@@ -1083,13 +1100,13 @@ export function sellAllItems(state: GameState): GameState {
 
 export function prospectInventory(state: GameState): GameState {
   if (getCurrentTile(state).structure !== 'forge') {
-    return message(state, 'You can prospect only while standing at a forge.');
+    return message(state, t('game.message.prospect.forgeOnly'));
   }
 
   const next = clone(state);
   const prospectable = next.player.inventory.filter(isEquippableItem);
   if (prospectable.length === 0) {
-    return message(state, 'Nothing in your pack can be prospected.');
+    return message(state, t('game.message.prospect.empty'));
   }
 
   next.player.inventory = next.player.inventory.filter(
@@ -1112,7 +1129,7 @@ export function takeTileItem(state: GameState, itemId: string): GameState {
   const key = hexKey(next.player.coord);
   const tile = next.tiles[key];
   const itemIndex = tile.items.findIndex((item) => item.id === itemId);
-  if (itemIndex < 0) return message(state, 'That item is no longer here.');
+  if (itemIndex < 0) return message(state, t('game.message.loot.itemGone'));
 
   const [item] = tile.items.splice(itemIndex, 1);
   addItemToInventory(next.player.inventory, item);
@@ -1130,11 +1147,13 @@ export function takeTileItem(state: GameState, itemId: string): GameState {
 
 export function claimCurrentHex(state: GameState): GameState {
   if (state.gameOver) return state;
-  if (state.combat) return message(state, 'Finish the current battle first.');
+  if (state.combat) {
+    return message(state, t('game.message.combat.finishCurrentBattleFirst'));
+  }
 
   const status = getCurrentHexClaimStatus(state);
   if (!status.canClaim) {
-    return message(state, status.reason ?? 'This hex cannot be claimed.');
+    return message(state, status.reason ?? t('game.message.claim.unavailable'));
   }
 
   const next = clone(state);
@@ -1160,11 +1179,13 @@ export function claimCurrentHex(state: GameState): GameState {
 
 export function interactWithStructure(state: GameState): GameState {
   if (state.gameOver) return state;
-  if (state.combat) return message(state, 'Finish the current battle first.');
+  if (state.combat) {
+    return message(state, t('game.message.combat.finishCurrentBattleFirst'));
+  }
 
   const tile = getCurrentTile(state);
   if (!isGatheringStructure(tile.structure)) {
-    return message(state, 'There is nothing here to gather.');
+    return message(state, t('game.message.gather.nothingHere'));
   }
 
   const next = clone(state);
@@ -1172,7 +1193,7 @@ export function interactWithStructure(state: GameState): GameState {
   const key = hexKey(next.player.coord);
   const currentTile = next.tiles[key];
   if (!isGatheringStructure(currentTile.structure)) {
-    return message(state, 'There is nothing here to gather.');
+    return message(state, t('game.message.gather.nothingHere'));
   }
 
   next.turn += 1;
@@ -1255,18 +1276,21 @@ export function hasEquippableInventoryItems(state: GameState) {
 export function buyTownItem(state: GameState, itemId: string): GameState {
   const tile = getCurrentTile(state);
   if (tile.structure !== 'town') {
-    return message(state, 'You can buy only while standing in town.');
+    return message(state, t('game.message.buy.townOnly'));
   }
 
   const stock = buildTownStock(state.seed, tile.coord);
   const entry = stock.find((candidate) => candidate.item.id === itemId);
-  if (!entry) return message(state, 'That item is not available here.');
+  if (!entry) return message(state, t('game.message.buy.unavailable'));
 
   const gold = getGoldAmount(state.player.inventory);
   if (gold < entry.price) {
     return message(
       state,
-      `You need ${entry.price} gold to buy ${entry.item.name}.`,
+      t('game.message.buy.needsGold', {
+        price: entry.price,
+        item: entry.item.name,
+      }),
     );
   }
 
@@ -1290,7 +1314,7 @@ export function takeAllTileItems(state: GameState): GameState {
   const key = hexKey(next.player.coord);
   const tile = next.tiles[key];
   if (tile.items.length === 0)
-    return message(state, 'There is nothing here to take.');
+    return message(state, t('game.message.loot.nothingHere'));
 
   tile.items.forEach((item) => addItemToInventory(next.player.inventory, item));
   next.tiles[key] = normalizeStructureState({ ...tile, items: [] });
@@ -1309,7 +1333,7 @@ export function dropInventoryItem(state: GameState, itemId: string): GameState {
   const itemIndex = next.player.inventory.findIndex(
     (item) => item.id === itemId,
   );
-  if (itemIndex < 0) return message(state, 'That item is not in your pack.');
+  if (itemIndex < 0) return message(state, t('game.message.item.notInPack'));
 
   const [item] = next.player.inventory.splice(itemIndex, 1);
   ensureTileState(next, next.player.coord);
@@ -1330,7 +1354,7 @@ export function dropEquippedItem(
   slot: EquipmentSlot,
 ): GameState {
   const equipped = state.player.equipment[slot];
-  if (!equipped) return message(state, 'That slot is already empty.');
+  if (!equipped) return message(state, t('game.message.equipment.slotEmpty'));
 
   const next = clone(state);
   delete next.player.equipment[slot];
@@ -1349,27 +1373,30 @@ export function craftRecipe(state: GameState, recipeId: string): GameState {
   if (state.gameOver) return state;
 
   const recipe = RECIPE_BOOK_RECIPES.find((entry) => entry.id === recipeId);
-  if (!recipe) return message(state, 'That recipe is not in your book.');
+  if (!recipe) return message(state, t('game.message.recipe.notInBook'));
   if (!hasRecipeBook(state.player.inventory)) {
-    return message(state, 'You need a recipe book to follow that recipe.');
+    return message(state, t('game.message.recipe.needsBook'));
   }
   if (!state.player.learnedRecipeIds.includes(recipe.id)) {
-    return message(state, 'You have not learned that recipe yet.');
+    return message(state, t('game.message.recipe.notLearned'));
   }
   const requiredStructure =
     recipe.skill === Skill.Cooking ? 'camp' : 'workshop';
   const requiredLabel =
-    recipe.skill === Skill.Cooking ? 'campfire' : 'workshop';
+    getStructureConfig(requiredStructure).title.toLowerCase();
   if (getCurrentTile(state).structure !== requiredStructure) {
     return message(
       state,
-      `You need to stand at a ${requiredLabel} to ${recipe.skill === Skill.Cooking ? 'cook' : 'craft'}.`,
+      t('game.message.recipe.requiresStation', {
+        station: requiredLabel,
+        action: recipe.skill === Skill.Cooking ? 'cook' : 'craft',
+      }),
     );
   }
   if (!hasAllRequirements(state.player.inventory, recipe.ingredients)) {
     return message(
       state,
-      `You lack the materials to make ${recipe.output.name}.`,
+      t('game.message.recipe.missingMaterials', { item: recipe.output.name }),
     );
   }
 
@@ -1377,10 +1404,7 @@ export function craftRecipe(state: GameState, recipeId: string): GameState {
     ? pickSatisfiedRequirement(state.player.inventory, recipe.fuelOptions)
     : undefined;
   if (recipe.fuelOptions && !chosenFuel) {
-    return message(
-      state,
-      'You need burnable fuel: sticks x8, logs x2, or coal x1.',
-    );
+    return message(state, t('game.message.recipe.needsFuel'));
   }
 
   const next = clone(state);
