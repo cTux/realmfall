@@ -17,7 +17,7 @@ const benchmarks = [
   },
   {
     name: 'oxlint',
-    args: ['exec', 'oxlint', ...lintTargets],
+    args: ['exec', 'oxlint', '-c', '.oxlintrc.json', ...lintTargets],
   },
   {
     name: 'biome',

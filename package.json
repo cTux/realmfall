@@ -1,7 +1,7 @@
 {
   "name": "realmfall",
   "private": true,
-  "version": "0.2.11",
+  "version": "0.2.12",
   "type": "module",
   "packageManager": "pnpm@10.33.0",
   "engines": {
@@ -18,10 +18,10 @@
     "preview": "vite preview",
     "quality:staged": "node scripts/run-staged-quality.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.node.json --noEmit",
-    "lint": "pnpm lint:eslint",
+    "lint": "pnpm lint:oxlint",
     "lint:eslint": "eslint src .storybook scripts eslint.config.js vite.config.ts commitlint.config.js",
-    "lint:fix": "eslint src .storybook scripts eslint.config.js vite.config.ts commitlint.config.js --fix",
-    "lint:oxlint": "oxlint src .storybook scripts eslint.config.js vite.config.ts commitlint.config.js",
+    "lint:fix": "oxlint -c .oxlintrc.json --fix src .storybook scripts eslint.config.js vite.config.ts commitlint.config.js",
+    "lint:oxlint": "oxlint -c .oxlintrc.json src .storybook scripts eslint.config.js vite.config.ts commitlint.config.js",
     "lint:biome": "biome lint . --files-ignore-unknown=true",
     "lint:bench": "node scripts/benchmark-linters.mjs",
     "lint:css": "stylelint \"src/**/*.{css,scss}\"",

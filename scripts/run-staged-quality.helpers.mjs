@@ -1,4 +1,4 @@
-const ESLINT_EXTENSIONS = new Set([
+const LINT_EXTENSIONS = new Set([
   '.js',
   '.jsx',
   '.ts',
@@ -8,7 +8,7 @@ const ESLINT_EXTENSIONS = new Set([
 ]);
 
 const STYLELINT_EXTENSIONS = new Set(['.css', '.scss']);
-const VITEST_RELATED_EXTENSIONS = new Set([...ESLINT_EXTENSIONS, '.json']);
+const VITEST_RELATED_EXTENSIONS = new Set([...LINT_EXTENSIONS, '.json']);
 
 export const FULL_TEST_TRIGGER_FILES = new Set([
   'package.json',
@@ -31,8 +31,8 @@ export function isSrcStyleFile(file) {
   );
 }
 
-export function isEslintFile(file) {
-  return ESLINT_EXTENSIONS.has(getExtension(file));
+export function isLintFile(file) {
+  return LINT_EXTENSIONS.has(getExtension(file));
 }
 
 export function isVitestRelatedFile(file) {

@@ -6,10 +6,12 @@ This spec covers the repository quality baseline and current test coverage shape
 
 ## Current Solution
 
-- The repository uses TypeScript strict mode, ESLint, Prettier, Vitest, Husky, Vite, and Storybook.
-- The repository also keeps Oxlint and Biome installed alongside ESLint for local comparison work, but ESLint remains the enforced JavaScript and TypeScript lint gate for contributor workflow and pre-commit automation.
+- The repository uses TypeScript strict mode, Oxlint, Prettier, Vitest, Husky, Vite, and Storybook.
+- Oxlint is the enforced JavaScript and TypeScript lint gate for contributor workflow and pre-commit automation, with its canonical configuration stored in `.oxlintrc.json`.
+- The repository still keeps ESLint and Biome available for comparison work, but they are secondary tools rather than the default quality gate.
 - CI and local quality expectations center on `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build`.
-- A dedicated `pnpm lint:bench` command runs ESLint, Oxlint, and Biome against the same shared target set and reports repeated wall-clock timings plus relative speedup against ESLint.
+- A dedicated `pnpm lint:bench` command runs ESLint, Oxlint, and Biome against the same shared target set and reports repeated wall-clock timings for direct comparison.
+- The Oxlint migration covers the prior ESLint rule set as closely as Oxlint currently allows, including nursery parity rules for `getter-return`, `no-undef`, and `no-unreachable`; Oxlint still does not implement `no-dupe-args` or `no-octal`.
 - Storybook is used as a maintained UI fixture surface for window components, shared UI components, and aggregate entity catalogs for items, enemies, and structures.
 - Storybook preview bootstraps the `en` i18n bundle before stories run, injects the shared game-tooltip behavior for story args that expose hover callbacks, and keeps the iframe viewport vertically scrollable for tall fixture surfaces such as aggregate catalogs.
 - A Storybook parity test guards that each top-level component directory in `src/ui/components` keeps at least one story and that the entity catalog stories stay connected to the live config-derived fixtures.
@@ -30,6 +32,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - `scripts/check-package-version.mjs`
 - `scripts/run-staged-quality.mjs`
 - `scripts/benchmark-linters.mjs`
+- `.oxlintrc.json`
 - `eslint.config.js`
 - `biome.json`
 - `prettier.config.cjs`

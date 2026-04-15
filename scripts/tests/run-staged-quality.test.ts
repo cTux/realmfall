@@ -1,7 +1,7 @@
 import {
   FULL_TEST_TRIGGER_FILES,
   getExtension,
-  isEslintFile,
+  isLintFile,
   isSrcStyleFile,
   isVitestRelatedFile,
 } from '../run-staged-quality.helpers.mjs';
@@ -17,9 +17,9 @@ describe('run-staged-quality helpers', () => {
     expect(isVitestRelatedFile('package.json')).toBe(false);
   });
 
-  it('keeps staged ESLint and Stylelint selectors narrow', () => {
-    expect(isEslintFile('scripts/run-staged-quality.helpers.mjs')).toBe(true);
-    expect(isEslintFile('src/i18n/locales/en.json')).toBe(false);
+  it('keeps staged Oxlint and Stylelint selectors narrow', () => {
+    expect(isLintFile('scripts/run-staged-quality.helpers.mjs')).toBe(true);
+    expect(isLintFile('src/i18n/locales/en.json')).toBe(false);
     expect(isSrcStyleFile('src/ui/components/App/styles.scss')).toBe(true);
     expect(isSrcStyleFile('styles.scss')).toBe(false);
   });

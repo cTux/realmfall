@@ -1,6 +1,6 @@
 # Realmfall
 
-Hex-based browser survival RPG `Realmfall`, built with React, TypeScript, Vite, Pixi.js, Vitest, ESLint, Prettier, and Husky.
+Hex-based browser survival RPG `Realmfall`, built with React, TypeScript, Vite, Pixi.js, Vitest, Oxlint, Prettier, and Husky.
 
 Genres: survival RPG, hex-crawl, turn-based exploration, inventory management, roguelite.
 
@@ -38,7 +38,7 @@ The game currently does not support mods.
 - Vite
 - Pixi.js
 - Vitest
-- ESLint
+- Oxlint
 - Prettier
 - Husky
 - pnpm
@@ -99,9 +99,9 @@ Contributors should keep these working unless a task explicitly changes the work
 
 For bundle-sensitive changes, also run `pnpm build:budget`.
 
-`pnpm lint` remains the enforced ESLint path. `pnpm lint:oxlint` and `pnpm lint:biome` are available alongside it for side-by-side evaluation, and `pnpm lint:bench` benchmarks all three tools against the same shared target set.
+`pnpm lint` now runs Oxlint as the enforced JavaScript and TypeScript lint path. `pnpm lint:eslint` remains available for comparison, `pnpm lint:biome` remains available for side-by-side evaluation, and `pnpm lint:bench` benchmarks all three tools against the same shared target set.
 
-The pre-commit hook runs `pnpm check:version`, `pnpm typecheck`, and `pnpm quality:staged`, then refreshes the Git index for auto-fixed tracked files. `pnpm quality:staged` runs `eslint --fix` only on staged JavaScript and TypeScript files, runs Stylelint only on staged `src` CSS and SCSS files, and runs `vitest related` for staged source, runtime JSON content, and test files. When shared test inputs such as `package.json`, `pnpm-lock.yaml`, `vite.config.ts`, TypeScript config, or `src/test/setup.ts` are staged, it falls back to the full `pnpm test` suite. `pnpm check:version` still requires `package.json` to advance by patch version relative to `HEAD`.
+The pre-commit hook runs `pnpm check:version`, `pnpm typecheck`, and `pnpm quality:staged`, then refreshes the Git index for auto-fixed tracked files. `pnpm quality:staged` runs `oxlint --fix -c .oxlintrc.json` only on staged JavaScript and TypeScript files, runs Stylelint only on staged `src` CSS and SCSS files, and runs `vitest related` for staged source, runtime JSON content, and test files. When shared test inputs such as `package.json`, `pnpm-lock.yaml`, `vite.config.ts`, TypeScript config, or `src/test/setup.ts` are staged, it falls back to the full `pnpm test` suite. `pnpm check:version` still requires `package.json` to advance by patch version relative to `HEAD`.
 
 The repository already has strong baseline tooling. Changes should preserve strict typing, lint cleanliness, deterministic tests where practical, and successful production builds.
 
@@ -144,17 +144,17 @@ When work changes the performance-sensitive paths, verify the affected area expl
 ## Engineering Expectations
 
 - Use `pnpm` for contributor commands and documentation.
-- Keep TypeScript strictness, ESLint, Prettier, tests, Husky hooks, and production builds working.
+- Keep TypeScript strictness, Oxlint, Prettier, tests, Husky hooks, and production builds working.
 - Prefer the smallest correct change that fits existing patterns.
 - Apply the DRY principle and prefer extending existing shared helpers, components, and config modules over duplicating similar logic.
-- When a JavaScript or TypeScript syntax convention should change, prefer enforcing it through an ESLint rule when that is practical.
+- When a JavaScript or TypeScript syntax convention should change, prefer enforcing it through an Oxlint rule when that is practical, using Oxlint JS plugins only when the rule is not available natively.
 - Keep gameplay and simulation rules in `src/game`, app orchestration in `src/app`, React UI components in `src/ui/components`, and Pixi world rendering in `src/ui/world`.
 - Avoid growing already-large coordinator modules when a focused helper or hook is a better fit.
 - Prefer decomposing broad multi-export modules into focused files unless the file only contains tightly related types or closely related entity or library helpers.
 - Keep balancing and world constants in config or focused modules instead of scattering magic numbers through UI code.
 - Keep each unique item, enemy, and structure in its own dedicated configuration file so gameplay and presentation data such as icons, drop or appearance chances, and structure-provided functions stay localized by content type.
 - In JavaScript and TypeScript, prefer concise arrow functions for immediate expression returns.
-- Keep ESLint style rules aligned with the current JavaScript and TypeScript syntax conventions so the preferred style is enforced automatically when possible.
+- Keep Oxlint rules aligned with the current JavaScript and TypeScript syntax conventions so the preferred style is enforced automatically when possible.
 - Preserve save normalization when persisted shapes evolve.
 - Treat browser-side save protection in `src/persistence/storage.ts` as local obfuscation, not real security.
 - Prefer debounced or meaningfully-triggered persistence work over repeated identical writes.
@@ -170,7 +170,7 @@ When work changes the performance-sensitive paths, verify the affected area expl
 - Use `pnpm build:budget` for bundle-sensitive changes so the main `index`, `react-vendor`, and `pixi` chunks stay inside the current startup budget guardrails.
 - Keep generated world content aligned with `docs/lore/REALMFALL.md`.
 - Keep implemented feature, improvement, and fix specs aligned with shipped behavior in `docs/specs`. New features and improvements should create or update their dedicated spec, and fixes should update the matching requirement when applicable.
-- When requested syntax or workflow conventions can be enforced mechanically, update the corresponding lint or formatting config in the same task, including ESLint, Prettier, Stylelint, and Commitlint where applicable.
+- When requested syntax or workflow conventions can be enforced mechanically, update the corresponding lint or formatting config in the same task, including Oxlint, Prettier, Stylelint, and Commitlint where applicable.
 
 ## Project Rules
 
