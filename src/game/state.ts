@@ -1469,12 +1469,18 @@ export function craftRecipe(state: GameState, recipeId: string): GameState {
   const requiredStructure = getRecipeRequiredStructure(recipe);
   const requiredLabel =
     getStructureConfig(requiredStructure).title.toLowerCase();
+  const recipeAction =
+    recipe.skill === Skill.Cooking
+      ? 'cook'
+      : recipe.skill === Skill.Smelting
+        ? 'smelt'
+        : 'craft';
   if (getCurrentTile(state).structure !== requiredStructure) {
     return message(
       state,
       t('game.message.recipe.requiresStation', {
         station: requiredLabel,
-        action: recipe.skill === Skill.Cooking ? 'cook' : 'craft',
+        action: recipeAction,
       }),
     );
   }
@@ -1510,6 +1516,8 @@ export function craftRecipe(state: GameState, recipeId: string): GameState {
             ? ` ${t('ui.common.with')} ${describeRequirement(chosenFuel)}`
             : '',
         })
+      : recipe.skill === Skill.Smelting
+        ? t('game.message.craft.smelt', { item: recipe.output.name })
       : t('game.message.craft.make', { item: recipe.output.name }),
   );
   return next;

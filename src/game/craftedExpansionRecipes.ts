@@ -9,7 +9,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ashen-blade', { id: 'crafted-ashen-blade' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 2 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 2 },
       { itemKey: 'sticks', name: 'Sticks', quantity: 1 },
     ],
   },
@@ -22,7 +22,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 3 },
       { itemKey: 'logs', name: 'Logs', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -56,7 +56,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 4 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 4 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -68,7 +68,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -124,7 +124,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ashen-charm', { id: 'crafted-ashen-charm' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
       { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
@@ -148,7 +148,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('rift-blade', { id: 'crafted-rift-blade' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 2 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 2 },
       { itemKey: 'sticks', name: 'Sticks', quantity: 1 },
     ],
   },
@@ -161,7 +161,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 3 },
       { itemKey: 'logs', name: 'Logs', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -195,7 +195,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 4 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 4 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -207,7 +207,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -263,7 +263,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('rift-charm', { id: 'crafted-rift-charm' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
       { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
@@ -287,7 +287,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('shard-blade', { id: 'crafted-shard-blade' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 2 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 2 },
       { itemKey: 'sticks', name: 'Sticks', quantity: 1 },
     ],
   },
@@ -300,7 +300,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 3 },
       { itemKey: 'logs', name: 'Logs', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -334,7 +334,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 4 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 4 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -346,7 +346,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -402,7 +402,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('shard-charm', { id: 'crafted-shard-charm' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
       { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
@@ -426,7 +426,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('vale-blade', { id: 'crafted-vale-blade' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 2 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 2 },
       { itemKey: 'sticks', name: 'Sticks', quantity: 1 },
     ],
   },
@@ -439,7 +439,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 3 },
       { itemKey: 'logs', name: 'Logs', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -473,7 +473,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 4 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 4 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -485,7 +485,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -541,7 +541,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('vale-charm', { id: 'crafted-vale-charm' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
       { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
@@ -565,7 +565,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ironbound-blade', { id: 'crafted-ironbound-blade' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 2 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 2 },
       { itemKey: 'sticks', name: 'Sticks', quantity: 1 },
     ],
   },
@@ -578,7 +578,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 3 },
       { itemKey: 'logs', name: 'Logs', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -612,7 +612,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 4 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 4 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -624,7 +624,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -680,7 +680,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ironbound-charm', { id: 'crafted-ironbound-charm' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
       { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
@@ -704,7 +704,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('storm-blade', { id: 'crafted-storm-blade' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 2 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 2 },
       { itemKey: 'sticks', name: 'Sticks', quantity: 1 },
     ],
   },
@@ -717,7 +717,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 3 },
       { itemKey: 'logs', name: 'Logs', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -751,7 +751,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 4 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 4 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -763,7 +763,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -819,7 +819,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('storm-charm', { id: 'crafted-storm-charm' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
       { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
@@ -843,7 +843,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ember-blade', { id: 'crafted-ember-blade' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 2 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 2 },
       { itemKey: 'sticks', name: 'Sticks', quantity: 1 },
     ],
   },
@@ -856,7 +856,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 3 },
       { itemKey: 'logs', name: 'Logs', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -890,7 +890,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 4 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 4 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -902,7 +902,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -958,7 +958,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ember-charm', { id: 'crafted-ember-charm' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
       { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
@@ -982,7 +982,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('hollow-blade', { id: 'crafted-hollow-blade' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 2 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 2 },
       { itemKey: 'sticks', name: 'Sticks', quantity: 1 },
     ],
   },
@@ -995,7 +995,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 3 },
       { itemKey: 'logs', name: 'Logs', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -1029,7 +1029,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 4 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 4 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -1041,7 +1041,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -1097,7 +1097,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('hollow-charm', { id: 'crafted-hollow-charm' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
       { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
@@ -1121,7 +1121,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('warden-blade', { id: 'crafted-warden-blade' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 2 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 2 },
       { itemKey: 'sticks', name: 'Sticks', quantity: 1 },
     ],
   },
@@ -1134,7 +1134,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 3 },
       { itemKey: 'logs', name: 'Logs', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -1168,7 +1168,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 4 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 4 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -1180,7 +1180,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -1236,7 +1236,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('warden-charm', { id: 'crafted-warden-charm' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
       { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
@@ -1260,7 +1260,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('void-blade', { id: 'crafted-void-blade' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 2 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 2 },
       { itemKey: 'sticks', name: 'Sticks', quantity: 1 },
     ],
   },
@@ -1273,7 +1273,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 3 },
       { itemKey: 'logs', name: 'Logs', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -1307,7 +1307,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 4 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 4 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -1319,7 +1319,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -1375,7 +1375,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('void-charm', { id: 'crafted-void-charm' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
       { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
@@ -1399,7 +1399,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dawn-blade', { id: 'crafted-dawn-blade' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 2 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 2 },
       { itemKey: 'sticks', name: 'Sticks', quantity: 1 },
     ],
   },
@@ -1412,7 +1412,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 3 },
       { itemKey: 'logs', name: 'Logs', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -1446,7 +1446,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 4 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 4 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -1458,7 +1458,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -1514,7 +1514,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dawn-charm', { id: 'crafted-dawn-charm' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
       { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
@@ -1538,7 +1538,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dusk-blade', { id: 'crafted-dusk-blade' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 2 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 2 },
       { itemKey: 'sticks', name: 'Sticks', quantity: 1 },
     ],
   },
@@ -1551,7 +1551,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 3 },
       { itemKey: 'logs', name: 'Logs', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -1585,7 +1585,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 4 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 4 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -1597,7 +1597,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -1653,7 +1653,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dusk-charm', { id: 'crafted-dusk-charm' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
       { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
@@ -1677,7 +1677,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('moss-blade', { id: 'crafted-moss-blade' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 2 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 2 },
       { itemKey: 'sticks', name: 'Sticks', quantity: 1 },
     ],
   },
@@ -1690,7 +1690,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 3 },
       { itemKey: 'logs', name: 'Logs', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -1724,7 +1724,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 4 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 4 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -1736,7 +1736,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -1792,7 +1792,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('moss-charm', { id: 'crafted-moss-charm' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
       { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
@@ -1810,4 +1810,5 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     ],
   },
 ];
+
 

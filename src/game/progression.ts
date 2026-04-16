@@ -20,6 +20,7 @@ export function makeStartingSkills(): Record<SkillName, SkillProgress> {
     [Skill.Skinning]: { level: 1, xp: 0 },
     [Skill.Fishing]: { level: 1, xp: 0 },
     [Skill.Cooking]: { level: 1, xp: 0 },
+    [Skill.Smelting]: { level: 1, xp: 0 },
     [Skill.Crafting]: { level: 1, xp: 0 },
   };
 }

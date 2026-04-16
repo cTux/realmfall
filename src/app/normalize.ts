@@ -299,6 +299,7 @@ function normalizeSkills(
     [Skill.Skinning]: normalizeSkill(skills?.[Skill.Skinning]),
     [Skill.Fishing]: normalizeSkill(skills?.[Skill.Fishing]),
     [Skill.Cooking]: normalizeSkill(skills?.[Skill.Cooking]),
+    [Skill.Smelting]: normalizeSkill(skills?.[Skill.Smelting]),
     [Skill.Crafting]: normalizeSkill(skills?.[Skill.Crafting]),
   };
 }

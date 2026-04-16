@@ -69,6 +69,7 @@ export function createStorybookFixtures() {
     [Skill.Skinning]: { level: 5, xp: 2 },
     [Skill.Fishing]: { level: 4, xp: 6 },
     [Skill.Cooking]: { level: 7, xp: 1 },
+    [Skill.Smelting]: { level: 5, xp: 4 },
     [Skill.Crafting]: { level: 9, xp: 3 },
   };
   state.player.equipment = equipment;

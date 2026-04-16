@@ -115,7 +115,9 @@ export function describeRequirement(requirement: RecipeRequirement) {
 export function getRecipeRequiredStructure(
   recipe: Pick<RecipeDefinition, 'skill'>,
 ): StructureType {
-  return recipe.skill === Skill.Cooking ? 'camp' : 'workshop';
+  if (recipe.skill === Skill.Cooking) return 'camp';
+  if (recipe.skill === Skill.Smelting) return 'furnace';
+  return 'workshop';
 }
 
 export function recipeUsesItemKey(
@@ -137,6 +139,11 @@ function matchesRequirement(item: Item, requirement: RecipeRequirement) {
 }
 
 const RECIPE_REQUIREMENT_SCALE = 10;
+const DEFAULT_COOKING_FUEL_OPTIONS: RecipeRequirement[] = [
+  { itemKey: 'coal', name: 'Coal', quantity: 1 },
+  { itemKey: 'logs', name: 'Logs', quantity: 2 },
+  { itemKey: 'sticks', name: 'Sticks', quantity: 8 },
+];
 
 function scaleRequirements(requirements: RecipeRequirement[]) {
   return requirements.map((requirement) => ({
@@ -153,11 +160,37 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: makeCookedFish(),
     ingredients: [{ itemKey: 'raw-fish', name: 'Raw Fish', quantity: 1 }],
-    fuelOptions: [
-      { itemKey: 'coal', name: 'Coal', quantity: 1 },
-      { itemKey: 'logs', name: 'Logs', quantity: 2 },
-      { itemKey: 'sticks', name: 'Sticks', quantity: 8 },
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
+  },
+  {
+    id: 'smelt-copper-ingot',
+    name: 'Copper Ingot',
+    description: 'Refine a copper ore haul into a workable ingot.',
+    skill: Skill.Smelting,
+    output: buildItemFromConfig('copper-ingot'),
+    ingredients: [{ itemKey: 'copper-ore', name: 'Copper Ore', quantity: 2 }],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
+  },
+  {
+    id: 'smelt-iron-ingot-from-ore',
+    name: 'Iron Ingot',
+    description: 'Smelt raw iron ore down into an ingot fit for crafting.',
+    skill: Skill.Smelting,
+    output: buildItemFromConfig('iron-ingot'),
+    ingredients: [{ itemKey: 'iron-ore', name: 'Iron Ore', quantity: 2 }],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
+  },
+  {
+    id: 'smelt-iron-ingot-from-chunks',
+    name: 'Iron Ingot',
+    description:
+      'Recast salvaged iron chunks into a proper ingot for the workshop.',
+    skill: Skill.Smelting,
+    output: buildItemFromConfig('iron-ingot'),
+    ingredients: [
+      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 2 },
     ],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'craft-weapon',
@@ -175,7 +208,7 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
       },
     ),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 2 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 2 },
       { itemKey: 'sticks', name: 'Sticks', quantity: 2 },
     ],
   },
@@ -206,7 +239,7 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
     skill: Skill.Crafting,
     output: buildItemFromConfig('town-knife', { id: 'crafted-town-knife' }),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
       { itemKey: 'sticks', name: 'Sticks', quantity: 1 },
     ],
   },
@@ -261,7 +294,7 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 4 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 4 },
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
     ],
   },
   {
@@ -342,7 +375,7 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
       },
     ),
     ingredients: [
-      { itemKey: 'copper-ore', name: 'Copper Ore', quantity: 2 },
+      { itemKey: 'copper-ingot', name: 'Copper Ingot', quantity: 2 },
       { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 1 },
     ],
   },
@@ -362,7 +395,7 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
       },
     ),
     ingredients: [
-      { itemKey: 'copper-ore', name: 'Copper Ore', quantity: 2 },
+      { itemKey: 'copper-ingot', name: 'Copper Ingot', quantity: 2 },
       { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 1 },
     ],
   },
@@ -383,7 +416,7 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
       },
     ),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
       { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
     ],
   },
@@ -440,11 +473,7 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
       { itemKey: 'cooked-fish', name: 'Cooked Fish', quantity: 1 },
       { itemKey: 'herbs', name: 'Herbs', quantity: 1 },
     ],
-    fuelOptions: [
-      { itemKey: 'coal', name: 'Coal', quantity: 1 },
-      { itemKey: 'logs', name: 'Logs', quantity: 2 },
-      { itemKey: 'sticks', name: 'Sticks', quantity: 8 },
-    ],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-water-flask',
@@ -453,11 +482,7 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('water-flask'),
     ingredients: [{ itemKey: 'herbs', name: 'Herbs', quantity: 1 }],
-    fuelOptions: [
-      { itemKey: 'coal', name: 'Coal', quantity: 1 },
-      { itemKey: 'logs', name: 'Logs', quantity: 2 },
-      { itemKey: 'sticks', name: 'Sticks', quantity: 8 },
-    ],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   ...HARVEST_COOKING_RECIPES,
   ...CRAFTED_EXPANSION_RECIPES,

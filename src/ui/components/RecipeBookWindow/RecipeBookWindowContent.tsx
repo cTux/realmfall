@@ -13,6 +13,8 @@ import type { TooltipLine } from '../../tooltips';
 import type { RecipeBookWindowProps } from './types';
 import styles from './styles.module.scss';
 
+const RECIPE_BOOK_TAB_ORDER = [Skill.Crafting, Skill.Smelting, Skill.Cooking];
+
 type RecipeBookWindowContentProps = Pick<
   RecipeBookWindowProps,
   | 'currentStructure'
@@ -41,7 +43,7 @@ export function RecipeBookWindowContent({
         !materialFilterItemKey ||
         recipeUsesItemKey(recipe, materialFilterItemKey),
     );
-    return [Skill.Crafting, Skill.Cooking].filter((skill) =>
+    return RECIPE_BOOK_TAB_ORDER.filter((skill) =>
       filtered.some((recipe) => recipe.skill === skill),
     );
   }, [materialFilterItemKey, recipes]);
@@ -180,7 +182,9 @@ export function RecipeBookWindowContent({
                   >
                     {recipe.skill === Skill.Cooking
                       ? t('ui.recipeBook.cookAction')
-                      : t('ui.recipeBook.craftAction')}
+                      : recipe.skill === Skill.Smelting
+                        ? t('ui.recipeBook.smeltAction')
+                        : t('ui.recipeBook.craftAction')}
                   </button>
                 </div>
               );

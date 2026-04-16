@@ -8,6 +8,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 
 - Items are represented as structured gameplay entities with stable instance ids, canonical item type ids, typed kinds, and gameplay tags.
 - Current main item families are `resource`, `consumable`, `weapon`, `armor`, and `artifact`.
+- Resource items now include raw ores plus smelted ingots, with metal gear recipes consuming ingots instead of raw ore or chunks.
 - Equippable drops are now built from a base-item dictionary keyed by stable ids, while combat stats, rarity, and instance ids are rolled per dropped instance instead of being baked into the base definition.
 - Stackable items consolidate in inventory when they share stack identity derived from canonical item identity.
 - The player can equip gear into dedicated slots including weapon, offhand, head, shoulders, chest, bracers, hands, belt, legs, feet, rings, amulet, and cloak.

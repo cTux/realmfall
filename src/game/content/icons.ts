@@ -29,6 +29,7 @@ import leekIcon from '../../assets/icons/leek.svg';
 import lemonIcon from '../../assets/icons/lemon.svg';
 import logIcon from '../../assets/icons/log.svg';
 import oreIcon from '../../assets/icons/ore.svg';
+import goldBarIcon from '../../assets/icons/gold-bar.svg';
 import peasIcon from '../../assets/icons/peas.svg';
 import salmonIcon from '../../assets/icons/salmon.svg';
 import shinyAppleIcon from '../../assets/icons/shiny-apple.svg';
@@ -52,6 +53,7 @@ import spiderAltIcon from '../../assets/icons/spider-alt.svg';
 import tiedScrollIcon from '../../assets/icons/tied-scroll.svg';
 import rolledClothIcon from '../../assets/icons/rolled-cloth.svg';
 import gluttonyIcon from '../../assets/icons/gluttony.svg';
+import furnaceIcon from '../../assets/icons/furnace.svg';
 
 export const ContentIcons = {
   Player: playerIcon,
@@ -85,6 +87,7 @@ export const ContentIcons = {
   Lemon: lemonIcon,
   Log: logIcon,
   Ore: oreIcon,
+  GoldBar: goldBarIcon,
   Peas: peasIcon,
   Salmon: salmonIcon,
   ShinyApple: shinyAppleIcon,
@@ -108,4 +111,5 @@ export const ContentIcons = {
   TiedScroll: tiedScrollIcon,
   RolledCloth: rolledClothIcon,
   Gluttony: gluttonyIcon,
+  Furnace: furnaceIcon,
 } as const;

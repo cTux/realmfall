@@ -28,6 +28,7 @@ export type GatheringStructureType =
 export type StructureType =
   | 'forge'
   | 'camp'
+  | 'furnace'
   | 'workshop'
   | 'town'
   | 'dungeon'
@@ -43,6 +44,7 @@ export enum Skill {
   Skinning = 'skinning',
   Fishing = 'fishing',
   Cooking = 'cooking',
+  Smelting = 'smelting',
   Crafting = 'crafting',
 }
 
@@ -204,7 +206,7 @@ export interface RecipeDefinition {
   id: string;
   name: string;
   description: string;
-  skill: Skill.Cooking | Skill.Crafting;
+  skill: Skill.Cooking | Skill.Smelting | Skill.Crafting;
   output: Item;
   ingredients: RecipeRequirement[];
   fuelOptions?: RecipeRequirement[];

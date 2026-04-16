@@ -145,6 +145,7 @@ describe('normalizeLoadedGame', () => {
     expect(loaded.player.skills[Skill.Gathering]).toEqual({ level: 1, xp: 0 });
     expect(loaded.player.skills[Skill.Mining]).toEqual({ level: 1, xp: 0 });
     expect(loaded.player.skills[Skill.Cooking]).toEqual({ level: 1, xp: 0 });
+    expect(loaded.player.skills[Skill.Smelting]).toEqual({ level: 1, xp: 0 });
     expect(loaded.player.skills[Skill.Crafting]).toEqual({ level: 1, xp: 0 });
     expect(loaded.player.statusEffects).toEqual([
       expect.objectContaining({

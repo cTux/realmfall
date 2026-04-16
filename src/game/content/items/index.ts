@@ -25,6 +25,7 @@ import { clothItemConfig } from './cloth';
 import { coalItemConfig } from './coal';
 import { cookedFishItemConfig } from './cookedFish';
 import { copperBandItemConfig } from './copperBand';
+import { copperIngotItemConfig } from './copperIngot';
 import { copperLoopItemConfig } from './copperLoop';
 import { copperOreItemConfig } from './copperOre';
 import { fieldBootsItemConfig } from './fieldBoots';
@@ -35,6 +36,7 @@ import { herbsItemConfig } from './herbs';
 import { hideBucklerItemConfig } from './hideBuckler';
 import { homeScrollItemConfig } from './homeScroll';
 import { ironChunksItemConfig } from './ironChunks';
+import { ironIngotItemConfig } from './ironIngot';
 import { ironOreItemConfig } from './ironOre';
 import { leatherScrapsItemConfig } from './leatherScraps';
 import { logsItemConfig } from './logs';
@@ -69,8 +71,10 @@ const RAW_ITEM_CONFIGS = [
   sticksItemConfig,
   stoneItemConfig,
   copperOreItemConfig,
+  copperIngotItemConfig,
   ironOreItemConfig,
   ironChunksItemConfig,
+  ironIngotItemConfig,
   coalItemConfig,
   rawFishItemConfig,
   clothItemConfig,
@@ -354,12 +358,18 @@ function buildItemConfigTags(
       GAME_TAGS.item.ore,
       GAME_TAGS.item.craftingMaterial,
     ],
-    [ItemId.IronOre]: [GAME_TAGS.item.gathered, GAME_TAGS.item.ore],
+    [ItemId.CopperIngot]: [GAME_TAGS.item.craftingMaterial],
+    [ItemId.IronOre]: [
+      GAME_TAGS.item.gathered,
+      GAME_TAGS.item.ore,
+      GAME_TAGS.item.craftingMaterial,
+    ],
     [ItemId.IronChunks]: [
       GAME_TAGS.item.ore,
       GAME_TAGS.item.prospectable,
       GAME_TAGS.item.craftingMaterial,
     ],
+    [ItemId.IronIngot]: [GAME_TAGS.item.craftingMaterial],
     [ItemId.Coal]: [GAME_TAGS.item.gathered, GAME_TAGS.item.craftingMaterial],
     [ItemId.RawFish]: [
       GAME_TAGS.item.gathered,

@@ -68,6 +68,7 @@ export enum GameTag {
   SkillSkinning = 'skill.skinning',
   SkillFishing = 'skill.fishing',
   SkillCooking = 'skill.cooking',
+  SkillSmelting = 'skill.smelting',
   SkillCrafting = 'skill.crafting',
   StructureUtility = 'structure.utility',
   StructureGathering = 'structure.gathering',
@@ -77,6 +78,7 @@ export enum GameTag {
   StructureCamp = 'structure.camp',
   StructureTown = 'structure.town',
   StructureForge = 'structure.forge',
+  StructureFurnace = 'structure.furnace',
   StructureWorkshop = 'structure.workshop',
   StructureDungeon = 'structure.dungeon',
   StructureTree = 'structure.tree',
@@ -161,6 +163,7 @@ export const GAME_TAGS = {
     skinning: GameTag.SkillSkinning,
     fishing: GameTag.SkillFishing,
     cooking: GameTag.SkillCooking,
+    smelting: GameTag.SkillSmelting,
     crafting: GameTag.SkillCrafting,
   },
   structure: {
@@ -172,6 +175,7 @@ export const GAME_TAGS = {
     camp: GameTag.StructureCamp,
     town: GameTag.StructureTown,
     forge: GameTag.StructureForge,
+    furnace: GameTag.StructureFurnace,
     workshop: GameTag.StructureWorkshop,
     dungeon: GameTag.StructureDungeon,
     tree: GameTag.StructureTree,
@@ -203,6 +207,8 @@ export function getSkillTags(skill: SkillName) {
       return uniqueTags(GAME_TAGS.skill.gathering, GAME_TAGS.skill.fishing);
     case Skill.Cooking:
       return uniqueTags(GAME_TAGS.skill.profession, GAME_TAGS.skill.cooking);
+    case Skill.Smelting:
+      return uniqueTags(GAME_TAGS.skill.profession, GAME_TAGS.skill.smelting);
     case Skill.Crafting:
       return uniqueTags(GAME_TAGS.skill.profession, GAME_TAGS.skill.crafting);
   }

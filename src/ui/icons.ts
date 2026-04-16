@@ -32,6 +32,7 @@ import herbsBundleIcon from '../assets/icons/herbs-bundle.svg';
 import scytheIcon from '../assets/icons/scythe.svg';
 import logIcon from '../assets/icons/log.svg';
 import oreIcon from '../assets/icons/ore.svg';
+import goldBarIcon from '../assets/icons/gold-bar.svg';
 import salmonIcon from '../assets/icons/salmon.svg';
 import shinyAppleIcon from '../assets/icons/shiny-apple.svg';
 import sparklesIcon from '../assets/icons/sparkles.svg';
@@ -53,6 +54,7 @@ import arrowDunkIcon from '../assets/icons/arrow-dunk.svg';
 import rolledClothIcon from '../assets/icons/rolled-cloth.svg';
 import gearsIcon from '../assets/icons/gears.svg';
 import padlockIcon from '../assets/icons/padlock.svg';
+import furnaceIcon from '../assets/icons/furnace.svg';
 import type { StructureType } from '../game/state';
 import { GAME_TAGS } from '../game/content/tags';
 import { rarityColor } from './rarity';
@@ -81,6 +83,7 @@ export const Icons = {
   Scythe: scytheIcon,
   Log: logIcon,
   Ore: oreIcon,
+  GoldBar: goldBarIcon,
   Salmon: salmonIcon,
   ShinyApple: shinyAppleIcon,
   Sparkles: sparklesIcon,
@@ -102,6 +105,7 @@ export const Icons = {
   RolledCloth: rolledClothIcon,
   Gears: gearsIcon,
   Padlock: padlockIcon,
+  Furnace: furnaceIcon,
 } as const;
 
 export const SkillIcon: Record<SkillName, string> = {
@@ -111,6 +115,7 @@ export const SkillIcon: Record<SkillName, string> = {
   skinning: Icons.AnimalHide,
   fishing: Icons.Salmon,
   cooking: Icons.CampCookingPot,
+  smelting: Icons.GoldBar,
   crafting: Icons.StoneCrafting,
 };
 

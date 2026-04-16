@@ -305,6 +305,11 @@ describe('ui helpers and components', () => {
       text: 'Tags: skill.profession, skill.crafting',
       tone: 'subtle',
     });
+    expect(skillTooltip(Skill.Smelting, 4)).toContainEqual({
+      kind: 'text',
+      text: 'Tags: skill.profession, skill.smelting',
+      tone: 'subtle',
+    });
 
     const groupEnemy = enemyTooltip(
       [
@@ -823,6 +828,7 @@ describe('ui helpers and components', () => {
             skinning: { level: 1, xp: 0 },
             fishing: { level: 1, xp: 0 },
             cooking: { level: 1, xp: 0 },
+            smelting: { level: 1, xp: 0 },
             crafting: { level: 1, xp: 0 },
           },
         }}
@@ -867,6 +873,7 @@ describe('ui helpers and components', () => {
             skinning: { level: 1, xp: 0 },
             fishing: { level: 1, xp: 0 },
             cooking: { level: 1, xp: 0 },
+            smelting: { level: 1, xp: 0 },
             crafting: { level: 1, xp: 0 },
           },
         }}

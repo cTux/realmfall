@@ -18,6 +18,7 @@ import { coalOreStructureConfig } from './coalOre';
 import { copperOreStructureConfig } from './copperOre';
 import { dungeonStructureConfig } from './dungeon';
 import { forgeStructureConfig } from './forge';
+import { furnaceStructureConfig } from './furnace';
 import { herbsStructureConfig } from './herbs';
 import { ironOreStructureConfig } from './ironOre';
 import { lakeStructureConfig } from './lake';
@@ -30,6 +31,7 @@ const RAW_STRUCTURE_CONFIGS = [
   dungeonStructureConfig,
   forgeStructureConfig,
   townStructureConfig,
+  furnaceStructureConfig,
   workshopStructureConfig,
   campStructureConfig,
   herbsStructureConfig,
@@ -120,6 +122,7 @@ function buildStructureTags(config: StructureConfig) {
         ? GAME_TAGS.structure.combat
         : config.type === 'camp' ||
             config.type === 'forge' ||
+            config.type === 'furnace' ||
             config.type === 'workshop'
           ? GAME_TAGS.structure.crafting
           : config.type === 'town'
@@ -129,11 +132,13 @@ function buildStructureTags(config: StructureConfig) {
   const typeTag =
     config.type === 'camp'
       ? GAME_TAGS.structure.camp
-      : config.type === 'town'
-        ? GAME_TAGS.structure.town
+        : config.type === 'town'
+          ? GAME_TAGS.structure.town
         : config.type === 'forge'
           ? GAME_TAGS.structure.forge
-          : config.type === 'workshop'
+        : config.type === 'furnace'
+          ? GAME_TAGS.structure.furnace
+        : config.type === 'workshop'
             ? GAME_TAGS.structure.workshop
             : config.type === 'dungeon'
               ? GAME_TAGS.structure.dungeon

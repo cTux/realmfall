@@ -2000,9 +2000,9 @@ describe('game state', () => {
     game.player.learnedRecipeIds.push('craft-weapon');
     game.player.inventory.push(
       {
-        id: 'chunks-1',
-        name: 'Iron Chunks',
-        itemKey: 'iron-chunks',
+        id: 'ingot-1',
+        name: 'Iron Ingot',
+        itemKey: 'iron-ingot',
         quantity: 20,
         tier: 1,
         rarity: 'common',
@@ -2033,6 +2033,47 @@ describe('game state', () => {
       crafted.player.inventory.some((item) => item.name === 'Camp Spear'),
     ).toBe(true);
     expect(crafted.player.skills[Skill.Crafting].xp).toBeGreaterThan(0);
+  });
+
+  it('smelts ore into ingots at a furnace and levels smelting', () => {
+    const game = createGame(3, 'smelting-seed');
+    game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'furnace' };
+    game.player.learnedRecipeIds.push('smelt-copper-ingot');
+    game.player.inventory.push(
+      {
+        id: 'ore-1',
+        name: 'Copper Ore',
+        itemKey: 'copper-ore',
+        quantity: 20,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'coal-1',
+        name: 'Coal',
+        itemKey: 'coal',
+        quantity: 10,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    );
+
+    const smelted = craftRecipe(game, 'smelt-copper-ingot');
+
+    expect(
+      smelted.player.inventory.some((item) => item.itemKey === 'copper-ingot'),
+    ).toBe(true);
+    expect(smelted.player.skills[Skill.Smelting].xp).toBeGreaterThan(0);
   });
 
   it('requires the matching hex type for cooking and crafting recipes', () => {
@@ -2076,9 +2117,9 @@ describe('game state', () => {
     game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'workshop' };
     game.player.inventory.push(
       {
-        id: 'chunks-1',
-        name: 'Iron Chunks',
-        itemKey: 'iron-chunks',
+        id: 'ingot-1',
+        name: 'Iron Ingot',
+        itemKey: 'iron-ingot',
         quantity: 2,
         tier: 1,
         rarity: 'common',
