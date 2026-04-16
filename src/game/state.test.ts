@@ -2017,6 +2017,7 @@ describe('game state', () => {
 
   it('crafts slot gear from recipe requirements and levels crafting', () => {
     const game = createGame(3, 'crafting-seed');
+    game.player.level = 12;
     game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'workshop' };
     game.player.learnedRecipeIds.push('craft-icon-axe-01');
     game.player.inventory.push(
@@ -2049,10 +2050,15 @@ describe('game state', () => {
     );
 
     const crafted = craftRecipe(game, 'craft-icon-axe-01');
+    const craftedWeapon = crafted.player.inventory.find(
+      (item) => item.itemKey === 'icon-axe-01',
+    );
 
-    expect(
-      crafted.player.inventory.some((item) => item.itemKey === 'icon-axe-01'),
-    ).toBe(true);
+    expect(craftedWeapon).toBeDefined();
+    expect(craftedWeapon?.tier).toBe(game.player.level);
+    expect(craftedWeapon?.power).toBeGreaterThan(
+      buildItemFromConfig('icon-axe-01').power,
+    );
     expect(crafted.player.skills[Skill.Crafting].xp).toBeGreaterThan(0);
   });
 

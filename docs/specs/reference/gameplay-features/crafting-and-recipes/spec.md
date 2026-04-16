@@ -25,6 +25,7 @@ This spec covers the recipe book, recipe learning, and crafting execution.
 - Workshop material costs are scaled 10x from their base requirements. Smelting recipes refine ore into matching ingots at a true 1:1 ratio, so one ingot craft consumes one ore while keeping the existing lower fuel quantities as alternative single-source requirements. Cooking recipes keep one-to-one food ingredient quantities so one raw source ingredient still produces one cooked result.
 - Cooking and smelting profession levels increase recipe output quantity without raising material or fuel costs, and the recipe book preview reflects the current output stack for those professions.
 - Crafted equipment outputs now also resolve through the shared cascading rarity-event mechanism, using the recipe's configured rarity as the minimum floor instead of always materializing at the base rarity.
+- Crafted workshop equipment now materializes at the player's current level, using that level as the output tier before rarity bonuses are applied.
 - Recipe action buttons support modifier-based bulk crafting: plain clicks craft once, `Shift` crafts up to five times if requirements remain valid, and `Ctrl` crafts the maximum possible amount from current materials, fuel, and station access without adding a trailing failure message after successful batches.
 - Hovering the recipe action buttons shows the shared custom tooltip with the available bulk-crafting modifiers instead of relying on native browser tooltips.
 
