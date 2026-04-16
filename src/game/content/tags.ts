@@ -191,6 +191,8 @@ export function uniqueTags(...tags: Array<GameTag | undefined>) {
 
 export function getSkillTags(skill: SkillName) {
   switch (skill) {
+    case Skill.Gathering:
+      return uniqueTags(GAME_TAGS.skill.profession, GAME_TAGS.skill.gathering);
     case Skill.Logging:
       return uniqueTags(GAME_TAGS.skill.gathering, GAME_TAGS.skill.logging);
     case Skill.Mining:

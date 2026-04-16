@@ -39,7 +39,9 @@ import { ironOreItemConfig } from './ironOre';
 import { leatherScrapsItemConfig } from './leatherScraps';
 import { logsItemConfig } from './logs';
 import { manaPotionItemConfig } from './manaPotion';
+import { MEAL_ITEM_CONFIGS } from './meals';
 import { patchworkHoodItemConfig } from './patchworkHood';
+import { PRODUCE_ITEM_CONFIGS } from './produce';
 import { rawFishItemConfig } from './rawFish';
 import { scoutHoodItemConfig } from './scoutHood';
 import { settlerVestItemConfig } from './settlerVest';
@@ -62,6 +64,7 @@ const RAW_ITEM_CONFIGS = [
   homeScrollItemConfig,
   goldItemConfig,
   herbsItemConfig,
+  ...PRODUCE_ITEM_CONFIGS,
   logsItemConfig,
   sticksItemConfig,
   stoneItemConfig,
@@ -88,6 +91,7 @@ const RAW_ITEM_CONFIGS = [
   wayfarerCloakItemConfig,
   hearthTotemItemConfig,
   waterFlaskItemConfig,
+  ...MEAL_ITEM_CONFIGS,
   ...CRAFTED_EXPANSION_ITEM_CONFIGS,
   ...GENERATED_EQUIPMENT_CONFIGS,
 ] as const;

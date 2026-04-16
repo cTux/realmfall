@@ -392,6 +392,7 @@ function structureTitle(structure: StructureType) {
 
 function isGatheringSkill(skill: SkillName) {
   return (
+    skill === Skill.Gathering ||
     skill === Skill.Logging ||
     skill === Skill.Mining ||
     skill === Skill.Skinning ||

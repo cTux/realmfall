@@ -15,6 +15,7 @@ This spec covers the recipe book, recipe learning, and crafting execution.
 - Learned recipes stay interactive, sort ahead of unlearned recipes within each profession tab, show inventory-style recipe entries, tint red when the player lacks materials, fuel, or the right crafting site, and expose a hover tooltip with the crafting-site icon plus icon-backed material and fuel requirements.
 - Unlearned recipes remain visible but disabled, with no hover tooltip.
 - Current recipe coverage now spans a much larger craftable catalog, including the original cooking and gear set plus a generated expansion of themed weapons, shields, hoods, mantles, vests, bracers, gloves, belts, leggings, boots, charms, and cloaks.
+- Cooking coverage now also includes a broad harvest-and-meat meal set built from herb-patch produce, orchard fruit, and animal meat drops.
 - Recipe resource costs are scaled 10x from their base requirements, including cooking fuel requirements.
 
 ## Main Implementation Areas

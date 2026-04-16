@@ -37,6 +37,7 @@ export type ItemRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
 export type EnemyRarity = ItemRarity;
 
 export enum Skill {
+  Gathering = 'gathering',
   Logging = 'logging',
   Mining = 'mining',
   Skinning = 'skinning',

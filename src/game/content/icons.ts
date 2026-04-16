@@ -19,23 +19,35 @@ import stonePileIcon from '../../assets/icons/stone-pile.svg';
 import axeInStumpIcon from '../../assets/icons/axe-in-stump.svg';
 import coinsIcon from '../../assets/icons/coins.svg';
 import herbsBundleIcon from '../../assets/icons/herbs-bundle.svg';
+import beetIcon from '../../assets/icons/beet.svg';
+import bellPepperIcon from '../../assets/icons/bell-pepper.svg';
+import cabbageIcon from '../../assets/icons/cabbage.svg';
+import carrotIcon from '../../assets/icons/carrot.svg';
+import cherryIcon from '../../assets/icons/cherry.svg';
+import garlicIcon from '../../assets/icons/garlic.svg';
+import leekIcon from '../../assets/icons/leek.svg';
+import lemonIcon from '../../assets/icons/lemon.svg';
 import logIcon from '../../assets/icons/log.svg';
 import oreIcon from '../../assets/icons/ore.svg';
+import peasIcon from '../../assets/icons/peas.svg';
 import salmonIcon from '../../assets/icons/salmon.svg';
 import shinyAppleIcon from '../../assets/icons/shiny-apple.svg';
 import sparklesIcon from '../../assets/icons/sparkles.svg';
+import steakIcon from '../../assets/icons/steak.svg';
 import stoneBlockIcon from '../../assets/icons/stone-block.svg';
 import spillIcon from '../../assets/icons/spill.svg';
 import sunCloudIcon from '../../assets/icons/sun-cloud.svg';
 import rainingIcon from '../../assets/icons/raining.svg';
 import snowingIcon from '../../assets/icons/snowing.svg';
 import highGrassIcon from '../../assets/icons/high-grass.svg';
+import tomatoIcon from '../../assets/icons/tomato.svg';
 import totemIcon from '../../assets/icons/totem.svg';
 import woodStickIcon from '../../assets/icons/wood-stick.svg';
 import bookCoverIcon from '../../assets/icons/book-cover.svg';
 import friedFishIcon from '../../assets/icons/fried-fish.svg';
 import campCookingPotIcon from '../../assets/icons/camp-cooking-pot.svg';
 import stoneCraftingIcon from '../../assets/icons/stone-crafting.svg';
+import aubergineIcon from '../../assets/icons/aubergine.svg';
 import spiderAltIcon from '../../assets/icons/spider-alt.svg';
 import tiedScrollIcon from '../../assets/icons/tied-scroll.svg';
 import rolledClothIcon from '../../assets/icons/rolled-cloth.svg';
@@ -63,23 +75,35 @@ export const ContentIcons = {
   AxeInStump: axeInStumpIcon,
   Coins: coinsIcon,
   HerbsBundle: herbsBundleIcon,
+  Beet: beetIcon,
+  BellPepper: bellPepperIcon,
+  Cabbage: cabbageIcon,
+  Carrot: carrotIcon,
+  Cherry: cherryIcon,
+  Garlic: garlicIcon,
+  Leek: leekIcon,
+  Lemon: lemonIcon,
   Log: logIcon,
   Ore: oreIcon,
+  Peas: peasIcon,
   Salmon: salmonIcon,
   ShinyApple: shinyAppleIcon,
   Sparkles: sparklesIcon,
+  Steak: steakIcon,
   StoneBlock: stoneBlockIcon,
   Spill: spillIcon,
   SunCloud: sunCloudIcon,
   Raining: rainingIcon,
   Snowing: snowingIcon,
   HighGrass: highGrassIcon,
+  Tomato: tomatoIcon,
   Totem: totemIcon,
   WoodStick: woodStickIcon,
   BookCover: bookCoverIcon,
   FriedFish: friedFishIcon,
   CampCookingPot: campCookingPotIcon,
   StoneCrafting: stoneCraftingIcon,
+  Aubergine: aubergineIcon,
   Spider: spiderAltIcon,
   TiedScroll: tiedScrollIcon,
   RolledCloth: rolledClothIcon,

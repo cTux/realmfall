@@ -565,7 +565,7 @@ describe('game state', () => {
     expect(getEnemiesAt(resolved, target)).toHaveLength(0);
     expect(
       getTileAt(resolved, target).items.every((item) =>
-        ['Gold', 'Leather Scraps'].includes(item.name),
+        ['Gold', 'Leather Scraps', 'Meat'].includes(item.name),
       ),
     ).toBe(true);
   });
@@ -663,8 +663,25 @@ describe('game state', () => {
     const gathered = interactWithStructure(game);
 
     expect(
-      gathered.player.inventory.some((item) => item.name === 'Herbs'),
+      gathered.player.inventory.some((item) =>
+        [
+          'Herbs',
+          'Beet',
+          'Pepper',
+          'Cabbage',
+          'Carrot',
+          'Cherry',
+          'Garlic',
+          'Leek',
+          'Lemon',
+          'Peas',
+          'Tomato',
+          'Aubergine',
+          'Apple',
+        ].includes(item.name),
+      ),
     ).toBe(true);
+    expect(gathered.player.skills[Skill.Gathering].xp).toBeGreaterThan(0);
     expect(getTileAt(gathered, { q: 0, r: 0 }).structure).toBeUndefined();
   });
 
@@ -775,6 +792,9 @@ describe('game state', () => {
         (item) => item.name === 'Leather Scraps',
       ),
     ).toBe(true);
+    expect(getTileAt(resolved, target).items.some((item) => item.name === 'Meat')).toBe(
+      true,
+    );
     expect(resolved.player.skills[Skill.Skinning].xp).toBeGreaterThan(0);
   });
 

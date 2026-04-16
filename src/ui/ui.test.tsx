@@ -814,6 +814,7 @@ describe('ui helpers and components', () => {
           debuffs: [],
           abilityIds: ['kick'],
           skills: {
+            gathering: { level: 1, xp: 0 },
             logging: { level: 1, xp: 0 },
             mining: { level: 1, xp: 0 },
             skinning: { level: 1, xp: 0 },
@@ -857,6 +858,7 @@ describe('ui helpers and components', () => {
           debuffs: [],
           abilityIds: ['kick'],
           skills: {
+            gathering: { level: 1, xp: 0 },
             logging: { level: 1, xp: 0 },
             mining: { level: 1, xp: 0 },
             skinning: { level: 1, xp: 0 },

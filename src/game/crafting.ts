@@ -1,5 +1,6 @@
 import { makeCookedFish, makeCraftedItem } from './inventory';
 import { CRAFTED_EXPANSION_RECIPES } from './craftedExpansionRecipes';
+import { HARVEST_COOKING_RECIPES } from './harvestCookingRecipes';
 import { t } from '../i18n';
 import { EquipmentSlotId } from './content/ids';
 import { buildItemFromConfig, getItemConfigByKey } from './content/items';
@@ -458,6 +459,7 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
       { itemKey: 'sticks', name: 'Sticks', quantity: 8 },
     ],
   },
+  ...HARVEST_COOKING_RECIPES,
   ...CRAFTED_EXPANSION_RECIPES,
 ];
 

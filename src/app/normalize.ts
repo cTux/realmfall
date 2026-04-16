@@ -293,6 +293,7 @@ function normalizeSkills(
   skills?: Partial<Record<SkillName, { level?: number; xp?: number }>>,
 ) {
   return {
+    [Skill.Gathering]: normalizeSkill(skills?.[Skill.Gathering]),
     [Skill.Logging]: normalizeSkill(skills?.[Skill.Logging]),
     [Skill.Mining]: normalizeSkill(skills?.[Skill.Mining]),
     [Skill.Skinning]: normalizeSkill(skills?.[Skill.Skinning]),

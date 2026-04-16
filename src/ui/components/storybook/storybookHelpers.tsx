@@ -63,6 +63,7 @@ export function createStorybookFixtures() {
   state.player.thirst = 18;
   state.player.statusEffects = [{ id: 'restoration' }, { id: 'recentDeath' }];
   state.player.skills = {
+    [Skill.Gathering]: { level: 6, xp: 4 },
     [Skill.Logging]: { level: 8, xp: 7 },
     [Skill.Mining]: { level: 6, xp: 5 },
     [Skill.Skinning]: { level: 5, xp: 2 },

@@ -1303,12 +1303,13 @@ export function interactWithStructure(state: GameState): GameState {
     0,
     (currentTile.structureHp ?? definition.maxHp) - damage,
   );
-  const reward = makeResourceStack(
-    definition.rewardItemKey,
-    definition.rewardTier,
+  const rewards = buildGatheringRewards(
+    next,
+    currentTile.structure,
+    definition,
     quantity,
   );
-  addItemToInventory(next.player.inventory, reward);
+  rewards.forEach((reward) => addItemToInventory(next.player.inventory, reward));
   const byproduct = maybeGatherByproduct(
     next,
     currentTile.structure,
@@ -1321,7 +1322,7 @@ export function interactWithStructure(state: GameState): GameState {
     'loot',
     t('game.message.gather.success', {
       action: definition.verb,
-      item: describeItemStack(reward),
+      item: describeItemStacks(rewards),
     }),
   );
   if (bonusLoot > 0) {
@@ -1818,6 +1819,73 @@ function message(state: GameState, text: string): GameState {
   return next;
 }
 
+function buildGatheringRewards(
+  state: GameState,
+  structure: import('./types').GatheringStructureType,
+  definition: ReturnType<typeof structureDefinition>,
+  quantity: number,
+) {
+  if (!definition.rewardTable || definition.rewardTable.length === 0) {
+    return [
+      makeResourceStack(
+        definition.rewardItemKey,
+        definition.rewardTier,
+        quantity,
+      ),
+    ];
+  }
+
+  const counts = new Map<string, { tier: number; quantity: number }>();
+  for (let index = 0; index < quantity; index += 1) {
+    const reward = pickGatheringReward(state, structure, definition, index);
+    const key = reward.itemKey;
+    const current = counts.get(key) ?? {
+      tier: reward.rewardTier ?? definition.rewardTier,
+      quantity: 0,
+    };
+    counts.set(key, {
+      tier: current.tier,
+      quantity: current.quantity + (reward.quantity ?? 1),
+    });
+  }
+
+  return [...counts.entries()].map(([itemKey, reward]) =>
+    makeResourceStack(itemKey, reward.tier, reward.quantity),
+  );
+}
+
+function pickGatheringReward(
+  state: GameState,
+  structure: import('./types').GatheringStructureType,
+  definition: ReturnType<typeof structureDefinition>,
+  rollIndex: number,
+) {
+  const table = definition.rewardTable;
+  if (!table || table.length === 0) {
+    return {
+      itemKey: definition.rewardItemKey,
+      rewardTier: definition.rewardTier,
+      quantity: 1,
+    };
+  }
+
+  const totalWeight = table.reduce((sum, entry) => sum + entry.weight, 0);
+  const rng = createRng(
+    `${state.seed}:gather-reward:${structure}:${state.turn}:${hexKey(state.player.coord)}:${rollIndex}`,
+  );
+  let remaining = rng() * totalWeight;
+  for (const entry of table) {
+    remaining -= entry.weight;
+    if (remaining <= 0) return entry;
+  }
+  return table[table.length - 1]!;
+}
+
+function describeItemStacks(items: Item[]) {
+  if (items.length === 1) return describeItemStack(items[0]!);
+  return items.map(describeItemStack).join(', ');
+}
+
 function clone(state: GameState): GameState {
   const worldTimeMs = state.worldTimeMs;
   const combatPlayer =
@@ -2171,6 +2239,7 @@ function maybeSkinEnemy(state: GameState, enemy: import('./types').Enemy) {
     tile.items,
     makeResourceStack(ItemId.LeatherScraps, enemy.tier, quantity),
   );
+  addItemToInventory(tile.items, makeResourceStack('meat', enemy.tier, quantity));
   state.tiles[key] = { ...tile, items: [...tile.items] };
   gainSkillXp(state, Skill.Skinning, quantity, addLog);
   addLog(
@@ -2180,6 +2249,15 @@ function maybeSkinEnemy(state: GameState, enemy: import('./types').Enemy) {
       enemy: enemy.name,
       quantity,
       item: itemName('leather-scraps'),
+    }),
+  );
+  addLog(
+    state,
+    'loot',
+    t('game.message.skinning.meat', {
+      enemy: enemy.name,
+      quantity,
+      item: itemName('meat'),
     }),
   );
 }

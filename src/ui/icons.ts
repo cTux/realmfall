@@ -29,6 +29,7 @@ import stonePileIcon from '../assets/icons/stone-pile.svg';
 import axeInStumpIcon from '../assets/icons/axe-in-stump.svg';
 import coinsIcon from '../assets/icons/coins.svg';
 import herbsBundleIcon from '../assets/icons/herbs-bundle.svg';
+import scytheIcon from '../assets/icons/scythe.svg';
 import logIcon from '../assets/icons/log.svg';
 import oreIcon from '../assets/icons/ore.svg';
 import salmonIcon from '../assets/icons/salmon.svg';
@@ -77,6 +78,7 @@ export const Icons = {
   AxeInStump: axeInStumpIcon,
   Coins: coinsIcon,
   HerbsBundle: herbsBundleIcon,
+  Scythe: scytheIcon,
   Log: logIcon,
   Ore: oreIcon,
   Salmon: salmonIcon,
@@ -103,6 +105,7 @@ export const Icons = {
 } as const;
 
 export const SkillIcon: Record<SkillName, string> = {
+  gathering: Icons.Scythe,
   logging: Icons.AxeInStump,
   mining: Icons.Ore,
   skinning: Icons.AnimalHide,

@@ -8,6 +8,7 @@ This spec covers gatherable structures, world interaction sites, and contextual 
 
 - Gathering structures currently include trees, herbs, ore nodes, lakes, and ponds through structure definitions.
 - Gathering uses structure HP and removes depleted gatherable structures.
+- Herb patches now use a weighted reward table and can yield herbs, fruits, and vegetables instead of one fixed herb item.
 - Gather actions can award byproducts such as sticks or stone.
 - Structures also include non-gathering interaction sites such as towns, camps, workshops, forges, and dungeons.
 - Structure interaction labels are driven from structure definitions.

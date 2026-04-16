@@ -14,6 +14,7 @@ import {
 
 export function makeStartingSkills(): Record<SkillName, SkillProgress> {
   return {
+    [Skill.Gathering]: { level: 1, xp: 0 },
     [Skill.Logging]: { level: 1, xp: 0 },
     [Skill.Mining]: { level: 1, xp: 0 },
     [Skill.Skinning]: { level: 1, xp: 0 },
