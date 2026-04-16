@@ -133,12 +133,13 @@ function materializeCraftedRecipeOutput(
   state: GameState,
   output: Item,
 ) {
-  const tierBonus = Math.min(0.12, output.tier * 0.02);
+  const leveledOutput = scaleCraftedItemToPlayerLevel(output, state.player.level);
+  const tierBonus = Math.min(0.12, leveledOutput.tier * 0.02);
   const rarity = resolveCascadingRarity(
     createRng(
       `${state.seed}:crafted-rarity:${recipe.id}:${state.turn}:${state.logSequence}`,
     ),
-    output.rarity,
+    leveledOutput.rarity,
     withCascadingRarityChanceBonus({
       legendary: tierBonus * 0.08,
       epic: tierBonus * 0.22,
@@ -148,9 +149,23 @@ function materializeCraftedRecipeOutput(
   );
 
   return applyRarityToItem({
-    ...output,
+    ...leveledOutput,
     rarity,
   });
+}
+
+function scaleCraftedItemToPlayerLevel(item: Item, playerLevel: number): Item {
+  const targetTier = Math.max(1, playerLevel);
+  if (item.tier === targetTier) return item;
+
+  const scale = targetTier / Math.max(1, item.tier);
+  return {
+    ...item,
+    tier: targetTier,
+    power: Math.max(0, Math.round(item.power * scale)),
+    defense: Math.max(0, Math.round(item.defense * scale)),
+    maxHp: Math.max(0, Math.round(item.maxHp * scale)),
+  };
 }
 
 export function describeItemStack(item: Item) {
