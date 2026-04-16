@@ -77,13 +77,7 @@ export function itemTooltipLines(item: Item, equipped?: Item): TooltipLine[] {
           },
         ];
 
-  if (category === 'resource') {
-    lines.push({
-      kind: 'stat',
-      label: t('ui.tooltip.type'),
-      value: t('ui.itemKind.resource.label'),
-    });
-  } else {
+  if (category !== 'resource') {
     if (item.power !== 0)
       lines.push({
         kind: 'stat',
@@ -105,14 +99,6 @@ export function itemTooltipLines(item: Item, equipped?: Item): TooltipLine[] {
         value: `+${item.maxHp}`,
         tone: 'item',
       });
-  }
-
-  if (item.quantity > 1) {
-    lines.push({
-      kind: 'stat',
-      label: t('ui.tooltip.quantity'),
-      value: `${item.quantity}`,
-    });
   }
 
   if (equipped) {

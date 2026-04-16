@@ -220,7 +220,10 @@ describe('ui helpers and components', () => {
     );
     expect(
       itemTooltipLines(resource).some((line) => line.label === 'Type'),
-    ).toBe(true);
+    ).toBe(false);
+    expect(
+      itemTooltipLines(resource).some((line) => line.label === 'Quantity'),
+    ).toBe(false);
     expect(
       itemTooltipLines(resource).some((line) => line.text?.includes('TIER')),
     ).toBe(false);
