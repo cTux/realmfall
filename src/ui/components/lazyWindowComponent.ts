@@ -1,3 +1,5 @@
+import { lazy, type ComponentType, type LazyExoticComponent } from 'react';
+
 export const WINDOW_IMPORT_RETRY_DELAY_MS = 1000;
 
 function wait(ms: number) {
@@ -17,4 +19,10 @@ export async function loadRetryingWindowModule<T>(
       await wait(retryDelayMs);
     }
   }
+}
+
+export function createLazyWindowComponent<Props>(
+  loader: () => Promise<{ default: ComponentType<Props> }>,
+): LazyExoticComponent<ComponentType<Props>> {
+  return lazy(() => loadRetryingWindowModule(loader));
 }

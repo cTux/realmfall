@@ -1,17 +1,19 @@
-import { lazy, memo, Suspense } from 'react';
+import { memo, Suspense } from 'react';
 import { WINDOW_LABELS } from '../../windowLabels';
-import { loadRetryingWindowModule } from '../lazyWindowComponent';
+import { createLazyWindowComponent } from '../lazyWindowComponent';
 import { WindowLoadingState } from '../WindowLoadingState';
 import { WindowShell } from '../WindowShell';
 import type { GameSettingsWindowProps } from './types';
 import styles from './styles.module.scss';
 
-const GameSettingsWindowContent = lazy(() =>
-  loadRetryingWindowModule(() =>
-    import('./GameSettingsWindowContent').then((module) => ({
-      default: module.GameSettingsWindowContent,
-    })),
-  ),
+const GameSettingsWindowContent = createLazyWindowComponent<
+  Parameters<
+    (typeof import('./GameSettingsWindowContent'))['GameSettingsWindowContent']
+  >[0]
+>(() =>
+  import('./GameSettingsWindowContent').then((module) => ({
+    default: module.GameSettingsWindowContent,
+  })),
 );
 
 export const GameSettingsWindow = memo(function GameSettingsWindow({

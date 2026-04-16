@@ -23,6 +23,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `useAppGameView` narrows derived-view dependencies to the state slices each selector actually needs, reducing recomputation from unrelated root-state clones.
 - The world viewport surfaces offscreen direction indicators for the home hex and the earliest available player-claimed hex, skipping duplicate markers when both targets resolve to the same tile.
 - Secondary window content is separated into dedicated components and lazy-loaded bundles following the current project pattern.
+- Shared lazy-window creation goes through `createLazyWindowComponent`, keeping retrying deferred-window imports consistent instead of re-declaring the same `lazy(() => loadRetryingWindowModule(...))` wrapper in every window component.
 - Deferred window-content imports retry indefinitely when a bundle fails to load, keeping the rest of the game interactive while the affected window shell stays mounted on its loading fallback. This is expected browser-delivery behavior for optional window bundles, not an accidental retry loop.
 - Window loading fallbacks keep the spinner visible and add delayed explanatory copy when the deferred content is still unavailable after several seconds.
 

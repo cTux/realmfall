@@ -1,19 +1,19 @@
-import { lazy, memo, Suspense } from 'react';
+import { memo, Suspense } from 'react';
 import { t } from '../../../i18n';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
 import { WindowLoadingState } from '../WindowLoadingState';
-import { loadRetryingWindowModule } from '../lazyWindowComponent';
+import { createLazyWindowComponent } from '../lazyWindowComponent';
 import { WindowShell } from '../WindowShell';
 import type { InventoryWindowProps } from './types';
 import styles from './styles.module.scss';
 
-const InventoryWindowContent = lazy(() =>
-  loadRetryingWindowModule(() =>
-    import('./InventoryWindowContent').then((module) => ({
-      default: module.InventoryWindowContent,
-    })),
-  ),
+const InventoryWindowContent = createLazyWindowComponent<
+  Parameters<(typeof import('./InventoryWindowContent'))['InventoryWindowContent']>[0]
+>(() =>
+  import('./InventoryWindowContent').then((module) => ({
+    default: module.InventoryWindowContent,
+  })),
 );
 
 export const InventoryWindow = memo(function InventoryWindow({

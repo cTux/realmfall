@@ -1,18 +1,18 @@
-import { lazy, memo, Suspense } from 'react';
+import { memo, Suspense } from 'react';
 import { t } from '../../../i18n';
 import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
 import { WindowLoadingState } from '../WindowLoadingState';
-import { loadRetryingWindowModule } from '../lazyWindowComponent';
+import { createLazyWindowComponent } from '../lazyWindowComponent';
 import { WindowShell } from '../WindowShell';
 import type { LootWindowProps } from './types';
 import styles from '../InventoryWindow/styles.module.scss';
 
-const LootWindowContent = lazy(() =>
-  loadRetryingWindowModule(() =>
-    import('./LootWindowContent').then((module) => ({
-      default: module.LootWindowContent,
-    })),
-  ),
+const LootWindowContent = createLazyWindowComponent<
+  Parameters<(typeof import('./LootWindowContent'))['LootWindowContent']>[0]
+>(() =>
+  import('./LootWindowContent').then((module) => ({
+    default: module.LootWindowContent,
+  })),
 );
 
 export const LootWindow = memo(function LootWindow({

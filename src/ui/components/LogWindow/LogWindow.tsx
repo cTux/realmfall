@@ -1,20 +1,20 @@
-import { lazy, memo, Suspense } from 'react';
+import { memo, Suspense } from 'react';
 import { t } from '../../../i18n';
 import { formatLogKindLabel } from '../../../i18n/labels';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
 import { WindowLoadingState } from '../WindowLoadingState';
-import { loadRetryingWindowModule } from '../lazyWindowComponent';
+import { createLazyWindowComponent } from '../lazyWindowComponent';
 import { WindowShell } from '../WindowShell';
 import type { LogWindowProps } from './types';
 import styles from './styles.module.scss';
 
-const LogWindowContent = lazy(() =>
-  loadRetryingWindowModule(() =>
-    import('./LogWindowContent').then((module) => ({
-      default: module.LogWindowContent,
-    })),
-  ),
+const LogWindowContent = createLazyWindowComponent<
+  Parameters<(typeof import('./LogWindowContent'))['LogWindowContent']>[0]
+>(() =>
+  import('./LogWindowContent').then((module) => ({
+    default: module.LogWindowContent,
+  })),
 );
 
 export const LogWindow = memo(function LogWindow({
