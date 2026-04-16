@@ -29,6 +29,8 @@ Use `docs/RULES.md` as the source of truth for project-specific instructions.
 ## Local Expectations
 
 - Follow the project-specific expectations in `docs/RULES.md`.
+- Keep configured gameplay content keyed by canonical ids and tags instead of adding localized display-name fallback resolution.
+- Keep shipped gameplay icon paths local to the repository instead of introducing runtime icon fetches from external hosts.
 - Keep Storybook stories aligned with component and entity dictionary changes when the task touches UI or content definitions.
 - Keep specs aligned with shipped features, improvements, and fixes, and update enforceable lint or formatting config when a syntax or commit-format convention changes.
 - Use the reference files above when they are relevant to the current task.

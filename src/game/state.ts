@@ -22,7 +22,6 @@ import {
   buildItemFromConfig,
   getItemConfig,
   getItemConfigByKey,
-  getItemConfigByName,
   hasItemTag,
   itemOccupiesOffhand,
 } from './content/items';
@@ -157,7 +156,7 @@ export {
   describeStructure,
   getEnemyConfig,
   getItemConfig,
-  getItemConfigByName,
+  getItemConfigByKey,
   getGoldAmount,
   getPlayerStats,
   getStructureConfig,
@@ -224,7 +223,7 @@ export function createGame(
       statusEffects: [],
       inventory: [
         makeStarterWeapon(),
-        makeStarterArmor('chest', ItemId.ScoutJerkin, 1, 1),
+        makeStarterArmor('chest', ItemId.SettlerVest, 1, 1),
         makeConsumable('starter-ration', ItemId.TrailRation, 1, 10, 15, 2),
         makeRecipeBook(),
       ],
@@ -1085,7 +1084,9 @@ export function unequipItem(state: GameState, slot: EquipmentSlot): GameState {
   return next;
 }
 
-export function isOffhandSlotDisabled(equipment: GameState['player']['equipment']) {
+export function isOffhandSlotDisabled(
+  equipment: GameState['player']['equipment'],
+) {
   return itemOccupiesOffhand(equipment.weapon);
 }
 

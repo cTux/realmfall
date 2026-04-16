@@ -31,6 +31,7 @@
 - Preserve existing behavior unless the task explicitly changes behavior.
 - Favor existing project patterns over introducing new abstractions, state layers, or architectural styles without a clear need.
 - Keep documentation grounded in the current shipped behavior and known constraints, not aspirational plans.
+- Resolve configured gameplay content from canonical ids and tags, not localized display-name fallbacks. When replacing or removing content, update the live references instead of preserving retired ids through runtime name matching.
 - When generating or naming world content such as places, factions, enemies, items, events, structures, or flavor text, align it with the established lore in `docs/lore/REALMFALL.md`.
 - In JavaScript and TypeScript, when a function immediately returns an expression, prefer concise arrow functions without a block body.
 - Keep Oxlint rules aligned with the current JavaScript and TypeScript style expectations so these conventions are auto-checked and auto-fixable when practical.
@@ -48,6 +49,7 @@
 - Give every unique item its own configuration file for its gameplay and presentation data, including icon, drop chance, and similar item-specific values.
 - Give every unique enemy its own configuration file for its gameplay and presentation data, including icon, appearance chance, and similar enemy-specific values.
 - Give every unique structure its own configuration file for its gameplay and presentation data, including icon, provided functions, and similar structure-specific values.
+- Vendor gameplay icon assets in the repository and load them from local files. Do not point shipped item, enemy, structure, generated-equipment, or similar runtime icon paths at remote URLs.
 - Prefer extending existing helpers, caches, and domain modules before adding parallel systems that solve the same problem differently.
 
 ## Persistence

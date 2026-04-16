@@ -1121,6 +1121,7 @@ describe('game state', () => {
         {
           id: 'resource-gold-home',
           name: 'Gold',
+          itemKey: 'gold',
           quantity: 4,
           tier: 1,
           rarity: 'common',
@@ -1167,6 +1168,7 @@ describe('game state', () => {
         {
           id: 'resource-gold-home',
           name: 'Gold',
+          itemKey: 'gold',
           quantity: 4,
           tier: 1,
           rarity: 'common',
@@ -1210,6 +1212,7 @@ describe('game state', () => {
         {
           id: 'resource-gold-home',
           name: 'Gold',
+          itemKey: 'gold',
           quantity: 4,
         },
       ],
@@ -1612,6 +1615,7 @@ describe('game state', () => {
         {
           id: 'resource-gold-1',
           name: 'Gold',
+          itemKey: 'gold',
           quantity: 3,
           tier: 1,
           rarity: 'common',
@@ -1652,6 +1656,7 @@ describe('game state', () => {
     game.player.inventory.push({
       id: 'resource-gold-1',
       name: 'Gold',
+      itemKey: 'gold',
       quantity: 40,
       tier: 1,
       rarity: 'common',
@@ -1680,6 +1685,7 @@ describe('game state', () => {
         {
           id: 'resource-gold-1',
           name: 'Gold',
+          itemKey: 'gold',
           quantity: 12,
           tier: 1,
           rarity: 'common',
@@ -1706,6 +1712,7 @@ describe('game state', () => {
         {
           id: 'food-1',
           name: 'Trail Ration',
+          itemKey: 'trail-ration',
           quantity: 2,
           tier: 1,
           rarity: 'common',
@@ -1718,6 +1725,7 @@ describe('game state', () => {
         {
           id: 'resource-gold-1',
           name: 'Gold',
+          itemKey: 'gold',
           quantity: 7,
           tier: 1,
           rarity: 'common',
@@ -1845,6 +1853,7 @@ describe('game state', () => {
       {
         id: 'raw-fish-1',
         name: 'Raw Fish',
+        itemKey: 'raw-fish',
         quantity: 1,
         tier: 1,
         rarity: 'common',
@@ -1857,6 +1866,7 @@ describe('game state', () => {
       {
         id: 'coal-1',
         name: 'Coal',
+        itemKey: 'coal',
         quantity: 1,
         tier: 1,
         rarity: 'common',
@@ -1887,6 +1897,7 @@ describe('game state', () => {
       {
         id: 'chunks-1',
         name: 'Iron Chunks',
+        itemKey: 'iron-chunks',
         quantity: 2,
         tier: 1,
         rarity: 'common',
@@ -1899,6 +1910,7 @@ describe('game state', () => {
       {
         id: 'sticks-1',
         name: 'Sticks',
+        itemKey: 'sticks',
         quantity: 2,
         tier: 1,
         rarity: 'common',
@@ -1924,6 +1936,7 @@ describe('game state', () => {
       {
         id: 'raw-fish-1',
         name: 'Raw Fish',
+        itemKey: 'raw-fish',
         quantity: 1,
         tier: 1,
         rarity: 'common',
@@ -1936,6 +1949,7 @@ describe('game state', () => {
       {
         id: 'coal-1',
         name: 'Coal',
+        itemKey: 'coal',
         quantity: 1,
         tier: 1,
         rarity: 'common',
@@ -1959,6 +1973,7 @@ describe('game state', () => {
       {
         id: 'chunks-1',
         name: 'Iron Chunks',
+        itemKey: 'iron-chunks',
         quantity: 2,
         tier: 1,
         rarity: 'common',
@@ -1971,6 +1986,7 @@ describe('game state', () => {
       {
         id: 'sticks-1',
         name: 'Sticks',
+        itemKey: 'sticks',
         quantity: 2,
         tier: 1,
         rarity: 'common',
@@ -2221,6 +2237,7 @@ describe('game state', () => {
       {
         id: 'food-1',
         name: 'Trail Ration',
+        itemKey: 'trail-ration',
         quantity: 2,
         tier: 1,
         rarity: 'common',
@@ -2264,6 +2281,7 @@ describe('game state', () => {
       {
         id: 'resource-gold-1',
         name: 'Gold',
+        itemKey: 'gold',
         quantity: 5,
         tier: 1,
         rarity: 'common',
@@ -2276,6 +2294,7 @@ describe('game state', () => {
       {
         id: 'resource-gold-1-copy',
         name: 'Gold',
+        itemKey: 'gold',
         quantity: 7,
         tier: 1,
         rarity: 'common',
@@ -2307,6 +2326,7 @@ describe('game state', () => {
           {
             id: 'resource-gold-1',
             name: 'Gold',
+            itemKey: 'gold',
             quantity: 11,
             tier: 1,
             rarity: 'common',
@@ -2337,6 +2357,7 @@ describe('game state', () => {
       {
         id: 'resource-gold-town-test',
         name: 'Gold',
+        itemKey: 'gold',
         quantity: 100,
         tier: 1,
         rarity: 'common',

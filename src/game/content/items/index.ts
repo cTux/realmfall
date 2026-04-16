@@ -40,9 +40,7 @@ import { logsItemConfig } from './logs';
 import { patchworkHoodItemConfig } from './patchworkHood';
 import { rawFishItemConfig } from './rawFish';
 import { recipeBookItemConfig } from './recipeBook';
-import { rustKnifeItemConfig } from './rustKnife';
 import { scoutHoodItemConfig } from './scoutHood';
-import { scoutJerkinItemConfig } from './scoutJerkin';
 import { settlerVestItemConfig } from './settlerVest';
 import { sticksItemConfig } from './sticks';
 import { stoneItemConfig } from './stone';
@@ -72,9 +70,7 @@ const RAW_ITEM_CONFIGS = [
   clothItemConfig,
   leatherScrapsItemConfig,
   arcaneDustItemConfig,
-  rustKnifeItemConfig,
   townKnifeItemConfig,
-  scoutJerkinItemConfig,
   scoutHoodItemConfig,
   campSpearItemConfig,
   hideBucklerItemConfig,
@@ -144,13 +140,11 @@ const ARMOR_SLOTS = new Set<string>([
 ]);
 
 const STATIC_ITEM_ICON_POOLS: Partial<Record<string, readonly string[]>> = {
-  [ItemId.RustKnife]: GENERATED_ICON_POOLS.dagger,
   [ItemId.TownKnife]: GENERATED_ICON_POOLS.dagger,
   [ItemId.CampSpear]: GENERATED_ICON_POOLS.twoHandedSword,
   [ItemId.HideBuckler]: GENERATED_ICON_POOLS.shield,
   [ItemId.PatchworkHood]: GENERATED_ICON_POOLS.helmet,
   [ItemId.ScoutHood]: GENERATED_ICON_POOLS.helmet,
-  [ItemId.ScoutJerkin]: GENERATED_ICON_POOLS.chest,
   [ItemId.SettlerVest]: GENERATED_ICON_POOLS.chest,
   [ItemId.WorkGloves]: GENERATED_ICON_POOLS.gloves,
   [ItemId.TrailLeggings]: GENERATED_ICON_POOLS.leggings,
@@ -184,16 +178,8 @@ const ITEM_CONFIG_BY_KEY = Object.fromEntries(
   ITEM_CONFIGS.map((config) => [config.key, config]),
 );
 
-const ITEM_CONFIG_BY_NAME = Object.fromEntries(
-  ITEM_CONFIGS.map((config) => [config.name, config]),
-);
-
 export function getItemConfigByKey(key: string) {
   return ITEM_CONFIG_BY_KEY[key];
-}
-
-export function getItemConfigByName(name: string) {
-  return ITEM_CONFIG_BY_NAME[name];
 }
 
 export function buildItemFromConfig(
@@ -211,7 +197,9 @@ export function buildItemFromConfig(
     tags: overrides.tags ?? [...(config.tags ?? [])],
     recipeId: overrides.recipeId,
     slot: config.slot,
-    icon: overrides.icon ?? pickConfigIcon(config.iconPool, config.icon, overrides.id ?? config.key),
+    icon:
+      overrides.icon ??
+      pickConfigIcon(config.iconPool, config.icon, overrides.id ?? config.key),
     name: overrides.name ?? config.name,
     quantity: overrides.quantity ?? config.defaultQuantity ?? 1,
     tier: overrides.tier ?? config.tier,
@@ -262,10 +250,7 @@ export function buildGeneratedItemFromConfig(
 }
 
 export function getItemConfig(item: Pick<Item, 'itemKey' | 'name'>) {
-  return (
-    (item.itemKey ? getItemConfigByKey(item.itemKey) : undefined) ??
-    getItemConfigByName(item.name)
-  );
+  return item.itemKey ? getItemConfigByKey(item.itemKey) : undefined;
 }
 
 export function cloneConfiguredItem(item: Item) {
@@ -293,7 +278,9 @@ export function cloneConfiguredItem(item: Item) {
   });
 }
 
-export function configOccupiesOffhand(config?: Pick<ItemConfig, 'occupiesOffhand'>) {
+export function configOccupiesOffhand(
+  config?: Pick<ItemConfig, 'occupiesOffhand'>,
+) {
   return Boolean(config?.occupiesOffhand);
 }
 
@@ -307,9 +294,9 @@ export function hasItemTag(item: ItemClassificationInput, tag: GameTag) {
 }
 
 export function inferItemTags(item: ItemClassificationInput) {
-  const configured =
-    (item.itemKey ? getItemConfigByKey(item.itemKey) : undefined) ??
-    getItemConfigByName(item.name);
+  const configured = item.itemKey
+    ? getItemConfigByKey(item.itemKey)
+    : undefined;
   if (configured) return [...(configured.tags ?? [])];
 
   const category = getItemCategory(item);
@@ -330,7 +317,6 @@ export function inferItemTags(item: ItemClassificationInput) {
     (item.healing ?? 0) > 0 ? GAME_TAGS.item.healing : undefined,
     (item.hunger ?? 0) > 0 ? GAME_TAGS.item.food : undefined,
     (item.thirst ?? 0) > 0 ? GAME_TAGS.item.drink : undefined,
-    item.name.endsWith(' Totem') ? GAME_TAGS.item.totem : undefined,
   );
 }
 
@@ -399,9 +385,9 @@ function buildItemConfigTags(
 }
 
 export function getItemCategory(item: ItemClassificationInput): ItemCategory {
-  const configured =
-    (item.itemKey ? getItemConfigByKey(item.itemKey) : undefined) ??
-    getItemConfigByName(item.name);
+  const configured = item.itemKey
+    ? getItemConfigByKey(item.itemKey)
+    : undefined;
   if (configured) {
     return getItemConfigCategory(configured);
   }

@@ -163,9 +163,7 @@ export function iconForItem(item?: Item, slot?: EquipmentSlot) {
   const configuredItem = item ? getItemConfig(item) : undefined;
   if (item?.icon) return item.icon;
   const configuredItemIcon =
-    item &&
-    ((item.tags ?? []).includes(GAME_TAGS.item.totem) ||
-      item.name.endsWith(' Totem'))
+    item && (item.tags ?? []).includes(GAME_TAGS.item.totem)
       ? Icons.Totem
       : configuredItem?.icon;
   const category = item ? getItemCategory(item) : undefined;

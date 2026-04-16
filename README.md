@@ -150,6 +150,8 @@ When work changes the performance-sensitive paths, verify the affected area expl
 - Prefer decomposing broad multi-export modules into focused files unless the file only contains tightly related types or closely related entity or library helpers.
 - Keep balancing and world constants in config or focused modules instead of scattering magic numbers through UI code.
 - Keep each unique item, enemy, and structure in its own dedicated configuration file so gameplay and presentation data such as icons, drop or appearance chances, and structure-provided functions stay localized by content type.
+- Keep gameplay icon assets vendored in `src/assets` and referenced through local imports instead of loading shipped runtime icons from remote hosts.
+- Resolve configured gameplay content from canonical ids and tags rather than localized display-name fallbacks, and replace retired content by updating current references instead of keeping runtime name-matching shims alive.
 - In JavaScript and TypeScript, prefer concise arrow functions for immediate expression returns.
 - Keep Oxlint rules aligned with the current JavaScript and TypeScript syntax conventions so the preferred style is enforced automatically when possible.
 - Preserve save normalization when persisted shapes evolve.

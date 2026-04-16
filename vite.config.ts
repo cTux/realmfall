@@ -77,6 +77,11 @@ export default defineConfig({
       !isStorybookScript &&
         VitePWA({
           registerType: 'autoUpdate',
+          workbox: {
+            cleanupOutdatedCaches: true,
+            clientsClaim: true,
+            skipWaiting: true,
+          },
         }),
       detectDuplicatedDeps(),
       !isStorybookScript && minipic(),

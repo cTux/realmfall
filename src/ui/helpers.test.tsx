@@ -21,6 +21,7 @@ function createItem(overrides: Partial<Item> = {}): Item {
   return {
     id: 'item-1',
     name: 'Hearth Totem',
+    itemKey: 'hearth-totem',
     slot: 'offhand',
     quantity: 1,
     tier: 1,
@@ -73,7 +74,11 @@ describe('ui helper coverage', () => {
   });
 
   it('covers item icon and tint fallback branches', () => {
-    expect(iconForItem(createItem({ name: 'Forest Totem' }))).toBe(Icons.Totem);
+    expect(
+      iconForItem(
+        createItem({ itemKey: undefined, tags: [GameTag.ItemTotem] }),
+      ),
+    ).toBe(Icons.Totem);
     expect(
       iconForItem(
         createItem({ itemKey: 'gold', name: 'Gold', slot: undefined }),
@@ -81,7 +86,13 @@ describe('ui helper coverage', () => {
     ).toBe(Icons.Coins);
     expect(
       iconForItem(
-        createItem({ name: 'Meal', slot: undefined, healing: 4, hunger: 6 }),
+        createItem({
+          itemKey: undefined,
+          name: 'Meal',
+          slot: undefined,
+          healing: 4,
+          hunger: 6,
+        }),
       ),
     ).toBe(Icons.Consumable);
     expect(iconForItem(undefined, 'feet')).toBe(Icons.Boots);

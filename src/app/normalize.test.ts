@@ -176,7 +176,7 @@ describe('normalizeLoadedGame', () => {
     expect(loaded.player.equipment.weapon?.rarity).toBe('common');
   });
 
-  it('does not add legacy gold when inventory already contains gold and ignores invalid values', () => {
+  it('does not add legacy gold when inventory already contains canonical gold and ignores invalid values', () => {
     const game = createGame(3, 'normalize-gold-seed');
 
     const loaded = normalizeLoadedGame({
@@ -187,6 +187,7 @@ describe('normalizeLoadedGame', () => {
         inventory: [
           {
             id: 'resource-gold-1',
+            itemKey: 'gold',
             name: 'Gold',
             quantity: 4,
             tier: 1,
