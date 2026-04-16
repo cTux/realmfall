@@ -20,47 +20,40 @@ interface AppDeferredWindowsProps {
   loadedWindows: ReturnType<
     typeof import('../hooks/useDeferredWindows').useDeferredWindows
   >;
+  managedWindowProps: ReturnType<
+    typeof import('../hooks/useManagedWindowProps').useManagedWindowProps
+  >;
   recipeWindowStructure: ReturnType<
     typeof import('../hooks/useRecipeWindowStructure').useRecipeWindowStructure
   >;
-  windowCloseHandlers: ReturnType<
-    typeof import('../hooks/useAppWindowHandlers').useAppWindowHandlers
-  >['windowCloseHandlers'];
-  windowMoveHandlers: ReturnType<
-    typeof import('../hooks/useAppWindowHandlers').useAppWindowHandlers
-  >['windowMoveHandlers'];
 }
 
 export function AppDeferredWindows({
   combatPlayerParty,
   hexInfoView,
   loadedWindows,
+  managedWindowProps,
   recipeWindowStructure,
-  windowCloseHandlers,
-  windowMoveHandlers,
   ...props
 }: AppWindowsProps & AppDeferredWindowsProps) {
-  const { actions, layout, views } = props;
+  const { actions, views } = props;
+  const detailTooltipHandlers = {
+    onHoverDetail: actions.tooltip.onShowTooltip,
+    onLeaveDetail: actions.tooltip.onCloseTooltip,
+  };
 
   return (
     <>
       {loadedWindows.skills ? (
         <SkillsWindow
-          position={layout.windows.skills}
-          onMove={windowMoveHandlers.skills}
-          visible={layout.windowShown.skills}
-          onClose={windowCloseHandlers.skills}
+          {...managedWindowProps.skills}
           skills={views.hero.stats.skills}
-          onHoverDetail={actions.tooltip.onShowTooltip}
-          onLeaveDetail={actions.tooltip.onCloseTooltip}
+          {...detailTooltipHandlers}
         />
       ) : null}
       {loadedWindows.recipes ? (
         <RecipeBookWindow
-          position={layout.windows.recipes}
-          onMove={windowMoveHandlers.recipes}
-          visible={layout.windowShown.recipes}
-          onClose={windowCloseHandlers.recipes}
+          {...managedWindowProps.recipes}
           currentStructure={recipeWindowStructure}
           recipes={views.recipes.entries}
           recipeSkillLevels={views.recipes.skillLevels}
@@ -68,16 +61,12 @@ export function AppDeferredWindows({
           materialFilterItemKey={views.recipes.materialFilterItemKey}
           onResetMaterialFilter={actions.recipes.onClearMaterialFilter}
           onCraft={actions.inventory.onCraftRecipe}
-          onHoverDetail={actions.tooltip.onShowTooltip}
-          onLeaveDetail={actions.tooltip.onCloseTooltip}
+          {...detailTooltipHandlers}
         />
       ) : null}
       {loadedWindows.hexInfo ? (
         <HexInfoWindow
-          position={layout.windows.hexInfo}
-          onMove={windowMoveHandlers.hexInfo}
-          visible={layout.windowShown.hexInfo}
-          onClose={windowCloseHandlers.hexInfo}
+          {...managedWindowProps.hexInfo}
           isHome={hexInfoView.isHome}
           canSetHome={hexInfoView.canSetHome}
           onSetHome={actions.world.onSetHome}
@@ -113,31 +102,23 @@ export function AppDeferredWindows({
           onBuyItem={actions.world.onBuyTownItem}
           onHoverItem={actions.tooltip.onShowItemTooltip}
           onLeaveItem={actions.tooltip.onCloseTooltip}
-          onHoverDetail={actions.tooltip.onShowTooltip}
-          onLeaveDetail={actions.tooltip.onCloseTooltip}
+          {...detailTooltipHandlers}
         />
       ) : null}
       {loadedWindows.equipment ? (
         <EquipmentWindow
-          position={layout.windows.equipment}
-          onMove={windowMoveHandlers.equipment}
-          visible={layout.windowShown.equipment}
-          onClose={windowCloseHandlers.equipment}
+          {...managedWindowProps.equipment}
           equipment={views.player.equipment}
           onHoverItem={actions.tooltip.onEquipmentHover}
           onLeaveItem={actions.tooltip.onCloseTooltip}
           onUnequip={actions.inventory.onUnequip}
           onContextItem={actions.inventory.onEquippedContextItem}
-          onHoverDetail={actions.tooltip.onShowTooltip}
-          onLeaveDetail={actions.tooltip.onCloseTooltip}
+          {...detailTooltipHandlers}
         />
       ) : null}
       {loadedWindows.inventory ? (
         <InventoryWindow
-          position={layout.windows.inventory}
-          onMove={windowMoveHandlers.inventory}
-          visible={layout.windowShown.inventory}
-          onClose={windowCloseHandlers.inventory}
+          {...managedWindowProps.inventory}
           inventory={views.player.inventory}
           equipment={views.player.equipment}
           learnedRecipeIds={views.player.learnedRecipeIds}
@@ -146,64 +127,50 @@ export function AppDeferredWindows({
           onContextItem={actions.inventory.onContextItem}
           onHoverItem={actions.tooltip.onShowItemTooltip}
           onLeaveItem={actions.tooltip.onCloseTooltip}
-          onHoverDetail={actions.tooltip.onShowTooltip}
-          onLeaveDetail={actions.tooltip.onCloseTooltip}
+          {...detailTooltipHandlers}
         />
       ) : null}
       {loadedWindows.loot ? (
         <LootWindow
-          position={layout.windows.loot}
-          onMove={windowMoveHandlers.loot}
-          visible={layout.windowShown.loot && views.loot.visible}
-          loot={views.loot.snapshot}
+          {...managedWindowProps.loot}
+          visible={managedWindowProps.loot.visible && views.loot.visible}
           equipment={views.player.equipment}
-          onClose={windowCloseHandlers.loot}
+          loot={views.loot.snapshot}
           onTakeAll={actions.inventory.onTakeAllLoot}
           onTakeItem={actions.inventory.onTakeLootItem}
           onHoverItem={actions.tooltip.onShowItemTooltip}
           onLeaveItem={actions.tooltip.onCloseTooltip}
-          onHoverDetail={actions.tooltip.onShowTooltip}
-          onLeaveDetail={actions.tooltip.onCloseTooltip}
+          {...detailTooltipHandlers}
         />
       ) : null}
       {loadedWindows.log ? (
         <LogWindow
-          position={layout.windows.log}
-          onMove={windowMoveHandlers.log}
-          visible={layout.windowShown.log}
-          onClose={windowCloseHandlers.log}
+          {...managedWindowProps.log}
           filters={views.logs.filters}
           defaultFilters={DEFAULT_LOG_FILTERS}
           showFilterMenu={views.logs.showFilterMenu}
           onToggleMenu={actions.logs.onToggleFilterMenu}
           onToggleFilter={actions.logs.onToggleLogFilter}
           logs={views.logs.filtered}
-          onHoverDetail={actions.tooltip.onShowTooltip}
-          onLeaveDetail={actions.tooltip.onCloseTooltip}
+          {...detailTooltipHandlers}
         />
       ) : null}
       {loadedWindows.combat && views.combat.snapshot ? (
         <CombatWindow
-          position={layout.windows.combat}
-          onMove={windowMoveHandlers.combat}
-          visible={layout.windowShown.combat && views.combat.visible}
-          onClose={windowCloseHandlers.combat}
+          {...managedWindowProps.combat}
+          visible={managedWindowProps.combat.visible && views.combat.visible}
           combat={views.combat.snapshot.combat}
           playerParty={combatPlayerParty}
           enemies={views.combat.snapshot.enemies}
           worldTimeMs={views.hero.worldTimeMs}
           onStart={actions.world.onStartCombat}
-          onHoverDetail={actions.tooltip.onShowTooltip}
-          onLeaveDetail={actions.tooltip.onCloseTooltip}
+          {...detailTooltipHandlers}
           onHoverHeaderAction={actions.tooltip.onShowTooltip}
         />
       ) : null}
       {loadedWindows.settings ? (
         <GameSettingsWindow
-          position={layout.windows.settings}
-          onMove={windowMoveHandlers.settings}
-          visible={layout.windowShown.settings}
-          onClose={windowCloseHandlers.settings}
+          {...managedWindowProps.settings}
           graphicsSettings={views.settings.graphics}
           onSave={actions.settings.onSaveGraphicsSettings}
           onSaveAndReload={actions.settings.onSaveGraphicsSettingsAndReload}

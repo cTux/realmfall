@@ -13,24 +13,24 @@ interface AppFixedWindowsProps {
   dockEntries: ReturnType<
     typeof import('../utils/getDockEntries').getDockEntries
   >;
+  managedWindowProps: ReturnType<
+    typeof import('../hooks/useManagedWindowProps').useManagedWindowProps
+  >;
   tooltip: TooltipState | null;
-  windowCloseHandlers: ReturnType<
-    typeof import('../hooks/useAppWindowHandlers').useAppWindowHandlers
-  >['windowCloseHandlers'];
-  windowMoveHandlers: ReturnType<
-    typeof import('../hooks/useAppWindowHandlers').useAppWindowHandlers
-  >['windowMoveHandlers'];
 }
 
 export function AppFixedWindows({
   dockEntries,
+  managedWindowProps,
   tooltip,
-  windowCloseHandlers,
-  windowMoveHandlers,
   ...props
 }: AppWindowsProps & AppFixedWindowsProps) {
   const { actions, layout, views } = props;
   const { itemMenu } = views;
+  const detailTooltipHandlers = {
+    onHoverDetail: actions.tooltip.onShowTooltip,
+    onLeaveDetail: actions.tooltip.onCloseTooltip,
+  };
   const recipeMaterialItemKey = itemMenu
     ? getRecipeMaterialItemKey(itemMenu.item)
     : null;
@@ -43,26 +43,18 @@ export function AppFixedWindows({
       />
       {layout.windowShown.worldTime ? (
         <DebuggerWindow
-          position={layout.windows.worldTime}
-          onMove={windowMoveHandlers.worldTime}
-          visible={layout.windowShown.worldTime}
-          onClose={windowCloseHandlers.worldTime}
+          {...managedWindowProps.worldTime}
           worldTimeMs={views.hero.worldTimeMs}
-          onHoverDetail={actions.tooltip.onShowTooltip}
-          onLeaveDetail={actions.tooltip.onCloseTooltip}
+          {...detailTooltipHandlers}
         />
       ) : null}
       <HeroWindow
-        position={layout.windows.hero}
-        onMove={windowMoveHandlers.hero}
-        visible={layout.windowShown.hero}
-        onClose={windowCloseHandlers.hero}
+        {...managedWindowProps.hero}
         stats={views.hero.stats}
         hunger={views.hero.hunger}
         thirst={views.hero.thirst}
         worldTimeMs={views.hero.worldTimeMs}
-        onHoverDetail={actions.tooltip.onShowTooltip}
-        onLeaveDetail={actions.tooltip.onCloseTooltip}
+        {...detailTooltipHandlers}
       />
       {itemMenu ? (
         <ItemContextMenu
