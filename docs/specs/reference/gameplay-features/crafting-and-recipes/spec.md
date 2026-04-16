@@ -22,7 +22,7 @@ This spec covers the recipe book, recipe learning, and crafting execution.
 - Cooking coverage now also includes a broad harvest-and-meat meal set built from herb-patch produce, orchard fruit, and animal meat drops.
 - Metal progression now routes through furnace smelting recipes for copper, tin, iron, gold, and platinum ores, with one canonical iron-ingot recipe and workshop gear recipes consuming ingots instead of raw ore.
 - Ingot item bases use the shared bar icon with bright material-specific tinting so each refined metal reads distinctly in inventory and tooltips.
-- Workshop material costs are scaled 10x from their base requirements. Smelting recipes now refine ore into matching ingots at a 1:1 ratio after scaling, so one ingot craft consumes ten ore while keeping the existing lower fuel quantities as alternative single-source requirements. Cooking recipes keep one-to-one food ingredient quantities so one raw source ingredient still produces one cooked result.
+- Workshop material costs are scaled 10x from their base requirements. Smelting recipes refine ore into matching ingots at a true 1:1 ratio, so one ingot craft consumes one ore while keeping the existing lower fuel quantities as alternative single-source requirements. Cooking recipes keep one-to-one food ingredient quantities so one raw source ingredient still produces one cooked result.
 
 ## Main Implementation Areas
 

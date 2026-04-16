@@ -141,6 +141,7 @@ function matchesRequirement(item: Item, requirement: RecipeRequirement) {
 const RECIPE_REQUIREMENT_SCALE = 10;
 const RECIPE_FUEL_SCALE = 1;
 const COOKING_RECIPE_REQUIREMENT_SCALE = 1;
+const SMELTING_RECIPE_REQUIREMENT_SCALE = 1;
 const DEFAULT_COOKING_FUEL_OPTIONS: RecipeRequirement[] = [
   { itemKey: 'coal', name: 'Coal', quantity: 1 },
   { itemKey: 'logs', name: 'Logs', quantity: 2 },
@@ -246,7 +247,9 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] =
       recipe.ingredients,
       recipe.skill === Skill.Cooking
         ? COOKING_RECIPE_REQUIREMENT_SCALE
-        : RECIPE_REQUIREMENT_SCALE,
+        : recipe.skill === Skill.Smelting
+          ? SMELTING_RECIPE_REQUIREMENT_SCALE
+          : RECIPE_REQUIREMENT_SCALE,
     ),
     fuelOptions: recipe.fuelOptions
       ? scaleRequirements(recipe.fuelOptions, RECIPE_FUEL_SCALE)

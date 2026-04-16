@@ -2079,7 +2079,7 @@ describe('game state', () => {
     expect(
       smelted.player.inventory.find((item) => item.itemKey === 'copper-ore')
         ?.quantity,
-    ).toBe(10);
+    ).toBe(19);
     expect(
       smelted.player.inventory.find((item) => item.itemKey === 'coal')?.quantity,
     ).toBe(9);
@@ -2133,20 +2133,20 @@ describe('game state', () => {
     expect(
       smeltedPlatinum.player.inventory.find((item) => item.itemKey === 'tin-ore')
         ?.quantity,
-    ).toBe(10);
+    ).toBe(19);
     expect(
       smeltedPlatinum.player.inventory.find((item) => item.itemKey === 'iron-ore')
         ?.quantity,
-    ).toBe(10);
+    ).toBe(19);
     expect(
       smeltedPlatinum.player.inventory.find((item) => item.itemKey === 'gold-ore')
         ?.quantity,
-    ).toBe(20);
+    ).toBe(29);
     expect(
       smeltedPlatinum.player.inventory.find(
         (item) => item.itemKey === 'platinum-ore',
       )?.quantity,
-    ).toBe(30);
+    ).toBe(39);
     expect(
       smeltedPlatinum.player.inventory.find((item) => item.itemKey === 'coal')
         ?.quantity,
