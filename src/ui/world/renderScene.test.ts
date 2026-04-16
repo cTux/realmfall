@@ -319,6 +319,18 @@ describe('renderScene', () => {
     expect(labels.children.some((child) => child instanceof MockText)).toBe(
       false,
     );
+
+    const world = worldMap.children[0] as MockContainer;
+    const markerLayer = world.children[5] as MockContainer;
+    const redEnemyMarker = collectDescendants(markerLayer).find(
+      (child) =>
+        child instanceof MockSprite &&
+        child.icon !== playerIcon &&
+        child.icon !== tearTracksIcon &&
+        child.tint === 0xef4444,
+    );
+
+    expect(redEnemyMarker).toBeDefined();
   });
 
   it('does not draw the selected outline on the player tile', async () => {

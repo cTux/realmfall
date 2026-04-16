@@ -1,6 +1,5 @@
 import { type Application } from 'pixi.js';
 import {
-  getEnemyConfig,
   getStructureConfig,
   getEnemiesAt,
   getVisibleTiles,
@@ -67,6 +66,7 @@ const SAFE_PATH_TINT_COLOR = 0x38bdf8;
 const SAFE_PATH_TINT_ALPHA = 0.34;
 const SAFE_PATH_HEX_INSET = 2;
 const HOME_HEX_TINT_INSET = 3;
+const ENEMY_HEX_ICON_TINT = 0xef4444;
 const WORLD_BOSS_ICON_TINT = 0x7f1d1d;
 const WORLD_BOSS_HEX_TINT_COLOR = 0x7f1d1d;
 const WORLD_BOSS_HEX_TINT_ALPHA = 0.22;
@@ -275,10 +275,7 @@ export function renderScene(
             );
             configureShadowedSprite(
               sprite,
-              isBossCenter
-                ? WORLD_BOSS_ICON_TINT
-                : (getEnemyConfig(leadEnemy.enemyTypeId ?? leadEnemy.name)
-                    ?.tint ?? 0xef4444),
+              isBossCenter ? WORLD_BOSS_ICON_TINT : ENEMY_HEX_ICON_TINT,
               isBossCenter ? worldBossIconSize : enemyIconSize,
               isBossCenter ? worldBossIconSize : enemyIconSize,
               1,
