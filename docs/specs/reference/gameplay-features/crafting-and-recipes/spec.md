@@ -19,6 +19,7 @@ This spec covers the recipe book, recipe learning, and crafting execution.
 - Current recipe coverage now spans a much larger craftable catalog, including the original cooking and gear set plus a generated expansion of themed weapons, shields, hoods, mantles, vests, bracers, gloves, belts, leggings, boots, charms, and cloaks.
 - Cooking coverage now also includes a broad harvest-and-meat meal set built from herb-patch produce, orchard fruit, and animal meat drops.
 - Metal progression now routes through furnace smelting recipes for copper, tin, iron, gold, and platinum ores, with one canonical iron-ingot recipe and workshop gear recipes consuming ingots instead of raw ore.
+- Ingot item bases use the shared bar icon with bright material-specific tinting so each refined metal reads distinctly in inventory and tooltips.
 - Recipe resource costs are scaled 10x from their base requirements, including cooking fuel requirements.
 
 ## Main Implementation Areas

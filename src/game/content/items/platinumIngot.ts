@@ -6,7 +6,7 @@ export const platinumIngotItemConfig: ItemConfig = {
   key: 'platinum-ingot',
   name: itemName('platinum-ingot'),
   icon: ContentIcons.GoldBar,
-  tint: '#f5d0fe',
+  tint: '#f5f3ff',
   tier: 4,
   rarity: 'uncommon',
   power: 0,

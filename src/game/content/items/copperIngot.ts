@@ -6,7 +6,7 @@ export const copperIngotItemConfig: ItemConfig = {
   key: 'copper-ingot',
   name: itemName('copper-ingot'),
   icon: ContentIcons.GoldBar,
-  tint: '#f59e0b',
+  tint: '#fb923c',
   tier: 1,
   rarity: 'common',
   power: 0,

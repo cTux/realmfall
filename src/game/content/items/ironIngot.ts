@@ -6,7 +6,7 @@ export const ironIngotItemConfig: ItemConfig = {
   key: 'iron-ingot',
   name: itemName('iron-ingot'),
   icon: ContentIcons.GoldBar,
-  tint: '#cbd5e1',
+  tint: '#f8fafc',
   tier: 1,
   rarity: 'common',
   power: 0,
