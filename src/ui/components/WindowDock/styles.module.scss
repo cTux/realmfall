@@ -8,9 +8,9 @@
   z-index: 35;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
   justify-content: flex-start;
-  padding: 3px;
+  padding: 2px;
   background: #08101e;
   backdrop-filter: blur(14px);
   border: 1px solid rgb(148 163 184 / 20%);
@@ -21,7 +21,7 @@
 .group {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 
   &[data-align='end'] {
     margin-top: auto;
@@ -30,7 +30,7 @@
 
 .buttonIcon {
   @include ui.masked-icon(
-    2.35rem,
+    1.8rem,
     $background: currentcolor,
     $shadow: 0 2px 4px rgb(0 0 0 / 45%)
   );
@@ -58,11 +58,11 @@
 
 .dockButton {
   position: relative;
-  width: 56px;
-  height: 56px;
+  width: 41px;
+  height: 41px;
   display: grid;
   place-items: center;
-  padding: 0.28rem;
+  padding: 0.18rem;
   border: 1px solid rgb(148 163 184 / 20%);
   background: rgb(8 15 30 / 90%);
   color: #cbd5e1;
@@ -99,6 +99,6 @@
 
 @media (width <= 980px) {
   .dock {
-    padding-right: 0.35rem;
+    padding-right: 0.25rem;
   }
 }
