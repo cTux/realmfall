@@ -50,13 +50,6 @@ export function SkillsWindowContent({
                   />
                   {formatSkillLabel(name as SkillName)}
                 </span>
-                <span className={styles.value}>
-                  {t('ui.skills.levelProgress', {
-                    level: skill.level,
-                    current: skill.xp,
-                    max: xpMax,
-                  })}
-                </span>
               </div>
               <div className={styles.barTrack}>
                 <div className={styles.barFill} style={{ width: `${fill}%` }} />

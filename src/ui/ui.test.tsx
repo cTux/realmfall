@@ -901,6 +901,7 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('Aether');
     expect(markup).toContain('XP');
     expect(markup).toContain('Hunger');
+    expect(markup).not.toContain('gathering level');
   });
 
   it('renders mastery level in the hero title after level 100', () => {
