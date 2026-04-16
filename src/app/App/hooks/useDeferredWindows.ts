@@ -4,8 +4,8 @@ import { DEFERRED_WINDOW_KEYS, type DeferredWindowKey } from './windowKeys';
 
 function createLoadedWindowState(
   windowShown: AppWindowsLayout['windowShown'],
-  renderLootWindow: boolean,
-  renderCombatWindow: boolean,
+  keepLootWindowMounted: boolean,
+  keepCombatWindowMounted: boolean,
 ) {
   return {
     skills: windowShown.skills,
@@ -13,9 +13,9 @@ function createLoadedWindowState(
     hexInfo: windowShown.hexInfo,
     equipment: windowShown.equipment,
     inventory: windowShown.inventory,
-    loot: renderLootWindow,
+    loot: keepLootWindowMounted,
     log: windowShown.log,
-    combat: renderCombatWindow,
+    combat: keepCombatWindowMounted,
     settings: windowShown.settings,
   } satisfies Record<DeferredWindowKey, boolean>;
 }
@@ -23,13 +23,13 @@ function createLoadedWindowState(
 function mergeLoadedWindowState(
   current: Record<DeferredWindowKey, boolean>,
   windowShown: AppWindowsLayout['windowShown'],
-  renderLootWindow: boolean,
-  renderCombatWindow: boolean,
+  keepLootWindowMounted: boolean,
+  keepCombatWindowMounted: boolean,
 ) {
   const next = createLoadedWindowState(
     windowShown,
-    renderLootWindow,
-    renderCombatWindow,
+    keepLootWindowMounted,
+    keepCombatWindowMounted,
   );
 
   for (const key of DEFERRED_WINDOW_KEYS) {
@@ -43,14 +43,18 @@ function mergeLoadedWindowState(
 
 export function useDeferredWindows({
   windowShown,
-  renderLootWindow,
-  renderCombatWindow,
+  keepLootWindowMounted,
+  keepCombatWindowMounted,
 }: Pick<
   AppWindowsLayout,
-  'windowShown' | 'renderLootWindow' | 'renderCombatWindow'
+  'windowShown' | 'keepLootWindowMounted' | 'keepCombatWindowMounted'
 >) {
   const [loadedWindows, setLoadedWindows] = useState(() =>
-    createLoadedWindowState(windowShown, renderLootWindow, renderCombatWindow),
+    createLoadedWindowState(
+      windowShown,
+      keepLootWindowMounted,
+      keepCombatWindowMounted,
+    ),
   );
 
   useEffect(() => {
@@ -58,11 +62,11 @@ export function useDeferredWindows({
       mergeLoadedWindowState(
         current,
         windowShown,
-        renderLootWindow,
-        renderCombatWindow,
+        keepLootWindowMounted,
+        keepCombatWindowMounted,
       ),
     );
-  }, [renderCombatWindow, renderLootWindow, windowShown]);
+  }, [keepCombatWindowMounted, keepLootWindowMounted, windowShown]);
 
   return loadedWindows;
 }

@@ -16,12 +16,12 @@ export function AppWindows(props: AppWindowsProps) {
     () =>
       getDockEntries(
         props.layout.windowShown,
-        props.layout.renderLootWindow,
-        props.layout.renderCombatWindow,
+        props.layout.keepLootWindowMounted,
+        props.layout.keepCombatWindowMounted,
       ),
     [
-      props.layout.renderCombatWindow,
-      props.layout.renderLootWindow,
+      props.layout.keepCombatWindowMounted,
+      props.layout.keepLootWindowMounted,
       props.layout.windowShown,
     ],
   );
@@ -31,8 +31,8 @@ export function AppWindows(props: AppWindowsProps) {
   });
   const loadedWindows = useDeferredWindows({
     windowShown: props.layout.windowShown,
-    renderLootWindow: props.layout.renderLootWindow,
-    renderCombatWindow: props.layout.renderCombatWindow,
+    keepLootWindowMounted: props.layout.keepLootWindowMounted,
+    keepCombatWindowMounted: props.layout.keepCombatWindowMounted,
   });
   const hexInfoView = useHexInfoView({
     homeHex: props.views.world.homeHex,

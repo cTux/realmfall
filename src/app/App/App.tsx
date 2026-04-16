@@ -140,10 +140,10 @@ export function App() {
   const {
     combatSnapshot,
     combatWindowVisible,
+    keepCombatWindowMounted,
+    keepLootWindowMounted,
     lootSnapshot,
     lootWindowVisible,
-    renderCombatWindow,
-    renderLootWindow,
   } = useWindowTransitions({
     combat: game.combat,
     combatEnemies,
@@ -185,7 +185,7 @@ export function App() {
     lootSnapshotLength: lootSnapshot.length,
     lootWindowVisible,
     onStartCombat: handleStartCombat,
-    renderLootWindow,
+    keepLootWindowMounted,
     onInteract: handleInteract,
     onTakeAllLoot: handleTakeAllLoot,
     onCloseAllWindows: closeAllWindows,
@@ -235,8 +235,8 @@ export function App() {
           layout={{
             windows,
             windowShown,
-            renderLootWindow,
-            renderCombatWindow,
+            keepLootWindowMounted,
+            keepCombatWindowMounted,
             tooltipPositionRef,
           }}
           views={{
