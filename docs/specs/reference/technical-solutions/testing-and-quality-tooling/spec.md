@@ -19,7 +19,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - The codebase favors deterministic tests for gameplay and rendering calculations.
 - Contributor guidance now includes an explicit performance verification checklist for React rerender breadth, Pixi redraw breadth, hover hot paths, and startup chunk growth so optimization work has a repeatable review path beyond functional correctness.
 - That guidance also defines lightweight budgets for routine desktop world interaction and the main startup chunks, giving contributors a small regression envelope to compare against during reviews and build checks.
-- The pull-request workflow enforces those startup chunk budgets through `pnpm build:budget`, which runs a production build and fails if the `index`, `react-vendor`, or `pixi` chunks grow past the current thresholds.
+- The pull-request workflow enforces startup delivery budgets through `pnpm build:budget`, which runs a production build, reads the Vite manifest, and fails if the bootstrap graph or its key chunks grow past the current thresholds.
 - The scheduled dependency-update workflow bootstraps its toolchain with `pnpm i --no-frozen-lockfile` before rewriting dependency specifiers and the lockfile, then validates the refreshed dependency set with lint, test, and build steps.
 - The pre-commit workflow also enforces version progression through `pnpm check:version`, which blocks commits unless `package.json` advances by patch version relative to `HEAD`.
 - The pre-commit workflow keeps full-project typecheck global but scopes Oxlint auto-fixes to staged JavaScript and TypeScript files, scopes Stylelint to staged `src` CSS and SCSS files, and scopes Vitest to tests related to staged source files, runtime JSON content, or test files.
@@ -31,6 +31,7 @@ This spec covers the repository quality baseline and current test coverage shape
 
 - `package.json`
 - `scripts/check-bundle-budget.mjs`
+- `scripts/check-bundle-budget.helpers.mjs`
 - `scripts/check-package-version.mjs`
 - `scripts/run-staged-quality.mjs`
 - `.oxlintrc.json`

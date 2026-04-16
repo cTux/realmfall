@@ -1,36 +1,22 @@
-import { readdirSync, statSync } from 'node:fs';
-import { join } from 'node:path';
-
-const DIST_JS_DIR = join(process.cwd(), 'dist', 'assets', 'js');
-
-const BUDGETS = {
-  index: 500_000,
-  'react-vendor': 150_000,
-  pixi: 505_000,
-};
-
-function formatKiB(bytes) {
-  return `${(bytes / 1000).toFixed(2)} kB`;
-}
-
-function getBuiltChunks() {
-  return readdirSync(DIST_JS_DIR)
-    .filter((fileName) => fileName.endsWith('.js'))
-    .map((fileName) => ({
-      fileName,
-      size: statSync(join(DIST_JS_DIR, fileName)).size,
-    }));
-}
-
-function getBudgetChunk(chunks, chunkName) {
-  return chunks.find((chunk) => chunk.fileName.startsWith(`${chunkName}-`));
-}
+import {
+  CHUNK_BUDGETS,
+  DIST_DIR,
+  DIST_JS_DIR,
+  STARTUP_TOTAL_BUDGET,
+  findEntryKey,
+  formatKiB,
+  getBuiltChunks,
+  getChunkByPrefix,
+  getStartupChunkFiles,
+  loadManifest,
+} from './check-bundle-budget.helpers.mjs';
 
 const chunks = getBuiltChunks();
+const manifest = loadManifest();
 const failures = [];
 
-for (const [chunkName, budgetBytes] of Object.entries(BUDGETS)) {
-  const chunk = getBudgetChunk(chunks, chunkName);
+for (const [chunkName, budgetBytes] of Object.entries(CHUNK_BUDGETS)) {
+  const chunk = getChunkByPrefix(chunks, chunkName);
 
   if (!chunk) {
     failures.push(
@@ -48,9 +34,37 @@ for (const [chunkName, budgetBytes] of Object.entries(BUDGETS)) {
         budgetBytes,
       )} budget for ${chunkName}.`,
     );
+    continue;
+  }
+
+  console.log(
+    `${chunkName}: ${formatKiB(chunk.size)} within ${formatKiB(budgetBytes)}`,
+  );
+}
+
+const mainEntryKey =
+  findEntryKey(manifest, 'src/main.tsx') ??
+  findEntryKey(manifest, 'index.html');
+if (!mainEntryKey) {
+  failures.push(
+    `Missing startup entry in ${DIST_DIR.replaceAll('\\', '/')}/.vite/manifest.json.`,
+  );
+} else {
+  const startupChunkFiles = getStartupChunkFiles(manifest, mainEntryKey);
+  const startupChunks = chunks.filter((chunk) =>
+    startupChunkFiles.has(`assets/js/${chunk.fileName}`),
+  );
+  const startupTotal = startupChunks.reduce((sum, chunk) => sum + chunk.size, 0);
+
+  if (startupTotal > STARTUP_TOTAL_BUDGET) {
+    failures.push(
+      `Startup JS totals ${formatKiB(startupTotal)} which exceeds the ${formatKiB(
+        STARTUP_TOTAL_BUDGET,
+      )} budget.`,
+    );
   } else {
     console.log(
-      `${chunkName}: ${formatKiB(chunk.size)} within ${formatKiB(budgetBytes)}`,
+      `startup-total: ${formatKiB(startupTotal)} within ${formatKiB(STARTUP_TOTAL_BUDGET)}`,
     );
   }
 }
