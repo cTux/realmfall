@@ -1,36 +1,31 @@
-@use '../../../styles/ui';
-
-.inventory {
-  display: grid;
-  gap: 0.35rem;
+.window {
+  width: min(290px, calc(100vw - 16px));
 }
 
-.slotRow {
-  display: grid;
-  grid-template-columns: 92px 1fr;
-  gap: 0.55rem;
-  align-items: center;
-  font-size: 1rem;
+.layout {
+  position: relative;
+  width: 220px;
+  height: 320px;
+  margin: 0 auto;
+  padding: 0.35rem 0 0.15rem;
 }
 
-.slotLabel {
-  color: #94a3b8;
+.figure {
+  position: absolute;
+  inset: 0;
+  background-position: center 53%;
+  background-repeat: no-repeat;
+  background-size: 111%;
+  filter: drop-shadow(0 10px 22px rgb(15 23 42 / 42%));
+  opacity: 0.72;
 }
 
-.slotValue {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-}
-
-.slotInteractive {
-  cursor: pointer;
-}
-
-.slotIcon {
-  @include ui.masked-icon(1.2rem, $shadow: 0 1px 2px rgb(0 0 0 / 45%));
-}
-
-.slotEmpty {
-  color: rgb(148 163 184 / 32%);
+.slot {
+  background:
+    linear-gradient(180deg, rgb(15 23 42 / 70%), rgb(2 6 23 / 82%)),
+    rgb(15 23 42 / 78%);
+  border-color: rgb(71 85 105 / 42%);
+  box-shadow:
+    0 0 0 1px rgb(148 163 184 / 8%) inset,
+    0 8px 18px rgb(2 6 23 / 18%);
 }

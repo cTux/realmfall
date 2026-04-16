@@ -1,7 +1,7 @@
 import { makeCookedFish, makeCraftedItem } from './inventory';
 import { t } from '../i18n';
 import { EquipmentSlotId } from './content/ids';
-import { getItemConfig, getItemConfigByKey } from './content/items';
+import { getItemConfigByKey } from './content/items';
 import { Skill } from './types';
 import type {
   GameState,
@@ -101,8 +101,7 @@ function matchesRequirement(item: Item, requirement: RecipeRequirement) {
   return (
     item.quantity >= requirement.quantity &&
     (requirement.itemKey
-      ? item.itemKey === requirement.itemKey ||
-        getItemConfig(item)?.key === requirement.itemKey
+      ? item.itemKey === requirement.itemKey
       : item.name === requirement.name)
   );
 }
@@ -356,7 +355,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting,
     output: makeCraftedItem(
       'crafted-relic',
-      EquipmentSlotId.Relic,
+      EquipmentSlotId.Offhand,
       'hearth-totem',
       {
         power: 1,

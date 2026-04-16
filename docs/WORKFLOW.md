@@ -45,6 +45,8 @@
 - When a requested CSS or SCSS syntax convention changes, update Stylelint configuration when the convention can be enforced mechanically.
 - Keep `pnpm lint` mapped to the enforced Oxlint workflow, and keep Oxlint as the only JavaScript and TypeScript linter unless the task explicitly changes the lint toolchain.
 - Keep React hook checks enforced through Oxlint on the TypeScript and TSX path so pre-commit still catches invalid hook usage and missing effect dependencies.
+- When replacing configured gameplay content, update canonical ids and live references directly instead of adding display-name fallback paths to preserve removed content.
+- When adding or changing gameplay iconography, vendor the SVGs in the repository and update runtime icon references to local assets instead of external URLs.
 - Every component addition, removal, or behavior-affecting UI change should add or update the corresponding Storybook story in the same task.
 - The pre-commit hook should auto-fix Oxlint-managed staged JavaScript and TypeScript issues when a safe fix is available, refresh staged tracked files, and still run the remaining hook checks instead of failing only because fixable lint drift existed.
 - The pre-commit hook should scope Stylelint to staged `src` CSS and SCSS files and scope Vitest to staged related source, runtime JSON content, or test files by default, while falling back to the full `pnpm test` suite when staged changes affect shared test inputs such as package metadata, lockfile state, Vite config, TypeScript config, or shared Vitest setup.

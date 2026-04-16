@@ -117,8 +117,11 @@ export const ItemIcon: Record<EquipmentSlot, string> = {
   [EquipmentSlotId.Weapon]: Icons.Weapon,
   [EquipmentSlotId.Offhand]: Icons.Armor,
   [EquipmentSlotId.Head]: Icons.Hood,
+  [EquipmentSlotId.Shoulders]: Icons.Armor,
   [EquipmentSlotId.Chest]: Icons.Chest,
+  [EquipmentSlotId.Bracers]: Icons.Gauntlet,
   [EquipmentSlotId.Hands]: Icons.Gauntlet,
+  [EquipmentSlotId.Belt]: Icons.Armor,
   [EquipmentSlotId.Legs]: Icons.Chest,
   [EquipmentSlotId.Feet]: Icons.Boots,
   [EquipmentSlotId.RingLeft]: Icons.Artifact,
@@ -158,10 +161,9 @@ export function iconForItem(item?: Item, slot?: EquipmentSlot) {
   const slotIcon = slot ? ItemIcon[slot] : undefined;
   const itemSlotIcon = item?.slot ? ItemIcon[item.slot] : undefined;
   const configuredItem = item ? getItemConfig(item) : undefined;
+  if (item?.icon) return item.icon;
   const configuredItemIcon =
-    item &&
-    ((item.tags ?? []).includes(GAME_TAGS.item.totem) ||
-      item.name.endsWith(' Totem'))
+    item && (item.tags ?? []).includes(GAME_TAGS.item.totem)
       ? Icons.Totem
       : configuredItem?.icon;
   const category = item ? getItemCategory(item) : undefined;

@@ -28,8 +28,11 @@ export enum GameTag {
   ItemSlotWeapon = 'item.slot.weapon',
   ItemSlotOffhand = 'item.slot.offhand',
   ItemSlotHead = 'item.slot.head',
+  ItemSlotShoulders = 'item.slot.shoulders',
   ItemSlotChest = 'item.slot.chest',
+  ItemSlotBracers = 'item.slot.bracers',
   ItemSlotHands = 'item.slot.hands',
+  ItemSlotBelt = 'item.slot.belt',
   ItemSlotLegs = 'item.slot.legs',
   ItemSlotFeet = 'item.slot.feet',
   ItemSlotRingLeft = 'item.slot.ringLeft',
@@ -109,8 +112,11 @@ export const GAME_TAGS = {
     slotWeapon: GameTag.ItemSlotWeapon,
     slotOffhand: GameTag.ItemSlotOffhand,
     slotHead: GameTag.ItemSlotHead,
+    slotShoulders: GameTag.ItemSlotShoulders,
     slotChest: GameTag.ItemSlotChest,
+    slotBracers: GameTag.ItemSlotBracers,
     slotHands: GameTag.ItemSlotHands,
+    slotBelt: GameTag.ItemSlotBelt,
     slotLegs: GameTag.ItemSlotLegs,
     slotFeet: GameTag.ItemSlotFeet,
     slotRingLeft: GameTag.ItemSlotRingLeft,
@@ -206,10 +212,16 @@ export function getEquipmentSlotTag(slot: EquipmentSlotValue) {
       return GAME_TAGS.item.slotOffhand;
     case EquipmentSlotId.Head:
       return GAME_TAGS.item.slotHead;
+    case EquipmentSlotId.Shoulders:
+      return GAME_TAGS.item.slotShoulders;
     case EquipmentSlotId.Chest:
       return GAME_TAGS.item.slotChest;
+    case EquipmentSlotId.Bracers:
+      return GAME_TAGS.item.slotBracers;
     case EquipmentSlotId.Hands:
       return GAME_TAGS.item.slotHands;
+    case EquipmentSlotId.Belt:
+      return GAME_TAGS.item.slotBelt;
     case EquipmentSlotId.Legs:
       return GAME_TAGS.item.slotLegs;
     case EquipmentSlotId.Feet:

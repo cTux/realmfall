@@ -19,9 +19,9 @@ This spec covers canonical type ids and gameplay tags for item configs, enemy co
 - Skills use the shared `Skill` enum instead of raw string ids so progression, structures, recipes, normalization, and UI all reference the same canonical identifiers.
 - Runtime item instances, enemy instances, and player status effects carry hydrated tags so gameplay logic can branch on ids or tags instead of localized labels.
 - Ability definitions and profession skill lookups expose enum-backed tags through shared helpers instead of ad hoc UI strings.
-- Inventory, crafting, loot, enemy classification, icon selection, and status-effect presentation now prefer canonical ids and tags over display-name matching.
+- Inventory, crafting, loot, enemy classification, icon selection, and status-effect presentation resolve configured content from canonical ids and tags instead of display-name matching.
 - Tooltip surfaces for items, resources, enemies, buffs, debuffs, abilities, professions, and structures render shared tag lines from those canonical definitions.
-- Save normalization backfills missing item keys, enemy type ids, enemy tags, status-effect tags, and inferred equippable slot tags for older saves.
+- Save normalization still backfills missing enemy type ids, enemy tags, status-effect tags, and inferred equippable slot tags for older saves, but configured item resolution no longer recreates removed content from legacy display names alone.
 
 ## Main Implementation Areas
 

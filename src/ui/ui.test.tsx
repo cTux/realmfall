@@ -7,7 +7,7 @@ import { GameTag } from '../game/content/tags';
 import { Skill } from '../game/types';
 import {
   createGame,
-  getItemConfigByName,
+  getItemConfigByKey,
   getPlayerStats,
   type Item,
 } from '../game/state';
@@ -369,6 +369,7 @@ describe('ui helpers and components', () => {
   it('uses the rolled cloth icon for Cloth items', () => {
     const cloth: Item = {
       id: 'cloth-1',
+      itemKey: 'cloth',
       name: 'Cloth',
       quantity: 1,
       tier: 1,
@@ -380,7 +381,7 @@ describe('ui helpers and components', () => {
       hunger: 0,
     };
 
-    expect(iconForItem(cloth)).toBe(getItemConfigByName('Cloth')?.icon);
+    expect(iconForItem(cloth)).toBe(getItemConfigByKey('cloth')?.icon);
   });
 
   it('renders all major windows to static markup', async () => {

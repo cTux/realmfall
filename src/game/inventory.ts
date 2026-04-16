@@ -5,53 +5,26 @@ import {
   buildItemFromConfig,
   getItemCategory,
   getItemConfigByKey,
-  getItemConfigByName,
   hasItemTag,
-  inferItemTags,
   isEquippableItemCategory,
 } from './content/items';
 import { GAME_TAGS } from './content/tags';
 import type { EquipmentSlot, GameState, Item, RecipeDefinition } from './types';
 
 export function makeStarterWeapon(): Item {
-  return buildItemFromConfig(ItemId.RustKnife, { id: 'starter-knife' });
+  return buildItemFromConfig(ItemId.TownKnife, { id: 'starter-knife' });
 }
 
 export function makeStarterArmor(
   slot: EquipmentSlot,
-  itemKeyOrName: string,
-  tier: number,
-  defense: number,
+  itemKey: string,
+  _tier: number,
+  _defense: number,
 ): Item {
-  const configured =
-    getItemConfigByKey(itemKeyOrName) ?? getItemConfigByName(itemKeyOrName);
-  if (configured) {
-    return buildItemFromConfig(configured.key, {
-      id: `${slot}-${configured.key}`,
-    });
-  }
-
-  return {
-    id: `${slot}-${itemKeyOrName.toLowerCase().replace(/\s+/g, '-')}`,
-    slot,
-    name: itemKeyOrName,
-    tags: inferItemTags({
-      slot,
-      name: itemKeyOrName,
-      healing: 0,
-      hunger: 0,
-      thirst: 0,
-    }),
-    quantity: 1,
-    tier,
-    rarity: 'common',
-    power: 0,
-    defense,
-    maxHp: tier,
-    healing: 0,
-    hunger: 0,
-    thirst: 0,
-  };
+  const configured = getRequiredItemConfig(itemKey);
+  return buildItemFromConfig(configured.key, {
+    id: `${slot}-${configured.key}`,
+  });
 }
 
 export function makeRecipeBook(): Item {
@@ -64,44 +37,21 @@ export function makeHomeScroll(id: string): Item {
 
 export function makeConsumable(
   id: string,
-  itemKeyOrName: string,
+  itemKey: string,
   tier: number,
   healing: number,
   hunger: number,
   quantity = 1,
 ): Item {
-  const configured =
-    getItemConfigByKey(itemKeyOrName) ?? getItemConfigByName(itemKeyOrName);
-  if (configured) {
-    return buildItemFromConfig(configured.key, {
-      id,
-      quantity,
-      tier,
-      healing,
-      hunger,
-      thirst: configured.thirst ?? 0,
-    });
-  }
-
-  return {
+  const configured = getRequiredItemConfig(itemKey);
+  return buildItemFromConfig(configured.key, {
     id,
-    name: itemKeyOrName,
-    tags: inferItemTags({
-      name: itemKeyOrName,
-      healing,
-      hunger,
-      thirst: 0,
-    }),
     quantity,
     tier,
-    rarity: 'common',
-    power: 0,
-    defense: 0,
-    maxHp: 0,
     healing,
     hunger,
-    thirst: 0,
-  };
+    thirst: configured.thirst ?? 0,
+  });
 }
 
 export function makeGoldStack(quantity: number): Item {
@@ -109,74 +59,26 @@ export function makeGoldStack(quantity: number): Item {
 }
 
 export function makeResourceStack(
-  itemKeyOrName: string,
+  itemKey: string,
   tier: number,
   quantity: number,
 ): Item {
-  const configured =
-    getItemConfigByKey(itemKeyOrName) ?? getItemConfigByName(itemKeyOrName);
-  if (configured) {
-    return buildItemFromConfig(configured.key, {
-      id: `resource-${configured.key}-${tier}`,
-      quantity,
-      tier,
-    });
-  }
-
-  return {
-    id: `resource-${itemKeyOrName.toLowerCase().replace(/\s+/g, '-')}-${tier}`,
-    name: itemKeyOrName,
-    tags: inferItemTags({
-      name: itemKeyOrName,
-      healing: 0,
-      hunger: 0,
-      thirst: 0,
-    }),
+  const configured = getRequiredItemConfig(itemKey);
+  return buildItemFromConfig(configured.key, {
+    id: `resource-${configured.key}-${tier}`,
     quantity,
     tier,
-    rarity: 'common',
-    power: 0,
-    defense: 0,
-    maxHp: 0,
-    healing: 0,
-    hunger: 0,
-    thirst: 0,
-  };
+  });
 }
 
 export function makeCraftedItem(
   id: string,
   slot: EquipmentSlot,
-  itemKeyOrName: string,
-  stats: Pick<Item, 'power' | 'defense' | 'maxHp'>,
+  itemKey: string,
+  _stats: Pick<Item, 'power' | 'defense' | 'maxHp'>,
 ): Item {
-  const configured =
-    getItemConfigByKey(itemKeyOrName) ?? getItemConfigByName(itemKeyOrName);
-  if (configured) {
-    return buildItemFromConfig(configured.key, { id });
-  }
-
-  return {
-    id,
-    slot,
-    name: itemKeyOrName,
-    tags: inferItemTags({
-      slot,
-      name: itemKeyOrName,
-      healing: 0,
-      hunger: 0,
-      thirst: 0,
-    }),
-    quantity: 1,
-    tier: 1,
-    rarity: 'common',
-    power: stats.power,
-    defense: stats.defense,
-    maxHp: stats.maxHp,
-    healing: 0,
-    hunger: 0,
-    thirst: 0,
-  };
+  const configured = getRequiredItemConfig(itemKey);
+  return buildItemFromConfig(configured.key, { id });
 }
 
 export function makeCookedFish(): Item {
@@ -417,4 +319,10 @@ function sameStackIdentity(left: Item, right: Item) {
   }
 
   return left.name === right.name;
+}
+
+function getRequiredItemConfig(itemKey: string) {
+  const configured = getItemConfigByKey(itemKey);
+  if (configured) return configured;
+  throw new Error(`Missing item config: ${itemKey}`);
 }

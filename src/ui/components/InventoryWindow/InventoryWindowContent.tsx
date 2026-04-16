@@ -1,7 +1,5 @@
-import { formatCompactNumber } from '../../formatters';
-import { formatItemLabel } from '../../../i18n/labels';
 import { t } from '../../../i18n';
-import { iconForItem, itemTint } from '../../icons';
+import { ItemSlotButton } from '../ItemSlotButton/ItemSlotButton';
 import type { InventoryWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -26,13 +24,9 @@ export function InventoryWindowContent({
   return (
     <div className={styles.grid}>
       {inventory.map((item) => (
-        <button
+        <ItemSlotButton
           key={item.id}
-          className={styles.itemCard}
-          style={{
-            borderColor: itemTint(item),
-            boxShadow: `0 0 0 1px ${itemTint(item)}33 inset`,
-          }}
+          item={item}
           onClick={() => onEquip(item.id)}
           onContextMenu={(event) => onContextItem(event, item)}
           onMouseEnter={(event) =>
@@ -43,31 +37,11 @@ export function InventoryWindowContent({
             )
           }
           onMouseLeave={onLeaveItem}
-        >
-          <span
-            className={styles.itemIcon}
-            style={iconMaskStyle(iconForItem(item), itemTint(item))}
-            aria-label={formatItemLabel(item)}
-          />
-          {item.quantity > 1 ? (
-            <span className={styles.stackBadge}>
-              x{formatCompactNumber(item.quantity)}
-            </span>
-          ) : null}
-        </button>
+        />
       ))}
       {inventory.length === 0 ? (
         <div className={styles.empty}>{t('ui.common.empty')}</div>
       ) : null}
     </div>
   );
-}
-
-function iconMaskStyle(icon: string, color: string) {
-  const mask = `url("${icon}") center / contain no-repeat`;
-  return {
-    backgroundColor: color,
-    WebkitMask: mask,
-    mask,
-  };
 }

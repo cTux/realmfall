@@ -38,35 +38,6 @@
   gap: 5px;
 }
 
-.itemCard {
-  position: relative;
-  width: 68px;
-  height: 68px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.38rem;
-  border-width: 1px;
-  border-radius: 0;
-}
-
-.itemIcon {
-  @include ui.masked-icon(2.2rem, $shadow: 0 2px 4px rgb(0 0 0 / 45%));
-}
-
-.stackBadge {
-  position: absolute;
-  left: 50%;
-  bottom: -6px;
-  transform: translateX(-50%);
-  background: rgb(15 23 42 / 90%);
-  border: 1px solid rgb(148 163 184 / 25%);
-  border-radius: 999px;
-  padding: 0.04rem 0.26rem;
-  font-size: 0.74rem;
-  line-height: 1;
-}
-
 .empty {
   color: #94a3b8;
 }

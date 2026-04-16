@@ -22,10 +22,10 @@ import {
   buildItemFromConfig,
   getItemConfig,
   getItemConfigByKey,
-  getItemConfigByName,
   hasItemTag,
+  itemOccupiesOffhand,
 } from './content/items';
-import { ItemId, StatusEffectTypeId } from './content/ids';
+import { EquipmentSlotId, ItemId, StatusEffectTypeId } from './content/ids';
 import { getStructureConfig } from './content/structures';
 import {
   createCombatActorState,
@@ -156,7 +156,7 @@ export {
   describeStructure,
   getEnemyConfig,
   getItemConfig,
-  getItemConfigByName,
+  getItemConfigByKey,
   getGoldAmount,
   getPlayerStats,
   getStructureConfig,
@@ -223,7 +223,7 @@ export function createGame(
       statusEffects: [],
       inventory: [
         makeStarterWeapon(),
-        makeStarterArmor('chest', ItemId.ScoutJerkin, 1, 1),
+        makeStarterArmor('chest', ItemId.SettlerVest, 1, 1),
         makeConsumable('starter-ration', ItemId.TrailRation, 1, 10, 15, 2),
         makeRecipeBook(),
       ],
@@ -725,9 +725,23 @@ export function equipItem(state: GameState, itemId: string): GameState {
   if (!item.slot)
     return message(state, t('game.message.equipment.cannotEquip'));
 
+  if (
+    item.slot === EquipmentSlotId.Offhand &&
+    itemOccupiesOffhand(next.player.equipment.weapon)
+  ) {
+    return message(state, t('game.message.equipment.offhandDisabled'));
+  }
+
   const replaced = next.player.equipment[item.slot];
   if (replaced) addItemToInventory(next.player.inventory, replaced);
   next.player.equipment[item.slot] = item;
+  if (item.slot === EquipmentSlotId.Weapon && itemOccupiesOffhand(item)) {
+    const offhand = next.player.equipment.offhand;
+    if (offhand) {
+      addItemToInventory(next.player.inventory, offhand);
+      delete next.player.equipment.offhand;
+    }
+  }
   const maxHp = getPlayerStats(next.player).maxHp;
   next.player.hp = Math.min(maxHp, next.player.hp);
   addLog(
@@ -1068,6 +1082,12 @@ export function unequipItem(state: GameState, slot: EquipmentSlot): GameState {
     t('game.message.equipment.unequip', { item: equipped.name }),
   );
   return next;
+}
+
+export function isOffhandSlotDisabled(
+  equipment: GameState['player']['equipment'],
+) {
+  return itemOccupiesOffhand(equipment.weapon);
 }
 
 export function sortInventory(state: GameState): GameState {

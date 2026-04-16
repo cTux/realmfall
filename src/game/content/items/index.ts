@@ -8,6 +8,15 @@ import {
   uniqueTags,
   type GameTag,
 } from '../tags';
+import { applyRarityToItem } from '../../shared';
+import {
+  GENERATED_ACCESSORY_KEYS,
+  GENERATED_ARMOR_KEYS,
+  GENERATED_EQUIPMENT_CONFIGS,
+  GENERATED_ICON_POOLS,
+  GENERATED_OFFHAND_KEYS,
+  GENERATED_WEAPON_KEYS,
+} from '../generatedEquipment';
 import { arcaneDustItemConfig } from './arcaneDust';
 import { appleItemConfig } from './apple';
 import { campSpearItemConfig } from './campSpear';
@@ -31,9 +40,7 @@ import { logsItemConfig } from './logs';
 import { patchworkHoodItemConfig } from './patchworkHood';
 import { rawFishItemConfig } from './rawFish';
 import { recipeBookItemConfig } from './recipeBook';
-import { rustKnifeItemConfig } from './rustKnife';
 import { scoutHoodItemConfig } from './scoutHood';
-import { scoutJerkinItemConfig } from './scoutJerkin';
 import { settlerVestItemConfig } from './settlerVest';
 import { sticksItemConfig } from './sticks';
 import { stoneItemConfig } from './stone';
@@ -63,9 +70,7 @@ const RAW_ITEM_CONFIGS = [
   clothItemConfig,
   leatherScrapsItemConfig,
   arcaneDustItemConfig,
-  rustKnifeItemConfig,
   townKnifeItemConfig,
-  scoutJerkinItemConfig,
   scoutHoodItemConfig,
   campSpearItemConfig,
   hideBucklerItemConfig,
@@ -80,6 +85,7 @@ const RAW_ITEM_CONFIGS = [
   wayfarerCloakItemConfig,
   hearthTotemItemConfig,
   waterFlaskItemConfig,
+  ...GENERATED_EQUIPMENT_CONFIGS,
 ] as const;
 
 export type ItemCategory =
@@ -118,22 +124,53 @@ const ARTIFACT_SLOTS = new Set<string>([
   EquipmentSlotId.RingLeft,
   EquipmentSlotId.RingRight,
   EquipmentSlotId.Amulet,
-  EquipmentSlotId.Cloak,
-  EquipmentSlotId.Relic,
 ]);
 
 const ARMOR_SLOTS = new Set<string>([
   EquipmentSlotId.Offhand,
   EquipmentSlotId.Head,
+  EquipmentSlotId.Shoulders,
   EquipmentSlotId.Chest,
+  EquipmentSlotId.Bracers,
   EquipmentSlotId.Hands,
+  EquipmentSlotId.Belt,
   EquipmentSlotId.Legs,
   EquipmentSlotId.Feet,
+  EquipmentSlotId.Cloak,
 ]);
+
+const STATIC_ITEM_ICON_POOLS: Partial<Record<string, readonly string[]>> = {
+  [ItemId.TownKnife]: GENERATED_ICON_POOLS.dagger,
+  [ItemId.CampSpear]: GENERATED_ICON_POOLS.twoHandedSword,
+  [ItemId.HideBuckler]: GENERATED_ICON_POOLS.shield,
+  [ItemId.PatchworkHood]: GENERATED_ICON_POOLS.helmet,
+  [ItemId.ScoutHood]: GENERATED_ICON_POOLS.helmet,
+  [ItemId.SettlerVest]: GENERATED_ICON_POOLS.chest,
+  [ItemId.WorkGloves]: GENERATED_ICON_POOLS.gloves,
+  [ItemId.TrailLeggings]: GENERATED_ICON_POOLS.leggings,
+  [ItemId.FieldBoots]: GENERATED_ICON_POOLS.feet,
+  [ItemId.CopperLoop]: GENERATED_ICON_POOLS.ring,
+  [ItemId.CopperBand]: GENERATED_ICON_POOLS.ring,
+  [ItemId.CharmNecklace]: GENERATED_ICON_POOLS.necklace,
+  [ItemId.WayfarerCloak]: GENERATED_ICON_POOLS.cloak,
+  [ItemId.HearthTotem]: GENERATED_ICON_POOLS.magicalSphere,
+};
+
+const STATIC_ITEM_CATEGORY_OVERRIDES: Partial<Record<string, ItemCategory>> = {
+  [ItemId.WayfarerCloak]: 'armor',
+  [ItemId.HearthTotem]: 'artifact',
+};
 
 export const ITEM_CONFIGS: ItemConfig[] = RAW_ITEM_CONFIGS.map((config) => ({
   ...config,
   name: itemName(config.key),
+  iconPool: config.iconPool ?? STATIC_ITEM_ICON_POOLS[config.key],
+  icon: pickConfigIcon(
+    config.iconPool ?? STATIC_ITEM_ICON_POOLS[config.key],
+    config.icon,
+    config.key,
+  ),
+  category: config.category ?? STATIC_ITEM_CATEGORY_OVERRIDES[config.key],
   tags: buildItemConfigTags(config),
 }));
 
@@ -141,16 +178,8 @@ const ITEM_CONFIG_BY_KEY = Object.fromEntries(
   ITEM_CONFIGS.map((config) => [config.key, config]),
 );
 
-const ITEM_CONFIG_BY_NAME = Object.fromEntries(
-  ITEM_CONFIGS.map((config) => [config.name, config]),
-);
-
 export function getItemConfigByKey(key: string) {
   return ITEM_CONFIG_BY_KEY[key];
-}
-
-export function getItemConfigByName(name: string) {
-  return ITEM_CONFIG_BY_NAME[name];
 }
 
 export function buildItemFromConfig(
@@ -168,6 +197,9 @@ export function buildItemFromConfig(
     tags: overrides.tags ?? [...(config.tags ?? [])],
     recipeId: overrides.recipeId,
     slot: config.slot,
+    icon:
+      overrides.icon ??
+      pickConfigIcon(config.iconPool, config.icon, overrides.id ?? config.key),
     name: overrides.name ?? config.name,
     quantity: overrides.quantity ?? config.defaultQuantity ?? 1,
     tier: overrides.tier ?? config.tier,
@@ -181,11 +213,44 @@ export function buildItemFromConfig(
   };
 }
 
+export function buildGeneratedItemFromConfig(
+  key: string,
+  overrides: ItemBuildOverrides = {},
+): Item {
+  const config = getItemConfigByKey(key);
+  if (!config?.generatedStats) {
+    return buildItemFromConfig(key, overrides);
+  }
+
+  const tier = overrides.tier ?? config.tier;
+  const built = buildItemFromConfig(key, {
+    ...overrides,
+    tier,
+    power:
+      overrides.power ??
+      Math.round(
+        (config.generatedStats.basePower ?? 0) +
+          (config.generatedStats.powerPerTier ?? 0) * tier,
+      ),
+    defense:
+      overrides.defense ??
+      Math.round(
+        (config.generatedStats.baseDefense ?? 0) +
+          (config.generatedStats.defensePerTier ?? 0) * tier,
+      ),
+    maxHp:
+      overrides.maxHp ??
+      Math.round(
+        (config.generatedStats.baseMaxHp ?? 0) +
+          (config.generatedStats.maxHpPerTier ?? 0) * tier,
+      ),
+  });
+
+  return applyRarityToItem(built);
+}
+
 export function getItemConfig(item: Pick<Item, 'itemKey' | 'name'>) {
-  return (
-    (item.itemKey ? getItemConfigByKey(item.itemKey) : undefined) ??
-    getItemConfigByName(item.name)
-  );
+  return item.itemKey ? getItemConfigByKey(item.itemKey) : undefined;
 }
 
 export function cloneConfiguredItem(item: Item) {
@@ -208,8 +273,20 @@ export function cloneConfiguredItem(item: Item) {
     healing: item.healing,
     hunger: item.hunger,
     thirst: item.thirst,
+    icon: item.icon,
     tags: item.tags ?? config.tags ?? [],
   });
+}
+
+export function configOccupiesOffhand(
+  config?: Pick<ItemConfig, 'occupiesOffhand'>,
+) {
+  return Boolean(config?.occupiesOffhand);
+}
+
+export function itemOccupiesOffhand(item?: Pick<Item, 'itemKey' | 'name'>) {
+  const config = item ? getItemConfig(item) : undefined;
+  return configOccupiesOffhand(config);
 }
 
 export function hasItemTag(item: ItemClassificationInput, tag: GameTag) {
@@ -217,9 +294,9 @@ export function hasItemTag(item: ItemClassificationInput, tag: GameTag) {
 }
 
 export function inferItemTags(item: ItemClassificationInput) {
-  const configured =
-    (item.itemKey ? getItemConfigByKey(item.itemKey) : undefined) ??
-    getItemConfigByName(item.name);
+  const configured = item.itemKey
+    ? getItemConfigByKey(item.itemKey)
+    : undefined;
   if (configured) return [...(configured.tags ?? [])];
 
   const category = getItemCategory(item);
@@ -240,7 +317,6 @@ export function inferItemTags(item: ItemClassificationInput) {
     (item.healing ?? 0) > 0 ? GAME_TAGS.item.healing : undefined,
     (item.hunger ?? 0) > 0 ? GAME_TAGS.item.food : undefined,
     (item.thirst ?? 0) > 0 ? GAME_TAGS.item.drink : undefined,
-    item.name.endsWith(' Totem') ? GAME_TAGS.item.totem : undefined,
   );
 }
 
@@ -309,9 +385,9 @@ function buildItemConfigTags(
 }
 
 export function getItemCategory(item: ItemClassificationInput): ItemCategory {
-  const configured =
-    (item.itemKey ? getItemConfigByKey(item.itemKey) : undefined) ??
-    getItemConfigByName(item.name);
+  const configured = item.itemKey
+    ? getItemConfigByKey(item.itemKey)
+    : undefined;
   if (configured) {
     return getItemConfigCategory(configured);
   }
@@ -352,8 +428,12 @@ export function getItemCategory(item: ItemClassificationInput): ItemCategory {
 }
 
 export function getItemConfigCategory(
-  config: Pick<ItemConfig, 'key' | 'slot' | 'healing' | 'hunger' | 'thirst'>,
+  config: Pick<
+    ItemConfig,
+    'key' | 'slot' | 'healing' | 'hunger' | 'thirst' | 'category'
+  >,
 ): ItemCategory {
+  if (config.category) return config.category;
   if (config.slot === EquipmentSlotId.Weapon) return 'weapon';
   if (config.slot && ARTIFACT_SLOTS.has(config.slot)) return 'artifact';
   if (config.slot && ARMOR_SLOTS.has(config.slot)) return 'armor';
@@ -368,4 +448,30 @@ export function isEquippableItemCategory(category: ItemCategory) {
   return (
     category === 'weapon' || category === 'armor' || category === 'artifact'
   );
+}
+
+export function getGeneratedArmorKeys() {
+  return [...GENERATED_ARMOR_KEYS];
+}
+
+export function getGeneratedAccessoryKeys() {
+  return [...GENERATED_ACCESSORY_KEYS];
+}
+
+export function getGeneratedWeaponKeys() {
+  return [...GENERATED_WEAPON_KEYS];
+}
+
+export function getGeneratedOffhandKeys() {
+  return [...GENERATED_OFFHAND_KEYS];
+}
+
+function pickConfigIcon(
+  iconPool: readonly string[] | undefined,
+  fallback: string,
+  seed: string,
+) {
+  if (!iconPool || iconPool.length === 0) return fallback;
+  const hash = [...seed].reduce((total, char) => total + char.charCodeAt(0), 0);
+  return iconPool[hash % iconPool.length] ?? fallback;
 }
