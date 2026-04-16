@@ -27,6 +27,7 @@ export function InventoryWindowContent({
         <ItemSlotButton
           key={item.id}
           item={item}
+          size="compact"
           onClick={() => onEquip(item.id)}
           onContextMenu={(event) => onContextItem(event, item)}
           onMouseEnter={(event) =>

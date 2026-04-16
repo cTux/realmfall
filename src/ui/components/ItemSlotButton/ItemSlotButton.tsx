@@ -9,6 +9,7 @@ import styles from './styles.module.scss';
 interface ItemSlotButtonProps {
   item?: Item;
   slot?: EquipmentSlot;
+  size?: 'default' | 'compact';
   className?: string;
   style?: CSSProperties;
   hidePlaceholderIconWhenEmpty?: boolean;
@@ -23,6 +24,7 @@ interface ItemSlotButtonProps {
 export function ItemSlotButton({
   item,
   slot,
+  size = 'default',
   className,
   style,
   hidePlaceholderIconWhenEmpty = false,
@@ -56,6 +58,7 @@ export function ItemSlotButton({
         borderColor: tint,
         boxShadow: item ? `0 0 0 1px ${tint}33 inset` : undefined,
       }}
+      data-size={size}
       onClick={item && !disabled ? onClick : undefined}
       onContextMenu={item && !disabled ? onContextMenu : undefined}
       onMouseEnter={

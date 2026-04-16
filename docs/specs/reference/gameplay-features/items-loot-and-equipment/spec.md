@@ -16,6 +16,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - Two-handed weapons occupy the weapon slot, automatically clear the equipped offhand item back into inventory, and prevent equipping a new offhand item until the weapon is removed.
 - A new game now starts with a `Town Knife` and `Settler Vest`; removed placeholder gear is not preserved through runtime display-name fallbacks.
 - The equipment window presents a silhouette-backed paper-doll layout where each slot is anchored near the matching body part and equipped items reuse the same icon-card treatment shown in inventory.
+- Inventory and ground-loot windows use a denser item-card treatment than the paper-doll equipment layout so larger item piles fit without pushing the window size upward.
 - Tiles may spawn deterministic loot from world generation.
 - Enemies can drop gold, consumables, recipe pages, home scrolls, health potions, mana potions, blood moon gear, and skinning materials depending on enemy ids and tags rather than localized names.
 - Health potions and mana potions use vendored local SVG assets and restore 10% of the corresponding max stat on use.

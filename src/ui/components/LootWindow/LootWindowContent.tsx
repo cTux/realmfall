@@ -21,6 +21,7 @@ export function LootWindowContent({
         <ItemSlotButton
           key={item.id}
           item={item}
+          size="compact"
           onClick={() => onTakeItem(item.id)}
           onMouseEnter={(event) =>
             onHoverItem(
