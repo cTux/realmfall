@@ -59,7 +59,7 @@ type Story = StoryObj<typeof meta>;
 export const Forge: Story = {
   args: buildStructureArgs('forge', {
     terrain: 'Mountain',
-    canProspect: true,
+    canProspectInventoryEquipment: true,
   }),
 };
 
@@ -78,7 +78,7 @@ export const Workshop: Story = {
 export const Town: Story = {
   args: buildStructureArgs('town', {
     terrain: 'Plains',
-    canSell: true,
+    canSellInventoryEquipment: true,
     gold: 48,
     townStock: [
       {
@@ -164,11 +164,14 @@ function buildStructureArgs(
     interactLabel: overrides.interactLabel ?? structureActionLabel(structure),
     canInteract: overrides.canInteract ?? false,
     canClaim: overrides.canClaim ?? true,
-    canProspect: overrides.canProspect ?? false,
-    canSell: overrides.canSell ?? false,
+    canProspectInventoryEquipment:
+      overrides.canProspectInventoryEquipment ?? false,
+    canSellInventoryEquipment: overrides.canSellInventoryEquipment ?? false,
     claimExplanation: overrides.claimExplanation ?? null,
-    prospectExplanation: overrides.prospectExplanation ?? null,
-    sellExplanation: overrides.sellExplanation ?? null,
+    prospectInventoryEquipmentExplanation:
+      overrides.prospectInventoryEquipmentExplanation ?? null,
+    sellInventoryEquipmentExplanation:
+      overrides.sellInventoryEquipmentExplanation ?? null,
     structureHp: overrides.structureHp,
     structureMaxHp: overrides.structureMaxHp,
     territoryName: overrides.territoryName ?? null,

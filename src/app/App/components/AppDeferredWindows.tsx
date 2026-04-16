@@ -86,12 +86,16 @@ export function AppDeferredWindows({
           enemyCount={hexInfoView.enemyCount}
           interactLabel={views.interactLabel}
           canInteract={Boolean(views.interactLabel)}
-          canProspect={views.canProspect}
-          canSell={views.canSell}
+          canProspectInventoryEquipment={views.canProspectInventoryEquipment}
+          canSellInventoryEquipment={views.canSellInventoryEquipment}
           canClaim={views.claimStatus.canClaim}
           claimExplanation={views.claimStatus.reason}
-          prospectExplanation={views.prospectExplanation}
-          sellExplanation={views.sellExplanation}
+          prospectInventoryEquipmentExplanation={
+            views.prospectInventoryEquipmentExplanation
+          }
+          sellInventoryEquipmentExplanation={
+            views.sellInventoryEquipmentExplanation
+          }
           onInteract={actions.world.onInteract}
           onProspect={actions.world.onProspect}
           onSellAll={actions.world.onSellAll}

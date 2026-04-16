@@ -79,8 +79,10 @@ export function AppFixedWindows({
           canToggleLock={!itemMenu.slot && isEquippableItem(itemMenu.item)}
           isLocked={Boolean(itemMenu.item.locked)}
           canShowRecipes={Boolean(recipeMaterialItemKey)}
-          canProspect={itemMenu.canProspect}
-          canSell={itemMenu.canSell}
+          canProspectInventoryEquipment={
+            itemMenu.canProspectInventoryEquipment
+          }
+          canSellInventoryEquipment={itemMenu.canSellInventoryEquipment}
           onEquip={() => {
             if (itemMenu.slot) {
               actions.inventory.onUnequip(itemMenu.slot);

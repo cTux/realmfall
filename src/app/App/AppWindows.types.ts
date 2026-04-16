@@ -39,13 +39,13 @@ export interface AppWindowsViewState {
   inventoryCountsByItemKey: Record<string, number>;
   recipeMaterialFilterItemKey: string | null;
   interactLabel: string | null;
-  canProspect: boolean;
-  canSell: boolean;
+  canProspectInventoryEquipment: boolean;
+  canSellInventoryEquipment: boolean;
   claimStatus: ReturnType<
     typeof import('../../game/state').getCurrentHexClaimStatus
   >;
-  prospectExplanation: string | null;
-  sellExplanation: string | null;
+  prospectInventoryEquipmentExplanation: string | null;
+  sellInventoryEquipmentExplanation: string | null;
   townStock: ReturnType<typeof import('../../game/state').getTownStock>;
   gold: number;
   lootWindowVisible: boolean;

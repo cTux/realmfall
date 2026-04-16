@@ -284,9 +284,9 @@ export function useAppControllers({
         item,
         x: event.clientX,
         y: event.clientY,
-        canProspect:
+        canProspectInventoryEquipment:
           currentStructure === 'forge' && isEquippableItem(item) && !item.locked,
-        canSell:
+        canSellInventoryEquipment:
           currentStructure === 'town' && isEquippableItem(item) && !item.locked,
       });
     },
@@ -305,8 +305,8 @@ export function useAppControllers({
         x: event.clientX,
         y: event.clientY,
         slot,
-        canProspect: false,
-        canSell: false,
+        canProspectInventoryEquipment: false,
+        canSellInventoryEquipment: false,
       });
     },
     [],

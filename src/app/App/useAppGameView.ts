@@ -55,7 +55,7 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
       }, {}),
     [player.inventory],
   );
-  const hasEquippableItems = useMemo(
+  const hasUnlockedEquipmentInInventory = useMemo(
     () => player.inventory.some((item) => isEquippableItem(item) && !item.locked),
     [player.inventory],
   );
@@ -79,14 +79,16 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     [logFilters, logs],
   );
 
-  const canProspect = currentTile.structure === 'forge' && hasEquippableItems;
-  const canSell = currentTile.structure === 'town' && hasEquippableItems;
-  const prospectExplanation =
-    currentTile.structure === 'forge' && !hasEquippableItems
+  const canProspectInventoryEquipment =
+    currentTile.structure === 'forge' && hasUnlockedEquipmentInInventory;
+  const canSellInventoryEquipment =
+    currentTile.structure === 'town' && hasUnlockedEquipmentInInventory;
+  const prospectInventoryEquipmentExplanation =
+    currentTile.structure === 'forge' && !hasUnlockedEquipmentInInventory
       ? t('game.message.prospect.empty')
       : null;
-  const sellExplanation =
-    currentTile.structure === 'town' && !hasEquippableItems
+  const sellInventoryEquipmentExplanation =
+    currentTile.structure === 'town' && !hasUnlockedEquipmentInInventory
       ? t('game.message.sell.empty')
       : null;
   const interactLabel = structureActionLabel(currentTile.structure);
@@ -94,18 +96,18 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
 
   return {
     claimStatus,
-    canProspect,
-    canSell,
+    canProspectInventoryEquipment,
+    canSellInventoryEquipment,
     combatEnemies,
     currentTile,
     filteredLogs,
     gold,
     interactLabel,
     inventoryCountsByItemKey,
-    prospectExplanation,
+    prospectInventoryEquipmentExplanation,
     recipes,
     recipeSkillLevels,
-    sellExplanation,
+    sellInventoryEquipmentExplanation,
     stats,
     townStock,
   };

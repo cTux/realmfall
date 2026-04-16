@@ -975,11 +975,11 @@ describe('ui helpers and components', () => {
           interactLabel="Chop tree"
           canInteract
           canClaim
-          canProspect={false}
-          canSell={false}
+          canProspectInventoryEquipment={false}
+          canSellInventoryEquipment={false}
           claimExplanation={null}
-          prospectExplanation={null}
-          sellExplanation={null}
+          prospectInventoryEquipmentExplanation={null}
+          sellInventoryEquipmentExplanation={null}
           onInteract={() => {}}
           onClaim={() => {}}
           onProspect={() => {}}
@@ -1173,11 +1173,11 @@ describe('ui helpers and components', () => {
           interactLabel={null}
           canInteract={false}
           canClaim={false}
-          canProspect={false}
-          canSell={false}
+          canProspectInventoryEquipment={false}
+          canSellInventoryEquipment={false}
           claimExplanation={null}
-          prospectExplanation="Nothing in your pack can be prospected."
-          sellExplanation={null}
+          prospectInventoryEquipmentExplanation="Nothing in your pack can be prospected."
+          sellInventoryEquipmentExplanation={null}
           onInteract={() => {}}
           onClaim={() => {}}
           onProspect={() => {}}
@@ -1202,11 +1202,11 @@ describe('ui helpers and components', () => {
           interactLabel={null}
           canInteract={false}
           canClaim={false}
-          canProspect={false}
-          canSell={false}
+          canProspectInventoryEquipment={false}
+          canSellInventoryEquipment={false}
           claimExplanation={null}
-          prospectExplanation={null}
-          sellExplanation="No equippable items to sell."
+          prospectInventoryEquipmentExplanation={null}
+          sellInventoryEquipmentExplanation="No equippable items to sell."
           onInteract={() => {}}
           onClaim={() => {}}
           onProspect={() => {}}
@@ -1242,11 +1242,11 @@ describe('ui helpers and components', () => {
         interactLabel="Chop tree"
         canInteract
         canClaim={false}
-        canProspect={false}
-        canSell={false}
+        canProspectInventoryEquipment={false}
+        canSellInventoryEquipment={false}
         claimExplanation={null}
-        prospectExplanation={null}
-        sellExplanation={null}
+        prospectInventoryEquipmentExplanation={null}
+        sellInventoryEquipmentExplanation={null}
         onInteract={() => {}}
         onClaim={() => {}}
         onProspect={() => {}}
@@ -1607,8 +1607,8 @@ describe('ui helpers and components', () => {
         canToggleLock
         isLocked
         canShowRecipes
-        canProspect
-        canSell
+        canProspectInventoryEquipment
+        canSellInventoryEquipment
         onEquip={() => {}}
         onUse={() => {}}
         onDrop={() => {}}
