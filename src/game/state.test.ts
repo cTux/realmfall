@@ -2764,7 +2764,7 @@ describe('game state', () => {
     };
     game.enemies['enemy-2,0-1'] = {
       id: 'enemy-2,0-1',
-      name: 'Bandit',
+      name: 'Wolf',
       coord: target,
       tier: 1,
       hp: 5,

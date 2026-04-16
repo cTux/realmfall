@@ -140,7 +140,7 @@ export function makeEnemy(
   },
 ): Enemy {
   const tier = terrainTier(coord, terrain) + (structure === 'dungeon' ? 2 : 0);
-  const roll = noise(`${seed}:enemy:type:${index}`, coord);
+  const roll = noise(`${seed}:enemy:type:${structure ?? 'field'}`, coord);
   const worldBoss =
     options?.worldBoss ?? isWorldBossEnemyId(options?.enemyId ?? '');
   const rarity = worldBoss
