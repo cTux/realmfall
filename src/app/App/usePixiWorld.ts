@@ -42,6 +42,8 @@ interface WorldHoverSnapshot {
   tooltipKey: string | null;
 }
 
+const HOVER_ANALYSIS_CACHE_LIMIT = 24;
+
 export function usePixiWorld({
   enabled,
   game,
@@ -61,6 +63,7 @@ export function usePixiWorld({
   const selectedRef = useRef(game.player.coord);
   const hoveredMoveRef = useRef<stateModule.HexCoord | null>(null);
   const hoveredSafePathRef = useRef<stateModule.HexCoord[] | null>(null);
+  const hoverAnalysisCacheRef = useRef(new Map<string, WorldHoverSnapshot>());
   const hoverSnapshotRef = useRef<WorldHoverSnapshot>({
     target: null,
     clickable: false,
@@ -84,6 +87,7 @@ export function usePixiWorld({
     selectedRef.current = game.player.coord;
     hoveredMoveRef.current = null;
     hoveredSafePathRef.current = null;
+    hoverAnalysisCacheRef.current.clear();
     hoverSnapshotRef.current = {
       target: null,
       clickable: false,
@@ -93,6 +97,10 @@ export function usePixiWorld({
       tooltipKey: null,
     };
   }, [game.player.coord]);
+
+  useEffect(() => {
+    hoverAnalysisCacheRef.current.clear();
+  }, [game.turn, game.combat, game.tiles, game.enemies]);
 
   useEffect(() => {
     if (!enabled || !hostRef.current || appRef.current) return;
@@ -277,6 +285,26 @@ export function usePixiWorld({
         }
 
         const current = gameRef.current;
+        const hoverCacheKey = getHoverAnalysisCacheKey(current, target);
+        const cachedHoverSnapshot =
+          hoverAnalysisCacheRef.current.get(hoverCacheKey);
+        if (cachedHoverSnapshot) {
+          canvas.style.cursor = cachedHoverSnapshot.clickable
+            ? 'pointer'
+            : 'default';
+          hoverSnapshotRef.current = cachedHoverSnapshot;
+          applyHoverSnapshot({
+            hoverSnapshot: cachedHoverSnapshot,
+            hoveredMoveRef,
+            hoveredSafePathRef,
+            nextTooltipPosition,
+            setTooltip,
+            tooltipPositionRef,
+            worldTooltipKeyRef,
+          });
+          return;
+        }
+
         const tile = stateModule.getTileAt(current, target);
         const distance = stateModule.hexDistance(
           playerCoordRef.current,
@@ -337,6 +365,11 @@ export function usePixiWorld({
         };
         canvas.style.cursor = actionable ? 'pointer' : 'default';
         hoverSnapshotRef.current = nextHoverSnapshot;
+        setCachedHoverSnapshot(
+          hoverAnalysisCacheRef.current,
+          hoverCacheKey,
+          nextHoverSnapshot,
+        );
         applyHoverSnapshot({
           hoverSnapshot: nextHoverSnapshot,
           hoveredMoveRef,
@@ -440,6 +473,38 @@ function sameCoord(
   right: stateModule.HexCoord | null,
 ) {
   return left?.q === right?.q && left?.r === right?.r;
+}
+
+function getHoverAnalysisCacheKey(
+  state: GameState,
+  target: stateModule.HexCoord,
+) {
+  const combatCoord = state.combat
+    ? `${state.combat.coord.q},${state.combat.coord.r}`
+    : 'none';
+
+  return [
+    `turn:${state.turn}`,
+    `player:${state.player.coord.q},${state.player.coord.r}`,
+    `target:${target.q},${target.r}`,
+    `combat:${combatCoord}`,
+  ].join('|');
+}
+
+function setCachedHoverSnapshot(
+  cache: Map<string, WorldHoverSnapshot>,
+  key: string,
+  snapshot: WorldHoverSnapshot,
+) {
+  cache.set(key, snapshot);
+  if (cache.size <= HOVER_ANALYSIS_CACHE_LIMIT) {
+    return;
+  }
+
+  const oldestKey = cache.keys().next().value;
+  if (oldestKey) {
+    cache.delete(oldestKey);
+  }
 }
 
 function applyHoverSnapshot({
