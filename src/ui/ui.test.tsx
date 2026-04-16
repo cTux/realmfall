@@ -727,6 +727,10 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('Defense');
     expect(markup).toContain(')kills');
     expect(markup).toContain('logging');
+    expect(markup).toContain('Lv 1 · 0/8');
+    expect(markup).not.toContain(
+      'gathering level equals the percent chance to pull +1 extra resource',
+    );
     expect(markup).toContain(')ecipe book');
     expect(markup).toContain(')ex info');
     expect(markup).toContain('(Q) Gather');

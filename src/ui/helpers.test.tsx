@@ -170,6 +170,15 @@ describe('ui helper coverage', () => {
     expect(structureTooltip(createTile({ structure: 'iron-ore' }))?.title).toBe(
       'Iron Vein',
     );
+    expect(structureTooltip(createTile({ structure: 'tin-ore' }))?.title).toBe(
+      'Tin Vein',
+    );
+    expect(structureTooltip(createTile({ structure: 'gold-ore' }))?.title).toBe(
+      'Gold Vein',
+    );
+    expect(
+      structureTooltip(createTile({ structure: 'platinum-ore' }))?.title,
+    ).toBe('Platinum Vein');
     expect(structureTooltip(createTile({ structure: 'coal-ore' }))?.title).toBe(
       'Coal Seam',
     );

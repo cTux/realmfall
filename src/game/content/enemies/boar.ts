@@ -6,7 +6,7 @@ import type { EnemyConfig } from '../types';
 export const boarEnemyConfig: EnemyConfig = {
   id: EnemyTypeId.Boar,
   name: enemyName('boar'),
-  icon: ContentIcons.Enemy,
+  icon: ContentIcons.Boar,
   tint: 0xf59e0b,
   appearanceChanceByTerrain: {
     forest: 0.28,

@@ -6,7 +6,7 @@ import type { EnemyConfig } from '../types';
 export const marauderEnemyConfig: EnemyConfig = {
   id: EnemyTypeId.Marauder,
   name: enemyName('marauder'),
-  icon: ContentIcons.HornedHelm,
+  icon: ContentIcons.Marauder,
   tint: 0xa855f7,
   appearanceChanceByTerrain: {
     forest: 0,

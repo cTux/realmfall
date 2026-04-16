@@ -6,7 +6,7 @@ import type { EnemyConfig } from '../types';
 export const raiderEnemyConfig: EnemyConfig = {
   id: EnemyTypeId.Raider,
   name: enemyName('raider'),
-  icon: ContentIcons.Hood,
+  icon: ContentIcons.Raider,
   tint: 0xef4444,
   appearanceChanceByTerrain: {
     forest: 0.18,

@@ -13,6 +13,8 @@ This spec covers player leveling, mastery, and skill progression.
 - Skill XP is awarded by related actions.
 - Higher skill levels improve gathering yield bonus and bonus proc chance where applicable.
 - The skills window uses the shared resizable window shell and scrolls its skill list inside the window body when the content outgrows the current size.
+- The skills window lists skill names with progress bars, inline `level/current/max XP` text, and tooltips, but it does not render the old explanatory note above the skill list.
+- Skill rows in the skills window keep a stable intrinsic height instead of stretching vertically to fill extra window space.
 
 ## Main Implementation Areas
 

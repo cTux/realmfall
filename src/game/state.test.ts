@@ -6,6 +6,7 @@ import {
   dropInventoryItem,
   EQUIPMENT_SLOTS,
   equipItem,
+  HARVEST_MOON_RESOURCE_TYPES,
   getEnemyAt,
   getEnemiesAt,
   getGoldAmount,
@@ -1316,6 +1317,23 @@ describe('game state', () => {
     ).toBe(true);
   });
 
+  it('weights herbs three times in the harvest moon resource pool', () => {
+    const herbEntries = HARVEST_MOON_RESOURCE_TYPES.filter(
+      (structure) => structure === 'herbs',
+    );
+    const nonHerbEntries = HARVEST_MOON_RESOURCE_TYPES.filter(
+      (structure) => structure !== 'herbs',
+    );
+
+    expect(herbEntries).toHaveLength(3);
+    expect(nonHerbEntries).toEqual([
+      'tree',
+      'copper-ore',
+      'iron-ore',
+      'coal-ore',
+    ]);
+  });
+
   it('can trigger an earthshake that opens a nearby dungeon on an empty hex', () => {
     let shaken: GameState | null = null;
 
@@ -2076,6 +2094,13 @@ describe('game state', () => {
     expect(
       smelted.player.inventory.some((item) => item.itemKey === 'copper-ingot'),
     ).toBe(true);
+    expect(
+      smelted.player.inventory.find((item) => item.itemKey === 'copper-ore')
+        ?.quantity,
+    ).toBe(19);
+    expect(
+      smelted.player.inventory.find((item) => item.itemKey === 'coal')?.quantity,
+    ).toBe(9);
     expect(smelted.player.skills[Skill.Smelting].xp).toBeGreaterThan(0);
   });
 
@@ -2123,6 +2148,27 @@ describe('game state', () => {
         (entry) => entry.id.startsWith('smelt-iron-ingot'),
       ),
     ).toHaveLength(1);
+    expect(
+      smeltedPlatinum.player.inventory.find((item) => item.itemKey === 'tin-ore')
+        ?.quantity,
+    ).toBe(19);
+    expect(
+      smeltedPlatinum.player.inventory.find((item) => item.itemKey === 'iron-ore')
+        ?.quantity,
+    ).toBe(19);
+    expect(
+      smeltedPlatinum.player.inventory.find((item) => item.itemKey === 'gold-ore')
+        ?.quantity,
+    ).toBe(29);
+    expect(
+      smeltedPlatinum.player.inventory.find(
+        (item) => item.itemKey === 'platinum-ore',
+      )?.quantity,
+    ).toBe(39);
+    expect(
+      smeltedPlatinum.player.inventory.find((item) => item.itemKey === 'coal')
+        ?.quantity,
+    ).toBe(36);
   });
 
   it('requires the matching hex type for cooking and crafting recipes', () => {

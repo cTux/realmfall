@@ -17,6 +17,7 @@ This spec covers enemy generation plus the blood moon, harvest moon, and earthsh
 - Blood moon increases combat danger and improves loot outcomes, while higher-rarity enemies also improve ordinary gold, consumable, and recipe drop quality.
 - Harvest moon is an alternate night event.
 - It spawns gathering structures around the player on eligible empty passable tiles.
+- Harvest moon resource weighting favors herb patches, which appear three times as often as each individual tree or ore-node option in that event pool.
 - Spawned resources remain part of the regular gathering loop after appearing.
 - Earthshake is a day-cycle event that can open a nearby dungeon.
 - Dungeon opening searches for a valid passable empty tile close to the player.

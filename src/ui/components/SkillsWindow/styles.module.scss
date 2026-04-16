@@ -22,11 +22,14 @@
 .list {
   display: grid;
   gap: 0.65rem;
+  align-content: start;
+  grid-auto-rows: min-content;
 }
 
 .skillRow {
   display: grid;
   gap: 0.24rem;
+  align-content: start;
 }
 
 .header {

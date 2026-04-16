@@ -5,6 +5,7 @@ import armorIcon from '../../assets/icons/checked-shield.svg';
 import artifactIcon from '../../assets/icons/ankh.svg';
 import consumableIcon from '../../assets/icons/potion-ball.svg';
 import magicPotionIcon from '../../assets/icons/magic-potion.svg';
+import marauderIcon from '../../assets/icons/marauder.svg';
 import hoodIcon from '../../assets/icons/hood.svg';
 import mailedFistIcon from '../../assets/icons/mailed-fist.svg';
 import steeltoeBootsIcon from '../../assets/icons/steeltoe-boots.svg';
@@ -15,6 +16,7 @@ import villageIcon from '../../assets/icons/village.svg';
 import dungeonGateIcon from '../../assets/icons/dungeon-gate.svg';
 import anvilIcon from '../../assets/icons/anvil.svg';
 import animalHideIcon from '../../assets/icons/animal-hide.svg';
+import boarIcon from '../../assets/icons/boar.svg';
 import stonePileIcon from '../../assets/icons/stone-pile.svg';
 import axeInStumpIcon from '../../assets/icons/axe-in-stump.svg';
 import coinsIcon from '../../assets/icons/coins.svg';
@@ -34,6 +36,7 @@ import peasIcon from '../../assets/icons/peas.svg';
 import salmonIcon from '../../assets/icons/salmon.svg';
 import shinyAppleIcon from '../../assets/icons/shiny-apple.svg';
 import sparklesIcon from '../../assets/icons/sparkles.svg';
+import stagIcon from '../../assets/icons/stag.svg';
 import steakIcon from '../../assets/icons/steak.svg';
 import stoneBlockIcon from '../../assets/icons/stone-block.svg';
 import spillIcon from '../../assets/icons/spill.svg';
@@ -52,6 +55,7 @@ import aubergineIcon from '../../assets/icons/aubergine.svg';
 import spiderAltIcon from '../../assets/icons/spider-alt.svg';
 import tiedScrollIcon from '../../assets/icons/tied-scroll.svg';
 import rolledClothIcon from '../../assets/icons/rolled-cloth.svg';
+import raiderIcon from '../../assets/icons/raider.svg';
 import gluttonyIcon from '../../assets/icons/gluttony.svg';
 import furnaceIcon from '../../assets/icons/furnace.svg';
 
@@ -63,6 +67,7 @@ export const ContentIcons = {
   Artifact: artifactIcon,
   Consumable: consumableIcon,
   MagicPotion: magicPotionIcon,
+  Marauder: marauderIcon,
   Hood: hoodIcon,
   Gauntlet: mailedFistIcon,
   Boots: steeltoeBootsIcon,
@@ -73,6 +78,7 @@ export const ContentIcons = {
   DungeonGate: dungeonGateIcon,
   Anvil: anvilIcon,
   AnimalHide: animalHideIcon,
+  Boar: boarIcon,
   StonePile: stonePileIcon,
   AxeInStump: axeInStumpIcon,
   Coins: coinsIcon,
@@ -92,6 +98,7 @@ export const ContentIcons = {
   Salmon: salmonIcon,
   ShinyApple: shinyAppleIcon,
   Sparkles: sparklesIcon,
+  Stag: stagIcon,
   Steak: steakIcon,
   StoneBlock: stoneBlockIcon,
   Spill: spillIcon,
@@ -110,6 +117,7 @@ export const ContentIcons = {
   Spider: spiderAltIcon,
   TiedScroll: tiedScrollIcon,
   RolledCloth: rolledClothIcon,
+  Raider: raiderIcon,
   Gluttony: gluttonyIcon,
   Furnace: furnaceIcon,
 } as const;

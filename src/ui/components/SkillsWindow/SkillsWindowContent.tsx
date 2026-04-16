@@ -19,7 +19,6 @@ export function SkillsWindowContent({
 }: SkillsWindowContentProps) {
   return (
     <div className={styles.content}>
-      <div className={styles.note}>{t('ui.skills.note')}</div>
       <div className={styles.list}>
         {Object.entries(skills).map(([name, skill]) => {
           const xpMax = skillLevelThreshold(skill.level);
