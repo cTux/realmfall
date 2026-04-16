@@ -21,6 +21,7 @@ export const RecipeBookWindow = memo(function RecipeBookWindow({
   onClose,
   currentStructure,
   recipes,
+  recipeSkillLevels,
   inventoryCountsByItemKey,
   materialFilterItemKey,
   onResetMaterialFilter,
@@ -45,6 +46,7 @@ export const RecipeBookWindow = memo(function RecipeBookWindow({
         <RecipeBookWindowContent
           currentStructure={currentStructure}
           recipes={recipes}
+          recipeSkillLevels={recipeSkillLevels}
           inventoryCountsByItemKey={inventoryCountsByItemKey}
           materialFilterItemKey={materialFilterItemKey}
           onResetMaterialFilter={onResetMaterialFilter}

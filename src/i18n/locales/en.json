@@ -467,6 +467,7 @@
   "ui.skills.tooltip.nextLevelNeeds": "Next level needs {xp} XP in this skill.",
   "ui.skills.tooltip.noRecipeScaling": "Skill level does not change recipe costs, output, or quality directly yet.",
   "ui.skills.tooltip.professionDescription": "Used to track recipe practice and level progression for this profession.",
+  "ui.skills.tooltip.recipeOutputBonus": "Recipe Output Bonus",
   "ui.statusEffect.hunger.label": "Hunger",
   "ui.statusEffect.recentDeath.label": "Recent Death",
   "ui.statusEffect.restoration.label": "Restoration",

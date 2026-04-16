@@ -4,7 +4,12 @@ import { HARVEST_COOKING_RECIPES } from './harvestCookingRecipes';
 import { t } from '../i18n';
 import { getGeneratedCraftingLore } from './content/generatedCraftingLore';
 import { buildItemFromConfig, getItemConfigByKey } from './content/items';
-import { Skill, type RecipeBookEntry, type StructureType } from './types';
+import {
+  Skill,
+  type RecipeBookEntry,
+  type SkillName,
+  type StructureType,
+} from './types';
 import type {
   GameState,
   Item,
@@ -127,6 +132,26 @@ export function recipeUsesItemKey(
   return [...recipe.ingredients, ...(recipe.fuelOptions ?? [])].some(
     (requirement) => requirement.itemKey === itemKey,
   );
+}
+
+export function professionRecipeOutputBonus(
+  skill: SkillName,
+  level: number,
+) {
+  if (skill !== Skill.Cooking && skill !== Skill.Smelting) return 0;
+  return Math.max(0, Math.floor((level - 1) / 5));
+}
+
+export function getRecipeOutput(
+  recipe: Pick<RecipeDefinition, 'output' | 'skill'>,
+  skillLevel = 1,
+): Item {
+  return {
+    ...recipe.output,
+    quantity:
+      recipe.output.quantity +
+      professionRecipeOutputBonus(recipe.skill, skillLevel),
+  };
 }
 
 function matchesRequirement(item: Item, requirement: RecipeRequirement) {

@@ -6,6 +6,7 @@ import {
   hasItemTag,
   isEquippableItemCategory,
 } from './content/items';
+import { getRecipeOutput } from './crafting';
 import { GAME_TAGS } from './content/tags';
 import type { EquipmentSlot, GameState, Item, RecipeDefinition } from './types';
 
@@ -102,13 +103,18 @@ export function materializeRecipeOutput(
   recipe: RecipeDefinition,
   state: GameState,
 ): Item {
-  if (hasItemTag(recipe.output, GAME_TAGS.item.stackable)) {
-    return { ...recipe.output };
+  const output = getRecipeOutput(
+    recipe,
+    state.player.skills[recipe.skill]?.level ?? 1,
+  );
+
+  if (hasItemTag(output, GAME_TAGS.item.stackable)) {
+    return output;
   }
 
   return {
-    ...recipe.output,
-    id: `${recipe.output.id}-${state.turn}-${state.logSequence}`,
+    ...output,
+    id: `${output.id}-${state.turn}-${state.logSequence}`,
   };
 }
 

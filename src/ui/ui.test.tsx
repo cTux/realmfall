@@ -299,6 +299,12 @@ describe('ui helpers and components', () => {
       value: '12%',
       tone: 'item',
     });
+    expect(skillTooltip(Skill.Cooking, 6)).toContainEqual({
+      kind: 'stat',
+      label: 'Recipe Output Bonus',
+      value: '+1',
+      tone: 'item',
+    });
     expect(skillTooltip(Skill.Crafting, 4)).toContainEqual({
       kind: 'text',
       text: 'Skill level does not change recipe costs, output, or quality directly yet.',
@@ -516,6 +522,16 @@ describe('ui helpers and components', () => {
           position={DEFAULT_WINDOWS.recipes}
           onMove={() => {}}
           currentStructure="camp"
+          recipeSkillLevels={{
+            [Skill.Gathering]: 1,
+            [Skill.Logging]: 1,
+            [Skill.Mining]: 1,
+            [Skill.Skinning]: 1,
+            [Skill.Fishing]: 1,
+            [Skill.Cooking]: 1,
+            [Skill.Smelting]: 1,
+            [Skill.Crafting]: 1,
+          }}
           recipes={[
             {
               id: 'craft-town-knife',
@@ -683,6 +699,16 @@ describe('ui helpers and components', () => {
           onMove={() => {}}
           currentStructure="camp"
           recipes={[]}
+          recipeSkillLevels={{
+            [Skill.Gathering]: 1,
+            [Skill.Logging]: 1,
+            [Skill.Mining]: 1,
+            [Skill.Skinning]: 1,
+            [Skill.Fishing]: 1,
+            [Skill.Cooking]: 1,
+            [Skill.Smelting]: 1,
+            [Skill.Crafting]: 1,
+          }}
           inventoryCountsByItemKey={{}}
           materialFilterItemKey={null}
           onResetMaterialFilter={() => {}}
@@ -1619,6 +1645,16 @@ describe('ui helpers and components', () => {
             onMove={() => {}}
             currentStructure="camp"
             recipes={[]}
+            recipeSkillLevels={{
+              [Skill.Gathering]: 1,
+              [Skill.Logging]: 1,
+              [Skill.Mining]: 1,
+              [Skill.Skinning]: 1,
+              [Skill.Fishing]: 1,
+              [Skill.Cooking]: 1,
+              [Skill.Smelting]: 1,
+              [Skill.Crafting]: 1,
+            }}
             inventoryCountsByItemKey={{}}
             materialFilterItemKey={null}
             onResetMaterialFilter={() => {}}

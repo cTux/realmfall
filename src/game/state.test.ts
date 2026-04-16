@@ -2104,6 +2104,43 @@ describe('game state', () => {
     expect(smelted.player.skills[Skill.Smelting].xp).toBeGreaterThan(0);
   });
 
+  it('increases cooking and smelting recipe output from profession levels', () => {
+    const cookingGame = createGame(3, 'cooking-output-seed');
+    cookingGame.tiles['0,0'] = { ...cookingGame.tiles['0,0'], structure: 'camp' };
+    cookingGame.player.learnedRecipeIds.push('cook-cooked-fish');
+    cookingGame.player.skills[Skill.Cooking].level = 6;
+    cookingGame.player.inventory.push(
+      buildItemFromConfig('raw-fish', { id: 'raw-fish-1', quantity: 1 }),
+      buildItemFromConfig('coal', { id: 'coal-1', quantity: 1 }),
+    );
+
+    const cooked = craftRecipe(cookingGame, 'cook-cooked-fish');
+
+    expect(
+      cooked.player.inventory.find((item) => item.itemKey === 'cooked-fish')
+        ?.quantity,
+    ).toBe(2);
+
+    const smeltingGame = createGame(3, 'smelting-output-seed');
+    smeltingGame.tiles['0,0'] = {
+      ...smeltingGame.tiles['0,0'],
+      structure: 'furnace',
+    };
+    smeltingGame.player.learnedRecipeIds.push('smelt-copper-ingot');
+    smeltingGame.player.skills[Skill.Smelting].level = 6;
+    smeltingGame.player.inventory.push(
+      buildItemFromConfig('copper-ore', { id: 'ore-1', quantity: 1 }),
+      buildItemFromConfig('coal', { id: 'coal-1', quantity: 1 }),
+    );
+
+    const smelted = craftRecipe(smeltingGame, 'smelt-copper-ingot');
+
+    expect(
+      smelted.player.inventory.find((item) => item.itemKey === 'copper-ingot')
+        ?.quantity,
+    ).toBe(2);
+  });
+
   it('smelts the expanded ore set into ingots with one iron recipe', () => {
     const game = createGame(3, 'expanded-smelting-seed');
     game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'furnace' };

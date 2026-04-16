@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { getItemConfigByKey } from '../../../game/content/items';
 import { getStructureConfig } from '../../../game/content/structures';
 import {
+  getRecipeOutput,
   getRecipeRequiredStructure,
   recipeUsesItemKey,
 } from '../../../game/crafting';
@@ -23,6 +24,7 @@ type RecipeBookWindowContentProps = Pick<
   RecipeBookWindowProps,
   | 'currentStructure'
   | 'recipes'
+  | 'recipeSkillLevels'
   | 'inventoryCountsByItemKey'
   | 'materialFilterItemKey'
   | 'onResetMaterialFilter'
@@ -34,6 +36,7 @@ type RecipeBookWindowContentProps = Pick<
 export function RecipeBookWindowContent({
   currentStructure,
   recipes,
+  recipeSkillLevels,
   inventoryCountsByItemKey,
   materialFilterItemKey,
   onResetMaterialFilter,
@@ -107,6 +110,10 @@ export function RecipeBookWindowContent({
         ) : (
           <div className={styles.list}>
             {visibleRecipes.map((recipe) => {
+              const recipeOutput = getRecipeOutput(
+                recipe,
+                recipeSkillLevels[recipe.skill] ?? 1,
+              );
               const requiredStructure = getRecipeRequiredStructure(recipe);
               const requiredStructureLabel =
                 getStructureConfig(requiredStructure).title;
@@ -140,7 +147,7 @@ export function RecipeBookWindowContent({
                     .join(' ')}
                 >
                   <ItemSlotButton
-                    item={recipe.output}
+                    item={recipeOutput}
                     size="compact"
                     disabled={!recipe.learned}
                     tintOverride={tintOverride}

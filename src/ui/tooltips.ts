@@ -1,5 +1,6 @@
 import { getStatusEffectTags } from '../game/content/statusEffects';
 import { getSkillTags } from '../game/content/tags';
+import { professionRecipeOutputBonus } from '../game/crafting';
 import { getItemCategory, inferItemTags } from '../game/content/items';
 import { EquipmentSlotId } from '../game/content/ids';
 import {
@@ -241,10 +242,21 @@ export function skillTooltip(skill: SkillName, level: number): TooltipLine[] {
       kind: 'text',
       text: t('ui.skills.tooltip.professionDescription'),
     },
-    {
-      kind: 'text',
-      text: t('ui.skills.tooltip.noRecipeScaling'),
-    },
+    ...(skill === Skill.Cooking || skill === Skill.Smelting
+      ? [
+          {
+            kind: 'stat' as const,
+            label: t('ui.skills.tooltip.recipeOutputBonus'),
+            value: `+${professionRecipeOutputBonus(skill, level)}`,
+            tone: 'item' as const,
+          },
+        ]
+      : [
+          {
+            kind: 'text' as const,
+            text: t('ui.skills.tooltip.noRecipeScaling'),
+          },
+        ]),
     {
       kind: 'text',
       text: t('ui.skills.tooltip.nextLevelNeeds', { xp: nextLevelXp }),

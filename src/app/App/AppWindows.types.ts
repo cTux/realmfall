@@ -4,6 +4,7 @@ import type {
   GameState,
   Item,
   LogKind,
+  Skill,
   Tile,
   getPlayerStats,
 } from '../../game/state';
@@ -34,6 +35,7 @@ export interface AppWindowsViewState {
   currentTile: Tile;
   graphicsSettings: GraphicsSettings;
   recipes: ReturnType<typeof import('../../game/state').getRecipeBookEntries>;
+  recipeSkillLevels: Record<Skill, number>;
   inventoryCountsByItemKey: Record<string, number>;
   recipeMaterialFilterItemKey: string | null;
   interactLabel: string | null;

@@ -63,6 +63,7 @@ export function AppDeferredWindows({
           onClose={windowCloseHandlers.recipes}
           currentStructure={recipeWindowStructure}
           recipes={views.recipes}
+          recipeSkillLevels={views.recipeSkillLevels}
           inventoryCountsByItemKey={views.inventoryCountsByItemKey}
           materialFilterItemKey={views.recipeMaterialFilterItemKey}
           onResetMaterialFilter={actions.recipes.onClearMaterialFilter}
