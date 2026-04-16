@@ -19,7 +19,6 @@ export function SkillsWindowContent({
 }: SkillsWindowContentProps) {
   return (
     <div className={styles.content}>
-      <div className={styles.note}>{t('ui.skills.note')}</div>
       <div className={styles.list}>
         {Object.entries(skills).map(([name, skill]) => {
           const xpMax = skillLevelThreshold(skill.level);
@@ -49,6 +48,13 @@ export function SkillsWindowContent({
                     )}
                   />
                   {formatSkillLabel(name as SkillName)}
+                </span>
+                <span className={styles.value}>
+                  {t('ui.skills.levelProgress', {
+                    level: skill.level,
+                    current: skill.xp,
+                    max: xpMax,
+                  })}
                 </span>
               </div>
               <div className={styles.barTrack}>
