@@ -177,6 +177,23 @@ export function RecipeBookWindowContent({
                     onClick={(event) =>
                       onCraft(recipe.id, getRecipeCraftCount(event))
                     }
+                    onMouseEnter={(event) =>
+                      onHoverDetail?.(
+                        event,
+                        t('ui.recipeBook.tooltip.batchCraftTitle'),
+                        [
+                          {
+                            kind: 'text',
+                            text: t('ui.recipeBook.tooltip.batchCraftShift'),
+                          },
+                          {
+                            kind: 'text',
+                            text: t('ui.recipeBook.tooltip.batchCraftCtrl'),
+                          },
+                        ],
+                      )
+                    }
+                    onMouseLeave={onLeaveDetail}
                     disabled={!canCraft}
                   >
                     {recipe.skill === Skill.Cooking

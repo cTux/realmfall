@@ -789,6 +789,91 @@ describe('ui helpers and components', () => {
     ).toBe(1);
   });
 
+  it('shows recipe action button tooltip lines for bulk craft modifiers', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    const hoverDetail = vi.fn();
+    const leaveDetail = vi.fn();
+
+    await act(async () => {
+      root.render(
+        <RecipeBookWindow
+          position={DEFAULT_WINDOWS.recipes}
+          onMove={() => {}}
+          currentStructure="camp"
+          recipeSkillLevels={{
+            [Skill.Gathering]: 1,
+            [Skill.Logging]: 1,
+            [Skill.Mining]: 1,
+            [Skill.Skinning]: 1,
+            [Skill.Fishing]: 1,
+            [Skill.Cooking]: 1,
+            [Skill.Smelting]: 1,
+            [Skill.Crafting]: 1,
+          }}
+          recipes={[
+            {
+              id: 'cook-cooked-fish',
+              name: 'Cooked Fish',
+              description: 'Camp recipe',
+              skill: Skill.Cooking,
+              learned: true,
+              output: {
+                id: 'cooked-fish',
+                itemKey: 'cooked-fish',
+                name: 'Cooked Fish',
+                quantity: 1,
+                tier: 1,
+                rarity: 'common',
+                power: 0,
+                defense: 0,
+                maxHp: 0,
+                healing: 0,
+                hunger: 8,
+              },
+              ingredients: [],
+            },
+          ]}
+          inventoryCountsByItemKey={{}}
+          materialFilterItemKey={null}
+          onResetMaterialFilter={() => {}}
+          onCraft={() => {}}
+          onHoverDetail={hoverDetail}
+          onLeaveDetail={leaveDetail}
+        />,
+      );
+    });
+
+    await act(async () => {
+      await vi.dynamicImportSettled();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const actionButton = Array.from(host.querySelectorAll('button')).find(
+      (button) => button.textContent === 'Cook',
+    );
+    expect(actionButton).toBeTruthy();
+
+    await act(async () => {
+      actionButton?.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+    });
+
+    expect(hoverDetail).toHaveBeenCalled();
+    const hoverArgs = hoverDetail.mock.calls[hoverDetail.mock.calls.length - 1];
+    expect(hoverArgs?.[1]).toBe('Bulk Crafting');
+    expect(hoverArgs?.[2]).toEqual([
+      { kind: 'text', text: 'Shift-click: craft up to 5 times.' },
+      { kind: 'text', text: 'Ctrl-click: craft the maximum possible amount.' },
+    ]);
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
   it('renders all major windows to static markup', async () => {
     const game = createGame(3, 'ui-render-seed');
     const stats = getPlayerStats(game.player);
