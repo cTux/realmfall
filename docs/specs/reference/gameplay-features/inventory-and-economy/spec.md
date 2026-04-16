@@ -7,7 +7,7 @@ This spec covers inventory actions, gold handling, and town trading.
 ## Current Behavior
 
 - Inventory supports sorting, dropping, consuming, equipping, recipe-page learning, and contextual actions.
-- Recipe pages in inventory tint blue while still unlearned.
+- Recipe pages in inventory show a green border plus a blue translucent slot overlay while still unlearned.
 - Equippable inventory items can be locked from the context menu so prospecting and sell-all ignore them, and locked items display a small padlock badge in their slot.
 - While standing at a forge or town, eligible equippable inventory items expose item-context actions for single-item prospecting or selling.
 - Crafting materials carry a dedicated crafting-material tag, and their context menu can open the recipe book filtered to matching recipes with a reset-filter action in the book.

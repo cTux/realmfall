@@ -16,6 +16,7 @@
   background:
     linear-gradient(180deg, rgb(15 23 42 / 94%), rgb(2 6 23 / 96%)),
     rgb(15 23 42);
+  overflow: hidden;
 
   &[data-size='compact'] {
     --slot-size: 34px;
@@ -23,6 +24,12 @@
 
     padding: 0.1rem;
   }
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 
 .interactive {
@@ -40,6 +47,9 @@
 }
 
 .icon {
+  position: relative;
+  z-index: 1;
+
   @include ui.masked-icon(
     var(--slot-icon-size),
     $shadow: 0 2px 4px rgb(0 0 0 / 45%)
@@ -48,6 +58,7 @@
 
 .stackBadge {
   position: absolute;
+  z-index: 1;
   left: 50%;
   bottom: -6px;
   transform: translateX(-50%);
@@ -67,6 +78,7 @@
 
 .cornerIcon {
   position: absolute;
+  z-index: 1;
   top: 2px;
   right: 2px;
   width: 8px;

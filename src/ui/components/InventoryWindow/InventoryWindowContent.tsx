@@ -41,11 +41,18 @@ export function InventoryWindowContent({
                 }
               : undefined
           }
-          tintOverride={
+          borderColorOverride={
             isRecipePage(item) &&
             item.recipeId &&
             !learnedRecipeIds.includes(item.recipeId)
-              ? 'rgba(96, 165, 250, 0.95)'
+              ? '#22c55e'
+              : undefined
+          }
+          overlayColorOverride={
+            isRecipePage(item) &&
+            item.recipeId &&
+            !learnedRecipeIds.includes(item.recipeId)
+              ? 'rgba(96, 165, 250, 0.28)'
               : undefined
           }
           onClick={() => onEquip(item.id)}

@@ -47,6 +47,7 @@ import { LogWindow } from './components/LogWindow';
 import { LootWindow } from './components/LootWindow';
 import { RecipeBookWindow } from './components/RecipeBookWindow';
 import { SkillsWindow } from './components/SkillsWindow';
+import { ItemSlotButton } from './components/ItemSlotButton/ItemSlotButton';
 
 describe('ui helpers and components', () => {
   const renderMarkup = async (node: React.ReactNode) => {
@@ -1879,5 +1880,33 @@ describe('ui helpers and components', () => {
       root.unmount();
     });
     host.remove();
+  });
+
+  it('renders recipe slot border and overlay colors independently', () => {
+    const markup = renderToStaticMarkup(
+      <ItemSlotButton
+        item={{
+          id: 'recipe-camp-spear',
+          name: 'Recipe: Camp Spear',
+          quantity: 1,
+          tier: 1,
+          rarity: 'uncommon',
+          power: 0,
+          defense: 0,
+          maxHp: 0,
+          healing: 0,
+          hunger: 0,
+          recipeId: 'craft-weapon',
+          icon: getItemConfigByKey('camp-spear')?.icon,
+        }}
+        size="compact"
+        borderColorOverride="#22c55e"
+        overlayColorOverride="rgba(96, 165, 250, 0.28)"
+      />,
+    );
+
+    expect(markup).toContain('border-color:#22c55e');
+    expect(markup).toContain('box-shadow:0 0 0 1px #22c55e33 inset');
+    expect(markup).toContain('background-color:rgba(96, 165, 250, 0.28)');
   });
 });

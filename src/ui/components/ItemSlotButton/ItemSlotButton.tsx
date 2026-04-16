@@ -19,6 +19,8 @@ interface ItemSlotButtonProps {
   className?: string;
   style?: CSSProperties;
   tintOverride?: string;
+  borderColorOverride?: string;
+  overlayColorOverride?: string;
   cornerIcon?: ItemSlotCornerIcon;
   hidePlaceholderIconWhenEmpty?: boolean;
   disabled?: boolean;
@@ -36,6 +38,8 @@ export function ItemSlotButton({
   className,
   style,
   tintOverride,
+  borderColorOverride,
+  overlayColorOverride,
   cornerIcon,
   hidePlaceholderIconWhenEmpty = false,
   disabled = false,
@@ -47,6 +51,7 @@ export function ItemSlotButton({
 }: ItemSlotButtonProps) {
   const tint =
     tintOverride ?? (item ? itemTint(item) : 'rgba(148, 163, 184, 0.32)');
+  const borderColor = borderColorOverride ?? tint;
   const isInteractive = Boolean(
     !disabled && item && (onClick || onContextMenu || onMouseEnter),
   );
@@ -66,8 +71,8 @@ export function ItemSlotButton({
         .join(' ')}
       style={{
         ...style,
-        borderColor: tint,
-        boxShadow: item ? `0 0 0 1px ${tint}33 inset` : undefined,
+        borderColor,
+        boxShadow: item ? `0 0 0 1px ${borderColor}33 inset` : undefined,
       }}
       data-size={size}
       onClick={item && !disabled ? onClick : undefined}
@@ -79,6 +84,13 @@ export function ItemSlotButton({
       disabled={disabled}
       aria-label={item ? undefined : getEmptySlotLabel(slot)}
     >
+      {overlayColorOverride ? (
+        <span
+          className={styles.overlay}
+          style={{ backgroundColor: overlayColorOverride }}
+          aria-hidden="true"
+        />
+      ) : null}
       {showIcon ? (
         <span
           className={styles.icon}
