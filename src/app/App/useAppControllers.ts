@@ -146,7 +146,7 @@ export function useAppControllers({
         borderColor: rarityColor(item.rarity),
       });
     },
-    [tooltipPositionRef],
+    [gameRef, tooltipPositionRef],
   );
 
   const showTooltip = useCallback(
