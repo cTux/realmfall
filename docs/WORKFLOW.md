@@ -2,9 +2,9 @@
 
 ## Shared Context
 
-- Treat `docs/RULES.md` as the canonical source of project-specific guidance.
-- Load and apply only the sections relevant to the current task.
-- If a prompt contains `add rule`, update `docs/RULES.md` first.
+- Treat `docs/RULES.md` as the canonical entrypoint for project-specific guidance.
+- Load `docs/RULES.md`, then apply only the scoped files under `docs/rules/` that are relevant to the current task.
+- If a prompt contains `add rule`, update `docs/RULES.md` when the rule map changes and update the matching file under `docs/rules/` first.
 - Keep supporting AI entrypoints compact and aligned with `docs/RULES.md`.
 
 ## Review Workflow
@@ -23,7 +23,7 @@
 - Every feature or improvement task should create or update its dedicated spec before the task is considered complete.
 - Every fix should update the matching spec requirement when the fix changes or clarifies documented behavior.
 - Keep restrictions and hard constraints in the canonical docs that already describe the current project state instead of maintaining a separate restrictions file.
-- Prefer references back to `docs/RULES.md` over duplicating long policy lists in multiple docs.
+- Prefer references back to `docs/RULES.md` and `docs/rules/` over duplicating long policy lists in multiple docs.
 
 ## Commit Workflow
 
@@ -37,7 +37,7 @@
 ## Implementation Workflow
 
 - Every fix should add or adjust tests in the same task unless the repository cannot reasonably test that path yet. If it cannot, document the gap explicitly.
-- When a task changes project structure or recurring architectural expectations, update `docs/RULES.md` in the same task so future prompts inherit the new structure.
+- When a task changes project structure or recurring architectural expectations, update `docs/RULES.md` when the rule map changes and update the matching file under `docs/rules/` in the same task so future prompts inherit the new structure.
 - Prefer colocated `hooks/`, `selectors/`, `utils/`, and `tests/` directories for feature-local code, and promote only truly shared modules to `src/hooks`, `src/selectors`, or `src/utils`.
 - Split broad multi-export files unless they only contain tightly related types or closely related library or entity helpers.
 - Keep component and test files under roughly `250` lines when practical by splitting them by concern.
