@@ -293,6 +293,8 @@ function pixiTintToCss(tint: number) {
 
 function getRecipeSlotTint(recipe: RecipeBookEntry, canCraft: boolean) {
   if (!recipe.learned) return 'rgba(148, 163, 184, 0.45)';
-  if (recipe.skill === Skill.Crafting) return '#f8fafc';
+  if (recipe.skill === Skill.Crafting) {
+    return canCraft ? '#f8fafc' : 'rgba(248, 113, 113, 0.92)';
+  }
   return canCraft ? undefined : 'rgba(248, 113, 113, 0.92)';
 }
