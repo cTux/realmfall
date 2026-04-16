@@ -7,7 +7,6 @@ export interface RecipeBookWindowProps extends WindowDetailTooltipHandlers {
   onMove: (position: WindowPosition) => void;
   visible?: boolean;
   onClose?: () => void;
-  hasRecipeBook: boolean;
   currentStructure?: string;
   recipes: RecipeDefinition[];
   inventoryCounts: Record<string, number>;

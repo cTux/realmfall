@@ -18,6 +18,7 @@ import {
   Skill,
   type SkillName,
 } from '../game/state';
+import { ItemId } from '../game/content/ids';
 import { createCombatActorState } from '../game/combat';
 
 export function normalizeLoadedGame(game: GameState): GameState {
@@ -31,7 +32,11 @@ export function normalizeLoadedGame(game: GameState): GameState {
   }));
 
   const inventory = consolidateInventory(
-    uniquifyItemIds((game.player.inventory ?? []).map(normalizeItem)),
+    uniquifyItemIds(
+      (game.player.inventory ?? [])
+        .map(normalizeItem)
+        .filter((item) => !isLegacyRecipeBookItem(item)),
+    ),
   );
   const legacyGold = Math.max(0, Number(legacyGoldValue ?? 0));
   const hasInventoryGold = inventory.some(
@@ -379,4 +384,12 @@ function uniquifyItemIds(items: Item[]) {
       id: candidateId,
     };
   });
+}
+
+function isLegacyRecipeBookItem(item: Item) {
+  return (
+    item.itemKey === ItemId.RecipeBook ||
+    item.name === 'Recipe Book' ||
+    (item.tags ?? []).includes(GAME_TAGS.item.recipeBook)
+  );
 }

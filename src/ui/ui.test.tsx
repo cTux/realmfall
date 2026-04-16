@@ -457,7 +457,6 @@ describe('ui helpers and components', () => {
         <RecipeBookWindow
           position={DEFAULT_WINDOWS.recipes}
           onMove={() => {}}
-          hasRecipeBook
           currentStructure="Campfire"
           recipes={[]}
           inventoryCounts={{}}
@@ -1330,7 +1329,6 @@ describe('ui helpers and components', () => {
           <RecipeBookWindow
             position={DEFAULT_WINDOWS.recipes}
             onMove={() => {}}
-            hasRecipeBook
             currentStructure="Campfire"
             recipes={[]}
             inventoryCounts={{}}

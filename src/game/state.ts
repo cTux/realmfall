@@ -65,14 +65,11 @@ import {
   consumeInventoryItem,
   describeItemStack,
   getGoldAmount,
-  hasRecipeBook,
   makeHomeScroll,
   isEquippableItem,
-  isRecipeBook,
   isRecipePage,
   makeConsumable,
   makeGoldStack,
-  makeRecipeBook,
   makeRecipePage,
   makeResourceStack,
   makeStarterArmor,
@@ -160,10 +157,8 @@ export {
   getGoldAmount,
   getPlayerStats,
   getStructureConfig,
-  hasRecipeBook,
   isGatheringStructure,
   isAnimalEnemyType,
-  isRecipeBook,
   isRecipePage,
   makeGoldStack,
   skillLevelThreshold,
@@ -225,7 +220,6 @@ export function createGame(
         makeStarterWeapon(),
         makeStarterArmor('chest', ItemId.SettlerVest, 1, 1),
         makeConsumable('starter-ration', ItemId.TrailRation, 1, 10, 15, 2),
-        makeRecipeBook(),
       ],
       equipment: {},
     },
@@ -710,7 +704,7 @@ export function equipItem(state: GameState, itemId: string): GameState {
   const item = state.player.inventory[itemIndex];
   const next = clone(state);
 
-  if (canUseItem(item) && !isRecipeBook(item) && !isRecipePage(item)) {
+  if (canUseItem(item) && !isRecipePage(item)) {
     consumeItem(next, itemIndex, item);
     return next;
   }
@@ -764,9 +758,6 @@ export function useItem(state: GameState, itemId: string): GameState {
   if (itemIndex < 0) return message(state, t('game.message.item.notInPack'));
 
   const item = state.player.inventory[itemIndex];
-  if (isRecipeBook(item)) {
-    return message(state, t('game.message.recipeBook.openFromPack'));
-  }
   if (isRecipePage(item)) {
     const next = clone(state);
     learnRecipe(next, item, RECIPE_BOOK_RECIPES, addLog);
@@ -1396,9 +1387,6 @@ export function craftRecipe(state: GameState, recipeId: string): GameState {
 
   const recipe = RECIPE_BOOK_RECIPES.find((entry) => entry.id === recipeId);
   if (!recipe) return message(state, t('game.message.recipe.notInBook'));
-  if (!hasRecipeBook(state.player.inventory)) {
-    return message(state, t('game.message.recipe.needsBook'));
-  }
   if (!state.player.learnedRecipeIds.includes(recipe.id)) {
     return message(state, t('game.message.recipe.notLearned'));
   }

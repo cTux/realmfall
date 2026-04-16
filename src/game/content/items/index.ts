@@ -39,7 +39,6 @@ import { leatherScrapsItemConfig } from './leatherScraps';
 import { logsItemConfig } from './logs';
 import { patchworkHoodItemConfig } from './patchworkHood';
 import { rawFishItemConfig } from './rawFish';
-import { recipeBookItemConfig } from './recipeBook';
 import { scoutHoodItemConfig } from './scoutHood';
 import { settlerVestItemConfig } from './settlerVest';
 import { sticksItemConfig } from './sticks';
@@ -54,7 +53,6 @@ import { workGlovesItemConfig } from './workGloves';
 const RAW_ITEM_CONFIGS = [
   trailRationItemConfig,
   appleItemConfig,
-  recipeBookItemConfig,
   cookedFishItemConfig,
   homeScrollItemConfig,
   goldItemConfig,
@@ -326,7 +324,6 @@ function buildItemConfigTags(
   const category = getItemConfigCategory(config);
   const keyTags: Partial<Record<string, GameTag[]>> = {
     [ItemId.Gold]: [GAME_TAGS.item.currency, GAME_TAGS.item.resource],
-    [ItemId.RecipeBook]: [GAME_TAGS.item.recipeBook],
     [ItemId.HomeScroll]: [GAME_TAGS.item.homeward],
     [ItemId.Herbs]: [GAME_TAGS.item.gathered],
     [ItemId.Logs]: [GAME_TAGS.item.gathered, GAME_TAGS.item.wood],

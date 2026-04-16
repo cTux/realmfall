@@ -15,7 +15,6 @@ import {
   getTileAt,
   getTownStock,
   getVisibleTiles,
-  hasRecipeBook,
   interactWithStructure,
   moveToTile,
   moveAlongSafePath,
@@ -91,7 +90,6 @@ describe('game state', () => {
     expect(getTileAt(game, { q: 0, r: 0 }).structure).toBeUndefined();
     expect(getTileAt(game, { q: 0, r: 0 }).enemyIds).toEqual([]);
     expect(getVisibleTiles(game)).toHaveLength(37);
-    expect(hasRecipeBook(game.player.inventory)).toBe(true);
     expect(game.player.learnedRecipeIds).toEqual(['cook-cooked-fish']);
     expect(getRecipeBookRecipes(game.player.learnedRecipeIds)).toHaveLength(1);
   });

@@ -6,7 +6,7 @@ This spec covers inventory actions, gold handling, and town trading.
 
 ## Current Behavior
 
-- Inventory supports sorting, dropping, consuming, equipping, recipe learning, and contextual actions.
+- Inventory supports sorting, dropping, consuming, equipping, recipe-page learning, and contextual actions.
 - Prospecting converts equippable inventory items into value through the forge flow.
 - Sell-all supports town-based liquidation of qualifying items.
 - Gold is modeled as an inventory resource instead of a separate wallet field.

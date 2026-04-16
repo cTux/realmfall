@@ -1,5 +1,3 @@
-import { t } from '../i18n';
-import { RECIPE_BOOK_ITEM_NAME_KEY } from './config';
 import { EquipmentSlotId, ItemId } from './content/ids';
 import {
   buildItemFromConfig,
@@ -25,10 +23,6 @@ export function makeStarterArmor(
   return buildItemFromConfig(configured.key, {
     id: `${slot}-${configured.key}`,
   });
-}
-
-export function makeRecipeBook(): Item {
-  return buildItemFromConfig(ItemId.RecipeBook);
 }
 
 export function makeHomeScroll(id: string): Item {
@@ -145,28 +139,11 @@ export function canEquipItem(item: Item) {
 }
 
 export function canUseItem(item: Item) {
-  return (
-    hasItemTag(item, GAME_TAGS.item.consumable) ||
-    isRecipeBook(item) ||
-    isRecipePage(item)
-  );
-}
-
-export function isRecipeBook(item: Item) {
-  return (
-    hasItemTag(item, GAME_TAGS.item.resource) &&
-    (item.itemKey === ItemId.RecipeBook ||
-      hasItemTag(item, GAME_TAGS.item.recipeBook) ||
-      item.name === t(RECIPE_BOOK_ITEM_NAME_KEY))
-  );
+  return hasItemTag(item, GAME_TAGS.item.consumable) || isRecipePage(item);
 }
 
 export function isRecipePage(item: Item) {
   return hasItemTag(item, GAME_TAGS.item.resource) && Boolean(item.recipeId);
-}
-
-export function hasRecipeBook(inventory: Item[]) {
-  return inventory.some(isRecipeBook);
 }
 
 export function getGoldAmount(inventory: Item[]) {

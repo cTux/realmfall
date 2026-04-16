@@ -35,9 +35,3 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const ForgeRecipes: Story = {};
-
-export const MissingRecipeBook: Story = {
-  args: {
-    hasRecipeBook: false,
-  },
-};

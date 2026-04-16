@@ -17,7 +17,6 @@
     "startingRecipeIds": ["cook-cooked-fish"]
   },
   "items": {
-    "recipeBookItemNameKey": "game.item.recipe-book.name",
     "cookedFishItemNameKey": "game.item.cooked-fish.name",
     "homeScrollItemNameKey": "game.item.home-scroll.name"
   },
