@@ -82,8 +82,8 @@ export function makeCookedFish(): Item {
 export function makeRecipePage(recipe: RecipeDefinition): Item {
   return {
     id: `recipe-${recipe.id}`,
-    itemKey: recipe.output.itemKey,
     recipeId: recipe.id,
+    icon: recipe.output.icon,
     name: `Recipe: ${recipe.name}`,
     tags: [GAME_TAGS.item.resource, GAME_TAGS.item.recipe],
     quantity: 1,

@@ -2174,6 +2174,68 @@ describe('game state', () => {
     expect(dropped).toBe(true);
   });
 
+  it('unlocks the matching recipe book entry after looting and using an enemy recipe page', () => {
+    let resolvedWithRecipe: GameState | null = null;
+    let droppedRecipeId: string | null = null;
+
+    for (let index = 0; index < 400; index += 1) {
+      const game = createGame(3, `recipe-loot-use-seed-${index}`);
+      const target = { q: 2, r: 0 };
+      game.player.learnedRecipeIds = ['cook-cooked-fish'];
+      game.tiles['2,0'] = {
+        coord: target,
+        terrain: 'plains',
+        items: [],
+        structure: undefined,
+        enemyIds: ['enemy-2,0-0'],
+      };
+      game.enemies['enemy-2,0-0'] = {
+        id: 'enemy-2,0-0',
+        name: 'Bandit',
+        coord: target,
+        tier: 4,
+        hp: 1,
+        maxHp: 1,
+        attack: 0,
+        defense: 0,
+        xp: 5,
+        elite: true,
+      };
+      game.player.coord = { q: 1, r: 0 };
+
+      const encountered = moveToTile(game, target);
+      const resolved = startCombat(encountered);
+      const recipePage = getTileAt(resolved, target).items.find(
+        (item) => Boolean(item.recipeId),
+      );
+      if (!recipePage?.recipeId) continue;
+
+      resolvedWithRecipe = resolved;
+      droppedRecipeId = recipePage.recipeId;
+      break;
+    }
+
+    expect(resolvedWithRecipe).not.toBeNull();
+    expect(droppedRecipeId).not.toBeNull();
+
+    const recipePage = getTileAt(resolvedWithRecipe!, { q: 2, r: 0 }).items.find(
+      (item) => item.recipeId === droppedRecipeId,
+    );
+    expect(recipePage).toBeDefined();
+    expect(recipePage?.itemKey).toBeUndefined();
+    expect(recipePage?.icon).toBeTruthy();
+
+    const looted = takeTileItem(resolvedWithRecipe!, recipePage!.id);
+    const learned = useItem(looted, recipePage!.id);
+
+    expect(learned.player.learnedRecipeIds).toContain(droppedRecipeId);
+    expect(
+      getRecipeBookEntries(learned.player.learnedRecipeIds).some(
+        (entry) => entry.id === droppedRecipeId && entry.learned,
+      ),
+    ).toBe(true);
+  });
+
   it('exposes learned and unlearned recipe entries for the recipe book', () => {
     const entries = getRecipeBookEntries(['cook-cooked-fish']);
 

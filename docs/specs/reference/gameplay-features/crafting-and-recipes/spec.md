@@ -8,6 +8,7 @@ This spec covers the recipe book, recipe learning, and crafting execution.
 
 - The player starts with a set of learned recipes, and the recipe book exists as a dedicated window instead of an inventory item.
 - Recipe definitions are keyed to canonical output item bases, and recipe pages can drop and be consumed to learn additional recipes the player does not already know.
+- Recipe pages carry canonical recipe ids directly instead of relying on output item configs, so looted pages continue to unlock the matching recipe-book entry after pickup and use.
 - Learned recipes are tracked on the player state.
 - Crafting checks recipe knowledge, scaled ingredient requirements, optional fuel requirements, and the required crafting site.
 - Crafting consumes required inputs and materializes a configured output item.
