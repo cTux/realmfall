@@ -38,7 +38,7 @@ $tile-transition:
   transition: $fill-transition;
 }
 
-@mixin icon-tile($size: 2.35rem) {
+@mixin icon-tile($size: 2.35rem, $hover-lift: true) {
   position: relative;
   display: grid;
   place-items: center;
@@ -50,6 +50,8 @@ $tile-transition:
   transition: $tile-transition;
 
   &:hover {
-    transform: translateY(-1px);
+    @if $hover-lift {
+      transform: translateY(-1px);
+    }
   }
 }

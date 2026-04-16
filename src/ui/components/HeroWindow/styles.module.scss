@@ -48,7 +48,7 @@
 }
 
 .abilitySquare {
-  @include ui.icon-tile;
+  @include ui.icon-tile($hover-lift: false);
 
   border: 1px solid rgb(148 163 184 / 35%);
   color: #f8fafc;
