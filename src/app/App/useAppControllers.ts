@@ -90,6 +90,22 @@ export function useAppControllers({
     setWindowShown((current) => ({ ...current, [key]: !current[key] }));
   }, []);
 
+  const closeAllWindows = useCallback(() => {
+    setWindowShown(() => ({
+      worldTime: false,
+      hero: false,
+      skills: false,
+      recipes: false,
+      hexInfo: false,
+      equipment: false,
+      inventory: false,
+      loot: false,
+      log: false,
+      combat: false,
+      settings: false,
+    }));
+  }, []);
+
   const closeTooltip = useCallback(() => {
     tooltipPositionRef.current = null;
     setTooltipState(null);
@@ -186,10 +202,6 @@ export function useAppControllers({
         (entry) => entry.id === itemId,
       );
       const action = getInventoryItemAction(item);
-      if (action === 'open-recipes') {
-        setWindowVisibility('recipes', true);
-        return;
-      }
       if (action === 'use') {
         applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
           applyItemUse(current, itemId),
@@ -200,23 +212,16 @@ export function useAppControllers({
         equipItem(current, itemId),
       );
     },
-    [gameRef, setGame, setWindowVisibility, worldTimeMsRef],
+    [gameRef, setGame, worldTimeMsRef],
   );
 
   const handleUseItem = useCallback(
     (itemId: string) => {
-      const item = gameRef.current.player.inventory.find(
-        (entry) => entry.id === itemId,
-      );
-      if (getInventoryItemAction(item) === 'open-recipes') {
-        setWindowVisibility('recipes', true);
-        return;
-      }
       applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
         applyItemUse(current, itemId),
       );
     },
-    [gameRef, setGame, setWindowVisibility, worldTimeMsRef],
+    [setGame, worldTimeMsRef],
   );
 
   const handleCraftRecipe = useCallback(
@@ -304,6 +309,7 @@ export function useAppControllers({
 
   return {
     closeItemMenu,
+    closeAllWindows,
     closeTooltip,
     handleBuyTownItem,
     handleClaimHex,

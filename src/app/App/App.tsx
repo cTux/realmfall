@@ -39,6 +39,7 @@ export function App() {
   const [game, setGame] = useState<GameState>(initialGameRef.current);
   const {
     closeItemMenu,
+    closeAllWindows,
     closeTooltip,
     handleBuyTownItem,
     handleClaimHex,
@@ -103,7 +104,6 @@ export function App() {
     interactLabel,
     inventoryCounts,
     prospectExplanation,
-    recipeBookKnown,
     recipes,
     sellExplanation,
     stats,
@@ -178,6 +178,7 @@ export function App() {
     renderLootWindow,
     onInteract: handleInteract,
     onTakeAllLoot: handleTakeAllLoot,
+    onCloseAllWindows: closeAllWindows,
     onToggleDockWindow: toggleDockWindow,
     windowShownLoot: windowShown.loot,
   });
@@ -233,7 +234,6 @@ export function App() {
             game,
             currentTile,
             graphicsSettings,
-            recipeBookKnown,
             recipes,
             inventoryCounts,
             interactLabel,

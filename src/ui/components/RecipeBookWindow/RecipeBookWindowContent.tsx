@@ -6,15 +6,10 @@ import styles from './styles.module.scss';
 
 type RecipeBookWindowContentProps = Pick<
   RecipeBookWindowProps,
-  | 'hasRecipeBook'
-  | 'currentStructure'
-  | 'recipes'
-  | 'inventoryCounts'
-  | 'onCraft'
+  'currentStructure' | 'recipes' | 'inventoryCounts' | 'onCraft'
 >;
 
 export function RecipeBookWindowContent({
-  hasRecipeBook,
   currentStructure,
   recipes,
   inventoryCounts,
@@ -23,9 +18,7 @@ export function RecipeBookWindowContent({
   return (
     <>
       <div className={styles.note}>{t('ui.recipeBook.note')}</div>
-      {!hasRecipeBook ? (
-        <div className={styles.empty}>{t('ui.recipeBook.missingBook')}</div>
-      ) : recipes.length === 0 ? (
+      {recipes.length === 0 ? (
         <div className={styles.empty}>{t('ui.recipeBook.empty')}</div>
       ) : (
         <div className={styles.list}>

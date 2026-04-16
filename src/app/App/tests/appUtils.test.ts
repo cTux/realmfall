@@ -1,4 +1,3 @@
-import { createGame } from '../../../game/state';
 import { DEFAULT_WINDOW_VISIBILITY } from '../../constants';
 import { getDockEntries } from '../utils/getDockEntries';
 import { getInventoryItemAction } from '../utils/getInventoryItemAction';
@@ -40,10 +39,6 @@ describe('app utils', () => {
   });
 
   it('derives the inventory action from item type', () => {
-    const game = createGame(3, 'app-helper-test');
-    const recipeBook = game.player.inventory.find(
-      (item) => item.name === 'Recipe Book',
-    );
     const consumable = {
       id: 'food-1',
       name: 'Trail Ration',
@@ -70,7 +65,6 @@ describe('app utils', () => {
       hunger: 0,
     };
 
-    expect(getInventoryItemAction(recipeBook)).toBe('open-recipes');
     expect(getInventoryItemAction(consumable)).toBe('use');
     expect(getInventoryItemAction(equipment)).toBe('equip');
     expect(getInventoryItemAction(undefined)).toBe('equip');

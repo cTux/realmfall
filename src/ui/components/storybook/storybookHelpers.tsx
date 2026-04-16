@@ -245,7 +245,6 @@ export function createLogFilters(
 export function createRecipeBookArgs(recipes: RecipeDefinition[]) {
   return {
     currentStructure: 'forge',
-    hasRecipeBook: true,
     recipes,
   };
 }

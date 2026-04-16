@@ -9,6 +9,7 @@ import styles from './styles.module.scss';
 interface ItemSlotButtonProps {
   item?: Item;
   slot?: EquipmentSlot;
+  size?: 'default' | 'compact';
   className?: string;
   style?: CSSProperties;
   hidePlaceholderIconWhenEmpty?: boolean;
@@ -16,12 +17,14 @@ interface ItemSlotButtonProps {
   onClick?: () => void;
   onContextMenu?: (event: ReactMouseEvent<HTMLButtonElement>) => void;
   onMouseEnter?: (event: ReactMouseEvent<HTMLButtonElement>) => void;
+  onEmptyMouseEnter?: (event: ReactMouseEvent<HTMLButtonElement>) => void;
   onMouseLeave?: () => void;
 }
 
 export function ItemSlotButton({
   item,
   slot,
+  size = 'default',
   className,
   style,
   hidePlaceholderIconWhenEmpty = false,
@@ -29,6 +32,7 @@ export function ItemSlotButton({
   onClick,
   onContextMenu,
   onMouseEnter,
+  onEmptyMouseEnter,
   onMouseLeave,
 }: ItemSlotButtonProps) {
   const tint = item ? itemTint(item) : 'rgba(148, 163, 184, 0.32)';
@@ -54,10 +58,13 @@ export function ItemSlotButton({
         borderColor: tint,
         boxShadow: item ? `0 0 0 1px ${tint}33 inset` : undefined,
       }}
+      data-size={size}
       onClick={item && !disabled ? onClick : undefined}
       onContextMenu={item && !disabled ? onContextMenu : undefined}
-      onMouseEnter={item && !disabled ? onMouseEnter : undefined}
-      onMouseLeave={item ? onMouseLeave : undefined}
+      onMouseEnter={
+        disabled ? undefined : item ? onMouseEnter : onEmptyMouseEnter
+      }
+      onMouseLeave={item || onEmptyMouseEnter ? onMouseLeave : undefined}
       disabled={disabled}
       aria-label={item ? undefined : getEmptySlotLabel(slot)}
     >

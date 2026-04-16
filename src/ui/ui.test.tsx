@@ -86,7 +86,7 @@ describe('ui helpers and components', () => {
 
   it('exposes shared constants and lookup helpers', () => {
     expect(DEFAULT_WINDOWS.worldTime).toEqual({ x: 420, y: 20 });
-    expect(DEFAULT_WINDOW_VISIBILITY.worldTime).toBe(true);
+    expect(DEFAULT_WINDOW_VISIBILITY.worldTime).toBe(false);
     expect(DEFAULT_WINDOWS.hero).toEqual({ x: 96, y: 20 });
     expect(DEFAULT_WINDOWS.skills).toEqual({ x: 96, y: 430 });
     expect(DEFAULT_WINDOW_VISIBILITY.hero).toBe(false);
@@ -157,6 +157,20 @@ describe('ui helpers and components', () => {
       healing: 0,
       hunger: 0,
     };
+    const manaPotion: Item = {
+      id: 'mana-potion-1',
+      itemKey: 'mana-potion',
+      name: 'Mana Potion',
+      quantity: 1,
+      tier: 1,
+      rarity: 'common',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+      tags: [GameTag.ItemConsumable, GameTag.ItemStackable],
+    };
 
     expect(comparisonLines(consumable)).toEqual([]);
     expect(comparisonLines(resource)).toEqual([]);
@@ -218,6 +232,14 @@ describe('ui helpers and components', () => {
         tone: 'subtle',
       },
     ]);
+    expect(itemTooltipLines(manaPotion)).toEqual([
+      { kind: 'text', text: 'Use to restore 10% MP.' },
+      {
+        kind: 'text',
+        text: 'Tags: item.consumable, item.stackable',
+        tone: 'subtle',
+      },
+    ]);
     expect(
       itemTooltipLines(resource).some(
         (line) =>
@@ -234,6 +256,7 @@ describe('ui helpers and components', () => {
           id: 'wolf-1',
           name: 'Wolf',
           coord: { q: 0, r: 0 },
+          rarity: 'uncommon',
           tier: 2,
           hp: 5,
           maxHp: 8,
@@ -249,6 +272,7 @@ describe('ui helpers and components', () => {
     expect(singleEnemy?.title).toBe('Wolf');
     expect(singleEnemy?.lines).toEqual([
       { kind: 'stat', label: 'Level', value: '2' },
+      { kind: 'stat', label: 'Rarity', value: 'Uncommon' },
       { kind: 'stat', label: 'Enemies', value: '1' },
       {
         kind: 'text',
@@ -285,6 +309,7 @@ describe('ui helpers and components', () => {
           id: 'raider-1',
           name: 'Raider',
           coord: { q: 1, r: 0 },
+          rarity: 'rare',
           tier: 3,
           hp: 7,
           maxHp: 10,
@@ -297,6 +322,7 @@ describe('ui helpers and components', () => {
           id: 'wolf-2',
           name: 'Wolf',
           coord: { q: 1, r: 0 },
+          rarity: 'common',
           tier: 2,
           hp: 4,
           maxHp: 6,
@@ -311,6 +337,7 @@ describe('ui helpers and components', () => {
     expect(groupEnemy?.title).toBe('Rift Ruin');
     expect(groupEnemy?.lines).toEqual([
       { kind: 'stat', label: 'Level', value: '3' },
+      { kind: 'stat', label: 'Rarity', value: 'Rare' },
       { kind: 'stat', label: 'Enemies', value: '2' },
     ]);
 
@@ -457,7 +484,6 @@ describe('ui helpers and components', () => {
         <RecipeBookWindow
           position={DEFAULT_WINDOWS.recipes}
           onMove={() => {}}
-          hasRecipeBook
           currentStructure="Campfire"
           recipes={[]}
           inventoryCounts={{}}
@@ -583,6 +609,7 @@ describe('ui helpers and components', () => {
               id: 'enemy-1',
               name: 'Marauder',
               coord: { q: 1, r: 0 },
+              rarity: 'epic',
               tier: 3,
               hp: 6,
               maxHp: 10,
@@ -631,7 +658,7 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('Empty');
     expect(markup).toContain('Tak(e) all');
     expect(markup).toContain('Filters');
-    expect(markup).toContain('Elite');
+    expect(markup).toContain('Epic');
     expect(markup).toContain('Player Party');
     expect(markup).toContain('Enemy Party');
     expect(markup).toContain('Player Lv 10');
@@ -1330,7 +1357,6 @@ describe('ui helpers and components', () => {
           <RecipeBookWindow
             position={DEFAULT_WINDOWS.recipes}
             onMove={() => {}}
-            hasRecipeBook
             currentStructure="Campfire"
             recipes={[]}
             inventoryCounts={{}}
@@ -1364,6 +1390,64 @@ describe('ui helpers and components', () => {
     });
 
     expect(hoverDetail).toHaveBeenCalledTimes(3);
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('shows custom tooltips for empty equipment slots', async () => {
+    const hoverDetail = vi.fn();
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    const game = createGame(2, 'empty-slot-tooltip');
+
+    await act(async () => {
+      root.render(
+        <EquipmentWindow
+          position={DEFAULT_WINDOWS.equipment}
+          onMove={() => {}}
+          equipment={game.player.equipment}
+          onHoverItem={() => {}}
+          onLeaveItem={() => {}}
+          onUnequip={() => {}}
+          onContextItem={() => {}}
+          onHoverDetail={hoverDetail}
+          onLeaveDetail={() => {}}
+        />,
+      );
+    });
+
+    await act(async () => {
+      await vi.dynamicImportSettled();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const emptyButtons = Array.from(host.querySelectorAll('button')).filter(
+      (button) => button.getAttribute('aria-label') === 'Weapon empty',
+    );
+    expect(emptyButtons).toHaveLength(1);
+
+    await act(async () => {
+      emptyButtons[0]?.dispatchEvent(
+        new MouseEvent('mouseover', { bubbles: true }),
+      );
+    });
+
+    expect(hoverDetail).toHaveBeenCalledWith(
+      expect.anything(),
+      'Weapon',
+      [
+        {
+          kind: 'text',
+          text: 'Equip weapon gear here.',
+        },
+      ],
+      'rgba(148, 163, 184, 0.9)',
+    );
 
     await act(async () => {
       root.unmount();

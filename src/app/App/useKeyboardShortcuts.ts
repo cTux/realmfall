@@ -12,6 +12,7 @@ interface UseKeyboardShortcutsOptions {
   renderLootWindow: boolean;
   onInteract: () => void;
   onTakeAllLoot: () => void;
+  onCloseAllWindows: () => void;
   onToggleDockWindow: (key: keyof WindowVisibilityState) => void;
   windowShownLoot: boolean;
 }
@@ -25,6 +26,7 @@ export function useKeyboardShortcuts({
   renderLootWindow,
   onInteract,
   onTakeAllLoot,
+  onCloseAllWindows,
   onToggleDockWindow,
   windowShownLoot,
 }: UseKeyboardShortcutsOptions) {
@@ -41,6 +43,12 @@ export function useKeyboardShortcuts({
       }
 
       const lowerKey = event.key.toLowerCase();
+      if (lowerKey === 'escape') {
+        event.preventDefault();
+        onCloseAllWindows();
+        return;
+      }
+
       if (
         lowerKey === 'e' &&
         renderLootWindow &&
@@ -80,6 +88,7 @@ export function useKeyboardShortcuts({
     lootSnapshotLength,
     lootWindowVisible,
     onInteract,
+    onCloseAllWindows,
     onStartCombat,
     onTakeAllLoot,
     onToggleDockWindow,

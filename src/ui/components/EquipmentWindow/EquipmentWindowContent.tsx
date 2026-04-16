@@ -1,6 +1,8 @@
 import type { CSSProperties } from 'react';
 import silhouetteImage from '../../../assets/images/silhouette.png';
 import { EquipmentSlotId } from '../../../game/content/ids';
+import { t } from '../../../i18n';
+import { formatEquipmentSlotLabel } from '../../../i18n/labels';
 import {
   isOffhandSlotDisabled,
 } from '../../../game/state';
@@ -41,6 +43,7 @@ export function EquipmentWindowContent({
   onLeaveItem,
   onUnequip,
   onContextItem,
+  onHoverDetail,
 }: EquipmentWindowContentProps) {
   const offhandDisabled = isOffhandSlotDisabled(equipment);
 
@@ -70,6 +73,24 @@ export function EquipmentWindowContent({
             }
             onMouseEnter={
               equipped ? (event) => onHoverItem(event, equipped) : undefined
+            }
+            onEmptyMouseEnter={
+              equipped
+                ? undefined
+                : (event) =>
+                    onHoverDetail?.(
+                      event,
+                      formatEquipmentSlotLabel(slot),
+                      [
+                        {
+                          kind: 'text',
+                          text: t('ui.tooltip.emptyEquipmentSlot', {
+                            slot: formatEquipmentSlotLabel(slot).toLowerCase(),
+                          }),
+                        },
+                      ],
+                      'rgba(148, 163, 184, 0.9)',
+                    )
             }
             onMouseLeave={onLeaveItem}
             style={

@@ -55,7 +55,7 @@ export const DEFAULT_WINDOWS: WindowPositions = {
 };
 
 export const DEFAULT_WINDOW_VISIBILITY: WindowVisibilityState = {
-  worldTime: true,
+  worldTime: false,
   hero: false,
   skills: false,
   recipes: false,

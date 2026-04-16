@@ -5,7 +5,6 @@ import {
   getGoldAmount,
   getPlayerStats,
   getRecipeBookRecipes,
-  hasRecipeBook,
   structureActionLabel,
   type GameState,
   type LogKind,
@@ -28,10 +27,6 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
   const currentTile = useMemo(
     () => tiles[hexKey(player.coord)] ?? buildTile(seed, player.coord),
     [player.coord, seed, tiles],
-  );
-  const recipeBookKnown = useMemo(
-    () => hasRecipeBook(player.inventory),
-    [player.inventory],
   );
   const recipes = useMemo(
     () => getRecipeBookRecipes(player.learnedRecipeIds),
@@ -93,7 +88,6 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     interactLabel,
     inventoryCounts,
     prospectExplanation,
-    recipeBookKnown,
     recipes,
     sellExplanation,
     stats,

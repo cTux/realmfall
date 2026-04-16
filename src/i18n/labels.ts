@@ -1,5 +1,6 @@
 import { getItemCategory, type ItemCategory } from '../game/content/items';
 import type {
+  EnemyRarity,
   EquipmentSlot,
   Item,
   LogKind,
@@ -22,6 +23,10 @@ export function formatEquipmentSlotLabel(slot: EquipmentSlot) {
 
 export function formatItemKindLabel(kind: ItemCategory) {
   return t(`ui.itemKind.${kind}.label`);
+}
+
+export function formatEnemyRarityLabel(rarity: EnemyRarity) {
+  return t(`ui.rarity.${rarity}`);
 }
 
 export function formatItemLabel(

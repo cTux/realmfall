@@ -46,6 +46,8 @@ export const EquipmentWindow = memo(function EquipmentWindow({
           onLeaveItem={onLeaveItem}
           onUnequip={onUnequip}
           onContextItem={onContextItem}
+          onHoverDetail={onHoverDetail}
+          onLeaveDetail={onLeaveDetail}
         />
       </Suspense>
     </WindowShell>

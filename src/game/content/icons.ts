@@ -4,6 +4,7 @@ import weaponIcon from '../../assets/icons/plain-dagger.svg';
 import armorIcon from '../../assets/icons/checked-shield.svg';
 import artifactIcon from '../../assets/icons/ankh.svg';
 import consumableIcon from '../../assets/icons/potion-ball.svg';
+import magicPotionIcon from '../../assets/icons/magic-potion.svg';
 import hoodIcon from '../../assets/icons/hood.svg';
 import mailedFistIcon from '../../assets/icons/mailed-fist.svg';
 import steeltoeBootsIcon from '../../assets/icons/steeltoe-boots.svg';
@@ -47,6 +48,7 @@ export const ContentIcons = {
   Armor: armorIcon,
   Artifact: artifactIcon,
   Consumable: consumableIcon,
+  MagicPotion: magicPotionIcon,
   Hood: hoodIcon,
   Gauntlet: mailedFistIcon,
   Boots: steeltoeBootsIcon,

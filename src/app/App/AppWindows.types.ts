@@ -33,7 +33,6 @@ export interface AppWindowsViewState {
   game: GameState;
   currentTile: Tile;
   graphicsSettings: GraphicsSettings;
-  recipeBookKnown: boolean;
   recipes: ReturnType<typeof import('../../game/state').getRecipeBookRecipes>;
   inventoryCounts: Record<string, number>;
   interactLabel: string | null;

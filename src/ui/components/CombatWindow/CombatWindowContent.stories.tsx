@@ -95,6 +95,25 @@ export const EliteRaid: Story = {
   }),
 };
 
+export const LegendaryRaid: Story = {
+  args: buildBattleScenario({
+    started: true,
+    partyDamage: [14, 9, 16],
+    enemyDamage: [8, 5, 0],
+    enemyNames: ['Warden of Ash', 'Rift Howler', 'Shardbound Raider'],
+    enemyTiers: [5, 4, 4],
+    enemyRarities: ['legendary', 'epic', 'rare'],
+    coord: { q: 5, r: -3 },
+    readyOffsets: {
+      vanguard: 600,
+      arcanist: 350,
+      enemy0: 1_300,
+      enemy1: 500,
+      enemy2: 900,
+    },
+  }),
+};
+
 function CombatWindowStory(args: CombatWindowProps) {
   const [combat, setCombat] = useState(args.combat);
 
@@ -153,6 +172,7 @@ function buildBattleScenario({
   enemyNames = ['Wolf', 'Raider'],
   enemyTiers = [2, 2],
   eliteEnemyIds = [],
+  enemyRarities = [],
   readyOffsets = {},
 }: {
   started: boolean;
@@ -162,6 +182,7 @@ function buildBattleScenario({
   enemyNames?: string[];
   enemyTiers?: number[];
   eliteEnemyIds?: string[];
+  enemyRarities?: Array<Enemy['rarity']>;
   readyOffsets?: Partial<Record<string, number>>;
 }) {
   const playerParty: CombatPartyMember[] = [
@@ -198,11 +219,19 @@ function buildBattleScenario({
     const id = `enemy${index}`;
     const maxHp = index === 0 ? 34 : 26;
     const tier = enemyTiers[index] ?? 2;
-    const elite = eliteEnemyIds.includes(id);
+    const rarity =
+      enemyRarities[index] ??
+      (eliteEnemyIds.includes(id) ? 'rare' : 'common');
+    const elite =
+      eliteEnemyIds.includes(id) ||
+      rarity === 'rare' ||
+      rarity === 'epic' ||
+      rarity === 'legendary';
     return {
       id,
       name,
       coord,
+      rarity,
       tier,
       baseMaxHp: maxHp,
       hp: Math.max(1, maxHp - (enemyDamage[index] ?? 0)),

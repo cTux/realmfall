@@ -110,12 +110,14 @@ describe('ui helper coverage', () => {
         createEnemy({
           id: 'wolf-1',
           tier: 2,
+          rarity: 'uncommon',
           tags: [GameTag.EnemyHostile],
         }),
         createEnemy({
           id: 'wolf-2',
           name: 'Boar',
           tier: 3,
+          rarity: 'rare',
           attack: 4,
           tags: [GameTag.EnemyHostile, GameTag.EnemyAnimal],
         }),
@@ -132,6 +134,7 @@ describe('ui helper coverage', () => {
     expect(uncommonPack?.title).toBe('Enemy Party');
     expect(uncommonPack?.lines).toEqual([
       { kind: 'stat', label: 'Level', value: '3' },
+      { kind: 'stat', label: 'Rarity', value: 'Rare' },
       { kind: 'stat', label: 'Enemies', value: '3' },
       {
         kind: 'text',

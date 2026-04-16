@@ -29,6 +29,7 @@ import { EquipmentSlotId, ItemId, StatusEffectTypeId } from './content/ids';
 import { getStructureConfig } from './content/structures';
 import {
   createCombatActorState,
+  enemyRarityIndex,
   enemyKey,
   enemyIndexFromId,
   getAbilityDefinition,
@@ -65,14 +66,11 @@ import {
   consumeInventoryItem,
   describeItemStack,
   getGoldAmount,
-  hasRecipeBook,
   makeHomeScroll,
   isEquippableItem,
-  isRecipeBook,
   isRecipePage,
   makeConsumable,
   makeGoldStack,
-  makeRecipeBook,
   makeRecipePage,
   makeResourceStack,
   makeStarterArmor,
@@ -154,16 +152,15 @@ export {
   canUseItem,
   createFreshLogsAtTime,
   describeStructure,
+  enemyRarityIndex,
   getEnemyConfig,
   getItemConfig,
   getItemConfigByKey,
   getGoldAmount,
   getPlayerStats,
   getStructureConfig,
-  hasRecipeBook,
   isGatheringStructure,
   isAnimalEnemyType,
-  isRecipeBook,
   isRecipePage,
   makeGoldStack,
   skillLevelThreshold,
@@ -225,7 +222,6 @@ export function createGame(
         makeStarterWeapon(),
         makeStarterArmor('chest', ItemId.SettlerVest, 1, 1),
         makeConsumable('starter-ration', ItemId.TrailRation, 1, 10, 15, 2),
-        makeRecipeBook(),
       ],
       equipment: {},
     },
@@ -710,7 +706,7 @@ export function equipItem(state: GameState, itemId: string): GameState {
   const item = state.player.inventory[itemIndex];
   const next = clone(state);
 
-  if (canUseItem(item) && !isRecipeBook(item) && !isRecipePage(item)) {
+  if (canUseItem(item) && !isRecipePage(item)) {
     consumeItem(next, itemIndex, item);
     return next;
   }
@@ -764,9 +760,6 @@ export function useItem(state: GameState, itemId: string): GameState {
   if (itemIndex < 0) return message(state, t('game.message.item.notInPack'));
 
   const item = state.player.inventory[itemIndex];
-  if (isRecipeBook(item)) {
-    return message(state, t('game.message.recipeBook.openFromPack'));
-  }
   if (isRecipePage(item)) {
     const next = clone(state);
     learnRecipe(next, item, RECIPE_BOOK_RECIPES, addLog);
@@ -1396,9 +1389,6 @@ export function craftRecipe(state: GameState, recipeId: string): GameState {
 
   const recipe = RECIPE_BOOK_RECIPES.find((entry) => entry.id === recipeId);
   if (!recipe) return message(state, t('game.message.recipe.notInBook'));
-  if (!hasRecipeBook(state.player.inventory)) {
-    return message(state, t('game.message.recipe.needsBook'));
-  }
   if (!state.player.learnedRecipeIds.includes(recipe.id)) {
     return message(state, t('game.message.recipe.notLearned'));
   }
@@ -1453,33 +1443,79 @@ export function craftRecipe(state: GameState, recipeId: string): GameState {
 }
 
 function consumeItem(state: GameState, itemIndex: number, item: Item) {
+  const effects = resolveConsumableUseEffects(state, item);
+  if (effects.total === 0) {
+    addLog(
+      state,
+      'system',
+      t('game.message.useItem.noEffect', { item: item.name }),
+    );
+    return;
+  }
+
   consumeInventoryItem(state.player.inventory, itemIndex, item);
-  const maxHp = getPlayerStats(state.player).maxHp;
-  state.player.hp = Math.min(maxHp, state.player.hp + item.healing);
-  state.player.hunger = Math.min(100, state.player.hunger + item.hunger);
-  state.player.thirst = Math.min(
-    100,
-    (state.player.thirst ?? 100) + (item.thirst ?? 0),
-  );
+  state.player.hp += effects.healing;
+  state.player.mana += effects.mana;
+  state.player.hunger += effects.hunger;
+  state.player.thirst = (state.player.thirst ?? 100) + effects.thirst;
   addLog(
     state,
     'survival',
     t('game.message.useItem', {
       item: item.name,
       healing:
-        item.healing > 0
-          ? ` ${t('ui.common.and')} ${t('game.message.useItem.healing', { amount: item.healing })}`
+        effects.healing > 0
+          ? ` ${t('ui.common.and')} ${t('game.message.useItem.healing', { amount: effects.healing })}`
+          : '',
+      mana:
+        effects.mana > 0
+          ? ` ${t('ui.common.and')} ${t('game.message.useItem.mana', { amount: effects.mana })}`
           : '',
       hunger:
-        item.hunger > 0
-          ? ` ${t('ui.common.and')} ${t('game.message.useItem.hunger', { amount: item.hunger })}`
+        effects.hunger > 0
+          ? ` ${t('ui.common.and')} ${t('game.message.useItem.hunger', { amount: effects.hunger })}`
           : '',
       thirst:
-        (item.thirst ?? 0) > 0
-          ? ` ${t('ui.common.and')} ${t('game.message.useItem.thirst', { amount: item.thirst ?? 0 })}`
+        effects.thirst > 0
+          ? ` ${t('ui.common.and')} ${t('game.message.useItem.thirst', { amount: effects.thirst })}`
           : '',
     }),
   );
+}
+
+function resolveConsumableUseEffects(state: GameState, item: Item) {
+  const stats = getPlayerStats(state.player);
+  const healing = Math.max(
+    0,
+    Math.min(
+      stats.maxHp - state.player.hp,
+      item.itemKey === ItemId.HealthPotion
+        ? Math.max(1, Math.ceil(stats.maxHp * 0.1))
+        : item.healing,
+    ),
+  );
+  const mana = Math.max(
+    0,
+    Math.min(
+      stats.maxMana - state.player.mana,
+      item.itemKey === ItemId.ManaPotion
+        ? Math.max(1, Math.ceil(stats.maxMana * 0.1))
+        : 0,
+    ),
+  );
+  const hunger = Math.max(0, Math.min(100 - state.player.hunger, item.hunger));
+  const thirst = Math.max(
+    0,
+    Math.min(100 - (state.player.thirst ?? 100), item.thirst ?? 0),
+  );
+
+  return {
+    healing,
+    mana,
+    hunger,
+    thirst,
+    total: healing + mana + hunger + thirst,
+  };
 }
 
 function teleportHome(state: GameState, itemIndex: number, item: Item) {
@@ -1824,6 +1860,7 @@ function maybeGatherByproduct(
 
 function maybeDropEnemyGold(state: GameState, enemy: import('./types').Enemy) {
   const rng = createRng(`${state.seed}:enemy-gold:${enemy.id}:${state.turn}`);
+  const rarityRank = enemyRarityIndex(enemy.rarity);
   if (enemy.worldBoss) {
     const quantity = Math.max(40, enemy.tier * 12 + Math.floor(rng() * 40));
     ensureTileState(state, enemy.coord);
@@ -1844,14 +1881,15 @@ function maybeDropEnemyGold(state: GameState, enemy: import('./types').Enemy) {
 
   const chance = state.bloodMoonActive
     ? 1
-    : enemy.elite
-      ? 0.85
-      : Math.min(0.7, 0.22 + enemy.tier * 0.06);
+    : Math.min(
+        0.9,
+        0.22 + enemy.tier * 0.06 + rarityRank * 0.08 + (enemy.elite ? 0.08 : 0),
+      );
   if (rng() > chance) return;
 
   const quantity = Math.max(
     1,
-    Math.floor(enemy.tier + rng() * (enemy.elite ? 10 : 5)),
+    Math.floor(enemy.tier + rarityRank + rng() * (5 + rarityRank * 2)),
   );
   const bloodMoonQuantity = state.bloodMoonActive
     ? Math.max(quantity + enemy.tier, Math.ceil(quantity * 2.5))
@@ -1875,11 +1913,19 @@ function maybeDropEnemyConsumables(
   state: GameState,
   enemy: import('./types').Enemy,
 ) {
-  const dropKeys = ['apple', 'water-flask'] as const;
+  const dropKeys = [
+    'apple',
+    'water-flask',
+    'health-potion',
+    'mana-potion',
+  ] as const;
 
   dropKeys.forEach((itemKey) => {
     const configured = getItemConfigByKey(itemKey);
-    const chance = configured?.dropChance ?? 0;
+    const chance = Math.min(
+      0.92,
+      (configured?.dropChance ?? 0) + enemyRarityIndex(enemy.rarity) * 0.04,
+    );
     if (chance <= 0) return;
 
     const rng = createRng(
@@ -1918,14 +1964,13 @@ function maybeDropEnemyRecipe(
   if (unlearnedRecipes.length === 0) return;
 
   const rng = createRng(`${state.seed}:enemy-recipe:${enemy.id}:${state.turn}`);
+  const rarityRank = enemyRarityIndex(enemy.rarity);
   const chance = state.bloodMoonActive
     ? Math.min(
         1,
-        (enemy.elite ? 0.45 : Math.min(0.3, 0.08 + enemy.tier * 0.025)) + 0.25,
+        Math.min(0.5, 0.08 + enemy.tier * 0.025 + rarityRank * 0.05) + 0.25,
       )
-    : enemy.elite
-      ? 0.45
-      : Math.min(0.3, 0.08 + enemy.tier * 0.025);
+    : Math.min(0.5, 0.08 + enemy.tier * 0.025 + rarityRank * 0.05);
   if (rng() >= chance) return;
 
   const recipe = unlearnedRecipes[Math.floor(rng() * unlearnedRecipes.length)];
@@ -1948,7 +1993,9 @@ function maybeDropHomeScroll(state: GameState, enemy: import('./types').Enemy) {
   const rng = createRng(
     `${state.seed}:enemy-home-scroll:${enemy.id}:${state.turn}`,
   );
-  if (rng() >= 0.02) return;
+  if (rng() >= Math.min(0.1, 0.02 + enemyRarityIndex(enemy.rarity) * 0.0125)) {
+    return;
+  }
 
   ensureTileState(state, enemy.coord);
   const key = hexKey(enemy.coord);
@@ -1977,10 +2024,14 @@ function maybeDropBloodMoonLoot(
   ensureTileState(state, enemy.coord);
   const key = hexKey(enemy.coord);
   const tile = state.tiles[key];
-  const baseTier = Math.max(1, enemy.tier + (enemy.elite ? 1 : 0));
+  const rarityRank = enemyRarityIndex(enemy.rarity);
+  const baseTier = Math.max(
+    1,
+    enemy.tier + Math.max(1, Math.floor(rarityRank / 2)),
+  );
   const minimumRarity = enemy.worldBoss
-    ? 'epic'
-    : enemy.elite
+    ? 'legendary'
+    : rarityRank >= 2
       ? 'epic'
       : 'rare';
   addItemToInventory(
@@ -1996,7 +2047,7 @@ function maybeDropBloodMoonLoot(
       tile.items,
       makeBloodMoonDrop(state, enemy, 1, baseTier + 1, 'legendary'),
     );
-  } else if (enemy.elite || rng() < 0.45) {
+  } else if (rarityRank >= 2 || rng() < 0.45 + rarityRank * 0.07) {
     addItemToInventory(
       tile.items,
       makeBloodMoonDrop(state, enemy, 1, baseTier + 1, minimumRarity),

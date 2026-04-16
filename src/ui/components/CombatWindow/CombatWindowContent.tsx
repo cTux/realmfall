@@ -2,7 +2,11 @@ import { getAbilityDefinition } from '../../../game/combat';
 import type { CombatActorState } from '../../../game/state';
 import type { StatusEffectId } from '../../../game/types';
 import { t } from '../../../i18n';
-import { formatStatusEffectLabel } from '../../../i18n/labels';
+import {
+  formatEnemyRarityLabel,
+  formatStatusEffectLabel,
+} from '../../../i18n/labels';
+import { rarityColor } from '../../rarity';
 import {
   iconMaskStyle,
   statusEffectIcon,
@@ -32,7 +36,7 @@ interface CombatEntityView {
   maxHp: number;
   mana: number;
   maxMana: number;
-  elite?: boolean;
+  rarity?: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
   actor: CombatActorState;
   buffs: StatusEffectId[];
   debuffs: StatusEffectId[];
@@ -56,7 +60,7 @@ export function CombatWindowContent({
     maxHp: enemy.maxHp,
     mana: 0,
     maxMana: 0,
-    elite: enemy.elite,
+    rarity: enemy.rarity ?? 'common',
     actor: combat.enemies[enemy.id] ?? combat.player,
     buffs: [],
     debuffs: [],
@@ -147,8 +151,13 @@ function EntityCard({
     <article className={styles.entityCard}>
       <div className={styles.entityHeader}>
         <strong>{entity.title}</strong>
-        {entity.elite ? (
-          <span className={styles.elite}>{t('ui.combat.elite')}</span>
+        {entity.rarity && entity.rarity !== 'common' ? (
+          <span
+            className={styles.elite}
+            style={{ color: rarityColor(entity.rarity) }}
+          >
+            {formatEnemyRarityLabel(entity.rarity)}
+          </span>
         ) : null}
       </div>
       <ResourceBar

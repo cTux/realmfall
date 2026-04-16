@@ -15,7 +15,6 @@ import {
   getTileAt,
   getTownStock,
   getVisibleTiles,
-  hasRecipeBook,
   interactWithStructure,
   moveToTile,
   moveAlongSafePath,
@@ -45,7 +44,7 @@ import {
 import { t } from '../i18n';
 import { normalizeLoadedGame } from '../app/normalize';
 import { buildTile } from './world';
-import { getItemCategory } from './content/items';
+import { buildItemFromConfig, getItemCategory } from './content/items';
 import { getStructureConfig } from './content/structures';
 import { Skill } from './types';
 
@@ -91,7 +90,6 @@ describe('game state', () => {
     expect(getTileAt(game, { q: 0, r: 0 }).structure).toBeUndefined();
     expect(getTileAt(game, { q: 0, r: 0 }).enemyIds).toEqual([]);
     expect(getVisibleTiles(game)).toHaveLength(37);
-    expect(hasRecipeBook(game.player.inventory)).toBe(true);
     expect(game.player.learnedRecipeIds).toEqual(['cook-cooked-fish']);
     expect(getRecipeBookRecipes(game.player.learnedRecipeIds)).toHaveLength(1);
   });
@@ -1373,6 +1371,7 @@ describe('game state', () => {
       id: 'enemy-2,0-0',
       name: 'Raider',
       coord: target,
+      rarity: 'epic',
       tier: 3,
       hp: 1,
       maxHp: 1,
@@ -1397,6 +1396,45 @@ describe('game state', () => {
     ).toBe(true);
   });
 
+  it('grants rarer enemies stronger regular drop outcomes', () => {
+    const game = createGame(3, 'rare-enemy-drop-seed');
+    const target = { q: 2, r: 0 };
+    game.tiles['2,0'] = {
+      coord: target,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: ['enemy-2,0-0'],
+    };
+    game.enemies['enemy-2,0-0'] = {
+      id: 'enemy-2,0-0',
+      name: 'Raider',
+      coord: target,
+      rarity: 'legendary',
+      tier: 4,
+      hp: 1,
+      maxHp: 1,
+      attack: 1,
+      defense: 0,
+      xp: 5,
+      elite: true,
+    };
+    game.player.coord = { q: 1, r: 0 };
+
+    const encountered = moveToTile(game, target);
+    const resolved = startCombat(encountered);
+    const tileItems = getTileAt(resolved, target).items;
+
+    expect(tileItems.some((item) => item.name === 'Gold')).toBe(true);
+    expect(
+      tileItems.some((item) =>
+        ['apple', 'water-flask', 'health-potion', 'mana-potion'].includes(
+          item.itemKey ?? '',
+        ),
+      ),
+    ).toBe(true);
+  });
+
   it('spawns world bosses with boosted stats, a footprint, and guaranteed premium loot', () => {
     const { game, center } = createPlacedWorldBossEncounter();
     const centerTile = getTileAt(game, center);
@@ -1413,8 +1451,9 @@ describe('game state', () => {
 
     expect(centerTile.enemyIds).toHaveLength(1);
     expect(worldBoss?.worldBoss).toBe(true);
-    expect(worldBoss?.maxHp).toBe(ordinaryEnemy.maxHp * 50);
-    expect(worldBoss?.attack).toBe(ordinaryEnemy.attack * 5);
+    expect(worldBoss?.rarity).toBe('legendary');
+    expect(worldBoss?.maxHp).toBeGreaterThan(ordinaryEnemy.maxHp * 50);
+    expect(worldBoss?.attack).toBeGreaterThan(ordinaryEnemy.attack * 5);
     expect(worldBoss?.defense).toBeGreaterThan(ordinaryEnemy.defense);
 
     const footprintTiles = getVisibleTiles({
@@ -1768,6 +1807,48 @@ describe('game state', () => {
         (item) => item.id === 'starter-ration',
       ),
     ).toBeDefined();
+  });
+
+  it('does not consume a consumable when none of its effects would apply', () => {
+    const game = createGame(3, 'use-no-effect-seed');
+    game.player.hp = getPlayerStats(game.player).maxHp;
+    game.player.hunger = 100;
+    game.player.thirst = 100;
+
+    const untouched = useItem(game, 'starter-ration');
+
+    expect(
+      untouched.player.inventory.find((item) => item.id === 'starter-ration')
+        ?.quantity,
+    ).toBe(2);
+    expect(untouched.logs[0]?.text).toContain(
+      'Trail Ration would have no effect right now.',
+    );
+  });
+
+  it('uses health and mana potions for 10 percent of the matching max stat', () => {
+    const game = createGame(3, 'use-potions-seed');
+    const hpPotion = buildItemFromConfig('health-potion', {
+      id: 'health-potion-1',
+    });
+    const mpPotion = buildItemFromConfig('mana-potion', {
+      id: 'mana-potion-1',
+    });
+    game.player.inventory.push(hpPotion, mpPotion);
+    game.player.hp = 25;
+    game.player.mana = 8;
+
+    const healed = useItem(game, 'health-potion-1');
+    expect(healed.player.hp).toBe(28);
+    expect(
+      healed.player.inventory.find((item) => item.id === 'health-potion-1'),
+    ).toBeUndefined();
+
+    const restored = useItem(healed, 'mana-potion-1');
+    expect(restored.player.mana).toBe(10);
+    expect(
+      restored.player.inventory.find((item) => item.id === 'mana-potion-1'),
+    ).toBeUndefined();
   });
 
   it('uses a hearthshard wayscroll to return to the home hex', () => {

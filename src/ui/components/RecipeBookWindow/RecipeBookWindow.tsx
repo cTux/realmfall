@@ -19,7 +19,6 @@ export const RecipeBookWindow = memo(function RecipeBookWindow({
   onMove,
   visible,
   onClose,
-  hasRecipeBook,
   currentStructure,
   recipes,
   inventoryCounts,
@@ -41,7 +40,6 @@ export const RecipeBookWindow = memo(function RecipeBookWindow({
     >
       <Suspense fallback={<WindowLoadingState />}>
         <RecipeBookWindowContent
-          hasRecipeBook={hasRecipeBook}
           currentStructure={currentStructure}
           recipes={recipes}
           inventoryCounts={inventoryCounts}

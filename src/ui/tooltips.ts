@@ -3,6 +3,7 @@ import { getSkillTags } from '../game/content/tags';
 import { getItemCategory, inferItemTags } from '../game/content/items';
 import { EquipmentSlotId } from '../game/content/ids';
 import {
+  enemyRarityIndex,
   gatheringBonusChance,
   gatheringYieldBonus,
   getStructureConfig,
@@ -14,9 +15,16 @@ import {
   type StructureType,
   type Tile,
 } from '../game/state';
-import type { AbilityDefinition, StatusEffectId } from '../game/types';
+import type {
+  AbilityDefinition,
+  EnemyRarity,
+  StatusEffectId,
+} from '../game/types';
 import { t } from '../i18n';
-import { formatEquipmentSlotLabel } from '../i18n/labels';
+import {
+  formatEnemyRarityLabel,
+  formatEquipmentSlotLabel,
+} from '../i18n/labels';
 
 export interface TooltipLine {
   text?: string;
@@ -151,6 +159,11 @@ export function enemyTooltip(
       title: enemy.name,
       lines: [
         { kind: 'stat', label: t('ui.tooltip.level'), value: `${enemy.tier}` },
+        {
+          kind: 'stat',
+          label: t('ui.tooltip.rarity'),
+          value: formatEnemyRarityLabel(enemy.rarity ?? 'common'),
+        },
         { kind: 'stat', label: t('ui.tooltip.enemies'), value: '1' },
         ...tagTooltipLines(enemy.tags),
       ],
@@ -158,6 +171,13 @@ export function enemyTooltip(
   }
 
   const maxTier = Math.max(...enemies.map((enemy) => enemy.tier));
+  const highestRarity = enemies.reduce<EnemyRarity>(
+    (current, enemy) =>
+      enemyRarityIndex(enemy.rarity) > enemyRarityIndex(current)
+        ? enemy.rarity ?? 'common'
+        : current,
+    'common',
+  );
 
   return {
     title:
@@ -166,6 +186,11 @@ export function enemyTooltip(
         : t('ui.combat.enemyPartyTitle'),
     lines: [
       { kind: 'stat', label: t('ui.tooltip.level'), value: `${maxTier}` },
+      {
+        kind: 'stat',
+        label: t('ui.tooltip.rarity'),
+        value: formatEnemyRarityLabel(highestRarity),
+      },
       {
         kind: 'stat',
         label: t('ui.tooltip.enemies'),
@@ -304,6 +329,16 @@ export function statusEffectTooltipLines(
 function consumableEffectDescription(item: Item) {
   if (item.itemKey === 'home-scroll') {
     return t('ui.tooltip.consumable.homeScroll');
+  }
+  if (item.itemKey === 'health-potion') {
+    return t('ui.tooltip.consumable.oneEffect', {
+      first: t('ui.tooltip.consumable.effect.healingPercent', { amount: 10 }),
+    });
+  }
+  if (item.itemKey === 'mana-potion') {
+    return t('ui.tooltip.consumable.oneEffect', {
+      first: t('ui.tooltip.consumable.effect.manaPercent', { amount: 10 }),
+    });
   }
 
   const effects = [

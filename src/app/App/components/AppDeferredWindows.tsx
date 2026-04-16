@@ -61,7 +61,6 @@ export function AppDeferredWindows({
           onMove={windowMoveHandlers.recipes}
           visible={layout.windowShown.recipes}
           onClose={windowCloseHandlers.recipes}
-          hasRecipeBook={views.recipeBookKnown}
           currentStructure={recipeWindowStructure}
           recipes={views.recipes}
           inventoryCounts={views.inventoryCounts}

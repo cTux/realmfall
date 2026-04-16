@@ -33,6 +33,12 @@ type Story = StoryObj<typeof meta>;
 
 export const Filled: Story = {};
 
+export const CompactFilled: Story = {
+  args: {
+    size: 'compact',
+  },
+};
+
 export const EmptyEquipmentSlot: Story = {
   args: {
     item: undefined,

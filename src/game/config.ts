@@ -19,7 +19,6 @@ interface GameConfig {
     startingRecipeIds: string[];
   };
   items: {
-    recipeBookItemNameKey: string;
     cookedFishItemNameKey: string;
     homeScrollItemNameKey: string;
   };
@@ -64,8 +63,6 @@ export const MOONRISE_END = GAME_CONFIG.time.moonriseEnd;
 export const MAX_PLAYER_LEVEL = GAME_CONFIG.player.maxLevel;
 export const STARTING_RECIPE_IDS = GAME_CONFIG.player.startingRecipeIds;
 
-export const RECIPE_BOOK_ITEM_NAME_KEY =
-  GAME_CONFIG.items.recipeBookItemNameKey;
 export const COOKED_FISH_ITEM_NAME_KEY =
   GAME_CONFIG.items.cookedFishItemNameKey;
 export const HOME_SCROLL_ITEM_NAME_KEY =
