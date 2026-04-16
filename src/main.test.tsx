@@ -16,11 +16,14 @@ describe('main bootstrap', () => {
     document.body.innerHTML = '<div id="root"></div>';
 
     await import('./main');
-    await vi.dynamicImportSettled();
-    await Promise.resolve();
 
     expect(createRoot).toHaveBeenCalledWith(document.getElementById('root'));
     expect(render).toHaveBeenCalledTimes(1);
+
+    await vi.dynamicImportSettled();
+    await Promise.resolve();
+
+    expect(render).toHaveBeenCalledTimes(2);
     expect(
       (globalThis as typeof globalThis & { version: string }).version,
     ).toBe(__APP_VERSION__);
