@@ -20,6 +20,7 @@
 
 - Update `README.md` when contributor expectations, current behavior, or project constraints change.
 - Keep implemented feature and technical-solution specs in `docs/specs` aligned with shipped behavior.
+- Keep transient plans, issue workspaces, research notes, and checklists in `docs/implementation-notes` so `docs/specs` stays canonical.
 - Every feature or improvement task should create or update its dedicated spec before the task is considered complete.
 - Every fix should update the matching spec requirement when the fix changes or clarifies documented behavior.
 - Keep restrictions and hard constraints in the canonical docs that already describe the current project state instead of maintaining a separate restrictions file.
