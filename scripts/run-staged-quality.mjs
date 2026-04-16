@@ -9,13 +9,17 @@ import {
 } from './run-staged-quality.helpers.mjs';
 
 const gitBin = process.platform === 'win32' ? 'git.exe' : 'git';
-const pnpmBin = 'pnpm';
+const pnpmBin = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 
 function run(command, args) {
-  const result = spawnSync(command, args, {
-    shell: process.platform === 'win32',
-    stdio: 'inherit',
-  });
+  const result =
+    process.platform === 'win32' && command.endsWith('.cmd')
+      ? spawnSync(process.env.ComSpec ?? 'cmd.exe', ['/d', '/s', '/c', command, ...args], {
+          stdio: 'inherit',
+        })
+      : spawnSync(command, args, {
+          stdio: 'inherit',
+        });
 
   if (result.status !== 0) {
     process.exit(result.status ?? 1);
