@@ -113,6 +113,7 @@ import {
   structureActionLabel,
   structureDefinition,
 } from './world';
+import { copyGameState } from './stateClone';
 
 export { hexAtPoint, hexDistance } from './hex';
 export type { HexCoord } from './hex';
@@ -459,7 +460,7 @@ export function moveToTile(state: GameState, target: HexCoord): GameState {
     return message(state, t('game.message.travel.oneHexAtATime'));
   }
 
-  const next = clone(state);
+  const next = cloneForWorldMutation(state);
   ensureTileState(next, target);
   const tile = next.tiles[hexKey(target)];
 
@@ -528,7 +529,7 @@ export function syncBloodMoon(
   const phase = getDayPhase(minutes);
 
   if (state.dayPhase !== phase) {
-    const next = clone(state);
+    const next = cloneForWorldEventMutation(state);
     next.worldTimeMs = worldTimeMsFromMinutes(minutes, state.worldTimeMs);
     next.dayPhase = phase;
     addLog(
@@ -546,7 +547,7 @@ export function syncBloodMoon(
       return state;
     }
 
-    const next = clone(state);
+    const next = cloneForWorldEventMutation(state);
     next.worldTimeMs = worldTimeMsFromMinutes(minutes, state.worldTimeMs);
     next.bloodMoonCheckedTonight = true;
     next.harvestMoonCheckedTonight = true;
@@ -604,7 +605,7 @@ export function syncBloodMoon(
       state.harvestMoonCheckedTonight ||
       state.lastEarthshakeDay !== getWorldDayIndex(state.worldTimeMs))
   ) {
-    const next = clone(state);
+    const next = cloneForWorldEventMutation(state);
     next.worldTimeMs = worldTimeMsFromMinutes(minutes, state.worldTimeMs);
     const wasBloodMoonActive = next.bloodMoonActive;
     const wasHarvestMoonActive = next.harvestMoonActive;
@@ -629,7 +630,7 @@ export function syncBloodMoon(
 }
 
 export function triggerEarthshake(state: GameState): GameState {
-  const next = clone(state);
+  const next = cloneForWorldEventMutation(state);
   if (!openEarthshakeDungeon(next, true)) {
     addLog(next, 'system', t('game.message.earthshake.noGround'));
   }
@@ -640,7 +641,7 @@ export function syncPlayerStatusEffects(
   state: GameState,
   worldTimeMs: number,
 ): GameState {
-  const next = clone(state);
+  const next = copyGameState(state, { player: true });
   next.worldTimeMs = worldTimeMs;
 
   if (!processPlayerStatusEffects(next)) {
@@ -659,7 +660,7 @@ export function setHomeHex(
     return message(state, t('game.message.home.blockedByTerritory'));
   }
 
-  const next = clone(state);
+  const next = cloneForHomeMutation(state);
   next.homeHex = { ...coord };
 
   const key = hexKey(coord);
@@ -692,7 +693,7 @@ export function attackCombatEnemy(state: GameState): GameState {
 export function progressCombat(state: GameState): GameState {
   if (!state.combat || !state.combat.started) return state;
 
-  const next = clone(state);
+  const next = cloneForWorldMutation(state);
   const changed = resolveCombat(next);
   return changed ? next : state;
 }
@@ -701,7 +702,7 @@ export function startCombat(state: GameState): GameState {
   if (!state.combat) return message(state, t('game.message.combat.noneActive'));
   if (state.combat.started) return state;
 
-  const next = clone(state);
+  const next = cloneForWorldMutation(state);
   next.combat!.started = true;
   addLog(
     next,
@@ -726,7 +727,7 @@ export function equipItem(state: GameState, itemId: string): GameState {
   if (itemIndex < 0) return message(state, t('game.message.item.notInPack'));
 
   const item = state.player.inventory[itemIndex];
-  const next = clone(state);
+  const next = cloneForPlayerMutation(state);
 
   if (canUseItem(item) && !isRecipePage(item)) {
     consumeItem(next, itemIndex, item);
@@ -783,7 +784,7 @@ export function useItem(state: GameState, itemId: string): GameState {
 
   const item = state.player.inventory[itemIndex];
   if (isRecipePage(item)) {
-    const next = clone(state);
+    const next = cloneForPlayerMutation(state);
     learnRecipe(next, item, RECIPE_BOOK_RECIPES, addLog);
     consumeInventoryItem(next.player.inventory, itemIndex, item);
     return next;
@@ -791,7 +792,10 @@ export function useItem(state: GameState, itemId: string): GameState {
   if (!hasItemTag(item, GAME_TAGS.item.consumable))
     return message(state, t('game.message.item.cannotUse'));
 
-  const next = clone(state);
+  const next =
+    item.itemKey === ItemId.HomeScroll
+      ? cloneForPlayerCombatMutation(state)
+      : cloneForPlayerMutation(state);
   if (item.itemKey === ItemId.HomeScroll) {
     teleportHome(next, itemIndex, item);
     return next;
@@ -1086,7 +1090,7 @@ export function unequipItem(state: GameState, slot: EquipmentSlot): GameState {
   const equipped = state.player.equipment[slot];
   if (!equipped) return message(state, t('game.message.equipment.slotEmpty'));
 
-  const next = clone(state);
+  const next = cloneForPlayerMutation(state);
   delete next.player.equipment[slot];
   addItemToInventory(next.player.inventory, equipped);
   const maxHp = getPlayerStats(next.player).maxHp;
@@ -1106,7 +1110,7 @@ export function isOffhandSlotDisabled(
 }
 
 export function sortInventory(state: GameState): GameState {
-  const next = clone(state);
+  const next = cloneForPlayerMutation(state);
   next.player.inventory = consolidateInventory(next.player.inventory);
   const equippable = next.player.inventory
     .filter(isEquippableItem)
@@ -1127,7 +1131,7 @@ export function sellAllItems(state: GameState): GameState {
   if (sellable.length === 0)
     return message(state, t('game.message.sell.empty'));
 
-  const next = clone(state);
+  const next = cloneForPlayerMutation(state);
   const gold = sellable.reduce((sum, item) => sum + sellValue(item), 0);
   next.player.inventory = next.player.inventory.filter(
     (item) => !isEquippableItem(item) || item.locked,
@@ -1147,7 +1151,7 @@ export function sellInventoryItem(state: GameState, itemId: string): GameState {
     return message(state, t('game.message.sell.empty'));
   }
 
-  const next = clone(state);
+  const next = cloneForPlayerMutation(state);
   const gold = sellValue(item);
   next.player.inventory = next.player.inventory.filter(
     (entry) => entry.id !== itemId,
@@ -1169,7 +1173,7 @@ export function prospectInventory(state: GameState): GameState {
     return message(state, t('game.message.prospect.forgeOnly'));
   }
 
-  const next = clone(state);
+  const next = cloneForPlayerMutation(state);
   const prospectable = next.player.inventory.filter(
     (item) => isEquippableItem(item) && !item.locked,
   );
@@ -1204,7 +1208,7 @@ export function prospectInventoryItem(
     return message(state, t('game.message.prospect.empty'));
   }
 
-  const next = clone(state);
+  const next = cloneForPlayerAndTileMutation(state);
   next.player.inventory = next.player.inventory.filter(
     (entry) => entry.id !== itemId,
   );
@@ -1223,7 +1227,7 @@ export function prospectInventoryItem(
 }
 
 export function takeTileItem(state: GameState, itemId: string): GameState {
-  const next = clone(state);
+  const next = cloneForPlayerAndTileMutation(state);
   ensureTileState(next, next.player.coord);
   const key = hexKey(next.player.coord);
   const tile = next.tiles[key];
@@ -1255,7 +1259,7 @@ export function claimCurrentHex(state: GameState): GameState {
     return message(state, status.reason ?? t('game.message.claim.unavailable'));
   }
 
-  const next = clone(state);
+  const next = cloneForPlayerAndTileMutation(state);
   ensureTileState(next, next.player.coord);
   const key = hexKey(next.player.coord);
   const tile = next.tiles[key];
@@ -1287,7 +1291,7 @@ export function interactWithStructure(state: GameState): GameState {
     return message(state, t('game.message.gather.nothingHere'));
   }
 
-  const next = clone(state);
+  const next = cloneForPlayerAndTileMutation(state);
   ensureTileState(next, next.player.coord);
   const key = hexKey(next.player.coord);
   const currentTile = next.tiles[key];
@@ -1394,7 +1398,7 @@ export function buyTownItem(state: GameState, itemId: string): GameState {
     );
   }
 
-  const next = clone(state);
+  const next = cloneForPlayerMutation(state);
   spendGold(next.player.inventory, entry.price);
   addItemToInventory(next.player.inventory, { ...entry.item });
   addLog(
@@ -1409,7 +1413,7 @@ export function buyTownItem(state: GameState, itemId: string): GameState {
 }
 
 export function takeAllTileItems(state: GameState): GameState {
-  const next = clone(state);
+  const next = cloneForPlayerAndTileMutation(state);
   ensureTileState(next, next.player.coord);
   const key = hexKey(next.player.coord);
   const tile = next.tiles[key];
@@ -1429,7 +1433,7 @@ export function takeAllTileItems(state: GameState): GameState {
 }
 
 export function dropInventoryItem(state: GameState, itemId: string): GameState {
-  const next = clone(state);
+  const next = cloneForPlayerAndTileMutation(state);
   const itemIndex = next.player.inventory.findIndex(
     (item) => item.id === itemId,
   );
@@ -1456,7 +1460,7 @@ export function dropEquippedItem(
   const equipped = state.player.equipment[slot];
   if (!equipped) return message(state, t('game.message.equipment.slotEmpty'));
 
-  const next = clone(state);
+  const next = cloneForPlayerAndTileMutation(state);
   delete next.player.equipment[slot];
   ensureTileState(next, next.player.coord);
   const key = hexKey(next.player.coord);
@@ -1533,7 +1537,7 @@ function craftRecipeOnce(
     return { ok: false, error: t('game.message.recipe.needsFuel') };
   }
 
-  const next = clone(state);
+  const next = cloneForPlayerMutation(state);
   consumeRequirements(next.player.inventory, recipe.ingredients);
   if (chosenFuel) consumeRequirements(next.player.inventory, [chosenFuel]);
   addItemToInventory(
@@ -1567,7 +1571,7 @@ export function setInventoryItemLocked(
   if (itemIndex < 0) return message(state, t('game.message.item.notInPack'));
   if (state.player.inventory[itemIndex]?.locked === locked) return state;
 
-  const next = clone(state);
+  const next = cloneForPlayerMutation(state);
   const item = next.player.inventory[itemIndex];
   if (!item) return state;
   item.locked = locked;
@@ -1857,7 +1861,7 @@ function consumeInventoryResource(
 }
 
 function message(state: GameState, text: string): GameState {
-  const next = clone(state);
+  const next = copyGameState(state, { logs: true });
   addLog(next, 'system', text);
   return next;
 }
@@ -1929,92 +1933,56 @@ function describeItemStacks(items: Item[]) {
   return items.map(describeItemStack).join(', ');
 }
 
-function clone(state: GameState): GameState {
-  const worldTimeMs = state.worldTimeMs;
-  const combatPlayer =
-    state.combat?.player ?? createCombatActorState(worldTimeMs);
-  const combatEnemies = Object.fromEntries(
-    (state.combat?.enemyIds ?? []).map((enemyId) => [
-      enemyId,
-      state.combat?.enemies?.[enemyId] ?? createCombatActorState(worldTimeMs),
-    ]),
-  );
+function cloneForWorldMutation(state: GameState) {
+  return copyGameState(state, {
+    logs: true,
+    combat: true,
+    tiles: true,
+    enemies: true,
+    player: true,
+  });
+}
 
-  return {
-    ...state,
-    homeHex: { ...state.homeHex },
-    logSequence: state.logSequence,
-    logs: [...state.logs],
-    combat: state.combat
-      ? {
-          ...state.combat,
-          coord: { ...state.combat.coord },
-          enemyIds: [...state.combat.enemyIds],
-          started: state.combat.started,
-          player: {
-            ...combatPlayer,
-            abilityIds: [...combatPlayer.abilityIds],
-            cooldownEndsAt: { ...combatPlayer.cooldownEndsAt },
-            casting: combatPlayer.casting ? { ...combatPlayer.casting } : null,
-          },
-          enemies: Object.fromEntries(
-            Object.entries(combatEnemies).map(([enemyId, actor]) => [
-              enemyId,
-              {
-                ...actor,
-                abilityIds: [...actor.abilityIds],
-                cooldownEndsAt: { ...actor.cooldownEndsAt },
-                casting: actor.casting ? { ...actor.casting } : null,
-              },
-            ]),
-          ),
-        }
-      : null,
-    tiles: Object.fromEntries(
-      Object.entries(state.tiles).map(([key, tile]) => [
-        key,
-        {
-          ...tile,
-          coord: { ...tile.coord },
-          items: tile.items.map((item) => ({ ...item })),
-          enemyIds: [...tile.enemyIds],
-          claim: tile.claim
-            ? {
-                ...tile.claim,
-                npc: tile.claim.npc ? { ...tile.claim.npc } : undefined,
-              }
-            : undefined,
-        },
-      ]),
-    ),
-    enemies: Object.fromEntries(
-      Object.entries(state.enemies).map(([key, enemy]) => [
-        key,
-        { ...enemy, coord: { ...enemy.coord } },
-      ]),
-    ),
-    player: {
-      ...state.player,
-      coord: { ...state.player.coord },
-      learnedRecipeIds: [...state.player.learnedRecipeIds],
-      skills: Object.fromEntries(
-        Object.entries(state.player.skills).map(([key, value]) => [
-          key,
-          { ...value },
-        ]),
-      ) as Player['skills'],
-      inventory: state.player.inventory.map((item) => ({ ...item })),
-      equipment: Object.fromEntries(
-        Object.entries(state.player.equipment).map(([key, item]) => [
-          key,
-          item ? { ...item } : item,
-        ]),
-      ),
-      statusEffects: state.player.statusEffects.map((effect) => ({
-        ...effect,
-      })),
-    },
-  };
+function cloneForPlayerMutation(state: GameState) {
+  return copyGameState(state, {
+    logs: true,
+    player: true,
+  });
+}
+
+function cloneForPlayerCombatMutation(state: GameState) {
+  return copyGameState(state, {
+    logs: true,
+    combat: true,
+    player: true,
+  });
+}
+
+function cloneForPlayerAndTileMutation(state: GameState) {
+  return copyGameState(state, {
+    logs: true,
+    tiles: true,
+    player: true,
+  });
+}
+
+function cloneForWorldEventMutation(state: GameState) {
+  return copyGameState(state, {
+    logs: true,
+    combat: true,
+    tiles: true,
+    enemies: true,
+  });
+}
+
+function cloneForHomeMutation(state: GameState) {
+  return copyGameState(state, {
+    homeHex: true,
+    logs: true,
+    combat: true,
+    tiles: true,
+    enemies: true,
+  });
 }
 
 function isHomeHex(state: GameState, coord: HexCoord) {
