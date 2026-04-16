@@ -12,6 +12,7 @@ This spec covers player leveling, mastery, and skill progression.
 - Current skills are gathering, logging, mining, skinning, fishing, cooking, smelting, and crafting.
 - Skill XP is awarded by related actions.
 - Higher skill levels improve gathering yield bonus and bonus proc chance where applicable.
+- The skills window uses the shared resizable window shell so players can expand it for longer skill lists and tooltip browsing.
 
 ## Main Implementation Areas
 
