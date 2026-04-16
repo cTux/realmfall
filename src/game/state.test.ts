@@ -10,6 +10,7 @@ import {
   getEnemiesAt,
   getGoldAmount,
   getPlayerStats,
+  getRecipeBookEntries,
   getRecipeBookRecipes,
   getSafePathToTile,
   getTileAt,
@@ -19,8 +20,11 @@ import {
   moveToTile,
   moveAlongSafePath,
   progressCombat,
+  prospectInventoryItem,
   prospectInventory,
+  sellInventoryItem,
   sellAllItems,
+  setInventoryItemLocked,
   setHomeHex,
   sortInventory,
   startCombat,
@@ -1935,7 +1939,7 @@ describe('game state', () => {
         id: 'raw-fish-1',
         name: 'Raw Fish',
         itemKey: 'raw-fish',
-        quantity: 1,
+        quantity: 10,
         tier: 1,
         rarity: 'common',
         power: 0,
@@ -1948,7 +1952,7 @@ describe('game state', () => {
         id: 'coal-1',
         name: 'Coal',
         itemKey: 'coal',
-        quantity: 1,
+        quantity: 10,
         tier: 1,
         rarity: 'common',
         power: 0,
@@ -1979,7 +1983,7 @@ describe('game state', () => {
         id: 'chunks-1',
         name: 'Iron Chunks',
         itemKey: 'iron-chunks',
-        quantity: 2,
+        quantity: 20,
         tier: 1,
         rarity: 'common',
         power: 0,
@@ -1992,7 +1996,7 @@ describe('game state', () => {
         id: 'sticks-1',
         name: 'Sticks',
         itemKey: 'sticks',
-        quantity: 2,
+        quantity: 20,
         tier: 1,
         rarity: 'common',
         power: 0,
@@ -2148,6 +2152,17 @@ describe('game state', () => {
     }
 
     expect(dropped).toBe(true);
+  });
+
+  it('exposes learned and unlearned recipe entries for the recipe book', () => {
+    const entries = getRecipeBookEntries(['cook-cooked-fish']);
+
+    expect(
+      entries.some((entry) => entry.id === 'cook-cooked-fish' && entry.learned),
+    ).toBe(true);
+    expect(
+      entries.some((entry) => entry.id === 'craft-weapon' && !entry.learned),
+    ).toBe(true);
   });
 
   it('lets every enemy on the tile retaliate during combat', () => {
@@ -2354,6 +2369,106 @@ describe('game state', () => {
     sorted.tiles['0,0'] = { ...sorted.tiles['0,0'], structure: 'town' };
     const soldInTown = sellAllItems(sorted);
     expect(getGoldAmount(soldInTown.player.inventory)).toBeGreaterThan(0);
+  });
+
+  it('keeps locked equippable items out of prospecting and selling', () => {
+    const game = createGame(3, 'locked-trade-seed');
+    game.player.inventory = [
+      {
+        id: 'weapon-1',
+        slot: 'weapon',
+        name: 'Rust Blade',
+        quantity: 1,
+        tier: 2,
+        rarity: 'common',
+        power: 4,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'weapon-2',
+        slot: 'weapon',
+        name: 'Spare Blade',
+        quantity: 1,
+        tier: 2,
+        rarity: 'common',
+        power: 3,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    ];
+
+    const locked = setInventoryItemLocked(game, 'weapon-1', true);
+    locked.tiles['0,0'] = { ...locked.tiles['0,0'], structure: 'forge' };
+
+    const prospected = prospectInventory(locked);
+    expect(
+      prospected.player.inventory.some((item) => item.id === 'weapon-1'),
+    ).toBe(true);
+    expect(
+      prospected.player.inventory.some((item) => item.id === 'weapon-2'),
+    ).toBe(false);
+
+    prospected.tiles['0,0'] = { ...prospected.tiles['0,0'], structure: 'town' };
+    const sold = sellAllItems(prospected);
+    expect(sold.player.inventory.some((item) => item.id === 'weapon-1')).toBe(
+      true,
+    );
+  });
+
+  it('prospects and sells a single inventory item from the current hex', () => {
+    const game = createGame(3, 'single-trade-seed');
+    game.player.inventory = [
+      {
+        id: 'weapon-1',
+        slot: 'weapon',
+        name: 'Rust Blade',
+        quantity: 1,
+        tier: 2,
+        rarity: 'common',
+        power: 4,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'weapon-2',
+        slot: 'weapon',
+        name: 'Spare Blade',
+        quantity: 1,
+        tier: 2,
+        rarity: 'common',
+        power: 3,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    ];
+
+    game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'forge' };
+    const prospected = prospectInventoryItem(game, 'weapon-1');
+    expect(prospected.player.inventory.some((item) => item.id === 'weapon-1')).toBe(
+      false,
+    );
+    expect(prospected.player.inventory.some((item) => item.id === 'weapon-2')).toBe(
+      true,
+    );
+    expect(
+      prospected.player.inventory.some((item) => item.itemKey === 'iron-chunks'),
+    ).toBe(true);
+
+    prospected.tiles['0,0'] = { ...prospected.tiles['0,0'], structure: 'town' };
+    const sold = sellInventoryItem(prospected, 'weapon-2');
+    expect(sold.player.inventory.some((item) => item.id === 'weapon-2')).toBe(
+      false,
+    );
+    expect(getGoldAmount(sold.player.inventory)).toBeGreaterThan(0);
   });
 
   it('merges duplicate gold stacks when sorting inventory', () => {

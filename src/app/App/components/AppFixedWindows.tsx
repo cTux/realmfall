@@ -1,4 +1,7 @@
-import { canEquipItem, canUseItem } from '../../../game/state';
+import { t } from '../../../i18n';
+import { canEquipItem, canUseItem, isEquippableItem } from '../../../game/state';
+import { hasItemTag } from '../../../game/content/items';
+import { GAME_TAGS } from '../../../game/content/tags';
 import { DebuggerWindow } from '../../../ui/components/DebuggerWindow';
 import { GameTooltip } from '../../../ui/components/GameTooltip';
 import { HeroWindow } from '../../../ui/components/HeroWindow';
@@ -64,9 +67,21 @@ export function AppFixedWindows({
           item={itemMenu.item}
           x={itemMenu.x}
           y={itemMenu.y}
-          equipLabel={itemMenu.slot ? 'Unequip' : 'Equip'}
+          equipLabel={
+            itemMenu.slot
+              ? t('ui.itemMenu.unequipAction')
+              : t('ui.itemMenu.equipAction')
+          }
           canEquip={itemMenu.slot ? true : canEquipItem(itemMenu.item)}
           canUse={canUseItem(itemMenu.item)}
+          canToggleLock={!itemMenu.slot && isEquippableItem(itemMenu.item)}
+          isLocked={Boolean(itemMenu.item.locked)}
+          canShowRecipes={Boolean(
+            itemMenu.item.itemKey &&
+              hasItemTag(itemMenu.item, GAME_TAGS.item.craftingMaterial),
+          )}
+          canProspect={itemMenu.canProspect}
+          canSell={itemMenu.canSell}
           onEquip={() => {
             if (itemMenu.slot) {
               actions.inventory.onUnequip(itemMenu.slot);
@@ -85,6 +100,26 @@ export function AppFixedWindows({
             } else {
               actions.inventory.onDropItem(itemMenu.item.id);
             }
+            actions.tooltip.onCloseItemMenu();
+          }}
+          onToggleLock={() => {
+            actions.inventory.onSetItemLocked(
+              itemMenu.item.id,
+              !itemMenu.item.locked,
+            );
+            actions.tooltip.onCloseItemMenu();
+          }}
+          onShowRecipes={() => {
+            if (!itemMenu.item.itemKey) return;
+            actions.recipes.onOpenWithMaterialFilter(itemMenu.item.itemKey);
+            actions.tooltip.onCloseItemMenu();
+          }}
+          onProspect={() => {
+            actions.inventory.onProspectItem(itemMenu.item.id);
+            actions.tooltip.onCloseItemMenu();
+          }}
+          onSell={() => {
+            actions.inventory.onSellItem(itemMenu.item.id);
             actions.tooltip.onCloseItemMenu();
           }}
           onClose={actions.tooltip.onCloseItemMenu}

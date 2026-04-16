@@ -10,9 +10,18 @@ export const ItemContextMenu = memo(function ItemContextMenu({
   equipLabel,
   canEquip,
   canUse,
+  canToggleLock = false,
+  isLocked = false,
+  canShowRecipes = false,
+  canProspect = false,
+  canSell = false,
   onEquip,
   onUse,
   onDrop,
+  onToggleLock,
+  onShowRecipes,
+  onProspect,
+  onSell,
   onClose,
 }: ItemContextMenuProps) {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -50,6 +59,28 @@ export const ItemContextMenu = memo(function ItemContextMenu({
       {canUse ? (
         <button className={styles.action} onClick={onUse}>
           {t('ui.itemMenu.useAction')}
+        </button>
+      ) : null}
+      {canToggleLock ? (
+        <button className={styles.action} onClick={onToggleLock}>
+          {isLocked
+            ? t('ui.itemMenu.unlockAction')
+            : t('ui.itemMenu.lockAction')}
+        </button>
+      ) : null}
+      {canShowRecipes ? (
+        <button className={styles.action} onClick={onShowRecipes}>
+          {t('ui.itemMenu.showRecipesAction')}
+        </button>
+      ) : null}
+      {canProspect ? (
+        <button className={styles.action} onClick={onProspect}>
+          {t('ui.itemMenu.prospectAction')}
+        </button>
+      ) : null}
+      {canSell ? (
+        <button className={styles.action} onClick={onSell}>
+          {t('ui.itemMenu.sellAction')}
         </button>
       ) : null}
       <button className={styles.action} onClick={onDrop}>

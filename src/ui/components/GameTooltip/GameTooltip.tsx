@@ -158,7 +158,17 @@ export const GameTooltip = memo(function GameTooltip({
               key={`${rendered.tooltip.title}-${line.label}-${index}`}
               className={`${styles.statRow} ${className ?? ''}`.trim()}
             >
-              <span>{line.label}</span>
+              <span className={styles.statLabel}>
+                {line.icon ? (
+                  <img
+                    src={line.icon}
+                    alt=""
+                    aria-hidden="true"
+                    className={styles.statIcon}
+                  />
+                ) : null}
+                <span>{line.label}</span>
+              </span>
               <span>{formatCompactNumberish(line.value ?? '')}</span>
             </div>
           );

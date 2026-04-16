@@ -97,6 +97,7 @@ export interface ItemBuildOverrides {
   hunger?: number;
   thirst?: number;
   recipeId?: Item['recipeId'];
+  locked?: Item['locked'];
   name?: string;
   icon?: Item['icon'];
   tags?: Item['tags'];

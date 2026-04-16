@@ -33,8 +33,9 @@ export interface AppWindowsViewState {
   game: GameState;
   currentTile: Tile;
   graphicsSettings: GraphicsSettings;
-  recipes: ReturnType<typeof import('../../game/state').getRecipeBookRecipes>;
-  inventoryCounts: Record<string, number>;
+  recipes: ReturnType<typeof import('../../game/state').getRecipeBookEntries>;
+  inventoryCountsByItemKey: Record<string, number>;
+  recipeMaterialFilterItemKey: string | null;
   interactLabel: string | null;
   canProspect: boolean;
   canSell: boolean;
@@ -97,6 +98,9 @@ export interface AppWindowsActions {
     onCraftRecipe: (recipeId: string) => void;
     onDropItem: (itemId: string) => void;
     onDropEquippedItem: (slot: EquipmentSlot) => void;
+    onProspectItem: (itemId: string) => void;
+    onSellItem: (itemId: string) => void;
+    onSetItemLocked: (itemId: string, locked: boolean) => void;
     onContextItem: (
       event: React.MouseEvent<HTMLElement>,
       item: TooltipItem,
@@ -117,6 +121,10 @@ export interface AppWindowsActions {
     onBuyTownItem: (itemId: string) => void;
     onClaimHex: () => void;
     onSetHome: () => void;
+  };
+  recipes: {
+    onOpenWithMaterialFilter: (itemKey: string) => void;
+    onClearMaterialFilter: () => void;
   };
   logs: {
     onToggleFilterMenu: () => void;

@@ -1,6 +1,7 @@
 import type { Decorator } from '@storybook/react-vite';
 import {
   createGame,
+  getRecipeBookEntries,
   getPlayerStats,
   getRecipeBookRecipes,
   Skill,
@@ -21,7 +22,7 @@ import type {
   Item,
   LogEntry,
   LogKind,
-  RecipeDefinition,
+  RecipeBookEntry,
   SkillName,
 } from '../../../game/state';
 import { WINDOW_LABELS } from '../../windowLabels';
@@ -97,8 +98,8 @@ export function createStorybookFixtures() {
   );
   addLog(state, 'system', 'Autosave stabilized the current expedition state.');
 
-  const recipes = getRecipeBookRecipes(state.player.learnedRecipeIds);
-  const inventoryCounts = countInventoryByName(inventory);
+  const recipes = getRecipeBookEntries(state.player.learnedRecipeIds);
+  const inventoryCountsByItemKey = countInventoryByItemKey(inventory);
 
   return {
     debuggerTimeLabel: 'Year 1, Day 4 · 18:40 · Blood moon watch',
@@ -108,7 +109,7 @@ export function createStorybookFixtures() {
     equipment,
     heroStats: getPlayerStats(state.player),
     inventory,
-    inventoryCounts,
+    inventoryCountsByItemKey,
     items: ITEM_CONFIGS,
     logs: state.logs as LogEntry[],
     loot,
@@ -123,9 +124,10 @@ export function createStorybookFixtures() {
   };
 }
 
-export function countInventoryByName(items: Item[]) {
+export function countInventoryByItemKey(items: Item[]) {
   return items.reduce<Record<string, number>>((counts, item) => {
-    counts[item.name] = (counts[item.name] ?? 0) + item.quantity;
+    const key = item.itemKey ?? item.name;
+    counts[key] = (counts[key] ?? 0) + item.quantity;
     return counts;
   }, {});
 }
@@ -242,9 +244,9 @@ export function createLogFilters(
   };
 }
 
-export function createRecipeBookArgs(recipes: RecipeDefinition[]) {
+export function createRecipeBookArgs(recipes: RecipeBookEntry[]) {
   return {
-    currentStructure: 'forge',
+    currentStructure: 'forge' as const,
     recipes,
   };
 }

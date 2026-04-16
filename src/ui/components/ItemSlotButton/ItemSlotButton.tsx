@@ -6,12 +6,20 @@ import type { EquipmentSlot, Item } from '../../../game/state';
 import { iconForItem, itemTint } from '../../icons';
 import styles from './styles.module.scss';
 
+interface ItemSlotCornerIcon {
+  icon: string;
+  color: string;
+  label?: string;
+}
+
 interface ItemSlotButtonProps {
   item?: Item;
   slot?: EquipmentSlot;
   size?: 'default' | 'compact';
   className?: string;
   style?: CSSProperties;
+  tintOverride?: string;
+  cornerIcon?: ItemSlotCornerIcon;
   hidePlaceholderIconWhenEmpty?: boolean;
   disabled?: boolean;
   onClick?: () => void;
@@ -27,6 +35,8 @@ export function ItemSlotButton({
   size = 'default',
   className,
   style,
+  tintOverride,
+  cornerIcon,
   hidePlaceholderIconWhenEmpty = false,
   disabled = false,
   onClick,
@@ -35,7 +45,8 @@ export function ItemSlotButton({
   onEmptyMouseEnter,
   onMouseLeave,
 }: ItemSlotButtonProps) {
-  const tint = item ? itemTint(item) : 'rgba(148, 163, 184, 0.32)';
+  const tint =
+    tintOverride ?? (item ? itemTint(item) : 'rgba(148, 163, 184, 0.32)');
   const isInteractive = Boolean(
     !disabled && item && (onClick || onContextMenu || onMouseEnter),
   );
@@ -79,6 +90,13 @@ export function ItemSlotButton({
         <span className={styles.stackBadge}>
           x{formatCompactNumber(item.quantity)}
         </span>
+      ) : null}
+      {cornerIcon ? (
+        <span
+          className={styles.cornerIcon}
+          style={iconMaskStyle(cornerIcon.icon, cornerIcon.color)}
+          aria-label={cornerIcon.label}
+        />
       ) : null}
     </button>
   );

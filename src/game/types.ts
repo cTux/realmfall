@@ -54,6 +54,7 @@ export interface Item {
   itemKey?: ItemKey;
   tags?: GameTag[];
   recipeId?: string;
+  locked?: boolean;
   slot?: EquipmentSlot;
   icon?: string;
   name: string;
@@ -206,6 +207,10 @@ export interface RecipeDefinition {
   output: Item;
   ingredients: RecipeRequirement[];
   fuelOptions?: RecipeRequirement[];
+}
+
+export interface RecipeBookEntry extends RecipeDefinition {
+  learned: boolean;
 }
 
 export type LogKind =

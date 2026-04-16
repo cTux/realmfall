@@ -1,8 +1,9 @@
 import { makeCookedFish, makeCraftedItem } from './inventory';
+import { CRAFTED_EXPANSION_RECIPES } from './craftedExpansionRecipes';
 import { t } from '../i18n';
 import { EquipmentSlotId } from './content/ids';
-import { getItemConfigByKey } from './content/items';
-import { Skill } from './types';
+import { buildItemFromConfig, getItemConfigByKey } from './content/items';
+import { Skill, type RecipeBookEntry, type StructureType } from './types';
 import type {
   GameState,
   Item,
@@ -20,6 +21,19 @@ export function getRecipeBookRecipes(
 
   return visibleRecipes.map((recipe) => ({
     ...recipe,
+    output: { ...recipe.output },
+    ingredients: recipe.ingredients.map((ingredient) => ({ ...ingredient })),
+    fuelOptions: recipe.fuelOptions?.map((option) => ({ ...option })),
+  }));
+}
+
+export function getRecipeBookEntries(
+  recipes: RecipeDefinition[],
+  learnedRecipeIds: string[],
+): RecipeBookEntry[] {
+  return recipes.map((recipe) => ({
+    ...recipe,
+    learned: learnedRecipeIds.includes(recipe.id),
     output: { ...recipe.output },
     ingredients: recipe.ingredients.map((ingredient) => ({ ...ingredient })),
     fuelOptions: recipe.fuelOptions?.map((option) => ({ ...option })),
@@ -97,6 +111,21 @@ export function describeRequirement(requirement: RecipeRequirement) {
   return `${requirement.quantity} ${requirement.name}`;
 }
 
+export function getRecipeRequiredStructure(
+  recipe: Pick<RecipeDefinition, 'skill'>,
+): StructureType {
+  return recipe.skill === Skill.Cooking ? 'camp' : 'workshop';
+}
+
+export function recipeUsesItemKey(
+  recipe: Pick<RecipeDefinition, 'ingredients' | 'fuelOptions'>,
+  itemKey: string,
+) {
+  return [...recipe.ingredients, ...(recipe.fuelOptions ?? [])].some(
+    (requirement) => requirement.itemKey === itemKey,
+  );
+}
+
 function matchesRequirement(item: Item, requirement: RecipeRequirement) {
   return (
     item.quantity >= requirement.quantity &&
@@ -106,7 +135,16 @@ function matchesRequirement(item: Item, requirement: RecipeRequirement) {
   );
 }
 
-const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
+const RECIPE_REQUIREMENT_SCALE = 10;
+
+function scaleRequirements(requirements: RecipeRequirement[]) {
+  return requirements.map((requirement) => ({
+    ...requirement,
+    quantity: requirement.quantity * RECIPE_REQUIREMENT_SCALE,
+  }));
+}
+
+const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
   {
     id: 'cook-cooked-fish',
     name: 'Cooked Fish',
@@ -158,6 +196,28 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     ingredients: [
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 3 },
       { itemKey: 'logs', name: 'Logs', quantity: 1 },
+    ],
+  },
+  {
+    id: 'craft-knife',
+    name: 'Town Knife',
+    description: 'A balanced knife ground for camp chores and close trouble.',
+    skill: Skill.Crafting,
+    output: buildItemFromConfig('town-knife', { id: 'crafted-town-knife' }),
+    ingredients: [
+      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 1 },
+      { itemKey: 'sticks', name: 'Sticks', quantity: 1 },
+    ],
+  },
+  {
+    id: 'craft-scout-hood',
+    name: 'Scout Hood',
+    description: 'A light hood stitched for clear sight and quick travel.',
+    skill: Skill.Crafting,
+    output: buildItemFromConfig('scout-hood', { id: 'crafted-scout-hood' }),
+    ingredients: [
+      { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
+      { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 1 },
     ],
   },
   {
@@ -369,7 +429,43 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
       { itemKey: 'logs', name: 'Logs', quantity: 1 },
     ],
   },
+  {
+    id: 'cook-trail-ration',
+    name: 'Trail Ration',
+    description: 'A packed meal of fish and herbs for long roads.',
+    skill: Skill.Cooking,
+    output: buildItemFromConfig('trail-ration'),
+    ingredients: [
+      { itemKey: 'cooked-fish', name: 'Cooked Fish', quantity: 1 },
+      { itemKey: 'herbs', name: 'Herbs', quantity: 1 },
+    ],
+    fuelOptions: [
+      { itemKey: 'coal', name: 'Coal', quantity: 1 },
+      { itemKey: 'logs', name: 'Logs', quantity: 2 },
+      { itemKey: 'sticks', name: 'Sticks', quantity: 8 },
+    ],
+  },
+  {
+    id: 'cook-water-flask',
+    name: 'Water Flask',
+    description: 'Boil water clean and bottle it for the march ahead.',
+    skill: Skill.Cooking,
+    output: buildItemFromConfig('water-flask'),
+    ingredients: [{ itemKey: 'herbs', name: 'Herbs', quantity: 1 }],
+    fuelOptions: [
+      { itemKey: 'coal', name: 'Coal', quantity: 1 },
+      { itemKey: 'logs', name: 'Logs', quantity: 2 },
+      { itemKey: 'sticks', name: 'Sticks', quantity: 8 },
+    ],
+  },
+  ...CRAFTED_EXPANSION_RECIPES,
 ];
+
+const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = RAW_RECIPE_BOOK_RECIPES_BASE.map((recipe) => ({
+  ...recipe,
+  ingredients: scaleRequirements(recipe.ingredients),
+  fuelOptions: recipe.fuelOptions ? scaleRequirements(recipe.fuelOptions) : undefined,
+}));
 
 export const RECIPE_BOOK_RECIPES: RecipeDefinition[] =
   RAW_RECIPE_BOOK_RECIPES.map((recipe) => ({
@@ -389,3 +485,11 @@ export const RECIPE_BOOK_RECIPES: RecipeDefinition[] =
         : option.name,
     })),
   }));
+
+export const RECIPE_BY_OUTPUT_ITEM_KEY = Object.freeze(
+  Object.fromEntries(
+    RECIPE_BOOK_RECIPES.flatMap((recipe) =>
+      recipe.output.itemKey ? [[recipe.output.itemKey, recipe]] : [],
+    ),
+  ) satisfies Record<string, RecipeDefinition>,
+);

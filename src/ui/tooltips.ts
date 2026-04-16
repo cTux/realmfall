@@ -30,6 +30,7 @@ export interface TooltipLine {
   text?: string;
   label?: string;
   value?: string;
+  icon?: string;
   current?: number;
   max?: number;
   kind?: 'text' | 'stat' | 'bar';

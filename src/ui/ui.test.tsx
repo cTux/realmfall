@@ -484,9 +484,11 @@ describe('ui helpers and components', () => {
         <RecipeBookWindow
           position={DEFAULT_WINDOWS.recipes}
           onMove={() => {}}
-          currentStructure="Campfire"
+          currentStructure="camp"
           recipes={[]}
-          inventoryCounts={{}}
+          inventoryCountsByItemKey={{}}
+          materialFilterItemKey={null}
+          onResetMaterialFilter={() => {}}
           onCraft={() => {}}
         />
         <HexInfoWindow
@@ -539,6 +541,7 @@ describe('ui helpers and components', () => {
           onMove={() => {}}
           inventory={[inventoryItem, equippedItem]}
           equipment={{ ...game.player.equipment, head: equippedItem }}
+          learnedRecipeIds={[]}
           onSort={() => {}}
           onEquip={() => {}}
           onContextItem={() => {}}
@@ -550,6 +553,7 @@ describe('ui helpers and components', () => {
           onMove={() => {}}
           inventory={[]}
           equipment={game.player.equipment}
+          learnedRecipeIds={[]}
           onSort={() => {}}
           onEquip={() => {}}
           onContextItem={() => {}}
@@ -632,7 +636,13 @@ describe('ui helpers and components', () => {
             borderColor: rarityColor('rare'),
             lines: [
               { kind: 'text', text: 'RARE TIER 2 WEAPON' },
-              { kind: 'stat', label: 'Attack', value: '+4', tone: 'item' },
+              {
+                kind: 'stat',
+                label: 'Attack',
+                value: '+4',
+                tone: 'item',
+                icon: getItemConfigByKey('town-knife')?.icon,
+              },
               { kind: 'stat', label: 'Defense', value: '+1', tone: 'item' },
               { kind: 'bar', label: 'HP', current: 3, max: 10 },
             ],
@@ -667,6 +677,7 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('Kick');
     expect(markup).toContain('(Q) Start');
     expect(markup).toContain('Knight Blade');
+    expect(markup).toContain(getItemConfigByKey('town-knife')?.icon ?? '');
     expect(iconForItem(inventoryItem)).toBeTruthy();
     expect(iconForItem(undefined, EquipmentSlotId.Weapon)).toBeTruthy();
   });
@@ -1090,6 +1101,50 @@ describe('ui helpers and components', () => {
     host.remove();
   });
 
+  it('renders lock and recipe actions in the item context menu when available', async () => {
+    const markup = await renderMarkup(
+      <ItemContextMenu
+        item={{
+          id: 'iron-chunks',
+          itemKey: 'iron-chunks',
+          name: 'Iron Chunks',
+          tags: [GameTag.ItemResource, GameTag.ItemCraftingMaterial],
+          quantity: 2,
+          tier: 1,
+          rarity: 'common',
+          power: 0,
+          defense: 0,
+          maxHp: 0,
+          healing: 0,
+          hunger: 0,
+          locked: true,
+        }}
+        x={100}
+        y={120}
+        canEquip={false}
+        canUse={false}
+        canToggleLock
+        isLocked
+        canShowRecipes
+        canProspect
+        canSell
+        onEquip={() => {}}
+        onUse={() => {}}
+        onDrop={() => {}}
+        onToggleLock={() => {}}
+        onShowRecipes={() => {}}
+        onProspect={() => {}}
+        onSell={() => {}}
+        onClose={() => {}}
+      />,
+    );
+
+    expect(markup).toContain('Unlock');
+    expect(markup).toContain('Show recipes');
+    expect(markup).toContain('Prospect');
+    expect(markup).toContain('Sell');
+  });
+
   it('commits draggable window movement on pointer release', async () => {
     const moves: Array<{ x: number; y: number }> = [];
     const host = document.createElement('div');
@@ -1357,9 +1412,11 @@ describe('ui helpers and components', () => {
           <RecipeBookWindow
             position={DEFAULT_WINDOWS.recipes}
             onMove={() => {}}
-            currentStructure="Campfire"
+            currentStructure="camp"
             recipes={[]}
-            inventoryCounts={{}}
+            inventoryCountsByItemKey={{}}
+            materialFilterItemKey={null}
+            onResetMaterialFilter={() => {}}
             onCraft={() => {}}
             onHoverDetail={hoverDetail}
           />

@@ -51,6 +51,7 @@ import { trailRationItemConfig } from './trailRation';
 import { wayfarerCloakItemConfig } from './wayfarerCloak';
 import { waterFlaskItemConfig } from './waterFlask';
 import { workGlovesItemConfig } from './workGloves';
+import { CRAFTED_EXPANSION_ITEM_CONFIGS } from './expansion';
 
 const RAW_ITEM_CONFIGS = [
   trailRationItemConfig,
@@ -87,6 +88,7 @@ const RAW_ITEM_CONFIGS = [
   wayfarerCloakItemConfig,
   hearthTotemItemConfig,
   waterFlaskItemConfig,
+  ...CRAFTED_EXPANSION_ITEM_CONFIGS,
   ...GENERATED_EQUIPMENT_CONFIGS,
 ] as const;
 
@@ -198,6 +200,7 @@ export function buildItemFromConfig(
     itemKey: config.key,
     tags: overrides.tags ?? [...(config.tags ?? [])],
     recipeId: overrides.recipeId,
+    locked: overrides.locked ?? false,
     slot: config.slot,
     icon:
       overrides.icon ??
@@ -266,6 +269,7 @@ export function cloneConfiguredItem(item: Item) {
   return buildItemFromConfig(config.key, {
     id: item.id,
     recipeId: item.recipeId,
+    locked: item.locked,
     quantity: item.quantity,
     tier: item.tier,
     rarity: item.rarity,
@@ -323,27 +327,55 @@ export function inferItemTags(item: ItemClassificationInput) {
 }
 
 function buildItemConfigTags(
-  config: Omit<ItemConfig, 'name' | 'tags'> & { name?: string },
+  config: Omit<ItemConfig, 'name'> & { name?: string },
 ) {
   const category = getItemConfigCategory(config);
   const keyTags: Partial<Record<string, GameTag[]>> = {
     [ItemId.Gold]: [GAME_TAGS.item.currency, GAME_TAGS.item.resource],
     [ItemId.HomeScroll]: [GAME_TAGS.item.homeward],
     [ItemId.Herbs]: [GAME_TAGS.item.gathered],
-    [ItemId.Logs]: [GAME_TAGS.item.gathered, GAME_TAGS.item.wood],
-    [ItemId.Sticks]: [GAME_TAGS.item.gathered, GAME_TAGS.item.wood],
+    [ItemId.Logs]: [
+      GAME_TAGS.item.gathered,
+      GAME_TAGS.item.wood,
+      GAME_TAGS.item.craftingMaterial,
+    ],
+    [ItemId.Sticks]: [
+      GAME_TAGS.item.gathered,
+      GAME_TAGS.item.wood,
+      GAME_TAGS.item.craftingMaterial,
+    ],
     [ItemId.Stone]: [GAME_TAGS.item.gathered],
-    [ItemId.CopperOre]: [GAME_TAGS.item.gathered, GAME_TAGS.item.ore],
+    [ItemId.CopperOre]: [
+      GAME_TAGS.item.gathered,
+      GAME_TAGS.item.ore,
+      GAME_TAGS.item.craftingMaterial,
+    ],
     [ItemId.IronOre]: [GAME_TAGS.item.gathered, GAME_TAGS.item.ore],
-    [ItemId.IronChunks]: [GAME_TAGS.item.ore, GAME_TAGS.item.prospectable],
-    [ItemId.Coal]: [GAME_TAGS.item.gathered],
-    [ItemId.RawFish]: [GAME_TAGS.item.gathered],
-    [ItemId.Cloth]: [GAME_TAGS.item.cloth, GAME_TAGS.item.prospectable],
+    [ItemId.IronChunks]: [
+      GAME_TAGS.item.ore,
+      GAME_TAGS.item.prospectable,
+      GAME_TAGS.item.craftingMaterial,
+    ],
+    [ItemId.Coal]: [GAME_TAGS.item.gathered, GAME_TAGS.item.craftingMaterial],
+    [ItemId.RawFish]: [
+      GAME_TAGS.item.gathered,
+      GAME_TAGS.item.craftingMaterial,
+    ],
+    [ItemId.Cloth]: [
+      GAME_TAGS.item.cloth,
+      GAME_TAGS.item.prospectable,
+      GAME_TAGS.item.craftingMaterial,
+    ],
     [ItemId.LeatherScraps]: [
       GAME_TAGS.item.animalProduct,
       GAME_TAGS.item.prospectable,
+      GAME_TAGS.item.craftingMaterial,
     ],
-    [ItemId.ArcaneDust]: [GAME_TAGS.item.aether, GAME_TAGS.item.prospectable],
+    [ItemId.ArcaneDust]: [
+      GAME_TAGS.item.aether,
+      GAME_TAGS.item.prospectable,
+      GAME_TAGS.item.craftingMaterial,
+    ],
     [ItemId.CampSpear]: [GAME_TAGS.item.crafted],
     [ItemId.HideBuckler]: [
       GAME_TAGS.item.crafted,
@@ -366,6 +398,7 @@ function buildItemConfigTags(
   };
 
   return uniqueTags(
+    ...(config.tags ?? []),
     category === 'consumable' || category === 'resource'
       ? GAME_TAGS.item.stackable
       : undefined,

@@ -63,7 +63,9 @@ export function AppDeferredWindows({
           onClose={windowCloseHandlers.recipes}
           currentStructure={recipeWindowStructure}
           recipes={views.recipes}
-          inventoryCounts={views.inventoryCounts}
+          inventoryCountsByItemKey={views.inventoryCountsByItemKey}
+          materialFilterItemKey={views.recipeMaterialFilterItemKey}
+          onResetMaterialFilter={actions.recipes.onClearMaterialFilter}
           onCraft={actions.inventory.onCraftRecipe}
           onHoverDetail={actions.tooltip.onShowTooltip}
           onLeaveDetail={actions.tooltip.onCloseTooltip}
@@ -130,6 +132,7 @@ export function AppDeferredWindows({
           onClose={windowCloseHandlers.inventory}
           inventory={views.game.player.inventory}
           equipment={views.game.player.equipment}
+          learnedRecipeIds={views.game.player.learnedRecipeIds}
           onSort={actions.inventory.onSort}
           onEquip={actions.inventory.onEquip}
           onContextItem={actions.inventory.onContextItem}

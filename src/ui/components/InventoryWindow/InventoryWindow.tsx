@@ -23,6 +23,7 @@ export const InventoryWindow = memo(function InventoryWindow({
   onClose,
   inventory,
   equipment,
+  learnedRecipeIds,
   onSort,
   onEquip,
   onContextItem,
@@ -70,6 +71,7 @@ export const InventoryWindow = memo(function InventoryWindow({
         <InventoryWindowContent
           inventory={inventory}
           equipment={equipment}
+          learnedRecipeIds={learnedRecipeIds}
           onEquip={onEquip}
           onContextItem={onContextItem}
           onHoverItem={onHoverItem}

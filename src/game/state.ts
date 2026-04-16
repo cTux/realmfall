@@ -41,7 +41,9 @@ import {
 import {
   consumeRequirements,
   describeRequirement,
+  getRecipeBookEntries as getRecipeBookEntriesFromDefinitions,
   getRecipeBookRecipes as getRecipeBookRecipesFromDefinitions,
+  getRecipeRequiredStructure,
   hasAllRequirements,
   learnRecipe,
   pickSatisfiedRequirement,
@@ -131,6 +133,7 @@ export type {
   LogKind,
   Player,
   PlayerStatusEffect,
+  RecipeBookEntry,
   RecipeDefinition,
   RecipeRequirement,
   SkillName,
@@ -161,6 +164,7 @@ export {
   getStructureConfig,
   isGatheringStructure,
   isAnimalEnemyType,
+  isEquippableItem,
   isRecipePage,
   makeGoldStack,
   skillLevelThreshold,
@@ -233,6 +237,13 @@ export function createGame(
 
 export function getRecipeBookRecipes(learnedRecipeIds?: string[]) {
   return getRecipeBookRecipesFromDefinitions(
+    RECIPE_BOOK_RECIPES,
+    learnedRecipeIds,
+  );
+}
+
+export function getRecipeBookEntries(learnedRecipeIds: string[]) {
+  return getRecipeBookEntriesFromDefinitions(
     RECIPE_BOOK_RECIPES,
     learnedRecipeIds,
   );
@@ -1099,17 +1110,46 @@ export function sellAllItems(state: GameState): GameState {
   if (getCurrentTile(state).structure !== 'town') {
     return message(state, t('game.message.sell.townOnly'));
   }
-  const sellable = state.player.inventory.filter(isEquippableItem);
+  const sellable = state.player.inventory.filter(
+    (item) => isEquippableItem(item) && !item.locked,
+  );
   if (sellable.length === 0)
     return message(state, t('game.message.sell.empty'));
 
   const next = clone(state);
   const gold = sellable.reduce((sum, item) => sum + sellValue(item), 0);
   next.player.inventory = next.player.inventory.filter(
-    (item) => !isEquippableItem(item),
+    (item) => !isEquippableItem(item) || item.locked,
   );
   addItemToInventory(next.player.inventory, makeGoldStack(gold));
   addLog(next, 'system', t('game.message.sell.success', { gold }));
+  return next;
+}
+
+export function sellInventoryItem(state: GameState, itemId: string): GameState {
+  if (getCurrentTile(state).structure !== 'town') {
+    return message(state, t('game.message.sell.townOnly'));
+  }
+
+  const item = state.player.inventory.find((entry) => entry.id === itemId);
+  if (!item || !isEquippableItem(item) || item.locked) {
+    return message(state, t('game.message.sell.empty'));
+  }
+
+  const next = clone(state);
+  const gold = sellValue(item);
+  next.player.inventory = next.player.inventory.filter(
+    (entry) => entry.id !== itemId,
+  );
+  addItemToInventory(next.player.inventory, makeGoldStack(gold));
+  addLog(
+    next,
+    'system',
+    t('game.message.sell.itemSuccess', {
+      item: describeItemStack(item),
+      gold,
+    }),
+  );
   return next;
 }
 
@@ -1119,13 +1159,15 @@ export function prospectInventory(state: GameState): GameState {
   }
 
   const next = clone(state);
-  const prospectable = next.player.inventory.filter(isEquippableItem);
+  const prospectable = next.player.inventory.filter(
+    (item) => isEquippableItem(item) && !item.locked,
+  );
   if (prospectable.length === 0) {
     return message(state, t('game.message.prospect.empty'));
   }
 
   next.player.inventory = next.player.inventory.filter(
-    (item) => !isEquippableItem(item),
+    (item) => !isEquippableItem(item) || item.locked,
   );
   prospectable.forEach((item) => {
     prospectYield(item).forEach((resource) =>
@@ -1135,6 +1177,37 @@ export function prospectInventory(state: GameState): GameState {
 
   next.player.inventory.sort(compareItems);
   addLog(next, 'loot', t('game.message.prospect.success'));
+  return next;
+}
+
+export function prospectInventoryItem(
+  state: GameState,
+  itemId: string,
+): GameState {
+  if (getCurrentTile(state).structure !== 'forge') {
+    return message(state, t('game.message.prospect.forgeOnly'));
+  }
+
+  const item = state.player.inventory.find((entry) => entry.id === itemId);
+  if (!item || !isEquippableItem(item) || item.locked) {
+    return message(state, t('game.message.prospect.empty'));
+  }
+
+  const next = clone(state);
+  next.player.inventory = next.player.inventory.filter(
+    (entry) => entry.id !== itemId,
+  );
+  prospectYield(item).forEach((resource) =>
+    addItemToInventory(next.player.inventory, resource),
+  );
+  next.player.inventory.sort(compareItems);
+  addLog(
+    next,
+    'loot',
+    t('game.message.prospect.itemSuccess', {
+      item: describeItemStack(item),
+    }),
+  );
   return next;
 }
 
@@ -1392,8 +1465,7 @@ export function craftRecipe(state: GameState, recipeId: string): GameState {
   if (!state.player.learnedRecipeIds.includes(recipe.id)) {
     return message(state, t('game.message.recipe.notLearned'));
   }
-  const requiredStructure =
-    recipe.skill === Skill.Cooking ? 'camp' : 'workshop';
+  const requiredStructure = getRecipeRequiredStructure(recipe);
   const requiredLabel =
     getStructureConfig(requiredStructure).title.toLowerCase();
   if (getCurrentTile(state).structure !== requiredStructure) {
@@ -1438,6 +1510,29 @@ export function craftRecipe(state: GameState, recipeId: string): GameState {
             : '',
         })
       : t('game.message.craft.make', { item: recipe.output.name }),
+  );
+  return next;
+}
+
+export function setInventoryItemLocked(
+  state: GameState,
+  itemId: string,
+  locked: boolean,
+): GameState {
+  const itemIndex = state.player.inventory.findIndex((item) => item.id === itemId);
+  if (itemIndex < 0) return message(state, t('game.message.item.notInPack'));
+  if (state.player.inventory[itemIndex]?.locked === locked) return state;
+
+  const next = clone(state);
+  const item = next.player.inventory[itemIndex];
+  if (!item) return state;
+  item.locked = locked;
+  addLog(
+    next,
+    'system',
+    locked
+      ? t('game.message.item.locked', { item: item.name })
+      : t('game.message.item.unlocked', { item: item.name }),
   );
   return next;
 }

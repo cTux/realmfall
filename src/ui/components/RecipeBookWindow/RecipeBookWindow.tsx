@@ -21,7 +21,9 @@ export const RecipeBookWindow = memo(function RecipeBookWindow({
   onClose,
   currentStructure,
   recipes,
-  inventoryCounts,
+  inventoryCountsByItemKey,
+  materialFilterItemKey,
+  onResetMaterialFilter,
   onCraft,
   onHoverDetail,
   onLeaveDetail,
@@ -35,6 +37,7 @@ export const RecipeBookWindow = memo(function RecipeBookWindow({
       className={styles.window}
       visible={visible}
       onClose={onClose}
+      resizeBounds={{ minWidth: 360, minHeight: 260 }}
       onHoverDetail={onHoverDetail}
       onLeaveDetail={onLeaveDetail}
     >
@@ -42,8 +45,12 @@ export const RecipeBookWindow = memo(function RecipeBookWindow({
         <RecipeBookWindowContent
           currentStructure={currentStructure}
           recipes={recipes}
-          inventoryCounts={inventoryCounts}
+          inventoryCountsByItemKey={inventoryCountsByItemKey}
+          materialFilterItemKey={materialFilterItemKey}
+          onResetMaterialFilter={onResetMaterialFilter}
           onCraft={onCraft}
+          onHoverDetail={onHoverDetail}
+          onLeaveDetail={onLeaveDetail}
         />
       </Suspense>
     </WindowShell>

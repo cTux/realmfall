@@ -229,6 +229,7 @@ function normalizeItem(item: Item): Item {
   return {
     ...item,
     itemKey: configured?.key ?? item.itemKey,
+    locked: Boolean(item.locked),
     slot:
       item.slot === EquipmentSlotId.Relic
         ? EquipmentSlotId.Offhand

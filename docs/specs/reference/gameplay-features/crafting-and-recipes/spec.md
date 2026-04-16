@@ -7,11 +7,15 @@ This spec covers the recipe book, recipe learning, and crafting execution.
 ## Current Behavior
 
 - The player starts with a set of learned recipes, and the recipe book exists as a dedicated window instead of an inventory item.
-- Recipe pages can drop and be consumed to learn additional recipes.
+- Recipe definitions are keyed to canonical output item bases, and recipe pages can drop and be consumed to learn additional recipes the player does not already know.
 - Learned recipes are tracked on the player state.
-- Crafting checks recipe knowledge, ingredient requirements, optional fuel requirements, and the required crafting site.
+- Crafting checks recipe knowledge, scaled ingredient requirements, optional fuel requirements, and the required crafting site.
 - Crafting consumes required inputs and materializes a configured output item.
-- Current recipe coverage includes cooking and crafted gear across weapon, armor, and artifact slots.
+- The recipe book shows both learned and unlearned recipes, splits them into profession tabs on the right side, supports resizing, and can be filtered by a crafting material from the inventory context menu.
+- Learned recipes stay interactive, sort ahead of unlearned recipes within each profession tab, show inventory-style recipe entries, tint red when the player lacks materials, fuel, or the right crafting site, and expose a hover tooltip with the crafting-site icon plus icon-backed material and fuel requirements.
+- Unlearned recipes remain visible but disabled, with no hover tooltip.
+- Current recipe coverage now spans a much larger craftable catalog, including the original cooking and gear set plus a generated expansion of themed weapons, shields, hoods, mantles, vests, bracers, gloves, belts, leggings, boots, charms, and cloaks.
+- Recipe resource costs are scaled 10x from their base requirements, including cooking fuel requirements.
 
 ## Main Implementation Areas
 
