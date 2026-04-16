@@ -1,5 +1,6 @@
 import { makeCookedFish, makeCraftedItem } from './inventory';
 import { CRAFTED_EXPANSION_RECIPES } from './craftedExpansionRecipes';
+import { GENERATED_CRAFTING_RECIPES } from './generatedCraftingRecipes';
 import { HARVEST_COOKING_RECIPES } from './harvestCookingRecipes';
 import { t } from '../i18n';
 import { EquipmentSlotId } from './content/ids';
@@ -504,6 +505,7 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
     fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   ...HARVEST_COOKING_RECIPES,
+  ...GENERATED_CRAFTING_RECIPES,
   ...CRAFTED_EXPANSION_RECIPES,
 ];
 

@@ -2332,6 +2332,11 @@ describe('game state', () => {
     expect(
       entries.some((entry) => entry.id === 'craft-weapon' && !entry.learned),
     ).toBe(true);
+    expect(
+      entries.some(
+        (entry) => entry.id === 'craft-icon-helmet-01' && !entry.learned,
+      ),
+    ).toBe(true);
   });
 
   it('lets every enemy on the tile retaliate during combat', () => {

@@ -17,6 +17,7 @@ import {
   GENERATED_OFFHAND_KEYS,
   GENERATED_WEAPON_KEYS,
 } from '../generatedEquipment';
+import { CRAFTABLE_ICON_ITEM_CONFIGS as GENERATED_CRAFTABLE_ICON_ITEM_CONFIGS } from '../generatedCraftingEquipment';
 import { arcaneDustItemConfig } from './arcaneDust';
 import { appleItemConfig } from './apple';
 import { campSpearItemConfig } from './campSpear';
@@ -109,6 +110,7 @@ const RAW_ITEM_CONFIGS = [
   waterFlaskItemConfig,
   ...MEAL_ITEM_CONFIGS,
   ...CRAFTED_EXPANSION_ITEM_CONFIGS,
+  ...GENERATED_CRAFTABLE_ICON_ITEM_CONFIGS,
   ...GENERATED_EQUIPMENT_CONFIGS,
 ] as const;
 
