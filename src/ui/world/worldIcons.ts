@@ -3,6 +3,7 @@ import sunCloudIcon from '../../assets/icons/sun-cloud.svg';
 import rainingIcon from '../../assets/icons/raining.svg';
 import snowingIcon from '../../assets/icons/snowing.svg';
 import tearTracksIcon from '../../assets/icons/tear-tracks.svg';
+import castleIcon from '../../assets/icons/castle.svg';
 import { ENEMY_CONFIGS, getEnemyConfig } from '../../game/content/enemies';
 import {
   STRUCTURE_CONFIGS,
@@ -17,6 +18,7 @@ export const WorldIcons = {
   Raining: rainingIcon,
   Snowing: snowingIcon,
   Village: tearTracksIcon,
+  Castle: castleIcon,
 } as const;
 
 export function enemyIconFor(

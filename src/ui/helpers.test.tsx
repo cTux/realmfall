@@ -5,7 +5,7 @@ import { vi } from 'vitest';
 import { GameTag } from '../game/content/tags';
 import type { Enemy, Item, Tile } from '../game/state';
 import { formatCompactNumber, formatCompactNumberish } from './formatters';
-import { Icons, iconForItem, itemTint } from './icons';
+import { Icons, iconForItem, itemTint, SkillIcon } from './icons';
 import { rarityColor } from './rarity';
 import {
   comparisonLines,
@@ -102,6 +102,10 @@ describe('ui helper coverage', () => {
       itemTint(createItem({ itemKey: 'gold', name: 'Gold', slot: undefined })),
     ).toBe('#fbbf24');
     expect(itemTint(createItem({ rarity: 'rare' }))).toBe(rarityColor('rare'));
+  });
+
+  it('uses the dedicated miner icon for the mining skill', () => {
+    expect(SkillIcon.mining).toBe(Icons.Miner);
   });
 
   it('covers tooltip branches for grouped enemies and structure variants', () => {

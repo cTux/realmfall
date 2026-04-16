@@ -230,7 +230,9 @@ export function renderScene(
           if (tile.structure) {
             const marker = takeShadowedSprite(
               scene.worldStaticMarkerSprites,
-              structureIconFor(tile.structure),
+              tile.structure === 'town' && tile.claim?.ownerType === 'faction'
+                ? WorldIcons.Castle
+                : structureIconFor(tile.structure),
             );
             configureShadowedSprite(
               marker,

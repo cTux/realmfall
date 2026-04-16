@@ -4,6 +4,7 @@ import gluttonyIcon from '../../assets/icons/gluttony.svg';
 import playerIcon from '../../assets/icons/visored-helm.svg';
 import wolfHeadIcon from '../../assets/icons/wolf-head.svg';
 import tearTracksIcon from '../../assets/icons/tear-tracks.svg';
+import castleIcon from '../../assets/icons/castle.svg';
 
 const textureFrom = vi.fn((icon: string) => ({ icon }));
 const assetsGet = vi.fn(() => undefined);
@@ -1161,6 +1162,56 @@ describe('renderScene', () => {
       true,
     );
     expect(markerChildren.every((sprite) => sprite.icon !== playerIcon)).toBe(
+      true,
+    );
+  });
+
+  it('uses castle icon on faction-owned town tiles', async () => {
+    const { renderScene } = await import('./renderScene');
+    textureFrom.mockClear();
+    const game = createGame(1, 'render-scene-faction-town-icon');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      structure: 'town',
+      items: [],
+      enemyIds: [],
+      claim: {
+        ownerId: 'faction-claims',
+        ownerType: 'faction',
+        ownerName: 'Ghostline',
+        borderColor: '#ffffff',
+      },
+    };
+
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    const worldMap = app.stage.children[1] as MockContainer;
+    const world = worldMap.children[0] as MockContainer;
+    const markerLayer = world.children[5] as MockContainer;
+
+    const markerWrappers = markerLayer.children.filter(
+      (child): child is MockContainer => child instanceof MockContainer,
+    );
+    expect(markerWrappers).toHaveLength(1);
+
+    const markerChildren = markerWrappers[0].children as Array<{
+      icon: string;
+    }>;
+    expect(markerChildren.length).toBe(5);
+    expect(markerChildren.every((sprite) => sprite.icon === castleIcon)).toBe(
       true,
     );
   });

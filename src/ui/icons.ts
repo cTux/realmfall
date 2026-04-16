@@ -55,6 +55,7 @@ import rolledClothIcon from '../assets/icons/rolled-cloth.svg';
 import gearsIcon from '../assets/icons/gears.svg';
 import padlockIcon from '../assets/icons/padlock.svg';
 import furnaceIcon from '../assets/icons/furnace.svg';
+import minerIcon from '../assets/icons/miner.svg';
 import type { StructureType } from '../game/state';
 import { GAME_TAGS } from '../game/content/tags';
 import { rarityColor } from './rarity';
@@ -106,12 +107,13 @@ export const Icons = {
   Gears: gearsIcon,
   Padlock: padlockIcon,
   Furnace: furnaceIcon,
+  Miner: minerIcon,
 } as const;
 
 export const SkillIcon: Record<SkillName, string> = {
   gathering: Icons.Scythe,
   logging: Icons.AxeInStump,
-  mining: Icons.Ore,
+  mining: Icons.Miner,
   skinning: Icons.AnimalHide,
   fishing: Icons.Salmon,
   cooking: Icons.CampCookingPot,
