@@ -157,6 +157,20 @@ describe('ui helpers and components', () => {
       healing: 0,
       hunger: 0,
     };
+    const manaPotion: Item = {
+      id: 'mana-potion-1',
+      itemKey: 'mana-potion',
+      name: 'Mana Potion',
+      quantity: 1,
+      tier: 1,
+      rarity: 'common',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+      tags: [GameTag.ItemConsumable, GameTag.ItemStackable],
+    };
 
     expect(comparisonLines(consumable)).toEqual([]);
     expect(comparisonLines(resource)).toEqual([]);
@@ -215,6 +229,14 @@ describe('ui helpers and components', () => {
       {
         kind: 'text',
         text: 'Tags: item.food, item.healing',
+        tone: 'subtle',
+      },
+    ]);
+    expect(itemTooltipLines(manaPotion)).toEqual([
+      { kind: 'text', text: 'Use to restore 10% MP.' },
+      {
+        kind: 'text',
+        text: 'Tags: item.consumable, item.stackable',
         tone: 'subtle',
       },
     ]);

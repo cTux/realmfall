@@ -30,6 +30,7 @@ import { copperOreItemConfig } from './copperOre';
 import { fieldBootsItemConfig } from './fieldBoots';
 import { goldItemConfig } from './gold';
 import { hearthTotemItemConfig } from './hearthTotem';
+import { healthPotionItemConfig } from './healthPotion';
 import { herbsItemConfig } from './herbs';
 import { hideBucklerItemConfig } from './hideBuckler';
 import { homeScrollItemConfig } from './homeScroll';
@@ -37,6 +38,7 @@ import { ironChunksItemConfig } from './ironChunks';
 import { ironOreItemConfig } from './ironOre';
 import { leatherScrapsItemConfig } from './leatherScraps';
 import { logsItemConfig } from './logs';
+import { manaPotionItemConfig } from './manaPotion';
 import { patchworkHoodItemConfig } from './patchworkHood';
 import { rawFishItemConfig } from './rawFish';
 import { scoutHoodItemConfig } from './scoutHood';
@@ -53,6 +55,8 @@ import { workGlovesItemConfig } from './workGloves';
 const RAW_ITEM_CONFIGS = [
   trailRationItemConfig,
   appleItemConfig,
+  healthPotionItemConfig,
+  manaPotionItemConfig,
   cookedFishItemConfig,
   homeScrollItemConfig,
   goldItemConfig,

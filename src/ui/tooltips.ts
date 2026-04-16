@@ -305,6 +305,16 @@ function consumableEffectDescription(item: Item) {
   if (item.itemKey === 'home-scroll') {
     return t('ui.tooltip.consumable.homeScroll');
   }
+  if (item.itemKey === 'health-potion') {
+    return t('ui.tooltip.consumable.oneEffect', {
+      first: t('ui.tooltip.consumable.effect.healingPercent', { amount: 10 }),
+    });
+  }
+  if (item.itemKey === 'mana-potion') {
+    return t('ui.tooltip.consumable.oneEffect', {
+      first: t('ui.tooltip.consumable.effect.manaPercent', { amount: 10 }),
+    });
+  }
 
   const effects = [
     item.healing > 0 ? `recover ${item.healing} HP` : null,

@@ -1441,33 +1441,79 @@ export function craftRecipe(state: GameState, recipeId: string): GameState {
 }
 
 function consumeItem(state: GameState, itemIndex: number, item: Item) {
+  const effects = resolveConsumableUseEffects(state, item);
+  if (effects.total === 0) {
+    addLog(
+      state,
+      'system',
+      t('game.message.useItem.noEffect', { item: item.name }),
+    );
+    return;
+  }
+
   consumeInventoryItem(state.player.inventory, itemIndex, item);
-  const maxHp = getPlayerStats(state.player).maxHp;
-  state.player.hp = Math.min(maxHp, state.player.hp + item.healing);
-  state.player.hunger = Math.min(100, state.player.hunger + item.hunger);
-  state.player.thirst = Math.min(
-    100,
-    (state.player.thirst ?? 100) + (item.thirst ?? 0),
-  );
+  state.player.hp += effects.healing;
+  state.player.mana += effects.mana;
+  state.player.hunger += effects.hunger;
+  state.player.thirst = (state.player.thirst ?? 100) + effects.thirst;
   addLog(
     state,
     'survival',
     t('game.message.useItem', {
       item: item.name,
       healing:
-        item.healing > 0
-          ? ` ${t('ui.common.and')} ${t('game.message.useItem.healing', { amount: item.healing })}`
+        effects.healing > 0
+          ? ` ${t('ui.common.and')} ${t('game.message.useItem.healing', { amount: effects.healing })}`
+          : '',
+      mana:
+        effects.mana > 0
+          ? ` ${t('ui.common.and')} ${t('game.message.useItem.mana', { amount: effects.mana })}`
           : '',
       hunger:
-        item.hunger > 0
-          ? ` ${t('ui.common.and')} ${t('game.message.useItem.hunger', { amount: item.hunger })}`
+        effects.hunger > 0
+          ? ` ${t('ui.common.and')} ${t('game.message.useItem.hunger', { amount: effects.hunger })}`
           : '',
       thirst:
-        (item.thirst ?? 0) > 0
-          ? ` ${t('ui.common.and')} ${t('game.message.useItem.thirst', { amount: item.thirst ?? 0 })}`
+        effects.thirst > 0
+          ? ` ${t('ui.common.and')} ${t('game.message.useItem.thirst', { amount: effects.thirst })}`
           : '',
     }),
   );
+}
+
+function resolveConsumableUseEffects(state: GameState, item: Item) {
+  const stats = getPlayerStats(state.player);
+  const healing = Math.max(
+    0,
+    Math.min(
+      stats.maxHp - state.player.hp,
+      item.itemKey === ItemId.HealthPotion
+        ? Math.max(1, Math.ceil(stats.maxHp * 0.1))
+        : item.healing,
+    ),
+  );
+  const mana = Math.max(
+    0,
+    Math.min(
+      stats.maxMana - state.player.mana,
+      item.itemKey === ItemId.ManaPotion
+        ? Math.max(1, Math.ceil(stats.maxMana * 0.1))
+        : 0,
+    ),
+  );
+  const hunger = Math.max(0, Math.min(100 - state.player.hunger, item.hunger));
+  const thirst = Math.max(
+    0,
+    Math.min(100 - (state.player.thirst ?? 100), item.thirst ?? 0),
+  );
+
+  return {
+    healing,
+    mana,
+    hunger,
+    thirst,
+    total: healing + mana + hunger + thirst,
+  };
 }
 
 function teleportHome(state: GameState, itemIndex: number, item: Item) {
@@ -1863,7 +1909,12 @@ function maybeDropEnemyConsumables(
   state: GameState,
   enemy: import('./types').Enemy,
 ) {
-  const dropKeys = ['apple', 'water-flask'] as const;
+  const dropKeys = [
+    'apple',
+    'water-flask',
+    'health-potion',
+    'mana-potion',
+  ] as const;
 
   dropKeys.forEach((itemKey) => {
     const configured = getItemConfigByKey(itemKey);

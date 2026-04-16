@@ -2,6 +2,8 @@ export enum ItemId {
   TrailRation = 'trail-ration',
   Apple = 'apple',
   RecipeBook = 'recipe-book',
+  HealthPotion = 'health-potion',
+  ManaPotion = 'mana-potion',
   CookedFish = 'cooked-fish',
   HomeScroll = 'home-scroll',
   Gold = 'gold',
