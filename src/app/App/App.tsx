@@ -21,6 +21,7 @@ import {
   saveGraphicsSettings,
   type GraphicsSettings,
 } from '../graphicsSettings';
+import { t } from '../../i18n';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import styles from './styles.module.scss';
 
@@ -260,7 +261,14 @@ export function App() {
               interactLabel,
               canProspectInventoryEquipment,
               canSellInventoryEquipment,
-              claimStatus,
+              claimStatus: {
+                ...claimStatus,
+                actionLabel: t(
+                  claimStatus.action === 'unclaim'
+                    ? 'ui.hexInfo.unclaimAction'
+                    : 'ui.hexInfo.claimAction',
+                ),
+              },
               prospectInventoryEquipmentExplanation,
               sellInventoryEquipmentExplanation,
               townStock,

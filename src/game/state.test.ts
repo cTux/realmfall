@@ -232,6 +232,188 @@ describe('game state', () => {
     ).toBe(true);
   });
 
+  it('limits the player territory to 5 claimed hexes', () => {
+    let game = createGame(6, 'claim-limit-seed');
+    game.player.inventory.push(
+      {
+        id: 'cloth-limit',
+        itemKey: 'cloth',
+        name: 'Cloth',
+        quantity: 6,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'sticks-limit',
+        itemKey: 'sticks',
+        name: 'Sticks',
+        quantity: 6,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    );
+
+    for (const coord of [
+      { q: 0, r: 0 },
+      { q: 1, r: 0 },
+      { q: 2, r: 0 },
+      { q: 3, r: 0 },
+      { q: 4, r: 0 },
+    ]) {
+      game.player.coord = coord;
+      game.tiles[`${coord.q},${coord.r}`] = {
+        coord,
+        terrain: 'plains',
+        items: [],
+        enemyIds: [],
+        claim: game.tiles[`${coord.q},${coord.r}`]?.claim,
+      };
+      game = claimCurrentHex(game);
+    }
+
+    game.player.coord = { q: 5, r: 0 };
+    game.tiles['5,0'] = {
+      coord: { q: 5, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+      claim: undefined,
+    };
+
+    const blocked = claimCurrentHex(game);
+
+    expect(getTileAt(blocked, { q: 5, r: 0 }).claim).toBeUndefined();
+    expect(
+      blocked.logs.some((entry) => /claim up to 5 hexes/i.test(entry.text)),
+    ).toBe(true);
+  });
+
+  it('allows unclaiming a player hex when the remaining territory stays connected', () => {
+    let game = createGame(4, 'claim-unclaim-leaf-seed');
+    game.player.inventory.push(
+      {
+        id: 'cloth-unclaim-leaf',
+        itemKey: 'cloth',
+        name: 'Cloth',
+        quantity: 2,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'sticks-unclaim-leaf',
+        itemKey: 'sticks',
+        name: 'Sticks',
+        quantity: 2,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    );
+
+    for (const coord of [
+      { q: 0, r: 0 },
+      { q: 1, r: 0 },
+    ]) {
+      game.player.coord = coord;
+      game.tiles[`${coord.q},${coord.r}`] = {
+        coord,
+        terrain: 'plains',
+        items: [],
+        enemyIds: [],
+        claim: game.tiles[`${coord.q},${coord.r}`]?.claim,
+      };
+      game = claimCurrentHex(game);
+    }
+
+    game.player.coord = { q: 1, r: 0 };
+    const unclaimed = claimCurrentHex(game);
+
+    expect(getTileAt(unclaimed, { q: 1, r: 0 }).claim).toBeUndefined();
+    expect(getTileAt(unclaimed, { q: 0, r: 0 }).claim?.ownerType).toBe(
+      'player',
+    );
+    expect(
+      unclaimed.logs.some((entry) => /unclaim the hex at 1, 0/i.test(entry.text)),
+    ).toBe(true);
+  });
+
+  it('blocks unclaiming a player hex when it would split the territory', () => {
+    let game = createGame(5, 'claim-unclaim-split-seed');
+    game.player.inventory.push(
+      {
+        id: 'cloth-unclaim-split',
+        itemKey: 'cloth',
+        name: 'Cloth',
+        quantity: 3,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'sticks-unclaim-split',
+        itemKey: 'sticks',
+        name: 'Sticks',
+        quantity: 3,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    );
+
+    for (const coord of [
+      { q: 0, r: 0 },
+      { q: 1, r: 0 },
+      { q: 2, r: 0 },
+    ]) {
+      game.player.coord = coord;
+      game.tiles[`${coord.q},${coord.r}`] = {
+        coord,
+        terrain: 'plains',
+        items: [],
+        enemyIds: [],
+        claim: game.tiles[`${coord.q},${coord.r}`]?.claim,
+      };
+      game = claimCurrentHex(game);
+    }
+
+    game.player.coord = { q: 1, r: 0 };
+    const blocked = claimCurrentHex(game);
+
+    expect(getTileAt(blocked, { q: 1, r: 0 }).claim?.ownerType).toBe('player');
+    expect(
+      blocked.logs.some((entry) =>
+        /would split your territory/i.test(entry.text),
+      ),
+    ).toBe(true);
+  });
+
   it('generates faction territories with borders, neutral residents, and safe interiors', () => {
     const game = createGame(6, 'faction-territory-seed');
     const factionNpcTile = findFactionNpcTile(game, 36);

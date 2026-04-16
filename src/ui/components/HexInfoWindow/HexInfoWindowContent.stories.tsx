@@ -30,7 +30,7 @@ const meta = {
   ],
   args: {
     onInteract: noopAction,
-    onClaim: noopAction,
+    onTerritoryAction: noopAction,
     onProspect: noopAction,
     onSellAll: noopAction,
     onBuyItem: noopBuyItem,
@@ -41,7 +41,7 @@ const meta = {
     controls: {
       exclude: [
         'onInteract',
-        'onClaim',
+        'onTerritoryAction',
         'onProspect',
         'onSellAll',
         'onBuyItem',
@@ -163,11 +163,13 @@ function buildStructureArgs(
     enemyCount: overrides.enemyCount ?? (structure === 'dungeon' ? 2 : 0),
     interactLabel: overrides.interactLabel ?? structureActionLabel(structure),
     canInteract: overrides.canInteract ?? false,
-    canClaim: overrides.canClaim ?? true,
+    canTerritoryAction: overrides.canTerritoryAction ?? true,
+    territoryActionLabel:
+      overrides.territoryActionLabel ?? 'Claim hex',
     canProspectInventoryEquipment:
       overrides.canProspectInventoryEquipment ?? false,
     canSellInventoryEquipment: overrides.canSellInventoryEquipment ?? false,
-    claimExplanation: overrides.claimExplanation ?? null,
+    territoryActionExplanation: overrides.territoryActionExplanation ?? null,
     prospectInventoryEquipmentExplanation:
       overrides.prospectInventoryEquipmentExplanation ?? null,
     sellInventoryEquipmentExplanation:
@@ -203,7 +205,7 @@ function buildGatheringStructureArgs(
 type StoryArgs = Omit<
   ComponentProps<typeof HexInfoWindowContent>,
   | 'onInteract'
-  | 'onClaim'
+  | 'onTerritoryAction'
   | 'onProspect'
   | 'onSellAll'
   | 'onBuyItem'

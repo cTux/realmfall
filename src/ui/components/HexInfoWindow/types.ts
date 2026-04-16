@@ -18,14 +18,15 @@ export interface HexInfoWindowProps extends WindowDetailTooltipHandlers {
   canInteract: boolean;
   canProspectInventoryEquipment: boolean;
   canSellInventoryEquipment: boolean;
-  canClaim: boolean;
-  claimExplanation?: string | null;
+  canTerritoryAction: boolean;
+  territoryActionLabel: string;
+  territoryActionExplanation?: string | null;
   prospectInventoryEquipmentExplanation?: string | null;
   sellInventoryEquipmentExplanation?: string | null;
   onInteract: () => void;
   onProspect: () => void;
   onSellAll: () => void;
-  onClaim: () => void;
+  onTerritoryAction: () => void;
   structureHp?: number;
   structureMaxHp?: number;
   territoryName?: string | null;

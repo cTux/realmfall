@@ -974,14 +974,15 @@ describe('ui helpers and components', () => {
           enemyCount={0}
           interactLabel="Chop tree"
           canInteract
-          canClaim
+          canTerritoryAction
+          territoryActionLabel="Claim hex"
           canProspectInventoryEquipment={false}
           canSellInventoryEquipment={false}
-          claimExplanation={null}
+          territoryActionExplanation={null}
           prospectInventoryEquipmentExplanation={null}
           sellInventoryEquipmentExplanation={null}
           onInteract={() => {}}
-          onClaim={() => {}}
+          onTerritoryAction={() => {}}
           onProspect={() => {}}
           onSellAll={() => {}}
           structureHp={3}
@@ -1172,14 +1173,15 @@ describe('ui helpers and components', () => {
           enemyCount={0}
           interactLabel={null}
           canInteract={false}
-          canClaim={false}
+          canTerritoryAction={false}
+          territoryActionLabel="Claim hex"
           canProspectInventoryEquipment={false}
           canSellInventoryEquipment={false}
-          claimExplanation={null}
+          territoryActionExplanation={null}
           prospectInventoryEquipmentExplanation="Nothing in your pack can be prospected."
           sellInventoryEquipmentExplanation={null}
           onInteract={() => {}}
-          onClaim={() => {}}
+          onTerritoryAction={() => {}}
           onProspect={() => {}}
           onSellAll={() => {}}
           territoryName={null}
@@ -1201,14 +1203,15 @@ describe('ui helpers and components', () => {
           enemyCount={0}
           interactLabel={null}
           canInteract={false}
-          canClaim={false}
+          canTerritoryAction={false}
+          territoryActionLabel="Claim hex"
           canProspectInventoryEquipment={false}
           canSellInventoryEquipment={false}
-          claimExplanation={null}
+          territoryActionExplanation={null}
           prospectInventoryEquipmentExplanation={null}
           sellInventoryEquipmentExplanation="No equippable items to sell."
           onInteract={() => {}}
-          onClaim={() => {}}
+          onTerritoryAction={() => {}}
           onProspect={() => {}}
           onSellAll={() => {}}
           territoryName={null}
@@ -1241,14 +1244,15 @@ describe('ui helpers and components', () => {
         enemyCount={0}
         interactLabel="Chop tree"
         canInteract
-        canClaim={false}
+        canTerritoryAction={false}
+        territoryActionLabel="Claim hex"
         canProspectInventoryEquipment={false}
         canSellInventoryEquipment={false}
-        claimExplanation={null}
+        territoryActionExplanation={null}
         prospectInventoryEquipmentExplanation={null}
         sellInventoryEquipmentExplanation={null}
         onInteract={() => {}}
-        onClaim={() => {}}
+        onTerritoryAction={() => {}}
         onProspect={() => {}}
         onSellAll={() => {}}
         territoryName={null}

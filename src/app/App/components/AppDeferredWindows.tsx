@@ -90,8 +90,9 @@ export function AppDeferredWindows({
             views.world.canProspectInventoryEquipment
           }
           canSellInventoryEquipment={views.world.canSellInventoryEquipment}
-          canClaim={views.world.claimStatus.canClaim}
-          claimExplanation={views.world.claimStatus.reason}
+          canTerritoryAction={views.world.claimStatus.canClaim}
+          territoryActionLabel={views.world.claimStatus.actionLabel}
+          territoryActionExplanation={views.world.claimStatus.reason}
           prospectInventoryEquipmentExplanation={
             views.world.prospectInventoryEquipmentExplanation
           }
@@ -101,7 +102,7 @@ export function AppDeferredWindows({
           onInteract={actions.world.onInteract}
           onProspect={actions.world.onProspect}
           onSellAll={actions.world.onSellAll}
-          onClaim={actions.world.onClaimHex}
+          onTerritoryAction={actions.world.onClaimHex}
           structureHp={views.world.currentTile.structureHp}
           structureMaxHp={views.world.currentTile.structureMaxHp}
           territoryName={views.world.currentTile.claim?.ownerName ?? null}

@@ -52,7 +52,9 @@ export interface AppWindowsViewState {
     canSellInventoryEquipment: boolean;
     claimStatus: ReturnType<
       typeof import('../../game/state').getCurrentHexClaimStatus
-    >;
+    > & {
+      actionLabel: string;
+    };
     prospectInventoryEquipmentExplanation: string | null;
     sellInventoryEquipmentExplanation: string | null;
     townStock: ReturnType<typeof import('../../game/state').getTownStock>;

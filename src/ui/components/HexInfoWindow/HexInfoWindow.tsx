@@ -32,14 +32,15 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   canInteract,
   canProspectInventoryEquipment,
   canSellInventoryEquipment,
-  canClaim,
-  claimExplanation,
+  canTerritoryAction,
+  territoryActionLabel,
+  territoryActionExplanation,
   prospectInventoryEquipmentExplanation,
   sellInventoryEquipmentExplanation,
   onInteract,
   onProspect,
   onSellAll,
-  onClaim,
+  onTerritoryAction,
   structureHp,
   structureMaxHp,
   territoryName,
@@ -109,8 +110,9 @@ export const HexInfoWindow = memo(function HexInfoWindow({
           canInteract={canInteract}
           canProspectInventoryEquipment={canProspectInventoryEquipment}
           canSellInventoryEquipment={canSellInventoryEquipment}
-          canClaim={canClaim}
-          claimExplanation={claimExplanation}
+          canTerritoryAction={canTerritoryAction}
+          territoryActionLabel={territoryActionLabel}
+          territoryActionExplanation={territoryActionExplanation}
           prospectInventoryEquipmentExplanation={
             prospectInventoryEquipmentExplanation
           }
@@ -118,7 +120,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
           onInteract={onInteract}
           onProspect={onProspect}
           onSellAll={onSellAll}
-          onClaim={onClaim}
+          onTerritoryAction={onTerritoryAction}
           structureHp={structureHp}
           structureMaxHp={structureMaxHp}
           territoryName={territoryName}

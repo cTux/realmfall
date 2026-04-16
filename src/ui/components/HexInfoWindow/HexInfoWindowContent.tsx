@@ -14,14 +14,15 @@ export function HexInfoWindowContent({
   enemyCount,
   interactLabel,
   canInteract,
-  canClaim,
-  claimExplanation,
+  canTerritoryAction,
+  territoryActionLabel,
+  territoryActionExplanation,
   canProspectInventoryEquipment,
   canSellInventoryEquipment,
   prospectInventoryEquipmentExplanation,
   sellInventoryEquipmentExplanation,
   territoryNpc,
-  onClaim,
+  onTerritoryAction,
   onProspect,
   onSellAll,
   structureHp,
@@ -100,8 +101,8 @@ export function HexInfoWindowContent({
       ) : null}
 
       <div className={styles.actions}>
-        <button onClick={onClaim} disabled={!canClaim}>
-          {t('ui.hexInfo.claimAction')}
+        <button onClick={onTerritoryAction} disabled={!canTerritoryAction}>
+          {territoryActionLabel}
         </button>
         {canProspectInventoryEquipment ? (
           <button onClick={onProspect}>{t('ui.hexInfo.prospectAction')}</button>
@@ -111,8 +112,8 @@ export function HexInfoWindowContent({
         ) : null}
       </div>
 
-      {claimExplanation ? (
-        <div className={styles.empty}>{claimExplanation}</div>
+      {territoryActionExplanation ? (
+        <div className={styles.empty}>{territoryActionExplanation}</div>
       ) : null}
       {prospectInventoryEquipmentExplanation ? (
         <div className={styles.empty}>
@@ -161,7 +162,7 @@ export function HexInfoWindowContent({
         </div>
       ) : null}
 
-      {!canClaim &&
+      {!canTerritoryAction &&
       !(interactLabel && canInteract) &&
       !canProspectInventoryEquipment &&
       !canSellInventoryEquipment &&
