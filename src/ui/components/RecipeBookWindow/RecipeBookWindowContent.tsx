@@ -11,6 +11,10 @@ import { formatSkillLabel } from '../../../i18n/labels';
 import { ItemSlotButton } from '../ItemSlotButton/ItemSlotButton';
 import type { TooltipLine } from '../../tooltips';
 import type { RecipeBookWindowProps } from './types';
+import {
+  canCraftRecipeEntry,
+  compareRecipeBookEntries,
+} from './utils/recipeBookEntries';
 import styles from './styles.module.scss';
 
 const RECIPE_BOOK_TAB_ORDER = [Skill.Crafting, Skill.Smelting, Skill.Cooking];
@@ -65,13 +69,13 @@ export function RecipeBookWindowContent({
             recipeUsesItemKey(recipe, materialFilterItemKey)),
       )
         .slice()
-        .sort((left, right) => {
-          if (left.learned !== right.learned) {
-            return Number(right.learned) - Number(left.learned);
-          }
-          return left.name.localeCompare(right.name);
-        }),
-    [activeSkill, materialFilterItemKey, recipes],
+        .sort((left, right) =>
+          compareRecipeBookEntries(left, right, {
+            currentStructure,
+            inventoryCountsByItemKey,
+          }),
+        ),
+    [activeSkill, currentStructure, inventoryCountsByItemKey, materialFilterItemKey, recipes],
   );
   const filterItemName = materialFilterItemKey
     ? (getItemConfigByKey(materialFilterItemKey)?.name ?? materialFilterItemKey)
@@ -106,21 +110,11 @@ export function RecipeBookWindowContent({
               const requiredStructure = getRecipeRequiredStructure(recipe);
               const requiredStructureLabel =
                 getStructureConfig(requiredStructure).title;
-              const missingIngredient = recipe.ingredients.some(
-                (ingredient) =>
-                  (inventoryCountsByItemKey[ingredient.itemKey ?? ingredient.name] ??
-                    0) < ingredient.quantity,
-              );
-              const hasFuel =
-                !recipe.fuelOptions ||
-                recipe.fuelOptions.some(
-                  (fuel) =>
-                    (inventoryCountsByItemKey[fuel.itemKey ?? fuel.name] ?? 0) >=
-                    fuel.quantity,
-                );
               const atRequiredStructure = currentStructure === requiredStructure;
-              const canCraft =
-                recipe.learned && !missingIngredient && hasFuel && atRequiredStructure;
+              const canCraft = canCraftRecipeEntry(recipe, {
+                currentStructure,
+                inventoryCountsByItemKey,
+              });
               const tintOverride = !recipe.learned
                 ? 'rgba(148, 163, 184, 0.45)'
                 : canCraft

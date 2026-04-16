@@ -1,7 +1,5 @@
 import { t } from '../../../i18n';
 import { canEquipItem, canUseItem, isEquippableItem } from '../../../game/state';
-import { hasItemTag } from '../../../game/content/items';
-import { GAME_TAGS } from '../../../game/content/tags';
 import { DebuggerWindow } from '../../../ui/components/DebuggerWindow';
 import { GameTooltip } from '../../../ui/components/GameTooltip';
 import { HeroWindow } from '../../../ui/components/HeroWindow';
@@ -9,6 +7,7 @@ import { ItemContextMenu } from '../../../ui/components/ItemContextMenu';
 import { WindowDock } from '../../../ui/components/WindowDock';
 import type { AppWindowsProps } from '../AppWindows.types';
 import type { TooltipState } from '../types';
+import { getRecipeMaterialItemKey } from '../utils/getRecipeMaterialItemKey';
 
 interface AppFixedWindowsProps {
   dockEntries: ReturnType<
@@ -32,6 +31,9 @@ export function AppFixedWindows({
 }: AppWindowsProps & AppFixedWindowsProps) {
   const { actions, layout, views } = props;
   const { itemMenu } = views;
+  const recipeMaterialItemKey = itemMenu
+    ? getRecipeMaterialItemKey(itemMenu.item)
+    : null;
 
   return (
     <>
@@ -76,10 +78,7 @@ export function AppFixedWindows({
           canUse={canUseItem(itemMenu.item)}
           canToggleLock={!itemMenu.slot && isEquippableItem(itemMenu.item)}
           isLocked={Boolean(itemMenu.item.locked)}
-          canShowRecipes={Boolean(
-            itemMenu.item.itemKey &&
-              hasItemTag(itemMenu.item, GAME_TAGS.item.craftingMaterial),
-          )}
+          canShowRecipes={Boolean(recipeMaterialItemKey)}
           canProspect={itemMenu.canProspect}
           canSell={itemMenu.canSell}
           onEquip={() => {
@@ -110,8 +109,8 @@ export function AppFixedWindows({
             actions.tooltip.onCloseItemMenu();
           }}
           onShowRecipes={() => {
-            if (!itemMenu.item.itemKey) return;
-            actions.recipes.onOpenWithMaterialFilter(itemMenu.item.itemKey);
+            if (!recipeMaterialItemKey) return;
+            actions.recipes.onOpenWithMaterialFilter(recipeMaterialItemKey);
             actions.tooltip.onCloseItemMenu();
           }}
           onProspect={() => {

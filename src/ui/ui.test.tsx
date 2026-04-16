@@ -2,6 +2,7 @@ import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { vi } from 'vitest';
+import { getRecipeMaterialItemKey } from '../app/App/utils/getRecipeMaterialItemKey';
 import { EquipmentSlotId } from '../game/content/ids';
 import { GameTag } from '../game/content/tags';
 import { Skill } from '../game/types';
@@ -46,6 +47,7 @@ import { ItemContextMenu } from './components/ItemContextMenu';
 import { LogWindow } from './components/LogWindow';
 import { LootWindow } from './components/LootWindow';
 import { RecipeBookWindow } from './components/RecipeBookWindow';
+import { compareRecipeBookEntries } from './components/RecipeBookWindow/utils/recipeBookEntries';
 import { SkillsWindow } from './components/SkillsWindow';
 import { ItemSlotButton } from './components/ItemSlotButton/ItemSlotButton';
 
@@ -418,6 +420,64 @@ describe('ui helpers and components', () => {
     };
 
     expect(iconForItem(cloth)).toBe(getItemConfigByKey('cloth')?.icon);
+  });
+
+  it('resolves recipe material filters from canonical item configs', () => {
+    expect(
+      getRecipeMaterialItemKey({
+        itemKey: 'copper-ore',
+        tags: [GameTag.ItemResource],
+      }),
+    ).toBe('copper-ore');
+    expect(
+      getRecipeMaterialItemKey({
+        itemKey: 'town-knife',
+        tags: [GameTag.ItemEquipment],
+      }),
+    ).toBeNull();
+  });
+
+  it('sorts craftable recipe-book entries ahead of other learned recipes', () => {
+    const craftableEntry = {
+      id: 'craftable-recipe',
+      name: 'Craftable Entry',
+      description: 'Craft now',
+      skill: Skill.Crafting as const,
+      learned: true,
+      output: {
+        id: 'crafted-item',
+        itemKey: 'town-knife',
+        name: 'Town Knife',
+        quantity: 1,
+        tier: 1,
+        rarity: 'common' as const,
+        power: 2,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      ingredients: [{ itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 }],
+      fuelOptions: undefined,
+    };
+    const blockedEntry = {
+      ...craftableEntry,
+      id: 'blocked-recipe',
+      name: 'Blocked Entry',
+      ingredients: [{ itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 2 }],
+    };
+
+    const sorted = [blockedEntry, craftableEntry].sort((left, right) =>
+      compareRecipeBookEntries(left, right, {
+        currentStructure: 'workshop',
+        inventoryCountsByItemKey: { 'iron-ingot': 1 },
+      }),
+    );
+
+    expect(sorted.map((entry) => entry.id)).toEqual([
+      'craftable-recipe',
+      'blocked-recipe',
+    ]);
   });
 
   it('renders all major windows to static markup', async () => {
