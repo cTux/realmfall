@@ -13,6 +13,7 @@ This spec covers deterministic hex-world traversal, visibility, and safe-path tr
 - The player sees a revealed radius around the current position.
 - Visible tiles are rendered around the player and update as movement changes the origin.
 - Home hex, claims, loot, hostile enemies, structures, and safe-path highlights are surfaced through the world view.
+- The player marker stays visually clean on the current hex, with structure, enemy, and NPC claim marker icons suppressed on that same tile instead of stacking underneath the player icon.
 - Claim borders remain visible above home, hover, loot, selection, and safe-path overlays so highlight effects do not cover territory edges.
 - Manual movement is one adjacent hex at a time.
 - A safe-path move can route to a visible destination when a path exists.

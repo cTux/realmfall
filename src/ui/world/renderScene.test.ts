@@ -206,7 +206,7 @@ describe('renderScene', () => {
       elite: true,
       worldBoss: true,
     };
-    game.player.coord = center;
+    game.player.coord = { q: 3, r: 0 };
 
     return { game, center };
   }
@@ -1112,9 +1112,9 @@ describe('renderScene', () => {
   it('uses NPC marker icon on faction claim tiles', async () => {
     const { renderScene } = await import('./renderScene');
     textureFrom.mockClear();
-    const game = createGame(0, 'render-scene-faction-npc-icon');
-    game.tiles['0,0'] = {
-      coord: { q: 0, r: 0 },
+    const game = createGame(1, 'render-scene-faction-npc-icon');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
       terrain: 'plains',
       items: [],
       enemyIds: ['faction-npc:2'],
@@ -1163,6 +1163,61 @@ describe('renderScene', () => {
     expect(markerChildren.every((sprite) => sprite.icon !== playerIcon)).toBe(
       true,
     );
+  });
+
+  it('does not render world markers underneath the player icon', async () => {
+    const { renderScene } = await import('./renderScene');
+    textureFrom.mockClear();
+    const game = createGame(0, 'render-scene-player-tile-markers');
+    game.tiles['0,0'] = {
+      coord: { q: 0, r: 0 },
+      terrain: 'plains',
+      structure: 'town',
+      items: [],
+      enemyIds: ['player-tile-raider'],
+      claim: {
+        ownerId: 'faction-claims',
+        ownerType: 'faction',
+        ownerName: 'Ghostline',
+        borderColor: '#ffffff',
+        npc: { name: 'Araken', enemyId: 'player-tile-raider' },
+      },
+    };
+    game.enemies['player-tile-raider'] = {
+      id: 'player-tile-raider',
+      name: 'Raider',
+      coord: { q: 0, r: 0 },
+      tier: 2,
+      hp: 5,
+      maxHp: 5,
+      attack: 3,
+      defense: 1,
+      xp: 5,
+      elite: false,
+    };
+
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    const worldMap = app.stage.children[1] as MockContainer;
+    const world = worldMap.children[0] as MockContainer;
+    const markerLayer = world.children[5] as MockContainer;
+    const markerSprites = collectDescendants(markerLayer).filter(
+      (child): child is MockSprite => child instanceof MockSprite,
+    );
+
+    expect(markerSprites).toHaveLength(0);
   });
 
   it('renders world bosses across a dead-forest footprint', async () => {
