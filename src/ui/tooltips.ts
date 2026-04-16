@@ -31,6 +31,7 @@ export interface TooltipLine {
   label?: string;
   value?: string;
   icon?: string;
+  iconTint?: string;
   current?: number;
   max?: number;
   kind?: 'text' | 'stat' | 'bar';

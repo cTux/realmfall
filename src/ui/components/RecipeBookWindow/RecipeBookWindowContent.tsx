@@ -212,14 +212,15 @@ function buildRecipeTooltipLines(
   atRequiredStructure: boolean,
 ) {
   const requiredStructure = getRecipeRequiredStructure(recipe);
-  const requiredStructureIcon = getStructureConfig(requiredStructure).icon;
+  const requiredStructureConfig = getStructureConfig(requiredStructure);
   const lines: TooltipLine[] = [
     { kind: 'text' as const, text: recipe.description },
     {
       kind: 'stat' as const,
       label: t('ui.recipeBook.tooltip.siteLabel'),
       value: requiredStructureLabel,
-      icon: requiredStructureIcon,
+      icon: requiredStructureConfig.icon,
+      iconTint: pixiTintToCss(requiredStructureConfig.tint),
       tone: atRequiredStructure ? 'item' : 'negative',
     },
     {
@@ -230,14 +231,20 @@ function buildRecipeTooltipLines(
     ...recipe.ingredients.map((ingredient) => {
       const owned =
         inventoryCountsByItemKey[ingredient.itemKey ?? ingredient.name] ?? 0;
+      const itemConfig = ingredient.itemKey
+        ? getItemConfigByKey(ingredient.itemKey)
+        : undefined;
+
       return {
         kind: 'stat' as const,
         label: ingredient.name,
         value: `${owned}/${ingredient.quantity}`,
-        icon: ingredient.itemKey
-          ? getItemConfigByKey(ingredient.itemKey)?.icon
-          : undefined,
-        tone: owned >= ingredient.quantity ? ('item' as const) : ('negative' as const),
+        icon: itemConfig?.icon,
+        iconTint: itemConfig?.tint,
+        tone:
+          owned >= ingredient.quantity
+            ? ('item' as const)
+            : ('negative' as const),
       };
     }),
     ...(recipe.fuelOptions
@@ -253,12 +260,17 @@ function buildRecipeTooltipLines(
             tone: 'item' as const,
           },
           ...recipe.fuelOptions.map((fuel) => {
-            const owned = inventoryCountsByItemKey[fuel.itemKey ?? fuel.name] ?? 0;
+            const owned =
+              inventoryCountsByItemKey[fuel.itemKey ?? fuel.name] ?? 0;
+            const itemConfig = fuel.itemKey
+              ? getItemConfigByKey(fuel.itemKey)
+              : undefined;
             return {
               kind: 'stat' as const,
               label: fuel.name,
               value: `${owned}/${fuel.quantity}`,
-              icon: fuel.itemKey ? getItemConfigByKey(fuel.itemKey)?.icon : undefined,
+              icon: itemConfig?.icon,
+              iconTint: itemConfig?.tint,
               tone:
                 owned >= fuel.quantity
                   ? ('item' as const)
@@ -270,4 +282,8 @@ function buildRecipeTooltipLines(
   ];
 
   return lines;
+}
+
+function pixiTintToCss(tint: number) {
+  return `#${tint.toString(16).padStart(6, '0')}`;
 }

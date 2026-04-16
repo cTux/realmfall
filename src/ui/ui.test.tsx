@@ -480,6 +480,31 @@ describe('ui helpers and components', () => {
     ]);
   });
 
+  it('renders tinted tooltip icons when a tooltip line provides an icon tint', () => {
+    const markup = renderToStaticMarkup(
+      <GameTooltip
+        tooltip={{
+          title: 'Recipe Materials',
+          x: 0,
+          y: 0,
+          placement: 'right',
+          lines: [
+            {
+              kind: 'stat',
+              label: 'Iron Ingot',
+              value: '2/1',
+              icon: getItemConfigByKey('iron-ingot')?.icon,
+              iconTint: getItemConfigByKey('iron-ingot')?.tint,
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(markup).toContain('background-color:#f8fafc');
+    expect(markup).toContain('-webkit-mask:url(');
+  });
+
   it('renders all major windows to static markup', async () => {
     const game = createGame(3, 'ui-render-seed');
     const stats = getPlayerStats(game.player);
