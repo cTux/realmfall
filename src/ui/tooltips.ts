@@ -1,6 +1,7 @@
 import { getStatusEffectTags } from '../game/content/statusEffects';
 import { getSkillTags } from '../game/content/tags';
 import { professionRecipeOutputBonus } from '../game/crafting';
+import { isEquippableItem, isRecipePage, sellValue } from '../game/inventory';
 import { getItemCategory, inferItemTags } from '../game/content/items';
 import { EquipmentSlotId } from '../game/content/ids';
 import {
@@ -8,7 +9,6 @@ import {
   gatheringBonusChance,
   gatheringYieldBonus,
   getStructureConfig,
-  isRecipePage,
   Skill,
   skillLevelThreshold,
   type Enemy,
@@ -27,6 +27,7 @@ import {
   formatEnemyRarityLabel,
   formatEquipmentSlotLabel,
 } from '../i18n/labels';
+import { Icons } from './icons';
 
 export interface TooltipLine {
   text?: string;
@@ -43,6 +44,8 @@ export interface TooltipLine {
 interface ItemTooltipOptions {
   recipeLearned?: boolean;
 }
+
+const SELL_VALUE_TINT = '#fbbf24';
 
 export function comparisonLines(item: Item, equipped?: Item) {
   const category = getItemCategory(item);
@@ -154,6 +157,10 @@ export function itemTooltipLines(
     lines.push(slotLine);
   }
   lines.push(...tagTooltipLines(tags));
+  const sellLine = itemSellLine(item);
+  if (sellLine) {
+    lines.push(sellLine);
+  }
   return lines;
 }
 
@@ -404,6 +411,21 @@ function slotLabel(slot: NonNullable<Item['slot']>) {
     default:
       return t(`ui.tooltip.slot.${slot}`);
   }
+}
+
+function itemSellLine(item: Item): TooltipLine | null {
+  if (!isEquippableItem(item) && !isRecipePage(item)) {
+    return null;
+  }
+
+  return {
+    kind: 'stat',
+    label: t('ui.tooltip.sellsFor'),
+    value: `${sellValue(item)} ${t('game.item.gold.name').toLowerCase()}`,
+    icon: Icons.Coins,
+    iconTint: SELL_VALUE_TINT,
+    tone: 'item',
+  };
 }
 
 function structureTitle(structure: StructureType) {

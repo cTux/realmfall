@@ -504,6 +504,7 @@
   "ui.tooltip.quantity": "Qty",
   "ui.tooltip.rarity": "Rarity",
   "ui.tooltip.sameAsEquipped": "Same as equipped",
+  "ui.tooltip.sellsFor": "Sells for",
   "ui.tooltip.slotLabel": "Slot",
   "ui.tooltip.slot.amulet": "slot.amulet",
   "ui.tooltip.slot.belt": "slot.belt",

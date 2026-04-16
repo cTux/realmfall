@@ -12,6 +12,7 @@ import {
   getPlayerStats,
   type Item,
 } from '../game/state';
+import { sellValue } from '../game/inventory';
 import {
   DEFAULT_LOG_FILTERS,
   DEFAULT_WINDOW_VISIBILITY,
@@ -31,6 +32,7 @@ import {
   enemyIconFor,
   enemyTint,
   iconForItem,
+  Icons,
   structureIconFor,
   structureTint,
 } from './icons';
@@ -175,6 +177,22 @@ describe('ui helpers and components', () => {
       hunger: 0,
       tags: [GameTag.ItemConsumable, GameTag.ItemStackable],
     };
+    const recipePage: Item = {
+      id: 'recipe-1',
+      recipeId: 'cook-cooked-fish',
+      icon: 'recipe.svg',
+      name: 'Recipe: Cooked Fish',
+      tags: [GameTag.ItemResource, GameTag.ItemRecipe],
+      quantity: 1,
+      tier: 1,
+      rarity: 'uncommon',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+      thirst: 0,
+    };
 
     expect(comparisonLines(consumable)).toEqual([]);
     expect(comparisonLines(resource)).toEqual([]);
@@ -210,6 +228,14 @@ describe('ui helpers and components', () => {
       kind: 'text',
       text: 'Tags: item.equipment, item.weapon, item.slot.weapon',
       tone: 'subtle',
+    });
+    expect(tooltipLines[tooltipLines.length - 1]).toEqual({
+      kind: 'stat',
+      label: 'Sells for',
+      value: `${sellValue(weapon)} gold`,
+      icon: Icons.Coins,
+      iconTint: '#fbbf24',
+      tone: 'item',
     });
     expect(
       tooltipLines.findIndex((line) => line.text === 'Slot: slot.weapon'),
@@ -254,32 +280,26 @@ describe('ui helpers and components', () => {
           line.tone === 'subtle',
       ),
     ).toBe(true);
-    expect(
-      itemTooltipLines(
-        {
-          id: 'recipe-1',
-          recipeId: 'cook-cooked-fish',
-          icon: 'recipe.svg',
-          name: 'Recipe: Cooked Fish',
-          tags: [GameTag.ItemResource, GameTag.ItemRecipe],
-          quantity: 1,
-          tier: 1,
-          rarity: 'uncommon',
-          power: 0,
-          defense: 0,
-          maxHp: 0,
-          healing: 0,
-          hunger: 0,
-          thirst: 0,
-        },
-        undefined,
-        { recipeLearned: true },
-      ),
-    ).toContainEqual({
+    const recipeTooltipLines = itemTooltipLines(recipePage, undefined, {
+      recipeLearned: true,
+    });
+
+    expect(recipeTooltipLines).toContainEqual({
       kind: 'text',
       text: 'Learned',
       tone: 'positive',
     });
+    expect(recipeTooltipLines[recipeTooltipLines.length - 1]).toEqual({
+      kind: 'stat',
+      label: 'Sells for',
+      value: '36 gold',
+      icon: Icons.Coins,
+      iconTint: '#fbbf24',
+      tone: 'item',
+    });
+    expect(
+      itemTooltipLines(resource).some((line) => line.label === 'Sells for'),
+    ).toBe(false);
 
     expect(enemyTooltip([], undefined)).toBeNull();
 
