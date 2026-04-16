@@ -128,8 +128,8 @@ export function getSceneCache(app: Application) {
     worldStaticDetail,
     worldInteraction,
     worldBorders,
-    worldMarkers,
     worldAnimatedDetail,
+    worldMarkers,
     worldPlayer,
   );
   worldMap.addChild(world, waterfalls, labels);

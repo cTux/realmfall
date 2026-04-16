@@ -630,11 +630,14 @@ describe('renderScene', () => {
     );
 
     const nightWorld = nightApp.stage.children[1] as MockContainer;
+    const nightWorldRoot = nightWorld.children[0] as MockContainer;
     const nightGlowEllipses = collectDescendants(nightWorld).filter(
       (child) =>
         child instanceof MockGraphics &&
         child.drawEllipse.mock.calls.length > 0,
     );
+    const nightAnimatedLayer = nightWorldRoot.children[4] as MockContainer;
+    const nightMarkerLayer = nightWorldRoot.children[5] as MockContainer;
 
     const dayApp = {
       stage: new MockContainer(),
@@ -659,6 +662,8 @@ describe('renderScene', () => {
 
     expect(nightGlowEllipses.length).toBeGreaterThan(0);
     expect(dayGlowEllipses).toHaveLength(0);
+    expect(nightAnimatedLayer.children.length).toBeGreaterThan(0);
+    expect(nightMarkerLayer.children.length).toBeGreaterThan(0);
   });
 
   it('renders clouds with stronger opacity', async () => {
@@ -1095,7 +1100,7 @@ describe('renderScene', () => {
 
     const worldMap = app.stage.children[1] as MockContainer;
     const world = worldMap.children[0] as MockContainer;
-    const markerLayer = world.children[4] as MockContainer;
+    const markerLayer = world.children[5] as MockContainer;
 
     const markerWrappers = markerLayer.children.filter(
       (child): child is MockContainer => child instanceof MockContainer,
@@ -1137,7 +1142,7 @@ describe('renderScene', () => {
 
     const worldMap = app.stage.children[1] as MockContainer;
     const world = worldMap.children[0] as MockContainer;
-    const markerLayer = world.children[4] as MockContainer;
+    const markerLayer = world.children[5] as MockContainer;
     const markerWrappers = markerLayer.children.filter(
       (child): child is MockContainer => child instanceof MockContainer,
     );
