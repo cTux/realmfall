@@ -10,6 +10,7 @@ import {
   getEnemiesAt,
   getGoldAmount,
   getPlayerStats,
+  getRecipeBookEntries,
   getRecipeBookRecipes,
   getSafePathToTile,
   getTileAt,
@@ -19,8 +20,11 @@ import {
   moveToTile,
   moveAlongSafePath,
   progressCombat,
+  prospectInventoryItem,
   prospectInventory,
+  sellInventoryItem,
   sellAllItems,
+  setInventoryItemLocked,
   setHomeHex,
   sortInventory,
   startCombat,
@@ -561,7 +565,7 @@ describe('game state', () => {
     expect(getEnemiesAt(resolved, target)).toHaveLength(0);
     expect(
       getTileAt(resolved, target).items.every((item) =>
-        ['Gold', 'Leather Scraps'].includes(item.name),
+        ['Gold', 'Leather Scraps', 'Meat'].includes(item.name),
       ),
     ).toBe(true);
   });
@@ -659,8 +663,25 @@ describe('game state', () => {
     const gathered = interactWithStructure(game);
 
     expect(
-      gathered.player.inventory.some((item) => item.name === 'Herbs'),
+      gathered.player.inventory.some((item) =>
+        [
+          'Herbs',
+          'Beet',
+          'Pepper',
+          'Cabbage',
+          'Carrot',
+          'Cherry',
+          'Garlic',
+          'Leek',
+          'Lemon',
+          'Peas',
+          'Tomato',
+          'Aubergine',
+          'Apple',
+        ].includes(item.name),
+      ),
     ).toBe(true);
+    expect(gathered.player.skills[Skill.Gathering].xp).toBeGreaterThan(0);
     expect(getTileAt(gathered, { q: 0, r: 0 }).structure).toBeUndefined();
   });
 
@@ -771,6 +792,9 @@ describe('game state', () => {
         (item) => item.name === 'Leather Scraps',
       ),
     ).toBe(true);
+    expect(getTileAt(resolved, target).items.some((item) => item.name === 'Meat')).toBe(
+      true,
+    );
     expect(resolved.player.skills[Skill.Skinning].xp).toBeGreaterThan(0);
   });
 
@@ -1935,7 +1959,7 @@ describe('game state', () => {
         id: 'raw-fish-1',
         name: 'Raw Fish',
         itemKey: 'raw-fish',
-        quantity: 1,
+        quantity: 10,
         tier: 1,
         rarity: 'common',
         power: 0,
@@ -1948,7 +1972,7 @@ describe('game state', () => {
         id: 'coal-1',
         name: 'Coal',
         itemKey: 'coal',
-        quantity: 1,
+        quantity: 10,
         tier: 1,
         rarity: 'common',
         power: 0,
@@ -1965,21 +1989,24 @@ describe('game state', () => {
       cooked.player.inventory.some((item) => item.name === 'Cooked Fish'),
     ).toBe(true);
     expect(
-      cooked.player.inventory.some((item) => item.name === 'Raw Fish'),
-    ).toBe(false);
+      cooked.player.inventory.find((item) => item.itemKey === 'raw-fish')?.quantity,
+    ).toBe(9);
+    expect(
+      cooked.player.inventory.find((item) => item.itemKey === 'coal')?.quantity,
+    ).toBe(9);
     expect(cooked.player.skills[Skill.Cooking].xp).toBeGreaterThan(0);
   });
 
   it('crafts slot gear from recipe requirements and levels crafting', () => {
     const game = createGame(3, 'crafting-seed');
     game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'workshop' };
-    game.player.learnedRecipeIds.push('craft-weapon');
+    game.player.learnedRecipeIds.push('craft-icon-axe-01');
     game.player.inventory.push(
       {
-        id: 'chunks-1',
-        name: 'Iron Chunks',
-        itemKey: 'iron-chunks',
-        quantity: 2,
+        id: 'ingot-1',
+        name: 'Iron Ingot',
+        itemKey: 'iron-ingot',
+        quantity: 20,
         tier: 1,
         rarity: 'common',
         power: 0,
@@ -1992,7 +2019,7 @@ describe('game state', () => {
         id: 'sticks-1',
         name: 'Sticks',
         itemKey: 'sticks',
-        quantity: 2,
+        quantity: 20,
         tier: 1,
         rarity: 'common',
         power: 0,
@@ -2003,12 +2030,99 @@ describe('game state', () => {
       },
     );
 
-    const crafted = craftRecipe(game, 'craft-weapon');
+    const crafted = craftRecipe(game, 'craft-icon-axe-01');
 
     expect(
-      crafted.player.inventory.some((item) => item.name === 'Camp Spear'),
+      crafted.player.inventory.some((item) => item.itemKey === 'icon-axe-01'),
     ).toBe(true);
     expect(crafted.player.skills[Skill.Crafting].xp).toBeGreaterThan(0);
+  });
+
+  it('smelts ore into ingots at a furnace and levels smelting', () => {
+    const game = createGame(3, 'smelting-seed');
+    game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'furnace' };
+    game.player.learnedRecipeIds.push('smelt-copper-ingot');
+    game.player.inventory.push(
+      {
+        id: 'ore-1',
+        name: 'Copper Ore',
+        itemKey: 'copper-ore',
+        quantity: 20,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'coal-1',
+        name: 'Coal',
+        itemKey: 'coal',
+        quantity: 10,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    );
+
+    const smelted = craftRecipe(game, 'smelt-copper-ingot');
+
+    expect(
+      smelted.player.inventory.some((item) => item.itemKey === 'copper-ingot'),
+    ).toBe(true);
+    expect(smelted.player.skills[Skill.Smelting].xp).toBeGreaterThan(0);
+  });
+
+  it('smelts the expanded ore set into ingots with one iron recipe', () => {
+    const game = createGame(3, 'expanded-smelting-seed');
+    game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'furnace' };
+    game.player.learnedRecipeIds.push(
+      'smelt-tin-ingot',
+      'smelt-iron-ingot',
+      'smelt-gold-ingot',
+      'smelt-platinum-ingot',
+    );
+    game.player.inventory.push(
+      buildItemFromConfig('tin-ore', { id: 'tin-ore-1', quantity: 20 }),
+      buildItemFromConfig('iron-ore', { id: 'iron-ore-1', quantity: 20 }),
+      buildItemFromConfig('gold-ore', { id: 'gold-ore-1', quantity: 30 }),
+      buildItemFromConfig('platinum-ore', {
+        id: 'platinum-ore-1',
+        quantity: 40,
+      }),
+      buildItemFromConfig('coal', { id: 'coal-1', quantity: 40 }),
+    );
+
+    const smeltedTin = craftRecipe(game, 'smelt-tin-ingot');
+    const smeltedIron = craftRecipe(smeltedTin, 'smelt-iron-ingot');
+    const smeltedGold = craftRecipe(smeltedIron, 'smelt-gold-ingot');
+    const smeltedPlatinum = craftRecipe(smeltedGold, 'smelt-platinum-ingot');
+
+    expect(
+      smeltedPlatinum.player.inventory.some((item) => item.itemKey === 'tin-ingot'),
+    ).toBe(true);
+    expect(
+      smeltedPlatinum.player.inventory.some((item) => item.itemKey === 'iron-ingot'),
+    ).toBe(true);
+    expect(
+      smeltedPlatinum.player.inventory.some((item) => item.itemKey === 'gold-ingot'),
+    ).toBe(true);
+    expect(
+      smeltedPlatinum.player.inventory.some(
+        (item) => item.itemKey === 'platinum-ingot',
+      ),
+    ).toBe(true);
+    expect(
+      getRecipeBookEntries(smeltedPlatinum.player.learnedRecipeIds).filter(
+        (entry) => entry.id.startsWith('smelt-iron-ingot'),
+      ),
+    ).toHaveLength(1);
   });
 
   it('requires the matching hex type for cooking and crafting recipes', () => {
@@ -2052,10 +2166,10 @@ describe('game state', () => {
     game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'workshop' };
     game.player.inventory.push(
       {
-        id: 'chunks-1',
-        name: 'Iron Chunks',
-        itemKey: 'iron-chunks',
-        quantity: 2,
+        id: 'ingot-1',
+        name: 'Iron Ingot',
+        itemKey: 'iron-ingot',
+        quantity: 20,
         tier: 1,
         rarity: 'common',
         power: 0,
@@ -2068,7 +2182,7 @@ describe('game state', () => {
         id: 'sticks-1',
         name: 'Sticks',
         itemKey: 'sticks',
-        quantity: 2,
+        quantity: 10,
         tier: 1,
         rarity: 'common',
         power: 0,
@@ -2079,17 +2193,18 @@ describe('game state', () => {
       },
     );
 
-    const denied = craftRecipe(game, 'craft-weapon');
+    const denied = craftRecipe(game, 'craft-icon-axe-01');
 
     expect(denied.logs[0]?.text).toMatch(/have not learned/i);
   });
 
   it('learns a dropped recipe page when used', () => {
     const game = createGame(3, 'recipe-use-seed');
+    const originalLearnedRecipeIds = game.player.learnedRecipeIds;
     game.player.inventory.push({
       id: 'recipe-craft-weapon',
-      recipeId: 'craft-weapon',
-      name: 'Recipe: Camp Spear',
+      recipeId: 'craft-icon-axe-01',
+      name: 'Recipe: Axe 01',
       quantity: 1,
       tier: 1,
       rarity: 'uncommon',
@@ -2102,7 +2217,8 @@ describe('game state', () => {
 
     const learned = useItem(game, 'recipe-craft-weapon');
 
-    expect(learned.player.learnedRecipeIds).toContain('craft-weapon');
+    expect(learned.player.learnedRecipeIds).toContain('craft-icon-axe-01');
+    expect(learned.player.learnedRecipeIds).not.toBe(originalLearnedRecipeIds);
     expect(
       learned.player.inventory.some(
         (item) => item.id === 'recipe-craft-weapon',
@@ -2148,6 +2264,82 @@ describe('game state', () => {
     }
 
     expect(dropped).toBe(true);
+  });
+
+  it('unlocks the matching recipe book entry after looting and using an enemy recipe page', () => {
+    let resolvedWithRecipe: GameState | null = null;
+    let droppedRecipeId: string | null = null;
+
+    for (let index = 0; index < 400; index += 1) {
+      const game = createGame(3, `recipe-loot-use-seed-${index}`);
+      const target = { q: 2, r: 0 };
+      game.player.learnedRecipeIds = ['cook-cooked-fish'];
+      game.tiles['2,0'] = {
+        coord: target,
+        terrain: 'plains',
+        items: [],
+        structure: undefined,
+        enemyIds: ['enemy-2,0-0'],
+      };
+      game.enemies['enemy-2,0-0'] = {
+        id: 'enemy-2,0-0',
+        name: 'Bandit',
+        coord: target,
+        tier: 4,
+        hp: 1,
+        maxHp: 1,
+        attack: 0,
+        defense: 0,
+        xp: 5,
+        elite: true,
+      };
+      game.player.coord = { q: 1, r: 0 };
+
+      const encountered = moveToTile(game, target);
+      const resolved = startCombat(encountered);
+      const recipePage = getTileAt(resolved, target).items.find(
+        (item) => Boolean(item.recipeId),
+      );
+      if (!recipePage?.recipeId) continue;
+
+      resolvedWithRecipe = resolved;
+      droppedRecipeId = recipePage.recipeId;
+      break;
+    }
+
+    expect(resolvedWithRecipe).not.toBeNull();
+    expect(droppedRecipeId).not.toBeNull();
+
+    const recipePage = getTileAt(resolvedWithRecipe!, { q: 2, r: 0 }).items.find(
+      (item) => item.recipeId === droppedRecipeId,
+    );
+    expect(recipePage).toBeDefined();
+    expect(recipePage?.itemKey).toBeUndefined();
+    expect(recipePage?.icon).toBeTruthy();
+
+    const looted = takeTileItem(resolvedWithRecipe!, recipePage!.id);
+    const learned = useItem(looted, recipePage!.id);
+
+    expect(learned.player.learnedRecipeIds).toContain(droppedRecipeId);
+    expect(
+      getRecipeBookEntries(learned.player.learnedRecipeIds).some(
+        (entry) => entry.id === droppedRecipeId && entry.learned,
+      ),
+    ).toBe(true);
+  });
+
+  it('exposes learned and unlearned recipe entries for the recipe book', () => {
+    const entries = getRecipeBookEntries(['cook-cooked-fish']);
+
+    expect(
+      entries.some((entry) => entry.id === 'cook-cooked-fish' && entry.learned),
+    ).toBe(true);
+    expect(
+      entries.some(
+        (entry) => entry.id === 'craft-icon-helmet-01' && !entry.learned,
+      ),
+    ).toBe(true);
+    expect(entries.some((entry) => entry.id === 'craft-weapon')).toBe(false);
   });
 
   it('lets every enemy on the tile retaliate during combat', () => {
@@ -2356,6 +2548,106 @@ describe('game state', () => {
     expect(getGoldAmount(soldInTown.player.inventory)).toBeGreaterThan(0);
   });
 
+  it('keeps locked equippable items out of prospecting and selling', () => {
+    const game = createGame(3, 'locked-trade-seed');
+    game.player.inventory = [
+      {
+        id: 'weapon-1',
+        slot: 'weapon',
+        name: 'Rust Blade',
+        quantity: 1,
+        tier: 2,
+        rarity: 'common',
+        power: 4,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'weapon-2',
+        slot: 'weapon',
+        name: 'Spare Blade',
+        quantity: 1,
+        tier: 2,
+        rarity: 'common',
+        power: 3,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    ];
+
+    const locked = setInventoryItemLocked(game, 'weapon-1', true);
+    locked.tiles['0,0'] = { ...locked.tiles['0,0'], structure: 'forge' };
+
+    const prospected = prospectInventory(locked);
+    expect(
+      prospected.player.inventory.some((item) => item.id === 'weapon-1'),
+    ).toBe(true);
+    expect(
+      prospected.player.inventory.some((item) => item.id === 'weapon-2'),
+    ).toBe(false);
+
+    prospected.tiles['0,0'] = { ...prospected.tiles['0,0'], structure: 'town' };
+    const sold = sellAllItems(prospected);
+    expect(sold.player.inventory.some((item) => item.id === 'weapon-1')).toBe(
+      true,
+    );
+  });
+
+  it('prospects and sells a single inventory item from the current hex', () => {
+    const game = createGame(3, 'single-trade-seed');
+    game.player.inventory = [
+      {
+        id: 'weapon-1',
+        slot: 'weapon',
+        name: 'Rust Blade',
+        quantity: 1,
+        tier: 2,
+        rarity: 'common',
+        power: 4,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'weapon-2',
+        slot: 'weapon',
+        name: 'Spare Blade',
+        quantity: 1,
+        tier: 2,
+        rarity: 'common',
+        power: 3,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    ];
+
+    game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'forge' };
+    const prospected = prospectInventoryItem(game, 'weapon-1');
+    expect(prospected.player.inventory.some((item) => item.id === 'weapon-1')).toBe(
+      false,
+    );
+    expect(prospected.player.inventory.some((item) => item.id === 'weapon-2')).toBe(
+      true,
+    );
+    expect(
+      prospected.player.inventory.some((item) => item.itemKey === 'iron-ore'),
+    ).toBe(true);
+
+    prospected.tiles['0,0'] = { ...prospected.tiles['0,0'], structure: 'town' };
+    const sold = sellInventoryItem(prospected, 'weapon-2');
+    expect(sold.player.inventory.some((item) => item.id === 'weapon-2')).toBe(
+      false,
+    );
+    expect(getGoldAmount(sold.player.inventory)).toBeGreaterThan(0);
+  });
+
   it('merges duplicate gold stacks when sorting inventory', () => {
     const game = createGame(3, 'gold-sort-seed');
     game.player.inventory = [
@@ -2476,6 +2768,41 @@ describe('game state', () => {
 
     expect(loaded.player.learnedRecipeIds).toHaveLength(
       getRecipeBookRecipes().length,
+    );
+  });
+
+  it('normalizes legacy iron chunks into iron ore', () => {
+    const game = createGame(3, 'legacy-iron-chunks-seed');
+    const loaded = normalizeLoadedGame({
+      ...game,
+      player: {
+        ...game.player,
+        inventory: [
+          {
+            id: 'legacy-iron-chunks',
+            itemKey: 'iron-chunks',
+            name: 'Iron Chunks',
+            quantity: 3,
+            tier: 1,
+            rarity: 'common',
+            power: 0,
+            defense: 0,
+            maxHp: 0,
+            healing: 0,
+            hunger: 0,
+          },
+        ],
+      },
+    });
+
+    expect(loaded.player.inventory).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          itemKey: 'iron-ore',
+          name: 'Iron Ore',
+          quantity: 3,
+        }),
+      ]),
     );
   });
 });

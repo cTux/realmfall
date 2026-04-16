@@ -45,3 +45,11 @@ export const EmptyEquipmentSlot: Story = {
     slot: EquipmentSlotId.Head,
   },
 };
+
+export const RecipeHighlight: Story = {
+  args: {
+    size: 'compact',
+    borderColorOverride: '#22c55e',
+    overlayColorOverride: 'rgba(96, 165, 250, 0.28)',
+  },
+};

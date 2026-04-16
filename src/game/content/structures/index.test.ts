@@ -3,6 +3,7 @@ import { getStructureConfig, pickStructureType } from './index';
 
 describe('pickStructureType', () => {
   it('uses the reduced base resource spawn bands across terrains', () => {
+    expect(pickStructureType(0.973, 0, 'plains')).toBe('furnace');
     expect(pickStructureType(0, 0.861, 'forest')).toBe('tree');
     expect(pickStructureType(0, 0.83, 'forest')).toBe('iron-ore');
     expect(pickStructureType(0, 0.819, 'forest')).toBeUndefined();
@@ -25,6 +26,7 @@ describe('localized structure config text', () => {
   it('uses locale-backed gathering labels instead of inline fallback wording', () => {
     const herbs = getStructureConfig('herbs');
     const coalOre = getStructureConfig('coal-ore');
+    const furnace = getStructureConfig('furnace');
 
     expect(herbs.title).toBe('Herb Patch');
     expect(herbs.gathering?.actionLabel).toBe('Gather herbs');
@@ -35,5 +37,6 @@ describe('localized structure config text', () => {
     expect(coalOre.gathering?.depletedText).toBe(
       'The coal vein crumbles into dead rock.',
     );
+    expect(furnace.title).toBe('Furnace');
   });
 });

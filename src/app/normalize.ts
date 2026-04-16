@@ -222,24 +222,38 @@ export function normalizeLoadedGame(game: GameState): GameState {
 }
 
 function normalizeItem(item: Item): Item {
-  const configured = getItemConfig(item);
+  const canonicalItem =
+    item.itemKey === ItemId.IronChunks || item.name === 'Iron Chunks'
+      ? {
+          ...item,
+          itemKey: ItemId.IronOre,
+          name: 'Iron Ore',
+        }
+      : item;
+  const configured = getItemConfig(canonicalItem);
   const normalizedName =
     configured?.name ??
-    (item.name === 'Arcane Dust' ? 'Aether Dust' : item.name);
+    (canonicalItem.name === 'Arcane Dust'
+      ? 'Aether Dust'
+      : canonicalItem.name);
   return {
-    ...item,
-    itemKey: configured?.key ?? item.itemKey,
+    ...canonicalItem,
+    itemKey: configured?.key ?? canonicalItem.itemKey,
+    locked: Boolean(canonicalItem.locked),
     slot:
-      item.slot === EquipmentSlotId.Relic
+      canonicalItem.slot === EquipmentSlotId.Relic
         ? EquipmentSlotId.Offhand
-        : item.slot,
-    tags: item.tags ?? configured?.tags ?? inferItemTags(item),
+        : canonicalItem.slot,
+    tags:
+      canonicalItem.tags ??
+      configured?.tags ??
+      inferItemTags(canonicalItem),
     name: normalizedName,
-    quantity: item.quantity ?? 1,
-    rarity: item.rarity ?? 'common',
+    quantity: canonicalItem.quantity ?? 1,
+    rarity: canonicalItem.rarity ?? 'common',
     thirst: Math.max(
       0,
-      Number((item as Item & { thirst?: number }).thirst ?? 0) || 0,
+      Number((canonicalItem as Item & { thirst?: number }).thirst ?? 0) || 0,
     ),
   };
 }
@@ -292,11 +306,13 @@ function normalizeSkills(
   skills?: Partial<Record<SkillName, { level?: number; xp?: number }>>,
 ) {
   return {
+    [Skill.Gathering]: normalizeSkill(skills?.[Skill.Gathering]),
     [Skill.Logging]: normalizeSkill(skills?.[Skill.Logging]),
     [Skill.Mining]: normalizeSkill(skills?.[Skill.Mining]),
     [Skill.Skinning]: normalizeSkill(skills?.[Skill.Skinning]),
     [Skill.Fishing]: normalizeSkill(skills?.[Skill.Fishing]),
     [Skill.Cooking]: normalizeSkill(skills?.[Skill.Cooking]),
+    [Skill.Smelting]: normalizeSkill(skills?.[Skill.Smelting]),
     [Skill.Crafting]: normalizeSkill(skills?.[Skill.Crafting]),
   };
 }

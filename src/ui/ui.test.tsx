@@ -2,6 +2,7 @@ import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { vi } from 'vitest';
+import { getRecipeMaterialItemKey } from '../app/App/utils/getRecipeMaterialItemKey';
 import { EquipmentSlotId } from '../game/content/ids';
 import { GameTag } from '../game/content/tags';
 import { Skill } from '../game/types';
@@ -46,7 +47,9 @@ import { ItemContextMenu } from './components/ItemContextMenu';
 import { LogWindow } from './components/LogWindow';
 import { LootWindow } from './components/LootWindow';
 import { RecipeBookWindow } from './components/RecipeBookWindow';
+import { compareRecipeBookEntries } from './components/RecipeBookWindow/utils/recipeBookEntries';
 import { SkillsWindow } from './components/SkillsWindow';
+import { ItemSlotButton } from './components/ItemSlotButton/ItemSlotButton';
 
 describe('ui helpers and components', () => {
   const renderMarkup = async (node: React.ReactNode) => {
@@ -220,7 +223,10 @@ describe('ui helpers and components', () => {
     );
     expect(
       itemTooltipLines(resource).some((line) => line.label === 'Type'),
-    ).toBe(true);
+    ).toBe(false);
+    expect(
+      itemTooltipLines(resource).some((line) => line.label === 'Quantity'),
+    ).toBe(false);
     expect(
       itemTooltipLines(resource).some((line) => line.text?.includes('TIER')),
     ).toBe(false);
@@ -300,6 +306,11 @@ describe('ui helpers and components', () => {
     expect(skillTooltip(Skill.Crafting, 4)).toContainEqual({
       kind: 'text',
       text: 'Tags: skill.profession, skill.crafting',
+      tone: 'subtle',
+    });
+    expect(skillTooltip(Skill.Smelting, 4)).toContainEqual({
+      kind: 'text',
+      text: 'Tags: skill.profession, skill.smelting',
       tone: 'subtle',
     });
 
@@ -411,6 +422,64 @@ describe('ui helpers and components', () => {
     expect(iconForItem(cloth)).toBe(getItemConfigByKey('cloth')?.icon);
   });
 
+  it('resolves recipe material filters from canonical item configs', () => {
+    expect(
+      getRecipeMaterialItemKey({
+        itemKey: 'copper-ore',
+        tags: [GameTag.ItemResource],
+      }),
+    ).toBe('copper-ore');
+    expect(
+      getRecipeMaterialItemKey({
+        itemKey: 'town-knife',
+        tags: [GameTag.ItemEquipment],
+      }),
+    ).toBeNull();
+  });
+
+  it('sorts craftable recipe-book entries ahead of other learned recipes', () => {
+    const craftableEntry = {
+      id: 'craftable-recipe',
+      name: 'Craftable Entry',
+      description: 'Craft now',
+      skill: Skill.Crafting as const,
+      learned: true,
+      output: {
+        id: 'crafted-item',
+        itemKey: 'town-knife',
+        name: 'Town Knife',
+        quantity: 1,
+        tier: 1,
+        rarity: 'common' as const,
+        power: 2,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      ingredients: [{ itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 }],
+      fuelOptions: undefined,
+    };
+    const blockedEntry = {
+      ...craftableEntry,
+      id: 'blocked-recipe',
+      name: 'Blocked Entry',
+      ingredients: [{ itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 2 }],
+    };
+
+    const sorted = [blockedEntry, craftableEntry].sort((left, right) =>
+      compareRecipeBookEntries(left, right, {
+        currentStructure: 'workshop',
+        inventoryCountsByItemKey: { 'iron-ingot': 1 },
+      }),
+    );
+
+    expect(sorted.map((entry) => entry.id)).toEqual([
+      'craftable-recipe',
+      'blocked-recipe',
+    ]);
+  });
+
   it('renders all major windows to static markup', async () => {
     const game = createGame(3, 'ui-render-seed');
     const stats = getPlayerStats(game.player);
@@ -484,9 +553,11 @@ describe('ui helpers and components', () => {
         <RecipeBookWindow
           position={DEFAULT_WINDOWS.recipes}
           onMove={() => {}}
-          currentStructure="Campfire"
+          currentStructure="camp"
           recipes={[]}
-          inventoryCounts={{}}
+          inventoryCountsByItemKey={{}}
+          materialFilterItemKey={null}
+          onResetMaterialFilter={() => {}}
           onCraft={() => {}}
         />
         <HexInfoWindow
@@ -539,6 +610,7 @@ describe('ui helpers and components', () => {
           onMove={() => {}}
           inventory={[inventoryItem, equippedItem]}
           equipment={{ ...game.player.equipment, head: equippedItem }}
+          learnedRecipeIds={[]}
           onSort={() => {}}
           onEquip={() => {}}
           onContextItem={() => {}}
@@ -550,6 +622,7 @@ describe('ui helpers and components', () => {
           onMove={() => {}}
           inventory={[]}
           equipment={game.player.equipment}
+          learnedRecipeIds={[]}
           onSort={() => {}}
           onEquip={() => {}}
           onContextItem={() => {}}
@@ -632,7 +705,13 @@ describe('ui helpers and components', () => {
             borderColor: rarityColor('rare'),
             lines: [
               { kind: 'text', text: 'RARE TIER 2 WEAPON' },
-              { kind: 'stat', label: 'Attack', value: '+4', tone: 'item' },
+              {
+                kind: 'stat',
+                label: 'Attack',
+                value: '+4',
+                tone: 'item',
+                icon: getItemConfigByKey('town-knife')?.icon,
+              },
               { kind: 'stat', label: 'Defense', value: '+1', tone: 'item' },
               { kind: 'bar', label: 'HP', current: 3, max: 10 },
             ],
@@ -667,6 +746,7 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('Kick');
     expect(markup).toContain('(Q) Start');
     expect(markup).toContain('Knight Blade');
+    expect(markup).toContain(getItemConfigByKey('town-knife')?.icon ?? '');
     expect(iconForItem(inventoryItem)).toBeTruthy();
     expect(iconForItem(undefined, EquipmentSlotId.Weapon)).toBeTruthy();
   });
@@ -803,11 +883,13 @@ describe('ui helpers and components', () => {
           debuffs: [],
           abilityIds: ['kick'],
           skills: {
+            gathering: { level: 1, xp: 0 },
             logging: { level: 1, xp: 0 },
             mining: { level: 1, xp: 0 },
             skinning: { level: 1, xp: 0 },
             fishing: { level: 1, xp: 0 },
             cooking: { level: 1, xp: 0 },
+            smelting: { level: 1, xp: 0 },
             crafting: { level: 1, xp: 0 },
           },
         }}
@@ -846,11 +928,13 @@ describe('ui helpers and components', () => {
           debuffs: [],
           abilityIds: ['kick'],
           skills: {
+            gathering: { level: 1, xp: 0 },
             logging: { level: 1, xp: 0 },
             mining: { level: 1, xp: 0 },
             skinning: { level: 1, xp: 0 },
             fishing: { level: 1, xp: 0 },
             cooking: { level: 1, xp: 0 },
+            smelting: { level: 1, xp: 0 },
             crafting: { level: 1, xp: 0 },
           },
         }}
@@ -1088,6 +1172,50 @@ describe('ui helpers and components', () => {
       root.unmount();
     });
     host.remove();
+  });
+
+  it('renders lock and recipe actions in the item context menu when available', async () => {
+    const markup = await renderMarkup(
+      <ItemContextMenu
+        item={{
+          id: 'iron-chunks',
+          itemKey: 'iron-chunks',
+          name: 'Iron Chunks',
+          tags: [GameTag.ItemResource, GameTag.ItemCraftingMaterial],
+          quantity: 2,
+          tier: 1,
+          rarity: 'common',
+          power: 0,
+          defense: 0,
+          maxHp: 0,
+          healing: 0,
+          hunger: 0,
+          locked: true,
+        }}
+        x={100}
+        y={120}
+        canEquip={false}
+        canUse={false}
+        canToggleLock
+        isLocked
+        canShowRecipes
+        canProspect
+        canSell
+        onEquip={() => {}}
+        onUse={() => {}}
+        onDrop={() => {}}
+        onToggleLock={() => {}}
+        onShowRecipes={() => {}}
+        onProspect={() => {}}
+        onSell={() => {}}
+        onClose={() => {}}
+      />,
+    );
+
+    expect(markup).toContain('Unlock');
+    expect(markup).toContain('Show recipes');
+    expect(markup).toContain('Prospect');
+    expect(markup).toContain('Sell');
   });
 
   it('commits draggable window movement on pointer release', async () => {
@@ -1357,9 +1485,11 @@ describe('ui helpers and components', () => {
           <RecipeBookWindow
             position={DEFAULT_WINDOWS.recipes}
             onMove={() => {}}
-            currentStructure="Campfire"
+            currentStructure="camp"
             recipes={[]}
-            inventoryCounts={{}}
+            inventoryCountsByItemKey={{}}
+            materialFilterItemKey={null}
+            onResetMaterialFilter={() => {}}
             onCraft={() => {}}
             onHoverDetail={hoverDetail}
           />
@@ -1810,5 +1940,33 @@ describe('ui helpers and components', () => {
       root.unmount();
     });
     host.remove();
+  });
+
+  it('renders recipe slot border and overlay colors independently', () => {
+    const markup = renderToStaticMarkup(
+      <ItemSlotButton
+        item={{
+          id: 'recipe-camp-spear',
+          name: 'Recipe: Axe 01',
+          quantity: 1,
+          tier: 1,
+          rarity: 'uncommon',
+          power: 0,
+          defense: 0,
+          maxHp: 0,
+          healing: 0,
+          hunger: 0,
+          recipeId: 'craft-icon-axe-01',
+          icon: getItemConfigByKey('icon-axe-01')?.icon,
+        }}
+        size="compact"
+        borderColorOverride="#22c55e"
+        overlayColorOverride="rgba(96, 165, 250, 0.28)"
+      />,
+    );
+
+    expect(markup).toContain('border-color:#22c55e');
+    expect(markup).toContain('box-shadow:0 0 0 1px #22c55e33 inset');
+    expect(markup).toContain('background-color:rgba(96, 165, 250, 0.28)');
   });
 });

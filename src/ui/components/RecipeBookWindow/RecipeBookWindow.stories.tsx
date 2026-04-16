@@ -20,7 +20,9 @@ const meta = {
     visible: true,
     onClose: noop,
     ...createRecipeBookArgs(fixtures.recipes),
-    inventoryCounts: fixtures.inventoryCounts,
+    inventoryCountsByItemKey: fixtures.inventoryCountsByItemKey,
+    materialFilterItemKey: null,
+    onResetMaterialFilter: noop,
     onCraft: noop,
   },
   parameters: {

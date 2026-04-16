@@ -303,7 +303,7 @@ export function renderScene(
           );
         }
 
-        if (tile.structure === 'camp') {
+        if (tile.structure === 'camp' || tile.structure === 'furnace') {
           nextCampfireLightPoints.push(point);
         }
       }

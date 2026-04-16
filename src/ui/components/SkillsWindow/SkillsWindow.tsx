@@ -32,6 +32,7 @@ export const SkillsWindow = memo(function SkillsWindow({
       className={styles.window}
       visible={visible}
       onClose={onClose}
+      resizeBounds={{ minWidth: 300, minHeight: 240 }}
       onHoverDetail={onHoverDetail}
       onLeaveDetail={onLeaveDetail}
     >

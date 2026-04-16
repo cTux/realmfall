@@ -7,11 +7,22 @@ This spec covers the recipe book, recipe learning, and crafting execution.
 ## Current Behavior
 
 - The player starts with a set of learned recipes, and the recipe book exists as a dedicated window instead of an inventory item.
-- Recipe pages can drop and be consumed to learn additional recipes.
+- Recipe definitions are keyed to canonical output item bases, and recipe pages can drop and be consumed to learn additional recipes the player does not already know.
+- Recipe pages carry canonical recipe ids directly instead of relying on output item configs, so looted pages continue to unlock the matching recipe-book entry after pickup and use.
+- Learning a recipe page replaces the learned recipe id list by value, so the recipe book refreshes immediately without reloading the app.
 - Learned recipes are tracked on the player state.
-- Crafting checks recipe knowledge, ingredient requirements, optional fuel requirements, and the required crafting site.
+- Crafting and smelting check recipe knowledge, scaled ingredient requirements, optional fuel requirements, and the required crafting site.
 - Crafting consumes required inputs and materializes a configured output item.
-- Current recipe coverage includes cooking and crafted gear across weapon, armor, and artifact slots.
+- The recipe book shows both learned and unlearned recipes, splits them into right-side profession tabs for crafting, smelting, and cooking, supports resizing, and can be filtered by a crafting material from the inventory context menu.
+- Learned recipes stay interactive, recipes craftable right now sort ahead of other entries within each profession tab, remaining learned recipes sort ahead of unlearned ones, entries show inventory-style recipe slots, tint red when the player lacks materials, fuel, or the right crafting site, and expose a hover tooltip with the crafting-site icon plus icon-backed material requirements and a separate fuel-materials section that makes the fuel choice explicit as one alternative option rather than a cumulative requirement.
+- Unlearned recipes remain visible but disabled, with no hover tooltip.
+- Crafting coverage is rebuilt entirely from the equippable icon pools: every icon variation for helmets, shoulders, chest armor, bracers, gloves, belts, leggings, boots, cloaks, one-handed weapons, offhands, wands, magical spheres, shields, two-handed weapons, rings, and necklaces has exactly one configured base item and exactly one crafting recipe-book entry.
+- The crafting tab no longer mixes in legacy handcrafted workshop recipes or the themed expansion set; its total recipe count matches the total equippable icon-variation count exactly.
+- Generated crafting outputs and their recipe-book entries use lore-based Realmfall names and descriptions rather than numbered placeholder labels.
+- Cooking coverage now also includes a broad harvest-and-meat meal set built from herb-patch produce, orchard fruit, and animal meat drops.
+- Metal progression now routes through furnace smelting recipes for copper, tin, iron, gold, and platinum ores, with one canonical iron-ingot recipe and workshop gear recipes consuming ingots instead of raw ore.
+- Ingot item bases use the shared bar icon with bright material-specific tinting so each refined metal reads distinctly in inventory and tooltips.
+- Workshop and smelting material costs are scaled 10x from their base requirements, while cooking recipes keep one-to-one food ingredient quantities so one raw source ingredient still produces one cooked result. Fuel options keep their lower base quantities and are checked as alternative single-source requirements.
 
 ## Main Implementation Areas
 

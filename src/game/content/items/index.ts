@@ -17,6 +17,7 @@ import {
   GENERATED_OFFHAND_KEYS,
   GENERATED_WEAPON_KEYS,
 } from '../generatedEquipment';
+import { CRAFTABLE_ICON_ITEM_CONFIGS as GENERATED_CRAFTABLE_ICON_ITEM_CONFIGS } from '../generatedCraftingEquipment';
 import { arcaneDustItemConfig } from './arcaneDust';
 import { appleItemConfig } from './apple';
 import { campSpearItemConfig } from './campSpear';
@@ -25,32 +26,43 @@ import { clothItemConfig } from './cloth';
 import { coalItemConfig } from './coal';
 import { cookedFishItemConfig } from './cookedFish';
 import { copperBandItemConfig } from './copperBand';
+import { copperIngotItemConfig } from './copperIngot';
 import { copperLoopItemConfig } from './copperLoop';
 import { copperOreItemConfig } from './copperOre';
 import { fieldBootsItemConfig } from './fieldBoots';
 import { goldItemConfig } from './gold';
+import { goldIngotItemConfig } from './goldIngot';
+import { goldOreItemConfig } from './goldOre';
 import { hearthTotemItemConfig } from './hearthTotem';
 import { healthPotionItemConfig } from './healthPotion';
 import { herbsItemConfig } from './herbs';
 import { hideBucklerItemConfig } from './hideBuckler';
 import { homeScrollItemConfig } from './homeScroll';
 import { ironChunksItemConfig } from './ironChunks';
+import { ironIngotItemConfig } from './ironIngot';
 import { ironOreItemConfig } from './ironOre';
 import { leatherScrapsItemConfig } from './leatherScraps';
 import { logsItemConfig } from './logs';
 import { manaPotionItemConfig } from './manaPotion';
+import { MEAL_ITEM_CONFIGS } from './meals';
 import { patchworkHoodItemConfig } from './patchworkHood';
+import { platinumIngotItemConfig } from './platinumIngot';
+import { platinumOreItemConfig } from './platinumOre';
+import { PRODUCE_ITEM_CONFIGS } from './produce';
 import { rawFishItemConfig } from './rawFish';
 import { scoutHoodItemConfig } from './scoutHood';
 import { settlerVestItemConfig } from './settlerVest';
 import { sticksItemConfig } from './sticks';
 import { stoneItemConfig } from './stone';
+import { tinIngotItemConfig } from './tinIngot';
+import { tinOreItemConfig } from './tinOre';
 import { townKnifeItemConfig } from './townKnife';
 import { trailLeggingsItemConfig } from './trailLeggings';
 import { trailRationItemConfig } from './trailRation';
 import { wayfarerCloakItemConfig } from './wayfarerCloak';
 import { waterFlaskItemConfig } from './waterFlask';
 import { workGlovesItemConfig } from './workGloves';
+import { CRAFTED_EXPANSION_ITEM_CONFIGS } from './expansion';
 
 const RAW_ITEM_CONFIGS = [
   trailRationItemConfig,
@@ -61,12 +73,21 @@ const RAW_ITEM_CONFIGS = [
   homeScrollItemConfig,
   goldItemConfig,
   herbsItemConfig,
+  ...PRODUCE_ITEM_CONFIGS,
   logsItemConfig,
   sticksItemConfig,
   stoneItemConfig,
   copperOreItemConfig,
+  copperIngotItemConfig,
+  tinOreItemConfig,
+  tinIngotItemConfig,
   ironOreItemConfig,
   ironChunksItemConfig,
+  ironIngotItemConfig,
+  goldOreItemConfig,
+  goldIngotItemConfig,
+  platinumOreItemConfig,
+  platinumIngotItemConfig,
   coalItemConfig,
   rawFishItemConfig,
   clothItemConfig,
@@ -87,6 +108,9 @@ const RAW_ITEM_CONFIGS = [
   wayfarerCloakItemConfig,
   hearthTotemItemConfig,
   waterFlaskItemConfig,
+  ...MEAL_ITEM_CONFIGS,
+  ...CRAFTED_EXPANSION_ITEM_CONFIGS,
+  ...GENERATED_CRAFTABLE_ICON_ITEM_CONFIGS,
   ...GENERATED_EQUIPMENT_CONFIGS,
 ] as const;
 
@@ -198,6 +222,7 @@ export function buildItemFromConfig(
     itemKey: config.key,
     tags: overrides.tags ?? [...(config.tags ?? [])],
     recipeId: overrides.recipeId,
+    locked: overrides.locked ?? false,
     slot: config.slot,
     icon:
       overrides.icon ??
@@ -266,6 +291,7 @@ export function cloneConfiguredItem(item: Item) {
   return buildItemFromConfig(config.key, {
     id: item.id,
     recipeId: item.recipeId,
+    locked: item.locked,
     quantity: item.quantity,
     tier: item.tier,
     rarity: item.rarity,
@@ -323,27 +349,70 @@ export function inferItemTags(item: ItemClassificationInput) {
 }
 
 function buildItemConfigTags(
-  config: Omit<ItemConfig, 'name' | 'tags'> & { name?: string },
+  config: Omit<ItemConfig, 'name'> & { name?: string },
 ) {
   const category = getItemConfigCategory(config);
   const keyTags: Partial<Record<string, GameTag[]>> = {
     [ItemId.Gold]: [GAME_TAGS.item.currency, GAME_TAGS.item.resource],
     [ItemId.HomeScroll]: [GAME_TAGS.item.homeward],
     [ItemId.Herbs]: [GAME_TAGS.item.gathered],
-    [ItemId.Logs]: [GAME_TAGS.item.gathered, GAME_TAGS.item.wood],
-    [ItemId.Sticks]: [GAME_TAGS.item.gathered, GAME_TAGS.item.wood],
+    [ItemId.Logs]: [
+      GAME_TAGS.item.gathered,
+      GAME_TAGS.item.wood,
+      GAME_TAGS.item.craftingMaterial,
+    ],
+    [ItemId.Sticks]: [
+      GAME_TAGS.item.gathered,
+      GAME_TAGS.item.wood,
+      GAME_TAGS.item.craftingMaterial,
+    ],
     [ItemId.Stone]: [GAME_TAGS.item.gathered],
-    [ItemId.CopperOre]: [GAME_TAGS.item.gathered, GAME_TAGS.item.ore],
-    [ItemId.IronOre]: [GAME_TAGS.item.gathered, GAME_TAGS.item.ore],
-    [ItemId.IronChunks]: [GAME_TAGS.item.ore, GAME_TAGS.item.prospectable],
-    [ItemId.Coal]: [GAME_TAGS.item.gathered],
-    [ItemId.RawFish]: [GAME_TAGS.item.gathered],
-    [ItemId.Cloth]: [GAME_TAGS.item.cloth, GAME_TAGS.item.prospectable],
+    [ItemId.CopperOre]: [
+      GAME_TAGS.item.gathered,
+      GAME_TAGS.item.ore,
+      GAME_TAGS.item.craftingMaterial,
+    ],
+    [ItemId.CopperIngot]: [GAME_TAGS.item.craftingMaterial],
+    [ItemId.TinOre]: [GAME_TAGS.item.ore, GAME_TAGS.item.craftingMaterial],
+    [ItemId.TinIngot]: [GAME_TAGS.item.craftingMaterial],
+    [ItemId.IronOre]: [
+      GAME_TAGS.item.gathered,
+      GAME_TAGS.item.ore,
+      GAME_TAGS.item.craftingMaterial,
+    ],
+    [ItemId.IronChunks]: [
+      GAME_TAGS.item.ore,
+      GAME_TAGS.item.prospectable,
+      GAME_TAGS.item.craftingMaterial,
+    ],
+    [ItemId.IronIngot]: [GAME_TAGS.item.craftingMaterial],
+    [ItemId.GoldOre]: [GAME_TAGS.item.ore, GAME_TAGS.item.craftingMaterial],
+    [ItemId.GoldIngot]: [GAME_TAGS.item.craftingMaterial],
+    [ItemId.PlatinumOre]: [
+      GAME_TAGS.item.ore,
+      GAME_TAGS.item.craftingMaterial,
+    ],
+    [ItemId.PlatinumIngot]: [GAME_TAGS.item.craftingMaterial],
+    [ItemId.Coal]: [GAME_TAGS.item.gathered, GAME_TAGS.item.craftingMaterial],
+    [ItemId.RawFish]: [
+      GAME_TAGS.item.gathered,
+      GAME_TAGS.item.craftingMaterial,
+    ],
+    [ItemId.Cloth]: [
+      GAME_TAGS.item.cloth,
+      GAME_TAGS.item.prospectable,
+      GAME_TAGS.item.craftingMaterial,
+    ],
     [ItemId.LeatherScraps]: [
       GAME_TAGS.item.animalProduct,
       GAME_TAGS.item.prospectable,
+      GAME_TAGS.item.craftingMaterial,
     ],
-    [ItemId.ArcaneDust]: [GAME_TAGS.item.aether, GAME_TAGS.item.prospectable],
+    [ItemId.ArcaneDust]: [
+      GAME_TAGS.item.aether,
+      GAME_TAGS.item.prospectable,
+      GAME_TAGS.item.craftingMaterial,
+    ],
     [ItemId.CampSpear]: [GAME_TAGS.item.crafted],
     [ItemId.HideBuckler]: [
       GAME_TAGS.item.crafted,
@@ -366,6 +435,7 @@ function buildItemConfigTags(
   };
 
   return uniqueTags(
+    ...(config.tags ?? []),
     category === 'consumable' || category === 'resource'
       ? GAME_TAGS.item.stackable
       : undefined,

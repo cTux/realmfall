@@ -6,12 +6,22 @@ import type { EquipmentSlot, Item } from '../../../game/state';
 import { iconForItem, itemTint } from '../../icons';
 import styles from './styles.module.scss';
 
+interface ItemSlotCornerIcon {
+  icon: string;
+  color: string;
+  label?: string;
+}
+
 interface ItemSlotButtonProps {
   item?: Item;
   slot?: EquipmentSlot;
   size?: 'default' | 'compact';
   className?: string;
   style?: CSSProperties;
+  tintOverride?: string;
+  borderColorOverride?: string;
+  overlayColorOverride?: string;
+  cornerIcon?: ItemSlotCornerIcon;
   hidePlaceholderIconWhenEmpty?: boolean;
   disabled?: boolean;
   onClick?: () => void;
@@ -27,6 +37,10 @@ export function ItemSlotButton({
   size = 'default',
   className,
   style,
+  tintOverride,
+  borderColorOverride,
+  overlayColorOverride,
+  cornerIcon,
   hidePlaceholderIconWhenEmpty = false,
   disabled = false,
   onClick,
@@ -35,7 +49,9 @@ export function ItemSlotButton({
   onEmptyMouseEnter,
   onMouseLeave,
 }: ItemSlotButtonProps) {
-  const tint = item ? itemTint(item) : 'rgba(148, 163, 184, 0.32)';
+  const tint =
+    tintOverride ?? (item ? itemTint(item) : 'rgba(148, 163, 184, 0.32)');
+  const borderColor = borderColorOverride ?? tint;
   const isInteractive = Boolean(
     !disabled && item && (onClick || onContextMenu || onMouseEnter),
   );
@@ -55,8 +71,8 @@ export function ItemSlotButton({
         .join(' ')}
       style={{
         ...style,
-        borderColor: tint,
-        boxShadow: item ? `0 0 0 1px ${tint}33 inset` : undefined,
+        borderColor,
+        boxShadow: item ? `0 0 0 1px ${borderColor}33 inset` : undefined,
       }}
       data-size={size}
       onClick={item && !disabled ? onClick : undefined}
@@ -68,6 +84,13 @@ export function ItemSlotButton({
       disabled={disabled}
       aria-label={item ? undefined : getEmptySlotLabel(slot)}
     >
+      {overlayColorOverride ? (
+        <span
+          className={styles.overlay}
+          style={{ backgroundColor: overlayColorOverride }}
+          aria-hidden="true"
+        />
+      ) : null}
       {showIcon ? (
         <span
           className={styles.icon}
@@ -79,6 +102,13 @@ export function ItemSlotButton({
         <span className={styles.stackBadge}>
           x{formatCompactNumber(item.quantity)}
         </span>
+      ) : null}
+      {cornerIcon ? (
+        <span
+          className={styles.cornerIcon}
+          style={iconMaskStyle(cornerIcon.icon, cornerIcon.color)}
+          aria-label={cornerIcon.label}
+        />
       ) : null}
     </button>
   );

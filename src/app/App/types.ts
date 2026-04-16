@@ -26,4 +26,6 @@ export interface ItemContextMenuState {
   x: number;
   y: number;
   slot?: EquipmentSlot;
+  canProspect: boolean;
+  canSell: boolean;
 }

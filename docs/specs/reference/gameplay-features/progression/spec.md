@@ -9,9 +9,10 @@ This spec covers player leveling, mastery, and skill progression.
 - The player gains XP from gameplay outcomes such as combat.
 - Level ups increase base survivability and combat stats.
 - After the normal cap, XP advances mastery levels instead of ordinary levels.
-- Current skills are logging, mining, skinning, fishing, cooking, and crafting.
+- Current skills are gathering, logging, mining, skinning, fishing, cooking, smelting, and crafting.
 - Skill XP is awarded by related actions.
 - Higher skill levels improve gathering yield bonus and bonus proc chance where applicable.
+- The skills window uses the shared resizable window shell and scrolls its skill list inside the window body when the content outgrows the current size.
 
 ## Main Implementation Areas
 

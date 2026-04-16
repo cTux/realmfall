@@ -60,6 +60,20 @@
   gap: 0.75rem;
 }
 
+.statLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.statIcon {
+  width: 0.85rem;
+  height: 0.85rem;
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
 .barBlock {
   display: grid;
   gap: 0.2rem;

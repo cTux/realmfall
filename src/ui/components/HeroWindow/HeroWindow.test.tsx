@@ -21,7 +21,9 @@ const stats: HeroWindowStats = {
   level: 1,
   masteryLevel: 0,
   skills: {
+    gathering: { level: 1, xp: 0 },
     cooking: { level: 1, xp: 0 },
+    smelting: { level: 1, xp: 0 },
     crafting: { level: 1, xp: 0 },
     fishing: { level: 1, xp: 0 },
     logging: { level: 1, xp: 0 },

@@ -27,6 +27,7 @@ const meta = {
     onClose: noop,
     inventory: fixtures.inventory,
     equipment: fixtures.equipment,
+    learnedRecipeIds: [],
     onSort: noop,
     onEquip: noop,
     onContextItem: noopContextItem,

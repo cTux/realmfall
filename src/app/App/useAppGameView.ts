@@ -4,7 +4,7 @@ import {
   getEnemiesAt,
   getGoldAmount,
   getPlayerStats,
-  getRecipeBookRecipes,
+  getRecipeBookEntries,
   structureActionLabel,
   type GameState,
   type LogKind,
@@ -29,19 +29,20 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     [player.coord, seed, tiles],
   );
   const recipes = useMemo(
-    () => getRecipeBookRecipes(player.learnedRecipeIds),
+    () => getRecipeBookEntries(player.learnedRecipeIds),
     [player.learnedRecipeIds],
   );
-  const inventoryCounts = useMemo(
+  const inventoryCountsByItemKey = useMemo(
     () =>
       player.inventory.reduce<Record<string, number>>((counts, item) => {
-        counts[item.name] = (counts[item.name] ?? 0) + item.quantity;
+        const key = item.itemKey ?? item.name;
+        counts[key] = (counts[key] ?? 0) + item.quantity;
         return counts;
       }, {}),
     [player.inventory],
   );
   const hasEquippableItems = useMemo(
-    () => player.inventory.some(isEquippableItem),
+    () => player.inventory.some((item) => isEquippableItem(item) && !item.locked),
     [player.inventory],
   );
   const townStock = useMemo(
@@ -86,7 +87,7 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     filteredLogs,
     gold,
     interactLabel,
-    inventoryCounts,
+    inventoryCountsByItemKey,
     prospectExplanation,
     recipes,
     sellExplanation,

@@ -13,9 +13,14 @@ import {
   dropEquippedItem,
   dropInventoryItem,
   equipItem,
+  getCurrentTile,
   interactWithStructure,
+  isEquippableItem,
+  prospectInventoryItem,
   prospectInventory,
+  sellInventoryItem,
   sellAllItems,
+  setInventoryItemLocked,
   sortInventory,
   startCombat,
   takeAllTileItems,
@@ -68,6 +73,8 @@ export function useAppControllers({
     useState<Record<LogKind, boolean>>(DEFAULT_LOG_FILTERS);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [itemMenu, setItemMenu] = useState<ItemContextMenuState | null>(null);
+  const [recipeMaterialFilterItemKey, setRecipeMaterialFilterItemKey] =
+    useState<string | null>(null);
 
   const moveWindow = useCallback(
     (
@@ -179,6 +186,24 @@ export function useAppControllers({
     applyTimedGameTransition(setGame, worldTimeMsRef, sellAllItems);
   }, [setGame, worldTimeMsRef]);
 
+  const handleProspectItem = useCallback(
+    (itemId: string) => {
+      applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
+        prospectInventoryItem(current, itemId),
+      );
+    },
+    [setGame, worldTimeMsRef],
+  );
+
+  const handleSellItem = useCallback(
+    (itemId: string) => {
+      applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
+        sellInventoryItem(current, itemId),
+      );
+    },
+    [setGame, worldTimeMsRef],
+  );
+
   const handleInteract = useCallback(() => {
     applyTimedGameTransition(setGame, worldTimeMsRef, interactWithStructure);
   }, [setGame, worldTimeMsRef]);
@@ -254,9 +279,18 @@ export function useAppControllers({
   const handleContextItem = useCallback(
     (event: ReactMouseEvent<HTMLElement>, item: TooltipItem) => {
       event.preventDefault();
-      setItemMenu({ item, x: event.clientX, y: event.clientY });
+      const currentStructure = getCurrentTile(gameRef.current).structure;
+      setItemMenu({
+        item,
+        x: event.clientX,
+        y: event.clientY,
+        canProspect:
+          currentStructure === 'forge' && isEquippableItem(item) && !item.locked,
+        canSell:
+          currentStructure === 'town' && isEquippableItem(item) && !item.locked,
+      });
     },
-    [],
+    [gameRef],
   );
 
   const handleEquippedContextItem = useCallback(
@@ -266,7 +300,14 @@ export function useAppControllers({
       slot: Parameters<typeof unequipItem>[1],
     ) => {
       event.preventDefault();
-      setItemMenu({ item, x: event.clientX, y: event.clientY, slot });
+      setItemMenu({
+        item,
+        x: event.clientX,
+        y: event.clientY,
+        slot,
+        canProspect: false,
+        canSell: false,
+      });
     },
     [],
   );
@@ -283,6 +324,27 @@ export function useAppControllers({
   const handleTakeAllLoot = useCallback(() => {
     applyTimedGameTransition(setGame, worldTimeMsRef, takeAllTileItems);
   }, [setGame, worldTimeMsRef]);
+
+  const handleSetItemLocked = useCallback(
+    (itemId: string, locked: boolean) => {
+      applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
+        setInventoryItemLocked(current, itemId, locked),
+      );
+    },
+    [setGame, worldTimeMsRef],
+  );
+
+  const handleOpenRecipeBookWithMaterialFilter = useCallback(
+    (itemKey: string) => {
+      setRecipeMaterialFilterItemKey(itemKey);
+      setWindowShown((current) => ({ ...current, recipes: true }));
+    },
+    [],
+  );
+
+  const handleClearRecipeMaterialFilter = useCallback(() => {
+    setRecipeMaterialFilterItemKey(null);
+  }, []);
 
   const handleStartCombat = useCallback(() => {
     applyTimedGameTransition(setGame, worldTimeMsRef, startCombat);
@@ -322,13 +384,18 @@ export function useAppControllers({
     handleEquippedContextItem,
     handleInteract,
     handleProspect,
+    handleProspectItem,
     handleSellAll,
+    handleSellItem,
+    handleSetItemLocked,
     handleSort,
     handleStartCombat,
     handleTakeAllLoot,
     handleTakeLootItem,
     handleUnequip,
     handleUseItem,
+    handleOpenRecipeBookWithMaterialFilter,
+    handleClearRecipeMaterialFilter,
     itemMenu,
     logFilters,
     moveWindow,
@@ -347,6 +414,7 @@ export function useAppControllers({
     toggleLogFilter,
     windowShown,
     windows,
+    recipeMaterialFilterItemKey,
   };
 }
 

@@ -68,6 +68,12 @@ export interface GatheringConfig {
   reward: string;
   rewardTier: number;
   baseYield: number;
+  rewardTable?: Array<{
+    itemKey: ItemKey;
+    weight: number;
+    rewardTier?: number;
+    quantity?: number;
+  }>;
   verb: string;
   depletedText: string;
 }
@@ -97,6 +103,7 @@ export interface ItemBuildOverrides {
   hunger?: number;
   thirst?: number;
   recipeId?: Item['recipeId'];
+  locked?: Item['locked'];
   name?: string;
   icon?: Item['icon'];
   tags?: Item['tags'];

@@ -28,6 +28,7 @@ export type GatheringStructureType =
 export type StructureType =
   | 'forge'
   | 'camp'
+  | 'furnace'
   | 'workshop'
   | 'town'
   | 'dungeon'
@@ -37,11 +38,13 @@ export type ItemRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
 export type EnemyRarity = ItemRarity;
 
 export enum Skill {
+  Gathering = 'gathering',
   Logging = 'logging',
   Mining = 'mining',
   Skinning = 'skinning',
   Fishing = 'fishing',
   Cooking = 'cooking',
+  Smelting = 'smelting',
   Crafting = 'crafting',
 }
 
@@ -54,6 +57,7 @@ export interface Item {
   itemKey?: ItemKey;
   tags?: GameTag[];
   recipeId?: string;
+  locked?: boolean;
   slot?: EquipmentSlot;
   icon?: string;
   name: string;
@@ -202,10 +206,14 @@ export interface RecipeDefinition {
   id: string;
   name: string;
   description: string;
-  skill: Skill.Cooking | Skill.Crafting;
+  skill: Skill.Cooking | Skill.Smelting | Skill.Crafting;
   output: Item;
   ingredients: RecipeRequirement[];
   fuelOptions?: RecipeRequirement[];
+}
+
+export interface RecipeBookEntry extends RecipeDefinition {
+  learned: boolean;
 }
 
 export type LogKind =

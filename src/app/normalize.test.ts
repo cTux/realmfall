@@ -142,8 +142,10 @@ describe('normalizeLoadedGame', () => {
     expect(loaded.tiles['0,0'].enemyIds).toEqual(['legacy-enemy']);
     expect(loaded.tiles['0,0'].structureHp).toBe(5);
     expect(loaded.player.skills[Skill.Logging]).toEqual({ level: 3, xp: 2 });
+    expect(loaded.player.skills[Skill.Gathering]).toEqual({ level: 1, xp: 0 });
     expect(loaded.player.skills[Skill.Mining]).toEqual({ level: 1, xp: 0 });
     expect(loaded.player.skills[Skill.Cooking]).toEqual({ level: 1, xp: 0 });
+    expect(loaded.player.skills[Skill.Smelting]).toEqual({ level: 1, xp: 0 });
     expect(loaded.player.skills[Skill.Crafting]).toEqual({ level: 1, xp: 0 });
     expect(loaded.player.statusEffects).toEqual([
       expect.objectContaining({
