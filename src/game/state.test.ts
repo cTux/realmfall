@@ -2076,6 +2076,13 @@ describe('game state', () => {
     expect(
       smelted.player.inventory.some((item) => item.itemKey === 'copper-ingot'),
     ).toBe(true);
+    expect(
+      smelted.player.inventory.find((item) => item.itemKey === 'copper-ore')
+        ?.quantity,
+    ).toBe(10);
+    expect(
+      smelted.player.inventory.find((item) => item.itemKey === 'coal')?.quantity,
+    ).toBe(9);
     expect(smelted.player.skills[Skill.Smelting].xp).toBeGreaterThan(0);
   });
 
@@ -2123,6 +2130,27 @@ describe('game state', () => {
         (entry) => entry.id.startsWith('smelt-iron-ingot'),
       ),
     ).toHaveLength(1);
+    expect(
+      smeltedPlatinum.player.inventory.find((item) => item.itemKey === 'tin-ore')
+        ?.quantity,
+    ).toBe(10);
+    expect(
+      smeltedPlatinum.player.inventory.find((item) => item.itemKey === 'iron-ore')
+        ?.quantity,
+    ).toBe(10);
+    expect(
+      smeltedPlatinum.player.inventory.find((item) => item.itemKey === 'gold-ore')
+        ?.quantity,
+    ).toBe(20);
+    expect(
+      smeltedPlatinum.player.inventory.find(
+        (item) => item.itemKey === 'platinum-ore',
+      )?.quantity,
+    ).toBe(30);
+    expect(
+      smeltedPlatinum.player.inventory.find((item) => item.itemKey === 'coal')
+        ?.quantity,
+    ).toBe(36);
   });
 
   it('requires the matching hex type for cooking and crafting recipes', () => {

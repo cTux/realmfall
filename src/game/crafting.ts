@@ -173,7 +173,7 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
     description: 'Refine a copper ore haul into a workable ingot.',
     skill: Skill.Smelting,
     output: buildItemFromConfig('copper-ingot'),
-    ingredients: [{ itemKey: 'copper-ore', name: 'Copper Ore', quantity: 2 }],
+    ingredients: [{ itemKey: 'copper-ore', name: 'Copper Ore', quantity: 1 }],
     fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
@@ -182,7 +182,7 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
     description: 'Smelt soft tin ore into a workable ingot for finer crafting.',
     skill: Skill.Smelting,
     output: buildItemFromConfig('tin-ingot'),
-    ingredients: [{ itemKey: 'tin-ore', name: 'Tin Ore', quantity: 2 }],
+    ingredients: [{ itemKey: 'tin-ore', name: 'Tin Ore', quantity: 1 }],
     fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
@@ -191,7 +191,7 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
     description: 'Smelt raw iron ore down into an ingot fit for crafting.',
     skill: Skill.Smelting,
     output: buildItemFromConfig('iron-ingot'),
-    ingredients: [{ itemKey: 'iron-ore', name: 'Iron Ore', quantity: 2 }],
+    ingredients: [{ itemKey: 'iron-ore', name: 'Iron Ore', quantity: 1 }],
     fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
@@ -201,7 +201,7 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
       'Refine bright gold ore into an ingot suited to precise metalwork.',
     skill: Skill.Smelting,
     output: buildItemFromConfig('gold-ingot'),
-    ingredients: [{ itemKey: 'gold-ore', name: 'Gold Ore', quantity: 3 }],
+    ingredients: [{ itemKey: 'gold-ore', name: 'Gold Ore', quantity: 1 }],
     fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
@@ -211,9 +211,7 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
       'Drive the furnace hotter and refine platinum ore into a pale ingot.',
     skill: Skill.Smelting,
     output: buildItemFromConfig('platinum-ingot'),
-    ingredients: [
-      { itemKey: 'platinum-ore', name: 'Platinum Ore', quantity: 4 },
-    ],
+    ingredients: [{ itemKey: 'platinum-ore', name: 'Platinum Ore', quantity: 1 }],
     fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
