@@ -30,6 +30,8 @@ import { copperLoopItemConfig } from './copperLoop';
 import { copperOreItemConfig } from './copperOre';
 import { fieldBootsItemConfig } from './fieldBoots';
 import { goldItemConfig } from './gold';
+import { goldIngotItemConfig } from './goldIngot';
+import { goldOreItemConfig } from './goldOre';
 import { hearthTotemItemConfig } from './hearthTotem';
 import { healthPotionItemConfig } from './healthPotion';
 import { herbsItemConfig } from './herbs';
@@ -43,12 +45,16 @@ import { logsItemConfig } from './logs';
 import { manaPotionItemConfig } from './manaPotion';
 import { MEAL_ITEM_CONFIGS } from './meals';
 import { patchworkHoodItemConfig } from './patchworkHood';
+import { platinumIngotItemConfig } from './platinumIngot';
+import { platinumOreItemConfig } from './platinumOre';
 import { PRODUCE_ITEM_CONFIGS } from './produce';
 import { rawFishItemConfig } from './rawFish';
 import { scoutHoodItemConfig } from './scoutHood';
 import { settlerVestItemConfig } from './settlerVest';
 import { sticksItemConfig } from './sticks';
 import { stoneItemConfig } from './stone';
+import { tinIngotItemConfig } from './tinIngot';
+import { tinOreItemConfig } from './tinOre';
 import { townKnifeItemConfig } from './townKnife';
 import { trailLeggingsItemConfig } from './trailLeggings';
 import { trailRationItemConfig } from './trailRation';
@@ -72,9 +78,15 @@ const RAW_ITEM_CONFIGS = [
   stoneItemConfig,
   copperOreItemConfig,
   copperIngotItemConfig,
+  tinOreItemConfig,
+  tinIngotItemConfig,
   ironOreItemConfig,
   ironChunksItemConfig,
   ironIngotItemConfig,
+  goldOreItemConfig,
+  goldIngotItemConfig,
+  platinumOreItemConfig,
+  platinumIngotItemConfig,
   coalItemConfig,
   rawFishItemConfig,
   clothItemConfig,
@@ -359,6 +371,8 @@ function buildItemConfigTags(
       GAME_TAGS.item.craftingMaterial,
     ],
     [ItemId.CopperIngot]: [GAME_TAGS.item.craftingMaterial],
+    [ItemId.TinOre]: [GAME_TAGS.item.ore, GAME_TAGS.item.craftingMaterial],
+    [ItemId.TinIngot]: [GAME_TAGS.item.craftingMaterial],
     [ItemId.IronOre]: [
       GAME_TAGS.item.gathered,
       GAME_TAGS.item.ore,
@@ -370,6 +384,13 @@ function buildItemConfigTags(
       GAME_TAGS.item.craftingMaterial,
     ],
     [ItemId.IronIngot]: [GAME_TAGS.item.craftingMaterial],
+    [ItemId.GoldOre]: [GAME_TAGS.item.ore, GAME_TAGS.item.craftingMaterial],
+    [ItemId.GoldIngot]: [GAME_TAGS.item.craftingMaterial],
+    [ItemId.PlatinumOre]: [
+      GAME_TAGS.item.ore,
+      GAME_TAGS.item.craftingMaterial,
+    ],
+    [ItemId.PlatinumIngot]: [GAME_TAGS.item.craftingMaterial],
     [ItemId.Coal]: [GAME_TAGS.item.gathered, GAME_TAGS.item.craftingMaterial],
     [ItemId.RawFish]: [
       GAME_TAGS.item.gathered,

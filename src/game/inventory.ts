@@ -204,7 +204,7 @@ export function prospectYield(item: Item): Item[] {
   const category = getItemCategory(item);
   if (category === 'weapon') {
     return [
-      makeResourceStack(ItemId.IronChunks, item.tier, quantity),
+      makeResourceStack(ItemId.IronOre, item.tier, quantity),
       makeResourceStack(ItemId.Sticks, item.tier, 1),
     ];
   }
@@ -217,7 +217,7 @@ export function prospectYield(item: Item): Item[] {
         item.tier,
         quantity,
       ),
-      makeResourceStack(ItemId.IronChunks, item.tier, 1),
+      makeResourceStack(ItemId.IronOre, item.tier, 1),
     ];
   }
   return [makeResourceStack(ItemId.ArcaneDust, item.tier, quantity + 1)];

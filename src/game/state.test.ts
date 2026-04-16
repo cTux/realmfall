@@ -2076,6 +2076,52 @@ describe('game state', () => {
     expect(smelted.player.skills[Skill.Smelting].xp).toBeGreaterThan(0);
   });
 
+  it('smelts the expanded ore set into ingots with one iron recipe', () => {
+    const game = createGame(3, 'expanded-smelting-seed');
+    game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'furnace' };
+    game.player.learnedRecipeIds.push(
+      'smelt-tin-ingot',
+      'smelt-iron-ingot',
+      'smelt-gold-ingot',
+      'smelt-platinum-ingot',
+    );
+    game.player.inventory.push(
+      buildItemFromConfig('tin-ore', { id: 'tin-ore-1', quantity: 20 }),
+      buildItemFromConfig('iron-ore', { id: 'iron-ore-1', quantity: 20 }),
+      buildItemFromConfig('gold-ore', { id: 'gold-ore-1', quantity: 30 }),
+      buildItemFromConfig('platinum-ore', {
+        id: 'platinum-ore-1',
+        quantity: 40,
+      }),
+      buildItemFromConfig('coal', { id: 'coal-1', quantity: 40 }),
+    );
+
+    const smeltedTin = craftRecipe(game, 'smelt-tin-ingot');
+    const smeltedIron = craftRecipe(smeltedTin, 'smelt-iron-ingot');
+    const smeltedGold = craftRecipe(smeltedIron, 'smelt-gold-ingot');
+    const smeltedPlatinum = craftRecipe(smeltedGold, 'smelt-platinum-ingot');
+
+    expect(
+      smeltedPlatinum.player.inventory.some((item) => item.itemKey === 'tin-ingot'),
+    ).toBe(true);
+    expect(
+      smeltedPlatinum.player.inventory.some((item) => item.itemKey === 'iron-ingot'),
+    ).toBe(true);
+    expect(
+      smeltedPlatinum.player.inventory.some((item) => item.itemKey === 'gold-ingot'),
+    ).toBe(true);
+    expect(
+      smeltedPlatinum.player.inventory.some(
+        (item) => item.itemKey === 'platinum-ingot',
+      ),
+    ).toBe(true);
+    expect(
+      getRecipeBookEntries(smeltedPlatinum.player.learnedRecipeIds).filter(
+        (entry) => entry.id.startsWith('smelt-iron-ingot'),
+      ),
+    ).toHaveLength(1);
+  });
+
   it('requires the matching hex type for cooking and crafting recipes', () => {
     const game = createGame(3, 'recipe-station-seed');
     game.player.inventory.push(
@@ -2583,7 +2629,7 @@ describe('game state', () => {
       true,
     );
     expect(
-      prospected.player.inventory.some((item) => item.itemKey === 'iron-chunks'),
+      prospected.player.inventory.some((item) => item.itemKey === 'iron-ore'),
     ).toBe(true);
 
     prospected.tiles['0,0'] = { ...prospected.tiles['0,0'], structure: 'town' };
@@ -2714,6 +2760,41 @@ describe('game state', () => {
 
     expect(loaded.player.learnedRecipeIds).toHaveLength(
       getRecipeBookRecipes().length,
+    );
+  });
+
+  it('normalizes legacy iron chunks into iron ore', () => {
+    const game = createGame(3, 'legacy-iron-chunks-seed');
+    const loaded = normalizeLoadedGame({
+      ...game,
+      player: {
+        ...game.player,
+        inventory: [
+          {
+            id: 'legacy-iron-chunks',
+            itemKey: 'iron-chunks',
+            name: 'Iron Chunks',
+            quantity: 3,
+            tier: 1,
+            rarity: 'common',
+            power: 0,
+            defense: 0,
+            maxHp: 0,
+            healing: 0,
+            hunger: 0,
+          },
+        ],
+      },
+    });
+
+    expect(loaded.player.inventory).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          itemKey: 'iron-ore',
+          name: 'Iron Ore',
+          quantity: 3,
+        }),
+      ]),
     );
   });
 });

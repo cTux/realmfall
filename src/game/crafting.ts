@@ -172,7 +172,16 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
     fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
-    id: 'smelt-iron-ingot-from-ore',
+    id: 'smelt-tin-ingot',
+    name: 'Tin Ingot',
+    description: 'Smelt soft tin ore into a workable ingot for finer crafting.',
+    skill: Skill.Smelting,
+    output: buildItemFromConfig('tin-ingot'),
+    ingredients: [{ itemKey: 'tin-ore', name: 'Tin Ore', quantity: 2 }],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
+  },
+  {
+    id: 'smelt-iron-ingot',
     name: 'Iron Ingot',
     description: 'Smelt raw iron ore down into an ingot fit for crafting.',
     skill: Skill.Smelting,
@@ -181,14 +190,24 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
     fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
-    id: 'smelt-iron-ingot-from-chunks',
-    name: 'Iron Ingot',
+    id: 'smelt-gold-ingot',
+    name: 'Gold Ingot',
     description:
-      'Recast salvaged iron chunks into a proper ingot for the workshop.',
+      'Refine bright gold ore into an ingot suited to precise metalwork.',
     skill: Skill.Smelting,
-    output: buildItemFromConfig('iron-ingot'),
+    output: buildItemFromConfig('gold-ingot'),
+    ingredients: [{ itemKey: 'gold-ore', name: 'Gold Ore', quantity: 3 }],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
+  },
+  {
+    id: 'smelt-platinum-ingot',
+    name: 'Platinum Ingot',
+    description:
+      'Drive the furnace hotter and refine platinum ore into a pale ingot.',
+    skill: Skill.Smelting,
+    output: buildItemFromConfig('platinum-ingot'),
     ingredients: [
-      { itemKey: 'iron-chunks', name: 'Iron Chunks', quantity: 2 },
+      { itemKey: 'platinum-ore', name: 'Platinum Ore', quantity: 4 },
     ],
     fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },

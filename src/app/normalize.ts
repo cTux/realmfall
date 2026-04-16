@@ -222,25 +222,38 @@ export function normalizeLoadedGame(game: GameState): GameState {
 }
 
 function normalizeItem(item: Item): Item {
-  const configured = getItemConfig(item);
+  const canonicalItem =
+    item.itemKey === ItemId.IronChunks || item.name === 'Iron Chunks'
+      ? {
+          ...item,
+          itemKey: ItemId.IronOre,
+          name: 'Iron Ore',
+        }
+      : item;
+  const configured = getItemConfig(canonicalItem);
   const normalizedName =
     configured?.name ??
-    (item.name === 'Arcane Dust' ? 'Aether Dust' : item.name);
+    (canonicalItem.name === 'Arcane Dust'
+      ? 'Aether Dust'
+      : canonicalItem.name);
   return {
-    ...item,
-    itemKey: configured?.key ?? item.itemKey,
-    locked: Boolean(item.locked),
+    ...canonicalItem,
+    itemKey: configured?.key ?? canonicalItem.itemKey,
+    locked: Boolean(canonicalItem.locked),
     slot:
-      item.slot === EquipmentSlotId.Relic
+      canonicalItem.slot === EquipmentSlotId.Relic
         ? EquipmentSlotId.Offhand
-        : item.slot,
-    tags: item.tags ?? configured?.tags ?? inferItemTags(item),
+        : canonicalItem.slot,
+    tags:
+      canonicalItem.tags ??
+      configured?.tags ??
+      inferItemTags(canonicalItem),
     name: normalizedName,
-    quantity: item.quantity ?? 1,
-    rarity: item.rarity ?? 'common',
+    quantity: canonicalItem.quantity ?? 1,
+    rarity: canonicalItem.rarity ?? 'common',
     thirst: Math.max(
       0,
-      Number((item as Item & { thirst?: number }).thirst ?? 0) || 0,
+      Number((canonicalItem as Item & { thirst?: number }).thirst ?? 0) || 0,
     ),
   };
 }
