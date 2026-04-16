@@ -1,9 +1,12 @@
 @use '../../../styles/ui';
 
 .slot {
+  --slot-size: 68px;
+  --slot-icon-size: 2.2rem;
+
   position: relative;
-  width: 68px;
-  height: 68px;
+  width: var(--slot-size);
+  height: var(--slot-size);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -15,9 +18,10 @@
     rgb(15 23 42);
 
   &[data-size='compact'] {
-    width: 56px;
-    height: 56px;
-    padding: 0.28rem;
+    --slot-size: 34px;
+    --slot-icon-size: calc(var(--slot-size) * 0.9);
+
+    padding: 0.1rem;
   }
 }
 
@@ -36,12 +40,10 @@
 }
 
 .icon {
-  @include ui.masked-icon(2.2rem, $shadow: 0 2px 4px rgb(0 0 0 / 45%));
-
-  .slot[data-size='compact'] & {
-    width: 1.8rem;
-    height: 1.8rem;
-  }
+  @include ui.masked-icon(
+    var(--slot-icon-size),
+    $shadow: 0 2px 4px rgb(0 0 0 / 45%)
+  );
 }
 
 .stackBadge {
@@ -57,8 +59,8 @@
   line-height: 1;
 
   .slot[data-size='compact'] & {
-    bottom: -5px;
-    padding: 0.03rem 0.22rem;
-    font-size: 0.68rem;
+    bottom: -4px;
+    padding: 0.02rem 0.18rem;
+    font-size: 0.58rem;
   }
 }
