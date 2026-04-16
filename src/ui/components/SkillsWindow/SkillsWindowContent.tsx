@@ -18,7 +18,7 @@ export function SkillsWindowContent({
   onLeaveDetail,
 }: SkillsWindowContentProps) {
   return (
-    <>
+    <div className={styles.content}>
       <div className={styles.note}>{t('ui.skills.note')}</div>
       <div className={styles.list}>
         {Object.entries(skills).map(([name, skill]) => {
@@ -65,7 +65,7 @@ export function SkillsWindowContent({
           );
         })}
       </div>
-    </>
+    </div>
   );
 }
 
