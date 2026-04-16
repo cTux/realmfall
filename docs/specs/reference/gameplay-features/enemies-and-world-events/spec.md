@@ -7,7 +7,7 @@ This spec covers enemy generation plus the blood moon, harvest moon, and earthsh
 ## Current Behavior
 
 - Enemy spawns are deterministic from world seed, terrain, coordinate, and structure context, and each spawned enemy carries a canonical enemy type id plus gameplay tags.
-- Enemies roll a deterministic rarity from `Common`, `Uncommon`, `Rare`, `Epic`, and `Legendary`, with dungeon spawns floored above ordinary field threats and world bosses forced to `Legendary`.
+- Enemies roll a deterministic rarity from `Common`, `Uncommon`, `Rare`, `Epic`, and `Legendary` through the shared cascading rarity-event mechanism, with dungeon spawns floored above ordinary field threats and world bosses forced to `Legendary`.
 - Rarer enemies scale their combat stats and XP upward beyond the terrain baseline instead of relying only on a binary elite flag.
 - Faction NPCs use non-hostile territory-specific enemy identities so they can participate in the same world systems without behaving like ordinary hostiles.
 - Enemy classification such as animal, elite, dungeon, and world-boss behavior resolves from canonical enemy ids and tags instead of display-name checks.
