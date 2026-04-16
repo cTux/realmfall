@@ -97,7 +97,7 @@ export interface AppWindowsActions {
     onSort: () => void;
     onEquip: (itemId: string) => void;
     onUseItem: (itemId: string) => void;
-    onCraftRecipe: (recipeId: string) => void;
+    onCraftRecipe: (recipeId: string, count?: number | 'max') => void;
     onDropItem: (itemId: string) => void;
     onDropEquippedItem: (slot: EquipmentSlot) => void;
     onProspectItem: (itemId: string) => void;

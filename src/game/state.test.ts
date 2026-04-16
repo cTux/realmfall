@@ -2162,6 +2162,50 @@ describe('game state', () => {
     ).toBe(2);
   });
 
+  it('can craft up to a fixed batch size when requested', () => {
+    const game = createGame(3, 'craft-batch-seed');
+    game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'camp' };
+    game.player.learnedRecipeIds.push('cook-cooked-fish');
+    game.player.inventory.push(
+      buildItemFromConfig('raw-fish', { id: 'raw-fish-1', quantity: 5 }),
+      buildItemFromConfig('coal', { id: 'coal-1', quantity: 5 }),
+    );
+
+    const crafted = craftRecipe(game, 'cook-cooked-fish', 5);
+
+    expect(
+      crafted.player.inventory.find((item) => item.itemKey === 'cooked-fish')
+        ?.quantity,
+    ).toBe(5);
+    expect(
+      crafted.player.inventory.find((item) => item.itemKey === 'raw-fish'),
+    ).toBeUndefined();
+  });
+
+  it('can craft the maximum possible amount when requested', () => {
+    const game = createGame(3, 'craft-max-seed');
+    game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'camp' };
+    game.player.learnedRecipeIds.push('cook-cooked-fish');
+    game.player.inventory.push(
+      buildItemFromConfig('raw-fish', { id: 'raw-fish-1', quantity: 7 }),
+      buildItemFromConfig('coal', { id: 'coal-1', quantity: 3 }),
+    );
+
+    const crafted = craftRecipe(game, 'cook-cooked-fish', 'max');
+
+    expect(
+      crafted.player.inventory.find((item) => item.itemKey === 'cooked-fish')
+        ?.quantity,
+    ).toBe(3);
+    expect(
+      crafted.player.inventory.find((item) => item.itemKey === 'coal'),
+    ).toBeUndefined();
+    expect(
+      crafted.player.inventory.find((item) => item.itemKey === 'raw-fish')
+        ?.quantity,
+    ).toBe(4);
+  });
+
   it('smelts the expanded ore set into ingots with one iron recipe', () => {
     const game = createGame(3, 'expanded-smelting-seed');
     game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'furnace' };

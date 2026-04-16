@@ -13,5 +13,5 @@ export interface RecipeBookWindowProps extends WindowDetailTooltipHandlers {
   inventoryCountsByItemKey: Record<string, number>;
   materialFilterItemKey: string | null;
   onResetMaterialFilter: () => void;
-  onCraft: (recipeId: string) => void;
+  onCraft: (recipeId: string, count?: number | 'max') => void;
 }

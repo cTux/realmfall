@@ -1469,13 +1469,37 @@ export function dropEquippedItem(
   return next;
 }
 
-export function craftRecipe(state: GameState, recipeId: string): GameState {
+export function craftRecipe(
+  state: GameState,
+  recipeId: string,
+  count: number | 'max' = 1,
+): GameState {
   if (state.gameOver) return state;
+  const craftLimit = count === 'max' ? Number.POSITIVE_INFINITY : Math.max(1, count);
+  let next = state;
+  let crafted = 0;
 
+  while (crafted < craftLimit) {
+    const result = craftRecipeOnce(next, recipeId);
+    if (!result.ok) {
+      return crafted > 0 ? next : message(state, result.error);
+    }
+
+    next = result.state;
+    crafted += 1;
+  }
+
+  return next;
+}
+
+function craftRecipeOnce(
+  state: GameState,
+  recipeId: string,
+): { ok: true; state: GameState } | { ok: false; error: string } {
   const recipe = RECIPE_BOOK_RECIPES.find((entry) => entry.id === recipeId);
-  if (!recipe) return message(state, t('game.message.recipe.notInBook'));
+  if (!recipe) return { ok: false, error: t('game.message.recipe.notInBook') };
   if (!state.player.learnedRecipeIds.includes(recipe.id)) {
-    return message(state, t('game.message.recipe.notLearned'));
+    return { ok: false, error: t('game.message.recipe.notLearned') };
   }
   const requiredStructure = getRecipeRequiredStructure(recipe);
   const requiredLabel =
@@ -1487,26 +1511,26 @@ export function craftRecipe(state: GameState, recipeId: string): GameState {
         ? 'smelt'
         : 'craft';
   if (getCurrentTile(state).structure !== requiredStructure) {
-    return message(
-      state,
-      t('game.message.recipe.requiresStation', {
+    return {
+      ok: false,
+      error: t('game.message.recipe.requiresStation', {
         station: requiredLabel,
         action: recipeAction,
       }),
-    );
+    };
   }
   if (!hasAllRequirements(state.player.inventory, recipe.ingredients)) {
-    return message(
-      state,
-      t('game.message.recipe.missingMaterials', { item: recipe.output.name }),
-    );
+    return {
+      ok: false,
+      error: t('game.message.recipe.missingMaterials', { item: recipe.output.name }),
+    };
   }
 
   const chosenFuel = recipe.fuelOptions
     ? pickSatisfiedRequirement(state.player.inventory, recipe.fuelOptions)
     : undefined;
   if (recipe.fuelOptions && !chosenFuel) {
-    return message(state, t('game.message.recipe.needsFuel'));
+    return { ok: false, error: t('game.message.recipe.needsFuel') };
   }
 
   const next = clone(state);
@@ -1531,7 +1555,7 @@ export function craftRecipe(state: GameState, recipeId: string): GameState {
         ? t('game.message.craft.smelt', { item: recipe.output.name })
       : t('game.message.craft.make', { item: recipe.output.name }),
   );
-  return next;
+  return { ok: true, state: next };
 }
 
 export function setInventoryItemLocked(

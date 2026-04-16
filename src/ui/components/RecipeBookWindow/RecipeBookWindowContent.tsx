@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type MouseEvent as ReactMouseEvent } from 'react';
 import { getItemConfigByKey } from '../../../game/content/items';
 import { getStructureConfig } from '../../../game/content/structures';
 import {
@@ -174,7 +174,9 @@ export function RecipeBookWindowContent({
                   </div>
                   <button
                     type="button"
-                    onClick={() => onCraft(recipe.id)}
+                    onClick={(event) =>
+                      onCraft(recipe.id, getRecipeCraftCount(event))
+                    }
                     disabled={!canCraft}
                   >
                     {recipe.skill === Skill.Cooking
@@ -297,4 +299,10 @@ function getRecipeSlotTint(recipe: RecipeBookEntry, canCraft: boolean) {
     return canCraft ? '#f8fafc' : 'rgba(248, 113, 113, 0.92)';
   }
   return canCraft ? undefined : 'rgba(248, 113, 113, 0.92)';
+}
+
+export function getRecipeCraftCount(event: ReactMouseEvent<HTMLButtonElement>) {
+  if (event.ctrlKey || event.metaKey) return 'max';
+  if (event.shiftKey) return 5;
+  return 1;
 }

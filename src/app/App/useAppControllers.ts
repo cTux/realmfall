@@ -250,9 +250,9 @@ export function useAppControllers({
   );
 
   const handleCraftRecipe = useCallback(
-    (recipeId: string) => {
+    (recipeId: string, count?: number | 'max') => {
       applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
-        craftRecipe(current, recipeId),
+        craftRecipe(current, recipeId, count),
       );
     },
     [setGame, worldTimeMsRef],

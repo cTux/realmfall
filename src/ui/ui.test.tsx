@@ -47,6 +47,7 @@ import { ItemContextMenu } from './components/ItemContextMenu';
 import { LogWindow } from './components/LogWindow';
 import { LootWindow } from './components/LootWindow';
 import { RecipeBookWindow } from './components/RecipeBookWindow';
+import { getRecipeCraftCount } from './components/RecipeBookWindow/RecipeBookWindowContent';
 import { compareRecipeBookEntries } from './components/RecipeBookWindow/utils/recipeBookEntries';
 import { SkillsWindow } from './components/SkillsWindow';
 import { ItemSlotButton } from './components/ItemSlotButton/ItemSlotButton';
@@ -596,7 +597,6 @@ describe('ui helpers and components', () => {
                 hunger: 8,
               },
               ingredients: [],
-              fuelOptions: [],
             },
           ]}
           inventoryCountsByItemKey={{}}
@@ -756,6 +756,37 @@ describe('ui helpers and components', () => {
       root.unmount();
     });
     host.remove();
+  });
+
+  it('maps recipe action button modifiers to bulk craft counts', () => {
+    expect(
+      getRecipeCraftCount({
+        ctrlKey: false,
+        metaKey: false,
+        shiftKey: true,
+      } as React.MouseEvent<HTMLButtonElement>),
+    ).toBe(5);
+    expect(
+      getRecipeCraftCount({
+        ctrlKey: true,
+        metaKey: false,
+        shiftKey: false,
+      } as React.MouseEvent<HTMLButtonElement>),
+    ).toBe('max');
+    expect(
+      getRecipeCraftCount({
+        ctrlKey: false,
+        metaKey: true,
+        shiftKey: false,
+      } as React.MouseEvent<HTMLButtonElement>),
+    ).toBe('max');
+    expect(
+      getRecipeCraftCount({
+        ctrlKey: false,
+        metaKey: false,
+        shiftKey: false,
+      } as React.MouseEvent<HTMLButtonElement>),
+    ).toBe(1);
   });
 
   it('renders all major windows to static markup', async () => {
