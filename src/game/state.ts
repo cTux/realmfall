@@ -29,6 +29,7 @@ import { EquipmentSlotId, ItemId, StatusEffectTypeId } from './content/ids';
 import { getStructureConfig } from './content/structures';
 import {
   createCombatActorState,
+  enemyRarityIndex,
   enemyKey,
   enemyIndexFromId,
   getAbilityDefinition,
@@ -151,6 +152,7 @@ export {
   canUseItem,
   createFreshLogsAtTime,
   describeStructure,
+  enemyRarityIndex,
   getEnemyConfig,
   getItemConfig,
   getItemConfigByKey,
@@ -1858,6 +1860,7 @@ function maybeGatherByproduct(
 
 function maybeDropEnemyGold(state: GameState, enemy: import('./types').Enemy) {
   const rng = createRng(`${state.seed}:enemy-gold:${enemy.id}:${state.turn}`);
+  const rarityRank = enemyRarityIndex(enemy.rarity);
   if (enemy.worldBoss) {
     const quantity = Math.max(40, enemy.tier * 12 + Math.floor(rng() * 40));
     ensureTileState(state, enemy.coord);
@@ -1878,14 +1881,15 @@ function maybeDropEnemyGold(state: GameState, enemy: import('./types').Enemy) {
 
   const chance = state.bloodMoonActive
     ? 1
-    : enemy.elite
-      ? 0.85
-      : Math.min(0.7, 0.22 + enemy.tier * 0.06);
+    : Math.min(
+        0.9,
+        0.22 + enemy.tier * 0.06 + rarityRank * 0.08 + (enemy.elite ? 0.08 : 0),
+      );
   if (rng() > chance) return;
 
   const quantity = Math.max(
     1,
-    Math.floor(enemy.tier + rng() * (enemy.elite ? 10 : 5)),
+    Math.floor(enemy.tier + rarityRank + rng() * (5 + rarityRank * 2)),
   );
   const bloodMoonQuantity = state.bloodMoonActive
     ? Math.max(quantity + enemy.tier, Math.ceil(quantity * 2.5))
@@ -1918,7 +1922,10 @@ function maybeDropEnemyConsumables(
 
   dropKeys.forEach((itemKey) => {
     const configured = getItemConfigByKey(itemKey);
-    const chance = configured?.dropChance ?? 0;
+    const chance = Math.min(
+      0.92,
+      (configured?.dropChance ?? 0) + enemyRarityIndex(enemy.rarity) * 0.04,
+    );
     if (chance <= 0) return;
 
     const rng = createRng(
@@ -1957,14 +1964,13 @@ function maybeDropEnemyRecipe(
   if (unlearnedRecipes.length === 0) return;
 
   const rng = createRng(`${state.seed}:enemy-recipe:${enemy.id}:${state.turn}`);
+  const rarityRank = enemyRarityIndex(enemy.rarity);
   const chance = state.bloodMoonActive
     ? Math.min(
         1,
-        (enemy.elite ? 0.45 : Math.min(0.3, 0.08 + enemy.tier * 0.025)) + 0.25,
+        Math.min(0.5, 0.08 + enemy.tier * 0.025 + rarityRank * 0.05) + 0.25,
       )
-    : enemy.elite
-      ? 0.45
-      : Math.min(0.3, 0.08 + enemy.tier * 0.025);
+    : Math.min(0.5, 0.08 + enemy.tier * 0.025 + rarityRank * 0.05);
   if (rng() >= chance) return;
 
   const recipe = unlearnedRecipes[Math.floor(rng() * unlearnedRecipes.length)];
@@ -1987,7 +1993,9 @@ function maybeDropHomeScroll(state: GameState, enemy: import('./types').Enemy) {
   const rng = createRng(
     `${state.seed}:enemy-home-scroll:${enemy.id}:${state.turn}`,
   );
-  if (rng() >= 0.02) return;
+  if (rng() >= Math.min(0.1, 0.02 + enemyRarityIndex(enemy.rarity) * 0.0125)) {
+    return;
+  }
 
   ensureTileState(state, enemy.coord);
   const key = hexKey(enemy.coord);
@@ -2016,10 +2024,14 @@ function maybeDropBloodMoonLoot(
   ensureTileState(state, enemy.coord);
   const key = hexKey(enemy.coord);
   const tile = state.tiles[key];
-  const baseTier = Math.max(1, enemy.tier + (enemy.elite ? 1 : 0));
+  const rarityRank = enemyRarityIndex(enemy.rarity);
+  const baseTier = Math.max(
+    1,
+    enemy.tier + Math.max(1, Math.floor(rarityRank / 2)),
+  );
   const minimumRarity = enemy.worldBoss
-    ? 'epic'
-    : enemy.elite
+    ? 'legendary'
+    : rarityRank >= 2
       ? 'epic'
       : 'rare';
   addItemToInventory(
@@ -2035,7 +2047,7 @@ function maybeDropBloodMoonLoot(
       tile.items,
       makeBloodMoonDrop(state, enemy, 1, baseTier + 1, 'legendary'),
     );
-  } else if (enemy.elite || rng() < 0.45) {
+  } else if (rarityRank >= 2 || rng() < 0.45 + rarityRank * 0.07) {
     addItemToInventory(
       tile.items,
       makeBloodMoonDrop(state, enemy, 1, baseTier + 1, minimumRarity),

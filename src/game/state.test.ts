@@ -1371,6 +1371,7 @@ describe('game state', () => {
       id: 'enemy-2,0-0',
       name: 'Raider',
       coord: target,
+      rarity: 'epic',
       tier: 3,
       hp: 1,
       maxHp: 1,
@@ -1395,6 +1396,45 @@ describe('game state', () => {
     ).toBe(true);
   });
 
+  it('grants rarer enemies stronger regular drop outcomes', () => {
+    const game = createGame(3, 'rare-enemy-drop-seed');
+    const target = { q: 2, r: 0 };
+    game.tiles['2,0'] = {
+      coord: target,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: ['enemy-2,0-0'],
+    };
+    game.enemies['enemy-2,0-0'] = {
+      id: 'enemy-2,0-0',
+      name: 'Raider',
+      coord: target,
+      rarity: 'legendary',
+      tier: 4,
+      hp: 1,
+      maxHp: 1,
+      attack: 1,
+      defense: 0,
+      xp: 5,
+      elite: true,
+    };
+    game.player.coord = { q: 1, r: 0 };
+
+    const encountered = moveToTile(game, target);
+    const resolved = startCombat(encountered);
+    const tileItems = getTileAt(resolved, target).items;
+
+    expect(tileItems.some((item) => item.name === 'Gold')).toBe(true);
+    expect(
+      tileItems.some((item) =>
+        ['apple', 'water-flask', 'health-potion', 'mana-potion'].includes(
+          item.itemKey ?? '',
+        ),
+      ),
+    ).toBe(true);
+  });
+
   it('spawns world bosses with boosted stats, a footprint, and guaranteed premium loot', () => {
     const { game, center } = createPlacedWorldBossEncounter();
     const centerTile = getTileAt(game, center);
@@ -1411,8 +1451,9 @@ describe('game state', () => {
 
     expect(centerTile.enemyIds).toHaveLength(1);
     expect(worldBoss?.worldBoss).toBe(true);
-    expect(worldBoss?.maxHp).toBe(ordinaryEnemy.maxHp * 50);
-    expect(worldBoss?.attack).toBe(ordinaryEnemy.attack * 5);
+    expect(worldBoss?.rarity).toBe('legendary');
+    expect(worldBoss?.maxHp).toBeGreaterThan(ordinaryEnemy.maxHp * 50);
+    expect(worldBoss?.attack).toBeGreaterThan(ordinaryEnemy.attack * 5);
     expect(worldBoss?.defense).toBeGreaterThan(ordinaryEnemy.defense);
 
     const footprintTiles = getVisibleTiles({

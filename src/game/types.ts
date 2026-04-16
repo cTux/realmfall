@@ -34,6 +34,7 @@ export type StructureType =
   | GatheringStructureType;
 
 export type ItemRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+export type EnemyRarity = ItemRarity;
 
 export enum Skill {
   Logging = 'logging',
@@ -73,6 +74,7 @@ export interface Enemy {
   tags?: GameTag[];
   name: string;
   coord: HexCoord;
+  rarity?: EnemyRarity;
   tier: number;
   baseMaxHp?: number;
   hp: number;

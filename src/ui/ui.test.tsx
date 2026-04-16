@@ -256,6 +256,7 @@ describe('ui helpers and components', () => {
           id: 'wolf-1',
           name: 'Wolf',
           coord: { q: 0, r: 0 },
+          rarity: 'uncommon',
           tier: 2,
           hp: 5,
           maxHp: 8,
@@ -271,6 +272,7 @@ describe('ui helpers and components', () => {
     expect(singleEnemy?.title).toBe('Wolf');
     expect(singleEnemy?.lines).toEqual([
       { kind: 'stat', label: 'Level', value: '2' },
+      { kind: 'stat', label: 'Rarity', value: 'Uncommon' },
       { kind: 'stat', label: 'Enemies', value: '1' },
       {
         kind: 'text',
@@ -307,6 +309,7 @@ describe('ui helpers and components', () => {
           id: 'raider-1',
           name: 'Raider',
           coord: { q: 1, r: 0 },
+          rarity: 'rare',
           tier: 3,
           hp: 7,
           maxHp: 10,
@@ -319,6 +322,7 @@ describe('ui helpers and components', () => {
           id: 'wolf-2',
           name: 'Wolf',
           coord: { q: 1, r: 0 },
+          rarity: 'common',
           tier: 2,
           hp: 4,
           maxHp: 6,
@@ -333,6 +337,7 @@ describe('ui helpers and components', () => {
     expect(groupEnemy?.title).toBe('Rift Ruin');
     expect(groupEnemy?.lines).toEqual([
       { kind: 'stat', label: 'Level', value: '3' },
+      { kind: 'stat', label: 'Rarity', value: 'Rare' },
       { kind: 'stat', label: 'Enemies', value: '2' },
     ]);
 
@@ -604,6 +609,7 @@ describe('ui helpers and components', () => {
               id: 'enemy-1',
               name: 'Marauder',
               coord: { q: 1, r: 0 },
+              rarity: 'epic',
               tier: 3,
               hp: 6,
               maxHp: 10,
@@ -652,7 +658,7 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('Empty');
     expect(markup).toContain('Tak(e) all');
     expect(markup).toContain('Filters');
-    expect(markup).toContain('Elite');
+    expect(markup).toContain('Epic');
     expect(markup).toContain('Player Party');
     expect(markup).toContain('Enemy Party');
     expect(markup).toContain('Player Lv 10');
