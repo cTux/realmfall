@@ -47,7 +47,7 @@ export function AppFixedWindows({
           onMove={windowMoveHandlers.worldTime}
           visible={layout.windowShown.worldTime}
           onClose={windowCloseHandlers.worldTime}
-          worldTimeMs={views.worldTimeMs}
+          worldTimeMs={views.hero.worldTimeMs}
           onHoverDetail={actions.tooltip.onShowTooltip}
           onLeaveDetail={actions.tooltip.onCloseTooltip}
         />
@@ -57,10 +57,10 @@ export function AppFixedWindows({
         onMove={windowMoveHandlers.hero}
         visible={layout.windowShown.hero}
         onClose={windowCloseHandlers.hero}
-        stats={views.stats}
-        hunger={views.game.player.hunger}
-        thirst={views.game.player.thirst}
-        worldTimeMs={views.game.worldTimeMs}
+        stats={views.hero.stats}
+        hunger={views.hero.hunger}
+        thirst={views.hero.thirst}
+        worldTimeMs={views.hero.worldTimeMs}
         onHoverDetail={actions.tooltip.onShowTooltip}
         onLeaveDetail={actions.tooltip.onCloseTooltip}
       />

@@ -29,35 +29,60 @@ export interface AppWindowsLayout {
 }
 
 export interface AppWindowsViewState {
-  worldTimeMs: number;
-  stats: ReturnType<typeof getPlayerStats>;
-  game: GameState;
-  currentTile: Tile;
-  graphicsSettings: GraphicsSettings;
-  recipes: ReturnType<typeof import('../../game/state').getRecipeBookEntries>;
-  recipeSkillLevels: Record<Skill, number>;
-  inventoryCountsByItemKey: Record<string, number>;
-  recipeMaterialFilterItemKey: string | null;
-  interactLabel: string | null;
-  canProspectInventoryEquipment: boolean;
-  canSellInventoryEquipment: boolean;
-  claimStatus: ReturnType<
-    typeof import('../../game/state').getCurrentHexClaimStatus
-  >;
-  prospectInventoryEquipmentExplanation: string | null;
-  sellInventoryEquipmentExplanation: string | null;
-  townStock: ReturnType<typeof import('../../game/state').getTownStock>;
-  gold: number;
-  lootWindowVisible: boolean;
-  lootSnapshot: Item[];
-  combatWindowVisible: boolean;
-  combatSnapshot: {
-    combat: NonNullable<GameState['combat']>;
-    enemies: ReturnType<typeof import('../../game/state').getEnemiesAt>;
-  } | null;
-  showFilterMenu: boolean;
-  logFilters: Record<LogKind, boolean>;
-  filteredLogs: GameState['logs'];
+  hero: {
+    stats: ReturnType<typeof getPlayerStats>;
+    hunger: GameState['player']['hunger'];
+    thirst: GameState['player']['thirst'];
+    worldTimeMs: GameState['worldTimeMs'];
+  };
+  player: {
+    coord: GameState['player']['coord'];
+    mana: GameState['player']['mana'];
+    equipment: GameState['player']['equipment'];
+    inventory: GameState['player']['inventory'];
+    learnedRecipeIds: GameState['player']['learnedRecipeIds'];
+  };
+  world: {
+    homeHex: GameState['homeHex'];
+    currentTile: Tile;
+    currentTileHostileEnemyCount: number;
+    combat: GameState['combat'];
+    interactLabel: string | null;
+    canProspectInventoryEquipment: boolean;
+    canSellInventoryEquipment: boolean;
+    claimStatus: ReturnType<
+      typeof import('../../game/state').getCurrentHexClaimStatus
+    >;
+    prospectInventoryEquipmentExplanation: string | null;
+    sellInventoryEquipmentExplanation: string | null;
+    townStock: ReturnType<typeof import('../../game/state').getTownStock>;
+    gold: number;
+  };
+  recipes: {
+    entries: ReturnType<typeof import('../../game/state').getRecipeBookEntries>;
+    skillLevels: Record<Skill, number>;
+    inventoryCountsByItemKey: Record<string, number>;
+    materialFilterItemKey: string | null;
+  };
+  loot: {
+    visible: boolean;
+    snapshot: Item[];
+  };
+  combat: {
+    visible: boolean;
+    snapshot: {
+      combat: NonNullable<GameState['combat']>;
+      enemies: ReturnType<typeof import('../../game/state').getEnemiesAt>;
+    } | null;
+  };
+  logs: {
+    showFilterMenu: boolean;
+    filters: Record<LogKind, boolean>;
+    filtered: GameState['logs'];
+  };
+  settings: {
+    graphics: GraphicsSettings;
+  };
   itemMenu: ItemContextMenuState | null;
 }
 

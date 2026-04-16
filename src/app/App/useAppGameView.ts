@@ -3,6 +3,7 @@ import {
   getCurrentHexClaimStatus,
   getEnemiesAt,
   getGoldAmount,
+  getHostileEnemyIds,
   getPlayerStats,
   getRecipeBookEntries,
   Skill,
@@ -74,6 +75,10 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     () => (combat ? getEnemiesAt(game, combat.coord) : []),
     [combat, game],
   );
+  const currentTileHostileEnemyCount = useMemo(
+    () => getHostileEnemyIds(game, currentTile.coord).length,
+    [currentTile.coord, game],
+  );
   const filteredLogs = useMemo(
     () => logs.filter((entry) => logFilters[entry.kind]),
     [logFilters, logs],
@@ -100,6 +105,7 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     canSellInventoryEquipment,
     combatEnemies,
     currentTile,
+    currentTileHostileEnemyCount,
     filteredLogs,
     gold,
     interactLabel,

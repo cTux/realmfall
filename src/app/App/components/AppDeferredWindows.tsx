@@ -50,7 +50,7 @@ export function AppDeferredWindows({
           onMove={windowMoveHandlers.skills}
           visible={layout.windowShown.skills}
           onClose={windowCloseHandlers.skills}
-          skills={views.stats.skills}
+          skills={views.hero.stats.skills}
           onHoverDetail={actions.tooltip.onShowTooltip}
           onLeaveDetail={actions.tooltip.onCloseTooltip}
         />
@@ -62,10 +62,10 @@ export function AppDeferredWindows({
           visible={layout.windowShown.recipes}
           onClose={windowCloseHandlers.recipes}
           currentStructure={recipeWindowStructure}
-          recipes={views.recipes}
-          recipeSkillLevels={views.recipeSkillLevels}
-          inventoryCountsByItemKey={views.inventoryCountsByItemKey}
-          materialFilterItemKey={views.recipeMaterialFilterItemKey}
+          recipes={views.recipes.entries}
+          recipeSkillLevels={views.recipes.skillLevels}
+          inventoryCountsByItemKey={views.recipes.inventoryCountsByItemKey}
+          materialFilterItemKey={views.recipes.materialFilterItemKey}
           onResetMaterialFilter={actions.recipes.onClearMaterialFilter}
           onCraft={actions.inventory.onCraftRecipe}
           onHoverDetail={actions.tooltip.onShowTooltip}
@@ -84,29 +84,31 @@ export function AppDeferredWindows({
           terrain={hexInfoView.terrain}
           structure={hexInfoView.structure}
           enemyCount={hexInfoView.enemyCount}
-          interactLabel={views.interactLabel}
-          canInteract={Boolean(views.interactLabel)}
-          canProspectInventoryEquipment={views.canProspectInventoryEquipment}
-          canSellInventoryEquipment={views.canSellInventoryEquipment}
-          canClaim={views.claimStatus.canClaim}
-          claimExplanation={views.claimStatus.reason}
+          interactLabel={views.world.interactLabel}
+          canInteract={Boolean(views.world.interactLabel)}
+          canProspectInventoryEquipment={
+            views.world.canProspectInventoryEquipment
+          }
+          canSellInventoryEquipment={views.world.canSellInventoryEquipment}
+          canClaim={views.world.claimStatus.canClaim}
+          claimExplanation={views.world.claimStatus.reason}
           prospectInventoryEquipmentExplanation={
-            views.prospectInventoryEquipmentExplanation
+            views.world.prospectInventoryEquipmentExplanation
           }
           sellInventoryEquipmentExplanation={
-            views.sellInventoryEquipmentExplanation
+            views.world.sellInventoryEquipmentExplanation
           }
           onInteract={actions.world.onInteract}
           onProspect={actions.world.onProspect}
           onSellAll={actions.world.onSellAll}
           onClaim={actions.world.onClaimHex}
-          structureHp={views.currentTile.structureHp}
-          structureMaxHp={views.currentTile.structureMaxHp}
-          territoryName={views.currentTile.claim?.ownerName ?? null}
-          territoryOwnerType={views.currentTile.claim?.ownerType ?? null}
-          territoryNpc={views.currentTile.claim?.npc ?? null}
-          townStock={views.townStock}
-          gold={views.gold}
+          structureHp={views.world.currentTile.structureHp}
+          structureMaxHp={views.world.currentTile.structureMaxHp}
+          territoryName={views.world.currentTile.claim?.ownerName ?? null}
+          territoryOwnerType={views.world.currentTile.claim?.ownerType ?? null}
+          territoryNpc={views.world.currentTile.claim?.npc ?? null}
+          townStock={views.world.townStock}
+          gold={views.world.gold}
           onBuyItem={actions.world.onBuyTownItem}
           onHoverItem={actions.tooltip.onShowItemTooltip}
           onLeaveItem={actions.tooltip.onCloseTooltip}
@@ -120,7 +122,7 @@ export function AppDeferredWindows({
           onMove={windowMoveHandlers.equipment}
           visible={layout.windowShown.equipment}
           onClose={windowCloseHandlers.equipment}
-          equipment={views.game.player.equipment}
+          equipment={views.player.equipment}
           onHoverItem={actions.tooltip.onEquipmentHover}
           onLeaveItem={actions.tooltip.onCloseTooltip}
           onUnequip={actions.inventory.onUnequip}
@@ -135,9 +137,9 @@ export function AppDeferredWindows({
           onMove={windowMoveHandlers.inventory}
           visible={layout.windowShown.inventory}
           onClose={windowCloseHandlers.inventory}
-          inventory={views.game.player.inventory}
-          equipment={views.game.player.equipment}
-          learnedRecipeIds={views.game.player.learnedRecipeIds}
+          inventory={views.player.inventory}
+          equipment={views.player.equipment}
+          learnedRecipeIds={views.player.learnedRecipeIds}
           onSort={actions.inventory.onSort}
           onEquip={actions.inventory.onEquip}
           onContextItem={actions.inventory.onContextItem}
@@ -151,9 +153,9 @@ export function AppDeferredWindows({
         <LootWindow
           position={layout.windows.loot}
           onMove={windowMoveHandlers.loot}
-          visible={layout.windowShown.loot && views.lootWindowVisible}
-          loot={views.lootSnapshot}
-          equipment={views.game.player.equipment}
+          visible={layout.windowShown.loot && views.loot.visible}
+          loot={views.loot.snapshot}
+          equipment={views.player.equipment}
           onClose={windowCloseHandlers.loot}
           onTakeAll={actions.inventory.onTakeAllLoot}
           onTakeItem={actions.inventory.onTakeLootItem}
@@ -169,26 +171,26 @@ export function AppDeferredWindows({
           onMove={windowMoveHandlers.log}
           visible={layout.windowShown.log}
           onClose={windowCloseHandlers.log}
-          filters={views.logFilters}
+          filters={views.logs.filters}
           defaultFilters={DEFAULT_LOG_FILTERS}
-          showFilterMenu={views.showFilterMenu}
+          showFilterMenu={views.logs.showFilterMenu}
           onToggleMenu={actions.logs.onToggleFilterMenu}
           onToggleFilter={actions.logs.onToggleLogFilter}
-          logs={views.filteredLogs}
+          logs={views.logs.filtered}
           onHoverDetail={actions.tooltip.onShowTooltip}
           onLeaveDetail={actions.tooltip.onCloseTooltip}
         />
       ) : null}
-      {loadedWindows.combat && views.combatSnapshot ? (
+      {loadedWindows.combat && views.combat.snapshot ? (
         <CombatWindow
           position={layout.windows.combat}
           onMove={windowMoveHandlers.combat}
-          visible={layout.windowShown.combat && views.combatWindowVisible}
+          visible={layout.windowShown.combat && views.combat.visible}
           onClose={windowCloseHandlers.combat}
-          combat={views.combatSnapshot.combat}
+          combat={views.combat.snapshot.combat}
           playerParty={combatPlayerParty}
-          enemies={views.combatSnapshot.enemies}
-          worldTimeMs={views.worldTimeMs}
+          enemies={views.combat.snapshot.enemies}
+          worldTimeMs={views.hero.worldTimeMs}
           onStart={actions.world.onStartCombat}
           onHoverDetail={actions.tooltip.onShowTooltip}
           onLeaveDetail={actions.tooltip.onCloseTooltip}
@@ -201,7 +203,7 @@ export function AppDeferredWindows({
           onMove={windowMoveHandlers.settings}
           visible={layout.windowShown.settings}
           onClose={windowCloseHandlers.settings}
-          graphicsSettings={views.graphicsSettings}
+          graphicsSettings={views.settings.graphics}
           onSave={actions.settings.onSaveGraphicsSettings}
           onSaveAndReload={actions.settings.onSaveGraphicsSettingsAndReload}
           onResetSaveData={actions.settings.onResetSaveData}

@@ -7,8 +7,8 @@ export function useCombatPlayerParty({
   stats,
   mana,
 }: {
-  combatSnapshot: AppWindowsViewState['combatSnapshot'];
-  stats: AppWindowsViewState['stats'];
+  combatSnapshot: AppWindowsViewState['combat']['snapshot'];
+  stats: AppWindowsViewState['hero']['stats'];
   mana: GameState['player']['mana'];
 }) {
   return useMemo(
