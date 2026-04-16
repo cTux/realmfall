@@ -604,13 +604,20 @@ describe('renderScene', () => {
     expect(territoryBorders).toHaveLength(6);
   });
 
-  it('adds animated campfire glow only once the world gets dark', async () => {
+  it('adds animated campfire and furnace glow only once the world gets dark', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-campfire-glow');
     game.tiles['1,0'] = {
       coord: { q: 1, r: 0 },
       terrain: 'plains',
       structure: 'camp',
+      items: [],
+      enemyIds: [],
+    };
+    game.tiles['0,1'] = {
+      coord: { q: 0, r: 1 },
+      terrain: 'plains',
+      structure: 'furnace',
       items: [],
       enemyIds: [],
     };
@@ -661,6 +668,7 @@ describe('renderScene', () => {
     );
 
     expect(nightGlowEllipses.length).toBeGreaterThan(0);
+    expect(nightGlowEllipses.length).toBeGreaterThanOrEqual(2);
     expect(dayGlowEllipses).toHaveLength(0);
     expect(nightAnimatedLayer.children.length).toBeGreaterThan(0);
     expect(nightMarkerLayer.children.length).toBeGreaterThan(0);

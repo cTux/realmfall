@@ -11,12 +11,12 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - The renderer separates static, interaction, and animated work.
 - Static layers hold terrain, structures, claims, and stable ground cover.
 - Interaction layers hold hover, selection, loot borders, and safe-path overlays.
-- Animated layers hold atmosphere, clouds, campfire lighting, and overlay work.
+- Animated layers hold atmosphere, clouds, hot-structure lighting such as campfires and furnaces, and overlay work.
 - The renderer reuses graphics and sprites through dedicated pool helpers.
 - Cached scene state avoids unnecessary rebuilds when screen size, derived static-world render inputs, selected tile, or path highlights have not changed.
 - Static and interaction redraw invalidation derives from render-specific version keys rather than whole `GameState` identity, so log-only or other non-world state clones do not rebuild unchanged Pixi layers.
 - `usePixiWorld` reuses the previous `visibleTiles` array when unrelated state clones leave the visible tile set untouched, and render-version caching keys off those stable world-facing inputs plus the specific enemy and world flags that actually affect Pixi output.
-- Once static layers are cached, animation-only frames reuse cached campfire light points and skip the full visible-tile traversal instead of repeating enemy lookup and marker preparation work on every ticker tick.
+- Once static layers are cached, animation-only frames reuse cached hot-structure light points for campfires and furnaces and skip the full visible-tile traversal instead of repeating enemy lookup and marker preparation work on every ticker tick.
 - Deterministic ground-cover presentation and cloud inputs are memoized in bounded caches.
 - The world renderer includes time-of-day lighting, atmosphere passes, overlay tinting, and optional fish-eye processing.
 - Rendering quality and icon sizing derive from screen state and world radius.
