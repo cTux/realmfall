@@ -302,7 +302,7 @@ describe('ui helpers and components', () => {
       itemTooltipLines(resource).some((line) => line.label === 'Sells for'),
     ).toBe(false);
     expect(getInventoryItemAction(recipePage, ['cook-cooked-fish'])).toBe(
-      'equip',
+      'use',
     );
     expect(getInventoryItemAction(recipePage, [])).toBe('use');
 
