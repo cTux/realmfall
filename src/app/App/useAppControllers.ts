@@ -232,7 +232,10 @@ export function useAppControllers({
       const item = gameRef.current.player.inventory.find(
         (entry) => entry.id === itemId,
       );
-      const action = getInventoryItemAction(item);
+      const action = getInventoryItemAction(
+        item,
+        gameRef.current.player.learnedRecipeIds,
+      );
       if (action === 'use') {
         applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
           applyItemUse(current, itemId),

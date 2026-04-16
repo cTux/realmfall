@@ -442,7 +442,7 @@
   "ui.tooltip.window.sortInventory": "Sort items in your inventory.",
   "ui.tooltip.window.startCombat": "Begin combat with the current enemies.",
   "ui.tooltip.window.takeAllLoot": "Take every item from this tile.",
-  "ui.tooltip.recipe.learned": "Learned",
+  "ui.tooltip.recipe.alreadyLearned": "Already learned",
   "ui.version.currentValue": "Current: {version}",
   "ui.version.fetchingRemoteValue": "checking...",
   "ui.version.label": "Version",

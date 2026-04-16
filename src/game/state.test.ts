@@ -2563,6 +2563,34 @@ describe('game state', () => {
     ).toBe(false);
   });
 
+  it('does not consume an already learned recipe page when used', () => {
+    const game = createGame(3, 'recipe-known-seed');
+    game.player.learnedRecipeIds = ['craft-icon-axe-01'];
+    game.player.inventory.push({
+      id: 'recipe-craft-weapon-known',
+      recipeId: 'craft-icon-axe-01',
+      name: 'Recipe: Axe 01',
+      quantity: 1,
+      tier: 1,
+      rarity: 'uncommon',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+    });
+
+    const unchanged = useItem(game, 'recipe-craft-weapon-known');
+
+    expect(unchanged.player.learnedRecipeIds).toEqual(['craft-icon-axe-01']);
+    expect(
+      unchanged.player.inventory.some(
+        (item) => item.id === 'recipe-craft-weapon-known',
+      ),
+    ).toBe(true);
+    expect(unchanged.logs[0]?.text).toContain('already know');
+  });
+
   it('sells recipe pages in town for elevated value', () => {
     const game = createGame(3, 'sell-recipe-page-seed');
     game.tiles['0,0'] = {

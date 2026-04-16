@@ -3,6 +3,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { vi } from 'vitest';
 import { getRecipeMaterialItemKey } from '../app/App/utils/getRecipeMaterialItemKey';
+import { getInventoryItemAction } from '../app/App/utils/getInventoryItemAction';
 import { EquipmentSlotId } from '../game/content/ids';
 import { GameTag } from '../game/content/tags';
 import { Skill } from '../game/types';
@@ -286,8 +287,8 @@ describe('ui helpers and components', () => {
 
     expect(recipeTooltipLines).toContainEqual({
       kind: 'text',
-      text: 'Learned',
-      tone: 'positive',
+      text: 'Already learned',
+      tone: 'negative',
     });
     expect(recipeTooltipLines[recipeTooltipLines.length - 1]).toEqual({
       kind: 'stat',
@@ -300,6 +301,10 @@ describe('ui helpers and components', () => {
     expect(
       itemTooltipLines(resource).some((line) => line.label === 'Sells for'),
     ).toBe(false);
+    expect(getInventoryItemAction(recipePage, ['cook-cooked-fish'])).toBe(
+      'equip',
+    );
+    expect(getInventoryItemAction(recipePage, [])).toBe('use');
 
     expect(enemyTooltip([], undefined)).toBeNull();
 
@@ -556,6 +561,44 @@ describe('ui helpers and components', () => {
 
     expect(markup).toContain('background-color:#f8fafc');
     expect(markup).toContain('-webkit-mask:url(');
+  });
+
+  it('renders learned recipe pages with a red inventory border and no overlay', async () => {
+    const recipePage: Item = {
+      id: 'recipe-craft-weapon',
+      recipeId: 'craft-icon-axe-01',
+      icon: 'recipe.svg',
+      name: 'Recipe: Axe 01',
+      tags: [GameTag.ItemResource, GameTag.ItemRecipe],
+      quantity: 1,
+      tier: 1,
+      rarity: 'uncommon',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+      thirst: 0,
+    };
+
+    const markup = await renderMarkup(
+      <InventoryWindow
+        position={DEFAULT_WINDOWS.inventory}
+        onMove={() => {}}
+        inventory={[recipePage]}
+        equipment={{}}
+        learnedRecipeIds={['craft-icon-axe-01']}
+        onSort={() => {}}
+        onEquip={() => {}}
+        onContextItem={() => {}}
+        onHoverItem={() => {}}
+        onLeaveItem={() => {}}
+      />,
+    );
+
+    expect(markup).toContain('border-color: rgb(239, 68, 68)');
+    expect(markup).toContain('box-shadow: 0 0 0 1px #ef444433 inset');
+    expect(markup).not.toContain('background-color:rgba(96, 165, 250, 0.28)');
   });
 
   it('renders recipe-book tabs in cooking, smelting, crafting order', async () => {

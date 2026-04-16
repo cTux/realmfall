@@ -69,8 +69,8 @@ export function itemTooltipLines(
     isRecipePage(item) && options.recipeLearned
       ? {
           kind: 'text' as const,
-          text: t('ui.tooltip.recipe.learned'),
-          tone: 'positive' as const,
+          text: t('ui.tooltip.recipe.alreadyLearned'),
+          tone: 'negative' as const,
         }
       : null;
   const slotLine = item.slot

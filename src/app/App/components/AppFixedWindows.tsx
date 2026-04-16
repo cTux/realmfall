@@ -75,7 +75,7 @@ export function AppFixedWindows({
               : t('ui.itemMenu.equipAction')
           }
           canEquip={itemMenu.slot ? true : canEquipItem(itemMenu.item)}
-          canUse={canUseItem(itemMenu.item)}
+          canUse={canUseItem(itemMenu.item, views.player.learnedRecipeIds)}
           canToggleLock={!itemMenu.slot && isEquippableItem(itemMenu.item)}
           isLocked={Boolean(itemMenu.item.locked)}
           canShowRecipes={Boolean(recipeMaterialItemKey)}

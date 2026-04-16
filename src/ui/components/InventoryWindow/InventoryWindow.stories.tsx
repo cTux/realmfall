@@ -54,3 +54,11 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const PackedInventory: Story = {};
+
+export const LearnedRecipes: Story = {
+  args: {
+    learnedRecipeIds: fixtures.inventory
+      .filter((item) => item.recipeId)
+      .map((item) => item.recipeId as string),
+  },
+};

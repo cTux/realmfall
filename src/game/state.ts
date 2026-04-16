@@ -859,6 +859,17 @@ export function useItem(state: GameState, itemId: string): GameState {
 
   const item = state.player.inventory[itemIndex];
   if (isRecipePage(item)) {
+    if (
+      item.recipeId &&
+      state.player.learnedRecipeIds.includes(item.recipeId)
+    ) {
+      return message(
+        state,
+        t('game.crafting.alreadyKnown', {
+          recipe: item.name.replace(/^Recipe: /, ''),
+        }),
+      );
+    }
     const next = cloneForPlayerMutation(state);
     learnRecipe(next, item, RECIPE_BOOK_RECIPES, addLog);
     consumeInventoryItem(next.player.inventory, itemIndex, item);

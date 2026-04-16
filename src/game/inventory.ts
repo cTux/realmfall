@@ -194,8 +194,17 @@ export function canEquipItem(item: Item) {
   return isEquippableItem(item);
 }
 
-export function canUseItem(item: Item) {
-  return hasItemTag(item, GAME_TAGS.item.consumable) || isRecipePage(item);
+export function canUseItem(item: Item, learnedRecipeIds: string[] = []) {
+  if (hasItemTag(item, GAME_TAGS.item.consumable)) {
+    return true;
+  }
+
+  const recipeId = item.recipeId;
+  if (!isRecipePage(item) || !recipeId) {
+    return false;
+  }
+
+  return !learnedRecipeIds.includes(recipeId);
 }
 
 export function isRecipePage(item: Item) {
