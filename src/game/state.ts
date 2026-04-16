@@ -2017,7 +2017,10 @@ function maybeGatherByproduct(
     structure === 'tree'
       ? 'Sticks'
       : structure === 'copper-ore' ||
+          structure === 'tin-ore' ||
           structure === 'iron-ore' ||
+          structure === 'gold-ore' ||
+          structure === 'platinum-ore' ||
           structure === 'coal-ore'
         ? 'Stone'
         : null;

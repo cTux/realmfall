@@ -581,7 +581,10 @@ function makeInsetHex(
 function getStructureHexIconTint(structure: Tile['structure']) {
   if (
     structure === 'copper-ore' ||
+    structure === 'tin-ore' ||
     structure === 'iron-ore' ||
+    structure === 'gold-ore' ||
+    structure === 'platinum-ore' ||
     structure === 'coal-ore'
   ) {
     return getStructureConfig(structure).tint;

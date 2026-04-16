@@ -20,7 +20,10 @@ export type GatheringStructureType =
   | 'herbs'
   | 'tree'
   | 'copper-ore'
+  | 'tin-ore'
   | 'iron-ore'
+  | 'gold-ore'
+  | 'platinum-ore'
   | 'coal-ore'
   | 'pond'
   | 'lake';
