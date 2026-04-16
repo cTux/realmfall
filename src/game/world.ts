@@ -1,8 +1,11 @@
-import { t } from '../i18n';
-import { EquipmentSlotId } from './content/ids';
 import {
-  ARTIFACT_FORM_KEYS,
-  ARTIFACT_PREFIX_KEYS,
+  buildGeneratedItemFromConfig,
+  getGeneratedAccessoryKeys,
+  getGeneratedArmorKeys,
+  getGeneratedOffhandKeys,
+  getGeneratedWeaponKeys,
+} from './content/items';
+import {
   TOWN_SEARCH_LIMIT,
 } from './config';
 import {
@@ -20,7 +23,6 @@ import {
   getFactionStructure,
 } from './territories';
 import {
-  applyRarityToItem,
   isPassable,
   itemId,
   noise,
@@ -35,7 +37,6 @@ import {
   worldBossEnemyId,
 } from './worldBoss';
 import type {
-  EquipmentSlot,
   GameState,
   GatheringStructureType,
   Item,
@@ -385,27 +386,13 @@ export function makeWeapon(
   tier: number,
   minimumRarity?: ItemRarity,
 ): Item {
-  const names = ['Blade', 'Spear', 'Axe', 'Bow', 'Glaive', 'Hammer'];
-  const prefixes = ['Hunter', 'Warden', 'Drifter', 'Riven', 'Storm', 'Ember'];
-  const index = scaledIndex(`${seed}:weapon`, coord, names.length);
-  const prefixIndex = scaledIndex(
-    `${seed}:weapon:prefix`,
-    coord,
-    prefixes.length,
-  );
-  return applyRarityToItem({
+  const keys = getGeneratedWeaponKeys();
+  const key = keys[scaledIndex(`${seed}:weapon:key`, coord, keys.length)];
+  const rarity = pickEquipmentRarity(seed, coord, tier, minimumRarity);
+  return buildGeneratedItemFromConfig(key, {
     id: itemId('weapon', coord, seed),
-    slot: EquipmentSlotId.Weapon,
-    name: `${prefixes[prefixIndex]} ${names[index]}`,
-    quantity: 1,
     tier,
-    rarity: pickEquipmentRarity(seed, coord, tier, minimumRarity),
-    power: 2 + tier * 2,
-    defense: 0,
-    maxHp: tier >= 5 ? 1 : 0,
-    healing: 0,
-    hunger: 0,
-    thirst: 0,
+    rarity,
   });
 }
 
@@ -414,22 +401,14 @@ export function makeOffhand(
   coord: HexCoord,
   tier: number,
   minimumRarity?: ItemRarity,
-): Item {
-  const names = ['Buckler', 'Lantern Shield', 'Mirror Guard', 'Ward Board'];
-  const index = scaledIndex(`${seed}:offhand`, coord, names.length);
-  return applyRarityToItem({
+) {
+  const keys = getGeneratedOffhandKeys();
+  const key = keys[scaledIndex(`${seed}:offhand:key`, coord, keys.length)];
+  const rarity = pickEquipmentRarity(seed, coord, tier, minimumRarity);
+  return buildGeneratedItemFromConfig(key, {
     id: itemId('offhand', coord, seed),
-    slot: EquipmentSlotId.Offhand,
-    name: names[index],
-    quantity: 1,
     tier,
-    rarity: pickEquipmentRarity(seed, coord, tier, minimumRarity),
-    power: tier > 2 ? 1 : 0,
-    defense: 1 + tier * 2,
-    maxHp: tier,
-    healing: 0,
-    hunger: 0,
-    thirst: 0,
+    rarity,
   });
 }
 
@@ -438,45 +417,14 @@ export function makeArmor(
   coord: HexCoord,
   tier: number,
   minimumRarity?: ItemRarity,
-): Item {
-  const slots: EquipmentSlot[] = [
-    EquipmentSlotId.Head,
-    EquipmentSlotId.Chest,
-    EquipmentSlotId.Hands,
-    EquipmentSlotId.Legs,
-    EquipmentSlotId.Feet,
-  ];
-  const slot = slots[scaledIndex(`${seed}:armor:slot`, coord, slots.length)];
-  const names: Record<EquipmentSlot, string[]> = {
-    [EquipmentSlotId.Weapon]: [],
-    [EquipmentSlotId.Offhand]: [],
-    [EquipmentSlotId.Head]: ['Scout Hood', 'Iron Cap', 'Ranger Circlet'],
-    [EquipmentSlotId.Chest]: ['Warden Coat', 'Scale Vest', 'Nomad Harness'],
-    [EquipmentSlotId.Hands]: ['Grip Gloves', 'Hide Mitts', 'Bone Gauntlets'],
-    [EquipmentSlotId.Legs]: ['Trail Greaves', 'Strider Leggings', 'Dust Wraps'],
-    [EquipmentSlotId.Feet]: ['Dune Boots', 'Wolf Treads', 'Marsh Walkers'],
-    [EquipmentSlotId.RingLeft]: [],
-    [EquipmentSlotId.RingRight]: [],
-    [EquipmentSlotId.Amulet]: [],
-    [EquipmentSlotId.Cloak]: [],
-    [EquipmentSlotId.Relic]: [],
-  };
-  const slotNames = names[slot];
-  const name =
-    slotNames[scaledIndex(`${seed}:armor:name`, coord, slotNames.length)];
-  return applyRarityToItem({
+) {
+  const keys = getGeneratedArmorKeys();
+  const key = keys[scaledIndex(`${seed}:armor:key`, coord, keys.length)];
+  const rarity = pickEquipmentRarity(seed, coord, tier, minimumRarity);
+  return buildGeneratedItemFromConfig(key, {
     id: itemId('armor', coord, seed),
-    slot,
-    name,
-    quantity: 1,
     tier,
-    rarity: pickEquipmentRarity(seed, coord, tier, minimumRarity),
-    power: tier >= 6 ? 1 : 0,
-    defense: 1 + tier,
-    maxHp: tier,
-    healing: 0,
-    hunger: 0,
-    thirst: 0,
+    rarity,
   });
 }
 
@@ -485,57 +433,19 @@ export function makeArtifact(
   coord: HexCoord,
   tier: number,
   minimumRarity?: ItemRarity,
-): Item {
-  const slots: EquipmentSlot[] = [
-    EquipmentSlotId.RingLeft,
-    EquipmentSlotId.RingRight,
-    EquipmentSlotId.Amulet,
-    EquipmentSlotId.Cloak,
-    EquipmentSlotId.Relic,
-  ];
-  const slot = slots[scaledIndex(`${seed}:artifact:slot`, coord, slots.length)];
-  const prefix = t(
-    ARTIFACT_PREFIX_KEYS[
-      scaledIndex(`${seed}:artifact:prefix`, coord, ARTIFACT_PREFIX_KEYS.length)
-    ],
+) {
+  const keys = getGeneratedAccessoryKeys();
+  const key = keys[scaledIndex(`${seed}:artifact:key`, coord, keys.length)];
+  const rarity = pickEquipmentRarity(
+    seed,
+    coord,
+    tier + 1,
+    minimumRarity ?? 'uncommon',
   );
-  const form = t(
-    ARTIFACT_FORM_KEYS[
-      scaledIndex(`${seed}:artifact:form`, coord, ARTIFACT_FORM_KEYS.length)
-    ],
-  );
-  return applyRarityToItem({
+  return buildGeneratedItemFromConfig(key, {
     id: itemId('artifact', coord, seed),
-    slot,
-    name: `${prefix} ${form}`,
-    quantity: 1,
     tier,
-    rarity: pickEquipmentRarity(
-      seed,
-      coord,
-      tier + 1,
-      minimumRarity ?? 'uncommon',
-    ),
-    power:
-      slot === EquipmentSlotId.Relic
-        ? tier + 1
-        : slot === EquipmentSlotId.RingLeft ||
-            slot === EquipmentSlotId.RingRight
-          ? tier
-          : 0,
-    defense:
-      slot === EquipmentSlotId.Cloak
-        ? tier + 1
-        : slot === EquipmentSlotId.Amulet
-          ? tier
-          : 0,
-    maxHp:
-      slot === EquipmentSlotId.Amulet || slot === EquipmentSlotId.Relic
-        ? tier * 3
-        : tier,
-    healing: 0,
-    hunger: 0,
-    thirst: 0,
+    rarity,
   });
 }
 

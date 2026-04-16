@@ -20,8 +20,8 @@ import { WINDOW_LABELS } from './windowLabels';
 function createItem(overrides: Partial<Item> = {}): Item {
   return {
     id: 'item-1',
-    name: 'Relic',
-    slot: 'relic',
+    name: 'Hearth Totem',
+    slot: 'offhand',
     quantity: 1,
     tier: 1,
     rarity: 'common',

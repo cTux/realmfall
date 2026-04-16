@@ -11,6 +11,8 @@ interface ItemSlotButtonProps {
   slot?: EquipmentSlot;
   className?: string;
   style?: CSSProperties;
+  hidePlaceholderIconWhenEmpty?: boolean;
+  disabled?: boolean;
   onClick?: () => void;
   onContextMenu?: (event: ReactMouseEvent<HTMLButtonElement>) => void;
   onMouseEnter?: (event: ReactMouseEvent<HTMLButtonElement>) => void;
@@ -22,13 +24,18 @@ export function ItemSlotButton({
   slot,
   className,
   style,
+  hidePlaceholderIconWhenEmpty = false,
+  disabled = false,
   onClick,
   onContextMenu,
   onMouseEnter,
   onMouseLeave,
 }: ItemSlotButtonProps) {
   const tint = item ? itemTint(item) : 'rgba(148, 163, 184, 0.32)';
-  const isInteractive = Boolean(item && (onClick || onContextMenu || onMouseEnter));
+  const isInteractive = Boolean(
+    !disabled && item && (onClick || onContextMenu || onMouseEnter),
+  );
+  const showIcon = item || !hidePlaceholderIconWhenEmpty;
 
   return (
     <button
@@ -37,6 +44,7 @@ export function ItemSlotButton({
         styles.slot,
         isInteractive ? styles.interactive : '',
         item ? '' : styles.empty,
+        disabled ? styles.disabled : '',
         className ?? '',
       ]
         .filter(Boolean)
@@ -46,17 +54,20 @@ export function ItemSlotButton({
         borderColor: tint,
         boxShadow: item ? `0 0 0 1px ${tint}33 inset` : undefined,
       }}
-      onClick={item ? onClick : undefined}
-      onContextMenu={item ? onContextMenu : undefined}
-      onMouseEnter={item ? onMouseEnter : undefined}
+      onClick={item && !disabled ? onClick : undefined}
+      onContextMenu={item && !disabled ? onContextMenu : undefined}
+      onMouseEnter={item && !disabled ? onMouseEnter : undefined}
       onMouseLeave={item ? onMouseLeave : undefined}
+      disabled={disabled}
       aria-label={item ? undefined : getEmptySlotLabel(slot)}
     >
-      <span
-        className={styles.icon}
-        style={iconMaskStyle(iconForItem(item, slot), tint)}
-        aria-label={item ? formatItemLabel(item) : undefined}
-      />
+      {showIcon ? (
+        <span
+          className={styles.icon}
+          style={iconMaskStyle(iconForItem(item, slot), tint)}
+          aria-label={item ? formatItemLabel(item) : undefined}
+        />
+      ) : null}
       {item && item.quantity > 1 ? (
         <span className={styles.stackBadge}>
           x{formatCompactNumber(item.quantity)}

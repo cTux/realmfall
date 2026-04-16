@@ -36,7 +36,7 @@ export enum ItemId {
   WaterFlask = 'water-flask',
 }
 
-export type ItemKey = `${ItemId}`;
+export type ItemKey = string;
 
 export enum EnemyTypeId {
   Gluttony = 'gluttony',
@@ -63,8 +63,11 @@ export enum EquipmentSlotId {
   Weapon = 'weapon',
   Offhand = 'offhand',
   Head = 'head',
+  Shoulders = 'shoulders',
   Chest = 'chest',
+  Bracers = 'bracers',
   Hands = 'hands',
+  Belt = 'belt',
   Legs = 'legs',
   Feet = 'feet',
   RingLeft = 'ringLeft',

@@ -1,28 +1,31 @@
 .window {
-  width: min(420px, calc(100vw - 16px));
+  width: min(290px, calc(100vw - 16px));
 }
 
 .layout {
   position: relative;
-  width: min(100%, 360px);
-  aspect-ratio: 2 / 3;
+  width: 220px;
+  height: 320px;
   margin: 0 auto;
-  padding: 0.5rem 0;
+  padding: 0.35rem 0 0.15rem;
 }
 
 .figure {
   position: absolute;
   inset: 0;
-  background-position: center;
+  background-position: center 53%;
   background-repeat: no-repeat;
-  background-size: contain;
+  background-size: 111%;
   filter: drop-shadow(0 10px 22px rgb(15 23 42 / 42%));
-  opacity: 0.92;
+  opacity: 0.72;
 }
 
 .slot {
-  position: absolute;
-  left: var(--slot-left);
-  top: var(--slot-top);
-  transform: translate(-50%, -50%);
+  background:
+    linear-gradient(180deg, rgb(15 23 42 / 70%), rgb(2 6 23 / 82%)),
+    rgb(15 23 42 / 78%);
+  border-color: rgb(71 85 105 / 42%);
+  box-shadow:
+    0 0 0 1px rgb(148 163 184 / 8%) inset,
+    0 8px 18px rgb(2 6 23 / 18%);
 }

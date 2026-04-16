@@ -154,15 +154,17 @@ function buildEquipmentFixture(): Equipment {
     [EquipmentSlotId.Weapon]: buildEquippedItem(EquipmentSlotId.Weapon),
     [EquipmentSlotId.Offhand]: buildEquippedItem(EquipmentSlotId.Offhand),
     [EquipmentSlotId.Head]: buildEquippedItem(EquipmentSlotId.Head),
+    [EquipmentSlotId.Shoulders]: buildEquippedItem(EquipmentSlotId.Shoulders),
     [EquipmentSlotId.Chest]: buildEquippedItem(EquipmentSlotId.Chest),
+    [EquipmentSlotId.Bracers]: buildEquippedItem(EquipmentSlotId.Bracers),
     [EquipmentSlotId.Hands]: buildEquippedItem(EquipmentSlotId.Hands),
+    [EquipmentSlotId.Belt]: buildEquippedItem(EquipmentSlotId.Belt),
     [EquipmentSlotId.Legs]: buildEquippedItem(EquipmentSlotId.Legs),
     [EquipmentSlotId.Feet]: buildEquippedItem(EquipmentSlotId.Feet),
     [EquipmentSlotId.RingLeft]: buildEquippedItem(EquipmentSlotId.RingLeft),
     [EquipmentSlotId.RingRight]: buildEquippedItem(EquipmentSlotId.RingRight),
     [EquipmentSlotId.Amulet]: buildEquippedItem(EquipmentSlotId.Amulet),
     [EquipmentSlotId.Cloak]: buildEquippedItem(EquipmentSlotId.Cloak),
-    [EquipmentSlotId.Relic]: buildEquippedItem(EquipmentSlotId.Relic),
   };
 }
 

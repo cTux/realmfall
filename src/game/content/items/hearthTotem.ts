@@ -6,7 +6,7 @@ import type { ItemConfig } from '../types';
 export const hearthTotemItemConfig: ItemConfig = {
   key: 'hearth-totem',
   name: itemName('hearth-totem'),
-  slot: EquipmentSlotId.Relic,
+  slot: EquipmentSlotId.Offhand,
   icon: ContentIcons.Totem,
   tier: 1,
   rarity: 'common',

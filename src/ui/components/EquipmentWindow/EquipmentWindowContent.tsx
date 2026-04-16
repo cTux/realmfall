@@ -1,6 +1,9 @@
 import type { CSSProperties } from 'react';
 import silhouetteImage from '../../../assets/images/silhouette.png';
-import { EQUIPMENT_SLOTS, type EquipmentSlot } from '../../../game/state';
+import { EquipmentSlotId } from '../../../game/content/ids';
+import {
+  isOffhandSlotDisabled,
+} from '../../../game/state';
 import { ItemSlotButton } from '../ItemSlotButton/ItemSlotButton';
 import type { EquipmentWindowProps } from './types';
 import styles from './styles.module.scss';
@@ -10,6 +13,28 @@ type EquipmentWindowContentProps = Omit<
   'position' | 'onMove' | 'visible' | 'onClose'
 >;
 
+type PaperDollSlot = Exclude<
+  `${EquipmentSlotId}`,
+  `${EquipmentSlotId.Relic}`
+>;
+
+const PAPER_DOLL_SLOTS: PaperDollSlot[] = [
+  EquipmentSlotId.Weapon,
+  EquipmentSlotId.Offhand,
+  EquipmentSlotId.Head,
+  EquipmentSlotId.Shoulders,
+  EquipmentSlotId.Chest,
+  EquipmentSlotId.Bracers,
+  EquipmentSlotId.Hands,
+  EquipmentSlotId.Belt,
+  EquipmentSlotId.Legs,
+  EquipmentSlotId.Feet,
+  EquipmentSlotId.RingLeft,
+  EquipmentSlotId.RingRight,
+  EquipmentSlotId.Amulet,
+  EquipmentSlotId.Cloak,
+];
+
 export function EquipmentWindowContent({
   equipment,
   onHoverItem,
@@ -17,21 +42,28 @@ export function EquipmentWindowContent({
   onUnequip,
   onContextItem,
 }: EquipmentWindowContentProps) {
+  const offhandDisabled = isOffhandSlotDisabled(equipment);
+
   return (
     <div className={styles.layout}>
       <div
         className={styles.figure}
         style={{ backgroundImage: `url("${silhouetteImage}")` }}
       />
-      {EQUIPMENT_SLOTS.map((slot) => {
+      {PAPER_DOLL_SLOTS.map((slot) => {
         const equipped = equipment[slot];
         const position = SLOT_POSITIONS[slot];
+        const compactSlot = COMPACT_SLOTS.has(slot);
+        const slotSize = compactSlot ? 19 : 38;
+        const disabled = slot === 'offhand' && offhandDisabled;
         return (
           <ItemSlotButton
             key={slot}
             item={equipped}
             slot={slot}
             className={styles.slot}
+            hidePlaceholderIconWhenEmpty
+            disabled={disabled}
             onClick={equipped ? () => onUnequip(slot) : undefined}
             onContextMenu={
               equipped ? (event) => onContextItem(event, equipped, slot) : undefined
@@ -42,8 +74,13 @@ export function EquipmentWindowContent({
             onMouseLeave={onLeaveItem}
             style={
               {
-                '--slot-left': `${position.left}%`,
-                '--slot-top': `${position.top}%`,
+                position: 'absolute',
+                left: `${position.left}%`,
+                top: `${position.top}%`,
+                transform: 'translate(-50%, -50%)',
+                width: `${slotSize}px`,
+                height: `${slotSize}px`,
+                padding: compactSlot ? '0.06rem' : '0.12rem',
               } as CSSProperties
             }
           />
@@ -53,17 +90,25 @@ export function EquipmentWindowContent({
   );
 }
 
-const SLOT_POSITIONS: Record<EquipmentSlot, { left: number; top: number }> = {
-  weapon: { left: 13, top: 35 },
-  offhand: { left: 87, top: 35 },
-  head: { left: 50, top: 8 },
-  chest: { left: 50, top: 30 },
-  hands: { left: 18, top: 48 },
-  legs: { left: 50, top: 55 },
-  feet: { left: 50, top: 82 },
-  ringLeft: { left: 14, top: 61 },
-  ringRight: { left: 86, top: 61 },
-  amulet: { left: 50, top: 18 },
-  cloak: { left: 18, top: 22 },
-  relic: { left: 82, top: 22 },
+const SLOT_POSITIONS: Record<PaperDollSlot, { left: number; top: number }> = {
+  head: { left: 50, top: 12.5 },
+  shoulders: { left: 74.5, top: 16.25 },
+  amulet: { left: 50, top: 24.75 },
+  cloak: { left: 25.5, top: 22 },
+  chest: { left: 50, top: 36.5 },
+  bracers: { left: 82.25, top: 41 },
+  hands: { left: 17.75, top: 41 },
+  belt: { left: 50, top: 49.5 },
+  ringLeft: { left: 24.5, top: 55.75 },
+  weapon: { left: 18.25, top: 69.75 },
+  legs: { left: 50, top: 64.25 },
+  offhand: { left: 81.75, top: 69.75 },
+  ringRight: { left: 75.5, top: 55.75 },
+  feet: { left: 50, top: 83.5 },
 };
+
+const COMPACT_SLOTS = new Set<PaperDollSlot>([
+  'cloak',
+  'ringLeft',
+  'ringRight',
+]);

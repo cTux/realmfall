@@ -4,6 +4,7 @@ import {
   getItemConfig,
   inferItemTags,
 } from '../game/content/items';
+import { EquipmentSlotId } from '../game/content/ids';
 import { getEnemyConfig } from '../game/content/enemies';
 import { getStatusEffectTags } from '../game/content/statusEffects';
 import { getGatheringStructureConfig } from '../game/content/structures';
@@ -41,10 +42,11 @@ export function normalizeLoadedGame(game: GameState): GameState {
   if (legacyGold > 0 && !hasInventoryGold)
     mergeStackable(inventory, normalizeItem(makeGoldStack(legacyGold)));
   const equipment = Object.fromEntries(
-    Object.entries(game.player.equipment ?? {}).map(([key, item]) => [
-      key,
-      item ? normalizeItem(item) : item,
-    ]),
+    Object.entries(game.player.equipment ?? {}).map(([key, item]) => {
+      const normalizedKey =
+        key === 'relic' ? EquipmentSlotId.Offhand : key;
+      return [normalizedKey, item ? normalizeItem(item) : item];
+    }),
   );
   const tiles = Object.fromEntries(
     Object.entries(game.tiles ?? {}).map(([key, tile]) => [
@@ -222,6 +224,10 @@ function normalizeItem(item: Item): Item {
   return {
     ...item,
     itemKey: configured?.key ?? item.itemKey,
+    slot:
+      item.slot === EquipmentSlotId.Relic
+        ? EquipmentSlotId.Offhand
+        : item.slot,
     tags: item.tags ?? configured?.tags ?? inferItemTags(item),
     name: normalizedName,
     quantity: item.quantity ?? 1,

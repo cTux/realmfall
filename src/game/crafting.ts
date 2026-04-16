@@ -356,7 +356,7 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = [
     skill: Skill.Crafting,
     output: makeCraftedItem(
       'crafted-relic',
-      EquipmentSlotId.Relic,
+      EquipmentSlotId.Offhand,
       'hearth-totem',
       {
         power: 1,

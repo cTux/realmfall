@@ -2169,14 +2169,19 @@ describe('game state', () => {
     const game = createGame(3, 'equip-seed');
     const inventory: Item[] = EQUIPMENT_SLOTS.map((slot, index) => ({
       id: `item-${slot}`,
-      kind:
-        slot === 'weapon' ? 'weapon' : slot === 'relic' ? 'artifact' : 'armor',
       slot,
       name: `Item ${index}`,
       quantity: 1,
       tier: 2,
       rarity: 'rare',
-      power: slot === 'weapon' || slot === 'relic' ? 3 : 0,
+      power:
+        slot === 'weapon' ||
+        slot === 'offhand' ||
+        slot === 'ringLeft' ||
+        slot === 'ringRight' ||
+        slot === 'amulet'
+          ? 3
+          : 0,
       defense: slot === 'weapon' ? 0 : 2,
       maxHp: 1,
       healing: 0,

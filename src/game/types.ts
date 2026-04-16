@@ -54,6 +54,7 @@ export interface Item {
   tags?: GameTag[];
   recipeId?: string;
   slot?: EquipmentSlot;
+  icon?: string;
   name: string;
   quantity: number;
   tier: number;
@@ -248,15 +249,17 @@ export const EQUIPMENT_SLOTS: EquipmentSlot[] = [
   EquipmentSlotId.Weapon,
   EquipmentSlotId.Offhand,
   EquipmentSlotId.Head,
+  EquipmentSlotId.Shoulders,
   EquipmentSlotId.Chest,
+  EquipmentSlotId.Bracers,
   EquipmentSlotId.Hands,
+  EquipmentSlotId.Belt,
   EquipmentSlotId.Legs,
   EquipmentSlotId.Feet,
   EquipmentSlotId.RingLeft,
   EquipmentSlotId.RingRight,
   EquipmentSlotId.Amulet,
   EquipmentSlotId.Cloak,
-  EquipmentSlotId.Relic,
 ];
 
 export const RARITY_ORDER: ItemRarity[] = [

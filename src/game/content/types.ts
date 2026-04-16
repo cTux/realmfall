@@ -9,12 +9,30 @@ import type {
 import type { EnemyTypeKey, ItemKey } from './ids';
 import type { GameTag } from './tags';
 
+export type ItemDefinitionCategory =
+  | 'weapon'
+  | 'armor'
+  | 'artifact'
+  | 'consumable'
+  | 'resource';
+
+export interface GeneratedItemStatProfile {
+  basePower?: number;
+  powerPerTier?: number;
+  baseDefense?: number;
+  defensePerTier?: number;
+  baseMaxHp?: number;
+  maxHpPerTier?: number;
+}
+
 export interface ItemConfig {
   key: ItemKey;
   name: string;
   slot?: EquipmentSlot;
   icon: string;
+  iconPool?: readonly string[];
   tint?: string;
+  category?: ItemDefinitionCategory;
   tier: number;
   rarity: ItemRarity;
   power: number;
@@ -25,6 +43,8 @@ export interface ItemConfig {
   thirst?: number;
   defaultQuantity?: number;
   dropChance?: number;
+  occupiesOffhand?: boolean;
+  generatedStats?: GeneratedItemStatProfile;
   tags?: GameTag[];
 }
 
@@ -78,5 +98,6 @@ export interface ItemBuildOverrides {
   thirst?: number;
   recipeId?: Item['recipeId'];
   name?: string;
+  icon?: Item['icon'];
   tags?: Item['tags'];
 }
