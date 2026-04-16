@@ -23,6 +23,7 @@
 - Keep rule and workflow updates synchronized across `README.md`, `docs/WORKFLOW.md`, and the AI-specific instruction files when those updates affect future prompt execution.
 - Keep lore-sensitive guidance aligned with the canonical world reference in `docs/lore/REALMFALL.md`.
 - Keep current-system specs under `docs/specs` for implemented gameplay features and technical solutions.
+- Keep transient plans, issue workspaces, research notes, and checklists outside `docs/specs`, using `docs/implementation-notes` for that material.
 - Every implemented feature should be followed by creating or updating the relevant spec in `docs/specs` before the task is considered complete.
 - When changing an existing feature, update the matching spec in the same task so the spec stays aligned with shipped behavior.
 - Every fix should update the corresponding spec in the same task when that fix adds, removes, or clarifies a documented requirement.

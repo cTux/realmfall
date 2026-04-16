@@ -35,17 +35,20 @@ export function AppWindows(props: AppWindowsProps) {
     renderCombatWindow: props.layout.renderCombatWindow,
   });
   const hexInfoView = useHexInfoView({
-    game: props.views.game,
-    currentTile: props.views.currentTile,
-    combatSnapshot: props.views.combatSnapshot,
+    homeHex: props.views.world.homeHex,
+    playerCoord: props.views.player.coord,
+    currentTile: props.views.world.currentTile,
+    currentTileHostileEnemyCount: props.views.world.currentTileHostileEnemyCount,
+    combat: props.views.world.combat,
+    combatSnapshot: props.views.combat.snapshot,
   });
   const recipeWindowStructure = useRecipeWindowStructure(
-    props.views.currentTile.structure,
+    props.views.world.currentTile.structure,
   );
   const combatPlayerParty = useCombatPlayerParty({
-    combatSnapshot: props.views.combatSnapshot,
-    stats: props.views.stats,
-    mana: props.views.game.player.mana,
+    combatSnapshot: props.views.combat.snapshot,
+    stats: props.views.hero.stats,
+    mana: props.views.player.mana,
   });
 
   return (

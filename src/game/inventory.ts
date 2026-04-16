@@ -194,8 +194,17 @@ export function canEquipItem(item: Item) {
   return isEquippableItem(item);
 }
 
-export function canUseItem(item: Item) {
-  return hasItemTag(item, GAME_TAGS.item.consumable) || isRecipePage(item);
+export function canUseItem(item: Item, learnedRecipeIds: string[] = []) {
+  if (hasItemTag(item, GAME_TAGS.item.consumable)) {
+    return true;
+  }
+
+  const recipeId = item.recipeId;
+  if (!isRecipePage(item) || !recipeId) {
+    return false;
+  }
+
+  return !learnedRecipeIds.includes(recipeId);
 }
 
 export function isRecipePage(item: Item) {
@@ -239,8 +248,11 @@ export function spendGold(inventory: Item[], amount: number) {
 export function sellValue(item: Item) {
   const rarityOrder = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
   const category = getItemCategory(item);
+  const recipePage = isRecipePage(item);
   const base =
-    category === 'artifact'
+    recipePage
+      ? 24
+      : category === 'artifact'
       ? 16
       : category === 'weapon'
         ? 10
@@ -250,7 +262,9 @@ export function sellValue(item: Item) {
             ? 2
             : 3;
   return Math.round(
-    (base + item.tier * 2 + rarityOrder.indexOf(item.rarity) * 6) *
+    (base +
+      item.tier * (recipePage ? 4 : 2) +
+      rarityOrder.indexOf(item.rarity) * (recipePage ? 8 : 6)) *
       item.quantity,
   );
 }

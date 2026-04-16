@@ -46,7 +46,7 @@ export const Consumable: Story = {
 export const ForgeAction: Story = {
   args: {
     canEquip: true,
-    canProspect: true,
+    canProspectInventoryEquipment: true,
     onProspect: noop,
   },
 };
@@ -54,7 +54,7 @@ export const ForgeAction: Story = {
 export const TownAction: Story = {
   args: {
     canEquip: true,
-    canSell: true,
+    canSellInventoryEquipment: true,
     onSell: noop,
   },
 };

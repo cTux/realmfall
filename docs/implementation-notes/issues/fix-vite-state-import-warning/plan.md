@@ -1,7 +1,7 @@
 # Implementation Plan: Fix Ineffective World Import Warnings
 
 **Branch**: `master` | **Date**: 2026-04-13 | **Spec**: [spec.md](./spec.md)  
-**Input**: Feature specification from `docs/specs/issues/fix-vite-state-import-warning/spec.md`
+**Input**: Feature specification from `docs/implementation-notes/issues/fix-vite-state-import-warning/spec.md`
 
 ## Summary
 
@@ -35,7 +35,7 @@ Gate result: Pass for planning work. A later implementation pass should stay lim
 ### Documentation (this feature)
 
 ```text
-docs/specs/issues/fix-vite-state-import-warning/
+docs/implementation-notes/issues/fix-vite-state-import-warning/
 ├── plan.md
 ├── spec.md
 ├── research.md

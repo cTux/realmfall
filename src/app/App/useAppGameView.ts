@@ -3,6 +3,7 @@ import {
   getCurrentHexClaimStatus,
   getEnemiesAt,
   getGoldAmount,
+  getHostileEnemyIds,
   getPlayerStats,
   getRecipeBookEntries,
   Skill,
@@ -13,6 +14,7 @@ import {
 import { buildTownStock } from '../../game/economy';
 import { hexKey } from '../../game/hex';
 import { isEquippableItem } from '../../game/inventory';
+import { isPlayerClaim } from '../../game/territories';
 import { buildTile } from '../../game/world';
 import { t } from '../../i18n';
 
@@ -22,7 +24,7 @@ interface UseAppGameViewOptions {
 }
 
 export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
-  const { combat, logs, player, seed, tiles } = game;
+  const { combat, homeHex, logs, player, seed, tiles } = game;
 
   const stats = useMemo(() => getPlayerStats(player), [player]);
   const currentTile = useMemo(
@@ -55,7 +57,7 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
       }, {}),
     [player.inventory],
   );
-  const hasEquippableItems = useMemo(
+  const hasUnlockedEquipmentInInventory = useMemo(
     () => player.inventory.some((item) => isEquippableItem(item) && !item.locked),
     [player.inventory],
   );
@@ -74,19 +76,34 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     () => (combat ? getEnemiesAt(game, combat.coord) : []),
     [combat, game],
   );
+  const currentTileHostileEnemyCount = useMemo(
+    () => getHostileEnemyIds(game, currentTile.coord).length,
+    [currentTile.coord, game],
+  );
   const filteredLogs = useMemo(
     () => logs.filter((entry) => logFilters[entry.kind]),
     [logFilters, logs],
   );
+  const firstClaimedHex = useMemo(() => {
+    const claimedTiles = Object.values(tiles).filter((tile) =>
+      isPlayerClaim(tile.claim),
+    );
+    const firstNonHomeClaim = claimedTiles.find(
+      (tile) => tile.coord.q !== homeHex.q || tile.coord.r !== homeHex.r,
+    );
+    return firstNonHomeClaim?.coord ?? claimedTiles[0]?.coord ?? null;
+  }, [homeHex, tiles]);
 
-  const canProspect = currentTile.structure === 'forge' && hasEquippableItems;
-  const canSell = currentTile.structure === 'town' && hasEquippableItems;
-  const prospectExplanation =
-    currentTile.structure === 'forge' && !hasEquippableItems
+  const canProspectInventoryEquipment =
+    currentTile.structure === 'forge' && hasUnlockedEquipmentInInventory;
+  const canSellInventoryEquipment =
+    currentTile.structure === 'town' && hasUnlockedEquipmentInInventory;
+  const prospectInventoryEquipmentExplanation =
+    currentTile.structure === 'forge' && !hasUnlockedEquipmentInInventory
       ? t('game.message.prospect.empty')
       : null;
-  const sellExplanation =
-    currentTile.structure === 'town' && !hasEquippableItems
+  const sellInventoryEquipmentExplanation =
+    currentTile.structure === 'town' && !hasUnlockedEquipmentInInventory
       ? t('game.message.sell.empty')
       : null;
   const interactLabel = structureActionLabel(currentTile.structure);
@@ -94,18 +111,20 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
 
   return {
     claimStatus,
-    canProspect,
-    canSell,
+    canProspectInventoryEquipment,
+    canSellInventoryEquipment,
     combatEnemies,
     currentTile,
+    currentTileHostileEnemyCount,
+    firstClaimedHex,
     filteredLogs,
     gold,
     interactLabel,
     inventoryCountsByItemKey,
-    prospectExplanation,
+    prospectInventoryEquipmentExplanation,
     recipes,
     recipeSkillLevels,
-    sellExplanation,
+    sellInventoryEquipmentExplanation,
     stats,
     townStock,
   };

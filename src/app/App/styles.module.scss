@@ -27,6 +27,11 @@
   text-shadow: 0 0 14px rgb(107 33 168 / 78%);
 }
 
+.claimIndicatorArrow {
+  color: #f59e0b;
+  text-shadow: 0 0 14px rgb(180 83 9 / 78%);
+}
+
 .homeIndicatorLabel {
   display: block;
   color: #ddd6fe;
@@ -39,6 +44,10 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   text-shadow: 0 2px 10px rgb(2 6 23 / 95%);
+}
+
+.claimIndicatorLabel {
+  color: #fef3c7;
 }
 
 .hiddenUntilReady {

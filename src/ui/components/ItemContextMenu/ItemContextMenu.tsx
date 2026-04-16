@@ -13,8 +13,8 @@ export const ItemContextMenu = memo(function ItemContextMenu({
   canToggleLock = false,
   isLocked = false,
   canShowRecipes = false,
-  canProspect = false,
-  canSell = false,
+  canProspectInventoryEquipment = false,
+  canSellInventoryEquipment = false,
   onEquip,
   onUse,
   onDrop,
@@ -73,12 +73,12 @@ export const ItemContextMenu = memo(function ItemContextMenu({
           {t('ui.itemMenu.showRecipesAction')}
         </button>
       ) : null}
-      {canProspect ? (
+      {canProspectInventoryEquipment ? (
         <button className={styles.action} onClick={onProspect}>
           {t('ui.itemMenu.prospectAction')}
         </button>
       ) : null}
-      {canSell ? (
+      {canSellInventoryEquipment ? (
         <button className={styles.action} onClick={onSell}>
           {t('ui.itemMenu.sellAction')}
         </button>

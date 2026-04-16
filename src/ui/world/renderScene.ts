@@ -29,6 +29,7 @@ import {
   SCENE_CACHE_LIMITS,
   setBoundedCachedValue,
 } from './renderSceneCache';
+import { getSceneRenderTokens } from './renderSceneTokens';
 import {
   getLightingState,
   renderAtmosphere,
@@ -123,13 +124,13 @@ export function renderScene(
   const screenChanged =
     scene.screenWidth !== app.screen.width ||
     scene.screenHeight !== app.screen.height;
-  const renderVersions = getSceneRenderVersions(scene, state, visibleTiles);
+  const renderTokens = getSceneRenderTokens(scene, state, visibleTiles);
   const shouldRenderStatic =
-    screenChanged || scene.staticRenderVersion !== renderVersions.static;
+    screenChanged || scene.staticRenderToken !== renderTokens.static;
   const shouldRenderInteraction =
     shouldRenderStatic ||
-    scene.interactionRenderVersion !==
-      renderVersions.interactionWithSelection(
+    scene.interactionRenderToken !==
+      renderTokens.interactionWithSelection(
         selected,
         hoveredMove,
         hoveredSafePath,
@@ -229,7 +230,9 @@ export function renderScene(
           if (tile.structure) {
             const marker = takeShadowedSprite(
               scene.worldStaticMarkerSprites,
-              structureIconFor(tile.structure),
+              tile.structure === 'town' && tile.claim?.ownerType === 'faction'
+                ? WorldIcons.Castle
+                : structureIconFor(tile.structure),
             );
             configureShadowedSprite(
               marker,
@@ -364,12 +367,12 @@ export function renderScene(
 
   if (shouldRenderStatic) {
     completeStaticSceneRender(scene);
-    scene.staticRenderVersion = renderVersions.static;
+    scene.staticRenderToken = renderTokens.static;
   }
 
   if (shouldRenderInteraction) {
     completeInteractionSceneRender(scene);
-    scene.interactionRenderVersion = renderVersions.interactionWithSelection(
+    scene.interactionRenderToken = renderTokens.interactionWithSelection(
       selected,
       hoveredMove,
       hoveredSafePath,
@@ -481,100 +484,6 @@ function getCloudRenderInputs(
   return cloudInputs;
 }
 
-function getSceneRenderVersions(
-  scene: ReturnType<typeof getSceneCache>,
-  state: GameState,
-  visibleTiles: ReturnType<typeof getVisibleTiles>,
-) {
-  const playerCoordKey = coordKey(state.player.coord);
-  const homeHexKey = coordKey(state.homeHex);
-
-  if (
-    scene.derivedRenderVisibleTilesSource !== visibleTiles ||
-    scene.derivedRenderEnemiesSource !== state.enemies ||
-    scene.derivedRenderPlayerCoordKey !== playerCoordKey ||
-    scene.derivedRenderHomeHexKey !== homeHexKey ||
-    scene.derivedRenderBloodMoonActive !== state.bloodMoonActive
-  ) {
-    scene.derivedRenderVisibleTilesSource = visibleTiles;
-    scene.derivedRenderEnemiesSource = state.enemies;
-    scene.derivedRenderPlayerCoordKey = playerCoordKey;
-    scene.derivedRenderHomeHexKey = homeHexKey;
-    scene.derivedRenderBloodMoonActive = state.bloodMoonActive;
-    scene.derivedStaticRenderVersion = getStaticRenderVersion(
-      state,
-      visibleTiles,
-    );
-    scene.derivedInteractionRenderVersion = getInteractionRenderVersion(
-      state,
-      visibleTiles,
-    );
-  }
-
-  const staticVersion = scene.derivedStaticRenderVersion ?? '';
-  const interactionBaseVersion = scene.derivedInteractionRenderVersion ?? '';
-
-  return {
-    static: staticVersion,
-    interactionWithSelection: (
-      selected: HexCoord,
-      hoveredMove: HexCoord | null,
-      hoveredSafePath: HexCoord[] | null,
-    ) =>
-      `${interactionBaseVersion}|selected:${coordKey(selected)}|hover:${coordKey(hoveredMove)}|path:${pathKey(hoveredSafePath) ?? 'none'}`,
-  };
-}
-
-function getStaticRenderVersion(
-  state: GameState,
-  visibleTiles: ReturnType<typeof getVisibleTiles>,
-) {
-  return [
-    `player:${coordKey(state.player.coord)}`,
-    `home:${coordKey(state.homeHex)}`,
-    `bloodMoon:${state.bloodMoonActive ? 1 : 0}`,
-    ...visibleTiles.map((tile) => getStaticTileRenderVersion(state, tile)),
-  ].join('||');
-}
-
-function getStaticTileRenderVersion(state: GameState, tile: Tile) {
-  const enemies = getEnemiesAt(state, tile.coord)
-    .map((enemy) =>
-      [
-        enemy.id,
-        enemy.enemyTypeId ?? enemy.name,
-        enemy.aggressive === false ? 'calm' : 'hostile',
-        enemy.worldBoss ? 'boss' : 'normal',
-      ].join(':'),
-    )
-    .join(',');
-
-  return [
-    coordKey(tile.coord),
-    tile.terrain,
-    tile.structure ?? 'none',
-    tile.claim
-      ? `${tile.claim.ownerType}:${tile.claim.ownerId}:${tile.claim.npc?.enemyId ?? 'none'}`
-      : 'claim:none',
-    enemies,
-  ].join('|');
-}
-
-function getInteractionRenderVersion(
-  state: GameState,
-  visibleTiles: ReturnType<typeof getVisibleTiles>,
-) {
-  const playerTile =
-    visibleTiles.find((tile) => sameCoord(tile.coord, state.player.coord)) ??
-    state.tiles[hexKey(state.player.coord)] ??
-    buildTile(state.seed, state.player.coord);
-
-  return [
-    `player:${coordKey(state.player.coord)}`,
-    `loot:${playerTile.items.length > 0 ? 1 : 0}`,
-  ].join('|');
-}
-
 function makeInsetHex(
   point: ReturnType<typeof tileToPoint>,
   size: number,
@@ -598,18 +507,4 @@ function getStructureHexIconTint(structure: Tile['structure']) {
   return STRUCTURE_HEX_ICON_TINT;
 }
 
-function sameCoord(left: HexCoord | null, right: HexCoord | null) {
-  if (left == null || right == null) {
-    return left === right;
-  }
 
-  return left.q === right.q && left.r === right.r;
-}
-
-function pathKey(path: HexCoord[] | null) {
-  return path?.map((coord) => hexKey(coord)).join('|') ?? null;
-}
-
-function coordKey(coord: HexCoord | null) {
-  return coord ? hexKey(coord) : 'none';
-}

@@ -1,4 +1,5 @@
 import { DEFAULT_WINDOW_VISIBILITY } from '../../constants';
+import { GameTag } from '../../../game/content/tags';
 import { getDockEntries } from '../utils/getDockEntries';
 import { getInventoryItemAction } from '../utils/getInventoryItemAction';
 import { isEditableTarget } from '../utils/isEditableTarget';
@@ -64,9 +65,24 @@ describe('app utils', () => {
       healing: 0,
       hunger: 0,
     };
+    const recipePage = {
+      id: 'recipe-1',
+      recipeId: 'cook-cooked-fish',
+      name: 'Recipe: Cooked Fish',
+      quantity: 1,
+      tier: 1,
+      rarity: 'uncommon' as const,
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+      tags: [GameTag.ItemResource, GameTag.ItemRecipe],
+    };
 
     expect(getInventoryItemAction(consumable)).toBe('use');
     expect(getInventoryItemAction(equipment)).toBe('equip');
+    expect(getInventoryItemAction(recipePage, ['cook-cooked-fish'])).toBe('use');
     expect(getInventoryItemAction(undefined)).toBe('equip');
   });
 

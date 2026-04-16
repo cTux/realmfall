@@ -12,6 +12,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - The fixed left dock uses a dense icon-button stack at roughly 60% of the original button footprint so more windows fit without crowding the main play area.
 - The game uses a custom tooltip system for world objects and item affordances.
 - Window chrome is consistent across the desktop UI, including shared close-button tooltips, empty equipment-slot tooltips, resizable inventory, loot, and log surfaces, and focus styling that does not nudge active windows.
+- Hero and combat ability, buff, and debuff tiles keep a fixed position while hovered so tooltip affordances do not make the icons jump.
 - Pressing `Esc` closes every currently open window.
 - World camp markers stay readable above their night-time glow effects instead of sinking beneath the bloom layer.
 - Logs provide system, movement, combat, loot, and other gameplay feedback.

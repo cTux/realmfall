@@ -30,7 +30,7 @@ const meta = {
   ],
   args: {
     onInteract: noopAction,
-    onClaim: noopAction,
+    onTerritoryAction: noopAction,
     onProspect: noopAction,
     onSellAll: noopAction,
     onBuyItem: noopBuyItem,
@@ -41,7 +41,7 @@ const meta = {
     controls: {
       exclude: [
         'onInteract',
-        'onClaim',
+        'onTerritoryAction',
         'onProspect',
         'onSellAll',
         'onBuyItem',
@@ -59,7 +59,7 @@ type Story = StoryObj<typeof meta>;
 export const Forge: Story = {
   args: buildStructureArgs('forge', {
     terrain: 'Mountain',
-    canProspect: true,
+    canProspectInventoryEquipment: true,
   }),
 };
 
@@ -78,7 +78,7 @@ export const Workshop: Story = {
 export const Town: Story = {
   args: buildStructureArgs('town', {
     terrain: 'Plains',
-    canSell: true,
+    canSellInventoryEquipment: true,
     gold: 48,
     townStock: [
       {
@@ -163,12 +163,17 @@ function buildStructureArgs(
     enemyCount: overrides.enemyCount ?? (structure === 'dungeon' ? 2 : 0),
     interactLabel: overrides.interactLabel ?? structureActionLabel(structure),
     canInteract: overrides.canInteract ?? false,
-    canClaim: overrides.canClaim ?? true,
-    canProspect: overrides.canProspect ?? false,
-    canSell: overrides.canSell ?? false,
-    claimExplanation: overrides.claimExplanation ?? null,
-    prospectExplanation: overrides.prospectExplanation ?? null,
-    sellExplanation: overrides.sellExplanation ?? null,
+    canTerritoryAction: overrides.canTerritoryAction ?? true,
+    territoryActionLabel:
+      overrides.territoryActionLabel ?? 'Claim hex',
+    canProspectInventoryEquipment:
+      overrides.canProspectInventoryEquipment ?? false,
+    canSellInventoryEquipment: overrides.canSellInventoryEquipment ?? false,
+    territoryActionExplanation: overrides.territoryActionExplanation ?? null,
+    prospectInventoryEquipmentExplanation:
+      overrides.prospectInventoryEquipmentExplanation ?? null,
+    sellInventoryEquipmentExplanation:
+      overrides.sellInventoryEquipmentExplanation ?? null,
     structureHp: overrides.structureHp,
     structureMaxHp: overrides.structureMaxHp,
     territoryName: overrides.territoryName ?? null,
@@ -200,7 +205,7 @@ function buildGatheringStructureArgs(
 type StoryArgs = Omit<
   ComponentProps<typeof HexInfoWindowContent>,
   | 'onInteract'
-  | 'onClaim'
+  | 'onTerritoryAction'
   | 'onProspect'
   | 'onSellAll'
   | 'onBuyItem'

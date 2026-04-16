@@ -1,7 +1,7 @@
 # Implementation Plan: Production Bundle Obfuscation
 
 **Branch**: `master` | **Date**: 2026-04-13 | **Spec**: [spec.md](./spec.md)  
-**Input**: Feature specification from `docs/specs/improvements/use-bundle-obfuscator/spec.md`
+**Input**: Feature specification from `docs/implementation-notes/improvements/use-bundle-obfuscator/spec.md`
 
 **Note**: This plan follows the GitHub Spec Kit planning structure while targeting the repo-specific `docs/specs/...` convention used by this project.
 
@@ -37,7 +37,7 @@ Gate result: Pass, provided the implementation remains production-only, preserve
 ### Documentation (this feature)
 
 ```text
-docs/specs/improvements/use-bundle-obfuscator/
+docs/implementation-notes/improvements/use-bundle-obfuscator/
 ├── plan.md
 ├── spec.md
 └── checklists/
@@ -50,7 +50,7 @@ docs/specs/improvements/use-bundle-obfuscator/
 vite.config.ts                # Existing Vite build config to extend
 package.json                  # Dependency and script surface
 docs/RULES.md                 # Existing build/bundle and persistence guidance
-docs/specs/improvements/use-bundle-obfuscator/
+docs/implementation-notes/improvements/use-bundle-obfuscator/
 ```
 
 **Structure Decision**: Keep the implementation focused in `vite.config.ts` with any supporting documentation updates nearby. No new runtime architecture or build subsystem is needed.

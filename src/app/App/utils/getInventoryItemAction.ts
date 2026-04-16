@@ -1,7 +1,11 @@
-import { canUseItem, type Item } from '../../../game/state';
+import { canUseItem, isRecipePage, type Item } from '../../../game/state';
 
-export function getInventoryItemAction(item: Item | undefined) {
+export function getInventoryItemAction(
+  item: Item | undefined,
+  learnedRecipeIds: string[] = [],
+) {
   if (!item) return 'equip';
-  if (canUseItem(item)) return 'use';
+  if (isRecipePage(item)) return 'use';
+  if (canUseItem(item, learnedRecipeIds)) return 'use';
   return 'equip';
 }

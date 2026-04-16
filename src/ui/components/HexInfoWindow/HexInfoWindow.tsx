@@ -30,16 +30,17 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   enemyCount,
   interactLabel,
   canInteract,
-  canProspect,
-  canSell,
-  canClaim,
-  claimExplanation,
-  prospectExplanation,
-  sellExplanation,
+  canProspectInventoryEquipment,
+  canSellInventoryEquipment,
+  canTerritoryAction,
+  territoryActionLabel,
+  territoryActionExplanation,
+  prospectInventoryEquipmentExplanation,
+  sellInventoryEquipmentExplanation,
   onInteract,
   onProspect,
   onSellAll,
-  onClaim,
+  onTerritoryAction,
   structureHp,
   structureMaxHp,
   territoryName,
@@ -107,16 +108,19 @@ export const HexInfoWindow = memo(function HexInfoWindow({
           enemyCount={enemyCount}
           interactLabel={interactLabel}
           canInteract={canInteract}
-          canProspect={canProspect}
-          canSell={canSell}
-          canClaim={canClaim}
-          claimExplanation={claimExplanation}
-          prospectExplanation={prospectExplanation}
-          sellExplanation={sellExplanation}
+          canProspectInventoryEquipment={canProspectInventoryEquipment}
+          canSellInventoryEquipment={canSellInventoryEquipment}
+          canTerritoryAction={canTerritoryAction}
+          territoryActionLabel={territoryActionLabel}
+          territoryActionExplanation={territoryActionExplanation}
+          prospectInventoryEquipmentExplanation={
+            prospectInventoryEquipmentExplanation
+          }
+          sellInventoryEquipmentExplanation={sellInventoryEquipmentExplanation}
           onInteract={onInteract}
           onProspect={onProspect}
           onSellAll={onSellAll}
-          onClaim={onClaim}
+          onTerritoryAction={onTerritoryAction}
           structureHp={structureHp}
           structureMaxHp={structureMaxHp}
           territoryName={territoryName}

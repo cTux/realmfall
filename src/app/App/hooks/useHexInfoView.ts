@@ -1,28 +1,43 @@
 import { useMemo } from 'react';
-import { describeStructure, getHostileEnemyIds } from '../../../game/state';
+import { describeStructure } from '../../../game/state';
 import type { AppWindowsViewState } from '../AppWindows.types';
 import { formatTerrainLabel } from '../utils/formatTerrainLabel';
 
 export function useHexInfoView({
-  game,
+  homeHex,
+  playerCoord,
   currentTile,
+  currentTileHostileEnemyCount,
+  combat,
   combatSnapshot,
-}: Pick<AppWindowsViewState, 'game' | 'currentTile' | 'combatSnapshot'>) {
+}: {
+  homeHex: AppWindowsViewState['world']['homeHex'];
+  playerCoord: AppWindowsViewState['player']['coord'];
+  currentTile: AppWindowsViewState['world']['currentTile'];
+  currentTileHostileEnemyCount: AppWindowsViewState['world']['currentTileHostileEnemyCount'];
+  combat: AppWindowsViewState['world']['combat'];
+  combatSnapshot: AppWindowsViewState['combat']['snapshot'];
+}) {
   return useMemo(
     () => ({
-      isHome:
-        game.homeHex.q === game.player.coord.q &&
-        game.homeHex.r === game.player.coord.r,
+      isHome: homeHex.q === playerCoord.q && homeHex.r === playerCoord.r,
       canSetHome:
         !currentTile.claim || currentTile.claim.ownerType === 'player',
       terrain: formatTerrainLabel(currentTile.terrain),
       structure: currentTile.structure
         ? describeStructure(currentTile.structure)
         : null,
-      enemyCount: game.combat
+      enemyCount: combat
         ? (combatSnapshot?.enemies.length ?? 0)
-        : getHostileEnemyIds(game, currentTile.coord).length,
+        : currentTileHostileEnemyCount,
     }),
-    [combatSnapshot?.enemies.length, currentTile, game],
+    [
+      combat,
+      combatSnapshot?.enemies.length,
+      currentTile,
+      currentTileHostileEnemyCount,
+      homeHex,
+      playerCoord,
+    ],
   );
 }

@@ -8,6 +8,8 @@ This spec covers inventory actions, gold handling, and town trading.
 
 - Inventory supports sorting, dropping, consuming, equipping, recipe-page learning, and contextual actions.
 - Recipe pages in inventory show a green border plus a blue translucent slot overlay while still unlearned.
+- Learned recipe pages add a red `Already learned` hint in their inventory tooltip, use a red inventory border, stay in the pack until sold or dropped, and still route primary-click handling through the recipe-use flow so they show the dedicated already-known feedback instead of generic equip errors.
+- Sellable item tooltips end with a coin-marked `Sells for N gold` line derived from the same town sell-value rules used by gameplay.
 - Stack-count badges remain fully visible on tinted and overlaid item slots.
 - Equippable inventory items can be locked from the context menu so prospecting and sell-all ignore them, and locked items display a small padlock badge in their slot.
 - While standing at a forge or town, eligible equippable inventory items expose item-context actions for single-item prospecting or selling.
@@ -19,6 +21,7 @@ This spec covers inventory actions, gold handling, and town trading.
 - Legacy save shapes with direct player gold are normalized into inventory gold during hydration.
 - Towns provide a fixed deterministic stock based on seed and coordinate.
 - Buying uses town stock entries with explicit prices.
+- Recipe pages can be sold individually in town for a premium value.
 - The current town economy covers basic survival consumables and starter-tier gear.
 
 ## Main Implementation Areas

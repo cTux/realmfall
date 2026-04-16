@@ -14,14 +14,15 @@ export function HexInfoWindowContent({
   enemyCount,
   interactLabel,
   canInteract,
-  canClaim,
-  claimExplanation,
-  canProspect,
-  canSell,
-  prospectExplanation,
-  sellExplanation,
+  canTerritoryAction,
+  territoryActionLabel,
+  territoryActionExplanation,
+  canProspectInventoryEquipment,
+  canSellInventoryEquipment,
+  prospectInventoryEquipmentExplanation,
+  sellInventoryEquipmentExplanation,
   territoryNpc,
-  onClaim,
+  onTerritoryAction,
   onProspect,
   onSellAll,
   structureHp,
@@ -100,25 +101,27 @@ export function HexInfoWindowContent({
       ) : null}
 
       <div className={styles.actions}>
-        <button onClick={onClaim} disabled={!canClaim}>
-          {t('ui.hexInfo.claimAction')}
+        <button onClick={onTerritoryAction} disabled={!canTerritoryAction}>
+          {territoryActionLabel}
         </button>
-        {canProspect ? (
+        {canProspectInventoryEquipment ? (
           <button onClick={onProspect}>{t('ui.hexInfo.prospectAction')}</button>
         ) : null}
-        {canSell ? (
+        {canSellInventoryEquipment ? (
           <button onClick={onSellAll}>{t('ui.hexInfo.sellAllAction')}</button>
         ) : null}
       </div>
 
-      {claimExplanation ? (
-        <div className={styles.empty}>{claimExplanation}</div>
+      {territoryActionExplanation ? (
+        <div className={styles.empty}>{territoryActionExplanation}</div>
       ) : null}
-      {prospectExplanation ? (
-        <div className={styles.empty}>{prospectExplanation}</div>
+      {prospectInventoryEquipmentExplanation ? (
+        <div className={styles.empty}>
+          {prospectInventoryEquipmentExplanation}
+        </div>
       ) : null}
-      {sellExplanation ? (
-        <div className={styles.empty}>{sellExplanation}</div>
+      {sellInventoryEquipmentExplanation ? (
+        <div className={styles.empty}>{sellInventoryEquipmentExplanation}</div>
       ) : null}
       {territoryNpc ? (
         <div className={styles.shop}>
@@ -159,10 +162,10 @@ export function HexInfoWindowContent({
         </div>
       ) : null}
 
-      {!canClaim &&
+      {!canTerritoryAction &&
       !(interactLabel && canInteract) &&
-      !canProspect &&
-      !canSell &&
+      !canProspectInventoryEquipment &&
+      !canSellInventoryEquipment &&
       townStock.length === 0 &&
       !territoryName ? (
         <div className={styles.empty}>{t('ui.hexInfo.empty')}</div>

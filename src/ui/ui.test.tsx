@@ -3,6 +3,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { vi } from 'vitest';
 import { getRecipeMaterialItemKey } from '../app/App/utils/getRecipeMaterialItemKey';
+import { getInventoryItemAction } from '../app/App/utils/getInventoryItemAction';
 import { EquipmentSlotId } from '../game/content/ids';
 import { GameTag } from '../game/content/tags';
 import { Skill } from '../game/types';
@@ -12,6 +13,7 @@ import {
   getPlayerStats,
   type Item,
 } from '../game/state';
+import { sellValue } from '../game/inventory';
 import {
   DEFAULT_LOG_FILTERS,
   DEFAULT_WINDOW_VISIBILITY,
@@ -31,6 +33,7 @@ import {
   enemyIconFor,
   enemyTint,
   iconForItem,
+  Icons,
   structureIconFor,
   structureTint,
 } from './icons';
@@ -175,6 +178,22 @@ describe('ui helpers and components', () => {
       hunger: 0,
       tags: [GameTag.ItemConsumable, GameTag.ItemStackable],
     };
+    const recipePage: Item = {
+      id: 'recipe-1',
+      recipeId: 'cook-cooked-fish',
+      icon: 'recipe.svg',
+      name: 'Recipe: Cooked Fish',
+      tags: [GameTag.ItemResource, GameTag.ItemRecipe],
+      quantity: 1,
+      tier: 1,
+      rarity: 'uncommon',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+      thirst: 0,
+    };
 
     expect(comparisonLines(consumable)).toEqual([]);
     expect(comparisonLines(resource)).toEqual([]);
@@ -210,6 +229,14 @@ describe('ui helpers and components', () => {
       kind: 'text',
       text: 'Tags: item.equipment, item.weapon, item.slot.weapon',
       tone: 'subtle',
+    });
+    expect(tooltipLines[tooltipLines.length - 1]).toEqual({
+      kind: 'stat',
+      label: 'Sells for',
+      value: `${sellValue(weapon)} gold`,
+      icon: Icons.Coins,
+      iconTint: '#fbbf24',
+      tone: 'item',
     });
     expect(
       tooltipLines.findIndex((line) => line.text === 'Slot: slot.weapon'),
@@ -254,6 +281,30 @@ describe('ui helpers and components', () => {
           line.tone === 'subtle',
       ),
     ).toBe(true);
+    const recipeTooltipLines = itemTooltipLines(recipePage, undefined, {
+      recipeLearned: true,
+    });
+
+    expect(recipeTooltipLines).toContainEqual({
+      kind: 'text',
+      text: 'Already learned',
+      tone: 'negative',
+    });
+    expect(recipeTooltipLines[recipeTooltipLines.length - 1]).toEqual({
+      kind: 'stat',
+      label: 'Sells for',
+      value: '36 gold',
+      icon: Icons.Coins,
+      iconTint: '#fbbf24',
+      tone: 'item',
+    });
+    expect(
+      itemTooltipLines(resource).some((line) => line.label === 'Sells for'),
+    ).toBe(false);
+    expect(getInventoryItemAction(recipePage, ['cook-cooked-fish'])).toBe(
+      'use',
+    );
+    expect(getInventoryItemAction(recipePage, [])).toBe('use');
 
     expect(enemyTooltip([], undefined)).toBeNull();
 
@@ -510,6 +561,44 @@ describe('ui helpers and components', () => {
 
     expect(markup).toContain('background-color:#f8fafc');
     expect(markup).toContain('-webkit-mask:url(');
+  });
+
+  it('renders learned recipe pages with a red inventory border and no overlay', async () => {
+    const recipePage: Item = {
+      id: 'recipe-craft-weapon',
+      recipeId: 'craft-icon-axe-01',
+      icon: 'recipe.svg',
+      name: 'Recipe: Axe 01',
+      tags: [GameTag.ItemResource, GameTag.ItemRecipe],
+      quantity: 1,
+      tier: 1,
+      rarity: 'uncommon',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+      thirst: 0,
+    };
+
+    const markup = await renderMarkup(
+      <InventoryWindow
+        position={DEFAULT_WINDOWS.inventory}
+        onMove={() => {}}
+        inventory={[recipePage]}
+        equipment={{}}
+        learnedRecipeIds={['craft-icon-axe-01']}
+        onSort={() => {}}
+        onEquip={() => {}}
+        onContextItem={() => {}}
+        onHoverItem={() => {}}
+        onLeaveItem={() => {}}
+      />,
+    );
+
+    expect(markup).toContain('border-color: rgb(239, 68, 68)');
+    expect(markup).toContain('box-shadow: 0 0 0 1px #ef444433 inset');
+    expect(markup).not.toContain('background-color:rgba(96, 165, 250, 0.28)');
   });
 
   it('renders recipe-book tabs in cooking, smelting, crafting order', async () => {
@@ -974,14 +1063,15 @@ describe('ui helpers and components', () => {
           enemyCount={0}
           interactLabel="Chop tree"
           canInteract
-          canClaim
-          canProspect={false}
-          canSell={false}
-          claimExplanation={null}
-          prospectExplanation={null}
-          sellExplanation={null}
+          canTerritoryAction
+          territoryActionLabel="Claim hex"
+          canProspectInventoryEquipment={false}
+          canSellInventoryEquipment={false}
+          territoryActionExplanation={null}
+          prospectInventoryEquipmentExplanation={null}
+          sellInventoryEquipmentExplanation={null}
           onInteract={() => {}}
-          onClaim={() => {}}
+          onTerritoryAction={() => {}}
           onProspect={() => {}}
           onSellAll={() => {}}
           structureHp={3}
@@ -1172,14 +1262,15 @@ describe('ui helpers and components', () => {
           enemyCount={0}
           interactLabel={null}
           canInteract={false}
-          canClaim={false}
-          canProspect={false}
-          canSell={false}
-          claimExplanation={null}
-          prospectExplanation="Nothing in your pack can be prospected."
-          sellExplanation={null}
+          canTerritoryAction={false}
+          territoryActionLabel="Claim hex"
+          canProspectInventoryEquipment={false}
+          canSellInventoryEquipment={false}
+          territoryActionExplanation={null}
+          prospectInventoryEquipmentExplanation="Nothing in your pack can be prospected."
+          sellInventoryEquipmentExplanation={null}
           onInteract={() => {}}
-          onClaim={() => {}}
+          onTerritoryAction={() => {}}
           onProspect={() => {}}
           onSellAll={() => {}}
           territoryName={null}
@@ -1201,14 +1292,15 @@ describe('ui helpers and components', () => {
           enemyCount={0}
           interactLabel={null}
           canInteract={false}
-          canClaim={false}
-          canProspect={false}
-          canSell={false}
-          claimExplanation={null}
-          prospectExplanation={null}
-          sellExplanation="No equippable items to sell."
+          canTerritoryAction={false}
+          territoryActionLabel="Claim hex"
+          canProspectInventoryEquipment={false}
+          canSellInventoryEquipment={false}
+          territoryActionExplanation={null}
+          prospectInventoryEquipmentExplanation={null}
+          sellInventoryEquipmentExplanation="No equippable items to sell."
           onInteract={() => {}}
-          onClaim={() => {}}
+          onTerritoryAction={() => {}}
           onProspect={() => {}}
           onSellAll={() => {}}
           territoryName={null}
@@ -1241,14 +1333,15 @@ describe('ui helpers and components', () => {
         enemyCount={0}
         interactLabel="Chop tree"
         canInteract
-        canClaim={false}
-        canProspect={false}
-        canSell={false}
-        claimExplanation={null}
-        prospectExplanation={null}
-        sellExplanation={null}
+        canTerritoryAction={false}
+        territoryActionLabel="Claim hex"
+        canProspectInventoryEquipment={false}
+        canSellInventoryEquipment={false}
+        territoryActionExplanation={null}
+        prospectInventoryEquipmentExplanation={null}
+        sellInventoryEquipmentExplanation={null}
         onInteract={() => {}}
-        onClaim={() => {}}
+        onTerritoryAction={() => {}}
         onProspect={() => {}}
         onSellAll={() => {}}
         territoryName={null}
@@ -1607,8 +1700,8 @@ describe('ui helpers and components', () => {
         canToggleLock
         isLocked
         canShowRecipes
-        canProspect
-        canSell
+        canProspectInventoryEquipment
+        canSellInventoryEquipment
         onEquip={() => {}}
         onUse={() => {}}
         onDrop={() => {}}

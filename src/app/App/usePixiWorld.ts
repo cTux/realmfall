@@ -18,8 +18,14 @@ import { ensureWorldIconTexturesLoaded } from '../../ui/world/worldIcons';
 import { WORLD_REVEAL_RADIUS } from '../constants';
 import type { GraphicsSettings } from '../graphicsSettings';
 import type { TooltipState } from './types';
-import { getTooltipState } from './tooltipStore';
 import { getReusableVisibleTiles } from './selectors/getReusableVisibleTiles';
+import {
+  applyHoverSnapshot,
+  getHoverAnalysisCacheKey,
+  sameCoord,
+  setCachedHoverSnapshot,
+  type WorldHoverSnapshot,
+} from './usePixiWorldHover';
 
 interface UsePixiWorldArgs {
   enabled: boolean;
@@ -31,15 +37,6 @@ interface UsePixiWorldArgs {
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
   setGame: Dispatch<SetStateAction<GameState>>;
   setTooltip: (nextTooltip: TooltipState | null) => void;
-}
-
-interface WorldHoverSnapshot {
-  target: stateModule.HexCoord | null;
-  clickable: boolean;
-  hoveredMove: stateModule.HexCoord | null;
-  hoveredSafePath: stateModule.HexCoord[] | null;
-  tooltip: TooltipState | null;
-  tooltipKey: string | null;
 }
 
 export function usePixiWorld({
@@ -61,6 +58,7 @@ export function usePixiWorld({
   const selectedRef = useRef(game.player.coord);
   const hoveredMoveRef = useRef<stateModule.HexCoord | null>(null);
   const hoveredSafePathRef = useRef<stateModule.HexCoord[] | null>(null);
+  const hoverAnalysisCacheRef = useRef(new Map<string, WorldHoverSnapshot>());
   const hoverSnapshotRef = useRef<WorldHoverSnapshot>({
     target: null,
     clickable: false,
@@ -84,6 +82,7 @@ export function usePixiWorld({
     selectedRef.current = game.player.coord;
     hoveredMoveRef.current = null;
     hoveredSafePathRef.current = null;
+    hoverAnalysisCacheRef.current.clear();
     hoverSnapshotRef.current = {
       target: null,
       clickable: false,
@@ -93,6 +92,10 @@ export function usePixiWorld({
       tooltipKey: null,
     };
   }, [game.player.coord]);
+
+  useEffect(() => {
+    hoverAnalysisCacheRef.current.clear();
+  }, [game.turn, game.combat, game.tiles, game.enemies]);
 
   useEffect(() => {
     if (!enabled || !hostRef.current || appRef.current) return;
@@ -277,6 +280,26 @@ export function usePixiWorld({
         }
 
         const current = gameRef.current;
+        const hoverCacheKey = getHoverAnalysisCacheKey(current, target);
+        const cachedHoverSnapshot =
+          hoverAnalysisCacheRef.current.get(hoverCacheKey);
+        if (cachedHoverSnapshot) {
+          canvas.style.cursor = cachedHoverSnapshot.clickable
+            ? 'pointer'
+            : 'default';
+          hoverSnapshotRef.current = cachedHoverSnapshot;
+          applyHoverSnapshot({
+            hoverSnapshot: cachedHoverSnapshot,
+            hoveredMoveRef,
+            hoveredSafePathRef,
+            nextTooltipPosition,
+            setTooltip,
+            tooltipPositionRef,
+            worldTooltipKeyRef,
+          });
+          return;
+        }
+
         const tile = stateModule.getTileAt(current, target);
         const distance = stateModule.hexDistance(
           playerCoordRef.current,
@@ -337,6 +360,11 @@ export function usePixiWorld({
         };
         canvas.style.cursor = actionable ? 'pointer' : 'default';
         hoverSnapshotRef.current = nextHoverSnapshot;
+        setCachedHoverSnapshot(
+          hoverAnalysisCacheRef.current,
+          hoverCacheKey,
+          nextHoverSnapshot,
+        );
         applyHoverSnapshot({
           hoverSnapshot: nextHoverSnapshot,
           hoveredMoveRef,
@@ -367,9 +395,7 @@ export function usePixiWorld({
         if (hoveredSafePathRef.current) {
           hoveredSafePathRef.current = null;
         }
-        if (getTooltipState()?.followCursor) {
-          setTooltip(null);
-        }
+        setTooltip(null);
       };
 
       canvas.addEventListener('pointerdown', onPointerDown as EventListener);
@@ -415,81 +441,4 @@ export function usePixiWorld({
   ]);
 
   return { hostRef, canvasReady };
-}
-
-function samePath(
-  left: stateModule.HexCoord[] | null,
-  right: stateModule.HexCoord[] | null,
-) {
-  if (left == null || right == null) {
-    return left === right;
-  }
-
-  if (left.length !== right.length) {
-    return false;
-  }
-
-  return left.every(
-    (coord, index) =>
-      coord.q === right[index]?.q && coord.r === right[index]?.r,
-  );
-}
-
-function sameCoord(
-  left: stateModule.HexCoord | null,
-  right: stateModule.HexCoord | null,
-) {
-  return left?.q === right?.q && left?.r === right?.r;
-}
-
-function applyHoverSnapshot({
-  hoverSnapshot,
-  hoveredMoveRef,
-  hoveredSafePathRef,
-  nextTooltipPosition,
-  setTooltip,
-  tooltipPositionRef,
-  worldTooltipKeyRef,
-}: {
-  hoverSnapshot: WorldHoverSnapshot;
-  hoveredMoveRef: MutableRefObject<stateModule.HexCoord | null>;
-  hoveredSafePathRef: MutableRefObject<stateModule.HexCoord[] | null>;
-  nextTooltipPosition: { x: number; y: number };
-  setTooltip: (nextTooltip: TooltipState | null) => void;
-  tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
-  worldTooltipKeyRef: MutableRefObject<string | null>;
-}) {
-  if (!sameCoord(hoveredMoveRef.current, hoverSnapshot.hoveredMove)) {
-    hoveredMoveRef.current = hoverSnapshot.hoveredMove;
-  }
-
-  if (!samePath(hoveredSafePathRef.current, hoverSnapshot.hoveredSafePath)) {
-    hoveredSafePathRef.current = hoverSnapshot.hoveredSafePath;
-  }
-
-  if (hoverSnapshot.tooltip?.followCursor) {
-    tooltipPositionRef.current = nextTooltipPosition;
-    syncFollowCursorTooltipPosition(nextTooltipPosition);
-    const currentTooltip = getTooltipState();
-
-    if (
-      worldTooltipKeyRef.current !== hoverSnapshot.tooltipKey ||
-      !currentTooltip?.followCursor
-    ) {
-      worldTooltipKeyRef.current = hoverSnapshot.tooltipKey;
-      setTooltip({
-        ...hoverSnapshot.tooltip,
-        x: nextTooltipPosition.x,
-        y: nextTooltipPosition.y,
-      });
-    }
-    return;
-  }
-
-  tooltipPositionRef.current = null;
-  syncFollowCursorTooltipPosition(null);
-  if (worldTooltipKeyRef.current || getTooltipState()?.followCursor) {
-    worldTooltipKeyRef.current = null;
-    setTooltip(null);
-  }
 }

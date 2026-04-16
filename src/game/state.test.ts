@@ -38,6 +38,7 @@ import {
   type GameState,
   type Item,
 } from './state';
+import { GameTag } from './content/tags';
 import { hexDistance, hexKey, hexNeighbors } from './hex';
 import { makeEnemy } from './combat';
 import {
@@ -228,6 +229,188 @@ describe('game state', () => {
     expect(
       denied.logs.some((entry) =>
         /must connect to your existing border/i.test(entry.text),
+      ),
+    ).toBe(true);
+  });
+
+  it('limits the player territory to 5 claimed hexes', () => {
+    let game = createGame(6, 'claim-limit-seed');
+    game.player.inventory.push(
+      {
+        id: 'cloth-limit',
+        itemKey: 'cloth',
+        name: 'Cloth',
+        quantity: 6,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'sticks-limit',
+        itemKey: 'sticks',
+        name: 'Sticks',
+        quantity: 6,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    );
+
+    for (const coord of [
+      { q: 0, r: 0 },
+      { q: 1, r: 0 },
+      { q: 2, r: 0 },
+      { q: 3, r: 0 },
+      { q: 4, r: 0 },
+    ]) {
+      game.player.coord = coord;
+      game.tiles[`${coord.q},${coord.r}`] = {
+        coord,
+        terrain: 'plains',
+        items: [],
+        enemyIds: [],
+        claim: game.tiles[`${coord.q},${coord.r}`]?.claim,
+      };
+      game = claimCurrentHex(game);
+    }
+
+    game.player.coord = { q: 5, r: 0 };
+    game.tiles['5,0'] = {
+      coord: { q: 5, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+      claim: undefined,
+    };
+
+    const blocked = claimCurrentHex(game);
+
+    expect(getTileAt(blocked, { q: 5, r: 0 }).claim).toBeUndefined();
+    expect(
+      blocked.logs.some((entry) => /claim up to 5 hexes/i.test(entry.text)),
+    ).toBe(true);
+  });
+
+  it('allows unclaiming a player hex when the remaining territory stays connected', () => {
+    let game = createGame(4, 'claim-unclaim-leaf-seed');
+    game.player.inventory.push(
+      {
+        id: 'cloth-unclaim-leaf',
+        itemKey: 'cloth',
+        name: 'Cloth',
+        quantity: 2,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'sticks-unclaim-leaf',
+        itemKey: 'sticks',
+        name: 'Sticks',
+        quantity: 2,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    );
+
+    for (const coord of [
+      { q: 0, r: 0 },
+      { q: 1, r: 0 },
+    ]) {
+      game.player.coord = coord;
+      game.tiles[`${coord.q},${coord.r}`] = {
+        coord,
+        terrain: 'plains',
+        items: [],
+        enemyIds: [],
+        claim: game.tiles[`${coord.q},${coord.r}`]?.claim,
+      };
+      game = claimCurrentHex(game);
+    }
+
+    game.player.coord = { q: 1, r: 0 };
+    const unclaimed = claimCurrentHex(game);
+
+    expect(getTileAt(unclaimed, { q: 1, r: 0 }).claim).toBeUndefined();
+    expect(getTileAt(unclaimed, { q: 0, r: 0 }).claim?.ownerType).toBe(
+      'player',
+    );
+    expect(
+      unclaimed.logs.some((entry) => /unclaim the hex at 1, 0/i.test(entry.text)),
+    ).toBe(true);
+  });
+
+  it('blocks unclaiming a player hex when it would split the territory', () => {
+    let game = createGame(5, 'claim-unclaim-split-seed');
+    game.player.inventory.push(
+      {
+        id: 'cloth-unclaim-split',
+        itemKey: 'cloth',
+        name: 'Cloth',
+        quantity: 3,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'sticks-unclaim-split',
+        itemKey: 'sticks',
+        name: 'Sticks',
+        quantity: 3,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    );
+
+    for (const coord of [
+      { q: 0, r: 0 },
+      { q: 1, r: 0 },
+      { q: 2, r: 0 },
+    ]) {
+      game.player.coord = coord;
+      game.tiles[`${coord.q},${coord.r}`] = {
+        coord,
+        terrain: 'plains',
+        items: [],
+        enemyIds: [],
+        claim: game.tiles[`${coord.q},${coord.r}`]?.claim,
+      };
+      game = claimCurrentHex(game);
+    }
+
+    game.player.coord = { q: 1, r: 0 };
+    const blocked = claimCurrentHex(game);
+
+    expect(getTileAt(blocked, { q: 1, r: 0 }).claim?.ownerType).toBe('player');
+    expect(
+      blocked.logs.some((entry) =>
+        /would split your territory/i.test(entry.text),
       ),
     ).toBe(true);
   });
@@ -2380,6 +2563,67 @@ describe('game state', () => {
     ).toBe(false);
   });
 
+  it('does not consume an already learned recipe page when used', () => {
+    const game = createGame(3, 'recipe-known-seed');
+    game.player.learnedRecipeIds = ['craft-icon-axe-01'];
+    game.player.inventory.push({
+      id: 'recipe-craft-weapon-known',
+      recipeId: 'craft-icon-axe-01',
+      name: 'Recipe: Axe 01',
+      quantity: 1,
+      tier: 1,
+      rarity: 'uncommon',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+    });
+
+    const unchanged = useItem(game, 'recipe-craft-weapon-known');
+
+    expect(unchanged.player.learnedRecipeIds).toEqual(['craft-icon-axe-01']);
+    expect(
+      unchanged.player.inventory.some(
+        (item) => item.id === 'recipe-craft-weapon-known',
+      ),
+    ).toBe(true);
+    expect(unchanged.logs[0]?.text).toContain('already know');
+  });
+
+  it('sells recipe pages in town for elevated value', () => {
+    const game = createGame(3, 'sell-recipe-page-seed');
+    game.tiles['0,0'] = {
+      ...getTileAt(game, { q: 0, r: 0 }),
+      structure: 'town',
+    };
+    game.player.inventory.push({
+      id: 'recipe-craft-weapon-sell',
+      recipeId: 'craft-icon-axe-01',
+      icon: 'recipe.svg',
+      name: 'Recipe: Axe 01',
+      tags: [GameTag.ItemResource, GameTag.ItemRecipe],
+      quantity: 1,
+      tier: 2,
+      rarity: 'uncommon',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+      thirst: 0,
+    });
+
+    const sold = sellInventoryItem(game, 'recipe-craft-weapon-sell');
+
+    expect(
+      sold.player.inventory.some((item) => item.id === 'recipe-craft-weapon-sell'),
+    ).toBe(false);
+    expect(getGoldAmount(sold.player.inventory)).toBe(40);
+    expect(sold.logs[0]?.text).toContain('Recipe: Axe 01');
+    expect(sold.logs[0]?.text).toContain('40 gold');
+  });
+
   it('can drop an unlearned recipe from enemies', () => {
     let dropped = false;
 
@@ -2520,7 +2764,7 @@ describe('game state', () => {
     };
     game.enemies['enemy-2,0-1'] = {
       id: 'enemy-2,0-1',
-      name: 'Bandit',
+      name: 'Wolf',
       coord: target,
       tier: 1,
       hp: 5,

@@ -1,7 +1,7 @@
 # Implementation Plan: Vitest Cache Plugin Adoption
 
-**Branch**: `001-vitest-cache-plugin` | **Date**: 2026-04-13 | **Spec**: `docs/specs/improvements/vitest-cache-plugin/spec.md`
-**Input**: Feature specification from `docs/specs/improvements/vitest-cache-plugin/spec.md`
+**Branch**: `001-vitest-cache-plugin` | **Date**: 2026-04-13 | **Spec**: `docs/implementation-notes/improvements/vitest-cache-plugin/spec.md`
+**Input**: Feature specification from `docs/implementation-notes/improvements/vitest-cache-plugin/spec.md`
 
 ## Summary
 
@@ -36,7 +36,7 @@ Gate result before implementation: Pass. The feature is isolated to test tooling
 ### Documentation (this feature)
 
 ```text
-docs/specs/improvements/vitest-cache-plugin/
+docs/implementation-notes/improvements/vitest-cache-plugin/
 ├── plan.md
 └── spec.md
 ```

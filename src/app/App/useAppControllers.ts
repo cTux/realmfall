@@ -14,6 +14,7 @@ import {
   dropInventoryItem,
   equipItem,
   getCurrentTile,
+  isRecipePage,
   interactWithStructure,
   isEquippableItem,
   prospectInventoryItem,
@@ -133,14 +134,19 @@ export function useAppControllers({
       tooltipPositionRef.current = position;
       setTooltipState({
         title: item.name,
-        lines: itemTooltipLines(item, equipped),
+        lines: itemTooltipLines(item, equipped, {
+          recipeLearned:
+            isRecipePage(item) &&
+            item.recipeId != null &&
+            gameRef.current.player.learnedRecipeIds.includes(item.recipeId),
+        }),
         x: position.x,
         y: position.y,
         placement: position.placement,
         borderColor: rarityColor(item.rarity),
       });
     },
-    [tooltipPositionRef],
+    [gameRef, tooltipPositionRef],
   );
 
   const showTooltip = useCallback(
@@ -226,7 +232,10 @@ export function useAppControllers({
       const item = gameRef.current.player.inventory.find(
         (entry) => entry.id === itemId,
       );
-      const action = getInventoryItemAction(item);
+      const action = getInventoryItemAction(
+        item,
+        gameRef.current.player.learnedRecipeIds,
+      );
       if (action === 'use') {
         applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
           applyItemUse(current, itemId),
@@ -284,10 +293,12 @@ export function useAppControllers({
         item,
         x: event.clientX,
         y: event.clientY,
-        canProspect:
+        canProspectInventoryEquipment:
           currentStructure === 'forge' && isEquippableItem(item) && !item.locked,
-        canSell:
-          currentStructure === 'town' && isEquippableItem(item) && !item.locked,
+        canSellInventoryEquipment:
+          currentStructure === 'town' &&
+          (isEquippableItem(item) || isRecipePage(item)) &&
+          !item.locked,
       });
     },
     [gameRef],
@@ -305,8 +316,8 @@ export function useAppControllers({
         x: event.clientX,
         y: event.clientY,
         slot,
-        canProspect: false,
-        canSell: false,
+        canProspectInventoryEquipment: false,
+        canSellInventoryEquipment: false,
       });
     },
     [],

@@ -81,10 +81,10 @@ export interface SceneCache {
   derivedRenderPlayerCoordKey: string | null;
   derivedRenderHomeHexKey: string | null;
   derivedRenderBloodMoonActive: boolean | null;
-  derivedStaticRenderVersion: string | null;
-  derivedInteractionRenderVersion: string | null;
-  staticRenderVersion: string | null;
-  interactionRenderVersion: string | null;
+  derivedStaticRenderToken: number | null;
+  derivedInteractionRenderToken: number | null;
+  staticRenderToken: number | null;
+  interactionRenderToken: number | null;
   screenWidth: number;
   screenHeight: number;
 }
@@ -182,10 +182,10 @@ export function getSceneCache(app: Application) {
     derivedRenderPlayerCoordKey: null,
     derivedRenderHomeHexKey: null,
     derivedRenderBloodMoonActive: null,
-    derivedStaticRenderVersion: null,
-    derivedInteractionRenderVersion: null,
-    staticRenderVersion: null,
-    interactionRenderVersion: null,
+    derivedStaticRenderToken: null,
+    derivedInteractionRenderToken: null,
+    staticRenderToken: null,
+    interactionRenderToken: null,
     screenWidth: app.screen.width,
     screenHeight: app.screen.height,
   };

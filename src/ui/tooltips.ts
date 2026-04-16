@@ -1,6 +1,7 @@
 import { getStatusEffectTags } from '../game/content/statusEffects';
 import { getSkillTags } from '../game/content/tags';
 import { professionRecipeOutputBonus } from '../game/crafting';
+import { isEquippableItem, isRecipePage, sellValue } from '../game/inventory';
 import { getItemCategory, inferItemTags } from '../game/content/items';
 import { EquipmentSlotId } from '../game/content/ids';
 import {
@@ -26,6 +27,7 @@ import {
   formatEnemyRarityLabel,
   formatEquipmentSlotLabel,
 } from '../i18n/labels';
+import { Icons } from './icons';
 
 export interface TooltipLine {
   text?: string;
@@ -39,6 +41,12 @@ export interface TooltipLine {
   tone?: 'positive' | 'negative' | 'item' | 'section' | 'subtle';
 }
 
+interface ItemTooltipOptions {
+  recipeLearned?: boolean;
+}
+
+const SELL_VALUE_TINT = '#fbbf24';
+
 export function comparisonLines(item: Item, equipped?: Item) {
   const category = getItemCategory(item);
   if (category === 'consumable' || category === 'resource') return [];
@@ -50,9 +58,21 @@ export function comparisonLines(item: Item, equipped?: Item) {
   ].filter((line) => line.value !== 0);
 }
 
-export function itemTooltipLines(item: Item, equipped?: Item): TooltipLine[] {
+export function itemTooltipLines(
+  item: Item,
+  equipped?: Item,
+  options: ItemTooltipOptions = {},
+): TooltipLine[] {
   const tags = item.tags ?? inferItemTags(item);
   const category = getItemCategory(item);
+  const recipeLearnedLine =
+    isRecipePage(item) && options.recipeLearned
+      ? {
+          kind: 'text' as const,
+          text: t('ui.tooltip.recipe.alreadyLearned'),
+          tone: 'negative' as const,
+        }
+      : null;
   const slotLine = item.slot
     ? {
         kind: 'text' as const,
@@ -129,10 +149,18 @@ export function itemTooltipLines(item: Item, equipped?: Item): TooltipLine[] {
     }
   }
 
+  if (recipeLearnedLine) {
+    lines.push(recipeLearnedLine);
+  }
+
   if (slotLine) {
     lines.push(slotLine);
   }
   lines.push(...tagTooltipLines(tags));
+  const sellLine = itemSellLine(item);
+  if (sellLine) {
+    lines.push(sellLine);
+  }
   return lines;
 }
 
@@ -383,6 +411,21 @@ function slotLabel(slot: NonNullable<Item['slot']>) {
     default:
       return t(`ui.tooltip.slot.${slot}`);
   }
+}
+
+function itemSellLine(item: Item): TooltipLine | null {
+  if (!isEquippableItem(item) && !isRecipePage(item)) {
+    return null;
+  }
+
+  return {
+    kind: 'stat',
+    label: t('ui.tooltip.sellsFor'),
+    value: `${sellValue(item)} ${t('game.item.gold.name').toLowerCase()}`,
+    icon: Icons.Coins,
+    iconTint: SELL_VALUE_TINT,
+    tone: 'item',
+  };
 }
 
 function structureTitle(structure: StructureType) {

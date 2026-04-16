@@ -41,3 +41,9 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const AdventurerOverview: Story = {};
+
+export const AbilityLoadout: Story = {
+  args: {
+    stats: fixtures.heroStats,
+  },
+};

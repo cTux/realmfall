@@ -21,6 +21,7 @@ import {
   saveGraphicsSettings,
   type GraphicsSettings,
 } from '../graphicsSettings';
+import { t } from '../../i18n';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import styles from './styles.module.scss';
 
@@ -101,18 +102,20 @@ export function App() {
 
   const {
     claimStatus,
-    canProspect,
-    canSell,
+    canProspectInventoryEquipment,
+    canSellInventoryEquipment,
     combatEnemies,
     currentTile,
+    currentTileHostileEnemyCount,
+    firstClaimedHex,
     filteredLogs,
     gold,
     interactLabel,
     inventoryCountsByItemKey,
-    prospectExplanation,
+    prospectInventoryEquipmentExplanation,
     recipes,
     recipeSkillLevels,
-    sellExplanation,
+    sellInventoryEquipmentExplanation,
     stats,
     townStock,
   } = useAppGameView({
@@ -216,6 +219,7 @@ export function App() {
       <div className={isReady ? undefined : styles.hiddenUntilReady}>
         <div ref={hostRef} className={styles.mapViewport} />
         <HomeIndicator
+          claimedHex={firstClaimedHex}
           hostRef={hostRef}
           homeHex={game.homeHex}
           playerCoord={game.player.coord}
@@ -236,30 +240,62 @@ export function App() {
             tooltipPositionRef,
           }}
           views={{
-            worldTimeMs,
-            stats,
-            game,
-            currentTile,
-            graphicsSettings,
-            recipes,
-            recipeSkillLevels,
-            inventoryCountsByItemKey,
-            recipeMaterialFilterItemKey,
-            interactLabel,
-            canProspect,
-            canSell,
-            claimStatus,
-            prospectExplanation,
-            sellExplanation,
-            townStock,
-            gold,
-            lootWindowVisible,
-            lootSnapshot,
-            combatWindowVisible,
-            combatSnapshot,
-            showFilterMenu,
-            logFilters,
-            filteredLogs,
+            hero: {
+              stats,
+              hunger: game.player.hunger,
+              thirst: game.player.thirst,
+              worldTimeMs,
+            },
+            player: {
+              coord: game.player.coord,
+              mana: game.player.mana,
+              equipment: game.player.equipment,
+              inventory: game.player.inventory,
+              learnedRecipeIds: game.player.learnedRecipeIds,
+            },
+            world: {
+              homeHex: game.homeHex,
+              currentTile,
+              currentTileHostileEnemyCount,
+              combat: game.combat,
+              interactLabel,
+              canProspectInventoryEquipment,
+              canSellInventoryEquipment,
+              claimStatus: {
+                ...claimStatus,
+                actionLabel: t(
+                  claimStatus.action === 'unclaim'
+                    ? 'ui.hexInfo.unclaimAction'
+                    : 'ui.hexInfo.claimAction',
+                ),
+              },
+              prospectInventoryEquipmentExplanation,
+              sellInventoryEquipmentExplanation,
+              townStock,
+              gold,
+            },
+            recipes: {
+              entries: recipes,
+              skillLevels: recipeSkillLevels,
+              inventoryCountsByItemKey,
+              materialFilterItemKey: recipeMaterialFilterItemKey,
+            },
+            loot: {
+              visible: lootWindowVisible,
+              snapshot: lootSnapshot,
+            },
+            combat: {
+              visible: combatWindowVisible,
+              snapshot: combatSnapshot,
+            },
+            logs: {
+              showFilterMenu,
+              filters: logFilters,
+              filtered: filteredLogs,
+            },
+            settings: {
+              graphics: graphicsSettings,
+            },
             itemMenu,
           }}
           actions={{

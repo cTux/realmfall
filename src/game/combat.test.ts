@@ -44,4 +44,29 @@ describe('enemy rarity', () => {
     expect(dungeonEnemy.defense).toBeGreaterThanOrEqual(fieldEnemy.defense);
     expect(dungeonEnemy.xp).toBeGreaterThan(fieldEnemy.xp);
   });
+
+  it('keeps multi-enemy packs on the same hex to one enemy type', () => {
+    const coord = { q: 3, r: -1 };
+    const firstEnemy = makeEnemy('combat-pack-seed', coord, 'plains', 0);
+    const secondEnemy = makeEnemy('combat-pack-seed', coord, 'plains', 1);
+    const dungeonEnemy = makeEnemy(
+      'combat-pack-seed',
+      coord,
+      'plains',
+      2,
+      'dungeon',
+    );
+    const secondDungeonEnemy = makeEnemy(
+      'combat-pack-seed',
+      coord,
+      'plains',
+      3,
+      'dungeon',
+    );
+
+    expect(secondEnemy.enemyTypeId).toBe(firstEnemy.enemyTypeId);
+    expect(secondEnemy.name).toBe(firstEnemy.name);
+    expect(secondDungeonEnemy.enemyTypeId).toBe(dungeonEnemy.enemyTypeId);
+    expect(secondDungeonEnemy.name).toBe(dungeonEnemy.name);
+  });
 });

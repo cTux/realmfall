@@ -47,7 +47,7 @@ export function AppFixedWindows({
           onMove={windowMoveHandlers.worldTime}
           visible={layout.windowShown.worldTime}
           onClose={windowCloseHandlers.worldTime}
-          worldTimeMs={views.worldTimeMs}
+          worldTimeMs={views.hero.worldTimeMs}
           onHoverDetail={actions.tooltip.onShowTooltip}
           onLeaveDetail={actions.tooltip.onCloseTooltip}
         />
@@ -57,10 +57,10 @@ export function AppFixedWindows({
         onMove={windowMoveHandlers.hero}
         visible={layout.windowShown.hero}
         onClose={windowCloseHandlers.hero}
-        stats={views.stats}
-        hunger={views.game.player.hunger}
-        thirst={views.game.player.thirst}
-        worldTimeMs={views.game.worldTimeMs}
+        stats={views.hero.stats}
+        hunger={views.hero.hunger}
+        thirst={views.hero.thirst}
+        worldTimeMs={views.hero.worldTimeMs}
         onHoverDetail={actions.tooltip.onShowTooltip}
         onLeaveDetail={actions.tooltip.onCloseTooltip}
       />
@@ -75,12 +75,14 @@ export function AppFixedWindows({
               : t('ui.itemMenu.equipAction')
           }
           canEquip={itemMenu.slot ? true : canEquipItem(itemMenu.item)}
-          canUse={canUseItem(itemMenu.item)}
+          canUse={canUseItem(itemMenu.item, views.player.learnedRecipeIds)}
           canToggleLock={!itemMenu.slot && isEquippableItem(itemMenu.item)}
           isLocked={Boolean(itemMenu.item.locked)}
           canShowRecipes={Boolean(recipeMaterialItemKey)}
-          canProspect={itemMenu.canProspect}
-          canSell={itemMenu.canSell}
+          canProspectInventoryEquipment={
+            itemMenu.canProspectInventoryEquipment
+          }
+          canSellInventoryEquipment={itemMenu.canSellInventoryEquipment}
           onEquip={() => {
             if (itemMenu.slot) {
               actions.inventory.onUnequip(itemMenu.slot);
