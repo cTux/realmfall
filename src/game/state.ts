@@ -171,10 +171,21 @@ export {
   structureActionLabel,
 };
 
+export const HARVEST_MOON_RESOURCE_TYPES: GatheringStructureType[] = [
+  'herbs',
+  'herbs',
+  'herbs',
+  'tree',
+  'copper-ore',
+  'iron-ore',
+  'coal-ore',
+];
+
 import type {
   AbilityId,
   EquipmentSlot,
   GameState,
+  GatheringStructureType,
   Item,
   Player,
   PlayerStatusEffect,
@@ -2339,13 +2350,6 @@ function spawnBloodMoonEnemies(state: GameState) {
 
 function spawnHarvestMoonResources(state: GameState) {
   let spawned = 0;
-  const resourceTypes: Array<import('./types').GatheringStructureType> = [
-    'herbs',
-    'tree',
-    'copper-ore',
-    'iron-ore',
-    'coal-ore',
-  ];
 
   for (
     let dq = -HARVEST_MOON_SPAWN_RADIUS;
@@ -2376,7 +2380,9 @@ function spawnHarvestMoonResources(state: GameState) {
       if (rng() >= (distance <= 2 ? 0.8 : 0.45)) continue;
 
       const structure =
-        resourceTypes[Math.floor(rng() * resourceTypes.length)] ?? 'herbs';
+        HARVEST_MOON_RESOURCE_TYPES[
+          Math.floor(rng() * HARVEST_MOON_RESOURCE_TYPES.length)
+        ] ?? 'herbs';
       const definition = structureDefinition(structure);
       state.tiles[key] = {
         ...tile,

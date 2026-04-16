@@ -6,6 +6,7 @@ import {
   dropInventoryItem,
   EQUIPMENT_SLOTS,
   equipItem,
+  HARVEST_MOON_RESOURCE_TYPES,
   getEnemyAt,
   getEnemiesAt,
   getGoldAmount,
@@ -1314,6 +1315,23 @@ describe('game state', () => {
     expect(
       sunrise.logs.some((entry) => /harvest moon fades/i.test(entry.text)),
     ).toBe(true);
+  });
+
+  it('weights herbs three times in the harvest moon resource pool', () => {
+    const herbEntries = HARVEST_MOON_RESOURCE_TYPES.filter(
+      (structure) => structure === 'herbs',
+    );
+    const nonHerbEntries = HARVEST_MOON_RESOURCE_TYPES.filter(
+      (structure) => structure !== 'herbs',
+    );
+
+    expect(herbEntries).toHaveLength(3);
+    expect(nonHerbEntries).toEqual([
+      'tree',
+      'copper-ore',
+      'iron-ore',
+      'coal-ore',
+    ]);
   });
 
   it('can trigger an earthshake that opens a nearby dungeon on an empty hex', () => {
