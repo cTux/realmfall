@@ -239,8 +239,11 @@ export function spendGold(inventory: Item[], amount: number) {
 export function sellValue(item: Item) {
   const rarityOrder = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
   const category = getItemCategory(item);
+  const recipePage = isRecipePage(item);
   const base =
-    category === 'artifact'
+    recipePage
+      ? 24
+      : category === 'artifact'
       ? 16
       : category === 'weapon'
         ? 10
@@ -250,7 +253,9 @@ export function sellValue(item: Item) {
             ? 2
             : 3;
   return Math.round(
-    (base + item.tier * 2 + rarityOrder.indexOf(item.rarity) * 6) *
+    (base +
+      item.tier * (recipePage ? 4 : 2) +
+      rarityOrder.indexOf(item.rarity) * (recipePage ? 8 : 6)) *
       item.quantity,
   );
 }

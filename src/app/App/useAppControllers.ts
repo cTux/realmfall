@@ -14,6 +14,7 @@ import {
   dropInventoryItem,
   equipItem,
   getCurrentTile,
+  isRecipePage,
   interactWithStructure,
   isEquippableItem,
   prospectInventoryItem,
@@ -133,7 +134,12 @@ export function useAppControllers({
       tooltipPositionRef.current = position;
       setTooltipState({
         title: item.name,
-        lines: itemTooltipLines(item, equipped),
+        lines: itemTooltipLines(item, equipped, {
+          recipeLearned:
+            isRecipePage(item) &&
+            item.recipeId != null &&
+            gameRef.current.player.learnedRecipeIds.includes(item.recipeId),
+        }),
         x: position.x,
         y: position.y,
         placement: position.placement,
@@ -287,7 +293,9 @@ export function useAppControllers({
         canProspectInventoryEquipment:
           currentStructure === 'forge' && isEquippableItem(item) && !item.locked,
         canSellInventoryEquipment:
-          currentStructure === 'town' && isEquippableItem(item) && !item.locked,
+          currentStructure === 'town' &&
+          (isEquippableItem(item) || isRecipePage(item)) &&
+          !item.locked,
       });
     },
     [gameRef],

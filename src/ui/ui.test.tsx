@@ -254,6 +254,32 @@ describe('ui helpers and components', () => {
           line.tone === 'subtle',
       ),
     ).toBe(true);
+    expect(
+      itemTooltipLines(
+        {
+          id: 'recipe-1',
+          recipeId: 'cook-cooked-fish',
+          icon: 'recipe.svg',
+          name: 'Recipe: Cooked Fish',
+          tags: [GameTag.ItemResource, GameTag.ItemRecipe],
+          quantity: 1,
+          tier: 1,
+          rarity: 'uncommon',
+          power: 0,
+          defense: 0,
+          maxHp: 0,
+          healing: 0,
+          hunger: 0,
+          thirst: 0,
+        },
+        undefined,
+        { recipeLearned: true },
+      ),
+    ).toContainEqual({
+      kind: 'text',
+      text: 'Learned',
+      tone: 'positive',
+    });
 
     expect(enemyTooltip([], undefined)).toBeNull();
 

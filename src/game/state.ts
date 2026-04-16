@@ -1222,7 +1222,11 @@ export function sellInventoryItem(state: GameState, itemId: string): GameState {
   }
 
   const item = state.player.inventory.find((entry) => entry.id === itemId);
-  if (!item || !isEquippableItem(item) || item.locked) {
+  if (
+    !item ||
+    (!isEquippableItem(item) && !isRecipePage(item)) ||
+    item.locked
+  ) {
     return message(state, t('game.message.sell.empty'));
   }
 

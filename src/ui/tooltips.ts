@@ -8,6 +8,7 @@ import {
   gatheringBonusChance,
   gatheringYieldBonus,
   getStructureConfig,
+  isRecipePage,
   Skill,
   skillLevelThreshold,
   type Enemy,
@@ -39,6 +40,10 @@ export interface TooltipLine {
   tone?: 'positive' | 'negative' | 'item' | 'section' | 'subtle';
 }
 
+interface ItemTooltipOptions {
+  recipeLearned?: boolean;
+}
+
 export function comparisonLines(item: Item, equipped?: Item) {
   const category = getItemCategory(item);
   if (category === 'consumable' || category === 'resource') return [];
@@ -50,9 +55,21 @@ export function comparisonLines(item: Item, equipped?: Item) {
   ].filter((line) => line.value !== 0);
 }
 
-export function itemTooltipLines(item: Item, equipped?: Item): TooltipLine[] {
+export function itemTooltipLines(
+  item: Item,
+  equipped?: Item,
+  options: ItemTooltipOptions = {},
+): TooltipLine[] {
   const tags = item.tags ?? inferItemTags(item);
   const category = getItemCategory(item);
+  const recipeLearnedLine =
+    isRecipePage(item) && options.recipeLearned
+      ? {
+          kind: 'text' as const,
+          text: t('ui.tooltip.recipe.learned'),
+          tone: 'positive' as const,
+        }
+      : null;
   const slotLine = item.slot
     ? {
         kind: 'text' as const,
@@ -127,6 +144,10 @@ export function itemTooltipLines(item: Item, equipped?: Item): TooltipLine[] {
         });
       });
     }
+  }
+
+  if (recipeLearnedLine) {
+    lines.push(recipeLearnedLine);
   }
 
   if (slotLine) {

@@ -38,6 +38,7 @@ import {
   type GameState,
   type Item,
 } from './state';
+import { GameTag } from './content/tags';
 import { hexDistance, hexKey, hexNeighbors } from './hex';
 import { makeEnemy } from './combat';
 import {
@@ -2560,6 +2561,39 @@ describe('game state', () => {
         (item) => item.id === 'recipe-craft-weapon',
       ),
     ).toBe(false);
+  });
+
+  it('sells recipe pages in town for elevated value', () => {
+    const game = createGame(3, 'sell-recipe-page-seed');
+    game.tiles['0,0'] = {
+      ...getTileAt(game, { q: 0, r: 0 }),
+      structure: 'town',
+    };
+    game.player.inventory.push({
+      id: 'recipe-craft-weapon-sell',
+      recipeId: 'craft-icon-axe-01',
+      icon: 'recipe.svg',
+      name: 'Recipe: Axe 01',
+      tags: [GameTag.ItemResource, GameTag.ItemRecipe],
+      quantity: 1,
+      tier: 2,
+      rarity: 'uncommon',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+      thirst: 0,
+    });
+
+    const sold = sellInventoryItem(game, 'recipe-craft-weapon-sell');
+
+    expect(
+      sold.player.inventory.some((item) => item.id === 'recipe-craft-weapon-sell'),
+    ).toBe(false);
+    expect(getGoldAmount(sold.player.inventory)).toBe(40);
+    expect(sold.logs[0]?.text).toContain('Recipe: Axe 01');
+    expect(sold.logs[0]?.text).toContain('40 gold');
   });
 
   it('can drop an unlearned recipe from enemies', () => {
