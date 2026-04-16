@@ -122,11 +122,7 @@ export function RecipeBookWindowContent({
                 currentStructure,
                 inventoryCountsByItemKey,
               });
-              const tintOverride = !recipe.learned
-                ? 'rgba(148, 163, 184, 0.45)'
-                : canCraft
-                  ? undefined
-                  : 'rgba(248, 113, 113, 0.92)';
+              const tintOverride = getRecipeSlotTint(recipe, canCraft);
               const tooltipLines = recipe.learned
                 ? buildRecipeTooltipLines(
                     recipe,
@@ -293,4 +289,10 @@ function buildRecipeTooltipLines(
 
 function pixiTintToCss(tint: number) {
   return `#${tint.toString(16).padStart(6, '0')}`;
+}
+
+function getRecipeSlotTint(recipe: RecipeBookEntry, canCraft: boolean) {
+  if (!recipe.learned) return 'rgba(148, 163, 184, 0.45)';
+  if (recipe.skill === Skill.Crafting) return '#f8fafc';
+  return canCraft ? undefined : 'rgba(248, 113, 113, 0.92)';
 }

@@ -624,6 +624,73 @@ describe('ui helpers and components', () => {
     host.remove();
   });
 
+  it('renders learned crafting recipe slots with a fixed white tint', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+
+    await act(async () => {
+      root.render(
+        <RecipeBookWindow
+          position={DEFAULT_WINDOWS.recipes}
+          onMove={() => {}}
+          currentStructure="camp"
+          recipeSkillLevels={{
+            [Skill.Gathering]: 1,
+            [Skill.Logging]: 1,
+            [Skill.Mining]: 1,
+            [Skill.Skinning]: 1,
+            [Skill.Fishing]: 1,
+            [Skill.Cooking]: 1,
+            [Skill.Smelting]: 1,
+            [Skill.Crafting]: 1,
+          }}
+          recipes={[
+            {
+              id: 'craft-town-knife',
+              name: 'Town Knife',
+              description: 'Workshop recipe',
+              skill: Skill.Crafting,
+              learned: true,
+              output: {
+                id: 'crafted-town-knife',
+                itemKey: 'town-knife',
+                name: 'Town Knife',
+                quantity: 1,
+                tier: 1,
+                rarity: 'rare',
+                power: 2,
+                defense: 0,
+                maxHp: 0,
+                healing: 0,
+                hunger: 0,
+              },
+              ingredients: [],
+            },
+          ]}
+          inventoryCountsByItemKey={{}}
+          materialFilterItemKey={null}
+          onResetMaterialFilter={() => {}}
+          onCraft={() => {}}
+        />,
+      );
+    });
+
+    await act(async () => {
+      await vi.dynamicImportSettled();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const slot = host.querySelector('button[data-size="compact"]');
+    expect(slot?.getAttribute('style')).toContain('border-color: rgb(248, 250, 252)');
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
   it('renders all major windows to static markup', async () => {
     const game = createGame(3, 'ui-render-seed');
     const stats = getPlayerStats(game.player);
