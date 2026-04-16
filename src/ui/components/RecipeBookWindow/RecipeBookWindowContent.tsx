@@ -17,7 +17,7 @@ import {
 } from './utils/recipeBookEntries';
 import styles from './styles.module.scss';
 
-const RECIPE_BOOK_TAB_ORDER = [Skill.Crafting, Skill.Smelting, Skill.Cooking];
+const RECIPE_BOOK_TAB_ORDER = [Skill.Cooking, Skill.Smelting, Skill.Crafting];
 
 type RecipeBookWindowContentProps = Pick<
   RecipeBookWindowProps,
@@ -52,12 +52,12 @@ export function RecipeBookWindowContent({
     );
   }, [materialFilterItemKey, recipes]);
   const [activeSkill, setActiveSkill] = useState<Skill>(
-    visibleTabs[0] ?? Skill.Crafting,
+    visibleTabs[0] ?? Skill.Cooking,
   );
 
   useEffect(() => {
     if (visibleTabs.includes(activeSkill)) return;
-    setActiveSkill(visibleTabs[0] ?? Skill.Crafting);
+    setActiveSkill(visibleTabs[0] ?? Skill.Cooking);
   }, [activeSkill, visibleTabs]);
 
   const visibleRecipes = useMemo(

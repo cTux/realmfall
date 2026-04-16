@@ -505,6 +505,109 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('-webkit-mask:url(');
   });
 
+  it('renders recipe-book tabs in cooking, smelting, crafting order', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+
+    await act(async () => {
+      root.render(
+        <RecipeBookWindow
+          position={DEFAULT_WINDOWS.recipes}
+          onMove={() => {}}
+          currentStructure="camp"
+          recipes={[
+            {
+              id: 'craft-town-knife',
+              name: 'Town Knife',
+              description: 'Workshop recipe',
+              skill: Skill.Crafting,
+              learned: true,
+              output: {
+                id: 'crafted-town-knife',
+                itemKey: 'town-knife',
+                name: 'Town Knife',
+                quantity: 1,
+                tier: 1,
+                rarity: 'common',
+                power: 2,
+                defense: 0,
+                maxHp: 0,
+                healing: 0,
+                hunger: 0,
+              },
+              ingredients: [],
+            },
+            {
+              id: 'smelt-iron-ingot',
+              name: 'Iron Ingot',
+              description: 'Furnace recipe',
+              skill: Skill.Smelting,
+              learned: true,
+              output: {
+                id: 'smelted-iron-ingot',
+                itemKey: 'iron-ingot',
+                name: 'Iron Ingot',
+                quantity: 1,
+                tier: 1,
+                rarity: 'common',
+                power: 0,
+                defense: 0,
+                maxHp: 0,
+                healing: 0,
+                hunger: 0,
+              },
+              ingredients: [],
+              fuelOptions: [],
+            },
+            {
+              id: 'cook-cooked-fish',
+              name: 'Cooked Fish',
+              description: 'Camp recipe',
+              skill: Skill.Cooking,
+              learned: true,
+              output: {
+                id: 'cooked-fish',
+                itemKey: 'cooked-fish',
+                name: 'Cooked Fish',
+                quantity: 1,
+                tier: 1,
+                rarity: 'common',
+                power: 0,
+                defense: 0,
+                maxHp: 0,
+                healing: 0,
+                hunger: 8,
+              },
+              ingredients: [],
+              fuelOptions: [],
+            },
+          ]}
+          inventoryCountsByItemKey={{}}
+          materialFilterItemKey={null}
+          onResetMaterialFilter={() => {}}
+          onCraft={() => {}}
+        />,
+      );
+    });
+
+    await act(async () => {
+      await vi.dynamicImportSettled();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const tabLabels = Array.from(host.querySelectorAll('[role="tab"]')).map(
+      (tab) => tab.textContent,
+    );
+    expect(tabLabels).toEqual(['cooking', 'smelting', 'crafting']);
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
   it('renders all major windows to static markup', async () => {
     const game = createGame(3, 'ui-render-seed');
     const stats = getPlayerStats(game.player);
