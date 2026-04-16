@@ -1961,6 +1961,7 @@ function clone(state: GameState): GameState {
     player: {
       ...state.player,
       coord: { ...state.player.coord },
+      learnedRecipeIds: [...state.player.learnedRecipeIds],
       skills: Object.fromEntries(
         Object.entries(state.player.skills).map(([key, value]) => [
           key,

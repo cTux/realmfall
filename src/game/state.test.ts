@@ -2197,6 +2197,7 @@ describe('game state', () => {
 
   it('learns a dropped recipe page when used', () => {
     const game = createGame(3, 'recipe-use-seed');
+    const originalLearnedRecipeIds = game.player.learnedRecipeIds;
     game.player.inventory.push({
       id: 'recipe-craft-weapon',
       recipeId: 'craft-weapon',
@@ -2214,6 +2215,7 @@ describe('game state', () => {
     const learned = useItem(game, 'recipe-craft-weapon');
 
     expect(learned.player.learnedRecipeIds).toContain('craft-weapon');
+    expect(learned.player.learnedRecipeIds).not.toBe(originalLearnedRecipeIds);
     expect(
       learned.player.inventory.some(
         (item) => item.id === 'recipe-craft-weapon',
