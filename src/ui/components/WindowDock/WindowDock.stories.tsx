@@ -26,6 +26,18 @@ type Story = StoryObj<typeof meta>;
 
 export const ToggleableDock: Story = {};
 
+export const WithOpenedEntries: Story = {
+  render: () => (
+    <WindowDock
+      entries={fixtures.dockEntries.map((entry, index) => ({
+        ...entry,
+        shown: index < 3,
+      }))}
+      onToggle={noop}
+    />
+  ),
+};
+
 function WindowDockStory() {
   const [entries, setEntries] = useState(fixtures.dockEntries);
 
