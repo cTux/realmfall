@@ -66,6 +66,7 @@ const SAFE_PATH_TINT_COLOR = 0x38bdf8;
 const SAFE_PATH_TINT_ALPHA = 0.34;
 const SAFE_PATH_HEX_INSET = 2;
 const HOME_HEX_TINT_INSET = 3;
+const STRUCTURE_HEX_ICON_TINT = 0xffffff;
 const ENEMY_HEX_ICON_TINT = 0xef4444;
 const WORLD_BOSS_ICON_TINT = 0x7f1d1d;
 const WORLD_BOSS_HEX_TINT_COLOR = 0x7f1d1d;
@@ -225,14 +226,13 @@ export function renderScene(
         const enemies = getEnemiesAt(state, tile.coord);
 
         if (tile.structure) {
-          const structureColor = getStructureConfig(tile.structure).tint;
           const marker = takeShadowedSprite(
             scene.worldStaticMarkerSprites,
             structureIconFor(tile.structure),
           );
           configureShadowedSprite(
             marker,
-            structureColor,
+            getStructureHexIconTint(tile.structure),
             structureIconSize,
             structureIconSize,
             1,
@@ -576,6 +576,18 @@ function makeInsetHex(
   inset: number,
 ) {
   return makeHex(point.x, point.y, Math.max(1, size - inset));
+}
+
+function getStructureHexIconTint(structure: Tile['structure']) {
+  if (
+    structure === 'copper-ore' ||
+    structure === 'iron-ore' ||
+    structure === 'coal-ore'
+  ) {
+    return getStructureConfig(structure).tint;
+  }
+
+  return STRUCTURE_HEX_ICON_TINT;
 }
 
 function sameCoord(left: HexCoord | null, right: HexCoord | null) {

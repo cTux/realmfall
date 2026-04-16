@@ -250,6 +250,13 @@ describe('renderScene', () => {
       items: [],
       enemyIds: [],
     };
+    game.tiles['0,-1'] = {
+      coord: { q: 0, r: -1 },
+      terrain: 'plains',
+      structure: 'copper-ore',
+      items: [],
+      enemyIds: [],
+    };
     game.tiles['-1,0'] = {
       coord: { q: -1, r: 0 },
       terrain: 'rift',
@@ -329,8 +336,24 @@ describe('renderScene', () => {
         child.icon !== tearTracksIcon &&
         child.tint === 0xef4444,
     );
+    const whiteStructureMarker = collectDescendants(markerLayer).find(
+      (child) =>
+        child instanceof MockSprite &&
+        child.icon !== playerIcon &&
+        child.icon !== tearTracksIcon &&
+        child.tint === 0xffffff,
+    );
+    const copperOreMarker = collectDescendants(markerLayer).find(
+      (child) =>
+        child instanceof MockSprite &&
+        child.icon !== playerIcon &&
+        child.icon !== tearTracksIcon &&
+        child.tint === 0xf59e0b,
+    );
 
     expect(redEnemyMarker).toBeDefined();
+    expect(whiteStructureMarker).toBeDefined();
+    expect(copperOreMarker).toBeDefined();
   });
 
   it('does not draw the selected outline on the player tile', async () => {
