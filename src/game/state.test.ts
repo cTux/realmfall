@@ -2056,6 +2056,27 @@ describe('game state', () => {
     expect(crafted.player.skills[Skill.Crafting].xp).toBeGreaterThan(0);
   });
 
+  it('rolls crafted gear through the shared rarity cascade', () => {
+    const upgradedCraft = Array.from({ length: 64 }, (_, index) => index)
+      .map((index) => {
+        const game = createGame(3, `crafted-rarity-${index}`);
+        game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'workshop' };
+        game.player.learnedRecipeIds.push('craft-icon-axe-01');
+        game.player.inventory.push(
+          buildItemFromConfig('iron-ingot', { id: 'ingot-1', quantity: 20 }),
+          buildItemFromConfig('sticks', { id: 'sticks-1', quantity: 20 }),
+        );
+
+        return craftRecipe(game, 'craft-icon-axe-01').player.inventory.find(
+          (item) =>
+            item.itemKey === 'icon-axe-01' && item.rarity !== 'common',
+        );
+      })
+      .find(Boolean);
+
+    expect(upgradedCraft).toBeDefined();
+  });
+
   it('smelts ore into ingots at a furnace and levels smelting', () => {
     const game = createGame(3, 'smelting-seed');
     game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'furnace' };
