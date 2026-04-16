@@ -408,6 +408,7 @@
   "ui.tooltip.consumable.threeEffects": "Use to {first}, {second}, and {third}.",
   "ui.tooltip.consumable.twoEffects": "Use to {first} and {second}.",
   "ui.tooltip.defense": "Defense",
+  "ui.tooltip.emptyEquipmentSlot": "Equip {slot} gear here.",
   "ui.tooltip.enemies": "Enemies",
   "ui.tooltip.itemTier": "{rarity} TIER {tier} {type}",
   "ui.tooltip.itemType.armor": "ARMOR",

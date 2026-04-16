@@ -86,7 +86,7 @@ describe('ui helpers and components', () => {
 
   it('exposes shared constants and lookup helpers', () => {
     expect(DEFAULT_WINDOWS.worldTime).toEqual({ x: 420, y: 20 });
-    expect(DEFAULT_WINDOW_VISIBILITY.worldTime).toBe(true);
+    expect(DEFAULT_WINDOW_VISIBILITY.worldTime).toBe(false);
     expect(DEFAULT_WINDOWS.hero).toEqual({ x: 96, y: 20 });
     expect(DEFAULT_WINDOWS.skills).toEqual({ x: 96, y: 430 });
     expect(DEFAULT_WINDOW_VISIBILITY.hero).toBe(false);
@@ -1364,6 +1364,64 @@ describe('ui helpers and components', () => {
     });
 
     expect(hoverDetail).toHaveBeenCalledTimes(3);
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('shows custom tooltips for empty equipment slots', async () => {
+    const hoverDetail = vi.fn();
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    const game = createGame(2, 'empty-slot-tooltip');
+
+    await act(async () => {
+      root.render(
+        <EquipmentWindow
+          position={DEFAULT_WINDOWS.equipment}
+          onMove={() => {}}
+          equipment={game.player.equipment}
+          onHoverItem={() => {}}
+          onLeaveItem={() => {}}
+          onUnequip={() => {}}
+          onContextItem={() => {}}
+          onHoverDetail={hoverDetail}
+          onLeaveDetail={() => {}}
+        />,
+      );
+    });
+
+    await act(async () => {
+      await vi.dynamicImportSettled();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const emptyButtons = Array.from(host.querySelectorAll('button')).filter(
+      (button) => button.getAttribute('aria-label') === 'Weapon empty',
+    );
+    expect(emptyButtons).toHaveLength(1);
+
+    await act(async () => {
+      emptyButtons[0]?.dispatchEvent(
+        new MouseEvent('mouseover', { bubbles: true }),
+      );
+    });
+
+    expect(hoverDetail).toHaveBeenCalledWith(
+      expect.anything(),
+      'Weapon',
+      [
+        {
+          kind: 'text',
+          text: 'Equip weapon gear here.',
+        },
+      ],
+      'rgba(148, 163, 184, 0.9)',
+    );
 
     await act(async () => {
       root.unmount();

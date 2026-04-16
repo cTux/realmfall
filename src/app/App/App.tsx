@@ -39,6 +39,7 @@ export function App() {
   const [game, setGame] = useState<GameState>(initialGameRef.current);
   const {
     closeItemMenu,
+    closeAllWindows,
     closeTooltip,
     handleBuyTownItem,
     handleClaimHex,
@@ -178,6 +179,7 @@ export function App() {
     renderLootWindow,
     onInteract: handleInteract,
     onTakeAllLoot: handleTakeAllLoot,
+    onCloseAllWindows: closeAllWindows,
     onToggleDockWindow: toggleDockWindow,
     windowShownLoot: windowShown.loot,
   });

@@ -90,6 +90,22 @@ export function useAppControllers({
     setWindowShown((current) => ({ ...current, [key]: !current[key] }));
   }, []);
 
+  const closeAllWindows = useCallback(() => {
+    setWindowShown(() => ({
+      worldTime: false,
+      hero: false,
+      skills: false,
+      recipes: false,
+      hexInfo: false,
+      equipment: false,
+      inventory: false,
+      loot: false,
+      log: false,
+      combat: false,
+      settings: false,
+    }));
+  }, []);
+
   const closeTooltip = useCallback(() => {
     tooltipPositionRef.current = null;
     setTooltipState(null);
@@ -304,6 +320,7 @@ export function useAppControllers({
 
   return {
     closeItemMenu,
+    closeAllWindows,
     closeTooltip,
     handleBuyTownItem,
     handleClaimHex,
