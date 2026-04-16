@@ -4,6 +4,7 @@
 
 - The project keeps a solid quality baseline. `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build:budget` all pass, and Husky runs the same gate set before commits land.
 - The browser delivery path is deliberate. `vite.config.ts` keeps `pixi`, `react-vendor`, and the remaining vendor code split apart, while the new `scripts/check-bundle-budget.mjs` guard keeps the main startup chunks inside an enforced budget during local verification and in `.github/workflows/pull-request.yml`.
+- Deferred window-content retries are expected browser-delivery behavior. `src/ui/components/lazyWindowComponent.ts` intentionally keeps retrying failed secondary window imports so the main game surface stays interactive even when an optional window bundle is temporarily unavailable.
 - React app orchestration is more focused than it was. `src/app/App/useAppControllers.ts`, `src/app/App/useAppGameView.ts`, `src/app/App/useWindowTransitions.ts`, and the focused hooks under `src/app/App/hooks` now hold most controller, selector, transition, and window-view logic instead of expanding `App.tsx` and `AppWindows.tsx` further.
 - Window shells are consistently reused. `src/ui/components/WindowShell.tsx` and the lazy window loaders keep the floating desktop UI aligned on the same shell contract instead of repeating per-window wrapper code.
 - The world renderer has a stronger hot-path split. `src/ui/world/renderScene.ts` now keeps animation-only frames on cached campfire inputs and avoids full visible-tile traversal when static and interaction layers do not need rebuilding.
