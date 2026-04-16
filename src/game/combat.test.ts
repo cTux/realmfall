@@ -22,8 +22,8 @@ describe('enemy rarity', () => {
   it('keeps dungeon spawns at least uncommon and world bosses legendary', () => {
     expect(enemyRarityMinimum('dungeon', false)).toBe('uncommon');
     expect(enemyRarityMinimum(undefined, true)).toBe('legendary');
-    expect(resolveEnemyRarity(0.12, 'uncommon')).toBe('uncommon');
-    expect(resolveEnemyRarity(0.999, 'common')).toBe('legendary');
+    expect(resolveEnemyRarity(() => 0.9, 'uncommon')).toBe('uncommon');
+    expect(resolveEnemyRarity(() => 0.001, 'common')).toBe('legendary');
   });
 
   it('scales dungeon enemies above similar field spawns through rarity floors', () => {

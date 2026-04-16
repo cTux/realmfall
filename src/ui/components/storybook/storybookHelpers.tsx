@@ -250,5 +250,15 @@ export function createRecipeBookArgs(recipes: RecipeBookEntry[]) {
   return {
     currentStructure: 'forge' as const,
     recipes,
+    recipeSkillLevels: {
+      [Skill.Gathering]: 1,
+      [Skill.Logging]: 1,
+      [Skill.Mining]: 1,
+      [Skill.Skinning]: 1,
+      [Skill.Fishing]: 1,
+      [Skill.Cooking]: 1,
+      [Skill.Smelting]: 1,
+      [Skill.Crafting]: 1,
+    },
   };
 }

@@ -1,5 +1,5 @@
 import type { WindowPosition } from '../../../app/constants';
-import type { RecipeBookEntry, Tile } from '../../../game/state';
+import type { RecipeBookEntry, Skill, Tile } from '../../../game/state';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 
 export interface RecipeBookWindowProps extends WindowDetailTooltipHandlers {
@@ -9,8 +9,9 @@ export interface RecipeBookWindowProps extends WindowDetailTooltipHandlers {
   onClose?: () => void;
   currentStructure?: Tile['structure'];
   recipes: RecipeBookEntry[];
+  recipeSkillLevels: Record<Skill, number>;
   inventoryCountsByItemKey: Record<string, number>;
   materialFilterItemKey: string | null;
   onResetMaterialFilter: () => void;
-  onCraft: (recipeId: string) => void;
+  onCraft: (recipeId: string, count?: number | 'max') => void;
 }

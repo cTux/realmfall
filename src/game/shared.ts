@@ -31,27 +31,62 @@ export function isPassable(terrain: Terrain) {
   return terrain !== 'rift' && terrain !== 'mountain';
 }
 
+type CascadingRarityChanceMap = Partial<
+  Record<Exclude<ItemRarity, 'common'>, number>
+>;
+
+const CASCADING_RARITY_CHECK_ORDER: Array<Exclude<ItemRarity, 'common'>> = [
+  'legendary',
+  'epic',
+  'rare',
+  'uncommon',
+];
+
+export const BASE_CASCADING_RARITY_CHANCES = Object.freeze({
+  legendary: 0.005,
+  epic: 0.02,
+  rare: 0.1,
+  uncommon: 0.3,
+}) satisfies Record<Exclude<ItemRarity, 'common'>, number>;
+
+export function resolveCascadingRarity(
+  nextRoll: () => number,
+  minimum: ItemRarity = 'common',
+  chances: CascadingRarityChanceMap = BASE_CASCADING_RARITY_CHANCES,
+): ItemRarity {
+  const rolledRarity =
+    CASCADING_RARITY_CHECK_ORDER.find(
+      (rarity) => nextRoll() < clampChance(chances[rarity] ?? 0),
+    ) ?? 'common';
+
+  return (
+    RARITY_ORDER[
+      Math.max(
+        RARITY_ORDER.indexOf(minimum),
+        RARITY_ORDER.indexOf(rolledRarity),
+      )
+    ] ?? minimum
+  );
+}
+
 export function pickEquipmentRarity(
   seed: string,
   coord: HexCoord,
   tier: number,
   minimum: ItemRarity = 'common',
 ): ItemRarity {
-  const roll = noise(`${seed}:rarity`, coord) + Math.min(0.06, tier * 0.0025);
-  const rarity =
-    roll > 0.995
-      ? 'legendary'
-      : roll > 0.945
-        ? 'epic'
-        : roll > 0.745
-          ? 'rare'
-          : roll > 0.145
-            ? 'uncommon'
-            : 'common';
-  return (
-    RARITY_ORDER[
-      Math.max(RARITY_ORDER.indexOf(minimum), RARITY_ORDER.indexOf(rarity))
-    ] ?? minimum
+  const bonus = Math.min(0.06, tier * 0.0025);
+  const rng = createRng(`${seed}:rarity:${coord.q}:${coord.r}:${tier}`);
+
+  return resolveCascadingRarity(
+    rng,
+    minimum,
+    withCascadingRarityChanceBonus({
+      legendary: bonus * 0.08,
+      epic: bonus * 0.2,
+      rare: bonus * 0.45,
+      uncommon: bonus,
+    }),
   );
 }
 
@@ -91,4 +126,20 @@ function rarityBonus(rarity: ItemRarity) {
     default:
       return 0;
   }
+}
+
+function clampChance(chance: number) {
+  return Math.max(0, Math.min(1, chance));
+}
+
+export function withCascadingRarityChanceBonus(
+  bonuses: CascadingRarityChanceMap,
+) {
+  return {
+    legendary:
+      BASE_CASCADING_RARITY_CHANCES.legendary + (bonuses.legendary ?? 0),
+    epic: BASE_CASCADING_RARITY_CHANCES.epic + (bonuses.epic ?? 0),
+    rare: BASE_CASCADING_RARITY_CHANCES.rare + (bonuses.rare ?? 0),
+    uncommon: BASE_CASCADING_RARITY_CHANCES.uncommon + (bonuses.uncommon ?? 0),
+  } satisfies Record<Exclude<ItemRarity, 'common'>, number>;
 }

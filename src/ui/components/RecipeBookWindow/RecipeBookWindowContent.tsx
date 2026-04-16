@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type MouseEvent as ReactMouseEvent } from 'react';
 import { getItemConfigByKey } from '../../../game/content/items';
 import { getStructureConfig } from '../../../game/content/structures';
 import {
+  getRecipeOutput,
   getRecipeRequiredStructure,
   recipeUsesItemKey,
 } from '../../../game/crafting';
@@ -17,12 +18,13 @@ import {
 } from './utils/recipeBookEntries';
 import styles from './styles.module.scss';
 
-const RECIPE_BOOK_TAB_ORDER = [Skill.Crafting, Skill.Smelting, Skill.Cooking];
+const RECIPE_BOOK_TAB_ORDER = [Skill.Cooking, Skill.Smelting, Skill.Crafting];
 
 type RecipeBookWindowContentProps = Pick<
   RecipeBookWindowProps,
   | 'currentStructure'
   | 'recipes'
+  | 'recipeSkillLevels'
   | 'inventoryCountsByItemKey'
   | 'materialFilterItemKey'
   | 'onResetMaterialFilter'
@@ -34,6 +36,7 @@ type RecipeBookWindowContentProps = Pick<
 export function RecipeBookWindowContent({
   currentStructure,
   recipes,
+  recipeSkillLevels,
   inventoryCountsByItemKey,
   materialFilterItemKey,
   onResetMaterialFilter,
@@ -52,12 +55,12 @@ export function RecipeBookWindowContent({
     );
   }, [materialFilterItemKey, recipes]);
   const [activeSkill, setActiveSkill] = useState<Skill>(
-    visibleTabs[0] ?? Skill.Crafting,
+    visibleTabs[0] ?? Skill.Cooking,
   );
 
   useEffect(() => {
     if (visibleTabs.includes(activeSkill)) return;
-    setActiveSkill(visibleTabs[0] ?? Skill.Crafting);
+    setActiveSkill(visibleTabs[0] ?? Skill.Cooking);
   }, [activeSkill, visibleTabs]);
 
   const visibleRecipes = useMemo(
@@ -107,6 +110,10 @@ export function RecipeBookWindowContent({
         ) : (
           <div className={styles.list}>
             {visibleRecipes.map((recipe) => {
+              const recipeOutput = getRecipeOutput(
+                recipe,
+                recipeSkillLevels[recipe.skill] ?? 1,
+              );
               const requiredStructure = getRecipeRequiredStructure(recipe);
               const requiredStructureLabel =
                 getStructureConfig(requiredStructure).title;
@@ -115,11 +122,7 @@ export function RecipeBookWindowContent({
                 currentStructure,
                 inventoryCountsByItemKey,
               });
-              const tintOverride = !recipe.learned
-                ? 'rgba(148, 163, 184, 0.45)'
-                : canCraft
-                  ? undefined
-                  : 'rgba(248, 113, 113, 0.92)';
+              const tintOverride = getRecipeSlotTint(recipe, canCraft);
               const tooltipLines = recipe.learned
                 ? buildRecipeTooltipLines(
                     recipe,
@@ -140,7 +143,7 @@ export function RecipeBookWindowContent({
                     .join(' ')}
                 >
                   <ItemSlotButton
-                    item={recipe.output}
+                    item={recipeOutput}
                     size="compact"
                     disabled={!recipe.learned}
                     tintOverride={tintOverride}
@@ -171,7 +174,26 @@ export function RecipeBookWindowContent({
                   </div>
                   <button
                     type="button"
-                    onClick={() => onCraft(recipe.id)}
+                    onClick={(event) =>
+                      onCraft(recipe.id, getRecipeCraftCount(event))
+                    }
+                    onMouseEnter={(event) =>
+                      onHoverDetail?.(
+                        event,
+                        t('ui.recipeBook.tooltip.batchCraftTitle'),
+                        [
+                          {
+                            kind: 'text',
+                            text: t('ui.recipeBook.tooltip.batchCraftShift'),
+                          },
+                          {
+                            kind: 'text',
+                            text: t('ui.recipeBook.tooltip.batchCraftCtrl'),
+                          },
+                        ],
+                      )
+                    }
+                    onMouseLeave={onLeaveDetail}
                     disabled={!canCraft}
                   >
                     {recipe.skill === Skill.Cooking
@@ -212,14 +234,15 @@ function buildRecipeTooltipLines(
   atRequiredStructure: boolean,
 ) {
   const requiredStructure = getRecipeRequiredStructure(recipe);
-  const requiredStructureIcon = getStructureConfig(requiredStructure).icon;
+  const requiredStructureConfig = getStructureConfig(requiredStructure);
   const lines: TooltipLine[] = [
     { kind: 'text' as const, text: recipe.description },
     {
       kind: 'stat' as const,
       label: t('ui.recipeBook.tooltip.siteLabel'),
       value: requiredStructureLabel,
-      icon: requiredStructureIcon,
+      icon: requiredStructureConfig.icon,
+      iconTint: pixiTintToCss(requiredStructureConfig.tint),
       tone: atRequiredStructure ? 'item' : 'negative',
     },
     {
@@ -230,14 +253,20 @@ function buildRecipeTooltipLines(
     ...recipe.ingredients.map((ingredient) => {
       const owned =
         inventoryCountsByItemKey[ingredient.itemKey ?? ingredient.name] ?? 0;
+      const itemConfig = ingredient.itemKey
+        ? getItemConfigByKey(ingredient.itemKey)
+        : undefined;
+
       return {
         kind: 'stat' as const,
         label: ingredient.name,
         value: `${owned}/${ingredient.quantity}`,
-        icon: ingredient.itemKey
-          ? getItemConfigByKey(ingredient.itemKey)?.icon
-          : undefined,
-        tone: owned >= ingredient.quantity ? ('item' as const) : ('negative' as const),
+        icon: itemConfig?.icon,
+        iconTint: itemConfig?.tint,
+        tone:
+          owned >= ingredient.quantity
+            ? ('item' as const)
+            : ('negative' as const),
       };
     }),
     ...(recipe.fuelOptions
@@ -253,12 +282,17 @@ function buildRecipeTooltipLines(
             tone: 'item' as const,
           },
           ...recipe.fuelOptions.map((fuel) => {
-            const owned = inventoryCountsByItemKey[fuel.itemKey ?? fuel.name] ?? 0;
+            const owned =
+              inventoryCountsByItemKey[fuel.itemKey ?? fuel.name] ?? 0;
+            const itemConfig = fuel.itemKey
+              ? getItemConfigByKey(fuel.itemKey)
+              : undefined;
             return {
               kind: 'stat' as const,
               label: fuel.name,
               value: `${owned}/${fuel.quantity}`,
-              icon: fuel.itemKey ? getItemConfigByKey(fuel.itemKey)?.icon : undefined,
+              icon: itemConfig?.icon,
+              iconTint: itemConfig?.tint,
               tone:
                 owned >= fuel.quantity
                   ? ('item' as const)
@@ -270,4 +304,22 @@ function buildRecipeTooltipLines(
   ];
 
   return lines;
+}
+
+function pixiTintToCss(tint: number) {
+  return `#${tint.toString(16).padStart(6, '0')}`;
+}
+
+function getRecipeSlotTint(recipe: RecipeBookEntry, canCraft: boolean) {
+  if (!recipe.learned) return 'rgba(148, 163, 184, 0.45)';
+  if (recipe.skill === Skill.Crafting) {
+    return canCraft ? '#f8fafc' : 'rgba(248, 113, 113, 0.92)';
+  }
+  return canCraft ? undefined : 'rgba(248, 113, 113, 0.92)';
+}
+
+export function getRecipeCraftCount(event: ReactMouseEvent<HTMLButtonElement>) {
+  if (event.ctrlKey || event.metaKey) return 'max';
+  if (event.shiftKey) return 5;
+  return 1;
 }

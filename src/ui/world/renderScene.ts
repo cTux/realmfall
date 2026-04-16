@@ -225,68 +225,73 @@ export function renderScene(
       if (shouldRenderStatic) {
         const enemies = getEnemiesAt(state, tile.coord);
 
-        if (tile.structure) {
-          const marker = takeShadowedSprite(
-            scene.worldStaticMarkerSprites,
-            structureIconFor(tile.structure),
-          );
-          configureShadowedSprite(
-            marker,
-            getStructureHexIconTint(tile.structure),
-            structureIconSize,
-            structureIconSize,
-            1,
-            shadowOffset,
-            point,
-          );
-        }
-
-        const hostileEnemies = enemies.filter(
-          (enemy) => enemy.aggressive !== false,
-        );
-
-        if (tile.claim?.npc?.enemyId) {
-          const marker = takeShadowedSprite(
-            scene.worldStaticMarkerSprites,
-            WorldIcons.Village,
-          );
-          configureShadowedSprite(
-            marker,
-            0xffffff,
-            enemyIconSize,
-            enemyIconSize,
-            1,
-            shadowOffset,
-            point,
-          );
-        } else if (hostileEnemies.length > 0 && tile.structure !== 'dungeon') {
-          const worldBossCenter = getPlacedWorldBossCenter(
-            tile.coord,
-            (bossCoord) => visibleTileMap?.get(hexKey(bossCoord))?.enemyIds,
-          );
-          const leadEnemy = hostileEnemies[0];
-          const isBossCenter = tile.enemyIds.some((enemyId) =>
-            isWorldBossEnemyId(enemyId),
-          );
-          if (!worldBossCenter || isBossCenter) {
-            const sprite = takeShadowedSprite(
+        if (!isPlayerTile) {
+          if (tile.structure) {
+            const marker = takeShadowedSprite(
               scene.worldStaticMarkerSprites,
-              enemyIconFor(leadEnemy),
+              structureIconFor(tile.structure),
             );
             configureShadowedSprite(
-              sprite,
-              isBossCenter ? WORLD_BOSS_ICON_TINT : ENEMY_HEX_ICON_TINT,
-              isBossCenter ? worldBossIconSize : enemyIconSize,
-              isBossCenter ? worldBossIconSize : enemyIconSize,
+              marker,
+              getStructureHexIconTint(tile.structure),
+              structureIconSize,
+              structureIconSize,
               1,
               shadowOffset,
-              isBossCenter
-                ? point
-                : {
-                    x: point.x,
-                    y: point.y - 2,
-                  },
+              point,
             );
+          }
+
+          const hostileEnemies = enemies.filter(
+            (enemy) => enemy.aggressive !== false,
+          );
+
+          if (tile.claim?.npc?.enemyId) {
+            const marker = takeShadowedSprite(
+              scene.worldStaticMarkerSprites,
+              WorldIcons.Village,
+            );
+            configureShadowedSprite(
+              marker,
+              0xffffff,
+              enemyIconSize,
+              enemyIconSize,
+              1,
+              shadowOffset,
+              point,
+            );
+          } else if (
+            hostileEnemies.length > 0 &&
+            tile.structure !== 'dungeon'
+          ) {
+            const worldBossCenter = getPlacedWorldBossCenter(
+              tile.coord,
+              (bossCoord) => visibleTileMap?.get(hexKey(bossCoord))?.enemyIds,
+            );
+            const leadEnemy = hostileEnemies[0];
+            const isBossCenter = tile.enemyIds.some((enemyId) =>
+              isWorldBossEnemyId(enemyId),
+            );
+            if (!worldBossCenter || isBossCenter) {
+              const sprite = takeShadowedSprite(
+                scene.worldStaticMarkerSprites,
+                enemyIconFor(leadEnemy),
+              );
+              configureShadowedSprite(
+                sprite,
+                isBossCenter ? WORLD_BOSS_ICON_TINT : ENEMY_HEX_ICON_TINT,
+                isBossCenter ? worldBossIconSize : enemyIconSize,
+                isBossCenter ? worldBossIconSize : enemyIconSize,
+                1,
+                shadowOffset,
+                isBossCenter
+                  ? point
+                  : {
+                      x: point.x,
+                      y: point.y - 2,
+                    },
+              );
+            }
           }
         }
 

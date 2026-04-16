@@ -5,6 +5,7 @@ import {
   getGoldAmount,
   getPlayerStats,
   getRecipeBookEntries,
+  Skill,
   structureActionLabel,
   type GameState,
   type LogKind,
@@ -31,6 +32,19 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
   const recipes = useMemo(
     () => getRecipeBookEntries(player.learnedRecipeIds),
     [player.learnedRecipeIds],
+  );
+  const recipeSkillLevels = useMemo(
+    () => ({
+      [Skill.Gathering]: player.skills[Skill.Gathering].level,
+      [Skill.Logging]: player.skills[Skill.Logging].level,
+      [Skill.Mining]: player.skills[Skill.Mining].level,
+      [Skill.Skinning]: player.skills[Skill.Skinning].level,
+      [Skill.Fishing]: player.skills[Skill.Fishing].level,
+      [Skill.Cooking]: player.skills[Skill.Cooking].level,
+      [Skill.Smelting]: player.skills[Skill.Smelting].level,
+      [Skill.Crafting]: player.skills[Skill.Crafting].level,
+    }),
+    [player.skills],
   );
   const inventoryCountsByItemKey = useMemo(
     () =>
@@ -90,6 +104,7 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     inventoryCountsByItemKey,
     prospectExplanation,
     recipes,
+    recipeSkillLevels,
     sellExplanation,
     stats,
     townStock,

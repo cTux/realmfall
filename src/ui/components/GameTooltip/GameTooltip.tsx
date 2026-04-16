@@ -160,12 +160,20 @@ export const GameTooltip = memo(function GameTooltip({
             >
               <span className={styles.statLabel}>
                 {line.icon ? (
-                  <img
-                    src={line.icon}
-                    alt=""
-                    aria-hidden="true"
-                    className={styles.statIcon}
-                  />
+                  line.iconTint ? (
+                    <span
+                      aria-hidden="true"
+                      className={styles.statIconMask}
+                      style={iconMaskStyle(line.icon, line.iconTint)}
+                    />
+                  ) : (
+                    <img
+                      src={line.icon}
+                      alt=""
+                      aria-hidden="true"
+                      className={styles.statIcon}
+                    />
+                  )
                 ) : null}
                 <span>{line.label}</span>
               </span>
@@ -190,3 +198,12 @@ export const GameTooltip = memo(function GameTooltip({
     </div>
   );
 });
+
+function iconMaskStyle(icon: string, color: string) {
+  const mask = `url("${icon}") center / contain no-repeat`;
+  return {
+    backgroundColor: color,
+    WebkitMask: mask,
+    mask,
+  };
+}

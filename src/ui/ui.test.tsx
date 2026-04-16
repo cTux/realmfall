@@ -47,6 +47,7 @@ import { ItemContextMenu } from './components/ItemContextMenu';
 import { LogWindow } from './components/LogWindow';
 import { LootWindow } from './components/LootWindow';
 import { RecipeBookWindow } from './components/RecipeBookWindow';
+import { getRecipeCraftCount } from './components/RecipeBookWindow/RecipeBookWindowContent';
 import { compareRecipeBookEntries } from './components/RecipeBookWindow/utils/recipeBookEntries';
 import { SkillsWindow } from './components/SkillsWindow';
 import { ItemSlotButton } from './components/ItemSlotButton/ItemSlotButton';
@@ -299,6 +300,12 @@ describe('ui helpers and components', () => {
       value: '12%',
       tone: 'item',
     });
+    expect(skillTooltip(Skill.Cooking, 6)).toContainEqual({
+      kind: 'stat',
+      label: 'Recipe Output Bonus',
+      value: '+1',
+      tone: 'item',
+    });
     expect(skillTooltip(Skill.Crafting, 4)).toContainEqual({
       kind: 'text',
       text: 'Skill level does not change recipe costs, output, or quality directly yet.',
@@ -480,6 +487,393 @@ describe('ui helpers and components', () => {
     ]);
   });
 
+  it('renders tinted tooltip icons when a tooltip line provides an icon tint', () => {
+    const markup = renderToStaticMarkup(
+      <GameTooltip
+        tooltip={{
+          title: 'Recipe Materials',
+          x: 0,
+          y: 0,
+          placement: 'right',
+          lines: [
+            {
+              kind: 'stat',
+              label: 'Iron Ingot',
+              value: '2/1',
+              icon: getItemConfigByKey('iron-ingot')?.icon,
+              iconTint: getItemConfigByKey('iron-ingot')?.tint,
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(markup).toContain('background-color:#f8fafc');
+    expect(markup).toContain('-webkit-mask:url(');
+  });
+
+  it('renders recipe-book tabs in cooking, smelting, crafting order', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+
+    await act(async () => {
+      root.render(
+        <RecipeBookWindow
+          position={DEFAULT_WINDOWS.recipes}
+          onMove={() => {}}
+          currentStructure="workshop"
+          recipeSkillLevels={{
+            [Skill.Gathering]: 1,
+            [Skill.Logging]: 1,
+            [Skill.Mining]: 1,
+            [Skill.Skinning]: 1,
+            [Skill.Fishing]: 1,
+            [Skill.Cooking]: 1,
+            [Skill.Smelting]: 1,
+            [Skill.Crafting]: 1,
+          }}
+          recipes={[
+            {
+              id: 'craft-town-knife',
+              name: 'Town Knife',
+              description: 'Workshop recipe',
+              skill: Skill.Crafting,
+              learned: true,
+              output: {
+                id: 'crafted-town-knife',
+                itemKey: 'town-knife',
+                name: 'Town Knife',
+                quantity: 1,
+                tier: 1,
+                rarity: 'common',
+                power: 2,
+                defense: 0,
+                maxHp: 0,
+                healing: 0,
+                hunger: 0,
+              },
+              ingredients: [],
+            },
+            {
+              id: 'smelt-iron-ingot',
+              name: 'Iron Ingot',
+              description: 'Furnace recipe',
+              skill: Skill.Smelting,
+              learned: true,
+              output: {
+                id: 'smelted-iron-ingot',
+                itemKey: 'iron-ingot',
+                name: 'Iron Ingot',
+                quantity: 1,
+                tier: 1,
+                rarity: 'common',
+                power: 0,
+                defense: 0,
+                maxHp: 0,
+                healing: 0,
+                hunger: 0,
+              },
+              ingredients: [],
+              fuelOptions: [],
+            },
+            {
+              id: 'cook-cooked-fish',
+              name: 'Cooked Fish',
+              description: 'Camp recipe',
+              skill: Skill.Cooking,
+              learned: true,
+              output: {
+                id: 'cooked-fish',
+                itemKey: 'cooked-fish',
+                name: 'Cooked Fish',
+                quantity: 1,
+                tier: 1,
+                rarity: 'common',
+                power: 0,
+                defense: 0,
+                maxHp: 0,
+                healing: 0,
+                hunger: 8,
+              },
+              ingredients: [],
+            },
+          ]}
+          inventoryCountsByItemKey={{}}
+          materialFilterItemKey={null}
+          onResetMaterialFilter={() => {}}
+          onCraft={() => {}}
+        />,
+      );
+    });
+
+    await act(async () => {
+      await vi.dynamicImportSettled();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const tabLabels = Array.from(host.querySelectorAll('[role="tab"]')).map(
+      (tab) => tab.textContent,
+    );
+    expect(tabLabels).toEqual(['cooking', 'smelting', 'crafting']);
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('renders learned crafting recipe slots with a fixed white tint', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+
+    await act(async () => {
+      root.render(
+        <RecipeBookWindow
+          position={DEFAULT_WINDOWS.recipes}
+          onMove={() => {}}
+          currentStructure="workshop"
+          recipeSkillLevels={{
+            [Skill.Gathering]: 1,
+            [Skill.Logging]: 1,
+            [Skill.Mining]: 1,
+            [Skill.Skinning]: 1,
+            [Skill.Fishing]: 1,
+            [Skill.Cooking]: 1,
+            [Skill.Smelting]: 1,
+            [Skill.Crafting]: 1,
+          }}
+          recipes={[
+            {
+              id: 'craft-town-knife',
+              name: 'Town Knife',
+              description: 'Workshop recipe',
+              skill: Skill.Crafting,
+              learned: true,
+              output: {
+                id: 'crafted-town-knife',
+                itemKey: 'town-knife',
+                name: 'Town Knife',
+                quantity: 1,
+                tier: 1,
+                rarity: 'rare',
+                power: 2,
+                defense: 0,
+                maxHp: 0,
+                healing: 0,
+                hunger: 0,
+              },
+              ingredients: [],
+            },
+          ]}
+          inventoryCountsByItemKey={{}}
+          materialFilterItemKey={null}
+          onResetMaterialFilter={() => {}}
+          onCraft={() => {}}
+        />,
+      );
+    });
+
+    await act(async () => {
+      await vi.dynamicImportSettled();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const slot = host.querySelector('button[data-size="compact"]');
+    expect(slot?.getAttribute('style')).toContain('border-color: rgb(248, 250, 252)');
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('renders learned crafting recipe slots red when the required workshop hex is missing', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+
+    await act(async () => {
+      root.render(
+        <RecipeBookWindow
+          position={DEFAULT_WINDOWS.recipes}
+          onMove={() => {}}
+          currentStructure="camp"
+          recipeSkillLevels={{
+            [Skill.Gathering]: 1,
+            [Skill.Logging]: 1,
+            [Skill.Mining]: 1,
+            [Skill.Skinning]: 1,
+            [Skill.Fishing]: 1,
+            [Skill.Cooking]: 1,
+            [Skill.Smelting]: 1,
+            [Skill.Crafting]: 1,
+          }}
+          recipes={[
+            {
+              id: 'craft-town-knife',
+              name: 'Town Knife',
+              description: 'Workshop recipe',
+              skill: Skill.Crafting,
+              learned: true,
+              output: {
+                id: 'crafted-town-knife',
+                itemKey: 'town-knife',
+                name: 'Town Knife',
+                quantity: 1,
+                tier: 1,
+                rarity: 'rare',
+                power: 2,
+                defense: 0,
+                maxHp: 0,
+                healing: 0,
+                hunger: 0,
+              },
+              ingredients: [],
+            },
+          ]}
+          inventoryCountsByItemKey={{}}
+          materialFilterItemKey={null}
+          onResetMaterialFilter={() => {}}
+          onCraft={() => {}}
+        />,
+      );
+    });
+
+    await act(async () => {
+      await vi.dynamicImportSettled();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const slot = host.querySelector('button[data-size="compact"]');
+    expect(slot?.getAttribute('style')).toContain('border-color: rgba(248, 113, 113, 0.92)');
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('maps recipe action button modifiers to bulk craft counts', () => {
+    expect(
+      getRecipeCraftCount({
+        ctrlKey: false,
+        metaKey: false,
+        shiftKey: true,
+      } as React.MouseEvent<HTMLButtonElement>),
+    ).toBe(5);
+    expect(
+      getRecipeCraftCount({
+        ctrlKey: true,
+        metaKey: false,
+        shiftKey: false,
+      } as React.MouseEvent<HTMLButtonElement>),
+    ).toBe('max');
+    expect(
+      getRecipeCraftCount({
+        ctrlKey: false,
+        metaKey: true,
+        shiftKey: false,
+      } as React.MouseEvent<HTMLButtonElement>),
+    ).toBe('max');
+    expect(
+      getRecipeCraftCount({
+        ctrlKey: false,
+        metaKey: false,
+        shiftKey: false,
+      } as React.MouseEvent<HTMLButtonElement>),
+    ).toBe(1);
+  });
+
+  it('shows recipe action button tooltip lines for bulk craft modifiers', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    const hoverDetail = vi.fn();
+    const leaveDetail = vi.fn();
+
+    await act(async () => {
+      root.render(
+        <RecipeBookWindow
+          position={DEFAULT_WINDOWS.recipes}
+          onMove={() => {}}
+          currentStructure="camp"
+          recipeSkillLevels={{
+            [Skill.Gathering]: 1,
+            [Skill.Logging]: 1,
+            [Skill.Mining]: 1,
+            [Skill.Skinning]: 1,
+            [Skill.Fishing]: 1,
+            [Skill.Cooking]: 1,
+            [Skill.Smelting]: 1,
+            [Skill.Crafting]: 1,
+          }}
+          recipes={[
+            {
+              id: 'cook-cooked-fish',
+              name: 'Cooked Fish',
+              description: 'Camp recipe',
+              skill: Skill.Cooking,
+              learned: true,
+              output: {
+                id: 'cooked-fish',
+                itemKey: 'cooked-fish',
+                name: 'Cooked Fish',
+                quantity: 1,
+                tier: 1,
+                rarity: 'common',
+                power: 0,
+                defense: 0,
+                maxHp: 0,
+                healing: 0,
+                hunger: 8,
+              },
+              ingredients: [],
+            },
+          ]}
+          inventoryCountsByItemKey={{}}
+          materialFilterItemKey={null}
+          onResetMaterialFilter={() => {}}
+          onCraft={() => {}}
+          onHoverDetail={hoverDetail}
+          onLeaveDetail={leaveDetail}
+        />,
+      );
+    });
+
+    await act(async () => {
+      await vi.dynamicImportSettled();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const actionButton = Array.from(host.querySelectorAll('button')).find(
+      (button) => button.textContent === 'Cook',
+    );
+    expect(actionButton).toBeTruthy();
+
+    await act(async () => {
+      actionButton?.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+    });
+
+    expect(hoverDetail).toHaveBeenCalled();
+    const hoverArgs = hoverDetail.mock.calls[hoverDetail.mock.calls.length - 1];
+    expect(hoverArgs?.[1]).toBe('Bulk Crafting');
+    expect(hoverArgs?.[2]).toEqual([
+      { kind: 'text', text: 'Shift-click: craft up to 5 times.' },
+      { kind: 'text', text: 'Ctrl-click: craft the maximum possible amount.' },
+    ]);
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
   it('renders all major windows to static markup', async () => {
     const game = createGame(3, 'ui-render-seed');
     const stats = getPlayerStats(game.player);
@@ -555,6 +949,16 @@ describe('ui helpers and components', () => {
           onMove={() => {}}
           currentStructure="camp"
           recipes={[]}
+          recipeSkillLevels={{
+            [Skill.Gathering]: 1,
+            [Skill.Logging]: 1,
+            [Skill.Mining]: 1,
+            [Skill.Skinning]: 1,
+            [Skill.Fishing]: 1,
+            [Skill.Cooking]: 1,
+            [Skill.Smelting]: 1,
+            [Skill.Crafting]: 1,
+          }}
           inventoryCountsByItemKey={{}}
           materialFilterItemKey={null}
           onResetMaterialFilter={() => {}}
@@ -1491,6 +1895,16 @@ describe('ui helpers and components', () => {
             onMove={() => {}}
             currentStructure="camp"
             recipes={[]}
+            recipeSkillLevels={{
+              [Skill.Gathering]: 1,
+              [Skill.Logging]: 1,
+              [Skill.Mining]: 1,
+              [Skill.Skinning]: 1,
+              [Skill.Fishing]: 1,
+              [Skill.Cooking]: 1,
+              [Skill.Smelting]: 1,
+              [Skill.Crafting]: 1,
+            }}
             inventoryCountsByItemKey={{}}
             materialFilterItemKey={null}
             onResetMaterialFilter={() => {}}

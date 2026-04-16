@@ -12,7 +12,13 @@ import type {
   Terrain,
 } from './types';
 import type { HexCoord } from './hex';
-import { noise, terrainTier } from './shared';
+import {
+  noise,
+  resolveCascadingRarity,
+  terrainTier,
+  withCascadingRarityChanceBonus,
+} from './shared';
+import { createRng } from './random';
 import { isWorldBossEnemyId } from './worldBoss';
 
 export const DEFAULT_GLOBAL_COOLDOWN_MS = 1500;
@@ -99,23 +105,24 @@ export function enemyRarityMinimum(
 }
 
 export function resolveEnemyRarity(
-  roll: number,
+  nextRoll: () => number,
   minimum: EnemyRarity = 'common',
+  tier = 1,
+  structure?: StructureType,
 ) {
-  const rarity =
-    roll >= 0.992
-      ? 'legendary'
-      : roll >= 0.95
-        ? 'epic'
-        : roll >= 0.84
-          ? 'rare'
-          : roll >= 0.58
-            ? 'uncommon'
-            : 'common';
+  const tierBonus =
+    Math.min(0.18, tier * 0.02) + (structure === 'dungeon' ? 0.16 : 0);
 
-  return ENEMY_RARITY_ORDER[
-    Math.max(enemyRarityIndex(minimum), enemyRarityIndex(rarity))
-  ]!;
+  return resolveCascadingRarity(
+    nextRoll,
+    minimum,
+    withCascadingRarityChanceBonus({
+      legendary: tierBonus * 0.08,
+      epic: tierBonus * 0.24,
+      rare: tierBonus * 0.55,
+      uncommon: tierBonus,
+    }),
+  );
 }
 
 export function makeEnemy(
@@ -139,13 +146,10 @@ export function makeEnemy(
   const rarity = worldBoss
     ? 'legendary'
     : resolveEnemyRarity(
-        Math.min(
-          0.999,
-          noise(`${seed}:enemy:rarity:${index}`, coord) +
-            Math.min(0.18, tier * 0.02) +
-            (structure === 'dungeon' ? 0.16 : 0),
-        ),
+        createRng(`${seed}:enemy:rarity:${index}:${coord.q}:${coord.r}`),
         enemyRarityMinimum(structure, worldBoss),
+        tier,
+        structure,
       );
   const rarityRank = enemyRarityIndex(rarity);
   const rarityMultiplier = enemyRarityMultiplier(rarity);

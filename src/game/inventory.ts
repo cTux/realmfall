@@ -6,8 +6,15 @@ import {
   hasItemTag,
   isEquippableItemCategory,
 } from './content/items';
+import { getRecipeOutput } from './crafting';
 import { GAME_TAGS } from './content/tags';
-import type { EquipmentSlot, GameState, Item, RecipeDefinition } from './types';
+import { Skill, type EquipmentSlot, type GameState, type Item, type RecipeDefinition } from './types';
+import {
+  applyRarityToItem,
+  resolveCascadingRarity,
+  withCascadingRarityChanceBonus,
+} from './shared';
+import { createRng } from './random';
 
 export function makeStarterWeapon(): Item {
   return buildItemFromConfig(ItemId.TownKnife, { id: 'starter-knife' });
@@ -102,14 +109,48 @@ export function materializeRecipeOutput(
   recipe: RecipeDefinition,
   state: GameState,
 ): Item {
-  if (hasItemTag(recipe.output, GAME_TAGS.item.stackable)) {
-    return { ...recipe.output };
+  let output = getRecipeOutput(
+    recipe,
+    state.player.skills[recipe.skill]?.level ?? 1,
+  );
+
+  if (recipe.skill === Skill.Crafting) {
+    output = materializeCraftedRecipeOutput(recipe, state, output);
+  }
+
+  if (hasItemTag(output, GAME_TAGS.item.stackable)) {
+    return output;
   }
 
   return {
-    ...recipe.output,
-    id: `${recipe.output.id}-${state.turn}-${state.logSequence}`,
+    ...output,
+    id: `${output.id}-${state.turn}-${state.logSequence}`,
   };
+}
+
+function materializeCraftedRecipeOutput(
+  recipe: RecipeDefinition,
+  state: GameState,
+  output: Item,
+) {
+  const tierBonus = Math.min(0.12, output.tier * 0.02);
+  const rarity = resolveCascadingRarity(
+    createRng(
+      `${state.seed}:crafted-rarity:${recipe.id}:${state.turn}:${state.logSequence}`,
+    ),
+    output.rarity,
+    withCascadingRarityChanceBonus({
+      legendary: tierBonus * 0.08,
+      epic: tierBonus * 0.22,
+      rare: tierBonus * 0.5,
+      uncommon: tierBonus,
+    }),
+  );
+
+  return applyRarityToItem({
+    ...output,
+    rarity,
+  });
 }
 
 export function describeItemStack(item: Item) {
