@@ -50,7 +50,7 @@ The game currently does not support mods.
 - `src/ui/components`: window components and other React UI pieces.
 - `src/ui/world`: Pixi/world rendering helpers, render math, caches, atmosphere, and related tests.
 - `src/persistence`: local save storage helpers.
-- `docs`: review notes, workflow guidance, rules, specs, lore, and changelog source data.
+- `docs`: review notes, workflow guidance, scoped rules, specs, lore, and changelog source data.
 - `game.config.json`: configurable gameplay and world values.
 
 Within feature directories, prefer colocated `hooks/`, `selectors/`, `utils/`, and `tests/` folders for feature-local code. Promote a hook, selector, or utility to `src/hooks`, `src/selectors`, or `src/utils` only when multiple parts of the app share it.
