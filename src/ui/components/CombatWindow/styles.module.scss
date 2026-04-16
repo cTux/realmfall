@@ -111,7 +111,7 @@
 }
 
 .effectChip {
-  @include ui.icon-tile;
+  @include ui.icon-tile($hover-lift: false);
 
   appearance: none;
   cursor: default;
