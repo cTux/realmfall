@@ -16,7 +16,7 @@
 ## Documentation
 
 - Keep `README.md` accurate about the current game state, package manager, save behavior, quality commands, and contributor workflow.
-- Keep `docs/WORKFLOW.md` aligned with the actual contributor workflow, recurring review expectations, and commit conventions.
+- Keep `docs/WORKFLOW.md` aligned with the actual contributor workflow, verification steps, and commit conventions, but keep recurring policy details in `docs/RULES.md` and `docs/rules/` instead of restating them there.
 - Prefer documenting real project constraints and current behavior over aspirational wording.
 - When prompts establish recurring workflow expectations, capture them here so future prompt handling stays consistent.
 - When a prompt establishes recurring structural placement rules for hooks, selectors, utilities, components, or tests, update this file and keep contributor-facing docs aligned instead of relying on one-off refactors.
@@ -24,6 +24,7 @@
 - Keep lore-sensitive guidance aligned with the canonical world reference in `docs/lore/REALMFALL.md`.
 - Keep current-system specs under `docs/specs` for implemented gameplay features and technical solutions.
 - Keep transient plans, issue workspaces, research notes, and checklists outside `docs/specs`, using `docs/implementation-notes` for that material.
+- Keep `docs/PROJECT_REVIEW.md` as a lightweight transient note only. Do not let it become a second canonical source for workflow rules, best-practice checklists, or current-system specs.
 - Every implemented feature should be followed by creating or updating the relevant spec in `docs/specs` before the task is considered complete.
 - When changing an existing feature, update the matching spec in the same task so the spec stays aligned with shipped behavior.
 - Every fix should update the corresponding spec in the same task when that fix adds, removes, or clarifies a documented requirement.
