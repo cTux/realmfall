@@ -1989,8 +1989,8 @@ describe('game state', () => {
       cooked.player.inventory.some((item) => item.name === 'Cooked Fish'),
     ).toBe(true);
     expect(
-      cooked.player.inventory.some((item) => item.name === 'Raw Fish'),
-    ).toBe(false);
+      cooked.player.inventory.find((item) => item.itemKey === 'raw-fish')?.quantity,
+    ).toBe(9);
     expect(
       cooked.player.inventory.find((item) => item.itemKey === 'coal')?.quantity,
     ).toBe(9);

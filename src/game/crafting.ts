@@ -140,6 +140,7 @@ function matchesRequirement(item: Item, requirement: RecipeRequirement) {
 
 const RECIPE_REQUIREMENT_SCALE = 10;
 const RECIPE_FUEL_SCALE = 1;
+const COOKING_RECIPE_REQUIREMENT_SCALE = 1;
 const DEFAULT_COOKING_FUEL_OPTIONS: RecipeRequirement[] = [
   { itemKey: 'coal', name: 'Coal', quantity: 1 },
   { itemKey: 'logs', name: 'Logs', quantity: 2 },
@@ -243,7 +244,12 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
 const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] =
   RAW_RECIPE_BOOK_RECIPES_BASE.map((recipe) => ({
     ...recipe,
-    ingredients: scaleRequirements(recipe.ingredients, RECIPE_REQUIREMENT_SCALE),
+    ingredients: scaleRequirements(
+      recipe.ingredients,
+      recipe.skill === Skill.Cooking
+        ? COOKING_RECIPE_REQUIREMENT_SCALE
+        : RECIPE_REQUIREMENT_SCALE,
+    ),
     fuelOptions: recipe.fuelOptions
       ? scaleRequirements(recipe.fuelOptions, RECIPE_FUEL_SCALE)
       : undefined,
