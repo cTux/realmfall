@@ -14,6 +14,7 @@ import {
 import { buildTownStock } from '../../game/economy';
 import { hexKey } from '../../game/hex';
 import { isEquippableItem } from '../../game/inventory';
+import { isPlayerClaim } from '../../game/territories';
 import { buildTile } from '../../game/world';
 import { t } from '../../i18n';
 
@@ -23,7 +24,7 @@ interface UseAppGameViewOptions {
 }
 
 export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
-  const { combat, logs, player, seed, tiles } = game;
+  const { combat, homeHex, logs, player, seed, tiles } = game;
 
   const stats = useMemo(() => getPlayerStats(player), [player]);
   const currentTile = useMemo(
@@ -83,6 +84,15 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     () => logs.filter((entry) => logFilters[entry.kind]),
     [logFilters, logs],
   );
+  const firstClaimedHex = useMemo(() => {
+    const claimedTiles = Object.values(tiles).filter((tile) =>
+      isPlayerClaim(tile.claim),
+    );
+    const firstNonHomeClaim = claimedTiles.find(
+      (tile) => tile.coord.q !== homeHex.q || tile.coord.r !== homeHex.r,
+    );
+    return firstNonHomeClaim?.coord ?? claimedTiles[0]?.coord ?? null;
+  }, [homeHex, tiles]);
 
   const canProspectInventoryEquipment =
     currentTile.structure === 'forge' && hasUnlockedEquipmentInInventory;
@@ -106,6 +116,7 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     combatEnemies,
     currentTile,
     currentTileHostileEnemyCount,
+    firstClaimedHex,
     filteredLogs,
     gold,
     interactLabel,

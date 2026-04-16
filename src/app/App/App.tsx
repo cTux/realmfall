@@ -106,6 +106,7 @@ export function App() {
     combatEnemies,
     currentTile,
     currentTileHostileEnemyCount,
+    firstClaimedHex,
     filteredLogs,
     gold,
     interactLabel,
@@ -217,6 +218,7 @@ export function App() {
       <div className={isReady ? undefined : styles.hiddenUntilReady}>
         <div ref={hostRef} className={styles.mapViewport} />
         <HomeIndicator
+          claimedHex={firstClaimedHex}
           hostRef={hostRef}
           homeHex={game.homeHex}
           playerCoord={game.player.coord}

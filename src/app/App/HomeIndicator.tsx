@@ -6,6 +6,7 @@ import { WORLD_REVEAL_RADIUS } from '../constants';
 import styles from './styles.module.scss';
 
 interface HomeIndicatorProps {
+  claimedHex?: HexCoord | null;
   homeHex: HexCoord;
   hostRef: RefObject<HTMLDivElement | null>;
   playerCoord: HexCoord;
@@ -13,6 +14,7 @@ interface HomeIndicatorProps {
 }
 
 export const HomeIndicator = memo(function HomeIndicator({
+  claimedHex = null,
   homeHex,
   hostRef,
   playerCoord,
@@ -37,67 +39,113 @@ export const HomeIndicator = memo(function HomeIndicator({
     return () => observer.disconnect();
   }, [hostRef]);
 
-  const indicator = useMemo(() => {
-    if (!viewportSize.width || !viewportSize.height) return null;
-
-    const homeDistance = hexDistance(playerCoord, homeHex);
-    if (homeDistance <= WORLD_REVEAL_RADIUS) return null;
-
+  const indicators = useMemo(() => {
+    if (!viewportSize.width || !viewportSize.height) return [];
     const center = {
       x: viewportSize.width / 2,
       y: viewportSize.height / 2,
     };
-    const homePoint = tileToPoint(
+    const seenTargets = new Set<string>();
+    const targets = [
       {
-        q: homeHex.q - playerCoord.q,
-        r: homeHex.r - playerCoord.r,
+        ariaLabelKey: 'app.home.directionLabel',
+        coord: homeHex,
+        key: 'home',
+        labelKey: 'app.home.label',
+        tone: 'home' as const,
       },
-      center.x,
-      center.y,
-      getWorldHexSize(viewportSize, radius),
-    );
-    const vector = {
-      x: homePoint.x - center.x,
-      y: homePoint.y - center.y,
-    };
-    const magnitude = Math.hypot(vector.x, vector.y);
-    if (!magnitude) return null;
+      claimedHex
+        ? {
+            ariaLabelKey: 'app.claimed.directionLabel',
+            coord: claimedHex,
+            key: 'claimed',
+            labelKey: 'app.claimed.label',
+            tone: 'claim' as const,
+          }
+        : null,
+    ].filter((target): target is NonNullable<typeof target> => {
+      if (!target) return false;
+      const targetKey = `${target.coord.q},${target.coord.r}`;
+      if (seenTargets.has(targetKey)) return false;
+      seenTargets.add(targetKey);
+      return true;
+    });
 
-    const ringScale = WORLD_REVEAL_RADIUS / homeDistance;
-    const borderOffset = 18;
-    const normalized = {
-      x: vector.x / magnitude,
-      y: vector.y / magnitude,
-    };
+    return targets.flatMap((target, index) => {
+      const targetDistance = hexDistance(playerCoord, target.coord);
+      if (targetDistance <= WORLD_REVEAL_RADIUS) return [];
 
-    return {
-      angle: Math.atan2(vector.y, vector.x),
-      x: center.x + vector.x * ringScale + normalized.x * borderOffset,
-      y: center.y + vector.y * ringScale + normalized.y * borderOffset,
-    };
-  }, [homeHex, playerCoord, radius, viewportSize]);
+      const targetPoint = tileToPoint(
+        {
+          q: target.coord.q - playerCoord.q,
+          r: target.coord.r - playerCoord.r,
+        },
+        center.x,
+        center.y,
+        getWorldHexSize(viewportSize, radius),
+      );
+      const vector = {
+        x: targetPoint.x - center.x,
+        y: targetPoint.y - center.y,
+      };
+      const magnitude = Math.hypot(vector.x, vector.y);
+      if (!magnitude) return [];
 
-  if (!indicator) return null;
+      const ringScale = WORLD_REVEAL_RADIUS / targetDistance;
+      const borderOffset = 18 + index * 24;
+      const normalized = {
+        x: vector.x / magnitude,
+        y: vector.y / magnitude,
+      };
 
-  return (
+      return {
+        angle: Math.atan2(vector.y, vector.x),
+        ariaLabelKey: target.ariaLabelKey,
+        key: target.key,
+        labelKey: target.labelKey,
+        tone: target.tone,
+        x: center.x + vector.x * ringScale + normalized.x * borderOffset,
+        y: center.y + vector.y * ringScale + normalized.y * borderOffset,
+      };
+    });
+  }, [claimedHex, homeHex, playerCoord, radius, viewportSize]);
+
+  if (indicators.length === 0) return null;
+
+  return indicators.map((indicator) => (
     <div
+      key={indicator.key}
       className={styles.homeIndicator}
       style={{
         left: indicator.x,
         top: indicator.y,
         transform: `translate(-50%, -50%) rotate(${indicator.angle + Math.PI / 2}rad)`,
       }}
-      aria-label={t('app.home.directionLabel')}
+      aria-label={t(indicator.ariaLabelKey)}
     >
-      <span className={styles.homeIndicatorArrow}>&#9650;</span>
       <span
-        className={styles.homeIndicatorLabel}
+        className={[
+          styles.homeIndicatorArrow,
+          indicator.tone === 'claim' ? styles.claimIndicatorArrow : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+      >
+        &#9650;
+      </span>
+      <span
+        className={[
+          styles.homeIndicatorLabel,
+          indicator.tone === 'claim' ? styles.claimIndicatorLabel : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
         style={{
           transform: `translate(-50%, 0) rotate(${-indicator.angle - Math.PI / 2}rad)`,
         }}
       >
-        {t('app.home.label')}
+        {t(indicator.labelKey)}
       </span>
     </div>
-  );
+  ));
 });

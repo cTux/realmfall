@@ -1,4 +1,6 @@
 {
+  "app.claimed.directionLabel": "Claimed territory direction",
+  "app.claimed.label": "Claimed",
   "app.home.directionLabel": "Home direction",
   "app.home.label": "Home",
   "game.artifact.form.charm.label": "Charm",
