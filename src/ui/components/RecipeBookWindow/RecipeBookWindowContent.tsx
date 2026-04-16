@@ -241,19 +241,31 @@ function buildRecipeTooltipLines(
       };
     }),
     ...(recipe.fuelOptions
-      ? recipe.fuelOptions.map((fuel) => {
-          const owned = inventoryCountsByItemKey[fuel.itemKey ?? fuel.name] ?? 0;
-          return {
-            kind: 'stat' as const,
-            label: `${t('ui.recipeBook.tooltip.fuelLabel')} ${fuel.name}`,
-            value: `${owned}/${fuel.quantity}`,
-            icon: fuel.itemKey ? getItemConfigByKey(fuel.itemKey)?.icon : undefined,
-            tone:
-              owned >= fuel.quantity
-                ? ('item' as const)
-                : ('negative' as const),
-          };
-        })
+      ? [
+          {
+            kind: 'text' as const,
+            text: t('ui.recipeBook.tooltip.fuelMaterialsLabel'),
+            tone: 'section' as const,
+          },
+          {
+            kind: 'text' as const,
+            text: t('ui.recipeBook.tooltip.fuelOneOfHint'),
+            tone: 'item' as const,
+          },
+          ...recipe.fuelOptions.map((fuel) => {
+            const owned = inventoryCountsByItemKey[fuel.itemKey ?? fuel.name] ?? 0;
+            return {
+              kind: 'stat' as const,
+              label: fuel.name,
+              value: `${owned}/${fuel.quantity}`,
+              icon: fuel.itemKey ? getItemConfigByKey(fuel.itemKey)?.icon : undefined,
+              tone:
+                owned >= fuel.quantity
+                  ? ('item' as const)
+                  : ('negative' as const),
+            };
+          }),
+        ]
       : []),
   ];
 

@@ -1,4 +1,5 @@
 import { CRAFTABLE_ICON_ITEM_CONFIGS } from './content/generatedCraftingEquipment';
+import { getGeneratedCraftingLore } from './content/generatedCraftingLore';
 import { buildItemFromConfig } from './content/items';
 import { Skill, type RecipeDefinition, type RecipeRequirement } from './types';
 
@@ -100,37 +101,16 @@ function buildGeneratedRecipeIngredients(itemKey: string) {
 }
 
 function buildGeneratedRecipeDescription(itemKey: string) {
-  if (
-    itemKey.startsWith('icon-axe-') ||
-    itemKey.startsWith('icon-sword-') ||
-    itemKey.startsWith('icon-mace-') ||
-    itemKey.startsWith('icon-dagger-') ||
-    itemKey.startsWith('icon-offhand-dagger-')
-  ) {
-    return 'Forge a fixed-pattern weapon from shaped ingots and a sturdy grip.';
-  }
-  if (itemKey.startsWith('icon-wand-')) {
-    return 'Bind a crafted wand around refined metal and Aether dust.';
-  }
-  if (itemKey.startsWith('icon-magical-sphere-')) {
-    return 'Shape a focused magical sphere from precious ingots and Aether dust.';
-  }
-  if (itemKey.startsWith('icon-shield-')) {
-    return 'Build a shield with a fixed frame, layered hide, and worked metal.';
-  }
-  if (
-    itemKey.startsWith('icon-ring-') ||
-    itemKey.startsWith('icon-necklace-')
-  ) {
-    return 'Set a precise accessory pattern with refined ingots and Aether dust.';
-  }
-  return 'Assemble a fixed-pattern piece of gear from workshop materials.';
+  return (
+    getGeneratedCraftingLore(itemKey)?.description ??
+    'Assemble a fixed-pattern piece of gear from workshop materials.'
+  );
 }
 
 export const GENERATED_CRAFTING_RECIPES: RecipeDefinition[] =
   CRAFTABLE_ICON_ITEM_CONFIGS.map((config) => ({
     id: `craft-${config.key}`,
-    name: config.name,
+    name: getGeneratedCraftingLore(config.key)?.name ?? config.name,
     description: buildGeneratedRecipeDescription(config.key),
     skill: Skill.Crafting,
     output: buildItemFromConfig(config.key, { id: `crafted-${config.key}` }),

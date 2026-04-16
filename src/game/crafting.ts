@@ -1,9 +1,8 @@
-import { makeCookedFish, makeCraftedItem } from './inventory';
-import { CRAFTED_EXPANSION_RECIPES } from './craftedExpansionRecipes';
+import { makeCookedFish } from './inventory';
 import { GENERATED_CRAFTING_RECIPES } from './generatedCraftingRecipes';
 import { HARVEST_COOKING_RECIPES } from './harvestCookingRecipes';
 import { t } from '../i18n';
-import { EquipmentSlotId } from './content/ids';
+import { getGeneratedCraftingLore } from './content/generatedCraftingLore';
 import { buildItemFromConfig, getItemConfigByKey } from './content/items';
 import { Skill, type RecipeBookEntry, type StructureType } from './types';
 import type {
@@ -140,16 +139,20 @@ function matchesRequirement(item: Item, requirement: RecipeRequirement) {
 }
 
 const RECIPE_REQUIREMENT_SCALE = 10;
+const RECIPE_FUEL_SCALE = 1;
 const DEFAULT_COOKING_FUEL_OPTIONS: RecipeRequirement[] = [
   { itemKey: 'coal', name: 'Coal', quantity: 1 },
   { itemKey: 'logs', name: 'Logs', quantity: 2 },
   { itemKey: 'sticks', name: 'Sticks', quantity: 8 },
 ];
 
-function scaleRequirements(requirements: RecipeRequirement[]) {
+function scaleRequirements(
+  requirements: RecipeRequirement[],
+  multiplier: number,
+) {
   return requirements.map((requirement) => ({
     ...requirement,
-    quantity: requirement.quantity * RECIPE_REQUIREMENT_SCALE,
+    quantity: requirement.quantity * multiplier,
   }));
 }
 
@@ -213,277 +216,6 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
     fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
-    id: 'craft-weapon',
-    name: 'Camp Spear',
-    description: 'A rough spear suited to the long roads between Shards.',
-    skill: Skill.Crafting,
-    output: makeCraftedItem(
-      'crafted-weapon',
-      EquipmentSlotId.Weapon,
-      'camp-spear',
-      {
-        power: 3,
-        defense: 0,
-        maxHp: 0,
-      },
-    ),
-    ingredients: [
-      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 2 },
-      { itemKey: 'sticks', name: 'Sticks', quantity: 2 },
-    ],
-  },
-  {
-    id: 'craft-offhand',
-    name: 'Hide Buckler',
-    description: 'A hide-wrapped buckler built to catch desperate blows.',
-    skill: Skill.Crafting,
-    output: makeCraftedItem(
-      'crafted-offhand',
-      EquipmentSlotId.Offhand,
-      'hide-buckler',
-      {
-        power: 0,
-        defense: 2,
-        maxHp: 1,
-      },
-    ),
-    ingredients: [
-      { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 3 },
-      { itemKey: 'logs', name: 'Logs', quantity: 1 },
-    ],
-  },
-  {
-    id: 'craft-knife',
-    name: 'Town Knife',
-    description: 'A balanced knife ground for camp chores and close trouble.',
-    skill: Skill.Crafting,
-    output: buildItemFromConfig('town-knife', { id: 'crafted-town-knife' }),
-    ingredients: [
-      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
-      { itemKey: 'sticks', name: 'Sticks', quantity: 1 },
-    ],
-  },
-  {
-    id: 'craft-scout-hood',
-    name: 'Scout Hood',
-    description: 'A light hood stitched for clear sight and quick travel.',
-    skill: Skill.Crafting,
-    output: buildItemFromConfig('scout-hood', { id: 'crafted-scout-hood' }),
-    ingredients: [
-      { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
-      { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 1 },
-    ],
-  },
-  {
-    id: 'craft-head',
-    name: 'Patchwork Hood',
-    description:
-      'A stitched hood that keeps ash, rain, and cinders off your face.',
-    skill: Skill.Crafting,
-    output: makeCraftedItem(
-      'crafted-head',
-      EquipmentSlotId.Head,
-      'patchwork-hood',
-      {
-        power: 0,
-        defense: 1,
-        maxHp: 1,
-      },
-    ),
-    ingredients: [
-      { itemKey: 'cloth', name: 'Cloth', quantity: 2 },
-      { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 2 },
-    ],
-  },
-  {
-    id: 'craft-chest',
-    name: 'Settler Vest',
-    description:
-      'A layered vest worn by settlers who expect hard weather and harder work.',
-    skill: Skill.Crafting,
-    output: makeCraftedItem(
-      'crafted-chest',
-      EquipmentSlotId.Chest,
-      'settler-vest',
-      {
-        power: 0,
-        defense: 2,
-        maxHp: 1,
-      },
-    ),
-    ingredients: [
-      { itemKey: 'cloth', name: 'Cloth', quantity: 4 },
-      { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 4 },
-      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
-    ],
-  },
-  {
-    id: 'craft-hands',
-    name: 'Work Gloves',
-    description:
-      'A practical pair of gloves for rope, tools, and rough salvage.',
-    skill: Skill.Crafting,
-    output: makeCraftedItem(
-      'crafted-hands',
-      EquipmentSlotId.Hands,
-      'work-gloves',
-      {
-        power: 0,
-        defense: 1,
-        maxHp: 1,
-      },
-    ),
-    ingredients: [
-      { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 3 },
-      { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
-    ],
-  },
-  {
-    id: 'craft-legs',
-    name: 'Trail Leggings',
-    description: 'Tough leggings meant for brush, stone, and broken roads.',
-    skill: Skill.Crafting,
-    output: makeCraftedItem(
-      'crafted-legs',
-      EquipmentSlotId.Legs,
-      'trail-leggings',
-      {
-        power: 0,
-        defense: 1,
-        maxHp: 1,
-      },
-    ),
-    ingredients: [
-      { itemKey: 'cloth', name: 'Cloth', quantity: 3 },
-      { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 2 },
-    ],
-  },
-  {
-    id: 'craft-feet',
-    name: 'Field Boots',
-    description:
-      'Sturdy boots made to keep moving when the ground turns cruel.',
-    skill: Skill.Crafting,
-    output: makeCraftedItem(
-      'crafted-feet',
-      EquipmentSlotId.Feet,
-      'field-boots',
-      {
-        power: 0,
-        defense: 1,
-        maxHp: 1,
-      },
-    ),
-    ingredients: [
-      { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 3 },
-      { itemKey: 'sticks', name: 'Sticks', quantity: 1 },
-    ],
-  },
-  {
-    id: 'craft-ring-left',
-    name: 'Copper Loop',
-    description: 'A simple copper loop dusted with faint Aether residue.',
-    skill: Skill.Crafting,
-    output: makeCraftedItem(
-      'crafted-ring-left',
-      EquipmentSlotId.RingLeft,
-      'copper-loop',
-      {
-        power: 1,
-        defense: 0,
-        maxHp: 1,
-      },
-    ),
-    ingredients: [
-      { itemKey: 'copper-ingot', name: 'Copper Ingot', quantity: 2 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 1 },
-    ],
-  },
-  {
-    id: 'craft-ring-right',
-    name: 'Copper Band',
-    description: 'A hammered copper band that hums with a trace of Aether.',
-    skill: Skill.Crafting,
-    output: makeCraftedItem(
-      'crafted-ring-right',
-      EquipmentSlotId.RingRight,
-      'copper-band',
-      {
-        power: 1,
-        defense: 0,
-        maxHp: 1,
-      },
-    ),
-    ingredients: [
-      { itemKey: 'copper-ingot', name: 'Copper Ingot', quantity: 2 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 1 },
-    ],
-  },
-  {
-    id: 'craft-amulet',
-    name: 'Charm Necklace',
-    description:
-      'A warding charm strung for travelers who sleep near the wilds.',
-    skill: Skill.Crafting,
-    output: makeCraftedItem(
-      'crafted-amulet',
-      EquipmentSlotId.Amulet,
-      'charm-necklace',
-      {
-        power: 0,
-        defense: 1,
-        maxHp: 2,
-      },
-    ),
-    ingredients: [
-      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
-    ],
-  },
-  {
-    id: 'craft-cloak',
-    name: 'Wayfarer Cloak',
-    description:
-      'A weathered cloak for crossing cold winds and stranger skies.',
-    skill: Skill.Crafting,
-    output: makeCraftedItem(
-      'crafted-cloak',
-      EquipmentSlotId.Cloak,
-      'wayfarer-cloak',
-      {
-        power: 0,
-        defense: 1,
-        maxHp: 1,
-      },
-    ),
-    ingredients: [
-      { itemKey: 'cloth', name: 'Cloth', quantity: 3 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 1 },
-    ],
-  },
-  {
-    id: 'craft-relic',
-    name: 'Hearth Totem',
-    description:
-      'A steady relic meant to hold a little warmth against the Fracture.',
-    skill: Skill.Crafting,
-    output: makeCraftedItem(
-      'crafted-relic',
-      EquipmentSlotId.Offhand,
-      'hearth-totem',
-      {
-        power: 1,
-        defense: 0,
-        maxHp: 3,
-      },
-    ),
-    ingredients: [
-      { itemKey: 'coal', name: 'Coal', quantity: 1 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 3 },
-      { itemKey: 'logs', name: 'Logs', quantity: 1 },
-    ],
-  },
-  {
     id: 'cook-trail-ration',
     name: 'Trail Ration',
     description: 'A packed meal of fish and herbs for long roads.',
@@ -506,20 +238,28 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
   },
   ...HARVEST_COOKING_RECIPES,
   ...GENERATED_CRAFTING_RECIPES,
-  ...CRAFTED_EXPANSION_RECIPES,
 ];
 
-const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] = RAW_RECIPE_BOOK_RECIPES_BASE.map((recipe) => ({
-  ...recipe,
-  ingredients: scaleRequirements(recipe.ingredients),
-  fuelOptions: recipe.fuelOptions ? scaleRequirements(recipe.fuelOptions) : undefined,
-}));
+const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] =
+  RAW_RECIPE_BOOK_RECIPES_BASE.map((recipe) => ({
+    ...recipe,
+    ingredients: scaleRequirements(recipe.ingredients, RECIPE_REQUIREMENT_SCALE),
+    fuelOptions: recipe.fuelOptions
+      ? scaleRequirements(recipe.fuelOptions, RECIPE_FUEL_SCALE)
+      : undefined,
+  }));
 
 export const RECIPE_BOOK_RECIPES: RecipeDefinition[] =
   RAW_RECIPE_BOOK_RECIPES.map((recipe) => ({
     ...recipe,
-    name: t(`game.recipe.${recipe.id}.name`),
-    description: t(`game.recipe.${recipe.id}.description`),
+    name:
+      (recipe.output.itemKey
+        ? getGeneratedCraftingLore(recipe.output.itemKey)?.name
+        : undefined) ?? t(`game.recipe.${recipe.id}.name`),
+    description:
+      (recipe.output.itemKey
+        ? getGeneratedCraftingLore(recipe.output.itemKey)?.description
+        : undefined) ?? t(`game.recipe.${recipe.id}.description`),
     ingredients: recipe.ingredients.map((ingredient) => ({
       ...ingredient,
       name: ingredient.itemKey

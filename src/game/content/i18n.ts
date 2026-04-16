@@ -1,7 +1,8 @@
 import { t } from '../../i18n';
+import { getGeneratedCraftingLore } from './generatedCraftingLore';
 
 export function itemName(key: string) {
-  return t(`game.item.${key}.name`);
+  return getGeneratedCraftingLore(key)?.name ?? t(`game.item.${key}.name`);
 }
 
 export function enemyName(key: string) {

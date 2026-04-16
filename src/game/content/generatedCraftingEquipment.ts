@@ -178,18 +178,6 @@ const GENERATED_CRAFTING_FAMILIES: GeneratedCraftingFamily[] = [
     maxHp: 0,
   },
   {
-    familyKey: 'dagger',
-    keyPrefix: 'icon-offhand-dagger',
-    label: 'Parrying Dagger',
-    slot: EquipmentSlotId.Offhand,
-    category: 'weapon',
-    tier: 2,
-    rarity: 'common',
-    power: 3,
-    defense: 0,
-    maxHp: 0,
-  },
-  {
     familyKey: 'wand',
     keyPrefix: 'icon-wand',
     label: 'Wand',

@@ -1947,7 +1947,7 @@ describe('ui helpers and components', () => {
       <ItemSlotButton
         item={{
           id: 'recipe-camp-spear',
-          name: 'Recipe: Camp Spear',
+          name: 'Recipe: Axe 01',
           quantity: 1,
           tier: 1,
           rarity: 'uncommon',
@@ -1956,8 +1956,8 @@ describe('ui helpers and components', () => {
           maxHp: 0,
           healing: 0,
           hunger: 0,
-          recipeId: 'craft-weapon',
-          icon: getItemConfigByKey('camp-spear')?.icon,
+          recipeId: 'craft-icon-axe-01',
+          icon: getItemConfigByKey('icon-axe-01')?.icon,
         }}
         size="compact"
         borderColorOverride="#22c55e"

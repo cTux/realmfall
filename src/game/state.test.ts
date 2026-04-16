@@ -1991,13 +1991,16 @@ describe('game state', () => {
     expect(
       cooked.player.inventory.some((item) => item.name === 'Raw Fish'),
     ).toBe(false);
+    expect(
+      cooked.player.inventory.find((item) => item.itemKey === 'coal')?.quantity,
+    ).toBe(9);
     expect(cooked.player.skills[Skill.Cooking].xp).toBeGreaterThan(0);
   });
 
   it('crafts slot gear from recipe requirements and levels crafting', () => {
     const game = createGame(3, 'crafting-seed');
     game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'workshop' };
-    game.player.learnedRecipeIds.push('craft-weapon');
+    game.player.learnedRecipeIds.push('craft-icon-axe-01');
     game.player.inventory.push(
       {
         id: 'ingot-1',
@@ -2027,10 +2030,10 @@ describe('game state', () => {
       },
     );
 
-    const crafted = craftRecipe(game, 'craft-weapon');
+    const crafted = craftRecipe(game, 'craft-icon-axe-01');
 
     expect(
-      crafted.player.inventory.some((item) => item.name === 'Camp Spear'),
+      crafted.player.inventory.some((item) => item.itemKey === 'icon-axe-01'),
     ).toBe(true);
     expect(crafted.player.skills[Skill.Crafting].xp).toBeGreaterThan(0);
   });
@@ -2166,7 +2169,7 @@ describe('game state', () => {
         id: 'ingot-1',
         name: 'Iron Ingot',
         itemKey: 'iron-ingot',
-        quantity: 2,
+        quantity: 20,
         tier: 1,
         rarity: 'common',
         power: 0,
@@ -2179,7 +2182,7 @@ describe('game state', () => {
         id: 'sticks-1',
         name: 'Sticks',
         itemKey: 'sticks',
-        quantity: 2,
+        quantity: 10,
         tier: 1,
         rarity: 'common',
         power: 0,
@@ -2190,7 +2193,7 @@ describe('game state', () => {
       },
     );
 
-    const denied = craftRecipe(game, 'craft-weapon');
+    const denied = craftRecipe(game, 'craft-icon-axe-01');
 
     expect(denied.logs[0]?.text).toMatch(/have not learned/i);
   });
@@ -2200,8 +2203,8 @@ describe('game state', () => {
     const originalLearnedRecipeIds = game.player.learnedRecipeIds;
     game.player.inventory.push({
       id: 'recipe-craft-weapon',
-      recipeId: 'craft-weapon',
-      name: 'Recipe: Camp Spear',
+      recipeId: 'craft-icon-axe-01',
+      name: 'Recipe: Axe 01',
       quantity: 1,
       tier: 1,
       rarity: 'uncommon',
@@ -2214,7 +2217,7 @@ describe('game state', () => {
 
     const learned = useItem(game, 'recipe-craft-weapon');
 
-    expect(learned.player.learnedRecipeIds).toContain('craft-weapon');
+    expect(learned.player.learnedRecipeIds).toContain('craft-icon-axe-01');
     expect(learned.player.learnedRecipeIds).not.toBe(originalLearnedRecipeIds);
     expect(
       learned.player.inventory.some(
@@ -2332,13 +2335,11 @@ describe('game state', () => {
       entries.some((entry) => entry.id === 'cook-cooked-fish' && entry.learned),
     ).toBe(true);
     expect(
-      entries.some((entry) => entry.id === 'craft-weapon' && !entry.learned),
-    ).toBe(true);
-    expect(
       entries.some(
         (entry) => entry.id === 'craft-icon-helmet-01' && !entry.learned,
       ),
     ).toBe(true);
+    expect(entries.some((entry) => entry.id === 'craft-weapon')).toBe(false);
   });
 
   it('lets every enemy on the tile retaliate during combat', () => {
