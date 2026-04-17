@@ -43,6 +43,8 @@ export function DraggableWindow({
   } | null>(null);
   const dragMovedRef = useRef(false);
   const resizeMovedRef = useRef(false);
+  const dragCleanupRef = useRef<(() => void) | null>(null);
+  const resizeCleanupRef = useRef<(() => void) | null>(null);
   const visualPositionRef = useRef(position);
   const wasVisibleRef = useRef(false);
   const [visibleState, setVisibleState] = useState(true);
@@ -111,6 +113,8 @@ export function DraggableWindow({
 
   useEffect(() => {
     if (!visible) {
+      dragCleanupRef.current?.();
+      resizeCleanupRef.current?.();
       wasVisibleRef.current = false;
       return;
     }
@@ -127,6 +131,14 @@ export function DraggableWindow({
     return () => window.cancelAnimationFrame(frame);
   }, [visible]);
 
+  useEffect(
+    () => () => {
+      dragCleanupRef.current?.();
+      resizeCleanupRef.current?.();
+    },
+    [],
+  );
+
   const closeWindow = () => {
     if (visibleProp === undefined) {
       setVisibleState(false);
@@ -136,6 +148,8 @@ export function DraggableWindow({
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     activateWindow();
+    dragCleanupRef.current?.();
+    resizeCleanupRef.current?.();
     const currentPosition = visualPositionRef.current;
     dragRef.current = {
       dx: event.clientX - currentPosition.x,
@@ -160,14 +174,19 @@ export function DraggableWindow({
 
     const onPointerUp = () => {
       const nextPosition = visualPositionRef.current;
-      dragRef.current = null;
       const didMove = dragMovedRef.current;
-      dragMovedRef.current = false;
+      dragCleanupRef.current?.();
       if (didMove) {
         onMove(nextPosition);
       }
+    };
+
+    dragCleanupRef.current = () => {
+      dragRef.current = null;
+      dragMovedRef.current = false;
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);
+      dragCleanupRef.current = null;
     };
 
     window.addEventListener('pointermove', onPointerMove);
@@ -178,6 +197,8 @@ export function DraggableWindow({
     if (!resizeBounds) return;
     event.stopPropagation();
     activateWindow();
+    dragCleanupRef.current?.();
+    resizeCleanupRef.current?.();
     const node = windowRef.current;
     if (!node) return;
     const rect = node.getBoundingClientRect();
@@ -214,14 +235,19 @@ export function DraggableWindow({
 
     const onPointerUp = () => {
       const nextPosition = visualPositionRef.current;
-      resizeRef.current = null;
       const didResize = resizeMovedRef.current;
-      resizeMovedRef.current = false;
+      resizeCleanupRef.current?.();
       if (didResize) {
         onMove(nextPosition);
       }
+    };
+
+    resizeCleanupRef.current = () => {
+      resizeRef.current = null;
+      resizeMovedRef.current = false;
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);
+      resizeCleanupRef.current = null;
     };
 
     window.addEventListener('pointermove', onPointerMove);

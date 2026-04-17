@@ -68,7 +68,6 @@ export function useWorldClockFps({
   }, [
     initialWorldTimeMs,
     lastDisplayedWorldSecondRef,
-    syncWorldTime,
     worldTimeMsRef,
     worldTimeTickRef,
   ]);
