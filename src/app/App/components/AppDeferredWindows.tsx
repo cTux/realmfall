@@ -17,7 +17,7 @@ interface AppDeferredWindowsProps {
   hexInfoView: ReturnType<
     typeof import('../hooks/useHexInfoView').useHexInfoView
   >;
-  loadedWindows: ReturnType<
+  mountedWindows: ReturnType<
     typeof import('../hooks/useDeferredWindows').useDeferredWindows
   >;
   managedWindowProps: ReturnType<
@@ -31,7 +31,7 @@ interface AppDeferredWindowsProps {
 export function AppDeferredWindows({
   combatPlayerParty,
   hexInfoView,
-  loadedWindows,
+  mountedWindows,
   managedWindowProps,
   recipeWindowStructure,
   ...props
@@ -44,14 +44,14 @@ export function AppDeferredWindows({
 
   return (
     <>
-      {loadedWindows.skills ? (
+      {mountedWindows.skills ? (
         <SkillsWindow
           {...managedWindowProps.skills}
           skills={views.hero.stats.skills}
           {...detailTooltipHandlers}
         />
       ) : null}
-      {loadedWindows.recipes ? (
+      {mountedWindows.recipes ? (
         <RecipeBookWindow
           {...managedWindowProps.recipes}
           currentStructure={recipeWindowStructure}
@@ -64,7 +64,7 @@ export function AppDeferredWindows({
           {...detailTooltipHandlers}
         />
       ) : null}
-      {loadedWindows.hexInfo ? (
+      {mountedWindows.hexInfo ? (
         <HexInfoWindow
           {...managedWindowProps.hexInfo}
           isHome={hexInfoView.isHome}
@@ -105,7 +105,7 @@ export function AppDeferredWindows({
           {...detailTooltipHandlers}
         />
       ) : null}
-      {loadedWindows.equipment ? (
+      {mountedWindows.equipment ? (
         <EquipmentWindow
           {...managedWindowProps.equipment}
           equipment={views.player.equipment}
@@ -116,7 +116,7 @@ export function AppDeferredWindows({
           {...detailTooltipHandlers}
         />
       ) : null}
-      {loadedWindows.inventory ? (
+      {mountedWindows.inventory ? (
         <InventoryWindow
           {...managedWindowProps.inventory}
           inventory={views.player.inventory}
@@ -130,7 +130,7 @@ export function AppDeferredWindows({
           {...detailTooltipHandlers}
         />
       ) : null}
-      {loadedWindows.loot ? (
+      {mountedWindows.loot ? (
         <LootWindow
           {...managedWindowProps.loot}
           visible={managedWindowProps.loot.visible && views.loot.visible}
@@ -143,7 +143,7 @@ export function AppDeferredWindows({
           {...detailTooltipHandlers}
         />
       ) : null}
-      {loadedWindows.log ? (
+      {mountedWindows.log ? (
         <LogWindow
           {...managedWindowProps.log}
           filters={views.logs.filters}
@@ -155,7 +155,7 @@ export function AppDeferredWindows({
           {...detailTooltipHandlers}
         />
       ) : null}
-      {loadedWindows.combat && views.combat.snapshot ? (
+      {mountedWindows.combat && views.combat.snapshot ? (
         <CombatWindow
           {...managedWindowProps.combat}
           visible={managedWindowProps.combat.visible && views.combat.visible}
@@ -168,7 +168,7 @@ export function AppDeferredWindows({
           onHoverHeaderAction={actions.tooltip.onShowTooltip}
         />
       ) : null}
-      {loadedWindows.settings ? (
+      {mountedWindows.settings ? (
         <GameSettingsWindow
           {...managedWindowProps.settings}
           graphicsSettings={views.settings.graphics}

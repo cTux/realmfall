@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { AppWindowsLayout } from '../AppWindows.types';
 import { DEFERRED_WINDOW_KEYS, type DeferredWindowKey } from './windowKeys';
 
-function createLoadedWindowState(
+function createMountedWindowState(
   windowShown: AppWindowsLayout['windowShown'],
   keepLootWindowMounted: boolean,
   keepCombatWindowMounted: boolean,
@@ -20,13 +20,13 @@ function createLoadedWindowState(
   } satisfies Record<DeferredWindowKey, boolean>;
 }
 
-function mergeLoadedWindowState(
+function mergeMountedWindowState(
   current: Record<DeferredWindowKey, boolean>,
   windowShown: AppWindowsLayout['windowShown'],
   keepLootWindowMounted: boolean,
   keepCombatWindowMounted: boolean,
 ) {
-  const next = createLoadedWindowState(
+  const next = createMountedWindowState(
     windowShown,
     keepLootWindowMounted,
     keepCombatWindowMounted,
@@ -49,8 +49,8 @@ export function useDeferredWindows({
   AppWindowsLayout,
   'windowShown' | 'keepLootWindowMounted' | 'keepCombatWindowMounted'
 >) {
-  const [loadedWindows, setLoadedWindows] = useState(() =>
-    createLoadedWindowState(
+  const [mountedWindows, setMountedWindows] = useState(() =>
+    createMountedWindowState(
       windowShown,
       keepLootWindowMounted,
       keepCombatWindowMounted,
@@ -58,8 +58,8 @@ export function useDeferredWindows({
   );
 
   useEffect(() => {
-    setLoadedWindows((current) =>
-      mergeLoadedWindowState(
+    setMountedWindows((current) =>
+      mergeMountedWindowState(
         current,
         windowShown,
         keepLootWindowMounted,
@@ -68,5 +68,5 @@ export function useDeferredWindows({
     );
   }, [keepCombatWindowMounted, keepLootWindowMounted, windowShown]);
 
-  return loadedWindows;
+  return mountedWindows;
 }
