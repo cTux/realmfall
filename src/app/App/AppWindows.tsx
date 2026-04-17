@@ -8,6 +8,7 @@ import { useCombatPlayerParty } from './hooks/useCombatPlayerParty';
 import { useDeferredWindows } from './hooks/useDeferredWindows';
 import { useHexInfoView } from './hooks/useHexInfoView';
 import { useRecipeWindowStructure } from './hooks/useRecipeWindowStructure';
+import { useManagedWindowProps } from './hooks/useManagedWindowProps';
 import { getDockEntries } from './utils/getDockEntries';
 
 export function AppWindows(props: AppWindowsProps) {
@@ -16,12 +17,12 @@ export function AppWindows(props: AppWindowsProps) {
     () =>
       getDockEntries(
         props.layout.windowShown,
-        props.layout.renderLootWindow,
-        props.layout.renderCombatWindow,
+        props.layout.keepLootWindowMounted,
+        props.layout.keepCombatWindowMounted,
       ),
     [
-      props.layout.renderCombatWindow,
-      props.layout.renderLootWindow,
+      props.layout.keepCombatWindowMounted,
+      props.layout.keepLootWindowMounted,
       props.layout.windowShown,
     ],
   );
@@ -29,10 +30,16 @@ export function AppWindows(props: AppWindowsProps) {
     onMoveWindow: props.actions.windows.onMoveWindow,
     onSetWindowVisibility: props.actions.windows.onSetWindowVisibility,
   });
+  const managedWindowProps = useManagedWindowProps({
+    windows: props.layout.windows,
+    windowShown: props.layout.windowShown,
+    windowMoveHandlers,
+    windowCloseHandlers,
+  });
   const loadedWindows = useDeferredWindows({
     windowShown: props.layout.windowShown,
-    renderLootWindow: props.layout.renderLootWindow,
-    renderCombatWindow: props.layout.renderCombatWindow,
+    keepLootWindowMounted: props.layout.keepLootWindowMounted,
+    keepCombatWindowMounted: props.layout.keepCombatWindowMounted,
   });
   const hexInfoView = useHexInfoView({
     homeHex: props.views.world.homeHex,
@@ -56,18 +63,16 @@ export function AppWindows(props: AppWindowsProps) {
       <AppFixedWindows
         {...props}
         dockEntries={dockEntries}
+        managedWindowProps={managedWindowProps}
         tooltip={tooltip}
-        windowCloseHandlers={windowCloseHandlers}
-        windowMoveHandlers={windowMoveHandlers}
       />
       <AppDeferredWindows
         {...props}
         combatPlayerParty={combatPlayerParty}
         hexInfoView={hexInfoView}
         loadedWindows={loadedWindows}
+        managedWindowProps={managedWindowProps}
         recipeWindowStructure={recipeWindowStructure}
-        windowCloseHandlers={windowCloseHandlers}
-        windowMoveHandlers={windowMoveHandlers}
       />
     </>
   );

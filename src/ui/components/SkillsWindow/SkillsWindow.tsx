@@ -1,17 +1,17 @@
-import { lazy, memo, Suspense } from 'react';
+import { memo, Suspense } from 'react';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { WindowLoadingState } from '../WindowLoadingState';
-import { loadRetryingWindowModule } from '../lazyWindowComponent';
+import { createLazyWindowComponent } from '../lazyWindowComponent';
 import { WindowShell } from '../WindowShell';
 import type { SkillsWindowProps } from './types';
 import styles from './styles.module.scss';
 
-const SkillsWindowContent = lazy(() =>
-  loadRetryingWindowModule(() =>
-    import('./SkillsWindowContent').then((module) => ({
-      default: module.SkillsWindowContent,
-    })),
-  ),
+const SkillsWindowContent = createLazyWindowComponent<
+  Parameters<(typeof import('./SkillsWindowContent'))['SkillsWindowContent']>[0]
+>(() =>
+  import('./SkillsWindowContent').then((module) => ({
+    default: module.SkillsWindowContent,
+  })),
 );
 
 export const SkillsWindow = memo(function SkillsWindow({

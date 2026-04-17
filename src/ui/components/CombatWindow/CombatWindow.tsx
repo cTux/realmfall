@@ -1,19 +1,19 @@
-import { lazy, Suspense } from 'react';
+import { Suspense } from 'react';
 import { t } from '../../../i18n';
 import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
 import { WindowLoadingState } from '../WindowLoadingState';
-import { loadRetryingWindowModule } from '../lazyWindowComponent';
+import { createLazyWindowComponent } from '../lazyWindowComponent';
 import inventoryStyles from '../InventoryWindow/styles.module.scss';
 import { WindowShell } from '../WindowShell';
 import type { CombatWindowProps } from './types';
 import styles from './styles.module.scss';
 
-const CombatWindowContent = lazy(() =>
-  loadRetryingWindowModule(() =>
-    import('./CombatWindowContent').then((module) => ({
-      default: module.CombatWindowContent,
-    })),
-  ),
+const CombatWindowContent = createLazyWindowComponent<
+  Parameters<(typeof import('./CombatWindowContent'))['CombatWindowContent']>[0]
+>(() =>
+  import('./CombatWindowContent').then((module) => ({
+    default: module.CombatWindowContent,
+  })),
 );
 
 export const CombatWindow = ({

@@ -9,7 +9,7 @@ import {
   STRUCTURE_CONFIGS,
   getStructureConfig,
 } from '../../game/content/structures';
-import type { Enemy, StructureType } from '../../game/state';
+import type { Enemy, GameState, StructureType, Tile } from '../../game/state';
 import { ImageSource, Texture } from 'pixi.js';
 
 export const WorldIcons = {
@@ -40,39 +40,66 @@ export function structureIconFor(structure: StructureType) {
 export function getWorldIconAssetIds() {
   return Array.from(
     new Set([
-      ...Object.values(WorldIcons),
+      ...getCoreWorldIconAssetIds(),
       ...ENEMY_CONFIGS.map((config) => config.icon),
       ...STRUCTURE_CONFIGS.map((config) => config.icon),
     ]),
   );
 }
 
+export function getCoreWorldIconAssetIds() {
+  return Object.values(WorldIcons);
+}
+
+export function getVisibleWorldIconAssetIds(
+  game: Pick<GameState, 'enemies'>,
+  visibleTiles: Tile[],
+) {
+  const iconAssetIds = new Set(getCoreWorldIconAssetIds());
+
+  for (const tile of visibleTiles) {
+    if (tile.structure) {
+      iconAssetIds.add(
+        tile.structure === 'town' && tile.claim?.ownerType === 'faction'
+          ? WorldIcons.Castle
+          : structureIconFor(tile.structure),
+      );
+    }
+
+    if (tile.claim?.npc?.enemyId) {
+      iconAssetIds.add(WorldIcons.Village);
+    }
+
+    for (const enemyId of tile.enemyIds) {
+      const enemy = game.enemies[enemyId];
+      if (enemy) {
+        iconAssetIds.add(enemyIconFor(enemy));
+      }
+    }
+  }
+
+  return [...iconAssetIds];
+}
+
 const worldIconTextures = new Map<string, Texture>();
-let worldIconPreloadPromise: Promise<void> | null = null;
+const worldIconTextureLoads = new Map<string, Promise<Texture>>();
 
 export function getWorldIconTexture(icon: string) {
   return worldIconTextures.get(icon) ?? Texture.from(icon);
 }
 
-export function ensureWorldIconTexturesLoaded() {
-  if (worldIconPreloadPromise) {
-    return worldIconPreloadPromise;
-  }
-
+export function ensureWorldIconTexturesLoaded(iconAssetIds = getWorldIconAssetIds()) {
   if (
     typeof window === 'undefined' ||
     typeof Image === 'undefined' ||
     /jsdom/i.test(globalThis.navigator?.userAgent ?? '')
   ) {
-    worldIconPreloadPromise = Promise.resolve();
-    return worldIconPreloadPromise;
+    return Promise.resolve();
   }
 
-  worldIconPreloadPromise = Promise.all(
-    getWorldIconAssetIds().map((icon) => loadWorldIconTexture(icon)),
-  ).then(() => undefined);
-
-  return worldIconPreloadPromise;
+  return Promise.all(iconAssetIds.map((icon) => loadWorldIconTexture(icon))).then(
+    () => undefined,
+  );
 }
 
 function loadWorldIconTexture(icon: string) {
@@ -81,7 +108,12 @@ function loadWorldIconTexture(icon: string) {
     return Promise.resolve(existing);
   }
 
-  return new Promise<Texture>((resolve, reject) => {
+  const inFlight = worldIconTextureLoads.get(icon);
+  if (inFlight) {
+    return inFlight;
+  }
+
+  const textureLoad = new Promise<Texture>((resolve, reject) => {
     const image = new Image();
 
     image.onload = () => {
@@ -90,12 +122,17 @@ function loadWorldIconTexture(icon: string) {
           resource: image,
         }),
       });
+      worldIconTextureLoads.delete(icon);
       worldIconTextures.set(icon, texture);
       resolve(texture);
     };
     image.onerror = () => {
+      worldIconTextureLoads.delete(icon);
       reject(new Error(`Failed to load world icon texture: ${icon}`));
     };
     image.src = icon;
   });
+
+  worldIconTextureLoads.set(icon, textureLoad);
+  return textureLoad;
 }

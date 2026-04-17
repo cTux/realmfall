@@ -9,7 +9,7 @@ interface UseKeyboardShortcutsOptions {
   lootSnapshotLength: number;
   lootWindowVisible: boolean;
   onStartCombat: () => void;
-  renderLootWindow: boolean;
+  keepLootWindowMounted: boolean;
   onInteract: () => void;
   onTakeAllLoot: () => void;
   onCloseAllWindows: () => void;
@@ -23,7 +23,7 @@ export function useKeyboardShortcuts({
   lootSnapshotLength,
   lootWindowVisible,
   onStartCombat,
-  renderLootWindow,
+  keepLootWindowMounted,
   onInteract,
   onTakeAllLoot,
   onCloseAllWindows,
@@ -51,7 +51,7 @@ export function useKeyboardShortcuts({
 
       if (
         lowerKey === 'e' &&
-        renderLootWindow &&
+        keepLootWindowMounted &&
         windowShownLoot &&
         lootWindowVisible &&
         lootSnapshotLength > 0
@@ -92,7 +92,7 @@ export function useKeyboardShortcuts({
     onStartCombat,
     onTakeAllLoot,
     onToggleDockWindow,
-    renderLootWindow,
+    keepLootWindowMounted,
     windowShownLoot,
   ]);
 }

@@ -31,7 +31,6 @@ import {
   createCombatActorState,
   enemyRarityIndex,
   enemyKey,
-  enemyIndexFromId,
   getAbilityDefinition,
   isAnimalEnemy,
   makeEnemy,
@@ -95,7 +94,6 @@ import {
 } from './progression';
 import { isPassable, noise } from './shared';
 import {
-  isFactionNpcEnemyId,
   isPlayerClaim,
   makePlayerClaim,
 } from './territories';
@@ -114,6 +112,15 @@ import {
   structureDefinition,
 } from './world';
 import { copyGameState } from './stateClone';
+import {
+  getCurrentTile,
+  getEnemiesAt,
+  getEnemyAt,
+  getHostileEnemyIds,
+  getPlayerClaimedTiles,
+  getTileAt,
+  getVisibleTiles,
+} from './stateWorldQueries';
 import {
   applySurvivalDecay,
   processPlayerStatusEffects,
@@ -177,6 +184,15 @@ export {
   skillLevelThreshold,
   structureActionLabel,
 };
+export {
+  getCurrentTile,
+  getEnemiesAt,
+  getEnemyAt,
+  getHostileEnemyIds,
+  getPlayerClaimedTiles,
+  getTileAt,
+  getVisibleTiles,
+} from './stateWorldQueries';
 
 export const HARVEST_MOON_RESOURCE_TYPES: GatheringStructureType[] = [
   'herbs',
@@ -265,32 +281,6 @@ export function getRecipeBookEntries(learnedRecipeIds: string[]) {
     RECIPE_BOOK_RECIPES,
     learnedRecipeIds,
   );
-}
-
-export function getVisibleTiles(state: GameState) {
-  const tiles = [];
-  const { q: pq, r: pr } = state.player.coord;
-
-  for (let dq = -state.radius; dq <= state.radius; dq += 1) {
-    for (let dr = -state.radius; dr <= state.radius; dr += 1) {
-      if (Math.abs(dq + dr) > state.radius) continue;
-      tiles.push(getTileAt(state, { q: pq + dq, r: pr + dr }));
-    }
-  }
-
-  return tiles;
-}
-
-export function getTileAt(state: GameState, coord: HexCoord) {
-  return state.tiles[hexKey(coord)] ?? buildTile(state.seed, coord);
-}
-
-export function getCurrentTile(state: GameState) {
-  return getTileAt(state, state.player.coord);
-}
-
-export function getPlayerClaimedTiles(state: GameState) {
-  return Object.values(state.tiles).filter((tile) => isPlayerClaim(tile.claim));
 }
 
 function getConnectedPlayerClaimCount(
@@ -430,51 +420,6 @@ export function getCurrentHexClaimStatus(state: GameState) {
   }
 
   return { action: 'claim' as const, canClaim: true, reason: null };
-}
-
-export function getEnemiesAt(state: GameState, coord: HexCoord) {
-  const tile = getTileAt(state, coord);
-  return tile.enemyIds.map((enemyId) => {
-    const enemy = state.enemies[enemyId];
-    if (enemy) return enemy;
-
-    const hostile = isHostileTileEnemy(state, tile, enemyId);
-    const enemyName =
-      tile.claim?.npc?.enemyId === enemyId ? tile.claim.npc?.name : undefined;
-
-    return makeEnemy(
-      state.seed,
-      coord,
-      tile.terrain,
-      enemyIndexFromId(enemyId),
-      tile.structure,
-      state.bloodMoonActive,
-      {
-        enemyId,
-        aggressive: hostile,
-        name: enemyName,
-        worldBoss: isWorldBossEnemyId(enemyId),
-      },
-    );
-  });
-}
-
-export function getEnemyAt(state: GameState, coord: HexCoord) {
-  return getEnemiesAt(state, coord)[0];
-}
-
-export function getHostileEnemyIds(state: GameState, coord: HexCoord) {
-  const tile = getTileAt(state, coord);
-  return tile.enemyIds.filter((enemyId) =>
-    isHostileTileEnemy(state, tile, enemyId),
-  );
-}
-
-function isHostileTileEnemy(state: GameState, tile: Tile, enemyId: string) {
-  if (tile.claim?.npc?.enemyId === enemyId) return false;
-  if (isFactionNpcEnemyId(enemyId)) return false;
-  const enemy = state.enemies[enemyId];
-  return enemy?.aggressive !== false;
 }
 
 export function getSafePathToTile(state: GameState, target: HexCoord) {

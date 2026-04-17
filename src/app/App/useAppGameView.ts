@@ -24,42 +24,55 @@ interface UseAppGameViewOptions {
 }
 
 export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
-  const { combat, homeHex, logs, player, seed, tiles } = game;
+  const { bloodMoonActive, combat, enemies, homeHex, logs, player, seed, tiles } =
+    game;
+  const { coord, inventory, learnedRecipeIds, skills } = player;
+  const worldViewState = useMemo(
+    () => ({
+      bloodMoonActive,
+      combat,
+      enemies,
+      player,
+      seed,
+      tiles,
+    }),
+    [bloodMoonActive, combat, enemies, player, seed, tiles],
+  );
 
   const stats = useMemo(() => getPlayerStats(player), [player]);
   const currentTile = useMemo(
-    () => tiles[hexKey(player.coord)] ?? buildTile(seed, player.coord),
-    [player.coord, seed, tiles],
+    () => tiles[hexKey(coord)] ?? buildTile(seed, coord),
+    [coord, seed, tiles],
   );
   const recipes = useMemo(
-    () => getRecipeBookEntries(player.learnedRecipeIds),
-    [player.learnedRecipeIds],
+    () => getRecipeBookEntries(learnedRecipeIds),
+    [learnedRecipeIds],
   );
   const recipeSkillLevels = useMemo(
     () => ({
-      [Skill.Gathering]: player.skills[Skill.Gathering].level,
-      [Skill.Logging]: player.skills[Skill.Logging].level,
-      [Skill.Mining]: player.skills[Skill.Mining].level,
-      [Skill.Skinning]: player.skills[Skill.Skinning].level,
-      [Skill.Fishing]: player.skills[Skill.Fishing].level,
-      [Skill.Cooking]: player.skills[Skill.Cooking].level,
-      [Skill.Smelting]: player.skills[Skill.Smelting].level,
-      [Skill.Crafting]: player.skills[Skill.Crafting].level,
+      [Skill.Gathering]: skills[Skill.Gathering].level,
+      [Skill.Logging]: skills[Skill.Logging].level,
+      [Skill.Mining]: skills[Skill.Mining].level,
+      [Skill.Skinning]: skills[Skill.Skinning].level,
+      [Skill.Fishing]: skills[Skill.Fishing].level,
+      [Skill.Cooking]: skills[Skill.Cooking].level,
+      [Skill.Smelting]: skills[Skill.Smelting].level,
+      [Skill.Crafting]: skills[Skill.Crafting].level,
     }),
-    [player.skills],
+    [skills],
   );
   const inventoryCountsByItemKey = useMemo(
     () =>
-      player.inventory.reduce<Record<string, number>>((counts, item) => {
+      inventory.reduce<Record<string, number>>((counts, item) => {
         const key = item.itemKey ?? item.name;
         counts[key] = (counts[key] ?? 0) + item.quantity;
         return counts;
       }, {}),
-    [player.inventory],
+    [inventory],
   );
   const hasUnlockedEquipmentInInventory = useMemo(
-    () => player.inventory.some((item) => isEquippableItem(item) && !item.locked),
-    [player.inventory],
+    () => inventory.some((item) => isEquippableItem(item) && !item.locked),
+    [inventory],
   );
   const townStock = useMemo(
     () =>
@@ -68,17 +81,14 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
         : [],
     [currentTile.coord, currentTile.structure, seed],
   );
-  const gold = useMemo(
-    () => getGoldAmount(player.inventory),
-    [player.inventory],
-  );
+  const gold = useMemo(() => getGoldAmount(inventory), [inventory]);
   const combatEnemies = useMemo(
-    () => (combat ? getEnemiesAt(game, combat.coord) : []),
-    [combat, game],
+    () => (combat ? getEnemiesAt(worldViewState as GameState, combat.coord) : []),
+    [combat, worldViewState],
   );
   const currentTileHostileEnemyCount = useMemo(
-    () => getHostileEnemyIds(game, currentTile.coord).length,
-    [currentTile.coord, game],
+    () => getHostileEnemyIds(worldViewState as GameState, currentTile.coord).length,
+    [currentTile.coord, worldViewState],
   );
   const filteredLogs = useMemo(
     () => logs.filter((entry) => logFilters[entry.kind]),
@@ -107,7 +117,10 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
       ? t('game.message.sell.empty')
       : null;
   const interactLabel = structureActionLabel(currentTile.structure);
-  const claimStatus = useMemo(() => getCurrentHexClaimStatus(game), [game]);
+  const claimStatus = useMemo(
+    () => getCurrentHexClaimStatus(worldViewState as GameState),
+    [worldViewState],
+  );
 
   return {
     claimStatus,

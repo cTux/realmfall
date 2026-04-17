@@ -88,6 +88,7 @@ export default defineConfig({
     ].filter(Boolean);
   })(),
   build: {
+    manifest: true,
     rollupOptions: {
       output: {
         entryFileNames: 'assets/js/[name]-[hash].js',

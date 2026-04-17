@@ -23,8 +23,8 @@ export interface AppWindowsProps {
 export interface AppWindowsLayout {
   windows: WindowPositions;
   windowShown: WindowVisibilityState;
-  renderLootWindow: boolean;
-  renderCombatWindow: boolean;
+  keepLootWindowMounted: boolean;
+  keepCombatWindowMounted: boolean;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
 }
 

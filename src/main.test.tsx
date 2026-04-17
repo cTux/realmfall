@@ -16,13 +16,37 @@ describe('main bootstrap', () => {
     document.body.innerHTML = '<div id="root"></div>';
 
     await import('./main');
-    await vi.dynamicImportSettled();
-    await Promise.resolve();
 
     expect(createRoot).toHaveBeenCalledWith(document.getElementById('root'));
     expect(render).toHaveBeenCalledTimes(1);
+
+    await vi.dynamicImportSettled();
+    await Promise.resolve();
+
+    expect(render).toHaveBeenCalledTimes(2);
     expect(
       (globalThis as typeof globalThis & { version: string }).version,
     ).toBe(__APP_VERSION__);
+  });
+
+  it('renders a spinner-only bootstrap shell before the app loads', async () => {
+    document.body.innerHTML = '<div id="root"></div>';
+
+    await import('./main');
+
+    const firstRender = render.mock.calls[0]?.[0] as React.ReactElement;
+    const bootstrapShellElement = firstRender.props.children as React.ReactElement;
+    const bootstrapShell = (
+      bootstrapShellElement.type as (
+        props: typeof bootstrapShellElement.props,
+      ) => React.ReactElement
+    )(bootstrapShellElement.props);
+    const bootstrapChildren = React.Children.toArray(
+      bootstrapShell.props.children,
+    );
+
+    expect(bootstrapShell.props.role).toBe('status');
+    expect(bootstrapChildren).toHaveLength(2);
+    expect(JSON.stringify(firstRender)).not.toContain('Loading Realmfall');
   });
 });

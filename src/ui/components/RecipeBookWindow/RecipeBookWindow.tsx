@@ -1,17 +1,19 @@
-import { lazy, memo, Suspense } from 'react';
+import { memo, Suspense } from 'react';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { WindowLoadingState } from '../WindowLoadingState';
-import { loadRetryingWindowModule } from '../lazyWindowComponent';
+import { createLazyWindowComponent } from '../lazyWindowComponent';
 import { WindowShell } from '../WindowShell';
 import type { RecipeBookWindowProps } from './types';
 import styles from './styles.module.scss';
 
-const RecipeBookWindowContent = lazy(() =>
-  loadRetryingWindowModule(() =>
-    import('./RecipeBookWindowContent').then((module) => ({
-      default: module.RecipeBookWindowContent,
-    })),
-  ),
+const RecipeBookWindowContent = createLazyWindowComponent<
+  Parameters<
+    (typeof import('./RecipeBookWindowContent'))['RecipeBookWindowContent']
+  >[0]
+>(() =>
+  import('./RecipeBookWindowContent').then((module) => ({
+    default: module.RecipeBookWindowContent,
+  })),
 );
 
 export const RecipeBookWindow = memo(function RecipeBookWindow({

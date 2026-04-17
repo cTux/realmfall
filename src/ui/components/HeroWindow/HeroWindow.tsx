@@ -1,16 +1,16 @@
-import { lazy, memo, Suspense } from 'react';
+import { memo, Suspense } from 'react';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { WindowLoadingState } from '../WindowLoadingState';
-import { loadRetryingWindowModule } from '../lazyWindowComponent';
+import { createLazyWindowComponent } from '../lazyWindowComponent';
 import { WindowShell } from '../WindowShell';
 import type { HeroWindowProps } from './types';
 
-const HeroWindowContent = lazy(() =>
-  loadRetryingWindowModule(() =>
-    import('./HeroWindowContent').then((module) => ({
-      default: module.HeroWindowContent,
-    })),
-  ),
+const HeroWindowContent = createLazyWindowComponent<
+  Parameters<(typeof import('./HeroWindowContent'))['HeroWindowContent']>[0]
+>(() =>
+  import('./HeroWindowContent').then((module) => ({
+    default: module.HeroWindowContent,
+  })),
 );
 
 export const HeroWindow = memo(function HeroWindow({

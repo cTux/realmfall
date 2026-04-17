@@ -23,14 +23,15 @@ export function useWindowTransitions({
   }, [currentTile]);
   const showLootWindow = Boolean(!combat && lootWindowKey);
 
-  const [renderLootWindow, setRenderLootWindow] = useState(showLootWindow);
+  const [keepLootWindowMounted, setKeepLootWindowMounted] =
+    useState(showLootWindow);
   const [lootWindowVisible, setLootWindowVisible] = useState(showLootWindow);
   const [lootSnapshot, setLootSnapshot] = useState<Item[]>(currentTile.items);
 
   useEffect(() => {
     if (showLootWindow) {
       setLootSnapshot(currentTile.items);
-      setRenderLootWindow(true);
+      setKeepLootWindowMounted(true);
       const frame = window.requestAnimationFrame(() =>
         setLootWindowVisible(true),
       );
@@ -38,11 +39,13 @@ export function useWindowTransitions({
     }
 
     setLootWindowVisible(false);
-    const timeout = window.setTimeout(() => setRenderLootWindow(false), 180);
+    const timeout = window.setTimeout(() => setKeepLootWindowMounted(false), 180);
     return () => window.clearTimeout(timeout);
   }, [currentTile.items, showLootWindow]);
 
-  const [renderCombatWindow, setRenderCombatWindow] = useState(Boolean(combat));
+  const [keepCombatWindowMounted, setKeepCombatWindowMounted] = useState(
+    Boolean(combat),
+  );
   const [combatWindowVisible, setCombatWindowVisible] = useState(
     Boolean(combat),
   );
@@ -54,7 +57,7 @@ export function useWindowTransitions({
   useEffect(() => {
     if (combat) {
       setCombatSnapshot({ combat, enemies: combatEnemies });
-      setRenderCombatWindow(true);
+      setKeepCombatWindowMounted(true);
       const frame = window.requestAnimationFrame(() =>
         setCombatWindowVisible(true),
       );
@@ -62,7 +65,10 @@ export function useWindowTransitions({
     }
 
     setCombatWindowVisible(false);
-    const timeout = window.setTimeout(() => setRenderCombatWindow(false), 180);
+    const timeout = window.setTimeout(
+      () => setKeepCombatWindowMounted(false),
+      180,
+    );
     return () => window.clearTimeout(timeout);
   }, [combat, combatEnemies]);
 
@@ -71,7 +77,7 @@ export function useWindowTransitions({
     combatWindowVisible,
     lootSnapshot,
     lootWindowVisible,
-    renderCombatWindow,
-    renderLootWindow,
+    keepCombatWindowMounted,
+    keepLootWindowMounted,
   };
 }

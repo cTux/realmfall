@@ -4,8 +4,8 @@ import { DOCK_WINDOW_ICONS } from './dockWindowIcons';
 
 export function getDockEntries(
   windowShown: WindowVisibilityState,
-  renderLootWindow: boolean,
-  renderCombatWindow: boolean,
+  keepLootWindowMounted: boolean,
+  keepCombatWindowMounted: boolean,
 ) {
   const keys: Array<keyof WindowVisibilityState> = [
     'worldTime',
@@ -17,9 +17,9 @@ export function getDockEntries(
     'inventory',
   ];
 
-  if (renderLootWindow) keys.push('loot');
+  if (keepLootWindowMounted) keys.push('loot');
   keys.push('log');
-  if (renderCombatWindow) keys.push('combat');
+  if (keepCombatWindowMounted) keys.push('combat');
   keys.push('settings');
 
   return keys.map((key) => {

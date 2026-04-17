@@ -1,17 +1,19 @@
-import { lazy, memo, Suspense } from 'react';
+import { memo, Suspense } from 'react';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { WindowLoadingState } from '../WindowLoadingState';
-import { loadRetryingWindowModule } from '../lazyWindowComponent';
+import { createLazyWindowComponent } from '../lazyWindowComponent';
 import { WindowShell } from '../WindowShell';
 import type { EquipmentWindowProps } from './types';
 import styles from './styles.module.scss';
 
-const EquipmentWindowContent = lazy(() =>
-  loadRetryingWindowModule(() =>
-    import('./EquipmentWindowContent').then((module) => ({
-      default: module.EquipmentWindowContent,
-    })),
-  ),
+const EquipmentWindowContent = createLazyWindowComponent<
+  Parameters<
+    (typeof import('./EquipmentWindowContent'))['EquipmentWindowContent']
+  >[0]
+>(() =>
+  import('./EquipmentWindowContent').then((module) => ({
+    default: module.EquipmentWindowContent,
+  })),
 );
 
 export const EquipmentWindow = memo(function EquipmentWindow({

@@ -1,20 +1,20 @@
-import { lazy, memo, Suspense } from 'react';
+import { memo, Suspense } from 'react';
 import { t } from '../../../i18n';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
 import { WindowLoadingState } from '../WindowLoadingState';
-import { loadRetryingWindowModule } from '../lazyWindowComponent';
+import { createLazyWindowComponent } from '../lazyWindowComponent';
 import inventoryStyles from '../InventoryWindow/styles.module.scss';
 import { WindowShell } from '../WindowShell';
 import type { HexInfoWindowProps } from './types';
 import styles from './styles.module.scss';
 
-const HexInfoWindowContent = lazy(() =>
-  loadRetryingWindowModule(() =>
-    import('./HexInfoWindowContent').then((module) => ({
-      default: module.HexInfoWindowContent,
-    })),
-  ),
+const HexInfoWindowContent = createLazyWindowComponent<
+  Parameters<(typeof import('./HexInfoWindowContent'))['HexInfoWindowContent']>[0]
+>(() =>
+  import('./HexInfoWindowContent').then((module) => ({
+    default: module.HexInfoWindowContent,
+  })),
 );
 
 export const HexInfoWindow = memo(function HexInfoWindow({

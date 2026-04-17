@@ -1,17 +1,17 @@
-import { lazy, memo, Suspense } from 'react';
+import { memo, Suspense } from 'react';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { WindowLoadingState } from '../WindowLoadingState';
-import { loadRetryingWindowModule } from '../lazyWindowComponent';
+import { createLazyWindowComponent } from '../lazyWindowComponent';
 import { WindowShell } from '../WindowShell';
 import type { DebuggerWindowProps } from './types';
 import styles from './styles.module.scss';
 
-const DebuggerWindowContent = lazy(() =>
-  loadRetryingWindowModule(() =>
-    import('./DebuggerWindowContent').then((module) => ({
-      default: module.DebuggerWindowContent,
-    })),
-  ),
+const DebuggerWindowContent = createLazyWindowComponent<
+  Parameters<(typeof import('./DebuggerWindowContent'))['DebuggerWindowContent']>[0]
+>(() =>
+  import('./DebuggerWindowContent').then((module) => ({
+    default: module.DebuggerWindowContent,
+  })),
 );
 
 export const DebuggerWindow = memo(function DebuggerWindow({
