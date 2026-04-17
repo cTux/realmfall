@@ -13,7 +13,7 @@ const extensionsAdd = vi.fn();
 
 class MockSprite {
   icon?: string;
-  texture: { icon?: string };
+  private currentTexture: { icon?: string };
   anchor = { set: vi.fn() };
   position = { set: vi.fn() };
   width = 0;
@@ -23,7 +23,16 @@ class MockSprite {
   visible = true;
 
   constructor(texture: { icon?: string }) {
-    this.texture = texture;
+    this.currentTexture = texture;
+    this.icon = texture.icon;
+  }
+
+  get texture() {
+    return this.currentTexture;
+  }
+
+  set texture(texture: { icon?: string }) {
+    this.currentTexture = texture;
     this.icon = texture.icon;
   }
 }
@@ -164,6 +173,7 @@ vi.mock('pixi.js', () => ({
   Text: MockText,
   TextStyle: MockTextStyle,
   Texture: {
+    EMPTY: { icon: undefined },
     from: textureFrom,
   },
   UniformGroup: MockUniformGroup,
@@ -1402,7 +1412,7 @@ describe('renderScene', () => {
           (child.width ?? 0) < 130 &&
           (child.height ?? 0) >= 75 &&
           (child.height ?? 0) < 130 &&
-          child.tint === 0x7f1d1d,
+          child.tint === 0xf59e0b,
       ),
     ).toBe(true);
   });

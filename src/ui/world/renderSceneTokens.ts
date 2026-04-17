@@ -7,6 +7,7 @@ import {
   type Tile,
 } from '../../game/state';
 import type { SceneCache } from './renderSceneCache';
+import { getWorldIconTextureVersion } from './worldIcons';
 
 export function getSceneRenderTokens(
   scene: SceneCache,
@@ -24,19 +25,22 @@ export function getSceneRenderTokens(
   if (scene.derivedRenderEnemiesSource !== state.enemies) {
     scene.derivedRenderEnemiesSource = state.enemies;
   }
+  const iconTextureVersion = getWorldIconTextureVersion();
 
   if (
     scene.derivedRenderVisibleTilesSource !== visibleTiles ||
     visibleEnemyToken !== scene.derivedRenderVisibleEnemyToken ||
     scene.derivedRenderPlayerCoordKey !== playerCoordKey ||
     scene.derivedRenderHomeHexKey !== homeHexKey ||
-    scene.derivedRenderBloodMoonActive !== state.bloodMoonActive
+    scene.derivedRenderBloodMoonActive !== state.bloodMoonActive ||
+    scene.derivedRenderIconTextureVersion !== iconTextureVersion
   ) {
     scene.derivedRenderVisibleTilesSource = visibleTiles;
     scene.derivedRenderVisibleEnemyToken = visibleEnemyToken;
     scene.derivedRenderPlayerCoordKey = playerCoordKey;
     scene.derivedRenderHomeHexKey = homeHexKey;
     scene.derivedRenderBloodMoonActive = state.bloodMoonActive;
+    scene.derivedRenderIconTextureVersion = iconTextureVersion;
     scene.derivedStaticRenderToken = getStaticRenderToken(state, visibleTiles);
     scene.derivedInteractionRenderToken = getInteractionRenderToken(
       state,
@@ -71,6 +75,7 @@ function getStaticRenderToken(
   token = mixRenderToken(token, coordToken(state.player.coord));
   token = mixRenderToken(token, coordToken(state.homeHex));
   token = mixRenderToken(token, state.bloodMoonActive ? 1 : 0);
+  token = mixRenderToken(token, getWorldIconTextureVersion());
 
   for (const tile of visibleTiles) {
     token = mixRenderToken(token, getStaticTileRenderToken(state, tile));

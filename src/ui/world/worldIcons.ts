@@ -33,6 +33,14 @@ export function enemyIconFor(
   );
 }
 
+export function enemyIconTintFor(
+  enemy: Pick<Enemy, 'enemyTypeId' | 'name'> | string,
+) {
+  const lookup =
+    typeof enemy === 'string' ? enemy : (enemy.enemyTypeId ?? enemy.name);
+  return getEnemyConfig(lookup)?.tint ?? 0xef4444;
+}
+
 export function structureIconFor(structure: StructureType) {
   return getStructureConfig(structure).icon;
 }
@@ -82,7 +90,9 @@ export function getVisibleWorldIconAssetIds(
 }
 
 const worldIconTextures = new Map<string, Texture>();
+const worldIconTestFallbackTextures = new Map<string, Texture>();
 const worldIconTextureLoads = new Map<string, Promise<Texture>>();
+let worldIconTextureVersion = 0;
 
 export function getWorldIconTexture(icon: string) {
   if (worldIconTextures.has(icon)) {
@@ -90,10 +100,21 @@ export function getWorldIconTexture(icon: string) {
   }
 
   if (/jsdom/i.test(globalThis.navigator?.userAgent ?? '')) {
-    return Texture.from(icon);
+    const fallbackTexture = worldIconTestFallbackTextures.get(icon);
+    if (fallbackTexture) {
+      return fallbackTexture;
+    }
+
+    const texture = Texture.from(icon);
+    worldIconTestFallbackTextures.set(icon, texture);
+    return texture;
   }
 
   throw new Error(`World icon texture requested before preload: ${icon}`);
+}
+
+export function getWorldIconTextureVersion() {
+  return worldIconTextureVersion;
 }
 
 export function ensureWorldIconTexturesLoaded(
@@ -134,6 +155,10 @@ function loadWorldIconTexture(icon: string) {
       });
       worldIconTextureLoads.delete(icon);
       worldIconTextures.set(icon, texture);
+      worldIconTextureVersion =
+        worldIconTextureVersion >= Number.MAX_SAFE_INTEGER
+          ? 1
+          : worldIconTextureVersion + 1;
       resolve(texture);
     };
     image.onerror = () => {
