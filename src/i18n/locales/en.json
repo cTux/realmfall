@@ -159,6 +159,8 @@
   "game.message.equipment.slotEmpty": "That slot is already empty.",
   "game.message.equipment.unequip": "You unequip {item}.",
   "game.message.gather.bonus": "Your {skill} skill nets extra {reward}.",
+  "game.message.gather.byproduct.sticks": "You also gather a few {item} from the chopped wood.",
+  "game.message.gather.byproduct.stone": "You also gather some {item} from the broken ore seam.",
   "game.message.gather.nothingHere": "There is nothing here to gather.",
   "game.message.gather.success": "{action} and bring in {item}.",
   "game.message.harvestMoon.begin": "Harvest moon rises. A cyan glow stirs the wild herbs and veins.",

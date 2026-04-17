@@ -13,7 +13,6 @@ import {
   HOME_SCROLL_ITEM_NAME_KEY,
   STARTING_RECIPE_IDS,
   WORLD_RADIUS,
-  WORLD_REVEAL_RADIUS,
 } from './config';
 import { createRng } from './random';
 import { itemName } from './content/i18n';
@@ -121,6 +120,8 @@ import {
   getTileAt,
   getVisibleTiles,
 } from './stateWorldQueries';
+import { getCurrentHexClaimStatus } from './stateClaims';
+import { getSafePathToTile } from './statePathfinding';
 import {
   applySurvivalDecay,
   processPlayerStatusEffects,
@@ -193,6 +194,8 @@ export {
   getTileAt,
   getVisibleTiles,
 } from './stateWorldQueries';
+export { getCurrentHexClaimStatus } from './stateClaims';
+export { getSafePathToTile } from './statePathfinding';
 
 export const HARVEST_MOON_RESOURCE_TYPES: GatheringStructureType[] = [
   'herbs',
@@ -281,192 +284,6 @@ export function getRecipeBookEntries(learnedRecipeIds: string[]) {
     RECIPE_BOOK_RECIPES,
     learnedRecipeIds,
   );
-}
-
-function getConnectedPlayerClaimCount(
-  claimedKeys: ReadonlySet<string>,
-  startKey: string,
-) {
-  const visited = new Set<string>();
-  const frontier = [startKey];
-
-  while (frontier.length > 0) {
-    const key = frontier.pop();
-    if (!key || visited.has(key)) continue;
-    visited.add(key);
-
-    const [qString, rString] = key.split(',');
-    const coord = { q: Number(qString), r: Number(rString) };
-    for (const neighbor of hexNeighbors(coord)) {
-      const neighborKey = hexKey(neighbor);
-      if (claimedKeys.has(neighborKey) && !visited.has(neighborKey)) {
-        frontier.push(neighborKey);
-      }
-    }
-  }
-
-  return visited.size;
-}
-
-function canUnclaimWithoutSplittingTerritory(
-  claimedTiles: ReturnType<typeof getPlayerClaimedTiles>,
-  coord: HexCoord,
-) {
-  const remainingClaimKeys = new Set(
-    claimedTiles
-      .map((tile) => hexKey(tile.coord))
-      .filter((key) => key !== hexKey(coord)),
-  );
-  if (remainingClaimKeys.size <= 1) return true;
-
-  const [firstRemainingKey] = remainingClaimKeys;
-  return (
-    getConnectedPlayerClaimCount(remainingClaimKeys, firstRemainingKey) ===
-    remainingClaimKeys.size
-  );
-}
-
-export function getCurrentHexClaimStatus(state: GameState) {
-  const tile = getCurrentTile(state);
-  const playerClaims = getPlayerClaimedTiles(state);
-  if (tile.claim) {
-    if (isPlayerClaim(tile.claim)) {
-      return canUnclaimWithoutSplittingTerritory(playerClaims, tile.coord)
-        ? {
-            action: 'unclaim' as const,
-            canClaim: true,
-            reason: null,
-          }
-        : {
-            action: 'none' as const,
-            canClaim: false,
-            reason: t('game.message.claim.status.mustStayConnected'),
-          };
-    }
-
-    return {
-      action: 'none' as const,
-      canClaim: false,
-      reason: t('game.message.claim.status.belongsTo', {
-        ownerName: tile.claim.ownerName,
-      }),
-    };
-  }
-
-  if (!isPassable(tile.terrain)) {
-    return {
-      action: 'none' as const,
-      canClaim: false,
-      reason: t('game.message.claim.status.passableOnly'),
-    };
-  }
-
-  if (
-    tile.structure ||
-    tile.enemyIds.length > 0 ||
-    tile.items.length > 0 ||
-    isWorldBossFootprintOccupied(state, tile.coord)
-  ) {
-    return {
-      action: 'none' as const,
-      canClaim: false,
-      reason: t('game.message.claim.status.emptyOnly'),
-    };
-  }
-
-  if (
-    playerClaims.length > 0 &&
-    !hexNeighbors(tile.coord).some((neighbor) => {
-      const neighborTile = state.tiles[hexKey(neighbor)];
-      return isPlayerClaim(neighborTile?.claim);
-    })
-  ) {
-    return {
-      action: 'none' as const,
-      canClaim: false,
-      reason: t('game.message.claim.status.mustConnect'),
-    };
-  }
-
-  if (
-    hexNeighbors(tile.coord).some((neighbor) => {
-      const neighborTile = getTileAt(state, neighbor);
-      return neighborTile.claim && !isPlayerClaim(neighborTile.claim);
-    })
-  ) {
-    return {
-      action: 'none' as const,
-      canClaim: false,
-      reason: t('game.message.claim.status.nearOtherTerritory'),
-    };
-  }
-
-  if (playerClaims.length >= 5) {
-    return {
-      action: 'none' as const,
-      canClaim: false,
-      reason: t('game.message.claim.status.maxClaims'),
-    };
-  }
-
-  const clothCount = countInventoryResource(state.player.inventory, 'cloth');
-  const stickCount = countInventoryResource(state.player.inventory, 'sticks');
-  if (clothCount < 1 || stickCount < 1) {
-    return {
-      action: 'none' as const,
-      canClaim: false,
-      reason: t('game.message.claim.status.needsBannerMaterials'),
-    };
-  }
-
-  return { action: 'claim' as const, canClaim: true, reason: null };
-}
-
-export function getSafePathToTile(state: GameState, target: HexCoord) {
-  if (state.gameOver || state.combat) return null;
-
-  const start = state.player.coord;
-  const targetDistance = hexDistance(start, target);
-  if (targetDistance === 0) return [];
-  if (targetDistance > state.radius) return null;
-  if (targetDistance > WORLD_REVEAL_RADIUS) return null;
-
-  const visited = new Set([hexKey(start)]);
-  const queue: Array<{ coord: HexCoord; path: HexCoord[] }> = [
-    { coord: start, path: [] },
-  ];
-
-  while (queue.length > 0) {
-    const next = queue.shift();
-    if (!next) break;
-
-    for (const neighbor of hexNeighbors(next.coord)) {
-      if (hexDistance(start, neighbor) > state.radius) continue;
-      if (hexDistance(start, neighbor) > WORLD_REVEAL_RADIUS) continue;
-
-      const key = hexKey(neighbor);
-      if (visited.has(key)) continue;
-      visited.add(key);
-
-      const tile = getTileAt(state, neighbor);
-      if (!isPassable(tile.terrain)) continue;
-      if (
-        (neighbor.q !== target.q || neighbor.r !== target.r) &&
-        getHostileEnemyIds(state, neighbor).length > 0
-      ) {
-        continue;
-      }
-
-      const path = [...next.path, neighbor];
-      if (neighbor.q === target.q && neighbor.r === target.r) {
-        return path;
-      }
-
-      queue.push({ coord: neighbor, path });
-    }
-  }
-
-  return null;
 }
 
 export function moveToTile(state: GameState, target: HexCoord): GameState {
@@ -1736,16 +1553,6 @@ function syncCombatEnemies(state: GameState) {
   }
 }
 
-function countInventoryResource(
-  inventory: Item[],
-  itemKey: 'cloth' | 'sticks',
-) {
-  return inventory.reduce((total, item) => {
-    if (!hasItemTag(item, GAME_TAGS.item.resource)) return total;
-    return item.itemKey === itemKey ? total + item.quantity : total;
-  }, 0);
-}
-
 function consumeInventoryResource(
   inventory: Item[],
   itemKey: 'cloth' | 'sticks',
@@ -1919,18 +1726,18 @@ function maybeGatherByproduct(
   structure: import('./types').GatheringStructureType,
   definition: ReturnType<typeof structureDefinition>,
 ) {
-  const byproductName =
+  const byproductItemKey =
     structure === 'tree'
-      ? 'Sticks'
+      ? ItemId.Sticks
       : structure === 'copper-ore' ||
           structure === 'tin-ore' ||
           structure === 'iron-ore' ||
           structure === 'gold-ore' ||
           structure === 'platinum-ore' ||
           structure === 'coal-ore'
-        ? 'Stone'
+        ? ItemId.Stone
         : null;
-  if (!byproductName) return null;
+  if (!byproductItemKey) return null;
 
   const rng = createRng(
     `${state.seed}:gather-byproduct:${structure}:${state.turn}:${hexKey(state.player.coord)}`,
@@ -1938,15 +1745,15 @@ function maybeGatherByproduct(
   if (rng() >= (structure === 'tree' ? 0.35 : 0.3)) return null;
 
   return {
-    item: makeResourceStack(
-      byproductName === 'Sticks' ? ItemId.Sticks : ItemId.Stone,
-      definition.rewardTier,
-      1,
-    ),
+    item: makeResourceStack(byproductItemKey, definition.rewardTier, 1),
     text:
       structure === 'tree'
-        ? 'You also gather a few sticks from the chopped wood.'
-        : 'You also gather some stone from the broken ore seam.',
+        ? t('game.message.gather.byproduct.sticks', {
+            item: itemName(ItemId.Sticks),
+          })
+        : t('game.message.gather.byproduct.stone', {
+            item: itemName(ItemId.Stone),
+          }),
   };
 }
 

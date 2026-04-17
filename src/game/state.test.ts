@@ -2712,7 +2712,7 @@ describe('game state', () => {
       (item) => item.recipeId === droppedRecipeId,
     );
     expect(recipePage).toBeDefined();
-    expect(recipePage?.itemKey).toBeUndefined();
+    expect(recipePage?.itemKey).toBe('recipe-book');
     expect(recipePage?.icon).toBeTruthy();
 
     const looted = takeTileItem(resolvedWithRecipe!, recipePage!.id);

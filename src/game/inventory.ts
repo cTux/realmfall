@@ -89,6 +89,7 @@ export function makeCookedFish(): Item {
 export function makeRecipePage(recipe: RecipeDefinition): Item {
   return {
     id: `recipe-${recipe.id}`,
+    itemKey: ItemId.RecipeBook,
     recipeId: recipe.id,
     icon: recipe.output.icon,
     name: `Recipe: ${recipe.name}`,
@@ -361,11 +362,11 @@ function isSameStackable(left: Item, right: Item) {
 }
 
 function sameStackIdentity(left: Item, right: Item) {
-  if (left.itemKey && right.itemKey) {
-    return left.itemKey === right.itemKey;
+  if (left.itemKey !== right.itemKey) {
+    return false;
   }
 
-  return left.name === right.name;
+  return left.recipeId === right.recipeId;
 }
 
 function getRequiredItemConfig(itemKey: string) {
