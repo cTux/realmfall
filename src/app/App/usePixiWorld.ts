@@ -35,7 +35,6 @@ interface UsePixiWorldArgs {
   game: GameState;
   graphicsSettings: GraphicsSettings;
   worldTimeMsRef: MutableRefObject<number>;
-  frameCountRef: MutableRefObject<number>;
   gameRef: MutableRefObject<GameState>;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
   setGame: Dispatch<SetStateAction<GameState>>;
@@ -47,7 +46,6 @@ export function usePixiWorld({
   game,
   graphicsSettings,
   worldTimeMsRef,
-  frameCountRef,
   gameRef,
   tooltipPositionRef,
   setGame,
@@ -172,7 +170,6 @@ export function usePixiWorld({
       resize();
 
       const renderFrame = () => {
-        frameCountRef.current += 1;
         renderSceneModule.renderScene(
           app,
           gameRef.current,
@@ -436,7 +433,6 @@ export function usePixiWorld({
       cleanup?.();
     };
   }, [
-    frameCountRef,
     gameRef,
     setGame,
     setTooltip,

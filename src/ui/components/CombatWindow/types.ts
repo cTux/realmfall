@@ -21,7 +21,7 @@ export interface CombatWindowProps extends WindowDetailTooltipHandlers {
   combat: CombatState;
   playerParty: CombatPartyMember[];
   enemies: Enemy[];
-  worldTimeMs: number;
+  worldTimeMs?: number;
   onStart: () => void;
   onHoverDetail: NonNullable<WindowDetailTooltipHandlers['onHoverDetail']>;
   onLeaveDetail: NonNullable<WindowDetailTooltipHandlers['onLeaveDetail']>;
