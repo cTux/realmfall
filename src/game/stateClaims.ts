@@ -2,11 +2,10 @@ import { t } from '../i18n';
 import { ItemId } from './content/ids';
 import { hexKey, hexNeighbors, type HexCoord } from './hex';
 import { isPassable } from './shared';
+import { isWorldBossFootprintOccupied } from './stateWorldBoss';
 import { getCurrentTile, getPlayerClaimedTiles, getTileAt } from './stateWorldQueries';
 import type { GameState, Item } from './types';
 import { isPlayerClaim } from './territories';
-import { buildTile } from './world';
-import { isWorldBossEnemyId } from './worldBoss';
 
 function getConnectedPlayerClaimCount(
   claimedKeys: ReadonlySet<string>,
@@ -155,38 +154,4 @@ function countInventoryResource(
     (total, item) => (item.itemKey === itemKey ? total + item.quantity : total),
     0,
   );
-}
-
-function isWorldBossFootprintOccupied(state: GameState, coord: HexCoord) {
-  const center = getWorldBossCenterFromStateOrGeneration(state, coord);
-  if (!center) return false;
-  if (center.q === coord.q && center.r === coord.r) return false;
-
-  const centerTile =
-    state.tiles[hexKey(center)] ?? buildTile(state.seed, center);
-  return centerTile.enemyIds.some(
-    (enemyId) => Boolean(state.enemies[enemyId]) || isWorldBossEnemyId(enemyId),
-  );
-}
-
-function getWorldBossCenterFromStateOrGeneration(
-  state: GameState,
-  coord: HexCoord,
-) {
-  for (const candidate of [coord, ...hexNeighbors(coord)]) {
-    const loadedEnemyIds = state.tiles[hexKey(candidate)]?.enemyIds;
-    if (loadedEnemyIds) {
-      if (loadedEnemyIds.some(isWorldBossEnemyId)) {
-        return candidate;
-      }
-      continue;
-    }
-
-    const generatedTile = buildTile(state.seed, candidate);
-    if (generatedTile.enemyIds.some(isWorldBossEnemyId)) {
-      return candidate;
-    }
-  }
-
-  return null;
 }

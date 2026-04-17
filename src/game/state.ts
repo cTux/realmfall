@@ -1,5 +1,4 @@
-import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
-import { isWorldBossEnemyId } from './worldBoss';
+import { hexDistance, hexKey, type HexCoord } from './hex';
 import { t } from '../i18n';
 import { formatEquipmentSlotLabel, formatSkillLabel } from '../i18n/labels';
 import { Skill } from './types';
@@ -122,6 +121,7 @@ import {
 } from './stateWorldQueries';
 import { getCurrentHexClaimStatus } from './stateClaims';
 import { getSafePathToTile } from './statePathfinding';
+import { isWorldBossFootprintOccupied } from './stateWorldBoss';
 import {
   applySurvivalDecay,
   processPlayerStatusEffects,
@@ -2239,40 +2239,6 @@ function canSpawnBloodMoonEnemiesOnTile(
   if (tile.structure && tile.structure !== 'dungeon') return false;
   if (isWorldBossFootprintOccupied(state, tile.coord)) return false;
   return true;
-}
-
-function isWorldBossFootprintOccupied(state: GameState, coord: HexCoord) {
-  const center = getWorldBossCenterFromStateOrGeneration(state, coord);
-  if (!center) return false;
-  if (center.q === coord.q && center.r === coord.r) return false;
-
-  const centerTile =
-    state.tiles[hexKey(center)] ?? buildTile(state.seed, center);
-  return centerTile.enemyIds.some(
-    (enemyId) => Boolean(state.enemies[enemyId]) || isWorldBossEnemyId(enemyId),
-  );
-}
-
-function getWorldBossCenterFromStateOrGeneration(
-  state: GameState,
-  coord: HexCoord,
-) {
-  for (const candidate of [coord, ...hexNeighbors(coord)]) {
-    const loadedEnemyIds = state.tiles[hexKey(candidate)]?.enemyIds;
-    if (loadedEnemyIds) {
-      if (loadedEnemyIds.some(isWorldBossEnemyId)) {
-        return candidate;
-      }
-      continue;
-    }
-
-    const generatedTile = buildTile(state.seed, candidate);
-    if (generatedTile.enemyIds.some(isWorldBossEnemyId)) {
-      return candidate;
-    }
-  }
-
-  return null;
 }
 
 function makeBloodMoonDrop(
