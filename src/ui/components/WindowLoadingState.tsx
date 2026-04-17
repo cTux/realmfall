@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { t } from '../../i18n';
+import { LoadingSpinner } from './LoadingSpinner';
 import styles from './WindowLoadingState.module.scss';
 
 export const WINDOW_LOADING_WARNING_DELAY_MS = 3000;
@@ -22,7 +23,7 @@ export function WindowLoadingState() {
       aria-busy="true"
       aria-label={t('ui.loading.window')}
     >
-      <div className={styles.spinner} aria-hidden="true" />
+      <LoadingSpinner />
       {showWarning ? (
         <p className={styles.message}>{t('ui.loading.windowDelayed')}</p>
       ) : null}

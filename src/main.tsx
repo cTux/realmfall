@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { loadI18n } from './i18n';
+import { LoadingSpinner } from './ui/components/LoadingSpinner';
 import { installGlobalVersion } from './version';
 import './styles/base.scss';
 
@@ -57,28 +58,7 @@ function BootstrapShell() {
         position: 'fixed',
       }}
     >
-      <div
-        aria-hidden="true"
-        style={{
-          animation: 'realmfall-bootstrap-spin 0.8s linear infinite',
-          border: '0.22rem solid rgba(148, 163, 184, 0.2)',
-          borderTopColor: 'rgba(96, 165, 250, 0.95)',
-          borderRadius: '999px',
-          boxShadow: '0 0 32px rgba(34, 211, 238, 0.18)',
-          height: '2rem',
-          width: '2rem',
-        }}
-      />
-      <style>{`
-        @keyframes realmfall-bootstrap-spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-      `}</style>
+      <LoadingSpinner />
     </div>
   );
 }
