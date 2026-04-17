@@ -97,6 +97,23 @@ function serializeSegment(
   return JSON.stringify(segment);
 }
 
+function serializeSegments(segments: PersistedSaveSegments): SerializedSaveSegments {
+  return {
+    game: serializeSegment(segments.game),
+    ui: serializeSegment(segments.ui),
+  };
+}
+
+function getDirtySegments(
+  serialized: SerializedSaveSegments,
+  lastSavedSerialized: SerializedSaveSegments,
+): DirtySaveSegments {
+  return {
+    game: serialized.game !== lastSavedSerialized.game,
+    ui: serialized.ui !== lastSavedSerialized.ui,
+  };
+}
+
 function clearDebounceTimer(debounceTimerRef: MutableRefObject<number | null>) {
   if (debounceTimerRef.current !== null) {
     window.clearTimeout(debounceTimerRef.current);
@@ -118,16 +135,16 @@ interface PersistSnapshotResult {
 }
 
 function enqueuePersistSnapshot({
-  currentSerializedRef,
   dirtySegmentsRef,
+  latestSegmentsRef,
   lastSavedSerializedRef,
   saveInFlightRef,
   saveQueueRef,
   serialized,
   snapshot,
 }: {
-  currentSerializedRef: MutableRefObject<SerializedSaveSegments>;
   dirtySegmentsRef: MutableRefObject<DirtySaveSegments>;
+  latestSegmentsRef: MutableRefObject<PersistedSaveSegments>;
   lastSavedSerializedRef: MutableRefObject<SerializedSaveSegments>;
   saveInFlightRef: MutableRefObject<boolean>;
   saveQueueRef: MutableRefObject<Promise<void>>;
@@ -145,13 +162,10 @@ function enqueuePersistSnapshot({
     } catch (error) {
       return { error, succeeded: false } satisfies PersistSnapshotResult;
     } finally {
-      dirtySegmentsRef.current = {
-        game:
-          currentSerializedRef.current.game !==
-          lastSavedSerializedRef.current.game,
-        ui:
-          currentSerializedRef.current.ui !== lastSavedSerializedRef.current.ui,
-      };
+      dirtySegmentsRef.current = getDirtySegments(
+        serializeSegments(latestSegmentsRef.current),
+        lastSavedSerializedRef.current,
+      );
       saveInFlightRef.current = false;
     }
   });
@@ -162,14 +176,12 @@ function enqueuePersistSnapshot({
 }
 
 function flushPendingSave({
-  currentSerializedRef,
   dirtySegmentsRef,
   latestSegmentsRef,
   lastSavedSerializedRef,
   saveInFlightRef,
   saveQueueRef,
 }: {
-  currentSerializedRef: MutableRefObject<SerializedSaveSegments>;
   dirtySegmentsRef: MutableRefObject<DirtySaveSegments>;
   latestSegmentsRef: MutableRefObject<PersistedSaveSegments>;
   lastSavedSerializedRef: MutableRefObject<SerializedSaveSegments>;
@@ -181,14 +193,19 @@ function flushPendingSave({
     return;
   }
 
-  const nextSerialized = {
-    game: currentSerializedRef.current.game,
-    ui: currentSerializedRef.current.ui,
-  };
+  const nextSerialized = serializeSegments(latestSegmentsRef.current);
+  const nextDirtySegments = getDirtySegments(
+    nextSerialized,
+    lastSavedSerializedRef.current,
+  );
+  if (!nextDirtySegments.game && !nextDirtySegments.ui) {
+    dirtySegmentsRef.current = nextDirtySegments;
+    return;
+  }
 
   void enqueuePersistSnapshot({
-    currentSerializedRef,
     dirtySegmentsRef,
+    latestSegmentsRef,
     lastSavedSerializedRef,
     saveInFlightRef,
     saveQueueRef,
@@ -200,7 +217,6 @@ function flushPendingSave({
       (dirtySegmentsRef.current.game || dirtySegmentsRef.current.ui)
     ) {
       flushPendingSave({
-        currentSerializedRef,
         dirtySegmentsRef,
         latestSegmentsRef,
         lastSavedSerializedRef,
@@ -214,38 +230,20 @@ function flushPendingSave({
 function scheduleSave({
   debounceTimerRef,
   debounceDueAtRef,
-  currentSerializedRef,
   dirtySegmentsRef,
   latestSegmentsRef,
   lastSavedSerializedRef,
   saveInFlightRef,
   saveQueueRef,
-  nextGameSegment,
-  nextUiSegment,
 }: {
   debounceTimerRef: MutableRefObject<number | null>;
   debounceDueAtRef: MutableRefObject<number | null>;
-  currentSerializedRef: MutableRefObject<SerializedSaveSegments>;
   dirtySegmentsRef: MutableRefObject<DirtySaveSegments>;
   latestSegmentsRef: MutableRefObject<PersistedSaveSegments>;
   lastSavedSerializedRef: MutableRefObject<SerializedSaveSegments>;
   saveInFlightRef: MutableRefObject<boolean>;
   saveQueueRef: MutableRefObject<Promise<void>>;
-  nextGameSegment?: string;
-  nextUiSegment?: string;
 }) {
-  if (nextGameSegment !== undefined) {
-    currentSerializedRef.current.game = nextGameSegment;
-    dirtySegmentsRef.current.game =
-      nextGameSegment !== lastSavedSerializedRef.current.game;
-  }
-
-  if (nextUiSegment !== undefined) {
-    currentSerializedRef.current.ui = nextUiSegment;
-    dirtySegmentsRef.current.ui =
-      nextUiSegment !== lastSavedSerializedRef.current.ui;
-  }
-
   if (!dirtySegmentsRef.current.game && !dirtySegmentsRef.current.ui) {
     clearDebounceSchedule(debounceDueAtRef, debounceTimerRef);
     return;
@@ -257,7 +255,6 @@ function scheduleSave({
     debounceDueAtRef.current = null;
     debounceTimerRef.current = null;
     flushPendingSave({
-      currentSerializedRef,
       dirtySegmentsRef,
       latestSegmentsRef,
       lastSavedSerializedRef,
@@ -293,10 +290,6 @@ export function useAppPersistence({
       windowShown,
       windows,
     }),
-  });
-  const currentSerializedRef = useRef<SerializedSaveSegments>({
-    game: serializeSegment(latestSegmentsRef.current.game),
-    ui: serializeSegment(latestSegmentsRef.current.ui),
   });
   const lastSavedSerializedRef = useRef<SerializedSaveSegments>({
     game: null,
@@ -383,11 +376,7 @@ export function useAppPersistence({
         windows: hydratedWindows,
       });
       if (saved?.game || saved?.ui) {
-        const serialized = {
-          game: serializeSegment(latestSegmentsRef.current.game),
-          ui: serializeSegment(latestSegmentsRef.current.ui),
-        };
-        currentSerializedRef.current = { ...serialized };
+        const serialized = serializeSegments(latestSegmentsRef.current);
         lastSavedSerializedRef.current = { ...serialized };
         dirtySegmentsRef.current = {
           game: false,
@@ -420,16 +409,15 @@ export function useAppPersistence({
       worldTimeMs: worldTimeMsRef.current,
     });
     latestSegmentsRef.current.game = nextGameSnapshot;
+    dirtySegmentsRef.current.game = true;
     scheduleSave({
       debounceDueAtRef,
       debounceTimerRef,
-      currentSerializedRef,
       dirtySegmentsRef,
       latestSegmentsRef,
       lastSavedSerializedRef,
       saveInFlightRef,
       saveQueueRef,
-      nextGameSegment: serializeSegment(nextGameSnapshot),
     });
   }, [game, hydrated, worldTimeMsRef]);
 
@@ -442,16 +430,15 @@ export function useAppPersistence({
       windows,
     });
     latestSegmentsRef.current.ui = nextUiSnapshot;
+    dirtySegmentsRef.current.ui = true;
     scheduleSave({
       debounceDueAtRef,
       debounceTimerRef,
-      currentSerializedRef,
       dirtySegmentsRef,
       latestSegmentsRef,
       lastSavedSerializedRef,
       saveInFlightRef,
       saveQueueRef,
-      nextUiSegment: serializeSegment(nextUiSnapshot),
     });
   }, [hydrated, logFilters, windowShown, windows]);
 
@@ -467,7 +454,6 @@ export function useAppPersistence({
       }
 
       flushPendingSave({
-        currentSerializedRef,
         dirtySegmentsRef,
         latestSegmentsRef,
         lastSavedSerializedRef,
@@ -505,15 +491,14 @@ export function useAppPersistence({
       ui: serializeSegment(nextUiSnapshot),
     };
 
-    currentSerializedRef.current = { ...serialized };
-    dirtySegmentsRef.current = {
-      game: serialized.game !== lastSavedSerializedRef.current.game,
-      ui: serialized.ui !== lastSavedSerializedRef.current.ui,
-    };
+    dirtySegmentsRef.current = getDirtySegments(
+      serialized,
+      lastSavedSerializedRef.current,
+    );
 
     const result = await enqueuePersistSnapshot({
-      currentSerializedRef,
       dirtySegmentsRef,
+      latestSegmentsRef,
       lastSavedSerializedRef,
       saveInFlightRef,
       saveQueueRef,

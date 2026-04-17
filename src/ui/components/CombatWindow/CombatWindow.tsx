@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { useWorldClockTime } from '../../../app/App/worldClockStore';
 import { t } from '../../../i18n';
 import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
 import { WindowLoadingState } from '../WindowLoadingState';
@@ -30,6 +31,8 @@ export const CombatWindow = ({
   onLeaveDetail,
   onHoverHeaderAction,
 }: CombatWindowProps) => {
+  const liveWorldTimeMs = useWorldClockTime();
+  const resolvedWorldTimeMs = liveWorldTimeMs || worldTimeMs || 0;
   const startButton = !combat.started ? (
     <WindowHeaderActionButton
       className={inventoryStyles.headerButton}
@@ -63,7 +66,7 @@ export const CombatWindow = ({
           combat={combat}
           playerParty={playerParty}
           enemies={enemies}
-          worldTimeMs={worldTimeMs}
+          worldTimeMs={resolvedWorldTimeMs}
           onHoverDetail={onHoverDetail}
           onLeaveDetail={onLeaveDetail}
         />

@@ -54,10 +54,17 @@ function getVendorChunk(id: string) {
 
   if (
     normalizedId.includes('/node_modules/react/') ||
+    normalizedId.includes('/node_modules/react/jsx-runtime') ||
+    normalizedId.includes('/node_modules/react/jsx-dev-runtime')
+  ) {
+    return 'react-core';
+  }
+
+  if (
     normalizedId.includes('/node_modules/react-dom/') ||
     normalizedId.includes('/node_modules/scheduler/')
   ) {
-    return 'react-vendor';
+    return 'react-dom-vendor';
   }
 
   return 'vendor';

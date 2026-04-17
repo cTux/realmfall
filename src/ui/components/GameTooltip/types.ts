@@ -5,6 +5,7 @@ import type { TooltipPlacement } from '../../tooltipPlacement';
 export interface GameTooltipData {
   title: string;
   lines: TooltipLine[];
+  contentKey?: string;
   x: number;
   y: number;
   placement?: TooltipPlacement;

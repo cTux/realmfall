@@ -1,5 +1,10 @@
-import { useRef, useState } from 'react';
-import { createGame, type GameState } from '../../game/state';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  createGame,
+  syncBloodMoon,
+  syncPlayerStatusEffects,
+  type GameState,
+} from '../../game/state';
 import { WORLD_RADIUS } from '../constants';
 import { VersionStatusWidget } from '../../ui/components/VersionStatusWidget/VersionStatusWidget';
 import { AppWindows } from './AppWindows';
@@ -24,6 +29,7 @@ import {
 import { t } from '../../i18n';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import styles from './styles.module.scss';
+import { setWorldClockTime } from './worldClockStore';
 
 export function App() {
   const initialGraphicsSettingsRef = useRef(loadGraphicsSettings());
@@ -32,8 +38,6 @@ export function App() {
   const tooltipPositionRef = useRef<TooltipPosition | null>(null);
   const worldTimeMsRef = useRef(initialGameRef.current.worldTimeMs);
   const worldTimeTickRef = useRef<number | null>(null);
-  const frameCountRef = useRef(0);
-  const lastFpsSampleRef = useRef(0);
   const lastDisplayedWorldSecondRef = useRef(
     Math.floor(initialGameRef.current.worldTimeMs / 1000),
   );
@@ -91,13 +95,24 @@ export function App() {
     tooltipPositionRef,
     worldTimeMsRef,
   });
-  const { setWorldTimeMs, worldTimeMinutes, worldTimeMs } = useWorldClockFps({
+  const handleWorldSecondChange = useCallback(() => {
+    setGame((current) => syncPlayerStatusEffects(current, worldTimeMsRef.current));
+  }, []);
+  const handleWorldMinuteChange = useCallback((worldTimeMinutes: number) => {
+    setGame((current) =>
+      syncBloodMoon(
+        { ...current, worldTimeMs: worldTimeMsRef.current },
+        worldTimeMinutes,
+      ),
+    );
+  }, []);
+  const { setWorldTimeMs } = useWorldClockFps({
     initialWorldTimeMs: initialGameRef.current.worldTimeMs,
     worldTimeMsRef,
     worldTimeTickRef,
-    frameCountRef,
-    lastFpsSampleRef,
     lastDisplayedWorldSecondRef,
+    onWorldMinuteChange: handleWorldMinuteChange,
+    onWorldSecondChange: handleWorldSecondChange,
   });
 
   const {
@@ -154,7 +169,6 @@ export function App() {
     game,
     graphicsSettings,
     worldTimeMsRef,
-    frameCountRef,
     gameRef,
     tooltipPositionRef,
     setGame,
@@ -163,14 +177,14 @@ export function App() {
   const isReady = hydrated && canvasReady;
   const versionStatus = useVersionStatus();
 
+  useEffect(() => {
+    setWorldClockTime(game.worldTimeMs);
+  }, [game.worldTimeMs]);
+
   useAppLifecycle({
     game,
     gameRef,
-    setGame,
     tooltipPositionRef,
-    worldTimeMinutes,
-    worldTimeMs,
-    worldTimeMsRef,
   });
 
   useCombatAutomation({
@@ -244,7 +258,7 @@ export function App() {
               stats,
               hunger: game.player.hunger,
               thirst: game.player.thirst,
-              worldTimeMs,
+              worldTimeMs: game.worldTimeMs,
             },
             player: {
               coord: game.player.coord,

@@ -6,5 +6,5 @@ export interface DebuggerWindowProps extends WindowDetailTooltipHandlers {
   onMove: (position: WindowPosition) => void;
   visible?: boolean;
   onClose?: () => void;
-  worldTimeMs: number;
+  worldTimeMs?: number;
 }

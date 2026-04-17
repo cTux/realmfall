@@ -9,6 +9,7 @@ import styles from './styles.module.scss';
 
 function tooltipContentKey(tooltip: GameTooltipProps['tooltip']) {
   if (!tooltip) return null;
+  if (tooltip.contentKey) return tooltip.contentKey;
 
   return JSON.stringify({
     title: tooltip.title,

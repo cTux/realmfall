@@ -1,4 +1,5 @@
 import { memo, Suspense } from 'react';
+import { useWorldClockTime } from '../../../app/App/worldClockStore';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { WindowLoadingState } from '../WindowLoadingState';
 import { createLazyWindowComponent } from '../lazyWindowComponent';
@@ -23,6 +24,9 @@ export const DebuggerWindow = memo(function DebuggerWindow({
   onHoverDetail,
   onLeaveDetail,
 }: DebuggerWindowProps) {
+  const liveWorldTimeMs = useWorldClockTime();
+  const resolvedWorldTimeMs = liveWorldTimeMs || worldTimeMs || 0;
+
   return (
     <WindowShell
       title={WINDOW_LABELS.worldTime.plain}
@@ -37,7 +41,7 @@ export const DebuggerWindow = memo(function DebuggerWindow({
     >
       <Suspense fallback={<WindowLoadingState />}>
         <DebuggerWindowContent
-          worldTimeMs={worldTimeMs}
+          worldTimeMs={resolvedWorldTimeMs}
           onHoverDetail={onHoverDetail}
           onLeaveDetail={onLeaveDetail}
         />

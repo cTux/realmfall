@@ -1,5 +1,6 @@
 import {
   useCallback,
+  useRef,
   useState,
   type Dispatch,
   type MouseEvent as ReactMouseEvent,
@@ -63,6 +64,22 @@ export function useAppControllers({
   tooltipPositionRef,
   worldTimeMsRef,
 }: UseAppControllersOptions) {
+  const itemTooltipLinesCacheRef = useRef(
+    new WeakMap<
+      TooltipItem,
+      {
+        withoutEquipped: TooltipLine[] | null;
+        withoutEquippedRecipeLearned: TooltipLine[] | null;
+        withEquipped: WeakMap<
+          TooltipItem,
+          {
+            recipeUnknown: TooltipLine[] | null;
+            recipeLearned: TooltipLine[] | null;
+          }
+        >;
+      }
+    >(),
+  );
   const [windows, setWindows] = useState<WindowPositions>(DEFAULT_WINDOWS);
   const [windowShown, setWindowShown] = useState<WindowVisibilityState>(
     DEFAULT_WINDOW_VISIBILITY,
@@ -131,15 +148,20 @@ export function useAppControllers({
     ) => {
       const rect = event.currentTarget.getBoundingClientRect();
       const position = getTooltipPlacementForRect(rect);
+      const recipeLearned =
+        isRecipePage(item) &&
+        item.recipeId != null &&
+        gameRef.current.player.learnedRecipeIds.includes(item.recipeId);
       tooltipPositionRef.current = position;
       setTooltipState({
         title: item.name,
-        lines: itemTooltipLines(item, equipped, {
-          recipeLearned:
-            isRecipePage(item) &&
-            item.recipeId != null &&
-            gameRef.current.player.learnedRecipeIds.includes(item.recipeId),
-        }),
+        lines: getCachedItemTooltipLines(
+          itemTooltipLinesCacheRef.current,
+          item,
+          equipped,
+          recipeLearned,
+        ),
+        contentKey: getItemTooltipContentKey(item, equipped, recipeLearned),
         x: position.x,
         y: position.y,
         placement: position.placement,
@@ -162,6 +184,7 @@ export function useAppControllers({
       setTooltipState({
         title,
         lines,
+        contentKey: undefined,
         x: position.x,
         y: position.y,
         placement: position.placement,
@@ -427,6 +450,82 @@ export function useAppControllers({
     windows,
     recipeMaterialFilterItemKey,
   };
+}
+
+function getCachedItemTooltipLines(
+  cache: WeakMap<
+    TooltipItem,
+    {
+      withoutEquipped: TooltipLine[] | null;
+      withoutEquippedRecipeLearned: TooltipLine[] | null;
+      withEquipped: WeakMap<
+        TooltipItem,
+        {
+          recipeUnknown: TooltipLine[] | null;
+          recipeLearned: TooltipLine[] | null;
+        }
+      >;
+    }
+  >,
+  item: TooltipItem,
+  equipped: TooltipItem | undefined,
+  recipeLearned: boolean,
+) {
+  let itemCache = cache.get(item);
+  if (!itemCache) {
+    itemCache = {
+      withoutEquipped: null,
+      withoutEquippedRecipeLearned: null,
+      withEquipped: new WeakMap(),
+    };
+    cache.set(item, itemCache);
+  }
+
+  if (!equipped) {
+    const cacheKey = recipeLearned
+      ? 'withoutEquippedRecipeLearned'
+      : 'withoutEquipped';
+    const cachedLines = itemCache[cacheKey];
+    if (cachedLines) {
+      return cachedLines;
+    }
+
+    const lines = itemTooltipLines(item, undefined, { recipeLearned });
+    itemCache[cacheKey] = lines;
+    return lines;
+  }
+
+  let equippedCache = itemCache.withEquipped.get(equipped);
+  if (!equippedCache) {
+    equippedCache = {
+      recipeUnknown: null,
+      recipeLearned: null,
+    };
+    itemCache.withEquipped.set(equipped, equippedCache);
+  }
+
+  const cacheKey = recipeLearned ? 'recipeLearned' : 'recipeUnknown';
+  const cachedLines = equippedCache[cacheKey];
+  if (cachedLines) {
+    return cachedLines;
+  }
+
+  const lines = itemTooltipLines(item, equipped, { recipeLearned });
+  equippedCache[cacheKey] = lines;
+  return lines;
+}
+
+function getItemTooltipContentKey(
+  item: TooltipItem,
+  equipped: TooltipItem | undefined,
+  recipeLearned: boolean,
+) {
+  return [
+    'item',
+    item.id,
+    equipped?.id ?? 'none',
+    recipeLearned ? 'learned' : 'unknown',
+  ].join(':');
 }
 
 function applyTimedGameTransition(

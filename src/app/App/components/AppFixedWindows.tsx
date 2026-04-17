@@ -6,7 +6,7 @@ import { HeroWindow } from '../../../ui/components/HeroWindow';
 import { ItemContextMenu } from '../../../ui/components/ItemContextMenu';
 import { WindowDock } from '../../../ui/components/WindowDock';
 import type { AppWindowsProps } from '../AppWindows.types';
-import type { TooltipState } from '../types';
+import { useTooltipState } from '../tooltipStore';
 import { getRecipeMaterialItemKey } from '../utils/getRecipeMaterialItemKey';
 
 interface AppFixedWindowsProps {
@@ -16,13 +16,11 @@ interface AppFixedWindowsProps {
   managedWindowProps: ReturnType<
     typeof import('../hooks/useManagedWindowProps').useManagedWindowProps
   >;
-  tooltip: TooltipState | null;
 }
 
 export function AppFixedWindows({
   dockEntries,
   managedWindowProps,
-  tooltip,
   ...props
 }: AppWindowsProps & AppFixedWindowsProps) {
   const { actions, layout, views } = props;
@@ -118,7 +116,14 @@ export function AppFixedWindows({
           onClose={actions.tooltip.onCloseItemMenu}
         />
       ) : null}
-      <GameTooltip tooltip={tooltip} positionRef={layout.tooltipPositionRef} />
+      <TooltipLayer tooltipPositionRef={layout.tooltipPositionRef} />
     </>
   );
+}
+
+function TooltipLayer({
+  tooltipPositionRef,
+}: Pick<AppWindowsProps['layout'], 'tooltipPositionRef'>) {
+  const tooltip = useTooltipState();
+  return <GameTooltip tooltip={tooltip} positionRef={tooltipPositionRef} />;
 }

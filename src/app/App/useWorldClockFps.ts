@@ -1,31 +1,48 @@
-import { useEffect, useMemo, useState, type MutableRefObject } from 'react';
 import {
-  formatWorldDateTime,
-  getWorldTimeMinutesFromTimestamp,
-} from '../../ui/world/timeOfDay';
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useRef,
+  type SetStateAction,
+  type MutableRefObject,
+} from 'react';
+import { getWorldTimeMinutesFromTimestamp } from '../../ui/world/timeOfDay';
+import { setWorldClockTime } from './worldClockStore';
 
 interface UseWorldClockFpsOptions {
   initialWorldTimeMs: number;
   worldTimeMsRef: MutableRefObject<number>;
   worldTimeTickRef: MutableRefObject<number | null>;
-  frameCountRef: MutableRefObject<number>;
-  lastFpsSampleRef: MutableRefObject<number>;
   lastDisplayedWorldSecondRef: MutableRefObject<number>;
+  onWorldMinuteChange?: (worldTimeMinutes: number) => void;
+  onWorldSecondChange?: () => void;
 }
 
 export function useWorldClockFps({
   initialWorldTimeMs,
   worldTimeMsRef,
   worldTimeTickRef,
-  frameCountRef,
-  lastFpsSampleRef,
   lastDisplayedWorldSecondRef,
+  onWorldMinuteChange,
+  onWorldSecondChange,
 }: UseWorldClockFpsOptions) {
-  const [worldTimeMs, setWorldTimeMs] = useState(initialWorldTimeMs);
-  const [fps, setFps] = useState(0);
+  const lastWorldTimeMinutesRef = useRef(
+    getWorldTimeMinutesFromTimestamp(initialWorldTimeMs),
+  );
+  const syncWorldTime = useEffectEvent((nextWorldTimeMs: number) => {
+    const nextWorldTimeMinutes =
+      getWorldTimeMinutesFromTimestamp(nextWorldTimeMs);
+    setWorldClockTime(nextWorldTimeMs);
+    onWorldSecondChange?.();
+    if (nextWorldTimeMinutes !== lastWorldTimeMinutesRef.current) {
+      lastWorldTimeMinutesRef.current = nextWorldTimeMinutes;
+      onWorldMinuteChange?.(nextWorldTimeMinutes);
+    }
+  });
 
   useEffect(() => {
     let frameId = 0;
+    setWorldClockTime(initialWorldTimeMs);
 
     const updateHud = (timestamp: number) => {
       const lastTick = worldTimeTickRef.current;
@@ -37,18 +54,7 @@ export function useWorldClockFps({
       const displayedWorldSecond = Math.floor(worldTimeMsRef.current / 1000);
       if (displayedWorldSecond !== lastDisplayedWorldSecondRef.current) {
         lastDisplayedWorldSecondRef.current = displayedWorldSecond;
-      }
-
-      if (lastFpsSampleRef.current === 0) {
-        lastFpsSampleRef.current = timestamp;
-      }
-
-      const elapsed = timestamp - lastFpsSampleRef.current;
-      if (elapsed >= 1000) {
-        setWorldTimeMs(worldTimeMsRef.current);
-        setFps(Math.round((frameCountRef.current * 1000) / elapsed));
-        frameCountRef.current = 0;
-        lastFpsSampleRef.current = timestamp;
+        syncWorldTime(worldTimeMsRef.current);
       }
 
       frameId = window.requestAnimationFrame(updateHud);
@@ -60,26 +66,30 @@ export function useWorldClockFps({
       window.cancelAnimationFrame(frameId);
     };
   }, [
-    frameCountRef,
+    initialWorldTimeMs,
     lastDisplayedWorldSecondRef,
-    lastFpsSampleRef,
     worldTimeMsRef,
     worldTimeTickRef,
   ]);
 
-  const worldTimeMinutes = useMemo(
-    () => getWorldTimeMinutesFromTimestamp(worldTimeMs),
-    [worldTimeMs],
+  const setWorldTimeMs = useCallback(
+    (nextWorldTimeMs: SetStateAction<number>) => {
+      const resolvedWorldTimeMs =
+        typeof nextWorldTimeMs === 'function'
+          ? nextWorldTimeMs(worldTimeMsRef.current)
+          : nextWorldTimeMs;
+      worldTimeMsRef.current = resolvedWorldTimeMs;
+      lastDisplayedWorldSecondRef.current = Math.floor(
+        resolvedWorldTimeMs / 1000,
+      );
+      lastWorldTimeMinutesRef.current =
+        getWorldTimeMinutesFromTimestamp(resolvedWorldTimeMs);
+      setWorldClockTime(resolvedWorldTimeMs);
+    },
+    [lastDisplayedWorldSecondRef, worldTimeMsRef],
   );
-  const worldTimeLabel = useMemo(
-    () => formatWorldDateTime(worldTimeMs),
-    [worldTimeMs],
-  );
+
   return {
-    fps,
     setWorldTimeMs,
-    worldTimeLabel,
-    worldTimeMinutes,
-    worldTimeMs,
   };
 }

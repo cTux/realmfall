@@ -6,7 +6,10 @@ import './styles/base.scss';
 
 installGlobalVersion();
 const rootElement = document.getElementById('root') as HTMLElement;
-const root = ReactDOM.createRoot(rootElement);
+const root = ReactDOM.createRoot(rootElement, {
+  onCaughtError: reportRootError,
+  onUncaughtError: reportRootError,
+});
 
 root.render(
   <React.StrictMode>
@@ -17,14 +20,25 @@ root.render(
 void bootstrap();
 
 async function bootstrap() {
-  await loadI18n();
-  const { App } = await import('./app/App');
+  try {
+    await loadI18n();
+    const { App } = await import('./app/App');
 
-  root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>,
-  );
+    root.render(
+      <React.StrictMode>
+        <RootErrorBoundary>
+          <App />
+        </RootErrorBoundary>
+      </React.StrictMode>,
+    );
+  } catch (error) {
+    reportRootError(error);
+    root.render(
+      <React.StrictMode>
+        <BootstrapErrorScreen />
+      </React.StrictMode>,
+    );
+  }
 }
 
 function BootstrapShell() {
@@ -67,4 +81,80 @@ function BootstrapShell() {
       `}</style>
     </div>
   );
+}
+
+type RootErrorBoundaryProps = {
+  children: React.ReactNode;
+};
+
+type RootErrorBoundaryState = {
+  hasError: boolean;
+};
+
+class RootErrorBoundary extends React.Component<
+  RootErrorBoundaryProps,
+  RootErrorBoundaryState
+> {
+  override state: RootErrorBoundaryState = {
+    hasError: false,
+  };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  override componentDidCatch(error: unknown) {
+    reportRootError(error);
+  }
+
+  override render() {
+    if (this.state.hasError) {
+      return <BootstrapErrorScreen />;
+    }
+
+    return this.props.children;
+  }
+}
+
+function BootstrapErrorScreen() {
+  return (
+    <div
+      aria-live="assertive"
+      role="alert"
+      style={{
+        alignItems: 'center',
+        background:
+          'radial-gradient(circle at top, #2f1725 0%, #1f1220 55%, #0b0911 100%)',
+        color: '#f8fafc',
+        display: 'flex',
+        fontFamily:
+          '"Segoe UI", "Trebuchet MS", "Gill Sans", "Century Gothic", sans-serif',
+        inset: 0,
+        justifyContent: 'center',
+        padding: '2rem',
+        position: 'fixed',
+        textAlign: 'center',
+      }}
+    >
+      <div>
+        <strong style={{ display: 'block', fontSize: '1.1rem' }}>
+          Realmfall failed to load.
+        </strong>
+        <span style={{ color: 'rgba(226, 232, 240, 0.82)' }}>
+          Reload the page to retry.
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function reportRootError(error: unknown) {
+  if ('reportError' in window && typeof window.reportError === 'function') {
+    window.reportError(
+      error instanceof Error ? error : new Error(String(error)),
+    );
+    return;
+  }
+
+  console.error(error);
 }

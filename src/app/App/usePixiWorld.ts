@@ -35,7 +35,6 @@ interface UsePixiWorldArgs {
   game: GameState;
   graphicsSettings: GraphicsSettings;
   worldTimeMsRef: MutableRefObject<number>;
-  frameCountRef: MutableRefObject<number>;
   gameRef: MutableRefObject<GameState>;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
   setGame: Dispatch<SetStateAction<GameState>>;
@@ -47,7 +46,6 @@ export function usePixiWorld({
   game,
   graphicsSettings,
   worldTimeMsRef,
-  frameCountRef,
   gameRef,
   tooltipPositionRef,
   setGame,
@@ -172,7 +170,6 @@ export function usePixiWorld({
       resize();
 
       const renderFrame = () => {
-        frameCountRef.current += 1;
         renderSceneModule.renderScene(
           app,
           gameRef.current,
@@ -338,6 +335,7 @@ export function usePixiWorld({
             nextTooltip = {
               title: enemyInfo.title,
               lines: enemyInfo.lines,
+              contentKey: nextTooltipKey,
               x: nextTooltipPosition.x,
               y: nextTooltipPosition.y,
               borderColor: tile.structure === 'dungeon' ? '#a855f7' : '#ef4444',
@@ -348,6 +346,7 @@ export function usePixiWorld({
             nextTooltip = {
               title: structureInfo.title,
               lines: structureInfo.lines,
+              contentKey: nextTooltipKey,
               x: nextTooltipPosition.x,
               y: nextTooltipPosition.y,
               borderColor: '#38bdf8',
@@ -436,7 +435,6 @@ export function usePixiWorld({
       cleanup?.();
     };
   }, [
-    frameCountRef,
     gameRef,
     setGame,
     setTooltip,

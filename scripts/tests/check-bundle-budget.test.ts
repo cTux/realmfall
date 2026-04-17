@@ -22,11 +22,14 @@ describe('check-bundle-budget helpers', () => {
     const manifest = {
       'src/main.tsx': {
         file: 'assets/js/index-abc.js',
-        imports: ['node_modules/react.js'],
+        imports: ['node_modules/react.js', 'node_modules/react-dom.js'],
         dynamicImports: ['src/app/App/index.ts', 'src/i18n/locales/en.json'],
       },
       'node_modules/react.js': {
-        file: 'assets/js/react-vendor-abc.js',
+        file: 'assets/js/react-core-abc.js',
+      },
+      'node_modules/react-dom.js': {
+        file: 'assets/js/react-dom-vendor-abc.js',
       },
       'src/app/App/index.ts': {
         file: 'assets/js/App-abc.js',
@@ -47,7 +50,8 @@ describe('check-bundle-budget helpers', () => {
     expect(getStartupChunkFiles(manifest, 'src/main.tsx')).toEqual(
       new Set([
         'assets/js/index-abc.js',
-        'assets/js/react-vendor-abc.js',
+        'assets/js/react-core-abc.js',
+        'assets/js/react-dom-vendor-abc.js',
         'assets/js/App-abc.js',
         'assets/js/state-abc.js',
         'assets/js/en-abc.js',

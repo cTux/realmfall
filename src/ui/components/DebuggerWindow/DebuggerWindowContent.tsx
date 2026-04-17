@@ -29,10 +29,11 @@ function resolveFPSStatsComponent() {
 
 const FPSStats = resolveFPSStatsComponent();
 
-type DebuggerWindowContentProps = Pick<
-  DebuggerWindowProps,
-  'worldTimeMs' | 'onHoverDetail' | 'onLeaveDetail'
->;
+interface DebuggerWindowContentProps {
+  worldTimeMs: number;
+  onHoverDetail: DebuggerWindowProps['onHoverDetail'];
+  onLeaveDetail: DebuggerWindowProps['onLeaveDetail'];
+}
 
 export function DebuggerWindowContent({
   worldTimeMs,
