@@ -18,4 +18,3 @@ export const garlicLeekSoupItemConfig: ItemConfig = {
   defaultQuantity: 1,
   tags: [GAME_TAGS.item.crafted],
 };
-

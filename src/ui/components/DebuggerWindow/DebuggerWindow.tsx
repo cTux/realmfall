@@ -8,7 +8,9 @@ import type { DebuggerWindowProps } from './types';
 import styles from './styles.module.scss';
 
 const DebuggerWindowContent = createLazyWindowComponent<
-  Parameters<(typeof import('./DebuggerWindowContent'))['DebuggerWindowContent']>[0]
+  Parameters<
+    (typeof import('./DebuggerWindowContent'))['DebuggerWindowContent']
+  >[0]
 >(() =>
   import('./DebuggerWindowContent').then((module) => ({
     default: module.DebuggerWindowContent,

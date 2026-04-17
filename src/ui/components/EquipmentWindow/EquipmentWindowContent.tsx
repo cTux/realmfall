@@ -3,9 +3,7 @@ import silhouetteImage from '../../../assets/images/silhouette.png';
 import { EquipmentSlotId } from '../../../game/content/ids';
 import { t } from '../../../i18n';
 import { formatEquipmentSlotLabel } from '../../../i18n/labels';
-import {
-  isOffhandSlotDisabled,
-} from '../../../game/state';
+import { isOffhandSlotDisabled } from '../../../game/state';
 import { ItemSlotButton } from '../ItemSlotButton/ItemSlotButton';
 import type { EquipmentWindowProps } from './types';
 import styles from './styles.module.scss';
@@ -15,10 +13,7 @@ type EquipmentWindowContentProps = Omit<
   'position' | 'onMove' | 'visible' | 'onClose'
 >;
 
-type PaperDollSlot = Exclude<
-  `${EquipmentSlotId}`,
-  `${EquipmentSlotId.Relic}`
->;
+type PaperDollSlot = Exclude<`${EquipmentSlotId}`, `${EquipmentSlotId.Relic}`>;
 
 const PAPER_DOLL_SLOTS: PaperDollSlot[] = [
   EquipmentSlotId.Weapon,
@@ -69,7 +64,9 @@ export function EquipmentWindowContent({
             disabled={disabled}
             onClick={equipped ? () => onUnequip(slot) : undefined}
             onContextMenu={
-              equipped ? (event) => onContextItem(event, equipped, slot) : undefined
+              equipped
+                ? (event) => onContextItem(event, equipped, slot)
+                : undefined
             }
             onMouseEnter={
               equipped ? (event) => onHoverItem(event, equipped) : undefined

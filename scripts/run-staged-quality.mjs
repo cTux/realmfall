@@ -14,9 +14,13 @@ const pnpmBin = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 function run(command, args) {
   const result =
     process.platform === 'win32' && command.endsWith('.cmd')
-      ? spawnSync(process.env.ComSpec ?? 'cmd.exe', ['/d', '/s', '/c', command, ...args], {
-          stdio: 'inherit',
-        })
+      ? spawnSync(
+          process.env.ComSpec ?? 'cmd.exe',
+          ['/d', '/s', '/c', command, ...args],
+          {
+            stdio: 'inherit',
+          },
+        )
       : spawnSync(command, args, {
           stdio: 'inherit',
         });
@@ -62,7 +66,14 @@ const vitestRelatedFiles = stagedFiles.filter(isVitestRelatedFile);
 
 if (lintFiles.length > 0) {
   logStep(`Running Oxlint --fix on ${lintFiles.length} staged file(s)`);
-  run(pnpmBin, ['exec', 'oxlint', '-c', '.oxlintrc.json', '--fix', ...lintFiles]);
+  run(pnpmBin, [
+    'exec',
+    'oxlint',
+    '-c',
+    '.oxlintrc.json',
+    '--fix',
+    ...lintFiles,
+  ]);
 } else {
   logStep('Skipping staged Oxlint, no matching files');
 }

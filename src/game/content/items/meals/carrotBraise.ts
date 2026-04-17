@@ -18,4 +18,3 @@ export const carrotBraiseItemConfig: ItemConfig = {
   defaultQuantity: 1,
   tags: [GAME_TAGS.item.crafted],
 };
-

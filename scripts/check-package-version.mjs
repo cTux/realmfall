@@ -33,7 +33,9 @@ function runGit(args) {
   return result;
 }
 
-const currentPackageJson = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+const currentPackageJson = JSON.parse(
+  readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
+);
 const currentVersion = parseVersion(currentPackageJson.version);
 
 const headCheck = runGit(['rev-parse', '--verify', 'HEAD']);

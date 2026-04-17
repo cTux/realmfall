@@ -27,7 +27,11 @@ describe('enemy rarity', () => {
   });
 
   it('scales dungeon enemies above similar field spawns through rarity floors', () => {
-    const fieldEnemy = makeEnemy('combat-rarity-seed', { q: 2, r: 1 }, 'plains');
+    const fieldEnemy = makeEnemy(
+      'combat-rarity-seed',
+      { q: 2, r: 1 },
+      'plains',
+    );
     const dungeonEnemy = makeEnemy(
       'combat-rarity-seed',
       { q: 2, r: 1 },

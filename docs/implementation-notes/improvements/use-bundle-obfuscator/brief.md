@@ -1,9 +1,9 @@
-# Feature Specification: Production Bundle Obfuscation
+# Feature Brief: Production Bundle Obfuscation
 
 **Feature Branch**: `master`  
 **Created**: 2026-04-13  
 **Status**: Draft  
-**Input**: User description: "Use `vite-plugin-bundle-obfuscator` in the project and capture the work as a spec and plan under `docs/specs`."
+**Input**: User description: "Use `vite-plugin-bundle-obfuscator` in the project and capture the work as a brief and plan under transient implementation notes."
 
 ## User Scenarios & Testing _(mandatory)_
 

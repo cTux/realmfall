@@ -1,11 +1,11 @@
 # Implementation Plan: Fix Ineffective World Import Warnings
 
-**Branch**: `master` | **Date**: 2026-04-13 | **Spec**: [spec.md](./spec.md)  
-**Input**: Feature specification from `docs/implementation-notes/issues/fix-vite-state-import-warning/spec.md`
+**Branch**: `master` | **Date**: 2026-04-13 | **Brief**: [brief.md](./brief.md)  
+**Input**: Feature brief from `docs/implementation-notes/issues/fix-vite-state-import-warning/brief.md`
 
 ## Summary
 
-This session is planning-only. The attempted `usePixiWorld` change was reverted, `pnpm build` was rerun, and the plan now captures the full current warning set: ineffective dynamic imports for `src/game/state.ts`, `src/ui/tooltips.ts`, `src/ui/world/timeOfDay.ts`, and `src/ui/world/renderSceneMath.ts`.
+This session is planning-only. The attempted `usePixiWorld` change was reverted, `pnpm build` was rerun at the time, and the plan preserves that captured warning snapshot: ineffective dynamic imports for `src/game/state.ts`, `src/ui/tooltips.ts`, `src/ui/world/timeOfDay.ts`, and `src/ui/world/renderSceneMath.ts`.
 
 ## Technical Context
 
@@ -82,7 +82,7 @@ See [research.md](./research.md).
 ## Verification Plan
 
 1. Run `pnpm build`.
-2. Confirm the current warning inventory still matches the four warnings listed above before implementation begins.
+2. Reconfirm the live warning inventory before implementation begins instead of assuming the historical snapshot in this note is still current.
 3. After a future implementation, confirm the ineffective dynamic-import warnings are gone and that any intentionally deferred world-render chunks still exist.
 
 ## Risks And Mitigations

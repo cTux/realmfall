@@ -82,7 +82,9 @@ describe('app utils', () => {
 
     expect(getInventoryItemAction(consumable)).toBe('use');
     expect(getInventoryItemAction(equipment)).toBe('equip');
-    expect(getInventoryItemAction(recipePage, ['cook-cooked-fish'])).toBe('use');
+    expect(getInventoryItemAction(recipePage, ['cook-cooked-fish'])).toBe(
+      'use',
+    );
     expect(getInventoryItemAction(undefined)).toBe('equip');
   });
 

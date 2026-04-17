@@ -39,7 +39,10 @@ export function useWindowTransitions({
     }
 
     setLootWindowVisible(false);
-    const timeout = window.setTimeout(() => setKeepLootWindowMounted(false), 180);
+    const timeout = window.setTimeout(
+      () => setKeepLootWindowMounted(false),
+      180,
+    );
     return () => window.clearTimeout(timeout);
   }, [currentTile.items, showLootWindow]);
 

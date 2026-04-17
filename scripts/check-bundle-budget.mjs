@@ -54,7 +54,10 @@ if (!mainEntryKey) {
   const startupChunks = chunks.filter((chunk) =>
     startupChunkFiles.has(`assets/js/${chunk.fileName}`),
   );
-  const startupTotal = startupChunks.reduce((sum, chunk) => sum + chunk.size, 0);
+  const startupTotal = startupChunks.reduce(
+    (sum, chunk) => sum + chunk.size,
+    0,
+  );
 
   if (startupTotal > STARTUP_TOTAL_BUDGET) {
     failures.push(

@@ -18,4 +18,3 @@ export const orchardRoastItemConfig: ItemConfig = {
   defaultQuantity: 1,
   tags: [GAME_TAGS.item.crafted],
 };
-

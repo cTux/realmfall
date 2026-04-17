@@ -1,6 +1,7 @@
 import { act } from 'react';
 import { createGame } from '../../../game/state';
 import {
+  flushAnimationFrame,
   flushLazyModules,
   loadEncryptedState,
   renderApp,
@@ -71,6 +72,7 @@ describe('App hover behavior', () => {
         }),
       );
     });
+    await flushAnimationFrame();
 
     expect(getEnemiesAtSpy).not.toHaveBeenCalled();
     expect(getSafePathToTileSpy).not.toHaveBeenCalled();
@@ -99,11 +101,12 @@ describe('App hover behavior', () => {
         }),
       );
     });
+    await flushAnimationFrame();
 
     expect(getEnemiesAtSpy).toHaveBeenCalledTimes(1);
     expect(getSafePathToTileSpy).not.toHaveBeenCalled();
     expect(enemyTooltipSpy).toHaveBeenCalledTimes(1);
-    expect(structureTooltipSpy).toHaveBeenCalledTimes(1);
+    expect(structureTooltipSpy).not.toHaveBeenCalled();
 
     await act(async () => {
       root.unmount();
@@ -194,6 +197,7 @@ describe('App hover behavior', () => {
         }),
       );
     });
+    await flushAnimationFrame();
 
     expect(getSafePathToTileSpy).toHaveBeenCalledTimes(1);
     expect(getEnemiesAtSpy).toHaveBeenCalledTimes(1);

@@ -97,7 +97,9 @@ function serializeSegment(
   return JSON.stringify(segment);
 }
 
-function serializeSegments(segments: PersistedSaveSegments): SerializedSaveSegments {
+function serializeSegments(
+  segments: PersistedSaveSegments,
+): SerializedSaveSegments {
   return {
     game: serializeSegment(segments.game),
     ui: serializeSegment(segments.ui),

@@ -34,7 +34,9 @@ describe('check-bundle-budget helpers', () => {
       'src/app/App/index.ts': {
         file: 'assets/js/App-abc.js',
         imports: ['src/game/state.ts'],
-        dynamicImports: ['src/ui/components/InventoryWindow/InventoryWindowContent.tsx'],
+        dynamicImports: [
+          'src/ui/components/InventoryWindow/InventoryWindowContent.tsx',
+        ],
       },
       'src/game/state.ts': {
         file: 'assets/js/state-abc.js',

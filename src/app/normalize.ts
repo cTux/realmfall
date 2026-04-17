@@ -48,8 +48,7 @@ export function normalizeLoadedGame(game: GameState): GameState {
     mergeStackable(inventory, normalizeItem(makeGoldStack(legacyGold)));
   const equipment = Object.fromEntries(
     Object.entries(game.player.equipment ?? {}).map(([key, item]) => {
-      const normalizedKey =
-        key === 'relic' ? EquipmentSlotId.Offhand : key;
+      const normalizedKey = key === 'relic' ? EquipmentSlotId.Offhand : key;
       return [normalizedKey, item ? normalizeItem(item) : item];
     }),
   );
@@ -233,9 +232,7 @@ function normalizeItem(item: Item): Item {
   const configured = getItemConfig(canonicalItem);
   const normalizedName =
     configured?.name ??
-    (canonicalItem.name === 'Arcane Dust'
-      ? 'Aether Dust'
-      : canonicalItem.name);
+    (canonicalItem.name === 'Arcane Dust' ? 'Aether Dust' : canonicalItem.name);
   return {
     ...canonicalItem,
     itemKey: configured?.key ?? canonicalItem.itemKey,
@@ -245,9 +242,7 @@ function normalizeItem(item: Item): Item {
         ? EquipmentSlotId.Offhand
         : canonicalItem.slot,
     tags:
-      canonicalItem.tags ??
-      configured?.tags ??
-      inferItemTags(canonicalItem),
+      canonicalItem.tags ?? configured?.tags ?? inferItemTags(canonicalItem),
     name: normalizedName,
     quantity: canonicalItem.quantity ?? 1,
     rarity: canonicalItem.rarity ?? 'common',

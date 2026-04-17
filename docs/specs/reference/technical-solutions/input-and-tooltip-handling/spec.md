@@ -9,9 +9,11 @@ This spec covers canvas-pointer world interaction and the shared tooltip system.
 - Pointer interactions are handled directly on the Pixi canvas.
 - Pointer-to-hex translation uses render math plus optional fish-eye coordinate remapping.
 - Hover state is cached to avoid unnecessary tooltip and highlight churn.
+- Native canvas `pointermove` events only hand off the latest pointer position, and hover analysis runs on `requestAnimationFrame` so pointer storms do not force synchronous pathfinding and tooltip work multiple times in the same frame.
 - Same-hex pointermove events reuse the cached hover snapshot instead of re-running hover selectors, tooltip builders, or pathfinding.
 - Safe-path lookup and world tooltip derivation run only for actionable hovered hexes; non-actionable tiles clear hover affordances without the heavier recomputation path.
 - Tooltips are managed through the shared app tooltip store.
+- Tooltip builders use locale keys and shared label helpers for their visible copy instead of hardcoded English fragments.
 - Follow-cursor world tooltips receive their position updates from the same Pixi hover pipeline that derives the tooltip content, instead of registering a second global pointer listener for DOM syncing.
 - The world path and window UI both use the custom tooltip system instead of native browser titles.
 - Skill and profession tooltip titles use the localized in-game label casing rather than forcing all-caps formatting.

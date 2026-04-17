@@ -220,8 +220,7 @@ function buildBattleScenario({
     const maxHp = index === 0 ? 34 : 26;
     const tier = enemyTiers[index] ?? 2;
     const rarity =
-      enemyRarities[index] ??
-      (eliteEnemyIds.includes(id) ? 'rare' : 'common');
+      enemyRarities[index] ?? (eliteEnemyIds.includes(id) ? 'rare' : 'common');
     const elite =
       eliteEnemyIds.includes(id) ||
       rarity === 'rare' ||

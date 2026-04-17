@@ -6,6 +6,8 @@
 - Keep heavy app coordination in dedicated hooks when possible, following patterns already used in `src/app/App`.
 - Keep component-only hooks in a colocated `hooks/` directory when just one component or feature uses them.
 - When reducing React rerender fanout, move window-specific derivation, dock composition, and stable window handler ownership out of `src/app/App/App.tsx` and into narrower hooks or the window composition layer when that keeps unrelated windows from recomputing together.
+- Do not let `src/app/App/App.tsx` rebuild broad nested `layout`, `views`, or `actions` object graphs inline once that data can be composed in narrower hooks or neighboring modules.
+- Avoid force-casting partial selector inputs to `GameState` in React view-model hooks. Use narrow selector input types and variable names that match the actual data shape being passed.
 - Keep Storybook stories for every component under `src/ui/components`, including shared leaf components and window wrappers.
 - Every component addition, removal, or behavior-affecting UI change should add or update the corresponding Storybook story in the same task.
 - Keep aggregate Storybook catalogs for entity dictionaries such as `ITEM_CONFIGS`, `ENEMY_CONFIGS`, and `STRUCTURE_CONFIGS`, and prefer rendering those catalogs directly from the live config arrays so entity additions, removals, and edits appear automatically.
@@ -14,6 +16,7 @@
 - Default to `en` and keep locale resources lazy-loadable so additional languages can stay off the initial path when they are not needed.
 - Load i18n before importing `src/app/App` during bootstrap. The app import graph contains module-level localized constants, so importing `App` before translations are ready can freeze raw i18n keys into runtime state on a cold start.
 - When new user-facing text is required, add a new i18n key instead of hardcoding a fallback string in code.
+- Keep tooltip sentence assembly, tag labels, and similar UI helper copy in i18n-backed formatters instead of embedding English fragments in `src/ui/tooltips.ts` or similar helper modules.
 - Use dot-separated i18n keys in the form `{feature}.{area}.{property}` and extend with deeper segments only when needed for clarity.
 - For label formatters that map stable identifiers such as status effects to i18n, prefer direct patterned key lookups over conditional `if` or `switch` chains when the key can be derived safely.
 - Lazy-load secondary UI only when it matches the existing usage pattern and helps keep the initial app path lighter.

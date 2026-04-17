@@ -14,6 +14,7 @@ import { useAppGameView } from './useAppGameView';
 import { useAppPersistence } from './useAppPersistence';
 import { useCombatAutomation } from './useCombatAutomation';
 import { setHomeHexForApp, useAppLifecycle } from './hooks/useAppLifecycle';
+import { useAppWindowsProps } from './hooks/useAppWindowsProps';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { usePixiWorld } from './usePixiWorld';
 import { useVersionStatus } from './hooks/useVersionStatus';
@@ -26,7 +27,6 @@ import {
   saveGraphicsSettings,
   type GraphicsSettings,
 } from '../graphicsSettings';
-import { t } from '../../i18n';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import { LoadingSpinner } from '../../ui/components/LoadingSpinner';
 import styles from './styles.module.scss';
@@ -97,7 +97,9 @@ export function App() {
     worldTimeMsRef,
   });
   const handleWorldSecondChange = useCallback(() => {
-    setGame((current) => syncPlayerStatusEffects(current, worldTimeMsRef.current));
+    setGame((current) =>
+      syncPlayerStatusEffects(current, worldTimeMsRef.current),
+    );
   }, []);
   const handleWorldMinuteChange = useCallback((worldTimeMinutes: number) => {
     setGame((current) =>
@@ -229,6 +231,116 @@ export function App() {
     window.location.reload();
   };
 
+  const appWindowsProps = useAppWindowsProps({
+    windows,
+    windowShown,
+    keepLootWindowMounted,
+    keepCombatWindowMounted,
+    tooltipPositionRef,
+    heroView: {
+      stats,
+      hunger: game.player.hunger,
+      thirst: game.player.thirst,
+      worldTimeMs: game.worldTimeMs,
+    },
+    playerView: {
+      coord: game.player.coord,
+      mana: game.player.mana,
+      equipment: game.player.equipment,
+      inventory: game.player.inventory,
+      learnedRecipeIds: game.player.learnedRecipeIds,
+    },
+    worldView: {
+      homeHex: game.homeHex,
+      currentTile,
+      currentTileHostileEnemyCount,
+      combat: game.combat,
+      interactLabel,
+      canProspectInventoryEquipment,
+      canSellInventoryEquipment,
+      claimStatus,
+      prospectInventoryEquipmentExplanation,
+      sellInventoryEquipmentExplanation,
+      townStock,
+      gold,
+    },
+    recipesView: {
+      entries: recipes,
+      skillLevels: recipeSkillLevels,
+      inventoryCountsByItemKey,
+      materialFilterItemKey: recipeMaterialFilterItemKey,
+    },
+    lootView: {
+      visible: lootWindowVisible,
+      snapshot: lootSnapshot,
+    },
+    combatView: {
+      visible: combatWindowVisible,
+      snapshot: combatSnapshot,
+    },
+    logsView: {
+      showFilterMenu,
+      filters: logFilters,
+      filtered: filteredLogs,
+    },
+    settingsView: {
+      graphics: graphicsSettings,
+    },
+    itemMenu,
+    actions: {
+      windows: {
+        onMoveWindow: moveWindow,
+        onSetWindowVisibility: setWindowVisibility,
+        onToggleDockWindow: toggleDockWindow,
+      },
+      tooltip: {
+        onShowItemTooltip: showItemTooltip,
+        onShowTooltip: showTooltip,
+        onCloseTooltip: closeTooltip,
+        onCloseItemMenu: closeItemMenu,
+        onEquipmentHover: handleEquipmentHover,
+      },
+      inventory: {
+        onUnequip: handleUnequip,
+        onSort: handleSort,
+        onEquip: handleEquip,
+        onUseItem: handleUseItem,
+        onCraftRecipe: handleCraftRecipe,
+        onDropItem: handleDropItem,
+        onDropEquippedItem: handleDropEquippedItem,
+        onProspectItem: handleProspectItem,
+        onSellItem: handleSellItem,
+        onSetItemLocked: handleSetItemLocked,
+        onContextItem: handleContextItem,
+        onEquippedContextItem: handleEquippedContextItem,
+        onTakeLootItem: handleTakeLootItem,
+        onTakeAllLoot: handleTakeAllLoot,
+      },
+      world: {
+        onStartCombat: handleStartCombat,
+        onInteract: handleInteract,
+        onProspect: handleProspect,
+        onSellAll: handleSellAll,
+        onBuyTownItem: handleBuyTownItem,
+        onClaimHex: handleClaimHex,
+        onSetHome: () => setHomeHexForApp(setGame),
+      },
+      recipes: {
+        onOpenWithMaterialFilter: handleOpenRecipeBookWithMaterialFilter,
+        onClearMaterialFilter: handleClearRecipeMaterialFilter,
+      },
+      logs: {
+        onToggleFilterMenu: toggleFilterMenu,
+        onToggleLogFilter: toggleLogFilter,
+      },
+      settings: {
+        onResetSaveData: handleResetSaveData,
+        onSaveGraphicsSettings: handleSaveGraphicsSettings,
+        onSaveGraphicsSettingsAndReload: handleSaveGraphicsSettingsAndReload,
+      },
+    },
+  });
+
   return (
     <div className={styles.appRoot}>
       <div className={isReady ? undefined : styles.hiddenUntilReady}>
@@ -246,127 +358,7 @@ export function App() {
           status={versionStatus.status}
           onRefresh={() => window.location.reload()}
         />
-        <AppWindows
-          layout={{
-            windows,
-            windowShown,
-            keepLootWindowMounted,
-            keepCombatWindowMounted,
-            tooltipPositionRef,
-          }}
-          views={{
-            hero: {
-              stats,
-              hunger: game.player.hunger,
-              thirst: game.player.thirst,
-              worldTimeMs: game.worldTimeMs,
-            },
-            player: {
-              coord: game.player.coord,
-              mana: game.player.mana,
-              equipment: game.player.equipment,
-              inventory: game.player.inventory,
-              learnedRecipeIds: game.player.learnedRecipeIds,
-            },
-            world: {
-              homeHex: game.homeHex,
-              currentTile,
-              currentTileHostileEnemyCount,
-              combat: game.combat,
-              interactLabel,
-              canProspectInventoryEquipment,
-              canSellInventoryEquipment,
-              claimStatus: {
-                ...claimStatus,
-                actionLabel: t(
-                  claimStatus.action === 'unclaim'
-                    ? 'ui.hexInfo.unclaimAction'
-                    : 'ui.hexInfo.claimAction',
-                ),
-              },
-              prospectInventoryEquipmentExplanation,
-              sellInventoryEquipmentExplanation,
-              townStock,
-              gold,
-            },
-            recipes: {
-              entries: recipes,
-              skillLevels: recipeSkillLevels,
-              inventoryCountsByItemKey,
-              materialFilterItemKey: recipeMaterialFilterItemKey,
-            },
-            loot: {
-              visible: lootWindowVisible,
-              snapshot: lootSnapshot,
-            },
-            combat: {
-              visible: combatWindowVisible,
-              snapshot: combatSnapshot,
-            },
-            logs: {
-              showFilterMenu,
-              filters: logFilters,
-              filtered: filteredLogs,
-            },
-            settings: {
-              graphics: graphicsSettings,
-            },
-            itemMenu,
-          }}
-          actions={{
-            windows: {
-              onMoveWindow: moveWindow,
-              onSetWindowVisibility: setWindowVisibility,
-              onToggleDockWindow: toggleDockWindow,
-            },
-            tooltip: {
-              onShowItemTooltip: showItemTooltip,
-              onShowTooltip: showTooltip,
-              onCloseTooltip: closeTooltip,
-              onCloseItemMenu: closeItemMenu,
-              onEquipmentHover: handleEquipmentHover,
-            },
-            inventory: {
-              onUnequip: handleUnequip,
-              onSort: handleSort,
-              onEquip: handleEquip,
-              onUseItem: handleUseItem,
-              onCraftRecipe: handleCraftRecipe,
-              onDropItem: handleDropItem,
-              onDropEquippedItem: handleDropEquippedItem,
-              onProspectItem: handleProspectItem,
-              onSellItem: handleSellItem,
-              onSetItemLocked: handleSetItemLocked,
-              onContextItem: handleContextItem,
-              onEquippedContextItem: handleEquippedContextItem,
-              onTakeLootItem: handleTakeLootItem,
-              onTakeAllLoot: handleTakeAllLoot,
-            },
-            world: {
-              onStartCombat: handleStartCombat,
-              onInteract: handleInteract,
-              onProspect: handleProspect,
-              onSellAll: handleSellAll,
-              onBuyTownItem: handleBuyTownItem,
-              onClaimHex: handleClaimHex,
-              onSetHome: () => setHomeHexForApp(setGame),
-            },
-            recipes: {
-              onOpenWithMaterialFilter: handleOpenRecipeBookWithMaterialFilter,
-              onClearMaterialFilter: handleClearRecipeMaterialFilter,
-            },
-            logs: {
-              onToggleFilterMenu: toggleFilterMenu,
-              onToggleLogFilter: toggleLogFilter,
-            },
-            settings: {
-              onResetSaveData: handleResetSaveData,
-              onSaveGraphicsSettings: handleSaveGraphicsSettings,
-              onSaveGraphicsSettingsAndReload:
-                handleSaveGraphicsSettingsAndReload,
-            },
-          }}
-        />
+        <AppWindows {...appWindowsProps} />
       </div>
       {isReady ? null : (
         <div

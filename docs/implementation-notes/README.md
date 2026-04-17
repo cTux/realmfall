@@ -7,6 +7,6 @@ Use this area for:
 
 - issue-focused workspaces
 - improvement proposals
-- plans, research notes, quickstarts, data models, and checklists
+- briefs, plans, research notes, quickstarts, data models, and checklists
 
 Keep implemented gameplay and technical reference specs under `docs/specs`.

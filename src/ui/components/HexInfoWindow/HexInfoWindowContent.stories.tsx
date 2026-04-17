@@ -164,8 +164,7 @@ function buildStructureArgs(
     interactLabel: overrides.interactLabel ?? structureActionLabel(structure),
     canInteract: overrides.canInteract ?? false,
     canTerritoryAction: overrides.canTerritoryAction ?? true,
-    territoryActionLabel:
-      overrides.territoryActionLabel ?? 'Claim hex',
+    territoryActionLabel: overrides.territoryActionLabel ?? 'Claim hex',
     canProspectInventoryEquipment:
       overrides.canProspectInventoryEquipment ?? false,
     canSellInventoryEquipment: overrides.canSellInventoryEquipment ?? false,

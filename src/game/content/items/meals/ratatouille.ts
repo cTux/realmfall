@@ -18,4 +18,3 @@ export const ratatouilleItemConfig: ItemConfig = {
   defaultQuantity: 1,
   tags: [GAME_TAGS.item.crafted],
 };
-

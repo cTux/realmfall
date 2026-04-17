@@ -2,7 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning  
 **Created**: 2026-04-13  
-**Feature**: [spec.md](../spec.md)
+**Feature**: [brief.md](../brief.md)
 
 ## Content Quality
 
@@ -31,4 +31,4 @@
 
 ## Notes
 
-- Specification is ready for planning.
+- Brief is ready for planning.

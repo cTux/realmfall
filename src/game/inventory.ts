@@ -8,7 +8,13 @@ import {
 } from './content/items';
 import { getRecipeOutput } from './crafting';
 import { GAME_TAGS } from './content/tags';
-import { Skill, type EquipmentSlot, type GameState, type Item, type RecipeDefinition } from './types';
+import {
+  Skill,
+  type EquipmentSlot,
+  type GameState,
+  type Item,
+  type RecipeDefinition,
+} from './types';
 import {
   applyRarityToItem,
   resolveCascadingRarity,
@@ -134,7 +140,10 @@ function materializeCraftedRecipeOutput(
   state: GameState,
   output: Item,
 ) {
-  const leveledOutput = scaleCraftedItemToPlayerLevel(output, state.player.level);
+  const leveledOutput = scaleCraftedItemToPlayerLevel(
+    output,
+    state.player.level,
+  );
   const tierBonus = Math.min(0.12, leveledOutput.tier * 0.02);
   const rarity = resolveCascadingRarity(
     createRng(
@@ -250,10 +259,9 @@ export function sellValue(item: Item) {
   const rarityOrder = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
   const category = getItemCategory(item);
   const recipePage = isRecipePage(item);
-  const base =
-    recipePage
-      ? 24
-      : category === 'artifact'
+  const base = recipePage
+    ? 24
+    : category === 'artifact'
       ? 16
       : category === 'weapon'
         ? 10

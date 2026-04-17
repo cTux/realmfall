@@ -24,7 +24,9 @@
 - Keep lore-sensitive guidance aligned with the canonical world reference in `docs/lore/REALMFALL.md`.
 - Keep current-system specs under `docs/specs` for implemented gameplay features and technical solutions.
 - Keep transient plans, issue workspaces, research notes, and checklists outside `docs/specs`, using `docs/implementation-notes` for that material.
+- Do not name transient implementation-note artifacts `spec.md`. Reserve `spec` naming for canonical shipped-reference documents under `docs/specs`, and use names such as `brief.md`, `plan.md`, `research.md`, or `checklist.md` for transient note files.
 - Keep `docs/PROJECT_REVIEW.md` as a lightweight transient note only. Do not let it become a second canonical source for workflow rules, best-practice checklists, or current-system specs.
+- When a transient note captures an observation that is no longer true, update or archive it promptly instead of leaving stale warning inventories or old performance claims in active planning paths.
 - Every implemented feature should be followed by creating or updating the relevant spec in `docs/specs` before the task is considered complete.
 - When changing an existing feature, update the matching spec in the same task so the spec stays aligned with shipped behavior.
 - Every fix should update the corresponding spec in the same task when that fix adds, removes, or clarifies a documented requirement.

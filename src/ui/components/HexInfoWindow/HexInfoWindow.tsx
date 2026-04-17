@@ -10,7 +10,9 @@ import type { HexInfoWindowProps } from './types';
 import styles from './styles.module.scss';
 
 const HexInfoWindowContent = createLazyWindowComponent<
-  Parameters<(typeof import('./HexInfoWindowContent'))['HexInfoWindowContent']>[0]
+  Parameters<
+    (typeof import('./HexInfoWindowContent'))['HexInfoWindowContent']
+  >[0]
 >(() =>
   import('./HexInfoWindowContent').then((module) => ({
     default: module.HexInfoWindowContent,

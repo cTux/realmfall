@@ -20,23 +20,22 @@ function createManagedWindowProps({
 }: {
   windows: AppWindowsLayout['windows'];
   windowShown: AppWindowsLayout['windowShown'];
-  windowMoveHandlers: ReturnType<typeof useAppWindowHandlers>['windowMoveHandlers'];
+  windowMoveHandlers: ReturnType<
+    typeof useAppWindowHandlers
+  >['windowMoveHandlers'];
   windowCloseHandlers: ReturnType<
     typeof useAppWindowHandlers
   >['windowCloseHandlers'];
 }): ManagedWindowProps {
-  return WINDOW_HANDLER_KEYS.reduce(
-    (managedWindowProps, key) => {
-      managedWindowProps[key] = {
-        position: windows[key],
-        onMove: windowMoveHandlers[key],
-        visible: windowShown[key],
-        onClose: windowCloseHandlers[key],
-      };
-      return managedWindowProps;
-    },
-    {} as ManagedWindowProps,
-  );
+  return WINDOW_HANDLER_KEYS.reduce((managedWindowProps, key) => {
+    managedWindowProps[key] = {
+      position: windows[key],
+      onMove: windowMoveHandlers[key],
+      visible: windowShown[key],
+      onClose: windowCloseHandlers[key],
+    };
+    return managedWindowProps;
+  }, {} as ManagedWindowProps);
 }
 
 export function useManagedWindowProps({
@@ -47,7 +46,9 @@ export function useManagedWindowProps({
 }: {
   windows: AppWindowsLayout['windows'];
   windowShown: AppWindowsLayout['windowShown'];
-  windowMoveHandlers: ReturnType<typeof useAppWindowHandlers>['windowMoveHandlers'];
+  windowMoveHandlers: ReturnType<
+    typeof useAppWindowHandlers
+  >['windowMoveHandlers'];
   windowCloseHandlers: ReturnType<
     typeof useAppWindowHandlers
   >['windowCloseHandlers'];

@@ -3,9 +3,20 @@ import { ItemId } from './content/ids';
 import { hexKey, hexNeighbors, type HexCoord } from './hex';
 import { isPassable } from './shared';
 import { isWorldBossFootprintOccupied } from './stateWorldBoss';
-import { getCurrentTile, getPlayerClaimedTiles, getTileAt } from './stateWorldQueries';
+import {
+  getCurrentTile,
+  getPlayerClaimedTiles,
+  getTileAt,
+} from './stateWorldQueries';
 import type { GameState, Item } from './types';
 import { isPlayerClaim } from './territories';
+
+type ClaimStatusState = Pick<
+  GameState,
+  'bloodMoonActive' | 'enemies' | 'homeHex' | 'seed' | 'tiles'
+> & {
+  player: Pick<GameState['player'], 'coord' | 'inventory'>;
+};
 
 function getConnectedPlayerClaimCount(
   claimedKeys: ReadonlySet<string>,
@@ -50,7 +61,7 @@ function canUnclaimWithoutSplittingTerritory(
   );
 }
 
-export function getCurrentHexClaimStatus(state: GameState) {
+export function getCurrentHexClaimStatus(state: ClaimStatusState) {
   const tile = getCurrentTile(state);
   const playerClaims = getPlayerClaimedTiles(state);
   if (tile.claim) {
@@ -133,8 +144,14 @@ export function getCurrentHexClaimStatus(state: GameState) {
     };
   }
 
-  const clothCount = countInventoryResource(state.player.inventory, ItemId.Cloth);
-  const stickCount = countInventoryResource(state.player.inventory, ItemId.Sticks);
+  const clothCount = countInventoryResource(
+    state.player.inventory,
+    ItemId.Cloth,
+  );
+  const stickCount = countInventoryResource(
+    state.player.inventory,
+    ItemId.Sticks,
+  );
   if (clothCount < 1 || stickCount < 1) {
     return {
       action: 'none' as const,

@@ -1,11 +1,5 @@
 import { createCombatActorState } from './combat';
-import type {
-  CombatState,
-  Enemy,
-  GameState,
-  Player,
-  Tile,
-} from './types';
+import type { CombatState, Enemy, GameState, Player, Tile } from './types';
 
 interface CopyStateSlices {
   homeHex?: boolean;

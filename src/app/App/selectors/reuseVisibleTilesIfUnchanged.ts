@@ -1,16 +1,16 @@
 import {
   getVisibleTiles,
-  type GameState,
   type Tile,
+  type VisibleTilesState,
 } from '../../../game/state';
 
 type VisibleTiles = ReturnType<typeof getVisibleTiles>;
 
-export function getReusableVisibleTiles(
+export function reuseVisibleTilesIfUnchanged(
   previousVisibleTiles: VisibleTiles,
-  game: GameState,
+  visibleTilesState: VisibleTilesState,
 ) {
-  const nextVisibleTiles = getVisibleTiles(game);
+  const nextVisibleTiles = getVisibleTiles(visibleTilesState);
 
   return canReuseVisibleTiles(previousVisibleTiles, nextVisibleTiles)
     ? previousVisibleTiles
