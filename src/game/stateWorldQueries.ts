@@ -6,13 +6,17 @@ import { isWorldBossEnemyId } from './worldBoss';
 import type { Enemy, GameState, Tile } from './types';
 
 type WorldTileState = Pick<GameState, 'seed' | 'tiles'>;
+export type VisibleTilesState = WorldTileState &
+  Pick<GameState, 'radius'> & {
+    player: Pick<GameState['player'], 'coord'>;
+  };
 type EnemyLookupState = WorldTileState &
   Pick<GameState, 'bloodMoonActive' | 'enemies'>;
 type CurrentTileState = WorldTileState & {
   player: Pick<GameState['player'], 'coord'>;
 };
 
-export function getVisibleTiles(state: GameState) {
+export function getVisibleTiles(state: VisibleTilesState) {
   const tiles = [];
   const { q: pq, r: pr } = state.player.coord;
 

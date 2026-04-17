@@ -194,6 +194,7 @@ export {
   getTileAt,
   getVisibleTiles,
 } from './stateWorldQueries';
+export type { VisibleTilesState } from './stateWorldQueries';
 export { getCurrentHexClaimStatus } from './stateClaims';
 export { getSafePathToTile } from './statePathfinding';
 

@@ -79,10 +79,16 @@ export function usePixiWorld({
   }, [game, gameRef]);
 
   useEffect(() => {
+    const visibleTilesState = {
+      player: { coord: game.player.coord },
+      radius: game.radius,
+      seed: game.seed,
+      tiles: game.tiles,
+    };
     playerCoordRef.current = game.player.coord;
     visibleTilesRef.current = getReusableVisibleTiles(
       visibleTilesRef.current,
-      game,
+      visibleTilesState,
     );
   }, [game.player.coord, game.radius, game.seed, game.tiles]);
 

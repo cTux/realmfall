@@ -370,9 +370,15 @@ function consumableEffectDescription(item: Item) {
   }
 
   const effects = [
-    item.healing > 0 ? `recover ${item.healing} HP` : null,
-    item.hunger > 0 ? `restore ${item.hunger} hunger` : null,
-    (item.thirst ?? 0) > 0 ? `restore ${item.thirst} thirst` : null,
+    item.healing > 0
+      ? t('game.message.useItem.healing', { amount: item.healing })
+      : null,
+    item.hunger > 0
+      ? t('game.message.useItem.hunger', { amount: item.hunger })
+      : null,
+    (item.thirst ?? 0) > 0
+      ? t('game.message.useItem.thirst', { amount: item.thirst })
+      : null,
   ].filter((effect): effect is string => Boolean(effect));
 
   if (effects.length === 0) return t('ui.tooltip.consumable.generic');
@@ -399,7 +405,11 @@ function itemTypeLabel(item: Item) {
 }
 
 function itemTierLabel(item: Item) {
-  return `${capitalize(item.rarity)} T${item.tier} ${itemTypeLabel(item)}`;
+  return t('ui.tooltip.itemTier', {
+    rarity: capitalize(item.rarity),
+    tier: item.tier,
+    type: itemTypeLabel(item),
+  });
 }
 
 function slotLabel(slot: NonNullable<Item['slot']>) {
@@ -448,7 +458,7 @@ export function tagTooltipLines(tags?: string[]): TooltipLine[] {
   return [
     {
       kind: 'text',
-      text: `Tags: ${tags.join(', ')}`,
+      text: t('ui.tooltip.tags', { tags: tags.join(', ') }),
       tone: 'subtle',
     },
   ];
