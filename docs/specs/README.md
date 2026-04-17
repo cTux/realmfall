@@ -20,4 +20,6 @@ Workflow expectations:
   dedicated reference spec file.
 - Keep transient plans, research, checklists, and quickstarts outside
   `docs/specs`.
+- Keep `spec` naming reserved for canonical files under `docs/specs`; use
+  transient names such as `brief.md` under `docs/implementation-notes`.
 - Use index documents as navigation only.

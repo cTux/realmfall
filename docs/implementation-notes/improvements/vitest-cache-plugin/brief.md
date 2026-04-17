@@ -1,4 +1,4 @@
-# Feature Specification: Vitest Cache Plugin Adoption
+# Feature Brief: Vitest Cache Plugin Adoption
 
 **Feature Branch**: `001-vitest-cache-plugin`  
 **Created**: 2026-04-13  

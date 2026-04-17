@@ -2,7 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning  
 **Created**: 2026-04-13  
-**Feature**: [spec.md](../spec.md)
+**Feature**: [brief.md](../brief.md)
 
 ## Content Quality
 
@@ -31,4 +31,4 @@
 
 ## Notes
 
-- The spec is ready for planning. Technical choices, plugin scope, and verification commands are intentionally deferred to `plan.md`.
+- The brief is ready for planning. Technical choices, plugin scope, and verification commands are intentionally deferred to `plan.md`.

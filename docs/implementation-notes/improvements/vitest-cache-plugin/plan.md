@@ -1,7 +1,7 @@
 # Implementation Plan: Vitest Cache Plugin Adoption
 
-**Branch**: `001-vitest-cache-plugin` | **Date**: 2026-04-13 | **Spec**: `docs/implementation-notes/improvements/vitest-cache-plugin/spec.md`
-**Input**: Feature specification from `docs/implementation-notes/improvements/vitest-cache-plugin/spec.md`
+**Branch**: `001-vitest-cache-plugin` | **Date**: 2026-04-13 | **Brief**: `docs/implementation-notes/improvements/vitest-cache-plugin/brief.md`
+**Input**: Feature brief from `docs/implementation-notes/improvements/vitest-cache-plugin/brief.md`
 
 ## Summary
 

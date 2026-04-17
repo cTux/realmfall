@@ -1,7 +1,7 @@
 # Implementation Plan: Production Bundle Obfuscation
 
-**Branch**: `master` | **Date**: 2026-04-13 | **Spec**: [spec.md](./spec.md)  
-**Input**: Feature specification from `docs/implementation-notes/improvements/use-bundle-obfuscator/spec.md`
+**Branch**: `master` | **Date**: 2026-04-13 | **Brief**: [brief.md](./brief.md)  
+**Input**: Feature brief from `docs/implementation-notes/improvements/use-bundle-obfuscator/brief.md`
 
 **Note**: This plan follows the GitHub Spec Kit planning structure while targeting the repo-specific `docs/specs/...` convention used by this project.
 
