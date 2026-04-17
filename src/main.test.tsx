@@ -118,7 +118,7 @@ describe('main bootstrap', () => {
     );
 
     expect(bootstrapShell.props.role).toBe('status');
-    expect(bootstrapChildren).toHaveLength(2);
+    expect(bootstrapChildren).toHaveLength(1);
     expect(JSON.stringify(firstRender)).not.toContain('Loading Realmfall');
   });
 

@@ -28,6 +28,7 @@ import {
 } from '../graphicsSettings';
 import { t } from '../../i18n';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
+import { LoadingSpinner } from '../../ui/components/LoadingSpinner';
 import styles from './styles.module.scss';
 import { setWorldClockTime } from './worldClockStore';
 
@@ -373,7 +374,7 @@ export function App() {
           aria-live="polite"
           aria-busy="true"
         >
-          <div className={styles.loadingSpinner} aria-hidden="true" />
+          <LoadingSpinner className={styles.loadingSpinner} />
         </div>
       )}
     </div>
