@@ -17,7 +17,8 @@ root.render(
 void bootstrap();
 
 async function bootstrap() {
-  const [{ App }] = await Promise.all([import('./app/App'), loadI18n()]);
+  await loadI18n();
+  const { App } = await import('./app/App');
 
   root.render(
     <React.StrictMode>
