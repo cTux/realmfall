@@ -36,7 +36,7 @@ export function AppWindows(props: AppWindowsProps) {
     windowMoveHandlers,
     windowCloseHandlers,
   });
-  const loadedWindows = useDeferredWindows({
+  const mountedWindows = useDeferredWindows({
     windowShown: props.layout.windowShown,
     keepLootWindowMounted: props.layout.keepLootWindowMounted,
     keepCombatWindowMounted: props.layout.keepCombatWindowMounted,
@@ -70,7 +70,7 @@ export function AppWindows(props: AppWindowsProps) {
         {...props}
         combatPlayerParty={combatPlayerParty}
         hexInfoView={hexInfoView}
-        loadedWindows={loadedWindows}
+        mountedWindows={mountedWindows}
         managedWindowProps={managedWindowProps}
         recipeWindowStructure={recipeWindowStructure}
       />

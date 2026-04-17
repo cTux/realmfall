@@ -128,7 +128,10 @@ export function createStorybookFixtures() {
 
 export function countInventoryByItemKey(items: Item[]) {
   return items.reduce<Record<string, number>>((counts, item) => {
-    const key = item.itemKey ?? item.name;
+    const key = item.itemKey;
+    if (!key) {
+      return counts;
+    }
     counts[key] = (counts[key] ?? 0) + item.quantity;
     return counts;
   }, {});

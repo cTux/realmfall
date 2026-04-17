@@ -1,17 +1,42 @@
 import React from 'react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const render = vi.fn();
-const createRoot = vi.fn(() => ({ render }));
-
-vi.mock('react-dom/client', () => ({
-  default: { createRoot },
-}));
-
-vi.mock('./app/App', () => ({
-  App: () => <div>Mock App</div>,
-}));
+let render: ReturnType<typeof vi.fn>;
+let createRoot: ReturnType<typeof vi.fn>;
+let loadI18n: ReturnType<typeof vi.fn>;
+let appModuleImported: ReturnType<typeof vi.fn>;
 
 describe('main bootstrap', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    render = vi.fn();
+    createRoot = vi.fn(() => ({ render }));
+    loadI18n = vi.fn(() => Promise.resolve({}));
+    appModuleImported = vi.fn();
+
+    vi.doMock('react-dom/client', () => ({
+      default: { createRoot },
+    }));
+
+    vi.doMock('./i18n', () => ({
+      loadI18n,
+    }));
+
+    vi.doMock('./app/App', () => {
+      (appModuleImported as () => void)();
+      return {
+        App: () => <div>Mock App</div>,
+      };
+    });
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = '';
+    vi.doUnmock('react-dom/client');
+    vi.doUnmock('./i18n');
+    vi.doUnmock('./app/App');
+  });
+
   it('mounts the app into the root element', async () => {
     document.body.innerHTML = '<div id="root"></div>';
 
@@ -27,6 +52,30 @@ describe('main bootstrap', () => {
     expect(
       (globalThis as typeof globalThis & { version: string }).version,
     ).toBe(__APP_VERSION__);
+  });
+
+  it('waits for i18n to load before importing App', async () => {
+    document.body.innerHTML = '<div id="root"></div>';
+
+    let resolveI18n!: () => void;
+    loadI18n.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveI18n = () => resolve({});
+        }),
+    );
+
+    await import('./main');
+    await Promise.resolve();
+
+    expect(loadI18n).toHaveBeenCalledTimes(1);
+    expect(appModuleImported).not.toHaveBeenCalled();
+
+    resolveI18n();
+    await vi.dynamicImportSettled();
+    await Promise.resolve();
+
+    expect(appModuleImported).toHaveBeenCalledTimes(1);
   });
 
   it('renders a spinner-only bootstrap shell before the app loads', async () => {

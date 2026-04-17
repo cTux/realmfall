@@ -27,16 +27,29 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
   const { bloodMoonActive, combat, enemies, homeHex, logs, player, seed, tiles } =
     game;
   const { coord, inventory, learnedRecipeIds, skills } = player;
-  const worldViewState = useMemo(
-    () => ({
-      bloodMoonActive,
-      combat,
-      enemies,
-      player,
-      seed,
-      tiles,
-    }),
-    [bloodMoonActive, combat, enemies, player, seed, tiles],
+  const enemyViewState = useMemo(
+    () =>
+      ({
+        enemies,
+        seed,
+        tiles,
+      }) as GameState,
+    [enemies, seed, tiles],
+  );
+  const claimStatusState = useMemo(
+    () =>
+      ({
+        bloodMoonActive,
+        enemies,
+        homeHex,
+        player: {
+          coord,
+          inventory,
+        },
+        seed,
+        tiles,
+      }) as GameState,
+    [bloodMoonActive, coord, enemies, homeHex, inventory, seed, tiles],
   );
 
   const stats = useMemo(() => getPlayerStats(player), [player]);
@@ -64,7 +77,10 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
   const inventoryCountsByItemKey = useMemo(
     () =>
       inventory.reduce<Record<string, number>>((counts, item) => {
-        const key = item.itemKey ?? item.name;
+        const key = item.itemKey;
+        if (!key) {
+          return counts;
+        }
         counts[key] = (counts[key] ?? 0) + item.quantity;
         return counts;
       }, {}),
@@ -83,12 +99,12 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
   );
   const gold = useMemo(() => getGoldAmount(inventory), [inventory]);
   const combatEnemies = useMemo(
-    () => (combat ? getEnemiesAt(worldViewState as GameState, combat.coord) : []),
-    [combat, worldViewState],
+    () => (combat ? getEnemiesAt(enemyViewState, combat.coord) : []),
+    [combat, enemyViewState],
   );
   const currentTileHostileEnemyCount = useMemo(
-    () => getHostileEnemyIds(worldViewState as GameState, currentTile.coord).length,
-    [currentTile.coord, worldViewState],
+    () => getHostileEnemyIds(enemyViewState, currentTile.coord).length,
+    [currentTile.coord, enemyViewState],
   );
   const filteredLogs = useMemo(
     () => logs.filter((entry) => logFilters[entry.kind]),
@@ -118,8 +134,8 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
       : null;
   const interactLabel = structureActionLabel(currentTile.structure);
   const claimStatus = useMemo(
-    () => getCurrentHexClaimStatus(worldViewState as GameState),
-    [worldViewState],
+    () => getCurrentHexClaimStatus(claimStatusState),
+    [claimStatusState],
   );
 
   return {
