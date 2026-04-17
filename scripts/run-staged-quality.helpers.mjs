@@ -1,11 +1,4 @@
-const LINT_EXTENSIONS = new Set([
-  '.js',
-  '.jsx',
-  '.ts',
-  '.tsx',
-  '.mjs',
-  '.cjs',
-]);
+const LINT_EXTENSIONS = new Set(['.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs']);
 
 const STYLELINT_EXTENSIONS = new Set(['.css', '.scss']);
 const VITEST_RELATED_EXTENSIONS = new Set([...LINT_EXTENSIONS, '.json']);
@@ -26,8 +19,7 @@ export function getExtension(file) {
 
 export function isSrcStyleFile(file) {
   return (
-    file.startsWith('src/') &&
-    STYLELINT_EXTENSIONS.has(getExtension(file))
+    file.startsWith('src/') && STYLELINT_EXTENSIONS.has(getExtension(file))
   );
 }
 

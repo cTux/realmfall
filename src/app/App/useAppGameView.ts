@@ -27,32 +27,38 @@ type EnemyLookupInput = Parameters<typeof getEnemiesAt>[0];
 type ClaimStatusInput = Parameters<typeof getCurrentHexClaimStatus>[0];
 
 export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
-  const { bloodMoonActive, combat, enemies, homeHex, logs, player, seed, tiles } =
-    game;
+  const {
+    bloodMoonActive,
+    combat,
+    enemies,
+    homeHex,
+    logs,
+    player,
+    seed,
+    tiles,
+  } = game;
   const { coord, inventory, learnedRecipeIds, skills } = player;
   const enemyLookupInput = useMemo<EnemyLookupInput>(
-    () =>
-      ({
-        enemies,
-        bloodMoonActive,
-        seed,
-        tiles,
-      }),
+    () => ({
+      enemies,
+      bloodMoonActive,
+      seed,
+      tiles,
+    }),
     [bloodMoonActive, enemies, seed, tiles],
   );
   const claimStatusInput = useMemo<ClaimStatusInput>(
-    () =>
-      ({
-        bloodMoonActive,
-        enemies,
-        homeHex,
-        player: {
-          coord,
-          inventory,
-        },
-        seed,
-        tiles,
-      }),
+    () => ({
+      bloodMoonActive,
+      enemies,
+      homeHex,
+      player: {
+        coord,
+        inventory,
+      },
+      seed,
+      tiles,
+    }),
     [bloodMoonActive, coord, enemies, homeHex, inventory, seed, tiles],
   );
 

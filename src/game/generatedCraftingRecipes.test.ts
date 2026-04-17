@@ -14,26 +14,34 @@ describe('generated crafting recipes', () => {
     expect(CRAFTABLE_ICON_ITEM_CONFIGS).toHaveLength(totalIconVariations);
     expect(GENERATED_CRAFTING_RECIPES).toHaveLength(totalIconVariations);
     expect(
-      GENERATED_CRAFTING_RECIPES.every((recipe) => recipe.skill === Skill.Crafting),
+      GENERATED_CRAFTING_RECIPES.every(
+        (recipe) => recipe.skill === Skill.Crafting,
+      ),
     ).toBe(true);
     expect(
       GENERATED_CRAFTING_RECIPES.every(
-        (recipe) => recipe.output.itemKey && recipe.id === `craft-${recipe.output.itemKey}`,
+        (recipe) =>
+          recipe.output.itemKey &&
+          recipe.id === `craft-${recipe.output.itemKey}`,
       ),
     ).toBe(true);
   });
 
   it('uses lore-based names instead of numbered placeholder labels', () => {
     expect(
-      CRAFTABLE_ICON_ITEM_CONFIGS.find((config) => config.key === 'icon-helmet-01')
-        ?.name,
+      CRAFTABLE_ICON_ITEM_CONFIGS.find(
+        (config) => config.key === 'icon-helmet-01',
+      )?.name,
     ).toBe('Ashwake Greathelm');
     expect(
-      GENERATED_CRAFTING_RECIPES.find((recipe) => recipe.id === 'craft-icon-sword-01')
-        ?.name,
+      GENERATED_CRAFTING_RECIPES.find(
+        (recipe) => recipe.id === 'craft-icon-sword-01',
+      )?.name,
     ).toBe('Shardwake Blade');
     expect(
-      GENERATED_CRAFTING_RECIPES.every((recipe) => !/\b\d{2}\b/.test(recipe.name)),
+      GENERATED_CRAFTING_RECIPES.every(
+        (recipe) => !/\b\d{2}\b/.test(recipe.name),
+      ),
     ).toBe(true);
   });
 });

@@ -73,7 +73,10 @@ function getStaticRenderToken(
 function getStaticTileRenderToken(state: GameState, tile: Tile) {
   const enemies = getEnemiesAt(state, tile.coord).reduce((token, enemy) => {
     token = mixRenderToken(token, hashRenderString(enemy.id));
-    token = mixRenderToken(token, hashRenderString(enemy.enemyTypeId ?? enemy.name));
+    token = mixRenderToken(
+      token,
+      hashRenderString(enemy.enemyTypeId ?? enemy.name),
+    );
     token = mixRenderToken(token, enemy.aggressive === false ? 0 : 1);
     token = mixRenderToken(token, enemy.worldBoss ? 1 : 0);
     return token;

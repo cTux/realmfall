@@ -9,7 +9,9 @@ import type { InventoryWindowProps } from './types';
 import styles from './styles.module.scss';
 
 const InventoryWindowContent = createLazyWindowComponent<
-  Parameters<(typeof import('./InventoryWindowContent'))['InventoryWindowContent']>[0]
+  Parameters<
+    (typeof import('./InventoryWindowContent'))['InventoryWindowContent']
+  >[0]
 >(() =>
   import('./InventoryWindowContent').then((module) => ({
     default: module.InventoryWindowContent,

@@ -1,5 +1,9 @@
 import { t } from '../../../i18n';
-import { canEquipItem, canUseItem, isEquippableItem } from '../../../game/state';
+import {
+  canEquipItem,
+  canUseItem,
+  isEquippableItem,
+} from '../../../game/state';
 import { DebuggerWindow } from '../../../ui/components/DebuggerWindow';
 import { GameTooltip } from '../../../ui/components/GameTooltip';
 import { HeroWindow } from '../../../ui/components/HeroWindow';
@@ -69,9 +73,7 @@ export function AppFixedWindows({
           canToggleLock={!itemMenu.slot && isEquippableItem(itemMenu.item)}
           isLocked={Boolean(itemMenu.item.locked)}
           canShowRecipes={Boolean(recipeMaterialItemKey)}
-          canProspectInventoryEquipment={
-            itemMenu.canProspectInventoryEquipment
-          }
+          canProspectInventoryEquipment={itemMenu.canProspectInventoryEquipment}
           canSellInventoryEquipment={itemMenu.canSellInventoryEquipment}
           onEquip={() => {
             if (itemMenu.slot) {

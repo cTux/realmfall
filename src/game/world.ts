@@ -5,9 +5,7 @@ import {
   getGeneratedOffhandKeys,
   getGeneratedWeaponKeys,
 } from './content/items';
-import {
-  TOWN_SEARCH_LIMIT,
-} from './config';
+import { TOWN_SEARCH_LIMIT } from './config';
 import {
   getGatheringStructureConfig,
   getStructureConfig,

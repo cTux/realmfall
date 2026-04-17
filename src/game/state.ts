@@ -91,10 +91,7 @@ import {
   skillLevelThreshold,
 } from './progression';
 import { isPassable, noise } from './shared';
-import {
-  isPlayerClaim,
-  makePlayerClaim,
-} from './territories';
+import { isPlayerClaim, makePlayerClaim } from './territories';
 import {
   buildTile,
   cacheSafeStart,
@@ -1191,7 +1188,9 @@ export function interactWithStructure(state: GameState): GameState {
     definition,
     quantity,
   );
-  rewards.forEach((reward) => addItemToInventory(next.player.inventory, reward));
+  rewards.forEach((reward) =>
+    addItemToInventory(next.player.inventory, reward),
+  );
   const byproduct = maybeGatherByproduct(
     next,
     currentTile.structure,
@@ -1346,7 +1345,8 @@ export function craftRecipe(
   count: number | 'max' = 1,
 ): GameState {
   if (state.gameOver) return state;
-  const craftLimit = count === 'max' ? Number.POSITIVE_INFINITY : Math.max(1, count);
+  const craftLimit =
+    count === 'max' ? Number.POSITIVE_INFINITY : Math.max(1, count);
   let next = state;
   let crafted = 0;
 
@@ -1393,7 +1393,9 @@ function craftRecipeOnce(
   if (!hasAllRequirements(state.player.inventory, recipe.ingredients)) {
     return {
       ok: false,
-      error: t('game.message.recipe.missingMaterials', { item: recipe.output.name }),
+      error: t('game.message.recipe.missingMaterials', {
+        item: recipe.output.name,
+      }),
     };
   }
 
@@ -1424,7 +1426,7 @@ function craftRecipeOnce(
         })
       : recipe.skill === Skill.Smelting
         ? t('game.message.craft.smelt', { item: recipe.output.name })
-      : t('game.message.craft.make', { item: recipe.output.name }),
+        : t('game.message.craft.make', { item: recipe.output.name }),
   );
   return { ok: true, state: next };
 }
@@ -1434,7 +1436,9 @@ export function setInventoryItemLocked(
   itemId: string,
   locked: boolean,
 ): GameState {
-  const itemIndex = state.player.inventory.findIndex((item) => item.id === itemId);
+  const itemIndex = state.player.inventory.findIndex(
+    (item) => item.id === itemId,
+  );
   if (itemIndex < 0) return message(state, t('game.message.item.notInPack'));
   if (state.player.inventory[itemIndex]?.locked === locked) return state;
 
@@ -1976,7 +1980,10 @@ function maybeSkinEnemy(state: GameState, enemy: import('./types').Enemy) {
     tile.items,
     makeResourceStack(ItemId.LeatherScraps, enemy.tier, quantity),
   );
-  addItemToInventory(tile.items, makeResourceStack('meat', enemy.tier, quantity));
+  addItemToInventory(
+    tile.items,
+    makeResourceStack('meat', enemy.tier, quantity),
+  );
   state.tiles[key] = { ...tile, items: [...tile.items] };
   gainSkillXp(state, Skill.Skinning, quantity, addLog);
   addLog(

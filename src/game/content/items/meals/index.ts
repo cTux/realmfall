@@ -61,4 +61,3 @@ export const MEAL_ITEM_CONFIGS = [
   aubergineMeatSkilletItemConfig,
   orchardRoastItemConfig,
 ] as const;
-

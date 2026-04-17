@@ -196,7 +196,10 @@ export function makeEnemy(
     baseDefense: worldBoss ? scaledDefense : baseDefense,
     defense: scaledDefense,
     xp: Math.round(
-      (18 + statTier * 14 + rarityRank * 12 + (structure === 'dungeon' ? 8 : 0)) *
+      (18 +
+        statTier * 14 +
+        rarityRank * 12 +
+        (structure === 'dungeon' ? 8 : 0)) *
         (worldBoss ? 10 : 1),
     ),
     elite: elite || worldBoss,

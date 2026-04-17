@@ -18,4 +18,3 @@ export const carrotItemConfig: ItemConfig = {
   defaultQuantity: 1,
   tags: [GAME_TAGS.item.gathered, GAME_TAGS.item.craftingMaterial],
 };
-

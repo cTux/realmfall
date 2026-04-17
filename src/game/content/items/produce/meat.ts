@@ -19,4 +19,3 @@ export const meatItemConfig: ItemConfig = {
   defaultQuantity: 1,
   tags: [GAME_TAGS.item.animalProduct, GAME_TAGS.item.craftingMaterial],
 };
-

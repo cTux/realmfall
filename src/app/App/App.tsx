@@ -97,7 +97,9 @@ export function App() {
     worldTimeMsRef,
   });
   const handleWorldSecondChange = useCallback(() => {
-    setGame((current) => syncPlayerStatusEffects(current, worldTimeMsRef.current));
+    setGame((current) =>
+      syncPlayerStatusEffects(current, worldTimeMsRef.current),
+    );
   }, []);
   const handleWorldMinuteChange = useCallback((worldTimeMinutes: number) => {
     setGame((current) =>

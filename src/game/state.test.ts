@@ -353,7 +353,9 @@ describe('game state', () => {
       'player',
     );
     expect(
-      unclaimed.logs.some((entry) => /unclaim the hex at 1, 0/i.test(entry.text)),
+      unclaimed.logs.some((entry) =>
+        /unclaim the hex at 1, 0/i.test(entry.text),
+      ),
     ).toBe(true);
   });
 
@@ -976,9 +978,9 @@ describe('game state', () => {
         (item) => item.name === 'Leather Scraps',
       ),
     ).toBe(true);
-    expect(getTileAt(resolved, target).items.some((item) => item.name === 'Meat')).toBe(
-      true,
-    );
+    expect(
+      getTileAt(resolved, target).items.some((item) => item.name === 'Meat'),
+    ).toBe(true);
     expect(resolved.player.skills[Skill.Skinning].xp).toBeGreaterThan(0);
   });
 
@@ -2190,7 +2192,8 @@ describe('game state', () => {
       cooked.player.inventory.some((item) => item.name === 'Cooked Fish'),
     ).toBe(true);
     expect(
-      cooked.player.inventory.find((item) => item.itemKey === 'raw-fish')?.quantity,
+      cooked.player.inventory.find((item) => item.itemKey === 'raw-fish')
+        ?.quantity,
     ).toBe(9);
     expect(
       cooked.player.inventory.find((item) => item.itemKey === 'coal')?.quantity,
@@ -2257,8 +2260,7 @@ describe('game state', () => {
         );
 
         return craftRecipe(game, 'craft-icon-axe-01').player.inventory.find(
-          (item) =>
-            item.itemKey === 'icon-axe-01' && item.rarity !== 'common',
+          (item) => item.itemKey === 'icon-axe-01' && item.rarity !== 'common',
         );
       })
       .find(Boolean);
@@ -2309,14 +2311,18 @@ describe('game state', () => {
         ?.quantity,
     ).toBe(19);
     expect(
-      smelted.player.inventory.find((item) => item.itemKey === 'coal')?.quantity,
+      smelted.player.inventory.find((item) => item.itemKey === 'coal')
+        ?.quantity,
     ).toBe(9);
     expect(smelted.player.skills[Skill.Smelting].xp).toBeGreaterThan(0);
   });
 
   it('increases cooking and smelting recipe output from profession levels', () => {
     const cookingGame = createGame(3, 'cooking-output-seed');
-    cookingGame.tiles['0,0'] = { ...cookingGame.tiles['0,0'], structure: 'camp' };
+    cookingGame.tiles['0,0'] = {
+      ...cookingGame.tiles['0,0'],
+      structure: 'camp',
+    };
     cookingGame.player.learnedRecipeIds.push('cook-cooked-fish');
     cookingGame.player.skills[Skill.Cooking].level = 6;
     cookingGame.player.inventory.push(
@@ -2421,13 +2427,19 @@ describe('game state', () => {
     const smeltedPlatinum = craftRecipe(smeltedGold, 'smelt-platinum-ingot');
 
     expect(
-      smeltedPlatinum.player.inventory.some((item) => item.itemKey === 'tin-ingot'),
+      smeltedPlatinum.player.inventory.some(
+        (item) => item.itemKey === 'tin-ingot',
+      ),
     ).toBe(true);
     expect(
-      smeltedPlatinum.player.inventory.some((item) => item.itemKey === 'iron-ingot'),
+      smeltedPlatinum.player.inventory.some(
+        (item) => item.itemKey === 'iron-ingot',
+      ),
     ).toBe(true);
     expect(
-      smeltedPlatinum.player.inventory.some((item) => item.itemKey === 'gold-ingot'),
+      smeltedPlatinum.player.inventory.some(
+        (item) => item.itemKey === 'gold-ingot',
+      ),
     ).toBe(true);
     expect(
       smeltedPlatinum.player.inventory.some(
@@ -2440,16 +2452,19 @@ describe('game state', () => {
       ),
     ).toHaveLength(1);
     expect(
-      smeltedPlatinum.player.inventory.find((item) => item.itemKey === 'tin-ore')
-        ?.quantity,
+      smeltedPlatinum.player.inventory.find(
+        (item) => item.itemKey === 'tin-ore',
+      )?.quantity,
     ).toBe(19);
     expect(
-      smeltedPlatinum.player.inventory.find((item) => item.itemKey === 'iron-ore')
-        ?.quantity,
+      smeltedPlatinum.player.inventory.find(
+        (item) => item.itemKey === 'iron-ore',
+      )?.quantity,
     ).toBe(19);
     expect(
-      smeltedPlatinum.player.inventory.find((item) => item.itemKey === 'gold-ore')
-        ?.quantity,
+      smeltedPlatinum.player.inventory.find(
+        (item) => item.itemKey === 'gold-ore',
+      )?.quantity,
     ).toBe(29);
     expect(
       smeltedPlatinum.player.inventory.find(
@@ -2617,7 +2632,9 @@ describe('game state', () => {
     const sold = sellInventoryItem(game, 'recipe-craft-weapon-sell');
 
     expect(
-      sold.player.inventory.some((item) => item.id === 'recipe-craft-weapon-sell'),
+      sold.player.inventory.some(
+        (item) => item.id === 'recipe-craft-weapon-sell',
+      ),
     ).toBe(false);
     expect(getGoldAmount(sold.player.inventory)).toBe(40);
     expect(sold.logs[0]?.text).toContain('Recipe: Axe 01');
@@ -2695,8 +2712,8 @@ describe('game state', () => {
 
       const encountered = moveToTile(game, target);
       const resolved = startCombat(encountered);
-      const recipePage = getTileAt(resolved, target).items.find(
-        (item) => Boolean(item.recipeId),
+      const recipePage = getTileAt(resolved, target).items.find((item) =>
+        Boolean(item.recipeId),
       );
       if (!recipePage?.recipeId) continue;
 
@@ -2708,9 +2725,10 @@ describe('game state', () => {
     expect(resolvedWithRecipe).not.toBeNull();
     expect(droppedRecipeId).not.toBeNull();
 
-    const recipePage = getTileAt(resolvedWithRecipe!, { q: 2, r: 0 }).items.find(
-      (item) => item.recipeId === droppedRecipeId,
-    );
+    const recipePage = getTileAt(resolvedWithRecipe!, {
+      q: 2,
+      r: 0,
+    }).items.find((item) => item.recipeId === droppedRecipeId);
     expect(recipePage).toBeDefined();
     expect(recipePage?.itemKey).toBe('recipe-book');
     expect(recipePage?.icon).toBeTruthy();
@@ -3028,12 +3046,12 @@ describe('game state', () => {
 
     game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'forge' };
     const prospected = prospectInventoryItem(game, 'weapon-1');
-    expect(prospected.player.inventory.some((item) => item.id === 'weapon-1')).toBe(
-      false,
-    );
-    expect(prospected.player.inventory.some((item) => item.id === 'weapon-2')).toBe(
-      true,
-    );
+    expect(
+      prospected.player.inventory.some((item) => item.id === 'weapon-1'),
+    ).toBe(false);
+    expect(
+      prospected.player.inventory.some((item) => item.id === 'weapon-2'),
+    ).toBe(true);
     expect(
       prospected.player.inventory.some((item) => item.itemKey === 'iron-ore'),
     ).toBe(true);

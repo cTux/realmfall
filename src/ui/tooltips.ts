@@ -191,7 +191,7 @@ export function enemyTooltip(
   const highestRarity = enemies.reduce<EnemyRarity>(
     (current, enemy) =>
       enemyRarityIndex(enemy.rarity) > enemyRarityIndex(current)
-        ? enemy.rarity ?? 'common'
+        ? (enemy.rarity ?? 'common')
         : current,
     'common',
   );

@@ -1,4 +1,9 @@
-import { useEffect, useMemo, useState, type MouseEvent as ReactMouseEvent } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+} from 'react';
 import { getItemConfigByKey } from '../../../game/content/items';
 import { getStructureConfig } from '../../../game/content/structures';
 import {
@@ -65,12 +70,13 @@ export function RecipeBookWindowContent({
 
   const visibleRecipes = useMemo(
     () =>
-      recipes.filter(
-        (recipe) =>
-          recipe.skill === activeSkill &&
-          (!materialFilterItemKey ||
-            recipeUsesItemKey(recipe, materialFilterItemKey)),
-      )
+      recipes
+        .filter(
+          (recipe) =>
+            recipe.skill === activeSkill &&
+            (!materialFilterItemKey ||
+              recipeUsesItemKey(recipe, materialFilterItemKey)),
+        )
         .slice()
         .sort((left, right) =>
           compareRecipeBookEntries(left, right, {
@@ -78,7 +84,13 @@ export function RecipeBookWindowContent({
             inventoryCountsByItemKey,
           }),
         ),
-    [activeSkill, currentStructure, inventoryCountsByItemKey, materialFilterItemKey, recipes],
+    [
+      activeSkill,
+      currentStructure,
+      inventoryCountsByItemKey,
+      materialFilterItemKey,
+      recipes,
+    ],
   );
   const filterItemName = materialFilterItemKey
     ? (getItemConfigByKey(materialFilterItemKey)?.name ?? materialFilterItemKey)
@@ -117,7 +129,8 @@ export function RecipeBookWindowContent({
               const requiredStructure = getRecipeRequiredStructure(recipe);
               const requiredStructureLabel =
                 getStructureConfig(requiredStructure).title;
-              const atRequiredStructure = currentStructure === requiredStructure;
+              const atRequiredStructure =
+                currentStructure === requiredStructure;
               const canCraft = canCraftRecipeEntry(recipe, {
                 currentStructure,
                 inventoryCountsByItemKey,
@@ -165,7 +178,9 @@ export function RecipeBookWindowContent({
                     <div className={styles.titleRow}>
                       <span className={styles.title}>{recipe.name}</span>
                     </div>
-                    <div className={styles.description}>{recipe.description}</div>
+                    <div className={styles.description}>
+                      {recipe.description}
+                    </div>
                     <div className={styles.site}>
                       {t('ui.recipeBook.siteLabel', {
                         site: requiredStructureLabel,

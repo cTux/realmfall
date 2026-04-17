@@ -43,7 +43,8 @@ export function AppWindows(props: AppWindowsProps) {
     homeHex: props.views.world.homeHex,
     playerCoord: props.views.player.coord,
     currentTile: props.views.world.currentTile,
-    currentTileHostileEnemyCount: props.views.world.currentTileHostileEnemyCount,
+    currentTileHostileEnemyCount:
+      props.views.world.currentTileHostileEnemyCount,
     combat: props.views.world.combat,
     combatSnapshot: props.views.combat.snapshot,
   });

@@ -317,7 +317,9 @@ export function useAppControllers({
         x: event.clientX,
         y: event.clientY,
         canProspectInventoryEquipment:
-          currentStructure === 'forge' && isEquippableItem(item) && !item.locked,
+          currentStructure === 'forge' &&
+          isEquippableItem(item) &&
+          !item.locked,
         canSellInventoryEquipment:
           currentStructure === 'town' &&
           (isEquippableItem(item) || isRecipePage(item)) &&

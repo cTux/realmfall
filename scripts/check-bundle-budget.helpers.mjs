@@ -56,7 +56,9 @@ export function getStartupChunkFiles(manifest, entryKey) {
     }
 
     if (entry.file?.endsWith('.js')) {
-      startupFiles.add(relative(DIST_DIR, join(DIST_DIR, entry.file)).replaceAll('\\', '/'));
+      startupFiles.add(
+        relative(DIST_DIR, join(DIST_DIR, entry.file)).replaceAll('\\', '/'),
+      );
     }
 
     for (const importedKey of entry.imports ?? []) {
@@ -77,4 +79,3 @@ export function getStartupChunkFiles(manifest, entryKey) {
 export function getChunkByPrefix(chunks, prefix) {
   return chunks.find((chunk) => chunk.fileName.startsWith(`${prefix}-`));
 }
-

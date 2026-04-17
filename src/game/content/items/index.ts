@@ -388,10 +388,7 @@ function buildItemConfigTags(
     [ItemId.IronIngot]: [GAME_TAGS.item.craftingMaterial],
     [ItemId.GoldOre]: [GAME_TAGS.item.ore, GAME_TAGS.item.craftingMaterial],
     [ItemId.GoldIngot]: [GAME_TAGS.item.craftingMaterial],
-    [ItemId.PlatinumOre]: [
-      GAME_TAGS.item.ore,
-      GAME_TAGS.item.craftingMaterial,
-    ],
+    [ItemId.PlatinumOre]: [GAME_TAGS.item.ore, GAME_TAGS.item.craftingMaterial],
     [ItemId.PlatinumIngot]: [GAME_TAGS.item.craftingMaterial],
     [ItemId.Coal]: [GAME_TAGS.item.gathered, GAME_TAGS.item.craftingMaterial],
     [ItemId.RawFish]: [

@@ -25,4 +25,3 @@ export const PRODUCE_ITEM_CONFIGS = [
   aubergineItemConfig,
   meatItemConfig,
 ] as const;
-

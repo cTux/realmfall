@@ -32,7 +32,10 @@ export function respawnAtNearestTown(state: GameState, from: HexCoord) {
   });
   state.player.hp = 1;
   state.player.mana = 1;
-  state.player.hp = Math.min(state.player.hp, getPlayerStats(state.player).maxHp);
+  state.player.hp = Math.min(
+    state.player.hp,
+    getPlayerStats(state.player).maxHp,
+  );
   state.combat = null;
   addLog(state, 'combat', t('game.message.combat.defeated'));
   addLog(
@@ -84,7 +87,8 @@ export function processPlayerStatusEffects(state: GameState) {
       const stats = getPlayerStats(state.player);
       state.player.hp = Math.min(
         stats.maxHp,
-        state.player.hp + Math.max(1, Math.floor(stats.maxHp * 0.01)) * tickCount,
+        state.player.hp +
+          Math.max(1, Math.floor(stats.maxHp * 0.01)) * tickCount,
       );
       state.player.mana = Math.min(
         state.player.baseMaxMana,

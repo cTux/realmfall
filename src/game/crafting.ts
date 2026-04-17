@@ -134,10 +134,7 @@ export function recipeUsesItemKey(
   );
 }
 
-export function professionRecipeOutputBonus(
-  skill: SkillName,
-  level: number,
-) {
+export function professionRecipeOutputBonus(skill: SkillName, level: number) {
   if (skill !== Skill.Cooking && skill !== Skill.Smelting) return 0;
   return Math.max(0, Math.floor((level - 1) / 5));
 }
@@ -237,7 +234,9 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
       'Drive the furnace hotter and refine platinum ore into a pale ingot.',
     skill: Skill.Smelting,
     output: buildItemFromConfig('platinum-ingot'),
-    ingredients: [{ itemKey: 'platinum-ore', name: 'Platinum Ore', quantity: 1 }],
+    ingredients: [
+      { itemKey: 'platinum-ore', name: 'Platinum Ore', quantity: 1 },
+    ],
     fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {

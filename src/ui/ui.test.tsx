@@ -772,7 +772,9 @@ describe('ui helpers and components', () => {
     });
 
     const slot = host.querySelector('button[data-size="compact"]');
-    expect(slot?.getAttribute('style')).toContain('border-color: rgb(248, 250, 252)');
+    expect(slot?.getAttribute('style')).toContain(
+      'border-color: rgb(248, 250, 252)',
+    );
 
     await act(async () => {
       root.unmount();
@@ -839,7 +841,9 @@ describe('ui helpers and components', () => {
     });
 
     const slot = host.querySelector('button[data-size="compact"]');
-    expect(slot?.getAttribute('style')).toContain('border-color: rgba(248, 113, 113, 0.92)');
+    expect(slot?.getAttribute('style')).toContain(
+      'border-color: rgba(248, 113, 113, 0.92)',
+    );
 
     await act(async () => {
       root.unmount();
@@ -946,7 +950,9 @@ describe('ui helpers and components', () => {
     expect(actionButton).toBeTruthy();
 
     await act(async () => {
-      actionButton?.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+      actionButton?.dispatchEvent(
+        new MouseEvent('mouseover', { bubbles: true }),
+      );
     });
 
     expect(hoverDetail).toHaveBeenCalled();

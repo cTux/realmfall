@@ -138,30 +138,30 @@ function buildStructureTags(config: StructureConfig) {
   const typeTag =
     config.type === 'camp'
       ? GAME_TAGS.structure.camp
-        : config.type === 'town'
-          ? GAME_TAGS.structure.town
+      : config.type === 'town'
+        ? GAME_TAGS.structure.town
         : config.type === 'forge'
           ? GAME_TAGS.structure.forge
-        : config.type === 'furnace'
-          ? GAME_TAGS.structure.furnace
-        : config.type === 'workshop'
-            ? GAME_TAGS.structure.workshop
-            : config.type === 'dungeon'
-              ? GAME_TAGS.structure.dungeon
-              : config.type === 'tree'
-                ? GAME_TAGS.structure.tree
-                : config.type === 'herbs'
-                  ? GAME_TAGS.structure.herbs
-                  : config.type === 'pond' || config.type === 'lake'
-                    ? GAME_TAGS.structure.fishing
-                    : config.type === 'copper-ore' ||
-                        config.type === 'tin-ore' ||
-                        config.type === 'iron-ore' ||
-                        config.type === 'gold-ore' ||
-                        config.type === 'platinum-ore' ||
-                        config.type === 'coal-ore'
-                      ? GAME_TAGS.structure.ore
-                      : undefined;
+          : config.type === 'furnace'
+            ? GAME_TAGS.structure.furnace
+            : config.type === 'workshop'
+              ? GAME_TAGS.structure.workshop
+              : config.type === 'dungeon'
+                ? GAME_TAGS.structure.dungeon
+                : config.type === 'tree'
+                  ? GAME_TAGS.structure.tree
+                  : config.type === 'herbs'
+                    ? GAME_TAGS.structure.herbs
+                    : config.type === 'pond' || config.type === 'lake'
+                      ? GAME_TAGS.structure.fishing
+                      : config.type === 'copper-ore' ||
+                          config.type === 'tin-ore' ||
+                          config.type === 'iron-ore' ||
+                          config.type === 'gold-ore' ||
+                          config.type === 'platinum-ore' ||
+                          config.type === 'coal-ore'
+                        ? GAME_TAGS.structure.ore
+                        : undefined;
 
   return uniqueTags(
     ...(config.tags ?? []),

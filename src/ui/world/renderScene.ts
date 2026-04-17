@@ -506,5 +506,3 @@ function getStructureHexIconTint(structure: Tile['structure']) {
 
   return STRUCTURE_HEX_ICON_TINT;
 }
-
-

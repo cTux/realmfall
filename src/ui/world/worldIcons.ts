@@ -88,7 +88,9 @@ export function getWorldIconTexture(icon: string) {
   return worldIconTextures.get(icon) ?? Texture.from(icon);
 }
 
-export function ensureWorldIconTexturesLoaded(iconAssetIds = getWorldIconAssetIds()) {
+export function ensureWorldIconTexturesLoaded(
+  iconAssetIds = getWorldIconAssetIds(),
+) {
   if (
     typeof window === 'undefined' ||
     typeof Image === 'undefined' ||
@@ -97,9 +99,9 @@ export function ensureWorldIconTexturesLoaded(iconAssetIds = getWorldIconAssetId
     return Promise.resolve();
   }
 
-  return Promise.all(iconAssetIds.map((icon) => loadWorldIconTexture(icon))).then(
-    () => undefined,
-  );
+  return Promise.all(
+    iconAssetIds.map((icon) => loadWorldIconTexture(icon)),
+  ).then(() => undefined);
 }
 
 function loadWorldIconTexture(icon: string) {
