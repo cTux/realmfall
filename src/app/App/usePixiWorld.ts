@@ -335,6 +335,7 @@ export function usePixiWorld({
             nextTooltip = {
               title: enemyInfo.title,
               lines: enemyInfo.lines,
+              contentKey: nextTooltipKey,
               x: nextTooltipPosition.x,
               y: nextTooltipPosition.y,
               borderColor: tile.structure === 'dungeon' ? '#a855f7' : '#ef4444',
@@ -345,6 +346,7 @@ export function usePixiWorld({
             nextTooltip = {
               title: structureInfo.title,
               lines: structureInfo.lines,
+              contentKey: nextTooltipKey,
               x: nextTooltipPosition.x,
               y: nextTooltipPosition.y,
               borderColor: '#38bdf8',

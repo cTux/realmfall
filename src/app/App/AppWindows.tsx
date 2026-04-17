@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import type { AppWindowsProps } from './AppWindows.types';
 import { AppDeferredWindows } from './components/AppDeferredWindows';
 import { AppFixedWindows } from './components/AppFixedWindows';
-import { useTooltipState } from './tooltipStore';
 import { useAppWindowHandlers } from './hooks/useAppWindowHandlers';
 import { useCombatPlayerParty } from './hooks/useCombatPlayerParty';
 import { useDeferredWindows } from './hooks/useDeferredWindows';
@@ -12,7 +11,6 @@ import { useManagedWindowProps } from './hooks/useManagedWindowProps';
 import { getDockEntries } from './utils/getDockEntries';
 
 export function AppWindows(props: AppWindowsProps) {
-  const tooltip = useTooltipState();
   const dockEntries = useMemo(
     () =>
       getDockEntries(
@@ -64,7 +62,6 @@ export function AppWindows(props: AppWindowsProps) {
         {...props}
         dockEntries={dockEntries}
         managedWindowProps={managedWindowProps}
-        tooltip={tooltip}
       />
       <AppDeferredWindows
         {...props}

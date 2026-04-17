@@ -6,6 +6,7 @@ import type { TooltipPlacement } from '../../ui/tooltipPlacement';
 export interface TooltipState {
   title: string;
   lines: TooltipLine[];
+  contentKey?: string;
   x: number;
   y: number;
   placement?: TooltipPlacement;
