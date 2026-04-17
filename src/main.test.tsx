@@ -5,6 +5,14 @@ let render: ReturnType<typeof vi.fn>;
 let createRoot: ReturnType<typeof vi.fn>;
 let loadI18n: ReturnType<typeof vi.fn>;
 let appModuleImported: ReturnType<typeof vi.fn>;
+type StrictModeElement = React.ReactElement<{
+  children: React.ReactElement;
+}>;
+type BootstrapShellProps = {
+  children: React.ReactNode;
+  role: string;
+};
+type BootstrapShellElement = React.ReactElement<BootstrapShellProps>;
 
 describe('main bootstrap', () => {
   beforeEach(() => {
@@ -83,12 +91,13 @@ describe('main bootstrap', () => {
 
     await import('./main');
 
-    const firstRender = render.mock.calls[0]?.[0] as React.ReactElement;
-    const bootstrapShellElement = firstRender.props.children as React.ReactElement;
+    const firstRender = render.mock.calls[0]?.[0] as StrictModeElement;
+    const bootstrapShellElement = firstRender.props
+      .children as BootstrapShellElement;
     const bootstrapShell = (
       bootstrapShellElement.type as (
         props: typeof bootstrapShellElement.props,
-      ) => React.ReactElement
+      ) => BootstrapShellElement
     )(bootstrapShellElement.props);
     const bootstrapChildren = React.Children.toArray(
       bootstrapShell.props.children,

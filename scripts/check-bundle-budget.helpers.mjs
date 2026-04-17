@@ -8,7 +8,8 @@ export const MANIFEST_PATH = join(DIST_DIR, '.vite', 'manifest.json');
 export const CHUNK_BUDGETS = {
   index: 5_000,
   App: 80_000,
-  'react-vendor': 150_000,
+  'react-core': 20_000,
+  'react-dom-vendor': 185_000,
   state: 480_000,
   en: 100_000,
   pixi: 505_000,
