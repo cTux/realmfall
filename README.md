@@ -58,6 +58,7 @@ Within feature directories, prefer colocated `hooks/`, `selectors/`, `utils/`, a
 ## Setup
 
 Use `pnpm` for all local commands.
+Use Node `v25` (the repository pin lives in `.nvmrc`).
 
 ```bash
 pnpm install
