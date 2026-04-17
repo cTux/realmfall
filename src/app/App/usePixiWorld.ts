@@ -21,7 +21,7 @@ import {
 import { WORLD_REVEAL_RADIUS } from '../constants';
 import type { GraphicsSettings } from '../graphicsSettings';
 import type { TooltipState } from './types';
-import { getReusableVisibleTiles } from './selectors/getReusableVisibleTiles';
+import { reuseVisibleTilesIfUnchanged } from './selectors/reuseVisibleTilesIfUnchanged';
 import {
   applyHoverSnapshot,
   getHoverAnalysisCacheKey,
@@ -86,7 +86,7 @@ export function usePixiWorld({
       tiles: game.tiles,
     };
     playerCoordRef.current = game.player.coord;
-    visibleTilesRef.current = getReusableVisibleTiles(
+    visibleTilesRef.current = reuseVisibleTilesIfUnchanged(
       visibleTilesRef.current,
       visibleTilesState,
     );

@@ -1,10 +1,10 @@
 import { createGame } from '../../../game/state';
-import { getReusableVisibleTiles } from '../selectors/getReusableVisibleTiles';
+import { reuseVisibleTilesIfUnchanged } from '../selectors/reuseVisibleTilesIfUnchanged';
 
-describe('getReusableVisibleTiles', () => {
+describe('reuseVisibleTilesIfUnchanged', () => {
   it('reuses the previous visibleTiles array for unrelated state clones', () => {
     const game = createGame(3, 'world-render-selectors-stable');
-    const initialVisibleTiles = getReusableVisibleTiles([], game);
+    const initialVisibleTiles = reuseVisibleTilesIfUnchanged([], game);
     const logOnlyClone = {
       ...game,
       logs: [
@@ -18,7 +18,7 @@ describe('getReusableVisibleTiles', () => {
       ],
     };
 
-    const nextVisibleTiles = getReusableVisibleTiles(
+    const nextVisibleTiles = reuseVisibleTilesIfUnchanged(
       initialVisibleTiles,
       logOnlyClone,
     );
@@ -28,7 +28,7 @@ describe('getReusableVisibleTiles', () => {
 
   it('returns a new visibleTiles array when a visible tile changes', () => {
     const game = createGame(3, 'world-render-selectors-change');
-    const initialVisibleTiles = getReusableVisibleTiles([], game);
+    const initialVisibleTiles = reuseVisibleTilesIfUnchanged([], game);
     const changedGame = {
       ...game,
       tiles: {
@@ -40,7 +40,7 @@ describe('getReusableVisibleTiles', () => {
       },
     };
 
-    const nextVisibleTiles = getReusableVisibleTiles(
+    const nextVisibleTiles = reuseVisibleTilesIfUnchanged(
       initialVisibleTiles,
       changedGame,
     );

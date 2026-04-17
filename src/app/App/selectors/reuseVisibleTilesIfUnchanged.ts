@@ -6,7 +6,7 @@ import {
 
 type VisibleTiles = ReturnType<typeof getVisibleTiles>;
 
-export function getReusableVisibleTiles(
+export function reuseVisibleTilesIfUnchanged(
   previousVisibleTiles: VisibleTiles,
   visibleTilesState: VisibleTilesState,
 ) {
