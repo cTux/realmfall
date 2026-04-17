@@ -239,6 +239,13 @@ export async function flushLazyModules() {
   });
 }
 
+export async function flushAnimationFrame() {
+  await act(async () => {
+    vi.advanceTimersByTime(16);
+    await Promise.resolve();
+  });
+}
+
 export async function renderApp() {
   const { App } = await import('../index');
   const host = document.createElement('div');

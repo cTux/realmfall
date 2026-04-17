@@ -56,6 +56,10 @@ export function usePixiWorld({
   const worldTooltipKeyRef = useRef<string | null>(null);
   const playerCoordRef = useRef(game.player.coord);
   const visibleTilesRef = useRef(stateModule.getVisibleTiles(game));
+  const hoverPointerRef = useRef<{ clientX: number; clientY: number } | null>(
+    null,
+  );
+  const hoverFrameRef = useRef<number | null>(null);
   const selectedRef = useRef(game.player.coord);
   const hoveredMoveRef = useRef<stateModule.HexCoord | null>(null);
   const hoveredSafePathRef = useRef<stateModule.HexCoord[] | null>(null);
@@ -71,13 +75,16 @@ export function usePixiWorld({
   const [canvasReady, setCanvasReady] = useState(false);
 
   useEffect(() => {
+    gameRef.current = game;
+  }, [game, gameRef]);
+
+  useEffect(() => {
     playerCoordRef.current = game.player.coord;
     visibleTilesRef.current = getReusableVisibleTiles(
       visibleTilesRef.current,
       game,
     );
-    gameRef.current = game;
-  }, [game, gameRef]);
+  }, [game.player.coord, game.radius, game.seed, game.tiles]);
 
   useEffect(() => {
     selectedRef.current = game.player.coord;
@@ -219,7 +226,9 @@ export function usePixiWorld({
         );
         const withinVisibleMap = distance <= WORLD_REVEAL_RADIUS;
         const safePath =
-          distance > 1 ? stateModule.getSafePathToTile(current, target) : null;
+          distance > 1 && withinVisibleMap
+            ? stateModule.getSafePathToTile(current, target)
+            : null;
         const clickable =
           (distance === 1 &&
             tile.terrain !== 'rift' &&
@@ -242,11 +251,11 @@ export function usePixiWorld({
         );
       };
 
-      const onPointerMove = (event: PointerEvent) => {
+      const processPointerMove = (clientX: number, clientY: number) => {
         const rect = canvas.getBoundingClientRect();
         const sourcePoint = getSourcePoint({
-          x: event.clientX - rect.left,
-          y: event.clientY - rect.top,
+          x: clientX - rect.left,
+          y: clientY - rect.top,
         });
         const hexSize = getWorldHexSize(app.screen, gameRef.current.radius);
         const hoveredOffset = stateModule.hexAtPoint(
@@ -263,8 +272,8 @@ export function usePixiWorld({
           r: playerCoordRef.current.r + hoveredOffset.r,
         };
         const nextTooltipPosition = {
-          x: event.clientX + 16,
-          y: event.clientY + 16,
+          x: clientX + 16,
+          y: clientY + 16,
         };
         const hoverSnapshot = hoverSnapshotRef.current;
 
@@ -328,7 +337,6 @@ export function usePixiWorld({
 
           const enemies = stateModule.getEnemiesAt(current, target);
           const enemyInfo = tooltipModule.enemyTooltip(enemies, tile.structure);
-          const structureInfo = tooltipModule.structureTooltip(tile);
 
           if (enemyInfo) {
             nextTooltipKey = `enemy:${target.q},${target.r}:${tile.structure ?? 'none'}`;
@@ -341,7 +349,35 @@ export function usePixiWorld({
               borderColor: tile.structure === 'dungeon' ? '#a855f7' : '#ef4444',
               followCursor: true,
             };
-          } else if (structureInfo) {
+          } else {
+            const structureInfo = tooltipModule.structureTooltip(tile);
+            if (!structureInfo) {
+              const nextHoverSnapshot = {
+                target,
+                clickable: actionable,
+                hoveredMove: actionable ? target : null,
+                hoveredSafePath: nextHoveredPath,
+                tooltip: null,
+                tooltipKey: null,
+              };
+              canvas.style.cursor = actionable ? 'pointer' : 'default';
+              hoverSnapshotRef.current = nextHoverSnapshot;
+              setCachedHoverSnapshot(
+                hoverAnalysisCacheRef.current,
+                hoverCacheKey,
+                nextHoverSnapshot,
+              );
+              applyHoverSnapshot({
+                hoverSnapshot: nextHoverSnapshot,
+                hoveredMoveRef,
+                hoveredSafePathRef,
+                nextTooltipPosition,
+                setTooltip,
+                tooltipPositionRef,
+                worldTooltipKeyRef,
+              });
+              return;
+            }
             nextTooltipKey = `structure:${target.q},${target.r}:${tile.structure ?? 'none'}`;
             nextTooltip = {
               title: structureInfo.title,
@@ -381,7 +417,32 @@ export function usePixiWorld({
         });
       };
 
+      const onPointerMove = (event: PointerEvent) => {
+        hoverPointerRef.current = {
+          clientX: event.clientX,
+          clientY: event.clientY,
+        };
+        if (hoverFrameRef.current !== null) {
+          return;
+        }
+
+        hoverFrameRef.current = window.requestAnimationFrame(() => {
+          hoverFrameRef.current = null;
+          const hoverPointer = hoverPointerRef.current;
+          if (!hoverPointer) {
+            return;
+          }
+
+          processPointerMove(hoverPointer.clientX, hoverPointer.clientY);
+        });
+      };
+
       const onPointerLeave = () => {
+        hoverPointerRef.current = null;
+        if (hoverFrameRef.current !== null) {
+          window.cancelAnimationFrame(hoverFrameRef.current);
+          hoverFrameRef.current = null;
+        }
         canvas.style.cursor = 'default';
         tooltipPositionRef.current = null;
         syncFollowCursorTooltipPosition(null);
@@ -410,6 +471,10 @@ export function usePixiWorld({
       cleanup = () => {
         observer.disconnect();
         window.removeEventListener('resize', resize);
+        if (hoverFrameRef.current !== null) {
+          window.cancelAnimationFrame(hoverFrameRef.current);
+          hoverFrameRef.current = null;
+        }
         canvas.removeEventListener(
           'pointerdown',
           onPointerDown as EventListener,
