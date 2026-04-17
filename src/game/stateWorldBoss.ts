@@ -3,7 +3,12 @@ import type { GameState } from './types';
 import { buildTile } from './world';
 import { isWorldBossEnemyId } from './worldBoss';
 
-export function isWorldBossFootprintOccupied(state: GameState, coord: HexCoord) {
+type WorldBossLookupState = Pick<GameState, 'enemies' | 'seed' | 'tiles'>;
+
+export function isWorldBossFootprintOccupied(
+  state: WorldBossLookupState,
+  coord: HexCoord,
+) {
   const center = getWorldBossCenterFromStateOrGeneration(state, coord);
   if (!center) return false;
   if (center.q === coord.q && center.r === coord.r) return false;
@@ -16,7 +21,7 @@ export function isWorldBossFootprintOccupied(state: GameState, coord: HexCoord) 
 }
 
 function getWorldBossCenterFromStateOrGeneration(
-  state: GameState,
+  state: WorldBossLookupState,
   coord: HexCoord,
 ) {
   for (const candidate of [coord, ...hexNeighbors(coord)]) {

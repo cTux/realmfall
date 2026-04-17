@@ -7,6 +7,13 @@ import { getCurrentTile, getPlayerClaimedTiles, getTileAt } from './stateWorldQu
 import type { GameState, Item } from './types';
 import { isPlayerClaim } from './territories';
 
+type ClaimStatusState = Pick<
+  GameState,
+  'bloodMoonActive' | 'enemies' | 'homeHex' | 'seed' | 'tiles'
+> & {
+  player: Pick<GameState['player'], 'coord' | 'inventory'>;
+};
+
 function getConnectedPlayerClaimCount(
   claimedKeys: ReadonlySet<string>,
   startKey: string,
@@ -50,7 +57,7 @@ function canUnclaimWithoutSplittingTerritory(
   );
 }
 
-export function getCurrentHexClaimStatus(state: GameState) {
+export function getCurrentHexClaimStatus(state: ClaimStatusState) {
   const tile = getCurrentTile(state);
   const playerClaims = getPlayerClaimedTiles(state);
   if (tile.claim) {

@@ -23,20 +23,24 @@ interface UseAppGameViewOptions {
   logFilters: Record<LogKind, boolean>;
 }
 
+type EnemyLookupInput = Parameters<typeof getEnemiesAt>[0];
+type ClaimStatusInput = Parameters<typeof getCurrentHexClaimStatus>[0];
+
 export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
   const { bloodMoonActive, combat, enemies, homeHex, logs, player, seed, tiles } =
     game;
   const { coord, inventory, learnedRecipeIds, skills } = player;
-  const enemyViewState = useMemo(
+  const enemyLookupInput = useMemo<EnemyLookupInput>(
     () =>
       ({
         enemies,
+        bloodMoonActive,
         seed,
         tiles,
-      }) as GameState,
-    [enemies, seed, tiles],
+      }),
+    [bloodMoonActive, enemies, seed, tiles],
   );
-  const claimStatusState = useMemo(
+  const claimStatusInput = useMemo<ClaimStatusInput>(
     () =>
       ({
         bloodMoonActive,
@@ -48,7 +52,7 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
         },
         seed,
         tiles,
-      }) as GameState,
+      }),
     [bloodMoonActive, coord, enemies, homeHex, inventory, seed, tiles],
   );
 
@@ -99,12 +103,12 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
   );
   const gold = useMemo(() => getGoldAmount(inventory), [inventory]);
   const combatEnemies = useMemo(
-    () => (combat ? getEnemiesAt(enemyViewState, combat.coord) : []),
-    [combat, enemyViewState],
+    () => (combat ? getEnemiesAt(enemyLookupInput, combat.coord) : []),
+    [combat, enemyLookupInput],
   );
   const currentTileHostileEnemyCount = useMemo(
-    () => getHostileEnemyIds(enemyViewState, currentTile.coord).length,
-    [currentTile.coord, enemyViewState],
+    () => getHostileEnemyIds(enemyLookupInput, currentTile.coord).length,
+    [currentTile.coord, enemyLookupInput],
   );
   const filteredLogs = useMemo(
     () => logs.filter((entry) => logFilters[entry.kind]),
@@ -134,8 +138,8 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
       : null;
   const interactLabel = structureActionLabel(currentTile.structure);
   const claimStatus = useMemo(
-    () => getCurrentHexClaimStatus(claimStatusState),
-    [claimStatusState],
+    () => getCurrentHexClaimStatus(claimStatusInput),
+    [claimStatusInput],
   );
 
   return {

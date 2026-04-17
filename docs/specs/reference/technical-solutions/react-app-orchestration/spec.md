@@ -12,8 +12,9 @@ This spec covers the top-level React hook composition and derived view-model pat
 - The bootstrap path loads the active locale before importing `App`, because some gameplay and content modules resolve translated labels during module evaluation and must not hydrate against an empty translation map.
 - `useAppGameView` computes the current tile, filtered logs, town stock, recipe visibility, claim status, player stats, and other UI-ready derived values.
 - This keeps presentational components mostly declarative.
-- `useAppGameView` keeps selector dependencies scoped to the gameplay slices each derived view actually reads, so unrelated root-state clones do not invalidate every memoized view model together.
+- `useAppGameView` keeps selector dependencies scoped to the gameplay slices each derived view actually reads, using narrow selector inputs instead of force-casting partial objects to `GameState`, so unrelated root-state clones do not invalidate every memoized view model together.
 - `AppWindows` owns the dock-entry composition, stable move and close handler maps, and narrow window-specific view models so `App.tsx` does not keep expanding as the desktop window surface grows.
+- `useAppWindowsProps` builds the nested `layout`, `views`, and `actions` payload passed to `AppWindows`, keeping `App.tsx` from rebuilding that whole prop tree inline.
 - Focused hooks under `src/app/App/hooks` keep `AppWindows` centered on composition by separating deferred-window bookkeeping, stable handler maps, and memoized window-specific view models.
 - `useManagedWindowProps` builds the shared `position`, `onMove`, `visible`, and `onClose` prop map for managed windows so fixed and deferred window composition does not repeat the same shell wiring at every render site.
 - The game uses a desktop-style draggable window model with persisted positions, optional per-window dimensions for resizable windows, and visibility.
@@ -35,6 +36,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `src/app/App/App.tsx`
 - `src/app/App/useAppControllers.ts`
 - `src/app/App/useAppGameView.ts`
+- `src/app/App/hooks/useAppWindowsProps.ts`
 - `src/app/App/hooks/useAppWindowHandlers.ts`
 - `src/app/App/hooks/useDeferredWindows.ts`
 - `src/app/App/hooks/useHexInfoView.ts`
