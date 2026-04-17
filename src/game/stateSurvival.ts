@@ -70,11 +70,6 @@ export function processPlayerStatusEffects(state: GameState) {
   const remainingEffects: PlayerStatusEffect[] = [];
 
   state.player.statusEffects.forEach((effect) => {
-    if (effect.id !== 'restoration') {
-      remainingEffects.push(effect);
-      return;
-    }
-
     const lastProcessedAt = effect.lastProcessedAt ?? state.worldTimeMs;
     const effectEndAt = effect.expiresAt ?? lastProcessedAt;
     const effectiveNow = Math.min(state.worldTimeMs, effectEndAt);
@@ -84,18 +79,8 @@ export function processPlayerStatusEffects(state: GameState) {
     );
 
     if (tickCount > 0) {
-      const stats = getPlayerStats(state.player);
-      state.player.hp = Math.min(
-        stats.maxHp,
-        state.player.hp +
-          Math.max(1, Math.floor(stats.maxHp * 0.01)) * tickCount,
-      );
-      state.player.mana = Math.min(
-        state.player.baseMaxMana,
-        state.player.mana +
-          Math.max(1, Math.floor(state.player.baseMaxMana * 0.01)) * tickCount,
-      );
-      changed = true;
+      changed =
+        processTickingPlayerEffect(state, effect, tickCount) || changed;
     }
 
     if (effect.expiresAt != null && state.worldTimeMs >= effect.expiresAt) {
@@ -126,6 +111,57 @@ export function processPlayerStatusEffects(state: GameState) {
   }
 
   return changed;
+}
+
+function processTickingPlayerEffect(
+  state: GameState,
+  effect: PlayerStatusEffect,
+  tickCount: number,
+) {
+  if (tickCount <= 0) return false;
+
+  switch (effect.id) {
+    case StatusEffectTypeId.Restoration: {
+      const stats = getPlayerStats(state.player);
+      state.player.hp = Math.min(
+        stats.maxHp,
+        state.player.hp + Math.max(1, Math.floor(stats.maxHp * 0.01)) * tickCount,
+      );
+      state.player.mana = Math.min(
+        state.player.baseMaxMana,
+        state.player.mana +
+          Math.max(1, Math.floor(state.player.baseMaxMana * 0.01)) * tickCount,
+      );
+      return true;
+    }
+    case StatusEffectTypeId.Bleeding: {
+      state.player.hp = Math.max(
+        0,
+        state.player.hp - Math.max(1, Math.floor(effect.value ?? 0)) * tickCount,
+      );
+      return true;
+    }
+    case StatusEffectTypeId.Poison: {
+      const poisonStacks = Math.max(1, effect.stacks ?? 1);
+      const poisonDamage = Math.max(
+        1,
+        Math.floor(getPlayerStats(state.player).maxHp * 0.01 * poisonStacks),
+      );
+      state.player.hp = Math.max(0, state.player.hp - poisonDamage * tickCount);
+      return true;
+    }
+    case StatusEffectTypeId.Burning: {
+      const burningStacks = Math.max(1, effect.stacks ?? 1);
+      state.player.hp = Math.max(
+        0,
+        state.player.hp -
+          Math.max(1, Math.floor(effect.value ?? 0) * burningStacks) * tickCount,
+      );
+      return true;
+    }
+    default:
+      return false;
+  }
 }
 
 function upsertPlayerStatusEffect(

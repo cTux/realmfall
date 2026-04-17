@@ -20,6 +20,7 @@ import {
 } from '../game/state';
 import { ItemId } from '../game/content/ids';
 import { createCombatActorState } from '../game/combat';
+import { normalizeSecondaryStats } from '../game/itemSecondaryStats';
 
 export function normalizeLoadedGame(game: GameState): GameState {
   const { gold: legacyGoldValue, ...player } =
@@ -213,6 +214,12 @@ export function normalizeLoadedGame(game: GameState): GameState {
           effect.lastProcessedAt == null
             ? undefined
             : Math.max(0, Number(effect.lastProcessedAt) || 0),
+        stacks:
+          effect.stacks == null
+            ? undefined
+            : Math.max(1, Number(effect.stacks) || 1),
+        value:
+          effect.value == null ? undefined : Math.max(0, Number(effect.value) || 0),
       })),
       inventory,
       equipment,
@@ -250,6 +257,11 @@ function normalizeItem(item: Item): Item {
       0,
       Number((canonicalItem as Item & { thirst?: number }).thirst ?? 0) || 0,
     ),
+    secondaryStatCapacity:
+      canonicalItem.secondaryStatCapacity == null
+        ? undefined
+        : Math.max(0, Number(canonicalItem.secondaryStatCapacity) || 0),
+    secondaryStats: normalizeSecondaryStats(canonicalItem.secondaryStats),
   };
 }
 
@@ -294,6 +306,26 @@ function normalizeEnemy(enemy: GameState['enemies'][string]) {
     enemyTypeId: configured?.id ?? enemy.enemyTypeId,
     name: enemy.name || configured?.name,
     tags: enemy.tags ?? configured?.tags,
+    statusEffects: (enemy.statusEffects ?? []).map((effect) => ({
+      ...effect,
+      tags: effect.tags ?? getStatusEffectTags(effect.id),
+      expiresAt:
+        effect.expiresAt == null
+          ? undefined
+          : Math.max(0, Number(effect.expiresAt) || 0),
+      tickIntervalMs:
+        effect.tickIntervalMs == null
+          ? undefined
+          : Math.max(1, Number(effect.tickIntervalMs) || 1_000),
+      lastProcessedAt:
+        effect.lastProcessedAt == null
+          ? undefined
+          : Math.max(0, Number(effect.lastProcessedAt) || 0),
+      stacks:
+        effect.stacks == null ? undefined : Math.max(1, Number(effect.stacks) || 1),
+      value:
+        effect.value == null ? undefined : Math.max(0, Number(effect.value) || 0),
+    })),
   };
 }
 
@@ -361,7 +393,8 @@ function isSameStackable(left: Item, right: Item) {
     sameStackIdentity(left, right) &&
     left.rarity === right.rarity &&
     left.healing === right.healing &&
-    left.hunger === right.hunger
+    left.hunger === right.hunger &&
+    (left.thirst ?? 0) === (right.thirst ?? 0)
   );
 }
 

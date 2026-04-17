@@ -1,5 +1,6 @@
 import type { WindowPosition } from '../../../app/constants';
 import type { CombatActorState, CombatState, Enemy } from '../../../game/state';
+import type { StatusEffectId } from '../../../game/types';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 
 export interface CombatPartyMember {
@@ -11,6 +12,8 @@ export interface CombatPartyMember {
   mana: number;
   maxMana: number;
   actor: CombatActorState;
+  buffs: StatusEffectId[];
+  debuffs: StatusEffectId[];
 }
 
 export interface CombatWindowProps extends WindowDetailTooltipHandlers {

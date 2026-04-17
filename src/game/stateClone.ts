@@ -77,7 +77,10 @@ function copyTile(tile: Tile): Tile {
   return {
     ...tile,
     coord: { ...tile.coord },
-    items: tile.items.map((item) => ({ ...item })),
+    items: tile.items.map((item) => ({
+      ...item,
+      secondaryStats: item.secondaryStats?.map((stat) => ({ ...stat })),
+    })),
     enemyIds: [...tile.enemyIds],
     claim: tile.claim
       ? {
@@ -95,7 +98,11 @@ function copyEnemies(enemies: GameState['enemies']) {
 }
 
 function copyEnemy(enemy: Enemy): Enemy {
-  return { ...enemy, coord: { ...enemy.coord } };
+  return {
+    ...enemy,
+    coord: { ...enemy.coord },
+    statusEffects: enemy.statusEffects?.map((effect) => ({ ...effect })),
+  };
 }
 
 function copyPlayer(player: Player): Player {
@@ -106,11 +113,19 @@ function copyPlayer(player: Player): Player {
     skills: Object.fromEntries(
       Object.entries(player.skills).map(([key, value]) => [key, { ...value }]),
     ) as Player['skills'],
-    inventory: player.inventory.map((item) => ({ ...item })),
+    inventory: player.inventory.map((item) => ({
+      ...item,
+      secondaryStats: item.secondaryStats?.map((stat) => ({ ...stat })),
+    })),
     equipment: Object.fromEntries(
       Object.entries(player.equipment).map(([key, item]) => [
         key,
-        item ? { ...item } : item,
+        item
+          ? {
+              ...item,
+              secondaryStats: item.secondaryStats?.map((stat) => ({ ...stat })),
+            }
+          : item,
       ]),
     ),
     statusEffects: player.statusEffects.map((effect) => ({ ...effect })),

@@ -275,6 +275,32 @@ describe('ui helpers and components', () => {
       },
     ]);
     expect(
+      itemTooltipLines({
+        id: 'rare-loot-empty-slot',
+        name: 'Rare Ring',
+        slot: 'ringLeft',
+        quantity: 1,
+        tier: 4,
+        rarity: 'rare',
+        power: 5,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+        secondaryStatCapacity: 1,
+        secondaryStats: [],
+      }),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          text: 'Secondary Stats',
+        }),
+        expect.objectContaining({
+          text: 'Empty secondary stat slot',
+        }),
+      ]),
+    );
+    expect(
       itemTooltipLines(resource).some(
         (line) =>
           line.text === 'Tags: item.resource, item.currency' &&
@@ -1175,6 +1201,8 @@ describe('ui helpers and components', () => {
               mana: 12,
               maxMana: 20,
               actor: combat.player,
+              buffs: [],
+              debuffs: [],
             },
           ]}
           enemies={[

@@ -52,18 +52,23 @@ export function CombatWindowContent({
   const alliedParty: CombatEntityView[] = playerParty.map((member) =>
     toPlayerEntity(member),
   );
-  const enemyParty: CombatEntityView[] = enemies.map((enemy) => ({
-    id: enemy.id,
-    title: t('ui.combat.entityTitle', { name: enemy.name, level: enemy.tier }),
-    hp: enemy.hp,
-    maxHp: enemy.maxHp,
-    mana: 0,
-    maxMana: 0,
-    rarity: enemy.rarity ?? 'common',
-    actor: combat.enemies[enemy.id] ?? combat.player,
-    buffs: [],
-    debuffs: [],
-  }));
+  const enemyParty: CombatEntityView[] = enemies.map((enemy) => {
+    const effectGroups = partitionStatusEffects(
+      enemy.statusEffects?.map((effect) => effect.id) ?? [],
+    );
+    return {
+      id: enemy.id,
+      title: t('ui.combat.entityTitle', { name: enemy.name, level: enemy.tier }),
+      hp: enemy.hp,
+      maxHp: enemy.maxHp,
+      mana: 0,
+      maxMana: 0,
+      rarity: enemy.rarity ?? 'common',
+      actor: combat.enemies[enemy.id] ?? combat.player,
+      buffs: effectGroups.buffs,
+      debuffs: effectGroups.debuffs,
+    };
+  });
 
   return (
     <div className={styles.layout}>
@@ -99,8 +104,8 @@ function toPlayerEntity(member: CombatPartyMember): CombatEntityView {
     mana: member.mana,
     maxMana: member.maxMana,
     actor: member.actor,
-    buffs: [],
-    debuffs: [],
+    buffs: member.buffs,
+    debuffs: member.debuffs,
   };
 }
 
@@ -375,5 +380,22 @@ function KickIcon() {
     >
       <path fill="currentColor" d={KICK_ICON_PATH} />
     </svg>
+  );
+}
+
+function partitionStatusEffects(items: StatusEffectId[]) {
+  return items.reduce<{
+    buffs: StatusEffectId[];
+    debuffs: StatusEffectId[];
+  }>(
+    (groups, item) => {
+      if (item === 'power' || item === 'frenzy' || item === 'restoration') {
+        groups.buffs.push(item);
+      } else {
+        groups.debuffs.push(item);
+      }
+      return groups;
+    },
+    { buffs: [], debuffs: [] },
   );
 }
