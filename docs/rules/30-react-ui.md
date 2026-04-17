@@ -12,6 +12,7 @@
 - Prefer maximally reusable UI components and helpers. When multiple windows or controls share the same structure or behavior, reuse or extend a shared primitive instead of maintaining parallel implementations.
 - Keep user-facing UI copy in i18n resources instead of inline string literals in components, gameplay modules, or content definitions.
 - Default to `en` and keep locale resources lazy-loadable so additional languages can stay off the initial path when they are not needed.
+- Load i18n before importing `src/app/App` during bootstrap. The app import graph contains module-level localized constants, so importing `App` before translations are ready can freeze raw i18n keys into runtime state on a cold start.
 - When new user-facing text is required, add a new i18n key instead of hardcoding a fallback string in code.
 - Use dot-separated i18n keys in the form `{feature}.{area}.{property}` and extend with deeper segments only when needed for clarity.
 - For label formatters that map stable identifiers such as status effects to i18n, prefer direct patterned key lookups over conditional `if` or `switch` chains when the key can be derived safely.
