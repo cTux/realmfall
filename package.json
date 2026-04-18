@@ -1,11 +1,32 @@
 {
   "name": "realmfall",
   "private": true,
-  "version": "0.2.145",
+  "version": "0.2.148",
+  "description": "Single-player browser survival RPG with hex exploration, turn-based systems, React UI, and Pixi.js world rendering.",
+  "keywords": [
+    "browser-game",
+    "survival-rpg",
+    "hex-crawl",
+    "turn-based",
+    "roguelite",
+    "pixi.js",
+    "react",
+    "vite"
+  ],
+  "license": "UNLICENSED",
   "type": "module",
   "packageManager": "pnpm@10.33.0",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:cTux/realmfall.git"
+  },
+  "homepage": "https://github.com/cTux/realmfall",
+  "bugs": {
+    "url": "https://github.com/cTux/realmfall/issues"
+  },
   "engines": {
-    "node": "25.x"
+    "node": "25.x",
+    "pnpm": "10.x"
   },
   "scripts": {
     "dev": "vite",

@@ -1,6 +1,6 @@
 # Realmfall
 
-Hex-based browser survival RPG `Realmfall`, built with React, TypeScript, Vite, Pixi.js, Vitest, Oxlint, Prettier, and Husky.
+Single-player browser survival RPG `Realmfall` with hex exploration, turn-based systems, React UI, and Pixi.js world rendering.
 
 Genres: survival RPG, hex-crawl, turn-based exploration, inventory management, roguelite.
 
@@ -33,7 +33,7 @@ The game currently does not support mods.
 
 ## Stack
 
-- React 18
+- React 19
 - TypeScript with strict compiler settings
 - Vite
 - Pixi.js
@@ -59,11 +59,19 @@ Within feature directories, prefer colocated `hooks/`, `selectors/`, `utils/`, a
 
 Use `pnpm` for all local commands.
 Use Node `v25` (the repository pin lives in `.nvmrc`).
+Use `pnpm` `10.x` (`packageManager` currently pins `10.33.0`).
 
 ```bash
 pnpm install
 pnpm dev
 ```
+
+## Package Metadata
+
+- Package name: `realmfall`
+- License: `UNLICENSED`
+- Repository: `git@github.com:cTux/realmfall.git`
+- Homepage and issue tracker: `https://github.com/cTux/realmfall`
 
 ## Scripts
 
