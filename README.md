@@ -85,6 +85,10 @@ pnpm dev
 - `pnpm test:coverage`
 - `pnpm test:watch`
 
+`pnpm test` now uses `@raegen/vite-plugin-vitest-cache` and stores reusable Vitest
+results in `.tests/vitest-cache`. The directory is project-local, ignored by
+Git, and restored in CI so warm reruns can reuse unaffected test results.
+
 ## Quality Expectations
 
 Contributors should keep these working unless a task explicitly changes the workflow:
@@ -96,6 +100,10 @@ Contributors should keep these working unless a task explicitly changes the work
 - `pnpm build`
 
 For bundle-sensitive changes, also run `pnpm build:budget`.
+
+If you need a cold test run, delete `.tests/vitest-cache` and rerun `pnpm test`.
+If the directory does not exist yet, `pnpm test` falls back to a normal run and
+recreates it.
 
 `pnpm lint` now runs Oxlint as the only JavaScript and TypeScript lint path in the repository. `pnpm lint:fix` and `pnpm lint:oxlint` use the same Oxlint target set directly.
 

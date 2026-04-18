@@ -4,6 +4,7 @@ import minipic from 'vite-plugin-minipic';
 import { VitePWA } from 'vite-plugin-pwa';
 import detectDuplicatedDeps from 'unplugin-detect-duplicated-deps/vite';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import type { Plugin, ViteDevServer } from 'vite';
 
 const packageVersion = JSON.parse(
@@ -70,15 +71,42 @@ function getVendorChunk(id: string) {
   return 'vendor';
 }
 
+function vitestCachePlugin(): Plugin {
+  const defaults = {
+    dir: '.tests/vitest-cache',
+    states: ['pass'],
+    silent: false,
+  } as const;
+
+  return {
+    name: 'realmfall-vitest-cache',
+    config: () => ({
+      test: {
+        // Vitest 4 still supports runner/globalSetup, while the package's
+        // default export currently routes to its Vitest 3 custom pool path.
+        vCache: defaults,
+        runner: fileURLToPath(
+          new URL('./scripts/vitest-cache/runner.mjs', import.meta.url),
+        ),
+        globalSetup: fileURLToPath(
+          new URL('./scripts/vitest-cache/setup.mjs', import.meta.url),
+        ),
+      },
+    }),
+  };
+}
+
 export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(packageVersion),
   },
   plugins: (() => {
+    const isVitestRun = Boolean(process.env.VITEST);
     const isStorybookScript =
       process.env.npm_lifecycle_event?.includes('storybook') ?? false;
 
     return [
+      isVitestRun && vitestCachePlugin(),
       react(),
       versionManifestPlugin(),
       !isStorybookScript &&
