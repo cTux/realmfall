@@ -24,6 +24,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - Health potions and mana potions use vendored local SVG assets and restore 10% of the corresponding max stat on use.
 - Loot can be taken item-by-item or collected from a tile in bulk.
 - World-generated weapons, armor, offhands, and artifacts scale by terrain tier and context, including generated shoulders, bracers, belts, shields, magical offhands, and one-handed or two-handed weapon archetypes.
+- World loot and blood moon bonus gear now choose their top-level item family from equal random buckets instead of weighted family chances, so weapons, armor, offhands, artifacts, and consumables do not skew toward accessory-heavy drops.
 - Offhand shields and magical spheres always include a block-chance secondary stat, including both generated drops and fixed crafted icon variants.
 - Dungeon and blood moon rewards bias toward better rarity floors.
 - Generated artifacts and equipment use deterministic icon selection from curated vendored SVG pools in `src/assets/icons/generated` while their per-instance stats are derived from tier and rarity.
