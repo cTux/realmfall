@@ -20,15 +20,18 @@ const packageVersion = JSON.parse(
   readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
 ).version as string;
 
-const META_CONTENT_SECURITY_POLICY =
-  "default-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' ws: wss:; worker-src 'self' blob:; manifest-src 'self'";
+const DEV_CONTENT_SECURITY_POLICY =
+  "default-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' ws: wss:; worker-src 'self' blob:; manifest-src 'self'; frame-ancestors 'none'";
 
-const RESPONSE_CONTENT_SECURITY_POLICY = `${META_CONTENT_SECURITY_POLICY}; frame-ancestors 'none'`;
+const RESPONSE_CONTENT_SECURITY_POLICY =
+  "default-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' ws: wss:; worker-src 'self' blob:; manifest-src 'self'; frame-ancestors 'none'";
 
-const SECURITY_HEADERS = {
-  'Content-Security-Policy': RESPONSE_CONTENT_SECURITY_POLICY,
-  'X-Frame-Options': 'DENY',
-} as const;
+function createSecurityHeaders(contentSecurityPolicy: string) {
+  return {
+    'Content-Security-Policy': contentSecurityPolicy,
+    'X-Frame-Options': 'DENY',
+  } as const;
+}
 
 function versionManifestPlugin(): Plugin {
   const versionManifest = JSON.stringify({ version: packageVersion }, null, 2);
@@ -179,14 +182,14 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(packageVersion),
   },
   server: {
-    headers: SECURITY_HEADERS,
+    headers: createSecurityHeaders(DEV_CONTENT_SECURITY_POLICY),
     https: {
       cert: localhostHttpsCertificate.cert,
       key: localhostHttpsCertificate.key,
     },
   },
   preview: {
-    headers: SECURITY_HEADERS,
+    headers: createSecurityHeaders(RESPONSE_CONTENT_SECURITY_POLICY),
   },
   plugins: (() => {
     const isVitestRun = Boolean(process.env.VITEST);
