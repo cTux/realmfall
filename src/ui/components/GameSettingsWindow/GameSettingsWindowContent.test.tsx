@@ -80,4 +80,54 @@ describe('GameSettingsWindowContent', () => {
     requestAnimationFrameSpy.mockRestore();
     cancelAnimationFrameSpy.mockRestore();
   });
+
+  it('updates the audio volume slider without reading a cleared event target', async () => {
+    await act(async () => {
+      root.render(
+        <GameSettingsWindowContent
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
+          graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          onResetSaveData={async () => undefined}
+          onSave={async () => undefined}
+          onSaveAndReload={async () => undefined}
+        />,
+      );
+    });
+
+    const audioTab = Array.from(host.querySelectorAll('[role="tab"]')).find(
+      (candidate) =>
+        candidate.textContent?.includes(t('ui.settings.tabs.audio')),
+    );
+
+    expect(audioTab).toBeDefined();
+
+    await act(async () => {
+      audioTab?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    const volumeSlider = host.querySelector(
+      'input[type="range"]',
+    ) as HTMLInputElement | null;
+    const volumeValue = Array.from(host.querySelectorAll('span')).find(
+      (candidate) => candidate.textContent === '30%',
+    );
+
+    expect(volumeSlider).not.toBeNull();
+    expect(volumeValue).toBeDefined();
+
+    await act(async () => {
+      if (volumeSlider) {
+        const setValue = Object.getOwnPropertyDescriptor(
+          HTMLInputElement.prototype,
+          'value',
+        )?.set;
+
+        setValue?.call(volumeSlider, '65');
+        volumeSlider.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+
+    expect(volumeSlider?.value).toBe('65');
+    expect(host.textContent).toContain('65%');
+  });
 });

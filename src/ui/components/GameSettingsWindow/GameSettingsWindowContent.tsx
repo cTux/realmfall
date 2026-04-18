@@ -201,12 +201,14 @@ export function GameSettingsWindowContent({
                   max="100"
                   step="1"
                   value={Math.round(draftAudioSettings.volume * 100)}
-                  onChange={(event) =>
+                  onChange={(event) => {
+                    const volume = Number(event.currentTarget.value) / 100;
+
                     setDraftAudioSettings((current) => ({
                       ...current,
-                      volume: Number(event.currentTarget.value) / 100,
-                    }))
-                  }
+                      volume,
+                    }));
+                  }}
                 />
               </label>
               <div
