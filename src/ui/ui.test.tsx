@@ -8,6 +8,7 @@ import { EquipmentSlotId } from '../game/content/ids';
 import { GameTag } from '../game/content/tags';
 import { Skill } from '../game/types';
 import { getAbilityDefinition } from '../game/abilities';
+import { getStatusEffectDefinition } from '../game/content/statusEffects';
 import {
   createGame,
   getItemConfigByKey,
@@ -494,6 +495,58 @@ describe('ui helpers and components', () => {
     ).toContainEqual({
       kind: 'text',
       text: 'Targets one enemy. Deals melee damage.',
+    });
+
+    expect(
+      abilityTooltipLines({
+        description: 'Targets all enemies. Inflicts Shocked.',
+        category: 'attacking',
+        manaCost: 2,
+        cooldownMs: 4800,
+        castTimeMs: 250,
+        effects: [
+          {
+            kind: 'applyStatus',
+            statusEffectId: 'shocked',
+            value: 16,
+            durationMs: 8_000,
+          },
+        ],
+        tags: [GameTag.AbilityCombat],
+      }, 'allEnemies', 10),
+    ).toContainEqual({
+      kind: 'stat',
+      label: 'Effect',
+      value: 'Shocked',
+      icon: getStatusEffectDefinition('shocked')?.icon,
+      iconTint: getStatusEffectDefinition('shocked')?.tint,
+      tone: 'negative',
+    });
+
+    expect(
+      abilityTooltipLines({
+        description: 'Targets yourself. Grants Guard.',
+        category: 'supportive',
+        manaCost: 5,
+        cooldownMs: 4300,
+        castTimeMs: 200,
+        effects: [
+          {
+            kind: 'applyStatus',
+            statusEffectId: 'guard',
+            value: 28,
+            durationMs: 4_000,
+          },
+        ],
+        tags: [GameTag.AbilityCombat],
+      }),
+    ).toContainEqual({
+      kind: 'stat',
+      label: 'Effect',
+      value: 'Guard',
+      icon: getStatusEffectDefinition('guard')?.icon,
+      iconTint: getStatusEffectDefinition('guard')?.tint,
+      tone: 'item',
     });
 
     expect(

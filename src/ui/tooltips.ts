@@ -1,5 +1,8 @@
 import { getAbilityDefinition } from '../game/abilities';
-import { getStatusEffectTags } from '../game/content/statusEffects';
+import {
+  getStatusEffectDefinition,
+  getStatusEffectTags,
+} from '../game/content/statusEffects';
 import { getSkillTags } from '../game/content/tags';
 import { professionRecipeOutputBonus } from '../game/crafting';
 import { isEquippableItem, isRecipePage, sellValue } from '../game/inventory';
@@ -30,6 +33,7 @@ import {
   formatEnemyRarityLabel,
   formatEquipmentSlotLabel,
   formatSecondaryStatLabel,
+  formatStatusEffectLabel,
 } from '../i18n/labels';
 import { Icons } from './icons';
 
@@ -354,6 +358,7 @@ export function abilityTooltipLines(
       kind: 'text',
       text: ability.description,
     },
+    ...abilityStatusEffectLines(ability),
     ...(damageLine ? [damageLine] : []),
     {
       kind: 'stat',
@@ -605,6 +610,32 @@ function abilityDamageValue(
       )
     );
   }, 0);
+}
+
+function abilityStatusEffectLines(
+  ability: Pick<AbilityDefinition, 'effects'>,
+): TooltipLine[] {
+  const statusEffects = [
+    ...new Set(
+      ability.effects.flatMap((effect) => {
+        if (effect.kind === 'heal') return [];
+        return effect.statusEffectId ? [effect.statusEffectId] : [];
+      }),
+    ),
+  ];
+
+  return statusEffects.map((effectId) => {
+    const definition = getStatusEffectDefinition(effectId);
+
+    return {
+      kind: 'stat' as const,
+      label: t('ui.ability.effect'),
+      value: formatStatusEffectLabel(effectId),
+      icon: definition?.icon,
+      iconTint: definition?.tint,
+      tone: definition?.tone === 'debuff' ? ('negative' as const) : ('item' as const),
+    };
+  });
 }
 
 function statusEffectDamageLines(

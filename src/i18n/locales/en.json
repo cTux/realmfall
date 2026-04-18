@@ -378,6 +378,7 @@
   "ui.ability.castTime": "Cast Time",
   "ui.ability.cooldown": "Cooldown",
   "ui.ability.damage": "Damage",
+  "ui.ability.effect": "Effect",
   "ui.ability.description.target.self": "Targets yourself.",
   "ui.ability.description.target.injuredAlly": "Targets one wounded ally.",
   "ui.ability.description.target.randomAlly": "Targets one ally.",
