@@ -1,7 +1,7 @@
 {
   "name": "realmfall",
   "private": true,
-  "version": "0.2.130",
+  "version": "0.2.131",
   "type": "module",
   "packageManager": "pnpm@10.33.0",
   "engines": {

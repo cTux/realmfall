@@ -1,5 +1,6 @@
 import { DEFAULT_LOG_FILTERS } from '../../constants';
 import { CombatWindow } from '../../../ui/components/CombatWindow';
+import { DebuggerWindow } from '../../../ui/components/DebuggerWindow';
 import { EquipmentWindow } from '../../../ui/components/EquipmentWindow';
 import { GameSettingsWindow } from '../../../ui/components/GameSettingsWindow';
 import { HexInfoWindow } from '../../../ui/components/HexInfoWindow';
@@ -44,6 +45,13 @@ export function AppDeferredWindows({
 
   return (
     <>
+      {mountedWindows.worldTime ? (
+        <DebuggerWindow
+          {...managedWindowProps.worldTime}
+          worldTimeMs={views.hero.worldTimeMs}
+          {...detailTooltipHandlers}
+        />
+      ) : null}
       {mountedWindows.skills ? (
         <SkillsWindow
           {...managedWindowProps.skills}

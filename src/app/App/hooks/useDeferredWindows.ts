@@ -8,6 +8,7 @@ function createMountedWindowState(
   keepCombatWindowMounted: boolean,
 ) {
   return {
+    worldTime: windowShown.worldTime,
     skills: windowShown.skills,
     recipes: windowShown.recipes,
     hexInfo: windowShown.hexInfo,

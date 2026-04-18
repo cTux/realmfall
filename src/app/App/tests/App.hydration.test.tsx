@@ -112,6 +112,9 @@ describe('App hydration and interactions', () => {
         new KeyboardEvent('keydown', { bubbles: true, key: 'd' }),
       );
     });
+    await act(async () => {
+      vi.advanceTimersByTime(200);
+    });
     expect(host.textContent).not.toContain('(D)ebugger');
     expect(worldTimeDockButton?.getAttribute('aria-pressed')).toBe('false');
 

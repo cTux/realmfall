@@ -4,7 +4,6 @@ import {
   canUseItem,
   isEquippableItem,
 } from '../../../game/state';
-import { DebuggerWindow } from '../../../ui/components/DebuggerWindow';
 import { GameTooltip } from '../../../ui/components/GameTooltip';
 import { HeroWindow } from '../../../ui/components/HeroWindow';
 import { ItemContextMenu } from '../../../ui/components/ItemContextMenu';
@@ -43,13 +42,6 @@ export function AppFixedWindows({
         entries={dockEntries}
         onToggle={actions.windows.onToggleDockWindow}
       />
-      {layout.windowShown.worldTime ? (
-        <DebuggerWindow
-          {...managedWindowProps.worldTime}
-          worldTimeMs={views.hero.worldTimeMs}
-          {...detailTooltipHandlers}
-        />
-      ) : null}
       <HeroWindow
         {...managedWindowProps.hero}
         stats={views.hero.stats}
