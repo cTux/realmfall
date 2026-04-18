@@ -82,6 +82,7 @@ pnpm dev
 - `pnpm lint:css`
 - `pnpm format`
 - `pnpm test`
+- `pnpm test:memory:leaks` (starts the HTTPS Vite dev server and runs `fuite` against `https://localhost:5173` with a dock-window toggle scenario, writing JSON output to `.tests/memory-leaks/latest.json`)
 - `pnpm test:coverage`
 - `pnpm test:watch`
 
@@ -97,6 +98,7 @@ Contributors should keep these working unless a task explicitly changes the work
 - `pnpm lint`
 - `pnpm lint:css`
 - `pnpm test`
+- `pnpm test:memory:leaks` when checking SPA route or listener retention with `fuite`
 - `pnpm build`
 
 For bundle-sensitive changes, also run `pnpm build:budget`.
