@@ -10,8 +10,10 @@ import {
 } from '../tags';
 import { applyRarityToItem } from '../../shared';
 import {
+  buildDefaultBlockChanceSecondaryStat,
   buildGeneratedMainStats,
   buildGeneratedSecondaryStats,
+  hasDefaultBlockChance,
   normalizeSecondaryStats,
 } from '../../itemSecondaryStats';
 import { createRng } from '../../random';
@@ -222,6 +224,15 @@ export function buildItemFromConfig(
   if (!config) {
     throw new Error(`Missing item config: ${key}`);
   }
+  const tier = overrides.tier ?? config.tier;
+  const rarity = overrides.rarity ?? config.rarity;
+  const secondaryStatSeed = `${key}:secondary:${overrides.id ?? config.key}:${tier}:${rarity}`;
+  const secondaryStatRng = createRng(secondaryStatSeed);
+  const defaultSecondaryStats =
+    config.secondaryStats ??
+    (hasDefaultBlockChance(config)
+      ? [buildDefaultBlockChanceSecondaryStat(tier, rarity, secondaryStatRng)]
+      : undefined);
 
   return {
     id: overrides.id ?? config.key,
@@ -235,8 +246,8 @@ export function buildItemFromConfig(
       pickConfigIcon(config.iconPool, config.icon, overrides.id ?? config.key),
     name: overrides.name ?? config.name,
     quantity: overrides.quantity ?? config.defaultQuantity ?? 1,
-    tier: overrides.tier ?? config.tier,
-    rarity: overrides.rarity ?? config.rarity,
+    tier,
+    rarity,
     power: overrides.power ?? config.power,
     defense: overrides.defense ?? config.defense,
     maxHp: overrides.maxHp ?? config.maxHp,
@@ -244,9 +255,11 @@ export function buildItemFromConfig(
     hunger: overrides.hunger ?? config.hunger,
     thirst: overrides.thirst ?? config.thirst ?? 0,
     secondaryStatCapacity:
-      overrides.secondaryStatCapacity ?? config.secondaryStatCapacity,
+      overrides.secondaryStatCapacity ??
+      config.secondaryStatCapacity ??
+      defaultSecondaryStats?.length,
     secondaryStats:
-      overrides.secondaryStats ?? normalizeSecondaryStats(config.secondaryStats),
+      overrides.secondaryStats ?? normalizeSecondaryStats(defaultSecondaryStats),
     grantedAbilityId: overrides.grantedAbilityId ?? config.grantedAbilityId,
   };
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildGeneratedItemFromConfig } from './content/items';
+import { buildGeneratedItemFromConfig, buildItemFromConfig } from './content/items';
 
 describe('generated item secondary stats', () => {
   it('gives shields a default block chance secondary stat', () => {
@@ -11,6 +11,29 @@ describe('generated item secondary stats', () => {
 
     expect(shield.secondaryStatCapacity).toBe(1);
     expect(shield.secondaryStats).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          key: 'blockChance',
+        }),
+      ]),
+    );
+  });
+
+  it('gives crafted shields and magical spheres a default block chance secondary stat', () => {
+    const shield = buildItemFromConfig('icon-shield-01');
+    const sphere = buildItemFromConfig('icon-magical-sphere-01');
+
+    expect(shield.secondaryStatCapacity).toBe(1);
+    expect(shield.secondaryStats).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          key: 'blockChance',
+        }),
+      ]),
+    );
+
+    expect(sphere.secondaryStatCapacity).toBe(1);
+    expect(sphere.secondaryStats).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           key: 'blockChance',

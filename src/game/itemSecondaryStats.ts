@@ -35,6 +35,7 @@ export const STANDARD_SECONDARY_STAT_KEYS: SecondaryStatKey[] = [
   'lifestealChance',
   'lifestealAmount',
   'dodgeChance',
+  'blockChance',
   'suppressDamageChance',
   'suppressDamageReduction',
   'suppressDebuffChance',
@@ -79,6 +80,23 @@ export function getEquipmentSecondaryStatTotal(
   key: SecondaryStatKey,
 ) {
   return items.reduce((sum, item) => sum + getSecondaryStatValue(item, key), 0);
+}
+
+export function hasDefaultBlockChance(
+  config: Pick<ItemConfig, 'slot' | 'category'>,
+) {
+  return (
+    config.slot === 'offhand' &&
+    (config.category === 'armor' || config.category === 'artifact')
+  );
+}
+
+export function buildDefaultBlockChanceSecondaryStat(
+  tier: number,
+  rarity: ItemRarity,
+  nextRoll: () => number,
+) {
+  return buildSecondaryStat('blockChance', tier, rarity, nextRoll);
 }
 
 export function buildGeneratedMainStats(
@@ -142,7 +160,7 @@ export function buildGeneratedSecondaryStats(
 ) {
   const secondarySlotRule = SECONDARY_STAT_SLOT_COUNTS[context.rarity];
   const defaultBlockChance = hasDefaultBlockChance(context.config)
-    ? buildSecondaryStat('blockChance', context.tier, context.rarity, nextRoll)
+    ? buildDefaultBlockChanceSecondaryStat(context.tier, context.rarity, nextRoll)
     : null;
   const capacity = Math.max(
     secondarySlotRule.capacity,
@@ -341,6 +359,3 @@ function secondaryStatRange(
   }
 }
 
-function hasDefaultBlockChance(config: Pick<ItemConfig, 'slot' | 'category'>) {
-  return config.slot === 'offhand' && (config.category === 'armor' || config.category === 'artifact');
-}
