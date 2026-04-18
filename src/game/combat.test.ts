@@ -7,8 +7,16 @@ import {
   makeEnemy,
   resolveEnemyRarity,
 } from './combat';
-import { DEFAULT_CRITICAL_STRIKE_CHANCE } from './itemSecondaryStats';
-import { getEnemyCriticalStrikeChance } from './state';
+import {
+  DEFAULT_CRITICAL_STRIKE_CHANCE,
+  DEFAULT_DODGE_CHANCE,
+  DEFAULT_SUPPRESS_DAMAGE_CHANCE,
+} from './itemSecondaryStats';
+import {
+  getEnemyCriticalStrikeChance,
+  getEnemyDodgeChance,
+  getEnemySuppressDamageChance,
+} from './state';
 
 describe('enemy rarity', () => {
   it('promotes higher rarity tiers to larger stat multipliers', () => {
@@ -89,6 +97,15 @@ describe('enemy rarity', () => {
 
     expect(getEnemyCriticalStrikeChance(enemy)).toBe(
       DEFAULT_CRITICAL_STRIKE_CHANCE,
+    );
+  });
+
+  it('gives generated enemies baseline dodge and suppress-damage chances', () => {
+    const enemy = makeEnemy('enemy-defense-seed', { q: 1, r: -1 }, 'plains');
+
+    expect(getEnemyDodgeChance(enemy)).toBe(DEFAULT_DODGE_CHANCE);
+    expect(getEnemySuppressDamageChance(enemy)).toBe(
+      DEFAULT_SUPPRESS_DAMAGE_CHANCE,
     );
   });
 });

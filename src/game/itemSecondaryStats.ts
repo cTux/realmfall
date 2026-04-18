@@ -9,8 +9,10 @@ import type { ItemConfig } from './content/types';
 
 export const DEFAULT_CRITICAL_STRIKE_CHANCE = 5;
 export const DEFAULT_CRITICAL_STRIKE_DAMAGE = 150;
+export const DEFAULT_DODGE_CHANCE = 5;
 export const DEFAULT_LIFESTEAL_CHANCE_AMOUNT = 0.5;
 export const DEFAULT_LIFESTEAL_AMOUNT = 1;
+export const DEFAULT_SUPPRESS_DAMAGE_CHANCE = 5;
 export const DEFAULT_SUPPRESS_DAMAGE_REDUCTION = 50;
 export const DEFAULT_SUPPRESS_DEBUFF_CHANCE = 0;
 

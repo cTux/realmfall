@@ -10,8 +10,10 @@ import { formatSkillLabel } from '../i18n/labels';
 import {
   DEFAULT_CRITICAL_STRIKE_CHANCE,
   DEFAULT_CRITICAL_STRIKE_DAMAGE,
+  DEFAULT_DODGE_CHANCE,
   DEFAULT_LIFESTEAL_AMOUNT,
   DEFAULT_LIFESTEAL_CHANCE_AMOUNT,
+  DEFAULT_SUPPRESS_DAMAGE_CHANCE,
   DEFAULT_SUPPRESS_DAMAGE_REDUCTION,
   DEFAULT_SUPPRESS_DEBUFF_CHANCE,
   getEquipmentSecondaryStatTotal,
@@ -136,12 +138,14 @@ export function getPlayerStats(player: Player) {
       ? DEFAULT_LIFESTEAL_CHANCE_AMOUNT
       : DEFAULT_LIFESTEAL_AMOUNT) +
     getEquipmentSecondaryStatTotal(equipped, 'lifestealAmount');
-  const dodgeChance = getEquipmentSecondaryStatTotal(equipped, 'dodgeChance');
+  const dodgeChance =
+    DEFAULT_DODGE_CHANCE +
+    getEquipmentSecondaryStatTotal(equipped, 'dodgeChance');
   const blockChance = getEquipmentSecondaryStatTotal(equipped, 'blockChance');
   const suppressDamageChance = getEquipmentSecondaryStatTotal(
     equipped,
     'suppressDamageChance',
-  );
+  ) + DEFAULT_SUPPRESS_DAMAGE_CHANCE;
   const suppressDamageReduction =
     DEFAULT_SUPPRESS_DAMAGE_REDUCTION +
     getEquipmentSecondaryStatTotal(equipped, 'suppressDamageReduction');

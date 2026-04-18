@@ -165,6 +165,16 @@ describe('combat equipment stats', () => {
     expect(getPlayerStats(game.player).criticalStrikeChance).toBe(5);
   });
 
+  it('starts the player at the baseline dodge and suppress-damage chances', () => {
+    const { game } = prepareCombat({
+      playerReady: false,
+      enemyReady: false,
+    });
+
+    expect(getPlayerStats(game.player).dodgeChance).toBe(5);
+    expect(getPlayerStats(game.player).suppressDamageChance).toBe(5);
+  });
+
   it('respects defensive gear stats during battle', () => {
     const baseline = startCombat(
       prepareCombat({

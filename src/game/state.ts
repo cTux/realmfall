@@ -97,6 +97,9 @@ import {
 import {
   DEFAULT_CRITICAL_STRIKE_CHANCE,
   DEFAULT_CRITICAL_STRIKE_DAMAGE,
+  DEFAULT_DODGE_CHANCE,
+  DEFAULT_SUPPRESS_DAMAGE_CHANCE,
+  DEFAULT_SUPPRESS_DAMAGE_REDUCTION,
 } from './itemSecondaryStats';
 import { GAME_TAGS } from './content/tags';
 import {
@@ -1151,8 +1154,17 @@ function dealPlayerDamageToEnemy(
       Math.max(1, baseDamage - getEnemyEffectiveDefense(enemy)) * critMultiplier,
     ),
   );
-  enemy.hp = Math.max(0, enemy.hp - damage);
-  applyPlayerOnHitEffects(state, enemy, damage, playerStats);
+  const resolvedDamage = resolveIncomingDamageByChances(
+    state,
+    `player:${enemy.id}:${abilityId}`,
+    damage,
+    getEnemyDodgeChance(enemy),
+    0,
+    getEnemySuppressDamageChance(enemy),
+    getEnemySuppressDamageReduction(enemy),
+  );
+  enemy.hp = Math.max(0, enemy.hp - resolvedDamage);
+  applyPlayerOnHitEffects(state, enemy, resolvedDamage, playerStats);
   maybeApplyConfiguredStatusToEnemy(state, enemy, effect, playerStats.attack);
   addLog(
     state,
@@ -1164,11 +1176,11 @@ function dealPlayerDamageToEnemy(
       {
         ability: getAbilityDefinition(abilityId).name,
         enemy: enemy.name,
-        damage,
+        damage: resolvedDamage,
       },
     ),
   );
-  return damage;
+  return resolvedDamage;
 }
 
 function healPlayerTargets(
@@ -1521,6 +1533,18 @@ export function getEnemyCriticalStrikeDamage(_enemy: Enemy) {
   return DEFAULT_CRITICAL_STRIKE_DAMAGE;
 }
 
+export function getEnemyDodgeChance(_enemy: Enemy) {
+  return DEFAULT_DODGE_CHANCE;
+}
+
+export function getEnemySuppressDamageChance(_enemy: Enemy) {
+  return DEFAULT_SUPPRESS_DAMAGE_CHANCE;
+}
+
+export function getEnemySuppressDamageReduction(_enemy: Enemy) {
+  return DEFAULT_SUPPRESS_DAMAGE_REDUCTION;
+}
+
 function getEnemyMana(enemy: Enemy) {
   return enemy.mana ?? enemy.maxMana ?? DEFAULT_ENEMY_MANA;
 }
@@ -1554,26 +1578,35 @@ function resolveIncomingDamage(
   incomingDamage: number,
   playerStats: ReturnType<typeof getPlayerStats>,
 ) {
-  if (
-    resolveProcCount(state, `${seedKey}:dodge`, playerStats.dodgeChance ?? 0) > 0
-  ) {
+  return resolveIncomingDamageByChances(
+    state,
+    seedKey,
+    incomingDamage,
+    playerStats.dodgeChance ?? 0,
+    playerStats.blockChance ?? 0,
+    playerStats.suppressDamageChance ?? 0,
+    playerStats.suppressDamageReduction ?? 0,
+  );
+}
+
+function resolveIncomingDamageByChances(
+  state: GameState,
+  seedKey: string,
+  incomingDamage: number,
+  dodgeChance: number,
+  blockChance: number,
+  suppressDamageChance: number,
+  suppressDamageReduction: number,
+) {
+  if (resolveProcCount(state, `${seedKey}:dodge`, dodgeChance) > 0) {
     return 0;
   }
-  if (
-    resolveProcCount(state, `${seedKey}:block`, playerStats.blockChance ?? 0) > 0
-  ) {
+  if (resolveProcCount(state, `${seedKey}:block`, blockChance) > 0) {
     return 0;
   }
-  if (
-    resolveProcCount(
-      state,
-      `${seedKey}:suppress`,
-      playerStats.suppressDamageChance ?? 0,
-    ) > 0
-  ) {
+  if (resolveProcCount(state, `${seedKey}:suppress`, suppressDamageChance) > 0) {
     const suppressedDamage = Math.round(
-      incomingDamage *
-        (1 - Math.min(95, playerStats.suppressDamageReduction ?? 0) / 100),
+      incomingDamage * (1 - Math.min(95, suppressDamageReduction) / 100),
     );
     return Math.max(1, suppressedDamage);
   }

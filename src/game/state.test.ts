@@ -1706,10 +1706,27 @@ describe('game state', () => {
       defense: 0,
     };
 
-    const encountered = moveToTile(game, center);
-    const resolved = startCombat(encountered);
+    let resolved = startCombat(moveToTile(game, center));
+    for (let index = 0; index < 8 && resolved.combat != null; index += 1) {
+      resolved = {
+        ...resolved,
+        worldTimeMs: resolved.worldTimeMs + 1_500,
+        enemies: {
+          ...resolved.enemies,
+          [centerTile.enemyIds[0]]: {
+            ...resolved.enemies[centerTile.enemyIds[0]]!,
+            hp: 1,
+            maxHp: 1,
+            attack: 0,
+            defense: 0,
+          },
+        },
+      };
+      resolved = progressCombat(resolved);
+    }
     const loot = getTileAt(resolved, center).items;
 
+    expect(resolved.combat).toBeNull();
     expect(loot.some((item) => item.name === 'Gold')).toBe(true);
     expect(
       loot.some(
