@@ -113,4 +113,61 @@ describe('App persistence', () => {
     });
     host.remove();
   });
+
+  it('saves assigned action bar slots alongside window state', async () => {
+    const game = createGame(2, 'app-action-bar-save-seed');
+    loadEncryptedState.mockResolvedValue({ game, ui: {} });
+
+    const { host, root } = await renderApp();
+    await flushLazyModules();
+
+    saveEncryptedState.mockClear();
+
+    const actionBarSlot = host.querySelector(
+      '[aria-label="Empty action bar slot 1"]',
+    ) as HTMLButtonElement | null;
+    expect(actionBarSlot).not.toBeNull();
+
+    await act(async () => {
+      actionBarSlot?.click();
+    });
+
+    const assignButton = host.querySelector(
+      '[aria-label="Assign Trail Ration to action bar slot"]',
+    ) as HTMLButtonElement | null;
+    expect(assignButton).not.toBeNull();
+
+    await act(async () => {
+      assignButton?.click();
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5000);
+    });
+
+    expect(saveEncryptedState).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ui: expect.objectContaining({
+          actionBarSlots: [
+            expect.objectContaining({
+              item: expect.objectContaining({ name: 'Trail Ration' }),
+            }),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+          ],
+        }),
+      }),
+    );
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
 });

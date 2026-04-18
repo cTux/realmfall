@@ -30,6 +30,7 @@ import {
   unequipItem,
   useItem as applyItemUse,
   type GameState,
+  type Item,
   type LogKind,
 } from '../../game/state';
 import { itemTooltipLines } from '../../ui/tooltips';
@@ -49,6 +50,11 @@ import { getInventoryItemAction } from './utils/getInventoryItemAction';
 import type { TooltipLine } from '../../ui/tooltips';
 import { setTooltipState } from './tooltipStore';
 import { getTooltipPlacementForRect } from '../../ui/tooltipPlacement';
+import {
+  createDefaultActionBarSlots,
+  findActionBarItem,
+  type ActionBarSlots,
+} from './actionBar';
 
 interface UseAppControllersOptions {
   gameRef: MutableRefObject<GameState>;
@@ -87,9 +93,8 @@ export function useAppControllers({
   const [windowShown, setWindowShown] = useState<WindowVisibilityState>(
     DEFAULT_WINDOW_VISIBILITY,
   );
-  const [audioSettings, setAudioSettings] = useState<AudioSettings>(
-    initialAudioSettings,
-  );
+  const [audioSettings, setAudioSettings] =
+    useState<AudioSettings>(initialAudioSettings);
   const [graphicsSettings, setGraphicsSettings] = useState<GraphicsSettings>(
     initialGraphicsSettings,
   );
@@ -97,6 +102,9 @@ export function useAppControllers({
     useState<Record<LogKind, boolean>>(DEFAULT_LOG_FILTERS);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [itemMenu, setItemMenu] = useState<ItemContextMenuState | null>(null);
+  const [actionBarSlots, setActionBarSlots] = useState<ActionBarSlots>(
+    createDefaultActionBarSlots,
+  );
   const [recipeMaterialFilterItemKey, setRecipeMaterialFilterItemKey] =
     useState<string | null>(null);
 
@@ -287,6 +295,33 @@ export function useAppControllers({
     [setGame, worldTimeMsRef],
   );
 
+  const handleAssignActionBarSlot = useCallback(
+    (slotIndex: number, item: Item) => {
+      setActionBarSlots((current) => {
+        const next = [...current];
+        next[slotIndex] = { item: { ...item } };
+        return next;
+      });
+    },
+    [],
+  );
+
+  const handleUseActionBarSlot = useCallback(
+    (slotIndex: number) => {
+      const assigned = actionBarSlots[slotIndex];
+      const item = findActionBarItem(
+        gameRef.current.player.inventory,
+        assigned,
+      );
+      if (!item) return;
+
+      applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
+        applyItemUse(current, item.id),
+      );
+    },
+    [actionBarSlots, gameRef, setGame, worldTimeMsRef],
+  );
+
   const handleCraftRecipe = useCallback(
     (recipeId: string, count?: number | 'max') => {
       applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
@@ -436,8 +471,11 @@ export function useAppControllers({
     handleTakeLootItem,
     handleUnequip,
     handleUseItem,
+    handleAssignActionBarSlot,
+    handleUseActionBarSlot,
     handleOpenRecipeBookWithMaterialFilter,
     handleClearRecipeMaterialFilter,
+    actionBarSlots,
     audioSettings,
     itemMenu,
     logFilters,
@@ -445,6 +483,7 @@ export function useAppControllers({
     graphicsSettings,
     showTooltip,
     setAudioSettings,
+    setActionBarSlots,
     setGraphicsSettings,
     setLogFilters,
     setTooltip,

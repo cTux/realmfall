@@ -1,4 +1,11 @@
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
   createGame,
   syncBloodMoon,
@@ -89,6 +96,9 @@ export function App() {
     handleTakeLootItem,
     handleUnequip,
     handleUseItem,
+    handleAssignActionBarSlot,
+    handleUseActionBarSlot,
+    actionBarSlots,
     handleOpenRecipeBookWithMaterialFilter,
     handleClearRecipeMaterialFilter,
     audioSettings,
@@ -98,6 +108,7 @@ export function App() {
     moveWindow,
     showTooltip,
     setAudioSettings,
+    setActionBarSlots,
     setGraphicsSettings,
     setLogFilters,
     setTooltip,
@@ -168,7 +179,9 @@ export function App() {
     game,
     gameRef,
     logFilters,
+    actionBarSlots,
     setGame,
+    setActionBarSlots,
     setLogFilters,
     setWindows,
     setWindowShown,
@@ -240,6 +253,7 @@ export function App() {
       uiAudio.swoosh();
     },
     onCloseAllWindowsSound: uiAudio.swoosh,
+    onUseActionBarSlot: handleUseActionBarSlot,
     windowShown,
     windowShownLoot: windowShown.loot,
   });
@@ -292,6 +306,7 @@ export function App() {
     playerView: {
       coord: game.player.coord,
       mana: game.player.mana,
+      actionBarSlots,
       equipment: game.player.equipment,
       inventory: game.player.inventory,
       learnedRecipeIds: game.player.learnedRecipeIds,
@@ -352,6 +367,8 @@ export function App() {
         onSort: handleSort,
         onEquip: handleEquip,
         onUseItem: handleUseItem,
+        onAssignActionBarSlot: handleAssignActionBarSlot,
+        onUseActionBarSlot: handleUseActionBarSlot,
         onCraftRecipe: handleCraftRecipe,
         onDropItem: handleDropItem,
         onDropEquippedItem: handleDropEquippedItem,

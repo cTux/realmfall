@@ -16,6 +16,7 @@ interface ItemSlotCornerIcon {
 }
 
 interface ItemSlotButtonProps {
+  ariaLabel?: string;
   item?: Item;
   slot?: EquipmentSlot;
   size?: 'default' | 'compact';
@@ -35,6 +36,7 @@ interface ItemSlotButtonProps {
 }
 
 export function ItemSlotButton({
+  ariaLabel,
   item,
   slot,
   size = 'default',
@@ -56,7 +58,8 @@ export function ItemSlotButton({
     tintOverride ?? (item ? itemTint(item) : 'rgba(148, 163, 184, 0.32)');
   const borderColor = borderColorOverride ?? tint;
   const isInteractive = Boolean(
-    !disabled && item && (onClick || onContextMenu || onMouseEnter),
+    !disabled &&
+    (onClick || onContextMenu || onMouseEnter || onEmptyMouseEnter),
   );
   const showIcon = item || !hidePlaceholderIconWhenEmpty;
 
@@ -78,14 +81,14 @@ export function ItemSlotButton({
         boxShadow: item ? `0 0 0 1px ${borderColor}33 inset` : undefined,
       }}
       data-size={size}
-      onClick={item && !disabled ? onClick : undefined}
-      onContextMenu={item && !disabled ? onContextMenu : undefined}
+      onClick={!disabled ? onClick : undefined}
+      onContextMenu={!disabled ? onContextMenu : undefined}
       onMouseEnter={
         disabled ? undefined : item ? onMouseEnter : onEmptyMouseEnter
       }
       onMouseLeave={item || onEmptyMouseEnter ? onMouseLeave : undefined}
       disabled={disabled}
-      aria-label={item ? undefined : getEmptySlotLabel(slot)}
+      aria-label={ariaLabel ?? (item ? undefined : getEmptySlotLabel(slot))}
     >
       {overlayColorOverride ? (
         <span

@@ -219,12 +219,18 @@ export function normalizeLoadedGame(game: GameState): GameState {
             ? undefined
             : Math.max(1, Number(effect.stacks) || 1),
         value:
-          effect.value == null ? undefined : Math.max(0, Number(effect.value) || 0),
+          effect.value == null
+            ? undefined
+            : Math.max(0, Number(effect.value) || 0),
       })),
       inventory,
       equipment,
     },
   };
+}
+
+export function normalizeSavedUiItem(item: Item) {
+  return normalizeItem(item);
 }
 
 function normalizeItem(item: Item): Item {
@@ -322,9 +328,13 @@ function normalizeEnemy(enemy: GameState['enemies'][string]) {
           ? undefined
           : Math.max(0, Number(effect.lastProcessedAt) || 0),
       stacks:
-        effect.stacks == null ? undefined : Math.max(1, Number(effect.stacks) || 1),
+        effect.stacks == null
+          ? undefined
+          : Math.max(1, Number(effect.stacks) || 1),
       value:
-        effect.value == null ? undefined : Math.max(0, Number(effect.value) || 0),
+        effect.value == null
+          ? undefined
+          : Math.max(0, Number(effect.value) || 0),
     })),
   };
 }

@@ -23,7 +23,8 @@ import {
   type WindowPositions,
   type WindowVisibilityState,
 } from '../constants';
-import { normalizeLoadedGame } from '../normalize';
+import { normalizeLoadedGame, normalizeSavedUiItem } from '../normalize';
+import { normalizeActionBarSlots, type ActionBarSlots } from './actionBar';
 import type { PersistedUiState } from './types';
 
 const AUTOSAVE_INTERVAL_MS = 5000;
@@ -45,6 +46,7 @@ type DirtySaveSegments = {
 };
 
 type LatestSaveInputs = {
+  actionBarSlots: ActionBarSlots;
   game: GameState;
   logFilters: Record<LogKind, boolean>;
   windowShown: WindowVisibilityState;
@@ -56,8 +58,10 @@ interface UseAppPersistenceOptions {
   game: GameState;
   gameRef: MutableRefObject<GameState>;
   logFilters: Record<LogKind, boolean>;
+  actionBarSlots: ActionBarSlots;
   setGame: Dispatch<SetStateAction<GameState>>;
   setLogFilters: Dispatch<SetStateAction<Record<LogKind, boolean>>>;
+  setActionBarSlots: Dispatch<SetStateAction<ActionBarSlots>>;
   setWindows: Dispatch<SetStateAction<WindowPositions>>;
   setWindowShown: Dispatch<SetStateAction<WindowVisibilityState>>;
   setWorldTimeMs: Dispatch<SetStateAction<number>>;
@@ -79,15 +83,17 @@ function buildPersistedGameSnapshot({
 }
 
 function buildPersistedUiSnapshot({
+  actionBarSlots,
   logFilters,
   windowShown,
   windows,
 }: {
+  actionBarSlots: ActionBarSlots;
   logFilters: Record<LogKind, boolean>;
   windowShown: WindowVisibilityState;
   windows: WindowPositions;
 }) {
-  return { windows, windowShown, logFilters };
+  return { windows, windowShown, logFilters, actionBarSlots };
 }
 
 function buildPersistedSnapshot(
@@ -108,6 +114,7 @@ function buildPersistedSegments(
       worldTimeMs: latestInputs.worldTimeMs,
     }),
     ui: buildPersistedUiSnapshot({
+      actionBarSlots: latestInputs.actionBarSlots,
       logFilters: latestInputs.logFilters,
       windowShown: latestInputs.windowShown,
       windows: latestInputs.windows,
@@ -292,9 +299,11 @@ function scheduleSave({
 }
 
 export function useAppPersistence({
+  actionBarSlots,
   game,
   gameRef,
   logFilters,
+  setActionBarSlots,
   setGame,
   setLogFilters,
   setWindows,
@@ -308,6 +317,7 @@ export function useAppPersistence({
 }: UseAppPersistenceOptions) {
   const [hydrated, setHydrated] = useState(false);
   const latestInputsRef = useRef<LatestSaveInputs>({
+    actionBarSlots,
     game,
     logFilters,
     windowShown,
@@ -361,6 +371,10 @@ export function useAppPersistence({
       const hydratedLogFilters = snapshotUi?.logFilters
         ? { ...DEFAULT_LOG_FILTERS, ...snapshotUi.logFilters }
         : DEFAULT_LOG_FILTERS;
+      const hydratedActionBarSlots = normalizeActionBarSlots(
+        snapshotUi?.actionBarSlots,
+        normalizeSavedUiItem,
+      );
       if (saved?.game) {
         const loadedGame = normalizeLoadedGame(saved.game as GameState);
         worldTimeMsRef.current = loadedGame.worldTimeMs;
@@ -389,8 +403,12 @@ export function useAppPersistence({
             ...snapshotUi.logFilters,
           }));
         }
+        if (snapshotUi?.actionBarSlots) {
+          setActionBarSlots(hydratedActionBarSlots);
+        }
       }
 
+      latestInputsRef.current.actionBarSlots = hydratedActionBarSlots;
       latestInputsRef.current.logFilters = hydratedLogFilters;
       latestInputsRef.current.windowShown = hydratedWindowShown;
       latestInputsRef.current.windows = hydratedWindows;
@@ -414,6 +432,7 @@ export function useAppPersistence({
   }, [
     lastDisplayedWorldSecondRef,
     setGame,
+    setActionBarSlots,
     setLogFilters,
     setWindowShown,
     setWindows,
@@ -442,6 +461,7 @@ export function useAppPersistence({
   useEffect(() => {
     if (!hydrated) return;
 
+    latestInputsRef.current.actionBarSlots = actionBarSlots;
     latestInputsRef.current.logFilters = logFilters;
     latestInputsRef.current.windowShown = windowShown;
     latestInputsRef.current.windows = windows;
@@ -455,7 +475,7 @@ export function useAppPersistence({
       saveInFlightRef,
       saveQueueRef,
     });
-  }, [hydrated, logFilters, windowShown, windows]);
+  }, [actionBarSlots, hydrated, logFilters, windowShown, windows]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -487,6 +507,7 @@ export function useAppPersistence({
     clearDebounceSchedule(debounceDueAtRef, debounceTimerRef);
 
     latestInputsRef.current = {
+      actionBarSlots,
       game: gameRef.current,
       logFilters,
       windowShown,

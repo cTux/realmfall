@@ -10,6 +10,7 @@ import { GameTooltip } from '../../../ui/components/GameTooltip';
 import { HeroWindow } from '../../../ui/components/HeroWindow';
 import { ItemContextMenu } from '../../../ui/components/ItemContextMenu';
 import { WindowDock } from '../../../ui/components/WindowDock';
+import { ActionBar } from '../../../ui/components/ActionBar/ActionBar';
 import type { AppWindowsProps } from '../AppWindows.types';
 import { useTooltipState } from '../tooltipStore';
 import { getRecipeMaterialItemKey } from '../utils/getRecipeMaterialItemKey';
@@ -24,7 +25,9 @@ interface AppFixedWindowsProps {
 }
 
 const DebuggerWindow = createLazyWindowComponent<
-  Parameters<(typeof import('../../../ui/components/DebuggerWindow'))['DebuggerWindow']>[0]
+  Parameters<
+    (typeof import('../../../ui/components/DebuggerWindow'))['DebuggerWindow']
+  >[0]
 >(() =>
   import('../../../ui/components/DebuggerWindow').then((module) => ({
     default: module.DebuggerWindow,
@@ -51,6 +54,13 @@ export function AppFixedWindows({
       <WindowDock
         entries={dockEntries}
         onToggle={actions.windows.onToggleDockWindow}
+      />
+      <ActionBar
+        inventory={views.player.inventory}
+        slots={views.player.actionBarSlots}
+        onAssignSlot={actions.inventory.onAssignActionBarSlot}
+        onHoverItem={actions.tooltip.onShowItemTooltip}
+        onLeaveItem={actions.tooltip.onCloseTooltip}
       />
       {layout.windowShown.worldTime ? (
         <Suspense fallback={null}>

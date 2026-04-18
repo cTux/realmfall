@@ -40,6 +40,7 @@ describe('App hydration and interactions', () => {
           ],
         },
         ui: {
+          actionBarSlots: [{ item: game.player.inventory[0] }],
           windows: { hero: { x: 30, y: 40 } },
           windowShown: {
             worldTime: true,
@@ -77,6 +78,9 @@ describe('App hydration and interactions', () => {
     expect(host.textContent).not.toContain('old log');
     expect(host.textContent).toContain('Lo(g)');
     expect(host.textContent).toContain('Year 1, Day 3, 00:15');
+    expect(
+      host.querySelector('[aria-label="Action bar slot 1: Trail Ration"]'),
+    ).not.toBeNull();
 
     const worldTimePanel = host.querySelector(
       '[aria-label="Debugger"]',
@@ -185,6 +189,17 @@ describe('App hydration and interactions', () => {
     await act(async () => {
       useButton?.click();
     });
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: '1' }),
+      );
+    });
+    await flushLazyModules();
+
+    expect(
+      host.querySelector('[aria-label="Action bar slot 1: Trail Ration"]'),
+    ).not.toBeNull();
 
     const takeAllButton = Array.from(host.querySelectorAll('button')).find(
       (button) => button.textContent === 'Tak(e) all',

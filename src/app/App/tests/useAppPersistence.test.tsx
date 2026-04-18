@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createGame, type GameState } from '../../../game/state';
+import { createDefaultActionBarSlots } from '../actionBar';
 import {
   DEFAULT_LOG_FILTERS,
   DEFAULT_WINDOWS,
@@ -51,6 +52,9 @@ const PersistenceHarness = forwardRef<PersistenceHarnessHandle>(
     const gameRef = useRef(initialGameRef.current);
     const [game, setGame] = useState(initialGameRef.current);
     const [logFilters, setLogFilters] = useState(DEFAULT_LOG_FILTERS);
+    const [actionBarSlots, setActionBarSlots] = useState(
+      createDefaultActionBarSlots,
+    );
     const [windows, setWindows] = useState<WindowPositions>(DEFAULT_WINDOWS);
     const [windowShown, setWindowShown] = useState<WindowVisibilityState>(
       DEFAULT_WINDOW_VISIBILITY,
@@ -75,8 +79,10 @@ const PersistenceHarness = forwardRef<PersistenceHarnessHandle>(
       game,
       gameRef,
       logFilters,
+      actionBarSlots,
       setGame,
       setLogFilters,
+      setActionBarSlots,
       setWindows,
       setWindowShown,
       setWorldTimeMs,
