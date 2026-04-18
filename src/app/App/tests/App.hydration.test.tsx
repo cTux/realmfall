@@ -62,6 +62,7 @@ describe('App hydration and interactions', () => {
       vi.advanceTimersByTime(200);
     });
     await flushLazyModules();
+    await flushLazyModules();
 
     expect(loadEncryptedState).toHaveBeenCalledTimes(1);
     expect(renderScene).toHaveBeenCalled();
@@ -111,9 +112,6 @@ describe('App hydration and interactions', () => {
       window.dispatchEvent(
         new KeyboardEvent('keydown', { bubbles: true, key: 'd' }),
       );
-    });
-    await act(async () => {
-      vi.advanceTimersByTime(200);
     });
     expect(host.textContent).not.toContain('(D)ebugger');
     expect(worldTimeDockButton?.getAttribute('aria-pressed')).toBe('false');

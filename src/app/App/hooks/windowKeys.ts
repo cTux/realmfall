@@ -15,7 +15,6 @@ export const WINDOW_HANDLER_KEYS = [
 ] as const;
 
 export const DEFERRED_WINDOW_KEYS = [
-  'worldTime',
   'skills',
   'recipes',
   'hexInfo',
