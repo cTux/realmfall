@@ -8,7 +8,16 @@ const { certPath, keyPath } = await ensureLocalhostHttpsCertificate();
 
 const child = spawn(
   process.execPath,
-  [serveBinPath, 'dist', '--ssl-cert', certPath, '--ssl-key', keyPath],
+  [
+    serveBinPath,
+    'dist',
+    '--config',
+    '../serve.json',
+    '--ssl-cert',
+    certPath,
+    '--ssl-key',
+    keyPath,
+  ],
   {
     stdio: 'inherit',
   },

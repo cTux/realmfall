@@ -20,6 +20,16 @@ const packageVersion = JSON.parse(
   readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
 ).version as string;
 
+const META_CONTENT_SECURITY_POLICY =
+  "default-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' ws: wss:; worker-src 'self' blob:; manifest-src 'self'";
+
+const RESPONSE_CONTENT_SECURITY_POLICY = `${META_CONTENT_SECURITY_POLICY}; frame-ancestors 'none'`;
+
+const SECURITY_HEADERS = {
+  'Content-Security-Policy': RESPONSE_CONTENT_SECURITY_POLICY,
+  'X-Frame-Options': 'DENY',
+} as const;
+
 function versionManifestPlugin(): Plugin {
   const versionManifest = JSON.stringify({ version: packageVersion }, null, 2);
 
@@ -169,10 +179,14 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(packageVersion),
   },
   server: {
+    headers: SECURITY_HEADERS,
     https: {
       cert: localhostHttpsCertificate.cert,
       key: localhostHttpsCertificate.key,
     },
+  },
+  preview: {
+    headers: SECURITY_HEADERS,
   },
   plugins: (() => {
     const isVitestRun = Boolean(process.env.VITEST);

@@ -10,17 +10,17 @@ jobs:
 
     steps:
       - name: Checkout the head commit of the branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           persist-credentials: false
 
       - name: Use pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@eae0cfeb286e66ffb5155f1a79b90583a127a68b
         with:
           version: latest
 
       - name: Use node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
@@ -47,7 +47,7 @@ jobs:
         run: pnpm run build
 
       - name: Run command
-        uses: ctux/simple-pull-request-gh-action@1.1.0
+        uses: ctux/simple-pull-request-gh-action@3521ae6c8c845bba3ea4486ff36bc36688634037
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch_main_name: "'master'"

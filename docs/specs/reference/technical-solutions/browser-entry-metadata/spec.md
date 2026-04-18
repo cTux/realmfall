@@ -6,6 +6,7 @@ This spec covers the static HTML metadata and crawler directives shipped with th
 
 ## Current Solution
 
+- `index.html` ships a restrictive meta-delivered Content Security Policy for resource loading, while anti-framing protection is delivered as HTTP response headers through the configured Vite and static-serve paths so browsers enforce document embedding denial.
 - `index.html` ships a concrete meta description that describes the current game and rendering stack in search and link-preview contexts.
 - The production build publishes `robots.txt` from the Vite public asset path so crawlers receive an explicit allow rule instead of a missing-file response.
 - Entry metadata remains lightweight and static so these crawl and preview signals do not depend on React booting before they become visible to user agents.
@@ -13,4 +14,6 @@ This spec covers the static HTML metadata and crawler directives shipped with th
 ## Main Implementation Areas
 
 - `index.html`
+- `serve.json`
+- `vite.config.ts`
 - `public/robots.txt`
