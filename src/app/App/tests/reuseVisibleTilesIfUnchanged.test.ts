@@ -47,4 +47,23 @@ describe('reuseVisibleTilesIfUnchanged', () => {
 
     expect(nextVisibleTiles).not.toBe(initialVisibleTiles);
   });
+
+  it('returns a new visibleTiles array when the player position changes', () => {
+    const game = createGame(3, 'world-render-selectors-player-move');
+    const initialVisibleTiles = reuseVisibleTilesIfUnchanged([], game);
+    const movedGame = {
+      ...game,
+      player: {
+        ...game.player,
+        coord: { q: 1, r: 0 },
+      },
+    };
+
+    const nextVisibleTiles = reuseVisibleTilesIfUnchanged(
+      initialVisibleTiles,
+      movedGame,
+    );
+
+    expect(nextVisibleTiles).not.toBe(initialVisibleTiles);
+  });
 });

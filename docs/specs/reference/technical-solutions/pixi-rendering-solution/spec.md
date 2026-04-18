@@ -15,8 +15,9 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - The renderer reuses graphics and sprites through dedicated pool helpers.
 - Cached scene state avoids unnecessary rebuilds when screen size, derived static-world render inputs, selected tile, or path highlights have not changed.
 - Static and interaction redraw invalidation derives from render-specific version keys rather than whole `GameState` identity, so log-only or other non-world state clones do not rebuild unchanged Pixi layers.
+- Static invalidation now ignores offscreen enemy container churn by comparing only the enemy presentation inputs that belong to visible tiles before rebuilding cached layers.
 - `usePixiWorld` reuses the previous `visibleTiles` array when unrelated state clones leave the visible tile set untouched, and render-version caching keys off those stable world-facing inputs plus the specific enemy and world flags that actually affect Pixi output.
-- `usePixiWorld` updates the cached visible-tile list only when world-facing inputs such as player position, world radius, seed, or tile data change, instead of recomputing visible tiles on every unrelated root-state clone.
+- `usePixiWorld` updates the cached visible-tile list only when world-facing inputs such as player position, world radius, seed, or visible tile data change, instead of recomputing visible tiles on every unrelated root-state clone.
 - Once static layers are cached, animation-only frames reuse cached hot-structure light points for campfires and furnaces and skip the full visible-tile traversal instead of repeating enemy lookup and marker preparation work on every ticker tick.
 - Deterministic ground-cover presentation and cloud inputs are memoized in bounded caches.
 - The world renderer includes time-of-day lighting, atmosphere passes, overlay tinting, and optional fish-eye processing.
