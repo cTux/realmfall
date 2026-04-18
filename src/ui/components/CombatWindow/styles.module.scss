@@ -84,6 +84,16 @@
   background: linear-gradient(90deg, #1d4ed8, #60a5fa);
 }
 
+.castBarTrack {
+  height: 0.85rem;
+  background: rgb(71 47 8 / 92%);
+  border-color: rgb(250 204 21 / 24%);
+}
+
+.castBarFill {
+  background: linear-gradient(90deg, #ca8a04, #facc15);
+}
+
 .barText {
   position: absolute;
   inset: 0;

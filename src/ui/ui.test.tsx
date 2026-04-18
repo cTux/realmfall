@@ -7,6 +7,7 @@ import { getInventoryItemAction } from '../app/App/utils/getInventoryItemAction'
 import { EquipmentSlotId } from '../game/content/ids';
 import { GameTag } from '../game/content/tags';
 import { Skill } from '../game/types';
+import { getAbilityDefinition } from '../game/abilities';
 import {
   createGame,
   getItemConfigByKey,
@@ -1027,11 +1028,15 @@ describe('ui helpers and components', () => {
       coord: { q: 1, r: 0 },
       enemyIds: ['enemy-1'],
       player: {
-        abilityIds: ['kick'] as Array<'kick'>,
+        abilityIds: ['fireball', 'kick'],
         globalCooldownMs: 1500,
         globalCooldownEndsAt: 900,
-        cooldownEndsAt: { kick: 1000 },
-        casting: null,
+        cooldownEndsAt: { kick: 1000, fireball: 4500 },
+        casting: {
+          abilityId: 'fireball',
+          targetId: 'enemy-1',
+          endsAt: 500,
+        },
       },
       started: false,
       enemies: {
@@ -1275,7 +1280,9 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('Player Lv 10');
     expect(markup).toContain('Marauder Lv 3');
     expect(markup).toContain('MP');
+    expect(markup).toContain('Casting');
     expect(markup).toContain('Kick');
+    expect(markup).toContain(getAbilityDefinition('fireball').name);
     expect(markup).toContain('(Q) Start');
     expect(markup).toContain('Knight Blade');
     expect(markup).toContain(getItemConfigByKey('town-knife')?.icon ?? '');

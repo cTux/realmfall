@@ -402,6 +402,8 @@
   "ui.rarity.legendary": "Legendary",
   "ui.combat.enemyPartyTitle": "Enemy Party",
   "ui.combat.entityTitle": "{name} Lv {level}",
+  "ui.combat.casting": "Casting",
+  "ui.combat.castBar.tooltip": "This entity is currently channeling an ability.",
   "ui.combat.mp": "MP",
   "ui.combat.playerPartyTitle": "Player Party",
   "ui.combat.startAction": "(Q) Start",

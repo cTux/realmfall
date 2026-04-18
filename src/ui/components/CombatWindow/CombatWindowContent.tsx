@@ -178,6 +178,14 @@ function EntityCard({
         onHoverDetail={onHoverDetail}
         onLeaveDetail={onLeaveDetail}
       />
+      {entity.actor.casting ? (
+        <CastBar
+          actor={entity.actor}
+          worldTimeMs={worldTimeMs}
+          onHoverDetail={onHoverDetail}
+          onLeaveDetail={onLeaveDetail}
+        />
+      ) : null}
       {entity.buffs.length > 0 ? (
         <EffectList
           items={entity.buffs}
@@ -372,6 +380,60 @@ function AbilitySquare({
           }}
         />
       ) : null}
+    </div>
+  );
+}
+
+function CastBar({
+  actor,
+  worldTimeMs,
+  onHoverDetail,
+  onLeaveDetail,
+}: {
+  actor: CombatActorState;
+  worldTimeMs: number;
+  onHoverDetail: CombatWindowProps['onHoverDetail'];
+  onLeaveDetail: CombatWindowProps['onLeaveDetail'];
+}) {
+  if (!actor.casting) return null;
+
+  const ability = getAbilityDefinition(actor.casting.abilityId);
+  const castDurationMs = Math.max(ability.castTimeMs, 1);
+  const castStartedAt = actor.casting.endsAt - castDurationMs;
+  const elapsedMs = Math.max(0, worldTimeMs - castStartedAt);
+  const width = Math.max(0, Math.min(100, (elapsedMs / castDurationMs) * 100));
+
+  return (
+    <div
+      className={`${styles.barTrack} ${styles.castBarTrack}`}
+      onMouseEnter={(event) =>
+        onHoverDetail(
+          event,
+          ability.name,
+          [
+            {
+              kind: 'text',
+              text: t('ui.combat.castBar.tooltip'),
+            },
+            {
+              kind: 'stat',
+              label: t('ui.ability.castTime'),
+              value: `${ability.castTimeMs / 1000}s`,
+            },
+          ],
+          'rgba(250, 204, 21, 0.9)',
+        )
+      }
+      onMouseLeave={onLeaveDetail}
+    >
+      <div
+        className={`${styles.barFill} ${styles.castBarFill}`}
+        style={{ width: `${width}%` }}
+      />
+      <div className={styles.barText}>
+        <span>{t('ui.combat.casting')}</span>
+        <strong>{ability.name}</strong>
+      </div>
     </div>
   );
 }
