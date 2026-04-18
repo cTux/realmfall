@@ -62,6 +62,7 @@ describe('App hydration and interactions', () => {
       vi.advanceTimersByTime(200);
     });
     await flushLazyModules();
+    await flushLazyModules();
 
     expect(loadEncryptedState).toHaveBeenCalledTimes(1);
     expect(renderScene).toHaveBeenCalled();

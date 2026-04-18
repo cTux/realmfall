@@ -1,10 +1,11 @@
+import { Suspense } from 'react';
 import { t } from '../../../i18n';
 import {
   canEquipItem,
   canUseItem,
   isEquippableItem,
 } from '../../../game/state';
-import { DebuggerWindow } from '../../../ui/components/DebuggerWindow';
+import { createLazyWindowComponent } from '../../../ui/components/lazyWindowComponent';
 import { GameTooltip } from '../../../ui/components/GameTooltip';
 import { HeroWindow } from '../../../ui/components/HeroWindow';
 import { ItemContextMenu } from '../../../ui/components/ItemContextMenu';
@@ -21,6 +22,14 @@ interface AppFixedWindowsProps {
     typeof import('../hooks/useManagedWindowProps').useManagedWindowProps
   >;
 }
+
+const DebuggerWindow = createLazyWindowComponent<
+  Parameters<(typeof import('../../../ui/components/DebuggerWindow'))['DebuggerWindow']>[0]
+>(() =>
+  import('../../../ui/components/DebuggerWindow').then((module) => ({
+    default: module.DebuggerWindow,
+  })),
+);
 
 export function AppFixedWindows({
   dockEntries,
@@ -44,11 +53,13 @@ export function AppFixedWindows({
         onToggle={actions.windows.onToggleDockWindow}
       />
       {layout.windowShown.worldTime ? (
-        <DebuggerWindow
-          {...managedWindowProps.worldTime}
-          worldTimeMs={views.hero.worldTimeMs}
-          {...detailTooltipHandlers}
-        />
+        <Suspense fallback={null}>
+          <DebuggerWindow
+            {...managedWindowProps.worldTime}
+            worldTimeMs={views.hero.worldTimeMs}
+            {...detailTooltipHandlers}
+          />
+        </Suspense>
       ) : null}
       <HeroWindow
         {...managedWindowProps.hero}
