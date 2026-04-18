@@ -19,6 +19,7 @@ interface ActionBarProps {
   inventory: Item[];
   slots: ActionBarSlots;
   onAssignSlot: (slotIndex: number, item: Item) => void;
+  onClearSlot: (slotIndex: number) => void;
   onHoverItem: (
     event: ReactMouseEvent<HTMLElement>,
     item: Item,
@@ -31,6 +32,7 @@ export function ActionBar({
   inventory,
   slots,
   onAssignSlot,
+  onClearSlot,
   onHoverItem,
   onLeaveItem,
 }: ActionBarProps) {
@@ -108,6 +110,11 @@ export function ActionBar({
                     current === slotIndex ? null : slotIndex,
                   )
                 }
+                onContextMenu={(event) => {
+                  event.preventDefault();
+                  setPickerSlotIndex(null);
+                  onClearSlot(slotIndex);
+                }}
                 onMouseEnter={
                   displayItem
                     ? (event) => onHoverItem(event, displayItem)

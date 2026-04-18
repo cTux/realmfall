@@ -26,12 +26,13 @@ const meta = {
       null,
     ],
     onAssignSlot: noop,
+    onClearSlot: noop,
     onHoverItem: noop,
     onLeaveItem: noop,
   },
   parameters: {
     controls: {
-      exclude: ['onAssignSlot', 'onHoverItem', 'onLeaveItem'],
+      exclude: ['onAssignSlot', 'onClearSlot', 'onHoverItem', 'onLeaveItem'],
     },
   },
 } satisfies Meta<typeof ActionBar>;
@@ -51,5 +52,6 @@ export const DepletedSlot: Story = {
       { item: fixtures.inventory[0]! },
       ...Array.from({ length: 8 }, () => null),
     ],
+    onClearSlot: noop,
   },
 };

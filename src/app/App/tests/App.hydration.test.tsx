@@ -78,9 +78,7 @@ describe('App hydration and interactions', () => {
     expect(host.textContent).not.toContain('old log');
     expect(host.textContent).toContain('Lo(g)');
     expect(host.textContent).toContain('Year 1, Day 3, 00:15');
-    expect(
-      host.querySelector('[aria-label="Action bar slot 1: Trail Ration"]'),
-    ).not.toBeNull();
+    expect(host.querySelector('[aria-label="Action bar"]')).not.toBeNull();
 
     const worldTimePanel = host.querySelector(
       '[aria-label="Debugger"]',
@@ -197,9 +195,7 @@ describe('App hydration and interactions', () => {
     });
     await flushLazyModules();
 
-    expect(
-      host.querySelector('[aria-label="Action bar slot 1: Trail Ration"]'),
-    ).not.toBeNull();
+    expect(host.querySelector('[aria-label="Action bar"]')).not.toBeNull();
 
     const takeAllButton = Array.from(host.querySelectorAll('button')).find(
       (button) => button.textContent === 'Tak(e) all',

@@ -336,6 +336,16 @@ export function useAppControllers({
     [],
   );
 
+  const handleClearActionBarSlot = useCallback((slotIndex: number) => {
+    setActionBarSlots((current) => {
+      if (!current[slotIndex]) return current;
+
+      const next = [...current];
+      next[slotIndex] = null;
+      return next;
+    });
+  }, []);
+
   const handleUseActionBarSlot = useCallback(
     (slotIndex: number) => {
       const assigned = actionBarSlots[slotIndex];
@@ -502,6 +512,7 @@ export function useAppControllers({
     handleUnequip,
     handleUseItem,
     handleAssignActionBarSlot,
+    handleClearActionBarSlot,
     handleUseActionBarSlot,
     handleOpenRecipeBookWithMaterialFilter,
     handleClearRecipeMaterialFilter,

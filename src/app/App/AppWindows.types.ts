@@ -133,6 +133,7 @@ export interface AppWindowsActions {
     onEquip: (itemId: string) => void;
     onUseItem: (itemId: string) => void;
     onAssignActionBarSlot: (slotIndex: number, item: Item) => void;
+    onClearActionBarSlot: (slotIndex: number) => void;
     onUseActionBarSlot: (slotIndex: number) => void;
     onCraftRecipe: (recipeId: string, count?: number | 'max') => void;
     onDropItem: (itemId: string) => void;
