@@ -70,6 +70,15 @@ describe('ability loadouts', () => {
     ).toBe(true);
   });
 
+  it('keeps Kick free and requires mana for every other ability', () => {
+    expect(ABILITIES.kick.manaCost).toBe(0);
+    expect(
+      Object.values(ABILITIES)
+        .filter((ability) => ability.id !== DEFAULT_ABILITY_ID)
+        .every((ability) => ability.manaCost >= 5),
+    ).toBe(true);
+  });
+
   it('surfaces equipped weapon abilities through player combat stats', () => {
     const game = createGame(2, 'weapon-ability-seed');
     const weapon = buildGeneratedItemFromConfig('generated-wand', {
