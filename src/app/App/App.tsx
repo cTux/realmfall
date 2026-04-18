@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import {
   createGame,
   syncBloodMoon,
@@ -27,8 +27,11 @@ import {
   saveAudioSettings,
   type AudioSettings,
 } from '../audioSettings';
-import { UiAudioProvider } from '../audio/UiAudioContext';
-import { useUiAudioController } from '../audio/useUiAudioController';
+import {
+  DEFAULT_UI_AUDIO_CONTROLLER,
+  UiAudioProvider,
+  type UiAudioController,
+} from '../audio/UiAudioContext';
 import {
   clearGraphicsSettings,
   loadGraphicsSettings,
@@ -39,6 +42,12 @@ import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import { LoadingSpinner } from '../../ui/components/LoadingSpinner';
 import styles from './styles.module.scss';
 import { setWorldClockTime } from './worldClockStore';
+
+const UiAudioControllerBridge = lazy(() =>
+  import('../audio/UiAudioControllerBridge').then((module) => ({
+    default: module.UiAudioControllerBridge,
+  })),
+);
 
 export function App() {
   const initialAudioSettingsRef = useRef(loadAudioSettings());
@@ -52,6 +61,9 @@ export function App() {
     Math.floor(initialGameRef.current.worldTimeMs / 1000),
   );
   const [game, setGame] = useState<GameState>(initialGameRef.current);
+  const [uiAudio, setUiAudio] = useState<UiAudioController>(
+    DEFAULT_UI_AUDIO_CONTROLLER,
+  );
   const {
     closeItemMenu,
     closeAllWindows,
@@ -191,7 +203,6 @@ export function App() {
   });
   const isReady = hydrated && canvasReady;
   const versionStatus = useVersionStatus();
-  const uiAudio = useUiAudioController(audioSettings);
 
   useEffect(() => {
     setWorldClockTime(game.worldTimeMs);
@@ -380,6 +391,12 @@ export function App() {
   return (
     <UiAudioProvider value={uiAudio}>
       <div className={styles.appRoot}>
+        <Suspense fallback={null}>
+          <UiAudioControllerBridge
+            audioSettings={audioSettings}
+            onChange={setUiAudio}
+          />
+        </Suspense>
         <div className={isReady ? undefined : styles.hiddenUntilReady}>
           <div ref={hostRef} className={styles.mapViewport} />
           <HomeIndicator

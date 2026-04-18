@@ -19,7 +19,7 @@ export interface UiAudioController {
 
 const noop = () => undefined;
 
-const DEFAULT_UI_AUDIO_CONTROLLER: UiAudioController = {
+export const DEFAULT_UI_AUDIO_CONTROLLER: UiAudioController = {
   applySettings: noop,
   click: noop,
   error: noop,
