@@ -1,4 +1,10 @@
 import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
+import {
+  TERRITORY_FACTION_REGION_SPAWN_CHANCE,
+  TERRITORY_STRUCTURE_CHANCES,
+  pickByDescendingChanceMap,
+  pickTerrainFromChanceMap,
+} from './config';
 import { noise } from './shared';
 import type { StructureType, Terrain, TerritoryNpc, TileClaim } from './types';
 
@@ -118,7 +124,7 @@ function findFactionTerritory(seed: string, coord: HexCoord) {
 function generateFactionTerritory(seed: string, region: HexCoord) {
   const regionSeed = `${seed}:faction-region:${region.q},${region.r}`;
   if (
-    noise(`${regionSeed}:spawn`, region) < 0.83 ||
+    noise(`${regionSeed}:spawn`, region) >= TERRITORY_FACTION_REGION_SPAWN_CHANCE ||
     hexDistance(region, { q: 0, r: 0 }) <= 0
   ) {
     return null;
@@ -240,14 +246,11 @@ function assignFactionStructures(
       }
 
       const roll = noise(`${regionSeed}:building`, tile);
-      const structure =
-        roll > 0.9
-          ? 'forge'
-          : roll > 0.78
-            ? 'workshop'
-            : roll > 0.66
-              ? 'camp'
-              : undefined;
+      const structureKey = pickByDescendingChanceMap(
+        roll,
+        TERRITORY_STRUCTURE_CHANCES,
+      );
+      const structure = structureKey === 'none' ? undefined : structureKey;
       return [hexKey(tile), structure];
     },
   );
@@ -331,11 +334,5 @@ function isPassableFactionTerrain(seed: string, coord: HexCoord) {
 }
 
 function pickFactionTerrain(seed: string, coord: HexCoord): Terrain {
-  const roll = noise(seed, coord);
-  if (roll < 0.1) return 'rift';
-  if (roll < 0.2) return 'mountain';
-  if (roll < 0.4) return 'forest';
-  if (roll < 0.53) return 'swamp';
-  if (roll < 0.67) return 'desert';
-  return 'plains';
+  return pickTerrainFromChanceMap(noise(seed, coord));
 }

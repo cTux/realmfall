@@ -5,7 +5,14 @@ import {
   getGeneratedOffhandKeys,
   getGeneratedWeaponKeys,
 } from './content/items';
-import { TOWN_SEARCH_LIMIT } from './config';
+import {
+  TOWN_SEARCH_LIMIT,
+  WORLD_ENEMY_SPAWN_CHANCE,
+  WORLD_LOOT_CHANCES,
+  pickTerrainFromChanceMap,
+  pickWorldGeneratedItemKind,
+  resolveGuardedLootChance,
+} from './config';
 import {
   getGatheringStructureConfig,
   getStructureConfig,
@@ -298,17 +305,11 @@ function pickStructure(
 
 function shouldSpawnEnemy(seed: string, coord: HexCoord, terrain: Terrain) {
   if (!isPassable(terrain)) return false;
-  return noise(`${seed}:enemy:spawn`, coord) > 0.8;
+  return noise(`${seed}:enemy:spawn`, coord) < WORLD_ENEMY_SPAWN_CHANCE;
 }
 
 function pickTerrain(seed: string, coord: HexCoord): Terrain {
-  const roll = noise(seed, coord);
-  if (roll < 0.1) return 'rift';
-  if (roll < 0.2) return 'mountain';
-  if (roll < 0.4) return 'forest';
-  if (roll < 0.53) return 'swamp';
-  if (roll < 0.67) return 'desert';
-  return 'plains';
+  return pickTerrainFromChanceMap(noise(seed, coord));
 }
 
 function maybeLoot(
@@ -323,13 +324,13 @@ function maybeLoot(
   const roll = noise(`${seed}:loot`, coord);
   const tier = terrainTier(coord, terrain) + (structure === 'dungeon' ? 2 : 0);
   const lootChance = isGatheringStructure(structure)
-    ? 1
+    ? 0
     : structure === 'dungeon'
-      ? 0.3
+      ? WORLD_LOOT_CHANCES.dungeon
       : guarded
-        ? Math.max(0.52, 0.7 - tier * 0.02)
-        : 0.985;
-  if (roll < lootChance) return [];
+        ? resolveGuardedLootChance(tier)
+        : WORLD_LOOT_CHANCES.unguarded;
+  if (roll >= lootChance) return [];
 
   const items: Item[] = [];
   items.push(makeGeneratedItem(seed, coord, tier, roll, structure));
@@ -344,7 +345,7 @@ function maybeLoot(
         structure,
       ),
     );
-  } else if (roll > 0.82) {
+  } else if (roll >= 1 - WORLD_LOOT_CHANCES.bonusCache) {
     items.push(makeConsumable(`${hexKey(coord)}-cache`, 'apple', tier, 6, 20));
   }
 
@@ -358,7 +359,7 @@ function makeGeneratedItem(
   roll: number,
   structure?: StructureType,
 ) {
-  if (roll > 0.94 || tier >= 7 || structure === 'dungeon') {
+  if (tier >= 7 || structure === 'dungeon') {
     return makeArtifact(
       seed,
       coord,
@@ -366,16 +367,24 @@ function makeGeneratedItem(
       structure === 'dungeon' ? 'rare' : undefined,
     );
   }
-  if (roll > 0.84) return makeWeapon(seed, coord, tier);
-  if (roll > 0.74) return makeOffhand(seed, coord, tier);
-  if (roll > 0.62) return makeArmor(seed, coord, tier);
-  return makeConsumable(
-    itemId('consumable', coord, seed),
-    'trail-ration',
-    tier,
-    8,
-    12,
-  );
+  switch (pickWorldGeneratedItemKind(roll)) {
+    case 'artifact':
+      return makeArtifact(seed, coord, tier);
+    case 'weapon':
+      return makeWeapon(seed, coord, tier);
+    case 'offhand':
+      return makeOffhand(seed, coord, tier);
+    case 'armor':
+      return makeArmor(seed, coord, tier);
+    default:
+      return makeConsumable(
+        itemId('consumable', coord, seed),
+        'trail-ration',
+        tier,
+        8,
+        12,
+      );
+  }
 }
 
 export function makeWeapon(

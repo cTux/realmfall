@@ -1,4 +1,4 @@
-import { BLOOD_MOON_STAT_SCALE } from './config';
+import { BLOOD_MOON_STAT_SCALE, pickBloodMoonItemKind } from './config';
 import { t } from '../i18n';
 import { isAnimalEnemyType, pickEnemyConfig } from './content/enemies';
 import { GAME_TAGS, uniqueTags } from './content/tags';
@@ -232,10 +232,7 @@ export function nextEnemySpawnIndex(enemyIds: string[]) {
 export function makeBloodMoonDropKind(
   roll: number,
 ): 'artifact' | 'weapon' | 'offhand' | 'armor' {
-  if (roll > 0.8) return 'artifact';
-  if (roll > 0.5) return 'weapon';
-  if (roll > 0.25) return 'offhand';
-  return 'armor';
+  return pickBloodMoonItemKind(roll);
 }
 
 export function isAnimalEnemy(

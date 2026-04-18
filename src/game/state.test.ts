@@ -6,7 +6,7 @@ import {
   dropInventoryItem,
   EQUIPMENT_SLOTS,
   equipItem,
-  HARVEST_MOON_RESOURCE_TYPES,
+  HARVEST_MOON_RESOURCE_TYPE_CHANCES,
   getEnemyAt,
   getEnemiesAt,
   getGoldAmount,
@@ -1503,20 +1503,11 @@ describe('game state', () => {
   });
 
   it('weights herbs three times in the harvest moon resource pool', () => {
-    const herbEntries = HARVEST_MOON_RESOURCE_TYPES.filter(
-      (structure) => structure === 'herbs',
-    );
-    const nonHerbEntries = HARVEST_MOON_RESOURCE_TYPES.filter(
-      (structure) => structure !== 'herbs',
-    );
-
-    expect(herbEntries).toHaveLength(3);
-    expect(nonHerbEntries).toEqual([
-      'tree',
-      'copper-ore',
-      'iron-ore',
-      'coal-ore',
-    ]);
+    expect(HARVEST_MOON_RESOURCE_TYPE_CHANCES.herbs).toBeCloseTo(3 / 7);
+    expect(HARVEST_MOON_RESOURCE_TYPE_CHANCES.tree).toBeCloseTo(1 / 7);
+    expect(HARVEST_MOON_RESOURCE_TYPE_CHANCES['copper-ore']).toBeCloseTo(1 / 7);
+    expect(HARVEST_MOON_RESOURCE_TYPE_CHANCES['iron-ore']).toBeCloseTo(1 / 7);
+    expect(HARVEST_MOON_RESOURCE_TYPE_CHANCES['coal-ore']).toBeCloseTo(1 / 7);
   });
 
   it('can trigger an earthshake that opens a nearby dungeon on an empty hex', () => {
