@@ -69,7 +69,6 @@ pnpm dev
 ## Package Metadata
 
 - Package name: `realmfall`
-- Current version: `0.2.147`
 - License: `UNLICENSED`
 - Repository: `git@github.com:cTux/realmfall.git`
 - Homepage and issue tracker: `https://github.com/cTux/realmfall`
