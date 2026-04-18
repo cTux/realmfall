@@ -1,4 +1,5 @@
 import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
+import { pickTerrainFromChanceMap } from './config';
 import type { Terrain } from './types';
 import { noise } from './shared';
 
@@ -78,11 +79,5 @@ function worldBossScore(seed: string, coord: HexCoord) {
 }
 
 function pickWorldBossTerrain(seed: string, coord: HexCoord): Terrain {
-  const roll = noise(seed, coord);
-  if (roll < 0.1) return 'rift';
-  if (roll < 0.2) return 'mountain';
-  if (roll < 0.4) return 'forest';
-  if (roll < 0.53) return 'swamp';
-  if (roll < 0.67) return 'desert';
-  return 'plains';
+  return pickTerrainFromChanceMap(noise(seed, coord));
 }

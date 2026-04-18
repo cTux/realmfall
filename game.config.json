@@ -1,66 +1,111 @@
 {
-  "world": {
-    "radius": 8,
-    "revealRadius": 4,
-    "hexSize": 34
+  "progression": {
+    "gatheringBonus": {
+      "perLevel": 0.01,
+      "max": 1
+    },
+    "itemRarity": {
+      "legendary": 0.005,
+      "epic": 0.02,
+      "rare": 0.1,
+      "uncommon": 0.3
+    }
   },
-  "time": {
-    "dayMinutes": 1440,
-    "dayDurationMs": 60000,
-    "sunriseStart": 300,
-    "daylightStart": 420,
-    "moonriseStart": 1080,
-    "moonriseEnd": 1200
+  "worldGeneration": {
+    "terrain": {
+      "rift": 0.1,
+      "mountain": 0.1,
+      "forest": 0.2,
+      "swamp": 0.13,
+      "desert": 0.14,
+      "plains": 0.33
+    },
+    "enemySpawn": {
+      "tile": 0.2
+    },
+    "loot": {
+      "dungeon": 0.7,
+      "guardedBase": 0.3,
+      "guardedPerTier": 0.02,
+      "guardedMax": 0.48,
+      "unguarded": 0.015,
+      "bonusCache": 0.18
+    },
+    "generatedItemKind": {
+      "artifact": 0.06,
+      "weapon": 0.1,
+      "offhand": 0.1,
+      "armor": 0.12,
+      "consumable": 0.62
+    }
   },
-  "player": {
-    "maxLevel": 100,
-    "startingRecipeIds": ["cook-cooked-fish"]
+  "events": {
+    "bloodMoon": {
+      "activation": 0.02,
+      "enemySpawnNear": 0.82,
+      "enemySpawnMid": 0.58,
+      "enemySpawnFar": 0.36,
+      "bonusLootExtraDropBase": 0.45,
+      "bonusLootExtraDropPerRarity": 0.07
+    },
+    "harvestMoon": {
+      "activation": 0.02,
+      "resourceSpawnNear": 0.8,
+      "resourceSpawnFar": 0.45,
+      "resourceType": {
+        "herbs": 0.4285714286,
+        "tree": 0.1428571429,
+        "copper-ore": 0.1428571429,
+        "iron-ore": 0.1428571429,
+        "coal-ore": 0.1428571429
+      }
+    },
+    "earthshake": {
+      "activation": 0.02
+    }
   },
-  "items": {
-    "cookedFishItemNameKey": "game.item.cooked-fish.name",
-    "homeScrollItemNameKey": "game.item.home-scroll.name"
+  "drops": {
+    "enemyGold": {
+      "base": 0.22,
+      "perTier": 0.06,
+      "perRarity": 0.08,
+      "eliteBonus": 0.08,
+      "max": 0.9,
+      "bloodMoon": 1
+    },
+    "enemyRecipe": {
+      "base": 0.08,
+      "perTier": 0.025,
+      "perRarity": 0.05,
+      "max": 0.5,
+      "bloodMoonBonus": 0.25,
+      "bloodMoonMax": 1
+    },
+    "homeScroll": {
+      "base": 0.02,
+      "perRarity": 0.0125,
+      "max": 0.1
+    },
+    "gatheringByproduct": {
+      "tree": 0.35,
+      "ore": 0.3
+    },
+    "bloodMoonItemKind": {
+      "artifact": 0.2,
+      "weapon": 0.3,
+      "offhand": 0.25,
+      "armor": 0.25
+    }
   },
-  "search": {
-    "townLimit": 24
-  },
-  "bloodMoon": {
-    "spawnRadius": 6,
-    "chance": 0.02,
-    "statScale": 0.1,
-    "riseStart": 1080,
-    "riseEnd": 1200,
-    "resetStart": 420
-  },
-  "harvestMoon": {
-    "spawnRadius": 4,
-    "chance": 0.02
-  },
-  "earthshake": {
-    "spawnRadius": 2,
-    "chance": 0.02
-  },
-  "artifacts": {
-    "prefixKeys": [
-      "game.artifact.prefix.ashen.label",
-      "game.artifact.prefix.auric.label",
-      "game.artifact.prefix.blood.label",
-      "game.artifact.prefix.cinder.label",
-      "game.artifact.prefix.dawn.label",
-      "game.artifact.prefix.echo.label",
-      "game.artifact.prefix.frost.label",
-      "game.artifact.prefix.gloom.label",
-      "game.artifact.prefix.iron.label",
-      "game.artifact.prefix.lunar.label",
-      "game.artifact.prefix.moss.label",
-      "game.artifact.prefix.night.label"
-    ],
-    "formKeys": [
-      "game.artifact.form.idol.label",
-      "game.artifact.form.sigil.label",
-      "game.artifact.form.charm.label",
-      "game.artifact.form.lens.label",
-      "game.artifact.form.shard.label",
-      "game.artifact.form.totem.label"
-    ]
+  "territories": {
+    "factionRegion": {
+      "spawn": 0.17
+    },
+    "structures": {
+      "forge": 0.1,
+      "workshop": 0.12,
+      "camp": 0.12,
+      "none": 0.66
+    }
   }
 }

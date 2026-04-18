@@ -1,4 +1,5 @@
 import { type HexCoord } from './hex';
+import { BASE_CASCADING_RARITY_CHANCES } from './config';
 import {
   RARITY_ORDER,
   type Item,
@@ -41,13 +42,6 @@ const CASCADING_RARITY_CHECK_ORDER: Array<Exclude<ItemRarity, 'common'>> = [
   'rare',
   'uncommon',
 ];
-
-export const BASE_CASCADING_RARITY_CHANCES = Object.freeze({
-  legendary: 0.005,
-  epic: 0.02,
-  rare: 0.1,
-  uncommon: 0.3,
-}) satisfies Record<Exclude<ItemRarity, 'common'>, number>;
 
 export function resolveCascadingRarity(
   nextRoll: () => number,

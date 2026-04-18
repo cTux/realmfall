@@ -3,15 +3,25 @@ import { t } from '../i18n';
 import { formatEquipmentSlotLabel, formatSkillLabel } from '../i18n/labels';
 import { Skill } from './types';
 import {
+  BLOOD_MOON_EXTRA_DROP_CHANCES,
   BLOOD_MOON_CHANCE,
   BLOOD_MOON_SPAWN_RADIUS,
   EARTHSHAKE_CHANCE,
   EARTHSHAKE_SPAWN_RADIUS,
+  ENEMY_GOLD_DROP_CHANCES,
+  ENEMY_RECIPE_DROP_CHANCES,
+  GATHERING_BYPRODUCT_CHANCES,
   HARVEST_MOON_CHANCE,
+  HARVEST_MOON_RESOURCE_CHANCES,
   HARVEST_MOON_SPAWN_RADIUS,
+  HOME_SCROLL_DROP_CHANCES,
   HOME_SCROLL_ITEM_NAME_KEY,
   STARTING_RECIPE_IDS,
   WORLD_RADIUS,
+  pickBloodMoonItemKind,
+  pickBloodMoonSpawnChance,
+  pickHarvestMoonResourceType,
+  pickHarvestMoonSpawnChance,
 } from './config';
 import { createRng } from './random';
 import { itemName } from './content/i18n';
@@ -195,15 +205,7 @@ export type { VisibleTilesState } from './stateWorldQueries';
 export { getCurrentHexClaimStatus } from './stateClaims';
 export { getSafePathToTile } from './statePathfinding';
 
-export const HARVEST_MOON_RESOURCE_TYPES: GatheringStructureType[] = [
-  'herbs',
-  'herbs',
-  'herbs',
-  'tree',
-  'copper-ore',
-  'iron-ore',
-  'coal-ore',
-];
+export const HARVEST_MOON_RESOURCE_TYPE_CHANCES = HARVEST_MOON_RESOURCE_CHANCES;
 
 import type {
   AbilityId,
@@ -2071,7 +2073,14 @@ function maybeGatherByproduct(
   const rng = createRng(
     `${state.seed}:gather-byproduct:${structure}:${state.turn}:${hexKey(state.player.coord)}`,
   );
-  if (rng() >= (structure === 'tree' ? 0.35 : 0.3)) return null;
+  if (
+    rng() >=
+    (structure === 'tree'
+      ? GATHERING_BYPRODUCT_CHANCES.tree
+      : GATHERING_BYPRODUCT_CHANCES.ore)
+  ) {
+    return null;
+  }
 
   return {
     item: makeResourceStack(byproductItemKey, definition.rewardTier, 1),
@@ -2108,10 +2117,13 @@ function maybeDropEnemyGold(state: GameState, enemy: import('./types').Enemy) {
   }
 
   const chance = state.bloodMoonActive
-    ? 1
+    ? ENEMY_GOLD_DROP_CHANCES.bloodMoon
     : Math.min(
-        0.9,
-        0.22 + enemy.tier * 0.06 + rarityRank * 0.08 + (enemy.elite ? 0.08 : 0),
+        ENEMY_GOLD_DROP_CHANCES.max,
+        ENEMY_GOLD_DROP_CHANCES.base +
+          enemy.tier * ENEMY_GOLD_DROP_CHANCES.perTier +
+          rarityRank * ENEMY_GOLD_DROP_CHANCES.perRarity +
+          (enemy.elite ? ENEMY_GOLD_DROP_CHANCES.eliteBonus : 0),
       );
   if (rng() > chance) return;
 
@@ -2193,12 +2205,18 @@ function maybeDropEnemyRecipe(
 
   const rng = createRng(`${state.seed}:enemy-recipe:${enemy.id}:${state.turn}`);
   const rarityRank = enemyRarityIndex(enemy.rarity);
+  const baseChance = Math.min(
+    ENEMY_RECIPE_DROP_CHANCES.max,
+    ENEMY_RECIPE_DROP_CHANCES.base +
+      enemy.tier * ENEMY_RECIPE_DROP_CHANCES.perTier +
+      rarityRank * ENEMY_RECIPE_DROP_CHANCES.perRarity,
+  );
   const chance = state.bloodMoonActive
     ? Math.min(
-        1,
-        Math.min(0.5, 0.08 + enemy.tier * 0.025 + rarityRank * 0.05) + 0.25,
+        ENEMY_RECIPE_DROP_CHANCES.bloodMoonMax,
+        baseChance + ENEMY_RECIPE_DROP_CHANCES.bloodMoonBonus,
       )
-    : Math.min(0.5, 0.08 + enemy.tier * 0.025 + rarityRank * 0.05);
+    : baseChance;
   if (rng() >= chance) return;
 
   const recipe = unlearnedRecipes[Math.floor(rng() * unlearnedRecipes.length)];
@@ -2221,7 +2239,14 @@ function maybeDropHomeScroll(state: GameState, enemy: import('./types').Enemy) {
   const rng = createRng(
     `${state.seed}:enemy-home-scroll:${enemy.id}:${state.turn}`,
   );
-  if (rng() >= Math.min(0.1, 0.02 + enemyRarityIndex(enemy.rarity) * 0.0125)) {
+  if (
+    rng() >=
+    Math.min(
+      HOME_SCROLL_DROP_CHANCES.max,
+      HOME_SCROLL_DROP_CHANCES.base +
+        enemyRarityIndex(enemy.rarity) * HOME_SCROLL_DROP_CHANCES.perRarity,
+    )
+  ) {
     return;
   }
 
@@ -2275,7 +2300,12 @@ function maybeDropBloodMoonLoot(
       tile.items,
       makeBloodMoonDrop(state, enemy, 1, baseTier + 1, 'legendary'),
     );
-  } else if (rarityRank >= 2 || rng() < 0.45 + rarityRank * 0.07) {
+  } else if (
+    rarityRank >= 2 ||
+    rng() <
+      BLOOD_MOON_EXTRA_DROP_CHANCES.base +
+        rarityRank * BLOOD_MOON_EXTRA_DROP_CHANCES.perRarity
+  ) {
     addItemToInventory(
       tile.items,
       makeBloodMoonDrop(state, enemy, 1, baseTier + 1, minimumRarity),
@@ -2360,7 +2390,7 @@ function spawnBloodMoonEnemies(state: GameState) {
       const rng = createRng(
         `${state.seed}:blood-moon-spawn:${state.bloodMoonCycle}:${key}`,
       );
-      const spawnChance = distance <= 2 ? 0.82 : distance <= 4 ? 0.58 : 0.36;
+      const spawnChance = pickBloodMoonSpawnChance(distance);
       if (rng() >= spawnChance) continue;
 
       const availableSlots = Math.max(
@@ -2425,12 +2455,9 @@ function spawnHarvestMoonResources(state: GameState) {
       const rng = createRng(
         `${state.seed}:harvest-moon-spawn:${state.harvestMoonCycle}:${key}`,
       );
-      if (rng() >= (distance <= 2 ? 0.8 : 0.45)) continue;
+      if (rng() >= pickHarvestMoonSpawnChance(distance)) continue;
 
-      const structure =
-        HARVEST_MOON_RESOURCE_TYPES[
-          Math.floor(rng() * HARVEST_MOON_RESOURCE_TYPES.length)
-        ] ?? 'herbs';
+      const structure = pickHarvestMoonResourceType(rng());
       const definition = structureDefinition(structure);
       state.tiles[key] = {
         ...tile,
@@ -2582,9 +2609,14 @@ function makeBloodMoonDrop(
 ) {
   const coord = enemy.coord;
   const seed = `${state.seed}:blood-moon-drop:${enemy.id}:${state.turn}:${index}`;
-  const roll = noise(`${seed}:roll`, coord);
-  if (roll > 0.8) return makeArtifact(seed, coord, tier, minimumRarity);
-  if (roll > 0.5) return makeWeapon(seed, coord, tier, minimumRarity);
-  if (roll > 0.25) return makeOffhand(seed, coord, tier, minimumRarity);
-  return makeArmor(seed, coord, tier, minimumRarity);
+  switch (pickBloodMoonItemKind(noise(`${seed}:roll`, coord))) {
+    case 'artifact':
+      return makeArtifact(seed, coord, tier, minimumRarity);
+    case 'weapon':
+      return makeWeapon(seed, coord, tier, minimumRarity);
+    case 'offhand':
+      return makeOffhand(seed, coord, tier, minimumRarity);
+    default:
+      return makeArmor(seed, coord, tier, minimumRarity);
+  }
 }

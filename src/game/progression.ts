@@ -1,4 +1,8 @@
-import { MAX_PLAYER_LEVEL } from './config';
+import {
+  GATHERING_BONUS_MAX,
+  GATHERING_BONUS_PER_LEVEL,
+  MAX_PLAYER_LEVEL,
+} from './config';
 import { StatusEffectTypeId } from './content/ids';
 import { t } from '../i18n';
 import { formatSkillLabel } from '../i18n/labels';
@@ -272,5 +276,5 @@ export function gatheringYieldBonus(level: number) {
 }
 
 export function gatheringBonusChance(level: number) {
-  return Math.min(1, level / 100);
+  return Math.min(GATHERING_BONUS_MAX, level * GATHERING_BONUS_PER_LEVEL);
 }
