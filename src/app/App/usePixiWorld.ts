@@ -16,6 +16,7 @@ import { getWorldHexSize } from '../../ui/world/renderSceneMath';
 import { getWorldTimeMinutesFromTimestamp } from '../../ui/world/timeOfDay';
 import {
   ensureWorldIconTexturesLoaded,
+  getWorldIconAssetIds,
   getVisibleWorldIconAssetIds,
 } from '../../ui/world/worldIcons';
 import { WORLD_REVEAL_RADIUS } from '../constants';
@@ -130,6 +131,7 @@ export function usePixiWorld({
       await ensureWorldIconTexturesLoaded(
         getVisibleWorldIconAssetIds(gameRef.current, visibleTilesRef.current),
       );
+      await ensureWorldIconTexturesLoaded(getWorldIconAssetIds());
       await app.init({
         width: Math.max(window.innerWidth, 640),
         height: Math.max(window.innerHeight, 480),
@@ -198,7 +200,6 @@ export function usePixiWorld({
       renderFrame();
       app.ticker.add(renderFrame);
       setCanvasReady(true);
-      void ensureWorldIconTexturesLoaded();
 
       const observer = new ResizeObserver(() => resize());
       observer.observe(hostRef.current);

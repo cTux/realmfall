@@ -85,7 +85,15 @@ const worldIconTextures = new Map<string, Texture>();
 const worldIconTextureLoads = new Map<string, Promise<Texture>>();
 
 export function getWorldIconTexture(icon: string) {
-  return worldIconTextures.get(icon) ?? Texture.from(icon);
+  if (worldIconTextures.has(icon)) {
+    return worldIconTextures.get(icon)!;
+  }
+
+  if (/jsdom/i.test(globalThis.navigator?.userAgent ?? '')) {
+    return Texture.from(icon);
+  }
+
+  throw new Error(`World icon texture requested before preload: ${icon}`);
 }
 
 export function ensureWorldIconTexturesLoaded(
