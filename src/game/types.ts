@@ -112,6 +112,8 @@ export interface Enemy {
   baseMaxHp?: number;
   hp: number;
   maxHp: number;
+  mana?: number;
+  maxMana?: number;
   baseAttack?: number;
   attack: number;
   baseDefense?: number;

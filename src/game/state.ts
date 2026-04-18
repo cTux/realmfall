@@ -42,6 +42,7 @@ import { EquipmentSlotId, ItemId, StatusEffectTypeId } from './content/ids';
 import { getStructureConfig } from './content/structures';
 import {
   createCombatActorState,
+  DEFAULT_ENEMY_MANA,
   enemyRarityIndex,
   enemyKey,
   isAnimalEnemy,
@@ -832,14 +833,19 @@ function startEnemyCasts(state: GameState) {
       );
     });
 
-    if (!abilityId) return;
+      if (!abilityId) return;
 
-    const targetId = selectAbilityTargetId(state, enemyId, abilityId);
-    if (!targetId) return;
+      const targetId = selectAbilityTargetId(state, enemyId, abilityId);
+      if (!targetId) return;
 
-    startAbilityCast(
-      actor,
-      abilityId,
+      state.enemies[enemyId]!.mana = Math.max(
+        0,
+        getEnemyMana(state.enemies[enemyId]!) -
+          getAbilityDefinition(abilityId).manaCost,
+      );
+      startAbilityCast(
+        actor,
+        abilityId,
       targetId,
       now,
       getEnemyAttackSpeed(enemyId, state),
@@ -1503,6 +1509,10 @@ export function getEnemyCombatAttack(enemy: Enemy) {
   );
 }
 
+function getEnemyMana(enemy: Enemy) {
+  return enemy.mana ?? enemy.maxMana ?? DEFAULT_ENEMY_MANA;
+}
+
 function getEnemyEffectiveDefense(enemy: Enemy) {
   return Math.max(
     0,
@@ -1778,6 +1788,9 @@ function canEnemyUseAbility(
 ) {
   const enemy = state.enemies[enemyId];
   if (!enemy) return false;
+  if (getEnemyMana(enemy) < getAbilityDefinition(abilityId).manaCost) {
+    return false;
+  }
 
   if (target === 'injuredAlly') {
     return resolveEnemyTargetsForEnemyAbility(state, enemyId, getAbilityDefinition(abilityId)).some(

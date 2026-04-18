@@ -24,6 +24,7 @@ import { createRng } from './random';
 import { isWorldBossEnemyId } from './worldBoss';
 
 export const DEFAULT_GLOBAL_COOLDOWN_MS = 1500;
+export const DEFAULT_ENEMY_MANA = 100;
 export const ENEMY_RARITY_ORDER: EnemyRarity[] = [
   'common',
   'uncommon',
@@ -172,6 +173,8 @@ export function makeEnemy(
     baseMaxHp: worldBoss ? scaledMaxHp : baseMaxHp,
     maxHp: scaledMaxHp,
     hp: scaledMaxHp,
+    mana: DEFAULT_ENEMY_MANA,
+    maxMana: DEFAULT_ENEMY_MANA,
     baseAttack: worldBoss ? scaledAttack : baseAttack,
     attack: scaledAttack,
     baseDefense: worldBoss ? scaledDefense : baseDefense,

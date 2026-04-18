@@ -1,4 +1,5 @@
 import { getAbilityDefinition } from '../../../game/abilities';
+import { DEFAULT_ENEMY_MANA } from '../../../game/combat';
 import { getEnemyCombatAttack } from '../../../game/state';
 import type { CombatActorState } from '../../../game/state';
 import { getStatusEffectDefinition } from '../../../game/content/statusEffects';
@@ -61,8 +62,8 @@ export function CombatWindowContent({
       title: t('ui.combat.entityTitle', { name: enemy.name, level: enemy.tier }),
       hp: enemy.hp,
       maxHp: enemy.maxHp,
-      mana: 0,
-      maxMana: 0,
+      mana: enemy.mana ?? enemy.maxMana ?? DEFAULT_ENEMY_MANA,
+      maxMana: enemy.maxMana ?? enemy.mana ?? DEFAULT_ENEMY_MANA,
       attack: getEnemyCombatAttack(enemy),
       rarity: enemy.rarity ?? 'common',
       actor: combat.enemies[enemy.id] ?? combat.player,

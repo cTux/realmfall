@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  DEFAULT_ENEMY_MANA,
   enemyRarityIndex,
   enemyRarityMinimum,
   enemyRarityMultiplier,
@@ -72,5 +73,12 @@ describe('enemy rarity', () => {
     expect(secondEnemy.name).toBe(firstEnemy.name);
     expect(secondDungeonEnemy.enemyTypeId).toBe(dungeonEnemy.enemyTypeId);
     expect(secondDungeonEnemy.name).toBe(dungeonEnemy.name);
+  });
+
+  it('gives generated enemies a default mana pool for ability casting', () => {
+    const enemy = makeEnemy('enemy-mana-seed', { q: 1, r: -1 }, 'plains');
+
+    expect(enemy.mana).toBe(DEFAULT_ENEMY_MANA);
+    expect(enemy.maxMana).toBe(DEFAULT_ENEMY_MANA);
   });
 });

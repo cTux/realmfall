@@ -256,4 +256,19 @@ describe('combat equipment stats', () => {
       }
     }
   });
+
+  it('spends enemy mana when casting a paid ability', () => {
+    const { game, enemyId } = prepareCombat({
+      playerAbilityIds: ['kick'],
+      playerReady: false,
+      enemyAbilityIds: ['slash', 'kick'],
+      enemyAttack: 12,
+    });
+    game.enemies[enemyId]!.mana = 5;
+    game.enemies[enemyId]!.maxMana = 100;
+
+    const afterFirstCast = startCombat(game);
+
+    expect(afterFirstCast.enemies[enemyId]?.mana).toBe(0);
+  });
 });
