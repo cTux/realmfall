@@ -175,7 +175,7 @@ export function itemTooltipLines(
       deltas.forEach((line) => {
         lines.push({
           kind: 'stat',
-          label: t('ui.tooltip.statChange', { stat: line.label }),
+          label: line.label,
           value: `${line.value >= 0 ? '+' : ''}${line.value}`,
           tone: line.value < 0 ? 'negative' : 'item',
         });

@@ -269,9 +269,10 @@ describe('ui helpers and components', () => {
           line.text === 'Tags: item.equipment, item.weapon, item.slot.weapon',
       ) - 1,
     );
-    expect(tooltipLines.some((line) => line.label === 'Attack Change')).toBe(
-      true,
-    );
+    expect(tooltipLines.some((line) => line.label === 'Attack')).toBe(true);
+    expect(
+      tooltipLines.some((line) => line.label?.includes('Change')),
+    ).toBe(false);
     expect(
       itemTooltipLines(resource).some((line) => line.label === 'Type'),
     ).toBe(false);

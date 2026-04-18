@@ -248,7 +248,7 @@ describe('ui helper coverage', () => {
     });
     expect(tooltipLines).toContainEqual({
       kind: 'stat',
-      label: 'Attack Change',
+      label: 'Attack',
       value: '-3',
       tone: 'negative',
     });
