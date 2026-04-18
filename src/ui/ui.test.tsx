@@ -653,6 +653,18 @@ describe('ui helpers and components', () => {
       value: '3% max HP / 2s',
       tone: 'negative',
     });
+    expect(statusEffectTooltipLines('guard', 'buff')[0]).toEqual({
+      kind: 'text',
+      text: 'Guard raises defense for as long as the effect holds.',
+    });
+    expect(statusEffectTooltipLines('weakened', 'debuff')[0]).toEqual({
+      kind: 'text',
+      text: 'Weakened lowers attack while the effect remains.',
+    });
+    expect(statusEffectTooltipLines('shocked', 'debuff')[0]).toEqual({
+      kind: 'text',
+      text: 'Shocked lowers defense while crackling aether hangs on you.',
+    });
   });
 
   it('uses the rolled cloth icon for Cloth items', () => {

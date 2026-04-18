@@ -392,30 +392,25 @@ export function statusEffectTooltipLines(
   extraLines: TooltipLine[] = [],
   effect?: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>,
 ): TooltipLine[] {
-  const description =
-    effectId === 'hunger'
-      ? t('ui.hero.effect.hunger.description')
-      : effectId === 'thirst'
-        ? t('ui.hero.effect.thirst.description')
-        : effectId === 'recentDeath'
-          ? t('ui.hero.effect.recentDeath.description')
-          : effectId === 'restoration'
-            ? t('ui.hero.effect.restoration.description')
-            : effectId === 'bleeding'
-              ? t('ui.hero.effect.bleeding.description')
-              : effectId === 'poison'
-                ? t('ui.hero.effect.poison.description')
-                : effectId === 'burning'
-                  ? t('ui.hero.effect.burning.description')
-                  : effectId === 'chilling'
-                    ? t('ui.hero.effect.chilling.description')
-                    : effectId === 'power'
-                      ? t('ui.hero.effect.power.description')
-                      : effectId === 'frenzy'
-                        ? t('ui.hero.effect.frenzy.description')
-            : tone === 'buff'
-              ? t('ui.hero.effect.buff')
-              : t('ui.hero.effect.debuff');
+  const descriptionKeyByEffect: Partial<Record<StatusEffectId, string>> = {
+    hunger: 'ui.hero.effect.hunger.description',
+    thirst: 'ui.hero.effect.thirst.description',
+    recentDeath: 'ui.hero.effect.recentDeath.description',
+    restoration: 'ui.hero.effect.restoration.description',
+    bleeding: 'ui.hero.effect.bleeding.description',
+    poison: 'ui.hero.effect.poison.description',
+    burning: 'ui.hero.effect.burning.description',
+    chilling: 'ui.hero.effect.chilling.description',
+    power: 'ui.hero.effect.power.description',
+    frenzy: 'ui.hero.effect.frenzy.description',
+    guard: 'ui.hero.effect.guard.description',
+    weakened: 'ui.hero.effect.weakened.description',
+    shocked: 'ui.hero.effect.shocked.description',
+  };
+  const description = t(
+    descriptionKeyByEffect[effectId] ??
+      (tone === 'buff' ? 'ui.hero.effect.buff' : 'ui.hero.effect.debuff'),
+  );
 
   return [
     {

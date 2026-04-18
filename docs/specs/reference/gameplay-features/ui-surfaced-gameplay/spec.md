@@ -14,6 +14,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - Window chrome is consistent across the desktop UI, including shared close-button tooltips, empty equipment-slot tooltips, resizable inventory, loot, and log surfaces, and focus styling that does not nudge active windows.
 - Hero and combat ability, buff, and debuff tiles keep a fixed position while hovered so tooltip affordances do not make the icons jump.
 - Ability tooltips now include a human-readable description that summarizes the ability target and its combat effects before the numeric rows.
+- Buff and debuff tooltips now also include human-readable effect descriptions instead of generic positive or negative fallback text.
 - Attacking ability tooltips surface their current base damage for the hovered combatant, while non-damaging support abilities omit that damage row.
 - Ability tooltips now show icon-backed buff or debuff rows for any status effects they grant or inflict.
 - Damaging debuff tooltips surface their live damage amount from the active status instance, including stack-aware poison and burning damage.
