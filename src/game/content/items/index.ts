@@ -71,6 +71,7 @@ import { wayfarerCloakItemConfig } from './wayfarerCloak';
 import { waterFlaskItemConfig } from './waterFlask';
 import { workGlovesItemConfig } from './workGloves';
 import { CRAFTED_EXPANSION_ITEM_CONFIGS } from './expansion';
+import type { AbilityId } from '../../types';
 
 const RAW_ITEM_CONFIGS = [
   trailRationItemConfig,
@@ -195,6 +196,19 @@ const STATIC_ITEM_CATEGORY_OVERRIDES: Partial<Record<string, ItemCategory>> = {
   [ItemId.HearthTotem]: 'artifact',
 };
 
+const SHIELD_OFFHAND_ABILITY_POOL: AbilityId[] = [
+  'ironGuard',
+  'arcWard',
+  'rallyingCry',
+];
+
+const MAGICAL_OFFHAND_ABILITY_POOL: AbilityId[] = [
+  'mendWounds',
+  'battlePrayer',
+  'arcWard',
+  'witheringHex',
+];
+
 export const ITEM_CONFIGS: ItemConfig[] = RAW_ITEM_CONFIGS.map((config) => ({
   ...config,
   name: itemName(config.key),
@@ -260,7 +274,9 @@ export function buildItemFromConfig(
       defaultSecondaryStats?.length,
     secondaryStats:
       overrides.secondaryStats ?? normalizeSecondaryStats(defaultSecondaryStats),
-    grantedAbilityId: overrides.grantedAbilityId ?? config.grantedAbilityId,
+    grantedAbilityId:
+      overrides.grantedAbilityId ??
+      pickGrantedAbilityId(config, overrides.id ?? config.key),
   };
 }
 
@@ -580,13 +596,32 @@ function pickGrantedAbilityId(
   seed: string,
 ) {
   if (config.grantedAbilityId) return config.grantedAbilityId;
-  if (!config.grantedAbilityPool || config.grantedAbilityPool.length === 0) {
+  const pool = resolveGrantedAbilityPool(config);
+  if (!pool || pool.length === 0) {
     return undefined;
   }
 
-  return config.grantedAbilityPool[
-    seededIndex(seed) % config.grantedAbilityPool.length
-  ];
+  return pool[seededIndex(seed) % pool.length];
+}
+
+function resolveGrantedAbilityPool(
+  config: Pick<
+    ItemConfig,
+    'grantedAbilityPool' | 'grantedAbilityId'
+  > &
+    Partial<Pick<ItemConfig, 'key' | 'slot' | 'category'>>,
+) {
+  if (config.grantedAbilityId) return undefined;
+  if (config.grantedAbilityPool && config.grantedAbilityPool.length > 0) {
+    return config.grantedAbilityPool;
+  }
+  if (config.slot !== EquipmentSlotId.Offhand) {
+    return undefined;
+  }
+
+  return config.category === 'artifact'
+    ? MAGICAL_OFFHAND_ABILITY_POOL
+    : SHIELD_OFFHAND_ABILITY_POOL;
 }
 
 function seededIndex(seed: string) {

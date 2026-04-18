@@ -4,7 +4,7 @@ import {
   buildEquippedAbilityIds,
   DEFAULT_ABILITY_ID,
 } from './abilities';
-import { buildGeneratedItemFromConfig } from './content/items';
+import { buildGeneratedItemFromConfig, buildItemFromConfig } from './content/items';
 import { GAME_TAGS } from './content/tags';
 import { getPlayerStats } from './progression';
 import { createGame } from './state';
@@ -71,6 +71,39 @@ describe('ability loadouts', () => {
 
     expect(weapon.grantedAbilityId).toBeTruthy();
     expect(stats.abilityIds).toContain(weapon.grantedAbilityId);
+    expect(stats.abilityIds[stats.abilityIds.length - 1]).toBe(
+      DEFAULT_ABILITY_ID,
+    );
+  });
+
+  it('rolls generated shield and magical offhand abilities', () => {
+    const shield = buildGeneratedItemFromConfig('generated-shield', {
+      id: 'shield-with-skill',
+      tier: 4,
+      rarity: 'rare',
+    });
+    const magicalSphere = buildGeneratedItemFromConfig('generated-magical-sphere', {
+      id: 'sphere-with-skill',
+      tier: 4,
+      rarity: 'rare',
+    });
+
+    expect(shield.grantedAbilityId).toBeTruthy();
+    expect(magicalSphere.grantedAbilityId).toBeTruthy();
+    expect(shield.grantedAbilityId).not.toBe(magicalSphere.grantedAbilityId);
+  });
+
+  it('surfaces equipped offhand abilities through player combat stats', () => {
+    const game = createGame(2, 'offhand-ability-seed');
+    const offhand = buildItemFromConfig('hide-buckler', {
+      id: 'crafted-buckler-with-skill',
+    });
+    game.player.equipment.offhand = offhand;
+
+    const stats = getPlayerStats(game.player);
+
+    expect(offhand.grantedAbilityId).toBeTruthy();
+    expect(stats.abilityIds).toContain(offhand.grantedAbilityId);
     expect(stats.abilityIds[stats.abilityIds.length - 1]).toBe(
       DEFAULT_ABILITY_ID,
     );
