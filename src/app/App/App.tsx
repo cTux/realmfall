@@ -126,6 +126,7 @@ export function App() {
     windows,
     recipeMaterialFilterItemKey,
   } = useAppControllers({
+    inventory: game.player.inventory,
     gameRef,
     initialAudioSettings: initialAudioSettingsRef.current,
     initialGraphicsSettings: initialGraphicsSettingsRef.current,
