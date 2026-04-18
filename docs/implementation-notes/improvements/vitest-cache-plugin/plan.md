@@ -9,9 +9,9 @@ Adopt `@raegen/vite-plugin-vitest-cache` in the existing Vite/Vitest configurati
 
 ## Technical Context
 
-**Language/Version**: TypeScript 5.8, Node.js 20 in CI  
-**Primary Dependencies**: `vite@6`, `vitest@3`, `@vitejs/plugin-react`, `@raegen/vite-plugin-vitest-cache`  
-**Storage**: Filesystem cache directory for test artifacts (`.tests` by default)  
+**Language/Version**: TypeScript 6.0, Node.js 25 locally and in CI via `.nvmrc`  
+**Primary Dependencies**: `vite@8`, `vitest@4`, `@vitejs/plugin-react`, `@raegen/vite-plugin-vitest-cache`  
+**Storage**: Filesystem cache directory for test artifacts (`.tests/vitest-cache`)  
 **Testing**: Vitest via `pnpm test`, plus existing `pnpm typecheck`, `pnpm lint`, and `pnpm build` quality gates  
 **Target Platform**: Local Windows/macOS/Linux contributor environments and GitHub Actions on Ubuntu  
 **Project Type**: Single-project Vite React web application  
@@ -64,13 +64,13 @@ docs/
 - Separate Vitest config file: rejected because the repo already centralizes test configuration in `vite.config.ts`.
 - Custom wrapper scripts around `pnpm test`: rejected because the plugin is designed to work directly in the existing Vitest config.
 
-### Decision: Use the plugin's default `.tests` cache directory unless a repo-specific conflict appears during implementation
+### Decision: Use an explicit `.tests/vitest-cache` directory instead of the plugin default root
 
-**Rationale**: The default path matches the plugin documentation, is easy to cache in CI, and keeps the change minimal.
+**Rationale**: The repo now has a clearer contributor workflow when Vitest cache artifacts live under a dedicated subdirectory. It stays project-local, easy to ignore, and easy to persist in CI without claiming the whole `.tests` root for a single tool.
 
 **Alternatives considered**:
 
-- Custom cache directory name: rejected initially because it adds extra repo-specific configuration without a current need.
+- Plugin default `.tests`: rejected because a dedicated subdirectory is clearer for contributors and leaves room for future test artifacts under `.tests`.
 
 ### Decision: Persist the test cache in GitHub Actions alongside the existing `pnpm test` step
 
@@ -86,10 +86,11 @@ docs/
 ### Planned Changes
 
 1. Add `@raegen/vite-plugin-vitest-cache` to `devDependencies`.
-2. Import the plugin in `vite.config.ts` and add it to the existing `plugins` array used by `defineConfig`.
-3. Keep initial plugin options minimal unless implementation testing shows a need to override defaults.
-4. Update `.github/workflows/pull-request.yml` to restore and persist the plugin cache directory.
-5. Document the new workflow in `README.md`, including cache location and how to clear it for a cold test run.
+2. Import the plugin in `vite.config.ts` and add it to the shared plugin array only when Vitest is running so production builds keep the same behavior.
+3. Use a local Vitest 4 compatibility shim for the plugin's runner and setup hooks because the package's current custom-pool path still targets the older Vitest pool API.
+4. Configure the plugin to use `.tests/vitest-cache`.
+5. Update `.github/workflows/pull-request.yml` to restore and persist the plugin cache directory.
+6. Document the new workflow in `README.md`, `docs/WORKFLOW.md`, and the matching testing/tooling spec, including cache location and how to clear it for a cold test run.
 
 ### Verification Plan
 
