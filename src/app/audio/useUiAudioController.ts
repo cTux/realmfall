@@ -76,8 +76,14 @@ export function useUiAudioController(
 
   useEffect(() => {
     settingsRef.current = settings;
-    if (initializedRef.current) {
+    if (!initializedRef.current) {
+      return;
+    }
+
+    try {
       syncEngine(settings);
+    } catch {
+      // Audio is enhancement-only. Ignore sync failures from unexpected payloads.
     }
   }, [settings]);
 

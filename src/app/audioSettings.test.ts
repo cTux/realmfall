@@ -48,6 +48,45 @@ describe('audio settings persistence', () => {
     });
   });
 
+  it('normalizes malformed persisted audio settings', () => {
+    window.localStorage.setItem(
+      'settings',
+      JSON.stringify({
+        audio: {
+          muted: 'yes',
+          respectReducedMotion: null,
+          theme: 'broken',
+          volume: 4,
+        },
+      }),
+    );
+
+    expect(loadAudioSettings()).toEqual({
+      ...DEFAULT_AUDIO_SETTINGS,
+      volume: 1,
+    });
+  });
+
+  it('stores normalized audio settings', () => {
+    saveAudioSettings({
+      muted: false,
+      respectReducedMotion: true,
+      theme: 'soft',
+      volume: 3,
+    });
+
+    expect(
+      JSON.parse(window.localStorage.getItem('settings') ?? 'null'),
+    ).toEqual({
+      audio: {
+        muted: false,
+        respectReducedMotion: true,
+        theme: 'soft',
+        volume: 1,
+      },
+    });
+  });
+
   it('clears only the audio settings section', () => {
     window.localStorage.setItem(
       'settings',
