@@ -337,7 +337,7 @@ function formatDerivedStatRow(
   multiplierAsPercent = false,
   format: 'percent' | 'percentMaxHp' = 'percent',
 ) {
-  if (value == null) return null;
+  if (value == null || value === 0) return null;
 
   const formattedValue =
     key === 'attackSpeed' && multiplierAsPercent

@@ -123,4 +123,39 @@ describe('HeroWindow', () => {
     expect(host.textContent).toContain('Attack Speed');
     expect(host.textContent).toContain('125%');
   });
+
+  it('omits zero-valued percentage stats from the character stat list', async () => {
+    await act(async () => {
+      root.render(
+        <HeroWindow
+          position={{ x: 16, y: 24 }}
+          onMove={() => {}}
+          visible
+          stats={{
+            ...stats,
+            dodgeChance: 0,
+            blockChance: 0,
+            suppressDebuffChance: 0,
+            bleedChance: 0,
+          }}
+          hunger={0}
+          thirst={0}
+          worldTimeMs={0}
+        />,
+      );
+    });
+
+    await act(async () => {
+      await vi.dynamicImportSettled();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(host.textContent).not.toContain('Dodge Chance');
+    expect(host.textContent).not.toContain('Block Chance');
+    expect(host.textContent).not.toContain('Suppress Debuff Chance');
+    expect(host.textContent).not.toContain('Bleed Chance');
+    expect(host.textContent).toContain('Attack');
+    expect(host.textContent).toContain('Defense');
+  });
 });
