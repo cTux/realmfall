@@ -61,6 +61,19 @@ export function useUiAudioController(
     }
   };
 
+  const applySettings = (nextSettings: AudioSettings) => {
+    settingsRef.current = nextSettings;
+
+    try {
+      if (!ensureReady()) {
+        return;
+      }
+      syncEngine(nextSettings);
+    } catch {
+      // Audio is enhancement-only. Ignore playback failures.
+    }
+  };
+
   useEffect(() => {
     settingsRef.current = settings;
     if (initializedRef.current) {
@@ -164,6 +177,7 @@ export function useUiAudioController(
 
   return useMemo(
     () => ({
+      applySettings,
       click: () => play(() => tiks.click()),
       error: () => play(() => tiks.error()),
       hover: () => play(() => tiks.hover()),

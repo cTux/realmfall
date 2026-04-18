@@ -244,6 +244,7 @@ export function App() {
     setGraphicsSettings(nextGraphicsSettings);
     saveAudioSettings(nextAudioSettings);
     saveGraphicsSettings(nextGraphicsSettings);
+    uiAudio.applySettings(nextAudioSettings);
     await persistNow();
     uiAudio.success();
   };

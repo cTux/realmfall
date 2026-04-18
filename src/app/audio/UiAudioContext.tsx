@@ -5,6 +5,7 @@ import {
 } from 'react';
 
 export interface UiAudioController {
+  applySettings: (settings: import('../audioSettings').AudioSettings) => void;
   click: () => void;
   error: () => void;
   hover: () => void;
@@ -19,6 +20,7 @@ export interface UiAudioController {
 const noop = () => undefined;
 
 const DEFAULT_UI_AUDIO_CONTROLLER: UiAudioController = {
+  applySettings: noop,
   click: noop,
   error: noop,
   hover: noop,
