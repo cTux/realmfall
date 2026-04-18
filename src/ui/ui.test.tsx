@@ -133,6 +133,7 @@ describe('ui helpers and components', () => {
       id: 'weapon-new',
       name: 'Knight Blade',
       tags: undefined,
+      grantedAbilityId: 'slash',
       tier: 2,
       rarity: 'rare',
       power: 4,
@@ -217,6 +218,13 @@ describe('ui helpers and components', () => {
     });
     expect(tooltipLines).toContainEqual({
       kind: 'stat',
+      label: 'Ability',
+      value: getAbilityDefinition('slash').name,
+      icon: getAbilityDefinition('slash').icon,
+      tone: 'item',
+    });
+    expect(tooltipLines).toContainEqual({
+      kind: 'stat',
       label: 'Attack',
       value: '+4',
       tone: 'item',
@@ -241,6 +249,19 @@ describe('ui helpers and components', () => {
     });
     expect(
       tooltipLines.findIndex((line) => line.text === 'Slot: slot.weapon'),
+    ).toBe(
+      tooltipLines.findIndex(
+        (line) =>
+          line.label === 'Ability' &&
+          line.value === getAbilityDefinition('slash').name,
+      ) - 1,
+    );
+    expect(
+      tooltipLines.findIndex(
+        (line) =>
+          line.label === 'Ability' &&
+          line.value === getAbilityDefinition('slash').name,
+      ),
     ).toBe(
       tooltipLines.findIndex(
         (line) =>

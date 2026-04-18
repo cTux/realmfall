@@ -587,6 +587,8 @@
   "ui.tooltip.defense": "Defense",
   "ui.tooltip.emptyEquipmentSlot": "Equip {slot} gear here.",
   "ui.tooltip.enemies": "Enemies",
+  "ui.tooltip.grantedAbility": "Ability: {ability}",
+  "ui.tooltip.grantedAbilityLabel": "Ability",
   "ui.tooltip.itemTier": "{rarity} T{tier} {type}",
   "ui.tooltip.itemType.armor": "ARMOR",
   "ui.tooltip.itemType.artifact": "ARTIFACT",

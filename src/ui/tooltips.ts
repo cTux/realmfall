@@ -1,3 +1,4 @@
+import { getAbilityDefinition } from '../game/abilities';
 import { getStatusEffectTags } from '../game/content/statusEffects';
 import { getSkillTags } from '../game/content/tags';
 import { professionRecipeOutputBonus } from '../game/crafting';
@@ -82,6 +83,18 @@ export function itemTooltipLines(
         text: `${t('ui.tooltip.slotLabel')}: ${slotLabel(item.slot)}`,
         tone: 'subtle' as const,
       }
+    : null;
+  const abilityLine = item.grantedAbilityId
+    ? (() => {
+        const ability = getAbilityDefinition(item.grantedAbilityId);
+        return {
+          kind: 'stat' as const,
+          label: t('ui.tooltip.grantedAbilityLabel'),
+          value: ability.name,
+          icon: ability.icon,
+          tone: 'item' as const,
+        };
+      })()
     : null;
 
   if (category === 'consumable') {
@@ -171,6 +184,9 @@ export function itemTooltipLines(
 
   if (slotLine) {
     lines.push(slotLine);
+  }
+  if (abilityLine) {
+    lines.push(abilityLine);
   }
   lines.push(...tagTooltipLines(tags));
   const sellLine = itemSellLine(item);
