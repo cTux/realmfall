@@ -2901,6 +2901,43 @@ describe('game state', () => {
     ).toBe(true);
   });
 
+  it('does not restore hp or mana on level up', () => {
+    const game = createGame(3, 'level-up-keeps-resources-seed');
+    const target = { q: 2, r: 0 };
+    game.player.hp = 9;
+    game.player.mana = 4;
+    game.tiles['2,0'] = {
+      coord: target,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: ['enemy-level-up'],
+    };
+    game.enemies['enemy-level-up'] = {
+      id: 'enemy-level-up',
+      name: 'Training Dummy',
+      coord: target,
+      tier: 1,
+      hp: 1,
+      maxHp: 1,
+      attack: 0,
+      defense: 0,
+      xp: 65,
+      elite: false,
+    };
+    game.player.coord = { q: 1, r: 0 };
+
+    const encountered = moveToTile(game, target);
+    const resolved = startCombat(encountered);
+    const stats = getPlayerStats(resolved.player);
+
+    expect(resolved.player.level).toBe(2);
+    expect(resolved.player.hp).toBe(9);
+    expect(resolved.player.mana).toBe(4);
+    expect(stats.maxHp).toBe(36);
+    expect(stats.maxMana).toBe(14);
+  });
+
   it('supports many equipment slots and artifact loadouts', () => {
     const game = createGame(3, 'equip-seed');
     const inventory: Item[] = EQUIPMENT_SLOTS.map((slot, index) => ({

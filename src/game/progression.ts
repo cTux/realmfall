@@ -268,8 +268,6 @@ export function gainXp(
     state.player.baseMaxMana += 2;
     state.player.baseAttack += 1;
     state.player.baseDefense += 1;
-    state.player.hp = getPlayerStats(state.player).maxHp;
-    state.player.mana = state.player.baseMaxMana;
     addLog(
       state,
       'system',
