@@ -27,4 +27,5 @@ Use this file for contributor process only. Canonical project guidance lives in
 
 - Update the matching spec in `docs/specs` whenever a shipped behavior or technical solution changes.
 - Keep transient plans, review snapshots, and checklists outside `docs/specs`.
+- Write review findings and improvement descriptions in direct present-tense terms instead of comparative filler such as `still`, so the wording does not age into stale guidance after later fixes.
 - Prefer short references back to `docs/RULES.md` and `docs/rules/` over restating long policy lists here.

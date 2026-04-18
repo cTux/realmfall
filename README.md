@@ -111,6 +111,8 @@ The pre-commit hook runs `pnpm check:version`, `pnpm typecheck`, and `pnpm quali
 
 The repository already has strong baseline tooling. Changes should preserve strict typing, lint cleanliness, deterministic tests where practical, and successful production builds.
 
+Review notes and improvement descriptions should describe the current behavior directly rather than leaning on comparative filler such as `still`, because that wording goes stale once follow-up fixes land.
+
 ## Project Rules
 
 Shared project rules live in `docs/RULES.md`.
