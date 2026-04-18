@@ -3,9 +3,17 @@ import react from '@vitejs/plugin-react';
 import minipic from 'vite-plugin-minipic';
 import { VitePWA } from 'vite-plugin-pwa';
 import detectDuplicatedDeps from 'unplugin-detect-duplicated-deps/vite';
-import { readFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+} from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Plugin, ViteDevServer } from 'vite';
+import selfsigned from 'selfsigned';
 
 const packageVersion = JSON.parse(
   readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
@@ -95,10 +103,51 @@ function vitestCachePlugin(): Plugin {
     }),
   };
 }
+async function ensureLocalhostHttpsCertificate() {
+  const certDir = join(tmpdir(), 'realmfall-https');
+  const certPath = join(certDir, 'localhost-cert.pem');
+  const keyPath = join(certDir, 'localhost-key.pem');
 
+  if (!existsSync(certPath) || !existsSync(keyPath)) {
+    const { cert, private: privateKey } = await selfsigned.generate(
+      [{ name: 'commonName', value: 'localhost' }],
+      {
+        algorithm: 'sha256',
+        keySize: 2048,
+        extensions: [
+          {
+            name: 'subjectAltName',
+            altNames: [
+              { type: 2, value: 'localhost' },
+              { type: 7, ip: '127.0.0.1' },
+              { type: 7, ip: '::1' },
+            ],
+          },
+        ],
+      },
+    );
+
+    mkdirSync(certDir, { recursive: true });
+    writeFileSync(certPath, cert);
+    writeFileSync(keyPath, privateKey);
+  }
+
+  return {
+    cert: readFileSync(certPath),
+    key: readFileSync(keyPath),
+  };
+}
+
+const localhostHttpsCertificate = await ensureLocalhostHttpsCertificate();
 export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(packageVersion),
+  },
+  server: {
+    https: {
+      cert: localhostHttpsCertificate.cert,
+      key: localhostHttpsCertificate.key,
+    },
   },
   plugins: (() => {
     const isVitestRun = Boolean(process.env.VITEST);
@@ -128,10 +177,10 @@ export default defineConfig({
       output: {
         entryFileNames: 'assets/js/[name]-[hash].js',
         chunkFileNames: 'assets/js/[name]-[hash].js',
-        manualChunks(id) {
+        manualChunks(id: string) {
           return getVendorChunk(id);
         },
-        assetFileNames: (assetInfo) => {
+        assetFileNames: (assetInfo: { names: string[]; name?: string }) => {
           const name = assetInfo.names[0] ?? assetInfo.name ?? '';
           const extension = name.split('.').pop()?.toLowerCase() ?? '';
 

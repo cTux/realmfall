@@ -67,7 +67,7 @@ pnpm dev
 
 ## Scripts
 
-- `pnpm dev`
+- `pnpm dev` (runs the Vite dev server over local HTTPS with the shared localhost certificate)
 - `pnpm dev:storybook`
 - `pnpm build`
 - `pnpm build:budget`

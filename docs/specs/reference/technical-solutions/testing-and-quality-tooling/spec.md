@@ -9,6 +9,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - The repository uses TypeScript strict mode, Oxlint, Prettier, Vitest, Husky, Vite, and Storybook.
 - `pnpm test` runs Vitest through `@raegen/vite-plugin-vitest-cache`, storing reusable results in the repository-local `.tests/vitest-cache` directory so warm reruns and CI can restore unaffected test files without changing test correctness.
 - Because the current repository is on Vitest 4, the Vite config uses a local compatibility shim for the plugin's runner and setup hooks instead of the package's older custom-pool entrypoint.
+- `pnpm dev` and `pnpm serve` both run on local HTTPS using the shared localhost self-signed certificate helper, so development and release-like browser checks exercise a secure origin by default.
 - Oxlint is the enforced JavaScript and TypeScript lint gate for contributor workflow and pre-commit automation, with its canonical configuration stored in `.oxlintrc.json`.
 - CI and local quality expectations center on `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build`.
 - Oxlint is the only JavaScript and TypeScript linter shipped in the repository.
