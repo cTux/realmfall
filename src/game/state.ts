@@ -1294,13 +1294,18 @@ function applyEnemyStatusTargets(
     );
   }
 
-  return applyStatusEffectToPlayer(state, {
-    id: effect.statusEffectId,
-    value: effect.value,
-    expiresAt: effect.permanent ? undefined : state.worldTimeMs + (effect.durationMs ?? 0),
-    tickIntervalMs: effect.tickIntervalMs,
-    stacks: effect.stacks ?? 1,
-  })
+  return applyEnemyStatusEffectToPlayer(
+    state,
+    {
+      id: effect.statusEffectId,
+      value: effect.value,
+      expiresAt:
+        effect.permanent ? undefined : state.worldTimeMs + (effect.durationMs ?? 0),
+      tickIntervalMs: effect.tickIntervalMs,
+      stacks: effect.stacks ?? 1,
+    },
+    `${enemyId}:${ability.id}:${effect.statusEffectId}`,
+  )
     ? 1
     : 0;
 }
@@ -1338,6 +1343,8 @@ function maybeApplyConfiguredStatusToPlayer(
   state: GameState,
   effect: Extract<ReturnType<typeof getAbilityDefinition>['effects'][number], { kind: 'damage' }>,
   attackValue: number,
+  abilityId: AbilityId,
+  enemyId: string,
 ) {
   if (!effect.statusEffectId || !effect.statusChance) return;
   if (
@@ -1350,16 +1357,44 @@ function maybeApplyConfiguredStatusToPlayer(
     return;
   }
 
-  applyStatusEffectToPlayer(state, {
-    id: effect.statusEffectId,
-    value: Math.max(
-      1,
-      Math.round(attackValue * (effect.valueMultiplier ?? 0) + (effect.valueFlat ?? 0)),
-    ),
-    expiresAt: state.worldTimeMs + (effect.durationMs ?? 6_000),
-    tickIntervalMs: effect.tickIntervalMs,
-    stacks: effect.stacks ?? 1,
-  });
+  applyEnemyStatusEffectToPlayer(
+    state,
+    {
+      id: effect.statusEffectId,
+      value: Math.max(
+        1,
+        Math.round(attackValue * (effect.valueMultiplier ?? 0) + (effect.valueFlat ?? 0)),
+      ),
+      expiresAt: state.worldTimeMs + (effect.durationMs ?? 6_000),
+      tickIntervalMs: effect.tickIntervalMs,
+      stacks: effect.stacks ?? 1,
+    },
+    `${enemyId}:${abilityId}:${effect.statusEffectId}:configured`,
+  );
+}
+
+function applyEnemyStatusEffectToPlayer(
+  state: GameState,
+  nextEffect: {
+    id: StatusEffectId;
+    value?: number;
+    expiresAt?: number;
+    tickIntervalMs?: number;
+    stacks?: number;
+  },
+  seedKey: string,
+) {
+  if (
+    resolveProcCount(
+      state,
+      `${seedKey}:suppress-debuff`,
+      getPlayerStats(state.player).suppressDebuffChance ?? 0,
+    ) > 0
+  ) {
+    return false;
+  }
+
+  return applyStatusEffectToPlayer(state, nextEffect);
 }
 
 function applyStatusEffectToEnemy(
@@ -1781,6 +1816,8 @@ function applyEnemyAbility(
         state,
         effect,
         getEnemyCombatAttack(enemy),
+        abilityId,
+        enemy.id,
       );
       addLog(
         state,
