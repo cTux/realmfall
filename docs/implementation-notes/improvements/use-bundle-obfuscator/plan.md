@@ -11,8 +11,8 @@ Introduce production-only client bundle obfuscation through `vite-plugin-bundle-
 
 ## Technical Context
 
-**Language/Version**: TypeScript 5.8.x, Node-based Vite build configuration  
-**Primary Dependencies**: Vite 6.2, React 18.3, Pixi.js 7.4, `vite-plugin-bundle-obfuscator`  
+**Language/Version**: TypeScript 6.0.x, Node-based Vite build configuration  
+**Primary Dependencies**: Vite 8.0.x, React 19.2.x, Pixi.js 8.18.x, `vite-plugin-bundle-obfuscator`  
 **Storage**: N/A  
 **Testing**: `pnpm build`, `pnpm test`, `pnpm lint`, targeted smoke verification of built output  
 **Target Platform**: Browser client built with Vite for production deployment  
@@ -38,22 +38,24 @@ Gate result: Pass, provided the implementation remains production-only, preserve
 
 ```text
 docs/implementation-notes/improvements/use-bundle-obfuscator/
-├── plan.md
-├── spec.md
-└── checklists/
-    └── requirements.md
+|-- brief.md
+|-- plan.md
+`-- checklists/
+    `-- requirements.md
 ```
 
 ### Source Code (repository root)
 
 ```text
-vite.config.ts                # Existing Vite build config to extend
-package.json                  # Dependency and script surface
-docs/RULES.md                 # Existing build/bundle and persistence guidance
-docs/implementation-notes/improvements/use-bundle-obfuscator/
+vite.config.ts
+package.json
+README.md
+docs/WORKFLOW.md
+docs/rules/50-build-and-bundle.md
+docs/specs/reference/technical-solutions/production-bundle-obfuscation/spec.md
 ```
 
-**Structure Decision**: Keep the implementation focused in `vite.config.ts` with any supporting documentation updates nearby. No new runtime architecture or build subsystem is needed.
+**Structure Decision**: Keep the implementation focused in `vite.config.ts` with the supporting dependency and documentation updates alongside it. No new runtime architecture or build subsystem is needed.
 
 ## Phase 0: Research Decisions
 
@@ -66,7 +68,7 @@ docs/implementation-notes/improvements/use-bundle-obfuscator/
 ### Decision 2: Preserve explicit exclusions for sensitive chunks
 
 - **Decision**: Start with exclusions for chunks that are most likely to be compatibility-sensitive, then broaden only if build and smoke verification remain stable.
-- **Rationale**: The project already has intentional `react-vendor`, `pixi`, and `vendor` chunking. Obfuscation should not blindly transform every output without validation.
+- **Rationale**: The project already has intentional `react-core`, `react-dom-vendor`, `pixi`, and `vendor` chunking, plus small runtime helper chunks. Obfuscation should not blindly transform every output without validation.
 - **Alternatives considered**: Obfuscating every emitted JavaScript file by default was rejected because it creates higher regression risk around framework/runtime chunks.
 
 ### Decision 3: Do not enable worker obfuscation unless workers are introduced intentionally
@@ -79,7 +81,7 @@ docs/implementation-notes/improvements/use-bundle-obfuscator/
 
 1. Add `vite-plugin-bundle-obfuscator` as a dev dependency with `pnpm`.
 2. Integrate the plugin into `vite.config.ts` as a production-only plugin.
-3. Configure exclusions to avoid destabilizing known framework/vendor/runtime-sensitive chunks on the first pass.
+3. Configure exclusions to avoid destabilizing known framework, runtime, and service-worker-sensitive chunks on the first pass.
 4. Keep the existing `manualChunks` strategy intact.
 5. Add concise documentation where needed so contributors understand the toggle, scope, and deterrence-only limitation.
 
@@ -88,17 +90,17 @@ docs/implementation-notes/improvements/use-bundle-obfuscator/
 1. Run `pnpm build` and confirm the production bundle completes.
 2. Inspect emitted JavaScript outputs to confirm in-scope bundles are obfuscated and excluded bundles are not.
 3. Run the built client locally and verify startup, initial world render, and a basic interaction path.
-4. Run `pnpm test` and `pnpm lint` if the integration touches shared configuration or causes incidental issues.
+4. Run `pnpm test`, `pnpm lint`, and `pnpm build:budget` because the integration changes shared build configuration and bundle policy.
 
 ## Risks And Mitigations
 
-- **Risk**: Obfuscation may break chunk loading or framework runtime behavior.
+- **Risk**: Obfuscation may break chunk loading or framework runtime behavior.  
   **Mitigation**: Start with a conservative exclusion policy and expand only after smoke verification.
 
-- **Risk**: Build time or memory usage may increase noticeably.
+- **Risk**: Build time or memory usage may increase noticeably.  
   **Mitigation**: Use the plugin's thread-pool support only if needed and keep the ability to disable obfuscation quickly.
 
-- **Risk**: Contributors may mistake obfuscation for real security.
+- **Risk**: Contributors may mistake obfuscation for real security.  
   **Mitigation**: Document explicitly that this is only a client-side deterrence measure.
 
 ## Complexity Tracking
