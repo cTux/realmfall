@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { AppWindowsLayout } from '../AppWindows.types';
 import { WINDOW_HANDLER_KEYS, type ManagedWindowKey } from './windowKeys';
 
@@ -32,10 +32,14 @@ export function useMountedWindows({
   AppWindowsLayout,
   'windowShown' | 'keepLootWindowMounted' | 'keepCombatWindowMounted'
 >) {
-  const targetMountedWindows = createMountedWindowState(
-    windowShown,
-    keepLootWindowMounted,
-    keepCombatWindowMounted,
+  const targetMountedWindows = useMemo(
+    () =>
+      createMountedWindowState(
+        windowShown,
+        keepLootWindowMounted,
+        keepCombatWindowMounted,
+      ),
+    [keepCombatWindowMounted, keepLootWindowMounted, windowShown],
   );
   const [mountedWindows, setMountedWindows] = useState(targetMountedWindows);
   const hideTimeoutsRef = useRef<Partial<Record<ManagedWindowKey, number>>>({});
@@ -68,8 +72,10 @@ export function useMountedWindows({
         delete hideTimeoutsRef.current[key];
       }, WINDOW_UNMOUNT_DELAY_MS);
     }
+  }, [targetMountedWindows]);
 
-    return () => {
+  useEffect(
+    () => () => {
       for (const timeout of Object.values(hideTimeoutsRef.current)) {
         if (timeout !== undefined) {
           window.clearTimeout(timeout);
@@ -77,8 +83,9 @@ export function useMountedWindows({
       }
 
       hideTimeoutsRef.current = {};
-    };
-  }, [targetMountedWindows]);
+    },
+    [],
+  );
 
   return mountedWindows;
 }
