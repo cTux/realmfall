@@ -9,6 +9,7 @@ import {
   readFileSync,
   writeFileSync,
 } from 'node:fs';
+import { X509Certificate } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -108,7 +109,20 @@ async function ensureLocalhostHttpsCertificate() {
   const certPath = join(certDir, 'localhost-cert.pem');
   const keyPath = join(certDir, 'localhost-key.pem');
 
-  if (!existsSync(certPath) || !existsSync(keyPath)) {
+  const shouldRotateCertificate = (() => {
+    if (!existsSync(certPath) || !existsSync(keyPath)) {
+      return true;
+    }
+
+    try {
+      const certificate = new X509Certificate(readFileSync(certPath));
+      return Date.parse(certificate.validTo) <= Date.now();
+    } catch {
+      return true;
+    }
+  })();
+
+  if (shouldRotateCertificate) {
     const { cert, private: privateKey } = await selfsigned.generate(
       [{ name: 'commonName', value: 'localhost' }],
       {

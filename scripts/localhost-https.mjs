@@ -1,4 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { X509Certificate } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import selfsigned from 'selfsigned';
@@ -6,6 +7,18 @@ import selfsigned from 'selfsigned';
 const certDir = join(tmpdir(), 'realmfall-https');
 const certPath = join(certDir, 'localhost-cert.pem');
 const keyPath = join(certDir, 'localhost-key.pem');
+
+export function shouldRotateLocalhostHttpsCertificate(
+  certPem,
+  now = new Date(),
+) {
+  try {
+    const certificate = new X509Certificate(certPem);
+    return Date.parse(certificate.validTo) <= now.getTime();
+  } catch {
+    return true;
+  }
+}
 
 async function generateCertificate() {
   const { cert, private: privateKey } = await selfsigned.generate(
@@ -33,7 +46,11 @@ async function generateCertificate() {
 }
 
 export async function ensureLocalhostHttpsCertificate() {
-  if (!existsSync(certPath) || !existsSync(keyPath)) {
+  if (
+    !existsSync(certPath) ||
+    !existsSync(keyPath) ||
+    shouldRotateLocalhostHttpsCertificate(readFileSync(certPath))
+  ) {
     await generateCertificate();
   }
 
