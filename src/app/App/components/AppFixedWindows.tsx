@@ -59,7 +59,7 @@ export function AppFixedWindows({
         inventory={views.player.inventory}
         slots={views.player.actionBarSlots}
         onAssignSlot={actions.inventory.onAssignActionBarSlot}
-        onHoverItem={actions.tooltip.onShowItemTooltip}
+        onHoverItem={actions.tooltip.onShowActionBarItemTooltip}
         onLeaveItem={actions.tooltip.onCloseTooltip}
       />
       {layout.windowShown.worldTime ? (

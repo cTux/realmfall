@@ -110,6 +110,10 @@ export interface AppWindowsActions {
       item: TooltipItem,
       equipped?: TooltipItem,
     ) => void;
+    onShowActionBarItemTooltip: (
+      event: React.MouseEvent<HTMLElement>,
+      item: TooltipItem,
+    ) => void;
     onShowTooltip: (
       event: React.MouseEvent<HTMLElement>,
       title: string,

@@ -1,7 +1,7 @@
 const TOOLTIP_OFFSET_PX = 12;
 const TOOLTIP_ESTIMATED_WIDTH_PX = 320;
 
-export type TooltipPlacement = 'left' | 'right';
+export type TooltipPlacement = 'left' | 'right' | 'top';
 
 export interface TooltipAnchorRect {
   left: number;

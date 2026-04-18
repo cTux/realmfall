@@ -116,6 +116,7 @@ export function App() {
     setWindowVisibility,
     setWindows,
     showFilterMenu,
+    showActionBarItemTooltip,
     showItemTooltip,
     toggleDockWindow,
     toggleFilterMenu,
@@ -356,6 +357,7 @@ export function App() {
         onToggleDockWindow: toggleDockWindow,
       },
       tooltip: {
+        onShowActionBarItemTooltip: showActionBarItemTooltip,
         onShowItemTooltip: showItemTooltip,
         onShowTooltip: showTooltip,
         onCloseTooltip: closeTooltip,

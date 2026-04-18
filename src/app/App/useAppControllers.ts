@@ -185,6 +185,36 @@ export function useAppControllers({
     [gameRef, tooltipPositionRef],
   );
 
+  const showActionBarItemTooltip = useCallback(
+    (event: ReactMouseEvent<HTMLElement>, item: TooltipItem) => {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const recipeLearned =
+        isRecipePage(item) &&
+        item.recipeId != null &&
+        gameRef.current.player.learnedRecipeIds.includes(item.recipeId);
+      const position = {
+        x: rect.left + rect.width / 2,
+        y: rect.top,
+      };
+      tooltipPositionRef.current = position;
+      setTooltipState({
+        title: item.name,
+        lines: getCachedItemTooltipLines(
+          itemTooltipLinesCacheRef.current,
+          item,
+          undefined,
+          recipeLearned,
+        ),
+        contentKey: getItemTooltipContentKey(item, undefined, recipeLearned),
+        x: position.x,
+        y: position.y,
+        placement: 'top',
+        borderColor: rarityColor(item.rarity),
+      });
+    },
+    [gameRef, tooltipPositionRef],
+  );
+
   const showTooltip = useCallback(
     (
       event: ReactMouseEvent<HTMLElement>,
@@ -491,6 +521,7 @@ export function useAppControllers({
     setWindowVisibility,
     setWindows,
     showFilterMenu,
+    showActionBarItemTooltip,
     showItemTooltip,
     toggleDockWindow,
     toggleFilterMenu,
