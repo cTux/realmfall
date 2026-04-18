@@ -26,6 +26,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - Dungeon and blood moon rewards bias toward better rarity floors.
 - Generated artifacts and equipment use deterministic icon selection from curated vendored SVG pools in `src/assets/icons/generated` while their per-instance stats are derived from tier and rarity.
 - Generated artifacts and equipment use the shared cascading rarity-event mechanism so higher tiers can promote drops through the same rarity ladder used elsewhere in gameplay.
+- Generated weapon drops now also roll a deterministic granted combat ability that matches the weapon archetype, and equipped combatants surface those granted abilities in battle on top of the baseline `Kick`.
 
 ## Main Implementation Areas
 

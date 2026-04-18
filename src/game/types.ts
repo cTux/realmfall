@@ -98,6 +98,7 @@ export interface Item {
   thirst?: number;
   secondaryStatCapacity?: number;
   secondaryStats?: ItemSecondaryStat[];
+  grantedAbilityId?: AbilityId;
 }
 
 export interface Enemy {
@@ -120,6 +121,7 @@ export interface Enemy {
   worldBoss?: boolean;
   aggressive?: boolean;
   statusEffects?: PlayerStatusEffect[];
+  abilityIds?: AbilityId[];
 }
 
 export interface TerritoryNpc {
@@ -137,14 +139,63 @@ export interface TileClaim {
   npc?: TerritoryNpc;
 }
 
-export type AbilityId = 'kick';
+export type AbilityId = string;
+
+export type AbilityTarget =
+  | 'self'
+  | 'injuredAlly'
+  | 'randomAlly'
+  | 'allAllies'
+  | 'enemy'
+  | 'randomEnemy'
+  | 'allEnemies';
+
+export type AbilitySchool = 'melee' | 'fire' | 'lightning' | 'ice' | 'support';
+
+export type AbilityEffectDefinition =
+  | {
+      kind: 'damage';
+      powerMultiplier: number;
+      flatPower?: number;
+      statusEffectId?: StatusEffectId;
+      statusChance?: number;
+      durationMs?: number;
+      tickIntervalMs?: number;
+      stacks?: number;
+      valueMultiplier?: number;
+      valueFlat?: number;
+      targetOverride?: AbilityTarget;
+    }
+  | {
+      kind: 'heal';
+      powerMultiplier: number;
+      flatPower?: number;
+      splitDivisor?: number;
+      targetOverride?: AbilityTarget;
+    }
+  | {
+      kind: 'applyStatus';
+      statusEffectId: StatusEffectId;
+      value: number;
+      durationMs?: number;
+      tickIntervalMs?: number;
+      stacks?: number;
+      permanent?: boolean;
+      targetOverride?: AbilityTarget;
+    };
 
 export interface AbilityDefinition {
   id: AbilityId;
   name: string;
+  icon: string;
   manaCost: number;
   cooldownMs: number;
   castTimeMs: number;
+  target: AbilityTarget;
+  school: AbilitySchool;
+  category: 'attacking' | 'supportive';
+  effects: AbilityEffectDefinition[];
+  aiPriority?: number;
   tags?: GameTag[];
 }
 

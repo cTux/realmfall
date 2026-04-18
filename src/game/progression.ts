@@ -1,3 +1,4 @@
+import { buildEquippedAbilityIds } from './abilities';
 import {
   GATHERING_BONUS_MAX,
   GATHERING_BONUS_PER_LEVEL,
@@ -41,17 +42,40 @@ export function makeStartingSkills(): Record<SkillName, SkillProgress> {
 export function getPlayerStats(player: Player) {
   const equipped = Object.values(player.equipment);
   const statusEffects = player.statusEffects ?? [];
-  const recentDeathActive = player.statusEffects.some(
-    (effect) => effect.id === StatusEffectTypeId.RecentDeath,
+  const recentDeathPenalty = getStatusEffectValue(
+    statusEffects,
+    StatusEffectTypeId.RecentDeath,
+    10,
   );
-  const powerActive = statusEffects.some(
-    (effect) => effect.id === StatusEffectTypeId.Power,
+  const powerBonus = getStatusEffectValue(
+    statusEffects,
+    StatusEffectTypeId.Power,
+    10,
   );
-  const frenzyActive = statusEffects.some(
-    (effect) => effect.id === StatusEffectTypeId.Frenzy,
+  const frenzyBonus = getStatusEffectValue(
+    statusEffects,
+    StatusEffectTypeId.Frenzy,
+    20,
   );
-  const chillingActive = statusEffects.some(
-    (effect) => effect.id === StatusEffectTypeId.Chilling,
+  const chillingPenalty = getStatusEffectValue(
+    statusEffects,
+    StatusEffectTypeId.Chilling,
+    20,
+  );
+  const guardBonus = getStatusEffectValue(
+    statusEffects,
+    StatusEffectTypeId.Guard,
+    15,
+  );
+  const weakenedPenalty = getStatusEffectValue(
+    statusEffects,
+    StatusEffectTypeId.Weakened,
+    15,
+  );
+  const shockedPenalty = getStatusEffectValue(
+    statusEffects,
+    StatusEffectTypeId.Shocked,
+    15,
   );
   const attackBonus = equipped.reduce(
     (sum, item) => sum + (item?.power ?? 0),
@@ -72,23 +96,28 @@ export function getPlayerStats(player: Player) {
   const rawMaxHp = player.baseMaxHp + maxHpBonus;
   const maxHp = Math.max(
     1,
-    Math.floor(rawMaxHp * (recentDeathActive ? 0.9 : 1)),
+    Math.floor(rawMaxHp * (1 - recentDeathPenalty / 100)),
   );
   const rawAttack = Math.max(0, player.baseAttack + attackBonus);
   const rawDefense = Math.max(0, player.baseDefense + defenseBonus);
   const hungerDebuffActive = player.hunger <= 30;
   const thirstDebuffActive = (player.thirst ?? 100) <= 30;
   const combatMultiplier =
-    (hungerDebuffActive ? 0.9 : 1) * (powerActive ? 1.1 : 1);
+    (hungerDebuffActive ? 0.9 : 1) *
+    (1 + powerBonus / 100) *
+    (1 - weakenedPenalty / 100);
   const baseAttackSpeed =
     1 + getEquipmentSecondaryStatTotal(equipped, 'attackSpeed') / 100;
   const attackSpeed =
     baseAttackSpeed *
     (thirstDebuffActive ? 0.8 : 1) *
-    (chillingActive ? 0.8 : 1) *
-    (frenzyActive ? 1.2 : 1);
+    (1 - chillingPenalty / 100) *
+    (1 + frenzyBonus / 100);
   const attack = Math.max(0, Math.floor(rawAttack * combatMultiplier));
-  const defense = Math.max(0, Math.floor(rawDefense * combatMultiplier));
+  const defense = Math.max(
+    0,
+    Math.floor(rawDefense * (hungerDebuffActive ? 0.9 : 1) * (1 + guardBonus / 100) * (1 - shockedPenalty / 100)),
+  );
   const criticalStrikeChance = getEquipmentSecondaryStatTotal(
     equipped,
     'criticalStrikeChance',
@@ -165,7 +194,8 @@ export function getPlayerStats(player: Player) {
           (effect) =>
             effect.id === StatusEffectTypeId.Restoration ||
             effect.id === StatusEffectTypeId.Power ||
-            effect.id === StatusEffectTypeId.Frenzy,
+            effect.id === StatusEffectTypeId.Frenzy ||
+            effect.id === StatusEffectTypeId.Guard,
         )
         .map((effect) => effect.id),
     ] as StatusEffectId[],
@@ -177,19 +207,37 @@ export function getPlayerStats(player: Player) {
             effect.id === StatusEffectTypeId.Bleeding ||
             effect.id === StatusEffectTypeId.Poison ||
             effect.id === StatusEffectTypeId.Burning ||
-            effect.id === StatusEffectTypeId.Chilling,
+            effect.id === StatusEffectTypeId.Chilling ||
+            effect.id === StatusEffectTypeId.Weakened ||
+            effect.id === StatusEffectTypeId.Shocked,
         )
         .map((effect) => effect.id),
       ...(hungerDebuffActive ? (['hunger'] as StatusEffectId[]) : []),
       ...(thirstDebuffActive ? (['thirst'] as StatusEffectId[]) : []),
     ] as StatusEffectId[],
-    abilityIds: ['kick'] as Array<'kick'>,
+    abilityIds: buildEquippedAbilityIds([
+      player.equipment.weapon,
+      player.equipment.offhand,
+    ]),
     level: player.level,
     masteryLevel: player.masteryLevel,
     xp: player.xp,
     nextLevelXp,
     skills: player.skills,
   };
+}
+
+function getStatusEffectValue(
+  effects: Player['statusEffects'],
+  effectId: StatusEffectId,
+  defaultValue = 0,
+) {
+  return effects
+    .filter((effect) => effect.id === effectId)
+    .reduce(
+      (highest, effect) => Math.max(highest, effect.value ?? defaultValue),
+      0,
+    );
 }
 
 export function gainXp(

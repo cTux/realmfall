@@ -314,6 +314,7 @@ export function abilityTooltipLines(
     AbilityDefinition,
     'manaCost' | 'cooldownMs' | 'castTimeMs' | 'tags'
   >,
+  target: AbilityDefinition['target'] = 'enemy',
 ): TooltipLine[] {
   return [
     {
@@ -336,7 +337,7 @@ export function abilityTooltipLines(
     },
     {
       kind: 'text',
-      text: t('ui.ability.targeting'),
+      text: t(`ui.ability.target.${target}`),
     },
     ...tagTooltipLines(ability.tags),
   ];

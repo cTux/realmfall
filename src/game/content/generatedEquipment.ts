@@ -1,6 +1,7 @@
 import { itemName } from './i18n';
 export { GENERATED_ICON_POOLS } from './generatedIconPools';
 import { GENERATED_ICON_POOLS } from './generatedIconPools';
+import type { AbilityId } from '../types';
 import { EquipmentSlotId } from './ids';
 import type { ItemConfig } from './types';
 
@@ -11,6 +12,7 @@ const generated = (
   iconPool: readonly string[],
   generatedStats: NonNullable<ItemConfig['generatedStats']>,
   occupiesOffhand = false,
+  grantedAbilityPool: AbilityId[] = [],
 ): ItemConfig => ({
   key,
   name: itemName(key),
@@ -28,6 +30,7 @@ const generated = (
   thirst: 0,
   occupiesOffhand,
   generatedStats,
+  grantedAbilityPool,
 });
 
 export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
@@ -200,6 +203,8 @@ export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
       basePower: 3,
       powerPerTier: 2,
     },
+    false,
+    ['crushingBlow', 'whirlwind', 'magmaStrike'],
   ),
   generated(
     'generated-sword',
@@ -210,6 +215,8 @@ export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
       basePower: 3,
       powerPerTier: 2,
     },
+    false,
+    ['slash', 'impale', 'iceLance'],
   ),
   generated(
     'generated-mace',
@@ -220,6 +227,8 @@ export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
       basePower: 3,
       powerPerTier: 2,
     },
+    false,
+    ['crushingBlow', 'thunderClap', 'staticField'],
   ),
   generated(
     'generated-dagger',
@@ -230,6 +239,8 @@ export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
       basePower: 2,
       powerPerTier: 2,
     },
+    false,
+    ['slash', 'hamstring', 'cinderBurst'],
   ),
   generated(
     'generated-wand',
@@ -240,6 +251,8 @@ export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
       basePower: 4,
       powerPerTier: 2,
     },
+    false,
+    ['fireball', 'chainLightning', 'iceLance', 'searingNova'],
   ),
   generated(
     'generated-offhand-dagger',
@@ -250,6 +263,8 @@ export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
       basePower: 2,
       powerPerTier: 1,
     },
+    false,
+    ['hamstring', 'slash', 'sunderArmor'],
   ),
   generated(
     'generated-magical-sphere',
@@ -285,6 +300,7 @@ export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
       powerPerTier: 4,
     },
     true,
+    ['whirlwind', 'impale', 'blizzard'],
   ),
   generated(
     'generated-two-handed-axe',
@@ -296,6 +312,7 @@ export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
       powerPerTier: 4,
     },
     true,
+    ['whirlwind', 'magmaStrike', 'wildfire'],
   ),
   generated(
     'generated-two-handed-mace',
@@ -307,6 +324,7 @@ export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
       powerPerTier: 4,
     },
     true,
+    ['stormSurge', 'thunderClap', 'crushingBlow'],
   ),
 ];
 

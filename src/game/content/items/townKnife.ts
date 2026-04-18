@@ -7,6 +7,7 @@ export const townKnifeItemConfig: ItemConfig = {
   key: 'town-knife',
   name: itemName('town-knife'),
   slot: EquipmentSlotId.Weapon,
+  grantedAbilityId: 'slash',
   icon: ContentIcons.Weapon,
   tier: 1,
   rarity: 'common',

@@ -1,9 +1,11 @@
 import { BLOOD_MOON_STAT_SCALE, pickBloodMoonItemKind } from './config';
-import { t } from '../i18n';
+import {
+  buildEnemyAbilityIds,
+  DEFAULT_ABILITY_ID,
+} from './abilities';
 import { isAnimalEnemyType, pickEnemyConfig } from './content/enemies';
 import { GAME_TAGS, uniqueTags } from './content/tags';
 import type {
-  AbilityDefinition,
   AbilityId,
   CombatActorState,
   EnemyRarity,
@@ -30,30 +32,13 @@ export const ENEMY_RARITY_ORDER: EnemyRarity[] = [
   'legendary',
 ];
 
-export const ABILITIES: Record<AbilityId, AbilityDefinition> = {
-  kick: {
-    id: 'kick',
-    name: t('game.ability.kick.name'),
-    manaCost: 0,
-    cooldownMs: 1000,
-    castTimeMs: 0,
-    tags: uniqueTags(
-      GAME_TAGS.ability.combat,
-      GAME_TAGS.ability.melee,
-      GAME_TAGS.ability.physical,
-      GAME_TAGS.ability.instant,
-      GAME_TAGS.ability.singleTarget,
-    ),
-  },
-};
-
 export function enemyKey(coord: HexCoord, index: number) {
   return `enemy-${coord.q},${coord.r}-${index}`;
 }
 
 export function createCombatActorState(
   worldTimeMs: number,
-  abilityIds: AbilityId[] = ['kick'],
+  abilityIds: AbilityId[] = [DEFAULT_ABILITY_ID],
   globalCooldownMs = DEFAULT_GLOBAL_COOLDOWN_MS,
 ): CombatActorState {
   return {
@@ -65,10 +50,6 @@ export function createCombatActorState(
     effectiveCooldownMs: {},
     casting: null,
   };
-}
-
-export function getAbilityDefinition(abilityId: AbilityId) {
-  return ABILITIES[abilityId];
 }
 
 export function enemyIndexFromId(enemyId: string) {
@@ -205,6 +186,20 @@ export function makeEnemy(
     elite: elite || worldBoss,
     worldBoss,
     aggressive: options?.aggressive ?? true,
+    abilityIds: buildEnemyAbilityIds(
+      {
+        id: options?.enemyId ?? enemyKey(coord, index),
+        rarity,
+        worldBoss,
+        tags: uniqueTags(
+          ...(config.tags ?? []),
+          elite ? GAME_TAGS.enemy.elite : undefined,
+          structure === 'dungeon' ? GAME_TAGS.enemy.dungeon : undefined,
+        ),
+        enemyTypeId: config.id,
+      },
+      seed,
+    ),
   };
 
   setEnemyBloodMoonState(enemy, bloodMoonActive);

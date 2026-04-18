@@ -69,6 +69,9 @@ export enum StatusEffectTypeId {
   Chilling = 'chilling',
   Power = 'power',
   Frenzy = 'frenzy',
+  Guard = 'guard',
+  Weakened = 'weakened',
+  Shocked = 'shocked',
 }
 
 export type StatusEffectIdValue = `${StatusEffectTypeId}`;

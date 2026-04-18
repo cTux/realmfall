@@ -20,6 +20,7 @@ import {
 } from '../game/state';
 import { ItemId } from '../game/content/ids';
 import { createCombatActorState } from '../game/combat';
+import { DEFAULT_ABILITY_ID } from '../game/abilities';
 import { normalizeSecondaryStats } from '../game/itemSecondaryStats';
 
 export function normalizeLoadedGame(game: GameState): GameState {
@@ -115,7 +116,7 @@ export function normalizeLoadedGame(game: GameState): GameState {
           player: game.combat.player
             ? {
                 ...game.combat.player,
-                abilityIds: game.combat.player.abilityIds ?? ['kick'],
+                abilityIds: game.combat.player.abilityIds ?? [DEFAULT_ABILITY_ID],
                 globalCooldownMs: game.combat.player.globalCooldownMs ?? 1500,
                 effectiveGlobalCooldownMs:
                   game.combat.player.effectiveGlobalCooldownMs ??
@@ -143,7 +144,7 @@ export function normalizeLoadedGame(game: GameState): GameState {
                 actor
                   ? {
                       ...actor,
-                      abilityIds: actor.abilityIds ?? ['kick'],
+                      abilityIds: actor.abilityIds ?? [DEFAULT_ABILITY_ID],
                       globalCooldownMs: actor.globalCooldownMs ?? 1500,
                       effectiveGlobalCooldownMs:
                         actor.effectiveGlobalCooldownMs ??
@@ -268,6 +269,7 @@ function normalizeItem(item: Item): Item {
         ? undefined
         : Math.max(0, Number(canonicalItem.secondaryStatCapacity) || 0),
     secondaryStats: normalizeSecondaryStats(canonicalItem.secondaryStats),
+    grantedAbilityId: canonicalItem.grantedAbilityId,
   };
 }
 
@@ -312,6 +314,7 @@ function normalizeEnemy(enemy: GameState['enemies'][string]) {
     enemyTypeId: configured?.id ?? enemy.enemyTypeId,
     name: enemy.name || configured?.name,
     tags: enemy.tags ?? configured?.tags,
+    abilityIds: enemy.abilityIds ?? [DEFAULT_ABILITY_ID],
     statusEffects: (enemy.statusEffects ?? []).map((effect) => ({
       ...effect,
       tags: effect.tags ?? getStatusEffectTags(effect.id),

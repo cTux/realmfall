@@ -123,14 +123,20 @@ function processTickingPlayerEffect(
   switch (effect.id) {
     case StatusEffectTypeId.Restoration: {
       const stats = getPlayerStats(state.player);
+      const restorationPercent = Math.max(1, effect.value ?? 1);
       state.player.hp = Math.min(
         stats.maxHp,
-        state.player.hp + Math.max(1, Math.floor(stats.maxHp * 0.01)) * tickCount,
+        state.player.hp +
+          Math.max(1, Math.floor(stats.maxHp * (restorationPercent / 100))) *
+            tickCount,
       );
       state.player.mana = Math.min(
         state.player.baseMaxMana,
         state.player.mana +
-          Math.max(1, Math.floor(state.player.baseMaxMana * 0.01)) * tickCount,
+          Math.max(
+            1,
+            Math.floor(state.player.baseMaxMana * (restorationPercent / 100)),
+          ) * tickCount,
       );
       return true;
     }

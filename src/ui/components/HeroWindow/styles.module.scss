@@ -50,8 +50,20 @@
 .abilitySquare {
   @include ui.icon-tile($hover-lift: false);
 
+  position: relative;
+  overflow: hidden;
   border: 1px solid rgb(148 163 184 / 35%);
   color: #f8fafc;
+  transition:
+    opacity 120ms ease,
+    filter 120ms ease,
+    border-color 120ms ease;
+}
+
+.abilitySquareDisabled {
+  border-color: rgb(148 163 184 / 18%);
+  opacity: 0.62;
+  filter: grayscale(1);
 }
 
 .abilityIcon {
@@ -67,11 +79,18 @@
 .cooldownOverlay {
   position: absolute;
   inset: 0;
-  background: conic-gradient(
-    from -90deg,
-    rgb(15 23 42 / 78%) 0deg,
-    rgb(15 23 42 / 78%) var(--cooldown-start),
-    rgb(15 23 42 / 5%) var(--cooldown-start),
-    rgb(15 23 42 / 5%) 360deg
+  background: linear-gradient(
+    to bottom,
+    rgb(15 23 42 / 86%),
+    rgb(30 41 59 / 68%)
   );
+  transform: scaleY(var(--cooldown-scale));
+  transform-origin: top;
+  animation: cooldownDrain var(--cooldown-duration) linear forwards;
+}
+
+@keyframes cooldownDrain {
+  to {
+    transform: scaleY(0);
+  }
 }

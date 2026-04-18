@@ -8,6 +8,9 @@ import burningIcon from '../../assets/icons/status-burning.svg';
 import chillingIcon from '../../assets/icons/status-chilling.svg';
 import powerIcon from '../../assets/icons/status-power.svg';
 import frenzyIcon from '../../assets/icons/status-frenzy.svg';
+import guardIcon from '../../assets/game-icons/sbed/shield.svg';
+import weakenedIcon from '../../assets/game-icons/zeromancer/heart-minus.svg';
+import shockedIcon from '../../assets/game-icons/lorc/static.svg';
 import { StatusEffectTypeId } from './ids';
 import type { StatusEffectId } from '../types';
 import { GAME_TAGS, uniqueTags, type GameTag } from './tags';
@@ -101,6 +104,27 @@ export const STATUS_EFFECT_DEFINITIONS: Record<
     tint: '#f59e0b',
     tone: 'buff',
     tags: uniqueTags(GAME_TAGS.status.buff),
+  },
+  guard: {
+    id: StatusEffectTypeId.Guard,
+    icon: guardIcon,
+    tint: '#60a5fa',
+    tone: 'buff',
+    tags: uniqueTags(GAME_TAGS.status.buff),
+  },
+  weakened: {
+    id: StatusEffectTypeId.Weakened,
+    icon: weakenedIcon,
+    tint: '#f97316',
+    tone: 'debuff',
+    tags: uniqueTags(GAME_TAGS.status.debuff),
+  },
+  shocked: {
+    id: StatusEffectTypeId.Shocked,
+    icon: shockedIcon,
+    tint: '#facc15',
+    tone: 'debuff',
+    tags: uniqueTags(GAME_TAGS.status.debuff),
   },
 };
 

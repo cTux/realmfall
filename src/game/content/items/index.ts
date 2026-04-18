@@ -247,6 +247,7 @@ export function buildItemFromConfig(
       overrides.secondaryStatCapacity ?? config.secondaryStatCapacity,
     secondaryStats:
       overrides.secondaryStats ?? normalizeSecondaryStats(config.secondaryStats),
+    grantedAbilityId: overrides.grantedAbilityId ?? config.grantedAbilityId,
   };
 }
 
@@ -282,6 +283,9 @@ export function buildGeneratedItemFromConfig(
       overrides.secondaryStatCapacity ?? secondaryStats.capacity,
     secondaryStats:
       overrides.secondaryStats ?? secondaryStats.stats,
+    grantedAbilityId:
+      overrides.grantedAbilityId ??
+      pickGrantedAbilityId(config, overrides.id ?? config.key),
   });
 
   return applyRarityToItem(built);
@@ -316,6 +320,7 @@ export function cloneConfiguredItem(item: Item) {
     secondaryStats: item.secondaryStats,
     icon: item.icon,
     tags: item.tags ?? config.tags ?? [],
+    grantedAbilityId: item.grantedAbilityId,
   });
 }
 
@@ -553,6 +558,24 @@ function pickConfigIcon(
   seed: string,
 ) {
   if (!iconPool || iconPool.length === 0) return fallback;
-  const hash = [...seed].reduce((total, char) => total + char.charCodeAt(0), 0);
+  const hash = seededIndex(seed);
   return iconPool[hash % iconPool.length] ?? fallback;
+}
+
+function pickGrantedAbilityId(
+  config: Pick<ItemConfig, 'grantedAbilityPool' | 'grantedAbilityId'>,
+  seed: string,
+) {
+  if (config.grantedAbilityId) return config.grantedAbilityId;
+  if (!config.grantedAbilityPool || config.grantedAbilityPool.length === 0) {
+    return undefined;
+  }
+
+  return config.grantedAbilityPool[
+    seededIndex(seed) % config.grantedAbilityPool.length
+  ];
+}
+
+function seededIndex(seed: string) {
+  return [...seed].reduce((total, char) => total + char.charCodeAt(0), 0);
 }

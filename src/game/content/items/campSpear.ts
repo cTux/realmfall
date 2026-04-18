@@ -7,6 +7,7 @@ export const campSpearItemConfig: ItemConfig = {
   key: 'camp-spear',
   name: itemName('camp-spear'),
   slot: EquipmentSlotId.Weapon,
+  grantedAbilityId: 'impale',
   icon: ContentIcons.Weapon,
   tier: 1,
   rarity: 'common',
