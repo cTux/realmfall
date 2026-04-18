@@ -15,6 +15,7 @@ const stats: HeroWindowStats = {
   rawDefense: 1,
   attack: 1,
   defense: 1,
+  statusEffects: [],
   buffs: [],
   debuffs: [],
   abilityIds: [],

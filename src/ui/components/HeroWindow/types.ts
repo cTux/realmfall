@@ -1,5 +1,10 @@
 import type { WindowPosition } from '../../../app/constants';
-import type { AbilityId, SkillName, StatusEffectId } from '../../../game/state';
+import type {
+  AbilityId,
+  PlayerStatusEffect,
+  SkillName,
+  StatusEffectId,
+} from '../../../game/state';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 
 export interface HeroWindowStats {
@@ -14,6 +19,7 @@ export interface HeroWindowStats {
   attack: number;
   defense: number;
   attackSpeed?: number;
+  statusEffects: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[];
   buffs: StatusEffectId[];
   debuffs: StatusEffectId[];
   abilityIds: AbilityId[];

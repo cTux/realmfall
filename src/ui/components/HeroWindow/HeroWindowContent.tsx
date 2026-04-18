@@ -1,5 +1,5 @@
 import { getAbilityDefinition } from '../../../game/abilities';
-import type { StatusEffectId } from '../../../game/types';
+import type { PlayerStatusEffect } from '../../../game/types';
 import { t } from '../../../i18n';
 import { formatStatusEffectLabel } from '../../../i18n/labels';
 import {
@@ -88,7 +88,7 @@ export function HeroWindowContent({
       </div>
       {stats.buffs.length > 0 ? (
         <EffectList
-          items={stats.buffs as StatusEffectId[]}
+          items={buildHeroEffectItems(stats, 'buff')}
           tone="buff"
           onHoverDetail={onHoverDetail}
           onLeaveDetail={onLeaveDetail}
@@ -97,7 +97,7 @@ export function HeroWindowContent({
       ) : null}
       {stats.debuffs.length > 0 ? (
         <EffectList
-          items={stats.debuffs as StatusEffectId[]}
+          items={buildHeroEffectItems(stats, 'debuff')}
           tone="debuff"
           onHoverDetail={onHoverDetail}
           onLeaveDetail={onLeaveDetail}
@@ -136,7 +136,7 @@ function EffectList({
   onLeaveDetail,
   stats,
 }: {
-  items: StatusEffectId[];
+  items: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[];
   tone: 'buff' | 'debuff';
   onHoverDetail?: HeroWindowProps['onHoverDetail'];
   onLeaveDetail?: HeroWindowProps['onLeaveDetail'];
@@ -146,14 +146,14 @@ function EffectList({
     <div className={styles.effectList}>
       {items.map((item) => (
         <button
-          key={item}
+          key={item.id}
           type="button"
           className={`${styles.effectChip} ${tone === 'buff' ? styles.buffChip : styles.debuffChip}`}
-          aria-label={formatStatusEffectLabel(item)}
+          aria-label={formatStatusEffectLabel(item.id)}
           onMouseEnter={(event) => {
             if (!onHoverDetail) return;
             const extraLines =
-              item === 'hunger'
+              item.id === 'hunger'
                 ? [
                     {
                       kind: 'stat' as const,
@@ -168,7 +168,7 @@ function EffectList({
                       tone: 'negative' as const,
                     },
                   ]
-                : item === 'thirst'
+                : item.id === 'thirst'
                   ? [
                       {
                         kind: 'stat' as const,
@@ -177,7 +177,7 @@ function EffectList({
                         tone: 'negative' as const,
                       },
                     ]
-                  : item === 'recentDeath'
+                  : item.id === 'recentDeath'
                     ? [
                         {
                           kind: 'stat' as const,
@@ -186,7 +186,7 @@ function EffectList({
                           tone: 'negative' as const,
                         },
                       ]
-                    : item === 'restoration'
+                    : item.id === 'restoration'
                       ? [
                           {
                             kind: 'stat' as const,
@@ -201,34 +201,7 @@ function EffectList({
                             tone: 'positive' as const,
                           },
                         ]
-                      : item === 'bleeding'
-                        ? [
-                            {
-                              kind: 'stat' as const,
-                            label: t('ui.hero.hp'),
-                            value: t('ui.hero.effect.bleeding.value'),
-                            tone: 'negative' as const,
-                          },
-                        ]
-                      : item === 'poison'
-                        ? [
-                            {
-                              kind: 'stat' as const,
-                              label: t('ui.hero.hp'),
-                              value: t('ui.hero.effect.poison.value'),
-                              tone: 'negative' as const,
-                            },
-                          ]
-                        : item === 'burning'
-                          ? [
-                              {
-                                kind: 'stat' as const,
-                                label: t('ui.hero.hp'),
-                                value: t('ui.hero.effect.burning.value'),
-                                tone: 'negative' as const,
-                              },
-                            ]
-                          : item === 'chilling'
+                      : item.id === 'chilling'
                             ? [
                                 {
                                   kind: 'stat' as const,
@@ -237,7 +210,7 @@ function EffectList({
                                   tone: 'negative' as const,
                                 },
                               ]
-                            : item === 'guard'
+                            : item.id === 'guard'
                               ? [
                                   {
                                     kind: 'stat' as const,
@@ -246,7 +219,7 @@ function EffectList({
                                     tone: 'positive' as const,
                                   },
                                 ]
-                            : item === 'power'
+                              : item.id === 'power'
                               ? [
                                   {
                                     kind: 'stat' as const,
@@ -255,7 +228,7 @@ function EffectList({
                                     tone: 'positive' as const,
                                   },
                                 ]
-                              : item === 'frenzy'
+                                : item.id === 'frenzy'
                                 ? [
                                     {
                                       kind: 'stat' as const,
@@ -264,7 +237,7 @@ function EffectList({
                                       tone: 'positive' as const,
                                     },
                                   ]
-                                : item === 'weakened'
+                                  : item.id === 'weakened'
                                   ? [
                                       {
                                         kind: 'stat' as const,
@@ -273,7 +246,7 @@ function EffectList({
                                         tone: 'negative' as const,
                                       },
                                     ]
-                                  : item === 'shocked'
+                                    : item.id === 'shocked'
                                     ? [
                                         {
                                           kind: 'stat' as const,
@@ -285,8 +258,8 @@ function EffectList({
                                     : [];
             onHoverDetail(
               event,
-              formatStatusEffectLabel(item),
-              statusEffectTooltipLines(item, tone, extraLines),
+              formatStatusEffectLabel(item.id),
+              statusEffectTooltipLines(item.id, tone, extraLines, item),
               tone === 'buff'
                 ? 'rgba(34, 197, 94, 0.9)'
                 : 'rgba(239, 68, 68, 0.9)',
@@ -298,13 +271,26 @@ function EffectList({
             aria-hidden="true"
             className={styles.effectIcon}
             style={iconMaskStyle(
-              statusEffectIcon(item),
-              statusEffectTint(item, tone),
+              statusEffectIcon(item.id),
+              statusEffectTint(item.id, tone),
             )}
           />
         </button>
       ))}
     </div>
+  );
+}
+
+function buildHeroEffectItems(
+  stats: HeroWindowProps['stats'],
+  tone: 'buff' | 'debuff',
+) {
+  const ids = tone === 'buff' ? stats.buffs : stats.debuffs;
+  return ids.map(
+    (id) =>
+      stats.statusEffects.find((effect) => effect.id === id) ?? {
+        id,
+      },
   );
 }
 

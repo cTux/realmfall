@@ -21,6 +21,7 @@ import {
   Skill,
   type GameState,
   type Player,
+  type PlayerStatusEffect,
   type StatusEffectId,
   type SkillName,
   type SkillProgress,
@@ -188,6 +189,18 @@ export function getPlayerStats(player: Player) {
     powerBuffChance,
     frenzyBuffChance,
     secondaryStats: equipped.flatMap((item) => item?.secondaryStats ?? []),
+    statusEffects: statusEffects.map(
+      (effect) =>
+        ({
+          id: effect.id,
+          value: effect.value,
+          tickIntervalMs: effect.tickIntervalMs,
+          stacks: effect.stacks,
+        }) satisfies Pick<
+          PlayerStatusEffect,
+          'id' | 'value' | 'tickIntervalMs' | 'stacks'
+        >,
+    ),
     buffs: [
       ...statusEffects
         .filter(

@@ -25,8 +25,18 @@ export function useCombatPlayerParty({
               maxMana: stats.maxMana,
               attack: stats.attack,
               actor: combatSnapshot.combat.player,
-              buffs: stats.buffs,
-              debuffs: stats.debuffs,
+              buffs: stats.buffs.map(
+                (id) =>
+                  stats.statusEffects.find((effect) => effect.id === id) ?? {
+                    id,
+                  },
+              ),
+              debuffs: stats.debuffs.map(
+                (id) =>
+                  stats.statusEffects.find((effect) => effect.id === id) ?? {
+                    id,
+                  },
+              ),
             },
           ]
         : [],
@@ -35,6 +45,7 @@ export function useCombatPlayerParty({
       mana,
       stats.buffs,
       stats.debuffs,
+      stats.statusEffects,
       stats.attack,
       stats.hp,
       stats.level,

@@ -561,6 +561,41 @@ describe('ui helpers and components', () => {
       text: 'Tags: status.buff, status.restoration',
       tone: 'subtle',
     });
+    expect(
+      statusEffectTooltipLines(
+        'burning',
+        'debuff',
+        [],
+        {
+          id: 'burning',
+          value: 3,
+          stacks: 2,
+          tickIntervalMs: 1000,
+        },
+      ),
+    ).toContainEqual({
+      kind: 'stat',
+      label: 'Damage',
+      value: '6 / 1s',
+      tone: 'negative',
+    });
+    expect(
+      statusEffectTooltipLines(
+        'poison',
+        'debuff',
+        [],
+        {
+          id: 'poison',
+          stacks: 3,
+          tickIntervalMs: 2000,
+        },
+      ),
+    ).toContainEqual({
+      kind: 'stat',
+      label: 'Damage',
+      value: '3% max HP / 2s',
+      tone: 'negative',
+    });
   });
 
   it('uses the rolled cloth icon for Cloth items', () => {
@@ -1496,6 +1531,7 @@ describe('ui helpers and components', () => {
           rawDefense: 15,
           attack: 20,
           defense: 15,
+          statusEffects: [],
           buffs: [],
           debuffs: [],
           abilityIds: ['kick'],
@@ -1541,6 +1577,7 @@ describe('ui helpers and components', () => {
           rawDefense: 15,
           attack: 20,
           defense: 15,
+          statusEffects: [],
           buffs: [],
           debuffs: [],
           abilityIds: ['kick'],

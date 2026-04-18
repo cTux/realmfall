@@ -2,7 +2,7 @@ import { getAbilityDefinition } from '../../../game/abilities';
 import { getEnemyCombatAttack } from '../../../game/state';
 import type { CombatActorState } from '../../../game/state';
 import { getStatusEffectDefinition } from '../../../game/content/statusEffects';
-import type { StatusEffectId } from '../../../game/types';
+import type { PlayerStatusEffect } from '../../../game/types';
 import { t } from '../../../i18n';
 import {
   formatEnemyRarityLabel,
@@ -37,8 +37,8 @@ interface CombatEntityView {
   attack: number;
   rarity?: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
   actor: CombatActorState;
-  buffs: StatusEffectId[];
-  debuffs: StatusEffectId[];
+  buffs: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[];
+  debuffs: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[];
 }
 
 export function CombatWindowContent({
@@ -54,7 +54,7 @@ export function CombatWindowContent({
   );
   const enemyParty: CombatEntityView[] = enemies.map((enemy) => {
     const effectGroups = partitionStatusEffects(
-      enemy.statusEffects?.map((effect) => effect.id) ?? [],
+      enemy.statusEffects ?? [],
     );
     return {
       id: enemy.id,
@@ -309,7 +309,7 @@ function EffectList({
   onHoverDetail,
   onLeaveDetail,
 }: {
-  items: StatusEffectId[];
+  items: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[];
   tone: 'buff' | 'debuff';
   onHoverDetail: CombatWindowProps['onHoverDetail'];
   onLeaveDetail: CombatWindowProps['onLeaveDetail'];
@@ -318,15 +318,15 @@ function EffectList({
     <div className={styles.effectList}>
       {items.map((item) => (
         <button
-          key={item}
+          key={item.id}
           type="button"
           className={`${styles.effectChip} ${tone === 'buff' ? styles.buffChip : styles.debuffChip}`}
-          aria-label={formatStatusEffectLabel(item)}
+          aria-label={formatStatusEffectLabel(item.id)}
           onMouseEnter={(event) =>
             onHoverDetail(
               event,
-              formatStatusEffectLabel(item),
-              statusEffectTooltipLines(item, tone),
+              formatStatusEffectLabel(item.id),
+              statusEffectTooltipLines(item.id, tone, [], item),
               tone === 'buff'
                 ? 'rgba(34, 197, 94, 0.9)'
                 : 'rgba(239, 68, 68, 0.9)',
@@ -338,8 +338,8 @@ function EffectList({
             aria-hidden="true"
             className={styles.effectIcon}
             style={iconMaskStyle(
-              statusEffectIcon(item),
-              statusEffectTint(item, tone),
+              statusEffectIcon(item.id),
+              statusEffectTint(item.id, tone),
             )}
           />
         </button>
@@ -446,13 +446,15 @@ function CastBar({
   );
 }
 
-function partitionStatusEffects(items: StatusEffectId[]) {
+function partitionStatusEffects(
+  items: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[],
+) {
   return items.reduce<{
-    buffs: StatusEffectId[];
-    debuffs: StatusEffectId[];
+    buffs: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[];
+    debuffs: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[];
   }>(
     (groups, item) => {
-      if (getStatusEffectDefinition(item)?.tone === 'buff') {
+      if (getStatusEffectDefinition(item.id)?.tone === 'buff') {
         groups.buffs.push(item);
       } else {
         groups.debuffs.push(item);

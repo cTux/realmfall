@@ -21,6 +21,7 @@ import {
 import type {
   AbilityDefinition,
   EnemyRarity,
+  PlayerStatusEffect,
   SecondaryStatKey,
   StatusEffectId,
 } from '../game/types';
@@ -374,6 +375,7 @@ export function statusEffectTooltipLines(
   effectId: StatusEffectId,
   tone: 'buff' | 'debuff',
   extraLines: TooltipLine[] = [],
+  effect?: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>,
 ): TooltipLine[] {
   const description =
     effectId === 'hunger'
@@ -405,6 +407,7 @@ export function statusEffectTooltipLines(
       kind: 'text',
       text: description,
     },
+    ...statusEffectDamageLines(effect),
     ...extraLines,
     ...tagTooltipLines(getStatusEffectTags(effectId)),
   ];
@@ -592,4 +595,60 @@ function abilityDamageValue(
       )
     );
   }, 0);
+}
+
+function statusEffectDamageLines(
+  effect?: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>,
+) {
+  if (!effect) return [];
+
+  const intervalSeconds = formatStatusIntervalSeconds(effect.tickIntervalMs);
+
+  switch (effect.id) {
+    case 'bleeding':
+      return [
+        {
+          kind: 'stat' as const,
+          label: t('ui.hero.effect.damage'),
+          value: t('ui.hero.effect.damagePerInterval', {
+            amount: Math.max(1, Math.floor(effect.value ?? 0)),
+            seconds: intervalSeconds,
+          }),
+          tone: 'negative' as const,
+        },
+      ];
+    case 'burning':
+      return [
+        {
+          kind: 'stat' as const,
+          label: t('ui.hero.effect.damage'),
+          value: t('ui.hero.effect.damagePerInterval', {
+            amount:
+              Math.max(1, Math.floor(effect.value ?? 0)) *
+              Math.max(1, effect.stacks ?? 1),
+            seconds: intervalSeconds,
+          }),
+          tone: 'negative' as const,
+        },
+      ];
+    case 'poison':
+      return [
+        {
+          kind: 'stat' as const,
+          label: t('ui.hero.effect.damage'),
+          value: t('ui.hero.effect.damagePercentPerInterval', {
+            amount: Math.max(1, effect.stacks ?? 1),
+            seconds: intervalSeconds,
+          }),
+          tone: 'negative' as const,
+        },
+      ];
+    default:
+      return [];
+  }
+}
+
+function formatStatusIntervalSeconds(tickIntervalMs = 1_000) {
+  const seconds = tickIntervalMs / 1000;
+  return Number.isInteger(seconds) ? `${seconds}` : seconds.toFixed(1);
 }
