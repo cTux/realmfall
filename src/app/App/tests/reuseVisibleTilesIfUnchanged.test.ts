@@ -1,4 +1,4 @@
-import { createGame } from '../../../game/state';
+import { createGame, getVisibleTiles } from '../../../game/state';
 import { reuseVisibleTilesIfUnchanged } from '../selectors/reuseVisibleTilesIfUnchanged';
 
 describe('reuseVisibleTilesIfUnchanged', () => {
@@ -65,5 +65,52 @@ describe('reuseVisibleTilesIfUnchanged', () => {
     );
 
     expect(nextVisibleTiles).not.toBe(initialVisibleTiles);
+  });
+
+  it('persists metadata when reusing a caller-seeded visibleTiles array', () => {
+    const game = createGame(3, 'world-render-selectors-caller-seeded');
+    const callerSeededVisibleTiles = getVisibleTiles(game);
+    const logOnlyClone = {
+      ...game,
+      logs: [
+        ...game.logs,
+        {
+          id: 'log-1',
+          kind: 'system' as const,
+          text: 'Mist hangs over the ridge.',
+          turn: game.turn,
+        },
+      ],
+    };
+    const offscreenEnemyClone = {
+      ...logOnlyClone,
+      enemies: {
+        ...logOnlyClone.enemies,
+        'enemy-5,0-0': {
+          id: 'enemy-5,0-0',
+          name: 'Wolf',
+          coord: { q: 5, r: 0 },
+          tier: 1,
+          hp: 1,
+          maxHp: 1,
+          attack: 1,
+          defense: 0,
+          xp: 1,
+          elite: false,
+        },
+      },
+    };
+
+    const reusedVisibleTiles = reuseVisibleTilesIfUnchanged(
+      callerSeededVisibleTiles,
+      logOnlyClone,
+    );
+    const nextVisibleTiles = reuseVisibleTilesIfUnchanged(
+      reusedVisibleTiles,
+      offscreenEnemyClone,
+    );
+
+    expect(reusedVisibleTiles).toBe(callerSeededVisibleTiles);
+    expect(nextVisibleTiles).toBe(callerSeededVisibleTiles);
   });
 });

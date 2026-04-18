@@ -21,6 +21,10 @@ export function getSceneRenderTokens(
       ? getVisibleEnemyToken(state, visibleTiles)
       : scene.derivedRenderVisibleEnemyToken;
 
+  if (scene.derivedRenderEnemiesSource !== state.enemies) {
+    scene.derivedRenderEnemiesSource = state.enemies;
+  }
+
   if (
     scene.derivedRenderVisibleTilesSource !== visibleTiles ||
     visibleEnemyToken !== scene.derivedRenderVisibleEnemyToken ||
@@ -29,7 +33,6 @@ export function getSceneRenderTokens(
     scene.derivedRenderBloodMoonActive !== state.bloodMoonActive
   ) {
     scene.derivedRenderVisibleTilesSource = visibleTiles;
-    scene.derivedRenderEnemiesSource = state.enemies;
     scene.derivedRenderVisibleEnemyToken = visibleEnemyToken;
     scene.derivedRenderPlayerCoordKey = playerCoordKey;
     scene.derivedRenderHomeHexKey = homeHexKey;

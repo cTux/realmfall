@@ -1057,6 +1057,7 @@ describe('renderScene', () => {
 
   it('keeps static and stable interaction layers cached across offscreen enemy-only clones', async () => {
     const { renderScene } = await import('./renderScene');
+    const { getSceneCache } = await import('./renderSceneCache');
     const game = createGame(2, 'render-scene-offscreen-enemy-cache');
     game.homeHex = { q: 1, r: 0 };
     const visibleTiles = getVisibleTiles(game);
@@ -1123,8 +1124,12 @@ describe('renderScene', () => {
     const finalPolygonCalls = collectDescendants(world)
       .filter((child) => child instanceof MockGraphics)
       .reduce((sum, child) => sum + child.drawPolygon.mock.calls.length, 0);
+    const sceneCache = getSceneCache(app as never);
 
     expect(finalPolygonCalls).toBe(initialPolygonCalls);
+    expect(sceneCache.derivedRenderEnemiesSource).toBe(
+      offscreenEnemyClone.enemies,
+    );
   });
 
   it('covers hexes beyond the reveal radius with fog of war', async () => {

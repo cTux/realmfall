@@ -14,6 +14,16 @@ type VisibleTilesMetadata = {
 
 const visibleTilesMetadata = new WeakMap<VisibleTiles, VisibleTilesMetadata>();
 
+function buildVisibleTilesMetadata(
+  visibleTilesState: VisibleTilesState,
+): VisibleTilesMetadata {
+  return {
+    playerCoordKey: hexKey(visibleTilesState.player.coord),
+    radius: visibleTilesState.radius,
+    seed: visibleTilesState.seed,
+  };
+}
+
 export function reuseVisibleTilesIfUnchanged(
   previousVisibleTiles: VisibleTiles,
   visibleTilesState: VisibleTilesState,
@@ -28,15 +38,19 @@ export function reuseVisibleTilesIfUnchanged(
   }
 
   const nextVisibleTiles = getVisibleTiles(visibleTilesState);
-  visibleTilesMetadata.set(nextVisibleTiles, {
-    playerCoordKey: hexKey(visibleTilesState.player.coord),
-    radius: visibleTilesState.radius,
-    seed: visibleTilesState.seed,
-  });
-
-  return canReuseVisibleTiles(previousVisibleTiles, nextVisibleTiles)
+  const returnedVisibleTiles = canReuseVisibleTiles(
+    previousVisibleTiles,
+    nextVisibleTiles,
+  )
     ? previousVisibleTiles
     : nextVisibleTiles;
+
+  visibleTilesMetadata.set(
+    returnedVisibleTiles,
+    buildVisibleTilesMetadata(visibleTilesState),
+  );
+
+  return returnedVisibleTiles;
 }
 
 function canReuseVisibleTilesWithoutRecomputing(
