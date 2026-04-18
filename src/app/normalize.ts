@@ -200,6 +200,10 @@ export function normalizeLoadedGame(game: GameState): GameState {
       learnedRecipeIds:
         game.player.learnedRecipeIds ??
         getRecipeBookRecipes().map((recipe) => recipe.id),
+      consumableCooldownEndsAt: Math.max(
+        0,
+        Number(game.player.consumableCooldownEndsAt ?? 0) || 0,
+      ),
       statusEffects: (game.player.statusEffects ?? []).map((effect) => ({
         ...effect,
         tags: effect.tags ?? getStatusEffectTags(effect.id),

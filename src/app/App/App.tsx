@@ -309,6 +309,7 @@ export function App() {
     playerView: {
       coord: game.player.coord,
       mana: game.player.mana,
+      consumableCooldownEndsAt: game.player.consumableCooldownEndsAt,
       actionBarSlots,
       equipment: game.player.equipment,
       inventory: game.player.inventory,

@@ -211,6 +211,8 @@ export { getSafePathToTile } from './statePathfinding';
 
 export const HARVEST_MOON_RESOURCE_TYPE_CHANCES = HARVEST_MOON_RESOURCE_CHANCES;
 
+const CONSUMABLE_COOLDOWN_MS = 2_000;
+
 import type {
   AbilityId,
   Enemy,
@@ -265,6 +267,7 @@ export function createGame(
       skills: makeStartingSkills(),
       learnedRecipeIds: [...STARTING_RECIPE_IDS],
       statusEffects: [],
+      consumableCooldownEndsAt: 0,
       inventory: [
         makeStarterWeapon(),
         makeStarterArmor('chest', ItemId.SettlerVest, 1, 1),
@@ -645,6 +648,16 @@ export function useItem(state: GameState, itemId: string): GameState {
   }
   if (!hasItemTag(item, GAME_TAGS.item.consumable))
     return message(state, t('game.message.item.cannotUse'));
+  if ((state.player.consumableCooldownEndsAt ?? 0) > state.worldTimeMs) {
+    return message(
+      state,
+      t('game.message.useItem.cooldown', {
+        seconds: formatCooldownSeconds(
+          (state.player.consumableCooldownEndsAt ?? 0) - state.worldTimeMs,
+        ),
+      }),
+    );
+  }
 
   const next =
     item.itemKey === ItemId.HomeScroll
@@ -2409,6 +2422,8 @@ function consumeItem(state: GameState, itemIndex: number, item: Item) {
   }
 
   consumeInventoryItem(state.player.inventory, itemIndex, item);
+  state.player.consumableCooldownEndsAt =
+    state.worldTimeMs + CONSUMABLE_COOLDOWN_MS;
   state.player.hp += effects.healing;
   state.player.mana += effects.mana;
   state.player.hunger += effects.hunger;
@@ -2436,6 +2451,11 @@ function consumeItem(state: GameState, itemIndex: number, item: Item) {
           : '',
     }),
   );
+}
+
+function formatCooldownSeconds(remainingMs: number) {
+  const seconds = Math.max(0.1, Math.ceil(remainingMs / 100) / 10);
+  return Number.isInteger(seconds) ? `${seconds}` : seconds.toFixed(1);
 }
 
 function resolveConsumableUseEffects(state: GameState, item: Item) {

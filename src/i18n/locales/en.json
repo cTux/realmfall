@@ -244,6 +244,7 @@
   "game.message.time.nightFalls": "Night falls across the wilds.",
   "game.message.travel.toHex": "You travel to {q}, {r}.",
   "game.message.useItem": "You use {item}{healing}{mana}{hunger}{thirst}.",
+  "game.message.useItem.cooldown": "Consumables are on cooldown for {seconds}s.",
   "game.message.useItem.healing": "recover {amount} HP",
   "game.message.useItem.mana": "restore {amount} MP",
   "game.message.useItem.hunger": "restore {amount} hunger",

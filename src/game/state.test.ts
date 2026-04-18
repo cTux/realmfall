@@ -2044,6 +2044,40 @@ describe('game state', () => {
     );
   });
 
+  it('applies a shared consumable cooldown after using one', () => {
+    const game = createGame(3, 'use-cooldown-seed');
+    game.player.hp = 20;
+    game.player.hunger = 80;
+
+    const used = useItem(game, 'starter-ration');
+
+    expect(used.player.consumableCooldownEndsAt).toBe(2_000);
+    expect(
+      used.player.inventory.find((item) => item.id === 'starter-ration')
+        ?.quantity,
+    ).toBe(1);
+
+    const blocked = useItem(used, 'starter-ration');
+
+    expect(
+      blocked.player.inventory.find((item) => item.id === 'starter-ration')
+        ?.quantity,
+    ).toBe(1);
+    expect(blocked.logs[0]?.text).toContain(
+      'Consumables are on cooldown for 2s.',
+    );
+
+    const ready = {
+      ...used,
+      worldTimeMs: 2_000,
+    };
+    const usedAgain = useItem(ready, 'starter-ration');
+
+    expect(
+      usedAgain.player.inventory.find((item) => item.id === 'starter-ration'),
+    ).toBeUndefined();
+  });
+
   it('uses health and mana potions for 10 percent of the matching max stat', () => {
     const game = createGame(3, 'use-potions-seed');
     const hpPotion = buildItemFromConfig('health-potion', {
@@ -2062,7 +2096,13 @@ describe('game state', () => {
       healed.player.inventory.find((item) => item.id === 'health-potion-1'),
     ).toBeUndefined();
 
-    const restored = useItem(healed, 'mana-potion-1');
+    const restored = useItem(
+      {
+        ...healed,
+        worldTimeMs: 2_000,
+      },
+      'mana-potion-1',
+    );
     expect(restored.player.mana).toBe(10);
     expect(
       restored.player.inventory.find((item) => item.id === 'mana-potion-1'),

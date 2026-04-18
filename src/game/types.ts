@@ -247,6 +247,7 @@ export interface Player {
   inventory: Item[];
   equipment: Equipment;
   statusEffects: PlayerStatusEffect[];
+  consumableCooldownEndsAt?: number;
 }
 
 export type StatusEffectId = StatusEffectIdValue;

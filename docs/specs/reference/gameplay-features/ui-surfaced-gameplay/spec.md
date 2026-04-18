@@ -19,6 +19,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - Hero and combat ability tiles now render the live ability icon asset, show a vertical cooldown fill over the icon, and visually desaturate and fade while the ability is unavailable.
 - Combat entity cards now show a yellow cast bar beneath the resource bars whenever that entity is actively casting, with the fill advancing through the cast duration and the active ability name shown on the bar.
 - Action bar consumable bindings clear themselves once the assigned stack no longer exists in inventory, so depleted consumables do not linger as unavailable stale slots.
+- Action bar consumables now show the same vertical cooldown overlay style used for abilities, and a shared consumable cooldown overlays every populated slot while any consumable is recharging.
 - Pressing `Esc` closes every currently open window.
 - World camp markers stay readable above their night-time glow effects instead of sinking beneath the bloom layer.
 - Logs provide system, movement, combat, loot, and other gameplay feedback.
