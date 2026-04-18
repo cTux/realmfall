@@ -130,4 +130,65 @@ describe('GameSettingsWindowContent', () => {
     expect(volumeSlider?.value).toBe('65');
     expect(host.textContent).toContain('65%');
   });
+
+  it('saves sound effect toggles inside the audio payload', async () => {
+    const onSave = vi.fn(async () => undefined);
+
+    await act(async () => {
+      root.render(
+        <GameSettingsWindowContent
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
+          graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          onResetSaveData={async () => undefined}
+          onSave={onSave}
+          onSaveAndReload={async () => undefined}
+        />,
+      );
+    });
+
+    const audioTab = Array.from(host.querySelectorAll('[role="tab"]')).find(
+      (candidate) =>
+        candidate.textContent?.includes(t('ui.settings.tabs.audio')),
+    );
+
+    await act(async () => {
+      audioTab?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    const windowOpenSwitch = Array.from(
+      host.querySelectorAll('label'),
+    ).find((candidate) =>
+      candidate.textContent?.includes(
+        t('ui.settings.audio.soundEffects.pop.label'),
+      ),
+    )?.querySelector('input[type="checkbox"]');
+    const saveButton = Array.from(host.querySelectorAll('button')).find(
+      (candidate) =>
+        candidate.textContent?.includes(t('ui.settings.actions.save')),
+    );
+
+    expect(windowOpenSwitch).toBeDefined();
+    expect(saveButton).toBeDefined();
+
+    await act(async () => {
+      windowOpenSwitch?.dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      );
+    });
+
+    await act(async () => {
+      saveButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    expect(onSave).toHaveBeenCalledWith({
+      audio: {
+        ...DEFAULT_AUDIO_SETTINGS,
+        soundEffects: {
+          ...DEFAULT_AUDIO_SETTINGS.soundEffects,
+          pop: false,
+        },
+      },
+      graphics: DEFAULT_GRAPHICS_SETTINGS,
+    });
+  });
 });

@@ -8,8 +8,21 @@ import {
 export interface AudioSettings {
   muted: boolean;
   respectReducedMotion: boolean;
+  soundEffects: AudioSoundEffectsSettings;
   theme: ThemeName;
   volume: number;
+}
+
+export interface AudioSoundEffectsSettings {
+  click: boolean;
+  error: boolean;
+  hover: boolean;
+  notify: boolean;
+  pop: boolean;
+  success: boolean;
+  swoosh: boolean;
+  toggle: boolean;
+  warning: boolean;
 }
 
 export interface AudioThemeOptionDefinition {
@@ -23,9 +36,28 @@ export interface AudioSettingsToggleOptionDefinition {
   descriptionKey: string;
 }
 
+export interface AudioSettingsSoundEffectOptionDefinition {
+  key: keyof AudioSoundEffectsSettings;
+  labelKey: string;
+  descriptionKey: string;
+}
+
+export const DEFAULT_AUDIO_SOUND_EFFECTS: AudioSoundEffectsSettings = {
+  click: true,
+  error: true,
+  hover: true,
+  notify: true,
+  pop: true,
+  success: true,
+  swoosh: true,
+  toggle: true,
+  warning: true,
+};
+
 export const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
   muted: false,
   respectReducedMotion: true,
+  soundEffects: DEFAULT_AUDIO_SOUND_EFFECTS,
   theme: 'soft',
   volume: 0.3,
 };
@@ -52,6 +84,55 @@ export const AUDIO_SETTINGS_TOGGLE_OPTIONS: AudioSettingsToggleOptionDefinition[
       key: 'respectReducedMotion',
       labelKey: 'ui.settings.audio.respectReducedMotion.label',
       descriptionKey: 'ui.settings.audio.respectReducedMotion.description',
+    },
+  ];
+
+export const AUDIO_SETTINGS_SOUND_EFFECT_OPTIONS: AudioSettingsSoundEffectOptionDefinition[] =
+  [
+    {
+      key: 'hover',
+      labelKey: 'ui.settings.audio.soundEffects.hover.label',
+      descriptionKey: 'ui.settings.audio.soundEffects.hover.description',
+    },
+    {
+      key: 'click',
+      labelKey: 'ui.settings.audio.soundEffects.click.label',
+      descriptionKey: 'ui.settings.audio.soundEffects.click.description',
+    },
+    {
+      key: 'toggle',
+      labelKey: 'ui.settings.audio.soundEffects.toggle.label',
+      descriptionKey: 'ui.settings.audio.soundEffects.toggle.description',
+    },
+    {
+      key: 'pop',
+      labelKey: 'ui.settings.audio.soundEffects.pop.label',
+      descriptionKey: 'ui.settings.audio.soundEffects.pop.description',
+    },
+    {
+      key: 'swoosh',
+      labelKey: 'ui.settings.audio.soundEffects.swoosh.label',
+      descriptionKey: 'ui.settings.audio.soundEffects.swoosh.description',
+    },
+    {
+      key: 'notify',
+      labelKey: 'ui.settings.audio.soundEffects.notify.label',
+      descriptionKey: 'ui.settings.audio.soundEffects.notify.description',
+    },
+    {
+      key: 'success',
+      labelKey: 'ui.settings.audio.soundEffects.success.label',
+      descriptionKey: 'ui.settings.audio.soundEffects.success.description',
+    },
+    {
+      key: 'warning',
+      labelKey: 'ui.settings.audio.soundEffects.warning.label',
+      descriptionKey: 'ui.settings.audio.soundEffects.warning.description',
+    },
+    {
+      key: 'error',
+      labelKey: 'ui.settings.audio.soundEffects.error.label',
+      descriptionKey: 'ui.settings.audio.soundEffects.error.description',
     },
   ];
 
@@ -96,6 +177,7 @@ function normalizeAudioSettings(settings: unknown): AudioSettings {
       typeof settings.respectReducedMotion === 'boolean'
         ? settings.respectReducedMotion
         : DEFAULT_AUDIO_SETTINGS.respectReducedMotion,
+    soundEffects: normalizeAudioSoundEffects(settings.soundEffects),
     theme: isThemeName(settings.theme)
       ? settings.theme
       : DEFAULT_AUDIO_SETTINGS.theme,
@@ -108,6 +190,53 @@ function normalizeAudioSettings(settings: unknown): AudioSettings {
 
 function clampVolume(volume: number) {
   return Math.min(1, Math.max(0, volume));
+}
+
+function normalizeAudioSoundEffects(
+  soundEffects: unknown,
+): AudioSoundEffectsSettings {
+  if (!isRecord(soundEffects)) {
+    return DEFAULT_AUDIO_SOUND_EFFECTS;
+  }
+
+  return {
+    click:
+      typeof soundEffects.click === 'boolean'
+        ? soundEffects.click
+        : DEFAULT_AUDIO_SOUND_EFFECTS.click,
+    error:
+      typeof soundEffects.error === 'boolean'
+        ? soundEffects.error
+        : DEFAULT_AUDIO_SOUND_EFFECTS.error,
+    hover:
+      typeof soundEffects.hover === 'boolean'
+        ? soundEffects.hover
+        : DEFAULT_AUDIO_SOUND_EFFECTS.hover,
+    notify:
+      typeof soundEffects.notify === 'boolean'
+        ? soundEffects.notify
+        : DEFAULT_AUDIO_SOUND_EFFECTS.notify,
+    pop:
+      typeof soundEffects.pop === 'boolean'
+        ? soundEffects.pop
+        : DEFAULT_AUDIO_SOUND_EFFECTS.pop,
+    success:
+      typeof soundEffects.success === 'boolean'
+        ? soundEffects.success
+        : DEFAULT_AUDIO_SOUND_EFFECTS.success,
+    swoosh:
+      typeof soundEffects.swoosh === 'boolean'
+        ? soundEffects.swoosh
+        : DEFAULT_AUDIO_SOUND_EFFECTS.swoosh,
+    toggle:
+      typeof soundEffects.toggle === 'boolean'
+        ? soundEffects.toggle
+        : DEFAULT_AUDIO_SOUND_EFFECTS.toggle,
+    warning:
+      typeof soundEffects.warning === 'boolean'
+        ? soundEffects.warning
+        : DEFAULT_AUDIO_SOUND_EFFECTS.warning,
+  };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

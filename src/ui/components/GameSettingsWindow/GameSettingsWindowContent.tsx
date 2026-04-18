@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  AUDIO_SETTINGS_SOUND_EFFECT_OPTIONS,
   AUDIO_SETTINGS_TOGGLE_OPTIONS,
   AUDIO_THEME_OPTIONS,
   type AudioSettings,
@@ -183,6 +184,35 @@ export function GameSettingsWindowContent({
                   />
                 ))}
               </div>
+              <section className={styles.soundEffectsSection}>
+                <div className={styles.sectionHeader}>
+                  <span className={styles.rangeLabel}>
+                    {t('ui.settings.audio.soundEffects.label')}
+                  </span>
+                  <span className={styles.rangeDescription}>
+                    {t('ui.settings.audio.soundEffects.description')}
+                  </span>
+                </div>
+                <div className={styles.switches}>
+                  {AUDIO_SETTINGS_SOUND_EFFECT_OPTIONS.map((option) => (
+                    <Switch
+                      key={option.key}
+                      checked={draftAudioSettings.soundEffects[option.key]}
+                      label={t(option.labelKey)}
+                      description={t(option.descriptionKey)}
+                      onChange={(checked) =>
+                        setDraftAudioSettings((current) => ({
+                          ...current,
+                          soundEffects: {
+                            ...current.soundEffects,
+                            [option.key]: checked,
+                          },
+                        }))
+                      }
+                    />
+                  ))}
+                </div>
+              </section>
               <label className={styles.rangeField} data-ui-audio-hover="true">
                 <span className={styles.rangeHeader}>
                   <span className={styles.rangeLabel}>

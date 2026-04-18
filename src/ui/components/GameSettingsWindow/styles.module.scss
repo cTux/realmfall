@@ -82,6 +82,14 @@
   gap: 0.7rem;
 }
 
+.soundEffectsSection {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgb(148 163 184 / 16%);
+  background: rgb(15 23 42 / 62%);
+}
+
 .rangeField,
 .themeField {
   display: grid;
@@ -97,6 +105,11 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 0.75rem;
+}
+
+.sectionHeader {
+  display: grid;
+  gap: 0.3rem;
 }
 
 .rangeLabel {

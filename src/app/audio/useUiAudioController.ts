@@ -1,6 +1,9 @@
 import { tiks } from '@rexa-developer/tiks';
 import { useEffect, useEffectEvent, useMemo, useRef } from 'react';
-import type { AudioSettings } from '../audioSettings';
+import type {
+  AudioSettings,
+  AudioSoundEffectsSettings,
+} from '../audioSettings';
 import type { UiAudioController } from './UiAudioContext';
 
 const HOVER_SELECTOR = [
@@ -76,6 +79,17 @@ export function useUiAudioController(
     }
   };
 
+  const playSound = (
+    soundEffect: keyof AudioSoundEffectsSettings,
+    callback: () => void,
+  ) => {
+    if (!settingsRef.current.soundEffects[soundEffect]) {
+      return;
+    }
+
+    play(callback);
+  };
+
   const applySettings = (nextSettings: AudioSettings) => {
     settingsRef.current = nextSettings;
 
@@ -113,7 +127,7 @@ export function useUiAudioController(
     }
 
     hoveredElementRef.current = target;
-    play(() => tiks.hover());
+    playSound('hover', () => tiks.hover());
   });
 
   const handlePointerOut = useEffectEvent((event: PointerEvent) => {
@@ -147,7 +161,7 @@ export function useUiAudioController(
     }
 
     hoveredElementRef.current = target;
-    play(() => tiks.hover());
+    playSound('hover', () => tiks.hover());
   });
 
   const handleClick = useEffectEvent((event: MouseEvent) => {
@@ -160,23 +174,23 @@ export function useUiAudioController(
       return;
     }
 
-    play(() => tiks.click());
+    playSound('click', () => tiks.click());
   });
 
   const handleChange = useEffectEvent((event: Event) => {
     const target = event.target;
     if (target instanceof HTMLInputElement && target.type === 'checkbox') {
-      play(() => tiks.toggle(target.checked));
+      playSound('toggle', () => tiks.toggle(target.checked));
       return;
     }
 
     if (target instanceof HTMLInputElement && target.type === 'range') {
-      play(() => tiks.pop());
+      playSound('pop', () => tiks.pop());
       return;
     }
 
     if (target instanceof HTMLSelectElement) {
-      play(() => tiks.pop());
+      playSound('pop', () => tiks.pop());
     }
   });
 
@@ -203,15 +217,16 @@ export function useUiAudioController(
   return useMemo(
     () => ({
       applySettings,
-      click: () => play(() => tiks.click()),
-      error: () => play(() => tiks.error()),
-      hover: () => play(() => tiks.hover()),
-      notify: () => play(() => tiks.notify()),
-      pop: () => play(() => tiks.pop()),
-      success: () => play(() => tiks.success()),
-      swoosh: () => play(() => tiks.swoosh()),
-      toggle: (nextState: boolean) => play(() => tiks.toggle(nextState)),
-      warning: () => play(() => tiks.warning()),
+      click: () => playSound('click', () => tiks.click()),
+      error: () => playSound('error', () => tiks.error()),
+      hover: () => playSound('hover', () => tiks.hover()),
+      notify: () => playSound('notify', () => tiks.notify()),
+      pop: () => playSound('pop', () => tiks.pop()),
+      success: () => playSound('success', () => tiks.success()),
+      swoosh: () => playSound('swoosh', () => tiks.swoosh()),
+      toggle: (nextState: boolean) =>
+        playSound('toggle', () => tiks.toggle(nextState)),
+      warning: () => playSound('warning', () => tiks.warning()),
     }),
     [],
   );
