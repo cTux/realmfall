@@ -4,6 +4,7 @@ import type {
   EquipmentSlot,
   Item,
   LogKind,
+  SecondaryStatKey,
   SkillName,
   Terrain,
 } from '../game/types';
@@ -56,4 +57,8 @@ export function formatLogKindLabel(kind: LogKind) {
 
 export function formatStatusEffectLabel(statusEffectName: string) {
   return t(`ui.statusEffect.${statusEffectName}.label`);
+}
+
+export function formatSecondaryStatLabel(stat: SecondaryStatKey) {
+  return t(`ui.secondaryStat.${stat}`);
 }

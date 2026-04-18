@@ -14,7 +14,12 @@ import {
   getPlacedWorldBossCenter,
   isWorldBossEnemyId,
 } from '../../game/worldBoss';
-import { WorldIcons, enemyIconFor, structureIconFor } from './worldIcons';
+import {
+  WorldIcons,
+  enemyIconFor,
+  enemyIconTintFor,
+  structureIconFor,
+} from './worldIcons';
 import { WORLD_REVEAL_RADIUS } from '../../app/constants';
 import { scaleColor } from './timeOfDay';
 import {
@@ -68,8 +73,6 @@ const SAFE_PATH_TINT_ALPHA = 0.34;
 const SAFE_PATH_HEX_INSET = 2;
 const HOME_HEX_TINT_INSET = 3;
 const STRUCTURE_HEX_ICON_TINT = 0xffffff;
-const ENEMY_HEX_ICON_TINT = 0xef4444;
-const WORLD_BOSS_ICON_TINT = 0x7f1d1d;
 const WORLD_BOSS_HEX_TINT_COLOR = 0x7f1d1d;
 const WORLD_BOSS_HEX_TINT_ALPHA = 0.22;
 
@@ -282,7 +285,7 @@ export function renderScene(
               );
               configureShadowedSprite(
                 sprite,
-                isBossCenter ? WORLD_BOSS_ICON_TINT : ENEMY_HEX_ICON_TINT,
+                enemyIconTintFor(leadEnemy),
                 isBossCenter ? worldBossIconSize : enemyIconSize,
                 isBossCenter ? worldBossIconSize : enemyIconSize,
                 1,

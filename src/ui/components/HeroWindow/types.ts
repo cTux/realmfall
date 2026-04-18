@@ -1,5 +1,5 @@
 import type { WindowPosition } from '../../../app/constants';
-import type { AbilityId, SkillName } from '../../../game/state';
+import type { AbilityId, SkillName, StatusEffectId } from '../../../game/state';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 
 export interface HeroWindowStats {
@@ -14,8 +14,8 @@ export interface HeroWindowStats {
   attack: number;
   defense: number;
   attackSpeed?: number;
-  buffs: string[];
-  debuffs: string[];
+  buffs: StatusEffectId[];
+  debuffs: StatusEffectId[];
   abilityIds: AbilityId[];
   level: number;
   masteryLevel: number;

@@ -96,7 +96,10 @@ export function applyRarityToItem(item: Item): Item {
     ...item,
     power: Math.round(item.power * multiplier),
     defense: Math.round(item.defense * multiplier),
-    maxHp: Math.round(item.maxHp * multiplier + rarityBonus(item.rarity)),
+    maxHp:
+      item.maxHp > 0
+        ? Math.round(item.maxHp * multiplier + rarityBonus(item.rarity))
+        : 0,
   };
 }
 

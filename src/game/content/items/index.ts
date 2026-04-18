@@ -10,6 +10,12 @@ import {
 } from '../tags';
 import { applyRarityToItem } from '../../shared';
 import {
+  buildGeneratedMainStats,
+  buildGeneratedSecondaryStats,
+  normalizeSecondaryStats,
+} from '../../itemSecondaryStats';
+import { createRng } from '../../random';
+import {
   GENERATED_ACCESSORY_KEYS,
   GENERATED_ARMOR_KEYS,
   GENERATED_EQUIPMENT_CONFIGS,
@@ -237,6 +243,10 @@ export function buildItemFromConfig(
     healing: overrides.healing ?? config.healing,
     hunger: overrides.hunger ?? config.hunger,
     thirst: overrides.thirst ?? config.thirst ?? 0,
+    secondaryStatCapacity:
+      overrides.secondaryStatCapacity ?? config.secondaryStatCapacity,
+    secondaryStats:
+      overrides.secondaryStats ?? normalizeSecondaryStats(config.secondaryStats),
   };
 }
 
@@ -250,27 +260,28 @@ export function buildGeneratedItemFromConfig(
   }
 
   const tier = overrides.tier ?? config.tier;
+  const rng = createRng(
+    `${key}:generated:${overrides.id ?? config.key}:${tier}:${overrides.rarity ?? config.rarity}`,
+  );
+  const mainStats = buildGeneratedMainStats(config, tier, rng);
+  const secondaryStats = buildGeneratedSecondaryStats(
+    {
+      config,
+      tier,
+      rarity: overrides.rarity ?? config.rarity,
+    },
+    rng,
+  );
   const built = buildItemFromConfig(key, {
     ...overrides,
     tier,
-    power:
-      overrides.power ??
-      Math.round(
-        (config.generatedStats.basePower ?? 0) +
-          (config.generatedStats.powerPerTier ?? 0) * tier,
-      ),
-    defense:
-      overrides.defense ??
-      Math.round(
-        (config.generatedStats.baseDefense ?? 0) +
-          (config.generatedStats.defensePerTier ?? 0) * tier,
-      ),
-    maxHp:
-      overrides.maxHp ??
-      Math.round(
-        (config.generatedStats.baseMaxHp ?? 0) +
-          (config.generatedStats.maxHpPerTier ?? 0) * tier,
-      ),
+    power: overrides.power ?? mainStats.power,
+    defense: overrides.defense ?? mainStats.defense,
+    maxHp: overrides.maxHp ?? mainStats.maxHp,
+    secondaryStatCapacity:
+      overrides.secondaryStatCapacity ?? secondaryStats.capacity,
+    secondaryStats:
+      overrides.secondaryStats ?? secondaryStats.stats,
   });
 
   return applyRarityToItem(built);
@@ -301,6 +312,8 @@ export function cloneConfiguredItem(item: Item) {
     healing: item.healing,
     hunger: item.hunger,
     thirst: item.thirst,
+    secondaryStatCapacity: item.secondaryStatCapacity,
+    secondaryStats: item.secondaryStats,
     icon: item.icon,
     tags: item.tags ?? config.tags ?? [],
   });

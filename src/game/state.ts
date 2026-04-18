@@ -23,7 +23,7 @@ import {
   hasItemTag,
   itemOccupiesOffhand,
 } from './content/items';
-import { EquipmentSlotId, ItemId } from './content/ids';
+import { EquipmentSlotId, ItemId, StatusEffectTypeId } from './content/ids';
 import { getStructureConfig } from './content/structures';
 import {
   createCombatActorState,
@@ -696,6 +696,16 @@ function resolveCombat(state: GameState) {
 
   while (state.combat && keepResolving) {
     keepResolving = false;
+    const playerEffectsChanged = processPlayerStatusEffects(state);
+    const enemyEffectsChanged = processEnemyStatusEffects(state);
+    if (playerEffectsChanged || enemyEffectsChanged) {
+      changed = true;
+      if (state.player.hp <= 0 && state.combat) {
+        respawnAtNearestTown(state, state.combat.coord);
+        return true;
+      }
+      if (!state.combat) return true;
+    }
 
     const duePlayerCast =
       state.combat.player.casting &&
@@ -788,7 +798,7 @@ function startEnemyCasts(state: GameState) {
     const targetId = selectPlayerGroupTarget(state);
     if (!targetId) return;
 
-    startAbilityCast(actor, abilityId, targetId, now);
+    startAbilityCast(actor, abilityId, targetId, now, getEnemyAttackSpeed(enemyId, state));
     changed = true;
   });
 
@@ -825,6 +835,17 @@ function startAbilityCast(
   };
 }
 
+function getEnemyAttackSpeed(enemyId: string, state: GameState) {
+  const enemy = state.enemies[enemyId];
+  if (!enemy?.statusEffects?.length) return 1;
+
+  return enemy.statusEffects.some(
+    (effect) => effect.id === StatusEffectTypeId.Chilling,
+  )
+    ? 0.8
+    : 1;
+}
+
 function scaledCooldownMs(baseCooldownMs: number, attackSpeed: number) {
   const safeAttackSpeed = Math.max(0.01, attackSpeed);
   return Math.max(1, Math.round(baseCooldownMs / safeAttackSpeed));
@@ -841,8 +862,21 @@ function applyPlayerAbility(
   if (!enemy) return;
 
   const playerStats = getPlayerStats(state.player);
-  const damage = Math.max(1, playerStats.attack - enemy.defense);
+  const critCount = resolveProcCount(
+    state,
+    `player:${enemy.id}:crit`,
+    playerStats.criticalStrikeChance ?? 0,
+  );
+  const critMultiplier = Math.pow(
+    Math.max(1, (playerStats.criticalStrikeDamage ?? 100) / 100),
+    Math.max(0, critCount),
+  );
+  const damage = Math.max(
+    1,
+    Math.round(Math.max(1, playerStats.attack - enemy.defense) * critMultiplier),
+  );
   enemy.hp = Math.max(0, enemy.hp - damage);
+  applyPlayerOnHitEffects(state, enemy, damage, playerStats);
   addLog(
     state,
     'combat',
@@ -865,6 +899,289 @@ function applyPlayerAbility(
     delete state.enemies[enemy.id];
     syncCombatEnemies(state);
   }
+}
+
+function applyPlayerOnHitEffects(
+  state: GameState,
+  enemy: NonNullable<GameState['enemies'][string]>,
+  damage: number,
+  playerStats: ReturnType<typeof getPlayerStats>,
+) {
+  applyLifesteal(state, damage, playerStats);
+  applyStatusProcToEnemy(
+    state,
+    enemy,
+    'bleeding',
+    playerStats.bleedChance ?? 0,
+    playerStats.attack,
+    playerStats.attackSpeed ?? 1,
+  );
+  applyStatusProcToEnemy(
+    state,
+    enemy,
+    'poison',
+    playerStats.poisonChance ?? 0,
+    playerStats.attack,
+    playerStats.attackSpeed ?? 1,
+  );
+  applyStatusProcToEnemy(
+    state,
+    enemy,
+    'burning',
+    playerStats.burningChance ?? 0,
+    playerStats.attack,
+    playerStats.attackSpeed ?? 1,
+  );
+  applyStatusProcToEnemy(
+    state,
+    enemy,
+    'chilling',
+    playerStats.chillingChance ?? 0,
+    playerStats.attack,
+    playerStats.attackSpeed ?? 1,
+  );
+  applyStatusProcToPlayer(
+    state,
+    'power',
+    playerStats.powerBuffChance ?? 0,
+    playerStats.attackSpeed ?? 1,
+  );
+  applyStatusProcToPlayer(
+    state,
+    'frenzy',
+    playerStats.frenzyBuffChance ?? 0,
+    playerStats.attackSpeed ?? 1,
+  );
+}
+
+function applyLifesteal(
+  state: GameState,
+  damage: number,
+  playerStats: ReturnType<typeof getPlayerStats>,
+) {
+  const lifestealChance = playerStats.lifestealChance ?? 0;
+  if (lifestealChance <= 0) return;
+
+  const procCount = resolveProcCount(state, 'player:lifesteal', lifestealChance);
+  if (procCount <= 0) return;
+
+  const healPerProc = Math.max(
+    1,
+    Math.floor(
+      getPlayerStats(state.player).maxHp *
+        ((playerStats.lifestealAmount ?? 0) / 100),
+    ),
+  );
+  if (damage <= 0 || healPerProc <= 0) return;
+
+  state.player.hp = Math.min(
+    getPlayerStats(state.player).maxHp,
+    state.player.hp + healPerProc * procCount,
+  );
+}
+
+function applyStatusProcToEnemy(
+  state: GameState,
+  enemy: NonNullable<GameState['enemies'][string]>,
+  effectId: 'bleeding' | 'poison' | 'burning' | 'chilling',
+  chance: number,
+  attackValue: number,
+  attackSpeed: number,
+) {
+  const procCount = resolveProcCount(state, `enemy:${enemy.id}:${effectId}`, chance);
+  if (procCount <= 0) return;
+
+  const suppressChance = 0;
+  if (
+    suppressChance > 0 &&
+    resolveProcCount(state, `enemy:${enemy.id}:suppress:${effectId}`, suppressChance) >
+      0
+  ) {
+    return;
+  }
+
+  const tickIntervalMs = Math.max(1, Math.round(2_000 / Math.max(0.01, attackSpeed)));
+  const expiresAt = state.worldTimeMs + 10_000;
+  const existingIndex = enemy.statusEffects?.findIndex((effect) => effect.id === effectId) ?? -1;
+  const currentEffect = existingIndex >= 0 ? enemy.statusEffects?.[existingIndex] : undefined;
+  const nextEffect =
+    effectId === 'poison'
+      ? {
+          id: StatusEffectTypeId.Poison,
+          expiresAt,
+          tickIntervalMs,
+          lastProcessedAt: state.worldTimeMs,
+          stacks: Math.max(1, (currentEffect?.stacks ?? 0) + procCount),
+          value: 1,
+        }
+      : effectId === 'burning'
+        ? {
+            id: StatusEffectTypeId.Burning,
+            expiresAt,
+            tickIntervalMs,
+            lastProcessedAt: state.worldTimeMs,
+            stacks: Math.max(1, (currentEffect?.stacks ?? 0) + procCount),
+            value: Math.max(1, attackValue),
+          }
+        : effectId === 'bleeding'
+          ? {
+              id: StatusEffectTypeId.Bleeding,
+              expiresAt,
+              tickIntervalMs,
+              lastProcessedAt: state.worldTimeMs,
+              stacks: 1,
+              value: Math.max(1, attackValue),
+            }
+          : {
+              id: StatusEffectTypeId.Chilling,
+              expiresAt,
+              tickIntervalMs: undefined,
+              lastProcessedAt: state.worldTimeMs,
+              stacks: 1,
+            };
+
+  enemy.statusEffects = [...(enemy.statusEffects ?? []).filter((effect) => effect.id !== nextEffect.id), nextEffect];
+}
+
+function applyStatusProcToPlayer(
+  state: GameState,
+  effectId: 'power' | 'frenzy',
+  chance: number,
+  attackSpeed: number,
+) {
+  const procCount = resolveProcCount(state, `player:${effectId}`, chance);
+  if (procCount <= 0) return;
+
+  state.player.statusEffects = [
+    ...state.player.statusEffects.filter((effect) => effect.id !== effectId),
+    {
+      id: effectId === 'power' ? StatusEffectTypeId.Power : StatusEffectTypeId.Frenzy,
+      expiresAt: state.worldTimeMs + 10_000,
+      tickIntervalMs: Math.max(
+        1,
+        Math.round(2_000 / Math.max(0.01, attackSpeed)),
+      ),
+      lastProcessedAt: state.worldTimeMs,
+      stacks: 1,
+    },
+  ];
+}
+
+function resolveIncomingDamage(
+  state: GameState,
+  seedKey: string,
+  incomingDamage: number,
+  playerStats: ReturnType<typeof getPlayerStats>,
+) {
+  if (
+    resolveProcCount(state, `${seedKey}:dodge`, playerStats.dodgeChance ?? 0) > 0
+  ) {
+    return 0;
+  }
+  if (
+    resolveProcCount(state, `${seedKey}:block`, playerStats.blockChance ?? 0) > 0
+  ) {
+    return 0;
+  }
+  if (
+    resolveProcCount(
+      state,
+      `${seedKey}:suppress`,
+      playerStats.suppressDamageChance ?? 0,
+    ) > 0
+  ) {
+    const suppressedDamage = Math.round(
+      incomingDamage *
+        (1 - Math.min(95, playerStats.suppressDamageReduction ?? 0) / 100),
+    );
+    return Math.max(1, suppressedDamage);
+  }
+
+  return incomingDamage;
+}
+
+function resolveProcCount(state: GameState, seedKey: string, chance: number) {
+  if (chance <= 0) return 0;
+
+  const guaranteed = Math.floor(chance / 100);
+  const remainder = chance - guaranteed * 100;
+  if (remainder <= 0) return guaranteed;
+
+  const roll = createRng(
+    `${state.seed}:combat-proc:${seedKey}:${state.worldTimeMs}:${state.logSequence}:${state.turn}`,
+  )();
+  return guaranteed + (roll < remainder / 100 ? 1 : 0);
+}
+
+function processEnemyStatusEffects(state: GameState) {
+  let changed = false;
+
+  for (const enemyId of state.combat?.enemyIds ?? []) {
+    const enemy = state.enemies[enemyId];
+    if (!enemy?.statusEffects || enemy.statusEffects.length === 0) continue;
+
+    const nextEffects = [];
+    for (const effect of enemy.statusEffects) {
+      const lastProcessedAt = effect.lastProcessedAt ?? state.worldTimeMs;
+      const effectEndAt = effect.expiresAt ?? lastProcessedAt;
+      const effectiveNow = Math.min(state.worldTimeMs, effectEndAt);
+      const tickIntervalMs = effect.tickIntervalMs ?? 1_000;
+      const tickCount = Math.floor(
+        Math.max(0, effectiveNow - lastProcessedAt) / tickIntervalMs,
+      );
+
+      if (tickCount > 0) {
+        const stacks = Math.max(1, effect.stacks ?? 1);
+        const damagePerTick =
+          effect.id === StatusEffectTypeId.Poison
+            ? Math.max(1, Math.floor(enemy.maxHp * 0.01 * stacks))
+            : effect.id === StatusEffectTypeId.Burning
+              ? Math.max(1, Math.floor(effect.value ?? 0) * stacks)
+              : effect.id === StatusEffectTypeId.Bleeding
+                ? Math.max(1, Math.floor(effect.value ?? 0))
+                : 0;
+        if (damagePerTick > 0) {
+          enemy.hp = Math.max(0, enemy.hp - damagePerTick * tickCount);
+          changed = true;
+        }
+      }
+
+      if (effect.expiresAt != null && state.worldTimeMs >= effect.expiresAt) {
+        changed = true;
+        continue;
+      }
+
+      const nextLastProcessedAt = lastProcessedAt + tickCount * tickIntervalMs;
+      nextEffects.push({
+        ...effect,
+        lastProcessedAt: nextLastProcessedAt,
+      });
+    }
+
+    enemy.statusEffects = nextEffects;
+    if (enemy.hp <= 0) {
+      gainXp(state, enemy.xp, addLog);
+      maybeDropEnemyGold(state, enemy);
+      maybeDropEnemyConsumables(state, enemy);
+      maybeDropEnemyRecipe(state, enemy);
+      maybeDropHomeScroll(state, enemy);
+      maybeDropBloodMoonLoot(state, enemy);
+      maybeSkinEnemy(state, enemy);
+      addLog(
+        state,
+        'combat',
+        t('game.message.combat.enemyDefeated', { enemy: enemy.name }),
+      );
+      delete state.enemies[enemy.id];
+      syncCombatEnemies(state);
+      changed = true;
+      if (!state.combat) {
+        return true;
+      }
+    }
+  }
+
+  return changed;
 }
 
 function canActorCastAbility(
@@ -914,10 +1231,17 @@ function applyEnemyAbility(
   const enemy = state.enemies[enemyId];
   if (!enemy) return;
 
-  const damage = Math.max(
-    1,
-    enemy.attack - getPlayerStats(state.player).defense,
+  const playerStats = getPlayerStats(state.player);
+  const damage = resolveIncomingDamage(
+    state,
+    `enemy:${enemy.id}:player`,
+    Math.max(1, enemy.attack - playerStats.defense),
+    playerStats,
   );
+  if (damage <= 0) {
+    addLog(state, 'combat', t('game.message.combat.enemyKick', { enemy: enemy.name, damage: 0 }));
+    return;
+  }
   state.player.hp = Math.max(0, state.player.hp - damage);
   addLog(
     state,

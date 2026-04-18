@@ -24,9 +24,20 @@ export function useCombatPlayerParty({
               mana,
               maxMana: stats.maxMana,
               actor: combatSnapshot.combat.player,
+              buffs: stats.buffs,
+              debuffs: stats.debuffs,
             },
           ]
         : [],
-    [combatSnapshot, mana, stats.hp, stats.level, stats.maxHp, stats.maxMana],
+    [
+      combatSnapshot,
+      mana,
+      stats.buffs,
+      stats.debuffs,
+      stats.hp,
+      stats.level,
+      stats.maxHp,
+      stats.maxMana,
+    ],
   );
 }

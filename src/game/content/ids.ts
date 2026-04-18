@@ -63,6 +63,12 @@ export enum StatusEffectTypeId {
   Thirst = 'thirst',
   RecentDeath = 'recentDeath',
   Restoration = 'restoration',
+  Bleeding = 'bleeding',
+  Poison = 'poison',
+  Burning = 'burning',
+  Chilling = 'chilling',
+  Power = 'power',
+  Frenzy = 'frenzy',
 }
 
 export type StatusEffectIdValue = `${StatusEffectTypeId}`;

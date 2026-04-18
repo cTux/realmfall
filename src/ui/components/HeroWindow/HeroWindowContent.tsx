@@ -197,10 +197,64 @@ function EffectList({
                           {
                             kind: 'stat' as const,
                             label: t('ui.combat.mp'),
-                            value: '+1% / s',
-                            tone: 'positive' as const,
+                          value: '+1% / s',
+                          tone: 'positive' as const,
+                        },
+                      ]
+                    : item === 'bleeding'
+                      ? [
+                          {
+                            kind: 'stat' as const,
+                            label: t('ui.hero.hp'),
+                            value: t('ui.hero.effect.bleeding.value'),
+                            tone: 'negative' as const,
                           },
                         ]
+                      : item === 'poison'
+                        ? [
+                            {
+                              kind: 'stat' as const,
+                              label: t('ui.hero.hp'),
+                              value: t('ui.hero.effect.poison.value'),
+                              tone: 'negative' as const,
+                            },
+                          ]
+                        : item === 'burning'
+                          ? [
+                              {
+                                kind: 'stat' as const,
+                                label: t('ui.hero.hp'),
+                                value: t('ui.hero.effect.burning.value'),
+                                tone: 'negative' as const,
+                              },
+                            ]
+                          : item === 'chilling'
+                            ? [
+                                {
+                                  kind: 'stat' as const,
+                                  label: t('ui.hero.effect.attackSpeed'),
+                                  value: '-20%',
+                                  tone: 'negative' as const,
+                                },
+                              ]
+                            : item === 'power'
+                              ? [
+                                  {
+                                    kind: 'stat' as const,
+                                    label: t('ui.hero.attack'),
+                                    value: '+10%',
+                                    tone: 'positive' as const,
+                                  },
+                                ]
+                              : item === 'frenzy'
+                                ? [
+                                    {
+                                      kind: 'stat' as const,
+                                      label: t('ui.hero.effect.attackSpeed'),
+                                      value: '+20%',
+                                      tone: 'positive' as const,
+                                    },
+                                  ]
                       : [];
             onHoverDetail(
               event,

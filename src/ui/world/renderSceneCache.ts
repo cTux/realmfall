@@ -82,6 +82,7 @@ export interface SceneCache {
   derivedRenderPlayerCoordKey: string | null;
   derivedRenderHomeHexKey: string | null;
   derivedRenderBloodMoonActive: boolean | null;
+  derivedRenderIconTextureVersion: number | null;
   derivedStaticRenderToken: number | null;
   derivedInteractionRenderToken: number | null;
   staticRenderToken: number | null;
@@ -184,6 +185,7 @@ export function getSceneCache(app: Application) {
     derivedRenderPlayerCoordKey: null,
     derivedRenderHomeHexKey: null,
     derivedRenderBloodMoonActive: null,
+    derivedRenderIconTextureVersion: null,
     derivedStaticRenderToken: null,
     derivedInteractionRenderToken: null,
     staticRenderToken: null,

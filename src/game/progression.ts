@@ -2,12 +2,21 @@ import { MAX_PLAYER_LEVEL } from './config';
 import { StatusEffectTypeId } from './content/ids';
 import { t } from '../i18n';
 import { formatSkillLabel } from '../i18n/labels';
+import {
+  DEFAULT_CRITICAL_STRIKE_DAMAGE,
+  DEFAULT_LIFESTEAL_AMOUNT,
+  DEFAULT_LIFESTEAL_CHANCE_AMOUNT,
+  DEFAULT_SUPPRESS_DAMAGE_REDUCTION,
+  DEFAULT_SUPPRESS_DEBUFF_CHANCE,
+  getEquipmentSecondaryStatTotal,
+} from './itemSecondaryStats';
 import { createRng } from './random';
 import { hexKey } from './hex';
 import {
   Skill,
   type GameState,
   type Player,
+  type StatusEffectId,
   type SkillName,
   type SkillProgress,
 } from './types';
@@ -27,8 +36,18 @@ export function makeStartingSkills(): Record<SkillName, SkillProgress> {
 
 export function getPlayerStats(player: Player) {
   const equipped = Object.values(player.equipment);
+  const statusEffects = player.statusEffects ?? [];
   const recentDeathActive = player.statusEffects.some(
     (effect) => effect.id === StatusEffectTypeId.RecentDeath,
+  );
+  const powerActive = statusEffects.some(
+    (effect) => effect.id === StatusEffectTypeId.Power,
+  );
+  const frenzyActive = statusEffects.some(
+    (effect) => effect.id === StatusEffectTypeId.Frenzy,
+  );
+  const chillingActive = statusEffects.some(
+    (effect) => effect.id === StatusEffectTypeId.Chilling,
   );
   const attackBonus = equipped.reduce(
     (sum, item) => sum + (item?.power ?? 0),
@@ -55,10 +74,60 @@ export function getPlayerStats(player: Player) {
   const rawDefense = Math.max(0, player.baseDefense + defenseBonus);
   const hungerDebuffActive = player.hunger <= 30;
   const thirstDebuffActive = (player.thirst ?? 100) <= 30;
-  const combatMultiplier = hungerDebuffActive ? 0.9 : 1;
-  const attackSpeed = thirstDebuffActive ? 0.8 : 1;
+  const combatMultiplier =
+    (hungerDebuffActive ? 0.9 : 1) * (powerActive ? 1.1 : 1);
+  const baseAttackSpeed =
+    1 + getEquipmentSecondaryStatTotal(equipped, 'attackSpeed') / 100;
+  const attackSpeed =
+    baseAttackSpeed *
+    (thirstDebuffActive ? 0.8 : 1) *
+    (chillingActive ? 0.8 : 1) *
+    (frenzyActive ? 1.2 : 1);
   const attack = Math.max(0, Math.floor(rawAttack * combatMultiplier));
   const defense = Math.max(0, Math.floor(rawDefense * combatMultiplier));
+  const criticalStrikeChance = getEquipmentSecondaryStatTotal(
+    equipped,
+    'criticalStrikeChance',
+  );
+  const criticalStrikeDamage =
+    DEFAULT_CRITICAL_STRIKE_DAMAGE +
+    getEquipmentSecondaryStatTotal(equipped, 'criticalStrikeDamage');
+  const lifestealChance = getEquipmentSecondaryStatTotal(
+    equipped,
+    'lifestealChance',
+  );
+  const lifestealAmount =
+    (lifestealChance > 0
+      ? DEFAULT_LIFESTEAL_CHANCE_AMOUNT
+      : DEFAULT_LIFESTEAL_AMOUNT) +
+    getEquipmentSecondaryStatTotal(equipped, 'lifestealAmount');
+  const dodgeChance = getEquipmentSecondaryStatTotal(equipped, 'dodgeChance');
+  const blockChance = getEquipmentSecondaryStatTotal(equipped, 'blockChance');
+  const suppressDamageChance = getEquipmentSecondaryStatTotal(
+    equipped,
+    'suppressDamageChance',
+  );
+  const suppressDamageReduction =
+    DEFAULT_SUPPRESS_DAMAGE_REDUCTION +
+    getEquipmentSecondaryStatTotal(equipped, 'suppressDamageReduction');
+  const suppressDebuffChance =
+    DEFAULT_SUPPRESS_DEBUFF_CHANCE +
+    getEquipmentSecondaryStatTotal(equipped, 'suppressDebuffChance');
+  const bleedChance = getEquipmentSecondaryStatTotal(equipped, 'bleedChance');
+  const poisonChance = getEquipmentSecondaryStatTotal(equipped, 'poisonChance');
+  const burningChance = getEquipmentSecondaryStatTotal(equipped, 'burningChance');
+  const chillingChance = getEquipmentSecondaryStatTotal(
+    equipped,
+    'chillingChance',
+  );
+  const powerBuffChance = getEquipmentSecondaryStatTotal(
+    equipped,
+    'powerBuffChance',
+  );
+  const frenzyBuffChance = getEquipmentSecondaryStatTotal(
+    equipped,
+    'frenzyBuffChance',
+  );
 
   return {
     hp: player.hp,
@@ -70,18 +139,46 @@ export function getPlayerStats(player: Player) {
     rawAttack,
     rawDefense,
     attackSpeed,
+    criticalStrikeChance,
+    criticalStrikeDamage,
+    lifestealChance,
+    lifestealAmount,
+    dodgeChance,
+    blockChance,
+    suppressDamageChance,
+    suppressDamageReduction,
+    suppressDebuffChance,
+    bleedChance,
+    poisonChance,
+    burningChance,
+    chillingChance,
+    powerBuffChance,
+    frenzyBuffChance,
+    secondaryStats: equipped.flatMap((item) => item?.secondaryStats ?? []),
     buffs: [
-      ...player.statusEffects
-        .filter((effect) => effect.id === StatusEffectTypeId.Restoration)
+      ...statusEffects
+        .filter(
+          (effect) =>
+            effect.id === StatusEffectTypeId.Restoration ||
+            effect.id === StatusEffectTypeId.Power ||
+            effect.id === StatusEffectTypeId.Frenzy,
+        )
         .map((effect) => effect.id),
-    ] as Array<`${StatusEffectTypeId.Restoration}`>,
+    ] as StatusEffectId[],
     debuffs: [
-      ...player.statusEffects
-        .filter((effect) => effect.id === StatusEffectTypeId.RecentDeath)
+      ...statusEffects
+        .filter(
+          (effect) =>
+            effect.id === StatusEffectTypeId.RecentDeath ||
+            effect.id === StatusEffectTypeId.Bleeding ||
+            effect.id === StatusEffectTypeId.Poison ||
+            effect.id === StatusEffectTypeId.Burning ||
+            effect.id === StatusEffectTypeId.Chilling,
+        )
         .map((effect) => effect.id),
-      ...(hungerDebuffActive ? (['hunger'] as string[]) : []),
-      ...(thirstDebuffActive ? (['thirst'] as string[]) : []),
-    ],
+      ...(hungerDebuffActive ? (['hunger'] as StatusEffectId[]) : []),
+      ...(thirstDebuffActive ? (['thirst'] as StatusEffectId[]) : []),
+    ] as StatusEffectId[],
     abilityIds: ['kick'] as Array<'kick'>,
     level: player.level,
     masteryLevel: player.masteryLevel,

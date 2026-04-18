@@ -2,6 +2,7 @@ import type {
   EquipmentSlot,
   Item,
   ItemRarity,
+  MainItemStatKey,
   SkillName,
   StructureType,
   Terrain,
@@ -23,6 +24,8 @@ export interface GeneratedItemStatProfile {
   defensePerTier?: number;
   baseMaxHp?: number;
   maxHpPerTier?: number;
+  randomMainStatPool?: MainItemStatKey[];
+  randomMainStatCount?: number;
 }
 
 export interface ItemConfig {
@@ -46,6 +49,8 @@ export interface ItemConfig {
   occupiesOffhand?: boolean;
   generatedStats?: GeneratedItemStatProfile;
   tags?: GameTag[];
+  secondaryStatCapacity?: Item['secondaryStatCapacity'];
+  secondaryStats?: Item['secondaryStats'];
 }
 
 export interface EnemyConfig {
@@ -102,6 +107,8 @@ export interface ItemBuildOverrides {
   healing?: number;
   hunger?: number;
   thirst?: number;
+  secondaryStatCapacity?: Item['secondaryStatCapacity'];
+  secondaryStats?: Item['secondaryStats'];
   recipeId?: Item['recipeId'];
   locked?: Item['locked'];
   name?: string;

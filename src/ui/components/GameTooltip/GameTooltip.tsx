@@ -185,7 +185,7 @@ export const GameTooltip = memo(function GameTooltip({
 
         return (
           <div
-            key={`${rendered.tooltip.title}-${line.text ?? index}`}
+            key={`${rendered.tooltip.title}-${line.text ?? 'text'}-${index}`}
             className={
               isSubtitleLine(line.text)
                 ? styles.subtitle

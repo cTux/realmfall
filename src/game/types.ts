@@ -39,6 +39,29 @@ export type StructureType =
 
 export type ItemRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
 export type EnemyRarity = ItemRarity;
+export type MainItemStatKey = 'power' | 'defense' | 'maxHp';
+export type SecondaryStatKey =
+  | 'attackSpeed'
+  | 'criticalStrikeChance'
+  | 'criticalStrikeDamage'
+  | 'lifestealChance'
+  | 'lifestealAmount'
+  | 'dodgeChance'
+  | 'blockChance'
+  | 'suppressDamageChance'
+  | 'suppressDamageReduction'
+  | 'suppressDebuffChance'
+  | 'bleedChance'
+  | 'poisonChance'
+  | 'burningChance'
+  | 'chillingChance'
+  | 'powerBuffChance'
+  | 'frenzyBuffChance';
+
+export interface ItemSecondaryStat {
+  key: SecondaryStatKey;
+  value: number;
+}
 
 export enum Skill {
   Gathering = 'gathering',
@@ -73,6 +96,8 @@ export interface Item {
   healing: number;
   hunger: number;
   thirst?: number;
+  secondaryStatCapacity?: number;
+  secondaryStats?: ItemSecondaryStat[];
 }
 
 export interface Enemy {
@@ -94,6 +119,7 @@ export interface Enemy {
   elite: boolean;
   worldBoss?: boolean;
   aggressive?: boolean;
+  statusEffects?: PlayerStatusEffect[];
 }
 
 export interface TerritoryNpc {
@@ -179,6 +205,8 @@ export interface PlayerStatusEffect {
   expiresAt?: number;
   tickIntervalMs?: number;
   lastProcessedAt?: number;
+  stacks?: number;
+  value?: number;
 }
 
 export interface SkillProgress {

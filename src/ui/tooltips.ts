@@ -20,12 +20,14 @@ import {
 import type {
   AbilityDefinition,
   EnemyRarity,
+  SecondaryStatKey,
   StatusEffectId,
 } from '../game/types';
 import { t } from '../i18n';
 import {
   formatEnemyRarityLabel,
   formatEquipmentSlotLabel,
+  formatSecondaryStatLabel,
 } from '../i18n/labels';
 import { Icons } from './icons';
 
@@ -55,6 +57,7 @@ export function comparisonLines(item: Item, equipped?: Item) {
     { label: t('ui.tooltip.attack'), value: item.power - compare.power },
     { label: t('ui.tooltip.defense'), value: item.defense - compare.defense },
     { label: t('ui.tooltip.maxHealth'), value: item.maxHp - compare.maxHp },
+    ...secondaryStatDeltaLines(item, equipped),
   ].filter((line) => line.value !== 0);
 }
 
@@ -121,6 +124,19 @@ export function itemTooltipLines(
         value: `+${item.maxHp}`,
         tone: 'item',
       });
+    const secondaryStatLines = secondarySlotLines(item);
+    if (secondaryStatLines.length > 0) {
+      lines.push({
+        kind: 'text',
+        text: t('ui.tooltip.secondaryStats'),
+        tone: 'section',
+      });
+    }
+    for (const stat of secondaryStatLines) {
+      lines.push({
+        ...stat,
+      });
+    }
   }
 
   if (equipped) {
@@ -340,6 +356,18 @@ export function statusEffectTooltipLines(
           ? t('ui.hero.effect.recentDeath.description')
           : effectId === 'restoration'
             ? t('ui.hero.effect.restoration.description')
+            : effectId === 'bleeding'
+              ? t('ui.hero.effect.bleeding.description')
+              : effectId === 'poison'
+                ? t('ui.hero.effect.poison.description')
+                : effectId === 'burning'
+                  ? t('ui.hero.effect.burning.description')
+                  : effectId === 'chilling'
+                    ? t('ui.hero.effect.chilling.description')
+                    : effectId === 'power'
+                      ? t('ui.hero.effect.power.description')
+                      : effectId === 'frenzy'
+                        ? t('ui.hero.effect.frenzy.description')
             : tone === 'buff'
               ? t('ui.hero.effect.buff')
               : t('ui.hero.effect.debuff');
@@ -471,4 +499,52 @@ function uniqueTag(tag: string, index: number, values: string[]) {
 function capitalize(value: string) {
   if (value.length === 0) return value;
   return value[0].toUpperCase() + value.slice(1);
+}
+
+function secondaryStatDeltaLines(item: Item, equipped?: Item) {
+  const equippedMap = new Map(
+    (equipped?.secondaryStats ?? []).map((stat) => [stat.key, stat.value]),
+  );
+  const itemMap = new Map((item.secondaryStats ?? []).map((stat) => [stat.key, stat.value]));
+  const keys = [...new Set([...itemMap.keys(), ...equippedMap.keys()])];
+
+  return keys.map((key) => ({
+    label: formatSecondaryStatLabel(key),
+    value: (itemMap.get(key) ?? 0) - (equippedMap.get(key) ?? 0),
+  }));
+}
+
+function formatSecondaryStatValue(key: SecondaryStatKey, value: number) {
+  switch (key) {
+    case 'criticalStrikeDamage':
+    case 'suppressDamageReduction':
+      return `+${value}%`;
+    case 'lifestealAmount':
+      return `+${value}% max HP`;
+    default:
+      return `+${value}%`;
+  }
+}
+
+function secondarySlotLines(item: Item): TooltipLine[] {
+  const stats = item.secondaryStats ?? [];
+  const capacity = Math.max(item.secondaryStatCapacity ?? stats.length, stats.length);
+  const emptySlots = Math.max(0, capacity - stats.length);
+
+  return [
+    ...stats.map(
+      (stat) =>
+        ({
+          kind: 'stat',
+          label: formatSecondaryStatLabel(stat.key),
+          value: formatSecondaryStatValue(stat.key, stat.value),
+          tone: 'item',
+        }) satisfies TooltipLine,
+    ),
+    ...Array.from({ length: emptySlots }, () => ({
+      kind: 'text' as const,
+      text: t('ui.tooltip.secondaryStatEmpty'),
+      tone: 'subtle' as const,
+    })),
+  ];
 }

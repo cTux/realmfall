@@ -99,6 +99,7 @@ export function resetShadowedSpritePool(pool: ShadowedSpritePool) {
 export function takeShadowedSprite(pool: ShadowedSpritePool, icon: string) {
   const items = pool.itemsByIcon.get(icon) ?? [];
   const used = pool.usedByIcon.get(icon) ?? 0;
+  const texture = getWorldIconTexture(icon);
 
   let item = items[used];
   if (!item) {
@@ -108,6 +109,10 @@ export function takeShadowedSprite(pool: ShadowedSpritePool, icon: string) {
     pool.parent.addChild(item.wrapper);
   }
 
+  item.shadows.forEach((shadow) => {
+    shadow.texture = texture;
+  });
+  item.sprite.texture = texture;
   item.wrapper.visible = true;
   pool.usedByIcon.set(icon, used + 1);
   return item;
@@ -133,6 +138,7 @@ export function resetSpritePool(pool: SpritePool) {
 export function takeSprite(pool: SpritePool, icon: string) {
   const items = pool.itemsByIcon.get(icon) ?? [];
   const used = pool.usedByIcon.get(icon) ?? 0;
+  const texture = getWorldIconTexture(icon);
 
   let item = items[used];
   if (!item) {
@@ -143,6 +149,7 @@ export function takeSprite(pool: SpritePool, icon: string) {
     pool.parent.addChild(item);
   }
 
+  item.texture = texture;
   item.visible = true;
   pool.usedByIcon.set(icon, used + 1);
   return item;

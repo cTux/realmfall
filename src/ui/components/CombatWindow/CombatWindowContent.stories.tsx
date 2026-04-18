@@ -284,6 +284,8 @@ function buildPartyMember(
     mana: maxMana,
     maxMana,
     actor: buildActor(id, readyOffsets[id]),
+    buffs: [],
+    debuffs: [],
   };
 }
 

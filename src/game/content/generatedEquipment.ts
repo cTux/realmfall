@@ -133,10 +133,14 @@ export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
     'armor',
     GENERATED_ICON_POOLS.cloak,
     {
+      basePower: 1,
+      powerPerTier: 1,
       baseDefense: 1,
       defensePerTier: 1,
       baseMaxHp: 1,
       maxHpPerTier: 1,
+      randomMainStatPool: ['power', 'defense', 'maxHp'],
+      randomMainStatCount: 2,
     },
   ),
   generated(
@@ -147,8 +151,12 @@ export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
     {
       basePower: 1,
       powerPerTier: 1,
+      baseDefense: 1,
+      defensePerTier: 1,
       baseMaxHp: 1,
       maxHpPerTier: 1,
+      randomMainStatPool: ['power', 'defense', 'maxHp'],
+      randomMainStatCount: 2,
     },
   ),
   generated(
@@ -159,8 +167,12 @@ export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
     {
       basePower: 1,
       powerPerTier: 1,
+      baseDefense: 1,
+      defensePerTier: 1,
       baseMaxHp: 1,
       maxHpPerTier: 1,
+      randomMainStatPool: ['power', 'defense', 'maxHp'],
+      randomMainStatCount: 2,
     },
   ),
   generated(
@@ -169,10 +181,14 @@ export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
     'artifact',
     GENERATED_ICON_POOLS.necklace,
     {
+      basePower: 1,
+      powerPerTier: 1,
       baseDefense: 1,
       defensePerTier: 1,
       baseMaxHp: 2,
       maxHpPerTier: 2,
+      randomMainStatPool: ['power', 'defense', 'maxHp'],
+      randomMainStatCount: 2,
     },
   ),
   generated(
@@ -203,8 +219,6 @@ export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
     {
       basePower: 3,
       powerPerTier: 2,
-      baseMaxHp: 1,
-      maxHpPerTier: 1,
     },
   ),
   generated(
@@ -243,10 +257,10 @@ export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
     'artifact',
     GENERATED_ICON_POOLS.magicalSphere,
     {
-      basePower: 1,
-      powerPerTier: 1,
+      baseDefense: 1,
+      defensePerTier: 1,
       baseMaxHp: 1,
-      maxHpPerTier: 2,
+      maxHpPerTier: 1,
     },
   ),
   generated(
@@ -269,8 +283,6 @@ export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
     {
       basePower: 6,
       powerPerTier: 4,
-      baseMaxHp: 2,
-      maxHpPerTier: 2,
     },
     true,
   ),
@@ -282,8 +294,6 @@ export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
     {
       basePower: 6,
       powerPerTier: 4,
-      baseMaxHp: 2,
-      maxHpPerTier: 2,
     },
     true,
   ),
@@ -295,8 +305,6 @@ export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
     {
       basePower: 6,
       powerPerTier: 4,
-      baseMaxHp: 3,
-      maxHpPerTier: 2,
     },
     true,
   ),
