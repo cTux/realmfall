@@ -4,7 +4,8 @@ import { CalendarTimestamp } from '../CalendarTimestamp';
 import type { LogWindowProps } from './types';
 import styles from './styles.module.scss';
 
-const TYPE_DELAY_MS = 16;
+const TYPE_DELAY_MS = 32;
+const TYPE_STEP = 2;
 const MATRIX_GLYPHS = ['#', '%', '&', '/', '+', '*'];
 const LOG_PREFIX_PATTERN = /^\[(Year \d+, Day \d+, [0-9]{2}:[0-9]{2})\]\s/;
 const BLOOD_MOON_PATTERN = /blood moon/i;
@@ -101,7 +102,7 @@ export function LogWindowContent({
           return current;
         }
 
-        return current + 1;
+        return Math.min(current + TYPE_STEP, newestMessage.length);
       });
     }, TYPE_DELAY_MS);
 
