@@ -13,6 +13,7 @@ import type { TooltipLine } from '../../ui/tooltips';
 import type { AudioSettings } from '../audioSettings';
 import type { WindowPositions, WindowVisibilityState } from '../constants';
 import type { GraphicsSettings } from '../graphicsSettings';
+import type { ActionBarSlots } from './actionBar';
 import type { ItemContextMenuState, TooltipItem } from './types';
 
 export interface AppWindowsProps {
@@ -39,6 +40,7 @@ export interface AppWindowsViewState {
   player: {
     coord: GameState['player']['coord'];
     mana: GameState['player']['mana'];
+    actionBarSlots: ActionBarSlots;
     equipment: GameState['player']['equipment'];
     inventory: GameState['player']['inventory'];
     learnedRecipeIds: GameState['player']['learnedRecipeIds'];
@@ -108,6 +110,10 @@ export interface AppWindowsActions {
       item: TooltipItem,
       equipped?: TooltipItem,
     ) => void;
+    onShowActionBarItemTooltip: (
+      event: React.MouseEvent<HTMLElement>,
+      item: TooltipItem,
+    ) => void;
     onShowTooltip: (
       event: React.MouseEvent<HTMLElement>,
       title: string,
@@ -126,6 +132,9 @@ export interface AppWindowsActions {
     onSort: () => void;
     onEquip: (itemId: string) => void;
     onUseItem: (itemId: string) => void;
+    onAssignActionBarSlot: (slotIndex: number, item: Item) => void;
+    onClearActionBarSlot: (slotIndex: number) => void;
+    onUseActionBarSlot: (slotIndex: number) => void;
     onCraftRecipe: (recipeId: string, count?: number | 'max') => void;
     onDropItem: (itemId: string) => void;
     onDropEquippedItem: (slot: EquipmentSlot) => void;

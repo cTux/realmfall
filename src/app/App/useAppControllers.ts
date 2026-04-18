@@ -30,6 +30,7 @@ import {
   unequipItem,
   useItem as applyItemUse,
   type GameState,
+  type Item,
   type LogKind,
 } from '../../game/state';
 import { itemTooltipLines } from '../../ui/tooltips';
@@ -49,6 +50,11 @@ import { getInventoryItemAction } from './utils/getInventoryItemAction';
 import type { TooltipLine } from '../../ui/tooltips';
 import { setTooltipState } from './tooltipStore';
 import { getTooltipPlacementForRect } from '../../ui/tooltipPlacement';
+import {
+  createDefaultActionBarSlots,
+  findActionBarItem,
+  type ActionBarSlots,
+} from './actionBar';
 
 interface UseAppControllersOptions {
   gameRef: MutableRefObject<GameState>;
@@ -87,9 +93,8 @@ export function useAppControllers({
   const [windowShown, setWindowShown] = useState<WindowVisibilityState>(
     DEFAULT_WINDOW_VISIBILITY,
   );
-  const [audioSettings, setAudioSettings] = useState<AudioSettings>(
-    initialAudioSettings,
-  );
+  const [audioSettings, setAudioSettings] =
+    useState<AudioSettings>(initialAudioSettings);
   const [graphicsSettings, setGraphicsSettings] = useState<GraphicsSettings>(
     initialGraphicsSettings,
   );
@@ -97,6 +102,9 @@ export function useAppControllers({
     useState<Record<LogKind, boolean>>(DEFAULT_LOG_FILTERS);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [itemMenu, setItemMenu] = useState<ItemContextMenuState | null>(null);
+  const [actionBarSlots, setActionBarSlots] = useState<ActionBarSlots>(
+    createDefaultActionBarSlots,
+  );
   const [recipeMaterialFilterItemKey, setRecipeMaterialFilterItemKey] =
     useState<string | null>(null);
 
@@ -171,6 +179,36 @@ export function useAppControllers({
         x: position.x,
         y: position.y,
         placement: position.placement,
+        borderColor: rarityColor(item.rarity),
+      });
+    },
+    [gameRef, tooltipPositionRef],
+  );
+
+  const showActionBarItemTooltip = useCallback(
+    (event: ReactMouseEvent<HTMLElement>, item: TooltipItem) => {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const recipeLearned =
+        isRecipePage(item) &&
+        item.recipeId != null &&
+        gameRef.current.player.learnedRecipeIds.includes(item.recipeId);
+      const position = {
+        x: rect.left + rect.width / 2,
+        y: rect.top,
+      };
+      tooltipPositionRef.current = position;
+      setTooltipState({
+        title: item.name,
+        lines: getCachedItemTooltipLines(
+          itemTooltipLinesCacheRef.current,
+          item,
+          undefined,
+          recipeLearned,
+        ),
+        contentKey: getItemTooltipContentKey(item, undefined, recipeLearned),
+        x: position.x,
+        y: position.y,
+        placement: 'top',
         borderColor: rarityColor(item.rarity),
       });
     },
@@ -285,6 +323,43 @@ export function useAppControllers({
       );
     },
     [setGame, worldTimeMsRef],
+  );
+
+  const handleAssignActionBarSlot = useCallback(
+    (slotIndex: number, item: Item) => {
+      setActionBarSlots((current) => {
+        const next = [...current];
+        next[slotIndex] = { item: { ...item } };
+        return next;
+      });
+    },
+    [],
+  );
+
+  const handleClearActionBarSlot = useCallback((slotIndex: number) => {
+    setActionBarSlots((current) => {
+      if (!current[slotIndex]) return current;
+
+      const next = [...current];
+      next[slotIndex] = null;
+      return next;
+    });
+  }, []);
+
+  const handleUseActionBarSlot = useCallback(
+    (slotIndex: number) => {
+      const assigned = actionBarSlots[slotIndex];
+      const item = findActionBarItem(
+        gameRef.current.player.inventory,
+        assigned,
+      );
+      if (!item) return;
+
+      applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
+        applyItemUse(current, item.id),
+      );
+    },
+    [actionBarSlots, gameRef, setGame, worldTimeMsRef],
   );
 
   const handleCraftRecipe = useCallback(
@@ -436,8 +511,12 @@ export function useAppControllers({
     handleTakeLootItem,
     handleUnequip,
     handleUseItem,
+    handleAssignActionBarSlot,
+    handleClearActionBarSlot,
+    handleUseActionBarSlot,
     handleOpenRecipeBookWithMaterialFilter,
     handleClearRecipeMaterialFilter,
+    actionBarSlots,
     audioSettings,
     itemMenu,
     logFilters,
@@ -445,6 +524,7 @@ export function useAppControllers({
     graphicsSettings,
     showTooltip,
     setAudioSettings,
+    setActionBarSlots,
     setGraphicsSettings,
     setLogFilters,
     setTooltip,
@@ -452,6 +532,7 @@ export function useAppControllers({
     setWindowVisibility,
     setWindows,
     showFilterMenu,
+    showActionBarItemTooltip,
     showItemTooltip,
     toggleDockWindow,
     toggleFilterMenu,

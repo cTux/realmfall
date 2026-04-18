@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { formatCompactNumber, formatCompactNumberish } from '../../formatters';
 import type { GameTooltipProps, RenderedTooltipState } from './types';
 import {
@@ -92,14 +92,7 @@ export const GameTooltip = memo(function GameTooltip({
       ref={tooltipRef}
       className={styles.tooltip}
       data-tooltip-visible={rendered.visible}
-      style={{
-        left: displayPosition.x,
-        top: displayPosition.y,
-        transform:
-          rendered.tooltip.placement === 'left'
-            ? 'translateX(-100%)'
-            : undefined,
-      }}
+      style={tooltipStyle(displayPosition, rendered.tooltip.placement)}
     >
       <strong
         className={styles.title}
@@ -199,6 +192,35 @@ export const GameTooltip = memo(function GameTooltip({
     </div>
   );
 });
+
+function tooltipStyle(
+  position: { x: number; y: number },
+  placement?: GameTooltipProps['tooltip'] extends infer T
+    ? T extends { placement?: infer P }
+      ? P
+      : never
+    : never,
+) {
+  const style: CSSProperties = {
+    left: position.x,
+    top: position.y,
+  };
+
+  if (placement === 'left') {
+    style.transform = 'translateX(-100%)';
+    return style;
+  }
+
+  if (placement === 'top') {
+    return {
+      ...style,
+      '--tooltip-transform': 'translate(-50%, calc(-100% - 12px))',
+      '--tooltip-hidden-transform': 'translate(-50%, calc(-100% - 6px))',
+    } as CSSProperties;
+  }
+
+  return style;
+}
 
 function iconMaskStyle(icon: string, color: string) {
   const mask = `url("${icon}") center / contain no-repeat`;

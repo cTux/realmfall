@@ -15,6 +15,7 @@ interface UseKeyboardShortcutsOptions {
   onCloseAllWindows: () => void;
   onCloseAllWindowsSound?: () => void;
   onToggleDockWindow: (key: keyof WindowVisibilityState) => void;
+  onUseActionBarSlot: (slotIndex: number) => void;
   onWindowToggleSound?: (opened: boolean) => void;
   windowShown: WindowVisibilityState;
   windowShownLoot: boolean;
@@ -32,6 +33,7 @@ export function useKeyboardShortcuts({
   onCloseAllWindows,
   onCloseAllWindowsSound,
   onToggleDockWindow,
+  onUseActionBarSlot,
   onWindowToggleSound,
   windowShown,
   windowShownLoot,
@@ -76,6 +78,12 @@ export function useKeyboardShortcuts({
     if (lowerKey === 'q' && interactLabel) {
       event.preventDefault();
       onInteract();
+      return;
+    }
+
+    if (/^[1-9]$/.test(lowerKey)) {
+      event.preventDefault();
+      onUseActionBarSlot(Number(lowerKey) - 1);
       return;
     }
 

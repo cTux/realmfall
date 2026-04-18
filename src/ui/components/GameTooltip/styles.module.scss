@@ -13,14 +13,14 @@
   display: grid;
   gap: 0.2rem;
   opacity: 1;
-  transform: translateY(0);
+  transform: var(--tooltip-transform, translateY(0));
   transition:
     opacity 140ms ease,
     transform 140ms ease;
 
   &[data-tooltip-visible='false'] {
     opacity: 0;
-    transform: translateY(6px);
+    transform: var(--tooltip-hidden-transform, translateY(6px));
   }
 }
 
