@@ -94,6 +94,10 @@ import {
   sellValue,
   spendGold,
 } from './inventory';
+import {
+  DEFAULT_CRITICAL_STRIKE_CHANCE,
+  DEFAULT_CRITICAL_STRIKE_DAMAGE,
+} from './itemSecondaryStats';
 import { GAME_TAGS } from './content/tags';
 import {
   gatheringBonusChance,
@@ -1509,6 +1513,14 @@ export function getEnemyCombatAttack(enemy: Enemy) {
   );
 }
 
+export function getEnemyCriticalStrikeChance(_enemy: Enemy) {
+  return DEFAULT_CRITICAL_STRIKE_CHANCE;
+}
+
+export function getEnemyCriticalStrikeDamage(_enemy: Enemy) {
+  return DEFAULT_CRITICAL_STRIKE_DAMAGE;
+}
+
 function getEnemyMana(enemy: Enemy) {
   return enemy.mana ?? enemy.maxMana ?? DEFAULT_ENEMY_MANA;
 }
@@ -1822,15 +1834,25 @@ function applyEnemyAbility(
   const playerStats = getPlayerStats(state.player);
   for (const effect of ability.effects) {
     if (effect.kind === 'damage') {
+      const critCount = resolveProcCount(
+        state,
+        `enemy:${enemy.id}:${abilityId}:crit`,
+        getEnemyCriticalStrikeChance(enemy),
+      );
+      const critMultiplier = Math.pow(
+        Math.max(1, getEnemyCriticalStrikeDamage(enemy) / 100),
+        Math.max(0, critCount),
+      );
       const damage = resolveIncomingDamage(
         state,
         `enemy:${enemy.id}:${abilityId}:player`,
         Math.max(
           1,
           Math.round(
-            getEnemyCombatAttack(enemy) * effect.powerMultiplier +
+            (getEnemyCombatAttack(enemy) * effect.powerMultiplier +
               (effect.flatPower ?? 0) -
-              playerStats.defense,
+              playerStats.defense) *
+              critMultiplier,
           ),
         ),
         playerStats,

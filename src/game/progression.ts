@@ -8,6 +8,7 @@ import { StatusEffectTypeId } from './content/ids';
 import { t } from '../i18n';
 import { formatSkillLabel } from '../i18n/labels';
 import {
+  DEFAULT_CRITICAL_STRIKE_CHANCE,
   DEFAULT_CRITICAL_STRIKE_DAMAGE,
   DEFAULT_LIFESTEAL_AMOUNT,
   DEFAULT_LIFESTEAL_CHANCE_AMOUNT,
@@ -122,7 +123,7 @@ export function getPlayerStats(player: Player) {
   const criticalStrikeChance = getEquipmentSecondaryStatTotal(
     equipped,
     'criticalStrikeChance',
-  );
+  ) + DEFAULT_CRITICAL_STRIKE_CHANCE;
   const criticalStrikeDamage =
     DEFAULT_CRITICAL_STRIKE_DAMAGE +
     getEquipmentSecondaryStatTotal(equipped, 'criticalStrikeDamage');

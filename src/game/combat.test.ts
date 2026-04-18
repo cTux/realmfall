@@ -7,6 +7,8 @@ import {
   makeEnemy,
   resolveEnemyRarity,
 } from './combat';
+import { DEFAULT_CRITICAL_STRIKE_CHANCE } from './itemSecondaryStats';
+import { getEnemyCriticalStrikeChance } from './state';
 
 describe('enemy rarity', () => {
   it('promotes higher rarity tiers to larger stat multipliers', () => {
@@ -80,5 +82,13 @@ describe('enemy rarity', () => {
 
     expect(enemy.mana).toBe(DEFAULT_ENEMY_MANA);
     expect(enemy.maxMana).toBe(DEFAULT_ENEMY_MANA);
+  });
+
+  it('gives generated enemies the baseline critical strike chance', () => {
+    const enemy = makeEnemy('enemy-crit-seed', { q: 1, r: -1 }, 'plains');
+
+    expect(getEnemyCriticalStrikeChance(enemy)).toBe(
+      DEFAULT_CRITICAL_STRIKE_CHANCE,
+    );
   });
 });

@@ -26,6 +26,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - Logs provide system, movement, combat, loot, and other gameplay feedback.
 - Filtered log viewing is part of the current gameplay readability loop.
 - Current and maximum value bars surface their meaning through the shared tooltip system.
+- The character info window now lists the full resulting derived combat stat set, including offensive, defensive, mitigation, lifesteal, status-proc, and attack-speed values instead of only attack and defense.
 - Log entries show a compact `HH:MM` timestamp in the visible list, while hover reveals the full calendar timestamp using the same world-calendar formatter as the debugger window.
 
 ## Main Implementation Areas

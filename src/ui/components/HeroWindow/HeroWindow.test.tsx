@@ -1,5 +1,6 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
+import { vi } from 'vitest';
 import { t } from '../../../i18n';
 import { HeroWindow } from './HeroWindow';
 import type { HeroWindowStats } from './types';
@@ -15,6 +16,22 @@ const stats: HeroWindowStats = {
   rawDefense: 1,
   attack: 1,
   defense: 1,
+  attackSpeed: 1.25,
+  criticalStrikeChance: 15,
+  criticalStrikeDamage: 175,
+  lifestealChance: 10,
+  lifestealAmount: 8,
+  dodgeChance: 12,
+  blockChance: 18,
+  suppressDamageChance: 6,
+  suppressDamageReduction: 35,
+  suppressDebuffChance: 9,
+  bleedChance: 11,
+  poisonChance: 13,
+  burningChance: 14,
+  chillingChance: 7,
+  powerBuffChance: 5,
+  frenzyBuffChance: 4,
   statusEffects: [],
   buffs: [],
   debuffs: [],
@@ -75,5 +92,35 @@ describe('HeroWindow', () => {
     expect(
       host.querySelector(`[aria-label="${t('ui.loading.window')}"]`),
     ).not.toBeNull();
+  });
+
+  it('renders the full resulting character stat list', async () => {
+    await act(async () => {
+      root.render(
+        <HeroWindow
+          position={{ x: 16, y: 24 }}
+          onMove={() => {}}
+          visible
+          stats={stats}
+          hunger={0}
+          thirst={0}
+          worldTimeMs={0}
+        />,
+      );
+    });
+
+    await act(async () => {
+      await vi.dynamicImportSettled();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(host.textContent).toContain('Critical Strike Chance');
+    expect(host.textContent).toContain('175%');
+    expect(host.textContent).toContain('Lifesteal Amount');
+    expect(host.textContent).toContain('8% max HP');
+    expect(host.textContent).toContain('Suppress Debuff Chance');
+    expect(host.textContent).toContain('Attack Speed');
+    expect(host.textContent).toContain('125%');
   });
 });

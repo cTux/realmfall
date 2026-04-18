@@ -1,7 +1,10 @@
 import { getAbilityDefinition } from '../../../game/abilities';
 import type { PlayerStatusEffect } from '../../../game/types';
 import { t } from '../../../i18n';
-import { formatStatusEffectLabel } from '../../../i18n/labels';
+import {
+  formatSecondaryStatLabel,
+  formatStatusEffectLabel,
+} from '../../../i18n/labels';
 import {
   iconMaskStyle,
   statusEffectIcon,
@@ -77,14 +80,12 @@ export function HeroWindowContent({
         onLeaveDetail={onLeaveDetail}
       />
       <div className={styles.statList}>
-        <div className={styles.statRow}>
-          <span>{t('ui.hero.attack')}</span>
-          <span>{stats.attack}</span>
-        </div>
-        <div className={styles.statRow}>
-          <span>{t('ui.hero.defense')}</span>
-          <span>{stats.defense}</span>
-        </div>
+        {buildStatRows(stats).map((row) => (
+          <div key={row.label} className={styles.statRow}>
+            <span>{row.label}</span>
+            <span>{row.value}</span>
+          </div>
+        ))}
       </div>
       {stats.buffs.length > 0 ? (
         <EffectList
@@ -279,6 +280,76 @@ function EffectList({
       ))}
     </div>
   );
+}
+
+function buildStatRows(stats: HeroWindowProps['stats']) {
+  return [
+    { label: t('ui.hero.attack'), value: `${stats.attack}` },
+    { label: t('ui.hero.defense'), value: `${stats.defense}` },
+    formatDerivedStatRow('attackSpeed', stats.attackSpeed, true),
+    formatDerivedStatRow(
+      'criticalStrikeChance',
+      stats.criticalStrikeChance,
+    ),
+    formatDerivedStatRow(
+      'criticalStrikeDamage',
+      stats.criticalStrikeDamage,
+      false,
+      'percent',
+    ),
+    formatDerivedStatRow('lifestealChance', stats.lifestealChance),
+    formatDerivedStatRow(
+      'lifestealAmount',
+      stats.lifestealAmount,
+      false,
+      'percentMaxHp',
+    ),
+    formatDerivedStatRow('dodgeChance', stats.dodgeChance),
+    formatDerivedStatRow('blockChance', stats.blockChance),
+    formatDerivedStatRow(
+      'suppressDamageChance',
+      stats.suppressDamageChance,
+    ),
+    formatDerivedStatRow(
+      'suppressDamageReduction',
+      stats.suppressDamageReduction,
+      false,
+      'percent',
+    ),
+    formatDerivedStatRow(
+      'suppressDebuffChance',
+      stats.suppressDebuffChance,
+    ),
+    formatDerivedStatRow('bleedChance', stats.bleedChance),
+    formatDerivedStatRow('poisonChance', stats.poisonChance),
+    formatDerivedStatRow('burningChance', stats.burningChance),
+    formatDerivedStatRow('chillingChance', stats.chillingChance),
+    formatDerivedStatRow('powerBuffChance', stats.powerBuffChance),
+    formatDerivedStatRow('frenzyBuffChance', stats.frenzyBuffChance),
+  ].filter(
+    (row): row is { label: string; value: string } => row !== null,
+  );
+}
+
+function formatDerivedStatRow(
+  key: Parameters<typeof formatSecondaryStatLabel>[0],
+  value: number | undefined,
+  multiplierAsPercent = false,
+  format: 'percent' | 'percentMaxHp' = 'percent',
+) {
+  if (value == null) return null;
+
+  const formattedValue =
+    key === 'attackSpeed' && multiplierAsPercent
+      ? `${Math.round(value * 100)}%`
+      : format === 'percentMaxHp'
+        ? `${value}% max HP`
+        : `${value}%`;
+
+  return {
+    label: formatSecondaryStatLabel(key),
+    value: formattedValue,
+  };
 }
 
 function buildHeroEffectItems(
