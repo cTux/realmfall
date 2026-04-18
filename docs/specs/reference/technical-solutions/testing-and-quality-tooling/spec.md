@@ -13,6 +13,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - `pnpm dev` and `pnpm serve` both run on local HTTPS using the shared localhost self-signed certificate helper, and cached certificates are regenerated automatically when they expire so secure-origin local workflows do not get stuck on stale TLS files.
 - Oxlint is the enforced JavaScript and TypeScript lint gate for contributor workflow and pre-commit automation, with its canonical configuration stored in `.oxlintrc.json`.
 - CI and local quality expectations center on `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build`.
+- Ordinary `pnpm` installs keep dependency advisory output enabled so newly disclosed package issues are visible during routine local and CI dependency refreshes.
 - Oxlint is the only JavaScript and TypeScript linter shipped in the repository.
 - The enforced Oxlint path includes React hook validation on TypeScript and TSX files so invalid hook usage and missing effect dependencies fail local lint and pre-commit checks instead of relying on runtime behavior.
 - The Oxlint migration covers the prior ESLint rule set as closely as Oxlint currently allows, including nursery parity rules for `getter-return`, `no-undef`, and `no-unreachable`; Oxlint still does not implement `no-dupe-args` or `no-octal`.
