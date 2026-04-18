@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState, type ComponentProps } from 'react';
-import { DEFAULT_GRAPHICS_SETTINGS } from '../../../app/constants';
+import {
+  DEFAULT_AUDIO_SETTINGS,
+  DEFAULT_GRAPHICS_SETTINGS,
+} from '../../../app/constants';
 import {
   STORYBOOK_WINDOW_POSITION,
   storySurfaceDecorator,
@@ -13,6 +16,7 @@ const meta = {
   decorators: [storySurfaceDecorator],
   render: (args) => <GameSettingsWindowStory {...args} />,
   args: {
+    audioSettings: DEFAULT_AUDIO_SETTINGS,
     graphicsSettings: DEFAULT_GRAPHICS_SETTINGS,
     onMove: () => undefined,
     onResetSaveData: () => undefined,
@@ -35,6 +39,7 @@ function GameSettingsWindowStory(
   args: ComponentProps<typeof GameSettingsWindow>,
 ) {
   const [position, setPosition] = useState(args.position);
+  const [audioSettings, setAudioSettings] = useState(args.audioSettings);
   const [graphicsSettings, setGraphicsSettings] = useState(
     args.graphicsSettings,
   );
@@ -43,6 +48,7 @@ function GameSettingsWindowStory(
   return (
     <GameSettingsWindow
       {...args}
+      audioSettings={audioSettings}
       graphicsSettings={graphicsSettings}
       position={position}
       visible={visible}
@@ -50,10 +56,12 @@ function GameSettingsWindowStory(
       onMove={setPosition}
       onResetSaveData={() => undefined}
       onSave={async (nextSettings) => {
-        setGraphicsSettings(nextSettings);
+        setAudioSettings(nextSettings.audio);
+        setGraphicsSettings(nextSettings.graphics);
       }}
       onSaveAndReload={async (nextSettings) => {
-        setGraphicsSettings(nextSettings);
+        setAudioSettings(nextSettings.audio);
+        setGraphicsSettings(nextSettings.graphics);
       }}
     />
   );

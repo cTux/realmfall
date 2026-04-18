@@ -1,27 +1,38 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { t } from '../../../i18n';
+import {
+  AUDIO_SETTINGS_TOGGLE_OPTIONS,
+  AUDIO_THEME_OPTIONS,
+  type AudioSettings,
+} from '../../../app/audioSettings';
+import { useUiAudio } from '../../../app/audio/UiAudioContext';
 import {
   GRAPHICS_SETTINGS_OPTIONS,
   type GraphicsSettings,
 } from '../../../app/graphicsSettings';
+import { t } from '../../../i18n';
 import { Switch } from '../Switch';
-import { Tabs } from '../Tabs';
 import type { GameSettingsWindowContentProps } from './types';
 import styles from './styles.module.scss';
 
 const RESET_HOLD_MS = 5000;
-const GRAPHICS_TAB_ID = 'graphics';
+const TAB_ORDER = ['graphics', 'audio'] as const;
+
+type SettingsTabId = (typeof TAB_ORDER)[number];
 
 export function GameSettingsWindowContent({
+  audioSettings,
   graphicsSettings,
   onClose,
   onResetSaveData,
   onSave,
   onSaveAndReload,
 }: GameSettingsWindowContentProps) {
-  const [activeTabId, setActiveTabId] = useState(GRAPHICS_TAB_ID);
-  const [draftSettings, setDraftSettings] =
+  const audio = useUiAudio();
+  const [activeTabId, setActiveTabId] = useState<SettingsTabId>('graphics');
+  const [draftGraphicsSettings, setDraftGraphicsSettings] =
     useState<GraphicsSettings>(graphicsSettings);
+  const [draftAudioSettings, setDraftAudioSettings] =
+    useState<AudioSettings>(audioSettings);
   const [busyAction, setBusyAction] = useState<
     'save' | 'saveReload' | 'reset' | null
   >(null);
@@ -30,8 +41,12 @@ export function GameSettingsWindowContent({
   const resetStartTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
-    setDraftSettings(graphicsSettings);
+    setDraftGraphicsSettings(graphicsSettings);
   }, [graphicsSettings]);
+
+  useEffect(() => {
+    setDraftAudioSettings(audioSettings);
+  }, [audioSettings]);
 
   useEffect(
     () => () => {
@@ -43,12 +58,21 @@ export function GameSettingsWindowContent({
   );
 
   const tabs = useMemo(
-    () => [{ id: GRAPHICS_TAB_ID, label: t('ui.settings.tabs.graphics') }],
+    () => [
+      { id: 'graphics', label: t('ui.settings.tabs.graphics') },
+      { id: 'audio', label: t('ui.settings.tabs.audio') },
+    ] satisfies Array<{ id: SettingsTabId; label: string }>,
     [],
   );
 
   const dirty =
-    JSON.stringify(draftSettings) !== JSON.stringify(graphicsSettings);
+    JSON.stringify(draftGraphicsSettings) !== JSON.stringify(graphicsSettings) ||
+    JSON.stringify(draftAudioSettings) !== JSON.stringify(audioSettings);
+
+  const savePayload = {
+    audio: draftAudioSettings,
+    graphics: draftGraphicsSettings,
+  };
 
   const cancelResetHold = () => {
     if (resetFrameRef.current !== null) {
@@ -72,6 +96,7 @@ export function GameSettingsWindowContent({
   const startResetHold = (event: React.PointerEvent<HTMLButtonElement>) => {
     if (busyAction) return;
 
+    audio.warning();
     event.currentTarget.setPointerCapture?.(event.pointerId);
     resetStartTimeRef.current = performance.now();
 
@@ -98,7 +123,7 @@ export function GameSettingsWindowContent({
   const handleSave = async () => {
     setBusyAction('save');
     try {
-      await onSave(draftSettings);
+      await onSave(savePayload);
       onClose?.();
     } finally {
       setBusyAction(null);
@@ -108,79 +133,183 @@ export function GameSettingsWindowContent({
   const handleSaveAndReload = async () => {
     setBusyAction('saveReload');
     try {
-      await onSaveAndReload(draftSettings);
+      await onSaveAndReload(savePayload);
     } finally {
       setBusyAction(null);
     }
   };
 
   return (
-    <div className={styles.panel}>
-      <Tabs activeTabId={activeTabId} tabs={tabs} onChange={setActiveTabId} />
-      {activeTabId === GRAPHICS_TAB_ID ? (
+    <div className={styles.layout}>
+      <div className={styles.content}>
         <section
-          id={`${GRAPHICS_TAB_ID}-panel`}
+          id={`${activeTabId}-panel`}
           role="tabpanel"
-          aria-labelledby={`${GRAPHICS_TAB_ID}-tab`}
+          aria-labelledby={`${activeTabId}-tab`}
           className={styles.tabPanel}
         >
-          <div className={styles.switches}>
-            {GRAPHICS_SETTINGS_OPTIONS.map((option) => (
-              <Switch
-                key={option.key}
-                checked={draftSettings[option.key]}
-                label={t(option.labelKey)}
-                description={t(option.descriptionKey)}
-                onChange={(checked) =>
-                  setDraftSettings((current) => ({
-                    ...current,
-                    [option.key]: checked,
-                  }))
-                }
-              />
-            ))}
-          </div>
+          {activeTabId === 'graphics' ? (
+            <div className={styles.switches}>
+              {GRAPHICS_SETTINGS_OPTIONS.map((option) => (
+                <Switch
+                  key={option.key}
+                  checked={draftGraphicsSettings[option.key]}
+                  label={t(option.labelKey)}
+                  description={t(option.descriptionKey)}
+                  onChange={(checked) =>
+                    setDraftGraphicsSettings((current) => ({
+                      ...current,
+                      [option.key]: checked,
+                    }))
+                  }
+                />
+              ))}
+            </div>
+          ) : (
+            <div className={styles.audioPanel}>
+              <div className={styles.switches}>
+                {AUDIO_SETTINGS_TOGGLE_OPTIONS.map((option) => (
+                  <Switch
+                    key={option.key}
+                    checked={draftAudioSettings[option.key]}
+                    label={t(option.labelKey)}
+                    description={t(option.descriptionKey)}
+                    onChange={(checked) =>
+                      setDraftAudioSettings((current) => ({
+                        ...current,
+                        [option.key]: checked,
+                      }))
+                    }
+                  />
+                ))}
+              </div>
+              <label className={styles.rangeField} data-ui-audio-hover="true">
+                <span className={styles.rangeHeader}>
+                  <span className={styles.rangeLabel}>
+                    {t('ui.settings.audio.volume.label')}
+                  </span>
+                  <span className={styles.rangeValue}>
+                    {Math.round(draftAudioSettings.volume * 100)}%
+                  </span>
+                </span>
+                <span className={styles.rangeDescription}>
+                  {t('ui.settings.audio.volume.description')}
+                </span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={Math.round(draftAudioSettings.volume * 100)}
+                  onChange={(event) => {
+                    const volume = Number(event.currentTarget.value) / 100;
+
+                    setDraftAudioSettings((current) => ({
+                      ...current,
+                      volume,
+                    }));
+                  }}
+                />
+              </label>
+              <div
+                className={styles.themeField}
+                role="radiogroup"
+                aria-label={t('ui.settings.audio.theme.label')}
+              >
+                <div className={styles.themeHeader}>
+                  <span className={styles.rangeLabel}>
+                    {t('ui.settings.audio.theme.label')}
+                  </span>
+                  <span className={styles.rangeDescription}>
+                    {t('ui.settings.audio.theme.description')}
+                  </span>
+                </div>
+                <div className={styles.themeOptions}>
+                  {AUDIO_THEME_OPTIONS.map((option) => {
+                    const selected = draftAudioSettings.theme === option.value;
+
+                    return (
+                      <button
+                        key={option.value}
+                        id={`audio-theme-${option.value}`}
+                        type="button"
+                        role="radio"
+                        aria-checked={selected}
+                        className={styles.themeOption}
+                        data-active={selected}
+                        onClick={() =>
+                          setDraftAudioSettings((current) => ({
+                            ...current,
+                            theme: option.value,
+                          }))
+                        }
+                      >
+                        {t(option.labelKey)}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
         </section>
-      ) : null}
-      <div className={styles.actions}>
-        <div className={styles.primaryActions}>
+        <div className={styles.actions}>
+          <div className={styles.primaryActions}>
+            <button
+              type="button"
+              onClick={() => void handleSave()}
+              disabled={busyAction !== null || !dirty}
+            >
+              {busyAction === 'save'
+                ? t('ui.settings.actions.saving')
+                : t('ui.settings.actions.save')}
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleSaveAndReload()}
+              disabled={busyAction !== null || !dirty}
+            >
+              {busyAction === 'saveReload'
+                ? t('ui.settings.actions.savingReload')
+                : t('ui.settings.actions.saveReload')}
+            </button>
+          </div>
           <button
             type="button"
-            onClick={() => void handleSave()}
-            disabled={busyAction !== null || !dirty}
+            className={styles.resetButton}
+            data-busy={busyAction === 'reset'}
+            disabled={busyAction !== null && busyAction !== 'reset'}
+            style={{ ['--reset-progress' as string]: `${resetProgress * 100}%` }}
+            onPointerDown={startResetHold}
+            onPointerUp={cancelResetHold}
+            onPointerCancel={cancelResetHold}
+            onLostPointerCapture={cancelResetHold}
           >
-            {busyAction === 'save'
-              ? t('ui.settings.actions.saving')
-              : t('ui.settings.actions.save')}
-          </button>
-          <button
-            type="button"
-            onClick={() => void handleSaveAndReload()}
-            disabled={busyAction !== null || !dirty}
-          >
-            {busyAction === 'saveReload'
-              ? t('ui.settings.actions.savingReload')
-              : t('ui.settings.actions.saveReload')}
+            <span className={styles.resetFill} aria-hidden="true" />
+            <span className={styles.resetText}>
+              {busyAction === 'reset'
+                ? t('ui.settings.actions.resetting')
+                : t('ui.settings.actions.resetSaveData')}
+            </span>
           </button>
         </div>
-        <button
-          type="button"
-          className={styles.resetButton}
-          data-busy={busyAction === 'reset'}
-          disabled={busyAction !== null && busyAction !== 'reset'}
-          style={{ ['--reset-progress' as string]: `${resetProgress * 100}%` }}
-          onPointerDown={startResetHold}
-          onPointerUp={cancelResetHold}
-          onPointerCancel={cancelResetHold}
-          onLostPointerCapture={cancelResetHold}
-        >
-          <span className={styles.resetFill} aria-hidden="true" />
-          <span className={styles.resetText}>
-            {busyAction === 'reset'
-              ? t('ui.settings.actions.resetting')
-              : t('ui.settings.actions.resetSaveData')}
-          </span>
-        </button>
+      </div>
+      <div className={styles.tabs} role="tablist" aria-orientation="vertical">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            id={`${tab.id}-tab`}
+            type="button"
+            role="tab"
+            aria-selected={activeTabId === tab.id}
+            aria-controls={`${tab.id}-panel`}
+            className={styles.tab}
+            data-active={activeTabId === tab.id}
+            onClick={() => setActiveTabId(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
     </div>
   );

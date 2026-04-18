@@ -66,7 +66,10 @@ describe('graphics settings persistence', () => {
   });
 
   it('clears both current and legacy settings keys', () => {
-    window.localStorage.setItem('settings', JSON.stringify({ graphics: {} }));
+    window.localStorage.setItem(
+      'settings',
+      JSON.stringify({ audio: { muted: true }, graphics: {} }),
+    );
     window.localStorage.setItem(
       'realmfall-graphics-settings',
       JSON.stringify({ antialias: false }),
@@ -74,7 +77,11 @@ describe('graphics settings persistence', () => {
 
     clearGraphicsSettings();
 
-    expect(window.localStorage.getItem('settings')).toBeNull();
+    expect(
+      JSON.parse(window.localStorage.getItem('settings') ?? 'null'),
+    ).toEqual({
+      audio: { muted: true },
+    });
     expect(
       window.localStorage.getItem('realmfall-graphics-settings'),
     ).toBeNull();

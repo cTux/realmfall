@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import {
   createGame,
   syncBloodMoon,
@@ -22,6 +22,17 @@ import { useWindowTransitions } from './useWindowTransitions';
 import { useWorldClockFps } from './useWorldClockFps';
 import { clearEncryptedState } from '../../persistence/storage';
 import {
+  clearAudioSettings,
+  loadAudioSettings,
+  saveAudioSettings,
+  type AudioSettings,
+} from '../audioSettings';
+import {
+  DEFAULT_UI_AUDIO_CONTROLLER,
+  UiAudioProvider,
+  type UiAudioController,
+} from '../audio/UiAudioContext';
+import {
   clearGraphicsSettings,
   loadGraphicsSettings,
   saveGraphicsSettings,
@@ -32,7 +43,14 @@ import { LoadingSpinner } from '../../ui/components/LoadingSpinner';
 import styles from './styles.module.scss';
 import { setWorldClockTime } from './worldClockStore';
 
+const UiAudioControllerBridge = lazy(() =>
+  import('../audio/UiAudioControllerBridge').then((module) => ({
+    default: module.UiAudioControllerBridge,
+  })),
+);
+
 export function App() {
+  const initialAudioSettingsRef = useRef(loadAudioSettings());
   const initialGraphicsSettingsRef = useRef(loadGraphicsSettings());
   const initialGameRef = useRef<GameState>(createGame(WORLD_RADIUS));
   const gameRef = useRef<GameState>(initialGameRef.current);
@@ -43,6 +61,9 @@ export function App() {
     Math.floor(initialGameRef.current.worldTimeMs / 1000),
   );
   const [game, setGame] = useState<GameState>(initialGameRef.current);
+  const [uiAudio, setUiAudio] = useState<UiAudioController>(
+    DEFAULT_UI_AUDIO_CONTROLLER,
+  );
   const {
     closeItemMenu,
     closeAllWindows,
@@ -70,11 +91,13 @@ export function App() {
     handleUseItem,
     handleOpenRecipeBookWithMaterialFilter,
     handleClearRecipeMaterialFilter,
+    audioSettings,
     graphicsSettings,
     itemMenu,
     logFilters,
     moveWindow,
     showTooltip,
+    setAudioSettings,
     setGraphicsSettings,
     setLogFilters,
     setTooltip,
@@ -91,6 +114,7 @@ export function App() {
     recipeMaterialFilterItemKey,
   } = useAppControllers({
     gameRef,
+    initialAudioSettings: initialAudioSettingsRef.current,
     initialGraphicsSettings: initialGraphicsSettingsRef.current,
     setGame,
     tooltipPositionRef,
@@ -207,26 +231,48 @@ export function App() {
     onTakeAllLoot: handleTakeAllLoot,
     onCloseAllWindows: closeAllWindows,
     onToggleDockWindow: toggleDockWindow,
+    onWindowToggleSound: (opened) => {
+      if (opened) {
+        uiAudio.pop();
+        return;
+      }
+
+      uiAudio.swoosh();
+    },
+    onCloseAllWindowsSound: uiAudio.swoosh,
+    windowShown,
     windowShownLoot: windowShown.loot,
   });
 
-  const handleSaveGraphicsSettings = async (
-    nextGraphicsSettings: GraphicsSettings,
-  ) => {
+  const handleSaveSettings = async ({
+    audio: nextAudioSettings,
+    graphics: nextGraphicsSettings,
+  }: {
+    audio: AudioSettings;
+    graphics: GraphicsSettings;
+  }) => {
+    setAudioSettings(nextAudioSettings);
     setGraphicsSettings(nextGraphicsSettings);
+    saveAudioSettings(nextAudioSettings);
     saveGraphicsSettings(nextGraphicsSettings);
+    uiAudio.applySettings(nextAudioSettings);
     await persistNow();
+    uiAudio.success();
   };
 
-  const handleSaveGraphicsSettingsAndReload = async (
-    nextGraphicsSettings: GraphicsSettings,
-  ) => {
-    await handleSaveGraphicsSettings(nextGraphicsSettings);
+  const handleSaveSettingsAndReload = async (settings: {
+    audio: AudioSettings;
+    graphics: GraphicsSettings;
+  }) => {
+    await handleSaveSettings(settings);
+    uiAudio.notify();
     window.location.reload();
   };
 
   const handleResetSaveData = async () => {
+    uiAudio.error();
     clearEncryptedState();
+    clearAudioSettings();
     clearGraphicsSettings();
     window.location.reload();
   };
@@ -284,6 +330,7 @@ export function App() {
       filtered: filteredLogs,
     },
     settingsView: {
+      audio: audioSettings,
       graphics: graphicsSettings,
     },
     itemMenu,
@@ -335,40 +382,48 @@ export function App() {
       },
       settings: {
         onResetSaveData: handleResetSaveData,
-        onSaveGraphicsSettings: handleSaveGraphicsSettings,
-        onSaveGraphicsSettingsAndReload: handleSaveGraphicsSettingsAndReload,
+        onSaveSettings: handleSaveSettings,
+        onSaveSettingsAndReload: handleSaveSettingsAndReload,
       },
     },
   });
 
   return (
-    <div className={styles.appRoot}>
-      <div className={isReady ? undefined : styles.hiddenUntilReady}>
-        <div ref={hostRef} className={styles.mapViewport} />
-        <HomeIndicator
-          claimedHex={firstClaimedHex}
-          hostRef={hostRef}
-          homeHex={game.homeHex}
-          playerCoord={game.player.coord}
-          radius={game.radius}
-        />
-        <VersionStatusWidget
-          currentVersion={versionStatus.currentVersion}
-          remoteVersion={versionStatus.remoteVersion}
-          status={versionStatus.status}
-          onRefresh={() => window.location.reload()}
-        />
-        <AppWindows {...appWindowsProps} />
-      </div>
-      {isReady ? null : (
-        <div
-          className={styles.loadingScreen}
-          aria-live="polite"
-          aria-busy="true"
-        >
-          <LoadingSpinner className={styles.loadingSpinner} />
+    <UiAudioProvider value={uiAudio}>
+      <div className={styles.appRoot}>
+        <Suspense fallback={null}>
+          <UiAudioControllerBridge
+            audioSettings={audioSettings}
+            onChange={setUiAudio}
+          />
+        </Suspense>
+        <div className={isReady ? undefined : styles.hiddenUntilReady}>
+          <div ref={hostRef} className={styles.mapViewport} />
+          <HomeIndicator
+            claimedHex={firstClaimedHex}
+            hostRef={hostRef}
+            homeHex={game.homeHex}
+            playerCoord={game.player.coord}
+            radius={game.radius}
+          />
+          <VersionStatusWidget
+            currentVersion={versionStatus.currentVersion}
+            remoteVersion={versionStatus.remoteVersion}
+            status={versionStatus.status}
+            onRefresh={() => window.location.reload()}
+          />
+          <AppWindows {...appWindowsProps} />
         </div>
-      )}
-    </div>
+        {isReady ? null : (
+          <div
+            className={styles.loadingScreen}
+            aria-live="polite"
+            aria-busy="true"
+          >
+            <LoadingSpinner className={styles.loadingSpinner} />
+          </div>
+        )}
+      </div>
+    </UiAudioProvider>
   );
 }

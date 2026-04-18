@@ -41,6 +41,7 @@ import {
   type WindowPositions,
   type WindowVisibilityState,
 } from '../constants';
+import type { AudioSettings } from '../audioSettings';
 import type { GraphicsSettings } from '../graphicsSettings';
 import type { ItemContextMenuState, TooltipItem, TooltipState } from './types';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
@@ -51,6 +52,7 @@ import { getTooltipPlacementForRect } from '../../ui/tooltipPlacement';
 
 interface UseAppControllersOptions {
   gameRef: MutableRefObject<GameState>;
+  initialAudioSettings: AudioSettings;
   initialGraphicsSettings: GraphicsSettings;
   setGame: Dispatch<SetStateAction<GameState>>;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
@@ -59,6 +61,7 @@ interface UseAppControllersOptions {
 
 export function useAppControllers({
   gameRef,
+  initialAudioSettings,
   initialGraphicsSettings,
   setGame,
   tooltipPositionRef,
@@ -83,6 +86,9 @@ export function useAppControllers({
   const [windows, setWindows] = useState<WindowPositions>(DEFAULT_WINDOWS);
   const [windowShown, setWindowShown] = useState<WindowVisibilityState>(
     DEFAULT_WINDOW_VISIBILITY,
+  );
+  const [audioSettings, setAudioSettings] = useState<AudioSettings>(
+    initialAudioSettings,
   );
   const [graphicsSettings, setGraphicsSettings] = useState<GraphicsSettings>(
     initialGraphicsSettings,
@@ -432,11 +438,13 @@ export function useAppControllers({
     handleUseItem,
     handleOpenRecipeBookWithMaterialFilter,
     handleClearRecipeMaterialFilter,
+    audioSettings,
     itemMenu,
     logFilters,
     moveWindow,
     graphicsSettings,
     showTooltip,
+    setAudioSettings,
     setGraphicsSettings,
     setLogFilters,
     setTooltip,

@@ -9,7 +9,7 @@
 
 .window {
   z-index: 45;
-  width: min(640px, calc(100vw - 112px));
+  width: min(720px, calc(100vw - 112px));
 
   &[data-window-emphasis='hovered'],
   &[data-window-emphasis='active'] {
@@ -23,21 +23,47 @@
   overflow: hidden;
 }
 
-.panel {
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
   box-sizing: border-box;
   height: 100%;
   min-height: 0;
 }
 
-.lead,
-.tabDescription,
-.reloadHint {
-  margin: 0;
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-height: 0;
+}
+
+.tabs {
+  display: grid;
+  align-content: start;
+  gap: 0.35rem;
+}
+
+.tab {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  min-height: 112px;
+  padding: 0.65rem 0.45rem;
+  border: 1px solid rgb(148 163 184 / 20%);
+  background: rgb(15 23 42 / 72%);
   color: #94a3b8;
-  line-height: 1.45;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+}
+
+.tab[data-active='true'] {
+  border-color: rgb(96 165 250 / 38%);
+  color: #dbeafe;
+  background:
+    linear-gradient(180deg, rgb(30 41 59 / 82%), rgb(15 23 42 / 92%)),
+    rgb(15 23 42 / 82%);
 }
 
 .tabPanel {
@@ -50,9 +76,79 @@
   padding-right: 0.2rem;
 }
 
-.switches {
+.switches,
+.audioPanel {
   display: grid;
   gap: 0.7rem;
+}
+
+.rangeField,
+.themeField {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgb(148 163 184 / 16%);
+  background: rgb(15 23 42 / 62%);
+}
+
+.rangeHeader,
+.themeHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.rangeLabel {
+  color: #e2e8f0;
+  font-size: 0.84rem;
+}
+
+.rangeDescription {
+  color: #94a3b8;
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.rangeValue {
+  color: #7dd3fc;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.rangeField input[type='range'] {
+  width: 100%;
+  accent-color: #38bdf8;
+}
+
+.themeOptions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.themeOption {
+  @include ui.compact-button;
+
+  padding: 0.65rem 0.75rem;
+  border: 1px solid rgb(148 163 184 / 18%);
+  background: rgb(8 15 30 / 82%);
+  color: #cbd5e1;
+  transition:
+    border-color 120ms ease,
+    color 120ms ease,
+    background-color 120ms ease;
+
+  &[data-active='true'] {
+    border-color: rgb(56 189 248 / 48%);
+    background: linear-gradient(180deg, rgb(14 116 144 / 22%), rgb(8 15 30 / 92%));
+    color: #f8fafc;
+  }
+
+  &:hover:enabled {
+    border-color: rgb(125 211 252 / 55%);
+    color: #f8fafc;
+  }
 }
 
 .actions {
@@ -126,6 +222,32 @@
 
 @media (width <= 980px) {
   .window {
-    width: min(92vw, 640px);
+    width: min(94vw, 720px);
+  }
+}
+
+@media (width <= 720px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tabs {
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+  }
+
+  .tab {
+    writing-mode: horizontal-tb;
+    transform: none;
+    min-height: auto;
+    min-width: 0;
+  }
+
+  .themeOptions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .resetButton {
+    margin-left: 0;
   }
 }

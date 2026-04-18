@@ -171,9 +171,10 @@ export function AppDeferredWindows({
       {mountedWindows.settings ? (
         <GameSettingsWindow
           {...managedWindowProps.settings}
+          audioSettings={views.settings.audio}
           graphicsSettings={views.settings.graphics}
-          onSave={actions.settings.onSaveGraphicsSettings}
-          onSaveAndReload={actions.settings.onSaveGraphicsSettingsAndReload}
+          onSave={actions.settings.onSaveSettings}
+          onSaveAndReload={actions.settings.onSaveSettingsAndReload}
           onResetSaveData={actions.settings.onResetSaveData}
         />
       ) : null}

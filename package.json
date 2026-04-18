@@ -1,7 +1,7 @@
 {
   "name": "realmfall",
   "private": true,
-  "version": "0.2.126",
+  "version": "0.2.130",
   "type": "module",
   "packageManager": "pnpm@10.33.0",
   "engines": {
@@ -31,6 +31,7 @@
     "update:minor": "pnpm exec npm-check-updates -u --target minor --packageManager pnpm"
   },
   "dependencies": {
+    "@rexa-developer/tiks": "^0.1.6",
     "pixi.js": "^8.18.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",

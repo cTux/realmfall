@@ -51,8 +51,19 @@ function versionManifestPlugin(): Plugin {
 function getVendorChunk(id: string) {
   const normalizedId = id.replace(/\\/g, '/');
 
+  if (
+    normalizedId.includes('/src/app/audioSettings.ts') ||
+    normalizedId.includes('/src/app/settingsStorage.ts')
+  ) {
+    return 'audio-ui';
+  }
+
   if (!normalizedId.includes('/node_modules/')) {
     return undefined;
+  }
+
+  if (normalizedId.includes('/node_modules/@rexa-developer/tiks/')) {
+    return 'audio-ui';
   }
 
   if (
