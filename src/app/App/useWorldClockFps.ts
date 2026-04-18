@@ -42,9 +42,14 @@ export function useWorldClockFps({
 
   useEffect(() => {
     let frameId = 0;
+    let running = false;
     setWorldClockTime(initialWorldTimeMs);
 
     const updateHud = (timestamp: number) => {
+      if (!running) {
+        return;
+      }
+
       const lastTick = worldTimeTickRef.current;
       if (lastTick != null) {
         worldTimeMsRef.current += timestamp - lastTick;
@@ -60,10 +65,40 @@ export function useWorldClockFps({
       frameId = window.requestAnimationFrame(updateHud);
     };
 
-    frameId = window.requestAnimationFrame(updateHud);
-    return () => {
+    const stopClock = () => {
+      running = false;
       worldTimeTickRef.current = null;
-      window.cancelAnimationFrame(frameId);
+
+      if (frameId !== 0) {
+        window.cancelAnimationFrame(frameId);
+        frameId = 0;
+      }
+    };
+
+    const startClock = () => {
+      if (running || document.visibilityState === 'hidden') {
+        return;
+      }
+
+      running = true;
+      worldTimeTickRef.current = null;
+      frameId = window.requestAnimationFrame(updateHud);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        stopClock();
+        return;
+      }
+
+      startClock();
+    };
+
+    startClock();
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      stopClock();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [
     initialWorldTimeMs,

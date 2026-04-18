@@ -17,6 +17,7 @@ This spec covers browser save storage, hydration normalization, and autosave beh
 - Autosave uses a five-second debounce plus five-second interval-backed flush model.
 - The five-second interval flush remains active during continuous gameplay or UI churn, so repeated sub-five-second updates still persist progress without requiring a quiet period first.
 - Gameplay and UI persistence dirtiness are tracked separately so UI-only changes do not rebuild the gameplay snapshot on every autosave scheduling pass.
+- Autosave scheduling tracks the latest game and UI inputs separately and only builds the persisted snapshot when a flush or manual save is actually needed, avoiding repeated full snapshot cloning during intermediate state churn.
 - The app serializes persisted segments and skips redundant writes when nothing meaningful changed.
 - Pending saves are coalesced while previous writes are in flight.
 - Manual saves are serialized behind any in-flight autosave so older writes cannot finish later and overwrite newer explicit saves.

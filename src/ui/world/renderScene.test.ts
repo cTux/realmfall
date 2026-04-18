@@ -1055,6 +1055,83 @@ describe('renderScene', () => {
     expect(finalPolygonCalls).toBe(initialPolygonCalls);
   });
 
+  it('keeps static and stable interaction layers cached across offscreen enemy-only clones', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { getSceneCache } = await import('./renderSceneCache');
+    const game = createGame(2, 'render-scene-offscreen-enemy-cache');
+    game.homeHex = { q: 1, r: 0 };
+    const visibleTiles = getVisibleTiles(game);
+    const offscreenCoord = { q: 5, r: 0 };
+    game.tiles['5,0'] = {
+      coord: offscreenCoord,
+      terrain: 'plains',
+      items: [],
+      enemyIds: ['enemy-5,0-0'],
+    };
+    game.enemies['enemy-5,0-0'] = {
+      id: 'enemy-5,0-0',
+      name: 'Wolf',
+      coord: offscreenCoord,
+      tier: 1,
+      hp: 2,
+      maxHp: 2,
+      attack: 1,
+      defense: 0,
+      xp: 1,
+      elite: false,
+    };
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      { q: 1, r: 0 },
+      null,
+      12 * 60,
+      1200,
+    );
+
+    const world = (app.stage.children[1] as MockContainer)
+      .children[0] as MockContainer;
+    const initialPolygonCalls = collectDescendants(world)
+      .filter((child) => child instanceof MockGraphics)
+      .reduce((sum, child) => sum + child.drawPolygon.mock.calls.length, 0);
+    const offscreenEnemyClone = {
+      ...game,
+      enemies: {
+        ...game.enemies,
+        'enemy-5,0-0': {
+          ...game.enemies['enemy-5,0-0'],
+          hp: 1,
+        },
+      },
+    };
+
+    renderScene(
+      app as never,
+      offscreenEnemyClone,
+      visibleTiles,
+      { q: 1, r: 0 },
+      null,
+      12 * 60,
+      1800,
+    );
+
+    const finalPolygonCalls = collectDescendants(world)
+      .filter((child) => child instanceof MockGraphics)
+      .reduce((sum, child) => sum + child.drawPolygon.mock.calls.length, 0);
+    const sceneCache = getSceneCache(app as never);
+
+    expect(finalPolygonCalls).toBe(initialPolygonCalls);
+    expect(sceneCache.derivedRenderEnemiesSource).toBe(
+      offscreenEnemyClone.enemies,
+    );
+  });
+
   it('covers hexes beyond the reveal radius with fog of war', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(6, 'render-scene-fog-of-war');

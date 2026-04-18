@@ -1,4 +1,5 @@
 import { createGame } from '../../game/state';
+import { Texture } from 'pixi.js';
 
 vi.mock('pixi.js', () => ({
   ImageSource: class MockImageSource {
@@ -12,6 +13,46 @@ vi.mock('pixi.js', () => ({
 }));
 
 describe('worldIcons', () => {
+  it('serves preloaded textures from the world icon cache in the browser path', async () => {
+    const originalImage = globalThis.Image;
+    const originalNavigator = globalThis.navigator;
+    class MockImage {
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+
+      set src(_value: string) {
+        this.onload?.();
+      }
+    }
+
+    try {
+      vi.stubGlobal('Image', MockImage as unknown as typeof Image);
+      vi.stubGlobal('navigator', {
+        userAgent: 'Mozilla/5.0',
+      } as Navigator);
+
+      const {
+        WorldIcons,
+        ensureWorldIconTexturesLoaded,
+        getWorldIconTexture,
+      } = await import('./worldIcons');
+
+      await ensureWorldIconTexturesLoaded([WorldIcons.Player]);
+
+      const texture = getWorldIconTexture(WorldIcons.Player);
+
+      expect(texture).toBeDefined();
+      expect(Texture.from).not.toHaveBeenCalled();
+    } finally {
+      if (originalImage === undefined) {
+        vi.unstubAllGlobals();
+      } else {
+        vi.stubGlobal('Image', originalImage);
+      }
+      vi.stubGlobal('navigator', originalNavigator);
+    }
+  });
+
   it('preloads only core and visible marker icons for the current viewport', async () => {
     const {
       WorldIcons,

@@ -67,7 +67,7 @@ pnpm dev
 
 ## Scripts
 
-- `pnpm dev`
+- `pnpm dev` (runs the Vite dev server over local HTTPS with the shared localhost certificate)
 - `pnpm dev:storybook`
 - `pnpm build`
 - `pnpm build:budget`
@@ -110,6 +110,8 @@ recreates it.
 The pre-commit hook runs `pnpm check:version`, `pnpm typecheck`, and `pnpm quality:staged`, then refreshes the Git index for auto-fixed tracked files. `pnpm quality:staged` runs `oxlint --fix -c .oxlintrc.json` only on staged JavaScript and TypeScript files, runs Stylelint only on staged `src` CSS and SCSS files, and runs `vitest related` for staged source, runtime JSON content, and test files. When shared test inputs such as `package.json`, `pnpm-lock.yaml`, `vite.config.ts`, TypeScript config, or `src/test/setup.ts` are staged, it falls back to the full `pnpm test` suite. `pnpm check:version` still requires `package.json` to advance by patch version relative to `HEAD`.
 
 The repository already has strong baseline tooling. Changes should preserve strict typing, lint cleanliness, deterministic tests where practical, and successful production builds.
+
+Review notes and improvement descriptions should describe the current behavior directly rather than leaning on comparative filler such as `still`, because that wording goes stale once follow-up fixes land.
 
 ## Project Rules
 

@@ -78,6 +78,7 @@ export interface SceneCache {
   player: ShadowedSpriteEntry;
   derivedRenderVisibleTilesSource: ReturnType<typeof getVisibleTiles> | null;
   derivedRenderEnemiesSource: Record<string, unknown> | null;
+  derivedRenderVisibleEnemyToken: number | null;
   derivedRenderPlayerCoordKey: string | null;
   derivedRenderHomeHexKey: string | null;
   derivedRenderBloodMoonActive: boolean | null;
@@ -179,6 +180,7 @@ export function getSceneCache(app: Application) {
     player,
     derivedRenderVisibleTilesSource: null,
     derivedRenderEnemiesSource: null,
+    derivedRenderVisibleEnemyToken: null,
     derivedRenderPlayerCoordKey: null,
     derivedRenderHomeHexKey: null,
     derivedRenderBloodMoonActive: null,

@@ -3,18 +3,81 @@ import {
   type Tile,
   type VisibleTilesState,
 } from '../../../game/state';
+import { hexKey } from '../../../game/hex';
 
 type VisibleTiles = ReturnType<typeof getVisibleTiles>;
+type VisibleTilesMetadata = {
+  playerCoordKey: string;
+  radius: number;
+  seed: string;
+};
+
+const visibleTilesMetadata = new WeakMap<VisibleTiles, VisibleTilesMetadata>();
+
+function buildVisibleTilesMetadata(
+  visibleTilesState: VisibleTilesState,
+): VisibleTilesMetadata {
+  return {
+    playerCoordKey: hexKey(visibleTilesState.player.coord),
+    radius: visibleTilesState.radius,
+    seed: visibleTilesState.seed,
+  };
+}
 
 export function reuseVisibleTilesIfUnchanged(
   previousVisibleTiles: VisibleTiles,
   visibleTilesState: VisibleTilesState,
 ) {
-  const nextVisibleTiles = getVisibleTiles(visibleTilesState);
+  if (
+    canReuseVisibleTilesWithoutRecomputing(
+      previousVisibleTiles,
+      visibleTilesState,
+    )
+  ) {
+    return previousVisibleTiles;
+  }
 
-  return canReuseVisibleTiles(previousVisibleTiles, nextVisibleTiles)
+  const nextVisibleTiles = getVisibleTiles(visibleTilesState);
+  const returnedVisibleTiles = canReuseVisibleTiles(
+    previousVisibleTiles,
+    nextVisibleTiles,
+  )
     ? previousVisibleTiles
     : nextVisibleTiles;
+
+  visibleTilesMetadata.set(
+    returnedVisibleTiles,
+    buildVisibleTilesMetadata(visibleTilesState),
+  );
+
+  return returnedVisibleTiles;
+}
+
+function canReuseVisibleTilesWithoutRecomputing(
+  previousVisibleTiles: VisibleTiles,
+  visibleTilesState: VisibleTilesState,
+) {
+  if (previousVisibleTiles.length === 0) {
+    return false;
+  }
+
+  const previousMetadata = visibleTilesMetadata.get(previousVisibleTiles);
+  if (
+    !previousMetadata ||
+    previousMetadata.playerCoordKey !== hexKey(visibleTilesState.player.coord) ||
+    previousMetadata.radius !== visibleTilesState.radius ||
+    previousMetadata.seed !== visibleTilesState.seed
+  ) {
+    return false;
+  }
+
+  return previousVisibleTiles.every(
+    (tile) =>
+      getVisibleTileRenderKey(tile) ===
+      getVisibleTileRenderKey(
+        visibleTilesState.tiles[hexKey(tile.coord)] ?? tile,
+      ),
+  );
 }
 
 function canReuseVisibleTiles(

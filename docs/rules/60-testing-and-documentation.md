@@ -18,6 +18,7 @@
 - Keep `README.md` accurate about the current game state, package manager, save behavior, quality commands, and contributor workflow.
 - Keep `docs/WORKFLOW.md` aligned with the actual contributor workflow, verification steps, and commit conventions, but keep recurring policy details in `docs/RULES.md` and `docs/rules/` instead of restating them there.
 - Prefer documenting real project constraints and current behavior over aspirational wording.
+- In review findings, improvement notes, and project-health summaries, avoid stale comparative filler such as `still`; describe the current behavior and risk directly so the guidance remains accurate after follow-up fixes land.
 - When prompts establish recurring workflow expectations, capture them here so future prompt handling stays consistent.
 - When a prompt establishes recurring structural placement rules for hooks, selectors, utilities, components, or tests, update this file and keep contributor-facing docs aligned instead of relying on one-off refactors.
 - Keep rule and workflow updates synchronized across `README.md`, `docs/WORKFLOW.md`, and the AI-specific instruction files when those updates affect future prompt execution.

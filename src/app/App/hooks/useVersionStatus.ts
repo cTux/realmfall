@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { APP_VERSION } from '../../../version';
 
-export const VERSION_POLL_INTERVAL_MS = 15_000;
+export const VERSION_POLL_INTERVAL_MS = 5 * 60_000;
 
 export type VersionStatusState =
   | {
@@ -31,6 +31,10 @@ function isVersionPayload(value: unknown): value is { version: string } {
   );
 }
 
+function getResolvedStatus(remoteVersion: string, currentVersion: string) {
+  return remoteVersion === currentVersion ? 'current' : 'outdated';
+}
+
 export function useVersionStatus(currentVersion = APP_VERSION) {
   const [state, setState] = useState<VersionStatusState>({
     currentVersion,
@@ -40,13 +44,35 @@ export function useVersionStatus(currentVersion = APP_VERSION) {
 
   useEffect(() => {
     let disposed = false;
+    let interval: number | null = null;
 
-    const syncVersion = async () => {
-      setState((current) => ({
-        currentVersion,
-        remoteVersion: current.remoteVersion,
-        status: 'fetching',
-      }));
+    const stopPolling = () => {
+      if (interval != null) {
+        window.clearInterval(interval);
+        interval = null;
+      }
+    };
+
+    const syncVersion = async (showFetchingState: boolean) => {
+      setState((current) => {
+        if (current.remoteVersion !== null) {
+          return {
+            currentVersion,
+            remoteVersion: current.remoteVersion,
+            status: getResolvedStatus(current.remoteVersion, currentVersion),
+          };
+        }
+
+        if (!showFetchingState) {
+          return current;
+        }
+
+        return {
+          currentVersion,
+          remoteVersion: null,
+          status: 'fetching',
+        };
+      });
 
       try {
         const response = await fetch(getVersionJsonUrl(), {
@@ -70,29 +96,60 @@ export function useVersionStatus(currentVersion = APP_VERSION) {
         setState({
           currentVersion,
           remoteVersion: payload.version,
-          status: payload.version === currentVersion ? 'current' : 'outdated',
+          status: getResolvedStatus(payload.version, currentVersion),
         });
       } catch {
         if (disposed) {
           return;
         }
 
-        setState({
-          currentVersion,
-          remoteVersion: null,
-          status: 'fetching',
-        });
+        setState((current) =>
+          current.remoteVersion === null
+            ? {
+                currentVersion,
+                remoteVersion: null,
+                status: 'fetching',
+              }
+            : {
+                currentVersion,
+                remoteVersion: current.remoteVersion,
+                status: getResolvedStatus(
+                  current.remoteVersion,
+                  currentVersion,
+                ),
+              },
+        );
       }
     };
 
-    void syncVersion();
-    const interval = window.setInterval(() => {
-      void syncVersion();
-    }, VERSION_POLL_INTERVAL_MS);
+    const startPolling = () => {
+      if (interval != null || document.visibilityState === 'hidden') {
+        return;
+      }
+
+      interval = window.setInterval(() => {
+        void syncVersion(false);
+      }, VERSION_POLL_INTERVAL_MS);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        stopPolling();
+        return;
+      }
+
+      void syncVersion(false);
+      startPolling();
+    };
+
+    void syncVersion(true);
+    startPolling();
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       disposed = true;
-      window.clearInterval(interval);
+      stopPolling();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [currentVersion]);
 

@@ -15,16 +15,25 @@ export function getSceneRenderTokens(
 ) {
   const playerCoordKey = coordKey(state.player.coord);
   const homeHexKey = coordKey(state.homeHex);
+  const visibleEnemyToken =
+    scene.derivedRenderVisibleTilesSource !== visibleTiles ||
+    scene.derivedRenderEnemiesSource !== state.enemies
+      ? getVisibleEnemyToken(state, visibleTiles)
+      : scene.derivedRenderVisibleEnemyToken;
+
+  if (scene.derivedRenderEnemiesSource !== state.enemies) {
+    scene.derivedRenderEnemiesSource = state.enemies;
+  }
 
   if (
     scene.derivedRenderVisibleTilesSource !== visibleTiles ||
-    scene.derivedRenderEnemiesSource !== state.enemies ||
+    visibleEnemyToken !== scene.derivedRenderVisibleEnemyToken ||
     scene.derivedRenderPlayerCoordKey !== playerCoordKey ||
     scene.derivedRenderHomeHexKey !== homeHexKey ||
     scene.derivedRenderBloodMoonActive !== state.bloodMoonActive
   ) {
     scene.derivedRenderVisibleTilesSource = visibleTiles;
-    scene.derivedRenderEnemiesSource = state.enemies;
+    scene.derivedRenderVisibleEnemyToken = visibleEnemyToken;
     scene.derivedRenderPlayerCoordKey = playerCoordKey;
     scene.derivedRenderHomeHexKey = homeHexKey;
     scene.derivedRenderBloodMoonActive = state.bloodMoonActive;
@@ -109,6 +118,34 @@ function getInteractionRenderToken(
   let token = 2166136261;
   token = mixRenderToken(token, coordToken(state.player.coord));
   token = mixRenderToken(token, playerTile?.items.length ? 1 : 0);
+  return token;
+}
+
+function getVisibleEnemyToken(
+  state: GameState,
+  visibleTiles: ReturnType<typeof getVisibleTiles>,
+) {
+  let token = 2166136261;
+
+  for (const tile of visibleTiles) {
+    for (const enemyId of tile.enemyIds) {
+      const enemy = state.enemies[enemyId];
+      token = mixRenderToken(token, hashRenderString(enemyId));
+
+      if (!enemy) {
+        token = mixRenderToken(token, 0);
+        continue;
+      }
+
+      token = mixRenderToken(
+        token,
+        hashRenderString(enemy.enemyTypeId ?? enemy.name),
+      );
+      token = mixRenderToken(token, enemy.aggressive === false ? 0 : 1);
+      token = mixRenderToken(token, enemy.worldBoss ? 1 : 0);
+    }
+  }
+
   return token;
 }
 

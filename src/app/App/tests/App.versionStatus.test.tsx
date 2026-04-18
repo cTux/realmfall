@@ -13,7 +13,18 @@ function createVersionResponse(version: string) {
   };
 }
 
+function setDocumentVisibilityState(state: 'hidden' | 'visible') {
+  Object.defineProperty(document, 'visibilityState', {
+    configurable: true,
+    value: state,
+  });
+}
+
 describe('App version status', () => {
+  beforeEach(() => {
+    setDocumentVisibilityState('visible');
+  });
+
   it('shows the current version state when the remote manifest matches', async () => {
     loadEncryptedState.mockResolvedValue(null);
     vi.stubGlobal(
@@ -74,7 +85,7 @@ describe('App version status', () => {
     host.remove();
   });
 
-  it('returns to yellow when a later poll fails after a successful match', async () => {
+  it('keeps the last resolved version state when a later poll fails', async () => {
     loadEncryptedState.mockResolvedValue(null);
 
     const fetchMock = vi
@@ -90,6 +101,7 @@ describe('App version status', () => {
     expect(
       host.querySelector('[data-version-status="current"]'),
     ).not.toBeNull();
+    expect(host.textContent).toContain(`Remote: ${__APP_VERSION__}`);
 
     await act(async () => {
       vi.advanceTimersByTime(VERSION_POLL_INTERVAL_MS);
@@ -98,9 +110,57 @@ describe('App version status', () => {
     await flushLazyModules();
 
     expect(
-      host.querySelector('[data-version-status="fetching"]'),
+      host.querySelector('[data-version-status="current"]'),
     ).not.toBeNull();
-    expect(host.textContent).toContain('Remote: checking...');
+    expect(host.textContent).toContain(`Remote: ${__APP_VERSION__}`);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('pauses background version polling while the tab is hidden and refreshes on resume', async () => {
+    loadEncryptedState.mockResolvedValue(null);
+
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(createVersionResponse(__APP_VERSION__))
+      .mockResolvedValueOnce(createVersionResponse('0.2.0'));
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { host, root } = await renderApp();
+    await flushLazyModules();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      setDocumentVisibilityState('hidden');
+      document.dispatchEvent(new Event('visibilitychange'));
+      vi.advanceTimersByTime(VERSION_POLL_INTERVAL_MS * 2);
+      await Promise.resolve();
+    });
+    await flushLazyModules();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(
+      host.querySelector('[data-version-status="current"]'),
+    ).not.toBeNull();
+
+    await act(async () => {
+      setDocumentVisibilityState('visible');
+      document.dispatchEvent(new Event('visibilitychange'));
+      await Promise.resolve();
+    });
+    await flushLazyModules();
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(
+      host.querySelector('[data-version-status="outdated"]'),
+    ).not.toBeNull();
+    expect(host.textContent).toContain('Remote: 0.2.0');
 
     await act(async () => {
       root.unmount();
