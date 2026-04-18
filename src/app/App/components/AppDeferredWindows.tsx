@@ -18,7 +18,7 @@ interface AppDeferredWindowsProps {
     typeof import('../hooks/useHexInfoView').useHexInfoView
   >;
   mountedWindows: ReturnType<
-    typeof import('../hooks/useDeferredWindows').useDeferredWindows
+    typeof import('../hooks/useMountedWindows').useMountedWindows
   >;
   managedWindowProps: ReturnType<
     typeof import('../hooks/useManagedWindowProps').useManagedWindowProps

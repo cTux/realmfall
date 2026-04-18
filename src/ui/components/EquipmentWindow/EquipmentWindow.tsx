@@ -37,6 +37,7 @@ export const EquipmentWindow = memo(function EquipmentWindow({
       onMove={onMove}
       className={styles.window}
       visible={visible}
+      externalUnmount
       onClose={onClose}
       onHoverDetail={onHoverDetail}
       onLeaveDetail={onLeaveDetail}

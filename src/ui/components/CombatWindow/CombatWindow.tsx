@@ -57,6 +57,7 @@ export const CombatWindow = ({
       onMove={onMove}
       className={styles.window}
       visible={visible}
+      externalUnmount
       onClose={onClose}
       onHoverDetail={onHoverDetail}
       onLeaveDetail={onLeaveDetail}

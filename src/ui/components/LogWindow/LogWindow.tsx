@@ -40,6 +40,7 @@ export const LogWindow = memo(function LogWindow({
       className={styles.window}
       titleClassName={styles.windowTitle}
       visible={visible}
+      externalUnmount
       onClose={onClose}
       resizeBounds={{ minWidth: 360, minHeight: 240 }}
       onHoverDetail={onHoverDetail}

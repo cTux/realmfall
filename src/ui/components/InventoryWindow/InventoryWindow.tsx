@@ -42,6 +42,7 @@ export const InventoryWindow = memo(function InventoryWindow({
       onMove={onMove}
       className={styles.window}
       visible={visible}
+      externalUnmount
       onClose={onClose}
       resizeBounds={{ minWidth: 320, minHeight: 220 }}
       onHoverDetail={onHoverDetail}

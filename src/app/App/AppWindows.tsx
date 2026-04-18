@@ -2,9 +2,9 @@ import { useMemo } from 'react';
 import type { AppWindowsProps } from './AppWindows.types';
 import { AppDeferredWindows } from './components/AppDeferredWindows';
 import { AppFixedWindows } from './components/AppFixedWindows';
+import { useMountedWindows } from './hooks/useMountedWindows';
 import { useAppWindowHandlers } from './hooks/useAppWindowHandlers';
 import { useCombatPlayerParty } from './hooks/useCombatPlayerParty';
-import { useDeferredWindows } from './hooks/useDeferredWindows';
 import { useHexInfoView } from './hooks/useHexInfoView';
 import { useRecipeWindowStructure } from './hooks/useRecipeWindowStructure';
 import { useManagedWindowProps } from './hooks/useManagedWindowProps';
@@ -34,7 +34,7 @@ export function AppWindows(props: AppWindowsProps) {
     windowMoveHandlers,
     windowCloseHandlers,
   });
-  const mountedWindows = useDeferredWindows({
+  const mountedWindows = useMountedWindows({
     windowShown: props.layout.windowShown,
     keepLootWindowMounted: props.layout.keepLootWindowMounted,
     keepCombatWindowMounted: props.layout.keepCombatWindowMounted,
