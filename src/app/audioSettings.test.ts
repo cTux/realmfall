@@ -14,6 +14,11 @@ describe('audio settings persistence', () => {
     saveAudioSettings({
       muted: true,
       respectReducedMotion: false,
+      soundEffects: {
+        ...DEFAULT_AUDIO_SETTINGS.soundEffects,
+        pop: false,
+        swoosh: false,
+      },
       theme: 'crisp',
       volume: 0.6,
     });
@@ -24,6 +29,11 @@ describe('audio settings persistence', () => {
       audio: {
         muted: true,
         respectReducedMotion: false,
+        soundEffects: {
+          ...DEFAULT_AUDIO_SETTINGS.soundEffects,
+          pop: false,
+          swoosh: false,
+        },
         theme: 'crisp',
         volume: 0.6,
       },
@@ -36,6 +46,9 @@ describe('audio settings persistence', () => {
       JSON.stringify({
         audio: {
           muted: true,
+          soundEffects: {
+            warning: false,
+          },
           theme: 'crisp',
         },
       }),
@@ -44,6 +57,10 @@ describe('audio settings persistence', () => {
     expect(loadAudioSettings()).toEqual({
       ...DEFAULT_AUDIO_SETTINGS,
       muted: true,
+      soundEffects: {
+        ...DEFAULT_AUDIO_SETTINGS.soundEffects,
+        warning: false,
+      },
       theme: 'crisp',
     });
   });
@@ -55,6 +72,10 @@ describe('audio settings persistence', () => {
         audio: {
           muted: 'yes',
           respectReducedMotion: null,
+          soundEffects: {
+            pop: 'no',
+            swoosh: false,
+          },
           theme: 'broken',
           volume: 4,
         },
@@ -63,6 +84,10 @@ describe('audio settings persistence', () => {
 
     expect(loadAudioSettings()).toEqual({
       ...DEFAULT_AUDIO_SETTINGS,
+      soundEffects: {
+        ...DEFAULT_AUDIO_SETTINGS.soundEffects,
+        swoosh: false,
+      },
       volume: 1,
     });
   });
@@ -71,6 +96,10 @@ describe('audio settings persistence', () => {
     saveAudioSettings({
       muted: false,
       respectReducedMotion: true,
+      soundEffects: {
+        ...DEFAULT_AUDIO_SETTINGS.soundEffects,
+        click: false,
+      },
       theme: 'soft',
       volume: 3,
     });
@@ -81,6 +110,10 @@ describe('audio settings persistence', () => {
       audio: {
         muted: false,
         respectReducedMotion: true,
+        soundEffects: {
+          ...DEFAULT_AUDIO_SETTINGS.soundEffects,
+          click: false,
+        },
         theme: 'soft',
         volume: 1,
       },
@@ -94,6 +127,10 @@ describe('audio settings persistence', () => {
         audio: {
           muted: true,
           respectReducedMotion: false,
+          soundEffects: {
+            ...DEFAULT_AUDIO_SETTINGS.soundEffects,
+            error: false,
+          },
           theme: 'crisp',
           volume: 0.6,
         },

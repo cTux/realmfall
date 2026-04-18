@@ -2,13 +2,17 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { useUiAudioController } from './useUiAudioController';
 import { DEFAULT_AUDIO_SETTINGS } from '../audioSettings';
+import type { UiAudioController } from './UiAudioContext';
 
-const { clickMock, hoverMock, initMock, popMock } = vi.hoisted(() => ({
+const { clickMock, hoverMock, initMock, popMock, swooshMock } = vi.hoisted(
+  () => ({
   clickMock: vi.fn(),
   hoverMock: vi.fn(),
   initMock: vi.fn(),
   popMock: vi.fn(),
-}));
+    swooshMock: vi.fn(),
+  }),
+);
 
 vi.mock('@rexa-developer/tiks', () => ({
   tiks: {
@@ -22,7 +26,7 @@ vi.mock('@rexa-developer/tiks', () => ({
     setTheme: vi.fn(),
     setVolume: vi.fn(),
     success: vi.fn(),
-    swoosh: vi.fn(),
+    swoosh: swooshMock,
     toggle: vi.fn(),
     unmute: vi.fn(),
     warning: vi.fn(),
@@ -45,6 +49,7 @@ describe('useUiAudioController', () => {
     hoverMock.mockClear();
     initMock.mockClear();
     popMock.mockClear();
+    swooshMock.mockClear();
     originalMatchMedia = window.matchMedia;
     window.matchMedia = vi.fn().mockReturnValue({
       matches: false,
@@ -152,9 +157,47 @@ describe('useUiAudioController', () => {
     expect(initMock).toHaveBeenCalledTimes(1);
     expect(clickMock).toHaveBeenCalledTimes(1);
   });
+
+  it('skips disabled explicit sound events', async () => {
+    let controller: UiAudioController | undefined;
+
+    await act(async () => {
+      root.render(
+        <AudioHarness onReady={(nextController) => (controller = nextController)} />,
+      );
+    });
+
+    document.body.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        pointerId: 1,
+      }),
+    );
+
+    await act(async () => {
+      controller?.applySettings({
+        ...DEFAULT_AUDIO_SETTINGS,
+        soundEffects: {
+          ...DEFAULT_AUDIO_SETTINGS.soundEffects,
+          swoosh: false,
+        },
+      });
+    });
+
+    controller?.swoosh();
+
+    expect(initMock).toHaveBeenCalledTimes(1);
+    expect(swooshMock).not.toHaveBeenCalled();
+  });
 });
 
-function AudioHarness() {
-  useUiAudioController(DEFAULT_AUDIO_SETTINGS);
+function AudioHarness({
+  onReady,
+}: {
+  onReady?: (controller: UiAudioController) => void;
+}) {
+  const controller = useUiAudioController(DEFAULT_AUDIO_SETTINGS);
+
+  onReady?.(controller);
   return null;
 }
