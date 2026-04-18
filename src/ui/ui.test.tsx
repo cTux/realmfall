@@ -479,9 +479,52 @@ describe('ui helpers and components', () => {
 
     expect(
       abilityTooltipLines({
+        category: 'attacking',
         manaCost: 0,
         cooldownMs: 1000,
         castTimeMs: 0,
+        effects: [{ kind: 'damage', powerMultiplier: 1.2, flatPower: 2 }],
+        tags: [
+          GameTag.AbilityCombat,
+          GameTag.AbilityMelee,
+          GameTag.AbilityPhysical,
+        ],
+      }, 'enemy', 10),
+    ).toContainEqual({
+      kind: 'stat',
+      label: 'Damage',
+      value: '14',
+    });
+
+    expect(
+      abilityTooltipLines({
+        category: 'attacking',
+        manaCost: 2,
+        cooldownMs: 4800,
+        castTimeMs: 250,
+        effects: [
+          {
+            kind: 'applyStatus',
+            statusEffectId: 'shocked',
+            value: 16,
+            durationMs: 8_000,
+          },
+        ],
+        tags: [GameTag.AbilityCombat],
+      }, 'allEnemies', 10),
+    ).toContainEqual({
+      kind: 'stat',
+      label: 'Damage',
+      value: '0',
+    });
+
+    expect(
+      abilityTooltipLines({
+        category: 'supportive',
+        manaCost: 0,
+        cooldownMs: 1000,
+        castTimeMs: 0,
+        effects: [{ kind: 'heal', powerMultiplier: 1.2 }],
         tags: [
           GameTag.AbilityCombat,
           GameTag.AbilityMelee,
@@ -493,6 +536,16 @@ describe('ui helpers and components', () => {
       text: 'Tags: ability.combat, ability.melee, ability.physical',
       tone: 'subtle',
     });
+    expect(
+      abilityTooltipLines({
+        category: 'supportive',
+        manaCost: 0,
+        cooldownMs: 1000,
+        castTimeMs: 0,
+        effects: [{ kind: 'heal', powerMultiplier: 1.2 }],
+        tags: [GameTag.AbilityCombat],
+      }).some((line) => line.label === 'Damage'),
+    ).toBe(false);
 
     expect(
       statusEffectTooltipLines('restoration', 'buff', [
@@ -1226,6 +1279,7 @@ describe('ui helpers and components', () => {
               maxHp: 30,
               mana: 12,
               maxMana: 20,
+              attack: 9,
               actor: combat.player,
               buffs: [],
               debuffs: [],

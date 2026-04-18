@@ -112,7 +112,11 @@ export function HeroWindowContent({
               key={ability.id}
               label={ability.name}
               icon={ability.icon}
-              tooltipLines={abilityTooltipLines(ability, ability.target)}
+              tooltipLines={abilityTooltipLines(
+                ability,
+                ability.target,
+                stats.attack,
+              )}
               remainingMs={0}
               cooldownRatio={0}
               onHoverDetail={onHoverDetail}

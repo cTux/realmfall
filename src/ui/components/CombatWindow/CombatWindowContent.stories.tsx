@@ -294,6 +294,7 @@ function buildPartyMember(
     maxHp,
     mana: maxMana,
     maxMana,
+    attack: id === 'arcanist' ? 11 : id === 'scout' ? 8 : 10,
     actor: buildActor(id, readyOffsets[id], casting[id]),
     buffs: [],
     debuffs: [],

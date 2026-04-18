@@ -13,6 +13,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - The game uses a custom tooltip system for world objects and item affordances.
 - Window chrome is consistent across the desktop UI, including shared close-button tooltips, empty equipment-slot tooltips, resizable inventory, loot, and log surfaces, and focus styling that does not nudge active windows.
 - Hero and combat ability, buff, and debuff tiles keep a fixed position while hovered so tooltip affordances do not make the icons jump.
+- Attacking ability tooltips surface their current base damage for the hovered combatant, while non-damaging support abilities omit that damage row.
 - Hero and combat ability tiles now render the live ability icon asset, show a vertical cooldown fill over the icon, and visually desaturate and fade while the ability is unavailable.
 - Combat entity cards now show a yellow cast bar beneath the resource bars whenever that entity is actively casting, with the fill advancing through the cast duration and the active ability name shown on the bar.
 - Pressing `Esc` closes every currently open window.

@@ -376,6 +376,7 @@
   "ui.ability.aetherCost": "Aether Cost",
   "ui.ability.castTime": "Cast Time",
   "ui.ability.cooldown": "Cooldown",
+  "ui.ability.damage": "Damage",
   "ui.ability.instant": "Instant",
   "ui.ability.target.self": "Targets the caster.",
   "ui.ability.target.injuredAlly": "Targets a wounded ally.",

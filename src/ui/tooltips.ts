@@ -328,11 +328,22 @@ export function skillTooltip(skill: SkillName, level: number): TooltipLine[] {
 export function abilityTooltipLines(
   ability: Pick<
     AbilityDefinition,
-    'manaCost' | 'cooldownMs' | 'castTimeMs' | 'tags'
+    'manaCost' | 'cooldownMs' | 'castTimeMs' | 'category' | 'effects' | 'tags'
   >,
   target: AbilityDefinition['target'] = 'enemy',
+  attack = 0,
 ): TooltipLine[] {
+  const damageLine =
+    ability.category === 'attacking'
+      ? {
+          kind: 'stat' as const,
+          label: t('ui.ability.damage'),
+          value: `${abilityDamageValue(ability, attack)}`,
+        }
+      : null;
+
   return [
+    ...(damageLine ? [damageLine] : []),
     {
       kind: 'stat',
       label: t('ui.ability.aetherCost'),
@@ -564,4 +575,21 @@ function secondarySlotLines(item: Item): TooltipLine[] {
       tone: 'subtle' as const,
     })),
   ];
+}
+
+function abilityDamageValue(
+  ability: Pick<AbilityDefinition, 'effects'>,
+  attack: number,
+) {
+  return ability.effects.reduce((total, effect) => {
+    if (effect.kind !== 'damage') return total;
+
+    return (
+      total +
+      Math.max(
+        0,
+        Math.round(attack * effect.powerMultiplier + (effect.flatPower ?? 0)),
+      )
+    );
+  }, 0);
 }

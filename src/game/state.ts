@@ -1258,7 +1258,7 @@ function healEnemyTargets(
     const amount = Math.max(
       1,
       Math.round(
-        (getEnemyEffectiveAttack(state.enemies[enemyId]!) * effect.powerMultiplier +
+        (getEnemyCombatAttack(state.enemies[enemyId]!) * effect.powerMultiplier +
           (effect.flatPower ?? 0)) /
           Math.max(1, effect.splitDivisor ?? 1),
       ),
@@ -1444,7 +1444,7 @@ function mergeStatusEffect(
   };
 }
 
-function getEnemyEffectiveAttack(enemy: Enemy) {
+export function getEnemyCombatAttack(enemy: Enemy) {
   return Math.max(
     1,
     Math.round(
@@ -1767,7 +1767,7 @@ function applyEnemyAbility(
         Math.max(
           1,
           Math.round(
-            getEnemyEffectiveAttack(enemy) * effect.powerMultiplier +
+            getEnemyCombatAttack(enemy) * effect.powerMultiplier +
               (effect.flatPower ?? 0) -
               playerStats.defense,
           ),
@@ -1780,7 +1780,7 @@ function applyEnemyAbility(
       maybeApplyConfiguredStatusToPlayer(
         state,
         effect,
-        getEnemyEffectiveAttack(enemy),
+        getEnemyCombatAttack(enemy),
       );
       addLog(
         state,

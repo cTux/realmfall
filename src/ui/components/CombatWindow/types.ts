@@ -11,6 +11,7 @@ export interface CombatPartyMember {
   maxHp: number;
   mana: number;
   maxMana: number;
+  attack: number;
   actor: CombatActorState;
   buffs: StatusEffectId[];
   debuffs: StatusEffectId[];

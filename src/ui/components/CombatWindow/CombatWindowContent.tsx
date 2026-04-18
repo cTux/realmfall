@@ -1,4 +1,5 @@
 import { getAbilityDefinition } from '../../../game/abilities';
+import { getEnemyCombatAttack } from '../../../game/state';
 import type { CombatActorState } from '../../../game/state';
 import { getStatusEffectDefinition } from '../../../game/content/statusEffects';
 import type { StatusEffectId } from '../../../game/types';
@@ -33,6 +34,7 @@ interface CombatEntityView {
   maxHp: number;
   mana: number;
   maxMana: number;
+  attack: number;
   rarity?: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
   actor: CombatActorState;
   buffs: StatusEffectId[];
@@ -61,6 +63,7 @@ export function CombatWindowContent({
       maxHp: enemy.maxHp,
       mana: 0,
       maxMana: 0,
+      attack: getEnemyCombatAttack(enemy),
       rarity: enemy.rarity ?? 'common',
       actor: combat.enemies[enemy.id] ?? combat.player,
       buffs: effectGroups.buffs,
@@ -101,6 +104,7 @@ function toPlayerEntity(member: CombatPartyMember): CombatEntityView {
     maxHp: member.maxHp,
     mana: member.mana,
     maxMana: member.maxMana,
+    attack: member.attack,
     actor: member.actor,
     buffs: member.buffs,
     debuffs: member.debuffs,
@@ -226,7 +230,11 @@ function EntityCard({
               key={ability.id}
               label={ability.name}
               icon={ability.icon}
-              tooltipLines={abilityTooltipLines(ability, ability.target)}
+              tooltipLines={abilityTooltipLines(
+                ability,
+                ability.target,
+                entity.attack,
+              )}
               cooldownRatio={cooldownRatio}
               remainingMs={remainingMs}
               onHoverDetail={onHoverDetail}
