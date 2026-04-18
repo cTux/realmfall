@@ -2,6 +2,7 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import minipic from 'vite-plugin-minipic';
 import { VitePWA } from 'vite-plugin-pwa';
+import viteBundleObfuscator from 'vite-plugin-bundle-obfuscator';
 import detectDuplicatedDeps from 'unplugin-detect-duplicated-deps/vite';
 import { readFileSync } from 'node:fs';
 import type { Plugin, ViteDevServer } from 'vite';
@@ -9,6 +10,29 @@ import type { Plugin, ViteDevServer } from 'vite';
 const packageVersion = JSON.parse(
   readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
 ).version as string;
+
+const manualChunkObfuscationExclusions = [
+  'pixi',
+  'pixiRuntime',
+  'react-core',
+  'react-dom-vendor',
+  'rolldown-runtime',
+  'vendor',
+];
+
+const escapedManualChunkNames = manualChunkObfuscationExclusions.map((name) =>
+  name.replace(/[$()*+.?[\\\]^{|}-]/g, '\\$&'),
+);
+
+const bundleObfuscatorExclusions = [
+  new RegExp(`^assets/js/(?:${escapedManualChunkNames.join('|')})-[^.]+\\.js$`),
+  /^registerSW\.js$/,
+  /^sw\.js$/,
+  /^workbox-.*\.js$/,
+];
+
+const bundleObfuscatorEnabled =
+  process.env.REALMFALL_ENABLE_BUNDLE_OBFUSCATOR !== 'false';
 
 function versionManifestPlugin(): Plugin {
   const versionManifest = JSON.stringify({ version: packageVersion }, null, 2);
@@ -81,6 +105,30 @@ export default defineConfig({
     return [
       react(),
       versionManifestPlugin(),
+      !isStorybookScript &&
+        viteBundleObfuscator({
+          enable: bundleObfuscatorEnabled,
+          excludes: bundleObfuscatorExclusions,
+          log: false,
+          obfuscateWorker: { enable: false },
+          options: {
+            compact: true,
+            controlFlowFlattening: false,
+            deadCodeInjection: false,
+            debugProtection: false,
+            debugProtectionInterval: 0,
+            disableConsoleOutput: false,
+            identifierNamesGenerator: 'hexadecimal',
+            ignoreImports: true,
+            numbersToExpressions: false,
+            renameGlobals: false,
+            selfDefending: false,
+            simplify: true,
+            splitStrings: false,
+            stringArray: false,
+            unicodeEscapeSequence: false,
+          },
+        }),
       !isStorybookScript &&
         VitePWA({
           registerType: 'autoUpdate',

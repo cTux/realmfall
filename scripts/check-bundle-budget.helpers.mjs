@@ -6,16 +6,16 @@ export const DIST_JS_DIR = join(DIST_DIR, 'assets', 'js');
 export const MANIFEST_PATH = join(DIST_DIR, '.vite', 'manifest.json');
 
 export const CHUNK_BUDGETS = {
-  index: 5_000,
-  App: 80_000,
+  index: 6_000,
+  App: 125_000,
   'react-core': 20_000,
   'react-dom-vendor': 185_000,
-  state: 480_000,
-  en: 100_000,
+  state: 550_000,
+  en: 115_000,
   pixi: 505_000,
 };
 
-export const STARTUP_TOTAL_BUDGET = 1_350_000;
+export const STARTUP_TOTAL_BUDGET = 1_425_000;
 
 export function formatKiB(bytes) {
   return `${(bytes / 1000).toFixed(2)} kB`;

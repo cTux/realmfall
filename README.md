@@ -33,11 +33,11 @@ The game currently does not support mods.
 
 ## Stack
 
-- React 18
-- TypeScript with strict compiler settings
-- Vite
-- Pixi.js
-- Vitest
+- React 19
+- TypeScript 6 with strict compiler settings
+- Vite 8
+- Pixi.js 8
+- Vitest 4
 - Oxlint
 - Prettier
 - Husky
@@ -96,6 +96,8 @@ Contributors should keep these working unless a task explicitly changes the work
 - `pnpm build`
 
 For bundle-sensitive changes, also run `pnpm build:budget`.
+
+Production `pnpm build` runs bundle obfuscation on app-owned client chunks by default. The existing manual vendor and runtime chunks remain excluded so the current startup chunk strategy stays stable, and worker or service-worker outputs stay unobfuscated unless the policy is expanded intentionally. Set `REALMFALL_ENABLE_BUNDLE_OBFUSCATOR=false` for troubleshooting when a release build needs to skip obfuscation.
 
 `pnpm lint` now runs Oxlint as the only JavaScript and TypeScript lint path in the repository. `pnpm lint:fix` and `pnpm lint:oxlint` use the same Oxlint target set directly.
 

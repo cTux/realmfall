@@ -11,6 +11,7 @@ Implemented technical solutions are split into dedicated spec files:
 - [Pixi Rendering Solution](./pixi-rendering-solution/spec.md)
 - [Input And Tooltip Handling](./input-and-tooltip-handling/spec.md)
 - [Internationalization](./internationalization/spec.md)
+- [Production Bundle Obfuscation](./production-bundle-obfuscation/spec.md)
 - [Testing And Quality Tooling](./testing-and-quality-tooling/spec.md)
 - [Documentation Strategy](./documentation-strategy/spec.md)
 - [Version Checking](./version-checking/spec.md)

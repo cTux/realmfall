@@ -20,6 +20,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 
 - Run `pnpm typecheck` and the relevant tests for the changed area before committing.
 - Run `pnpm build:budget` when startup chunks or lazy-loading strategy change.
+- When production build tooling changes, verify the release output from `dist` with a local serve path and document any environment toggles or excluded outputs needed for safe troubleshooting.
 - When performance-sensitive behavior changes, record how rerender breadth, redraw breadth, hover hot paths, or startup chunk impact were verified.
 
 ## Documentation Workflow
