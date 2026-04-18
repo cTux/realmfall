@@ -1,3 +1,10 @@
+import {
+  clearStoredSettingsSection,
+  loadLegacyGraphicsSettingsPayload,
+  loadStoredSettingsPayload,
+  updateStoredSettingsPayload,
+} from './settingsStorage';
+
 export interface GraphicsSettings {
   antialias: boolean;
   autoDensity: boolean;
@@ -12,13 +19,6 @@ export interface GraphicsSettingsOptionDefinition {
   labelKey: string;
   descriptionKey: string;
 }
-
-interface PersistedSettings {
-  graphics?: Partial<GraphicsSettings>;
-}
-
-const SETTINGS_STORAGE_KEY = 'settings';
-const LEGACY_GRAPHICS_SETTINGS_STORAGE_KEY = 'realmfall-graphics-settings';
 
 export const DEFAULT_GRAPHICS_SETTINGS: GraphicsSettings = {
   antialias: true,
@@ -74,11 +74,8 @@ export function loadGraphicsSettings() {
       ...settings.graphics,
     };
 
-    if (
-      !window.localStorage.getItem(SETTINGS_STORAGE_KEY) &&
-      window.localStorage.getItem(LEGACY_GRAPHICS_SETTINGS_STORAGE_KEY)
-    ) {
-      savePersistedSettings({ graphics: loadedGraphicsSettings });
+    if (!loadStoredSettingsPayload() && loadLegacyGraphicsSettingsPayload()) {
+      saveGraphicsSettings(loadedGraphicsSettings);
     }
 
     return loadedGraphicsSettings;
@@ -90,47 +87,36 @@ export function loadGraphicsSettings() {
 export function saveGraphicsSettings(settings: GraphicsSettings) {
   if (typeof window === 'undefined') return;
 
-  const currentSettings = loadStoredSettingsPayload();
-  savePersistedSettings({
-    ...currentSettings,
-    graphics: settings,
-  });
+  updateStoredSettingsPayload((current) => ({
+    ...current,
+    graphics: settings as unknown as Record<string, unknown>,
+  }));
 }
 
 export function clearGraphicsSettings() {
   if (typeof window === 'undefined') return;
-  window.localStorage.removeItem(SETTINGS_STORAGE_KEY);
-  window.localStorage.removeItem(LEGACY_GRAPHICS_SETTINGS_STORAGE_KEY);
+  clearStoredSettingsSection('graphics');
 }
 
 function loadPersistedSettings(): PersistedSettings {
   const currentSettings = loadStoredSettingsPayload();
   if (currentSettings) {
-    return currentSettings;
+    return {
+      graphics:
+        currentSettings.graphics as Partial<GraphicsSettings> | undefined,
+    };
   }
 
-  const legacyPayload = window.localStorage.getItem(
-    LEGACY_GRAPHICS_SETTINGS_STORAGE_KEY,
-  );
+  const legacyPayload = loadLegacyGraphicsSettingsPayload();
   if (!legacyPayload) {
     return {};
   }
 
   return {
-    graphics: JSON.parse(legacyPayload) as Partial<GraphicsSettings>,
+    graphics: legacyPayload as Partial<GraphicsSettings>,
   };
 }
 
-function loadStoredSettingsPayload(): PersistedSettings | null {
-  const payload = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
-  if (!payload) {
-    return null;
-  }
-
-  return JSON.parse(payload) as PersistedSettings;
-}
-
-function savePersistedSettings(settings: PersistedSettings) {
-  window.localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
-  window.localStorage.removeItem(LEGACY_GRAPHICS_SETTINGS_STORAGE_KEY);
+interface PersistedSettings {
+  graphics?: Partial<GraphicsSettings>;
 }

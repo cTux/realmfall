@@ -1,6 +1,9 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { DEFAULT_GRAPHICS_SETTINGS } from '../../../app/constants';
+import {
+  DEFAULT_AUDIO_SETTINGS,
+  DEFAULT_GRAPHICS_SETTINGS,
+} from '../../../app/constants';
 import { t } from '../../../i18n';
 import { GameSettingsWindowContent } from './GameSettingsWindowContent';
 
@@ -38,6 +41,7 @@ describe('GameSettingsWindowContent', () => {
     await act(async () => {
       root.render(
         <GameSettingsWindowContent
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
           graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
           onResetSaveData={onResetSaveData}
           onSave={async () => undefined}

@@ -17,6 +17,7 @@ const GameSettingsWindowContent = createLazyWindowComponent<
 );
 
 export const GameSettingsWindow = memo(function GameSettingsWindow({
+  audioSettings,
   graphicsSettings,
   onClose,
   onMove,
@@ -42,6 +43,7 @@ export const GameSettingsWindow = memo(function GameSettingsWindow({
       >
         <Suspense fallback={<WindowLoadingState />}>
           <GameSettingsWindowContent
+            audioSettings={audioSettings}
             graphicsSettings={graphicsSettings}
             onClose={onClose}
             onResetSaveData={onResetSaveData}

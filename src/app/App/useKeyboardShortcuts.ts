@@ -13,7 +13,10 @@ interface UseKeyboardShortcutsOptions {
   onInteract: () => void;
   onTakeAllLoot: () => void;
   onCloseAllWindows: () => void;
+  onCloseAllWindowsSound?: () => void;
   onToggleDockWindow: (key: keyof WindowVisibilityState) => void;
+  onWindowToggleSound?: (opened: boolean) => void;
+  windowShown: WindowVisibilityState;
   windowShownLoot: boolean;
 }
 
@@ -27,7 +30,10 @@ export function useKeyboardShortcuts({
   onInteract,
   onTakeAllLoot,
   onCloseAllWindows,
+  onCloseAllWindowsSound,
   onToggleDockWindow,
+  onWindowToggleSound,
+  windowShown,
   windowShownLoot,
 }: UseKeyboardShortcutsOptions) {
   const handleKeyDown = useEffectEvent((event: KeyboardEvent) => {
@@ -44,6 +50,7 @@ export function useKeyboardShortcuts({
     const lowerKey = event.key.toLowerCase();
     if (lowerKey === 'escape') {
       event.preventDefault();
+      onCloseAllWindowsSound?.();
       onCloseAllWindows();
       return;
     }
@@ -76,6 +83,7 @@ export function useKeyboardShortcuts({
     if (!key) return;
 
     event.preventDefault();
+    onWindowToggleSound?.(!windowShown[key]);
     onToggleDockWindow(key);
   });
 

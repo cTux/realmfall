@@ -1,0 +1,46 @@
+import {
+  createContext,
+  useContext,
+  type PropsWithChildren,
+} from 'react';
+
+export interface UiAudioController {
+  click: () => void;
+  error: () => void;
+  hover: () => void;
+  notify: () => void;
+  pop: () => void;
+  success: () => void;
+  swoosh: () => void;
+  toggle: (nextState: boolean) => void;
+  warning: () => void;
+}
+
+const noop = () => undefined;
+
+const DEFAULT_UI_AUDIO_CONTROLLER: UiAudioController = {
+  click: noop,
+  error: noop,
+  hover: noop,
+  notify: noop,
+  pop: noop,
+  success: noop,
+  swoosh: noop,
+  toggle: noop,
+  warning: noop,
+};
+
+const UiAudioContext = createContext(DEFAULT_UI_AUDIO_CONTROLLER);
+
+export function UiAudioProvider({
+  children,
+  value,
+}: PropsWithChildren<{ value: UiAudioController }>) {
+  return (
+    <UiAudioContext.Provider value={value}>{children}</UiAudioContext.Provider>
+  );
+}
+
+export function useUiAudio() {
+  return useContext(UiAudioContext);
+}

@@ -7,6 +7,7 @@ import {
   type FocusEvent as ReactFocusEvent,
 } from 'react';
 import type { DraggableWindowProps } from './types';
+import { useUiAudio } from '../../../app/audio/UiAudioContext';
 import type { WindowPosition } from '../../../app/constants';
 import styles from './styles.module.scss';
 import { Icons } from '../../icons';
@@ -32,6 +33,7 @@ export function DraggableWindow({
   onLeaveDetail,
   closeButtonTooltip,
 }: DraggableWindowProps) {
+  const audio = useUiAudio();
   const windowRef = useRef<HTMLElement | null>(null);
   const windowIdRef = useRef(`window-${Math.random().toString(36).slice(2)}`);
   const dragRef = useRef<{ dx: number; dy: number } | null>(null);
@@ -301,9 +303,13 @@ export function DraggableWindow({
             <button
               type="button"
               className={styles.headerButton}
+              data-ui-audio-click="off"
               aria-label={t('ui.common.close')}
               onPointerDown={(event) => event.stopPropagation()}
-              onClick={closeWindow}
+              onClick={() => {
+                audio.swoosh();
+                closeWindow();
+              }}
               onMouseEnter={(event) =>
                 onHoverDetail?.(
                   event,

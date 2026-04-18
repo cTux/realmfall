@@ -22,6 +22,14 @@ import { useWindowTransitions } from './useWindowTransitions';
 import { useWorldClockFps } from './useWorldClockFps';
 import { clearEncryptedState } from '../../persistence/storage';
 import {
+  clearAudioSettings,
+  loadAudioSettings,
+  saveAudioSettings,
+  type AudioSettings,
+} from '../audioSettings';
+import { UiAudioProvider } from '../audio/UiAudioContext';
+import { useUiAudioController } from '../audio/useUiAudioController';
+import {
   clearGraphicsSettings,
   loadGraphicsSettings,
   saveGraphicsSettings,
@@ -33,6 +41,7 @@ import styles from './styles.module.scss';
 import { setWorldClockTime } from './worldClockStore';
 
 export function App() {
+  const initialAudioSettingsRef = useRef(loadAudioSettings());
   const initialGraphicsSettingsRef = useRef(loadGraphicsSettings());
   const initialGameRef = useRef<GameState>(createGame(WORLD_RADIUS));
   const gameRef = useRef<GameState>(initialGameRef.current);
@@ -70,11 +79,13 @@ export function App() {
     handleUseItem,
     handleOpenRecipeBookWithMaterialFilter,
     handleClearRecipeMaterialFilter,
+    audioSettings,
     graphicsSettings,
     itemMenu,
     logFilters,
     moveWindow,
     showTooltip,
+    setAudioSettings,
     setGraphicsSettings,
     setLogFilters,
     setTooltip,
@@ -91,6 +102,7 @@ export function App() {
     recipeMaterialFilterItemKey,
   } = useAppControllers({
     gameRef,
+    initialAudioSettings: initialAudioSettingsRef.current,
     initialGraphicsSettings: initialGraphicsSettingsRef.current,
     setGame,
     tooltipPositionRef,
@@ -179,6 +191,7 @@ export function App() {
   });
   const isReady = hydrated && canvasReady;
   const versionStatus = useVersionStatus();
+  const uiAudio = useUiAudioController(audioSettings);
 
   useEffect(() => {
     setWorldClockTime(game.worldTimeMs);
@@ -207,26 +220,47 @@ export function App() {
     onTakeAllLoot: handleTakeAllLoot,
     onCloseAllWindows: closeAllWindows,
     onToggleDockWindow: toggleDockWindow,
+    onWindowToggleSound: (opened) => {
+      if (opened) {
+        uiAudio.pop();
+        return;
+      }
+
+      uiAudio.swoosh();
+    },
+    onCloseAllWindowsSound: uiAudio.swoosh,
+    windowShown,
     windowShownLoot: windowShown.loot,
   });
 
-  const handleSaveGraphicsSettings = async (
-    nextGraphicsSettings: GraphicsSettings,
-  ) => {
+  const handleSaveSettings = async ({
+    audio: nextAudioSettings,
+    graphics: nextGraphicsSettings,
+  }: {
+    audio: AudioSettings;
+    graphics: GraphicsSettings;
+  }) => {
+    setAudioSettings(nextAudioSettings);
     setGraphicsSettings(nextGraphicsSettings);
+    saveAudioSettings(nextAudioSettings);
     saveGraphicsSettings(nextGraphicsSettings);
     await persistNow();
+    uiAudio.success();
   };
 
-  const handleSaveGraphicsSettingsAndReload = async (
-    nextGraphicsSettings: GraphicsSettings,
-  ) => {
-    await handleSaveGraphicsSettings(nextGraphicsSettings);
+  const handleSaveSettingsAndReload = async (settings: {
+    audio: AudioSettings;
+    graphics: GraphicsSettings;
+  }) => {
+    await handleSaveSettings(settings);
+    uiAudio.notify();
     window.location.reload();
   };
 
   const handleResetSaveData = async () => {
+    uiAudio.error();
     clearEncryptedState();
+    clearAudioSettings();
     clearGraphicsSettings();
     window.location.reload();
   };
@@ -284,6 +318,7 @@ export function App() {
       filtered: filteredLogs,
     },
     settingsView: {
+      audio: audioSettings,
       graphics: graphicsSettings,
     },
     itemMenu,
@@ -335,40 +370,42 @@ export function App() {
       },
       settings: {
         onResetSaveData: handleResetSaveData,
-        onSaveGraphicsSettings: handleSaveGraphicsSettings,
-        onSaveGraphicsSettingsAndReload: handleSaveGraphicsSettingsAndReload,
+        onSaveSettings: handleSaveSettings,
+        onSaveSettingsAndReload: handleSaveSettingsAndReload,
       },
     },
   });
 
   return (
-    <div className={styles.appRoot}>
-      <div className={isReady ? undefined : styles.hiddenUntilReady}>
-        <div ref={hostRef} className={styles.mapViewport} />
-        <HomeIndicator
-          claimedHex={firstClaimedHex}
-          hostRef={hostRef}
-          homeHex={game.homeHex}
-          playerCoord={game.player.coord}
-          radius={game.radius}
-        />
-        <VersionStatusWidget
-          currentVersion={versionStatus.currentVersion}
-          remoteVersion={versionStatus.remoteVersion}
-          status={versionStatus.status}
-          onRefresh={() => window.location.reload()}
-        />
-        <AppWindows {...appWindowsProps} />
-      </div>
-      {isReady ? null : (
-        <div
-          className={styles.loadingScreen}
-          aria-live="polite"
-          aria-busy="true"
-        >
-          <LoadingSpinner className={styles.loadingSpinner} />
+    <UiAudioProvider value={uiAudio}>
+      <div className={styles.appRoot}>
+        <div className={isReady ? undefined : styles.hiddenUntilReady}>
+          <div ref={hostRef} className={styles.mapViewport} />
+          <HomeIndicator
+            claimedHex={firstClaimedHex}
+            hostRef={hostRef}
+            homeHex={game.homeHex}
+            playerCoord={game.player.coord}
+            radius={game.radius}
+          />
+          <VersionStatusWidget
+            currentVersion={versionStatus.currentVersion}
+            remoteVersion={versionStatus.remoteVersion}
+            status={versionStatus.status}
+            onRefresh={() => window.location.reload()}
+          />
+          <AppWindows {...appWindowsProps} />
         </div>
-      )}
-    </div>
+        {isReady ? null : (
+          <div
+            className={styles.loadingScreen}
+            aria-live="polite"
+            aria-busy="true"
+          >
+            <LoadingSpinner className={styles.loadingSpinner} />
+          </div>
+        )}
+      </div>
+    </UiAudioProvider>
   );
 }

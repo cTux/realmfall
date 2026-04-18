@@ -1,4 +1,5 @@
 import { memo, useState, type Dispatch, type SetStateAction } from 'react';
+import { useUiAudio } from '../../../app/audio/UiAudioContext';
 import type { WindowVisibilityState } from '../../../app/constants';
 import { t } from '../../../i18n';
 import type { WindowLabelDefinition } from '../../windowLabels';
@@ -71,14 +72,25 @@ function DockButton({
   onToggle,
   setActiveTooltip,
 }: DockButtonProps) {
+  const audio = useUiAudio();
+
   return (
     <button
       type="button"
       className={styles.dockButton}
       data-opened={entry.shown}
+      data-ui-audio-click="off"
       aria-pressed={entry.shown}
       aria-label={t('ui.dock.toggleWindow', { label: entry.label })}
-      onClick={() => onToggle(entry.key)}
+      onClick={() => {
+        onToggle(entry.key);
+        if (entry.shown) {
+          audio.swoosh();
+          return;
+        }
+
+        audio.pop();
+      }}
       onPointerEnter={() => setActiveTooltip(entry.key)}
       onPointerLeave={() =>
         setActiveTooltip((current) => (current === entry.key ? null : current))

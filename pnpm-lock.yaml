@@ -12,6 +12,9 @@ importers:
 
   .:
     dependencies:
+      '@rexa-developer/tiks':
+        specifier: ^0.1.6
+        version: 0.1.6(react@19.2.5)
       pixi.js:
         specifier: ^8.18.1
         version: 8.18.1
@@ -1460,6 +1463,14 @@ packages:
     peerDependencies:
       '@vitest/runner': '>=1.1.0'
       vitest: '>=1.1.0'
+
+  '@rexa-developer/tiks@0.1.6':
+    resolution: {integrity: sha512-5cUX7DvOPYUj9qNdCLS68rUdI5rBKvERe+lITb2plNqxti2YUaeJZ5R6wj3n+QZjGrtZDE/N2c7MhR2Ma5jGgw==}
+    peerDependencies:
+      react: '>=18.0.0'
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@rolldown/binding-android-arm64@1.0.0-rc.15':
     resolution: {integrity: sha512-YYe6aWruPZDtHNpwu7+qAHEMbQ/yRl6atqb/AhznLTnD3UY99Q1jE7ihLSahNWkF4EqRPVC4SiR4O0UkLK02tA==}
@@ -6102,6 +6113,10 @@ snapshots:
       - terser
       - tsx
       - yaml
+
+  '@rexa-developer/tiks@0.1.6(react@19.2.5)':
+    optionalDependencies:
+      react: 19.2.5
 
   '@rolldown/binding-android-arm64@1.0.0-rc.15':
     optional: true

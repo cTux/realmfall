@@ -1,9 +1,10 @@
 import type { LogKind } from '../game/state';
 import { HEX_SIZE, WORLD_RADIUS, WORLD_REVEAL_RADIUS } from '../game/config';
+import { DEFAULT_AUDIO_SETTINGS } from './audioSettings';
 import { DEFAULT_GRAPHICS_SETTINGS } from './graphicsSettings';
 
 export { WORLD_RADIUS, WORLD_REVEAL_RADIUS, HEX_SIZE };
-export { DEFAULT_GRAPHICS_SETTINGS };
+export { DEFAULT_AUDIO_SETTINGS, DEFAULT_GRAPHICS_SETTINGS };
 
 export interface WindowPosition {
   x: number;

@@ -10,6 +10,7 @@ import type {
 } from '../../game/state';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import type { TooltipLine } from '../../ui/tooltips';
+import type { AudioSettings } from '../audioSettings';
 import type { WindowPositions, WindowVisibilityState } from '../constants';
 import type { GraphicsSettings } from '../graphicsSettings';
 import type { ItemContextMenuState, TooltipItem } from './types';
@@ -83,6 +84,7 @@ export interface AppWindowsViewState {
     filtered: GameState['logs'];
   };
   settings: {
+    audio: AudioSettings;
     graphics: GraphicsSettings;
   };
   itemMenu: ItemContextMenuState | null;
@@ -161,9 +163,13 @@ export interface AppWindowsActions {
   };
   settings: {
     onResetSaveData: () => void;
-    onSaveGraphicsSettings: (settings: GraphicsSettings) => Promise<void>;
-    onSaveGraphicsSettingsAndReload: (
-      settings: GraphicsSettings,
-    ) => Promise<void>;
+    onSaveSettings: (settings: {
+      audio: AudioSettings;
+      graphics: GraphicsSettings;
+    }) => Promise<void>;
+    onSaveSettingsAndReload: (settings: {
+      audio: AudioSettings;
+      graphics: GraphicsSettings;
+    }) => Promise<void>;
   };
 }

@@ -15,7 +15,7 @@ export const Switch = memo(function Switch({
   onChange,
 }: SwitchProps) {
   return (
-    <label className={styles.switch}>
+    <label className={styles.switch} data-ui-audio-hover="true">
       <span className={styles.text}>
         <span className={styles.label}>{label}</span>
         {description ? (
