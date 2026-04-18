@@ -88,9 +88,18 @@ export function useUiAudioController(
       HOVER_SELECTOR,
       HOVER_SKIP_SELECTOR,
     );
-    if (target && hoveredElementRef.current === target) {
-      hoveredElementRef.current = null;
+    if (!target || hoveredElementRef.current !== target) {
+      return;
     }
+
+    if (
+      event.relatedTarget instanceof Node &&
+      target.contains(event.relatedTarget)
+    ) {
+      return;
+    }
+
+    hoveredElementRef.current = null;
   });
 
   const handleFocusIn = useEffectEvent((event: FocusEvent) => {

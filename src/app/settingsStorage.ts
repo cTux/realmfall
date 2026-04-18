@@ -35,7 +35,7 @@ export function updateStoredSettingsPayload(
 export function clearStoredSettingsSection(
   key: keyof PersistedSettingsPayload,
 ) {
-  const current = loadStoredSettingsPayload();
+  const current = loadStoredSettingsPayloadSafely();
   if (!current) {
     if (key === 'graphics') {
       window.localStorage.removeItem(LEGACY_GRAPHICS_SETTINGS_STORAGE_KEY);
@@ -55,6 +55,14 @@ export function clearStoredSettingsSection(
 export function clearStoredSettingsPayload() {
   window.localStorage.removeItem(SETTINGS_STORAGE_KEY);
   window.localStorage.removeItem(LEGACY_GRAPHICS_SETTINGS_STORAGE_KEY);
+}
+
+function loadStoredSettingsPayloadSafely() {
+  try {
+    return loadStoredSettingsPayload();
+  } catch {
+    return null;
+  }
 }
 
 function saveStoredSettingsPayload(settings: PersistedSettingsPayload) {
