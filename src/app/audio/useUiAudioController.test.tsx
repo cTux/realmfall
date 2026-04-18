@@ -3,19 +3,22 @@ import { createRoot, type Root } from 'react-dom/client';
 import { useUiAudioController } from './useUiAudioController';
 import { DEFAULT_AUDIO_SETTINGS } from '../audioSettings';
 
-const { hoverMock } = vi.hoisted(() => ({
+const { clickMock, hoverMock, initMock, popMock } = vi.hoisted(() => ({
+  clickMock: vi.fn(),
   hoverMock: vi.fn(),
+  initMock: vi.fn(),
+  popMock: vi.fn(),
 }));
 
 vi.mock('@rexa-developer/tiks', () => ({
   tiks: {
-    click: vi.fn(),
+    click: clickMock,
     error: vi.fn(),
     hover: hoverMock,
-    init: vi.fn(),
+    init: initMock,
     mute: vi.fn(),
     notify: vi.fn(),
-    pop: vi.fn(),
+    pop: popMock,
     setTheme: vi.fn(),
     setVolume: vi.fn(),
     success: vi.fn(),
@@ -38,7 +41,10 @@ describe('useUiAudioController', () => {
   });
 
   beforeEach(() => {
+    clickMock.mockClear();
     hoverMock.mockClear();
+    initMock.mockClear();
+    popMock.mockClear();
     originalMatchMedia = window.matchMedia;
     window.matchMedia = vi.fn().mockReturnValue({
       matches: false,
@@ -84,6 +90,12 @@ describe('useUiAudioController', () => {
     expect(inner).toBeTruthy();
 
     outer?.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        pointerId: 1,
+      }),
+    );
+    outer?.dispatchEvent(
       new PointerEvent('pointerover', {
         bubbles: true,
         relatedTarget: null,
@@ -103,6 +115,42 @@ describe('useUiAudioController', () => {
     );
 
     expect(hoverMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('waits for a user activation before initializing ui audio', async () => {
+    await act(async () => {
+      root.render(
+        <>
+          <AudioHarness />
+          <button type="button">Play</button>
+        </>,
+      );
+    });
+
+    const button = host.querySelector('button');
+
+    expect(button).toBeTruthy();
+
+    button?.dispatchEvent(
+      new PointerEvent('pointerover', {
+        bubbles: true,
+        relatedTarget: null,
+      }),
+    );
+
+    expect(initMock).not.toHaveBeenCalled();
+    expect(hoverMock).not.toHaveBeenCalled();
+
+    button?.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        pointerId: 1,
+      }),
+    );
+    button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+    expect(initMock).toHaveBeenCalledTimes(1);
+    expect(clickMock).toHaveBeenCalledTimes(1);
   });
 });
 

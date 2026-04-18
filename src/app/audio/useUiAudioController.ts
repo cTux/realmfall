@@ -18,6 +18,7 @@ export function useUiAudioController(
   settings: AudioSettings,
 ): UiAudioController {
   const initializedRef = useRef(false);
+  const activatedRef = useRef(false);
   const settingsRef = useRef(settings);
   const hoveredElementRef = useRef<HTMLElement | null>(null);
 
@@ -37,7 +38,7 @@ export function useUiAudioController(
   };
 
   const ensureReady = () => {
-    if (typeof window === 'undefined') {
+    if (typeof window === 'undefined' || !activatedRef.current) {
       return false;
     }
 
@@ -49,6 +50,20 @@ export function useUiAudioController(
     syncEngine(settingsRef.current);
     return true;
   };
+
+  const activateAudio = useEffectEvent(() => {
+    if (activatedRef.current) {
+      return;
+    }
+
+    activatedRef.current = true;
+
+    try {
+      ensureReady();
+    } catch {
+      // Audio is enhancement-only. Ignore activation failures.
+    }
+  });
 
   const play = (callback: () => void) => {
     try {
@@ -166,6 +181,8 @@ export function useUiAudioController(
   });
 
   useEffect(() => {
+    document.addEventListener('pointerdown', activateAudio, true);
+    document.addEventListener('keydown', activateAudio, true);
     document.addEventListener('pointerover', handlePointerOver, true);
     document.addEventListener('pointerout', handlePointerOut, true);
     document.addEventListener('focusin', handleFocusIn, true);
@@ -173,6 +190,8 @@ export function useUiAudioController(
     document.addEventListener('change', handleChange, true);
 
     return () => {
+      document.removeEventListener('pointerdown', activateAudio, true);
+      document.removeEventListener('keydown', activateAudio, true);
       document.removeEventListener('pointerover', handlePointerOver, true);
       document.removeEventListener('pointerout', handlePointerOut, true);
       document.removeEventListener('focusin', handleFocusIn, true);
