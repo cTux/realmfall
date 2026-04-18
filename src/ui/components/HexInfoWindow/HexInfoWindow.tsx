@@ -64,6 +64,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
       onMove={onMove}
       className={styles.window}
       visible={visible}
+      externalUnmount
       onClose={onClose}
       onHoverDetail={onHoverDetail}
       onLeaveDetail={onLeaveDetail}

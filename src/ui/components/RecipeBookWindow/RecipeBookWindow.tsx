@@ -39,6 +39,7 @@ export const RecipeBookWindow = memo(function RecipeBookWindow({
       onMove={onMove}
       className={styles.window}
       visible={visible}
+      externalUnmount
       onClose={onClose}
       resizeBounds={{ minWidth: 360, minHeight: 260 }}
       onHoverDetail={onHoverDetail}

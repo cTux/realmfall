@@ -26,6 +26,7 @@ export function DraggableWindow({
   headerActions,
   className,
   visible: visibleProp,
+  externalUnmount = false,
   onClose,
   showCloseButton = true,
   resizeBounds,
@@ -52,9 +53,29 @@ export function DraggableWindow({
   const [visibleState, setVisibleState] = useState(true);
   const [hovered, setHovered] = useState(false);
   const [active, setActive] = useState(false);
-  const visible = visibleProp === undefined ? visibleState : visibleProp;
-  const [renderWindow, setRenderWindow] = useState(() => visible);
+  const isControlled = visibleProp !== undefined;
+  const visible = isControlled ? visibleProp : visibleState;
+  const [renderWindowState, setRenderWindowState] = useState(() => visible);
   const [animatedVisible, setAnimatedVisible] = useState(false);
+  const renderWindow =
+    isControlled && externalUnmount ? true : renderWindowState;
+
+  const clearWindowInteractionState = useCallback(() => {
+    const node = windowRef.current;
+    const activeElement = document.activeElement;
+
+    if (
+      node &&
+      activeElement instanceof HTMLElement &&
+      node.contains(activeElement)
+    ) {
+      activeElement.blur();
+    }
+
+    onLeaveDetail?.();
+    setHovered(false);
+    setActive(false);
+  }, [onLeaveDetail]);
 
   const applyVisualPosition = useCallback((nextPosition: WindowPosition) => {
     visualPositionRef.current = nextPosition;
@@ -92,7 +113,9 @@ export function DraggableWindow({
 
   useEffect(() => {
     if (visible) {
-      setRenderWindow(true);
+      if (!isControlled || !externalUnmount) {
+        setRenderWindowState(true);
+      }
       setAnimatedVisible(false);
       const frame = window.requestAnimationFrame(() =>
         setAnimatedVisible(true),
@@ -100,13 +123,17 @@ export function DraggableWindow({
       return () => window.cancelAnimationFrame(frame);
     }
 
+    clearWindowInteractionState();
     setAnimatedVisible(false);
+    if (isControlled && externalUnmount) {
+      return;
+    }
     const timeout = window.setTimeout(
-      () => setRenderWindow(false),
+      () => setRenderWindowState(false),
       WINDOW_TRANSITION_MS,
     );
     return () => window.clearTimeout(timeout);
-  }, [visible]);
+  }, [clearWindowInteractionState, externalUnmount, isControlled, visible]);
 
   useEffect(() => {
     if (dragRef.current || resizeRef.current) return;
@@ -142,6 +169,7 @@ export function DraggableWindow({
   );
 
   const closeWindow = () => {
+    clearWindowInteractionState();
     if (visibleProp === undefined) {
       setVisibleState(false);
     }
@@ -306,7 +334,8 @@ export function DraggableWindow({
               data-ui-audio-click="off"
               aria-label={t('ui.common.close')}
               onPointerDown={(event) => event.stopPropagation()}
-              onClick={() => {
+              onClick={(event) => {
+                event.currentTarget.blur();
                 audio.swoosh();
                 closeWindow();
               }}

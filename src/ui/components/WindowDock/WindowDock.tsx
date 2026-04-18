@@ -82,13 +82,16 @@ function DockButton({
       data-ui-audio-click="off"
       aria-pressed={entry.shown}
       aria-label={t('ui.dock.toggleWindow', { label: entry.label })}
-      onClick={() => {
+      onClick={(event) => {
+        setActiveTooltip(null);
         onToggle(entry.key);
         if (entry.shown) {
+          event.currentTarget.blur();
           audio.swoosh();
           return;
         }
 
+        event.currentTarget.blur();
         audio.pop();
       }}
       onPointerEnter={() => setActiveTooltip(entry.key)}

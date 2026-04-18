@@ -36,6 +36,7 @@ export const LootWindow = memo(function LootWindow({
       onMove={onMove}
       className={styles.window}
       visible={visible}
+      externalUnmount
       onClose={onClose}
       resizeBounds={{ minWidth: 320, minHeight: 220 }}
       onHoverDetail={onHoverDetail}

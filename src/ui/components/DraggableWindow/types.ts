@@ -12,6 +12,7 @@ export interface DraggableWindowProps extends WindowDetailTooltipHandlers {
   headerActions?: ReactNode;
   className?: string;
   visible?: boolean;
+  externalUnmount?: boolean;
   onClose?: () => void;
   showCloseButton?: boolean;
   resizeBounds?: {

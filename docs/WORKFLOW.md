@@ -20,6 +20,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 
 - Run `pnpm typecheck` and the relevant tests for the changed area before committing.
 - `pnpm test` stores reusable Vitest results in `.tests/vitest-cache`; delete that directory when you need a cold run to verify cache behavior or rule out stale local state.
+- Use `pnpm test:memory:leaks` when a change could affect client-side route cleanup, event-listener teardown, or long-lived browser objects; the command starts the HTTPS dev server at `https://localhost:5173`, runs the dock-window toggle `fuite` scenario, and records the latest JSON report under `.tests/memory-leaks/latest.json`.
 - Run `pnpm build:budget` when startup chunks or lazy-loading strategy change.
 - When performance-sensitive behavior changes, record how rerender breadth, redraw breadth, hover hot paths, or startup chunk impact were verified.
 

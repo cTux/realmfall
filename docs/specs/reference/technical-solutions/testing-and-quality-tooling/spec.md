@@ -8,6 +8,7 @@ This spec covers the repository quality baseline and current test coverage shape
 
 - The repository uses TypeScript strict mode, Oxlint, Prettier, Vitest, Husky, Vite, and Storybook.
 - `pnpm test` runs Vitest through `@raegen/vite-plugin-vitest-cache`, storing reusable results in the repository-local `.tests/vitest-cache` directory so warm reruns and CI can restore unaffected test files without changing test correctness.
+- `pnpm test:memory:leaks` starts the local HTTPS Vite dev server and runs `fuite` against `https://localhost:5173` with a custom dock-window toggle scenario because the app does not expose internal navigation links for the default `fuite` scenario, writing the latest JSON analysis to `.tests/memory-leaks/latest.json` for follow-up review.
 - Because the current repository is on Vitest 4, the Vite config uses a local compatibility shim for the plugin's runner and setup hooks instead of the package's older custom-pool entrypoint.
 - `pnpm dev` and `pnpm serve` both run on local HTTPS using the shared localhost self-signed certificate helper, and cached certificates are regenerated automatically when they expire so secure-origin local workflows do not get stuck on stale TLS files.
 - Oxlint is the enforced JavaScript and TypeScript lint gate for contributor workflow and pre-commit automation, with its canonical configuration stored in `.oxlintrc.json`.
@@ -39,6 +40,8 @@ This spec covers the repository quality baseline and current test coverage shape
 - `scripts/check-bundle-budget.mjs`
 - `scripts/check-bundle-budget.helpers.mjs`
 - `scripts/check-package-version.mjs`
+- `scripts/fuite-dock-toggle-scenario.mjs`
+- `scripts/run-memory-leak-test.mjs`
 - `scripts/run-staged-quality.mjs`
 - `.oxlintrc.json`
 - `prettier.config.cjs`
