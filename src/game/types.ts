@@ -187,6 +187,7 @@ export type AbilityEffectDefinition =
 export interface AbilityDefinition {
   id: AbilityId;
   name: string;
+  description: string;
   icon: string;
   manaCost: number;
   cooldownMs: number;

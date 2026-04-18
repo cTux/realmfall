@@ -479,6 +479,7 @@ describe('ui helpers and components', () => {
 
     expect(
       abilityTooltipLines({
+        description: 'Targets one enemy. Deals melee damage.',
         category: 'attacking',
         manaCost: 0,
         cooldownMs: 1000,
@@ -491,13 +492,13 @@ describe('ui helpers and components', () => {
         ],
       }, 'enemy', 10),
     ).toContainEqual({
-      kind: 'stat',
-      label: 'Damage',
-      value: '14',
+      kind: 'text',
+      text: 'Targets one enemy. Deals melee damage.',
     });
 
     expect(
       abilityTooltipLines({
+        description: 'Targets all enemies. Inflicts Shocked.',
         category: 'attacking',
         manaCost: 2,
         cooldownMs: 4800,
@@ -520,6 +521,7 @@ describe('ui helpers and components', () => {
 
     expect(
       abilityTooltipLines({
+        description: 'Targets yourself. Restores health.',
         category: 'supportive',
         manaCost: 0,
         cooldownMs: 1000,
@@ -538,6 +540,7 @@ describe('ui helpers and components', () => {
     });
     expect(
       abilityTooltipLines({
+        description: 'Targets yourself. Restores health.',
         category: 'supportive',
         manaCost: 0,
         cooldownMs: 1000,

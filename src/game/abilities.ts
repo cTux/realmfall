@@ -31,10 +31,12 @@ import shieldIcon from '../assets/game-icons/sbed/shield.svg';
 import magicShieldIcon from '../assets/game-icons/lorc/magic-shield.svg';
 import sparklesIcon from '../assets/game-icons/delapouite/sparkles.svg';
 import { t } from '../i18n';
+import { formatStatusEffectLabel } from '../i18n/labels';
 import { createRng } from './random';
 import { GAME_TAGS, uniqueTags } from './content/tags';
 import type {
   AbilityDefinition,
+  AbilityEffectDefinition,
   AbilityId,
   Enemy,
   Item,
@@ -43,17 +45,19 @@ import type {
 export const DEFAULT_ABILITY_ID = 'kick';
 
 const attackAbility = (
-  definition: Omit<AbilityDefinition, 'category'>,
+  definition: Omit<AbilityDefinition, 'category' | 'description'>,
 ): AbilityDefinition => ({
   ...definition,
   category: 'attacking',
+  description: buildAbilityDescription(definition),
 });
 
 const supportAbility = (
-  definition: Omit<AbilityDefinition, 'category'>,
+  definition: Omit<AbilityDefinition, 'category' | 'description'>,
 ): AbilityDefinition => ({
   ...definition,
   category: 'supportive',
+  description: buildAbilityDescription(definition),
 });
 
 export const ABILITIES: Record<AbilityId, AbilityDefinition> = {
@@ -802,4 +806,80 @@ export function buildEquippedAbilityIds(items: Array<Item | undefined>) {
   );
 
   return sortAbilityIdsForCombat([DEFAULT_ABILITY_ID, ...granted]);
+}
+
+function buildAbilityDescription(
+  ability: Pick<AbilityDefinition, 'target' | 'effects' | 'school'>,
+) {
+  const parts = [
+    t(`ui.ability.description.target.${ability.target}`),
+    ...ability.effects.map((effect) =>
+      describeAbilityEffect(effect, ability.target, ability.school),
+    ),
+  ].filter(Boolean);
+
+  return parts.join(' ');
+}
+
+function describeAbilityEffect(
+  effect: AbilityEffectDefinition,
+  defaultTarget: AbilityDefinition['target'],
+  school: AbilityDefinition['school'],
+) {
+  const target = effect.targetOverride ?? defaultTarget;
+  const enemyTarget =
+    target === 'enemy' || target === 'randomEnemy' || target === 'allEnemies';
+
+  if (effect.kind === 'damage') {
+    const hasDirectDamage =
+      effect.powerMultiplier !== 0 || (effect.flatPower ?? 0) !== 0;
+    const statusEffect = effect.statusEffectId
+      ? formatStatusEffectLabel(effect.statusEffectId)
+      : null;
+
+    if (hasDirectDamage && statusEffect && effect.statusChance) {
+      return t('ui.ability.description.effect.damageWithChanceStatus', {
+        school: t(`ui.ability.description.school.${school}`),
+        effect: statusEffect,
+        verb: t('ui.ability.description.verb.inflict'),
+      });
+    }
+    if (hasDirectDamage) {
+      return t('ui.ability.description.effect.damage', {
+        school: t(`ui.ability.description.school.${school}`),
+      });
+    }
+    if (statusEffect) {
+      return t('ui.ability.description.effect.chanceStatus', {
+        effect: statusEffect,
+        verb: t(
+          enemyTarget
+            ? 'ui.ability.description.verb.inflict'
+            : 'ui.ability.description.verb.grant',
+        ),
+      });
+    }
+    return '';
+  }
+
+  if (effect.kind === 'heal') {
+    return t(
+      effect.splitDivisor && effect.splitDivisor > 1
+        ? 'ui.ability.description.effect.healAll'
+        : 'ui.ability.description.effect.heal',
+    );
+  }
+
+  return t(
+    effect.permanent
+      ? enemyTarget
+        ? 'ui.ability.description.effect.debuffPermanent'
+        : 'ui.ability.description.effect.buffPermanent'
+      : enemyTarget
+        ? 'ui.ability.description.effect.debuff'
+        : 'ui.ability.description.effect.buff',
+    {
+      effect: formatStatusEffectLabel(effect.statusEffectId),
+    },
+  );
 }

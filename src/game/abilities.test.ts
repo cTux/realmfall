@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  ABILITIES,
   buildEnemyAbilityIds,
   buildEquippedAbilityIds,
   DEFAULT_ABILITY_ID,
@@ -56,6 +57,17 @@ describe('ability loadouts', () => {
 
     expect(abilityIds.slice(0, -1)).toEqual(['fireball', 'slash']);
     expect(abilityIds[abilityIds.length - 1]).toBe(DEFAULT_ABILITY_ID);
+  });
+
+  it('gives every shipped ability a human-readable description', () => {
+    expect(
+      Object.values(ABILITIES).every(
+        (ability) =>
+          ability.description.length > 0 &&
+          !ability.description.includes('ui.ability.') &&
+          !ability.description.includes('game.ability.'),
+      ),
+    ).toBe(true);
   });
 
   it('surfaces equipped weapon abilities through player combat stats', () => {

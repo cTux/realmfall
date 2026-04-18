@@ -329,7 +329,13 @@ export function skillTooltip(skill: SkillName, level: number): TooltipLine[] {
 export function abilityTooltipLines(
   ability: Pick<
     AbilityDefinition,
-    'manaCost' | 'cooldownMs' | 'castTimeMs' | 'category' | 'effects' | 'tags'
+    | 'description'
+    | 'manaCost'
+    | 'cooldownMs'
+    | 'castTimeMs'
+    | 'category'
+    | 'effects'
+    | 'tags'
   >,
   target: AbilityDefinition['target'] = 'enemy',
   attack = 0,
@@ -344,6 +350,10 @@ export function abilityTooltipLines(
       : null;
 
   return [
+    {
+      kind: 'text',
+      text: ability.description,
+    },
     ...(damageLine ? [damageLine] : []),
     {
       kind: 'stat',
