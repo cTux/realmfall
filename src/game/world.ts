@@ -331,9 +331,10 @@ function maybeLoot(
         ? resolveGuardedLootChance(tier)
         : WORLD_LOOT_CHANCES.unguarded;
   if (roll >= lootChance) return [];
+  const outcomeRoll = resolveLootOutcomeRoll(roll);
 
   const items: Item[] = [];
-  items.push(makeGeneratedItem(seed, coord, tier, roll, structure));
+  items.push(makeGeneratedItem(seed, coord, tier, outcomeRoll, structure));
 
   if (structure === 'dungeon') {
     items.push(
@@ -341,11 +342,11 @@ function maybeLoot(
         `${seed}:dungeon-chest`,
         coord,
         tier + 1,
-        roll + 0.18,
+        outcomeRoll + 0.18,
         structure,
       ),
     );
-  } else if (roll >= 1 - WORLD_LOOT_CHANCES.bonusCache) {
+  } else if (outcomeRoll >= 1 - WORLD_LOOT_CHANCES.bonusCache) {
     items.push(makeConsumable(`${hexKey(coord)}-cache`, 'apple', tier, 6, 20));
   }
 
@@ -385,6 +386,11 @@ function makeGeneratedItem(
         12,
       );
   }
+}
+
+export function resolveLootOutcomeRoll(roll: number) {
+  const normalized = Math.max(0, Math.min(0.999999, roll));
+  return 1 - normalized;
 }
 
 export function makeWeapon(
