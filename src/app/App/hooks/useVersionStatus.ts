@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { APP_VERSION } from '../../../version';
 
 export const VERSION_POLL_INTERVAL_MS = 5 * 60_000;
+const SHOULD_POLL_VERSION = !import.meta.env.DEV;
 
 export type VersionStatusState =
   | {
@@ -45,6 +46,7 @@ export function useVersionStatus(currentVersion = APP_VERSION) {
   useEffect(() => {
     let disposed = false;
     let interval: number | null = null;
+    let inFlight = false;
 
     const stopPolling = () => {
       if (interval != null) {
@@ -54,6 +56,10 @@ export function useVersionStatus(currentVersion = APP_VERSION) {
     };
 
     const syncVersion = async (showFetchingState: boolean) => {
+      if (inFlight) {
+        return;
+      }
+
       setState((current) => {
         if (current.remoteVersion !== null) {
           return {
@@ -75,6 +81,7 @@ export function useVersionStatus(currentVersion = APP_VERSION) {
       });
 
       try {
+        inFlight = true;
         const response = await fetch(getVersionJsonUrl(), {
           cache: 'no-store',
         });
@@ -119,11 +126,17 @@ export function useVersionStatus(currentVersion = APP_VERSION) {
                 ),
               },
         );
+      } finally {
+        inFlight = false;
       }
     };
 
     const startPolling = () => {
-      if (interval != null || document.visibilityState === 'hidden') {
+      if (
+        !SHOULD_POLL_VERSION ||
+        interval != null ||
+        document.visibilityState === 'hidden'
+      ) {
         return;
       }
 
@@ -138,7 +151,9 @@ export function useVersionStatus(currentVersion = APP_VERSION) {
         return;
       }
 
-      void syncVersion(false);
+      if (SHOULD_POLL_VERSION) {
+        void syncVersion(false);
+      }
       startPolling();
     };
 

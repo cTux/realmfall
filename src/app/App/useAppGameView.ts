@@ -121,13 +121,23 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     [logFilters, logs],
   );
   const firstClaimedHex = useMemo(() => {
-    const claimedTiles = Object.values(tiles).filter((tile) =>
-      isPlayerClaim(tile.claim),
-    );
-    const firstNonHomeClaim = claimedTiles.find(
-      (tile) => tile.coord.q !== homeHex.q || tile.coord.r !== homeHex.r,
-    );
-    return firstNonHomeClaim?.coord ?? claimedTiles[0]?.coord ?? null;
+    let firstClaimedCoord: GameState['player']['coord'] | null = null;
+
+    for (const tile of Object.values(tiles)) {
+      if (!isPlayerClaim(tile.claim)) {
+        continue;
+      }
+
+      if (firstClaimedCoord === null) {
+        firstClaimedCoord = tile.coord;
+      }
+
+      if (tile.coord.q !== homeHex.q || tile.coord.r !== homeHex.r) {
+        return tile.coord;
+      }
+    }
+
+    return firstClaimedCoord;
   }, [homeHex, tiles]);
 
   const canProspectInventoryEquipment =
