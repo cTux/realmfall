@@ -13,14 +13,27 @@ import { syncFollowCursorTooltipPosition } from '../../ui/components/GameTooltip
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import * as tooltipModule from '../../ui/tooltips';
 import { getWorldHexSize } from '../../ui/world/renderSceneMath';
+import {
+  applyWorldMapCameraToContainer,
+  DEFAULT_WORLD_MAP_CAMERA,
+  mapWorldMapScreenPointToScenePoint,
+  zoomWorldMapCameraAtPoint,
+} from '../../ui/world/worldMapCamera';
 import { getWorldTimeMinutesFromTimestamp } from '../../ui/world/timeOfDay';
 import {
   ensureWorldIconTexturesLoaded,
   getWorldIconAssetIds,
   getVisibleWorldIconAssetIds,
 } from '../../ui/world/worldIcons';
+import { getSceneCache } from '../../ui/world/renderSceneCache';
 import { WORLD_REVEAL_RADIUS } from '../constants';
 import type { GraphicsSettings } from '../graphicsSettings';
+import {
+  loadWorldMapSettings,
+  saveWorldMapSettings,
+  worldMapCameraToSettings,
+  worldMapSettingsToCamera,
+} from '../worldMapSettings';
 import type { TooltipState } from './types';
 import { reuseVisibleTilesIfUnchanged } from './selectors/reuseVisibleTilesIfUnchanged';
 import {
@@ -60,7 +73,17 @@ export function usePixiWorld({
   const hoverPointerRef = useRef<{ clientX: number; clientY: number } | null>(
     null,
   );
+  const dragStateRef = useRef<{
+    pointerId: number;
+    startClientX: number;
+    startClientY: number;
+    startPanX: number;
+    startPanY: number;
+    dragging: boolean;
+  } | null>(null);
+  const worldMapCameraRef = useRef(DEFAULT_WORLD_MAP_CAMERA);
   const hoverFrameRef = useRef<number | null>(null);
+  const cameraSaveTimerRef = useRef<number | null>(null);
   const selectedRef = useRef(game.player.coord);
   const hoveredMoveRef = useRef<stateModule.HexCoord | null>(null);
   const hoveredSafePathRef = useRef<stateModule.HexCoord[] | null>(null);
@@ -112,6 +135,15 @@ export function usePixiWorld({
     hoverAnalysisCacheRef.current.clear();
   }, [game.bloodMoonActive, game.combat, game.turn]);
 
+  useEffect(
+    () => () => {
+      if (cameraSaveTimerRef.current !== null) {
+        window.clearTimeout(cameraSaveTimerRef.current);
+      }
+    },
+    [],
+  );
+
   useEffect(() => {
     if (!enabled || !hostRef.current || appRef.current) return;
 
@@ -158,6 +190,7 @@ export function usePixiWorld({
 
       appRef.current = app;
       const canvas = app.canvas as HTMLCanvasElement;
+      worldMapCameraRef.current = worldMapSettingsToCamera(loadWorldMapSettings());
       hostRef.current.replaceChildren(canvas);
 
       const resize = () => {
@@ -168,6 +201,11 @@ export function usePixiWorld({
           app.renderer.resolution = resolution;
         }
         app.renderer.resize(width, height);
+        applyWorldMapCameraToContainer(
+          getSceneCache(app).worldMap,
+          app.screen,
+          worldMapCameraRef.current,
+        );
       };
 
       const getSourcePoint = (displayPoint: { x: number; y: number }) =>
@@ -205,16 +243,65 @@ export function usePixiWorld({
       observer.observe(hostRef.current);
       window.addEventListener('resize', resize);
 
-      const onPointerDown = (event: PointerEvent) => {
+      const scheduleCameraSave = () => {
+        if (cameraSaveTimerRef.current !== null) {
+          window.clearTimeout(cameraSaveTimerRef.current);
+        }
+
+        cameraSaveTimerRef.current = window.setTimeout(() => {
+          cameraSaveTimerRef.current = null;
+          saveWorldMapSettings(
+            worldMapCameraToSettings(worldMapCameraRef.current),
+          );
+        }, 300);
+      };
+
+      const clearHoverState = () => {
+        hoverPointerRef.current = null;
+        if (hoverFrameRef.current !== null) {
+          window.cancelAnimationFrame(hoverFrameRef.current);
+          hoverFrameRef.current = null;
+        }
+        canvas.style.cursor = 'default';
+        tooltipPositionRef.current = null;
+        syncFollowCursorTooltipPosition(null);
+        worldTooltipKeyRef.current = null;
+        hoverSnapshotRef.current = {
+          target: null,
+          clickable: false,
+          hoveredMove: null,
+          hoveredSafePath: null,
+          tooltip: null,
+          tooltipKey: null,
+        };
+        if (hoveredMoveRef.current) {
+          hoveredMoveRef.current = null;
+        }
+        if (hoveredSafePathRef.current) {
+          hoveredSafePathRef.current = null;
+        }
+        setTooltip(null);
+      };
+
+      const getScenePoint = (clientX: number, clientY: number) => {
         const rect = canvas.getBoundingClientRect();
         const sourcePoint = getSourcePoint({
-          x: event.clientX - rect.left,
-          y: event.clientY - rect.top,
+          x: clientX - rect.left,
+          y: clientY - rect.top,
         });
+        return mapWorldMapScreenPointToScenePoint(
+          sourcePoint,
+          app.screen,
+          worldMapCameraRef.current,
+        );
+      };
+
+      const handlePointerClick = (clientX: number, clientY: number) => {
+        const scenePoint = getScenePoint(clientX, clientY);
         const hexSize = getWorldHexSize(app.screen, gameRef.current.radius);
         const clickedOffset = stateModule.hexAtPoint(
-          sourcePoint.x,
-          sourcePoint.y,
+          scenePoint.x,
+          scenePoint.y,
           {
             centerX: app.screen.width / 2,
             centerY: app.screen.height / 2,
@@ -258,16 +345,81 @@ export function usePixiWorld({
         );
       };
 
-      const processPointerMove = (clientX: number, clientY: number) => {
+      const onPointerDown = (event: PointerEvent) => {
+        dragStateRef.current = {
+          pointerId: event.pointerId,
+          startClientX: event.clientX,
+          startClientY: event.clientY,
+          startPanX: worldMapCameraRef.current.panX,
+          startPanY: worldMapCameraRef.current.panY,
+          dragging: false,
+        };
+        canvas.setPointerCapture?.(event.pointerId);
+      };
+
+      const onWheel = (event: WheelEvent) => {
+        const absoluteDeltaX = Math.abs(event.deltaX);
+        const absoluteDeltaY = Math.abs(event.deltaY);
+        if (absoluteDeltaY === 0 || absoluteDeltaX > absoluteDeltaY) {
+          return;
+        }
+
+        event.preventDefault();
         const rect = canvas.getBoundingClientRect();
-        const sourcePoint = getSourcePoint({
-          x: clientX - rect.left,
-          y: clientY - rect.top,
-        });
+        const nextCamera = zoomWorldMapCameraAtPoint(
+          worldMapCameraRef.current,
+          worldMapCameraRef.current.zoom *
+            (event.deltaY < 0 ? 1.1 : 1 / 1.1),
+          {
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top,
+          },
+          app.screen,
+        );
+        if (nextCamera === worldMapCameraRef.current) {
+          return;
+        }
+
+        worldMapCameraRef.current = nextCamera;
+        applyWorldMapCameraToContainer(
+          getSceneCache(app).worldMap,
+          app.screen,
+          nextCamera,
+        );
+        scheduleCameraSave();
+      };
+
+      const onPointerUp = (event: PointerEvent) => {
+        const dragState = dragStateRef.current;
+        if (!dragState || dragState.pointerId !== event.pointerId) {
+          return;
+        }
+
+        canvas.releasePointerCapture?.(event.pointerId);
+        dragStateRef.current = null;
+        if (dragState.dragging) {
+          canvas.style.cursor = 'grab';
+          return;
+        }
+
+        handlePointerClick(event.clientX, event.clientY);
+      };
+
+      const onPointerCancel = (event: PointerEvent) => {
+        if (dragStateRef.current?.pointerId !== event.pointerId) {
+          return;
+        }
+        canvas.releasePointerCapture?.(event.pointerId);
+        dragStateRef.current = null;
+        canvas.style.cursor = 'default';
+      };
+
+      const processPointerMove = (clientX: number, clientY: number) => {
+        const scenePoint = getScenePoint(clientX, clientY);
         const hexSize = getWorldHexSize(app.screen, gameRef.current.radius);
         const hoveredOffset = stateModule.hexAtPoint(
-          sourcePoint.x,
-          sourcePoint.y,
+          scenePoint.x,
+          scenePoint.y,
           {
             centerX: app.screen.width / 2,
             centerY: app.screen.height / 2,
@@ -425,6 +577,35 @@ export function usePixiWorld({
       };
 
       const onPointerMove = (event: PointerEvent) => {
+        const dragState = dragStateRef.current;
+        if (dragState && dragState.pointerId === event.pointerId) {
+          const deltaX = event.clientX - dragState.startClientX;
+          const deltaY = event.clientY - dragState.startClientY;
+          if (
+            dragState.dragging ||
+            Math.hypot(deltaX, deltaY) >= 4
+          ) {
+            if (!dragState.dragging) {
+              dragState.dragging = true;
+              clearHoverState();
+            }
+            const nextCamera = {
+              ...worldMapCameraRef.current,
+              panX: dragState.startPanX + deltaX,
+              panY: dragState.startPanY + deltaY,
+            };
+            worldMapCameraRef.current = nextCamera;
+            applyWorldMapCameraToContainer(
+              getSceneCache(app).worldMap,
+              app.screen,
+              nextCamera,
+            );
+            canvas.style.cursor = 'grabbing';
+            scheduleCameraSave();
+          }
+          return;
+        }
+
         hoverPointerRef.current = {
           clientX: event.clientX,
           clientY: event.clientY,
@@ -445,35 +626,18 @@ export function usePixiWorld({
       };
 
       const onPointerLeave = () => {
-        hoverPointerRef.current = null;
-        if (hoverFrameRef.current !== null) {
-          window.cancelAnimationFrame(hoverFrameRef.current);
-          hoverFrameRef.current = null;
-        }
-        canvas.style.cursor = 'default';
-        tooltipPositionRef.current = null;
-        syncFollowCursorTooltipPosition(null);
-        worldTooltipKeyRef.current = null;
-        hoverSnapshotRef.current = {
-          target: null,
-          clickable: false,
-          hoveredMove: null,
-          hoveredSafePath: null,
-          tooltip: null,
-          tooltipKey: null,
-        };
-        if (hoveredMoveRef.current) {
-          hoveredMoveRef.current = null;
-        }
-        if (hoveredSafePathRef.current) {
-          hoveredSafePathRef.current = null;
-        }
-        setTooltip(null);
+        dragStateRef.current = null;
+        clearHoverState();
       };
 
       canvas.addEventListener('pointerdown', onPointerDown as EventListener);
+      canvas.addEventListener('pointerup', onPointerUp as EventListener);
+      canvas.addEventListener('pointercancel', onPointerCancel as EventListener);
       canvas.addEventListener('pointermove', onPointerMove as EventListener);
       canvas.addEventListener('pointerleave', onPointerLeave);
+      canvas.addEventListener('wheel', onWheel as EventListener, {
+        passive: false,
+      });
 
       cleanup = () => {
         observer.disconnect();
@@ -482,15 +646,28 @@ export function usePixiWorld({
           window.cancelAnimationFrame(hoverFrameRef.current);
           hoverFrameRef.current = null;
         }
+        if (cameraSaveTimerRef.current !== null) {
+          window.clearTimeout(cameraSaveTimerRef.current);
+          cameraSaveTimerRef.current = null;
+        }
         canvas.removeEventListener(
           'pointerdown',
           onPointerDown as EventListener,
+        );
+        canvas.removeEventListener(
+          'pointerup',
+          onPointerUp as EventListener,
+        );
+        canvas.removeEventListener(
+          'pointercancel',
+          onPointerCancel as EventListener,
         );
         canvas.removeEventListener(
           'pointermove',
           onPointerMove as EventListener,
         );
         canvas.removeEventListener('pointerleave', onPointerLeave);
+        canvas.removeEventListener('wheel', onWheel as EventListener);
         app.ticker.remove(renderFrame);
         app.destroy(true, {
           children: true,

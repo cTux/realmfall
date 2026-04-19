@@ -83,4 +83,79 @@ describe('App world input', () => {
     });
     host.remove();
   });
+
+  it('ignores horizontal wheel gestures without changing zoom', async () => {
+    const game = createHydratedAppGame();
+    loadEncryptedState.mockResolvedValue({ game, ui: {} });
+
+    const { host, root } = await renderApp();
+    await flushLazyModules();
+
+    const canvas = host.querySelector('canvas');
+    expect(canvas).not.toBeNull();
+
+    await act(async () => {
+      canvas?.dispatchEvent(
+        new WheelEvent('wheel', {
+          bubbles: true,
+          cancelable: true,
+          clientX: 320,
+          clientY: 240,
+          deltaX: 120,
+          deltaY: 0,
+        }),
+      );
+      await vi.advanceTimersByTimeAsync(400);
+    });
+
+    expect(window.localStorage.getItem('settings')).toBeNull();
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('clears drag state on pointer leave so later moves do not keep panning', async () => {
+    const game = createHydratedAppGame();
+    loadEncryptedState.mockResolvedValue({ game, ui: {} });
+
+    const { host, root } = await renderApp();
+    await flushLazyModules();
+
+    const canvas = host.querySelector('canvas');
+    expect(canvas).not.toBeNull();
+
+    await act(async () => {
+      canvas?.dispatchEvent(
+        new MouseEvent('pointerdown', {
+          bubbles: true,
+          clientX: 320,
+          clientY: 240,
+        }),
+      );
+      canvas?.dispatchEvent(
+        new MouseEvent('pointerleave', {
+          bubbles: true,
+          clientX: 320,
+          clientY: 240,
+        }),
+      );
+      canvas?.dispatchEvent(
+        new MouseEvent('pointermove', {
+          bubbles: true,
+          clientX: 420,
+          clientY: 320,
+        }),
+      );
+      await vi.advanceTimersByTimeAsync(400);
+    });
+
+    expect(window.localStorage.getItem('settings')).toBeNull();
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
 });

@@ -206,67 +206,60 @@ export function renderCampfireLight(
   );
   if (nightGlow <= 0.01) return;
 
-  const flicker = 0.88 + Math.sin(animationMs * 0.008) * 0.08;
-  const pulse = 0.94 + Math.sin(animationMs * 0.0035 + point.x * 0.01) * 0.06;
-  const haloTint = scaleColor(0xfb923c, 0.84 + ambientBrightness * 0.38);
-  const emberTint = scaleColor(0xfef08a, 0.8 + ambientBrightness * 0.24);
-  const haloLayers = [
-    { width: 4.05, height: 2.95, alpha: 0.024 },
-    { width: 3.6, height: 2.58, alpha: 0.032 },
-    { width: 3.1, height: 2.24, alpha: 0.044 },
-    { width: 2.68, height: 1.92, alpha: 0.06 },
-    { width: 2.18, height: 1.56, alpha: 0.084 },
-    { width: 1.74, height: 1.22, alpha: 0.114 },
-  ];
+  const flicker = 0.94 + Math.sin(animationMs * 0.008) * 0.05;
+  const pulse = 0.97 + Math.sin(animationMs * 0.0035 + point.x * 0.01) * 0.04;
+  const haloTint = scaleColor(0xfb923c, 0.86 + ambientBrightness * 0.34);
+  const emberTint = scaleColor(0xfef3c7, 0.82 + ambientBrightness * 0.2);
 
-  haloLayers.forEach((layer, index) => {
-    const glow = takeGraphics(graphicsPool);
-    const scale = flicker + index * 0.03;
-    glow.blendMode = 'add';
-    glow
-      .ellipse(
-        point.x,
-        point.y + hexSize * 0.2,
-        hexSize * layer.width * scale,
-        hexSize * layer.height * scale,
-      )
-      .fill({ color: haloTint, alpha: layer.alpha * nightGlow * pulse });
-  });
+  const outerGlow = takeGraphics(graphicsPool);
+  outerGlow.blendMode = 'add';
+  outerGlow
+    .ellipse(
+      point.x,
+      point.y + hexSize * 0.18,
+      hexSize * 2.36 * pulse,
+      hexSize * 1.68 * pulse,
+    )
+    .fill({
+      color: haloTint,
+      alpha: 0.036 * nightGlow * flicker,
+    });
 
-  const bloomLayers = [
-    { width: 1.92, height: 1.18, alpha: 0.082, yOffset: 0.12 },
-    { width: 1.46, height: 0.9, alpha: 0.114, yOffset: 0.08 },
-    { width: 1.06, height: 0.64, alpha: 0.152, yOffset: 0.04 },
-  ];
-  bloomLayers.forEach((layer, index) => {
-    const bloom = takeGraphics(graphicsPool);
-    bloom.blendMode = 'add';
-    bloom
-      .ellipse(
-        point.x,
-        point.y + hexSize * layer.yOffset - index,
-        hexSize * layer.width,
-        hexSize * layer.height,
-      )
-      .fill({
-        color: emberTint,
-        alpha: layer.alpha * nightGlow * (1 + flicker * 0.08),
-      });
-  });
+  const midGlow = takeGraphics(graphicsPool);
+  midGlow.blendMode = 'add';
+  midGlow
+    .ellipse(
+      point.x,
+      point.y + hexSize * 0.14,
+      hexSize * 1.54 * flicker,
+      hexSize * 1.06 * flicker,
+    )
+    .fill({
+      color: haloTint,
+      alpha: 0.084 * nightGlow * pulse,
+    });
 
   const heatWash = takeGraphics(graphicsPool);
   heatWash.blendMode = 'add';
   heatWash
-    .ellipse(point.x, point.y + hexSize * 0.08, hexSize * 1.16, hexSize * 0.8)
-    .fill({ color: haloTint, alpha: 0.12 * nightGlow });
+    .ellipse(
+      point.x,
+      point.y + hexSize * 0.08,
+      hexSize * 0.96,
+      hexSize * 0.68,
+    )
+    .fill({
+      color: scaleColor(0xfdba74, 0.9 + ambientBrightness * 0.22),
+      alpha: 0.14 * nightGlow * (0.98 + flicker * 0.05),
+    });
 
   const emberCore = takeGraphics(graphicsPool);
   emberCore.blendMode = 'add';
   emberCore
-    .ellipse(point.x, point.y + hexSize * 0.1, hexSize * 0.46, hexSize * 0.3)
+    .ellipse(point.x, point.y + hexSize * 0.08, hexSize * 0.4, hexSize * 0.26)
     .fill({
       color: emberTint,
-      alpha: 0.22 * nightGlow * (1.02 + flicker * 0.08),
+      alpha: 0.24 * nightGlow * (1 + flicker * 0.04),
     });
 }
 
