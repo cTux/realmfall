@@ -68,8 +68,11 @@ describe('ui helper coverage', () => {
     ).IS_REACT_ACT_ENVIRONMENT = true;
   });
 
-  it('covers formatter branches for larger and non-finite values', () => {
+  it('covers formatter branches for larger, rounded, and non-finite values', () => {
     expect(formatCompactNumber(12_500)).toBe('13k');
+    expect(formatCompactNumber(0.999999996)).toBe('1');
+    expect(formatCompactNumber(12.3456)).toBe('12.35');
+    expect(formatCompactNumber(-1.999999996)).toBe('-2');
     expect(formatCompactNumberish('9'.repeat(400))).toBe('9'.repeat(400));
   });
 
