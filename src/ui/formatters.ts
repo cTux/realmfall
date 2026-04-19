@@ -3,6 +3,26 @@ const COMPACT_SUFFIXES = [
   { value: 1_000_000, suffix: 'M' },
   { value: 1_000, suffix: 'k' },
 ];
+const INTEGER_DISPLAY_EPSILON = 1e-6;
+const PLAIN_NUMBER_DECIMAL_PLACES = 2;
+
+function roundForDisplay(value: number, decimalPlaces: number): number {
+  const scale = 10 ** decimalPlaces;
+  const epsilon = Number.EPSILON * (value === 0 ? 1 : Math.sign(value));
+  return Math.round((value + epsilon) * scale) / scale;
+}
+
+function formatPlainNumber(value: number): string {
+  const roundedInteger = Math.round(value);
+  if (Math.abs(value - roundedInteger) <= INTEGER_DISPLAY_EPSILON) {
+    return `${roundedInteger}`;
+  }
+
+  const rounded = roundForDisplay(value, PLAIN_NUMBER_DECIMAL_PLACES);
+  if (Number.isInteger(rounded)) return `${rounded}`;
+
+  return rounded.toFixed(PLAIN_NUMBER_DECIMAL_PLACES).replace(/\.?0+$/, '');
+}
 
 export function formatCompactNumber(value: number): string {
   const sign = value < 0 ? '-' : '';
@@ -18,7 +38,7 @@ export function formatCompactNumber(value: number): string {
     return `${sign}${text}${suffix}`;
   }
 
-  return `${value}`;
+  return formatPlainNumber(value);
 }
 
 export function formatCompactNumberish(value: string): string {

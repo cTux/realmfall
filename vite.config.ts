@@ -29,6 +29,10 @@ const RESPONSE_CONTENT_SECURITY_POLICY =
 function createSecurityHeaders(contentSecurityPolicy: string) {
   return {
     'Content-Security-Policy': contentSecurityPolicy,
+    'Permissions-Policy':
+      'accelerometer=(), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=()',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'X-Content-Type-Options': 'nosniff',
     'X-Frame-Options': 'DENY',
   } as const;
 }

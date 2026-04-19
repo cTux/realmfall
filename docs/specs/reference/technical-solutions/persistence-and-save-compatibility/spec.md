@@ -14,7 +14,7 @@ This spec covers browser save storage, direct hydration of the current save shap
 - `src/persistence/storage.ts` wraps saved JSON in AES-GCM using a client-side passphrase-derived key.
 - That wrapper is implementation obfuscation for local saves, not a real security boundary or meaningful client-side secret protection.
 - Legacy graphics settings from `realmfall-graphics-settings` migrate into the shared `settings` payload when current graphics settings load successfully, and clearing graphics settings also removes that retired key.
-- Loaded saves are used as-is instead of being migrated forward from older payload formats.
+- Loaded saves are validated before hydration, and malformed game or UI slices are rejected independently instead of being merged straight into runtime state or blocking the other valid slice from hydrating.
 - The current project phase does not support backward save-format compatibility; older save payloads are expected to be cleared when the runtime save shape changes.
 - Autosave uses a five-second debounce plus five-second interval-backed flush model.
 - The five-second interval flush remains active during continuous gameplay or UI churn, so repeated sub-five-second updates still persist progress without requiring a quiet period first.

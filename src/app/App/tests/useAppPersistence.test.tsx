@@ -30,6 +30,8 @@ vi.mock('../../../persistence/storage', () => ({
 import { useAppPersistence } from '../useAppPersistence';
 
 interface PersistenceHarnessHandle {
+  getHeroWindowPosition: () => WindowPositions['hero'];
+  getHeroWindowVisible: () => boolean;
   persistNow: () => Promise<void>;
   toggleHeroWindow: () => void;
   setHeroWindowVisible: (visible: boolean) => void;
@@ -94,6 +96,8 @@ const PersistenceHarness = forwardRef<PersistenceHarnessHandle>(
     });
 
     useImperativeHandle(ref, () => ({
+      getHeroWindowPosition: () => windows.hero,
+      getHeroWindowVisible: () => windowShown.hero,
       persistNow,
       toggleHeroWindow: () =>
         setWindowShown((current) => ({ ...current, hero: !current.hero })),
@@ -275,6 +279,38 @@ describe('useAppPersistence', () => {
         }),
       }),
     );
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('keeps hydrating ui when the saved game slice is malformed', async () => {
+    loadEncryptedState.mockResolvedValue({
+      game: {
+        seed: 'broken-save',
+        player: {
+          inventory: [{ id: 'bad-item' }],
+        },
+      },
+      ui: {
+        windows: {
+          hero: { x: 42, y: 96 },
+        },
+        windowShown: {
+          hero: true,
+        },
+      },
+    });
+    saveEncryptedState.mockResolvedValue(undefined);
+
+    const { handle, host, root } = await renderPersistenceHarness();
+
+    expect(host.querySelector('[data-hydrated="ready"]')).toBeTruthy();
+    expect(handle.getHeroWindowPosition()).toEqual({ x: 42, y: 96 });
+    expect(handle.getHeroWindowVisible()).toBe(true);
+    expect(saveEncryptedState).not.toHaveBeenCalled();
 
     await act(async () => {
       root.unmount();

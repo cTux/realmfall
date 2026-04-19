@@ -17,15 +17,15 @@ import {
   saveEncryptedState,
 } from '../../persistence/storage';
 import {
-  DEFAULT_LOG_FILTERS,
-  DEFAULT_WINDOWS,
-  DEFAULT_WINDOW_VISIBILITY,
   type WindowPositions,
   type WindowVisibilityState,
 } from '../constants';
-import { normalizeLoadedGame, normalizeSavedUiItem } from '../normalize';
+import {
+  normalizeLoadedGame,
+  normalizePersistedUiState,
+  normalizeSavedUiItem,
+} from '../normalize';
 import { normalizeActionBarSlots, type ActionBarSlots } from './actionBar';
-import type { PersistedUiState } from './types';
 
 const AUTOSAVE_INTERVAL_MS = 5000;
 const AUTOSAVE_DEBOUNCE_MS = AUTOSAVE_INTERVAL_MS;
@@ -343,59 +343,38 @@ export function useAppPersistence({
     void loadEncryptedState().then((saved) => {
       if (!alive) return;
 
-      const snapshotUi = saved?.ui as
-        | (PersistedUiState & {
-            windows?: WindowPositions;
-            windowShown?: WindowVisibilityState;
-          })
-        | undefined;
-      const hydratedWindows = snapshotUi?.windows
-        ? { ...DEFAULT_WINDOWS, ...snapshotUi.windows }
-        : DEFAULT_WINDOWS;
-      const hydratedWindowShown = snapshotUi?.windowShown
-        ? {
-            ...DEFAULT_WINDOW_VISIBILITY,
-            ...snapshotUi.windowShown,
-          }
-          : DEFAULT_WINDOW_VISIBILITY;
-      const hydratedLogFilters = snapshotUi?.logFilters
-        ? { ...DEFAULT_LOG_FILTERS, ...snapshotUi.logFilters }
-        : DEFAULT_LOG_FILTERS;
+      const snapshotUi = normalizePersistedUiState(saved?.ui);
+      const hydratedWindows = snapshotUi.windows;
+      const hydratedWindowShown = snapshotUi.windowShown;
+      const hydratedLogFilters = snapshotUi.logFilters;
       const hydratedActionBarSlots = normalizeActionBarSlots(
-        snapshotUi?.actionBarSlots,
+        snapshotUi.actionBarSlots,
         normalizeSavedUiItem,
       );
       if (saved?.game) {
-        const loadedGame = normalizeLoadedGame(saved.game as GameState);
-        worldTimeMsRef.current = loadedGame.worldTimeMs;
-        worldTimeTickRef.current = null;
-        lastDisplayedWorldSecondRef.current = Math.floor(
-          loadedGame.worldTimeMs / 1000,
-        );
-        setWorldTimeMs(loadedGame.worldTimeMs);
-        setGame({
-          ...loadedGame,
-          logSequence: 3,
-          logs: createFreshLogsAtTime(loadedGame.seed, loadedGame.worldTimeMs),
-        });
-        latestInputsRef.current.game = loadedGame;
-        latestInputsRef.current.worldTimeMs = loadedGame.worldTimeMs;
+        const loadedGame = normalizeLoadedGame(saved.game);
+        if (loadedGame) {
+          worldTimeMsRef.current = loadedGame.worldTimeMs;
+          worldTimeTickRef.current = null;
+          lastDisplayedWorldSecondRef.current = Math.floor(
+            loadedGame.worldTimeMs / 1000,
+          );
+          setWorldTimeMs(loadedGame.worldTimeMs);
+          setGame({
+            ...loadedGame,
+            logSequence: 3,
+            logs: createFreshLogsAtTime(loadedGame.seed, loadedGame.worldTimeMs),
+          });
+          latestInputsRef.current.game = loadedGame;
+          latestInputsRef.current.worldTimeMs = loadedGame.worldTimeMs;
+        }
       }
 
       if (saved?.ui) {
-        if (snapshotUi?.windows) setWindows(hydratedWindows);
-        if (snapshotUi?.windowShown) {
-          setWindowShown(hydratedWindowShown);
-        }
-        if (snapshotUi?.logFilters) {
-          setLogFilters((current) => ({
-            ...current,
-            ...snapshotUi.logFilters,
-          }));
-        }
-        if (snapshotUi?.actionBarSlots) {
-          setActionBarSlots(hydratedActionBarSlots);
-        }
+        setWindows(hydratedWindows);
+        setWindowShown(hydratedWindowShown);
+        setLogFilters(hydratedLogFilters);
+        setActionBarSlots(hydratedActionBarSlots);
       }
 
       latestInputsRef.current.actionBarSlots = hydratedActionBarSlots;

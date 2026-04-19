@@ -15,6 +15,7 @@ This spec covers the desktop-style game settings window, its dock and hotkey acc
 - UI audio waits for a user activation before initializing the audio engine, then applies the saved audio settings to document-wide hover, click, toggle, range, tab, and window interaction sounds.
 - Settings are stored in a dedicated plain `localStorage` `settings` payload outside the encrypted save payload so startup can read renderer-init flags before game and renderer initialization begins, while the same shared payload also carries audio and world-map settings.
 - Graphics settings continue to migrate forward from the legacy `realmfall-graphics-settings` key into the shared `settings` payload on load.
+- Graphics settings are normalized on load and save so malformed persisted values fall back to the current defaults instead of reaching Pixi initialization.
 - `Save` persists the current settings immediately without reloading.
 - `Save & Reload` persists the current settings immediately and then reloads the page so renderer-init changes apply to the live world canvas.
 - `Reset Save Data` requires a continuous five-second press-and-hold interaction with a filling progress state before it clears persisted save and UI data and reloads the page.
