@@ -3,6 +3,7 @@
 Implemented technical solutions are split into dedicated spec files:
 
 - [Application Architecture](./application-architecture/spec.md)
+- [Browser Response Hardening](./browser-response-hardening/spec.md)
 - [Browser Entry Metadata](./browser-entry-metadata/spec.md)
 - [Content Ids And Tags](./content-ids-and-tags/spec.md)
 - [Deterministic World Generation](./deterministic-world-generation/spec.md)
