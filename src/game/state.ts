@@ -961,13 +961,13 @@ function applyPlayerAbility(
           ability: formatAbilityLabel(ability.id),
           effect: formatStatusEffectLabel(effect.statusEffectId),
         }),
-        enemyTargets[0]
+        applied === 1 && enemyTargets.length === 1
           ? playerStatusRichText(
               enemyTargets[0],
               ability.id,
               effect.statusEffectId,
             )
-          : undefined,
+          : playerStatusRichText(undefined, ability.id, effect.statusEffectId),
       );
     }
   }
@@ -1944,16 +1944,28 @@ function enemyHealRichText(enemy: Enemy, abilityId: AbilityId, amount: number, a
   ];
 }
 
-function playerStatusRichText(enemy: Enemy, abilityId: AbilityId, effectId: StatusEffectId) {
-  return [
-    textSegment('You apply '),
-    textSegment(formatStatusEffectLabel(effectId)),
-    textSegment(' to '),
-    combatEntityName(enemy),
-    textSegment(' with '),
-    abilitySourceSegment(abilityId),
-    textSegment('.'),
-  ];
+function playerStatusRichText(
+  enemy: Enemy | undefined,
+  abilityId: AbilityId,
+  effectId: StatusEffectId,
+) {
+  return enemy
+    ? [
+        textSegment('You apply '),
+        textSegment(formatStatusEffectLabel(effectId)),
+        textSegment(' to '),
+        combatEntityName(enemy),
+        textSegment(' with '),
+        abilitySourceSegment(abilityId),
+        textSegment('.'),
+      ]
+    : [
+        textSegment('You apply '),
+        textSegment(formatStatusEffectLabel(effectId)),
+        textSegment(' with '),
+        abilitySourceSegment(abilityId),
+        textSegment('.'),
+      ];
 }
 
 function enemyStatusRichText(enemy: Enemy, abilityId: AbilityId, effectId: StatusEffectId) {
