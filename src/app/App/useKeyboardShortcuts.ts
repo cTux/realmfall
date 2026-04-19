@@ -83,6 +83,9 @@ export function useKeyboardShortcuts({
 
     if (/^[1-9]$/.test(lowerKey)) {
       event.preventDefault();
+      if (event.repeat) {
+        return;
+      }
       onUseActionBarSlot(Number(lowerKey) - 1);
       return;
     }
