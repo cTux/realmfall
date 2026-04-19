@@ -47,12 +47,18 @@ describe('storybook coverage', () => {
       join(componentsDir, 'storybook', 'ContentDictionaries.stories.tsx'),
       'utf8',
     );
+    const dictionaryData = readFileSync(
+      join(componentsDir, 'storybook', 'dictionaryStoryData.ts'),
+      'utf8',
+    );
 
-    expect(dictionaryStories).toContain('fixtures.items');
-    expect(dictionaryStories).toContain('fixtures.enemies');
-    expect(dictionaryStories).toContain('fixtures.structures');
-    expect(dictionaryStories).toContain('Object.values(ABILITIES)');
-    expect(dictionaryStories).toContain('STATUS_EFFECT_DEFINITIONS');
+    expect(dictionaryStories).toContain("await import('./dictionaryStoryData')");
+    expect(dictionaryData).toContain('createStorybookFixtures()');
+    expect(dictionaryData).toContain('fixtures.items');
+    expect(dictionaryData).toContain('fixtures.enemies');
+    expect(dictionaryData).toContain('fixtures.structures');
+    expect(dictionaryData).toContain('Object.values(ABILITIES)');
+    expect(dictionaryData).toContain('STATUS_EFFECT_DEFINITIONS');
   });
 });
 

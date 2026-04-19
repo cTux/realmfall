@@ -1,27 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { MouseEvent } from 'react';
-import { ABILITIES } from '../../../game/abilities';
-import { buildItemFromConfig } from '../../../game/content/items';
-import { STATUS_EFFECT_DEFINITIONS } from '../../../game/content/statusEffects';
-import { enemyIconFor, enemyTint, iconForItem } from '../../icons';
-import { rarityColor } from '../../rarity';
-import { structureIconFor, structureTint } from '../../icons';
-import { iconMaskStyle } from '../../statusEffects';
 import {
-  abilityTooltipLines,
-  enemyTooltip,
-  itemTooltipLines,
-  statusEffectTooltipLines,
-  structureTooltip,
-  type TooltipLine,
-} from '../../tooltips';
-import { formatStatusEffectLabel } from '../../../i18n/labels';
-import {
-  createStorybookFixtures,
-  storySurfaceDecorator,
-} from './storybookHelpers';
-
-const fixtures = createStorybookFixtures();
+  useEffect,
+  useState,
+  type MouseEvent,
+} from 'react';
+import { loadI18n } from '../../../i18n';
+import type { TooltipLine } from '../../tooltips';
 
 type HoverDetailHandler = (
   event: MouseEvent<HTMLElement>,
@@ -35,9 +19,33 @@ interface DictionaryStoryArgs {
   onLeaveDetail?: () => void;
 }
 
+interface IconDictionaryEntry {
+  id: string;
+  label: string;
+  icon: string;
+  tint: string;
+  borderColor: string;
+  tooltipLines: TooltipLine[];
+}
+
+interface DictionaryCatalogs {
+  items: IconDictionaryEntry[];
+  enemies: IconDictionaryEntry[];
+  structures: IconDictionaryEntry[];
+  abilities: IconDictionaryEntry[];
+  buffs: IconDictionaryEntry[];
+  debuffs: IconDictionaryEntry[];
+}
+
 const meta: Meta<DictionaryStoryArgs> = {
   title: 'Catalogs/Dictionaries',
-  decorators: [storySurfaceDecorator],
+  decorators: [
+    (Story) => (
+      <div style={{ minHeight: '100vh', padding: '24px' }}>
+        <Story />
+      </div>
+    ),
+  ],
   parameters: {
     controls: { hideNoControlsWarning: true },
   },
@@ -53,36 +61,9 @@ export const Items: Story = {
     onLeaveDetail: undefined,
   },
   render: (args) => (
-    <IconDictionaryGrid
-      title={`Items (${fixtures.items.length})`}
-      entries={fixtures.items.map((config) => ({
-        id: config.key,
-        label: config.name,
-        icon: iconForItem({
-          id: config.key,
-          itemKey: config.key,
-          slot: config.slot,
-          name: config.name,
-          quantity: 1,
-          tier: config.tier,
-          rarity: config.rarity,
-          power: config.power,
-          defense: config.defense,
-          maxHp: config.maxHp,
-          healing: config.healing,
-          hunger: config.hunger,
-          thirst: config.thirst,
-          tags: config.tags,
-        }),
-        tint: config.tint ?? rarityColor(config.rarity),
-        borderColor: rarityColor(config.rarity),
-        tooltipLines: itemTooltipLines(
-          buildItemFromConfig(config.key, {
-            id: config.key,
-            quantity: 1,
-          }),
-        ),
-      }))}
+    <DictionaryCatalogStory
+      catalogKey="items"
+      title="Items"
       onHoverDetail={args.onHoverDetail}
       onLeaveDetail={args.onLeaveDetail}
     />
@@ -95,33 +76,9 @@ export const Enemies: Story = {
     onLeaveDetail: undefined,
   },
   render: (args) => (
-    <IconDictionaryGrid
-      title={`Enemies (${fixtures.enemies.length})`}
-      entries={fixtures.enemies.map((config) => ({
-        id: config.id,
-        label: config.name,
-        icon: enemyIconFor(config.id),
-        tint: `#${enemyTint(config.id).toString(16).padStart(6, '0')}`,
-        borderColor: 'rgba(148, 163, 184, 0.9)',
-        tooltipLines:
-          enemyTooltip([
-            {
-              id: config.id,
-              enemyTypeId: config.id,
-              name: config.name,
-              coord: { q: 0, r: 0 },
-              rarity: 'common',
-              tier: 1,
-              hp: 1,
-              maxHp: 1,
-              attack: 0,
-              defense: 0,
-              xp: 0,
-              elite: false,
-              tags: config.tags,
-            },
-          ])?.lines ?? [],
-      }))}
+    <DictionaryCatalogStory
+      catalogKey="enemies"
+      title="Enemies"
       onHoverDetail={args.onHoverDetail}
       onLeaveDetail={args.onLeaveDetail}
     />
@@ -134,23 +91,9 @@ export const Structures: Story = {
     onLeaveDetail: undefined,
   },
   render: (args) => (
-    <IconDictionaryGrid
-      title={`Structures (${fixtures.structures.length})`}
-      entries={fixtures.structures.map((config) => ({
-        id: config.type,
-        label: config.title,
-        icon: structureIconFor(config.type),
-        tint: `#${structureTint(config.type).toString(16).padStart(6, '0')}`,
-        borderColor: 'rgba(148, 163, 184, 0.9)',
-        tooltipLines:
-          structureTooltip({
-            coord: { q: 0, r: 0 },
-            terrain: 'plains',
-            structure: config.type,
-            items: [],
-            enemyIds: [],
-          })?.lines ?? [],
-      }))}
+    <DictionaryCatalogStory
+      catalogKey="structures"
+      title="Structures"
       onHoverDetail={args.onHoverDetail}
       onLeaveDetail={args.onLeaveDetail}
     />
@@ -163,16 +106,9 @@ export const Abilities: Story = {
     onLeaveDetail: undefined,
   },
   render: (args) => (
-    <IconDictionaryGrid
-      title={`Abilities (${Object.values(ABILITIES).length})`}
-      entries={Object.values(ABILITIES).map((ability) => ({
-        id: ability.id,
-        label: ability.name,
-        icon: ability.icon,
-        tint: '#f8fafc',
-        borderColor: 'rgba(148, 163, 184, 0.9)',
-        tooltipLines: abilityTooltipLines(ability, ability.target),
-      }))}
+    <DictionaryCatalogStory
+      catalogKey="abilities"
+      title="Abilities"
       onHoverDetail={args.onHoverDetail}
       onLeaveDetail={args.onLeaveDetail}
     />
@@ -185,22 +121,9 @@ export const Buffs: Story = {
     onLeaveDetail: undefined,
   },
   render: (args) => (
-    <IconDictionaryGrid
-      title={`Buffs (${
-        Object.values(STATUS_EFFECT_DEFINITIONS).filter(
-          (definition) => definition.tone === 'buff',
-        ).length
-      })`}
-      entries={Object.values(STATUS_EFFECT_DEFINITIONS)
-        .filter((definition) => definition.tone === 'buff')
-        .map((definition) => ({
-          id: definition.id,
-          label: formatStatusEffectLabel(definition.id),
-          icon: definition.icon,
-          tint: definition.tint,
-          borderColor: 'rgba(34, 197, 94, 0.9)',
-          tooltipLines: statusEffectTooltipLines(definition.id, 'buff'),
-        }))}
+    <DictionaryCatalogStory
+      catalogKey="buffs"
+      title="Buffs"
       onHoverDetail={args.onHoverDetail}
       onLeaveDetail={args.onLeaveDetail}
     />
@@ -213,27 +136,74 @@ export const Debuffs: Story = {
     onLeaveDetail: undefined,
   },
   render: (args) => (
-    <IconDictionaryGrid
-      title={`Debuffs (${
-        Object.values(STATUS_EFFECT_DEFINITIONS).filter(
-          (definition) => definition.tone === 'debuff',
-        ).length
-      })`}
-      entries={Object.values(STATUS_EFFECT_DEFINITIONS)
-        .filter((definition) => definition.tone === 'debuff')
-        .map((definition) => ({
-          id: definition.id,
-          label: formatStatusEffectLabel(definition.id),
-          icon: definition.icon,
-          tint: definition.tint,
-          borderColor: 'rgba(239, 68, 68, 0.9)',
-          tooltipLines: statusEffectTooltipLines(definition.id, 'debuff'),
-        }))}
+    <DictionaryCatalogStory
+      catalogKey="debuffs"
+      title="Debuffs"
       onHoverDetail={args.onHoverDetail}
       onLeaveDetail={args.onLeaveDetail}
     />
   ),
 };
+
+function DictionaryCatalogStory({
+  catalogKey,
+  title,
+  onHoverDetail,
+  onLeaveDetail,
+}: {
+  catalogKey: keyof DictionaryCatalogs;
+  title: string;
+  onHoverDetail?: HoverDetailHandler;
+  onLeaveDetail?: () => void;
+}) {
+  const [catalogs, setCatalogs] = useState<DictionaryCatalogs | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void (async () => {
+      await loadI18n();
+      const { loadDictionaryCatalogs } = await import('./dictionaryStoryData');
+      if (!cancelled) {
+        setCatalogs(loadDictionaryCatalogs());
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!catalogs) {
+    return <LoadingState />;
+  }
+
+  const entries = catalogs[catalogKey];
+
+  return (
+    <IconDictionaryGrid
+      title={`${title} (${entries.length})`}
+      entries={entries}
+      onHoverDetail={onHoverDetail}
+      onLeaveDetail={onLeaveDetail}
+    />
+  );
+}
+
+function LoadingState() {
+  return (
+    <div
+      style={{
+        minHeight: '240px',
+        display: 'grid',
+        placeItems: 'center',
+        color: '#cbd5e1',
+      }}
+    >
+      Loading dictionaries...
+    </div>
+  );
+}
 
 function IconDictionaryGrid({
   title,
@@ -242,14 +212,7 @@ function IconDictionaryGrid({
   onLeaveDetail,
 }: {
   title: string;
-  entries: Array<{
-    id: string;
-    label: string;
-    icon: string;
-    tint: string;
-    borderColor: string;
-    tooltipLines: TooltipLine[];
-  }>;
+  entries: IconDictionaryEntry[];
   onHoverDetail?: HoverDetailHandler;
   onLeaveDetail?: () => void;
 }) {
@@ -293,18 +256,28 @@ function IconDictionaryGrid({
               cursor: 'pointer',
             }}
           >
-            <span
-              aria-hidden="true"
-              style={{
-                width: '52px',
-                height: '52px',
-                display: 'inline-block',
-                ...iconMaskStyle(entry.icon, entry.tint),
-              }}
-            />
+            <MaskedIcon icon={entry.icon} tint={entry.tint} />
           </button>
         ))}
       </div>
     </section>
+  );
+}
+
+function MaskedIcon({ icon, tint }: { icon: string; tint: string }) {
+  const mask = `url("${icon}") center / contain no-repeat`;
+
+  return (
+    <span
+      aria-hidden="true"
+      style={{
+        width: '52px',
+        height: '52px',
+        display: 'inline-block',
+        backgroundColor: tint,
+        WebkitMask: mask,
+        mask,
+      }}
+    />
   );
 }
