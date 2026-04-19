@@ -353,24 +353,21 @@ export function useAppPersistence({
       );
       if (saved?.game) {
         const loadedGame = normalizeLoadedGame(saved.game);
-        if (!loadedGame) {
-          setHydrated(true);
-          return;
+        if (loadedGame) {
+          worldTimeMsRef.current = loadedGame.worldTimeMs;
+          worldTimeTickRef.current = null;
+          lastDisplayedWorldSecondRef.current = Math.floor(
+            loadedGame.worldTimeMs / 1000,
+          );
+          setWorldTimeMs(loadedGame.worldTimeMs);
+          setGame({
+            ...loadedGame,
+            logSequence: 3,
+            logs: createFreshLogsAtTime(loadedGame.seed, loadedGame.worldTimeMs),
+          });
+          latestInputsRef.current.game = loadedGame;
+          latestInputsRef.current.worldTimeMs = loadedGame.worldTimeMs;
         }
-
-        worldTimeMsRef.current = loadedGame.worldTimeMs;
-        worldTimeTickRef.current = null;
-        lastDisplayedWorldSecondRef.current = Math.floor(
-          loadedGame.worldTimeMs / 1000,
-        );
-        setWorldTimeMs(loadedGame.worldTimeMs);
-        setGame({
-          ...loadedGame,
-          logSequence: 3,
-          logs: createFreshLogsAtTime(loadedGame.seed, loadedGame.worldTimeMs),
-        });
-        latestInputsRef.current.game = loadedGame;
-        latestInputsRef.current.worldTimeMs = loadedGame.worldTimeMs;
       }
 
       if (saved?.ui) {
