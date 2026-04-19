@@ -5,6 +5,7 @@ import { ensureLocalhostHttpsCertificate } from './localhost-https.mjs';
 const require = createRequire(import.meta.url);
 const serveBinPath = require.resolve('serve/build/main.js');
 const { certPath, keyPath } = await ensureLocalhostHttpsCertificate();
+const forwardedArgs = process.argv.slice(2);
 
 const child = spawn(
   process.execPath,
@@ -17,6 +18,7 @@ const child = spawn(
     certPath,
     '--ssl-key',
     keyPath,
+    ...forwardedArgs,
   ],
   {
     stdio: 'inherit',
