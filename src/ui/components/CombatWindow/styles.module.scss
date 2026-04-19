@@ -120,7 +120,7 @@
   appearance: none;
   cursor: default;
   padding: 0;
-  border-radius: 0;
+  border-radius: ui.$ability-radius;
 }
 
 .buffChip {
@@ -144,7 +144,7 @@
   position: relative;
   overflow: hidden;
   border: 1px solid rgb(148 163 184 / 35%);
-  border-radius: 0 16px;
+  border-radius: ui.$ability-radius;
   color: #f8fafc;
   transition:
     opacity 120ms ease,
