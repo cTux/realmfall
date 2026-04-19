@@ -12,7 +12,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 ## Commit Workflow
 
 - Use Conventional Commits.
-- Increase the `package.json` patch version before each commit. The pre-commit hook enforces this against `HEAD`.
+- Before each commit, bump the patch version in `package.json`. The pre-commit hook enforces this against `HEAD`.
 - Generate commit messages from the actual change set.
 - Keep commit messages focused on the behavioral change instead of enumerating every touched doc file.
 
