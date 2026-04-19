@@ -156,6 +156,19 @@ describe('combat equipment stats', () => {
     );
   });
 
+  it('does not add phantom direct damage for status-only damage effects', () => {
+    const { game, enemyId } = prepareCombat({
+      playerAbilityIds: ['emberShot'],
+      enemyReady: false,
+      enemyDefense: 0,
+      enemyHp: 50,
+    });
+
+    const afterStart = startCombat(game);
+
+    expect(afterStart.enemies[enemyId]?.hp).toBe(45);
+  });
+
   it('starts the player at the baseline critical strike chance', () => {
     const { game } = prepareCombat({
       playerReady: false,

@@ -1145,15 +1145,21 @@ function dealPlayerDamageToEnemy(
     Math.max(0, critCount),
   );
   const baseDamage = Math.max(
-    1,
-    Math.round(playerStats.attack * effect.powerMultiplier + (effect.flatPower ?? 0)),
-  );
-  const damage = Math.max(
-    1,
+    0,
     Math.round(
-      Math.max(1, baseDamage - getEnemyEffectiveDefense(enemy)) * critMultiplier,
+      playerStats.attack * effect.powerMultiplier + (effect.flatPower ?? 0),
     ),
   );
+  const damage =
+    baseDamage <= 0
+      ? 0
+      : Math.max(
+          1,
+          Math.round(
+            Math.max(1, baseDamage - getEnemyEffectiveDefense(enemy)) *
+              critMultiplier,
+          ),
+        );
   const resolvedDamage = resolveIncomingDamageByChances(
     state,
     `player:${enemy.id}:${abilityId}`,
@@ -1879,15 +1885,23 @@ function applyEnemyAbility(
       const damage = resolveIncomingDamage(
         state,
         `enemy:${enemy.id}:${abilityId}:player`,
-        Math.max(
-          1,
-          Math.round(
-            (getEnemyCombatAttack(enemy) * effect.powerMultiplier +
-              (effect.flatPower ?? 0) -
-              playerStats.defense) *
-              critMultiplier,
-          ),
-        ),
+        (() => {
+          const baseDamage = Math.max(
+            0,
+            Math.round(
+              getEnemyCombatAttack(enemy) * effect.powerMultiplier +
+                (effect.flatPower ?? 0),
+            ),
+          );
+          if (baseDamage <= 0) return 0;
+
+          return Math.max(
+            1,
+            Math.round(
+              Math.max(1, baseDamage - playerStats.defense) * critMultiplier,
+            ),
+          );
+        })(),
         playerStats,
       );
       if (damage > 0) {
