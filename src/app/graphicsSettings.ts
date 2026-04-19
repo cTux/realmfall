@@ -68,11 +68,9 @@ export function loadGraphicsSettings() {
   }
 
   try {
-    const settings = loadPersistedSettings();
-    const loadedGraphicsSettings = {
-      ...DEFAULT_GRAPHICS_SETTINGS,
-      ...settings.graphics,
-    };
+    const loadedGraphicsSettings = normalizeGraphicsSettings(
+      loadPersistedSettings().graphics,
+    );
 
     if (!loadStoredSettingsPayload() && loadLegacyGraphicsSettingsPayload()) {
       saveGraphicsSettings(loadedGraphicsSettings);
@@ -87,9 +85,10 @@ export function loadGraphicsSettings() {
 export function saveGraphicsSettings(settings: GraphicsSettings) {
   if (typeof window === 'undefined') return;
 
+  const normalizedSettings = normalizeGraphicsSettings(settings);
   updateStoredSettingsPayload((current) => ({
     ...current,
-    graphics: settings as unknown as Record<string, unknown>,
+    graphics: normalizedSettings as unknown as Record<string, unknown>,
   }));
 }
 
@@ -119,4 +118,45 @@ function loadPersistedSettings(): PersistedSettings {
 
 interface PersistedSettings {
   graphics?: Partial<GraphicsSettings>;
+}
+
+function normalizeGraphicsSettings(settings: unknown): GraphicsSettings {
+  if (!isRecord(settings)) {
+    return DEFAULT_GRAPHICS_SETTINGS;
+  }
+
+  return {
+    antialias: normalizeBooleanSetting(
+      settings.antialias,
+      DEFAULT_GRAPHICS_SETTINGS.antialias,
+    ),
+    autoDensity: normalizeBooleanSetting(
+      settings.autoDensity,
+      DEFAULT_GRAPHICS_SETTINGS.autoDensity,
+    ),
+    clearBeforeRender: normalizeBooleanSetting(
+      settings.clearBeforeRender,
+      DEFAULT_GRAPHICS_SETTINGS.clearBeforeRender,
+    ),
+    preserveDrawingBuffer: normalizeBooleanSetting(
+      settings.preserveDrawingBuffer,
+      DEFAULT_GRAPHICS_SETTINGS.preserveDrawingBuffer,
+    ),
+    premultipliedAlpha: normalizeBooleanSetting(
+      settings.premultipliedAlpha,
+      DEFAULT_GRAPHICS_SETTINGS.premultipliedAlpha,
+    ),
+    useContextAlpha: normalizeBooleanSetting(
+      settings.useContextAlpha,
+      DEFAULT_GRAPHICS_SETTINGS.useContextAlpha,
+    ),
+  };
+}
+
+function normalizeBooleanSetting(value: unknown, fallback: boolean) {
+  return typeof value === 'boolean' ? value : fallback;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
 }

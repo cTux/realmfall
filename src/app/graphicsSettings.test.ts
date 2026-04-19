@@ -65,6 +65,48 @@ describe('graphics settings persistence', () => {
     ).toBeNull();
   });
 
+  it('falls back to defaults for malformed persisted values', () => {
+    window.localStorage.setItem(
+      'settings',
+      JSON.stringify({
+        graphics: {
+          antialias: 'no',
+          preserveDrawingBuffer: true,
+          premultipliedAlpha: 1,
+        },
+      }),
+    );
+
+    expect(loadGraphicsSettings()).toEqual({
+      ...DEFAULT_GRAPHICS_SETTINGS,
+      preserveDrawingBuffer: true,
+    });
+  });
+
+  it('sanitizes malformed values before storing graphics settings', () => {
+    saveGraphicsSettings({
+      antialias: false,
+      autoDensity: false,
+      clearBeforeRender: 'later' as unknown as boolean,
+      preserveDrawingBuffer: true,
+      premultipliedAlpha: false,
+      useContextAlpha: false,
+    });
+
+    expect(
+      JSON.parse(window.localStorage.getItem('settings') ?? 'null'),
+    ).toEqual({
+      graphics: {
+        antialias: false,
+        autoDensity: false,
+        clearBeforeRender: DEFAULT_GRAPHICS_SETTINGS.clearBeforeRender,
+        preserveDrawingBuffer: true,
+        premultipliedAlpha: false,
+        useContextAlpha: false,
+      },
+    });
+  });
+
   it('clears both current and legacy settings keys', () => {
     window.localStorage.setItem(
       'settings',
