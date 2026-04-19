@@ -139,6 +139,7 @@ function PartyColumn({
                 : undefined
             }
             titleAccentPlacement="top"
+            showPrimaryLabel={false}
             bars={buildCombatBars(entity, worldTimeMs)}
             abilities={buildAbilityIcons(
               entity.actor,

@@ -31,6 +31,8 @@ interface EntityStatusPanelProps extends WindowDetailTooltipHandlers {
   title: string;
   titleAccent?: { label: string; color: string };
   titleAccentPlacement?: 'inline' | 'top';
+  showPrimaryLabel?: boolean;
+  showPrimaryTitle?: boolean;
   bars: [EntityStatusBar, ...EntityStatusBar[]];
   abilities: EntityStatusIcon[];
   buffs: EntityStatusIcon[];
@@ -42,6 +44,8 @@ export function EntityStatusPanel({
   title,
   titleAccent,
   titleAccentPlacement = 'inline',
+  showPrimaryLabel = true,
+  showPrimaryTitle = true,
   bars,
   abilities,
   buffs,
@@ -70,6 +74,8 @@ export function EntityStatusPanel({
           title={title}
           titleAccent={titleAccent}
           titleAccentPlacement={titleAccentPlacement}
+          showPrimaryLabel={showPrimaryLabel}
+          showPrimaryTitle={showPrimaryTitle}
           onHoverDetail={onHoverDetail}
           onLeaveDetail={onLeaveDetail}
         />
@@ -114,6 +120,8 @@ function StatusBar({
   title,
   titleAccent,
   titleAccentPlacement = 'inline',
+  showPrimaryLabel = true,
+  showPrimaryTitle = true,
   onHoverDetail,
   onLeaveDetail,
 }: WindowDetailTooltipHandlers & {
@@ -122,6 +130,8 @@ function StatusBar({
   title?: string;
   titleAccent?: { label: string; color: string };
   titleAccentPlacement?: 'inline' | 'top';
+  showPrimaryLabel?: boolean;
+  showPrimaryTitle?: boolean;
 }) {
   const width = Math.max(0, Math.min(100, (bar.value / Math.max(1, bar.max)) * 100));
   const valueText = `${formatCompactNumber(bar.value)}/${formatCompactNumber(bar.max)}`;
@@ -161,8 +171,12 @@ function StatusBar({
               </span>
             ) : null}
             <div className={styles.titleLine}>
-              <span className={styles.primaryLabel}>{bar.label}</span>
-              <strong className={styles.title}>{title}</strong>
+              {showPrimaryLabel ? (
+                <span className={styles.primaryLabel}>{bar.label}</span>
+              ) : null}
+              {showPrimaryTitle && title ? (
+                <strong className={styles.title}>{title}</strong>
+              ) : null}
             </div>
           </div>
           <strong className={styles.value}>{valueText}</strong>

@@ -36,6 +36,7 @@ export function HeroWindowContent({
       <EntityStatusPanel
         className={styles.summary}
         title={t('ui.window.hero.plain')}
+        showPrimaryTitle={false}
         bars={buildHeroBars(stats, hunger, thirst)}
         abilities={buildAbilityIcons(stats)}
         buffs={buildEffectIcons(stats, 'buff')}

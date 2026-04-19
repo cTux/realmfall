@@ -119,6 +119,7 @@ describe('HeroWindow', () => {
     expect(host.textContent).not.toContain('Critical Strike Chance');
     expect(host.textContent).not.toContain('Suppress Debuff Chance');
     expect(host.textContent).not.toContain('Attack Speed');
-    expect(host.textContent).toContain('Character info');
+    expect(host.textContent).toContain(t('ui.window.hero.suffix'));
+    expect(host.textContent).not.toContain('Character infoHP');
   });
 });
