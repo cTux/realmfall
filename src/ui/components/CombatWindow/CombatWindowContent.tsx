@@ -77,14 +77,12 @@ export function CombatWindowContent({
     <div className={styles.layout}>
       <div className={styles.columns}>
         <PartyColumn
-          title={t('ui.combat.playerPartyTitle')}
           entities={alliedParty}
           worldTimeMs={worldTimeMs}
           onHoverDetail={onHoverDetail}
           onLeaveDetail={onLeaveDetail}
         />
         <PartyColumn
-          title={t('ui.combat.enemyPartyTitle')}
           entities={enemyParty}
           worldTimeMs={worldTimeMs}
           onHoverDetail={onHoverDetail}
@@ -114,13 +112,11 @@ function toPlayerEntity(member: CombatPartyMember): CombatEntityView {
 }
 
 function PartyColumn({
-  title,
   entities,
   worldTimeMs,
   onHoverDetail,
   onLeaveDetail,
 }: {
-  title: string;
   entities: CombatEntityView[];
   worldTimeMs: number;
   onHoverDetail: CombatWindowProps['onHoverDetail'];
@@ -128,7 +124,6 @@ function PartyColumn({
 }) {
   return (
     <section className={styles.partySection}>
-      <div className={styles.partyTitle}>{title}</div>
       <div className={styles.partyList}>
         {entities.map((entity) => (
           <EntityStatusPanel

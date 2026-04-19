@@ -18,17 +18,8 @@
 
 .partySection {
   display: grid;
-  gap: 0.5rem;
   min-width: 0;
   align-content: start;
-}
-
-.partyTitle {
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #e2e8f0;
 }
 
 .partyList {

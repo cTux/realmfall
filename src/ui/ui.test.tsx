@@ -1454,8 +1454,6 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('Tak(e) all');
     expect(markup).toContain('Filters');
     expect(markup).toContain('Epic');
-    expect(markup).toContain('Player Party');
-    expect(markup).toContain('Enemy Party');
     expect(markup).toContain('Player Lv 10');
     expect(markup).toContain('Marauder Lv 3');
     expect(markup).toContain('MP');
