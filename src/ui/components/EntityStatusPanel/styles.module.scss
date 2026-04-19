@@ -164,7 +164,7 @@
   height: var(--status-icon-size);
   padding: 0;
   border: 1px solid rgb(148 163 184 / 28%);
-  border-radius: ui.$ability-radius;
+  border-radius: 0 10px;
 
   &:hover {
     transform: scale(1.1);
