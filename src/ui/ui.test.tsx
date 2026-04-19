@@ -40,6 +40,7 @@ import {
   structureTint,
 } from './icons';
 import { rarityColor } from './rarity';
+import { getTooltipPlacementForRect } from './tooltipPlacement';
 import { CombatWindow } from './components/CombatWindow';
 import { DraggableWindow } from './components/DraggableWindow';
 import { EquipmentWindow } from './components/EquipmentWindow';
@@ -1889,6 +1890,83 @@ describe('ui helpers and components', () => {
 
     const tooltip = host.querySelector('div[class*="tooltip"]') as HTMLElement;
     expect(tooltip.style.transform).toBe('translateX(-100%)');
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('chooses a fully visible fallback placement for anchored tooltips', () => {
+    expect(
+      getTooltipPlacementForRect(
+        {
+          left: 280,
+          right: 320,
+          top: 80,
+          bottom: 120,
+          width: 40,
+        },
+        {
+          viewportWidth: 360,
+          viewportHeight: 280,
+          tooltipWidth: 260,
+          tooltipHeight: 120,
+        },
+      ),
+    ).toMatchObject({
+      x: 218,
+      y: 132,
+      placement: 'bottom',
+    });
+
+    expect(
+      getTooltipPlacementForRect(
+        {
+          left: 200,
+          right: 240,
+          top: 20,
+          bottom: 60,
+          width: 40,
+        },
+        {
+          preferredPlacements: ['top', 'right', 'left', 'bottom'],
+          viewportWidth: 520,
+          viewportHeight: 260,
+          tooltipWidth: 220,
+          tooltipHeight: 120,
+        },
+      ),
+    ).toMatchObject({
+      x: 252,
+      y: 20,
+      placement: 'right',
+    });
+  });
+
+  it('centers bottom-placed tooltips beneath the anchor', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+
+    await act(async () => {
+      root.render(
+        <GameTooltip
+          tooltip={{
+            title: 'Town',
+            x: 180,
+            y: 120,
+            placement: 'bottom',
+            lines: [{ kind: 'text', text: 'Safe rest and trade.' }],
+          }}
+        />,
+      );
+    });
+
+    const tooltip = host.querySelector('div[class*="tooltip"]') as HTMLElement;
+    expect(tooltip.style.getPropertyValue('--tooltip-transform')).toBe(
+      'translateX(-50%)',
+    );
 
     await act(async () => {
       root.unmount();

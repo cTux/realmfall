@@ -219,6 +219,14 @@ function tooltipStyle(
     } as CSSProperties;
   }
 
+  if (placement === 'bottom') {
+    return {
+      ...style,
+      '--tooltip-transform': 'translateX(-50%)',
+      '--tooltip-hidden-transform': 'translate(-50%, 6px)',
+    } as CSSProperties;
+  }
+
   return style;
 }
 

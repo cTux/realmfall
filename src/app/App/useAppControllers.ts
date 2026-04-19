@@ -200,10 +200,9 @@ export function useAppControllers({
         isRecipePage(item) &&
         item.recipeId != null &&
         gameRef.current.player.learnedRecipeIds.includes(item.recipeId);
-      const position = {
-        x: rect.left + rect.width / 2,
-        y: rect.top,
-      };
+      const position = getTooltipPlacementForRect(rect, {
+        preferredPlacements: ['top', 'right', 'left', 'bottom'],
+      });
       tooltipPositionRef.current = position;
       setTooltipState({
         title: item.name,
@@ -216,7 +215,7 @@ export function useAppControllers({
         contentKey: getItemTooltipContentKey(item, undefined, recipeLearned),
         x: position.x,
         y: position.y,
-        placement: 'top',
+        placement: position.placement,
         borderColor: rarityColor(item.rarity),
       });
     },
