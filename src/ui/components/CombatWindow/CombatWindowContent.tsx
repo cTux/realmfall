@@ -195,6 +195,16 @@ function buildCombatBars(
       description: t('ui.combat.castBar.tooltip'),
       text: ability.name,
     });
+  } else {
+    bars.push({
+      id: 'cast',
+      label: t('ui.combat.casting'),
+      value: 0,
+      max: 1,
+      tone: 'cast',
+      description: t('ui.combat.castBar.tooltip'),
+      reserved: true,
+    });
   }
 
   return bars;

@@ -64,6 +64,11 @@
   border-color: rgb(250 204 21 / 24%);
 }
 
+.reservedBar {
+  background: transparent;
+  border-color: transparent;
+}
+
 .barFill {
   height: 100%;
   transition: ui.$fill-transition;

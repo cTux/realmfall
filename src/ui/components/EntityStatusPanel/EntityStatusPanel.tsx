@@ -11,6 +11,7 @@ interface EntityStatusBar {
   tone: 'hp' | 'mana' | 'xp' | 'hunger' | 'thirst' | 'cast';
   description: string;
   text?: string;
+  reserved?: boolean;
 }
 
 interface EntityStatusIcon {
@@ -140,21 +141,26 @@ function StatusBar({
     <div
       className={`${styles.bar} ${primary ? styles.primaryBar : styles.secondaryBar} ${
         bar.tone === 'cast' ? styles.castBar : ''
-      }`}
-      onMouseEnter={(event) =>
-        onHoverDetail?.(
-          event,
-          bar.label,
-          [{ kind: 'text', text: bar.description }],
-          toneBorderColor(bar.tone),
-        )
+      } ${bar.reserved ? styles.reservedBar : ''}`}
+      onMouseEnter={
+        bar.reserved
+          ? undefined
+          : (event) =>
+              onHoverDetail?.(
+                event,
+                bar.label,
+                [{ kind: 'text', text: bar.description }],
+                toneBorderColor(bar.tone),
+              )
       }
-      onMouseLeave={onLeaveDetail}
+      onMouseLeave={bar.reserved ? undefined : onLeaveDetail}
     >
-      <div
-        className={`${styles.barFill} ${styles[bar.tone]}`}
-        style={{ width: `${width}%` }}
-      />
+      {bar.reserved ? null : (
+        <div
+          className={`${styles.barFill} ${styles[bar.tone]}`}
+          style={{ width: `${width}%` }}
+        />
+      )}
       {primary ? (
         <div className={styles.primaryContent}>
           <div
@@ -181,7 +187,7 @@ function StatusBar({
           </div>
           <strong className={styles.value}>{valueText}</strong>
         </div>
-      ) : (
+      ) : bar.reserved ? null : (
         <div className={styles.secondaryContent}>
           <span className={styles.secondaryLabel}>
             {bar.text ? `${bar.label} ${bar.text}` : bar.label}
