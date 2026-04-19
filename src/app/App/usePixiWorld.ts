@@ -28,6 +28,12 @@ import {
 import { getSceneCache } from '../../ui/world/renderSceneCache';
 import { WORLD_REVEAL_RADIUS } from '../constants';
 import type { GraphicsSettings } from '../graphicsSettings';
+import {
+  loadWorldMapSettings,
+  saveWorldMapSettings,
+  worldMapCameraToSettings,
+  worldMapSettingsToCamera,
+} from '../worldMapSettings';
 import type { TooltipState } from './types';
 import { reuseVisibleTilesIfUnchanged } from './selectors/reuseVisibleTilesIfUnchanged';
 import {
@@ -77,6 +83,7 @@ export function usePixiWorld({
   } | null>(null);
   const worldMapCameraRef = useRef(DEFAULT_WORLD_MAP_CAMERA);
   const hoverFrameRef = useRef<number | null>(null);
+  const cameraSaveTimerRef = useRef<number | null>(null);
   const selectedRef = useRef(game.player.coord);
   const hoveredMoveRef = useRef<stateModule.HexCoord | null>(null);
   const hoveredSafePathRef = useRef<stateModule.HexCoord[] | null>(null);
@@ -128,6 +135,15 @@ export function usePixiWorld({
     hoverAnalysisCacheRef.current.clear();
   }, [game.bloodMoonActive, game.combat, game.turn]);
 
+  useEffect(
+    () => () => {
+      if (cameraSaveTimerRef.current !== null) {
+        window.clearTimeout(cameraSaveTimerRef.current);
+      }
+    },
+    [],
+  );
+
   useEffect(() => {
     if (!enabled || !hostRef.current || appRef.current) return;
 
@@ -174,6 +190,7 @@ export function usePixiWorld({
 
       appRef.current = app;
       const canvas = app.canvas as HTMLCanvasElement;
+      worldMapCameraRef.current = worldMapSettingsToCamera(loadWorldMapSettings());
       hostRef.current.replaceChildren(canvas);
 
       const resize = () => {
@@ -225,6 +242,19 @@ export function usePixiWorld({
       const observer = new ResizeObserver(() => resize());
       observer.observe(hostRef.current);
       window.addEventListener('resize', resize);
+
+      const scheduleCameraSave = () => {
+        if (cameraSaveTimerRef.current !== null) {
+          window.clearTimeout(cameraSaveTimerRef.current);
+        }
+
+        cameraSaveTimerRef.current = window.setTimeout(() => {
+          cameraSaveTimerRef.current = null;
+          saveWorldMapSettings(
+            worldMapCameraToSettings(worldMapCameraRef.current),
+          );
+        }, 300);
+      };
 
       const clearHoverState = () => {
         hoverPointerRef.current = null;
@@ -350,6 +380,7 @@ export function usePixiWorld({
           app.screen,
           nextCamera,
         );
+        scheduleCameraSave();
       };
 
       const onPointerUp = (event: PointerEvent) => {
@@ -564,6 +595,7 @@ export function usePixiWorld({
               nextCamera,
             );
             canvas.style.cursor = 'grabbing';
+            scheduleCameraSave();
           }
           return;
         }
@@ -606,6 +638,10 @@ export function usePixiWorld({
         if (hoverFrameRef.current !== null) {
           window.cancelAnimationFrame(hoverFrameRef.current);
           hoverFrameRef.current = null;
+        }
+        if (cameraSaveTimerRef.current !== null) {
+          window.clearTimeout(cameraSaveTimerRef.current);
+          cameraSaveTimerRef.current = null;
         }
         canvas.removeEventListener(
           'pointerdown',

@@ -4,6 +4,7 @@ const LEGACY_GRAPHICS_SETTINGS_STORAGE_KEY = 'realmfall-graphics-settings';
 export interface PersistedSettingsPayload {
   audio?: Record<string, unknown>;
   graphics?: Record<string, unknown>;
+  worldMap?: Record<string, unknown>;
 }
 
 export function loadStoredSettingsPayload() {

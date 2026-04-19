@@ -45,6 +45,7 @@ import {
   saveGraphicsSettings,
   type GraphicsSettings,
 } from '../graphicsSettings';
+import { clearWorldMapSettings } from '../worldMapSettings';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import { LoadingSpinner } from '../../ui/components/LoadingSpinner';
 import styles from './styles.module.scss';
@@ -291,6 +292,7 @@ export function App() {
     clearEncryptedState();
     clearAudioSettings();
     clearGraphicsSettings();
+    clearWorldMapSettings();
     window.location.reload();
   };
 

@@ -1,5 +1,6 @@
 import { clearAudioSettings } from './audioSettings';
 import { clearGraphicsSettings } from './graphicsSettings';
+import { clearWorldMapSettings } from './worldMapSettings';
 
 describe('settings storage recovery', () => {
   beforeEach(() => {
@@ -25,5 +26,12 @@ describe('settings storage recovery', () => {
     expect(
       window.localStorage.getItem('realmfall-graphics-settings'),
     ).toBeNull();
+  });
+
+  it('treats malformed shared settings as empty when clearing world map', () => {
+    window.localStorage.setItem('settings', '{not-json');
+
+    expect(() => clearWorldMapSettings()).not.toThrow();
+    expect(window.localStorage.getItem('settings')).toBe('{not-json');
   });
 });
