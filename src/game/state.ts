@@ -1,6 +1,7 @@
 import { hexDistance, hexKey, type HexCoord } from './hex';
 import { t } from '../i18n';
 import {
+  formatAbilityLabel,
   formatEquipmentSlotLabel,
   formatSkillLabel,
   formatStatusEffectLabel,
@@ -28,7 +29,7 @@ import {
   pickHarvestMoonSpawnChance,
 } from './config';
 import { createRng } from './random';
-import { getAbilityDefinition } from './abilities';
+import { getAbilityDefinition } from './abilityRuntime';
 import { itemName } from './content/i18n';
 import { getEnemyConfig, isAnimalEnemyType } from './content/enemies';
 import {
@@ -940,7 +941,7 @@ function applyPlayerAbility(
           state,
           'combat',
           t('game.message.combat.playerAbilityHeal', {
-            ability: ability.name,
+            ability: formatAbilityLabel(ability.id),
             amount: healed,
           }),
         );
@@ -954,7 +955,7 @@ function applyPlayerAbility(
         state,
         'combat',
         t('game.message.combat.playerAbilityStatus', {
-          ability: ability.name,
+          ability: formatAbilityLabel(ability.id),
           effect: formatStatusEffectLabel(effect.statusEffectId),
         }),
       );
@@ -1181,7 +1182,7 @@ function dealPlayerDamageToEnemy(
         ? 'game.message.combat.playerKick'
         : 'game.message.combat.playerAbilityDamage',
       {
-        ability: getAbilityDefinition(abilityId).name,
+        ability: formatAbilityLabel(abilityId),
         enemy: enemy.name,
         damage: resolvedDamage,
       },
@@ -1919,12 +1920,12 @@ function applyEnemyAbility(
       addLog(
         state,
         'combat',
-        t(
-          abilityId === 'kick'
-            ? 'game.message.combat.enemyKick'
-            : 'game.message.combat.enemyAbilityDamage',
+          t(
+            abilityId === 'kick'
+              ? 'game.message.combat.enemyKick'
+              : 'game.message.combat.enemyAbilityDamage',
           {
-            ability: ability.name,
+            ability: formatAbilityLabel(ability.id),
             enemy: enemy.name,
             damage,
           },
@@ -1940,7 +1941,7 @@ function applyEnemyAbility(
           state,
           'combat',
           t('game.message.combat.enemyAbilityHeal', {
-            ability: ability.name,
+            ability: formatAbilityLabel(ability.id),
             enemy: enemy.name,
             amount: healed,
           }),
@@ -1955,7 +1956,7 @@ function applyEnemyAbility(
         state,
         'combat',
         t('game.message.combat.enemyAbilityStatus', {
-          ability: ability.name,
+          ability: formatAbilityLabel(ability.id),
           enemy: enemy.name,
           effect: formatStatusEffectLabel(effect.statusEffectId),
         }),

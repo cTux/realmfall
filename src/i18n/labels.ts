@@ -59,6 +59,10 @@ export function formatStatusEffectLabel(statusEffectName: string) {
   return t(`ui.statusEffect.${statusEffectName}.label`);
 }
 
+export function formatAbilityLabel(abilityId: string) {
+  return t(`game.ability.${abilityId}.name`);
+}
+
 export function formatSecondaryStatLabel(stat: SecondaryStatKey) {
   return t(`ui.secondaryStat.${stat}`);
 }

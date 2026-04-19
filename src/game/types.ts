@@ -186,11 +186,8 @@ export type AbilityEffectDefinition =
       targetOverride?: AbilityTarget;
     };
 
-export interface AbilityDefinition {
+export interface AbilityRuntimeDefinition {
   id: AbilityId;
-  name: string;
-  description: string;
-  icon: string;
   manaCost: number;
   cooldownMs: number;
   castTimeMs: number;
@@ -200,6 +197,12 @@ export interface AbilityDefinition {
   effects: AbilityEffectDefinition[];
   aiPriority?: number;
   tags?: GameTag[];
+}
+
+export interface AbilityDefinition extends AbilityRuntimeDefinition {
+  name: string;
+  description: string;
+  icon: string;
 }
 
 export interface CombatCastState {

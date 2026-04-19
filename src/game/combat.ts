@@ -2,7 +2,7 @@ import { BLOOD_MOON_STAT_SCALE, pickBloodMoonItemKind } from './config';
 import {
   buildEnemyAbilityIds,
   DEFAULT_ABILITY_ID,
-} from './abilities';
+} from './abilityRuntime';
 import { isAnimalEnemyType, pickEnemyConfig } from './content/enemies';
 import { GAME_TAGS, uniqueTags } from './content/tags';
 import type {

@@ -1,4 +1,4 @@
-import { buildEquippedAbilityIds } from './abilities';
+import { buildEquippedAbilityIds } from './abilityRuntime';
 import {
   GATHERING_BONUS_MAX,
   GATHERING_BONUS_PER_LEVEL,
