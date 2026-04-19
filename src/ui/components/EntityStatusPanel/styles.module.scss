@@ -85,6 +85,19 @@
   min-width: 0;
 }
 
+.titleBlockStacked {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.18rem;
+}
+
+.titleLine {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
 .primaryLabel {
   font-size: 0.68rem;
   font-weight: 700;

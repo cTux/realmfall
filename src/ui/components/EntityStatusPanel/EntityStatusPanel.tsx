@@ -30,6 +30,7 @@ interface EntityStatusPanelProps extends WindowDetailTooltipHandlers {
   className?: string;
   title: string;
   titleAccent?: { label: string; color: string };
+  titleAccentPlacement?: 'inline' | 'top';
   bars: [EntityStatusBar, ...EntityStatusBar[]];
   abilities: EntityStatusIcon[];
   buffs: EntityStatusIcon[];
@@ -40,6 +41,7 @@ export function EntityStatusPanel({
   className,
   title,
   titleAccent,
+  titleAccentPlacement = 'inline',
   bars,
   abilities,
   buffs,
@@ -67,6 +69,7 @@ export function EntityStatusPanel({
           primary
           title={title}
           titleAccent={titleAccent}
+          titleAccentPlacement={titleAccentPlacement}
           onHoverDetail={onHoverDetail}
           onLeaveDetail={onLeaveDetail}
         />
@@ -110,6 +113,7 @@ function StatusBar({
   primary = false,
   title,
   titleAccent,
+  titleAccentPlacement = 'inline',
   onHoverDetail,
   onLeaveDetail,
 }: WindowDetailTooltipHandlers & {
@@ -117,6 +121,7 @@ function StatusBar({
   primary?: boolean;
   title?: string;
   titleAccent?: { label: string; color: string };
+  titleAccentPlacement?: 'inline' | 'top';
 }) {
   const width = Math.max(0, Math.min(100, (bar.value / Math.max(1, bar.max)) * 100));
   const valueText = `${formatCompactNumber(bar.value)}/${formatCompactNumber(bar.max)}`;
@@ -142,9 +147,11 @@ function StatusBar({
       />
       {primary ? (
         <div className={styles.primaryContent}>
-          <div className={styles.titleBlock}>
-            <span className={styles.primaryLabel}>{bar.label}</span>
-            <strong className={styles.title}>{title}</strong>
+          <div
+            className={`${styles.titleBlock} ${
+              titleAccentPlacement === 'top' ? styles.titleBlockStacked : ''
+            }`}
+          >
             {titleAccent ? (
               <span
                 className={styles.titleAccent}
@@ -153,6 +160,10 @@ function StatusBar({
                 {titleAccent.label}
               </span>
             ) : null}
+            <div className={styles.titleLine}>
+              <span className={styles.primaryLabel}>{bar.label}</span>
+              <strong className={styles.title}>{title}</strong>
+            </div>
           </div>
           <strong className={styles.value}>{valueText}</strong>
         </div>
