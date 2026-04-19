@@ -37,12 +37,15 @@ describe('App hover behavior', () => {
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
 
     const stateModule = await import('../../../game/state');
-    const tooltipModule = await import('../../../ui/tooltips');
+    const tooltipModule = await import('../../../ui/world/worldTooltips');
     const getEnemiesAtSpy = vi.spyOn(stateModule, 'getEnemiesAt');
     const getSafePathToTileSpy = vi.spyOn(stateModule, 'getSafePathToTile');
     const hexAtPointSpy = vi.spyOn(stateModule, 'hexAtPoint');
-    const enemyTooltipSpy = vi.spyOn(tooltipModule, 'enemyTooltip');
-    const structureTooltipSpy = vi.spyOn(tooltipModule, 'structureTooltip');
+    const enemyTooltipSpy = vi.spyOn(tooltipModule, 'enemyWorldTooltip');
+    const structureTooltipSpy = vi.spyOn(
+      tooltipModule,
+      'structureWorldTooltip',
+    );
 
     const { host, root } = await renderApp();
     await flushLazyModules();
@@ -171,11 +174,11 @@ describe('App hover behavior', () => {
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
 
     const stateModule = await import('../../../game/state');
-    const tooltipModule = await import('../../../ui/tooltips');
+    const tooltipModule = await import('../../../ui/world/worldTooltips');
     const getEnemiesAtSpy = vi.spyOn(stateModule, 'getEnemiesAt');
     const getSafePathToTileSpy = vi.spyOn(stateModule, 'getSafePathToTile');
     const hexAtPointSpy = vi.spyOn(stateModule, 'hexAtPoint');
-    const enemyTooltipSpy = vi.spyOn(tooltipModule, 'enemyTooltip');
+    const enemyTooltipSpy = vi.spyOn(tooltipModule, 'enemyWorldTooltip');
 
     const { host, root } = await renderApp();
     await flushLazyModules();

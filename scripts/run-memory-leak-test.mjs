@@ -21,6 +21,29 @@ export const MEMORY_LEAK_SCENARIO_PATH = resolve(
 
 const pnpmBin = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 
+function parseCliArgs(argv) {
+  const parsedArgs = {};
+
+  for (let index = 0; index < argv.length; index += 1) {
+    const arg = argv[index];
+    if (!arg.startsWith('--')) {
+      continue;
+    }
+
+    const key = arg.slice(2);
+    const value = argv[index + 1];
+    if (!value || value.startsWith('--')) {
+      parsedArgs[key] = 'true';
+      continue;
+    }
+
+    parsedArgs[key] = value;
+    index += 1;
+  }
+
+  return parsedArgs;
+}
+
 export function createFuiteArgs(
   url = MEMORY_LEAK_URL,
   outputPath = MEMORY_LEAK_OUTPUT_PATH,
@@ -87,19 +110,28 @@ export async function waitForServer(
 }
 
 async function main() {
-  mkdirSync(dirname(MEMORY_LEAK_OUTPUT_PATH), { recursive: true });
-  await waitForServer();
+  const cliArgs = parseCliArgs(process.argv.slice(2));
+  const memoryLeakUrl = cliArgs.url ?? MEMORY_LEAK_URL;
+  const memoryLeakHealthcheckUrl =
+    cliArgs['healthcheck-url'] ??
+    `${memoryLeakUrl.replace(/\/$/, '')}/version.json`;
+  const memoryLeakOutputPath = resolve(
+    cliArgs.output ?? MEMORY_LEAK_OUTPUT_PATH,
+  );
+
+  mkdirSync(dirname(memoryLeakOutputPath), { recursive: true });
+  await waitForServer(memoryLeakHealthcheckUrl);
 
   const fuite =
     process.platform === 'win32'
       ? spawn(
           process.env.ComSpec ?? 'cmd.exe',
-          ['/d', '/s', '/c', pnpmBin, ...createFuiteArgs()],
+          ['/d', '/s', '/c', pnpmBin, ...createFuiteArgs(memoryLeakUrl, memoryLeakOutputPath)],
           {
             stdio: 'inherit',
           },
         )
-      : spawn(pnpmBin, createFuiteArgs(), {
+      : spawn(pnpmBin, createFuiteArgs(memoryLeakUrl, memoryLeakOutputPath), {
           stdio: 'inherit',
         });
 

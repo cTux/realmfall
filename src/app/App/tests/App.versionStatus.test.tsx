@@ -6,6 +6,8 @@ import {
 } from './appTestHarness';
 import { VERSION_POLL_INTERVAL_MS } from '../hooks/useVersionStatus';
 
+const EXPECTS_BACKGROUND_POLLING = !import.meta.env.DEV;
+
 function createVersionResponse(version: string) {
   return {
     ok: true,
@@ -72,12 +74,20 @@ describe('App version status', () => {
     });
     await flushLazyModules();
 
-    const widget = host.querySelector('[data-version-status="outdated"]');
+    if (EXPECTS_BACKGROUND_POLLING) {
+      const widget = host.querySelector('[data-version-status="outdated"]');
 
-    expect(widget).not.toBeNull();
-    expect(host.textContent).toContain('Remote: 0.2.0');
-    expect(host.textContent).toContain('Refresh');
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(widget).not.toBeNull();
+      expect(host.textContent).toContain('Remote: 0.2.0');
+      expect(host.textContent).toContain('Refresh');
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    } else {
+      expect(
+        host.querySelector('[data-version-status="fetching"]'),
+      ).not.toBeNull();
+      expect(host.textContent).toContain('Remote: checking...');
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    }
 
     await act(async () => {
       root.unmount();
@@ -113,7 +123,9 @@ describe('App version status', () => {
       host.querySelector('[data-version-status="current"]'),
     ).not.toBeNull();
     expect(host.textContent).toContain(`Remote: ${__APP_VERSION__}`);
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(
+      EXPECTS_BACKGROUND_POLLING ? 2 : 1,
+    );
 
     await act(async () => {
       root.unmount();
@@ -156,11 +168,21 @@ describe('App version status', () => {
     });
     await flushLazyModules();
 
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(
-      host.querySelector('[data-version-status="outdated"]'),
-    ).not.toBeNull();
-    expect(host.textContent).toContain('Remote: 0.2.0');
+    expect(fetchMock).toHaveBeenCalledTimes(
+      EXPECTS_BACKGROUND_POLLING ? 2 : 1,
+    );
+
+    if (EXPECTS_BACKGROUND_POLLING) {
+      expect(
+        host.querySelector('[data-version-status="outdated"]'),
+      ).not.toBeNull();
+      expect(host.textContent).toContain('Remote: 0.2.0');
+    } else {
+      expect(
+        host.querySelector('[data-version-status="current"]'),
+      ).not.toBeNull();
+      expect(host.textContent).toContain(`Remote: ${__APP_VERSION__}`);
+    }
 
     await act(async () => {
       root.unmount();

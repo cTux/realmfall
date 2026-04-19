@@ -11,8 +11,11 @@ import * as stateModule from '../../game/state';
 import type { GameState } from '../../game/state';
 import { syncFollowCursorTooltipPosition } from '../../ui/components/GameTooltip/followCursorSync';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
-import * as tooltipModule from '../../ui/tooltips';
 import { getWorldHexSize } from '../../ui/world/renderSceneMath';
+import {
+  enemyWorldTooltip,
+  structureWorldTooltip,
+} from '../../ui/world/worldTooltips';
 import {
   applyWorldMapCameraToContainer,
   DEFAULT_WORLD_MAP_CAMERA,
@@ -22,8 +25,6 @@ import {
 import { getWorldTimeMinutesFromTimestamp } from '../../ui/world/timeOfDay';
 import {
   ensureWorldIconTexturesLoaded,
-  getWorldIconAssetIds,
-  getVisibleWorldIconAssetIds,
 } from '../../ui/world/worldIcons';
 import { getSceneCache } from '../../ui/world/renderSceneCache';
 import { WORLD_REVEAL_RADIUS } from '../constants';
@@ -160,10 +161,7 @@ export function usePixiWorld({
       }
 
       const app = new pixiModule.Application();
-      await ensureWorldIconTexturesLoaded(
-        getVisibleWorldIconAssetIds(gameRef.current, visibleTilesRef.current),
-      );
-      await ensureWorldIconTexturesLoaded(getWorldIconAssetIds());
+      await ensureWorldIconTexturesLoaded();
       await app.init({
         width: Math.max(window.innerWidth, 640),
         height: Math.max(window.innerHeight, 480),
@@ -495,7 +493,7 @@ export function usePixiWorld({
           nextHoveredPath = safePath && safePath.length > 1 ? safePath : null;
 
           const enemies = stateModule.getEnemiesAt(current, target);
-          const enemyInfo = tooltipModule.enemyTooltip(enemies, tile.structure);
+          const enemyInfo = enemyWorldTooltip(enemies, tile.structure);
 
           if (enemyInfo) {
             nextTooltipKey = `enemy:${target.q},${target.r}:${tile.structure ?? 'none'}`;
@@ -509,7 +507,7 @@ export function usePixiWorld({
               followCursor: true,
             };
           } else {
-            const structureInfo = tooltipModule.structureTooltip(tile);
+            const structureInfo = structureWorldTooltip(tile);
             if (!structureInfo) {
               const nextHoverSnapshot = {
                 target,

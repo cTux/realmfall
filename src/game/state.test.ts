@@ -1265,7 +1265,18 @@ describe('game state', () => {
     );
     expect(statusLog?.richText).toEqual([
       { kind: 'text', text: 'You apply ' },
-      { kind: 'text', text: 'Weakened' },
+      {
+        kind: 'source',
+        text: 'Weakened',
+        source: {
+          kind: 'statusEffect',
+          effectId: 'weakened',
+          tone: undefined,
+          value: undefined,
+          tickIntervalMs: undefined,
+          stacks: undefined,
+        },
+      },
       { kind: 'text', text: ' with ' },
       {
         kind: 'source',

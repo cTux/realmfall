@@ -1,5 +1,5 @@
 import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { getAbilityDefinition } from '../../../game/abilities';
 import { getStatusEffectDefinition } from '../../../game/content/statusEffects';
 import type { LogEntry, LogRichSegment } from '../../../game/types';
@@ -23,6 +23,12 @@ type LogWindowContentProps = Pick<
   'logs' | 'onHoverDetail' | 'onLeaveDetail'
 >;
 
+type ParsedLogEntry = {
+  entry: LogEntry;
+  message: string;
+  timestampMs: number | null;
+};
+
 function splitLogEntry(text: string) {
   const match = text.match(LOG_PREFIX_PATTERN);
   const fullTimestamp = match?.[1] ?? null;
@@ -45,20 +51,20 @@ function logMessageText(entry: LogEntry) {
   return entry.richText.map((segment) => segment.text).join('');
 }
 
-function AnimatedLogLine({
-  entry,
+const AnimatedLogLine = memo(function AnimatedLogLine({
+  parsedEntry,
   timestampMs,
   visibleCount,
   onHoverDetail,
   onLeaveDetail,
 }: {
-  entry: LogEntry;
+  parsedEntry: ParsedLogEntry;
   timestampMs: number | null;
   visibleCount: number;
   onHoverDetail?: LogWindowProps['onHoverDetail'];
   onLeaveDetail?: LogWindowProps['onLeaveDetail'];
 }) {
-  const message = logMessageText(entry);
+  const { entry, message } = parsedEntry;
   const isComplete = visibleCount >= message.length;
   const cursor = MATRIX_GLYPHS[visibleCount % MATRIX_GLYPHS.length];
 
@@ -90,19 +96,68 @@ function AnimatedLogLine({
       )}
     </span>
   );
-}
+});
+
+const StaticLogLine = memo(function StaticLogLine({
+  parsedEntry,
+  onHoverDetail,
+  onLeaveDetail,
+}: {
+  parsedEntry: ParsedLogEntry;
+  onHoverDetail?: LogWindowProps['onHoverDetail'];
+  onLeaveDetail?: LogWindowProps['onLeaveDetail'];
+}) {
+  const { entry, message, timestampMs } = parsedEntry;
+
+  return (
+    <span className={styles.logText}>
+      {timestampMs != null ? (
+        <>
+          <CalendarTimestamp
+            timestampMs={timestampMs}
+            display="time"
+            className={styles.logTimestamp}
+            onHoverDetail={onHoverDetail}
+            onLeaveDetail={onLeaveDetail}
+          />{' '}
+        </>
+      ) : null}
+      {entry.richText && entry.richText.length > 0
+        ? renderRichText(
+            entry.richText,
+            Number.POSITIVE_INFINITY,
+            onHoverDetail,
+            onLeaveDetail,
+          )
+        : message}
+    </span>
+  );
+});
 
 export function LogWindowContent({
   logs,
   onHoverDetail,
   onLeaveDetail,
 }: LogWindowContentProps) {
-  const orderedLogs = [...logs].reverse();
+  const parsedEntries = useMemo<ParsedLogEntry[]>(
+    () =>
+      [...logs]
+        .reverse()
+        .map((entry) => {
+          const { timestampMs, message } = splitLogEntry(entry.text);
+
+          return {
+            entry,
+            message: entry.richText?.length ? logMessageText(entry) : message,
+            timestampMs,
+          };
+        }),
+    [logs],
+  );
   const logListRef = useRef<HTMLDivElement | null>(null);
-  const newestLogId = orderedLogs[orderedLogs.length - 1]?.id;
-  const newestMessage = newestLogId
-    ? logMessageText(orderedLogs[orderedLogs.length - 1]!)
-    : '';
+  const newestEntry = parsedEntries[parsedEntries.length - 1] ?? null;
+  const newestLogId = newestEntry?.entry.id;
+  const newestMessage = newestEntry?.message ?? '';
   const [visibleCount, setVisibleCount] = useState(0);
 
   useEffect(() => {
@@ -136,25 +191,29 @@ export function LogWindowContent({
 
   return (
     <div ref={logListRef} className={styles.logList}>
-      {orderedLogs.map((entry) => {
-        const { timestampMs } = splitLogEntry(entry.text);
-
+      {parsedEntries.map((parsedEntry) => {
+        const { entry, timestampMs } = parsedEntry;
+        const isNewest = entry.id === newestLogId;
         return (
           <div
             key={entry.id}
             className={`${styles.logEntry} ${styles[entry.kind] ?? ''} ${BLOOD_MOON_PATTERN.test(entry.text) ? styles.bloodMoon : ''} ${HARVEST_MOON_PATTERN.test(entry.text) ? styles.harvestMoon : ''}`.trim()}
           >
-            <AnimatedLogLine
-              entry={entry}
-              timestampMs={timestampMs}
-              visibleCount={
-                entry.id === newestLogId
-                  ? visibleCount
-                  : Number.POSITIVE_INFINITY
-              }
-              onHoverDetail={onHoverDetail}
-              onLeaveDetail={onLeaveDetail}
-            />
+            {isNewest ? (
+              <AnimatedLogLine
+                parsedEntry={parsedEntry}
+                timestampMs={timestampMs}
+                visibleCount={visibleCount}
+                onHoverDetail={onHoverDetail}
+                onLeaveDetail={onLeaveDetail}
+              />
+            ) : (
+              <StaticLogLine
+                parsedEntry={parsedEntry}
+                onHoverDetail={onHoverDetail}
+                onLeaveDetail={onLeaveDetail}
+              />
+            )}
           </div>
         );
       })}
