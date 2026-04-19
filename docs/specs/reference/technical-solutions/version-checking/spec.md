@@ -6,7 +6,7 @@ This spec covers the shipped version metadata flow from `package.json` into the 
 
 ## Current Solution
 
-- `package.json` is the canonical version source and now tracks the current release as `0.1.0`.
+- `package.json` is the canonical version source for the current release number.
 - Vite defines the package version as the runtime constant `__APP_VERSION__`, and app bootstrap publishes that value on the global `version` variable.
 - The Vite config serves `/version.json` during local development and emits `dist/version.json` during production builds with the shape `{ "version": "<package version>" }`.
 - `pnpm serve` runs the built `dist` output behind local HTTPS using a generated self-signed localhost certificate so release-like checks exercise the secure origin path.

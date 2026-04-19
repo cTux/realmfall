@@ -2,16 +2,19 @@
 
 ## Scope
 
-This spec covers the desktop-style game settings window, its dock and hotkey access, and the current renderer/save-data actions exposed there.
+This spec covers the desktop-style game settings window, its dock and hotkey access, the persisted graphics and UI-audio controls exposed there, and the current save-data reset flow.
 
 ## Current Behavior
 
 - A dedicated game settings window can be toggled from the left dock and with the `M` hotkey.
 - The settings dock button is pinned to the bottom of the left dock instead of the main top-aligned button stack.
 - Opening the settings window shows a fullscreen black translucent underlay behind the window chrome so it behaves like a modal surface over the viewport.
-- The current settings content uses a reusable tab strip and currently exposes a `Graphics` tab.
-- The graphic settings tab uses reusable switch controls to edit persisted Pixi renderer initialization flags.
-- Settings are stored in a dedicated plain `localStorage` `settings` payload outside the encrypted save payload so startup can read renderer-init flags before game and renderer initialization begins, and the same payload can expand to future settings tabs.
+- The current settings content uses a reusable vertical tab strip and currently exposes `Graphics` and `Audio` tabs.
+- The graphics tab uses reusable switch controls to edit persisted Pixi renderer initialization flags.
+- The audio tab stores UI-audio preferences for mute state, reduced-motion muting, individual synthesized sound-effect toggles, master volume, and the current Tiks theme selection.
+- UI audio waits for a user activation before initializing the audio engine, then applies the saved audio settings to document-wide hover, click, toggle, range, tab, and window interaction sounds.
+- Settings are stored in a dedicated plain `localStorage` `settings` payload outside the encrypted save payload so startup can read renderer-init flags before game and renderer initialization begins, while the same shared payload also carries audio and world-map settings.
+- Graphics settings continue to migrate forward from the legacy `realmfall-graphics-settings` key into the shared `settings` payload on load.
 - `Save` persists the current settings immediately without reloading.
 - `Save & Reload` persists the current settings immediately and then reloads the page so renderer-init changes apply to the live world canvas.
 - `Reset Save Data` requires a continuous five-second press-and-hold interaction with a filling progress state before it clears persisted save and UI data and reloads the page.
@@ -23,13 +26,18 @@ This spec covers the desktop-style game settings window, its dock and hotkey acc
 - Toggle the settings window from both the dock button and the `M` hotkey and confirm persisted visibility still autosaves like other UI-only window state.
 - Change one or more renderer flags, use `Save`, reload manually, and confirm the saved flags hydrate back into Pixi initialization.
 - Change one or more renderer flags, use `Save & Reload`, and confirm the page reloads and the new flags apply immediately after hydration.
+- Change audio toggles, volume, and theme, use `Save`, and confirm the document-level UI sounds respect the persisted choices after the next user activation.
 - Hold `Reset Save Data` for less than five seconds and confirm nothing is deleted, then hold for at least five seconds and confirm saved game and UI state are cleared before reload.
 - Run renderer-focused verification on the world map path after changing settings-related code: confirm normal hover interaction still avoids avoidable redraw churn, confirm the world ticker still owns the redraw loop, and confirm startup chunk growth stays within the existing `pnpm build:budget` envelope.
 
 ## Main Implementation Areas
 
 - `src/app/App`
+- `src/app/audio`
+- `src/app/audioSettings.ts`
 - `src/app/graphicsSettings.ts`
+- `src/app/settingsStorage.ts`
+- `src/app/worldMapSettings.ts`
 - `src/persistence/storage.ts`
 - `src/ui/components/GameSettingsWindow`
 - `src/ui/components/Tabs`
