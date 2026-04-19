@@ -358,6 +358,12 @@ export function usePixiWorld({
       };
 
       const onWheel = (event: WheelEvent) => {
+        const absoluteDeltaX = Math.abs(event.deltaX);
+        const absoluteDeltaY = Math.abs(event.deltaY);
+        if (absoluteDeltaY === 0 || absoluteDeltaX > absoluteDeltaY) {
+          return;
+        }
+
         event.preventDefault();
         const rect = canvas.getBoundingClientRect();
         const nextCamera = zoomWorldMapCameraAtPoint(
