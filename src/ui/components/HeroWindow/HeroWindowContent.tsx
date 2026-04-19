@@ -44,11 +44,11 @@ export function HeroWindowContent({
         onLeaveDetail={onLeaveDetail}
       />
       <StatBar
-        label={t('ui.hero.aether')}
+        label={t('ui.hero.mana')}
         value={stats.mana}
         max={stats.maxMana}
         color="mana"
-        description={t('ui.tooltip.bar.heroAether')}
+        description={t('ui.tooltip.bar.heroMana')}
         onHoverDetail={onHoverDetail}
         onLeaveDetail={onLeaveDetail}
       />
@@ -408,3 +408,4 @@ function AbilitySquare({
     </div>
   );
 }
+

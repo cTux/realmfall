@@ -250,7 +250,7 @@ function normalizeItem(item: Item): Item {
   const configured = getItemConfig(canonicalItem);
   const normalizedName =
     configured?.name ??
-    (canonicalItem.name === 'Arcane Dust' ? 'Aether Dust' : canonicalItem.name);
+    (canonicalItem.name === 'Arcane Dust' ? 'Mana Dust' : canonicalItem.name);
   return {
     ...canonicalItem,
     itemKey: configured?.key ?? canonicalItem.itemKey,
@@ -454,3 +454,4 @@ function isLegacyRecipeBookItem(item: Item) {
     (item.tags ?? []).includes(GAME_TAGS.item.recipeBook)
   );
 }
+

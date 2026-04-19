@@ -128,12 +128,12 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-ashen-charm',
     name: 'Ashen Charm',
     description:
-      "Ashen a traveler's charm threaded to steady the heart near Aether.",
+      "Ashen a traveler's charm threaded to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ashen-charm', { id: 'crafted-ashen-charm' }),
     ingredients: [
       { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
   },
@@ -146,7 +146,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     output: buildItemFromConfig('ashen-cloak', { id: 'crafted-ashen-cloak' }),
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 3 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 1 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 1 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 1 },
     ],
   },
@@ -272,12 +272,12 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-rift-charm',
     name: 'Rift Charm',
     description:
-      "Rift a traveler's charm threaded to steady the heart near Aether.",
+      "Rift a traveler's charm threaded to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('rift-charm', { id: 'crafted-rift-charm' }),
     ingredients: [
       { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
   },
@@ -290,7 +290,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     output: buildItemFromConfig('rift-cloak', { id: 'crafted-rift-cloak' }),
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 3 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 1 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 1 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 1 },
     ],
   },
@@ -420,12 +420,12 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-shard-charm',
     name: 'Shard Charm',
     description:
-      "Shard a traveler's charm threaded to steady the heart near Aether.",
+      "Shard a traveler's charm threaded to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('shard-charm', { id: 'crafted-shard-charm' }),
     ingredients: [
       { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
   },
@@ -438,7 +438,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     output: buildItemFromConfig('shard-cloak', { id: 'crafted-shard-cloak' }),
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 3 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 1 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 1 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 1 },
     ],
   },
@@ -564,12 +564,12 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-vale-charm',
     name: 'Vale Charm',
     description:
-      "Vale a traveler's charm threaded to steady the heart near Aether.",
+      "Vale a traveler's charm threaded to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('vale-charm', { id: 'crafted-vale-charm' }),
     ingredients: [
       { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
   },
@@ -582,7 +582,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     output: buildItemFromConfig('vale-cloak', { id: 'crafted-vale-cloak' }),
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 3 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 1 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 1 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 1 },
     ],
   },
@@ -732,14 +732,14 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-ironbound-charm',
     name: 'Ironbound Charm',
     description:
-      "Ironbound a traveler's charm threaded to steady the heart near Aether.",
+      "Ironbound a traveler's charm threaded to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ironbound-charm', {
       id: 'crafted-ironbound-charm',
     }),
     ingredients: [
       { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
   },
@@ -754,7 +754,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     }),
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 3 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 1 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 1 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 1 },
     ],
   },
@@ -884,12 +884,12 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-storm-charm',
     name: 'Storm Charm',
     description:
-      "Storm a traveler's charm threaded to steady the heart near Aether.",
+      "Storm a traveler's charm threaded to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('storm-charm', { id: 'crafted-storm-charm' }),
     ingredients: [
       { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
   },
@@ -902,7 +902,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     output: buildItemFromConfig('storm-cloak', { id: 'crafted-storm-cloak' }),
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 3 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 1 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 1 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 1 },
     ],
   },
@@ -1032,12 +1032,12 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-ember-charm',
     name: 'Ember Charm',
     description:
-      "Ember a traveler's charm threaded to steady the heart near Aether.",
+      "Ember a traveler's charm threaded to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ember-charm', { id: 'crafted-ember-charm' }),
     ingredients: [
       { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
   },
@@ -1050,7 +1050,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     output: buildItemFromConfig('ember-cloak', { id: 'crafted-ember-cloak' }),
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 3 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 1 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 1 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 1 },
     ],
   },
@@ -1185,12 +1185,12 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-hollow-charm',
     name: 'Hollow Charm',
     description:
-      "Hollow a traveler's charm threaded to steady the heart near Aether.",
+      "Hollow a traveler's charm threaded to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('hollow-charm', { id: 'crafted-hollow-charm' }),
     ingredients: [
       { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
   },
@@ -1203,7 +1203,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     output: buildItemFromConfig('hollow-cloak', { id: 'crafted-hollow-cloak' }),
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 3 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 1 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 1 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 1 },
     ],
   },
@@ -1338,12 +1338,12 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-warden-charm',
     name: 'Warden Charm',
     description:
-      "Warden a traveler's charm threaded to steady the heart near Aether.",
+      "Warden a traveler's charm threaded to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('warden-charm', { id: 'crafted-warden-charm' }),
     ingredients: [
       { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
   },
@@ -1356,7 +1356,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     output: buildItemFromConfig('warden-cloak', { id: 'crafted-warden-cloak' }),
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 3 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 1 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 1 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 1 },
     ],
   },
@@ -1482,12 +1482,12 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-void-charm',
     name: 'Void Charm',
     description:
-      "Void a traveler's charm threaded to steady the heart near Aether.",
+      "Void a traveler's charm threaded to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('void-charm', { id: 'crafted-void-charm' }),
     ingredients: [
       { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
   },
@@ -1500,7 +1500,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     output: buildItemFromConfig('void-cloak', { id: 'crafted-void-cloak' }),
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 3 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 1 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 1 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 1 },
     ],
   },
@@ -1626,12 +1626,12 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-dawn-charm',
     name: 'Dawn Charm',
     description:
-      "Dawn a traveler's charm threaded to steady the heart near Aether.",
+      "Dawn a traveler's charm threaded to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dawn-charm', { id: 'crafted-dawn-charm' }),
     ingredients: [
       { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
   },
@@ -1644,7 +1644,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     output: buildItemFromConfig('dawn-cloak', { id: 'crafted-dawn-cloak' }),
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 3 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 1 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 1 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 1 },
     ],
   },
@@ -1770,12 +1770,12 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-dusk-charm',
     name: 'Dusk Charm',
     description:
-      "Dusk a traveler's charm threaded to steady the heart near Aether.",
+      "Dusk a traveler's charm threaded to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dusk-charm', { id: 'crafted-dusk-charm' }),
     ingredients: [
       { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
   },
@@ -1788,7 +1788,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     output: buildItemFromConfig('dusk-cloak', { id: 'crafted-dusk-cloak' }),
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 3 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 1 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 1 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 1 },
     ],
   },
@@ -1914,12 +1914,12 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-moss-charm',
     name: 'Moss Charm',
     description:
-      "Moss a traveler's charm threaded to steady the heart near Aether.",
+      "Moss a traveler's charm threaded to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('moss-charm', { id: 'crafted-moss-charm' }),
     ingredients: [
       { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 1 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 2 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 2 },
       { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
     ],
   },
@@ -1932,8 +1932,9 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     output: buildItemFromConfig('moss-cloak', { id: 'crafted-moss-cloak' }),
     ingredients: [
       { itemKey: 'cloth', name: 'Cloth', quantity: 3 },
-      { itemKey: 'arcane-dust', name: 'Aether Dust', quantity: 1 },
+      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 1 },
       { itemKey: 'leather-scraps', name: 'Leather Scraps', quantity: 1 },
     ],
   },
 ];
+

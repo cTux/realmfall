@@ -663,7 +663,7 @@ describe('ui helpers and components', () => {
     });
     expect(statusEffectTooltipLines('shocked', 'debuff')[0]).toEqual({
       kind: 'text',
-      text: 'Shocked lowers defense while crackling aether hangs on you.',
+      text: 'Shocked lowers defense while crackling mana hangs on you.',
     });
   });
 
@@ -1439,7 +1439,7 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('Defense');
     expect(markup).toContain(')kills');
     expect(markup).toContain('logging');
-    expect(markup).toContain('Lv 1 · 0/8');
+    expect(markup).toContain('Lv 1 Â· 0/8');
     expect(markup).not.toContain(
       'gathering level equals the percent chance to pull +1 extra resource',
     );
@@ -1620,7 +1620,7 @@ describe('ui helpers and components', () => {
 
     expect(markup).toContain('1.1k/1.1k');
     expect(markup).toContain('HP');
-    expect(markup).toContain('Aether');
+    expect(markup).toContain('Mana');
     expect(markup).toContain('XP');
     expect(markup).toContain('Hunger');
   });
@@ -2703,3 +2703,4 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('background-color:rgba(96, 165, 250, 0.28)');
   });
 });
+

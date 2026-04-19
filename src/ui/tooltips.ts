@@ -362,7 +362,7 @@ export function abilityTooltipLines(
     ...(damageLine ? [damageLine] : []),
     {
       kind: 'stat',
-      label: t('ui.ability.aetherCost'),
+      label: t('ui.ability.manaCost'),
       value: `${ability.manaCost}`,
     },
     {
@@ -688,3 +688,4 @@ function formatStatusIntervalSeconds(tickIntervalMs = 1_000) {
   const seconds = tickIntervalMs / 1000;
   return Number.isInteger(seconds) ? `${seconds}` : seconds.toFixed(1);
 }
+

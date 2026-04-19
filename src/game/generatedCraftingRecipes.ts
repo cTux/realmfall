@@ -15,7 +15,7 @@ function buildGeneratedRecipeIngredients(itemKey: string) {
   if (itemKey.startsWith('icon-wand-')) {
     return [
       buildRequirement('tin-ingot', 'Tin Ingot', 2),
-      buildRequirement('arcane-dust', 'Aether Dust', 2),
+      buildRequirement('arcane-dust', 'Mana Dust', 2),
       buildRequirement('sticks', 'Sticks', 1),
     ];
   }
@@ -23,7 +23,7 @@ function buildGeneratedRecipeIngredients(itemKey: string) {
     return [
       buildRequirement('gold-ingot', 'Gold Ingot', 2),
       buildRequirement('platinum-ingot', 'Platinum Ingot', 1),
-      buildRequirement('arcane-dust', 'Aether Dust', 3),
+      buildRequirement('arcane-dust', 'Mana Dust', 3),
     ];
   }
   if (itemKey.startsWith('icon-shield-')) {
@@ -36,14 +36,14 @@ function buildGeneratedRecipeIngredients(itemKey: string) {
   if (itemKey.startsWith('icon-ring-')) {
     return [
       buildRequirement('gold-ingot', 'Gold Ingot', 1),
-      buildRequirement('arcane-dust', 'Aether Dust', 2),
+      buildRequirement('arcane-dust', 'Mana Dust', 2),
     ];
   }
   if (itemKey.startsWith('icon-necklace-')) {
     return [
       buildRequirement('gold-ingot', 'Gold Ingot', 1),
       buildRequirement('platinum-ingot', 'Platinum Ingot', 1),
-      buildRequirement('arcane-dust', 'Aether Dust', 2),
+      buildRequirement('arcane-dust', 'Mana Dust', 2),
     ];
   }
   if (
@@ -120,3 +120,4 @@ export const GENERATED_CRAFTING_RECIPES: RecipeDefinition[] =
 export const GENERATED_CRAFTING_RECIPE_IDS = Object.freeze(
   GENERATED_CRAFTING_RECIPES.map((recipe) => recipe.id),
 );
+

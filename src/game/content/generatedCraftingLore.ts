@@ -24,7 +24,7 @@ const LORE_NAMES = {
     'Shardwarden Hauberk',
     'Ashen Vale Brigandine',
   ],
-  'icon-bracers': ['Ruinbind Bracers', 'Aether Vein Cuffs'],
+  'icon-bracers': ['Ruinbind Bracers', 'Mana Vein Cuffs'],
   'icon-gloves': ['Forgewake Grips', 'Shardhide Gloves', 'Voidtrail Gauntlets'],
   'icon-belt': ['Riftbinder Belt', 'Stormlass Girdle', 'Valehook Sash'],
   'icon-leggings': [
@@ -46,7 +46,7 @@ const LORE_NAMES = {
     'Voidglass Boots',
     'Ironroot Marchers',
     'Warden Road Sabatons',
-    'Aetherwake Boots',
+    'Manawake Boots',
   ],
   'icon-cloak': ['Skytear Cloak', 'Valeveil Mantle', 'Voidshroud Cape'],
   'icon-axe': [
@@ -161,9 +161,9 @@ const DESCRIPTION_BY_PREFIX: Record<LorePrefix, string> = {
   'icon-dagger':
     'Grind a narrow blade suited to close work on dark roads and ruined halls.',
   'icon-wand':
-    'Bind an Aether wand after the humming instruments of the lost Arken.',
+    'Bind an Mana wand after the humming instruments of the lost Arken.',
   'icon-magical-sphere':
-    'Set a focused orb around refined metal and captive Aether light.',
+    'Set a focused orb around refined metal and captive Mana light.',
   'icon-shield':
     'Build a shield fit to anchor the line when hollows and shardbeasts press in.',
   'icon-two-handed-sword':
@@ -173,7 +173,7 @@ const DESCRIPTION_BY_PREFIX: Record<LorePrefix, string> = {
   'icon-two-handed-mace':
     'Finish a ruin-breaking maul forged for siege work and construct hunting.',
   'icon-ring':
-    'Set a ring that carries a measured pulse of Aether through worked metal.',
+    'Set a ring that carries a measured pulse of Mana through worked metal.',
   'icon-necklace':
     'Thread a relic necklace that steadies the heart against the Fracture.',
 };
@@ -200,3 +200,4 @@ const LORE_BY_KEY = buildLoreIndex();
 export function getGeneratedCraftingLore(key: string) {
   return LORE_BY_KEY[key];
 }
+
