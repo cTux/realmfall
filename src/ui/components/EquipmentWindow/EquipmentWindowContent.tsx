@@ -32,6 +32,12 @@ const PAPER_DOLL_SLOTS: PaperDollSlot[] = [
   EquipmentSlotId.Cloak,
 ];
 
+const REDUCED_RADIUS_SLOTS = new Set<PaperDollSlot>([
+  EquipmentSlotId.Amulet,
+  EquipmentSlotId.RingLeft,
+  EquipmentSlotId.RingRight,
+]);
+
 export function EquipmentWindowContent({
   equipment,
   onHoverItem,
@@ -52,6 +58,7 @@ export function EquipmentWindowContent({
         const equipped = equipment[slot];
         const position = SLOT_POSITIONS[slot];
         const compactSlot = COMPACT_SLOTS.has(slot);
+        const reducedRadiusSlot = REDUCED_RADIUS_SLOTS.has(slot);
         const slotSize = compactSlot ? 19 : 38;
         const disabled = slot === 'offhand' && offhandDisabled;
         return (
@@ -99,6 +106,7 @@ export function EquipmentWindowContent({
                 width: `${slotSize}px`,
                 height: `${slotSize}px`,
                 padding: compactSlot ? '0.06rem' : '0.12rem',
+                borderRadius: reducedRadiusSlot ? '0 8px' : undefined,
               } as CSSProperties
             }
           />
