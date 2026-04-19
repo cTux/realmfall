@@ -122,6 +122,21 @@ describe('main bootstrap', () => {
     expect(JSON.stringify(firstRender)).not.toContain('Loading Realmfall');
   });
 
+  it('prevents the native browser context menu globally', async () => {
+    document.body.innerHTML = '<div id="root"></div>';
+
+    await import('./main');
+
+    const event = new MouseEvent('contextmenu', {
+      bubbles: true,
+      cancelable: true,
+    });
+
+    document.dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(true);
+  });
+
   it('reports root-level render errors through the configured handler', async () => {
     document.body.innerHTML = '<div id="root"></div>';
 
