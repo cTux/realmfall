@@ -947,7 +947,7 @@ function applyPlayerAbility(
       continue;
     }
 
-    const applied = applyPlayerStatusTargets(state, ability, effect);
+    const applied = applyPlayerStatusTargets(state, ability, effect, targetId);
     if (applied > 0) {
       addLog(
         state,
@@ -1220,9 +1220,10 @@ function applyPlayerStatusTargets(
   state: GameState,
   ability: ReturnType<typeof getAbilityDefinition>,
   effect: Extract<ReturnType<typeof getAbilityDefinition>['effects'][number], { kind: 'applyStatus' }>,
+  targetId: string,
 ) {
   if (ability.target === 'allEnemies' || ability.target === 'enemy' || ability.target === 'randomEnemy') {
-    return resolveEnemyTargetsForPlayerAbility(state, ability, selectEnemyGroupTarget(state) ?? '').reduce(
+    return resolveEnemyTargetsForPlayerAbility(state, ability, targetId).reduce(
       (count, enemy) =>
         count +
         (applyStatusEffectToEnemy(state, enemy, {

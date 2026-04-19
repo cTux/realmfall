@@ -1119,6 +1119,75 @@ describe('game state', () => {
     expect(afterSecondKick.combat).toBeNull();
   });
 
+  it('applies random-enemy status effects to the same enemy that takes the hit', () => {
+    const game = createGame(3, 'random-enemy-status-seed');
+    const target = { q: 2, r: 0 };
+    game.tiles['2,0'] = {
+      coord: target,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: ['enemy-2,0-0', 'enemy-2,0-1'],
+    };
+    game.enemies['enemy-2,0-0'] = {
+      id: 'enemy-2,0-0',
+      name: 'Training Dummy A',
+      coord: target,
+      tier: 1,
+      hp: 30,
+      maxHp: 30,
+      attack: 0,
+      defense: 0,
+      xp: 0,
+      elite: false,
+    };
+    game.enemies['enemy-2,0-1'] = {
+      id: 'enemy-2,0-1',
+      name: 'Training Dummy B',
+      coord: target,
+      tier: 1,
+      hp: 30,
+      maxHp: 30,
+      attack: 0,
+      defense: 0,
+      xp: 0,
+      elite: false,
+    };
+    game.player.coord = { q: 1, r: 0 };
+    game.player.mana = 50;
+    game.player.equipment.weapon = {
+      id: 'test-cold-snap-wand',
+      name: 'Test Cold Snap Wand',
+      quantity: 1,
+      tier: 1,
+      rarity: 'common',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+      slot: 'weapon',
+      grantedAbilityId: 'coldSnap',
+    };
+
+    const encountered = moveToTile(game, target);
+    const resolved = startCombat(encountered);
+    const damagedEnemyIds =
+      resolved?.combat?.enemyIds.filter((enemyId) => {
+        const enemy = resolved.enemies[enemyId];
+        return enemy ? enemy.hp < enemy.maxHp : false;
+      }) ?? [];
+    const weakenedEnemyIds =
+      resolved?.combat?.enemyIds.filter((enemyId) =>
+        resolved.enemies[enemyId]?.statusEffects?.some(
+          (effect) => effect.id === 'weakened',
+        ),
+      ) ?? [];
+
+    expect(damagedEnemyIds).toEqual(['enemy-2,0-1']);
+    expect(weakenedEnemyIds).toEqual(damagedEnemyIds);
+  });
+
   it('respawns the player at the home hex with death effects applied', () => {
     const game = createGame(3, 'death-respawn-seed');
     const target = { q: 2, r: 0 };

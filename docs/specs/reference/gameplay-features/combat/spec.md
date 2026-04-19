@@ -19,6 +19,7 @@ This spec covers encounter activation, actor timing, and combat resolution.
 - All battle entities start with a baseline `5%` critical strike chance before equipment modifiers are added.
 - All battle entities also start with baseline `5%` dodge chance and `5%` suppress-damage chance before equipment modifiers are added.
 - Ability execution supports direct damage, multi-target attacks, healing, heal-over-time, permanent battle buffs and debuffs, and short high-value buffs and debuffs.
+- Single-target and random-target player abilities resolve their damage and status effects against the same chosen target instead of retargeting status application separately.
 - Enemy ability loadouts are rolled deterministically by rarity:
   `common` enemies keep only `Kick`, `uncommon` enemies add `1` extra ability, `rare` and `epic` enemies add `2`, and `legendary` enemies or world bosses add `3`.
 - Enemy AI evaluates its available abilities in priority order, favoring higher-cooldown skills before low-cooldown fillers and only falling back to `Kick` after stronger options are unavailable.
