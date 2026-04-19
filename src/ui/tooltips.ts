@@ -1,4 +1,8 @@
-import { getStatusEffectTags } from '../game/content/statusEffects';
+import { getAbilityDefinition } from '../game/abilities';
+import {
+  getStatusEffectDefinition,
+  getStatusEffectTags,
+} from '../game/content/statusEffects';
 import { getSkillTags } from '../game/content/tags';
 import { professionRecipeOutputBonus } from '../game/crafting';
 import { isEquippableItem, isRecipePage, sellValue } from '../game/inventory';
@@ -20,6 +24,7 @@ import {
 import type {
   AbilityDefinition,
   EnemyRarity,
+  PlayerStatusEffect,
   SecondaryStatKey,
   StatusEffectId,
 } from '../game/types';
@@ -28,6 +33,7 @@ import {
   formatEnemyRarityLabel,
   formatEquipmentSlotLabel,
   formatSecondaryStatLabel,
+  formatStatusEffectLabel,
 } from '../i18n/labels';
 import { Icons } from './icons';
 
@@ -82,6 +88,18 @@ export function itemTooltipLines(
         text: `${t('ui.tooltip.slotLabel')}: ${slotLabel(item.slot)}`,
         tone: 'subtle' as const,
       }
+    : null;
+  const abilityLine = item.grantedAbilityId
+    ? (() => {
+        const ability = getAbilityDefinition(item.grantedAbilityId);
+        return {
+          kind: 'stat' as const,
+          label: t('ui.tooltip.grantedAbilityLabel'),
+          value: ability.name,
+          icon: ability.icon,
+          tone: 'item' as const,
+        };
+      })()
     : null;
 
   if (category === 'consumable') {
@@ -157,7 +175,7 @@ export function itemTooltipLines(
       deltas.forEach((line) => {
         lines.push({
           kind: 'stat',
-          label: t('ui.tooltip.statChange', { stat: line.label }),
+          label: line.label,
           value: `${line.value >= 0 ? '+' : ''}${line.value}`,
           tone: line.value < 0 ? 'negative' : 'item',
         });
@@ -171,6 +189,9 @@ export function itemTooltipLines(
 
   if (slotLine) {
     lines.push(slotLine);
+  }
+  if (abilityLine) {
+    lines.push(abilityLine);
   }
   lines.push(...tagTooltipLines(tags));
   const sellLine = itemSellLine(item);
@@ -312,13 +333,36 @@ export function skillTooltip(skill: SkillName, level: number): TooltipLine[] {
 export function abilityTooltipLines(
   ability: Pick<
     AbilityDefinition,
-    'manaCost' | 'cooldownMs' | 'castTimeMs' | 'tags'
+    | 'description'
+    | 'manaCost'
+    | 'cooldownMs'
+    | 'castTimeMs'
+    | 'category'
+    | 'effects'
+    | 'tags'
   >,
+  target: AbilityDefinition['target'] = 'enemy',
+  attack = 0,
 ): TooltipLine[] {
+  const damageLine =
+    ability.category === 'attacking'
+      ? {
+          kind: 'stat' as const,
+          label: t('ui.ability.damage'),
+          value: `${abilityDamageValue(ability, attack)}`,
+        }
+      : null;
+
   return [
     {
+      kind: 'text',
+      text: ability.description,
+    },
+    ...abilityStatusEffectLines(ability),
+    ...(damageLine ? [damageLine] : []),
+    {
       kind: 'stat',
-      label: t('ui.ability.aetherCost'),
+      label: t('ui.ability.manaCost'),
       value: `${ability.manaCost}`,
     },
     {
@@ -336,7 +380,7 @@ export function abilityTooltipLines(
     },
     {
       kind: 'text',
-      text: t('ui.ability.targeting'),
+      text: t(`ui.ability.target.${target}`),
     },
     ...tagTooltipLines(ability.tags),
   ];
@@ -346,37 +390,34 @@ export function statusEffectTooltipLines(
   effectId: StatusEffectId,
   tone: 'buff' | 'debuff',
   extraLines: TooltipLine[] = [],
+  effect?: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>,
 ): TooltipLine[] {
-  const description =
-    effectId === 'hunger'
-      ? t('ui.hero.effect.hunger.description')
-      : effectId === 'thirst'
-        ? t('ui.hero.effect.thirst.description')
-        : effectId === 'recentDeath'
-          ? t('ui.hero.effect.recentDeath.description')
-          : effectId === 'restoration'
-            ? t('ui.hero.effect.restoration.description')
-            : effectId === 'bleeding'
-              ? t('ui.hero.effect.bleeding.description')
-              : effectId === 'poison'
-                ? t('ui.hero.effect.poison.description')
-                : effectId === 'burning'
-                  ? t('ui.hero.effect.burning.description')
-                  : effectId === 'chilling'
-                    ? t('ui.hero.effect.chilling.description')
-                    : effectId === 'power'
-                      ? t('ui.hero.effect.power.description')
-                      : effectId === 'frenzy'
-                        ? t('ui.hero.effect.frenzy.description')
-            : tone === 'buff'
-              ? t('ui.hero.effect.buff')
-              : t('ui.hero.effect.debuff');
+  const descriptionKeyByEffect: Partial<Record<StatusEffectId, string>> = {
+    hunger: 'ui.hero.effect.hunger.description',
+    thirst: 'ui.hero.effect.thirst.description',
+    recentDeath: 'ui.hero.effect.recentDeath.description',
+    restoration: 'ui.hero.effect.restoration.description',
+    bleeding: 'ui.hero.effect.bleeding.description',
+    poison: 'ui.hero.effect.poison.description',
+    burning: 'ui.hero.effect.burning.description',
+    chilling: 'ui.hero.effect.chilling.description',
+    power: 'ui.hero.effect.power.description',
+    frenzy: 'ui.hero.effect.frenzy.description',
+    guard: 'ui.hero.effect.guard.description',
+    weakened: 'ui.hero.effect.weakened.description',
+    shocked: 'ui.hero.effect.shocked.description',
+  };
+  const description = t(
+    descriptionKeyByEffect[effectId] ??
+      (tone === 'buff' ? 'ui.hero.effect.buff' : 'ui.hero.effect.debuff'),
+  );
 
   return [
     {
       kind: 'text',
       text: description,
     },
+    ...statusEffectDamageLines(effect),
     ...extraLines,
     ...tagTooltipLines(getStatusEffectTags(effectId)),
   ];
@@ -548,3 +589,103 @@ function secondarySlotLines(item: Item): TooltipLine[] {
     })),
   ];
 }
+
+function abilityDamageValue(
+  ability: Pick<AbilityDefinition, 'effects'>,
+  attack: number,
+) {
+  return ability.effects.reduce((total, effect) => {
+    if (effect.kind !== 'damage') return total;
+
+    return (
+      total +
+      Math.max(
+        0,
+        Math.round(attack * effect.powerMultiplier + (effect.flatPower ?? 0)),
+      )
+    );
+  }, 0);
+}
+
+function abilityStatusEffectLines(
+  ability: Pick<AbilityDefinition, 'effects'>,
+): TooltipLine[] {
+  const statusEffects = [
+    ...new Set(
+      ability.effects.flatMap((effect) => {
+        if (effect.kind === 'heal') return [];
+        return effect.statusEffectId ? [effect.statusEffectId] : [];
+      }),
+    ),
+  ];
+
+  return statusEffects.map((effectId) => {
+    const definition = getStatusEffectDefinition(effectId);
+
+    return {
+      kind: 'stat' as const,
+      label: t('ui.ability.effect'),
+      value: formatStatusEffectLabel(effectId),
+      icon: definition?.icon,
+      iconTint: definition?.tint,
+      tone: definition?.tone === 'debuff' ? ('negative' as const) : ('item' as const),
+    };
+  });
+}
+
+function statusEffectDamageLines(
+  effect?: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>,
+) {
+  if (!effect) return [];
+
+  const intervalSeconds = formatStatusIntervalSeconds(effect.tickIntervalMs);
+
+  switch (effect.id) {
+    case 'bleeding':
+      return [
+        {
+          kind: 'stat' as const,
+          label: t('ui.hero.effect.damage'),
+          value: t('ui.hero.effect.damagePerInterval', {
+            amount: Math.max(1, Math.floor(effect.value ?? 0)),
+            seconds: intervalSeconds,
+          }),
+          tone: 'negative' as const,
+        },
+      ];
+    case 'burning':
+      return [
+        {
+          kind: 'stat' as const,
+          label: t('ui.hero.effect.damage'),
+          value: t('ui.hero.effect.damagePerInterval', {
+            amount:
+              Math.max(1, Math.floor(effect.value ?? 0)) *
+              Math.max(1, effect.stacks ?? 1),
+            seconds: intervalSeconds,
+          }),
+          tone: 'negative' as const,
+        },
+      ];
+    case 'poison':
+      return [
+        {
+          kind: 'stat' as const,
+          label: t('ui.hero.effect.damage'),
+          value: t('ui.hero.effect.damagePercentPerInterval', {
+            amount: Math.max(1, effect.stacks ?? 1),
+            seconds: intervalSeconds,
+          }),
+          tone: 'negative' as const,
+        },
+      ];
+    default:
+      return [];
+  }
+}
+
+function formatStatusIntervalSeconds(tickIntervalMs = 1_000) {
+  const seconds = tickIntervalMs / 1000;
+  return Number.isInteger(seconds) ? `${seconds}` : seconds.toFixed(1);
+}
+

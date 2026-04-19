@@ -1,6 +1,9 @@
-import { getAbilityDefinition } from '../../../game/combat';
+import { getAbilityDefinition } from '../../../game/abilities';
+import { DEFAULT_ENEMY_MANA } from '../../../game/combat';
+import { getEnemyCombatAttack } from '../../../game/state';
 import type { CombatActorState } from '../../../game/state';
-import type { StatusEffectId } from '../../../game/types';
+import { getStatusEffectDefinition } from '../../../game/content/statusEffects';
+import type { PlayerStatusEffect } from '../../../game/types';
 import { t } from '../../../i18n';
 import {
   formatEnemyRarityLabel,
@@ -15,9 +18,6 @@ import {
 import { abilityTooltipLines, statusEffectTooltipLines } from '../../tooltips';
 import type { CombatPartyMember, CombatWindowProps } from './types';
 import styles from './styles.module.scss';
-
-const KICK_ICON_PATH =
-  'M198.844 64.75c-.985 0-1.974.03-2.97.094-15.915 1.015-32.046 11.534-37.78 26.937-34.072 91.532-51.085 128.865-61.5 222.876 14.633 13.49 31.63 26.45 50.25 38.125l66.406-196.467 17.688 5.968L163.28 362.5c19.51 10.877 40.43 20.234 62 27.28l75.407-201.53 17.5 6.53-74.937 200.282c19.454 5.096 39.205 8.2 58.78 8.875L381.345 225.5l17.094 7.594-75.875 170.656c21.82-1.237 43.205-5.768 63.437-14.28 43.317-53.844 72.633-109.784 84.5-172.69 5.092-26.992-14.762-53.124-54.22-54.81l-6.155-.282-2.188-5.75c-8.45-22.388-19.75-30.093-31.5-32.47-11.75-2.376-25.267 1.535-35.468 7.376l-13.064 7.47-.906-15c-.99-16.396-10.343-29.597-24.313-35.626-13.97-6.03-33.064-5.232-54.812 9.906l-10.438 7.25-3.812-12.125c-6.517-20.766-20.007-27.985-34.78-27.97zM103.28 188.344C71.143 233.448 47.728 299.56 51.407 359.656c27.54 21.84 54.61 33.693 80.063 35.438 14.155.97 27.94-1.085 41.405-6.438-35.445-17.235-67.36-39.533-92.594-63.53l-3.343-3.157.5-4.595c5.794-54.638 13.946-91.5 25.844-129.03z';
 
 interface CombatWindowContentProps {
   combat: CombatWindowProps['combat'];
@@ -35,10 +35,11 @@ interface CombatEntityView {
   maxHp: number;
   mana: number;
   maxMana: number;
+  attack: number;
   rarity?: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
   actor: CombatActorState;
-  buffs: StatusEffectId[];
-  debuffs: StatusEffectId[];
+  buffs: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[];
+  debuffs: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[];
 }
 
 export function CombatWindowContent({
@@ -54,15 +55,16 @@ export function CombatWindowContent({
   );
   const enemyParty: CombatEntityView[] = enemies.map((enemy) => {
     const effectGroups = partitionStatusEffects(
-      enemy.statusEffects?.map((effect) => effect.id) ?? [],
+      enemy.statusEffects ?? [],
     );
     return {
       id: enemy.id,
       title: t('ui.combat.entityTitle', { name: enemy.name, level: enemy.tier }),
       hp: enemy.hp,
       maxHp: enemy.maxHp,
-      mana: 0,
-      maxMana: 0,
+      mana: enemy.mana ?? enemy.maxMana ?? DEFAULT_ENEMY_MANA,
+      maxMana: enemy.maxMana ?? enemy.mana ?? DEFAULT_ENEMY_MANA,
+      attack: getEnemyCombatAttack(enemy),
       rarity: enemy.rarity ?? 'common',
       actor: combat.enemies[enemy.id] ?? combat.player,
       buffs: effectGroups.buffs,
@@ -103,6 +105,7 @@ function toPlayerEntity(member: CombatPartyMember): CombatEntityView {
     maxHp: member.maxHp,
     mana: member.mana,
     maxMana: member.maxMana,
+    attack: member.attack,
     actor: member.actor,
     buffs: member.buffs,
     debuffs: member.debuffs,
@@ -180,6 +183,14 @@ function EntityCard({
         onHoverDetail={onHoverDetail}
         onLeaveDetail={onLeaveDetail}
       />
+      {entity.actor.casting ? (
+        <CastBar
+          actor={entity.actor}
+          worldTimeMs={worldTimeMs}
+          onHoverDetail={onHoverDetail}
+          onLeaveDetail={onLeaveDetail}
+        />
+      ) : null}
       {entity.buffs.length > 0 ? (
         <EffectList
           items={entity.buffs}
@@ -219,7 +230,12 @@ function EntityCard({
             <AbilitySquare
               key={ability.id}
               label={ability.name}
-              tooltipLines={abilityTooltipLines(ability)}
+              icon={ability.icon}
+              tooltipLines={abilityTooltipLines(
+                ability,
+                ability.target,
+                entity.attack,
+              )}
               cooldownRatio={cooldownRatio}
               remainingMs={remainingMs}
               onHoverDetail={onHoverDetail}
@@ -294,7 +310,7 @@ function EffectList({
   onHoverDetail,
   onLeaveDetail,
 }: {
-  items: StatusEffectId[];
+  items: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[];
   tone: 'buff' | 'debuff';
   onHoverDetail: CombatWindowProps['onHoverDetail'];
   onLeaveDetail: CombatWindowProps['onLeaveDetail'];
@@ -303,15 +319,15 @@ function EffectList({
     <div className={styles.effectList}>
       {items.map((item) => (
         <button
-          key={item}
+          key={item.id}
           type="button"
           className={`${styles.effectChip} ${tone === 'buff' ? styles.buffChip : styles.debuffChip}`}
-          aria-label={formatStatusEffectLabel(item)}
+          aria-label={formatStatusEffectLabel(item.id)}
           onMouseEnter={(event) =>
             onHoverDetail(
               event,
-              formatStatusEffectLabel(item),
-              statusEffectTooltipLines(item, tone),
+              formatStatusEffectLabel(item.id),
+              statusEffectTooltipLines(item.id, tone, [], item),
               tone === 'buff'
                 ? 'rgba(34, 197, 94, 0.9)'
                 : 'rgba(239, 68, 68, 0.9)',
@@ -323,8 +339,8 @@ function EffectList({
             aria-hidden="true"
             className={styles.effectIcon}
             style={iconMaskStyle(
-              statusEffectIcon(item),
-              statusEffectTint(item, tone),
+              statusEffectIcon(item.id),
+              statusEffectTint(item.id, tone),
             )}
           />
         </button>
@@ -335,6 +351,7 @@ function EffectList({
 
 function AbilitySquare({
   label,
+  icon,
   tooltipLines,
   cooldownRatio,
   remainingMs,
@@ -342,6 +359,7 @@ function AbilitySquare({
   onLeaveDetail,
 }: {
   label: string;
+  icon: string;
   tooltipLines: ReturnType<typeof abilityTooltipLines>;
   cooldownRatio: number;
   remainingMs: number;
@@ -350,20 +368,24 @@ function AbilitySquare({
 }) {
   return (
     <div
-      className={styles.abilitySquare}
+      className={`${styles.abilitySquare} ${cooldownRatio > 0 ? styles.abilitySquareDisabled : ''}`}
       aria-label={label}
       onMouseEnter={(event) =>
         onHoverDetail(event, label, tooltipLines, 'rgba(148, 163, 184, 0.9)')
       }
       onMouseLeave={onLeaveDetail}
     >
-      <KickIcon />
+      <span
+        aria-hidden="true"
+        className={styles.abilityIcon}
+        style={iconMaskStyle(icon, '#f8fafc')}
+      />
       {cooldownRatio > 0 ? (
         <div
           className={styles.cooldownOverlay}
           style={{
-            ['--cooldown-start' as string]: `${cooldownRatio * 360}deg`,
-            ['--cooldown-duration' as string]: `${remainingMs}ms`,
+            ['--cooldown-scale' as string]: `${cooldownRatio}`,
+            ['--cooldown-duration' as string]: `${Math.max(remainingMs, 1)}ms`,
           }}
         />
       ) : null}
@@ -371,25 +393,69 @@ function AbilitySquare({
   );
 }
 
-function KickIcon() {
+function CastBar({
+  actor,
+  worldTimeMs,
+  onHoverDetail,
+  onLeaveDetail,
+}: {
+  actor: CombatActorState;
+  worldTimeMs: number;
+  onHoverDetail: CombatWindowProps['onHoverDetail'];
+  onLeaveDetail: CombatWindowProps['onLeaveDetail'];
+}) {
+  if (!actor.casting) return null;
+
+  const ability = getAbilityDefinition(actor.casting.abilityId);
+  const castDurationMs = Math.max(ability.castTimeMs, 1);
+  const castStartedAt = actor.casting.endsAt - castDurationMs;
+  const elapsedMs = Math.max(0, worldTimeMs - castStartedAt);
+  const width = Math.max(0, Math.min(100, (elapsedMs / castDurationMs) * 100));
+
   return (
-    <svg
-      viewBox="0 0 512 512"
-      aria-hidden="true"
-      className={styles.abilityIcon}
+    <div
+      className={`${styles.barTrack} ${styles.castBarTrack}`}
+      onMouseEnter={(event) =>
+        onHoverDetail(
+          event,
+          ability.name,
+          [
+            {
+              kind: 'text',
+              text: t('ui.combat.castBar.tooltip'),
+            },
+            {
+              kind: 'stat',
+              label: t('ui.ability.castTime'),
+              value: `${ability.castTimeMs / 1000}s`,
+            },
+          ],
+          'rgba(250, 204, 21, 0.9)',
+        )
+      }
+      onMouseLeave={onLeaveDetail}
     >
-      <path fill="currentColor" d={KICK_ICON_PATH} />
-    </svg>
+      <div
+        className={`${styles.barFill} ${styles.castBarFill}`}
+        style={{ width: `${width}%` }}
+      />
+      <div className={styles.barText}>
+        <span>{t('ui.combat.casting')}</span>
+        <strong>{ability.name}</strong>
+      </div>
+    </div>
   );
 }
 
-function partitionStatusEffects(items: StatusEffectId[]) {
+function partitionStatusEffects(
+  items: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[],
+) {
   return items.reduce<{
-    buffs: StatusEffectId[];
-    debuffs: StatusEffectId[];
+    buffs: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[];
+    debuffs: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[];
   }>(
     (groups, item) => {
-      if (item === 'power' || item === 'frenzy' || item === 'restoration') {
+      if (getStatusEffectDefinition(item.id)?.tone === 'buff') {
         groups.buffs.push(item);
       } else {
         groups.debuffs.push(item);

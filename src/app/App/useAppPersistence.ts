@@ -347,7 +347,6 @@ export function useAppPersistence({
         | (PersistedUiState & {
             windows?: WindowPositions;
             windowShown?: WindowVisibilityState;
-            windowCollapsed?: Partial<WindowVisibilityState>;
           })
         | undefined;
       const hydratedWindows = snapshotUi?.windows
@@ -358,15 +357,6 @@ export function useAppPersistence({
             ...DEFAULT_WINDOW_VISIBILITY,
             ...snapshotUi.windowShown,
           }
-        : snapshotUi?.windowCollapsed
-          ? ({
-              ...DEFAULT_WINDOW_VISIBILITY,
-              ...Object.fromEntries(
-                Object.entries(snapshotUi.windowCollapsed).map(
-                  ([key, collapsed]) => [key, !collapsed],
-                ),
-              ),
-            } as WindowVisibilityState)
           : DEFAULT_WINDOW_VISIBILITY;
       const hydratedLogFilters = snapshotUi?.logFilters
         ? { ...DEFAULT_LOG_FILTERS, ...snapshotUi.logFilters }
@@ -394,7 +384,7 @@ export function useAppPersistence({
 
       if (saved?.ui) {
         if (snapshotUi?.windows) setWindows(hydratedWindows);
-        if (snapshotUi?.windowShown || snapshotUi?.windowCollapsed) {
+        if (snapshotUi?.windowShown) {
           setWindowShown(hydratedWindowShown);
         }
         if (snapshotUi?.logFilters) {

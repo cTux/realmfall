@@ -15,7 +15,7 @@ Current implemented areas include:
 - Core survival loop with gathering, inventory, equipment, loot, gold, and town interactions.
 - Combat, enemy encounters, progression, recipes, and crafting-related systems.
 - Desktop-style draggable windows for hero, skills, hex info, equipment, inventory, recipe book, combat, loot, logs, and docked controls.
-- Local autosave with normalization during load to keep save compatibility across shape changes.
+- Local autosave with direct hydration of the current save shape.
 - Runtime version exposure, `version.json` build output, and an in-game refresh indicator for newer deployments.
 - Automated quality tooling with type checking, linting, formatting, tests, Husky hooks, and CI coverage for typecheck, lint, test, and build.
 - Storybook coverage for UI components plus catalog views for items, enemies, and structures.
@@ -27,7 +27,7 @@ Current project strengths reflected in the codebase and docs:
 - Window content is expected to stay bundle-split instead of being folded into the initial app path.
 - Rendering-specific tests for world math, time-of-day behavior, filters, and cached render behavior.
 - Pixi render caches and pools already reuse containers, graphics, sprites, and text instead of recreating display objects each frame.
-- Save compatibility handled through normalization before hydration.
+- Save hydration currently expects the active runtime save shape and does not migrate older save formats.
 
 The game currently does not support mods.
 
@@ -117,7 +117,7 @@ recreates it.
 
 `pnpm lint` now runs Oxlint as the only JavaScript and TypeScript lint path in the repository. `pnpm lint:fix` and `pnpm lint:oxlint` use the same Oxlint target set directly.
 
-The pre-commit hook runs `pnpm check:version`, `pnpm typecheck`, and `pnpm quality:staged`, then refreshes the Git index for auto-fixed tracked files. `pnpm quality:staged` runs `oxlint --fix -c .oxlintrc.json` only on staged JavaScript and TypeScript files, runs Stylelint only on staged `src` CSS and SCSS files, and runs `vitest related` for staged source, runtime JSON content, and test files. When shared test inputs such as `package.json`, `pnpm-lock.yaml`, `vite.config.ts`, TypeScript config, or `src/test/setup.ts` are staged, it falls back to the full `pnpm test` suite. `pnpm check:version` still requires `package.json` to advance by patch version relative to `HEAD`.
+The pre-commit hook runs `pnpm check:version`, `pnpm typecheck`, and `pnpm quality:staged`, then refreshes the Git index for auto-fixed tracked files. `pnpm quality:staged` runs `oxlint --fix -c .oxlintrc.json` only on staged JavaScript and TypeScript files, runs Stylelint only on staged `src` CSS and SCSS files, and runs `vitest related` for staged source, runtime JSON content, and test files. When shared test inputs such as `package.json`, `pnpm-lock.yaml`, `vite.config.ts`, TypeScript config, or `src/test/setup.ts` are staged, it falls back to the full `pnpm test` suite. Before creating a commit, bump the patch version in `package.json`; `pnpm check:version` requires that patch version to advance relative to `HEAD`.
 
 The repository already has strong baseline tooling. Changes should preserve strict typing, lint cleanliness, deterministic tests where practical, and successful production builds.
 

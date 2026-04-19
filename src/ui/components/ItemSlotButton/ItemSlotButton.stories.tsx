@@ -53,3 +53,11 @@ export const RecipeHighlight: Story = {
     overlayColorOverride: 'rgba(96, 165, 250, 0.28)',
   },
 };
+
+export const CooldownActive: Story = {
+  args: {
+    size: 'compact',
+    cooldownRatio: 0.65,
+    cooldownRemainingMs: 1300,
+  },
+};

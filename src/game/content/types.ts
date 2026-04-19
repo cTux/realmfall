@@ -1,4 +1,5 @@
 import type {
+  AbilityId,
   EquipmentSlot,
   Item,
   ItemRarity,
@@ -48,6 +49,8 @@ export interface ItemConfig {
   dropChance?: number;
   occupiesOffhand?: boolean;
   generatedStats?: GeneratedItemStatProfile;
+  grantedAbilityId?: AbilityId;
+  grantedAbilityPool?: AbilityId[];
   tags?: GameTag[];
   secondaryStatCapacity?: Item['secondaryStatCapacity'];
   secondaryStats?: Item['secondaryStats'];
@@ -114,4 +117,5 @@ export interface ItemBuildOverrides {
   name?: string;
   icon?: Item['icon'];
   tags?: Item['tags'];
+  grantedAbilityId?: Item['grantedAbilityId'];
 }

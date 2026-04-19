@@ -48,7 +48,6 @@ import {
   WORLD_REVEAL_RADIUS,
 } from './config';
 import { t } from '../i18n';
-import { normalizeLoadedGame } from '../app/normalize';
 import { buildTile } from './world';
 import { buildItemFromConfig, getItemCategory } from './content/items';
 import { getStructureConfig } from './content/structures';
@@ -1120,6 +1119,75 @@ describe('game state', () => {
     expect(afterSecondKick.combat).toBeNull();
   });
 
+  it('applies random-enemy status effects to the same enemy that takes the hit', () => {
+    const game = createGame(3, 'random-enemy-status-seed');
+    const target = { q: 2, r: 0 };
+    game.tiles['2,0'] = {
+      coord: target,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: ['enemy-2,0-0', 'enemy-2,0-1'],
+    };
+    game.enemies['enemy-2,0-0'] = {
+      id: 'enemy-2,0-0',
+      name: 'Training Dummy A',
+      coord: target,
+      tier: 1,
+      hp: 30,
+      maxHp: 30,
+      attack: 0,
+      defense: 0,
+      xp: 0,
+      elite: false,
+    };
+    game.enemies['enemy-2,0-1'] = {
+      id: 'enemy-2,0-1',
+      name: 'Training Dummy B',
+      coord: target,
+      tier: 1,
+      hp: 30,
+      maxHp: 30,
+      attack: 0,
+      defense: 0,
+      xp: 0,
+      elite: false,
+    };
+    game.player.coord = { q: 1, r: 0 };
+    game.player.mana = 50;
+    game.player.equipment.weapon = {
+      id: 'test-cold-snap-wand',
+      name: 'Test Cold Snap Wand',
+      quantity: 1,
+      tier: 1,
+      rarity: 'common',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+      slot: 'weapon',
+      grantedAbilityId: 'coldSnap',
+    };
+
+    const encountered = moveToTile(game, target);
+    const resolved = startCombat(encountered);
+    const damagedEnemyIds =
+      resolved?.combat?.enemyIds.filter((enemyId) => {
+        const enemy = resolved.enemies[enemyId];
+        return enemy ? enemy.hp < enemy.maxHp : false;
+      }) ?? [];
+    const weakenedEnemyIds =
+      resolved?.combat?.enemyIds.filter((enemyId) =>
+        resolved.enemies[enemyId]?.statusEffects?.some(
+          (effect) => effect.id === 'weakened',
+        ),
+      ) ?? [];
+
+    expect(damagedEnemyIds).toEqual(['enemy-2,0-1']);
+    expect(weakenedEnemyIds).toEqual(damagedEnemyIds);
+  });
+
   it('respawns the player at the home hex with death effects applied', () => {
     const game = createGame(3, 'death-respawn-seed');
     const target = { q: 2, r: 0 };
@@ -1706,10 +1774,27 @@ describe('game state', () => {
       defense: 0,
     };
 
-    const encountered = moveToTile(game, center);
-    const resolved = startCombat(encountered);
+    let resolved = startCombat(moveToTile(game, center));
+    for (let index = 0; index < 8 && resolved.combat != null; index += 1) {
+      resolved = {
+        ...resolved,
+        worldTimeMs: resolved.worldTimeMs + 1_500,
+        enemies: {
+          ...resolved.enemies,
+          [centerTile.enemyIds[0]]: {
+            ...resolved.enemies[centerTile.enemyIds[0]]!,
+            hp: 1,
+            maxHp: 1,
+            attack: 0,
+            defense: 0,
+          },
+        },
+      };
+      resolved = progressCombat(resolved);
+    }
     const loot = getTileAt(resolved, center).items;
 
+    expect(resolved.combat).toBeNull();
     expect(loot.some((item) => item.name === 'Gold')).toBe(true);
     expect(
       loot.some(
@@ -2044,6 +2129,79 @@ describe('game state', () => {
     );
   });
 
+  it('applies a shared consumable cooldown after using one', () => {
+    const game = createGame(3, 'use-cooldown-seed');
+    game.player.hp = 20;
+    game.player.hunger = 80;
+
+    const used = useItem(game, 'starter-ration');
+
+    expect(used.player.consumableCooldownEndsAt).toBe(2_000);
+    expect(
+      used.player.inventory.find((item) => item.id === 'starter-ration')
+        ?.quantity,
+    ).toBe(1);
+
+    const blocked = useItem(used, 'starter-ration');
+
+    expect(
+      blocked.player.inventory.find((item) => item.id === 'starter-ration')
+        ?.quantity,
+    ).toBe(1);
+    expect(blocked.logs[0]?.text).toContain(
+      'Consumables are on cooldown for 2s.',
+    );
+
+    const ready = {
+      ...used,
+      worldTimeMs: 2_000,
+    };
+    const usedAgain = useItem(ready, 'starter-ration');
+
+    expect(
+      usedAgain.player.inventory.find((item) => item.id === 'starter-ration'),
+    ).toBeUndefined();
+  });
+
+  it('applies the shared consumable cooldown after using a home scroll', () => {
+    const game = createGame(3, 'home-scroll-cooldown-seed');
+    game.player.coord = { q: 2, r: -1 };
+    game.homeHex = { q: 0, r: 0 };
+    game.player.hp = 20;
+    game.player.hunger = 80;
+    game.player.inventory.push({
+      id: 'home-scroll-1',
+      itemKey: 'home-scroll',
+      name: 'Pergamino del hogar',
+      quantity: 1,
+      tier: 1,
+      rarity: 'common',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+    });
+
+    const usedScroll = useItem(game, 'home-scroll-1');
+
+    expect(usedScroll.player.coord).toEqual({ q: 0, r: 0 });
+    expect(usedScroll.player.consumableCooldownEndsAt).toBe(2_000);
+    expect(
+      usedScroll.player.inventory.find((item) => item.id === 'home-scroll-1'),
+    ).toBeUndefined();
+
+    const blocked = useItem(usedScroll, 'starter-ration');
+
+    expect(
+      blocked.player.inventory.find((item) => item.id === 'starter-ration')
+        ?.quantity,
+    ).toBe(2);
+    expect(blocked.logs[0]?.text).toContain(
+      'Consumables are on cooldown for 2s.',
+    );
+  });
+
   it('uses health and mana potions for 10 percent of the matching max stat', () => {
     const game = createGame(3, 'use-potions-seed');
     const hpPotion = buildItemFromConfig('health-potion', {
@@ -2062,7 +2220,13 @@ describe('game state', () => {
       healed.player.inventory.find((item) => item.id === 'health-potion-1'),
     ).toBeUndefined();
 
-    const restored = useItem(healed, 'mana-potion-1');
+    const restored = useItem(
+      {
+        ...healed,
+        worldTimeMs: 2_000,
+      },
+      'mana-potion-1',
+    );
     expect(restored.player.mana).toBe(10);
     expect(
       restored.player.inventory.find((item) => item.id === 'mana-potion-1'),
@@ -2764,8 +2928,8 @@ describe('game state', () => {
       name: 'Wolf',
       coord: target,
       tier: 1,
-      hp: 5,
-      maxHp: 5,
+      hp: 20,
+      maxHp: 20,
       attack: 2,
       defense: 0,
       xp: 5,
@@ -2776,8 +2940,8 @@ describe('game state', () => {
       name: 'Wolf',
       coord: target,
       tier: 1,
-      hp: 5,
-      maxHp: 5,
+      hp: 20,
+      maxHp: 20,
       attack: 3,
       defense: 0,
       xp: 5,
@@ -2859,6 +3023,43 @@ describe('game state', () => {
     expect(
       resolved.logs.some((entry) => /mastery level 2/i.test(entry.text)),
     ).toBe(true);
+  });
+
+  it('does not restore hp or mana on level up', () => {
+    const game = createGame(3, 'level-up-keeps-resources-seed');
+    const target = { q: 2, r: 0 };
+    game.player.hp = 9;
+    game.player.mana = 4;
+    game.tiles['2,0'] = {
+      coord: target,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: ['enemy-level-up'],
+    };
+    game.enemies['enemy-level-up'] = {
+      id: 'enemy-level-up',
+      name: 'Training Dummy',
+      coord: target,
+      tier: 1,
+      hp: 1,
+      maxHp: 1,
+      attack: 0,
+      defense: 0,
+      xp: 65,
+      elite: false,
+    };
+    game.player.coord = { q: 1, r: 0 };
+
+    const encountered = moveToTile(game, target);
+    const resolved = startCombat(encountered);
+    const stats = getPlayerStats(resolved.player);
+
+    expect(resolved.player.level).toBe(2);
+    expect(resolved.player.hp).toBe(9);
+    expect(resolved.player.mana).toBe(4);
+    expect(stats.maxHp).toBe(36);
+    expect(stats.maxMana).toBe(14);
   });
 
   it('supports many equipment slots and artifact loadouts', () => {
@@ -3096,40 +3297,6 @@ describe('game state', () => {
     ).toHaveLength(1);
   });
 
-  it('does not duplicate gold when loading migrated saves', () => {
-    const game = createGame(3, 'gold-load-seed');
-    const loaded = normalizeLoadedGame({
-      ...game,
-      player: {
-        ...game.player,
-        inventory: [
-          {
-            id: 'resource-gold-1',
-            name: 'Gold',
-            itemKey: 'gold',
-            quantity: 11,
-            tier: 1,
-            rarity: 'common',
-            power: 0,
-            defense: 0,
-            maxHp: 0,
-            healing: 0,
-            hunger: 0,
-          },
-        ],
-        gold: 11,
-      } as typeof game.player & { gold: number },
-    });
-
-    expect(getGoldAmount(loaded.player.inventory)).toBe(11);
-    expect(
-      loaded.player.inventory.filter(
-        (item) => getItemCategory(item) === 'resource' && item.name === 'Gold',
-      ),
-    ).toHaveLength(1);
-    expect('gold' in loaded.player).toBe(false);
-  });
-
   it('assigns unique ids when buying the same non-stackable town item twice', () => {
     const game = createGame(3, 'town-duplicate-id-seed');
     game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'town' };
@@ -3163,55 +3330,6 @@ describe('game state', () => {
     expect(new Set(hoodIds).size).toBe(2);
   });
 
-  it('keeps old saves fully unlocked when learned recipes are missing', () => {
-    const game = createGame(3, 'legacy-recipe-seed');
-    const loaded = normalizeLoadedGame({
-      ...game,
-      player: {
-        ...game.player,
-        learnedRecipeIds: undefined,
-      } as unknown as typeof game.player,
-    });
-
-    expect(loaded.player.learnedRecipeIds).toHaveLength(
-      getRecipeBookRecipes().length,
-    );
-  });
-
-  it('normalizes legacy iron chunks into iron ore', () => {
-    const game = createGame(3, 'legacy-iron-chunks-seed');
-    const loaded = normalizeLoadedGame({
-      ...game,
-      player: {
-        ...game.player,
-        inventory: [
-          {
-            id: 'legacy-iron-chunks',
-            itemKey: 'iron-chunks',
-            name: 'Iron Chunks',
-            quantity: 3,
-            tier: 1,
-            rarity: 'common',
-            power: 0,
-            defense: 0,
-            maxHp: 0,
-            healing: 0,
-            hunger: 0,
-          },
-        ],
-      },
-    });
-
-    expect(loaded.player.inventory).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          itemKey: 'iron-ore',
-          name: 'Iron Ore',
-          quantity: 3,
-        }),
-      ]),
-    );
-  });
 });
 
 function findEnemy(

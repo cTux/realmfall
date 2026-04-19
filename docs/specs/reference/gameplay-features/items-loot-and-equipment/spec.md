@@ -13,6 +13,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - Stackable items consolidate in inventory when they share stack identity derived from canonical item identity.
 - The player can equip gear into dedicated slots including weapon, offhand, head, shoulders, chest, bracers, hands, belt, legs, feet, rings, amulet, and cloak.
 - Equipped gear modifies derived player stats such as attack, defense, and max HP.
+- Battle resolution respects equippable main stats and combat-facing secondary stats, including attack speed, critical strikes, lifesteal, dodge, block, damage suppression, debuff suppression, and status or self-buff proc chances from equipped gear.
 - Equipping can swap currently equipped gear back into inventory.
 - Two-handed weapons occupy the weapon slot, automatically clear the equipped offhand item back into inventory, and prevent equipping a new offhand item until the weapon is removed.
 - A new game now starts with a `Town Knife` and `Settler Vest`; removed placeholder gear is not preserved through runtime display-name fallbacks.
@@ -21,11 +22,17 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - Tiles may spawn deterministic loot from world generation.
 - Enemies can drop gold, consumables, recipe pages, home scrolls, health potions, mana potions, blood moon gear, meat, and skinning materials depending on enemy ids and tags rather than localized names.
 - Health potions and mana potions use vendored local SVG assets and restore 10% of the corresponding max stat on use.
+- Consumables share a single `2s` cooldown lockout, and Home Scroll usage also starts that same shared consumable cooldown.
 - Loot can be taken item-by-item or collected from a tile in bulk.
 - World-generated weapons, armor, offhands, and artifacts scale by terrain tier and context, including generated shoulders, bracers, belts, shields, magical offhands, and one-handed or two-handed weapon archetypes.
+- World loot and blood moon bonus gear now choose their top-level item family from equal random buckets instead of weighted family chances, so weapons, armor, offhands, artifacts, and consumables do not skew toward accessory-heavy drops.
+- Offhand shields and magical spheres always include a block-chance secondary stat, including both generated drops and fixed crafted icon variants.
 - Dungeon and blood moon rewards bias toward better rarity floors.
 - Generated artifacts and equipment use deterministic icon selection from curated vendored SVG pools in `src/assets/icons/generated` while their per-instance stats are derived from tier and rarity.
 - Generated artifacts and equipment use the shared cascading rarity-event mechanism so higher tiers can promote drops through the same rarity ladder used elsewhere in gameplay.
+- Generated weapons and offhands now roll a deterministic granted combat ability that matches the item archetype, and equipped combatants surface those granted abilities in battle on top of the baseline `Kick`.
+- Crafted and fixed offhand gear such as bucklers, shields, magical spheres, and totems also roll a deterministic active ability from an archetype-appropriate pool.
+- Equippable item tooltips surface the granted combat ability directly so players can see the rolled skill before equipping the item.
 
 ## Main Implementation Areas
 

@@ -58,3 +58,21 @@ export function matchesActionBarItem(item: Item, target: Item) {
 
   return item.name === target.name;
 }
+
+export function reconcileActionBarSlots(
+  inventory: Item[],
+  slots: ActionBarSlots,
+): ActionBarSlots {
+  let changed = false;
+
+  const next = slots.map((slot) => {
+    if (!slot || findActionBarItem(inventory, slot)) {
+      return slot;
+    }
+
+    changed = true;
+    return null;
+  });
+
+  return changed ? next : slots;
+}

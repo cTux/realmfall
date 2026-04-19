@@ -1,11 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import {
+  DEFAULT_ENEMY_MANA,
   enemyRarityIndex,
   enemyRarityMinimum,
   enemyRarityMultiplier,
   makeEnemy,
   resolveEnemyRarity,
 } from './combat';
+import {
+  DEFAULT_CRITICAL_STRIKE_CHANCE,
+  DEFAULT_DODGE_CHANCE,
+  DEFAULT_SUPPRESS_DAMAGE_CHANCE,
+} from './itemSecondaryStats';
+import {
+  getEnemyCriticalStrikeChance,
+  getEnemyDodgeChance,
+  getEnemySuppressDamageChance,
+} from './state';
 
 describe('enemy rarity', () => {
   it('promotes higher rarity tiers to larger stat multipliers', () => {
@@ -72,5 +83,29 @@ describe('enemy rarity', () => {
     expect(secondEnemy.name).toBe(firstEnemy.name);
     expect(secondDungeonEnemy.enemyTypeId).toBe(dungeonEnemy.enemyTypeId);
     expect(secondDungeonEnemy.name).toBe(dungeonEnemy.name);
+  });
+
+  it('gives generated enemies a default mana pool for ability casting', () => {
+    const enemy = makeEnemy('enemy-mana-seed', { q: 1, r: -1 }, 'plains');
+
+    expect(enemy.mana).toBe(DEFAULT_ENEMY_MANA);
+    expect(enemy.maxMana).toBe(DEFAULT_ENEMY_MANA);
+  });
+
+  it('gives generated enemies the baseline critical strike chance', () => {
+    const enemy = makeEnemy('enemy-crit-seed', { q: 1, r: -1 }, 'plains');
+
+    expect(getEnemyCriticalStrikeChance(enemy)).toBe(
+      DEFAULT_CRITICAL_STRIKE_CHANCE,
+    );
+  });
+
+  it('gives generated enemies baseline dodge and suppress-damage chances', () => {
+    const enemy = makeEnemy('enemy-defense-seed', { q: 1, r: -1 }, 'plains');
+
+    expect(getEnemyDodgeChance(enemy)).toBe(DEFAULT_DODGE_CHANCE);
+    expect(getEnemySuppressDamageChance(enemy)).toBe(
+      DEFAULT_SUPPRESS_DAMAGE_CHANCE,
+    );
   });
 });

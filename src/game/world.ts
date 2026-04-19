@@ -360,23 +360,17 @@ function makeGeneratedItem(
   roll: number,
   structure?: StructureType,
 ) {
-  if (tier >= 7 || structure === 'dungeon') {
-    return makeArtifact(
-      seed,
-      coord,
-      tier,
-      structure === 'dungeon' ? 'rare' : undefined,
-    );
-  }
+  const minimumRarity = structure === 'dungeon' ? 'rare' : undefined;
+
   switch (pickWorldGeneratedItemKind(roll)) {
     case 'artifact':
-      return makeArtifact(seed, coord, tier);
+      return makeArtifact(seed, coord, tier, minimumRarity);
     case 'weapon':
-      return makeWeapon(seed, coord, tier);
+      return makeWeapon(seed, coord, tier, minimumRarity);
     case 'offhand':
-      return makeOffhand(seed, coord, tier);
+      return makeOffhand(seed, coord, tier, minimumRarity);
     case 'armor':
-      return makeArmor(seed, coord, tier);
+      return makeArmor(seed, coord, tier, minimumRarity);
     default:
       return makeConsumable(
         itemId('consumable', coord, seed),

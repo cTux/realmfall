@@ -25,6 +25,8 @@ interface ItemSlotButtonProps {
   tintOverride?: string;
   borderColorOverride?: string;
   overlayColorOverride?: string;
+  cooldownRatio?: number;
+  cooldownRemainingMs?: number;
   cornerIcon?: ItemSlotCornerIcon;
   hidePlaceholderIconWhenEmpty?: boolean;
   disabled?: boolean;
@@ -45,6 +47,8 @@ export function ItemSlotButton({
   tintOverride,
   borderColorOverride,
   overlayColorOverride,
+  cooldownRatio = 0,
+  cooldownRemainingMs = 0,
   cornerIcon,
   hidePlaceholderIconWhenEmpty = false,
   disabled = false,
@@ -71,6 +75,7 @@ export function ItemSlotButton({
         isInteractive ? styles.interactive : '',
         item ? '' : styles.empty,
         disabled ? styles.disabled : '',
+        cooldownRatio > 0 ? styles.cooldownActive : '',
         className ?? '',
       ]
         .filter(Boolean)
@@ -94,6 +99,16 @@ export function ItemSlotButton({
         <span
           className={styles.overlay}
           style={{ backgroundColor: overlayColorOverride }}
+          aria-hidden="true"
+        />
+      ) : null}
+      {cooldownRatio > 0 ? (
+        <span
+          className={styles.cooldownOverlay}
+          style={{
+            ['--cooldown-scale' as string]: `${cooldownRatio}`,
+            ['--cooldown-duration' as string]: `${Math.max(cooldownRemainingMs, 1)}ms`,
+          }}
           aria-hidden="true"
         />
       ) : null}

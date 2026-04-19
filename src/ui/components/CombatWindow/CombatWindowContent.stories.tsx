@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useState } from 'react';
+import { getAbilityDefinition } from '../../../game/abilities';
 import { createCombatActorState } from '../../../game/combat';
 import type { CombatActorState, CombatState, Enemy } from '../../../game/types';
 import { CombatWindow } from './CombatWindow';
@@ -72,6 +73,10 @@ export const SkirmishInProgress: Story = {
       scout: 900,
       enemy0: 650,
       enemy1: 1_400,
+    },
+    casting: {
+      arcanist: { abilityId: 'fireball', remainingMs: 500 },
+      enemy0: { abilityId: 'slash', remainingMs: 250 },
     },
   }),
 };
@@ -174,6 +179,7 @@ function buildBattleScenario({
   eliteEnemyIds = [],
   enemyRarities = [],
   readyOffsets = {},
+  casting = {},
 }: {
   started: boolean;
   coord?: CombatState['coord'];
@@ -184,6 +190,7 @@ function buildBattleScenario({
   eliteEnemyIds?: string[];
   enemyRarities?: Array<Enemy['rarity']>;
   readyOffsets?: Partial<Record<string, number>>;
+  casting?: Partial<Record<string, { abilityId: string; remainingMs: number }>>;
 }) {
   const playerParty: CombatPartyMember[] = [
     buildPartyMember(
@@ -194,6 +201,7 @@ function buildBattleScenario({
       14,
       partyDamage[0] ?? 0,
       readyOffsets,
+      casting,
     ),
     buildPartyMember(
       'scout',
@@ -203,6 +211,7 @@ function buildBattleScenario({
       20,
       partyDamage[1] ?? 0,
       readyOffsets,
+      casting,
     ),
     buildPartyMember(
       'arcanist',
@@ -212,6 +221,7 @@ function buildBattleScenario({
       32,
       partyDamage[2] ?? 0,
       readyOffsets,
+      casting,
     ),
   ];
 
@@ -247,7 +257,7 @@ function buildBattleScenario({
   const combatEnemies = Object.fromEntries(
     enemies.map((enemy) => [
       enemy.id,
-      buildActor(enemy.id, readyOffsets[enemy.id]),
+      buildActor(enemy.id, readyOffsets[enemy.id], casting[enemy.id]),
     ]),
   );
 
@@ -255,7 +265,7 @@ function buildBattleScenario({
     coord,
     enemyIds: enemies.map((enemy) => enemy.id),
     started,
-    player: buildActor('player', 0),
+    player: buildActor('player', 0, casting.player),
     enemies: combatEnemies,
   };
 
@@ -274,6 +284,7 @@ function buildPartyMember(
   maxMana: number,
   damageTaken: number,
   readyOffsets: Partial<Record<string, number>>,
+  casting: Partial<Record<string, { abilityId: string; remainingMs: number }>>,
 ): CombatPartyMember {
   return {
     id,
@@ -283,18 +294,36 @@ function buildPartyMember(
     maxHp,
     mana: maxMana,
     maxMana,
-    actor: buildActor(id, readyOffsets[id]),
+    attack: id === 'arcanist' ? 11 : id === 'scout' ? 8 : 10,
+    actor: buildActor(id, readyOffsets[id], casting[id]),
     buffs: [],
     debuffs: [],
   };
 }
 
-function buildActor(id: string, readyInMs = 0): CombatActorState {
-  const actor = createCombatActorState(WORLD_TIME_MS);
+function buildActor(
+  id: string,
+  readyInMs = 0,
+  casting?: { abilityId: string; remainingMs: number },
+): CombatActorState {
+  const actor = createCombatActorState(
+    WORLD_TIME_MS,
+    casting ? [casting.abilityId, 'kick'] : undefined,
+  );
   actor.globalCooldownEndsAt = WORLD_TIME_MS + Math.max(0, readyInMs);
   actor.cooldownEndsAt.kick = WORLD_TIME_MS + Math.max(0, readyInMs);
   if (id === 'arcanist') {
     actor.globalCooldownMs = 2_000;
+  }
+  if (casting) {
+    const ability = getAbilityDefinition(casting.abilityId);
+    actor.casting = {
+      abilityId: casting.abilityId,
+      targetId: 'player',
+      endsAt: WORLD_TIME_MS + Math.max(1, casting.remainingMs),
+    };
+    actor.cooldownEndsAt[casting.abilityId] =
+      actor.casting.endsAt + ability.cooldownMs;
   }
   return actor;
 }

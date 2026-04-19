@@ -8,6 +8,7 @@ This spec covers player leveling, mastery, and skill progression.
 
 - The player gains XP from gameplay outcomes such as combat.
 - Level ups increase base survivability and combat stats.
+- Level ups do not refill HP or mana; current resource values carry forward while only the maximums and base combat stats increase.
 - After the normal cap, XP advances mastery levels instead of ordinary levels.
 - Current skills are gathering, logging, mining, skinning, fishing, cooking, smelting, and crafting.
 - Skill XP is awarded by related actions.

@@ -1,4 +1,5 @@
 import { act } from 'react';
+import { createGame } from '../../../game/state';
 import styles from '../styles.module.scss';
 import {
   createHydratedAppGame,
@@ -214,4 +215,145 @@ describe('App hydration and interactions', () => {
     });
     host.remove();
   }, 15000);
+
+  it('clears an action bar slot after the last assigned consumable is used', async () => {
+    const game = createGame(2, 'app-action-bar-consume-seed');
+    game.player.hp = 20;
+    game.player.hunger = 80;
+    loadEncryptedState.mockResolvedValue({ game, ui: {} });
+
+    const { host, root } = await renderApp();
+    await flushLazyModules();
+
+    const actionBarSlot = host.querySelector(
+      '[aria-label="Empty action bar slot 1"]',
+    ) as HTMLButtonElement | null;
+    expect(actionBarSlot).not.toBeNull();
+
+    await act(async () => {
+      actionBarSlot?.click();
+    });
+
+    const assignButton = host.querySelector(
+      '[aria-label="Assign Trail Ration to action bar slot"]',
+    ) as HTMLButtonElement | null;
+    expect(assignButton).not.toBeNull();
+
+    await act(async () => {
+      assignButton?.click();
+    });
+
+    expect(
+      host.querySelector('[aria-label="Action bar slot 1: Trail Ration"]'),
+    ).not.toBeNull();
+    expect(host.textContent).toContain('x2');
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: '1' }),
+      );
+    });
+
+    expect(
+      host.querySelector('[aria-label="Action bar slot 1: Trail Ration"]'),
+    ).not.toBeNull();
+
+    await act(async () => {
+      vi.advanceTimersByTime(2200);
+    });
+    await flushLazyModules();
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: '1' }),
+      );
+    });
+
+    expect(
+      host.querySelector('[aria-label="Action bar slot 1: Trail Ration"]'),
+    ).toBeNull();
+    expect(host.querySelector('[aria-label="Empty action bar slot 1"]'))
+      .not.toBeNull();
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('shows a shared action bar cooldown after consumable use', async () => {
+    const game = createGame(2, 'app-action-bar-cooldown-seed');
+    game.player.hp = 20;
+    game.player.hunger = 80;
+    loadEncryptedState.mockResolvedValue({ game, ui: {} });
+
+    const { host, root } = await renderApp();
+    await flushLazyModules();
+
+    const actionBarSlot = host.querySelector(
+      '[aria-label="Empty action bar slot 1"]',
+    ) as HTMLButtonElement | null;
+    expect(actionBarSlot).not.toBeNull();
+
+    await act(async () => {
+      actionBarSlot?.click();
+    });
+
+    const assignButton = host.querySelector(
+      '[aria-label="Assign Trail Ration to action bar slot"]',
+    ) as HTMLButtonElement | null;
+    expect(assignButton).not.toBeNull();
+
+    await act(async () => {
+      assignButton?.click();
+    });
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: '1' }),
+      );
+    });
+
+    const slotButton = host.querySelector(
+      '[aria-label="Action bar slot 1: Trail Ration"]',
+    ) as HTMLButtonElement | null;
+    expect(slotButton?.className).toContain('cooldownActive');
+    expect(
+      slotButton?.querySelector('[class*="cooldownOverlay"]'),
+    ).not.toBeNull();
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: '1' }),
+      );
+    });
+
+    expect(
+      host.querySelector('[aria-label="Action bar slot 1: Trail Ration"]'),
+    ).not.toBeNull();
+
+    await act(async () => {
+      vi.advanceTimersByTime(2200);
+    });
+    await flushLazyModules();
+
+    const refreshedSlotButton = host.querySelector(
+      '[aria-label="Action bar slot 1: Trail Ration"]',
+    ) as HTMLButtonElement | null;
+    expect(refreshedSlotButton?.className).not.toContain('cooldownActive');
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: '1' }),
+      );
+    });
+
+    expect(host.querySelector('[aria-label="Empty action bar slot 1"]'))
+      .not.toBeNull();
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
 });

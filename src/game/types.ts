@@ -98,6 +98,7 @@ export interface Item {
   thirst?: number;
   secondaryStatCapacity?: number;
   secondaryStats?: ItemSecondaryStat[];
+  grantedAbilityId?: AbilityId;
 }
 
 export interface Enemy {
@@ -111,6 +112,8 @@ export interface Enemy {
   baseMaxHp?: number;
   hp: number;
   maxHp: number;
+  mana?: number;
+  maxMana?: number;
   baseAttack?: number;
   attack: number;
   baseDefense?: number;
@@ -120,6 +123,7 @@ export interface Enemy {
   worldBoss?: boolean;
   aggressive?: boolean;
   statusEffects?: PlayerStatusEffect[];
+  abilityIds?: AbilityId[];
 }
 
 export interface TerritoryNpc {
@@ -137,15 +141,68 @@ export interface TileClaim {
   npc?: TerritoryNpc;
 }
 
-export type AbilityId = 'kick';
+export type AbilityId = string;
 
-export interface AbilityDefinition {
+export type AbilityTarget =
+  | 'self'
+  | 'injuredAlly'
+  | 'randomAlly'
+  | 'allAllies'
+  | 'enemy'
+  | 'randomEnemy'
+  | 'allEnemies';
+
+export type AbilitySchool = 'melee' | 'fire' | 'lightning' | 'ice' | 'support';
+
+export type AbilityEffectDefinition =
+  | {
+      kind: 'damage';
+      powerMultiplier: number;
+      flatPower?: number;
+      statusEffectId?: StatusEffectId;
+      statusChance?: number;
+      durationMs?: number;
+      tickIntervalMs?: number;
+      stacks?: number;
+      valueMultiplier?: number;
+      valueFlat?: number;
+      targetOverride?: AbilityTarget;
+    }
+  | {
+      kind: 'heal';
+      powerMultiplier: number;
+      flatPower?: number;
+      splitDivisor?: number;
+      targetOverride?: AbilityTarget;
+    }
+  | {
+      kind: 'applyStatus';
+      statusEffectId: StatusEffectId;
+      value: number;
+      durationMs?: number;
+      tickIntervalMs?: number;
+      stacks?: number;
+      permanent?: boolean;
+      targetOverride?: AbilityTarget;
+    };
+
+export interface AbilityRuntimeDefinition {
   id: AbilityId;
-  name: string;
   manaCost: number;
   cooldownMs: number;
   castTimeMs: number;
+  target: AbilityTarget;
+  school: AbilitySchool;
+  category: 'attacking' | 'supportive';
+  effects: AbilityEffectDefinition[];
+  aiPriority?: number;
   tags?: GameTag[];
+}
+
+export interface AbilityDefinition extends AbilityRuntimeDefinition {
+  name: string;
+  description: string;
+  icon: string;
 }
 
 export interface CombatCastState {
@@ -195,6 +252,7 @@ export interface Player {
   inventory: Item[];
   equipment: Equipment;
   statusEffects: PlayerStatusEffect[];
+  consumableCooldownEndsAt?: number;
 }
 
 export type StatusEffectId = StatusEffectIdValue;

@@ -12,7 +12,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 ## Commit Workflow
 
 - Use Conventional Commits.
-- Increase the `package.json` patch version before each commit. The pre-commit hook enforces this against `HEAD`.
+- Before each commit, bump the patch version in `package.json`. The pre-commit hook enforces this against `HEAD`.
 - Generate commit messages from the actual change set.
 - Keep commit messages focused on the behavioral change instead of enumerating every touched doc file.
 
@@ -23,6 +23,11 @@ Use this file for contributor process only. Canonical project guidance lives in
 - Use `pnpm test:memory:leaks` when a change could affect client-side route cleanup, event-listener teardown, or long-lived browser objects; the command starts the HTTPS dev server at `https://localhost:5173`, runs the dock-window toggle `fuite` scenario, and records the latest JSON report under `.tests/memory-leaks/latest.json`.
 - Run `pnpm build:budget` when startup chunks or lazy-loading strategy change.
 - When performance-sensitive behavior changes, record how rerender breadth, redraw breadth, hover hot paths, or startup chunk impact were verified.
+
+## Save Format
+
+- During the current project phase, do not add backward save-format compatibility code.
+- After major save-shape changes, clear local storage instead of preserving older save payloads through migration logic.
 
 ## Documentation Workflow
 

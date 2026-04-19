@@ -10,8 +10,10 @@ import {
 } from '../tags';
 import { applyRarityToItem } from '../../shared';
 import {
+  buildDefaultBlockChanceSecondaryStat,
   buildGeneratedMainStats,
   buildGeneratedSecondaryStats,
+  hasDefaultBlockChance,
   normalizeSecondaryStats,
 } from '../../itemSecondaryStats';
 import { createRng } from '../../random';
@@ -69,6 +71,7 @@ import { wayfarerCloakItemConfig } from './wayfarerCloak';
 import { waterFlaskItemConfig } from './waterFlask';
 import { workGlovesItemConfig } from './workGloves';
 import { CRAFTED_EXPANSION_ITEM_CONFIGS } from './expansion';
+import type { AbilityId } from '../../types';
 
 const RAW_ITEM_CONFIGS = [
   trailRationItemConfig,
@@ -193,6 +196,19 @@ const STATIC_ITEM_CATEGORY_OVERRIDES: Partial<Record<string, ItemCategory>> = {
   [ItemId.HearthTotem]: 'artifact',
 };
 
+const SHIELD_OFFHAND_ABILITY_POOL: AbilityId[] = [
+  'ironGuard',
+  'arcWard',
+  'rallyingCry',
+];
+
+const MAGICAL_OFFHAND_ABILITY_POOL: AbilityId[] = [
+  'mendWounds',
+  'battlePrayer',
+  'arcWard',
+  'witheringHex',
+];
+
 export const ITEM_CONFIGS: ItemConfig[] = RAW_ITEM_CONFIGS.map((config) => ({
   ...config,
   name: itemName(config.key),
@@ -222,6 +238,15 @@ export function buildItemFromConfig(
   if (!config) {
     throw new Error(`Missing item config: ${key}`);
   }
+  const tier = overrides.tier ?? config.tier;
+  const rarity = overrides.rarity ?? config.rarity;
+  const secondaryStatSeed = `${key}:secondary:${overrides.id ?? config.key}:${tier}:${rarity}`;
+  const secondaryStatRng = createRng(secondaryStatSeed);
+  const defaultSecondaryStats =
+    config.secondaryStats ??
+    (hasDefaultBlockChance(config)
+      ? [buildDefaultBlockChanceSecondaryStat(tier, rarity, secondaryStatRng)]
+      : undefined);
 
   return {
     id: overrides.id ?? config.key,
@@ -235,8 +260,8 @@ export function buildItemFromConfig(
       pickConfigIcon(config.iconPool, config.icon, overrides.id ?? config.key),
     name: overrides.name ?? config.name,
     quantity: overrides.quantity ?? config.defaultQuantity ?? 1,
-    tier: overrides.tier ?? config.tier,
-    rarity: overrides.rarity ?? config.rarity,
+    tier,
+    rarity,
     power: overrides.power ?? config.power,
     defense: overrides.defense ?? config.defense,
     maxHp: overrides.maxHp ?? config.maxHp,
@@ -244,9 +269,14 @@ export function buildItemFromConfig(
     hunger: overrides.hunger ?? config.hunger,
     thirst: overrides.thirst ?? config.thirst ?? 0,
     secondaryStatCapacity:
-      overrides.secondaryStatCapacity ?? config.secondaryStatCapacity,
+      overrides.secondaryStatCapacity ??
+      config.secondaryStatCapacity ??
+      defaultSecondaryStats?.length,
     secondaryStats:
-      overrides.secondaryStats ?? normalizeSecondaryStats(config.secondaryStats),
+      overrides.secondaryStats ?? normalizeSecondaryStats(defaultSecondaryStats),
+    grantedAbilityId:
+      overrides.grantedAbilityId ??
+      pickGrantedAbilityId(config, overrides.id ?? config.key),
   };
 }
 
@@ -282,6 +312,9 @@ export function buildGeneratedItemFromConfig(
       overrides.secondaryStatCapacity ?? secondaryStats.capacity,
     secondaryStats:
       overrides.secondaryStats ?? secondaryStats.stats,
+    grantedAbilityId:
+      overrides.grantedAbilityId ??
+      pickGrantedAbilityId(config, overrides.id ?? config.key),
   });
 
   return applyRarityToItem(built);
@@ -316,6 +349,7 @@ export function cloneConfiguredItem(item: Item) {
     secondaryStats: item.secondaryStats,
     icon: item.icon,
     tags: item.tags ?? config.tags ?? [],
+    grantedAbilityId: item.grantedAbilityId,
   });
 }
 
@@ -419,7 +453,7 @@ function buildItemConfigTags(
       GAME_TAGS.item.craftingMaterial,
     ],
     [ItemId.ArcaneDust]: [
-      GAME_TAGS.item.aether,
+      GAME_TAGS.item.mana,
       GAME_TAGS.item.prospectable,
       GAME_TAGS.item.craftingMaterial,
     ],
@@ -433,13 +467,13 @@ function buildItemConfigTags(
     [ItemId.WorkGloves]: [GAME_TAGS.item.crafted, GAME_TAGS.item.animalProduct],
     [ItemId.TrailLeggings]: [GAME_TAGS.item.crafted, GAME_TAGS.item.cloth],
     [ItemId.FieldBoots]: [GAME_TAGS.item.crafted, GAME_TAGS.item.animalProduct],
-    [ItemId.CopperLoop]: [GAME_TAGS.item.crafted, GAME_TAGS.item.aether],
-    [ItemId.CopperBand]: [GAME_TAGS.item.crafted, GAME_TAGS.item.aether],
-    [ItemId.CharmNecklace]: [GAME_TAGS.item.crafted, GAME_TAGS.item.aether],
+    [ItemId.CopperLoop]: [GAME_TAGS.item.crafted, GAME_TAGS.item.mana],
+    [ItemId.CopperBand]: [GAME_TAGS.item.crafted, GAME_TAGS.item.mana],
+    [ItemId.CharmNecklace]: [GAME_TAGS.item.crafted, GAME_TAGS.item.mana],
     [ItemId.WayfarerCloak]: [GAME_TAGS.item.crafted, GAME_TAGS.item.cloth],
     [ItemId.HearthTotem]: [
       GAME_TAGS.item.crafted,
-      GAME_TAGS.item.aether,
+      GAME_TAGS.item.mana,
       GAME_TAGS.item.totem,
     ],
   };
@@ -553,6 +587,43 @@ function pickConfigIcon(
   seed: string,
 ) {
   if (!iconPool || iconPool.length === 0) return fallback;
-  const hash = [...seed].reduce((total, char) => total + char.charCodeAt(0), 0);
+  const hash = seededIndex(seed);
   return iconPool[hash % iconPool.length] ?? fallback;
+}
+
+function pickGrantedAbilityId(
+  config: Pick<ItemConfig, 'grantedAbilityPool' | 'grantedAbilityId'>,
+  seed: string,
+) {
+  if (config.grantedAbilityId) return config.grantedAbilityId;
+  const pool = resolveGrantedAbilityPool(config);
+  if (!pool || pool.length === 0) {
+    return undefined;
+  }
+
+  return pool[seededIndex(seed) % pool.length];
+}
+
+function resolveGrantedAbilityPool(
+  config: Pick<
+    ItemConfig,
+    'grantedAbilityPool' | 'grantedAbilityId'
+  > &
+    Partial<Pick<ItemConfig, 'key' | 'slot' | 'category'>>,
+) {
+  if (config.grantedAbilityId) return undefined;
+  if (config.grantedAbilityPool && config.grantedAbilityPool.length > 0) {
+    return config.grantedAbilityPool;
+  }
+  if (config.slot !== EquipmentSlotId.Offhand) {
+    return undefined;
+  }
+
+  return config.category === 'artifact'
+    ? MAGICAL_OFFHAND_ABILITY_POOL
+    : SHIELD_OFFHAND_ABILITY_POOL;
+}
+
+function seededIndex(seed: string) {
+  return [...seed].reduce((total, char) => total + char.charCodeAt(0), 0);
 }

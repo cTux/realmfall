@@ -58,6 +58,8 @@ export function AppFixedWindows({
       <ActionBar
         inventory={views.player.inventory}
         slots={views.player.actionBarSlots}
+        worldTimeMs={views.hero.worldTimeMs}
+        consumableCooldownEndsAt={views.player.consumableCooldownEndsAt ?? 0}
         onAssignSlot={actions.inventory.onAssignActionBarSlot}
         onClearSlot={actions.inventory.onClearActionBarSlot}
         onHoverItem={actions.tooltip.onShowActionBarItemTooltip}

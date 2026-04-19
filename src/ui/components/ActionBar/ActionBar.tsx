@@ -18,6 +18,8 @@ import styles from './styles.module.scss';
 interface ActionBarProps {
   inventory: Item[];
   slots: ActionBarSlots;
+  worldTimeMs: number;
+  consumableCooldownEndsAt: number;
   onAssignSlot: (slotIndex: number, item: Item) => void;
   onClearSlot: (slotIndex: number) => void;
   onHoverItem: (
@@ -31,6 +33,8 @@ interface ActionBarProps {
 export function ActionBar({
   inventory,
   slots,
+  worldTimeMs,
+  consumableCooldownEndsAt,
   onAssignSlot,
   onClearSlot,
   onHoverItem,
@@ -39,6 +43,8 @@ export function ActionBar({
   const [pickerSlotIndex, setPickerSlotIndex] = useState<number | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const consumables = getConsumablesFromInventory(inventory);
+  const cooldownRemainingMs = Math.max(0, consumableCooldownEndsAt - worldTimeMs);
+  const cooldownRatio = Math.max(0, Math.min(1, cooldownRemainingMs / 2_000));
 
   useEffect(() => {
     if (pickerSlotIndex === null) return;
@@ -105,6 +111,8 @@ export function ActionBar({
                 overlayColorOverride={
                   depleted ? 'rgba(239, 68, 68, 0.38)' : undefined
                 }
+                cooldownRatio={displayItem ? cooldownRatio : 0}
+                cooldownRemainingMs={cooldownRemainingMs}
                 onClick={() =>
                   setPickerSlotIndex((current) =>
                     current === slotIndex ? null : slotIndex,

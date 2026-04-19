@@ -31,6 +31,20 @@
   pointer-events: none;
 }
 
+.cooldownOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgb(15 23 42 / 86%),
+    rgb(30 41 59 / 68%)
+  );
+  transform: scaleY(var(--cooldown-scale));
+  transform-origin: top;
+  pointer-events: none;
+  animation: cooldownDrain var(--cooldown-duration) linear forwards;
+}
+
 .interactive {
   cursor: pointer;
 }
@@ -43,6 +57,11 @@
 .disabled {
   opacity: 0.48;
   cursor: default;
+}
+
+.cooldownActive {
+  opacity: 0.62;
+  filter: grayscale(1);
 }
 
 .icon {
@@ -83,4 +102,10 @@
   width: 8px;
   height: 8px;
   filter: drop-shadow(0 1px 2px rgb(0 0 0 / 65%));
+}
+
+@keyframes cooldownDrain {
+  to {
+    transform: scaleY(0);
+  }
 }

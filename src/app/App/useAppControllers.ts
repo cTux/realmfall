@@ -1,5 +1,6 @@
 import {
   useCallback,
+  useEffect,
   useRef,
   useState,
   type Dispatch,
@@ -53,10 +54,12 @@ import { getTooltipPlacementForRect } from '../../ui/tooltipPlacement';
 import {
   createDefaultActionBarSlots,
   findActionBarItem,
+  reconcileActionBarSlots,
   type ActionBarSlots,
 } from './actionBar';
 
 interface UseAppControllersOptions {
+  inventory: Item[];
   gameRef: MutableRefObject<GameState>;
   initialAudioSettings: AudioSettings;
   initialGraphicsSettings: GraphicsSettings;
@@ -66,6 +69,7 @@ interface UseAppControllersOptions {
 }
 
 export function useAppControllers({
+  inventory,
   gameRef,
   initialAudioSettings,
   initialGraphicsSettings,
@@ -107,6 +111,10 @@ export function useAppControllers({
   );
   const [recipeMaterialFilterItemKey, setRecipeMaterialFilterItemKey] =
     useState<string | null>(null);
+
+  useEffect(() => {
+    setActionBarSlots((current) => reconcileActionBarSlots(inventory, current));
+  }, [inventory]);
 
   const moveWindow = useCallback(
     (

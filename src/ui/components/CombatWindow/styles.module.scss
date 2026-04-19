@@ -1,11 +1,5 @@
 @use '../../../styles/ui';
 
-@property --cooldown-angle {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 0deg;
-}
-
 .window {
   width: min(680px, calc(100vw - 16px));
 }
@@ -90,6 +84,16 @@
   background: linear-gradient(90deg, #1d4ed8, #60a5fa);
 }
 
+.castBarTrack {
+  height: 0.85rem;
+  background: rgb(71 47 8 / 92%);
+  border-color: rgb(250 204 21 / 24%);
+}
+
+.castBarFill {
+  background: linear-gradient(90deg, #ca8a04, #facc15);
+}
+
 .barText {
   position: absolute;
   inset: 0;
@@ -137,44 +141,50 @@
 .abilitySquare {
   @include ui.icon-tile($hover-lift: false);
 
+  position: relative;
+  overflow: hidden;
   border: 1px solid rgb(148 163 184 / 35%);
+  border-radius: 0 16px;
   color: #f8fafc;
+  transition:
+    opacity 120ms ease,
+    filter 120ms ease,
+    border-color 120ms ease;
+}
+
+.abilitySquareDisabled {
+  border-color: rgb(148 163 184 / 18%);
+  opacity: 0.62;
+  filter: grayscale(1);
 }
 
 .abilityIcon {
-  width: 1.45rem;
-  height: 1.45rem;
+  width: 95%;
+  height: 95%;
 }
 
 .effectIcon {
-  width: 1.45rem;
-  height: 1.45rem;
+  width: 95%;
+  height: 95%;
 }
 
 .cooldownOverlay {
-  --cooldown-angle: var(--cooldown-start);
-
   position: absolute;
   inset: 0;
-  background: conic-gradient(
-    from -90deg,
-    rgb(15 23 42 / 78%) 0deg,
-    rgb(15 23 42 / 78%) var(--cooldown-angle),
-    rgb(15 23 42 / 5%) var(--cooldown-angle),
-    rgb(15 23 42 / 5%) 360deg
+  background: linear-gradient(
+    to bottom,
+    rgb(15 23 42 / 86%),
+    rgb(30 41 59 / 68%)
   );
-  box-shadow: inset 0 0 0 999px rgb(15 23 42 / 6%);
+  transform: scaleY(var(--cooldown-scale));
+  transform-origin: top;
   pointer-events: none;
-  animation: cooldownSweep var(--cooldown-duration) linear forwards;
+  animation: cooldownDrain var(--cooldown-duration) linear forwards;
 }
 
-@keyframes cooldownSweep {
-  from {
-    --cooldown-angle: var(--cooldown-start);
-  }
-
+@keyframes cooldownDrain {
   to {
-    --cooldown-angle: 0deg;
+    transform: scaleY(0);
   }
 }
 

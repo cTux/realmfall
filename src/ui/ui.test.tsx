@@ -7,6 +7,8 @@ import { getInventoryItemAction } from '../app/App/utils/getInventoryItemAction'
 import { EquipmentSlotId } from '../game/content/ids';
 import { GameTag } from '../game/content/tags';
 import { Skill } from '../game/types';
+import { getAbilityDefinition } from '../game/abilities';
+import { getStatusEffectDefinition } from '../game/content/statusEffects';
 import {
   createGame,
   getItemConfigByKey,
@@ -132,6 +134,7 @@ describe('ui helpers and components', () => {
       id: 'weapon-new',
       name: 'Knight Blade',
       tags: undefined,
+      grantedAbilityId: 'slash',
       tier: 2,
       rarity: 'rare',
       power: 4,
@@ -216,6 +219,13 @@ describe('ui helpers and components', () => {
     });
     expect(tooltipLines).toContainEqual({
       kind: 'stat',
+      label: 'Ability',
+      value: getAbilityDefinition('slash').name,
+      icon: getAbilityDefinition('slash').icon,
+      tone: 'item',
+    });
+    expect(tooltipLines).toContainEqual({
+      kind: 'stat',
       label: 'Attack',
       value: '+4',
       tone: 'item',
@@ -243,12 +253,26 @@ describe('ui helpers and components', () => {
     ).toBe(
       tooltipLines.findIndex(
         (line) =>
+          line.label === 'Ability' &&
+          line.value === getAbilityDefinition('slash').name,
+      ) - 1,
+    );
+    expect(
+      tooltipLines.findIndex(
+        (line) =>
+          line.label === 'Ability' &&
+          line.value === getAbilityDefinition('slash').name,
+      ),
+    ).toBe(
+      tooltipLines.findIndex(
+        (line) =>
           line.text === 'Tags: item.equipment, item.weapon, item.slot.weapon',
       ) - 1,
     );
-    expect(tooltipLines.some((line) => line.label === 'Attack Change')).toBe(
-      true,
-    );
+    expect(tooltipLines.some((line) => line.label === 'Attack')).toBe(true);
+    expect(
+      tooltipLines.some((line) => line.label?.includes('Change')),
+    ).toBe(false);
     expect(
       itemTooltipLines(resource).some((line) => line.label === 'Type'),
     ).toBe(false);
@@ -457,9 +481,106 @@ describe('ui helpers and components', () => {
 
     expect(
       abilityTooltipLines({
+        description: 'Targets one enemy. Deals melee damage.',
+        category: 'attacking',
         manaCost: 0,
         cooldownMs: 1000,
         castTimeMs: 0,
+        effects: [{ kind: 'damage', powerMultiplier: 1.2, flatPower: 2 }],
+        tags: [
+          GameTag.AbilityCombat,
+          GameTag.AbilityMelee,
+          GameTag.AbilityPhysical,
+        ],
+      }, 'enemy', 10),
+    ).toContainEqual({
+      kind: 'text',
+      text: 'Targets one enemy. Deals melee damage.',
+    });
+
+    expect(
+      abilityTooltipLines({
+        description: 'Targets all enemies. Inflicts Shocked.',
+        category: 'attacking',
+        manaCost: 2,
+        cooldownMs: 4800,
+        castTimeMs: 250,
+        effects: [
+          {
+            kind: 'applyStatus',
+            statusEffectId: 'shocked',
+            value: 16,
+            durationMs: 8_000,
+          },
+        ],
+        tags: [GameTag.AbilityCombat],
+      }, 'allEnemies', 10),
+    ).toContainEqual({
+      kind: 'stat',
+      label: 'Effect',
+      value: 'Shocked',
+      icon: getStatusEffectDefinition('shocked')?.icon,
+      iconTint: getStatusEffectDefinition('shocked')?.tint,
+      tone: 'negative',
+    });
+
+    expect(
+      abilityTooltipLines({
+        description: 'Targets yourself. Grants Guard.',
+        category: 'supportive',
+        manaCost: 5,
+        cooldownMs: 4300,
+        castTimeMs: 200,
+        effects: [
+          {
+            kind: 'applyStatus',
+            statusEffectId: 'guard',
+            value: 28,
+            durationMs: 4_000,
+          },
+        ],
+        tags: [GameTag.AbilityCombat],
+      }),
+    ).toContainEqual({
+      kind: 'stat',
+      label: 'Effect',
+      value: 'Guard',
+      icon: getStatusEffectDefinition('guard')?.icon,
+      iconTint: getStatusEffectDefinition('guard')?.tint,
+      tone: 'item',
+    });
+
+    expect(
+      abilityTooltipLines({
+        description: 'Targets all enemies. Inflicts Shocked.',
+        category: 'attacking',
+        manaCost: 2,
+        cooldownMs: 4800,
+        castTimeMs: 250,
+        effects: [
+          {
+            kind: 'applyStatus',
+            statusEffectId: 'shocked',
+            value: 16,
+            durationMs: 8_000,
+          },
+        ],
+        tags: [GameTag.AbilityCombat],
+      }, 'allEnemies', 10),
+    ).toContainEqual({
+      kind: 'stat',
+      label: 'Damage',
+      value: '0',
+    });
+
+    expect(
+      abilityTooltipLines({
+        description: 'Targets yourself. Restores health.',
+        category: 'supportive',
+        manaCost: 0,
+        cooldownMs: 1000,
+        castTimeMs: 0,
+        effects: [{ kind: 'heal', powerMultiplier: 1.2 }],
         tags: [
           GameTag.AbilityCombat,
           GameTag.AbilityMelee,
@@ -471,6 +592,17 @@ describe('ui helpers and components', () => {
       text: 'Tags: ability.combat, ability.melee, ability.physical',
       tone: 'subtle',
     });
+    expect(
+      abilityTooltipLines({
+        description: 'Targets yourself. Restores health.',
+        category: 'supportive',
+        manaCost: 0,
+        cooldownMs: 1000,
+        castTimeMs: 0,
+        effects: [{ kind: 'heal', powerMultiplier: 1.2 }],
+        tags: [GameTag.AbilityCombat],
+      }).some((line) => line.label === 'Damage'),
+    ).toBe(false);
 
     expect(
       statusEffectTooltipLines('restoration', 'buff', [
@@ -485,6 +617,53 @@ describe('ui helpers and components', () => {
       kind: 'text',
       text: 'Tags: status.buff, status.restoration',
       tone: 'subtle',
+    });
+    expect(
+      statusEffectTooltipLines(
+        'burning',
+        'debuff',
+        [],
+        {
+          id: 'burning',
+          value: 3,
+          stacks: 2,
+          tickIntervalMs: 1000,
+        },
+      ),
+    ).toContainEqual({
+      kind: 'stat',
+      label: 'Damage',
+      value: '6 / 1s',
+      tone: 'negative',
+    });
+    expect(
+      statusEffectTooltipLines(
+        'poison',
+        'debuff',
+        [],
+        {
+          id: 'poison',
+          stacks: 3,
+          tickIntervalMs: 2000,
+        },
+      ),
+    ).toContainEqual({
+      kind: 'stat',
+      label: 'Damage',
+      value: '3% max HP / 2s',
+      tone: 'negative',
+    });
+    expect(statusEffectTooltipLines('guard', 'buff')[0]).toEqual({
+      kind: 'text',
+      text: 'Guard raises defense for as long as the effect holds.',
+    });
+    expect(statusEffectTooltipLines('weakened', 'debuff')[0]).toEqual({
+      kind: 'text',
+      text: 'Weakened lowers attack while the effect remains.',
+    });
+    expect(statusEffectTooltipLines('shocked', 'debuff')[0]).toEqual({
+      kind: 'text',
+      text: 'Shocked lowers defense while crackling mana hangs on you.',
     });
   });
 
@@ -1027,11 +1206,15 @@ describe('ui helpers and components', () => {
       coord: { q: 1, r: 0 },
       enemyIds: ['enemy-1'],
       player: {
-        abilityIds: ['kick'] as Array<'kick'>,
+        abilityIds: ['fireball', 'kick'],
         globalCooldownMs: 1500,
         globalCooldownEndsAt: 900,
-        cooldownEndsAt: { kick: 1000 },
-        casting: null,
+        cooldownEndsAt: { kick: 1000, fireball: 4500 },
+        casting: {
+          abilityId: 'fireball',
+          targetId: 'enemy-1',
+          endsAt: 500,
+        },
       },
       started: false,
       enemies: {
@@ -1200,6 +1383,7 @@ describe('ui helpers and components', () => {
               maxHp: 30,
               mana: 12,
               maxMana: 20,
+              attack: 9,
               actor: combat.player,
               buffs: [],
               debuffs: [],
@@ -1255,7 +1439,7 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('Defense');
     expect(markup).toContain(')kills');
     expect(markup).toContain('logging');
-    expect(markup).toContain('Lv 1 · 0/8');
+    expect(markup).toContain('Lv 1 Â· 0/8');
     expect(markup).not.toContain(
       'gathering level equals the percent chance to pull +1 extra resource',
     );
@@ -1275,7 +1459,9 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('Player Lv 10');
     expect(markup).toContain('Marauder Lv 3');
     expect(markup).toContain('MP');
+    expect(markup).toContain('Casting');
     expect(markup).toContain('Kick');
+    expect(markup).toContain(getAbilityDefinition('fireball').name);
     expect(markup).toContain('(Q) Start');
     expect(markup).toContain('Knight Blade');
     expect(markup).toContain(getItemConfigByKey('town-knife')?.icon ?? '');
@@ -1414,6 +1600,7 @@ describe('ui helpers and components', () => {
           rawDefense: 15,
           attack: 20,
           defense: 15,
+          statusEffects: [],
           buffs: [],
           debuffs: [],
           abilityIds: ['kick'],
@@ -1433,7 +1620,7 @@ describe('ui helpers and components', () => {
 
     expect(markup).toContain('1.1k/1.1k');
     expect(markup).toContain('HP');
-    expect(markup).toContain('Aether');
+    expect(markup).toContain('Mana');
     expect(markup).toContain('XP');
     expect(markup).toContain('Hunger');
   });
@@ -1459,6 +1646,7 @@ describe('ui helpers and components', () => {
           rawDefense: 15,
           attack: 20,
           defense: 15,
+          statusEffects: [],
           buffs: [],
           debuffs: [],
           abilityIds: ['kick'],
@@ -2515,3 +2703,4 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('background-color:rgba(96, 165, 250, 0.28)');
   });
 });
+

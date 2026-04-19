@@ -15,10 +15,10 @@ This spec covers inventory actions, gold handling, and town trading.
 - While standing at a forge or town, eligible equippable inventory items expose item-context actions for single-item prospecting or selling.
 - Crafting materials carry a dedicated crafting-material tag, and their context menu can open the recipe book filtered to matching recipes with a reset-filter action in the book.
 - Consumables are only spent when at least one of their effects would change the current player state.
+- Using any consumable starts a shared `2s` consumable cooldown, and no other consumable can be used again until that cooldown expires.
 - Prospecting converts equippable inventory items into value through the forge flow.
 - Sell-all supports town-based liquidation of qualifying items.
 - Gold is modeled as an inventory resource instead of a separate wallet field.
-- Legacy save shapes with direct player gold are normalized into inventory gold during hydration.
 - Towns provide a fixed deterministic stock based on seed and coordinate.
 - Buying uses town stock entries with explicit prices.
 - Recipe pages can be sold individually in town for a premium value.

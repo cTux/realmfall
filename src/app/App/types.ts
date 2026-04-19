@@ -18,7 +18,6 @@ export interface TooltipState {
 export interface PersistedUiState {
   logFilters?: Record<LogKind, boolean>;
   windowShown?: WindowVisibilityState;
-  windowCollapsed?: Partial<WindowVisibilityState>;
   actionBarSlots?: ActionBarSlots;
 }
 

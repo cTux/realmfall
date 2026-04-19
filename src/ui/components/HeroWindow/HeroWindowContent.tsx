@@ -1,7 +1,10 @@
-import { getAbilityDefinition } from '../../../game/combat';
-import type { StatusEffectId } from '../../../game/types';
+import { getAbilityDefinition } from '../../../game/abilities';
+import type { PlayerStatusEffect } from '../../../game/types';
 import { t } from '../../../i18n';
-import { formatStatusEffectLabel } from '../../../i18n/labels';
+import {
+  formatSecondaryStatLabel,
+  formatStatusEffectLabel,
+} from '../../../i18n/labels';
 import {
   iconMaskStyle,
   statusEffectIcon,
@@ -11,9 +14,6 @@ import { abilityTooltipLines, statusEffectTooltipLines } from '../../tooltips';
 import { StatBar } from './components/StatBar';
 import type { HeroWindowProps } from './types';
 import styles from './styles.module.scss';
-
-const KICK_ICON_PATH =
-  'M198.844 64.75c-.985 0-1.974.03-2.97.094-15.915 1.015-32.046 11.534-37.78 26.937-34.072 91.532-51.085 128.865-61.5 222.876 14.633 13.49 31.63 26.45 50.25 38.125l66.406-196.467 17.688 5.968L163.28 362.5c19.51 10.877 40.43 20.234 62 27.28l75.407-201.53 17.5 6.53-74.937 200.282c19.454 5.096 39.205 8.2 58.78 8.875L381.345 225.5l17.094 7.594-75.875 170.656c21.82-1.237 43.205-5.768 63.437-14.28 43.317-53.844 72.633-109.784 84.5-172.69 5.092-26.992-14.762-53.124-54.22-54.81l-6.155-.282-2.188-5.75c-8.45-22.388-19.75-30.093-31.5-32.47-11.75-2.376-25.267 1.535-35.468 7.376l-13.064 7.47-.906-15c-.99-16.396-10.343-29.597-24.313-35.626-13.97-6.03-33.064-5.232-54.812 9.906l-10.438 7.25-3.812-12.125c-6.517-20.766-20.007-27.985-34.78-27.97zM103.28 188.344C71.143 233.448 47.728 299.56 51.407 359.656c27.54 21.84 54.61 33.693 80.063 35.438 14.155.97 27.94-1.085 41.405-6.438-35.445-17.235-67.36-39.533-92.594-63.53l-3.343-3.157.5-4.595c5.794-54.638 13.946-91.5 25.844-129.03z';
 
 type HeroWindowContentProps = Pick<
   HeroWindowProps,
@@ -29,7 +29,6 @@ export function HeroWindowContent({
   stats,
   hunger,
   thirst,
-  worldTimeMs = 0,
   onHoverDetail,
   onLeaveDetail,
 }: HeroWindowContentProps) {
@@ -45,11 +44,11 @@ export function HeroWindowContent({
         onLeaveDetail={onLeaveDetail}
       />
       <StatBar
-        label={t('ui.hero.aether')}
+        label={t('ui.hero.mana')}
         value={stats.mana}
         max={stats.maxMana}
         color="mana"
-        description={t('ui.tooltip.bar.heroAether')}
+        description={t('ui.tooltip.bar.heroMana')}
         onHoverDetail={onHoverDetail}
         onLeaveDetail={onLeaveDetail}
       />
@@ -81,18 +80,16 @@ export function HeroWindowContent({
         onLeaveDetail={onLeaveDetail}
       />
       <div className={styles.statList}>
-        <div className={styles.statRow}>
-          <span>{t('ui.hero.attack')}</span>
-          <span>{stats.attack}</span>
-        </div>
-        <div className={styles.statRow}>
-          <span>{t('ui.hero.defense')}</span>
-          <span>{stats.defense}</span>
-        </div>
+        {buildStatRows(stats).map((row) => (
+          <div key={row.label} className={styles.statRow}>
+            <span>{row.label}</span>
+            <span>{row.value}</span>
+          </div>
+        ))}
       </div>
       {stats.buffs.length > 0 ? (
         <EffectList
-          items={stats.buffs as StatusEffectId[]}
+          items={buildHeroEffectItems(stats, 'buff')}
           tone="buff"
           onHoverDetail={onHoverDetail}
           onLeaveDetail={onLeaveDetail}
@@ -101,7 +98,7 @@ export function HeroWindowContent({
       ) : null}
       {stats.debuffs.length > 0 ? (
         <EffectList
-          items={stats.debuffs as StatusEffectId[]}
+          items={buildHeroEffectItems(stats, 'debuff')}
           tone="debuff"
           onHoverDetail={onHoverDetail}
           onLeaveDetail={onLeaveDetail}
@@ -115,10 +112,14 @@ export function HeroWindowContent({
             <AbilitySquare
               key={ability.id}
               label={ability.name}
-              tooltipLines={abilityTooltipLines(ability)}
+              icon={ability.icon}
+              tooltipLines={abilityTooltipLines(
+                ability,
+                ability.target,
+                stats.attack,
+              )}
               remainingMs={0}
               cooldownRatio={0}
-              worldTimeMs={worldTimeMs}
               onHoverDetail={onHoverDetail}
               onLeaveDetail={onLeaveDetail}
             />
@@ -136,7 +137,7 @@ function EffectList({
   onLeaveDetail,
   stats,
 }: {
-  items: StatusEffectId[];
+  items: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[];
   tone: 'buff' | 'debuff';
   onHoverDetail?: HeroWindowProps['onHoverDetail'];
   onLeaveDetail?: HeroWindowProps['onLeaveDetail'];
@@ -146,14 +147,14 @@ function EffectList({
     <div className={styles.effectList}>
       {items.map((item) => (
         <button
-          key={item}
+          key={item.id}
           type="button"
           className={`${styles.effectChip} ${tone === 'buff' ? styles.buffChip : styles.debuffChip}`}
-          aria-label={formatStatusEffectLabel(item)}
+          aria-label={formatStatusEffectLabel(item.id)}
           onMouseEnter={(event) => {
             if (!onHoverDetail) return;
             const extraLines =
-              item === 'hunger'
+              item.id === 'hunger'
                 ? [
                     {
                       kind: 'stat' as const,
@@ -168,7 +169,7 @@ function EffectList({
                       tone: 'negative' as const,
                     },
                   ]
-                : item === 'thirst'
+                : item.id === 'thirst'
                   ? [
                       {
                         kind: 'stat' as const,
@@ -177,7 +178,7 @@ function EffectList({
                         tone: 'negative' as const,
                       },
                     ]
-                  : item === 'recentDeath'
+                  : item.id === 'recentDeath'
                     ? [
                         {
                           kind: 'stat' as const,
@@ -186,7 +187,7 @@ function EffectList({
                           tone: 'negative' as const,
                         },
                       ]
-                    : item === 'restoration'
+                    : item.id === 'restoration'
                       ? [
                           {
                             kind: 'stat' as const,
@@ -197,38 +198,11 @@ function EffectList({
                           {
                             kind: 'stat' as const,
                             label: t('ui.combat.mp'),
-                          value: '+1% / s',
-                          tone: 'positive' as const,
-                        },
-                      ]
-                    : item === 'bleeding'
-                      ? [
-                          {
-                            kind: 'stat' as const,
-                            label: t('ui.hero.hp'),
-                            value: t('ui.hero.effect.bleeding.value'),
-                            tone: 'negative' as const,
+                            value: '+1% / s',
+                            tone: 'positive' as const,
                           },
                         ]
-                      : item === 'poison'
-                        ? [
-                            {
-                              kind: 'stat' as const,
-                              label: t('ui.hero.hp'),
-                              value: t('ui.hero.effect.poison.value'),
-                              tone: 'negative' as const,
-                            },
-                          ]
-                        : item === 'burning'
-                          ? [
-                              {
-                                kind: 'stat' as const,
-                                label: t('ui.hero.hp'),
-                                value: t('ui.hero.effect.burning.value'),
-                                tone: 'negative' as const,
-                              },
-                            ]
-                          : item === 'chilling'
+                      : item.id === 'chilling'
                             ? [
                                 {
                                   kind: 'stat' as const,
@@ -237,7 +211,16 @@ function EffectList({
                                   tone: 'negative' as const,
                                 },
                               ]
-                            : item === 'power'
+                            : item.id === 'guard'
+                              ? [
+                                  {
+                                    kind: 'stat' as const,
+                                    label: t('ui.hero.defense'),
+                                    value: '+15%',
+                                    tone: 'positive' as const,
+                                  },
+                                ]
+                              : item.id === 'power'
                               ? [
                                   {
                                     kind: 'stat' as const,
@@ -246,7 +229,7 @@ function EffectList({
                                     tone: 'positive' as const,
                                   },
                                 ]
-                              : item === 'frenzy'
+                                : item.id === 'frenzy'
                                 ? [
                                     {
                                       kind: 'stat' as const,
@@ -255,11 +238,29 @@ function EffectList({
                                       tone: 'positive' as const,
                                     },
                                   ]
-                      : [];
+                                  : item.id === 'weakened'
+                                  ? [
+                                      {
+                                        kind: 'stat' as const,
+                                        label: t('ui.hero.attack'),
+                                        value: '-15%',
+                                        tone: 'negative' as const,
+                                      },
+                                    ]
+                                    : item.id === 'shocked'
+                                    ? [
+                                        {
+                                          kind: 'stat' as const,
+                                          label: t('ui.hero.defense'),
+                                          value: '-15%',
+                                          tone: 'negative' as const,
+                                        },
+                                      ]
+                                    : [];
             onHoverDetail(
               event,
-              formatStatusEffectLabel(item),
-              statusEffectTooltipLines(item, tone, extraLines),
+              formatStatusEffectLabel(item.id),
+              statusEffectTooltipLines(item.id, tone, extraLines, item),
               tone === 'buff'
                 ? 'rgba(34, 197, 94, 0.9)'
                 : 'rgba(239, 68, 68, 0.9)',
@@ -271,8 +272,8 @@ function EffectList({
             aria-hidden="true"
             className={styles.effectIcon}
             style={iconMaskStyle(
-              statusEffectIcon(item),
-              statusEffectTint(item, tone),
+              statusEffectIcon(item.id),
+              statusEffectTint(item.id, tone),
             )}
           />
         </button>
@@ -281,8 +282,92 @@ function EffectList({
   );
 }
 
+function buildStatRows(stats: HeroWindowProps['stats']) {
+  return [
+    { label: t('ui.hero.attack'), value: `${stats.attack}` },
+    { label: t('ui.hero.defense'), value: `${stats.defense}` },
+    formatDerivedStatRow('attackSpeed', stats.attackSpeed, true),
+    formatDerivedStatRow(
+      'criticalStrikeChance',
+      stats.criticalStrikeChance,
+    ),
+    formatDerivedStatRow(
+      'criticalStrikeDamage',
+      stats.criticalStrikeDamage,
+      false,
+      'percent',
+    ),
+    formatDerivedStatRow('lifestealChance', stats.lifestealChance),
+    formatDerivedStatRow(
+      'lifestealAmount',
+      stats.lifestealAmount,
+      false,
+      'percentMaxHp',
+    ),
+    formatDerivedStatRow('dodgeChance', stats.dodgeChance),
+    formatDerivedStatRow('blockChance', stats.blockChance),
+    formatDerivedStatRow(
+      'suppressDamageChance',
+      stats.suppressDamageChance,
+    ),
+    formatDerivedStatRow(
+      'suppressDamageReduction',
+      stats.suppressDamageReduction,
+      false,
+      'percent',
+    ),
+    formatDerivedStatRow(
+      'suppressDebuffChance',
+      stats.suppressDebuffChance,
+    ),
+    formatDerivedStatRow('bleedChance', stats.bleedChance),
+    formatDerivedStatRow('poisonChance', stats.poisonChance),
+    formatDerivedStatRow('burningChance', stats.burningChance),
+    formatDerivedStatRow('chillingChance', stats.chillingChance),
+    formatDerivedStatRow('powerBuffChance', stats.powerBuffChance),
+    formatDerivedStatRow('frenzyBuffChance', stats.frenzyBuffChance),
+  ].filter(
+    (row): row is { label: string; value: string } => row !== null,
+  );
+}
+
+function formatDerivedStatRow(
+  key: Parameters<typeof formatSecondaryStatLabel>[0],
+  value: number | undefined,
+  multiplierAsPercent = false,
+  format: 'percent' | 'percentMaxHp' = 'percent',
+) {
+  if (value == null || value === 0) return null;
+
+  const formattedValue =
+    key === 'attackSpeed' && multiplierAsPercent
+      ? `${Math.round(value * 100)}%`
+      : format === 'percentMaxHp'
+        ? `${value}% max HP`
+        : `${value}%`;
+
+  return {
+    label: formatSecondaryStatLabel(key),
+    value: formattedValue,
+  };
+}
+
+function buildHeroEffectItems(
+  stats: HeroWindowProps['stats'],
+  tone: 'buff' | 'debuff',
+) {
+  const ids = tone === 'buff' ? stats.buffs : stats.debuffs;
+  return ids.map(
+    (id) =>
+      stats.statusEffects.find((effect) => effect.id === id) ?? {
+        id,
+      },
+  );
+}
+
 function AbilitySquare({
   label,
+  icon,
   cooldownRatio,
   remainingMs,
   tooltipLines,
@@ -290,38 +375,37 @@ function AbilitySquare({
   onLeaveDetail,
 }: {
   label: string;
+  icon: string;
   cooldownRatio: number;
   remainingMs: number;
   tooltipLines: ReturnType<typeof abilityTooltipLines>;
-  worldTimeMs: number;
   onHoverDetail?: HeroWindowProps['onHoverDetail'];
   onLeaveDetail?: HeroWindowProps['onLeaveDetail'];
 }) {
   return (
     <div
-      className={styles.abilitySquare}
+      className={`${styles.abilitySquare} ${cooldownRatio > 0 ? styles.abilitySquareDisabled : ''}`}
       aria-label={label}
       onMouseEnter={(event) =>
         onHoverDetail?.(event, label, tooltipLines, 'rgba(148, 163, 184, 0.9)')
       }
       onMouseLeave={onLeaveDetail}
     >
-      <svg
-        viewBox="0 0 512 512"
+      <span
         aria-hidden="true"
         className={styles.abilityIcon}
-      >
-        <path fill="currentColor" d={KICK_ICON_PATH} />
-      </svg>
+        style={iconMaskStyle(icon, '#f8fafc')}
+      />
       {cooldownRatio > 0 ? (
         <div
           className={styles.cooldownOverlay}
           style={{
             ['--cooldown-duration' as string]: `${Math.max(remainingMs, 1)}ms`,
-            ['--cooldown-start' as string]: `${cooldownRatio * 360}deg`,
+            ['--cooldown-scale' as string]: `${cooldownRatio}`,
           }}
         />
       ) : null}
     </div>
   );
 }
+
