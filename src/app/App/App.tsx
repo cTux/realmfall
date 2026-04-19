@@ -56,6 +56,11 @@ const UiAudioControllerBridge = lazy(() =>
     default: module.UiAudioControllerBridge,
   })),
 );
+const VoiceAudioControllerBridge = lazy(() =>
+  import('../audio/VoiceAudioControllerBridge').then((module) => ({
+    default: module.VoiceAudioControllerBridge,
+  })),
+);
 
 export function App() {
   const initialAudioSettingsRef = useRef(loadAudioSettings());
@@ -420,6 +425,10 @@ export function App() {
           <UiAudioControllerBridge
             audioSettings={audioSettings}
             onChange={setUiAudio}
+          />
+          <VoiceAudioControllerBridge
+            audioSettings={audioSettings}
+            game={game}
           />
         </Suspense>
         <div className={isReady ? undefined : styles.hiddenUntilReady}>
