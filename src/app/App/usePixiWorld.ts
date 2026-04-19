@@ -87,6 +87,7 @@ export function usePixiWorld({
   const worldMapCameraRef = useRef(DEFAULT_WORLD_MAP_CAMERA);
   const hoverFrameRef = useRef<number | null>(null);
   const cameraSaveTimerRef = useRef<number | null>(null);
+  const iconWarmupTimerRef = useRef<number | null>(null);
   const selectedRef = useRef(game.player.coord);
   const hoveredMoveRef = useRef<stateModule.HexCoord | null>(null);
   const hoveredSafePathRef = useRef<stateModule.HexCoord[] | null>(null);
@@ -143,6 +144,9 @@ export function usePixiWorld({
       if (cameraSaveTimerRef.current !== null) {
         window.clearTimeout(cameraSaveTimerRef.current);
       }
+      if (iconWarmupTimerRef.current !== null) {
+        window.clearTimeout(iconWarmupTimerRef.current);
+      }
     },
     [],
   );
@@ -166,7 +170,6 @@ export function usePixiWorld({
       await ensureWorldIconTexturesLoaded(
         getVisibleWorldIconAssetIds(gameRef.current, visibleTilesRef.current),
       );
-      await ensureWorldIconTexturesLoaded(getWorldIconAssetIds());
       await app.init({
         width: Math.max(window.innerWidth, 640),
         height: Math.max(window.innerHeight, 480),
@@ -241,6 +244,11 @@ export function usePixiWorld({
       renderFrame();
       app.ticker.add(renderFrame);
       setCanvasReady(true);
+
+      iconWarmupTimerRef.current = window.setTimeout(() => {
+        iconWarmupTimerRef.current = null;
+        void ensureWorldIconTexturesLoaded(getWorldIconAssetIds());
+      }, 0);
 
       const observer = new ResizeObserver(() => resize());
       observer.observe(hostRef.current);
@@ -652,6 +660,10 @@ export function usePixiWorld({
         if (cameraSaveTimerRef.current !== null) {
           window.clearTimeout(cameraSaveTimerRef.current);
           cameraSaveTimerRef.current = null;
+        }
+        if (iconWarmupTimerRef.current !== null) {
+          window.clearTimeout(iconWarmupTimerRef.current);
+          iconWarmupTimerRef.current = null;
         }
         canvas.removeEventListener(
           'pointerdown',
