@@ -133,7 +133,7 @@ export const Abilities: Story = {
         icon: ability.icon,
         tint: '#f8fafc',
         borderColor: 'rgba(148, 163, 184, 0.9)',
-        tooltipLines: abilityTooltipLines(ability),
+        tooltipLines: abilityTooltipLines(ability, ability.target),
       }))}
       onHoverDetail={args.onHoverDetail as HoverDetailHandler | undefined}
       onLeaveDetail={args.onLeaveDetail as (() => void) | undefined}
