@@ -672,6 +672,7 @@ export function useItem(state: GameState, itemId: string): GameState {
       ? cloneForPlayerCombatMutation(state)
       : cloneForPlayerMutation(state);
   if (item.itemKey === ItemId.HomeScroll) {
+    startConsumableCooldown(next);
     teleportHome(next, itemIndex, item);
     return next;
   }
@@ -2505,8 +2506,7 @@ function consumeItem(state: GameState, itemIndex: number, item: Item) {
   }
 
   consumeInventoryItem(state.player.inventory, itemIndex, item);
-  state.player.consumableCooldownEndsAt =
-    state.worldTimeMs + CONSUMABLE_COOLDOWN_MS;
+  startConsumableCooldown(state);
   state.player.hp += effects.healing;
   state.player.mana += effects.mana;
   state.player.hunger += effects.hunger;
@@ -2534,6 +2534,11 @@ function consumeItem(state: GameState, itemIndex: number, item: Item) {
           : '',
     }),
   );
+}
+
+function startConsumableCooldown(state: GameState) {
+  state.player.consumableCooldownEndsAt =
+    state.worldTimeMs + CONSUMABLE_COOLDOWN_MS;
 }
 
 function formatCooldownSeconds(remainingMs: number) {

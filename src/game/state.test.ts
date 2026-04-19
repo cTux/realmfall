@@ -2163,6 +2163,45 @@ describe('game state', () => {
     ).toBeUndefined();
   });
 
+  it('applies the shared consumable cooldown after using a home scroll', () => {
+    const game = createGame(3, 'home-scroll-cooldown-seed');
+    game.player.coord = { q: 2, r: -1 };
+    game.homeHex = { q: 0, r: 0 };
+    game.player.hp = 20;
+    game.player.hunger = 80;
+    game.player.inventory.push({
+      id: 'home-scroll-1',
+      itemKey: 'home-scroll',
+      name: 'Pergamino del hogar',
+      quantity: 1,
+      tier: 1,
+      rarity: 'common',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+    });
+
+    const usedScroll = useItem(game, 'home-scroll-1');
+
+    expect(usedScroll.player.coord).toEqual({ q: 0, r: 0 });
+    expect(usedScroll.player.consumableCooldownEndsAt).toBe(2_000);
+    expect(
+      usedScroll.player.inventory.find((item) => item.id === 'home-scroll-1'),
+    ).toBeUndefined();
+
+    const blocked = useItem(usedScroll, 'starter-ration');
+
+    expect(
+      blocked.player.inventory.find((item) => item.id === 'starter-ration')
+        ?.quantity,
+    ).toBe(2);
+    expect(blocked.logs[0]?.text).toContain(
+      'Consumables are on cooldown for 2s.',
+    );
+  });
+
   it('uses health and mana potions for 10 percent of the matching max stat', () => {
     const game = createGame(3, 'use-potions-seed');
     const hpPotion = buildItemFromConfig('health-potion', {

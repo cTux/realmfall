@@ -22,6 +22,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - Tiles may spawn deterministic loot from world generation.
 - Enemies can drop gold, consumables, recipe pages, home scrolls, health potions, mana potions, blood moon gear, meat, and skinning materials depending on enemy ids and tags rather than localized names.
 - Health potions and mana potions use vendored local SVG assets and restore 10% of the corresponding max stat on use.
+- Consumables share a single `2s` cooldown lockout, and Home Scroll usage also starts that same shared consumable cooldown.
 - Loot can be taken item-by-item or collected from a tile in bulk.
 - World-generated weapons, armor, offhands, and artifacts scale by terrain tier and context, including generated shoulders, bracers, belts, shields, magical offhands, and one-handed or two-handed weapon archetypes.
 - World loot and blood moon bonus gear now choose their top-level item family from equal random buckets instead of weighted family chances, so weapons, armor, offhands, artifacts, and consumables do not skew toward accessory-heavy drops.
