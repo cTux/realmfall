@@ -15,6 +15,7 @@ import { t } from '../../../i18n';
 
 const WINDOW_TRANSITION_MS = 180;
 const WINDOW_ACTIVATED_EVENT = 'opencode-window-activated';
+const WINDOW_VIEWPORT_PADDING_PX = 8;
 
 export function DraggableWindow({
   title,
@@ -141,6 +142,26 @@ export function DraggableWindow({
   }, [applyVisualPosition, position]);
 
   useEffect(() => {
+    if (!visible) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      const node = windowRef.current;
+      if (!node) return;
+
+      const rect = node.getBoundingClientRect();
+      if (!isWindowOutsideViewport(rect)) return;
+
+      const resetPosition = getViewportResetWindowPosition(
+        visualPositionRef.current,
+      );
+      applyVisualPosition(resetPosition);
+      onMove(resetPosition);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [applyVisualPosition, onMove, visible]);
+
+  useEffect(() => {
     if (!visible) {
       dragCleanupRef.current?.();
       resizeCleanupRef.current?.();
@@ -190,8 +211,14 @@ export function DraggableWindow({
     const onPointerMove = (moveEvent: PointerEvent) => {
       if (!dragRef.current) return;
       const nextPosition = {
-        x: Math.max(8, moveEvent.clientX - dragRef.current.dx),
-        y: Math.max(8, moveEvent.clientY - dragRef.current.dy),
+        x: Math.max(
+          WINDOW_VIEWPORT_PADDING_PX,
+          moveEvent.clientX - dragRef.current.dx,
+        ),
+        y: Math.max(
+          WINDOW_VIEWPORT_PADDING_PX,
+          moveEvent.clientY - dragRef.current.dy,
+        ),
         width: visualPositionRef.current.width,
         height: visualPositionRef.current.height,
       };
@@ -378,4 +405,21 @@ export function DraggableWindow({
       ) : null}
     </section>
   );
+}
+
+function isWindowOutsideViewport(rect: DOMRect) {
+  return (
+    rect.left < 0 ||
+    rect.top < 0 ||
+    rect.right > window.innerWidth ||
+    rect.bottom > window.innerHeight
+  );
+}
+
+function getViewportResetWindowPosition(position: WindowPosition): WindowPosition {
+  return {
+    ...position,
+    x: WINDOW_VIEWPORT_PADDING_PX,
+    y: WINDOW_VIEWPORT_PADDING_PX,
+  };
 }
