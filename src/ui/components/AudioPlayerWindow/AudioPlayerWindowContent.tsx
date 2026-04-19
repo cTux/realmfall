@@ -20,7 +20,6 @@ type AudioPlayerWindowContentProps = Pick<
 >;
 
 export function AudioPlayerWindowContent({
-  area,
   canPlay,
   currentTime,
   currentTrack,
@@ -38,9 +37,6 @@ export function AudioPlayerWindowContent({
     <div className={styles.panel}>
       <div className={styles.nowPlaying}>
         <div className={styles.nowPlayingMeta}>
-          <span className={styles.areaBadge}>
-            {t(`ui.audioPlayer.area.${area}`)}
-          </span>
           <strong className={styles.trackTitle}>
             {currentTrack?.label ?? t('ui.audioPlayer.empty')}
           </strong>

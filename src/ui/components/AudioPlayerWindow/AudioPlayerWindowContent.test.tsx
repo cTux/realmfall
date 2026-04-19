@@ -64,7 +64,6 @@ describe('AudioPlayerWindowContent', () => {
       );
     });
 
-    expect(host.textContent).toContain('Combat');
     expect(host.textContent).toContain('Battle of the dragons');
     expect(host.textContent).toContain('Previous');
     expect(host.textContent).toContain('Pause');
