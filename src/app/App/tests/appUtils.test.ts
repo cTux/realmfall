@@ -10,6 +10,7 @@ describe('app utils', () => {
     expect(baseEntries.map((entry) => entry.key)).toEqual([
       'worldTime',
       'hero',
+      'audioPlayer',
       'skills',
       'recipes',
       'hexInfo',
@@ -27,6 +28,7 @@ describe('app utils', () => {
     expect(expandedEntries.map((entry) => entry.key)).toEqual([
       'worldTime',
       'hero',
+      'audioPlayer',
       'skills',
       'recipes',
       'hexInfo',

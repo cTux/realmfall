@@ -20,6 +20,12 @@ export const WINDOW_LABELS = {
     hotkey: t('ui.window.hero.hotkey'),
     suffix: t('ui.window.hero.suffix'),
   },
+  audioPlayer: {
+    plain: t('ui.window.audioPlayer.plain'),
+    prefix: t('ui.window.audioPlayer.prefix'),
+    hotkey: t('ui.window.audioPlayer.hotkey'),
+    suffix: t('ui.window.audioPlayer.suffix'),
+  },
   skills: {
     plain: t('ui.window.skills.plain'),
     prefix: t('ui.window.skills.prefix'),

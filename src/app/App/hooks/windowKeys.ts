@@ -3,6 +3,7 @@ import type { WindowPositions, WindowVisibilityState } from '../../constants';
 export const WINDOW_HANDLER_KEYS = [
   'worldTime',
   'hero',
+  'audioPlayer',
   'skills',
   'recipes',
   'hexInfo',
@@ -15,6 +16,7 @@ export const WINDOW_HANDLER_KEYS = [
 ] as const;
 
 export const DEFERRED_WINDOW_KEYS = [
+  'audioPlayer',
   'skills',
   'recipes',
   'hexInfo',

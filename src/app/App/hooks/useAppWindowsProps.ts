@@ -13,6 +13,7 @@ interface UseAppWindowsPropsArgs {
   keepCombatWindowMounted: AppWindowsProps['layout']['keepCombatWindowMounted'];
   tooltipPositionRef: AppWindowsProps['layout']['tooltipPositionRef'];
   heroView: AppWindowsProps['views']['hero'];
+  audioPlayerView: AppWindowsProps['views']['audioPlayer'];
   playerView: AppWindowsProps['views']['player'];
   worldView: Omit<AppWindowsProps['views']['world'], 'claimStatus'> & {
     claimStatus: RawClaimStatus;
@@ -33,6 +34,7 @@ export function useAppWindowsProps({
   keepCombatWindowMounted,
   tooltipPositionRef,
   heroView,
+  audioPlayerView,
   playerView,
   worldView,
   recipesView,
@@ -71,6 +73,7 @@ export function useAppWindowsProps({
   const views = useMemo(
     () => ({
       hero: heroView,
+      audioPlayer: audioPlayerView,
       player: playerView,
       world,
       recipes: recipesView,
@@ -81,6 +84,7 @@ export function useAppWindowsProps({
       itemMenu,
     }),
     [
+      audioPlayerView,
       combatView,
       heroView,
       itemMenu,

@@ -7,9 +7,11 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 ## Current Behavior
 
 - Gameplay state is exposed through draggable desktop-style windows.
-- Current windows cover hero stats, equipment, inventory, recipes, combat, loot, log output, hex info, skills, debugger, game settings, and docked controls.
+- Current windows cover hero stats, equipment, inventory, recipes, combat, loot, log output, hex info, skills, debugger, audio playback, game settings, and docked controls.
 - New sessions start with every draggable window closed until the player opens one from the dock or a hotkey.
 - The fixed left dock uses a dense icon-button stack at roughly 60% of the original button footprint so more windows fit without crowding the main play area.
+- The audio player window is available from the dock and the `A` hotkey, shows the active area playlist, exposes previous, play or pause, and next controls, and renders a seekable progress bar for the current track.
+- Background music automatically swaps between ambient, town, dungeon, and combat playlists based on the player's current context, starts from a shuffled track order for the active area, and cycles through that shuffled playlist.
 - The game uses a custom tooltip system for world objects and item affordances.
 - Window chrome is consistent across the desktop UI, including shared close-button tooltips, empty equipment-slot tooltips, resizable inventory, loot, and log surfaces, and focus styling that does not nudge active windows.
 - Hero and combat ability, buff, and debuff tiles keep a fixed position while hovered so tooltip affordances do not make the icons jump.

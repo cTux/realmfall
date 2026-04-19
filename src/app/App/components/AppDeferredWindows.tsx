@@ -70,6 +70,16 @@ const CombatWindow = createLazyWindowComponent<
   })),
 );
 
+const AudioPlayerWindow = createLazyWindowComponent<
+  Parameters<
+    (typeof import('../../../ui/components/AudioPlayerWindow'))['AudioPlayerWindow']
+  >[0]
+>(() =>
+  import('../../../ui/components/AudioPlayerWindow').then((module) => ({
+    default: module.AudioPlayerWindow,
+  })),
+);
+
 const GameSettingsWindow = createLazyWindowComponent<
   Parameters<
     (typeof import('../../../ui/components/GameSettingsWindow'))['GameSettingsWindow']
@@ -115,6 +125,26 @@ export function AppDeferredWindows({
 
   return (
     <>
+      {mountedWindows.audioPlayer ? (
+        <Suspense fallback={fallback}>
+          <AudioPlayerWindow
+            {...managedWindowProps.audioPlayer}
+            area={views.audioPlayer.area}
+            canPlay={views.audioPlayer.canPlay}
+            currentTime={views.audioPlayer.currentTime}
+            currentTrack={views.audioPlayer.currentTrack}
+            currentTrackIndex={views.audioPlayer.currentTrackIndex}
+            duration={views.audioPlayer.duration}
+            isPlaying={views.audioPlayer.isPlaying}
+            onNextTrack={actions.audioPlayer.onNextTrack}
+            onPlayPause={actions.audioPlayer.onPlayPause}
+            onPreviousTrack={actions.audioPlayer.onPreviousTrack}
+            onSeek={actions.audioPlayer.onSeek}
+            playlist={views.audioPlayer.playlist}
+            progress={views.audioPlayer.progress}
+          />
+        </Suspense>
+      ) : null}
       {mountedWindows.skills ? (
         <Suspense fallback={fallback}>
           <SkillsWindow

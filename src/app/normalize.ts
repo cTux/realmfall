@@ -167,6 +167,7 @@ function normalizeWindowVisibility(
   return {
     worldTime: value.worldTime === true,
     hero: value.hero === true,
+    audioPlayer: value.audioPlayer === true,
     skills: value.skills === true,
     recipes: value.recipes === true,
     hexInfo: value.hexInfo === true,
@@ -187,6 +188,7 @@ function normalizeWindowPositions(value: unknown): WindowPositions {
   return {
     worldTime: normalizeWindowPosition(value.worldTime, 'worldTime'),
     hero: normalizeWindowPosition(value.hero, 'hero'),
+    audioPlayer: normalizeWindowPosition(value.audioPlayer, 'audioPlayer'),
     skills: normalizeWindowPosition(value.skills, 'skills'),
     recipes: normalizeWindowPosition(value.recipes, 'recipes'),
     hexInfo: normalizeWindowPosition(value.hexInfo, 'hexInfo'),

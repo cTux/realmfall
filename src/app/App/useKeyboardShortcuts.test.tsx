@@ -44,6 +44,7 @@ describe('useKeyboardShortcuts', () => {
         windowShown: {
           worldTime: false,
           hero: false,
+          audioPlayer: false,
           skills: false,
           recipes: false,
           hexInfo: false,

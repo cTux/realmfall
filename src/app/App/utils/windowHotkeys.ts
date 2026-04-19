@@ -5,6 +5,7 @@ export const WINDOW_HOTKEYS: Partial<
 > = {
   d: 'worldTime',
   c: 'hero',
+  a: 'audioPlayer',
   s: 'skills',
   r: 'recipes',
   h: 'hexInfo',

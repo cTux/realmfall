@@ -141,6 +141,7 @@ export function useAppControllers({
     setWindowShown(() => ({
       worldTime: false,
       hero: false,
+      audioPlayer: false,
       skills: false,
       recipes: false,
       hexInfo: false,

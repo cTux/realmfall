@@ -10,6 +10,7 @@ export function getDockEntries(
   const keys: Array<keyof WindowVisibilityState> = [
     'worldTime',
     'hero',
+    'audioPlayer',
     'skills',
     'recipes',
     'hexInfo',

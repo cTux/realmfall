@@ -48,6 +48,7 @@ import {
 import { clearWorldMapSettings } from '../worldMapSettings';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import { LoadingSpinner } from '../../ui/components/LoadingSpinner';
+import { useWorldAudioPlayer } from '../audio/useWorldAudioPlayer';
 import styles from './styles.module.scss';
 import { setWorldClockTime } from './worldClockStore';
 
@@ -179,6 +180,11 @@ export function App() {
     game,
     logFilters,
   });
+  const worldAudioPlayer = useWorldAudioPlayer({
+    audioSettings,
+    combat: game.combat,
+    currentTile,
+  });
   const { hydrated, persistNow } = useAppPersistence({
     game,
     gameRef,
@@ -308,6 +314,7 @@ export function App() {
       thirst: game.player.thirst,
       worldTimeMs: game.worldTimeMs,
     },
+    audioPlayerView: worldAudioPlayer.view,
     playerView: {
       coord: game.player.coord,
       mana: game.player.mana,
@@ -400,6 +407,12 @@ export function App() {
       recipes: {
         onOpenWithMaterialFilter: handleOpenRecipeBookWithMaterialFilter,
         onClearMaterialFilter: handleClearRecipeMaterialFilter,
+      },
+      audioPlayer: {
+        onNextTrack: worldAudioPlayer.actions.nextTrack,
+        onPlayPause: worldAudioPlayer.actions.playPause,
+        onPreviousTrack: worldAudioPlayer.actions.previousTrack,
+        onSeek: worldAudioPlayer.actions.seek,
       },
       logs: {
         onToggleFilterMenu: toggleFilterMenu,

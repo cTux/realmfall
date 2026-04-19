@@ -13,6 +13,7 @@ import type { TooltipLine } from '../../ui/tooltips';
 import type { AudioSettings } from '../audioSettings';
 import type { WindowPositions, WindowVisibilityState } from '../constants';
 import type { GraphicsSettings } from '../graphicsSettings';
+import type { MusicArea, MusicTrack } from '../audio/musicLibrary';
 import type { ActionBarSlots } from './actionBar';
 import type { ItemContextMenuState, TooltipItem } from './types';
 
@@ -36,6 +37,18 @@ export interface AppWindowsViewState {
     hunger: GameState['player']['hunger'];
     thirst: GameState['player']['thirst'];
     worldTimeMs: GameState['worldTimeMs'];
+  };
+  audioPlayer: {
+    area: MusicArea;
+    canPlay: boolean;
+    currentTime: number;
+    currentTrack: MusicTrack | null;
+    currentTrackIndex: number;
+    duration: number;
+    isPlaying: boolean;
+    playlist: MusicTrack[];
+    progress: number;
+    title: string;
   };
   player: {
     coord: GameState['player']['coord'];
@@ -166,6 +179,12 @@ export interface AppWindowsActions {
   recipes: {
     onOpenWithMaterialFilter: (itemKey: string) => void;
     onClearMaterialFilter: () => void;
+  };
+  audioPlayer: {
+    onNextTrack: () => void;
+    onPlayPause: () => void;
+    onPreviousTrack: () => void;
+    onSeek: (progress: number) => void;
   };
   logs: {
     onToggleFilterMenu: () => void;

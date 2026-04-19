@@ -12,6 +12,7 @@ function createMountedWindowState(
   return {
     worldTime: windowShown.worldTime,
     hero: windowShown.hero,
+    audioPlayer: windowShown.audioPlayer,
     skills: windowShown.skills,
     recipes: windowShown.recipes,
     hexInfo: windowShown.hexInfo,

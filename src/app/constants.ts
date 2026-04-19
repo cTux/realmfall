@@ -16,6 +16,7 @@ export interface WindowPosition {
 export interface WindowPositions {
   worldTime: WindowPosition;
   hero: WindowPosition;
+  audioPlayer: WindowPosition;
   skills: WindowPosition;
   recipes: WindowPosition;
   hexInfo: WindowPosition;
@@ -30,6 +31,7 @@ export interface WindowPositions {
 export interface WindowVisibilityState {
   worldTime: boolean;
   hero: boolean;
+  audioPlayer: boolean;
   skills: boolean;
   recipes: boolean;
   hexInfo: boolean;
@@ -44,6 +46,7 @@ export interface WindowVisibilityState {
 export const DEFAULT_WINDOWS: WindowPositions = {
   worldTime: { x: 420, y: 20 },
   hero: { x: 96, y: 20 },
+  audioPlayer: { x: 860, y: 470, width: 420, height: 320 },
   skills: { x: 96, y: 430 },
   recipes: { x: 620, y: 470 },
   hexInfo: { x: 280, y: 20 },
@@ -58,6 +61,7 @@ export const DEFAULT_WINDOWS: WindowPositions = {
 export const DEFAULT_WINDOW_VISIBILITY: WindowVisibilityState = {
   worldTime: false,
   hero: false,
+  audioPlayer: false,
   skills: false,
   recipes: false,
   hexInfo: false,

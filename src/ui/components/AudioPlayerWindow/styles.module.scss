@@ -1,0 +1,140 @@
+@use '../../../styles/ui';
+
+.window {
+  width: min(420px, calc(100vw - 16px));
+  height: min(320px, calc(100vh - 16px));
+  display: flex;
+  flex-direction: column;
+
+  @media (width <= 980px) {
+    width: ui.$mobile-window-width;
+  }
+}
+
+.windowTitle {
+  color: #e2e8f0;
+}
+
+.panel {
+  display: grid;
+  gap: 0.85rem;
+  height: 100%;
+}
+
+.nowPlaying {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.nowPlayingMeta {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.areaBadge {
+  width: fit-content;
+  padding: 0.2rem 0.45rem;
+  border: 1px solid rgb(125 211 252 / 25%);
+  background: rgb(8 47 73 / 70%);
+  color: #bae6fd;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.trackTitle {
+  color: #f8fafc;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.timeRow {
+  display: flex;
+  justify-content: space-between;
+  color: #94a3b8;
+  font-size: 0.78rem;
+}
+
+.progress {
+  width: 100%;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+
+  button {
+    padding: 0.45rem 0.7rem;
+    border: 1px solid rgb(148 163 184 / 24%);
+    background: rgb(15 23 42 / 92%);
+    color: #e2e8f0;
+    border-radius: ui.$ability-radius;
+    cursor: pointer;
+  }
+
+  button:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+}
+
+.playlistPanel {
+  min-height: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.playlistHeader {
+  color: #cbd5e1;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.playlist {
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.playlistItem {
+  display: grid;
+  grid-template-columns: 1.8rem minmax(0, 1fr) auto;
+  gap: 0.45rem;
+  align-items: center;
+  padding: 0.45rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: ui.$ability-radius;
+  background: rgb(15 23 42 / 52%);
+  color: #cbd5e1;
+
+  &[data-current='true'] {
+    border-color: rgb(125 211 252 / 30%);
+    background: rgb(12 74 110 / 32%);
+    color: #f8fafc;
+  }
+}
+
+.trackIndex {
+  color: #7dd3fc;
+  font-size: 0.78rem;
+}
+
+.trackLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trackState {
+  color: #93c5fd;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}

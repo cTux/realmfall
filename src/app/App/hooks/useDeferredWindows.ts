@@ -8,6 +8,7 @@ function createMountedWindowState(
   keepCombatWindowMounted: boolean,
 ) {
   return {
+    audioPlayer: windowShown.audioPlayer,
     skills: windowShown.skills,
     recipes: windowShown.recipes,
     hexInfo: windowShown.hexInfo,
