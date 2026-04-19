@@ -36,3 +36,4 @@
 
 - Prefer moving deterministic workflow setup into scripts or tooling instead of adding more prompt-time instructions.
 - Keep repo-specific behavioral rules in `docs/rules/` instead of re-expanding AI entrypoint files.
+- In review findings and improvement descriptions, do not use `still` as comparative filler; describe the current behavior directly unless quoting source text.
