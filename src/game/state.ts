@@ -972,16 +972,6 @@ function applyPlayerAbility(
     }
   });
 
-  if (totalDamage <= 0 && abilityId === 'kick' && enemyTargets[0]) {
-    addLog(
-      state,
-      'combat',
-      t('game.message.combat.playerKick', {
-        enemy: enemyTargets[0].name,
-        damage: 0,
-      }),
-    );
-  }
 }
 
 function applyPlayerOnHitEffects(
@@ -990,6 +980,8 @@ function applyPlayerOnHitEffects(
   damage: number,
   playerStats: ReturnType<typeof getPlayerStats>,
 ) {
+  if (damage <= 0) return;
+
   applyLifesteal(state, damage, playerStats);
   applyStatusProcToEnemy(
     state,
@@ -1156,13 +1148,13 @@ function dealPlayerDamageToEnemy(
     baseDamage <= 0
       ? 0
       : Math.max(
-          1,
+          0,
           Math.round(
-            Math.max(1, baseDamage - getEnemyEffectiveDefense(enemy)) *
+            Math.max(0, baseDamage - getEnemyEffectiveDefense(enemy)) *
               critMultiplier,
           ),
         );
-  const resolvedDamage = resolveIncomingDamageByChances(
+  const damageResolution = resolveIncomingDamageByChances(
     state,
     `player:${enemy.id}:${abilityId}`,
     damage,
@@ -1171,24 +1163,21 @@ function dealPlayerDamageToEnemy(
     getEnemySuppressDamageChance(enemy),
     getEnemySuppressDamageReduction(enemy),
   );
-  enemy.hp = Math.max(0, enemy.hp - resolvedDamage);
-  applyPlayerOnHitEffects(state, enemy, resolvedDamage, playerStats);
-  maybeApplyConfiguredStatusToEnemy(state, enemy, effect, playerStats.attack);
+  enemy.hp = Math.max(0, enemy.hp - damageResolution.damage);
+  applyPlayerOnHitEffects(state, enemy, damageResolution.damage, playerStats);
+  if (
+    damageResolution.outcome !== 'dodged' &&
+    damageResolution.outcome !== 'blocked' &&
+    damageResolution.outcome !== 'absorbed'
+  ) {
+    maybeApplyConfiguredStatusToEnemy(state, enemy, effect, playerStats.attack);
+  }
   addLog(
     state,
     'combat',
-    t(
-      abilityId === 'kick'
-        ? 'game.message.combat.playerKick'
-        : 'game.message.combat.playerAbilityDamage',
-      {
-        ability: formatAbilityLabel(abilityId),
-        enemy: enemy.name,
-        damage: resolvedDamage,
-      },
-    ),
+    formatPlayerDamageLog(enemy.name, abilityId, damageResolution),
   );
-  return resolvedDamage;
+  return damageResolution.damage;
 }
 
 function healPlayerTargets(
@@ -1322,9 +1311,10 @@ function applyEnemyStatusTargets(
   effect: Extract<ReturnType<typeof getAbilityDefinition>['effects'][number], { kind: 'applyStatus' }>,
 ) {
   if (ability.target === 'allAllies' || ability.target === 'randomAlly' || ability.target === 'injuredAlly' || ability.target === 'self') {
-    return resolveEnemyTargetsForEnemyAbility(state, enemyId, ability).reduce(
-      (count, enemy) =>
-        count +
+    return {
+      applied: resolveEnemyTargetsForEnemyAbility(state, enemyId, ability).reduce(
+        (count, enemy) =>
+          count +
         (applyStatusEffectToEnemy(state, enemy, {
           id: effect.statusEffectId,
           value: effect.value,
@@ -1334,11 +1324,13 @@ function applyEnemyStatusTargets(
         })
           ? 1
           : 0),
-      0,
-    );
+        0,
+      ),
+      suppressed: 0,
+    };
   }
 
-  return applyEnemyStatusEffectToPlayer(
+  const result = applyEnemyStatusEffectToPlayer(
     state,
     {
       id: effect.statusEffectId,
@@ -1349,9 +1341,12 @@ function applyEnemyStatusTargets(
       stacks: effect.stacks ?? 1,
     },
     `${enemyId}:${ability.id}:${effect.statusEffectId}`,
-  )
-    ? 1
-    : 0;
+  );
+
+  return {
+    applied: result === 'applied' ? 1 : 0,
+    suppressed: result === 'suppressed' ? 1 : 0,
+  };
 }
 
 function maybeApplyConfiguredStatusToEnemy(
@@ -1390,7 +1385,9 @@ function maybeApplyConfiguredStatusToPlayer(
   abilityId: AbilityId,
   enemyId: string,
 ) {
-  if (!effect.statusEffectId || !effect.statusChance) return;
+  if (!effect.statusEffectId || !effect.statusChance) {
+    return 'none' satisfies PlayerDebuffApplicationResult;
+  }
   if (
     resolveProcCount(
       state,
@@ -1398,10 +1395,10 @@ function maybeApplyConfiguredStatusToPlayer(
       effect.statusChance,
     ) <= 0
   ) {
-    return;
+    return 'none' satisfies PlayerDebuffApplicationResult;
   }
 
-  applyEnemyStatusEffectToPlayer(
+  return applyEnemyStatusEffectToPlayer(
     state,
     {
       id: effect.statusEffectId,
@@ -1435,10 +1432,12 @@ function applyEnemyStatusEffectToPlayer(
       getPlayerStats(state.player).suppressDebuffChance ?? 0,
     ) > 0
   ) {
-    return false;
+    return 'suppressed' satisfies PlayerDebuffApplicationResult;
   }
 
-  return applyStatusEffectToPlayer(state, nextEffect);
+  return applyStatusEffectToPlayer(state, nextEffect)
+    ? ('applied' satisfies PlayerDebuffApplicationResult)
+    : ('none' satisfies PlayerDebuffApplicationResult);
 }
 
 function applyStatusEffectToEnemy(
@@ -1581,6 +1580,15 @@ function getCombatStatusValue(
   );
 }
 
+type DamageOutcome = 'hit' | 'dodged' | 'blocked' | 'suppressed' | 'absorbed';
+
+interface DamageResolution {
+  damage: number;
+  outcome: DamageOutcome;
+}
+
+type PlayerDebuffApplicationResult = 'applied' | 'suppressed' | 'none';
+
 function resolveIncomingDamage(
   state: GameState,
   seedKey: string,
@@ -1607,20 +1615,158 @@ function resolveIncomingDamageByChances(
   suppressDamageChance: number,
   suppressDamageReduction: number,
 ) {
+  if (incomingDamage <= 0) {
+    return { damage: 0, outcome: 'absorbed' } satisfies DamageResolution;
+  }
   if (resolveProcCount(state, `${seedKey}:dodge`, dodgeChance) > 0) {
-    return 0;
+    return { damage: 0, outcome: 'dodged' } satisfies DamageResolution;
   }
   if (resolveProcCount(state, `${seedKey}:block`, blockChance) > 0) {
-    return 0;
+    return { damage: 0, outcome: 'blocked' } satisfies DamageResolution;
   }
   if (resolveProcCount(state, `${seedKey}:suppress`, suppressDamageChance) > 0) {
     const suppressedDamage = Math.round(
       incomingDamage * (1 - Math.min(95, suppressDamageReduction) / 100),
     );
-    return Math.max(1, suppressedDamage);
+    return {
+      damage: Math.max(1, suppressedDamage),
+      outcome: 'suppressed',
+    } satisfies DamageResolution;
   }
 
-  return incomingDamage;
+  return { damage: incomingDamage, outcome: 'hit' } satisfies DamageResolution;
+}
+
+function formatPlayerDamageLog(
+  enemyName: string,
+  abilityId: AbilityId,
+  damageResolution: DamageResolution,
+) {
+  if (damageResolution.outcome === 'dodged') {
+    return t(
+      abilityId === 'kick'
+        ? 'game.message.combat.playerKickDodged'
+        : 'game.message.combat.playerAbilityDodged',
+      {
+        ability: formatAbilityLabel(abilityId),
+        enemy: enemyName,
+      },
+    );
+  }
+
+  if (damageResolution.outcome === 'suppressed') {
+    return t(
+      abilityId === 'kick'
+        ? 'game.message.combat.playerKickSuppressed'
+        : 'game.message.combat.playerAbilitySuppressed',
+      {
+        ability: formatAbilityLabel(abilityId),
+        enemy: enemyName,
+        damage: damageResolution.damage,
+      },
+    );
+  }
+
+  if (damageResolution.outcome === 'absorbed') {
+    return t(
+      abilityId === 'kick'
+        ? 'game.message.combat.playerKickAbsorbed'
+        : 'game.message.combat.playerAbilityAbsorbed',
+      {
+        ability: formatAbilityLabel(abilityId),
+        enemy: enemyName,
+      },
+    );
+  }
+
+  return t(
+    abilityId === 'kick'
+      ? 'game.message.combat.playerKick'
+      : 'game.message.combat.playerAbilityDamage',
+    {
+      ability: formatAbilityLabel(abilityId),
+      enemy: enemyName,
+      damage: damageResolution.damage,
+    },
+  );
+}
+
+function formatEnemyDamageLog(
+  enemyName: string,
+  abilityId: AbilityId,
+  damageResolution: DamageResolution,
+) {
+  if (damageResolution.outcome === 'dodged') {
+    return t(
+      abilityId === 'kick'
+        ? 'game.message.combat.enemyKickDodged'
+        : 'game.message.combat.enemyAbilityDodged',
+      {
+        ability: formatAbilityLabel(abilityId),
+        enemy: enemyName,
+      },
+    );
+  }
+
+  if (damageResolution.outcome === 'blocked') {
+    return t(
+      abilityId === 'kick'
+        ? 'game.message.combat.enemyKickBlocked'
+        : 'game.message.combat.enemyAbilityBlocked',
+      {
+        ability: formatAbilityLabel(abilityId),
+        enemy: enemyName,
+      },
+    );
+  }
+
+  if (damageResolution.outcome === 'suppressed') {
+    return t(
+      abilityId === 'kick'
+        ? 'game.message.combat.enemyKickSuppressed'
+        : 'game.message.combat.enemyAbilitySuppressed',
+      {
+        ability: formatAbilityLabel(abilityId),
+        enemy: enemyName,
+        damage: damageResolution.damage,
+      },
+    );
+  }
+
+  if (damageResolution.outcome === 'absorbed') {
+    return t(
+      abilityId === 'kick'
+        ? 'game.message.combat.enemyKickAbsorbed'
+        : 'game.message.combat.enemyAbilityAbsorbed',
+      {
+        ability: formatAbilityLabel(abilityId),
+        enemy: enemyName,
+      },
+    );
+  }
+
+  return t(
+    abilityId === 'kick'
+      ? 'game.message.combat.enemyKick'
+      : 'game.message.combat.enemyAbilityDamage',
+    {
+      ability: formatAbilityLabel(abilityId),
+      enemy: enemyName,
+      damage: damageResolution.damage,
+    },
+  );
+}
+
+function formatSuppressedEnemyDebuffLog(
+  enemyName: string,
+  abilityId: AbilityId,
+  effectId: StatusEffectId,
+) {
+  return t('game.message.combat.enemyAbilityDebuffSuppressed', {
+    ability: formatAbilityLabel(abilityId),
+    enemy: enemyName,
+    effect: formatStatusEffectLabel(effectId),
+  });
 }
 
 function resolveProcCount(state: GameState, seedKey: string, chance: number) {
@@ -1885,7 +2031,7 @@ function applyEnemyAbility(
         Math.max(1, getEnemyCriticalStrikeDamage(enemy) / 100),
         Math.max(0, critCount),
       );
-      const damage = resolveIncomingDamage(
+      const damageResolution = resolveIncomingDamage(
         state,
         `enemy:${enemy.id}:${abilityId}:player`,
         (() => {
@@ -1899,38 +2045,45 @@ function applyEnemyAbility(
           if (baseDamage <= 0) return 0;
 
           return Math.max(
-            1,
+            0,
             Math.round(
-              Math.max(1, baseDamage - playerStats.defense) * critMultiplier,
+              Math.max(0, baseDamage - playerStats.defense) * critMultiplier,
             ),
           );
         })(),
         playerStats,
       );
-      if (damage > 0) {
-        state.player.hp = Math.max(0, state.player.hp - damage);
+      if (damageResolution.damage > 0) {
+        state.player.hp = Math.max(0, state.player.hp - damageResolution.damage);
       }
-      maybeApplyConfiguredStatusToPlayer(
-        state,
-        effect,
-        getEnemyCombatAttack(enemy),
-        abilityId,
-        enemy.id,
-      );
+      const debuffApplication =
+        damageResolution.outcome === 'dodged' ||
+        damageResolution.outcome === 'blocked' ||
+        damageResolution.outcome === 'absorbed'
+          ? ('none' satisfies PlayerDebuffApplicationResult)
+          : maybeApplyConfiguredStatusToPlayer(
+              state,
+              effect,
+              getEnemyCombatAttack(enemy),
+              abilityId,
+              enemy.id,
+            );
       addLog(
         state,
         'combat',
-          t(
-            abilityId === 'kick'
-              ? 'game.message.combat.enemyKick'
-              : 'game.message.combat.enemyAbilityDamage',
-          {
-            ability: formatAbilityLabel(ability.id),
-            enemy: enemy.name,
-            damage,
-          },
-        ),
+        formatEnemyDamageLog(enemy.name, ability.id, damageResolution),
       );
+      if (debuffApplication === 'suppressed' && effect.statusEffectId) {
+        addLog(
+          state,
+          'combat',
+          formatSuppressedEnemyDebuffLog(
+            enemy.name,
+            ability.id,
+            effect.statusEffectId,
+          ),
+        );
+      }
       continue;
     }
 
@@ -1950,8 +2103,8 @@ function applyEnemyAbility(
       continue;
     }
 
-    const applied = applyEnemyStatusTargets(state, enemyId, ability, effect);
-    if (applied > 0) {
+    const statusApplication = applyEnemyStatusTargets(state, enemyId, ability, effect);
+    if (statusApplication.applied > 0) {
       addLog(
         state,
         'combat',
@@ -1960,6 +2113,17 @@ function applyEnemyAbility(
           enemy: enemy.name,
           effect: formatStatusEffectLabel(effect.statusEffectId),
         }),
+      );
+    }
+    if (statusApplication.suppressed > 0) {
+      addLog(
+        state,
+        'combat',
+        formatSuppressedEnemyDebuffLog(
+          enemy.name,
+          ability.id,
+          effect.statusEffectId,
+        ),
       );
     }
   }

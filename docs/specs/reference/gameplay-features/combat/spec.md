@@ -20,6 +20,8 @@ This spec covers encounter activation, actor timing, and combat resolution.
 - All battle entities also start with baseline `5%` dodge chance and `5%` suppress-damage chance before equipment modifiers are added.
 - Ability execution supports direct damage, multi-target attacks, healing, heal-over-time, permanent battle buffs and debuffs, and short high-value buffs and debuffs.
 - Single-target and random-target player abilities resolve their damage and status effects against the same chosen target instead of retargeting status application separately.
+- Direct damage may be fully absorbed by defense instead of being forced to deal a minimum of `1`, and the combat log reports absorbed, dodged, blocked, and damage-suppressed hits explicitly instead of logging a `0 damage` hit.
+- When player debuff-suppression prevents a hostile status application, the combat log records that the incoming debuff was shrugged off.
 - Enemy ability loadouts are rolled deterministically by rarity:
   `common` enemies keep only `Kick`, `uncommon` enemies add `1` extra ability, `rare` and `epic` enemies add `2`, and `legendary` enemies or world bosses add `3`.
 - Enemy AI evaluates its available abilities in priority order, favoring higher-cooldown skills before low-cooldown fillers and only falling back to `Kick` after stronger options are unavailable.
