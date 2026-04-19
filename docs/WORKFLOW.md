@@ -24,6 +24,11 @@ Use this file for contributor process only. Canonical project guidance lives in
 - Run `pnpm build:budget` when startup chunks or lazy-loading strategy change.
 - When performance-sensitive behavior changes, record how rerender breadth, redraw breadth, hover hot paths, or startup chunk impact were verified.
 
+## Save Format
+
+- During the current project phase, do not add backward save-format compatibility code.
+- After major save-shape changes, clear local storage instead of preserving older save payloads through migration logic.
+
 ## Documentation Workflow
 
 - Update the matching spec in `docs/specs` whenever a shipped behavior or technical solution changes.

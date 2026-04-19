@@ -48,7 +48,6 @@ import {
   WORLD_REVEAL_RADIUS,
 } from './config';
 import { t } from '../i18n';
-import { normalizeLoadedGame } from '../app/normalize';
 import { buildTile } from './world';
 import { buildItemFromConfig, getItemCategory } from './content/items';
 import { getStructureConfig } from './content/structures';
@@ -3190,40 +3189,6 @@ describe('game state', () => {
     ).toHaveLength(1);
   });
 
-  it('does not duplicate gold when loading migrated saves', () => {
-    const game = createGame(3, 'gold-load-seed');
-    const loaded = normalizeLoadedGame({
-      ...game,
-      player: {
-        ...game.player,
-        inventory: [
-          {
-            id: 'resource-gold-1',
-            name: 'Gold',
-            itemKey: 'gold',
-            quantity: 11,
-            tier: 1,
-            rarity: 'common',
-            power: 0,
-            defense: 0,
-            maxHp: 0,
-            healing: 0,
-            hunger: 0,
-          },
-        ],
-        gold: 11,
-      } as typeof game.player & { gold: number },
-    });
-
-    expect(getGoldAmount(loaded.player.inventory)).toBe(11);
-    expect(
-      loaded.player.inventory.filter(
-        (item) => getItemCategory(item) === 'resource' && item.name === 'Gold',
-      ),
-    ).toHaveLength(1);
-    expect('gold' in loaded.player).toBe(false);
-  });
-
   it('assigns unique ids when buying the same non-stackable town item twice', () => {
     const game = createGame(3, 'town-duplicate-id-seed');
     game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'town' };
@@ -3257,55 +3222,6 @@ describe('game state', () => {
     expect(new Set(hoodIds).size).toBe(2);
   });
 
-  it('keeps old saves fully unlocked when learned recipes are missing', () => {
-    const game = createGame(3, 'legacy-recipe-seed');
-    const loaded = normalizeLoadedGame({
-      ...game,
-      player: {
-        ...game.player,
-        learnedRecipeIds: undefined,
-      } as unknown as typeof game.player,
-    });
-
-    expect(loaded.player.learnedRecipeIds).toHaveLength(
-      getRecipeBookRecipes().length,
-    );
-  });
-
-  it('normalizes legacy iron chunks into iron ore', () => {
-    const game = createGame(3, 'legacy-iron-chunks-seed');
-    const loaded = normalizeLoadedGame({
-      ...game,
-      player: {
-        ...game.player,
-        inventory: [
-          {
-            id: 'legacy-iron-chunks',
-            itemKey: 'iron-chunks',
-            name: 'Iron Chunks',
-            quantity: 3,
-            tier: 1,
-            rarity: 'common',
-            power: 0,
-            defense: 0,
-            maxHp: 0,
-            healing: 0,
-            hunger: 0,
-          },
-        ],
-      },
-    });
-
-    expect(loaded.player.inventory).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          itemKey: 'iron-ore',
-          name: 'Iron Ore',
-          quantity: 3,
-        }),
-      ]),
-    );
-  });
 });
 
 function findEnemy(

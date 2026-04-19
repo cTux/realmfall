@@ -2,7 +2,7 @@
 
 ## Persistence
 
-- Preserve the normalize-before-hydrate pattern for save compatibility. If persisted data shape changes, update normalization instead of assuming fresh saves.
+- Do not add backward save-format compatibility yet. Load persisted game and UI state as-is, and clear local storage after major save-shape changes instead of adding migration code.
 - Treat `src/persistence/storage.ts` and similar local save protection as obfuscation, not real security. Do not describe client-side passphrase-based storage as secure encryption or meaningful secret protection.
 - Keep persistence concerns isolated from core game rules when possible.
 - Prefer debounced or meaningfully-triggered autosave work over repeated full serialization and storage writes on every eligible change.
