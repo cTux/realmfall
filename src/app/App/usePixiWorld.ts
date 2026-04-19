@@ -626,6 +626,7 @@ export function usePixiWorld({
       };
 
       const onPointerLeave = () => {
+        dragStateRef.current = null;
         clearHoverState();
       };
 
