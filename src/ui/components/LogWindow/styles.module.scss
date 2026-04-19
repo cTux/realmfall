@@ -110,6 +110,7 @@
 .logText {
   min-width: 0;
   overflow-wrap: anywhere;
+  color: #f8fafc;
 }
 
 .logTimestamp {
@@ -126,7 +127,36 @@
 }
 
 .combat {
-  color: #fca5a5;
+  color: #f8fafc;
+}
+
+.entitySegment {
+  font-weight: 700;
+}
+
+.damageSegment {
+  color: #f87171;
+  font-weight: 700;
+}
+
+.healingSegment {
+  color: #4ade80;
+  font-weight: 700;
+}
+
+.sourceSegment {
+  display: inline-flex;
+  gap: 0.18rem;
+  align-items: center;
+  margin-left: 0.12rem;
+  color: #e2e8f0;
+  font-weight: 700;
+}
+
+.sourceIcon {
+  width: 0.76rem;
+  height: 0.76rem;
+  flex: 0 0 auto;
 }
 
 .bloodMoon {

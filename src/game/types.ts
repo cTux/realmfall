@@ -319,7 +319,32 @@ export interface LogEntry {
   kind: LogKind;
   text: string;
   turn: number;
+  richText?: LogRichSegment[];
 }
+
+export type LogRichSegment =
+  | { kind: 'text'; text: string }
+  | { kind: 'entity'; text: string; rarity?: EnemyRarity }
+  | { kind: 'damage'; text: string }
+  | { kind: 'healing'; text: string }
+  | {
+      kind: 'source';
+      text: string;
+      source:
+        | {
+            kind: 'ability';
+            abilityId: AbilityId;
+            attack?: number;
+          }
+        | {
+            kind: 'statusEffect';
+            effectId: StatusEffectId;
+            tone?: 'buff' | 'debuff';
+            value?: number;
+            tickIntervalMs?: number;
+            stacks?: number;
+          };
+    };
 
 export interface GameState {
   seed: string;

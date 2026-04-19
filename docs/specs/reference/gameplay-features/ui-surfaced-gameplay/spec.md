@@ -25,9 +25,10 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - Pressing `Esc` closes every currently open window.
 - World camp markers stay readable above their night-time glow effects instead of sinking beneath the bloom layer.
 - Logs provide system, movement, combat, loot, and other gameplay feedback.
+- Combat log entries render with white baseline copy, color damage red and healing green, tint enemy names by rarity, and surface hoverable inline source chips with icons and combat tooltips for logged combat sources.
 - Filtered log viewing is part of the current gameplay readability loop.
 - Current and maximum value bars surface their meaning through the shared tooltip system.
-- The character info window now lists the full resulting derived combat stat set, including offensive, defensive, mitigation, lifesteal, status-proc, and attack-speed values instead of only attack and defense.
+- The character info window currently focuses on shared combat-style resource bars and no longer lists the full derived combat stat sheet inline.
 - Log entries show a compact `HH:MM` timestamp in the visible list, while hover reveals the full calendar timestamp using the same world-calendar formatter as the debugger window.
 
 ## Main Implementation Areas

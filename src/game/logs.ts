@@ -7,7 +7,7 @@ import {
 } from './config';
 import { t } from '../i18n';
 import { createRng } from './random';
-import type { GameState, LogEntry, LogKind } from './types';
+import type { GameState, LogEntry, LogKind, LogRichSegment } from './types';
 
 export function createFreshLogs(seed: string) {
   return createInitialLogs(seed);
@@ -17,10 +17,15 @@ export function createFreshLogsAtTime(seed: string, worldTimeMs: number) {
   return createInitialLogs(seed, worldTimeMs);
 }
 
-export function addLog(state: GameState, kind: LogKind, text: string) {
+export function addLog(
+  state: GameState,
+  kind: LogKind,
+  text: string,
+  richText?: LogRichSegment[],
+) {
   state.logSequence += 1;
   state.logs = [
-    makeLog(state.logSequence, kind, state.turn, text, state.worldTimeMs),
+    makeLog(state.logSequence, kind, state.turn, text, state.worldTimeMs, richText),
     ...state.logs,
   ].slice(0, 100);
 }
@@ -75,12 +80,14 @@ function makeLog(
   turn: number,
   text: string,
   worldTimeMs = 0,
+  richText?: LogRichSegment[],
 ): LogEntry {
   return {
     id: `l-${sequence}`,
     kind,
     text: `${formatLogPrefix(worldTimeMs)} ${text}`,
     turn,
+    richText,
   };
 }
 

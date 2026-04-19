@@ -50,6 +50,7 @@ import { HexInfoWindow } from './components/HexInfoWindow';
 import { InventoryWindow } from './components/InventoryWindow';
 import { ItemContextMenu } from './components/ItemContextMenu';
 import { LogWindow } from './components/LogWindow';
+import { LogWindowContent } from './components/LogWindow/LogWindowContent';
 import { LootWindow } from './components/LootWindow';
 import { RecipeBookWindow } from './components/RecipeBookWindow';
 import { getRecipeCraftCount } from './components/RecipeBookWindow/RecipeBookWindowContent';
@@ -2537,6 +2538,61 @@ describe('ui helpers and components', () => {
     const harvestMoonEntry = host.querySelector('div[class*="harvestMoon"]');
 
     expect(harvestMoonEntry).not.toBeNull();
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('renders rich combat log segments and exposes source tooltips on hover', async () => {
+    vi.useFakeTimers();
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    const onHoverDetail = vi.fn();
+    const onLeaveDetail = vi.fn();
+
+    await act(async () => {
+      root.render(
+        <LogWindowContent
+          onHoverDetail={onHoverDetail}
+          onLeaveDetail={onLeaveDetail}
+          logs={[
+            {
+              id: 'rich-combat-log',
+              kind: 'combat',
+              text: '[Year 1, Day 5, 18:00] The Marauder deals 12 to you with Fireball.',
+              turn: 12,
+              richText: [
+                { kind: 'entity', text: 'Marauder', rarity: 'epic' },
+                { kind: 'text', text: ' deals ' },
+                { kind: 'damage', text: '12' },
+                { kind: 'text', text: ' to you with ' },
+                {
+                  kind: 'source',
+                  text: 'Fireball',
+                  source: { kind: 'ability', abilityId: 'fireball', attack: 12 },
+                },
+                { kind: 'text', text: '.' },
+              ],
+            },
+          ]}
+        />,
+      );
+    });
+
+    await act(async () => {
+      vi.advanceTimersByTime(2_000);
+    });
+
+    const sourceLabel = Array.from(host.querySelectorAll('span')).find((node) =>
+      node.textContent?.includes('Fireball'),
+    ) as HTMLSpanElement | undefined;
+    const source = sourceLabel?.parentElement as HTMLSpanElement | null;
+
+    expect(source).not.toBeNull();
+    expect(source?.textContent).toContain('Fireball');
 
     await act(async () => {
       root.unmount();

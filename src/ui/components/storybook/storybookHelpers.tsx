@@ -87,6 +87,21 @@ export function createStorybookFixtures() {
     state,
     'combat',
     'A marauder scout broke under a flurry of spear thrusts.',
+    [
+      { kind: 'entity', text: 'Marauder Scout', rarity: 'rare' },
+      { kind: 'text', text: ' takes ' },
+      { kind: 'damage', text: '14' },
+      {
+        kind: 'text',
+        text: ' from ',
+      },
+      {
+        kind: 'source',
+        text: 'Fireball',
+        source: { kind: 'ability', abilityId: 'fireball', attack: 18 },
+      },
+      { kind: 'text', text: '.' },
+    ],
   );
   addLog(
     state,

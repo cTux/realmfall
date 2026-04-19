@@ -7,6 +7,7 @@ import {
   formatStatusEffectLabel,
 } from '../i18n/labels';
 import { Skill } from './types';
+import type { LogRichSegment } from './types';
 import {
   BLOOD_MOON_EXTRA_DROP_CHANCES,
   BLOOD_MOON_CHANCE,
@@ -166,6 +167,7 @@ export type {
   ItemRarity,
   LogEntry,
   LogKind,
+  LogRichSegment,
   Player,
   PlayerStatusEffect,
   RecipeBookEntry,
@@ -944,6 +946,7 @@ function applyPlayerAbility(
             ability: formatAbilityLabel(ability.id),
             amount: healed,
           }),
+          playerHealRichText(ability.id, healed, playerStats.attack),
         );
       }
       continue;
@@ -958,6 +961,13 @@ function applyPlayerAbility(
           ability: formatAbilityLabel(ability.id),
           effect: formatStatusEffectLabel(effect.statusEffectId),
         }),
+        enemyTargets[0]
+          ? playerStatusRichText(
+              enemyTargets[0],
+              ability.id,
+              effect.statusEffectId,
+            )
+          : undefined,
       );
     }
   }
@@ -1176,6 +1186,12 @@ function dealPlayerDamageToEnemy(
     state,
     'combat',
     formatPlayerDamageLog(enemy.name, abilityId, damageResolution),
+    playerDamageRichText(
+      enemy,
+      abilityId,
+      damageResolution,
+      playerStats.attack,
+    ),
   );
   return damageResolution.damage;
 }
@@ -1258,6 +1274,7 @@ function handleEnemyDefeat(
     state,
     'combat',
     t('game.message.combat.enemyDefeated', { enemy: enemy.name }),
+    enemyDefeatedRichText(enemy),
   );
   delete state.enemies[enemy.id];
   syncCombatEnemies(state);
@@ -1769,6 +1786,211 @@ function formatSuppressedEnemyDebuffLog(
   });
 }
 
+function textSegment(text: string): LogRichSegment {
+  return { kind: 'text', text };
+}
+
+function entitySegment(
+  text: string,
+  rarity?: NonNullable<Enemy['rarity']>,
+): LogRichSegment {
+  return { kind: 'entity', text, rarity };
+}
+
+function damageSegment(damage: number): LogRichSegment {
+  return { kind: 'damage', text: String(damage) };
+}
+
+function healingSegment(amount: number): LogRichSegment {
+  return { kind: 'healing', text: String(amount) };
+}
+
+function abilitySourceSegment(
+  abilityId: AbilityId,
+  attack?: number,
+): LogRichSegment {
+  return {
+    kind: 'source',
+    text: formatAbilityLabel(abilityId),
+    source: {
+      kind: 'ability',
+      abilityId,
+      attack,
+    },
+  };
+}
+
+function combatEntityName(enemy: Enemy) {
+  return entitySegment(enemy.name, enemy.rarity ?? 'common');
+}
+
+function playerDamageRichText(
+  enemy: Enemy,
+  abilityId: AbilityId,
+  damageResolution: DamageResolution,
+  attack?: number,
+) {
+  const source = abilitySourceSegment(abilityId, attack);
+
+  switch (damageResolution.outcome) {
+    case 'dodged':
+      return [
+        combatEntityName(enemy),
+        textSegment(' dodges '),
+        source,
+        textSegment('.'),
+      ];
+    case 'suppressed':
+      return [
+        combatEntityName(enemy),
+        textSegment(' takes '),
+        damageSegment(damageResolution.damage),
+        textSegment(' after suppressing '),
+        source,
+        textSegment('.'),
+      ];
+    case 'absorbed':
+      return [
+        combatEntityName(enemy),
+        textSegment(' fully absorbs '),
+        source,
+        textSegment('.'),
+      ];
+    default:
+      return [
+        textSegment('You deal '),
+        damageSegment(damageResolution.damage),
+        textSegment(' to '),
+        combatEntityName(enemy),
+        textSegment(' with '),
+        source,
+        textSegment('.'),
+      ];
+  }
+}
+
+function enemyDamageRichText(
+  enemy: Enemy,
+  abilityId: AbilityId,
+  damageResolution: DamageResolution,
+  attack?: number,
+) {
+  const source = abilitySourceSegment(abilityId, attack);
+
+  switch (damageResolution.outcome) {
+    case 'dodged':
+      return [
+        textSegment('You dodge '),
+        source,
+        textSegment(' from '),
+        combatEntityName(enemy),
+        textSegment('.'),
+      ];
+    case 'blocked':
+      return [
+        textSegment('You block '),
+        source,
+        textSegment(' from '),
+        combatEntityName(enemy),
+        textSegment('.'),
+      ];
+    case 'suppressed':
+      return [
+        combatEntityName(enemy),
+        textSegment(' deals '),
+        damageSegment(damageResolution.damage),
+        textSegment(' to you with '),
+        source,
+        textSegment(' after suppression.'),
+      ];
+    case 'absorbed':
+      return [
+        textSegment('You fully absorb '),
+        source,
+        textSegment(' from '),
+        combatEntityName(enemy),
+        textSegment('.'),
+      ];
+    default:
+      return [
+        combatEntityName(enemy),
+        textSegment(' deals '),
+        damageSegment(damageResolution.damage),
+        textSegment(' to you with '),
+        source,
+        textSegment('.'),
+      ];
+  }
+}
+
+function playerHealRichText(abilityId: AbilityId, amount: number, attack?: number) {
+  return [
+    textSegment('You restore '),
+    healingSegment(amount),
+    textSegment(' with '),
+    abilitySourceSegment(abilityId, attack),
+    textSegment('.'),
+  ];
+}
+
+function enemyHealRichText(enemy: Enemy, abilityId: AbilityId, amount: number, attack?: number) {
+  return [
+    combatEntityName(enemy),
+    textSegment(' restores '),
+    healingSegment(amount),
+    textSegment(' with '),
+    abilitySourceSegment(abilityId, attack),
+    textSegment('.'),
+  ];
+}
+
+function playerStatusRichText(enemy: Enemy, abilityId: AbilityId, effectId: StatusEffectId) {
+  return [
+    textSegment('You apply '),
+    textSegment(formatStatusEffectLabel(effectId)),
+    textSegment(' to '),
+    combatEntityName(enemy),
+    textSegment(' with '),
+    abilitySourceSegment(abilityId),
+    textSegment('.'),
+  ];
+}
+
+function enemyStatusRichText(enemy: Enemy, abilityId: AbilityId, effectId: StatusEffectId) {
+  return [
+    combatEntityName(enemy),
+    textSegment(' afflicts you with '),
+    textSegment(formatStatusEffectLabel(effectId)),
+    textSegment(' using '),
+    abilitySourceSegment(abilityId),
+    textSegment('.'),
+  ];
+}
+
+function enemyDebuffSuppressedRichText(
+  enemy: Enemy,
+  abilityId: AbilityId,
+  effectId: StatusEffectId,
+) {
+  return [
+    textSegment('You shrug off '),
+    textSegment(formatStatusEffectLabel(effectId)),
+    textSegment(' from '),
+    abilitySourceSegment(abilityId),
+    textSegment(' used by '),
+    combatEntityName(enemy),
+    textSegment('.'),
+  ];
+}
+
+function enemyDefeatedRichText(enemy: Enemy) {
+  return [
+    textSegment('You defeated '),
+    combatEntityName(enemy),
+    textSegment('.'),
+  ];
+}
+
 function resolveProcCount(state: GameState, seedKey: string, chance: number) {
   if (chance <= 0) return 0;
 
@@ -2072,6 +2294,12 @@ function applyEnemyAbility(
         state,
         'combat',
         formatEnemyDamageLog(enemy.name, ability.id, damageResolution),
+        enemyDamageRichText(
+          enemy,
+          ability.id,
+          damageResolution,
+          getEnemyCombatAttack(enemy),
+        ),
       );
       if (debuffApplication === 'suppressed' && effect.statusEffectId) {
         addLog(
@@ -2079,6 +2307,11 @@ function applyEnemyAbility(
           'combat',
           formatSuppressedEnemyDebuffLog(
             enemy.name,
+            ability.id,
+            effect.statusEffectId,
+          ),
+          enemyDebuffSuppressedRichText(
+            enemy,
             ability.id,
             effect.statusEffectId,
           ),
@@ -2098,6 +2331,12 @@ function applyEnemyAbility(
             enemy: enemy.name,
             amount: healed,
           }),
+          enemyHealRichText(
+            enemy,
+            ability.id,
+            healed,
+            getEnemyCombatAttack(enemy),
+          ),
         );
       }
       continue;
@@ -2113,6 +2352,7 @@ function applyEnemyAbility(
           enemy: enemy.name,
           effect: formatStatusEffectLabel(effect.statusEffectId),
         }),
+        enemyStatusRichText(enemy, ability.id, effect.statusEffectId),
       );
     }
     if (statusApplication.suppressed > 0) {
@@ -2121,6 +2361,11 @@ function applyEnemyAbility(
         'combat',
         formatSuppressedEnemyDebuffLog(
           enemy.name,
+          ability.id,
+          effect.statusEffectId,
+        ),
+        enemyDebuffSuppressedRichText(
+          enemy,
           ability.id,
           effect.statusEffectId,
         ),
