@@ -50,6 +50,8 @@ vi.mock('pixi.js', () => {
     alpha = 1;
     visible = true;
     position = { set: vi.fn() };
+    pivot = { set: vi.fn() };
+    scale = { set: vi.fn() };
 
     addChild(...children: unknown[]) {
       this.children.push(...children);
