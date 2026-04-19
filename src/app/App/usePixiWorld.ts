@@ -11,8 +11,11 @@ import * as stateModule from '../../game/state';
 import type { GameState } from '../../game/state';
 import { syncFollowCursorTooltipPosition } from '../../ui/components/GameTooltip/followCursorSync';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
-import * as tooltipModule from '../../ui/tooltips';
 import { getWorldHexSize } from '../../ui/world/renderSceneMath';
+import {
+  enemyWorldTooltip,
+  structureWorldTooltip,
+} from '../../ui/world/worldTooltips';
 import {
   applyWorldMapCameraToContainer,
   DEFAULT_WORLD_MAP_CAMERA,
@@ -495,7 +498,7 @@ export function usePixiWorld({
           nextHoveredPath = safePath && safePath.length > 1 ? safePath : null;
 
           const enemies = stateModule.getEnemiesAt(current, target);
-          const enemyInfo = tooltipModule.enemyTooltip(enemies, tile.structure);
+          const enemyInfo = enemyWorldTooltip(enemies, tile.structure);
 
           if (enemyInfo) {
             nextTooltipKey = `enemy:${target.q},${target.r}:${tile.structure ?? 'none'}`;
@@ -509,7 +512,7 @@ export function usePixiWorld({
               followCursor: true,
             };
           } else {
-            const structureInfo = tooltipModule.structureTooltip(tile);
+            const structureInfo = structureWorldTooltip(tile);
             if (!structureInfo) {
               const nextHoverSnapshot = {
                 target,
