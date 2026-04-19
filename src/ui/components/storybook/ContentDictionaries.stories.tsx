@@ -1,117 +1,220 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { getItemConfigCategory } from '../../../game/content/items';
-import { enemyIconFor, enemyTint, iconForItem } from '../../icons';
-import { rarityColor } from '../../rarity';
-import { structureIconFor, structureTint } from '../../icons';
 import {
-  createStorybookFixtures,
-  storySurfaceDecorator,
-} from './storybookHelpers';
+  useEffect,
+  useState,
+  type MouseEvent,
+} from 'react';
+import { loadI18n } from '../../../i18n';
+import type { TooltipLine } from '../../tooltips';
 
-const fixtures = createStorybookFixtures();
+type HoverDetailHandler = (
+  event: MouseEvent<HTMLElement>,
+  title: string,
+  lines: TooltipLine[],
+  borderColor?: string,
+) => void;
 
-const meta = {
+interface DictionaryStoryArgs {
+  onHoverDetail?: HoverDetailHandler;
+  onLeaveDetail?: () => void;
+}
+
+interface IconDictionaryEntry {
+  id: string;
+  label: string;
+  icon: string;
+  tint: string;
+  borderColor: string;
+  tooltipLines: TooltipLine[];
+}
+
+interface DictionaryCatalogs {
+  items: IconDictionaryEntry[];
+  enemies: IconDictionaryEntry[];
+  structures: IconDictionaryEntry[];
+  abilities: IconDictionaryEntry[];
+  buffs: IconDictionaryEntry[];
+  debuffs: IconDictionaryEntry[];
+}
+
+const meta: Meta<DictionaryStoryArgs> = {
   title: 'Catalogs/Dictionaries',
-  decorators: [storySurfaceDecorator],
+  decorators: [
+    (Story) => (
+      <div style={{ minHeight: '100vh', padding: '24px' }}>
+        <Story />
+      </div>
+    ),
+  ],
   parameters: {
     controls: { hideNoControlsWarning: true },
   },
-} satisfies Meta;
+};
 
 export default meta;
 
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<DictionaryStoryArgs>;
 
 export const Items: Story = {
-  render: () => (
-    <CatalogGrid
-      title={`Items (${fixtures.items.length})`}
-      entries={fixtures.items.map((config) => ({
-        id: config.key,
-        title: config.name,
-        subtitle: `${getItemConfigCategory(config)} · tier ${config.tier} · ${config.rarity}`,
-        details: [
-          `Power ${config.power}`,
-          `Defense ${config.defense}`,
-          `Max HP ${config.maxHp}`,
-          `Tags ${config.tags?.join(', ') ?? 'none'}`,
-        ],
-        icon: iconForItem({
-          id: config.key,
-          itemKey: config.key,
-          slot: config.slot,
-          name: config.name,
-          quantity: 1,
-          tier: config.tier,
-          rarity: config.rarity,
-          power: config.power,
-          defense: config.defense,
-          maxHp: config.maxHp,
-          healing: config.healing,
-          hunger: config.hunger,
-          thirst: config.thirst,
-          tags: config.tags,
-        }),
-        tint: config.tint ?? rarityColor(config.rarity),
-      }))}
+  args: {
+    onHoverDetail: undefined,
+    onLeaveDetail: undefined,
+  },
+  render: (args) => (
+    <DictionaryCatalogStory
+      catalogKey="items"
+      title="Items"
+      onHoverDetail={args.onHoverDetail}
+      onLeaveDetail={args.onLeaveDetail}
     />
   ),
 };
 
 export const Enemies: Story = {
-  render: () => (
-    <CatalogGrid
-      title={`Enemies (${fixtures.enemies.length})`}
-      entries={fixtures.enemies.map((config) => ({
-        id: config.id,
-        title: config.name,
-        subtitle: config.id,
-        details: [
-          `Elite chance ${Math.round((config.eliteAppearanceChance ?? 0) * 100)}%`,
-          `Terrains ${Object.keys(config.appearanceChanceByTerrain).join(', ') || 'none'}`,
-          `Tags ${config.tags?.join(', ') ?? 'none'}`,
-        ],
-        icon: enemyIconFor(config.id),
-        tint: `#${enemyTint(config.id).toString(16).padStart(6, '0')}`,
-      }))}
+  args: {
+    onHoverDetail: undefined,
+    onLeaveDetail: undefined,
+  },
+  render: (args) => (
+    <DictionaryCatalogStory
+      catalogKey="enemies"
+      title="Enemies"
+      onHoverDetail={args.onHoverDetail}
+      onLeaveDetail={args.onLeaveDetail}
     />
   ),
 };
 
 export const Structures: Story = {
-  render: () => (
-    <CatalogGrid
-      title={`Structures (${fixtures.structures.length})`}
-      entries={fixtures.structures.map((config) => ({
-        id: config.type,
-        title: config.title,
-        subtitle: config.type,
-        details: [
-          config.description,
-          config.gathering
-            ? `${config.gathering.verb} ${config.gathering.reward}`
-            : config.functionsProvided.join(', '),
-        ],
-        icon: structureIconFor(config.type),
-        tint: `#${structureTint(config.type).toString(16).padStart(6, '0')}`,
-      }))}
+  args: {
+    onHoverDetail: undefined,
+    onLeaveDetail: undefined,
+  },
+  render: (args) => (
+    <DictionaryCatalogStory
+      catalogKey="structures"
+      title="Structures"
+      onHoverDetail={args.onHoverDetail}
+      onLeaveDetail={args.onLeaveDetail}
     />
   ),
 };
 
-function CatalogGrid({
+export const Abilities: Story = {
+  args: {
+    onHoverDetail: undefined,
+    onLeaveDetail: undefined,
+  },
+  render: (args) => (
+    <DictionaryCatalogStory
+      catalogKey="abilities"
+      title="Abilities"
+      onHoverDetail={args.onHoverDetail}
+      onLeaveDetail={args.onLeaveDetail}
+    />
+  ),
+};
+
+export const Buffs: Story = {
+  args: {
+    onHoverDetail: undefined,
+    onLeaveDetail: undefined,
+  },
+  render: (args) => (
+    <DictionaryCatalogStory
+      catalogKey="buffs"
+      title="Buffs"
+      onHoverDetail={args.onHoverDetail}
+      onLeaveDetail={args.onLeaveDetail}
+    />
+  ),
+};
+
+export const Debuffs: Story = {
+  args: {
+    onHoverDetail: undefined,
+    onLeaveDetail: undefined,
+  },
+  render: (args) => (
+    <DictionaryCatalogStory
+      catalogKey="debuffs"
+      title="Debuffs"
+      onHoverDetail={args.onHoverDetail}
+      onLeaveDetail={args.onLeaveDetail}
+    />
+  ),
+};
+
+function DictionaryCatalogStory({
+  catalogKey,
+  title,
+  onHoverDetail,
+  onLeaveDetail,
+}: {
+  catalogKey: keyof DictionaryCatalogs;
+  title: string;
+  onHoverDetail?: HoverDetailHandler;
+  onLeaveDetail?: () => void;
+}) {
+  const [catalogs, setCatalogs] = useState<DictionaryCatalogs | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void (async () => {
+      await loadI18n();
+      const { loadDictionaryCatalogs } = await import('./dictionaryStoryData');
+      if (!cancelled) {
+        setCatalogs(loadDictionaryCatalogs());
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!catalogs) {
+    return <LoadingState />;
+  }
+
+  const entries = catalogs[catalogKey];
+
+  return (
+    <IconDictionaryGrid
+      title={`${title} (${entries.length})`}
+      entries={entries}
+      onHoverDetail={onHoverDetail}
+      onLeaveDetail={onLeaveDetail}
+    />
+  );
+}
+
+function LoadingState() {
+  return (
+    <div
+      style={{
+        minHeight: '240px',
+        display: 'grid',
+        placeItems: 'center',
+        color: '#cbd5e1',
+      }}
+    >
+      Loading dictionaries...
+    </div>
+  );
+}
+
+function IconDictionaryGrid({
   title,
   entries,
+  onHoverDetail,
+  onLeaveDetail,
 }: {
   title: string;
-  entries: Array<{
-    id: string;
-    title: string;
-    subtitle: string;
-    details: string[];
-    icon: string;
-    tint: string;
-  }>;
+  entries: IconDictionaryEntry[];
+  onHoverDetail?: HoverDetailHandler;
+  onLeaveDetail?: () => void;
 }) {
   return (
     <section style={{ display: 'grid', gap: '16px' }}>
@@ -121,55 +224,60 @@ function CatalogGrid({
       <div
         style={{
           display: 'grid',
-          gap: '12px',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+          gap: '16px',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(88px, 1fr))',
         }}
       >
         {entries.map((entry) => (
-          <article
+          <button
             key={entry.id}
+            type="button"
+            aria-label={entry.label}
+            onMouseEnter={(event) =>
+              onHoverDetail?.(
+                event,
+                entry.label,
+                entry.tooltipLines,
+                entry.borderColor,
+              )
+            }
+            onMouseLeave={onLeaveDetail}
             style={{
               display: 'grid',
-              gap: '10px',
-              padding: '16px',
-              borderRadius: '16px',
+              placeItems: 'center',
+              width: '88px',
+              height: '88px',
+              padding: '18px',
+              borderRadius: '20px',
               border: '1px solid rgba(148, 163, 184, 0.28)',
               background:
                 'linear-gradient(160deg, rgba(15, 23, 42, 0.82), rgba(30, 41, 59, 0.86))',
+              boxShadow: '0 10px 30px rgba(15, 23, 42, 0.24)',
+              cursor: 'pointer',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span
-                aria-hidden="true"
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  display: 'inline-block',
-                  backgroundColor: entry.tint,
-                  WebkitMask: `url("${entry.icon}") center / contain no-repeat`,
-                  mask: `url("${entry.icon}") center / contain no-repeat`,
-                }}
-              />
-              <div>
-                <strong style={{ display: 'block' }}>{entry.title}</strong>
-                <span
-                  style={{
-                    color: 'rgba(226, 232, 240, 0.72)',
-                    fontSize: '13px',
-                  }}
-                >
-                  {entry.subtitle}
-                </span>
-              </div>
-            </div>
-            {entry.details.map((detail) => (
-              <span key={detail} style={{ fontSize: '13px', color: '#cbd5e1' }}>
-                {detail}
-              </span>
-            ))}
-          </article>
+            <MaskedIcon icon={entry.icon} tint={entry.tint} />
+          </button>
         ))}
       </div>
     </section>
+  );
+}
+
+function MaskedIcon({ icon, tint }: { icon: string; tint: string }) {
+  const mask = `url("${icon}") center / contain no-repeat`;
+
+  return (
+    <span
+      aria-hidden="true"
+      style={{
+        width: '52px',
+        height: '52px',
+        display: 'inline-block',
+        backgroundColor: tint,
+        WebkitMask: mask,
+        mask,
+      }}
+    />
   );
 }
