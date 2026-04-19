@@ -28,6 +28,7 @@
 .overlay {
   position: absolute;
   inset: 0;
+  border-radius: inherit;
   pointer-events: none;
 }
 
