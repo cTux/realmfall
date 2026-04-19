@@ -16,6 +16,11 @@
   background:
     linear-gradient(180deg, rgb(15 23 42 / 94%), rgb(2 6 23 / 96%)),
     rgb(15 23 42);
+  transition: ui.$tile-transition;
+
+  &:hover {
+    transform: scale(1.1);
+  }
 
   &[data-size='compact'] {
     --slot-size: 34px;
