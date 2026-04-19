@@ -6,6 +6,8 @@ import { installGlobalVersion } from './version';
 import './styles/base.scss';
 
 installGlobalVersion();
+document.addEventListener('contextmenu', preventNativeContextMenu);
+
 const rootElement = document.getElementById('root') as HTMLElement;
 const root = ReactDOM.createRoot(rootElement, {
   onCaughtError: reportRootError,
@@ -137,4 +139,8 @@ function reportRootError(error: unknown) {
   }
 
   console.error(error);
+}
+
+function preventNativeContextMenu(event: Event) {
+  event.preventDefault();
 }
