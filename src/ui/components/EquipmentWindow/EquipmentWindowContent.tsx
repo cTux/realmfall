@@ -111,8 +111,8 @@ export function EquipmentWindowContent({
 const SLOT_POSITIONS: Record<PaperDollSlot, { left: number; top: number }> = {
   head: { left: 50, top: 12.5 },
   shoulders: { left: 74.5, top: 16.25 },
-  amulet: { left: 50, top: 24.75 },
-  cloak: { left: 25.5, top: 22 },
+  amulet: { left: 25.5, top: 22 },
+  cloak: { left: 50, top: 24.75 },
   chest: { left: 50, top: 36.5 },
   bracers: { left: 82.25, top: 41 },
   hands: { left: 17.75, top: 41 },
@@ -126,7 +126,7 @@ const SLOT_POSITIONS: Record<PaperDollSlot, { left: number; top: number }> = {
 };
 
 const COMPACT_SLOTS = new Set<PaperDollSlot>([
-  'cloak',
+  'amulet',
   'ringLeft',
   'ringRight',
 ]);
