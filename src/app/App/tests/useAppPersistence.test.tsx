@@ -281,4 +281,31 @@ describe('useAppPersistence', () => {
     });
     host.remove();
   });
+
+  it('ignores malformed hydrated saves', async () => {
+    loadEncryptedState.mockResolvedValue({
+      game: {
+        seed: 'broken-save',
+        player: {
+          inventory: [{ id: 'bad-item' }],
+        },
+      },
+      ui: {
+        windows: {
+          hero: { x: 42, y: 'bad' },
+        },
+      },
+    });
+    saveEncryptedState.mockResolvedValue(undefined);
+
+    const { host, root } = await renderPersistenceHarness();
+
+    expect(host.querySelector('[data-hydrated="ready"]')).toBeTruthy();
+    expect(saveEncryptedState).not.toHaveBeenCalled();
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
 });

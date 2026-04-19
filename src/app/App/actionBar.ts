@@ -15,7 +15,7 @@ export function createDefaultActionBarSlots(): ActionBarSlots {
 
 export function normalizeActionBarSlots(
   slots: unknown,
-  normalizeItem: (item: Item) => Item,
+  normalizeItem: (item: Item) => Item | null,
 ): ActionBarSlots {
   if (!Array.isArray(slots)) {
     return createDefaultActionBarSlots();
@@ -32,8 +32,13 @@ export function normalizeActionBarSlots(
       return null;
     }
 
+    const normalizedItem = normalizeItem(item);
+    if (!normalizedItem) {
+      return null;
+    }
+
     return {
-      item: normalizeItem(item),
+      item: normalizedItem,
     };
   });
 }
