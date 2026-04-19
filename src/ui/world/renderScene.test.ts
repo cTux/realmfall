@@ -715,6 +715,7 @@ describe('renderScene', () => {
 
     expect(nightGlowEllipses.length).toBeGreaterThan(0);
     expect(nightGlowEllipses.length).toBeGreaterThanOrEqual(2);
+    expect(nightGlowEllipses.length).toBeLessThanOrEqual(10);
     expect(dayGlowEllipses).toHaveLength(0);
     expect(nightAnimatedLayer.children.length).toBeGreaterThan(0);
     expect(nightMarkerLayer.children.length).toBeGreaterThan(0);
