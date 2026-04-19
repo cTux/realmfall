@@ -51,6 +51,8 @@ describe('storybook coverage', () => {
     expect(dictionaryStories).toContain('fixtures.items');
     expect(dictionaryStories).toContain('fixtures.enemies');
     expect(dictionaryStories).toContain('fixtures.structures');
+    expect(dictionaryStories).toContain('Object.values(ABILITIES)');
+    expect(dictionaryStories).toContain('STATUS_EFFECT_DEFINITIONS');
   });
 });
 
