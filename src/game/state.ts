@@ -1820,6 +1820,28 @@ function abilitySourceSegment(
   };
 }
 
+function statusEffectSourceSegment(
+  effectId: StatusEffectId,
+  tone?: 'buff' | 'debuff',
+  effect?: Pick<
+    PlayerStatusEffect,
+    'value' | 'tickIntervalMs' | 'stacks'
+  >,
+): LogRichSegment {
+  return {
+    kind: 'source',
+    text: formatStatusEffectLabel(effectId),
+    source: {
+      kind: 'statusEffect',
+      effectId,
+      tone,
+      value: effect?.value,
+      tickIntervalMs: effect?.tickIntervalMs,
+      stacks: effect?.stacks,
+    },
+  };
+}
+
 function combatEntityName(enemy: Enemy) {
   return entitySegment(enemy.name, enemy.rarity ?? 'common');
 }
@@ -1949,10 +1971,12 @@ function playerStatusRichText(
   abilityId: AbilityId,
   effectId: StatusEffectId,
 ) {
+  const effect = statusEffectSourceSegment(effectId);
+
   return enemy
     ? [
         textSegment('You apply '),
-        textSegment(formatStatusEffectLabel(effectId)),
+        effect,
         textSegment(' to '),
         combatEntityName(enemy),
         textSegment(' with '),
@@ -1961,7 +1985,7 @@ function playerStatusRichText(
       ]
     : [
         textSegment('You apply '),
-        textSegment(formatStatusEffectLabel(effectId)),
+        effect,
         textSegment(' with '),
         abilitySourceSegment(abilityId),
         textSegment('.'),
@@ -1972,7 +1996,7 @@ function enemyStatusRichText(enemy: Enemy, abilityId: AbilityId, effectId: Statu
   return [
     combatEntityName(enemy),
     textSegment(' afflicts you with '),
-    textSegment(formatStatusEffectLabel(effectId)),
+    statusEffectSourceSegment(effectId),
     textSegment(' using '),
     abilitySourceSegment(abilityId),
     textSegment('.'),
@@ -1986,7 +2010,7 @@ function enemyDebuffSuppressedRichText(
 ) {
   return [
     textSegment('You shrug off '),
-    textSegment(formatStatusEffectLabel(effectId)),
+    statusEffectSourceSegment(effectId),
     textSegment(' from '),
     abilitySourceSegment(abilityId),
     textSegment(' used by '),
