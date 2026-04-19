@@ -12,6 +12,8 @@ This spec covers deterministic hex-world traversal, visibility, and safe-path tr
 - `mountain` and `rift` tiles are not passable.
 - The player sees a revealed radius around the current position.
 - Visible tiles are rendered around the player and update as movement changes the origin.
+- The world map supports pointer-wheel zoom plus click-and-drag camera panning, and zoom anchors around the pointer position instead of snapping toward screen center.
+- World map camera scale and pan offsets persist in the shared `settings` payload, hydrate before the Pixi world becomes interactive, and are cleared together with other settings during save-data reset.
 - Home hex, claims, loot, hostile enemies, structures, and safe-path highlights are surfaced through the world view.
 - Faction-owned town tiles use a distinct castle marker, while faction NPC claim markers continue using their separate village-style icon.
 - The player marker stays visually clean on the current hex, with structure, enemy, and NPC claim marker icons suppressed on that same tile instead of stacking underneath the player icon.

@@ -8,9 +8,12 @@ This spec covers browser save storage, direct hydration of the current save shap
 
 - Saves are stored in browser local storage under the `game-state` key.
 - Stored payloads contain both game and UI state.
+- Non-save settings persist separately in plain `localStorage` under the `settings` key, outside the encrypted game save, so startup can hydrate renderer and world-map initialization inputs before the game save finishes loading.
+- The shared `settings` payload currently carries `graphics`, `audio`, and `worldMap` sections, and section-clearing logic removes only the targeted branch while preserving the others.
 - The app persists snapshots with world time and UI window state while intentionally excluding transient log history from the saved payload.
 - `src/persistence/storage.ts` wraps saved JSON in AES-GCM using a client-side passphrase-derived key.
 - That wrapper is implementation obfuscation for local saves, not a real security boundary or meaningful client-side secret protection.
+- Legacy graphics settings from `realmfall-graphics-settings` migrate into the shared `settings` payload when current graphics settings load successfully, and clearing graphics settings also removes that retired key.
 - Loaded saves are used as-is instead of being migrated forward from older payload formats.
 - The current project phase does not support backward save-format compatibility; older save payloads are expected to be cleared when the runtime save shape changes.
 - Autosave uses a five-second debounce plus five-second interval-backed flush model.
@@ -27,3 +30,7 @@ This spec covers browser save storage, direct hydration of the current save shap
 - `src/persistence/storage.ts`
 - `src/app/normalize.ts`
 - `src/app/App/useAppPersistence.ts`
+- `src/app/settingsStorage.ts`
+- `src/app/audioSettings.ts`
+- `src/app/graphicsSettings.ts`
+- `src/app/worldMapSettings.ts`
