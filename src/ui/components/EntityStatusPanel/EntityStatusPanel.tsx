@@ -51,18 +51,16 @@ export function EntityStatusPanel({
 
   return (
     <div className={[styles.panel, className ?? ''].filter(Boolean).join(' ')}>
-      {debuffs.length > 0 ? (
-        <div className={`${styles.iconRow} ${styles.topRow}`}>
-          {debuffs.map((icon) => (
-            <StatusIcon
-              key={icon.id}
-              icon={icon}
-              onHoverDetail={onHoverDetail}
-              onLeaveDetail={onLeaveDetail}
-            />
-          ))}
-        </div>
-      ) : null}
+      <div className={`${styles.iconRow} ${styles.topRow}`} aria-hidden={debuffs.length === 0}>
+        {debuffs.map((icon) => (
+          <StatusIcon
+            key={icon.id}
+            icon={icon}
+            onHoverDetail={onHoverDetail}
+            onLeaveDetail={onLeaveDetail}
+          />
+        ))}
+      </div>
       <div className={styles.barStack}>
         <StatusBar
           bar={primaryBar}
