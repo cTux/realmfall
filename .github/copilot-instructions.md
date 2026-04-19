@@ -9,8 +9,8 @@ Load `docs/RULES.md` first, then apply only the scoped files under
   `docs/RULES.md` and `docs/rules/`.
 - If rule-loading behavior changes, sync `AGENTS.md` and `CLAUDE.md` in the
   same task.
-- Write review findings and improvement descriptions without comparative filler
-  such as `still`; state the current behavior directly.
+- Before finalizing review findings or improvement descriptions, remove the
+  word `still` and state the current behavior directly.
 - Use `docs/WORKFLOW.md`, `docs/PROJECT_REVIEW.md`, and
   `docs/lore/REALMFALL.md` as supporting references after loading the
   canonical rules.

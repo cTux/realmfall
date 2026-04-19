@@ -8,11 +8,11 @@ current behavior.
 - Record fresh review findings in implementation notes, issues, or pull request
   discussions instead of expanding this file into a second policy document.
 
-Current durable follow-ups that still matter:
+Current durable follow-ups:
 
 - `src/game/state.ts` remains broader than the surrounding architecture rules
   prefer.
-- `src/app/App/App.tsx` is still a large composition root even after recent hook
+- `src/app/App/App.tsx` remains a large composition root even after recent hook
   extractions.
 - Browser-side save protection should continue to be described as obfuscation,
   not security, unless the trust model changes.
