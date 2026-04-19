@@ -182,8 +182,11 @@ function StatusBar({
           <strong className={styles.value}>{valueText}</strong>
         </div>
       ) : (
-        <div className={styles.secondaryText}>
-          <span>{bar.text ? `${bar.label} ${bar.text}` : bar.label}</span>
+        <div className={styles.secondaryContent}>
+          <span className={styles.secondaryLabel}>
+            {bar.text ? `${bar.label} ${bar.text}` : bar.label}
+          </span>
+          <strong className={styles.secondaryValue}>{valueText}</strong>
         </div>
       )}
     </div>

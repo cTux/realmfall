@@ -130,12 +130,12 @@
   white-space: nowrap;
 }
 
-.secondaryText {
+.secondaryContent {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   padding: 0 0.3rem;
   color: #f8fafc;
   font-size: 0.54rem;
@@ -143,6 +143,11 @@
   line-height: 1;
   text-shadow: 0 1px 1px rgb(15 23 42 / 90%);
   pointer-events: none;
+}
+
+.secondaryLabel,
+.secondaryValue {
+  white-space: nowrap;
 }
 
 .iconButton {
