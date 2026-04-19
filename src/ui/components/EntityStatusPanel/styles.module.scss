@@ -1,0 +1,194 @@
+@use '../../../styles/ui';
+
+.panel {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.topRow {
+  justify-content: flex-end;
+}
+
+.bottomRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.bottomLeftRow {
+  justify-content: flex-start;
+}
+
+.bottomRightRow {
+  justify-content: flex-end;
+}
+
+.iconRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  min-height: 2.35rem;
+}
+
+.barStack {
+  display: grid;
+  gap: 0;
+}
+
+.bar {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgb(148 163 184 / 20%);
+  background: rgb(30 41 59 / 95%);
+
+  & + & {
+    margin-top: -1px;
+  }
+}
+
+.primaryBar {
+  min-height: 3rem;
+}
+
+.secondaryBar {
+  height: 0.72rem;
+}
+
+.castBar {
+  background: rgb(71 47 8 / 92%);
+  border-color: rgb(250 204 21 / 24%);
+}
+
+.barFill {
+  height: 100%;
+  transition: ui.$fill-transition;
+}
+
+.primaryContent {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0 0.55rem;
+  color: #f8fafc;
+  text-shadow: 0 1px 1px rgb(15 23 42 / 90%);
+  pointer-events: none;
+}
+
+.titleBlock {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.primaryLabel {
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgb(226 232 240 / 88%);
+}
+
+.title {
+  font-size: 0.92rem;
+  line-height: 1;
+}
+
+.titleAccent {
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.value {
+  font-size: 0.92rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.secondaryText {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.3rem;
+  color: #f8fafc;
+  font-size: 0.54rem;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 1px 1px rgb(15 23 42 / 90%);
+  pointer-events: none;
+}
+
+.iconButton {
+  @include ui.icon-tile($size: 2.05rem, $hover-lift: false);
+
+  appearance: none;
+  cursor: default;
+  padding: 0;
+  border: 1px solid rgb(148 163 184 / 28%);
+  border-radius: ui.$ability-radius;
+}
+
+.iconButtonDisabled {
+  border-color: rgb(148 163 184 / 18%);
+  opacity: 0.62;
+  filter: grayscale(1);
+}
+
+.icon {
+  width: 95%;
+  height: 95%;
+}
+
+.cooldownOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgb(15 23 42 / 86%),
+    rgb(30 41 59 / 68%)
+  );
+  transform: scaleY(var(--cooldown-scale));
+  transform-origin: top;
+  pointer-events: none;
+  animation: cooldownDrain var(--cooldown-duration) linear forwards;
+}
+
+.hp {
+  background: linear-gradient(90deg, #dc2626, #f87171);
+}
+
+.mana {
+  background: linear-gradient(90deg, #2563eb, #60a5fa);
+}
+
+.xp {
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+}
+
+.hunger {
+  background: linear-gradient(90deg, #ea580c, #fb923c);
+}
+
+.thirst {
+  background: linear-gradient(90deg, #0891b2, #67e8f9);
+}
+
+.cast {
+  background: linear-gradient(90deg, #ca8a04, #facc15);
+}
+
+@keyframes cooldownDrain {
+  to {
+    transform: scaleY(0);
+  }
+}
