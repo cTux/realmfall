@@ -1,6 +1,10 @@
 @use '../../../styles/ui';
 
 .panel {
+  --status-icon-size: 2.05rem;
+  --status-icon-gap: 0.3rem;
+  --status-icon-row-min-height: 2.35rem;
+
   display: grid;
   gap: 0.28rem;
 }
@@ -27,8 +31,8 @@
 .iconRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.3rem;
-  min-height: 2.35rem;
+  gap: var(--status-icon-gap);
+  min-height: var(--status-icon-row-min-height);
 }
 
 .barStack {
@@ -142,10 +146,12 @@
 }
 
 .iconButton {
-  @include ui.icon-tile($size: 2.05rem, $hover-lift: false);
+  @include ui.icon-tile($size: var(--status-icon-size), $hover-lift: false);
 
   appearance: none;
   cursor: default;
+  width: var(--status-icon-size);
+  height: var(--status-icon-size);
   padding: 0;
   border: 1px solid rgb(148 163 184 / 28%);
   border-radius: ui.$ability-radius;
