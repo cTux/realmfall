@@ -1,8 +1,7 @@
 import { getAbilityDefinition } from '../../../game/abilities';
 import { DEFAULT_ENEMY_MANA } from '../../../game/combat';
-import { getEnemyCombatAttack } from '../../../game/state';
-import type { CombatActorState } from '../../../game/state';
 import { getStatusEffectDefinition } from '../../../game/content/statusEffects';
+import { getEnemyCombatAttack, type CombatActorState } from '../../../game/state';
 import type { PlayerStatusEffect } from '../../../game/types';
 import { t } from '../../../i18n';
 import {
@@ -11,11 +10,15 @@ import {
 } from '../../../i18n/labels';
 import { rarityColor } from '../../rarity';
 import {
-  iconMaskStyle,
   statusEffectIcon,
   statusEffectTint,
 } from '../../statusEffects';
 import { abilityTooltipLines, statusEffectTooltipLines } from '../../tooltips';
+import {
+  EntityStatusPanel,
+  type EntityStatusBar,
+  type EntityStatusIcon,
+} from '../EntityStatusPanel/EntityStatusPanel';
 import type { CombatPartyMember, CombatWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -54,9 +57,7 @@ export function CombatWindowContent({
     toPlayerEntity(member),
   );
   const enemyParty: CombatEntityView[] = enemies.map((enemy) => {
-    const effectGroups = partitionStatusEffects(
-      enemy.statusEffects ?? [],
-    );
+    const effectGroups = partitionStatusEffects(enemy.statusEffects ?? []);
     return {
       id: enemy.id,
       title: t('ui.combat.entityTitle', { name: enemy.name, level: enemy.tier }),
@@ -76,14 +77,12 @@ export function CombatWindowContent({
     <div className={styles.layout}>
       <div className={styles.columns}>
         <PartyColumn
-          title={t('ui.combat.playerPartyTitle')}
           entities={alliedParty}
           worldTimeMs={worldTimeMs}
           onHoverDetail={onHoverDetail}
           onLeaveDetail={onLeaveDetail}
         />
         <PartyColumn
-          title={t('ui.combat.enemyPartyTitle')}
           entities={enemyParty}
           worldTimeMs={worldTimeMs}
           onHoverDetail={onHoverDetail}
@@ -113,13 +112,11 @@ function toPlayerEntity(member: CombatPartyMember): CombatEntityView {
 }
 
 function PartyColumn({
-  title,
   entities,
   worldTimeMs,
   onHoverDetail,
   onLeaveDetail,
 }: {
-  title: string;
   entities: CombatEntityView[];
   worldTimeMs: number;
   onHoverDetail: CombatWindowProps['onHoverDetail'];
@@ -127,13 +124,30 @@ function PartyColumn({
 }) {
   return (
     <section className={styles.partySection}>
-      <div className={styles.partyTitle}>{title}</div>
       <div className={styles.partyList}>
         {entities.map((entity) => (
-          <EntityCard
+          <EntityStatusPanel
             key={entity.id}
-            entity={entity}
-            worldTimeMs={worldTimeMs}
+            className={styles.entityCard}
+            title={entity.title}
+            titleAccent={
+              entity.rarity && entity.rarity !== 'common'
+                ? {
+                    label: formatEnemyRarityLabel(entity.rarity),
+                    color: rarityColor(entity.rarity),
+                  }
+                : undefined
+            }
+            titleAccentPlacement="top"
+            showPrimaryLabel={false}
+            bars={buildCombatBars(entity, worldTimeMs)}
+            abilities={buildAbilityIcons(
+              entity.actor,
+              entity.attack,
+              worldTimeMs,
+            )}
+            buffs={buildEffectIcons(entity.buffs, 'buff')}
+            debuffs={buildEffectIcons(entity.debuffs, 'debuff')}
             onHoverDetail={onHoverDetail}
             onLeaveDetail={onLeaveDetail}
           />
@@ -143,308 +157,113 @@ function PartyColumn({
   );
 }
 
-function EntityCard({
-  entity,
-  worldTimeMs,
-  onHoverDetail,
-  onLeaveDetail,
-}: {
-  entity: CombatEntityView;
-  worldTimeMs: number;
-  onHoverDetail: CombatWindowProps['onHoverDetail'];
-  onLeaveDetail: CombatWindowProps['onLeaveDetail'];
-}) {
-  return (
-    <article className={styles.entityCard}>
-      <div className={styles.entityHeader}>
-        <strong>{entity.title}</strong>
-        {entity.rarity && entity.rarity !== 'common' ? (
-          <span
-            className={styles.elite}
-            style={{ color: rarityColor(entity.rarity) }}
-          >
-            {formatEnemyRarityLabel(entity.rarity)}
-          </span>
-        ) : null}
-      </div>
-      <ResourceBar
-        label={t('ui.hero.hp')}
-        value={entity.hp}
-        max={entity.maxHp}
-        tone="hp"
-        onHoverDetail={onHoverDetail}
-        onLeaveDetail={onLeaveDetail}
-      />
-      <ResourceBar
-        label={t('ui.combat.mp')}
-        value={entity.mana}
-        max={entity.maxMana}
-        tone="mp"
-        onHoverDetail={onHoverDetail}
-        onLeaveDetail={onLeaveDetail}
-      />
-      {entity.actor.casting ? (
-        <CastBar
-          actor={entity.actor}
-          worldTimeMs={worldTimeMs}
-          onHoverDetail={onHoverDetail}
-          onLeaveDetail={onLeaveDetail}
-        />
-      ) : null}
-      {entity.buffs.length > 0 ? (
-        <EffectList
-          items={entity.buffs}
-          tone="buff"
-          onHoverDetail={onHoverDetail}
-          onLeaveDetail={onLeaveDetail}
-        />
-      ) : null}
-      {entity.debuffs.length > 0 ? (
-        <EffectList
-          items={entity.debuffs}
-          tone="debuff"
-          onHoverDetail={onHoverDetail}
-          onLeaveDetail={onLeaveDetail}
-        />
-      ) : null}
-      <div className={styles.abilitiesGrid}>
-        {entity.actor.abilityIds.map((abilityId) => {
-          const ability = getAbilityDefinition(abilityId);
-          const readyAt = Math.max(
-            entity.actor.globalCooldownEndsAt,
-            entity.actor.cooldownEndsAt[abilityId] ?? worldTimeMs,
-          );
-          const totalCooldownMs = Math.max(
-            entity.actor.effectiveGlobalCooldownMs ??
-              entity.actor.globalCooldownMs,
-            entity.actor.effectiveCooldownMs?.[abilityId] ?? ability.cooldownMs,
-            1,
-          );
-          const remainingMs = Math.max(0, readyAt - worldTimeMs);
-          const cooldownRatio = Math.max(
-            0,
-            Math.min(1, remainingMs / totalCooldownMs),
-          );
+function buildCombatBars(
+  entity: CombatEntityView,
+  worldTimeMs: number,
+): [EntityStatusBar, ...EntityStatusBar[]] {
+  const bars: [EntityStatusBar, ...EntityStatusBar[]] = [
+    {
+      id: 'hp',
+      label: t('ui.hero.hp'),
+      value: entity.hp,
+      max: entity.maxHp,
+      tone: 'hp',
+      description: t('ui.tooltip.bar.combatHp'),
+    },
+    {
+      id: 'mana',
+      label: t('ui.combat.mp'),
+      value: entity.mana,
+      max: entity.maxMana,
+      tone: 'mana',
+      description: t('ui.tooltip.bar.combatMp'),
+    },
+  ];
 
-          return (
-            <AbilitySquare
-              key={ability.id}
-              label={ability.name}
-              icon={ability.icon}
-              tooltipLines={abilityTooltipLines(
-                ability,
-                ability.target,
-                entity.attack,
-              )}
-              cooldownRatio={cooldownRatio}
-              remainingMs={remainingMs}
-              onHoverDetail={onHoverDetail}
-              onLeaveDetail={onLeaveDetail}
-            />
-          );
-        })}
-      </div>
-    </article>
-  );
+  if (entity.actor.casting) {
+    const ability = getAbilityDefinition(entity.actor.casting.abilityId);
+    const castDurationMs = Math.max(ability.castTimeMs, 1);
+    const castStartedAt = entity.actor.casting.endsAt - castDurationMs;
+    const elapsedMs = Math.max(0, worldTimeMs - castStartedAt);
+
+    bars.push({
+      id: 'cast',
+      label: t('ui.combat.casting'),
+      value: elapsedMs,
+      max: castDurationMs,
+      tone: 'cast',
+      description: t('ui.combat.castBar.tooltip'),
+      text: ability.name,
+    });
+  } else {
+    bars.push({
+      id: 'cast',
+      label: t('ui.combat.casting'),
+      value: 0,
+      max: 1,
+      tone: 'cast',
+      description: t('ui.combat.castBar.tooltip'),
+      reserved: true,
+    });
+  }
+
+  return bars;
 }
 
-function ResourceBar({
-  label,
-  value,
-  max,
-  tone,
-  onHoverDetail,
-  onLeaveDetail,
-}: {
-  label: string;
-  value: number;
-  max: number;
-  tone: 'hp' | 'mp';
-  onHoverDetail: CombatWindowProps['onHoverDetail'];
-  onLeaveDetail: CombatWindowProps['onLeaveDetail'];
-}) {
-  const normalizedMax = Math.max(0, max);
-  const width =
-    normalizedMax > 0
-      ? Math.max(0, Math.min(100, (value / normalizedMax) * 100))
-      : 0;
+function buildAbilityIcons(
+  actor: CombatActorState,
+  attack: number,
+  worldTimeMs: number,
+) {
+  return actor.abilityIds.map<EntityStatusIcon>((abilityId) => {
+    const ability = getAbilityDefinition(abilityId);
+    const readyAt = Math.max(
+      actor.globalCooldownEndsAt,
+      actor.cooldownEndsAt[abilityId] ?? worldTimeMs,
+    );
+    const totalCooldownMs = Math.max(
+      actor.effectiveGlobalCooldownMs ?? actor.globalCooldownMs,
+      actor.effectiveCooldownMs?.[abilityId] ?? ability.cooldownMs,
+      1,
+    );
+    const remainingMs = Math.max(0, readyAt - worldTimeMs);
+    const cooldownRatio = Math.max(0, Math.min(1, remainingMs / totalCooldownMs));
 
-  return (
-    <div
-      className={styles.barTrack}
-      onMouseEnter={(event) =>
-        onHoverDetail(
-          event,
-          label,
-          [
-            {
-              kind: 'text',
-              text:
-                tone === 'hp'
-                  ? t('ui.tooltip.bar.combatHp')
-                  : t('ui.tooltip.bar.combatMp'),
-            },
-          ],
-          'rgba(148, 163, 184, 0.9)',
-        )
-      }
-      onMouseLeave={onLeaveDetail}
-    >
-      <div
-        className={`${styles.barFill} ${tone === 'hp' ? styles.hpBar : styles.mpBar}`}
-        style={{ width: `${width}%` }}
-      />
-      <div className={styles.barText}>
-        <span>{label}</span>
-        <strong>
-          {value}/{normalizedMax}
-        </strong>
-      </div>
-    </div>
-  );
+    return {
+      id: ability.id,
+      label: ability.name,
+      icon: ability.icon,
+      tint: '#f8fafc',
+      borderColor: 'rgb(148 163 184 / 35%)',
+      tooltipTitle: ability.name,
+      tooltipLines: abilityTooltipLines(ability, ability.target, attack),
+      tooltipBorderColor: 'rgba(148, 163, 184, 0.9)',
+      cooldownRatio,
+      remainingMs,
+    };
+  });
 }
 
-function EffectList({
-  items,
-  tone,
-  onHoverDetail,
-  onLeaveDetail,
-}: {
-  items: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[];
-  tone: 'buff' | 'debuff';
-  onHoverDetail: CombatWindowProps['onHoverDetail'];
-  onLeaveDetail: CombatWindowProps['onLeaveDetail'];
-}) {
-  return (
-    <div className={styles.effectList}>
-      {items.map((item) => (
-        <button
-          key={item.id}
-          type="button"
-          className={`${styles.effectChip} ${tone === 'buff' ? styles.buffChip : styles.debuffChip}`}
-          aria-label={formatStatusEffectLabel(item.id)}
-          onMouseEnter={(event) =>
-            onHoverDetail(
-              event,
-              formatStatusEffectLabel(item.id),
-              statusEffectTooltipLines(item.id, tone, [], item),
-              tone === 'buff'
-                ? 'rgba(34, 197, 94, 0.9)'
-                : 'rgba(239, 68, 68, 0.9)',
-            )
-          }
-          onMouseLeave={onLeaveDetail}
-        >
-          <span
-            aria-hidden="true"
-            className={styles.effectIcon}
-            style={iconMaskStyle(
-              statusEffectIcon(item.id),
-              statusEffectTint(item.id, tone),
-            )}
-          />
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function AbilitySquare({
-  label,
-  icon,
-  tooltipLines,
-  cooldownRatio,
-  remainingMs,
-  onHoverDetail,
-  onLeaveDetail,
-}: {
-  label: string;
-  icon: string;
-  tooltipLines: ReturnType<typeof abilityTooltipLines>;
-  cooldownRatio: number;
-  remainingMs: number;
-  onHoverDetail: CombatWindowProps['onHoverDetail'];
-  onLeaveDetail: CombatWindowProps['onLeaveDetail'];
-}) {
-  return (
-    <div
-      className={`${styles.abilitySquare} ${cooldownRatio > 0 ? styles.abilitySquareDisabled : ''}`}
-      aria-label={label}
-      onMouseEnter={(event) =>
-        onHoverDetail(event, label, tooltipLines, 'rgba(148, 163, 184, 0.9)')
-      }
-      onMouseLeave={onLeaveDetail}
-    >
-      <span
-        aria-hidden="true"
-        className={styles.abilityIcon}
-        style={iconMaskStyle(icon, '#f8fafc')}
-      />
-      {cooldownRatio > 0 ? (
-        <div
-          className={styles.cooldownOverlay}
-          style={{
-            ['--cooldown-scale' as string]: `${cooldownRatio}`,
-            ['--cooldown-duration' as string]: `${Math.max(remainingMs, 1)}ms`,
-          }}
-        />
-      ) : null}
-    </div>
-  );
-}
-
-function CastBar({
-  actor,
-  worldTimeMs,
-  onHoverDetail,
-  onLeaveDetail,
-}: {
-  actor: CombatActorState;
-  worldTimeMs: number;
-  onHoverDetail: CombatWindowProps['onHoverDetail'];
-  onLeaveDetail: CombatWindowProps['onLeaveDetail'];
-}) {
-  if (!actor.casting) return null;
-
-  const ability = getAbilityDefinition(actor.casting.abilityId);
-  const castDurationMs = Math.max(ability.castTimeMs, 1);
-  const castStartedAt = actor.casting.endsAt - castDurationMs;
-  const elapsedMs = Math.max(0, worldTimeMs - castStartedAt);
-  const width = Math.max(0, Math.min(100, (elapsedMs / castDurationMs) * 100));
-
-  return (
-    <div
-      className={`${styles.barTrack} ${styles.castBarTrack}`}
-      onMouseEnter={(event) =>
-        onHoverDetail(
-          event,
-          ability.name,
-          [
-            {
-              kind: 'text',
-              text: t('ui.combat.castBar.tooltip'),
-            },
-            {
-              kind: 'stat',
-              label: t('ui.ability.castTime'),
-              value: `${ability.castTimeMs / 1000}s`,
-            },
-          ],
-          'rgba(250, 204, 21, 0.9)',
-        )
-      }
-      onMouseLeave={onLeaveDetail}
-    >
-      <div
-        className={`${styles.barFill} ${styles.castBarFill}`}
-        style={{ width: `${width}%` }}
-      />
-      <div className={styles.barText}>
-        <span>{t('ui.combat.casting')}</span>
-        <strong>{ability.name}</strong>
-      </div>
-    </div>
-  );
+function buildEffectIcons(
+  items: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[],
+  tone: 'buff' | 'debuff',
+) {
+  return items.map<EntityStatusIcon>((item) => ({
+    id: item.id,
+    label: formatStatusEffectLabel(item.id),
+    icon: statusEffectIcon(item.id),
+    tint: statusEffectTint(item.id, tone),
+    borderColor:
+      tone === 'buff'
+        ? 'rgb(34 197 94 / 70%)'
+        : 'rgb(239 68 68 / 70%)',
+    tooltipTitle: formatStatusEffectLabel(item.id),
+    tooltipLines: statusEffectTooltipLines(item.id, tone, [], item),
+    tooltipBorderColor:
+      tone === 'buff'
+        ? 'rgba(34, 197, 94, 0.9)'
+        : 'rgba(239, 68, 68, 0.9)',
+  }));
 }
 
 function partitionStatusEffects(

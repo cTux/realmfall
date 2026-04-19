@@ -42,6 +42,13 @@ type Story = StoryObj<typeof meta>;
 
 export const AdventurerOverview: Story = {};
 
+export const SurvivalBars: Story = {
+  args: {
+    hunger: 61,
+    thirst: 43,
+  },
+};
+
 export const AbilityLoadout: Story = {
   args: {
     stats: fixtures.heroStats,

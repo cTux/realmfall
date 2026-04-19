@@ -40,7 +40,7 @@ import {
 } from './state';
 import { GameTag } from './content/tags';
 import { hexDistance, hexKey, hexNeighbors } from './hex';
-import { makeEnemy } from './combat';
+import { createCombatActorState, makeEnemy } from './combat';
 import {
   GAME_DAY_DURATION_MS,
   GAME_DAY_MINUTES,
@@ -1186,6 +1186,98 @@ describe('game state', () => {
 
     expect(damagedEnemyIds).toEqual(['enemy-2,0-1']);
     expect(weakenedEnemyIds).toEqual(damagedEnemyIds);
+  });
+
+  it('keeps player status rich-text target-agnostic for multi-target casts', () => {
+    const game = createGame(3, 'multi-target-status-log-seed');
+    const target = { q: 2, r: 0 };
+    game.tiles['2,0'] = {
+      coord: target,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: ['enemy-2,0-0', 'enemy-2,0-1'],
+    };
+    game.enemies['enemy-2,0-0'] = {
+      id: 'enemy-2,0-0',
+      name: 'Training Dummy A',
+      coord: target,
+      tier: 1,
+      hp: 30,
+      maxHp: 30,
+      attack: 0,
+      defense: 0,
+      xp: 0,
+      elite: false,
+      statusEffects: [],
+    };
+    game.enemies['enemy-2,0-1'] = {
+      id: 'enemy-2,0-1',
+      name: 'Training Dummy B',
+      coord: target,
+      tier: 1,
+      hp: 30,
+      maxHp: 30,
+      attack: 0,
+      defense: 0,
+      xp: 0,
+      elite: false,
+      statusEffects: [],
+    };
+    game.player.mana = 50;
+    game.combat = {
+      coord: target,
+      enemyIds: ['enemy-2,0-0', 'enemy-2,0-1'],
+      started: false,
+      player: createCombatActorState(0, ['enfeeblingPulse']),
+      enemies: {
+        'enemy-2,0-0': createCombatActorState(0, ['kick']),
+        'enemy-2,0-1': createCombatActorState(0, ['kick']),
+      },
+    };
+
+    const started = startCombat(game);
+    const resolved = progressCombat({ ...started, worldTimeMs: 1000 });
+    const statusLog = resolved.logs.find(
+      (entry) =>
+        entry.kind === 'combat' &&
+        entry.richText?.some(
+          (segment) =>
+            segment.kind === 'source' &&
+            segment.source.kind === 'ability' &&
+            segment.source.abilityId === 'enfeeblingPulse',
+        ) &&
+        /weakened/i.test(entry.text),
+    );
+
+    expect(
+      resolved.enemies['enemy-2,0-0']?.statusEffects?.some(
+        (effect) => effect.id === 'weakened',
+      ),
+    ).toBe(true);
+    expect(
+      resolved.enemies['enemy-2,0-1']?.statusEffects?.some(
+        (effect) => effect.id === 'weakened',
+      ),
+    ).toBe(true);
+    expect(statusLog?.richText?.some((segment) => segment.kind === 'entity')).toBe(
+      false,
+    );
+    expect(statusLog?.richText).toEqual([
+      { kind: 'text', text: 'You apply ' },
+      { kind: 'text', text: 'Weakened' },
+      { kind: 'text', text: ' with ' },
+      {
+        kind: 'source',
+        text: 'Enfeebling Pulse',
+        source: {
+          kind: 'ability',
+          abilityId: 'enfeeblingPulse',
+          attack: undefined,
+        },
+      },
+      { kind: 'text', text: '.' },
+    ]);
   });
 
   it('respawns the player at the home hex with death effects applied', () => {

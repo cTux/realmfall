@@ -1,5 +1,12 @@
+import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
+import { getAbilityDefinition } from '../../../game/abilities';
+import { getStatusEffectDefinition } from '../../../game/content/statusEffects';
+import type { LogEntry, LogRichSegment } from '../../../game/types';
 import { parseWorldCalendarDateTime } from '../../world/timeOfDay';
+import { rarityColor } from '../../rarity';
+import { statusEffectIcon, statusEffectTint } from '../../statusEffects';
+import { abilityTooltipLines, statusEffectTooltipLines } from '../../tooltips';
 import { CalendarTimestamp } from '../CalendarTimestamp';
 import type { LogWindowProps } from './types';
 import styles from './styles.module.scss';
@@ -30,20 +37,28 @@ function splitLogEntry(text: string) {
   };
 }
 
+function logMessageText(entry: LogEntry) {
+  if (!entry.richText || entry.richText.length === 0) {
+    return splitLogEntry(entry.text).message;
+  }
+
+  return entry.richText.map((segment) => segment.text).join('');
+}
+
 function AnimatedLogLine({
+  entry,
   timestampMs,
-  text,
   visibleCount,
   onHoverDetail,
   onLeaveDetail,
 }: {
+  entry: LogEntry;
   timestampMs: number | null;
-  text: string;
   visibleCount: number;
   onHoverDetail?: LogWindowProps['onHoverDetail'];
   onLeaveDetail?: LogWindowProps['onLeaveDetail'];
 }) {
-  const { message } = splitLogEntry(text);
+  const message = logMessageText(entry);
   const isComplete = visibleCount >= message.length;
   const cursor = MATRIX_GLYPHS[visibleCount % MATRIX_GLYPHS.length];
 
@@ -60,7 +75,14 @@ function AnimatedLogLine({
           />{' '}
         </>
       ) : null}
-      {message.slice(0, visibleCount)}
+      {entry.richText && entry.richText.length > 0
+        ? renderRichText(
+            entry.richText,
+            visibleCount,
+            onHoverDetail,
+            onLeaveDetail,
+          )
+        : message.slice(0, visibleCount)}
       {isComplete ? null : (
         <span className={styles.logCursor} aria-hidden="true">
           {cursor}
@@ -78,8 +100,9 @@ export function LogWindowContent({
   const orderedLogs = [...logs].reverse();
   const logListRef = useRef<HTMLDivElement | null>(null);
   const newestLogId = orderedLogs[orderedLogs.length - 1]?.id;
-  const newestLogText = orderedLogs[orderedLogs.length - 1]?.text ?? '';
-  const newestMessage = splitLogEntry(newestLogText).message;
+  const newestMessage = newestLogId
+    ? logMessageText(orderedLogs[orderedLogs.length - 1]!)
+    : '';
   const [visibleCount, setVisibleCount] = useState(0);
 
   useEffect(() => {
@@ -122,8 +145,8 @@ export function LogWindowContent({
             className={`${styles.logEntry} ${styles[entry.kind] ?? ''} ${BLOOD_MOON_PATTERN.test(entry.text) ? styles.bloodMoon : ''} ${HARVEST_MOON_PATTERN.test(entry.text) ? styles.harvestMoon : ''}`.trim()}
           >
             <AnimatedLogLine
+              entry={entry}
               timestampMs={timestampMs}
-              text={entry.text}
               visibleCount={
                 entry.id === newestLogId
                   ? visibleCount
@@ -137,4 +160,168 @@ export function LogWindowContent({
       })}
     </div>
   );
+}
+
+function renderRichText(
+  segments: LogRichSegment[],
+  visibleCount: number,
+  onHoverDetail?: LogWindowProps['onHoverDetail'],
+  onLeaveDetail?: LogWindowProps['onLeaveDetail'],
+) {
+  let remaining = visibleCount;
+
+  return segments.map((segment, index) => {
+    if (remaining <= 0) return null;
+
+    const visibleText = segment.text.slice(0, remaining);
+    remaining -= visibleText.length;
+    if (visibleText.length === 0) return null;
+
+    if (segment.kind === 'text') {
+      return <span key={index}>{visibleText}</span>;
+    }
+
+    if (segment.kind === 'entity') {
+      return (
+        <span
+          key={index}
+          className={styles.entitySegment}
+          style={segment.rarity ? { color: rarityColor(segment.rarity) } : undefined}
+        >
+          {visibleText}
+        </span>
+      );
+    }
+
+    if (segment.kind === 'damage') {
+      return (
+        <span key={index} className={styles.damageSegment}>
+          {visibleText}
+        </span>
+      );
+    }
+
+    if (segment.kind === 'healing') {
+      return (
+        <span key={index} className={styles.healingSegment}>
+          {visibleText}
+        </span>
+      );
+    }
+
+    return (
+      <SourceSegment
+        key={index}
+        segment={segment}
+        visibleText={visibleText}
+        fullyVisible={visibleText.length === segment.text.length}
+        onHoverDetail={onHoverDetail}
+        onLeaveDetail={onLeaveDetail}
+      />
+    );
+  });
+}
+
+function SourceSegment({
+  segment,
+  visibleText,
+  fullyVisible,
+  onHoverDetail,
+  onLeaveDetail,
+}: {
+  segment: Extract<LogRichSegment, { kind: 'source' }>;
+  visibleText: string;
+  fullyVisible: boolean;
+  onHoverDetail?: LogWindowProps['onHoverDetail'];
+  onLeaveDetail?: LogWindowProps['onLeaveDetail'];
+}) {
+  const tooltip = buildSourceTooltip(segment);
+
+  const handleMouseEnter =
+    fullyVisible && tooltip && onHoverDetail
+      ? (event: ReactMouseEvent<HTMLElement>) =>
+          onHoverDetail(
+            event,
+            tooltip.title,
+            tooltip.lines,
+            tooltip.borderColor,
+          )
+      : undefined;
+
+  return (
+    <span
+      className={styles.sourceSegment}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseEnter ? onLeaveDetail : undefined}
+    >
+      <span
+        aria-hidden="true"
+        className={styles.sourceIcon}
+        style={sourceIconStyle(segment)}
+      />
+      <span>{visibleText}</span>
+    </span>
+  );
+}
+
+function sourceIconStyle(segment: Extract<LogRichSegment, { kind: 'source' }>): CSSProperties {
+  if (segment.source.kind === 'ability') {
+    const ability = getAbilityDefinition(segment.source.abilityId);
+    return maskStyle(ability.icon, '#f8fafc');
+  }
+
+  return maskStyle(
+    statusEffectIcon(segment.source.effectId),
+    statusEffectTint(
+      segment.source.effectId,
+      segment.source.tone ??
+        (getStatusEffectDefinition(segment.source.effectId)?.tone === 'buff'
+          ? 'buff'
+          : 'debuff'),
+    ),
+  );
+}
+
+function buildSourceTooltip(segment: Extract<LogRichSegment, { kind: 'source' }>) {
+  if (segment.source.kind === 'ability') {
+    const ability = getAbilityDefinition(segment.source.abilityId);
+    return {
+      title: ability.name,
+      lines: abilityTooltipLines(
+        ability,
+        ability.target,
+        segment.source.attack,
+      ),
+      borderColor: 'rgba(148, 163, 184, 0.9)',
+    };
+  }
+
+  const tone =
+    segment.source.tone ??
+    (getStatusEffectDefinition(segment.source.effectId)?.tone === 'buff'
+      ? 'buff'
+      : 'debuff');
+
+  return {
+    title: segment.text,
+    lines: statusEffectTooltipLines(segment.source.effectId, tone, [], {
+      id: segment.source.effectId,
+      value: segment.source.value,
+      tickIntervalMs: segment.source.tickIntervalMs,
+      stacks: segment.source.stacks,
+    }),
+    borderColor:
+      tone === 'buff'
+        ? 'rgba(34, 197, 94, 0.9)'
+        : 'rgba(239, 68, 68, 0.9)',
+  };
+}
+
+function maskStyle(icon: string, tint: string): CSSProperties {
+  const mask = `url("${icon}") center / contain no-repeat`;
+  return {
+    backgroundColor: tint,
+    WebkitMask: mask,
+    mask,
+  };
 }

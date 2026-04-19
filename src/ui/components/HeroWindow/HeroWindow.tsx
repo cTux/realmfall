@@ -1,5 +1,4 @@
 import { memo, Suspense } from 'react';
-import { useWorldClockTime } from '../../../app/App/worldClockStore';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { WindowLoadingState } from '../WindowLoadingState';
 import { createLazyWindowComponent } from '../lazyWindowComponent';
@@ -22,13 +21,9 @@ export const HeroWindow = memo(function HeroWindow({
   stats,
   hunger,
   thirst,
-  worldTimeMs,
   onHoverDetail,
   onLeaveDetail,
 }: HeroWindowProps) {
-  const liveWorldTimeMs = useWorldClockTime();
-  const resolvedWorldTimeMs = liveWorldTimeMs || worldTimeMs || 0;
-
   return (
     <WindowShell
       title={WINDOW_LABELS.hero.plain}
@@ -53,7 +48,6 @@ export const HeroWindow = memo(function HeroWindow({
           stats={stats}
           hunger={hunger}
           thirst={thirst}
-          worldTimeMs={resolvedWorldTimeMs}
           onHoverDetail={onHoverDetail}
           onLeaveDetail={onLeaveDetail}
         />

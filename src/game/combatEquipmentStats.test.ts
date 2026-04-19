@@ -239,6 +239,24 @@ describe('combat equipment stats', () => {
     expect(dodged.player.hp).toBe(30);
     expect(blocked.player.hp).toBe(30);
     expect(suppressed.player.hp).toBe(25);
+    expect(dodged.logs.some((entry) => /dodge/i.test(entry.text))).toBe(true);
+    expect(blocked.logs.some((entry) => /block/i.test(entry.text))).toBe(true);
+    expect(suppressed.logs.some((entry) => /suppress/i.test(entry.text))).toBe(true);
+  });
+
+  it('logs fully absorbed enemy hits instead of 0 damage', () => {
+    const absorbed = startCombat(
+      prepareCombat({
+        playerEquipment: [makeEquipmentItem('offhand', { defense: 20 })],
+        playerAbilityIds: ['kick'],
+        playerReady: false,
+        enemyAttack: 20,
+      }).game,
+    );
+
+    expect(absorbed.player.hp).toBe(30);
+    expect(absorbed.logs.some((entry) => /fully absorb/i.test(entry.text))).toBe(true);
+    expect(absorbed.logs.some((entry) => /for 0\b/i.test(entry.text))).toBe(false);
   });
 
   it('respects suppress-debuff gear stats against hostile abilities', () => {
@@ -257,6 +275,9 @@ describe('combat equipment stats', () => {
         (effect) => effect.id === 'chilling',
       ),
     ).toBe(false);
+    expect(
+      guardedAgainstDirect.logs.some((entry) => /shrug off chilling/i.test(entry.text)),
+    ).toBe(true);
 
     const slashDamageEffect = ABILITIES.slash.effects[0];
     const originalStatusChance =
@@ -282,6 +303,9 @@ describe('combat equipment stats', () => {
           (effect) => effect.id === 'bleeding',
         ),
       ).toBe(false);
+      expect(
+        guardedAgainstConfigured.logs.some((entry) => /shrug off bleeding/i.test(entry.text)),
+      ).toBe(true);
     } finally {
       if (slashDamageEffect?.kind === 'damage') {
         slashDamageEffect.statusChance = originalStatusChance;

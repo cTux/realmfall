@@ -12,6 +12,7 @@
   width: min(320px, calc(100vw - 16px));
   background: #08101e;
   border: 1px solid rgb(148 163 184 / 20%);
+  border-radius: ui.$ability-radius;
   box-shadow: 0 20px 60px rgb(0 0 0 / 35%);
   overflow: hidden;
   opacity: 1;
@@ -78,7 +79,7 @@
 }
 
 .headerButton {
-  @include ui.compact-button;
+  @include ui.window-header-button;
 }
 
 .headerButtonIcon {

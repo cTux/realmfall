@@ -94,7 +94,7 @@ describe('HeroWindow', () => {
     ).not.toBeNull();
   });
 
-  it('renders the full resulting character stat list', async () => {
+  it('renders the hero summary without the detailed derived stat list', async () => {
     await act(async () => {
       root.render(
         <HeroWindow
@@ -115,47 +115,11 @@ describe('HeroWindow', () => {
       await Promise.resolve();
     });
 
-    expect(host.textContent).toContain('Critical Strike Chance');
-    expect(host.textContent).toContain('175%');
-    expect(host.textContent).toContain('Lifesteal Amount');
-    expect(host.textContent).toContain('8% max HP');
-    expect(host.textContent).toContain('Suppress Debuff Chance');
-    expect(host.textContent).toContain('Attack Speed');
-    expect(host.textContent).toContain('125%');
-  });
-
-  it('omits zero-valued percentage stats from the character stat list', async () => {
-    await act(async () => {
-      root.render(
-        <HeroWindow
-          position={{ x: 16, y: 24 }}
-          onMove={() => {}}
-          visible
-          stats={{
-            ...stats,
-            dodgeChance: 0,
-            blockChance: 0,
-            suppressDebuffChance: 0,
-            bleedChance: 0,
-          }}
-          hunger={0}
-          thirst={0}
-          worldTimeMs={0}
-        />,
-      );
-    });
-
-    await act(async () => {
-      await vi.dynamicImportSettled();
-      await Promise.resolve();
-      await Promise.resolve();
-    });
-
     expect(host.textContent).not.toContain('Dodge Chance');
-    expect(host.textContent).not.toContain('Block Chance');
+    expect(host.textContent).not.toContain('Critical Strike Chance');
     expect(host.textContent).not.toContain('Suppress Debuff Chance');
-    expect(host.textContent).not.toContain('Bleed Chance');
-    expect(host.textContent).toContain('Attack');
-    expect(host.textContent).toContain('Defense');
+    expect(host.textContent).not.toContain('Attack Speed');
+    expect(host.textContent).toContain(t('ui.window.hero.suffix'));
+    expect(host.textContent).not.toContain('Character infoHP');
   });
 });

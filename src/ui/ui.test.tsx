@@ -40,6 +40,7 @@ import {
   structureTint,
 } from './icons';
 import { rarityColor } from './rarity';
+import { getTooltipPlacementForRect } from './tooltipPlacement';
 import { CombatWindow } from './components/CombatWindow';
 import { DraggableWindow } from './components/DraggableWindow';
 import { EquipmentWindow } from './components/EquipmentWindow';
@@ -50,6 +51,7 @@ import { HexInfoWindow } from './components/HexInfoWindow';
 import { InventoryWindow } from './components/InventoryWindow';
 import { ItemContextMenu } from './components/ItemContextMenu';
 import { LogWindow } from './components/LogWindow';
+import { LogWindowContent } from './components/LogWindow/LogWindowContent';
 import { LootWindow } from './components/LootWindow';
 import { RecipeBookWindow } from './components/RecipeBookWindow';
 import { getRecipeCraftCount } from './components/RecipeBookWindow/RecipeBookWindowContent';
@@ -1454,8 +1456,6 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('Tak(e) all');
     expect(markup).toContain('Filters');
     expect(markup).toContain('Epic');
-    expect(markup).toContain('Player Party');
-    expect(markup).toContain('Enemy Party');
     expect(markup).toContain('Player Lv 10');
     expect(markup).toContain('Marauder Lv 3');
     expect(markup).toContain('MP');
@@ -1890,6 +1890,83 @@ describe('ui helpers and components', () => {
 
     const tooltip = host.querySelector('div[class*="tooltip"]') as HTMLElement;
     expect(tooltip.style.transform).toBe('translateX(-100%)');
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('chooses a fully visible fallback placement for anchored tooltips', () => {
+    expect(
+      getTooltipPlacementForRect(
+        {
+          left: 280,
+          right: 320,
+          top: 80,
+          bottom: 120,
+          width: 40,
+        },
+        {
+          viewportWidth: 360,
+          viewportHeight: 280,
+          tooltipWidth: 260,
+          tooltipHeight: 120,
+        },
+      ),
+    ).toMatchObject({
+      x: 218,
+      y: 132,
+      placement: 'bottom',
+    });
+
+    expect(
+      getTooltipPlacementForRect(
+        {
+          left: 200,
+          right: 240,
+          top: 20,
+          bottom: 60,
+          width: 40,
+        },
+        {
+          preferredPlacements: ['top', 'right', 'left', 'bottom'],
+          viewportWidth: 520,
+          viewportHeight: 260,
+          tooltipWidth: 220,
+          tooltipHeight: 120,
+        },
+      ),
+    ).toMatchObject({
+      x: 252,
+      y: 20,
+      placement: 'right',
+    });
+  });
+
+  it('centers bottom-placed tooltips beneath the anchor', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+
+    await act(async () => {
+      root.render(
+        <GameTooltip
+          tooltip={{
+            title: 'Town',
+            x: 180,
+            y: 120,
+            placement: 'bottom',
+            lines: [{ kind: 'text', text: 'Safe rest and trade.' }],
+          }}
+        />,
+      );
+    });
+
+    const tooltip = host.querySelector('div[class*="tooltip"]') as HTMLElement;
+    expect(tooltip.style.getPropertyValue('--tooltip-transform')).toBe(
+      'translateX(-50%)',
+    );
 
     await act(async () => {
       root.unmount();
@@ -2539,6 +2616,61 @@ describe('ui helpers and components', () => {
     const harvestMoonEntry = host.querySelector('div[class*="harvestMoon"]');
 
     expect(harvestMoonEntry).not.toBeNull();
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('renders rich combat log segments and exposes source tooltips on hover', async () => {
+    vi.useFakeTimers();
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    const onHoverDetail = vi.fn();
+    const onLeaveDetail = vi.fn();
+
+    await act(async () => {
+      root.render(
+        <LogWindowContent
+          onHoverDetail={onHoverDetail}
+          onLeaveDetail={onLeaveDetail}
+          logs={[
+            {
+              id: 'rich-combat-log',
+              kind: 'combat',
+              text: '[Year 1, Day 5, 18:00] The Marauder deals 12 to you with Fireball.',
+              turn: 12,
+              richText: [
+                { kind: 'entity', text: 'Marauder', rarity: 'epic' },
+                { kind: 'text', text: ' deals ' },
+                { kind: 'damage', text: '12' },
+                { kind: 'text', text: ' to you with ' },
+                {
+                  kind: 'source',
+                  text: 'Fireball',
+                  source: { kind: 'ability', abilityId: 'fireball', attack: 12 },
+                },
+                { kind: 'text', text: '.' },
+              ],
+            },
+          ]}
+        />,
+      );
+    });
+
+    await act(async () => {
+      vi.advanceTimersByTime(2_000);
+    });
+
+    const sourceLabel = Array.from(host.querySelectorAll('span')).find((node) =>
+      node.textContent?.includes('Fireball'),
+    ) as HTMLSpanElement | undefined;
+    const source = sourceLabel?.parentElement as HTMLSpanElement | null;
+
+    expect(source).not.toBeNull();
+    expect(source?.textContent).toContain('Fireball');
 
     await act(async () => {
       root.unmount();

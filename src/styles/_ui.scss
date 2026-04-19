@@ -2,6 +2,7 @@ $mobile-window-width: min(92vw, 420px);
 $window-border: rgb(148 163 184 / 20%);
 $panel-bg: rgb(15 23 42 / 85%);
 $panel-shadow: inset 0 0 0 1px rgb(255 255 255 / 3%);
+$ability-radius: 0 16px;
 $fill-transition: width 220ms ease;
 $tile-transition:
   transform 120ms ease,
@@ -30,6 +31,12 @@ $tile-transition:
   padding: 0.2rem 0.5rem;
   font-size: 0.75rem;
   line-height: 1.15;
+}
+
+@mixin window-header-button {
+  @include compact-button;
+
+  border-radius: $ability-radius;
 }
 
 @mixin progress-fill($gradient) {
