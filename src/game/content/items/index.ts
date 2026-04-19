@@ -453,7 +453,7 @@ function buildItemConfigTags(
       GAME_TAGS.item.craftingMaterial,
     ],
     [ItemId.ArcaneDust]: [
-      GAME_TAGS.item.aether,
+      GAME_TAGS.item.mana,
       GAME_TAGS.item.prospectable,
       GAME_TAGS.item.craftingMaterial,
     ],
@@ -467,13 +467,13 @@ function buildItemConfigTags(
     [ItemId.WorkGloves]: [GAME_TAGS.item.crafted, GAME_TAGS.item.animalProduct],
     [ItemId.TrailLeggings]: [GAME_TAGS.item.crafted, GAME_TAGS.item.cloth],
     [ItemId.FieldBoots]: [GAME_TAGS.item.crafted, GAME_TAGS.item.animalProduct],
-    [ItemId.CopperLoop]: [GAME_TAGS.item.crafted, GAME_TAGS.item.aether],
-    [ItemId.CopperBand]: [GAME_TAGS.item.crafted, GAME_TAGS.item.aether],
-    [ItemId.CharmNecklace]: [GAME_TAGS.item.crafted, GAME_TAGS.item.aether],
+    [ItemId.CopperLoop]: [GAME_TAGS.item.crafted, GAME_TAGS.item.mana],
+    [ItemId.CopperBand]: [GAME_TAGS.item.crafted, GAME_TAGS.item.mana],
+    [ItemId.CharmNecklace]: [GAME_TAGS.item.crafted, GAME_TAGS.item.mana],
     [ItemId.WayfarerCloak]: [GAME_TAGS.item.crafted, GAME_TAGS.item.cloth],
     [ItemId.HearthTotem]: [
       GAME_TAGS.item.crafted,
-      GAME_TAGS.item.aether,
+      GAME_TAGS.item.mana,
       GAME_TAGS.item.totem,
     ],
   };
