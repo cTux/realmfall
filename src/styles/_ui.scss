@@ -33,6 +33,12 @@ $tile-transition:
   line-height: 1.15;
 }
 
+@mixin window-header-button {
+  @include compact-button;
+
+  border-radius: $ability-radius;
+}
+
 @mixin progress-fill($gradient) {
   height: 100%;
   background: $gradient;

@@ -79,7 +79,7 @@
 }
 
 .headerButton {
-  @include ui.compact-button;
+  @include ui.window-header-button;
 }
 
 .headerButtonIcon {
