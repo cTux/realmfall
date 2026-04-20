@@ -2,6 +2,7 @@
 
 Implemented gameplay features are split into dedicated spec files:
 
+- [Background Music](./background-music/spec.md)
 - [World Exploration](./world-exploration/spec.md)
 - [Survival Loop](./survival-loop/spec.md)
 - [Combat](./combat/spec.md)

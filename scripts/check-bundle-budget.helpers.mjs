@@ -8,14 +8,15 @@ export const MANIFEST_PATH = join(DIST_DIR, '.vite', 'manifest.json');
 export const CHUNK_BUDGETS = {
   index: 4_743,
   App: 78_410,
-  'react-core': 8_689,
+  'background-audio': 54_420,
   'react-dom-vendor': 199_966,
   state: 532_132,
   en: 109_450,
   pixi: 549_560,
 };
 
-export const STARTUP_TOTAL_BUDGET = 1_460_000;
+<<<<<<< HEAD
+export const STARTUP_TOTAL_BUDGET = 1_470_000;
 
 export function formatKiB(bytes) {
   return `${(bytes / 1000).toFixed(2)} kB`;

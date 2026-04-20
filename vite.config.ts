@@ -84,6 +84,13 @@ function getVendorChunk(id: string) {
   }
 
   if (
+    normalizedId.includes('/node_modules/react-use-audio-player/') ||
+    normalizedId.includes('/node_modules/howler/')
+  ) {
+    return 'background-audio';
+  }
+
+  if (
     normalizedId.includes('/node_modules/pixi.js/') ||
     normalizedId.includes('/node_modules/@pixi/')
   ) {
