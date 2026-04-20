@@ -1,6 +1,8 @@
 import {
+  CHUNK_BUDGETS,
   findEntryKey,
   formatKiB,
+  getChunkBudgetTarget,
   getStartupChunkFiles,
 } from '../check-bundle-budget.helpers.mjs';
 
@@ -59,5 +61,25 @@ describe('check-bundle-budget helpers', () => {
         'assets/js/en-abc.js',
       ]),
     );
+  });
+
+  it('tracks both react-core and background-audio startup chunk budgets', () => {
+    expect(CHUNK_BUDGETS).toMatchObject({
+      'background-audio': 54_420,
+      'react-core': 8_689,
+    });
+  });
+
+  it('treats react-core as covered by react-dom-vendor when the build merges them', () => {
+    const chunks = [
+      { fileName: 'react-dom-vendor-abc.js', size: 181_790 },
+      { fileName: 'background-audio-abc.js', size: 49_480 },
+    ];
+
+    expect(getChunkBudgetTarget(chunks, 'react-core')).toEqual({
+      kind: 'merged',
+      chunk: { fileName: 'react-dom-vendor-abc.js', size: 181_790 },
+      mergedInto: 'react-dom-vendor',
+    });
   });
 });
