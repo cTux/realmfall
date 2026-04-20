@@ -96,8 +96,6 @@ describe('ui helpers and components', () => {
   });
 
   it('exposes shared constants and lookup helpers', () => {
-    expect(DEFAULT_WINDOWS.worldTime).toEqual({ x: 420, y: 20 });
-    expect(DEFAULT_WINDOW_VISIBILITY.worldTime).toBe(false);
     expect(DEFAULT_WINDOWS.hero).toEqual({ x: 96, y: 20 });
     expect(DEFAULT_WINDOWS.skills).toEqual({ x: 96, y: 430 });
     expect(DEFAULT_WINDOW_VISIBILITY.hero).toBe(false);

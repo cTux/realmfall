@@ -165,7 +165,6 @@ function normalizeWindowVisibility(
   }
 
   return {
-    worldTime: value.worldTime === true,
     hero: value.hero === true,
     skills: value.skills === true,
     recipes: value.recipes === true,
@@ -185,7 +184,6 @@ function normalizeWindowPositions(value: unknown): WindowPositions {
   }
 
   return {
-    worldTime: normalizeWindowPosition(value.worldTime, 'worldTime'),
     hero: normalizeWindowPosition(value.hero, 'hero'),
     skills: normalizeWindowPosition(value.skills, 'skills'),
     recipes: normalizeWindowPosition(value.recipes, 'recipes'),

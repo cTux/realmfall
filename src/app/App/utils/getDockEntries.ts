@@ -8,7 +8,6 @@ export function getDockEntries(
   keepCombatWindowMounted: boolean,
 ) {
   const keys: Array<keyof WindowVisibilityState> = [
-    'worldTime',
     'hero',
     'skills',
     'recipes',

@@ -22,7 +22,6 @@ describe('App item tooltip lazy loading', () => {
       game,
       ui: {
         windowShown: {
-          worldTime: false,
           hero: false,
           skills: false,
           recipes: false,

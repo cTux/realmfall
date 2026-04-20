@@ -7,7 +7,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 ## Current Behavior
 
 - Gameplay state is exposed through draggable desktop-style windows.
-- Current windows cover hero stats, equipment, inventory, recipes, combat, loot, log output, hex info, skills, debugger, game settings, and docked controls.
+- Current windows cover hero stats, equipment, inventory, recipes, combat, loot, log output, hex info, skills, game settings, and docked controls.
 - New sessions start with every draggable window closed until the player opens one from the dock or a hotkey.
 - The fixed left dock uses a dense icon-button stack at roughly 60% of the original button footprint so more windows fit without crowding the main play area.
 - The game uses a custom tooltip system for world objects and item affordances.
@@ -29,7 +29,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - Filtered log viewing is part of the current gameplay readability loop.
 - Current and maximum value bars surface their meaning through the shared tooltip system.
 - The character info window currently focuses on shared combat-style resource bars and no longer lists the full derived combat stat sheet inline.
-- Log entries show a compact `HH:MM` timestamp in the visible list, while hover reveals the full calendar timestamp using the same world-calendar formatter as the debugger window.
+- Log entries show a compact `HH:MM` timestamp in the visible list, while hover reveals the full calendar timestamp using the shared world-calendar formatter.
 
 ## Main Implementation Areas
 
