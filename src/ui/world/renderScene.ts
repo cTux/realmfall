@@ -75,6 +75,9 @@ const HOME_HEX_TINT_INSET = 3;
 const STRUCTURE_HEX_ICON_TINT = 0xffffff;
 const WORLD_BOSS_HEX_TINT_COLOR = 0x7f1d1d;
 const WORLD_BOSS_HEX_TINT_ALPHA = 0.22;
+const ANIMATED_LAYER_FPS = 15;
+const ANIMATED_LAYER_FRAME_MS = 1000 / ANIMATED_LAYER_FPS;
+const ZERO_SHADOW_OFFSET = { x: 0, y: 0 };
 
 export function renderScene(
   app: Application,
@@ -88,15 +91,10 @@ export function renderScene(
 ) {
   const scene = getSceneCache(app);
   const cloudInputs = getCloudRenderInputs(scene, state.seed);
-
-  const { lighting, origin, sunPosition, moonPosition, shadowOffset } =
-    getLightingState(
-      app,
-      worldTimeMinutes,
-      animationMs,
-      state.bloodMoonActive,
-      state.harvestMoonActive,
-    );
+  const origin = {
+    x: app.screen.width / 2,
+    y: app.screen.height / 2,
+  };
   const hexSize = getWorldHexSize(app.screen, state.radius);
   const structureIconSize = hexSize * 1.065;
   const enemyIconSize = hexSize * 0.945;
@@ -109,24 +107,12 @@ export function renderScene(
     updateWorldMapFishEyeFilter(scene.worldMapFilter, app.screen, origin);
   }
 
-  renderSkyLayer(app, scene.skyFill, lighting.skyColor);
-  beginAnimatedSceneRender(scene);
-  renderAtmosphere(
-    app,
-    scene.atmosphereShaftGraphics,
-    scene.atmosphereCelestialGraphics,
-    lighting,
-    animationMs,
-    sunPosition,
-    moonPosition,
-    origin,
-    state.bloodMoonActive,
-    state.harvestMoonActive,
-  );
-
   const screenChanged =
     scene.screenWidth !== app.screen.width ||
     scene.screenHeight !== app.screen.height;
+  const animatedRenderToken = getAnimatedRenderToken(state, animationMs);
+  const shouldRenderAnimated =
+    screenChanged || scene.animatedRenderToken !== animatedRenderToken;
   const renderTokens = getSceneRenderTokens(scene, state, visibleTiles);
   const shouldRenderStatic =
     screenChanged || scene.staticRenderToken !== renderTokens.static;
@@ -145,6 +131,34 @@ export function renderScene(
   const visibleTileMap = shouldRenderStatic
     ? new Map(visibleTiles.map((tile) => [hexKey(tile.coord), tile] as const))
     : null;
+  const lightingState =
+    shouldRenderAnimated || shouldRenderStatic
+      ? getLightingState(
+          app,
+          worldTimeMinutes,
+          animationMs,
+          state.bloodMoonActive,
+          state.harvestMoonActive,
+        )
+      : null;
+  const shadowOffset = lightingState?.shadowOffset ?? ZERO_SHADOW_OFFSET;
+
+  if (shouldRenderAnimated && lightingState) {
+    renderSkyLayer(app, scene.skyFill, lightingState.lighting.skyColor);
+    beginAnimatedSceneRender(scene);
+    renderAtmosphere(
+      app,
+      scene.atmosphereShaftGraphics,
+      scene.atmosphereCelestialGraphics,
+      lightingState.lighting,
+      animationMs,
+      lightingState.sunPosition,
+      lightingState.moonPosition,
+      origin,
+      state.bloodMoonActive,
+      state.harvestMoonActive,
+    );
+  }
 
   if (shouldRenderStatic) {
     beginStaticSceneRender(scene);
@@ -357,17 +371,6 @@ export function renderScene(
     }
   }
 
-  scene.campfireLightPoints.forEach((point) => {
-    renderCampfireLight(
-      scene.worldAnimatedDetailGraphics,
-      point,
-      hexSize,
-      lighting.ambientBrightness,
-      lighting,
-      animationMs,
-    );
-  });
-
   if (shouldRenderStatic) {
     completeStaticSceneRender(scene);
     scene.staticRenderToken = renderTokens.static;
@@ -385,32 +388,49 @@ export function renderScene(
   scene.screenWidth = app.screen.width;
   scene.screenHeight = app.screen.height;
 
-  configureShadowedSprite(
-    scene.player,
-    scaleColor(0xffffff, Math.max(0.84, lighting.ambientBrightness + 0.08)),
-    playerIconSize,
-    playerIconSize,
-    1,
-    shadowOffset,
-    origin,
-  );
+  if (shouldRenderAnimated && lightingState) {
+    scene.campfireLightPoints.forEach((point) => {
+      renderCampfireLight(
+        scene.worldAnimatedDetailGraphics,
+        point,
+        hexSize,
+        lightingState.lighting.ambientBrightness,
+        lightingState.lighting,
+        animationMs,
+      );
+    });
 
-  renderCloudLayer(
-    app.screen,
-    scene.cloudShadowSprites,
-    scene.cloudSprites,
-    animationMs,
-    lighting,
-    cloudInputs,
-    shadowOffset,
-  );
-  renderWorldOverlay(
-    app,
-    scene.overlayFill,
-    lighting.overlayColor,
-    lighting.overlayAlpha,
-  );
-  completeAnimatedSceneRender(scene);
+    configureShadowedSprite(
+      scene.player,
+      scaleColor(
+        0xffffff,
+        Math.max(0.84, lightingState.lighting.ambientBrightness + 0.08),
+      ),
+      playerIconSize,
+      playerIconSize,
+      1,
+      shadowOffset,
+      origin,
+    );
+
+    renderCloudLayer(
+      app.screen,
+      scene.cloudShadowSprites,
+      scene.cloudSprites,
+      animationMs,
+      lightingState.lighting,
+      cloudInputs,
+      shadowOffset,
+    );
+    renderWorldOverlay(
+      app,
+      scene.overlayFill,
+      lightingState.lighting.overlayColor,
+      lightingState.lighting.overlayAlpha,
+    );
+    completeAnimatedSceneRender(scene);
+    scene.animatedRenderToken = animatedRenderToken;
+  }
 }
 
 function renderClaimBorder(
@@ -485,6 +505,15 @@ function getCloudRenderInputs(
   }
 
   return cloudInputs;
+}
+
+function getAnimatedRenderToken(state: GameState, animationMs: number) {
+  return [
+    state.seed,
+    state.bloodMoonActive ? 'blood' : 'normal',
+    state.harvestMoonActive ? 'harvest' : 'default',
+    Math.floor(animationMs / ANIMATED_LAYER_FRAME_MS),
+  ].join(':');
 }
 
 function makeInsetHex(

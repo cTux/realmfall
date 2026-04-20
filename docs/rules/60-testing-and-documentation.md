@@ -19,6 +19,7 @@
 - Keep `docs/WORKFLOW.md` aligned with the actual contributor workflow, verification steps, and commit conventions, but keep recurring policy details in `docs/RULES.md` and `docs/rules/` instead of restating them there.
 - Prefer documenting real project constraints and current behavior over aspirational wording.
 - In review findings, improvement notes, and project-health summaries, do not ship the word `still`. Rewrite the sentence to describe the current behavior and risk directly so the guidance remains accurate after follow-up fixes land.
+- Before committing changed markdown for specs, workflow docs, or review notes, search the staged diff for standalone `still` and rewrite those sentences unless the word appears inside a source quote.
 - When prompts establish recurring workflow expectations, capture them here so future prompt handling stays consistent.
 - When a prompt establishes recurring structural placement rules for hooks, selectors, utilities, components, or tests, update this file and keep contributor-facing docs aligned instead of relying on one-off refactors.
 - Keep rule and workflow updates synchronized across `README.md`, `docs/WORKFLOW.md`, and the AI-specific instruction files when those updates affect future prompt execution.
