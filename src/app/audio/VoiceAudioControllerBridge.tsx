@@ -62,6 +62,22 @@ export function VoiceAudioControllerBridge({
   );
 
   useEffect(() => {
+    if (shouldStopVoicePlayback(audioSettings, window)) {
+      stopAudio(currentAudioRef.current);
+      currentAudioRef.current = null;
+      return;
+    }
+
+    if (currentAudioRef.current) {
+      currentAudioRef.current.volume = audioSettings.volume;
+    }
+  }, [
+    audioSettings.muted,
+    audioSettings.respectReducedMotion,
+    audioSettings.volume,
+  ]);
+
+  useEffect(() => {
     const previousGame = previousGameRef.current;
     previousGameRef.current = game;
 
@@ -70,11 +86,11 @@ export function VoiceAudioControllerBridge({
       return;
     }
 
-    if (!activatedRef.current || audioSettings.muted) {
+    if (!activatedRef.current) {
       return;
     }
 
-    if (audioSettings.respectReducedMotion && prefersReducedMotion(window)) {
+    if (shouldStopVoicePlayback(audioSettings, window)) {
       return;
     }
 
@@ -119,6 +135,16 @@ export function VoiceAudioControllerBridge({
   }, [audioSettings, game]);
 
   return null;
+}
+
+function shouldStopVoicePlayback(
+  audioSettings: AudioSettings,
+  target: Window,
+) {
+  return (
+    audioSettings.muted ||
+    (audioSettings.respectReducedMotion && prefersReducedMotion(target))
+  );
 }
 
 function pickVoiceClipUrl(
