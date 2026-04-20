@@ -9,3 +9,5 @@
 - Treat bundle growth as a real performance cost, especially on the initial app path and in Pixi-heavy features.
 - Document small bundle-size expectations in contributor-facing guidance so chunk regressions are easier to spot before they become large enough to require emergency refactors.
 - Keep the automated startup chunk budget check aligned with the current envelope. `pnpm build:budget` should enforce the live startup bootstrap graph, including the main entry, bootstrap-loaded app chunks, locale payloads, and core vendor chunks used before the first interactive render.
+- Keep diagnostic or refresh-only startup chrome, such as version polling widgets, off the bootstrap path when a lazy client-side load preserves first interaction and gameplay behavior.
+- Keep large repeated locale families concise. When many entries differ only by set name or item slot, prefer shorter shared phrasing over long near-duplicate sentences so locale payloads do not grow faster than the feature surface.

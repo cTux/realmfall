@@ -5,7 +5,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-ashen-blade',
     name: 'Ashen Blade',
-    description: 'Ashen a tempered blade shaped for shard-road skirmishes.',
+    description: 'Tempered blade for shard-road skirmishes.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ashen-blade', { id: 'crafted-ashen-blade' }),
     ingredients: [
@@ -16,7 +16,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-ashen-buckler',
     name: 'Ashen Buckler',
-    description: 'Ashen a compact buckler braced against splintered steel.',
+    description: 'Compact buckler braced against splintered steel.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ashen-buckler', {
       id: 'crafted-ashen-buckler',
@@ -30,7 +30,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-ashen-hood',
     name: 'Ashen Hood',
-    description: 'Ashen a close hood cut to keep ash and glare from your eyes.',
+    description: 'Close hood that cuts ash and glare.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ashen-hood', { id: 'crafted-ashen-hood' }),
     ingredients: [
@@ -41,7 +41,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-ashen-mantle',
     name: 'Ashen Mantle',
-    description: 'Ashen layered shoulders made for wind and falling cinders.',
+    description: 'Layered shoulders for wind and cinders.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ashen-mantle', { id: 'crafted-ashen-mantle' }),
     ingredients: [
@@ -52,7 +52,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-ashen-vest',
     name: 'Ashen Vest',
-    description: 'Ashen a reinforced vest fit for labor under a broken sky.',
+    description: 'Reinforced vest for labor under a broken sky.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ashen-vest', { id: 'crafted-ashen-vest' }),
     ingredients: [
@@ -64,7 +64,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-ashen-bracers',
     name: 'Ashen Bracers',
-    description: 'Ashen wrist guards built for rope, stone, and sudden blows.',
+    description: 'Wrist guards for rope, stone, and sudden blows.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ashen-bracers', {
       id: 'crafted-ashen-bracers',
@@ -78,7 +78,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-ashen-gloves',
     name: 'Ashen Gloves',
-    description: 'Ashen work gloves stitched for salvage and cold iron.',
+    description: 'Work gloves stitched for salvage and cold iron.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ashen-gloves', { id: 'crafted-ashen-gloves' }),
     ingredients: [
@@ -89,7 +89,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-ashen-belt',
     name: 'Ashen Belt',
-    description: 'Ashen a stout belt carrying tools, charms, and spare cord.',
+    description: 'Stout belt for tools, charms, and spare cord.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ashen-belt', { id: 'crafted-ashen-belt' }),
     ingredients: [
@@ -102,7 +102,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-ashen-leggings',
     name: 'Ashen Leggings',
     description:
-      'Ashen travel leggings meant for brush, rubble, and steep climbs.',
+      'Travel leggings for brush, rubble, and climbs.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ashen-leggings', {
       id: 'crafted-ashen-leggings',
@@ -115,7 +115,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-ashen-boots',
     name: 'Ashen Boots',
-    description: 'Ashen hard-worn boots for fractured roads and slick ruins.',
+    description: 'Hard-worn boots for roads and slick ruins.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ashen-boots', { id: 'crafted-ashen-boots' }),
     ingredients: [
@@ -128,7 +128,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-ashen-charm',
     name: 'Ashen Charm',
     description:
-      "Ashen a traveler's charm threaded to steady the heart near Mana.",
+      "Traveler's charm to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ashen-charm', { id: 'crafted-ashen-charm' }),
     ingredients: [
@@ -141,7 +141,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-ashen-cloak',
     name: 'Ashen Cloak',
     description:
-      'Ashen a weather cloak that breaks rain, soot, and drifting ash.',
+      'Weather cloak for rain, soot, and drifting ash.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ashen-cloak', { id: 'crafted-ashen-cloak' }),
     ingredients: [
@@ -153,7 +153,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-rift-blade',
     name: 'Rift Blade',
-    description: 'Rift a tempered blade shaped for shard-road skirmishes.',
+    description: 'Tempered blade for shard-road skirmishes.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('rift-blade', { id: 'crafted-rift-blade' }),
     ingredients: [
@@ -164,7 +164,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-rift-buckler',
     name: 'Rift Buckler',
-    description: 'Rift a compact buckler braced against splintered steel.',
+    description: 'Compact buckler braced against splintered steel.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('rift-buckler', { id: 'crafted-rift-buckler' }),
     ingredients: [
@@ -176,7 +176,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-rift-hood',
     name: 'Rift Hood',
-    description: 'Rift a close hood cut to keep ash and glare from your eyes.',
+    description: 'Close hood that cuts ash and glare.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('rift-hood', { id: 'crafted-rift-hood' }),
     ingredients: [
@@ -187,7 +187,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-rift-mantle',
     name: 'Rift Mantle',
-    description: 'Rift layered shoulders made for wind and falling cinders.',
+    description: 'Layered shoulders for wind and cinders.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('rift-mantle', { id: 'crafted-rift-mantle' }),
     ingredients: [
@@ -198,7 +198,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-rift-vest',
     name: 'Rift Vest',
-    description: 'Rift a reinforced vest fit for labor under a broken sky.',
+    description: 'Reinforced vest for labor under a broken sky.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('rift-vest', { id: 'crafted-rift-vest' }),
     ingredients: [
@@ -210,7 +210,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-rift-bracers',
     name: 'Rift Bracers',
-    description: 'Rift wrist guards built for rope, stone, and sudden blows.',
+    description: 'Wrist guards for rope, stone, and sudden blows.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('rift-bracers', { id: 'crafted-rift-bracers' }),
     ingredients: [
@@ -222,7 +222,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-rift-gloves',
     name: 'Rift Gloves',
-    description: 'Rift work gloves stitched for salvage and cold iron.',
+    description: 'Work gloves stitched for salvage and cold iron.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('rift-gloves', { id: 'crafted-rift-gloves' }),
     ingredients: [
@@ -233,7 +233,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-rift-belt',
     name: 'Rift Belt',
-    description: 'Rift a stout belt carrying tools, charms, and spare cord.',
+    description: 'Stout belt for tools, charms, and spare cord.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('rift-belt', { id: 'crafted-rift-belt' }),
     ingredients: [
@@ -246,7 +246,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-rift-leggings',
     name: 'Rift Leggings',
     description:
-      'Rift travel leggings meant for brush, rubble, and steep climbs.',
+      'Travel leggings for brush, rubble, and climbs.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('rift-leggings', {
       id: 'crafted-rift-leggings',
@@ -259,7 +259,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-rift-boots',
     name: 'Rift Boots',
-    description: 'Rift hard-worn boots for fractured roads and slick ruins.',
+    description: 'Hard-worn boots for roads and slick ruins.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('rift-boots', { id: 'crafted-rift-boots' }),
     ingredients: [
@@ -272,7 +272,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-rift-charm',
     name: 'Rift Charm',
     description:
-      "Rift a traveler's charm threaded to steady the heart near Mana.",
+      "Traveler's charm to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('rift-charm', { id: 'crafted-rift-charm' }),
     ingredients: [
@@ -285,7 +285,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-rift-cloak',
     name: 'Rift Cloak',
     description:
-      'Rift a weather cloak that breaks rain, soot, and drifting ash.',
+      'Weather cloak for rain, soot, and drifting ash.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('rift-cloak', { id: 'crafted-rift-cloak' }),
     ingredients: [
@@ -297,7 +297,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-shard-blade',
     name: 'Shard Blade',
-    description: 'Shard a tempered blade shaped for shard-road skirmishes.',
+    description: 'Tempered blade for shard-road skirmishes.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('shard-blade', { id: 'crafted-shard-blade' }),
     ingredients: [
@@ -308,7 +308,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-shard-buckler',
     name: 'Shard Buckler',
-    description: 'Shard a compact buckler braced against splintered steel.',
+    description: 'Compact buckler braced against splintered steel.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('shard-buckler', {
       id: 'crafted-shard-buckler',
@@ -322,7 +322,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-shard-hood',
     name: 'Shard Hood',
-    description: 'Shard a close hood cut to keep ash and glare from your eyes.',
+    description: 'Close hood that cuts ash and glare.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('shard-hood', { id: 'crafted-shard-hood' }),
     ingredients: [
@@ -333,7 +333,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-shard-mantle',
     name: 'Shard Mantle',
-    description: 'Shard layered shoulders made for wind and falling cinders.',
+    description: 'Layered shoulders for wind and cinders.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('shard-mantle', { id: 'crafted-shard-mantle' }),
     ingredients: [
@@ -344,7 +344,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-shard-vest',
     name: 'Shard Vest',
-    description: 'Shard a reinforced vest fit for labor under a broken sky.',
+    description: 'Reinforced vest for labor under a broken sky.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('shard-vest', { id: 'crafted-shard-vest' }),
     ingredients: [
@@ -356,7 +356,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-shard-bracers',
     name: 'Shard Bracers',
-    description: 'Shard wrist guards built for rope, stone, and sudden blows.',
+    description: 'Wrist guards for rope, stone, and sudden blows.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('shard-bracers', {
       id: 'crafted-shard-bracers',
@@ -370,7 +370,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-shard-gloves',
     name: 'Shard Gloves',
-    description: 'Shard work gloves stitched for salvage and cold iron.',
+    description: 'Work gloves stitched for salvage and cold iron.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('shard-gloves', { id: 'crafted-shard-gloves' }),
     ingredients: [
@@ -381,7 +381,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-shard-belt',
     name: 'Shard Belt',
-    description: 'Shard a stout belt carrying tools, charms, and spare cord.',
+    description: 'Stout belt for tools, charms, and spare cord.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('shard-belt', { id: 'crafted-shard-belt' }),
     ingredients: [
@@ -394,7 +394,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-shard-leggings',
     name: 'Shard Leggings',
     description:
-      'Shard travel leggings meant for brush, rubble, and steep climbs.',
+      'Travel leggings for brush, rubble, and climbs.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('shard-leggings', {
       id: 'crafted-shard-leggings',
@@ -407,7 +407,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-shard-boots',
     name: 'Shard Boots',
-    description: 'Shard hard-worn boots for fractured roads and slick ruins.',
+    description: 'Hard-worn boots for roads and slick ruins.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('shard-boots', { id: 'crafted-shard-boots' }),
     ingredients: [
@@ -420,7 +420,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-shard-charm',
     name: 'Shard Charm',
     description:
-      "Shard a traveler's charm threaded to steady the heart near Mana.",
+      "Traveler's charm to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('shard-charm', { id: 'crafted-shard-charm' }),
     ingredients: [
@@ -433,7 +433,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-shard-cloak',
     name: 'Shard Cloak',
     description:
-      'Shard a weather cloak that breaks rain, soot, and drifting ash.',
+      'Weather cloak for rain, soot, and drifting ash.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('shard-cloak', { id: 'crafted-shard-cloak' }),
     ingredients: [
@@ -445,7 +445,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-vale-blade',
     name: 'Vale Blade',
-    description: 'Vale a tempered blade shaped for shard-road skirmishes.',
+    description: 'Tempered blade for shard-road skirmishes.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('vale-blade', { id: 'crafted-vale-blade' }),
     ingredients: [
@@ -456,7 +456,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-vale-buckler',
     name: 'Vale Buckler',
-    description: 'Vale a compact buckler braced against splintered steel.',
+    description: 'Compact buckler braced against splintered steel.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('vale-buckler', { id: 'crafted-vale-buckler' }),
     ingredients: [
@@ -468,7 +468,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-vale-hood',
     name: 'Vale Hood',
-    description: 'Vale a close hood cut to keep ash and glare from your eyes.',
+    description: 'Close hood that cuts ash and glare.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('vale-hood', { id: 'crafted-vale-hood' }),
     ingredients: [
@@ -479,7 +479,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-vale-mantle',
     name: 'Vale Mantle',
-    description: 'Vale layered shoulders made for wind and falling cinders.',
+    description: 'Layered shoulders for wind and cinders.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('vale-mantle', { id: 'crafted-vale-mantle' }),
     ingredients: [
@@ -490,7 +490,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-vale-vest',
     name: 'Vale Vest',
-    description: 'Vale a reinforced vest fit for labor under a broken sky.',
+    description: 'Reinforced vest for labor under a broken sky.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('vale-vest', { id: 'crafted-vale-vest' }),
     ingredients: [
@@ -502,7 +502,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-vale-bracers',
     name: 'Vale Bracers',
-    description: 'Vale wrist guards built for rope, stone, and sudden blows.',
+    description: 'Wrist guards for rope, stone, and sudden blows.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('vale-bracers', { id: 'crafted-vale-bracers' }),
     ingredients: [
@@ -514,7 +514,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-vale-gloves',
     name: 'Vale Gloves',
-    description: 'Vale work gloves stitched for salvage and cold iron.',
+    description: 'Work gloves stitched for salvage and cold iron.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('vale-gloves', { id: 'crafted-vale-gloves' }),
     ingredients: [
@@ -525,7 +525,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-vale-belt',
     name: 'Vale Belt',
-    description: 'Vale a stout belt carrying tools, charms, and spare cord.',
+    description: 'Stout belt for tools, charms, and spare cord.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('vale-belt', { id: 'crafted-vale-belt' }),
     ingredients: [
@@ -538,7 +538,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-vale-leggings',
     name: 'Vale Leggings',
     description:
-      'Vale travel leggings meant for brush, rubble, and steep climbs.',
+      'Travel leggings for brush, rubble, and climbs.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('vale-leggings', {
       id: 'crafted-vale-leggings',
@@ -551,7 +551,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-vale-boots',
     name: 'Vale Boots',
-    description: 'Vale hard-worn boots for fractured roads and slick ruins.',
+    description: 'Hard-worn boots for roads and slick ruins.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('vale-boots', { id: 'crafted-vale-boots' }),
     ingredients: [
@@ -564,7 +564,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-vale-charm',
     name: 'Vale Charm',
     description:
-      "Vale a traveler's charm threaded to steady the heart near Mana.",
+      "Traveler's charm to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('vale-charm', { id: 'crafted-vale-charm' }),
     ingredients: [
@@ -577,7 +577,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-vale-cloak',
     name: 'Vale Cloak',
     description:
-      'Vale a weather cloak that breaks rain, soot, and drifting ash.',
+      'Weather cloak for rain, soot, and drifting ash.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('vale-cloak', { id: 'crafted-vale-cloak' }),
     ingredients: [
@@ -589,7 +589,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-ironbound-blade',
     name: 'Ironbound Blade',
-    description: 'Ironbound a tempered blade shaped for shard-road skirmishes.',
+    description: 'Tempered blade for shard-road skirmishes.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ironbound-blade', {
       id: 'crafted-ironbound-blade',
@@ -602,7 +602,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-ironbound-buckler',
     name: 'Ironbound Buckler',
-    description: 'Ironbound a compact buckler braced against splintered steel.',
+    description: 'Compact buckler braced against splintered steel.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ironbound-buckler', {
       id: 'crafted-ironbound-buckler',
@@ -617,7 +617,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-ironbound-hood',
     name: 'Ironbound Hood',
     description:
-      'Ironbound a close hood cut to keep ash and glare from your eyes.',
+      'Close hood that cuts ash and glare.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ironbound-hood', {
       id: 'crafted-ironbound-hood',
@@ -631,7 +631,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-ironbound-mantle',
     name: 'Ironbound Mantle',
     description:
-      'Ironbound layered shoulders made for wind and falling cinders.',
+      'Layered shoulders for wind and cinders.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ironbound-mantle', {
       id: 'crafted-ironbound-mantle',
@@ -645,7 +645,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-ironbound-vest',
     name: 'Ironbound Vest',
     description:
-      'Ironbound a reinforced vest fit for labor under a broken sky.',
+      'Reinforced vest for labor under a broken sky.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ironbound-vest', {
       id: 'crafted-ironbound-vest',
@@ -660,7 +660,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-ironbound-bracers',
     name: 'Ironbound Bracers',
     description:
-      'Ironbound wrist guards built for rope, stone, and sudden blows.',
+      'Wrist guards for rope, stone, and sudden blows.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ironbound-bracers', {
       id: 'crafted-ironbound-bracers',
@@ -674,7 +674,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-ironbound-gloves',
     name: 'Ironbound Gloves',
-    description: 'Ironbound work gloves stitched for salvage and cold iron.',
+    description: 'Work gloves stitched for salvage and cold iron.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ironbound-gloves', {
       id: 'crafted-ironbound-gloves',
@@ -688,7 +688,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-ironbound-belt',
     name: 'Ironbound Belt',
     description:
-      'Ironbound a stout belt carrying tools, charms, and spare cord.',
+      'Stout belt for tools, charms, and spare cord.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ironbound-belt', {
       id: 'crafted-ironbound-belt',
@@ -703,7 +703,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-ironbound-leggings',
     name: 'Ironbound Leggings',
     description:
-      'Ironbound travel leggings meant for brush, rubble, and steep climbs.',
+      'Travel leggings for brush, rubble, and climbs.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ironbound-leggings', {
       id: 'crafted-ironbound-leggings',
@@ -717,7 +717,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-ironbound-boots',
     name: 'Ironbound Boots',
     description:
-      'Ironbound hard-worn boots for fractured roads and slick ruins.',
+      'Hard-worn boots for roads and slick ruins.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ironbound-boots', {
       id: 'crafted-ironbound-boots',
@@ -732,7 +732,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-ironbound-charm',
     name: 'Ironbound Charm',
     description:
-      "Ironbound a traveler's charm threaded to steady the heart near Mana.",
+      "Traveler's charm to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ironbound-charm', {
       id: 'crafted-ironbound-charm',
@@ -747,7 +747,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-ironbound-cloak',
     name: 'Ironbound Cloak',
     description:
-      'Ironbound a weather cloak that breaks rain, soot, and drifting ash.',
+      'Weather cloak for rain, soot, and drifting ash.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ironbound-cloak', {
       id: 'crafted-ironbound-cloak',
@@ -761,7 +761,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-storm-blade',
     name: 'Storm Blade',
-    description: 'Storm a tempered blade shaped for shard-road skirmishes.',
+    description: 'Tempered blade for shard-road skirmishes.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('storm-blade', { id: 'crafted-storm-blade' }),
     ingredients: [
@@ -772,7 +772,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-storm-buckler',
     name: 'Storm Buckler',
-    description: 'Storm a compact buckler braced against splintered steel.',
+    description: 'Compact buckler braced against splintered steel.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('storm-buckler', {
       id: 'crafted-storm-buckler',
@@ -786,7 +786,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-storm-hood',
     name: 'Storm Hood',
-    description: 'Storm a close hood cut to keep ash and glare from your eyes.',
+    description: 'Close hood that cuts ash and glare.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('storm-hood', { id: 'crafted-storm-hood' }),
     ingredients: [
@@ -797,7 +797,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-storm-mantle',
     name: 'Storm Mantle',
-    description: 'Storm layered shoulders made for wind and falling cinders.',
+    description: 'Layered shoulders for wind and cinders.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('storm-mantle', { id: 'crafted-storm-mantle' }),
     ingredients: [
@@ -808,7 +808,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-storm-vest',
     name: 'Storm Vest',
-    description: 'Storm a reinforced vest fit for labor under a broken sky.',
+    description: 'Reinforced vest for labor under a broken sky.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('storm-vest', { id: 'crafted-storm-vest' }),
     ingredients: [
@@ -820,7 +820,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-storm-bracers',
     name: 'Storm Bracers',
-    description: 'Storm wrist guards built for rope, stone, and sudden blows.',
+    description: 'Wrist guards for rope, stone, and sudden blows.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('storm-bracers', {
       id: 'crafted-storm-bracers',
@@ -834,7 +834,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-storm-gloves',
     name: 'Storm Gloves',
-    description: 'Storm work gloves stitched for salvage and cold iron.',
+    description: 'Work gloves stitched for salvage and cold iron.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('storm-gloves', { id: 'crafted-storm-gloves' }),
     ingredients: [
@@ -845,7 +845,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-storm-belt',
     name: 'Storm Belt',
-    description: 'Storm a stout belt carrying tools, charms, and spare cord.',
+    description: 'Stout belt for tools, charms, and spare cord.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('storm-belt', { id: 'crafted-storm-belt' }),
     ingredients: [
@@ -858,7 +858,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-storm-leggings',
     name: 'Storm Leggings',
     description:
-      'Storm travel leggings meant for brush, rubble, and steep climbs.',
+      'Travel leggings for brush, rubble, and climbs.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('storm-leggings', {
       id: 'crafted-storm-leggings',
@@ -871,7 +871,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-storm-boots',
     name: 'Storm Boots',
-    description: 'Storm hard-worn boots for fractured roads and slick ruins.',
+    description: 'Hard-worn boots for roads and slick ruins.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('storm-boots', { id: 'crafted-storm-boots' }),
     ingredients: [
@@ -884,7 +884,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-storm-charm',
     name: 'Storm Charm',
     description:
-      "Storm a traveler's charm threaded to steady the heart near Mana.",
+      "Traveler's charm to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('storm-charm', { id: 'crafted-storm-charm' }),
     ingredients: [
@@ -897,7 +897,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-storm-cloak',
     name: 'Storm Cloak',
     description:
-      'Storm a weather cloak that breaks rain, soot, and drifting ash.',
+      'Weather cloak for rain, soot, and drifting ash.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('storm-cloak', { id: 'crafted-storm-cloak' }),
     ingredients: [
@@ -909,7 +909,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-ember-blade',
     name: 'Ember Blade',
-    description: 'Ember a tempered blade shaped for shard-road skirmishes.',
+    description: 'Tempered blade for shard-road skirmishes.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ember-blade', { id: 'crafted-ember-blade' }),
     ingredients: [
@@ -920,7 +920,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-ember-buckler',
     name: 'Ember Buckler',
-    description: 'Ember a compact buckler braced against splintered steel.',
+    description: 'Compact buckler braced against splintered steel.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ember-buckler', {
       id: 'crafted-ember-buckler',
@@ -934,7 +934,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-ember-hood',
     name: 'Ember Hood',
-    description: 'Ember a close hood cut to keep ash and glare from your eyes.',
+    description: 'Close hood that cuts ash and glare.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ember-hood', { id: 'crafted-ember-hood' }),
     ingredients: [
@@ -945,7 +945,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-ember-mantle',
     name: 'Ember Mantle',
-    description: 'Ember layered shoulders made for wind and falling cinders.',
+    description: 'Layered shoulders for wind and cinders.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ember-mantle', { id: 'crafted-ember-mantle' }),
     ingredients: [
@@ -956,7 +956,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-ember-vest',
     name: 'Ember Vest',
-    description: 'Ember a reinforced vest fit for labor under a broken sky.',
+    description: 'Reinforced vest for labor under a broken sky.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ember-vest', { id: 'crafted-ember-vest' }),
     ingredients: [
@@ -968,7 +968,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-ember-bracers',
     name: 'Ember Bracers',
-    description: 'Ember wrist guards built for rope, stone, and sudden blows.',
+    description: 'Wrist guards for rope, stone, and sudden blows.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ember-bracers', {
       id: 'crafted-ember-bracers',
@@ -982,7 +982,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-ember-gloves',
     name: 'Ember Gloves',
-    description: 'Ember work gloves stitched for salvage and cold iron.',
+    description: 'Work gloves stitched for salvage and cold iron.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ember-gloves', { id: 'crafted-ember-gloves' }),
     ingredients: [
@@ -993,7 +993,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-ember-belt',
     name: 'Ember Belt',
-    description: 'Ember a stout belt carrying tools, charms, and spare cord.',
+    description: 'Stout belt for tools, charms, and spare cord.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ember-belt', { id: 'crafted-ember-belt' }),
     ingredients: [
@@ -1006,7 +1006,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-ember-leggings',
     name: 'Ember Leggings',
     description:
-      'Ember travel leggings meant for brush, rubble, and steep climbs.',
+      'Travel leggings for brush, rubble, and climbs.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ember-leggings', {
       id: 'crafted-ember-leggings',
@@ -1019,7 +1019,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-ember-boots',
     name: 'Ember Boots',
-    description: 'Ember hard-worn boots for fractured roads and slick ruins.',
+    description: 'Hard-worn boots for roads and slick ruins.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ember-boots', { id: 'crafted-ember-boots' }),
     ingredients: [
@@ -1032,7 +1032,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-ember-charm',
     name: 'Ember Charm',
     description:
-      "Ember a traveler's charm threaded to steady the heart near Mana.",
+      "Traveler's charm to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ember-charm', { id: 'crafted-ember-charm' }),
     ingredients: [
@@ -1045,7 +1045,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-ember-cloak',
     name: 'Ember Cloak',
     description:
-      'Ember a weather cloak that breaks rain, soot, and drifting ash.',
+      'Weather cloak for rain, soot, and drifting ash.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('ember-cloak', { id: 'crafted-ember-cloak' }),
     ingredients: [
@@ -1057,7 +1057,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-hollow-blade',
     name: 'Hollow Blade',
-    description: 'Hollow a tempered blade shaped for shard-road skirmishes.',
+    description: 'Tempered blade for shard-road skirmishes.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('hollow-blade', { id: 'crafted-hollow-blade' }),
     ingredients: [
@@ -1068,7 +1068,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-hollow-buckler',
     name: 'Hollow Buckler',
-    description: 'Hollow a compact buckler braced against splintered steel.',
+    description: 'Compact buckler braced against splintered steel.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('hollow-buckler', {
       id: 'crafted-hollow-buckler',
@@ -1083,7 +1083,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-hollow-hood',
     name: 'Hollow Hood',
     description:
-      'Hollow a close hood cut to keep ash and glare from your eyes.',
+      'Close hood that cuts ash and glare.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('hollow-hood', { id: 'crafted-hollow-hood' }),
     ingredients: [
@@ -1094,7 +1094,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-hollow-mantle',
     name: 'Hollow Mantle',
-    description: 'Hollow layered shoulders made for wind and falling cinders.',
+    description: 'Layered shoulders for wind and cinders.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('hollow-mantle', {
       id: 'crafted-hollow-mantle',
@@ -1107,7 +1107,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-hollow-vest',
     name: 'Hollow Vest',
-    description: 'Hollow a reinforced vest fit for labor under a broken sky.',
+    description: 'Reinforced vest for labor under a broken sky.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('hollow-vest', { id: 'crafted-hollow-vest' }),
     ingredients: [
@@ -1119,7 +1119,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-hollow-bracers',
     name: 'Hollow Bracers',
-    description: 'Hollow wrist guards built for rope, stone, and sudden blows.',
+    description: 'Wrist guards for rope, stone, and sudden blows.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('hollow-bracers', {
       id: 'crafted-hollow-bracers',
@@ -1133,7 +1133,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-hollow-gloves',
     name: 'Hollow Gloves',
-    description: 'Hollow work gloves stitched for salvage and cold iron.',
+    description: 'Work gloves stitched for salvage and cold iron.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('hollow-gloves', {
       id: 'crafted-hollow-gloves',
@@ -1146,7 +1146,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-hollow-belt',
     name: 'Hollow Belt',
-    description: 'Hollow a stout belt carrying tools, charms, and spare cord.',
+    description: 'Stout belt for tools, charms, and spare cord.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('hollow-belt', { id: 'crafted-hollow-belt' }),
     ingredients: [
@@ -1159,7 +1159,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-hollow-leggings',
     name: 'Hollow Leggings',
     description:
-      'Hollow travel leggings meant for brush, rubble, and steep climbs.',
+      'Travel leggings for brush, rubble, and climbs.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('hollow-leggings', {
       id: 'crafted-hollow-leggings',
@@ -1172,7 +1172,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-hollow-boots',
     name: 'Hollow Boots',
-    description: 'Hollow hard-worn boots for fractured roads and slick ruins.',
+    description: 'Hard-worn boots for roads and slick ruins.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('hollow-boots', { id: 'crafted-hollow-boots' }),
     ingredients: [
@@ -1185,7 +1185,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-hollow-charm',
     name: 'Hollow Charm',
     description:
-      "Hollow a traveler's charm threaded to steady the heart near Mana.",
+      "Traveler's charm to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('hollow-charm', { id: 'crafted-hollow-charm' }),
     ingredients: [
@@ -1198,7 +1198,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-hollow-cloak',
     name: 'Hollow Cloak',
     description:
-      'Hollow a weather cloak that breaks rain, soot, and drifting ash.',
+      'Weather cloak for rain, soot, and drifting ash.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('hollow-cloak', { id: 'crafted-hollow-cloak' }),
     ingredients: [
@@ -1210,7 +1210,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-warden-blade',
     name: 'Warden Blade',
-    description: 'Warden a tempered blade shaped for shard-road skirmishes.',
+    description: 'Tempered blade for shard-road skirmishes.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('warden-blade', { id: 'crafted-warden-blade' }),
     ingredients: [
@@ -1221,7 +1221,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-warden-buckler',
     name: 'Warden Buckler',
-    description: 'Warden a compact buckler braced against splintered steel.',
+    description: 'Compact buckler braced against splintered steel.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('warden-buckler', {
       id: 'crafted-warden-buckler',
@@ -1236,7 +1236,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-warden-hood',
     name: 'Warden Hood',
     description:
-      'Warden a close hood cut to keep ash and glare from your eyes.',
+      'Close hood that cuts ash and glare.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('warden-hood', { id: 'crafted-warden-hood' }),
     ingredients: [
@@ -1247,7 +1247,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-warden-mantle',
     name: 'Warden Mantle',
-    description: 'Warden layered shoulders made for wind and falling cinders.',
+    description: 'Layered shoulders for wind and cinders.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('warden-mantle', {
       id: 'crafted-warden-mantle',
@@ -1260,7 +1260,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-warden-vest',
     name: 'Warden Vest',
-    description: 'Warden a reinforced vest fit for labor under a broken sky.',
+    description: 'Reinforced vest for labor under a broken sky.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('warden-vest', { id: 'crafted-warden-vest' }),
     ingredients: [
@@ -1272,7 +1272,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-warden-bracers',
     name: 'Warden Bracers',
-    description: 'Warden wrist guards built for rope, stone, and sudden blows.',
+    description: 'Wrist guards for rope, stone, and sudden blows.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('warden-bracers', {
       id: 'crafted-warden-bracers',
@@ -1286,7 +1286,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-warden-gloves',
     name: 'Warden Gloves',
-    description: 'Warden work gloves stitched for salvage and cold iron.',
+    description: 'Work gloves stitched for salvage and cold iron.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('warden-gloves', {
       id: 'crafted-warden-gloves',
@@ -1299,7 +1299,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-warden-belt',
     name: 'Warden Belt',
-    description: 'Warden a stout belt carrying tools, charms, and spare cord.',
+    description: 'Stout belt for tools, charms, and spare cord.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('warden-belt', { id: 'crafted-warden-belt' }),
     ingredients: [
@@ -1312,7 +1312,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-warden-leggings',
     name: 'Warden Leggings',
     description:
-      'Warden travel leggings meant for brush, rubble, and steep climbs.',
+      'Travel leggings for brush, rubble, and climbs.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('warden-leggings', {
       id: 'crafted-warden-leggings',
@@ -1325,7 +1325,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-warden-boots',
     name: 'Warden Boots',
-    description: 'Warden hard-worn boots for fractured roads and slick ruins.',
+    description: 'Hard-worn boots for roads and slick ruins.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('warden-boots', { id: 'crafted-warden-boots' }),
     ingredients: [
@@ -1338,7 +1338,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-warden-charm',
     name: 'Warden Charm',
     description:
-      "Warden a traveler's charm threaded to steady the heart near Mana.",
+      "Traveler's charm to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('warden-charm', { id: 'crafted-warden-charm' }),
     ingredients: [
@@ -1351,7 +1351,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-warden-cloak',
     name: 'Warden Cloak',
     description:
-      'Warden a weather cloak that breaks rain, soot, and drifting ash.',
+      'Weather cloak for rain, soot, and drifting ash.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('warden-cloak', { id: 'crafted-warden-cloak' }),
     ingredients: [
@@ -1363,7 +1363,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-void-blade',
     name: 'Void Blade',
-    description: 'Void a tempered blade shaped for shard-road skirmishes.',
+    description: 'Tempered blade for shard-road skirmishes.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('void-blade', { id: 'crafted-void-blade' }),
     ingredients: [
@@ -1374,7 +1374,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-void-buckler',
     name: 'Void Buckler',
-    description: 'Void a compact buckler braced against splintered steel.',
+    description: 'Compact buckler braced against splintered steel.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('void-buckler', { id: 'crafted-void-buckler' }),
     ingredients: [
@@ -1386,7 +1386,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-void-hood',
     name: 'Void Hood',
-    description: 'Void a close hood cut to keep ash and glare from your eyes.',
+    description: 'Close hood that cuts ash and glare.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('void-hood', { id: 'crafted-void-hood' }),
     ingredients: [
@@ -1397,7 +1397,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-void-mantle',
     name: 'Void Mantle',
-    description: 'Void layered shoulders made for wind and falling cinders.',
+    description: 'Layered shoulders for wind and cinders.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('void-mantle', { id: 'crafted-void-mantle' }),
     ingredients: [
@@ -1408,7 +1408,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-void-vest',
     name: 'Void Vest',
-    description: 'Void a reinforced vest fit for labor under a broken sky.',
+    description: 'Reinforced vest for labor under a broken sky.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('void-vest', { id: 'crafted-void-vest' }),
     ingredients: [
@@ -1420,7 +1420,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-void-bracers',
     name: 'Void Bracers',
-    description: 'Void wrist guards built for rope, stone, and sudden blows.',
+    description: 'Wrist guards for rope, stone, and sudden blows.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('void-bracers', { id: 'crafted-void-bracers' }),
     ingredients: [
@@ -1432,7 +1432,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-void-gloves',
     name: 'Void Gloves',
-    description: 'Void work gloves stitched for salvage and cold iron.',
+    description: 'Work gloves stitched for salvage and cold iron.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('void-gloves', { id: 'crafted-void-gloves' }),
     ingredients: [
@@ -1443,7 +1443,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-void-belt',
     name: 'Void Belt',
-    description: 'Void a stout belt carrying tools, charms, and spare cord.',
+    description: 'Stout belt for tools, charms, and spare cord.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('void-belt', { id: 'crafted-void-belt' }),
     ingredients: [
@@ -1456,7 +1456,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-void-leggings',
     name: 'Void Leggings',
     description:
-      'Void travel leggings meant for brush, rubble, and steep climbs.',
+      'Travel leggings for brush, rubble, and climbs.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('void-leggings', {
       id: 'crafted-void-leggings',
@@ -1469,7 +1469,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-void-boots',
     name: 'Void Boots',
-    description: 'Void hard-worn boots for fractured roads and slick ruins.',
+    description: 'Hard-worn boots for roads and slick ruins.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('void-boots', { id: 'crafted-void-boots' }),
     ingredients: [
@@ -1482,7 +1482,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-void-charm',
     name: 'Void Charm',
     description:
-      "Void a traveler's charm threaded to steady the heart near Mana.",
+      "Traveler's charm to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('void-charm', { id: 'crafted-void-charm' }),
     ingredients: [
@@ -1495,7 +1495,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-void-cloak',
     name: 'Void Cloak',
     description:
-      'Void a weather cloak that breaks rain, soot, and drifting ash.',
+      'Weather cloak for rain, soot, and drifting ash.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('void-cloak', { id: 'crafted-void-cloak' }),
     ingredients: [
@@ -1507,7 +1507,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-dawn-blade',
     name: 'Dawn Blade',
-    description: 'Dawn a tempered blade shaped for shard-road skirmishes.',
+    description: 'Tempered blade for shard-road skirmishes.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dawn-blade', { id: 'crafted-dawn-blade' }),
     ingredients: [
@@ -1518,7 +1518,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-dawn-buckler',
     name: 'Dawn Buckler',
-    description: 'Dawn a compact buckler braced against splintered steel.',
+    description: 'Compact buckler braced against splintered steel.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dawn-buckler', { id: 'crafted-dawn-buckler' }),
     ingredients: [
@@ -1530,7 +1530,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-dawn-hood',
     name: 'Dawn Hood',
-    description: 'Dawn a close hood cut to keep ash and glare from your eyes.',
+    description: 'Close hood that cuts ash and glare.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dawn-hood', { id: 'crafted-dawn-hood' }),
     ingredients: [
@@ -1541,7 +1541,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-dawn-mantle',
     name: 'Dawn Mantle',
-    description: 'Dawn layered shoulders made for wind and falling cinders.',
+    description: 'Layered shoulders for wind and cinders.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dawn-mantle', { id: 'crafted-dawn-mantle' }),
     ingredients: [
@@ -1552,7 +1552,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-dawn-vest',
     name: 'Dawn Vest',
-    description: 'Dawn a reinforced vest fit for labor under a broken sky.',
+    description: 'Reinforced vest for labor under a broken sky.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dawn-vest', { id: 'crafted-dawn-vest' }),
     ingredients: [
@@ -1564,7 +1564,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-dawn-bracers',
     name: 'Dawn Bracers',
-    description: 'Dawn wrist guards built for rope, stone, and sudden blows.',
+    description: 'Wrist guards for rope, stone, and sudden blows.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dawn-bracers', { id: 'crafted-dawn-bracers' }),
     ingredients: [
@@ -1576,7 +1576,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-dawn-gloves',
     name: 'Dawn Gloves',
-    description: 'Dawn work gloves stitched for salvage and cold iron.',
+    description: 'Work gloves stitched for salvage and cold iron.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dawn-gloves', { id: 'crafted-dawn-gloves' }),
     ingredients: [
@@ -1587,7 +1587,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-dawn-belt',
     name: 'Dawn Belt',
-    description: 'Dawn a stout belt carrying tools, charms, and spare cord.',
+    description: 'Stout belt for tools, charms, and spare cord.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dawn-belt', { id: 'crafted-dawn-belt' }),
     ingredients: [
@@ -1600,7 +1600,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-dawn-leggings',
     name: 'Dawn Leggings',
     description:
-      'Dawn travel leggings meant for brush, rubble, and steep climbs.',
+      'Travel leggings for brush, rubble, and climbs.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dawn-leggings', {
       id: 'crafted-dawn-leggings',
@@ -1613,7 +1613,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-dawn-boots',
     name: 'Dawn Boots',
-    description: 'Dawn hard-worn boots for fractured roads and slick ruins.',
+    description: 'Hard-worn boots for roads and slick ruins.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dawn-boots', { id: 'crafted-dawn-boots' }),
     ingredients: [
@@ -1626,7 +1626,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-dawn-charm',
     name: 'Dawn Charm',
     description:
-      "Dawn a traveler's charm threaded to steady the heart near Mana.",
+      "Traveler's charm to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dawn-charm', { id: 'crafted-dawn-charm' }),
     ingredients: [
@@ -1639,7 +1639,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-dawn-cloak',
     name: 'Dawn Cloak',
     description:
-      'Dawn a weather cloak that breaks rain, soot, and drifting ash.',
+      'Weather cloak for rain, soot, and drifting ash.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dawn-cloak', { id: 'crafted-dawn-cloak' }),
     ingredients: [
@@ -1651,7 +1651,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-dusk-blade',
     name: 'Dusk Blade',
-    description: 'Dusk a tempered blade shaped for shard-road skirmishes.',
+    description: 'Tempered blade for shard-road skirmishes.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dusk-blade', { id: 'crafted-dusk-blade' }),
     ingredients: [
@@ -1662,7 +1662,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-dusk-buckler',
     name: 'Dusk Buckler',
-    description: 'Dusk a compact buckler braced against splintered steel.',
+    description: 'Compact buckler braced against splintered steel.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dusk-buckler', { id: 'crafted-dusk-buckler' }),
     ingredients: [
@@ -1674,7 +1674,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-dusk-hood',
     name: 'Dusk Hood',
-    description: 'Dusk a close hood cut to keep ash and glare from your eyes.',
+    description: 'Close hood that cuts ash and glare.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dusk-hood', { id: 'crafted-dusk-hood' }),
     ingredients: [
@@ -1685,7 +1685,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-dusk-mantle',
     name: 'Dusk Mantle',
-    description: 'Dusk layered shoulders made for wind and falling cinders.',
+    description: 'Layered shoulders for wind and cinders.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dusk-mantle', { id: 'crafted-dusk-mantle' }),
     ingredients: [
@@ -1696,7 +1696,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-dusk-vest',
     name: 'Dusk Vest',
-    description: 'Dusk a reinforced vest fit for labor under a broken sky.',
+    description: 'Reinforced vest for labor under a broken sky.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dusk-vest', { id: 'crafted-dusk-vest' }),
     ingredients: [
@@ -1708,7 +1708,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-dusk-bracers',
     name: 'Dusk Bracers',
-    description: 'Dusk wrist guards built for rope, stone, and sudden blows.',
+    description: 'Wrist guards for rope, stone, and sudden blows.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dusk-bracers', { id: 'crafted-dusk-bracers' }),
     ingredients: [
@@ -1720,7 +1720,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-dusk-gloves',
     name: 'Dusk Gloves',
-    description: 'Dusk work gloves stitched for salvage and cold iron.',
+    description: 'Work gloves stitched for salvage and cold iron.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dusk-gloves', { id: 'crafted-dusk-gloves' }),
     ingredients: [
@@ -1731,7 +1731,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-dusk-belt',
     name: 'Dusk Belt',
-    description: 'Dusk a stout belt carrying tools, charms, and spare cord.',
+    description: 'Stout belt for tools, charms, and spare cord.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dusk-belt', { id: 'crafted-dusk-belt' }),
     ingredients: [
@@ -1744,7 +1744,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-dusk-leggings',
     name: 'Dusk Leggings',
     description:
-      'Dusk travel leggings meant for brush, rubble, and steep climbs.',
+      'Travel leggings for brush, rubble, and climbs.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dusk-leggings', {
       id: 'crafted-dusk-leggings',
@@ -1757,7 +1757,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-dusk-boots',
     name: 'Dusk Boots',
-    description: 'Dusk hard-worn boots for fractured roads and slick ruins.',
+    description: 'Hard-worn boots for roads and slick ruins.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dusk-boots', { id: 'crafted-dusk-boots' }),
     ingredients: [
@@ -1770,7 +1770,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-dusk-charm',
     name: 'Dusk Charm',
     description:
-      "Dusk a traveler's charm threaded to steady the heart near Mana.",
+      "Traveler's charm to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dusk-charm', { id: 'crafted-dusk-charm' }),
     ingredients: [
@@ -1783,7 +1783,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-dusk-cloak',
     name: 'Dusk Cloak',
     description:
-      'Dusk a weather cloak that breaks rain, soot, and drifting ash.',
+      'Weather cloak for rain, soot, and drifting ash.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('dusk-cloak', { id: 'crafted-dusk-cloak' }),
     ingredients: [
@@ -1795,7 +1795,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-moss-blade',
     name: 'Moss Blade',
-    description: 'Moss a tempered blade shaped for shard-road skirmishes.',
+    description: 'Tempered blade for shard-road skirmishes.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('moss-blade', { id: 'crafted-moss-blade' }),
     ingredients: [
@@ -1806,7 +1806,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-moss-buckler',
     name: 'Moss Buckler',
-    description: 'Moss a compact buckler braced against splintered steel.',
+    description: 'Compact buckler braced against splintered steel.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('moss-buckler', { id: 'crafted-moss-buckler' }),
     ingredients: [
@@ -1818,7 +1818,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-moss-hood',
     name: 'Moss Hood',
-    description: 'Moss a close hood cut to keep ash and glare from your eyes.',
+    description: 'Close hood that cuts ash and glare.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('moss-hood', { id: 'crafted-moss-hood' }),
     ingredients: [
@@ -1829,7 +1829,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-moss-mantle',
     name: 'Moss Mantle',
-    description: 'Moss layered shoulders made for wind and falling cinders.',
+    description: 'Layered shoulders for wind and cinders.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('moss-mantle', { id: 'crafted-moss-mantle' }),
     ingredients: [
@@ -1840,7 +1840,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-moss-vest',
     name: 'Moss Vest',
-    description: 'Moss a reinforced vest fit for labor under a broken sky.',
+    description: 'Reinforced vest for labor under a broken sky.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('moss-vest', { id: 'crafted-moss-vest' }),
     ingredients: [
@@ -1852,7 +1852,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-moss-bracers',
     name: 'Moss Bracers',
-    description: 'Moss wrist guards built for rope, stone, and sudden blows.',
+    description: 'Wrist guards for rope, stone, and sudden blows.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('moss-bracers', { id: 'crafted-moss-bracers' }),
     ingredients: [
@@ -1864,7 +1864,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-moss-gloves',
     name: 'Moss Gloves',
-    description: 'Moss work gloves stitched for salvage and cold iron.',
+    description: 'Work gloves stitched for salvage and cold iron.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('moss-gloves', { id: 'crafted-moss-gloves' }),
     ingredients: [
@@ -1875,7 +1875,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-moss-belt',
     name: 'Moss Belt',
-    description: 'Moss a stout belt carrying tools, charms, and spare cord.',
+    description: 'Stout belt for tools, charms, and spare cord.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('moss-belt', { id: 'crafted-moss-belt' }),
     ingredients: [
@@ -1888,7 +1888,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-moss-leggings',
     name: 'Moss Leggings',
     description:
-      'Moss travel leggings meant for brush, rubble, and steep climbs.',
+      'Travel leggings for brush, rubble, and climbs.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('moss-leggings', {
       id: 'crafted-moss-leggings',
@@ -1901,7 +1901,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
   {
     id: 'craft-moss-boots',
     name: 'Moss Boots',
-    description: 'Moss hard-worn boots for fractured roads and slick ruins.',
+    description: 'Hard-worn boots for roads and slick ruins.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('moss-boots', { id: 'crafted-moss-boots' }),
     ingredients: [
@@ -1914,7 +1914,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-moss-charm',
     name: 'Moss Charm',
     description:
-      "Moss a traveler's charm threaded to steady the heart near Mana.",
+      "Traveler's charm to steady the heart near Mana.",
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('moss-charm', { id: 'crafted-moss-charm' }),
     ingredients: [
@@ -1927,7 +1927,7 @@ export const CRAFTED_EXPANSION_RECIPES: RecipeDefinition[] = [
     id: 'craft-moss-cloak',
     name: 'Moss Cloak',
     description:
-      'Moss a weather cloak that breaks rain, soot, and drifting ash.',
+      'Weather cloak for rain, soot, and drifting ash.',
     skill: Skill.Crafting as const,
     output: buildItemFromConfig('moss-cloak', { id: 'crafted-moss-cloak' }),
     ingredients: [

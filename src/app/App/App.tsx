@@ -14,7 +14,6 @@ import {
   type GameState,
 } from '../../game/state';
 import { WORLD_RADIUS } from '../constants';
-import { VersionStatusWidget } from '../../ui/components/VersionStatusWidget/VersionStatusWidget';
 import { AppWindows } from './AppWindows';
 import { HomeIndicator } from './HomeIndicator';
 import { useAppControllers } from './useAppControllers';
@@ -25,7 +24,6 @@ import { setHomeHexForApp, useAppLifecycle } from './hooks/useAppLifecycle';
 import { useAppWindowsProps } from './hooks/useAppWindowsProps';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { usePixiWorld } from './usePixiWorld';
-import { useVersionStatus } from './hooks/useVersionStatus';
 import { useWindowTransitions } from './useWindowTransitions';
 import { useWorldClockFps } from './useWorldClockFps';
 import { clearEncryptedState } from '../../persistence/storage';
@@ -60,6 +58,11 @@ const UiAudioControllerBridge = lazy(() =>
 const VoiceAudioControllerBridge = lazy(() =>
   import('../audio/VoiceAudioControllerBridge').then((module) => ({
     default: module.VoiceAudioControllerBridge,
+  })),
+);
+const VersionStatusPanel = lazy(() =>
+  import('./components/VersionStatusPanel').then((module) => ({
+    default: module.VersionStatusPanel,
   })),
 );
 
@@ -225,7 +228,6 @@ export function App() {
     setTooltip,
   });
   const isReady = hydrated && canvasReady;
-  const versionStatus = useVersionStatus();
 
   useEffect(() => {
     setWorldClockTime(game.worldTimeMs);
@@ -581,12 +583,9 @@ export function App() {
             playerCoord={game.player.coord}
             radius={game.radius}
           />
-          <VersionStatusWidget
-            currentVersion={versionStatus.currentVersion}
-            remoteVersion={versionStatus.remoteVersion}
-            status={versionStatus.status}
-            onRefresh={() => window.location.reload()}
-          />
+          <Suspense fallback={null}>
+            <VersionStatusPanel onRefresh={() => window.location.reload()} />
+          </Suspense>
           <AppWindows {...appWindowsProps} />
         </div>
         {isReady ? null : (
