@@ -654,7 +654,10 @@ function getItemTooltipContentKey(
 }
 
 function loadItemTooltipModule() {
-  itemTooltipModulePromise ??= import('../../ui/tooltips');
+  itemTooltipModulePromise ??= import('../../ui/tooltips').catch((error) => {
+    itemTooltipModulePromise = null;
+    throw error;
+  });
   return itemTooltipModulePromise;
 }
 
