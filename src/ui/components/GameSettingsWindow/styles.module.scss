@@ -82,6 +82,11 @@
   gap: 0.7rem;
 }
 
+.voiceSection {
+  display: grid;
+  gap: 0.7rem;
+}
+
 .soundEffectsSection {
   display: grid;
   gap: 0.7rem;
@@ -91,7 +96,8 @@
 }
 
 .rangeField,
-.themeField {
+.themeField,
+.selectField {
   display: grid;
   gap: 0.45rem;
   padding: 0.7rem 0.8rem;
@@ -134,6 +140,14 @@
   accent-color: #38bdf8;
 }
 
+.selectField select {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid rgb(148 163 184 / 18%);
+  background: rgb(8 15 30 / 88%);
+  color: #e2e8f0;
+}
+
 .themeOptions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -154,7 +168,11 @@
 
   &[data-active='true'] {
     border-color: rgb(56 189 248 / 48%);
-    background: linear-gradient(180deg, rgb(14 116 144 / 22%), rgb(8 15 30 / 92%));
+    background: linear-gradient(
+      180deg,
+      rgb(14 116 144 / 22%),
+      rgb(8 15 30 / 92%)
+    );
     color: #f8fafc;
   }
 

@@ -2,9 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   AUDIO_SETTINGS_SOUND_EFFECT_OPTIONS,
   AUDIO_SETTINGS_TOGGLE_OPTIONS,
+  AUDIO_SETTINGS_VOICE_EVENT_OPTIONS,
   AUDIO_THEME_OPTIONS,
   type AudioSettings,
 } from '../../../app/audioSettings';
+import { VOICE_ACTOR_OPTIONS } from '../../../app/audio/voiceActors';
 import { useUiAudio } from '../../../app/audio/UiAudioContext';
 import {
   GRAPHICS_SETTINGS_OPTIONS,
@@ -59,15 +61,17 @@ export function GameSettingsWindowContent({
   );
 
   const tabs = useMemo(
-    () => [
-      { id: 'graphics', label: t('ui.settings.tabs.graphics') },
-      { id: 'audio', label: t('ui.settings.tabs.audio') },
-    ] satisfies Array<{ id: SettingsTabId; label: string }>,
+    () =>
+      [
+        { id: 'graphics', label: t('ui.settings.tabs.graphics') },
+        { id: 'audio', label: t('ui.settings.tabs.audio') },
+      ] satisfies Array<{ id: SettingsTabId; label: string }>,
     [],
   );
 
   const dirty =
-    JSON.stringify(draftGraphicsSettings) !== JSON.stringify(graphicsSettings) ||
+    JSON.stringify(draftGraphicsSettings) !==
+      JSON.stringify(graphicsSettings) ||
     JSON.stringify(draftAudioSettings) !== JSON.stringify(audioSettings);
 
   const savePayload = {
@@ -280,6 +284,71 @@ export function GameSettingsWindowContent({
                   })}
                 </div>
               </div>
+              <section className={styles.voiceSection}>
+                <label className={styles.selectField}>
+                  <span className={styles.sectionHeader}>
+                    <span className={styles.rangeLabel}>
+                      {t('ui.settings.audio.voice.actor.label')}
+                    </span>
+                    <span className={styles.rangeDescription}>
+                      {t('ui.settings.audio.voice.actor.description')}
+                    </span>
+                  </span>
+                  <select
+                    value={draftAudioSettings.voice.actorId}
+                    onChange={(event) => {
+                      const actorId = event.currentTarget
+                        .value as AudioSettings['voice']['actorId'];
+
+                      setDraftAudioSettings((current) => ({
+                        ...current,
+                        voice: {
+                          ...current.voice,
+                          actorId,
+                        },
+                      }));
+                    }}
+                  >
+                    {VOICE_ACTOR_OPTIONS.map((option) => (
+                      <option key={option.id} value={option.id}>
+                        {t(option.labelKey)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <section className={styles.soundEffectsSection}>
+                  <div className={styles.sectionHeader}>
+                    <span className={styles.rangeLabel}>
+                      {t('ui.settings.audio.voice.events.label')}
+                    </span>
+                    <span className={styles.rangeDescription}>
+                      {t('ui.settings.audio.voice.events.description')}
+                    </span>
+                  </div>
+                  <div className={styles.switches}>
+                    {AUDIO_SETTINGS_VOICE_EVENT_OPTIONS.map((option) => (
+                      <Switch
+                        key={option.key}
+                        checked={draftAudioSettings.voice.events[option.key]}
+                        label={t(option.labelKey)}
+                        description={t(option.descriptionKey)}
+                        onChange={(checked) =>
+                          setDraftAudioSettings((current) => ({
+                            ...current,
+                            voice: {
+                              ...current.voice,
+                              events: {
+                                ...current.voice.events,
+                                [option.key]: checked,
+                              },
+                            },
+                          }))
+                        }
+                      />
+                    ))}
+                  </div>
+                </section>
+              </section>
             </div>
           )}
         </section>
@@ -309,7 +378,9 @@ export function GameSettingsWindowContent({
             className={styles.resetButton}
             data-busy={busyAction === 'reset'}
             disabled={busyAction !== null && busyAction !== 'reset'}
-            style={{ ['--reset-progress' as string]: `${resetProgress * 100}%` }}
+            style={{
+              ['--reset-progress' as string]: `${resetProgress * 100}%`,
+            }}
             onPointerDown={startResetHold}
             onPointerUp={cancelResetHold}
             onPointerCancel={cancelResetHold}

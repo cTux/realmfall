@@ -155,13 +155,13 @@ describe('GameSettingsWindowContent', () => {
       audioTab?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
 
-    const windowOpenSwitch = Array.from(
-      host.querySelectorAll('label'),
-    ).find((candidate) =>
-      candidate.textContent?.includes(
-        t('ui.settings.audio.soundEffects.pop.label'),
-      ),
-    )?.querySelector('input[type="checkbox"]');
+    const windowOpenSwitch = Array.from(host.querySelectorAll('label'))
+      .find((candidate) =>
+        candidate.textContent?.includes(
+          t('ui.settings.audio.soundEffects.pop.label'),
+        ),
+      )
+      ?.querySelector('input[type="checkbox"]');
     const saveButton = Array.from(host.querySelectorAll('button')).find(
       (candidate) =>
         candidate.textContent?.includes(t('ui.settings.actions.save')),
@@ -190,5 +190,127 @@ describe('GameSettingsWindowContent', () => {
       },
       graphics: DEFAULT_GRAPHICS_SETTINGS,
     });
+  });
+
+  it('saves selected voice actor and event toggles inside the audio payload', async () => {
+    const onSave = vi.fn(async () => undefined);
+
+    await act(async () => {
+      root.render(
+        <GameSettingsWindowContent
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
+          graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          onResetSaveData={async () => undefined}
+          onSave={onSave}
+          onSaveAndReload={async () => undefined}
+        />,
+      );
+    });
+
+    const audioTab = Array.from(host.querySelectorAll('[role="tab"]')).find(
+      (candidate) =>
+        candidate.textContent?.includes(t('ui.settings.tabs.audio')),
+    );
+
+    await act(async () => {
+      audioTab?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    const actorSelect = host.querySelector('select');
+    const combatAttackSwitch = Array.from(host.querySelectorAll('label'))
+      .find((candidate) =>
+        candidate.textContent?.includes(
+          t('ui.settings.audio.voice.events.combatAttack.label'),
+        ),
+      )
+      ?.querySelector('input[type="checkbox"]');
+    const saveButton = Array.from(host.querySelectorAll('button')).find(
+      (candidate) =>
+        candidate.textContent?.includes(t('ui.settings.actions.save')),
+    );
+
+    expect(actorSelect).not.toBeNull();
+    expect(combatAttackSwitch).toBeDefined();
+    expect(saveButton).toBeDefined();
+
+    await act(async () => {
+      if (actorSelect) {
+        const setValue = Object.getOwnPropertyDescriptor(
+          HTMLSelectElement.prototype,
+          'value',
+        )?.set;
+
+        setValue?.call(actorSelect, 'karen-cenon');
+        actorSelect.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+
+    await act(async () => {
+      combatAttackSwitch?.dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      );
+    });
+
+    await act(async () => {
+      saveButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    expect(onSave).toHaveBeenCalledWith({
+      audio: {
+        ...DEFAULT_AUDIO_SETTINGS,
+        voice: {
+          actorId: 'karen-cenon',
+          events: {
+            ...DEFAULT_AUDIO_SETTINGS.voice.events,
+            combatAttack: false,
+          },
+        },
+      },
+      graphics: DEFAULT_GRAPHICS_SETTINGS,
+    });
+  });
+
+  it('updates the voice actor select without reading a cleared event target', async () => {
+    await act(async () => {
+      root.render(
+        <GameSettingsWindowContent
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
+          graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          onResetSaveData={async () => undefined}
+          onSave={async () => undefined}
+          onSaveAndReload={async () => undefined}
+        />,
+      );
+    });
+
+    const audioTab = Array.from(host.querySelectorAll('[role="tab"]')).find(
+      (candidate) =>
+        candidate.textContent?.includes(t('ui.settings.tabs.audio')),
+    );
+
+    await act(async () => {
+      audioTab?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    const actorSelect = host.querySelector(
+      'select',
+    ) as HTMLSelectElement | null;
+
+    expect(actorSelect).not.toBeNull();
+    expect(actorSelect?.value).toBe(DEFAULT_AUDIO_SETTINGS.voice.actorId);
+
+    await act(async () => {
+      if (actorSelect) {
+        const setValue = Object.getOwnPropertyDescriptor(
+          HTMLSelectElement.prototype,
+          'value',
+        )?.set;
+
+        setValue?.call(actorSelect, 'karen-cenon');
+        actorSelect.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+
+    expect(actorSelect?.value).toBe('karen-cenon');
   });
 });

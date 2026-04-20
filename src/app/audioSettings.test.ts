@@ -21,6 +21,13 @@ describe('audio settings persistence', () => {
       },
       theme: 'crisp',
       volume: 0.6,
+      voice: {
+        actorId: 'karen-cenon',
+        events: {
+          ...DEFAULT_AUDIO_SETTINGS.voice.events,
+          combatAttack: false,
+        },
+      },
     });
 
     expect(
@@ -36,6 +43,13 @@ describe('audio settings persistence', () => {
         },
         theme: 'crisp',
         volume: 0.6,
+        voice: {
+          actorId: 'karen-cenon',
+          events: {
+            ...DEFAULT_AUDIO_SETTINGS.voice.events,
+            combatAttack: false,
+          },
+        },
       },
     });
   });
@@ -50,6 +64,12 @@ describe('audio settings persistence', () => {
             warning: false,
           },
           theme: 'crisp',
+          voice: {
+            actorId: 'sean-lenhart',
+            events: {
+              playerDeath: false,
+            },
+          },
         },
       }),
     );
@@ -62,6 +82,13 @@ describe('audio settings persistence', () => {
         warning: false,
       },
       theme: 'crisp',
+      voice: {
+        actorId: 'sean-lenhart',
+        events: {
+          ...DEFAULT_AUDIO_SETTINGS.voice.events,
+          playerDeath: false,
+        },
+      },
     });
   });
 
@@ -78,6 +105,13 @@ describe('audio settings persistence', () => {
           },
           theme: 'broken',
           volume: 4,
+          voice: {
+            actorId: 'broken',
+            events: {
+              combatAttack: 'loud',
+              combatEnd: false,
+            },
+          },
         },
       }),
     );
@@ -89,6 +123,13 @@ describe('audio settings persistence', () => {
         swoosh: false,
       },
       volume: 1,
+      voice: {
+        ...DEFAULT_AUDIO_SETTINGS.voice,
+        events: {
+          ...DEFAULT_AUDIO_SETTINGS.voice.events,
+          combatEnd: false,
+        },
+      },
     });
   });
 
@@ -102,6 +143,13 @@ describe('audio settings persistence', () => {
       },
       theme: 'soft',
       volume: 3,
+      voice: {
+        actorId: 'alex-brodie',
+        events: {
+          ...DEFAULT_AUDIO_SETTINGS.voice.events,
+          combatExertion: false,
+        },
+      },
     });
 
     expect(
@@ -116,6 +164,13 @@ describe('audio settings persistence', () => {
         },
         theme: 'soft',
         volume: 1,
+        voice: {
+          actorId: 'alex-brodie',
+          events: {
+            ...DEFAULT_AUDIO_SETTINGS.voice.events,
+            combatExertion: false,
+          },
+        },
       },
     });
   });
@@ -133,6 +188,13 @@ describe('audio settings persistence', () => {
           },
           theme: 'crisp',
           volume: 0.6,
+          voice: {
+            actorId: 'meghan-christian',
+            events: {
+              ...DEFAULT_AUDIO_SETTINGS.voice.events,
+              playerDamaged: false,
+            },
+          },
         },
         graphics: {
           antialias: false,

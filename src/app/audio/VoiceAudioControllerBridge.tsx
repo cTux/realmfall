@@ -1,0 +1,251 @@
+import { useEffect, useRef } from 'react';
+import type { GameState } from '../../game/state';
+import type { AudioSettings } from '../audioSettings';
+import {
+  VOICE_PLAYBACK_EVENT_OPTIONS,
+  detectVoicePlaybackEvent,
+} from './voiceEvents';
+import {
+  getVoiceClipUrls,
+  type VoiceClipCategory,
+} from './voiceLibrary';
+import type { VoiceActorId } from './voiceActors';
+
+const ACTIVATION_EVENTS = ['keydown', 'mousedown', 'pointerdown', 'touchstart'];
+const MIN_PLAYBACK_INTERVAL_MS = 700;
+
+interface VoiceAudioControllerBridgeProps {
+  audioSettings: AudioSettings;
+  game: GameState;
+}
+
+export function VoiceAudioControllerBridge({
+  audioSettings,
+  game,
+}: VoiceAudioControllerBridgeProps) {
+  const { muted, respectReducedMotion, volume } = audioSettings;
+  const activatedRef = useRef(false);
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
+  const previousGameRef = useRef(game);
+  const previousClipIndexRef = useRef<
+    Partial<Record<VoiceClipCategory, number>>
+  >({});
+  const lastPlaybackRef = useRef<{
+    eventKey: keyof AudioSettings['voice']['events'] | null;
+    timestamp: number;
+  }>({
+    eventKey: null,
+    timestamp: 0,
+  });
+
+  useEffect(() => {
+    const activate = () => {
+      activatedRef.current = true;
+    };
+
+    ACTIVATION_EVENTS.forEach((eventName) => {
+      window.addEventListener(eventName, activate, { passive: true });
+    });
+
+    return () => {
+      ACTIVATION_EVENTS.forEach((eventName) => {
+        window.removeEventListener(eventName, activate);
+      });
+    };
+  }, []);
+
+  useEffect(
+    () => () => {
+      stopAudio(currentAudioRef.current);
+      currentAudioRef.current = null;
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (!respectReducedMotion) {
+      return;
+    }
+
+    const reducedMotionQuery = getReducedMotionMediaQuery(window);
+    if (!reducedMotionQuery) {
+      return;
+    }
+
+    const handleReducedMotionChange = () => {
+      if (reducedMotionQuery.matches) {
+        stopAudio(currentAudioRef.current);
+        currentAudioRef.current = null;
+      }
+    };
+
+    addMediaQueryListener(reducedMotionQuery, handleReducedMotionChange);
+
+    return () => {
+      removeMediaQueryListener(reducedMotionQuery, handleReducedMotionChange);
+    };
+  }, [respectReducedMotion]);
+
+  useEffect(() => {
+    if (muted || (respectReducedMotion && prefersReducedMotion(window))) {
+      stopAudio(currentAudioRef.current);
+      currentAudioRef.current = null;
+      return;
+    }
+
+    if (currentAudioRef.current) {
+      currentAudioRef.current.volume = volume;
+    }
+  }, [muted, respectReducedMotion, volume]);
+
+  useEffect(() => {
+    const previousGame = previousGameRef.current;
+    previousGameRef.current = game;
+
+    const playbackEventKey = detectVoicePlaybackEvent(previousGame, game);
+    if (!playbackEventKey || !audioSettings.voice.events[playbackEventKey]) {
+      return;
+    }
+
+    if (!activatedRef.current) {
+      return;
+    }
+
+    if (muted || (respectReducedMotion && prefersReducedMotion(window))) {
+      return;
+    }
+
+    const now = performance.now();
+    if (now - lastPlaybackRef.current.timestamp < MIN_PLAYBACK_INTERVAL_MS) {
+      return;
+    }
+
+    const definition = VOICE_PLAYBACK_EVENT_OPTIONS.find(
+      (option) => option.key === playbackEventKey,
+    );
+    if (!definition) {
+      return;
+    }
+
+    const clipUrl = pickVoiceClipUrl(
+      audioSettings.voice.actorId,
+      definition.audioCategory,
+      previousClipIndexRef.current,
+    );
+    if (!clipUrl) {
+      return;
+    }
+
+    stopAudio(currentAudioRef.current);
+    currentAudioRef.current = null;
+
+    const audio = new Audio(clipUrl);
+    audio.preload = 'auto';
+    audio.volume = volume;
+    currentAudioRef.current = audio;
+    lastPlaybackRef.current = {
+      eventKey: playbackEventKey,
+      timestamp: now,
+    };
+
+    attemptPlayback(audio, () => {
+      if (currentAudioRef.current === audio) {
+        currentAudioRef.current = null;
+      }
+    });
+  }, [audioSettings, game, muted, respectReducedMotion, volume]);
+
+  return null;
+}
+
+function pickVoiceClipUrl(
+  actorId: VoiceActorId,
+  category: VoiceClipCategory,
+  previousClipIndexes: Partial<Record<VoiceClipCategory, number>>,
+) {
+  const clips = getVoiceClipUrls(actorId, category);
+  if (clips.length === 0) {
+    return null;
+  }
+
+  if (clips.length === 1) {
+    previousClipIndexes[category] = 0;
+    return clips[0] ?? null;
+  }
+
+  const previousIndex = previousClipIndexes[category] ?? -1;
+  let nextIndex = Math.floor(Math.random() * clips.length);
+  if (nextIndex === previousIndex) {
+    nextIndex = (nextIndex + 1) % clips.length;
+  }
+
+  previousClipIndexes[category] = nextIndex;
+  return clips[nextIndex] ?? null;
+}
+
+function prefersReducedMotion(target: Window) {
+  return getReducedMotionMediaQuery(target)?.matches ?? false;
+}
+
+function getReducedMotionMediaQuery(target: Window) {
+  return typeof target.matchMedia === 'function'
+    ? target.matchMedia('(prefers-reduced-motion: reduce)')
+    : null;
+}
+
+function addMediaQueryListener(
+  mediaQuery: MediaQueryList,
+  listener: () => void,
+) {
+  if (typeof mediaQuery.addEventListener === 'function') {
+    mediaQuery.addEventListener('change', listener);
+    return;
+  }
+
+  if (typeof mediaQuery.addListener === 'function') {
+    mediaQuery.addListener(listener);
+  }
+}
+
+function removeMediaQueryListener(
+  mediaQuery: MediaQueryList,
+  listener: () => void,
+) {
+  if (typeof mediaQuery.removeEventListener === 'function') {
+    mediaQuery.removeEventListener('change', listener);
+    return;
+  }
+
+  if (typeof mediaQuery.removeListener === 'function') {
+    mediaQuery.removeListener(listener);
+  }
+}
+
+function stopAudio(audio: HTMLAudioElement | null) {
+  if (!audio || typeof audio.pause !== 'function') {
+    return;
+  }
+
+  try {
+    audio.pause();
+  } catch {
+    // jsdom does not implement HTMLMediaElement playback methods.
+  }
+}
+
+function attemptPlayback(audio: HTMLAudioElement, onFailure: () => void) {
+  try {
+    const playback = audio.play();
+
+    if (
+      playback &&
+      typeof playback === 'object' &&
+      'catch' in playback &&
+      typeof playback.catch === 'function'
+    ) {
+      void playback.catch(onFailure);
+    }
+  } catch {
+    onFailure();
+  }
+}

@@ -4,6 +4,15 @@ import {
   loadStoredSettingsPayload,
   updateStoredSettingsPayload,
 } from './settingsStorage';
+import {
+  VOICE_PLAYBACK_EVENT_OPTIONS,
+  type VoicePlaybackEventId,
+} from './audio/voiceEvents';
+import {
+  VOICE_ACTOR_OPTIONS,
+  isVoiceActorId,
+  type VoiceActorId,
+} from './audio/voiceActors';
 
 export interface AudioSettings {
   muted: boolean;
@@ -11,6 +20,7 @@ export interface AudioSettings {
   soundEffects: AudioSoundEffectsSettings;
   theme: ThemeName;
   volume: number;
+  voice: VoiceSettings;
 }
 
 export interface AudioSoundEffectsSettings {
@@ -24,6 +34,13 @@ export interface AudioSoundEffectsSettings {
   toggle: boolean;
   warning: boolean;
 }
+
+export interface VoiceSettings {
+  actorId: VoiceActorId;
+  events: VoiceEventSettings;
+}
+
+export type VoiceEventSettings = Record<VoicePlaybackEventId, boolean>;
 
 export interface AudioThemeOptionDefinition {
   labelKey: string;
@@ -42,6 +59,12 @@ export interface AudioSettingsSoundEffectOptionDefinition {
   descriptionKey: string;
 }
 
+export interface AudioVoiceEventOptionDefinition {
+  key: keyof VoiceEventSettings;
+  labelKey: string;
+  descriptionKey: string;
+}
+
 export const DEFAULT_AUDIO_SOUND_EFFECTS: AudioSoundEffectsSettings = {
   click: true,
   error: true,
@@ -54,12 +77,24 @@ export const DEFAULT_AUDIO_SOUND_EFFECTS: AudioSoundEffectsSettings = {
   warning: true,
 };
 
+export const DEFAULT_VOICE_EVENT_SETTINGS: VoiceEventSettings = {
+  combatAttack: true,
+  combatEnd: true,
+  combatExertion: true,
+  playerDamaged: true,
+  playerDeath: true,
+};
+
 export const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
   muted: false,
   respectReducedMotion: true,
   soundEffects: DEFAULT_AUDIO_SOUND_EFFECTS,
   theme: 'soft',
   volume: 0.3,
+  voice: {
+    actorId: VOICE_ACTOR_OPTIONS[0]!.id,
+    events: DEFAULT_VOICE_EVENT_SETTINGS,
+  },
 };
 
 export const AUDIO_THEME_OPTIONS: AudioThemeOptionDefinition[] = [
@@ -136,6 +171,13 @@ export const AUDIO_SETTINGS_SOUND_EFFECT_OPTIONS: AudioSettingsSoundEffectOption
     },
   ];
 
+export const AUDIO_SETTINGS_VOICE_EVENT_OPTIONS: AudioVoiceEventOptionDefinition[] =
+  VOICE_PLAYBACK_EVENT_OPTIONS.map((option) => ({
+    key: option.key,
+    labelKey: option.labelKey,
+    descriptionKey: option.descriptionKey,
+  }));
+
 export function loadAudioSettings() {
   if (typeof window === 'undefined') {
     return DEFAULT_AUDIO_SETTINGS;
@@ -185,6 +227,7 @@ function normalizeAudioSettings(settings: unknown): AudioSettings {
       typeof settings.volume === 'number' && Number.isFinite(settings.volume)
         ? clampVolume(settings.volume)
         : DEFAULT_AUDIO_SETTINGS.volume,
+    voice: normalizeVoiceSettings(settings.voice),
   };
 }
 
@@ -237,6 +280,34 @@ function normalizeAudioSoundEffects(
         ? soundEffects.warning
         : DEFAULT_AUDIO_SOUND_EFFECTS.warning,
   };
+}
+
+function normalizeVoiceSettings(voice: unknown): VoiceSettings {
+  if (!isRecord(voice)) {
+    return DEFAULT_AUDIO_SETTINGS.voice;
+  }
+
+  return {
+    actorId: isVoiceActorId(voice.actorId)
+      ? voice.actorId
+      : DEFAULT_AUDIO_SETTINGS.voice.actorId,
+    events: normalizeVoiceEventSettings(voice.events),
+  };
+}
+
+function normalizeVoiceEventSettings(events: unknown): VoiceEventSettings {
+  if (!isRecord(events)) {
+    return DEFAULT_VOICE_EVENT_SETTINGS;
+  }
+
+  return Object.fromEntries(
+    VOICE_PLAYBACK_EVENT_OPTIONS.map((option) => [
+      option.key,
+      typeof events[option.key] === 'boolean'
+        ? events[option.key]
+        : DEFAULT_VOICE_EVENT_SETTINGS[option.key],
+    ]),
+  ) as VoiceEventSettings;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
