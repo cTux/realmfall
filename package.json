@@ -54,7 +54,7 @@
     "update:minor": "pnpm exec npm-check-updates -u --target minor --packageManager pnpm"
   },
   "dependencies": {
-    "@rexa-developer/tiks": "^0.1.6",
+    "@rexa-developer/tiks": "^0.1.8",
     "pixi.js": "^8.18.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
