@@ -4,6 +4,7 @@ import {
   DEFAULT_AUDIO_SETTINGS,
   DEFAULT_GRAPHICS_SETTINGS,
 } from '../../../app/constants';
+import { applyGraphicsPreset } from '../../../app/graphicsSettings';
 import { t } from '../../../i18n';
 import { GameSettingsWindowContent } from './GameSettingsWindowContent';
 
@@ -189,6 +190,52 @@ describe('GameSettingsWindowContent', () => {
         },
       },
       graphics: DEFAULT_GRAPHICS_SETTINGS,
+    });
+  });
+
+  it('applies the selected graphics preset to the saved payload', async () => {
+    const onSave = vi.fn(async () => undefined);
+
+    await act(async () => {
+      root.render(
+        <GameSettingsWindowContent
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
+          graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          onResetSaveData={async () => undefined}
+          onSave={onSave}
+          onSaveAndReload={async () => undefined}
+        />,
+      );
+    });
+
+    const performancePreset = Array.from(
+      host.querySelectorAll('[role="radio"]'),
+    ).find((candidate) =>
+      candidate.textContent?.includes(
+        t('ui.settings.graphics.preset.performance.label'),
+      ),
+    );
+    const saveButton = Array.from(host.querySelectorAll('button')).find(
+      (candidate) =>
+        candidate.textContent?.includes(t('ui.settings.actions.save')),
+    );
+
+    expect(performancePreset).toBeDefined();
+    expect(saveButton).toBeDefined();
+
+    await act(async () => {
+      performancePreset?.dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      );
+    });
+
+    await act(async () => {
+      saveButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    expect(onSave).toHaveBeenCalledWith({
+      audio: DEFAULT_AUDIO_SETTINGS,
+      graphics: applyGraphicsPreset('performance'),
     });
   });
 

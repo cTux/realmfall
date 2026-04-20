@@ -29,8 +29,8 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - The custom world-map fisheye shader follows Pixi v8 filter shader semantics on both stages: the vertex shader emits `vTextureCoord`, and the fragment shader consumes `in vec2 vTextureCoord` and samples `uTexture` so the filter can compile cleanly when the fisheye path is enabled again.
 - World SVG icon URLs are preloaded into `ImageSource`-backed textures before the Pixi app starts, because Pixi v8 string texture creation expects already-loaded sources and otherwise falls back to asset-cache warnings instead of rendering markers reliably.
 - The world bootstrap now blocks Pixi startup until the full icon catalog is loaded, so sprite creation never falls back to Pixi's string-based asset lookup path in the browser runtime.
-- The Pixi canvas uses density-aware sizing so browser zoom and high-DPI displays keep the world viewport fitted to CSS pixels while renderer resolution tracks `window.devicePixelRatio` changes on resize.
-- Persisted settings now hydrate Pixi renderer initialization flags such as antialiasing, auto density, buffer preservation, and alpha handling through a dedicated plain `localStorage` `settings` payload that is read before the initial game and Pixi setup; those init-time flags still require a reload before they affect an already-running canvas.
+- The Pixi canvas uses density-aware sizing so browser zoom and high-DPI displays keep the world viewport fitted to CSS pixels while renderer resolution tracks `window.devicePixelRatio` changes on resize within the current graphics preset cap.
+- Persisted settings now hydrate both Pixi renderer initialization flags and a preset-derived renderer density cap through a dedicated plain `localStorage` `settings` payload that is read before the initial game and Pixi setup; those init-time flags still require a reload before they affect an already-running canvas.
 - Hover-analysis caching now invalidates from gameplay-state versions that materially affect interaction resolution rather than from every broad `tiles` or `enemies` container identity change.
 
 ## Main Implementation Areas

@@ -1,5 +1,8 @@
 import { act } from 'react';
-import { saveGraphicsSettings } from '../../graphicsSettings';
+import {
+  applyGraphicsPreset,
+  saveGraphicsSettings,
+} from '../../graphicsSettings';
 import {
   applicationOptions,
   flushLazyModules,
@@ -8,8 +11,8 @@ import {
 } from './appTestHarness';
 
 describe('App canvas setup', () => {
-  it('creates the Pixi canvas with density-aware sizing', async () => {
-    vi.stubGlobal('devicePixelRatio', 1.5);
+  it('caps the Pixi resolution with the default balanced preset', async () => {
+    vi.stubGlobal('devicePixelRatio', 3);
     loadEncryptedState.mockResolvedValue(null);
 
     const { App } = await import('../index');
@@ -39,6 +42,8 @@ describe('App canvas setup', () => {
   it('hydrates Pixi initialization flags from saved graphics settings', async () => {
     loadEncryptedState.mockResolvedValue(null);
     saveGraphicsSettings({
+      preset: 'custom',
+      resolutionCap: 1.5,
       antialias: false,
       autoDensity: false,
       clearBeforeRender: false,
@@ -57,6 +62,26 @@ describe('App canvas setup', () => {
       clearBeforeRender: false,
       preserveDrawingBuffer: true,
       premultipliedAlpha: false,
+    });
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('hydrates the performance preset into Pixi resolution and antialiasing', async () => {
+    vi.stubGlobal('devicePixelRatio', 2.5);
+    loadEncryptedState.mockResolvedValue(null);
+    saveGraphicsSettings(applyGraphicsPreset('performance'));
+
+    const { host, root } = await renderApp();
+    await flushLazyModules();
+
+    expect(applicationOptions[0]).toMatchObject({
+      antialias: false,
+      autoDensity: true,
+      resolution: 1,
     });
 
     await act(async () => {

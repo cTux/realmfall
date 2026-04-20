@@ -28,7 +28,10 @@ import {
 } from '../../ui/world/worldIcons';
 import { getSceneCache } from '../../ui/world/renderSceneCache';
 import { WORLD_REVEAL_RADIUS } from '../constants';
-import type { GraphicsSettings } from '../graphicsSettings';
+import {
+  getGraphicsRenderResolution,
+  type GraphicsSettings,
+} from '../graphicsSettings';
 import {
   loadWorldMapSettings,
   saveWorldMapSettings,
@@ -174,7 +177,10 @@ export function usePixiWorld({
         preserveDrawingBuffer: graphicsSettings.preserveDrawingBuffer,
         premultipliedAlpha: graphicsSettings.premultipliedAlpha,
         preference: 'webgl',
-        resolution: window.devicePixelRatio || 1,
+        resolution: getGraphicsRenderResolution(
+          graphicsSettings,
+          window.devicePixelRatio,
+        ),
       });
 
       if (disposed || !hostRef.current || appRef.current) {
@@ -194,7 +200,10 @@ export function usePixiWorld({
       const resize = () => {
         const width = hostRef.current?.clientWidth ?? window.innerWidth;
         const height = hostRef.current?.clientHeight ?? window.innerHeight;
-        const resolution = window.devicePixelRatio || 1;
+        const resolution = getGraphicsRenderResolution(
+          graphicsSettings,
+          window.devicePixelRatio,
+        );
         if (app.renderer.resolution !== resolution) {
           app.renderer.resolution = resolution;
         }
