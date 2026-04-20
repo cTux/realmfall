@@ -60,6 +60,7 @@ export function useWorldAudioPlayer({
   const crossfadeCleanupRef = useRef<(() => void) | null>(null);
   const unlockHandlersRef = useRef<(() => void) | null>(null);
   const playbackIntentRef = useRef(true);
+  const audioSettingsRef = useRef(audioSettings);
 
   const currentTrack = playlist[currentTrackIndex] ?? null;
   const progress =
@@ -113,6 +114,10 @@ export function useWorldAudioPlayer({
   }, [area]);
 
   useEffect(() => {
+    audioSettingsRef.current = audioSettings;
+  }, [audioSettings]);
+
+  useEffect(() => {
     audioDecksRef.current.forEach((audio, index) => {
       if (!audio) {
         return;
@@ -120,7 +125,7 @@ export function useWorldAudioPlayer({
 
       audio.muted = audioSettings.muted;
       if (index === activeDeckIndexRef.current) {
-        audio.volume = audio.paused ? audio.volume : audioSettings.volume;
+        audio.volume = audioSettings.volume;
       }
     });
   }, [audioSettings.muted, audioSettings.volume]);
@@ -160,8 +165,8 @@ export function useWorldAudioPlayer({
 
     nextAudio.src = currentTrack.src;
     nextAudio.currentTime = AUDIO_RESET_TIME_SECONDS;
-    nextAudio.muted = audioSettings.muted;
-    nextAudio.volume = shouldCrossfade ? 0 : audioSettings.volume;
+    nextAudio.muted = audioSettingsRef.current.muted;
+    nextAudio.volume = shouldCrossfade ? 0 : audioSettingsRef.current.volume;
     if (!isJsdomMediaEnvironment()) {
       nextAudio.load();
     }
@@ -190,7 +195,7 @@ export function useWorldAudioPlayer({
         crossfadeCleanupRef.current = fadeBetweenTracks({
           fromAudio: activeAudio,
           toAudio: nextAudio,
-          targetVolume: audioSettings.volume,
+          targetVolume: audioSettingsRef.current.volume,
         });
       },
     );
