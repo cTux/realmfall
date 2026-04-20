@@ -53,6 +53,7 @@ export function useBackgroundMusicController({
     activeTrackRef.current = { mood: nextMood, src: nextTrack };
     load(nextTrack, {
       autoplay: true,
+      html5: true,
       initialMute: audioSettings.muted || audioSettings.musicMuted,
       initialVolume: audioSettings.volume,
       onend: () => {

@@ -73,6 +73,17 @@ describe('useBackgroundMusicController', () => {
     );
 
     expect(loadMock).toHaveBeenCalledTimes(1);
+    expect(loadMock).toHaveBeenNthCalledWith(
+      1,
+      expect.any(String),
+      expect.objectContaining({
+        autoplay: true,
+        html5: true,
+        initialMute: false,
+        initialVolume: DEFAULT_AUDIO_SETTINGS.volume,
+        onend: expect.any(Function),
+      }),
+    );
 
     await act(async () => {
       root.render(
