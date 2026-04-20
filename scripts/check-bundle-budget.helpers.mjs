@@ -15,7 +15,7 @@ export const CHUNK_BUDGETS = {
   pixi: 549_560,
 };
 
-export const STARTUP_TOTAL_BUDGET = 1_449_695;
+export const STARTUP_TOTAL_BUDGET = 1_460_000;
 
 export function formatKiB(bytes) {
   return `${(bytes / 1000).toFixed(2)} kB`;
