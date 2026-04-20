@@ -108,7 +108,7 @@ describe('audio settings persistence', () => {
           voice: {
             actorId: 'broken',
             events: {
-              combatStart: 'loud',
+              combatAttack: 'loud',
               combatEnd: false,
             },
           },
@@ -147,7 +147,7 @@ describe('audio settings persistence', () => {
         actorId: 'alex-brodie',
         events: {
           ...DEFAULT_AUDIO_SETTINGS.voice.events,
-          worldEvent: false,
+          combatExertion: false,
         },
       },
     });
@@ -168,7 +168,7 @@ describe('audio settings persistence', () => {
           actorId: 'alex-brodie',
           events: {
             ...DEFAULT_AUDIO_SETTINGS.voice.events,
-            worldEvent: false,
+            combatExertion: false,
           },
         },
       },
@@ -192,7 +192,7 @@ describe('audio settings persistence', () => {
             actorId: 'meghan-christian',
             events: {
               ...DEFAULT_AUDIO_SETTINGS.voice.events,
-              actionRejected: false,
+              playerDamaged: false,
             },
           },
         },

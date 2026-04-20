@@ -9,32 +9,14 @@ export interface VoicePlaybackEventOptionDefinition {
 }
 
 export type VoicePlaybackEventId =
-  | 'actionSuccess'
-  | 'actionRejected'
-  | 'combatEncounter'
   | 'combatEnd'
   | 'combatExertion'
-  | 'combatStart'
   | 'combatAttack'
   | 'playerDamaged'
-  | 'playerDeath'
-  | 'worldEvent';
+  | 'playerDeath';
 
 export const VOICE_PLAYBACK_EVENT_OPTIONS: VoicePlaybackEventOptionDefinition[] =
   [
-    {
-      key: 'combatEncounter',
-      audioCategory: 'greeting',
-      labelKey: 'ui.settings.audio.voice.events.combatEncounter.label',
-      descriptionKey:
-        'ui.settings.audio.voice.events.combatEncounter.description',
-    },
-    {
-      key: 'combatStart',
-      audioCategory: 'confirmation',
-      labelKey: 'ui.settings.audio.voice.events.combatStart.label',
-      descriptionKey: 'ui.settings.audio.voice.events.combatStart.description',
-    },
     {
       key: 'combatAttack',
       audioCategory: 'shouting',
@@ -63,29 +45,9 @@ export const VOICE_PLAYBACK_EVENT_OPTIONS: VoicePlaybackEventOptionDefinition[] 
     },
     {
       key: 'combatEnd',
-      audioCategory: 'farewell',
+      audioCategory: 'completion',
       labelKey: 'ui.settings.audio.voice.events.combatEnd.label',
       descriptionKey: 'ui.settings.audio.voice.events.combatEnd.description',
-    },
-    {
-      key: 'actionSuccess',
-      audioCategory: 'completion',
-      labelKey: 'ui.settings.audio.voice.events.actionSuccess.label',
-      descriptionKey:
-        'ui.settings.audio.voice.events.actionSuccess.description',
-    },
-    {
-      key: 'actionRejected',
-      audioCategory: 'refusal',
-      labelKey: 'ui.settings.audio.voice.events.actionRejected.label',
-      descriptionKey:
-        'ui.settings.audio.voice.events.actionRejected.description',
-    },
-    {
-      key: 'worldEvent',
-      audioCategory: 'miscellaneous',
-      labelKey: 'ui.settings.audio.voice.events.worldEvent.label',
-      descriptionKey: 'ui.settings.audio.voice.events.worldEvent.description',
     },
   ];
 
@@ -101,23 +63,8 @@ export function detectVoicePlaybackEvent(
     return 'playerDamaged';
   }
 
-  if (!previous.combat && next.combat) {
-    return 'combatEncounter';
-  }
-
-  if (previous.combat && !previous.combat.started && next.combat?.started) {
-    return 'combatStart';
-  }
-
   if (previous.combat && !next.combat) {
     return 'combatEnd';
-  }
-
-  if (
-    previous.bloodMoonActive !== next.bloodMoonActive ||
-    previous.harvestMoonActive !== next.harvestMoonActive
-  ) {
-    return 'worldEvent';
   }
 
   const newLogs = getNewLogs(previous, next);
@@ -131,25 +78,6 @@ export function detectVoicePlaybackEvent(
 
   if (newLogs.some(isCombatExertionLog)) {
     return 'combatExertion';
-  }
-
-  const newestLog = newLogs[0];
-  if (!newestLog) {
-    return null;
-  }
-
-  if (
-    newestLog.kind === 'system' &&
-    !hasMeaningfulActionChange(previous, next)
-  ) {
-    return 'actionRejected';
-  }
-
-  if (
-    (newestLog.kind === 'system' || newestLog.kind === 'loot') &&
-    hasMeaningfulActionChange(previous, next)
-  ) {
-    return 'actionSuccess';
   }
 
   return null;
@@ -198,86 +126,4 @@ function isCombatExertionLog(log: LogEntry) {
 
 function getFirstRichTextValue(log: LogEntry) {
   return log.richText?.[0]?.text ?? '';
-}
-
-function hasMeaningfulActionChange(previous: GameState, next: GameState) {
-  return (
-    previous.turn !== next.turn ||
-    previous.player.hp !== next.player.hp ||
-    previous.player.mana !== next.player.mana ||
-    previous.player.hunger !== next.player.hunger ||
-    (previous.player.thirst ?? 100) !== (next.player.thirst ?? 100) ||
-    !sameCoord(previous.player.coord, next.player.coord) ||
-    !sameCoord(previous.homeHex, next.homeHex) ||
-    previous.bloodMoonActive !== next.bloodMoonActive ||
-    previous.harvestMoonActive !== next.harvestMoonActive ||
-    !sameInventory(previous.player.inventory, next.player.inventory) ||
-    !sameEquipment(previous.player.equipment, next.player.equipment) ||
-    !sameStringList(
-      previous.player.learnedRecipeIds,
-      next.player.learnedRecipeIds,
-    ) ||
-    !sameCombat(previous.combat, next.combat)
-  );
-}
-
-function sameCoord(
-  left: GameState['player']['coord'],
-  right: GameState['player']['coord'],
-) {
-  return left.q === right.q && left.r === right.r;
-}
-
-function sameInventory(
-  left: GameState['player']['inventory'],
-  right: GameState['player']['inventory'],
-) {
-  if (left.length !== right.length) {
-    return false;
-  }
-
-  return left.every((item, index) => {
-    const other = right[index];
-    return (
-      item.id === other?.id &&
-      item.quantity === other.quantity &&
-      item.locked === other.locked
-    );
-  });
-}
-
-function sameEquipment(
-  left: GameState['player']['equipment'],
-  right: GameState['player']['equipment'],
-) {
-  const keys = Array.from(
-    new Set([...Object.keys(left), ...Object.keys(right)] as Array<
-      keyof GameState['player']['equipment']
-    >),
-  ).sort();
-
-  return keys.every((key) => {
-    const leftItem = left[key];
-    const rightItem = right[key];
-    return leftItem?.id === rightItem?.id;
-  });
-}
-
-function sameStringList(left: string[], right: string[]) {
-  return (
-    left.length === right.length &&
-    left.every((value, index) => value === right[index])
-  );
-}
-
-function sameCombat(left: GameState['combat'], right: GameState['combat']) {
-  if (!left || !right) {
-    return left === right;
-  }
-
-  return (
-    left.started === right.started &&
-    sameCoord(left.coord, right.coord) &&
-    sameStringList(left.enemyIds, right.enemyIds)
-  );
 }

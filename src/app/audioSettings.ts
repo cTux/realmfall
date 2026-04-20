@@ -78,16 +78,11 @@ export const DEFAULT_AUDIO_SOUND_EFFECTS: AudioSoundEffectsSettings = {
 };
 
 export const DEFAULT_VOICE_EVENT_SETTINGS: VoiceEventSettings = {
-  actionSuccess: true,
-  actionRejected: true,
   combatAttack: true,
-  combatEncounter: true,
   combatEnd: true,
   combatExertion: true,
-  combatStart: true,
   playerDamaged: true,
   playerDeath: true,
-  worldEvent: true,
 };
 
 export const DEFAULT_AUDIO_SETTINGS: AudioSettings = {

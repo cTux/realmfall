@@ -2,26 +2,6 @@ import { createGame, startCombat } from '../../game/state';
 import { detectVoicePlaybackEvent } from './voiceEvents';
 
 describe('detectVoicePlaybackEvent', () => {
-  it('detects a new combat encounter', () => {
-    const previous = createGame(2, 'voice-encounter-previous');
-    const next = createGame(2, 'voice-encounter-next');
-    next.combat = {
-      coord: { q: 1, r: 0 },
-      enemyIds: ['enemy-1,0-0'],
-      started: false,
-      player: previous.combat?.player ?? {
-        abilityIds: [],
-        casting: null,
-        cooldownEndsAt: {},
-        globalCooldownEndsAt: 0,
-        globalCooldownMs: 0,
-      },
-      enemies: {},
-    };
-
-    expect(detectVoicePlaybackEvent(previous, next)).toBe('combatEncounter');
-  });
-
   it('detects player damage before other combat events', () => {
     const previous = createGame(2, 'voice-damage-previous');
     const next = createGame(2, 'voice-damage-next');
@@ -46,44 +26,6 @@ describe('detectVoicePlaybackEvent', () => {
     next.player.statusEffects = [{ id: 'recentDeath' }];
 
     expect(detectVoicePlaybackEvent(previous, next)).toBe('playerDeath');
-  });
-
-  it('detects rejected actions when only a system log changes', () => {
-    const previous = createGame(2, 'voice-refusal-previous');
-    const next = createGame(2, 'voice-refusal-next');
-    next.logSequence = previous.logSequence + 1;
-    next.logs = [
-      {
-        id: 'l-refusal',
-        kind: 'system',
-        text: '[Y1 D1 00:00] You cannot do that.',
-        turn: previous.turn,
-      },
-      ...previous.logs,
-    ];
-
-    expect(detectVoicePlaybackEvent(previous, next)).toBe('actionRejected');
-  });
-
-  it('detects successful non-combat actions from meaningful loot changes', () => {
-    const previous = createGame(2, 'voice-success-previous');
-    const next = createGame(2, 'voice-success-next');
-    next.player.inventory = [
-      ...previous.player.inventory,
-      { ...previous.player.inventory[0]!, id: 'new-item' },
-    ];
-    next.logSequence = previous.logSequence + 1;
-    next.logs = [
-      {
-        id: 'l-success',
-        kind: 'loot',
-        text: '[Y1 D1 00:00] Loot acquired.',
-        turn: previous.turn,
-      },
-      ...previous.logs,
-    ];
-
-    expect(detectVoicePlaybackEvent(previous, next)).toBe('actionSuccess');
   });
 
   it('detects player combat attacks from rich combat logs', () => {
@@ -112,8 +54,6 @@ describe('detectVoicePlaybackEvent', () => {
     };
     const next = startCombat(combatReady);
 
-    expect(detectVoicePlaybackEvent(combatReady, next)).toBe('combatStart');
-
     const attackNext = {
       ...next,
       logSequence: next.logSequence + 1,
@@ -133,6 +73,34 @@ describe('detectVoicePlaybackEvent', () => {
     };
 
     expect(detectVoicePlaybackEvent(next, attackNext)).toBe('combatAttack');
-    expect(detectVoicePlaybackEvent(previous, next)).not.toBe('combatAttack');
+    expect(detectVoicePlaybackEvent(previous, next)).toBeNull();
+  });
+
+  it('detects combat end when combat resolves', () => {
+    const previous = createGame(2, 'voice-combat-end-previous');
+    previous.combat = {
+      coord: { q: 1, r: 0 },
+      enemyIds: ['enemy-1,0-0'],
+      started: true,
+      player: {
+        abilityIds: [],
+        casting: null,
+        cooldownEndsAt: {},
+        globalCooldownEndsAt: 0,
+        globalCooldownMs: 0,
+      },
+      enemies: {
+        'enemy-1,0-0': {
+          abilityIds: [],
+          casting: null,
+          cooldownEndsAt: {},
+          globalCooldownEndsAt: 0,
+          globalCooldownMs: 0,
+        },
+      },
+    };
+    const next = { ...previous, combat: null };
+
+    expect(detectVoicePlaybackEvent(previous, next)).toBe('combatEnd');
   });
 });
