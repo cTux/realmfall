@@ -20,6 +20,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - Damaging debuff tooltips surface their live damage amount from the active status instance, including stack-aware poison and burning damage.
 - Hero and combat ability tiles now render the live ability icon asset, show a vertical cooldown fill over the icon, and visually desaturate and fade while the ability is unavailable.
 - Combat entity cards now show a yellow cast bar beneath the resource bars whenever that entity is actively casting, with the fill advancing through the cast duration and the active ability name shown on the bar.
+- Combat entity cards snap their cooldown and cast-bar view models to a short visual cadence instead of rebuilding every card on every world-clock tick.
 - Action bar consumable bindings clear themselves once the assigned stack no longer exists in inventory, so depleted consumables do not linger as unavailable stale slots.
 - Action bar consumables now show the same vertical cooldown overlay style used for abilities, and a shared consumable cooldown overlays every populated slot while any consumable is recharging.
 - Pressing `Esc` closes every currently open window.
@@ -27,6 +28,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - Logs provide system, movement, combat, loot, and other gameplay feedback.
 - Combat log entries render with white baseline copy, color damage red and healing green, tint enemy names by rarity, and surface hoverable inline source chips with icons and combat tooltips for logged combat sources.
 - Filtered log viewing is part of the current gameplay readability loop.
+- Large recipe lists reveal additional rows in explicit batches instead of mounting the whole matching catalog at once.
 - Current and maximum value bars surface their meaning through the shared tooltip system.
 - The character info window currently focuses on shared combat-style resource bars and no longer lists the full derived combat stat sheet inline.
 - Log entries show a compact `HH:MM` timestamp in the visible list, while hover reveals the full calendar timestamp using the shared world-calendar formatter.

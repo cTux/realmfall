@@ -569,6 +569,7 @@
   "ui.recipeBook.makesLabel": "Makes {item}",
   "ui.recipeBook.note": "Cooking consumes one fuel source automatically: coal, logs, then sticks.",
   "ui.recipeBook.resetFilterAction": "Reset filter",
+  "ui.recipeBook.showMoreAction": "Show {count} more",
   "ui.recipeBook.siteLabel": "Site: {site}",
   "ui.recipeBook.smeltAction": "Smelt",
   "ui.recipeBook.tooltip.fuelRequirement": "Fuel source: {options}",

@@ -1,4 +1,5 @@
 import {
+  startTransition,
   useEffect,
   useMemo,
   useState,
@@ -24,6 +25,7 @@ import {
 import styles from './styles.module.scss';
 
 const RECIPE_BOOK_TAB_ORDER = [Skill.Cooking, Skill.Smelting, Skill.Crafting];
+const RECIPE_BOOK_BATCH_SIZE = 40;
 
 type RecipeBookWindowContentProps = Pick<
   RecipeBookWindowProps,
@@ -62,11 +64,18 @@ export function RecipeBookWindowContent({
   const [activeSkill, setActiveSkill] = useState<Skill>(
     visibleTabs[0] ?? Skill.Cooking,
   );
+  const [visibleRecipeCount, setVisibleRecipeCount] = useState(
+    RECIPE_BOOK_BATCH_SIZE,
+  );
 
   useEffect(() => {
     if (visibleTabs.includes(activeSkill)) return;
     setActiveSkill(visibleTabs[0] ?? Skill.Cooking);
   }, [activeSkill, visibleTabs]);
+
+  useEffect(() => {
+    setVisibleRecipeCount(RECIPE_BOOK_BATCH_SIZE);
+  }, [activeSkill, materialFilterItemKey]);
 
   const visibleRecipes = useMemo(
     () =>
@@ -91,6 +100,11 @@ export function RecipeBookWindowContent({
       materialFilterItemKey,
       recipes,
     ],
+  );
+  const renderedRecipes = visibleRecipes.slice(0, visibleRecipeCount);
+  const hiddenRecipeCount = Math.max(
+    0,
+    visibleRecipes.length - renderedRecipes.length,
   );
   const filterItemName = materialFilterItemKey
     ? (getItemConfigByKey(materialFilterItemKey)?.name ?? materialFilterItemKey)
@@ -120,107 +134,129 @@ export function RecipeBookWindowContent({
               : t('ui.recipeBook.empty')}
           </div>
         ) : (
-          <div className={styles.list}>
-            {visibleRecipes.map((recipe) => {
-              const recipeOutput = getRecipeOutput(
-                recipe,
-                recipeSkillLevels[recipe.skill] ?? 1,
-              );
-              const requiredStructure = getRecipeRequiredStructure(recipe);
-              const requiredStructureLabel =
-                getStructureConfig(requiredStructure).title;
-              const atRequiredStructure =
-                currentStructure === requiredStructure;
-              const canCraft = canCraftRecipeEntry(recipe, {
-                currentStructure,
-                inventoryCountsByItemKey,
-              });
-              const tintOverride = getRecipeSlotTint(recipe, canCraft);
-              const tooltipLines = recipe.learned
-                ? buildRecipeTooltipLines(
-                    recipe,
-                    inventoryCountsByItemKey,
-                    requiredStructureLabel,
-                    atRequiredStructure,
-                  )
-                : undefined;
+          <>
+            <div className={styles.list}>
+              {renderedRecipes.map((recipe) => {
+                const recipeOutput = getRecipeOutput(
+                  recipe,
+                  recipeSkillLevels[recipe.skill] ?? 1,
+                );
+                const requiredStructure = getRecipeRequiredStructure(recipe);
+                const requiredStructureLabel =
+                  getStructureConfig(requiredStructure).title;
+                const atRequiredStructure =
+                  currentStructure === requiredStructure;
+                const canCraft = canCraftRecipeEntry(recipe, {
+                  currentStructure,
+                  inventoryCountsByItemKey,
+                });
+                const tintOverride = getRecipeSlotTint(recipe, canCraft);
+                const tooltipLines = recipe.learned
+                  ? buildRecipeTooltipLines(
+                      recipe,
+                      inventoryCountsByItemKey,
+                      requiredStructureLabel,
+                      atRequiredStructure,
+                    )
+                  : undefined;
 
-              return (
-                <div
-                  key={recipe.id}
-                  className={[
-                    styles.entry,
-                    recipe.learned ? '' : styles.entryDisabled,
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                >
-                  <ItemSlotButton
-                    item={recipeOutput}
-                    size="compact"
-                    disabled={!recipe.learned}
-                    tintOverride={tintOverride}
-                    onClick={canCraft ? () => onCraft(recipe.id) : undefined}
-                    onMouseEnter={
-                      recipe.learned
-                        ? (event) =>
-                            onHoverDetail?.(
-                              event,
-                              recipe.name,
-                              tooltipLines ?? [],
-                              tintOverride,
-                            )
-                        : undefined
-                    }
-                    onMouseLeave={recipe.learned ? onLeaveDetail : undefined}
-                  />
-                  <div className={styles.meta}>
-                    <div className={styles.titleRow}>
-                      <span className={styles.title}>{recipe.name}</span>
-                    </div>
-                    <div className={styles.description}>
-                      {recipe.description}
-                    </div>
-                    <div className={styles.site}>
-                      {t('ui.recipeBook.siteLabel', {
-                        site: requiredStructureLabel,
-                      })}
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={(event) =>
-                      onCraft(recipe.id, getRecipeCraftCount(event))
-                    }
-                    onMouseEnter={(event) =>
-                      onHoverDetail?.(
-                        event,
-                        t('ui.recipeBook.tooltip.batchCraftTitle'),
-                        [
-                          {
-                            kind: 'text',
-                            text: t('ui.recipeBook.tooltip.batchCraftShift'),
-                          },
-                          {
-                            kind: 'text',
-                            text: t('ui.recipeBook.tooltip.batchCraftCtrl'),
-                          },
-                        ],
-                      )
-                    }
-                    onMouseLeave={onLeaveDetail}
-                    disabled={!canCraft}
+                return (
+                  <div
+                    key={recipe.id}
+                    className={[
+                      styles.entry,
+                      recipe.learned ? '' : styles.entryDisabled,
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
                   >
-                    {recipe.skill === Skill.Cooking
-                      ? t('ui.recipeBook.cookAction')
-                      : recipe.skill === Skill.Smelting
-                        ? t('ui.recipeBook.smeltAction')
-                        : t('ui.recipeBook.craftAction')}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+                    <ItemSlotButton
+                      item={recipeOutput}
+                      size="compact"
+                      disabled={!recipe.learned}
+                      tintOverride={tintOverride}
+                      onClick={canCraft ? () => onCraft(recipe.id) : undefined}
+                      onMouseEnter={
+                        recipe.learned
+                          ? (event) =>
+                              onHoverDetail?.(
+                                event,
+                                recipe.name,
+                                tooltipLines ?? [],
+                                tintOverride,
+                              )
+                          : undefined
+                      }
+                      onMouseLeave={recipe.learned ? onLeaveDetail : undefined}
+                    />
+                    <div className={styles.meta}>
+                      <div className={styles.titleRow}>
+                        <span className={styles.title}>{recipe.name}</span>
+                      </div>
+                      <div className={styles.description}>
+                        {recipe.description}
+                      </div>
+                      <div className={styles.site}>
+                        {t('ui.recipeBook.siteLabel', {
+                          site: requiredStructureLabel,
+                        })}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(event) =>
+                        onCraft(recipe.id, getRecipeCraftCount(event))
+                      }
+                      onMouseEnter={(event) =>
+                        onHoverDetail?.(
+                          event,
+                          t('ui.recipeBook.tooltip.batchCraftTitle'),
+                          [
+                            {
+                              kind: 'text',
+                              text: t('ui.recipeBook.tooltip.batchCraftShift'),
+                            },
+                            {
+                              kind: 'text',
+                              text: t('ui.recipeBook.tooltip.batchCraftCtrl'),
+                            },
+                          ],
+                        )
+                      }
+                      onMouseLeave={onLeaveDetail}
+                      disabled={!canCraft}
+                    >
+                      {recipe.skill === Skill.Cooking
+                        ? t('ui.recipeBook.cookAction')
+                        : recipe.skill === Skill.Smelting
+                          ? t('ui.recipeBook.smeltAction')
+                          : t('ui.recipeBook.craftAction')}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+            {hiddenRecipeCount > 0 ? (
+              <button
+                type="button"
+                className={styles.loadMoreButton}
+                onClick={() =>
+                  startTransition(() => {
+                    setVisibleRecipeCount((current) =>
+                      Math.min(
+                        current + RECIPE_BOOK_BATCH_SIZE,
+                        visibleRecipes.length,
+                      ),
+                    );
+                  })
+                }
+              >
+                {t('ui.recipeBook.showMoreAction', {
+                  count: Math.min(RECIPE_BOOK_BATCH_SIZE, hiddenRecipeCount),
+                })}
+              </button>
+            ) : null}
+          </>
         )}
       </div>
       <div className={styles.tabs} role="tablist">

@@ -918,6 +918,90 @@ describe('ui helpers and components', () => {
     host.remove();
   });
 
+  it('reveals large recipe lists in batches', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+
+    await act(async () => {
+      root.render(
+        <RecipeBookWindow
+          position={DEFAULT_WINDOWS.recipes}
+          onMove={() => {}}
+          currentStructure="workshop"
+          recipeSkillLevels={{
+            [Skill.Gathering]: 1,
+            [Skill.Logging]: 1,
+            [Skill.Mining]: 1,
+            [Skill.Skinning]: 1,
+            [Skill.Fishing]: 1,
+            [Skill.Cooking]: 1,
+            [Skill.Smelting]: 1,
+            [Skill.Crafting]: 1,
+          }}
+          recipes={Array.from({ length: 45 }, (_, index) => ({
+            id: `craft-batch-${index + 1}`,
+            name: `Recipe ${index + 1}`,
+            description: 'Workshop recipe',
+            skill: Skill.Crafting,
+            learned: true,
+            output: {
+              id: `crafted-batch-${index + 1}`,
+              itemKey: 'town-knife',
+              name: `Recipe ${index + 1}`,
+              quantity: 1,
+              tier: 1,
+              rarity: 'common' as const,
+              power: 1,
+              defense: 0,
+              maxHp: 0,
+              healing: 0,
+              hunger: 0,
+            },
+            ingredients: [],
+          }))}
+          inventoryCountsByItemKey={{}}
+          materialFilterItemKey={null}
+          onResetMaterialFilter={() => {}}
+          onCraft={() => {}}
+        />,
+      );
+    });
+
+    await act(async () => {
+      await vi.dynamicImportSettled();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(
+      Array.from(host.querySelectorAll('span')).filter((node) =>
+        node.textContent?.startsWith('Recipe '),
+      ),
+    ).toHaveLength(40);
+
+    const loadMoreButton = Array.from(host.querySelectorAll('button')).find(
+      (button) => button.textContent?.includes('Show 5 more'),
+    );
+
+    expect(loadMoreButton).toBeDefined();
+
+    await act(async () => {
+      loadMoreButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    expect(
+      Array.from(host.querySelectorAll('span')).filter((node) =>
+        node.textContent?.startsWith('Recipe '),
+      ),
+    ).toHaveLength(45);
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
   it('renders learned crafting recipe slots with a fixed white tint', async () => {
     const host = document.createElement('div');
     document.body.appendChild(host);
