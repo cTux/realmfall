@@ -35,6 +35,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Deferred window-content imports retry indefinitely when a bundle fails to load, keeping the rest of the game interactive while the affected window shell stays mounted on its loading fallback. This is expected browser-delivery behavior for optional window bundles, not an accidental retry loop.
 - Window loading fallbacks keep the spinner visible and add delayed explanatory copy when the deferred content is still unavailable after several seconds.
 - The newest log entry types in using chunked steps on a reduced timer cadence so the flavor animation stays visible without turning each character into its own React update.
+- The log window caches parsed timestamp and message metadata by log entry object and keeps the typing animation state inside the animated newest row, so appending a log does not force older rows to reparse or the full list to tick on every typing step.
 - The recipe book keeps large result sets behind explicit batch growth, and combat card view models snap to a short visual time step before rebuilding cooldown or cast-bar data, reducing avoidable window rerenders.
 
 ## Main Implementation Areas

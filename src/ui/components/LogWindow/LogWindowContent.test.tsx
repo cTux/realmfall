@@ -1,5 +1,6 @@
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
+import * as timeOfDay from '../../world/timeOfDay';
 import { LogWindowContent } from './LogWindowContent';
 
 describe('LogWindowContent', () => {
@@ -28,6 +29,7 @@ describe('LogWindowContent', () => {
       root.unmount();
     });
     host.remove();
+    vi.restoreAllMocks();
   });
 
   it('reveals the newest log entry in larger chunks before completing', async () => {
@@ -136,5 +138,33 @@ describe('LogWindowContent', () => {
     });
 
     expect(onLeaveDetail).toHaveBeenCalled();
+  });
+
+  it('reuses parsed metadata for unchanged log entries across rerenders', async () => {
+    const parseSpy = vi.spyOn(timeOfDay, 'parseWorldCalendarDateTime');
+    const olderLog = {
+      id: 'log-1',
+      kind: 'system' as const,
+      text: '[Year 1, Day 1, 00:00] Hunt',
+      turn: 1,
+    };
+    const newerLog = {
+      id: 'log-2',
+      kind: 'system' as const,
+      text: '[Year 1, Day 1, 00:01] Rest',
+      turn: 2,
+    };
+
+    await act(async () => {
+      root.render(<LogWindowContent logs={[olderLog]} />);
+    });
+
+    expect(parseSpy).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      root.render(<LogWindowContent logs={[newerLog, olderLog]} />);
+    });
+
+    expect(parseSpy).toHaveBeenCalledTimes(2);
   });
 });
