@@ -6,6 +6,7 @@ import {
   hasItemTag,
   isEquippableItemCategory,
 } from './content/items';
+import { clampItemLevel, scaleMainItemStatForLevel } from './balance';
 import { getRecipeOutput } from './crafting';
 import { GAME_TAGS } from './content/tags';
 import {
@@ -165,16 +166,32 @@ function materializeCraftedRecipeOutput(
 }
 
 function scaleCraftedItemToPlayerLevel(item: Item, playerLevel: number): Item {
-  const targetTier = Math.max(1, playerLevel);
+  const targetTier = clampItemLevel(playerLevel);
   if (item.tier === targetTier) return item;
 
-  const scale = targetTier / Math.max(1, item.tier);
+  if (item.itemKey) {
+    return buildItemFromConfig(item.itemKey, {
+      id: item.id,
+      recipeId: item.recipeId,
+      locked: item.locked,
+      quantity: item.quantity,
+      tier: targetTier,
+      rarity: item.rarity,
+      icon: item.icon,
+      name: item.name,
+      tags: item.tags,
+      secondaryStatCapacity: item.secondaryStatCapacity,
+      secondaryStats: item.secondaryStats,
+      grantedAbilityId: item.grantedAbilityId,
+    });
+  }
+
   return {
     ...item,
     tier: targetTier,
-    power: Math.max(0, Math.round(item.power * scale)),
-    defense: Math.max(0, Math.round(item.defense * scale)),
-    maxHp: Math.max(0, Math.round(item.maxHp * scale)),
+    power: item.power > 0 ? scaleMainItemStatForLevel(targetTier) : 0,
+    defense: item.defense > 0 ? scaleMainItemStatForLevel(targetTier) : 0,
+    maxHp: item.maxHp > 0 ? scaleMainItemStatForLevel(targetTier) : 0,
   };
 }
 

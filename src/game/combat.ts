@@ -1,8 +1,11 @@
-import { BLOOD_MOON_STAT_SCALE, pickBloodMoonItemKind } from './config';
 import {
-  buildEnemyAbilityIds,
-  DEFAULT_ABILITY_ID,
-} from './abilityRuntime';
+  BLOOD_MOON_STAT_SCALE,
+  COMBAT_GLOBAL_COOLDOWN_MS,
+  ENEMY_RARITY_MULTIPLIERS,
+  pickBloodMoonItemKind,
+} from './config';
+import { buildEnemyAbilityIds, DEFAULT_ABILITY_ID } from './abilityRuntime';
+import { getEnemyBaseStatsForLevel } from './balance';
 import { isAnimalEnemyType, pickEnemyConfig } from './content/enemies';
 import { GAME_TAGS, uniqueTags } from './content/tags';
 import type {
@@ -23,7 +26,7 @@ import {
 import { createRng } from './random';
 import { isWorldBossEnemyId } from './worldBoss';
 
-export const DEFAULT_GLOBAL_COOLDOWN_MS = 1500;
+export const DEFAULT_GLOBAL_COOLDOWN_MS = COMBAT_GLOBAL_COOLDOWN_MS;
 export const DEFAULT_ENEMY_MANA = 100;
 export const ENEMY_RARITY_ORDER: EnemyRarity[] = [
   'common',
@@ -63,18 +66,7 @@ export function enemyRarityIndex(rarity?: EnemyRarity) {
 }
 
 export function enemyRarityMultiplier(rarity?: EnemyRarity) {
-  switch (rarity ?? 'common') {
-    case 'uncommon':
-      return 1.12;
-    case 'rare':
-      return 1.27;
-    case 'epic':
-      return 1.45;
-    case 'legendary':
-      return 1.72;
-    default:
-      return 1;
-  }
+  return ENEMY_RARITY_MULTIPLIERS[rarity ?? 'common'] ?? 1;
 }
 
 export function enemyRarityMinimum(
@@ -140,19 +132,10 @@ export function makeEnemy(
     ? pickEnemyConfig(terrain, roll, false, true)
     : pickEnemyConfig(terrain, roll, structure === 'dungeon');
   const statTier = tier + Math.floor(rarityRank / 2);
-  const baseMaxHp = Math.round(
-    (8 + tier * 6 + (structure === 'dungeon' ? 6 : 0)) * rarityMultiplier +
-      rarityRank * 2,
-  );
-  const baseAttack = Math.round(
-    (2 + tier * 2 + (structure === 'dungeon' ? 1 : 0)) * rarityMultiplier,
-  );
-  const baseDefense = Math.round(
-    Math.max(
-      1,
-      (1 + tier + (structure === 'dungeon' ? 1 : 0)) * rarityMultiplier,
-    ),
-  );
+  const baseStats = getEnemyBaseStatsForLevel(tier);
+  const baseMaxHp = Math.round(baseStats.maxHp * rarityMultiplier);
+  const baseAttack = Math.round(baseStats.attack * rarityMultiplier);
+  const baseDefense = Math.round(baseStats.defense * rarityMultiplier);
   const scaledMaxHp = worldBoss ? baseMaxHp * 50 : baseMaxHp;
   const scaledAttack = worldBoss ? baseAttack * 5 : baseAttack;
   const scaledDefense = worldBoss

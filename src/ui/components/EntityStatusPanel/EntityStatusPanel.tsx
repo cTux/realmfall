@@ -10,6 +10,8 @@ interface EntityStatusBar {
   max: number;
   tone: 'hp' | 'mana' | 'xp' | 'hunger' | 'thirst' | 'cast';
   description: string;
+  tooltipTitle?: string;
+  tooltipLines?: TooltipLine[];
   text?: string;
   reserved?: boolean;
 }
@@ -58,7 +60,10 @@ export function EntityStatusPanel({
 
   return (
     <div className={[styles.panel, className ?? ''].filter(Boolean).join(' ')}>
-      <div className={`${styles.iconRow} ${styles.topRow}`} aria-hidden={debuffs.length === 0}>
+      <div
+        className={`${styles.iconRow} ${styles.topRow}`}
+        aria-hidden={debuffs.length === 0}
+      >
         {debuffs.map((icon) => (
           <StatusIcon
             key={icon.id}
@@ -134,7 +139,10 @@ function StatusBar({
   showPrimaryLabel?: boolean;
   showPrimaryTitle?: boolean;
 }) {
-  const width = Math.max(0, Math.min(100, (bar.value / Math.max(1, bar.max)) * 100));
+  const width = Math.max(
+    0,
+    Math.min(100, (bar.value / Math.max(1, bar.max)) * 100),
+  );
   const valueText = `${formatCompactNumber(bar.value)}/${formatCompactNumber(bar.max)}`;
 
   return (
@@ -148,8 +156,8 @@ function StatusBar({
           : (event) =>
               onHoverDetail?.(
                 event,
-                bar.label,
-                [{ kind: 'text', text: bar.description }],
+                bar.tooltipTitle ?? bar.label,
+                bar.tooltipLines ?? [{ kind: 'text', text: bar.description }],
                 toneBorderColor(bar.tone),
               )
       }
@@ -208,7 +216,9 @@ function StatusIcon({
     <button
       type="button"
       className={`${styles.iconButton} ${
-        icon.cooldownRatio && icon.cooldownRatio > 0 ? styles.iconButtonDisabled : ''
+        icon.cooldownRatio && icon.cooldownRatio > 0
+          ? styles.iconButtonDisabled
+          : ''
       }`}
       aria-label={icon.label}
       style={{ borderColor: icon.borderColor }}

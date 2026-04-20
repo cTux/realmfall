@@ -30,7 +30,10 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - Filtered log viewing is part of the current gameplay readability loop.
 - Large recipe lists reveal additional rows in explicit batches instead of mounting the whole matching catalog at once.
 - Current and maximum value bars surface their meaning through the shared tooltip system.
-- The character info window currently focuses on shared combat-style resource bars and no longer lists the full derived combat stat sheet inline.
+- Hovering a non-player combat entity's HP bar now opens a stat sheet tooltip with that entity's current combat stats.
+- The character info window now surfaces primary and secondary stat sections beneath the shared combat-style resource bars.
+- The character info window now uses the shared resizable shell and scrolls its content inside the window body when the stat list outgrows the current size.
+- Overcapped secondary bonuses render their effective total plus the preserved raw total so capped values remain readable in the character info window.
 - Log entries show a compact `HH:MM` timestamp in the visible list, while hover reveals the full calendar timestamp using the shared world-calendar formatter.
 
 ## Main Implementation Areas

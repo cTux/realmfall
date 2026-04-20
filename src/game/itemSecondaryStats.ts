@@ -6,6 +6,10 @@ import type {
   SecondaryStatKey,
 } from './types';
 import type { ItemConfig } from './content/types';
+import {
+  scaleMainItemStatForLevel,
+  scaleSecondaryItemStatForLevel,
+} from './balance';
 
 export const DEFAULT_CRITICAL_STRIKE_CHANCE = 5;
 export const DEFAULT_CRITICAL_STRIKE_DAMAGE = 150;
@@ -42,6 +46,15 @@ export const STANDARD_SECONDARY_STAT_KEYS: SecondaryStatKey[] = [
   'suppressDamageChance',
   'suppressDamageReduction',
   'suppressDebuffChance',
+];
+
+// These stats are rolled as raw magnitude bonuses instead of proc-chance bonuses,
+// but they keep the same item-level anchors: level 1 => 1, level 100 => 10.
+export const NON_CHANCE_BASED_SECONDARY_STAT_KEYS: SecondaryStatKey[] = [
+  'attackSpeed',
+  'criticalStrikeDamage',
+  'lifestealAmount',
+  'suppressDamageReduction',
 ];
 
 const ALL_SECONDARY_STAT_KEYS = [
@@ -136,7 +149,6 @@ export function buildGeneratedMainStats(
       generatedStats.basePower,
       generatedStats.powerPerTier,
       selectedRandomStats,
-      nextRoll,
     ),
     defense: buildGeneratedMainStatValue(
       'defense',
@@ -144,7 +156,6 @@ export function buildGeneratedMainStats(
       generatedStats.baseDefense,
       generatedStats.defensePerTier,
       selectedRandomStats,
-      nextRoll,
     ),
     maxHp: buildGeneratedMainStatValue(
       'maxHp',
@@ -152,7 +163,6 @@ export function buildGeneratedMainStats(
       generatedStats.baseMaxHp,
       generatedStats.maxHpPerTier,
       selectedRandomStats,
-      nextRoll,
     ),
   };
 }
@@ -163,7 +173,11 @@ export function buildGeneratedSecondaryStats(
 ) {
   const secondarySlotRule = SECONDARY_STAT_SLOT_COUNTS[context.rarity];
   const defaultBlockChance = hasDefaultBlockChance(context.config)
-    ? buildDefaultBlockChanceSecondaryStat(context.tier, context.rarity, nextRoll)
+    ? buildDefaultBlockChanceSecondaryStat(
+        context.tier,
+        context.rarity,
+        nextRoll,
+      )
     : null;
   const capacity = Math.max(
     secondarySlotRule.capacity,
@@ -183,9 +197,13 @@ export function buildGeneratedSecondaryStats(
       : secondarySlotRule.minGenerated +
         Math.floor(
           nextRoll() *
-            (secondarySlotRule.maxGenerated - secondarySlotRule.minGenerated + 1),
+            (secondarySlotRule.maxGenerated -
+              secondarySlotRule.minGenerated +
+              1),
         );
-  const stats: ItemSecondaryStat[] = defaultBlockChance ? [defaultBlockChance] : [];
+  const stats: ItemSecondaryStat[] = defaultBlockChance
+    ? [defaultBlockChance]
+    : [];
   const targetCount = Math.min(capacity, Math.max(stats.length, rolledCount));
   const availableKeys = [...ALL_SECONDARY_STAT_KEYS].filter(
     (key) => key !== 'blockChance' && !stats.some((stat) => stat.key === key),
@@ -258,17 +276,11 @@ function buildGeneratedMainStatValue(
   baseValue = 0,
   perTier = 0,
   selectedRandomStats: Set<MainItemStatKey>,
-  nextRoll: () => number,
 ) {
-  const rawValue = Math.max(0, Math.round(baseValue + perTier * tier));
-  if (rawValue === 0) return 0;
+  const configured = baseValue > 0 || perTier > 0;
+  if (!configured) return 0;
   if (selectedRandomStats.size > 0 && !selectedRandomStats.has(key)) return 0;
-  return applyStatVariance(rawValue, nextRoll);
-}
-
-function applyStatVariance(value: number, nextRoll: () => number) {
-  if (value <= 0) return 0;
-  return Math.max(1, Math.round(value * (0.9 + nextRoll() * 0.2)));
+  return scaleMainItemStatForLevel(tier);
 }
 
 function pickSecondaryStatKey(
@@ -293,72 +305,21 @@ function pickSecondaryStatKey(
 function buildSecondaryStat(
   key: SecondaryStatKey,
   tier: number,
-  rarity: ItemRarity,
-  nextRoll: () => number,
+  _rarity: ItemRarity,
+  _nextRoll: () => number,
 ): ItemSecondaryStat {
-  const rarityRank = ['common', 'uncommon', 'rare', 'epic', 'legendary'].indexOf(
-    rarity,
-  );
-  const min = secondaryStatRange(key, tier, rarityRank).min;
-  const max = secondaryStatRange(key, tier, rarityRank).max;
-
   return {
     key,
-    value:
-      min >= max ? min : min + Math.floor(nextRoll() * Math.max(1, max - min + 1)),
+    value: buildSecondaryStatValue(key, tier),
   };
 }
 
-function secondaryStatRange(
-  key: SecondaryStatKey,
-  tier: number,
-  rarityRank: number,
-) {
-  switch (key) {
-    case 'attackSpeed':
-    case 'criticalStrikeChance':
-    case 'lifestealChance':
-    case 'dodgeChance':
-    case 'suppressDebuffChance':
-      return {
-        min: 2 + rarityRank,
-        max: 4 + rarityRank + Math.max(1, Math.floor(tier / 2)),
-      };
-    case 'criticalStrikeDamage':
-      return {
-        min: 10 + rarityRank * 3,
-        max: 16 + rarityRank * 5 + tier,
-      };
-    case 'lifestealAmount':
-      return {
-        min: 1,
-        max: 2 + rarityRank + Math.max(0, Math.floor(tier / 4)),
-      };
-    case 'blockChance':
-      return {
-        min: 6 + rarityRank * 2,
-        max: 10 + rarityRank * 3 + Math.max(0, Math.floor(tier / 3)),
-      };
-    case 'suppressDamageChance':
-      return {
-        min: 4 + rarityRank,
-        max: 8 + rarityRank * 2 + Math.max(0, Math.floor(tier / 3)),
-      };
-    case 'suppressDamageReduction':
-      return {
-        min: 5 + rarityRank * 2,
-        max: 10 + rarityRank * 4 + Math.max(0, Math.floor(tier / 3)),
-      };
-    case 'bleedChance':
-    case 'poisonChance':
-    case 'burningChance':
-    case 'chillingChance':
-    case 'powerBuffChance':
-    case 'frenzyBuffChance':
-      return {
-        min: 5 + rarityRank * 2,
-        max: 10 + rarityRank * 4 + Math.max(0, Math.floor(tier / 2)),
-      };
-  }
-}
+function buildSecondaryStatValue(key: SecondaryStatKey, tier: number) {
+  const scaledValue = scaleSecondaryItemStatForLevel(tier);
 
+  if (NON_CHANCE_BASED_SECONDARY_STAT_KEYS.includes(key)) {
+    return scaledValue;
+  }
+
+  return scaledValue;
+}

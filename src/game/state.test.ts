@@ -998,8 +998,8 @@ describe('game state', () => {
       name: 'Training Dummy',
       coord: target,
       tier: 1,
-      hp: 50,
-      maxHp: 50,
+      hp: 200,
+      maxHp: 200,
       attack: 0,
       defense: 0,
       xp: 0,
@@ -1011,7 +1011,7 @@ describe('game state', () => {
     const firstCast = startCombat(encountered);
     const secondCastTooEarly = progressCombat(firstCast);
 
-    expect(secondCastTooEarly.enemies['enemy-2,0-0']?.hp).toBe(46);
+    expect(secondCastTooEarly.enemies['enemy-2,0-0']?.hp).toBe(150);
     expect(
       secondCastTooEarly.logs.filter((entry) =>
         /you kick the/i.test(entry.text),
@@ -1023,14 +1023,14 @@ describe('game state', () => {
       worldTimeMs: 1000,
     });
 
-    expect(afterAbilityCooldown.enemies['enemy-2,0-0']?.hp).toBe(46);
+    expect(afterAbilityCooldown.enemies['enemy-2,0-0']?.hp).toBe(150);
 
     const afterGlobalCooldown = progressCombat({
       ...firstCast,
-      worldTimeMs: 1500,
+      worldTimeMs: 2000,
     });
 
-    expect(afterGlobalCooldown.enemies['enemy-2,0-0']?.hp).toBe(42);
+    expect(afterGlobalCooldown.enemies['enemy-2,0-0']?.hp).toBe(100);
   });
 
   it('slows player cooldowns when thirst applies the debuff', () => {
@@ -1048,8 +1048,8 @@ describe('game state', () => {
       name: 'Training Dummy',
       coord: target,
       tier: 1,
-      hp: 50,
-      maxHp: 50,
+      hp: 200,
+      maxHp: 200,
       attack: 0,
       defense: 0,
       xp: 0,
@@ -1061,22 +1061,22 @@ describe('game state', () => {
     const encountered = moveToTile(game, target);
     const firstCast = startCombat(encountered);
 
-    expect(firstCast.combat?.player.effectiveGlobalCooldownMs).toBe(1875);
+    expect(firstCast.combat?.player.effectiveGlobalCooldownMs).toBe(2500);
     expect(firstCast.combat?.player.effectiveCooldownMs?.kick).toBe(1250);
 
     const afterBaseAbilityCooldown = progressCombat({
       ...firstCast,
-      worldTimeMs: 1500,
+      worldTimeMs: 2000,
     });
 
-    expect(afterBaseAbilityCooldown.enemies['enemy-2,0-0']?.hp).toBe(46);
+    expect(afterBaseAbilityCooldown.enemies['enemy-2,0-0']?.hp).toBe(150);
 
     const afterScaledCooldown = progressCombat({
       ...firstCast,
-      worldTimeMs: 1875,
+      worldTimeMs: 2500,
     });
 
-    expect(afterScaledCooldown.enemies['enemy-2,0-0']?.hp).toBe(42);
+    expect(afterScaledCooldown.enemies['enemy-2,0-0']?.hp).toBe(100);
   });
 
   it('lets enemies cast Kick on their own cooldown loop', () => {
@@ -1094,9 +1094,9 @@ describe('game state', () => {
       name: 'Wolf',
       coord: target,
       tier: 1,
-      hp: 8,
-      maxHp: 8,
-      attack: 2,
+      hp: 200,
+      maxHp: 200,
+      attack: 40,
       defense: 0,
       xp: 1,
       elite: false,
@@ -1104,19 +1104,23 @@ describe('game state', () => {
     game.player.coord = { q: 1, r: 0 };
 
     const encountered = moveToTile(game, target);
-    const firstTick = progressCombat(startCombat(encountered));
+    const started = startCombat(encountered);
+    const firstTick = progressCombat(started);
 
-    expect(firstTick.player.hp).toBe(29);
+    expect(started.player.hp).toBeLessThan(
+      getPlayerStats(started.player).maxHp,
+    );
+    expect(firstTick.player.hp).toBe(started.player.hp);
 
     const beforeSecondKick = progressCombat({
       ...firstTick,
       worldTimeMs: 1000,
     });
-    expect(beforeSecondKick.player.hp).toBe(29);
+    expect(beforeSecondKick.player.hp).toBe(firstTick.player.hp);
 
-    const afterSecondKick = progressCombat({ ...firstTick, worldTimeMs: 1500 });
-    expect(afterSecondKick.player.hp).toBe(29);
-    expect(afterSecondKick.combat).toBeNull();
+    const afterSecondKick = progressCombat({ ...firstTick, worldTimeMs: 2000 });
+    expect(afterSecondKick.player.hp).toBeLessThan(firstTick.player.hp);
+    expect(afterSecondKick.combat).not.toBeNull();
   });
 
   it('applies random-enemy status effects to the same enemy that takes the hit', () => {
@@ -1134,8 +1138,8 @@ describe('game state', () => {
       name: 'Training Dummy A',
       coord: target,
       tier: 1,
-      hp: 30,
-      maxHp: 30,
+      hp: 100,
+      maxHp: 100,
       attack: 0,
       defense: 0,
       xp: 0,
@@ -1146,8 +1150,8 @@ describe('game state', () => {
       name: 'Training Dummy B',
       coord: target,
       tier: 1,
-      hp: 30,
-      maxHp: 30,
+      hp: 100,
+      maxHp: 100,
       attack: 0,
       defense: 0,
       xp: 0,
@@ -1260,9 +1264,9 @@ describe('game state', () => {
         (effect) => effect.id === 'weakened',
       ),
     ).toBe(true);
-    expect(statusLog?.richText?.some((segment) => segment.kind === 'entity')).toBe(
-      false,
-    );
+    expect(
+      statusLog?.richText?.some((segment) => segment.kind === 'entity'),
+    ).toBe(false);
     expect(statusLog?.richText).toEqual([
       { kind: 'text', text: 'You apply ' },
       {
@@ -1307,9 +1311,9 @@ describe('game state', () => {
       name: 'Wolf',
       coord: target,
       tier: 1,
-      hp: 20,
-      maxHp: 20,
-      attack: 50,
+      hp: 200,
+      maxHp: 200,
+      attack: 60,
       defense: 0,
       xp: 1,
       elite: false,
@@ -2318,7 +2322,7 @@ describe('game state', () => {
     game.player.mana = 8;
 
     const healed = useItem(game, 'health-potion-1');
-    expect(healed.player.hp).toBe(28);
+    expect(healed.player.hp).toBe(40);
     expect(
       healed.player.inventory.find((item) => item.id === 'health-potion-1'),
     ).toBeUndefined();
@@ -3031,9 +3035,9 @@ describe('game state', () => {
       name: 'Wolf',
       coord: target,
       tier: 1,
-      hp: 20,
-      maxHp: 20,
-      attack: 2,
+      hp: 200,
+      maxHp: 200,
+      attack: 40,
       defense: 0,
       xp: 5,
       elite: false,
@@ -3043,9 +3047,9 @@ describe('game state', () => {
       name: 'Wolf',
       coord: target,
       tier: 1,
-      hp: 20,
-      maxHp: 20,
-      attack: 3,
+      hp: 200,
+      maxHp: 200,
+      attack: 41,
       defense: 0,
       xp: 5,
       elite: false,
@@ -3056,7 +3060,14 @@ describe('game state', () => {
     const resolvedRound = startCombat(encountered);
 
     expect(resolvedRound.combat?.enemyIds).toHaveLength(2);
-    expect(resolvedRound.player.hp).toBe(27);
+    expect(
+      resolvedRound.logs.filter((entry) =>
+        /the wolf kicks you/i.test(entry.text),
+      ),
+    ).toHaveLength(2);
+    expect(resolvedRound.player.hp).toBeLessThan(
+      getPlayerStats(resolvedRound.player).maxHp,
+    );
   });
 
   it('caps the log at 100 messages', () => {
@@ -3161,7 +3172,7 @@ describe('game state', () => {
     expect(resolved.player.level).toBe(2);
     expect(resolved.player.hp).toBe(9);
     expect(resolved.player.mana).toBe(4);
-    expect(stats.maxHp).toBe(36);
+    expect(stats.maxHp).toBe(189);
     expect(stats.maxMana).toBe(14);
   });
 
@@ -3432,7 +3443,6 @@ describe('game state', () => {
     expect(hoodIds).toHaveLength(2);
     expect(new Set(hoodIds).size).toBe(2);
   });
-
 });
 
 function findEnemy(

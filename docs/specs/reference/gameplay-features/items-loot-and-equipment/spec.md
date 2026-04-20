@@ -13,7 +13,12 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - Stackable items consolidate in inventory when they share stack identity derived from canonical item identity.
 - The player can equip gear into dedicated slots including weapon, offhand, head, shoulders, chest, bracers, hands, belt, legs, feet, rings, amulet, and cloak.
 - Equipped gear modifies derived player stats such as attack, defense, and max HP.
+- Item tiers are capped at `100`.
+- Enabled equippable main-stat channels now scale from `+1` at item level `1` to `+1000` at item level `100`.
+- Chance-based generated secondary stat rolls now scale from `+1%` at item level `1` to `+10%` at item level `100`.
+- Non-chance generated secondary stat rolls now scale from `+1` at item level `1` to `+10` at item level `100`.
 - Battle resolution respects equippable main stats and combat-facing secondary stats, including attack speed, critical strikes, lifesteal, dodge, block, damage suppression, debuff suppression, and status or self-buff proc chances from equipped gear.
+- Gear-derived secondary bonuses now cap at `75%`, while raw totals are preserved for overcap display in the hero window.
 - Equipping can swap currently equipped gear back into inventory.
 - Two-handed weapons occupy the weapon slot, automatically clear the equipped offhand item back into inventory, and prevent equipping a new offhand item until the weapon is removed.
 - A new game now starts with a `Town Knife` and `Settler Vest`; removed placeholder gear is not preserved through runtime display-name fallbacks.

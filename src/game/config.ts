@@ -1,14 +1,58 @@
 import rawGameConfig from '../../game.config.json';
 
-import type {
-  GatheringStructureType,
-  ItemRarity,
-  Terrain,
-} from './types';
+import type { GatheringStructureType, ItemRarity, Terrain } from './types';
 
 type WeightedChanceMap<T extends string> = Record<T, number>;
 
 interface GameChanceConfig {
+  balance: {
+    combat: {
+      globalCooldownMs: number;
+    };
+    player: {
+      maxLevel: number;
+      baseStats: {
+        level1: {
+          maxHp: number;
+          attack: number;
+          defense: number;
+        };
+        level100: {
+          maxHp: number;
+          attack: number;
+          defense: number;
+        };
+      };
+    };
+    enemy: {
+      baseStats: {
+        level1: {
+          maxHp: number;
+          attack: number;
+          defense: number;
+        };
+        level100: {
+          maxHp: number;
+          attack: number;
+          defense: number;
+        };
+      };
+      postLevel100PerLevel: number;
+      rarityMultiplier: Record<ItemRarity, number>;
+    };
+    items: {
+      maxLevel: number;
+      baseStat: {
+        level1: number;
+        level100: number;
+      };
+      secondaryStat: {
+        level1: number;
+        level100: number;
+        cap: number;
+      };
+    };
+  };
   progression: {
     gatheringBonus: {
       perLevel: number;
@@ -108,9 +152,23 @@ export const DAYLIGHT_START = 420;
 export const MOONRISE_START = 1080;
 export const MOONRISE_END = 1200;
 
-export const MAX_PLAYER_LEVEL = 100;
+export const COMBAT_GLOBAL_COOLDOWN_MS =
+  GAME_CONFIG.balance.combat.globalCooldownMs;
+export const MAX_PLAYER_LEVEL = GAME_CONFIG.balance.player.maxLevel;
+export const MAX_ITEM_LEVEL = GAME_CONFIG.balance.items.maxLevel;
 export const STARTING_RECIPE_IDS = ['cook-cooked-fish'] as const;
 export const HOME_SCROLL_ITEM_NAME_KEY = 'game.item.home-scroll.name';
+
+export const PLAYER_BASE_STATS = GAME_CONFIG.balance.player.baseStats;
+export const ENEMY_BASE_STATS = GAME_CONFIG.balance.enemy.baseStats;
+export const ENEMY_POST_LEVEL_100_PER_LEVEL =
+  GAME_CONFIG.balance.enemy.postLevel100PerLevel;
+export const ENEMY_RARITY_MULTIPLIERS =
+  GAME_CONFIG.balance.enemy.rarityMultiplier;
+export const ITEM_BASE_STAT_RANGE = GAME_CONFIG.balance.items.baseStat;
+export const ITEM_SECONDARY_STAT_RANGE =
+  GAME_CONFIG.balance.items.secondaryStat;
+export const SECONDARY_STAT_CAP = GAME_CONFIG.balance.items.secondaryStat.cap;
 
 export const TOWN_SEARCH_LIMIT = 24;
 
@@ -128,8 +186,7 @@ export const GATHERING_BONUS_PER_LEVEL =
   GAME_CONFIG.progression.gatheringBonus.perLevel;
 export const GATHERING_BONUS_MAX = GAME_CONFIG.progression.gatheringBonus.max;
 
-export const BASE_CASCADING_RARITY_CHANCES =
-  GAME_CONFIG.progression.itemRarity;
+export const BASE_CASCADING_RARITY_CHANCES = GAME_CONFIG.progression.itemRarity;
 
 export const TERRAIN_CHANCES = GAME_CONFIG.worldGeneration.terrain;
 export const WORLD_ENEMY_SPAWN_CHANCE =

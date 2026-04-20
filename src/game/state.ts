@@ -96,6 +96,7 @@ import {
   sellValue,
   spendGold,
 } from './inventory';
+import { getPlayerBaseStatsForLevel } from './balance';
 import {
   DEFAULT_CRITICAL_STRIKE_CHANCE,
   DEFAULT_CRITICAL_STRIKE_DAMAGE,
@@ -242,6 +243,7 @@ export function createGame(
   radius = WORLD_RADIUS,
   seed = `world-${Date.now()}`,
 ): GameState {
+  const baseStats = getPlayerBaseStatsForLevel(1);
   const state: GameState = {
     seed,
     radius,
@@ -267,14 +269,14 @@ export function createGame(
       level: 1,
       masteryLevel: 0,
       xp: 0,
-      hp: 30,
-      baseMaxHp: 30,
+      hp: baseStats.maxHp,
+      baseMaxHp: baseStats.maxHp,
       mana: 12,
       baseMaxMana: 12,
       hunger: 100,
       thirst: 100,
-      baseAttack: 4,
-      baseDefense: 1,
+      baseAttack: baseStats.attack,
+      baseDefense: baseStats.defense,
       skills: makeStartingSkills(),
       learnedRecipeIds: [...STARTING_RECIPE_IDS],
       statusEffects: [],
@@ -336,7 +338,12 @@ export function moveToTile(state: GameState, target: HexCoord): GameState {
 
   const hostileEnemyIds = getHostileEnemyIds(next, target);
   if (hostileEnemyIds.length > 0) {
-    next.combat = createCombatState(next, target, hostileEnemyIds, next.worldTimeMs);
+    next.combat = createCombatState(
+      next,
+      target,
+      hostileEnemyIds,
+      next.worldTimeMs,
+    );
     addLog(
       next,
       'combat',
@@ -722,10 +729,7 @@ function createCombatState(
     enemies: Object.fromEntries(
       enemyIds.map((enemyId) => [
         enemyId,
-        createCombatActorState(
-          worldTimeMs,
-          state.enemies[enemyId]?.abilityIds,
-        ),
+        createCombatActorState(worldTimeMs, state.enemies[enemyId]?.abilityIds),
       ]),
     ),
   };
@@ -844,22 +848,22 @@ function startEnemyCasts(state: GameState) {
       );
     });
 
-      if (!abilityId) return;
+    if (!abilityId) return;
 
-      const targetId = selectAbilityTargetId(state, enemyId, abilityId);
-      if (!targetId) return;
+    const targetId = selectAbilityTargetId(state, enemyId, abilityId);
+    if (!targetId) return;
 
-      state.enemies[enemyId]!.mana = Math.max(
-        0,
-        getEnemyMana(state.enemies[enemyId]!) -
-          getAbilityDefinition(abilityId).manaCost,
-      );
-      startAbilityCast(
-        actor,
-        abilityId,
+    state.enemies[enemyId]!.mana = Math.max(
+      0,
+      getEnemyMana(state.enemies[enemyId]!) -
+        getAbilityDefinition(abilityId).manaCost,
+    );
+    startAbilityCast(
+      actor,
+      abilityId,
       targetId,
       now,
-      getEnemyAttackSpeed(enemyId, state),
+      getEnemyCombatAttackSpeed(state.enemies[enemyId]!),
     );
     changed = true;
   });
@@ -897,16 +901,19 @@ function startAbilityCast(
   };
 }
 
-function getEnemyAttackSpeed(enemyId: string, state: GameState) {
-  const enemy = state.enemies[enemyId];
-  if (!enemy?.statusEffects?.length) return 1;
+export function getEnemyCombatAttackSpeed(enemy: Enemy) {
+  if (!enemy.statusEffects?.length) return 1;
 
   return Math.max(
     0.25,
     1 +
       getCombatStatusValue(enemy.statusEffects, StatusEffectTypeId.Frenzy, 20) /
         100 -
-      getCombatStatusValue(enemy.statusEffects, StatusEffectTypeId.Chilling, 20) /
+      getCombatStatusValue(
+        enemy.statusEffects,
+        StatusEffectTypeId.Chilling,
+        20,
+      ) /
         100,
   );
 }
@@ -923,21 +930,36 @@ function applyPlayerAbility(
 ) {
   const ability = getAbilityDefinition(abilityId);
   const playerStats = getPlayerStats(state.player);
-  const enemyTargets = resolveEnemyTargetsForPlayerAbility(state, ability, targetId);
+  const enemyTargets = resolveEnemyTargetsForPlayerAbility(
+    state,
+    ability,
+    targetId,
+  );
   let totalDamage = 0;
 
   for (const effect of ability.effects) {
     if (effect.kind === 'damage') {
       for (const enemy of enemyTargets) {
         if (enemy.hp <= 0) continue;
-        const damage = dealPlayerDamageToEnemy(state, abilityId, enemy, effect, playerStats);
+        const damage = dealPlayerDamageToEnemy(
+          state,
+          abilityId,
+          enemy,
+          effect,
+          playerStats,
+        );
         totalDamage += damage;
       }
       continue;
     }
 
     if (effect.kind === 'heal') {
-      const healed = healPlayerTargets(state, ability, effect, playerStats.attack);
+      const healed = healPlayerTargets(
+        state,
+        ability,
+        effect,
+        playerStats.attack,
+      );
       if (healed > 0) {
         addLog(
           state,
@@ -981,7 +1003,6 @@ function applyPlayerAbility(
       handleEnemyDefeat(state, enemy);
     }
   });
-
 }
 
 function applyPlayerOnHitEffects(
@@ -1047,7 +1068,11 @@ function applyLifesteal(
   const lifestealChance = playerStats.lifestealChance ?? 0;
   if (lifestealChance <= 0) return;
 
-  const procCount = resolveProcCount(state, 'player:lifesteal', lifestealChance);
+  const procCount = resolveProcCount(
+    state,
+    'player:lifesteal',
+    lifestealChance,
+  );
   if (procCount <= 0) return;
 
   const healPerProc = Math.max(
@@ -1073,14 +1098,21 @@ function applyStatusProcToEnemy(
   attackValue: number,
   attackSpeed: number,
 ) {
-  const procCount = resolveProcCount(state, `enemy:${enemy.id}:${effectId}`, chance);
+  const procCount = resolveProcCount(
+    state,
+    `enemy:${enemy.id}:${effectId}`,
+    chance,
+  );
   if (procCount <= 0) return;
 
   const suppressChance = 0;
   if (
     suppressChance > 0 &&
-    resolveProcCount(state, `enemy:${enemy.id}:suppress:${effectId}`, suppressChance) >
-      0
+    resolveProcCount(
+      state,
+      `enemy:${enemy.id}:suppress:${effectId}`,
+      suppressChance,
+    ) > 0
   ) {
     return;
   }
@@ -1107,10 +1139,7 @@ function applyStatusProcToEnemy(
       effectId === 'chilling'
         ? undefined
         : Math.max(1, Math.round(2_000 / Math.max(0.01, attackSpeed))),
-    stacks:
-      effectId === 'poison' || effectId === 'burning'
-        ? procCount
-        : 1,
+    stacks: effectId === 'poison' || effectId === 'burning' ? procCount : 1,
   });
 }
 
@@ -1124,10 +1153,16 @@ function applyStatusProcToPlayer(
   if (procCount <= 0) return;
 
   applyStatusEffectToPlayer(state, {
-    id: effectId === 'power' ? StatusEffectTypeId.Power : StatusEffectTypeId.Frenzy,
+    id:
+      effectId === 'power'
+        ? StatusEffectTypeId.Power
+        : StatusEffectTypeId.Frenzy,
     value: effectId === 'power' ? 10 : 20,
     expiresAt: state.worldTimeMs + 10_000,
-    tickIntervalMs: Math.max(1, Math.round(2_000 / Math.max(0.01, attackSpeed))),
+    tickIntervalMs: Math.max(
+      1,
+      Math.round(2_000 / Math.max(0.01, attackSpeed)),
+    ),
     stacks: 1,
   });
 }
@@ -1136,7 +1171,10 @@ function dealPlayerDamageToEnemy(
   state: GameState,
   abilityId: AbilityId,
   enemy: NonNullable<GameState['enemies'][string]>,
-  effect: Extract<ReturnType<typeof getAbilityDefinition>['effects'][number], { kind: 'damage' }>,
+  effect: Extract<
+    ReturnType<typeof getAbilityDefinition>['effects'][number],
+    { kind: 'damage' }
+  >,
   playerStats: ReturnType<typeof getPlayerStats>,
 ) {
   const critCount = resolveProcCount(
@@ -1160,7 +1198,7 @@ function dealPlayerDamageToEnemy(
       : Math.max(
           0,
           Math.round(
-            Math.max(0, baseDamage - getEnemyEffectiveDefense(enemy)) *
+            Math.max(0, baseDamage - getEnemyCombatDefense(enemy)) *
               critMultiplier,
           ),
         );
@@ -1199,13 +1237,14 @@ function dealPlayerDamageToEnemy(
 function healPlayerTargets(
   state: GameState,
   ability: ReturnType<typeof getAbilityDefinition>,
-  effect: Extract<ReturnType<typeof getAbilityDefinition>['effects'][number], { kind: 'heal' }>,
+  effect: Extract<
+    ReturnType<typeof getAbilityDefinition>['effects'][number],
+    { kind: 'heal' }
+  >,
   power: number,
 ) {
   const targets =
-    ability.target === 'allAllies'
-      ? [state.player]
-      : [state.player];
+    ability.target === 'allAllies' ? [state.player] : [state.player];
   const total = targets.reduce((sum, target) => {
     const amount = Math.max(
       1,
@@ -1226,17 +1265,26 @@ function healPlayerTargets(
 function applyPlayerStatusTargets(
   state: GameState,
   ability: ReturnType<typeof getAbilityDefinition>,
-  effect: Extract<ReturnType<typeof getAbilityDefinition>['effects'][number], { kind: 'applyStatus' }>,
+  effect: Extract<
+    ReturnType<typeof getAbilityDefinition>['effects'][number],
+    { kind: 'applyStatus' }
+  >,
   targetId: string,
 ) {
-  if (ability.target === 'allEnemies' || ability.target === 'enemy' || ability.target === 'randomEnemy') {
+  if (
+    ability.target === 'allEnemies' ||
+    ability.target === 'enemy' ||
+    ability.target === 'randomEnemy'
+  ) {
     return resolveEnemyTargetsForPlayerAbility(state, ability, targetId).reduce(
       (count, enemy) =>
         count +
         (applyStatusEffectToEnemy(state, enemy, {
           id: effect.statusEffectId,
           value: effect.value,
-          expiresAt: effect.permanent ? undefined : state.worldTimeMs + (effect.durationMs ?? 0),
+          expiresAt: effect.permanent
+            ? undefined
+            : state.worldTimeMs + (effect.durationMs ?? 0),
           tickIntervalMs: effect.tickIntervalMs,
           stacks: effect.stacks ?? 1,
         })
@@ -1249,7 +1297,9 @@ function applyPlayerStatusTargets(
   return applyStatusEffectToPlayer(state, {
     id: effect.statusEffectId,
     value: effect.value,
-    expiresAt: effect.permanent ? undefined : state.worldTimeMs + (effect.durationMs ?? 0),
+    expiresAt: effect.permanent
+      ? undefined
+      : state.worldTimeMs + (effect.durationMs ?? 0),
     tickIntervalMs: effect.tickIntervalMs,
     stacks: effect.stacks ?? 1,
   })
@@ -1301,14 +1351,18 @@ function healEnemyTargets(
   state: GameState,
   enemyId: string,
   ability: ReturnType<typeof getAbilityDefinition>,
-  effect: Extract<ReturnType<typeof getAbilityDefinition>['effects'][number], { kind: 'heal' }>,
+  effect: Extract<
+    ReturnType<typeof getAbilityDefinition>['effects'][number],
+    { kind: 'heal' }
+  >,
 ) {
   const targets = resolveEnemyTargetsForEnemyAbility(state, enemyId, ability);
   const total = targets.reduce((sum, enemy) => {
     const amount = Math.max(
       1,
       Math.round(
-        (getEnemyCombatAttack(state.enemies[enemyId]!) * effect.powerMultiplier +
+        (getEnemyCombatAttack(state.enemies[enemyId]!) *
+          effect.powerMultiplier +
           (effect.flatPower ?? 0)) /
           Math.max(1, effect.splitDivisor ?? 1),
       ),
@@ -1325,22 +1379,36 @@ function applyEnemyStatusTargets(
   state: GameState,
   enemyId: string,
   ability: ReturnType<typeof getAbilityDefinition>,
-  effect: Extract<ReturnType<typeof getAbilityDefinition>['effects'][number], { kind: 'applyStatus' }>,
+  effect: Extract<
+    ReturnType<typeof getAbilityDefinition>['effects'][number],
+    { kind: 'applyStatus' }
+  >,
 ) {
-  if (ability.target === 'allAllies' || ability.target === 'randomAlly' || ability.target === 'injuredAlly' || ability.target === 'self') {
+  if (
+    ability.target === 'allAllies' ||
+    ability.target === 'randomAlly' ||
+    ability.target === 'injuredAlly' ||
+    ability.target === 'self'
+  ) {
     return {
-      applied: resolveEnemyTargetsForEnemyAbility(state, enemyId, ability).reduce(
+      applied: resolveEnemyTargetsForEnemyAbility(
+        state,
+        enemyId,
+        ability,
+      ).reduce(
         (count, enemy) =>
           count +
-        (applyStatusEffectToEnemy(state, enemy, {
-          id: effect.statusEffectId,
-          value: effect.value,
-          expiresAt: effect.permanent ? undefined : state.worldTimeMs + (effect.durationMs ?? 0),
-          tickIntervalMs: effect.tickIntervalMs,
-          stacks: effect.stacks ?? 1,
-        })
-          ? 1
-          : 0),
+          (applyStatusEffectToEnemy(state, enemy, {
+            id: effect.statusEffectId,
+            value: effect.value,
+            expiresAt: effect.permanent
+              ? undefined
+              : state.worldTimeMs + (effect.durationMs ?? 0),
+            tickIntervalMs: effect.tickIntervalMs,
+            stacks: effect.stacks ?? 1,
+          })
+            ? 1
+            : 0),
         0,
       ),
       suppressed: 0,
@@ -1352,8 +1420,9 @@ function applyEnemyStatusTargets(
     {
       id: effect.statusEffectId,
       value: effect.value,
-      expiresAt:
-        effect.permanent ? undefined : state.worldTimeMs + (effect.durationMs ?? 0),
+      expiresAt: effect.permanent
+        ? undefined
+        : state.worldTimeMs + (effect.durationMs ?? 0),
       tickIntervalMs: effect.tickIntervalMs,
       stacks: effect.stacks ?? 1,
     },
@@ -1369,7 +1438,10 @@ function applyEnemyStatusTargets(
 function maybeApplyConfiguredStatusToEnemy(
   state: GameState,
   enemy: Enemy,
-  effect: Extract<ReturnType<typeof getAbilityDefinition>['effects'][number], { kind: 'damage' }>,
+  effect: Extract<
+    ReturnType<typeof getAbilityDefinition>['effects'][number],
+    { kind: 'damage' }
+  >,
   attackValue: number,
 ) {
   if (!effect.statusEffectId || !effect.statusChance) return;
@@ -1387,7 +1459,9 @@ function maybeApplyConfiguredStatusToEnemy(
     id: effect.statusEffectId,
     value: Math.max(
       1,
-      Math.round(attackValue * (effect.valueMultiplier ?? 0) + (effect.valueFlat ?? 0)),
+      Math.round(
+        attackValue * (effect.valueMultiplier ?? 0) + (effect.valueFlat ?? 0),
+      ),
     ),
     expiresAt: state.worldTimeMs + (effect.durationMs ?? 6_000),
     tickIntervalMs: effect.tickIntervalMs,
@@ -1397,7 +1471,10 @@ function maybeApplyConfiguredStatusToEnemy(
 
 function maybeApplyConfiguredStatusToPlayer(
   state: GameState,
-  effect: Extract<ReturnType<typeof getAbilityDefinition>['effects'][number], { kind: 'damage' }>,
+  effect: Extract<
+    ReturnType<typeof getAbilityDefinition>['effects'][number],
+    { kind: 'damage' }
+  >,
   attackValue: number,
   abilityId: AbilityId,
   enemyId: string,
@@ -1421,7 +1498,9 @@ function maybeApplyConfiguredStatusToPlayer(
       id: effect.statusEffectId,
       value: Math.max(
         1,
-        Math.round(attackValue * (effect.valueMultiplier ?? 0) + (effect.valueFlat ?? 0)),
+        Math.round(
+          attackValue * (effect.valueMultiplier ?? 0) + (effect.valueFlat ?? 0),
+        ),
       ),
       expiresAt: state.worldTimeMs + (effect.durationMs ?? 6_000),
       tickIntervalMs: effect.tickIntervalMs,
@@ -1527,7 +1606,7 @@ function mergeStatusEffect(
     nextEffect.id === StatusEffectTypeId.Poison ||
     nextEffect.id === StatusEffectTypeId.Burning
       ? Math.max(1, (currentEffect?.stacks ?? 0) + (nextEffect.stacks ?? 1))
-      : nextEffect.stacks ?? 1;
+      : (nextEffect.stacks ?? 1);
 
   return {
     id: nextEffect.id,
@@ -1544,8 +1623,20 @@ export function getEnemyCombatAttack(enemy: Enemy) {
     1,
     Math.round(
       enemy.attack *
-        (1 + getCombatStatusValue(enemy.statusEffects, StatusEffectTypeId.Power, 10) / 100) *
-        (1 - getCombatStatusValue(enemy.statusEffects, StatusEffectTypeId.Weakened, 15) / 100),
+        (1 +
+          getCombatStatusValue(
+            enemy.statusEffects,
+            StatusEffectTypeId.Power,
+            10,
+          ) /
+            100) *
+        (1 -
+          getCombatStatusValue(
+            enemy.statusEffects,
+            StatusEffectTypeId.Weakened,
+            15,
+          ) /
+            100),
     ),
   );
 }
@@ -1574,13 +1665,25 @@ function getEnemyMana(enemy: Enemy) {
   return enemy.mana ?? enemy.maxMana ?? DEFAULT_ENEMY_MANA;
 }
 
-function getEnemyEffectiveDefense(enemy: Enemy) {
+export function getEnemyCombatDefense(enemy: Enemy) {
   return Math.max(
     0,
     Math.round(
       enemy.defense *
-        (1 + getCombatStatusValue(enemy.statusEffects, StatusEffectTypeId.Guard, 15) / 100) *
-        (1 - getCombatStatusValue(enemy.statusEffects, StatusEffectTypeId.Shocked, 15) / 100),
+        (1 +
+          getCombatStatusValue(
+            enemy.statusEffects,
+            StatusEffectTypeId.Guard,
+            15,
+          ) /
+            100) *
+        (1 -
+          getCombatStatusValue(
+            enemy.statusEffects,
+            StatusEffectTypeId.Shocked,
+            15,
+          ) /
+            100),
     ),
   );
 }
@@ -1592,7 +1695,9 @@ function getCombatStatusValue(
 ) {
   return (effects ?? []).reduce(
     (highest, effect) =>
-      effect.id === effectId ? Math.max(highest, effect.value ?? fallback) : highest,
+      effect.id === effectId
+        ? Math.max(highest, effect.value ?? fallback)
+        : highest,
     0,
   );
 }
@@ -1641,7 +1746,9 @@ function resolveIncomingDamageByChances(
   if (resolveProcCount(state, `${seedKey}:block`, blockChance) > 0) {
     return { damage: 0, outcome: 'blocked' } satisfies DamageResolution;
   }
-  if (resolveProcCount(state, `${seedKey}:suppress`, suppressDamageChance) > 0) {
+  if (
+    resolveProcCount(state, `${seedKey}:suppress`, suppressDamageChance) > 0
+  ) {
     const suppressedDamage = Math.round(
       incomingDamage * (1 - Math.min(95, suppressDamageReduction) / 100),
     );
@@ -1823,10 +1930,7 @@ function abilitySourceSegment(
 function statusEffectSourceSegment(
   effectId: StatusEffectId,
   tone?: 'buff' | 'debuff',
-  effect?: Pick<
-    PlayerStatusEffect,
-    'value' | 'tickIntervalMs' | 'stacks'
-  >,
+  effect?: Pick<PlayerStatusEffect, 'value' | 'tickIntervalMs' | 'stacks'>,
 ): LogRichSegment {
   return {
     kind: 'source',
@@ -1945,7 +2049,11 @@ function enemyDamageRichText(
   }
 }
 
-function playerHealRichText(abilityId: AbilityId, amount: number, attack?: number) {
+function playerHealRichText(
+  abilityId: AbilityId,
+  amount: number,
+  attack?: number,
+) {
   return [
     textSegment('You restore '),
     healingSegment(amount),
@@ -1955,7 +2063,12 @@ function playerHealRichText(abilityId: AbilityId, amount: number, attack?: numbe
   ];
 }
 
-function enemyHealRichText(enemy: Enemy, abilityId: AbilityId, amount: number, attack?: number) {
+function enemyHealRichText(
+  enemy: Enemy,
+  abilityId: AbilityId,
+  amount: number,
+  attack?: number,
+) {
   return [
     combatEntityName(enemy),
     textSegment(' restores '),
@@ -1992,7 +2105,11 @@ function playerStatusRichText(
       ];
 }
 
-function enemyStatusRichText(enemy: Enemy, abilityId: AbilityId, effectId: StatusEffectId) {
+function enemyStatusRichText(
+  enemy: Enemy,
+  abilityId: AbilityId,
+  effectId: StatusEffectId,
+) {
   return [
     combatEntityName(enemy),
     textSegment(' afflicts you with '),
@@ -2069,10 +2186,7 @@ function processEnemyStatusEffects(state: GameState) {
                 : 0;
         const healPerTick =
           effect.id === StatusEffectTypeId.Restoration
-            ? Math.max(
-                1,
-                Math.floor(enemy.maxHp * ((effect.value ?? 1) / 100)),
-              )
+            ? Math.max(1, Math.floor(enemy.maxHp * ((effect.value ?? 1) / 100)))
             : 0;
         if (damagePerTick > 0) {
           enemy.hp = Math.max(0, enemy.hp - damagePerTick * tickCount);
@@ -2187,7 +2301,9 @@ function pickRandomEnemyTarget(state: GameState, seedSuffix: string) {
     Boolean(state.enemies[enemyId]),
   );
   if (!enemyIds || enemyIds.length === 0) return null;
-  const rng = createRng(`${state.seed}:combat:player-target:${seedSuffix}:${state.worldTimeMs}`);
+  const rng = createRng(
+    `${state.seed}:combat:player-target:${seedSuffix}:${state.worldTimeMs}`,
+  );
   return enemyIds[Math.floor(rng() * enemyIds.length)] ?? enemyIds[0] ?? null;
 }
 
@@ -2198,14 +2314,18 @@ function pickEnemyAllyTarget(
   preferInjured: boolean,
 ) {
   const enemyIds =
-    state.combat?.enemyIds.filter((enemyId) => Boolean(state.enemies[enemyId])) ?? [];
+    state.combat?.enemyIds.filter((enemyId) =>
+      Boolean(state.enemies[enemyId]),
+    ) ?? [];
   const allies = enemyIds
     .map((enemyId) => state.enemies[enemyId]!)
     .filter((enemy) => !preferInjured || enemy.hp < enemy.maxHp);
   if (allies.length === 0) {
-    return enemyIds.includes(casterId) ? casterId : enemyIds[0] ?? null;
+    return enemyIds.includes(casterId) ? casterId : (enemyIds[0] ?? null);
   }
-  const rng = createRng(`${state.seed}:combat:enemy-target:${casterId}:${seedSuffix}:${state.worldTimeMs}`);
+  const rng = createRng(
+    `${state.seed}:combat:enemy-target:${casterId}:${seedSuffix}:${state.worldTimeMs}`,
+  );
   return allies[Math.floor(rng() * allies.length)]?.id ?? casterId;
 }
 
@@ -2215,7 +2335,9 @@ function resolveEnemyTargetsForEnemyAbility(
   ability: ReturnType<typeof getAbilityDefinition>,
 ) {
   const enemyIds =
-    state.combat?.enemyIds.filter((enemyId) => Boolean(state.enemies[enemyId])) ?? [];
+    state.combat?.enemyIds.filter((enemyId) =>
+      Boolean(state.enemies[enemyId]),
+    ) ?? [];
 
   switch (ability.target) {
     case 'self':
@@ -2251,14 +2373,18 @@ function canEnemyUseAbility(
   }
 
   if (target === 'injuredAlly') {
-    return resolveEnemyTargetsForEnemyAbility(state, enemyId, getAbilityDefinition(abilityId)).some(
-      (ally) => ally.hp < ally.maxHp,
-    );
+    return resolveEnemyTargetsForEnemyAbility(
+      state,
+      enemyId,
+      getAbilityDefinition(abilityId),
+    ).some((ally) => ally.hp < ally.maxHp);
   }
 
   if (
     target === 'self' &&
-    getAbilityDefinition(abilityId).effects.some((effect) => effect.kind === 'heal')
+    getAbilityDefinition(abilityId).effects.some(
+      (effect) => effect.kind === 'heal',
+    )
   ) {
     return enemy.hp < enemy.maxHp;
   }
@@ -2312,7 +2438,10 @@ function applyEnemyAbility(
         playerStats,
       );
       if (damageResolution.damage > 0) {
-        state.player.hp = Math.max(0, state.player.hp - damageResolution.damage);
+        state.player.hp = Math.max(
+          0,
+          state.player.hp - damageResolution.damage,
+        );
       }
       const debuffApplication =
         damageResolution.outcome === 'dodged' ||
@@ -2378,7 +2507,12 @@ function applyEnemyAbility(
       continue;
     }
 
-    const statusApplication = applyEnemyStatusTargets(state, enemyId, ability, effect);
+    const statusApplication = applyEnemyStatusTargets(
+      state,
+      enemyId,
+      ability,
+      effect,
+    );
     if (statusApplication.applied > 0) {
       addLog(
         state,
@@ -2400,11 +2534,7 @@ function applyEnemyAbility(
           ability.id,
           effect.statusEffectId,
         ),
-        enemyDebuffSuppressedRichText(
-          enemy,
-          ability.id,
-          effect.statusEffectId,
-        ),
+        enemyDebuffSuppressedRichText(enemy, ability.id, effect.statusEffectId),
       );
     }
   }

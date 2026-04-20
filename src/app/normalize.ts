@@ -6,6 +6,7 @@ import {
   type Item,
   type LogKind,
 } from '../game/state';
+import { clampItemLevel, syncPlayerBaseStats } from '../game/balance';
 import {
   DEFAULT_LOG_FILTERS,
   DEFAULT_WINDOWS,
@@ -157,9 +158,7 @@ function normalizeLogFilters(filters: unknown): Record<LogKind, boolean> {
   };
 }
 
-function normalizeWindowVisibility(
-  value: unknown,
-): WindowVisibilityState {
+function normalizeWindowVisibility(value: unknown): WindowVisibilityState {
   if (!isRecord(value)) {
     return DEFAULT_WINDOW_VISIBILITY;
   }
@@ -207,7 +206,9 @@ function normalizeWindowPosition(
   }
 
   const width =
-    isFiniteNumber(value.width) && value.width > 0 ? value.width : fallback.width;
+    isFiniteNumber(value.width) && value.width > 0
+      ? value.width
+      : fallback.width;
   const height =
     isFiniteNumber(value.height) && value.height > 0
       ? value.height
@@ -235,7 +236,9 @@ function normalizeTiles(value: unknown) {
     return null;
   }
 
-  return Object.fromEntries(tiles as Array<readonly [string, GameState['tiles'][string]]>);
+  return Object.fromEntries(
+    tiles as Array<readonly [string, GameState['tiles'][string]]>,
+  );
 }
 
 function normalizeEnemies(value: unknown) {
@@ -324,7 +327,10 @@ function normalizeTileClaim(
       return null;
     }
 
-    if (value.npc.enemyId !== undefined && typeof value.npc.enemyId !== 'string') {
+    if (
+      value.npc.enemyId !== undefined &&
+      typeof value.npc.enemyId !== 'string'
+    ) {
       return null;
     }
   }
@@ -341,10 +347,9 @@ function normalizeTileClaim(
 
   return {
     ownerId: value.ownerId,
-    ownerType:
-      value.ownerType as NonNullable<
-        GameState['tiles'][string]['claim']
-      >['ownerType'],
+    ownerType: value.ownerType as NonNullable<
+      GameState['tiles'][string]['claim']
+    >['ownerType'],
     ownerName: value.ownerName,
     borderColor: value.borderColor,
     ...(normalizedNpc === undefined ? {} : { npc: normalizedNpc }),
@@ -392,8 +397,12 @@ function normalizeEnemy(value: unknown): GameState['enemies'][string] | null {
 
   return {
     id: value.id,
-    ...(value.enemyTypeId === undefined ? {} : { enemyTypeId: value.enemyTypeId }),
-    ...(value.tags === undefined ? {} : { tags: [...value.tags] as Enemy['tags'] }),
+    ...(value.enemyTypeId === undefined
+      ? {}
+      : { enemyTypeId: value.enemyTypeId }),
+    ...(value.tags === undefined
+      ? {}
+      : { tags: [...value.tags] as Enemy['tags'] }),
     name: value.name,
     coord,
     ...(value.rarity === undefined ? {} : { rarity: value.rarity }),
@@ -414,7 +423,9 @@ function normalizeEnemy(value: unknown): GameState['enemies'][string] | null {
     ...(value.worldBoss === undefined ? {} : { worldBoss: value.worldBoss }),
     ...(value.aggressive === undefined ? {} : { aggressive: value.aggressive }),
     ...(statusEffects === undefined ? {} : { statusEffects }),
-    ...(value.abilityIds === undefined ? {} : { abilityIds: [...value.abilityIds] }),
+    ...(value.abilityIds === undefined
+      ? {}
+      : { abilityIds: [...value.abilityIds] }),
   };
 }
 
@@ -458,7 +469,7 @@ function normalizePlayer(value: unknown): GameState['player'] | null {
     return null;
   }
 
-  return {
+  return syncPlayerBaseStats({
     coord,
     level: value.level,
     masteryLevel: value.masteryLevel,
@@ -479,7 +490,7 @@ function normalizePlayer(value: unknown): GameState['player'] | null {
     ...(value.consumableCooldownEndsAt === undefined
       ? {}
       : { consumableCooldownEndsAt: value.consumableCooldownEndsAt }),
-  };
+  });
 }
 
 function normalizeSkills(value: unknown): GameState['player']['skills'] | null {
@@ -504,10 +515,14 @@ function normalizeSkills(value: unknown): GameState['player']['skills'] | null {
     return null;
   }
 
-  return Object.fromEntries(entries as Array<readonly [string, { level: number; xp: number }]>) as GameState['player']['skills'];
+  return Object.fromEntries(
+    entries as Array<readonly [string, { level: number; xp: number }]>,
+  ) as GameState['player']['skills'];
 }
 
-function normalizeEquipment(value: unknown): GameState['player']['equipment'] | null {
+function normalizeEquipment(
+  value: unknown,
+): GameState['player']['equipment'] | null {
   if (!isRecord(value)) {
     return null;
   }
@@ -580,14 +595,16 @@ function normalizeItem(value: unknown): Item | null {
   return {
     id: value.id,
     ...(value.itemKey === undefined ? {} : { itemKey: value.itemKey }),
-    ...(value.tags === undefined ? {} : { tags: [...value.tags] as Item['tags'] }),
+    ...(value.tags === undefined
+      ? {}
+      : { tags: [...value.tags] as Item['tags'] }),
     ...(value.recipeId === undefined ? {} : { recipeId: value.recipeId }),
     ...(value.locked === undefined ? {} : { locked: value.locked }),
     ...(value.slot === undefined ? {} : { slot: value.slot }),
     ...(value.icon === undefined ? {} : { icon: value.icon }),
     name: value.name,
     quantity: value.quantity,
-    tier: value.tier,
+    tier: clampItemLevel(value.tier),
     rarity: value.rarity,
     power: value.power,
     defense: value.defense,
@@ -665,7 +682,9 @@ function normalizeStatusEffects(value: unknown) {
     return {
       id: effect.id,
       ...(effect.tags === undefined ? {} : { tags: [...effect.tags] }),
-      ...(effect.expiresAt === undefined ? {} : { expiresAt: effect.expiresAt }),
+      ...(effect.expiresAt === undefined
+        ? {}
+        : { expiresAt: effect.expiresAt }),
       ...(effect.tickIntervalMs === undefined
         ? {}
         : { tickIntervalMs: effect.tickIntervalMs }),
@@ -733,7 +752,11 @@ function normalizeCombatActors(value: unknown) {
     return null;
   }
 
-  return Object.fromEntries(entries as Array<readonly [string, NonNullable<GameState['combat']>['player']]>);
+  return Object.fromEntries(
+    entries as Array<
+      readonly [string, NonNullable<GameState['combat']>['player']]
+    >,
+  );
 }
 
 function normalizeCombatActorState(value: unknown) {
@@ -801,7 +824,11 @@ function normalizeCombatCastState(value: unknown) {
 }
 
 function normalizeHexCoord(value: unknown) {
-  if (!isRecord(value) || !isFiniteNumber(value.q) || !isFiniteNumber(value.r)) {
+  if (
+    !isRecord(value) ||
+    !isFiniteNumber(value.q) ||
+    !isFiniteNumber(value.r)
+  ) {
     return null;
   }
 
@@ -812,7 +839,9 @@ function isDayPhase(value: unknown): value is GameState['dayPhase'] {
   return value === 'day' || value === 'night';
 }
 
-function isTerrain(value: unknown): value is GameState['tiles'][string]['terrain'] {
+function isTerrain(
+  value: unknown,
+): value is GameState['tiles'][string]['terrain'] {
   return (
     value === 'plains' ||
     value === 'forest' ||
@@ -846,7 +875,9 @@ function isStructure(
   );
 }
 
-function isEnemyTypeId(value: unknown): value is NonNullable<Enemy['enemyTypeId']> {
+function isEnemyTypeId(
+  value: unknown,
+): value is NonNullable<Enemy['enemyTypeId']> {
   return typeof value === 'string' && ENEMY_TYPE_IDS.has(value);
 }
 
@@ -875,7 +906,9 @@ function isCooldownMap(value: unknown): value is Record<string, number> {
 }
 
 function isStringArray(value: unknown): value is string[] {
-  return Array.isArray(value) && value.every((entry) => typeof entry === 'string');
+  return (
+    Array.isArray(value) && value.every((entry) => typeof entry === 'string')
+  );
 }
 
 function isFiniteNumber(value: unknown): value is number {

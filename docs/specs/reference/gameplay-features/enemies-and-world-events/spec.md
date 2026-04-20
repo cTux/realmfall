@@ -10,6 +10,8 @@ This spec covers enemy generation plus the blood moon, harvest moon, and earthsh
 - When a tile spawns multiple hostile enemies, that pack uses one shared enemy type for the whole hex instead of mixing different hostile types together.
 - Enemies roll a deterministic rarity from `Common`, `Uncommon`, `Rare`, `Epic`, and `Legendary` through the shared cascading rarity-event mechanism, with dungeon spawns floored above ordinary field threats and world bosses forced to `Legendary`.
 - Rarer enemies scale their combat stats and XP upward beyond the terrain baseline instead of relying only on a binary elite flag.
+- Enemy base stats scale from `150 / 50 / 35` at level `1` to `5000 / 1600 / 1100` at level `100`.
+- Enemy levels can exceed `100`, and each level above `100` adds `10%` of the level-`100` base max HP, attack, and defense anchors.
 - Faction NPCs use non-hostile territory-specific enemy identities so they can participate in the same world systems without behaving like ordinary hostiles.
 - Enemy classification such as animal, elite, dungeon, and world-boss behavior resolves from canonical enemy ids and tags instead of display-name checks.
 - Blood moon checks occur during the rise window at night.

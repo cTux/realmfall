@@ -2,26 +2,20 @@ import { getAbilityDefinition } from '../../../game/abilities';
 import type { PlayerStatusEffect } from '../../../game/types';
 import { t } from '../../../i18n';
 import { formatStatusEffectLabel } from '../../../i18n/labels';
-import {
-  statusEffectIcon,
-  statusEffectTint,
-} from '../../statusEffects';
+import { statusEffectIcon, statusEffectTint } from '../../statusEffects';
 import { abilityTooltipLines, statusEffectTooltipLines } from '../../tooltips';
 import {
   EntityStatusPanel,
   type EntityStatusBar,
   type EntityStatusIcon,
 } from '../EntityStatusPanel/EntityStatusPanel';
+import { buildPrimaryStatRows, buildSecondaryStatRows } from '../statSheet';
 import type { HeroWindowProps } from './types';
 import styles from './styles.module.scss';
 
 type HeroWindowContentProps = Pick<
   HeroWindowProps,
-  | 'stats'
-  | 'hunger'
-  | 'thirst'
-  | 'onHoverDetail'
-  | 'onLeaveDetail'
+  'stats' | 'hunger' | 'thirst' | 'onHoverDetail' | 'onLeaveDetail'
 >;
 
 export function HeroWindowContent({
@@ -44,6 +38,32 @@ export function HeroWindowContent({
         onHoverDetail={onHoverDetail}
         onLeaveDetail={onLeaveDetail}
       />
+      <section className={styles.section}>
+        <h3 className={styles.sectionTitle}>
+          {t('ui.hero.statSheet.primary')}
+        </h3>
+        <div className={styles.statGrid}>
+          {buildPrimaryStatRows(stats).map((row) => (
+            <div key={row.label} className={styles.statRow}>
+              <span className={styles.statLabel}>{row.label}</span>
+              <span className={styles.statValue}>{row.value}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+      <section className={styles.section}>
+        <h3 className={styles.sectionTitle}>
+          {t('ui.hero.statSheet.secondary')}
+        </h3>
+        <div className={styles.statGrid}>
+          {buildSecondaryStatRows(stats).map((row) => (
+            <div key={row.label} className={styles.statRow}>
+              <span className={styles.statLabel}>{row.label}</span>
+              <span className={styles.statValue}>{row.value}</span>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
@@ -107,9 +127,7 @@ function buildEffectIcons(
     icon: statusEffectIcon(item.id),
     tint: statusEffectTint(item.id, tone),
     borderColor:
-      tone === 'buff'
-        ? 'rgb(34 197 94 / 70%)'
-        : 'rgb(239 68 68 / 70%)',
+      tone === 'buff' ? 'rgb(34 197 94 / 70%)' : 'rgb(239 68 68 / 70%)',
     tooltipTitle: formatStatusEffectLabel(item.id),
     tooltipLines: statusEffectTooltipLines(
       item.id,
@@ -118,9 +136,7 @@ function buildEffectIcons(
       item,
     ),
     tooltipBorderColor:
-      tone === 'buff'
-        ? 'rgba(34, 197, 94, 0.9)'
-        : 'rgba(239, 68, 68, 0.9)',
+      tone === 'buff' ? 'rgba(34, 197, 94, 0.9)' : 'rgba(239, 68, 68, 0.9)',
   }));
 }
 
