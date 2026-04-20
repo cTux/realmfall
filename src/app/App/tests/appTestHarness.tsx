@@ -228,6 +228,10 @@ vi.mock('react-fps-stats', () => ({
   default: () => <div>FPS Graph</div>,
 }));
 
+vi.mock('../../audio/VoiceAudioControllerBridge', () => ({
+  VoiceAudioControllerBridge: () => null,
+}));
+
 export async function flushLazyModules() {
   await act(async () => {
     for (let index = 0; index < 20; index += 1) {

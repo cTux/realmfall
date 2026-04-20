@@ -7,9 +7,9 @@ import {
 } from './voiceEvents';
 import {
   getVoiceClipUrls,
-  type VoiceActorId,
   type VoiceClipCategory,
 } from './voiceLibrary';
+import type { VoiceActorId } from './voiceActors';
 
 const ACTIVATION_EVENTS = ['keydown', 'mousedown', 'pointerdown', 'touchstart'];
 const MIN_PLAYBACK_INTERVAL_MS = 700;
@@ -23,6 +23,7 @@ export function VoiceAudioControllerBridge({
   audioSettings,
   game,
 }: VoiceAudioControllerBridgeProps) {
+  const { muted, respectReducedMotion, volume } = audioSettings;
   const activatedRef = useRef(false);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
   const previousGameRef = useRef(game);
@@ -62,20 +63,16 @@ export function VoiceAudioControllerBridge({
   );
 
   useEffect(() => {
-    if (shouldStopVoicePlayback(audioSettings, window)) {
+    if (muted || (respectReducedMotion && prefersReducedMotion(window))) {
       stopAudio(currentAudioRef.current);
       currentAudioRef.current = null;
       return;
     }
 
     if (currentAudioRef.current) {
-      currentAudioRef.current.volume = audioSettings.volume;
+      currentAudioRef.current.volume = volume;
     }
-  }, [
-    audioSettings.muted,
-    audioSettings.respectReducedMotion,
-    audioSettings.volume,
-  ]);
+  }, [muted, respectReducedMotion, volume]);
 
   useEffect(() => {
     const previousGame = previousGameRef.current;
@@ -90,7 +87,7 @@ export function VoiceAudioControllerBridge({
       return;
     }
 
-    if (shouldStopVoicePlayback(audioSettings, window)) {
+    if (muted || (respectReducedMotion && prefersReducedMotion(window))) {
       return;
     }
 
@@ -120,7 +117,7 @@ export function VoiceAudioControllerBridge({
 
     const audio = new Audio(clipUrl);
     audio.preload = 'auto';
-    audio.volume = audioSettings.volume;
+    audio.volume = volume;
     currentAudioRef.current = audio;
     lastPlaybackRef.current = {
       eventKey: playbackEventKey,
@@ -132,19 +129,9 @@ export function VoiceAudioControllerBridge({
         currentAudioRef.current = null;
       }
     });
-  }, [audioSettings, game]);
+  }, [audioSettings, game, muted, respectReducedMotion, volume]);
 
   return null;
-}
-
-function shouldStopVoicePlayback(
-  audioSettings: AudioSettings,
-  target: Window,
-) {
-  return (
-    audioSettings.muted ||
-    (audioSettings.respectReducedMotion && prefersReducedMotion(target))
-  );
 }
 
 function pickVoiceClipUrl(

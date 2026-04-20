@@ -6,7 +6,7 @@ import {
   AUDIO_THEME_OPTIONS,
   type AudioSettings,
 } from '../../../app/audioSettings';
-import { VOICE_ACTOR_OPTIONS } from '../../../app/audio/voiceLibrary';
+import { VOICE_ACTOR_OPTIONS } from '../../../app/audio/voiceActors';
 import { useUiAudio } from '../../../app/audio/UiAudioContext';
 import {
   GRAPHICS_SETTINGS_OPTIONS,

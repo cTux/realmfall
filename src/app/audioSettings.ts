@@ -12,7 +12,7 @@ import {
   VOICE_ACTOR_OPTIONS,
   isVoiceActorId,
   type VoiceActorId,
-} from './audio/voiceLibrary';
+} from './audio/voiceActors';
 
 export interface AudioSettings {
   muted: boolean;
