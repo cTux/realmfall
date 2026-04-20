@@ -1,7 +1,7 @@
 {
   "name": "realmfall",
   "private": true,
-  "version": "0.2.247",
+  "version": "0.2.253",
   "description": "Single-player browser survival RPG with hex exploration, turn-based systems, React UI, and Pixi.js world rendering.",
   "keywords": [
     "browser-game",
@@ -58,7 +58,9 @@
     "@rexa-developer/tiks": "^0.1.8",
     "pixi.js": "^8.18.1",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "react-fps-stats": "^0.3.2",
+    "react-use-audio-player": "^4.0.2"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",

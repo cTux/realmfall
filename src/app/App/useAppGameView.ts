@@ -17,6 +17,7 @@ import { isEquippableItem } from '../../game/inventory';
 import { isPlayerClaim } from '../../game/territories';
 import { buildTile } from '../../game/world';
 import { t } from '../../i18n';
+import { resolveBackgroundMusicMood } from '../audio/backgroundMusic';
 
 interface UseAppGameViewOptions {
   game: GameState;
@@ -157,8 +158,17 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     () => getCurrentHexClaimStatus(claimStatusInput),
     [claimStatusInput],
   );
+  const backgroundMusicMood = useMemo(
+    () =>
+      resolveBackgroundMusicMood({
+        combat,
+        currentStructure: currentTile.structure,
+      }),
+    [combat, currentTile.structure],
+  );
 
   return {
+    backgroundMusicMood,
     claimStatus,
     canProspectInventoryEquipment,
     canSellInventoryEquipment,

@@ -12,6 +12,7 @@ describe('audio settings persistence', () => {
 
   it('stores audio settings inside the shared settings payload', () => {
     saveAudioSettings({
+      musicMuted: true,
       muted: true,
       respectReducedMotion: false,
       soundEffects: {
@@ -34,6 +35,7 @@ describe('audio settings persistence', () => {
       JSON.parse(window.localStorage.getItem('settings') ?? 'null'),
     ).toEqual({
       audio: {
+        musicMuted: true,
         muted: true,
         respectReducedMotion: false,
         soundEffects: {
@@ -59,6 +61,7 @@ describe('audio settings persistence', () => {
       'settings',
       JSON.stringify({
         audio: {
+          musicMuted: true,
           muted: true,
           soundEffects: {
             warning: false,
@@ -76,6 +79,7 @@ describe('audio settings persistence', () => {
 
     expect(loadAudioSettings()).toEqual({
       ...DEFAULT_AUDIO_SETTINGS,
+      musicMuted: true,
       muted: true,
       soundEffects: {
         ...DEFAULT_AUDIO_SETTINGS.soundEffects,
@@ -98,6 +102,7 @@ describe('audio settings persistence', () => {
       JSON.stringify({
         audio: {
           muted: 'yes',
+          musicMuted: 'quiet',
           respectReducedMotion: null,
           soundEffects: {
             pop: 'no',
@@ -135,6 +140,7 @@ describe('audio settings persistence', () => {
 
   it('stores normalized audio settings', () => {
     saveAudioSettings({
+      musicMuted: false,
       muted: false,
       respectReducedMotion: true,
       soundEffects: {
@@ -156,6 +162,7 @@ describe('audio settings persistence', () => {
       JSON.parse(window.localStorage.getItem('settings') ?? 'null'),
     ).toEqual({
       audio: {
+        musicMuted: false,
         muted: false,
         respectReducedMotion: true,
         soundEffects: {
@@ -180,6 +187,7 @@ describe('audio settings persistence', () => {
       'settings',
       JSON.stringify({
         audio: {
+          musicMuted: true,
           muted: true,
           respectReducedMotion: false,
           soundEffects: {

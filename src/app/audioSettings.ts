@@ -15,6 +15,7 @@ import {
 } from './audio/voiceActors';
 
 export interface AudioSettings {
+  musicMuted: boolean;
   muted: boolean;
   respectReducedMotion: boolean;
   soundEffects: AudioSoundEffectsSettings;
@@ -48,7 +49,7 @@ export interface AudioThemeOptionDefinition {
 }
 
 export interface AudioSettingsToggleOptionDefinition {
-  key: 'muted' | 'respectReducedMotion';
+  key: 'muted' | 'musicMuted' | 'respectReducedMotion';
   labelKey: string;
   descriptionKey: string;
 }
@@ -86,6 +87,7 @@ export const DEFAULT_VOICE_EVENT_SETTINGS: VoiceEventSettings = {
 };
 
 export const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
+  musicMuted: false,
   muted: false,
   respectReducedMotion: true,
   soundEffects: DEFAULT_AUDIO_SOUND_EFFECTS,
@@ -110,6 +112,11 @@ export const AUDIO_THEME_OPTIONS: AudioThemeOptionDefinition[] = [
 
 export const AUDIO_SETTINGS_TOGGLE_OPTIONS: AudioSettingsToggleOptionDefinition[] =
   [
+    {
+      key: 'musicMuted',
+      labelKey: 'ui.settings.audio.musicMuted.label',
+      descriptionKey: 'ui.settings.audio.musicMuted.description',
+    },
     {
       key: 'muted',
       labelKey: 'ui.settings.audio.muted.label',
@@ -211,6 +218,10 @@ function normalizeAudioSettings(settings: unknown): AudioSettings {
   }
 
   return {
+    musicMuted:
+      typeof settings.musicMuted === 'boolean'
+        ? settings.musicMuted
+        : DEFAULT_AUDIO_SETTINGS.musicMuted,
     muted:
       typeof settings.muted === 'boolean'
         ? settings.muted

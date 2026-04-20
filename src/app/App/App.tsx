@@ -60,6 +60,11 @@ const VoiceAudioControllerBridge = lazy(() =>
     default: module.VoiceAudioControllerBridge,
   })),
 );
+const BackgroundMusicControllerBridge = lazy(() =>
+  import('../audio/BackgroundMusicControllerBridge').then((module) => ({
+    default: module.BackgroundMusicControllerBridge,
+  })),
+);
 const VersionStatusPanel = lazy(() =>
   import('./components/VersionStatusPanel').then((module) => ({
     default: module.VersionStatusPanel,
@@ -167,6 +172,7 @@ export function App() {
   });
 
   const {
+    backgroundMusicMood,
     claimStatus,
     canProspectInventoryEquipment,
     canSellInventoryEquipment,
@@ -572,6 +578,10 @@ export function App() {
           <VoiceAudioControllerBridge
             audioSettings={audioSettings}
             game={game}
+          />
+          <BackgroundMusicControllerBridge
+            audioSettings={audioSettings}
+            mood={backgroundMusicMood}
           />
         </Suspense>
         <div className={isReady ? undefined : styles.hiddenUntilReady}>

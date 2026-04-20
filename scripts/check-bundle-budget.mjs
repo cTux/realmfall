@@ -6,7 +6,7 @@ import {
   findEntryKey,
   formatKiB,
   getBuiltChunks,
-  getChunkByPrefix,
+  getChunkBudgetTarget,
   getStartupChunkFiles,
   loadManifest,
 } from './check-bundle-budget.helpers.mjs';
@@ -16,9 +16,9 @@ const manifest = loadManifest();
 const failures = [];
 
 for (const [chunkName, budgetBytes] of Object.entries(CHUNK_BUDGETS)) {
-  const chunk = getChunkByPrefix(chunks, chunkName);
+  const budgetTarget = getChunkBudgetTarget(chunks, chunkName);
 
-  if (!chunk) {
+  if (!budgetTarget) {
     failures.push(
       `Missing expected chunk "${chunkName}" in ${DIST_JS_DIR.replaceAll(
         '\\',
@@ -28,6 +28,14 @@ for (const [chunkName, budgetBytes] of Object.entries(CHUNK_BUDGETS)) {
     continue;
   }
 
+  if (budgetTarget.kind === 'merged') {
+    console.log(
+      `${chunkName}: merged into ${budgetTarget.mergedInto} and covered by that chunk budget`,
+    );
+    continue;
+  }
+
+  const { chunk } = budgetTarget;
   if (chunk.size > budgetBytes) {
     failures.push(
       `"${chunk.fileName}" is ${formatKiB(chunk.size)} which exceeds the ${formatKiB(

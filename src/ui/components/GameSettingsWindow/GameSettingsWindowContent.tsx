@@ -167,7 +167,7 @@ export function GameSettingsWindowContent({
           id={`${activeTabId}-panel`}
           role="tabpanel"
           aria-labelledby={`${activeTabId}-tab`}
-          className={styles.tabPanel}
+          className={`${styles.tabPanel} ${activeTabId === 'audio' ? styles.audioTabPanel : ''}`}
         >
           {activeTabId === 'graphics' ? (
             <div className={styles.audioPanel}>
