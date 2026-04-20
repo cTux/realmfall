@@ -18,11 +18,13 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `useAppWindowsProps` builds the nested `layout`, `views`, and `actions` payload passed to `AppWindows`, keeping `App.tsx` from rebuilding that whole prop tree inline.
 - Focused hooks under `src/app/App/hooks` keep `AppWindows` centered on composition by separating deferred-window bookkeeping, stable handler maps, and memoized window-specific view models.
 - `useManagedWindowProps` builds the shared `position`, `onMove`, `visible`, and `onClose` prop map for managed windows so fixed and deferred window composition does not repeat the same shell wiring at every render site.
+- Fixed and deferred window composition receives narrow view and action slices instead of the full `AppWindowsProps` object, keeping unrelated window surfaces from rerendering together when one subtree changes.
 - The game uses a desktop-style draggable window model with persisted positions, optional per-window dimensions for resizable windows, and visibility.
 - Windows that become visible automatically take focus through the shared drag shell so newly opened panes rise and accept keyboard interaction immediately.
 - Shared window-shell helpers are reused for move handlers, close handlers, deferred mount state, and repeated title-bar labels instead of maintaining parallel per-window implementations.
 - `useAppControllers` routes gameplay mutations through a shared timed-transition helper so controller actions inject the current world time consistently without repeating the same wrapper at every call site.
 - The world-clock hook pauses its `requestAnimationFrame` loop while the document is hidden and resumes from a clean tick when the tab becomes visible again, avoiding idle background frame churn without desynchronizing world time.
+- UI surfaces that only need the live world clock, such as the action bar cooldown overlay, subscribe through `worldClockStore` near the consumer instead of threading `worldTimeMs` through broad window prop trees.
 - Window dragging and resizing keep movement local to the window shell until pointer release, which avoids pushing every pointer delta through shared app state while the interaction is still in progress.
 - The shared drag shell only commits `onMove` when pointer movement or resizing actually changed geometry, so focus clicks on a window header do not trigger redundant persistence or autosave work.
 - Transition hooks expose mounted-state booleans for deferred windows as mounted-state signals, not as render callbacks, so the desktop layout code can treat them as stateful visibility guards instead of ambiguous “render” flags.

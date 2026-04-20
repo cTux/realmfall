@@ -1,4 +1,5 @@
 import {
+  memo,
   useEffect,
   useRef,
   useState,
@@ -6,6 +7,7 @@ import {
 } from 'react';
 import { t } from '../../../i18n';
 import type { Item } from '../../../game/state';
+import { useWorldClockTime } from '../../../app/App/worldClockStore';
 import {
   ACTION_BAR_SLOT_COUNT,
   findActionBarItem,
@@ -18,7 +20,7 @@ import styles from './styles.module.scss';
 interface ActionBarProps {
   inventory: Item[];
   slots: ActionBarSlots;
-  worldTimeMs: number;
+  worldTimeMs?: number;
   consumableCooldownEndsAt: number;
   onAssignSlot: (slotIndex: number, item: Item) => void;
   onClearSlot: (slotIndex: number) => void;
@@ -30,7 +32,7 @@ interface ActionBarProps {
   onLeaveItem: () => void;
 }
 
-export function ActionBar({
+export const ActionBar = memo(function ActionBar({
   inventory,
   slots,
   worldTimeMs,
@@ -40,10 +42,15 @@ export function ActionBar({
   onHoverItem,
   onLeaveItem,
 }: ActionBarProps) {
+  const liveWorldTimeMs = useWorldClockTime();
+  const resolvedWorldTimeMs = worldTimeMs ?? liveWorldTimeMs;
   const [pickerSlotIndex, setPickerSlotIndex] = useState<number | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const consumables = getConsumablesFromInventory(inventory);
-  const cooldownRemainingMs = Math.max(0, consumableCooldownEndsAt - worldTimeMs);
+  const cooldownRemainingMs = Math.max(
+    0,
+    consumableCooldownEndsAt - resolvedWorldTimeMs,
+  );
   const cooldownRatio = Math.max(0, Math.min(1, cooldownRemainingMs / 2_000));
 
   useEffect(() => {
@@ -139,7 +146,7 @@ export function ActionBar({
       </div>
     </div>
   );
-}
+});
 
 function getActionBarSlotLabel(slotIndex: number, item?: Item) {
   if (!item) {

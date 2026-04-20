@@ -60,17 +60,37 @@ export function AppWindows(props: AppWindowsProps) {
   return (
     <>
       <AppFixedWindows
-        {...props}
         dockEntries={dockEntries}
         managedWindowProps={managedWindowProps}
+        tooltipPositionRef={props.layout.tooltipPositionRef}
+        heroView={props.views.hero}
+        playerView={props.views.player}
+        itemMenu={props.views.itemMenu}
+        windowActions={props.actions.windows}
+        tooltipActions={props.actions.tooltip}
+        inventoryActions={props.actions.inventory}
+        recipeActions={props.actions.recipes}
       />
       <AppDeferredWindows
-        {...props}
         combatPlayerParty={combatPlayerParty}
         hexInfoView={hexInfoView}
         mountedWindows={mountedWindows}
         managedWindowProps={managedWindowProps}
         recipeWindowStructure={recipeWindowStructure}
+        heroStats={props.views.hero.stats}
+        playerView={props.views.player}
+        worldView={props.views.world}
+        recipesView={props.views.recipes}
+        lootView={props.views.loot}
+        combatView={props.views.combat}
+        logsView={props.views.logs}
+        settingsView={props.views.settings}
+        tooltipActions={props.actions.tooltip}
+        inventoryActions={props.actions.inventory}
+        worldActions={props.actions.world}
+        recipeActions={props.actions.recipes}
+        logActions={props.actions.logs}
+        settingsActions={props.actions.settings}
       />
     </>
   );

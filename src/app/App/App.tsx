@@ -3,6 +3,7 @@ import {
   Suspense,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -267,53 +268,56 @@ export function App() {
     windowShownLoot: windowShown.loot,
   });
 
-  const handleSaveSettings = async ({
-    audio: nextAudioSettings,
-    graphics: nextGraphicsSettings,
-  }: {
-    audio: AudioSettings;
-    graphics: GraphicsSettings;
-  }) => {
-    setAudioSettings(nextAudioSettings);
-    setGraphicsSettings(nextGraphicsSettings);
-    saveAudioSettings(nextAudioSettings);
-    saveGraphicsSettings(nextGraphicsSettings);
-    uiAudio.applySettings(nextAudioSettings);
-    await persistNow();
-    uiAudio.success();
-  };
+  const handleSaveSettings = useCallback(
+    async ({
+      audio: nextAudioSettings,
+      graphics: nextGraphicsSettings,
+    }: {
+      audio: AudioSettings;
+      graphics: GraphicsSettings;
+    }) => {
+      setAudioSettings(nextAudioSettings);
+      setGraphicsSettings(nextGraphicsSettings);
+      saveAudioSettings(nextAudioSettings);
+      saveGraphicsSettings(nextGraphicsSettings);
+      uiAudio.applySettings(nextAudioSettings);
+      await persistNow();
+      uiAudio.success();
+    },
+    [persistNow, setAudioSettings, setGraphicsSettings, uiAudio],
+  );
 
-  const handleSaveSettingsAndReload = async (settings: {
-    audio: AudioSettings;
-    graphics: GraphicsSettings;
-  }) => {
-    await handleSaveSettings(settings);
-    uiAudio.notify();
-    window.location.reload();
-  };
+  const handleSaveSettingsAndReload = useCallback(
+    async (settings: {
+      audio: AudioSettings;
+      graphics: GraphicsSettings;
+    }) => {
+      await handleSaveSettings(settings);
+      uiAudio.notify();
+      window.location.reload();
+    },
+    [handleSaveSettings, uiAudio],
+  );
 
-  const handleResetSaveData = async () => {
+  const handleResetSaveData = useCallback(async () => {
     uiAudio.error();
     clearEncryptedState();
     clearAudioSettings();
     clearGraphicsSettings();
     clearWorldMapSettings();
     window.location.reload();
-  };
-
-  const appWindowsProps = useAppWindowsProps({
-    windows,
-    windowShown,
-    keepLootWindowMounted,
-    keepCombatWindowMounted,
-    tooltipPositionRef,
-    heroView: {
+  }, [uiAudio]);
+  const handleSetHome = useCallback(() => setHomeHexForApp(setGame), [setGame]);
+  const heroView = useMemo(
+    () => ({
       stats,
       hunger: game.player.hunger,
       thirst: game.player.thirst,
-      worldTimeMs: game.worldTimeMs,
-    },
-    playerView: {
+    }),
+    [game.player.hunger, game.player.thirst, stats],
+  );
+  const playerView = useMemo(
+    () => ({
       coord: game.player.coord,
       mana: game.player.mana,
       consumableCooldownEndsAt: game.player.consumableCooldownEndsAt,
@@ -321,8 +325,19 @@ export function App() {
       equipment: game.player.equipment,
       inventory: game.player.inventory,
       learnedRecipeIds: game.player.learnedRecipeIds,
-    },
-    worldView: {
+    }),
+    [
+      actionBarSlots,
+      game.player.consumableCooldownEndsAt,
+      game.player.coord,
+      game.player.equipment,
+      game.player.inventory,
+      game.player.learnedRecipeIds,
+      game.player.mana,
+    ],
+  );
+  const worldView = useMemo(
+    () => ({
       homeHex: game.homeHex,
       currentTile,
       currentTileHostileEnemyCount,
@@ -335,87 +350,213 @@ export function App() {
       sellInventoryEquipmentExplanation,
       townStock,
       gold,
-    },
-    recipesView: {
+    }),
+    [
+      canProspectInventoryEquipment,
+      canSellInventoryEquipment,
+      claimStatus,
+      currentTile,
+      currentTileHostileEnemyCount,
+      game.combat,
+      game.homeHex,
+      gold,
+      interactLabel,
+      prospectInventoryEquipmentExplanation,
+      sellInventoryEquipmentExplanation,
+      townStock,
+    ],
+  );
+  const recipesView = useMemo(
+    () => ({
       entries: recipes,
       skillLevels: recipeSkillLevels,
       inventoryCountsByItemKey,
       materialFilterItemKey: recipeMaterialFilterItemKey,
-    },
-    lootView: {
+    }),
+    [
+      inventoryCountsByItemKey,
+      recipeMaterialFilterItemKey,
+      recipeSkillLevels,
+      recipes,
+    ],
+  );
+  const lootView = useMemo(
+    () => ({
       visible: lootWindowVisible,
       snapshot: lootSnapshot,
-    },
-    combatView: {
+    }),
+    [lootSnapshot, lootWindowVisible],
+  );
+  const combatView = useMemo(
+    () => ({
       visible: combatWindowVisible,
       snapshot: combatSnapshot,
-    },
-    logsView: {
+    }),
+    [combatSnapshot, combatWindowVisible],
+  );
+  const logsView = useMemo(
+    () => ({
       showFilterMenu,
       filters: logFilters,
       filtered: filteredLogs,
-    },
-    settingsView: {
+    }),
+    [filteredLogs, logFilters, showFilterMenu],
+  );
+  const settingsView = useMemo(
+    () => ({
       audio: audioSettings,
       graphics: graphicsSettings,
-    },
+    }),
+    [audioSettings, graphicsSettings],
+  );
+  const windowActions = useMemo(
+    () => ({
+      onMoveWindow: moveWindow,
+      onSetWindowVisibility: setWindowVisibility,
+      onToggleDockWindow: toggleDockWindow,
+    }),
+    [moveWindow, setWindowVisibility, toggleDockWindow],
+  );
+  const tooltipActions = useMemo(
+    () => ({
+      onShowActionBarItemTooltip: showActionBarItemTooltip,
+      onShowItemTooltip: showItemTooltip,
+      onShowTooltip: showTooltip,
+      onCloseTooltip: closeTooltip,
+      onCloseItemMenu: closeItemMenu,
+      onEquipmentHover: handleEquipmentHover,
+    }),
+    [
+      closeItemMenu,
+      closeTooltip,
+      handleEquipmentHover,
+      showActionBarItemTooltip,
+      showItemTooltip,
+      showTooltip,
+    ],
+  );
+  const inventoryActions = useMemo(
+    () => ({
+      onUnequip: handleUnequip,
+      onSort: handleSort,
+      onEquip: handleEquip,
+      onUseItem: handleUseItem,
+      onAssignActionBarSlot: handleAssignActionBarSlot,
+      onClearActionBarSlot: handleClearActionBarSlot,
+      onUseActionBarSlot: handleUseActionBarSlot,
+      onCraftRecipe: handleCraftRecipe,
+      onDropItem: handleDropItem,
+      onDropEquippedItem: handleDropEquippedItem,
+      onProspectItem: handleProspectItem,
+      onSellItem: handleSellItem,
+      onSetItemLocked: handleSetItemLocked,
+      onContextItem: handleContextItem,
+      onEquippedContextItem: handleEquippedContextItem,
+      onTakeLootItem: handleTakeLootItem,
+      onTakeAllLoot: handleTakeAllLoot,
+    }),
+    [
+      handleAssignActionBarSlot,
+      handleClearActionBarSlot,
+      handleContextItem,
+      handleCraftRecipe,
+      handleDropEquippedItem,
+      handleDropItem,
+      handleEquip,
+      handleEquippedContextItem,
+      handleProspectItem,
+      handleSellItem,
+      handleSetItemLocked,
+      handleSort,
+      handleTakeAllLoot,
+      handleTakeLootItem,
+      handleUnequip,
+      handleUseActionBarSlot,
+      handleUseItem,
+    ],
+  );
+  const worldActions = useMemo(
+    () => ({
+      onStartCombat: handleStartCombat,
+      onInteract: handleInteract,
+      onProspect: handleProspect,
+      onSellAll: handleSellAll,
+      onBuyTownItem: handleBuyTownItem,
+      onClaimHex: handleClaimHex,
+      onSetHome: handleSetHome,
+    }),
+    [
+      handleBuyTownItem,
+      handleClaimHex,
+      handleInteract,
+      handleProspect,
+      handleSellAll,
+      handleSetHome,
+      handleStartCombat,
+    ],
+  );
+  const recipeActions = useMemo(
+    () => ({
+      onOpenWithMaterialFilter: handleOpenRecipeBookWithMaterialFilter,
+      onClearMaterialFilter: handleClearRecipeMaterialFilter,
+    }),
+    [
+      handleClearRecipeMaterialFilter,
+      handleOpenRecipeBookWithMaterialFilter,
+    ],
+  );
+  const logActions = useMemo(
+    () => ({
+      onToggleFilterMenu: toggleFilterMenu,
+      onToggleLogFilter: toggleLogFilter,
+    }),
+    [toggleFilterMenu, toggleLogFilter],
+  );
+  const settingsActions = useMemo(
+    () => ({
+      onResetSaveData: handleResetSaveData,
+      onSaveSettings: handleSaveSettings,
+      onSaveSettingsAndReload: handleSaveSettingsAndReload,
+    }),
+    [handleResetSaveData, handleSaveSettings, handleSaveSettingsAndReload],
+  );
+  const appWindowActions = useMemo(
+    () => ({
+      windows: windowActions,
+      tooltip: tooltipActions,
+      inventory: inventoryActions,
+      world: worldActions,
+      recipes: recipeActions,
+      logs: logActions,
+      settings: settingsActions,
+    }),
+    [
+      inventoryActions,
+      logActions,
+      recipeActions,
+      settingsActions,
+      tooltipActions,
+      windowActions,
+      worldActions,
+    ],
+  );
+
+  const appWindowsProps = useAppWindowsProps({
+    windows,
+    windowShown,
+    keepLootWindowMounted,
+    keepCombatWindowMounted,
+    tooltipPositionRef,
+    heroView,
+    playerView,
+    worldView,
+    recipesView,
+    lootView,
+    combatView,
+    logsView,
+    settingsView,
     itemMenu,
-    actions: {
-      windows: {
-        onMoveWindow: moveWindow,
-        onSetWindowVisibility: setWindowVisibility,
-        onToggleDockWindow: toggleDockWindow,
-      },
-      tooltip: {
-        onShowActionBarItemTooltip: showActionBarItemTooltip,
-        onShowItemTooltip: showItemTooltip,
-        onShowTooltip: showTooltip,
-        onCloseTooltip: closeTooltip,
-        onCloseItemMenu: closeItemMenu,
-        onEquipmentHover: handleEquipmentHover,
-      },
-      inventory: {
-        onUnequip: handleUnequip,
-        onSort: handleSort,
-        onEquip: handleEquip,
-        onUseItem: handleUseItem,
-        onAssignActionBarSlot: handleAssignActionBarSlot,
-        onClearActionBarSlot: handleClearActionBarSlot,
-        onUseActionBarSlot: handleUseActionBarSlot,
-        onCraftRecipe: handleCraftRecipe,
-        onDropItem: handleDropItem,
-        onDropEquippedItem: handleDropEquippedItem,
-        onProspectItem: handleProspectItem,
-        onSellItem: handleSellItem,
-        onSetItemLocked: handleSetItemLocked,
-        onContextItem: handleContextItem,
-        onEquippedContextItem: handleEquippedContextItem,
-        onTakeLootItem: handleTakeLootItem,
-        onTakeAllLoot: handleTakeAllLoot,
-      },
-      world: {
-        onStartCombat: handleStartCombat,
-        onInteract: handleInteract,
-        onProspect: handleProspect,
-        onSellAll: handleSellAll,
-        onBuyTownItem: handleBuyTownItem,
-        onClaimHex: handleClaimHex,
-        onSetHome: () => setHomeHexForApp(setGame),
-      },
-      recipes: {
-        onOpenWithMaterialFilter: handleOpenRecipeBookWithMaterialFilter,
-        onClearMaterialFilter: handleClearRecipeMaterialFilter,
-      },
-      logs: {
-        onToggleFilterMenu: toggleFilterMenu,
-        onToggleLogFilter: toggleLogFilter,
-      },
-      settings: {
-        onResetSaveData: handleResetSaveData,
-        onSaveSettings: handleSaveSettings,
-        onSaveSettingsAndReload: handleSaveSettingsAndReload,
-      },
-    },
+    actions: appWindowActions,
   });
 
   return (
