@@ -103,16 +103,12 @@ function toPlayerEntity(
       name: member.name,
       level: member.level,
     }),
-    bars: buildCombatBars(
-      {
-        hp: member.hp,
-        maxHp: member.maxHp,
-        mana: member.mana,
-        maxMana: member.maxMana,
-        actor: member.actor,
-      },
-      worldTimeMs,
-    ),
+    bars: buildCombatBars({
+      hp: member.hp,
+      maxHp: member.maxHp,
+      mana: member.mana,
+      maxMana: member.maxMana,
+    }),
     abilities: buildAbilityIcons(member.actor, member.attack, worldTimeMs),
     buffs: buildEffectIcons(member.buffs, 'buff'),
     debuffs: buildEffectIcons(member.debuffs, 'debuff'),
@@ -143,9 +139,7 @@ function toEnemyEntity(
         maxHp: enemy.maxHp,
         mana: enemy.mana ?? enemy.maxMana ?? DEFAULT_ENEMY_MANA,
         maxMana: enemy.maxMana ?? enemy.mana ?? DEFAULT_ENEMY_MANA,
-        actor,
       },
-      worldTimeMs,
       {
         hpTooltipTitle: t('ui.combat.entityTitle', {
           name: enemy.name,
@@ -198,11 +192,7 @@ const PartyColumn = memo(function PartyColumn({
 });
 
 function buildCombatBars(
-  entity: Pick<
-    CombatPartyMember,
-    'hp' | 'maxHp' | 'mana' | 'maxMana' | 'actor'
-  >,
-  worldTimeMs: number,
+  entity: Pick<CombatPartyMember, 'hp' | 'maxHp' | 'mana' | 'maxMana'>,
   tooltipOptions?: {
     hpTooltipTitle?: string;
     hpTooltipLines?: EntityStatusBar['tooltipLines'];
@@ -229,33 +219,6 @@ function buildCombatBars(
     },
   ];
 
-  if (entity.actor.casting) {
-    const ability = getAbilityDefinition(entity.actor.casting.abilityId);
-    const castDurationMs = Math.max(ability.castTimeMs, 1);
-    const castStartedAt = entity.actor.casting.endsAt - castDurationMs;
-    const elapsedMs = Math.max(0, worldTimeMs - castStartedAt);
-
-    bars.push({
-      id: 'cast',
-      label: t('ui.combat.casting'),
-      value: elapsedMs,
-      max: castDurationMs,
-      tone: 'cast',
-      description: t('ui.combat.castBar.tooltip'),
-      text: ability.name,
-    });
-  } else {
-    bars.push({
-      id: 'cast',
-      label: t('ui.combat.casting'),
-      value: 0,
-      max: 1,
-      tone: 'cast',
-      description: t('ui.combat.castBar.tooltip'),
-      reserved: true,
-    });
-  }
-
   return bars;
 }
 
@@ -270,16 +233,7 @@ function buildAbilityIcons(
       actor.globalCooldownEndsAt,
       actor.cooldownEndsAt[abilityId] ?? worldTimeMs,
     );
-    const totalCooldownMs = Math.max(
-      actor.effectiveGlobalCooldownMs ?? actor.globalCooldownMs,
-      actor.effectiveCooldownMs?.[abilityId] ?? ability.cooldownMs,
-      1,
-    );
     const remainingMs = Math.max(0, readyAt - worldTimeMs);
-    const cooldownRatio = Math.max(
-      0,
-      Math.min(1, remainingMs / totalCooldownMs),
-    );
 
     return {
       id: ability.id,
@@ -290,8 +244,7 @@ function buildAbilityIcons(
       tooltipTitle: ability.name,
       tooltipLines: abilityTooltipLines(ability, ability.target, attack),
       tooltipBorderColor: 'rgba(148, 163, 184, 0.9)',
-      cooldownRatio,
-      remainingMs,
+      disabled: remainingMs > 0,
     };
   });
 }

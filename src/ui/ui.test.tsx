@@ -1541,7 +1541,7 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('Player Lv 10');
     expect(markup).toContain('Marauder Lv 3');
     expect(markup).toContain('MP');
-    expect(markup).toContain('Casting');
+    expect(markup).not.toContain('Casting');
     expect(markup).toContain('Kick');
     expect(markup).toContain(getAbilityDefinition('fireball').name);
     expect(markup).toContain('(Q) Start');

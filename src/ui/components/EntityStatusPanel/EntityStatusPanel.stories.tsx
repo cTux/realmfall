@@ -26,15 +26,6 @@ const meta = {
         tone: 'mana',
         description: 'Current mana.',
       },
-      {
-        id: 'cast',
-        label: 'Casting',
-        value: 1,
-        max: 2,
-        tone: 'cast',
-        description: 'Current cast progress.',
-        text: 'Fireball',
-      },
     ],
     abilities: [
       {

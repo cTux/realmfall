@@ -214,14 +214,70 @@ describe('CombatWindowContent', () => {
       'rgba(248, 113, 113, 0.9)',
     );
   });
+
+  it('disables combat abilities on cooldown without rendering overlays or cast bars', async () => {
+    const onHoverDetail = vi.fn();
+    const enemyActor = createCombatActorState(WORLD_TIME_MS, ['kick']);
+    enemyActor.globalCooldownEndsAt = WORLD_TIME_MS + 1_000;
+    enemyActor.cooldownEndsAt.kick = WORLD_TIME_MS + 1_000;
+    enemyActor.casting = {
+      abilityId: 'kick',
+      targetId: 'player',
+      endsAt: WORLD_TIME_MS + 500,
+    };
+
+    await act(async () => {
+      root.render(
+        <CombatWindowContent
+          combat={{
+            ...combat,
+            enemies: {
+              ...combat.enemies,
+              'enemy-1': enemyActor,
+            },
+          }}
+          playerParty={playerParty}
+          enemies={enemies}
+          worldTimeMs={WORLD_TIME_MS}
+          onHoverDetail={onHoverDetail}
+          onLeaveDetail={() => {}}
+        />,
+      );
+    });
+
+    const enemyCard = findEntityCardByTitle(host, 'Wolf Lv 2');
+    const abilityButton = enemyCard?.querySelector(
+      'button[aria-label="Kick"]',
+    ) as HTMLButtonElement | null;
+    const barStack = enemyCard?.querySelector(
+      'div[class*="barStack"]',
+    ) as HTMLDivElement | null;
+
+    expect(abilityButton).not.toBeNull();
+    expect(abilityButton?.className).toContain('iconButtonDisabled');
+    expect(abilityButton?.getAttribute('aria-disabled')).toBe('true');
+    expect(
+      abilityButton?.querySelector('[class*="cooldownOverlay"]'),
+    ).toBeNull();
+    expect(barStack?.children.length).toBe(2);
+    expect(host.querySelector('[class*="castBar"]')).toBeNull();
+  });
 });
 
 function findPrimaryBarByTitle(host: HTMLElement, title: string) {
+  const entityCard = findEntityCardByTitle(host, title);
+
+  return entityCard?.querySelector(
+    'div[class*="primaryBar"]',
+  ) as HTMLDivElement | null;
+}
+
+function findEntityCardByTitle(host: HTMLElement, title: string) {
   const titleNode = Array.from(host.querySelectorAll('strong')).find(
     (node) => node.textContent === title,
   );
 
   return titleNode?.closest(
-    'div[class*="primaryBar"]',
+    'div[class*="entityCard"]',
   ) as HTMLDivElement | null;
 }

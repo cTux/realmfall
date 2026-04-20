@@ -64,7 +64,6 @@ export const AppFixedWindows = memo(function AppFixedWindows({
       <ActionBar
         inventory={playerView.inventory}
         slots={playerView.actionBarSlots}
-        consumableCooldownEndsAt={playerView.consumableCooldownEndsAt ?? 0}
         onAssignSlot={inventoryActions.onAssignActionBarSlot}
         onClearSlot={inventoryActions.onClearActionBarSlot}
         onHoverItem={tooltipActions.onShowActionBarItemTooltip}

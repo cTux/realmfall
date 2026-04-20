@@ -14,8 +14,6 @@ const meta = {
   decorators: [storySurfaceDecorator],
   args: {
     inventory: fixtures.inventory,
-    worldTimeMs: 0,
-    consumableCooldownEndsAt: 0,
     slots: [
       { item: fixtures.inventory[0]! },
       { item: fixtures.inventory.find((item) => item.healing > 0)! },
@@ -55,12 +53,5 @@ export const DepletedSlot: Story = {
       ...Array.from({ length: 8 }, () => null),
     ],
     onClearSlot: noop,
-  },
-};
-
-export const CooldownActive: Story = {
-  args: {
-    worldTimeMs: 500,
-    consumableCooldownEndsAt: 2_000,
   },
 };

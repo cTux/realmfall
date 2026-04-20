@@ -18,11 +18,11 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - Attacking ability tooltips surface their current base damage for the hovered combatant, while non-damaging support abilities omit that damage row.
 - Ability tooltips now show icon-backed buff or debuff rows for any status effects they grant or inflict.
 - Damaging debuff tooltips surface their live damage amount from the active status instance, including stack-aware poison and burning damage.
-- Hero and combat ability tiles now render the live ability icon asset, show a vertical cooldown fill over the icon, and visually desaturate and fade while the ability is unavailable.
-- Combat entity cards now show a yellow cast bar beneath the resource bars whenever that entity is actively casting, with the fill advancing through the cast duration and the active ability name shown on the bar.
-- Combat entity cards snap their cooldown and cast-bar view models to a short visual cadence instead of rebuilding every card on every world-clock tick.
+- Combat ability tiles render the live ability icon asset and visually desaturate and fade while the ability is unavailable, without showing a ticking cooldown overlay.
+- Combat entity cards show HP and mana bars only; active casts do not render a separate cast bar.
+- Combat entity cards snap their ability-availability view models to a short visual cadence instead of rebuilding every card on every world-clock tick.
 - Action bar consumable bindings clear themselves once the assigned stack no longer exists in inventory, so depleted consumables do not linger as unavailable stale slots.
-- Action bar consumables now show the same vertical cooldown overlay style used for abilities, and a shared consumable cooldown overlays every populated slot while any consumable is recharging.
+- Action bar consumable slots do not render a cooldown overlay while the shared consumable recharge is active.
 - Pressing `Esc` closes every currently open window.
 - World camp markers stay readable above their night-time glow effects instead of sinking beneath the bloom layer.
 - Logs provide system, movement, combat, loot, and other gameplay feedback.

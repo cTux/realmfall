@@ -296,10 +296,7 @@ export function App() {
   );
 
   const handleSaveSettingsAndReload = useCallback(
-    async (settings: {
-      audio: AudioSettings;
-      graphics: GraphicsSettings;
-    }) => {
+    async (settings: { audio: AudioSettings; graphics: GraphicsSettings }) => {
       await handleSaveSettings(settings);
       uiAudio.notify();
       window.location.reload();
@@ -328,7 +325,6 @@ export function App() {
     () => ({
       coord: game.player.coord,
       mana: game.player.mana,
-      consumableCooldownEndsAt: game.player.consumableCooldownEndsAt,
       actionBarSlots,
       equipment: game.player.equipment,
       inventory: game.player.inventory,
@@ -336,7 +332,6 @@ export function App() {
     }),
     [
       actionBarSlots,
-      game.player.consumableCooldownEndsAt,
       game.player.coord,
       game.player.equipment,
       game.player.inventory,
@@ -508,10 +503,7 @@ export function App() {
       onOpenWithMaterialFilter: handleOpenRecipeBookWithMaterialFilter,
       onClearMaterialFilter: handleClearRecipeMaterialFilter,
     }),
-    [
-      handleClearRecipeMaterialFilter,
-      handleOpenRecipeBookWithMaterialFilter,
-    ],
+    [handleClearRecipeMaterialFilter, handleOpenRecipeBookWithMaterialFilter],
   );
   const logActions = useMemo(
     () => ({

@@ -39,7 +39,6 @@ export interface AppWindowsViewState {
   player: {
     coord: GameState['player']['coord'];
     mana: GameState['player']['mana'];
-    consumableCooldownEndsAt: GameState['player']['consumableCooldownEndsAt'];
     actionBarSlots: ActionBarSlots;
     equipment: GameState['player']['equipment'];
     inventory: GameState['player']['inventory'];

@@ -24,7 +24,6 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Shared window-shell helpers are reused for move handlers, close handlers, deferred mount state, and repeated title-bar labels instead of maintaining parallel per-window implementations.
 - `useAppControllers` routes gameplay mutations through a shared timed-transition helper so controller actions inject the current world time consistently without repeating the same wrapper at every call site.
 - The world-clock hook pauses its `requestAnimationFrame` loop while the document is hidden and resumes from a clean tick when the tab becomes visible again, avoiding idle background frame churn without desynchronizing world time.
-- UI surfaces that only need the live world clock, such as the action bar cooldown overlay, subscribe through `worldClockStore` near the consumer instead of threading `worldTimeMs` through broad window prop trees.
 - Window dragging and resizing keep movement local to the window shell until pointer release, which avoids pushing every pointer delta through shared app state while the interaction is still in progress.
 - The shared drag shell only commits `onMove` when pointer movement or resizing actually changed geometry, so focus clicks on a window header do not trigger redundant persistence or autosave work.
 - Transition hooks expose mounted-state booleans for deferred windows as mounted-state signals, not as render callbacks, so the desktop layout code can treat them as stateful visibility guards instead of ambiguous “render” flags.
@@ -36,7 +35,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Window loading fallbacks keep the spinner visible and add delayed explanatory copy when the deferred content is still unavailable after several seconds.
 - The newest log entry types in using chunked steps on a reduced timer cadence so the flavor animation stays visible without turning each character into its own React update.
 - The log window caches parsed timestamp and message metadata by log entry object and keeps the typing animation state inside the animated newest row, so appending a log does not force older rows to reparse or the full list to tick on every typing step.
-- The recipe book keeps large result sets behind explicit batch growth, and combat card view models snap to a short visual time step before rebuilding cooldown or cast-bar data, reducing avoidable window rerenders.
+- The recipe book keeps large result sets behind explicit batch growth, and combat card view models snap to a short visual time step before rebuilding ability-availability data, reducing avoidable window rerenders.
 
 ## Main Implementation Areas
 
