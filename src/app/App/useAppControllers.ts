@@ -71,7 +71,7 @@ type ItemTooltipLinesBuilder =
   typeof import('../../ui/tooltips').itemTooltipLines;
 
 let itemTooltipModulePromise: Promise<
-  typeof import('../../ui/tooltips')
+  typeof import('../../ui/tooltips') | null
 > | null = null;
 
 export function useAppControllers({
@@ -184,10 +184,18 @@ export function useAppControllers({
         gameRef.current.player.learnedRecipeIds.includes(item.recipeId);
       const requestId = ++tooltipRequestIdRef.current;
 
-      void loadItemTooltipModule().then(({ itemTooltipLines }) => {
+      void loadItemTooltipModule().then((tooltipModule) => {
         if (tooltipRequestIdRef.current !== requestId) {
           return;
         }
+
+        if (!tooltipModule) {
+          tooltipPositionRef.current = null;
+          setTooltipState(null);
+          return;
+        }
+
+        const { itemTooltipLines } = tooltipModule;
 
         tooltipPositionRef.current = position;
         setTooltipState({
@@ -222,10 +230,18 @@ export function useAppControllers({
       });
       const requestId = ++tooltipRequestIdRef.current;
 
-      void loadItemTooltipModule().then(({ itemTooltipLines }) => {
+      void loadItemTooltipModule().then((tooltipModule) => {
         if (tooltipRequestIdRef.current !== requestId) {
           return;
         }
+
+        if (!tooltipModule) {
+          tooltipPositionRef.current = null;
+          setTooltipState(null);
+          return;
+        }
+
+        const { itemTooltipLines } = tooltipModule;
 
         tooltipPositionRef.current = position;
         setTooltipState({
@@ -654,9 +670,9 @@ function getItemTooltipContentKey(
 }
 
 function loadItemTooltipModule() {
-  itemTooltipModulePromise ??= import('../../ui/tooltips').catch((error) => {
+  itemTooltipModulePromise ??= import('../../ui/tooltips').catch(() => {
     itemTooltipModulePromise = null;
-    throw error;
+    return null;
   });
   return itemTooltipModulePromise;
 }
