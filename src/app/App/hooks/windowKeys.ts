@@ -1,7 +1,6 @@
 import type { WindowPositions, WindowVisibilityState } from '../../constants';
 
 export const WINDOW_HANDLER_KEYS = [
-  'worldTime',
   'hero',
   'skills',
   'recipes',

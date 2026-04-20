@@ -35,7 +35,6 @@ export interface AppWindowsViewState {
     stats: ReturnType<typeof getPlayerStats>;
     hunger: GameState['player']['hunger'];
     thirst: GameState['player']['thirst'];
-    worldTimeMs: GameState['worldTimeMs'];
   };
   player: {
     coord: GameState['player']['coord'];

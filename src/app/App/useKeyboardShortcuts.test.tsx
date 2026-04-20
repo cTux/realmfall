@@ -42,7 +42,6 @@ describe('useKeyboardShortcuts', () => {
         onToggleDockWindow: vi.fn(),
         onUseActionBarSlot,
         windowShown: {
-          worldTime: false,
           hero: false,
           skills: false,
           recipes: false,

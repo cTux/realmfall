@@ -1006,6 +1006,82 @@ describe('renderScene', () => {
     expect(finalPolygonCalls).toBe(initialPolygonCalls);
   });
 
+  it('keeps animated layers cached across interaction-only frames in the same bucket', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { getSceneCache } = await import('./renderSceneCache');
+    const game = createGame(2, 'render-scene-animated-bucket-cache');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      structure: 'camp',
+      items: [],
+      enemyIds: [],
+    };
+    const visibleTiles = getVisibleTiles(game);
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      100,
+    );
+
+    const scene = getSceneCache(app as never);
+    const initialSkyClearCalls = (
+      scene.skyFill as unknown as MockGraphics
+    ).clear.mock.calls.length;
+    const initialOverlayClearCalls = (
+      scene.overlayFill as unknown as MockGraphics
+    ).clear.mock.calls.length;
+    const initialCloudCount = (
+      app.stage.children[5] as MockContainer
+    ).children.length;
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      { q: 1, r: 0 },
+      { q: 1, r: 0 },
+      12 * 60,
+      120,
+    );
+
+    expect(
+      (scene.skyFill as unknown as MockGraphics).clear.mock.calls,
+    ).toHaveLength(initialSkyClearCalls);
+    expect(
+      (scene.overlayFill as unknown as MockGraphics).clear.mock.calls,
+    ).toHaveLength(initialOverlayClearCalls);
+    expect((app.stage.children[5] as MockContainer).children).toHaveLength(
+      initialCloudCount,
+    );
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      { q: 1, r: 0 },
+      null,
+      12 * 60,
+      180,
+    );
+
+    expect(
+      (scene.skyFill as unknown as MockGraphics).clear.mock.calls.length,
+    ).toBeGreaterThan(initialSkyClearCalls);
+    expect(
+      (scene.overlayFill as unknown as MockGraphics).clear.mock.calls.length,
+    ).toBeGreaterThan(initialOverlayClearCalls);
+  });
+
   it('keeps static and stable interaction layers cached across log-only state clones', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-log-cache');

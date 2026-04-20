@@ -146,7 +146,6 @@ export function useAppControllers({
 
   const closeAllWindows = useCallback(() => {
     setWindowShown(() => ({
-      worldTime: false,
       hero: false,
       skills: false,
       recipes: false,

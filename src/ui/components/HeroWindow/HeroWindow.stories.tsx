@@ -25,7 +25,6 @@ const meta = {
     stats: fixtures.heroStats,
     hunger: 24,
     thirst: fixtures.thirst,
-    worldTimeMs: fixtures.worldTimeMs,
     onHoverDetail: noopHoverDetail,
     onLeaveDetail: noop,
   },

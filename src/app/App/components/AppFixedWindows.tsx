@@ -1,17 +1,20 @@
-import { Suspense } from 'react';
+import { memo } from 'react';
 import { t } from '../../../i18n';
 import {
   canEquipItem,
   canUseItem,
   isEquippableItem,
 } from '../../../game/state';
-import { createLazyWindowComponent } from '../../../ui/components/lazyWindowComponent';
 import { GameTooltip } from '../../../ui/components/GameTooltip';
 import { HeroWindow } from '../../../ui/components/HeroWindow';
 import { ItemContextMenu } from '../../../ui/components/ItemContextMenu';
 import { WindowDock } from '../../../ui/components/WindowDock';
 import { ActionBar } from '../../../ui/components/ActionBar/ActionBar';
-import type { AppWindowsProps } from '../AppWindows.types';
+import type {
+  AppWindowsActions,
+  AppWindowsLayout,
+  AppWindowsViewState,
+} from '../AppWindows.types';
 import { useTooltipState } from '../tooltipStore';
 import { getRecipeMaterialItemKey } from '../utils/getRecipeMaterialItemKey';
 
@@ -22,28 +25,31 @@ interface AppFixedWindowsProps {
   managedWindowProps: ReturnType<
     typeof import('../hooks/useManagedWindowProps').useManagedWindowProps
   >;
+  tooltipPositionRef: AppWindowsLayout['tooltipPositionRef'];
+  heroView: AppWindowsViewState['hero'];
+  playerView: AppWindowsViewState['player'];
+  itemMenu: AppWindowsViewState['itemMenu'];
+  windowActions: AppWindowsActions['windows'];
+  tooltipActions: AppWindowsActions['tooltip'];
+  inventoryActions: AppWindowsActions['inventory'];
+  recipeActions: AppWindowsActions['recipes'];
 }
 
-const DebuggerWindow = createLazyWindowComponent<
-  Parameters<
-    (typeof import('../../../ui/components/DebuggerWindow'))['DebuggerWindow']
-  >[0]
->(() =>
-  import('../../../ui/components/DebuggerWindow').then((module) => ({
-    default: module.DebuggerWindow,
-  })),
-);
-
-export function AppFixedWindows({
+export const AppFixedWindows = memo(function AppFixedWindows({
   dockEntries,
+  heroView,
+  inventoryActions,
+  itemMenu,
   managedWindowProps,
-  ...props
-}: AppWindowsProps & AppFixedWindowsProps) {
-  const { actions, layout, views } = props;
-  const { itemMenu } = views;
+  playerView,
+  recipeActions,
+  tooltipActions,
+  tooltipPositionRef,
+  windowActions,
+}: AppFixedWindowsProps) {
   const detailTooltipHandlers = {
-    onHoverDetail: actions.tooltip.onShowTooltip,
-    onLeaveDetail: actions.tooltip.onCloseTooltip,
+    onHoverDetail: tooltipActions.onShowTooltip,
+    onLeaveDetail: tooltipActions.onCloseTooltip,
   };
   const recipeMaterialItemKey = itemMenu
     ? getRecipeMaterialItemKey(itemMenu.item)
@@ -53,33 +59,22 @@ export function AppFixedWindows({
     <>
       <WindowDock
         entries={dockEntries}
-        onToggle={actions.windows.onToggleDockWindow}
+        onToggle={windowActions.onToggleDockWindow}
       />
       <ActionBar
-        inventory={views.player.inventory}
-        slots={views.player.actionBarSlots}
-        worldTimeMs={views.hero.worldTimeMs}
-        consumableCooldownEndsAt={views.player.consumableCooldownEndsAt ?? 0}
-        onAssignSlot={actions.inventory.onAssignActionBarSlot}
-        onClearSlot={actions.inventory.onClearActionBarSlot}
-        onHoverItem={actions.tooltip.onShowActionBarItemTooltip}
-        onLeaveItem={actions.tooltip.onCloseTooltip}
+        inventory={playerView.inventory}
+        slots={playerView.actionBarSlots}
+        consumableCooldownEndsAt={playerView.consumableCooldownEndsAt ?? 0}
+        onAssignSlot={inventoryActions.onAssignActionBarSlot}
+        onClearSlot={inventoryActions.onClearActionBarSlot}
+        onHoverItem={tooltipActions.onShowActionBarItemTooltip}
+        onLeaveItem={tooltipActions.onCloseTooltip}
       />
-      {layout.windowShown.worldTime ? (
-        <Suspense fallback={null}>
-          <DebuggerWindow
-            {...managedWindowProps.worldTime}
-            worldTimeMs={views.hero.worldTimeMs}
-            {...detailTooltipHandlers}
-          />
-        </Suspense>
-      ) : null}
       <HeroWindow
         {...managedWindowProps.hero}
-        stats={views.hero.stats}
-        hunger={views.hero.hunger}
-        thirst={views.hero.thirst}
-        worldTimeMs={views.hero.worldTimeMs}
+        stats={heroView.stats}
+        hunger={heroView.hunger}
+        thirst={heroView.thirst}
         {...detailTooltipHandlers}
       />
       {itemMenu ? (
@@ -93,7 +88,7 @@ export function AppFixedWindows({
               : t('ui.itemMenu.equipAction')
           }
           canEquip={itemMenu.slot ? true : canEquipItem(itemMenu.item)}
-          canUse={canUseItem(itemMenu.item, views.player.learnedRecipeIds)}
+          canUse={canUseItem(itemMenu.item, playerView.learnedRecipeIds)}
           canToggleLock={!itemMenu.slot && isEquippableItem(itemMenu.item)}
           isLocked={Boolean(itemMenu.item.locked)}
           canShowRecipes={Boolean(recipeMaterialItemKey)}
@@ -101,55 +96,55 @@ export function AppFixedWindows({
           canSellInventoryEquipment={itemMenu.canSellInventoryEquipment}
           onEquip={() => {
             if (itemMenu.slot) {
-              actions.inventory.onUnequip(itemMenu.slot);
+              inventoryActions.onUnequip(itemMenu.slot);
             } else {
-              actions.inventory.onEquip(itemMenu.item.id);
+              inventoryActions.onEquip(itemMenu.item.id);
             }
-            actions.tooltip.onCloseItemMenu();
+            tooltipActions.onCloseItemMenu();
           }}
           onUse={() => {
-            actions.inventory.onUseItem(itemMenu.item.id);
-            actions.tooltip.onCloseItemMenu();
+            inventoryActions.onUseItem(itemMenu.item.id);
+            tooltipActions.onCloseItemMenu();
           }}
           onDrop={() => {
             if (itemMenu.slot) {
-              actions.inventory.onDropEquippedItem(itemMenu.slot);
+              inventoryActions.onDropEquippedItem(itemMenu.slot);
             } else {
-              actions.inventory.onDropItem(itemMenu.item.id);
+              inventoryActions.onDropItem(itemMenu.item.id);
             }
-            actions.tooltip.onCloseItemMenu();
+            tooltipActions.onCloseItemMenu();
           }}
           onToggleLock={() => {
-            actions.inventory.onSetItemLocked(
+            inventoryActions.onSetItemLocked(
               itemMenu.item.id,
               !itemMenu.item.locked,
             );
-            actions.tooltip.onCloseItemMenu();
+            tooltipActions.onCloseItemMenu();
           }}
           onShowRecipes={() => {
             if (!recipeMaterialItemKey) return;
-            actions.recipes.onOpenWithMaterialFilter(recipeMaterialItemKey);
-            actions.tooltip.onCloseItemMenu();
+            recipeActions.onOpenWithMaterialFilter(recipeMaterialItemKey);
+            tooltipActions.onCloseItemMenu();
           }}
           onProspect={() => {
-            actions.inventory.onProspectItem(itemMenu.item.id);
-            actions.tooltip.onCloseItemMenu();
+            inventoryActions.onProspectItem(itemMenu.item.id);
+            tooltipActions.onCloseItemMenu();
           }}
           onSell={() => {
-            actions.inventory.onSellItem(itemMenu.item.id);
-            actions.tooltip.onCloseItemMenu();
+            inventoryActions.onSellItem(itemMenu.item.id);
+            tooltipActions.onCloseItemMenu();
           }}
-          onClose={actions.tooltip.onCloseItemMenu}
+          onClose={tooltipActions.onCloseItemMenu}
         />
       ) : null}
-      <TooltipLayer tooltipPositionRef={layout.tooltipPositionRef} />
+      <TooltipLayer tooltipPositionRef={tooltipPositionRef} />
     </>
   );
-}
+});
 
 function TooltipLayer({
   tooltipPositionRef,
-}: Pick<AppWindowsProps['layout'], 'tooltipPositionRef'>) {
+}: Pick<AppWindowsLayout, 'tooltipPositionRef'>) {
   const tooltip = useTooltipState();
   return <GameTooltip tooltip={tooltip} positionRef={tooltipPositionRef} />;
 }

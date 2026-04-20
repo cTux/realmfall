@@ -1,8 +1,11 @@
-import { Suspense } from 'react';
+import { memo, Suspense } from 'react';
 import { DEFAULT_LOG_FILTERS } from '../../constants';
 import { WindowLoadingState } from '../../../ui/components/WindowLoadingState';
 import { createLazyWindowComponent } from '../../../ui/components/lazyWindowComponent';
-import type { AppWindowsProps } from '../AppWindows.types';
+import type {
+  AppWindowsActions,
+  AppWindowsViewState,
+} from '../AppWindows.types';
 
 const SkillsWindow = createLazyWindowComponent<
   Parameters<(typeof import('../../../ui/components/SkillsWindow'))['SkillsWindow']>[0]
@@ -96,20 +99,46 @@ interface AppDeferredWindowsProps {
   recipeWindowStructure: ReturnType<
     typeof import('../hooks/useRecipeWindowStructure').useRecipeWindowStructure
   >;
+  heroStats: AppWindowsViewState['hero']['stats'];
+  playerView: AppWindowsViewState['player'];
+  worldView: AppWindowsViewState['world'];
+  recipesView: AppWindowsViewState['recipes'];
+  lootView: AppWindowsViewState['loot'];
+  combatView: AppWindowsViewState['combat'];
+  logsView: AppWindowsViewState['logs'];
+  settingsView: AppWindowsViewState['settings'];
+  tooltipActions: AppWindowsActions['tooltip'];
+  inventoryActions: AppWindowsActions['inventory'];
+  worldActions: AppWindowsActions['world'];
+  recipeActions: AppWindowsActions['recipes'];
+  logActions: AppWindowsActions['logs'];
+  settingsActions: AppWindowsActions['settings'];
 }
 
-export function AppDeferredWindows({
+export const AppDeferredWindows = memo(function AppDeferredWindows({
+  combatView,
   combatPlayerParty,
   hexInfoView,
+  heroStats,
+  inventoryActions,
+  logsView,
+  logActions,
+  lootView,
   mountedWindows,
   managedWindowProps,
+  playerView,
+  recipeActions,
+  recipesView,
   recipeWindowStructure,
-  ...props
-}: AppWindowsProps & AppDeferredWindowsProps) {
-  const { actions, views } = props;
+  settingsActions,
+  settingsView,
+  tooltipActions,
+  worldActions,
+  worldView,
+}: AppDeferredWindowsProps) {
   const detailTooltipHandlers = {
-    onHoverDetail: actions.tooltip.onShowTooltip,
-    onLeaveDetail: actions.tooltip.onCloseTooltip,
+    onHoverDetail: tooltipActions.onShowTooltip,
+    onLeaveDetail: tooltipActions.onCloseTooltip,
   };
   const fallback = <WindowLoadingState />;
 
@@ -119,7 +148,7 @@ export function AppDeferredWindows({
         <Suspense fallback={fallback}>
           <SkillsWindow
             {...managedWindowProps.skills}
-            skills={views.hero.stats.skills}
+            skills={heroStats.skills}
             {...detailTooltipHandlers}
           />
         </Suspense>
@@ -129,12 +158,12 @@ export function AppDeferredWindows({
           <RecipeBookWindow
             {...managedWindowProps.recipes}
             currentStructure={recipeWindowStructure}
-            recipes={views.recipes.entries}
-            recipeSkillLevels={views.recipes.skillLevels}
-            inventoryCountsByItemKey={views.recipes.inventoryCountsByItemKey}
-            materialFilterItemKey={views.recipes.materialFilterItemKey}
-            onResetMaterialFilter={actions.recipes.onClearMaterialFilter}
-            onCraft={actions.inventory.onCraftRecipe}
+            recipes={recipesView.entries}
+            recipeSkillLevels={recipesView.skillLevels}
+            inventoryCountsByItemKey={recipesView.inventoryCountsByItemKey}
+            materialFilterItemKey={recipesView.materialFilterItemKey}
+            onResetMaterialFilter={recipeActions.onClearMaterialFilter}
+            onCraft={inventoryActions.onCraftRecipe}
             {...detailTooltipHandlers}
           />
         </Suspense>
@@ -145,39 +174,39 @@ export function AppDeferredWindows({
             {...managedWindowProps.hexInfo}
             isHome={hexInfoView.isHome}
             canSetHome={hexInfoView.canSetHome}
-            onSetHome={actions.world.onSetHome}
+            onSetHome={worldActions.onSetHome}
             terrain={hexInfoView.terrain}
             structure={hexInfoView.structure}
             enemyCount={hexInfoView.enemyCount}
-            interactLabel={views.world.interactLabel}
-            canInteract={Boolean(views.world.interactLabel)}
+            interactLabel={worldView.interactLabel}
+            canInteract={Boolean(worldView.interactLabel)}
             canProspectInventoryEquipment={
-              views.world.canProspectInventoryEquipment
+              worldView.canProspectInventoryEquipment
             }
-            canSellInventoryEquipment={views.world.canSellInventoryEquipment}
-            canTerritoryAction={views.world.claimStatus.canClaim}
-            territoryActionLabel={views.world.claimStatus.actionLabel}
-            territoryActionExplanation={views.world.claimStatus.reason}
+            canSellInventoryEquipment={worldView.canSellInventoryEquipment}
+            canTerritoryAction={worldView.claimStatus.canClaim}
+            territoryActionLabel={worldView.claimStatus.actionLabel}
+            territoryActionExplanation={worldView.claimStatus.reason}
             prospectInventoryEquipmentExplanation={
-              views.world.prospectInventoryEquipmentExplanation
+              worldView.prospectInventoryEquipmentExplanation
             }
             sellInventoryEquipmentExplanation={
-              views.world.sellInventoryEquipmentExplanation
+              worldView.sellInventoryEquipmentExplanation
             }
-            onInteract={actions.world.onInteract}
-            onProspect={actions.world.onProspect}
-            onSellAll={actions.world.onSellAll}
-            onTerritoryAction={actions.world.onClaimHex}
-            structureHp={views.world.currentTile.structureHp}
-            structureMaxHp={views.world.currentTile.structureMaxHp}
-            territoryName={views.world.currentTile.claim?.ownerName ?? null}
-            territoryOwnerType={views.world.currentTile.claim?.ownerType ?? null}
-            territoryNpc={views.world.currentTile.claim?.npc ?? null}
-            townStock={views.world.townStock}
-            gold={views.world.gold}
-            onBuyItem={actions.world.onBuyTownItem}
-            onHoverItem={actions.tooltip.onShowItemTooltip}
-            onLeaveItem={actions.tooltip.onCloseTooltip}
+            onInteract={worldActions.onInteract}
+            onProspect={worldActions.onProspect}
+            onSellAll={worldActions.onSellAll}
+            onTerritoryAction={worldActions.onClaimHex}
+            structureHp={worldView.currentTile.structureHp}
+            structureMaxHp={worldView.currentTile.structureMaxHp}
+            territoryName={worldView.currentTile.claim?.ownerName ?? null}
+            territoryOwnerType={worldView.currentTile.claim?.ownerType ?? null}
+            territoryNpc={worldView.currentTile.claim?.npc ?? null}
+            townStock={worldView.townStock}
+            gold={worldView.gold}
+            onBuyItem={worldActions.onBuyTownItem}
+            onHoverItem={tooltipActions.onShowItemTooltip}
+            onLeaveItem={tooltipActions.onCloseTooltip}
             {...detailTooltipHandlers}
           />
         </Suspense>
@@ -186,11 +215,11 @@ export function AppDeferredWindows({
         <Suspense fallback={fallback}>
           <EquipmentWindow
             {...managedWindowProps.equipment}
-            equipment={views.player.equipment}
-            onHoverItem={actions.tooltip.onEquipmentHover}
-            onLeaveItem={actions.tooltip.onCloseTooltip}
-            onUnequip={actions.inventory.onUnequip}
-            onContextItem={actions.inventory.onEquippedContextItem}
+            equipment={playerView.equipment}
+            onHoverItem={tooltipActions.onEquipmentHover}
+            onLeaveItem={tooltipActions.onCloseTooltip}
+            onUnequip={inventoryActions.onUnequip}
+            onContextItem={inventoryActions.onEquippedContextItem}
             {...detailTooltipHandlers}
           />
         </Suspense>
@@ -199,14 +228,14 @@ export function AppDeferredWindows({
         <Suspense fallback={fallback}>
           <InventoryWindow
             {...managedWindowProps.inventory}
-            inventory={views.player.inventory}
-            equipment={views.player.equipment}
-            learnedRecipeIds={views.player.learnedRecipeIds}
-            onSort={actions.inventory.onSort}
-            onEquip={actions.inventory.onEquip}
-            onContextItem={actions.inventory.onContextItem}
-            onHoverItem={actions.tooltip.onShowItemTooltip}
-            onLeaveItem={actions.tooltip.onCloseTooltip}
+            inventory={playerView.inventory}
+            equipment={playerView.equipment}
+            learnedRecipeIds={playerView.learnedRecipeIds}
+            onSort={inventoryActions.onSort}
+            onEquip={inventoryActions.onEquip}
+            onContextItem={inventoryActions.onContextItem}
+            onHoverItem={tooltipActions.onShowItemTooltip}
+            onLeaveItem={tooltipActions.onCloseTooltip}
             {...detailTooltipHandlers}
           />
         </Suspense>
@@ -215,13 +244,13 @@ export function AppDeferredWindows({
         <Suspense fallback={fallback}>
           <LootWindow
             {...managedWindowProps.loot}
-            visible={managedWindowProps.loot.visible && views.loot.visible}
-            equipment={views.player.equipment}
-            loot={views.loot.snapshot}
-            onTakeAll={actions.inventory.onTakeAllLoot}
-            onTakeItem={actions.inventory.onTakeLootItem}
-            onHoverItem={actions.tooltip.onShowItemTooltip}
-            onLeaveItem={actions.tooltip.onCloseTooltip}
+            visible={managedWindowProps.loot.visible && lootView.visible}
+            equipment={playerView.equipment}
+            loot={lootView.snapshot}
+            onTakeAll={inventoryActions.onTakeAllLoot}
+            onTakeItem={inventoryActions.onTakeLootItem}
+            onHoverItem={tooltipActions.onShowItemTooltip}
+            onLeaveItem={tooltipActions.onCloseTooltip}
             {...detailTooltipHandlers}
           />
         </Suspense>
@@ -230,28 +259,27 @@ export function AppDeferredWindows({
         <Suspense fallback={fallback}>
           <LogWindow
             {...managedWindowProps.log}
-            filters={views.logs.filters}
+            filters={logsView.filters}
             defaultFilters={DEFAULT_LOG_FILTERS}
-            showFilterMenu={views.logs.showFilterMenu}
-            onToggleMenu={actions.logs.onToggleFilterMenu}
-            onToggleFilter={actions.logs.onToggleLogFilter}
-            logs={views.logs.filtered}
+            showFilterMenu={logsView.showFilterMenu}
+            onToggleMenu={logActions.onToggleFilterMenu}
+            onToggleFilter={logActions.onToggleLogFilter}
+            logs={logsView.filtered}
             {...detailTooltipHandlers}
           />
         </Suspense>
       ) : null}
-      {mountedWindows.combat && views.combat.snapshot ? (
+      {mountedWindows.combat && combatView.snapshot ? (
         <Suspense fallback={fallback}>
           <CombatWindow
             {...managedWindowProps.combat}
-            visible={managedWindowProps.combat.visible && views.combat.visible}
-            combat={views.combat.snapshot.combat}
+            visible={managedWindowProps.combat.visible && combatView.visible}
+            combat={combatView.snapshot.combat}
             playerParty={combatPlayerParty}
-            enemies={views.combat.snapshot.enemies}
-            worldTimeMs={views.hero.worldTimeMs}
-            onStart={actions.world.onStartCombat}
+            enemies={combatView.snapshot.enemies}
+            onStart={worldActions.onStartCombat}
             {...detailTooltipHandlers}
-            onHoverHeaderAction={actions.tooltip.onShowTooltip}
+            onHoverHeaderAction={tooltipActions.onShowTooltip}
           />
         </Suspense>
       ) : null}
@@ -259,14 +287,14 @@ export function AppDeferredWindows({
         <Suspense fallback={fallback}>
           <GameSettingsWindow
             {...managedWindowProps.settings}
-            audioSettings={views.settings.audio}
-            graphicsSettings={views.settings.graphics}
-            onSave={actions.settings.onSaveSettings}
-            onSaveAndReload={actions.settings.onSaveSettingsAndReload}
-            onResetSaveData={actions.settings.onResetSaveData}
+            audioSettings={settingsView.audio}
+            graphicsSettings={settingsView.graphics}
+            onSave={settingsActions.onSaveSettings}
+            onSaveAndReload={settingsActions.onSaveSettingsAndReload}
+            onResetSaveData={settingsActions.onResetSaveData}
           />
         </Suspense>
       ) : null}
     </>
   );
-}
+});

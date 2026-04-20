@@ -28,7 +28,10 @@ import {
 } from '../../ui/world/worldIcons';
 import { getSceneCache } from '../../ui/world/renderSceneCache';
 import { WORLD_REVEAL_RADIUS } from '../constants';
-import type { GraphicsSettings } from '../graphicsSettings';
+import {
+  getGraphicsRenderResolution,
+  type GraphicsSettings,
+} from '../graphicsSettings';
 import {
   loadWorldMapSettings,
   saveWorldMapSettings,
@@ -55,6 +58,19 @@ interface UsePixiWorldArgs {
   setGame: Dispatch<SetStateAction<GameState>>;
   setTooltip: (nextTooltip: TooltipState | null) => void;
 }
+
+interface WorldRenderSnapshot {
+  game: GameState | null;
+  visibleTiles: ReturnType<typeof stateModule.getVisibleTiles> | null;
+  selected: stateModule.HexCoord | null;
+  hoveredMove: stateModule.HexCoord | null;
+  hoveredSafePath: stateModule.HexCoord[] | null;
+  animationBucket: number;
+  invalidationToken: number;
+}
+
+const WORLD_ANIMATION_FPS = 30;
+const WORLD_ANIMATION_FRAME_MS = 1000 / WORLD_ANIMATION_FPS;
 
 export function usePixiWorld({
   enabled,
@@ -97,6 +113,16 @@ export function usePixiWorld({
     tooltip: null,
     tooltipKey: null,
   });
+  const lastRenderSnapshotRef = useRef<WorldRenderSnapshot>({
+    game: null,
+    visibleTiles: null,
+    selected: null,
+    hoveredMove: null,
+    hoveredSafePath: null,
+    animationBucket: -1,
+    invalidationToken: 0,
+  });
+  const renderInvalidationRef = useRef(0);
   const [canvasReady, setCanvasReady] = useState(false);
 
   useEffect(() => {
@@ -130,6 +156,7 @@ export function usePixiWorld({
       tooltip: null,
       tooltipKey: null,
     };
+    renderInvalidationRef.current += 1;
   }, [game.player.coord]);
 
   useEffect(() => {
@@ -150,6 +177,15 @@ export function usePixiWorld({
 
     let disposed = false;
     let cleanup: (() => void) | null = null;
+    lastRenderSnapshotRef.current = {
+      game: null,
+      visibleTiles: null,
+      selected: null,
+      hoveredMove: null,
+      hoveredSafePath: null,
+      animationBucket: -1,
+      invalidationToken: 0,
+    };
 
     void Promise.all([
       import('../../ui/world/pixiRuntime'),
@@ -174,7 +210,10 @@ export function usePixiWorld({
         preserveDrawingBuffer: graphicsSettings.preserveDrawingBuffer,
         premultipliedAlpha: graphicsSettings.premultipliedAlpha,
         preference: 'webgl',
-        resolution: window.devicePixelRatio || 1,
+        resolution: getGraphicsRenderResolution(
+          graphicsSettings,
+          window.devicePixelRatio,
+        ),
       });
 
       if (disposed || !hostRef.current || appRef.current) {
@@ -194,7 +233,10 @@ export function usePixiWorld({
       const resize = () => {
         const width = hostRef.current?.clientWidth ?? window.innerWidth;
         const height = hostRef.current?.clientHeight ?? window.innerHeight;
-        const resolution = window.devicePixelRatio || 1;
+        const resolution = getGraphicsRenderResolution(
+          graphicsSettings,
+          window.devicePixelRatio,
+        );
         if (app.renderer.resolution !== resolution) {
           app.renderer.resolution = resolution;
         }
@@ -221,15 +263,51 @@ export function usePixiWorld({
       resize();
 
       const renderFrame = () => {
+        const currentGame = gameRef.current;
+        const currentVisibleTiles = visibleTilesRef.current;
+        const currentSelected = selectedRef.current;
+        const currentHoveredMove = hoveredMoveRef.current;
+        const currentHoveredSafePath = hoveredSafePathRef.current;
+        const animationMs = performance.now();
+        const animationBucket = Math.floor(
+          animationMs / WORLD_ANIMATION_FRAME_MS,
+        );
+        const lastRenderSnapshot = lastRenderSnapshotRef.current;
+        const invalidationToken = renderInvalidationRef.current;
+
+        if (
+          lastRenderSnapshot.game === currentGame &&
+          lastRenderSnapshot.visibleTiles === currentVisibleTiles &&
+          lastRenderSnapshot.animationBucket === animationBucket &&
+          lastRenderSnapshot.invalidationToken === invalidationToken &&
+          sameCoord(lastRenderSnapshot.selected, currentSelected) &&
+          sameCoord(lastRenderSnapshot.hoveredMove, currentHoveredMove) &&
+          sameCoordList(
+            lastRenderSnapshot.hoveredSafePath,
+            currentHoveredSafePath,
+          )
+        ) {
+          return;
+        }
+
+        lastRenderSnapshotRef.current = {
+          game: currentGame,
+          visibleTiles: currentVisibleTiles,
+          selected: currentSelected,
+          hoveredMove: currentHoveredMove,
+          hoveredSafePath: currentHoveredSafePath,
+          animationBucket,
+          invalidationToken,
+        };
         renderSceneModule.renderScene(
           app,
-          gameRef.current,
-          visibleTilesRef.current,
-          selectedRef.current,
-          hoveredMoveRef.current,
+          currentGame,
+          currentVisibleTiles,
+          currentSelected,
+          currentHoveredMove,
           getWorldTimeMinutesFromTimestamp(worldTimeMsRef.current),
-          performance.now(),
-          hoveredSafePathRef.current,
+          animationBucket * WORLD_ANIMATION_FRAME_MS,
+          currentHoveredSafePath,
         );
       };
 
@@ -278,6 +356,7 @@ export function usePixiWorld({
         if (hoveredSafePathRef.current) {
           hoveredSafePathRef.current = null;
         }
+        renderInvalidationRef.current += 1;
         setTooltip(null);
       };
 
@@ -330,6 +409,7 @@ export function usePixiWorld({
         if (!clickable) return;
 
         selectedRef.current = target;
+        renderInvalidationRef.current += 1;
         setGame((currentState) =>
           distance === 1
             ? stateModule.moveToTile(
@@ -519,6 +599,7 @@ export function usePixiWorld({
               };
               canvas.style.cursor = actionable ? 'pointer' : 'default';
               hoverSnapshotRef.current = nextHoverSnapshot;
+              renderInvalidationRef.current += 1;
               setCachedHoverSnapshot(
                 hoverAnalysisCacheRef.current,
                 hoverCacheKey,
@@ -558,6 +639,7 @@ export function usePixiWorld({
         };
         canvas.style.cursor = actionable ? 'pointer' : 'default';
         hoverSnapshotRef.current = nextHoverSnapshot;
+        renderInvalidationRef.current += 1;
         setCachedHoverSnapshot(
           hoverAnalysisCacheRef.current,
           hoverCacheKey,
@@ -692,4 +774,19 @@ export function usePixiWorld({
   ]);
 
   return { hostRef, canvasReady };
+}
+
+function sameCoordList(
+  left: stateModule.HexCoord[] | null,
+  right: stateModule.HexCoord[] | null,
+) {
+  if (left === right) {
+    return true;
+  }
+
+  if (!left || !right || left.length !== right.length) {
+    return false;
+  }
+
+  return left.every((coord, index) => sameCoord(coord, right[index] ?? null));
 }

@@ -1,4 +1,5 @@
 import {
+  applyGraphicsPreset,
   clearGraphicsSettings,
   DEFAULT_GRAPHICS_SETTINGS,
   loadGraphicsSettings,
@@ -11,26 +12,12 @@ describe('graphics settings persistence', () => {
   });
 
   it('stores graphics settings inside the shared settings payload', () => {
-    saveGraphicsSettings({
-      antialias: false,
-      autoDensity: false,
-      clearBeforeRender: false,
-      preserveDrawingBuffer: true,
-      premultipliedAlpha: false,
-      useContextAlpha: false,
-    });
+    saveGraphicsSettings(applyGraphicsPreset('performance'));
 
     expect(
       JSON.parse(window.localStorage.getItem('settings') ?? 'null'),
     ).toEqual({
-      graphics: {
-        antialias: false,
-        autoDensity: false,
-        clearBeforeRender: false,
-        preserveDrawingBuffer: true,
-        premultipliedAlpha: false,
-        useContextAlpha: false,
-      },
+      graphics: applyGraphicsPreset('performance'),
     });
     expect(
       window.localStorage.getItem('realmfall-graphics-settings'),
@@ -48,6 +35,7 @@ describe('graphics settings persistence', () => {
 
     expect(loadGraphicsSettings()).toEqual({
       ...DEFAULT_GRAPHICS_SETTINGS,
+      preset: 'custom',
       antialias: false,
       preserveDrawingBuffer: true,
     });
@@ -56,6 +44,7 @@ describe('graphics settings persistence', () => {
     ).toEqual({
       graphics: {
         ...DEFAULT_GRAPHICS_SETTINGS,
+        preset: 'custom',
         antialias: false,
         preserveDrawingBuffer: true,
       },
@@ -70,21 +59,20 @@ describe('graphics settings persistence', () => {
       'settings',
       JSON.stringify({
         graphics: {
+          preset: 'performance',
           antialias: 'no',
-          preserveDrawingBuffer: true,
           premultipliedAlpha: 1,
         },
       }),
     );
 
-    expect(loadGraphicsSettings()).toEqual({
-      ...DEFAULT_GRAPHICS_SETTINGS,
-      preserveDrawingBuffer: true,
-    });
+    expect(loadGraphicsSettings()).toEqual(applyGraphicsPreset('performance'));
   });
 
   it('sanitizes malformed values before storing graphics settings', () => {
     saveGraphicsSettings({
+      preset: 'custom',
+      resolutionCap: 7 as unknown as 1,
       antialias: false,
       autoDensity: false,
       clearBeforeRender: 'later' as unknown as boolean,
@@ -97,6 +85,8 @@ describe('graphics settings persistence', () => {
       JSON.parse(window.localStorage.getItem('settings') ?? 'null'),
     ).toEqual({
       graphics: {
+        preset: 'custom',
+        resolutionCap: DEFAULT_GRAPHICS_SETTINGS.resolutionCap,
         antialias: false,
         autoDensity: false,
         clearBeforeRender: DEFAULT_GRAPHICS_SETTINGS.clearBeforeRender,

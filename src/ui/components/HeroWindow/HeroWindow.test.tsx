@@ -83,7 +83,6 @@ describe('HeroWindow', () => {
           stats={stats}
           hunger={0}
           thirst={0}
-          worldTimeMs={0}
         />,
       );
     });
@@ -104,7 +103,6 @@ describe('HeroWindow', () => {
           stats={stats}
           hunger={0}
           thirst={0}
-          worldTimeMs={0}
         />,
       );
     });

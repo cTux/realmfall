@@ -8,7 +8,6 @@ describe('app utils', () => {
   it('builds dock entries for optional windows only when visible', () => {
     const baseEntries = getDockEntries(DEFAULT_WINDOW_VISIBILITY, false, false);
     expect(baseEntries.map((entry) => entry.key)).toEqual([
-      'worldTime',
       'hero',
       'skills',
       'recipes',
@@ -25,7 +24,6 @@ describe('app utils', () => {
       true,
     );
     expect(expandedEntries.map((entry) => entry.key)).toEqual([
-      'worldTime',
       'hero',
       'skills',
       'recipes',

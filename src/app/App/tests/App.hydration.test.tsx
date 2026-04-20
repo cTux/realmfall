@@ -44,7 +44,6 @@ describe('App hydration and interactions', () => {
           actionBarSlots: [{ item: game.player.inventory[0] }],
           windows: { hero: { x: 30, y: 40 } },
           windowShown: {
-            worldTime: true,
             hero: false,
             skills: true,
             recipes: true,
@@ -54,6 +53,7 @@ describe('App hydration and interactions', () => {
             loot: true,
             log: true,
             combat: true,
+            settings: false,
           },
         },
       });
@@ -70,21 +70,13 @@ describe('App hydration and interactions', () => {
     expect(renderScene).toHaveBeenCalled();
     expect(saveEncryptedState).not.toHaveBeenCalled();
     expect(host.querySelector(`.${styles.loadingScreen}`)).toBeNull();
-    expect(host.textContent).toContain('(D)ebugger');
-    expect(host.textContent).toContain('FPS Graph');
     expect(host.textContent).not.toContain('(C)haracter info');
     expect(host.textContent).toContain('(S)kills');
     expect(host.textContent).toContain('(R)ecipe book');
     expect(host.textContent).toContain('(H)ex info');
     expect(host.textContent).not.toContain('old log');
     expect(host.textContent).toContain('Lo(g)');
-    expect(host.textContent).toContain('Year 1, Day 3, 00:15');
     expect(host.querySelector('[aria-label="Action bar"]')).not.toBeNull();
-
-    const worldTimePanel = host.querySelector(
-      '[aria-label="Debugger"]',
-    ) as HTMLDivElement | null;
-    const initialWorldTimePanelText = worldTimePanel?.textContent;
 
     await act(async () => {
       vi.advanceTimersByTime(60 * 1000);
@@ -92,11 +84,6 @@ describe('App hydration and interactions', () => {
     await flushLazyModules();
 
     expect(saveEncryptedState).not.toHaveBeenCalled();
-    expect(worldTimePanel?.textContent).not.toBe(initialWorldTimePanelText);
-    expect(worldTimePanel?.textContent).toMatch(
-      /Year \d+, Day \d+, \d{2}:\d{2}/,
-    );
-    expect(host.textContent).toContain('FPS Graph');
     expect(host.textContent).not.toContain('Hunger penalty');
     expect(host.textContent).toContain('Loot');
     expect(host.textContent).toContain('Prospect');
@@ -104,20 +91,8 @@ describe('App hydration and interactions', () => {
     const heroDockButton = host.querySelector(
       '[aria-label="Toggle Character info window"]',
     ) as HTMLButtonElement | null;
-    const worldTimeDockButton = host.querySelector(
-      '[aria-label="Toggle Debugger window"]',
-    ) as HTMLButtonElement | null;
     expect(heroDockButton).not.toBeNull();
-    expect(worldTimeDockButton?.getAttribute('aria-pressed')).toBe('true');
     expect(heroDockButton?.getAttribute('aria-pressed')).toBe('false');
-
-    await act(async () => {
-      window.dispatchEvent(
-        new KeyboardEvent('keydown', { bubbles: true, key: 'd' }),
-      );
-    });
-    expect(host.textContent).not.toContain('(D)ebugger');
-    expect(worldTimeDockButton?.getAttribute('aria-pressed')).toBe('false');
 
     await act(async () => {
       window.dispatchEvent(

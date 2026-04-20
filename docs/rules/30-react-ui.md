@@ -7,6 +7,8 @@
 - Keep component-only hooks in a colocated `hooks/` directory when just one component or feature uses them.
 - When reducing React rerender fanout, move window-specific derivation, dock composition, and stable window handler ownership out of `src/app/App/App.tsx` and into narrower hooks or the window composition layer when that keeps unrelated windows from recomputing together.
 - Do not let `src/app/App/App.tsx` rebuild broad nested `layout`, `views`, or `actions` object graphs inline once that data can be composed in narrower hooks or neighboring modules.
+- When a UI control only needs the live world clock for display state, subscribe through `src/app/App/worldClockStore.ts` at the leaf component instead of threading `worldTimeMs` through broad app or window props.
+- When splitting `AppWindows` work, pass fixed and deferred window components only the view and action slices they actually consume instead of forwarding the full nested props object.
 - Avoid force-casting partial selector inputs to `GameState` in React view-model hooks. Use narrow selector input types and variable names that match the actual data shape being passed.
 - Keep Storybook stories for every component under `src/ui/components`, including shared leaf components and window wrappers.
 - Every component addition, removal, or behavior-affecting UI change should add or update the corresponding Storybook story in the same task.
@@ -25,6 +27,7 @@
 - Maintain mobile-aware and desktop-safe behavior when changing interactions, even if the full mobile adaptation is still incomplete.
 - Keep component files under roughly `250` lines when practical. When a component grows past that size, prefer splitting view models, hooks, or subcomponents into neighboring files.
 - Keep high-frequency pointer, hover, and world-interaction updates off broad React state paths when refs, invalidation flags, or narrower state can avoid avoidable rerenders.
+- For capped animated lists such as the log window, cache parsed row metadata by stable entry object and keep per-row typing or animation state inside the animated row instead of ticking the parent list component.
 - Deduplicate `pointermove` world-hover work by hovered hex before doing heavier interaction logic, and avoid rerunning tooltip derivation, enemy lookups, or pathfinding while the pointer stays on the same tile.
 - On the world-hover path, only run pathfinding, enemy tooltip derivation, or similar heavier selectors when the hovered tile is actually actionable.
 - For follow-cursor world tooltips, reuse the existing world-hover pipeline to push position updates instead of adding a separate global pointer listener just to move the tooltip DOM.

@@ -51,5 +51,4 @@ export interface HeroWindowProps extends WindowDetailTooltipHandlers {
   stats: HeroWindowStats;
   hunger: number;
   thirst?: number;
-  worldTimeMs?: number;
 }

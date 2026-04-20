@@ -9,6 +9,9 @@ import {
 import { VOICE_ACTOR_OPTIONS } from '../../../app/audio/voiceActors';
 import { useUiAudio } from '../../../app/audio/UiAudioContext';
 import {
+  applyGraphicsPreset,
+  deriveGraphicsPreset,
+  GRAPHICS_PRESET_OPTIONS,
   GRAPHICS_SETTINGS_OPTIONS,
   type GraphicsSettings,
 } from '../../../app/graphicsSettings';
@@ -77,6 +80,19 @@ export function GameSettingsWindowContent({
   const savePayload = {
     audio: draftAudioSettings,
     graphics: draftGraphicsSettings,
+  };
+
+  const updateDraftGraphicsSettings = (
+    updater: (current: GraphicsSettings) => GraphicsSettings,
+  ) => {
+    setDraftGraphicsSettings((current) => {
+      const nextSettings = updater(current);
+
+      return {
+        ...nextSettings,
+        preset: deriveGraphicsPreset(nextSettings),
+      };
+    });
   };
 
   const cancelResetHold = () => {
@@ -154,21 +170,71 @@ export function GameSettingsWindowContent({
           className={styles.tabPanel}
         >
           {activeTabId === 'graphics' ? (
-            <div className={styles.switches}>
-              {GRAPHICS_SETTINGS_OPTIONS.map((option) => (
-                <Switch
-                  key={option.key}
-                  checked={draftGraphicsSettings[option.key]}
-                  label={t(option.labelKey)}
-                  description={t(option.descriptionKey)}
-                  onChange={(checked) =>
-                    setDraftGraphicsSettings((current) => ({
-                      ...current,
-                      [option.key]: checked,
-                    }))
-                  }
-                />
-              ))}
+            <div className={styles.audioPanel}>
+              <div
+                className={styles.themeField}
+                role="radiogroup"
+                aria-label={t('ui.settings.graphics.preset.label')}
+              >
+                <div className={styles.themeHeader}>
+                  <span className={styles.rangeLabel}>
+                    {t('ui.settings.graphics.preset.label')}
+                  </span>
+                  <span className={styles.rangeValue}>
+                    {t(
+                      `ui.settings.graphics.preset.${draftGraphicsSettings.preset}.label`,
+                    )}
+                  </span>
+                </div>
+                <span className={styles.rangeDescription}>
+                  {t('ui.settings.graphics.preset.description')}
+                </span>
+                <div className={styles.graphicsPresetOptions}>
+                  {GRAPHICS_PRESET_OPTIONS.map((option) => {
+                    const selected = draftGraphicsSettings.preset === option.value;
+
+                    return (
+                      <button
+                        key={option.value}
+                        id={`graphics-preset-${option.value}`}
+                        type="button"
+                        role="radio"
+                        aria-checked={selected}
+                        className={styles.themeOption}
+                        data-active={selected}
+                        onClick={() =>
+                          setDraftGraphicsSettings(
+                            applyGraphicsPreset(option.value),
+                          )
+                        }
+                      >
+                        <span className={styles.themeOptionLabel}>
+                          {t(option.labelKey)}
+                        </span>
+                        <span className={styles.themeOptionDescription}>
+                          {t(option.descriptionKey)}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className={styles.switches}>
+                {GRAPHICS_SETTINGS_OPTIONS.map((option) => (
+                  <Switch
+                    key={option.key}
+                    checked={draftGraphicsSettings[option.key]}
+                    label={t(option.labelKey)}
+                    description={t(option.descriptionKey)}
+                    onChange={(checked) =>
+                      updateDraftGraphicsSettings((current) => ({
+                        ...current,
+                        [option.key]: checked,
+                      }))
+                    }
+                  />
+                ))}
+              </div>
             </div>
           ) : (
             <div className={styles.audioPanel}>

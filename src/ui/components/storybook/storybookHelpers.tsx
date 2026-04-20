@@ -119,7 +119,6 @@ export function createStorybookFixtures() {
   const inventoryCountsByItemKey = countInventoryByItemKey(inventory);
 
   return {
-    debuggerTimeLabel: 'Year 1, Day 4 · 18:40 · Blood moon watch',
     defaultFilters: { ...DEFAULT_LOG_FILTERS },
     dockEntries: buildWindowDockEntries(),
     enemies: ENEMY_CONFIGS,

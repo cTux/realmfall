@@ -66,6 +66,13 @@ describe('App world input', () => {
           clientY: adjacentDisplayPoint.y,
         }),
       );
+      canvas?.dispatchEvent(
+        new MouseEvent('pointerup', {
+          bubbles: true,
+          clientX: adjacentDisplayPoint.x,
+          clientY: adjacentDisplayPoint.y,
+        }),
+      );
     });
 
     await act(async () => {
@@ -74,6 +81,7 @@ describe('App world input', () => {
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(600);
+      tickerCallbacks.forEach((callback) => callback());
     });
 
     expect(renderScene.mock.calls.length).toBeGreaterThan(1);

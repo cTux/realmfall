@@ -87,6 +87,7 @@ export interface SceneCache {
   derivedInteractionRenderToken: number | null;
   staticRenderToken: number | null;
   interactionRenderToken: number | null;
+  animatedRenderToken: string | null;
   screenWidth: number;
   screenHeight: number;
 }
@@ -190,6 +191,7 @@ export function getSceneCache(app: Application) {
     derivedInteractionRenderToken: null,
     staticRenderToken: null,
     interactionRenderToken: null,
+    animatedRenderToken: null,
     screenWidth: app.screen.width,
     screenHeight: app.screen.height,
   };

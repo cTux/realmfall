@@ -27,6 +27,7 @@ type ParsedLogEntry = {
   entry: LogEntry;
   message: string;
   timestampMs: number | null;
+  className: string;
 };
 
 function splitLogEntry(text: string) {
@@ -53,20 +54,40 @@ function logMessageText(entry: LogEntry) {
 
 const AnimatedLogLine = memo(function AnimatedLogLine({
   parsedEntry,
-  timestampMs,
-  visibleCount,
   onHoverDetail,
   onLeaveDetail,
 }: {
   parsedEntry: ParsedLogEntry;
-  timestampMs: number | null;
-  visibleCount: number;
   onHoverDetail?: LogWindowProps['onHoverDetail'];
   onLeaveDetail?: LogWindowProps['onLeaveDetail'];
 }) {
-  const { entry, message } = parsedEntry;
+  const { entry, message, timestampMs } = parsedEntry;
+  const [visibleCount, setVisibleCount] = useState(0);
   const isComplete = visibleCount >= message.length;
   const cursor = MATRIX_GLYPHS[visibleCount % MATRIX_GLYPHS.length];
+
+  useEffect(() => {
+    setVisibleCount(0);
+
+    if (message.length === 0) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setVisibleCount((current) => {
+        if (current >= message.length) {
+          window.clearInterval(intervalId);
+          return current;
+        }
+
+        return Math.min(current + TYPE_STEP, message.length);
+      });
+    }, TYPE_DELAY_MS);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [entry.id, message.length]);
 
   return (
     <span className={styles.logText}>
@@ -139,26 +160,14 @@ export function LogWindowContent({
   onHoverDetail,
   onLeaveDetail,
 }: LogWindowContentProps) {
+  const parsedEntryCacheRef = useRef(new WeakMap<LogEntry, ParsedLogEntry>());
   const parsedEntries = useMemo<ParsedLogEntry[]>(
-    () =>
-      [...logs]
-        .reverse()
-        .map((entry) => {
-          const { timestampMs, message } = splitLogEntry(entry.text);
-
-          return {
-            entry,
-            message: entry.richText?.length ? logMessageText(entry) : message,
-            timestampMs,
-          };
-        }),
+    () => buildParsedLogEntries(logs, parsedEntryCacheRef.current),
     [logs],
   );
   const logListRef = useRef<HTMLDivElement | null>(null);
   const newestEntry = parsedEntries[parsedEntries.length - 1] ?? null;
   const newestLogId = newestEntry?.entry.id;
-  const newestMessage = newestEntry?.message ?? '';
-  const [visibleCount, setVisibleCount] = useState(0);
 
   useEffect(() => {
     const list = logListRef.current;
@@ -166,44 +175,16 @@ export function LogWindowContent({
     list.scrollTop = list.scrollHeight;
   }, [newestLogId]);
 
-  useEffect(() => {
-    setVisibleCount(0);
-
-    if (newestMessage.length === 0) {
-      return;
-    }
-
-    const intervalId = window.setInterval(() => {
-      setVisibleCount((current) => {
-        if (current >= newestMessage.length) {
-          window.clearInterval(intervalId);
-          return current;
-        }
-
-        return Math.min(current + TYPE_STEP, newestMessage.length);
-      });
-    }, TYPE_DELAY_MS);
-
-    return () => {
-      window.clearInterval(intervalId);
-    };
-  }, [newestLogId, newestMessage.length]);
-
   return (
     <div ref={logListRef} className={styles.logList}>
       {parsedEntries.map((parsedEntry) => {
-        const { entry, timestampMs } = parsedEntry;
+        const { entry } = parsedEntry;
         const isNewest = entry.id === newestLogId;
         return (
-          <div
-            key={entry.id}
-            className={`${styles.logEntry} ${styles[entry.kind] ?? ''} ${BLOOD_MOON_PATTERN.test(entry.text) ? styles.bloodMoon : ''} ${HARVEST_MOON_PATTERN.test(entry.text) ? styles.harvestMoon : ''}`.trim()}
-          >
+          <div key={entry.id} className={parsedEntry.className}>
             {isNewest ? (
               <AnimatedLogLine
                 parsedEntry={parsedEntry}
-                timestampMs={timestampMs}
-                visibleCount={visibleCount}
                 onHoverDetail={onHoverDetail}
                 onLeaveDetail={onLeaveDetail}
               />
@@ -219,6 +200,47 @@ export function LogWindowContent({
       })}
     </div>
   );
+}
+
+function buildParsedLogEntries(
+  logs: LogEntry[],
+  cache: WeakMap<LogEntry, ParsedLogEntry>,
+) {
+  const parsedEntries: ParsedLogEntry[] = [];
+
+  for (let index = logs.length - 1; index >= 0; index -= 1) {
+    const entry = logs[index]!;
+    const cachedEntry = cache.get(entry);
+
+    if (cachedEntry) {
+      parsedEntries.push(cachedEntry);
+      continue;
+    }
+
+    const parsedEntry = createParsedLogEntry(entry);
+    cache.set(entry, parsedEntry);
+    parsedEntries.push(parsedEntry);
+  }
+
+  return parsedEntries;
+}
+
+function createParsedLogEntry(entry: LogEntry): ParsedLogEntry {
+  const { timestampMs, message } = splitLogEntry(entry.text);
+
+  return {
+    entry,
+    message: entry.richText?.length ? logMessageText(entry) : message,
+    timestampMs,
+    className: [
+      styles.logEntry,
+      styles[entry.kind] ?? '',
+      BLOOD_MOON_PATTERN.test(entry.text) ? styles.bloodMoon : '',
+      HARVEST_MOON_PATTERN.test(entry.text) ? styles.harvestMoon : '',
+    ]
+      .filter(Boolean)
+      .join(' '),
+  };
 }
 
 function renderRichText(

@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react';
 import { getAbilityDefinition } from '../../../game/abilities';
 import { DEFAULT_ENEMY_MANA } from '../../../game/combat';
 import { getStatusEffectDefinition } from '../../../game/content/statusEffects';
@@ -22,6 +23,8 @@ import {
 import type { CombatPartyMember, CombatWindowProps } from './types';
 import styles from './styles.module.scss';
 
+const COMBAT_VISUAL_STEP_MS = 100;
+
 interface CombatWindowContentProps {
   combat: CombatWindowProps['combat'];
   playerParty: CombatWindowProps['playerParty'];
@@ -34,15 +37,14 @@ interface CombatWindowContentProps {
 interface CombatEntityView {
   id: string;
   title: string;
-  hp: number;
-  maxHp: number;
-  mana: number;
-  maxMana: number;
-  attack: number;
-  rarity?: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
-  actor: CombatActorState;
-  buffs: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[];
-  debuffs: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[];
+  titleAccent?: {
+    label: string;
+    color: string;
+  };
+  bars: [EntityStatusBar, ...EntityStatusBar[]];
+  abilities: EntityStatusIcon[];
+  buffs: EntityStatusIcon[];
+  debuffs: EntityStatusIcon[];
 }
 
 export function CombatWindowContent({
@@ -53,38 +55,34 @@ export function CombatWindowContent({
   onHoverDetail,
   onLeaveDetail,
 }: CombatWindowContentProps) {
-  const alliedParty: CombatEntityView[] = playerParty.map((member) =>
-    toPlayerEntity(member),
+  const visualWorldTimeMs =
+    Math.floor(worldTimeMs / COMBAT_VISUAL_STEP_MS) * COMBAT_VISUAL_STEP_MS;
+  const alliedParty = useMemo(
+    () => playerParty.map((member) => toPlayerEntity(member, visualWorldTimeMs)),
+    [playerParty, visualWorldTimeMs],
   );
-  const enemyParty: CombatEntityView[] = enemies.map((enemy) => {
-    const effectGroups = partitionStatusEffects(enemy.statusEffects ?? []);
-    return {
-      id: enemy.id,
-      title: t('ui.combat.entityTitle', { name: enemy.name, level: enemy.tier }),
-      hp: enemy.hp,
-      maxHp: enemy.maxHp,
-      mana: enemy.mana ?? enemy.maxMana ?? DEFAULT_ENEMY_MANA,
-      maxMana: enemy.maxMana ?? enemy.mana ?? DEFAULT_ENEMY_MANA,
-      attack: getEnemyCombatAttack(enemy),
-      rarity: enemy.rarity ?? 'common',
-      actor: combat.enemies[enemy.id] ?? combat.player,
-      buffs: effectGroups.buffs,
-      debuffs: effectGroups.debuffs,
-    };
-  });
+  const enemyParty = useMemo(
+    () =>
+      enemies.map((enemy) =>
+        toEnemyEntity(
+          enemy,
+          combat.enemies[enemy.id] ?? combat.player,
+          visualWorldTimeMs,
+        ),
+      ),
+    [combat.enemies, combat.player, enemies, visualWorldTimeMs],
+  );
 
   return (
     <div className={styles.layout}>
       <div className={styles.columns}>
         <PartyColumn
           entities={alliedParty}
-          worldTimeMs={worldTimeMs}
           onHoverDetail={onHoverDetail}
           onLeaveDetail={onLeaveDetail}
         />
         <PartyColumn
           entities={enemyParty}
-          worldTimeMs={worldTimeMs}
           onHoverDetail={onHoverDetail}
           onLeaveDetail={onLeaveDetail}
         />
@@ -93,32 +91,72 @@ export function CombatWindowContent({
   );
 }
 
-function toPlayerEntity(member: CombatPartyMember): CombatEntityView {
+function toPlayerEntity(
+  member: CombatPartyMember,
+  worldTimeMs: number,
+): CombatEntityView {
   return {
     id: member.id,
     title: t('ui.combat.entityTitle', {
       name: member.name,
       level: member.level,
     }),
-    hp: member.hp,
-    maxHp: member.maxHp,
-    mana: member.mana,
-    maxMana: member.maxMana,
-    attack: member.attack,
-    actor: member.actor,
-    buffs: member.buffs,
-    debuffs: member.debuffs,
+    bars: buildCombatBars(
+      {
+        hp: member.hp,
+        maxHp: member.maxHp,
+        mana: member.mana,
+        maxMana: member.maxMana,
+        actor: member.actor,
+      },
+      worldTimeMs,
+    ),
+    abilities: buildAbilityIcons(member.actor, member.attack, worldTimeMs),
+    buffs: buildEffectIcons(member.buffs, 'buff'),
+    debuffs: buildEffectIcons(member.debuffs, 'debuff'),
   };
 }
 
-function PartyColumn({
+function toEnemyEntity(
+  enemy: CombatWindowProps['enemies'][number],
+  actor: CombatActorState,
+  worldTimeMs: number,
+): CombatEntityView {
+  const effectGroups = partitionStatusEffects(enemy.statusEffects ?? []);
+  const rarity = enemy.rarity ?? 'common';
+
+  return {
+    id: enemy.id,
+    title: t('ui.combat.entityTitle', { name: enemy.name, level: enemy.tier }),
+    titleAccent:
+      rarity !== 'common'
+        ? {
+            label: formatEnemyRarityLabel(rarity),
+            color: rarityColor(rarity),
+          }
+        : undefined,
+    bars: buildCombatBars(
+      {
+        hp: enemy.hp,
+        maxHp: enemy.maxHp,
+        mana: enemy.mana ?? enemy.maxMana ?? DEFAULT_ENEMY_MANA,
+        maxMana: enemy.maxMana ?? enemy.mana ?? DEFAULT_ENEMY_MANA,
+        actor,
+      },
+      worldTimeMs,
+    ),
+    abilities: buildAbilityIcons(actor, getEnemyCombatAttack(enemy), worldTimeMs),
+    buffs: buildEffectIcons(effectGroups.buffs, 'buff'),
+    debuffs: buildEffectIcons(effectGroups.debuffs, 'debuff'),
+  };
+}
+
+const PartyColumn = memo(function PartyColumn({
   entities,
-  worldTimeMs,
   onHoverDetail,
   onLeaveDetail,
 }: {
   entities: CombatEntityView[];
-  worldTimeMs: number;
   onHoverDetail: CombatWindowProps['onHoverDetail'];
   onLeaveDetail: CombatWindowProps['onLeaveDetail'];
 }) {
@@ -130,24 +168,13 @@ function PartyColumn({
             key={entity.id}
             className={styles.entityCard}
             title={entity.title}
-            titleAccent={
-              entity.rarity && entity.rarity !== 'common'
-                ? {
-                    label: formatEnemyRarityLabel(entity.rarity),
-                    color: rarityColor(entity.rarity),
-                  }
-                : undefined
-            }
+            titleAccent={entity.titleAccent}
             titleAccentPlacement="top"
             showPrimaryLabel={false}
-            bars={buildCombatBars(entity, worldTimeMs)}
-            abilities={buildAbilityIcons(
-              entity.actor,
-              entity.attack,
-              worldTimeMs,
-            )}
-            buffs={buildEffectIcons(entity.buffs, 'buff')}
-            debuffs={buildEffectIcons(entity.debuffs, 'debuff')}
+            bars={entity.bars}
+            abilities={entity.abilities}
+            buffs={entity.buffs}
+            debuffs={entity.debuffs}
             onHoverDetail={onHoverDetail}
             onLeaveDetail={onLeaveDetail}
           />
@@ -155,10 +182,10 @@ function PartyColumn({
       </div>
     </section>
   );
-}
+});
 
 function buildCombatBars(
-  entity: CombatEntityView,
+  entity: Pick<CombatPartyMember, 'hp' | 'maxHp' | 'mana' | 'maxMana' | 'actor'>,
   worldTimeMs: number,
 ): [EntityStatusBar, ...EntityStatusBar[]] {
   const bars: [EntityStatusBar, ...EntityStatusBar[]] = [

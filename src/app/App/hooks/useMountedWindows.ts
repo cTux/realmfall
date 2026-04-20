@@ -10,7 +10,6 @@ function createMountedWindowState(
   keepCombatWindowMounted: boolean,
 ) {
   return {
-    worldTime: windowShown.worldTime,
     hero: windowShown.hero,
     skills: windowShown.skills,
     recipes: windowShown.recipes,

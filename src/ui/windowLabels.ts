@@ -8,12 +8,6 @@ export interface WindowLabelDefinition {
 }
 
 export const WINDOW_LABELS = {
-  worldTime: {
-    plain: t('ui.window.worldTime.plain'),
-    prefix: t('ui.window.worldTime.prefix'),
-    hotkey: t('ui.window.worldTime.hotkey'),
-    suffix: t('ui.window.worldTime.suffix'),
-  },
   hero: {
     plain: t('ui.window.hero.plain'),
     prefix: t('ui.window.hero.prefix'),
