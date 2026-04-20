@@ -8,6 +8,8 @@ import {
   flushLazyModules,
   loadEncryptedState,
   renderApp,
+  renderScene,
+  tickerCallbacks,
 } from './appTestHarness';
 
 describe('App canvas setup', () => {
@@ -83,6 +85,39 @@ describe('App canvas setup', () => {
       autoDensity: true,
       resolution: 1,
     });
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('coalesces idle ticker renders inside the same animation bucket', async () => {
+    loadEncryptedState.mockResolvedValue(null);
+    let now = 1_000;
+    const nowSpy = vi.spyOn(performance, 'now').mockImplementation(() => now);
+
+    const { host, root } = await renderApp();
+    await flushLazyModules();
+
+    expect(renderScene).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      tickerCallbacks.forEach((callback) => callback());
+      tickerCallbacks.forEach((callback) => callback());
+    });
+
+    expect(renderScene).toHaveBeenCalledTimes(1);
+
+    now += 40;
+
+    await act(async () => {
+      tickerCallbacks.forEach((callback) => callback());
+    });
+
+    expect(renderScene).toHaveBeenCalledTimes(2);
+
+    nowSpy.mockRestore();
 
     await act(async () => {
       root.unmount();
