@@ -12,7 +12,7 @@ This spec covers the runtime background-music player, its area and combat-based 
 - Each playlist chooses a random track, removes it from the current cycle, and avoids repeating a track until every track in that playlist has been played once.
 - When a playlist cycle resets and multiple tracks exist, the first track of the next cycle does not immediately repeat the last track from the previous cycle.
 - Background music waits for a user activation before starting playback so browser autoplay restrictions do not break the runtime.
-- The shared audio mute toggle and master volume now affect both background music and synthesized UI audio.
+- The shared audio mute toggle and master volume affect background music, and a dedicated music-only mute toggle can silence only the music layer without muting UI or voice audio.
 
 ## Verification Path
 

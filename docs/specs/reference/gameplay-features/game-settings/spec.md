@@ -12,8 +12,8 @@ This spec covers the desktop-style game settings window, its dock and hotkey acc
 - The current settings content uses a reusable vertical tab strip and currently exposes `Graphics` and `Audio` tabs.
 - The graphics tab exposes preset-based renderer profiles for `Quality`, `Balanced`, and `Performance`, with `Balanced` as the current default profile and a `Custom` state when individual renderer flags diverge from a preset.
 - The graphics tab keeps reusable switch controls for the persisted Pixi renderer initialization flags so advanced overrides can stay independent from the higher-level preset.
-- The audio tab stores shared audio preferences for mute state, reduced-motion muting, individual synthesized sound-effect toggles, master volume, the current Tiks theme selection, the selected recorded voice actor, and per-event gameplay voice toggles.
-- The mute toggle and master volume apply to both background music and synthesized UI audio, while the sound-effect toggles and Tiks theme remain scoped to synthesized interface sounds.
+- The audio tab stores shared audio preferences for mute state, music-only mute state, reduced-motion muting, individual synthesized sound-effect toggles, master volume, the current Tiks theme selection, the selected recorded voice actor, and per-event gameplay voice toggles.
+- The mute toggle and master volume apply to background music, synthesized UI audio, and gameplay voice playback, the music-only mute toggle affects only background music, and the sound-effect toggles and Tiks theme remain scoped to synthesized interface sounds.
 - UI audio waits for a user activation before initializing the audio engine, then applies the saved audio settings to document-wide hover, click, toggle, range, tab, and window interaction sounds.
 - Gameplay voice playback waits for a user activation before playing, uses the selected actor and enabled event list, and stops any active voice clip immediately when mute or reduced-motion muting becomes active, including OS or browser reduced-motion preference changes that occur mid-playback.
 - Settings are stored in a dedicated plain `localStorage` `settings` payload outside the encrypted save payload so startup can read renderer-init flags before game and renderer initialization begins, while the same shared payload also carries audio and world-map settings.
@@ -30,7 +30,6 @@ This spec covers the desktop-style game settings window, its dock and hotkey acc
 - Toggle the settings window from both the dock button and the `M` hotkey and confirm persisted visibility still autosaves like other UI-only window state.
 - Change the renderer preset or one or more renderer flags, use `Save`, reload manually, and confirm the saved preset and flags hydrate back into Pixi initialization.
 - Change the renderer preset or one or more renderer flags, use `Save & Reload`, and confirm the page reloads and the new renderer settings apply immediately after hydration.
-- Change audio toggles, volume, theme, voice actor, and voice event switches, use `Save`, and confirm the document-level UI sounds and gameplay voice playback respect the persisted choices after the next user activation.
 - Change audio toggles, volume, theme, voice actor, and voice event switches, use `Save`, and confirm the document-level UI sounds, background music, and gameplay voice playback respect the persisted choices after the next user activation.
 - Trigger a gameplay voice line, toggle mute or reduced-motion muting before the clip finishes, and confirm the active line stops immediately.
 - Trigger a gameplay voice line, enable reduced motion in the OS or browser while the clip is still playing, and confirm the active line stops immediately without requiring another in-game state update.
