@@ -63,6 +63,30 @@ export function VoiceAudioControllerBridge({
   );
 
   useEffect(() => {
+    if (!respectReducedMotion) {
+      return;
+    }
+
+    const reducedMotionQuery = getReducedMotionMediaQuery(window);
+    if (!reducedMotionQuery) {
+      return;
+    }
+
+    const handleReducedMotionChange = () => {
+      if (reducedMotionQuery.matches) {
+        stopAudio(currentAudioRef.current);
+        currentAudioRef.current = null;
+      }
+    };
+
+    addMediaQueryListener(reducedMotionQuery, handleReducedMotionChange);
+
+    return () => {
+      removeMediaQueryListener(reducedMotionQuery, handleReducedMotionChange);
+    };
+  }, [respectReducedMotion]);
+
+  useEffect(() => {
     if (muted || (respectReducedMotion && prefersReducedMotion(window))) {
       stopAudio(currentAudioRef.current);
       currentAudioRef.current = null;
@@ -160,9 +184,41 @@ function pickVoiceClipUrl(
 }
 
 function prefersReducedMotion(target: Window) {
+  return getReducedMotionMediaQuery(target)?.matches ?? false;
+}
+
+function getReducedMotionMediaQuery(target: Window) {
   return typeof target.matchMedia === 'function'
-    ? target.matchMedia('(prefers-reduced-motion: reduce)').matches
-    : false;
+    ? target.matchMedia('(prefers-reduced-motion: reduce)')
+    : null;
+}
+
+function addMediaQueryListener(
+  mediaQuery: MediaQueryList,
+  listener: () => void,
+) {
+  if (typeof mediaQuery.addEventListener === 'function') {
+    mediaQuery.addEventListener('change', listener);
+    return;
+  }
+
+  if (typeof mediaQuery.addListener === 'function') {
+    mediaQuery.addListener(listener);
+  }
+}
+
+function removeMediaQueryListener(
+  mediaQuery: MediaQueryList,
+  listener: () => void,
+) {
+  if (typeof mediaQuery.removeEventListener === 'function') {
+    mediaQuery.removeEventListener('change', listener);
+    return;
+  }
+
+  if (typeof mediaQuery.removeListener === 'function') {
+    mediaQuery.removeListener(listener);
+  }
 }
 
 function stopAudio(audio: HTMLAudioElement | null) {

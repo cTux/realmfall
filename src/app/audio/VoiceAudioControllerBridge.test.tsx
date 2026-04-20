@@ -20,6 +20,7 @@ describe('VoiceAudioControllerBridge', () => {
   let root: Root;
   let originalAudio: typeof Audio;
   let originalMatchMedia: typeof window.matchMedia | undefined;
+  let reducedMotionMediaQuery: MockMediaQueryList;
 
   beforeAll(() => {
     (
@@ -36,16 +37,10 @@ describe('VoiceAudioControllerBridge', () => {
     originalAudio = globalThis.Audio;
     globalThis.Audio = MockAudio as unknown as typeof Audio;
     originalMatchMedia = window.matchMedia;
-    window.matchMedia = vi.fn().mockReturnValue({
-      matches: false,
-      addEventListener: vi.fn(),
-      addListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-      media: '(prefers-reduced-motion: reduce)',
-      onchange: null,
-      removeEventListener: vi.fn(),
-      removeListener: vi.fn(),
-    }) as typeof window.matchMedia;
+    reducedMotionMediaQuery = createMockMediaQueryList(false);
+    window.matchMedia = vi
+      .fn()
+      .mockImplementation(() => reducedMotionMediaQuery) as typeof window.matchMedia;
     getVoiceClipUrlsMock.mockClear();
   });
 
@@ -131,10 +126,7 @@ describe('VoiceAudioControllerBridge', () => {
     await act(async () => {
       root.render(
         <VoiceAudioControllerBridge
-          audioSettings={{
-            ...DEFAULT_AUDIO_SETTINGS,
-            respectReducedMotion: false,
-          }}
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
           game={next}
         />,
       );
@@ -143,24 +135,8 @@ describe('VoiceAudioControllerBridge', () => {
     expect(mockAudioInstances).toHaveLength(1);
     expect(mockAudioInstances[0]?.pauseMock).not.toHaveBeenCalled();
 
-    window.matchMedia = vi.fn().mockReturnValue({
-      matches: true,
-      addEventListener: vi.fn(),
-      addListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-      media: '(prefers-reduced-motion: reduce)',
-      onchange: null,
-      removeEventListener: vi.fn(),
-      removeListener: vi.fn(),
-    }) as typeof window.matchMedia;
-
     await act(async () => {
-      root.render(
-        <VoiceAudioControllerBridge
-          audioSettings={DEFAULT_AUDIO_SETTINGS}
-          game={next}
-        />,
-      );
+      reducedMotionMediaQuery.setMatches(true);
     });
 
     expect(mockAudioInstances[0]?.pauseMock).toHaveBeenCalledTimes(1);
@@ -184,4 +160,44 @@ class MockAudio {
   play() {
     return this.playMock();
   }
+}
+
+function createMockMediaQueryList(
+  initialMatches: boolean,
+): MockMediaQueryList {
+  const listeners = new Set<() => void>();
+  let matches = initialMatches;
+
+  return {
+    get matches() {
+      return matches;
+    },
+    media: '(prefers-reduced-motion: reduce)',
+    onchange: null,
+    addEventListener: vi.fn((eventName: string, listener: () => void) => {
+      if (eventName === 'change') {
+        listeners.add(listener);
+      }
+    }),
+    removeEventListener: vi.fn((eventName: string, listener: () => void) => {
+      if (eventName === 'change') {
+        listeners.delete(listener);
+      }
+    }),
+    addListener: vi.fn((listener: () => void) => {
+      listeners.add(listener);
+    }),
+    removeListener: vi.fn((listener: () => void) => {
+      listeners.delete(listener);
+    }),
+    dispatchEvent: vi.fn(() => true),
+    setMatches(nextMatches: boolean) {
+      matches = nextMatches;
+      listeners.forEach((listener) => listener());
+    },
+  };
+}
+
+interface MockMediaQueryList extends MediaQueryList {
+  setMatches: (matches: boolean) => void;
 }
