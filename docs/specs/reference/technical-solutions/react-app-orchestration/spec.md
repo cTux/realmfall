@@ -9,7 +9,8 @@ This spec covers the top-level React hook composition and derived view-model pat
 - The app splits controller concerns into focused hooks such as persistence, keyboard shortcuts, world view integration, combat automation, window transitions, and top-level controller actions.
 - This reduces pressure on the top-level app component and keeps domain logic testable.
 - Before the main app finishes loading, `src/main.tsx` renders a fixed bootstrap shell with a spinner-only loading state so the first paint stays visible without depending on translated copy.
-- The bootstrap path loads the active locale before importing `App`, because some gameplay and content modules resolve translated labels during module evaluation and must not hydrate against an empty translation map.
+- The bootstrap path fetches the active locale asset before importing `App`, because some gameplay and content modules resolve translated labels during module evaluation and must not hydrate against an empty translation map.
+- The app shell stays visible while save hydration and Pixi initialization complete, so the dock, action bar, and other ready React chrome can paint before the world canvas finishes booting.
 - Bootstrap-loaded settings modules keep lightweight metadata such as voice actor ids separate from eager voice asset indexing so optional gameplay voice clips stay behind the lazy audio bridge boundary.
 - `useAppGameView` computes the current tile, filtered logs, town stock, recipe visibility, claim status, player stats, and other UI-ready derived values.
 - This keeps presentational components mostly declarative.
@@ -21,6 +22,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `useManagedWindowProps` builds the shared `position`, `onMove`, `visible`, and `onClose` prop map for managed windows so fixed and deferred window composition does not repeat the same shell wiring at every render site.
 - Fixed and deferred window composition receives narrow view and action slices instead of the full `AppWindowsProps` object, keeping unrelated window surfaces from rerendering together when one subtree changes.
 - The game uses a desktop-style draggable window model with persisted positions, optional per-window dimensions for resizable windows, and visibility.
+- Shared draggable window shells keep stack order inside reserved z-index bands, so opening or refocusing a window brings it to the front without ad hoc per-window layering rules.
 - Windows that become visible automatically take focus through the shared drag shell so newly opened panes rise and accept keyboard interaction immediately.
 - Shared window-shell helpers are reused for move handlers, close handlers, deferred mount state, and repeated title-bar labels instead of maintaining parallel per-window implementations.
 - `useAppControllers` routes gameplay mutations through a shared timed-transition helper so controller actions inject the current world time consistently without repeating the same wrapper at every call site.
@@ -30,6 +32,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - The top-level app owns a non-persistent pause state toggled by `Space`, and that state gates the shared world clock, combat automation, world-click travel, and controller-routed gameplay mutations while surfacing a centered overlay above the stage. The `Space` shortcut skips editable targets and focused interactive controls so native keyboard activation behavior remains intact.
 - Secondary stage overlays such as the home-direction marker and version polling panel stay behind lazy boundaries so the `App` entry prioritizes world bootstrap and core window composition.
 - The world-clock hook pauses its `requestAnimationFrame` loop while the document is hidden and resumes from a clean tick when the tab becomes visible again, avoiding idle background frame churn without desynchronizing world time.
+- Windows that only need the live world clock for cooldown or display state subscribe inside the leaf content component, so wrapper shells and suspense boundaries do not rerender on every clock tick.
 - Window dragging and resizing keep movement local to the window shell until pointer release, which avoids pushing every pointer delta through shared app state during the interaction.
 - The shared drag shell only commits `onMove` when pointer movement or resizing actually changed geometry, so focus clicks on a window header do not trigger redundant persistence or autosave work.
 - Transition hooks expose mounted-state booleans for deferred windows as mounted-state signals, not as render callbacks, so the desktop layout code can treat them as stateful visibility guards instead of ambiguous “render” flags.
@@ -39,6 +42,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Shared lazy-window creation goes through `createLazyWindowComponent`, keeping retrying deferred-window imports consistent instead of re-declaring the same `lazy(() => loadRetryingWindowModule(...))` wrapper in every window component.
 - Deferred window-content imports retry indefinitely when a bundle fails to load, keeping the rest of the game interactive while the affected window shell stays mounted on its loading fallback. This is expected browser-delivery behavior for optional window bundles, not an accidental retry loop.
 - Window loading fallbacks keep the spinner visible and add delayed explanatory copy when the deferred content remains unavailable after several seconds.
+- Rare maintenance actions such as full save resets defer the storage helper import until the user triggers that action, keeping persistence internals off the main app bootstrap chunk.
 - The log window renders new entries immediately instead of staging a typewriter reveal, which avoids the repeated newest-row stall path while keeping the active message readable under rapid updates.
 - The log window caches parsed timestamp and message metadata by log entry object and re-pins the list to the bottom when a new entry arrives, so older rows do not need to reparse when fresh gameplay logs append.
 - The recipe book keeps large result sets behind explicit batch growth, and combat card view models snap to a short visual time step before rebuilding ability-availability data, reducing avoidable window rerenders.

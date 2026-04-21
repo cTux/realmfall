@@ -37,6 +37,7 @@ export const GameSettingsWindow = memo(function GameSettingsWindow({
         onMove={onMove}
         visible={visible}
         externalUnmount
+        stackLayer="modal"
         onClose={onClose}
         className={styles.window}
         bodyClassName={styles.windowBody}

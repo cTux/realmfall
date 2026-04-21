@@ -7,6 +7,11 @@ import {
   saveEncryptedState,
 } from './appTestHarness';
 
+async function flushAutosaveTimers(ms = 5000) {
+  await vi.advanceTimersByTimeAsync(ms);
+  await vi.runOnlyPendingTimersAsync();
+}
+
 describe('App persistence', () => {
   it('autosaves UI-only changes without requiring gameplay mutations', async () => {
     const game = createGame(2, 'app-ui-save-seed');
@@ -24,7 +29,7 @@ describe('App persistence', () => {
     });
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(5000);
+      await flushAutosaveTimers();
     });
 
     expect(saveEncryptedState).toHaveBeenCalledWith(
@@ -61,7 +66,7 @@ describe('App persistence', () => {
     });
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(5000);
+      await flushAutosaveTimers();
     });
 
     expect(saveEncryptedState).toHaveBeenCalledWith(
@@ -142,7 +147,7 @@ describe('App persistence', () => {
     });
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(5000);
+      await flushAutosaveTimers();
     });
 
     expect(saveEncryptedState).toHaveBeenCalledWith(

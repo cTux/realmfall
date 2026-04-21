@@ -1,5 +1,6 @@
 import { vi } from 'vitest';
 import { loadI18n } from '../i18n';
+import enTranslations from '../i18n/locales/en.json';
 
 vi.mock('react-use-audio-player', () => ({
   AudioPlayerProvider: ({ children }: { children: unknown }) => children,
@@ -109,6 +110,27 @@ function installStorageMock(
 
 installStorageMock(globalThis, 'localStorage');
 installStorageMock(globalThis, 'sessionStorage');
+
+vi.stubGlobal(
+  'fetch',
+  vi.fn(async (input: string | URL | Request) => {
+    const requestUrl =
+      typeof input === 'string'
+        ? input
+        : input instanceof URL
+          ? input.toString()
+          : input.url;
+
+    if (requestUrl.includes('/i18n/locales/en.json')) {
+      return {
+        ok: true,
+        json: vi.fn().mockResolvedValue(enTranslations),
+      };
+    }
+
+    throw new Error(`Unexpected fetch in test setup: ${requestUrl}`);
+  }),
+);
 
 if (typeof HTMLCanvasElement !== 'undefined') {
   const context2dStub = {

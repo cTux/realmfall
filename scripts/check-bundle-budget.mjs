@@ -1,7 +1,7 @@
 import {
   CHUNK_BUDGETS,
+  DIST_ASSETS_DIR,
   DIST_DIR,
-  DIST_JS_DIR,
   STARTUP_TOTAL_BUDGET,
   findEntryKey,
   formatKiB,
@@ -20,7 +20,7 @@ for (const [chunkName, budgetBytes] of Object.entries(CHUNK_BUDGETS)) {
 
   if (!budgetTarget) {
     failures.push(
-      `Missing expected chunk "${chunkName}" in ${DIST_JS_DIR.replaceAll(
+      `Missing expected startup asset "${chunkName}" in ${DIST_ASSETS_DIR.replaceAll(
         '\\',
         '/',
       )}.`,
@@ -60,7 +60,7 @@ if (!mainEntryKey) {
 } else {
   const startupChunkFiles = getStartupChunkFiles(manifest, mainEntryKey);
   const startupChunks = chunks.filter((chunk) =>
-    startupChunkFiles.has(`assets/js/${chunk.fileName}`),
+    startupChunkFiles.has(`assets/${chunk.fileName}`),
   );
   const startupTotal = startupChunks.reduce(
     (sum, chunk) => sum + chunk.size,

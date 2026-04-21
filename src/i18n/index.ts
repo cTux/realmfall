@@ -1,11 +1,25 @@
+import enLocaleUrl from './locales/en.json?url';
+
 type TranslationValue = string | number;
 
 let translations: Record<string, string> = {};
 let currentLanguage = 'en';
+const LOCALE_ASSET_URLS: Record<string, string> = {
+  en: enLocaleUrl,
+};
 
 export async function loadI18n(language = 'en') {
-  const localeModule = await import(`./locales/${language}.json`);
-  translations = localeModule.default;
+  const localeUrl = LOCALE_ASSET_URLS[language];
+  if (!localeUrl) {
+    throw new Error(`Unsupported locale: ${language}`);
+  }
+
+  const response = await fetch(localeUrl);
+  if (!response.ok) {
+    throw new Error(`Failed to load locale asset: ${language}`);
+  }
+
+  translations = (await response.json()) as Record<string, string>;
   currentLanguage = language;
   return translations;
 }

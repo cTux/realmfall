@@ -4,6 +4,7 @@ import {
   getEnemiesAt,
   getGoldAmount,
   getHostileEnemyIds,
+  getPlayerClaimedTiles,
   getPlayerStats,
   getRecipeBookEntries,
   Skill,
@@ -14,7 +15,6 @@ import {
 import { buildTownStock } from '../../game/economy';
 import { hexKey } from '../../game/hex';
 import { isEquippableItem } from '../../game/inventory';
-import { isPlayerClaim } from '../../game/territories';
 import { buildTile } from '../../game/world';
 import { t } from '../../i18n';
 import { resolveBackgroundMusicMood } from '../audio/backgroundMusic';
@@ -122,23 +122,16 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     [logFilters, logs],
   );
   const firstClaimedHex = useMemo(() => {
-    let firstClaimedCoord: GameState['player']['coord'] | null = null;
+    const playerClaims = getPlayerClaimedTiles({ tiles });
+    const firstNonHomeClaim = playerClaims.find(
+      (tile) => tile.coord.q !== homeHex.q || tile.coord.r !== homeHex.r,
+    );
 
-    for (const tile of Object.values(tiles)) {
-      if (!isPlayerClaim(tile.claim)) {
-        continue;
-      }
-
-      if (firstClaimedCoord === null) {
-        firstClaimedCoord = tile.coord;
-      }
-
-      if (tile.coord.q !== homeHex.q || tile.coord.r !== homeHex.r) {
-        return tile.coord;
-      }
+    if (firstNonHomeClaim) {
+      return firstNonHomeClaim.coord;
     }
 
-    return firstClaimedCoord;
+    return playerClaims[0]?.coord ?? null;
   }, [homeHex, tiles]);
 
   const canProspectInventoryEquipment =

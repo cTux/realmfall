@@ -1,5 +1,6 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
+import { setWorldClockTime } from '../../../app/App/worldClockStore';
 import { createCombatActorState } from '../../../game/combat';
 import type {
   CombatState,
@@ -79,6 +80,7 @@ describe('CombatWindowContent', () => {
   });
 
   beforeEach(() => {
+    setWorldClockTime(0);
     host = document.createElement('div');
     document.body.appendChild(host);
     root = createRoot(host);
@@ -88,6 +90,7 @@ describe('CombatWindowContent', () => {
     await act(async () => {
       root.unmount();
     });
+    setWorldClockTime(0);
     host.remove();
   });
 
@@ -261,6 +264,41 @@ describe('CombatWindowContent', () => {
     ).toBeNull();
     expect(barStack?.children.length).toBe(2);
     expect(host.querySelector('[class*="castBar"]')).toBeNull();
+  });
+
+  it('prefers the live world clock store time over the prop fallback for cooldown state', async () => {
+    const enemyActor = createCombatActorState(WORLD_TIME_MS, ['kick']);
+    enemyActor.globalCooldownEndsAt = WORLD_TIME_MS + 500;
+    enemyActor.cooldownEndsAt.kick = WORLD_TIME_MS + 500;
+    setWorldClockTime(WORLD_TIME_MS + 1_000);
+
+    await act(async () => {
+      root.render(
+        <CombatWindowContent
+          combat={{
+            ...combat,
+            enemies: {
+              ...combat.enemies,
+              'enemy-1': enemyActor,
+            },
+          }}
+          playerParty={playerParty}
+          enemies={enemies}
+          worldTimeMs={WORLD_TIME_MS}
+          onHoverDetail={() => {}}
+          onLeaveDetail={() => {}}
+        />,
+      );
+    });
+
+    const enemyCard = findEntityCardByTitle(host, 'Wolf Lv 2');
+    const abilityButton = enemyCard?.querySelector(
+      'button[aria-label="Kick"]',
+    ) as HTMLButtonElement | null;
+
+    expect(abilityButton).not.toBeNull();
+    expect(abilityButton?.className).not.toContain('iconButtonDisabled');
+    expect(abilityButton?.getAttribute('aria-disabled')).not.toBe('true');
   });
 });
 

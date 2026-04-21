@@ -15,6 +15,7 @@ type EnemyLookupState = WorldTileState &
 type CurrentTileState = WorldTileState & {
   player: Pick<GameState['player'], 'coord'>;
 };
+const playerClaimedTilesCache = new WeakMap<GameState['tiles'], Tile[]>();
 
 export function getVisibleTiles(state: VisibleTilesState) {
   const tiles = [];
@@ -39,7 +40,16 @@ export function getCurrentTile(state: CurrentTileState) {
 }
 
 export function getPlayerClaimedTiles(state: Pick<GameState, 'tiles'>) {
-  return Object.values(state.tiles).filter((tile) => isPlayerClaim(tile.claim));
+  const cachedClaimedTiles = playerClaimedTilesCache.get(state.tiles);
+  if (cachedClaimedTiles) {
+    return cachedClaimedTiles;
+  }
+
+  const claimedTiles = Object.values(state.tiles).filter((tile) =>
+    isPlayerClaim(tile.claim),
+  );
+  playerClaimedTilesCache.set(state.tiles, claimedTiles);
+  return claimedTiles;
 }
 
 export function getEnemiesAt(state: EnemyLookupState, coord: HexCoord) {

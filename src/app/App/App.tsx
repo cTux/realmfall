@@ -27,7 +27,6 @@ import { usePixiWorld } from './usePixiWorld';
 import { useWindowTransitions } from './useWindowTransitions';
 import { useWorldClockFps } from './useWorldClockFps';
 import { PauseOverlay } from './components/PauseOverlay';
-import { clearEncryptedState } from '../../persistence/storage';
 import {
   clearAudioSettings,
   loadAudioSettings,
@@ -324,7 +323,8 @@ export function App() {
 
   const handleResetSaveData = useCallback(async () => {
     uiAudio.error();
-    clearEncryptedState();
+    const { clearEncryptedState } = await import('../../persistence/storage');
+    await clearEncryptedState();
     clearAudioSettings();
     clearGraphicsSettings();
     clearWorldMapSettings();
@@ -437,7 +437,7 @@ export function App() {
             mood={backgroundMusicMood}
           />
         </Suspense>
-        <div className={isReady ? undefined : styles.hiddenUntilReady}>
+        <div className={styles.appShell}>
           <div ref={hostRef} className={styles.mapViewport} />
           <Suspense fallback={null}>
             <HomeIndicator

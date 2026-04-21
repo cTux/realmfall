@@ -9,6 +9,9 @@ export const saveEncryptedState = vi.fn();
 export const clearEncryptedState = vi.fn();
 export const tickerCallbacks = new Set<() => void>();
 export const applicationOptions: Array<Record<string, unknown>> = [];
+export const ensureWorldIconTexturesLoaded = vi.fn(async () => undefined);
+export const getVisibleWorldIconAssetIds = vi.fn(() => ['visible-start-icon']);
+export const warmWorldIconTexturesInBackground = vi.fn();
 
 class MockStage {
   children: unknown[] = [];
@@ -224,6 +227,19 @@ vi.mock('../../../ui/world/renderScene', () => ({
   renderScene,
 }));
 
+vi.mock('../../../ui/world/worldIcons', async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import('../../../ui/world/worldIcons')
+  >();
+
+  return {
+    ...actual,
+    ensureWorldIconTexturesLoaded,
+    getVisibleWorldIconAssetIds,
+    warmWorldIconTexturesInBackground,
+  };
+});
+
 vi.mock('../../audio/VoiceAudioControllerBridge', () => ({
   VoiceAudioControllerBridge: () => null,
 }));
@@ -339,6 +355,8 @@ beforeAll(() => {
     globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }
   ).IS_REACT_ACT_ENVIRONMENT = true;
   vi.useFakeTimers();
+  vi.stubGlobal('requestIdleCallback', undefined);
+  vi.stubGlobal('cancelIdleCallback', undefined);
 
   class ResizeObserverMock {
     observe() {}

@@ -13,6 +13,9 @@ import type { Enemy, GameState, StructureType, Tile } from '../../game/state';
 import { ImageSource, Texture } from 'pixi.js';
 import { RARITY_COLOR } from '../rarity';
 
+const WORLD_ICON_BACKGROUND_WARMUP_BATCH_SIZE = 4;
+const WORLD_ICON_WARMUP_FALLBACK_SLICE_MS = 8;
+
 export const WorldIcons = {
   Player: playerIcon,
   SunCloud: sunCloudIcon,
@@ -102,9 +105,16 @@ export function getVisibleWorldIconAssetIds(
 const worldIconTextures = new Map<string, Texture>();
 const worldIconTestFallbackTextures = new Map<string, Texture>();
 const worldIconTextureLoads = new Map<string, Promise<Texture>>();
+const queuedWorldIconWarmups = new Set<string>();
+const worldIconWarmupQueue: string[] = [];
+let worldIconWarmupHandle: number | null = null;
+let worldIconPlaceholderTexture: Texture | null = null;
 let worldIconTextureVersion = 0;
 
-export function getWorldIconTexture(icon: string) {
+export function getWorldIconTexture(
+  icon: string,
+  options?: { allowPending?: boolean },
+) {
   const cachedTexture = takeValidWorldIconTexture(worldIconTextures, icon);
   if (cachedTexture) {
     return cachedTexture;
@@ -122,6 +132,11 @@ export function getWorldIconTexture(icon: string) {
     const texture = Texture.from(icon);
     worldIconTestFallbackTextures.set(icon, texture);
     return texture;
+  }
+
+  if (options?.allowPending) {
+    void loadWorldIconTexture(icon).catch(() => undefined);
+    return getWorldIconPlaceholderTexture();
   }
 
   throw new Error(`World icon texture requested before preload: ${icon}`);
@@ -145,6 +160,33 @@ export function ensureWorldIconTexturesLoaded(
   return Promise.all(
     iconAssetIds.map((icon) => loadWorldIconTexture(icon)),
   ).then(() => undefined);
+}
+
+export function warmWorldIconTexturesInBackground(
+  iconAssetIds = getWorldIconAssetIds(),
+) {
+  if (
+    typeof window === 'undefined' ||
+    typeof Image === 'undefined' ||
+    /jsdom/i.test(globalThis.navigator?.userAgent ?? '')
+  ) {
+    return;
+  }
+
+  for (const icon of iconAssetIds) {
+    if (
+      worldIconTextures.has(icon) ||
+      worldIconTextureLoads.has(icon) ||
+      queuedWorldIconWarmups.has(icon)
+    ) {
+      continue;
+    }
+
+    queuedWorldIconWarmups.add(icon);
+    worldIconWarmupQueue.push(icon);
+  }
+
+  scheduleWorldIconWarmup();
 }
 
 function loadWorldIconTexture(icon: string) {
@@ -209,5 +251,93 @@ function isDestroyedWorldIconTexture(texture: Texture) {
     candidate.destroyed === true ||
     (candidate.source === null && 'source' in candidate) ||
     candidate.source?.destroyed === true
+  );
+}
+
+function scheduleWorldIconWarmup() {
+  if (worldIconWarmupHandle !== null || worldIconWarmupQueue.length === 0) {
+    return;
+  }
+
+  const runWarmupBatch = (deadline?: IdleDeadline) => {
+    worldIconWarmupHandle = null;
+    const sliceStart = performance.now();
+    let startedLoads = 0;
+
+    while (
+      worldIconWarmupQueue.length > 0 &&
+      shouldContinueWorldIconWarmup(deadline, sliceStart, startedLoads)
+    ) {
+      const nextIcon = worldIconWarmupQueue.shift();
+      if (!nextIcon) {
+        continue;
+      }
+
+      queuedWorldIconWarmups.delete(nextIcon);
+      void loadWorldIconTexture(nextIcon).catch(() => undefined);
+      startedLoads += 1;
+    }
+
+    if (worldIconWarmupQueue.length > 0) {
+      scheduleWorldIconWarmup();
+    }
+  };
+
+  if (typeof window.requestIdleCallback === 'function') {
+    worldIconWarmupHandle = window.requestIdleCallback(runWarmupBatch, {
+      timeout: 200,
+    });
+    return;
+  }
+
+  worldIconWarmupHandle = window.setTimeout(() => {
+    runWarmupBatch();
+  }, 0);
+}
+
+function shouldContinueWorldIconWarmup(
+  deadline: IdleDeadline | undefined,
+  sliceStart: number,
+  startedLoads: number,
+) {
+  if (startedLoads >= WORLD_ICON_BACKGROUND_WARMUP_BATCH_SIZE) {
+    return false;
+  }
+
+  if (deadline) {
+    return deadline.timeRemaining() > 4;
+  }
+
+  return performance.now() - sliceStart < WORLD_ICON_WARMUP_FALLBACK_SLICE_MS;
+}
+
+function getWorldIconPlaceholderTexture() {
+  if (worldIconPlaceholderTexture) {
+    return worldIconPlaceholderTexture;
+  }
+
+  const resource = createWorldIconPlaceholderResource();
+  worldIconPlaceholderTexture = new Texture({
+    source: new ImageSource({
+      resource,
+    }),
+  });
+  return worldIconPlaceholderTexture;
+}
+
+function createWorldIconPlaceholderResource() {
+  if (typeof document !== 'undefined') {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1;
+    canvas.height = 1;
+    return canvas;
+  }
+
+  if (typeof OffscreenCanvas !== 'undefined') {
+    return new OffscreenCanvas(1, 1);
+  }
+
+  throw new Error(
+    'World icon placeholder requested before a canvas resource is available.',
   );
 }

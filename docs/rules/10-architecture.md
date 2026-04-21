@@ -18,3 +18,4 @@
 - Vendor gameplay icon assets in the repository and load them from local files. Do not point shipped item, enemy, structure, generated-equipment, or similar runtime icon paths at remote URLs.
 - Prefer extending existing helpers, caches, and domain modules before adding parallel systems that solve the same problem differently.
 - When runtime validators need gameplay enum or union values, export canonical runtime lists from the owning game module and reuse them instead of recreating literal allowlists in persistence or UI code.
+- Cache shared world-query results off stable container identities such as `tiles` when claim, visibility, or similar scans would otherwise repeat across unrelated UI updates.

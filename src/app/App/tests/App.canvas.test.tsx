@@ -5,11 +5,14 @@ import {
 } from '../../graphicsSettings';
 import {
   applicationOptions,
+  ensureWorldIconTexturesLoaded,
   flushLazyModules,
+  getVisibleWorldIconAssetIds,
   loadEncryptedState,
   renderApp,
   renderScene,
   tickerCallbacks,
+  warmWorldIconTexturesInBackground,
 } from './appTestHarness';
 
 describe('App canvas setup', () => {
@@ -118,6 +121,24 @@ describe('App canvas setup', () => {
     expect(renderScene).toHaveBeenCalledTimes(2);
 
     nowSpy.mockRestore();
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('preloads initial visible icons before Pixi init and warms the full catalog after boot', async () => {
+    loadEncryptedState.mockResolvedValue(null);
+
+    const { host, root } = await renderApp();
+    await flushLazyModules();
+
+    expect(getVisibleWorldIconAssetIds).toHaveBeenCalled();
+    expect(ensureWorldIconTexturesLoaded).toHaveBeenCalledWith([
+      'visible-start-icon',
+    ]);
+    expect(warmWorldIconTexturesInBackground).toHaveBeenCalledTimes(1);
 
     await act(async () => {
       root.unmount();

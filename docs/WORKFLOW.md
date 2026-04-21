@@ -44,7 +44,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 ## Save Format
 
 - During the current project phase, do not add backward save-format compatibility code.
-- After major save-shape changes, clear local storage instead of preserving older save payloads through migration logic.
+- After major save-shape changes, clear browser save storage instead of preserving older save payloads through migration logic.
 
 ## Documentation Workflow
 

@@ -11,6 +11,7 @@
 - When a UI control only needs the live world clock for display state, subscribe through `src/app/App/worldClockStore.ts` at the leaf component instead of threading `worldTimeMs` through broad app or window props.
 - When splitting `AppWindows` work, pass fixed and deferred window components only the view and action slices they actually consume instead of forwarding the full nested props object.
 - Avoid force-casting partial selector inputs to `GameState` in React view-model hooks. Use narrow selector input types and variable names that match the actual data shape being passed.
+- Keep the base app shell visible while persistence hydration or Pixi bootstrap is in flight. Loading states may cover the map viewport, but they should not hide the dock, action bar, or other already-renderable shell UI behind a full-screen visibility gate.
 - Keep Storybook stories for every component under `src/ui/components`, including shared leaf components and window wrappers.
 - Every component addition, removal, or behavior-affecting UI change should add or update the corresponding Storybook story in the same task.
 - Keep aggregate Storybook catalogs for entity dictionaries such as `ITEM_CONFIGS`, `ENEMY_CONFIGS`, and `STRUCTURE_CONFIGS`, and prefer rendering those catalogs directly from the live config arrays so entity additions, removals, and edits appear automatically.
@@ -25,7 +26,7 @@
 - Lazy-load secondary UI only when it matches the existing usage pattern and helps keep the initial app path lighter.
 - Treat draggable window content as secondary UI by default. New windows should defer their content behind a lazy-loaded bundle, either by lazy-loading the whole window module or by lazy-loading a dedicated `*WindowContent` module inside the window component.
 - Preserve existing React containment patterns such as memoized window components when extending the current UI.
-- Maintain mobile-aware and desktop-safe behavior when changing interactions, even if the full mobile adaptation is still incomplete.
+- Maintain mobile-aware and desktop-safe behavior when changing interactions, even if the full mobile adaptation remains incomplete.
 - Keep component files under roughly `250` lines when practical. When a component grows past that size, prefer splitting view models, hooks, or subcomponents into neighboring files.
 - Keep high-frequency pointer, hover, and world-interaction updates off broad React state paths when refs, invalidation flags, or narrower state can avoid avoidable rerenders.
 - For capped animated lists such as the log window, cache parsed row metadata by stable entry object and keep per-row typing or animation state inside the animated row instead of ticking the parent list component.
@@ -37,5 +38,6 @@
 - Name handler props after the behavior a user action can actually trigger. When one inventory click can equip, consume, or learn a recipe, expose that path as activation and keep equip-only or use-only handlers explicit.
 - Keep shared window labels, hotkey metadata, and similar reusable UI constants in plain non-component modules so component files only export component concerns.
 - Window title bars should reuse shared controls wherever possible. Close actions must use the shared close button implementation and surface the shared custom tooltip consistently across every window.
+- Shared draggable window primitives own focus-to-front behavior. When a window opens or regains focus, route the stack update through the shared shell instead of introducing per-window z-index overrides.
 - For ability, buff, and debuff icons rendered through CSS masks, use transparent SVG assets with no full-canvas background shape. If sourcing icons externally, prefer transparent exports or strip the background path before committing so the UI does not render a solid square.
 - For UI elements that already use the custom game tooltip system, do not add native browser `title` tooltips. Buffs, debuffs, abilities, and similar interactive affordances should use the shared custom tooltip consistently so browser-default tooltips never compete with or duplicate the in-game tooltip.

@@ -1,4 +1,5 @@
 import { memo, useMemo } from 'react';
+import { useWorldClockTime } from '../../../app/App/worldClockStore';
 import { getAbilityDefinition } from '../../../game/abilities';
 import { DEFAULT_ENEMY_MANA } from '../../../game/combat';
 import { getStatusEffectDefinition } from '../../../game/content/statusEffects';
@@ -30,7 +31,7 @@ interface CombatWindowContentProps {
   combat: CombatWindowProps['combat'];
   playerParty: CombatWindowProps['playerParty'];
   enemies: CombatWindowProps['enemies'];
-  worldTimeMs: number;
+  worldTimeMs?: number;
   onHoverDetail: CombatWindowProps['onHoverDetail'];
   onLeaveDetail: CombatWindowProps['onLeaveDetail'];
 }
@@ -56,8 +57,11 @@ export function CombatWindowContent({
   onHoverDetail,
   onLeaveDetail,
 }: CombatWindowContentProps) {
+  const liveWorldTimeMs = useWorldClockTime();
+  const resolvedWorldTimeMs = liveWorldTimeMs || worldTimeMs || 0;
   const visualWorldTimeMs =
-    Math.floor(worldTimeMs / COMBAT_VISUAL_STEP_MS) * COMBAT_VISUAL_STEP_MS;
+    Math.floor(resolvedWorldTimeMs / COMBAT_VISUAL_STEP_MS) *
+    COMBAT_VISUAL_STEP_MS;
   const alliedParty = useMemo(
     () =>
       playerParty.map((member) => toPlayerEntity(member, visualWorldTimeMs)),

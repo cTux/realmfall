@@ -12,4 +12,6 @@
 - Keep one-off bundle audits, such as duplicate-dependency detection, behind explicit commands instead of paying their plugin cost on every production build.
 - Tune Vite's generic chunk-size warning so it does not compete with the repository's explicit startup chunk budgets. `pnpm build:budget` should remain the primary signal for allowed large shared chunks such as `state` and `pixi`.
 - Keep diagnostic or refresh-only startup chrome, such as version polling widgets, off the bootstrap path when a lazy client-side load preserves first interaction and gameplay behavior.
+- Keep destructive, reset-only, or rare maintenance flows off the bootstrap graph. If a path only runs from a settings action or similar secondary UI, prefer importing its heavy helpers at action time instead of wiring them into `App` startup.
+- Load bootstrap locales as compact data assets instead of eager application code when the app only needs a translation map before importing `App`. Keep the emitted locale payload small enough to remain under the tracked startup budget.
 - Keep large repeated locale families concise. When many entries differ only by set name or item slot, prefer shorter shared phrasing over long near-duplicate sentences so locale payloads do not grow faster than the feature surface.

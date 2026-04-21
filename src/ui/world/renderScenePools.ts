@@ -99,7 +99,7 @@ export function resetShadowedSpritePool(pool: ShadowedSpritePool) {
 export function takeShadowedSprite(pool: ShadowedSpritePool, icon: string) {
   const items = pool.itemsByIcon.get(icon) ?? [];
   const used = pool.usedByIcon.get(icon) ?? 0;
-  const texture = getWorldIconTexture(icon);
+  const texture = getWorldIconTexture(icon, { allowPending: true });
 
   let item = items[used];
   if (!item) {
@@ -138,11 +138,11 @@ export function resetSpritePool(pool: SpritePool) {
 export function takeSprite(pool: SpritePool, icon: string) {
   const items = pool.itemsByIcon.get(icon) ?? [];
   const used = pool.usedByIcon.get(icon) ?? 0;
-  const texture = getWorldIconTexture(icon);
+  const texture = getWorldIconTexture(icon, { allowPending: true });
 
   let item = items[used];
   if (!item) {
-    item = new Sprite(getWorldIconTexture(icon));
+    item = new Sprite(getWorldIconTexture(icon, { allowPending: true }));
     item.anchor.set(0.5);
     items.push(item);
     pool.itemsByIcon.set(icon, items);
@@ -167,12 +167,12 @@ export function finishSpritePool(pool: SpritePool) {
 export function createShadowedSprite(icon: string): ShadowedSpriteEntry {
   const wrapper = new Container();
   const shadows = [0.3, 0.55, 0.8, 1].map(() => {
-    const shadow = new Sprite(getWorldIconTexture(icon));
+    const shadow = new Sprite(getWorldIconTexture(icon, { allowPending: true }));
     shadow.anchor.set(0.5);
     wrapper.addChild(shadow);
     return shadow;
   });
-  const sprite = new Sprite(getWorldIconTexture(icon));
+  const sprite = new Sprite(getWorldIconTexture(icon, { allowPending: true }));
   sprite.anchor.set(0.5);
   wrapper.addChild(sprite);
   return { wrapper, shadows, sprite };

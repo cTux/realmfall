@@ -32,7 +32,7 @@ import {
   createWorldMapFishEyeFilter,
   WORLD_MAP_FISHEYE_ENABLED,
   type WorldMapFishEyeFilter,
-} from './worldMapFishEye';
+} from './worldMapFishEyeRuntime';
 
 const SCENE_CACHE_KEY = Symbol('renderSceneCache');
 const MAX_CLOUD_INPUT_CACHE_ENTRIES = 4;
@@ -122,14 +122,11 @@ export function getSceneCache(app: Application) {
   const clouds = new Container();
   const overlay = new Container();
 
-  const worldMapFilterArea = new Rectangle(
-    0,
-    0,
-    app.screen.width,
-    app.screen.height,
-  );
+  const worldMapFilterArea = WORLD_MAP_FISHEYE_ENABLED
+    ? new Rectangle(0, 0, app.screen.width, app.screen.height)
+    : new Rectangle(0, 0, 0, 0);
   const worldMapFilter = createWorldMapFishEyeFilter();
-  if (WORLD_MAP_FISHEYE_ENABLED) {
+  if (WORLD_MAP_FISHEYE_ENABLED && worldMapFilter) {
     worldMap.filters = [worldMapFilter];
     worldMap.filterArea = worldMapFilterArea;
   }
