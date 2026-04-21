@@ -24,6 +24,7 @@ describe('App hover behavior', () => {
     };
     game.enemies['enemy-1,0-0'] = {
       id: 'enemy-1,0-0',
+      enemyTypeId: 'wolf',
       name: 'Wolf',
       coord: { q: 1, r: 0 },
       tier: 1,
@@ -128,6 +129,7 @@ describe('App hover behavior', () => {
     };
     game.enemies['enemy-1,0-0'] = {
       id: 'enemy-1,0-0',
+      enemyTypeId: 'wolf',
       name: 'Wolf',
       coord: { q: 1, r: 0 },
       tier: 1,
@@ -161,6 +163,7 @@ describe('App hover behavior', () => {
     };
     game.enemies['enemy-2,0-0'] = {
       id: 'enemy-2,0-0',
+      enemyTypeId: 'raider',
       name: 'Bandit',
       coord: { q: 2, r: 0 },
       tier: 2,

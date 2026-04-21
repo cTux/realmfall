@@ -80,6 +80,29 @@ describe('normalizeLoadedGame', () => {
       logs: [],
     });
   });
+
+  it('backfills missing enemy type ids from legacy enemy names', () => {
+    const game = createGame(3, 'normalize-enemy-type-seed');
+    const enemyId = 'normalize-wolf';
+
+    game.tiles['0,0']!.enemyIds = [enemyId];
+    game.enemies[enemyId] = {
+      id: enemyId,
+      name: 'Wolf',
+      coord: { ...game.homeHex },
+      tier: 1,
+      hp: 10,
+      maxHp: 10,
+      attack: 3,
+      defense: 1,
+      xp: 5,
+      elite: false,
+    };
+
+    expect(normalizeLoadedGame(game)?.enemies[enemyId]?.enemyTypeId).toBe(
+      'wolf',
+    );
+  });
 });
 
 describe('normalizePersistedUiState', () => {

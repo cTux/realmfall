@@ -958,6 +958,7 @@ describe('game state', () => {
     };
     game.enemies['enemy-2,0-0'] = {
       id: 'enemy-2,0-0',
+      enemyTypeId: 'wolf',
       name: 'Wolf',
       coord: target,
       tier: 2,
