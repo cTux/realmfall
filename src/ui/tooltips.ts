@@ -10,10 +10,8 @@ import { getItemCategory, inferItemTags } from '../game/content/items';
 import { EquipmentSlotId } from '../game/content/ids';
 import { getConsumableRestoreProfile } from '../game/consumables';
 import {
-  enemyRarityIndex,
   gatheringBonusChance,
   gatheringYieldBonus,
-  getStructureConfig,
   Skill,
   skillLevelThreshold,
   type Enemy,
@@ -24,19 +22,18 @@ import {
 } from '../game/state';
 import type {
   AbilityDefinition,
-  EnemyRarity,
   PlayerStatusEffect,
   SecondaryStatKey,
   StatusEffectId,
 } from '../game/types';
 import { t } from '../i18n';
 import {
-  formatEnemyRarityLabel,
   formatEquipmentSlotLabel,
   formatSecondaryStatLabel,
   formatStatusEffectLabel,
 } from '../i18n/labels';
 import { Icons } from './icons';
+import { buildEnemyTooltip, buildStructureTooltip } from './tooltipContent';
 
 export interface TooltipLine {
   text?: string;
@@ -206,71 +203,21 @@ export function enemyTooltip(
   enemies: Enemy[],
   structure?: StructureType,
 ): { title: string; lines: TooltipLine[] } | null {
-  if (enemies.length === 0) return null;
-
-  if (enemies.length === 1 && structure !== 'dungeon') {
-    const [enemy] = enemies;
-    return {
-      title: enemy.name,
-      lines: [
-        { kind: 'stat', label: t('ui.tooltip.level'), value: `${enemy.tier}` },
-        {
-          kind: 'stat',
-          label: t('ui.tooltip.rarity'),
-          value: formatEnemyRarityLabel(enemy.rarity ?? 'common'),
-        },
-        { kind: 'stat', label: t('ui.tooltip.enemies'), value: '1' },
-        ...tagTooltipLines(enemy.tags),
-      ],
-    };
-  }
-
-  const maxTier = Math.max(...enemies.map((enemy) => enemy.tier));
-  const highestRarity = enemies.reduce<EnemyRarity>(
-    (current, enemy) =>
-      enemyRarityIndex(enemy.rarity) > enemyRarityIndex(current)
-        ? (enemy.rarity ?? 'common')
-        : current,
-    'common',
-  );
-
-  return {
-    title:
-      structure === 'dungeon'
-        ? structureTitle('dungeon')
-        : t('ui.combat.enemyPartyTitle'),
-    lines: [
-      { kind: 'stat', label: t('ui.tooltip.level'), value: `${maxTier}` },
-      {
-        kind: 'stat',
-        label: t('ui.tooltip.rarity'),
-        value: formatEnemyRarityLabel(highestRarity),
-      },
-      {
-        kind: 'stat',
-        label: t('ui.tooltip.enemies'),
-        value: `${enemies.length}`,
-      },
-      ...tagTooltipLines(
-        enemies.flatMap((enemy) => enemy.tags ?? []).filter(uniqueTag),
-      ),
-    ],
-  };
+  return buildEnemyTooltip(enemies, structure, {
+    text: (text) => ({ kind: 'text', text }),
+    stat: (label, value) => ({ kind: 'stat', label, value }),
+    tags: tagTooltipLines,
+  });
 }
 
 export function structureTooltip(
   tile: Tile,
 ): { title: string; lines: TooltipLine[] } | null {
-  if (!tile.structure) return null;
-  const config = getStructureConfig(tile.structure);
-
-  return {
-    title: config.title,
-    lines: [
-      { kind: 'text', text: config.description },
-      ...tagTooltipLines(config.tags),
-    ],
-  };
+  return buildStructureTooltip(tile, {
+    text: (text) => ({ kind: 'text', text }),
+    stat: (label, value) => ({ kind: 'stat', label, value }),
+    tags: tagTooltipLines,
+  });
 }
 
 export function skillTooltip(skill: SkillName, level: number): TooltipLine[] {
@@ -515,10 +462,6 @@ function itemSellLine(item: Item): TooltipLine | null {
   };
 }
 
-function structureTitle(structure: StructureType) {
-  return getStructureConfig(structure).title;
-}
-
 function isGatheringSkill(skill: SkillName) {
   return (
     skill === Skill.Gathering ||
@@ -539,10 +482,6 @@ export function tagTooltipLines(tags?: string[]): TooltipLine[] {
       tone: 'subtle',
     },
   ];
-}
-
-function uniqueTag(tag: string, index: number, values: string[]) {
-  return values.indexOf(tag) === index;
 }
 
 function capitalize(value: string) {
