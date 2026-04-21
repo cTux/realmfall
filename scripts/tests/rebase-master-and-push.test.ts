@@ -1,5 +1,6 @@
 import {
   createPushPlan,
+  isMissingRemoteRefError,
   parseCliArgs,
   parseRemoteDefaultBranch,
   replacePackageVersionConflict,
@@ -74,6 +75,15 @@ describe('rebase master and push helpers', () => {
     expect(() => parseRemoteDefaultBranch('')).toThrow(
       'Unable to determine the remote default branch from git ls-remote --symref output.',
     );
+  });
+
+  it('detects missing remote ref fetch errors', () => {
+    expect(
+      isMissingRemoteRefError("fatal: couldn't find remote ref codex/example"),
+    ).toBe(true);
+    expect(
+      isMissingRemoteRefError('fatal: Authentication failed for origin'),
+    ).toBe(false);
   });
 
   it('creates lease-aware push plans for existing remote branches', () => {

@@ -4,6 +4,7 @@ import { spawnSync } from 'node:child_process';
 import process from 'node:process';
 import {
   createPushPlan,
+  isMissingRemoteRefError,
   parseCliArgs,
   parseRemoteDefaultBranch,
   replacePackageVersionConflict,
@@ -302,7 +303,6 @@ if (pushPlan.fetchArgs) {
   logStep(`Fetching ${REMOTE}/${branchName} for force-with-lease`);
   const fetchResult = runGit(pushPlan.fetchArgs, {
     allowFailure: true,
-    live: true,
   });
 
   if (fetchResult.status !== 0) {
@@ -311,7 +311,7 @@ if (pushPlan.fetchArgs) {
       `Unable to fetch ${REMOTE}/${branchName}.`,
     );
 
-    if (/couldn'?t find remote ref/u.test(fetchError)) {
+    if (isMissingRemoteRefError(fetchError)) {
       logStep(
         `${REMOTE}/${branchName} no longer exists, creating it with --set-upstream`,
       );

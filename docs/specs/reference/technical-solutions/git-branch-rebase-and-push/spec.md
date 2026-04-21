@@ -15,7 +15,7 @@ This spec covers the repository-local helper that rebases the current branch ont
 - Automatic conflict resolution is intentionally limited to the `package.json` version line. If any other unresolved file remains, the script stops so the user can inspect the new upstream changes before continuing.
 - If `git rebase --continue` returns a non-zero status after the helper's automatic conflict handling runs, the script stops immediately and tells the user to resolve the reported issue or use `git rebase --skip` or `git rebase --abort` manually instead of retrying `--continue` in a loop.
 - The script refuses to run on whichever branch `origin/HEAD` currently points at, so the safety check follows repositories that use `main`, `master`, or another default branch name.
-- Before it uses `git push --force-with-lease`, the script fetches `origin/<current-branch>` into the local remote-tracking ref so the lease compares against current remote state instead of stale local data.
+- Before it uses `git push --force-with-lease`, the script fetches `origin/<current-branch>` into the local remote-tracking ref so the lease compares against current remote state instead of stale local data, and it inspects the captured fetch error text so a missing remote ref can fall back to `git push --set-upstream` instead of failing generically.
 - If the current branch does not exist on `origin` yet, the script creates it with `git push --set-upstream origin HEAD:refs/heads/<current-branch>`.
 - `--dry-run` prints the planned rebase and push workflow without changing Git state.
 

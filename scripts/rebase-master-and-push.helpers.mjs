@@ -1,6 +1,7 @@
 const SEMVER_PATTERN = /^(\d+)\.(\d+)\.(\d+)$/;
 const REMOTE_HEAD_PATTERN =
   /^ref:\s+refs\/heads\/(?<branch>[^\t\r\n]+)\s+HEAD$/mu;
+const MISSING_REMOTE_REF_PATTERN = /couldn'?t find remote ref/u;
 const VERSION_LINE_PATTERN = /^(?<indent>\s*)"version":\s*"[^"]+",\s*$/u;
 const VERSION_CONFLICT_PATTERN =
   /<<<<<<<[^\r\n]*\r?\n(?<ours>[^\r\n]*\r?\n)=======\r?\n(?<theirs>[^\r\n]*\r?\n)>>>>>>>[^\r\n]*\r?\n?/gu;
@@ -116,6 +117,10 @@ export function parseRemoteDefaultBranch(lsRemoteOutput) {
   }
 
   return branchName;
+}
+
+export function isMissingRemoteRefError(errorText) {
+  return MISSING_REMOTE_REF_PATTERN.test(errorText);
 }
 
 export function createPushPlan(
