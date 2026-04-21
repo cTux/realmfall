@@ -27,8 +27,9 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Shared drag shells keep their open, mounted, and entered lifecycle phases explicit and unregister stack entries through stable window ids, keeping hook lint clean while the stack model tracks the rendered instance correctly.
 - Shared window-shell helpers are reused for move handlers, close handlers, deferred mount state, repeated title-bar labels, and the shared suspense-loading wrapper for lazy window content instead of maintaining parallel per-window implementations.
 - `useAppControllers` routes gameplay mutations through a shared timed-transition helper so controller actions inject the current world time consistently without repeating the same wrapper at every call site.
-- `useAppControllers` also routes inventory and action-bar item hovers through one shared async item-tooltip presenter, so tooltip caching, learned-recipe detection, and lazy tooltip-module loading do not fork into parallel handler implementations.
+- `useAppControllers` delegates inventory and action-bar hover tooltip orchestration to `useItemTooltipController`, so tooltip caching, learned-recipe detection, and lazy tooltip-module loading stay together in one local hook instead of expanding the broader window and gameplay controller module.
 - `useAppControllers` separates inventory-slot activation from explicit equip and use actions so handler names match the behavior they trigger and context-menu equip actions stay equip-only.
+- `useAppPersistence` keeps hydration and latest-input tracking in the hook while local `persistence/` helpers own segment serialization and autosave scheduling, separating save bootstrapping from debounce, idle-flush, and queued-write mechanics.
 - `useCombatAutomation` schedules the next combat step from the earliest pending combat event across actor cooldowns, cast completions, combat status-effect ticks, and effect expirations.
 - The top-level app owns a non-persistent pause state toggled by `Space`, and that state gates the shared world clock, combat automation, world-click travel, and controller-routed gameplay mutations while surfacing a centered overlay above the stage. The `Space` shortcut skips editable targets and focused interactive controls so native keyboard activation behavior remains intact.
 - Secondary stage overlays such as the home-direction marker and version polling panel stay behind lazy boundaries so the `App` entry prioritizes world bootstrap and core window composition.
@@ -53,7 +54,11 @@ This spec covers the top-level React hook composition and derived view-model pat
 
 - `src/app/App/App.tsx`
 - `src/app/App/useAppControllers.ts`
+- `src/app/App/hooks/useItemTooltipController.ts`
 - `src/app/App/useAppGameView.ts`
+- `src/app/App/useAppPersistence.ts`
+- `src/app/App/persistence/saveSegments.ts`
+- `src/app/App/persistence/saveScheduler.ts`
 - `src/app/App/hooks/useAppWindowsProps.ts`
 - `src/app/App/hooks/useAppWindowHandlers.ts`
 - `src/app/App/hooks/useDeferredWindows.ts`

@@ -1,7 +1,6 @@
 import {
   useCallback,
   useEffect,
-  useRef,
   useState,
   type Dispatch,
   type MouseEvent as ReactMouseEvent,
@@ -35,7 +34,7 @@ import {
   type Item,
   type LogKind,
 } from '../../game/state';
-import { rarityColor } from '../../ui/rarity';
+import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import {
   DEFAULT_LOG_FILTERS,
   DEFAULT_WINDOWS,
@@ -45,17 +44,14 @@ import {
 } from '../constants';
 import type { AudioSettings } from '../audioSettings';
 import type { GraphicsSettings } from '../graphicsSettings';
-import type { ItemContextMenuState, TooltipItem, TooltipState } from './types';
-import type { TooltipPosition } from '../../ui/components/GameTooltip';
-import type { TooltipLine } from '../../ui/tooltips';
-import { setTooltipState } from './tooltipStore';
-import { getTooltipPlacementForRect } from '../../ui/tooltipPlacement';
+import type { ItemContextMenuState, TooltipItem } from './types';
 import {
   createDefaultActionBarSlots,
   findActionBarItem,
   reconcileActionBarSlots,
   type ActionBarSlots,
 } from './actionBar';
+import { useItemTooltipController } from './hooks/useItemTooltipController';
 
 interface UseAppControllersOptions {
   inventory: Item[];
@@ -68,9 +64,6 @@ interface UseAppControllersOptions {
   worldTimeMsRef: MutableRefObject<number>;
 }
 
-type ItemTooltipLinesBuilder =
-  typeof import('../../ui/tooltips').itemTooltipLines;
-
 export function useAppControllers({
   inventory,
   gameRef,
@@ -81,26 +74,6 @@ export function useAppControllers({
   tooltipPositionRef,
   worldTimeMsRef,
 }: UseAppControllersOptions) {
-  const itemTooltipLinesCacheRef = useRef(
-    new WeakMap<
-      TooltipItem,
-      {
-        withoutEquipped: TooltipLine[] | null;
-        withoutEquippedRecipeLearned: TooltipLine[] | null;
-        withEquipped: WeakMap<
-          TooltipItem,
-          {
-            recipeUnknown: TooltipLine[] | null;
-            recipeLearned: TooltipLine[] | null;
-          }
-        >;
-      }
-    >(),
-  );
-  const tooltipRequestIdRef = useRef(0);
-  const itemTooltipModulePromiseRef = useRef<Promise<
-    typeof import('../../ui/tooltips') | null
-  > | null>(null);
   const [windows, setWindows] = useState<WindowPositions>(DEFAULT_WINDOWS);
   const [windowShown, setWindowShown] = useState<WindowVisibilityState>(
     DEFAULT_WINDOW_VISIBILITY,
@@ -119,6 +92,16 @@ export function useAppControllers({
   );
   const [recipeMaterialFilterItemKey, setRecipeMaterialFilterItemKey] =
     useState<string | null>(null);
+  const {
+    closeTooltip,
+    setTooltip,
+    showActionBarItemTooltip,
+    showItemTooltip,
+    showTooltip,
+  } = useItemTooltipController({
+    gameRef,
+    tooltipPositionRef,
+  });
   const applyGameTransition = useCallback(
     (transition: (state: GameState) => GameState) => {
       if (paused) {
@@ -170,114 +153,9 @@ export function useAppControllers({
     }));
   }, []);
 
-  const closeTooltip = useCallback(() => {
-    tooltipRequestIdRef.current += 1;
-    tooltipPositionRef.current = null;
-    setTooltipState(null);
-  }, [tooltipPositionRef]);
-
   const closeItemMenu = useCallback(() => {
     setItemMenu(null);
   }, []);
-
-  const loadItemTooltipModule = useCallback(() => {
-    itemTooltipModulePromiseRef.current ??= import('../../ui/tooltips').catch(
-      () => {
-        itemTooltipModulePromiseRef.current = null;
-        return null;
-      },
-    );
-    return itemTooltipModulePromiseRef.current;
-  }, []);
-
-  const presentItemTooltip = useCallback(
-    (
-      item: TooltipItem,
-      position: ReturnType<typeof getTooltipPlacementForRect>,
-      equipped?: TooltipItem,
-    ) => {
-      const recipeLearned = isRecipePageLearned(gameRef.current, item);
-      const requestId = ++tooltipRequestIdRef.current;
-
-      void loadItemTooltipModule().then((tooltipModule) => {
-        if (tooltipRequestIdRef.current !== requestId) {
-          return;
-        }
-
-        if (!tooltipModule) {
-          tooltipPositionRef.current = null;
-          setTooltipState(null);
-          return;
-        }
-
-        tooltipPositionRef.current = position;
-        setTooltipState(
-          buildItemTooltipState({
-            cache: itemTooltipLinesCacheRef.current,
-            buildItemTooltipLines: tooltipModule.itemTooltipLines,
-            item,
-            equipped,
-            recipeLearned,
-            position,
-          }),
-        );
-      });
-    },
-    [gameRef, loadItemTooltipModule, tooltipPositionRef],
-  );
-
-  const showItemTooltip = useCallback(
-    (
-      event: ReactMouseEvent<HTMLElement>,
-      item: TooltipItem,
-      equipped?: TooltipItem,
-    ) => {
-      presentItemTooltip(
-        item,
-        getTooltipPlacementForRect(event.currentTarget.getBoundingClientRect()),
-        equipped,
-      );
-    },
-    [presentItemTooltip],
-  );
-
-  const showActionBarItemTooltip = useCallback(
-    (event: ReactMouseEvent<HTMLElement>, item: TooltipItem) => {
-      presentItemTooltip(
-        item,
-        getTooltipPlacementForRect(
-          event.currentTarget.getBoundingClientRect(),
-          {
-            preferredPlacements: ['top', 'right', 'left', 'bottom'],
-          },
-        ),
-      );
-    },
-    [presentItemTooltip],
-  );
-
-  const showTooltip = useCallback(
-    (
-      event: ReactMouseEvent<HTMLElement>,
-      title: string,
-      lines: TooltipLine[],
-      borderColor?: string,
-    ) => {
-      const rect = event.currentTarget.getBoundingClientRect();
-      const position = getTooltipPlacementForRect(rect);
-      tooltipPositionRef.current = position;
-      setTooltipState({
-        title,
-        lines,
-        contentKey: undefined,
-        x: position.x,
-        y: position.y,
-        placement: position.placement,
-        borderColor,
-      });
-    },
-    [tooltipPositionRef],
-  );
 
   const handleUnequip = useCallback(
     (slot: Parameters<typeof unequipItem>[1]) => {
@@ -495,10 +373,6 @@ export function useAppControllers({
     [showItemTooltip],
   );
 
-  const setTooltip = useCallback((nextTooltip: TooltipState | null) => {
-    setTooltipState(nextTooltip);
-  }, []);
-
   return {
     closeItemMenu,
     closeAllWindows,
@@ -555,136 +429,6 @@ export function useAppControllers({
     windows,
     recipeMaterialFilterItemKey,
   };
-}
-
-function getCachedItemTooltipLines(
-  cache: WeakMap<
-    TooltipItem,
-    {
-      withoutEquipped: TooltipLine[] | null;
-      withoutEquippedRecipeLearned: TooltipLine[] | null;
-      withEquipped: WeakMap<
-        TooltipItem,
-        {
-          recipeUnknown: TooltipLine[] | null;
-          recipeLearned: TooltipLine[] | null;
-        }
-      >;
-    }
-  >,
-  buildItemTooltipLines: ItemTooltipLinesBuilder,
-  item: TooltipItem,
-  equipped: TooltipItem | undefined,
-  recipeLearned: boolean,
-) {
-  let itemCache = cache.get(item);
-  if (!itemCache) {
-    itemCache = {
-      withoutEquipped: null,
-      withoutEquippedRecipeLearned: null,
-      withEquipped: new WeakMap(),
-    };
-    cache.set(item, itemCache);
-  }
-
-  if (!equipped) {
-    const cacheKey = recipeLearned
-      ? 'withoutEquippedRecipeLearned'
-      : 'withoutEquipped';
-    const cachedLines = itemCache[cacheKey];
-    if (cachedLines) {
-      return cachedLines;
-    }
-
-    const lines = buildItemTooltipLines(item, undefined, { recipeLearned });
-    itemCache[cacheKey] = lines;
-    return lines;
-  }
-
-  let equippedCache = itemCache.withEquipped.get(equipped);
-  if (!equippedCache) {
-    equippedCache = {
-      recipeUnknown: null,
-      recipeLearned: null,
-    };
-    itemCache.withEquipped.set(equipped, equippedCache);
-  }
-
-  const cacheKey = recipeLearned ? 'recipeLearned' : 'recipeUnknown';
-  const cachedLines = equippedCache[cacheKey];
-  if (cachedLines) {
-    return cachedLines;
-  }
-
-  const lines = buildItemTooltipLines(item, equipped, { recipeLearned });
-  equippedCache[cacheKey] = lines;
-  return lines;
-}
-
-function buildItemTooltipState({
-  cache,
-  buildItemTooltipLines,
-  item,
-  equipped,
-  recipeLearned,
-  position,
-}: {
-  cache: WeakMap<
-    TooltipItem,
-    {
-      withoutEquipped: TooltipLine[] | null;
-      withoutEquippedRecipeLearned: TooltipLine[] | null;
-      withEquipped: WeakMap<
-        TooltipItem,
-        {
-          recipeUnknown: TooltipLine[] | null;
-          recipeLearned: TooltipLine[] | null;
-        }
-      >;
-    }
-  >;
-  buildItemTooltipLines: ItemTooltipLinesBuilder;
-  item: TooltipItem;
-  equipped: TooltipItem | undefined;
-  recipeLearned: boolean;
-  position: ReturnType<typeof getTooltipPlacementForRect>;
-}): TooltipState {
-  return {
-    title: item.name,
-    lines: getCachedItemTooltipLines(
-      cache,
-      buildItemTooltipLines,
-      item,
-      equipped,
-      recipeLearned,
-    ),
-    contentKey: getItemTooltipContentKey(item, equipped, recipeLearned),
-    x: position.x,
-    y: position.y,
-    placement: position.placement,
-    borderColor: rarityColor(item.rarity),
-  };
-}
-
-function getItemTooltipContentKey(
-  item: TooltipItem,
-  equipped: TooltipItem | undefined,
-  recipeLearned: boolean,
-) {
-  return [
-    'item',
-    item.id,
-    equipped?.id ?? 'none',
-    recipeLearned ? 'learned' : 'unknown',
-  ].join(':');
-}
-
-function isRecipePageLearned(state: GameState, item: TooltipItem) {
-  return (
-    isRecipePage(item) &&
-    item.recipeId != null &&
-    state.player.learnedRecipeIds.includes(item.recipeId)
-  );
 }
 
 function applyTimedGameTransition(
