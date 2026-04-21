@@ -1,8 +1,7 @@
-import { memo, Suspense } from 'react';
+import { memo } from 'react';
 import { WINDOW_LABELS } from '../../windowLabels';
-import { WindowLoadingState } from '../WindowLoadingState';
+import { DeferredWindowShell } from '../DeferredWindowShell';
 import { createLazyWindowComponent } from '../lazyWindowComponent';
-import { WindowShell } from '../WindowShell';
 import type { EquipmentWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -30,7 +29,7 @@ export const EquipmentWindow = memo(function EquipmentWindow({
   onLeaveDetail,
 }: EquipmentWindowProps) {
   return (
-    <WindowShell
+    <DeferredWindowShell
       title={WINDOW_LABELS.equipment.plain}
       hotkeyLabel={WINDOW_LABELS.equipment}
       position={position}
@@ -41,18 +40,16 @@ export const EquipmentWindow = memo(function EquipmentWindow({
       onClose={onClose}
       onHoverDetail={onHoverDetail}
       onLeaveDetail={onLeaveDetail}
-    >
-      <Suspense fallback={<WindowLoadingState />}>
-        <EquipmentWindowContent
-          equipment={equipment}
-          onHoverItem={onHoverItem}
-          onLeaveItem={onLeaveItem}
-          onUnequip={onUnequip}
-          onContextItem={onContextItem}
-          onHoverDetail={onHoverDetail}
-          onLeaveDetail={onLeaveDetail}
-        />
-      </Suspense>
-    </WindowShell>
+      content={EquipmentWindowContent}
+      contentProps={{
+        equipment,
+        onHoverItem,
+        onLeaveItem,
+        onUnequip,
+        onContextItem,
+        onHoverDetail,
+        onLeaveDetail,
+      }}
+    />
   );
 });

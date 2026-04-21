@@ -1,8 +1,7 @@
-import { memo, Suspense } from 'react';
+import { memo } from 'react';
 import { WINDOW_LABELS } from '../../windowLabels';
-import { WindowLoadingState } from '../WindowLoadingState';
+import { DeferredWindowShell } from '../DeferredWindowShell';
 import { createLazyWindowComponent } from '../lazyWindowComponent';
-import { WindowShell } from '../WindowShell';
 import type { SkillsWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -24,7 +23,7 @@ export const SkillsWindow = memo(function SkillsWindow({
   onLeaveDetail,
 }: SkillsWindowProps) {
   return (
-    <WindowShell
+    <DeferredWindowShell
       title={WINDOW_LABELS.skills.plain}
       hotkeyLabel={WINDOW_LABELS.skills}
       position={position}
@@ -36,14 +35,8 @@ export const SkillsWindow = memo(function SkillsWindow({
       resizeBounds={{ minWidth: 300, minHeight: 240 }}
       onHoverDetail={onHoverDetail}
       onLeaveDetail={onLeaveDetail}
-    >
-      <Suspense fallback={<WindowLoadingState />}>
-        <SkillsWindowContent
-          skills={skills}
-          onHoverDetail={onHoverDetail}
-          onLeaveDetail={onLeaveDetail}
-        />
-      </Suspense>
-    </WindowShell>
+      content={SkillsWindowContent}
+      contentProps={{ skills, onHoverDetail, onLeaveDetail }}
+    />
   );
 });

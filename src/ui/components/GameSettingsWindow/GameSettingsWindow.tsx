@@ -1,8 +1,7 @@
-import { memo, Suspense } from 'react';
+import { memo } from 'react';
 import { WINDOW_LABELS } from '../../windowLabels';
+import { DeferredWindowShell } from '../DeferredWindowShell';
 import { createLazyWindowComponent } from '../lazyWindowComponent';
-import { WindowLoadingState } from '../WindowLoadingState';
-import { WindowShell } from '../WindowShell';
 import type { GameSettingsWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -30,7 +29,7 @@ export const GameSettingsWindow = memo(function GameSettingsWindow({
   return (
     <>
       {visible ? <div className={styles.overlay} aria-hidden="true" /> : null}
-      <WindowShell
+      <DeferredWindowShell
         title={WINDOW_LABELS.settings.plain}
         hotkeyLabel={WINDOW_LABELS.settings}
         position={position}
@@ -42,18 +41,16 @@ export const GameSettingsWindow = memo(function GameSettingsWindow({
         className={styles.window}
         bodyClassName={styles.windowBody}
         resizeBounds={{ minWidth: 520, minHeight: 520 }}
-      >
-        <Suspense fallback={<WindowLoadingState />}>
-          <GameSettingsWindowContent
-            audioSettings={audioSettings}
-            graphicsSettings={graphicsSettings}
-            onClose={onClose}
-            onResetSaveData={onResetSaveData}
-            onSave={onSave}
-            onSaveAndReload={onSaveAndReload}
-          />
-        </Suspense>
-      </WindowShell>
+        content={GameSettingsWindowContent}
+        contentProps={{
+          audioSettings,
+          graphicsSettings,
+          onClose,
+          onResetSaveData,
+          onSave,
+          onSaveAndReload,
+        }}
+      />
     </>
   );
 });

@@ -1,8 +1,7 @@
-import { memo, Suspense } from 'react';
+import { memo } from 'react';
 import { WINDOW_LABELS } from '../../windowLabels';
-import { WindowLoadingState } from '../WindowLoadingState';
+import { DeferredWindowShell } from '../DeferredWindowShell';
 import { createLazyWindowComponent } from '../lazyWindowComponent';
-import { WindowShell } from '../WindowShell';
 import type { HeroWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -26,7 +25,7 @@ export const HeroWindow = memo(function HeroWindow({
   onLeaveDetail,
 }: HeroWindowProps) {
   return (
-    <WindowShell
+    <DeferredWindowShell
       title={WINDOW_LABELS.hero.plain}
       hotkeyLabel={WINDOW_LABELS.hero}
       titleSuffix={
@@ -46,16 +45,14 @@ export const HeroWindow = memo(function HeroWindow({
       resizeBounds={{ minWidth: 320, minHeight: 260 }}
       onHoverDetail={onHoverDetail}
       onLeaveDetail={onLeaveDetail}
-    >
-      <Suspense fallback={<WindowLoadingState />}>
-        <HeroWindowContent
-          stats={stats}
-          hunger={hunger}
-          thirst={thirst}
-          onHoverDetail={onHoverDetail}
-          onLeaveDetail={onLeaveDetail}
-        />
-      </Suspense>
-    </WindowShell>
+      content={HeroWindowContent}
+      contentProps={{
+        stats,
+        hunger,
+        thirst,
+        onHoverDetail,
+        onLeaveDetail,
+      }}
+    />
   );
 });

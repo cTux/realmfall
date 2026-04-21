@@ -1,11 +1,10 @@
-import { memo, Suspense } from 'react';
+import { memo } from 'react';
 import { t } from '../../../i18n';
 import { formatLogKindLabel } from '../../../i18n/labels';
 import { WINDOW_LABELS } from '../../windowLabels';
+import { DeferredWindowShell } from '../DeferredWindowShell';
 import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
-import { WindowLoadingState } from '../WindowLoadingState';
 import { createLazyWindowComponent } from '../lazyWindowComponent';
-import { WindowShell } from '../WindowShell';
 import type { LogWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -32,7 +31,7 @@ export const LogWindow = memo(function LogWindow({
   onLeaveDetail,
 }: LogWindowProps) {
   return (
-    <WindowShell
+    <DeferredWindowShell
       title={WINDOW_LABELS.log.plain}
       hotkeyLabel={WINDOW_LABELS.log}
       position={position}
@@ -79,14 +78,8 @@ export const LogWindow = memo(function LogWindow({
           ) : null}
         </div>
       }
-    >
-      <Suspense fallback={<WindowLoadingState />}>
-        <LogWindowContent
-          logs={logs}
-          onHoverDetail={onHoverDetail}
-          onLeaveDetail={onLeaveDetail}
-        />
-      </Suspense>
-    </WindowShell>
+      content={LogWindowContent}
+      contentProps={{ logs, onHoverDetail, onLeaveDetail }}
+    />
   );
 });

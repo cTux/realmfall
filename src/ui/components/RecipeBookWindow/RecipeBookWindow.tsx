@@ -1,8 +1,7 @@
-import { memo, Suspense } from 'react';
+import { memo } from 'react';
 import { WINDOW_LABELS } from '../../windowLabels';
-import { WindowLoadingState } from '../WindowLoadingState';
+import { DeferredWindowShell } from '../DeferredWindowShell';
 import { createLazyWindowComponent } from '../lazyWindowComponent';
-import { WindowShell } from '../WindowShell';
 import type { RecipeBookWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -32,7 +31,7 @@ export const RecipeBookWindow = memo(function RecipeBookWindow({
   onLeaveDetail,
 }: RecipeBookWindowProps) {
   return (
-    <WindowShell
+    <DeferredWindowShell
       title={WINDOW_LABELS.recipes.plain}
       hotkeyLabel={WINDOW_LABELS.recipes}
       position={position}
@@ -44,20 +43,18 @@ export const RecipeBookWindow = memo(function RecipeBookWindow({
       resizeBounds={{ minWidth: 360, minHeight: 260 }}
       onHoverDetail={onHoverDetail}
       onLeaveDetail={onLeaveDetail}
-    >
-      <Suspense fallback={<WindowLoadingState />}>
-        <RecipeBookWindowContent
-          currentStructure={currentStructure}
-          recipes={recipes}
-          recipeSkillLevels={recipeSkillLevels}
-          inventoryCountsByItemKey={inventoryCountsByItemKey}
-          materialFilterItemKey={materialFilterItemKey}
-          onResetMaterialFilter={onResetMaterialFilter}
-          onCraft={onCraft}
-          onHoverDetail={onHoverDetail}
-          onLeaveDetail={onLeaveDetail}
-        />
-      </Suspense>
-    </WindowShell>
+      content={RecipeBookWindowContent}
+      contentProps={{
+        currentStructure,
+        recipes,
+        recipeSkillLevels,
+        inventoryCountsByItemKey,
+        materialFilterItemKey,
+        onResetMaterialFilter,
+        onCraft,
+        onHoverDetail,
+        onLeaveDetail,
+      }}
+    />
   );
 });

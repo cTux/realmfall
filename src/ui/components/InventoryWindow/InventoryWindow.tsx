@@ -1,10 +1,9 @@
-import { memo, Suspense } from 'react';
+import { memo } from 'react';
 import { t } from '../../../i18n';
 import { WINDOW_LABELS } from '../../windowLabels';
+import { DeferredWindowShell } from '../DeferredWindowShell';
 import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
-import { WindowLoadingState } from '../WindowLoadingState';
 import { createLazyWindowComponent } from '../lazyWindowComponent';
-import { WindowShell } from '../WindowShell';
 import type { InventoryWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -35,7 +34,7 @@ export const InventoryWindow = memo(function InventoryWindow({
   onLeaveDetail,
 }: InventoryWindowProps) {
   return (
-    <WindowShell
+    <DeferredWindowShell
       title={WINDOW_LABELS.inventory.plain}
       hotkeyLabel={WINDOW_LABELS.inventory}
       position={position}
@@ -69,18 +68,16 @@ export const InventoryWindow = memo(function InventoryWindow({
           </div>
         </div>
       }
-    >
-      <Suspense fallback={<WindowLoadingState />}>
-        <InventoryWindowContent
-          inventory={inventory}
-          equipment={equipment}
-          learnedRecipeIds={learnedRecipeIds}
-          onActivateItem={onActivateItem}
-          onContextItem={onContextItem}
-          onHoverItem={onHoverItem}
-          onLeaveItem={onLeaveItem}
-        />
-      </Suspense>
-    </WindowShell>
+      content={InventoryWindowContent}
+      contentProps={{
+        inventory,
+        equipment,
+        learnedRecipeIds,
+        onActivateItem,
+        onContextItem,
+        onHoverItem,
+        onLeaveItem,
+      }}
+    />
   );
 });
