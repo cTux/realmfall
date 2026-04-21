@@ -31,6 +31,7 @@
 - Preserve existing React containment patterns such as memoized window components when extending the current UI.
 - Maintain mobile-aware and desktop-safe behavior when changing interactions, even if the full mobile adaptation remains incomplete.
 - Keep component files under roughly `250` lines when practical. When a component grows past that size, prefer splitting view models, hooks, or subcomponents into neighboring files.
+- When a window content module owns multiple tab panels or large settings sections, split the tab-specific control wiring into neighboring panel components instead of keeping every section in one `*WindowContent` file.
 - Keep high-frequency pointer, hover, and world-interaction updates off broad React state paths when refs, invalidation flags, or narrower state can avoid avoidable rerenders.
 - For capped animated lists such as the log window, cache parsed row metadata by stable entry object and keep per-row typing or animation state inside the animated row instead of ticking the parent list component.
 - Deduplicate `pointermove` world-hover work by hovered hex before doing heavier interaction logic, and avoid rerunning tooltip derivation, enemy lookups, or pathfinding while the pointer stays on the same tile.
