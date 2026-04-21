@@ -2,34 +2,9 @@
 
 Single-player browser survival RPG `Realmfall` with hex exploration, turn-based systems, React UI, and Pixi.js world rendering.
 
-Genres: survival RPG, hex-crawl, turn-based exploration, inventory management, roguelite.
-
 ## Current State
 
-The project is a working single-player browser prototype with a strong gameplay, rendering, and tooling baseline.
-
-Current implemented areas include:
-
-- Hex world exploration with fog of war and Pixi-based world rendering.
-- Day and night progression with blood moon behavior.
-- Core survival loop with gathering, inventory, equipment, loot, gold, and town interactions.
-- Combat, enemy encounters, progression, recipes, and crafting-related systems.
-- Desktop-style draggable windows for hero, skills, hex info, equipment, inventory, recipe book, combat, loot, logs, and docked controls.
-- Local autosave with direct hydration of the current save shape.
-- Runtime version exposure, `version.json` build output, and an in-game refresh indicator for newer deployments.
-- Automated quality tooling with type checking, linting, formatting, tests, Husky hooks, and CI coverage for typecheck, lint, test, and build.
-- Storybook coverage for UI components plus catalog views for items, enemies, and structures.
-
-Current project strengths reflected in the codebase and docs:
-
-- Clear architectural separation between gameplay rules, app orchestration, React windows, and Pixi world rendering.
-- Existing React containment patterns such as memoized windows and lazy-loaded secondary UI.
-- Window content is expected to stay bundle-split instead of being folded into the initial app path.
-- Rendering-specific tests for world math, time-of-day behavior, filters, and cached render behavior.
-- Pixi render caches and pools already reuse containers, graphics, sprites, and text instead of recreating display objects each frame.
-- Save hydration currently expects the active runtime save shape and does not migrate older save formats.
-
-The game currently does not support mods.
+Realmfall is an active browser prototype with hex exploration, survival systems, turn-based combat, crafting, draggable desktop-style windows, Pixi world rendering, local autosave, Storybook-covered UI, and automated quality gates.
 
 ## Stack
 
@@ -43,109 +18,38 @@ The game currently does not support mods.
 - Husky
 - pnpm
 
-## Project Structure
-
-- `src/app`: app orchestration, hydration, persistence wiring, keyboard shortcuts, window coordination, and top-level hooks.
-- `src/game`: gameplay rules, combat, economy, crafting, progression, world generation, and shared game types.
-- `src/ui/components`: window components and other React UI pieces.
-- `src/ui/world`: Pixi/world rendering helpers, render math, caches, atmosphere, and related tests.
-- `src/persistence`: local save storage helpers.
-- `docs`: review notes, workflow guidance, scoped rules, specs, lore, and changelog source data.
-- `game.config.json`: configurable gameplay and world values.
-
-Within feature directories, prefer colocated `hooks/`, `selectors/`, `utils/`, and `tests/` folders for feature-local code. Promote a hook, selector, or utility to `src/hooks`, `src/selectors`, or `src/utils` only when multiple parts of the app share it.
-
 ## Setup
 
-Use `pnpm` for all local commands.
-Use Node `v25` (the repository pin lives in `.nvmrc`).
-Use `pnpm` `10.x` (`packageManager` currently pins `10.33.0`).
+Use `pnpm` for all local commands and Node `v25` from `.nvmrc`.
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-## Package Metadata
+## Common Commands
 
-- Package name: `realmfall`
-- License: `UNLICENSED`
-- Repository: `git@github.com:cTux/realmfall.git`
-- Homepage and issue tracker: `https://github.com/cTux/realmfall`
-
-## Scripts
-
-- `pnpm dev` (runs the Vite dev server over local HTTPS with the shared localhost certificate)
+- `pnpm dev`
 - `pnpm dev:storybook`
+- `pnpm typecheck`
+- `pnpm lint`
+- `pnpm lint:css`
+- `pnpm test`
 - `pnpm build`
 - `pnpm build:budget`
-- `pnpm build:storybook`
-- `pnpm git:commit -- -m "<message>"` (bumps the patch version in `package.json` if needed, stages that file, then runs `git commit` with the provided arguments)
-- `pnpm git:prune-gone-branches` (fetches with prune, then force-deletes local branches whose tracked remote ref no longer exists; pass `-- --dry-run` to preview and `-- --safe` to keep Git's merged-branch safety checks)
-- `pnpm git:rebase-master-and-push` (rebases the current committed branch onto the default branch advertised by `origin/HEAD`, auto-resolves `package.json` version conflicts by replaying this branch's patch-version increments, then force-pushes with lease to `origin/<current-branch>`; pass `-- --dry-run` to preview the workflow)
-- `pnpm serve` (serves `dist` over local HTTPS with a generated self-signed certificate)
-- `pnpm preview`
-- `pnpm quality:staged`
-- `pnpm typecheck`
-- `pnpm update:check` (lists available dependency updates without changing `package.json` or `pnpm-lock.yaml`)
-- `pnpm update:minor` (updates dependency ranges within the next minor line, refreshes `pnpm-lock.yaml`, runs `typecheck`, `lint`, `test`, and `build`, then commits through `pnpm git:commit`)
-- `pnpm update:major` (updates dependency ranges to the latest major releases, refreshes `pnpm-lock.yaml`, runs `typecheck`, `lint`, `test`, and `build`, then commits through `pnpm git:commit`)
-- `pnpm lint`
-- `pnpm lint:fix`
-- `pnpm lint:oxlint`
-- `pnpm lint:css`
-- `pnpm format`
-- `pnpm test`
-- `pnpm test:memory:leaks` (starts the HTTPS Vite dev server and runs `fuite` against `https://localhost:5173` with a dock-window toggle scenario, writing JSON output to `.tests/memory-leaks/latest.json`)
-- `pnpm test:coverage`
-- `pnpm test:watch`
 
-`pnpm test` now uses `@raegen/vite-plugin-vitest-cache` and stores reusable Vitest
-results in `.tests/vitest-cache`. The directory is project-local, ignored by
-Git, and restored in CI so warm reruns can reuse unaffected test results.
+## Repository Layout
 
-## Quality Expectations
+- `src/app`: app orchestration, hydration, persistence wiring, keyboard shortcuts, window coordination, and top-level hooks.
+- `src/game`: gameplay rules, combat, economy, crafting, progression, world generation, and shared game types.
+- `src/ui/components`: React windows and shared UI components.
+- `src/ui/world`: Pixi world rendering helpers, caches, and related tests.
+- `src/persistence`: local save storage helpers.
+- `docs`: canonical rules, workflow notes, specs, lore, and transient review material.
 
-Contributors should keep these working unless a task explicitly changes the workflow:
+## Project References
 
-- `pnpm typecheck`
-- `pnpm lint`
-- `pnpm lint:css`
-- `pnpm test`
-- `pnpm test:memory:leaks` when checking SPA route or listener retention with `fuite`
-- `pnpm build`
-
-For bundle-sensitive changes, also run `pnpm build:budget`.
-
-If you need a cold test run, delete `.tests/vitest-cache` and rerun `pnpm test`.
-If the directory does not exist yet, `pnpm test` falls back to a normal run and
-recreates it.
-
-`pnpm lint` now runs Oxlint as the only JavaScript and TypeScript lint path in the repository. `pnpm lint:fix` and `pnpm lint:oxlint` use the same Oxlint target set directly.
-
-The pre-commit hook runs `pnpm check:version` and `pnpm quality:staged`, then refreshes the Git index for auto-fixed tracked files. `pnpm quality:staged` formats staged Prettier-supported files first, runs `oxlint --fix -c .oxlintrc.json` only on staged JavaScript and TypeScript files, runs Stylelint only on staged `src` CSS and SCSS files, and runs `vitest related` for staged source, runtime JSON content, and test files. When shared test inputs such as `pnpm-lock.yaml`, `vite.config.ts`, TypeScript config, or `src/test/setup.ts` are staged, the hook keeps the commit path scoped and leaves the full-repository validation for pre-push. A `package.json` change that only bumps the `version` field stays on the scoped test path so routine commit metadata updates do not trigger the full suite. Use `pnpm git:commit -- -m "<message>"` for ordinary commits; it auto-bumps the patch version when `HEAD` has not been surpassed yet, stages `package.json`, and then hands off to `git commit`. `pnpm check:version` keeps validating that the committed patch version advances relative to `HEAD`. The pre-push hook now runs `pnpm typecheck`, `pnpm test`, and `pnpm build`.
-
-The repository already has strong baseline tooling. Changes should preserve strict typing, lint cleanliness, deterministic tests where practical, and successful production builds.
-
-Dependency refreshes should go through `pnpm update:check`, `pnpm update:minor`, or `pnpm update:major`. The mutating flows expect a clean tracked worktree, update dependency ranges with `npm-check-updates`, refresh `pnpm-lock.yaml` with `pnpm install --no-frozen-lockfile`, run the repository sanity checks, and commit through the version-aware `pnpm git:commit` helper. Pass `-- --no-commit` when a script or CI workflow needs the refreshed manifests without a local commit.
-
-Review notes and improvement descriptions should describe the current behavior directly rather than leaning on comparative filler such as `still`, because that wording goes stale once follow-up fixes land.
-
-## Project Rules
-
-Shared project rules live in `docs/RULES.md`.
-
-World lore lives in `docs/lore/REALMFALL.md`.
-
-Implementation-facing specs live in `docs/specs`, with current reference specs in:
-
-- `docs/specs/reference/gameplay-features/README.md`
-- `docs/specs/reference/technical-solutions/README.md`
-
-AI-facing instruction entrypoints also exist in:
-
-- `AGENTS.md`
-- `CLAUDE.md`
-- `.github/copilot-instructions.md`
-
-Workflow expectations are defined in `docs/RULES.md`. Keep this file concise and update the canonical rules there first.
+- Contributor rules: `docs/RULES.md`
+- Contributor workflow: `docs/WORKFLOW.md`
+- Reference specs: `docs/specs/reference/gameplay-features/README.md` and `docs/specs/reference/technical-solutions/README.md`
+- Lore: `docs/lore/REALMFALL.md`

@@ -49,6 +49,8 @@ Use this file for contributor process only. Canonical project guidance lives in
 
 - Update the matching spec in `docs/specs` whenever a shipped behavior or technical solution changes.
 - Keep transient plans, review snapshots, and checklists outside `docs/specs`.
+- Keep `README.md` product-facing and concise. Put contributor workflow, rule-loading policy, and review hygiene details in `docs/RULES.md`, `docs/rules/`, or this file instead of duplicating them there.
+- When the shared AI instruction entrypoint wording changes, run `pnpm sync:ai-entrypoints` instead of hand-editing `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md` separately.
 - Before finalizing review findings or improvement descriptions, remove the word `still` and rewrite the sentence in direct present-tense terms so the wording does not age into stale guidance after later fixes.
 - Prefer short references back to `docs/RULES.md` and `docs/rules/` over restating long policy lists here.
 - Expect the pre-commit hook to format staged Prettier-supported files before staged lint, style, and test checks run.

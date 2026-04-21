@@ -25,7 +25,7 @@
 
 ## Documentation
 
-- Keep `README.md` accurate about the current game state, package manager, save behavior, quality commands, and contributor workflow.
+- Keep `README.md` accurate about the current game state, package manager, and primary local commands, but keep detailed contributor workflow and rule-loading policy in canonical docs instead of duplicating them there.
 - Keep `docs/WORKFLOW.md` aligned with the actual contributor workflow, verification steps, and commit conventions, but keep recurring policy details in `docs/RULES.md` and `docs/rules/` instead of restating them there.
 - Prefer documenting real project constraints and current behavior over aspirational wording.
 - In review findings, improvement notes, and project-health summaries, do not ship the word `still`. Rewrite the sentence to describe the current behavior and risk directly so the guidance remains accurate after follow-up fixes land.
@@ -33,6 +33,7 @@
 - When prompts establish recurring workflow expectations, capture them here so future prompt handling stays consistent.
 - When a prompt establishes recurring structural placement rules for hooks, selectors, utilities, components, or tests, update this file and keep contributor-facing docs aligned instead of relying on one-off refactors.
 - Keep rule and workflow updates synchronized across `README.md`, `docs/WORKFLOW.md`, and the AI-specific instruction files when those updates affect future prompt execution.
+- Keep `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md` generated from one shared sync path. When their shared wording changes, update the generator and rerun it instead of hand-maintaining parallel copies.
 - Keep lore-sensitive guidance aligned with the canonical world reference in `docs/lore/REALMFALL.md`.
 - Keep current-system specs under `docs/specs` for implemented gameplay features and technical solutions.
 - Keep transient plans, issue workspaces, research notes, and checklists outside `docs/specs`, using `docs/implementation-notes` for that material.
