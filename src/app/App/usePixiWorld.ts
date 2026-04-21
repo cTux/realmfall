@@ -13,6 +13,7 @@ import { syncFollowCursorTooltipPosition } from '../../ui/components/GameTooltip
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import { getWorldTimeMinutesFromTimestamp } from '../../game/worldTime';
 import { getWorldHexSize } from '../../ui/world/renderSceneMath';
+import { mapWorldMapFishEyeDisplayPointToSourcePoint } from '../../ui/world/worldMapFishEyeRuntime';
 import {
   applyWorldMapCameraToContainer,
   DEFAULT_WORLD_MAP_CAMERA,
@@ -192,7 +193,6 @@ export function usePixiWorld({
     void Promise.all([
       import('../../ui/world/pixiRuntime'),
       import('../../ui/world/renderScene'),
-      import('../../ui/world/worldMapFishEye'),
       import('../../ui/world/worldIcons'),
       import('../../ui/world/worldTooltips'),
       import('../../ui/world/renderSceneCache'),
@@ -200,7 +200,6 @@ export function usePixiWorld({
       async ([
         pixiModule,
         renderSceneModule,
-        fishEyeModule,
         worldIconsModule,
         worldTooltipsModule,
         sceneCacheModule,
@@ -274,16 +273,10 @@ export function usePixiWorld({
         };
 
         const getSourcePoint = (displayPoint: { x: number; y: number }) =>
-          fishEyeModule.WORLD_MAP_FISHEYE_ENABLED
-            ? fishEyeModule.mapWorldMapFishEyeDisplayPointToSourcePoint(
-                displayPoint,
-                app.screen,
-                {
-                  x: app.screen.width / 2,
-                  y: app.screen.height / 2,
-                },
-              )
-            : displayPoint;
+          mapWorldMapFishEyeDisplayPointToSourcePoint(displayPoint, app.screen, {
+            x: app.screen.width / 2,
+            y: app.screen.height / 2,
+          });
 
         resize();
 

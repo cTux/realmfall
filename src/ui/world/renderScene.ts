@@ -59,7 +59,7 @@ import {
 import {
   updateWorldMapFishEyeFilter,
   WORLD_MAP_FISHEYE_ENABLED,
-} from './worldMapFishEye';
+} from './worldMapFishEyeRuntime';
 
 const HEX_SIDE_VERTEX_INDICES = [
   [0, 1],
