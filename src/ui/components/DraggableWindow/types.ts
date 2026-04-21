@@ -4,6 +4,11 @@ import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 
 export type WindowStackLayer = 'standard' | 'modal';
 
+export interface WindowResizeBounds {
+  minWidth: number;
+  minHeight: number;
+}
+
 export interface DraggableWindowProps extends WindowDetailTooltipHandlers {
   title: ReactNode;
   position: WindowPosition;
@@ -17,10 +22,7 @@ export interface DraggableWindowProps extends WindowDetailTooltipHandlers {
   externalUnmount?: boolean;
   onClose?: () => void;
   showCloseButton?: boolean;
-  resizeBounds?: {
-    minWidth: number;
-    minHeight: number;
-  };
+  resizeBounds?: WindowResizeBounds;
   closeButtonTooltip?: string;
   stackLayer?: WindowStackLayer;
 }

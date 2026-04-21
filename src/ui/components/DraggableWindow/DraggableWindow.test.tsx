@@ -131,6 +131,58 @@ describe('DraggableWindow', () => {
     expect(onMove).not.toHaveBeenCalled();
   });
 
+  it('commits resized dimensions only after the resize interaction ends', async () => {
+    const onMove = vi.fn();
+
+    await act(async () => {
+      root.render(
+        <DraggableWindow
+          title="Resizable"
+          position={{ x: 40, y: 32, width: 220, height: 160 }}
+          resizeBounds={{ minWidth: 180, minHeight: 120 }}
+          onMove={onMove}
+        >
+          <div>Content</div>
+        </DraggableWindow>,
+      );
+    });
+
+    const resizeHandle = host.querySelector(
+      'div[class*="resizeHandle"]',
+    ) as HTMLDivElement | null;
+
+    expect(resizeHandle).not.toBeNull();
+
+    await act(async () => {
+      resizeHandle?.dispatchEvent(
+        new MouseEvent('pointerdown', {
+          bubbles: true,
+          clientX: 260,
+          clientY: 192,
+        }),
+      );
+      window.dispatchEvent(
+        new MouseEvent('pointermove', {
+          clientX: 320,
+          clientY: 252,
+        }),
+      );
+    });
+
+    expect(onMove).not.toHaveBeenCalled();
+
+    await act(async () => {
+      window.dispatchEvent(new MouseEvent('pointerup'));
+    });
+
+    expect(onMove).toHaveBeenCalledWith({
+      x: 40,
+      y: 32,
+      width: 280,
+      height: 220,
+    });
+  });
+
   it('brings reopened and reactivated windows to the front of their stack layer', async () => {
     await act(async () => {
       root.render(
