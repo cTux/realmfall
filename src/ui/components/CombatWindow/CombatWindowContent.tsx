@@ -2,7 +2,10 @@ import { memo, useMemo } from 'react';
 import { getAbilityDefinition } from '../../../game/abilities';
 import { DEFAULT_ENEMY_MANA } from '../../../game/combat';
 import { getStatusEffectDefinition } from '../../../game/content/statusEffects';
-import { getEnemyCombatAttack, type CombatActorState } from '../../../game/state';
+import {
+  getEnemyCombatAttack,
+  type CombatActorState,
+} from '../../../game/state';
 import type { PlayerStatusEffect } from '../../../game/types';
 import { t } from '../../../i18n';
 import {
@@ -10,16 +13,14 @@ import {
   formatStatusEffectLabel,
 } from '../../../i18n/labels';
 import { rarityColor } from '../../rarity';
-import {
-  statusEffectIcon,
-  statusEffectTint,
-} from '../../statusEffects';
+import { statusEffectIcon, statusEffectTint } from '../../statusEffects';
 import { abilityTooltipLines, statusEffectTooltipLines } from '../../tooltips';
 import {
   EntityStatusPanel,
   type EntityStatusBar,
   type EntityStatusIcon,
 } from '../EntityStatusPanel/EntityStatusPanel';
+import { buildEnemyStatSheetTooltipLines } from './combatEntityStats';
 import type { CombatPartyMember, CombatWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -58,7 +59,8 @@ export function CombatWindowContent({
   const visualWorldTimeMs =
     Math.floor(worldTimeMs / COMBAT_VISUAL_STEP_MS) * COMBAT_VISUAL_STEP_MS;
   const alliedParty = useMemo(
-    () => playerParty.map((member) => toPlayerEntity(member, visualWorldTimeMs)),
+    () =>
+      playerParty.map((member) => toPlayerEntity(member, visualWorldTimeMs)),
     [playerParty, visualWorldTimeMs],
   );
   const enemyParty = useMemo(
@@ -101,16 +103,12 @@ function toPlayerEntity(
       name: member.name,
       level: member.level,
     }),
-    bars: buildCombatBars(
-      {
-        hp: member.hp,
-        maxHp: member.maxHp,
-        mana: member.mana,
-        maxMana: member.maxMana,
-        actor: member.actor,
-      },
-      worldTimeMs,
-    ),
+    bars: buildCombatBars({
+      hp: member.hp,
+      maxHp: member.maxHp,
+      mana: member.mana,
+      maxMana: member.maxMana,
+    }),
     abilities: buildAbilityIcons(member.actor, member.attack, worldTimeMs),
     buffs: buildEffectIcons(member.buffs, 'buff'),
     debuffs: buildEffectIcons(member.debuffs, 'debuff'),
@@ -141,11 +139,20 @@ function toEnemyEntity(
         maxHp: enemy.maxHp,
         mana: enemy.mana ?? enemy.maxMana ?? DEFAULT_ENEMY_MANA,
         maxMana: enemy.maxMana ?? enemy.mana ?? DEFAULT_ENEMY_MANA,
-        actor,
       },
+      {
+        hpTooltipTitle: t('ui.combat.entityTitle', {
+          name: enemy.name,
+          level: enemy.tier,
+        }),
+        hpTooltipLines: buildEnemyStatSheetTooltipLines(enemy),
+      },
+    ),
+    abilities: buildAbilityIcons(
+      actor,
+      getEnemyCombatAttack(enemy),
       worldTimeMs,
     ),
-    abilities: buildAbilityIcons(actor, getEnemyCombatAttack(enemy), worldTimeMs),
     buffs: buildEffectIcons(effectGroups.buffs, 'buff'),
     debuffs: buildEffectIcons(effectGroups.debuffs, 'debuff'),
   };
@@ -185,8 +192,11 @@ const PartyColumn = memo(function PartyColumn({
 });
 
 function buildCombatBars(
-  entity: Pick<CombatPartyMember, 'hp' | 'maxHp' | 'mana' | 'maxMana' | 'actor'>,
-  worldTimeMs: number,
+  entity: Pick<CombatPartyMember, 'hp' | 'maxHp' | 'mana' | 'maxMana'>,
+  tooltipOptions?: {
+    hpTooltipTitle?: string;
+    hpTooltipLines?: EntityStatusBar['tooltipLines'];
+  },
 ): [EntityStatusBar, ...EntityStatusBar[]] {
   const bars: [EntityStatusBar, ...EntityStatusBar[]] = [
     {
@@ -196,6 +206,8 @@ function buildCombatBars(
       max: entity.maxHp,
       tone: 'hp',
       description: t('ui.tooltip.bar.combatHp'),
+      tooltipTitle: tooltipOptions?.hpTooltipTitle,
+      tooltipLines: tooltipOptions?.hpTooltipLines,
     },
     {
       id: 'mana',
@@ -206,33 +218,6 @@ function buildCombatBars(
       description: t('ui.tooltip.bar.combatMp'),
     },
   ];
-
-  if (entity.actor.casting) {
-    const ability = getAbilityDefinition(entity.actor.casting.abilityId);
-    const castDurationMs = Math.max(ability.castTimeMs, 1);
-    const castStartedAt = entity.actor.casting.endsAt - castDurationMs;
-    const elapsedMs = Math.max(0, worldTimeMs - castStartedAt);
-
-    bars.push({
-      id: 'cast',
-      label: t('ui.combat.casting'),
-      value: elapsedMs,
-      max: castDurationMs,
-      tone: 'cast',
-      description: t('ui.combat.castBar.tooltip'),
-      text: ability.name,
-    });
-  } else {
-    bars.push({
-      id: 'cast',
-      label: t('ui.combat.casting'),
-      value: 0,
-      max: 1,
-      tone: 'cast',
-      description: t('ui.combat.castBar.tooltip'),
-      reserved: true,
-    });
-  }
 
   return bars;
 }
@@ -248,13 +233,7 @@ function buildAbilityIcons(
       actor.globalCooldownEndsAt,
       actor.cooldownEndsAt[abilityId] ?? worldTimeMs,
     );
-    const totalCooldownMs = Math.max(
-      actor.effectiveGlobalCooldownMs ?? actor.globalCooldownMs,
-      actor.effectiveCooldownMs?.[abilityId] ?? ability.cooldownMs,
-      1,
-    );
     const remainingMs = Math.max(0, readyAt - worldTimeMs);
-    const cooldownRatio = Math.max(0, Math.min(1, remainingMs / totalCooldownMs));
 
     return {
       id: ability.id,
@@ -265,14 +244,16 @@ function buildAbilityIcons(
       tooltipTitle: ability.name,
       tooltipLines: abilityTooltipLines(ability, ability.target, attack),
       tooltipBorderColor: 'rgba(148, 163, 184, 0.9)',
-      cooldownRatio,
-      remainingMs,
+      disabled: remainingMs > 0,
     };
   });
 }
 
 function buildEffectIcons(
-  items: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[],
+  items: Pick<
+    PlayerStatusEffect,
+    'id' | 'value' | 'tickIntervalMs' | 'stacks'
+  >[],
   tone: 'buff' | 'debuff',
 ) {
   return items.map<EntityStatusIcon>((item) => ({
@@ -281,24 +262,29 @@ function buildEffectIcons(
     icon: statusEffectIcon(item.id),
     tint: statusEffectTint(item.id, tone),
     borderColor:
-      tone === 'buff'
-        ? 'rgb(34 197 94 / 70%)'
-        : 'rgb(239 68 68 / 70%)',
+      tone === 'buff' ? 'rgb(34 197 94 / 70%)' : 'rgb(239 68 68 / 70%)',
     tooltipTitle: formatStatusEffectLabel(item.id),
     tooltipLines: statusEffectTooltipLines(item.id, tone, [], item),
     tooltipBorderColor:
-      tone === 'buff'
-        ? 'rgba(34, 197, 94, 0.9)'
-        : 'rgba(239, 68, 68, 0.9)',
+      tone === 'buff' ? 'rgba(34, 197, 94, 0.9)' : 'rgba(239, 68, 68, 0.9)',
   }));
 }
 
 function partitionStatusEffects(
-  items: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[],
+  items: Pick<
+    PlayerStatusEffect,
+    'id' | 'value' | 'tickIntervalMs' | 'stacks'
+  >[],
 ) {
   return items.reduce<{
-    buffs: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[];
-    debuffs: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[];
+    buffs: Pick<
+      PlayerStatusEffect,
+      'id' | 'value' | 'tickIntervalMs' | 'stacks'
+    >[];
+    debuffs: Pick<
+      PlayerStatusEffect,
+      'id' | 'value' | 'tickIntervalMs' | 'stacks'
+    >[];
   }>(
     (groups, item) => {
       if (getStatusEffectDefinition(item.id)?.tone === 'buff') {

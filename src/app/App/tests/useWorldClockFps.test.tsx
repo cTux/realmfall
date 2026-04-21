@@ -1,9 +1,4 @@
-import React, {
-  act,
-  forwardRef,
-  useImperativeHandle,
-  useRef,
-} from 'react';
+import React, { act, forwardRef, useImperativeHandle, useRef } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { useWorldClockFps } from '../useWorldClockFps';
 
@@ -14,29 +9,29 @@ interface ClockHarnessHandle {
 const onWorldMinuteChange = vi.fn();
 const onWorldSecondChange = vi.fn();
 
-const ClockHarness = forwardRef<ClockHarnessHandle>(function ClockHarness(
-  _,
-  ref,
-) {
-  const worldTimeMsRef = useRef(1_000);
-  const worldTimeTickRef = useRef<number | null>(null);
-  const lastDisplayedWorldSecondRef = useRef(1);
+const ClockHarness = forwardRef<ClockHarnessHandle, { paused: boolean }>(
+  function ClockHarness({ paused }: { paused: boolean }, ref) {
+    const worldTimeMsRef = useRef(1_000);
+    const worldTimeTickRef = useRef<number | null>(null);
+    const lastDisplayedWorldSecondRef = useRef(1);
 
-  useWorldClockFps({
-    initialWorldTimeMs: 1_000,
-    worldTimeMsRef,
-    worldTimeTickRef,
-    lastDisplayedWorldSecondRef,
-    onWorldMinuteChange,
-    onWorldSecondChange,
-  });
+    useWorldClockFps({
+      initialWorldTimeMs: 1_000,
+      paused,
+      worldTimeMsRef,
+      worldTimeTickRef,
+      lastDisplayedWorldSecondRef,
+      onWorldMinuteChange,
+      onWorldSecondChange,
+    });
 
-  useImperativeHandle(ref, () => ({
-    getWorldTimeMs: () => worldTimeMsRef.current,
-  }));
+    useImperativeHandle(ref, () => ({
+      getWorldTimeMs: () => worldTimeMsRef.current,
+    }));
 
-  return null;
-});
+    return null;
+  },
+);
 
 function setDocumentVisibilityState(state: 'hidden' | 'visible') {
   Object.defineProperty(document, 'visibilityState', {
@@ -70,7 +65,7 @@ describe('useWorldClockFps', () => {
     harnessRef = React.createRef<ClockHarnessHandle>();
 
     await act(async () => {
-      root.render(<ClockHarness ref={harnessRef} />);
+      root.render(<ClockHarness ref={harnessRef} paused={false} />);
     });
   });
 
@@ -106,8 +101,37 @@ describe('useWorldClockFps', () => {
       await vi.advanceTimersByTimeAsync(1_000);
     });
 
-    expect((harnessRef.current?.getWorldTimeMs() ?? 0)).toBeGreaterThan(
+    expect(harnessRef.current?.getWorldTimeMs() ?? 0).toBeGreaterThan(
       hiddenWorldTime,
+    );
+  });
+
+  it('pauses the world clock while the game pause state is active and resumes afterward', async () => {
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1_000);
+    });
+
+    const activeWorldTime = harnessRef.current?.getWorldTimeMs() ?? 0;
+
+    await act(async () => {
+      root.render(<ClockHarness ref={harnessRef} paused />);
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2_000);
+    });
+
+    const pausedWorldTime = harnessRef.current?.getWorldTimeMs() ?? 0;
+    expect(pausedWorldTime).toBe(activeWorldTime);
+
+    await act(async () => {
+      root.render(<ClockHarness ref={harnessRef} paused={false} />);
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1_000);
+    });
+
+    expect(harnessRef.current?.getWorldTimeMs() ?? 0).toBeGreaterThan(
+      pausedWorldTime,
     );
   });
 });

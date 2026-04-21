@@ -1,5 +1,6 @@
 import { type Application } from 'pixi.js';
 import {
+  enemyRarityIndex,
   getStructureConfig,
   getEnemiesAt,
   getVisibleTiles,
@@ -23,6 +24,7 @@ import {
 import { WORLD_REVEAL_RADIUS } from '../../app/constants';
 import { scaleColor } from './timeOfDay';
 import {
+  ENEMY_GROUP_LABEL_STYLE,
   beginAnimatedSceneRender,
   beginInteractionSceneRender,
   beginStaticSceneRender,
@@ -52,6 +54,7 @@ import {
   configureShadowedSprite,
   takeGraphics,
   takeShadowedSprite,
+  takeText,
 } from './renderScenePools';
 import {
   updateWorldMapFishEyeFilter,
@@ -78,6 +81,9 @@ const WORLD_BOSS_HEX_TINT_ALPHA = 0.22;
 const ANIMATED_LAYER_FPS = 15;
 const ANIMATED_LAYER_FRAME_MS = 1000 / ANIMATED_LAYER_FPS;
 const ZERO_SHADOW_OFFSET = { x: 0, y: 0 };
+const ENEMY_GROUP_BADGE_RADIUS = 10;
+const ENEMY_GROUP_BADGE_OFFSET = { x: 14, y: 12 };
+const ENEMY_GROUP_BADGE_TEXT_OFFSET = { x: 10, y: 4 };
 
 export function renderScene(
   app: Application,
@@ -289,6 +295,14 @@ export function renderScene(
               (bossCoord) => visibleTileMap?.get(hexKey(bossCoord))?.enemyIds,
             );
             const leadEnemy = hostileEnemies[0];
+            const highestRarityEnemy = hostileEnemies.reduce(
+              (highest, enemy) =>
+                enemyRarityIndex(enemy.rarity) >
+                enemyRarityIndex(highest.rarity)
+                  ? enemy
+                  : highest,
+              leadEnemy,
+            );
             const isBossCenter = tile.enemyIds.some((enemyId) =>
               isWorldBossEnemyId(enemyId),
             );
@@ -299,7 +313,7 @@ export function renderScene(
               );
               configureShadowedSprite(
                 sprite,
-                enemyIconTintFor(leadEnemy),
+                enemyIconTintFor(highestRarityEnemy),
                 isBossCenter ? worldBossIconSize : enemyIconSize,
                 isBossCenter ? worldBossIconSize : enemyIconSize,
                 1,
@@ -311,6 +325,40 @@ export function renderScene(
                       y: point.y - 2,
                     },
               );
+
+              if (!isBossCenter && enemies.length >= 2) {
+                const badgeX = point.x + ENEMY_GROUP_BADGE_OFFSET.x;
+                const badgeY = point.y + ENEMY_GROUP_BADGE_OFFSET.y;
+                const badge = takeGraphics(
+                  scene.worldStaticMarkerBadgeGraphics,
+                );
+                badge
+                  .ellipse(
+                    badgeX,
+                    badgeY,
+                    ENEMY_GROUP_BADGE_RADIUS,
+                    ENEMY_GROUP_BADGE_RADIUS,
+                  )
+                  .fill({
+                    color: 0x0f172a,
+                    alpha: 0.96,
+                  })
+                  .stroke({
+                    width: 2,
+                    color: 0xfef2f2,
+                    alpha: 0.95,
+                  });
+
+                const badgeLabel = takeText(
+                  scene.worldStaticMarkerTexts,
+                  ENEMY_GROUP_LABEL_STYLE,
+                );
+                badgeLabel.text = enemies.length.toString();
+                badgeLabel.position.set(
+                  badgeX - ENEMY_GROUP_BADGE_TEXT_OFFSET.x,
+                  badgeY - ENEMY_GROUP_BADGE_TEXT_OFFSET.y,
+                );
+              }
             }
           }
         }

@@ -11,6 +11,7 @@ import {
 } from '../../game/content/structures';
 import type { Enemy, GameState, StructureType, Tile } from '../../game/state';
 import { ImageSource, Texture } from 'pixi.js';
+import { RARITY_COLOR } from '../rarity';
 
 export const WorldIcons = {
   Player: playerIcon,
@@ -20,6 +21,13 @@ export const WorldIcons = {
   Village: tearTracksIcon,
   Castle: castleIcon,
 } as const;
+
+const ENEMY_RARITY_TINTS = Object.fromEntries(
+  Object.entries(RARITY_COLOR).map(([rarity, color]) => [
+    rarity,
+    Number.parseInt(color.slice(1), 16),
+  ]),
+) as Record<keyof typeof RARITY_COLOR, number>;
 
 export function enemyIconFor(
   enemy: Pick<Enemy, 'enemyTypeId' | 'name'> | string,
@@ -34,11 +42,13 @@ export function enemyIconFor(
 }
 
 export function enemyIconTintFor(
-  enemy: Pick<Enemy, 'enemyTypeId' | 'name'> | string,
+  enemy: Pick<Enemy, 'enemyTypeId' | 'name' | 'rarity'> | string,
 ) {
-  const lookup =
-    typeof enemy === 'string' ? enemy : (enemy.enemyTypeId ?? enemy.name);
-  return getEnemyConfig(lookup)?.tint ?? 0xef4444;
+  if (typeof enemy !== 'string') {
+    return ENEMY_RARITY_TINTS[enemy.rarity ?? 'common'];
+  }
+
+  return getEnemyConfig(enemy)?.tint ?? 0xef4444;
 }
 
 export function structureIconFor(structure: StructureType) {

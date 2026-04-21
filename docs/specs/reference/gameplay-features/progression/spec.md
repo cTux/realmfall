@@ -7,8 +7,10 @@ This spec covers player leveling, mastery, and skill progression.
 ## Current Behavior
 
 - The player gains XP from gameplay outcomes such as combat.
-- Level ups increase base survivability and combat stats.
+- Level ups resync player base survivability and combat stats to anchored balance values instead of applying a flat per-level increment.
+- Player base stats scale from `150 / 50 / 35` at level `1` to `4000 / 800 / 200` at level `100`.
 - Level ups do not refill HP or mana; current resource values carry forward while only the maximums and base combat stats increase.
+- Ordinary player levels cap at `100`.
 - After the normal cap, XP advances mastery levels instead of ordinary levels.
 - Current skills are gathering, logging, mining, skinning, fishing, cooking, smelting, and crafting.
 - Skill XP is awarded by related actions.

@@ -4,6 +4,7 @@ import {
   GATHERING_BONUS_PER_LEVEL,
   MAX_PLAYER_LEVEL,
 } from './config';
+import { resolveSecondaryStatValue, syncPlayerBaseStats } from './balance';
 import { StatusEffectTypeId } from './content/ids';
 import { t } from '../i18n';
 import { formatSkillLabel } from '../i18n/labels';
@@ -110,63 +111,118 @@ export function getPlayerStats(player: Player) {
     (hungerDebuffActive ? 0.9 : 1) *
     (1 + powerBonus / 100) *
     (1 - weakenedPenalty / 100);
-  const baseAttackSpeed =
-    1 + getEquipmentSecondaryStatTotal(equipped, 'attackSpeed') / 100;
-  const attackSpeed =
-    baseAttackSpeed *
+  const attackSpeedBonus = resolveSecondaryStatValue(
+    getEquipmentSecondaryStatTotal(equipped, 'attackSpeed'),
+  );
+  const attackSpeedStatusMultiplier =
     (thirstDebuffActive ? 0.8 : 1) *
     (1 - chillingPenalty / 100) *
     (1 + frenzyBonus / 100);
+  const attackSpeed =
+    (1 + attackSpeedBonus.effective / 100) * attackSpeedStatusMultiplier;
+  const rawAttackSpeed =
+    (1 + attackSpeedBonus.raw / 100) * attackSpeedStatusMultiplier;
   const attack = Math.max(0, Math.floor(rawAttack * combatMultiplier));
   const defense = Math.max(
     0,
-    Math.floor(rawDefense * (hungerDebuffActive ? 0.9 : 1) * (1 + guardBonus / 100) * (1 - shockedPenalty / 100)),
+    Math.floor(
+      rawDefense *
+        (hungerDebuffActive ? 0.9 : 1) *
+        (1 + guardBonus / 100) *
+        (1 - shockedPenalty / 100),
+    ),
   );
-  const criticalStrikeChance = getEquipmentSecondaryStatTotal(
-    equipped,
-    'criticalStrikeChance',
-  ) + DEFAULT_CRITICAL_STRIKE_CHANCE;
+  const criticalStrikeChanceBonus = resolveSecondaryStatValue(
+    getEquipmentSecondaryStatTotal(equipped, 'criticalStrikeChance'),
+  );
+  const criticalStrikeChance =
+    DEFAULT_CRITICAL_STRIKE_CHANCE + criticalStrikeChanceBonus.effective;
+  const rawCriticalStrikeChance =
+    DEFAULT_CRITICAL_STRIKE_CHANCE + criticalStrikeChanceBonus.raw;
+  const criticalStrikeDamageBonus = resolveSecondaryStatValue(
+    getEquipmentSecondaryStatTotal(equipped, 'criticalStrikeDamage'),
+  );
   const criticalStrikeDamage =
-    DEFAULT_CRITICAL_STRIKE_DAMAGE +
-    getEquipmentSecondaryStatTotal(equipped, 'criticalStrikeDamage');
-  const lifestealChance = getEquipmentSecondaryStatTotal(
-    equipped,
-    'lifestealChance',
+    DEFAULT_CRITICAL_STRIKE_DAMAGE + criticalStrikeDamageBonus.effective;
+  const rawCriticalStrikeDamage =
+    DEFAULT_CRITICAL_STRIKE_DAMAGE + criticalStrikeDamageBonus.raw;
+  const lifestealChanceValue = resolveSecondaryStatValue(
+    getEquipmentSecondaryStatTotal(equipped, 'lifestealChance'),
+  );
+  const lifestealChance = lifestealChanceValue.effective;
+  const rawLifestealChance = lifestealChanceValue.raw;
+  const lifestealAmountBonus = resolveSecondaryStatValue(
+    getEquipmentSecondaryStatTotal(equipped, 'lifestealAmount'),
   );
   const lifestealAmount =
     (lifestealChance > 0
       ? DEFAULT_LIFESTEAL_CHANCE_AMOUNT
-      : DEFAULT_LIFESTEAL_AMOUNT) +
-    getEquipmentSecondaryStatTotal(equipped, 'lifestealAmount');
-  const dodgeChance =
-    DEFAULT_DODGE_CHANCE +
-    getEquipmentSecondaryStatTotal(equipped, 'dodgeChance');
-  const blockChance = getEquipmentSecondaryStatTotal(equipped, 'blockChance');
-  const suppressDamageChance = getEquipmentSecondaryStatTotal(
-    equipped,
-    'suppressDamageChance',
-  ) + DEFAULT_SUPPRESS_DAMAGE_CHANCE;
+      : DEFAULT_LIFESTEAL_AMOUNT) + lifestealAmountBonus.effective;
+  const rawLifestealAmount =
+    (rawLifestealChance > 0
+      ? DEFAULT_LIFESTEAL_CHANCE_AMOUNT
+      : DEFAULT_LIFESTEAL_AMOUNT) + lifestealAmountBonus.raw;
+  const dodgeChanceBonus = resolveSecondaryStatValue(
+    getEquipmentSecondaryStatTotal(equipped, 'dodgeChance'),
+  );
+  const dodgeChance = DEFAULT_DODGE_CHANCE + dodgeChanceBonus.effective;
+  const rawDodgeChance = DEFAULT_DODGE_CHANCE + dodgeChanceBonus.raw;
+  const blockChanceValue = resolveSecondaryStatValue(
+    getEquipmentSecondaryStatTotal(equipped, 'blockChance'),
+  );
+  const blockChance = blockChanceValue.effective;
+  const rawBlockChance = blockChanceValue.raw;
+  const suppressDamageChanceBonus = resolveSecondaryStatValue(
+    getEquipmentSecondaryStatTotal(equipped, 'suppressDamageChance'),
+  );
+  const suppressDamageChance =
+    DEFAULT_SUPPRESS_DAMAGE_CHANCE + suppressDamageChanceBonus.effective;
+  const rawSuppressDamageChance =
+    DEFAULT_SUPPRESS_DAMAGE_CHANCE + suppressDamageChanceBonus.raw;
+  const suppressDamageReductionBonus = resolveSecondaryStatValue(
+    getEquipmentSecondaryStatTotal(equipped, 'suppressDamageReduction'),
+  );
   const suppressDamageReduction =
-    DEFAULT_SUPPRESS_DAMAGE_REDUCTION +
-    getEquipmentSecondaryStatTotal(equipped, 'suppressDamageReduction');
+    DEFAULT_SUPPRESS_DAMAGE_REDUCTION + suppressDamageReductionBonus.effective;
+  const rawSuppressDamageReduction =
+    DEFAULT_SUPPRESS_DAMAGE_REDUCTION + suppressDamageReductionBonus.raw;
+  const suppressDebuffChanceValue = resolveSecondaryStatValue(
+    getEquipmentSecondaryStatTotal(equipped, 'suppressDebuffChance'),
+  );
   const suppressDebuffChance =
-    DEFAULT_SUPPRESS_DEBUFF_CHANCE +
-    getEquipmentSecondaryStatTotal(equipped, 'suppressDebuffChance');
-  const bleedChance = getEquipmentSecondaryStatTotal(equipped, 'bleedChance');
-  const poisonChance = getEquipmentSecondaryStatTotal(equipped, 'poisonChance');
-  const burningChance = getEquipmentSecondaryStatTotal(equipped, 'burningChance');
-  const chillingChance = getEquipmentSecondaryStatTotal(
-    equipped,
-    'chillingChance',
+    DEFAULT_SUPPRESS_DEBUFF_CHANCE + suppressDebuffChanceValue.effective;
+  const rawSuppressDebuffChance =
+    DEFAULT_SUPPRESS_DEBUFF_CHANCE + suppressDebuffChanceValue.raw;
+  const bleedChanceValue = resolveSecondaryStatValue(
+    getEquipmentSecondaryStatTotal(equipped, 'bleedChance'),
   );
-  const powerBuffChance = getEquipmentSecondaryStatTotal(
-    equipped,
-    'powerBuffChance',
+  const bleedChance = bleedChanceValue.effective;
+  const rawBleedChance = bleedChanceValue.raw;
+  const poisonChanceValue = resolveSecondaryStatValue(
+    getEquipmentSecondaryStatTotal(equipped, 'poisonChance'),
   );
-  const frenzyBuffChance = getEquipmentSecondaryStatTotal(
-    equipped,
-    'frenzyBuffChance',
+  const poisonChance = poisonChanceValue.effective;
+  const rawPoisonChance = poisonChanceValue.raw;
+  const burningChanceValue = resolveSecondaryStatValue(
+    getEquipmentSecondaryStatTotal(equipped, 'burningChance'),
   );
+  const burningChance = burningChanceValue.effective;
+  const rawBurningChance = burningChanceValue.raw;
+  const chillingChanceValue = resolveSecondaryStatValue(
+    getEquipmentSecondaryStatTotal(equipped, 'chillingChance'),
+  );
+  const chillingChance = chillingChanceValue.effective;
+  const rawChillingChance = chillingChanceValue.raw;
+  const powerBuffChanceValue = resolveSecondaryStatValue(
+    getEquipmentSecondaryStatTotal(equipped, 'powerBuffChance'),
+  );
+  const powerBuffChance = powerBuffChanceValue.effective;
+  const rawPowerBuffChance = powerBuffChanceValue.raw;
+  const frenzyBuffChanceValue = resolveSecondaryStatValue(
+    getEquipmentSecondaryStatTotal(equipped, 'frenzyBuffChance'),
+  );
+  const frenzyBuffChance = frenzyBuffChanceValue.effective;
+  const rawFrenzyBuffChance = frenzyBuffChanceValue.raw;
 
   return {
     hp: player.hp,
@@ -178,21 +234,76 @@ export function getPlayerStats(player: Player) {
     rawAttack,
     rawDefense,
     attackSpeed,
+    rawAttackSpeed,
     criticalStrikeChance,
+    rawCriticalStrikeChance,
     criticalStrikeDamage,
+    rawCriticalStrikeDamage,
     lifestealChance,
+    rawLifestealChance,
     lifestealAmount,
+    rawLifestealAmount,
     dodgeChance,
+    rawDodgeChance,
     blockChance,
+    rawBlockChance,
     suppressDamageChance,
+    rawSuppressDamageChance,
     suppressDamageReduction,
+    rawSuppressDamageReduction,
     suppressDebuffChance,
+    rawSuppressDebuffChance,
     bleedChance,
+    rawBleedChance,
     poisonChance,
+    rawPoisonChance,
     burningChance,
+    rawBurningChance,
     chillingChance,
+    rawChillingChance,
     powerBuffChance,
+    rawPowerBuffChance,
     frenzyBuffChance,
+    rawFrenzyBuffChance,
+    secondaryStatTotals: {
+      attackSpeed: { effective: attackSpeed, raw: rawAttackSpeed },
+      criticalStrikeChance: {
+        effective: criticalStrikeChance,
+        raw: rawCriticalStrikeChance,
+      },
+      criticalStrikeDamage: {
+        effective: criticalStrikeDamage,
+        raw: rawCriticalStrikeDamage,
+      },
+      lifestealChance: { effective: lifestealChance, raw: rawLifestealChance },
+      lifestealAmount: { effective: lifestealAmount, raw: rawLifestealAmount },
+      dodgeChance: { effective: dodgeChance, raw: rawDodgeChance },
+      blockChance: { effective: blockChance, raw: rawBlockChance },
+      suppressDamageChance: {
+        effective: suppressDamageChance,
+        raw: rawSuppressDamageChance,
+      },
+      suppressDamageReduction: {
+        effective: suppressDamageReduction,
+        raw: rawSuppressDamageReduction,
+      },
+      suppressDebuffChance: {
+        effective: suppressDebuffChance,
+        raw: rawSuppressDebuffChance,
+      },
+      bleedChance: { effective: bleedChance, raw: rawBleedChance },
+      poisonChance: { effective: poisonChance, raw: rawPoisonChance },
+      burningChance: { effective: burningChance, raw: rawBurningChance },
+      chillingChance: { effective: chillingChance, raw: rawChillingChance },
+      powerBuffChance: {
+        effective: powerBuffChance,
+        raw: rawPowerBuffChance,
+      },
+      frenzyBuffChance: {
+        effective: frenzyBuffChance,
+        raw: rawFrenzyBuffChance,
+      },
+    },
     secondaryStats: equipped.flatMap((item) => item?.secondaryStats ?? []),
     statusEffects: statusEffects.map(
       (effect) =>
@@ -269,10 +380,8 @@ export function gainXp(
     if (state.player.xp < requiredXp) return;
     state.player.xp -= requiredXp;
     state.player.level += 1;
-    state.player.baseMaxHp += 6;
     state.player.baseMaxMana += 2;
-    state.player.baseAttack += 1;
-    state.player.baseDefense += 1;
+    syncPlayerBaseStats(state.player);
     addLog(
       state,
       'system',

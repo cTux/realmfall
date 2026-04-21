@@ -270,9 +270,9 @@ describe('ui helpers and components', () => {
       ) - 1,
     );
     expect(tooltipLines.some((line) => line.label === 'Attack')).toBe(true);
-    expect(
-      tooltipLines.some((line) => line.label?.includes('Change')),
-    ).toBe(false);
+    expect(tooltipLines.some((line) => line.label?.includes('Change'))).toBe(
+      false,
+    );
     expect(
       itemTooltipLines(resource).some((line) => line.label === 'Type'),
     ).toBe(false);
@@ -283,7 +283,10 @@ describe('ui helpers and components', () => {
       itemTooltipLines(resource).some((line) => line.text?.includes('TIER')),
     ).toBe(false);
     expect(itemTooltipLines(consumable)).toEqual([
-      { kind: 'text', text: 'Use to recover 12 HP and restore 8 hunger.' },
+      {
+        kind: 'text',
+        text: 'Use to recover 12% HP and restore 12% MP and restore 8 hunger.',
+      },
       {
         kind: 'text',
         text: 'Tags: item.food, item.healing',
@@ -291,7 +294,7 @@ describe('ui helpers and components', () => {
       },
     ]);
     expect(itemTooltipLines(manaPotion)).toEqual([
-      { kind: 'text', text: 'Use to restore 10% MP.' },
+      { kind: 'text', text: 'Use to restore 35% MP.' },
       {
         kind: 'text',
         text: 'Tags: item.consumable, item.stackable',
@@ -480,41 +483,49 @@ describe('ui helpers and components', () => {
     ]);
 
     expect(
-      abilityTooltipLines({
-        description: 'Targets one enemy. Deals melee damage.',
-        category: 'attacking',
-        manaCost: 0,
-        cooldownMs: 1000,
-        castTimeMs: 0,
-        effects: [{ kind: 'damage', powerMultiplier: 1.2, flatPower: 2 }],
-        tags: [
-          GameTag.AbilityCombat,
-          GameTag.AbilityMelee,
-          GameTag.AbilityPhysical,
-        ],
-      }, 'enemy', 10),
+      abilityTooltipLines(
+        {
+          description: 'Targets one enemy. Deals melee damage.',
+          category: 'attacking',
+          manaCost: 0,
+          cooldownMs: 1000,
+          castTimeMs: 0,
+          effects: [{ kind: 'damage', powerMultiplier: 1.2, flatPower: 2 }],
+          tags: [
+            GameTag.AbilityCombat,
+            GameTag.AbilityMelee,
+            GameTag.AbilityPhysical,
+          ],
+        },
+        'enemy',
+        10,
+      ),
     ).toContainEqual({
       kind: 'text',
       text: 'Targets one enemy. Deals melee damage.',
     });
 
     expect(
-      abilityTooltipLines({
-        description: 'Targets all enemies. Inflicts Shocked.',
-        category: 'attacking',
-        manaCost: 2,
-        cooldownMs: 4800,
-        castTimeMs: 250,
-        effects: [
-          {
-            kind: 'applyStatus',
-            statusEffectId: 'shocked',
-            value: 16,
-            durationMs: 8_000,
-          },
-        ],
-        tags: [GameTag.AbilityCombat],
-      }, 'allEnemies', 10),
+      abilityTooltipLines(
+        {
+          description: 'Targets all enemies. Inflicts Shocked.',
+          category: 'attacking',
+          manaCost: 2,
+          cooldownMs: 4800,
+          castTimeMs: 250,
+          effects: [
+            {
+              kind: 'applyStatus',
+              statusEffectId: 'shocked',
+              value: 16,
+              durationMs: 8_000,
+            },
+          ],
+          tags: [GameTag.AbilityCombat],
+        },
+        'allEnemies',
+        10,
+      ),
     ).toContainEqual({
       kind: 'stat',
       label: 'Effect',
@@ -551,22 +562,26 @@ describe('ui helpers and components', () => {
     });
 
     expect(
-      abilityTooltipLines({
-        description: 'Targets all enemies. Inflicts Shocked.',
-        category: 'attacking',
-        manaCost: 2,
-        cooldownMs: 4800,
-        castTimeMs: 250,
-        effects: [
-          {
-            kind: 'applyStatus',
-            statusEffectId: 'shocked',
-            value: 16,
-            durationMs: 8_000,
-          },
-        ],
-        tags: [GameTag.AbilityCombat],
-      }, 'allEnemies', 10),
+      abilityTooltipLines(
+        {
+          description: 'Targets all enemies. Inflicts Shocked.',
+          category: 'attacking',
+          manaCost: 2,
+          cooldownMs: 4800,
+          castTimeMs: 250,
+          effects: [
+            {
+              kind: 'applyStatus',
+              statusEffectId: 'shocked',
+              value: 16,
+              durationMs: 8_000,
+            },
+          ],
+          tags: [GameTag.AbilityCombat],
+        },
+        'allEnemies',
+        10,
+      ),
     ).toContainEqual({
       kind: 'stat',
       label: 'Damage',
@@ -619,17 +634,12 @@ describe('ui helpers and components', () => {
       tone: 'subtle',
     });
     expect(
-      statusEffectTooltipLines(
-        'burning',
-        'debuff',
-        [],
-        {
-          id: 'burning',
-          value: 3,
-          stacks: 2,
-          tickIntervalMs: 1000,
-        },
-      ),
+      statusEffectTooltipLines('burning', 'debuff', [], {
+        id: 'burning',
+        value: 3,
+        stacks: 2,
+        tickIntervalMs: 1000,
+      }),
     ).toContainEqual({
       kind: 'stat',
       label: 'Damage',
@@ -637,16 +647,11 @@ describe('ui helpers and components', () => {
       tone: 'negative',
     });
     expect(
-      statusEffectTooltipLines(
-        'poison',
-        'debuff',
-        [],
-        {
-          id: 'poison',
-          stacks: 3,
-          tickIntervalMs: 2000,
-        },
-      ),
+      statusEffectTooltipLines('poison', 'debuff', [], {
+        id: 'poison',
+        stacks: 3,
+        tickIntervalMs: 2000,
+      }),
     ).toContainEqual({
       kind: 'stat',
       label: 'Damage',
@@ -1541,7 +1546,7 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('Player Lv 10');
     expect(markup).toContain('Marauder Lv 3');
     expect(markup).toContain('MP');
-    expect(markup).toContain('Casting');
+    expect(markup).not.toContain('Casting');
     expect(markup).toContain('Kick');
     expect(markup).toContain(getAbilityDefinition('fireball').name);
     expect(markup).toContain('(Q) Start');
@@ -2732,7 +2737,11 @@ describe('ui helpers and components', () => {
                 {
                   kind: 'source',
                   text: 'Fireball',
-                  source: { kind: 'ability', abilityId: 'fireball', attack: 12 },
+                  source: {
+                    kind: 'ability',
+                    abilityId: 'fireball',
+                    attack: 12,
+                  },
                 },
                 { kind: 'text', text: '.' },
               ],
@@ -2917,4 +2926,3 @@ describe('ui helpers and components', () => {
     expect(markup).toContain('background-color:rgba(96, 165, 250, 0.28)');
   });
 });
-

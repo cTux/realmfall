@@ -247,8 +247,9 @@ describe('App hydration and interactions', () => {
     expect(
       host.querySelector('[aria-label="Action bar slot 1: Trail Ration"]'),
     ).toBeNull();
-    expect(host.querySelector('[aria-label="Empty action bar slot 1"]'))
-      .not.toBeNull();
+    expect(
+      host.querySelector('[aria-label="Empty action bar slot 1"]'),
+    ).not.toBeNull();
 
     await act(async () => {
       root.unmount();
@@ -256,7 +257,7 @@ describe('App hydration and interactions', () => {
     host.remove();
   });
 
-  it('shows a shared action bar cooldown after consumable use', async () => {
+  it('does not render an action bar cooldown overlay after consumable use', async () => {
     const game = createGame(2, 'app-action-bar-cooldown-seed');
     game.player.hp = 20;
     game.player.hunger = 80;
@@ -292,10 +293,8 @@ describe('App hydration and interactions', () => {
     const slotButton = host.querySelector(
       '[aria-label="Action bar slot 1: Trail Ration"]',
     ) as HTMLButtonElement | null;
-    expect(slotButton?.className).toContain('cooldownActive');
-    expect(
-      slotButton?.querySelector('[class*="cooldownOverlay"]'),
-    ).not.toBeNull();
+    expect(slotButton?.className).not.toContain('cooldownActive');
+    expect(slotButton?.querySelector('[class*="cooldownOverlay"]')).toBeNull();
 
     await act(async () => {
       window.dispatchEvent(
@@ -316,6 +315,9 @@ describe('App hydration and interactions', () => {
       '[aria-label="Action bar slot 1: Trail Ration"]',
     ) as HTMLButtonElement | null;
     expect(refreshedSlotButton?.className).not.toContain('cooldownActive');
+    expect(
+      refreshedSlotButton?.querySelector('[class*="cooldownOverlay"]'),
+    ).toBeNull();
 
     await act(async () => {
       window.dispatchEvent(
@@ -323,8 +325,90 @@ describe('App hydration and interactions', () => {
       );
     });
 
-    expect(host.querySelector('[aria-label="Empty action bar slot 1"]'))
-      .not.toBeNull();
+    expect(
+      host.querySelector('[aria-label="Empty action bar slot 1"]'),
+    ).not.toBeNull();
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('shows a pause overlay and blocks action bar consumption while paused', async () => {
+    const game = createGame(2, 'app-pause-overlay-seed');
+    game.player.hp = 20;
+    game.player.hunger = 80;
+    loadEncryptedState.mockResolvedValue({ game, ui: {} });
+
+    const { host, root } = await renderApp();
+    await flushLazyModules();
+
+    const actionBarSlot = host.querySelector(
+      '[aria-label="Empty action bar slot 1"]',
+    ) as HTMLButtonElement | null;
+    expect(actionBarSlot).not.toBeNull();
+
+    await act(async () => {
+      actionBarSlot?.click();
+    });
+
+    const assignButton = host.querySelector(
+      '[aria-label="Assign Trail Ration to action bar slot"]',
+    ) as HTMLButtonElement | null;
+    expect(assignButton).not.toBeNull();
+
+    await act(async () => {
+      assignButton?.click();
+    });
+
+    const slotButton = host.querySelector(
+      '[aria-label="Action bar slot 1: Trail Ration"]',
+    ) as HTMLButtonElement | null;
+    expect(slotButton).not.toBeNull();
+    expect(slotButton?.textContent).toContain('x2');
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', {
+          bubbles: true,
+          key: ' ',
+          code: 'Space',
+        }),
+      );
+    });
+
+    expect(host.textContent).toContain('Game paused');
+    expect(host.textContent).toContain('Press Space to resume gameplay.');
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: '1' }),
+      );
+    });
+
+    expect(slotButton?.textContent).toContain('x2');
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', {
+          bubbles: true,
+          key: ' ',
+          code: 'Space',
+        }),
+      );
+    });
+
+    expect(host.textContent).not.toContain('Game paused');
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: '1' }),
+      );
+    });
+    await flushLazyModules();
+
+    expect(slotButton?.textContent).not.toContain('x2');
 
     await act(async () => {
       root.unmount();

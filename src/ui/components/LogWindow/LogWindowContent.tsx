@@ -1,5 +1,5 @@
 import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react';
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef } from 'react';
 import { getAbilityDefinition } from '../../../game/abilities';
 import { getStatusEffectDefinition } from '../../../game/content/statusEffects';
 import type { LogEntry, LogRichSegment } from '../../../game/types';
@@ -11,9 +11,6 @@ import { CalendarTimestamp } from '../CalendarTimestamp';
 import type { LogWindowProps } from './types';
 import styles from './styles.module.scss';
 
-const TYPE_DELAY_MS = 32;
-const TYPE_STEP = 2;
-const MATRIX_GLYPHS = ['#', '%', '&', '/', '+', '*'];
 const LOG_PREFIX_PATTERN = /^\[(Year \d+, Day \d+, [0-9]{2}:[0-9]{2})\]\s/;
 const BLOOD_MOON_PATTERN = /blood moon/i;
 const HARVEST_MOON_PATTERN = /harvest moon/i;
@@ -44,81 +41,6 @@ function splitLogEntry(text: string) {
   };
 }
 
-function logMessageText(entry: LogEntry) {
-  if (!entry.richText || entry.richText.length === 0) {
-    return splitLogEntry(entry.text).message;
-  }
-
-  return entry.richText.map((segment) => segment.text).join('');
-}
-
-const AnimatedLogLine = memo(function AnimatedLogLine({
-  parsedEntry,
-  onHoverDetail,
-  onLeaveDetail,
-}: {
-  parsedEntry: ParsedLogEntry;
-  onHoverDetail?: LogWindowProps['onHoverDetail'];
-  onLeaveDetail?: LogWindowProps['onLeaveDetail'];
-}) {
-  const { entry, message, timestampMs } = parsedEntry;
-  const [visibleCount, setVisibleCount] = useState(0);
-  const isComplete = visibleCount >= message.length;
-  const cursor = MATRIX_GLYPHS[visibleCount % MATRIX_GLYPHS.length];
-
-  useEffect(() => {
-    setVisibleCount(0);
-
-    if (message.length === 0) {
-      return;
-    }
-
-    const intervalId = window.setInterval(() => {
-      setVisibleCount((current) => {
-        if (current >= message.length) {
-          window.clearInterval(intervalId);
-          return current;
-        }
-
-        return Math.min(current + TYPE_STEP, message.length);
-      });
-    }, TYPE_DELAY_MS);
-
-    return () => {
-      window.clearInterval(intervalId);
-    };
-  }, [entry.id, message.length]);
-
-  return (
-    <span className={styles.logText}>
-      {timestampMs != null ? (
-        <>
-          <CalendarTimestamp
-            timestampMs={timestampMs}
-            display="time"
-            className={styles.logTimestamp}
-            onHoverDetail={onHoverDetail}
-            onLeaveDetail={onLeaveDetail}
-          />{' '}
-        </>
-      ) : null}
-      {entry.richText && entry.richText.length > 0
-        ? renderRichText(
-            entry.richText,
-            visibleCount,
-            onHoverDetail,
-            onLeaveDetail,
-          )
-        : message.slice(0, visibleCount)}
-      {isComplete ? null : (
-        <span className={styles.logCursor} aria-hidden="true">
-          {cursor}
-        </span>
-      )}
-    </span>
-  );
-});
-
 const StaticLogLine = memo(function StaticLogLine({
   parsedEntry,
   onHoverDetail,
@@ -144,12 +66,7 @@ const StaticLogLine = memo(function StaticLogLine({
         </>
       ) : null}
       {entry.richText && entry.richText.length > 0
-        ? renderRichText(
-            entry.richText,
-            Number.POSITIVE_INFINITY,
-            onHoverDetail,
-            onLeaveDetail,
-          )
+        ? renderRichText(entry.richText, onHoverDetail, onLeaveDetail)
         : message}
     </span>
   );
@@ -178,23 +95,13 @@ export function LogWindowContent({
   return (
     <div ref={logListRef} className={styles.logList}>
       {parsedEntries.map((parsedEntry) => {
-        const { entry } = parsedEntry;
-        const isNewest = entry.id === newestLogId;
         return (
-          <div key={entry.id} className={parsedEntry.className}>
-            {isNewest ? (
-              <AnimatedLogLine
-                parsedEntry={parsedEntry}
-                onHoverDetail={onHoverDetail}
-                onLeaveDetail={onLeaveDetail}
-              />
-            ) : (
-              <StaticLogLine
-                parsedEntry={parsedEntry}
-                onHoverDetail={onHoverDetail}
-                onLeaveDetail={onLeaveDetail}
-              />
-            )}
+          <div key={parsedEntry.entry.id} className={parsedEntry.className}>
+            <StaticLogLine
+              parsedEntry={parsedEntry}
+              onHoverDetail={onHoverDetail}
+              onLeaveDetail={onLeaveDetail}
+            />
           </div>
         );
       })}
@@ -230,7 +137,9 @@ function createParsedLogEntry(entry: LogEntry): ParsedLogEntry {
 
   return {
     entry,
-    message: entry.richText?.length ? logMessageText(entry) : message,
+    message: entry.richText?.length
+      ? entry.richText.map((segment) => segment.text).join('')
+      : message,
     timestampMs,
     className: [
       styles.logEntry,
@@ -245,21 +154,12 @@ function createParsedLogEntry(entry: LogEntry): ParsedLogEntry {
 
 function renderRichText(
   segments: LogRichSegment[],
-  visibleCount: number,
   onHoverDetail?: LogWindowProps['onHoverDetail'],
   onLeaveDetail?: LogWindowProps['onLeaveDetail'],
 ) {
-  let remaining = visibleCount;
-
   return segments.map((segment, index) => {
-    if (remaining <= 0) return null;
-
-    const visibleText = segment.text.slice(0, remaining);
-    remaining -= visibleText.length;
-    if (visibleText.length === 0) return null;
-
     if (segment.kind === 'text') {
-      return <span key={index}>{visibleText}</span>;
+      return <span key={index}>{segment.text}</span>;
     }
 
     if (segment.kind === 'entity') {
@@ -267,9 +167,11 @@ function renderRichText(
         <span
           key={index}
           className={styles.entitySegment}
-          style={segment.rarity ? { color: rarityColor(segment.rarity) } : undefined}
+          style={
+            segment.rarity ? { color: rarityColor(segment.rarity) } : undefined
+          }
         >
-          {visibleText}
+          {segment.text}
         </span>
       );
     }
@@ -277,7 +179,7 @@ function renderRichText(
     if (segment.kind === 'damage') {
       return (
         <span key={index} className={styles.damageSegment}>
-          {visibleText}
+          {segment.text}
         </span>
       );
     }
@@ -285,7 +187,7 @@ function renderRichText(
     if (segment.kind === 'healing') {
       return (
         <span key={index} className={styles.healingSegment}>
-          {visibleText}
+          {segment.text}
         </span>
       );
     }
@@ -294,8 +196,8 @@ function renderRichText(
       <SourceSegment
         key={index}
         segment={segment}
-        visibleText={visibleText}
-        fullyVisible={visibleText.length === segment.text.length}
+        visibleText={segment.text}
+        fullyVisible
         onHoverDetail={onHoverDetail}
         onLeaveDetail={onLeaveDetail}
       />
@@ -345,7 +247,9 @@ function SourceSegment({
   );
 }
 
-function sourceIconStyle(segment: Extract<LogRichSegment, { kind: 'source' }>): CSSProperties {
+function sourceIconStyle(
+  segment: Extract<LogRichSegment, { kind: 'source' }>,
+): CSSProperties {
   if (segment.source.kind === 'ability') {
     const ability = getAbilityDefinition(segment.source.abilityId);
     return maskStyle(ability.icon, '#f8fafc');
@@ -363,7 +267,9 @@ function sourceIconStyle(segment: Extract<LogRichSegment, { kind: 'source' }>): 
   );
 }
 
-function buildSourceTooltip(segment: Extract<LogRichSegment, { kind: 'source' }>) {
+function buildSourceTooltip(
+  segment: Extract<LogRichSegment, { kind: 'source' }>,
+) {
   if (segment.source.kind === 'ability') {
     const ability = getAbilityDefinition(segment.source.abilityId);
     return {
@@ -392,9 +298,7 @@ function buildSourceTooltip(segment: Extract<LogRichSegment, { kind: 'source' }>
       stacks: segment.source.stacks,
     }),
     borderColor:
-      tone === 'buff'
-        ? 'rgba(34, 197, 94, 0.9)'
-        : 'rgba(239, 68, 68, 0.9)',
+      tone === 'buff' ? 'rgba(34, 197, 94, 0.9)' : 'rgba(239, 68, 68, 0.9)',
   };
 }
 

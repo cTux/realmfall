@@ -53,3 +53,30 @@ export const AbilityLoadout: Story = {
     stats: fixtures.heroStats,
   },
 };
+
+export const OvercappedSecondaryStats: Story = {
+  args: {
+    stats: {
+      ...fixtures.heroStats,
+      secondaryStatTotals: {
+        ...(fixtures.heroStats.secondaryStatTotals ?? {}),
+        criticalStrikeChance: { effective: 75, raw: 143 },
+        criticalStrikeDamage: { effective: 225, raw: 293 },
+        attackSpeed: { effective: 1.75, raw: 2.43 },
+      },
+      criticalStrikeChance: 75,
+      criticalStrikeDamage: 225,
+      attackSpeed: 1.75,
+    },
+  },
+};
+
+export const CompactScrollable: Story = {
+  args: {
+    position: {
+      ...STORYBOOK_WINDOW_POSITION,
+      width: 320,
+      height: 260,
+    },
+  },
+};

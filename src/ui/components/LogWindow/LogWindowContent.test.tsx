@@ -32,7 +32,7 @@ describe('LogWindowContent', () => {
     vi.restoreAllMocks();
   });
 
-  it('reveals the newest log entry in larger chunks before completing', async () => {
+  it('renders the newest log entry immediately', async () => {
     await act(async () => {
       root.render(
         <LogWindowContent
@@ -48,20 +48,8 @@ describe('LogWindowContent', () => {
       );
     });
 
-    expect(host.textContent).toContain('#');
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(32);
-    });
-
-    expect(host.textContent).toContain('Hu');
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(32);
-    });
-
     expect(host.textContent).toContain('Hunt');
-    expect(host.textContent).not.toContain('#');
+    expect(host.querySelector('[class*="logCursor"]')).toBeNull();
   });
 
   it('shows status effect source icons with hover details', async () => {
@@ -107,16 +95,14 @@ describe('LogWindowContent', () => {
       );
     });
 
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(320);
-    });
-
     const sourceSegments = host.querySelectorAll('span[class]');
     const shockedSegment = [...sourceSegments].find(
       (node) => node.textContent === 'Shocked',
     ) as HTMLSpanElement | undefined;
     expect(shockedSegment).toBeDefined();
-    expect(shockedSegment?.querySelector('[aria-hidden="true"]')).not.toBeNull();
+    expect(
+      shockedSegment?.querySelector('[aria-hidden="true"]'),
+    ).not.toBeNull();
 
     await act(async () => {
       shockedSegment?.dispatchEvent(
@@ -166,5 +152,51 @@ describe('LogWindowContent', () => {
     });
 
     expect(parseSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it('scrolls the log to the newest row when a new entry appears', async () => {
+    const originalScrollHeightDescriptor = Object.getOwnPropertyDescriptor(
+      HTMLDivElement.prototype,
+      'scrollHeight',
+    );
+
+    Object.defineProperty(HTMLDivElement.prototype, 'scrollHeight', {
+      configurable: true,
+      get() {
+        return this.textContent?.length ?? 0;
+      },
+    });
+
+    try {
+      await act(async () => {
+        root.render(
+          <LogWindowContent
+            logs={[
+              {
+                id: 'log-scroll-follow',
+                kind: 'system',
+                text: '[Year 1, Day 1, 00:00] This newest line is deliberately long so it pushes the scroll position down when it is added.',
+                turn: 1,
+              },
+            ]}
+          />,
+        );
+      });
+
+      const logList = host.querySelector('div') as HTMLDivElement;
+
+      expect(logList.scrollTop).toBe(logList.scrollHeight);
+    } finally {
+      if (originalScrollHeightDescriptor) {
+        Object.defineProperty(
+          HTMLDivElement.prototype,
+          'scrollHeight',
+          originalScrollHeightDescriptor,
+        );
+      } else {
+        delete (HTMLDivElement.prototype as { scrollHeight?: number })
+          .scrollHeight;
+      }
+    }
   });
 });

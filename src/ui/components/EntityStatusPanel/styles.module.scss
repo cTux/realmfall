@@ -59,16 +59,6 @@
   height: 0.72rem;
 }
 
-.castBar {
-  background: rgb(71 47 8 / 92%);
-  border-color: rgb(250 204 21 / 24%);
-}
-
-.reservedBar {
-  background: transparent;
-  border-color: transparent;
-}
-
 .barFill {
   height: 100%;
   transition: ui.$fill-transition;
@@ -182,20 +172,6 @@
   height: 95%;
 }
 
-.cooldownOverlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgb(15 23 42 / 86%),
-    rgb(30 41 59 / 68%)
-  );
-  transform: scaleY(var(--cooldown-scale));
-  transform-origin: top;
-  pointer-events: none;
-  animation: cooldownDrain var(--cooldown-duration) linear forwards;
-}
-
 .hp {
   background: linear-gradient(90deg, #dc2626, #f87171);
 }
@@ -214,14 +190,4 @@
 
 .thirst {
   background: linear-gradient(90deg, #0891b2, #67e8f9);
-}
-
-.cast {
-  background: linear-gradient(90deg, #ca8a04, #facc15);
-}
-
-@keyframes cooldownDrain {
-  to {
-    transform: scaleY(0);
-  }
 }

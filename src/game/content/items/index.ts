@@ -9,6 +9,7 @@ import {
   type GameTag,
 } from '../tags';
 import { applyRarityToItem } from '../../shared';
+import { clampItemLevel, scaleMainItemStatForLevel } from '../../balance';
 import {
   buildDefaultBlockChanceSecondaryStat,
   buildGeneratedMainStats,
@@ -238,7 +239,7 @@ export function buildItemFromConfig(
   if (!config) {
     throw new Error(`Missing item config: ${key}`);
   }
-  const tier = overrides.tier ?? config.tier;
+  const tier = clampItemLevel(overrides.tier ?? config.tier);
   const rarity = overrides.rarity ?? config.rarity;
   const secondaryStatSeed = `${key}:secondary:${overrides.id ?? config.key}:${tier}:${rarity}`;
   const secondaryStatRng = createRng(secondaryStatSeed);
@@ -262,9 +263,9 @@ export function buildItemFromConfig(
     quantity: overrides.quantity ?? config.defaultQuantity ?? 1,
     tier,
     rarity,
-    power: overrides.power ?? config.power,
-    defense: overrides.defense ?? config.defense,
-    maxHp: overrides.maxHp ?? config.maxHp,
+    power: overrides.power ?? scaleConfiguredMainStat(config.power, tier),
+    defense: overrides.defense ?? scaleConfiguredMainStat(config.defense, tier),
+    maxHp: overrides.maxHp ?? scaleConfiguredMainStat(config.maxHp, tier),
     healing: overrides.healing ?? config.healing,
     hunger: overrides.hunger ?? config.hunger,
     thirst: overrides.thirst ?? config.thirst ?? 0,
@@ -273,7 +274,8 @@ export function buildItemFromConfig(
       config.secondaryStatCapacity ??
       defaultSecondaryStats?.length,
     secondaryStats:
-      overrides.secondaryStats ?? normalizeSecondaryStats(defaultSecondaryStats),
+      overrides.secondaryStats ??
+      normalizeSecondaryStats(defaultSecondaryStats),
     grantedAbilityId:
       overrides.grantedAbilityId ??
       pickGrantedAbilityId(config, overrides.id ?? config.key),
@@ -289,7 +291,7 @@ export function buildGeneratedItemFromConfig(
     return buildItemFromConfig(key, overrides);
   }
 
-  const tier = overrides.tier ?? config.tier;
+  const tier = clampItemLevel(overrides.tier ?? config.tier);
   const rng = createRng(
     `${key}:generated:${overrides.id ?? config.key}:${tier}:${overrides.rarity ?? config.rarity}`,
   );
@@ -310,8 +312,7 @@ export function buildGeneratedItemFromConfig(
     maxHp: overrides.maxHp ?? mainStats.maxHp,
     secondaryStatCapacity:
       overrides.secondaryStatCapacity ?? secondaryStats.capacity,
-    secondaryStats:
-      overrides.secondaryStats ?? secondaryStats.stats,
+    secondaryStats: overrides.secondaryStats ?? secondaryStats.stats,
     grantedAbilityId:
       overrides.grantedAbilityId ??
       pickGrantedAbilityId(config, overrides.id ?? config.key),
@@ -605,10 +606,7 @@ function pickGrantedAbilityId(
 }
 
 function resolveGrantedAbilityPool(
-  config: Pick<
-    ItemConfig,
-    'grantedAbilityPool' | 'grantedAbilityId'
-  > &
+  config: Pick<ItemConfig, 'grantedAbilityPool' | 'grantedAbilityId'> &
     Partial<Pick<ItemConfig, 'key' | 'slot' | 'category'>>,
 ) {
   if (config.grantedAbilityId) return undefined;
@@ -626,4 +624,8 @@ function resolveGrantedAbilityPool(
 
 function seededIndex(seed: string) {
   return [...seed].reduce((total, char) => total + char.charCodeAt(0), 0);
+}
+
+function scaleConfiguredMainStat(value: number, tier: number) {
+  return value > 0 ? scaleMainItemStatForLevel(tier) : 0;
 }

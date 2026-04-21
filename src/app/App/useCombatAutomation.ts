@@ -11,19 +11,24 @@ import {
 } from '../../game/state';
 
 interface UseCombatAutomationOptions {
-  combat: GameState['combat'];
+  game: Pick<GameState, 'combat' | 'player' | 'enemies'>;
+  paused: boolean;
   setGame: Dispatch<SetStateAction<GameState>>;
   worldTimeMsRef: MutableRefObject<number>;
 }
 
 export function useCombatAutomation({
-  combat,
+  game,
+  paused,
   setGame,
   worldTimeMsRef,
 }: UseCombatAutomationOptions) {
   useEffect(() => {
+    if (paused) return;
+
+    const { combat } = game;
     if (!combat?.started) return;
-    const delay = getCombatAutomationDelay(combat, worldTimeMsRef.current);
+    const delay = getCombatAutomationDelay(game, worldTimeMsRef.current);
     if (!combat || delay == null) return;
 
     const timeout = window.setTimeout(() => {
@@ -36,5 +41,5 @@ export function useCombatAutomation({
     }, delay);
 
     return () => window.clearTimeout(timeout);
-  }, [combat, setGame, worldTimeMsRef]);
+  }, [game, paused, setGame, worldTimeMsRef]);
 }

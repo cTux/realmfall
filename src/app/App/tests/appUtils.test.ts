@@ -2,7 +2,10 @@ import { DEFAULT_WINDOW_VISIBILITY } from '../../constants';
 import { GameTag } from '../../../game/content/tags';
 import { getDockEntries } from '../utils/getDockEntries';
 import { getInventoryItemAction } from '../utils/getInventoryItemAction';
-import { isEditableTarget } from '../utils/isEditableTarget';
+import {
+  isEditableTarget,
+  isFocusableControlTarget,
+} from '../utils/isEditableTarget';
 
 describe('app utils', () => {
   it('builds dock entries for optional windows only when visible', () => {
@@ -99,5 +102,21 @@ describe('app utils', () => {
 
     expect(isEditableTarget(document.createElement('button'))).toBe(false);
     expect(isEditableTarget(null)).toBe(false);
+  });
+
+  it('recognizes focusable control targets that should keep native space behavior', () => {
+    expect(isFocusableControlTarget(document.createElement('button'))).toBe(
+      true,
+    );
+
+    const summary = document.createElement('summary');
+    expect(isFocusableControlTarget(summary)).toBe(true);
+
+    const roleButton = document.createElement('div');
+    roleButton.setAttribute('role', 'button');
+    expect(isFocusableControlTarget(roleButton)).toBe(true);
+
+    expect(isFocusableControlTarget(document.createElement('div'))).toBe(false);
+    expect(isFocusableControlTarget(null)).toBe(false);
   });
 });

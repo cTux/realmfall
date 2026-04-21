@@ -7,6 +7,7 @@ This spec covers the internal combat data structures and event-driven enemy stat
 ## Current Solution
 
 - Combat uses per-actor state objects that track abilities, cooldowns, effective cooldown adjustments, global cooldown, and optional casting state.
+- Combat automation timing derives from combat actor state plus live combat status effects on the player and current enemies, so ticking effects and expirations advance on time even when the next ability cooldown is far away.
 - Player and enemy combat actor states are persisted and hydrated in the current runtime shape with no backward save-shape migration layer.
 - Ability definitions live in a registry keyed by stable ability ids.
 - The ability registry is split between a slim gameplay runtime catalog used by `state` and `combat`, and a presentation wrapper that adds localized names, descriptions, and icons only for UI surfaces.

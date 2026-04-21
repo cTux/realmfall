@@ -2,7 +2,9 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { vi } from 'vitest';
 import { t } from '../../../i18n';
+import draggableWindowStyles from '../DraggableWindow/styles.module.scss';
 import { HeroWindow } from './HeroWindow';
+import styles from './styles.module.scss';
 import type { HeroWindowStats } from './types';
 
 const stats: HeroWindowStats = {
@@ -32,6 +34,24 @@ const stats: HeroWindowStats = {
   chillingChance: 7,
   powerBuffChance: 5,
   frenzyBuffChance: 4,
+  secondaryStatTotals: {
+    attackSpeed: { effective: 1.25, raw: 1.25 },
+    criticalStrikeChance: { effective: 75, raw: 143 },
+    criticalStrikeDamage: { effective: 175, raw: 243 },
+    lifestealChance: { effective: 10, raw: 10 },
+    lifestealAmount: { effective: 8, raw: 8 },
+    dodgeChance: { effective: 12, raw: 12 },
+    blockChance: { effective: 18, raw: 18 },
+    suppressDamageChance: { effective: 6, raw: 6 },
+    suppressDamageReduction: { effective: 35, raw: 35 },
+    suppressDebuffChance: { effective: 9, raw: 9 },
+    bleedChance: { effective: 11, raw: 11 },
+    poisonChance: { effective: 13, raw: 13 },
+    burningChance: { effective: 14, raw: 14 },
+    chillingChance: { effective: 7, raw: 7 },
+    powerBuffChance: { effective: 5, raw: 5 },
+    frenzyBuffChance: { effective: 4, raw: 4 },
+  },
   statusEffects: [],
   buffs: [],
   debuffs: [],
@@ -93,7 +113,7 @@ describe('HeroWindow', () => {
     ).not.toBeNull();
   });
 
-  it('renders the hero summary without the detailed derived stat list', async () => {
+  it('renders the hero summary with the detailed derived stat list', async () => {
     await act(async () => {
       root.render(
         <HeroWindow
@@ -113,11 +133,50 @@ describe('HeroWindow', () => {
       await Promise.resolve();
     });
 
-    expect(host.textContent).not.toContain('Dodge Chance');
-    expect(host.textContent).not.toContain('Critical Strike Chance');
-    expect(host.textContent).not.toContain('Suppress Debuff Chance');
-    expect(host.textContent).not.toContain('Attack Speed');
+    expect(host.textContent).toContain(t('ui.hero.statSheet.primary'));
+    expect(host.textContent).toContain(t('ui.hero.statSheet.secondary'));
+    expect(host.textContent).toContain('Critical Strike Chance');
+    expect(host.textContent).toContain('75% (143% raw)');
+    expect(host.textContent).toContain('Attack Speed');
+    expect(host.textContent).toContain('25%');
+    expect(host.textContent).toContain('Suppress Debuff Chance');
     expect(host.textContent).toContain(t('ui.window.hero.suffix'));
     expect(host.textContent).not.toContain('Character infoHP');
+  });
+
+  it('renders a resizable shell with an internal stat sheet scroller', async () => {
+    await act(async () => {
+      root.render(
+        <HeroWindow
+          position={{ x: 16, y: 24, width: 320, height: 260 }}
+          onMove={() => {}}
+          visible
+          stats={stats}
+          hunger={0}
+          thirst={0}
+        />,
+      );
+    });
+
+    await act(async () => {
+      await vi.dynamicImportSettled();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const windowNode = host.querySelector(
+      `.${styles.window}`,
+    ) as HTMLElement | null;
+    const statsScroller = host.querySelector(
+      `.${styles.stats}`,
+    ) as HTMLElement | null;
+
+    expect(windowNode).not.toBeNull();
+    expect(windowNode?.style.width).toBe('320px');
+    expect(windowNode?.style.height).toBe('260px');
+    expect(
+      windowNode?.querySelector(`.${draggableWindowStyles.resizeHandle}`),
+    ).not.toBeNull();
+    expect(statsScroller).not.toBeNull();
   });
 });

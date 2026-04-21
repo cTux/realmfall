@@ -119,6 +119,25 @@ export const LegendaryRaid: Story = {
   }),
 };
 
+export const EnemyStatTooltipPreview: Story = {
+  args: buildBattleScenario({
+    started: true,
+    enemyNames: ['Wolf'],
+    enemyTiers: [2],
+    enemyDamage: [4],
+    enemyStatusEffects: [
+      [
+        { id: 'power', value: 10 },
+        { id: 'guard', value: 15 },
+        { id: 'frenzy', value: 20 },
+      ],
+    ],
+    readyOffsets: {
+      enemy0: 500,
+    },
+  }),
+};
+
 function CombatWindowStory(args: CombatWindowProps) {
   const [combat, setCombat] = useState(args.combat);
 
@@ -178,6 +197,7 @@ function buildBattleScenario({
   enemyTiers = [2, 2],
   eliteEnemyIds = [],
   enemyRarities = [],
+  enemyStatusEffects = [],
   readyOffsets = {},
   casting = {},
 }: {
@@ -189,6 +209,7 @@ function buildBattleScenario({
   enemyTiers?: number[];
   eliteEnemyIds?: string[];
   enemyRarities?: Array<Enemy['rarity']>;
+  enemyStatusEffects?: Array<Enemy['statusEffects']>;
   readyOffsets?: Partial<Record<string, number>>;
   casting?: Partial<Record<string, { abilityId: string; remainingMs: number }>>;
 }) {
@@ -251,6 +272,7 @@ function buildBattleScenario({
       defense: elite ? 6 : 3,
       xp: elite ? 120 : 64,
       elite,
+      statusEffects: enemyStatusEffects[index],
     };
   });
 

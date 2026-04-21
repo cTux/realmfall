@@ -1,4 +1,58 @@
 {
+  "balance": {
+    "combat": {
+      "globalCooldownMs": 2000
+    },
+    "player": {
+      "maxLevel": 100,
+      "baseStats": {
+        "level1": {
+          "maxHp": 150,
+          "attack": 50,
+          "defense": 35
+        },
+        "level100": {
+          "maxHp": 4000,
+          "attack": 800,
+          "defense": 200
+        }
+      }
+    },
+    "enemy": {
+      "baseStats": {
+        "level1": {
+          "maxHp": 150,
+          "attack": 50,
+          "defense": 35
+        },
+        "level100": {
+          "maxHp": 5000,
+          "attack": 1600,
+          "defense": 1100
+        }
+      },
+      "postLevel100PerLevel": 0.1,
+      "rarityMultiplier": {
+        "common": 1,
+        "uncommon": 1.12,
+        "rare": 1.27,
+        "epic": 1.45,
+        "legendary": 1.72
+      }
+    },
+    "items": {
+      "maxLevel": 100,
+      "baseStat": {
+        "level1": 1,
+        "level100": 1000
+      },
+      "secondaryStat": {
+        "level1": 1,
+        "level100": 10,
+        "cap": 75
+      }
+    }
+  },
   "progression": {
     "gatheringBonus": {
       "perLevel": 0.01,

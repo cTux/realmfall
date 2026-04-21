@@ -8,10 +8,11 @@ interface EntityStatusBar {
   label: string;
   value: number;
   max: number;
-  tone: 'hp' | 'mana' | 'xp' | 'hunger' | 'thirst' | 'cast';
+  tone: 'hp' | 'mana' | 'xp' | 'hunger' | 'thirst';
   description: string;
+  tooltipTitle?: string;
+  tooltipLines?: TooltipLine[];
   text?: string;
-  reserved?: boolean;
 }
 
 interface EntityStatusIcon {
@@ -23,8 +24,7 @@ interface EntityStatusIcon {
   tooltipTitle: string;
   tooltipLines: TooltipLine[];
   tooltipBorderColor: string;
-  cooldownRatio?: number;
-  remainingMs?: number;
+  disabled?: boolean;
 }
 
 interface EntityStatusPanelProps extends WindowDetailTooltipHandlers {
@@ -58,7 +58,10 @@ export function EntityStatusPanel({
 
   return (
     <div className={[styles.panel, className ?? ''].filter(Boolean).join(' ')}>
-      <div className={`${styles.iconRow} ${styles.topRow}`} aria-hidden={debuffs.length === 0}>
+      <div
+        className={`${styles.iconRow} ${styles.topRow}`}
+        aria-hidden={debuffs.length === 0}
+      >
         {debuffs.map((icon) => (
           <StatusIcon
             key={icon.id}
@@ -134,33 +137,31 @@ function StatusBar({
   showPrimaryLabel?: boolean;
   showPrimaryTitle?: boolean;
 }) {
-  const width = Math.max(0, Math.min(100, (bar.value / Math.max(1, bar.max)) * 100));
+  const width = Math.max(
+    0,
+    Math.min(100, (bar.value / Math.max(1, bar.max)) * 100),
+  );
   const valueText = `${formatCompactNumber(bar.value)}/${formatCompactNumber(bar.max)}`;
 
   return (
     <div
-      className={`${styles.bar} ${primary ? styles.primaryBar : styles.secondaryBar} ${
-        bar.tone === 'cast' ? styles.castBar : ''
-      } ${bar.reserved ? styles.reservedBar : ''}`}
-      onMouseEnter={
-        bar.reserved
-          ? undefined
-          : (event) =>
-              onHoverDetail?.(
-                event,
-                bar.label,
-                [{ kind: 'text', text: bar.description }],
-                toneBorderColor(bar.tone),
-              )
+      className={`${styles.bar} ${
+        primary ? styles.primaryBar : styles.secondaryBar
+      }`}
+      onMouseEnter={(event) =>
+        onHoverDetail?.(
+          event,
+          bar.tooltipTitle ?? bar.label,
+          bar.tooltipLines ?? [{ kind: 'text', text: bar.description }],
+          toneBorderColor(bar.tone),
+        )
       }
-      onMouseLeave={bar.reserved ? undefined : onLeaveDetail}
+      onMouseLeave={onLeaveDetail}
     >
-      {bar.reserved ? null : (
-        <div
-          className={`${styles.barFill} ${styles[bar.tone]}`}
-          style={{ width: `${width}%` }}
-        />
-      )}
+      <div
+        className={`${styles.barFill} ${styles[bar.tone]}`}
+        style={{ width: `${width}%` }}
+      />
       {primary ? (
         <div className={styles.primaryContent}>
           <div
@@ -187,7 +188,7 @@ function StatusBar({
           </div>
           <strong className={styles.value}>{valueText}</strong>
         </div>
-      ) : bar.reserved ? null : (
+      ) : (
         <div className={styles.secondaryContent}>
           <span className={styles.secondaryLabel}>
             {bar.text ? `${bar.label} ${bar.text}` : bar.label}
@@ -208,9 +209,10 @@ function StatusIcon({
     <button
       type="button"
       className={`${styles.iconButton} ${
-        icon.cooldownRatio && icon.cooldownRatio > 0 ? styles.iconButtonDisabled : ''
+        icon.disabled ? styles.iconButtonDisabled : ''
       }`}
       aria-label={icon.label}
+      aria-disabled={icon.disabled || undefined}
       style={{ borderColor: icon.borderColor }}
       onMouseEnter={(event) =>
         onHoverDetail?.(
@@ -227,15 +229,6 @@ function StatusIcon({
         className={styles.icon}
         style={iconMaskStyle(icon.icon, icon.tint)}
       />
-      {icon.cooldownRatio && icon.cooldownRatio > 0 ? (
-        <span
-          className={styles.cooldownOverlay}
-          style={{
-            ['--cooldown-scale' as string]: `${icon.cooldownRatio}`,
-            ['--cooldown-duration' as string]: `${Math.max(icon.remainingMs ?? 0, 1)}ms`,
-          }}
-        />
-      ) : null}
     </button>
   );
 }
@@ -251,8 +244,6 @@ function iconMaskStyle(icon: string, tint: string) {
 
 function toneBorderColor(tone: EntityStatusBar['tone']) {
   switch (tone) {
-    case 'cast':
-      return 'rgba(250, 204, 21, 0.9)';
     case 'hp':
       return 'rgba(248, 113, 113, 0.9)';
     case 'mana':

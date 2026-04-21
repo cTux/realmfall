@@ -3,12 +3,7 @@ import react from '@vitejs/plugin-react';
 import minipic from 'vite-plugin-minipic';
 import { VitePWA } from 'vite-plugin-pwa';
 import detectDuplicatedDeps from 'unplugin-detect-duplicated-deps/vite';
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  writeFileSync,
-} from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { X509Certificate } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -113,6 +108,19 @@ function getVendorChunk(id: string) {
   }
 
   return 'vendor';
+}
+
+function getAppChunk(id: string) {
+  const normalizedId = id.replace(/\\/g, '/');
+
+  if (
+    normalizedId.includes('/src/game/state.ts') ||
+    normalizedId.includes('/src/ui/rarity.ts')
+  ) {
+    return 'state';
+  }
+
+  return undefined;
 }
 
 function vitestCachePlugin(): Plugin {
@@ -231,7 +239,7 @@ export default defineConfig({
         entryFileNames: 'assets/js/[name]-[hash].js',
         chunkFileNames: 'assets/js/[name]-[hash].js',
         manualChunks(id: string) {
-          return getVendorChunk(id);
+          return getVendorChunk(id) ?? getAppChunk(id);
         },
         assetFileNames: (assetInfo: { names: string[]; name?: string }) => {
           const name = assetInfo.names[0] ?? assetInfo.name ?? '';

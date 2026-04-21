@@ -62,6 +62,7 @@ interface UseAppControllersOptions {
   gameRef: MutableRefObject<GameState>;
   initialAudioSettings: AudioSettings;
   initialGraphicsSettings: GraphicsSettings;
+  paused: boolean;
   setGame: Dispatch<SetStateAction<GameState>>;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
   worldTimeMsRef: MutableRefObject<number>;
@@ -79,6 +80,7 @@ export function useAppControllers({
   gameRef,
   initialAudioSettings,
   initialGraphicsSettings,
+  paused,
   setGame,
   tooltipPositionRef,
   worldTimeMsRef,
@@ -118,6 +120,16 @@ export function useAppControllers({
   );
   const [recipeMaterialFilterItemKey, setRecipeMaterialFilterItemKey] =
     useState<string | null>(null);
+  const applyGameTransition = useCallback(
+    (transition: (state: GameState) => GameState) => {
+      if (paused) {
+        return;
+      }
+
+      applyTimedGameTransition(setGame, worldTimeMsRef, transition);
+    },
+    [paused, setGame, worldTimeMsRef],
+  );
 
   useEffect(() => {
     setActionBarSlots((current) => reconcileActionBarSlots(inventory, current));
@@ -288,58 +300,50 @@ export function useAppControllers({
 
   const handleUnequip = useCallback(
     (slot: Parameters<typeof unequipItem>[1]) => {
-      applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
-        unequipItem(current, slot),
-      );
+      applyGameTransition((current) => unequipItem(current, slot));
     },
-    [setGame, worldTimeMsRef],
+    [applyGameTransition],
   );
 
   const handleSort = useCallback(() => {
-    applyTimedGameTransition(setGame, worldTimeMsRef, sortInventory);
-  }, [setGame, worldTimeMsRef]);
+    applyGameTransition(sortInventory);
+  }, [applyGameTransition]);
 
   const handleProspect = useCallback(() => {
-    applyTimedGameTransition(setGame, worldTimeMsRef, prospectInventory);
-  }, [setGame, worldTimeMsRef]);
+    applyGameTransition(prospectInventory);
+  }, [applyGameTransition]);
 
   const handleSellAll = useCallback(() => {
-    applyTimedGameTransition(setGame, worldTimeMsRef, sellAllItems);
-  }, [setGame, worldTimeMsRef]);
+    applyGameTransition(sellAllItems);
+  }, [applyGameTransition]);
 
   const handleProspectItem = useCallback(
     (itemId: string) => {
-      applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
-        prospectInventoryItem(current, itemId),
-      );
+      applyGameTransition((current) => prospectInventoryItem(current, itemId));
     },
-    [setGame, worldTimeMsRef],
+    [applyGameTransition],
   );
 
   const handleSellItem = useCallback(
     (itemId: string) => {
-      applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
-        sellInventoryItem(current, itemId),
-      );
+      applyGameTransition((current) => sellInventoryItem(current, itemId));
     },
-    [setGame, worldTimeMsRef],
+    [applyGameTransition],
   );
 
   const handleInteract = useCallback(() => {
-    applyTimedGameTransition(setGame, worldTimeMsRef, interactWithStructure);
-  }, [setGame, worldTimeMsRef]);
+    applyGameTransition(interactWithStructure);
+  }, [applyGameTransition]);
 
   const handleClaimHex = useCallback(() => {
-    applyTimedGameTransition(setGame, worldTimeMsRef, claimCurrentHex);
-  }, [setGame, worldTimeMsRef]);
+    applyGameTransition(claimCurrentHex);
+  }, [applyGameTransition]);
 
   const handleBuyTownItem = useCallback(
     (itemId: string) => {
-      applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
-        buyTownItem(current, itemId),
-      );
+      applyGameTransition((current) => buyTownItem(current, itemId));
     },
-    [setGame, worldTimeMsRef],
+    [applyGameTransition],
   );
 
   const handleEquip = useCallback(
@@ -352,25 +356,19 @@ export function useAppControllers({
         gameRef.current.player.learnedRecipeIds,
       );
       if (action === 'use') {
-        applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
-          applyItemUse(current, itemId),
-        );
+        applyGameTransition((current) => applyItemUse(current, itemId));
         return;
       }
-      applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
-        equipItem(current, itemId),
-      );
+      applyGameTransition((current) => equipItem(current, itemId));
     },
-    [gameRef, setGame, worldTimeMsRef],
+    [applyGameTransition, gameRef],
   );
 
   const handleUseItem = useCallback(
     (itemId: string) => {
-      applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
-        applyItemUse(current, itemId),
-      );
+      applyGameTransition((current) => applyItemUse(current, itemId));
     },
-    [setGame, worldTimeMsRef],
+    [applyGameTransition],
   );
 
   const handleAssignActionBarSlot = useCallback(
@@ -403,38 +401,30 @@ export function useAppControllers({
       );
       if (!item) return;
 
-      applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
-        applyItemUse(current, item.id),
-      );
+      applyGameTransition((current) => applyItemUse(current, item.id));
     },
-    [actionBarSlots, gameRef, setGame, worldTimeMsRef],
+    [actionBarSlots, applyGameTransition, gameRef],
   );
 
   const handleCraftRecipe = useCallback(
     (recipeId: string, count?: number | 'max') => {
-      applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
-        craftRecipe(current, recipeId, count),
-      );
+      applyGameTransition((current) => craftRecipe(current, recipeId, count));
     },
-    [setGame, worldTimeMsRef],
+    [applyGameTransition],
   );
 
   const handleDropItem = useCallback(
     (itemId: string) => {
-      applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
-        dropInventoryItem(current, itemId),
-      );
+      applyGameTransition((current) => dropInventoryItem(current, itemId));
     },
-    [setGame, worldTimeMsRef],
+    [applyGameTransition],
   );
 
   const handleDropEquippedItem = useCallback(
     (slot: Parameters<typeof unequipItem>[1]) => {
-      applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
-        dropEquippedItem(current, slot),
-      );
+      applyGameTransition((current) => dropEquippedItem(current, slot));
     },
-    [setGame, worldTimeMsRef],
+    [applyGameTransition],
   );
 
   const handleContextItem = useCallback(
@@ -479,24 +469,22 @@ export function useAppControllers({
 
   const handleTakeLootItem = useCallback(
     (itemId: string) => {
-      applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
-        takeTileItem(current, itemId),
-      );
+      applyGameTransition((current) => takeTileItem(current, itemId));
     },
-    [setGame, worldTimeMsRef],
+    [applyGameTransition],
   );
 
   const handleTakeAllLoot = useCallback(() => {
-    applyTimedGameTransition(setGame, worldTimeMsRef, takeAllTileItems);
-  }, [setGame, worldTimeMsRef]);
+    applyGameTransition(takeAllTileItems);
+  }, [applyGameTransition]);
 
   const handleSetItemLocked = useCallback(
     (itemId: string, locked: boolean) => {
-      applyTimedGameTransition(setGame, worldTimeMsRef, (current) =>
+      applyGameTransition((current) =>
         setInventoryItemLocked(current, itemId, locked),
       );
     },
-    [setGame, worldTimeMsRef],
+    [applyGameTransition],
   );
 
   const handleOpenRecipeBookWithMaterialFilter = useCallback(
@@ -512,8 +500,8 @@ export function useAppControllers({
   }, []);
 
   const handleStartCombat = useCallback(() => {
-    applyTimedGameTransition(setGame, worldTimeMsRef, startCombat);
-  }, [setGame, worldTimeMsRef]);
+    applyGameTransition(startCombat);
+  }, [applyGameTransition]);
 
   const toggleFilterMenu = useCallback(() => {
     setShowFilterMenu((current) => !current);

@@ -18,19 +18,26 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - Attacking ability tooltips surface their current base damage for the hovered combatant, while non-damaging support abilities omit that damage row.
 - Ability tooltips now show icon-backed buff or debuff rows for any status effects they grant or inflict.
 - Damaging debuff tooltips surface their live damage amount from the active status instance, including stack-aware poison and burning damage.
-- Hero and combat ability tiles now render the live ability icon asset, show a vertical cooldown fill over the icon, and visually desaturate and fade while the ability is unavailable.
-- Combat entity cards now show a yellow cast bar beneath the resource bars whenever that entity is actively casting, with the fill advancing through the cast duration and the active ability name shown on the bar.
-- Combat entity cards snap their cooldown and cast-bar view models to a short visual cadence instead of rebuilding every card on every world-clock tick.
+- Combat ability tiles render the live ability icon asset and visually desaturate and fade while the ability is unavailable, without showing a ticking cooldown overlay.
+- Combat entity cards show HP and mana bars only; active casts do not render a separate cast bar.
+- Combat entity cards snap their ability-availability view models to a short visual cadence instead of rebuilding every card on every world-clock tick.
 - Action bar consumable bindings clear themselves once the assigned stack no longer exists in inventory, so depleted consumables do not linger as unavailable stale slots.
-- Action bar consumables now show the same vertical cooldown overlay style used for abilities, and a shared consumable cooldown overlays every populated slot while any consumable is recharging.
+- Action bar consumable slots do not render a cooldown overlay while the shared consumable recharge is active.
+- Pressing `Space` toggles a paused state for gameplay mechanics and shows a centered full-stage overlay message until the game is resumed, except when keyboard focus is inside an editable field or another focusable UI control that should keep its native `Space` behavior.
 - Pressing `Esc` closes every currently open window.
 - World camp markers stay readable above their night-time glow effects instead of sinking beneath the bloom layer.
+- World-map hostile enemy markers tint by runtime enemy rarity, and mixed enemy parties use the highest rarity color on that tile.
+- World-map hostile enemy markers show a bottom-right count badge when a visible enemy party shares the hex, surfacing the party size for stacks of `2` or `3`.
 - Logs provide system, movement, combat, loot, and other gameplay feedback.
 - Combat log entries render with white baseline copy, color damage red and healing green, tint enemy names by rarity, and surface hoverable inline source chips with icons and combat tooltips for logged combat sources.
+- The newest log row renders immediately and the log list stays pinned to the bottom when new entries arrive, so the active message does not linger on a partial fragment.
 - Filtered log viewing is part of the current gameplay readability loop.
 - Large recipe lists reveal additional rows in explicit batches instead of mounting the whole matching catalog at once.
 - Current and maximum value bars surface their meaning through the shared tooltip system.
-- The character info window currently focuses on shared combat-style resource bars and no longer lists the full derived combat stat sheet inline.
+- Hovering a non-player combat entity's HP bar now opens a stat sheet tooltip with that entity's current combat stats.
+- The character info window now surfaces primary and secondary stat sections beneath the shared combat-style resource bars.
+- The character info window now uses the shared resizable shell and scrolls its content inside the window body when the stat list outgrows the current size.
+- Overcapped secondary bonuses render their effective total plus the preserved raw total so capped values remain readable in the character info window.
 - Log entries show a compact `HH:MM` timestamp in the visible list, while hover reveals the full calendar timestamp using the shared world-calendar formatter.
 
 ## Main Implementation Areas

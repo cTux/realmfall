@@ -5,6 +5,7 @@ import type {
   SkillName,
   StatusEffectId,
 } from '../../../game/state';
+import type { SecondaryStatKey } from '../../../game/types';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 
 export interface HeroWindowStats {
@@ -34,7 +35,13 @@ export interface HeroWindowStats {
   chillingChance?: number;
   powerBuffChance?: number;
   frenzyBuffChance?: number;
-  statusEffects: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[];
+  secondaryStatTotals?: Partial<
+    Record<SecondaryStatKey, { effective: number; raw: number }>
+  >;
+  statusEffects: Pick<
+    PlayerStatusEffect,
+    'id' | 'value' | 'tickIntervalMs' | 'stacks'
+  >[];
   buffs: StatusEffectId[];
   debuffs: StatusEffectId[];
   abilityIds: AbilityId[];

@@ -3,7 +3,6 @@ import { createRoot, type Root } from 'react-dom/client';
 import { vi } from 'vitest';
 import { GameTag } from '../../../game/content/tags';
 import type { Item } from '../../../game/state';
-import { setWorldClockTime } from '../../../app/App/worldClockStore';
 import { ActionBar } from './ActionBar';
 
 describe('ActionBar', () => {
@@ -20,7 +19,6 @@ describe('ActionBar', () => {
     host = document.createElement('div');
     document.body.appendChild(host);
     root = createRoot(host);
-    setWorldClockTime(0);
   });
 
   afterEach(async () => {
@@ -28,11 +26,10 @@ describe('ActionBar', () => {
       root.unmount();
     });
     host.remove();
-    setWorldClockTime(0);
     vi.restoreAllMocks();
   });
 
-  it('updates cooldown presentation from the shared world clock store', async () => {
+  it('does not render cooldown overlays for populated slots', async () => {
     const trailRation: Item = {
       id: 'trail-ration-1',
       itemKey: 'trail-ration',
@@ -64,7 +61,6 @@ describe('ActionBar', () => {
             null,
             null,
           ]}
-          consumableCooldownEndsAt={2_000}
           onAssignSlot={vi.fn()}
           onClearSlot={vi.fn()}
           onHoverItem={vi.fn()}
@@ -73,28 +69,12 @@ describe('ActionBar', () => {
       );
     });
 
-    const getCooldownOverlay = () =>
-      host.querySelector(
-        '[aria-label="Action bar slot 1: Trail Ration"] [style*="--cooldown-scale"]',
-      ) as HTMLSpanElement | null;
+    const slotButton = host.querySelector(
+      '[aria-label="Action bar slot 1: Trail Ration"]',
+    ) as HTMLButtonElement | null;
 
-    expect(getCooldownOverlay()).not.toBeNull();
-    expect(
-      getCooldownOverlay()?.style.getPropertyValue('--cooldown-scale'),
-    ).toBe('1');
-
-    await act(async () => {
-      setWorldClockTime(1_000);
-    });
-
-    expect(
-      getCooldownOverlay()?.style.getPropertyValue('--cooldown-scale'),
-    ).toBe('0.5');
-
-    await act(async () => {
-      setWorldClockTime(2_500);
-    });
-
-    expect(getCooldownOverlay()).toBeNull();
+    expect(slotButton).not.toBeNull();
+    expect(slotButton?.className).not.toContain('cooldownActive');
+    expect(slotButton?.querySelector('[class*="cooldownOverlay"]')).toBeNull();
   });
 });

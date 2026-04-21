@@ -4,6 +4,7 @@ import { WindowLoadingState } from '../WindowLoadingState';
 import { createLazyWindowComponent } from '../lazyWindowComponent';
 import { WindowShell } from '../WindowShell';
 import type { HeroWindowProps } from './types';
+import styles from './styles.module.scss';
 
 const HeroWindowContent = createLazyWindowComponent<
   Parameters<(typeof import('./HeroWindowContent'))['HeroWindowContent']>[0]
@@ -38,8 +39,11 @@ export const HeroWindow = memo(function HeroWindow({
       }
       position={position}
       onMove={onMove}
+      className={styles.window}
+      bodyClassName={styles.windowBody}
       visible={visible}
       onClose={onClose}
+      resizeBounds={{ minWidth: 320, minHeight: 260 }}
       onHoverDetail={onHoverDetail}
       onLeaveDetail={onLeaveDetail}
     >

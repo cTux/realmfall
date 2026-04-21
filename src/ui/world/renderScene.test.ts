@@ -205,6 +205,7 @@ describe('renderScene', () => {
       id: bossId,
       name: 'Gluttony',
       coord: center,
+      rarity: 'legendary',
       tier: 10,
       hp: 100,
       maxHp: 100,
@@ -291,6 +292,7 @@ describe('renderScene', () => {
       id: 'enemy-1,0-0',
       name: 'Raider',
       coord: { q: 1, r: 0 },
+      rarity: 'common',
       tier: 2,
       hp: 5,
       maxHp: 5,
@@ -303,6 +305,7 @@ describe('renderScene', () => {
       id: 'enemy-1,0-1',
       name: 'Wolf',
       coord: { q: 1, r: 0 },
+      rarity: 'rare',
       tier: 3,
       hp: 7,
       maxHp: 7,
@@ -340,12 +343,12 @@ describe('renderScene', () => {
 
     const world = worldMap.children[0] as MockContainer;
     const markerLayer = world.children[5] as MockContainer;
-    const redEnemyMarker = collectDescendants(markerLayer).find(
+    const rareEnemyMarker = collectDescendants(markerLayer).find(
       (child) =>
         child instanceof MockSprite &&
         child.icon !== playerIcon &&
         child.icon !== tearTracksIcon &&
-        child.tint === 0xef4444,
+        child.tint === 0x60a5fa,
     );
     const whiteStructureMarker = collectDescendants(markerLayer).find(
       (child) =>
@@ -362,9 +365,188 @@ describe('renderScene', () => {
         child.tint === 0xf59e0b,
     );
 
-    expect(redEnemyMarker).toBeDefined();
+    expect(rareEnemyMarker).toBeDefined();
     expect(whiteStructureMarker).toBeDefined();
     expect(copperOreMarker).toBeDefined();
+  });
+
+  it('updates a cached enemy marker tint when only visible enemy rarity changes', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-enemy-rarity-tint');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'forest',
+      items: [],
+      enemyIds: ['enemy-1,0-0', 'enemy-1,0-1'],
+    };
+    game.enemies['enemy-1,0-0'] = {
+      id: 'enemy-1,0-0',
+      name: 'Raider',
+      coord: { q: 1, r: 0 },
+      rarity: 'common',
+      tier: 2,
+      hp: 5,
+      maxHp: 5,
+      attack: 3,
+      defense: 1,
+      xp: 5,
+      elite: false,
+    };
+    game.enemies['enemy-1,0-1'] = {
+      id: 'enemy-1,0-1',
+      name: 'Wolf',
+      coord: { q: 1, r: 0 },
+      rarity: 'common',
+      tier: 3,
+      hp: 7,
+      maxHp: 7,
+      attack: 4,
+      defense: 2,
+      xp: 8,
+      elite: true,
+    };
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+    const visibleTiles = getVisibleTiles(game);
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    const markerLayer = (
+      (app.stage.children[1] as MockContainer).children[0] as MockContainer
+    ).children[5] as MockContainer;
+    const initialMarkers = collectDescendants(markerLayer).filter(
+      (child): child is MockSprite =>
+        child instanceof MockSprite &&
+        child.icon !== playerIcon &&
+        child.icon !== tearTracksIcon &&
+        child.alpha === 1 &&
+        child.visible,
+    );
+
+    expect(initialMarkers.some((child) => child.tint === 0xf8fafc)).toBe(true);
+
+    renderScene(
+      app as never,
+      {
+        ...game,
+        enemies: {
+          ...game.enemies,
+          'enemy-1,0-1': {
+            ...game.enemies['enemy-1,0-1']!,
+            rarity: 'epic',
+          },
+        },
+      },
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    const updatedMarkers = collectDescendants(markerLayer).filter(
+      (child): child is MockSprite =>
+        child instanceof MockSprite &&
+        child.icon !== playerIcon &&
+        child.icon !== tearTracksIcon &&
+        child.alpha === 1 &&
+        child.visible,
+    );
+
+    expect(updatedMarkers.some((child) => child.tint === 0xc084fc)).toBe(true);
+  });
+
+  it('renders a bottom-right count badge for multi-enemy hostile hexes', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-enemy-count-badge');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'forest',
+      items: [],
+      enemyIds: ['enemy-1,0-0', 'enemy-1,0-1', 'enemy-1,0-2'],
+    };
+    game.enemies['enemy-1,0-0'] = {
+      id: 'enemy-1,0-0',
+      name: 'Raider',
+      coord: { q: 1, r: 0 },
+      rarity: 'common',
+      tier: 2,
+      hp: 5,
+      maxHp: 5,
+      attack: 3,
+      defense: 1,
+      xp: 5,
+      elite: false,
+    };
+    game.enemies['enemy-1,0-1'] = {
+      id: 'enemy-1,0-1',
+      name: 'Wolf',
+      coord: { q: 1, r: 0 },
+      rarity: 'rare',
+      tier: 3,
+      hp: 7,
+      maxHp: 7,
+      attack: 4,
+      defense: 2,
+      xp: 8,
+      elite: true,
+    };
+    game.enemies['enemy-1,0-2'] = {
+      id: 'enemy-1,0-2',
+      name: 'Shade',
+      coord: { q: 1, r: 0 },
+      rarity: 'epic',
+      tier: 4,
+      hp: 9,
+      maxHp: 9,
+      attack: 6,
+      defense: 3,
+      xp: 11,
+      elite: true,
+    };
+
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    const world = (
+      (app.stage.children[1] as MockContainer).children[0] as MockContainer
+    ).children;
+    const badgeLayer = world[6] as MockContainer;
+    const badgeTexts = badgeLayer.children.filter(
+      (child): child is MockText => child instanceof MockText,
+    );
+    const badgeBackgrounds = badgeLayer.children.filter(
+      (child): child is MockGraphics => child instanceof MockGraphics,
+    );
+
+    expect(badgeTexts.some((child) => child.text === '3')).toBe(true);
+    expect(
+      badgeBackgrounds.some((child) =>
+        child.drawEllipse.mock.calls.some(
+          ([x, y, radiusX, radiusY]) =>
+            x > 0 && y > 0 && radiusX === 10 && radiusY === 10,
+        ),
+      ),
+    ).toBe(true);
   });
 
   it('does not draw the selected outline on the player tile', async () => {
@@ -1034,15 +1216,13 @@ describe('renderScene', () => {
     );
 
     const scene = getSceneCache(app as never);
-    const initialSkyClearCalls = (
-      scene.skyFill as unknown as MockGraphics
-    ).clear.mock.calls.length;
+    const initialSkyClearCalls = (scene.skyFill as unknown as MockGraphics)
+      .clear.mock.calls.length;
     const initialOverlayClearCalls = (
       scene.overlayFill as unknown as MockGraphics
     ).clear.mock.calls.length;
-    const initialCloudCount = (
-      app.stage.children[5] as MockContainer
-    ).children.length;
+    const initialCloudCount = (app.stage.children[5] as MockContainer).children
+      .length;
 
     renderScene(
       app as never,
@@ -1489,7 +1669,7 @@ describe('renderScene', () => {
           (child.width ?? 0) < 130 &&
           (child.height ?? 0) >= 75 &&
           (child.height ?? 0) < 130 &&
-          child.tint === 0xf59e0b,
+          child.tint === 0xfb923c,
       ),
     ).toBe(true);
   });
