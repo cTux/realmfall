@@ -12,7 +12,8 @@ Use this file for contributor process only. Canonical project guidance lives in
 ## Commit Workflow
 
 - Use Conventional Commits.
-- Before each commit, bump the patch version in `package.json`. The pre-commit hook enforces this against `HEAD`.
+- Use `pnpm git:commit -- -m "<message>"` for routine commits. It bumps the patch version in `package.json` when needed, stages that file, and then runs `git commit`.
+- If you commit without the helper, bump the patch version in `package.json` yourself first. The pre-commit hook enforces the version progression against `HEAD`.
 - A staged `package.json` diff that changes only the `version` field stays on the scoped pre-commit test path instead of forcing the full Vitest suite.
 - Generate commit messages from the actual change set.
 - Keep commit messages focused on the behavioral change instead of enumerating every touched doc file.

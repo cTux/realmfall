@@ -14,12 +14,15 @@ This spec covers the shipped version metadata flow from `package.json` into the 
 - The bottom-right version widget shows a yellow status while the remote version has not been resolved yet, green when the remote and local versions match, and red when the remote version differs.
 - When the remote version differs, the widget exposes a refresh action that reloads the page so the player can pick up the new build.
 - The pre-commit hook now enforces that `package.json` moves forward by patch version before a commit can proceed.
+- `pnpm git:commit` auto-bumps the patch version in `package.json` when the working tree has not already moved past `HEAD`, stages `package.json`, and then delegates to `git commit` so ordinary commits do not require a manual version edit first.
 
 ## Main Implementation Areas
 
 - `package.json`
 - `.husky/pre-commit`
 - `scripts/check-package-version.mjs`
+- `scripts/git-commit.mjs`
+- `scripts/git-commit.helpers.mjs`
 - `vite.config.ts`
 - `src/version.ts`
 - `src/main.tsx`

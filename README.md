@@ -80,6 +80,7 @@ pnpm dev
 - `pnpm build`
 - `pnpm build:budget`
 - `pnpm build:storybook`
+- `pnpm git:commit -- -m "<message>"` (bumps the patch version in `package.json` if needed, stages that file, then runs `git commit` with the provided arguments)
 - `pnpm git:prune-gone-branches` (fetches with prune, then force-deletes local branches whose tracked remote ref no longer exists; pass `-- --dry-run` to preview and `-- --safe` to keep Git's merged-branch safety checks)
 - `pnpm git:rebase-master-and-push` (rebases the current committed branch onto `origin/master`, auto-resolves `package.json` version conflicts by replaying this branch's patch-version increments, then force-pushes with lease to `origin/<current-branch>`; pass `-- --dry-run` to preview the workflow)
 - `pnpm serve` (serves `dist` over local HTTPS with a generated self-signed certificate)
@@ -119,7 +120,7 @@ recreates it.
 
 `pnpm lint` now runs Oxlint as the only JavaScript and TypeScript lint path in the repository. `pnpm lint:fix` and `pnpm lint:oxlint` use the same Oxlint target set directly.
 
-The pre-commit hook runs `pnpm check:version`, `pnpm typecheck`, and `pnpm quality:staged`, then refreshes the Git index for auto-fixed tracked files. `pnpm quality:staged` runs `oxlint --fix -c .oxlintrc.json` only on staged JavaScript and TypeScript files, runs Stylelint only on staged `src` CSS and SCSS files, and runs `vitest related` for staged source, runtime JSON content, and test files. When shared test inputs such as `pnpm-lock.yaml`, `vite.config.ts`, TypeScript config, or `src/test/setup.ts` are staged, it falls back to the full `pnpm test` suite. A `package.json` change that only bumps the `version` field stays on the scoped test path so routine commit metadata updates do not trigger the full suite. Before creating a commit, bump the patch version in `package.json`; `pnpm check:version` requires that patch version to advance relative to `HEAD`.
+The pre-commit hook runs `pnpm check:version`, `pnpm typecheck`, and `pnpm quality:staged`, then refreshes the Git index for auto-fixed tracked files. `pnpm quality:staged` runs `oxlint --fix -c .oxlintrc.json` only on staged JavaScript and TypeScript files, runs Stylelint only on staged `src` CSS and SCSS files, and runs `vitest related` for staged source, runtime JSON content, and test files. When shared test inputs such as `pnpm-lock.yaml`, `vite.config.ts`, TypeScript config, or `src/test/setup.ts` are staged, it falls back to the full `pnpm test` suite. A `package.json` change that only bumps the `version` field stays on the scoped test path so routine commit metadata updates do not trigger the full suite. Use `pnpm git:commit -- -m "<message>"` for ordinary commits; it auto-bumps the patch version when `HEAD` has not been surpassed yet, stages `package.json`, and then hands off to `git commit`. `pnpm check:version` keeps validating that the committed patch version advances relative to `HEAD`.
 
 The repository already has strong baseline tooling. Changes should preserve strict typing, lint cleanliness, deterministic tests where practical, and successful production builds.
 

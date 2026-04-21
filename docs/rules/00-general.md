@@ -15,7 +15,7 @@
 - When a requested JavaScript or TypeScript syntax preference also depends on formatting behavior, update the relevant Prettier configuration when that style can be enforced there as well.
 - When a requested CSS or SCSS syntax preference can be enforced mechanically, prefer enabling or adjusting the corresponding Stylelint rule instead of relying only on contributor discipline.
 - When a requested commit message format changes, update the Commitlint configuration in the same task when the repository can enforce that convention automatically.
-- Before creating any commit in Realmfall, bump the patch version in `package.json`. Keep the enforced version segment and contributor guidance aligned with the pre-commit hook, which checks the new patch version against `HEAD`.
+- Before creating any commit in Realmfall, ensure the patch version in `package.json` advances. Prefer the repository commit helper so the version bump happens automatically before `git commit`, and keep the enforced version segment and contributor guidance aligned with the pre-commit hook, which checks the new patch version against `HEAD`.
 - Preserve existing behavior unless the task explicitly changes behavior.
 - Favor existing project patterns over introducing new abstractions, state layers, or architectural styles without a clear need.
 - Keep documentation grounded in the current shipped behavior and known constraints, not aspirational plans.
