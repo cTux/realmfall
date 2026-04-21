@@ -2309,7 +2309,7 @@ describe('game state', () => {
     );
   });
 
-  it('uses health and mana potions for 10 percent of the matching max stat', () => {
+  it('uses health and mana potions for 35 percent of the matching max stat', () => {
     const game = createGame(3, 'use-potions-seed');
     const hpPotion = buildItemFromConfig('health-potion', {
       id: 'health-potion-1',
@@ -2319,10 +2319,10 @@ describe('game state', () => {
     });
     game.player.inventory.push(hpPotion, mpPotion);
     game.player.hp = 25;
-    game.player.mana = 8;
+    game.player.mana = 3;
 
     const healed = useItem(game, 'health-potion-1');
-    expect(healed.player.hp).toBe(40);
+    expect(healed.player.hp).toBe(78);
     expect(
       healed.player.inventory.find((item) => item.id === 'health-potion-1'),
     ).toBeUndefined();
@@ -2334,7 +2334,7 @@ describe('game state', () => {
       },
       'mana-potion-1',
     );
-    expect(restored.player.mana).toBe(10);
+    expect(restored.player.mana).toBe(8);
     expect(
       restored.player.inventory.find((item) => item.id === 'mana-potion-1'),
     ).toBeUndefined();

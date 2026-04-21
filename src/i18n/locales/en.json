@@ -625,6 +625,7 @@
   "ui.secondaryStat.suppressDebuffChance": "Suppress Debuff Chance",
   "ui.tooltip.attack": "Attack",
   "ui.tooltip.comparingToEquipped": "Comparing to equipped",
+  "ui.tooltip.consumable.effect.foodRestorePercent": "recover {amount}% HP and restore {amount}% MP",
   "ui.tooltip.consumable.effect.healingPercent": "recover {amount}% HP",
   "ui.tooltip.tags": "Tags: {tags}",
   "ui.tooltip.consumable.effect.manaPercent": "restore {amount}% MP",

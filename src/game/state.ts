@@ -106,6 +106,10 @@ import {
 } from './itemSecondaryStats';
 import { GAME_TAGS } from './content/tags';
 import {
+  getConsumableRestoreProfile,
+  resolvePercentRestoreAmount,
+} from './consumables';
+import {
   gatheringBonusChance,
   gatheringYieldBonus,
   gainSkillXp,
@@ -3124,22 +3128,19 @@ function formatCooldownSeconds(remainingMs: number) {
 
 function resolveConsumableUseEffects(state: GameState, item: Item) {
   const stats = getPlayerStats(state.player);
+  const restoreProfile = getConsumableRestoreProfile(item);
   const healing = Math.max(
     0,
     Math.min(
       stats.maxHp - state.player.hp,
-      item.itemKey === ItemId.HealthPotion
-        ? Math.max(1, Math.ceil(stats.maxHp * 0.1))
-        : item.healing,
+      resolvePercentRestoreAmount(stats.maxHp, restoreProfile.healingPercent),
     ),
   );
   const mana = Math.max(
     0,
     Math.min(
       stats.maxMana - state.player.mana,
-      item.itemKey === ItemId.ManaPotion
-        ? Math.max(1, Math.ceil(stats.maxMana * 0.1))
-        : 0,
+      resolvePercentRestoreAmount(stats.maxMana, restoreProfile.manaPercent),
     ),
   );
   const hunger = Math.max(0, Math.min(100 - state.player.hunger, item.hunger));

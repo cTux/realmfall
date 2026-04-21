@@ -8,6 +8,7 @@ import { professionRecipeOutputBonus } from '../game/crafting';
 import { isEquippableItem, isRecipePage, sellValue } from '../game/inventory';
 import { getItemCategory, inferItemTags } from '../game/content/items';
 import { EquipmentSlotId } from '../game/content/ids';
+import { getConsumableRestoreProfile } from '../game/consumables';
 import {
   enemyRarityIndex,
   gatheringBonusChance,
@@ -390,7 +391,10 @@ export function statusEffectTooltipLines(
   effectId: StatusEffectId,
   tone: 'buff' | 'debuff',
   extraLines: TooltipLine[] = [],
-  effect?: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>,
+  effect?: Pick<
+    PlayerStatusEffect,
+    'id' | 'value' | 'tickIntervalMs' | 'stacks'
+  >,
 ): TooltipLine[] {
   const descriptionKeyByEffect: Partial<Record<StatusEffectId, string>> = {
     hunger: 'ui.hero.effect.hunger.description',
@@ -424,23 +428,27 @@ export function statusEffectTooltipLines(
 }
 
 function consumableEffectDescription(item: Item) {
+  const restoreProfile = getConsumableRestoreProfile(item);
+
   if (item.itemKey === 'home-scroll') {
     return t('ui.tooltip.consumable.homeScroll');
   }
-  if (item.itemKey === 'health-potion') {
-    return t('ui.tooltip.consumable.oneEffect', {
-      first: t('ui.tooltip.consumable.effect.healingPercent', { amount: 10 }),
-    });
-  }
-  if (item.itemKey === 'mana-potion') {
-    return t('ui.tooltip.consumable.oneEffect', {
-      first: t('ui.tooltip.consumable.effect.manaPercent', { amount: 10 }),
-    });
-  }
 
   const effects = [
-    item.healing > 0
-      ? t('game.message.useItem.healing', { amount: item.healing })
+    restoreProfile.healingPercent > 0 && restoreProfile.manaPercent > 0
+      ? t('ui.tooltip.consumable.effect.foodRestorePercent', {
+          amount: restoreProfile.healingPercent,
+        })
+      : null,
+    restoreProfile.healingPercent > 0 && restoreProfile.manaPercent === 0
+      ? t('ui.tooltip.consumable.effect.healingPercent', {
+          amount: restoreProfile.healingPercent,
+        })
+      : null,
+    restoreProfile.manaPercent > 0 && restoreProfile.healingPercent === 0
+      ? t('ui.tooltip.consumable.effect.manaPercent', {
+          amount: restoreProfile.manaPercent,
+        })
       : null,
     item.hunger > 0
       ? t('game.message.useItem.hunger', { amount: item.hunger })
@@ -546,7 +554,9 @@ function secondaryStatDeltaLines(item: Item, equipped?: Item) {
   const equippedMap = new Map(
     (equipped?.secondaryStats ?? []).map((stat) => [stat.key, stat.value]),
   );
-  const itemMap = new Map((item.secondaryStats ?? []).map((stat) => [stat.key, stat.value]));
+  const itemMap = new Map(
+    (item.secondaryStats ?? []).map((stat) => [stat.key, stat.value]),
+  );
   const keys = [...new Set([...itemMap.keys(), ...equippedMap.keys()])];
 
   return keys.map((key) => ({
@@ -569,7 +579,10 @@ function formatSecondaryStatValue(key: SecondaryStatKey, value: number) {
 
 function secondarySlotLines(item: Item): TooltipLine[] {
   const stats = item.secondaryStats ?? [];
-  const capacity = Math.max(item.secondaryStatCapacity ?? stats.length, stats.length);
+  const capacity = Math.max(
+    item.secondaryStatCapacity ?? stats.length,
+    stats.length,
+  );
   const emptySlots = Math.max(0, capacity - stats.length);
 
   return [
@@ -628,13 +641,19 @@ function abilityStatusEffectLines(
       value: formatStatusEffectLabel(effectId),
       icon: definition?.icon,
       iconTint: definition?.tint,
-      tone: definition?.tone === 'debuff' ? ('negative' as const) : ('item' as const),
+      tone:
+        definition?.tone === 'debuff'
+          ? ('negative' as const)
+          : ('item' as const),
     };
   });
 }
 
 function statusEffectDamageLines(
-  effect?: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>,
+  effect?: Pick<
+    PlayerStatusEffect,
+    'id' | 'value' | 'tickIntervalMs' | 'stacks'
+  >,
 ) {
   if (!effect) return [];
 
@@ -688,4 +707,3 @@ function formatStatusIntervalSeconds(tickIntervalMs = 1_000) {
   const seconds = tickIntervalMs / 1000;
   return Number.isInteger(seconds) ? `${seconds}` : seconds.toFixed(1);
 }
-
