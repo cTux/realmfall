@@ -1,13 +1,15 @@
 import type { ComponentProps } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { createCombatActorState } from '../../../game/combat';
 import { buildItemFromConfig } from '../../../game/content/items';
 import { ItemId } from '../../../game/content/ids';
+import { buildTownStock } from '../../../game/economy';
 import {
   describeStructure,
   structureActionLabel,
   structureDefinition,
 } from '../../../game/world';
-import type { StructureType } from '../../../game/types';
+import type { CombatState, StructureType } from '../../../game/types';
 import { HexInfoWindowContent } from './HexInfoWindowContent';
 import type { HexInfoWindowProps } from './types';
 
@@ -17,12 +19,12 @@ const noopLeaveItem: HexInfoWindowProps['onLeaveItem'] = () => undefined;
 const noopAction = () => undefined;
 
 const meta = {
-  title: 'Windows/Hex Info/Structures',
+  title: 'Windows/Hex Content/States',
   component: HexInfoWindowContent,
   decorators: [
     (Story) => (
       <div style={{ padding: '24px', minHeight: '100vh' }}>
-        <div style={{ width: 'min(420px, calc(100vw - 48px))' }}>
+        <div style={{ width: 'min(720px, calc(100vw - 48px))' }}>
           <Story />
         </div>
       </div>
@@ -34,6 +36,8 @@ const meta = {
     onProspect: noopAction,
     onSellAll: noopAction,
     onBuyItem: noopBuyItem,
+    onTakeAll: noopAction,
+    onTakeItem: noopBuyItem,
     onHoverItem: noopHoverItem,
     onLeaveItem: noopLeaveItem,
   },
@@ -45,6 +49,8 @@ const meta = {
         'onProspect',
         'onSellAll',
         'onBuyItem',
+        'onTakeAll',
+        'onTakeItem',
         'onHoverItem',
         'onLeaveItem',
       ],
@@ -79,29 +85,77 @@ export const Town: Story = {
   args: buildStructureArgs('town', {
     terrain: 'Plains',
     canSellInventoryEquipment: true,
-    gold: 48,
-    townStock: [
-      {
-        item: buildItemFromConfig(ItemId.TownKnife, {
-          id: 'iron-sword',
-          tier: 2,
-        }),
-        price: 18,
-      },
-      {
-        item: buildItemFromConfig(ItemId.TrailRation, { id: 'travel-ration' }),
-        price: 6,
-      },
-      {
-        item: buildItemFromConfig(ItemId.CopperLoop, {
-          id: 'amber-charm',
-          tier: 2,
-          name: 'Amber Charm',
-        }),
-        price: 28,
-      },
+    gold: 240,
+    townStock: buildTownStock('storybook-town', { q: 0, r: 0 }),
+    loot: [
+      buildItemFromConfig(ItemId.Gold, { id: 'ground-gold', quantity: 14 }),
+      buildItemFromConfig(ItemId.TownKnife, { id: 'ground-knife', tier: 2 }),
     ],
   }),
+};
+
+export const CombatEncounter: Story = {
+  args: {
+    ...buildStructureArgs('dungeon', {
+      terrain: 'Rift',
+      enemyCount: 2,
+      canTerritoryAction: false,
+      territoryActionLabel: 'Claim hex',
+    }),
+    combat: buildCombatState(),
+    combatPlayerParty: [
+      {
+        id: 'player',
+        name: 'Player',
+        level: 7,
+        hp: 38,
+        maxHp: 42,
+        mana: 15,
+        maxMana: 18,
+        attack: 12,
+        actor: createCombatActorState(12_000, ['kick']),
+        buffs: [],
+        debuffs: [],
+      },
+    ],
+    combatEnemies: [
+      {
+        id: 'enemy-1',
+        name: 'Raider',
+        coord: { q: 1, r: 0 },
+        rarity: 'rare',
+        tier: 4,
+        hp: 24,
+        maxHp: 30,
+        attack: 10,
+        defense: 6,
+        xp: 24,
+        elite: true,
+        abilityIds: ['kick'],
+      },
+      {
+        id: 'enemy-2',
+        name: 'Wolf',
+        coord: { q: 1, r: 0 },
+        rarity: 'common',
+        tier: 3,
+        hp: 18,
+        maxHp: 22,
+        attack: 8,
+        defense: 4,
+        xp: 18,
+        elite: false,
+        abilityIds: ['kick'],
+      },
+    ],
+    loot: [
+      buildItemFromConfig(ItemId.Gold, { id: 'combat-gold', quantity: 22 }),
+      buildItemFromConfig(ItemId.HideBuckler, {
+        id: 'combat-buckler',
+        tier: 3,
+      }),
+    ],
+  },
 };
 
 export const Dungeon: Story = {
@@ -180,6 +234,7 @@ function buildStructureArgs(
     territoryNpc: overrides.territoryNpc ?? null,
     townStock: overrides.townStock ?? [],
     gold: overrides.gold ?? 0,
+    loot: overrides.loot ?? [],
   };
 }
 
@@ -208,6 +263,21 @@ type StoryArgs = Omit<
   | 'onProspect'
   | 'onSellAll'
   | 'onBuyItem'
+  | 'onTakeAll'
+  | 'onTakeItem'
   | 'onHoverItem'
   | 'onLeaveItem'
 >;
+
+function buildCombatState(): CombatState {
+  return {
+    coord: { q: 1, r: 0 },
+    enemyIds: ['enemy-1', 'enemy-2'],
+    started: false,
+    player: createCombatActorState(12_000, ['kick']),
+    enemies: {
+      'enemy-1': createCombatActorState(12_000, ['kick']),
+      'enemy-2': createCombatActorState(12_000, ['kick']),
+    },
+  };
+}

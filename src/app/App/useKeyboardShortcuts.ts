@@ -8,11 +8,10 @@ import { WINDOW_HOTKEYS } from './utils/windowHotkeys';
 
 interface UseKeyboardShortcutsOptions {
   combatStartAvailable: boolean;
+  hexContentWindowShown: boolean;
   interactLabel: string | null;
   lootSnapshotLength: number;
-  lootWindowVisible: boolean;
   onStartCombat: () => void;
-  keepLootWindowMounted: boolean;
   onInteract: () => void;
   onTakeAllLoot: () => void;
   onCloseAllWindows: () => void;
@@ -22,16 +21,14 @@ interface UseKeyboardShortcutsOptions {
   onUseActionBarSlot: (slotIndex: number) => void;
   onWindowToggleSound?: (opened: boolean) => void;
   windowShown: WindowVisibilityState;
-  windowShownLoot: boolean;
 }
 
 export function useKeyboardShortcuts({
   combatStartAvailable,
+  hexContentWindowShown,
   interactLabel,
   lootSnapshotLength,
-  lootWindowVisible,
   onStartCombat,
-  keepLootWindowMounted,
   onInteract,
   onTakeAllLoot,
   onCloseAllWindows,
@@ -41,7 +38,6 @@ export function useKeyboardShortcuts({
   onUseActionBarSlot,
   onWindowToggleSound,
   windowShown,
-  windowShownLoot,
 }: UseKeyboardShortcutsOptions) {
   const handleKeyDown = useEffectEvent((event: KeyboardEvent) => {
     if (
@@ -74,13 +70,7 @@ export function useKeyboardShortcuts({
       return;
     }
 
-    if (
-      lowerKey === 'e' &&
-      keepLootWindowMounted &&
-      windowShownLoot &&
-      lootWindowVisible &&
-      lootSnapshotLength > 0
-    ) {
+    if (lowerKey === 'e' && hexContentWindowShown && lootSnapshotLength > 0) {
       event.preventDefault();
       onTakeAllLoot();
       return;

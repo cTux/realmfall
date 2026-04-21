@@ -8,8 +8,8 @@ import {
 } from '../utils/isEditableTarget';
 
 describe('app utils', () => {
-  it('builds dock entries for optional windows only when visible', () => {
-    const baseEntries = getDockEntries(DEFAULT_WINDOW_VISIBILITY, false, false);
+  it('builds dock entries for the shared dock windows', () => {
+    const baseEntries = getDockEntries(DEFAULT_WINDOW_VISIBILITY);
     expect(baseEntries.map((entry) => entry.key)).toEqual([
       'hero',
       'skills',
@@ -20,24 +20,20 @@ describe('app utils', () => {
       'log',
       'settings',
     ]);
+  });
 
-    const expandedEntries = getDockEntries(
-      DEFAULT_WINDOW_VISIBILITY,
-      true,
-      true,
-    );
-    expect(expandedEntries.map((entry) => entry.key)).toEqual([
-      'hero',
-      'skills',
-      'recipes',
-      'hexInfo',
-      'equipment',
-      'inventory',
-      'loot',
-      'log',
-      'combat',
-      'settings',
-    ]);
+  it('marks dock entries that require attention', () => {
+    const entries = getDockEntries(DEFAULT_WINDOW_VISIBILITY, {
+      hexInfo: true,
+    });
+    const hexInfo = entries.find((entry) => entry.key === 'hexInfo');
+
+    expect(hexInfo?.requiresAttention).toBe(true);
+    expect(
+      entries.every((entry) =>
+        entry.key === 'hexInfo' ? true : !entry.requiresAttention,
+      ),
+    ).toBe(true);
   });
 
   it('derives the inventory action from item type', () => {

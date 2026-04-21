@@ -3,6 +3,7 @@ import {
   Suspense,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -75,6 +76,11 @@ export function App() {
   );
   const [game, setGame] = useState<GameState>(initialGameRef.current);
   const [paused, setPaused] = useState(false);
+  const previousCombatRef = useRef<GameState['combat']>(
+    initialGameRef.current.combat,
+  );
+  const previousPlayerCoordRef = useRef(initialGameRef.current.player.coord);
+  const combatAutoOpenReadyRef = useRef(false);
   const [uiAudio, setUiAudio] = useState<UiAudioController>(
     DEFAULT_UI_AUDIO_CONTROLLER,
   );
@@ -234,6 +240,38 @@ export function App() {
     setWorldClockTime(game.worldTimeMs);
   }, [game.worldTimeMs]);
 
+  useLayoutEffect(() => {
+    if (!hydrated) {
+      return;
+    }
+
+    if (!combatAutoOpenReadyRef.current) {
+      combatAutoOpenReadyRef.current = true;
+      previousCombatRef.current = game.combat;
+      previousPlayerCoordRef.current = game.player.coord;
+      return;
+    }
+
+    const hadCombat = Boolean(previousCombatRef.current);
+    const hasCombat = Boolean(game.combat);
+    const playerMoved =
+      previousPlayerCoordRef.current.q !== game.player.coord.q ||
+      previousPlayerCoordRef.current.r !== game.player.coord.r;
+
+    if (hasCombat && !hadCombat && playerMoved && !windowShown.hexInfo) {
+      setWindowVisibility('hexInfo', true);
+    }
+
+    previousCombatRef.current = game.combat;
+    previousPlayerCoordRef.current = game.player.coord;
+  }, [
+    game.combat,
+    game.player.coord,
+    hydrated,
+    setWindowVisibility,
+    windowShown.hexInfo,
+  ]);
+
   useAppLifecycle({
     game,
     gameRef,
@@ -253,11 +291,10 @@ export function App() {
 
   useKeyboardShortcuts({
     combatStartAvailable: Boolean(game.combat && !game.combat.started),
+    hexContentWindowShown: windowShown.hexInfo,
     interactLabel,
-    lootSnapshotLength: lootSnapshot.length,
-    lootWindowVisible,
+    lootSnapshotLength: currentTile.items.length,
     onStartCombat: handleStartCombat,
-    keepLootWindowMounted,
     onInteract: handleInteract,
     onTakeAllLoot: handleTakeAllLoot,
     onCloseAllWindows: closeAllWindows,
@@ -274,7 +311,6 @@ export function App() {
     onCloseAllWindowsSound: uiAudio.swoosh,
     onUseActionBarSlot: handleUseActionBarSlot,
     windowShown,
-    windowShownLoot: windowShown.loot,
   });
 
   const appWindowViews = useAppWindowViews({

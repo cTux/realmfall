@@ -11,18 +11,17 @@ import { useManagedWindowProps } from './hooks/useManagedWindowProps';
 import { getDockEntries } from './utils/getDockEntries';
 
 export function AppWindows(props: AppWindowsProps) {
-  const dockEntries = useMemo(
-    () =>
-      getDockEntries(
-        props.layout.windowShown,
-        props.layout.keepLootWindowMounted,
-        props.layout.keepCombatWindowMounted,
+  const dockAttention = useMemo(
+    () => ({
+      hexInfo: Boolean(
+        props.views.world.combat && !props.views.world.combat.started,
       ),
-    [
-      props.layout.keepCombatWindowMounted,
-      props.layout.keepLootWindowMounted,
-      props.layout.windowShown,
-    ],
+    }),
+    [props.views.world.combat],
+  );
+  const dockEntries = useMemo(
+    () => getDockEntries(props.layout.windowShown, dockAttention),
+    [dockAttention, props.layout.windowShown],
   );
   const { windowMoveHandlers, windowCloseHandlers } = useAppWindowHandlers({
     onMoveWindow: props.actions.windows.onMoveWindow,
@@ -81,7 +80,6 @@ export function AppWindows(props: AppWindowsProps) {
         playerView={props.views.player}
         worldView={props.views.world}
         recipesView={props.views.recipes}
-        lootView={props.views.loot}
         combatView={props.views.combat}
         logsView={props.views.logs}
         settingsView={props.views.settings}

@@ -13,6 +13,7 @@ export interface WindowDockEntry {
   title: WindowLabelDefinition;
   icon: string;
   shown: boolean;
+  requiresAttention?: boolean;
   align?: 'start' | 'end';
 }
 
@@ -79,9 +80,16 @@ function DockButton({
       type="button"
       className={styles.dockButton}
       data-opened={entry.shown}
+      data-attention={entry.requiresAttention}
       data-ui-audio-click="off"
       aria-pressed={entry.shown}
-      aria-label={t('ui.dock.toggleWindow', { label: entry.label })}
+      aria-label={
+        entry.requiresAttention
+          ? `${t('ui.dock.toggleWindow', { label: entry.label })} ${t(
+              'ui.dock.requiresAttention',
+            )}`
+          : t('ui.dock.toggleWindow', { label: entry.label })
+      }
       onClick={(event) => {
         setActiveTooltip(null);
         onToggle(entry.key);
@@ -108,6 +116,9 @@ function DockButton({
         style={iconMaskStyle(entry.icon)}
         aria-hidden="true"
       />
+      {entry.requiresAttention ? (
+        <span className={styles.attentionBadge} aria-hidden="true" />
+      ) : null}
       {activeTooltip === entry.key ? (
         <span className={styles.tooltip} aria-hidden="true">
           <WindowLabel

@@ -2108,7 +2108,7 @@ describe('game state', () => {
       id: 'resource-gold-1',
       name: 'Gold',
       itemKey: 'gold',
-      quantity: 40,
+      quantity: 500,
       tier: 1,
       rarity: 'common',
       power: 0,
@@ -2121,11 +2121,12 @@ describe('game state', () => {
     const stock = getTownStock(game);
     const bought = buyTownItem(game, stock[0].item.id);
 
-    expect(stock.length).toBeGreaterThan(0);
+    expect(stock.length).toBeGreaterThanOrEqual(30);
+    expect(stock.every((entry) => entry.item.slot)).toBe(true);
     expect(
       bought.player.inventory.some((item) => item.name === stock[0].item.name),
     ).toBe(true);
-    expect(getGoldAmount(bought.player.inventory)).toBeLessThan(40);
+    expect(getGoldAmount(bought.player.inventory)).toBeLessThan(500);
   });
 
   it('leaves loot on the tile until the player takes it', () => {

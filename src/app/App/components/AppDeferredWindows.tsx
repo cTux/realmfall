@@ -57,16 +57,6 @@ const InventoryWindow = createLazyWindowComponent<
   })),
 );
 
-const LootWindow = createLazyWindowComponent<
-  Parameters<
-    (typeof import('../../../ui/components/LootWindow'))['LootWindow']
-  >[0]
->(() =>
-  import('../../../ui/components/LootWindow').then((module) => ({
-    default: module.LootWindow,
-  })),
-);
-
 const LogWindow = createLazyWindowComponent<
   Parameters<
     (typeof import('../../../ui/components/LogWindow'))['LogWindow']
@@ -74,16 +64,6 @@ const LogWindow = createLazyWindowComponent<
 >(() =>
   import('../../../ui/components/LogWindow').then((module) => ({
     default: module.LogWindow,
-  })),
-);
-
-const CombatWindow = createLazyWindowComponent<
-  Parameters<
-    (typeof import('../../../ui/components/CombatWindow'))['CombatWindow']
-  >[0]
->(() =>
-  import('../../../ui/components/CombatWindow').then((module) => ({
-    default: module.CombatWindow,
   })),
 );
 
@@ -117,7 +97,6 @@ interface AppDeferredWindowsProps {
   playerView: AppWindowsViewState['player'];
   worldView: AppWindowsViewState['world'];
   recipesView: AppWindowsViewState['recipes'];
-  lootView: AppWindowsViewState['loot'];
   combatView: AppWindowsViewState['combat'];
   logsView: AppWindowsViewState['logs'];
   settingsView: AppWindowsViewState['settings'];
@@ -137,7 +116,6 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
   inventoryActions,
   logsView,
   logActions,
-  lootView,
   mountedWindows,
   managedWindowProps,
   playerView,
@@ -218,7 +196,15 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
             territoryNpc={worldView.currentTile.claim?.npc ?? null}
             townStock={worldView.townStock}
             gold={worldView.gold}
+            equipment={playerView.equipment}
+            loot={worldView.currentTile.items}
+            combat={worldView.combat}
+            combatPlayerParty={combatPlayerParty}
+            combatEnemies={combatView.snapshot?.enemies ?? []}
             onBuyItem={worldActions.onBuyTownItem}
+            onTakeAll={inventoryActions.onTakeAllLoot}
+            onTakeItem={inventoryActions.onTakeLootItem}
+            onStartCombat={worldActions.onStartCombat}
             onHoverItem={tooltipActions.onShowItemTooltip}
             onLeaveItem={tooltipActions.onCloseTooltip}
             {...detailTooltipHandlers}
@@ -254,21 +240,6 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
           />
         </Suspense>
       ) : null}
-      {mountedWindows.loot ? (
-        <Suspense fallback={fallback}>
-          <LootWindow
-            {...managedWindowProps.loot}
-            visible={managedWindowProps.loot.visible && lootView.visible}
-            equipment={playerView.equipment}
-            loot={lootView.snapshot}
-            onTakeAll={inventoryActions.onTakeAllLoot}
-            onTakeItem={inventoryActions.onTakeLootItem}
-            onHoverItem={tooltipActions.onShowItemTooltip}
-            onLeaveItem={tooltipActions.onCloseTooltip}
-            {...detailTooltipHandlers}
-          />
-        </Suspense>
-      ) : null}
       {mountedWindows.log ? (
         <Suspense fallback={fallback}>
           <LogWindow
@@ -280,20 +251,6 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
             onToggleFilter={logActions.onToggleLogFilter}
             logs={logsView.filtered}
             {...detailTooltipHandlers}
-          />
-        </Suspense>
-      ) : null}
-      {mountedWindows.combat && combatView.snapshot ? (
-        <Suspense fallback={fallback}>
-          <CombatWindow
-            {...managedWindowProps.combat}
-            visible={managedWindowProps.combat.visible && combatView.visible}
-            combat={combatView.snapshot.combat}
-            playerParty={combatPlayerParty}
-            enemies={combatView.snapshot.enemies}
-            onStart={worldActions.onStartCombat}
-            {...detailTooltipHandlers}
-            onHoverHeaderAction={tooltipActions.onShowTooltip}
           />
         </Suspense>
       ) : null}

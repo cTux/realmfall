@@ -27,7 +27,7 @@ type StructureWorldTooltip =
   typeof import('../../../ui/world/worldTooltips').structureWorldTooltip;
 
 export interface WorldMapDragState {
-  pointerId: number;
+  pointerId: number | null;
   startClientX: number;
   startClientY: number;
   startPanX: number;
@@ -318,15 +318,20 @@ export function attachPixiWorldInteractions({
   };
 
   const onPointerDown = (event: PointerEvent) => {
+    const pointerId =
+      typeof event.pointerId === 'number' ? event.pointerId : null;
+
     dragStateRef.current = {
-      pointerId: event.pointerId,
+      pointerId,
       startClientX: event.clientX,
       startClientY: event.clientY,
       startPanX: worldMapCameraRef.current.panX,
       startPanY: worldMapCameraRef.current.panY,
       dragging: false,
     };
-    canvas.setPointerCapture?.(event.pointerId);
+    if (pointerId !== null) {
+      canvas.setPointerCapture?.(pointerId);
+    }
   };
 
   const onWheel = (event: WheelEvent) => {
@@ -362,11 +367,13 @@ export function attachPixiWorldInteractions({
 
   const onPointerUp = (event: PointerEvent) => {
     const dragState = dragStateRef.current;
-    if (!dragState || dragState.pointerId !== event.pointerId) {
+    if (!dragState || !matchesActivePointer(dragState.pointerId, event)) {
       return;
     }
 
-    canvas.releasePointerCapture?.(event.pointerId);
+    if (dragState.pointerId !== null) {
+      canvas.releasePointerCapture?.(dragState.pointerId);
+    }
     dragStateRef.current = null;
     if (dragState.dragging) {
       canvas.style.cursor = 'grab';
@@ -377,17 +384,22 @@ export function attachPixiWorldInteractions({
   };
 
   const onPointerCancel = (event: PointerEvent) => {
-    if (dragStateRef.current?.pointerId !== event.pointerId) {
+    if (
+      !dragStateRef.current ||
+      !matchesActivePointer(dragStateRef.current.pointerId, event)
+    ) {
       return;
     }
-    canvas.releasePointerCapture?.(event.pointerId);
+    if (dragStateRef.current.pointerId !== null) {
+      canvas.releasePointerCapture?.(dragStateRef.current.pointerId);
+    }
     dragStateRef.current = null;
     canvas.style.cursor = 'default';
   };
 
   const onPointerMove = (event: PointerEvent) => {
     const dragState = dragStateRef.current;
-    if (dragState && dragState.pointerId === event.pointerId) {
+    if (dragState && matchesActivePointer(dragState.pointerId, event)) {
       const deltaX = event.clientX - dragState.startClientX;
       const deltaY = event.clientY - dragState.startClientY;
       if (dragState.dragging || Math.hypot(deltaX, deltaY) >= 4) {
@@ -460,4 +472,15 @@ export function attachPixiWorldInteractions({
     canvas.removeEventListener('pointerleave', onPointerLeave);
     canvas.removeEventListener('wheel', onWheel as EventListener);
   };
+}
+
+function matchesActivePointer(
+  activePointerId: number | null,
+  event: Pick<PointerEvent, 'pointerId'>,
+) {
+  return (
+    activePointerId === null ||
+    typeof event.pointerId !== 'number' ||
+    activePointerId === event.pointerId
+  );
 }

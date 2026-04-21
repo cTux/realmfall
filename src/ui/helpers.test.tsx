@@ -312,12 +312,12 @@ describe('ui helper coverage', () => {
     act(() => {
       button?.focus();
     });
-    expect(host.textContent).toContain('(C)haracter info');
+    expect(host.textContent).toContain('(H)ero info');
 
     act(() => {
       button?.blur();
     });
-    expect(host.textContent).not.toContain('(C)haracter info');
+    expect(host.textContent).not.toContain('(H)ero info');
 
     act(() => {
       button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));

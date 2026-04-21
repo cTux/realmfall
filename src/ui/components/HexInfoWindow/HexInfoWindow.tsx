@@ -49,12 +49,52 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   territoryNpc,
   townStock,
   gold,
+  equipment = {},
+  loot = [],
+  combat = null,
+  combatPlayerParty = [],
+  combatEnemies = [],
+  combatWorldTimeMs,
   onBuyItem,
+  onTakeAll,
+  onTakeItem,
+  onStartCombat = () => undefined,
   onHoverItem,
   onLeaveItem,
   onHoverDetail,
   onLeaveDetail,
 }: HexInfoWindowProps) {
+  const primaryHeaderAction = combat ? (
+    combat.started ? null : (
+      <WindowHeaderActionButton
+        className={inventoryStyles.headerButton}
+        onClick={onStartCombat}
+        tooltipTitle={t('ui.combat.startAction')}
+        tooltipLines={[
+          { kind: 'text', text: t('ui.tooltip.window.startCombat') },
+        ]}
+        tooltipBorderColor="rgba(248, 250, 252, 0.9)"
+        onHoverDetail={onHoverDetail}
+        onLeaveDetail={onLeaveDetail}
+      >
+        {t('ui.combat.startAction')}
+      </WindowHeaderActionButton>
+    )
+  ) : interactLabel ? (
+    <WindowHeaderActionButton
+      className={`${inventoryStyles.headerButton} ${styles.homeButton}`}
+      disabled={!canInteract}
+      onClick={onInteract}
+      tooltipTitle={t('ui.hexInfo.interactAction')}
+      tooltipLines={[{ kind: 'text', text: t('ui.tooltip.window.interact') }]}
+      tooltipBorderColor="rgba(74, 222, 128, 0.9)"
+      onHoverDetail={onHoverDetail}
+      onLeaveDetail={onLeaveDetail}
+    >
+      {t('ui.hexInfo.interactAction')}
+    </WindowHeaderActionButton>
+  ) : null;
+
   return (
     <DeferredWindowShell
       title={WINDOW_LABELS.hexInfo.plain}
@@ -65,26 +105,12 @@ export const HexInfoWindow = memo(function HexInfoWindow({
       visible={visible}
       externalUnmount
       onClose={onClose}
+      resizeBounds={{ minWidth: 420, minHeight: 320 }}
       onHoverDetail={onHoverDetail}
       onLeaveDetail={onLeaveDetail}
       headerActions={
         <>
-          {interactLabel ? (
-            <WindowHeaderActionButton
-              className={`${inventoryStyles.headerButton} ${styles.homeButton}`}
-              disabled={!canInteract}
-              onClick={onInteract}
-              tooltipTitle={t('ui.hexInfo.interactAction')}
-              tooltipLines={[
-                { kind: 'text', text: t('ui.tooltip.window.interact') },
-              ]}
-              tooltipBorderColor="rgba(74, 222, 128, 0.9)"
-              onHoverDetail={onHoverDetail}
-              onLeaveDetail={onLeaveDetail}
-            >
-              {t('ui.hexInfo.interactAction')}
-            </WindowHeaderActionButton>
-          ) : null}
+          {primaryHeaderAction}
           <WindowHeaderActionButton
             className={`${inventoryStyles.headerButton} ${styles.homeButton}`}
             aria-pressed={isHome}
@@ -127,7 +153,16 @@ export const HexInfoWindow = memo(function HexInfoWindow({
         territoryNpc,
         townStock,
         gold,
+        equipment,
+        loot,
+        combat,
+        combatPlayerParty,
+        combatEnemies,
+        combatWorldTimeMs,
         onBuyItem,
+        onTakeAll,
+        onTakeItem,
+        onStartCombat,
         onHoverItem,
         onLeaveItem,
         onHoverDetail,
