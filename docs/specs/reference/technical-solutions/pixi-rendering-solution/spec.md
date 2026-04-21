@@ -22,6 +22,9 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - `usePixiWorld` updates the cached visible-tile list only when world-facing inputs such as player position, world radius, seed, or visible tile data change, instead of recomputing visible tiles on every unrelated root-state clone.
 - Visible-tile reuse metadata is attached to whichever array `usePixiWorld` keeps, including caller-seeded reused arrays, so later unchanged updates can hit the no-recompute fast path instead of paying for another full visibility rebuild.
 - Once static layers are cached, animation-only frames reuse cached hot-structure light points for campfires and furnaces and skip the full visible-tile traversal instead of repeating enemy lookup and marker preparation work on every ticker tick.
+- Cached world-marker wrappers now keep deterministic per-hex animation metadata, so animation-only frames can pulse or bob hostile markers by mutating live sprite transforms instead of rebuilding static marker pools.
+- Settlement, claim, and utility structure markers now route through the same cached-wrapper animation path, with night-aware tint pulses applied directly to live marker sprites instead of triggering a static-layer refresh.
+- Gathering-site markers now reuse the cached wrapper animator with deterministic shimmer phases, so ore, herb, timber, and water icons can glint intermittently without adding a second marker traversal to animation-only frames.
 - Animated sky, atmosphere, cloud, overlay, and firelight layers use their own lower-cadence token, so hover or selection redraws inside the same animation bucket do not reset those animated stage layers again.
 - Deterministic ground-cover presentation and cloud inputs are memoized in bounded caches.
 - The world renderer includes time-of-day lighting, atmosphere passes, overlay tinting, and optional fish-eye processing.

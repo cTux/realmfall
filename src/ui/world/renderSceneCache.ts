@@ -33,6 +33,7 @@ import {
   WORLD_MAP_FISHEYE_ENABLED,
   type WorldMapFishEyeFilter,
 } from './worldMapFishEyeRuntime';
+import type { AnimatedWorldMarker } from './renderSceneMarkerAnimations';
 
 const SCENE_CACHE_KEY = Symbol('renderSceneCache');
 const MAX_CLOUD_INPUT_CACHE_ENTRIES = 4;
@@ -82,6 +83,7 @@ export interface SceneCache {
   cloudSprites: SpritePool;
   cloudInputsBySeed: Map<string, CloudRenderInput[]>;
   campfireLightPoints: Array<{ x: number; y: number }>;
+  animatedWorldMarkers: AnimatedWorldMarker[];
   player: ShadowedSpriteEntry;
   derivedRenderVisibleTilesSource: ReturnType<typeof getVisibleTiles> | null;
   derivedRenderEnemiesSource: Record<string, unknown> | null;
@@ -187,6 +189,7 @@ export function getSceneCache(app: Application) {
     cloudSprites: createSpritePool(clouds),
     cloudInputsBySeed: new Map(),
     campfireLightPoints: [],
+    animatedWorldMarkers: [],
     player,
     derivedRenderVisibleTilesSource: null,
     derivedRenderEnemiesSource: null,
@@ -236,6 +239,7 @@ export function beginStaticSceneRender(scene: SceneCache) {
   resetShadowedSpritePool(scene.worldStaticMarkerSprites);
   resetGraphicsPool(scene.worldStaticMarkerBadgeGraphics);
   resetTextPool(scene.worldStaticMarkerTexts);
+  scene.animatedWorldMarkers.length = 0;
 }
 
 export function completeStaticSceneRender(scene: SceneCache) {

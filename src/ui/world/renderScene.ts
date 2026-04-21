@@ -57,6 +57,11 @@ import {
   takeText,
 } from './renderScenePools';
 import {
+  animateWorldMarkers,
+  createAnimatedWorldMarker,
+  type WorldMarkerAnimationKind,
+} from './renderSceneMarkerAnimations';
+import {
   updateWorldMapFishEyeFilter,
   WORLD_MAP_FISHEYE_ENABLED,
 } from './worldMapFishEyeRuntime';
@@ -266,6 +271,22 @@ export function renderScene(
               shadowOffset,
               point,
             );
+            const markerAnimationKind = getStructureMarkerAnimationKind(
+              tile.structure,
+            );
+            if (markerAnimationKind) {
+              registerAnimatedWorldMarker(
+                scene,
+                state.seed,
+                tile.coord,
+                marker,
+                point,
+                structureIconSize,
+                structureIconSize,
+                getStructureHexIconTint(tile.structure),
+                markerAnimationKind,
+              );
+            }
           }
 
           const hostileEnemies = enemies.filter(
@@ -285,6 +306,17 @@ export function renderScene(
               1,
               shadowOffset,
               point,
+            );
+            registerAnimatedWorldMarker(
+              scene,
+              state.seed,
+              tile.coord,
+              marker,
+              point,
+              enemyIconSize,
+              enemyIconSize,
+              0xffffff,
+              'settlement',
             );
           } else if (
             hostileEnemies.length > 0 &&
@@ -324,6 +356,22 @@ export function renderScene(
                       x: point.x,
                       y: point.y - 2,
                     },
+              );
+              registerAnimatedWorldMarker(
+                scene,
+                state.seed,
+                tile.coord,
+                sprite,
+                isBossCenter
+                  ? point
+                  : {
+                      x: point.x,
+                      y: point.y - 2,
+                    },
+                isBossCenter ? worldBossIconSize : enemyIconSize,
+                isBossCenter ? worldBossIconSize : enemyIconSize,
+                enemyIconTintFor(highestRarityEnemy),
+                isBossCenter ? 'worldBoss' : 'enemy',
               );
 
               if (!isBossCenter && enemies.length >= 2) {
@@ -437,6 +485,12 @@ export function renderScene(
   scene.screenHeight = app.screen.height;
 
   if (shouldRenderAnimated && lightingState) {
+    animateWorldMarkers(
+      scene.animatedWorldMarkers,
+      animationMs,
+      lightingState.lighting,
+    );
+
     scene.campfireLightPoints.forEach((point) => {
       renderCampfireLight(
         scene.worldAnimatedDetailGraphics,
@@ -555,6 +609,32 @@ function getCloudRenderInputs(
   return cloudInputs;
 }
 
+function registerAnimatedWorldMarker(
+  scene: ReturnType<typeof getSceneCache>,
+  seed: string,
+  coord: HexCoord,
+  entry: ReturnType<typeof takeShadowedSprite>,
+  point: { x: number; y: number },
+  width: number,
+  height: number,
+  tint: number,
+  kind: WorldMarkerAnimationKind,
+) {
+  scene.animatedWorldMarkers.push(
+    createAnimatedWorldMarker({
+      alpha: 1,
+      coord,
+      entry,
+      height,
+      kind,
+      point,
+      seed,
+      tint,
+      width,
+    }),
+  );
+}
+
 function getAnimatedRenderToken(state: GameState, animationMs: number) {
   return [
     state.seed,
@@ -585,4 +665,40 @@ function getStructureHexIconTint(structure: Tile['structure']) {
   }
 
   return STRUCTURE_HEX_ICON_TINT;
+}
+
+function getStructureMarkerAnimationKind(structure: Tile['structure']) {
+  if (
+    structure === 'coal-ore' ||
+    structure === 'copper-ore' ||
+    structure === 'gold-ore' ||
+    structure === 'herbs' ||
+    structure === 'iron-ore' ||
+    structure === 'lake' ||
+    structure === 'platinum-ore' ||
+    structure === 'pond' ||
+    structure === 'tin-ore' ||
+    structure === 'tree'
+  ) {
+    return 'resource' as const;
+  }
+
+  if (
+    structure === 'camp' ||
+    structure === 'forge' ||
+    structure === 'furnace' ||
+    structure === 'workshop'
+  ) {
+    return 'utility' as const;
+  }
+
+  if (structure === 'town') {
+    return 'settlement' as const;
+  }
+
+  if (structure === 'dungeon') {
+    return 'dungeon' as const;
+  }
+
+  return null;
 }
