@@ -3063,6 +3063,9 @@ describe('game state', () => {
       ),
     ).toBe(true);
     expect(entries.some((entry) => entry.id === 'craft-weapon')).toBe(false);
+    expect(entries.some((entry) => entry.id === 'craft-ashen-blade')).toBe(
+      false,
+    );
   });
 
   it('lets every enemy on the tile retaliate during combat', () => {
