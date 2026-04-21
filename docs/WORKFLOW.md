@@ -16,6 +16,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 - Generate commit messages from the actual change set.
 - Keep commit messages focused on the behavioral change instead of enumerating every touched doc file.
 - Use `pnpm git:prune-gone-branches -- --dry-run` to preview local branches whose tracked remote ref was deleted, then rerun without `--dry-run` to remove them. Add `-- --safe` only when you want Git to keep its merged-branch protection.
+- Use `pnpm git:rebase-master-and-push` from a clean, already-committed feature branch when you need to replay it onto `origin/master` and publish the rewritten branch. The script auto-resolves `package.json` version conflicts by carrying this branch's patch-version increments onto the incoming version, then fetches the remote branch before `--force-with-lease`.
 
 ## Verification Workflow
 

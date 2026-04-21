@@ -14,6 +14,7 @@ Implemented technical solutions are split into dedicated spec files:
 - [Input And Tooltip Handling](./input-and-tooltip-handling/spec.md)
 - [Internationalization](./internationalization/spec.md)
 - [Git Branch Cleanup](./git-branch-cleanup/spec.md)
+- [Git Branch Rebase And Push](./git-branch-rebase-and-push/spec.md)
 - [Testing And Quality Tooling](./testing-and-quality-tooling/spec.md)
 - [Documentation Strategy](./documentation-strategy/spec.md)
 - [Version Checking](./version-checking/spec.md)

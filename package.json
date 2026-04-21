@@ -1,7 +1,7 @@
 {
   "name": "realmfall",
   "private": true,
-  "version": "0.2.272",
+  "version": "0.2.273",
   "description": "Single-player browser survival RPG with hex exploration, turn-based systems, React UI, and Pixi.js world rendering.",
   "keywords": [
     "browser-game",
@@ -37,6 +37,7 @@
     "check:version": "node scripts/check-package-version.mjs",
     "build:storybook": "storybook build",
     "git:prune-gone-branches": "node scripts/prune-gone-branches.mjs",
+    "git:rebase-master-and-push": "node scripts/rebase-master-and-push.mjs",
     "serve": "node scripts/serve-https.mjs",
     "preview": "vite preview",
     "quality:staged": "node scripts/run-staged-quality.mjs",

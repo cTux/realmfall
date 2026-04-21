@@ -81,6 +81,7 @@ pnpm dev
 - `pnpm build:budget`
 - `pnpm build:storybook`
 - `pnpm git:prune-gone-branches` (fetches with prune, then force-deletes local branches whose tracked remote ref no longer exists; pass `-- --dry-run` to preview and `-- --safe` to keep Git's merged-branch safety checks)
+- `pnpm git:rebase-master-and-push` (rebases the current committed branch onto `origin/master`, auto-resolves `package.json` version conflicts by replaying this branch's patch-version increments, then force-pushes with lease to `origin/<current-branch>`; pass `-- --dry-run` to preview the workflow)
 - `pnpm serve` (serves `dist` over local HTTPS with a generated self-signed certificate)
 - `pnpm preview`
 - `pnpm quality:staged`
