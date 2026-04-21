@@ -63,7 +63,7 @@ const stylelintFiles = stagedFiles.filter(isSrcStyleFile);
 const packageJsonDiffText = stagedFiles.includes('package.json')
   ? getPackageJsonDiffText()
   : '';
-const shouldRunFullSuite = shouldRunFullTestSuite(
+const hasFullTestTrigger = shouldRunFullTestSuite(
   stagedFiles,
   packageJsonDiffText,
 );
@@ -92,11 +92,13 @@ if (stylelintFiles.length > 0) {
   logStep('Skipping staged Stylelint, no matching files');
 }
 
-if (shouldRunFullSuite) {
-  logStep('Running full Vitest suite because a shared test input changed');
-  const pnpm = createPnpmInvocation(['test']);
-  run(pnpm.command, pnpm.args);
-} else if (vitestRelatedFiles.length > 0) {
+if (hasFullTestTrigger) {
+  logStep(
+    'Shared test inputs changed, so pre-push will run the full Vitest suite',
+  );
+}
+
+if (vitestRelatedFiles.length > 0) {
   logStep(
     `Running Vitest related for ${vitestRelatedFiles.length} staged file(s)`,
   );
@@ -110,5 +112,9 @@ if (shouldRunFullSuite) {
   ]);
   run(pnpm.command, pnpm.args);
 } else {
-  logStep('Skipping scoped Vitest, no related staged source files');
+  logStep(
+    hasFullTestTrigger
+      ? 'Skipping scoped Vitest in pre-commit because pre-push will run full validation'
+      : 'Skipping scoped Vitest, no related staged source files',
+  );
 }

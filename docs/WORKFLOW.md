@@ -15,6 +15,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 - Use `pnpm git:commit -- -m "<message>"` for routine commits. It bumps the patch version in `package.json` when needed, stages that file, and then runs `git commit`.
 - If you commit without the helper, bump the patch version in `package.json` yourself first. The pre-commit hook enforces the version progression against `HEAD`.
 - A staged `package.json` diff that changes only the `version` field stays on the scoped pre-commit test path instead of forcing the full Vitest suite.
+- The pre-commit hook stays scoped even when shared test inputs change; repository-wide test and build validation now runs in the pre-push hook.
 - Full-project TypeScript verification now runs in the pre-push hook instead of the pre-commit hook, so routine commits stay focused on version progression and staged-file checks.
 - Generate commit messages from the actual change set.
 - Keep commit messages focused on the behavioral change instead of enumerating every touched doc file.
@@ -23,7 +24,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 
 ## Verification Workflow
 
-- Run `pnpm typecheck` and the relevant tests for the changed area before pushing.
+- Run `pnpm typecheck`, `pnpm test`, and `pnpm build` before pushing when you bypass hooks or need to verify the pre-push path manually.
 - Pin GitHub Actions to immutable commit SHAs in workflow files instead of mutable version tags.
 - Keep contributor scripts shell-safe on Windows. Do not pass staged paths or other user-controlled arguments through `cmd.exe` when invoking repository tooling.
 - Keep scheduled dependency automation on the repo-pinned package-manager version and use read-only audit commands there instead of mutating dependency trees inside the job.

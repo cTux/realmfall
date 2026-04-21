@@ -1,1 +1,1 @@
-export const PRE_PUSH_COMMANDS = ['typecheck'];
+export const PRE_PUSH_COMMANDS = ['typecheck', 'test', 'build'];
