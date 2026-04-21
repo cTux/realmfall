@@ -28,8 +28,9 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `useAppControllers` separates inventory-slot activation from explicit equip and use actions so handler names match the behavior they trigger and context-menu equip actions stay equip-only.
 - `useCombatAutomation` schedules the next combat step from the earliest pending combat event across actor cooldowns, cast completions, combat status-effect ticks, and effect expirations.
 - The top-level app owns a non-persistent pause state toggled by `Space`, and that state gates the shared world clock, combat automation, world-click travel, and controller-routed gameplay mutations while surfacing a centered overlay above the stage. The `Space` shortcut skips editable targets and focused interactive controls so native keyboard activation behavior remains intact.
+- Secondary stage overlays such as the home-direction marker and version polling panel stay behind lazy boundaries so the `App` entry prioritizes world bootstrap and core window composition.
 - The world-clock hook pauses its `requestAnimationFrame` loop while the document is hidden and resumes from a clean tick when the tab becomes visible again, avoiding idle background frame churn without desynchronizing world time.
-- Window dragging and resizing keep movement local to the window shell until pointer release, which avoids pushing every pointer delta through shared app state while the interaction is still in progress.
+- Window dragging and resizing keep movement local to the window shell until pointer release, which avoids pushing every pointer delta through shared app state during the interaction.
 - The shared drag shell only commits `onMove` when pointer movement or resizing actually changed geometry, so focus clicks on a window header do not trigger redundant persistence or autosave work.
 - Transition hooks expose mounted-state booleans for deferred windows as mounted-state signals, not as render callbacks, so the desktop layout code can treat them as stateful visibility guards instead of ambiguous “render” flags.
 - `useAppGameView` narrows derived-view dependencies to the state slices each selector actually needs, reducing recomputation from unrelated root-state clones.
@@ -37,7 +38,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Secondary window content is separated into dedicated components and lazy-loaded bundles following the current project pattern.
 - Shared lazy-window creation goes through `createLazyWindowComponent`, keeping retrying deferred-window imports consistent instead of re-declaring the same `lazy(() => loadRetryingWindowModule(...))` wrapper in every window component.
 - Deferred window-content imports retry indefinitely when a bundle fails to load, keeping the rest of the game interactive while the affected window shell stays mounted on its loading fallback. This is expected browser-delivery behavior for optional window bundles, not an accidental retry loop.
-- Window loading fallbacks keep the spinner visible and add delayed explanatory copy when the deferred content is still unavailable after several seconds.
+- Window loading fallbacks keep the spinner visible and add delayed explanatory copy when the deferred content remains unavailable after several seconds.
 - The log window renders new entries immediately instead of staging a typewriter reveal, which avoids the repeated newest-row stall path while keeping the active message readable under rapid updates.
 - The log window caches parsed timestamp and message metadata by log entry object and re-pins the list to the bottom when a new entry arrives, so older rows do not need to reparse when fresh gameplay logs append.
 - The recipe book keeps large result sets behind explicit batch growth, and combat card view models snap to a short visual time step before rebuilding ability-availability data, reducing avoidable window rerenders.

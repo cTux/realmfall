@@ -14,7 +14,6 @@ import {
 } from '../../game/state';
 import { WORLD_RADIUS } from '../constants';
 import { AppWindows } from './AppWindows';
-import { HomeIndicator } from './HomeIndicator';
 import { useAppControllers } from './useAppControllers';
 import { useAppGameView } from './useAppGameView';
 import { useAppPersistence } from './useAppPersistence';
@@ -66,6 +65,11 @@ const VoiceAudioControllerBridge = lazy(() =>
 const BackgroundMusicControllerBridge = lazy(() =>
   import('../audio/BackgroundMusicControllerBridge').then((module) => ({
     default: module.BackgroundMusicControllerBridge,
+  })),
+);
+const HomeIndicator = lazy(() =>
+  import('./HomeIndicator').then((module) => ({
+    default: module.HomeIndicator,
   })),
 );
 const VersionStatusPanel = lazy(() =>
@@ -435,13 +439,15 @@ export function App() {
         </Suspense>
         <div className={isReady ? undefined : styles.hiddenUntilReady}>
           <div ref={hostRef} className={styles.mapViewport} />
-          <HomeIndicator
-            claimedHex={firstClaimedHex}
-            hostRef={hostRef}
-            homeHex={game.homeHex}
-            playerCoord={game.player.coord}
-            radius={game.radius}
-          />
+          <Suspense fallback={null}>
+            <HomeIndicator
+              claimedHex={firstClaimedHex}
+              hostRef={hostRef}
+              homeHex={game.homeHex}
+              playerCoord={game.player.coord}
+              radius={game.radius}
+            />
+          </Suspense>
           <Suspense fallback={null}>
             <VersionStatusPanel onRefresh={() => window.location.reload()} />
           </Suspense>

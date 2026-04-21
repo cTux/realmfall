@@ -6,7 +6,7 @@ import {
   type SetStateAction,
   type MutableRefObject,
 } from 'react';
-import { getWorldTimeMinutesFromTimestamp } from '../../ui/world/timeOfDay';
+import { getWorldTimeMinutesFromTimestamp } from '../../game/worldTime';
 import { setWorldClockTime } from './worldClockStore';
 
 interface UseWorldClockFpsOptions {
