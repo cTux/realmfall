@@ -170,4 +170,85 @@ describe('worldIcons', () => {
       });
     }
   });
+
+  it('allows missing icons to stream in after render-safe placeholder access and idle warmup', async () => {
+    const originalImage = globalThis.Image;
+    const originalNavigatorUserAgent = globalThis.navigator.userAgent;
+    const originalRequestIdleCallback = window.requestIdleCallback;
+    const idleCallbacks: IdleRequestCallback[] = [];
+    const createdImages: MockImage[] = [];
+
+    class MockImage {
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+
+      constructor() {
+        createdImages.push(this);
+      }
+
+      set src(_value: string) {}
+    }
+
+    try {
+      vi.resetModules();
+      vi.stubGlobal('Image', MockImage as unknown as typeof Image);
+      Object.defineProperty(globalThis.navigator, 'userAgent', {
+        configurable: true,
+        value: 'Mozilla/5.0',
+      });
+      Object.defineProperty(window, 'requestIdleCallback', {
+        configurable: true,
+        value: (callback: IdleRequestCallback) => {
+          idleCallbacks.push(callback);
+          return idleCallbacks.length;
+        },
+      });
+
+      const {
+        WorldIcons,
+        getWorldIconTexture,
+        warmWorldIconTexturesInBackground,
+      } = await import('./worldIcons');
+
+      const placeholder = getWorldIconTexture(WorldIcons.Player, {
+        allowPending: true,
+      });
+
+      expect(placeholder).toBeDefined();
+
+      createdImages[0].onload?.();
+      await Promise.resolve();
+
+      expect(getWorldIconTexture(WorldIcons.Player)).not.toBe(placeholder);
+
+      warmWorldIconTexturesInBackground([WorldIcons.Castle]);
+
+      expect(idleCallbacks).toHaveLength(1);
+
+      idleCallbacks[0]({
+        didTimeout: false,
+        timeRemaining: () => 50,
+      } as IdleDeadline);
+
+      createdImages[1].onload?.();
+      await Promise.resolve();
+
+      expect(getWorldIconTexture(WorldIcons.Castle)).toBeDefined();
+      expect(Texture.from).not.toHaveBeenCalled();
+    } finally {
+      if (originalImage === undefined) {
+        vi.unstubAllGlobals();
+      } else {
+        vi.stubGlobal('Image', originalImage);
+      }
+      Object.defineProperty(globalThis.navigator, 'userAgent', {
+        configurable: true,
+        value: originalNavigatorUserAgent,
+      });
+      Object.defineProperty(window, 'requestIdleCallback', {
+        configurable: true,
+        value: originalRequestIdleCallback,
+      });
+    }
+  });
 });

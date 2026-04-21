@@ -209,12 +209,18 @@ export function usePixiWorld({
           return;
         }
 
-        const { ensureWorldIconTexturesLoaded } = worldIconsModule;
+        const {
+          ensureWorldIconTexturesLoaded,
+          getVisibleWorldIconAssetIds,
+          warmWorldIconTexturesInBackground,
+        } = worldIconsModule;
         const { enemyWorldTooltip, structureWorldTooltip } =
           worldTooltipsModule;
         const { getSceneCache } = sceneCacheModule;
         const app = new pixiModule.Application();
-        await ensureWorldIconTexturesLoaded();
+        await ensureWorldIconTexturesLoaded(
+          getVisibleWorldIconAssetIds(gameRef.current, visibleTilesRef.current),
+        );
         await app.init({
           width: Math.max(window.innerWidth, 640),
           height: Math.max(window.innerHeight, 480),
@@ -335,6 +341,7 @@ export function usePixiWorld({
         renderFrame();
         app.ticker.add(renderFrame);
         setCanvasReady(true);
+        warmWorldIconTexturesInBackground();
 
         const observer = new ResizeObserver(() => resize());
         observer.observe(hostRef.current);
