@@ -13,6 +13,7 @@
 - When optimization work changes React, Pixi, hover handling, or bundle shape, document a concrete verification path for rerender breadth, redraw breadth, hover hot paths, and startup chunk growth instead of leaving performance validation implicit.
 - Keep a coverage test for Storybook parity so component additions or removals in `src/ui/components` fail fast when corresponding stories are missing.
 - Keep repository automation scripts shell-safe across platforms. Do not route staged paths, generated file lists, or other user-controlled arguments through `cmd.exe` or other shells when a direct executable or Node entrypoint invocation can run the tool instead.
+- Keep scheduled dependency automation aligned with the repository toolchain. Use the repo-pinned package-manager version in CI jobs and keep audit steps read-only instead of mutating dependencies inside the workflow.
 
 ## Documentation
 
