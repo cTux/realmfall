@@ -193,4 +193,56 @@ describe('LogWindowContent', () => {
 
     expect(parseSpy).toHaveBeenCalledTimes(2);
   });
+
+  it('keeps the log scrolled to the newest row while that row is typing', async () => {
+    const originalScrollHeightDescriptor = Object.getOwnPropertyDescriptor(
+      HTMLDivElement.prototype,
+      'scrollHeight',
+    );
+
+    Object.defineProperty(HTMLDivElement.prototype, 'scrollHeight', {
+      configurable: true,
+      get() {
+        return this.textContent?.length ?? 0;
+      },
+    });
+
+    try {
+      await act(async () => {
+        root.render(
+          <LogWindowContent
+            logs={[
+              {
+                id: 'log-scroll-follow',
+                kind: 'system',
+                text: '[Year 1, Day 1, 00:00] This newest line is deliberately long so it grows while the typing animation reveals it piece by piece.',
+                turn: 1,
+              },
+            ]}
+          />,
+        );
+      });
+
+      const logList = host.querySelector('div') as HTMLDivElement;
+      const initialScrollTop = logList.scrollTop;
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(96);
+      });
+
+      expect(logList.scrollTop).toBe(logList.scrollHeight);
+      expect(logList.scrollTop).toBeGreaterThan(initialScrollTop);
+    } finally {
+      if (originalScrollHeightDescriptor) {
+        Object.defineProperty(
+          HTMLDivElement.prototype,
+          'scrollHeight',
+          originalScrollHeightDescriptor,
+        );
+      } else {
+        delete (HTMLDivElement.prototype as { scrollHeight?: number })
+          .scrollHeight;
+      }
+    }
+  });
 });

@@ -1,5 +1,5 @@
 import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react';
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getAbilityDefinition } from '../../../game/abilities';
 import { getStatusEffectDefinition } from '../../../game/content/statusEffects';
 import type { LogEntry, LogRichSegment } from '../../../game/types';
@@ -51,10 +51,12 @@ function splitLogEntry(text: string) {
 
 const AnimatedLogLine = memo(function AnimatedLogLine({
   parsedEntry,
+  onTypingProgress,
   onHoverDetail,
   onLeaveDetail,
 }: {
   parsedEntry: ParsedLogEntry;
+  onTypingProgress?: (visibleCount: number, totalCount: number) => void;
   onHoverDetail?: LogWindowProps['onHoverDetail'];
   onLeaveDetail?: LogWindowProps['onLeaveDetail'];
 }) {
@@ -84,6 +86,10 @@ const AnimatedLogLine = memo(function AnimatedLogLine({
       window.clearInterval(intervalId);
     };
   }, [entry.id, messageDisplay.units.length]);
+
+  useEffect(() => {
+    onTypingProgress?.(visibleCount, messageDisplay.units.length);
+  }, [messageDisplay.units.length, onTypingProgress, visibleCount]);
 
   return (
     <span className={styles.logText}>
@@ -155,6 +161,8 @@ export function LogWindowContent({
   onLeaveDetail,
 }: LogWindowContentProps) {
   const parsedEntryCacheRef = useRef(new WeakMap<LogEntry, ParsedLogEntry>());
+  const [newestVisibleCount, setNewestVisibleCount] = useState(0);
+  const [newestTotalCount, setNewestTotalCount] = useState(0);
   const parsedEntries = useMemo<ParsedLogEntry[]>(
     () => buildParsedLogEntries(logs, parsedEntryCacheRef.current),
     [logs],
@@ -162,12 +170,25 @@ export function LogWindowContent({
   const logListRef = useRef<HTMLDivElement | null>(null);
   const newestEntry = parsedEntries[parsedEntries.length - 1] ?? null;
   const newestLogId = newestEntry?.entry.id;
+  const handleNewestTypingProgress = useCallback(
+    (visibleCount: number, totalCount: number) => {
+      setNewestVisibleCount(visibleCount);
+      setNewestTotalCount(totalCount);
+    },
+    [],
+  );
 
   useEffect(() => {
     const list = logListRef.current;
     if (!list) return;
     list.scrollTop = list.scrollHeight;
   }, [newestLogId]);
+
+  useEffect(() => {
+    const list = logListRef.current;
+    if (!list || newestVisibleCount >= newestTotalCount) return;
+    list.scrollTop = list.scrollHeight;
+  }, [newestTotalCount, newestVisibleCount]);
 
   return (
     <div ref={logListRef} className={styles.logList}>
@@ -179,6 +200,7 @@ export function LogWindowContent({
             {isNewest ? (
               <AnimatedLogLine
                 parsedEntry={parsedEntry}
+                onTypingProgress={handleNewestTypingProgress}
                 onHoverDetail={onHoverDetail}
                 onLeaveDetail={onLeaveDetail}
               />
