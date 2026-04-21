@@ -168,9 +168,9 @@ async function readIndexedDbPayload(database: IDBDatabase) {
       STORAGE_OBJECT_STORE_NAME,
       'readonly',
     );
-    const request = transaction.objectStore(STORAGE_OBJECT_STORE_NAME).get(
-      STORAGE_KEY,
-    );
+    const request = transaction
+      .objectStore(STORAGE_OBJECT_STORE_NAME)
+      .get(STORAGE_KEY);
 
     request.onsuccess = () => {
       resolve(typeof request.result === 'string' ? request.result : null);
@@ -191,7 +191,9 @@ async function writeIndexedDbPayload(database: IDBDatabase, payload: string) {
       'readwrite',
     );
 
-    transaction.objectStore(STORAGE_OBJECT_STORE_NAME).put(payload, STORAGE_KEY);
+    transaction
+      .objectStore(STORAGE_OBJECT_STORE_NAME)
+      .put(payload, STORAGE_KEY);
     transaction.oncomplete = () => {
       resolve();
     };

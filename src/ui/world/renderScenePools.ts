@@ -167,7 +167,9 @@ export function finishSpritePool(pool: SpritePool) {
 export function createShadowedSprite(icon: string): ShadowedSpriteEntry {
   const wrapper = new Container();
   const shadows = [0.3, 0.55, 0.8, 1].map(() => {
-    const shadow = new Sprite(getWorldIconTexture(icon, { allowPending: true }));
+    const shadow = new Sprite(
+      getWorldIconTexture(icon, { allowPending: true }),
+    );
     shadow.anchor.set(0.5);
     wrapper.addChild(shadow);
     return shadow;

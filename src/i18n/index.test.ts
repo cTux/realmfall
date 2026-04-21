@@ -19,8 +19,7 @@ describe('i18n loader', () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue({
-        'game.crafting.learnRecipe':
-          'You learn the {recipe} recipe.',
+        'game.crafting.learnRecipe': 'You learn the {recipe} recipe.',
       }),
     });
 
@@ -59,8 +58,6 @@ describe('i18n loader', () => {
 
     const { loadI18n } = await importI18nModule();
 
-    await expect(loadI18n()).rejects.toThrow(
-      'Failed to load locale asset: en',
-    );
+    await expect(loadI18n()).rejects.toThrow('Failed to load locale asset: en');
   });
 });

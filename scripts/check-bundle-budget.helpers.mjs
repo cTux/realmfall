@@ -81,10 +81,7 @@ export function getStartupChunkFiles(manifest, entryKey) {
       return;
     }
 
-    if (
-      entry.file?.endsWith('.js') ||
-      entry.file?.endsWith('.json')
-    ) {
+    if (entry.file?.endsWith('.js') || entry.file?.endsWith('.json')) {
       startupFiles.add(
         relative(DIST_DIR, join(DIST_DIR, entry.file)).replaceAll('\\', '/'),
       );

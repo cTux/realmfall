@@ -17,7 +17,8 @@ describe('encrypted storage', () => {
 
     vi.stubGlobal('indexedDB', indexedDB);
 
-    const { loadEncryptedState, saveEncryptedState } = await import('./storage');
+    const { loadEncryptedState, saveEncryptedState } =
+      await import('./storage');
 
     await saveEncryptedState(payload);
 
@@ -200,7 +201,9 @@ interface MockRequest<T> {
 }
 
 interface MockOpenRequest extends MockRequest<IDBDatabase> {
-  onblocked: ((this: IDBOpenDBRequest, ev: IDBVersionChangeEvent) => unknown) | null;
+  onblocked:
+    | ((this: IDBOpenDBRequest, ev: IDBVersionChangeEvent) => unknown)
+    | null;
   onupgradeneeded:
     | ((this: IDBOpenDBRequest, ev: IDBVersionChangeEvent) => unknown)
     | null;
