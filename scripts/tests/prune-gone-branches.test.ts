@@ -55,6 +55,11 @@ describe('prune gone branches helpers', () => {
         name: 'scratch',
         upstreamRef: '',
       },
+      {
+        isCurrent: false,
+        name: 'local-tracking',
+        upstreamRef: 'refs/heads/master',
+      },
     ];
     const remoteRefs = new Set([
       'refs/remotes/origin/master',

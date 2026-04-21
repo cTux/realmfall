@@ -67,6 +67,7 @@ export function getGoneBranches(branches, remoteRefs) {
     (branch) =>
       !branch.isCurrent &&
       branch.upstreamRef !== '' &&
+      branch.upstreamRef.startsWith('refs/remotes/') &&
       !remoteRefs.has(branch.upstreamRef),
   );
 }
