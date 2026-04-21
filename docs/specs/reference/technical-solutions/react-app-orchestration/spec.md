@@ -34,8 +34,8 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Shared lazy-window creation goes through `createLazyWindowComponent`, keeping retrying deferred-window imports consistent instead of re-declaring the same `lazy(() => loadRetryingWindowModule(...))` wrapper in every window component.
 - Deferred window-content imports retry indefinitely when a bundle fails to load, keeping the rest of the game interactive while the affected window shell stays mounted on its loading fallback. This is expected browser-delivery behavior for optional window bundles, not an accidental retry loop.
 - Window loading fallbacks keep the spinner visible and add delayed explanatory copy when the deferred content is still unavailable after several seconds.
-- The newest log entry types in using chunked steps on a reduced timer cadence so the flavor animation stays visible without turning each character into its own React update, and the reveal path advances by whole display graphemes instead of raw UTF-16 slices.
-- The log window caches parsed timestamp, message, and display-text metadata by log entry object, keeps the typing animation state inside the animated newest row, and re-pins the list to the bottom while that row is revealing so the active entry stays visible without forcing older rows to reparse.
+- The log window renders new entries immediately instead of staging a typewriter reveal, which avoids the repeated newest-row stall path while keeping the active message readable under rapid updates.
+- The log window caches parsed timestamp and message metadata by log entry object and re-pins the list to the bottom when a new entry arrives, so older rows do not need to reparse when fresh gameplay logs append.
 - The recipe book keeps large result sets behind explicit batch growth, and combat card view models snap to a short visual time step before rebuilding ability-availability data, reducing avoidable window rerenders.
 
 ## Main Implementation Areas

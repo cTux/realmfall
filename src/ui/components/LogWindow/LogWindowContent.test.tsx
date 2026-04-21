@@ -32,7 +32,7 @@ describe('LogWindowContent', () => {
     vi.restoreAllMocks();
   });
 
-  it('reveals the newest log entry in larger chunks before completing', async () => {
+  it('renders the newest log entry immediately', async () => {
     await act(async () => {
       root.render(
         <LogWindowContent
@@ -48,44 +48,8 @@ describe('LogWindowContent', () => {
       );
     });
 
-    expect(host.querySelector('[class*="logCursor"]')).not.toBeNull();
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(32);
-    });
-
-    expect(host.textContent).toContain('Hu');
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(32);
-    });
-
     expect(host.textContent).toContain('Hunt');
     expect(host.querySelector('[class*="logCursor"]')).toBeNull();
-  });
-
-  it('reveals grapheme clusters without showing replacement glyphs', async () => {
-    await act(async () => {
-      root.render(
-        <LogWindowContent
-          logs={[
-            {
-              id: 'log-grapheme',
-              kind: 'system',
-              text: 'A 🧙‍♂️ arrives.',
-              turn: 1,
-            },
-          ]}
-        />,
-      );
-    });
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(64);
-    });
-
-    expect(host.textContent).toContain('A 🧙‍♂️');
-    expect(host.textContent).not.toContain('\uFFFD');
   });
 
   it('shows status effect source icons with hover details', async () => {
@@ -129,10 +93,6 @@ describe('LogWindowContent', () => {
           onLeaveDetail={onLeaveDetail}
         />,
       );
-    });
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(320);
     });
 
     const sourceSegments = host.querySelectorAll('span[class]');
@@ -194,7 +154,7 @@ describe('LogWindowContent', () => {
     expect(parseSpy).toHaveBeenCalledTimes(2);
   });
 
-  it('keeps the log scrolled to the newest row while that row is typing', async () => {
+  it('scrolls the log to the newest row when a new entry appears', async () => {
     const originalScrollHeightDescriptor = Object.getOwnPropertyDescriptor(
       HTMLDivElement.prototype,
       'scrollHeight',
@@ -215,7 +175,7 @@ describe('LogWindowContent', () => {
               {
                 id: 'log-scroll-follow',
                 kind: 'system',
-                text: '[Year 1, Day 1, 00:00] This newest line is deliberately long so it grows while the typing animation reveals it piece by piece.',
+                text: '[Year 1, Day 1, 00:00] This newest line is deliberately long so it pushes the scroll position down when it is added.',
                 turn: 1,
               },
             ]}
@@ -224,14 +184,8 @@ describe('LogWindowContent', () => {
       });
 
       const logList = host.querySelector('div') as HTMLDivElement;
-      const initialScrollTop = logList.scrollTop;
-
-      await act(async () => {
-        await vi.advanceTimersByTimeAsync(96);
-      });
 
       expect(logList.scrollTop).toBe(logList.scrollHeight);
-      expect(logList.scrollTop).toBeGreaterThan(initialScrollTop);
     } finally {
       if (originalScrollHeightDescriptor) {
         Object.defineProperty(
