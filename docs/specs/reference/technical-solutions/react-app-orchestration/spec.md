@@ -22,6 +22,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `useManagedWindowProps` builds the shared `position`, `onMove`, `visible`, and `onClose` prop map for managed windows so fixed and deferred window composition does not repeat the same shell wiring at every render site.
 - Fixed and deferred window composition receives narrow view and action slices instead of the full `AppWindowsProps` object, keeping unrelated window surfaces from rerendering together when one subtree changes.
 - The game uses a desktop-style draggable window model with persisted positions, optional per-window dimensions for resizable windows, and visibility.
+- Shared draggable window shells keep stack order inside reserved z-index bands, so opening or refocusing a window brings it to the front without ad hoc per-window layering rules.
 - Windows that become visible automatically take focus through the shared drag shell so newly opened panes rise and accept keyboard interaction immediately.
 - Shared window-shell helpers are reused for move handlers, close handlers, deferred mount state, and repeated title-bar labels instead of maintaining parallel per-window implementations.
 - `useAppControllers` routes gameplay mutations through a shared timed-transition helper so controller actions inject the current world time consistently without repeating the same wrapper at every call site.

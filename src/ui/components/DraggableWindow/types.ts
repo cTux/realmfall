@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 import type { WindowPosition } from '../../../app/constants';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 
+export type WindowStackLayer = 'standard' | 'modal';
+
 export interface DraggableWindowProps extends WindowDetailTooltipHandlers {
   title: ReactNode;
   position: WindowPosition;
@@ -20,4 +22,5 @@ export interface DraggableWindowProps extends WindowDetailTooltipHandlers {
     minHeight: number;
   };
   closeButtonTooltip?: string;
+  stackLayer?: WindowStackLayer;
 }

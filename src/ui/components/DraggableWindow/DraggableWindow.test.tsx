@@ -130,4 +130,91 @@ describe('DraggableWindow', () => {
 
     expect(onMove).not.toHaveBeenCalled();
   });
+
+  it('brings reopened and reactivated windows to the front of their stack layer', async () => {
+    await act(async () => {
+      root.render(
+        <>
+          <DraggableWindow
+            title="Background"
+            position={{ x: 40, y: 32, width: 220, height: 160 }}
+            onMove={() => {}}
+            visible
+          >
+            <div>Background content</div>
+          </DraggableWindow>
+          <DraggableWindow
+            title="Foreground"
+            position={{ x: 72, y: 56, width: 220, height: 160 }}
+            onMove={() => {}}
+            visible={false}
+          >
+            <div>Foreground content</div>
+          </DraggableWindow>
+        </>,
+      );
+    });
+
+    let windows = Array.from(
+      host.querySelectorAll('section[class*="floatingWindow"]'),
+    ) as HTMLElement[];
+    expect(windows).toHaveLength(1);
+    const backgroundWindow = windows[0];
+    expect(Number(backgroundWindow.style.zIndex)).toBe(20);
+
+    await act(async () => {
+      root.render(
+        <>
+          <DraggableWindow
+            title="Background"
+            position={{ x: 40, y: 32, width: 220, height: 160 }}
+            onMove={() => {}}
+            visible
+          >
+            <div>Background content</div>
+          </DraggableWindow>
+          <DraggableWindow
+            title="Foreground"
+            position={{ x: 72, y: 56, width: 220, height: 160 }}
+            onMove={() => {}}
+            visible
+          >
+            <div>Foreground content</div>
+          </DraggableWindow>
+        </>,
+      );
+    });
+
+    windows = Array.from(
+      host.querySelectorAll('section[class*="floatingWindow"]'),
+    ) as HTMLElement[];
+    expect(windows).toHaveLength(2);
+
+    const reopenedBackgroundWindow = windows.find((windowElement) =>
+      windowElement.textContent?.includes('Background content'),
+    );
+    const foregroundWindow = windows.find((windowElement) =>
+      windowElement.textContent?.includes('Foreground content'),
+    );
+
+    expect(reopenedBackgroundWindow).toBeDefined();
+    expect(foregroundWindow).toBeDefined();
+    expect(Number(foregroundWindow?.style.zIndex)).toBeGreaterThan(
+      Number(reopenedBackgroundWindow?.style.zIndex),
+    );
+
+    await act(async () => {
+      reopenedBackgroundWindow?.dispatchEvent(
+        new MouseEvent('pointerdown', {
+          bubbles: true,
+          clientX: 60,
+          clientY: 48,
+        }),
+      );
+    });
+
+    expect(Number(reopenedBackgroundWindow?.style.zIndex)).toBeGreaterThan(
+      Number(foregroundWindow?.style.zIndex),
+    );
+  });
 });
