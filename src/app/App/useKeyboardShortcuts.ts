@@ -1,6 +1,9 @@
 import { useEffect, useEffectEvent } from 'react';
 import type { WindowVisibilityState } from '../constants';
-import { isEditableTarget } from './utils/isEditableTarget';
+import {
+  isEditableTarget,
+  isFocusableControlTarget,
+} from './utils/isEditableTarget';
 import { WINDOW_HOTKEYS } from './utils/windowHotkeys';
 
 interface UseKeyboardShortcutsOptions {
@@ -52,6 +55,9 @@ export function useKeyboardShortcuts({
     }
 
     if (event.code === 'Space' || event.key === ' ') {
+      if (isFocusableControlTarget(event.target)) {
+        return;
+      }
       event.preventDefault();
       if (event.repeat) {
         return;
