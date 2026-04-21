@@ -192,6 +192,8 @@ export function configureShadowedSprite(
   entry.wrapper.visible = true;
   entry.wrapper.alpha = alpha;
   entry.wrapper.position.set(point.x, point.y);
+  entry.wrapper.scale.set(1, 1);
+  entry.wrapper.rotation = 0;
 
   const shadowLayers = [
     { offset: 0.3, alpha: 0.05, scale: 1.14 },

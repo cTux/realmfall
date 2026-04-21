@@ -40,8 +40,10 @@ class MockSprite {
 class MockContainer {
   children: unknown[] = [];
   alpha = 1;
+  rotation = 0;
   visible = true;
   position = { set: vi.fn() };
+  scale = { set: vi.fn() };
 
   addChild(...children: unknown[]) {
     this.children.push(...children);

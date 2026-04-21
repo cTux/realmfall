@@ -57,6 +57,11 @@ import {
   takeText,
 } from './renderScenePools';
 import {
+  animateWorldMarkers,
+  createAnimatedWorldMarker,
+  type WorldMarkerAnimationKind,
+} from './renderSceneMarkerAnimations';
+import {
   updateWorldMapFishEyeFilter,
   WORLD_MAP_FISHEYE_ENABLED,
 } from './worldMapFishEyeRuntime';
@@ -325,6 +330,22 @@ export function renderScene(
                       y: point.y - 2,
                     },
               );
+              registerAnimatedWorldMarker(
+                scene,
+                state.seed,
+                tile.coord,
+                sprite,
+                isBossCenter
+                  ? point
+                  : {
+                      x: point.x,
+                      y: point.y - 2,
+                    },
+                isBossCenter ? worldBossIconSize : enemyIconSize,
+                isBossCenter ? worldBossIconSize : enemyIconSize,
+                enemyIconTintFor(highestRarityEnemy),
+                isBossCenter ? 'worldBoss' : 'enemy',
+              );
 
               if (!isBossCenter && enemies.length >= 2) {
                 const badgeX = point.x + ENEMY_GROUP_BADGE_OFFSET.x;
@@ -437,6 +458,12 @@ export function renderScene(
   scene.screenHeight = app.screen.height;
 
   if (shouldRenderAnimated && lightingState) {
+    animateWorldMarkers(
+      scene.animatedWorldMarkers,
+      animationMs,
+      lightingState.lighting,
+    );
+
     scene.campfireLightPoints.forEach((point) => {
       renderCampfireLight(
         scene.worldAnimatedDetailGraphics,
@@ -553,6 +580,32 @@ function getCloudRenderInputs(
   }
 
   return cloudInputs;
+}
+
+function registerAnimatedWorldMarker(
+  scene: ReturnType<typeof getSceneCache>,
+  seed: string,
+  coord: HexCoord,
+  entry: ReturnType<typeof takeShadowedSprite>,
+  point: { x: number; y: number },
+  width: number,
+  height: number,
+  tint: number,
+  kind: WorldMarkerAnimationKind,
+) {
+  scene.animatedWorldMarkers.push(
+    createAnimatedWorldMarker({
+      alpha: 1,
+      coord,
+      entry,
+      height,
+      kind,
+      point,
+      seed,
+      tint,
+      width,
+    }),
+  );
 }
 
 function getAnimatedRenderToken(state: GameState, animationMs: number) {
