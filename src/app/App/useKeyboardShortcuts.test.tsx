@@ -31,11 +31,10 @@ describe('useKeyboardShortcuts', () => {
     function TestHarness() {
       useKeyboardShortcuts({
         combatStartAvailable: false,
+        hexContentWindowShown: false,
         interactLabel: null,
         lootSnapshotLength: 0,
-        lootWindowVisible: false,
         onStartCombat: vi.fn(),
-        keepLootWindowMounted: false,
         onInteract: vi.fn(),
         onTakeAllLoot: vi.fn(),
         onCloseAllWindows: vi.fn(),
@@ -54,7 +53,6 @@ describe('useKeyboardShortcuts', () => {
           combat: false,
           settings: false,
         },
-        windowShownLoot: false,
       });
 
       return null;
@@ -87,11 +85,10 @@ describe('useKeyboardShortcuts', () => {
     function TestHarness() {
       useKeyboardShortcuts({
         combatStartAvailable: false,
+        hexContentWindowShown: false,
         interactLabel: null,
         lootSnapshotLength: 0,
-        lootWindowVisible: false,
         onStartCombat: vi.fn(),
-        keepLootWindowMounted: false,
         onInteract: vi.fn(),
         onTakeAllLoot: vi.fn(),
         onCloseAllWindows: vi.fn(),
@@ -110,7 +107,6 @@ describe('useKeyboardShortcuts', () => {
           combat: false,
           settings: false,
         },
-        windowShownLoot: false,
       });
 
       return null;
@@ -148,11 +144,10 @@ describe('useKeyboardShortcuts', () => {
     function TestHarness() {
       useKeyboardShortcuts({
         combatStartAvailable: false,
+        hexContentWindowShown: false,
         interactLabel: null,
         lootSnapshotLength: 0,
-        lootWindowVisible: false,
         onStartCombat: vi.fn(),
-        keepLootWindowMounted: false,
         onInteract: vi.fn(),
         onTakeAllLoot: vi.fn(),
         onCloseAllWindows: vi.fn(),
@@ -171,7 +166,6 @@ describe('useKeyboardShortcuts', () => {
           combat: false,
           settings: false,
         },
-        windowShownLoot: false,
       });
 
       return <button type="button">Focusable control</button>;

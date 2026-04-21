@@ -3,7 +3,6 @@ import {
   getWorldHexSize,
   tileToPoint,
 } from '../../../ui/world/renderSceneMath';
-import { mapWorldMapFishEyeSourcePointToDisplayPoint } from '../../../ui/world/worldMapFishEye';
 import {
   createHydratedAppGame,
   flushLazyModules,
@@ -40,37 +39,31 @@ describe('App world input', () => {
       screenCenter.y,
       hexSize,
     );
-    const adjacentDisplayPoint = mapWorldMapFishEyeSourcePointToDisplayPoint(
-      adjacentPoint,
-      {
-        width: Math.max(window.innerWidth, 640),
-        height: Math.max(window.innerHeight, 480),
-      },
-      screenCenter,
-    );
 
     await act(async () => {
       canvas?.dispatchEvent(
-        new MouseEvent('pointermove', {
+        new PointerEvent('pointermove', {
           bubbles: true,
-          clientX: adjacentDisplayPoint.x,
-          clientY: adjacentDisplayPoint.y,
+          clientX: adjacentPoint.x,
+          clientY: adjacentPoint.y,
         }),
       );
     });
     await act(async () => {
       canvas?.dispatchEvent(
-        new MouseEvent('pointerdown', {
+        new PointerEvent('pointerdown', {
           bubbles: true,
-          clientX: adjacentDisplayPoint.x,
-          clientY: adjacentDisplayPoint.y,
+          pointerId: 1,
+          clientX: adjacentPoint.x,
+          clientY: adjacentPoint.y,
         }),
       );
       canvas?.dispatchEvent(
-        new MouseEvent('pointerup', {
+        new PointerEvent('pointerup', {
           bubbles: true,
-          clientX: adjacentDisplayPoint.x,
-          clientY: adjacentDisplayPoint.y,
+          pointerId: 1,
+          clientX: adjacentPoint.x,
+          clientY: adjacentPoint.y,
         }),
       );
     });
@@ -136,22 +129,25 @@ describe('App world input', () => {
 
     await act(async () => {
       canvas?.dispatchEvent(
-        new MouseEvent('pointerdown', {
+        new PointerEvent('pointerdown', {
           bubbles: true,
+          pointerId: 3,
           clientX: 320,
           clientY: 240,
         }),
       );
       canvas?.dispatchEvent(
-        new MouseEvent('pointerleave', {
+        new PointerEvent('pointerleave', {
           bubbles: true,
+          pointerId: 3,
           clientX: 320,
           clientY: 240,
         }),
       );
       canvas?.dispatchEvent(
-        new MouseEvent('pointermove', {
+        new PointerEvent('pointermove', {
           bubbles: true,
+          pointerId: 3,
           clientX: 420,
           clientY: 320,
         }),

@@ -117,6 +117,25 @@ export function useAppControllers({
     setActionBarSlots((current) => reconcileActionBarSlots(inventory, current));
   }, [inventory]);
 
+  useEffect(() => {
+    if (!windowShown.loot && !windowShown.combat) {
+      return;
+    }
+
+    setWindowShown((current) => {
+      if (!current.loot && !current.combat) {
+        return current;
+      }
+
+      return {
+        ...current,
+        hexInfo: current.hexInfo || current.loot || current.combat,
+        loot: false,
+        combat: false,
+      };
+    });
+  }, [windowShown.combat, windowShown.loot]);
+
   const moveWindow = useCallback(
     (
       key: keyof WindowPositions,

@@ -39,7 +39,7 @@ describe('App persistence', () => {
           logs: [],
         }),
         ui: expect.objectContaining({
-          windowShown: expect.objectContaining({ hero: true }),
+          windowShown: expect.objectContaining({ hexInfo: true }),
         }),
       }),
     );

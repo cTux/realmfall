@@ -38,6 +38,19 @@ export const WithOpenedEntries: Story = {
   ),
 };
 
+export const WithAttentionBadge: Story = {
+  render: () => (
+    <WindowDock
+      entries={fixtures.dockEntries.map((entry) =>
+        entry.key === 'hexInfo'
+          ? { ...entry, shown: true, requiresAttention: true }
+          : entry,
+      )}
+      onToggle={noop}
+    />
+  ),
+};
+
 function WindowDockStory() {
   const [entries, setEntries] = useState(fixtures.dockEntries);
 

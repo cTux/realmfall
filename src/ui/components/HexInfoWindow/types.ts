@@ -1,6 +1,14 @@
 import type { MouseEvent as ReactMouseEvent } from 'react';
 import type { WindowPosition } from '../../../app/constants';
-import type { Item, TerritoryNpc, TownStockEntry } from '../../../game/state';
+import type {
+  CombatState,
+  Enemy,
+  Equipment,
+  Item,
+  TerritoryNpc,
+  TownStockEntry,
+} from '../../../game/state';
+import type { CombatPartyMember } from '../CombatWindow/types';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 
 export interface HexInfoWindowProps extends WindowDetailTooltipHandlers {
@@ -34,7 +42,16 @@ export interface HexInfoWindowProps extends WindowDetailTooltipHandlers {
   territoryNpc: TerritoryNpc | null;
   townStock: TownStockEntry[];
   gold: number;
+  equipment?: Equipment;
+  loot?: Item[];
+  combat?: CombatState | null;
+  combatPlayerParty?: CombatPartyMember[];
+  combatEnemies?: Enemy[];
+  combatWorldTimeMs?: number;
   onBuyItem: (itemId: string) => void;
+  onTakeAll?: () => void;
+  onTakeItem?: (itemId: string) => void;
+  onStartCombat?: () => void;
   onHoverItem: (
     event: ReactMouseEvent<HTMLElement>,
     item: Item,

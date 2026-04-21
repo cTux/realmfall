@@ -72,10 +72,10 @@ describe('App hydration and interactions', () => {
     expect(renderScene).toHaveBeenCalled();
     expect(saveEncryptedState).not.toHaveBeenCalled();
     expect(host.querySelector(`.${styles.loadingScreen}`)).toBeNull();
-    expect(host.textContent).not.toContain('(C)haracter info');
+    expect(host.textContent).not.toContain('(H)ero info');
     expect(host.textContent).toContain('(S)kills');
     expect(host.textContent).toContain('(R)ecipe book');
-    expect(host.textContent).toContain('(H)ex info');
+    expect(host.textContent).toContain('(C)ontent');
     expect(host.textContent).not.toContain('old log');
     expect(host.textContent).toContain('Lo(g)');
     expect(host.querySelector('[aria-label="Action bar"]')).not.toBeNull();
@@ -85,13 +85,13 @@ describe('App hydration and interactions', () => {
     });
     await flushLazyModules();
 
-    expect(saveEncryptedState).not.toHaveBeenCalled();
+    expect(saveEncryptedState).toHaveBeenCalled();
     expect(host.textContent).not.toContain('Hunger penalty');
     expect(host.textContent).toContain('Loot');
     expect(host.textContent).toContain('Prospect');
 
     const heroDockButton = host.querySelector(
-      '[aria-label="Toggle Character info window"]',
+      '[aria-label="Toggle Hero info window"]',
     ) as HTMLButtonElement | null;
     expect(heroDockButton).not.toBeNull();
     expect(heroDockButton?.getAttribute('aria-pressed')).toBe('false');
@@ -102,7 +102,15 @@ describe('App hydration and interactions', () => {
       );
     });
     await flushLazyModules();
-    expect(host.textContent).toContain('(C)haracter info');
+    expect(host.textContent).not.toContain('(H)ero info');
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'h' }),
+      );
+    });
+    await flushLazyModules();
+    expect(host.textContent).toContain('(H)ero info');
     expect(host.textContent).toContain('Hunger');
     expect(heroDockButton?.getAttribute('aria-pressed')).toBe('true');
 

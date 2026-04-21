@@ -141,7 +141,7 @@ describe('HeroWindow', () => {
     expect(host.textContent).toContain('25%');
     expect(host.textContent).toContain('Suppress Debuff Chance');
     expect(host.textContent).toContain(t('ui.window.hero.suffix'));
-    expect(host.textContent).not.toContain('Character infoHP');
+    expect(host.textContent).not.toContain('Hero infoHP');
   });
 
   it('renders a resizable shell with an internal stat sheet scroller', async () => {

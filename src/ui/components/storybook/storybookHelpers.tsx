@@ -221,6 +221,13 @@ function buildWindowDockEntries(): WindowDockEntry[] {
       shown: true,
     },
     {
+      key: 'hexInfo',
+      label: WINDOW_LABELS.hexInfo.plain,
+      title: WINDOW_LABELS.hexInfo,
+      icon: Icons.Village,
+      shown: false,
+    },
+    {
       key: 'equipment',
       label: WINDOW_LABELS.equipment.plain,
       title: WINDOW_LABELS.equipment,

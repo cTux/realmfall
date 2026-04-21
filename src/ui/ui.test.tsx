@@ -1522,7 +1522,7 @@ describe('ui helpers and components', () => {
       </>,
     );
 
-    expect(markup).toContain(')haracter info');
+    expect(markup).toContain(')ero info');
     expect(markup).toContain('Hunger');
     expect(markup).toContain('Attack');
     expect(markup).toContain('Defense');
@@ -1533,12 +1533,12 @@ describe('ui helpers and components', () => {
       'gathering level equals the percent chance to pull +1 extra resource',
     );
     expect(markup).toContain(')ecipe book');
-    expect(markup).toContain(')ex info');
+    expect(markup).toContain(')ontent');
     expect(markup).toContain('(Q) Gather');
     expect(markup).toContain('Structure HP');
     expect(markup).toContain('Town Stock');
     expect(markup).not.toContain('Enemies0');
-    expect(markup).toContain('Horned Helm');
+    expect(markup).toContain('12g');
     expect(markup).toContain('Empty');
     expect(markup).toContain('Tak(e) all');
     expect(markup).toContain('Filters');
