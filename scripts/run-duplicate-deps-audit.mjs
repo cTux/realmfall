@@ -1,15 +1,15 @@
 import { spawn } from 'node:child_process';
+import { createPnpmInvocation } from './pnpm-command.mjs';
 
-const command = process.platform === 'win32' ? 'cmd.exe' : 'pnpm';
-const args =
-  process.platform === 'win32' ? ['/d', '/s', '/c', 'pnpm build'] : ['build'];
+const environment = {
+  ...process.env,
+  REALMFALL_DUPLICATE_DEPS_AUDIT: '1',
+};
+const { command, args } = createPnpmInvocation(['build'], environment);
 
 const child = spawn(command, args, {
   stdio: 'inherit',
-  env: {
-    ...process.env,
-    REALMFALL_DUPLICATE_DEPS_AUDIT: '1',
-  },
+  env: environment,
 });
 
 child.on('error', (error) => {

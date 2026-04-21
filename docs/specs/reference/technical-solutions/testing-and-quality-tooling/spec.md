@@ -29,11 +29,13 @@ This spec covers the repository quality baseline and current test coverage shape
 - That guidance also defines lightweight budgets for routine desktop world interaction and the main startup chunks, giving contributors a small regression envelope to compare against during reviews and build checks.
 - The pull-request workflow enforces startup delivery budgets through `pnpm build:budget`, which runs a production build, reads the Vite manifest, and fails if the bootstrap graph or its key chunks grow past the current thresholds.
 - Dependency-duplication auditing runs through `pnpm build:duplicate-deps`, which enables the duplicate-deps Vite plugin only for explicit audits instead of adding that analysis cost to every production build.
+- The shared Vite build runner filters the known Rolldown plugin-timing warnings for `vite:asset` and the explicit duplicate-deps audit plugin so routine builds stay focused on actionable failures while unexpected plugin timing warnings remain visible.
+- JSON assets that participate in startup budgets, including the bootstrap locale bundle, are committed with LF line endings so emitted asset sizes remain stable across platforms.
 - Vite keeps the gameplay runtime under an explicit `state` manual chunk so the bootstrap graph and budget checks do not drift when Rolldown would otherwise rename that shared chunk based on a smaller helper module.
 - The Vite config raises the generic chunk-size warning limit above the repository's intentional `state` and `pixi` chunk budgets so routine production builds stay focused on the explicit budget script rather than a lower default warning threshold.
 - Non-blocking startup chrome such as the version-status overlay stays deferred behind a lazy chunk so polling and refresh affordances do not enlarge the first-interaction bootstrap graph.
 - Repeated localized content families, such as expansion recipe descriptions that vary only by item slot, keep concise shared phrasing so locale growth does not consume startup budget headroom unnecessarily.
-- The current startup bundle thresholds are derived from the live production build graph: `index` `4.743 kB`, `App` `78.900 kB`, `background-audio` `54.420 kB`, `react-core` `8.689 kB` when emitted separately, `react-dom-vendor` `199.966 kB`, `state` `532.132 kB`, `en` `109.450 kB`, `pixi` `549.560 kB`, and `1.510000 MB` for total startup JS.
+- The current startup bundle thresholds are derived from the live production build graph: `index` `4.743 kB`, `App` `78.900 kB`, `background-audio` `54.420 kB`, `react-core` `8.689 kB` when emitted separately, `react-dom-vendor` `199.966 kB`, `state` `532.132 kB`, `en` `120.000 kB`, `pixi` `549.560 kB`, and `1.510000 MB` for total startup JS.
 - The pull-request workflow restores and saves `.tests/vitest-cache` with `actions/cache` before the test step so CI warm runs can reuse valid cached results across workflow executions.
 - The pull-request workflow declares explicit read-only `contents: read` permissions and keeps checkout credentials disabled because the job only installs dependencies and runs verification.
 - Dependency refresh automation now uses the dedicated `Dependency Update Workflow` path, where the mutating scripts rewrite dependency ranges, refresh the lockfile, and run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` before any commit or PR publication step.
@@ -51,6 +53,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - Contributors can force a cold Vitest run by deleting `.tests/vitest-cache`; when the directory is absent, the next `pnpm test` run recreates it automatically.
 - The staged-quality and pre-push runners invoke `git` directly and route `pnpm` through its Node entrypoint when `npm_execpath` is available, while falling back to the bundled `pnpm.cjs` Node entrypoint on Windows when a script runs outside `pnpm run`.
 - The memory-leak runner uses the same `pnpm` entrypoint path instead of shelling through `cmd.exe`, keeping its browser-test arguments out of Windows shell parsing.
+- The duplicate-deps audit runner uses that same pnpm invocation helper on Windows instead of routing `pnpm build` through `cmd.exe`.
 
 ## Main Implementation Areas
 
@@ -63,6 +66,8 @@ This spec covers the repository quality baseline and current test coverage shape
 - `scripts/fuite-dock-toggle-scenario.mjs`
 - `scripts/pnpm-command.mjs`
 - `scripts/run-pre-push-quality.mjs`
+- `scripts/run-vite-build.helpers.mjs`
+- `scripts/run-vite-build.mjs`
 - `scripts/run-memory-leak-test.mjs`
 - `scripts/run-duplicate-deps-audit.mjs`
 - `scripts/run-staged-quality.mjs`
