@@ -27,13 +27,13 @@ interface UseAppWindowViewsArgs {
   logFilters: Record<LogKind, boolean>;
   lootSnapshot: GameState['player']['inventory'];
   lootWindowVisible: boolean;
-  canProspectInventoryEquipment: boolean;
-  canSellInventoryEquipment: boolean;
-  prospectInventoryEquipmentExplanation: string | null;
+  canBulkProspectEquipment: boolean;
+  canBulkSellEquipment: boolean;
+  bulkProspectEquipmentExplanation: string | null;
   recipes: AppWindowsRawViewState['recipes']['entries'];
   recipeMaterialFilterItemKey: string | null;
   recipeSkillLevels: AppWindowsRawViewState['recipes']['skillLevels'];
-  sellInventoryEquipmentExplanation: string | null;
+  bulkSellEquipmentExplanation: string | null;
   showFilterMenu: boolean;
   stats: AppWindowsRawViewState['hero']['stats'];
   townStock: AppWindowsRawViewState['world']['townStock'];
@@ -57,13 +57,13 @@ export function useAppWindowViews({
   logFilters,
   lootSnapshot,
   lootWindowVisible,
-  canProspectInventoryEquipment,
-  canSellInventoryEquipment,
-  prospectInventoryEquipmentExplanation,
+  canBulkProspectEquipment,
+  canBulkSellEquipment,
+  bulkProspectEquipmentExplanation,
   recipes,
   recipeMaterialFilterItemKey,
   recipeSkillLevels,
-  sellInventoryEquipmentExplanation,
+  bulkSellEquipmentExplanation,
   showFilterMenu,
   stats,
   townStock,
@@ -103,17 +103,17 @@ export function useAppWindowViews({
       currentTileHostileEnemyCount,
       combat: game.combat,
       interactLabel,
-      canProspectInventoryEquipment,
-      canSellInventoryEquipment,
+      canBulkProspectEquipment,
+      canBulkSellEquipment,
       claimStatus,
-      prospectInventoryEquipmentExplanation,
-      sellInventoryEquipmentExplanation,
+      bulkProspectEquipmentExplanation,
+      bulkSellEquipmentExplanation,
       townStock,
       gold,
     }),
     [
-      canProspectInventoryEquipment,
-      canSellInventoryEquipment,
+      canBulkProspectEquipment,
+      canBulkSellEquipment,
       claimStatus,
       currentTile,
       currentTileHostileEnemyCount,
@@ -121,8 +121,8 @@ export function useAppWindowViews({
       game.homeHex,
       gold,
       interactLabel,
-      prospectInventoryEquipmentExplanation,
-      sellInventoryEquipmentExplanation,
+      bulkProspectEquipmentExplanation,
+      bulkSellEquipmentExplanation,
       townStock,
     ],
   );

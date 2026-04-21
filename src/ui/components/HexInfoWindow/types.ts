@@ -24,13 +24,13 @@ export interface HexInfoWindowProps extends WindowDetailTooltipHandlers {
   enemyCount: number;
   interactLabel?: string | null;
   canInteract: boolean;
-  canProspectInventoryEquipment: boolean;
-  canSellInventoryEquipment: boolean;
+  canBulkProspectEquipment: boolean;
+  canBulkSellEquipment: boolean;
   canTerritoryAction: boolean;
   territoryActionLabel: string;
   territoryActionExplanation?: string | null;
-  prospectInventoryEquipmentExplanation?: string | null;
-  sellInventoryEquipmentExplanation?: string | null;
+  bulkProspectEquipmentExplanation?: string | null;
+  bulkSellEquipmentExplanation?: string | null;
   onInteract: () => void;
   onProspect: () => void;
   onSellAll: () => void;

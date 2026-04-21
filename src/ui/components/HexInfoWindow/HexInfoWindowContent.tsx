@@ -18,10 +18,10 @@ export function HexInfoWindowContent({
   canTerritoryAction,
   territoryActionLabel,
   territoryActionExplanation,
-  canProspectInventoryEquipment,
-  canSellInventoryEquipment,
-  prospectInventoryEquipmentExplanation,
-  sellInventoryEquipmentExplanation,
+  canBulkProspectEquipment,
+  canBulkSellEquipment,
+  bulkProspectEquipmentExplanation,
+  bulkSellEquipmentExplanation,
   territoryNpc,
   onTerritoryAction,
   onProspect,
@@ -144,12 +144,12 @@ export function HexInfoWindowContent({
                 >
                   {territoryActionLabel}
                 </button>
-                {canProspectInventoryEquipment ? (
+                {canBulkProspectEquipment ? (
                   <button onClick={onProspect}>
                     {t('ui.hexInfo.prospectAction')}
                   </button>
                 ) : null}
-                {canSellInventoryEquipment ? (
+                {canBulkSellEquipment ? (
                   <button onClick={onSellAll}>
                     {t('ui.hexInfo.sellAllAction')}
                   </button>
@@ -159,14 +159,14 @@ export function HexInfoWindowContent({
               {territoryActionExplanation ? (
                 <div className={styles.empty}>{territoryActionExplanation}</div>
               ) : null}
-              {prospectInventoryEquipmentExplanation ? (
+              {bulkProspectEquipmentExplanation ? (
                 <div className={styles.empty}>
-                  {prospectInventoryEquipmentExplanation}
+                  {bulkProspectEquipmentExplanation}
                 </div>
               ) : null}
-              {sellInventoryEquipmentExplanation ? (
+              {bulkSellEquipmentExplanation ? (
                 <div className={styles.empty}>
-                  {sellInventoryEquipmentExplanation}
+                  {bulkSellEquipmentExplanation}
                 </div>
               ) : null}
               {territoryNpc ? (
@@ -225,8 +225,8 @@ export function HexInfoWindowContent({
 
               {!canTerritoryAction &&
               !(interactLabel && canInteract) &&
-              !canProspectInventoryEquipment &&
-              !canSellInventoryEquipment &&
+              !canBulkProspectEquipment &&
+              !canBulkSellEquipment &&
               townStock.length === 0 &&
               !territoryName ? (
                 <div className={styles.empty}>{t('ui.hexInfo.empty')}</div>

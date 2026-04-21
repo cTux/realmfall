@@ -1369,11 +1369,11 @@ describe('ui helpers and components', () => {
           canInteract
           canTerritoryAction
           territoryActionLabel="Claim hex"
-          canProspectInventoryEquipment={false}
-          canSellInventoryEquipment={false}
+          canBulkProspectEquipment={false}
+          canBulkSellEquipment={false}
           territoryActionExplanation={null}
-          prospectInventoryEquipmentExplanation={null}
-          sellInventoryEquipmentExplanation={null}
+          bulkProspectEquipmentExplanation={null}
+          bulkSellEquipmentExplanation={null}
           onInteract={() => {}}
           onTerritoryAction={() => {}}
           onProspect={() => {}}
@@ -1571,11 +1571,11 @@ describe('ui helpers and components', () => {
           canInteract={false}
           canTerritoryAction={false}
           territoryActionLabel="Claim hex"
-          canProspectInventoryEquipment={false}
-          canSellInventoryEquipment={false}
+          canBulkProspectEquipment={false}
+          canBulkSellEquipment={false}
           territoryActionExplanation={null}
-          prospectInventoryEquipmentExplanation="Nothing in your pack can be prospected."
-          sellInventoryEquipmentExplanation={null}
+          bulkProspectEquipmentExplanation="Nothing in your pack can be prospected."
+          bulkSellEquipmentExplanation={null}
           onInteract={() => {}}
           onTerritoryAction={() => {}}
           onProspect={() => {}}
@@ -1601,11 +1601,11 @@ describe('ui helpers and components', () => {
           canInteract={false}
           canTerritoryAction={false}
           territoryActionLabel="Claim hex"
-          canProspectInventoryEquipment={false}
-          canSellInventoryEquipment={false}
+          canBulkProspectEquipment={false}
+          canBulkSellEquipment={false}
           territoryActionExplanation={null}
-          prospectInventoryEquipmentExplanation={null}
-          sellInventoryEquipmentExplanation="No equippable items to sell."
+          bulkProspectEquipmentExplanation={null}
+          bulkSellEquipmentExplanation="No equippable items to sell."
           onInteract={() => {}}
           onTerritoryAction={() => {}}
           onProspect={() => {}}
@@ -1642,11 +1642,11 @@ describe('ui helpers and components', () => {
         canInteract
         canTerritoryAction={false}
         territoryActionLabel="Claim hex"
-        canProspectInventoryEquipment={false}
-        canSellInventoryEquipment={false}
+        canBulkProspectEquipment={false}
+        canBulkSellEquipment={false}
         territoryActionExplanation={null}
-        prospectInventoryEquipmentExplanation={null}
-        sellInventoryEquipmentExplanation={null}
+        bulkProspectEquipmentExplanation={null}
+        bulkSellEquipmentExplanation={null}
         onInteract={() => {}}
         onTerritoryAction={() => {}}
         onProspect={() => {}}
@@ -2086,8 +2086,8 @@ describe('ui helpers and components', () => {
         canToggleLock
         isLocked
         canShowRecipes
-        canProspectInventoryEquipment
-        canSellInventoryEquipment
+        canProspectItem
+        canSellEntry
         onEquip={() => {}}
         onUse={() => {}}
         onDrop={() => {}}

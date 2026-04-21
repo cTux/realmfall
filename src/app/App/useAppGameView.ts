@@ -125,15 +125,15 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     return playerClaims[0]?.coord ?? null;
   }, [homeHex, tiles]);
 
-  const canProspectInventoryEquipment =
+  const canBulkProspectEquipment =
     currentTile.structure === 'forge' && hasUnlockedEquipmentInInventory;
-  const canSellInventoryEquipment =
+  const canBulkSellEquipment =
     currentTile.structure === 'town' && hasUnlockedEquipmentInInventory;
-  const prospectInventoryEquipmentExplanation =
+  const bulkProspectEquipmentExplanation =
     currentTile.structure === 'forge' && !hasUnlockedEquipmentInInventory
       ? t('game.message.prospect.empty')
       : null;
-  const sellInventoryEquipmentExplanation =
+  const bulkSellEquipmentExplanation =
     currentTile.structure === 'town' && !hasUnlockedEquipmentInInventory
       ? t('game.message.sell.empty')
       : null;
@@ -154,8 +154,8 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
   return {
     backgroundMusicMood,
     claimStatus,
-    canProspectInventoryEquipment,
-    canSellInventoryEquipment,
+    canBulkProspectEquipment,
+    canBulkSellEquipment,
     combatEnemies,
     currentTile,
     currentTileHostileEnemyCount,
@@ -164,10 +164,10 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     gold,
     interactLabel,
     inventoryCountsByItemKey,
-    prospectInventoryEquipmentExplanation,
+    bulkProspectEquipmentExplanation,
     recipes,
     recipeSkillLevels,
-    sellInventoryEquipmentExplanation,
+    bulkSellEquipmentExplanation,
     stats,
     townStock,
   };

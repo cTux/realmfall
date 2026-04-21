@@ -299,11 +299,11 @@ export function useAppControllers({
         item,
         x: event.clientX,
         y: event.clientY,
-        canProspectInventoryEquipment:
+        canProspectItem:
           currentStructure === 'forge' &&
           isEquippableItem(item) &&
           !item.locked,
-        canSellInventoryEquipment:
+        canSellEntry:
           currentStructure === 'town' &&
           (isEquippableItem(item) || isRecipePage(item)) &&
           !item.locked,
@@ -324,8 +324,8 @@ export function useAppControllers({
         x: event.clientX,
         y: event.clientY,
         slot,
-        canProspectInventoryEquipment: false,
-        canSellInventoryEquipment: false,
+        canProspectItem: false,
+        canSellEntry: false,
       });
     },
     [],

@@ -7,17 +7,17 @@ This spec covers inventory actions, gold handling, and town trading.
 ## Current Behavior
 
 - Inventory supports sorting, dropping, consuming, equipping, recipe-page learning, and contextual actions.
-- Recipe pages in inventory show a green border plus a blue translucent slot overlay while still unlearned.
-- Learned recipe pages add a red `Already learned` hint in their inventory tooltip, use a red inventory border, stay in the pack until sold or dropped, and still route primary-click handling through the recipe-use flow so they show the dedicated already-known feedback instead of generic equip errors.
+- Recipe pages in inventory show a green border plus a blue translucent slot overlay while unlearned.
+- Learned recipe pages add a red `Already learned` hint in their inventory tooltip, use a red inventory border, stay in the pack until sold or dropped, and route primary-click handling through the recipe-use flow so they show the dedicated already-known feedback instead of generic equip errors.
 - Sellable item tooltips end with a coin-marked `Sells for N gold` line derived from the same town sell-value rules used by gameplay.
 - Stack-count badges remain fully visible on tinted and overlaid item slots.
 - Equippable inventory items can be locked from the context menu so prospecting and sell-all ignore them, and locked items display a small padlock badge in their slot.
-- While standing at a forge or town, eligible equippable inventory items expose item-context actions for single-item prospecting or selling.
+- While standing at a forge or town, eligible equippable inventory items expose item-context actions for single-item prospecting or selling, and recipe pages expose the town-only single-item sell action.
 - Crafting materials carry a dedicated crafting-material tag, and their context menu can open the recipe book filtered to matching recipes with a reset-filter action in the book.
 - Consumables are only spent when at least one of their effects would change the current player state.
 - Using any consumable starts a shared `2s` consumable cooldown, and no other consumable can be used again until that cooldown expires.
 - Prospecting converts equippable inventory items into value through the forge flow.
-- Sell-all supports town-based liquidation of qualifying items.
+- Sell-all supports town-based liquidation of unlocked equippable inventory items.
 - Gold is modeled as an inventory resource instead of a separate wallet field.
 - Towns provide a fixed deterministic stock based on seed and coordinate.
 - Buying uses town stock entries with explicit prices.

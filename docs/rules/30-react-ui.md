@@ -38,6 +38,7 @@
 - Keep component modules compatible with React Fast Refresh expectations; move shared non-component exports out of component files when needed.
 - When using `useEffectEvent`, do not include the returned callback in effect dependency arrays. Depend on the reactive values the effect reads and let the effect event provide the latest imperative callback body.
 - Name handler props after the behavior a user action can actually trigger. When one inventory click can equip, consume, or learn a recipe, expose that path as activation and keep equip-only or use-only handlers explicit.
+- Name UI availability flags after the exact action and scope they govern. Do not reuse one boolean across bulk hex-window actions and single-item context-menu actions when the allowed items or outcomes differ.
 - Keep shared window labels, hotkey metadata, and similar reusable UI constants in plain non-component modules so component files only export component concerns.
 - Window title bars should reuse shared controls wherever possible. Close actions must use the shared close button implementation and surface the shared custom tooltip consistently across every window.
 - Shared draggable window primitives own focus-to-front behavior. When a window opens or regains focus, route the stack update through the shared shell instead of introducing per-window z-index overrides.

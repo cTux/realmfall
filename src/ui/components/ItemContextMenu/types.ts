@@ -10,8 +10,8 @@ export interface ItemContextMenuProps {
   canToggleLock?: boolean;
   isLocked?: boolean;
   canShowRecipes?: boolean;
-  canProspectInventoryEquipment?: boolean;
-  canSellInventoryEquipment?: boolean;
+  canProspectItem?: boolean;
+  canSellEntry?: boolean;
   onEquip: () => void;
   onUse: () => void;
   onDrop: () => void;

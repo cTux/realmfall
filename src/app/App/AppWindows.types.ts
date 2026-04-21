@@ -54,15 +54,15 @@ export interface AppWindowsViewState {
     currentTileHostileEnemyCount: number;
     combat: GameState['combat'];
     interactLabel: string | null;
-    canProspectInventoryEquipment: boolean;
-    canSellInventoryEquipment: boolean;
+    canBulkProspectEquipment: boolean;
+    canBulkSellEquipment: boolean;
     claimStatus: ReturnType<
       typeof import('../../game/state').getCurrentHexClaimStatus
     > & {
       actionLabel: string;
     };
-    prospectInventoryEquipmentExplanation: string | null;
-    sellInventoryEquipmentExplanation: string | null;
+    bulkProspectEquipmentExplanation: string | null;
+    bulkSellEquipmentExplanation: string | null;
     townStock: ReturnType<typeof import('../../game/state').getTownStock>;
     gold: number;
   };

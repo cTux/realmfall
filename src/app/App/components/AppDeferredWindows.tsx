@@ -172,18 +172,16 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
             enemyCount={hexInfoView.enemyCount}
             interactLabel={worldView.interactLabel}
             canInteract={Boolean(worldView.interactLabel)}
-            canProspectInventoryEquipment={
-              worldView.canProspectInventoryEquipment
-            }
-            canSellInventoryEquipment={worldView.canSellInventoryEquipment}
+            canBulkProspectEquipment={worldView.canBulkProspectEquipment}
+            canBulkSellEquipment={worldView.canBulkSellEquipment}
             canTerritoryAction={worldView.claimStatus.canClaim}
             territoryActionLabel={worldView.claimStatus.actionLabel}
             territoryActionExplanation={worldView.claimStatus.reason}
-            prospectInventoryEquipmentExplanation={
-              worldView.prospectInventoryEquipmentExplanation
+            bulkProspectEquipmentExplanation={
+              worldView.bulkProspectEquipmentExplanation
             }
-            sellInventoryEquipmentExplanation={
-              worldView.sellInventoryEquipmentExplanation
+            bulkSellEquipmentExplanation={
+              worldView.bulkSellEquipmentExplanation
             }
             onInteract={worldActions.onInteract}
             onProspect={worldActions.onProspect}
