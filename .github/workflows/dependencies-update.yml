@@ -32,23 +32,11 @@ jobs:
       - name: Installing dependencies
         run: pnpm i --no-frozen-lockfile
 
-      - name: Updating dependencies
-        run: pnpm run update:minor
+      - name: Updating minor dependencies and running sanity checks
+        run: pnpm run update:minor -- --no-commit
 
       - name: Dependencies audit
         run: pnpm audit --json
-
-      - name: Installing dependencies
-        run: pnpm i
-
-      - name: Running ESLint
-        run: pnpm run lint
-
-      - name: Running Vitest
-        run: pnpm run test
-
-      - name: Running Build
-        run: pnpm run build
 
       - name: Configure Git author
         run: |

@@ -15,6 +15,7 @@ Implemented technical solutions are split into dedicated spec files:
 - [Internationalization](./internationalization/spec.md)
 - [Git Branch Cleanup](./git-branch-cleanup/spec.md)
 - [Git Branch Rebase And Push](./git-branch-rebase-and-push/spec.md)
+- [Dependency Update Workflow](./dependency-update-workflow/spec.md)
 - [Testing And Quality Tooling](./testing-and-quality-tooling/spec.md)
 - [Documentation Strategy](./documentation-strategy/spec.md)
 - [Version Checking](./version-checking/spec.md)

@@ -87,6 +87,9 @@ pnpm dev
 - `pnpm preview`
 - `pnpm quality:staged`
 - `pnpm typecheck`
+- `pnpm update:check` (lists available dependency updates without changing `package.json` or `pnpm-lock.yaml`)
+- `pnpm update:minor` (updates dependency ranges within the next minor line, refreshes `pnpm-lock.yaml`, runs `typecheck`, `lint`, `test`, and `build`, then commits through `pnpm git:commit`)
+- `pnpm update:major` (updates dependency ranges to the latest major releases, refreshes `pnpm-lock.yaml`, runs `typecheck`, `lint`, `test`, and `build`, then commits through `pnpm git:commit`)
 - `pnpm lint`
 - `pnpm lint:fix`
 - `pnpm lint:oxlint`
@@ -123,6 +126,8 @@ recreates it.
 The pre-commit hook runs `pnpm check:version` and `pnpm quality:staged`, then refreshes the Git index for auto-fixed tracked files. `pnpm quality:staged` runs `oxlint --fix -c .oxlintrc.json` only on staged JavaScript and TypeScript files, runs Stylelint only on staged `src` CSS and SCSS files, and runs `vitest related` for staged source, runtime JSON content, and test files. When shared test inputs such as `pnpm-lock.yaml`, `vite.config.ts`, TypeScript config, or `src/test/setup.ts` are staged, the hook keeps the commit path scoped and leaves the full-repository validation for pre-push. A `package.json` change that only bumps the `version` field stays on the scoped test path so routine commit metadata updates do not trigger the full suite. Use `pnpm git:commit -- -m "<message>"` for ordinary commits; it auto-bumps the patch version when `HEAD` has not been surpassed yet, stages `package.json`, and then hands off to `git commit`. `pnpm check:version` keeps validating that the committed patch version advances relative to `HEAD`. The pre-push hook now runs `pnpm typecheck`, `pnpm test`, and `pnpm build`.
 
 The repository already has strong baseline tooling. Changes should preserve strict typing, lint cleanliness, deterministic tests where practical, and successful production builds.
+
+Dependency refreshes should go through `pnpm update:check`, `pnpm update:minor`, or `pnpm update:major`. The mutating flows expect a clean tracked worktree, update dependency ranges with `npm-check-updates`, refresh `pnpm-lock.yaml` with `pnpm install --no-frozen-lockfile`, run the repository sanity checks, and commit through the version-aware `pnpm git:commit` helper. Pass `-- --no-commit` when a script or CI workflow needs the refreshed manifests without a local commit.
 
 Review notes and improvement descriptions should describe the current behavior directly rather than leaning on comparative filler such as `still`, because that wording goes stale once follow-up fixes land.
 

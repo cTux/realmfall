@@ -32,7 +32,8 @@ This spec covers the repository quality baseline and current test coverage shape
 - The current startup bundle thresholds are derived from the live production build graph: `index` `4.743 kB`, `App` `78.900 kB`, `background-audio` `54.420 kB`, `react-core` `8.689 kB` when emitted separately, `react-dom-vendor` `199.966 kB`, `state` `532.132 kB`, `en` `109.450 kB`, `pixi` `549.560 kB`, and `1.510000 MB` for total startup JS.
 - The pull-request workflow restores and saves `.tests/vitest-cache` with `actions/cache` before the test step so CI warm runs can reuse valid cached results across workflow executions.
 - The pull-request workflow declares explicit read-only `contents: read` permissions and keeps checkout credentials disabled because the job only installs dependencies and runs verification.
-- The scheduled dependency-update workflow bootstraps its toolchain with SHA-pinned GitHub Actions and the repo-pinned `pnpm` version, runs `pnpm i --no-frozen-lockfile` before rewriting dependency specifiers and the lockfile, audits the refreshed tree with read-only `pnpm audit --json`, then validates the refreshed dependency set with lint, test, and build steps.
+- Dependency refresh automation now uses the dedicated `Dependency Update Workflow` path, where the mutating scripts rewrite dependency ranges, refresh the lockfile, and run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` before any commit or PR publication step.
+- The scheduled dependency-update workflow bootstraps its toolchain with SHA-pinned GitHub Actions and the repo-pinned `pnpm` version, runs `pnpm i --no-frozen-lockfile`, delegates the refresh and sanity-check sequence to `pnpm update:minor -- --no-commit`, audits the refreshed tree with read-only `pnpm audit --json`, and then stages the dependency manifests for PR publication.
 - The scheduled dependency-update workflow declares explicit `contents: write` and `pull-requests: write` permissions, keeps checkout credentials disabled, and uses the GitHub CLI to commit, push, and create or update the dependency PR instead of delegating that write path to a third-party action.
 - Before the scheduled dependency-update workflow force-pushes the reusable `dependencies-update` branch with `--force-with-lease`, it refreshes `origin/dependencies-update` so the lease compares against current remote state and later runs can update the existing PR branch reliably.
 - The pre-commit workflow enforces version progression through `pnpm check:version`, which blocks commits unless `package.json` advances by patch version relative to `HEAD`.
@@ -53,6 +54,8 @@ This spec covers the repository quality baseline and current test coverage shape
 - `scripts/check-bundle-budget.mjs`
 - `scripts/check-bundle-budget.helpers.mjs`
 - `scripts/check-package-version.mjs`
+- `scripts/dependency-updates.mjs`
+- `scripts/dependency-updates.helpers.mjs`
 - `scripts/fuite-dock-toggle-scenario.mjs`
 - `scripts/pnpm-command.mjs`
 - `scripts/run-pre-push-quality.mjs`

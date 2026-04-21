@@ -25,6 +25,8 @@ Use this file for contributor process only. Canonical project guidance lives in
 ## Verification Workflow
 
 - Run `pnpm typecheck`, `pnpm test`, and `pnpm build` before pushing when you bypass hooks or need to verify the pre-push path manually.
+- Use `pnpm update:check` to inspect available dependency updates without modifying the worktree.
+- Run `pnpm update:minor` or `pnpm update:major` from a clean tracked worktree when you want an automated dependency refresh. Each command rewrites dependency ranges, runs `pnpm install --no-frozen-lockfile`, validates the result with `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build`, then commits through `pnpm git:commit`. Pass `-- --no-commit` when automation needs the refreshed manifests without creating a local commit.
 - Pin GitHub Actions to immutable commit SHAs in workflow files instead of mutable version tags.
 - Keep contributor scripts shell-safe on Windows. Do not pass staged paths or other user-controlled arguments through `cmd.exe` when invoking repository tooling.
 - Keep scheduled dependency automation on the repo-pinned package-manager version and use read-only audit commands there instead of mutating dependency trees inside the job.
