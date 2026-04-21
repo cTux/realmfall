@@ -203,6 +203,7 @@ describe('renderScene', () => {
     });
     game.enemies[bossId] = {
       id: bossId,
+      enemyTypeId: 'gluttony',
       name: 'Gluttony',
       coord: center,
       rarity: 'legendary',
@@ -290,6 +291,7 @@ describe('renderScene', () => {
     };
     game.enemies['enemy-1,0-0'] = {
       id: 'enemy-1,0-0',
+      enemyTypeId: 'raider',
       name: 'Raider',
       coord: { q: 1, r: 0 },
       rarity: 'common',
@@ -303,6 +305,7 @@ describe('renderScene', () => {
     };
     game.enemies['enemy-1,0-1'] = {
       id: 'enemy-1,0-1',
+      enemyTypeId: 'wolf',
       name: 'Wolf',
       coord: { q: 1, r: 0 },
       rarity: 'rare',
@@ -381,6 +384,7 @@ describe('renderScene', () => {
     };
     game.enemies['enemy-1,0-0'] = {
       id: 'enemy-1,0-0',
+      enemyTypeId: 'raider',
       name: 'Raider',
       coord: { q: 1, r: 0 },
       rarity: 'common',
@@ -394,6 +398,7 @@ describe('renderScene', () => {
     };
     game.enemies['enemy-1,0-1'] = {
       id: 'enemy-1,0-1',
+      enemyTypeId: 'wolf',
       name: 'Wolf',
       coord: { q: 1, r: 0 },
       rarity: 'common',
@@ -475,6 +480,7 @@ describe('renderScene', () => {
     };
     game.enemies['enemy-1,0-0'] = {
       id: 'enemy-1,0-0',
+      enemyTypeId: 'raider',
       name: 'Raider',
       coord: { q: 1, r: 0 },
       rarity: 'common',
@@ -488,6 +494,7 @@ describe('renderScene', () => {
     };
     game.enemies['enemy-1,0-1'] = {
       id: 'enemy-1,0-1',
+      enemyTypeId: 'wolf',
       name: 'Wolf',
       coord: { q: 1, r: 0 },
       rarity: 'rare',
@@ -501,6 +508,7 @@ describe('renderScene', () => {
     };
     game.enemies['enemy-1,0-2'] = {
       id: 'enemy-1,0-2',
+      enemyTypeId: 'marauder',
       name: 'Shade',
       coord: { q: 1, r: 0 },
       rarity: 'epic',
@@ -1337,6 +1345,7 @@ describe('renderScene', () => {
     };
     game.enemies['enemy-5,0-0'] = {
       id: 'enemy-5,0-0',
+      enemyTypeId: 'wolf',
       name: 'Wolf',
       coord: offscreenCoord,
       tier: 1,
@@ -1411,6 +1420,7 @@ describe('renderScene', () => {
     };
     game.enemies['enemy-5,0-0'] = {
       id: 'enemy-5,0-0',
+      enemyTypeId: 'raider',
       name: 'Raider',
       coord: { q: 5, r: 0 },
       tier: 9,
@@ -1580,6 +1590,7 @@ describe('renderScene', () => {
     };
     game.enemies['player-tile-raider'] = {
       id: 'player-tile-raider',
+      enemyTypeId: 'raider',
       name: 'Raider',
       coord: { q: 0, r: 0 },
       tier: 2,

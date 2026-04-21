@@ -17,6 +17,17 @@ export interface WorldHoverSnapshot {
   tooltipKey: string | null;
 }
 
+export function createEmptyWorldHoverSnapshot(): WorldHoverSnapshot {
+  return {
+    target: null,
+    clickable: false,
+    hoveredMove: null,
+    hoveredSafePath: null,
+    tooltip: null,
+    tooltipKey: null,
+  };
+}
+
 export function applyHoverSnapshot({
   hoverSnapshot,
   hoveredMoveRef,

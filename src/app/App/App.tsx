@@ -6,45 +6,30 @@ import {
   useRef,
   useState,
 } from 'react';
-import {
-  createGame,
-  syncBloodMoon,
-  syncPlayerStatusEffects,
-  type GameState,
-} from '../../game/state';
+import { createGame, type GameState } from '../../game/state';
 import { WORLD_RADIUS } from '../constants';
 import { AppWindows } from './AppWindows';
 import { useAppControllers } from './useAppControllers';
 import { useAppGameView } from './useAppGameView';
 import { useAppPersistence } from './useAppPersistence';
 import { useCombatAutomation } from './useCombatAutomation';
-import { setHomeHexForApp, useAppLifecycle } from './hooks/useAppLifecycle';
+import { useAppLifecycle } from './hooks/useAppLifecycle';
+import { useAppSettingsActions } from './hooks/useAppSettingsActions';
 import { useAppWindowActions } from './hooks/useAppWindowActions';
 import { useAppWindowViews } from './hooks/useAppWindowViews';
 import { useAppWindowsProps } from './hooks/useAppWindowsProps';
+import { useAppWorldClock } from './hooks/useAppWorldClock';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { usePixiWorld } from './usePixiWorld';
 import { useWindowTransitions } from './useWindowTransitions';
-import { useWorldClockFps } from './useWorldClockFps';
 import { PauseOverlay } from './components/PauseOverlay';
-import {
-  clearAudioSettings,
-  loadAudioSettings,
-  saveAudioSettings,
-  type AudioSettings,
-} from '../audioSettings';
+import { loadAudioSettings } from '../audioSettings';
 import {
   DEFAULT_UI_AUDIO_CONTROLLER,
   UiAudioProvider,
   type UiAudioController,
 } from '../audio/UiAudioContext';
-import {
-  clearGraphicsSettings,
-  loadGraphicsSettings,
-  saveGraphicsSettings,
-  type GraphicsSettings,
-} from '../graphicsSettings';
-import { clearWorldMapSettings } from '../worldMapSettings';
+import { loadGraphicsSettings } from '../graphicsSettings';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import { LoadingSpinner } from '../../ui/components/LoadingSpinner';
 import styles from './styles.module.scss';
@@ -158,27 +143,13 @@ export function App() {
     tooltipPositionRef,
     worldTimeMsRef,
   });
-  const handleWorldSecondChange = useCallback(() => {
-    setGame((current) =>
-      syncPlayerStatusEffects(current, worldTimeMsRef.current),
-    );
-  }, []);
-  const handleWorldMinuteChange = useCallback((worldTimeMinutes: number) => {
-    setGame((current) =>
-      syncBloodMoon(
-        { ...current, worldTimeMs: worldTimeMsRef.current },
-        worldTimeMinutes,
-      ),
-    );
-  }, []);
-  const { setWorldTimeMs } = useWorldClockFps({
+  const { setWorldTimeMs } = useAppWorldClock({
     initialWorldTimeMs: initialGameRef.current.worldTimeMs,
+    lastDisplayedWorldSecondRef,
     paused,
+    setGame,
     worldTimeMsRef,
     worldTimeTickRef,
-    lastDisplayedWorldSecondRef,
-    onWorldMinuteChange: handleWorldMinuteChange,
-    onWorldSecondChange: handleWorldSecondChange,
   });
 
   const {
@@ -232,6 +203,19 @@ export function App() {
     combat: game.combat,
     combatEnemies,
     currentTile,
+  });
+  const {
+    handleResetSaveData,
+    handleSaveSettings,
+    handleSaveSettingsAndReload,
+    handleSetHome,
+  } = useAppSettingsActions({
+    paused,
+    persistNow,
+    setAudioSettings,
+    setGame,
+    setGraphicsSettings,
+    uiAudio,
   });
   const { hostRef, canvasReady } = usePixiWorld({
     enabled: hydrated,
@@ -293,50 +277,6 @@ export function App() {
     windowShownLoot: windowShown.loot,
   });
 
-  const handleSaveSettings = useCallback(
-    async ({
-      audio: nextAudioSettings,
-      graphics: nextGraphicsSettings,
-    }: {
-      audio: AudioSettings;
-      graphics: GraphicsSettings;
-    }) => {
-      setAudioSettings(nextAudioSettings);
-      setGraphicsSettings(nextGraphicsSettings);
-      saveAudioSettings(nextAudioSettings);
-      saveGraphicsSettings(nextGraphicsSettings);
-      uiAudio.applySettings(nextAudioSettings);
-      await persistNow();
-      uiAudio.success();
-    },
-    [persistNow, setAudioSettings, setGraphicsSettings, uiAudio],
-  );
-
-  const handleSaveSettingsAndReload = useCallback(
-    async (settings: { audio: AudioSettings; graphics: GraphicsSettings }) => {
-      await handleSaveSettings(settings);
-      uiAudio.notify();
-      window.location.reload();
-    },
-    [handleSaveSettings, uiAudio],
-  );
-
-  const handleResetSaveData = useCallback(async () => {
-    uiAudio.error();
-    const { clearEncryptedState } = await import('../../persistence/storage');
-    await clearEncryptedState();
-    clearAudioSettings();
-    clearGraphicsSettings();
-    clearWorldMapSettings();
-    window.location.reload();
-  }, [uiAudio]);
-  const handleSetHome = useCallback(() => {
-    if (paused) {
-      return;
-    }
-
-    setHomeHexForApp(setGame);
-  }, [paused, setGame]);
   const appWindowViews = useAppWindowViews({
     actionBarSlots,
     audioSettings,

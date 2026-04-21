@@ -8,6 +8,7 @@
 - When reducing React rerender fanout, move window-specific derivation, dock composition, and stable window handler ownership out of `src/app/App/App.tsx` and into narrower hooks or the window composition layer when that keeps unrelated windows from recomputing together.
 - Compose memoized window view slices and grouped window action maps through dedicated hooks under `src/app/App/hooks` once `App.tsx` starts accumulating broad `hero`, `player`, `world`, `logs`, or action-group objects inline.
 - Do not let `src/app/App/App.tsx` rebuild broad nested `layout`, `views`, or `actions` object graphs inline once that data can be composed in narrower hooks or neighboring modules.
+- Keep lazy audio bridges, world overlays, and other shell-only composition grouped into focused local blocks so `App.tsx` remains a composition-first entrypoint instead of reclaiming broad orchestration detail.
 - When a UI control only needs the live world clock for display state, subscribe through `src/app/App/worldClockStore.ts` at the leaf component instead of threading `worldTimeMs` through broad app or window props.
 - When splitting `AppWindows` work, pass fixed and deferred window components only the view and action slices they actually consume instead of forwarding the full nested props object.
 - Avoid force-casting partial selector inputs to `GameState` in React view-model hooks. Use narrow selector input types and variable names that match the actual data shape being passed.
@@ -21,6 +22,7 @@
 - Load i18n before importing `src/app/App` during bootstrap. The app import graph contains module-level localized constants, so importing `App` before translations are ready can freeze raw i18n keys into runtime state on a cold start.
 - When new user-facing text is required, add a new i18n key instead of hardcoding a fallback string in code.
 - Keep tooltip sentence assembly, tag labels, and similar UI helper copy in i18n-backed formatters instead of embedding English fragments in `src/ui/tooltips.ts` or similar helper modules.
+- Share enemy and structure tooltip content builders across window helpers and world-hover helpers instead of maintaining parallel tooltip assembly paths with matching gameplay data.
 - Use dot-separated i18n keys in the form `{feature}.{area}.{property}` and extend with deeper segments only when needed for clarity.
 - For label formatters that map stable identifiers such as status effects to i18n, prefer direct patterned key lookups over conditional `if` or `switch` chains when the key can be derived safely.
 - Lazy-load secondary UI only when it matches the existing usage pattern and helps keep the initial app path lighter.

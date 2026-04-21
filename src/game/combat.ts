@@ -225,7 +225,7 @@ export function isAnimalEnemy(
 
   return (
     enemy.tags?.includes(GAME_TAGS.enemy.animal) ??
-    isAnimalEnemyType(enemy.enemyTypeId ?? enemy.name)
+    (enemy.enemyTypeId ? isAnimalEnemyType(enemy.enemyTypeId) : false)
   );
 }
 

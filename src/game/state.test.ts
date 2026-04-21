@@ -958,6 +958,7 @@ describe('game state', () => {
     };
     game.enemies['enemy-2,0-0'] = {
       id: 'enemy-2,0-0',
+      enemyTypeId: 'wolf',
       name: 'Wolf',
       coord: target,
       tier: 2,
@@ -3062,6 +3063,9 @@ describe('game state', () => {
       ),
     ).toBe(true);
     expect(entries.some((entry) => entry.id === 'craft-weapon')).toBe(false);
+    expect(entries.some((entry) => entry.id === 'craft-ashen-blade')).toBe(
+      false,
+    );
   });
 
   it('lets every enemy on the tile retaliate during combat', () => {

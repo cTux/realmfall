@@ -27,25 +27,13 @@ const ENEMY_CONFIG_BY_ID = Object.fromEntries(
   ENEMY_CONFIGS.map((config) => [config.id, config]),
 );
 
-const ENEMY_CONFIG_BY_NAME = Object.fromEntries(
-  ENEMY_CONFIGS.map((config) => [config.name, config]),
-);
-
-export function getEnemyConfig(enemyTypeIdOrName: string) {
-  return (
-    ENEMY_CONFIG_BY_ID[enemyTypeIdOrName] ??
-    ENEMY_CONFIG_BY_NAME[enemyTypeIdOrName]
-  );
-}
-
-export function getEnemyConfigById(enemyTypeId: string) {
+export function getEnemyConfig(enemyTypeId: string) {
   return ENEMY_CONFIG_BY_ID[enemyTypeId];
 }
 
-export function isAnimalEnemyType(enemyTypeIdOrName: string) {
+export function isAnimalEnemyType(enemyTypeId: string) {
   return (
-    getEnemyConfig(enemyTypeIdOrName)?.tags.includes(GAME_TAGS.enemy.animal) ??
-    false
+    getEnemyConfig(enemyTypeId)?.tags.includes(GAME_TAGS.enemy.animal) ?? false
   );
 }
 

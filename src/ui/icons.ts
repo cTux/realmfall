@@ -156,16 +156,14 @@ const ItemKindIcon: Record<
 export function enemyIconFor(
   enemy: Pick<Enemy, 'enemyTypeId' | 'name'> | string,
 ) {
-  const configured = getEnemyConfig(
-    typeof enemy === 'string' ? enemy : (enemy.enemyTypeId ?? enemy.name),
-  );
+  const enemyTypeId = typeof enemy === 'string' ? enemy : enemy.enemyTypeId;
+  const configured = enemyTypeId ? getEnemyConfig(enemyTypeId) : undefined;
   return configured?.icon ?? DEFAULT_ENEMY_ICON;
 }
 
 export function enemyTint(enemy: Pick<Enemy, 'enemyTypeId' | 'name'> | string) {
-  const configured = getEnemyConfig(
-    typeof enemy === 'string' ? enemy : (enemy.enemyTypeId ?? enemy.name),
-  );
+  const enemyTypeId = typeof enemy === 'string' ? enemy : enemy.enemyTypeId;
+  const configured = enemyTypeId ? getEnemyConfig(enemyTypeId) : undefined;
   return configured?.tint ?? DEFAULT_ENEMY_TINT;
 }
 

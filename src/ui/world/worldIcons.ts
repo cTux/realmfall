@@ -35,10 +35,9 @@ const ENEMY_RARITY_TINTS = Object.fromEntries(
 export function enemyIconFor(
   enemy: Pick<Enemy, 'enemyTypeId' | 'name'> | string,
 ) {
-  const lookup =
-    typeof enemy === 'string' ? enemy : (enemy.enemyTypeId ?? enemy.name);
+  const enemyTypeId = typeof enemy === 'string' ? enemy : enemy.enemyTypeId;
   return (
-    getEnemyConfig(lookup)?.icon ??
+    (enemyTypeId ? getEnemyConfig(enemyTypeId)?.icon : undefined) ??
     getEnemyConfig('wolf')?.icon ??
     WorldIcons.Player
   );

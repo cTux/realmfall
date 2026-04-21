@@ -7,6 +7,7 @@ import {
   type LogKind,
 } from '../game/state';
 import { clampItemLevel, syncPlayerBaseStats } from '../game/balance';
+import { ENEMY_CONFIGS } from '../game/content/enemies';
 import { ENEMY_TYPE_IDS } from '../game/content/ids';
 import { RARITY_ORDER, STRUCTURE_TYPES, TERRAINS } from '../game/types';
 import {
@@ -20,6 +21,9 @@ import {
 
 const SKILL_NAMES = Object.values(Skill);
 const ENEMY_TYPE_ID_SET = new Set<string>(ENEMY_TYPE_IDS);
+const LEGACY_ENEMY_TYPE_ID_BY_NAME = Object.fromEntries(
+  ENEMY_CONFIGS.map((config) => [config.name, config.id]),
+) as Record<string, NonNullable<Enemy['enemyTypeId']>>;
 const EQUIPMENT_SLOT_SET = new Set(EQUIPMENT_SLOTS);
 const ITEM_RARITY_SET = new Set<string>(RARITY_ORDER);
 const STRUCTURE_TYPE_SET = new Set<string>(STRUCTURE_TYPES);
@@ -360,10 +364,12 @@ function normalizeEnemy(value: unknown): GameState['enemies'][string] | null {
 
   const coord = normalizeHexCoord(value.coord);
   const statusEffects = normalizeStatusEffects(value.statusEffects);
+  const enemyTypeId = normalizeEnemyTypeId(value.enemyTypeId, value.name);
   if (
     !coord ||
     typeof value.id !== 'string' ||
     typeof value.name !== 'string' ||
+    enemyTypeId === null ||
     !isFiniteNumber(value.tier) ||
     !isFiniteNumber(value.hp) ||
     !isFiniteNumber(value.maxHp) ||
@@ -376,7 +382,6 @@ function normalizeEnemy(value: unknown): GameState['enemies'][string] | null {
   }
 
   if (
-    (value.enemyTypeId !== undefined && !isEnemyTypeId(value.enemyTypeId)) ||
     (value.tags !== undefined && !isStringArray(value.tags)) ||
     (value.rarity !== undefined && !isItemRarity(value.rarity)) ||
     (value.baseMaxHp !== undefined && !isFiniteNumber(value.baseMaxHp)) ||
@@ -394,9 +399,7 @@ function normalizeEnemy(value: unknown): GameState['enemies'][string] | null {
 
   return {
     id: value.id,
-    ...(value.enemyTypeId === undefined
-      ? {}
-      : { enemyTypeId: value.enemyTypeId }),
+    enemyTypeId,
     ...(value.tags === undefined
       ? {}
       : { tags: [...value.tags] as Enemy['tags'] }),
@@ -852,6 +855,21 @@ function isEnemyTypeId(
   value: unknown,
 ): value is NonNullable<Enemy['enemyTypeId']> {
   return typeof value === 'string' && ENEMY_TYPE_ID_SET.has(value);
+}
+
+function normalizeEnemyTypeId(
+  value: unknown,
+  name: unknown,
+): NonNullable<Enemy['enemyTypeId']> | null {
+  if (isEnemyTypeId(value)) {
+    return value;
+  }
+
+  if (value !== undefined || typeof name !== 'string') {
+    return null;
+  }
+
+  return LEGACY_ENEMY_TYPE_ID_BY_NAME[name] ?? null;
 }
 
 function isItemRarity(value: unknown): value is Item['rarity'] {

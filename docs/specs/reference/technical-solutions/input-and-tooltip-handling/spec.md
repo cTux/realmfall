@@ -14,6 +14,7 @@ This spec covers canvas-pointer world interaction and the shared tooltip system.
 - Safe-path lookup and world tooltip derivation run only for actionable hovered hexes; non-actionable tiles clear hover affordances without the heavier recomputation path.
 - Tooltips are managed through the shared app tooltip store.
 - Tooltip builders use locale keys and shared label helpers for their visible copy instead of hardcoded English fragments.
+- Enemy and structure tooltip content is assembled through shared builders used by both the window helper surface and the world-hover helper surface, while each surface keeps only its line-shape and presentation-specific wrapping.
 - Follow-cursor world tooltips receive their position updates from the same Pixi hover pipeline that derives the tooltip content, instead of registering a second global pointer listener for DOM syncing.
 - The world path and window UI both use the custom tooltip system instead of native browser titles.
 - Skill and profession tooltip titles use the localized in-game label casing rather than forcing all-caps formatting.
@@ -26,5 +27,6 @@ This spec covers canvas-pointer world interaction and the shared tooltip system.
 - `src/app/App/usePixiWorld.ts`
 - `src/app/App/tooltipStore.ts`
 - `src/ui/tooltips.ts`
+- `src/ui/tooltipContent.ts`
 - `src/ui/components/GameTooltip/GameTooltip.tsx`
 - `src/ui/tooltipPlacement.ts`
