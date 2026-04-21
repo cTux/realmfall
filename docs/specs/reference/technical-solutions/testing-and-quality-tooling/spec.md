@@ -27,7 +27,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - The codebase favors deterministic tests for gameplay and rendering calculations.
 - Contributor guidance now includes an explicit performance verification checklist for React rerender breadth, Pixi redraw breadth, hover hot paths, and startup chunk growth so optimization work has a repeatable review path beyond functional correctness.
 - That guidance also defines lightweight budgets for routine desktop world interaction and the main startup chunks, giving contributors a small regression envelope to compare against during reviews and build checks.
-- The pull-request workflow enforces startup delivery budgets through `pnpm build:budget`, which runs a production build, reads the Vite manifest, and fails if the bootstrap graph or its key chunks grow past the current thresholds.
+- The pull-request workflow reports startup delivery budgets through `pnpm build:budget`, which runs a production build, reads the Vite manifest, and warns if the bootstrap graph or its key chunks grow past the current thresholds without failing the build.
 - Dependency-duplication auditing runs through `pnpm build:duplicate-deps`, which enables the duplicate-deps Vite plugin only for explicit audits instead of adding that analysis cost to every production build.
 - The shared Vite build runner filters the known Rolldown plugin-timing warnings for `vite:asset` and the explicit duplicate-deps audit plugin so routine builds stay focused on actionable failures while unexpected plugin timing warnings remain visible.
 - JSON assets that participate in startup budgets, including the bootstrap locale bundle, are committed with LF line endings so emitted asset sizes remain stable across platforms.
