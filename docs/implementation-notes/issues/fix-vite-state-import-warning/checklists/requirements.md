@@ -1,34 +1,9 @@
-# Specification Quality Checklist: Remove Ineffective World Import Split
+# Archive Checklist: Historical `usePixiWorld` Import Warning Snapshot
 
-**Purpose**: Validate specification completeness and quality before proceeding to planning  
-**Created**: 2026-04-13  
-**Feature**: [brief.md](../brief.md)
-
-## Content Quality
-
-- [x] No implementation details (languages, frameworks, APIs)
-- [x] Focused on user value and business needs
-- [x] Written for non-technical stakeholders
-- [x] All mandatory sections completed
-
-## Requirement Completeness
-
-- [x] No [NEEDS CLARIFICATION] markers remain
-- [x] Requirements are testable and unambiguous
-- [x] Success criteria are measurable
-- [x] Success criteria are technology-agnostic (no implementation details)
-- [x] All acceptance scenarios are defined
-- [x] Edge cases are identified
-- [x] Scope is clearly bounded
-- [x] Dependencies and assumptions identified
-
-## Feature Readiness
-
-- [x] All functional requirements have clear acceptance criteria
-- [x] User scenarios cover primary flows
-- [x] Feature meets measurable outcomes defined in Success Criteria
-- [x] No implementation details leak into specification
-
-## Notes
-
-- Brief is ready for planning.
+- [x] The retained note identifies the warning list as a 2026-04-13 snapshot.
+- [x] The retained note tells contributors to rerun `pnpm build` before acting.
+- [x] Extra planning artifacts were removed because this workspace is not an active implementation plan.
+      **_ Delete File: C:\Users\cccTu\.codex\worktrees\df12\realmfall\docs\implementation-notes\issues\fix-vite-state-import-warning\data-model.md
+      _** Delete File: C:\Users\cccTu\.codex\worktrees\df12\realmfall\docs\implementation-notes\issues\fix-vite-state-import-warning\plan.md
+      **_ Delete File: C:\Users\cccTu\.codex\worktrees\df12\realmfall\docs\implementation-notes\issues\fix-vite-state-import-warning\quickstart.md
+      _** Delete File: C:\Users\cccTu\.codex\worktrees\df12\realmfall\docs\implementation-notes\issues\fix-vite-state-import-warning\research.md

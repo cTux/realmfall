@@ -12,7 +12,8 @@ This spec covers the canonical rules model and the project spec structure itself
 - `README.md` stays product-facing and concise, covering the current game state, the stack, quick-start commands, and references back to canonical contributor docs instead of restating the full workflow there.
 - `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md` are synchronized through `pnpm sync:ai-entrypoints` so the shared loader wording does not drift across parallel copies.
 - `docs/specs` holds canonical implemented reference specs.
-- `docs/implementation-notes` holds transient briefs, plans, research notes, issue workspaces, and checklists.
+- `docs/implementation-notes` holds transient briefs, plans, research notes, issue workspaces, and checklists while work is active.
+- Inactive or historical implementation-note workspaces are reduced to a short `brief.md` plus an optional checklist or archived entirely, keeping prompt-loading context small.
 - Transient implementation-note files should not use `spec.md` naming, which is reserved for canonical shipped-reference documents under `docs/specs`.
 - Each implemented gameplay feature and each technical solution should have its own dedicated spec file.
 - Index documents are used as navigation only.
