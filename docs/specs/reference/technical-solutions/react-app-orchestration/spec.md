@@ -29,6 +29,8 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `useAppControllers` routes gameplay mutations through a shared timed-transition helper so controller actions inject the current world time consistently without repeating the same wrapper at every call site.
 - `useAppControllers` delegates inventory and action-bar hover tooltip orchestration to `useItemTooltipController`, so tooltip caching, learned-recipe detection, and lazy tooltip-module loading stay together in one local hook instead of expanding the broader window and gameplay controller module.
 - `useAppControllers` separates inventory-slot activation from explicit equip and use actions so handler names match the behavior they trigger and context-menu equip actions stay equip-only.
+- `useAppWorldClock` keeps the top-level world-time sync callbacks next to the shared clock hook, so `App.tsx` does not rebuild the blood-moon and status-effect tick wiring inline.
+- `useAppSettingsActions` keeps save-reset, settings persistence, and home-hex shell actions in one local hook instead of mixing those imperative flows into the main app component body.
 - `useAppPersistence` keeps hydration and latest-input tracking in the hook while local `persistence/` helpers own segment serialization and autosave scheduling, separating save bootstrapping from debounce, idle-flush, and queued-write mechanics.
 - `useCombatAutomation` schedules the next combat step from the earliest pending combat event across actor cooldowns, cast completions, combat status-effect ticks, and effect expirations.
 - The top-level app owns a non-persistent pause state toggled by `Space`, and that state gates the shared world clock, combat automation, world-click travel, and controller-routed gameplay mutations while surfacing a centered overlay above the stage. The `Space` shortcut skips editable targets and focused interactive controls so native keyboard activation behavior remains intact.
@@ -59,6 +61,8 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `src/app/App/useAppPersistence.ts`
 - `src/app/App/persistence/saveSegments.ts`
 - `src/app/App/persistence/saveScheduler.ts`
+- `src/app/App/hooks/useAppSettingsActions.ts`
+- `src/app/App/hooks/useAppWorldClock.ts`
 - `src/app/App/hooks/useAppWindowsProps.ts`
 - `src/app/App/hooks/useAppWindowHandlers.ts`
 - `src/app/App/hooks/useDeferredWindows.ts`

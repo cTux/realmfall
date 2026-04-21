@@ -8,6 +8,7 @@
 - When reducing React rerender fanout, move window-specific derivation, dock composition, and stable window handler ownership out of `src/app/App/App.tsx` and into narrower hooks or the window composition layer when that keeps unrelated windows from recomputing together.
 - Compose memoized window view slices and grouped window action maps through dedicated hooks under `src/app/App/hooks` once `App.tsx` starts accumulating broad `hero`, `player`, `world`, `logs`, or action-group objects inline.
 - Do not let `src/app/App/App.tsx` rebuild broad nested `layout`, `views`, or `actions` object graphs inline once that data can be composed in narrower hooks or neighboring modules.
+- Keep lazy audio bridges, world overlays, and other shell-only composition grouped into focused local blocks so `App.tsx` remains a composition-first entrypoint instead of reclaiming broad orchestration detail.
 - When a UI control only needs the live world clock for display state, subscribe through `src/app/App/worldClockStore.ts` at the leaf component instead of threading `worldTimeMs` through broad app or window props.
 - When splitting `AppWindows` work, pass fixed and deferred window components only the view and action slices they actually consume instead of forwarding the full nested props object.
 - Avoid force-casting partial selector inputs to `GameState` in React view-model hooks. Use narrow selector input types and variable names that match the actual data shape being passed.
