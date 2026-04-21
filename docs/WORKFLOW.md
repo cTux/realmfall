@@ -15,6 +15,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 - Before each commit, bump the patch version in `package.json`. The pre-commit hook enforces this against `HEAD`.
 - Generate commit messages from the actual change set.
 - Keep commit messages focused on the behavioral change instead of enumerating every touched doc file.
+- Use `pnpm git:prune-gone-branches -- --dry-run` to preview local branches whose tracked remote ref was deleted, then rerun without `--dry-run` to remove them. Add `-- --safe` only when you want Git to keep its merged-branch protection.
 
 ## Verification Workflow
 

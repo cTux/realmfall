@@ -80,6 +80,7 @@ pnpm dev
 - `pnpm build`
 - `pnpm build:budget`
 - `pnpm build:storybook`
+- `pnpm git:prune-gone-branches` (fetches with prune, then force-deletes local branches whose tracked remote ref no longer exists; pass `-- --dry-run` to preview and `-- --safe` to keep Git's merged-branch safety checks)
 - `pnpm serve` (serves `dist` over local HTTPS with a generated self-signed certificate)
 - `pnpm preview`
 - `pnpm quality:staged`
