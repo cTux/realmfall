@@ -8,6 +8,7 @@ This spec covers the canonical rules model and the project spec structure itself
 
 - `docs/RULES.md` is the canonical source for project workflow and implementation guidance.
 - Other markdown entrypoints should stay short and point back to that file instead of maintaining separate competing rule lists.
+- `docs/WORKFLOW.md` stays process-oriented and command-oriented, linking back to canonical rule files when contributors need recurring policy detail.
 - `README.md` stays product-facing and concise, covering the current game state, the stack, quick-start commands, and references back to canonical contributor docs instead of restating the full workflow there.
 - `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md` are synchronized through `pnpm sync:ai-entrypoints` so the shared loader wording does not drift across parallel copies.
 - `docs/specs` holds canonical implemented reference specs.
