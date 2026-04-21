@@ -29,6 +29,7 @@ This spec covers encounter activation, actor timing, and combat resolution.
 - Actors track cooldowns, cast state, and effective cooldown values.
 - Hovering a non-player combat entity's HP bar surfaces that entity's current primary stats plus combat-relevant secondary stats in the shared tooltip system.
 - Combat progresses through repeated state resolution.
+- Combat automation wakes on the earliest pending combat event, including cast completions, ability readiness, damage-over-time or heal-over-time ticks, and status-effect expirations, so timed effects do not leave encounters idling until a later cooldown finishes.
 - Winning combat removes enemies from the tile and can leave loot behind.
 - Combat end clears the encounter state and logs the outcome.
 

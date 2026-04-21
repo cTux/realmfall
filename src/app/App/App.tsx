@@ -246,7 +246,7 @@ export function App() {
   });
 
   useCombatAutomation({
-    combat: game.combat,
+    game,
     setGame,
     worldTimeMsRef,
   });

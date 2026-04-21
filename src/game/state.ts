@@ -695,19 +695,28 @@ export function useItem(state: GameState, itemId: string): GameState {
 }
 
 export function getCombatAutomationDelay(
-  combat: GameState['combat'],
+  state: Pick<GameState, 'combat' | 'player' | 'enemies'>,
   worldTimeMs: number,
 ) {
+  const { combat } = state;
   if (!combat || combat.enemyIds.length === 0) return null;
 
   const eventTimes = [
     combat.player.casting?.endsAt,
     getNextActorReadyAt(combat.player, worldTimeMs),
+    getNextCombatStatusEffectEventAt(state.player.statusEffects, worldTimeMs),
     ...combat.enemyIds.flatMap((enemyId) => {
       const actor = combat.enemies[enemyId];
       if (!actor) return [] as Array<number | undefined>;
 
-      return [actor.casting?.endsAt, getNextActorReadyAt(actor, worldTimeMs)];
+      return [
+        actor.casting?.endsAt,
+        getNextActorReadyAt(actor, worldTimeMs),
+        getNextCombatStatusEffectEventAt(
+          state.enemies[enemyId]?.statusEffects,
+          worldTimeMs,
+        ),
+      ];
     }),
   ].filter((value): value is number => Number.isFinite(value));
 
@@ -2251,6 +2260,61 @@ function getNextActorReadyAt(
     );
     return Math.min(soonest, readyAt);
   }, Number.POSITIVE_INFINITY);
+}
+
+function getNextCombatStatusEffectEventAt(
+  statusEffects: PlayerStatusEffect[] | undefined,
+  worldTimeMs: number,
+) {
+  if (!statusEffects?.length) return undefined;
+
+  return statusEffects.reduce<number | undefined>((soonest, effect) => {
+    const nextEventAt = getNextStatusEffectEventAt(effect, worldTimeMs);
+    if (nextEventAt == null) {
+      return soonest;
+    }
+
+    if (soonest == null) {
+      return nextEventAt;
+    }
+
+    return Math.min(soonest, nextEventAt);
+  }, undefined);
+}
+
+function getNextStatusEffectEventAt(
+  effect: PlayerStatusEffect,
+  worldTimeMs: number,
+) {
+  const eventTimes: number[] = [];
+  const lastProcessedAt = effect.lastProcessedAt ?? worldTimeMs;
+
+  if (isTickingCombatStatusEffect(effect.id)) {
+    const tickIntervalMs = effect.tickIntervalMs ?? 1_000;
+    const nextTickAt = lastProcessedAt + tickIntervalMs;
+    if (effect.expiresAt == null || nextTickAt <= effect.expiresAt) {
+      eventTimes.push(nextTickAt);
+    }
+  }
+
+  if (effect.expiresAt != null) {
+    eventTimes.push(effect.expiresAt);
+  }
+
+  if (eventTimes.length === 0) {
+    return undefined;
+  }
+
+  return Math.max(worldTimeMs, Math.min(...eventTimes));
+}
+
+function isTickingCombatStatusEffect(statusEffectId: StatusEffectId) {
+  return (
+    statusEffectId === StatusEffectTypeId.Bleeding ||
+    statusEffectId === StatusEffectTypeId.Burning ||
+    statusEffectId === StatusEffectTypeId.Poison ||
+    statusEffectId === StatusEffectTypeId.Restoration
+  );
 }
 
 function selectEnemyGroupTarget(state: GameState) {
