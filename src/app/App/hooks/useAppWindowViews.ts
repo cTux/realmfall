@@ -3,25 +3,22 @@ import type { GameState, LogKind } from '../../../game/state';
 import type { AudioSettings } from '../../audioSettings';
 import type { GraphicsSettings } from '../../graphicsSettings';
 import type { ActionBarSlots } from '../actionBar';
+import type { AppWindowsViewState } from '../AppWindows.types';
 import type { ItemContextMenuState } from '../types';
-import type {
-  AppWindowsRawClaimStatus,
-  AppWindowsRawViewState,
-} from '../AppWindows.types';
 
 interface UseAppWindowViewsArgs {
   actionBarSlots: ActionBarSlots;
   audioSettings: AudioSettings;
-  combatSnapshot: AppWindowsRawViewState['combat']['snapshot'];
+  combatSnapshot: AppWindowsViewState['combat']['snapshot'];
   combatWindowVisible: boolean;
-  currentTile: AppWindowsRawViewState['world']['currentTile'];
+  currentTile: AppWindowsViewState['world']['currentTile'];
   currentTileHostileEnemyCount: number;
   game: GameState;
   gold: number;
   graphicsSettings: GraphicsSettings;
   inventoryCountsByItemKey: Record<string, number>;
   itemMenu: ItemContextMenuState | null;
-  claimStatus: AppWindowsRawClaimStatus;
+  claimStatus: AppWindowsViewState['world']['claimStatus'];
   interactLabel: string | null;
   filteredLogs: GameState['logs'];
   logFilters: Record<LogKind, boolean>;
@@ -30,13 +27,13 @@ interface UseAppWindowViewsArgs {
   canBulkProspectEquipment: boolean;
   canBulkSellEquipment: boolean;
   bulkProspectEquipmentExplanation: string | null;
-  recipes: AppWindowsRawViewState['recipes']['entries'];
+  recipes: AppWindowsViewState['recipes']['entries'];
   recipeMaterialFilterItemKey: string | null;
-  recipeSkillLevels: AppWindowsRawViewState['recipes']['skillLevels'];
+  recipeSkillLevels: AppWindowsViewState['recipes']['skillLevels'];
   bulkSellEquipmentExplanation: string | null;
   showFilterMenu: boolean;
-  stats: AppWindowsRawViewState['hero']['stats'];
-  townStock: AppWindowsRawViewState['world']['townStock'];
+  stats: AppWindowsViewState['hero']['stats'];
+  townStock: AppWindowsViewState['world']['townStock'];
 }
 
 export function useAppWindowViews({
@@ -67,7 +64,7 @@ export function useAppWindowViews({
   showFilterMenu,
   stats,
   townStock,
-}: UseAppWindowViewsArgs): AppWindowsRawViewState {
+}: UseAppWindowViewsArgs): AppWindowsViewState {
   const hero = useMemo(
     () => ({
       stats,

@@ -19,6 +19,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `AppWindows` owns the dock-entry composition, stable move and close handler maps, and narrow window-specific view models so `App.tsx` does not keep expanding as the desktop window surface grows.
 - `useAppWindowsProps` builds the nested `layout`, `views`, and `actions` payload passed to `AppWindows`, keeping `App.tsx` from rebuilding that whole prop tree inline.
 - `useAppWindowViews` and `useAppWindowActions` assemble the memoized window view slices and grouped action maps before `useAppWindowsProps` runs, so `App.tsx` coordinates lifecycle hooks without also owning every window-facing memo block directly.
+- Window view hooks return the shared final view shape directly; presentation-only labels such as the hex claim action copy are derived at the window composition site instead of flowing through separate raw and enriched window-view types.
 - Focused hooks under `src/app/App/hooks` keep `AppWindows` centered on composition by separating deferred-window bookkeeping, stable handler maps, and memoized window-specific view models.
 - `useManagedWindowProps` builds the shared `position`, `onMove`, `visible`, and `onClose` prop map for managed windows so fixed and deferred window composition does not repeat the same shell wiring at every render site.
 - Fixed and deferred window composition receives narrow view and action slices instead of the full `AppWindowsProps` object, keeping unrelated window surfaces from rerendering together when one subtree changes.

@@ -1,4 +1,5 @@
 import { memo, Suspense } from 'react';
+import { t } from '../../../i18n';
 import { DEFAULT_LOG_FILTERS } from '../../constants';
 import { WindowLoadingState } from '../../../ui/components/WindowLoadingState';
 import { createLazyWindowComponent } from '../../../ui/components/lazyWindowComponent';
@@ -175,7 +176,9 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
             canBulkProspectEquipment={worldView.canBulkProspectEquipment}
             canBulkSellEquipment={worldView.canBulkSellEquipment}
             canTerritoryAction={worldView.claimStatus.canClaim}
-            territoryActionLabel={worldView.claimStatus.actionLabel}
+            territoryActionLabel={claimStatusActionLabel(
+              worldView.claimStatus.action,
+            )}
             territoryActionExplanation={worldView.claimStatus.reason}
             bulkProspectEquipmentExplanation={
               worldView.bulkProspectEquipmentExplanation
@@ -267,3 +270,14 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
     </>
   );
 });
+
+function claimStatusActionLabel(
+  action: AppWindowsViewState['world']['claimStatus']['action'],
+) {
+  switch (action) {
+    case 'unclaim':
+      return t('ui.hexInfo.unclaimAction');
+    default:
+      return t('ui.hexInfo.claimAction');
+  }
+}
