@@ -8,36 +8,53 @@ import {
 } from './content/ids';
 import type { GameTag } from './content/tags';
 
-export type Terrain =
-  | 'plains'
-  | 'forest'
-  | 'rift'
-  | 'mountain'
-  | 'desert'
-  | 'swamp';
+export const TERRAINS = [
+  'plains',
+  'forest',
+  'rift',
+  'mountain',
+  'desert',
+  'swamp',
+] as const;
 
-export type GatheringStructureType =
-  | 'herbs'
-  | 'tree'
-  | 'copper-ore'
-  | 'tin-ore'
-  | 'iron-ore'
-  | 'gold-ore'
-  | 'platinum-ore'
-  | 'coal-ore'
-  | 'pond'
-  | 'lake';
+export type Terrain = (typeof TERRAINS)[number];
 
-export type StructureType =
-  | 'forge'
-  | 'camp'
-  | 'furnace'
-  | 'workshop'
-  | 'town'
-  | 'dungeon'
-  | GatheringStructureType;
+export const GATHERING_STRUCTURE_TYPES = [
+  'herbs',
+  'tree',
+  'copper-ore',
+  'tin-ore',
+  'iron-ore',
+  'gold-ore',
+  'platinum-ore',
+  'coal-ore',
+  'pond',
+  'lake',
+] as const;
 
-export type ItemRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+export type GatheringStructureType = (typeof GATHERING_STRUCTURE_TYPES)[number];
+
+export const STRUCTURE_TYPES = [
+  'forge',
+  'camp',
+  'furnace',
+  'workshop',
+  'town',
+  'dungeon',
+  ...GATHERING_STRUCTURE_TYPES,
+] as const;
+
+export type StructureType = (typeof STRUCTURE_TYPES)[number];
+
+export const RARITY_ORDER = [
+  'common',
+  'uncommon',
+  'rare',
+  'epic',
+  'legendary',
+] as const;
+
+export type ItemRarity = (typeof RARITY_ORDER)[number];
 export type EnemyRarity = ItemRarity;
 export type MainItemStatKey = 'power' | 'defense' | 'maxHp';
 export type SecondaryStatKey =
@@ -384,12 +401,4 @@ export const EQUIPMENT_SLOTS: EquipmentSlot[] = [
   EquipmentSlotId.RingRight,
   EquipmentSlotId.Amulet,
   EquipmentSlotId.Cloak,
-];
-
-export const RARITY_ORDER: ItemRarity[] = [
-  'common',
-  'uncommon',
-  'rare',
-  'epic',
-  'legendary',
 ];

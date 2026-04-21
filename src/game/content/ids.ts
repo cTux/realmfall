@@ -57,6 +57,7 @@ export enum EnemyTypeId {
 }
 
 export type EnemyTypeKey = `${EnemyTypeId}`;
+export const ENEMY_TYPE_IDS = Object.values(EnemyTypeId);
 
 export enum StatusEffectTypeId {
   Hunger = 'hunger',
