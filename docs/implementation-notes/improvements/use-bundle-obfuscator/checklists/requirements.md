@@ -31,4 +31,4 @@
 
 ## Notes
 
-- The brief is ready for planning. Technical choices, plugin scope, and verification commands are intentionally deferred to `plan.md`.
+- The brief remains as the compact feature record. Durable implementation details belong in canonical specs and scoped rule files instead of this workspace.
