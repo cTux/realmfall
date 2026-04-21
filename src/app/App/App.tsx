@@ -3,7 +3,6 @@ import {
   Suspense,
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -15,12 +14,13 @@ import {
 } from '../../game/state';
 import { WORLD_RADIUS } from '../constants';
 import { AppWindows } from './AppWindows';
-import { HomeIndicator } from './HomeIndicator';
 import { useAppControllers } from './useAppControllers';
 import { useAppGameView } from './useAppGameView';
 import { useAppPersistence } from './useAppPersistence';
 import { useCombatAutomation } from './useCombatAutomation';
 import { setHomeHexForApp, useAppLifecycle } from './hooks/useAppLifecycle';
+import { useAppWindowActions } from './hooks/useAppWindowActions';
+import { useAppWindowViews } from './hooks/useAppWindowViews';
 import { useAppWindowsProps } from './hooks/useAppWindowsProps';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { usePixiWorld } from './usePixiWorld';
@@ -67,6 +67,11 @@ const BackgroundMusicControllerBridge = lazy(() =>
     default: module.BackgroundMusicControllerBridge,
   })),
 );
+const HomeIndicator = lazy(() =>
+  import('./HomeIndicator').then((module) => ({
+    default: module.HomeIndicator,
+  })),
+);
 const VersionStatusPanel = lazy(() =>
   import('./components/VersionStatusPanel').then((module) => ({
     default: module.VersionStatusPanel,
@@ -100,7 +105,8 @@ export function App() {
     handleDropEquippedItem,
     handleDropItem,
     handleEquipmentHover,
-    handleEquip,
+    handleActivateInventoryItem,
+    handleEquipItem,
     handleEquippedContextItem,
     handleInteract,
     handleProspect,
@@ -331,233 +337,78 @@ export function App() {
 
     setHomeHexForApp(setGame);
   }, [paused, setGame]);
-  const heroView = useMemo(
-    () => ({
-      stats,
-      hunger: game.player.hunger,
-      thirst: game.player.thirst,
-    }),
-    [game.player.hunger, game.player.thirst, stats],
-  );
-  const playerView = useMemo(
-    () => ({
-      coord: game.player.coord,
-      mana: game.player.mana,
-      actionBarSlots,
-      equipment: game.player.equipment,
-      inventory: game.player.inventory,
-      learnedRecipeIds: game.player.learnedRecipeIds,
-    }),
-    [
-      actionBarSlots,
-      game.player.coord,
-      game.player.equipment,
-      game.player.inventory,
-      game.player.learnedRecipeIds,
-      game.player.mana,
-    ],
-  );
-  const worldView = useMemo(
-    () => ({
-      homeHex: game.homeHex,
-      currentTile,
-      currentTileHostileEnemyCount,
-      combat: game.combat,
-      interactLabel,
-      canProspectInventoryEquipment,
-      canSellInventoryEquipment,
-      claimStatus,
-      prospectInventoryEquipmentExplanation,
-      sellInventoryEquipmentExplanation,
-      townStock,
-      gold,
-    }),
-    [
-      canProspectInventoryEquipment,
-      canSellInventoryEquipment,
-      claimStatus,
-      currentTile,
-      currentTileHostileEnemyCount,
-      game.combat,
-      game.homeHex,
-      gold,
-      interactLabel,
-      prospectInventoryEquipmentExplanation,
-      sellInventoryEquipmentExplanation,
-      townStock,
-    ],
-  );
-  const recipesView = useMemo(
-    () => ({
-      entries: recipes,
-      skillLevels: recipeSkillLevels,
-      inventoryCountsByItemKey,
-      materialFilterItemKey: recipeMaterialFilterItemKey,
-    }),
-    [
-      inventoryCountsByItemKey,
-      recipeMaterialFilterItemKey,
-      recipeSkillLevels,
-      recipes,
-    ],
-  );
-  const lootView = useMemo(
-    () => ({
-      visible: lootWindowVisible,
-      snapshot: lootSnapshot,
-    }),
-    [lootSnapshot, lootWindowVisible],
-  );
-  const combatView = useMemo(
-    () => ({
-      visible: combatWindowVisible,
-      snapshot: combatSnapshot,
-    }),
-    [combatSnapshot, combatWindowVisible],
-  );
-  const logsView = useMemo(
-    () => ({
-      showFilterMenu,
-      filters: logFilters,
-      filtered: filteredLogs,
-    }),
-    [filteredLogs, logFilters, showFilterMenu],
-  );
-  const settingsView = useMemo(
-    () => ({
-      audio: audioSettings,
-      graphics: graphicsSettings,
-    }),
-    [audioSettings, graphicsSettings],
-  );
-  const windowActions = useMemo(
-    () => ({
-      onMoveWindow: moveWindow,
-      onSetWindowVisibility: setWindowVisibility,
-      onToggleDockWindow: toggleDockWindow,
-    }),
-    [moveWindow, setWindowVisibility, toggleDockWindow],
-  );
-  const tooltipActions = useMemo(
-    () => ({
-      onShowActionBarItemTooltip: showActionBarItemTooltip,
-      onShowItemTooltip: showItemTooltip,
-      onShowTooltip: showTooltip,
-      onCloseTooltip: closeTooltip,
-      onCloseItemMenu: closeItemMenu,
-      onEquipmentHover: handleEquipmentHover,
-    }),
-    [
-      closeItemMenu,
-      closeTooltip,
-      handleEquipmentHover,
-      showActionBarItemTooltip,
-      showItemTooltip,
-      showTooltip,
-    ],
-  );
-  const inventoryActions = useMemo(
-    () => ({
-      onUnequip: handleUnequip,
-      onSort: handleSort,
-      onEquip: handleEquip,
-      onUseItem: handleUseItem,
-      onAssignActionBarSlot: handleAssignActionBarSlot,
-      onClearActionBarSlot: handleClearActionBarSlot,
-      onUseActionBarSlot: handleUseActionBarSlot,
-      onCraftRecipe: handleCraftRecipe,
-      onDropItem: handleDropItem,
-      onDropEquippedItem: handleDropEquippedItem,
-      onProspectItem: handleProspectItem,
-      onSellItem: handleSellItem,
-      onSetItemLocked: handleSetItemLocked,
-      onContextItem: handleContextItem,
-      onEquippedContextItem: handleEquippedContextItem,
-      onTakeLootItem: handleTakeLootItem,
-      onTakeAllLoot: handleTakeAllLoot,
-    }),
-    [
-      handleAssignActionBarSlot,
-      handleClearActionBarSlot,
-      handleContextItem,
-      handleCraftRecipe,
-      handleDropEquippedItem,
-      handleDropItem,
-      handleEquip,
-      handleEquippedContextItem,
-      handleProspectItem,
-      handleSellItem,
-      handleSetItemLocked,
-      handleSort,
-      handleTakeAllLoot,
-      handleTakeLootItem,
-      handleUnequip,
-      handleUseActionBarSlot,
-      handleUseItem,
-    ],
-  );
-  const worldActions = useMemo(
-    () => ({
-      onStartCombat: handleStartCombat,
-      onInteract: handleInteract,
-      onProspect: handleProspect,
-      onSellAll: handleSellAll,
-      onBuyTownItem: handleBuyTownItem,
-      onClaimHex: handleClaimHex,
-      onSetHome: handleSetHome,
-    }),
-    [
-      handleBuyTownItem,
-      handleClaimHex,
-      handleInteract,
-      handleProspect,
-      handleSellAll,
-      handleSetHome,
-      handleStartCombat,
-    ],
-  );
-  const recipeActions = useMemo(
-    () => ({
-      onOpenWithMaterialFilter: handleOpenRecipeBookWithMaterialFilter,
-      onClearMaterialFilter: handleClearRecipeMaterialFilter,
-    }),
-    [handleClearRecipeMaterialFilter, handleOpenRecipeBookWithMaterialFilter],
-  );
-  const logActions = useMemo(
-    () => ({
-      onToggleFilterMenu: toggleFilterMenu,
-      onToggleLogFilter: toggleLogFilter,
-    }),
-    [toggleFilterMenu, toggleLogFilter],
-  );
-  const settingsActions = useMemo(
-    () => ({
-      onResetSaveData: handleResetSaveData,
-      onSaveSettings: handleSaveSettings,
-      onSaveSettingsAndReload: handleSaveSettingsAndReload,
-    }),
-    [handleResetSaveData, handleSaveSettings, handleSaveSettingsAndReload],
-  );
-  const appWindowActions = useMemo(
-    () => ({
-      windows: windowActions,
-      tooltip: tooltipActions,
-      inventory: inventoryActions,
-      world: worldActions,
-      recipes: recipeActions,
-      logs: logActions,
-      settings: settingsActions,
-    }),
-    [
-      inventoryActions,
-      logActions,
-      recipeActions,
-      settingsActions,
-      tooltipActions,
-      windowActions,
-      worldActions,
-    ],
-  );
+  const appWindowViews = useAppWindowViews({
+    actionBarSlots,
+    audioSettings,
+    combatSnapshot,
+    combatWindowVisible,
+    currentTile,
+    currentTileHostileEnemyCount,
+    game,
+    gold,
+    graphicsSettings,
+    inventoryCountsByItemKey,
+    itemMenu,
+    claimStatus,
+    interactLabel,
+    filteredLogs,
+    logFilters,
+    lootSnapshot,
+    lootWindowVisible,
+    canProspectInventoryEquipment,
+    canSellInventoryEquipment,
+    prospectInventoryEquipmentExplanation,
+    recipes,
+    recipeMaterialFilterItemKey,
+    recipeSkillLevels,
+    sellInventoryEquipmentExplanation,
+    showFilterMenu,
+    stats,
+    townStock,
+  });
+  const appWindowActions = useAppWindowActions({
+    closeItemMenu,
+    closeTooltip,
+    handleActivateInventoryItem,
+    handleAssignActionBarSlot,
+    handleBuyTownItem,
+    handleClaimHex,
+    handleClearActionBarSlot,
+    handleClearRecipeMaterialFilter,
+    handleContextItem,
+    handleCraftRecipe,
+    handleDropEquippedItem,
+    handleDropItem,
+    handleEquipmentHover,
+    handleEquipItem,
+    handleEquippedContextItem,
+    handleInteract,
+    handleOpenRecipeBookWithMaterialFilter,
+    handleProspect,
+    handleProspectItem,
+    handleResetSaveData,
+    handleSaveSettings,
+    handleSaveSettingsAndReload,
+    handleSellAll,
+    handleSellItem,
+    handleSetHome,
+    handleSetItemLocked,
+    handleSort,
+    handleStartCombat,
+    handleTakeAllLoot,
+    handleTakeLootItem,
+    handleUnequip,
+    handleUseActionBarSlot,
+    handleUseItem,
+    moveWindow,
+    setWindowVisibility,
+    showActionBarItemTooltip,
+    showItemTooltip,
+    showTooltip,
+    toggleDockWindow,
+    toggleFilterMenu,
+    toggleLogFilter,
+  });
 
   const appWindowsProps = useAppWindowsProps({
     windows,
@@ -565,15 +416,7 @@ export function App() {
     keepLootWindowMounted,
     keepCombatWindowMounted,
     tooltipPositionRef,
-    heroView,
-    playerView,
-    worldView,
-    recipesView,
-    lootView,
-    combatView,
-    logsView,
-    settingsView,
-    itemMenu,
+    views: appWindowViews,
     actions: appWindowActions,
   });
 
@@ -596,13 +439,15 @@ export function App() {
         </Suspense>
         <div className={isReady ? undefined : styles.hiddenUntilReady}>
           <div ref={hostRef} className={styles.mapViewport} />
-          <HomeIndicator
-            claimedHex={firstClaimedHex}
-            hostRef={hostRef}
-            homeHex={game.homeHex}
-            playerCoord={game.player.coord}
-            radius={game.radius}
-          />
+          <Suspense fallback={null}>
+            <HomeIndicator
+              claimedHex={firstClaimedHex}
+              hostRef={hostRef}
+              homeHex={game.homeHex}
+              playerCoord={game.player.coord}
+              radius={game.radius}
+            />
+          </Suspense>
           <Suspense fallback={null}>
             <VersionStatusPanel onRefresh={() => window.location.reload()} />
           </Suspense>

@@ -13,6 +13,7 @@
 - Reuse `visibleTiles` arrays and other world-facing selector outputs across unrelated state clones when the visible tile set and relevant world data did not change, so Pixi invalidation can key off stable inputs instead of broad app state identity.
 - Avoid recomputing full visible-tile arrays only to decide whether the previous array could have been reused. Reuse checks should be cheaper than the redraw work they protect.
 - Cache deterministic per-tile or per-scene render inputs instead of recomputing stable randomness and presentation values every frame.
+- When a Pixi texture cache lives at module scope, treat destroyed textures or destroyed texture sources as invalid and reload them before reuse so HMR and app remounts do not inherit dead GPU resources.
 - Separate static world layers from animated or transient layers when doing so reduces repeated redraw cost without making the renderer harder to reason about.
 - Keep world-map terrain geometry, fog, ground cover, and stable structure or enemy markers on cached static Pixi layers. Do not redraw unchanged map geometry on every ticker frame just because time-based animation is advancing.
 - Put hover, selection, and other short-lived interaction highlights on their own invalidated layer so pointer-state changes do not force a rebuild of the full world scene.

@@ -6,36 +6,52 @@ vi.mock('pixi.js', () => ({
     constructor(public options: unknown) {}
   },
   Texture: class MockTexture {
-    static from = vi.fn((icon: string) => ({ icon }));
+    static from = vi.fn(
+      (icon: string) =>
+        new MockTexture({
+          icon,
+          source: { destroyed: false },
+        }),
+    );
+    destroyed = false;
+    source: { destroyed: boolean } | null;
 
-    constructor(public options: unknown) {}
+    constructor(
+      public options: {
+        icon?: string;
+        source?: { destroyed?: boolean } | null;
+      },
+    ) {
+      this.source = options.source
+        ? { destroyed: options.source.destroyed ?? false }
+        : { destroyed: false };
+    }
   },
 }));
 
 describe('worldIcons', () => {
   it('serves preloaded textures from the world icon cache in the browser path', async () => {
     const originalImage = globalThis.Image;
-    const originalNavigator = globalThis.navigator;
+    const originalNavigatorUserAgent = globalThis.navigator.userAgent;
     class MockImage {
       onload: (() => void) | null = null;
       onerror: (() => void) | null = null;
 
       set src(_value: string) {
-        this.onload?.();
+        queueMicrotask(() => this.onload?.());
       }
     }
 
     try {
+      vi.resetModules();
       vi.stubGlobal('Image', MockImage as unknown as typeof Image);
-      vi.stubGlobal('navigator', {
-        userAgent: 'Mozilla/5.0',
-      } as Navigator);
+      Object.defineProperty(globalThis.navigator, 'userAgent', {
+        configurable: true,
+        value: 'Mozilla/5.0',
+      });
 
-      const {
-        WorldIcons,
-        ensureWorldIconTexturesLoaded,
-        getWorldIconTexture,
-      } = await import('./worldIcons');
+      const { WorldIcons, ensureWorldIconTexturesLoaded, getWorldIconTexture } =
+        await import('./worldIcons');
 
       await ensureWorldIconTexturesLoaded([WorldIcons.Player]);
 
@@ -49,7 +65,10 @@ describe('worldIcons', () => {
       } else {
         vi.stubGlobal('Image', originalImage);
       }
-      vi.stubGlobal('navigator', originalNavigator);
+      Object.defineProperty(globalThis.navigator, 'userAgent', {
+        configurable: true,
+        value: originalNavigatorUserAgent,
+      });
     }
   });
 
@@ -100,5 +119,55 @@ describe('worldIcons', () => {
       ]),
     );
     expect(icons).not.toContain(structureIconFor('town'));
+  });
+
+  it('reloads destroyed cached textures before reusing them', async () => {
+    const originalImage = globalThis.Image;
+    const originalNavigatorUserAgent = globalThis.navigator.userAgent;
+    class MockImage {
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+
+      set src(_value: string) {
+        queueMicrotask(() => this.onload?.());
+      }
+    }
+
+    try {
+      vi.resetModules();
+      vi.stubGlobal('Image', MockImage as unknown as typeof Image);
+      Object.defineProperty(globalThis.navigator, 'userAgent', {
+        configurable: true,
+        value: 'Mozilla/5.0',
+      });
+
+      const { WorldIcons, ensureWorldIconTexturesLoaded, getWorldIconTexture } =
+        await import('./worldIcons');
+
+      await ensureWorldIconTexturesLoaded([WorldIcons.Player]);
+      const initialTexture = getWorldIconTexture(
+        WorldIcons.Player,
+      ) as unknown as {
+        destroyed: boolean;
+        source: { destroyed: boolean } | null;
+      };
+      initialTexture.destroyed = true;
+      initialTexture.source = null;
+
+      await ensureWorldIconTexturesLoaded([WorldIcons.Player]);
+      const reloadedTexture = getWorldIconTexture(WorldIcons.Player);
+
+      expect(reloadedTexture).not.toBe(initialTexture);
+    } finally {
+      if (originalImage === undefined) {
+        vi.unstubAllGlobals();
+      } else {
+        vi.stubGlobal('Image', originalImage);
+      }
+      Object.defineProperty(globalThis.navigator, 'userAgent', {
+        configurable: true,
+        value: originalNavigatorUserAgent,
+      });
+    }
   });
 });

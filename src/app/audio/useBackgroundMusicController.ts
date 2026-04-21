@@ -1,9 +1,7 @@
 import { useEffect, useEffectEvent, useRef } from 'react';
 import { useAudioPlayer } from 'react-use-audio-player';
 import type { AudioSettings } from '../audioSettings';
-import {
-  type BackgroundMusicMood,
-} from './backgroundMusic';
+import { type BackgroundMusicMood } from './backgroundMusic';
 import {
   createBackgroundMusicCycleState,
   getNextBackgroundMusicTrack,
@@ -83,7 +81,7 @@ export function useBackgroundMusicController({
 
   useEffect(() => {
     applyAudioSettings(audioSettings);
-  }, [applyAudioSettings, audioSettings]);
+  }, [audioSettings]);
 
   useEffect(() => {
     if (!activatedRef.current) {
@@ -95,5 +93,5 @@ export function useBackgroundMusicController({
     }
 
     playNextTrack(mood);
-  }, [mood, playNextTrack]);
+  }, [mood]);
 }

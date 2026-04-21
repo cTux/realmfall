@@ -219,7 +219,9 @@ describe('GameSettingsWindowContent', () => {
 
     const musicMuteSwitch = Array.from(host.querySelectorAll('label'))
       .find((candidate) =>
-        candidate.textContent?.includes(t('ui.settings.audio.musicMuted.label')),
+        candidate.textContent?.includes(
+          t('ui.settings.audio.musicMuted.label'),
+        ),
       )
       ?.querySelector('input[type="checkbox"]');
     const saveButton = Array.from(host.querySelectorAll('button')).find(

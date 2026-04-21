@@ -124,7 +124,8 @@ function findFactionTerritory(seed: string, coord: HexCoord) {
 function generateFactionTerritory(seed: string, region: HexCoord) {
   const regionSeed = `${seed}:faction-region:${region.q},${region.r}`;
   if (
-    noise(`${regionSeed}:spawn`, region) >= TERRITORY_FACTION_REGION_SPAWN_CHANCE ||
+    noise(`${regionSeed}:spawn`, region) >=
+      TERRITORY_FACTION_REGION_SPAWN_CHANCE ||
     hexDistance(region, { q: 0, r: 0 }) <= 0
   ) {
     return null;

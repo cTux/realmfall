@@ -9,32 +9,16 @@ import {
 import { Skill } from './types';
 import type { LogRichSegment } from './types';
 import {
-  BLOOD_MOON_EXTRA_DROP_CHANCES,
   BLOOD_MOON_CHANCE,
-  BLOOD_MOON_SPAWN_RADIUS,
-  EARTHSHAKE_CHANCE,
-  EARTHSHAKE_SPAWN_RADIUS,
-  ENEMY_GOLD_DROP_CHANCES,
-  ENEMY_RECIPE_DROP_CHANCES,
-  GATHERING_BYPRODUCT_CHANCES,
   HARVEST_MOON_CHANCE,
   HARVEST_MOON_RESOURCE_CHANCES,
-  HARVEST_MOON_SPAWN_RADIUS,
-  HOME_SCROLL_DROP_CHANCES,
-  HOME_SCROLL_ITEM_NAME_KEY,
   STARTING_RECIPE_IDS,
   WORLD_RADIUS,
-  pickBloodMoonItemKind,
-  pickBloodMoonSpawnChance,
-  pickHarvestMoonResourceType,
-  pickHarvestMoonSpawnChance,
 } from './config';
 import { createRng } from './random';
 import { getAbilityDefinition } from './abilityRuntime';
-import { itemName } from './content/i18n';
 import { getEnemyConfig, isAnimalEnemyType } from './content/enemies';
 import {
-  buildItemFromConfig,
   getItemConfig,
   getItemConfigByKey,
   hasItemTag,
@@ -46,10 +30,6 @@ import {
   createCombatActorState,
   DEFAULT_ENEMY_MANA,
   enemyRarityIndex,
-  enemyKey,
-  isAnimalEnemy,
-  makeEnemy,
-  nextEnemySpawnIndex,
   syncEnemyBloodMoonState,
 } from './combat';
 import {
@@ -82,13 +62,10 @@ import {
   consumeInventoryItem,
   describeItemStack,
   getGoldAmount,
-  makeHomeScroll,
   isEquippableItem,
   isRecipePage,
   makeConsumable,
   makeGoldStack,
-  makeRecipePage,
-  makeResourceStack,
   makeStarterArmor,
   makeStarterWeapon,
   materializeRecipeOutput,
@@ -119,7 +96,7 @@ import {
   rollGatheringBonus,
   skillLevelThreshold,
 } from './progression';
-import { isPassable, noise } from './shared';
+import { isPassable } from './shared';
 import { isPlayerClaim, makePlayerClaim } from './territories';
 import {
   buildTile,
@@ -127,15 +104,17 @@ import {
   describeStructure,
   ensureTileState,
   isGatheringStructure,
-  makeArmor,
-  makeArtifact,
-  makeOffhand,
-  makeWeapon,
   normalizeStructureState,
   structureActionLabel,
   structureDefinition,
 } from './world';
 import { copyGameState } from './stateClone';
+import {
+  buildGatheringRewards,
+  describeItemStacks,
+  dropEnemyRewards,
+  maybeGatherByproduct,
+} from './stateRewards';
 import {
   getCurrentTile,
   getEnemiesAt,
@@ -147,13 +126,18 @@ import {
 } from './stateWorldQueries';
 import { getCurrentHexClaimStatus } from './stateClaims';
 import { getSafePathToTile } from './statePathfinding';
-import { isWorldBossFootprintOccupied } from './stateWorldBoss';
 import {
   applySurvivalDecay,
   processPlayerStatusEffects,
   respawnAtNearestTown,
   teleportHome,
 } from './stateSurvival';
+import {
+  maybeTriggerEarthshake,
+  openEarthshakeDungeon,
+  spawnBloodMoonEnemies,
+  spawnHarvestMoonResources,
+} from './stateWorldEvents';
 
 export { hexAtPoint, hexDistance } from './hex';
 export type { HexCoord } from './hex';
@@ -586,6 +570,22 @@ export function startCombat(state: GameState): GameState {
   return next;
 }
 
+export function activateInventoryItem(
+  state: GameState,
+  itemId: string,
+): GameState {
+  if (state.gameOver) return state;
+
+  const item = state.player.inventory.find((entry) => entry.id === itemId);
+  if (!item) return message(state, t('game.message.item.notInPack'));
+
+  if (isRecipePage(item) || canUseItem(item, state.player.learnedRecipeIds)) {
+    return applyInventoryItemUse(state, itemId);
+  }
+
+  return equipItem(state, itemId);
+}
+
 export function equipItem(state: GameState, itemId: string): GameState {
   if (state.gameOver) return state;
 
@@ -595,22 +595,17 @@ export function equipItem(state: GameState, itemId: string): GameState {
   if (itemIndex < 0) return message(state, t('game.message.item.notInPack'));
 
   const item = state.player.inventory[itemIndex];
-  const next = cloneForPlayerMutation(state);
-
-  if (canUseItem(item) && !isRecipePage(item)) {
-    consumeItem(next, itemIndex, item);
-    return next;
-  }
-
   if (hasItemTag(item, GAME_TAGS.item.resource))
     return message(
       state,
       t('game.message.equipment.resourcesCannotBeEquipped'),
     );
 
-  next.player.inventory.splice(itemIndex, 1);
   if (!item.slot)
     return message(state, t('game.message.equipment.cannotEquip'));
+
+  const next = cloneForPlayerMutation(state);
+  next.player.inventory.splice(itemIndex, 1);
 
   if (
     item.slot === EquipmentSlotId.Offhand &&
@@ -643,6 +638,10 @@ export function equipItem(state: GameState, itemId: string): GameState {
 }
 
 export function useItem(state: GameState, itemId: string): GameState {
+  return applyInventoryItemUse(state, itemId);
+}
+
+function applyInventoryItemUse(state: GameState, itemId: string): GameState {
   if (state.gameOver) return state;
 
   const itemIndex = state.player.inventory.findIndex(
@@ -1327,12 +1326,7 @@ function handleEnemyDefeat(
   if (!state.enemies[enemy.id]) return;
 
   gainXp(state, enemy.xp, addLog);
-  maybeDropEnemyGold(state, enemy);
-  maybeDropEnemyConsumables(state, enemy);
-  maybeDropEnemyRecipe(state, enemy);
-  maybeDropHomeScroll(state, enemy);
-  maybeDropBloodMoonLoot(state, enemy);
-  maybeSkinEnemy(state, enemy);
+  dropEnemyRewards(state, enemy);
   addLog(
     state,
     'combat',
@@ -3282,73 +3276,6 @@ function message(state: GameState, text: string): GameState {
   return next;
 }
 
-function buildGatheringRewards(
-  state: GameState,
-  structure: import('./types').GatheringStructureType,
-  definition: ReturnType<typeof structureDefinition>,
-  quantity: number,
-) {
-  if (!definition.rewardTable || definition.rewardTable.length === 0) {
-    return [
-      makeResourceStack(
-        definition.rewardItemKey,
-        definition.rewardTier,
-        quantity,
-      ),
-    ];
-  }
-
-  const counts = new Map<string, { tier: number; quantity: number }>();
-  for (let index = 0; index < quantity; index += 1) {
-    const reward = pickGatheringReward(state, structure, definition, index);
-    const key = reward.itemKey;
-    const current = counts.get(key) ?? {
-      tier: reward.rewardTier ?? definition.rewardTier,
-      quantity: 0,
-    };
-    counts.set(key, {
-      tier: current.tier,
-      quantity: current.quantity + (reward.quantity ?? 1),
-    });
-  }
-
-  return [...counts.entries()].map(([itemKey, reward]) =>
-    makeResourceStack(itemKey, reward.tier, reward.quantity),
-  );
-}
-
-function pickGatheringReward(
-  state: GameState,
-  structure: import('./types').GatheringStructureType,
-  definition: ReturnType<typeof structureDefinition>,
-  rollIndex: number,
-) {
-  const table = definition.rewardTable;
-  if (!table || table.length === 0) {
-    return {
-      itemKey: definition.rewardItemKey,
-      rewardTier: definition.rewardTier,
-      quantity: 1,
-    };
-  }
-
-  const totalWeight = table.reduce((sum, entry) => sum + entry.weight, 0);
-  const rng = createRng(
-    `${state.seed}:gather-reward:${structure}:${state.turn}:${hexKey(state.player.coord)}:${rollIndex}`,
-  );
-  let remaining = rng() * totalWeight;
-  for (const entry of table) {
-    remaining -= entry.weight;
-    if (remaining <= 0) return entry;
-  }
-  return table[table.length - 1]!;
-}
-
-function describeItemStacks(items: Item[]) {
-  if (items.length === 1) return describeItemStack(items[0]!);
-  return items.map(describeItemStack).join(', ');
-}
-
 function cloneForWorldMutation(state: GameState) {
   return copyGameState(state, {
     logs: true,
@@ -3401,10 +3328,6 @@ function cloneForHomeMutation(state: GameState) {
   });
 }
 
-function isHomeHex(state: GameState, coord: HexCoord) {
-  return state.homeHex.q === coord.q && state.homeHex.r === coord.r;
-}
-
 function sanitizeHomeTile(tile: GameState['tiles'][string]) {
   return {
     ...tile,
@@ -3414,573 +3337,4 @@ function sanitizeHomeTile(tile: GameState['tiles'][string]) {
     structureMaxHp: undefined,
     enemyIds: [],
   };
-}
-
-function maybeGatherByproduct(
-  state: GameState,
-  structure: import('./types').GatheringStructureType,
-  definition: ReturnType<typeof structureDefinition>,
-) {
-  const byproductItemKey =
-    structure === 'tree'
-      ? ItemId.Sticks
-      : structure === 'copper-ore' ||
-          structure === 'tin-ore' ||
-          structure === 'iron-ore' ||
-          structure === 'gold-ore' ||
-          structure === 'platinum-ore' ||
-          structure === 'coal-ore'
-        ? ItemId.Stone
-        : null;
-  if (!byproductItemKey) return null;
-
-  const rng = createRng(
-    `${state.seed}:gather-byproduct:${structure}:${state.turn}:${hexKey(state.player.coord)}`,
-  );
-  if (
-    rng() >=
-    (structure === 'tree'
-      ? GATHERING_BYPRODUCT_CHANCES.tree
-      : GATHERING_BYPRODUCT_CHANCES.ore)
-  ) {
-    return null;
-  }
-
-  return {
-    item: makeResourceStack(byproductItemKey, definition.rewardTier, 1),
-    text:
-      structure === 'tree'
-        ? t('game.message.gather.byproduct.sticks', {
-            item: itemName(ItemId.Sticks),
-          })
-        : t('game.message.gather.byproduct.stone', {
-            item: itemName(ItemId.Stone),
-          }),
-  };
-}
-
-function maybeDropEnemyGold(state: GameState, enemy: import('./types').Enemy) {
-  const rng = createRng(`${state.seed}:enemy-gold:${enemy.id}:${state.turn}`);
-  const rarityRank = enemyRarityIndex(enemy.rarity);
-  if (enemy.worldBoss) {
-    const quantity = Math.max(40, enemy.tier * 12 + Math.floor(rng() * 40));
-    ensureTileState(state, enemy.coord);
-    const key = hexKey(enemy.coord);
-    const tile = state.tiles[key];
-    addItemToInventory(tile.items, makeGoldStack(quantity));
-    state.tiles[key] = { ...tile, items: [...tile.items] };
-    addLog(
-      state,
-      'loot',
-      t('game.message.enemyDrop.gold', {
-        enemy: enemy.name,
-        amount: quantity,
-      }),
-    );
-    return;
-  }
-
-  const chance = state.bloodMoonActive
-    ? ENEMY_GOLD_DROP_CHANCES.bloodMoon
-    : Math.min(
-        ENEMY_GOLD_DROP_CHANCES.max,
-        ENEMY_GOLD_DROP_CHANCES.base +
-          enemy.tier * ENEMY_GOLD_DROP_CHANCES.perTier +
-          rarityRank * ENEMY_GOLD_DROP_CHANCES.perRarity +
-          (enemy.elite ? ENEMY_GOLD_DROP_CHANCES.eliteBonus : 0),
-      );
-  if (rng() > chance) return;
-
-  const quantity = Math.max(
-    1,
-    Math.floor(enemy.tier + rarityRank + rng() * (5 + rarityRank * 2)),
-  );
-  const bloodMoonQuantity = state.bloodMoonActive
-    ? Math.max(quantity + enemy.tier, Math.ceil(quantity * 2.5))
-    : quantity;
-  ensureTileState(state, enemy.coord);
-  const key = hexKey(enemy.coord);
-  const tile = state.tiles[key];
-  addItemToInventory(tile.items, makeGoldStack(bloodMoonQuantity));
-  state.tiles[key] = { ...tile, items: [...tile.items] };
-  addLog(
-    state,
-    'loot',
-    t('game.message.enemyDrop.gold', {
-      enemy: enemy.name,
-      amount: bloodMoonQuantity,
-    }),
-  );
-}
-
-function maybeDropEnemyConsumables(
-  state: GameState,
-  enemy: import('./types').Enemy,
-) {
-  const dropKeys = [
-    'apple',
-    'water-flask',
-    'health-potion',
-    'mana-potion',
-  ] as const;
-
-  dropKeys.forEach((itemKey) => {
-    const configured = getItemConfigByKey(itemKey);
-    const chance = Math.min(
-      0.92,
-      (configured?.dropChance ?? 0) + enemyRarityIndex(enemy.rarity) * 0.04,
-    );
-    if (chance <= 0) return;
-
-    const rng = createRng(
-      `${state.seed}:enemy-consumable:${itemKey}:${enemy.id}:${state.turn}`,
-    );
-    if (rng() >= chance) return;
-
-    ensureTileState(state, enemy.coord);
-    const key = hexKey(enemy.coord);
-    const tile = state.tiles[key];
-    addItemToInventory(
-      tile.items,
-      buildItemFromConfig(itemKey, {
-        id: `${itemKey}:${enemy.id}:${state.turn}`,
-      }),
-    );
-    state.tiles[key] = { ...tile, items: [...tile.items] };
-    addLog(
-      state,
-      'loot',
-      t('game.message.enemyDrop.item', {
-        enemy: enemy.name,
-        item: configured?.name ?? itemKey,
-      }),
-    );
-  });
-}
-
-function maybeDropEnemyRecipe(
-  state: GameState,
-  enemy: import('./types').Enemy,
-) {
-  const unlearnedRecipes = RECIPE_BOOK_RECIPES.filter(
-    (recipe) => !state.player.learnedRecipeIds.includes(recipe.id),
-  );
-  if (unlearnedRecipes.length === 0) return;
-
-  const rng = createRng(`${state.seed}:enemy-recipe:${enemy.id}:${state.turn}`);
-  const rarityRank = enemyRarityIndex(enemy.rarity);
-  const baseChance = Math.min(
-    ENEMY_RECIPE_DROP_CHANCES.max,
-    ENEMY_RECIPE_DROP_CHANCES.base +
-      enemy.tier * ENEMY_RECIPE_DROP_CHANCES.perTier +
-      rarityRank * ENEMY_RECIPE_DROP_CHANCES.perRarity,
-  );
-  const chance = state.bloodMoonActive
-    ? Math.min(
-        ENEMY_RECIPE_DROP_CHANCES.bloodMoonMax,
-        baseChance + ENEMY_RECIPE_DROP_CHANCES.bloodMoonBonus,
-      )
-    : baseChance;
-  if (rng() >= chance) return;
-
-  const recipe = unlearnedRecipes[Math.floor(rng() * unlearnedRecipes.length)];
-  ensureTileState(state, enemy.coord);
-  const key = hexKey(enemy.coord);
-  const tile = state.tiles[key];
-  addItemToInventory(tile.items, makeRecipePage(recipe));
-  state.tiles[key] = { ...tile, items: [...tile.items] };
-  addLog(
-    state,
-    'loot',
-    t('game.message.enemyDrop.recipe', {
-      enemy: enemy.name,
-      recipe: recipe.name,
-    }),
-  );
-}
-
-function maybeDropHomeScroll(state: GameState, enemy: import('./types').Enemy) {
-  const rng = createRng(
-    `${state.seed}:enemy-home-scroll:${enemy.id}:${state.turn}`,
-  );
-  if (
-    rng() >=
-    Math.min(
-      HOME_SCROLL_DROP_CHANCES.max,
-      HOME_SCROLL_DROP_CHANCES.base +
-        enemyRarityIndex(enemy.rarity) * HOME_SCROLL_DROP_CHANCES.perRarity,
-    )
-  ) {
-    return;
-  }
-
-  ensureTileState(state, enemy.coord);
-  const key = hexKey(enemy.coord);
-  const tile = state.tiles[key];
-  addItemToInventory(
-    tile.items,
-    makeHomeScroll(`home-scroll:${enemy.id}:${state.turn}`),
-  );
-  state.tiles[key] = { ...tile, items: [...tile.items] };
-  addLog(
-    state,
-    'loot',
-    t('game.message.enemyDrop.item', {
-      enemy: enemy.name,
-      item: t(HOME_SCROLL_ITEM_NAME_KEY),
-    }),
-  );
-}
-
-function maybeDropBloodMoonLoot(
-  state: GameState,
-  enemy: import('./types').Enemy,
-) {
-  if (!state.bloodMoonActive && !enemy.worldBoss) return;
-
-  ensureTileState(state, enemy.coord);
-  const key = hexKey(enemy.coord);
-  const tile = state.tiles[key];
-  const rarityRank = enemyRarityIndex(enemy.rarity);
-  const baseTier = Math.max(
-    1,
-    enemy.tier + Math.max(1, Math.floor(rarityRank / 2)),
-  );
-  const minimumRarity = enemy.worldBoss
-    ? 'legendary'
-    : rarityRank >= 2
-      ? 'epic'
-      : 'rare';
-  addItemToInventory(
-    tile.items,
-    makeBloodMoonDrop(state, enemy, 0, baseTier, minimumRarity),
-  );
-
-  const rng = createRng(
-    `${state.seed}:blood-moon-loot:${enemy.id}:${state.turn}`,
-  );
-  if (enemy.worldBoss) {
-    addItemToInventory(
-      tile.items,
-      makeBloodMoonDrop(state, enemy, 1, baseTier + 1, 'legendary'),
-    );
-  } else if (
-    rarityRank >= 2 ||
-    rng() <
-      BLOOD_MOON_EXTRA_DROP_CHANCES.base +
-        rarityRank * BLOOD_MOON_EXTRA_DROP_CHANCES.perRarity
-  ) {
-    addItemToInventory(
-      tile.items,
-      makeBloodMoonDrop(state, enemy, 1, baseTier + 1, minimumRarity),
-    );
-  }
-
-  state.tiles[key] = { ...tile, items: [...tile.items] };
-  addLog(
-    state,
-    'loot',
-    t('game.message.enemyDrop.bloodMoon', { enemy: enemy.name }),
-  );
-}
-
-function maybeSkinEnemy(state: GameState, enemy: import('./types').Enemy) {
-  if (!isAnimalEnemy(enemy)) return;
-
-  ensureTileState(state, enemy.coord);
-  const key = hexKey(enemy.coord);
-  const tile = state.tiles[key];
-  const quantity = Math.max(
-    1,
-    Math.ceil(enemy.tier / 2) + (state.bloodMoonActive ? 1 : 0),
-  );
-  addItemToInventory(
-    tile.items,
-    makeResourceStack(ItemId.LeatherScraps, enemy.tier, quantity),
-  );
-  addItemToInventory(
-    tile.items,
-    makeResourceStack('meat', enemy.tier, quantity),
-  );
-  state.tiles[key] = { ...tile, items: [...tile.items] };
-  gainSkillXp(state, Skill.Skinning, quantity, addLog);
-  addLog(
-    state,
-    'loot',
-    t('game.message.skinning.success', {
-      enemy: enemy.name,
-      quantity,
-      item: itemName('leather-scraps'),
-    }),
-  );
-  addLog(
-    state,
-    'loot',
-    t('game.message.skinning.meat', {
-      enemy: enemy.name,
-      quantity,
-      item: itemName('meat'),
-    }),
-  );
-}
-
-function spawnBloodMoonEnemies(state: GameState) {
-  let spawned = 0;
-  const maxEnemiesPerTile = 3;
-
-  for (
-    let dq = -BLOOD_MOON_SPAWN_RADIUS;
-    dq <= BLOOD_MOON_SPAWN_RADIUS;
-    dq += 1
-  ) {
-    for (
-      let dr = -BLOOD_MOON_SPAWN_RADIUS;
-      dr <= BLOOD_MOON_SPAWN_RADIUS;
-      dr += 1
-    ) {
-      const coord = {
-        q: state.player.coord.q + dq,
-        r: state.player.coord.r + dr,
-      };
-      const distance = hexDistance(state.player.coord, coord);
-      if (distance === 0 || distance > BLOOD_MOON_SPAWN_RADIUS) continue;
-      if (isHomeHex(state, coord)) continue;
-
-      ensureTileState(state, coord);
-      const key = hexKey(coord);
-      const tile = state.tiles[key];
-      if (!canSpawnBloodMoonEnemiesOnTile(state, tile)) continue;
-
-      const rng = createRng(
-        `${state.seed}:blood-moon-spawn:${state.bloodMoonCycle}:${key}`,
-      );
-      const spawnChance = pickBloodMoonSpawnChance(distance);
-      if (rng() >= spawnChance) continue;
-
-      const availableSlots = Math.max(
-        0,
-        maxEnemiesPerTile - tile.enemyIds.length,
-      );
-      if (availableSlots === 0) continue;
-
-      const count = Math.min(
-        availableSlots,
-        1 + Math.floor(rng() * (distance <= 2 ? 3 : 2)),
-      );
-      let nextIndex = nextEnemySpawnIndex(tile.enemyIds);
-      for (let index = 0; index < count; index += 1) {
-        const enemy = makeEnemy(
-          state.seed,
-          coord,
-          tile.terrain,
-          nextIndex,
-          tile.structure,
-          true,
-        );
-        tile.enemyIds.push(enemy.id);
-        state.enemies[enemy.id] = enemy;
-        nextIndex += 1;
-        spawned += 1;
-      }
-
-      state.tiles[key] = { ...tile, enemyIds: [...tile.enemyIds] };
-    }
-  }
-
-  return spawned;
-}
-
-function spawnHarvestMoonResources(state: GameState) {
-  let spawned = 0;
-
-  for (
-    let dq = -HARVEST_MOON_SPAWN_RADIUS;
-    dq <= HARVEST_MOON_SPAWN_RADIUS;
-    dq += 1
-  ) {
-    for (
-      let dr = -HARVEST_MOON_SPAWN_RADIUS;
-      dr <= HARVEST_MOON_SPAWN_RADIUS;
-      dr += 1
-    ) {
-      const coord = {
-        q: state.player.coord.q + dq,
-        r: state.player.coord.r + dr,
-      };
-      const distance = hexDistance(state.player.coord, coord);
-      if (distance === 0 || distance > HARVEST_MOON_SPAWN_RADIUS) continue;
-      if (isHomeHex(state, coord)) continue;
-
-      ensureTileState(state, coord);
-      const key = hexKey(coord);
-      const tile = state.tiles[key];
-      if (!canSpawnHarvestMoonResourceOnTile(state, tile)) continue;
-
-      const rng = createRng(
-        `${state.seed}:harvest-moon-spawn:${state.harvestMoonCycle}:${key}`,
-      );
-      if (rng() >= pickHarvestMoonSpawnChance(distance)) continue;
-
-      const structure = pickHarvestMoonResourceType(rng());
-      const definition = structureDefinition(structure);
-      state.tiles[key] = {
-        ...tile,
-        structure,
-        structureHp: definition.maxHp,
-        structureMaxHp: definition.maxHp,
-      };
-      spawned += 1;
-    }
-  }
-
-  return spawned;
-}
-
-function maybeTriggerEarthshake(state: GameState) {
-  const dayIndex = getWorldDayIndex(state.worldTimeMs);
-  if (state.lastEarthshakeDay === dayIndex) return;
-  state.lastEarthshakeDay = dayIndex;
-
-  const rng = createRng(`${state.seed}:earthshake:${dayIndex}`);
-  if (rng() >= EARTHSHAKE_CHANCE) return;
-
-  openEarthshakeDungeon(state, false);
-}
-
-function openEarthshakeDungeon(state: GameState, forced: boolean) {
-  const dayIndex = getWorldDayIndex(state.worldTimeMs);
-  const earthshakeRng = createRng(
-    `${state.seed}:earthshake:${dayIndex}:${forced ? 'forced' : 'daily'}`,
-  );
-  const coord = findNearbyDungeonSpawn(
-    state,
-    earthshakeRng,
-    forced ? EARTHSHAKE_SPAWN_RADIUS + 6 : EARTHSHAKE_SPAWN_RADIUS + 3,
-  );
-  if (!coord) return false;
-
-  const key = hexKey(coord);
-  const tile = state.tiles[key];
-  const enemyIds = Array.from(
-    { length: 1 + Math.floor(earthshakeRng() * 3) },
-    (_, index) => enemyKey(coord, index),
-  );
-  state.tiles[key] = {
-    ...tile,
-    structure: 'dungeon',
-    structureHp: undefined,
-    structureMaxHp: undefined,
-    enemyIds,
-  };
-  enemyIds.forEach((enemyId, index) => {
-    state.enemies[enemyId] = makeEnemy(
-      state.seed,
-      coord,
-      tile.terrain,
-      index,
-      'dungeon',
-      state.bloodMoonActive,
-    );
-  });
-  addLog(
-    state,
-    'system',
-    t('game.message.earthshake.open', { q: coord.q, r: coord.r }),
-  );
-  return true;
-}
-
-function findNearbyDungeonSpawn(
-  state: GameState,
-  rng: () => number,
-  searchRadius: number,
-) {
-  const candidates: HexCoord[] = [];
-
-  for (let dq = -searchRadius; dq <= searchRadius; dq += 1) {
-    for (let dr = -searchRadius; dr <= searchRadius; dr += 1) {
-      const coord = {
-        q: state.player.coord.q + dq,
-        r: state.player.coord.r + dr,
-      };
-      const distance = hexDistance(state.player.coord, coord);
-      if (distance === 0 || distance > searchRadius) continue;
-      if (isHomeHex(state, coord)) continue;
-
-      ensureTileState(state, coord);
-      const tile = state.tiles[hexKey(coord)];
-      if (!isPassable(tile.terrain)) continue;
-      if (
-        tile.structure ||
-        tile.enemyIds.length > 0 ||
-        tile.items.length > 0 ||
-        tile.claim ||
-        isWorldBossFootprintOccupied(state, coord)
-      ) {
-        continue;
-      }
-      candidates.push(coord);
-    }
-  }
-
-  if (candidates.length === 0) return null;
-  candidates.sort(
-    (left, right) =>
-      hexDistance(state.player.coord, left) -
-      hexDistance(state.player.coord, right),
-  );
-  const nearestCandidates = candidates.filter(
-    (candidate) =>
-      hexDistance(state.player.coord, candidate) ===
-      hexDistance(state.player.coord, candidates[0] ?? state.player.coord),
-  );
-  return (
-    nearestCandidates[Math.floor(rng() * nearestCandidates.length)] ?? null
-  );
-}
-
-function canSpawnHarvestMoonResourceOnTile(
-  state: GameState,
-  tile: import('./types').Tile,
-) {
-  return (
-    isPassable(tile.terrain) &&
-    !tile.claim &&
-    !tile.structure &&
-    tile.enemyIds.length === 0 &&
-    tile.items.length === 0 &&
-    !isWorldBossFootprintOccupied(state, tile.coord)
-  );
-}
-
-function canSpawnBloodMoonEnemiesOnTile(
-  state: GameState,
-  tile: import('./types').Tile,
-) {
-  if (!isPassable(tile.terrain)) return false;
-  if (tile.claim) return false;
-  if (tile.structure && tile.structure !== 'dungeon') return false;
-  if (isWorldBossFootprintOccupied(state, tile.coord)) return false;
-  return true;
-}
-
-function makeBloodMoonDrop(
-  state: GameState,
-  enemy: import('./types').Enemy,
-  index: number,
-  tier: number,
-  minimumRarity: 'rare' | 'epic' | 'legendary',
-) {
-  const coord = enemy.coord;
-  const seed = `${state.seed}:blood-moon-drop:${enemy.id}:${state.turn}:${index}`;
-  switch (pickBloodMoonItemKind(noise(`${seed}:roll`, coord))) {
-    case 'artifact':
-      return makeArtifact(seed, coord, tier, minimumRarity);
-    case 'weapon':
-      return makeWeapon(seed, coord, tier, minimumRarity);
-    case 'offhand':
-      return makeOffhand(seed, coord, tier, minimumRarity);
-    default:
-      return makeArmor(seed, coord, tier, minimumRarity);
-  }
 }

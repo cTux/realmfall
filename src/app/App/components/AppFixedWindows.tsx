@@ -97,7 +97,7 @@ export const AppFixedWindows = memo(function AppFixedWindows({
             if (itemMenu.slot) {
               inventoryActions.onUnequip(itemMenu.slot);
             } else {
-              inventoryActions.onEquip(itemMenu.item.id);
+              inventoryActions.onEquipItem(itemMenu.item.id);
             }
             tooltipActions.onCloseItemMenu();
           }}

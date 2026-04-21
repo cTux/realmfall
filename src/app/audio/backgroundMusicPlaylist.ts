@@ -28,9 +28,7 @@ export function getNextBackgroundMusicTrack(
   const playlist: readonly string[] = BACKGROUND_MUSIC_PLAYLISTS[mood];
   const cycle = cycleState[mood];
   const remainingTracks =
-    cycle.remainingTracks.length > 0
-      ? cycle.remainingTracks
-      : [...playlist];
+    cycle.remainingTracks.length > 0 ? cycle.remainingTracks : [...playlist];
   const availableTracks =
     cycle.lastTrack && remainingTracks.length > 1
       ? remainingTracks.filter((track) => track !== cycle.lastTrack)
@@ -39,7 +37,9 @@ export function getNextBackgroundMusicTrack(
     availableTracks[Math.floor(random() * availableTracks.length)];
 
   cycle.lastTrack = nextTrack;
-  cycle.remainingTracks = remainingTracks.filter((track) => track !== nextTrack);
+  cycle.remainingTracks = remainingTracks.filter(
+    (track) => track !== nextTrack,
+  );
 
   return nextTrack;
 }

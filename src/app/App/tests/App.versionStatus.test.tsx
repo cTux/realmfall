@@ -123,9 +123,7 @@ describe('App version status', () => {
       host.querySelector('[data-version-status="current"]'),
     ).not.toBeNull();
     expect(host.textContent).toContain(`Remote: ${__APP_VERSION__}`);
-    expect(fetchMock).toHaveBeenCalledTimes(
-      EXPECTS_BACKGROUND_POLLING ? 2 : 1,
-    );
+    expect(fetchMock).toHaveBeenCalledTimes(EXPECTS_BACKGROUND_POLLING ? 2 : 1);
 
     await act(async () => {
       root.unmount();
@@ -168,9 +166,7 @@ describe('App version status', () => {
     });
     await flushLazyModules();
 
-    expect(fetchMock).toHaveBeenCalledTimes(
-      EXPECTS_BACKGROUND_POLLING ? 2 : 1,
-    );
+    expect(fetchMock).toHaveBeenCalledTimes(EXPECTS_BACKGROUND_POLLING ? 2 : 1);
 
     if (EXPECTS_BACKGROUND_POLLING) {
       expect(

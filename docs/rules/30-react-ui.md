@@ -6,6 +6,7 @@
 - Keep heavy app coordination in dedicated hooks when possible, following patterns already used in `src/app/App`.
 - Keep component-only hooks in a colocated `hooks/` directory when just one component or feature uses them.
 - When reducing React rerender fanout, move window-specific derivation, dock composition, and stable window handler ownership out of `src/app/App/App.tsx` and into narrower hooks or the window composition layer when that keeps unrelated windows from recomputing together.
+- Compose memoized window view slices and grouped window action maps through dedicated hooks under `src/app/App/hooks` once `App.tsx` starts accumulating broad `hero`, `player`, `world`, `logs`, or action-group objects inline.
 - Do not let `src/app/App/App.tsx` rebuild broad nested `layout`, `views`, or `actions` object graphs inline once that data can be composed in narrower hooks or neighboring modules.
 - When a UI control only needs the live world clock for display state, subscribe through `src/app/App/worldClockStore.ts` at the leaf component instead of threading `worldTimeMs` through broad app or window props.
 - When splitting `AppWindows` work, pass fixed and deferred window components only the view and action slices they actually consume instead of forwarding the full nested props object.
@@ -32,6 +33,8 @@
 - On the world-hover path, only run pathfinding, enemy tooltip derivation, or similar heavier selectors when the hovered tile is actually actionable.
 - For follow-cursor world tooltips, reuse the existing world-hover pipeline to push position updates instead of adding a separate global pointer listener just to move the tooltip DOM.
 - Keep component modules compatible with React Fast Refresh expectations; move shared non-component exports out of component files when needed.
+- When using `useEffectEvent`, do not include the returned callback in effect dependency arrays. Depend on the reactive values the effect reads and let the effect event provide the latest imperative callback body.
+- Name handler props after the behavior a user action can actually trigger. When one inventory click can equip, consume, or learn a recipe, expose that path as activation and keep equip-only or use-only handlers explicit.
 - Keep shared window labels, hotkey metadata, and similar reusable UI constants in plain non-component modules so component files only export component concerns.
 - Window title bars should reuse shared controls wherever possible. Close actions must use the shared close button implementation and surface the shared custom tooltip consistently across every window.
 - For ability, buff, and debuff icons rendered through CSS masks, use transparent SVG assets with no full-canvas background shape. If sourcing icons externally, prefer transparent exports or strip the background path before committing so the UI does not render a solid square.

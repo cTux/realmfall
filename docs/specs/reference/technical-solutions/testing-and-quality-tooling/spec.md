@@ -17,6 +17,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - Ordinary `pnpm` installs keep dependency advisory output enabled so newly disclosed package issues are visible during routine local and CI dependency refreshes.
 - Oxlint is the only JavaScript and TypeScript linter shipped in the repository.
 - The enforced Oxlint path includes React hook validation on TypeScript and TSX files so invalid hook usage and missing effect dependencies fail local lint and pre-commit checks instead of relying on runtime behavior.
+- React 19 `useEffectEvent` callbacks stay out of effect dependency arrays, keeping the enforced hook lint path warning-free while preserving the latest imperative callback body inside long-lived listeners and playback effects.
 - The Oxlint migration covers the prior ESLint rule set as closely as Oxlint currently allows, including nursery parity rules for `getter-return`, `no-undef`, and `no-unreachable`; Oxlint still does not implement `no-dupe-args` or `no-octal`.
 - Storybook is used as a maintained UI fixture surface for window components, shared UI components, and aggregate entity catalogs for items, enemies, and structures.
 - Storybook preview bootstraps the `en` i18n bundle before stories run, injects the shared game-tooltip behavior for story args that expose hover callbacks, and keeps the iframe viewport vertically scrollable for tall fixture surfaces such as aggregate catalogs.
@@ -26,7 +27,9 @@ This spec covers the repository quality baseline and current test coverage shape
 - Contributor guidance now includes an explicit performance verification checklist for React rerender breadth, Pixi redraw breadth, hover hot paths, and startup chunk growth so optimization work has a repeatable review path beyond functional correctness.
 - That guidance also defines lightweight budgets for routine desktop world interaction and the main startup chunks, giving contributors a small regression envelope to compare against during reviews and build checks.
 - The pull-request workflow enforces startup delivery budgets through `pnpm build:budget`, which runs a production build, reads the Vite manifest, and fails if the bootstrap graph or its key chunks grow past the current thresholds.
+- Dependency-duplication auditing runs through `pnpm build:duplicate-deps`, which enables the duplicate-deps Vite plugin only for explicit audits instead of adding that analysis cost to every production build.
 - Vite keeps the gameplay runtime under an explicit `state` manual chunk so the bootstrap graph and budget checks do not drift when Rolldown would otherwise rename that shared chunk based on a smaller helper module.
+- The Vite config raises the generic chunk-size warning limit above the repository's intentional `state` and `pixi` chunk budgets so routine production builds stay focused on the explicit budget script rather than a lower default warning threshold.
 - Non-blocking startup chrome such as the version-status overlay stays deferred behind a lazy chunk so polling and refresh affordances do not enlarge the first-interaction bootstrap graph.
 - Repeated localized content families, such as expansion recipe descriptions that vary only by item slot, keep concise shared phrasing so locale growth does not consume startup budget headroom unnecessarily.
 - The current startup bundle thresholds are derived from the live production build graph: `index` `4.743 kB`, `App` `78.900 kB`, `background-audio` `54.420 kB`, `react-core` `8.689 kB` when emitted separately, `react-dom-vendor` `199.966 kB`, `state` `532.132 kB`, `en` `109.450 kB`, `pixi` `549.560 kB`, and `1.510000 MB` for total startup JS.
@@ -37,7 +40,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - The scheduled dependency-update workflow declares explicit `contents: write` and `pull-requests: write` permissions, keeps checkout credentials disabled, and uses the GitHub CLI to commit, push, and create or update the dependency PR instead of delegating that write path to a third-party action.
 - Before the scheduled dependency-update workflow force-pushes the reusable `dependencies-update` branch with `--force-with-lease`, it refreshes `origin/dependencies-update` so the lease compares against current remote state and later runs can update the existing PR branch reliably.
 - The pre-commit workflow enforces version progression through `pnpm check:version`, which blocks commits unless `package.json` advances by patch version relative to `HEAD`.
-- The pre-commit workflow scopes Oxlint auto-fixes to staged JavaScript and TypeScript files, scopes Stylelint to staged `src` CSS and SCSS files, and scopes Vitest to tests related to staged source files, runtime JSON content, or test files.
+- The pre-commit workflow formats staged Prettier-supported files first, then scopes Oxlint auto-fixes to staged JavaScript and TypeScript files, scopes Stylelint to staged `src` CSS and SCSS files, and scopes Vitest to tests related to staged source files, runtime JSON content, or test files.
 - The pre-push workflow now owns the full-project `pnpm typecheck` gate so routine commits stay focused on fast staged checks while pushes validate the whole repository type surface.
 - A staged `package.json` diff that changes only the `version` field stays on the scoped pre-commit path, so routine commit-version bumps do not trigger the full test suite by themselves.
 - When staged changes touch shared test inputs such as `pnpm-lock.yaml`, `vite.config.ts`, TypeScript config, or `src/test/setup.ts`, or when `package.json` changes beyond the `version` field, the pre-commit workflow stays on staged checks and the pre-push workflow runs the full `pnpm test` suite instead of charging every commit for repository-wide verification.
@@ -60,6 +63,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - `scripts/pnpm-command.mjs`
 - `scripts/run-pre-push-quality.mjs`
 - `scripts/run-memory-leak-test.mjs`
+- `scripts/run-duplicate-deps-audit.mjs`
 - `scripts/run-staged-quality.mjs`
 - `.oxlintrc.json`
 - `.husky/pre-push`

@@ -6,10 +6,10 @@ import type { UiAudioController } from './UiAudioContext';
 
 const { clickMock, hoverMock, initMock, popMock, swooshMock } = vi.hoisted(
   () => ({
-  clickMock: vi.fn(),
-  hoverMock: vi.fn(),
-  initMock: vi.fn(),
-  popMock: vi.fn(),
+    clickMock: vi.fn(),
+    hoverMock: vi.fn(),
+    initMock: vi.fn(),
+    popMock: vi.fn(),
     swooshMock: vi.fn(),
   }),
 );
@@ -163,7 +163,9 @@ describe('useUiAudioController', () => {
 
     await act(async () => {
       root.render(
-        <AudioHarness onReady={(nextController) => (controller = nextController)} />,
+        <AudioHarness
+          onReady={(nextController) => (controller = nextController)}
+        />,
       );
     });
 

@@ -3,6 +3,7 @@ import { existsSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
   isLintFile,
+  isPrettierFile,
   isSrcStyleFile,
   isVitestRelatedFile,
   shouldRunFullTestSuite,
@@ -58,6 +59,7 @@ if (stagedFiles.length === 0) {
   process.exit(0);
 }
 
+const prettierFiles = stagedFiles.filter(isPrettierFile);
 const lintFiles = stagedFiles.filter(isLintFile);
 const stylelintFiles = stagedFiles.filter(isSrcStyleFile);
 const packageJsonDiffText = stagedFiles.includes('package.json')
@@ -68,6 +70,19 @@ const hasFullTestTrigger = shouldRunFullTestSuite(
   packageJsonDiffText,
 );
 const vitestRelatedFiles = stagedFiles.filter(isVitestRelatedFile);
+
+if (prettierFiles.length > 0) {
+  logStep(`Running Prettier --write on ${prettierFiles.length} staged file(s)`);
+  const pnpm = createPnpmInvocation([
+    'exec',
+    'prettier',
+    '--write',
+    ...prettierFiles,
+  ]);
+  run(pnpm.command, pnpm.args);
+} else {
+  logStep('Skipping staged Prettier, no matching files');
+}
 
 if (lintFiles.length > 0) {
   logStep(`Running Oxlint --fix on ${lintFiles.length} staged file(s)`);

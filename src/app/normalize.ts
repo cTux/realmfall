@@ -7,6 +7,8 @@ import {
   type LogKind,
 } from '../game/state';
 import { clampItemLevel, syncPlayerBaseStats } from '../game/balance';
+import { ENEMY_TYPE_IDS } from '../game/content/ids';
+import { RARITY_ORDER, STRUCTURE_TYPES, TERRAINS } from '../game/types';
 import {
   DEFAULT_LOG_FILTERS,
   DEFAULT_WINDOWS,
@@ -16,17 +18,12 @@ import {
   type WindowVisibilityState,
 } from './constants';
 
-const ENEMY_TYPE_IDS = new Set([
-  'gluttony',
-  'raider',
-  'marauder',
-  'wolf',
-  'boar',
-  'stag',
-  'spider',
-]);
 const SKILL_NAMES = Object.values(Skill);
+const ENEMY_TYPE_ID_SET = new Set<string>(ENEMY_TYPE_IDS);
 const EQUIPMENT_SLOT_SET = new Set(EQUIPMENT_SLOTS);
+const ITEM_RARITY_SET = new Set<string>(RARITY_ORDER);
+const STRUCTURE_TYPE_SET = new Set<string>(STRUCTURE_TYPES);
+const TERRAIN_SET = new Set<string>(TERRAINS);
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -842,53 +839,23 @@ function isDayPhase(value: unknown): value is GameState['dayPhase'] {
 function isTerrain(
   value: unknown,
 ): value is GameState['tiles'][string]['terrain'] {
-  return (
-    value === 'plains' ||
-    value === 'forest' ||
-    value === 'rift' ||
-    value === 'mountain' ||
-    value === 'desert' ||
-    value === 'swamp'
-  );
+  return typeof value === 'string' && TERRAIN_SET.has(value);
 }
 
 function isStructure(
   value: unknown,
 ): value is NonNullable<GameState['tiles'][string]['structure']> {
-  return (
-    value === 'forge' ||
-    value === 'camp' ||
-    value === 'furnace' ||
-    value === 'workshop' ||
-    value === 'town' ||
-    value === 'dungeon' ||
-    value === 'herbs' ||
-    value === 'tree' ||
-    value === 'copper-ore' ||
-    value === 'tin-ore' ||
-    value === 'iron-ore' ||
-    value === 'gold-ore' ||
-    value === 'platinum-ore' ||
-    value === 'coal-ore' ||
-    value === 'pond' ||
-    value === 'lake'
-  );
+  return typeof value === 'string' && STRUCTURE_TYPE_SET.has(value);
 }
 
 function isEnemyTypeId(
   value: unknown,
 ): value is NonNullable<Enemy['enemyTypeId']> {
-  return typeof value === 'string' && ENEMY_TYPE_IDS.has(value);
+  return typeof value === 'string' && ENEMY_TYPE_ID_SET.has(value);
 }
 
 function isItemRarity(value: unknown): value is Item['rarity'] {
-  return (
-    value === 'common' ||
-    value === 'uncommon' ||
-    value === 'rare' ||
-    value === 'epic' ||
-    value === 'legendary'
-  );
+  return typeof value === 'string' && ITEM_RARITY_SET.has(value);
 }
 
 function isEquipmentSlot(value: unknown): value is NonNullable<Item['slot']> {

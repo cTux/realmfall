@@ -6,12 +6,18 @@ import {
   MOONRISE_START,
   SUNRISE_START,
 } from '../../game/config';
+import {
+  getWorldDayFromTimestamp,
+  getWorldTimeMinutesFromTimestamp,
+} from '../../game/worldTime';
 import { t } from '../../i18n';
 
 export {
   DAYLIGHT_START,
   GAME_DAY_DURATION_MS,
   GAME_DAY_MINUTES,
+  getWorldDayFromTimestamp,
+  getWorldTimeMinutesFromTimestamp,
   MOONRISE_END,
   MOONRISE_START,
 };
@@ -128,17 +134,6 @@ const LIGHTING_KEYFRAMES: Array<{ minute: number; profile: LightingProfile }> =
       },
     },
   ];
-
-export function getWorldTimeMinutesFromTimestamp(timestampMs: number) {
-  const normalizedMs =
-    ((timestampMs % GAME_DAY_DURATION_MS) + GAME_DAY_DURATION_MS) %
-    GAME_DAY_DURATION_MS;
-  return (normalizedMs / GAME_DAY_DURATION_MS) * GAME_DAY_MINUTES;
-}
-
-export function getWorldDayFromTimestamp(timestampMs: number) {
-  return Math.max(1, Math.floor(timestampMs / GAME_DAY_DURATION_MS) + 1);
-}
 
 export function formatWorldTime(totalMinutes: number) {
   const normalizedMinutes =

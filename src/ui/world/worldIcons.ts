@@ -105,12 +105,16 @@ const worldIconTextureLoads = new Map<string, Promise<Texture>>();
 let worldIconTextureVersion = 0;
 
 export function getWorldIconTexture(icon: string) {
-  if (worldIconTextures.has(icon)) {
-    return worldIconTextures.get(icon)!;
+  const cachedTexture = takeValidWorldIconTexture(worldIconTextures, icon);
+  if (cachedTexture) {
+    return cachedTexture;
   }
 
   if (/jsdom/i.test(globalThis.navigator?.userAgent ?? '')) {
-    const fallbackTexture = worldIconTestFallbackTextures.get(icon);
+    const fallbackTexture = takeValidWorldIconTexture(
+      worldIconTestFallbackTextures,
+      icon,
+    );
     if (fallbackTexture) {
       return fallbackTexture;
     }
@@ -144,7 +148,7 @@ export function ensureWorldIconTexturesLoaded(
 }
 
 function loadWorldIconTexture(icon: string) {
-  const existing = worldIconTextures.get(icon);
+  const existing = takeValidWorldIconTexture(worldIconTextures, icon);
   if (existing) {
     return Promise.resolve(existing);
   }
@@ -180,4 +184,30 @@ function loadWorldIconTexture(icon: string) {
 
   worldIconTextureLoads.set(icon, textureLoad);
   return textureLoad;
+}
+
+function takeValidWorldIconTexture(cache: Map<string, Texture>, icon: string) {
+  const texture = cache.get(icon);
+  if (!texture) {
+    return null;
+  }
+
+  if (isDestroyedWorldIconTexture(texture)) {
+    cache.delete(icon);
+    return null;
+  }
+
+  return texture;
+}
+
+function isDestroyedWorldIconTexture(texture: Texture) {
+  const candidate = texture as Texture & {
+    source?: { destroyed?: boolean } | null;
+  };
+
+  return (
+    candidate.destroyed === true ||
+    (candidate.source === null && 'source' in candidate) ||
+    candidate.source?.destroyed === true
+  );
 }

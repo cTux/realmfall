@@ -52,7 +52,9 @@ describe('storybook coverage', () => {
       'utf8',
     );
 
-    expect(dictionaryStories).toContain("await import('./dictionaryStoryData')");
+    expect(dictionaryStories).toContain(
+      "await import('./dictionaryStoryData')",
+    );
     expect(dictionaryData).toContain('createStorybookFixtures()');
     expect(dictionaryData).toContain('fixtures.items');
     expect(dictionaryData).toContain('fixtures.enemies');

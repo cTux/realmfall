@@ -3,6 +3,8 @@ import {
   normalizePersistedUiState,
   normalizeSavedUiItem,
 } from './normalize';
+import { ENEMY_TYPE_IDS } from '../game/content/ids';
+import { RARITY_ORDER, STRUCTURE_TYPES, TERRAINS } from '../game/types';
 import { createGame } from '../game/state';
 import { createDefaultActionBarSlots } from './App/actionBar';
 import {
@@ -38,6 +40,46 @@ describe('normalizeLoadedGame', () => {
 
     expect(normalizeSavedUiItem(item)).toEqual(item);
   });
+
+  it('accepts canonical runtime save values from shared game constants', () => {
+    const game = createGame(3, 'normalize-runtime-values-seed');
+    const homeKey = `${game.homeHex.q},${game.homeHex.r}`;
+    const lastTerrain = TERRAINS[TERRAINS.length - 1]!;
+    const lastStructure = STRUCTURE_TYPES[STRUCTURE_TYPES.length - 1]!;
+    const lastRarity = RARITY_ORDER[RARITY_ORDER.length - 1]!;
+    const lastEnemyTypeId = ENEMY_TYPE_IDS[ENEMY_TYPE_IDS.length - 1]!;
+    const enemyId = 'normalize-enemy';
+
+    game.tiles[homeKey] = {
+      ...game.tiles[homeKey]!,
+      terrain: lastTerrain,
+      structure: lastStructure,
+    };
+    game.player.inventory[0] = {
+      ...game.player.inventory[0]!,
+      rarity: lastRarity,
+    };
+    game.tiles[homeKey]!.enemyIds = [enemyId];
+    game.enemies[enemyId] = {
+      id: enemyId,
+      enemyTypeId: lastEnemyTypeId,
+      name: 'Normalize Enemy',
+      coord: { ...game.homeHex },
+      rarity: lastRarity,
+      tier: 1,
+      hp: 10,
+      maxHp: 10,
+      attack: 3,
+      defense: 1,
+      xp: 5,
+      elite: false,
+    };
+
+    expect(normalizeLoadedGame(game)).toEqual({
+      ...game,
+      logs: [],
+    });
+  });
 });
 
 describe('normalizePersistedUiState', () => {
@@ -55,7 +97,10 @@ describe('normalizePersistedUiState', () => {
 
     expect(
       normalizePersistedUiState({
-        actionBarSlots: [{ item: game.player.inventory[0] }, { item: { id: 1 } }],
+        actionBarSlots: [
+          { item: game.player.inventory[0] },
+          { item: { id: 1 } },
+        ],
         logFilters: {
           movement: false,
           combat: 'yes',

@@ -1,11 +1,6 @@
 import { createRng } from './random';
 import { GAME_TAGS, uniqueTags } from './content/tags';
-import type {
-  AbilityRuntimeDefinition,
-  AbilityId,
-  Enemy,
-  Item,
-} from './types';
+import type { AbilityRuntimeDefinition, AbilityId, Enemy, Item } from './types';
 
 export const DEFAULT_ABILITY_ID = 'kick';
 
@@ -23,9 +18,13 @@ const supportAbility = (
   category: 'supportive',
 });
 
-export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefinition> = {
+export const ABILITY_RUNTIME_DEFINITIONS: Record<
+  AbilityId,
+  AbilityRuntimeDefinition
+> = {
   kick: attackAbility({
-    id: 'kick',
+    id: 'kick',
+
     manaCost: 0,
     cooldownMs: 1000,
     castTimeMs: 0,
@@ -42,7 +41,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     ),
   }),
   slash: attackAbility({
-    id: 'slash',
+    id: 'slash',
+
     manaCost: 5,
     cooldownMs: 1800,
     castTimeMs: 0,
@@ -68,7 +68,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     ),
   }),
   crushingBlow: attackAbility({
-    id: 'crushingBlow',
+    id: 'crushingBlow',
+
     manaCost: 6,
     cooldownMs: 4500,
     castTimeMs: 300,
@@ -91,7 +92,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     ),
   }),
   hamstring: attackAbility({
-    id: 'hamstring',
+    id: 'hamstring',
+
     manaCost: 5,
     cooldownMs: 3600,
     castTimeMs: 0,
@@ -114,7 +116,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     ),
   }),
   whirlwind: attackAbility({
-    id: 'whirlwind',
+    id: 'whirlwind',
+
     manaCost: 6,
     cooldownMs: 5200,
     castTimeMs: 350,
@@ -128,7 +131,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     ),
   }),
   impale: attackAbility({
-    id: 'impale',
+    id: 'impale',
+
     manaCost: 6,
     cooldownMs: 4800,
     castTimeMs: 250,
@@ -152,7 +156,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     ),
   }),
   emberShot: attackAbility({
-    id: 'emberShot',
+    id: 'emberShot',
+
     manaCost: 5,
     cooldownMs: 2200,
     castTimeMs: 0,
@@ -174,7 +179,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     tags: uniqueTags(GAME_TAGS.ability.combat, GAME_TAGS.ability.singleTarget),
   }),
   fireball: attackAbility({
-    id: 'fireball',
+    id: 'fireball',
+
     manaCost: 6,
     cooldownMs: 4300,
     castTimeMs: 500,
@@ -194,7 +200,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     tags: uniqueTags(GAME_TAGS.ability.combat, GAME_TAGS.ability.singleTarget),
   }),
   searingNova: attackAbility({
-    id: 'searingNova',
+    id: 'searingNova',
+
     manaCost: 5,
     cooldownMs: 5600,
     castTimeMs: 450,
@@ -214,7 +221,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     tags: uniqueTags(GAME_TAGS.ability.combat),
   }),
   cinderBurst: attackAbility({
-    id: 'cinderBurst',
+    id: 'cinderBurst',
+
     manaCost: 5,
     cooldownMs: 3400,
     castTimeMs: 0,
@@ -224,7 +232,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     tags: uniqueTags(GAME_TAGS.ability.combat, GAME_TAGS.ability.singleTarget),
   }),
   magmaStrike: attackAbility({
-    id: 'magmaStrike',
+    id: 'magmaStrike',
+
     manaCost: 5,
     cooldownMs: 6400,
     castTimeMs: 650,
@@ -244,7 +253,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     tags: uniqueTags(GAME_TAGS.ability.combat, GAME_TAGS.ability.singleTarget),
   }),
   wildfire: attackAbility({
-    id: 'wildfire',
+    id: 'wildfire',
+
     manaCost: 6,
     cooldownMs: 7200,
     castTimeMs: 700,
@@ -264,7 +274,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     tags: uniqueTags(GAME_TAGS.ability.combat),
   }),
   sparkJolt: attackAbility({
-    id: 'sparkJolt',
+    id: 'sparkJolt',
+
     manaCost: 5,
     cooldownMs: 2400,
     castTimeMs: 0,
@@ -282,7 +293,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     tags: uniqueTags(GAME_TAGS.ability.combat, GAME_TAGS.ability.singleTarget),
   }),
   arcBolt: attackAbility({
-    id: 'arcBolt',
+    id: 'arcBolt',
+
     manaCost: 5,
     cooldownMs: 3200,
     castTimeMs: 200,
@@ -300,7 +312,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     tags: uniqueTags(GAME_TAGS.ability.combat, GAME_TAGS.ability.singleTarget),
   }),
   thunderClap: attackAbility({
-    id: 'thunderClap',
+    id: 'thunderClap',
+
     manaCost: 5,
     cooldownMs: 5200,
     castTimeMs: 350,
@@ -318,7 +331,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     tags: uniqueTags(GAME_TAGS.ability.combat),
   }),
   chainLightning: attackAbility({
-    id: 'chainLightning',
+    id: 'chainLightning',
+
     manaCost: 5,
     cooldownMs: 6000,
     castTimeMs: 450,
@@ -328,7 +342,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     tags: uniqueTags(GAME_TAGS.ability.combat),
   }),
   stormSurge: attackAbility({
-    id: 'stormSurge',
+    id: 'stormSurge',
+
     manaCost: 6,
     cooldownMs: 7600,
     castTimeMs: 700,
@@ -346,7 +361,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     tags: uniqueTags(GAME_TAGS.ability.combat),
   }),
   staticField: attackAbility({
-    id: 'staticField',
+    id: 'staticField',
+
     manaCost: 6,
     cooldownMs: 4800,
     castTimeMs: 250,
@@ -363,7 +379,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     tags: uniqueTags(GAME_TAGS.ability.combat),
   }),
   frostShard: attackAbility({
-    id: 'frostShard',
+    id: 'frostShard',
+
     manaCost: 5,
     cooldownMs: 2100,
     castTimeMs: 0,
@@ -381,7 +398,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     tags: uniqueTags(GAME_TAGS.ability.combat, GAME_TAGS.ability.singleTarget),
   }),
   iceLance: attackAbility({
-    id: 'iceLance',
+    id: 'iceLance',
+
     manaCost: 6,
     cooldownMs: 3600,
     castTimeMs: 250,
@@ -399,7 +417,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     tags: uniqueTags(GAME_TAGS.ability.combat, GAME_TAGS.ability.singleTarget),
   }),
   freezingWave: attackAbility({
-    id: 'freezingWave',
+    id: 'freezingWave',
+
     manaCost: 6,
     cooldownMs: 4700,
     castTimeMs: 350,
@@ -417,7 +436,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     tags: uniqueTags(GAME_TAGS.ability.combat),
   }),
   coldSnap: attackAbility({
-    id: 'coldSnap',
+    id: 'coldSnap',
+
     manaCost: 5,
     cooldownMs: 3000,
     castTimeMs: 0,
@@ -435,7 +455,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     tags: uniqueTags(GAME_TAGS.ability.combat, GAME_TAGS.ability.singleTarget),
   }),
   blizzard: attackAbility({
-    id: 'blizzard',
+    id: 'blizzard',
+
     manaCost: 6,
     cooldownMs: 7100,
     castTimeMs: 700,
@@ -453,7 +474,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     tags: uniqueTags(GAME_TAGS.ability.combat),
   }),
   brainFreeze: attackAbility({
-    id: 'brainFreeze',
+    id: 'brainFreeze',
+
     manaCost: 6,
     cooldownMs: 5400,
     castTimeMs: 400,
@@ -471,7 +493,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     tags: uniqueTags(GAME_TAGS.ability.combat, GAME_TAGS.ability.singleTarget),
   }),
   mendWounds: supportAbility({
-    id: 'mendWounds',
+    id: 'mendWounds',
+
     manaCost: 5,
     cooldownMs: 3200,
     castTimeMs: 350,
@@ -481,7 +504,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     tags: uniqueTags(GAME_TAGS.ability.combat),
   }),
   fieldDressing: supportAbility({
-    id: 'fieldDressing',
+    id: 'fieldDressing',
+
     manaCost: 6,
     cooldownMs: 4200,
     castTimeMs: 450,
@@ -491,7 +515,8 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     tags: uniqueTags(GAME_TAGS.ability.combat),
   }),
   soothingMist: supportAbility({
-    id: 'soothingMist',
+    id: 'soothingMist',
+
     manaCost: 5,
     cooldownMs: 6200,
     castTimeMs: 700,
@@ -501,17 +526,26 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     tags: uniqueTags(GAME_TAGS.ability.combat),
   }),
   rallyingCry: supportAbility({
-    id: 'rallyingCry',
+    id: 'rallyingCry',
+
     manaCost: 5,
     cooldownMs: 4800,
     castTimeMs: 250,
     target: 'self',
     school: 'support',
-    effects: [{ kind: 'applyStatus', statusEffectId: 'power', value: 14, permanent: true }],
+    effects: [
+      {
+        kind: 'applyStatus',
+        statusEffectId: 'power',
+        value: 14,
+        permanent: true,
+      },
+    ],
     tags: uniqueTags(GAME_TAGS.ability.combat),
   }),
   battlePrayer: supportAbility({
-    id: 'battlePrayer',
+    id: 'battlePrayer',
+
     manaCost: 6,
     cooldownMs: 5200,
     castTimeMs: 500,
@@ -535,66 +569,117 @@ export const ABILITY_RUNTIME_DEFINITIONS: Record<AbilityId, AbilityRuntimeDefini
     tags: uniqueTags(GAME_TAGS.ability.combat),
   }),
   warBanner: supportAbility({
-    id: 'warBanner',
+    id: 'warBanner',
+
     manaCost: 5,
     cooldownMs: 6800,
     castTimeMs: 550,
     target: 'allAllies',
     school: 'support',
     effects: [
-      { kind: 'applyStatus', statusEffectId: 'power', value: 10, permanent: true },
-      { kind: 'applyStatus', statusEffectId: 'guard', value: 10, permanent: true },
+      {
+        kind: 'applyStatus',
+        statusEffectId: 'power',
+        value: 10,
+        permanent: true,
+      },
+      {
+        kind: 'applyStatus',
+        statusEffectId: 'guard',
+        value: 10,
+        permanent: true,
+      },
     ],
     tags: uniqueTags(GAME_TAGS.ability.combat),
   }),
   ironGuard: supportAbility({
-    id: 'ironGuard',
+    id: 'ironGuard',
+
     manaCost: 5,
     cooldownMs: 4300,
     castTimeMs: 200,
     target: 'self',
     school: 'support',
-    effects: [{ kind: 'applyStatus', statusEffectId: 'guard', value: 28, durationMs: 4_000 }],
+    effects: [
+      {
+        kind: 'applyStatus',
+        statusEffectId: 'guard',
+        value: 28,
+        durationMs: 4_000,
+      },
+    ],
     tags: uniqueTags(GAME_TAGS.ability.combat),
   }),
   arcWard: supportAbility({
-    id: 'arcWard',
+    id: 'arcWard',
+
     manaCost: 6,
     cooldownMs: 5000,
     castTimeMs: 300,
     target: 'randomAlly',
     school: 'support',
-    effects: [{ kind: 'applyStatus', statusEffectId: 'guard', value: 22, durationMs: 6_000 }],
+    effects: [
+      {
+        kind: 'applyStatus',
+        statusEffectId: 'guard',
+        value: 22,
+        durationMs: 6_000,
+      },
+    ],
     tags: uniqueTags(GAME_TAGS.ability.combat),
   }),
   witheringHex: supportAbility({
-    id: 'witheringHex',
+    id: 'witheringHex',
+
     manaCost: 5,
     cooldownMs: 4700,
     castTimeMs: 350,
     target: 'randomEnemy',
     school: 'support',
-    effects: [{ kind: 'applyStatus', statusEffectId: 'weakened', value: 16, permanent: true }],
+    effects: [
+      {
+        kind: 'applyStatus',
+        statusEffectId: 'weakened',
+        value: 16,
+        permanent: true,
+      },
+    ],
     tags: uniqueTags(GAME_TAGS.ability.combat),
   }),
   sunderArmor: supportAbility({
-    id: 'sunderArmor',
+    id: 'sunderArmor',
+
     manaCost: 5,
     cooldownMs: 3900,
     castTimeMs: 150,
     target: 'enemy',
     school: 'support',
-    effects: [{ kind: 'applyStatus', statusEffectId: 'shocked', value: 26, durationMs: 4_000 }],
+    effects: [
+      {
+        kind: 'applyStatus',
+        statusEffectId: 'shocked',
+        value: 26,
+        durationMs: 4_000,
+      },
+    ],
     tags: uniqueTags(GAME_TAGS.ability.combat, GAME_TAGS.ability.singleTarget),
   }),
   enfeeblingPulse: supportAbility({
-    id: 'enfeeblingPulse',
+    id: 'enfeeblingPulse',
+
     manaCost: 6,
     cooldownMs: 7100,
     castTimeMs: 650,
     target: 'allEnemies',
     school: 'support',
-    effects: [{ kind: 'applyStatus', statusEffectId: 'weakened', value: 14, durationMs: 7_000 }],
+    effects: [
+      {
+        kind: 'applyStatus',
+        statusEffectId: 'weakened',
+        value: 14,
+        durationMs: 7_000,
+      },
+    ],
     tags: uniqueTags(GAME_TAGS.ability.combat),
   }),
 };
@@ -635,7 +720,10 @@ const ABERRATION_ABILITY_POOL: AbilityId[] = [
 ];
 
 export function getAbilityDefinition(abilityId: AbilityId) {
-  return ABILITY_RUNTIME_DEFINITIONS[abilityId] ?? ABILITY_RUNTIME_DEFINITIONS[DEFAULT_ABILITY_ID];
+  return (
+    ABILITY_RUNTIME_DEFINITIONS[abilityId] ??
+    ABILITY_RUNTIME_DEFINITIONS[DEFAULT_ABILITY_ID]
+  );
 }
 
 export function sortAbilityIdsForCombat(abilityIds: AbilityId[]) {

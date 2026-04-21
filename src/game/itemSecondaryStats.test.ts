@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { buildGeneratedItemFromConfig, buildItemFromConfig } from './content/items';
+import {
+  buildGeneratedItemFromConfig,
+  buildItemFromConfig,
+} from './content/items';
 
 describe('generated item secondary stats', () => {
   it('gives shields a default block chance secondary stat', () => {
@@ -49,10 +52,12 @@ describe('generated item secondary stats', () => {
       rarity: 'legendary',
     });
 
-    expect([ring.power > 0, ring.defense > 0, ring.maxHp > 0].filter(Boolean)).toHaveLength(2);
+    expect(
+      [ring.power > 0, ring.defense > 0, ring.maxHp > 0].filter(Boolean),
+    ).toHaveLength(2);
     expect(ring.secondaryStatCapacity).toBe(3);
-    expect(new Set((ring.secondaryStats ?? []).map((stat) => stat.key)).size).toBe(
-      ring.secondaryStats?.length ?? 0,
-    );
+    expect(
+      new Set((ring.secondaryStats ?? []).map((stat) => stat.key)).size,
+    ).toBe(ring.secondaryStats?.length ?? 0);
   });
 });

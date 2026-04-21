@@ -16,10 +16,7 @@ import {
   type PersistedData,
   saveEncryptedState,
 } from '../../persistence/storage';
-import {
-  type WindowPositions,
-  type WindowVisibilityState,
-} from '../constants';
+import { type WindowPositions, type WindowVisibilityState } from '../constants';
 import {
   normalizeLoadedGame,
   normalizePersistedUiState,
@@ -363,7 +360,10 @@ export function useAppPersistence({
           setGame({
             ...loadedGame,
             logSequence: 3,
-            logs: createFreshLogsAtTime(loadedGame.seed, loadedGame.worldTimeMs),
+            logs: createFreshLogsAtTime(
+              loadedGame.seed,
+              loadedGame.worldTimeMs,
+            ),
           });
           latestInputsRef.current.game = loadedGame;
           latestInputsRef.current.worldTimeMs = loadedGame.worldTimeMs;

@@ -1,4 +1,5 @@
 import {
+  activateInventoryItem,
   buyTownItem,
   claimCurrentHex,
   craftRecipe,
@@ -2219,6 +2220,18 @@ describe('game state', () => {
     ).toBeDefined();
   });
 
+  it('does not consume consumables when the equip-only path is used', () => {
+    const game = createGame(3, 'equip-consumable-seed');
+
+    const attempted = equipItem(game, 'starter-ration');
+
+    expect(
+      attempted.player.inventory.find((item) => item.id === 'starter-ration')
+        ?.quantity,
+    ).toBe(2);
+    expect(attempted.logs[0]?.text).toMatch(/cannot be equipped/i);
+  });
+
   it('does not consume a consumable when none of its effects would apply', () => {
     const game = createGame(3, 'use-no-effect-seed');
     game.player.hp = getPlayerStats(game.player).maxHp;
@@ -2863,6 +2876,37 @@ describe('game state', () => {
     expect(
       unchanged.player.inventory.some(
         (item) => item.id === 'recipe-craft-weapon-known',
+      ),
+    ).toBe(true);
+    expect(unchanged.logs[0]?.text).toContain('already know');
+  });
+
+  it('routes inventory activation for learned recipe pages through the use path', () => {
+    const game = createGame(3, 'recipe-activation-seed');
+    game.player.learnedRecipeIds = ['craft-icon-axe-01'];
+    game.player.inventory.push({
+      id: 'recipe-craft-weapon-activate',
+      recipeId: 'craft-icon-axe-01',
+      name: 'Recipe: Axe 01',
+      quantity: 1,
+      tier: 1,
+      rarity: 'uncommon',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+    });
+
+    const unchanged = activateInventoryItem(
+      game,
+      'recipe-craft-weapon-activate',
+    );
+
+    expect(unchanged.player.learnedRecipeIds).toEqual(['craft-icon-axe-01']);
+    expect(
+      unchanged.player.inventory.some(
+        (item) => item.id === 'recipe-craft-weapon-activate',
       ),
     ).toBe(true);
     expect(unchanged.logs[0]?.text).toContain('already know');

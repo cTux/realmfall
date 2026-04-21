@@ -25,7 +25,14 @@ export function addLog(
 ) {
   state.logSequence += 1;
   state.logs = [
-    makeLog(state.logSequence, kind, state.turn, text, state.worldTimeMs, richText),
+    makeLog(
+      state.logSequence,
+      kind,
+      state.turn,
+      text,
+      state.worldTimeMs,
+      richText,
+    ),
     ...state.logs,
   ].slice(0, 100);
 }

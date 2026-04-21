@@ -5,10 +5,7 @@ import {
   VOICE_PLAYBACK_EVENT_OPTIONS,
   detectVoicePlaybackEvent,
 } from './voiceEvents';
-import {
-  getVoiceClipUrls,
-  type VoiceClipCategory,
-} from './voiceLibrary';
+import { getVoiceClipUrls, type VoiceClipCategory } from './voiceLibrary';
 import type { VoiceActorId } from './voiceActors';
 
 const ACTIVATION_EVENTS = ['keydown', 'mousedown', 'pointerdown', 'touchstart'];

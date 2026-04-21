@@ -43,7 +43,10 @@ vi.mock('pixi.js', () => {
     visible = true;
     style: unknown;
 
-    constructor(public text: string, style: unknown) {
+    constructor(
+      public text: string,
+      style: unknown,
+    ) {
       this.style = style;
     }
   }
@@ -72,7 +75,8 @@ describe('renderScenePools', () => {
     const pool = createShadowedSpritePool(new Container());
     const firstTexture = { icon: 'wolf', revision: 1 } as const;
     const secondTexture = { icon: 'wolf', revision: 2 } as const;
-    let currentTexture: typeof firstTexture | typeof secondTexture = firstTexture;
+    let currentTexture: typeof firstTexture | typeof secondTexture =
+      firstTexture;
 
     getWorldIconTexture.mockImplementation(() => currentTexture);
 

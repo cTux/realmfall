@@ -799,7 +799,7 @@ describe('ui helpers and components', () => {
         equipment={{}}
         learnedRecipeIds={['craft-icon-axe-01']}
         onSort={() => {}}
-        onEquip={() => {}}
+        onActivateItem={() => {}}
         onContextItem={() => {}}
         onHoverItem={() => {}}
         onLeaveItem={() => {}}
@@ -1410,7 +1410,7 @@ describe('ui helpers and components', () => {
           equipment={{ ...game.player.equipment, head: equippedItem }}
           learnedRecipeIds={[]}
           onSort={() => {}}
-          onEquip={() => {}}
+          onActivateItem={() => {}}
           onContextItem={() => {}}
           onHoverItem={() => {}}
           onLeaveItem={() => {}}
@@ -1422,7 +1422,7 @@ describe('ui helpers and components', () => {
           equipment={game.player.equipment}
           learnedRecipeIds={[]}
           onSort={() => {}}
-          onEquip={() => {}}
+          onActivateItem={() => {}}
           onContextItem={() => {}}
           onHoverItem={() => {}}
           onLeaveItem={() => {}}

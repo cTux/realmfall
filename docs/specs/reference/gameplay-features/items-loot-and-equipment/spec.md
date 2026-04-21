@@ -45,6 +45,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - `src/game/inventory.ts`
 - `src/game/world.ts`
 - `src/game/state.ts`
+- `src/game/stateRewards.ts`
 - `src/game/content/items`
 - `src/game/content/generatedEquipment.ts`
 - `src/app/normalize.ts`

@@ -64,7 +64,8 @@ function canReuseVisibleTilesWithoutRecomputing(
   const previousMetadata = visibleTilesMetadata.get(previousVisibleTiles);
   if (
     !previousMetadata ||
-    previousMetadata.playerCoordKey !== hexKey(visibleTilesState.player.coord) ||
+    previousMetadata.playerCoordKey !==
+      hexKey(visibleTilesState.player.coord) ||
     previousMetadata.radius !== visibleTilesState.radius ||
     previousMetadata.seed !== visibleTilesState.seed
   ) {

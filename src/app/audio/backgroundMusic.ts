@@ -1,11 +1,7 @@
 import type { GameState } from '../../game/state';
 import type { Tile } from '../../game/types';
 
-export type BackgroundMusicMood =
-  | 'ambient'
-  | 'combat'
-  | 'dungeon'
-  | 'town';
+export type BackgroundMusicMood = 'ambient' | 'combat' | 'dungeon' | 'town';
 
 export function resolveBackgroundMusicMood({
   combat,

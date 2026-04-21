@@ -27,7 +27,12 @@ interface TooltipPosition {
   placement: TooltipPlacement;
 }
 
-const DEFAULT_PLACEMENTS: TooltipPlacement[] = ['right', 'left', 'top', 'bottom'];
+const DEFAULT_PLACEMENTS: TooltipPlacement[] = [
+  'right',
+  'left',
+  'top',
+  'bottom',
+];
 
 export function getTooltipPlacementForRect(
   rect: TooltipAnchorRect,
