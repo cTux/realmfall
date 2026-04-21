@@ -283,6 +283,111 @@ describe('renderScene marker animation', () => {
     expect(wrapper.scale.x).toBeGreaterThan(1);
     expect(totalPolygonCalls(world)).toBe(initialPolygonCalls);
   });
+
+  it('bobs settlement markers on animation-only frames without rebuilding static terrain', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { getSceneCache } = await import('./renderSceneCache');
+    const game = createGame(1, 'render-scene-animated-settlement-markers');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      structure: 'town',
+      items: [],
+      enemyIds: [],
+    };
+    const app = {
+      screen: { height: 600, width: 800 },
+      stage: new MockContainer(),
+    };
+    const visibleTiles = getVisibleTiles(game);
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+    );
+
+    const world = (app.stage.children[1] as MockContainer)
+      .children[0] as MockContainer;
+    const scene = getSceneCache(app as never);
+    const settlementMarker = scene.animatedWorldMarkers.find(
+      (marker) => marker.kind === 'settlement',
+    );
+    expect(settlementMarker).toBeDefined();
+    const wrapper = settlementMarker?.entry.wrapper as unknown as MockContainer;
+    const initialY = wrapper.position.y;
+    const initialPolygonCalls = totalPolygonCalls(world);
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      240,
+    );
+
+    expect(wrapper.position.y).not.toBe(initialY);
+    expect(totalPolygonCalls(world)).toBe(initialPolygonCalls);
+  });
+
+  it('warms utility markers at night without rebuilding static terrain', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { getSceneCache } = await import('./renderSceneCache');
+    const game = createGame(1, 'render-scene-animated-utility-markers');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      structure: 'camp',
+      items: [],
+      enemyIds: [],
+    };
+    const app = {
+      screen: { height: 600, width: 800 },
+      stage: new MockContainer(),
+    };
+    const visibleTiles = getVisibleTiles(game);
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+    );
+
+    const world = (app.stage.children[1] as MockContainer)
+      .children[0] as MockContainer;
+    const scene = getSceneCache(app as never);
+    const utilityMarker = scene.animatedWorldMarkers.find(
+      (marker) => marker.kind === 'utility',
+    );
+    expect(utilityMarker).toBeDefined();
+    const wrapper = utilityMarker?.entry.wrapper as unknown as MockContainer;
+    const sprite = getMainSprite(wrapper);
+    const initialPolygonCalls = totalPolygonCalls(world);
+    const dayTint = sprite.tint;
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      0,
+      240,
+    );
+
+    expect(sprite.tint).not.toBe(dayTint);
+    expect(totalPolygonCalls(world)).toBe(initialPolygonCalls);
+  });
 });
 
 function collectDescendants(root: MockContainer): unknown[] {
@@ -298,4 +403,8 @@ function totalPolygonCalls(world: MockContainer) {
   return collectDescendants(world)
     .filter((child): child is MockGraphics => child instanceof MockGraphics)
     .reduce((sum, child) => sum + child.drawPolygon.mock.calls.length, 0);
+}
+
+function getMainSprite(wrapper: MockContainer) {
+  return wrapper.children[wrapper.children.length - 1] as MockSprite;
 }

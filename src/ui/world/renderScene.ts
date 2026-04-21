@@ -271,6 +271,22 @@ export function renderScene(
               shadowOffset,
               point,
             );
+            const markerAnimationKind = getStructureMarkerAnimationKind(
+              tile.structure,
+            );
+            if (markerAnimationKind) {
+              registerAnimatedWorldMarker(
+                scene,
+                state.seed,
+                tile.coord,
+                marker,
+                point,
+                structureIconSize,
+                structureIconSize,
+                getStructureHexIconTint(tile.structure),
+                markerAnimationKind,
+              );
+            }
           }
 
           const hostileEnemies = enemies.filter(
@@ -290,6 +306,17 @@ export function renderScene(
               1,
               shadowOffset,
               point,
+            );
+            registerAnimatedWorldMarker(
+              scene,
+              state.seed,
+              tile.coord,
+              marker,
+              point,
+              enemyIconSize,
+              enemyIconSize,
+              0xffffff,
+              'settlement',
             );
           } else if (
             hostileEnemies.length > 0 &&
@@ -638,4 +665,25 @@ function getStructureHexIconTint(structure: Tile['structure']) {
   }
 
   return STRUCTURE_HEX_ICON_TINT;
+}
+
+function getStructureMarkerAnimationKind(structure: Tile['structure']) {
+  if (
+    structure === 'camp' ||
+    structure === 'forge' ||
+    structure === 'furnace' ||
+    structure === 'workshop'
+  ) {
+    return 'utility' as const;
+  }
+
+  if (structure === 'town') {
+    return 'settlement' as const;
+  }
+
+  if (structure === 'dungeon') {
+    return 'dungeon' as const;
+  }
+
+  return null;
 }
