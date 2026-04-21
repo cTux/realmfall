@@ -669,6 +669,21 @@ function getStructureHexIconTint(structure: Tile['structure']) {
 
 function getStructureMarkerAnimationKind(structure: Tile['structure']) {
   if (
+    structure === 'coal-ore' ||
+    structure === 'copper-ore' ||
+    structure === 'gold-ore' ||
+    structure === 'herbs' ||
+    structure === 'iron-ore' ||
+    structure === 'lake' ||
+    structure === 'platinum-ore' ||
+    structure === 'pond' ||
+    structure === 'tin-ore' ||
+    structure === 'tree'
+  ) {
+    return 'resource' as const;
+  }
+
+  if (
     structure === 'camp' ||
     structure === 'forge' ||
     structure === 'furnace' ||

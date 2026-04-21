@@ -388,6 +388,65 @@ describe('renderScene marker animation', () => {
     expect(sprite.tint).not.toBe(dayTint);
     expect(totalPolygonCalls(world)).toBe(initialPolygonCalls);
   });
+
+  it('adds intermittent shimmer to gathering markers without rebuilding static terrain', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { getSceneCache } = await import('./renderSceneCache');
+    const game = createGame(1, 'render-scene-animated-resource-markers');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      structure: 'copper-ore',
+      items: [],
+      enemyIds: [],
+    };
+    const app = {
+      screen: { height: 600, width: 800 },
+      stage: new MockContainer(),
+    };
+    const visibleTiles = getVisibleTiles(game);
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+    );
+
+    const world = (app.stage.children[1] as MockContainer)
+      .children[0] as MockContainer;
+    const scene = getSceneCache(app as never);
+    const resourceMarker = scene.animatedWorldMarkers.find(
+      (marker) => marker.kind === 'resource',
+    );
+    expect(resourceMarker).toBeDefined();
+    const wrapper = resourceMarker?.entry.wrapper as unknown as MockContainer;
+    const sprite = getMainSprite(wrapper);
+    const initialPolygonCalls = totalPolygonCalls(world);
+    const initialScale = wrapper.scale.x;
+    const initialTint = sprite.tint;
+
+    const shimmerObserved = [240, 480, 720, 960, 1200, 1440, 1680, 1920].some(
+      (animationMs) => {
+        renderScene(
+          app as never,
+          game,
+          visibleTiles,
+          game.player.coord,
+          null,
+          12 * 60,
+          animationMs,
+        );
+        return wrapper.scale.x !== initialScale || sprite.tint !== initialTint;
+      },
+    );
+
+    expect(shimmerObserved).toBe(true);
+    expect(totalPolygonCalls(world)).toBe(initialPolygonCalls);
+  });
 });
 
 function collectDescendants(root: MockContainer): unknown[] {
