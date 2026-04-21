@@ -36,6 +36,30 @@ type Story = StoryObj<typeof meta>;
 
 export const ExpeditionLog: Story = {};
 
+export const TypingReveal: Story = {
+  render: () => (
+    <LogWindow
+      position={STORYBOOK_WINDOW_POSITION}
+      onMove={noop}
+      visible
+      onClose={noop}
+      filters={fixtures.defaultFilters}
+      defaultFilters={fixtures.defaultFilters}
+      showFilterMenu={false}
+      onToggleMenu={noop}
+      onToggleFilter={noop}
+      logs={[
+        {
+          id: 'log-typing-preview',
+          kind: 'system',
+          text: '[Year 1, Day 4, 22:14] A warded sigil flickers and then steadies.',
+          turn: 12,
+        },
+      ]}
+    />
+  ),
+};
+
 function LogWindowStory() {
   const [filters, setFilters] = useState(createLogFilters({ rumor: false }));
   const [showFilterMenu, setShowFilterMenu] = useState(true);

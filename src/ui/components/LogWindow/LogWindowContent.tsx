@@ -8,12 +8,12 @@ import { rarityColor } from '../../rarity';
 import { statusEffectIcon, statusEffectTint } from '../../statusEffects';
 import { abilityTooltipLines, statusEffectTooltipLines } from '../../tooltips';
 import { CalendarTimestamp } from '../CalendarTimestamp';
+import { createDisplayText, takeVisibleDisplayText } from './displayText';
 import type { LogWindowProps } from './types';
 import styles from './styles.module.scss';
 
 const TYPE_DELAY_MS = 32;
 const TYPE_STEP = 2;
-const MATRIX_GLYPHS = ['#', '%', '&', '/', '+', '*'];
 const LOG_PREFIX_PATTERN = /^\[(Year \d+, Day \d+, [0-9]{2}:[0-9]{2})\]\s/;
 const BLOOD_MOON_PATTERN = /blood moon/i;
 const HARVEST_MOON_PATTERN = /harvest moon/i;
@@ -26,6 +26,11 @@ type LogWindowContentProps = Pick<
 type ParsedLogEntry = {
   entry: LogEntry;
   message: string;
+  messageDisplay: ReturnType<typeof createDisplayText>;
+  richTextDisplays: Array<{
+    segment: LogRichSegment;
+    displayText: ReturnType<typeof createDisplayText>;
+  }> | null;
   timestampMs: number | null;
   className: string;
 };
@@ -44,14 +49,6 @@ function splitLogEntry(text: string) {
   };
 }
 
-function logMessageText(entry: LogEntry) {
-  if (!entry.richText || entry.richText.length === 0) {
-    return splitLogEntry(entry.text).message;
-  }
-
-  return entry.richText.map((segment) => segment.text).join('');
-}
-
 const AnimatedLogLine = memo(function AnimatedLogLine({
   parsedEntry,
   onHoverDetail,
@@ -61,33 +58,32 @@ const AnimatedLogLine = memo(function AnimatedLogLine({
   onHoverDetail?: LogWindowProps['onHoverDetail'];
   onLeaveDetail?: LogWindowProps['onLeaveDetail'];
 }) {
-  const { entry, message, timestampMs } = parsedEntry;
+  const { entry, messageDisplay, richTextDisplays, timestampMs } = parsedEntry;
   const [visibleCount, setVisibleCount] = useState(0);
-  const isComplete = visibleCount >= message.length;
-  const cursor = MATRIX_GLYPHS[visibleCount % MATRIX_GLYPHS.length];
+  const isComplete = visibleCount >= messageDisplay.units.length;
 
   useEffect(() => {
     setVisibleCount(0);
 
-    if (message.length === 0) {
+    if (messageDisplay.units.length === 0) {
       return;
     }
 
     const intervalId = window.setInterval(() => {
       setVisibleCount((current) => {
-        if (current >= message.length) {
+        if (current >= messageDisplay.units.length) {
           window.clearInterval(intervalId);
           return current;
         }
 
-        return Math.min(current + TYPE_STEP, message.length);
+        return Math.min(current + TYPE_STEP, messageDisplay.units.length);
       });
     }, TYPE_DELAY_MS);
 
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [entry.id, message.length]);
+  }, [entry.id, messageDisplay.units.length]);
 
   return (
     <span className={styles.logText}>
@@ -102,18 +98,16 @@ const AnimatedLogLine = memo(function AnimatedLogLine({
           />{' '}
         </>
       ) : null}
-      {entry.richText && entry.richText.length > 0
+      {richTextDisplays
         ? renderRichText(
-            entry.richText,
+            richTextDisplays,
             visibleCount,
             onHoverDetail,
             onLeaveDetail,
           )
-        : message.slice(0, visibleCount)}
+        : takeVisibleDisplayText(messageDisplay, visibleCount)}
       {isComplete ? null : (
-        <span className={styles.logCursor} aria-hidden="true">
-          {cursor}
-        </span>
+        <span className={styles.logCursor} aria-hidden="true" />
       )}
     </span>
   );
@@ -128,7 +122,7 @@ const StaticLogLine = memo(function StaticLogLine({
   onHoverDetail?: LogWindowProps['onHoverDetail'];
   onLeaveDetail?: LogWindowProps['onLeaveDetail'];
 }) {
-  const { entry, message, timestampMs } = parsedEntry;
+  const { message, richTextDisplays, timestampMs } = parsedEntry;
 
   return (
     <span className={styles.logText}>
@@ -143,9 +137,9 @@ const StaticLogLine = memo(function StaticLogLine({
           />{' '}
         </>
       ) : null}
-      {entry.richText && entry.richText.length > 0
+      {richTextDisplays
         ? renderRichText(
-            entry.richText,
+            richTextDisplays,
             Number.POSITIVE_INFINITY,
             onHoverDetail,
             onLeaveDetail,
@@ -227,10 +221,20 @@ function buildParsedLogEntries(
 
 function createParsedLogEntry(entry: LogEntry): ParsedLogEntry {
   const { timestampMs, message } = splitLogEntry(entry.text);
+  const richTextDisplays =
+    entry.richText?.map((segment) => ({
+      segment,
+      displayText: createDisplayText(segment.text),
+    })) ?? null;
+  const fullMessage = richTextDisplays?.length
+    ? richTextDisplays.map(({ displayText }) => displayText.text).join('')
+    : message;
 
   return {
     entry,
-    message: entry.richText?.length ? logMessageText(entry) : message,
+    message: fullMessage,
+    messageDisplay: createDisplayText(fullMessage),
+    richTextDisplays,
     timestampMs,
     className: [
       styles.logEntry,
@@ -244,18 +248,19 @@ function createParsedLogEntry(entry: LogEntry): ParsedLogEntry {
 }
 
 function renderRichText(
-  segments: LogRichSegment[],
+  segments: NonNullable<ParsedLogEntry['richTextDisplays']>,
   visibleCount: number,
   onHoverDetail?: LogWindowProps['onHoverDetail'],
   onLeaveDetail?: LogWindowProps['onLeaveDetail'],
 ) {
   let remaining = visibleCount;
 
-  return segments.map((segment, index) => {
+  return segments.map(({ segment, displayText }, index) => {
     if (remaining <= 0) return null;
 
-    const visibleText = segment.text.slice(0, remaining);
-    remaining -= visibleText.length;
+    const visibleUnits = Math.min(remaining, displayText.units.length);
+    const visibleText = takeVisibleDisplayText(displayText, visibleUnits);
+    remaining -= visibleUnits;
     if (visibleText.length === 0) return null;
 
     if (segment.kind === 'text') {
@@ -267,7 +272,9 @@ function renderRichText(
         <span
           key={index}
           className={styles.entitySegment}
-          style={segment.rarity ? { color: rarityColor(segment.rarity) } : undefined}
+          style={
+            segment.rarity ? { color: rarityColor(segment.rarity) } : undefined
+          }
         >
           {visibleText}
         </span>
@@ -295,7 +302,7 @@ function renderRichText(
         key={index}
         segment={segment}
         visibleText={visibleText}
-        fullyVisible={visibleText.length === segment.text.length}
+        fullyVisible={visibleUnits === displayText.units.length}
         onHoverDetail={onHoverDetail}
         onLeaveDetail={onLeaveDetail}
       />
@@ -345,7 +352,9 @@ function SourceSegment({
   );
 }
 
-function sourceIconStyle(segment: Extract<LogRichSegment, { kind: 'source' }>): CSSProperties {
+function sourceIconStyle(
+  segment: Extract<LogRichSegment, { kind: 'source' }>,
+): CSSProperties {
   if (segment.source.kind === 'ability') {
     const ability = getAbilityDefinition(segment.source.abilityId);
     return maskStyle(ability.icon, '#f8fafc');
@@ -363,7 +372,9 @@ function sourceIconStyle(segment: Extract<LogRichSegment, { kind: 'source' }>): 
   );
 }
 
-function buildSourceTooltip(segment: Extract<LogRichSegment, { kind: 'source' }>) {
+function buildSourceTooltip(
+  segment: Extract<LogRichSegment, { kind: 'source' }>,
+) {
   if (segment.source.kind === 'ability') {
     const ability = getAbilityDefinition(segment.source.abilityId);
     return {
@@ -392,9 +403,7 @@ function buildSourceTooltip(segment: Extract<LogRichSegment, { kind: 'source' }>
       stacks: segment.source.stacks,
     }),
     borderColor:
-      tone === 'buff'
-        ? 'rgba(34, 197, 94, 0.9)'
-        : 'rgba(239, 68, 68, 0.9)',
+      tone === 'buff' ? 'rgba(34, 197, 94, 0.9)' : 'rgba(239, 68, 68, 0.9)',
   };
 }
 

@@ -27,6 +27,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - World camp markers stay readable above their night-time glow effects instead of sinking beneath the bloom layer.
 - Logs provide system, movement, combat, loot, and other gameplay feedback.
 - Combat log entries render with white baseline copy, color damage red and healing green, tint enemy names by rarity, and surface hoverable inline source chips with icons and combat tooltips for logged combat sources.
+- The newest log row reveals in short typing steps with a neutral caret and preserves whole display characters while it animates, so partial updates do not leave broken glyphs in the log.
 - Filtered log viewing is part of the current gameplay readability loop.
 - Large recipe lists reveal additional rows in explicit batches instead of mounting the whole matching catalog at once.
 - Current and maximum value bars surface their meaning through the shared tooltip system.

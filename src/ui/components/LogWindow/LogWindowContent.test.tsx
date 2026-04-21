@@ -48,7 +48,7 @@ describe('LogWindowContent', () => {
       );
     });
 
-    expect(host.textContent).toContain('#');
+    expect(host.querySelector('[class*="logCursor"]')).not.toBeNull();
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(32);
@@ -61,7 +61,31 @@ describe('LogWindowContent', () => {
     });
 
     expect(host.textContent).toContain('Hunt');
-    expect(host.textContent).not.toContain('#');
+    expect(host.querySelector('[class*="logCursor"]')).toBeNull();
+  });
+
+  it('reveals grapheme clusters without showing replacement glyphs', async () => {
+    await act(async () => {
+      root.render(
+        <LogWindowContent
+          logs={[
+            {
+              id: 'log-grapheme',
+              kind: 'system',
+              text: 'A 🧙‍♂️ arrives.',
+              turn: 1,
+            },
+          ]}
+        />,
+      );
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(64);
+    });
+
+    expect(host.textContent).toContain('A 🧙‍♂️');
+    expect(host.textContent).not.toContain('\uFFFD');
   });
 
   it('shows status effect source icons with hover details', async () => {
@@ -116,7 +140,9 @@ describe('LogWindowContent', () => {
       (node) => node.textContent === 'Shocked',
     ) as HTMLSpanElement | undefined;
     expect(shockedSegment).toBeDefined();
-    expect(shockedSegment?.querySelector('[aria-hidden="true"]')).not.toBeNull();
+    expect(
+      shockedSegment?.querySelector('[aria-hidden="true"]'),
+    ).not.toBeNull();
 
     await act(async () => {
       shockedSegment?.dispatchEvent(
