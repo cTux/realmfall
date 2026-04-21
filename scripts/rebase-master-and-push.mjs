@@ -208,9 +208,9 @@ function continueRebase() {
       continue;
     }
 
-    if (!isRebaseInProgress()) {
-      fail('git rebase --continue failed.');
-    }
+    fail(
+      'git rebase --continue failed. Resolve the reported issue, or run git rebase --skip/--abort manually before retrying.',
+    );
   }
 }
 
