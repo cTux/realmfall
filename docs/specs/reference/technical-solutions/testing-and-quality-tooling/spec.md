@@ -6,7 +6,7 @@ This spec covers the repository quality baseline and current test coverage shape
 
 ## Current Solution
 
-- The repository uses TypeScript strict mode, Oxlint, Prettier, Vitest, Husky, Vite, and Storybook.
+- The repository uses TypeScript strict mode, Oxlint, Stylelint, Prettier, Vitest, Husky, Vite, and Storybook.
 - `pnpm test` runs Vitest through `@raegen/vite-plugin-vitest-cache`, storing reusable results in the repository-local `.tests/vitest-cache` directory so warm reruns and CI can restore unaffected test files without changing test correctness.
 - `pnpm test:memory:leaks` starts the local HTTPS Vite dev server and runs `fuite` against `https://localhost:5173` with a custom dock-window toggle scenario because the app does not expose internal navigation links for the default `fuite` scenario, writing the latest JSON analysis to `.tests/memory-leaks/latest.json` for follow-up review.
 - `pnpm test:memory:leaks:prod` builds the app, serves the production bundle over local HTTPS at `https://localhost:4174`, and runs the same `fuite` scenario there, writing the JSON analysis to `.tests/memory-leaks/prod.json` so memory-retention checks can be compared between dev and production behavior.
@@ -14,6 +14,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - `pnpm dev` and `pnpm serve` both run on local HTTPS using the shared localhost self-signed certificate helper, and cached certificates are regenerated automatically when they expire so secure-origin local workflows do not get stuck on stale TLS files.
 - Oxlint is the enforced JavaScript and TypeScript lint gate for contributor workflow and pre-commit automation, with its canonical configuration stored in `.oxlintrc.json`.
 - CI and local quality expectations center on `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build`.
+- `pnpm lint` is the shared repository lint gate and runs both Oxlint and Stylelint, while `pnpm lint:css` remains available for stylesheet-only local checks.
 - The committed repository baseline is kept Prettier-clean so a failing `pnpm format` run points to current drift instead of long-lived formatting debt.
 - Ordinary `pnpm` installs keep dependency advisory output enabled so newly disclosed package issues are visible during routine local and CI dependency refreshes.
 - Oxlint is the only JavaScript and TypeScript linter shipped in the repository.
@@ -44,7 +45,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - Before the scheduled dependency-update workflow force-pushes the reusable `dependencies-update` branch with `--force-with-lease`, it refreshes `origin/dependencies-update` so the lease compares against current remote state and later runs can update the existing PR branch reliably.
 - The pre-commit workflow enforces version progression through `pnpm check:version`, which blocks commits unless `package.json` advances by patch version relative to `HEAD`.
 - The pre-commit workflow formats staged Prettier-supported files first, then scopes Oxlint auto-fixes to staged JavaScript and TypeScript files, scopes Stylelint to staged `src` CSS and SCSS files, and scopes Vitest to tests related to staged source files, runtime JSON content, or test files.
-- The pre-push workflow now owns the full-project `pnpm typecheck` gate so routine commits stay focused on fast staged checks while pushes validate the whole repository type surface.
+- The pre-push workflow now owns the full-project `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` gates so routine commits stay focused on fast staged checks while pushes validate the whole repository before publication.
 - A staged `package.json` diff that changes only the `version` field stays on the scoped pre-commit path, so routine commit-version bumps do not trigger the full test suite by themselves.
 - When staged changes touch shared test inputs such as `pnpm-lock.yaml`, `vite.config.ts`, TypeScript config, or `src/test/setup.ts`, or when `package.json` changes beyond the `version` field, the pre-commit workflow stays on staged checks and the pre-push workflow runs the full `pnpm test` suite instead of charging every commit for repository-wide verification.
 - The pre-push workflow also runs `pnpm build`, keeping full-repository runtime validation near publication while leaving commit-time hooks focused on staged changes.
