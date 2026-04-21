@@ -39,6 +39,7 @@ import {
   DEFAULT_LOG_FILTERS,
   DEFAULT_WINDOWS,
   DEFAULT_WINDOW_VISIBILITY,
+  createWindowVisibilityState,
   type WindowPositions,
   type WindowVisibilityState,
 } from '../constants';
@@ -158,18 +159,7 @@ export function useAppControllers({
   }, []);
 
   const closeAllWindows = useCallback(() => {
-    setWindowShown(() => ({
-      hero: false,
-      skills: false,
-      recipes: false,
-      hexInfo: false,
-      equipment: false,
-      inventory: false,
-      loot: false,
-      log: false,
-      combat: false,
-      settings: false,
-    }));
+    setWindowShown(() => createWindowVisibilityState(false));
   }, []);
 
   const closeItemMenu = useCallback(() => {

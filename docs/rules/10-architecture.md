@@ -19,4 +19,5 @@
 - Prefer extending existing helpers, caches, and domain modules before adding parallel systems that solve the same problem differently.
 - Remove orphaned content registries when the live pipeline no longer consumes them; do not keep parallel static tables beside the active source-of-truth modules for recipes, items, or similar content.
 - When runtime validators need gameplay enum or union values, export canonical runtime lists from the owning game module and reuse them instead of recreating literal allowlists in persistence or UI code.
+- Drive repeated app key maps and gameplay-key records from canonical runtime registries. Window visibility defaults, dock ordering, log-filter defaults, and skill-key derivations should reuse shared key lists or helper builders instead of hand-maintaining parallel object literals across app, normalization, and fixture modules.
 - Cache shared world-query results off stable container identities such as `tiles` when claim, visibility, or similar scans would otherwise repeat across unrelated UI updates.

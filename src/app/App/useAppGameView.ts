@@ -7,7 +7,6 @@ import {
   getPlayerClaimedTiles,
   getPlayerStats,
   getRecipeBookEntries,
-  Skill,
   structureActionLabel,
   type GameState,
   type LogKind,
@@ -15,6 +14,7 @@ import {
 import { buildTownStock } from '../../game/economy';
 import { hexKey } from '../../game/hex';
 import { isEquippableItem } from '../../game/inventory';
+import { createSkillRecord } from '../../game/skillRecords';
 import { buildTile } from '../../game/world';
 import { t } from '../../i18n';
 import { resolveBackgroundMusicMood } from '../audio/backgroundMusic';
@@ -73,16 +73,7 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     [learnedRecipeIds],
   );
   const recipeSkillLevels = useMemo(
-    () => ({
-      [Skill.Gathering]: skills[Skill.Gathering].level,
-      [Skill.Logging]: skills[Skill.Logging].level,
-      [Skill.Mining]: skills[Skill.Mining].level,
-      [Skill.Skinning]: skills[Skill.Skinning].level,
-      [Skill.Fishing]: skills[Skill.Fishing].level,
-      [Skill.Cooking]: skills[Skill.Cooking].level,
-      [Skill.Smelting]: skills[Skill.Smelting].level,
-      [Skill.Crafting]: skills[Skill.Crafting].level,
-    }),
+    () => createSkillRecord((skill) => skills[skill].level),
     [skills],
   );
   const inventoryCountsByItemKey = useMemo(

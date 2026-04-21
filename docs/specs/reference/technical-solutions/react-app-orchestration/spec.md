@@ -14,6 +14,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Bootstrap-loaded settings modules keep lightweight metadata such as voice actor ids separate from eager voice asset indexing so optional gameplay voice clips stay behind the lazy audio bridge boundary.
 - `useAppGameView` computes the current tile, filtered logs, town stock, recipe visibility, claim status, player stats, and other UI-ready derived values.
 - This keeps presentational components mostly declarative.
+- Shared window-key lists and small record builders back window visibility resets, dock composition, log-filter defaults, and recipe skill-level derivation so app wiring does not repeat the same key inventory in multiple modules.
 - `useAppGameView` keeps selector dependencies scoped to the gameplay slices each derived view actually reads, using narrow selector inputs instead of force-casting partial objects to `GameState`, so unrelated root-state clones do not invalidate every memoized view model together.
 - `AppWindows` owns the dock-entry composition, stable move and close handler maps, and narrow window-specific view models so `App.tsx` does not keep expanding as the desktop window surface grows.
 - `useAppWindowsProps` builds the nested `layout`, `views`, and `actions` payload passed to `AppWindows`, keeping `App.tsx` from rebuilding that whole prop tree inline.

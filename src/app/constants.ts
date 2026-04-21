@@ -1,4 +1,4 @@
-import type { LogKind } from '../game/state';
+import { LOG_KINDS, type LogKind } from '../game/state';
 import { HEX_SIZE, WORLD_RADIUS, WORLD_REVEAL_RADIUS } from '../game/config';
 import { DEFAULT_AUDIO_SETTINGS } from './audioSettings';
 import { DEFAULT_GRAPHICS_SETTINGS } from './graphicsSettings';
@@ -13,31 +13,32 @@ export interface WindowPosition {
   height?: number;
 }
 
-export interface WindowPositions {
-  hero: WindowPosition;
-  skills: WindowPosition;
-  recipes: WindowPosition;
-  hexInfo: WindowPosition;
-  equipment: WindowPosition;
-  inventory: WindowPosition;
-  loot: WindowPosition;
-  log: WindowPosition;
-  combat: WindowPosition;
-  settings: WindowPosition;
-}
+export const WINDOW_VISIBILITY_KEYS = [
+  'hero',
+  'skills',
+  'recipes',
+  'hexInfo',
+  'equipment',
+  'inventory',
+  'loot',
+  'log',
+  'combat',
+  'settings',
+] as const;
 
-export interface WindowVisibilityState {
-  hero: boolean;
-  skills: boolean;
-  recipes: boolean;
-  hexInfo: boolean;
-  equipment: boolean;
-  inventory: boolean;
-  loot: boolean;
-  log: boolean;
-  combat: boolean;
-  settings: boolean;
-}
+export type WindowKey = (typeof WINDOW_VISIBILITY_KEYS)[number];
+export type WindowPositions = Record<WindowKey, WindowPosition>;
+export type WindowVisibilityState = Record<WindowKey, boolean>;
+export const WINDOW_DOCK_KEYS = [
+  'hero',
+  'skills',
+  'recipes',
+  'hexInfo',
+  'equipment',
+  'inventory',
+  'log',
+  'settings',
+] as const satisfies readonly WindowKey[];
 
 export const DEFAULT_WINDOWS: WindowPositions = {
   hero: { x: 96, y: 20 },
@@ -52,25 +53,19 @@ export const DEFAULT_WINDOWS: WindowPositions = {
   settings: { x: 188, y: 72, width: 640, height: 640 },
 };
 
-export const DEFAULT_WINDOW_VISIBILITY: WindowVisibilityState = {
-  hero: false,
-  skills: false,
-  recipes: false,
-  hexInfo: false,
-  equipment: false,
-  inventory: false,
-  loot: false,
-  log: false,
-  combat: false,
-  settings: false,
-};
+export function createWindowVisibilityState(
+  shown = false,
+): WindowVisibilityState {
+  return Object.fromEntries(
+    WINDOW_VISIBILITY_KEYS.map((key) => [key, shown] as const),
+  ) as WindowVisibilityState;
+}
 
-export const DEFAULT_LOG_FILTERS: Record<LogKind, boolean> = {
-  movement: true,
-  combat: true,
-  loot: true,
-  survival: true,
-  rumor: true,
-  motd: true,
-  system: true,
-};
+export function createLogFilters(enabled = true): Record<LogKind, boolean> {
+  return Object.fromEntries(
+    LOG_KINDS.map((kind) => [kind, enabled] as const),
+  ) as Record<LogKind, boolean>;
+}
+
+export const DEFAULT_WINDOW_VISIBILITY = createWindowVisibilityState();
+export const DEFAULT_LOG_FILTERS = createLogFilters();

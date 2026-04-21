@@ -92,6 +92,7 @@ export enum Skill {
 }
 
 export type SkillName = Skill;
+export const SKILL_NAMES = Object.values(Skill) as SkillName[];
 
 export type EquipmentSlot = EquipmentSlotValue;
 
@@ -322,14 +323,17 @@ export interface RecipeBookEntry extends RecipeDefinition {
   learned: boolean;
 }
 
-export type LogKind =
-  | 'movement'
-  | 'combat'
-  | 'loot'
-  | 'survival'
-  | 'rumor'
-  | 'motd'
-  | 'system';
+export const LOG_KINDS = [
+  'movement',
+  'combat',
+  'loot',
+  'survival',
+  'rumor',
+  'motd',
+  'system',
+] as const;
+
+export type LogKind = (typeof LOG_KINDS)[number];
 
 export interface LogEntry {
   id: string;

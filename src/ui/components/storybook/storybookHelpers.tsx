@@ -4,7 +4,6 @@ import {
   getRecipeBookEntries,
   getPlayerStats,
   getRecipeBookRecipes,
-  Skill,
 } from '../../../game/state';
 import { EquipmentSlotId } from '../../../game/content/ids';
 import { addLog } from '../../../game/logs';
@@ -25,6 +24,8 @@ import type {
   RecipeBookEntry,
   SkillName,
 } from '../../../game/state';
+import { createSkillRecord } from '../../../game/skillRecords';
+import { Skill } from '../../../game/types';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { Icons } from '../../icons';
 import type { WindowDockEntry } from '../WindowDock/WindowDock';
@@ -274,15 +275,6 @@ export function createRecipeBookArgs(recipes: RecipeBookEntry[]) {
   return {
     currentStructure: 'forge' as const,
     recipes,
-    recipeSkillLevels: {
-      [Skill.Gathering]: 1,
-      [Skill.Logging]: 1,
-      [Skill.Mining]: 1,
-      [Skill.Skinning]: 1,
-      [Skill.Fishing]: 1,
-      [Skill.Cooking]: 1,
-      [Skill.Smelting]: 1,
-      [Skill.Crafting]: 1,
-    },
+    recipeSkillLevels: createSkillRecord(() => 1),
   };
 }

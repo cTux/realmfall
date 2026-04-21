@@ -173,7 +173,7 @@ export type {
   TownStockEntry,
 } from './types';
 export { Skill } from './types';
-export { EQUIPMENT_SLOTS, RARITY_ORDER } from './types';
+export { EQUIPMENT_SLOTS, LOG_KINDS, RARITY_ORDER, SKILL_NAMES } from './types';
 export {
   gatheringBonusChance,
   gatheringYieldBonus,
