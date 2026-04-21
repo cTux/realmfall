@@ -1,4 +1,4 @@
-import { createGame } from './state';
+import { createGame, getEnemyAt, getTileAt, type GameState } from './state';
 import { makeEnemy } from './combat';
 import { hexKey } from './hex';
 import { buildTile } from './world';
@@ -65,4 +65,89 @@ export function createGeneratedWorldBossEncounter() {
   }
 
   throw new Error('Expected to find a generated world boss encounter');
+}
+
+export function findEnemy(
+  game: ReturnType<typeof createGame>,
+  min: number,
+  max: number,
+) {
+  for (let q = -max; q <= max; q += 1) {
+    for (let r = -max; r <= max; r += 1) {
+      const distance = Math.max(Math.abs(q), Math.abs(r), Math.abs(-q - r));
+      if (distance < min || distance > max) continue;
+      const enemy = getEnemyAt(game, { q, r });
+      if (enemy) return enemy;
+    }
+  }
+
+  return undefined;
+}
+
+export function findFactionNpcTile(
+  game: ReturnType<typeof createGame>,
+  maxDistance: number,
+) {
+  for (let q = -maxDistance; q <= maxDistance; q += 1) {
+    for (let r = -maxDistance; r <= maxDistance; r += 1) {
+      const distance = Math.max(Math.abs(q), Math.abs(r), Math.abs(-q - r));
+      if (distance > maxDistance) continue;
+      const tile = getTileAt(game, { q, r });
+      if (tile.claim?.npc?.enemyId) {
+        return tile;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+export function findFactionTownTile(
+  game: ReturnType<typeof createGame>,
+  maxDistance: number,
+) {
+  for (let q = -maxDistance; q <= maxDistance; q += 1) {
+    for (let r = -maxDistance; r <= maxDistance; r += 1) {
+      const distance = Math.max(Math.abs(q), Math.abs(r), Math.abs(-q - r));
+      if (distance > maxDistance) continue;
+      const tile = getTileAt(game, { q, r });
+      if (tile.claim?.ownerType === 'faction' && tile.structure === 'town') {
+        return tile;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+export function makeCombatState(
+  coord: { q: number; r: number },
+  enemyIds: string[],
+  worldTimeMs: number,
+  started = true,
+): GameState['combat'] {
+  return {
+    coord,
+    enemyIds,
+    started,
+    player: {
+      abilityIds: ['kick'],
+      globalCooldownMs: 1500,
+      globalCooldownEndsAt: worldTimeMs,
+      cooldownEndsAt: {},
+      casting: null,
+    },
+    enemies: Object.fromEntries(
+      enemyIds.map((enemyId) => [
+        enemyId,
+        {
+          abilityIds: ['kick'],
+          globalCooldownMs: 1500,
+          globalCooldownEndsAt: worldTimeMs,
+          cooldownEndsAt: {},
+          casting: null,
+        },
+      ]),
+    ),
+  };
 }
