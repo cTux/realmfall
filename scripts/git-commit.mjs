@@ -63,6 +63,7 @@ function updatePackageVersion() {
   const nextVersion = getCommitVersion(packageJson.version, headVersion);
 
   if (nextVersion === packageJson.version) {
+    runGit(['add', 'package.json']);
     return nextVersion;
   }
 
