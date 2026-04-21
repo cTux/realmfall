@@ -14,6 +14,7 @@ This spec covers the canonical rules model and the project spec structure itself
 - `docs/specs` holds canonical implemented reference specs.
 - `docs/implementation-notes` holds transient briefs, plans, research notes, issue workspaces, and checklists while work is active.
 - Inactive or historical implementation-note workspaces are reduced to a short `brief.md` plus an optional checklist or archived entirely, keeping prompt-loading context small.
+- When a shipped workspace keeps a `brief.md`, that file is reduced to a short historical note with links back to the canonical spec and workflow docs instead of retaining full scenario, requirement, and success-criteria templates.
 - Transient implementation-note files should not use `spec.md` naming, which is reserved for canonical shipped-reference documents under `docs/specs`.
 - Each implemented gameplay feature and each technical solution should have its own dedicated spec file.
 - Index documents are used as navigation only.

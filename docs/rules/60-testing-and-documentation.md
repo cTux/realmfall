@@ -43,6 +43,7 @@
 - Keep `docs/PROJECT_REVIEW.md` as a lightweight transient note only. Do not let it become a second canonical source for workflow rules, best-practice checklists, or current-system specs.
 - When a transient note captures an observation that is no longer true, update or archive it promptly instead of leaving stale warning inventories or old performance claims in active planning paths.
 - When an implementation-note workspace is no longer an active plan, delete `plan.md` and other long-form planning artifacts, keep only `brief.md` plus an optional checklist, or archive it instead of keeping old plan, research, quickstart, and data-model trees alive indefinitely.
+- Once an implementation-note workspace is shipped, trim any surviving `brief.md` down to a short historical note plus links back to the canonical spec and workflow docs. Do not keep full user-story, requirement, and success-criteria templates in active prompt-loading paths after the feature is implemented.
 - Do not leave inactive implementation-note workspaces carrying stale dependency versions, outdated spec paths, or other durable project facts after those details move into `docs/specs` or the scoped rule files.
 - Every implemented feature should be followed by creating or updating the relevant spec in `docs/specs` before the task is considered complete.
 - When changing an existing feature, update the matching spec in the same task so the spec stays aligned with shipped behavior.
