@@ -7,6 +7,7 @@
 - Keep Oxlint as the only JavaScript and TypeScript linter in the repository. Do not reintroduce ESLint or Biome unless the task explicitly changes the lint toolchain.
 - Keep React hook lint checks on the enforced Oxlint path for TypeScript and TSX files, including invalid hook usage and effect dependency validation.
 - Keep the pre-commit hook aligned with the linting workflow. When Oxlint can safely auto-fix staged JavaScript and TypeScript issues, prefer applying the fix during pre-commit instead of failing only on fixable drift.
+- Keep the pre-commit hook aligned with the formatting workflow as well. Staged files that Prettier supports should be formatted during pre-commit so repository-wide formatting drift does not accumulate outside the enforced path.
 - Keep the pre-commit hook aligned with the local quality bar. It should enforce version progression, staged-file lint checks, and staged-file related tests by default, including staged runtime JSON sources that affect app behavior or content, while the pre-push path owns the full repository test and build gates for shared-input changes.
 - Keep the pre-commit hook scoped to staged work, even when shared test inputs change. Move full-repository test and build gates to the pre-push path when commit-latency improvements are the goal.
 - Keep a full-project TypeScript gate in the pre-push path so routine commits do not pay that cost but rewritten branches and shared pushes still validate the whole repository before publication.

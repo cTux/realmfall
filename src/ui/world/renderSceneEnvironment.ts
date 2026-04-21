@@ -242,12 +242,7 @@ export function renderCampfireLight(
   const heatWash = takeGraphics(graphicsPool);
   heatWash.blendMode = 'add';
   heatWash
-    .ellipse(
-      point.x,
-      point.y + hexSize * 0.08,
-      hexSize * 0.96,
-      hexSize * 0.68,
-    )
+    .ellipse(point.x, point.y + hexSize * 0.08, hexSize * 0.96, hexSize * 0.68)
     .fill({
       color: scaleColor(0xfdba74, 0.9 + ambientBrightness * 0.22),
       alpha: 0.14 * nightGlow * (0.98 + flicker * 0.05),

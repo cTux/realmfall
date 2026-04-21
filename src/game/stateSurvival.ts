@@ -79,8 +79,7 @@ export function processPlayerStatusEffects(state: GameState) {
     );
 
     if (tickCount > 0) {
-      changed =
-        processTickingPlayerEffect(state, effect, tickCount) || changed;
+      changed = processTickingPlayerEffect(state, effect, tickCount) || changed;
     }
 
     if (effect.expiresAt != null && state.worldTimeMs >= effect.expiresAt) {
@@ -136,14 +135,16 @@ function processTickingPlayerEffect(
           Math.max(
             1,
             Math.floor(state.player.baseMaxMana * (restorationPercent / 100)),
-          ) * tickCount,
+          ) *
+            tickCount,
       );
       return true;
     }
     case StatusEffectTypeId.Bleeding: {
       state.player.hp = Math.max(
         0,
-        state.player.hp - Math.max(1, Math.floor(effect.value ?? 0)) * tickCount,
+        state.player.hp -
+          Math.max(1, Math.floor(effect.value ?? 0)) * tickCount,
       );
       return true;
     }
@@ -161,7 +162,8 @@ function processTickingPlayerEffect(
       state.player.hp = Math.max(
         0,
         state.player.hp -
-          Math.max(1, Math.floor(effect.value ?? 0) * burningStacks) * tickCount,
+          Math.max(1, Math.floor(effect.value ?? 0) * burningStacks) *
+            tickCount,
       );
       return true;
     }

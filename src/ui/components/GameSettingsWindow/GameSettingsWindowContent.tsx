@@ -191,7 +191,8 @@ export function GameSettingsWindowContent({
                 </span>
                 <div className={styles.graphicsPresetOptions}>
                   {GRAPHICS_PRESET_OPTIONS.map((option) => {
-                    const selected = draftGraphicsSettings.preset === option.value;
+                    const selected =
+                      draftGraphicsSettings.preset === option.value;
 
                     return (
                       <button

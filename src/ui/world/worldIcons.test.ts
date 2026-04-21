@@ -31,11 +31,8 @@ describe('worldIcons', () => {
         userAgent: 'Mozilla/5.0',
       } as Navigator);
 
-      const {
-        WorldIcons,
-        ensureWorldIconTexturesLoaded,
-        getWorldIconTexture,
-      } = await import('./worldIcons');
+      const { WorldIcons, ensureWorldIconTexturesLoaded, getWorldIconTexture } =
+        await import('./worldIcons');
 
       await ensureWorldIconTexturesLoaded([WorldIcons.Player]);
 

@@ -13,8 +13,14 @@ export interface CombatPartyMember {
   maxMana: number;
   attack: number;
   actor: CombatActorState;
-  buffs: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[];
-  debuffs: Pick<PlayerStatusEffect, 'id' | 'value' | 'tickIntervalMs' | 'stacks'>[];
+  buffs: Pick<
+    PlayerStatusEffect,
+    'id' | 'value' | 'tickIntervalMs' | 'stacks'
+  >[];
+  debuffs: Pick<
+    PlayerStatusEffect,
+    'id' | 'value' | 'tickIntervalMs' | 'stacks'
+  >[];
 }
 
 export interface CombatWindowProps extends WindowDetailTooltipHandlers {

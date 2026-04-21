@@ -9,11 +9,7 @@ import townRpgCity from '../../assets/music/town/phantasticbeats-rpg-city-8381.m
 import type { BackgroundMusicMood } from './backgroundMusic';
 
 export const BACKGROUND_MUSIC_PLAYLISTS = {
-  ambient: [
-    ambientFindingMithral,
-    ambientHopeless,
-    ambientNeverAgain,
-  ],
+  ambient: [ambientFindingMithral, ambientHopeless, ambientNeverAgain],
   combat: [combatBattleOfTheDragons, combatTheTournament],
   dungeon: [dungeonWhiteLion],
   town: [townRuins, townRpgCity],

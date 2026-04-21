@@ -1,8 +1,4 @@
-import {
-  createContext,
-  useContext,
-  type PropsWithChildren,
-} from 'react';
+import { createContext, useContext, type PropsWithChildren } from 'react';
 
 export interface UiAudioController {
   applySettings: (settings: import('../audioSettings').AudioSettings) => void;

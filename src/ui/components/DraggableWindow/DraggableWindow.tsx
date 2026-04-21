@@ -416,7 +416,9 @@ function isWindowOutsideViewport(rect: DOMRect) {
   );
 }
 
-function getViewportResetWindowPosition(position: WindowPosition): WindowPosition {
+function getViewportResetWindowPosition(
+  position: WindowPosition,
+): WindowPosition {
   return {
     ...position,
     x: WINDOW_VIEWPORT_PADDING_PX,

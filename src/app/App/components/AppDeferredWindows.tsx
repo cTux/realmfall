@@ -8,7 +8,9 @@ import type {
 } from '../AppWindows.types';
 
 const SkillsWindow = createLazyWindowComponent<
-  Parameters<(typeof import('../../../ui/components/SkillsWindow'))['SkillsWindow']>[0]
+  Parameters<
+    (typeof import('../../../ui/components/SkillsWindow'))['SkillsWindow']
+  >[0]
 >(() =>
   import('../../../ui/components/SkillsWindow').then((module) => ({
     default: module.SkillsWindow,
@@ -26,7 +28,9 @@ const RecipeBookWindow = createLazyWindowComponent<
 );
 
 const HexInfoWindow = createLazyWindowComponent<
-  Parameters<(typeof import('../../../ui/components/HexInfoWindow'))['HexInfoWindow']>[0]
+  Parameters<
+    (typeof import('../../../ui/components/HexInfoWindow'))['HexInfoWindow']
+  >[0]
 >(() =>
   import('../../../ui/components/HexInfoWindow').then((module) => ({
     default: module.HexInfoWindow,
@@ -34,7 +38,9 @@ const HexInfoWindow = createLazyWindowComponent<
 );
 
 const EquipmentWindow = createLazyWindowComponent<
-  Parameters<(typeof import('../../../ui/components/EquipmentWindow'))['EquipmentWindow']>[0]
+  Parameters<
+    (typeof import('../../../ui/components/EquipmentWindow'))['EquipmentWindow']
+  >[0]
 >(() =>
   import('../../../ui/components/EquipmentWindow').then((module) => ({
     default: module.EquipmentWindow,
@@ -42,7 +48,9 @@ const EquipmentWindow = createLazyWindowComponent<
 );
 
 const InventoryWindow = createLazyWindowComponent<
-  Parameters<(typeof import('../../../ui/components/InventoryWindow'))['InventoryWindow']>[0]
+  Parameters<
+    (typeof import('../../../ui/components/InventoryWindow'))['InventoryWindow']
+  >[0]
 >(() =>
   import('../../../ui/components/InventoryWindow').then((module) => ({
     default: module.InventoryWindow,
@@ -50,7 +58,9 @@ const InventoryWindow = createLazyWindowComponent<
 );
 
 const LootWindow = createLazyWindowComponent<
-  Parameters<(typeof import('../../../ui/components/LootWindow'))['LootWindow']>[0]
+  Parameters<
+    (typeof import('../../../ui/components/LootWindow'))['LootWindow']
+  >[0]
 >(() =>
   import('../../../ui/components/LootWindow').then((module) => ({
     default: module.LootWindow,
@@ -58,7 +68,9 @@ const LootWindow = createLazyWindowComponent<
 );
 
 const LogWindow = createLazyWindowComponent<
-  Parameters<(typeof import('../../../ui/components/LogWindow'))['LogWindow']>[0]
+  Parameters<
+    (typeof import('../../../ui/components/LogWindow'))['LogWindow']
+  >[0]
 >(() =>
   import('../../../ui/components/LogWindow').then((module) => ({
     default: module.LogWindow,
@@ -66,7 +78,9 @@ const LogWindow = createLazyWindowComponent<
 );
 
 const CombatWindow = createLazyWindowComponent<
-  Parameters<(typeof import('../../../ui/components/CombatWindow'))['CombatWindow']>[0]
+  Parameters<
+    (typeof import('../../../ui/components/CombatWindow'))['CombatWindow']
+  >[0]
 >(() =>
   import('../../../ui/components/CombatWindow').then((module) => ({
     default: module.CombatWindow,

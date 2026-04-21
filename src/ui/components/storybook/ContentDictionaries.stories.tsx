@@ -1,9 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import {
-  useEffect,
-  useState,
-  type MouseEvent,
-} from 'react';
+import { useEffect, useState, type MouseEvent } from 'react';
 import { loadI18n } from '../../../i18n';
 import type { TooltipLine } from '../../tooltips';
 

@@ -120,4 +120,3 @@ export const GENERATED_CRAFTING_RECIPES: RecipeDefinition[] =
 export const GENERATED_CRAFTING_RECIPE_IDS = Object.freeze(
   GENERATED_CRAFTING_RECIPES.map((recipe) => recipe.id),
 );
-

@@ -5,7 +5,10 @@ import {
   buildEquippedAbilityIds,
   DEFAULT_ABILITY_ID,
 } from './abilities';
-import { buildGeneratedItemFromConfig, buildItemFromConfig } from './content/items';
+import {
+  buildGeneratedItemFromConfig,
+  buildItemFromConfig,
+} from './content/items';
 import { GAME_TAGS } from './content/tags';
 import { getPlayerStats } from './progression';
 import { createGame } from './state';
@@ -103,11 +106,14 @@ describe('ability loadouts', () => {
       tier: 4,
       rarity: 'rare',
     });
-    const magicalSphere = buildGeneratedItemFromConfig('generated-magical-sphere', {
-      id: 'sphere-with-skill',
-      tier: 4,
-      rarity: 'rare',
-    });
+    const magicalSphere = buildGeneratedItemFromConfig(
+      'generated-magical-sphere',
+      {
+        id: 'sphere-with-skill',
+        tier: 4,
+        rarity: 'rare',
+      },
+    );
 
     expect(shield.grantedAbilityId).toBeTruthy();
     expect(magicalSphere.grantedAbilityId).toBeTruthy();

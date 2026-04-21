@@ -3,12 +3,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { DEFAULT_AUDIO_SETTINGS } from '../audioSettings';
 import { useBackgroundMusicController } from './useBackgroundMusicController';
 
-const {
-  loadMock,
-  muteMock,
-  setVolumeMock,
-  unmuteMock,
-} = vi.hoisted(() => ({
+const { loadMock, muteMock, setVolumeMock, unmuteMock } = vi.hoisted(() => ({
   loadMock: vi.fn(),
   muteMock: vi.fn(),
   setVolumeMock: vi.fn(),

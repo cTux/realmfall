@@ -85,17 +85,20 @@ const ABILITY_ICONS: Record<AbilityId, string> = {
   enfeeblingPulse: heartMinusIcon,
 };
 
-export const ABILITIES: Record<AbilityId, AbilityDefinition> = Object.fromEntries(
-  Object.entries(ABILITY_RUNTIME_DEFINITIONS).map(([abilityId, definition]) => [
-    abilityId,
-    {
-      ...definition,
-      name: formatAbilityLabel(abilityId),
-      description: buildAbilityDescription(definition),
-      icon: ABILITY_ICONS[abilityId] ?? smashingArrowsIcon,
-    },
-  ]),
-) as Record<AbilityId, AbilityDefinition>;
+export const ABILITIES: Record<AbilityId, AbilityDefinition> =
+  Object.fromEntries(
+    Object.entries(ABILITY_RUNTIME_DEFINITIONS).map(
+      ([abilityId, definition]) => [
+        abilityId,
+        {
+          ...definition,
+          name: formatAbilityLabel(abilityId),
+          description: buildAbilityDescription(definition),
+          icon: ABILITY_ICONS[abilityId] ?? smashingArrowsIcon,
+        },
+      ],
+    ),
+  ) as Record<AbilityId, AbilityDefinition>;
 
 export function getAbilityDefinition(abilityId: AbilityId) {
   return ABILITIES[abilityId] ?? ABILITIES[DEFAULT_ABILITY_ID];

@@ -200,4 +200,3 @@ const LORE_BY_KEY = buildLoreIndex();
 export function getGeneratedCraftingLore(key: string) {
   return LORE_BY_KEY[key];
 }
-

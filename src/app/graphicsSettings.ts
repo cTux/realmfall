@@ -111,7 +111,12 @@ export function deriveGraphicsPreset(
   for (const preset of Object.keys(GRAPHICS_PRESET_SETTINGS) as Array<
     Exclude<GraphicsPresetId, 'custom'>
   >) {
-    if (graphicsSettingsEqual(comparableSettings, GRAPHICS_PRESET_SETTINGS[preset])) {
+    if (
+      graphicsSettingsEqual(
+        comparableSettings,
+        GRAPHICS_PRESET_SETTINGS[preset],
+      )
+    ) {
       return preset;
     }
   }
@@ -124,7 +129,7 @@ export function getGraphicsRenderResolution(
   devicePixelRatio: number,
 ) {
   return Math.min(Math.max(devicePixelRatio || 1, 1), settings.resolutionCap);
-};
+}
 
 export const GRAPHICS_SETTINGS_OPTIONS: GraphicsSettingsOptionDefinition[] = [
   {
@@ -198,8 +203,9 @@ function loadPersistedSettings(): PersistedSettings {
   const currentSettings = loadStoredSettingsPayload();
   if (currentSettings) {
     return {
-      graphics:
-        currentSettings.graphics as Partial<GraphicsSettings> | undefined,
+      graphics: currentSettings.graphics as
+        | Partial<GraphicsSettings>
+        | undefined,
     };
   }
 
@@ -302,13 +308,15 @@ function graphicsSettingsEqual(
   current: PresetGraphicsSettings,
   expected: PresetGraphicsSettings,
 ) {
-  return current.resolutionCap === expected.resolutionCap &&
+  return (
+    current.resolutionCap === expected.resolutionCap &&
     current.antialias === expected.antialias &&
     current.autoDensity === expected.autoDensity &&
     current.clearBeforeRender === expected.clearBeforeRender &&
     current.preserveDrawingBuffer === expected.preserveDrawingBuffer &&
     current.premultipliedAlpha === expected.premultipliedAlpha &&
-    current.useContextAlpha === expected.useContextAlpha;
+    current.useContextAlpha === expected.useContextAlpha
+  );
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

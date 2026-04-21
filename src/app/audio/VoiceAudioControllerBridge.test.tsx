@@ -40,7 +40,9 @@ describe('VoiceAudioControllerBridge', () => {
     reducedMotionMediaQuery = createMockMediaQueryList(false);
     window.matchMedia = vi
       .fn()
-      .mockImplementation(() => reducedMotionMediaQuery) as typeof window.matchMedia;
+      .mockImplementation(
+        () => reducedMotionMediaQuery,
+      ) as typeof window.matchMedia;
     getVoiceClipUrlsMock.mockClear();
   });
 
@@ -162,9 +164,7 @@ class MockAudio {
   }
 }
 
-function createMockMediaQueryList(
-  initialMatches: boolean,
-): MockMediaQueryList {
+function createMockMediaQueryList(initialMatches: boolean): MockMediaQueryList {
   const listeners = new Set<() => void>();
   let matches = initialMatches;
 

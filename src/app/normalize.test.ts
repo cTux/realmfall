@@ -55,7 +55,10 @@ describe('normalizePersistedUiState', () => {
 
     expect(
       normalizePersistedUiState({
-        actionBarSlots: [{ item: game.player.inventory[0] }, { item: { id: 1 } }],
+        actionBarSlots: [
+          { item: game.player.inventory[0] },
+          { item: { id: 1 } },
+        ],
         logFilters: {
           movement: false,
           combat: 'yes',

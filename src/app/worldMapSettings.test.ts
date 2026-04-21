@@ -16,15 +16,15 @@ describe('world map settings persistence', () => {
       scale: 1.75,
     });
 
-    expect(JSON.parse(window.localStorage.getItem('settings') ?? 'null')).toEqual(
-      {
-        worldMap: {
-          offsetX: 120,
-          offsetY: -48,
-          scale: 1.75,
-        },
+    expect(
+      JSON.parse(window.localStorage.getItem('settings') ?? 'null'),
+    ).toEqual({
+      worldMap: {
+        offsetX: 120,
+        offsetY: -48,
+        scale: 1.75,
       },
-    );
+    });
   });
 
   it('loads normalized world map settings from the shared settings payload', () => {
@@ -57,10 +57,10 @@ describe('world map settings persistence', () => {
 
     clearWorldMapSettings();
 
-    expect(JSON.parse(window.localStorage.getItem('settings') ?? 'null')).toEqual(
-      {
-        audio: { muted: true },
-      },
-    );
+    expect(
+      JSON.parse(window.localStorage.getItem('settings') ?? 'null'),
+    ).toEqual({
+      audio: { muted: true },
+    });
   });
 });

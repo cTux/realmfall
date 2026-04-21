@@ -47,7 +47,9 @@ describe('DraggableWindow', () => {
 
     getBoundingClientRectSpy = vi
       .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
-      .mockImplementation(function mockGetBoundingClientRect(this: HTMLElement) {
+      .mockImplementation(function mockGetBoundingClientRect(
+        this: HTMLElement,
+      ) {
         const left = Number(this.style.left.replace('px', '') || 0);
         const top = Number(this.style.top.replace('px', '') || 0);
         const width = Number(this.style.width.replace('px', '') || 320);
