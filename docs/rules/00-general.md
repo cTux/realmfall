@@ -8,6 +8,7 @@
 - Keep React hook lint checks on the enforced Oxlint path for TypeScript and TSX files, including invalid hook usage and effect dependency validation.
 - Keep the pre-commit hook aligned with the linting workflow. When Oxlint can safely auto-fix staged JavaScript and TypeScript issues, prefer applying the fix during pre-commit instead of failing only on fixable drift.
 - Keep the pre-commit hook aligned with the local quality bar. It should enforce version progression, full-project typecheck, staged-file lint checks, and staged-file related tests by default, including staged runtime JSON sources that affect app behavior or content, while falling back to the full repository test suite when shared test inputs such as package metadata, TypeScript config, Vite config, lockfile data, or shared Vitest setup change.
+- Treat a staged `package.json` change that only updates the `version` field as lightweight commit metadata, not as a shared-input change that forces the full repository test suite.
 - Prefer the smallest correct change that fits the existing structure.
 - Apply the DRY principle. When logic, UI structure, or configuration patterns repeat, prefer extracting or extending an existing shared helper, component, or module instead of copying the pattern again.
 - When a requested JavaScript or TypeScript syntax preference can be enforced mechanically, prefer enabling or adjusting the corresponding Oxlint rule instead of relying only on contributor discipline, using Oxlint JS plugins only when the rule is not available natively.
