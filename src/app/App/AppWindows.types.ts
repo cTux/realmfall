@@ -22,6 +22,10 @@ export interface AppWindowsProps {
   actions: AppWindowsActions;
 }
 
+export type AppWindowsRawClaimStatus = ReturnType<
+  typeof import('../../game/state').getCurrentHexClaimStatus
+>;
+
 export interface AppWindowsLayout {
   windows: WindowPositions;
   windowShown: WindowVisibilityState;
@@ -90,6 +94,12 @@ export interface AppWindowsViewState {
   };
   itemMenu: ItemContextMenuState | null;
 }
+
+export type AppWindowsRawViewState = Omit<AppWindowsViewState, 'world'> & {
+  world: Omit<AppWindowsViewState['world'], 'claimStatus'> & {
+    claimStatus: AppWindowsRawClaimStatus;
+  };
+};
 
 export interface AppWindowsActions {
   windows: {

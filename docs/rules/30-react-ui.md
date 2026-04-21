@@ -6,6 +6,7 @@
 - Keep heavy app coordination in dedicated hooks when possible, following patterns already used in `src/app/App`.
 - Keep component-only hooks in a colocated `hooks/` directory when just one component or feature uses them.
 - When reducing React rerender fanout, move window-specific derivation, dock composition, and stable window handler ownership out of `src/app/App/App.tsx` and into narrower hooks or the window composition layer when that keeps unrelated windows from recomputing together.
+- Compose memoized window view slices and grouped window action maps through dedicated hooks under `src/app/App/hooks` once `App.tsx` starts accumulating broad `hero`, `player`, `world`, `logs`, or action-group objects inline.
 - Do not let `src/app/App/App.tsx` rebuild broad nested `layout`, `views`, or `actions` object graphs inline once that data can be composed in narrower hooks or neighboring modules.
 - When a UI control only needs the live world clock for display state, subscribe through `src/app/App/worldClockStore.ts` at the leaf component instead of threading `worldTimeMs` through broad app or window props.
 - When splitting `AppWindows` work, pass fixed and deferred window components only the view and action slices they actually consume instead of forwarding the full nested props object.

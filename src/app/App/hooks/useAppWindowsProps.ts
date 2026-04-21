@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
-import type { AppWindowsProps } from '../AppWindows.types';
+import type {
+  AppWindowsActions,
+  AppWindowsProps,
+  AppWindowsRawViewState,
+} from '../AppWindows.types';
 import { t } from '../../../i18n';
-
-type RawClaimStatus = ReturnType<
-  typeof import('../../../game/state').getCurrentHexClaimStatus
->;
 
 interface UseAppWindowsPropsArgs {
   windows: AppWindowsProps['layout']['windows'];
@@ -12,18 +12,8 @@ interface UseAppWindowsPropsArgs {
   keepLootWindowMounted: AppWindowsProps['layout']['keepLootWindowMounted'];
   keepCombatWindowMounted: AppWindowsProps['layout']['keepCombatWindowMounted'];
   tooltipPositionRef: AppWindowsProps['layout']['tooltipPositionRef'];
-  heroView: AppWindowsProps['views']['hero'];
-  playerView: AppWindowsProps['views']['player'];
-  worldView: Omit<AppWindowsProps['views']['world'], 'claimStatus'> & {
-    claimStatus: RawClaimStatus;
-  };
-  recipesView: AppWindowsProps['views']['recipes'];
-  lootView: AppWindowsProps['views']['loot'];
-  combatView: AppWindowsProps['views']['combat'];
-  logsView: AppWindowsProps['views']['logs'];
-  settingsView: AppWindowsProps['views']['settings'];
-  itemMenu: AppWindowsProps['views']['itemMenu'];
-  actions: AppWindowsProps['actions'];
+  views: AppWindowsRawViewState;
+  actions: AppWindowsActions;
 }
 
 export function useAppWindowsProps({
@@ -32,15 +22,7 @@ export function useAppWindowsProps({
   keepLootWindowMounted,
   keepCombatWindowMounted,
   tooltipPositionRef,
-  heroView,
-  playerView,
-  worldView,
-  recipesView,
-  lootView,
-  combatView,
-  logsView,
-  settingsView,
-  itemMenu,
+  views: rawViews,
   actions,
 }: UseAppWindowsPropsArgs): AppWindowsProps {
   const layout = useMemo(
@@ -62,34 +44,34 @@ export function useAppWindowsProps({
 
   const world = useMemo(
     () => ({
-      ...worldView,
-      claimStatus: addClaimStatusActionLabel(worldView.claimStatus),
+      ...rawViews.world,
+      claimStatus: addClaimStatusActionLabel(rawViews.world.claimStatus),
     }),
-    [worldView],
+    [rawViews.world],
   );
 
   const views = useMemo(
     () => ({
-      hero: heroView,
-      player: playerView,
+      hero: rawViews.hero,
+      player: rawViews.player,
       world,
-      recipes: recipesView,
-      loot: lootView,
-      combat: combatView,
-      logs: logsView,
-      settings: settingsView,
-      itemMenu,
+      recipes: rawViews.recipes,
+      loot: rawViews.loot,
+      combat: rawViews.combat,
+      logs: rawViews.logs,
+      settings: rawViews.settings,
+      itemMenu: rawViews.itemMenu,
     }),
     [
-      combatView,
-      heroView,
-      itemMenu,
-      logsView,
-      lootView,
-      playerView,
-      recipesView,
-      settingsView,
       world,
+      rawViews.combat,
+      rawViews.hero,
+      rawViews.itemMenu,
+      rawViews.logs,
+      rawViews.loot,
+      rawViews.player,
+      rawViews.recipes,
+      rawViews.settings,
     ],
   );
 
@@ -104,7 +86,7 @@ export function useAppWindowsProps({
 }
 
 function addClaimStatusActionLabel(
-  claimStatus: RawClaimStatus,
+  claimStatus: AppWindowsRawViewState['world']['claimStatus'],
 ): AppWindowsProps['views']['world']['claimStatus'] {
   switch (claimStatus.action) {
     case 'unclaim':
