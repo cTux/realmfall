@@ -355,6 +355,8 @@ beforeAll(() => {
     globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }
   ).IS_REACT_ACT_ENVIRONMENT = true;
   vi.useFakeTimers();
+  vi.stubGlobal('requestIdleCallback', undefined);
+  vi.stubGlobal('cancelIdleCallback', undefined);
 
   class ResizeObserverMock {
     observe() {}

@@ -133,12 +133,19 @@ async function renderPersistenceHarness() {
   };
 }
 
+async function flushAutosaveTimers(ms = 5000) {
+  await vi.advanceTimersByTimeAsync(ms);
+  await vi.runOnlyPendingTimersAsync();
+}
+
 describe('useAppPersistence', () => {
   beforeAll(() => {
     (
       globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }
     ).IS_REACT_ACT_ENVIRONMENT = true;
     vi.useFakeTimers();
+    vi.stubGlobal('requestIdleCallback', undefined);
+    vi.stubGlobal('cancelIdleCallback', undefined);
   });
 
   afterAll(() => {
@@ -163,7 +170,7 @@ describe('useAppPersistence', () => {
     });
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(5000);
+      await flushAutosaveTimers();
     });
 
     expect(saveEncryptedState).toHaveBeenCalledTimes(1);
@@ -219,13 +226,13 @@ describe('useAppPersistence', () => {
     });
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(5000);
+      await flushAutosaveTimers();
     });
 
     expect(saveEncryptedState).toHaveBeenCalledTimes(1);
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(5000);
+      await flushAutosaveTimers();
     });
 
     expect(saveEncryptedState).toHaveBeenCalledTimes(2);
@@ -268,7 +275,7 @@ describe('useAppPersistence', () => {
     expect(saveEncryptedState).toHaveBeenCalledTimes(0);
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(1);
+      await flushAutosaveTimers(1);
     });
 
     expect(saveEncryptedState).toHaveBeenCalledTimes(1);

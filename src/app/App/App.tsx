@@ -324,7 +324,7 @@ export function App() {
 
   const handleResetSaveData = useCallback(async () => {
     uiAudio.error();
-    clearEncryptedState();
+    await clearEncryptedState();
     clearAudioSettings();
     clearGraphicsSettings();
     clearWorldMapSettings();

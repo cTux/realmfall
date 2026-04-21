@@ -159,6 +159,20 @@ function clearDebounceSchedule(
   clearDebounceTimer(debounceTimerRef);
 }
 
+function clearIdleSave(idleSaveRef: MutableRefObject<number | null>) {
+  if (idleSaveRef.current === null) {
+    return;
+  }
+
+  if (typeof window.cancelIdleCallback === 'function') {
+    window.cancelIdleCallback(idleSaveRef.current);
+  } else {
+    window.clearTimeout(idleSaveRef.current);
+  }
+
+  idleSaveRef.current = null;
+}
+
 interface PersistSnapshotResult {
   error?: unknown;
   succeeded: boolean;
@@ -258,10 +272,49 @@ function flushPendingSave({
   });
 }
 
+function scheduleIdleSave({
+  dirtySegmentsRef,
+  idleSaveRef,
+  latestInputsRef,
+  lastSavedSerializedRef,
+  saveInFlightRef,
+  saveQueueRef,
+}: {
+  dirtySegmentsRef: MutableRefObject<DirtySaveSegments>;
+  idleSaveRef: MutableRefObject<number | null>;
+  latestInputsRef: MutableRefObject<LatestSaveInputs>;
+  lastSavedSerializedRef: MutableRefObject<SerializedSaveSegments>;
+  saveInFlightRef: MutableRefObject<boolean>;
+  saveQueueRef: MutableRefObject<Promise<void>>;
+}) {
+  if (idleSaveRef.current !== null) {
+    return;
+  }
+
+  const runSave = () => {
+    idleSaveRef.current = null;
+    flushPendingSave({
+      dirtySegmentsRef,
+      latestInputsRef,
+      lastSavedSerializedRef,
+      saveInFlightRef,
+      saveQueueRef,
+    });
+  };
+
+  idleSaveRef.current =
+    typeof window.requestIdleCallback === 'function'
+      ? window.requestIdleCallback(runSave, {
+          timeout: AUTOSAVE_INTERVAL_MS,
+        })
+      : window.setTimeout(runSave, 0);
+}
+
 function scheduleSave({
   debounceTimerRef,
   debounceDueAtRef,
   dirtySegmentsRef,
+  idleSaveRef,
   latestInputsRef,
   lastSavedSerializedRef,
   saveInFlightRef,
@@ -270,6 +323,7 @@ function scheduleSave({
   debounceTimerRef: MutableRefObject<number | null>;
   debounceDueAtRef: MutableRefObject<number | null>;
   dirtySegmentsRef: MutableRefObject<DirtySaveSegments>;
+  idleSaveRef: MutableRefObject<number | null>;
   latestInputsRef: MutableRefObject<LatestSaveInputs>;
   lastSavedSerializedRef: MutableRefObject<SerializedSaveSegments>;
   saveInFlightRef: MutableRefObject<boolean>;
@@ -277,16 +331,18 @@ function scheduleSave({
 }) {
   if (!dirtySegmentsRef.current.game && !dirtySegmentsRef.current.ui) {
     clearDebounceSchedule(debounceDueAtRef, debounceTimerRef);
+    clearIdleSave(idleSaveRef);
     return;
   }
 
-  clearDebounceSchedule(debounceDueAtRef, debounceTimerRef);
+  clearDebounceTimer(debounceTimerRef);
   debounceDueAtRef.current = Date.now() + AUTOSAVE_DEBOUNCE_MS;
   debounceTimerRef.current = window.setTimeout(() => {
     debounceDueAtRef.current = null;
     debounceTimerRef.current = null;
-    flushPendingSave({
+    scheduleIdleSave({
       dirtySegmentsRef,
+      idleSaveRef,
       latestInputsRef,
       lastSavedSerializedRef,
       saveInFlightRef,
@@ -333,6 +389,7 @@ export function useAppPersistence({
   const debounceDueAtRef = useRef<number | null>(null);
   const saveInFlightRef = useRef(false);
   const saveQueueRef = useRef<Promise<void>>(Promise.resolve());
+  const idleSaveRef = useRef<number | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -420,6 +477,7 @@ export function useAppPersistence({
       debounceDueAtRef,
       debounceTimerRef,
       dirtySegmentsRef,
+      idleSaveRef,
       latestInputsRef,
       lastSavedSerializedRef,
       saveInFlightRef,
@@ -439,6 +497,7 @@ export function useAppPersistence({
       debounceDueAtRef,
       debounceTimerRef,
       dirtySegmentsRef,
+      idleSaveRef,
       latestInputsRef,
       lastSavedSerializedRef,
       saveInFlightRef,
@@ -457,8 +516,9 @@ export function useAppPersistence({
         return;
       }
 
-      flushPendingSave({
+      scheduleIdleSave({
         dirtySegmentsRef,
+        idleSaveRef,
         latestInputsRef,
         lastSavedSerializedRef,
         saveInFlightRef,
@@ -469,11 +529,13 @@ export function useAppPersistence({
     return () => {
       window.clearInterval(interval);
       clearDebounceSchedule(debounceDueAtRef, debounceTimerRef);
+      clearIdleSave(idleSaveRef);
     };
   }, [hydrated]);
 
   const persistNow = async () => {
     clearDebounceSchedule(debounceDueAtRef, debounceTimerRef);
+    clearIdleSave(idleSaveRef);
 
     latestInputsRef.current = {
       actionBarSlots,
