@@ -228,9 +228,8 @@ vi.mock('../../../ui/world/renderScene', () => ({
 }));
 
 vi.mock('../../../ui/world/worldIcons', async (importOriginal) => {
-  const actual = await importOriginal<
-    typeof import('../../../ui/world/worldIcons')
-  >();
+  const actual =
+    await importOriginal<typeof import('../../../ui/world/worldIcons')>();
 
   return {
     ...actual,

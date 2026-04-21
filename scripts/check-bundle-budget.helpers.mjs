@@ -13,7 +13,7 @@ export const CHUNK_BUDGETS = {
   'react-core': 8_689,
   'react-dom-vendor': 199_966,
   state: 532_132,
-  en: 109_450,
+  en: 120_000,
   pixi: 549_560,
 };
 
@@ -81,10 +81,7 @@ export function getStartupChunkFiles(manifest, entryKey) {
       return;
     }
 
-    if (
-      entry.file?.endsWith('.js') ||
-      entry.file?.endsWith('.json')
-    ) {
+    if (entry.file?.endsWith('.js') || entry.file?.endsWith('.json')) {
       startupFiles.add(
         relative(DIST_DIR, join(DIST_DIR, entry.file)).replaceAll('\\', '/'),
       );

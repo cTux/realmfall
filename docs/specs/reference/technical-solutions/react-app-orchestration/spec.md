@@ -24,10 +24,12 @@ This spec covers the top-level React hook composition and derived view-model pat
 - The game uses a desktop-style draggable window model with persisted positions, optional per-window dimensions for resizable windows, and visibility.
 - Shared draggable window shells keep stack order inside reserved z-index bands, so opening or refocusing a window brings it to the front without ad hoc per-window layering rules.
 - Windows that become visible automatically take focus through the shared drag shell so newly opened panes rise and accept keyboard interaction immediately.
-- Shared window-shell helpers are reused for move handlers, close handlers, deferred mount state, and repeated title-bar labels instead of maintaining parallel per-window implementations.
+- Shared drag shells keep their open, mounted, and entered lifecycle phases explicit and unregister stack entries through stable window ids, keeping hook lint clean while the stack model tracks the rendered instance correctly.
+- Shared window-shell helpers are reused for move handlers, close handlers, deferred mount state, repeated title-bar labels, and the shared suspense-loading wrapper for lazy window content instead of maintaining parallel per-window implementations.
 - `useAppControllers` routes gameplay mutations through a shared timed-transition helper so controller actions inject the current world time consistently without repeating the same wrapper at every call site.
-- `useAppControllers` also routes inventory and action-bar item hovers through one shared async item-tooltip presenter, so tooltip caching, learned-recipe detection, and lazy tooltip-module loading do not fork into parallel handler implementations.
+- `useAppControllers` delegates inventory and action-bar hover tooltip orchestration to `useItemTooltipController`, so tooltip caching, learned-recipe detection, and lazy tooltip-module loading stay together in one local hook instead of expanding the broader window and gameplay controller module.
 - `useAppControllers` separates inventory-slot activation from explicit equip and use actions so handler names match the behavior they trigger and context-menu equip actions stay equip-only.
+- `useAppPersistence` keeps hydration and latest-input tracking in the hook while local `persistence/` helpers own segment serialization and autosave scheduling, separating save bootstrapping from debounce, idle-flush, and queued-write mechanics.
 - `useCombatAutomation` schedules the next combat step from the earliest pending combat event across actor cooldowns, cast completions, combat status-effect ticks, and effect expirations.
 - The top-level app owns a non-persistent pause state toggled by `Space`, and that state gates the shared world clock, combat automation, world-click travel, and controller-routed gameplay mutations while surfacing a centered overlay above the stage. The `Space` shortcut skips editable targets and focused interactive controls so native keyboard activation behavior remains intact.
 - Secondary stage overlays such as the home-direction marker and version polling panel stay behind lazy boundaries so the `App` entry prioritizes world bootstrap and core window composition.
@@ -40,6 +42,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - The world viewport surfaces offscreen direction indicators for the home hex and the earliest available player-claimed hex, skipping duplicate markers when both targets resolve to the same tile.
 - Secondary window content is separated into dedicated components and lazy-loaded bundles following the current project pattern.
 - Shared lazy-window creation goes through `createLazyWindowComponent`, keeping retrying deferred-window imports consistent instead of re-declaring the same `lazy(() => loadRetryingWindowModule(...))` wrapper in every window component.
+- `DeferredWindowShell` owns the common `WindowShell` plus `Suspense` plus `WindowLoadingState` scaffold for lazy window wrappers, so each window component only maps shell props and content props instead of repeating the same loading shell structure.
 - Deferred window-content imports retry indefinitely when a bundle fails to load, keeping the rest of the game interactive while the affected window shell stays mounted on its loading fallback. This is expected browser-delivery behavior for optional window bundles, not an accidental retry loop.
 - Window loading fallbacks keep the spinner visible and add delayed explanatory copy when the deferred content remains unavailable after several seconds.
 - Rare maintenance actions such as full save resets defer the storage helper import until the user triggers that action, keeping persistence internals off the main app bootstrap chunk.
@@ -51,7 +54,11 @@ This spec covers the top-level React hook composition and derived view-model pat
 
 - `src/app/App/App.tsx`
 - `src/app/App/useAppControllers.ts`
+- `src/app/App/hooks/useItemTooltipController.ts`
 - `src/app/App/useAppGameView.ts`
+- `src/app/App/useAppPersistence.ts`
+- `src/app/App/persistence/saveSegments.ts`
+- `src/app/App/persistence/saveScheduler.ts`
 - `src/app/App/hooks/useAppWindowsProps.ts`
 - `src/app/App/hooks/useAppWindowHandlers.ts`
 - `src/app/App/hooks/useDeferredWindows.ts`
@@ -59,5 +66,6 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `src/app/App/hooks/useRecipeWindowStructure.ts`
 - `src/app/App/hooks/useCombatPlayerParty.ts`
 - `src/app/App/useWindowTransitions.ts`
+- `src/ui/components/DeferredWindowShell.tsx`
 - `src/ui/components/WindowShell.tsx`
 - `src/ui/components/lazyWindowComponent.ts`

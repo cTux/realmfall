@@ -1,9 +1,8 @@
-import { memo, Suspense } from 'react';
+import { memo } from 'react';
 import { t } from '../../../i18n';
+import { DeferredWindowShell } from '../DeferredWindowShell';
 import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
-import { WindowLoadingState } from '../WindowLoadingState';
 import { createLazyWindowComponent } from '../lazyWindowComponent';
-import { WindowShell } from '../WindowShell';
 import type { LootWindowProps } from './types';
 import styles from '../InventoryWindow/styles.module.scss';
 
@@ -30,7 +29,7 @@ export const LootWindow = memo(function LootWindow({
   onLeaveDetail,
 }: LootWindowProps) {
   return (
-    <WindowShell
+    <DeferredWindowShell
       title={t('ui.loot.title')}
       position={position}
       onMove={onMove}
@@ -61,16 +60,14 @@ export const LootWindow = memo(function LootWindow({
           </div>
         </div>
       }
-    >
-      <Suspense fallback={<WindowLoadingState />}>
-        <LootWindowContent
-          loot={loot}
-          equipment={equipment}
-          onTakeItem={onTakeItem}
-          onHoverItem={onHoverItem}
-          onLeaveItem={onLeaveItem}
-        />
-      </Suspense>
-    </WindowShell>
+      content={LootWindowContent}
+      contentProps={{
+        loot,
+        equipment,
+        onTakeItem,
+        onHoverItem,
+        onLeaveItem,
+      }}
+    />
   );
 });

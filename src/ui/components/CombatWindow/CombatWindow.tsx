@@ -1,10 +1,8 @@
-import { Suspense } from 'react';
 import { t } from '../../../i18n';
+import { DeferredWindowShell } from '../DeferredWindowShell';
 import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
-import { WindowLoadingState } from '../WindowLoadingState';
 import { createLazyWindowComponent } from '../lazyWindowComponent';
 import inventoryStyles from '../InventoryWindow/styles.module.scss';
-import { WindowShell } from '../WindowShell';
 import type { CombatWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -47,7 +45,7 @@ export const CombatWindow = ({
   ) : null;
 
   return (
-    <WindowShell
+    <DeferredWindowShell
       title={t('ui.window.combat.plain')}
       headerActions={startButton}
       position={position}
@@ -58,17 +56,15 @@ export const CombatWindow = ({
       onClose={onClose}
       onHoverDetail={onHoverDetail}
       onLeaveDetail={onLeaveDetail}
-    >
-      <Suspense fallback={<WindowLoadingState />}>
-        <CombatWindowContent
-          combat={combat}
-          playerParty={playerParty}
-          enemies={enemies}
-          worldTimeMs={worldTimeMs}
-          onHoverDetail={onHoverDetail}
-          onLeaveDetail={onLeaveDetail}
-        />
-      </Suspense>
-    </WindowShell>
+      content={CombatWindowContent}
+      contentProps={{
+        combat,
+        playerParty,
+        enemies,
+        worldTimeMs,
+        onHoverDetail,
+        onLeaveDetail,
+      }}
+    />
   );
 };

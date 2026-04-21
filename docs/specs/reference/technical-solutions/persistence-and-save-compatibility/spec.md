@@ -22,6 +22,7 @@ This spec covers browser save storage, direct hydration of the current save shap
 - The five-second interval flush remains active during continuous gameplay or UI churn, so repeated sub-five-second updates still persist progress without requiring a quiet period first.
 - Debounce-triggered and interval-triggered autosave flushes hand off the actual snapshot build and storage write to an idle browser callback when that API exists, reducing save-path contention with active interaction.
 - Gameplay and UI persistence dirtiness are tracked separately so UI-only changes do not rebuild the gameplay snapshot on every autosave scheduling pass.
+- `useAppPersistence` keeps hydration and latest-save inputs in the hook while local `persistence/` helpers own segment assembly, serialization, dirty detection, and autosave scheduling, reducing change blast radius inside the main app persistence hook.
 - Autosave scheduling tracks the latest game and UI inputs separately and only builds the persisted snapshot when a flush or manual save is actually needed, avoiding repeated full snapshot cloning during intermediate state churn.
 - The app serializes persisted segments and skips redundant writes when nothing meaningful changed.
 - Pending saves are coalesced while previous writes are in flight.
@@ -33,6 +34,8 @@ This spec covers browser save storage, direct hydration of the current save shap
 - `src/persistence/storage.ts`
 - `src/app/normalize.ts`
 - `src/app/App/useAppPersistence.ts`
+- `src/app/App/persistence/saveSegments.ts`
+- `src/app/App/persistence/saveScheduler.ts`
 - `src/app/settingsStorage.ts`
 - `src/app/audioSettings.ts`
 - `src/app/graphicsSettings.ts`

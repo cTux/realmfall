@@ -11,11 +11,7 @@ import {
   type GameState,
   type LogKind,
 } from '../../game/state';
-import {
-  loadEncryptedState,
-  type PersistedData,
-  saveEncryptedState,
-} from '../../persistence/storage';
+import { loadEncryptedState } from '../../persistence/storage';
 import { type WindowPositions, type WindowVisibilityState } from '../constants';
 import {
   normalizeLoadedGame,
@@ -23,33 +19,23 @@ import {
   normalizeSavedUiItem,
 } from '../normalize';
 import { normalizeActionBarSlots, type ActionBarSlots } from './actionBar';
-
-const AUTOSAVE_INTERVAL_MS = 5000;
-const AUTOSAVE_DEBOUNCE_MS = AUTOSAVE_INTERVAL_MS;
-
-type PersistedSaveSegments = {
-  game: PersistedData['game'];
-  ui: PersistedData['ui'];
-};
-
-type SerializedSaveSegments = {
-  game: string | null;
-  ui: string | null;
-};
-
-type DirtySaveSegments = {
-  game: boolean;
-  ui: boolean;
-};
-
-type LatestSaveInputs = {
-  actionBarSlots: ActionBarSlots;
-  game: GameState;
-  logFilters: Record<LogKind, boolean>;
-  windowShown: WindowVisibilityState;
-  windows: WindowPositions;
-  worldTimeMs: number;
-};
+import {
+  buildPersistedSegments,
+  buildPersistedSnapshot,
+  getDirtySegments,
+  serializeSegments,
+  type DirtySaveSegments,
+  type LatestSaveInputs,
+  type SerializedSaveSegments,
+} from './persistence/saveSegments';
+import {
+  AUTOSAVE_INTERVAL_MS,
+  clearDebounceSchedule,
+  clearIdleSave,
+  enqueuePersistSnapshot,
+  scheduleIdleSave,
+  scheduleSave,
+} from './persistence/saveScheduler';
 
 interface UseAppPersistenceOptions {
   game: GameState;
@@ -67,288 +53,6 @@ interface UseAppPersistenceOptions {
   worldTimeMsRef: MutableRefObject<number>;
   worldTimeTickRef: MutableRefObject<number | null>;
   lastDisplayedWorldSecondRef: MutableRefObject<number>;
-}
-
-function buildPersistedGameSnapshot({
-  game,
-  worldTimeMs,
-}: {
-  game: GameState;
-  worldTimeMs: number;
-}) {
-  return { ...game, worldTimeMs, logs: [] };
-}
-
-function buildPersistedUiSnapshot({
-  actionBarSlots,
-  logFilters,
-  windowShown,
-  windows,
-}: {
-  actionBarSlots: ActionBarSlots;
-  logFilters: Record<LogKind, boolean>;
-  windowShown: WindowVisibilityState;
-  windows: WindowPositions;
-}) {
-  return { windows, windowShown, logFilters, actionBarSlots };
-}
-
-function buildPersistedSnapshot(
-  segments: PersistedSaveSegments,
-): PersistedData {
-  return {
-    game: segments.game,
-    ui: segments.ui,
-  };
-}
-
-function buildPersistedSegments(
-  latestInputs: LatestSaveInputs,
-): PersistedSaveSegments {
-  return {
-    game: buildPersistedGameSnapshot({
-      game: latestInputs.game,
-      worldTimeMs: latestInputs.worldTimeMs,
-    }),
-    ui: buildPersistedUiSnapshot({
-      actionBarSlots: latestInputs.actionBarSlots,
-      logFilters: latestInputs.logFilters,
-      windowShown: latestInputs.windowShown,
-      windows: latestInputs.windows,
-    }),
-  };
-}
-
-function serializeSegment(
-  segment: PersistedSaveSegments[keyof PersistedSaveSegments],
-) {
-  return JSON.stringify(segment);
-}
-
-function serializeSegments(
-  segments: PersistedSaveSegments,
-): SerializedSaveSegments {
-  return {
-    game: serializeSegment(segments.game),
-    ui: serializeSegment(segments.ui),
-  };
-}
-
-function getDirtySegments(
-  serialized: SerializedSaveSegments,
-  lastSavedSerialized: SerializedSaveSegments,
-): DirtySaveSegments {
-  return {
-    game: serialized.game !== lastSavedSerialized.game,
-    ui: serialized.ui !== lastSavedSerialized.ui,
-  };
-}
-
-function clearDebounceTimer(debounceTimerRef: MutableRefObject<number | null>) {
-  if (debounceTimerRef.current !== null) {
-    window.clearTimeout(debounceTimerRef.current);
-    debounceTimerRef.current = null;
-  }
-}
-
-function clearDebounceSchedule(
-  debounceDueAtRef: MutableRefObject<number | null>,
-  debounceTimerRef: MutableRefObject<number | null>,
-) {
-  debounceDueAtRef.current = null;
-  clearDebounceTimer(debounceTimerRef);
-}
-
-function clearIdleSave(idleSaveRef: MutableRefObject<number | null>) {
-  if (idleSaveRef.current === null) {
-    return;
-  }
-
-  if (typeof window.cancelIdleCallback === 'function') {
-    window.cancelIdleCallback(idleSaveRef.current);
-  } else {
-    window.clearTimeout(idleSaveRef.current);
-  }
-
-  idleSaveRef.current = null;
-}
-
-interface PersistSnapshotResult {
-  error?: unknown;
-  succeeded: boolean;
-}
-
-function enqueuePersistSnapshot({
-  dirtySegmentsRef,
-  latestInputsRef,
-  lastSavedSerializedRef,
-  saveInFlightRef,
-  saveQueueRef,
-  serialized,
-  snapshot,
-}: {
-  dirtySegmentsRef: MutableRefObject<DirtySaveSegments>;
-  latestInputsRef: MutableRefObject<LatestSaveInputs>;
-  lastSavedSerializedRef: MutableRefObject<SerializedSaveSegments>;
-  saveInFlightRef: MutableRefObject<boolean>;
-  saveQueueRef: MutableRefObject<Promise<void>>;
-  serialized: SerializedSaveSegments;
-  snapshot: PersistedData;
-}) {
-  const queuedSave = saveQueueRef.current.then(async () => {
-    saveInFlightRef.current = true;
-
-    try {
-      await saveEncryptedState(snapshot);
-      lastSavedSerializedRef.current = { ...serialized };
-
-      return { succeeded: true } satisfies PersistSnapshotResult;
-    } catch (error) {
-      return { error, succeeded: false } satisfies PersistSnapshotResult;
-    } finally {
-      dirtySegmentsRef.current = getDirtySegments(
-        serializeSegments(buildPersistedSegments(latestInputsRef.current)),
-        lastSavedSerializedRef.current,
-      );
-      saveInFlightRef.current = false;
-    }
-  });
-
-  saveQueueRef.current = queuedSave.then(() => undefined);
-
-  return queuedSave;
-}
-
-function flushPendingSave({
-  dirtySegmentsRef,
-  latestInputsRef,
-  lastSavedSerializedRef,
-  saveInFlightRef,
-  saveQueueRef,
-}: {
-  dirtySegmentsRef: MutableRefObject<DirtySaveSegments>;
-  latestInputsRef: MutableRefObject<LatestSaveInputs>;
-  lastSavedSerializedRef: MutableRefObject<SerializedSaveSegments>;
-  saveInFlightRef: MutableRefObject<boolean>;
-  saveQueueRef: MutableRefObject<Promise<void>>;
-}) {
-  if (saveInFlightRef.current) return;
-  if (!dirtySegmentsRef.current.game && !dirtySegmentsRef.current.ui) {
-    return;
-  }
-
-  const nextSegments = buildPersistedSegments(latestInputsRef.current);
-  const nextSerialized = serializeSegments(nextSegments);
-  const nextDirtySegments = getDirtySegments(
-    nextSerialized,
-    lastSavedSerializedRef.current,
-  );
-  if (!nextDirtySegments.game && !nextDirtySegments.ui) {
-    dirtySegmentsRef.current = nextDirtySegments;
-    return;
-  }
-
-  void enqueuePersistSnapshot({
-    dirtySegmentsRef,
-    latestInputsRef,
-    lastSavedSerializedRef,
-    saveInFlightRef,
-    saveQueueRef,
-    serialized: nextSerialized,
-    snapshot: buildPersistedSnapshot(nextSegments),
-  }).then((result) => {
-    if (
-      result.succeeded &&
-      (dirtySegmentsRef.current.game || dirtySegmentsRef.current.ui)
-    ) {
-      flushPendingSave({
-        dirtySegmentsRef,
-        latestInputsRef,
-        lastSavedSerializedRef,
-        saveInFlightRef,
-        saveQueueRef,
-      });
-    }
-  });
-}
-
-function scheduleIdleSave({
-  dirtySegmentsRef,
-  idleSaveRef,
-  latestInputsRef,
-  lastSavedSerializedRef,
-  saveInFlightRef,
-  saveQueueRef,
-}: {
-  dirtySegmentsRef: MutableRefObject<DirtySaveSegments>;
-  idleSaveRef: MutableRefObject<number | null>;
-  latestInputsRef: MutableRefObject<LatestSaveInputs>;
-  lastSavedSerializedRef: MutableRefObject<SerializedSaveSegments>;
-  saveInFlightRef: MutableRefObject<boolean>;
-  saveQueueRef: MutableRefObject<Promise<void>>;
-}) {
-  if (idleSaveRef.current !== null) {
-    return;
-  }
-
-  const runSave = () => {
-    idleSaveRef.current = null;
-    flushPendingSave({
-      dirtySegmentsRef,
-      latestInputsRef,
-      lastSavedSerializedRef,
-      saveInFlightRef,
-      saveQueueRef,
-    });
-  };
-
-  idleSaveRef.current =
-    typeof window.requestIdleCallback === 'function'
-      ? window.requestIdleCallback(runSave, {
-          timeout: AUTOSAVE_INTERVAL_MS,
-        })
-      : window.setTimeout(runSave, 0);
-}
-
-function scheduleSave({
-  debounceTimerRef,
-  debounceDueAtRef,
-  dirtySegmentsRef,
-  idleSaveRef,
-  latestInputsRef,
-  lastSavedSerializedRef,
-  saveInFlightRef,
-  saveQueueRef,
-}: {
-  debounceTimerRef: MutableRefObject<number | null>;
-  debounceDueAtRef: MutableRefObject<number | null>;
-  dirtySegmentsRef: MutableRefObject<DirtySaveSegments>;
-  idleSaveRef: MutableRefObject<number | null>;
-  latestInputsRef: MutableRefObject<LatestSaveInputs>;
-  lastSavedSerializedRef: MutableRefObject<SerializedSaveSegments>;
-  saveInFlightRef: MutableRefObject<boolean>;
-  saveQueueRef: MutableRefObject<Promise<void>>;
-}) {
-  if (!dirtySegmentsRef.current.game && !dirtySegmentsRef.current.ui) {
-    clearDebounceSchedule(debounceDueAtRef, debounceTimerRef);
-    clearIdleSave(idleSaveRef);
-    return;
-  }
-
-  clearDebounceTimer(debounceTimerRef);
-  debounceDueAtRef.current = Date.now() + AUTOSAVE_DEBOUNCE_MS;
-  debounceTimerRef.current = window.setTimeout(() => {
-    debounceDueAtRef.current = null;
-    debounceTimerRef.current = null;
-    scheduleIdleSave({
-      dirtySegmentsRef,
-      idleSaveRef,
-      latestInputsRef,
-      lastSavedSerializedRef,
-      saveInFlightRef,
-      saveQueueRef,
-    });
-  }, AUTOSAVE_DEBOUNCE_MS);
 }
 
 export function useAppPersistence({

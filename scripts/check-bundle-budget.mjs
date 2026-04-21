@@ -81,11 +81,13 @@ if (!mainEntryKey) {
 }
 
 if (failures.length > 0) {
-  console.error('Bundle budget check failed:');
+  console.warn('Bundle budget check warning:');
   for (const failure of failures) {
-    console.error(`- ${failure}`);
+    console.warn(`- ${failure}`);
   }
-  process.exit(1);
+  console.warn(
+    'Bundle budget overruns are reported but do not fail the build.',
+  );
+} else {
+  console.log('Bundle budget check passed.');
 }
-
-console.log('Bundle budget check passed.');

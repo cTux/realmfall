@@ -3,8 +3,12 @@
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background:
-    radial-gradient(circle at top, #1f2a44 0%, #0b1020 55%, #050814 100%);
+  background: radial-gradient(
+    circle at top,
+    #1f2a44 0%,
+    #0b1020 55%,
+    #050814 100%
+  );
 }
 
 .appShell {
@@ -15,8 +19,12 @@
 .mapViewport {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(circle at top, rgb(31 42 68 / 55%) 0%, rgb(11 16 32 / 92%) 55%, #050814 100%);
+  background: radial-gradient(
+    circle at top,
+    rgb(31 42 68 / 55%) 0%,
+    rgb(11 16 32 / 92%) 55%,
+    #050814 100%
+  );
 }
 
 .homeIndicator {

@@ -273,10 +273,14 @@ export function usePixiWorld({
         };
 
         const getSourcePoint = (displayPoint: { x: number; y: number }) =>
-          mapWorldMapFishEyeDisplayPointToSourcePoint(displayPoint, app.screen, {
-            x: app.screen.width / 2,
-            y: app.screen.height / 2,
-          });
+          mapWorldMapFishEyeDisplayPointToSourcePoint(
+            displayPoint,
+            app.screen,
+            {
+              x: app.screen.width / 2,
+              y: app.screen.height / 2,
+            },
+          );
 
         resize();
 

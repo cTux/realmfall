@@ -1,11 +1,10 @@
-import { memo, Suspense } from 'react';
+import { memo } from 'react';
 import { t } from '../../../i18n';
 import { WINDOW_LABELS } from '../../windowLabels';
+import { DeferredWindowShell } from '../DeferredWindowShell';
 import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
-import { WindowLoadingState } from '../WindowLoadingState';
 import { createLazyWindowComponent } from '../lazyWindowComponent';
 import inventoryStyles from '../InventoryWindow/styles.module.scss';
-import { WindowShell } from '../WindowShell';
 import type { HexInfoWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -57,7 +56,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   onLeaveDetail,
 }: HexInfoWindowProps) {
   return (
-    <WindowShell
+    <DeferredWindowShell
       title={WINDOW_LABELS.hexInfo.plain}
       hotkeyLabel={WINDOW_LABELS.hexInfo}
       position={position}
@@ -103,41 +102,37 @@ export const HexInfoWindow = memo(function HexInfoWindow({
           </WindowHeaderActionButton>
         </>
       }
-    >
-      <Suspense fallback={<WindowLoadingState />}>
-        <HexInfoWindowContent
-          terrain={terrain}
-          structure={structure}
-          enemyCount={enemyCount}
-          interactLabel={interactLabel}
-          canInteract={canInteract}
-          canProspectInventoryEquipment={canProspectInventoryEquipment}
-          canSellInventoryEquipment={canSellInventoryEquipment}
-          canTerritoryAction={canTerritoryAction}
-          territoryActionLabel={territoryActionLabel}
-          territoryActionExplanation={territoryActionExplanation}
-          prospectInventoryEquipmentExplanation={
-            prospectInventoryEquipmentExplanation
-          }
-          sellInventoryEquipmentExplanation={sellInventoryEquipmentExplanation}
-          onInteract={onInteract}
-          onProspect={onProspect}
-          onSellAll={onSellAll}
-          onTerritoryAction={onTerritoryAction}
-          structureHp={structureHp}
-          structureMaxHp={structureMaxHp}
-          territoryName={territoryName}
-          territoryOwnerType={territoryOwnerType}
-          territoryNpc={territoryNpc}
-          townStock={townStock}
-          gold={gold}
-          onBuyItem={onBuyItem}
-          onHoverItem={onHoverItem}
-          onLeaveItem={onLeaveItem}
-          onHoverDetail={onHoverDetail}
-          onLeaveDetail={onLeaveDetail}
-        />
-      </Suspense>
-    </WindowShell>
+      content={HexInfoWindowContent}
+      contentProps={{
+        terrain,
+        structure,
+        enemyCount,
+        interactLabel,
+        canInteract,
+        canProspectInventoryEquipment,
+        canSellInventoryEquipment,
+        canTerritoryAction,
+        territoryActionLabel,
+        territoryActionExplanation,
+        prospectInventoryEquipmentExplanation,
+        sellInventoryEquipmentExplanation,
+        onInteract,
+        onProspect,
+        onSellAll,
+        onTerritoryAction,
+        structureHp,
+        structureMaxHp,
+        territoryName,
+        territoryOwnerType,
+        territoryNpc,
+        townStock,
+        gold,
+        onBuyItem,
+        onHoverItem,
+        onLeaveItem,
+        onHoverDetail,
+        onLeaveDetail,
+      }}
+    />
   );
 });
