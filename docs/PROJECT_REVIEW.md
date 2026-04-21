@@ -10,8 +10,8 @@ current behavior.
 
 Current durable follow-ups:
 
-- `src/game/state.ts` remains broader than the surrounding architecture rules
-  prefer.
+- `src/game/state.ts` is narrower after the recent reward and world-event
+  extractions, and it remains the main gameplay transition entry point.
 - `src/app/App/App.tsx` is narrower after the recent window view and action
   extractions, but it remains the main lifecycle composition root.
 - Browser-side save protection should continue to be described as obfuscation,
