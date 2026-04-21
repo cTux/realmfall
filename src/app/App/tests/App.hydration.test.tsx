@@ -26,6 +26,8 @@ describe('App hydration and interactions', () => {
 
     expect(host.querySelector(`.${styles.loadingScreen}`)).not.toBeNull();
     expect(host.querySelector(`.${styles.loadingSpinner}`)).not.toBeNull();
+    expect(host.querySelector('[aria-label="Action bar"]')).not.toBeNull();
+    expect(host.querySelector('[aria-label="Window dock"]')).not.toBeNull();
 
     await act(async () => {
       resolveLoad?.({

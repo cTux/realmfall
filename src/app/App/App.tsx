@@ -437,7 +437,7 @@ export function App() {
             mood={backgroundMusicMood}
           />
         </Suspense>
-        <div className={isReady ? undefined : styles.hiddenUntilReady}>
+        <div className={styles.appShell}>
           <div ref={hostRef} className={styles.mapViewport} />
           <Suspense fallback={null}>
             <HomeIndicator
