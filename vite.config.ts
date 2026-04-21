@@ -16,6 +16,10 @@ import {
   RESPONSE_CONTENT_SECURITY_POLICY,
 } from './vite.security';
 
+const CHUNK_SIZE_WARNING_LIMIT_KB = 560;
+const RUN_DUPLICATE_DEPS_AUDIT =
+  process.env.REALMFALL_DUPLICATE_DEPS_AUDIT === '1';
+
 const packageVersion = JSON.parse(
   readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
 ).version as string;
@@ -216,12 +220,13 @@ export default defineConfig({
             skipWaiting: true,
           },
         }),
-      detectDuplicatedDeps(),
+      RUN_DUPLICATE_DEPS_AUDIT && detectDuplicatedDeps(),
       !isStorybookScript && minipic(),
     ].filter(Boolean);
   })(),
   build: {
     manifest: true,
+    chunkSizeWarningLimit: CHUNK_SIZE_WARNING_LIMIT_KB,
     rollupOptions: {
       output: {
         entryFileNames: 'assets/js/[name]-[hash].js',

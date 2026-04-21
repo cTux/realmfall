@@ -27,7 +27,9 @@ This spec covers the repository quality baseline and current test coverage shape
 - Contributor guidance now includes an explicit performance verification checklist for React rerender breadth, Pixi redraw breadth, hover hot paths, and startup chunk growth so optimization work has a repeatable review path beyond functional correctness.
 - That guidance also defines lightweight budgets for routine desktop world interaction and the main startup chunks, giving contributors a small regression envelope to compare against during reviews and build checks.
 - The pull-request workflow enforces startup delivery budgets through `pnpm build:budget`, which runs a production build, reads the Vite manifest, and fails if the bootstrap graph or its key chunks grow past the current thresholds.
+- Dependency-duplication auditing runs through `pnpm build:duplicate-deps`, which enables the duplicate-deps Vite plugin only for explicit audits instead of adding that analysis cost to every production build.
 - Vite keeps the gameplay runtime under an explicit `state` manual chunk so the bootstrap graph and budget checks do not drift when Rolldown would otherwise rename that shared chunk based on a smaller helper module.
+- The Vite config raises the generic chunk-size warning limit above the repository's intentional `state` and `pixi` chunk budgets so routine production builds stay focused on the explicit budget script rather than a lower default warning threshold.
 - Non-blocking startup chrome such as the version-status overlay stays deferred behind a lazy chunk so polling and refresh affordances do not enlarge the first-interaction bootstrap graph.
 - Repeated localized content families, such as expansion recipe descriptions that vary only by item slot, keep concise shared phrasing so locale growth does not consume startup budget headroom unnecessarily.
 - The current startup bundle thresholds are derived from the live production build graph: `index` `4.743 kB`, `App` `78.900 kB`, `background-audio` `54.420 kB`, `react-core` `8.689 kB` when emitted separately, `react-dom-vendor` `199.966 kB`, `state` `532.132 kB`, `en` `109.450 kB`, `pixi` `549.560 kB`, and `1.510000 MB` for total startup JS.
@@ -61,6 +63,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - `scripts/pnpm-command.mjs`
 - `scripts/run-pre-push-quality.mjs`
 - `scripts/run-memory-leak-test.mjs`
+- `scripts/run-duplicate-deps-audit.mjs`
 - `scripts/run-staged-quality.mjs`
 - `.oxlintrc.json`
 - `.husky/pre-push`
