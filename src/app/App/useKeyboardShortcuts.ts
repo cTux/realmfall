@@ -54,7 +54,7 @@ export function useKeyboardShortcuts({
       return;
     }
 
-    if (event.code === 'Space' || event.key === ' ') {
+    if (event.code === 'Space') {
       if (isFocusableControlTarget(event.target)) {
         return;
       }

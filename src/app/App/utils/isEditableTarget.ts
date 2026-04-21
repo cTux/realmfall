@@ -1,23 +1,14 @@
-const SPACE_CONTROL_TARGET_ROLES = new Set([
-  'button',
-  'checkbox',
-  'menuitem',
-  'menuitemcheckbox',
-  'menuitemradio',
-  'option',
-  'radio',
-  'switch',
-  'tab',
-  'treeitem',
-]);
+const SPACE_CONTROL_TARGET_ROLE_PATTERN =
+  /^(button|checkbox|menuitem(?:checkbox|radio)?|option|radio|switch|tab|treeitem)$/;
 
 export function isEditableTarget(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) return false;
 
+  const tagName = target.tagName;
   return Boolean(
-    target instanceof HTMLInputElement ||
-    target instanceof HTMLTextAreaElement ||
-    target instanceof HTMLSelectElement ||
+    tagName === 'INPUT' ||
+    tagName === 'TEXTAREA' ||
+    tagName === 'SELECT' ||
     target.isContentEditable,
   );
 }
@@ -25,14 +16,15 @@ export function isEditableTarget(target: EventTarget | null) {
 export function isFocusableControlTarget(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) return false;
 
-  if (
-    target instanceof HTMLButtonElement ||
-    target.tagName === 'SUMMARY' ||
-    (target instanceof HTMLAnchorElement && target.hasAttribute('href'))
-  ) {
+  const tagName = target.tagName;
+  if (tagName === 'BUTTON' || tagName === 'SUMMARY') {
     return true;
   }
 
+  if (tagName === 'A') {
+    return target.hasAttribute('href');
+  }
+
   const role = target.getAttribute('role');
-  return role ? SPACE_CONTROL_TARGET_ROLES.has(role) : false;
+  return role ? SPACE_CONTROL_TARGET_ROLE_PATTERN.test(role) : false;
 }
