@@ -7,23 +7,14 @@ import {
   isSrcStyleFile,
   isVitestRelatedFile,
 } from './run-staged-quality.helpers.mjs';
+import { createPnpmInvocation } from './pnpm-command.mjs';
 
 const gitBin = process.platform === 'win32' ? 'git.exe' : 'git';
-const pnpmBin = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 
 function run(command, args) {
-  const result =
-    process.platform === 'win32' && command.endsWith('.cmd')
-      ? spawnSync(
-          process.env.ComSpec ?? 'cmd.exe',
-          ['/d', '/s', '/c', command, ...args],
-          {
-            stdio: 'inherit',
-          },
-        )
-      : spawnSync(command, args, {
-          stdio: 'inherit',
-        });
+  const result = spawnSync(command, args, {
+    stdio: 'inherit',
+  });
 
   if (result.status !== 0) {
     process.exit(result.status ?? 1);
@@ -66,7 +57,7 @@ const vitestRelatedFiles = stagedFiles.filter(isVitestRelatedFile);
 
 if (lintFiles.length > 0) {
   logStep(`Running Oxlint --fix on ${lintFiles.length} staged file(s)`);
-  run(pnpmBin, [
+  const pnpm = createPnpmInvocation([
     'exec',
     'oxlint',
     '-c',
@@ -74,25 +65,28 @@ if (lintFiles.length > 0) {
     '--fix',
     ...lintFiles,
   ]);
+  run(pnpm.command, pnpm.args);
 } else {
   logStep('Skipping staged Oxlint, no matching files');
 }
 
 if (stylelintFiles.length > 0) {
   logStep(`Running Stylelint on ${stylelintFiles.length} staged file(s)`);
-  run(pnpmBin, ['exec', 'stylelint', ...stylelintFiles]);
+  const pnpm = createPnpmInvocation(['exec', 'stylelint', ...stylelintFiles]);
+  run(pnpm.command, pnpm.args);
 } else {
   logStep('Skipping staged Stylelint, no matching files');
 }
 
 if (shouldRunFullTestSuite) {
   logStep('Running full Vitest suite because a shared test input changed');
-  run(pnpmBin, ['test']);
+  const pnpm = createPnpmInvocation(['test']);
+  run(pnpm.command, pnpm.args);
 } else if (vitestRelatedFiles.length > 0) {
   logStep(
     `Running Vitest related for ${vitestRelatedFiles.length} staged file(s)`,
   );
-  run(pnpmBin, [
+  const pnpm = createPnpmInvocation([
     'exec',
     'vitest',
     'related',
@@ -100,6 +94,7 @@ if (shouldRunFullTestSuite) {
     '--passWithNoTests',
     ...vitestRelatedFiles,
   ]);
+  run(pnpm.command, pnpm.args);
 } else {
   logStep('Skipping scoped Vitest, no related staged source files');
 }

@@ -18,6 +18,8 @@
 - Preserve existing behavior unless the task explicitly changes behavior.
 - Favor existing project patterns over introducing new abstractions, state layers, or architectural styles without a clear need.
 - Keep documentation grounded in the current shipped behavior and known constraints, not aspirational plans.
+- Keep browser security headers aligned across Vite dev, Vite preview, and static serving paths when the same runtime behavior is expected in each environment.
+- Prefer explicit browser-isolation headers and targeted CSP allowances over broad `unsafe-inline` policy relaxations when the app only needs a narrower exception such as inline style attributes.
 - Resolve configured gameplay content from canonical ids and tags, not localized display-name fallbacks. When replacing or removing content, update the live references instead of preserving retired ids through runtime name matching.
 - When generating or naming world content such as places, factions, enemies, items, events, structures, or flavor text, align it with the established lore in `docs/lore/REALMFALL.md`.
 - In JavaScript and TypeScript, when a function immediately returns an expression, prefer concise arrow functions without a block body.
