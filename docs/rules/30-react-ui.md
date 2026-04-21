@@ -32,6 +32,7 @@
 - On the world-hover path, only run pathfinding, enemy tooltip derivation, or similar heavier selectors when the hovered tile is actually actionable.
 - For follow-cursor world tooltips, reuse the existing world-hover pipeline to push position updates instead of adding a separate global pointer listener just to move the tooltip DOM.
 - Keep component modules compatible with React Fast Refresh expectations; move shared non-component exports out of component files when needed.
+- When using `useEffectEvent`, do not include the returned callback in effect dependency arrays. Depend on the reactive values the effect reads and let the effect event provide the latest imperative callback body.
 - Keep shared window labels, hotkey metadata, and similar reusable UI constants in plain non-component modules so component files only export component concerns.
 - Window title bars should reuse shared controls wherever possible. Close actions must use the shared close button implementation and surface the shared custom tooltip consistently across every window.
 - For ability, buff, and debuff icons rendered through CSS masks, use transparent SVG assets with no full-canvas background shape. If sourcing icons externally, prefer transparent exports or strip the background path before committing so the UI does not render a solid square.

@@ -83,7 +83,7 @@ export function useBackgroundMusicController({
 
   useEffect(() => {
     applyAudioSettings(audioSettings);
-  }, [applyAudioSettings, audioSettings]);
+  }, [audioSettings]);
 
   useEffect(() => {
     if (!activatedRef.current) {
@@ -95,5 +95,5 @@ export function useBackgroundMusicController({
     }
 
     playNextTrack(mood);
-  }, [mood, playNextTrack]);
+  }, [mood]);
 }
