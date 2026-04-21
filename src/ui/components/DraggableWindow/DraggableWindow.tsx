@@ -64,16 +64,16 @@ export function DraggableWindow({
   const dragCleanupRef = useRef<(() => void) | null>(null);
   const resizeCleanupRef = useRef<(() => void) | null>(null);
   const visualPositionRef = useRef(position);
-  const wasVisibleRef = useRef(false);
-  const [visibleState, setVisibleState] = useState(true);
+  const wasOpenRef = useRef(false);
+  const [isOpenState, setIsOpenState] = useState(true);
   const [hovered, setHovered] = useState(false);
   const [active, setActive] = useState(false);
-  const isControlled = visibleProp !== undefined;
-  const visible = isControlled ? visibleProp : visibleState;
-  const [renderWindowState, setRenderWindowState] = useState(() => visible);
-  const [animatedVisible, setAnimatedVisible] = useState(false);
-  const renderWindow =
-    isControlled && externalUnmount ? true : renderWindowState;
+  const isVisibilityControlled = visibleProp !== undefined;
+  const isOpen = isVisibilityControlled ? visibleProp : isOpenState;
+  const [isMounted, setIsMounted] = useState(() => isOpen);
+  const [isEntered, setIsEntered] = useState(false);
+  const shouldRenderWindow =
+    isVisibilityControlled && externalUnmount ? true : isMounted;
 
   const clearWindowInteractionState = useCallback(() => {
     const node = windowRef.current;
@@ -128,28 +128,31 @@ export function DraggableWindow({
   }, []);
 
   useEffect(() => {
-    if (visible) {
-      if (!isControlled || !externalUnmount) {
-        setRenderWindowState(true);
+    if (isOpen) {
+      if (!isVisibilityControlled || !externalUnmount) {
+        setIsMounted(true);
       }
-      setAnimatedVisible(false);
-      const frame = window.requestAnimationFrame(() =>
-        setAnimatedVisible(true),
-      );
+      setIsEntered(false);
+      const frame = window.requestAnimationFrame(() => setIsEntered(true));
       return () => window.cancelAnimationFrame(frame);
     }
 
     clearWindowInteractionState();
-    setAnimatedVisible(false);
-    if (isControlled && externalUnmount) {
+    setIsEntered(false);
+    if (isVisibilityControlled && externalUnmount) {
       return;
     }
     const timeout = window.setTimeout(
-      () => setRenderWindowState(false),
+      () => setIsMounted(false),
       WINDOW_TRANSITION_MS,
     );
     return () => window.clearTimeout(timeout);
-  }, [clearWindowInteractionState, externalUnmount, isControlled, visible]);
+  }, [
+    clearWindowInteractionState,
+    externalUnmount,
+    isOpen,
+    isVisibilityControlled,
+  ]);
 
   useEffect(() => {
     if (dragRef.current || resizeRef.current) return;
@@ -157,7 +160,7 @@ export function DraggableWindow({
   }, [applyVisualPosition, position]);
 
   useEffect(() => {
-    if (!visible) return;
+    if (!isOpen) return;
 
     const frame = window.requestAnimationFrame(() => {
       const node = windowRef.current;
@@ -174,18 +177,18 @@ export function DraggableWindow({
     });
 
     return () => window.cancelAnimationFrame(frame);
-  }, [applyVisualPosition, onMove, visible]);
+  }, [applyVisualPosition, isOpen, onMove]);
 
   useEffect(() => {
-    if (!visible) {
+    if (!isOpen) {
       dragCleanupRef.current?.();
       resizeCleanupRef.current?.();
-      wasVisibleRef.current = false;
+      wasOpenRef.current = false;
       return;
     }
 
-    const shouldFocus = !wasVisibleRef.current;
-    wasVisibleRef.current = true;
+    const shouldFocus = !wasOpenRef.current;
+    wasOpenRef.current = true;
     if (!shouldFocus) return;
 
     const frame = window.requestAnimationFrame(() => {
@@ -194,7 +197,7 @@ export function DraggableWindow({
     });
 
     return () => window.cancelAnimationFrame(frame);
-  }, [visible]);
+  }, [activateWindow, isOpen]);
 
   useEffect(
     () => () => {
@@ -205,7 +208,7 @@ export function DraggableWindow({
   );
 
   useEffect(() => {
-    if (!renderWindow) {
+    if (!shouldRenderWindow) {
       return;
     }
 
@@ -214,21 +217,22 @@ export function DraggableWindow({
       return;
     }
 
+    const windowId = windowIdRef.current;
     registerWindow({
-      id: windowIdRef.current,
+      id: windowId,
       layer: stackLayer,
       node,
     });
 
     return () => {
-      unregisterWindow(windowIdRef.current);
+      unregisterWindow(windowId);
     };
-  }, [renderWindow, stackLayer]);
+  }, [shouldRenderWindow, stackLayer]);
 
   const closeWindow = () => {
     clearWindowInteractionState();
     if (visibleProp === undefined) {
-      setVisibleState(false);
+      setIsOpenState(false);
     }
     onClose?.();
   };
@@ -355,14 +359,14 @@ export function DraggableWindow({
 
   const emphasis = active ? 'active' : hovered ? 'hovered' : 'idle';
 
-  if (!renderWindow) return null;
+  if (!shouldRenderWindow) return null;
 
   return (
     <section
       ref={windowRef}
       className={`${styles.floatingWindow} ${className ?? ''}`.trim()}
       data-window-emphasis={emphasis}
-      data-window-visible={animatedVisible}
+      data-window-visible={isEntered}
       tabIndex={-1}
       style={{
         left: position.x,
