@@ -44,7 +44,7 @@ describe('check-bundle-budget helpers', () => {
         file: 'assets/js/state-abc.js',
       },
       'src/i18n/locales/en.json': {
-        file: 'assets/js/en-abc.js',
+        file: 'assets/misc/en-abc.json',
       },
       'src/ui/components/InventoryWindow/InventoryWindowContent.tsx': {
         file: 'assets/js/InventoryWindowContent-abc.js',
@@ -58,7 +58,7 @@ describe('check-bundle-budget helpers', () => {
         'assets/js/react-dom-vendor-abc.js',
         'assets/js/App-abc.js',
         'assets/js/state-abc.js',
-        'assets/js/en-abc.js',
+        'assets/misc/en-abc.json',
       ]),
     );
   });

@@ -1,7 +1,8 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { basename, extname, join, relative } from 'node:path';
 
 export const DIST_DIR = join(process.cwd(), 'dist');
+export const DIST_ASSETS_DIR = join(DIST_DIR, 'assets');
 export const DIST_JS_DIR = join(DIST_DIR, 'assets', 'js');
 export const MANIFEST_PATH = join(DIST_DIR, '.vite', 'manifest.json');
 
@@ -26,13 +27,33 @@ export function formatKiB(bytes) {
   return `${(bytes / 1000).toFixed(2)} kB`;
 }
 
-export function getBuiltChunks(distJsDir = DIST_JS_DIR) {
-  return readdirSync(distJsDir)
-    .filter((fileName) => fileName.endsWith('.js'))
-    .map((fileName) => ({
-      fileName,
-      size: statSync(join(distJsDir, fileName)).size,
-    }));
+export function getBuiltChunks(distAssetsDir = DIST_ASSETS_DIR) {
+  const chunks = [];
+
+  function visit(directory) {
+    for (const fileName of readdirSync(directory)) {
+      const filePath = join(directory, fileName);
+      const stats = statSync(filePath);
+      if (stats.isDirectory()) {
+        visit(filePath);
+        continue;
+      }
+
+      const extension = extname(fileName);
+      if (extension !== '.js' && extension !== '.json') {
+        continue;
+      }
+
+      chunks.push({
+        fileName: relative(distAssetsDir, filePath).replaceAll('\\', '/'),
+        size: stats.size,
+      });
+    }
+  }
+
+  visit(distAssetsDir);
+
+  return chunks;
 }
 
 export function loadManifest(manifestPath = MANIFEST_PATH) {
@@ -60,7 +81,10 @@ export function getStartupChunkFiles(manifest, entryKey) {
       return;
     }
 
-    if (entry.file?.endsWith('.js')) {
+    if (
+      entry.file?.endsWith('.js') ||
+      entry.file?.endsWith('.json')
+    ) {
       startupFiles.add(
         relative(DIST_DIR, join(DIST_DIR, entry.file)).replaceAll('\\', '/'),
       );
@@ -82,7 +106,9 @@ export function getStartupChunkFiles(manifest, entryKey) {
 }
 
 export function getChunkByPrefix(chunks, prefix) {
-  return chunks.find((chunk) => chunk.fileName.startsWith(`${prefix}-`));
+  return chunks.find((chunk) =>
+    basename(chunk.fileName).startsWith(`${prefix}-`),
+  );
 }
 
 export function getChunkBudgetTarget(chunks, prefix) {
