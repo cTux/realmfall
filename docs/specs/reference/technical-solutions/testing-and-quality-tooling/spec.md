@@ -35,13 +35,16 @@ This spec covers the repository quality baseline and current test coverage shape
 - The scheduled dependency-update workflow bootstraps its toolchain with SHA-pinned GitHub Actions and the repo-pinned `pnpm` version, runs `pnpm i --no-frozen-lockfile` before rewriting dependency specifiers and the lockfile, audits the refreshed tree with read-only `pnpm audit --json`, then validates the refreshed dependency set with lint, test, and build steps.
 - The scheduled dependency-update workflow declares explicit `contents: write` and `pull-requests: write` permissions, keeps checkout credentials disabled, and uses the GitHub CLI to commit, push, and create or update the dependency PR instead of delegating that write path to a third-party action.
 - Before the scheduled dependency-update workflow force-pushes the reusable `dependencies-update` branch with `--force-with-lease`, it refreshes `origin/dependencies-update` so the lease compares against current remote state and later runs can update the existing PR branch reliably.
-- The pre-commit workflow also enforces version progression through `pnpm check:version`, which blocks commits unless `package.json` advances by patch version relative to `HEAD`.
-- The pre-commit workflow keeps full-project typecheck global but scopes Oxlint auto-fixes to staged JavaScript and TypeScript files, scopes Stylelint to staged `src` CSS and SCSS files, and scopes Vitest to tests related to staged source files, runtime JSON content, or test files.
-- When staged changes touch shared test inputs such as `package.json`, `pnpm-lock.yaml`, `vite.config.ts`, TypeScript config, or `src/test/setup.ts`, the pre-commit workflow falls back to the full `pnpm test` suite instead of a related-only run.
+- The pre-commit workflow enforces version progression through `pnpm check:version`, which blocks commits unless `package.json` advances by patch version relative to `HEAD`.
+- The pre-commit workflow scopes Oxlint auto-fixes to staged JavaScript and TypeScript files, scopes Stylelint to staged `src` CSS and SCSS files, and scopes Vitest to tests related to staged source files, runtime JSON content, or test files.
+- The pre-push workflow now owns the full-project `pnpm typecheck` gate so routine commits stay focused on fast staged checks while pushes validate the whole repository type surface.
+- A staged `package.json` diff that changes only the `version` field stays on the scoped pre-commit path, so routine commit-version bumps do not trigger the full test suite by themselves.
+- When staged changes touch shared test inputs such as `pnpm-lock.yaml`, `vite.config.ts`, TypeScript config, or `src/test/setup.ts`, or when `package.json` changes beyond the `version` field, the pre-commit workflow stays on staged checks and the pre-push workflow runs the full `pnpm test` suite instead of charging every commit for repository-wide verification.
+- The pre-push workflow also runs `pnpm build`, keeping full-repository runtime validation near publication while leaving commit-time hooks focused on staged changes.
 - Slow app integration tests that rely on lazy chunks, timer advancement, or full render cycles set explicit per-test timeouts so hook and CI runs do not fail on default five-second limits under heavier suite load.
 - Shared Vitest setup stubs `HTMLCanvasElement.getContext('2d')` under jsdom so Pixi- and canvas-adjacent tests run without repeated not-implemented warnings in the test output.
 - Contributors can force a cold Vitest run by deleting `.tests/vitest-cache`; when the directory is absent, the next `pnpm test` run recreates it automatically.
-- The staged-quality runner invokes `git` directly and routes `pnpm` through its Node entrypoint when `npm_execpath` is available, so staged paths do not pass through `cmd.exe` on Windows.
+- The staged-quality and pre-push runners invoke `git` directly and route `pnpm` through its Node entrypoint when `npm_execpath` is available, while falling back to the bundled `pnpm.cjs` Node entrypoint on Windows when a script runs outside `pnpm run`.
 - The memory-leak runner uses the same `pnpm` entrypoint path instead of shelling through `cmd.exe`, keeping its browser-test arguments out of Windows shell parsing.
 
 ## Main Implementation Areas
@@ -52,9 +55,11 @@ This spec covers the repository quality baseline and current test coverage shape
 - `scripts/check-package-version.mjs`
 - `scripts/fuite-dock-toggle-scenario.mjs`
 - `scripts/pnpm-command.mjs`
+- `scripts/run-pre-push-quality.mjs`
 - `scripts/run-memory-leak-test.mjs`
 - `scripts/run-staged-quality.mjs`
 - `.oxlintrc.json`
+- `.husky/pre-push`
 - `prettier.config.cjs`
 - `src/ui/components/**/*.stories.tsx`
 - `.storybook/preview.ts`

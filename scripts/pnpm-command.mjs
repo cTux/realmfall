@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import process from 'node:process';
 
 function getNpmExecPath(environment = process.env) {
@@ -19,9 +21,24 @@ export function createPnpmInvocation(args, environment = process.env) {
   }
 
   if (process.platform === 'win32') {
-    throw new Error(
-      'Unable to resolve the pnpm entrypoint on Windows. Run this script through pnpm so npm_execpath is available.',
+    const bundledPnpmEntrypoint = join(
+      dirname(process.execPath),
+      'node_modules',
+      'pnpm',
+      'bin',
+      'pnpm.cjs',
     );
+
+    if (!existsSync(bundledPnpmEntrypoint)) {
+      throw new Error(
+        'Unable to resolve the pnpm entrypoint on Windows. Install pnpm alongside node or run this script through pnpm so npm_execpath is available.',
+      );
+    }
+
+    return {
+      args: [bundledPnpmEntrypoint, ...args],
+      command: process.execPath,
+    };
   }
 
   return {

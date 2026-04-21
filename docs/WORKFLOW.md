@@ -12,13 +12,19 @@ Use this file for contributor process only. Canonical project guidance lives in
 ## Commit Workflow
 
 - Use Conventional Commits.
-- Before each commit, bump the patch version in `package.json`. The pre-commit hook enforces this against `HEAD`.
+- Use `pnpm git:commit -- -m "<message>"` for routine commits. It bumps the patch version in `package.json` when needed, stages that file, and then runs `git commit`.
+- If you commit without the helper, bump the patch version in `package.json` yourself first. The pre-commit hook enforces the version progression against `HEAD`.
+- A staged `package.json` diff that changes only the `version` field stays on the scoped pre-commit test path instead of forcing the full Vitest suite.
+- The pre-commit hook stays scoped even when shared test inputs change; repository-wide test and build validation now runs in the pre-push hook.
+- Full-project TypeScript verification now runs in the pre-push hook instead of the pre-commit hook, so routine commits stay focused on version progression and staged-file checks.
 - Generate commit messages from the actual change set.
 - Keep commit messages focused on the behavioral change instead of enumerating every touched doc file.
+- Use `pnpm git:prune-gone-branches -- --dry-run` to preview local branches whose tracked remote ref was deleted, then rerun without `--dry-run` to remove them. Add `-- --safe` only when you want Git to keep its merged-branch protection.
+- Use `pnpm git:rebase-master-and-push` from a clean, already-committed feature branch when you need to replay it onto the default branch advertised by `origin/HEAD` and publish the rewritten branch. The script auto-resolves `package.json` version conflicts by carrying this branch's patch-version increments onto the incoming version, refuses to rewrite the current remote default branch directly, and then fetches the remote branch before `--force-with-lease`.
 
 ## Verification Workflow
 
-- Run `pnpm typecheck` and the relevant tests for the changed area before committing.
+- Run `pnpm typecheck`, `pnpm test`, and `pnpm build` before pushing when you bypass hooks or need to verify the pre-push path manually.
 - Pin GitHub Actions to immutable commit SHAs in workflow files instead of mutable version tags.
 - Keep contributor scripts shell-safe on Windows. Do not pass staged paths or other user-controlled arguments through `cmd.exe` when invoking repository tooling.
 - Keep scheduled dependency automation on the repo-pinned package-manager version and use read-only audit commands there instead of mutating dependency trees inside the job.

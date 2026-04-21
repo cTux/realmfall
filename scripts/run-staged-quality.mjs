@@ -2,10 +2,10 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
-  FULL_TEST_TRIGGER_FILES,
   isLintFile,
   isSrcStyleFile,
   isVitestRelatedFile,
+  shouldRunFullTestSuite,
 } from './run-staged-quality.helpers.mjs';
 import { createPnpmInvocation } from './pnpm-command.mjs';
 
@@ -37,6 +37,16 @@ function getStagedFiles() {
     });
 }
 
+function getPackageJsonDiffText() {
+  return execFileSync(
+    gitBin,
+    ['diff', '--cached', '--unified=0', '--', 'package.json'],
+    {
+      encoding: 'utf8',
+    },
+  );
+}
+
 function logStep(message) {
   console.log(`\n> ${message}`);
 }
@@ -50,8 +60,12 @@ if (stagedFiles.length === 0) {
 
 const lintFiles = stagedFiles.filter(isLintFile);
 const stylelintFiles = stagedFiles.filter(isSrcStyleFile);
-const shouldRunFullTestSuite = stagedFiles.some((file) =>
-  FULL_TEST_TRIGGER_FILES.has(file),
+const packageJsonDiffText = stagedFiles.includes('package.json')
+  ? getPackageJsonDiffText()
+  : '';
+const hasFullTestTrigger = shouldRunFullTestSuite(
+  stagedFiles,
+  packageJsonDiffText,
 );
 const vitestRelatedFiles = stagedFiles.filter(isVitestRelatedFile);
 
@@ -78,11 +92,13 @@ if (stylelintFiles.length > 0) {
   logStep('Skipping staged Stylelint, no matching files');
 }
 
-if (shouldRunFullTestSuite) {
-  logStep('Running full Vitest suite because a shared test input changed');
-  const pnpm = createPnpmInvocation(['test']);
-  run(pnpm.command, pnpm.args);
-} else if (vitestRelatedFiles.length > 0) {
+if (hasFullTestTrigger) {
+  logStep(
+    'Shared test inputs changed, so pre-push will run the full Vitest suite',
+  );
+}
+
+if (vitestRelatedFiles.length > 0) {
   logStep(
     `Running Vitest related for ${vitestRelatedFiles.length} staged file(s)`,
   );
@@ -96,5 +112,9 @@ if (shouldRunFullTestSuite) {
   ]);
   run(pnpm.command, pnpm.args);
 } else {
-  logStep('Skipping scoped Vitest, no related staged source files');
+  logStep(
+    hasFullTestTrigger
+      ? 'Skipping scoped Vitest in pre-commit because pre-push will run full validation'
+      : 'Skipping scoped Vitest, no related staged source files',
+  );
 }
