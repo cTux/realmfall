@@ -1,5 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { getInventoryItemAction } from '../app/App/utils/getInventoryItemAction';
+import { GameTag } from '../game/content/tags';
 import { getAbilityDefinition } from '../game/abilities';
 import { getItemConfigByKey } from '../game/state';
 import {
@@ -38,9 +39,25 @@ describe('ui visual helpers', () => {
     expect(formatCompactNumber(1_250)).toBe('1.3k');
     expect(formatCompactNumber(1_250_000)).toBe('1.3M');
     expect(formatCompactNumberish('+1250')).toBe('+1.3k');
-    expect(getInventoryItemAction({ recipeId: 'cook-cooked-fish' }, [])).toBe(
-      'use',
-    );
+    expect(
+      getInventoryItemAction(
+        {
+          id: 'recipe-1',
+          recipeId: 'cook-cooked-fish',
+          name: 'Recipe: Cooked Fish',
+          quantity: 1,
+          tier: 1,
+          rarity: 'uncommon',
+          power: 0,
+          defense: 0,
+          maxHp: 0,
+          healing: 0,
+          hunger: 0,
+          tags: [GameTag.ItemResource, GameTag.ItemRecipe],
+        },
+        [],
+      ),
+    ).toBe('use');
     expect(getAbilityDefinition('slash').name).toBeTruthy();
     expect(Icons.Coins).toBeTruthy();
     expect(iconForItem(undefined, 'weapon')).toBeTruthy();

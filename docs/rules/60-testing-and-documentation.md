@@ -11,6 +11,7 @@
 - When UI integration coverage grows beyond one broad `*.test.tsx` file, split it by surface such as recipe flows, window-shell interactions, renderer caches, or tooltip behavior instead of keeping one umbrella component suite.
 - Split broad gameplay-state suites by concern such as exploration, survival timing, combat cadence, world events, crafting, inventory actions, world actions, or item and progression flows instead of keeping one `src/game/state.test.ts` umbrella file.
 - Split large Pixi renderer suites by concern such as cache invalidation, interaction overlays, marker composition, marker animation, sprite-pool behavior, or atmosphere rendering instead of keeping one `renderScene.test.ts` umbrella file.
+- When tests call typed gameplay helpers such as item-action selectors, pass real domain fixtures or builder-backed objects that satisfy the full runtime type instead of partial literals that only cover the asserted field.
 - Keep production buildability in mind, not only local dev behavior.
 - When performance-sensitive behavior changes, verify both correctness and the likely rerender or redraw impact.
 - When optimization work changes React, Pixi, hover handling, or bundle shape, document a concrete verification path for rerender breadth, redraw breadth, hover hot paths, and startup chunk growth instead of leaving performance validation implicit.

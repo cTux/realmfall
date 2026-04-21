@@ -7,51 +7,16 @@ import {
   type MutableRefObject,
   type SetStateAction,
 } from 'react';
-import {
-  activateInventoryItem,
-  buyTownItem,
-  claimCurrentHex,
-  craftRecipe,
-  dropEquippedItem,
-  dropInventoryItem,
-  equipItem,
-  getCurrentTile,
-  isRecipePage,
-  interactWithStructure,
-  isEquippableItem,
-  prospectInventoryItem,
-  prospectInventory,
-  sellInventoryItem,
-  sellAllItems,
-  setInventoryItemLocked,
-  sortInventory,
-  startCombat,
-  takeAllTileItems,
-  takeTileItem,
-  unequipItem,
-  useItem as applyItemUse,
-  type GameState,
-  type Item,
-  type LogKind,
-} from '../../game/state';
+import type { GameState, Item } from '../../game/state';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
-import {
-  DEFAULT_LOG_FILTERS,
-  DEFAULT_WINDOWS,
-  DEFAULT_WINDOW_VISIBILITY,
-  createWindowVisibilityState,
-  type WindowPositions,
-  type WindowVisibilityState,
-} from '../constants';
 import type { AudioSettings } from '../audioSettings';
 import type { GraphicsSettings } from '../graphicsSettings';
-import type { ItemContextMenuState, TooltipItem } from './types';
-import {
-  createDefaultActionBarSlots,
-  findActionBarItem,
-  reconcileActionBarSlots,
-  type ActionBarSlots,
-} from './actionBar';
+import type { TooltipItem } from './types';
+import { useActionBarController } from './hooks/useActionBarController';
+import { useAppLogFilters } from './hooks/useAppLogFilters';
+import { useAppWindowState } from './hooks/useAppWindowState';
+import { useGameActionHandlers } from './hooks/useGameActionHandlers';
+import { useItemContextMenuController } from './hooks/useItemContextMenuController';
 import { useItemTooltipController } from './hooks/useItemTooltipController';
 
 interface UseAppControllersOptions {
@@ -75,24 +40,54 @@ export function useAppControllers({
   tooltipPositionRef,
   worldTimeMsRef,
 }: UseAppControllersOptions) {
-  const [windows, setWindows] = useState<WindowPositions>(DEFAULT_WINDOWS);
-  const [windowShown, setWindowShown] = useState<WindowVisibilityState>(
-    DEFAULT_WINDOW_VISIBILITY,
-  );
   const [audioSettings, setAudioSettings] =
     useState<AudioSettings>(initialAudioSettings);
   const [graphicsSettings, setGraphicsSettings] = useState<GraphicsSettings>(
     initialGraphicsSettings,
   );
-  const [logFilters, setLogFilters] =
-    useState<Record<LogKind, boolean>>(DEFAULT_LOG_FILTERS);
-  const [showFilterMenu, setShowFilterMenu] = useState(false);
-  const [itemMenu, setItemMenu] = useState<ItemContextMenuState | null>(null);
-  const [actionBarSlots, setActionBarSlots] = useState<ActionBarSlots>(
-    createDefaultActionBarSlots,
-  );
   const [recipeMaterialFilterItemKey, setRecipeMaterialFilterItemKey] =
     useState<string | null>(null);
+  const {
+    closeAllWindows,
+    moveWindow,
+    setWindowShown,
+    setWindows,
+    setWindowVisibility,
+    toggleDockWindow,
+    windowShown,
+    windows,
+  } = useAppWindowState();
+  const {
+    logFilters,
+    setLogFilters,
+    showFilterMenu,
+    toggleFilterMenu,
+    toggleLogFilter,
+  } = useAppLogFilters();
+  const { applyGameTransition, ...gameActionHandlers } = useGameActionHandlers({
+    paused,
+    setGame,
+    worldTimeMsRef,
+  });
+  const {
+    actionBarSlots,
+    handleAssignActionBarSlot,
+    handleClearActionBarSlot,
+    handleUseActionBarSlot,
+    setActionBarSlots,
+  } = useActionBarController({
+    applyGameTransition,
+    gameRef,
+    inventory,
+  });
+  const {
+    closeItemMenu,
+    handleContextItem,
+    handleEquippedContextItem,
+    itemMenu,
+  } = useItemContextMenuController({
+    gameRef,
+  });
   const {
     closeTooltip,
     setTooltip,
@@ -103,21 +98,6 @@ export function useAppControllers({
     gameRef,
     tooltipPositionRef,
   });
-  const applyGameTransition = useCallback(
-    (transition: (state: GameState) => GameState) => {
-      if (paused) {
-        return;
-      }
-
-      applyTimedGameTransition(setGame, worldTimeMsRef, transition);
-    },
-    [paused, setGame, worldTimeMsRef],
-  );
-
-  useEffect(() => {
-    setActionBarSlots((current) => reconcileActionBarSlots(inventory, current));
-  }, [inventory]);
-
   useEffect(() => {
     if (!windowShown.loot && !windowShown.combat) {
       return;
@@ -135,244 +115,17 @@ export function useAppControllers({
         combat: false,
       };
     });
-  }, [windowShown.combat, windowShown.loot]);
-
-  const moveWindow = useCallback(
-    (
-      key: keyof WindowPositions,
-      position: WindowPositions[keyof WindowPositions],
-    ) => {
-      setWindows((current) => ({ ...current, [key]: position }));
-    },
-    [],
-  );
-
-  const setWindowVisibility = useCallback(
-    (key: keyof WindowVisibilityState, shown: boolean) => {
-      setWindowShown((current) => ({ ...current, [key]: shown }));
-    },
-    [],
-  );
-
-  const toggleDockWindow = useCallback((key: keyof WindowVisibilityState) => {
-    setWindowShown((current) => ({ ...current, [key]: !current[key] }));
-  }, []);
-
-  const closeAllWindows = useCallback(() => {
-    setWindowShown(() => createWindowVisibilityState(false));
-  }, []);
-
-  const closeItemMenu = useCallback(() => {
-    setItemMenu(null);
-  }, []);
-
-  const handleUnequip = useCallback(
-    (slot: Parameters<typeof unequipItem>[1]) => {
-      applyGameTransition((current) => unequipItem(current, slot));
-    },
-    [applyGameTransition],
-  );
-
-  const handleSort = useCallback(() => {
-    applyGameTransition(sortInventory);
-  }, [applyGameTransition]);
-
-  const handleProspect = useCallback(() => {
-    applyGameTransition(prospectInventory);
-  }, [applyGameTransition]);
-
-  const handleSellAll = useCallback(() => {
-    applyGameTransition(sellAllItems);
-  }, [applyGameTransition]);
-
-  const handleProspectItem = useCallback(
-    (itemId: string) => {
-      applyGameTransition((current) => prospectInventoryItem(current, itemId));
-    },
-    [applyGameTransition],
-  );
-
-  const handleSellItem = useCallback(
-    (itemId: string) => {
-      applyGameTransition((current) => sellInventoryItem(current, itemId));
-    },
-    [applyGameTransition],
-  );
-
-  const handleInteract = useCallback(() => {
-    applyGameTransition(interactWithStructure);
-  }, [applyGameTransition]);
-
-  const handleClaimHex = useCallback(() => {
-    applyGameTransition(claimCurrentHex);
-  }, [applyGameTransition]);
-
-  const handleBuyTownItem = useCallback(
-    (itemId: string) => {
-      applyGameTransition((current) => buyTownItem(current, itemId));
-    },
-    [applyGameTransition],
-  );
-
-  const handleActivateInventoryItem = useCallback(
-    (itemId: string) => {
-      applyGameTransition((current) => activateInventoryItem(current, itemId));
-    },
-    [applyGameTransition],
-  );
-
-  const handleEquipItem = useCallback(
-    (itemId: string) => {
-      applyGameTransition((current) => equipItem(current, itemId));
-    },
-    [applyGameTransition],
-  );
-
-  const handleUseItem = useCallback(
-    (itemId: string) => {
-      applyGameTransition((current) => applyItemUse(current, itemId));
-    },
-    [applyGameTransition],
-  );
-
-  const handleAssignActionBarSlot = useCallback(
-    (slotIndex: number, item: Item) => {
-      setActionBarSlots((current) => {
-        const next = [...current];
-        next[slotIndex] = { item: { ...item } };
-        return next;
-      });
-    },
-    [],
-  );
-
-  const handleClearActionBarSlot = useCallback((slotIndex: number) => {
-    setActionBarSlots((current) => {
-      if (!current[slotIndex]) return current;
-
-      const next = [...current];
-      next[slotIndex] = null;
-      return next;
-    });
-  }, []);
-
-  const handleUseActionBarSlot = useCallback(
-    (slotIndex: number) => {
-      const assigned = actionBarSlots[slotIndex];
-      const item = findActionBarItem(
-        gameRef.current.player.inventory,
-        assigned,
-      );
-      if (!item) return;
-
-      applyGameTransition((current) => applyItemUse(current, item.id));
-    },
-    [actionBarSlots, applyGameTransition, gameRef],
-  );
-
-  const handleCraftRecipe = useCallback(
-    (recipeId: string, count?: number | 'max') => {
-      applyGameTransition((current) => craftRecipe(current, recipeId, count));
-    },
-    [applyGameTransition],
-  );
-
-  const handleDropItem = useCallback(
-    (itemId: string) => {
-      applyGameTransition((current) => dropInventoryItem(current, itemId));
-    },
-    [applyGameTransition],
-  );
-
-  const handleDropEquippedItem = useCallback(
-    (slot: Parameters<typeof unequipItem>[1]) => {
-      applyGameTransition((current) => dropEquippedItem(current, slot));
-    },
-    [applyGameTransition],
-  );
-
-  const handleContextItem = useCallback(
-    (event: ReactMouseEvent<HTMLElement>, item: TooltipItem) => {
-      event.preventDefault();
-      const currentStructure = getCurrentTile(gameRef.current).structure;
-      setItemMenu({
-        item,
-        x: event.clientX,
-        y: event.clientY,
-        canProspectItem:
-          currentStructure === 'forge' &&
-          isEquippableItem(item) &&
-          !item.locked,
-        canSellEntry:
-          currentStructure === 'town' &&
-          (isEquippableItem(item) || isRecipePage(item)) &&
-          !item.locked,
-      });
-    },
-    [gameRef],
-  );
-
-  const handleEquippedContextItem = useCallback(
-    (
-      event: ReactMouseEvent<HTMLElement>,
-      item: TooltipItem,
-      slot: Parameters<typeof unequipItem>[1],
-    ) => {
-      event.preventDefault();
-      setItemMenu({
-        item,
-        x: event.clientX,
-        y: event.clientY,
-        slot,
-        canProspectItem: false,
-        canSellEntry: false,
-      });
-    },
-    [],
-  );
-
-  const handleTakeLootItem = useCallback(
-    (itemId: string) => {
-      applyGameTransition((current) => takeTileItem(current, itemId));
-    },
-    [applyGameTransition],
-  );
-
-  const handleTakeAllLoot = useCallback(() => {
-    applyGameTransition(takeAllTileItems);
-  }, [applyGameTransition]);
-
-  const handleSetItemLocked = useCallback(
-    (itemId: string, locked: boolean) => {
-      applyGameTransition((current) =>
-        setInventoryItemLocked(current, itemId, locked),
-      );
-    },
-    [applyGameTransition],
-  );
-
+  }, [setWindowShown, windowShown.combat, windowShown.loot]);
   const handleOpenRecipeBookWithMaterialFilter = useCallback(
     (itemKey: string) => {
       setRecipeMaterialFilterItemKey(itemKey);
       setWindowShown((current) => ({ ...current, recipes: true }));
     },
-    [],
+    [setWindowShown],
   );
 
   const handleClearRecipeMaterialFilter = useCallback(() => {
     setRecipeMaterialFilterItemKey(null);
-  }, []);
-
-  const handleStartCombat = useCallback(() => {
-    applyGameTransition(startCombat);
-  }, [applyGameTransition]);
-
-  const toggleFilterMenu = useCallback(() => {
-    setShowFilterMenu((current) => !current);
-  }, []);
-
-  const toggleLogFilter = useCallback((kind: LogKind) => {
-    setLogFilters((current) => ({ ...current, [kind]: !current[kind] }));
   }, []);
 
   const handleEquipmentHover = useCallback(
@@ -386,28 +139,10 @@ export function useAppControllers({
     closeItemMenu,
     closeAllWindows,
     closeTooltip,
-    handleBuyTownItem,
-    handleClaimHex,
+    ...gameActionHandlers,
     handleContextItem,
-    handleCraftRecipe,
-    handleDropEquippedItem,
-    handleDropItem,
     handleEquipmentHover,
-    handleActivateInventoryItem,
-    handleEquipItem,
     handleEquippedContextItem,
-    handleInteract,
-    handleProspect,
-    handleProspectItem,
-    handleSellAll,
-    handleSellItem,
-    handleSetItemLocked,
-    handleSort,
-    handleStartCombat,
-    handleTakeAllLoot,
-    handleTakeLootItem,
-    handleUnequip,
-    handleUseItem,
     handleAssignActionBarSlot,
     handleClearActionBarSlot,
     handleUseActionBarSlot,
@@ -438,14 +173,4 @@ export function useAppControllers({
     windows,
     recipeMaterialFilterItemKey,
   };
-}
-
-function applyTimedGameTransition(
-  setGame: Dispatch<SetStateAction<GameState>>,
-  worldTimeMsRef: MutableRefObject<number>,
-  transition: (state: GameState) => GameState,
-) {
-  setGame((current) =>
-    transition({ ...current, worldTimeMs: worldTimeMsRef.current }),
-  );
 }

@@ -29,9 +29,12 @@ This spec covers the top-level React hook composition and derived view-model pat
 - The shared drag shell delegates stack-registry bookkeeping, viewport reset helpers, and drag or resize pointer sessions to neighboring modules so the shell component stays centered on state coordination and markup.
 - Shared drag shells keep their open, mounted, and entered lifecycle phases explicit and unregister stack entries through stable window ids, keeping hook lint clean while the stack model tracks the rendered instance correctly.
 - Shared window-shell helpers are reused for move handlers, close handlers, deferred mount state, repeated title-bar labels, and the shared suspense-loading wrapper for lazy window content instead of maintaining parallel per-window implementations.
-- `useAppControllers` routes gameplay mutations through a shared timed-transition helper so controller actions inject the current world time consistently without repeating the same wrapper at every call site.
-- `useAppControllers` delegates inventory and action-bar hover tooltip orchestration to `useItemTooltipController`, so tooltip caching, learned-recipe detection, and lazy tooltip-module loading stay together in one local hook instead of expanding the broader window and gameplay controller module.
-- `useAppControllers` separates inventory-slot activation from explicit equip and use actions so handler names match the behavior they trigger and context-menu equip actions stay equip-only.
+- `useAppControllers` stays as a thin composition hook that wires together focused controller hooks for window state, log filters, action-bar state, item-context-menu state, timed gameplay mutations, and tooltip orchestration.
+- `useGameActionHandlers` routes gameplay mutations through a shared timed-transition helper so controller actions inject the current world time consistently without repeating the same wrapper at every call site.
+- `useActionBarController` owns action-bar slot reconciliation, assignment, and slot activation so inventory-backed hotbar behavior does not share a file with unrelated window or menu state.
+- `useItemContextMenuController` keeps context-menu placement and capability gating next to the item-menu state instead of mixing that UI-specific behavior into the broader gameplay action hook.
+- `useItemTooltipController` owns inventory and action-bar hover tooltip orchestration, so tooltip caching, learned-recipe detection, and lazy tooltip-module loading stay together in one local hook instead of expanding the broader controller layer.
+- `useGameActionHandlers` separates inventory-slot activation from explicit equip and use actions so handler names match the behavior they trigger and context-menu equip actions stay equip-only.
 - `useAppWorldClock` keeps the top-level world-time sync callbacks next to the shared clock hook, so `App.tsx` does not rebuild the blood-moon and status-effect tick wiring inline.
 - `useAppSettingsActions` keeps save-reset, settings persistence, and home-hex shell actions in one local hook instead of mixing those imperative flows into the main app component body.
 - `useAppPersistence` keeps hydration and latest-input tracking in the hook while local `persistence/` helpers own segment serialization and autosave scheduling, separating save bootstrapping from debounce, idle-flush, and queued-write mechanics.
@@ -59,6 +62,11 @@ This spec covers the top-level React hook composition and derived view-model pat
 
 - `src/app/App/App.tsx`
 - `src/app/App/useAppControllers.ts`
+- `src/app/App/hooks/useGameActionHandlers.ts`
+- `src/app/App/hooks/useActionBarController.ts`
+- `src/app/App/hooks/useItemContextMenuController.ts`
+- `src/app/App/hooks/useAppWindowState.ts`
+- `src/app/App/hooks/useAppLogFilters.ts`
 - `src/app/App/hooks/useItemTooltipController.ts`
 - `src/app/App/useAppGameView.ts`
 - `src/app/App/useAppPersistence.ts`
