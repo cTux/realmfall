@@ -13,6 +13,7 @@
 - When optimization work changes React, Pixi, hover handling, or bundle shape, document a concrete verification path for rerender breadth, redraw breadth, hover hot paths, and startup chunk growth instead of leaving performance validation implicit.
 - Keep a coverage test for Storybook parity so component additions or removals in `src/ui/components` fail fast when corresponding stories are missing.
 - Keep repository automation scripts shell-safe across platforms. Do not route staged paths, generated file lists, or other user-controlled arguments through `cmd.exe` or other shells when a direct executable or Node entrypoint invocation can run the tool instead.
+- When a repository automation helper needs `pnpm` outside a `pnpm run` context, prefer the bundled `pnpm.cjs` Node entrypoint on Windows instead of failing or reintroducing shell dispatch through `cmd.exe`.
 - Keep routine commit metadata cheap. A staged `package.json` diff that only bumps the `version` field should keep the pre-commit workflow on scoped checks instead of forcing the full Vitest suite.
 - Keep contributor commit automation aligned with the versioning rule. The default commit path should auto-bump and stage `package.json` before invoking `git commit`, while preserving retry safety when the version already moved past `HEAD`.
 - Keep the full-project TypeScript gate on the pre-push path rather than the pre-commit path when commit-latency improvements are the goal, and document that separation clearly in contributor workflow docs.
