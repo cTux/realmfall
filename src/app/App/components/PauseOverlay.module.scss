@@ -1,0 +1,37 @@
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  padding: 1.5rem;
+  background:
+    radial-gradient(circle at center, rgb(15 23 42 / 18%), rgb(2 6 23 / 62%)),
+    linear-gradient(180deg, rgb(2 6 23 / 22%), rgb(2 6 23 / 55%));
+}
+
+.card {
+  width: min(28rem, 100%);
+  padding: 1.6rem 1.8rem;
+  text-align: center;
+  background: rgb(8 16 30 / 88%);
+  border: 1px solid rgb(148 163 184 / 28%);
+  border-radius: 1rem;
+  box-shadow: 0 24px 80px rgb(2 6 23 / 55%);
+  backdrop-filter: blur(10px);
+}
+
+.title {
+  margin: 0;
+  color: #f8fafc;
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  line-height: 1.05;
+}
+
+.subtitle {
+  margin: 0.7rem 0 0;
+  color: #cbd5e1;
+  font-size: 0.98rem;
+  line-height: 1.5;
+}

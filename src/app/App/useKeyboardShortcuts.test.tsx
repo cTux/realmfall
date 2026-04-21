@@ -39,6 +39,7 @@ describe('useKeyboardShortcuts', () => {
         onInteract: vi.fn(),
         onTakeAllLoot: vi.fn(),
         onCloseAllWindows: vi.fn(),
+        onTogglePause: vi.fn(),
         onToggleDockWindow: vi.fn(),
         onUseActionBarSlot,
         windowShown: {
@@ -78,5 +79,65 @@ describe('useKeyboardShortcuts', () => {
 
     expect(onUseActionBarSlot).toHaveBeenCalledTimes(1);
     expect(onUseActionBarSlot).toHaveBeenCalledWith(0);
+  });
+
+  it('toggles pause on a non-repeated Space press', async () => {
+    const onTogglePause = vi.fn();
+
+    function TestHarness() {
+      useKeyboardShortcuts({
+        combatStartAvailable: false,
+        interactLabel: null,
+        lootSnapshotLength: 0,
+        lootWindowVisible: false,
+        onStartCombat: vi.fn(),
+        keepLootWindowMounted: false,
+        onInteract: vi.fn(),
+        onTakeAllLoot: vi.fn(),
+        onCloseAllWindows: vi.fn(),
+        onTogglePause,
+        onToggleDockWindow: vi.fn(),
+        onUseActionBarSlot: vi.fn(),
+        windowShown: {
+          hero: false,
+          skills: false,
+          recipes: false,
+          hexInfo: false,
+          equipment: false,
+          inventory: false,
+          loot: false,
+          log: false,
+          combat: false,
+          settings: false,
+        },
+        windowShownLoot: false,
+      });
+
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<TestHarness />);
+    });
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', {
+          bubbles: true,
+          key: ' ',
+          code: 'Space',
+        }),
+      );
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', {
+          bubbles: true,
+          key: ' ',
+          code: 'Space',
+          repeat: true,
+        }),
+      );
+    });
+
+    expect(onTogglePause).toHaveBeenCalledTimes(1);
   });
 });

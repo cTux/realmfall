@@ -26,6 +26,7 @@ import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { usePixiWorld } from './usePixiWorld';
 import { useWindowTransitions } from './useWindowTransitions';
 import { useWorldClockFps } from './useWorldClockFps';
+import { PauseOverlay } from './components/PauseOverlay';
 import { clearEncryptedState } from '../../persistence/storage';
 import {
   clearAudioSettings,
@@ -49,6 +50,7 @@ import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import { LoadingSpinner } from '../../ui/components/LoadingSpinner';
 import styles from './styles.module.scss';
 import { setWorldClockTime } from './worldClockStore';
+import { t } from '../../i18n';
 
 const UiAudioControllerBridge = lazy(() =>
   import('../audio/UiAudioControllerBridge').then((module) => ({
@@ -83,6 +85,7 @@ export function App() {
     Math.floor(initialGameRef.current.worldTimeMs / 1000),
   );
   const [game, setGame] = useState<GameState>(initialGameRef.current);
+  const [paused, setPaused] = useState(false);
   const [uiAudio, setUiAudio] = useState<UiAudioController>(
     DEFAULT_UI_AUDIO_CONTROLLER,
   );
@@ -145,6 +148,7 @@ export function App() {
     gameRef,
     initialAudioSettings: initialAudioSettingsRef.current,
     initialGraphicsSettings: initialGraphicsSettingsRef.current,
+    paused,
     setGame,
     tooltipPositionRef,
     worldTimeMsRef,
@@ -164,6 +168,7 @@ export function App() {
   }, []);
   const { setWorldTimeMs } = useWorldClockFps({
     initialWorldTimeMs: initialGameRef.current.worldTimeMs,
+    paused,
     worldTimeMsRef,
     worldTimeTickRef,
     lastDisplayedWorldSecondRef,
@@ -227,6 +232,7 @@ export function App() {
     enabled: hydrated,
     game,
     graphicsSettings,
+    paused,
     worldTimeMsRef,
     gameRef,
     tooltipPositionRef,
@@ -247,9 +253,14 @@ export function App() {
 
   useCombatAutomation({
     game,
+    paused,
     setGame,
     worldTimeMsRef,
   });
+
+  const handleTogglePause = useCallback(() => {
+    setPaused((current) => !current);
+  }, []);
 
   useKeyboardShortcuts({
     combatStartAvailable: Boolean(game.combat && !game.combat.started),
@@ -261,6 +272,7 @@ export function App() {
     onInteract: handleInteract,
     onTakeAllLoot: handleTakeAllLoot,
     onCloseAllWindows: closeAllWindows,
+    onTogglePause: handleTogglePause,
     onToggleDockWindow: toggleDockWindow,
     onWindowToggleSound: (opened) => {
       if (opened) {
@@ -312,7 +324,13 @@ export function App() {
     clearWorldMapSettings();
     window.location.reload();
   }, [uiAudio]);
-  const handleSetHome = useCallback(() => setHomeHexForApp(setGame), [setGame]);
+  const handleSetHome = useCallback(() => {
+    if (paused) {
+      return;
+    }
+
+    setHomeHexForApp(setGame);
+  }, [paused, setGame]);
   const heroView = useMemo(
     () => ({
       stats,
@@ -589,6 +607,12 @@ export function App() {
             <VersionStatusPanel onRefresh={() => window.location.reload()} />
           </Suspense>
           <AppWindows {...appWindowsProps} />
+          {isReady && paused ? (
+            <PauseOverlay
+              title={t('ui.pauseOverlay.title')}
+              subtitle={t('ui.pauseOverlay.subtitle')}
+            />
+          ) : null}
         </div>
         {isReady ? null : (
           <div

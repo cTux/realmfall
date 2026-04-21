@@ -11,6 +11,7 @@ import { setWorldClockTime } from './worldClockStore';
 
 interface UseWorldClockFpsOptions {
   initialWorldTimeMs: number;
+  paused: boolean;
   worldTimeMsRef: MutableRefObject<number>;
   worldTimeTickRef: MutableRefObject<number | null>;
   lastDisplayedWorldSecondRef: MutableRefObject<number>;
@@ -20,6 +21,7 @@ interface UseWorldClockFpsOptions {
 
 export function useWorldClockFps({
   initialWorldTimeMs,
+  paused,
   worldTimeMsRef,
   worldTimeTickRef,
   lastDisplayedWorldSecondRef,
@@ -41,9 +43,12 @@ export function useWorldClockFps({
   });
 
   useEffect(() => {
+    setWorldClockTime(initialWorldTimeMs);
+  }, [initialWorldTimeMs]);
+
+  useEffect(() => {
     let frameId = 0;
     let running = false;
-    setWorldClockTime(initialWorldTimeMs);
 
     const updateHud = (timestamp: number) => {
       if (!running) {
@@ -76,7 +81,7 @@ export function useWorldClockFps({
     };
 
     const startClock = () => {
-      if (running || document.visibilityState === 'hidden') {
+      if (running || paused || document.visibilityState === 'hidden') {
         return;
       }
 
@@ -94,18 +99,15 @@ export function useWorldClockFps({
       startClock();
     };
 
-    startClock();
+    if (!paused) {
+      startClock();
+    }
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
       stopClock();
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [
-    initialWorldTimeMs,
-    lastDisplayedWorldSecondRef,
-    worldTimeMsRef,
-    worldTimeTickRef,
-  ]);
+  }, [lastDisplayedWorldSecondRef, paused, worldTimeMsRef, worldTimeTickRef]);
 
   const setWorldTimeMs = useCallback(
     (nextWorldTimeMs: SetStateAction<number>) => {

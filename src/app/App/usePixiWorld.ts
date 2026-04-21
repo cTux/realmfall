@@ -23,9 +23,7 @@ import {
   zoomWorldMapCameraAtPoint,
 } from '../../ui/world/worldMapCamera';
 import { getWorldTimeMinutesFromTimestamp } from '../../ui/world/timeOfDay';
-import {
-  ensureWorldIconTexturesLoaded,
-} from '../../ui/world/worldIcons';
+import { ensureWorldIconTexturesLoaded } from '../../ui/world/worldIcons';
 import { getSceneCache } from '../../ui/world/renderSceneCache';
 import { WORLD_REVEAL_RADIUS } from '../constants';
 import {
@@ -52,6 +50,7 @@ interface UsePixiWorldArgs {
   enabled: boolean;
   game: GameState;
   graphicsSettings: GraphicsSettings;
+  paused: boolean;
   worldTimeMsRef: MutableRefObject<number>;
   gameRef: MutableRefObject<GameState>;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
@@ -76,6 +75,7 @@ export function usePixiWorld({
   enabled,
   game,
   graphicsSettings,
+  paused,
   worldTimeMsRef,
   gameRef,
   tooltipPositionRef,
@@ -99,6 +99,8 @@ export function usePixiWorld({
     dragging: boolean;
   } | null>(null);
   const worldMapCameraRef = useRef(DEFAULT_WORLD_MAP_CAMERA);
+  const pausedRef = useRef(paused);
+  const pausedAnimationMsRef = useRef<number | null>(null);
   const hoverFrameRef = useRef<number | null>(null);
   const cameraSaveTimerRef = useRef<number | null>(null);
   const selectedRef = useRef(game.player.coord);
@@ -128,6 +130,12 @@ export function usePixiWorld({
   useEffect(() => {
     gameRef.current = game;
   }, [game, gameRef]);
+
+  useEffect(() => {
+    pausedRef.current = paused;
+    pausedAnimationMsRef.current = paused ? performance.now() : null;
+    renderInvalidationRef.current += 1;
+  }, [paused]);
 
   useEffect(() => {
     const visibleTilesState = {
@@ -227,7 +235,9 @@ export function usePixiWorld({
 
       appRef.current = app;
       const canvas = app.canvas as HTMLCanvasElement;
-      worldMapCameraRef.current = worldMapSettingsToCamera(loadWorldMapSettings());
+      worldMapCameraRef.current = worldMapSettingsToCamera(
+        loadWorldMapSettings(),
+      );
       hostRef.current.replaceChildren(canvas);
 
       const resize = () => {
@@ -268,7 +278,9 @@ export function usePixiWorld({
         const currentSelected = selectedRef.current;
         const currentHoveredMove = hoveredMoveRef.current;
         const currentHoveredSafePath = hoveredSafePathRef.current;
-        const animationMs = performance.now();
+        const animationMs = pausedRef.current
+          ? (pausedAnimationMsRef.current ?? performance.now())
+          : performance.now();
         const animationBucket = Math.floor(
           animationMs / WORLD_ANIMATION_FRAME_MS,
         );
@@ -374,6 +386,10 @@ export function usePixiWorld({
       };
 
       const handlePointerClick = (clientX: number, clientY: number) => {
+        if (pausedRef.current) {
+          return;
+        }
+
         const scenePoint = getScenePoint(clientX, clientY);
         const hexSize = getWorldHexSize(app.screen, gameRef.current.radius);
         const clickedOffset = stateModule.hexAtPoint(
@@ -446,8 +462,7 @@ export function usePixiWorld({
         const rect = canvas.getBoundingClientRect();
         const nextCamera = zoomWorldMapCameraAtPoint(
           worldMapCameraRef.current,
-          worldMapCameraRef.current.zoom *
-            (event.deltaY < 0 ? 1.1 : 1 / 1.1),
+          worldMapCameraRef.current.zoom * (event.deltaY < 0 ? 1.1 : 1 / 1.1),
           {
             x: event.clientX - rect.left,
             y: event.clientY - rect.top,
@@ -661,10 +676,7 @@ export function usePixiWorld({
         if (dragState && dragState.pointerId === event.pointerId) {
           const deltaX = event.clientX - dragState.startClientX;
           const deltaY = event.clientY - dragState.startClientY;
-          if (
-            dragState.dragging ||
-            Math.hypot(deltaX, deltaY) >= 4
-          ) {
+          if (dragState.dragging || Math.hypot(deltaX, deltaY) >= 4) {
             if (!dragState.dragging) {
               dragState.dragging = true;
               clearHoverState();
@@ -712,7 +724,10 @@ export function usePixiWorld({
 
       canvas.addEventListener('pointerdown', onPointerDown as EventListener);
       canvas.addEventListener('pointerup', onPointerUp as EventListener);
-      canvas.addEventListener('pointercancel', onPointerCancel as EventListener);
+      canvas.addEventListener(
+        'pointercancel',
+        onPointerCancel as EventListener,
+      );
       canvas.addEventListener('pointermove', onPointerMove as EventListener);
       canvas.addEventListener('pointerleave', onPointerLeave);
       canvas.addEventListener('wheel', onWheel as EventListener, {
@@ -734,10 +749,7 @@ export function usePixiWorld({
           'pointerdown',
           onPointerDown as EventListener,
         );
-        canvas.removeEventListener(
-          'pointerup',
-          onPointerUp as EventListener,
-        );
+        canvas.removeEventListener('pointerup', onPointerUp as EventListener);
         canvas.removeEventListener(
           'pointercancel',
           onPointerCancel as EventListener,

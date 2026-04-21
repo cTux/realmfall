@@ -23,6 +23,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - Combat entity cards snap their ability-availability view models to a short visual cadence instead of rebuilding every card on every world-clock tick.
 - Action bar consumable bindings clear themselves once the assigned stack no longer exists in inventory, so depleted consumables do not linger as unavailable stale slots.
 - Action bar consumable slots do not render a cooldown overlay while the shared consumable recharge is active.
+- Pressing `Space` toggles a paused state for gameplay mechanics and shows a centered full-stage overlay message until the game is resumed.
 - Pressing `Esc` closes every currently open window.
 - World camp markers stay readable above their night-time glow effects instead of sinking beneath the bloom layer.
 - Logs provide system, movement, combat, loot, and other gameplay feedback.

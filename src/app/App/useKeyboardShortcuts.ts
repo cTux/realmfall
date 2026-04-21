@@ -14,6 +14,7 @@ interface UseKeyboardShortcutsOptions {
   onTakeAllLoot: () => void;
   onCloseAllWindows: () => void;
   onCloseAllWindowsSound?: () => void;
+  onTogglePause: () => void;
   onToggleDockWindow: (key: keyof WindowVisibilityState) => void;
   onUseActionBarSlot: (slotIndex: number) => void;
   onWindowToggleSound?: (opened: boolean) => void;
@@ -32,6 +33,7 @@ export function useKeyboardShortcuts({
   onTakeAllLoot,
   onCloseAllWindows,
   onCloseAllWindowsSound,
+  onTogglePause,
   onToggleDockWindow,
   onUseActionBarSlot,
   onWindowToggleSound,
@@ -46,6 +48,15 @@ export function useKeyboardShortcuts({
       event.shiftKey ||
       isEditableTarget(event.target)
     ) {
+      return;
+    }
+
+    if (event.code === 'Space' || event.key === ' ') {
+      event.preventDefault();
+      if (event.repeat) {
+        return;
+      }
+      onTogglePause();
       return;
     }
 
