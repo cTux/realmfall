@@ -44,9 +44,14 @@ export const ENEMY_LEVEL_LABEL_STYLE = new TextStyle({
 });
 
 export const ENEMY_GROUP_LABEL_STYLE = new TextStyle({
-  fill: 0xfef3c7,
-  fontSize: 11,
-  fontWeight: '700',
+  fill: 0xfef2f2,
+  fontSize: 12,
+  fontWeight: '800',
+  stroke: {
+    color: 0x020617,
+    width: 3,
+    join: 'round',
+  },
 });
 
 type CachedApplication = Application & { [SCENE_CACHE_KEY]?: SceneCache };
@@ -71,6 +76,8 @@ export interface SceneCache {
   labelTexts: TextPool;
   worldStaticDetailSprites: SpritePool;
   worldStaticMarkerSprites: ShadowedSpritePool;
+  worldStaticMarkerBadgeGraphics: GraphicsPool;
+  worldStaticMarkerTexts: TextPool;
   cloudShadowSprites: SpritePool;
   cloudSprites: SpritePool;
   cloudInputsBySeed: Map<string, CloudRenderInput[]>;
@@ -104,6 +111,7 @@ export function getSceneCache(app: Application) {
   const worldInteraction = new Container();
   const worldBorders = new Container();
   const worldMarkers = new Container();
+  const worldMarkerBadges = new Container();
   const worldAnimatedDetail = new Container();
   const worldPlayer = new Container();
   const waterfalls = new Container();
@@ -133,6 +141,7 @@ export function getSceneCache(app: Application) {
     worldBorders,
     worldAnimatedDetail,
     worldMarkers,
+    worldMarkerBadges,
     worldPlayer,
   );
   worldMap.addChild(world, waterfalls, labels);
@@ -175,6 +184,8 @@ export function getSceneCache(app: Application) {
     labelTexts: createTextPool(labels),
     worldStaticDetailSprites: createSpritePool(worldStaticDetail),
     worldStaticMarkerSprites: createShadowedSpritePool(worldMarkers),
+    worldStaticMarkerBadgeGraphics: createGraphicsPool(worldMarkerBadges),
+    worldStaticMarkerTexts: createTextPool(worldMarkerBadges),
     cloudShadowSprites: createSpritePool(cloudShadows),
     cloudSprites: createSpritePool(clouds),
     cloudInputsBySeed: new Map(),
@@ -226,6 +237,8 @@ export function beginStaticSceneRender(scene: SceneCache) {
   resetGraphicsPool(scene.worldBorderGraphics);
   resetSpritePool(scene.worldStaticDetailSprites);
   resetShadowedSpritePool(scene.worldStaticMarkerSprites);
+  resetGraphicsPool(scene.worldStaticMarkerBadgeGraphics);
+  resetTextPool(scene.worldStaticMarkerTexts);
 }
 
 export function completeStaticSceneRender(scene: SceneCache) {
@@ -234,6 +247,8 @@ export function completeStaticSceneRender(scene: SceneCache) {
   finishGraphicsPool(scene.worldBorderGraphics);
   finishSpritePool(scene.worldStaticDetailSprites);
   finishShadowedSpritePool(scene.worldStaticMarkerSprites);
+  finishGraphicsPool(scene.worldStaticMarkerBadgeGraphics);
+  finishTextPool(scene.worldStaticMarkerTexts);
 }
 
 export function beginInteractionSceneRender(scene: SceneCache) {

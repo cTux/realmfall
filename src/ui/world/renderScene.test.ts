@@ -464,6 +464,91 @@ describe('renderScene', () => {
     expect(updatedMarkers.some((child) => child.tint === 0xc084fc)).toBe(true);
   });
 
+  it('renders a bottom-right count badge for multi-enemy hostile hexes', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-enemy-count-badge');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'forest',
+      items: [],
+      enemyIds: ['enemy-1,0-0', 'enemy-1,0-1', 'enemy-1,0-2'],
+    };
+    game.enemies['enemy-1,0-0'] = {
+      id: 'enemy-1,0-0',
+      name: 'Raider',
+      coord: { q: 1, r: 0 },
+      rarity: 'common',
+      tier: 2,
+      hp: 5,
+      maxHp: 5,
+      attack: 3,
+      defense: 1,
+      xp: 5,
+      elite: false,
+    };
+    game.enemies['enemy-1,0-1'] = {
+      id: 'enemy-1,0-1',
+      name: 'Wolf',
+      coord: { q: 1, r: 0 },
+      rarity: 'rare',
+      tier: 3,
+      hp: 7,
+      maxHp: 7,
+      attack: 4,
+      defense: 2,
+      xp: 8,
+      elite: true,
+    };
+    game.enemies['enemy-1,0-2'] = {
+      id: 'enemy-1,0-2',
+      name: 'Shade',
+      coord: { q: 1, r: 0 },
+      rarity: 'epic',
+      tier: 4,
+      hp: 9,
+      maxHp: 9,
+      attack: 6,
+      defense: 3,
+      xp: 11,
+      elite: true,
+    };
+
+    const app = {
+      stage: new MockContainer(),
+      screen: { width: 800, height: 600 },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    const world = (
+      (app.stage.children[1] as MockContainer).children[0] as MockContainer
+    ).children;
+    const badgeLayer = world[6] as MockContainer;
+    const badgeTexts = badgeLayer.children.filter(
+      (child): child is MockText => child instanceof MockText,
+    );
+    const badgeBackgrounds = badgeLayer.children.filter(
+      (child): child is MockGraphics => child instanceof MockGraphics,
+    );
+
+    expect(badgeTexts.some((child) => child.text === '3')).toBe(true);
+    expect(
+      badgeBackgrounds.some((child) =>
+        child.drawEllipse.mock.calls.some(
+          ([x, y, radiusX, radiusY]) =>
+            x > 0 && y > 0 && radiusX === 10 && radiusY === 10,
+        ),
+      ),
+    ).toBe(true);
+  });
+
   it('does not draw the selected outline on the player tile', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-player-selection');

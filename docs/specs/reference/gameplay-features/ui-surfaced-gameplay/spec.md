@@ -27,6 +27,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - Pressing `Esc` closes every currently open window.
 - World camp markers stay readable above their night-time glow effects instead of sinking beneath the bloom layer.
 - World-map hostile enemy markers tint by runtime enemy rarity, and mixed enemy parties use the highest rarity color on that tile.
+- World-map hostile enemy markers show a bottom-right count badge when a visible enemy party shares the hex, surfacing the party size for stacks of `2` or `3`.
 - Logs provide system, movement, combat, loot, and other gameplay feedback.
 - Combat log entries render with white baseline copy, color damage red and healing green, tint enemy names by rarity, and surface hoverable inline source chips with icons and combat tooltips for logged combat sources.
 - The newest log row renders immediately and the log list stays pinned to the bottom when new entries arrive, so the active message does not linger on a partial fragment.
