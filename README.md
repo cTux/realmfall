@@ -82,7 +82,7 @@ pnpm dev
 - `pnpm build:storybook`
 - `pnpm git:commit -- -m "<message>"` (bumps the patch version in `package.json` if needed, stages that file, then runs `git commit` with the provided arguments)
 - `pnpm git:prune-gone-branches` (fetches with prune, then force-deletes local branches whose tracked remote ref no longer exists; pass `-- --dry-run` to preview and `-- --safe` to keep Git's merged-branch safety checks)
-- `pnpm git:rebase-master-and-push` (rebases the current committed branch onto `origin/master`, auto-resolves `package.json` version conflicts by replaying this branch's patch-version increments, then force-pushes with lease to `origin/<current-branch>`; pass `-- --dry-run` to preview the workflow)
+- `pnpm git:rebase-master-and-push` (rebases the current committed branch onto the default branch advertised by `origin/HEAD`, auto-resolves `package.json` version conflicts by replaying this branch's patch-version increments, then force-pushes with lease to `origin/<current-branch>`; pass `-- --dry-run` to preview the workflow)
 - `pnpm serve` (serves `dist` over local HTTPS with a generated self-signed certificate)
 - `pnpm preview`
 - `pnpm quality:staged`

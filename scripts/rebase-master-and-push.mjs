@@ -5,18 +5,19 @@ import process from 'node:process';
 import {
   createPushPlan,
   parseCliArgs,
+  parseRemoteDefaultBranch,
   replacePackageVersionConflict,
   resolveRebasedPackageVersion,
 } from './rebase-master-and-push.helpers.mjs';
 
 const gitBin = process.platform === 'win32' ? 'git.exe' : 'git';
-const BASE_BRANCH = 'master';
 const PACKAGE_JSON_PATH = resolve(process.cwd(), 'package.json');
 const REMOTE = 'origin';
 const USAGE = `Usage: pnpm git:rebase-master-and-push [-- --dry-run]
 
-Rebases the current branch onto origin/master, auto-resolves package.json
-version conflicts, continues the rebase, and pushes the rewritten branch.
+Rebases the current branch onto the default branch from origin/HEAD,
+auto-resolves package.json version conflicts, continues the rebase,
+and pushes the rewritten branch.
 
 Notes:
   - Run it from a clean working tree unless a rebase is already in progress
@@ -91,13 +92,23 @@ function getCurrentBranchName() {
   fail('Unable to determine the current branch name.');
 }
 
-function ensureSupportedBranch(branchName) {
+function getRemoteDefaultBranch() {
+  const output = readGit(['ls-remote', '--symref', REMOTE, 'HEAD']);
+
+  try {
+    return parseRemoteDefaultBranch(output);
+  } catch (error) {
+    fail(error instanceof Error ? error.message : String(error));
+  }
+}
+
+function ensureSupportedBranch(branchName, baseBranch) {
   if (branchName === '') {
     fail('Current HEAD is detached.');
   }
 
-  if (branchName === BASE_BRANCH) {
-    fail(`Refusing to rewrite ${BASE_BRANCH}.`);
+  if (branchName === baseBranch) {
+    fail(`Refusing to rewrite ${baseBranch}.`);
   }
 }
 
@@ -236,7 +247,8 @@ if (readGit(['rev-parse', '--is-inside-work-tree']) !== 'true') {
 
 const rebaseAlreadyInProgress = isRebaseInProgress();
 const branchName = getCurrentBranchName();
-ensureSupportedBranch(branchName);
+const baseBranch = getRemoteDefaultBranch();
+ensureSupportedBranch(branchName, baseBranch);
 
 if (options.dryRun) {
   const pushPlan = createPushPlan(
@@ -246,7 +258,7 @@ if (options.dryRun) {
   );
 
   logStep(
-    `Would run git pull ${REMOTE} ${BASE_BRANCH} --rebase on ${branchName}`,
+    `Would run git pull ${REMOTE} ${baseBranch} --rebase on ${branchName}`,
   );
 
   if (rebaseAlreadyInProgress) {
@@ -262,15 +274,15 @@ if (options.dryRun) {
 if (!rebaseAlreadyInProgress) {
   ensureCleanWorktree();
 
-  logStep(`Rebasing ${branchName} onto ${REMOTE}/${BASE_BRANCH}`);
+  logStep(`Rebasing ${branchName} onto ${REMOTE}/${baseBranch}`);
 
-  const pullResult = runGit(['pull', REMOTE, BASE_BRANCH, '--rebase'], {
+  const pullResult = runGit(['pull', REMOTE, baseBranch, '--rebase'], {
     allowFailure: true,
     live: true,
   });
 
   if (pullResult.status !== 0 && !isRebaseInProgress()) {
-    fail('git pull origin master --rebase failed.');
+    fail(`git pull ${REMOTE} ${baseBranch} --rebase failed.`);
   }
 } else {
   logStep(`Continuing the in-progress rebase for ${branchName}`);

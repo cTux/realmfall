@@ -1,6 +1,7 @@
 import {
   createPushPlan,
   parseCliArgs,
+  parseRemoteDefaultBranch,
   replacePackageVersionConflict,
   resolveRebasedPackageVersion,
 } from '../rebase-master-and-push.helpers.mjs';
@@ -58,6 +59,20 @@ describe('rebase master and push helpers', () => {
         '  }',
         '}',
       ].join('\n'),
+    );
+  });
+
+  it('parses the remote default branch from git ls-remote output', () => {
+    expect(
+      parseRemoteDefaultBranch(
+        [
+          'ref: refs/heads/main\tHEAD',
+          '0123456789abcdef0123456789abcdef01234567\tHEAD',
+        ].join('\n'),
+      ),
+    ).toBe('main');
+    expect(() => parseRemoteDefaultBranch('')).toThrow(
+      'Unable to determine the remote default branch from git ls-remote --symref output.',
     );
   });
 

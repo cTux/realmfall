@@ -1,4 +1,6 @@
 const SEMVER_PATTERN = /^(\d+)\.(\d+)\.(\d+)$/;
+const REMOTE_HEAD_PATTERN =
+  /^ref:\s+refs\/heads\/(?<branch>[^\t\r\n]+)\s+HEAD$/mu;
 const VERSION_LINE_PATTERN = /^(?<indent>\s*)"version":\s*"[^"]+",\s*$/u;
 const VERSION_CONFLICT_PATTERN =
   /<<<<<<<[^\r\n]*\r?\n(?<ours>[^\r\n]*\r?\n)=======\r?\n(?<theirs>[^\r\n]*\r?\n)>>>>>>>[^\r\n]*\r?\n?/gu;
@@ -101,6 +103,19 @@ export function replacePackageVersionConflict(text, resolvedVersion) {
   return (
     text.slice(0, start) + replacement + text.slice(start + match[0].length)
   );
+}
+
+export function parseRemoteDefaultBranch(lsRemoteOutput) {
+  const match = REMOTE_HEAD_PATTERN.exec(lsRemoteOutput);
+  const branchName = match?.groups?.branch?.trim();
+
+  if (!branchName) {
+    throw new Error(
+      'Unable to determine the remote default branch from git ls-remote --symref output.',
+    );
+  }
+
+  return branchName;
 }
 
 export function createPushPlan(
