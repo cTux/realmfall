@@ -5,6 +5,7 @@ import { spawn } from 'node:child_process';
 import process from 'node:process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createPnpmInvocation } from './pnpm-command.mjs';
 
 export const MEMORY_LEAK_PORT = 5173;
 export const MEMORY_LEAK_URL = `https://localhost:${MEMORY_LEAK_PORT}`;
@@ -18,8 +19,6 @@ export const MEMORY_LEAK_SCENARIO_PATH = resolve(
   'scripts',
   'fuite-dock-toggle-scenario.mjs',
 );
-
-const pnpmBin = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 
 function parseCliArgs(argv) {
   const parsedArgs = {};
@@ -122,18 +121,12 @@ async function main() {
   mkdirSync(dirname(memoryLeakOutputPath), { recursive: true });
   await waitForServer(memoryLeakHealthcheckUrl);
 
-  const fuite =
-    process.platform === 'win32'
-      ? spawn(
-          process.env.ComSpec ?? 'cmd.exe',
-          ['/d', '/s', '/c', pnpmBin, ...createFuiteArgs(memoryLeakUrl, memoryLeakOutputPath)],
-          {
-            stdio: 'inherit',
-          },
-        )
-      : spawn(pnpmBin, createFuiteArgs(memoryLeakUrl, memoryLeakOutputPath), {
-          stdio: 'inherit',
-        });
+  const pnpm = createPnpmInvocation(
+    createFuiteArgs(memoryLeakUrl, memoryLeakOutputPath),
+  );
+  const fuite = spawn(pnpm.command, pnpm.args, {
+    stdio: 'inherit',
+  });
 
   fuite.on('exit', (code) => {
     process.exit(code ?? 1);

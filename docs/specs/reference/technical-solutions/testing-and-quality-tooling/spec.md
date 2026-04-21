@@ -37,7 +37,8 @@ This spec covers the repository quality baseline and current test coverage shape
 - When staged changes touch shared test inputs such as `package.json`, `pnpm-lock.yaml`, `vite.config.ts`, TypeScript config, or `src/test/setup.ts`, the pre-commit workflow falls back to the full `pnpm test` suite instead of a related-only run.
 - Shared Vitest setup stubs `HTMLCanvasElement.getContext('2d')` under jsdom so Pixi- and canvas-adjacent tests run without repeated not-implemented warnings in the test output.
 - Contributors can force a cold Vitest run by deleting `.tests/vitest-cache`; when the directory is absent, the next `pnpm test` run recreates it automatically.
-- The staged-quality runner invokes `git` and `pnpm` directly, including `pnpm.cmd` on Windows, so local hook output stays free of Node's shell-spawn deprecation warning.
+- The staged-quality runner invokes `git` directly and routes `pnpm` through its Node entrypoint when `npm_execpath` is available, so staged paths do not pass through `cmd.exe` on Windows.
+- The memory-leak runner uses the same `pnpm` entrypoint path instead of shelling through `cmd.exe`, keeping its browser-test arguments out of Windows shell parsing.
 
 ## Main Implementation Areas
 
@@ -46,6 +47,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - `scripts/check-bundle-budget.helpers.mjs`
 - `scripts/check-package-version.mjs`
 - `scripts/fuite-dock-toggle-scenario.mjs`
+- `scripts/pnpm-command.mjs`
 - `scripts/run-memory-leak-test.mjs`
 - `scripts/run-staged-quality.mjs`
 - `.oxlintrc.json`
