@@ -55,6 +55,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+      - name: Refresh dependency branch lease target
+        run: |
+          if git ls-remote --exit-code --heads origin dependencies-update > /dev/null 2>&1; then
+            git fetch origin dependencies-update:refs/remotes/origin/dependencies-update
+          fi
+
       - name: Create or update dependency pull request
         env:
           GH_TOKEN: ${{ github.token }}
