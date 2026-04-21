@@ -29,4 +29,5 @@ This spec covers inventory actions, gold handling, and town trading.
 - `src/game/inventory.ts`
 - `src/game/economy.ts`
 - `src/game/state.ts`
+- `src/game/stateInventoryActions.ts`
 - `src/ui/components/InventoryWindow/InventoryWindowContent.tsx`
