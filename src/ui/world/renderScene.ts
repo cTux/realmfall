@@ -1,5 +1,6 @@
 import { type Application } from 'pixi.js';
 import {
+  enemyRarityIndex,
   getStructureConfig,
   getEnemiesAt,
   getVisibleTiles,
@@ -289,6 +290,14 @@ export function renderScene(
               (bossCoord) => visibleTileMap?.get(hexKey(bossCoord))?.enemyIds,
             );
             const leadEnemy = hostileEnemies[0];
+            const highestRarityEnemy = hostileEnemies.reduce(
+              (highest, enemy) =>
+                enemyRarityIndex(enemy.rarity) >
+                enemyRarityIndex(highest.rarity)
+                  ? enemy
+                  : highest,
+              leadEnemy,
+            );
             const isBossCenter = tile.enemyIds.some((enemyId) =>
               isWorldBossEnemyId(enemyId),
             );
@@ -299,7 +308,7 @@ export function renderScene(
               );
               configureShadowedSprite(
                 sprite,
-                enemyIconTintFor(leadEnemy),
+                enemyIconTintFor(highestRarityEnemy),
                 isBossCenter ? worldBossIconSize : enemyIconSize,
                 isBossCenter ? worldBossIconSize : enemyIconSize,
                 1,

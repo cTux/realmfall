@@ -91,6 +91,7 @@ function getStaticTileRenderToken(state: GameState, tile: Tile) {
       token,
       hashRenderString(enemy.enemyTypeId ?? enemy.name),
     );
+    token = mixRenderToken(token, hashRenderString(enemy.rarity ?? 'common'));
     token = mixRenderToken(token, enemy.aggressive === false ? 0 : 1);
     token = mixRenderToken(token, enemy.worldBoss ? 1 : 0);
     return token;
@@ -146,6 +147,7 @@ function getVisibleEnemyToken(
         token,
         hashRenderString(enemy.enemyTypeId ?? enemy.name),
       );
+      token = mixRenderToken(token, hashRenderString(enemy.rarity ?? 'common'));
       token = mixRenderToken(token, enemy.aggressive === false ? 0 : 1);
       token = mixRenderToken(token, enemy.worldBoss ? 1 : 0);
     }
