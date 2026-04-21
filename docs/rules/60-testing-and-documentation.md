@@ -14,6 +14,7 @@
 - Keep a coverage test for Storybook parity so component additions or removals in `src/ui/components` fail fast when corresponding stories are missing.
 - Keep repository automation scripts shell-safe across platforms. Do not route staged paths, generated file lists, or other user-controlled arguments through `cmd.exe` or other shells when a direct executable or Node entrypoint invocation can run the tool instead.
 - Keep scheduled dependency automation aligned with the repository toolchain. Use the repo-pinned package-manager version in CI jobs and keep audit steps read-only instead of mutating dependencies inside the workflow.
+- Keep GitHub Actions least-privilege by default. Declare explicit workflow permissions, disable persisted checkout credentials unless a job needs them, and prefer reviewed repository logic or the GitHub CLI over third-party PR automation in write-capable jobs.
 
 ## Documentation
 

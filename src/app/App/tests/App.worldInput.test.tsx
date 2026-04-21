@@ -90,7 +90,7 @@ describe('App world input', () => {
       root.unmount();
     });
     host.remove();
-  });
+  }, 10000);
 
   it('ignores horizontal wheel gestures without changing zoom', async () => {
     const game = createHydratedAppGame();

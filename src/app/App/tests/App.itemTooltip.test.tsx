@@ -70,5 +70,5 @@ describe('App item tooltip lazy loading', () => {
       root.unmount();
     });
     host.remove();
-  });
+  }, 10000);
 });

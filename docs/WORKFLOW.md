@@ -22,6 +22,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 - Pin GitHub Actions to immutable commit SHAs in workflow files instead of mutable version tags.
 - Keep contributor scripts shell-safe on Windows. Do not pass staged paths or other user-controlled arguments through `cmd.exe` when invoking repository tooling.
 - Keep scheduled dependency automation on the repo-pinned package-manager version and use read-only audit commands there instead of mutating dependency trees inside the job.
+- Keep GitHub Actions least-privilege by default. Declare explicit workflow permissions and prefer reviewed repository scripts or the GitHub CLI over third-party PR automation for write-capable jobs.
 - `pnpm test` stores reusable Vitest results in `.tests/vitest-cache`; delete that directory when you need a cold run to verify cache behavior or rule out stale local state.
 - Use `pnpm test:memory:leaks` when a change could affect client-side route cleanup, event-listener teardown, or long-lived browser objects; the command starts the HTTPS dev server at `https://localhost:5173`, runs the dock-window toggle `fuite` scenario, and records the latest JSON report under `.tests/memory-leaks/latest.json`.
 - Run `pnpm build:budget` when startup chunks or lazy-loading strategy change.
