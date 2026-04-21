@@ -9,6 +9,7 @@ import {
   type SetStateAction,
 } from 'react';
 import {
+  activateInventoryItem,
   buyTownItem,
   claimCurrentHex,
   craftRecipe,
@@ -46,7 +47,6 @@ import type { AudioSettings } from '../audioSettings';
 import type { GraphicsSettings } from '../graphicsSettings';
 import type { ItemContextMenuState, TooltipItem, TooltipState } from './types';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
-import { getInventoryItemAction } from './utils/getInventoryItemAction';
 import type { TooltipLine } from '../../ui/tooltips';
 import { setTooltipState } from './tooltipStore';
 import { getTooltipPlacementForRect } from '../../ui/tooltipPlacement';
@@ -327,22 +327,18 @@ export function useAppControllers({
     [applyGameTransition],
   );
 
-  const handleEquip = useCallback(
+  const handleActivateInventoryItem = useCallback(
     (itemId: string) => {
-      const item = gameRef.current.player.inventory.find(
-        (entry) => entry.id === itemId,
-      );
-      const action = getInventoryItemAction(
-        item,
-        gameRef.current.player.learnedRecipeIds,
-      );
-      if (action === 'use') {
-        applyGameTransition((current) => applyItemUse(current, itemId));
-        return;
-      }
+      applyGameTransition((current) => activateInventoryItem(current, itemId));
+    },
+    [applyGameTransition],
+  );
+
+  const handleEquipItem = useCallback(
+    (itemId: string) => {
       applyGameTransition((current) => equipItem(current, itemId));
     },
-    [applyGameTransition, gameRef],
+    [applyGameTransition],
   );
 
   const handleUseItem = useCallback(
@@ -514,7 +510,8 @@ export function useAppControllers({
     handleDropEquippedItem,
     handleDropItem,
     handleEquipmentHover,
-    handleEquip,
+    handleActivateInventoryItem,
+    handleEquipItem,
     handleEquippedContextItem,
     handleInteract,
     handleProspect,

@@ -586,6 +586,22 @@ export function startCombat(state: GameState): GameState {
   return next;
 }
 
+export function activateInventoryItem(
+  state: GameState,
+  itemId: string,
+): GameState {
+  if (state.gameOver) return state;
+
+  const item = state.player.inventory.find((entry) => entry.id === itemId);
+  if (!item) return message(state, t('game.message.item.notInPack'));
+
+  if (isRecipePage(item) || canUseItem(item, state.player.learnedRecipeIds)) {
+    return applyInventoryItemUse(state, itemId);
+  }
+
+  return equipItem(state, itemId);
+}
+
 export function equipItem(state: GameState, itemId: string): GameState {
   if (state.gameOver) return state;
 
@@ -595,22 +611,17 @@ export function equipItem(state: GameState, itemId: string): GameState {
   if (itemIndex < 0) return message(state, t('game.message.item.notInPack'));
 
   const item = state.player.inventory[itemIndex];
-  const next = cloneForPlayerMutation(state);
-
-  if (canUseItem(item) && !isRecipePage(item)) {
-    consumeItem(next, itemIndex, item);
-    return next;
-  }
-
   if (hasItemTag(item, GAME_TAGS.item.resource))
     return message(
       state,
       t('game.message.equipment.resourcesCannotBeEquipped'),
     );
 
-  next.player.inventory.splice(itemIndex, 1);
   if (!item.slot)
     return message(state, t('game.message.equipment.cannotEquip'));
+
+  const next = cloneForPlayerMutation(state);
+  next.player.inventory.splice(itemIndex, 1);
 
   if (
     item.slot === EquipmentSlotId.Offhand &&
@@ -643,6 +654,10 @@ export function equipItem(state: GameState, itemId: string): GameState {
 }
 
 export function useItem(state: GameState, itemId: string): GameState {
+  return applyInventoryItemUse(state, itemId);
+}
+
+function applyInventoryItemUse(state: GameState, itemId: string): GameState {
   if (state.gameOver) return state;
 
   const itemIndex = state.player.inventory.findIndex(

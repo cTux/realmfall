@@ -129,7 +129,8 @@ export interface AppWindowsActions {
   inventory: {
     onUnequip: (slot: EquipmentSlot) => void;
     onSort: () => void;
-    onEquip: (itemId: string) => void;
+    onActivateItem: (itemId: string) => void;
+    onEquipItem: (itemId: string) => void;
     onUseItem: (itemId: string) => void;
     onAssignActionBarSlot: (slotIndex: number, item: Item) => void;
     onClearActionBarSlot: (slotIndex: number) => void;

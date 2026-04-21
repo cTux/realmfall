@@ -10,7 +10,7 @@ type InventoryWindowContentProps = Pick<
   | 'inventory'
   | 'equipment'
   | 'learnedRecipeIds'
-  | 'onEquip'
+  | 'onActivateItem'
   | 'onContextItem'
   | 'onHoverItem'
   | 'onLeaveItem'
@@ -20,7 +20,7 @@ export function InventoryWindowContent({
   inventory,
   equipment,
   learnedRecipeIds,
-  onEquip,
+  onActivateItem,
   onContextItem,
   onHoverItem,
   onLeaveItem,
@@ -46,7 +46,7 @@ export function InventoryWindowContent({
             }
             borderColorOverride={recipeState.borderColor}
             overlayColorOverride={recipeState.overlayColor}
-            onClick={() => onEquip(item.id)}
+            onClick={() => onActivateItem(item.id)}
             onContextMenu={(event) => onContextItem(event, item)}
             onMouseEnter={(event) =>
               onHoverItem(
