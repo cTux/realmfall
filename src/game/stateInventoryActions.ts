@@ -2,6 +2,7 @@ import { hexKey } from './hex';
 import { t } from '../i18n';
 import { itemOccupiesOffhand } from './content/items';
 import { buildTownStock } from './economy';
+import { getWorldDayIndex } from './logs';
 import { addLog } from './logs';
 import {
   addItemToInventory,
@@ -185,9 +186,14 @@ export function getTownStock(state: GameState): TownStockEntry[] {
     return [];
   }
 
-  const purchasedItemIds = new Set(tile.townStockPurchasedItemIds ?? []);
+  const currentDay = getWorldDayIndex(state.worldTimeMs);
+  const purchasedItemIds = new Set(
+    tile.townStockDay === currentDay
+      ? (tile.townStockPurchasedItemIds ?? [])
+      : [],
+  );
 
-  return buildTownStock(state.seed, tile.coord).filter(
+  return buildTownStock(state.seed, tile.coord, currentDay).filter(
     (entry) => !purchasedItemIds.has(entry.item.id),
   );
 }
@@ -223,12 +229,15 @@ export function buyTownItem(state: GameState, itemId: string): GameState {
   ensureTileState(next, next.player.coord);
   const currentTileKey = hexKey(next.player.coord);
   const currentTile = next.tiles[currentTileKey];
+  const currentDay = getWorldDayIndex(next.worldTimeMs);
   spendGold(next.player.inventory, entry.price);
   addItemToInventory(next.player.inventory, { ...entry.item });
-  currentTile.townStockPurchasedItemIds = [
-    ...(currentTile.townStockPurchasedItemIds ?? []),
-    entry.item.id,
-  ];
+  const purchasedItemIds =
+    currentTile.townStockDay === currentDay
+      ? (currentTile.townStockPurchasedItemIds ?? [])
+      : [];
+  currentTile.townStockDay = currentDay;
+  currentTile.townStockPurchasedItemIds = [...purchasedItemIds, entry.item.id];
   addLog(
     next,
     'system',

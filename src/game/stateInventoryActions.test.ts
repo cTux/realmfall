@@ -15,6 +15,7 @@ import {
   takeAllTileItems,
   takeTileItem,
 } from './state';
+import { GAME_DAY_DURATION_MS } from './config';
 import { getItemCategory } from './content/items';
 
 describe('game state inventory actions', () => {
@@ -393,5 +394,41 @@ describe('game state inventory actions', () => {
     expect(
       boughtTwice.logs.some((entry) => /not available here/i.test(entry.text)),
     ).toBe(true);
+  });
+
+  it('refreshes each town stock list every game day', () => {
+    const game = createGame(3, 'town-daily-refresh-seed');
+    game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'town' };
+    game.player.inventory = [
+      {
+        id: 'resource-gold-town-refresh',
+        name: 'Gold',
+        itemKey: 'gold',
+        quantity: 2_000,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    ];
+
+    const firstDayStock = getTownStock(game);
+    const bought = buyTownItem(game, firstDayStock[0]!.item.id);
+
+    expect(getTownStock(bought)).toHaveLength(firstDayStock.length - 1);
+
+    const nextDayState = {
+      ...bought,
+      worldTimeMs: GAME_DAY_DURATION_MS,
+    };
+    const nextDayStock = getTownStock(nextDayState);
+
+    expect(nextDayStock).toHaveLength(firstDayStock.length);
+    expect(nextDayStock.map((entry) => entry.item.id)).not.toEqual(
+      firstDayStock.map((entry) => entry.item.id),
+    );
   });
 });
