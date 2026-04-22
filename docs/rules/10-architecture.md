@@ -17,6 +17,7 @@
 - Keep home-setting, territory-claim, and gather-structure mutations in focused state helper modules such as `src/game/stateWorldActions.ts` instead of adding another broad world-action block inside `src/game/state.ts`.
 - Keep recipe-book selectors and craft-execution mutations in focused state helper modules such as `src/game/stateCrafting.ts` instead of growing another recipe block inside `src/game/state.ts`.
 - Keep encounter creation, combat timing, and battle-resolution mutations in focused state helper modules such as `src/game/stateCombat.ts` instead of leaving another large combat block inside `src/game/state.ts`.
+- Keep `src/game/stateCombat.ts` as the combat orchestration entrypoint and move combat damage resolution, target selection, status-effect mutation, proc math, and combat-log formatting into neighboring `src/game/combat*.ts` helpers instead of regrowing one broad combat runtime file.
 - Keep configurable balancing and world values in `game.config.json` or dedicated config modules instead of scattering magic numbers through UI code.
 - Add all future chance-based gameplay parameters to `game.config.json`, grouped by gameplay area, instead of introducing new chance constants in content files or other modules.
 - Give every unique item its own configuration file for its gameplay and presentation data, including icon and non-chance item-specific values.
