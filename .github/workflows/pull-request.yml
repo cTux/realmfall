@@ -2,15 +2,54 @@ name: Pull Request
 
 on:
   pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - '.github/copilot-instructions.md'
   push:
     branches:
       - main
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - '.github/copilot-instructions.md'
 
 permissions:
   contents: read
 
 jobs:
-  checks:
+  typecheck-and-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+  test-node:
     runs-on: ubuntu-latest
 
     steps:
@@ -42,19 +81,78 @@ jobs:
               'vite.config.ts',
               'tsconfig.json',
               'tsconfig.node.json',
+              'src/test/setup.node.ts',
+              'src/test/setup.shared.ts',
               'src/test/setup.ts'
             ) }}
           restore-keys: |
             vitest-cache-${{ runner.os }}-
 
-      - name: Typecheck
-        run: pnpm typecheck
+      - name: Run node test project
+        run: pnpm test:node
 
-      - name: Lint
-        run: pnpm lint
+  test-jsdom:
+    runs-on: ubuntu-latest
 
-      - name: Test
-        run: pnpm test
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Restore Vitest cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: .tests/vitest-cache
+          key: >-
+            vitest-cache-${{ runner.os }}-${{ hashFiles(
+              'pnpm-lock.yaml',
+              'package.json',
+              'vite.config.ts',
+              'tsconfig.json',
+              'tsconfig.node.json',
+              'src/test/setup.node.ts',
+              'src/test/setup.shared.ts',
+              'src/test/setup.ts'
+            ) }}
+          restore-keys: |
+            vitest-cache-${{ runner.os }}-
+
+      - name: Run jsdom test project
+        run: pnpm test:jsdom
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Build with bundle budget report
         run: pnpm build:budget
