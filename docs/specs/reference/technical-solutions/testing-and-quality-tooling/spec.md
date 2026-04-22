@@ -58,6 +58,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - Contributors can force a cold Vitest run by deleting `.tests/vitest-cache`; when the directory is absent, the next `pnpm test` run recreates it automatically.
 - The staged-quality and pre-push runners invoke `git` directly and route `pnpm` through its Node entrypoint when `npm_execpath` is available, while falling back to the bundled `pnpm.cjs` Node entrypoint on Windows when a script runs outside `pnpm run`.
 - The memory-leak runner uses the same `pnpm` entrypoint path instead of shelling through `cmd.exe`, keeping its browser-test arguments out of Windows shell parsing.
+- Async script runners that wrap `vite`, `serve`, `pnpm`, or other nested Node processes go through a shared managed-child helper that tears down the full child process tree when the parent exits or is interrupted, preventing orphaned Windows `node.exe` processes from lingering after wrapper scripts stop.
 - The duplicate-deps audit runner uses that same pnpm invocation helper on Windows instead of routing `pnpm build` through `cmd.exe`.
 
 ## Main Implementation Areas
@@ -69,6 +70,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - `scripts/dependency-updates.mjs`
 - `scripts/dependency-updates.helpers.mjs`
 - `scripts/fuite-dock-toggle-scenario.mjs`
+- `scripts/managed-child-process.mjs`
 - `scripts/pnpm-command.mjs`
 - `scripts/run-pre-push-quality.mjs`
 - `scripts/run-vite-build.helpers.mjs`

@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { spawnManagedChild } from './managed-child-process.mjs';
 import { createPnpmInvocation } from './pnpm-command.mjs';
 
 const environment = {
@@ -7,7 +7,7 @@ const environment = {
 };
 const { command, args } = createPnpmInvocation(['build'], environment);
 
-const child = spawn(command, args, {
+const child = spawnManagedChild(command, args, {
   stdio: 'inherit',
   env: environment,
 });
