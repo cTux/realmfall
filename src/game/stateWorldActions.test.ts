@@ -3,10 +3,13 @@ import {
   createGame,
   getTileAt,
   getVisibleTiles,
+  healAtFactionNpc,
   interactWithStructure,
   setHomeHex,
 } from './state';
 import { t } from '../i18n';
+import { StatusEffectTypeId } from './content/ids';
+import { makeGoldStack } from './inventory';
 import { buildTile } from './world';
 import { getStructureConfig } from './content/structures';
 import { hexDistance, hexKey, hexNeighbors } from './hex';
@@ -483,6 +486,42 @@ describe('game state world actions', () => {
     expect(blocked.logs[0]?.text).toContain(
       t('game.message.claim.status.emptyOnly'),
     );
+  });
+
+  it('lets a faction NPC heal the player for 1 gold while preserving hunger and thirst', () => {
+    const game = createGame(3, 'faction-heal-seed');
+    game.player.inventory.push(makeGoldStack(3));
+    game.player.hp = 1;
+    game.player.statusEffects = [
+      { id: StatusEffectTypeId.Bleeding, value: 4 },
+      { id: StatusEffectTypeId.Hunger, value: 10 },
+      { id: StatusEffectTypeId.Thirst, value: 10 },
+      { id: StatusEffectTypeId.Restoration, value: 5 },
+      { id: StatusEffectTypeId.RecentDeath, value: 10 },
+    ];
+    game.tiles['0,0'] = {
+      ...game.tiles['0,0'],
+      claim: {
+        ownerId: 'faction-claims',
+        ownerType: 'faction',
+        ownerName: 'Ghostline',
+        borderColor: '#ffffff',
+        npc: { name: 'Araken' },
+      },
+    };
+
+    const healed = healAtFactionNpc(game);
+
+    expect(healed.player.hp).toBeGreaterThan(game.player.hp);
+    expect(
+      healed.player.inventory.find((item) => item.itemKey === 'gold')?.quantity,
+    ).toBe(2);
+    expect(healed.player.statusEffects.map((effect) => effect.id)).toEqual([
+      StatusEffectTypeId.Hunger,
+      StatusEffectTypeId.Thirst,
+      StatusEffectTypeId.Restoration,
+    ]);
+    expect(healed.logs[0]?.text).toContain('Araken');
   });
 });
 

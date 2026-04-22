@@ -130,6 +130,8 @@ describe('ui window markup', () => {
           canInteract
           canTerritoryAction
           territoryActionLabel="Cl(a)im"
+          canHealTerritoryNpc
+          territoryNpcHealExplanation={null}
           canBulkProspectEquipment={false}
           canBulkSellEquipment={false}
           territoryActionExplanation={null}
@@ -137,13 +139,14 @@ describe('ui window markup', () => {
           bulkSellEquipmentExplanation={null}
           onInteract={() => {}}
           onTerritoryAction={() => {}}
+          onHealTerritoryNpc={() => {}}
           onProspect={() => {}}
           onSellAll={() => {}}
           structureHp={3}
           structureMaxHp={5}
           territoryName={null}
           territoryOwnerType={null}
-          territoryNpc={null}
+          territoryNpc={{ name: 'Araken' }}
           townStock={[
             {
               item: equippedItem,
@@ -296,6 +299,7 @@ describe('ui window markup', () => {
     expect(markup).toContain(WINDOW_LABELS.recipes.suffix);
     expect(markup).toContain(WINDOW_LABELS.hexInfo.suffix);
     expect(markup).toContain('Cl(a)im');
+    expect(markup).toContain('(Q) Heal');
     expect(markup).toContain('H(o)me');
     expect(markup).toContain('(Q) Gather');
     expect(markup).toContain('Structure HP');
@@ -336,6 +340,8 @@ describe('ui window markup', () => {
           canInteract={false}
           canTerritoryAction={false}
           territoryActionLabel="Cl(a)im"
+          canHealTerritoryNpc={false}
+          territoryNpcHealExplanation={null}
           canBulkProspectEquipment={false}
           canBulkSellEquipment={false}
           territoryActionExplanation={null}
@@ -343,6 +349,7 @@ describe('ui window markup', () => {
           bulkSellEquipmentExplanation={null}
           onInteract={() => {}}
           onTerritoryAction={() => {}}
+          onHealTerritoryNpc={() => {}}
           onProspect={() => {}}
           onSellAll={() => {}}
           territoryName={null}
@@ -366,6 +373,8 @@ describe('ui window markup', () => {
           canInteract={false}
           canTerritoryAction={false}
           territoryActionLabel="Cl(a)im"
+          canHealTerritoryNpc={false}
+          territoryNpcHealExplanation={null}
           canBulkProspectEquipment={false}
           canBulkSellEquipment={false}
           territoryActionExplanation={null}
@@ -373,6 +382,7 @@ describe('ui window markup', () => {
           bulkSellEquipmentExplanation="No equippable items to sell."
           onInteract={() => {}}
           onTerritoryAction={() => {}}
+          onHealTerritoryNpc={() => {}}
           onProspect={() => {}}
           onSellAll={() => {}}
           territoryName={null}
@@ -407,6 +417,8 @@ describe('ui window markup', () => {
         canInteract
         canTerritoryAction={false}
         territoryActionLabel="Cl(a)im"
+        canHealTerritoryNpc={false}
+        territoryNpcHealExplanation={null}
         canBulkProspectEquipment={false}
         canBulkSellEquipment={false}
         territoryActionExplanation={null}
@@ -414,6 +426,7 @@ describe('ui window markup', () => {
         bulkSellEquipmentExplanation={null}
         onInteract={() => {}}
         onTerritoryAction={() => {}}
+        onHealTerritoryNpc={() => {}}
         onProspect={() => {}}
         onSellAll={() => {}}
         territoryName={null}
@@ -445,6 +458,8 @@ describe('ui window markup', () => {
         canInteract={false}
         canTerritoryAction={false}
         territoryActionLabel="Cl(a)im"
+        canHealTerritoryNpc={false}
+        territoryNpcHealExplanation={null}
         territoryActionExplanation="Claiming needs 1 Cloth and 1 Sticks for a banner."
         canBulkProspectEquipment={false}
         canBulkSellEquipment={false}
@@ -452,6 +467,7 @@ describe('ui window markup', () => {
         bulkSellEquipmentExplanation={null}
         onInteract={() => {}}
         onTerritoryAction={() => {}}
+        onHealTerritoryNpc={() => {}}
         onProspect={() => {}}
         onSellAll={() => {}}
         territoryName={null}

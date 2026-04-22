@@ -56,6 +56,9 @@ export interface HexInfoWindowProps extends WindowDetailTooltipHandlers {
   onSelectItemModificationReforgeStat?: (statIndex: number) => void;
   onToggleItemModificationPicker?: () => void;
   onTerritoryAction: () => void;
+  canHealTerritoryNpc: boolean;
+  territoryNpcHealExplanation?: string | null;
+  onHealTerritoryNpc: () => void;
   structureHp?: number;
   structureMaxHp?: number;
   territoryName?: string | null;

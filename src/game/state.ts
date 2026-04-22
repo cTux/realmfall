@@ -94,9 +94,11 @@ import {
 } from './stateWorldEvents';
 import {
   claimCurrentHex,
+  healAtFactionNpc,
   interactWithStructure,
   setHomeHex,
 } from './stateWorldActions';
+import { getCurrentHexFactionNpcHealStatus } from './stateFactionNpc';
 import {
   craftRecipe,
   getRecipeBookEntries,
@@ -173,10 +175,12 @@ export {
 } from './stateWorldQueries';
 export type { VisibleTilesState } from './stateWorldQueries';
 export { getCurrentHexClaimStatus } from './stateClaims';
+export { getCurrentHexFactionNpcHealStatus } from './stateFactionNpc';
 export { getSafePathToTile } from './statePathfinding';
 export { createGame } from './stateFactory';
 export {
   claimCurrentHex,
+  healAtFactionNpc,
   interactWithStructure,
   setHomeHex,
 } from './stateWorldActions';

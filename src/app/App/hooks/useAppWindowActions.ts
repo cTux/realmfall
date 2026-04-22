@@ -8,6 +8,7 @@ interface UseAppWindowActionsArgs {
   handleAssignActionBarSlot: AppWindowsActions['inventory']['onAssignActionBarSlot'];
   handleBuyTownItem: AppWindowsActions['world']['onBuyTownItem'];
   handleClaimHex: AppWindowsActions['world']['onClaimHex'];
+  handleHealTerritoryNpc: AppWindowsActions['world']['onHealTerritoryNpc'];
   handleClearActionBarSlot: AppWindowsActions['inventory']['onClearActionBarSlot'];
   handleClearRecipeMaterialFilter: AppWindowsActions['recipes']['onClearMaterialFilter'];
   handleContextItem: AppWindowsActions['inventory']['onContextItem'];
@@ -61,6 +62,7 @@ export function useAppWindowActions({
   handleAssignActionBarSlot,
   handleBuyTownItem,
   handleClaimHex,
+  handleHealTerritoryNpc,
   handleClearActionBarSlot,
   handleClearRecipeMaterialFilter,
   handleContextItem,
@@ -194,6 +196,7 @@ export function useAppWindowActions({
       onSellAll: handleSellAll,
       onBuyTownItem: handleBuyTownItem,
       onClaimHex: handleClaimHex,
+      onHealTerritoryNpc: handleHealTerritoryNpc,
       onApplySelectedItemModification: handleApplySelectedItemModification,
       onClearSelectedItemModification: handleClearSelectedItemModification,
       onSelectItemModificationReforgeStat:
@@ -205,6 +208,7 @@ export function useAppWindowActions({
       handleApplySelectedItemModification,
       handleBuyTownItem,
       handleClaimHex,
+      handleHealTerritoryNpc,
       handleClearSelectedItemModification,
       handleForfeitCombat,
       handleInteract,

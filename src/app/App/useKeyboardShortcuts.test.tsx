@@ -47,6 +47,7 @@ describe('useKeyboardShortcuts', () => {
       useKeyboardShortcuts({
         canBulkProspectEquipment: false,
         canBulkSellEquipment: false,
+        canHealTerritoryNpc: false,
         canSetHomeAction: false,
         canTerritoryAction: false,
         combatDeathAvailable: false,
@@ -57,6 +58,7 @@ describe('useKeyboardShortcuts', () => {
         onForfeitCombat: vi.fn(),
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
+        onHealTerritoryNpc: vi.fn(),
         onSetHome: vi.fn(),
         onTerritoryAction: vi.fn(),
         onTakeAllLoot: vi.fn(),
@@ -100,6 +102,7 @@ describe('useKeyboardShortcuts', () => {
       useKeyboardShortcuts({
         canBulkProspectEquipment: false,
         canBulkSellEquipment: false,
+        canHealTerritoryNpc: false,
         canSetHomeAction: false,
         canTerritoryAction: false,
         combatDeathAvailable: false,
@@ -110,6 +113,7 @@ describe('useKeyboardShortcuts', () => {
         onForfeitCombat: vi.fn(),
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
+        onHealTerritoryNpc: vi.fn(),
         onSetHome: vi.fn(),
         onTerritoryAction: vi.fn(),
         onTakeAllLoot: vi.fn(),
@@ -158,6 +162,7 @@ describe('useKeyboardShortcuts', () => {
       useKeyboardShortcuts({
         canBulkProspectEquipment: false,
         canBulkSellEquipment: false,
+        canHealTerritoryNpc: false,
         canSetHomeAction: false,
         canTerritoryAction: false,
         combatDeathAvailable: false,
@@ -168,6 +173,7 @@ describe('useKeyboardShortcuts', () => {
         onForfeitCombat: vi.fn(),
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
+        onHealTerritoryNpc: vi.fn(),
         onSetHome: vi.fn(),
         onTerritoryAction: vi.fn(),
         onTakeAllLoot: vi.fn(),
@@ -213,6 +219,7 @@ describe('useKeyboardShortcuts', () => {
       useKeyboardShortcuts({
         canBulkProspectEquipment: false,
         canBulkSellEquipment: false,
+        canHealTerritoryNpc: false,
         canSetHomeAction: false,
         canTerritoryAction: true,
         combatDeathAvailable: false,
@@ -223,6 +230,7 @@ describe('useKeyboardShortcuts', () => {
         onForfeitCombat: vi.fn(),
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
+        onHealTerritoryNpc: vi.fn(),
         onSetHome: vi.fn(),
         onTerritoryAction,
         onTakeAllLoot: vi.fn(),
@@ -258,6 +266,7 @@ describe('useKeyboardShortcuts', () => {
       useKeyboardShortcuts({
         canBulkProspectEquipment: false,
         canBulkSellEquipment: false,
+        canHealTerritoryNpc: false,
         canSetHomeAction: true,
         canTerritoryAction: false,
         combatDeathAvailable: false,
@@ -268,6 +277,7 @@ describe('useKeyboardShortcuts', () => {
         onForfeitCombat: vi.fn(),
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
+        onHealTerritoryNpc: vi.fn(),
         onSetHome,
         onTerritoryAction: vi.fn(),
         onTakeAllLoot: vi.fn(),
@@ -303,6 +313,7 @@ describe('useKeyboardShortcuts', () => {
       useKeyboardShortcuts({
         canBulkProspectEquipment: true,
         canBulkSellEquipment: false,
+        canHealTerritoryNpc: false,
         canSetHomeAction: false,
         canTerritoryAction: false,
         combatDeathAvailable: false,
@@ -313,6 +324,7 @@ describe('useKeyboardShortcuts', () => {
         onForfeitCombat: vi.fn(),
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
+        onHealTerritoryNpc: vi.fn(),
         onSetHome: vi.fn(),
         onTerritoryAction: vi.fn(),
         onTakeAllLoot: vi.fn(),
@@ -348,6 +360,7 @@ describe('useKeyboardShortcuts', () => {
       useKeyboardShortcuts({
         canBulkProspectEquipment: false,
         canBulkSellEquipment: true,
+        canHealTerritoryNpc: false,
         canSetHomeAction: false,
         canTerritoryAction: false,
         combatDeathAvailable: false,
@@ -358,6 +371,7 @@ describe('useKeyboardShortcuts', () => {
         onForfeitCombat: vi.fn(),
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
+        onHealTerritoryNpc: vi.fn(),
         onSetHome: vi.fn(),
         onTerritoryAction: vi.fn(),
         onTakeAllLoot: vi.fn(),
@@ -393,6 +407,7 @@ describe('useKeyboardShortcuts', () => {
       useKeyboardShortcuts({
         canBulkProspectEquipment: false,
         canBulkSellEquipment: false,
+        canHealTerritoryNpc: false,
         canSetHomeAction: false,
         canTerritoryAction: false,
         combatDeathAvailable: true,
@@ -403,6 +418,7 @@ describe('useKeyboardShortcuts', () => {
         onForfeitCombat,
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
+        onHealTerritoryNpc: vi.fn(),
         onSetHome: vi.fn(),
         onTerritoryAction: vi.fn(),
         onTakeAllLoot: vi.fn(),
@@ -429,5 +445,54 @@ describe('useKeyboardShortcuts', () => {
     });
 
     expect(onForfeitCombat).toHaveBeenCalledTimes(1);
+  });
+
+  it('triggers faction NPC heal on Q before other hex actions', async () => {
+    const onHealTerritoryNpc = vi.fn();
+    const onSellAll = vi.fn();
+
+    function TestHarness() {
+      useKeyboardShortcuts({
+        canBulkProspectEquipment: false,
+        canBulkSellEquipment: true,
+        canHealTerritoryNpc: true,
+        canSetHomeAction: false,
+        canTerritoryAction: false,
+        combatDeathAvailable: false,
+        combatStartAvailable: false,
+        hexContentWindowShown: true,
+        interactLabel: null,
+        lootSnapshotLength: 0,
+        onForfeitCombat: vi.fn(),
+        onStartCombat: vi.fn(),
+        onInteract: vi.fn(),
+        onHealTerritoryNpc,
+        onSetHome: vi.fn(),
+        onTerritoryAction: vi.fn(),
+        onTakeAllLoot: vi.fn(),
+        onCloseAllWindows: vi.fn(),
+        onProspect: vi.fn(),
+        onSellAll,
+        onTogglePause: vi.fn(),
+        onToggleDockWindow: vi.fn(),
+        onUseActionBarSlot: vi.fn(),
+        windowShown: buildWindowShown(true),
+      });
+
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<TestHarness />);
+    });
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'q' }),
+      );
+    });
+
+    expect(onHealTerritoryNpc).toHaveBeenCalledTimes(1);
+    expect(onSellAll).not.toHaveBeenCalled();
   });
 });

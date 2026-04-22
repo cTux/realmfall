@@ -34,6 +34,7 @@ const meta = {
   args: {
     onInteract: noopAction,
     onTerritoryAction: noopAction,
+    onHealTerritoryNpc: noopAction,
     onProspect: noopAction,
     onSellAll: noopAction,
     onBuyItem: noopBuyItem,
@@ -47,6 +48,7 @@ const meta = {
       exclude: [
         'onInteract',
         'onTerritoryAction',
+        'onHealTerritoryNpc',
         'onProspect',
         'onSellAll',
         'onBuyItem',
@@ -106,6 +108,16 @@ export const Town: Story = {
       buildItemFromConfig(ItemId.Gold, { id: 'ground-gold', quantity: 14 }),
       buildItemFromConfig(ItemId.TownKnife, { id: 'ground-knife', tier: 2 }),
     ],
+  }),
+};
+
+export const FactionNpc: Story = {
+  args: buildStructureArgs('camp', {
+    terrain: 'Plains',
+    territoryName: 'Ghostline',
+    territoryOwnerType: 'faction',
+    territoryNpc: { name: 'Araken' },
+    canHealTerritoryNpc: true,
   }),
 };
 
@@ -250,6 +262,8 @@ function buildStructureArgs(
     canInteract: overrides.canInteract ?? false,
     canTerritoryAction: overrides.canTerritoryAction ?? true,
     territoryActionLabel: overrides.territoryActionLabel ?? 'Cl(a)im',
+    canHealTerritoryNpc: overrides.canHealTerritoryNpc ?? false,
+    territoryNpcHealExplanation: overrides.territoryNpcHealExplanation ?? null,
     canBulkProspectEquipment: overrides.canBulkProspectEquipment ?? false,
     canBulkSellEquipment: overrides.canBulkSellEquipment ?? false,
     itemModification: overrides.itemModification ?? null,

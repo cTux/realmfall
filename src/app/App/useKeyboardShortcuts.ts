@@ -9,6 +9,7 @@ import { WINDOW_HOTKEYS } from './utils/windowHotkeys';
 interface UseKeyboardShortcutsOptions {
   canBulkProspectEquipment: boolean;
   canBulkSellEquipment: boolean;
+  canHealTerritoryNpc: boolean;
   canSetHomeAction: boolean;
   canTerritoryAction: boolean;
   combatDeathAvailable: boolean;
@@ -19,6 +20,7 @@ interface UseKeyboardShortcutsOptions {
   onForfeitCombat: () => void;
   onStartCombat: () => void;
   onInteract: () => void;
+  onHealTerritoryNpc: () => void;
   onSetHome: () => void;
   onTerritoryAction: () => void;
   onTakeAllLoot: () => void;
@@ -36,6 +38,7 @@ interface UseKeyboardShortcutsOptions {
 export function useKeyboardShortcuts({
   canBulkProspectEquipment,
   canBulkSellEquipment,
+  canHealTerritoryNpc,
   canSetHomeAction,
   canTerritoryAction,
   combatDeathAvailable,
@@ -46,6 +49,7 @@ export function useKeyboardShortcuts({
   onForfeitCombat,
   onStartCombat,
   onInteract,
+  onHealTerritoryNpc,
   onSetHome,
   onTerritoryAction,
   onTakeAllLoot,
@@ -99,6 +103,12 @@ export function useKeyboardShortcuts({
     if (lowerKey === 'q' && combatStartAvailable) {
       event.preventDefault();
       onStartCombat();
+      return;
+    }
+
+    if (lowerKey === 'q' && hexContentWindowShown && canHealTerritoryNpc) {
+      event.preventDefault();
+      onHealTerritoryNpc();
       return;
     }
 

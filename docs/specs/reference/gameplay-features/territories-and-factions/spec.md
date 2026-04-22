@@ -10,6 +10,7 @@ This spec covers generated faction territories plus player land-claim behavior.
 - Faction territories claim groups of connected hexes.
 - Territory borders render as one continuous outline even when some same-owner neighboring tiles are outside the current visible tile slice.
 - Faction tiles may include a town, camp, forge, workshop, and a non-hostile NPC occupant.
+- Faction NPC hexes let the player spend `1` gold to restore HP to maximum and clear debuffs except hunger and thirst.
 - The player can claim up to 5 eligible empty passable tiles.
 - Claims after the first claim must connect to the existing player territory.
 - Claims cannot be placed next to foreign claims.

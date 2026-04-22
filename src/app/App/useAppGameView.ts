@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import {
   getCurrentHexClaimStatus,
+  getCurrentHexFactionNpcHealStatus,
   getEnemiesAt,
   getGoldAmount,
   getHostileEnemyIds,
@@ -38,6 +39,9 @@ interface UseAppGameViewOptions {
 
 type EnemyLookupInput = Parameters<typeof getEnemiesAt>[0];
 type ClaimStatusInput = Parameters<typeof getCurrentHexClaimStatus>[0];
+type FactionNpcHealStatusInput = Parameters<
+  typeof getCurrentHexFactionNpcHealStatus
+>[0];
 
 export function useAppGameView({
   game,
@@ -79,6 +83,14 @@ export function useAppGameView({
       tiles,
     }),
     [bloodMoonActive, coord, enemies, homeHex, inventory, seed, tiles],
+  );
+  const factionNpcHealStatusInput = useMemo<FactionNpcHealStatusInput>(
+    () => ({
+      player,
+      seed,
+      tiles,
+    }),
+    [player, seed, tiles],
   );
 
   const stats = useMemo(() => getPlayerStats(player), [player]);
@@ -209,6 +221,10 @@ export function useAppGameView({
     () => getCurrentHexClaimStatus(claimStatusInput),
     [claimStatusInput],
   );
+  const territoryNpcHealStatus = useMemo(
+    () => getCurrentHexFactionNpcHealStatus(factionNpcHealStatusInput),
+    [factionNpcHealStatusInput],
+  );
   const backgroundMusicMood = useMemo(
     () =>
       resolveBackgroundMusicMood({
@@ -238,6 +254,7 @@ export function useAppGameView({
     bulkSellEquipmentExplanation,
     stats,
     townStock,
+    territoryNpcHealStatus,
   };
 }
 

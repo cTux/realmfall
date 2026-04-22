@@ -73,6 +73,9 @@ export interface AppWindowsViewState {
     claimStatus: ReturnType<
       typeof import('../../game/state').getCurrentHexClaimStatus
     >;
+    territoryNpcHealStatus: ReturnType<
+      typeof import('../../game/state').getCurrentHexFactionNpcHealStatus
+    >;
     bulkProspectEquipmentExplanation: string | null;
     bulkSellEquipmentExplanation: string | null;
     townStock: ReturnType<typeof import('../../game/state').getTownStock>;
@@ -181,6 +184,7 @@ export interface AppWindowsActions {
     onSellAll: () => void;
     onBuyTownItem: (itemId: string) => void;
     onClaimHex: () => void;
+    onHealTerritoryNpc: () => void;
     onApplySelectedItemModification: () => void;
     onClearSelectedItemModification: () => void;
     onSelectItemModificationReforgeStat: (statIndex: number) => void;

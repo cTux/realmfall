@@ -204,6 +204,11 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
               worldActions.onToggleItemModificationPicker
             }
             onTerritoryAction={worldActions.onClaimHex}
+            canHealTerritoryNpc={worldView.territoryNpcHealStatus.canHeal}
+            territoryNpcHealExplanation={
+              worldView.territoryNpcHealStatus.reason
+            }
+            onHealTerritoryNpc={worldActions.onHealTerritoryNpc}
             structureHp={worldView.currentTile.structureHp}
             structureMaxHp={worldView.currentTile.structureMaxHp}
             territoryName={worldView.currentTile.claim?.ownerName ?? null}

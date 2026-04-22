@@ -2,11 +2,12 @@ import { hexKey, type HexCoord } from './hex';
 import { t } from '../i18n';
 import { formatSkillLabel } from '../i18n/labels';
 import { addLog } from './logs';
-import { addItemToInventory } from './inventory';
+import { addItemToInventory, spendGold } from './inventory';
 import { GAME_TAGS } from './content/tags';
 import { hasItemTag } from './content/items';
 import {
   gatheringYieldBonus,
+  getPlayerStats,
   gainSkillXp,
   rollGatheringBonus,
 } from './progression';
@@ -20,9 +21,15 @@ import {
 } from './world';
 import {
   cloneForHomeMutation,
+  cloneForPlayerMutation,
   cloneForPlayerAndTileMutation,
   message,
 } from './stateMutationHelpers';
+import {
+  clearNonSurvivalDebuffs,
+  FACTION_NPC_HEAL_COST,
+  getCurrentHexFactionNpcHealStatus,
+} from './stateFactionNpc';
 import {
   buildGatheringRewards,
   describeItemStacks,
@@ -196,6 +203,43 @@ export function interactWithStructure(state: GameState): GameState {
     ...currentTile,
     items: [...currentTile.items],
   });
+  return next;
+}
+
+export function healAtFactionNpc(state: GameState): GameState {
+  if (state.gameOver) return state;
+  if (state.combat) {
+    return message(state, t('game.message.combat.finishCurrentBattleFirst'));
+  }
+
+  const healStatus = getCurrentHexFactionNpcHealStatus(state);
+  if (!healStatus.canHeal) {
+    return message(
+      state,
+      healStatus.reason ?? t('game.message.factionNpcHeal.unavailable'),
+    );
+  }
+
+  const tile = getCurrentTile(state);
+  if (!tile.claim?.npc) {
+    return message(state, t('game.message.factionNpcHeal.noResident'));
+  }
+
+  const next = cloneForPlayerMutation(state);
+  next.player.hp = getPlayerStats(next.player).maxHp;
+  next.player.statusEffects = clearNonSurvivalDebuffs(
+    next.player.statusEffects,
+  );
+  spendGold(next.player.inventory, FACTION_NPC_HEAL_COST);
+
+  addLog(
+    next,
+    'system',
+    t('game.message.factionNpcHeal.complete', {
+      gold: FACTION_NPC_HEAL_COST,
+      npc: tile.claim.npc.name,
+    }),
+  );
   return next;
 }
 

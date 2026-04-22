@@ -41,6 +41,8 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   territoryActionKind = 'claim',
   territoryActionLabel,
   territoryActionExplanation,
+  canHealTerritoryNpc,
+  territoryNpcHealExplanation,
   bulkProspectEquipmentExplanation,
   bulkSellEquipmentExplanation,
   onInteract,
@@ -51,6 +53,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   onSelectItemModificationReforgeStat = () => undefined,
   onToggleItemModificationPicker = () => undefined,
   onTerritoryAction,
+  onHealTerritoryNpc,
   structureHp,
   structureMaxHp,
   territoryName,
@@ -130,6 +133,9 @@ export const HexInfoWindow = memo(function HexInfoWindow({
     territoryActionExplanation,
     territoryActionKind,
   });
+  const territoryNpcHealTooltipLines = getTerritoryNpcHealTooltipLines(
+    territoryNpcHealExplanation,
+  );
   const territoryActionTooltipBorderColor =
     territoryActionKind === 'unclaim'
       ? 'rgba(248, 113, 113, 0.9)'
@@ -151,6 +157,20 @@ export const HexInfoWindow = memo(function HexInfoWindow({
       headerActions={
         <>
           {primaryHeaderAction}
+          {territoryNpc ? (
+            <WindowHeaderActionButton
+              className={inventoryStyles.headerButton}
+              disabled={!canHealTerritoryNpc}
+              onClick={onHealTerritoryNpc}
+              tooltipTitle={t('ui.hexInfo.healAction')}
+              tooltipLines={territoryNpcHealTooltipLines}
+              tooltipBorderColor="rgba(74, 222, 128, 0.9)"
+              onHoverDetail={onHoverDetail}
+              onLeaveDetail={onLeaveDetail}
+            >
+              {t('ui.hexInfo.healAction')}
+            </WindowHeaderActionButton>
+          ) : null}
           <WindowHeaderActionButton
             className={inventoryStyles.headerButton}
             disabled={!canTerritoryAction}
@@ -194,6 +214,8 @@ export const HexInfoWindow = memo(function HexInfoWindow({
         canTerritoryAction,
         territoryActionLabel,
         territoryActionExplanation,
+        canHealTerritoryNpc,
+        territoryNpcHealExplanation,
         bulkProspectEquipmentExplanation,
         bulkSellEquipmentExplanation,
         onInteract,
@@ -204,6 +226,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
         onSelectItemModificationReforgeStat,
         onToggleItemModificationPicker,
         onTerritoryAction,
+        onHealTerritoryNpc,
         structureHp,
         structureMaxHp,
         territoryName,
@@ -257,6 +280,18 @@ function getTerritoryActionTooltipLines({
         ? t('ui.tooltip.window.unclaim')
         : t('ui.tooltip.window.claim'),
   });
+
+  return lines;
+}
+
+function getTerritoryNpcHealTooltipLines(reason?: string | null) {
+  const lines: TooltipLine[] = [
+    { kind: 'text', text: t('ui.tooltip.window.healAtFactionNpc') },
+  ];
+
+  if (reason) {
+    lines.push({ kind: 'text', text: reason });
+  }
 
   return lines;
 }
