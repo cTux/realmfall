@@ -1,6 +1,6 @@
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
-import { createGame } from '../../../game/state';
+import { createGame } from '../../../game/stateFactory';
 import { GAME_DAY_DURATION_MS, GAME_DAY_MINUTES } from '../../../game/config';
 
 export const renderScene = vi.fn();

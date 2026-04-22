@@ -1,6 +1,6 @@
 import { HEX_SIZE } from '../../app/constants';
 import { createRng } from '../../game/random';
-import { type HexCoord } from '../../game/state';
+import type { HexCoord } from '../../game/stateTypes';
 import { scaleColor, type getTimeOfDayLighting } from './timeOfDay';
 import { normalizeVector } from './renderSceneMath';
 import { WorldIcons } from './worldIcons';

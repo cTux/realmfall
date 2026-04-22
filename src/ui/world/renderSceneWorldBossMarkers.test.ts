@@ -1,4 +1,4 @@
-import { getVisibleTiles } from '../../game/state';
+import { getVisibleTiles } from '../../game/stateSelectors';
 import {
   collectDescendants,
   createMockApp,

@@ -4,7 +4,7 @@ import { GameTag } from '../game/content/tags';
 import { Skill } from '../game/types';
 import { getAbilityDefinition } from '../game/abilities';
 import { getStatusEffectDefinition } from '../game/content/statusEffects';
-import { type Item } from '../game/state';
+import type { Item } from '../game/stateTypes';
 import { sellValue } from '../game/inventory';
 import {
   abilityTooltipLines,

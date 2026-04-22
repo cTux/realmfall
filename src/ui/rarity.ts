@@ -1,4 +1,4 @@
-import type { ItemRarity } from '../game/state';
+import type { ItemRarity } from '../game/stateTypes';
 
 export const RARITY_COLOR: Record<ItemRarity, string> = {
   common: '#f8fafc',

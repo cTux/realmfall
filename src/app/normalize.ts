@@ -6,7 +6,7 @@ import {
   type GameState,
   type Item,
   type LogKind,
-} from '../game/state';
+} from '../game/stateTypes';
 import { clampItemLevel, syncPlayerBaseStats } from '../game/balance';
 import { ENEMY_CONFIGS } from '../game/content/enemies';
 import { ENEMY_TYPE_IDS } from '../game/content/ids';

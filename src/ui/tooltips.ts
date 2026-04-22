@@ -12,14 +12,16 @@ import { getConsumableRestoreProfile } from '../game/consumables';
 import {
   gatheringBonusChance,
   gatheringYieldBonus,
-  Skill,
   skillLevelThreshold,
+} from '../game/stateSelectors';
+import {
+  Skill,
   type Enemy,
   type Item,
   type SkillName,
   type StructureType,
   type Tile,
-} from '../game/state';
+} from '../game/stateTypes';
 import type {
   AbilityDefinition,
   PlayerStatusEffect,

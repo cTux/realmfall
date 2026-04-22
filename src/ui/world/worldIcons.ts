@@ -9,7 +9,12 @@ import {
   STRUCTURE_CONFIGS,
   getStructureConfig,
 } from '../../game/content/structures';
-import type { Enemy, GameState, StructureType, Tile } from '../../game/state';
+import type {
+  Enemy,
+  GameState,
+  StructureType,
+  Tile,
+} from '../../game/stateTypes';
 import { ImageSource, Texture } from 'pixi.js';
 import { RARITY_COLOR } from '../rarity';
 

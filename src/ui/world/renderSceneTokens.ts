@@ -1,11 +1,6 @@
 import { hexKey } from '../../game/hex';
-import {
-  getEnemiesAt,
-  getVisibleTiles,
-  type GameState,
-  type HexCoord,
-  type Tile,
-} from '../../game/state';
+import { getEnemiesAt, getVisibleTiles } from '../../game/stateSelectors';
+import type { GameState, HexCoord, Tile } from '../../game/stateTypes';
 import type { SceneCache } from './renderSceneCache';
 import { getWorldIconTextureVersion } from './worldIcons';
 

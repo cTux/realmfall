@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, vi } from 'vitest';
-import { createGame } from '../../game/state';
+import { createGame } from '../../game/stateFactory';
 import { hexKey, hexNeighbors } from '../../game/hex';
 import gluttonyIcon from '../../assets/icons/gluttony.svg';
 import playerIcon from '../../assets/icons/visored-helm.svg';

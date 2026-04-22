@@ -1,4 +1,4 @@
-import { LOG_KINDS, type LogKind } from '../game/state';
+import { LOG_KINDS, type LogKind } from '../game/stateTypes';
 import { HEX_SIZE, WORLD_RADIUS, WORLD_REVEAL_RADIUS } from '../game/config';
 import { DEFAULT_AUDIO_SETTINGS } from './audioSettings';
 import { DEFAULT_GRAPHICS_SETTINGS } from './graphicsSettings';

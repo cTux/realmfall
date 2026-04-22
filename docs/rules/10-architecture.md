@@ -9,6 +9,8 @@
 - Place shared hooks in `src/hooks`, shared selectors in `src/selectors`, and shared utilities in `src/utils` when multiple features depend on the same module.
 - When a file grows multiple exports that are not tightly related types or closely related library or entity helpers, decompose it into focused files instead of expanding one broad module.
 - Avoid adding more responsibilities to already large orchestration modules such as `src/app/App/App.tsx` and broad domain aggregators such as `src/game/state.ts`; prefer extracting focused hooks, helpers, or domain modules.
+- Keep `src/game/state.ts` focused on mutation-oriented gameplay entrypoints. Put read-only game builders in `src/game/stateFactory.ts`, read-only view helpers in `src/game/stateSelectors.ts`, and shared gameplay types or registries in `src/game/stateTypes.ts`.
+- When UI, renderer, Storybook, or test code only needs builders, selectors, or types, import those narrower `src/game/state*.ts` modules instead of routing through `src/game/state.ts`.
 - Keep gameplay reward resolution and world-event spawning in focused helpers such as `src/game/stateRewards.ts` and `src/game/stateWorldEvents.ts` instead of extending `src/game/state.ts` with more domain-specific internals.
 - Keep inventory sorting, town trade, prospecting, item locking, and tile-loot transfer mutations in focused state helper modules such as `src/game/stateInventoryActions.ts` instead of expanding `src/game/state.ts` with another broad block of item-management flows.
 - Keep home-setting, territory-claim, and gather-structure mutations in focused state helper modules such as `src/game/stateWorldActions.ts` instead of adding another broad world-action block inside `src/game/state.ts`.

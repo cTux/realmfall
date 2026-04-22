@@ -1,6 +1,6 @@
 import { hexKey } from '../../game/hex';
 import { createRng } from '../../game/random';
-import type { HexCoord } from '../../game/state';
+import type { HexCoord } from '../../game/stateTypes';
 import { scaleColor } from './timeOfDay';
 import type { ShadowedSpriteEntry } from './renderScenePools';
 

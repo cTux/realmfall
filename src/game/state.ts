@@ -6,8 +6,6 @@ import {
   BLOOD_MOON_CHANCE,
   HARVEST_MOON_CHANCE,
   HARVEST_MOON_RESOURCE_CHANCES,
-  STARTING_RECIPE_IDS,
-  WORLD_RADIUS,
 } from './config';
 import { createRng } from './random';
 import { getEnemyConfig, isAnimalEnemyType } from './content/enemies';
@@ -38,12 +36,8 @@ import {
   getGoldAmount,
   isEquippableItem,
   isRecipePage,
-  makeConsumable,
   makeGoldStack,
-  makeStarterArmor,
-  makeStarterWeapon,
 } from './inventory';
-import { getPlayerBaseStatsForLevel } from './balance';
 import { GAME_TAGS } from './content/tags';
 import {
   getConsumableRestoreProfile,
@@ -53,12 +47,10 @@ import {
   gatheringBonusChance,
   gatheringYieldBonus,
   getPlayerStats,
-  makeStartingSkills,
   skillLevelThreshold,
 } from './progression';
 import { isPassable } from './shared';
 import {
-  cacheSafeStart,
   describeStructure,
   ensureTileState,
   isGatheringStructure,
@@ -191,6 +183,7 @@ export {
 export type { VisibleTilesState } from './stateWorldQueries';
 export { getCurrentHexClaimStatus } from './stateClaims';
 export { getSafePathToTile } from './statePathfinding';
+export { createGame } from './stateFactory';
 export {
   claimCurrentHex,
   interactWithStructure,
@@ -249,61 +242,6 @@ import type {
   Tile,
   TownStockEntry,
 } from './types';
-
-export function createGame(
-  radius = WORLD_RADIUS,
-  seed = `world-${Date.now()}`,
-): GameState {
-  const baseStats = getPlayerBaseStatsForLevel(1);
-  const state: GameState = {
-    seed,
-    radius,
-    homeHex: { q: 0, r: 0 },
-    turn: 0,
-    worldTimeMs: 0,
-    dayPhase: 'night',
-    bloodMoonActive: false,
-    bloodMoonCheckedTonight: false,
-    bloodMoonCycle: 0,
-    harvestMoonActive: false,
-    harvestMoonCheckedTonight: false,
-    harvestMoonCycle: 0,
-    lastEarthshakeDay: -1,
-    gameOver: false,
-    logSequence: 3,
-    logs: createFreshLogsAtTime(seed, 0),
-    tiles: {},
-    enemies: {},
-    combat: null,
-    player: {
-      coord: { q: 0, r: 0 },
-      level: 1,
-      masteryLevel: 0,
-      xp: 0,
-      hp: baseStats.maxHp,
-      baseMaxHp: baseStats.maxHp,
-      mana: 12,
-      baseMaxMana: 12,
-      hunger: 100,
-      thirst: 100,
-      baseAttack: baseStats.attack,
-      baseDefense: baseStats.defense,
-      skills: makeStartingSkills(),
-      learnedRecipeIds: [...STARTING_RECIPE_IDS],
-      statusEffects: [],
-      consumableCooldownEndsAt: 0,
-      inventory: [
-        makeStarterWeapon(),
-        makeStarterArmor('chest', ItemId.SettlerVest, 1, 1),
-        makeConsumable('starter-ration', ItemId.TrailRation, 1, 10, 15, 2),
-      ],
-      equipment: {},
-    },
-  };
-
-  cacheSafeStart(state);
-  return state;
-}
 export function moveToTile(state: GameState, target: HexCoord): GameState {
   if (state.gameOver) return state;
   if (state.combat) {

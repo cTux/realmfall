@@ -1,5 +1,5 @@
 import { act } from 'react';
-import { createGame } from '../../../game/state';
+import { createGame } from '../../../game/stateFactory';
 import {
   flushLazyModules,
   loadEncryptedState,

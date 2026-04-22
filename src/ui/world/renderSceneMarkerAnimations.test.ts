@@ -1,4 +1,5 @@
-import { createGame, getVisibleTiles } from '../../game/state';
+import { createGame } from '../../game/stateFactory';
+import { getVisibleTiles } from '../../game/stateSelectors';
 import { hexKey, hexNeighbors } from '../../game/hex';
 
 function createMutablePoint(initialX = 0, initialY = 0) {

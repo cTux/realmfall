@@ -1,15 +1,12 @@
 import { type Application } from 'pixi.js';
 import {
   enemyRarityIndex,
-  getStructureConfig,
   getEnemiesAt,
   getVisibleTiles,
-  hexDistance,
-  type GameState,
-  type HexCoord,
-  type Tile,
-} from '../../game/state';
-import { hexKey } from '../../game/hex';
+  getStructureConfig,
+} from '../../game/stateSelectors';
+import type { GameState, HexCoord, Tile } from '../../game/stateTypes';
+import { hexDistance, hexKey } from '../../game/hex';
 import { buildTile } from '../../game/world';
 import {
   getPlacedWorldBossCenter,

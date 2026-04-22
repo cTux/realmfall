@@ -1,9 +1,9 @@
 import type { CSSProperties } from 'react';
 import silhouetteImage from '../../../assets/images/silhouette.png';
 import { EquipmentSlotId } from '../../../game/content/ids';
+import { isOffhandSlotDisabled } from '../../../game/stateSelectors';
 import { t } from '../../../i18n';
 import { formatEquipmentSlotLabel } from '../../../i18n/labels';
-import { isOffhandSlotDisabled } from '../../../game/state';
 import { ItemSlotButton } from '../ItemSlotButton/ItemSlotButton';
 import type { EquipmentWindowProps } from './types';
 import styles from './styles.module.scss';

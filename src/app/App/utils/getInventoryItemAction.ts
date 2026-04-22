@@ -1,4 +1,5 @@
-import { canUseItem, isRecipePage, type Item } from '../../../game/state';
+import { canUseItem, isRecipePage } from '../../../game/stateSelectors';
+import type { Item } from '../../../game/stateTypes';
 
 export function getInventoryItemAction(
   item: Item | undefined,

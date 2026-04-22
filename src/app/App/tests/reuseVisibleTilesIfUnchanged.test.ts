@@ -1,4 +1,5 @@
-import { createGame, getVisibleTiles } from '../../../game/state';
+import { createGame } from '../../../game/stateFactory';
+import { getVisibleTiles } from '../../../game/stateSelectors';
 import { reuseVisibleTilesIfUnchanged } from '../selectors/reuseVisibleTilesIfUnchanged';
 
 describe('reuseVisibleTilesIfUnchanged', () => {

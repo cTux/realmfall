@@ -1,5 +1,5 @@
 import { t } from '../../i18n';
-import { type Enemy, type StructureType, type Tile } from '../../game/state';
+import type { Enemy, StructureType, Tile } from '../../game/stateTypes';
 import { buildEnemyTooltip, buildStructureTooltip } from '../tooltipContent';
 
 type WorldTooltipLine = {

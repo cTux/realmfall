@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { vi } from 'vitest';
 import { DEFAULT_LOG_FILTERS, DEFAULT_WINDOWS } from '../app/constants';
-import { createGame } from '../game/state';
+import { createGame } from '../game/stateFactory';
 import { HeroWindow } from './components/HeroWindow';
 import { LogWindow } from './components/LogWindow';
 import { LogWindowContent } from './components/LogWindow/LogWindowContent';

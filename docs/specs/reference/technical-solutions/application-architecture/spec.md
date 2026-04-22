@@ -14,6 +14,7 @@ This spec covers the repository layer boundaries, state transition shape, and co
 - Feature-local hooks, selectors, utilities, and tests are colocated in neighboring `hooks/`, `selectors/`, `utils/`, and `tests/` directories.
 - Hooks, selectors, and utilities move to shared `src/*` directories only when multiple areas depend on the same module.
 - Game mutations are performed through state transition functions in `src/game/state.ts` that clone the incoming game state and return the next state.
+- Read-only game creation lives in `src/game/stateFactory.ts`, read-only gameplay queries and config-backed selectors live in `src/game/stateSelectors.ts`, and shared gameplay types and registries live in `src/game/stateTypes.ts`, so UI and renderer code can avoid importing the broad mutation entrypoint when they do not need it.
 - Reusable world-query helpers such as tile lookup, claimed-tile lookup, and enemy lookup live in focused gameplay modules like `src/game/stateWorldQueries.ts`, while reward and event internals live in modules such as `src/game/stateRewards.ts` and `src/game/stateWorldEvents.ts`; `src/game/state.ts` re-exports or orchestrates those helpers so the public gameplay API can stay stable while the broad module surface is decomposed over time.
 - Inventory sorting, prospecting, town trading, tile-loot transfer, and item-lock mutations live in `src/game/stateInventoryActions.ts`, while shared clone/message helpers live in `src/game/stateMutationHelpers.ts`; `src/game/state.ts` re-exports those actions so callers keep the stable gameplay entrypoint.
 - Home setting, territory claiming, and gather-structure interaction live in `src/game/stateWorldActions.ts`, while claim-status reads remain in `src/game/stateClaims.ts`; `src/game/state.ts` re-exports those actions so the state API can stay stable while world actions move out of the monolith.
@@ -27,6 +28,9 @@ This spec covers the repository layer boundaries, state transition shape, and co
 ## Main Implementation Areas
 
 - `src/game`
+- `src/game/stateFactory.ts`
+- `src/game/stateSelectors.ts`
+- `src/game/stateTypes.ts`
 - `src/app`
 - `src/ui/components`
 - `src/ui/world`

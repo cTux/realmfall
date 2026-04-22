@@ -1,12 +1,9 @@
 import {
   getEnemyConfig,
-  type EquipmentSlot,
-  type Enemy,
   getItemConfig,
-  type Item,
-  type SkillName,
   getStructureConfig,
-} from '../game/state';
+} from '../game/stateSelectors';
+import type { EquipmentSlot, Enemy, Item, SkillName } from '../game/stateTypes';
 import { EquipmentSlotId } from '../game/content/ids';
 import { getItemCategory } from '../game/content/items';
 import playerIcon from '../assets/icons/visored-helm.svg';
@@ -56,7 +53,7 @@ import gearsIcon from '../assets/icons/gears.svg';
 import padlockIcon from '../assets/icons/padlock.svg';
 import furnaceIcon from '../assets/icons/furnace.svg';
 import minerIcon from '../assets/icons/miner.svg';
-import type { StructureType } from '../game/state';
+import type { StructureType } from '../game/stateTypes';
 import { GAME_TAGS } from '../game/content/tags';
 import { rarityColor } from './rarity';
 

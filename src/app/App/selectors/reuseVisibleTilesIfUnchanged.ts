@@ -1,8 +1,8 @@
 import {
   getVisibleTiles,
-  type Tile,
   type VisibleTilesState,
-} from '../../../game/state';
+} from '../../../game/stateSelectors';
+import type { Tile } from '../../../game/stateTypes';
 import { hexKey } from '../../../game/hex';
 
 type VisibleTiles = ReturnType<typeof getVisibleTiles>;
