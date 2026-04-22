@@ -175,7 +175,7 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
             canInteract={Boolean(worldView.interactLabel)}
             canBulkProspectEquipment={worldView.canBulkProspectEquipment}
             canBulkSellEquipment={worldView.canBulkSellEquipment}
-            itemModificationHint={worldView.itemModificationHint}
+            itemModification={worldView.itemModification}
             canTerritoryAction={worldView.claimStatus.canClaim}
             territoryActionLabel={claimStatusActionLabel(
               worldView.claimStatus.action,
@@ -190,6 +190,18 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
             onInteract={worldActions.onInteract}
             onProspect={worldActions.onProspect}
             onSellAll={worldActions.onSellAll}
+            onApplyItemModification={
+              worldActions.onApplySelectedItemModification
+            }
+            onClearItemModificationSelection={
+              worldActions.onClearSelectedItemModification
+            }
+            onSelectItemModificationReforgeStat={
+              worldActions.onSelectItemModificationReforgeStat
+            }
+            onToggleItemModificationPicker={
+              worldActions.onToggleItemModificationPicker
+            }
             onTerritoryAction={worldActions.onClaimHex}
             structureHp={worldView.currentTile.structureHp}
             structureMaxHp={worldView.currentTile.structureMaxHp}
@@ -222,6 +234,12 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
             onLeaveItem={tooltipActions.onCloseTooltip}
             onUnequip={inventoryActions.onUnequip}
             onContextItem={inventoryActions.onEquippedContextItem}
+            onSelectHexItemModificationItem={
+              inventoryActions.onSelectHexItemModificationItem
+            }
+            hexItemModificationPickerActive={Boolean(
+              worldView.itemModification?.pickerActive,
+            )}
             {...detailTooltipHandlers}
           />
         </Suspense>
@@ -236,6 +254,12 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
             onSort={inventoryActions.onSort}
             onActivateItem={inventoryActions.onActivateItem}
             onContextItem={inventoryActions.onContextItem}
+            onSelectHexItemModificationItem={
+              inventoryActions.onSelectHexItemModificationItem
+            }
+            hexItemModificationPickerActive={Boolean(
+              worldView.itemModification?.pickerActive,
+            )}
             onHoverItem={tooltipActions.onShowItemTooltip}
             onLeaveItem={tooltipActions.onCloseTooltip}
             {...detailTooltipHandlers}

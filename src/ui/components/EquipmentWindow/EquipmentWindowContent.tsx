@@ -40,10 +40,12 @@ const REDUCED_RADIUS_SLOTS = new Set<PaperDollSlot>([
 
 export function EquipmentWindowContent({
   equipment,
+  hexItemModificationPickerActive = false,
   onHoverItem,
   onLeaveItem,
   onUnequip,
   onContextItem,
+  onSelectHexItemModificationItem,
   onHoverDetail,
 }: EquipmentWindowContentProps) {
   const offhandDisabled = isOffhandSlotDisabled(equipment);
@@ -69,7 +71,18 @@ export function EquipmentWindowContent({
             className={styles.slot}
             hidePlaceholderIconWhenEmpty
             disabled={disabled}
-            onClick={equipped ? () => onUnequip(slot) : undefined}
+            onClick={
+              equipped
+                ? () => {
+                    if (hexItemModificationPickerActive) {
+                      onSelectHexItemModificationItem?.(equipped);
+                      return;
+                    }
+
+                    onUnequip(slot);
+                  }
+                : undefined
+            }
             onContextMenu={
               equipped
                 ? (event) => onContextItem(event, equipped, slot)

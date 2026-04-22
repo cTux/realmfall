@@ -15,6 +15,7 @@ import type { WindowPositions, WindowVisibilityState } from '../constants';
 import type { GraphicsSettings } from '../graphicsSettings';
 import type { ActionBarSlots } from './actionBar';
 import type { ItemContextMenuState, TooltipItem } from './types';
+import type { ItemModificationKind } from '../../game/itemModifications';
 
 export interface AppWindowsProps {
   layout: AppWindowsLayout;
@@ -52,7 +53,21 @@ export interface AppWindowsViewState {
     interactLabel: string | null;
     canBulkProspectEquipment: boolean;
     canBulkSellEquipment: boolean;
-    itemModificationHint: string | null;
+    itemModification: {
+      kind: ItemModificationKind;
+      hint: string;
+      pickerActive: boolean;
+      selectedItem: Item | null;
+      actionCost: number | null;
+      canAfford: boolean;
+      canApply: boolean;
+      disabledReason: string | null;
+      reforgeOptions: Array<{
+        label: string;
+        statIndex: number;
+      }>;
+      selectedReforgeStatIndex: number | null;
+    } | null;
     claimStatus: ReturnType<
       typeof import('../../game/state').getCurrentHexClaimStatus
     >;
@@ -141,6 +156,7 @@ export interface AppWindowsActions {
     onReforgeItem: (itemId: string, statIndex: number) => void;
     onEnchantItem: (itemId: string) => void;
     onCorruptItem: (itemId: string) => void;
+    onSelectHexItemModificationItem: (item: Item) => void;
     onSellItem: (itemId: string) => void;
     onSetItemLocked: (itemId: string, locked: boolean) => void;
     onContextItem: (
@@ -162,6 +178,10 @@ export interface AppWindowsActions {
     onSellAll: () => void;
     onBuyTownItem: (itemId: string) => void;
     onClaimHex: () => void;
+    onApplySelectedItemModification: () => void;
+    onClearSelectedItemModification: () => void;
+    onSelectItemModificationReforgeStat: (statIndex: number) => void;
+    onToggleItemModificationPicker: () => void;
     onSetHome: () => void;
   };
   recipes: {

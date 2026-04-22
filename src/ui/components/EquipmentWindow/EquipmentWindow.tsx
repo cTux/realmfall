@@ -21,10 +21,12 @@ export const EquipmentWindow = memo(function EquipmentWindow({
   visible,
   onClose,
   equipment,
+  hexItemModificationPickerActive,
   onHoverItem,
   onLeaveItem,
   onUnequip,
   onContextItem,
+  onSelectHexItemModificationItem,
   onHoverDetail,
   onLeaveDetail,
 }: EquipmentWindowProps) {
@@ -43,10 +45,12 @@ export const EquipmentWindow = memo(function EquipmentWindow({
       content={EquipmentWindowContent}
       contentProps={{
         equipment,
+        hexItemModificationPickerActive,
         onHoverItem,
         onLeaveItem,
         onUnequip,
         onContextItem,
+        onSelectHexItemModificationItem,
         onHoverDetail,
         onLeaveDetail,
       }}

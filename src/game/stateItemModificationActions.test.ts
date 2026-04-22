@@ -130,6 +130,50 @@ describe('game state item modification actions', () => {
     ).not.toBe(firstEnchantKey);
   });
 
+  it('can enchant an equipped item directly from the equipment loadout', () => {
+    const game = createGame(3, 'equipped-enchant-seed');
+    game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'mana-font' };
+    game.player.inventory = [
+      {
+        id: 'resource-gold-1',
+        itemKey: 'gold',
+        name: 'Gold',
+        quantity: 500,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    ];
+    game.player.equipment.weapon = {
+      id: 'weapon-1',
+      slot: 'weapon',
+      name: 'Equipped Saber',
+      quantity: 1,
+      tier: 9,
+      rarity: 'rare',
+      power: 88,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+      secondaryStatCapacity: 2,
+      secondaryStats: [{ key: 'criticalStrikeChance', value: 4 }],
+    };
+
+    const item = game.player.equipment.weapon!;
+    const enchantCost = getItemModificationCost(item, 'enchant');
+    const enchanted = enchantInventoryItem(game, item.id);
+    const enchantedItem = enchanted.player.equipment.weapon!;
+
+    expect(enchantedItem.enchantedSecondaryStatIndex).toBeDefined();
+    expect(enchantedItem.secondaryStats).toHaveLength(2);
+    expect(getGoldAmount(enchanted.player.inventory)).toBe(500 - enchantCost);
+  });
+
   it('corrupts an item, boosts its stats, and blocks further modification', () => {
     const game = createGame(3, 'corrupt-success-seed');
     game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'corruption-altar' };

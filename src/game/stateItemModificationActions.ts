@@ -15,7 +15,7 @@ import { addLog } from './logs';
 import { createRng } from './random';
 import { cloneForPlayerMutation, message } from './stateMutationHelpers';
 import { getCurrentTile } from './stateWorldQueries';
-import type { GameState } from './types';
+import type { EquipmentSlot, GameState, Item } from './types';
 
 export function reforgeInventoryItem(
   state: GameState,
@@ -29,13 +29,11 @@ export function reforgeInventoryItem(
     );
   }
 
-  const itemIndex = state.player.inventory.findIndex(
-    (item) => item.id === itemId,
-  );
-  const item = state.player.inventory[itemIndex];
-  if (!item || !isEquippableItem(item)) {
+  const itemLocation = findOwnedEquippableItem(state, itemId);
+  if (!itemLocation) {
     return message(state, t('game.message.item.notInPack'));
   }
+  const item = itemLocation.item;
   if (!canModifyItem(item)) {
     return message(
       state,
@@ -106,7 +104,7 @@ export function reforgeInventoryItem(
 
   const next = cloneForPlayerMutation(state);
   spendGold(next.player.inventory, goldCost);
-  const nextItem = next.player.inventory[itemIndex];
+  const nextItem = getOwnedEquippableItem(next, itemLocation);
   if (!nextItem) {
     return state;
   }
@@ -139,13 +137,11 @@ export function enchantInventoryItem(
     );
   }
 
-  const itemIndex = state.player.inventory.findIndex(
-    (item) => item.id === itemId,
-  );
-  const item = state.player.inventory[itemIndex];
-  if (!item || !isEquippableItem(item)) {
+  const itemLocation = findOwnedEquippableItem(state, itemId);
+  if (!itemLocation) {
     return message(state, t('game.message.item.notInPack'));
   }
+  const item = itemLocation.item;
   if (!canModifyItem(item)) {
     return message(
       state,
@@ -199,7 +195,7 @@ export function enchantInventoryItem(
 
   const next = cloneForPlayerMutation(state);
   spendGold(next.player.inventory, goldCost);
-  const nextItem = next.player.inventory[itemIndex];
+  const nextItem = getOwnedEquippableItem(next, itemLocation);
   if (!nextItem) {
     return state;
   }
@@ -236,13 +232,11 @@ export function corruptInventoryItem(
     );
   }
 
-  const itemIndex = state.player.inventory.findIndex(
-    (item) => item.id === itemId,
-  );
-  const item = state.player.inventory[itemIndex];
-  if (!item || !isEquippableItem(item)) {
+  const itemLocation = findOwnedEquippableItem(state, itemId);
+  if (!itemLocation) {
     return message(state, t('game.message.item.notInPack'));
   }
+  const item = itemLocation.item;
   if (!canModifyItem(item)) {
     return message(
       state,
@@ -270,7 +264,7 @@ export function corruptInventoryItem(
     `${state.seed}:item-modification:corrupt:${item.id}:${state.turn}:${state.logSequence}`,
   );
   if (rng() < ITEM_MODIFICATION_BALANCE.corrupt.breakChance) {
-    next.player.inventory.splice(itemIndex, 1);
+    removeOwnedEquippableItem(next, itemLocation);
     addLog(
       next,
       'system',
@@ -282,7 +276,7 @@ export function corruptInventoryItem(
     return next;
   }
 
-  const nextItem = next.player.inventory[itemIndex];
+  const nextItem = getOwnedEquippableItem(next, itemLocation);
   if (!nextItem) {
     return state;
   }
@@ -304,4 +298,70 @@ export function corruptInventoryItem(
     }),
   );
   return next;
+}
+
+type OwnedEquippableItemLocation =
+  | {
+      item: Item;
+      kind: 'inventory';
+      itemIndex: number;
+    }
+  | {
+      item: Item;
+      kind: 'equipment';
+      slot: EquipmentSlot;
+    };
+
+function findOwnedEquippableItem(
+  state: GameState,
+  itemId: string,
+): OwnedEquippableItemLocation | null {
+  const itemIndex = state.player.inventory.findIndex(
+    (item) => item.id === itemId,
+  );
+  const inventoryItem = state.player.inventory[itemIndex];
+  if (inventoryItem && isEquippableItem(inventoryItem)) {
+    return {
+      item: inventoryItem,
+      kind: 'inventory',
+      itemIndex,
+    };
+  }
+
+  for (const [slot, item] of Object.entries(state.player.equipment) as Array<
+    [EquipmentSlot, Item | undefined]
+  >) {
+    if (item?.id === itemId && isEquippableItem(item)) {
+      return {
+        item,
+        kind: 'equipment',
+        slot,
+      };
+    }
+  }
+
+  return null;
+}
+
+function getOwnedEquippableItem(
+  state: GameState,
+  location: OwnedEquippableItemLocation,
+) {
+  if (location.kind === 'inventory') {
+    return state.player.inventory[location.itemIndex];
+  }
+
+  return state.player.equipment[location.slot];
+}
+
+function removeOwnedEquippableItem(
+  state: GameState,
+  location: OwnedEquippableItemLocation,
+) {
+  if (location.kind === 'inventory') {
+    state.player.inventory.splice(location.itemIndex, 1);
+    return;
+  }
+
+  delete state.player.equipment[location.slot];
 }

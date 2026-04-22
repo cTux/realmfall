@@ -103,6 +103,89 @@
   gap: 0.55rem;
 }
 
+.itemModificationPanel {
+  margin-top: 0.65rem;
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.7rem;
+  border: 1px solid rgb(56 189 248 / 22%);
+  border-radius: 12px;
+  background: rgb(15 23 42 / 55%);
+}
+
+.itemModificationHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.itemModificationPicker {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.itemModificationMeta {
+  display: grid;
+  gap: 0.28rem;
+  min-width: 0;
+}
+
+.itemModificationSelection {
+  color: #e2e8f0;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.itemModificationHint {
+  color: #94a3b8;
+  font-size: 0.82rem;
+}
+
+.itemModificationField {
+  display: grid;
+  gap: 0.32rem;
+}
+
+.itemModificationSelect {
+  width: 100%;
+  min-height: 2rem;
+  border: 1px solid rgb(148 163 184 / 25%);
+  border-radius: 8px;
+  padding: 0.38rem 0.55rem;
+  color: #e2e8f0;
+  background: rgb(15 23 42 / 92%);
+}
+
+.itemModificationActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.itemModificationCost {
+  color: #fbbf24;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.itemModificationCostDisabled {
+  color: #fca5a5;
+}
+
+.itemModificationWarning {
+  color: #fca5a5;
+  font-size: 0.82rem;
+}
+
+.itemModificationSlotActive {
+  box-shadow:
+    0 0 0 1px rgb(56 189 248 / 55%),
+    0 0 18px rgb(56 189 248 / 16%);
+}
+
 .shopTitle {
   color: #e2e8f0;
   font-weight: 700;

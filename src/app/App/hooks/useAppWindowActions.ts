@@ -15,6 +15,7 @@ interface UseAppWindowActionsArgs {
   handleDropEquippedItem: AppWindowsActions['inventory']['onDropEquippedItem'];
   handleDropItem: AppWindowsActions['inventory']['onDropItem'];
   handleEnchantItem: AppWindowsActions['inventory']['onEnchantItem'];
+  handleSelectHexItemModificationItem: AppWindowsActions['inventory']['onSelectHexItemModificationItem'];
   handleEquipmentHover: AppWindowsActions['tooltip']['onEquipmentHover'];
   handleEquipItem: AppWindowsActions['inventory']['onEquipItem'];
   handleEquippedContextItem: AppWindowsActions['inventory']['onEquippedContextItem'];
@@ -29,6 +30,9 @@ interface UseAppWindowActionsArgs {
   handleSaveSettingsAndReload: AppWindowsActions['settings']['onSaveSettingsAndReload'];
   handleSellAll: AppWindowsActions['world']['onSellAll'];
   handleSellItem: AppWindowsActions['inventory']['onSellItem'];
+  handleApplySelectedItemModification: AppWindowsActions['world']['onApplySelectedItemModification'];
+  handleClearSelectedItemModification: AppWindowsActions['world']['onClearSelectedItemModification'];
+  handleSelectItemModificationReforgeStat: AppWindowsActions['world']['onSelectItemModificationReforgeStat'];
   handleSetHome: AppWindowsActions['world']['onSetHome'];
   handleSetItemLocked: AppWindowsActions['inventory']['onSetItemLocked'];
   handleSort: AppWindowsActions['inventory']['onSort'];
@@ -43,6 +47,7 @@ interface UseAppWindowActionsArgs {
   showActionBarItemTooltip: AppWindowsActions['tooltip']['onShowActionBarItemTooltip'];
   showItemTooltip: AppWindowsActions['tooltip']['onShowItemTooltip'];
   showTooltip: AppWindowsActions['tooltip']['onShowTooltip'];
+  toggleItemModificationPicker: AppWindowsActions['world']['onToggleItemModificationPicker'];
   toggleDockWindow: AppWindowsActions['windows']['onToggleDockWindow'];
   toggleFilterMenu: AppWindowsActions['logs']['onToggleFilterMenu'];
   toggleLogFilter: AppWindowsActions['logs']['onToggleLogFilter'];
@@ -62,6 +67,7 @@ export function useAppWindowActions({
   handleDropEquippedItem,
   handleDropItem,
   handleEnchantItem,
+  handleSelectHexItemModificationItem,
   handleEquipmentHover,
   handleEquipItem,
   handleEquippedContextItem,
@@ -76,6 +82,9 @@ export function useAppWindowActions({
   handleSaveSettingsAndReload,
   handleSellAll,
   handleSellItem,
+  handleApplySelectedItemModification,
+  handleClearSelectedItemModification,
+  handleSelectItemModificationReforgeStat,
   handleSetHome,
   handleSetItemLocked,
   handleSort,
@@ -90,6 +99,7 @@ export function useAppWindowActions({
   showActionBarItemTooltip,
   showItemTooltip,
   showTooltip,
+  toggleItemModificationPicker,
   toggleDockWindow,
   toggleFilterMenu,
   toggleLogFilter,
@@ -137,6 +147,7 @@ export function useAppWindowActions({
       onDropEquippedItem: handleDropEquippedItem,
       onEnchantItem: handleEnchantItem,
       onCorruptItem: handleCorruptItem,
+      onSelectHexItemModificationItem: handleSelectHexItemModificationItem,
       onProspectItem: handleProspectItem,
       onReforgeItem: handleReforgeItem,
       onSellItem: handleSellItem,
@@ -160,6 +171,7 @@ export function useAppWindowActions({
       handleCorruptItem,
       handleProspectItem,
       handleReforgeItem,
+      handleSelectHexItemModificationItem,
       handleSellItem,
       handleSetItemLocked,
       handleSort,
@@ -179,16 +191,25 @@ export function useAppWindowActions({
       onSellAll: handleSellAll,
       onBuyTownItem: handleBuyTownItem,
       onClaimHex: handleClaimHex,
+      onApplySelectedItemModification: handleApplySelectedItemModification,
+      onClearSelectedItemModification: handleClearSelectedItemModification,
+      onSelectItemModificationReforgeStat:
+        handleSelectItemModificationReforgeStat,
+      onToggleItemModificationPicker: toggleItemModificationPicker,
       onSetHome: handleSetHome,
     }),
     [
+      handleApplySelectedItemModification,
       handleBuyTownItem,
       handleClaimHex,
+      handleClearSelectedItemModification,
       handleInteract,
       handleProspect,
       handleSellAll,
+      handleSelectItemModificationReforgeStat,
       handleSetHome,
       handleStartCombat,
+      toggleItemModificationPicker,
     ],
   );
 

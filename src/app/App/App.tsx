@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { getCurrentTile } from '../../game/state';
 import { createGame } from '../../game/stateFactory';
 import type { GameState } from '../../game/stateTypes';
 import { WORLD_RADIUS } from '../constants';
@@ -86,8 +87,10 @@ export function App() {
     DEFAULT_UI_AUDIO_CONTROLLER,
   );
   const {
+    applySelectedItemModification,
     closeItemMenu,
     closeAllWindows,
+    clearSelectedItem,
     closeTooltip,
     handleBuyTownItem,
     handleClaimHex,
@@ -118,9 +121,11 @@ export function App() {
     handleClearActionBarSlot,
     handleUseActionBarSlot,
     actionBarSlots,
+    handleSelectHexModificationInventoryItem,
     handleOpenRecipeBookWithMaterialFilter,
     handleClearRecipeMaterialFilter,
     audioSettings,
+    hexItemModificationPickerActive,
     graphicsSettings,
     itemMenu,
     logFilters,
@@ -130,13 +135,17 @@ export function App() {
     setActionBarSlots,
     setGraphicsSettings,
     setLogFilters,
+    setSelectedHexItemReforgeStatIndex,
     setTooltip,
     setWindowShown,
     setWindowVisibility,
     setWindows,
+    selectedHexItemModificationItem,
+    selectedHexItemReforgeStatIndex,
     showFilterMenu,
     showActionBarItemTooltip,
     showItemTooltip,
+    toggleHexItemModificationPicker,
     toggleDockWindow,
     toggleFilterMenu,
     toggleLogFilter,
@@ -144,6 +153,8 @@ export function App() {
     windows,
     recipeMaterialFilterItemKey,
   } = useAppControllers({
+    currentStructure: getCurrentTile(game).structure,
+    equipment: game.player.equipment,
     inventory: game.player.inventory,
     gameRef,
     initialAudioSettings: initialAudioSettingsRef.current,
@@ -173,7 +184,7 @@ export function App() {
     firstClaimedHex,
     filteredLogs,
     gold,
-    itemModificationHint,
+    itemModification,
     interactLabel,
     inventoryCountsByItemKey,
     bulkProspectEquipmentExplanation,
@@ -184,7 +195,10 @@ export function App() {
     townStock,
   } = useAppGameView({
     game,
+    hexItemModificationPickerActive,
     logFilters,
+    selectedHexItemModificationItem,
+    selectedHexItemReforgeStatIndex,
   });
   const { hydrated, persistNow } = useAppPersistence({
     game,
@@ -331,7 +345,7 @@ export function App() {
     gold,
     graphicsSettings,
     inventoryCountsByItemKey,
-    itemModificationHint,
+    itemModification,
     itemMenu,
     claimStatus,
     interactLabel,
@@ -362,6 +376,8 @@ export function App() {
     handleContextItem,
     handleCraftRecipe,
     handleCorruptItem,
+    handleSelectHexItemModificationItem:
+      handleSelectHexModificationInventoryItem,
     handleDropEquippedItem,
     handleDropItem,
     handleEnchantItem,
@@ -378,6 +394,9 @@ export function App() {
     handleSaveSettingsAndReload,
     handleSellAll,
     handleSellItem,
+    handleApplySelectedItemModification: applySelectedItemModification,
+    handleClearSelectedItemModification: clearSelectedItem,
+    handleSelectItemModificationReforgeStat: setSelectedHexItemReforgeStatIndex,
     handleSetHome,
     handleSetItemLocked,
     handleSort,
@@ -392,6 +411,7 @@ export function App() {
     showActionBarItemTooltip,
     showItemTooltip,
     showTooltip,
+    toggleItemModificationPicker: toggleHexItemModificationPicker,
     toggleDockWindow,
     toggleFilterMenu,
     toggleLogFilter,
