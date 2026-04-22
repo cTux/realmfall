@@ -284,11 +284,26 @@ describe('renderScene enemy markers', () => {
 
     expect(badgeTexts.some((child) => child.text === '3')).toBe(true);
     expect(
+      badgeTexts.some((child) => child.style.value.fill === 0xfca5a5),
+    ).toBe(true);
+    expect(
+      badgeTexts.some(
+        (child) =>
+          child.text === '3' && child.position.y > 0 && child.position.x > 0,
+      ),
+    ).toBe(true);
+    expect(
       badgeBackgrounds.some((child) =>
-        child.drawEllipse.mock.calls.some(
-          ([x, y, radiusX, radiusY]) =>
-            x > 0 && y > 0 && radiusX === 10 && radiusY === 10,
-        ),
+        child.drawEllipse.mock.calls.some(([x, y, radiusX, radiusY]) => {
+          const fillCall = child.beginFill.mock.calls.at(-1);
+          return (
+            x > 0 &&
+            y > 0 &&
+            radiusX === 10 &&
+            radiusY === 10 &&
+            fillCall?.[0] === 0x991b1b
+          );
+        }),
       ),
     ).toBe(true);
   });

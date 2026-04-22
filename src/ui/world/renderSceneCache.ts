@@ -45,7 +45,7 @@ export const ENEMY_LEVEL_LABEL_STYLE = new TextStyle({
 });
 
 export const ENEMY_GROUP_LABEL_STYLE = new TextStyle({
-  fill: 0xfef2f2,
+  fill: 0xfca5a5,
   fontSize: 12,
   fontWeight: '800',
   stroke: {
