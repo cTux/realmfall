@@ -159,7 +159,10 @@ export function usePixiWorld({
         const { getSceneCache } = sceneCacheModule;
         const app = new pixiModule.Application();
         await ensureWorldIconTexturesLoaded(
-          getVisibleWorldIconAssetIds(gameRef.current, visibleTilesRef.current),
+          getVisibleWorldIconAssetIds(
+            gameRef.current.enemies,
+            visibleTilesRef.current,
+          ),
         );
         await app.init({
           width: Math.max(window.innerWidth, 640),

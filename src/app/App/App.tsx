@@ -280,8 +280,10 @@ export function App() {
   });
 
   useCombatAutomation({
-    game,
+    combat: game.combat,
+    enemyLookup: game.enemies,
     paused,
+    playerStatusEffects: game.player.statusEffects,
     setGame,
     worldTimeMsRef,
   });

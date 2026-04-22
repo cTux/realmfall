@@ -9,12 +9,7 @@ import {
   STRUCTURE_CONFIGS,
   getStructureConfig,
 } from '../../game/content/structures';
-import type {
-  Enemy,
-  GameState,
-  StructureType,
-  Tile,
-} from '../../game/stateTypes';
+import type { Enemy, StructureType, Tile } from '../../game/stateTypes';
 import { ImageSource, Texture } from 'pixi.js';
 import { RARITY_COLOR } from '../rarity';
 
@@ -77,7 +72,7 @@ export function getCoreWorldIconAssetIds() {
 }
 
 export function getVisibleWorldIconAssetIds(
-  game: Pick<GameState, 'enemies'>,
+  enemyLookup: Record<string, Enemy | undefined>,
   visibleTiles: Tile[],
 ) {
   const iconAssetIds = new Set(getCoreWorldIconAssetIds());
@@ -96,7 +91,7 @@ export function getVisibleWorldIconAssetIds(
     }
 
     for (const enemyId of tile.enemyIds) {
-      const enemy = game.enemies[enemyId];
+      const enemy = enemyLookup[enemyId];
       if (enemy) {
         iconAssetIds.add(enemyIconFor(enemy));
       }

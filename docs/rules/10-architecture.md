@@ -14,9 +14,12 @@
 - When UI, renderer, Storybook, or test code only needs builders, selectors, or types, import those narrower `src/game/state*.ts` modules instead of routing through `src/game/state.ts`.
 - Keep gameplay reward resolution and world-event spawning in focused helpers such as `src/game/stateRewards.ts` and `src/game/stateWorldEvents.ts` instead of extending `src/game/state.ts` with more domain-specific internals.
 - Keep inventory sorting, town trade, prospecting, item locking, and tile-loot transfer mutations in focused state helper modules such as `src/game/stateInventoryActions.ts` instead of expanding `src/game/state.ts` with another broad block of item-management flows.
+- Keep item activation, equip or unequip flows, consumable use, recipe-page learning, and consumable-cooldown mutation logic in focused helpers such as `src/game/stateItemActions.ts` instead of rebuilding another item-behavior block inside `src/game/state.ts`.
+- Keep shared consumable effect descriptors in `src/game/consumables.ts` and have tooltip builders plus item-use mutation flows render from that shared shape instead of maintaining parallel effect tables in gameplay and UI modules.
 - Keep home-setting, territory-claim, and gather-structure mutations in focused state helper modules such as `src/game/stateWorldActions.ts` instead of adding another broad world-action block inside `src/game/state.ts`.
 - Keep recipe-book selectors and craft-execution mutations in focused state helper modules such as `src/game/stateCrafting.ts` instead of growing another recipe block inside `src/game/state.ts`.
 - Keep encounter creation, combat timing, and battle-resolution mutations in focused state helper modules such as `src/game/stateCombat.ts` instead of leaving another large combat block inside `src/game/state.ts`.
+- Keep `src/game/stateCombat.ts` as the combat orchestration entrypoint and move combat damage resolution, target selection, status-effect mutation, proc math, and combat-log formatting into neighboring `src/game/combat*.ts` helpers instead of regrowing one broad combat runtime file.
 - Keep configurable balancing and world values in `game.config.json` or dedicated config modules instead of scattering magic numbers through UI code.
 - Add all future chance-based gameplay parameters to `game.config.json`, grouped by gameplay area, instead of introducing new chance constants in content files or other modules.
 - Give every unique item its own configuration file for its gameplay and presentation data, including icon and non-chance item-specific values.
