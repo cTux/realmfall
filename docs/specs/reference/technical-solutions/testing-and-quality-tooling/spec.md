@@ -12,6 +12,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - `pnpm test:memory:leaks:prod` builds the app, serves the production bundle over local HTTPS at `https://localhost:4174`, and runs the same `fuite` scenario there, writing the JSON analysis to `.tests/memory-leaks/prod.json` so memory-retention checks can be compared between dev and production behavior.
 - Because the current repository is on Vitest 4, the Vite config uses a local compatibility shim for the plugin's runner and setup hooks instead of the package's older custom-pool entrypoint.
 - `pnpm dev` and `pnpm serve` both run on local HTTPS using the shared localhost self-signed certificate helper, and cached certificates are regenerated automatically when they expire so secure-origin local workflows do not get stuck on stale TLS files.
+- The repository toolchain is pinned to Node `v25.9.0` through `.nvmrc`, with `package.json` `engines` set to `25.x` and GitHub Actions reading the same version file, keeping local commands, CI, and scheduled automation on the same runtime line.
 - Oxlint is the enforced JavaScript and TypeScript lint gate for contributor workflow and pre-commit automation, with its canonical configuration stored in `.oxlintrc.json`.
 - CI and local quality expectations center on `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build`.
 - `pnpm lint` is the shared repository lint gate and runs both Oxlint and Stylelint, while `pnpm lint:css` remains available for stylesheet-only local checks.

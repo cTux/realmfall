@@ -7,7 +7,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 
 - Load `docs/RULES.md`, then only the scoped rule files that match the task.
 - Treat `docs/WORKFLOW.md` and `docs/PROJECT_REVIEW.md` as supporting references, not canonical policy sources.
-- Use Node `v25` from `.nvmrc` for local commands and automation.
+- Use Node `v25.9.0` from `.nvmrc` for local commands and automation.
 - Follow the matching scoped rule file for recurring policy questions instead of expanding this file with parallel rule lists.
 
 ## Daily Loop
