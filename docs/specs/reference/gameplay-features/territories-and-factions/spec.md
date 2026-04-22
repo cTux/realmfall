@@ -20,4 +20,6 @@ This spec covers generated faction territories plus player land-claim behavior.
 
 - `src/game/territories.ts`
 - `src/game/state.ts`
+- `src/game/stateClaims.ts`
+- `src/game/stateWorldActions.ts`
 - `src/ui/world/renderScene.ts`

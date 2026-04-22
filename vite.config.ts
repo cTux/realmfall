@@ -1,7 +1,6 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import minipic from 'vite-plugin-minipic';
-import { VitePWA } from 'vite-plugin-pwa';
 import detectDuplicatedDeps from 'unplugin-detect-duplicated-deps/vite';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { X509Certificate } from 'node:crypto';
@@ -211,15 +210,6 @@ export default defineConfig({
       isVitestRun && vitestCachePlugin(),
       react(),
       versionManifestPlugin(),
-      !isStorybookScript &&
-        VitePWA({
-          registerType: 'autoUpdate',
-          workbox: {
-            cleanupOutdatedCaches: true,
-            clientsClaim: true,
-            skipWaiting: true,
-          },
-        }),
       RUN_DUPLICATE_DEPS_AUDIT && detectDuplicatedDeps(),
       !isStorybookScript && minipic(),
     ].filter(Boolean);

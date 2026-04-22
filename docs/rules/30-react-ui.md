@@ -8,6 +8,8 @@
 - When reducing React rerender fanout, move window-specific derivation, dock composition, and stable window handler ownership out of `src/app/App/App.tsx` and into narrower hooks or the window composition layer when that keeps unrelated windows from recomputing together.
 - Compose memoized window view slices and grouped window action maps through dedicated hooks under `src/app/App/hooks` once `App.tsx` starts accumulating broad `hero`, `player`, `world`, `logs`, or action-group objects inline.
 - Do not let `src/app/App/App.tsx` rebuild broad nested `layout`, `views`, or `actions` object graphs inline once that data can be composed in narrower hooks or neighboring modules.
+- Keep `src/app/App/useAppControllers.ts` as a thin composition hook. Move window state, log filters, action-bar state, item-context-menu state, and timed gameplay mutation handlers into focused hooks under `src/app/App/hooks` instead of letting that controller grow into another broad orchestration module.
+- Avoid raw-versus-final window-view adapter layers when only one consumer needs a small label or formatting change. Derive that presentation-only field at the consuming window or its nearest view helper instead of forwarding parallel view types through the app shell.
 - Keep lazy audio bridges, world overlays, and other shell-only composition grouped into focused local blocks so `App.tsx` remains a composition-first entrypoint instead of reclaiming broad orchestration detail.
 - When a UI control only needs the live world clock for display state, subscribe through `src/app/App/worldClockStore.ts` at the leaf component instead of threading `worldTimeMs` through broad app or window props.
 - When splitting `AppWindows` work, pass fixed and deferred window components only the view and action slices they actually consume instead of forwarding the full nested props object.
@@ -30,6 +32,7 @@
 - Preserve existing React containment patterns such as memoized window components when extending the current UI.
 - Maintain mobile-aware and desktop-safe behavior when changing interactions, even if the full mobile adaptation remains incomplete.
 - Keep component files under roughly `250` lines when practical. When a component grows past that size, prefer splitting view models, hooks, or subcomponents into neighboring files.
+- When a window content module owns multiple tab panels or large settings sections, split the tab-specific control wiring into neighboring panel components instead of keeping every section in one `*WindowContent` file.
 - Keep high-frequency pointer, hover, and world-interaction updates off broad React state paths when refs, invalidation flags, or narrower state can avoid avoidable rerenders.
 - For capped animated lists such as the log window, cache parsed row metadata by stable entry object and keep per-row typing or animation state inside the animated row instead of ticking the parent list component.
 - Deduplicate `pointermove` world-hover work by hovered hex before doing heavier interaction logic, and avoid rerunning tooltip derivation, enemy lookups, or pathfinding while the pointer stays on the same tile.
@@ -38,8 +41,10 @@
 - Keep component modules compatible with React Fast Refresh expectations; move shared non-component exports out of component files when needed.
 - When using `useEffectEvent`, do not include the returned callback in effect dependency arrays. Depend on the reactive values the effect reads and let the effect event provide the latest imperative callback body.
 - Name handler props after the behavior a user action can actually trigger. When one inventory click can equip, consume, or learn a recipe, expose that path as activation and keep equip-only or use-only handlers explicit.
+- Name UI availability flags after the exact action and scope they govern. Do not reuse one boolean across bulk hex-window actions and single-item context-menu actions when the allowed items or outcomes differ.
 - Keep shared window labels, hotkey metadata, and similar reusable UI constants in plain non-component modules so component files only export component concerns.
 - Window title bars should reuse shared controls wherever possible. Close actions must use the shared close button implementation and surface the shared custom tooltip consistently across every window.
 - Shared draggable window primitives own focus-to-front behavior. When a window opens or regains focus, route the stack update through the shared shell instead of introducing per-window z-index overrides.
+- Keep shared draggable window shells focused on render state and lifecycle coordination. Move stack registries, viewport-reset helpers, and pointer-session setup into neighboring modules once `DraggableWindow.tsx` starts carrying both UI markup and global window bookkeeping.
 - For ability, buff, and debuff icons rendered through CSS masks, use transparent SVG assets with no full-canvas background shape. If sourcing icons externally, prefer transparent exports or strip the background path before committing so the UI does not render a solid square.
 - For UI elements that already use the custom game tooltip system, do not add native browser `title` tooltips. Buffs, debuffs, abilities, and similar interactive affordances should use the shared custom tooltip consistently so browser-default tooltips never compete with or duplicate the in-game tooltip.

@@ -20,7 +20,7 @@ Realmfall is an active browser prototype with hex exploration, survival systems,
 
 ## Setup
 
-Use `pnpm` for all local commands and Node `v25` from `.nvmrc`.
+Use `pnpm` for all local commands and Node `v25.9.0` from `.nvmrc`.
 
 ```bash
 pnpm install

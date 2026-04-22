@@ -32,9 +32,11 @@ This spec covers encounter activation, actor timing, and combat resolution.
 - Combat automation wakes on the earliest pending combat event, including cast completions, ability readiness, damage-over-time or heal-over-time ticks, and status-effect expirations, so timed effects do not leave encounters idling until a later cooldown finishes.
 - Winning combat removes enemies from the tile and can leave loot behind.
 - Combat end clears the encounter state and logs the outcome.
+- Encounter creation stays on the travel path in `state.ts`, while combat timing and battle-resolution orchestration live in `stateCombat.ts` beside the lower-level combat runtime helpers in `combat.ts`.
 
 ## Main Implementation Areas
 
 - `src/game/state.ts`
+- `src/game/stateCombat.ts`
 - `src/game/combat.ts`
 - `src/ui/components/CombatWindow/CombatWindowContent.tsx`

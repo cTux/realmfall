@@ -1,4 +1,5 @@
 import { memo, Suspense } from 'react';
+import { t } from '../../../i18n';
 import { DEFAULT_LOG_FILTERS } from '../../constants';
 import { WindowLoadingState } from '../../../ui/components/WindowLoadingState';
 import { createLazyWindowComponent } from '../../../ui/components/lazyWindowComponent';
@@ -172,18 +173,18 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
             enemyCount={hexInfoView.enemyCount}
             interactLabel={worldView.interactLabel}
             canInteract={Boolean(worldView.interactLabel)}
-            canProspectInventoryEquipment={
-              worldView.canProspectInventoryEquipment
-            }
-            canSellInventoryEquipment={worldView.canSellInventoryEquipment}
+            canBulkProspectEquipment={worldView.canBulkProspectEquipment}
+            canBulkSellEquipment={worldView.canBulkSellEquipment}
             canTerritoryAction={worldView.claimStatus.canClaim}
-            territoryActionLabel={worldView.claimStatus.actionLabel}
+            territoryActionLabel={claimStatusActionLabel(
+              worldView.claimStatus.action,
+            )}
             territoryActionExplanation={worldView.claimStatus.reason}
-            prospectInventoryEquipmentExplanation={
-              worldView.prospectInventoryEquipmentExplanation
+            bulkProspectEquipmentExplanation={
+              worldView.bulkProspectEquipmentExplanation
             }
-            sellInventoryEquipmentExplanation={
-              worldView.sellInventoryEquipmentExplanation
+            bulkSellEquipmentExplanation={
+              worldView.bulkSellEquipmentExplanation
             }
             onInteract={worldActions.onInteract}
             onProspect={worldActions.onProspect}
@@ -269,3 +270,14 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
     </>
   );
 });
+
+function claimStatusActionLabel(
+  action: AppWindowsViewState['world']['claimStatus']['action'],
+) {
+  switch (action) {
+    case 'unclaim':
+      return t('ui.hexInfo.unclaimAction');
+    default:
+      return t('ui.hexInfo.claimAction');
+  }
+}

@@ -23,5 +23,7 @@ This spec covers hunger, thirst, death recovery, home behavior, and player statu
 ## Main Implementation Areas
 
 - `src/game/state.ts`
+- `src/game/stateSurvival.ts`
+- `src/game/stateWorldActions.ts`
 - `src/game/progression.ts`
 - `src/ui/statusEffects.ts`

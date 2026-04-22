@@ -20,6 +20,7 @@ This spec covers gatherable structures, world interaction sites, and contextual 
 
 - `src/game/world.ts`
 - `src/game/state.ts`
+- `src/game/stateWorldActions.ts`
 - `src/game/stateRewards.ts`
 - `src/game/content/structures`
 - `src/ui/tooltips.ts`

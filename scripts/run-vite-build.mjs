@@ -1,12 +1,12 @@
-import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { spawnManagedChild } from './managed-child-process.mjs';
 import { filterKnownPluginTimingWarnings } from './run-vite-build.helpers.mjs';
 
 const viteEntrypoint = fileURLToPath(
   new URL('../node_modules/vite/bin/vite.js', import.meta.url),
 );
 
-const child = spawn(process.execPath, [viteEntrypoint, 'build'], {
+const child = spawnManagedChild(process.execPath, [viteEntrypoint, 'build'], {
   env: process.env,
   stdio: ['inherit', 'pipe', 'pipe'],
 });

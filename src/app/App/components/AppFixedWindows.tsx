@@ -91,8 +91,8 @@ export const AppFixedWindows = memo(function AppFixedWindows({
           canToggleLock={!itemMenu.slot && isEquippableItem(itemMenu.item)}
           isLocked={Boolean(itemMenu.item.locked)}
           canShowRecipes={Boolean(recipeMaterialItemKey)}
-          canProspectInventoryEquipment={itemMenu.canProspectInventoryEquipment}
-          canSellInventoryEquipment={itemMenu.canSellInventoryEquipment}
+          canProspectItem={itemMenu.canProspectItem}
+          canSellEntry={itemMenu.canSellEntry}
           onEquip={() => {
             if (itemMenu.slot) {
               inventoryActions.onUnequip(itemMenu.slot);

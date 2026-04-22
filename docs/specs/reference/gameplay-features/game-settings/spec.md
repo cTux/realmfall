@@ -10,6 +10,7 @@ This spec covers the desktop-style game settings window, its dock and hotkey acc
 - The settings dock button is pinned to the bottom of the left dock instead of the main top-aligned button stack.
 - Opening the settings window shows a fullscreen black translucent underlay behind the window chrome so it behaves like a modal surface over the viewport.
 - The current settings content uses a reusable vertical tab strip and currently exposes `Graphics` and `Audio` tabs.
+- The settings window keeps the tab-specific control markup in neighboring graphics and audio panel components so the lazy-loaded content shell only owns draft state, tab switching, and save or reset actions.
 - The graphics tab exposes preset-based renderer profiles for `Quality`, `Balanced`, and `Performance`, with `Balanced` as the current default profile and a `Custom` state when individual renderer flags diverge from a preset.
 - The graphics tab keeps reusable switch controls for the persisted Pixi renderer initialization flags so advanced overrides can stay independent from the higher-level preset.
 - The audio tab stores shared audio preferences for mute state, music-only mute state, reduced-motion muting, individual synthesized sound-effect toggles, master volume, the current Tiks theme selection, the selected recorded voice actor, and per-event gameplay voice toggles.

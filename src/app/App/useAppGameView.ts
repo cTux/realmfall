@@ -7,7 +7,6 @@ import {
   getPlayerClaimedTiles,
   getPlayerStats,
   getRecipeBookEntries,
-  Skill,
   structureActionLabel,
   type GameState,
   type LogKind,
@@ -15,6 +14,7 @@ import {
 import { buildTownStock } from '../../game/economy';
 import { hexKey } from '../../game/hex';
 import { isEquippableItem } from '../../game/inventory';
+import { createSkillRecord } from '../../game/skillRecords';
 import { buildTile } from '../../game/world';
 import { t } from '../../i18n';
 import { resolveBackgroundMusicMood } from '../audio/backgroundMusic';
@@ -73,16 +73,7 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     [learnedRecipeIds],
   );
   const recipeSkillLevels = useMemo(
-    () => ({
-      [Skill.Gathering]: skills[Skill.Gathering].level,
-      [Skill.Logging]: skills[Skill.Logging].level,
-      [Skill.Mining]: skills[Skill.Mining].level,
-      [Skill.Skinning]: skills[Skill.Skinning].level,
-      [Skill.Fishing]: skills[Skill.Fishing].level,
-      [Skill.Cooking]: skills[Skill.Cooking].level,
-      [Skill.Smelting]: skills[Skill.Smelting].level,
-      [Skill.Crafting]: skills[Skill.Crafting].level,
-    }),
+    () => createSkillRecord((skill) => skills[skill].level),
     [skills],
   );
   const inventoryCountsByItemKey = useMemo(
@@ -134,15 +125,15 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     return playerClaims[0]?.coord ?? null;
   }, [homeHex, tiles]);
 
-  const canProspectInventoryEquipment =
+  const canBulkProspectEquipment =
     currentTile.structure === 'forge' && hasUnlockedEquipmentInInventory;
-  const canSellInventoryEquipment =
+  const canBulkSellEquipment =
     currentTile.structure === 'town' && hasUnlockedEquipmentInInventory;
-  const prospectInventoryEquipmentExplanation =
+  const bulkProspectEquipmentExplanation =
     currentTile.structure === 'forge' && !hasUnlockedEquipmentInInventory
       ? t('game.message.prospect.empty')
       : null;
-  const sellInventoryEquipmentExplanation =
+  const bulkSellEquipmentExplanation =
     currentTile.structure === 'town' && !hasUnlockedEquipmentInInventory
       ? t('game.message.sell.empty')
       : null;
@@ -163,8 +154,8 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
   return {
     backgroundMusicMood,
     claimStatus,
-    canProspectInventoryEquipment,
-    canSellInventoryEquipment,
+    canBulkProspectEquipment,
+    canBulkSellEquipment,
     combatEnemies,
     currentTile,
     currentTileHostileEnemyCount,
@@ -173,10 +164,10 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     gold,
     interactLabel,
     inventoryCountsByItemKey,
-    prospectInventoryEquipmentExplanation,
+    bulkProspectEquipmentExplanation,
     recipes,
     recipeSkillLevels,
-    sellInventoryEquipmentExplanation,
+    bulkSellEquipmentExplanation,
     stats,
     townStock,
   };

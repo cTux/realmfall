@@ -33,4 +33,5 @@ This spec covers the recipe book, recipe learning, and crafting execution.
 
 - `src/game/crafting.ts`
 - `src/game/state.ts`
+- `src/game/stateCrafting.ts`
 - `src/ui/components/RecipeBookWindow/RecipeBookWindowContent.tsx`

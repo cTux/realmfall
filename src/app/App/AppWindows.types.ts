@@ -22,10 +22,6 @@ export interface AppWindowsProps {
   actions: AppWindowsActions;
 }
 
-export type AppWindowsRawClaimStatus = ReturnType<
-  typeof import('../../game/state').getCurrentHexClaimStatus
->;
-
 export interface AppWindowsLayout {
   windows: WindowPositions;
   windowShown: WindowVisibilityState;
@@ -54,15 +50,13 @@ export interface AppWindowsViewState {
     currentTileHostileEnemyCount: number;
     combat: GameState['combat'];
     interactLabel: string | null;
-    canProspectInventoryEquipment: boolean;
-    canSellInventoryEquipment: boolean;
+    canBulkProspectEquipment: boolean;
+    canBulkSellEquipment: boolean;
     claimStatus: ReturnType<
       typeof import('../../game/state').getCurrentHexClaimStatus
-    > & {
-      actionLabel: string;
-    };
-    prospectInventoryEquipmentExplanation: string | null;
-    sellInventoryEquipmentExplanation: string | null;
+    >;
+    bulkProspectEquipmentExplanation: string | null;
+    bulkSellEquipmentExplanation: string | null;
     townStock: ReturnType<typeof import('../../game/state').getTownStock>;
     gold: number;
   };
@@ -94,12 +88,6 @@ export interface AppWindowsViewState {
   };
   itemMenu: ItemContextMenuState | null;
 }
-
-export type AppWindowsRawViewState = Omit<AppWindowsViewState, 'world'> & {
-  world: Omit<AppWindowsViewState['world'], 'claimStatus'> & {
-    claimStatus: AppWindowsRawClaimStatus;
-  };
-};
 
 export interface AppWindowsActions {
   windows: {

@@ -8,11 +8,17 @@
 - Favor deterministic tests for game-state changes and rendering calculations.
 - Place tests in a colocated `tests/` directory for the feature or module they exercise.
 - Keep test files under roughly `250` lines when practical. Split larger suites by concern instead of accumulating all coverage in one file.
+- When UI integration coverage grows beyond one broad `*.test.tsx` file, split it by surface such as recipe flows, window-shell interactions, renderer caches, or tooltip behavior instead of keeping one umbrella component suite.
+- Split broad gameplay-state suites by concern such as exploration, survival timing, combat cadence, world events, crafting, inventory actions, world actions, or item and progression flows instead of keeping one `src/game/state.test.ts` umbrella file.
+- Split large Pixi renderer suites by concern such as cache invalidation, interaction overlays, marker composition, marker animation, sprite-pool behavior, or atmosphere rendering instead of keeping one `renderScene.test.ts` umbrella file.
+- When tests call typed gameplay helpers such as item-action selectors, pass real domain fixtures or builder-backed objects that satisfy the full runtime type instead of partial literals that only cover the asserted field.
 - Keep production buildability in mind, not only local dev behavior.
 - When performance-sensitive behavior changes, verify both correctness and the likely rerender or redraw impact.
 - When optimization work changes React, Pixi, hover handling, or bundle shape, document a concrete verification path for rerender breadth, redraw breadth, hover hot paths, and startup chunk growth instead of leaving performance validation implicit.
 - Keep a coverage test for Storybook parity so component additions or removals in `src/ui/components` fail fast when corresponding stories are missing.
 - Keep repository automation scripts shell-safe across platforms. Do not route staged paths, generated file lists, or other user-controlled arguments through `cmd.exe` or other shells when a direct executable or Node entrypoint invocation can run the tool instead.
+- When repository automation scripts spawn long-lived or nested child processes, clean up the full child process tree when the parent script exits or is interrupted. On Windows, terminate the tree instead of only the direct child so `pnpm`, `vite`, `serve`, or browser helpers do not remain in memory after the wrapper script stops.
+- Keep stylesheet linting on the main repository lint path. `pnpm lint`, CI validation, pre-push checks, and dependency-refresh sanity runs should cover both Oxlint and Stylelint instead of leaving CSS and SCSS validation on a manual side command.
 - When a repository automation helper needs `pnpm` outside a `pnpm run` context, prefer the bundled `pnpm.cjs` Node entrypoint on Windows instead of failing or reintroducing shell dispatch through `cmd.exe`.
 - Keep dependency refreshes on the shared `pnpm update:check`, `pnpm update:minor`, and `pnpm update:major` scripts. The mutating flows should refresh the lockfile with `pnpm install --no-frozen-lockfile`, run the full sanity command set, and default to the version-aware `pnpm git:commit` path, while automation can pass `--no-commit` when it needs to stage dependency changes separately.
 - Keep routine commit metadata cheap. A staged `package.json` diff that only bumps the `version` field should keep the pre-commit workflow on scoped checks instead of forcing the full Vitest suite.
@@ -42,6 +48,7 @@
 - Keep `docs/PROJECT_REVIEW.md` as a lightweight transient note only. Do not let it become a second canonical source for workflow rules, best-practice checklists, or current-system specs.
 - When a transient note captures an observation that is no longer true, update or archive it promptly instead of leaving stale warning inventories or old performance claims in active planning paths.
 - When an implementation-note workspace is no longer an active plan, delete `plan.md` and other long-form planning artifacts, keep only `brief.md` plus an optional checklist, or archive it instead of keeping old plan, research, quickstart, and data-model trees alive indefinitely.
+- Once an implementation-note workspace is shipped, trim any surviving `brief.md` down to a short historical note plus links back to the canonical spec and workflow docs. Do not keep full user-story, requirement, and success-criteria templates in active prompt-loading paths after the feature is implemented.
 - Do not leave inactive implementation-note workspaces carrying stale dependency versions, outdated spec paths, or other durable project facts after those details move into `docs/specs` or the scoped rule files.
 - Every implemented feature should be followed by creating or updating the relevant spec in `docs/specs` before the task is considered complete.
 - When changing an existing feature, update the matching spec in the same task so the spec stays aligned with shipped behavior.

@@ -7,7 +7,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 
 - Load `docs/RULES.md`, then only the scoped rule files that match the task.
 - Treat `docs/WORKFLOW.md` and `docs/PROJECT_REVIEW.md` as supporting references, not canonical policy sources.
-- Use Node `v25` from `.nvmrc` for local commands and automation.
+- Use Node `v25.9.0` from `.nvmrc` for local commands and automation.
 - Follow the matching scoped rule file for recurring policy questions instead of expanding this file with parallel rule lists.
 
 ## Daily Loop
@@ -30,11 +30,13 @@ Use this file for contributor process only. Canonical project guidance lives in
 
 ## Verification Workflow
 
-- Run `pnpm typecheck`, `pnpm test`, and `pnpm build` before pushing when you bypass hooks or need to verify the pre-push path manually.
+- Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` before pushing when you bypass hooks or need to verify the pre-push path manually.
 - Run targeted tests and any area-specific commands before committing.
 - Use `pnpm update:check` to inspect available dependency updates without modifying the worktree.
 - Run `pnpm update:minor` or `pnpm update:major` from a clean tracked worktree when you want an automated dependency refresh. Each command rewrites dependency ranges, runs `pnpm install --no-frozen-lockfile`, validates the result with `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build`, then commits through `pnpm git:commit`. Pass `-- --no-commit` when automation needs the refreshed manifests without creating a local commit.
 - Run `pnpm format` after wider refactors or repository-wide cleanup so formatting drift is fixed before it spreads across unrelated commits.
+- `pnpm lint` runs the main repository lint gate, including Oxlint for JavaScript and TypeScript plus Stylelint for `src` CSS and SCSS files.
+- `pnpm lint:css` is available when you only need the stylesheet subset locally.
 - `pnpm test` stores reusable Vitest results in `.tests/vitest-cache`; delete that directory when you need a cold run to verify cache behavior or rule out stale local state.
 - Use `pnpm test:memory:leaks` when a change could affect client-side route cleanup, event-listener teardown, or long-lived browser objects; the command starts the HTTPS dev server at `https://localhost:5173`, runs the dock-window toggle `fuite` scenario, and records the latest JSON report under `.tests/memory-leaks/latest.json`.
 - Run `pnpm build:budget` when startup chunks or lazy-loading strategy change. The command reports the tracked envelope and warns on overruns without failing the build.

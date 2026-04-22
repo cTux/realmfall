@@ -14,21 +14,27 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Bootstrap-loaded settings modules keep lightweight metadata such as voice actor ids separate from eager voice asset indexing so optional gameplay voice clips stay behind the lazy audio bridge boundary.
 - `useAppGameView` computes the current tile, filtered logs, town stock, recipe visibility, claim status, player stats, and other UI-ready derived values.
 - This keeps presentational components mostly declarative.
+- Shared window-key lists and small record builders back window visibility resets, dock composition, log-filter defaults, and recipe skill-level derivation so app wiring does not repeat the same key inventory in multiple modules.
 - `useAppGameView` keeps selector dependencies scoped to the gameplay slices each derived view actually reads, using narrow selector inputs instead of force-casting partial objects to `GameState`, so unrelated root-state clones do not invalidate every memoized view model together.
 - `AppWindows` owns the dock-entry composition, stable move and close handler maps, and narrow window-specific view models so `App.tsx` does not keep expanding as the desktop window surface grows.
 - `useAppWindowsProps` builds the nested `layout`, `views`, and `actions` payload passed to `AppWindows`, keeping `App.tsx` from rebuilding that whole prop tree inline.
 - `useAppWindowViews` and `useAppWindowActions` assemble the memoized window view slices and grouped action maps before `useAppWindowsProps` runs, so `App.tsx` coordinates lifecycle hooks without also owning every window-facing memo block directly.
+- Window view hooks return the shared final view shape directly; presentation-only labels such as the hex claim action copy are derived at the window composition site instead of flowing through separate raw and enriched window-view types.
 - Focused hooks under `src/app/App/hooks` keep `AppWindows` centered on composition by separating deferred-window bookkeeping, stable handler maps, and memoized window-specific view models.
 - `useManagedWindowProps` builds the shared `position`, `onMove`, `visible`, and `onClose` prop map for managed windows so fixed and deferred window composition does not repeat the same shell wiring at every render site.
 - Fixed and deferred window composition receives narrow view and action slices instead of the full `AppWindowsProps` object, keeping unrelated window surfaces from rerendering together when one subtree changes.
 - The game uses a desktop-style draggable window model with persisted positions, optional per-window dimensions for resizable windows, and visibility.
 - Shared draggable window shells keep stack order inside reserved z-index bands, so opening or refocusing a window brings it to the front without ad hoc per-window layering rules.
 - Windows that become visible automatically take focus through the shared drag shell so newly opened panes rise and accept keyboard interaction immediately.
+- The shared drag shell delegates stack-registry bookkeeping, viewport reset helpers, and drag or resize pointer sessions to neighboring modules so the shell component stays centered on state coordination and markup.
 - Shared drag shells keep their open, mounted, and entered lifecycle phases explicit and unregister stack entries through stable window ids, keeping hook lint clean while the stack model tracks the rendered instance correctly.
 - Shared window-shell helpers are reused for move handlers, close handlers, deferred mount state, repeated title-bar labels, and the shared suspense-loading wrapper for lazy window content instead of maintaining parallel per-window implementations.
-- `useAppControllers` routes gameplay mutations through a shared timed-transition helper so controller actions inject the current world time consistently without repeating the same wrapper at every call site.
-- `useAppControllers` delegates inventory and action-bar hover tooltip orchestration to `useItemTooltipController`, so tooltip caching, learned-recipe detection, and lazy tooltip-module loading stay together in one local hook instead of expanding the broader window and gameplay controller module.
-- `useAppControllers` separates inventory-slot activation from explicit equip and use actions so handler names match the behavior they trigger and context-menu equip actions stay equip-only.
+- `useAppControllers` stays as a thin composition hook that wires together focused controller hooks for window state, log filters, action-bar state, item-context-menu state, timed gameplay mutations, and tooltip orchestration.
+- `useGameActionHandlers` routes gameplay mutations through a shared timed-transition helper so controller actions inject the current world time consistently without repeating the same wrapper at every call site.
+- `useActionBarController` owns action-bar slot reconciliation, assignment, and slot activation so inventory-backed hotbar behavior does not share a file with unrelated window or menu state.
+- `useItemContextMenuController` keeps context-menu placement and capability gating next to the item-menu state instead of mixing that UI-specific behavior into the broader gameplay action hook.
+- `useItemTooltipController` owns inventory and action-bar hover tooltip orchestration, so tooltip caching, learned-recipe detection, and lazy tooltip-module loading stay together in one local hook instead of expanding the broader controller layer.
+- `useGameActionHandlers` separates inventory-slot activation from explicit equip and use actions so handler names match the behavior they trigger and context-menu equip actions stay equip-only.
 - `useAppWorldClock` keeps the top-level world-time sync callbacks next to the shared clock hook, so `App.tsx` does not rebuild the blood-moon and status-effect tick wiring inline.
 - `useAppSettingsActions` keeps save-reset, settings persistence, and home-hex shell actions in one local hook instead of mixing those imperative flows into the main app component body.
 - `useAppPersistence` keeps hydration and latest-input tracking in the hook while local `persistence/` helpers own segment serialization and autosave scheduling, separating save bootstrapping from debounce, idle-flush, and queued-write mechanics.
@@ -56,6 +62,11 @@ This spec covers the top-level React hook composition and derived view-model pat
 
 - `src/app/App/App.tsx`
 - `src/app/App/useAppControllers.ts`
+- `src/app/App/hooks/useGameActionHandlers.ts`
+- `src/app/App/hooks/useActionBarController.ts`
+- `src/app/App/hooks/useItemContextMenuController.ts`
+- `src/app/App/hooks/useAppWindowState.ts`
+- `src/app/App/hooks/useAppLogFilters.ts`
 - `src/app/App/hooks/useItemTooltipController.ts`
 - `src/app/App/useAppGameView.ts`
 - `src/app/App/useAppPersistence.ts`

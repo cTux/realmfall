@@ -1,5 +1,6 @@
 import {
   EQUIPMENT_SLOTS,
+  LOG_KINDS,
   Skill,
   type Enemy,
   type GameState,
@@ -14,6 +15,9 @@ import {
   DEFAULT_LOG_FILTERS,
   DEFAULT_WINDOWS,
   DEFAULT_WINDOW_VISIBILITY,
+  WINDOW_VISIBILITY_KEYS,
+  createLogFilters,
+  createWindowVisibilityState,
   type WindowPosition,
   type WindowPositions,
   type WindowVisibilityState,
@@ -148,15 +152,13 @@ function normalizeLogFilters(filters: unknown): Record<LogKind, boolean> {
     return DEFAULT_LOG_FILTERS;
   }
 
-  return {
-    movement: filters.movement === false ? false : true,
-    combat: filters.combat === false ? false : true,
-    loot: filters.loot === false ? false : true,
-    survival: filters.survival === false ? false : true,
-    rumor: filters.rumor === false ? false : true,
-    motd: filters.motd === false ? false : true,
-    system: filters.system === false ? false : true,
-  };
+  const normalized = createLogFilters();
+
+  for (const kind of LOG_KINDS) {
+    normalized[kind] = filters[kind] === false ? false : true;
+  }
+
+  return normalized;
 }
 
 function normalizeWindowVisibility(value: unknown): WindowVisibilityState {
@@ -164,18 +166,13 @@ function normalizeWindowVisibility(value: unknown): WindowVisibilityState {
     return DEFAULT_WINDOW_VISIBILITY;
   }
 
-  return {
-    hero: value.hero === true,
-    skills: value.skills === true,
-    recipes: value.recipes === true,
-    hexInfo: value.hexInfo === true,
-    equipment: value.equipment === true,
-    inventory: value.inventory === true,
-    loot: value.loot === true,
-    log: value.log === true,
-    combat: value.combat === true,
-    settings: value.settings === true,
-  };
+  const normalized = createWindowVisibilityState();
+
+  for (const key of WINDOW_VISIBILITY_KEYS) {
+    normalized[key] = value[key] === true;
+  }
+
+  return normalized;
 }
 
 function normalizeWindowPositions(value: unknown): WindowPositions {

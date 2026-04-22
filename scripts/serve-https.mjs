@@ -1,13 +1,13 @@
-import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { ensureLocalhostHttpsCertificate } from './localhost-https.mjs';
+import { spawnManagedChild } from './managed-child-process.mjs';
 
 const require = createRequire(import.meta.url);
 const serveBinPath = require.resolve('serve/build/main.js');
 const { certPath, keyPath } = await ensureLocalhostHttpsCertificate();
 const forwardedArgs = process.argv.slice(2);
 
-const child = spawn(
+const child = spawnManagedChild(
   process.execPath,
   [
     serveBinPath,

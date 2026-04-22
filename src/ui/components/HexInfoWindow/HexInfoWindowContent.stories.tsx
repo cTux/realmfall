@@ -65,7 +65,7 @@ type Story = StoryObj<typeof meta>;
 export const Forge: Story = {
   args: buildStructureArgs('forge', {
     terrain: 'Mountain',
-    canProspectInventoryEquipment: true,
+    canBulkProspectEquipment: true,
   }),
 };
 
@@ -84,7 +84,7 @@ export const Workshop: Story = {
 export const Town: Story = {
   args: buildStructureArgs('town', {
     terrain: 'Plains',
-    canSellInventoryEquipment: true,
+    canBulkSellEquipment: true,
     gold: 240,
     townStock: buildTownStock('storybook-town', { q: 0, r: 0 }),
     loot: [
@@ -219,14 +219,13 @@ function buildStructureArgs(
     canInteract: overrides.canInteract ?? false,
     canTerritoryAction: overrides.canTerritoryAction ?? true,
     territoryActionLabel: overrides.territoryActionLabel ?? 'Claim hex',
-    canProspectInventoryEquipment:
-      overrides.canProspectInventoryEquipment ?? false,
-    canSellInventoryEquipment: overrides.canSellInventoryEquipment ?? false,
+    canBulkProspectEquipment: overrides.canBulkProspectEquipment ?? false,
+    canBulkSellEquipment: overrides.canBulkSellEquipment ?? false,
     territoryActionExplanation: overrides.territoryActionExplanation ?? null,
-    prospectInventoryEquipmentExplanation:
-      overrides.prospectInventoryEquipmentExplanation ?? null,
-    sellInventoryEquipmentExplanation:
-      overrides.sellInventoryEquipmentExplanation ?? null,
+    bulkProspectEquipmentExplanation:
+      overrides.bulkProspectEquipmentExplanation ?? null,
+    bulkSellEquipmentExplanation:
+      overrides.bulkSellEquipmentExplanation ?? null,
     structureHp: overrides.structureHp,
     structureMaxHp: overrides.structureMaxHp,
     territoryName: overrides.territoryName ?? null,

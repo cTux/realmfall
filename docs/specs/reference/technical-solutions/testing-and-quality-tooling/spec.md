@@ -6,24 +6,30 @@ This spec covers the repository quality baseline and current test coverage shape
 
 ## Current Solution
 
-- The repository uses TypeScript strict mode, Oxlint, Prettier, Vitest, Husky, Vite, and Storybook.
+- The repository uses TypeScript strict mode, Oxlint, Stylelint, Prettier, Vitest, Husky, Vite, and Storybook.
 - `pnpm test` runs Vitest through `@raegen/vite-plugin-vitest-cache`, storing reusable results in the repository-local `.tests/vitest-cache` directory so warm reruns and CI can restore unaffected test files without changing test correctness.
 - `pnpm test:memory:leaks` starts the local HTTPS Vite dev server and runs `fuite` against `https://localhost:5173` with a custom dock-window toggle scenario because the app does not expose internal navigation links for the default `fuite` scenario, writing the latest JSON analysis to `.tests/memory-leaks/latest.json` for follow-up review.
 - `pnpm test:memory:leaks:prod` builds the app, serves the production bundle over local HTTPS at `https://localhost:4174`, and runs the same `fuite` scenario there, writing the JSON analysis to `.tests/memory-leaks/prod.json` so memory-retention checks can be compared between dev and production behavior.
 - Because the current repository is on Vitest 4, the Vite config uses a local compatibility shim for the plugin's runner and setup hooks instead of the package's older custom-pool entrypoint.
 - `pnpm dev` and `pnpm serve` both run on local HTTPS using the shared localhost self-signed certificate helper, and cached certificates are regenerated automatically when they expire so secure-origin local workflows do not get stuck on stale TLS files.
+- The repository toolchain is pinned to Node `v25.9.0` through `.nvmrc`, with `package.json` `engines` set to `25.x` and GitHub Actions reading the same version file, keeping local commands, CI, and scheduled automation on the same runtime line.
 - Oxlint is the enforced JavaScript and TypeScript lint gate for contributor workflow and pre-commit automation, with its canonical configuration stored in `.oxlintrc.json`.
 - CI and local quality expectations center on `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build`.
+- `pnpm lint` is the shared repository lint gate and runs both Oxlint and Stylelint, while `pnpm lint:css` remains available for stylesheet-only local checks.
 - The committed repository baseline is kept Prettier-clean so a failing `pnpm format` run points to current drift instead of long-lived formatting debt.
 - Ordinary `pnpm` installs keep dependency advisory output enabled so newly disclosed package issues are visible during routine local and CI dependency refreshes.
 - Oxlint is the only JavaScript and TypeScript linter shipped in the repository.
 - The enforced Oxlint path includes React hook validation on TypeScript and TSX files so invalid hook usage and missing effect dependencies fail local lint and pre-commit checks instead of relying on runtime behavior.
 - React 19 `useEffectEvent` callbacks stay out of effect dependency arrays, keeping the enforced hook lint path warning-free while preserving the latest imperative callback body inside long-lived listeners and playback effects.
-- The Oxlint migration covers the prior ESLint rule set as closely as Oxlint currently allows, including nursery parity rules for `getter-return`, `no-undef`, and `no-unreachable`; Oxlint still does not implement `no-dupe-args` or `no-octal`.
+- The Oxlint migration covers the prior ESLint rule set as closely as Oxlint currently allows, including nursery parity rules for `getter-return`, `no-undef`, and `no-unreachable`; `no-dupe-args` and `no-octal` remain outside the current Oxlint rule set.
 - Storybook is used as a maintained UI fixture surface for window components, shared UI components, and aggregate entity catalogs for items, enemies, and structures.
 - Storybook preview bootstraps the `en` i18n bundle before stories run, injects the shared game-tooltip behavior for story args that expose hover callbacks, and keeps the iframe viewport vertically scrollable for tall fixture surfaces such as aggregate catalogs.
 - A Storybook parity test guards that each top-level component directory in `src/ui/components` keeps at least one story and that the entity catalog stories stay connected to the live config-derived fixtures.
 - Tests currently cover app bootstrapping, normalization, persistence storage helpers, world math, render behavior, time-of-day behavior, status effects, UI helpers, core state logic, and Storybook coverage expectations.
+- Broad gameplay-state coverage is split across focused suites such as `src/game/stateExploration.test.ts`, `src/game/stateSurvival.test.ts`, `src/game/stateCombat.test.ts`, `src/game/stateWorldEvents.test.ts`, `src/game/stateItemsAndProgression.test.ts`, `src/game/stateCrafting.test.ts`, `src/game/stateInventoryActions.test.ts`, `src/game/stateWorldActions.test.ts`, and `src/game/stateWorldQueries.test.ts` instead of one `state.test.ts` umbrella file.
+- Broad UI coverage is split across focused suites such as `src/ui/uiVisualHelpers.test.tsx`, `src/ui/uiTooltipContent.test.tsx`, `src/ui/uiWindowMarkup.test.tsx`, `src/ui/uiHeroAndLog.test.tsx`, `src/ui/uiTooltipBehavior.test.tsx`, `src/ui/uiRecipeBook.test.tsx`, and `src/ui/uiWindowShells.test.tsx` instead of one umbrella component test file.
+- Tests that exercise typed gameplay helpers use complete domain fixtures or builder-backed objects instead of partial literals, so `pnpm typecheck` catches real integration drift rather than test-only shape shortcuts.
+- World-render coverage is split across focused suites such as `src/ui/world/renderSceneCache.test.ts`, `src/ui/world/renderSceneEnemyMarkers.test.ts`, `src/ui/world/renderSceneClaimMarkers.test.ts`, `src/ui/world/renderSceneWorldBossMarkers.test.ts`, `src/ui/world/renderSceneInteractions.test.ts`, `src/ui/world/renderSceneAtmosphere.test.ts`, `src/ui/world/renderSceneReuse.test.ts`, `src/ui/world/renderSceneCacheInvalidation.test.ts`, `src/ui/world/renderSceneMarkerAnimations.test.ts`, and `src/ui/world/renderScenePools.test.ts` instead of one renderer umbrella file.
 - The codebase favors deterministic tests for gameplay and rendering calculations.
 - Contributor guidance now includes an explicit performance verification checklist for React rerender breadth, Pixi redraw breadth, hover hot paths, and startup chunk growth so optimization work has a repeatable review path beyond functional correctness.
 - That guidance also defines lightweight budgets for routine desktop world interaction and the main startup chunks, giving contributors a small regression envelope to compare against during reviews and build checks.
@@ -44,7 +50,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - Before the scheduled dependency-update workflow force-pushes the reusable `dependencies-update` branch with `--force-with-lease`, it refreshes `origin/dependencies-update` so the lease compares against current remote state and later runs can update the existing PR branch reliably.
 - The pre-commit workflow enforces version progression through `pnpm check:version`, which blocks commits unless `package.json` advances by patch version relative to `HEAD`.
 - The pre-commit workflow formats staged Prettier-supported files first, then scopes Oxlint auto-fixes to staged JavaScript and TypeScript files, scopes Stylelint to staged `src` CSS and SCSS files, and scopes Vitest to tests related to staged source files, runtime JSON content, or test files.
-- The pre-push workflow now owns the full-project `pnpm typecheck` gate so routine commits stay focused on fast staged checks while pushes validate the whole repository type surface.
+- The pre-push workflow now owns the full-project `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` gates so routine commits stay focused on fast staged checks while pushes validate the whole repository before publication.
 - A staged `package.json` diff that changes only the `version` field stays on the scoped pre-commit path, so routine commit-version bumps do not trigger the full test suite by themselves.
 - When staged changes touch shared test inputs such as `pnpm-lock.yaml`, `vite.config.ts`, TypeScript config, or `src/test/setup.ts`, or when `package.json` changes beyond the `version` field, the pre-commit workflow stays on staged checks and the pre-push workflow runs the full `pnpm test` suite instead of charging every commit for repository-wide verification.
 - The pre-push workflow also runs `pnpm build`, keeping full-repository runtime validation near publication while leaving commit-time hooks focused on staged changes.
@@ -53,6 +59,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - Contributors can force a cold Vitest run by deleting `.tests/vitest-cache`; when the directory is absent, the next `pnpm test` run recreates it automatically.
 - The staged-quality and pre-push runners invoke `git` directly and route `pnpm` through its Node entrypoint when `npm_execpath` is available, while falling back to the bundled `pnpm.cjs` Node entrypoint on Windows when a script runs outside `pnpm run`.
 - The memory-leak runner uses the same `pnpm` entrypoint path instead of shelling through `cmd.exe`, keeping its browser-test arguments out of Windows shell parsing.
+- Async script runners that wrap `vite`, `serve`, `pnpm`, or other nested Node processes go through a shared managed-child helper that tears down the full child process tree when the parent exits or is interrupted, preventing orphaned Windows `node.exe` processes from lingering after wrapper scripts stop.
 - The duplicate-deps audit runner uses that same pnpm invocation helper on Windows instead of routing `pnpm build` through `cmd.exe`.
 
 ## Main Implementation Areas
@@ -64,6 +71,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - `scripts/dependency-updates.mjs`
 - `scripts/dependency-updates.helpers.mjs`
 - `scripts/fuite-dock-toggle-scenario.mjs`
+- `scripts/managed-child-process.mjs`
 - `scripts/pnpm-command.mjs`
 - `scripts/run-pre-push-quality.mjs`
 - `scripts/run-vite-build.helpers.mjs`

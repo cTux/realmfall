@@ -3,40 +3,37 @@ import type { GameState, LogKind } from '../../../game/state';
 import type { AudioSettings } from '../../audioSettings';
 import type { GraphicsSettings } from '../../graphicsSettings';
 import type { ActionBarSlots } from '../actionBar';
+import type { AppWindowsViewState } from '../AppWindows.types';
 import type { ItemContextMenuState } from '../types';
-import type {
-  AppWindowsRawClaimStatus,
-  AppWindowsRawViewState,
-} from '../AppWindows.types';
 
 interface UseAppWindowViewsArgs {
   actionBarSlots: ActionBarSlots;
   audioSettings: AudioSettings;
-  combatSnapshot: AppWindowsRawViewState['combat']['snapshot'];
+  combatSnapshot: AppWindowsViewState['combat']['snapshot'];
   combatWindowVisible: boolean;
-  currentTile: AppWindowsRawViewState['world']['currentTile'];
+  currentTile: AppWindowsViewState['world']['currentTile'];
   currentTileHostileEnemyCount: number;
   game: GameState;
   gold: number;
   graphicsSettings: GraphicsSettings;
   inventoryCountsByItemKey: Record<string, number>;
   itemMenu: ItemContextMenuState | null;
-  claimStatus: AppWindowsRawClaimStatus;
+  claimStatus: AppWindowsViewState['world']['claimStatus'];
   interactLabel: string | null;
   filteredLogs: GameState['logs'];
   logFilters: Record<LogKind, boolean>;
   lootSnapshot: GameState['player']['inventory'];
   lootWindowVisible: boolean;
-  canProspectInventoryEquipment: boolean;
-  canSellInventoryEquipment: boolean;
-  prospectInventoryEquipmentExplanation: string | null;
-  recipes: AppWindowsRawViewState['recipes']['entries'];
+  canBulkProspectEquipment: boolean;
+  canBulkSellEquipment: boolean;
+  bulkProspectEquipmentExplanation: string | null;
+  recipes: AppWindowsViewState['recipes']['entries'];
   recipeMaterialFilterItemKey: string | null;
-  recipeSkillLevels: AppWindowsRawViewState['recipes']['skillLevels'];
-  sellInventoryEquipmentExplanation: string | null;
+  recipeSkillLevels: AppWindowsViewState['recipes']['skillLevels'];
+  bulkSellEquipmentExplanation: string | null;
   showFilterMenu: boolean;
-  stats: AppWindowsRawViewState['hero']['stats'];
-  townStock: AppWindowsRawViewState['world']['townStock'];
+  stats: AppWindowsViewState['hero']['stats'];
+  townStock: AppWindowsViewState['world']['townStock'];
 }
 
 export function useAppWindowViews({
@@ -57,17 +54,17 @@ export function useAppWindowViews({
   logFilters,
   lootSnapshot,
   lootWindowVisible,
-  canProspectInventoryEquipment,
-  canSellInventoryEquipment,
-  prospectInventoryEquipmentExplanation,
+  canBulkProspectEquipment,
+  canBulkSellEquipment,
+  bulkProspectEquipmentExplanation,
   recipes,
   recipeMaterialFilterItemKey,
   recipeSkillLevels,
-  sellInventoryEquipmentExplanation,
+  bulkSellEquipmentExplanation,
   showFilterMenu,
   stats,
   townStock,
-}: UseAppWindowViewsArgs): AppWindowsRawViewState {
+}: UseAppWindowViewsArgs): AppWindowsViewState {
   const hero = useMemo(
     () => ({
       stats,
@@ -103,17 +100,17 @@ export function useAppWindowViews({
       currentTileHostileEnemyCount,
       combat: game.combat,
       interactLabel,
-      canProspectInventoryEquipment,
-      canSellInventoryEquipment,
+      canBulkProspectEquipment,
+      canBulkSellEquipment,
       claimStatus,
-      prospectInventoryEquipmentExplanation,
-      sellInventoryEquipmentExplanation,
+      bulkProspectEquipmentExplanation,
+      bulkSellEquipmentExplanation,
       townStock,
       gold,
     }),
     [
-      canProspectInventoryEquipment,
-      canSellInventoryEquipment,
+      canBulkProspectEquipment,
+      canBulkSellEquipment,
       claimStatus,
       currentTile,
       currentTileHostileEnemyCount,
@@ -121,8 +118,8 @@ export function useAppWindowViews({
       game.homeHex,
       gold,
       interactLabel,
-      prospectInventoryEquipmentExplanation,
-      sellInventoryEquipmentExplanation,
+      bulkProspectEquipmentExplanation,
+      bulkSellEquipmentExplanation,
       townStock,
     ],
   );

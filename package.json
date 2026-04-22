@@ -1,7 +1,7 @@
 {
   "name": "realmfall",
   "private": true,
-  "version": "0.2.322",
+  "version": "0.2.342",
   "description": "Single-player browser survival RPG with hex exploration, turn-based systems, React UI, and Pixi.js world rendering.",
   "keywords": [
     "browser-game",
@@ -45,7 +45,7 @@
     "quality:staged": "node scripts/run-staged-quality.mjs",
     "sync:ai-entrypoints": "node scripts/sync-ai-entrypoints.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.node.json --noEmit",
-    "lint": "pnpm lint:oxlint",
+    "lint": "pnpm lint:oxlint && pnpm lint:css",
     "lint:fix": "oxlint -c .oxlintrc.json --fix src .storybook scripts vite.config.ts commitlint.config.js",
     "lint:oxlint": "oxlint -c .oxlintrc.json src .storybook scripts vite.config.ts commitlint.config.js",
     "lint:css": "stylelint \"src/**/*.{css,scss}\"",
@@ -98,7 +98,6 @@
     "unplugin-detect-duplicated-deps": "^2.0.0",
     "vite": "^8.0.9",
     "vite-plugin-minipic": "^1.3.2",
-    "vite-plugin-pwa": "^1.2.0",
     "vitest": "^4.1.5"
   },
   "pnpm": {
