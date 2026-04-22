@@ -8,6 +8,8 @@
 - Favor deterministic tests for game-state changes and rendering calculations.
 - Place tests in a colocated `tests/` directory for the feature or module they exercise.
 - Keep test files under roughly `250` lines when practical. Split larger suites by concern instead of accumulating all coverage in one file.
+- Keep DOM-free Vitest coverage on the `node` project and reserve the `jsdom` project for tests that need browser globals, React rendering, Pixi canvas behavior, or other DOM APIs.
+- When adding or moving tests, choose the narrowest Vitest project that matches the runtime surface so gameplay-only changes do not pay browser-environment startup cost.
 - When UI integration coverage grows beyond one broad `*.test.tsx` file, split it by surface such as recipe flows, window-shell interactions, renderer caches, or tooltip behavior instead of keeping one umbrella component suite.
 - Split broad gameplay-state suites by concern such as exploration, survival timing, combat cadence, world events, crafting, inventory actions, world actions, or item and progression flows instead of keeping one `src/game/state.test.ts` umbrella file.
 - Split large Pixi renderer suites by concern such as cache invalidation, interaction overlays, marker composition, marker animation, sprite-pool behavior, or atmosphere rendering instead of keeping one `renderScene.test.ts` umbrella file.
@@ -33,6 +35,7 @@
 
 - Keep `README.md` accurate about the current game state, package manager, and primary local commands, but keep detailed contributor workflow and rule-loading policy in canonical docs instead of duplicating them there.
 - Keep `docs/WORKFLOW.md` aligned with the actual contributor workflow, verification steps, and commit conventions, but keep recurring policy details in `docs/RULES.md` and `docs/rules/` instead of restating them there.
+- Keep contributor docs aligned with the current Vitest project split, including `pnpm test`, `pnpm test:node`, and `pnpm test:jsdom`, whenever test runtime boundaries change.
 - Keep `docs/WORKFLOW.md` short and process-oriented. Prefer links back to canonical rule files over repeating save-policy, CI-permission, or shell-safety rules in a second long checklist.
 - Prefer documenting real project constraints and current behavior over aspirational wording.
 - In review findings, improvement notes, and project-health summaries, do not ship the word `still`. Rewrite the sentence to describe the current behavior and risk directly so the guidance remains accurate after follow-up fixes land.

@@ -18,6 +18,13 @@ import {
 const CHUNK_SIZE_WARNING_LIMIT_KB = 560;
 const RUN_DUPLICATE_DEPS_AUDIT =
   process.env.REALMFALL_DUPLICATE_DEPS_AUDIT === '1';
+const VITEST_NODE_INCLUDE = [
+  'src/game/**/*.test.ts',
+  'src/i18n/**/*.test.ts',
+  'src/persistence/**/*.test.ts',
+  'scripts/**/*.test.ts',
+];
+const VITEST_JSDOM_INCLUDE = ['src/**/*.test.ts', 'src/**/*.test.tsx'];
 
 const packageVersion = JSON.parse(
   readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
@@ -252,11 +259,30 @@ export default defineConfig({
     },
   },
   test: {
-    environment: 'jsdom',
     globals: true,
-    setupFiles: ['src/test/setup.ts'],
     coverage: {
       provider: 'v8',
     },
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'node',
+          environment: 'node',
+          include: VITEST_NODE_INCLUDE,
+          setupFiles: ['src/test/setup.node.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'jsdom',
+          environment: 'jsdom',
+          include: VITEST_JSDOM_INCLUDE,
+          exclude: VITEST_NODE_INCLUDE,
+          setupFiles: ['src/test/setup.ts'],
+        },
+      },
+    ],
   },
 });

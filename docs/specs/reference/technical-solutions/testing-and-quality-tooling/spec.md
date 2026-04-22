@@ -7,10 +7,11 @@ This spec covers the repository quality baseline and current test coverage shape
 ## Current Solution
 
 - The repository uses TypeScript strict mode, Oxlint, Stylelint, Prettier, Vitest, Husky, Vite, and Storybook.
-- `pnpm test` runs Vitest through `@raegen/vite-plugin-vitest-cache`, storing reusable results in the repository-local `.tests/vitest-cache` directory so warm reruns and CI can restore unaffected test files without changing test correctness.
+- `pnpm test` runs the `node` and `jsdom` Vitest projects through `@raegen/vite-plugin-vitest-cache`, storing reusable results in the repository-local `.tests/vitest-cache` directory so warm reruns and CI can restore unaffected test files without changing test correctness.
+- `pnpm test:node` runs the DOM-free Vitest project for gameplay, persistence, i18n, and script tests, while `pnpm test:jsdom` runs the browser-surface project for React, Pixi, and other DOM-dependent tests.
 - `pnpm test:memory:leaks` starts the local HTTPS Vite dev server and runs `fuite` against `https://localhost:5173` with a custom dock-window toggle scenario because the app does not expose internal navigation links for the default `fuite` scenario, writing the latest JSON analysis to `.tests/memory-leaks/latest.json` for follow-up review.
 - `pnpm test:memory:leaks:prod` builds the app, serves the production bundle over local HTTPS at `https://localhost:4174`, and runs the same `fuite` scenario there, writing the JSON analysis to `.tests/memory-leaks/prod.json` so memory-retention checks can be compared between dev and production behavior.
-- Because the current repository is on Vitest 4, the Vite config uses a local compatibility shim for the plugin's runner and setup hooks instead of the package's older custom-pool entrypoint.
+- Because the current repository is on Vitest 4, the Vite config uses a local compatibility shim for the plugin's runner and setup hooks instead of the package's older custom-pool entrypoint, and each project layers its own setup file over that shared cache path.
 - `pnpm dev` and `pnpm serve` both run on local HTTPS using the shared localhost self-signed certificate helper, and cached certificates are regenerated automatically when they expire so secure-origin local workflows do not get stuck on stale TLS files.
 - The repository toolchain is pinned to Node `v25.9.0` through `.nvmrc`, with `package.json` `engines` set to `25.x` and GitHub Actions reading the same version file, keeping local commands, CI, and scheduled automation on the same runtime line.
 - Oxlint is the enforced JavaScript and TypeScript lint gate for contributor workflow and pre-commit automation, with its canonical configuration stored in `.oxlintrc.json`.
@@ -55,7 +56,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - When staged changes touch shared test inputs such as `pnpm-lock.yaml`, `vite.config.ts`, TypeScript config, or `src/test/setup.ts`, or when `package.json` changes beyond the `version` field, the pre-commit workflow stays on staged checks and the pre-push workflow runs the full `pnpm test` suite instead of charging every commit for repository-wide verification.
 - The pre-push workflow also runs `pnpm build`, keeping full-repository runtime validation near publication while leaving commit-time hooks focused on staged changes.
 - Slow app integration tests that rely on lazy chunks, timer advancement, or full render cycles set explicit per-test timeouts so hook and CI runs do not fail on default five-second limits under heavier suite load.
-- Shared Vitest setup stubs `HTMLCanvasElement.getContext('2d')` under jsdom so Pixi- and canvas-adjacent tests run without repeated not-implemented warnings in the test output.
+- Shared Vitest setup lives in `src/test/setup.shared.ts`, while `src/test/setup.node.ts` keeps the DOM-free project on the shared storage, fetch, and i18n bootstrap path and `src/test/setup.ts` adds the jsdom-only canvas stub for Pixi- and canvas-adjacent tests.
 - Contributors can force a cold Vitest run by deleting `.tests/vitest-cache`; when the directory is absent, the next `pnpm test` run recreates it automatically.
 - The staged-quality and pre-push runners invoke `git` directly and route `pnpm` through its Node entrypoint when `npm_execpath` is available, while falling back to the bundled `pnpm.cjs` Node entrypoint on Windows when a script runs outside `pnpm run`.
 - The memory-leak runner uses the same `pnpm` entrypoint path instead of shelling through `cmd.exe`, keeping its browser-test arguments out of Windows shell parsing.
@@ -90,6 +91,8 @@ This spec covers the repository quality baseline and current test coverage shape
 - `src/ui/components/storybook/storybookPreview.test.tsx`
 - `src/**/*.test.ts`
 - `src/**/*.test.tsx`
+- `src/test/setup.node.ts`
+- `src/test/setup.shared.ts`
 - `.github/workflows/pull-request.yml`
 - `scripts/vitest-cache/*.mjs`
 - `vite.config.ts`

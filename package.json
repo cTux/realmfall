@@ -1,7 +1,7 @@
 {
   "name": "realmfall",
   "private": true,
-  "version": "0.2.342",
+  "version": "0.2.343",
   "description": "Single-player browser survival RPG with hex exploration, turn-based systems, React UI, and Pixi.js world rendering.",
   "keywords": [
     "browser-game",
@@ -50,6 +50,8 @@
     "lint:oxlint": "oxlint -c .oxlintrc.json src .storybook scripts vite.config.ts commitlint.config.js",
     "lint:css": "stylelint \"src/**/*.{css,scss}\"",
     "format": "prettier --check .",
+    "test:jsdom": "vitest run --project jsdom",
+    "test:node": "vitest run --project node",
     "test": "vitest run",
     "test:memory:leaks": "concurrently --kill-others --success first --names dev,fuite \"pnpm dev --host localhost --port 5173 --strictPort\" \"node scripts/run-memory-leak-test.mjs\"",
     "test:memory:leaks:prod": "concurrently --kill-others --success first --names serve,fuite \"pnpm build && node scripts/serve-https.mjs --listen 4174\" \"node scripts/run-memory-leak-test.mjs --url https://localhost:4174 --healthcheck-url https://localhost:4174/version.json --output .tests/memory-leaks/prod.json\"",

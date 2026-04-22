@@ -23,6 +23,8 @@ export const FULL_TEST_TRIGGER_FILES = new Set([
   'vite.config.ts',
   'tsconfig.json',
   'tsconfig.node.json',
+  'src/test/setup.node.ts',
+  'src/test/setup.shared.ts',
   'src/test/setup.ts',
 ]);
 
