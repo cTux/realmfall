@@ -1,7 +1,36 @@
+import { getConsumableEffectDescriptors } from './consumables';
 import { buildItemFromConfig } from './content/items';
 import { createGame, useItem } from './state';
 
 describe('consumable scaling', () => {
+  it('describes consumables through one shared effect descriptor model', () => {
+    expect(
+      getConsumableEffectDescriptors(
+        buildItemFromConfig('hunter-stew', {
+          id: 'hunter-stew-descriptor',
+        }),
+      ),
+    ).toEqual([
+      { kind: 'foodRestorePercent', amount: 20 },
+      { kind: 'hunger', amount: 60 },
+      { kind: 'thirst', amount: 12 },
+    ]);
+    expect(
+      getConsumableEffectDescriptors(
+        buildItemFromConfig('mana-potion', {
+          id: 'mana-potion-descriptor',
+        }),
+      ),
+    ).toEqual([{ kind: 'manaPercent', amount: 35 }]);
+    expect(
+      getConsumableEffectDescriptors(
+        buildItemFromConfig('home-scroll', {
+          id: 'home-scroll-descriptor',
+        }),
+      ),
+    ).toEqual([{ kind: 'homeScroll' }]);
+  });
+
   it('restores at least 10 percent hp and mp from food', () => {
     const game = createGame(3, 'food-percent-floor-seed');
     const ration = buildItemFromConfig('trail-ration', {

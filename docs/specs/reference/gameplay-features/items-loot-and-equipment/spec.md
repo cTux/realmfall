@@ -31,6 +31,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - Health potions and mana potions use vendored local SVG assets and restore `35%` of the corresponding max stat on use.
 - Consumables share a single `2s` cooldown lockout, and Home Scroll usage also starts that same shared consumable cooldown.
 - Consumable-use effects and cooldown application are resolved from the focused item-action mutation flow rather than from the broad gameplay state facade.
+- Consumable tooltip copy and consumable-use resolution both read from the same shared consumable-effect descriptor model, so percent restores and hunger or thirst restores do not drift between UI text and gameplay behavior.
 - Loot can be taken item-by-item or collected from a tile in bulk.
 - World-generated weapons, armor, offhands, and artifacts scale by terrain tier and context, including generated shoulders, bracers, belts, shields, magical offhands, and one-handed or two-handed weapon archetypes.
 - World loot and blood moon bonus gear now choose their top-level item family from equal random buckets instead of weighted family chances, so weapons, armor, offhands, artifacts, and consumables do not skew toward accessory-heavy drops.
@@ -45,6 +46,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 ## Main Implementation Areas
 
 - `src/game/inventory.ts`
+- `src/game/consumables.ts`
 - `src/game/stateItemActions.ts`
 - `src/game/world.ts`
 - `src/game/state.ts`

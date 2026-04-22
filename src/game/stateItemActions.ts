@@ -1,7 +1,8 @@
 import { t } from '../i18n';
 import { formatEquipmentSlotLabel } from '../i18n/labels';
 import {
-  getConsumableRestoreProfile,
+  type ConsumableEffectDescriptor,
+  getConsumableEffectDescriptors,
   resolvePercentRestoreAmount,
 } from './consumables';
 import { EquipmentSlotId, ItemId } from './content/ids';
@@ -25,6 +26,17 @@ import { teleportHome } from './stateSurvival';
 import type { EquipmentSlot, GameState, Item } from './types';
 
 const CONSUMABLE_COOLDOWN_MS = 2_000;
+const CONSUMABLE_LOG_EFFECT_KEYS = {
+  healing: 'game.message.useItem.healing',
+  hunger: 'game.message.useItem.hunger',
+  mana: 'game.message.useItem.mana',
+  thirst: 'game.message.useItem.thirst',
+} as const;
+
+type AppliedConsumableEffect = {
+  amount: number;
+  kind: keyof typeof CONSUMABLE_LOG_EFFECT_KEYS;
+};
 
 export function activateInventoryItem(
   state: GameState,
@@ -181,31 +193,16 @@ function consumeItem(state: GameState, itemIndex: number, item: Item) {
 
   consumeInventoryItem(state.player.inventory, itemIndex, item);
   startConsumableCooldown(state);
-  state.player.hp += effects.healing;
-  state.player.mana += effects.mana;
-  state.player.hunger += effects.hunger;
-  state.player.thirst = (state.player.thirst ?? 100) + effects.thirst;
+  applyConsumableEffects(state, effects.appliedEffects);
   addLog(
     state,
     'survival',
     t('game.message.useItem', {
       item: item.name,
-      healing:
-        effects.healing > 0
-          ? ` ${t('ui.common.and')} ${t('game.message.useItem.healing', { amount: effects.healing })}`
-          : '',
-      mana:
-        effects.mana > 0
-          ? ` ${t('ui.common.and')} ${t('game.message.useItem.mana', { amount: effects.mana })}`
-          : '',
-      hunger:
-        effects.hunger > 0
-          ? ` ${t('ui.common.and')} ${t('game.message.useItem.hunger', { amount: effects.hunger })}`
-          : '',
-      thirst:
-        effects.thirst > 0
-          ? ` ${t('ui.common.and')} ${t('game.message.useItem.thirst', { amount: effects.thirst })}`
-          : '',
+      healing: formatConsumableLogEffect(effects.appliedEffects, 'healing'),
+      mana: formatConsumableLogEffect(effects.appliedEffects, 'mana'),
+      hunger: formatConsumableLogEffect(effects.appliedEffects, 'hunger'),
+      thirst: formatConsumableLogEffect(effects.appliedEffects, 'thirst'),
     }),
   );
 }
@@ -222,32 +219,149 @@ function formatCooldownSeconds(remainingMs: number) {
 
 function resolveConsumableUseEffects(state: GameState, item: Item) {
   const stats = getPlayerStats(state.player);
-  const restoreProfile = getConsumableRestoreProfile(item);
-  const healing = Math.max(
-    0,
-    Math.min(
-      stats.maxHp - state.player.hp,
-      resolvePercentRestoreAmount(stats.maxHp, restoreProfile.healingPercent),
-    ),
-  );
-  const mana = Math.max(
-    0,
-    Math.min(
-      stats.maxMana - state.player.mana,
-      resolvePercentRestoreAmount(stats.maxMana, restoreProfile.manaPercent),
-    ),
-  );
-  const hunger = Math.max(0, Math.min(100 - state.player.hunger, item.hunger));
-  const thirst = Math.max(
-    0,
-    Math.min(100 - (state.player.thirst ?? 100), item.thirst ?? 0),
+  const appliedEffects = getConsumableEffectDescriptors(
+    item,
+  ).flatMap<AppliedConsumableEffect>((effect) =>
+    resolveConsumableEffect(state, stats, effect),
   );
 
   return {
-    healing,
-    mana,
-    hunger,
-    thirst,
-    total: healing + mana + hunger + thirst,
+    appliedEffects,
+    total: appliedEffects.reduce((total, effect) => total + effect.amount, 0),
   };
+}
+
+function applyConsumableEffects(
+  state: GameState,
+  appliedEffects: AppliedConsumableEffect[],
+) {
+  for (const effect of appliedEffects) {
+    switch (effect.kind) {
+      case 'healing':
+        state.player.hp += effect.amount;
+        break;
+      case 'mana':
+        state.player.mana += effect.amount;
+        break;
+      case 'hunger':
+        state.player.hunger += effect.amount;
+        break;
+      case 'thirst':
+        state.player.thirst = (state.player.thirst ?? 100) + effect.amount;
+        break;
+    }
+  }
+}
+
+function formatConsumableLogEffect(
+  appliedEffects: AppliedConsumableEffect[],
+  kind: AppliedConsumableEffect['kind'],
+) {
+  const effect = appliedEffects.find((candidate) => candidate.kind === kind);
+  if (!effect) {
+    return '';
+  }
+
+  return ` ${t('ui.common.and')} ${t(CONSUMABLE_LOG_EFFECT_KEYS[kind], {
+    amount: effect.amount,
+  })}`;
+}
+
+function resolveConsumableEffect(
+  state: GameState,
+  stats: ReturnType<typeof getPlayerStats>,
+  effect: ConsumableEffectDescriptor,
+): AppliedConsumableEffect[] {
+  switch (effect.kind) {
+    case 'foodRestorePercent': {
+      const appliedEffects: AppliedConsumableEffect[] = [];
+      const healingEffect = resolvePercentConsumableEffect(
+        'healing',
+        stats.maxHp,
+        state.player.hp,
+        effect.amount,
+      );
+      const manaEffect = resolvePercentConsumableEffect(
+        'mana',
+        stats.maxMana,
+        state.player.mana,
+        effect.amount,
+      );
+
+      if (healingEffect) {
+        appliedEffects.push(healingEffect);
+      }
+      if (manaEffect) {
+        appliedEffects.push(manaEffect);
+      }
+
+      return appliedEffects;
+    }
+    case 'healingPercent': {
+      const appliedEffect = resolvePercentConsumableEffect(
+        'healing',
+        stats.maxHp,
+        state.player.hp,
+        effect.amount,
+      );
+      return appliedEffect ? [appliedEffect] : [];
+    }
+    case 'manaPercent': {
+      const appliedEffect = resolvePercentConsumableEffect(
+        'mana',
+        stats.maxMana,
+        state.player.mana,
+        effect.amount,
+      );
+      return appliedEffect ? [appliedEffect] : [];
+    }
+    case 'hunger': {
+      const appliedEffect = resolveFlatConsumableEffect(
+        'hunger',
+        100,
+        state.player.hunger,
+        effect.amount,
+      );
+      return appliedEffect ? [appliedEffect] : [];
+    }
+    case 'thirst': {
+      const appliedEffect = resolveFlatConsumableEffect(
+        'thirst',
+        100,
+        state.player.thirst ?? 100,
+        effect.amount,
+      );
+      return appliedEffect ? [appliedEffect] : [];
+    }
+    case 'homeScroll':
+      return [];
+  }
+}
+
+function resolvePercentConsumableEffect(
+  kind: 'healing' | 'mana',
+  maxValue: number,
+  currentValue: number,
+  percent: number,
+) {
+  const amount = Math.max(
+    0,
+    Math.min(
+      maxValue - currentValue,
+      resolvePercentRestoreAmount(maxValue, percent),
+    ),
+  );
+
+  return amount > 0 ? { kind, amount } : null;
+}
+
+function resolveFlatConsumableEffect(
+  kind: 'hunger' | 'thirst',
+  maxValue: number,
+  currentValue: number,
+  amount: number,
+) {
+  const resolvedAmount = Math.max(0, Math.min(maxValue - currentValue, amount));
+
+  return resolvedAmount > 0 ? { kind, amount: resolvedAmount } : null;
 }

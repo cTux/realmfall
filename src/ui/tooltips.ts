@@ -1,4 +1,5 @@
 import { getAbilityDefinition } from '../game/abilities';
+import { getConsumableEffectDescriptors } from '../game/consumables';
 import {
   getStatusEffectDefinition,
   getStatusEffectTags,
@@ -8,7 +9,6 @@ import { professionRecipeOutputBonus } from '../game/crafting';
 import { isEquippableItem, isRecipePage, sellValue } from '../game/inventory';
 import { getItemCategory, inferItemTags } from '../game/content/items';
 import { EquipmentSlotId } from '../game/content/ids';
-import { getConsumableRestoreProfile } from '../game/consumables';
 import {
   gatheringBonusChance,
   gatheringYieldBonus,
@@ -377,48 +377,56 @@ export function statusEffectTooltipLines(
 }
 
 function consumableEffectDescription(item: Item) {
-  const restoreProfile = getConsumableRestoreProfile(item);
+  const effects = getConsumableEffectDescriptors(item);
 
-  if (item.itemKey === 'home-scroll') {
+  if (effects.some((effect) => effect.kind === 'homeScroll')) {
     return t('ui.tooltip.consumable.homeScroll');
   }
 
-  const effects = [
-    restoreProfile.healingPercent > 0 && restoreProfile.manaPercent > 0
-      ? t('ui.tooltip.consumable.effect.foodRestorePercent', {
-          amount: restoreProfile.healingPercent,
-        })
-      : null,
-    restoreProfile.healingPercent > 0 && restoreProfile.manaPercent === 0
-      ? t('ui.tooltip.consumable.effect.healingPercent', {
-          amount: restoreProfile.healingPercent,
-        })
-      : null,
-    restoreProfile.manaPercent > 0 && restoreProfile.healingPercent === 0
-      ? t('ui.tooltip.consumable.effect.manaPercent', {
-          amount: restoreProfile.manaPercent,
-        })
-      : null,
-    item.hunger > 0
-      ? t('game.message.useItem.hunger', { amount: item.hunger })
-      : null,
-    (item.thirst ?? 0) > 0
-      ? t('game.message.useItem.thirst', { amount: item.thirst })
-      : null,
-  ].filter((effect): effect is string => Boolean(effect));
+  const effectDescriptions = effects.flatMap((effect) => {
+    switch (effect.kind) {
+      case 'foodRestorePercent':
+        return [
+          t('ui.tooltip.consumable.effect.foodRestorePercent', {
+            amount: effect.amount,
+          }),
+        ];
+      case 'healingPercent':
+        return [
+          t('ui.tooltip.consumable.effect.healingPercent', {
+            amount: effect.amount,
+          }),
+        ];
+      case 'manaPercent':
+        return [
+          t('ui.tooltip.consumable.effect.manaPercent', {
+            amount: effect.amount,
+          }),
+        ];
+      case 'hunger':
+        return [t('game.message.useItem.hunger', { amount: effect.amount })];
+      case 'thirst':
+        return [t('game.message.useItem.thirst', { amount: effect.amount })];
+      case 'homeScroll':
+        return [];
+    }
+  });
 
-  if (effects.length === 0) return t('ui.tooltip.consumable.generic');
-  if (effects.length === 1)
-    return t('ui.tooltip.consumable.oneEffect', { first: effects[0] });
-  if (effects.length === 2)
+  if (effectDescriptions.length === 0)
+    return t('ui.tooltip.consumable.generic');
+  if (effectDescriptions.length === 1)
+    return t('ui.tooltip.consumable.oneEffect', {
+      first: effectDescriptions[0],
+    });
+  if (effectDescriptions.length === 2)
     return t('ui.tooltip.consumable.twoEffects', {
-      first: effects[0],
-      second: effects[1],
+      first: effectDescriptions[0],
+      second: effectDescriptions[1],
     });
   return t('ui.tooltip.consumable.threeEffects', {
-    first: effects[0],
-    second: effects[1],
-    third: effects[2],
+    first: effectDescriptions[0],
+    second: effectDescriptions[1],
+    third: effectDescriptions[2],
   });
 }
 
