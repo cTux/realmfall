@@ -92,6 +92,34 @@ export function attachPixiWorldInteractions({
   worldTooltipKeyRef: MutableRefObject<string | null>;
   dragStateRef: MutableRefObject<WorldMapDragState | null>;
 }) {
+  const commitHoverSnapshot = ({
+    hoverCacheKey,
+    nextHoverSnapshot,
+    nextTooltipPosition,
+  }: {
+    hoverCacheKey: string;
+    nextHoverSnapshot: WorldHoverSnapshot;
+    nextTooltipPosition: TooltipPosition;
+  }) => {
+    canvas.style.cursor = nextHoverSnapshot.clickable ? 'pointer' : 'default';
+    hoverSnapshotRef.current = nextHoverSnapshot;
+    renderInvalidationRef.current += 1;
+    setCachedHoverSnapshot(
+      hoverAnalysisCacheRef.current,
+      hoverCacheKey,
+      nextHoverSnapshot,
+    );
+    applyHoverSnapshot({
+      hoverSnapshot: nextHoverSnapshot,
+      hoveredMoveRef,
+      hoveredSafePathRef,
+      nextTooltipPosition,
+      setTooltip,
+      tooltipPositionRef,
+      worldTooltipKeyRef,
+    });
+  };
+
   const clearHoverState = () => {
     hoverPointerRef.current = null;
     if (hoverFrameRef.current !== null) {
@@ -130,33 +158,40 @@ export function attachPixiWorldInteractions({
       r: playerCoordRef.current.r + clickedOffset.r,
     };
     const current = gameRef.current;
-    const tile = stateModule.getTileAt(current, target);
     const distance = stateModule.hexDistance(playerCoordRef.current, target);
-    const withinVisibleMap = distance <= WORLD_REVEAL_RADIUS;
-    const safePath =
-      distance > 1 && withinVisibleMap
-        ? stateModule.getSafePathToTile(current, target)
-        : null;
-    const clickable =
-      (distance === 1 && isPassable(tile.terrain)) ||
-      (withinVisibleMap && Boolean(safePath));
+    if (distance === 1) {
+      const tile = stateModule.getTileAt(current, target);
+      if (!isPassable(tile.terrain)) {
+        return;
+      }
 
-    if (!clickable) {
+      selectedRef.current = target;
+      renderInvalidationRef.current += 1;
+      setGame((currentState) =>
+        stateModule.moveToTile(
+          { ...currentState, worldTimeMs: worldTimeMsRef.current },
+          target,
+        ),
+      );
+      return;
+    }
+
+    if (distance === 0 || distance > WORLD_REVEAL_RADIUS) {
+      return;
+    }
+
+    const safePath = stateModule.getSafePathToTile(current, target);
+    if (!safePath) {
       return;
     }
 
     selectedRef.current = target;
     renderInvalidationRef.current += 1;
     setGame((currentState) =>
-      distance === 1
-        ? stateModule.moveToTile(
-            { ...currentState, worldTimeMs: worldTimeMsRef.current },
-            target,
-          )
-        : stateModule.moveAlongSafePath(
-            { ...currentState, worldTimeMs: worldTimeMsRef.current },
-            target,
-          ),
+      stateModule.moveAlongSafePath(
+        { ...currentState, worldTimeMs: worldTimeMsRef.current },
+        target,
+      ),
     );
   };
 
@@ -193,6 +228,8 @@ export function attachPixiWorldInteractions({
     }
 
     const current = gameRef.current;
+    const distance = stateModule.hexDistance(playerCoordRef.current, target);
+    const withinVisibleMap = distance <= WORLD_REVEAL_RADIUS;
     const hoverCacheKey = getHoverAnalysisCacheKey(current, target);
     const cachedHoverSnapshot =
       hoverAnalysisCacheRef.current.get(hoverCacheKey);
@@ -213,21 +250,26 @@ export function attachPixiWorldInteractions({
       return;
     }
 
-    const tile = stateModule.getTileAt(current, target);
-    const distance = stateModule.hexDistance(playerCoordRef.current, target);
-    const withinVisibleMap = distance <= WORLD_REVEAL_RADIUS;
-    const adjacentActionable = distance === 1 && isPassable(tile.terrain);
-    const safePath =
-      !adjacentActionable && distance > 1 && withinVisibleMap
-        ? stateModule.getSafePathToTile(current, target)
-        : null;
-    const actionable = adjacentActionable || Boolean(safePath);
+    let tile: ReturnType<typeof stateModule.getTileAt> | null = null;
+    let safePath: stateModule.HexCoord[] | null = null;
+    let actionable = false;
+
+    if (distance === 1) {
+      tile = stateModule.getTileAt(current, target);
+      actionable = isPassable(tile.terrain);
+    } else if (distance > 1 && withinVisibleMap) {
+      safePath = stateModule.getSafePathToTile(current, target);
+      actionable = Boolean(safePath);
+      if (actionable) {
+        tile = stateModule.getTileAt(current, target);
+      }
+    }
 
     let nextHoveredPath: stateModule.HexCoord[] | null = null;
     let nextTooltip: TooltipState | null = null;
     let nextTooltipKey: string | null = null;
 
-    if (actionable) {
+    if (actionable && tile) {
       nextHoveredPath = safePath && safePath.length > 1 ? safePath : null;
 
       const enemies = stateModule.getEnemiesAt(current, target);
@@ -255,22 +297,10 @@ export function attachPixiWorldInteractions({
             tooltip: null,
             tooltipKey: null,
           };
-          canvas.style.cursor = actionable ? 'pointer' : 'default';
-          hoverSnapshotRef.current = nextHoverSnapshot;
-          renderInvalidationRef.current += 1;
-          setCachedHoverSnapshot(
-            hoverAnalysisCacheRef.current,
+          commitHoverSnapshot({
             hoverCacheKey,
             nextHoverSnapshot,
-          );
-          applyHoverSnapshot({
-            hoverSnapshot: nextHoverSnapshot,
-            hoveredMoveRef,
-            hoveredSafePathRef,
             nextTooltipPosition,
-            setTooltip,
-            tooltipPositionRef,
-            worldTooltipKeyRef,
           });
           return;
         }
@@ -296,22 +326,10 @@ export function attachPixiWorldInteractions({
       tooltip: nextTooltip,
       tooltipKey: nextTooltipKey,
     };
-    canvas.style.cursor = actionable ? 'pointer' : 'default';
-    hoverSnapshotRef.current = nextHoverSnapshot;
-    renderInvalidationRef.current += 1;
-    setCachedHoverSnapshot(
-      hoverAnalysisCacheRef.current,
+    commitHoverSnapshot({
       hoverCacheKey,
       nextHoverSnapshot,
-    );
-    applyHoverSnapshot({
-      hoverSnapshot: nextHoverSnapshot,
-      hoveredMoveRef,
-      hoveredSafePathRef,
       nextTooltipPosition,
-      setTooltip,
-      tooltipPositionRef,
-      worldTooltipKeyRef,
     });
   };
 

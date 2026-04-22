@@ -21,6 +21,7 @@ This spec covers deterministic hex-world traversal, visibility, and safe-path tr
 - Claim borders remain visible above home, hover, loot, selection, and safe-path overlays so highlight effects do not cover territory edges.
 - Manual movement is one adjacent hex at a time.
 - A safe-path move can route to a visible destination when a path exists.
+- Unrevealed distant world-map hexes do not trigger movement, tooltip, or pathfinding work until they fall inside the revealed travel radius.
 - Safe-path routing avoids impassable terrain and hostile occupied intermediate tiles, but it may end on a visible hostile destination so long-range travel can start combat there without stepping through danger first.
 - Movement is blocked while combat is active or when the run is over.
 
