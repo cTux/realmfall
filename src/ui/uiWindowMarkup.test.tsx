@@ -22,6 +22,7 @@ import { RecipeBookWindow } from './components/RecipeBookWindow';
 import { SkillsWindow } from './components/SkillsWindow';
 import { renderMarkup, setupUiTestEnvironment } from './uiTestHelpers';
 import { DEFAULT_LOG_FILTERS } from '../app/constants';
+import { WINDOW_LABELS } from './windowLabels';
 
 setupUiTestEnvironment();
 
@@ -285,7 +286,7 @@ describe('ui window markup', () => {
       </>,
     );
 
-    expect(markup).toContain(')haracter info');
+    expect(markup).toContain(WINDOW_LABELS.hero.suffix);
     expect(markup).toContain('Hunger');
     expect(markup).toContain('Attack');
     expect(markup).toContain('Defense');
@@ -295,13 +296,14 @@ describe('ui window markup', () => {
     expect(markup).not.toContain(
       'gathering level equals the percent chance to pull +1 extra resource',
     );
-    expect(markup).toContain(')ecipe book');
-    expect(markup).toContain(')ex info');
+    expect(markup).toContain(WINDOW_LABELS.recipes.suffix);
+    expect(markup).toContain(WINDOW_LABELS.hexInfo.suffix);
     expect(markup).toContain('(Q) Gather');
     expect(markup).toContain('Structure HP');
     expect(markup).toContain('Town Stock');
     expect(markup).not.toContain('Enemies0');
-    expect(markup).toContain('Horned Helm');
+    expect(markup).toContain('aria-label="armor"');
+    expect(markup).toContain('x12');
     expect(markup).toContain('Empty');
     expect(markup).toContain('Tak(e) all');
     expect(markup).toContain('Filters');
