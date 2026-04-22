@@ -13,6 +13,7 @@ import type { TooltipLine } from '../../ui/tooltips';
 import type { AudioSettings } from '../audioSettings';
 import type { WindowPositions, WindowVisibilityState } from '../constants';
 import type { GraphicsSettings } from '../graphicsSettings';
+import type { ResettableSaveAreaId } from '../../persistence/saveAreas';
 import type { ActionBarSlots } from './actionBar';
 import type { ItemContextMenuState, TooltipItem } from './types';
 import type { ItemModificationKind } from '../../game/itemModifications';
@@ -193,7 +194,7 @@ export interface AppWindowsActions {
     onToggleLogFilter: (kind: LogKind) => void;
   };
   settings: {
-    onResetSaveData: () => void;
+    onResetSaveArea: (areaId: ResettableSaveAreaId) => Promise<void>;
     onSaveSettings: (settings: {
       audio: AudioSettings;
       graphics: GraphicsSettings;

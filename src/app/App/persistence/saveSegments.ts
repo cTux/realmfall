@@ -4,8 +4,8 @@ import type { WindowPositions, WindowVisibilityState } from '../../constants';
 import type { ActionBarSlots } from '../actionBar';
 
 export type PersistedSaveSegments = {
-  game: PersistedData['game'];
-  ui: PersistedData['ui'];
+  game: NonNullable<PersistedData['game']>;
+  ui: NonNullable<PersistedData['ui']>;
 };
 
 export type SerializedSaveSegments = {

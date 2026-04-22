@@ -4,13 +4,14 @@ import {
   loadAudioSettings,
   saveAudioSettings,
 } from './audioSettings';
+import { PERSISTED_SETTINGS_STORAGE_KEYS } from './settingsStorage';
 
 describe('audio settings persistence', () => {
   beforeEach(() => {
     window.localStorage.clear();
   });
 
-  it('stores audio settings inside the shared settings payload', () => {
+  it('stores audio settings in the audio save area', () => {
     saveAudioSettings({
       musicMuted: true,
       muted: true,
@@ -32,25 +33,26 @@ describe('audio settings persistence', () => {
     });
 
     expect(
-      JSON.parse(window.localStorage.getItem('settings') ?? 'null'),
+      JSON.parse(
+        window.localStorage.getItem(PERSISTED_SETTINGS_STORAGE_KEYS.audio) ??
+          'null',
+      ),
     ).toEqual({
-      audio: {
-        musicMuted: true,
-        muted: true,
-        respectReducedMotion: false,
-        soundEffects: {
-          ...DEFAULT_AUDIO_SETTINGS.soundEffects,
-          pop: false,
-          swoosh: false,
-        },
-        theme: 'crisp',
-        volume: 0.6,
-        voice: {
-          actorId: 'karen-cenon',
-          events: {
-            ...DEFAULT_AUDIO_SETTINGS.voice.events,
-            combatAttack: false,
-          },
+      musicMuted: true,
+      muted: true,
+      respectReducedMotion: false,
+      soundEffects: {
+        ...DEFAULT_AUDIO_SETTINGS.soundEffects,
+        pop: false,
+        swoosh: false,
+      },
+      theme: 'crisp',
+      volume: 0.6,
+      voice: {
+        actorId: 'karen-cenon',
+        events: {
+          ...DEFAULT_AUDIO_SETTINGS.voice.events,
+          combatAttack: false,
         },
       },
     });
@@ -58,20 +60,18 @@ describe('audio settings persistence', () => {
 
   it('merges persisted audio settings with defaults', () => {
     window.localStorage.setItem(
-      'settings',
+      PERSISTED_SETTINGS_STORAGE_KEYS.audio,
       JSON.stringify({
-        audio: {
-          musicMuted: true,
-          muted: true,
-          soundEffects: {
-            warning: false,
-          },
-          theme: 'crisp',
-          voice: {
-            actorId: 'sean-lenhart',
-            events: {
-              playerDeath: false,
-            },
+        musicMuted: true,
+        muted: true,
+        soundEffects: {
+          warning: false,
+        },
+        theme: 'crisp',
+        voice: {
+          actorId: 'sean-lenhart',
+          events: {
+            playerDeath: false,
           },
         },
       }),
@@ -98,24 +98,22 @@ describe('audio settings persistence', () => {
 
   it('normalizes malformed persisted audio settings', () => {
     window.localStorage.setItem(
-      'settings',
+      PERSISTED_SETTINGS_STORAGE_KEYS.audio,
       JSON.stringify({
-        audio: {
-          muted: 'yes',
-          musicMuted: 'quiet',
-          respectReducedMotion: null,
-          soundEffects: {
-            pop: 'no',
-            swoosh: false,
-          },
-          theme: 'broken',
-          volume: 4,
-          voice: {
-            actorId: 'broken',
-            events: {
-              combatAttack: 'loud',
-              combatEnd: false,
-            },
+        muted: 'yes',
+        musicMuted: 'quiet',
+        respectReducedMotion: null,
+        soundEffects: {
+          pop: 'no',
+          swoosh: false,
+        },
+        theme: 'broken',
+        volume: 4,
+        voice: {
+          actorId: 'broken',
+          events: {
+            combatAttack: 'loud',
+            combatEnd: false,
           },
         },
       }),
@@ -159,65 +157,71 @@ describe('audio settings persistence', () => {
     });
 
     expect(
-      JSON.parse(window.localStorage.getItem('settings') ?? 'null'),
+      JSON.parse(
+        window.localStorage.getItem(PERSISTED_SETTINGS_STORAGE_KEYS.audio) ??
+          'null',
+      ),
     ).toEqual({
-      audio: {
-        musicMuted: false,
-        muted: false,
-        respectReducedMotion: true,
-        soundEffects: {
-          ...DEFAULT_AUDIO_SETTINGS.soundEffects,
-          click: false,
-        },
-        theme: 'soft',
-        volume: 1,
-        voice: {
-          actorId: 'alex-brodie',
-          events: {
-            ...DEFAULT_AUDIO_SETTINGS.voice.events,
-            combatExertion: false,
-          },
+      musicMuted: false,
+      muted: false,
+      respectReducedMotion: true,
+      soundEffects: {
+        ...DEFAULT_AUDIO_SETTINGS.soundEffects,
+        click: false,
+      },
+      theme: 'soft',
+      volume: 1,
+      voice: {
+        actorId: 'alex-brodie',
+        events: {
+          ...DEFAULT_AUDIO_SETTINGS.voice.events,
+          combatExertion: false,
         },
       },
     });
   });
 
-  it('clears only the audio settings section', () => {
+  it('clears only the audio save area', () => {
     window.localStorage.setItem(
-      'settings',
+      PERSISTED_SETTINGS_STORAGE_KEYS.audio,
       JSON.stringify({
-        audio: {
-          musicMuted: true,
-          muted: true,
-          respectReducedMotion: false,
-          soundEffects: {
-            ...DEFAULT_AUDIO_SETTINGS.soundEffects,
-            error: false,
-          },
-          theme: 'crisp',
-          volume: 0.6,
-          voice: {
-            actorId: 'meghan-christian',
-            events: {
-              ...DEFAULT_AUDIO_SETTINGS.voice.events,
-              playerDamaged: false,
-            },
+        musicMuted: true,
+        muted: true,
+        respectReducedMotion: false,
+        soundEffects: {
+          ...DEFAULT_AUDIO_SETTINGS.soundEffects,
+          error: false,
+        },
+        theme: 'crisp',
+        volume: 0.6,
+        voice: {
+          actorId: 'meghan-christian',
+          events: {
+            ...DEFAULT_AUDIO_SETTINGS.voice.events,
+            playerDamaged: false,
           },
         },
-        graphics: {
-          antialias: false,
-        },
+      }),
+    );
+    window.localStorage.setItem(
+      PERSISTED_SETTINGS_STORAGE_KEYS.graphics,
+      JSON.stringify({
+        antialias: false,
       }),
     );
 
     clearAudioSettings();
 
     expect(
-      JSON.parse(window.localStorage.getItem('settings') ?? 'null'),
+      window.localStorage.getItem(PERSISTED_SETTINGS_STORAGE_KEYS.audio),
+    ).toBeNull();
+    expect(
+      JSON.parse(
+        window.localStorage.getItem(PERSISTED_SETTINGS_STORAGE_KEYS.graphics) ??
+          'null',
+      ),
     ).toEqual({
-      graphics: {
-        antialias: false,
-      },
+      antialias: false,
     });
   });
 });

@@ -122,6 +122,19 @@
   gap: 0.3rem;
 }
 
+.sectionTitle {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 0.96rem;
+}
+
+.sectionDescription {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
 .rangeLabel {
   color: #e2e8f0;
   font-size: 0.84rem;
@@ -238,42 +251,63 @@
   flex-wrap: wrap;
 }
 
-.resetButton {
+.savesPanel {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.saveAreas {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.saveAreaCard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.9rem;
+  align-items: center;
+  padding: 0.85rem 0.9rem;
+  border: 1px solid rgb(148 163 184 / 16%);
+  background: rgb(15 23 42 / 62%);
+}
+
+.saveAreaCopy {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.saveAreaTitle {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 0.82rem;
+}
+
+.saveAreaDescription {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+
+.saveAreaResetButton {
   @include ui.compact-button;
 
-  position: relative;
-  margin-left: auto;
   width: auto;
-  overflow: hidden;
   min-height: 0;
+  padding: 0.55rem 0.85rem;
   border: 1px solid rgb(239 68 68 / 30%);
   background: rgb(127 29 29 / 92%);
   color: #fee2e2;
-  text-align: left;
   white-space: nowrap;
   transition:
     border-color 120ms ease,
-    color 120ms ease;
+    color 120ms ease,
+    background-color 120ms ease;
 
   &:hover:enabled {
     border-color: rgb(248 113 113 / 58%);
     color: #fff1f2;
   }
-}
-
-.resetFill {
-  @include ui.progress-fill(linear-gradient(90deg, #991b1b, #ef4444));
-
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: var(--reset-progress, 0%);
-  opacity: 0.72;
-}
-
-.resetText {
-  position: relative;
-  z-index: 1;
-  display: block;
 }
 
 @media (width <= 980px) {
@@ -307,7 +341,7 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .resetButton {
-    margin-left: 0;
+  .saveAreaCard {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

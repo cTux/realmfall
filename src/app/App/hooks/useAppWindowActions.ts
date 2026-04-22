@@ -25,7 +25,7 @@ interface UseAppWindowActionsArgs {
   handleProspect: AppWindowsActions['world']['onProspect'];
   handleProspectItem: AppWindowsActions['inventory']['onProspectItem'];
   handleReforgeItem: AppWindowsActions['inventory']['onReforgeItem'];
-  handleResetSaveData: AppWindowsActions['settings']['onResetSaveData'];
+  handleResetSaveArea: AppWindowsActions['settings']['onResetSaveArea'];
   handleSaveSettings: AppWindowsActions['settings']['onSaveSettings'];
   handleSaveSettingsAndReload: AppWindowsActions['settings']['onSaveSettingsAndReload'];
   handleSellAll: AppWindowsActions['world']['onSellAll'];
@@ -77,7 +77,7 @@ export function useAppWindowActions({
   handleProspect,
   handleProspectItem,
   handleReforgeItem,
-  handleResetSaveData,
+  handleResetSaveArea,
   handleSaveSettings,
   handleSaveSettingsAndReload,
   handleSellAll,
@@ -231,11 +231,11 @@ export function useAppWindowActions({
 
   const settings = useMemo(
     () => ({
-      onResetSaveData: handleResetSaveData,
+      onResetSaveArea: handleResetSaveArea,
       onSaveSettings: handleSaveSettings,
       onSaveSettingsAndReload: handleSaveSettingsAndReload,
     }),
-    [handleResetSaveData, handleSaveSettings, handleSaveSettingsAndReload],
+    [handleResetSaveArea, handleSaveSettings, handleSaveSettingsAndReload],
   );
 
   return useMemo(

@@ -20,7 +20,7 @@ export const GameSettingsWindow = memo(function GameSettingsWindow({
   graphicsSettings,
   onClose,
   onMove,
-  onResetSaveData,
+  onResetSaveArea,
   onSave,
   onSaveAndReload,
   position,
@@ -46,7 +46,7 @@ export const GameSettingsWindow = memo(function GameSettingsWindow({
           audioSettings,
           graphicsSettings,
           onClose,
-          onResetSaveData,
+          onResetSaveArea,
           onSave,
           onSaveAndReload,
         }}

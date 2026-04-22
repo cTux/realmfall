@@ -6,16 +6,15 @@ This spec covers browser save storage, direct hydration of the current save shap
 
 ## Current Solution
 
-- Saves are stored in browser IndexedDB under the `realmfall` database, using the `app-state` object store and the `game-state` key.
-- Stored payloads contain both game and UI state.
+- Saves are stored in browser IndexedDB under the `realmfall` database, using the `app-state` object store and separate `game-state-game` and `game-state-ui` keys.
+- Gameplay and UI data persist as separate encrypted save areas so each area can be cleared independently without rewriting the other.
 - If IndexedDB is unavailable, the encrypted save falls back to `localStorage`, and successful IndexedDB-backed loads clear the legacy `localStorage` copy after migrating it.
-- Non-save settings persist separately in plain `localStorage` under the `settings` key, outside the encrypted game save, so startup can hydrate renderer and world-map initialization inputs before the game save finishes loading.
-- The shared `settings` payload currently carries `graphics`, `audio`, and `worldMap` sections, and section-clearing logic removes only the targeted branch while preserving the others.
+- Graphics, audio, and world-map settings persist separately in plain `localStorage` under dedicated area keys outside the encrypted save areas, so startup can hydrate renderer and world-map initialization inputs before the game save finishes loading.
 - The app persists snapshots with world time and UI window state while intentionally excluding transient log history from the saved payload.
 - `src/persistence/storage.ts` wraps saved JSON in AES-GCM using a client-side passphrase-derived key.
 - That wrapper is implementation obfuscation for local saves, not a real security boundary or meaningful client-side secret protection.
-- Legacy graphics settings from `realmfall-graphics-settings` migrate into the shared `settings` payload when current graphics settings load successfully, and clearing graphics settings also removes that retired key.
-- Loaded saves are validated before hydration, and malformed game or UI slices are rejected independently instead of being merged straight into runtime state or blocking the other valid slice from hydrating.
+- Clearing the graphics settings area also removes the retired `realmfall-graphics-settings` key when it is present.
+- Loaded saves are validated before hydration, and malformed game or UI areas are rejected independently instead of being merged straight into runtime state or blocking the other valid area from hydrating.
 - Save normalization derives gameplay enum and union allowlists from shared game constants and content ids, so persistence validation tracks the canonical runtime model instead of maintaining parallel literal lists.
 - Save normalization keeps `src/app/normalize.ts` as the public surface while focused helpers split gameplay payloads, combat payloads, item payloads, UI payloads, and shared validators into separate modules so save-shape updates touch narrower files.
 - The current project phase does not support broad backward save-format compatibility; older save payloads are expected to be cleared when the runtime save shape changes outside narrow deterministic canonical-id backfills.
@@ -33,6 +32,7 @@ This spec covers browser save storage, direct hydration of the current save shap
 ## Main Implementation Areas
 
 - `src/persistence/storage.ts`
+- `src/persistence/saveAreas.ts`
 - `src/app/normalize.ts`
 - `src/app/normalizeGameState.ts`
 - `src/app/normalizeCombat.ts`

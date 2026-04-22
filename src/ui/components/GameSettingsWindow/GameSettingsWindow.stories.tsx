@@ -19,7 +19,7 @@ const meta = {
     audioSettings: DEFAULT_AUDIO_SETTINGS,
     graphicsSettings: DEFAULT_GRAPHICS_SETTINGS,
     onMove: () => undefined,
-    onResetSaveData: () => undefined,
+    onResetSaveArea: async () => undefined,
     onSave: async () => undefined,
     onSaveAndReload: async () => undefined,
     position: STORYBOOK_WINDOW_POSITION,
@@ -54,7 +54,7 @@ function GameSettingsWindowStory(
       visible={visible}
       onClose={() => setVisible(false)}
       onMove={setPosition}
-      onResetSaveData={() => undefined}
+      onResetSaveArea={async () => undefined}
       onSave={async (nextSettings) => {
         setAudioSettings(nextSettings.audio);
         setGraphicsSettings(nextSettings.graphics);

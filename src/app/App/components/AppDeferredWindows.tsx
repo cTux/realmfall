@@ -288,7 +288,7 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
             graphicsSettings={settingsView.graphics}
             onSave={settingsActions.onSaveSettings}
             onSaveAndReload={settingsActions.onSaveSettingsAndReload}
-            onResetSaveData={settingsActions.onResetSaveData}
+            onResetSaveArea={settingsActions.onResetSaveArea}
           />
         </Suspense>
       ) : null}

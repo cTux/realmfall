@@ -5,26 +5,28 @@ import {
   loadGraphicsSettings,
   saveGraphicsSettings,
 } from './graphicsSettings';
+import { PERSISTED_SETTINGS_STORAGE_KEYS } from './settingsStorage';
 
 describe('graphics settings persistence', () => {
   beforeEach(() => {
     window.localStorage.clear();
   });
 
-  it('stores graphics settings inside the shared settings payload', () => {
+  it('stores graphics settings in the graphics save area', () => {
     saveGraphicsSettings(applyGraphicsPreset('performance'));
 
     expect(
-      JSON.parse(window.localStorage.getItem('settings') ?? 'null'),
-    ).toEqual({
-      graphics: applyGraphicsPreset('performance'),
-    });
+      JSON.parse(
+        window.localStorage.getItem(PERSISTED_SETTINGS_STORAGE_KEYS.graphics) ??
+          'null',
+      ),
+    ).toEqual(applyGraphicsPreset('performance'));
     expect(
       window.localStorage.getItem('realmfall-graphics-settings'),
     ).toBeNull();
   });
 
-  it('migrates legacy graphics settings into the shared settings payload', () => {
+  it('ignores retired legacy graphics settings', () => {
     window.localStorage.setItem(
       'realmfall-graphics-settings',
       JSON.stringify({
@@ -33,36 +35,19 @@ describe('graphics settings persistence', () => {
       }),
     );
 
-    expect(loadGraphicsSettings()).toEqual({
-      ...DEFAULT_GRAPHICS_SETTINGS,
-      preset: 'custom',
-      antialias: false,
-      preserveDrawingBuffer: true,
-    });
+    expect(loadGraphicsSettings()).toEqual(DEFAULT_GRAPHICS_SETTINGS);
     expect(
-      JSON.parse(window.localStorage.getItem('settings') ?? 'null'),
-    ).toEqual({
-      graphics: {
-        ...DEFAULT_GRAPHICS_SETTINGS,
-        preset: 'custom',
-        antialias: false,
-        preserveDrawingBuffer: true,
-      },
-    });
-    expect(
-      window.localStorage.getItem('realmfall-graphics-settings'),
+      window.localStorage.getItem(PERSISTED_SETTINGS_STORAGE_KEYS.graphics),
     ).toBeNull();
   });
 
   it('falls back to defaults for malformed persisted values', () => {
     window.localStorage.setItem(
-      'settings',
+      PERSISTED_SETTINGS_STORAGE_KEYS.graphics,
       JSON.stringify({
-        graphics: {
-          preset: 'performance',
-          antialias: 'no',
-          premultipliedAlpha: 1,
-        },
+        preset: 'performance',
+        antialias: 'no',
+        premultipliedAlpha: 1,
       }),
     );
 
@@ -83,26 +68,31 @@ describe('graphics settings persistence', () => {
     });
 
     expect(
-      JSON.parse(window.localStorage.getItem('settings') ?? 'null'),
+      JSON.parse(
+        window.localStorage.getItem(PERSISTED_SETTINGS_STORAGE_KEYS.graphics) ??
+          'null',
+      ),
     ).toEqual({
-      graphics: {
-        preset: 'custom',
-        resolutionCap: DEFAULT_GRAPHICS_SETTINGS.resolutionCap,
-        antialias: false,
-        autoDensity: false,
-        clearBeforeRender: DEFAULT_GRAPHICS_SETTINGS.clearBeforeRender,
-        preserveDrawingBuffer: true,
-        premultipliedAlpha: false,
-        showTerrainBackgrounds: false,
-        useContextAlpha: false,
-      },
+      preset: 'custom',
+      resolutionCap: DEFAULT_GRAPHICS_SETTINGS.resolutionCap,
+      antialias: false,
+      autoDensity: false,
+      clearBeforeRender: DEFAULT_GRAPHICS_SETTINGS.clearBeforeRender,
+      preserveDrawingBuffer: true,
+      premultipliedAlpha: false,
+      showTerrainBackgrounds: false,
+      useContextAlpha: false,
     });
   });
 
-  it('clears both current and legacy settings keys', () => {
+  it('clears the graphics save area and retired legacy key', () => {
     window.localStorage.setItem(
-      'settings',
-      JSON.stringify({ audio: { muted: true }, graphics: {} }),
+      PERSISTED_SETTINGS_STORAGE_KEYS.audio,
+      JSON.stringify({ muted: true }),
+    );
+    window.localStorage.setItem(
+      PERSISTED_SETTINGS_STORAGE_KEYS.graphics,
+      JSON.stringify({ antialias: false }),
     );
     window.localStorage.setItem(
       'realmfall-graphics-settings',
@@ -112,10 +102,14 @@ describe('graphics settings persistence', () => {
     clearGraphicsSettings();
 
     expect(
-      JSON.parse(window.localStorage.getItem('settings') ?? 'null'),
-    ).toEqual({
-      audio: { muted: true },
-    });
+      window.localStorage.getItem(PERSISTED_SETTINGS_STORAGE_KEYS.graphics),
+    ).toBeNull();
+    expect(
+      JSON.parse(
+        window.localStorage.getItem(PERSISTED_SETTINGS_STORAGE_KEYS.audio) ??
+          'null',
+      ),
+    ).toEqual({ muted: true });
     expect(
       window.localStorage.getItem('realmfall-graphics-settings'),
     ).toBeNull();
