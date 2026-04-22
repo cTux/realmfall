@@ -13,6 +13,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Static layers hold terrain, structures, claims, and stable ground cover.
 - Interaction layers hold hover, selection, loot borders, and safe-path overlays.
 - Animated layers hold atmosphere, clouds, hot-structure lighting such as campfires and furnaces, and overlay work.
+- Animated overlay work now uses separate fills for time-of-day tinting and fullscreen visual effects, so gameplay-driven screen warnings can layer on top of ambient lighting without replacing it.
 - The renderer reuses graphics and sprites through dedicated pool helpers.
 - Cached scene state avoids unnecessary rebuilds when screen size, derived static-world render inputs, selected tile, or path highlights have not changed.
 - Static and interaction redraw invalidation derives from render-specific version keys rather than whole `GameState` identity, so log-only or other non-world state clones do not rebuild unchanged Pixi layers.
@@ -28,6 +29,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Animated sky, atmosphere, cloud, overlay, and firelight layers use their own lower-cadence token, so hover or selection redraws inside the same animation bucket do not reset those animated stage layers again.
 - Deterministic ground-cover presentation and cloud inputs are memoized in bounded caches.
 - The world renderer includes time-of-day lighting, atmosphere passes, overlay tinting, and optional fish-eye processing.
+- Fullscreen visual effects resolve through a dedicated renderer helper. The first shipped effect adds a pulsing red overlay when the player's HP drops below `30%`, and the warning turns off at `30%` HP or higher.
 - Rendering quality and icon sizing derive from screen state and world radius.
 - Pixi v8 initialization happens through the async `Application.init()` path rather than constructor options.
 - The world bootstrap loads Pixi through a dedicated `pixiRuntime` module and passes `manageImports: false`, so every Pixi feature used on the world path must be imported there explicitly. The current manual runtime setup includes the app, graphics, text, and filter extensions because the scene cache constructs a custom world-map `Filter`.
@@ -56,5 +58,6 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - `src/ui/world/pixiRuntime.ts`
 - `src/ui/world/renderScene.ts`
 - `src/ui/world/renderSceneCache.ts`
+- `src/ui/world/renderSceneFullscreenEffects.ts`
 - `src/ui/world/renderScenePools.ts`
 - `src/ui/world/renderSceneAtmosphere.ts`

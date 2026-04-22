@@ -81,6 +81,9 @@ describe('renderScene cache invalidation', () => {
     const initialOverlayClearCalls = (
       scene.overlayFill as unknown as MockGraphics
     ).clear.mock.calls.length;
+    const initialFullscreenEffectClearCalls = (
+      scene.fullscreenEffectFill as unknown as MockGraphics
+    ).clear.mock.calls.length;
     const initialCloudCount = getCloudLayer(app).children.length;
 
     renderScene(
@@ -99,6 +102,9 @@ describe('renderScene cache invalidation', () => {
     expect(
       (scene.overlayFill as unknown as MockGraphics).clear.mock.calls,
     ).toHaveLength(initialOverlayClearCalls);
+    expect(
+      (scene.fullscreenEffectFill as unknown as MockGraphics).clear.mock.calls,
+    ).toHaveLength(initialFullscreenEffectClearCalls);
     expect(getCloudLayer(app).children).toHaveLength(initialCloudCount);
 
     renderScene(
@@ -117,6 +123,63 @@ describe('renderScene cache invalidation', () => {
     expect(
       (scene.overlayFill as unknown as MockGraphics).clear.mock.calls.length,
     ).toBeGreaterThan(initialOverlayClearCalls);
+    expect(
+      (scene.fullscreenEffectFill as unknown as MockGraphics).clear.mock.calls
+        .length,
+    ).toBeGreaterThan(initialFullscreenEffectClearCalls);
+  });
+
+  it('rerenders animated overlays when the low-HP warning toggles inside the same bucket', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { getSceneCache } = await import('./renderSceneCache');
+    const game = createGame(2, 'render-scene-low-hp-invalidation');
+    game.player.baseMaxHp = 100;
+    game.player.hp = 100;
+    const visibleTiles = getVisibleTiles(game);
+    const app = createMockApp();
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      100,
+    );
+
+    const scene = getSceneCache(app as never);
+    const fullscreenEffectFill =
+      scene.fullscreenEffectFill as unknown as MockGraphics;
+    const initialClearCalls = fullscreenEffectFill.clear.mock.calls.length;
+    const lowHpGame = {
+      ...game,
+      player: {
+        ...game.player,
+        hp: 29,
+      },
+    };
+
+    renderScene(
+      app as never,
+      lowHpGame,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      120,
+    );
+
+    const lastBeginFillCall =
+      fullscreenEffectFill.beginFill.mock.calls[
+        fullscreenEffectFill.beginFill.mock.calls.length - 1
+      ];
+
+    expect(fullscreenEffectFill.clear.mock.calls.length).toBeGreaterThan(
+      initialClearCalls,
+    );
+    expect(lastBeginFillCall?.[0]).toBe(0x991b1b);
+    expect(lastBeginFillCall?.[1]).toBeGreaterThan(0);
   });
 
   it('keeps static and stable interaction layers cached across log-only state clones', async () => {

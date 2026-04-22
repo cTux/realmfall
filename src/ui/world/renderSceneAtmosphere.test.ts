@@ -15,6 +15,64 @@ import {
 setupRenderSceneTestEnvironment();
 
 describe('renderScene atmosphere', () => {
+  it('renders a red fullscreen warning when player HP drops below 30%', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { getSceneCache } = await import('./renderSceneCache');
+    const game = createGame(2, 'render-scene-low-hp-warning');
+    game.player.baseMaxHp = 100;
+    game.player.hp = 29;
+    const app = createMockApp();
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      600,
+    );
+
+    const scene = getSceneCache(app as never);
+    const fullscreenEffectFill =
+      scene.fullscreenEffectFill as unknown as MockGraphics;
+    const lastBeginFillCall =
+      fullscreenEffectFill.beginFill.mock.calls[
+        fullscreenEffectFill.beginFill.mock.calls.length - 1
+      ];
+
+    expect(fullscreenEffectFill.visible).toBe(true);
+    expect(lastBeginFillCall?.[0]).toBe(0x991b1b);
+    expect(lastBeginFillCall?.[1]).toBeGreaterThan(0);
+    expect(fullscreenEffectFill.drawRect).toHaveBeenCalledWith(0, 0, 800, 600);
+  });
+
+  it('does not render the low-HP fullscreen warning at 30% HP', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { getSceneCache } = await import('./renderSceneCache');
+    const game = createGame(2, 'render-scene-low-hp-threshold');
+    game.player.baseMaxHp = 100;
+    game.player.hp = 30;
+    const app = createMockApp();
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      600,
+    );
+
+    const scene = getSceneCache(app as never);
+    const fullscreenEffectFill =
+      scene.fullscreenEffectFill as unknown as MockGraphics;
+
+    expect(fullscreenEffectFill.visible).toBe(false);
+    expect(fullscreenEffectFill.beginFill).not.toHaveBeenCalled();
+  });
+
   it('adds animated campfire and furnace glow only once the world gets dark', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-campfire-glow');
