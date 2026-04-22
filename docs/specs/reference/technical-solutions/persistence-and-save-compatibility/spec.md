@@ -17,9 +17,10 @@ This spec covers browser save storage, direct hydration of the current save shap
 - Legacy graphics settings from `realmfall-graphics-settings` migrate into the shared `settings` payload when current graphics settings load successfully, and clearing graphics settings also removes that retired key.
 - Loaded saves are validated before hydration, and malformed game or UI slices are rejected independently instead of being merged straight into runtime state or blocking the other valid slice from hydrating.
 - Save normalization derives gameplay enum and union allowlists from shared game constants and content ids, so persistence validation tracks the canonical runtime model instead of maintaining parallel literal lists.
+- Save normalization keeps `src/app/normalize.ts` as the public surface while focused helpers split gameplay payloads, combat payloads, item payloads, UI payloads, and shared validators into separate modules so save-shape updates touch narrower files.
 - The current project phase does not support broad backward save-format compatibility; older save payloads are expected to be cleared when the runtime save shape changes outside narrow deterministic canonical-id backfills.
 - Autosave uses a five-second debounce plus five-second interval-backed flush model.
-- The five-second interval flush remains active during continuous gameplay or UI churn, so repeated sub-five-second updates still persist progress without requiring a quiet period first.
+- The five-second interval flush remains active during continuous gameplay or UI churn, so repeated sub-five-second updates persist progress without requiring a quiet period first.
 - Debounce-triggered and interval-triggered autosave flushes hand off the actual snapshot build and storage write to an idle browser callback when that API exists, reducing save-path contention with active interaction.
 - Gameplay and UI persistence dirtiness are tracked separately so UI-only changes do not rebuild the gameplay snapshot on every autosave scheduling pass.
 - `useAppPersistence` keeps hydration and latest-save inputs in the hook while local `persistence/` helpers own segment assembly, serialization, dirty detection, and autosave scheduling, reducing change blast radius inside the main app persistence hook.
@@ -33,6 +34,11 @@ This spec covers browser save storage, direct hydration of the current save shap
 
 - `src/persistence/storage.ts`
 - `src/app/normalize.ts`
+- `src/app/normalizeGameState.ts`
+- `src/app/normalizeCombat.ts`
+- `src/app/normalizeItems.ts`
+- `src/app/normalizeUiState.ts`
+- `src/app/normalizeShared.ts`
 - `src/app/App/useAppPersistence.ts`
 - `src/app/App/persistence/saveSegments.ts`
 - `src/app/App/persistence/saveScheduler.ts`
