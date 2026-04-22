@@ -6,7 +6,6 @@ import {
   getBadgeLayer,
   getLabelsLayer,
   getMarkerLayer,
-  MockGraphics,
   MockSprite,
   MockText,
   playerIcon,
@@ -211,7 +210,7 @@ describe('renderScene enemy markers', () => {
     expect(updatedMarkers.some((child) => child.tint === 0xc084fc)).toBe(true);
   });
 
-  it('renders a bottom-right count badge for multi-enemy hostile hexes', async () => {
+  it('renders a bottom-right count label for multi-enemy hostile hexes', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-enemy-count-badge');
     game.tiles['1,0'] = {
@@ -278,10 +277,6 @@ describe('renderScene enemy markers', () => {
     const badgeTexts = badgeLayer.children.filter(
       (child): child is MockText => child instanceof MockText,
     );
-    const badgeBackgrounds = badgeLayer.children.filter(
-      (child): child is MockGraphics => child instanceof MockGraphics,
-    );
-
     expect(badgeTexts.some((child) => child.text === '3')).toBe(true);
     expect(
       badgeTexts.some((child) => child.style.value.fill === 0xef4444),
@@ -296,21 +291,7 @@ describe('renderScene enemy markers', () => {
       ),
     ).toBe(true);
     expect(
-      badgeBackgrounds.some((child) =>
-        child.drawEllipse.mock.calls.some(([x, y, radiusX, radiusY]) => {
-          const fillCall = child.beginFill.mock.calls.at(-1);
-          const strokeCall = child.lineStyle.mock.calls.at(-1);
-          return (
-            x > 0 &&
-            y > 0 &&
-            radiusX === 8 &&
-            radiusY === 8 &&
-            fillCall?.[0] === 0x020617 &&
-            strokeCall?.[0] === 1 &&
-            strokeCall?.[1] === 0xdc2626
-          );
-        }),
-      ),
+      badgeLayer.children.every((child) => child instanceof MockText),
     ).toBe(true);
   });
 

@@ -31,9 +31,9 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - While a combat encounter remains active for longer than `60s`, the hex info title bar replaces the start action with `Dea(t)h`, and pressing `T` triggers the same defeat-and-respawn action.
 - World camp markers stay readable above their night-time glow effects instead of sinking beneath the bloom layer.
 - World-map hostile enemy markers tint by runtime enemy rarity, and mixed enemy parties use the highest rarity color on that tile.
-- World-map hostile enemy markers show a bottom-right count badge when a visible enemy party shares the hex, surfacing the party size for stacks of `2` or `3`.
-- Hostile battle-hex count badges keep the number visually centered inside a compact black badge with a thin red border and red count text.
-- Dungeon hexes also surface the same compact hostile enemy-count badge styling and centered numeral treatment as standard hostile battle hexes.
+- World-map hostile enemy markers show a bottom-right count indicator when a visible enemy party shares the hex, surfacing the party size for stacks of `2` or `3`.
+- Hostile battle-hex count indicators keep the number visually centered as red text with a black outline, without a surrounding badge disk.
+- Dungeon hexes also surface the same text-only hostile enemy-count indicator and centered numeral treatment as standard hostile battle hexes.
 - World-map hostile enemy and world-boss markers now pulse with a small deterministic hover motion so combat-heavy hexes read as active without forcing a static-layer redraw.
 - World-map structure and dungeon markers now use the same intermittent shimmer treatment as gathering-site markers, so built hexes read as locations instead of hostile contacts.
 - Furnace markers now use a white glyph with the same black outlined treatment as the other structure icons.

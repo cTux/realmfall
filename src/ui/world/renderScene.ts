@@ -88,10 +88,7 @@ const WORLD_BOSS_HEX_TINT_ALPHA = 0.22;
 const ANIMATED_LAYER_FPS = 15;
 const ANIMATED_LAYER_FRAME_MS = 1000 / ANIMATED_LAYER_FPS;
 const ZERO_SHADOW_OFFSET = { x: 0, y: 0 };
-const ENEMY_GROUP_BADGE_RADIUS = 8;
 const ENEMY_GROUP_BADGE_OFFSET = { x: 13, y: 11 };
-const ENEMY_GROUP_BADGE_FILL = 0x020617;
-const ENEMY_GROUP_BADGE_STROKE = 0xdc2626;
 
 interface RenderSceneOptions {
   showTerrainBackgrounds?: boolean;
@@ -717,19 +714,6 @@ function renderEnemyGroupBadge(
 ) {
   const badgeX = point.x + ENEMY_GROUP_BADGE_OFFSET.x;
   const badgeY = point.y + ENEMY_GROUP_BADGE_OFFSET.y;
-  const badge = takeGraphics(scene.worldStaticMarkerBadgeGraphics);
-  badge
-    .ellipse(badgeX, badgeY, ENEMY_GROUP_BADGE_RADIUS, ENEMY_GROUP_BADGE_RADIUS)
-    .fill({
-      color: ENEMY_GROUP_BADGE_FILL,
-      alpha: 0.96,
-    })
-    .stroke({
-      width: 1,
-      color: ENEMY_GROUP_BADGE_STROKE,
-      alpha: 0.95,
-    });
-
   const badgeLabel = takeText(
     scene.worldStaticMarkerTexts,
     ENEMY_GROUP_LABEL_STYLE,
