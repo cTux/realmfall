@@ -3,10 +3,10 @@ import {
   TERRITORY_FACTION_REGION_SPAWN_CHANCE,
   TERRITORY_STRUCTURE_CHANCES,
   pickByDescendingChanceMap,
-  pickTerrainFromChanceMap,
 } from './config';
-import { noise } from './shared';
+import { isPassable, noise } from './shared';
 import type { StructureType, Terrain, TerritoryNpc, TileClaim } from './types';
+import { pickTerrain } from './worldTerrain';
 
 const FACTION_NPC_ENEMY_ID_PREFIX = 'faction-npc';
 const FACTION_REGION_SIZE = 12;
@@ -331,9 +331,9 @@ function pickFactionColor(seed: string, coord: HexCoord) {
 
 function isPassableFactionTerrain(seed: string, coord: HexCoord) {
   const terrain = pickFactionTerrain(seed, coord);
-  return terrain !== 'rift' && terrain !== 'mountain';
+  return isPassable(terrain);
 }
 
 function pickFactionTerrain(seed: string, coord: HexCoord): Terrain {
-  return pickTerrainFromChanceMap(noise(seed, coord));
+  return pickTerrain(seed, coord);
 }

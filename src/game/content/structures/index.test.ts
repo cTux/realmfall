@@ -33,6 +33,11 @@ describe('pickStructureType', () => {
     expect(pickStructureType(0, 0.841, 'desert')).toBe('copper-ore');
     expect(pickStructureType(0, 0.82, 'desert')).toBe('coal-ore');
     expect(pickStructureType(0, 0.809, 'desert')).toBeUndefined();
+
+    expect(pickStructureType(0, 0.861, 'grove')).toBe('tree');
+    expect(pickStructureType(0, 0.811, 'marsh')).toBe('pond');
+    expect(pickStructureType(0, 0.856, 'dunes')).toBe('gold-ore');
+    expect(pickStructureType(0, 0.841, 'highlands')).toBe('copper-ore');
   });
 });
 

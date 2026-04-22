@@ -12,6 +12,7 @@ This spec covers canvas-pointer world interaction and the shared tooltip system.
 - Native canvas `pointermove` events only hand off the latest pointer position, and hover analysis runs on `requestAnimationFrame` so pointer storms do not force synchronous pathfinding and tooltip work multiple times in the same frame.
 - Same-hex pointermove events reuse the cached hover snapshot instead of re-running hover selectors, tooltip builders, or pathfinding.
 - Safe-path lookup and world tooltip derivation run only for actionable hovered hexes; non-actionable tiles clear hover affordances without the heavier recomputation path.
+- Unrevealed distant world-map targets are rejected before tile generation or safe-path lookup on both hover and click, so exploratory pointer sweeps do not build off-map terrain.
 - Tooltips are managed through the shared app tooltip store.
 - Tooltip builders use locale keys and shared label helpers for their visible copy instead of hardcoded English fragments.
 - Enemy and structure tooltip content is assembled through shared builders used by both the window helper surface and the world-hover helper surface, while each surface keeps only its line-shape and presentation-specific wrapping.

@@ -93,12 +93,20 @@
   },
   "worldGeneration": {
     "terrain": {
-      "rift": 0.1,
-      "mountain": 0.1,
-      "forest": 0.2,
-      "swamp": 0.13,
-      "desert": 0.14,
-      "plains": 0.33
+      "rift": 0.04,
+      "blasted": 0.04,
+      "mountain": 0.06,
+      "highlands": 0.07,
+      "forest": 0.1,
+      "grove": 0.07,
+      "swamp": 0.05,
+      "marsh": 0.06,
+      "dunes": 0.04,
+      "desert": 0.08,
+      "badlands": 0.05,
+      "meadow": 0.08,
+      "plains": 0.13,
+      "steppe": 0.13
     },
     "enemySpawn": {
       "tile": 0.2

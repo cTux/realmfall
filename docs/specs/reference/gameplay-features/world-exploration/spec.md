@@ -8,7 +8,8 @@ This spec covers deterministic hex-world traversal, visibility, and safe-path tr
 
 - The game world is a deterministic hex grid generated from a seed.
 - The player starts at `(0, 0)` on a safe plains tile.
-- Terrain currently includes `plains`, `forest`, `swamp`, `desert`, `mountain`, and `rift`.
+- Terrain includes `plains`, `meadow`, `steppe`, `grove`, `forest`, `marsh`, `swamp`, `dunes`, `desert`, `badlands`, `highlands`, `mountain`, `blasted`, and `rift`.
+- Terrain is generated in deterministic biome clusters with smoother transitions between neighboring hexes instead of independent per-tile random terrain rolls.
 - `mountain` and `rift` tiles are not passable.
 - The player sees a revealed radius around the current position.
 - Visible tiles are rendered around the player and update as movement changes the origin.
@@ -20,6 +21,7 @@ This spec covers deterministic hex-world traversal, visibility, and safe-path tr
 - Claim borders remain visible above home, hover, loot, selection, and safe-path overlays so highlight effects do not cover territory edges.
 - Manual movement is one adjacent hex at a time.
 - A safe-path move can route to a visible destination when a path exists.
+- Unrevealed distant world-map hexes do not trigger movement, tooltip, or pathfinding work until they fall inside the revealed travel radius.
 - Safe-path routing avoids impassable terrain and hostile occupied intermediate tiles, but it may end on a visible hostile destination so long-range travel can start combat there without stepping through danger first.
 - Movement is blocked while combat is active or when the run is over.
 

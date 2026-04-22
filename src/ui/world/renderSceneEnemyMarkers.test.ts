@@ -96,7 +96,7 @@ function createEnemyMarkerGame(
 describe('renderScene enemy markers', () => {
   it('renders highlighted tiles, structures, enemies, and player markers', async () => {
     const { renderScene } = await import('./renderScene');
-    const { WorldIcons } = await import('./worldIcons');
+    const { WorldIcons, structureIconFor } = await import('./worldIcons');
     const game = createEnemyMarkerGame('render-scene-seed', 'rare');
 
     const app = createMockApp();
@@ -140,9 +140,8 @@ describe('renderScene enemy markers', () => {
     const copperOreMarker = collectDescendants(markerLayer).find(
       (child) =>
         child instanceof MockSprite &&
-        child.icon !== playerIcon &&
-        child.icon !== villageIcon &&
-        child.tint === 0xf59e0b,
+        child.icon === structureIconFor('copper-ore') &&
+        child.visible,
     );
 
     expect(rareEnemyMarker).toBeDefined();

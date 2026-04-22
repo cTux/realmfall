@@ -1,7 +1,7 @@
 import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
-import { pickTerrainFromChanceMap } from './config';
 import type { Terrain } from './types';
 import { noise } from './shared';
+import { isWorldBossTerrain, pickTerrain } from './worldTerrain';
 
 const WORLD_BOSS_MIN_DISTANCE = 4;
 const WORLD_BOSS_SPAWN_THRESHOLD = 0.5;
@@ -13,7 +13,7 @@ export function isWorldBossCenter(
   coord: HexCoord,
   terrain: Terrain,
 ) {
-  if (terrain !== 'forest') return false;
+  if (!isWorldBossTerrain(terrain)) return false;
   if (hexDistance(coord, { q: 0, r: 0 }) < WORLD_BOSS_MIN_DISTANCE) {
     return false;
   }
@@ -79,5 +79,5 @@ function worldBossScore(seed: string, coord: HexCoord) {
 }
 
 function pickWorldBossTerrain(seed: string, coord: HexCoord): Terrain {
-  return pickTerrainFromChanceMap(noise(seed, coord));
+  return pickTerrain(seed, coord);
 }

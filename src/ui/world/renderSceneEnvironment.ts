@@ -1,6 +1,6 @@
 import { HEX_SIZE } from '../../app/constants';
 import { createRng } from '../../game/random';
-import type { HexCoord } from '../../game/stateTypes';
+import type { HexCoord, Terrain } from '../../game/stateTypes';
 import { scaleColor, type getTimeOfDayLighting } from './timeOfDay';
 import { normalizeVector } from './renderSceneMath';
 import { WorldIcons } from './worldIcons';
@@ -258,18 +258,34 @@ export function renderCampfireLight(
     });
 }
 
-export function tileStyle(terrain: string) {
+export function tileStyle(terrain: Terrain) {
   switch (terrain) {
+    case 'badlands':
+      return { color: 0x7c2d12, alpha: 0.9 };
     case 'desert':
       return { color: 0x92400e, alpha: 0.92 };
+    case 'dunes':
+      return { color: 0xc2410c, alpha: 0.92 };
     case 'forest':
       return { color: 0x14532d, alpha: 0.94 };
+    case 'blasted':
+      return { color: 0x7f1d1d, alpha: 0.84 };
+    case 'grove':
+      return { color: 0x166534, alpha: 0.93 };
+    case 'highlands':
+      return { color: 0x365314, alpha: 0.9 };
+    case 'marsh':
+      return { color: 0x3f6212, alpha: 0.92 };
+    case 'meadow':
+      return { color: 0x4d7c0f, alpha: 0.93 };
     case 'mountain':
       return { color: 0x475569, alpha: 0.88 };
     case 'plains':
       return { color: 0x3f6212, alpha: 0.92 };
     case 'rift':
       return { color: 0x7f1d1d, alpha: 0.72 };
+    case 'steppe':
+      return { color: 0x65a30d, alpha: 0.92 };
     case 'swamp':
       return { color: 0x1f3a1f, alpha: 0.92 };
     default:
