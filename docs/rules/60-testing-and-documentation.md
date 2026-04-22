@@ -11,6 +11,7 @@
 - Keep DOM-free Vitest coverage on the `node` project and reserve the `jsdom` project for tests that need browser globals, React rendering, Pixi canvas behavior, or other DOM APIs.
 - When adding or moving tests, choose the narrowest Vitest project that matches the runtime surface so gameplay-only changes do not pay browser-environment startup cost.
 - When UI integration coverage grows beyond one broad `*.test.tsx` file, split it by surface such as recipe flows, window-shell interactions, renderer caches, or tooltip behavior instead of keeping one umbrella component suite.
+- When splitting browser-surface suites, move repeated DOM host setup and dynamic-import settling into shared helpers such as `src/ui/uiTestHelpers.tsx` or feature-specific `*TestHelpers.tsx` files so smaller suites do not reintroduce the same boilerplate in parallel.
 - Split broad gameplay-state suites by concern such as exploration, survival timing, combat cadence, world events, crafting, inventory actions, world actions, or item and progression flows instead of keeping one `src/game/state.test.ts` umbrella file.
 - Split large Pixi renderer suites by concern such as cache invalidation, interaction overlays, marker composition, marker animation, sprite-pool behavior, or atmosphere rendering instead of keeping one `renderScene.test.ts` umbrella file.
 - When tests call typed gameplay helpers such as item-action selectors, pass real domain fixtures or builder-backed objects that satisfy the full runtime type instead of partial literals that only cover the asserted field.
