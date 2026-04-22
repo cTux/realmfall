@@ -230,7 +230,7 @@ export function App() {
     currentTile,
   });
   const {
-    handleResetSaveData,
+    handleResetSaveArea,
     handleSaveSettings,
     handleSaveSettingsAndReload,
     handleSetHome,
@@ -389,7 +389,7 @@ export function App() {
     handleProspect,
     handleProspectItem,
     handleReforgeItem,
-    handleResetSaveData,
+    handleResetSaveArea,
     handleSaveSettings,
     handleSaveSettingsAndReload,
     handleSellAll,

@@ -1,7 +1,7 @@
 import {
   clearStoredSettingsSection,
-  loadStoredSettingsPayload,
-  updateStoredSettingsPayload,
+  loadStoredSettingsSection,
+  saveStoredSettingsSection,
 } from './settingsStorage';
 import {
   clampWorldMapZoom,
@@ -26,21 +26,17 @@ export function loadWorldMapSettings(): WorldMapSettings {
     return DEFAULT_WORLD_MAP_SETTINGS;
   }
 
-  try {
-    return normalizeWorldMapSettings(loadStoredSettingsPayload()?.worldMap);
-  } catch {
-    return DEFAULT_WORLD_MAP_SETTINGS;
-  }
+  return normalizeWorldMapSettings(loadStoredSettingsSection('worldMap'));
 }
 
 export function saveWorldMapSettings(settings: WorldMapSettings) {
   if (typeof window === 'undefined') return;
 
   const normalizedSettings = normalizeWorldMapSettings(settings);
-  updateStoredSettingsPayload((current) => ({
-    ...current,
-    worldMap: normalizedSettings as unknown as Record<string, unknown>,
-  }));
+  saveStoredSettingsSection(
+    'worldMap',
+    normalizedSettings as unknown as Record<string, unknown>,
+  );
 }
 
 export function clearWorldMapSettings() {

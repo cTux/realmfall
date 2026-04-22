@@ -1,4 +1,5 @@
-const STORAGE_KEY = 'game-state';
+import { ENCRYPTED_SAVE_AREA_IDS, type EncryptedSaveAreaId } from './saveAreas';
+
 const STORAGE_DATABASE_NAME = 'realmfall';
 const STORAGE_DATABASE_VERSION = 1;
 const STORAGE_OBJECT_STORE_NAME = 'app-state';
@@ -7,31 +8,65 @@ const PASSPHRASE = 'survival-rpg-local-save-v1';
 // This passphrase-derived wrapper only obscures local saves in client storage.
 // It is not a real security boundary because the key material ships with the app.
 
-export interface PersistedData {
-  game: unknown;
-  ui: unknown;
-}
+export type PersistedData = Partial<Record<EncryptedSaveAreaId, unknown>>;
 
-export const PERSISTED_SAVE_STORAGE_KEY = STORAGE_KEY;
+export const PERSISTED_SAVE_STORAGE_KEYS = {
+  game: 'game-state-game',
+  ui: 'game-state-ui',
+} satisfies Record<EncryptedSaveAreaId, string>;
 
 export async function loadEncryptedState(): Promise<PersistedData | null> {
-  const payload = await loadPersistedPayload();
-  if (!payload) return null;
+  const database = await openStorageDatabase();
+  const entries = await Promise.all(
+    ENCRYPTED_SAVE_AREA_IDS.map(async (areaId) => {
+      const payload = await loadPersistedPayload(areaId, database);
+      if (!payload) {
+        return null;
+      }
 
-  try {
-    return await decryptJson<PersistedData>(payload);
-  } catch {
-    return null;
-  }
+      try {
+        return [areaId, await decryptJson(payload)] as const;
+      } catch {
+        return null;
+      }
+    }),
+  );
+  const loaded = Object.fromEntries(
+    entries.filter((entry) => entry !== null),
+  ) as PersistedData;
+
+  return Object.keys(loaded).length > 0 ? loaded : null;
 }
 
 export async function saveEncryptedState(data: PersistedData) {
-  const payload = await encryptJson(data);
-  await writePersistedPayload(payload);
+  const database = await openStorageDatabase();
+
+  await Promise.all(
+    ENCRYPTED_SAVE_AREA_IDS.map(async (areaId) => {
+      const areaData = data[areaId];
+      if (areaData === undefined) {
+        return;
+      }
+
+      const payload = await encryptJson(areaData);
+      await writePersistedPayload(areaId, payload, database);
+    }),
+  );
 }
 
-export async function clearEncryptedState() {
-  await clearPersistedPayload();
+export async function clearEncryptedState(areaId?: EncryptedSaveAreaId) {
+  const database = await openStorageDatabase();
+  const areas = areaId ? [areaId] : ENCRYPTED_SAVE_AREA_IDS;
+
+  await Promise.all(
+    areas.map((currentAreaId) =>
+      clearPersistedPayload(currentAreaId, database),
+    ),
+  );
+}
+
+function getStorageKey(areaId: EncryptedSaveAreaId) {
+  return PERSISTED_SAVE_STORAGE_KEYS[areaId];
 }
 
 async function encryptJson(value: unknown) {
@@ -83,24 +118,26 @@ function fromBase64(value: string) {
   return Uint8Array.from(atob(value), (char) => char.charCodeAt(0));
 }
 
-async function loadPersistedPayload() {
-  const database = await openStorageDatabase();
+async function loadPersistedPayload(
+  areaId: EncryptedSaveAreaId,
+  database: IDBDatabase | null,
+) {
   if (database) {
     try {
-      const payload = await readIndexedDbPayload(database);
+      const payload = await readIndexedDbPayload(database, areaId);
       if (payload) {
         return payload;
       }
     } catch {
-      return loadLocalStoragePayload();
+      return loadLocalStoragePayload(areaId);
     }
   }
 
-  const legacyPayload = loadLocalStoragePayload();
+  const legacyPayload = loadLocalStoragePayload(areaId);
   if (legacyPayload && database) {
     try {
-      await writeIndexedDbPayload(database, legacyPayload);
-      clearLocalStoragePayload();
+      await writeIndexedDbPayload(database, areaId, legacyPayload);
+      clearLocalStoragePayload(areaId);
     } catch {
       return legacyPayload;
     }
@@ -109,24 +146,29 @@ async function loadPersistedPayload() {
   return legacyPayload;
 }
 
-async function writePersistedPayload(payload: string) {
-  const database = await openStorageDatabase();
+async function writePersistedPayload(
+  areaId: EncryptedSaveAreaId,
+  payload: string,
+  database: IDBDatabase | null,
+) {
   if (database) {
-    await writeIndexedDbPayload(database, payload);
-    clearLocalStoragePayload();
+    await writeIndexedDbPayload(database, areaId, payload);
+    clearLocalStoragePayload(areaId);
     return;
   }
 
-  writeLocalStoragePayload(payload);
+  writeLocalStoragePayload(areaId, payload);
 }
 
-async function clearPersistedPayload() {
-  const database = await openStorageDatabase();
+async function clearPersistedPayload(
+  areaId: EncryptedSaveAreaId,
+  database: IDBDatabase | null,
+) {
   if (database) {
-    await deleteIndexedDbPayload(database);
+    await deleteIndexedDbPayload(database, areaId);
   }
 
-  clearLocalStoragePayload();
+  clearLocalStoragePayload(areaId);
 }
 
 async function openStorageDatabase() {
@@ -162,7 +204,10 @@ async function openStorageDatabase() {
   });
 }
 
-async function readIndexedDbPayload(database: IDBDatabase) {
+async function readIndexedDbPayload(
+  database: IDBDatabase,
+  areaId: EncryptedSaveAreaId,
+) {
   return new Promise<string | null>((resolve, reject) => {
     const transaction = database.transaction(
       STORAGE_OBJECT_STORE_NAME,
@@ -170,7 +215,7 @@ async function readIndexedDbPayload(database: IDBDatabase) {
     );
     const request = transaction
       .objectStore(STORAGE_OBJECT_STORE_NAME)
-      .get(STORAGE_KEY);
+      .get(getStorageKey(areaId));
 
     request.onsuccess = () => {
       resolve(typeof request.result === 'string' ? request.result : null);
@@ -184,7 +229,11 @@ async function readIndexedDbPayload(database: IDBDatabase) {
   });
 }
 
-async function writeIndexedDbPayload(database: IDBDatabase, payload: string) {
+async function writeIndexedDbPayload(
+  database: IDBDatabase,
+  areaId: EncryptedSaveAreaId,
+  payload: string,
+) {
   return new Promise<void>((resolve, reject) => {
     const transaction = database.transaction(
       STORAGE_OBJECT_STORE_NAME,
@@ -193,7 +242,7 @@ async function writeIndexedDbPayload(database: IDBDatabase, payload: string) {
 
     transaction
       .objectStore(STORAGE_OBJECT_STORE_NAME)
-      .put(payload, STORAGE_KEY);
+      .put(payload, getStorageKey(areaId));
     transaction.oncomplete = () => {
       resolve();
     };
@@ -206,14 +255,19 @@ async function writeIndexedDbPayload(database: IDBDatabase, payload: string) {
   });
 }
 
-async function deleteIndexedDbPayload(database: IDBDatabase) {
+async function deleteIndexedDbPayload(
+  database: IDBDatabase,
+  areaId: EncryptedSaveAreaId,
+) {
   return new Promise<void>((resolve, reject) => {
     const transaction = database.transaction(
       STORAGE_OBJECT_STORE_NAME,
       'readwrite',
     );
 
-    transaction.objectStore(STORAGE_OBJECT_STORE_NAME).delete(STORAGE_KEY);
+    transaction
+      .objectStore(STORAGE_OBJECT_STORE_NAME)
+      .delete(getStorageKey(areaId));
     transaction.oncomplete = () => {
       resolve();
     };
@@ -226,14 +280,17 @@ async function deleteIndexedDbPayload(database: IDBDatabase) {
   });
 }
 
-function loadLocalStoragePayload() {
-  return localStorage.getItem(STORAGE_KEY);
+function loadLocalStoragePayload(areaId: EncryptedSaveAreaId) {
+  return localStorage.getItem(getStorageKey(areaId));
 }
 
-function writeLocalStoragePayload(payload: string) {
-  localStorage.setItem(STORAGE_KEY, payload);
+function writeLocalStoragePayload(
+  areaId: EncryptedSaveAreaId,
+  payload: string,
+) {
+  localStorage.setItem(getStorageKey(areaId), payload);
 }
 
-function clearLocalStoragePayload() {
-  localStorage.removeItem(STORAGE_KEY);
+function clearLocalStoragePayload(areaId: EncryptedSaveAreaId) {
+  localStorage.removeItem(getStorageKey(areaId));
 }

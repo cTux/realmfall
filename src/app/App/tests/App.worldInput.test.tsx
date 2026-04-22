@@ -11,6 +11,7 @@ import {
   renderScene,
   tickerCallbacks,
 } from './appTestHarness';
+import { PERSISTED_SETTINGS_STORAGE_KEYS } from '../../settingsStorage';
 
 describe('App world input', () => {
   it('rerenders the world after actionable map input', async () => {
@@ -109,7 +110,9 @@ describe('App world input', () => {
       await vi.advanceTimersByTimeAsync(400);
     });
 
-    expect(window.localStorage.getItem('settings')).toBeNull();
+    expect(
+      window.localStorage.getItem(PERSISTED_SETTINGS_STORAGE_KEYS.worldMap),
+    ).toBeNull();
 
     await act(async () => {
       root.unmount();
@@ -155,7 +158,9 @@ describe('App world input', () => {
       await vi.advanceTimersByTimeAsync(400);
     });
 
-    expect(window.localStorage.getItem('settings')).toBeNull();
+    expect(
+      window.localStorage.getItem(PERSISTED_SETTINGS_STORAGE_KEYS.worldMap),
+    ).toBeNull();
 
     await act(async () => {
       root.unmount();

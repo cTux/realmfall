@@ -36,50 +36,87 @@ describe('GameSettingsWindowContent', () => {
     host.remove();
   });
 
-  it('holds reset save data for five seconds before firing', async () => {
-    const onResetSaveData = vi.fn();
+  it('confirms before resetting a specific save area', async () => {
+    const onResetSaveArea = vi.fn(async () => undefined);
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
 
     await act(async () => {
       root.render(
         <GameSettingsWindowContent
           audioSettings={DEFAULT_AUDIO_SETTINGS}
           graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
-          onResetSaveData={onResetSaveData}
+          onResetSaveArea={onResetSaveArea}
           onSave={async () => undefined}
           onSaveAndReload={async () => undefined}
         />,
       );
     });
 
-    const requestAnimationFrameSpy = vi
-      .spyOn(window, 'requestAnimationFrame')
-      .mockImplementation((callback: FrameRequestCallback) => {
-        const id = window.setTimeout(
-          () => callback(performance.now() + 6000),
-          0,
-        );
-        return id;
-      });
-    const cancelAnimationFrameSpy = vi
-      .spyOn(window, 'cancelAnimationFrame')
-      .mockImplementation((handle: number) => window.clearTimeout(handle));
-    const resetButton = Array.from(host.querySelectorAll('button')).find(
+    const savesTab = Array.from(host.querySelectorAll('[role="tab"]')).find(
       (candidate) =>
-        candidate.textContent?.includes(t('ui.settings.actions.resetSaveData')),
+        candidate.textContent?.includes(t('ui.settings.tabs.saves')),
     );
-
-    expect(resetButton).toBeDefined();
+    expect(savesTab).toBeDefined();
 
     await act(async () => {
-      resetButton?.dispatchEvent(
-        new PointerEvent('pointerdown', { bubbles: true, pointerId: 1 }),
-      );
-      await vi.advanceTimersByTimeAsync(0);
+      savesTab?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
 
-    expect(onResetSaveData).toHaveBeenCalledTimes(1);
-    requestAnimationFrameSpy.mockRestore();
-    cancelAnimationFrameSpy.mockRestore();
+    const resetButton = host.querySelector(
+      '[data-save-area="game"] button',
+    ) as HTMLButtonElement | null;
+    expect(resetButton).not.toBeNull();
+
+    await act(async () => {
+      resetButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    expect(confirmSpy).toHaveBeenCalledWith(
+      t('ui.settings.saves.confirm', {
+        area: t('ui.settings.saves.areas.game.label'),
+      }),
+    );
+    expect(onResetSaveArea).toHaveBeenCalledWith('game');
+    confirmSpy.mockRestore();
+  });
+
+  it('cancels a save reset when the confirmation prompt is rejected', async () => {
+    const onResetSaveArea = vi.fn(async () => undefined);
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+
+    await act(async () => {
+      root.render(
+        <GameSettingsWindowContent
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
+          graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          onResetSaveArea={onResetSaveArea}
+          onSave={async () => undefined}
+          onSaveAndReload={async () => undefined}
+        />,
+      );
+    });
+
+    const savesTab = Array.from(host.querySelectorAll('[role="tab"]')).find(
+      (candidate) =>
+        candidate.textContent?.includes(t('ui.settings.tabs.saves')),
+    );
+
+    await act(async () => {
+      savesTab?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    const resetButton = host.querySelector(
+      '[data-save-area="ui"] button',
+    ) as HTMLButtonElement | null;
+    expect(resetButton).not.toBeNull();
+
+    await act(async () => {
+      resetButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    expect(confirmSpy).toHaveBeenCalled();
+    expect(onResetSaveArea).not.toHaveBeenCalled();
+    confirmSpy.mockRestore();
   });
 
   it('updates the audio volume slider without reading a cleared event target', async () => {
@@ -88,7 +125,7 @@ describe('GameSettingsWindowContent', () => {
         <GameSettingsWindowContent
           audioSettings={DEFAULT_AUDIO_SETTINGS}
           graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
-          onResetSaveData={async () => undefined}
+          onResetSaveArea={async () => undefined}
           onSave={async () => undefined}
           onSaveAndReload={async () => undefined}
         />,
@@ -140,7 +177,7 @@ describe('GameSettingsWindowContent', () => {
         <GameSettingsWindowContent
           audioSettings={DEFAULT_AUDIO_SETTINGS}
           graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
-          onResetSaveData={async () => undefined}
+          onResetSaveArea={async () => undefined}
           onSave={onSave}
           onSaveAndReload={async () => undefined}
         />,
@@ -201,7 +238,7 @@ describe('GameSettingsWindowContent', () => {
         <GameSettingsWindowContent
           audioSettings={DEFAULT_AUDIO_SETTINGS}
           graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
-          onResetSaveData={async () => undefined}
+          onResetSaveArea={async () => undefined}
           onSave={onSave}
           onSaveAndReload={async () => undefined}
         />,
@@ -259,7 +296,7 @@ describe('GameSettingsWindowContent', () => {
         <GameSettingsWindowContent
           audioSettings={DEFAULT_AUDIO_SETTINGS}
           graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
-          onResetSaveData={async () => undefined}
+          onResetSaveArea={async () => undefined}
           onSave={onSave}
           onSaveAndReload={async () => undefined}
         />,
@@ -305,7 +342,7 @@ describe('GameSettingsWindowContent', () => {
         <GameSettingsWindowContent
           audioSettings={DEFAULT_AUDIO_SETTINGS}
           graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
-          onResetSaveData={async () => undefined}
+          onResetSaveArea={async () => undefined}
           onSave={onSave}
           onSaveAndReload={async () => undefined}
         />,
@@ -355,7 +392,7 @@ describe('GameSettingsWindowContent', () => {
         <GameSettingsWindowContent
           audioSettings={DEFAULT_AUDIO_SETTINGS}
           graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
-          onResetSaveData={async () => undefined}
+          onResetSaveArea={async () => undefined}
           onSave={onSave}
           onSaveAndReload={async () => undefined}
         />,
@@ -431,7 +468,7 @@ describe('GameSettingsWindowContent', () => {
         <GameSettingsWindowContent
           audioSettings={DEFAULT_AUDIO_SETTINGS}
           graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
-          onResetSaveData={async () => undefined}
+          onResetSaveArea={async () => undefined}
           onSave={async () => undefined}
           onSaveAndReload={async () => undefined}
         />,

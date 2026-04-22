@@ -1,6 +1,7 @@
 import type { WindowPosition } from '../../../app/constants';
 import type { AudioSettings } from '../../../app/audioSettings';
 import type { GraphicsSettings } from '../../../app/graphicsSettings';
+import type { ResettableSaveAreaId } from '../../../persistence/saveAreas';
 
 export interface GameSettingsSavePayload {
   audio: AudioSettings;
@@ -20,7 +21,7 @@ export interface GameSettingsWindowProps {
   graphicsSettings: GraphicsSettings;
   onClose?: () => void;
   onMove: (position: WindowPosition) => void;
-  onResetSaveData: () => Promise<void> | void;
+  onResetSaveArea: (areaId: ResettableSaveAreaId) => Promise<void>;
   onSave: (settings: GameSettingsSavePayload) => Promise<void>;
   onSaveAndReload: (settings: GameSettingsSavePayload) => Promise<void>;
   position: WindowPosition;
@@ -31,9 +32,14 @@ export interface GameSettingsWindowContentProps {
   audioSettings: AudioSettings;
   graphicsSettings: GraphicsSettings;
   onClose?: () => void;
-  onResetSaveData: () => Promise<void> | void;
+  onResetSaveArea: (areaId: ResettableSaveAreaId) => Promise<void>;
   onSave: (settings: GameSettingsSavePayload) => Promise<void>;
   onSaveAndReload: (settings: GameSettingsSavePayload) => Promise<void>;
+}
+
+export interface GameSettingsSavesPanelProps {
+  busyAreaId: ResettableSaveAreaId | null;
+  onResetSaveArea: (areaId: ResettableSaveAreaId) => Promise<void>;
 }
 
 export interface GameSettingsGraphicsPanelProps {

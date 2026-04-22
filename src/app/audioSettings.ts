@@ -1,8 +1,8 @@
 import type { ThemeName } from '@rexa-developer/tiks';
 import {
   clearStoredSettingsSection,
-  loadStoredSettingsPayload,
-  updateStoredSettingsPayload,
+  loadStoredSettingsSection,
+  saveStoredSettingsSection,
 } from './settingsStorage';
 import {
   VOICE_PLAYBACK_EVENT_OPTIONS,
@@ -190,21 +190,17 @@ export function loadAudioSettings() {
     return DEFAULT_AUDIO_SETTINGS;
   }
 
-  try {
-    return normalizeAudioSettings(loadStoredSettingsPayload()?.audio);
-  } catch {
-    return DEFAULT_AUDIO_SETTINGS;
-  }
+  return normalizeAudioSettings(loadStoredSettingsSection('audio'));
 }
 
 export function saveAudioSettings(settings: AudioSettings) {
   if (typeof window === 'undefined') return;
 
   const normalizedSettings = normalizeAudioSettings(settings);
-  updateStoredSettingsPayload((current) => ({
-    ...current,
-    audio: normalizedSettings as unknown as Record<string, unknown>,
-  }));
+  saveStoredSettingsSection(
+    'audio',
+    normalizedSettings as unknown as Record<string, unknown>,
+  );
 }
 
 export function clearAudioSettings() {

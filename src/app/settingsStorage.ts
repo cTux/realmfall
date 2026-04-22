@@ -1,52 +1,70 @@
-const SETTINGS_STORAGE_KEY = 'settings';
+import {
+  SETTINGS_SAVE_AREA_IDS,
+  type SettingsSaveAreaId,
+} from '../persistence/saveAreas';
+
 const LEGACY_GRAPHICS_SETTINGS_STORAGE_KEY = 'realmfall-graphics-settings';
 
-export interface PersistedSettingsPayload {
-  audio?: Record<string, unknown>;
-  graphics?: Record<string, unknown>;
-  worldMap?: Record<string, unknown>;
-}
+export type PersistedSettingsPayload = Partial<
+  Record<SettingsSaveAreaId, Record<string, unknown>>
+>;
+
+export const PERSISTED_SETTINGS_STORAGE_KEYS = {
+  audio: 'realmfall-settings-audio',
+  graphics: 'realmfall-settings-graphics',
+  worldMap: 'realmfall-settings-world-map',
+} satisfies Record<SettingsSaveAreaId, string>;
 
 export function loadStoredSettingsPayload() {
-  const payload = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
-  if (!payload) {
+  const entries = SETTINGS_SAVE_AREA_IDS.flatMap((areaId) => {
+    const areaPayload = loadStoredSettingsSection(areaId);
+    return areaPayload ? ([[areaId, areaPayload]] as const) : [];
+  });
+
+  if (entries.length === 0) {
     return null;
   }
 
-  return JSON.parse(payload) as PersistedSettingsPayload;
+  return Object.fromEntries(entries) as PersistedSettingsPayload;
 }
 
-export function loadLegacyGraphicsSettingsPayload() {
+export function clearStoredSettingsSection(key: SettingsSaveAreaId) {
+  window.localStorage.removeItem(PERSISTED_SETTINGS_STORAGE_KEYS[key]);
+
+  if (key === 'graphics') {
+    window.localStorage.removeItem(LEGACY_GRAPHICS_SETTINGS_STORAGE_KEY);
+  }
+}
+
+export function loadStoredSettingsSection<T extends SettingsSaveAreaId>(
+  key: T,
+) {
   const payload = window.localStorage.getItem(
-    LEGACY_GRAPHICS_SETTINGS_STORAGE_KEY,
+    PERSISTED_SETTINGS_STORAGE_KEYS[key],
   );
   if (!payload) {
     return null;
   }
 
-  return JSON.parse(payload) as Record<string, unknown>;
-}
-
-export function updateStoredSettingsPayload(
-  updater: (current: PersistedSettingsPayload) => PersistedSettingsPayload,
-) {
-  saveStoredSettingsPayload(updater(loadStoredSettingsPayload() ?? {}));
-}
-
-export function clearStoredSettingsSection(
-  key: keyof PersistedSettingsPayload,
-) {
-  const current = loadStoredSettingsPayloadSafely();
-  if (!current) {
-    if (key === 'graphics') {
-      window.localStorage.removeItem(LEGACY_GRAPHICS_SETTINGS_STORAGE_KEY);
-    }
-    return;
+  try {
+    return JSON.parse(payload) as PersistedSettingsPayload[T];
+  } catch {
+    return null;
   }
+}
 
-  const next = { ...current };
-  delete next[key];
-  saveStoredSettingsPayload(next);
+export function saveStoredSettingsSection(
+  key: SettingsSaveAreaId,
+  value: Record<string, unknown>,
+) {
+  if (Object.keys(value).length === 0) {
+    window.localStorage.removeItem(PERSISTED_SETTINGS_STORAGE_KEYS[key]);
+  } else {
+    window.localStorage.setItem(
+      PERSISTED_SETTINGS_STORAGE_KEYS[key],
+      JSON.stringify(value),
+    );
+  }
 
   if (key === 'graphics') {
     window.localStorage.removeItem(LEGACY_GRAPHICS_SETTINGS_STORAGE_KEY);
@@ -54,33 +72,8 @@ export function clearStoredSettingsSection(
 }
 
 export function clearStoredSettingsPayload() {
-  window.localStorage.removeItem(SETTINGS_STORAGE_KEY);
-  window.localStorage.removeItem(LEGACY_GRAPHICS_SETTINGS_STORAGE_KEY);
-}
-
-function loadStoredSettingsPayloadSafely() {
-  try {
-    return loadStoredSettingsPayload();
-  } catch {
-    return null;
-  }
-}
-
-function saveStoredSettingsPayload(settings: PersistedSettingsPayload) {
-  const sanitized = Object.fromEntries(
-    Object.entries(settings).filter(
-      ([, value]) => value && Object.keys(value).length > 0,
-    ),
-  ) as PersistedSettingsPayload;
-
-  if (Object.keys(sanitized).length === 0) {
-    window.localStorage.removeItem(SETTINGS_STORAGE_KEY);
-  } else {
-    window.localStorage.setItem(
-      SETTINGS_STORAGE_KEY,
-      JSON.stringify(sanitized),
-    );
-  }
-
+  SETTINGS_SAVE_AREA_IDS.forEach((areaId) => {
+    window.localStorage.removeItem(PERSISTED_SETTINGS_STORAGE_KEYS[areaId]);
+  });
   window.localStorage.removeItem(LEGACY_GRAPHICS_SETTINGS_STORAGE_KEY);
 }

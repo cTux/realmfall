@@ -1,8 +1,7 @@
 import {
   clearStoredSettingsSection,
-  loadLegacyGraphicsSettingsPayload,
-  loadStoredSettingsPayload,
-  updateStoredSettingsPayload,
+  loadStoredSettingsSection,
+  saveStoredSettingsSection,
 } from './settingsStorage';
 
 export type GraphicsPresetId =
@@ -178,58 +177,22 @@ export function loadGraphicsSettings() {
     return DEFAULT_GRAPHICS_SETTINGS;
   }
 
-  try {
-    const loadedGraphicsSettings = normalizeGraphicsSettings(
-      loadPersistedSettings().graphics,
-    );
-
-    if (!loadStoredSettingsPayload() && loadLegacyGraphicsSettingsPayload()) {
-      saveGraphicsSettings(loadedGraphicsSettings);
-    }
-
-    return loadedGraphicsSettings;
-  } catch {
-    return DEFAULT_GRAPHICS_SETTINGS;
-  }
+  return normalizeGraphicsSettings(loadStoredSettingsSection('graphics'));
 }
 
 export function saveGraphicsSettings(settings: GraphicsSettings) {
   if (typeof window === 'undefined') return;
 
   const normalizedSettings = normalizeGraphicsSettings(settings);
-  updateStoredSettingsPayload((current) => ({
-    ...current,
-    graphics: normalizedSettings as unknown as Record<string, unknown>,
-  }));
+  saveStoredSettingsSection(
+    'graphics',
+    normalizedSettings as unknown as Record<string, unknown>,
+  );
 }
 
 export function clearGraphicsSettings() {
   if (typeof window === 'undefined') return;
   clearStoredSettingsSection('graphics');
-}
-
-function loadPersistedSettings(): PersistedSettings {
-  const currentSettings = loadStoredSettingsPayload();
-  if (currentSettings) {
-    return {
-      graphics: currentSettings.graphics as
-        | Partial<GraphicsSettings>
-        | undefined,
-    };
-  }
-
-  const legacyPayload = loadLegacyGraphicsSettingsPayload();
-  if (!legacyPayload) {
-    return {};
-  }
-
-  return {
-    graphics: legacyPayload as Partial<GraphicsSettings>,
-  };
-}
-
-interface PersistedSettings {
-  graphics?: Partial<GraphicsSettings>;
 }
 
 function normalizeGraphicsSettings(settings: unknown): GraphicsSettings {

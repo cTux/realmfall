@@ -17,32 +17,43 @@ describe('encrypted storage', () => {
 
     vi.stubGlobal('indexedDB', indexedDB);
 
-    const { loadEncryptedState, saveEncryptedState } =
-      await import('./storage');
+    const {
+      loadEncryptedState,
+      saveEncryptedState,
+      PERSISTED_SAVE_STORAGE_KEYS,
+    } = await import('./storage');
 
     await saveEncryptedState(payload);
 
-    const raw = records.get('game-state');
-    expect(raw).toBeTruthy();
-    expect(raw).not.toContain('"turn":7');
-    expect(localStorage.getItem('game-state')).toBeNull();
+    const rawGame = records.get(PERSISTED_SAVE_STORAGE_KEYS.game);
+    const rawUi = records.get(PERSISTED_SAVE_STORAGE_KEYS.ui);
+    expect(rawGame).toBeTruthy();
+    expect(rawGame).not.toContain('"turn":7');
+    expect(rawUi).toBeTruthy();
+    expect(localStorage.getItem(PERSISTED_SAVE_STORAGE_KEYS.game)).toBeNull();
+    expect(localStorage.getItem(PERSISTED_SAVE_STORAGE_KEYS.ui)).toBeNull();
 
     await expect(loadEncryptedState()).resolves.toEqual(payload);
   });
 
-  it('migrates the localStorage save into IndexedDB on first IndexedDB-backed load', async () => {
+  it('migrates localStorage save areas into IndexedDB on first IndexedDB-backed load', async () => {
     const payload = {
       game: { turn: 12, player: { hp: 9 } },
       ui: { windowShown: { hero: false } },
     };
 
+    let storageKeys!: Record<'game' | 'ui', string>;
     {
-      const { saveEncryptedState } = await import('./storage');
+      const { PERSISTED_SAVE_STORAGE_KEYS, saveEncryptedState } =
+        await import('./storage');
+      storageKeys = PERSISTED_SAVE_STORAGE_KEYS;
       await saveEncryptedState(payload);
     }
 
-    const legacyPayload = localStorage.getItem('game-state');
-    expect(legacyPayload).toBeTruthy();
+    const legacyGamePayload = localStorage.getItem(storageKeys.game);
+    const legacyUiPayload = localStorage.getItem(storageKeys.ui);
+    expect(legacyGamePayload).toBeTruthy();
+    expect(legacyUiPayload).toBeTruthy();
 
     vi.resetModules();
 
@@ -52,16 +63,37 @@ describe('encrypted storage', () => {
     const { loadEncryptedState } = await import('./storage');
 
     await expect(loadEncryptedState()).resolves.toEqual(payload);
-    expect(records.get('game-state')).toBe(legacyPayload);
-    expect(localStorage.getItem('game-state')).toBeNull();
+    expect(records.get(storageKeys.game)).toBe(legacyGamePayload);
+    expect(records.get(storageKeys.ui)).toBe(legacyUiPayload);
+    expect(localStorage.getItem(storageKeys.game)).toBeNull();
+    expect(localStorage.getItem(storageKeys.ui)).toBeNull();
+  });
+
+  it('keeps valid save areas when another encrypted area payload is invalid', async () => {
+    const {
+      loadEncryptedState,
+      saveEncryptedState,
+      PERSISTED_SAVE_STORAGE_KEYS,
+    } = await import('./storage');
+
+    await saveEncryptedState({
+      game: { turn: 4 },
+      ui: { windowShown: { hero: true } },
+    });
+    localStorage.setItem(PERSISTED_SAVE_STORAGE_KEYS.game, 'not-json');
+
+    await expect(loadEncryptedState()).resolves.toEqual({
+      ui: { windowShown: { hero: true } },
+    });
   });
 
   it('returns null for missing or invalid payloads when IndexedDB is unavailable', async () => {
-    const { loadEncryptedState } = await import('./storage');
+    const { loadEncryptedState, PERSISTED_SAVE_STORAGE_KEYS } =
+      await import('./storage');
 
     await expect(loadEncryptedState()).resolves.toBeNull();
 
-    localStorage.setItem('game-state', 'not-json');
+    localStorage.setItem(PERSISTED_SAVE_STORAGE_KEYS.game, 'not-json');
     await expect(loadEncryptedState()).resolves.toBeNull();
   });
 });

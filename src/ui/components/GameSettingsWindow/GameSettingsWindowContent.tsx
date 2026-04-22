@@ -1,13 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { type AudioSettings } from '../../../app/audioSettings';
-import { useUiAudio } from '../../../app/audio/UiAudioContext';
 import {
   deriveGraphicsPreset,
   type GraphicsSettings,
 } from '../../../app/graphicsSettings';
+import type { ResettableSaveAreaId } from '../../../persistence/saveAreas';
 import { t } from '../../../i18n';
 import { GameSettingsAudioPanel } from './GameSettingsAudioPanel';
 import { GameSettingsGraphicsPanel } from './GameSettingsGraphicsPanel';
+import { GameSettingsSavesPanel } from './GameSettingsSavesPanel';
 import type {
   GameSettingsWindowContentProps,
   UpdateAudioSettings,
@@ -15,31 +16,30 @@ import type {
 } from './types';
 import styles from './styles.module.scss';
 
-const RESET_HOLD_MS = 5000;
-const TAB_ORDER = ['graphics', 'audio'] as const;
+const TAB_ORDER = ['graphics', 'audio', 'saves'] as const;
 
 type SettingsTabId = (typeof TAB_ORDER)[number];
+
+type BusyAction =
+  | { kind: 'save' }
+  | { kind: 'saveReload' }
+  | { areaId: ResettableSaveAreaId; kind: 'reset' }
+  | null;
 
 export function GameSettingsWindowContent({
   audioSettings,
   graphicsSettings,
   onClose,
-  onResetSaveData,
+  onResetSaveArea,
   onSave,
   onSaveAndReload,
 }: GameSettingsWindowContentProps) {
-  const audio = useUiAudio();
   const [activeTabId, setActiveTabId] = useState<SettingsTabId>('graphics');
   const [draftGraphicsSettings, setDraftGraphicsSettings] =
     useState<GraphicsSettings>(graphicsSettings);
   const [draftAudioSettings, setDraftAudioSettings] =
     useState<AudioSettings>(audioSettings);
-  const [busyAction, setBusyAction] = useState<
-    'save' | 'saveReload' | 'reset' | null
-  >(null);
-  const [resetProgress, setResetProgress] = useState(0);
-  const resetFrameRef = useRef<number | null>(null);
-  const resetStartTimeRef = useRef<number | null>(null);
+  const [busyAction, setBusyAction] = useState<BusyAction>(null);
 
   useEffect(() => {
     setDraftGraphicsSettings(graphicsSettings);
@@ -48,15 +48,6 @@ export function GameSettingsWindowContent({
   useEffect(() => {
     setDraftAudioSettings(audioSettings);
   }, [audioSettings]);
-
-  useEffect(
-    () => () => {
-      if (resetFrameRef.current !== null) {
-        window.cancelAnimationFrame(resetFrameRef.current);
-      }
-    },
-    [],
-  );
 
   const dirty =
     JSON.stringify(draftGraphicsSettings) !==
@@ -67,6 +58,8 @@ export function GameSettingsWindowContent({
     audio: draftAudioSettings,
     graphics: draftGraphicsSettings,
   };
+  const resettingAreaId =
+    busyAction?.kind === 'reset' ? busyAction.areaId : null;
 
   const updateDraftGraphicsSettings: UpdateGraphicsSettings = (updater) => {
     setDraftGraphicsSettings((current) => {
@@ -83,54 +76,17 @@ export function GameSettingsWindowContent({
     setDraftAudioSettings(updater);
   };
 
-  const cancelResetHold = () => {
-    if (resetFrameRef.current !== null) {
-      window.cancelAnimationFrame(resetFrameRef.current);
-      resetFrameRef.current = null;
-    }
-    resetStartTimeRef.current = null;
-    setResetProgress(0);
-  };
-
-  const completeResetHold = async () => {
-    cancelResetHold();
-    setBusyAction('reset');
+  const handleResetSaveArea = async (areaId: ResettableSaveAreaId) => {
+    setBusyAction({ areaId, kind: 'reset' });
     try {
-      await onResetSaveData();
+      await onResetSaveArea(areaId);
     } finally {
       setBusyAction(null);
     }
   };
 
-  const startResetHold = (event: React.PointerEvent<HTMLButtonElement>) => {
-    if (busyAction) return;
-
-    audio.warning();
-    event.currentTarget.setPointerCapture?.(event.pointerId);
-    resetStartTimeRef.current = performance.now();
-
-    const tick = (timestamp: number) => {
-      if (resetStartTimeRef.current === null) return;
-
-      const nextProgress = Math.min(
-        1,
-        (timestamp - resetStartTimeRef.current) / RESET_HOLD_MS,
-      );
-      setResetProgress(nextProgress);
-
-      if (nextProgress >= 1) {
-        void completeResetHold();
-        return;
-      }
-
-      resetFrameRef.current = window.requestAnimationFrame(tick);
-    };
-
-    resetFrameRef.current = window.requestAnimationFrame(tick);
-  };
-
   const handleSave = async () => {
-    setBusyAction('save');
+    setBusyAction({ kind: 'save' });
     try {
       await onSave(savePayload);
       onClose?.();
@@ -140,7 +96,7 @@ export function GameSettingsWindowContent({
   };
 
   const handleSaveAndReload = async () => {
-    setBusyAction('saveReload');
+    setBusyAction({ kind: 'saveReload' });
     try {
       await onSaveAndReload(savePayload);
     } finally {
@@ -162,10 +118,15 @@ export function GameSettingsWindowContent({
               graphicsSettings={draftGraphicsSettings}
               onChange={updateDraftGraphicsSettings}
             />
-          ) : (
+          ) : activeTabId === 'audio' ? (
             <GameSettingsAudioPanel
               audioSettings={draftAudioSettings}
               onChange={updateDraftAudioSettings}
+            />
+          ) : (
+            <GameSettingsSavesPanel
+              busyAreaId={resettingAreaId}
+              onResetSaveArea={handleResetSaveArea}
             />
           )}
         </section>
@@ -176,7 +137,7 @@ export function GameSettingsWindowContent({
               onClick={() => void handleSave()}
               disabled={busyAction !== null || !dirty}
             >
-              {busyAction === 'save'
+              {busyAction?.kind === 'save'
                 ? t('ui.settings.actions.saving')
                 : t('ui.settings.actions.save')}
             </button>
@@ -185,31 +146,11 @@ export function GameSettingsWindowContent({
               onClick={() => void handleSaveAndReload()}
               disabled={busyAction !== null || !dirty}
             >
-              {busyAction === 'saveReload'
+              {busyAction?.kind === 'saveReload'
                 ? t('ui.settings.actions.savingReload')
                 : t('ui.settings.actions.saveReload')}
             </button>
           </div>
-          <button
-            type="button"
-            className={styles.resetButton}
-            data-busy={busyAction === 'reset'}
-            disabled={busyAction !== null && busyAction !== 'reset'}
-            style={{
-              ['--reset-progress' as string]: `${resetProgress * 100}%`,
-            }}
-            onPointerDown={startResetHold}
-            onPointerUp={cancelResetHold}
-            onPointerCancel={cancelResetHold}
-            onLostPointerCapture={cancelResetHold}
-          >
-            <span className={styles.resetFill} aria-hidden="true" />
-            <span className={styles.resetText}>
-              {busyAction === 'reset'
-                ? t('ui.settings.actions.resetting')
-                : t('ui.settings.actions.resetSaveData')}
-            </span>
-          </button>
         </div>
       </div>
       <div className={styles.tabs} role="tablist" aria-orientation="vertical">

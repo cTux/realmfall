@@ -12,6 +12,7 @@ import {
   type GraphicsSettings,
 } from '../../graphicsSettings';
 import { clearWorldMapSettings } from '../../worldMapSettings';
+import type { ResettableSaveAreaId } from '../../../persistence/saveAreas';
 import { setHomeHexForApp } from './useAppLifecycle';
 
 export function useAppSettingsActions({
@@ -57,16 +58,33 @@ export function useAppSettingsActions({
     [handleSaveSettings, uiAudio],
   );
 
-  const handleResetSaveData = useCallback(async () => {
-    uiAudio.error();
-    const { clearEncryptedState } =
-      await import('../../../persistence/storage');
-    await clearEncryptedState();
-    clearAudioSettings();
-    clearGraphicsSettings();
-    clearWorldMapSettings();
-    window.location.reload();
-  }, [uiAudio]);
+  const handleResetSaveArea = useCallback(
+    async (areaId: ResettableSaveAreaId) => {
+      uiAudio.error();
+
+      switch (areaId) {
+        case 'game':
+        case 'ui': {
+          const { clearEncryptedState } =
+            await import('../../../persistence/storage');
+          await clearEncryptedState(areaId);
+          break;
+        }
+        case 'audio':
+          clearAudioSettings();
+          break;
+        case 'graphics':
+          clearGraphicsSettings();
+          break;
+        case 'worldMap':
+          clearWorldMapSettings();
+          break;
+      }
+
+      window.location.reload();
+    },
+    [uiAudio],
+  );
 
   const handleSetHome = useCallback(() => {
     if (paused) {
@@ -77,7 +95,7 @@ export function useAppSettingsActions({
   }, [paused, setGame]);
 
   return {
-    handleResetSaveData,
+    handleResetSaveArea,
     handleSaveSettings,
     handleSaveSettingsAndReload,
     handleSetHome,
