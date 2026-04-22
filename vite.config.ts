@@ -9,6 +9,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Plugin, ViteDevServer } from 'vite';
 import selfsigned from 'selfsigned';
+import { getAppBuildVersion } from './scripts/build-version.helpers';
 import {
   createSecurityHeaders,
   DEV_CONTENT_SECURITY_POLICY,
@@ -29,9 +30,10 @@ const VITEST_JSDOM_INCLUDE = ['src/**/*.test.ts', 'src/**/*.test.tsx'];
 const packageVersion = JSON.parse(
   readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
 ).version as string;
+const appBuildVersion = getAppBuildVersion(packageVersion);
 
 function versionManifestPlugin(): Plugin {
-  const versionManifest = JSON.stringify({ version: packageVersion }, null, 2);
+  const versionManifest = JSON.stringify({ version: appBuildVersion }, null, 2);
 
   return {
     name: 'realmfall-version-manifest',
@@ -196,7 +198,7 @@ async function ensureLocalhostHttpsCertificate() {
 const localhostHttpsCertificate = await ensureLocalhostHttpsCertificate();
 export default defineConfig({
   define: {
-    __APP_VERSION__: JSON.stringify(packageVersion),
+    __APP_VERSION__: JSON.stringify(appBuildVersion),
   },
   server: {
     headers: createSecurityHeaders(DEV_CONTENT_SECURITY_POLICY),

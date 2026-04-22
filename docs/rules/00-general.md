@@ -8,17 +8,17 @@
 - Keep React hook lint checks on the enforced Oxlint path for TypeScript and TSX files, including invalid hook usage and effect dependency validation.
 - Keep the pre-commit hook aligned with the linting workflow. When Oxlint can safely auto-fix staged JavaScript and TypeScript issues, prefer applying the fix during pre-commit instead of failing only on fixable drift.
 - Keep the pre-commit hook aligned with the formatting workflow as well. Staged files that Prettier supports should be formatted during pre-commit so repository-wide formatting drift does not accumulate outside the enforced path.
-- Keep the pre-commit hook aligned with the local quality bar. It should enforce version progression, staged-file lint checks, and staged-file related tests by default, including staged runtime JSON sources that affect app behavior or content, while the pre-push path owns the full repository test and build gates for shared-input changes.
+- Keep the pre-commit hook aligned with the local quality bar. It should enforce staged-file lint checks and staged-file related tests by default, including staged runtime JSON sources that affect app behavior or content, while the pre-push path owns the full repository test and build gates for shared-input changes.
 - Keep the pre-commit hook scoped to staged work, even when shared test inputs change. Move full-repository test and build gates to the pre-push path when commit-latency improvements are the goal.
-- Keep a full-project TypeScript gate in the pre-push path so routine commits do not pay that cost but rewritten branches and shared pushes still validate the whole repository before publication.
-- Treat a staged `package.json` change that only updates the `version` field as lightweight commit metadata, not as a shared-input change that forces the full repository test suite.
+- Keep a full-project TypeScript gate in the pre-push path so routine commits do not pay that cost but rewritten branches and shared pushes validate the whole repository before publication.
+- Treat a staged `package.json` change that only updates the `version` field as lightweight release metadata, not as a shared-input change that forces the full repository test suite.
 - Prefer the smallest correct change that fits the existing structure.
 - Apply the DRY principle. When logic, UI structure, or configuration patterns repeat, prefer extracting or extending an existing shared helper, component, or module instead of copying the pattern again.
 - When a requested JavaScript or TypeScript syntax preference can be enforced mechanically, prefer enabling or adjusting the corresponding Oxlint rule instead of relying only on contributor discipline, using Oxlint JS plugins only when the rule is not available natively.
 - When a requested JavaScript or TypeScript syntax preference also depends on formatting behavior, update the relevant Prettier configuration when that style can be enforced there as well.
 - When a requested CSS or SCSS syntax preference can be enforced mechanically, prefer enabling or adjusting the corresponding Stylelint rule instead of relying only on contributor discipline.
 - When a requested commit message format changes, update the Commitlint configuration in the same task when the repository can enforce that convention automatically.
-- Before creating any commit in Realmfall, ensure the patch version in `package.json` advances. Prefer the repository commit helper so the version bump happens automatically before `git commit`, and keep the enforced version segment and contributor guidance aligned with the pre-commit hook, which checks the new patch version against `HEAD`.
+- Do not auto-bump `package.json` for routine commits. Change the version field only for intentional release-line updates, and keep contributor guidance aligned with the helper scripts and hooks that leave ordinary commits free of version churn.
 - Preserve existing behavior unless the task explicitly changes behavior.
 - Favor existing project patterns over introducing new abstractions, state layers, or architectural styles without a clear need.
 - Keep documentation grounded in the current shipped behavior and known constraints, not aspirational plans.

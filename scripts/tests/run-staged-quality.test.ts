@@ -36,7 +36,7 @@ describe('run-staged-quality helpers', () => {
     expect(getExtension('scripts/run-staged-quality')).toBe('');
   });
 
-  it('treats version-only package.json diffs as lightweight commit metadata', () => {
+  it('treats version-only package.json diffs as lightweight release metadata', () => {
     const versionOnlyDiff = [
       'diff --git a/package.json b/package.json',
       '--- a/package.json',

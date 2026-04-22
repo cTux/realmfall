@@ -51,10 +51,9 @@ This spec covers the repository quality baseline and current test coverage shape
 - The scheduled dependency-update workflow bootstraps its toolchain with SHA-pinned GitHub Actions and the repo-pinned `pnpm` version, runs `pnpm i --no-frozen-lockfile`, delegates the refresh and sanity-check sequence to `pnpm update:minor -- --no-commit`, audits the refreshed tree with read-only `pnpm audit --json`, and then stages the dependency manifests for PR publication.
 - The scheduled dependency-update workflow declares explicit `contents: write` and `pull-requests: write` permissions, keeps checkout credentials disabled, and uses the GitHub CLI to commit, push, and create or update the dependency PR instead of delegating that write path to a third-party action.
 - Before the scheduled dependency-update workflow force-pushes the reusable `dependencies-update` branch with `--force-with-lease`, it refreshes `origin/dependencies-update` so the lease compares against current remote state and later runs can update the existing PR branch reliably.
-- The pre-commit workflow enforces version progression through `pnpm check:version`, which blocks commits unless `package.json` advances by patch version relative to `HEAD`.
 - The pre-commit workflow formats staged Prettier-supported files first, then scopes Oxlint auto-fixes to staged JavaScript and TypeScript files, scopes Stylelint to staged `src` CSS and SCSS files, and scopes Vitest to tests related to staged source files, runtime JSON content, or test files.
 - The pre-push workflow now owns the full-project `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` gates so routine commits stay focused on fast staged checks while pushes validate the whole repository before publication.
-- A staged `package.json` diff that changes only the `version` field stays on the scoped pre-commit path, so routine commit-version bumps do not trigger the full test suite by themselves.
+- A staged `package.json` diff that changes only the `version` field stays on the scoped pre-commit path, so intentional release-metadata edits do not trigger the full test suite by themselves.
 - When staged changes touch shared test inputs such as `pnpm-lock.yaml`, `vite.config.ts`, TypeScript config, or `src/test/setup.ts`, or when `package.json` changes beyond the `version` field, the pre-commit workflow stays on staged checks and the pre-push workflow runs the full `pnpm test` suite instead of charging every commit for repository-wide verification.
 - The pre-push workflow also runs `pnpm build`, keeping full-repository runtime validation near publication while leaving commit-time hooks focused on staged changes.
 - Slow app integration tests that rely on lazy chunks, timer advancement, or full render cycles set explicit per-test timeouts so hook and CI runs do not fail on default five-second limits under heavier suite load.
@@ -68,9 +67,9 @@ This spec covers the repository quality baseline and current test coverage shape
 ## Main Implementation Areas
 
 - `package.json`
+- `scripts/build-version.helpers.ts`
 - `scripts/check-bundle-budget.mjs`
 - `scripts/check-bundle-budget.helpers.mjs`
-- `scripts/check-package-version.mjs`
 - `scripts/dependency-updates.mjs`
 - `scripts/dependency-updates.helpers.mjs`
 - `scripts/fuite-dock-toggle-scenario.mjs`
@@ -82,6 +81,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - `scripts/run-memory-leak-test.mjs`
 - `scripts/run-duplicate-deps-audit.mjs`
 - `scripts/run-staged-quality.mjs`
+- `scripts/git-commit.mjs`
 - `.oxlintrc.json`
 - `.husky/pre-push`
 - `prettier.config.cjs`

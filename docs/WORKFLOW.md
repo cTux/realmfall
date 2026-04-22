@@ -20,12 +20,12 @@ Use this file for contributor process only. Canonical project guidance lives in
 ## Commit Workflow
 
 - Use Conventional Commits.
-- Use `pnpm git:commit -- -m "<message>"` for routine commits. It bumps the patch version in `package.json` when needed, stages that file, and then runs `git commit`.
-- If you commit without the helper, bump the patch version in `package.json` yourself first.
+- Use `pnpm git:commit -- -m "<message>"` for routine commits. It delegates to `git commit` through the repository helper without editing `package.json`.
+- Edit the `package.json` version only when you intentionally want to change the shipped release line.
 - Generate commit messages from the actual change set.
 - Keep commit messages focused on the behavioral change instead of enumerating every touched doc file.
 - Use `pnpm git:prune-gone-branches -- --dry-run` to preview local branches whose tracked remote ref was deleted, then rerun without `--dry-run` to remove them. Add `-- --safe` only when you want Git to keep its merged-branch protection.
-- Use `pnpm git:rebase-master-and-push` from a clean, already-committed feature branch when you need to replay it onto the default branch advertised by `origin/HEAD` and publish the rewritten branch. The script auto-resolves `package.json` version conflicts by carrying this branch's patch-version increments onto the incoming version, refuses to rewrite the current remote default branch directly, and then fetches the remote branch before `--force-with-lease`.
+- Use `pnpm git:rebase-master-and-push` from a clean, already-committed feature branch when you need to replay it onto the default branch advertised by `origin/HEAD` and publish the rewritten branch. The script auto-resolves `package.json` version conflicts when they occur, refuses to rewrite the current remote default branch directly, and then fetches the remote branch before `--force-with-lease`.
 - For pre-commit and pre-push policy details, use `docs/rules/60-testing-and-documentation.md` and the matching tooling spec instead of restating that policy here.
 
 ## Verification Workflow

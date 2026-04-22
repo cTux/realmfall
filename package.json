@@ -35,7 +35,6 @@
     "build": "node scripts/run-vite-build.mjs",
     "build:budget": "pnpm build && node scripts/check-bundle-budget.mjs",
     "build:duplicate-deps": "node scripts/run-duplicate-deps-audit.mjs",
-    "check:version": "node scripts/check-package-version.mjs",
     "build:storybook": "storybook build",
     "git:commit": "node scripts/git-commit.mjs",
     "git:prune-gone-branches": "node scripts/prune-gone-branches.mjs",
