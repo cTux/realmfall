@@ -12,6 +12,7 @@ export const boarEnemyConfig: EnemyConfig = {
     forest: 0.28,
     swamp: 0.35,
     plains: 0.33,
+    highlands: 0.18,
   },
   animal: true,
   tags: [],

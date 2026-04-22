@@ -33,6 +33,30 @@ describe('pickStructureType', () => {
     expect(pickStructureType(0, 0.841, 'desert')).toBe('copper-ore');
     expect(pickStructureType(0, 0.82, 'desert')).toBe('coal-ore');
     expect(pickStructureType(0, 0.809, 'desert')).toBeUndefined();
+
+    expect(pickStructureType(0, 0.951, 'highlands')).toBe('tree');
+    expect(pickStructureType(0, 0.905, 'highlands')).toBe('tin-ore');
+    expect(pickStructureType(0, 0.875, 'highlands')).toBe('gold-ore');
+    expect(pickStructureType(0, 0.845, 'highlands')).toBe('platinum-ore');
+    expect(pickStructureType(0, 0.821, 'highlands')).toBe('copper-ore');
+    expect(pickStructureType(0, 0.791, 'highlands')).toBe('iron-ore');
+    expect(pickStructureType(0, 0.761, 'highlands')).toBe('coal-ore');
+    expect(pickStructureType(0, 0.741, 'highlands')).toBe('lake');
+    expect(pickStructureType(0, 0.739, 'highlands')).toBeUndefined();
+
+    expect(pickStructureType(0, 0.976, 'tundra')).toBe('tree');
+    expect(pickStructureType(0, 0.941, 'tundra')).toBe('tin-ore');
+    expect(pickStructureType(0, 0.891, 'tundra')).toBe('platinum-ore');
+    expect(pickStructureType(0, 0.851, 'tundra')).toBe('coal-ore');
+    expect(pickStructureType(0, 0.821, 'tundra')).toBe('pond');
+    expect(pickStructureType(0, 0.781, 'tundra')).toBe('lake');
+    expect(pickStructureType(0, 0.779, 'tundra')).toBeUndefined();
+
+    expect(pickStructureType(0, 0.881, 'badlands')).toBe('gold-ore');
+    expect(pickStructureType(0, 0.801, 'badlands')).toBe('copper-ore');
+    expect(pickStructureType(0, 0.781, 'badlands')).toBe('iron-ore');
+    expect(pickStructureType(0, 0.761, 'badlands')).toBe('coal-ore');
+    expect(pickStructureType(0, 0.759, 'badlands')).toBeUndefined();
   });
 });
 

@@ -21,6 +21,8 @@ export const ironOreStructureConfig: StructureConfig = {
   appearanceChanceByTerrain: {
     swamp: 0.82,
     forest: 0.82,
+    highlands: 0.79,
+    badlands: 0.78,
   },
   gathering: {
     actionLabel: structureActionLabel('iron-ore'),

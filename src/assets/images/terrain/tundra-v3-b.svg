@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 1760" width="1280" height="1760">
+<defs>
+  <clipPath id="tundra-b-clip-top">
+    <polygon points="640,240 1194.3,560 1194.3,1200 640,1520 85.7,1200 85.7,560" />
+  </clipPath>
+  <linearGradient id="tundra-b-top-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#d8eef9" />
+    <stop offset="58%" stop-color="#95b6c8" />
+    <stop offset="100%" stop-color="#617e93" />
+  </linearGradient>
+  <linearGradient id="tundra-b-left-face" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#7c94a6" />
+    <stop offset="100%" stop-color="#47586b" />
+  </linearGradient>
+  <linearGradient id="tundra-b-right-face" x1="100%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#7c94a6" />
+    <stop offset="100%" stop-color="#47586b" />
+  </linearGradient>
+  <linearGradient id="tundra-b-front-face" x1="50%" y1="0%" x2="50%" y2="100%">
+    <stop offset="0%" stop-color="#7c94a6" />
+    <stop offset="100%" stop-color="#47586b" />
+  </linearGradient>
+  <filter id="tundra-b-platform-shadow" x="-20%" y="-20%" width="140%" height="190%">
+    <feDropShadow dx="0" dy="22" stdDeviation="22" flood-color="#1b2834" flood-opacity="0.42" />
+  </filter>
+  <filter id="tundra-b-overhang-shadow" x="-30%" y="-30%" width="160%" height="220%">
+    <feDropShadow dx="0" dy="30" stdDeviation="24" flood-color="#1b2834" flood-opacity="0.5" />
+  </filter>
+
+</defs>
+  <ellipse cx="640" cy="1676" rx="396" ry="70" fill="#1b2834" opacity="0.18" />
+  <g filter="url(#tundra-b-platform-shadow)">
+    <polygon points="85.7,1200 640,1520 640,1680 0,1360" fill="url(#tundra-b-left-face)" opacity="0.98" />
+    <polygon points="640,1520 1194.3,1200 1280,1360 640,1680" fill="url(#tundra-b-right-face)" opacity="0.98" />
+    <polygon points="224.3,1280 640,1520 1055.7,1280 1055.7,1440 640,1680 224.3,1440" fill="url(#tundra-b-front-face)" opacity="0.94" />
+  </g>
+  <g clip-path="url(#tundra-b-clip-top)">
+    <polygon points="640,240 1194.3,560 1194.3,1200 640,1520 85.7,1200 85.7,560" fill="url(#tundra-b-top-gradient)" />
+    <ellipse cx="1054.4" cy="1206.3" rx="55.9" ry="24.8" fill="#ffffff" opacity="0.061" transform="rotate(6.6 1054.4 1206.3)" />
+    <ellipse cx="937.2" cy="624.1" rx="105.3" ry="18.8" fill="#ffffff" opacity="0.04" transform="rotate(12.5 937.2 624.1)" />
+    <ellipse cx="730.3" cy="459.9" rx="57.4" ry="42.2" fill="#ffffff" opacity="0.057" transform="rotate(-22.1 730.3 459.9)" />
+    <ellipse cx="779.7" cy="711.4" rx="73.7" ry="25.2" fill="#365065" opacity="0.085" transform="rotate(20.4 779.7 711.4)" />
+    <ellipse cx="471.2" cy="520.2" rx="124.2" ry="25.4" fill="#365065" opacity="0.101" transform="rotate(15.8 471.2 520.2)" />
+    <ellipse cx="346" cy="874.8" rx="148.4" ry="38.6" fill="#ffffff" opacity="0.082" transform="rotate(8.3 346 874.8)" />
+    <ellipse cx="792.7" cy="1272.7" rx="79.7" ry="28.3" fill="#365065" opacity="0.097" transform="rotate(15.8 792.7 1272.7)" />
+    <ellipse cx="1038.2" cy="1302.2" rx="128.8" ry="41.3" fill="#ffffff" opacity="0.112" transform="rotate(23.8 1038.2 1302.2)" />
+    <ellipse cx="246.2" cy="858.4" rx="106.8" ry="20.2" fill="#ffffff" opacity="0.094" transform="rotate(-1.4 246.2 858.4)" />
+    <ellipse cx="1005.5" cy="1311.1" rx="99.9" ry="30.9" fill="#365065" opacity="0.098" transform="rotate(-18.1 1005.5 1311.1)" />
+    <ellipse cx="1008.7" cy="857.6" rx="59.7" ry="29.7" fill="#ffffff" opacity="0.041" transform="rotate(5.8 1008.7 857.6)" />
+    <ellipse cx="417.5" cy="638.6" rx="65.2" ry="28.9" fill="#ffffff" opacity="0.109" transform="rotate(0.8 417.5 638.6)" />
+    <circle cx="926.6" cy="985.1" r="12.7" fill="#365065" opacity="0.095" />
+    <circle cx="1156.9" cy="750.6" r="9.2" fill="#ffffff" opacity="0.174" />
+    <circle cx="405.5" cy="1081.7" r="14.1" fill="#365065" opacity="0.145" />
+    <circle cx="396.2" cy="964.8" r="10.4" fill="#365065" opacity="0.158" />
+    <circle cx="875" cy="959.4" r="8" fill="#365065" opacity="0.139" />
+    <circle cx="122.2" cy="691.1" r="12" fill="#ffffff" opacity="0.143" />
+    <circle cx="434.2" cy="788.1" r="10.3" fill="#365065" opacity="0.136" />
+    <circle cx="103.8" cy="1191.3" r="9.6" fill="#365065" opacity="0.172" />
+    <circle cx="936.3" cy="1261.3" r="16" fill="#365065" opacity="0.087" />
+    <circle cx="749.1" cy="595.1" r="7.7" fill="#365065" opacity="0.1" />
+    <circle cx="397.5" cy="688.2" r="9.3" fill="#ffffff" opacity="0.15" />
+    <circle cx="524.7" cy="713.4" r="13.1" fill="#365065" opacity="0.148" />
+    <circle cx="712" cy="902.1" r="8.7" fill="#ffffff" opacity="0.083" />
+    <circle cx="514.5" cy="1108.6" r="14.2" fill="#365065" opacity="0.142" />
+    <circle cx="481.7" cy="1213.4" r="10.8" fill="#ffffff" opacity="0.089" />
+    <circle cx="360" cy="732" r="15.1" fill="#ffffff" opacity="0.141" />
+    <ellipse cx="684.2" cy="1113.9" rx="179.7" ry="26.5" fill="#ffffff" opacity="0.88" />
+    <ellipse cx="651.9" cy="1111.3" rx="82.7" ry="9" fill="#eefaff" opacity="0.34" />
+    <ellipse cx="563.5" cy="893.8" rx="105.1" ry="31.9" fill="#ffffff" opacity="0.88" />
+    <ellipse cx="544.6" cy="890.6" rx="48.3" ry="10.8" fill="#eefaff" opacity="0.34" />
+    <ellipse cx="1058.9" cy="1095.5" rx="90.2" ry="47.9" fill="#ffffff" opacity="0.88" />
+    <ellipse cx="1042.7" cy="1090.7" rx="41.5" ry="16.3" fill="#eefaff" opacity="0.34" />
+    <ellipse cx="360" cy="793.3" rx="131" ry="26.4" fill="#ffffff" opacity="0.88" />
+    <ellipse cx="336.4" cy="790.7" rx="60.3" ry="9" fill="#eefaff" opacity="0.34" />
+    <ellipse cx="199.3" cy="1120.3" rx="164.4" ry="28.8" fill="#ffffff" opacity="0.88" />
+    <ellipse cx="169.7" cy="1117.4" rx="75.6" ry="9.8" fill="#eefaff" opacity="0.34" />
+    <ellipse cx="746" cy="1179.8" rx="103.9" ry="31.7" fill="#89d5f4" opacity="0.86" />
+    <ellipse cx="729.4" cy="1176" rx="47.8" ry="10.8" fill="#ffffff" opacity="0.24" />
+    <ellipse cx="711.8" cy="1104.7" rx="94.6" ry="44.7" fill="#89d5f4" opacity="0.86" />
+    <ellipse cx="696.7" cy="1099.3" rx="43.5" ry="15.2" fill="#ffffff" opacity="0.24" />
+    <path d="M 64.1 701.9 Q 640 645.7 1137.5 701.9" fill="none" stroke="#eefaff" stroke-opacity="0.078" stroke-width="22" stroke-linecap="round" />
+    <path d="M 69.2 934 Q 640 854.4 1148.1 934" fill="none" stroke="#eefaff" stroke-opacity="0.068" stroke-width="22" stroke-linecap="round" />
+    <path d="M 104.9 952.6 Q 640 870.6 1057.5 952.6" fill="none" stroke="#eefaff" stroke-opacity="0.061" stroke-width="22" stroke-linecap="round" />
+    <path d="M 100.7 1092.9 Q 640 1055.5 1111.2 1092.9" fill="none" stroke="#eefaff" stroke-opacity="0.094" stroke-width="22" stroke-linecap="round" />
+  </g>
+  <g filter="url(#tundra-b-overhang-shadow)">
+    <path d="M 273.8 681.8 L 273.8 619.5" fill="none" stroke="#365065" stroke-width="18" stroke-linecap="round" opacity="0.74" />
+    <polygon points="244.2,562.9 273.8,398.6 303.4,562.9" fill="#617e93" />
+    <polygon points="228.1,613.8 273.8,489.2 319.5,613.8" fill="#95b6c8" />
+    <polygon points="212,681.8 273.8,562.9 335.6,681.8" fill="#d8eef9" opacity="0.92" />
+    <polygon points="260.4,438.2 273.8,398.6 288.6,441.1" fill="#ffffff" opacity="0.9" />
+    <polygon points="328.5,706.6 347.3,491.3 367,655 360.1,706.6" fill="#95b6c8" opacity="0.96" />
+    <polygon points="347.3,491.3 360.1,624.8 350.2,672.2" fill="#ffffff" opacity="0.84" />
+    <path d="M 501 737.8 L 501 684.2" fill="none" stroke="#365065" stroke-width="18" stroke-linecap="round" opacity="0.74" />
+    <polygon points="474.8,635.5 501,494.2 527.2,635.5" fill="#617e93" />
+    <polygon points="460.5,679.3 501,572.2 541.5,679.3" fill="#95b6c8" />
+    <polygon points="446.2,737.8 501,635.5 555.8,737.8" fill="#d8eef9" opacity="0.92" />
+    <polygon points="489.1,528.3 501,494.2 514.1,530.7" fill="#ffffff" opacity="0.9" />
+    <polygon points="565.9,775.2 581.9,557.2 598.8,722.9 592.9,775.2" fill="#95b6c8" opacity="0.96" />
+    <polygon points="581.9,557.2 592.9,692.3 584.5,740.3" fill="#ffffff" opacity="0.84" />
+    <path d="M 771.4 664.7 L 771.4 614.3" fill="none" stroke="#365065" stroke-width="18" stroke-linecap="round" opacity="0.74" />
+    <polygon points="749.2,568.4 771.4,435.4 793.6,568.4" fill="#617e93" />
+    <polygon points="737.2,609.7 771.4,508.8 805.6,609.7" fill="#95b6c8" />
+    <polygon points="725.1,664.7 771.4,568.4 817.7,664.7" fill="#d8eef9" opacity="0.92" />
+    <polygon points="761.3,467.5 771.4,435.4 782.5,469.8" fill="#ffffff" opacity="0.9" />
+    <polygon points="809.9,725.5 830.9,515.4 853,675.1 845.3,725.5" fill="#95b6c8" opacity="0.96" />
+    <polygon points="830.9,515.4 845.3,645.6 834.2,691.9" fill="#ffffff" opacity="0.84" />
+  </g>
+  <polygon points="640,240 1194.3,560 1194.3,1200 640,1520 85.7,1200 85.7,560" fill="none" stroke="#365065" stroke-opacity="0.16" stroke-width="10" />
+  <path d="M96 1236 Q640 1560 1184 1236" fill="none" stroke="#eefaff" stroke-opacity="0.16" stroke-width="18" />
+  <path d="M160 1216 Q640 1468 1120 1216" fill="none" stroke="#1b2834" stroke-opacity="0.14" stroke-width="10" />
+</svg>

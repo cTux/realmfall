@@ -11,6 +11,9 @@ export const marauderEnemyConfig: EnemyConfig = {
   appearanceChanceByTerrain: {
     forest: 0,
     desert: 0.5,
+    tundra: 0.12,
+    highlands: 0.28,
+    badlands: 0.44,
     swamp: 0,
     plains: 0.33,
   },

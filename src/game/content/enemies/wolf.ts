@@ -11,6 +11,8 @@ export const wolfEnemyConfig: EnemyConfig = {
   appearanceChanceByTerrain: {
     forest: 0.28,
     swamp: 0.25,
+    tundra: 0.24,
+    highlands: 0.2,
   },
   animal: true,
   tags: [],

@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 1760" width="1280" height="1760">
+<defs>
+  <clipPath id="mountain-c-clip-top">
+    <polygon points="640,240 1194.3,560 1194.3,1200 640,1520 85.7,1200 85.7,560" />
+  </clipPath>
+  <linearGradient id="mountain-c-top-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#e1ebf0" />
+    <stop offset="58%" stop-color="#8ea2a8" />
+    <stop offset="100%" stop-color="#5d7078" />
+  </linearGradient>
+  <linearGradient id="mountain-c-left-face" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#8a5a30" />
+    <stop offset="100%" stop-color="#533114" />
+  </linearGradient>
+  <linearGradient id="mountain-c-right-face" x1="100%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#8a5a30" />
+    <stop offset="100%" stop-color="#533114" />
+  </linearGradient>
+  <linearGradient id="mountain-c-front-face" x1="50%" y1="0%" x2="50%" y2="100%">
+    <stop offset="0%" stop-color="#8a5a30" />
+    <stop offset="100%" stop-color="#533114" />
+  </linearGradient>
+  <filter id="mountain-c-platform-shadow" x="-20%" y="-20%" width="140%" height="190%">
+    <feDropShadow dx="0" dy="22" stdDeviation="22" flood-color="#253037" flood-opacity="0.42" />
+  </filter>
+  <filter id="mountain-c-overhang-shadow" x="-30%" y="-30%" width="160%" height="220%">
+    <feDropShadow dx="0" dy="30" stdDeviation="24" flood-color="#253037" flood-opacity="0.5" />
+  </filter>
+
+</defs>
+  <ellipse cx="640" cy="1676" rx="396" ry="70" fill="#253037" opacity="0.18" />
+  <g filter="url(#mountain-c-platform-shadow)">
+    <polygon points="85.7,1200 640,1520 640,1680 0,1360" fill="url(#mountain-c-left-face)" opacity="0.98" />
+    <polygon points="640,1520 1194.3,1200 1280,1360 640,1680" fill="url(#mountain-c-right-face)" opacity="0.98" />
+    <polygon points="224.3,1280 640,1520 1055.7,1280 1055.7,1440 640,1680 224.3,1440" fill="url(#mountain-c-front-face)" opacity="0.94" />
+  </g>
+  <g clip-path="url(#mountain-c-clip-top)">
+    <polygon points="640,240 1194.3,560 1194.3,1200 640,1520 85.7,1200 85.7,560" fill="url(#mountain-c-top-gradient)" />
+    <ellipse cx="543.1" cy="664.3" rx="143.7" ry="17.1" fill="#39464d" opacity="0.098" transform="rotate(-32.6 543.1 664.3)" />
+    <ellipse cx="609" cy="1310.4" rx="54.9" ry="28.2" fill="#ffffff" opacity="0.067" transform="rotate(8.3 609 1310.4)" />
+    <ellipse cx="233.4" cy="457.7" rx="125" ry="28.1" fill="#39464d" opacity="0.075" transform="rotate(-24.5 233.4 457.7)" />
+    <ellipse cx="608.4" cy="1008.6" rx="84.3" ry="43.2" fill="#39464d" opacity="0.066" transform="rotate(14.7 608.4 1008.6)" />
+    <ellipse cx="467.2" cy="1044.1" rx="120.3" ry="28.6" fill="#ffffff" opacity="0.086" transform="rotate(-0.2 467.2 1044.1)" />
+    <ellipse cx="266.6" cy="653.5" rx="144.3" ry="32.6" fill="#ffffff" opacity="0.045" transform="rotate(0.6 266.6 653.5)" />
+    <ellipse cx="662.7" cy="1166.2" rx="84.9" ry="22" fill="#ffffff" opacity="0.088" transform="rotate(-7.8 662.7 1166.2)" />
+    <ellipse cx="1062.6" cy="1135.3" rx="149.4" ry="37" fill="#ffffff" opacity="0.046" transform="rotate(-3.2 1062.6 1135.3)" />
+    <ellipse cx="799" cy="470.1" rx="115.7" ry="17.3" fill="#ffffff" opacity="0.053" transform="rotate(14 799 470.1)" />
+    <ellipse cx="537.8" cy="531.4" rx="106.9" ry="34.8" fill="#39464d" opacity="0.105" transform="rotate(28.7 537.8 531.4)" />
+    <ellipse cx="201.5" cy="1215" rx="131" ry="27.3" fill="#ffffff" opacity="0.097" transform="rotate(-31.9 201.5 1215)" />
+    <ellipse cx="967.2" cy="515" rx="59.5" ry="27.3" fill="#ffffff" opacity="0.044" transform="rotate(23.1 967.2 515)" />
+    <circle cx="342.5" cy="1200.5" r="6.8" fill="#ffffff" opacity="0.161" />
+    <circle cx="909.5" cy="551.1" r="12.3" fill="#ffffff" opacity="0.137" />
+    <circle cx="587.6" cy="1300.2" r="8.6" fill="#ffffff" opacity="0.166" />
+    <circle cx="1120.2" cy="543.1" r="11.9" fill="#39464d" opacity="0.121" />
+    <circle cx="424.4" cy="500.5" r="9.4" fill="#ffffff" opacity="0.139" />
+    <circle cx="648.4" cy="1258.4" r="10.3" fill="#ffffff" opacity="0.178" />
+    <circle cx="605.1" cy="627.8" r="13" fill="#39464d" opacity="0.165" />
+    <circle cx="785.9" cy="1159.9" r="7.7" fill="#ffffff" opacity="0.15" />
+    <circle cx="1167.2" cy="1355.4" r="12.4" fill="#ffffff" opacity="0.157" />
+    <circle cx="231.4" cy="570.4" r="10.1" fill="#39464d" opacity="0.15" />
+    <circle cx="147" cy="522" r="15.9" fill="#ffffff" opacity="0.118" />
+    <circle cx="594" cy="515.1" r="11.4" fill="#39464d" opacity="0.09" />
+    <circle cx="938.8" cy="794.1" r="7.4" fill="#ffffff" opacity="0.177" />
+    <circle cx="511.9" cy="830.1" r="11.8" fill="#39464d" opacity="0.154" />
+    <circle cx="418.1" cy="1409.8" r="15.1" fill="#ffffff" opacity="0.175" />
+    <circle cx="807.4" cy="552.4" r="12.7" fill="#ffffff" opacity="0.114" />
+    <circle cx="564" cy="940.4" r="23.8" fill="#39464d" opacity="0.24" />
+    <circle cx="558.3" cy="933.7" r="11.4" fill="#ffffff" opacity="0.2" />
+    <circle cx="775.6" cy="870.6" r="43.8" fill="#39464d" opacity="0.24" />
+    <circle cx="765.1" cy="858.3" r="21" fill="#ffffff" opacity="0.2" />
+    <circle cx="962.2" cy="992.6" r="32.2" fill="#39464d" opacity="0.24" />
+    <circle cx="954.5" cy="983.6" r="15.5" fill="#ffffff" opacity="0.2" />
+    <circle cx="547.4" cy="823.4" r="37" fill="#39464d" opacity="0.24" />
+    <circle cx="538.5" cy="813" r="17.8" fill="#ffffff" opacity="0.2" />
+    <circle cx="666.2" cy="854.9" r="24.9" fill="#39464d" opacity="0.24" />
+    <circle cx="660.2" cy="847.9" r="12" fill="#ffffff" opacity="0.2" />
+    <circle cx="588.7" cy="1080.7" r="22.7" fill="#39464d" opacity="0.24" />
+    <circle cx="583.3" cy="1074.3" r="10.9" fill="#ffffff" opacity="0.2" />
+    <circle cx="957.6" cy="1021.4" r="38.1" fill="#39464d" opacity="0.24" />
+    <circle cx="948.5" cy="1010.7" r="18.3" fill="#ffffff" opacity="0.2" />
+    <circle cx="431.4" cy="1261.2" r="41.5" fill="#39464d" opacity="0.24" />
+    <circle cx="421.4" cy="1249.6" r="19.9" fill="#ffffff" opacity="0.2" />
+    <path d="M 129.4 817.2 Q 640 766.5 1137.8 817.2" fill="none" stroke="#f8fafc" stroke-opacity="0.093" stroke-width="22" stroke-linecap="round" />
+    <path d="M 111.9 842.3 Q 640 793.6 1113.1 842.3" fill="none" stroke="#f8fafc" stroke-opacity="0.075" stroke-width="22" stroke-linecap="round" />
+    <path d="M 91.8 935.2 Q 640 852.6 1168.4 935.2" fill="none" stroke="#f8fafc" stroke-opacity="0.084" stroke-width="22" stroke-linecap="round" />
+    <path d="M 169 812.1 Q 640 745.6 1042.8 812.1" fill="none" stroke="#f8fafc" stroke-opacity="0.092" stroke-width="22" stroke-linecap="round" />
+  </g>
+  <g filter="url(#mountain-c-overhang-shadow)">
+    <polygon points="105.2,904.8 278.9,431.5 452.6,904.8" fill="#5d7078" />
+    <polygon points="105.2,904.8 278.9,431.5 278.9,904.8" fill="#8ea2a8" opacity="0.92" />
+    <polygon points="278.9,431.5 452.6,904.8 299.7,810.1" fill="#e1ebf0" opacity="0.9" />
+    <polygon points="244.2,507.2 278.9,431.5 320.6,516.7" fill="#ffffff" opacity="0.96" />
+    <polygon points="448.8,809.7 583.9,367.6 719,809.7" fill="#5d7078" />
+    <polygon points="448.8,809.7 583.9,367.6 583.9,809.7" fill="#8ea2a8" opacity="0.92" />
+    <polygon points="583.9,367.6 719,809.7 600.1,721.3" fill="#e1ebf0" opacity="0.9" />
+    <polygon points="556.9,438.3 583.9,367.6 616.3,447.2" fill="#ffffff" opacity="0.96" />
+    <polygon points="835.6,896.6 974.3,489 1113,896.6" fill="#5d7078" />
+    <polygon points="835.6,896.6 974.3,489 974.3,896.6" fill="#8ea2a8" opacity="0.92" />
+    <polygon points="974.3,489 1113,896.6 990.9,815.1" fill="#e1ebf0" opacity="0.9" />
+    <polygon points="946.6,554.2 974.3,489 1007.6,562.4" fill="#ffffff" opacity="0.96" />
+  </g>
+  <polygon points="640,240 1194.3,560 1194.3,1200 640,1520 85.7,1200 85.7,560" fill="none" stroke="#39464d" stroke-opacity="0.16" stroke-width="10" />
+  <path d="M96 1236 Q640 1560 1184 1236" fill="none" stroke="#f8fafc" stroke-opacity="0.16" stroke-width="18" />
+  <path d="M160 1216 Q640 1468 1120 1216" fill="none" stroke="#253037" stroke-opacity="0.14" stroke-width="10" />
+</svg>

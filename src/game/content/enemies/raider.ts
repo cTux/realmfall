@@ -11,6 +11,9 @@ export const raiderEnemyConfig: EnemyConfig = {
   appearanceChanceByTerrain: {
     forest: 0.18,
     desert: 0.5,
+    tundra: 0.18,
+    highlands: 0.32,
+    badlands: 0.56,
     swamp: 0,
     plains: 0,
   },

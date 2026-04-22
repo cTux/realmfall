@@ -11,6 +11,8 @@ export const spiderEnemyConfig: EnemyConfig = {
   appearanceChanceByTerrain: {
     forest: 0.26,
     swamp: 0.35,
+    badlands: 0.22,
+    highlands: 0.12,
   },
   tags: [],
 };

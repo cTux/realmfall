@@ -10,6 +10,9 @@ export const stagEnemyConfig: EnemyConfig = {
   tint: 0x22c55e,
   appearanceChanceByTerrain: {
     plains: 0.34,
+    forest: 0.18,
+    tundra: 0.26,
+    highlands: 0.14,
   },
   animal: true,
   tags: [],

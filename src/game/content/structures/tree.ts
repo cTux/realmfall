@@ -20,6 +20,9 @@ export const treeStructureConfig: StructureConfig = {
   functionsProvided: ['chop-wood'],
   appearanceChanceByTerrain: {
     forest: 0.86,
+    plains: 0.95,
+    highlands: 0.95,
+    tundra: 0.975,
   },
   gathering: {
     actionLabel: structureActionLabel('tree'),

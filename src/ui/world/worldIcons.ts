@@ -80,7 +80,7 @@ export function getVisibleWorldIconAssetIds(
   const iconAssetIds = new Set(getCoreWorldIconAssetIds());
 
   for (const tile of visibleTiles) {
-    iconAssetIds.add(terrainArtFor(tile.terrain));
+    iconAssetIds.add(terrainArtFor(tile.terrain, tile.coord));
 
     if (tile.structure) {
       iconAssetIds.add(

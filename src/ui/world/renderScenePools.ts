@@ -43,6 +43,14 @@ export interface MaskedSpritePool {
   usedByIcon: Map<string, number>;
 }
 
+interface SpriteRenderOptions {
+  anchor?: {
+    x: number;
+    y: number;
+  };
+  zIndex?: number;
+}
+
 export function createGraphicsPool(parent: Container): GraphicsPool {
   return { parent, items: [], used: 0 };
 }
@@ -195,12 +203,24 @@ export function takeMaskedSprite(pool: MaskedSpritePool, icon: string) {
 }
 
 export function finishSpritePool(pool: SpritePool) {
+  let hasSortedSprites = false;
+
   pool.itemsByIcon.forEach((items, icon) => {
     const used = pool.usedByIcon.get(icon) ?? 0;
+    for (let index = 0; index < used; index += 1) {
+      if (items[index].zIndex !== 0) {
+        hasSortedSprites = true;
+        break;
+      }
+    }
     for (let index = used; index < items.length; index += 1) {
       items[index].visible = false;
     }
   });
+
+  if (hasSortedSprites && typeof pool.parent.sortChildren === 'function') {
+    pool.parent.sortChildren();
+  }
 }
 
 export function finishMaskedSpritePool(pool: MaskedSpritePool) {
@@ -289,6 +309,7 @@ export function configureSprite(
   height: number,
   alpha: number,
   point: { x: number; y: number },
+  options?: SpriteRenderOptions,
 ) {
   sprite.visible = true;
   sprite.position.set(point.x, point.y);
@@ -296,6 +317,11 @@ export function configureSprite(
   sprite.height = height;
   sprite.tint = tint;
   sprite.alpha = alpha;
+  sprite.zIndex = options?.zIndex ?? 0;
+
+  if (typeof sprite.anchor?.set === 'function') {
+    sprite.anchor.set(options?.anchor?.x ?? 0.5, options?.anchor?.y ?? 0.5);
+  }
 }
 
 export function configureMaskedSprite(

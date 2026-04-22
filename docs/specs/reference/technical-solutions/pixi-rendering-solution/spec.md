@@ -43,7 +43,9 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Shared world-icon texture caches discard destroyed textures before reuse, so Pixi app remounts such as HMR do not hand the next world scene a texture whose source has already been destroyed.
 - If a newly needed icon texture has not finished loading when a sprite pool requests it, the pool uses a transparent placeholder texture for that frame and rerenders when the real texture arrives.
 - Terrain background redraw invalidation also keys off the shared world-icon texture version, so newly loaded terrain art repaints the cached static layer without waiting for unrelated hover or gameplay changes.
-- Terrain background PNG assets ship as transparent pointy-top hex cutouts, so the static world layer can draw them through the regular sprite pool without a runtime mask path.
+- Terrain background assets now ship as tall transparent pseudo-3d hex illustrations with deterministic per-tile variant selection across the expanded nine-biome set, so the static world layer can draw them through the regular sprite pool while keeping the clickable hex footprint aligned with the original base proportions.
+- Terrain art variants use taller scene silhouettes and a deeper platform body, so forests, mesas, frozen spires, swamp canopies, mountain peaks, and rift crystals can visibly project into higher rows while the base hex remains aligned to the original click target.
+- Terrain background sprites stay on the cached static layer, bottom-align to their base hex center, and sort by on-screen row so lower terrain art can overlap higher rows without forcing markers or interaction overlays onto the same sorting path.
 - Terrain background visibility is driven by a persisted graphics toggle that invalidates the cached static layer and rerenders the world map without recreating the Pixi app.
 - The Pixi canvas uses density-aware sizing so browser zoom and high-DPI displays keep the world viewport fitted to CSS pixels while renderer resolution tracks `window.devicePixelRatio` changes on resize within the current graphics preset cap.
 - Persisted settings now hydrate both Pixi renderer initialization flags and a preset-derived renderer density cap through a dedicated plain `localStorage` `settings` payload that is read before the initial game and Pixi setup; those init-time flags require a reload before they affect an already-running canvas.
@@ -55,9 +57,11 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - `src/app/App/world/pixiWorldRenderLoop.ts`
 - `src/app/App/world/pixiWorldCamera.ts`
 - `src/app/App/world/pixiWorldInteractions.ts`
+- `src/game/worldTerrain.ts`
 - `src/ui/world/pixiRuntime.ts`
 - `src/ui/world/renderScene.ts`
 - `src/ui/world/renderSceneCache.ts`
 - `src/ui/world/renderSceneFullscreenEffects.ts`
 - `src/ui/world/renderScenePools.ts`
 - `src/ui/world/renderSceneAtmosphere.ts`
+- `src/ui/world/worldTerrainArt.ts`
