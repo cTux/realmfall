@@ -15,6 +15,7 @@ interface UseAppWindowActionsArgs {
   handleDropEquippedItem: AppWindowsActions['inventory']['onDropEquippedItem'];
   handleDropItem: AppWindowsActions['inventory']['onDropItem'];
   handleEnchantItem: AppWindowsActions['inventory']['onEnchantItem'];
+  handleForfeitCombat: AppWindowsActions['world']['onForfeitCombat'];
   handleSelectHexItemModificationItem: AppWindowsActions['inventory']['onSelectHexItemModificationItem'];
   handleEquipmentHover: AppWindowsActions['tooltip']['onEquipmentHover'];
   handleEquipItem: AppWindowsActions['inventory']['onEquipItem'];
@@ -67,6 +68,7 @@ export function useAppWindowActions({
   handleDropEquippedItem,
   handleDropItem,
   handleEnchantItem,
+  handleForfeitCombat,
   handleSelectHexItemModificationItem,
   handleEquipmentHover,
   handleEquipItem,
@@ -186,6 +188,7 @@ export function useAppWindowActions({
   const world = useMemo(
     () => ({
       onStartCombat: handleStartCombat,
+      onForfeitCombat: handleForfeitCombat,
       onInteract: handleInteract,
       onProspect: handleProspect,
       onSellAll: handleSellAll,
@@ -203,6 +206,7 @@ export function useAppWindowActions({
       handleBuyTownItem,
       handleClaimHex,
       handleClearSelectedItemModification,
+      handleForfeitCombat,
       handleInteract,
       handleProspect,
       handleSellAll,

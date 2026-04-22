@@ -9,10 +9,12 @@ import { WINDOW_HOTKEYS } from './utils/windowHotkeys';
 interface UseKeyboardShortcutsOptions {
   canSetHomeAction: boolean;
   canTerritoryAction: boolean;
+  combatDeathAvailable: boolean;
   combatStartAvailable: boolean;
   hexContentWindowShown: boolean;
   interactLabel: string | null;
   lootSnapshotLength: number;
+  onForfeitCombat: () => void;
   onStartCombat: () => void;
   onInteract: () => void;
   onSetHome: () => void;
@@ -30,10 +32,12 @@ interface UseKeyboardShortcutsOptions {
 export function useKeyboardShortcuts({
   canSetHomeAction,
   canTerritoryAction,
+  combatDeathAvailable,
   combatStartAvailable,
   hexContentWindowShown,
   interactLabel,
   lootSnapshotLength,
+  onForfeitCombat,
   onStartCombat,
   onInteract,
   onSetHome,
@@ -93,6 +97,12 @@ export function useKeyboardShortcuts({
     if (lowerKey === 'q' && interactLabel) {
       event.preventDefault();
       onInteract();
+      return;
+    }
+
+    if (lowerKey === 't' && combatDeathAvailable) {
+      event.preventDefault();
+      onForfeitCombat();
       return;
     }
 

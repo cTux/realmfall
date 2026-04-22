@@ -216,10 +216,12 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
             combat={worldView.combat}
             combatPlayerParty={combatPlayerParty}
             combatEnemies={combatView.snapshot?.enemies ?? []}
+            combatWorldTimeMs={worldView.worldTimeMs}
             onBuyItem={worldActions.onBuyTownItem}
             onTakeAll={inventoryActions.onTakeAllLoot}
             onTakeItem={inventoryActions.onTakeLootItem}
             onStartCombat={worldActions.onStartCombat}
+            onForfeitCombat={worldActions.onForfeitCombat}
             onHoverItem={tooltipActions.onShowItemTooltip}
             onLeaveItem={tooltipActions.onCloseTooltip}
             {...detailTooltipHandlers}

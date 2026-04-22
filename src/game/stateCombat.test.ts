@@ -1,5 +1,6 @@
 import {
   createGame,
+  forfeitCombat,
   getEnemiesAt,
   getPlayerStats,
   getTileAt,
@@ -81,6 +82,47 @@ describe('game state combat flow', () => {
       encountered.logs.some((entry) =>
         /press start to begin the battle/i.test(entry.text),
       ),
+    ).toBe(true);
+  });
+
+  it('lets the player forfeit a battle after combat has started', () => {
+    const game = createGame(3, 'combat-forfeit-seed');
+    const target = { q: 2, r: 0 };
+    game.tiles['2,0'] = {
+      coord: target,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: ['enemy-2,0-0'],
+    };
+    game.enemies['enemy-2,0-0'] = {
+      id: 'enemy-2,0-0',
+      name: 'Wolf',
+      coord: target,
+      tier: 1,
+      hp: 5,
+      maxHp: 5,
+      attack: 2,
+      defense: 0,
+      xp: 5,
+      elite: false,
+    };
+    game.player.coord = { q: 1, r: 0 };
+    game.homeHex = { q: 0, r: 0 };
+    game.worldTimeMs = 75_000;
+
+    const encountered = moveToTile(game, target);
+    const started = startCombat(encountered);
+
+    expect(started.combat?.startedAtMs).toBe(75_000);
+
+    const forfeited = forfeitCombat(started);
+
+    expect(forfeited.combat).toBeNull();
+    expect(forfeited.player.coord).toEqual({ q: 0, r: 0 });
+    expect(forfeited.player.hp).toBe(1);
+    expect(
+      forfeited.logs.some((entry) => /you were defeated/i.test(entry.text)),
     ).toBe(true);
   });
 

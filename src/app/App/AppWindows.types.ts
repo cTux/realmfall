@@ -48,6 +48,7 @@ export interface AppWindowsViewState {
   };
   world: {
     homeHex: GameState['homeHex'];
+    worldTimeMs: GameState['worldTimeMs'];
     currentTile: Tile;
     currentTileHostileEnemyCount: number;
     combat: GameState['combat'];
@@ -174,6 +175,7 @@ export interface AppWindowsActions {
   };
   world: {
     onStartCombat: () => void;
+    onForfeitCombat: () => void;
     onInteract: () => void;
     onProspect: () => void;
     onSellAll: () => void;

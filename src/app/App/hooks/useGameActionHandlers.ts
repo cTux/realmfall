@@ -14,6 +14,7 @@ import {
   dropInventoryItem,
   enchantInventoryItem,
   equipItem,
+  forfeitCombat,
   interactWithStructure,
   prospectInventoryItem,
   prospectInventory,
@@ -189,6 +190,10 @@ export function useGameActionHandlers({
     applyGameTransition(startCombat);
   }, [applyGameTransition]);
 
+  const handleForfeitCombat = useCallback(() => {
+    applyGameTransition(forfeitCombat);
+  }, [applyGameTransition]);
+
   return {
     applyGameTransition,
     handleActivateInventoryItem,
@@ -199,6 +204,7 @@ export function useGameActionHandlers({
     handleDropItem,
     handleEnchantItem,
     handleEquipItem,
+    handleForfeitCombat,
     handleInteract,
     handleCorruptItem,
     handleProspect,

@@ -32,10 +32,12 @@ describe('useKeyboardShortcuts', () => {
       useKeyboardShortcuts({
         canSetHomeAction: false,
         canTerritoryAction: false,
+        combatDeathAvailable: false,
         combatStartAvailable: false,
         hexContentWindowShown: false,
         interactLabel: null,
         lootSnapshotLength: 0,
+        onForfeitCombat: vi.fn(),
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
         onSetHome: vi.fn(),
@@ -90,10 +92,12 @@ describe('useKeyboardShortcuts', () => {
       useKeyboardShortcuts({
         canSetHomeAction: false,
         canTerritoryAction: false,
+        combatDeathAvailable: false,
         combatStartAvailable: false,
         hexContentWindowShown: false,
         interactLabel: null,
         lootSnapshotLength: 0,
+        onForfeitCombat: vi.fn(),
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
         onSetHome: vi.fn(),
@@ -153,10 +157,12 @@ describe('useKeyboardShortcuts', () => {
       useKeyboardShortcuts({
         canSetHomeAction: false,
         canTerritoryAction: false,
+        combatDeathAvailable: false,
         combatStartAvailable: false,
         hexContentWindowShown: false,
         interactLabel: null,
         lootSnapshotLength: 0,
+        onForfeitCombat: vi.fn(),
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
         onSetHome: vi.fn(),
@@ -213,10 +219,12 @@ describe('useKeyboardShortcuts', () => {
       useKeyboardShortcuts({
         canSetHomeAction: false,
         canTerritoryAction: true,
+        combatDeathAvailable: false,
         combatStartAvailable: false,
         hexContentWindowShown: true,
         interactLabel: null,
         lootSnapshotLength: 0,
+        onForfeitCombat: vi.fn(),
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
         onSetHome: vi.fn(),
@@ -263,10 +271,12 @@ describe('useKeyboardShortcuts', () => {
       useKeyboardShortcuts({
         canSetHomeAction: true,
         canTerritoryAction: false,
+        combatDeathAvailable: false,
         combatStartAvailable: false,
         hexContentWindowShown: true,
         interactLabel: null,
         lootSnapshotLength: 0,
+        onForfeitCombat: vi.fn(),
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
         onSetHome,
@@ -304,5 +314,57 @@ describe('useKeyboardShortcuts', () => {
     });
 
     expect(onSetHome).toHaveBeenCalledTimes(1);
+  });
+
+  it('triggers the combat death hotkey when a long battle can be forfeited', async () => {
+    const onForfeitCombat = vi.fn();
+
+    function TestHarness() {
+      useKeyboardShortcuts({
+        canSetHomeAction: false,
+        canTerritoryAction: false,
+        combatDeathAvailable: true,
+        combatStartAvailable: false,
+        hexContentWindowShown: true,
+        interactLabel: null,
+        lootSnapshotLength: 0,
+        onForfeitCombat,
+        onStartCombat: vi.fn(),
+        onInteract: vi.fn(),
+        onSetHome: vi.fn(),
+        onTerritoryAction: vi.fn(),
+        onTakeAllLoot: vi.fn(),
+        onCloseAllWindows: vi.fn(),
+        onTogglePause: vi.fn(),
+        onToggleDockWindow: vi.fn(),
+        onUseActionBarSlot: vi.fn(),
+        windowShown: {
+          hero: false,
+          skills: false,
+          recipes: false,
+          hexInfo: true,
+          equipment: false,
+          inventory: false,
+          loot: false,
+          log: false,
+          combat: false,
+          settings: false,
+        },
+      });
+
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<TestHarness />);
+    });
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 't' }),
+      );
+    });
+
+    expect(onForfeitCombat).toHaveBeenCalledTimes(1);
   });
 });

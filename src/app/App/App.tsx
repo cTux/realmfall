@@ -104,6 +104,7 @@ export function App() {
     handleActivateInventoryItem,
     handleEquipItem,
     handleEquippedContextItem,
+    handleForfeitCombat,
     handleInteract,
     handleProspect,
     handleProspectItem,
@@ -313,14 +314,21 @@ export function App() {
     (!currentTile.claim || currentTile.claim.ownerType === 'player') &&
     (game.homeHex.q !== game.player.coord.q ||
       game.homeHex.r !== game.player.coord.r);
+  const combatDeathAvailable = Boolean(
+    game.combat?.started &&
+    game.combat.startedAtMs != null &&
+    game.worldTimeMs - game.combat.startedAtMs >= 60_000,
+  );
 
   useKeyboardShortcuts({
     canSetHomeAction,
     canTerritoryAction: claimStatus.canClaim,
+    combatDeathAvailable,
     combatStartAvailable: Boolean(game.combat && !game.combat.started),
     hexContentWindowShown: windowShown.hexInfo,
     interactLabel,
     lootSnapshotLength: currentTile.items.length,
+    onForfeitCombat: handleForfeitCombat,
     onStartCombat: handleStartCombat,
     onInteract: handleInteract,
     onSetHome: handleSetHome,
@@ -392,6 +400,7 @@ export function App() {
     handleEquipmentHover,
     handleEquipItem,
     handleEquippedContextItem,
+    handleForfeitCombat,
     handleInteract,
     handleOpenRecipeBookWithMaterialFilter,
     handleProspect,

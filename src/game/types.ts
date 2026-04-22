@@ -309,6 +309,7 @@ export interface CombatState {
   coord: HexCoord;
   enemyIds: string[];
   started: boolean;
+  startedAtMs?: number;
   player: CombatActorState;
   enemies: Record<string, CombatActorState>;
 }

@@ -163,6 +163,7 @@ export const CombatEncounter: Story = {
         abilityIds: ['kick'],
       },
     ],
+    combatWorldTimeMs: 12_000,
     loot: [
       buildItemFromConfig(ItemId.Gold, { id: 'combat-gold', quantity: 22 }),
       buildItemFromConfig(ItemId.HideBuckler, {
@@ -170,6 +171,14 @@ export const CombatEncounter: Story = {
         tier: 3,
       }),
     ],
+  },
+};
+
+export const LongCombatEncounter: Story = {
+  args: {
+    ...CombatEncounter.args,
+    combat: buildCombatState({ started: true, startedAtMs: 0 }),
+    combatWorldTimeMs: 61_000,
   },
 };
 
@@ -325,11 +334,18 @@ type StoryArgs = Omit<
   | 'onLeaveItem'
 >;
 
-function buildCombatState(): CombatState {
+function buildCombatState({
+  started = false,
+  startedAtMs,
+}: {
+  started?: boolean;
+  startedAtMs?: number;
+} = {}): CombatState {
   return {
     coord: { q: 1, r: 0 },
     enemyIds: ['enemy-1', 'enemy-2'],
-    started: false,
+    started,
+    startedAtMs,
     player: createCombatActorState(12_000, ['kick']),
     enemies: {
       'enemy-1': createCombatActorState(12_000, ['kick']),

@@ -212,6 +212,7 @@ export {
 } from './stateItemModificationActions';
 export {
   attackCombatEnemy,
+  forfeitCombat,
   getCombatAutomationDelay,
   getEnemyCombatAttack,
   getEnemyCombatAttackSpeed,

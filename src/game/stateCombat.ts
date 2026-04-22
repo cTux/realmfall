@@ -96,6 +96,7 @@ export function startCombat(state: GameState): GameState {
 
   const next = cloneForWorldMutation(state);
   next.combat!.started = true;
+  next.combat!.startedAtMs = next.worldTimeMs;
   addLog(
     next,
     'combat',
@@ -107,6 +108,16 @@ export function startCombat(state: GameState): GameState {
     ),
   );
   resolveCombat(next);
+  return next;
+}
+
+export function forfeitCombat(state: GameState): GameState {
+  if (!state.combat) return message(state, t('game.message.combat.noneActive'));
+  if (!state.combat.started)
+    return message(state, t('game.message.combat.pressStart'));
+
+  const next = cloneForWorldMutation(state);
+  respawnAtNearestTown(next, next.combat!.coord);
   return next;
 }
 

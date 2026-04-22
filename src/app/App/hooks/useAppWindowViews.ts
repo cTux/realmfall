@@ -98,6 +98,7 @@ export function useAppWindowViews({
   const world = useMemo(
     () => ({
       homeHex: game.homeHex,
+      worldTimeMs: game.worldTimeMs,
       currentTile,
       currentTileHostileEnemyCount,
       combat: game.combat,
@@ -119,6 +120,7 @@ export function useAppWindowViews({
       currentTileHostileEnemyCount,
       game.combat,
       game.homeHex,
+      game.worldTimeMs,
       gold,
       interactLabel,
       itemModification,

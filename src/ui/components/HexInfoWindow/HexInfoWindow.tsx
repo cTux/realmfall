@@ -9,6 +9,8 @@ import inventoryStyles from '../InventoryWindow/styles.module.scss';
 import type { HexInfoWindowProps } from './types';
 import styles from './styles.module.scss';
 
+const COMBAT_FORFEIT_DELAY_MS = 60_000;
+
 const HexInfoWindowContent = createLazyWindowComponent<
   Parameters<
     (typeof import('./HexInfoWindowContent'))['HexInfoWindowContent']
@@ -66,13 +68,36 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   onTakeAll,
   onTakeItem,
   onStartCombat = () => undefined,
+  onForfeitCombat = () => undefined,
   onHoverItem,
   onLeaveItem,
   onHoverDetail,
   onLeaveDetail,
 }: HexInfoWindowProps) {
+  const showForfeitAction = Boolean(
+    combat?.started &&
+    combat.startedAtMs != null &&
+    combatWorldTimeMs != null &&
+    combatWorldTimeMs - combat.startedAtMs >= COMBAT_FORFEIT_DELAY_MS,
+  );
   const primaryHeaderAction = combat ? (
-    combat.started ? null : (
+    combat.started ? (
+      showForfeitAction ? (
+        <WindowHeaderActionButton
+          className={inventoryStyles.headerButton}
+          onClick={onForfeitCombat}
+          tooltipTitle={t('ui.combat.forfeitAction')}
+          tooltipLines={[
+            { kind: 'text', text: t('ui.tooltip.window.forfeitCombat') },
+          ]}
+          tooltipBorderColor="rgba(248, 113, 113, 0.9)"
+          onHoverDetail={onHoverDetail}
+          onLeaveDetail={onLeaveDetail}
+        >
+          {t('ui.combat.forfeitAction')}
+        </WindowHeaderActionButton>
+      ) : null
+    ) : (
       <WindowHeaderActionButton
         className={inventoryStyles.headerButton}
         onClick={onStartCombat}
@@ -196,6 +221,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
         onTakeAll,
         onTakeItem,
         onStartCombat,
+        onForfeitCombat,
         onHoverItem,
         onLeaveItem,
         onHoverDetail,
@@ -213,7 +239,9 @@ function getTerritoryActionTooltipLines({
   territoryActionKind: 'claim' | 'unclaim';
 }) {
   const lines: TooltipLine[] = [];
-  const claimMaterialExplanation = t('game.message.claim.status.needsBannerMaterials');
+  const claimMaterialExplanation = t(
+    'game.message.claim.status.needsBannerMaterials',
+  );
 
   if (
     territoryActionExplanation &&

@@ -8,6 +8,7 @@ This spec covers encounter activation, actor timing, and combat resolution.
 
 - Entering a tile with hostile enemies opens a combat state.
 - Combat must be started explicitly from the combat window.
+- Battles that run for longer than `60s` surface a `Dea(t)h` title-bar action that accepts defeat, kills the player, and respawns them at their home hex.
 - While combat is active, regular travel is blocked.
 - Combat uses actor state for the player and each enemy.
 - Every actor has a global cooldown.
