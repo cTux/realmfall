@@ -9,7 +9,11 @@ vi.mock('pixi.js', () => {
     children: unknown[] = [];
     visible = true;
     alpha = 1;
+    rotation = 0;
     position = {
+      set: vi.fn(),
+    };
+    scale = {
       set: vi.fn(),
     };
 
@@ -89,10 +93,37 @@ describe('renderScenePools', () => {
     const reused = takeShadowedSprite(pool, 'wolf');
     expect(reused).toBe(first);
     expect(reused.sprite.texture).toBe(secondTexture);
+    expect(reused.outline.texture).toBe(secondTexture);
     expect(
       reused.shadows.every(
         (shadow) => shadow.texture === (secondTexture as unknown),
       ),
     ).toBe(true);
+  });
+
+  it('adds a black 2px outline behind configured world markers', async () => {
+    const { configureShadowedSprite, createShadowedSprite } =
+      await import('./renderScenePools');
+
+    getWorldIconTexture.mockReturnValue({ icon: 'wolf', revision: 1 });
+
+    const entry = createShadowedSprite('wolf');
+
+    configureShadowedSprite(
+      entry,
+      0xff0000,
+      30,
+      40,
+      0.8,
+      { x: 3, y: 5 },
+      { x: 10, y: 20 },
+    );
+
+    expect(entry.outline.tint).toBe(0x000000);
+    expect(entry.outline.width).toBe(34);
+    expect(entry.outline.height).toBe(44);
+    expect(entry.outline.alpha).toBe(1);
+    expect(entry.sprite.width).toBe(30);
+    expect(entry.sprite.height).toBe(40);
   });
 });

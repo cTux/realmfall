@@ -15,6 +15,7 @@ export interface TextPool {
 
 export interface ShadowedSpriteEntry {
   wrapper: Container;
+  outline: Sprite;
   shadows: Sprite[];
   sprite: Sprite;
 }
@@ -121,6 +122,7 @@ export function takeShadowedSprite(pool: ShadowedSpritePool, icon: string) {
     pool.parent.addChild(item.wrapper);
   }
 
+  item.outline.texture = texture;
   item.shadows.forEach((shadow) => {
     shadow.texture = texture;
   });
@@ -223,10 +225,13 @@ export function createShadowedSprite(icon: string): ShadowedSpriteEntry {
     wrapper.addChild(shadow);
     return shadow;
   });
+  const outline = new Sprite(getWorldIconTexture(icon, { allowPending: true }));
+  outline.anchor.set(0.5);
+  wrapper.addChild(outline);
   const sprite = new Sprite(getWorldIconTexture(icon, { allowPending: true }));
   sprite.anchor.set(0.5);
   wrapper.addChild(sprite);
-  return { wrapper, shadows, sprite };
+  return { wrapper, outline, shadows, sprite };
 }
 
 export function createMaskedSprite(icon: string): MaskedSpriteEntry {
@@ -249,6 +254,8 @@ export function configureShadowedSprite(
   shadowOffset: { x: number; y: number },
   point: { x: number; y: number },
 ) {
+  const outlineInsetPx = 2;
+
   entry.wrapper.visible = true;
   entry.wrapper.alpha = alpha;
   entry.wrapper.position.set(point.x, point.y);
@@ -275,7 +282,15 @@ export function configureShadowedSprite(
     shadow.alpha = layer.alpha;
   });
 
+  entry.outline.visible = true;
+  entry.outline.position.set(0, 0);
+  entry.outline.width = width + outlineInsetPx * 2;
+  entry.outline.height = height + outlineInsetPx * 2;
+  entry.outline.tint = 0x000000;
+  entry.outline.alpha = 1;
+
   entry.sprite.visible = true;
+  entry.sprite.position.set(0, 0);
   entry.sprite.width = width;
   entry.sprite.height = height;
   entry.sprite.tint = tint;
