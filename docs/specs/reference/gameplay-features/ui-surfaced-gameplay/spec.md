@@ -11,7 +11,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - New sessions start with every draggable window closed until the player opens one from the dock or a hotkey.
 - The fixed left dock uses a dense icon-button stack at roughly 60% of the original button footprint so more windows fit without crowding the main play area.
 - The game uses a custom tooltip system for world objects and item affordances.
-- Window chrome is consistent across the desktop UI, including shared close-button tooltips, rounded window corners, empty equipment-slot tooltips, resizable inventory, loot, and log surfaces, and focus styling that does not nudge active windows.
+- Window chrome is consistent across the desktop UI, including shared close-button tooltips, rounded window corners on both top header corners, empty equipment-slot tooltips, resizable inventory, loot, and log surfaces, and focus styling that does not nudge active windows.
 - Inventory and loot grids leave enough inset room for the compact hover-scale animation so the top and left slot borders remain fully visible at the window edge.
 - Hero and combat ability, buff, and debuff tiles keep a fixed position while hovered so tooltip affordances do not make the icons jump.
 - Ability tooltips now include a human-readable description that summarizes the ability target and its combat effects before the numeric rows.
