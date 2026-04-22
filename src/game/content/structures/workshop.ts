@@ -9,5 +9,5 @@ export const workshopStructureConfig: StructureConfig = {
   icon: ContentIcons.StoneCrafting,
   tint: 0x22c55e,
   functionsProvided: ['craft'],
-  globalAppearanceThreshold: 0.968,
+  globalAppearanceThreshold: 0.964,
 };

@@ -125,6 +125,7 @@ export type {
   RecipeBookEntry,
   RecipeDefinition,
   RecipeRequirement,
+  SecondaryStatKey,
   SkillName,
   SkillProgress,
   StatusEffectId,
@@ -204,6 +205,11 @@ export {
   unequipItem,
   useItem,
 } from './stateItemActions';
+export {
+  corruptInventoryItem,
+  enchantInventoryItem,
+  reforgeInventoryItem,
+} from './stateItemModificationActions';
 export {
   attackCombatEnemy,
   getCombatAutomationDelay,

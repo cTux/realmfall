@@ -273,6 +273,42 @@ describe('ui tooltip content', () => {
     expect(getInventoryItemAction(recipePage, [])).toBe('use');
   });
 
+  it('marks reforged and enchanted stat lines with dedicated tones', () => {
+    const modifiedItem: Item = {
+      id: 'modified-weapon',
+      slot: EquipmentSlotId.Weapon,
+      name: 'Marked Blade',
+      quantity: 1,
+      tier: 6,
+      rarity: 'rare',
+      power: 12,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+      secondaryStatCapacity: 1,
+      secondaryStats: [
+        { key: 'attackSpeed', value: 3 },
+        { key: 'criticalStrikeChance', value: 3 },
+      ],
+      reforgedSecondaryStatIndex: 0,
+      enchantedSecondaryStatIndex: 1,
+    };
+
+    expect(itemTooltipLines(modifiedItem)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Attack Speed',
+          tone: 'reforged',
+        }),
+        expect.objectContaining({
+          label: 'Critical Strike Chance',
+          tone: 'enchanted',
+        }),
+      ]),
+    );
+  });
+
   it('builds enemy, skill, and structure tooltip variants', () => {
     expect(enemyTooltip([], undefined)).toBeNull();
 

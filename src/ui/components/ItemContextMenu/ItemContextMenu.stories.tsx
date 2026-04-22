@@ -51,6 +51,41 @@ export const ForgeAction: Story = {
   },
 };
 
+export const RuneForgeAction: Story = {
+  args: {
+    canEquip: true,
+    reforgeOptions: [
+      {
+        cost: 74,
+        key: 'attackSpeed',
+        statIndex: 0,
+      },
+      {
+        cost: 74,
+        key: 'dodgeChance',
+        statIndex: 1,
+      },
+    ],
+    onReforge: noop,
+  },
+};
+
+export const ManaFontAction: Story = {
+  args: {
+    canEquip: true,
+    enchantCost: 96,
+    onEnchant: noop,
+  },
+};
+
+export const CorruptionAltarAction: Story = {
+  args: {
+    canEquip: true,
+    corruptCost: 132,
+    onCorrupt: noop,
+  },
+};
+
 export const TownAction: Story = {
   args: {
     canEquip: true,

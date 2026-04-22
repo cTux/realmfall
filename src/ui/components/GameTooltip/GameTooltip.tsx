@@ -110,13 +110,17 @@ export const GameTooltip = memo(function GameTooltip({
             ? styles.sectionLabel
             : line.tone === 'item'
               ? styles.item
-              : line.tone === 'subtle'
-                ? styles.subtle
-                : line.tone === 'positive'
-                  ? styles.positive
-                  : line.tone === 'negative'
-                    ? styles.negative
-                    : undefined;
+              : line.tone === 'reforged'
+                ? styles.reforged
+                : line.tone === 'enchanted'
+                  ? styles.enchanted
+                  : line.tone === 'subtle'
+                    ? styles.subtle
+                    : line.tone === 'positive'
+                      ? styles.positive
+                      : line.tone === 'negative'
+                        ? styles.negative
+                        : undefined;
 
         if (
           line.kind === 'bar' &&

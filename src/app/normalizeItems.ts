@@ -53,11 +53,33 @@ export function normalizeItem(value: unknown): Item | null {
     (value.thirst !== undefined && !isFiniteNumber(value.thirst)) ||
     (value.secondaryStatCapacity !== undefined &&
       !isFiniteNumber(value.secondaryStatCapacity)) ||
+    (value.reforgedSecondaryStatIndex !== undefined &&
+      !isFiniteNumber(value.reforgedSecondaryStatIndex)) ||
+    (value.enchantedSecondaryStatIndex !== undefined &&
+      !isFiniteNumber(value.enchantedSecondaryStatIndex)) ||
+    (value.corrupted !== undefined && typeof value.corrupted !== 'boolean') ||
     (value.grantedAbilityId !== undefined &&
       typeof value.grantedAbilityId !== 'string')
   ) {
     return null;
   }
+
+  const validReforgedSecondaryStatIndex =
+    value.reforgedSecondaryStatIndex !== undefined &&
+    secondaryStats !== undefined &&
+    Number.isInteger(value.reforgedSecondaryStatIndex) &&
+    value.reforgedSecondaryStatIndex >= 0 &&
+    value.reforgedSecondaryStatIndex < secondaryStats.length
+      ? value.reforgedSecondaryStatIndex
+      : undefined;
+  const validEnchantedSecondaryStatIndex =
+    value.enchantedSecondaryStatIndex !== undefined &&
+    secondaryStats !== undefined &&
+    Number.isInteger(value.enchantedSecondaryStatIndex) &&
+    value.enchantedSecondaryStatIndex >= 0 &&
+    value.enchantedSecondaryStatIndex < secondaryStats.length
+      ? value.enchantedSecondaryStatIndex
+      : undefined;
 
   return {
     id: value.id,
@@ -85,6 +107,13 @@ export function normalizeItem(value: unknown): Item | null {
     ...(secondaryStats === undefined
       ? {}
       : { secondaryStats: secondaryStats as Item['secondaryStats'] }),
+    ...(validReforgedSecondaryStatIndex === undefined
+      ? {}
+      : { reforgedSecondaryStatIndex: validReforgedSecondaryStatIndex }),
+    ...(validEnchantedSecondaryStatIndex === undefined
+      ? {}
+      : { enchantedSecondaryStatIndex: validEnchantedSecondaryStatIndex }),
+    ...(value.corrupted === undefined ? {} : { corrupted: value.corrupted }),
     ...(value.grantedAbilityId === undefined
       ? {}
       : { grantedAbilityId: value.grantedAbilityId }),

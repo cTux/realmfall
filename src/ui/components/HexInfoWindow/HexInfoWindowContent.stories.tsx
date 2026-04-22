@@ -69,6 +69,14 @@ export const Forge: Story = {
   }),
 };
 
+export const RuneForge: Story = {
+  args: buildStructureArgs('rune-forge', {
+    terrain: 'Mountain',
+    itemModificationHint:
+      'Right-click equipment in your inventory here to pay gold and reforge one secondary stat.',
+  }),
+};
+
 export const Camp: Story = {
   args: buildStructureArgs('camp', {
     terrain: 'Forest',
@@ -78,6 +86,14 @@ export const Camp: Story = {
 export const Workshop: Story = {
   args: buildStructureArgs('workshop', {
     terrain: 'Plains',
+  }),
+};
+
+export const ManaFont: Story = {
+  args: buildStructureArgs('mana-font', {
+    terrain: 'Rift',
+    itemModificationHint:
+      'Right-click equipment in your inventory here to pay gold and add or replace one cyan enchanted stat.',
   }),
 };
 
@@ -165,6 +181,14 @@ export const Dungeon: Story = {
   }),
 };
 
+export const CorruptionAltar: Story = {
+  args: buildStructureArgs('corruption-altar', {
+    terrain: 'Rift',
+    itemModificationHint:
+      'Right-click equipment in your inventory here to pay gold and corrupt it. Corruption is permanent and risky.',
+  }),
+};
+
 export const Tree: Story = {
   args: buildGatheringStructureArgs('tree', {
     terrain: 'Forest',
@@ -221,6 +245,7 @@ function buildStructureArgs(
     territoryActionLabel: overrides.territoryActionLabel ?? 'Claim hex',
     canBulkProspectEquipment: overrides.canBulkProspectEquipment ?? false,
     canBulkSellEquipment: overrides.canBulkSellEquipment ?? false,
+    itemModificationHint: overrides.itemModificationHint ?? null,
     territoryActionExplanation: overrides.territoryActionExplanation ?? null,
     bulkProspectEquipmentExplanation:
       overrides.bulkProspectEquipmentExplanation ?? null,

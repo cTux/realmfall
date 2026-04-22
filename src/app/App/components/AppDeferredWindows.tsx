@@ -175,6 +175,7 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
             canInteract={Boolean(worldView.interactLabel)}
             canBulkProspectEquipment={worldView.canBulkProspectEquipment}
             canBulkSellEquipment={worldView.canBulkSellEquipment}
+            itemModificationHint={worldView.itemModificationHint}
             canTerritoryAction={worldView.claimStatus.canClaim}
             territoryActionLabel={claimStatusActionLabel(
               worldView.claimStatus.action,

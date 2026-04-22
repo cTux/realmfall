@@ -15,6 +15,7 @@ import type { StructureConfig } from '../types';
 import { GAME_TAGS, getSkillTags, uniqueTags } from '../tags';
 import { campStructureConfig } from './camp';
 import { coalOreStructureConfig } from './coalOre';
+import { corruptionAltarStructureConfig } from './corruptionAltar';
 import { copperOreStructureConfig } from './copperOre';
 import { dungeonStructureConfig } from './dungeon';
 import { forgeStructureConfig } from './forge';
@@ -23,8 +24,10 @@ import { goldOreStructureConfig } from './goldOre';
 import { herbsStructureConfig } from './herbs';
 import { ironOreStructureConfig } from './ironOre';
 import { lakeStructureConfig } from './lake';
+import { manaFontStructureConfig } from './manaFont';
 import { platinumOreStructureConfig } from './platinumOre';
 import { pondStructureConfig } from './pond';
+import { runeForgeStructureConfig } from './runeForge';
 import { tinOreStructureConfig } from './tinOre';
 import { townStructureConfig } from './town';
 import { treeStructureConfig } from './tree';
@@ -32,8 +35,11 @@ import { workshopStructureConfig } from './workshop';
 
 const RAW_STRUCTURE_CONFIGS = [
   dungeonStructureConfig,
+  corruptionAltarStructureConfig,
   forgeStructureConfig,
+  runeForgeStructureConfig,
   townStructureConfig,
+  manaFontStructureConfig,
   furnaceStructureConfig,
   workshopStructureConfig,
   campStructureConfig,
@@ -128,8 +134,11 @@ function buildStructureTags(config: StructureConfig) {
         ? GAME_TAGS.structure.combat
         : config.type === 'camp' ||
             config.type === 'forge' ||
+            config.type === 'rune-forge' ||
             config.type === 'furnace' ||
-            config.type === 'workshop'
+            config.type === 'mana-font' ||
+            config.type === 'workshop' ||
+            config.type === 'corruption-altar'
           ? GAME_TAGS.structure.crafting
           : config.type === 'town'
             ? GAME_TAGS.structure.settlement

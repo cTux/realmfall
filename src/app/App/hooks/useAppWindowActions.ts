@@ -14,13 +14,16 @@ interface UseAppWindowActionsArgs {
   handleCraftRecipe: AppWindowsActions['inventory']['onCraftRecipe'];
   handleDropEquippedItem: AppWindowsActions['inventory']['onDropEquippedItem'];
   handleDropItem: AppWindowsActions['inventory']['onDropItem'];
+  handleEnchantItem: AppWindowsActions['inventory']['onEnchantItem'];
   handleEquipmentHover: AppWindowsActions['tooltip']['onEquipmentHover'];
   handleEquipItem: AppWindowsActions['inventory']['onEquipItem'];
   handleEquippedContextItem: AppWindowsActions['inventory']['onEquippedContextItem'];
   handleInteract: AppWindowsActions['world']['onInteract'];
   handleOpenRecipeBookWithMaterialFilter: AppWindowsActions['recipes']['onOpenWithMaterialFilter'];
+  handleCorruptItem: AppWindowsActions['inventory']['onCorruptItem'];
   handleProspect: AppWindowsActions['world']['onProspect'];
   handleProspectItem: AppWindowsActions['inventory']['onProspectItem'];
+  handleReforgeItem: AppWindowsActions['inventory']['onReforgeItem'];
   handleResetSaveData: AppWindowsActions['settings']['onResetSaveData'];
   handleSaveSettings: AppWindowsActions['settings']['onSaveSettings'];
   handleSaveSettingsAndReload: AppWindowsActions['settings']['onSaveSettingsAndReload'];
@@ -58,13 +61,16 @@ export function useAppWindowActions({
   handleCraftRecipe,
   handleDropEquippedItem,
   handleDropItem,
+  handleEnchantItem,
   handleEquipmentHover,
   handleEquipItem,
   handleEquippedContextItem,
   handleInteract,
   handleOpenRecipeBookWithMaterialFilter,
+  handleCorruptItem,
   handleProspect,
   handleProspectItem,
+  handleReforgeItem,
   handleResetSaveData,
   handleSaveSettings,
   handleSaveSettingsAndReload,
@@ -129,7 +135,10 @@ export function useAppWindowActions({
       onCraftRecipe: handleCraftRecipe,
       onDropItem: handleDropItem,
       onDropEquippedItem: handleDropEquippedItem,
+      onEnchantItem: handleEnchantItem,
+      onCorruptItem: handleCorruptItem,
       onProspectItem: handleProspectItem,
+      onReforgeItem: handleReforgeItem,
       onSellItem: handleSellItem,
       onSetItemLocked: handleSetItemLocked,
       onContextItem: handleContextItem,
@@ -145,9 +154,12 @@ export function useAppWindowActions({
       handleCraftRecipe,
       handleDropEquippedItem,
       handleDropItem,
+      handleEnchantItem,
       handleEquipItem,
       handleEquippedContextItem,
+      handleCorruptItem,
       handleProspectItem,
+      handleReforgeItem,
       handleSellItem,
       handleSetItemLocked,
       handleSort,

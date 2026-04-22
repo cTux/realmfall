@@ -1,4 +1,4 @@
-import type { Item } from '../../../game/state';
+import type { Item, SecondaryStatKey } from '../../../game/state';
 
 export interface ItemContextMenuProps {
   item: Item;
@@ -12,12 +12,22 @@ export interface ItemContextMenuProps {
   canShowRecipes?: boolean;
   canProspectItem?: boolean;
   canSellEntry?: boolean;
+  reforgeOptions?: Array<{
+    cost: number;
+    key: SecondaryStatKey;
+    statIndex: number;
+  }>;
+  enchantCost?: number | null;
+  corruptCost?: number | null;
   onEquip: () => void;
   onUse: () => void;
   onDrop: () => void;
   onToggleLock?: () => void;
   onShowRecipes?: () => void;
   onProspect?: () => void;
+  onReforge?: (statIndex: number) => void;
+  onEnchant?: () => void;
+  onCorrupt?: () => void;
   onSell?: () => void;
   onClose: () => void;
 }

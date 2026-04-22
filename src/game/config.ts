@@ -51,6 +51,25 @@ interface GameChanceConfig {
         level100: number;
         cap: number;
       };
+      modification: {
+        reforge: {
+          baseCost: number;
+          perTier: number;
+          perRarity: number;
+        };
+        enchant: {
+          baseCost: number;
+          perTier: number;
+          perRarity: number;
+        };
+        corrupt: {
+          baseCost: number;
+          perTier: number;
+          perRarity: number;
+          breakChance: number;
+          statBonus: number;
+        };
+      };
     };
   };
   progression: {
@@ -169,6 +188,7 @@ export const ITEM_BASE_STAT_RANGE = GAME_CONFIG.balance.items.baseStat;
 export const ITEM_SECONDARY_STAT_RANGE =
   GAME_CONFIG.balance.items.secondaryStat;
 export const SECONDARY_STAT_CAP = GAME_CONFIG.balance.items.secondaryStat.cap;
+export const ITEM_MODIFICATION_BALANCE = GAME_CONFIG.balance.items.modification;
 
 export const TOWN_SEARCH_LIMIT = 24;
 

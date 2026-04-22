@@ -1,4 +1,9 @@
-import type { EquipmentSlot, Item, LogKind } from '../../game/state';
+import type {
+  EquipmentSlot,
+  Item,
+  LogKind,
+  SecondaryStatKey,
+} from '../../game/state';
 import type { WindowVisibilityState } from '../constants';
 import type { TooltipLine } from '../../ui/tooltips';
 import type { TooltipPlacement } from '../../ui/tooltipPlacement';
@@ -30,4 +35,11 @@ export interface ItemContextMenuState {
   slot?: EquipmentSlot;
   canProspectItem: boolean;
   canSellEntry: boolean;
+  reforgeOptions: Array<{
+    cost: number;
+    key: SecondaryStatKey;
+    statIndex: number;
+  }>;
+  enchantCost: number | null;
+  corruptCost: number | null;
 }

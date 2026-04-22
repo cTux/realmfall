@@ -20,6 +20,7 @@ export function HexInfoWindowContent({
   territoryActionExplanation,
   canBulkProspectEquipment,
   canBulkSellEquipment,
+  itemModificationHint,
   bulkProspectEquipmentExplanation,
   bulkSellEquipmentExplanation,
   territoryNpc,
@@ -169,6 +170,9 @@ export function HexInfoWindowContent({
                   {bulkSellEquipmentExplanation}
                 </div>
               ) : null}
+              {itemModificationHint ? (
+                <div className={styles.empty}>{itemModificationHint}</div>
+              ) : null}
               {territoryNpc ? (
                 <div className={styles.shop}>
                   <div className={styles.shopTitle}>
@@ -227,6 +231,7 @@ export function HexInfoWindowContent({
               !(interactLabel && canInteract) &&
               !canBulkProspectEquipment &&
               !canBulkSellEquipment &&
+              !itemModificationHint &&
               townStock.length === 0 &&
               !territoryName ? (
                 <div className={styles.empty}>{t('ui.hexInfo.empty')}</div>

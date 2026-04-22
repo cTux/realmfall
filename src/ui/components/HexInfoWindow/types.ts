@@ -26,6 +26,7 @@ export interface HexInfoWindowProps extends WindowDetailTooltipHandlers {
   canInteract: boolean;
   canBulkProspectEquipment: boolean;
   canBulkSellEquipment: boolean;
+  itemModificationHint?: string | null;
   canTerritoryAction: boolean;
   territoryActionLabel: string;
   territoryActionExplanation?: string | null;

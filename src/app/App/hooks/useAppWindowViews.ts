@@ -17,6 +17,7 @@ interface UseAppWindowViewsArgs {
   gold: number;
   graphicsSettings: GraphicsSettings;
   inventoryCountsByItemKey: Record<string, number>;
+  itemModificationHint: string | null;
   itemMenu: ItemContextMenuState | null;
   claimStatus: AppWindowsViewState['world']['claimStatus'];
   interactLabel: string | null;
@@ -47,6 +48,7 @@ export function useAppWindowViews({
   gold,
   graphicsSettings,
   inventoryCountsByItemKey,
+  itemModificationHint,
   itemMenu,
   claimStatus,
   interactLabel,
@@ -102,6 +104,7 @@ export function useAppWindowViews({
       interactLabel,
       canBulkProspectEquipment,
       canBulkSellEquipment,
+      itemModificationHint,
       claimStatus,
       bulkProspectEquipmentExplanation,
       bulkSellEquipmentExplanation,
@@ -118,6 +121,7 @@ export function useAppWindowViews({
       game.homeHex,
       gold,
       interactLabel,
+      itemModificationHint,
       bulkProspectEquipmentExplanation,
       bulkSellEquipmentExplanation,
       townStock,

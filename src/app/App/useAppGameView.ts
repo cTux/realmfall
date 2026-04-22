@@ -14,6 +14,7 @@ import {
 import { buildTownStock } from '../../game/economy';
 import { hexKey } from '../../game/hex';
 import { isEquippableItem } from '../../game/inventory';
+import { getItemModificationStructureHint } from '../../game/itemModifications';
 import { createSkillRecord } from '../../game/skillRecords';
 import { buildTile } from '../../game/world';
 import { t } from '../../i18n';
@@ -129,6 +130,9 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     currentTile.structure === 'forge' && hasUnlockedEquipmentInInventory;
   const canBulkSellEquipment =
     currentTile.structure === 'town' && hasUnlockedEquipmentInInventory;
+  const itemModificationHint = getItemModificationStructureHint(
+    currentTile.structure,
+  );
   const bulkProspectEquipmentExplanation =
     currentTile.structure === 'forge' && !hasUnlockedEquipmentInInventory
       ? t('game.message.prospect.empty')
@@ -162,6 +166,7 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     firstClaimedHex,
     filteredLogs,
     gold,
+    itemModificationHint,
     interactLabel,
     inventoryCountsByItemKey,
     bulkProspectEquipmentExplanation,

@@ -10,6 +10,11 @@ import {
   isRecipePage,
   type GameState,
 } from '../../../game/state';
+import {
+  canModifyItem,
+  getItemModificationCost,
+  getReforgeableItemSecondaryStats,
+} from '../../../game/itemModifications';
 import type { ItemContextMenuState, TooltipItem } from '../types';
 
 export function useItemContextMenuController({
@@ -27,6 +32,28 @@ export function useItemContextMenuController({
     (event: ReactMouseEvent<HTMLElement>, item: TooltipItem) => {
       event.preventDefault();
       const currentStructure = getCurrentTile(gameRef.current).structure;
+      const reforgeOptions =
+        currentStructure === 'rune-forge' &&
+        isEquippableItem(item) &&
+        canModifyItem(item)
+          ? getReforgeableItemSecondaryStats(item).map((entry) => ({
+              cost: getItemModificationCost(item, 'reforge'),
+              key: entry.stat.key,
+              statIndex: entry.index,
+            }))
+          : [];
+      const enchantCost =
+        currentStructure === 'mana-font' &&
+        isEquippableItem(item) &&
+        canModifyItem(item)
+          ? getItemModificationCost(item, 'enchant')
+          : null;
+      const corruptCost =
+        currentStructure === 'corruption-altar' &&
+        isEquippableItem(item) &&
+        canModifyItem(item)
+          ? getItemModificationCost(item, 'corrupt')
+          : null;
       setItemMenu({
         item,
         x: event.clientX,
@@ -39,6 +66,9 @@ export function useItemContextMenuController({
           currentStructure === 'town' &&
           (isEquippableItem(item) || isRecipePage(item)) &&
           !item.locked,
+        reforgeOptions,
+        enchantCost,
+        corruptCost,
       });
     },
     [gameRef],
@@ -58,6 +88,9 @@ export function useItemContextMenuController({
         slot,
         canProspectItem: false,
         canSellEntry: false,
+        reforgeOptions: [],
+        enchantCost: null,
+        corruptCost: null,
       });
     },
     [],

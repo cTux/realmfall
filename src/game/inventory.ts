@@ -22,6 +22,7 @@ import {
   withCascadingRarityChanceBonus,
 } from './shared';
 import { createRng } from './random';
+import { getItemDisplayName } from './itemModifications';
 
 export function makeStarterWeapon(): Item {
   return buildItemFromConfig(ItemId.TownKnife, { id: 'starter-knife' });
@@ -182,6 +183,9 @@ function scaleCraftedItemToPlayerLevel(item: Item, playerLevel: number): Item {
       tags: item.tags,
       secondaryStatCapacity: item.secondaryStatCapacity,
       secondaryStats: item.secondaryStats,
+      reforgedSecondaryStatIndex: item.reforgedSecondaryStatIndex,
+      enchantedSecondaryStatIndex: item.enchantedSecondaryStatIndex,
+      corrupted: item.corrupted,
       grantedAbilityId: item.grantedAbilityId,
     });
   }
@@ -196,7 +200,8 @@ function scaleCraftedItemToPlayerLevel(item: Item, playerLevel: number): Item {
 }
 
 export function describeItemStack(item: Item) {
-  return item.quantity > 1 ? `${item.quantity}x ${item.name}` : item.name;
+  const name = getItemDisplayName(item);
+  return item.quantity > 1 ? `${item.quantity}x ${name}` : name;
 }
 
 export function compareItems(left: Item, right: Item) {

@@ -2,8 +2,17 @@ import { describe, expect, it } from 'vitest';
 import { getStructureConfig, pickStructureType } from './index';
 
 describe('pickStructureType', () => {
-  it('uses the reduced base resource spawn bands across terrains', () => {
-    expect(pickStructureType(0.973, 0, 'plains')).toBe('furnace');
+  it('uses the expected global and resource spawn bands across terrains', () => {
+    expect(pickStructureType(0.993, 0, 'plains')).toBe('dungeon');
+    expect(pickStructureType(0.989, 0, 'plains')).toBe('corruption-altar');
+    expect(pickStructureType(0.985, 0, 'plains')).toBe('forge');
+    expect(pickStructureType(0.981, 0, 'plains')).toBe('rune-forge');
+    expect(pickStructureType(0.977, 0, 'plains')).toBe('town');
+    expect(pickStructureType(0.973, 0, 'plains')).toBe('mana-font');
+    expect(pickStructureType(0.969, 0, 'plains')).toBe('furnace');
+    expect(pickStructureType(0.965, 0, 'plains')).toBe('workshop');
+    expect(pickStructureType(0.961, 0, 'plains')).toBe('camp');
+
     expect(pickStructureType(0, 0.861, 'forest')).toBe('tree');
     expect(pickStructureType(0, 0.846, 'forest')).toBe('tin-ore');
     expect(pickStructureType(0, 0.83, 'forest')).toBe('iron-ore');

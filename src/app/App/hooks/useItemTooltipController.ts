@@ -5,6 +5,10 @@ import {
   type MutableRefObject,
 } from 'react';
 import { isRecipePage, type GameState } from '../../../game/state';
+import {
+  CORRUPTED_ITEM_COLOR,
+  getItemDisplayName,
+} from '../../../game/itemModifications';
 import type { TooltipPosition } from '../../../ui/components/GameTooltip';
 import { rarityColor } from '../../../ui/rarity';
 import { getTooltipPlacementForRect } from '../../../ui/tooltipPlacement';
@@ -91,12 +95,25 @@ function getItemTooltipContentKey(
   equipped: TooltipItem | undefined,
   recipeLearned: boolean,
 ) {
-  return [
-    'item',
-    item.id,
-    equipped?.id ?? 'none',
-    recipeLearned ? 'learned' : 'unknown',
-  ].join(':');
+  return JSON.stringify({
+    kind: 'item',
+    item: {
+      id: item.id,
+      name: item.name,
+      rarity: item.rarity,
+      power: item.power,
+      defense: item.defense,
+      maxHp: item.maxHp,
+      secondaryStats: item.secondaryStats,
+      secondaryStatCapacity: item.secondaryStatCapacity,
+      reforgedSecondaryStatIndex: item.reforgedSecondaryStatIndex,
+      enchantedSecondaryStatIndex: item.enchantedSecondaryStatIndex,
+      corrupted: item.corrupted ?? false,
+      grantedAbilityId: item.grantedAbilityId,
+    },
+    equippedId: equipped?.id ?? null,
+    recipeLearned,
+  });
 }
 
 function buildItemTooltipState({
@@ -115,7 +132,7 @@ function buildItemTooltipState({
   position: ReturnType<typeof getTooltipPlacementForRect>;
 }): TooltipState {
   return {
-    title: item.name,
+    title: getItemDisplayName(item),
     lines: getCachedItemTooltipLines(
       cache,
       buildItemTooltipLines,
@@ -127,7 +144,9 @@ function buildItemTooltipState({
     x: position.x,
     y: position.y,
     placement: position.placement,
-    borderColor: rarityColor(item.rarity),
+    borderColor: item.corrupted
+      ? CORRUPTED_ITEM_COLOR
+      : rarityColor(item.rarity),
   };
 }
 

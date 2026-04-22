@@ -52,6 +52,7 @@ export interface AppWindowsViewState {
     interactLabel: string | null;
     canBulkProspectEquipment: boolean;
     canBulkSellEquipment: boolean;
+    itemModificationHint: string | null;
     claimStatus: ReturnType<
       typeof import('../../game/state').getCurrentHexClaimStatus
     >;
@@ -137,6 +138,9 @@ export interface AppWindowsActions {
     onDropItem: (itemId: string) => void;
     onDropEquippedItem: (slot: EquipmentSlot) => void;
     onProspectItem: (itemId: string) => void;
+    onReforgeItem: (itemId: string, statIndex: number) => void;
+    onEnchantItem: (itemId: string) => void;
+    onCorruptItem: (itemId: string) => void;
     onSellItem: (itemId: string) => void;
     onSetItemLocked: (itemId: string, locked: boolean) => void;
     onContextItem: (

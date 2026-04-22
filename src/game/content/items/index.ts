@@ -276,6 +276,15 @@ export function buildItemFromConfig(
     secondaryStats:
       overrides.secondaryStats ??
       normalizeSecondaryStats(defaultSecondaryStats),
+    ...(overrides.reforgedSecondaryStatIndex === undefined
+      ? {}
+      : { reforgedSecondaryStatIndex: overrides.reforgedSecondaryStatIndex }),
+    ...(overrides.enchantedSecondaryStatIndex === undefined
+      ? {}
+      : { enchantedSecondaryStatIndex: overrides.enchantedSecondaryStatIndex }),
+    ...(overrides.corrupted === undefined
+      ? {}
+      : { corrupted: overrides.corrupted }),
     grantedAbilityId:
       overrides.grantedAbilityId ??
       pickGrantedAbilityId(config, overrides.id ?? config.key),
@@ -348,6 +357,9 @@ export function cloneConfiguredItem(item: Item) {
     thirst: item.thirst,
     secondaryStatCapacity: item.secondaryStatCapacity,
     secondaryStats: item.secondaryStats,
+    reforgedSecondaryStatIndex: item.reforgedSecondaryStatIndex,
+    enchantedSecondaryStatIndex: item.enchantedSecondaryStatIndex,
+    corrupted: item.corrupted,
     icon: item.icon,
     tags: item.tags ?? config.tags ?? [],
     grantedAbilityId: item.grantedAbilityId,

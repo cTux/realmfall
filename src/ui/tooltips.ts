@@ -30,6 +30,10 @@ import type {
 } from '../game/types';
 import { t } from '../i18n';
 import {
+  getBaseItemSecondaryStatCount,
+  getDisplayedItemSecondaryStats,
+} from '../game/itemModifications';
+import {
   formatEquipmentSlotLabel,
   formatSecondaryStatLabel,
   formatStatusEffectLabel,
@@ -46,7 +50,14 @@ export interface TooltipLine {
   current?: number;
   max?: number;
   kind?: 'text' | 'stat' | 'bar';
-  tone?: 'positive' | 'negative' | 'item' | 'section' | 'subtle';
+  tone?:
+    | 'positive'
+    | 'negative'
+    | 'item'
+    | 'reforged'
+    | 'enchanted'
+    | 'section'
+    | 'subtle';
 }
 
 interface ItemTooltipOptions {
@@ -527,21 +538,27 @@ function formatSecondaryStatValue(key: SecondaryStatKey, value: number) {
 }
 
 function secondarySlotLines(item: Item): TooltipLine[] {
-  const stats = item.secondaryStats ?? [];
+  const stats = getDisplayedItemSecondaryStats(item);
+  const baseSecondaryStatCount = getBaseItemSecondaryStatCount(item);
   const capacity = Math.max(
-    item.secondaryStatCapacity ?? stats.length,
-    stats.length,
+    item.secondaryStatCapacity ?? baseSecondaryStatCount,
+    baseSecondaryStatCount,
   );
-  const emptySlots = Math.max(0, capacity - stats.length);
+  const emptySlots = Math.max(0, capacity - baseSecondaryStatCount);
 
   return [
     ...stats.map(
-      (stat) =>
+      ({ stat, source }) =>
         ({
           kind: 'stat',
           label: formatSecondaryStatLabel(stat.key),
           value: formatSecondaryStatValue(stat.key, stat.value),
-          tone: 'item',
+          tone:
+            source === 'reforged'
+              ? 'reforged'
+              : source === 'enchanted'
+                ? 'enchanted'
+                : 'item',
         }) satisfies TooltipLine,
     ),
     ...Array.from({ length: emptySlots }, () => ({
