@@ -233,6 +233,37 @@ export function buildGeneratedSecondaryStats(
   };
 }
 
+export function buildRandomSecondaryStat(
+  {
+    occupiedKeys = [],
+    excludedKeys = [],
+    tier,
+    rarity,
+  }: {
+    occupiedKeys?: SecondaryStatKey[];
+    excludedKeys?: SecondaryStatKey[];
+    tier: number;
+    rarity: ItemRarity;
+  },
+  nextRoll: () => number,
+) {
+  const occupiedKeySet = new Set(occupiedKeys);
+  const excludedKeySet = new Set(excludedKeys);
+  const uniqueStatBlocked = occupiedKeys.some((key) =>
+    UNIQUE_SECONDARY_STAT_KEYS.includes(key),
+  );
+  const availableKeys = [...ALL_SECONDARY_STAT_KEYS].filter((key) => {
+    if (excludedKeySet.has(key) || occupiedKeySet.has(key)) {
+      return false;
+    }
+
+    return !(uniqueStatBlocked && UNIQUE_SECONDARY_STAT_KEYS.includes(key));
+  });
+  const key = pickSecondaryStatKey(availableKeys, nextRoll);
+
+  return key ? buildSecondaryStat(key, tier, rarity, nextRoll) : null;
+}
+
 export function normalizeSecondaryStats(
   secondaryStats: Item['secondaryStats'],
 ) {

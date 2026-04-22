@@ -9,5 +9,5 @@ export const furnaceStructureConfig: StructureConfig = {
   icon: ContentIcons.Furnace,
   tint: 0xf59e0b,
   functionsProvided: ['smelt'],
-  globalAppearanceThreshold: 0.972,
+  globalAppearanceThreshold: 0.968,
 };

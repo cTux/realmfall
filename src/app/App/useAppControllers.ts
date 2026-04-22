@@ -16,10 +16,13 @@ import { useActionBarController } from './hooks/useActionBarController';
 import { useAppLogFilters } from './hooks/useAppLogFilters';
 import { useAppWindowState } from './hooks/useAppWindowState';
 import { useGameActionHandlers } from './hooks/useGameActionHandlers';
+import { useHexItemModificationController } from './hooks/useHexItemModificationController';
 import { useItemContextMenuController } from './hooks/useItemContextMenuController';
 import { useItemTooltipController } from './hooks/useItemTooltipController';
 
 interface UseAppControllersOptions {
+  currentStructure?: GameState['tiles'][string]['structure'];
+  equipment: GameState['player']['equipment'];
   inventory: Item[];
   gameRef: MutableRefObject<GameState>;
   initialAudioSettings: AudioSettings;
@@ -31,6 +34,8 @@ interface UseAppControllersOptions {
 }
 
 export function useAppControllers({
+  currentStructure,
+  equipment,
   inventory,
   gameRef,
   initialAudioSettings,
@@ -68,6 +73,23 @@ export function useAppControllers({
     paused,
     setGame,
     worldTimeMsRef,
+  });
+  const {
+    applySelectedItemModification,
+    clearSelectedItem,
+    pickerActive: hexItemModificationPickerActive,
+    resolvedReforgeStatIndex: selectedHexItemReforgeStatIndex,
+    selectInventoryItem: handleSelectHexModificationInventoryItem,
+    selectedItem: selectedHexItemModificationItem,
+    setSelectedReforgeStatIndex: setSelectedHexItemReforgeStatIndex,
+    togglePicker: toggleHexItemModificationPicker,
+  } = useHexItemModificationController({
+    currentStructure,
+    equipment,
+    inventory,
+    onCorruptItem: gameActionHandlers.handleCorruptItem,
+    onEnchantItem: gameActionHandlers.handleEnchantItem,
+    onReforgeItem: gameActionHandlers.handleReforgeItem,
   });
   const {
     actionBarSlots,
@@ -150,22 +172,30 @@ export function useAppControllers({
     handleClearRecipeMaterialFilter,
     actionBarSlots,
     audioSettings,
+    applySelectedItemModification,
+    clearSelectedItem,
     itemMenu,
     logFilters,
     moveWindow,
     graphicsSettings,
+    hexItemModificationPickerActive,
+    selectedHexItemModificationItem,
+    selectedHexItemReforgeStatIndex,
     showTooltip,
     setAudioSettings,
     setActionBarSlots,
     setGraphicsSettings,
     setLogFilters,
+    setSelectedHexItemReforgeStatIndex,
     setTooltip,
     setWindowShown,
     setWindowVisibility,
     setWindows,
+    handleSelectHexModificationInventoryItem,
     showFilterMenu,
     showActionBarItemTooltip,
     showItemTooltip,
+    toggleHexItemModificationPicker,
     toggleDockWindow,
     toggleFilterMenu,
     toggleLogFilter,

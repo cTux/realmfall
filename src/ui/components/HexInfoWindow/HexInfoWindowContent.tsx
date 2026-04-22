@@ -1,4 +1,5 @@
 import { t } from '../../../i18n';
+import { ITEM_MODIFICATION_BALANCE } from '../../../game/config';
 import { CombatWindowContent } from '../CombatWindow/CombatWindowContent';
 import { ItemSlotButton } from '../ItemSlotButton/ItemSlotButton';
 import type { HexInfoWindowProps } from './types';
@@ -20,9 +21,14 @@ export function HexInfoWindowContent({
   territoryActionExplanation,
   canBulkProspectEquipment,
   canBulkSellEquipment,
+  itemModification,
   bulkProspectEquipmentExplanation,
   bulkSellEquipmentExplanation,
   territoryNpc,
+  onApplyItemModification = () => undefined,
+  onClearItemModificationSelection = () => undefined,
+  onSelectItemModificationReforgeStat = () => undefined,
+  onToggleItemModificationPicker = () => undefined,
   onTerritoryAction,
   onProspect,
   onSellAll,
@@ -52,6 +58,7 @@ export function HexInfoWindowContent({
       : 0;
   const hoverDetail = onHoverDetail ?? (() => undefined);
   const leaveDetail = onLeaveDetail ?? (() => undefined);
+  const selectedItemForModification = itemModification?.selectedItem ?? null;
 
   return (
     <div className={styles.layout}>
@@ -169,6 +176,136 @@ export function HexInfoWindowContent({
                   {bulkSellEquipmentExplanation}
                 </div>
               ) : null}
+              {itemModification ? (
+                <div className={styles.itemModificationPanel}>
+                  <div className={styles.itemModificationHeader}>
+                    <span className={styles.sectionTitle}>
+                      {t('ui.hexInfo.itemModification.title', {
+                        action: t(
+                          `game.itemModification.${itemModification.kind}.label`,
+                        ),
+                      })}
+                    </span>
+                    <span
+                      className={`${styles.itemModificationCost} ${
+                        itemModification.canAfford
+                          ? ''
+                          : styles.itemModificationCostDisabled
+                      }`.trim()}
+                    >
+                      {t('ui.hexInfo.itemModification.costLabel', {
+                        gold: itemModification.actionCost ?? '-',
+                      })}
+                    </span>
+                  </div>
+                  <div className={styles.itemModificationPicker}>
+                    <ItemSlotButton
+                      ariaLabel={t('ui.hexInfo.itemModification.slotLabel')}
+                      item={itemModification.selectedItem ?? undefined}
+                      className={
+                        itemModification.pickerActive
+                          ? styles.itemModificationSlotActive
+                          : undefined
+                      }
+                      overlayColorOverride={
+                        itemModification.pickerActive
+                          ? 'rgba(56, 189, 248, 0.24)'
+                          : undefined
+                      }
+                      onClick={onToggleItemModificationPicker}
+                      onContextMenu={
+                        itemModification.selectedItem
+                          ? (event) => {
+                              event.preventDefault();
+                              onClearItemModificationSelection();
+                            }
+                          : undefined
+                      }
+                      onMouseEnter={
+                        selectedItemForModification
+                          ? (event) =>
+                              onHoverItem(
+                                event,
+                                selectedItemForModification,
+                                selectedItemForModification.slot
+                                  ? equipment[selectedItemForModification.slot]
+                                  : undefined,
+                              )
+                          : undefined
+                      }
+                      onMouseLeave={
+                        selectedItemForModification ? onLeaveItem : undefined
+                      }
+                    />
+                    <div className={styles.itemModificationMeta}>
+                      <div className={styles.itemModificationSelection}>
+                        {selectedItemForModification?.name ??
+                          t('ui.hexInfo.itemModification.emptySelection')}
+                      </div>
+                      <div className={styles.itemModificationHint}>
+                        {itemModification.pickerActive
+                          ? t('ui.hexInfo.itemModification.pickerActiveHint')
+                          : itemModification.hint}
+                      </div>
+                    </div>
+                  </div>
+
+                  {itemModification.kind === 'reforge' ? (
+                    <label className={styles.itemModificationField}>
+                      <span className={styles.label}>
+                        {t('ui.hexInfo.itemModification.reforgeStatLabel')}
+                      </span>
+                      <select
+                        className={styles.itemModificationSelect}
+                        value={itemModification.selectedReforgeStatIndex ?? ''}
+                        onChange={(event) =>
+                          onSelectItemModificationReforgeStat(
+                            Number(event.currentTarget.value),
+                          )
+                        }
+                        disabled={itemModification.reforgeOptions.length === 0}
+                      >
+                        {itemModification.reforgeOptions.map((option) => (
+                          <option
+                            key={option.statIndex}
+                            value={option.statIndex}
+                          >
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  ) : null}
+
+                  {itemModification.kind === 'corrupt' ? (
+                    <div className={styles.itemModificationWarning}>
+                      {t('ui.hexInfo.itemModification.corruptionWarning', {
+                        chance: Math.round(
+                          ITEM_MODIFICATION_BALANCE.corrupt.breakChance * 100,
+                        ),
+                      })}
+                    </div>
+                  ) : null}
+
+                  <div className={styles.itemModificationActions}>
+                    <button
+                      type="button"
+                      onClick={onApplyItemModification}
+                      disabled={!itemModification.canApply}
+                    >
+                      {t(
+                        `game.itemModification.${itemModification.kind}.label`,
+                      )}
+                    </button>
+                  </div>
+
+                  {itemModification.disabledReason ? (
+                    <div className={styles.empty}>
+                      {itemModification.disabledReason}
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
               {territoryNpc ? (
                 <div className={styles.shop}>
                   <div className={styles.shopTitle}>
@@ -227,6 +364,7 @@ export function HexInfoWindowContent({
               !(interactLabel && canInteract) &&
               !canBulkProspectEquipment &&
               !canBulkSellEquipment &&
+              !itemModification &&
               townStock.length === 0 &&
               !territoryName ? (
                 <div className={styles.empty}>{t('ui.hexInfo.empty')}</div>

@@ -1,5 +1,7 @@
 import { memo, useEffect, useRef } from 'react';
 import { t } from '../../../i18n';
+import { formatSecondaryStatLabel } from '../../../i18n/labels';
+import { ITEM_MODIFICATION_BALANCE } from '../../../game/config';
 import type { ItemContextMenuProps } from './types';
 import styles from './styles.module.scss';
 
@@ -15,12 +17,18 @@ export const ItemContextMenu = memo(function ItemContextMenu({
   canShowRecipes = false,
   canProspectItem = false,
   canSellEntry = false,
+  reforgeOptions = [],
+  enchantCost = null,
+  corruptCost = null,
   onEquip,
   onUse,
   onDrop,
   onToggleLock,
   onShowRecipes,
   onProspect,
+  onReforge,
+  onEnchant,
+  onCorrupt,
   onSell,
   onClose,
 }: ItemContextMenuProps) {
@@ -76,6 +84,35 @@ export const ItemContextMenu = memo(function ItemContextMenu({
       {canProspectItem ? (
         <button className={styles.action} onClick={onProspect}>
           {t('ui.itemMenu.prospectAction')}
+        </button>
+      ) : null}
+      {reforgeOptions.map((option) => (
+        <button
+          key={`reforge-${option.statIndex}-${option.key}`}
+          className={styles.action}
+          onClick={() => onReforge?.(option.statIndex)}
+        >
+          {t('ui.itemMenu.reforgeAction', {
+            stat: formatSecondaryStatLabel(option.key),
+            gold: option.cost,
+          })}
+        </button>
+      ))}
+      {enchantCost != null ? (
+        <button className={styles.action} onClick={onEnchant}>
+          {t('ui.itemMenu.enchantAction', {
+            gold: enchantCost,
+          })}
+        </button>
+      ) : null}
+      {corruptCost != null ? (
+        <button className={styles.action} onClick={onCorrupt}>
+          {t('ui.itemMenu.corruptAction', {
+            gold: corruptCost,
+            chance: Math.round(
+              ITEM_MODIFICATION_BALANCE.corrupt.breakChance * 100,
+            ),
+          })}
         </button>
       ) : null}
       {canSellEntry ? (

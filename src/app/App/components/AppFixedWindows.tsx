@@ -93,6 +93,9 @@ export const AppFixedWindows = memo(function AppFixedWindows({
           canShowRecipes={Boolean(recipeMaterialItemKey)}
           canProspectItem={itemMenu.canProspectItem}
           canSellEntry={itemMenu.canSellEntry}
+          reforgeOptions={itemMenu.reforgeOptions}
+          enchantCost={itemMenu.enchantCost}
+          corruptCost={itemMenu.corruptCost}
           onEquip={() => {
             if (itemMenu.slot) {
               inventoryActions.onUnequip(itemMenu.slot);
@@ -127,6 +130,18 @@ export const AppFixedWindows = memo(function AppFixedWindows({
           }}
           onProspect={() => {
             inventoryActions.onProspectItem(itemMenu.item.id);
+            tooltipActions.onCloseItemMenu();
+          }}
+          onReforge={(statIndex) => {
+            inventoryActions.onReforgeItem(itemMenu.item.id, statIndex);
+            tooltipActions.onCloseItemMenu();
+          }}
+          onEnchant={() => {
+            inventoryActions.onEnchantItem(itemMenu.item.id);
+            tooltipActions.onCloseItemMenu();
+          }}
+          onCorrupt={() => {
+            inventoryActions.onCorruptItem(itemMenu.item.id);
             tooltipActions.onCloseItemMenu();
           }}
           onSell={() => {

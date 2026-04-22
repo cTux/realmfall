@@ -10,10 +10,12 @@ export interface InventoryWindowProps extends WindowDetailTooltipHandlers {
   onClose?: () => void;
   inventory: Item[];
   equipment: Equipment;
+  hexItemModificationPickerActive?: boolean;
   learnedRecipeIds: string[];
   onSort: () => void;
   onActivateItem: (itemId: string) => void;
   onContextItem: (event: ReactMouseEvent<HTMLElement>, item: Item) => void;
+  onSelectHexItemModificationItem?: (item: Item) => void;
   onHoverItem: (
     event: ReactMouseEvent<HTMLElement>,
     item: Item,

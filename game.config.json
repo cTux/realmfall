@@ -50,6 +50,25 @@
         "level1": 1,
         "level100": 10,
         "cap": 75
+      },
+      "modification": {
+        "reforge": {
+          "baseCost": 18,
+          "perTier": 6,
+          "perRarity": 16
+        },
+        "enchant": {
+          "baseCost": 28,
+          "perTier": 8,
+          "perRarity": 22
+        },
+        "corrupt": {
+          "baseCost": 40,
+          "perTier": 10,
+          "perRarity": 28,
+          "breakChance": 0.05,
+          "statBonus": 0.1
+        }
       }
     }
   },

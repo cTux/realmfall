@@ -13,10 +13,13 @@ This spec covers inventory actions, gold handling, and town trading.
 - Stack-count badges remain fully visible on tinted and overlaid item slots.
 - Equippable inventory items can be locked from the context menu so prospecting and sell-all ignore them, and locked items display a small padlock badge in their slot.
 - While standing at a forge or town, eligible equippable inventory items expose item-context actions for single-item prospecting or selling, and recipe pages expose the town-only single-item sell action.
+- While standing at a rune forge, mana font, or corruption altar, eligible non-corrupted equippable inventory items expose item-context actions for reforge, enchant, or corrupt flows directly from the inventory menu.
 - Crafting materials carry a dedicated crafting-material tag, and their context menu can open the recipe book filtered to matching recipes with a reset-filter action in the book.
 - Consumables are only spent when at least one of their effects would change the current player state.
 - Using any consumable starts a shared `2s` consumable cooldown, and no other consumable can be used again until that cooldown expires.
 - Prospecting converts equippable inventory items into value through the forge flow.
+- Reforging, enchanting, and corrupting all consume gold through the same inventory-backed gold resource model used by town trading and prospecting.
+- Corruption menu copy surfaces the item-break risk before the player commits to the action.
 - Sell-all supports town-based liquidation of unlocked equippable inventory items.
 - Gold is modeled as an inventory resource instead of a separate wallet field.
 - Towns provide a fixed deterministic stock based on seed and coordinate.
@@ -30,4 +33,5 @@ This spec covers inventory actions, gold handling, and town trading.
 - `src/game/economy.ts`
 - `src/game/state.ts`
 - `src/game/stateInventoryActions.ts`
+- `src/game/stateItemModificationActions.ts`
 - `src/ui/components/InventoryWindow/InventoryWindowContent.tsx`

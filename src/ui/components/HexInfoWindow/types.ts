@@ -1,5 +1,6 @@
 import type { MouseEvent as ReactMouseEvent } from 'react';
 import type { WindowPosition } from '../../../app/constants';
+import type { ItemModificationKind } from '../../../game/itemModifications';
 import type {
   CombatState,
   Enemy,
@@ -26,6 +27,21 @@ export interface HexInfoWindowProps extends WindowDetailTooltipHandlers {
   canInteract: boolean;
   canBulkProspectEquipment: boolean;
   canBulkSellEquipment: boolean;
+  itemModification?: {
+    kind: ItemModificationKind;
+    hint: string;
+    pickerActive: boolean;
+    selectedItem: Item | null;
+    actionCost: number | null;
+    canAfford: boolean;
+    canApply: boolean;
+    disabledReason: string | null;
+    reforgeOptions: Array<{
+      label: string;
+      statIndex: number;
+    }>;
+    selectedReforgeStatIndex: number | null;
+  } | null;
   canTerritoryAction: boolean;
   territoryActionLabel: string;
   territoryActionExplanation?: string | null;
@@ -34,6 +50,10 @@ export interface HexInfoWindowProps extends WindowDetailTooltipHandlers {
   onInteract: () => void;
   onProspect: () => void;
   onSellAll: () => void;
+  onApplyItemModification?: () => void;
+  onClearItemModificationSelection?: () => void;
+  onSelectItemModificationReforgeStat?: (statIndex: number) => void;
+  onToggleItemModificationPicker?: () => void;
   onTerritoryAction: () => void;
   structureHp?: number;
   structureMaxHp?: number;

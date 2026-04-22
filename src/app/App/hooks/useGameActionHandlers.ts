@@ -8,13 +8,16 @@ import {
   activateInventoryItem,
   buyTownItem,
   claimCurrentHex,
+  corruptInventoryItem,
   craftRecipe,
   dropEquippedItem,
   dropInventoryItem,
+  enchantInventoryItem,
   equipItem,
   interactWithStructure,
   prospectInventoryItem,
   prospectInventory,
+  reforgeInventoryItem,
   sellInventoryItem,
   sellAllItems,
   setInventoryItemLocked,
@@ -78,6 +81,29 @@ export function useGameActionHandlers({
   const handleSellItem = useCallback(
     (itemId: string) => {
       applyGameTransition((current) => sellInventoryItem(current, itemId));
+    },
+    [applyGameTransition],
+  );
+
+  const handleReforgeItem = useCallback(
+    (itemId: string, statIndex: number) => {
+      applyGameTransition((current) =>
+        reforgeInventoryItem(current, itemId, statIndex),
+      );
+    },
+    [applyGameTransition],
+  );
+
+  const handleEnchantItem = useCallback(
+    (itemId: string) => {
+      applyGameTransition((current) => enchantInventoryItem(current, itemId));
+    },
+    [applyGameTransition],
+  );
+
+  const handleCorruptItem = useCallback(
+    (itemId: string) => {
+      applyGameTransition((current) => corruptInventoryItem(current, itemId));
     },
     [applyGameTransition],
   );
@@ -171,10 +197,13 @@ export function useGameActionHandlers({
     handleCraftRecipe,
     handleDropEquippedItem,
     handleDropItem,
+    handleEnchantItem,
     handleEquipItem,
     handleInteract,
+    handleCorruptItem,
     handleProspect,
     handleProspectItem,
+    handleReforgeItem,
     handleSellAll,
     handleSellItem,
     handleSetItemLocked,

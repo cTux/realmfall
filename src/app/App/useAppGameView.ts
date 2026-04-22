@@ -9,25 +9,43 @@ import {
   getRecipeBookEntries,
   structureActionLabel,
   type GameState,
+  type Item,
   type LogKind,
 } from '../../game/state';
 import { buildTownStock } from '../../game/economy';
 import { hexKey } from '../../game/hex';
 import { isEquippableItem } from '../../game/inventory';
+import {
+  canModifyItem,
+  getItemModificationCost,
+  getItemModificationKindForStructure,
+  getItemModificationStructureHint,
+  getReforgeableItemSecondaryStats,
+} from '../../game/itemModifications';
 import { createSkillRecord } from '../../game/skillRecords';
 import { buildTile } from '../../game/world';
 import { t } from '../../i18n';
+import { formatSecondaryStatLabel } from '../../i18n/labels';
 import { resolveBackgroundMusicMood } from '../audio/backgroundMusic';
 
 interface UseAppGameViewOptions {
   game: GameState;
+  hexItemModificationPickerActive: boolean;
   logFilters: Record<LogKind, boolean>;
+  selectedHexItemModificationItem: Item | null;
+  selectedHexItemReforgeStatIndex: number | null;
 }
 
 type EnemyLookupInput = Parameters<typeof getEnemiesAt>[0];
 type ClaimStatusInput = Parameters<typeof getCurrentHexClaimStatus>[0];
 
-export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
+export function useAppGameView({
+  game,
+  hexItemModificationPickerActive,
+  logFilters,
+  selectedHexItemModificationItem,
+  selectedHexItemReforgeStatIndex,
+}: UseAppGameViewOptions) {
   const {
     bloodMoonActive,
     combat,
@@ -129,6 +147,61 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     currentTile.structure === 'forge' && hasUnlockedEquipmentInInventory;
   const canBulkSellEquipment =
     currentTile.structure === 'town' && hasUnlockedEquipmentInInventory;
+  const itemModification = useMemo(() => {
+    const kind = getItemModificationKindForStructure(currentTile.structure);
+    if (!kind) {
+      return null;
+    }
+
+    const selectedItem = selectedHexItemModificationItem;
+    const hint = getItemModificationStructureHint(currentTile.structure) ?? '';
+    const reforgeOptions =
+      kind === 'reforge' && selectedItem
+        ? getReforgeableItemSecondaryStats(selectedItem).map((entry) => ({
+            label: formatSecondaryStatLabel(entry.stat.key),
+            statIndex: entry.index,
+          }))
+        : [];
+    const resolvedReforgeStatIndex =
+      kind !== 'reforge'
+        ? null
+        : reforgeOptions.some(
+              (entry) => entry.statIndex === selectedHexItemReforgeStatIndex,
+            )
+          ? selectedHexItemReforgeStatIndex
+          : (reforgeOptions[0]?.statIndex ?? null);
+    const actionCost = selectedItem
+      ? getItemModificationCost(selectedItem, kind)
+      : null;
+    const canAfford = actionCost == null || gold >= actionCost;
+    const disabledReason = getItemModificationDisabledReason({
+      actionCost,
+      canAfford,
+      kind,
+      reforgeOptions,
+      selectedItem,
+      selectedReforgeStatIndex: resolvedReforgeStatIndex,
+    });
+
+    return {
+      kind,
+      hint,
+      pickerActive: hexItemModificationPickerActive,
+      selectedItem,
+      actionCost,
+      canAfford,
+      canApply: disabledReason == null,
+      disabledReason,
+      reforgeOptions,
+      selectedReforgeStatIndex: resolvedReforgeStatIndex,
+    };
+  }, [
+    currentTile.structure,
+    gold,
+    hexItemModificationPickerActive,
+    selectedHexItemModificationItem,
+    selectedHexItemReforgeStatIndex,
+  ]);
   const bulkProspectEquipmentExplanation =
     currentTile.structure === 'forge' && !hasUnlockedEquipmentInInventory
       ? t('game.message.prospect.empty')
@@ -162,6 +235,7 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     firstClaimedHex,
     filteredLogs,
     gold,
+    itemModification,
     interactLabel,
     inventoryCountsByItemKey,
     bulkProspectEquipmentExplanation,
@@ -171,4 +245,46 @@ export function useAppGameView({ game, logFilters }: UseAppGameViewOptions) {
     stats,
     townStock,
   };
+}
+
+function getItemModificationDisabledReason({
+  actionCost,
+  canAfford,
+  kind,
+  reforgeOptions,
+  selectedItem,
+  selectedReforgeStatIndex,
+}: {
+  actionCost: number | null;
+  canAfford: boolean;
+  kind: 'reforge' | 'enchant' | 'corrupt';
+  reforgeOptions: Array<{ label: string; statIndex: number }>;
+  selectedItem: Item | null;
+  selectedReforgeStatIndex: number | null;
+}) {
+  if (!selectedItem) {
+    return t('ui.hexInfo.itemModification.reason.selectItem');
+  }
+
+  if (!canModifyItem(selectedItem)) {
+    return t('ui.hexInfo.itemModification.reason.corrupted');
+  }
+
+  if (kind === 'reforge') {
+    if (reforgeOptions.length === 0) {
+      return t('ui.hexInfo.itemModification.reason.noEligibleStat');
+    }
+
+    if (selectedReforgeStatIndex == null) {
+      return t('ui.hexInfo.itemModification.reason.selectStat');
+    }
+  }
+
+  if (!canAfford && actionCost != null) {
+    return t('ui.hexInfo.itemModification.reason.needsGold', {
+      gold: actionCost,
+    });
+  }
+
+  return null;
 }

@@ -112,6 +112,9 @@ export interface ItemBuildOverrides {
   thirst?: number;
   secondaryStatCapacity?: Item['secondaryStatCapacity'];
   secondaryStats?: Item['secondaryStats'];
+  reforgedSecondaryStatIndex?: Item['reforgedSecondaryStatIndex'];
+  enchantedSecondaryStatIndex?: Item['enchantedSecondaryStatIndex'];
+  corrupted?: Item['corrupted'];
   recipeId?: Item['recipeId'];
   locked?: Item['locked'];
   name?: string;

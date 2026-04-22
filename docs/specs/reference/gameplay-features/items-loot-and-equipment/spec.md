@@ -32,6 +32,12 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - Consumables share a single `2s` cooldown lockout, and Home Scroll usage also starts that same shared consumable cooldown.
 - Consumable-use effects and cooldown application are resolved from the focused item-action mutation flow rather than from the broad gameplay state facade.
 - Consumable tooltip copy and consumable-use resolution both read from the same shared consumable-effect descriptor model, so percent restores and hunger or thirst restores do not drift between UI text and gameplay behavior.
+- Equippable items can carry persistent modification metadata for a reforged secondary-stat slot, one enchanted extra secondary stat, and a corrupted flag that survives cloning, scaling, tooltip rendering, and save normalization.
+- Rune-forge reforging rerolls one chosen base secondary stat into a new random compatible stat, charges gold, and locks all later reforges on that item to the same already-reforged slot instead of reopening every base stat.
+- Mana-font enchanting charges gold and grants one extra random compatible secondary stat; enchanting the same item again replaces that dedicated enchant stat instead of adding another slot.
+- Corruption-altar corruption charges gold, warns about a `5%` break chance, and either destroys the item or permanently marks it corrupted, preventing all future reforge, enchant, or corruption actions on that item.
+- Successful corruption boosts every main stat and secondary-stat value on the item by `10%` relative to the current value with a minimum gain of `+1` per affected stat.
+- Item tooltips and display names surface modification state directly: reforged secondary stats are pink, enchanted secondary stats are cyan, and corrupted items append `[Corrupted]` with a red item title.
 - Loot can be taken item-by-item or collected from a tile in bulk.
 - World-generated weapons, armor, offhands, and artifacts scale by terrain tier and context, including generated shoulders, bracers, belts, shields, magical offhands, and one-handed or two-handed weapon archetypes.
 - World loot and blood moon bonus gear now choose their top-level item family from equal random buckets instead of weighted family chances, so weapons, armor, offhands, artifacts, and consumables do not skew toward accessory-heavy drops.
@@ -46,8 +52,10 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 ## Main Implementation Areas
 
 - `src/game/inventory.ts`
+- `src/game/itemModifications.ts`
 - `src/game/consumables.ts`
 - `src/game/stateItemActions.ts`
+- `src/game/stateItemModificationActions.ts`
 - `src/game/world.ts`
 - `src/game/state.ts`
 - `src/game/stateRewards.ts`

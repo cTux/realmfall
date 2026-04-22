@@ -36,10 +36,13 @@ export type GatheringStructureType = (typeof GATHERING_STRUCTURE_TYPES)[number];
 
 export const STRUCTURE_TYPES = [
   'forge',
+  'rune-forge',
   'camp',
   'furnace',
+  'mana-font',
   'workshop',
   'town',
+  'corruption-altar',
   'dungeon',
   ...GATHERING_STRUCTURE_TYPES,
 ] as const;
@@ -116,6 +119,9 @@ export interface Item {
   thirst?: number;
   secondaryStatCapacity?: number;
   secondaryStats?: ItemSecondaryStat[];
+  reforgedSecondaryStatIndex?: number;
+  enchantedSecondaryStatIndex?: number;
+  corrupted?: boolean;
   grantedAbilityId?: AbilityId;
 }
 

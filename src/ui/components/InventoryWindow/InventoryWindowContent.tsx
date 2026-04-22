@@ -9,9 +9,11 @@ type InventoryWindowContentProps = Pick<
   InventoryWindowProps,
   | 'inventory'
   | 'equipment'
+  | 'hexItemModificationPickerActive'
   | 'learnedRecipeIds'
   | 'onActivateItem'
   | 'onContextItem'
+  | 'onSelectHexItemModificationItem'
   | 'onHoverItem'
   | 'onLeaveItem'
 >;
@@ -19,9 +21,11 @@ type InventoryWindowContentProps = Pick<
 export function InventoryWindowContent({
   inventory,
   equipment,
+  hexItemModificationPickerActive = false,
   learnedRecipeIds,
   onActivateItem,
   onContextItem,
+  onSelectHexItemModificationItem,
   onHoverItem,
   onLeaveItem,
 }: InventoryWindowContentProps) {
@@ -46,7 +50,14 @@ export function InventoryWindowContent({
             }
             borderColorOverride={recipeState.borderColor}
             overlayColorOverride={recipeState.overlayColor}
-            onClick={() => onActivateItem(item.id)}
+            onClick={() => {
+              if (hexItemModificationPickerActive) {
+                onSelectHexItemModificationItem?.(item);
+                return;
+              }
+
+              onActivateItem(item.id);
+            }}
             onContextMenu={(event) => onContextItem(event, item)}
             onMouseEnter={(event) =>
               onHoverItem(

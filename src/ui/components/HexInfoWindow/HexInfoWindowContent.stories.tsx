@@ -4,6 +4,7 @@ import { createCombatActorState } from '../../../game/combat';
 import { buildItemFromConfig } from '../../../game/content/items';
 import { ItemId } from '../../../game/content/ids';
 import { buildTownStock } from '../../../game/economy';
+import { getItemModificationCost } from '../../../game/itemModifications';
 import {
   describeStructure,
   structureActionLabel,
@@ -69,6 +70,13 @@ export const Forge: Story = {
   }),
 };
 
+export const RuneForge: Story = {
+  args: buildStructureArgs('rune-forge', {
+    terrain: 'Mountain',
+    itemModification: buildItemModificationStoryArgs('reforge'),
+  }),
+};
+
 export const Camp: Story = {
   args: buildStructureArgs('camp', {
     terrain: 'Forest',
@@ -78,6 +86,13 @@ export const Camp: Story = {
 export const Workshop: Story = {
   args: buildStructureArgs('workshop', {
     terrain: 'Plains',
+  }),
+};
+
+export const ManaFont: Story = {
+  args: buildStructureArgs('mana-font', {
+    terrain: 'Rift',
+    itemModification: buildItemModificationStoryArgs('enchant'),
   }),
 };
 
@@ -165,6 +180,13 @@ export const Dungeon: Story = {
   }),
 };
 
+export const CorruptionAltar: Story = {
+  args: buildStructureArgs('corruption-altar', {
+    terrain: 'Rift',
+    itemModification: buildItemModificationStoryArgs('corrupt'),
+  }),
+};
+
 export const Tree: Story = {
   args: buildGatheringStructureArgs('tree', {
     terrain: 'Forest',
@@ -221,6 +243,7 @@ function buildStructureArgs(
     territoryActionLabel: overrides.territoryActionLabel ?? 'Claim hex',
     canBulkProspectEquipment: overrides.canBulkProspectEquipment ?? false,
     canBulkSellEquipment: overrides.canBulkSellEquipment ?? false,
+    itemModification: overrides.itemModification ?? null,
     territoryActionExplanation: overrides.territoryActionExplanation ?? null,
     bulkProspectEquipmentExplanation:
       overrides.bulkProspectEquipmentExplanation ?? null,
@@ -234,6 +257,40 @@ function buildStructureArgs(
     townStock: overrides.townStock ?? [],
     gold: overrides.gold ?? 0,
     loot: overrides.loot ?? [],
+  };
+}
+
+function buildItemModificationStoryArgs(
+  kind: 'reforge' | 'enchant' | 'corrupt',
+) {
+  const selectedItem = buildItemFromConfig(ItemId.TownKnife, {
+    id: `hex-mod-${kind}`,
+    tier: 6,
+    rarity: 'rare',
+    secondaryStatCapacity: 2,
+    secondaryStats: [
+      { key: 'attackSpeed', value: 4 },
+      { key: 'dodgeChance', value: 3 },
+    ],
+  });
+
+  return {
+    kind,
+    hint: `Storybook ${kind} hint`,
+    pickerActive: false,
+    selectedItem,
+    actionCost: getItemModificationCost(selectedItem, kind),
+    canAfford: true,
+    canApply: true,
+    disabledReason: null,
+    reforgeOptions:
+      kind === 'reforge'
+        ? [
+            { label: 'Attack Speed', statIndex: 0 },
+            { label: 'Dodge Chance', statIndex: 1 },
+          ]
+        : [],
+    selectedReforgeStatIndex: kind === 'reforge' ? 0 : null,
   };
 }
 

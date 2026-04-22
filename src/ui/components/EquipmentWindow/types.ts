@@ -9,6 +9,7 @@ export interface EquipmentWindowProps extends WindowDetailTooltipHandlers {
   visible?: boolean;
   onClose?: () => void;
   equipment: Equipment;
+  hexItemModificationPickerActive?: boolean;
   onHoverItem: (event: ReactMouseEvent<HTMLElement>, item: Item) => void;
   onLeaveItem: () => void;
   onUnequip: (slot: EquipmentSlot) => void;
@@ -17,4 +18,5 @@ export interface EquipmentWindowProps extends WindowDetailTooltipHandlers {
     item: Item,
     slot: EquipmentSlot,
   ) => void;
+  onSelectHexItemModificationItem?: (item: Item) => void;
 }
