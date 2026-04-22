@@ -2,6 +2,21 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 
+function buildWindowShown(hexInfo = false) {
+  return {
+    hero: false,
+    skills: false,
+    recipes: false,
+    hexInfo,
+    equipment: false,
+    inventory: false,
+    loot: false,
+    log: false,
+    combat: false,
+    settings: false,
+  };
+}
+
 describe('useKeyboardShortcuts', () => {
   let host: HTMLDivElement;
   let root: Root;
@@ -30,6 +45,8 @@ describe('useKeyboardShortcuts', () => {
 
     function TestHarness() {
       useKeyboardShortcuts({
+        canBulkProspectEquipment: false,
+        canBulkSellEquipment: false,
         canSetHomeAction: false,
         canTerritoryAction: false,
         combatDeathAvailable: false,
@@ -44,21 +61,12 @@ describe('useKeyboardShortcuts', () => {
         onTerritoryAction: vi.fn(),
         onTakeAllLoot: vi.fn(),
         onCloseAllWindows: vi.fn(),
+        onProspect: vi.fn(),
+        onSellAll: vi.fn(),
         onTogglePause: vi.fn(),
         onToggleDockWindow: vi.fn(),
         onUseActionBarSlot,
-        windowShown: {
-          hero: false,
-          skills: false,
-          recipes: false,
-          hexInfo: false,
-          equipment: false,
-          inventory: false,
-          loot: false,
-          log: false,
-          combat: false,
-          settings: false,
-        },
+        windowShown: buildWindowShown(),
       });
 
       return null;
@@ -90,6 +98,8 @@ describe('useKeyboardShortcuts', () => {
 
     function TestHarness() {
       useKeyboardShortcuts({
+        canBulkProspectEquipment: false,
+        canBulkSellEquipment: false,
         canSetHomeAction: false,
         canTerritoryAction: false,
         combatDeathAvailable: false,
@@ -104,21 +114,12 @@ describe('useKeyboardShortcuts', () => {
         onTerritoryAction: vi.fn(),
         onTakeAllLoot: vi.fn(),
         onCloseAllWindows: vi.fn(),
+        onProspect: vi.fn(),
+        onSellAll: vi.fn(),
         onTogglePause,
         onToggleDockWindow: vi.fn(),
         onUseActionBarSlot: vi.fn(),
-        windowShown: {
-          hero: false,
-          skills: false,
-          recipes: false,
-          hexInfo: false,
-          equipment: false,
-          inventory: false,
-          loot: false,
-          log: false,
-          combat: false,
-          settings: false,
-        },
+        windowShown: buildWindowShown(),
       });
 
       return null;
@@ -155,6 +156,8 @@ describe('useKeyboardShortcuts', () => {
 
     function TestHarness() {
       useKeyboardShortcuts({
+        canBulkProspectEquipment: false,
+        canBulkSellEquipment: false,
         canSetHomeAction: false,
         canTerritoryAction: false,
         combatDeathAvailable: false,
@@ -169,21 +172,12 @@ describe('useKeyboardShortcuts', () => {
         onTerritoryAction: vi.fn(),
         onTakeAllLoot: vi.fn(),
         onCloseAllWindows: vi.fn(),
+        onProspect: vi.fn(),
+        onSellAll: vi.fn(),
         onTogglePause,
         onToggleDockWindow: vi.fn(),
         onUseActionBarSlot: vi.fn(),
-        windowShown: {
-          hero: false,
-          skills: false,
-          recipes: false,
-          hexInfo: false,
-          equipment: false,
-          inventory: false,
-          loot: false,
-          log: false,
-          combat: false,
-          settings: false,
-        },
+        windowShown: buildWindowShown(),
       });
 
       return <button type="button">Focusable control</button>;
@@ -217,6 +211,8 @@ describe('useKeyboardShortcuts', () => {
 
     function TestHarness() {
       useKeyboardShortcuts({
+        canBulkProspectEquipment: false,
+        canBulkSellEquipment: false,
         canSetHomeAction: false,
         canTerritoryAction: true,
         combatDeathAvailable: false,
@@ -231,21 +227,12 @@ describe('useKeyboardShortcuts', () => {
         onTerritoryAction,
         onTakeAllLoot: vi.fn(),
         onCloseAllWindows: vi.fn(),
+        onProspect: vi.fn(),
+        onSellAll: vi.fn(),
         onTogglePause: vi.fn(),
         onToggleDockWindow: vi.fn(),
         onUseActionBarSlot: vi.fn(),
-        windowShown: {
-          hero: false,
-          skills: false,
-          recipes: false,
-          hexInfo: true,
-          equipment: false,
-          inventory: false,
-          loot: false,
-          log: false,
-          combat: false,
-          settings: false,
-        },
+        windowShown: buildWindowShown(true),
       });
 
       return null;
@@ -269,6 +256,8 @@ describe('useKeyboardShortcuts', () => {
 
     function TestHarness() {
       useKeyboardShortcuts({
+        canBulkProspectEquipment: false,
+        canBulkSellEquipment: false,
         canSetHomeAction: true,
         canTerritoryAction: false,
         combatDeathAvailable: false,
@@ -283,21 +272,12 @@ describe('useKeyboardShortcuts', () => {
         onTerritoryAction: vi.fn(),
         onTakeAllLoot: vi.fn(),
         onCloseAllWindows: vi.fn(),
+        onProspect: vi.fn(),
+        onSellAll: vi.fn(),
         onTogglePause: vi.fn(),
         onToggleDockWindow: vi.fn(),
         onUseActionBarSlot: vi.fn(),
-        windowShown: {
-          hero: false,
-          skills: false,
-          recipes: false,
-          hexInfo: true,
-          equipment: false,
-          inventory: false,
-          loot: false,
-          log: false,
-          combat: false,
-          settings: false,
-        },
+        windowShown: buildWindowShown(true),
       });
 
       return null;
@@ -316,11 +296,103 @@ describe('useKeyboardShortcuts', () => {
     expect(onSetHome).toHaveBeenCalledTimes(1);
   });
 
+  it('triggers bulk prospect on Q when the forge action is available', async () => {
+    const onProspect = vi.fn();
+
+    function TestHarness() {
+      useKeyboardShortcuts({
+        canBulkProspectEquipment: true,
+        canBulkSellEquipment: false,
+        canSetHomeAction: false,
+        canTerritoryAction: false,
+        combatDeathAvailable: false,
+        combatStartAvailable: false,
+        hexContentWindowShown: true,
+        interactLabel: null,
+        lootSnapshotLength: 0,
+        onForfeitCombat: vi.fn(),
+        onStartCombat: vi.fn(),
+        onInteract: vi.fn(),
+        onSetHome: vi.fn(),
+        onTerritoryAction: vi.fn(),
+        onTakeAllLoot: vi.fn(),
+        onCloseAllWindows: vi.fn(),
+        onProspect,
+        onSellAll: vi.fn(),
+        onTogglePause: vi.fn(),
+        onToggleDockWindow: vi.fn(),
+        onUseActionBarSlot: vi.fn(),
+        windowShown: buildWindowShown(true),
+      });
+
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<TestHarness />);
+    });
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'q' }),
+      );
+    });
+
+    expect(onProspect).toHaveBeenCalledTimes(1);
+  });
+
+  it('triggers bulk sell on Q when the town action is available', async () => {
+    const onSellAll = vi.fn();
+
+    function TestHarness() {
+      useKeyboardShortcuts({
+        canBulkProspectEquipment: false,
+        canBulkSellEquipment: true,
+        canSetHomeAction: false,
+        canTerritoryAction: false,
+        combatDeathAvailable: false,
+        combatStartAvailable: false,
+        hexContentWindowShown: true,
+        interactLabel: null,
+        lootSnapshotLength: 0,
+        onForfeitCombat: vi.fn(),
+        onStartCombat: vi.fn(),
+        onInteract: vi.fn(),
+        onSetHome: vi.fn(),
+        onTerritoryAction: vi.fn(),
+        onTakeAllLoot: vi.fn(),
+        onCloseAllWindows: vi.fn(),
+        onProspect: vi.fn(),
+        onSellAll,
+        onTogglePause: vi.fn(),
+        onToggleDockWindow: vi.fn(),
+        onUseActionBarSlot: vi.fn(),
+        windowShown: buildWindowShown(true),
+      });
+
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<TestHarness />);
+    });
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'q' }),
+      );
+    });
+
+    expect(onSellAll).toHaveBeenCalledTimes(1);
+  });
+
   it('triggers the combat death hotkey when a long battle can be forfeited', async () => {
     const onForfeitCombat = vi.fn();
 
     function TestHarness() {
       useKeyboardShortcuts({
+        canBulkProspectEquipment: false,
+        canBulkSellEquipment: false,
         canSetHomeAction: false,
         canTerritoryAction: false,
         combatDeathAvailable: true,
@@ -335,21 +407,12 @@ describe('useKeyboardShortcuts', () => {
         onTerritoryAction: vi.fn(),
         onTakeAllLoot: vi.fn(),
         onCloseAllWindows: vi.fn(),
+        onProspect: vi.fn(),
+        onSellAll: vi.fn(),
         onTogglePause: vi.fn(),
         onToggleDockWindow: vi.fn(),
         onUseActionBarSlot: vi.fn(),
-        windowShown: {
-          hero: false,
-          skills: false,
-          recipes: false,
-          hexInfo: true,
-          equipment: false,
-          inventory: false,
-          loot: false,
-          log: false,
-          combat: false,
-          settings: false,
-        },
+        windowShown: buildWindowShown(true),
       });
 
       return null;

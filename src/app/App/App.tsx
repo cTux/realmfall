@@ -321,6 +321,8 @@ export function App() {
   );
 
   useKeyboardShortcuts({
+    canBulkProspectEquipment,
+    canBulkSellEquipment,
     canSetHomeAction,
     canTerritoryAction: claimStatus.canClaim,
     combatDeathAvailable,
@@ -335,6 +337,8 @@ export function App() {
     onTerritoryAction: handleClaimHex,
     onTakeAllLoot: handleTakeAllLoot,
     onCloseAllWindows: closeAllWindows,
+    onProspect: handleProspect,
+    onSellAll: handleSellAll,
     onTogglePause: handleTogglePause,
     onToggleDockWindow: toggleDockWindow,
     onWindowToggleSound: (opened) => {

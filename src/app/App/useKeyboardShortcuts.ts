@@ -7,6 +7,8 @@ import {
 import { WINDOW_HOTKEYS } from './utils/windowHotkeys';
 
 interface UseKeyboardShortcutsOptions {
+  canBulkProspectEquipment: boolean;
+  canBulkSellEquipment: boolean;
   canSetHomeAction: boolean;
   canTerritoryAction: boolean;
   combatDeathAvailable: boolean;
@@ -22,6 +24,8 @@ interface UseKeyboardShortcutsOptions {
   onTakeAllLoot: () => void;
   onCloseAllWindows: () => void;
   onCloseAllWindowsSound?: () => void;
+  onProspect: () => void;
+  onSellAll: () => void;
   onTogglePause: () => void;
   onToggleDockWindow: (key: keyof WindowVisibilityState) => void;
   onUseActionBarSlot: (slotIndex: number) => void;
@@ -30,6 +34,8 @@ interface UseKeyboardShortcutsOptions {
 }
 
 export function useKeyboardShortcuts({
+  canBulkProspectEquipment,
+  canBulkSellEquipment,
   canSetHomeAction,
   canTerritoryAction,
   combatDeathAvailable,
@@ -45,6 +51,8 @@ export function useKeyboardShortcuts({
   onTakeAllLoot,
   onCloseAllWindows,
   onCloseAllWindowsSound,
+  onProspect,
+  onSellAll,
   onTogglePause,
   onToggleDockWindow,
   onUseActionBarSlot,
@@ -97,6 +105,18 @@ export function useKeyboardShortcuts({
     if (lowerKey === 'q' && interactLabel) {
       event.preventDefault();
       onInteract();
+      return;
+    }
+
+    if (lowerKey === 'q' && hexContentWindowShown && canBulkProspectEquipment) {
+      event.preventDefault();
+      onProspect();
+      return;
+    }
+
+    if (lowerKey === 'q' && hexContentWindowShown && canBulkSellEquipment) {
+      event.preventDefault();
+      onSellAll();
       return;
     }
 
