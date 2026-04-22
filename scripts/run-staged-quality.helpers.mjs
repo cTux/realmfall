@@ -56,7 +56,7 @@ export function isVitestRelatedFile(file) {
   return (
     file.startsWith('src/') ||
     file.startsWith('scripts/') ||
-    file === 'game.config.json' ||
+    file === 'game.config.ts' ||
     file.includes('.test.')
   );
 }

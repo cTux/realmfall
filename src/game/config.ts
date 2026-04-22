@@ -1,4 +1,4 @@
-import rawGameConfig from '../../game.config.json';
+import rawGameConfig from '../../game.config';
 
 import type { GatheringStructureType, ItemRarity, Terrain } from './types';
 
