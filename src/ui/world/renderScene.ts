@@ -61,7 +61,7 @@ import {
   type WorldMarkerAnimationKind,
 } from './renderSceneMarkerAnimations';
 import { getFullscreenVisualEffectsState } from './renderSceneFullscreenEffects';
-import { terrainArtFor } from './worldTerrainArt';
+import { terrainArtFor, WORLD_TERRAIN_ART_LAYOUT } from './worldTerrainArt';
 import {
   updateWorldMapFishEyeFilter,
   WORLD_MAP_FISHEYE_ENABLED,
@@ -90,6 +90,8 @@ const ZERO_SHADOW_OFFSET = { x: 0, y: 0 };
 const ENEMY_GROUP_BADGE_RADIUS = 10;
 const ENEMY_GROUP_BADGE_OFFSET = { x: 14, y: 12 };
 const ENEMY_GROUP_BADGE_TEXT_OFFSET = { x: 10, y: 4 };
+const TERRAIN_HEX_STROKE_ALPHA = 0.42;
+const DEFAULT_HEX_STROKE_ALPHA = 0.9;
 
 interface RenderSceneOptions {
   showTerrainBackgrounds?: boolean;
@@ -117,7 +119,9 @@ export function renderScene(
   const enemyIconSize = hexSize * 0.945;
   const worldBossIconSize = hexSize * 3.4;
   const playerIconSize = hexSize * 1.58;
-  const terrainArtSize = hexSize * 2;
+  const terrainArtWidth = hexSize * 2;
+  const terrainArtHeight =
+    terrainArtWidth * WORLD_TERRAIN_ART_LAYOUT.aspectRatio;
   const showTerrainBackgrounds = options.showTerrainBackgrounds ?? true;
 
   if (WORLD_MAP_FISHEYE_ENABLED) {
@@ -239,7 +243,13 @@ export function renderScene(
         shape
           .poly(poly)
           .fill({ color: style.color, alpha: fillAlpha })
-          .stroke({ width: 1, color: 0x1e293b, alpha: 0.9 });
+          .stroke({
+            width: 1,
+            color: 0x1e293b,
+            alpha: showTerrainBackgrounds
+              ? TERRAIN_HEX_STROKE_ALPHA
+              : DEFAULT_HEX_STROKE_ALPHA,
+          });
 
         if (isHomeTile) {
           const homeTint = takeGraphics(scene.worldStaticDetailGraphics);
@@ -270,15 +280,19 @@ export function renderScene(
       if (shouldRenderStatic && showTerrainBackgrounds) {
         const terrainSprite = takeSprite(
           scene.worldTerrainSprites,
-          terrainArtFor(tile.terrain),
+          terrainArtFor(tile.terrain, tile.coord),
         );
         configureSprite(
           terrainSprite,
           0xffffff,
-          terrainArtSize,
-          terrainArtSize,
-          emphasized ? 0.84 : 0.76,
+          terrainArtWidth,
+          terrainArtHeight,
+          emphasized ? 1 : 0.98,
           point,
+          {
+            anchor: WORLD_TERRAIN_ART_LAYOUT,
+            zIndex: point.y + point.x * 0.001,
+          },
         );
       }
 

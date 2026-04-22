@@ -27,16 +27,30 @@ function createMutablePoint(initialX = 0, initialY = 0) {
   return point;
 }
 
+function createMutableAnchor(initialX = 0, initialY = initialX) {
+  const anchor = {
+    set: vi.fn((nextX: number, nextY?: number) => {
+      anchor.x = nextX;
+      anchor.y = nextY ?? nextX;
+    }),
+    x: initialX,
+    y: initialY,
+  };
+
+  return anchor;
+}
+
 export class MockSprite {
   icon?: string;
   private currentTexture: { icon?: string };
-  anchor = { set: vi.fn() };
+  anchor = createMutableAnchor(0.5, 0.5);
   position = createMutablePoint();
   width = 0;
   height = 0;
   tint = 0;
   alpha = 1;
   visible = true;
+  zIndex = 0;
 
   constructor(texture: { icon?: string }) {
     this.currentTexture = texture;
@@ -58,8 +72,10 @@ export class MockContainer {
   alpha = 1;
   rotation = 0;
   visible = true;
+  zIndex = 0;
   position = createMutablePoint();
   scale = createMutablePoint(1, 1);
+  sortableChildren = false;
 
   addChild(...children: unknown[]) {
     this.children.push(...children);
@@ -70,6 +86,26 @@ export class MockContainer {
     const removed = [...this.children];
     this.children = [];
     return removed;
+  }
+
+  sortChildren() {
+    this.children.sort((left, right) => {
+      const leftZ =
+        typeof left === 'object' &&
+        left !== null &&
+        'zIndex' in left &&
+        typeof left.zIndex === 'number'
+          ? left.zIndex
+          : 0;
+      const rightZ =
+        typeof right === 'object' &&
+        right !== null &&
+        'zIndex' in right &&
+        typeof right.zIndex === 'number'
+          ? right.zIndex
+          : 0;
+      return leftZ - rightZ;
+    });
   }
 
   destroy() {}
@@ -242,6 +278,11 @@ export function getWorld(app: MockApp) {
 
 export function getLabelsLayer(app: MockApp) {
   return getWorldMap(app).children[2] as MockContainer;
+}
+
+export function getTerrainLayer(app: MockApp) {
+  return (getWorld(app).children[0] as MockContainer)
+    .children[1] as MockContainer;
 }
 
 export function getMarkerLayer(app: MockApp) {

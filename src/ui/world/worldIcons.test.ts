@@ -119,7 +119,7 @@ describe('worldIcons', () => {
         WorldIcons.Castle,
         WorldIcons.Village,
         enemyIconFor(game.enemies['enemy-1,0-0']),
-        terrainArtFor(game.tiles['1,0'].terrain),
+        terrainArtFor(game.tiles['1,0'].terrain, game.tiles['1,0'].coord),
       ]),
     );
     expect(icons).not.toContain(structureIconFor('town'));

@@ -20,6 +20,9 @@ export const coalOreStructureConfig: StructureConfig = {
   functionsProvided: ['mine-coal'],
   appearanceChanceByTerrain: {
     desert: 0.81,
+    badlands: 0.76,
+    highlands: 0.76,
+    tundra: 0.85,
   },
   gathering: {
     actionLabel: structureActionLabel('coal-ore'),

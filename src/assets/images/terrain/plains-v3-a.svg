@@ -1,0 +1,159 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 1760" width="1280" height="1760">
+<defs>
+  <clipPath id="plains-a-clip-top">
+    <polygon points="640,240 1194.3,560 1194.3,1200 640,1520 85.7,1200 85.7,560" />
+  </clipPath>
+  <linearGradient id="plains-a-top-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#b9e47b" />
+    <stop offset="58%" stop-color="#8dc853" />
+    <stop offset="100%" stop-color="#5f9638" />
+  </linearGradient>
+  <linearGradient id="plains-a-left-face" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#9f6a34" />
+    <stop offset="100%" stop-color="#603817" />
+  </linearGradient>
+  <linearGradient id="plains-a-right-face" x1="100%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#9f6a34" />
+    <stop offset="100%" stop-color="#603817" />
+  </linearGradient>
+  <linearGradient id="plains-a-front-face" x1="50%" y1="0%" x2="50%" y2="100%">
+    <stop offset="0%" stop-color="#9f6a34" />
+    <stop offset="100%" stop-color="#603817" />
+  </linearGradient>
+  <filter id="plains-a-platform-shadow" x="-20%" y="-20%" width="140%" height="190%">
+    <feDropShadow dx="0" dy="22" stdDeviation="22" flood-color="#23361a" flood-opacity="0.42" />
+  </filter>
+  <filter id="plains-a-overhang-shadow" x="-30%" y="-30%" width="160%" height="220%">
+    <feDropShadow dx="0" dy="30" stdDeviation="24" flood-color="#23361a" flood-opacity="0.5" />
+  </filter>
+
+</defs>
+  <ellipse cx="640" cy="1676" rx="396" ry="70" fill="#23361a" opacity="0.18" />
+  <g filter="url(#plains-a-platform-shadow)">
+    <polygon points="85.7,1200 640,1520 640,1680 0,1360" fill="url(#plains-a-left-face)" opacity="0.98" />
+    <polygon points="640,1520 1194.3,1200 1280,1360 640,1680" fill="url(#plains-a-right-face)" opacity="0.98" />
+    <polygon points="224.3,1280 640,1520 1055.7,1280 1055.7,1440 640,1680 224.3,1440" fill="url(#plains-a-front-face)" opacity="0.94" />
+  </g>
+  <g clip-path="url(#plains-a-clip-top)">
+    <polygon points="640,240 1194.3,560 1194.3,1200 640,1520 85.7,1200 85.7,560" fill="url(#plains-a-top-gradient)" />
+    <ellipse cx="335.2" cy="1357.1" rx="94.5" ry="26.9" fill="#3c5f28" opacity="0.051" transform="rotate(-31.7 335.2 1357.1)" />
+    <ellipse cx="518.6" cy="1142" rx="144.2" ry="43.6" fill="#3c5f28" opacity="0.08" transform="rotate(8.1 518.6 1142)" />
+    <ellipse cx="1136.3" cy="887" rx="125.1" ry="34.1" fill="#effbc6" opacity="0.071" transform="rotate(-17.3 1136.3 887)" />
+    <ellipse cx="826.8" cy="839.2" rx="134.3" ry="16.8" fill="#effbc6" opacity="0.095" transform="rotate(3.4 826.8 839.2)" />
+    <ellipse cx="750" cy="1318.2" rx="127.9" ry="27.1" fill="#effbc6" opacity="0.104" transform="rotate(-10.9 750 1318.2)" />
+    <ellipse cx="867.4" cy="1041.6" rx="80.1" ry="42.9" fill="#3c5f28" opacity="0.076" transform="rotate(3.1 867.4 1041.6)" />
+    <ellipse cx="487.8" cy="788.9" rx="130" ry="41.5" fill="#3c5f28" opacity="0.074" transform="rotate(-27 487.8 788.9)" />
+    <ellipse cx="1127.8" cy="618.4" rx="70.3" ry="36" fill="#effbc6" opacity="0.082" transform="rotate(6.5 1127.8 618.4)" />
+    <ellipse cx="435.8" cy="1084.7" rx="114.8" ry="21.7" fill="#effbc6" opacity="0.054" transform="rotate(11.3 435.8 1084.7)" />
+    <ellipse cx="106.9" cy="685.6" rx="137.5" ry="41.3" fill="#3c5f28" opacity="0.069" transform="rotate(10.4 106.9 685.6)" />
+    <ellipse cx="1153.1" cy="817" rx="87.4" ry="42.6" fill="#effbc6" opacity="0.061" transform="rotate(-19.4 1153.1 817)" />
+    <ellipse cx="337" cy="848.7" rx="83.5" ry="34.4" fill="#effbc6" opacity="0.117" transform="rotate(-5.4 337 848.7)" />
+    <circle cx="244.5" cy="1247.4" r="7" fill="#3c5f28" opacity="0.175" />
+    <circle cx="725.7" cy="1244.8" r="6.1" fill="#3c5f28" opacity="0.166" />
+    <circle cx="761.5" cy="857.5" r="9.3" fill="#effbc6" opacity="0.172" />
+    <circle cx="209" cy="557.8" r="12.3" fill="#3c5f28" opacity="0.17" />
+    <circle cx="129.1" cy="1022.1" r="14.1" fill="#effbc6" opacity="0.104" />
+    <circle cx="737.3" cy="1035.4" r="14.5" fill="#3c5f28" opacity="0.15" />
+    <circle cx="798.9" cy="808.5" r="11.3" fill="#3c5f28" opacity="0.095" />
+    <circle cx="578.1" cy="571.2" r="9.7" fill="#effbc6" opacity="0.102" />
+    <circle cx="414.6" cy="778.9" r="9.5" fill="#3c5f28" opacity="0.179" />
+    <circle cx="774.6" cy="493.1" r="8.4" fill="#effbc6" opacity="0.098" />
+    <circle cx="1109.3" cy="563.6" r="9" fill="#effbc6" opacity="0.178" />
+    <circle cx="854.4" cy="715.9" r="7.7" fill="#3c5f28" opacity="0.099" />
+    <circle cx="907" cy="1157.9" r="15.9" fill="#3c5f28" opacity="0.085" />
+    <circle cx="615.4" cy="1203.3" r="14.6" fill="#3c5f28" opacity="0.113" />
+    <circle cx="643.9" cy="1386.8" r="14.9" fill="#effbc6" opacity="0.112" />
+    <circle cx="709.6" cy="1181.6" r="6.3" fill="#effbc6" opacity="0.134" />
+    <ellipse cx="974.1" cy="1010.2" rx="163.7" ry="82.8" fill="#5f9638" opacity="0.16" />
+    <ellipse cx="1048.1" cy="1013" rx="205.2" ry="79.4" fill="#5f9638" opacity="0.16" />
+    <ellipse cx="962.1" cy="769.8" rx="181.6" ry="85.6" fill="#5f9638" opacity="0.16" />
+    <ellipse cx="864.7" cy="763.6" rx="222.6" ry="91.2" fill="#5f9638" opacity="0.16" />
+    <path d="M 934.1 801.9 L 926.1 748.8" fill="none" stroke="#3c5f28" stroke-opacity="0.34" stroke-width="6" stroke-linecap="round" />
+    <path d="M 934.1 801.9 L 934.1 756.2" fill="none" stroke="#8dc853" stroke-opacity="0.56" stroke-width="6" stroke-linecap="round" />
+    <path d="M 934.1 801.9 L 942.1 753" fill="none" stroke="#effbc6" stroke-opacity="0.38" stroke-width="5" stroke-linecap="round" />
+    <path d="M 256.7 985.9 L 248.7 937.6" fill="none" stroke="#3c5f28" stroke-opacity="0.34" stroke-width="6" stroke-linecap="round" />
+    <path d="M 256.7 985.9 L 256.7 944.4" fill="none" stroke="#8dc853" stroke-opacity="0.56" stroke-width="6" stroke-linecap="round" />
+    <path d="M 256.7 985.9 L 264.7 941.5" fill="none" stroke="#effbc6" stroke-opacity="0.38" stroke-width="5" stroke-linecap="round" />
+    <path d="M 954.6 933.8 L 946.6 901.2" fill="none" stroke="#3c5f28" stroke-opacity="0.34" stroke-width="6" stroke-linecap="round" />
+    <path d="M 954.6 933.8 L 954.6 905.8" fill="none" stroke="#8dc853" stroke-opacity="0.56" stroke-width="6" stroke-linecap="round" />
+    <path d="M 954.6 933.8 L 962.6 903.8" fill="none" stroke="#effbc6" stroke-opacity="0.38" stroke-width="5" stroke-linecap="round" />
+    <path d="M 1082.4 1236.9 L 1074.4 1196.3" fill="none" stroke="#3c5f28" stroke-opacity="0.34" stroke-width="6" stroke-linecap="round" />
+    <path d="M 1082.4 1236.9 L 1082.4 1202" fill="none" stroke="#8dc853" stroke-opacity="0.56" stroke-width="6" stroke-linecap="round" />
+    <path d="M 1082.4 1236.9 L 1090.4 1199.5" fill="none" stroke="#effbc6" stroke-opacity="0.38" stroke-width="5" stroke-linecap="round" />
+    <path d="M 830 1165.9 L 822 1124.5" fill="none" stroke="#3c5f28" stroke-opacity="0.34" stroke-width="6" stroke-linecap="round" />
+    <path d="M 830 1165.9 L 830 1130.3" fill="none" stroke="#8dc853" stroke-opacity="0.56" stroke-width="6" stroke-linecap="round" />
+    <path d="M 830 1165.9 L 838 1127.8" fill="none" stroke="#effbc6" stroke-opacity="0.38" stroke-width="5" stroke-linecap="round" />
+    <path d="M 271.3 1241.8 L 263.3 1181.5" fill="none" stroke="#3c5f28" stroke-opacity="0.34" stroke-width="6" stroke-linecap="round" />
+    <path d="M 271.3 1241.8 L 271.3 1189.9" fill="none" stroke="#8dc853" stroke-opacity="0.56" stroke-width="6" stroke-linecap="round" />
+    <path d="M 271.3 1241.8 L 279.3 1186.3" fill="none" stroke="#effbc6" stroke-opacity="0.38" stroke-width="5" stroke-linecap="round" />
+    <path d="M 552.1 957.1 L 544.1 913.6" fill="none" stroke="#3c5f28" stroke-opacity="0.34" stroke-width="6" stroke-linecap="round" />
+    <path d="M 552.1 957.1 L 552.1 919.7" fill="none" stroke="#8dc853" stroke-opacity="0.56" stroke-width="6" stroke-linecap="round" />
+    <path d="M 552.1 957.1 L 560.1 917.1" fill="none" stroke="#effbc6" stroke-opacity="0.38" stroke-width="5" stroke-linecap="round" />
+    <path d="M 674 713 L 666 659.7" fill="none" stroke="#3c5f28" stroke-opacity="0.34" stroke-width="6" stroke-linecap="round" />
+    <path d="M 674 713 L 674 667.2" fill="none" stroke="#8dc853" stroke-opacity="0.56" stroke-width="6" stroke-linecap="round" />
+    <path d="M 674 713 L 682 664" fill="none" stroke="#effbc6" stroke-opacity="0.38" stroke-width="5" stroke-linecap="round" />
+    <path d="M 622 983.7 L 614 951.8" fill="none" stroke="#3c5f28" stroke-opacity="0.34" stroke-width="6" stroke-linecap="round" />
+    <path d="M 622 983.7 L 622 956.3" fill="none" stroke="#8dc853" stroke-opacity="0.56" stroke-width="6" stroke-linecap="round" />
+    <path d="M 622 983.7 L 630 954.4" fill="none" stroke="#effbc6" stroke-opacity="0.38" stroke-width="5" stroke-linecap="round" />
+    <path d="M 1009.4 698.8 L 1001.4 635.7" fill="none" stroke="#3c5f28" stroke-opacity="0.34" stroke-width="6" stroke-linecap="round" />
+    <path d="M 1009.4 698.8 L 1009.4 644.5" fill="none" stroke="#8dc853" stroke-opacity="0.56" stroke-width="6" stroke-linecap="round" />
+    <path d="M 1009.4 698.8 L 1017.4 640.7" fill="none" stroke="#effbc6" stroke-opacity="0.38" stroke-width="5" stroke-linecap="round" />
+    <path d="M 1143.1 546.8 L 1135.1 496.9" fill="none" stroke="#3c5f28" stroke-opacity="0.34" stroke-width="6" stroke-linecap="round" />
+    <path d="M 1143.1 546.8 L 1143.1 503.9" fill="none" stroke="#8dc853" stroke-opacity="0.56" stroke-width="6" stroke-linecap="round" />
+    <path d="M 1143.1 546.8 L 1151.1 500.9" fill="none" stroke="#effbc6" stroke-opacity="0.38" stroke-width="5" stroke-linecap="round" />
+    <path d="M 230.2 915.8 L 222.2 873.2" fill="none" stroke="#3c5f28" stroke-opacity="0.34" stroke-width="6" stroke-linecap="round" />
+    <path d="M 230.2 915.8 L 230.2 879.2" fill="none" stroke="#8dc853" stroke-opacity="0.56" stroke-width="6" stroke-linecap="round" />
+    <path d="M 230.2 915.8 L 238.2 876.6" fill="none" stroke="#effbc6" stroke-opacity="0.38" stroke-width="5" stroke-linecap="round" />
+    <path d="M 149.7 730.8 L 141.7 693.9" fill="none" stroke="#3c5f28" stroke-opacity="0.34" stroke-width="6" stroke-linecap="round" />
+    <path d="M 149.7 730.8 L 149.7 699.1" fill="none" stroke="#8dc853" stroke-opacity="0.56" stroke-width="6" stroke-linecap="round" />
+    <path d="M 149.7 730.8 L 157.7 696.9" fill="none" stroke="#effbc6" stroke-opacity="0.38" stroke-width="5" stroke-linecap="round" />
+    <path d="M 1058.5 1211.8 L 1050.5 1171.9" fill="none" stroke="#3c5f28" stroke-opacity="0.34" stroke-width="6" stroke-linecap="round" />
+    <path d="M 1058.5 1211.8 L 1058.5 1177.5" fill="none" stroke="#8dc853" stroke-opacity="0.56" stroke-width="6" stroke-linecap="round" />
+    <path d="M 1058.5 1211.8 L 1066.5 1175.1" fill="none" stroke="#effbc6" stroke-opacity="0.38" stroke-width="5" stroke-linecap="round" />
+    <path d="M 783.3 1043.2 L 775.3 980.4" fill="none" stroke="#3c5f28" stroke-opacity="0.34" stroke-width="6" stroke-linecap="round" />
+    <path d="M 783.3 1043.2 L 783.3 989.2" fill="none" stroke="#8dc853" stroke-opacity="0.56" stroke-width="6" stroke-linecap="round" />
+    <path d="M 783.3 1043.2 L 791.3 985.4" fill="none" stroke="#effbc6" stroke-opacity="0.38" stroke-width="5" stroke-linecap="round" />
+    <path d="M 965.7 696.1 L 957.7 635.6" fill="none" stroke="#3c5f28" stroke-opacity="0.34" stroke-width="6" stroke-linecap="round" />
+    <path d="M 965.7 696.1 L 965.7 644.1" fill="none" stroke="#8dc853" stroke-opacity="0.56" stroke-width="6" stroke-linecap="round" />
+    <path d="M 965.7 696.1 L 973.7 640.4" fill="none" stroke="#effbc6" stroke-opacity="0.38" stroke-width="5" stroke-linecap="round" />
+    <path d="M 392.9 861.9 L 384.9 806.3" fill="none" stroke="#3c5f28" stroke-opacity="0.34" stroke-width="6" stroke-linecap="round" />
+    <path d="M 392.9 861.9 L 392.9 814.1" fill="none" stroke="#8dc853" stroke-opacity="0.56" stroke-width="6" stroke-linecap="round" />
+    <path d="M 392.9 861.9 L 400.9 810.7" fill="none" stroke="#effbc6" stroke-opacity="0.38" stroke-width="5" stroke-linecap="round" />
+    <path d="M 596 817.6 L 588 764.1" fill="none" stroke="#3c5f28" stroke-opacity="0.34" stroke-width="6" stroke-linecap="round" />
+    <path d="M 596 817.6 L 596 771.6" fill="none" stroke="#8dc853" stroke-opacity="0.56" stroke-width="6" stroke-linecap="round" />
+    <path d="M 596 817.6 L 604 768.4" fill="none" stroke="#effbc6" stroke-opacity="0.38" stroke-width="5" stroke-linecap="round" />
+    <path d="M 182.2 884.6 Q 640 846.3 1191.4 884.6" fill="none" stroke="#f4fbcc" stroke-opacity="0.065" stroke-width="22" stroke-linecap="round" />
+    <path d="M 68.8 830.6 Q 640 785.5 1170.8 830.6" fill="none" stroke="#f4fbcc" stroke-opacity="0.07" stroke-width="22" stroke-linecap="round" />
+    <path d="M 196.1 962.1 Q 640 924.6 1118.1 962.1" fill="none" stroke="#f4fbcc" stroke-opacity="0.051" stroke-width="22" stroke-linecap="round" />
+    <path d="M 179.2 890.7 Q 640 856.5 1177.7 890.7" fill="none" stroke="#f4fbcc" stroke-opacity="0.084" stroke-width="22" stroke-linecap="round" />
+  </g>
+  <g filter="url(#plains-a-overhang-shadow)">
+    <path d="M 264.4 732.5 C 254.4 668.1 274.4 596.5 264.4 553.5" fill="none" stroke="#3c5f28" stroke-width="16" stroke-linecap="round" opacity="0.72" />
+    <circle cx="264.4" cy="553.5" r="72.3" fill="#5f9638" />
+    <circle cx="225.4" cy="566.5" r="49.2" fill="#8dc853" />
+    <circle cx="302" cy="569.4" r="41.9" fill="#effbc6" opacity="0.9" />
+    <path d="M 330.1 793.8917760238983 C 320.1 732.5 340.1 664.3 330.1 623.4" fill="none" stroke="#3c5f28" stroke-width="16" stroke-linecap="round" opacity="0.72" />
+    <circle cx="330.1" cy="623.4" r="54.4" fill="#5f9638" />
+    <circle cx="300.7" cy="633.2" r="37" fill="#8dc853" />
+    <circle cx="358.4" cy="635.4" r="31.6" fill="#effbc6" opacity="0.9" />
+    <path d="M 526 522.3 C 516 444.7 536 358.5 526 306.8" fill="none" stroke="#3c5f28" stroke-width="16" stroke-linecap="round" opacity="0.72" />
+    <circle cx="526" cy="306.8" r="54.4" fill="#5f9638" />
+    <circle cx="496.6" cy="316.6" r="37" fill="#8dc853" />
+    <circle cx="554.3" cy="318.8" r="31.6" fill="#effbc6" opacity="0.9" />
+    <path d="M 599.8 580.9844608392566 C 589.8 529.7 609.8 472.7 599.8 438.5" fill="none" stroke="#3c5f28" stroke-width="16" stroke-linecap="round" opacity="0.72" />
+    <circle cx="599.8" cy="438.5" r="45.9" fill="#5f9638" />
+    <circle cx="575" cy="446.8" r="31.2" fill="#8dc853" />
+    <circle cx="623.7" cy="448.6" r="26.6" fill="#effbc6" opacity="0.9" />
+    <path d="M 847.6 611.4 C 837.6 532.3 857.6 444.5 847.6 391.8" fill="none" stroke="#3c5f28" stroke-width="16" stroke-linecap="round" opacity="0.72" />
+    <circle cx="847.6" cy="391.8" r="59.9" fill="#5f9638" />
+    <circle cx="815.3" cy="402.6" r="40.7" fill="#8dc853" />
+    <circle cx="878.7" cy="405" r="34.7" fill="#effbc6" opacity="0.9" />
+    <path d="M 908.9 671.7527656802907 C 898.9 623.7 918.9 570.2 908.9 538.2" fill="none" stroke="#3c5f28" stroke-width="16" stroke-linecap="round" opacity="0.72" />
+    <circle cx="908.9" cy="538.2" r="48" fill="#5f9638" />
+    <circle cx="883" cy="546.8" r="32.6" fill="#8dc853" />
+    <circle cx="933.9" cy="548.8" r="27.8" fill="#effbc6" opacity="0.9" />
+  </g>
+  <polygon points="640,240 1194.3,560 1194.3,1200 640,1520 85.7,1200 85.7,560" fill="none" stroke="#3c5f28" stroke-opacity="0.16" stroke-width="10" />
+  <path d="M96 1236 Q640 1560 1184 1236" fill="none" stroke="#f4fbcc" stroke-opacity="0.16" stroke-width="18" />
+  <path d="M160 1216 Q640 1468 1120 1216" fill="none" stroke="#23361a" stroke-opacity="0.14" stroke-width="10" />
+</svg>

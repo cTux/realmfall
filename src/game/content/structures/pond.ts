@@ -20,6 +20,7 @@ export const pondStructureConfig: StructureConfig = {
   functionsProvided: ['fish'],
   appearanceChanceByTerrain: {
     swamp: 0.81,
+    tundra: 0.82,
   },
   gathering: {
     actionLabel: structureActionLabel('pond'),

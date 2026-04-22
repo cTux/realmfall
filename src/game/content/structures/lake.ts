@@ -20,6 +20,8 @@ export const lakeStructureConfig: StructureConfig = {
   functionsProvided: ['fish'],
   appearanceChanceByTerrain: {
     plains: 0.79,
+    tundra: 0.78,
+    highlands: 0.74,
   },
   gathering: {
     actionLabel: structureActionLabel('lake'),

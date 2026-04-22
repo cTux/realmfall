@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 1760" width="1280" height="1760">
+<defs>
+  <clipPath id="desert-b-clip-top">
+    <polygon points="640,240 1194.3,560 1194.3,1200 640,1520 85.7,1200 85.7,560" />
+  </clipPath>
+  <linearGradient id="desert-b-top-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#ffd863" />
+    <stop offset="58%" stop-color="#f6ba2a" />
+    <stop offset="100%" stop-color="#d88c10" />
+  </linearGradient>
+  <linearGradient id="desert-b-left-face" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#d98b32" />
+    <stop offset="100%" stop-color="#8b4e1d" />
+  </linearGradient>
+  <linearGradient id="desert-b-right-face" x1="100%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#d98b32" />
+    <stop offset="100%" stop-color="#8b4e1d" />
+  </linearGradient>
+  <linearGradient id="desert-b-front-face" x1="50%" y1="0%" x2="50%" y2="100%">
+    <stop offset="0%" stop-color="#d98b32" />
+    <stop offset="100%" stop-color="#8b4e1d" />
+  </linearGradient>
+  <filter id="desert-b-platform-shadow" x="-20%" y="-20%" width="140%" height="190%">
+    <feDropShadow dx="0" dy="22" stdDeviation="22" flood-color="#5f2f11" flood-opacity="0.42" />
+  </filter>
+  <filter id="desert-b-overhang-shadow" x="-30%" y="-30%" width="160%" height="220%">
+    <feDropShadow dx="0" dy="30" stdDeviation="24" flood-color="#5f2f11" flood-opacity="0.5" />
+  </filter>
+
+</defs>
+  <ellipse cx="640" cy="1676" rx="396" ry="70" fill="#5f2f11" opacity="0.18" />
+  <g filter="url(#desert-b-platform-shadow)">
+    <polygon points="85.7,1200 640,1520 640,1680 0,1360" fill="url(#desert-b-left-face)" opacity="0.98" />
+    <polygon points="640,1520 1194.3,1200 1280,1360 640,1680" fill="url(#desert-b-right-face)" opacity="0.98" />
+    <polygon points="224.3,1280 640,1520 1055.7,1280 1055.7,1440 640,1680 224.3,1440" fill="url(#desert-b-front-face)" opacity="0.94" />
+  </g>
+  <g clip-path="url(#desert-b-clip-top)">
+    <polygon points="640,240 1194.3,560 1194.3,1200 640,1520 85.7,1200 85.7,560" fill="url(#desert-b-top-gradient)" />
+    <ellipse cx="677.7" cy="610.2" rx="126.2" ry="41.8" fill="#9f5e11" opacity="0.062" transform="rotate(-10.4 677.7 610.2)" />
+    <ellipse cx="1136.5" cy="455" rx="114.7" ry="29.7" fill="#ffe9a8" opacity="0.048" transform="rotate(-32.7 1136.5 455)" />
+    <ellipse cx="1088.4" cy="845.3" rx="148.1" ry="34.3" fill="#ffe9a8" opacity="0.069" transform="rotate(8 1088.4 845.3)" />
+    <ellipse cx="548" cy="719.7" rx="55.9" ry="16.5" fill="#ffe9a8" opacity="0.073" transform="rotate(25.1 548 719.7)" />
+    <ellipse cx="976.2" cy="1212.2" rx="77.2" ry="30" fill="#ffe9a8" opacity="0.101" transform="rotate(-27.9 976.2 1212.2)" />
+    <ellipse cx="207.8" cy="1368.3" rx="83.6" ry="20.2" fill="#9f5e11" opacity="0.049" transform="rotate(17.5 207.8 1368.3)" />
+    <ellipse cx="345.2" cy="1135.2" rx="107.8" ry="26.1" fill="#9f5e11" opacity="0.11" transform="rotate(-4.3 345.2 1135.2)" />
+    <ellipse cx="427.5" cy="436.8" rx="143" ry="18.7" fill="#9f5e11" opacity="0.08" transform="rotate(26.3 427.5 436.8)" />
+    <ellipse cx="815.2" cy="665.4" rx="84.6" ry="35.4" fill="#9f5e11" opacity="0.101" transform="rotate(4.7 815.2 665.4)" />
+    <ellipse cx="689.9" cy="669" rx="146.1" ry="36.2" fill="#9f5e11" opacity="0.079" transform="rotate(-25.5 689.9 669)" />
+    <ellipse cx="1068.6" cy="441.9" rx="88.1" ry="33.5" fill="#9f5e11" opacity="0.045" transform="rotate(15.1 1068.6 441.9)" />
+    <ellipse cx="148" cy="1101.7" rx="115.5" ry="29.2" fill="#ffe9a8" opacity="0.073" transform="rotate(22.1 148 1101.7)" />
+    <circle cx="227.7" cy="547" r="14.9" fill="#9f5e11" opacity="0.088" />
+    <circle cx="1126.5" cy="1172.1" r="9.9" fill="#9f5e11" opacity="0.089" />
+    <circle cx="852.4" cy="1065.6" r="13.5" fill="#9f5e11" opacity="0.086" />
+    <circle cx="128.7" cy="1156.5" r="8.5" fill="#ffe9a8" opacity="0.174" />
+    <circle cx="591.3" cy="1104.3" r="9.1" fill="#ffe9a8" opacity="0.106" />
+    <circle cx="169.8" cy="1084.7" r="12.2" fill="#ffe9a8" opacity="0.085" />
+    <circle cx="475.2" cy="1283.3" r="10.4" fill="#9f5e11" opacity="0.092" />
+    <circle cx="606.2" cy="934.1" r="7.1" fill="#9f5e11" opacity="0.102" />
+    <circle cx="976.5" cy="727.4" r="8.9" fill="#ffe9a8" opacity="0.15" />
+    <circle cx="834.1" cy="1316.4" r="12.6" fill="#9f5e11" opacity="0.109" />
+    <circle cx="211.6" cy="544" r="11.6" fill="#ffe9a8" opacity="0.147" />
+    <circle cx="685.9" cy="1342.4" r="15.7" fill="#9f5e11" opacity="0.179" />
+    <circle cx="279.7" cy="1055.2" r="8.8" fill="#9f5e11" opacity="0.157" />
+    <circle cx="411.9" cy="929.1" r="9.5" fill="#ffe9a8" opacity="0.127" />
+    <circle cx="124.7" cy="456.3" r="11.8" fill="#ffe9a8" opacity="0.125" />
+    <circle cx="425.7" cy="566.2" r="13.5" fill="#9f5e11" opacity="0.179" />
+    <path d="M 472.2 1235.3 Q 571.8 1157.6 671.4 1235.3" fill="none" stroke="#ffe9a8" stroke-opacity="0.32" stroke-width="28" stroke-linecap="round" />
+    <path d="M 921.7 759.3 Q 1020.4 684.3 1119.1 759.3" fill="none" stroke="#ffe9a8" stroke-opacity="0.32" stroke-width="28" stroke-linecap="round" />
+    <path d="M 606.7 1051.7 Q 682.5 974.3 758.2 1051.7" fill="none" stroke="#ffe9a8" stroke-opacity="0.32" stroke-width="28" stroke-linecap="round" />
+    <path d="M 339.1 774.8 Q 447.6 707.8 556 774.8" fill="none" stroke="#ffe9a8" stroke-opacity="0.32" stroke-width="28" stroke-linecap="round" />
+    <path d="M 937.2 1197.9 Q 1030.2 1148.6 1123.1 1197.9" fill="none" stroke="#ffe9a8" stroke-opacity="0.32" stroke-width="28" stroke-linecap="round" />
+    <path d="M 731.1 807.9 Q 815.8 738.3 900.4 807.9" fill="none" stroke="#ffe9a8" stroke-opacity="0.32" stroke-width="28" stroke-linecap="round" />
+    <path d="M 352.5 646.3 Q 489.5 572.4 626.5 646.3" fill="none" stroke="#ffe9a8" stroke-opacity="0.32" stroke-width="28" stroke-linecap="round" />
+    <path d="M 142.4 770.6 Q 640 726 1044.8 770.6" fill="none" stroke="#fff0c7" stroke-opacity="0.074" stroke-width="22" stroke-linecap="round" />
+    <path d="M 154.7 886.4 Q 640 815.4 1066.6 886.4" fill="none" stroke="#fff0c7" stroke-opacity="0.068" stroke-width="22" stroke-linecap="round" />
+    <path d="M 123.3 1154.4 Q 640 1102.9 1041.1 1154.4" fill="none" stroke="#fff0c7" stroke-opacity="0.06" stroke-width="22" stroke-linecap="round" />
+    <path d="M 112.4 709.1 Q 640 650.1 1193.4 709.1" fill="none" stroke="#fff0c7" stroke-opacity="0.081" stroke-width="22" stroke-linecap="round" />
+  </g>
+  <g filter="url(#desert-b-overhang-shadow)">
+    <polygon points="273.5,847 339.7,608.8 441.3,627.9 494.4,847" fill="#d88c10" />
+    <polygon points="273.5,847 344.1,608.8 383.9,804.1" fill="#f6ba2a" opacity="0.84" />
+    <path d="M 322 632.6 L 428.1 632.6" fill="none" stroke="#ffe9a8" stroke-opacity="0.4" stroke-width="12" stroke-linecap="round" />
+    <path d="M 375.1 954 L 375.1 797.9" fill="none" stroke="#9f5e11" stroke-width="18" stroke-linecap="round" />
+    <path d="M 375.1 866.6 L 337.1 835.4" fill="none" stroke="#9f5e11" stroke-width="14" stroke-linecap="round" />
+    <path d="M 375.1 888.4 L 409.1 860.3" fill="none" stroke="#9f5e11" stroke-width="14" stroke-linecap="round" />
+    <path d="M 375.1 954 L 375.1 797.9" fill="none" stroke="#f6ba2a" stroke-width="12" stroke-linecap="round" opacity="0.94" />
+    <path d="M 375.1 866.6 L 337.1 835.4" fill="none" stroke="#f6ba2a" stroke-width="9" stroke-linecap="round" opacity="0.92" />
+    <path d="M 375.1 888.4 L 409.1 860.3" fill="none" stroke="#f6ba2a" stroke-width="9" stroke-linecap="round" opacity="0.92" />
+    <circle cx="375.1" cy="797.9" r="8.2" fill="#ffe9a8" opacity="0.7" />
+    <polygon points="579.7,709.6 661.6,480.7 787.2,499 852.7,709.6" fill="#d88c10" />
+    <polygon points="579.7,709.6 667.1,480.7 716.2,668.4" fill="#f6ba2a" opacity="0.84" />
+    <path d="M 639.8 503.6 L 770.8 503.6" fill="none" stroke="#ffe9a8" stroke-opacity="0.4" stroke-width="12" stroke-linecap="round" />
+    <path d="M 724 804.2 L 724 661.2" fill="none" stroke="#9f5e11" stroke-width="18" stroke-linecap="round" />
+    <path d="M 724 724.1 L 686 695.5" fill="none" stroke="#9f5e11" stroke-width="14" stroke-linecap="round" />
+    <path d="M 724 744.1 L 758 718.4" fill="none" stroke="#9f5e11" stroke-width="14" stroke-linecap="round" />
+    <path d="M 724 804.2 L 724 661.2" fill="none" stroke="#f6ba2a" stroke-width="12" stroke-linecap="round" opacity="0.94" />
+    <path d="M 724 724.1 L 686 695.5" fill="none" stroke="#f6ba2a" stroke-width="9" stroke-linecap="round" opacity="0.92" />
+    <path d="M 724 744.1 L 758 718.4" fill="none" stroke="#f6ba2a" stroke-width="9" stroke-linecap="round" opacity="0.92" />
+    <circle cx="724" cy="661.2" r="8" fill="#ffe9a8" opacity="0.7" />
+  </g>
+  <polygon points="640,240 1194.3,560 1194.3,1200 640,1520 85.7,1200 85.7,560" fill="none" stroke="#9f5e11" stroke-opacity="0.16" stroke-width="10" />
+  <path d="M96 1236 Q640 1560 1184 1236" fill="none" stroke="#fff0c7" stroke-opacity="0.16" stroke-width="18" />
+  <path d="M160 1216 Q640 1468 1120 1216" fill="none" stroke="#5f2f11" stroke-opacity="0.14" stroke-width="10" />
+</svg>

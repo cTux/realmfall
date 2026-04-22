@@ -21,6 +21,8 @@ export const platinumOreStructureConfig: StructureConfig = {
   appearanceChanceByTerrain: {
     swamp: 0.84,
     desert: 0.845,
+    tundra: 0.89,
+    highlands: 0.84,
   },
   gathering: {
     actionLabel: structureActionLabel('platinum-ore'),

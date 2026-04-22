@@ -21,6 +21,8 @@ export const tinOreStructureConfig: StructureConfig = {
   appearanceChanceByTerrain: {
     plains: 0.86,
     forest: 0.845,
+    highlands: 0.9,
+    tundra: 0.94,
   },
   gathering: {
     actionLabel: structureActionLabel('tin-ore'),

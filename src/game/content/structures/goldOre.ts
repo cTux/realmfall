@@ -20,6 +20,8 @@ export const goldOreStructureConfig: StructureConfig = {
   functionsProvided: ['mine-gold'],
   appearanceChanceByTerrain: {
     desert: 0.855,
+    badlands: 0.88,
+    highlands: 0.87,
   },
   gathering: {
     actionLabel: structureActionLabel('gold-ore'),

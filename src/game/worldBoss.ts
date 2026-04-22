@@ -1,7 +1,7 @@
 import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
-import { pickTerrainFromChanceMap } from './config';
 import type { Terrain } from './types';
 import { noise } from './shared';
+import { pickWorldTerrain } from './worldTerrain';
 
 const WORLD_BOSS_MIN_DISTANCE = 4;
 const WORLD_BOSS_SPAWN_THRESHOLD = 0.5;
@@ -79,5 +79,5 @@ function worldBossScore(seed: string, coord: HexCoord) {
 }
 
 function pickWorldBossTerrain(seed: string, coord: HexCoord): Terrain {
-  return pickTerrainFromChanceMap(noise(seed, coord));
+  return pickWorldTerrain(seed, coord);
 }

@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 1760" width="1280" height="1760">
+<defs>
+  <clipPath id="rift-b-clip-top">
+    <polygon points="640,240 1194.3,560 1194.3,1200 640,1520 85.7,1200 85.7,560" />
+  </clipPath>
+  <linearGradient id="rift-b-top-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#7e8b98" />
+    <stop offset="58%" stop-color="#46525f" />
+    <stop offset="100%" stop-color="#222831" />
+  </linearGradient>
+  <linearGradient id="rift-b-left-face" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#7b3324" />
+    <stop offset="100%" stop-color="#3b0f11" />
+  </linearGradient>
+  <linearGradient id="rift-b-right-face" x1="100%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#7b3324" />
+    <stop offset="100%" stop-color="#3b0f11" />
+  </linearGradient>
+  <linearGradient id="rift-b-front-face" x1="50%" y1="0%" x2="50%" y2="100%">
+    <stop offset="0%" stop-color="#7b3324" />
+    <stop offset="100%" stop-color="#3b0f11" />
+  </linearGradient>
+  <filter id="rift-b-platform-shadow" x="-20%" y="-20%" width="140%" height="190%">
+    <feDropShadow dx="0" dy="22" stdDeviation="22" flood-color="#08090c" flood-opacity="0.42" />
+  </filter>
+  <filter id="rift-b-overhang-shadow" x="-30%" y="-30%" width="160%" height="220%">
+    <feDropShadow dx="0" dy="30" stdDeviation="24" flood-color="#08090c" flood-opacity="0.5" />
+  </filter>
+
+</defs>
+  <ellipse cx="640" cy="1676" rx="396" ry="70" fill="#08090c" opacity="0.18" />
+  <g filter="url(#rift-b-platform-shadow)">
+    <polygon points="85.7,1200 640,1520 640,1680 0,1360" fill="url(#rift-b-left-face)" opacity="0.98" />
+    <polygon points="640,1520 1194.3,1200 1280,1360 640,1680" fill="url(#rift-b-right-face)" opacity="0.98" />
+    <polygon points="224.3,1280 640,1520 1055.7,1280 1055.7,1440 640,1680 224.3,1440" fill="url(#rift-b-front-face)" opacity="0.94" />
+  </g>
+  <g clip-path="url(#rift-b-clip-top)">
+    <polygon points="640,240 1194.3,560 1194.3,1200 640,1520 85.7,1200 85.7,560" fill="url(#rift-b-top-gradient)" />
+    <ellipse cx="337" cy="435.5" rx="126.7" ry="38.9" fill="#0f1218" opacity="0.096" transform="rotate(-17.7 337 435.5)" />
+    <ellipse cx="511.8" cy="433.4" rx="82.6" ry="41.7" fill="#ff9b5b" opacity="0.077" transform="rotate(30.4 511.8 433.4)" />
+    <ellipse cx="635.3" cy="1063" rx="66" ry="38.8" fill="#0f1218" opacity="0.041" transform="rotate(-27.3 635.3 1063)" />
+    <ellipse cx="265.8" cy="685.8" rx="84.2" ry="20.7" fill="#0f1218" opacity="0.054" transform="rotate(25.6 265.8 685.8)" />
+    <ellipse cx="464.1" cy="972" rx="129.6" ry="43.5" fill="#ff9b5b" opacity="0.047" transform="rotate(-25.2 464.1 972)" />
+    <ellipse cx="928.7" cy="1097.5" rx="144.8" ry="21" fill="#ff9b5b" opacity="0.067" transform="rotate(2.4 928.7 1097.5)" />
+    <ellipse cx="378.8" cy="504.4" rx="121.2" ry="39.6" fill="#0f1218" opacity="0.049" transform="rotate(-3.8 378.8 504.4)" />
+    <ellipse cx="174.5" cy="716.8" rx="90.2" ry="32.4" fill="#ff9b5b" opacity="0.042" transform="rotate(10.4 174.5 716.8)" />
+    <ellipse cx="580.2" cy="659.5" rx="59.5" ry="36" fill="#ff9b5b" opacity="0.076" transform="rotate(13.7 580.2 659.5)" />
+    <ellipse cx="965.2" cy="1162.5" rx="103.8" ry="31.1" fill="#ff9b5b" opacity="0.048" transform="rotate(14.1 965.2 1162.5)" />
+    <ellipse cx="992.6" cy="788.3" rx="87.2" ry="34.2" fill="#ff9b5b" opacity="0.112" transform="rotate(2.7 992.6 788.3)" />
+    <ellipse cx="269.5" cy="596.8" rx="102.4" ry="18.9" fill="#ff9b5b" opacity="0.094" transform="rotate(-30 269.5 596.8)" />
+    <circle cx="193.4" cy="661" r="13.5" fill="#0f1218" opacity="0.098" />
+    <circle cx="176.8" cy="1141.8" r="10.4" fill="#0f1218" opacity="0.093" />
+    <circle cx="403.8" cy="1380.7" r="14.2" fill="#0f1218" opacity="0.137" />
+    <circle cx="872.6" cy="687.4" r="10.5" fill="#ff9b5b" opacity="0.083" />
+    <circle cx="648.3" cy="556.7" r="11.6" fill="#ff9b5b" opacity="0.119" />
+    <circle cx="424.3" cy="753.4" r="10.6" fill="#0f1218" opacity="0.155" />
+    <circle cx="1032.9" cy="1065.2" r="8.1" fill="#ff9b5b" opacity="0.105" />
+    <circle cx="258.4" cy="1054.7" r="14.3" fill="#0f1218" opacity="0.126" />
+    <circle cx="1009.6" cy="1356.6" r="10.2" fill="#ff9b5b" opacity="0.174" />
+    <circle cx="203.8" cy="658.2" r="9.7" fill="#0f1218" opacity="0.094" />
+    <circle cx="189.2" cy="985.9" r="12.2" fill="#ff9b5b" opacity="0.105" />
+    <circle cx="652.8" cy="840.4" r="6.4" fill="#0f1218" opacity="0.129" />
+    <circle cx="171.3" cy="830.5" r="15.9" fill="#0f1218" opacity="0.093" />
+    <circle cx="770.4" cy="788.9" r="13" fill="#0f1218" opacity="0.129" />
+    <circle cx="808.2" cy="579.9" r="14.9" fill="#ff9b5b" opacity="0.08" />
+    <circle cx="584.9" cy="1015.3" r="7.2" fill="#0f1218" opacity="0.113" />
+    <path d="M 140 920 Q 320 760 468 806 T 786 730 T 1140 884" fill="none" stroke="#f97316" stroke-opacity="0.54" stroke-width="58" stroke-linecap="round" />
+    <path d="M 140 920 Q 320 760 468 806 T 786 730 T 1140 884" fill="none" stroke="#0f1218" stroke-width="28" stroke-linecap="round" />
+    <circle cx="911.8" cy="946.2" r="35.4" fill="#f97316" opacity="0.092" />
+    <circle cx="195.8" cy="1121" r="35.8" fill="#f97316" opacity="0.084" />
+    <circle cx="557.6" cy="744.3" r="34" fill="#f97316" opacity="0.096" />
+    <circle cx="1068.9" cy="1157" r="21.4" fill="#f97316" opacity="0.096" />
+    <circle cx="1011.2" cy="972.7" r="23.2" fill="#f97316" opacity="0.179" />
+    <circle cx="428.9" cy="1077.7" r="23.6" fill="#f97316" opacity="0.138" />
+    <circle cx="521.1" cy="1035.7" r="34.7" fill="#f97316" opacity="0.13" />
+    <path d="M 119 553 Q 640 498.3 1072.3 553" fill="none" stroke="#f97316" stroke-opacity="0.074" stroke-width="22" stroke-linecap="round" />
+    <path d="M 121.2 625.7 Q 640 576.9 1109.3 625.7" fill="none" stroke="#f97316" stroke-opacity="0.087" stroke-width="22" stroke-linecap="round" />
+    <path d="M 117.5 718.2 Q 640 641.4 1120.6 718.2" fill="none" stroke="#f97316" stroke-opacity="0.052" stroke-width="22" stroke-linecap="round" />
+    <path d="M 88.7 659.2 Q 640 610.6 1152.4 659.2" fill="none" stroke="#f97316" stroke-opacity="0.073" stroke-width="22" stroke-linecap="round" />
+  </g>
+  <g filter="url(#rift-b-overhang-shadow)">
+    <polygon points="110.7,559.2 217.6,234 324.5,559.2 243.3,461.6 185.5,500.7" fill="#222831" />
+    <polygon points="217.6,234 241.1,474.6 196.2,507.2" fill="#ff9b5b" opacity="0.92" />
+    <polygon points="206.9,338.1 253.9,500.7 215.5,539.7" fill="#f97316" opacity="0.64" />
+    <polygon points="305.2,804.8 396.6,547.7 488,804.8 418.5,727.7 369.2,758.5" fill="#222831" />
+    <polygon points="396.6,547.7 416.7,738 378.3,763.7" fill="#ff9b5b" opacity="0.92" />
+    <polygon points="387.5,630 427.7,758.5 394.8,789.4" fill="#f97316" opacity="0.64" />
+    <polygon points="533,682.7 609.8,406.9 686.6,682.7 628.2,600 586.8,633.1" fill="#222831" />
+    <polygon points="609.8,406.9 626.7,611 594.4,638.6" fill="#ff9b5b" opacity="0.92" />
+    <polygon points="602.1,495.2 635.9,633.1 608.3,666.2" fill="#f97316" opacity="0.64" />
+    <polygon points="705.6,772.7 770.7,501.5 835.8,772.7 786.3,691.3 751.2,723.9" fill="#222831" />
+    <polygon points="770.7,501.5 785,702.2 757.7,729.3" fill="#ff9b5b" opacity="0.92" />
+    <polygon points="764.2,588.3 792.8,723.9 769.4,756.4" fill="#f97316" opacity="0.64" />
+    <polygon points="910.9,603.1 1005,223.3 1099.1,603.1 1027.6,489.2 976.8,534.7" fill="#222831" />
+    <polygon points="1005,223.3 1025.7,504.4 986.2,542.3" fill="#ff9b5b" opacity="0.92" />
+    <polygon points="995.6,344.8 1037,534.7 1003.1,580.3" fill="#f97316" opacity="0.64" />
+  </g>
+  <polygon points="640,240 1194.3,560 1194.3,1200 640,1520 85.7,1200 85.7,560" fill="none" stroke="#0f1218" stroke-opacity="0.16" stroke-width="10" />
+  <path d="M96 1236 Q640 1560 1184 1236" fill="none" stroke="#f97316" stroke-opacity="0.16" stroke-width="18" />
+  <path d="M160 1216 Q640 1468 1120 1216" fill="none" stroke="#08090c" stroke-opacity="0.14" stroke-width="10" />
+</svg>

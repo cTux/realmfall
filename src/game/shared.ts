@@ -24,7 +24,15 @@ export function itemId(kind: string, coord: HexCoord, seed: string) {
 
 export function terrainTier(coord: HexCoord, terrain: Terrain) {
   const distance = Math.floor(hexDistance(coord, { q: 0, r: 0 }) / 4);
-  const terrainBonus = terrain === 'mountain' ? 2 : terrain === 'swamp' ? 1 : 0;
+  const terrainBonus =
+    terrain === 'mountain'
+      ? 2
+      : terrain === 'swamp' ||
+          terrain === 'tundra' ||
+          terrain === 'highlands' ||
+          terrain === 'badlands'
+        ? 1
+        : 0;
   return 1 + distance + terrainBonus;
 }
 

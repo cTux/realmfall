@@ -3,6 +3,7 @@ import { getVisibleTiles } from '../../game/stateSelectors';
 import {
   collectDescendants,
   createMockApp,
+  getTerrainLayer,
   getWorld,
   MockGraphics,
   MockSprite,
@@ -250,12 +251,15 @@ describe('renderScene interactions', () => {
 
     const desertTerrainSprites = collectDescendants(getWorld(app)).filter(
       (child): child is MockSprite =>
-        child instanceof MockSprite && child.icon === terrainArtFor('desert'),
+        child instanceof MockSprite &&
+        child.icon === terrainArtFor('desert', { q: 1, r: 0 }),
     );
 
     expect(desertTerrainSprites.length).toBeGreaterThan(0);
     expect(desertTerrainSprites[0]?.width).toBeGreaterThan(0);
-    expect(desertTerrainSprites[0]?.height).toBeGreaterThan(0);
+    expect(desertTerrainSprites[0]?.height).toBeGreaterThan(
+      desertTerrainSprites[0]?.width ?? 0,
+    );
   });
 
   it('skips terrain background sprites when the graphics setting disables them', async () => {
@@ -284,10 +288,60 @@ describe('renderScene interactions', () => {
 
     const desertTerrainSprites = collectDescendants(getWorld(app)).filter(
       (child): child is MockSprite =>
-        child instanceof MockSprite && child.icon === terrainArtFor('desert'),
+        child instanceof MockSprite &&
+        child.icon === terrainArtFor('desert', { q: 1, r: 0 }),
     );
 
     expect(desertTerrainSprites).toHaveLength(0);
+  });
+
+  it('sorts terrain sprites by screen row so lower hex art overlaps higher rows', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { terrainArtFor } = await import('./worldTerrainArt');
+    const game = createGame(2, 'render-scene-terrain-overlap-order');
+    game.tiles['0,-1'] = {
+      coord: { q: 0, r: -1 },
+      terrain: 'mountain',
+      items: [],
+      enemyIds: [],
+    };
+    game.tiles['0,1'] = {
+      coord: { q: 0, r: 1 },
+      terrain: 'forest',
+      items: [],
+      enemyIds: [],
+    };
+    const app = createMockApp();
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    const terrainLayer = getTerrainLayer(app);
+    const mountainSprite = terrainLayer.children.find(
+      (child): child is MockSprite =>
+        child instanceof MockSprite &&
+        child.icon === terrainArtFor('mountain', { q: 0, r: -1 }),
+    );
+    const forestSprite = terrainLayer.children.find(
+      (child): child is MockSprite =>
+        child instanceof MockSprite &&
+        child.icon === terrainArtFor('forest', { q: 0, r: 1 }),
+    );
+
+    expect(mountainSprite).toBeDefined();
+    expect(forestSprite).toBeDefined();
+    expect((forestSprite?.zIndex ?? 0) > (mountainSprite?.zIndex ?? 0)).toBe(
+      true,
+    );
+    expect(terrainLayer.children.indexOf(forestSprite!)).toBeGreaterThan(
+      terrainLayer.children.indexOf(mountainSprite!),
+    );
   });
 
   it('keeps structure icons visible when terrain backgrounds are disabled', async () => {

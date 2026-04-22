@@ -21,6 +21,8 @@ export const copperOreStructureConfig: StructureConfig = {
   appearanceChanceByTerrain: {
     plains: 0.84,
     desert: 0.84,
+    badlands: 0.8,
+    highlands: 0.82,
   },
   gathering: {
     actionLabel: structureActionLabel('copper-ore'),
