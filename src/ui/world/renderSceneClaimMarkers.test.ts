@@ -52,7 +52,7 @@ describe('renderScene claim markers', () => {
     const markerChildren = markerWrappers[0].children as Array<{
       icon: string;
     }>;
-    expect(markerChildren.length).toBe(5);
+    expect(markerChildren.length).toBe(6);
     expect(
       markerChildren.every((sprite) => sprite.icon === WorldIcons.Village),
     ).toBe(true);
@@ -102,7 +102,7 @@ describe('renderScene claim markers', () => {
     const markerChildren = markerWrappers[0].children as Array<{
       icon: string;
     }>;
-    expect(markerChildren.length).toBe(5);
+    expect(markerChildren.length).toBe(6);
     expect(
       markerChildren.every((sprite) => sprite.icon === WorldIcons.Castle),
     ).toBe(true);
