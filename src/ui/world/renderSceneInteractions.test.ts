@@ -5,6 +5,7 @@ import {
   createMockApp,
   getWorld,
   MockGraphics,
+  MockSprite,
   setupRenderSceneTestEnvironment,
 } from './renderSceneTestHelpers';
 
@@ -224,6 +225,37 @@ describe('renderScene interactions', () => {
     );
 
     expect(safePathTint).toHaveLength(2);
+  });
+
+  it('renders a terrain background sprite for revealed biome tiles', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { terrainArtFor } = await import('./worldTerrainArt');
+    const game = createGame(2, 'render-scene-terrain-background');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'desert',
+      items: [],
+      enemyIds: [],
+    };
+    const app = createMockApp();
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    const desertTerrainSprites = collectDescendants(getWorld(app)).filter(
+      (child): child is MockSprite =>
+        child instanceof MockSprite && child.icon === terrainArtFor('desert'),
+    );
+
+    expect(desertTerrainSprites.length).toBeGreaterThan(0);
+    expect(desertTerrainSprites[0]?.width).toBeGreaterThan(0);
+    expect(desertTerrainSprites[0]?.height).toBeGreaterThan(0);
   });
 
   it('keeps claim borders visible above hovered safe-path overlays', async () => {

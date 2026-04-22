@@ -48,8 +48,10 @@ import {
   tileStyle,
 } from './renderSceneEnvironment';
 import {
+  configureMaskedSprite,
   configureShadowedSprite,
   takeGraphics,
+  takeMaskedSprite,
   takeShadowedSprite,
   takeText,
 } from './renderScenePools';
@@ -58,6 +60,7 @@ import {
   createAnimatedWorldMarker,
   type WorldMarkerAnimationKind,
 } from './renderSceneMarkerAnimations';
+import { terrainArtFor } from './worldTerrainArt';
 import {
   updateWorldMapFishEyeFilter,
   WORLD_MAP_FISHEYE_ENABLED,
@@ -108,6 +111,8 @@ export function renderScene(
   const enemyIconSize = hexSize * 0.945;
   const worldBossIconSize = hexSize * 3.4;
   const playerIconSize = hexSize * 1.58;
+  const terrainArtSize = hexSize * 2;
+  const terrainArtMask = makeHex(0, 0, Math.max(1, hexSize - 0.5));
 
   if (WORLD_MAP_FISHEYE_ENABLED) {
     scene.worldMapFilterArea.width = app.screen.width;
@@ -249,6 +254,20 @@ export function renderScene(
       }
 
       if (shouldRenderStatic) {
+        const terrainSprite = takeMaskedSprite(
+          scene.worldTerrainSprites,
+          terrainArtFor(tile.terrain),
+        );
+        configureMaskedSprite(
+          terrainSprite,
+          0xffffff,
+          terrainArtSize,
+          terrainArtSize,
+          emphasized ? 0.84 : 0.76,
+          point,
+          terrainArtMask,
+        );
+
         const enemies = getEnemiesAt(state, tile.coord);
 
         if (!isPlayerTile) {

@@ -31,6 +31,18 @@ export interface SpritePool {
   usedByIcon: Map<string, number>;
 }
 
+export interface MaskedSpriteEntry {
+  mask: Graphics;
+  sprite: Sprite;
+  wrapper: Container;
+}
+
+export interface MaskedSpritePool {
+  parent: Container;
+  itemsByIcon: Map<string, MaskedSpriteEntry[]>;
+  usedByIcon: Map<string, number>;
+}
+
 export function createGraphicsPool(parent: Container): GraphicsPool {
   return { parent, items: [], used: 0 };
 }
@@ -131,7 +143,15 @@ export function createSpritePool(parent: Container): SpritePool {
   return { parent, itemsByIcon: new Map(), usedByIcon: new Map() };
 }
 
+export function createMaskedSpritePool(parent: Container): MaskedSpritePool {
+  return { parent, itemsByIcon: new Map(), usedByIcon: new Map() };
+}
+
 export function resetSpritePool(pool: SpritePool) {
+  pool.usedByIcon.clear();
+}
+
+export function resetMaskedSpritePool(pool: MaskedSpritePool) {
   pool.usedByIcon.clear();
 }
 
@@ -155,11 +175,40 @@ export function takeSprite(pool: SpritePool, icon: string) {
   return item;
 }
 
+export function takeMaskedSprite(pool: MaskedSpritePool, icon: string) {
+  const items = pool.itemsByIcon.get(icon) ?? [];
+  const used = pool.usedByIcon.get(icon) ?? 0;
+  const texture = getWorldIconTexture(icon, { allowPending: true });
+
+  let item = items[used];
+  if (!item) {
+    item = createMaskedSprite(icon);
+    items.push(item);
+    pool.itemsByIcon.set(icon, items);
+    pool.parent.addChild(item.wrapper);
+  }
+
+  item.sprite.texture = texture;
+  item.wrapper.visible = true;
+  pool.usedByIcon.set(icon, used + 1);
+  return item;
+}
+
 export function finishSpritePool(pool: SpritePool) {
   pool.itemsByIcon.forEach((items, icon) => {
     const used = pool.usedByIcon.get(icon) ?? 0;
     for (let index = used; index < items.length; index += 1) {
       items[index].visible = false;
+    }
+  });
+}
+
+export function finishMaskedSpritePool(pool: MaskedSpritePool) {
+  pool.itemsByIcon.forEach((items, icon) => {
+    const used = pool.usedByIcon.get(icon) ?? 0;
+    for (let index = used; index < items.length; index += 1) {
+      items[index].wrapper.visible = false;
+      items[index].mask.clear();
     }
   });
 }
@@ -178,6 +227,17 @@ export function createShadowedSprite(icon: string): ShadowedSpriteEntry {
   sprite.anchor.set(0.5);
   wrapper.addChild(sprite);
   return { wrapper, shadows, sprite };
+}
+
+export function createMaskedSprite(icon: string): MaskedSpriteEntry {
+  const wrapper = new Container();
+  const sprite = new Sprite(getWorldIconTexture(icon, { allowPending: true }));
+  sprite.anchor.set(0.5);
+  const mask = new Graphics();
+  mask.renderable = false;
+  sprite.mask = mask;
+  wrapper.addChild(sprite, mask);
+  return { mask, sprite, wrapper };
 }
 
 export function configureShadowedSprite(
@@ -236,4 +296,31 @@ export function configureSprite(
   sprite.height = height;
   sprite.tint = tint;
   sprite.alpha = alpha;
+}
+
+export function configureMaskedSprite(
+  entry: MaskedSpriteEntry,
+  tint: number,
+  width: number,
+  height: number,
+  alpha: number,
+  point: { x: number; y: number },
+  maskPoints: number[],
+) {
+  entry.wrapper.visible = true;
+  entry.wrapper.position.set(point.x, point.y);
+  entry.wrapper.scale.set(1, 1);
+  entry.wrapper.rotation = 0;
+
+  entry.sprite.visible = true;
+  entry.sprite.position.set(0, 0);
+  entry.sprite.width = width;
+  entry.sprite.height = height;
+  entry.sprite.tint = tint;
+  entry.sprite.alpha = alpha;
+
+  entry.mask.visible = true;
+  entry.mask.renderable = false;
+  entry.mask.clear();
+  entry.mask.poly(maskPoints).fill({ color: 0xffffff, alpha: 1 });
 }

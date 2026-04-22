@@ -17,6 +17,7 @@ import type {
 } from '../../game/stateTypes';
 import { ImageSource, Texture } from 'pixi.js';
 import { RARITY_COLOR } from '../rarity';
+import { getWorldTerrainAssetIds, terrainArtFor } from './worldTerrainArt';
 
 const WORLD_ICON_BACKGROUND_WARMUP_BATCH_SIZE = 4;
 const WORLD_ICON_WARMUP_FALLBACK_SLICE_MS = 8;
@@ -66,6 +67,7 @@ export function getWorldIconAssetIds() {
   return Array.from(
     new Set([
       ...getCoreWorldIconAssetIds(),
+      ...getWorldTerrainAssetIds(),
       ...ENEMY_CONFIGS.map((config) => config.icon),
       ...STRUCTURE_CONFIGS.map((config) => config.icon),
     ]),
@@ -83,6 +85,8 @@ export function getVisibleWorldIconAssetIds(
   const iconAssetIds = new Set(getCoreWorldIconAssetIds());
 
   for (const tile of visibleTiles) {
+    iconAssetIds.add(terrainArtFor(tile.terrain));
+
     if (tile.structure) {
       iconAssetIds.add(
         tile.structure === 'town' && tile.claim?.ownerType === 'faction'
