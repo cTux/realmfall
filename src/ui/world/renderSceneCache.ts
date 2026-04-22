@@ -60,6 +60,7 @@ type CachedApplication = Application & { [SCENE_CACHE_KEY]?: SceneCache };
 export interface SceneCache {
   skyFill: Graphics;
   overlayFill: Graphics;
+  fullscreenEffectFill: Graphics;
   worldMap: Container;
   world: Container;
   waterfalls: Container;
@@ -162,7 +163,8 @@ export function getSceneCache(app: Application) {
   sky.addChild(skyFill);
 
   const overlayFill = new Graphics();
-  overlay.addChild(overlayFill);
+  const fullscreenEffectFill = new Graphics();
+  overlay.addChild(overlayFill, fullscreenEffectFill);
 
   const player = createShadowedSprite(WorldIcons.Player);
   worldPlayer.addChild(player.wrapper);
@@ -170,6 +172,7 @@ export function getSceneCache(app: Application) {
   const scene: SceneCache = {
     skyFill,
     overlayFill,
+    fullscreenEffectFill,
     worldMap,
     world,
     waterfalls,

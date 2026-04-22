@@ -60,6 +60,7 @@ import {
   createAnimatedWorldMarker,
   type WorldMarkerAnimationKind,
 } from './renderSceneMarkerAnimations';
+import { getFullscreenVisualEffectsState } from './renderSceneFullscreenEffects';
 import { terrainArtFor } from './worldTerrainArt';
 import {
   updateWorldMapFishEyeFilter,
@@ -128,7 +129,15 @@ export function renderScene(
   const screenChanged =
     scene.screenWidth !== app.screen.width ||
     scene.screenHeight !== app.screen.height;
-  const animatedRenderToken = getAnimatedRenderToken(state, animationMs);
+  const fullscreenVisualEffects = getFullscreenVisualEffectsState(
+    state,
+    animationMs,
+  );
+  const animatedRenderToken = getAnimatedRenderToken(
+    state,
+    animationMs,
+    fullscreenVisualEffects.renderToken,
+  );
   const shouldRenderAnimated =
     screenChanged || scene.animatedRenderToken !== animatedRenderToken;
   const renderTokens = getSceneRenderTokens(scene, state, visibleTiles);
@@ -552,6 +561,12 @@ export function renderScene(
       lightingState.lighting.overlayColor,
       lightingState.lighting.overlayAlpha,
     );
+    renderWorldOverlay(
+      app,
+      scene.fullscreenEffectFill,
+      fullscreenVisualEffects.overlay?.color ?? 0,
+      fullscreenVisualEffects.overlay?.alpha ?? 0,
+    );
     completeAnimatedSceneRender(scene);
     scene.animatedRenderToken = animatedRenderToken;
   }
@@ -657,11 +672,16 @@ function registerAnimatedWorldMarker(
   );
 }
 
-function getAnimatedRenderToken(state: GameState, animationMs: number) {
+function getAnimatedRenderToken(
+  state: GameState,
+  animationMs: number,
+  fullscreenVisualEffectToken: string,
+) {
   return [
     state.seed,
     state.bloodMoonActive ? 'blood' : 'normal',
     state.harvestMoonActive ? 'harvest' : 'default',
+    fullscreenVisualEffectToken,
     Math.floor(animationMs / ANIMATED_LAYER_FRAME_MS),
   ].join(':');
 }
