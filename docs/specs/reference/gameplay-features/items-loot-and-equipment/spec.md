@@ -21,6 +21,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - Gear-derived secondary bonuses now cap at `75%`, while raw totals are preserved for overcap display in the hero window.
 - Equipping can swap currently equipped gear back into inventory.
 - Two-handed weapons occupy the weapon slot, automatically clear the equipped offhand item back into inventory, and prevent equipping a new offhand item until the weapon is removed.
+- Inventory item activation routes through dedicated item-action mutations that decide whether to equip gear, learn a recipe page, or consume the item, while direct equip or unequip actions stay in the same focused state module.
 - A new game now starts with a `Town Knife` and `Settler Vest`; removed placeholder gear is not preserved through runtime display-name fallbacks.
 - The equipment window presents a silhouette-backed paper-doll layout where each slot is anchored near the matching body part and equipped items reuse the same icon-card treatment shown in inventory.
 - Inventory and ground-loot windows use a denser item-card treatment than the paper-doll equipment layout, with compact slots at roughly 60% of the prior compact footprint and icons sized to 90% of the slot box so larger item piles fit without pushing the window size upward.
@@ -29,6 +30,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - Food consumables restore HP and MP by percentage instead of flat values, using the item's healing rating as the restore percent with a minimum of `10%` for each resource while hunger and thirst remain flat restores.
 - Health potions and mana potions use vendored local SVG assets and restore `35%` of the corresponding max stat on use.
 - Consumables share a single `2s` cooldown lockout, and Home Scroll usage also starts that same shared consumable cooldown.
+- Consumable-use effects and cooldown application are resolved from the focused item-action mutation flow rather than from the broad gameplay state facade.
 - Loot can be taken item-by-item or collected from a tile in bulk.
 - World-generated weapons, armor, offhands, and artifacts scale by terrain tier and context, including generated shoulders, bracers, belts, shields, magical offhands, and one-handed or two-handed weapon archetypes.
 - World loot and blood moon bonus gear now choose their top-level item family from equal random buckets instead of weighted family chances, so weapons, armor, offhands, artifacts, and consumables do not skew toward accessory-heavy drops.
@@ -43,6 +45,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 ## Main Implementation Areas
 
 - `src/game/inventory.ts`
+- `src/game/stateItemActions.ts`
 - `src/game/world.ts`
 - `src/game/state.ts`
 - `src/game/stateRewards.ts`

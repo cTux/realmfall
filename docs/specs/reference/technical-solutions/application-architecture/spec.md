@@ -18,6 +18,7 @@ This spec covers the repository layer boundaries, state transition shape, and co
 - Read-only game creation lives in `src/game/stateFactory.ts`, read-only gameplay queries and config-backed selectors live in `src/game/stateSelectors.ts`, and shared gameplay types and registries live in `src/game/stateTypes.ts`, so UI and renderer code can avoid importing the broad mutation entrypoint when they do not need it.
 - Reusable world-query helpers such as tile lookup, claimed-tile lookup, and enemy lookup live in focused gameplay modules like `src/game/stateWorldQueries.ts`, while reward and event internals live in modules such as `src/game/stateRewards.ts` and `src/game/stateWorldEvents.ts`; `src/game/state.ts` re-exports or orchestrates those helpers so the public gameplay API can stay stable while the broad module surface is decomposed over time.
 - Inventory sorting, prospecting, town trading, tile-loot transfer, and item-lock mutations live in `src/game/stateInventoryActions.ts`, while shared clone/message helpers live in `src/game/stateMutationHelpers.ts`; `src/game/state.ts` re-exports those actions so callers keep the stable gameplay entrypoint.
+- Item activation, equip or unequip flows, recipe-page learning, consumable use, and consumable-cooldown mutation live in `src/game/stateItemActions.ts`; `src/game/state.ts` re-exports those actions so the public API stays stable while item behavior stays isolated from the broader state facade.
 - Home setting, territory claiming, and gather-structure interaction live in `src/game/stateWorldActions.ts`, while claim-status reads remain in `src/game/stateClaims.ts`; `src/game/state.ts` re-exports those actions so the state API can stay stable while world actions move out of the monolith.
 - Recipe-book selectors and craft-execution mutations live in `src/game/stateCrafting.ts`; `src/game/state.ts` re-exports those helpers so recipe flows stay isolated without changing the public gameplay surface.
 - Canonical runtime registries such as `LOG_KINDS`, `SKILL_NAMES`, and the app window-key lists back repeated defaults and record builders, so normalization, fixtures, and view derivation do not each keep their own hand-maintained key inventories.
@@ -29,6 +30,7 @@ This spec covers the repository layer boundaries, state transition shape, and co
 ## Main Implementation Areas
 
 - `src/game`
+- `src/game/stateItemActions.ts`
 - `src/game/stateFactory.ts`
 - `src/game/stateSelectors.ts`
 - `src/game/stateTypes.ts`

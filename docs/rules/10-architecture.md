@@ -14,6 +14,7 @@
 - When UI, renderer, Storybook, or test code only needs builders, selectors, or types, import those narrower `src/game/state*.ts` modules instead of routing through `src/game/state.ts`.
 - Keep gameplay reward resolution and world-event spawning in focused helpers such as `src/game/stateRewards.ts` and `src/game/stateWorldEvents.ts` instead of extending `src/game/state.ts` with more domain-specific internals.
 - Keep inventory sorting, town trade, prospecting, item locking, and tile-loot transfer mutations in focused state helper modules such as `src/game/stateInventoryActions.ts` instead of expanding `src/game/state.ts` with another broad block of item-management flows.
+- Keep item activation, equip or unequip flows, consumable use, recipe-page learning, and consumable-cooldown mutation logic in focused helpers such as `src/game/stateItemActions.ts` instead of rebuilding another item-behavior block inside `src/game/state.ts`.
 - Keep home-setting, territory-claim, and gather-structure mutations in focused state helper modules such as `src/game/stateWorldActions.ts` instead of adding another broad world-action block inside `src/game/state.ts`.
 - Keep recipe-book selectors and craft-execution mutations in focused state helper modules such as `src/game/stateCrafting.ts` instead of growing another recipe block inside `src/game/state.ts`.
 - Keep encounter creation, combat timing, and battle-resolution mutations in focused state helper modules such as `src/game/stateCombat.ts` instead of leaving another large combat block inside `src/game/state.ts`.
