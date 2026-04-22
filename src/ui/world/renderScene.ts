@@ -48,11 +48,11 @@ import {
   tileStyle,
 } from './renderSceneEnvironment';
 import {
-  configureMaskedSprite,
+  configureSprite,
   configureShadowedSprite,
   takeGraphics,
-  takeMaskedSprite,
   takeShadowedSprite,
+  takeSprite,
   takeText,
 } from './renderScenePools';
 import {
@@ -112,7 +112,6 @@ export function renderScene(
   const worldBossIconSize = hexSize * 3.4;
   const playerIconSize = hexSize * 1.58;
   const terrainArtSize = hexSize * 2;
-  const terrainArtMask = makeHex(0, 0, Math.max(1, hexSize - 0.5));
 
   if (WORLD_MAP_FISHEYE_ENABLED) {
     scene.worldMapFilterArea.width = app.screen.width;
@@ -254,18 +253,17 @@ export function renderScene(
       }
 
       if (shouldRenderStatic) {
-        const terrainSprite = takeMaskedSprite(
+        const terrainSprite = takeSprite(
           scene.worldTerrainSprites,
           terrainArtFor(tile.terrain),
         );
-        configureMaskedSprite(
+        configureSprite(
           terrainSprite,
           0xffffff,
           terrainArtSize,
           terrainArtSize,
           emphasized ? 0.84 : 0.76,
           point,
-          terrainArtMask,
         );
 
         const enemies = getEnemiesAt(state, tile.coord);

@@ -310,5 +310,6 @@ function createInitialWorldRenderSnapshot(): WorldRenderSnapshot {
     hoveredSafePath: null,
     animationBucket: -1,
     invalidationToken: 0,
+    iconTextureVersion: -1,
   };
 }

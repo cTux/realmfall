@@ -10,23 +10,19 @@ import type { CloudRenderInput } from './renderSceneEnvironment';
 import { WorldIcons } from './worldIcons';
 import {
   createGraphicsPool,
-  createMaskedSpritePool,
   createShadowedSprite,
   createShadowedSpritePool,
   createSpritePool,
   createTextPool,
   finishGraphicsPool,
-  finishMaskedSpritePool,
   finishShadowedSpritePool,
   finishSpritePool,
   finishTextPool,
   resetGraphicsPool,
-  resetMaskedSpritePool,
   resetShadowedSpritePool,
   resetSpritePool,
   resetTextPool,
   type GraphicsPool,
-  type MaskedSpritePool,
   type ShadowedSpriteEntry,
   type ShadowedSpritePool,
   type SpritePool,
@@ -73,7 +69,7 @@ export interface SceneCache {
   atmosphereShaftGraphics: GraphicsPool;
   atmosphereCelestialGraphics: GraphicsPool;
   worldGroundGraphics: GraphicsPool;
-  worldTerrainSprites: MaskedSpritePool;
+  worldTerrainSprites: SpritePool;
   worldStaticDetailGraphics: GraphicsPool;
   worldBorderGraphics: GraphicsPool;
   worldInteractionGraphics: GraphicsPool;
@@ -183,7 +179,7 @@ export function getSceneCache(app: Application) {
     atmosphereShaftGraphics: createGraphicsPool(atmosphereShafts),
     atmosphereCelestialGraphics: createGraphicsPool(atmosphereCelestials),
     worldGroundGraphics: createGraphicsPool(worldGroundFill),
-    worldTerrainSprites: createMaskedSpritePool(worldTerrain),
+    worldTerrainSprites: createSpritePool(worldTerrain),
     worldStaticDetailGraphics: createGraphicsPool(worldStaticDetail),
     worldBorderGraphics: createGraphicsPool(worldBorders),
     worldInteractionGraphics: createGraphicsPool(worldInteraction),
@@ -242,7 +238,7 @@ export function completeAnimatedSceneRender(scene: SceneCache) {
 
 export function beginStaticSceneRender(scene: SceneCache) {
   resetGraphicsPool(scene.worldGroundGraphics);
-  resetMaskedSpritePool(scene.worldTerrainSprites);
+  resetSpritePool(scene.worldTerrainSprites);
   resetGraphicsPool(scene.worldStaticDetailGraphics);
   resetGraphicsPool(scene.worldBorderGraphics);
   resetSpritePool(scene.worldStaticDetailSprites);
@@ -254,7 +250,7 @@ export function beginStaticSceneRender(scene: SceneCache) {
 
 export function completeStaticSceneRender(scene: SceneCache) {
   finishGraphicsPool(scene.worldGroundGraphics);
-  finishMaskedSpritePool(scene.worldTerrainSprites);
+  finishSpritePool(scene.worldTerrainSprites);
   finishGraphicsPool(scene.worldStaticDetailGraphics);
   finishGraphicsPool(scene.worldBorderGraphics);
   finishSpritePool(scene.worldStaticDetailSprites);
