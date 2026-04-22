@@ -59,11 +59,6 @@ const HomeIndicator = lazy(() =>
     default: module.HomeIndicator,
   })),
 );
-const VersionStatusPanel = lazy(() =>
-  import('./components/VersionStatusPanel').then((module) => ({
-    default: module.VersionStatusPanel,
-  })),
-);
 
 export function App() {
   const initialAudioSettingsRef = useRef(loadAudioSettings());
@@ -475,9 +470,6 @@ export function App() {
               playerCoord={game.player.coord}
               radius={game.radius}
             />
-          </Suspense>
-          <Suspense fallback={null}>
-            <VersionStatusPanel onRefresh={() => window.location.reload()} />
           </Suspense>
           <AppWindows {...appWindowsProps} />
           {isReady && paused ? (
