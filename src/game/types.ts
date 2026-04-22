@@ -260,6 +260,7 @@ export interface Tile {
   structure?: StructureType;
   structureHp?: number;
   structureMaxHp?: number;
+  townStockPurchasedItemIds?: string[];
   items: Item[];
   enemyIds: string[];
   claim?: TileClaim;

@@ -185,7 +185,11 @@ export function getTownStock(state: GameState): TownStockEntry[] {
     return [];
   }
 
-  return buildTownStock(state.seed, tile.coord);
+  const purchasedItemIds = new Set(tile.townStockPurchasedItemIds ?? []);
+
+  return buildTownStock(state.seed, tile.coord).filter(
+    (entry) => !purchasedItemIds.has(entry.item.id),
+  );
 }
 
 export function hasEquippableInventoryItems(state: GameState) {
@@ -198,7 +202,7 @@ export function buyTownItem(state: GameState, itemId: string): GameState {
     return message(state, t('game.message.buy.townOnly'));
   }
 
-  const stock = buildTownStock(state.seed, tile.coord);
+  const stock = getTownStock(state);
   const entry = stock.find((candidate) => candidate.item.id === itemId);
   if (!entry) {
     return message(state, t('game.message.buy.unavailable'));
@@ -215,9 +219,16 @@ export function buyTownItem(state: GameState, itemId: string): GameState {
     );
   }
 
-  const next = cloneForPlayerMutation(state);
+  const next = cloneForPlayerAndTileMutation(state);
+  ensureTileState(next, next.player.coord);
+  const currentTileKey = hexKey(next.player.coord);
+  const currentTile = next.tiles[currentTileKey];
   spendGold(next.player.inventory, entry.price);
   addItemToInventory(next.player.inventory, { ...entry.item });
+  currentTile.townStockPurchasedItemIds = [
+    ...(currentTile.townStockPurchasedItemIds ?? []),
+    entry.item.id,
+  ];
   addLog(
     next,
     'system',

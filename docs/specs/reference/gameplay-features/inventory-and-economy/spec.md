@@ -24,6 +24,7 @@ This spec covers inventory actions, gold handling, and town trading.
 - Sell-all supports town-based liquidation of unlocked equippable inventory items.
 - Gold is modeled as an inventory resource instead of a separate wallet field.
 - Towns provide a fixed deterministic stock based on seed and coordinate.
+- Buying an item removes that specific town-stock entry from the active town list until the stock refreshes.
 - Buying uses town stock entries with explicit prices.
 - Recipe pages can be sold individually in town for a premium value.
 - The current town economy covers basic survival consumables and starter-tier gear.

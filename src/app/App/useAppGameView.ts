@@ -7,12 +7,12 @@ import {
   getPlayerClaimedTiles,
   getPlayerStats,
   getRecipeBookEntries,
+  getTownStock,
   structureActionLabel,
   type GameState,
   type Item,
   type LogKind,
 } from '../../game/state';
-import { buildTownStock } from '../../game/economy';
 import { hexKey } from '../../game/hex';
 import { isEquippableItem } from '../../game/inventory';
 import {
@@ -110,13 +110,7 @@ export function useAppGameView({
     () => inventory.some((item) => isEquippableItem(item) && !item.locked),
     [inventory],
   );
-  const townStock = useMemo(
-    () =>
-      currentTile.structure === 'town'
-        ? buildTownStock(seed, currentTile.coord)
-        : [],
-    [currentTile.coord, currentTile.structure, seed],
-  );
+  const townStock = useMemo(() => getTownStock(game), [game]);
   const gold = useMemo(() => getGoldAmount(inventory), [inventory]);
   const combatEnemies = useMemo(
     () => (combat ? getEnemiesAt(enemyLookupInput, combat.coord) : []),

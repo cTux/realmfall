@@ -83,6 +83,7 @@ describe('game state inventory actions', () => {
 
     const stock = getTownStock(game);
     const bought = buyTownItem(game, stock[0].item.id);
+    const remainingStock = getTownStock(bought);
 
     expect(stock.length).toBeGreaterThanOrEqual(30);
     expect(stock.every((entry) => entry.item.slot)).toBe(true);
@@ -90,6 +91,10 @@ describe('game state inventory actions', () => {
       bought.player.inventory.some((item) => item.name === stock[0].item.name),
     ).toBe(true);
     expect(getGoldAmount(bought.player.inventory)).toBeLessThan(500);
+    expect(remainingStock).toHaveLength(stock.length - 1);
+    expect(
+      remainingStock.some((entry) => entry.item.id === stock[0]?.item.id),
+    ).toBe(false);
   });
 
   it('leaves loot on the tile until the player takes it', () => {
@@ -355,7 +360,7 @@ describe('game state inventory actions', () => {
     ).toHaveLength(1);
   });
 
-  it('assigns unique ids when buying the same non-stackable town item twice', () => {
+  it('removes a bought town item from the current stock list', () => {
     const game = createGame(3, 'town-duplicate-id-seed');
     game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'town' };
     game.player.inventory = [
@@ -379,12 +384,14 @@ describe('game state inventory actions', () => {
     expect(hood).toBeDefined();
 
     const boughtOnce = buyTownItem(game, hood!.item.id);
+    const remainingStock = getTownStock(boughtOnce);
     const boughtTwice = buyTownItem(boughtOnce, hood!.item.id);
-    const hoodIds = boughtTwice.player.inventory
-      .filter((item) => item.name === 'Scout Hood')
-      .map((item) => item.id);
 
-    expect(hoodIds).toHaveLength(2);
-    expect(new Set(hoodIds).size).toBe(2);
+    expect(
+      remainingStock.some((entry) => entry.item.id === hood!.item.id),
+    ).toBe(false);
+    expect(
+      boughtTwice.logs.some((entry) => /not available here/i.test(entry.text)),
+    ).toBe(true);
   });
 });
