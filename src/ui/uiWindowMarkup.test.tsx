@@ -300,6 +300,9 @@ describe('ui window markup', () => {
     expect(markup).toContain('(Q) Gather');
     expect(markup).toContain('Structure HP');
     expect(markup).toContain('Town Stock');
+    expect(markup).toContain('12');
+    expect(markup).toContain('aria-label="Gold"');
+    expect(markup).not.toContain('gp');
     expect(markup).not.toContain('Enemies0');
     expect(markup).toContain('aria-label="armor"');
     expect(markup).toContain('x12');

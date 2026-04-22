@@ -66,6 +66,9 @@
   z-index: 1;
   left: 50%;
   bottom: -6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.18rem;
   transform: translateX(-50%);
   background: rgb(15 23 42 / 90%);
   border: 1px solid rgb(148 163 184 / 25%);
@@ -78,6 +81,17 @@
     bottom: -4px;
     padding: 0.02rem 0.18rem;
     font-size: 0.58rem;
+  }
+}
+
+.stackBadgeIcon {
+  @include ui.masked-icon(0.68rem, $background: currentcolor);
+
+  display: block;
+
+  .slot[data-size='compact'] & {
+    width: 0.5rem;
+    height: 0.5rem;
   }
 }
 

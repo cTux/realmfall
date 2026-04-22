@@ -2,6 +2,7 @@ import { t } from '../../../i18n';
 import { ITEM_MODIFICATION_BALANCE } from '../../../game/config';
 import { CombatWindowContent } from '../CombatWindow/CombatWindowContent';
 import { ItemSlotButton } from '../ItemSlotButton/ItemSlotButton';
+import { Icons } from '../../icons';
 import type { HexInfoWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -319,6 +320,9 @@ export function HexInfoWindowContent({
                         <div key={item.id} className={styles.shopCard}>
                           <ItemSlotButton
                             item={item}
+                            badgeLabel={`${price}`}
+                            badgeIcon={Icons.GoldBar}
+                            badgeIconLabel={t('game.item.gold.name')}
                             className={
                               affordable ? undefined : styles.shopItemDisabled
                             }
@@ -334,14 +338,6 @@ export function HexInfoWindowContent({
                             }
                             onMouseLeave={onLeaveItem}
                           />
-                          <span
-                            className={`${styles.shopPrice} ${
-                              affordable ? '' : styles.shopPriceDisabled
-                            }`.trim()}
-                          >
-                            {price}
-                            {t('ui.hexInfo.buyPriceSuffix')}
-                          </span>
                         </div>
                       );
                     })}

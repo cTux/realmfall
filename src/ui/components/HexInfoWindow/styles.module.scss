@@ -206,22 +206,11 @@
 .shopCard {
   display: grid;
   justify-items: center;
-  gap: 0.3rem;
 }
 
 .shopItemDisabled {
   opacity: 0.45;
   filter: saturate(0.65);
-}
-
-.shopPrice {
-  color: #fbbf24;
-  font-size: 0.76rem;
-  line-height: 1;
-}
-
-.shopPriceDisabled {
-  color: #94a3b8;
 }
 
 .lootSection {

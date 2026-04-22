@@ -26,6 +26,9 @@ interface ItemSlotButtonProps {
   borderColorOverride?: string;
   overlayColorOverride?: string;
   cornerIcon?: ItemSlotCornerIcon;
+  badgeLabel?: string;
+  badgeIcon?: string;
+  badgeIconLabel?: string;
   hidePlaceholderIconWhenEmpty?: boolean;
   disabled?: boolean;
   onClick?: () => void;
@@ -46,6 +49,9 @@ export function ItemSlotButton({
   borderColorOverride,
   overlayColorOverride,
   cornerIcon,
+  badgeLabel,
+  badgeIcon,
+  badgeIconLabel,
   hidePlaceholderIconWhenEmpty = false,
   disabled = false,
   onClick,
@@ -62,6 +68,11 @@ export function ItemSlotButton({
     (onClick || onContextMenu || onMouseEnter || onEmptyMouseEnter),
   );
   const showIcon = item || !hidePlaceholderIconWhenEmpty;
+  const resolvedBadgeLabel =
+    badgeLabel ??
+    (item && item.quantity > 1
+      ? `x${formatCompactNumber(item.quantity)}`
+      : null);
 
   return (
     <button
@@ -104,9 +115,16 @@ export function ItemSlotButton({
           aria-label={item ? formatItemLabel(item) : undefined}
         />
       ) : null}
-      {item && item.quantity > 1 ? (
+      {resolvedBadgeLabel ? (
         <span className={styles.stackBadge}>
-          x{formatCompactNumber(item.quantity)}
+          {badgeIcon ? (
+            <span
+              className={styles.stackBadgeIcon}
+              style={iconMaskStyle(badgeIcon, 'currentcolor')}
+              aria-label={badgeIconLabel}
+            />
+          ) : null}
+          <span>{resolvedBadgeLabel}</span>
         </span>
       ) : null}
       {cornerIcon ? (
