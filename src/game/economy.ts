@@ -1,4 +1,5 @@
 import { clampItemLevel } from './balance';
+import { TOWN_BUY_PRICE_BALANCE } from './config';
 import {
   buildGeneratedItemFromConfig,
   buildItemFromConfig,
@@ -133,6 +134,9 @@ function resolveTownStockTier(
   return clampItemLevel(baseTier + Math.floor(rng() * 3));
 }
 
-function getTownStockPrice(item: Item) {
-  return Math.max(10, sellValue(item) * 2);
+export function getTownStockPrice(item: Item) {
+  return Math.max(
+    TOWN_BUY_PRICE_BALANCE.minimum,
+    sellValue(item) * TOWN_BUY_PRICE_BALANCE.rarityMultiplier[item.rarity],
+  );
 }

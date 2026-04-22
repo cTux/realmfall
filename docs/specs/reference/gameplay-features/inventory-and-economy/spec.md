@@ -26,7 +26,7 @@ This spec covers inventory actions, gold handling, and town trading.
 - Towns provide a deterministic stock based on seed, coordinate, and the current game day.
 - Buying an item removes that specific town-stock entry from the active town list until the stock refreshes.
 - Each town refreshes its selling list at the start of a new game day.
-- Buying uses town stock entries with explicit prices.
+- Buying uses town stock entries with explicit prices, and town markups now scale sharply by item rarity so rare-to-legendary gear is much less affordable in the early game.
 - Recipe pages can be sold individually in town for a premium value.
 - The current town economy covers basic survival consumables and starter-tier gear.
 

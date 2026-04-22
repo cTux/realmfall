@@ -369,7 +369,7 @@ describe('game state inventory actions', () => {
         id: 'resource-gold-town-test',
         name: 'Gold',
         itemKey: 'gold',
-        quantity: 100,
+        quantity: 2_000,
         tier: 1,
         rarity: 'common',
         power: 0,

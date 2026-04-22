@@ -108,6 +108,24 @@ const gameConfig = {
         },
       },
     },
+    economy: {
+      townBuyPrice: {
+        // Minimum gold price a town stock entry can cost after all scaling.
+        minimum: 10,
+        rarityMultiplier: {
+          // Buy-price multiplier for common town stock entries.
+          common: 2,
+          // Buy-price multiplier for uncommon town stock entries.
+          uncommon: 3,
+          // Buy-price multiplier for rare town stock entries.
+          rare: 6,
+          // Buy-price multiplier for epic town stock entries.
+          epic: 12,
+          // Buy-price multiplier for legendary town stock entries.
+          legendary: 24,
+        },
+      },
+    },
   },
   progression: {
     playerXp: {
