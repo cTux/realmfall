@@ -290,6 +290,42 @@ describe('renderScene interactions', () => {
     expect(desertTerrainSprites).toHaveLength(0);
   });
 
+  it('keeps structure icons visible when terrain backgrounds are disabled', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { structureIconFor } = await import('./worldIcons');
+    const game = createGame(
+      2,
+      'render-scene-terrain-background-structure-icon',
+    );
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'forest',
+      items: [],
+      enemyIds: [],
+      structure: 'tree',
+    };
+    const app = createMockApp();
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      { showTerrainBackgrounds: false },
+    );
+
+    const treeStructureSprites = collectDescendants(getWorld(app)).filter(
+      (child): child is MockSprite =>
+        child instanceof MockSprite && child.icon === structureIconFor('tree'),
+    );
+
+    expect(treeStructureSprites.length).toBeGreaterThan(0);
+  });
+
   it('keeps claim borders visible above hovered safe-path overlays', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(3, 'render-scene-safe-path-claim-border');

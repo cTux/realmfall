@@ -271,7 +271,9 @@ export function renderScene(
           emphasized ? 0.84 : 0.76,
           point,
         );
+      }
 
+      if (shouldRenderStatic) {
         const enemies = getEnemiesAt(state, tile.coord);
 
         if (!isPlayerTile) {
