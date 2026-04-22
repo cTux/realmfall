@@ -16,6 +16,7 @@ export function HexInfoWindowContent({
   enemyCount,
   interactLabel,
   canInteract,
+  canTerritoryAction,
   canBulkProspectEquipment,
   canBulkSellEquipment,
   itemModification,
