@@ -22,6 +22,7 @@ import {
 } from './logs';
 import {
   canEquipItem,
+  canSellItem,
   canUseItem,
   getGoldAmount,
   isEquippableItem,
@@ -142,6 +143,7 @@ export {
   gatheringBonusChance,
   gatheringYieldBonus,
   canEquipItem,
+  canSellItem,
   canUseItem,
   createFreshLogsAtTime,
   describeStructure,

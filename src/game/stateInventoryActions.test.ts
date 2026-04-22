@@ -320,6 +320,68 @@ describe('game state inventory actions', () => {
     expect(getGoldAmount(sold.player.inventory)).toBeGreaterThan(0);
   });
 
+  it('lets the player sell consumables and crafting materials in town', () => {
+    const game = createGame(3, 'town-material-sale-seed');
+    game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'town' };
+    game.player.inventory = [
+      {
+        id: 'food-town-sale',
+        itemKey: 'trail-ration',
+        name: 'Trail Ration',
+        quantity: 2,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 8,
+        hunger: 12,
+      },
+      {
+        id: 'ore-town-sale',
+        itemKey: 'iron-ore',
+        name: 'Iron Ore',
+        quantity: 2,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'ingot-town-sale',
+        itemKey: 'iron-ingot',
+        name: 'Iron Ingot',
+        quantity: 2,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    ];
+
+    const soldConsumable = sellInventoryItem(game, 'food-town-sale');
+    const soldOre = sellInventoryItem(game, 'ore-town-sale');
+    const soldIngot = sellInventoryItem(game, 'ingot-town-sale');
+
+    expect(
+      soldConsumable.player.inventory.some(
+        (item) => item.id === 'food-town-sale',
+      ),
+    ).toBe(false);
+    expect(getGoldAmount(soldConsumable.player.inventory)).toBe(2);
+    expect(getGoldAmount(soldOre.player.inventory)).toBe(2);
+    expect(getGoldAmount(soldIngot.player.inventory)).toBe(6);
+    expect(getGoldAmount(soldIngot.player.inventory)).toBeGreaterThan(
+      getGoldAmount(soldOre.player.inventory),
+    );
+  });
+
   it('merges duplicate gold stacks when sorting inventory', () => {
     const game = createGame(3, 'gold-sort-seed');
     game.player.inventory = [

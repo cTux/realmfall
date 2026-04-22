@@ -9,9 +9,9 @@ import {
   compareItems,
   consolidateInventory,
   describeItemStack,
+  canSellItem,
   getGoldAmount,
   isEquippableItem,
-  isRecipePage,
   makeGoldStack,
   prospectYield,
   sellValue,
@@ -73,11 +73,7 @@ export function sellInventoryItem(state: GameState, itemId: string): GameState {
   }
 
   const item = state.player.inventory.find((entry) => entry.id === itemId);
-  if (
-    !item ||
-    (!isEquippableItem(item) && !isRecipePage(item)) ||
-    item.locked
-  ) {
+  if (!item || !canSellItem(item) || item.locked) {
     return message(state, t('game.message.sell.empty'));
   }
 

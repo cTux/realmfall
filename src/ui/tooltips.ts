@@ -6,7 +6,7 @@ import {
 } from '../game/content/statusEffects';
 import { getSkillTags } from '../game/content/tags';
 import { professionRecipeOutputBonus } from '../game/crafting';
-import { isEquippableItem, isRecipePage, sellValue } from '../game/inventory';
+import { canSellItem, isRecipePage, sellValue } from '../game/inventory';
 import { getItemCategory, inferItemTags } from '../game/content/items';
 import { EquipmentSlotId } from '../game/content/ids';
 import {
@@ -114,9 +114,11 @@ export function itemTooltipLines(
     : null;
 
   if (category === 'consumable') {
+    const sellLine = itemSellLine(item);
     return [
       { kind: 'text', text: consumableEffectDescription(item) },
       ...tagTooltipLines(tags),
+      ...(sellLine ? [sellLine] : []),
     ];
   }
 
@@ -469,7 +471,7 @@ function slotLabel(slot: NonNullable<Item['slot']>) {
 }
 
 function itemSellLine(item: Item): TooltipLine | null {
-  if (!isEquippableItem(item) && !isRecipePage(item)) {
+  if (!canSellItem(item)) {
     return null;
   }
 
