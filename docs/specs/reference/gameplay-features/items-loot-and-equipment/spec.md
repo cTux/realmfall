@@ -44,7 +44,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - Offhand shields and magical spheres always include a block-chance secondary stat, including both generated drops and fixed crafted icon variants.
 - Dungeon and blood moon rewards bias toward better rarity floors.
 - Generated artifacts and equipment use deterministic icon selection from curated vendored SVG pools in `src/assets/icons/generated` while their per-instance stats are derived from tier and rarity.
-- Generated artifacts and equipment use the shared cascading rarity-event mechanism so higher tiers can promote drops through the same rarity ladder used elsewhere in gameplay.
+- Generated artifacts and equipment use the shared cascading rarity-event mechanism so higher tiers can promote drops through the same rarity ladder used elsewhere in gameplay, with base upgrade checks of `30%` uncommon, `5%` rare, `0.5%` epic, and `0.02%` legendary before tier bonuses.
 - Generated weapons and offhands now roll a deterministic granted combat ability that matches the item archetype, and equipped combatants surface those granted abilities in battle on top of the baseline `Kick`.
 - Crafted and fixed offhand gear such as bucklers, shields, magical spheres, and totems also roll a deterministic active ability from an archetype-appropriate pool.
 - Equippable item tooltips surface the granted combat ability directly so players can see the rolled skill before equipping the item.

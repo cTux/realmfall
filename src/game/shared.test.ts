@@ -3,11 +3,11 @@ import { resolveCascadingRarity } from './shared';
 
 describe('cascading rarity resolution', () => {
   it('checks rarity chances from legendary down to uncommon before falling back to common', () => {
-    expect(resolveCascadingRarity(() => 0.001)).toBe('legendary');
+    expect(resolveCascadingRarity(() => 0.0001)).toBe('legendary');
     expect(
       resolveCascadingRarity(
         (() => {
-          const rolls = [0.9, 0.01];
+          const rolls = [0.9, 0.001];
           return () => rolls.shift() ?? 1;
         })(),
       ),
@@ -15,7 +15,7 @@ describe('cascading rarity resolution', () => {
     expect(
       resolveCascadingRarity(
         (() => {
-          const rolls = [0.9, 0.9, 0.05];
+          const rolls = [0.9, 0.9, 0.04];
           return () => rolls.shift() ?? 1;
         })(),
       ),

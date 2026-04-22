@@ -148,11 +148,11 @@ const gameConfig = {
     },
     itemRarity: {
       // Chance to upgrade a generated item roll into legendary rarity.
-      legendary: 0.005,
+      legendary: 0.0002,
       // Chance to upgrade a generated item roll into epic rarity.
-      epic: 0.02,
+      epic: 0.005,
       // Chance to upgrade a generated item roll into rare rarity.
-      rare: 0.1,
+      rare: 0.05,
       // Chance to upgrade a generated item roll into uncommon rarity.
       uncommon: 0.3,
     },
