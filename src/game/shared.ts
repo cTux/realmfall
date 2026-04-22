@@ -8,6 +8,7 @@ import {
 } from './types';
 import { createRng } from './random';
 import { hexDistance, hexKey } from './hex';
+import { getTerrainTierBonus, isPassableTerrain } from './worldTerrain';
 
 export function noise(seed: string, coord: HexCoord) {
   const rng = createRng(`${seed}:${coord.q}:${coord.r}`);
@@ -24,12 +25,12 @@ export function itemId(kind: string, coord: HexCoord, seed: string) {
 
 export function terrainTier(coord: HexCoord, terrain: Terrain) {
   const distance = Math.floor(hexDistance(coord, { q: 0, r: 0 }) / 4);
-  const terrainBonus = terrain === 'mountain' ? 2 : terrain === 'swamp' ? 1 : 0;
+  const terrainBonus = getTerrainTierBonus(terrain);
   return 1 + distance + terrainBonus;
 }
 
 export function isPassable(terrain: Terrain) {
-  return terrain !== 'rift' && terrain !== 'mountain';
+  return isPassableTerrain(terrain);
 }
 
 type CascadingRarityChanceMap = Partial<

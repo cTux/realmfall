@@ -9,7 +9,6 @@ import {
   TOWN_SEARCH_LIMIT,
   WORLD_ENEMY_SPAWN_CHANCE,
   WORLD_LOOT_CHANCES,
-  pickTerrainFromChanceMap,
   pickWorldGeneratedItemKind,
   resolveGuardedLootChance,
 } from './config';
@@ -36,6 +35,7 @@ import {
   terrainTier,
 } from './shared';
 import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
+import { pickTerrain } from './worldTerrain';
 import {
   isWorldBossCenter,
   isWorldBossEnemyId,
@@ -306,10 +306,6 @@ function pickStructure(
 function shouldSpawnEnemy(seed: string, coord: HexCoord, terrain: Terrain) {
   if (!isPassable(terrain)) return false;
   return noise(`${seed}:enemy:spawn`, coord) < WORLD_ENEMY_SPAWN_CHANCE;
-}
-
-function pickTerrain(seed: string, coord: HexCoord): Terrain {
-  return pickTerrainFromChanceMap(noise(seed, coord));
 }
 
 function maybeLoot(

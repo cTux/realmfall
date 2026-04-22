@@ -5,6 +5,7 @@ import {
   getVisibleTiles,
   getStructureConfig,
 } from '../../game/stateSelectors';
+import { isPassable } from '../../game/shared';
 import type { GameState, HexCoord, Tile } from '../../game/stateTypes';
 import { hexDistance, hexKey } from '../../game/hex';
 import { buildTile } from '../../game/world';
@@ -202,10 +203,7 @@ export function renderScene(
       const isPlayerTile =
         tile.coord.q === state.player.coord.q &&
         tile.coord.r === state.player.coord.r;
-      const clickable =
-        distance === 1 &&
-        tile.terrain !== 'rift' &&
-        tile.terrain !== 'mountain';
+      const clickable = distance === 1 && isPassable(tile.terrain);
       const emphasized = isPlayerTile;
       const revealed = distance <= WORLD_REVEAL_RADIUS;
       const relative = {

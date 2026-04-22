@@ -8,7 +8,8 @@ This spec covers deterministic hex-world traversal, visibility, and safe-path tr
 
 - The game world is a deterministic hex grid generated from a seed.
 - The player starts at `(0, 0)` on a safe plains tile.
-- Terrain currently includes `plains`, `forest`, `swamp`, `desert`, `mountain`, and `rift`.
+- Terrain includes `plains`, `meadow`, `steppe`, `grove`, `forest`, `marsh`, `swamp`, `dunes`, `desert`, `badlands`, `highlands`, `mountain`, `blasted`, and `rift`.
+- Terrain is generated in deterministic biome clusters with smoother transitions between neighboring hexes instead of independent per-tile random terrain rolls.
 - `mountain` and `rift` tiles are not passable.
 - The player sees a revealed radius around the current position.
 - Visible tiles are rendered around the player and update as movement changes the origin.

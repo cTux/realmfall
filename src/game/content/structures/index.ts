@@ -3,6 +3,7 @@ import type {
   StructureType,
   Terrain,
 } from '../../types';
+import { getTerrainContentTerrain } from '../../worldTerrain';
 import {
   itemName,
   structureActionLabel as localizedStructureActionLabel,
@@ -119,8 +120,11 @@ export function pickStructureType(
 
   const resourceStructure = STRUCTURE_CONFIGS.find(
     (config) =>
-      typeof config.appearanceChanceByTerrain?.[terrain] === 'number' &&
-      resourceRoll > (config.appearanceChanceByTerrain[terrain] ?? 1),
+      resourceRoll >
+      resolveTerrainAppearanceThreshold(
+        config.appearanceChanceByTerrain,
+        terrain,
+      ),
   );
 
   return resourceStructure?.type;
@@ -178,4 +182,22 @@ function buildStructureTags(config: StructureConfig) {
     typeTag,
     ...(config.gathering ? getSkillTags(config.gathering.skill) : []),
   );
+}
+
+function resolveTerrainAppearanceThreshold(
+  appearanceChanceByTerrain: Partial<Record<Terrain, number>> | undefined,
+  terrain: Terrain,
+) {
+  if (!appearanceChanceByTerrain) {
+    return 1;
+  }
+
+  const exactThreshold = appearanceChanceByTerrain[terrain];
+  if (typeof exactThreshold === 'number') {
+    return exactThreshold;
+  }
+
+  const fallbackThreshold =
+    appearanceChanceByTerrain[getTerrainContentTerrain(terrain)];
+  return typeof fallbackThreshold === 'number' ? fallbackThreshold : 1;
 }

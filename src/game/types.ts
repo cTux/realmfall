@@ -10,9 +10,17 @@ import type { GameTag } from './content/tags';
 
 export const TERRAINS = [
   'plains',
+  'meadow',
+  'steppe',
+  'grove',
   'forest',
+  'marsh',
   'rift',
+  'blasted',
+  'highlands',
   'mountain',
+  'dunes',
+  'badlands',
   'desert',
   'swamp',
 ] as const;

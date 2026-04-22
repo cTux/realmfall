@@ -1,4 +1,5 @@
 import type { Terrain } from '../../types';
+import { getTerrainContentTerrain } from '../../worldTerrain';
 import { GAME_TAGS, uniqueTags, type GameTag } from '../tags';
 import { boarEnemyConfig } from './boar';
 import { gluttonyEnemyConfig } from './gluttony';
@@ -48,7 +49,10 @@ export function pickEnemyConfig(
     if (config.worldBoss) return false;
     const chance = elite
       ? (config.eliteAppearanceChance ?? 0)
-      : (config.appearanceChanceByTerrain[terrain] ?? 0);
+      : resolveTerrainAppearanceChance(
+          config.appearanceChanceByTerrain,
+          terrain,
+        );
     return chance > 0;
   });
 
@@ -59,7 +63,10 @@ export function pickEnemyConfig(
       sum +
       (elite
         ? (config.eliteAppearanceChance ?? 0)
-        : (config.appearanceChanceByTerrain[terrain] ?? 0)),
+        : resolveTerrainAppearanceChance(
+            config.appearanceChanceByTerrain,
+            terrain,
+          )),
     0,
   );
 
@@ -67,7 +74,10 @@ export function pickEnemyConfig(
   for (const config of candidates) {
     const chance = elite
       ? (config.eliteAppearanceChance ?? 0)
-      : (config.appearanceChanceByTerrain[terrain] ?? 0);
+      : resolveTerrainAppearanceChance(
+          config.appearanceChanceByTerrain,
+          terrain,
+        );
     cursor -= chance;
     if (cursor <= 0) return config;
   }
@@ -92,4 +102,16 @@ function buildEnemyTags(config: (typeof RAW_ENEMY_CONFIGS)[number]) {
     config.worldBoss ? GAME_TAGS.enemy.worldBoss : undefined,
     ...(typedTags[config.id] ?? []),
   );
+}
+
+function resolveTerrainAppearanceChance(
+  appearanceChanceByTerrain: Partial<Record<Terrain, number>>,
+  terrain: Terrain,
+) {
+  const exactChance = appearanceChanceByTerrain[terrain];
+  if (typeof exactChance === 'number') {
+    return exactChance;
+  }
+
+  return appearanceChanceByTerrain[getTerrainContentTerrain(terrain)] ?? 0;
 }

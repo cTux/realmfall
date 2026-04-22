@@ -1,6 +1,7 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import type { Application, Container } from 'pixi.js';
 import * as stateModule from '../../../game/state';
+import { isPassable } from '../../../game/shared';
 import type { TooltipPosition } from '../../../ui/components/GameTooltip';
 import { syncFollowCursorTooltipPosition } from '../../../ui/components/GameTooltip/followCursorSync';
 import { getWorldHexSize } from '../../../ui/world/renderSceneMath';
@@ -137,9 +138,7 @@ export function attachPixiWorldInteractions({
         ? stateModule.getSafePathToTile(current, target)
         : null;
     const clickable =
-      (distance === 1 &&
-        tile.terrain !== 'rift' &&
-        tile.terrain !== 'mountain') ||
+      (distance === 1 && isPassable(tile.terrain)) ||
       (withinVisibleMap && Boolean(safePath));
 
     if (!clickable) {
@@ -217,8 +216,7 @@ export function attachPixiWorldInteractions({
     const tile = stateModule.getTileAt(current, target);
     const distance = stateModule.hexDistance(playerCoordRef.current, target);
     const withinVisibleMap = distance <= WORLD_REVEAL_RADIUS;
-    const adjacentActionable =
-      distance === 1 && tile.terrain !== 'rift' && tile.terrain !== 'mountain';
+    const adjacentActionable = distance === 1 && isPassable(tile.terrain);
     const safePath =
       !adjacentActionable && distance > 1 && withinVisibleMap
         ? stateModule.getSafePathToTile(current, target)
