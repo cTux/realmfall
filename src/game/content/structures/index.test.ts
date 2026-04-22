@@ -64,5 +64,6 @@ describe('localized structure config text', () => {
       'The platinum vein goes pale and empty.',
     );
     expect(furnace.title).toBe('Furnace');
+    expect(furnace.tint).toBe(0xffffff);
   });
 });
