@@ -8,3 +8,5 @@ coverage
 *.tsbuildinfo
 storybook-static
 .tests
+.engram/
+.claude/settings.local.json
