@@ -37,7 +37,7 @@ describe('enemy rarity', () => {
     expect(resolveEnemyRarity(() => 0.001, 'common')).toBe('legendary');
   });
 
-  it('scales dungeon enemies above similar field spawns through rarity floors', () => {
+  it('scales dungeon enemies above similar field spawns through rarity floors while keeping XP flat', () => {
     const fieldEnemy = makeEnemy(
       'combat-rarity-seed',
       { q: 2, r: 1 },
@@ -57,7 +57,7 @@ describe('enemy rarity', () => {
     expect(dungeonEnemy.maxHp).toBeGreaterThan(fieldEnemy.maxHp);
     expect(dungeonEnemy.attack).toBeGreaterThanOrEqual(fieldEnemy.attack);
     expect(dungeonEnemy.defense).toBeGreaterThanOrEqual(fieldEnemy.defense);
-    expect(dungeonEnemy.xp).toBeGreaterThan(fieldEnemy.xp);
+    expect(dungeonEnemy.xp).toBe(fieldEnemy.xp);
   });
 
   it('keeps multi-enemy packs on the same hex to one enemy type', () => {

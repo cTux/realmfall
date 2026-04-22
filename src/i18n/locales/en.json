@@ -652,6 +652,7 @@
   "ui.statusEffect.weakened.label": "Weakened",
   "ui.statusEffect.shocked.label": "Shocked",
   "ui.secondaryStat.attackSpeed": "Attack Speed",
+  "ui.secondaryStat.bonusExperience": "Bonus Experience",
   "ui.secondaryStat.blockChance": "Block Chance",
   "ui.secondaryStat.bleedChance": "Bleed Chance",
   "ui.secondaryStat.burningChance": "Burning Chance",

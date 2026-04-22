@@ -62,6 +62,7 @@ export type EnemyRarity = ItemRarity;
 export type MainItemStatKey = 'power' | 'defense' | 'maxHp';
 export type SecondaryStatKey =
   | 'attackSpeed'
+  | 'bonusExperience'
   | 'criticalStrikeChance'
   | 'criticalStrikeDamage'
   | 'lifestealChance'

@@ -74,7 +74,7 @@ describe('balance anchors', () => {
     expect(scaleSecondaryItemStatForLevel(100)).toBe(10);
   });
 
-  it('caps gear-derived secondary stats at 75 while preserving raw totals for the UI', () => {
+  it('caps shared gear-derived secondary stats at 75 while leaving bonus experience uncapped', () => {
     const game = createGame(3, 'secondary-cap-seed');
     game.player.equipment.offhand = {
       id: 'cap-test-offhand',
@@ -90,6 +90,7 @@ describe('balance anchors', () => {
       hunger: 0,
       thirst: 0,
       secondaryStats: [
+        { key: 'bonusExperience', value: 143 },
         { key: 'criticalStrikeChance', value: 143 },
         { key: 'poisonChance', value: 143 },
         { key: 'attackSpeed', value: 143 },
@@ -98,8 +99,13 @@ describe('balance anchors', () => {
 
     const stats = getPlayerStats(game.player);
 
+    expect(stats.bonusExperience).toBe(143);
     expect(stats.criticalStrikeChance).toBe(80);
     expect(stats.poisonChance).toBe(75);
+    expect(stats.secondaryStatTotals?.bonusExperience).toEqual({
+      effective: 143,
+      raw: 143,
+    });
     expect(stats.secondaryStatTotals?.criticalStrikeChance).toEqual({
       effective: 80,
       raw: 148,

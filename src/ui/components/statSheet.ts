@@ -8,6 +8,7 @@ export interface StatSheetValues {
   attack: number;
   defense: number;
   attackSpeed?: number;
+  bonusExperience?: number;
   criticalStrikeChance?: number;
   criticalStrikeDamage?: number;
   lifestealChance?: number;
@@ -41,6 +42,7 @@ interface SecondaryStatRowConfig {
 
 export const STAT_SHEET_SECONDARY_KEYS: SecondaryStatKey[] = [
   'attackSpeed',
+  'bonusExperience',
   'criticalStrikeChance',
   'criticalStrikeDamage',
   'lifestealChance',
@@ -63,6 +65,11 @@ const SECONDARY_STAT_ROW_CONFIG = {
     label: () => t('ui.hero.effect.attackSpeed'),
     select: (stats) => stats.attackSpeed,
     format: formatAttackSpeedPercentFromMultiplier,
+  },
+  bonusExperience: {
+    label: () => formatSecondaryStatLabel('bonusExperience'),
+    select: (stats) => stats.bonusExperience,
+    format: formatPercent,
   },
   criticalStrikeChance: {
     label: () => formatSecondaryStatLabel('criticalStrikeChance'),

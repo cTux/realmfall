@@ -19,6 +19,7 @@ const stats: HeroWindowStats = {
   attack: 1,
   defense: 1,
   attackSpeed: 1.25,
+  bonusExperience: 143,
   criticalStrikeChance: 15,
   criticalStrikeDamage: 175,
   lifestealChance: 10,
@@ -36,6 +37,7 @@ const stats: HeroWindowStats = {
   frenzyBuffChance: 4,
   secondaryStatTotals: {
     attackSpeed: { effective: 1.25, raw: 1.25 },
+    bonusExperience: { effective: 143, raw: 143 },
     criticalStrikeChance: { effective: 75, raw: 143 },
     criticalStrikeDamage: { effective: 175, raw: 243 },
     lifestealChance: { effective: 10, raw: 10 },
@@ -135,6 +137,8 @@ describe('HeroWindow', () => {
 
     expect(host.textContent).toContain(t('ui.hero.statSheet.primary'));
     expect(host.textContent).toContain(t('ui.hero.statSheet.secondary'));
+    expect(host.textContent).toContain('Bonus Experience');
+    expect(host.textContent).toContain('143%');
     expect(host.textContent).toContain('Critical Strike Chance');
     expect(host.textContent).toContain('75% (143% raw)');
     expect(host.textContent).toContain('Attack Speed');

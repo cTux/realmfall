@@ -73,6 +73,13 @@ interface GameChanceConfig {
     };
   };
   progression: {
+    playerXp: {
+      enemyBase: number;
+      firstLevelRequirement: number;
+      lastLevelRequirement: number;
+      masteryBaseRequirement: number;
+      masteryGrowthRate: number;
+    };
     gatheringBonus: {
       perLevel: number;
       max: number;
@@ -202,6 +209,15 @@ export const HARVEST_MOON_SPAWN_RADIUS = 4;
 
 export const EARTHSHAKE_SPAWN_RADIUS = 2;
 
+export const PLAYER_XP_BALANCE = GAME_CONFIG.progression.playerXp;
+export const BASE_ENEMY_XP = PLAYER_XP_BALANCE.enemyBase;
+export const PLAYER_FIRST_LEVEL_XP_REQUIREMENT =
+  PLAYER_XP_BALANCE.firstLevelRequirement;
+export const PLAYER_LAST_LEVEL_XP_REQUIREMENT =
+  PLAYER_XP_BALANCE.lastLevelRequirement;
+export const MASTERY_BASE_XP_REQUIREMENT =
+  PLAYER_XP_BALANCE.masteryBaseRequirement;
+export const MASTERY_XP_GROWTH_RATE = PLAYER_XP_BALANCE.masteryGrowthRate;
 export const GATHERING_BONUS_PER_LEVEL =
   GAME_CONFIG.progression.gatheringBonus.perLevel;
 export const GATHERING_BONUS_MAX = GAME_CONFIG.progression.gatheringBonus.max;
