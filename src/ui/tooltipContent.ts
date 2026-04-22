@@ -1,12 +1,7 @@
 import { t } from '../i18n';
 import { formatEnemyRarityLabel } from '../i18n/labels';
-import {
-  enemyRarityIndex,
-  getStructureConfig,
-  type Enemy,
-  type StructureType,
-  type Tile,
-} from '../game/state';
+import { enemyRarityIndex, getStructureConfig } from '../game/stateSelectors';
+import type { Enemy, StructureType, Tile } from '../game/stateTypes';
 
 interface TooltipLineFactory<Line> {
   stat: (label: string, value: string) => Line;

@@ -14,27 +14,41 @@ export function setupUiTestEnvironment() {
   });
 }
 
-export async function renderMarkup(node: React.ReactNode) {
-  const host = document.createElement('div');
-  document.body.appendChild(host);
-  const root = createRoot(host);
-
-  await act(async () => {
-    root.render(node);
-  });
-
+export async function settleUi() {
   await act(async () => {
     await vi.dynamicImportSettled();
     await Promise.resolve();
     await Promise.resolve();
   });
+}
 
-  const markup = host.innerHTML;
+export async function mountUi(node: React.ReactNode) {
+  const host = document.createElement('div');
+  document.body.appendChild(host);
+  const root = createRoot(host);
 
-  await act(async () => {
-    root.unmount();
-  });
-  host.remove();
+  const render = async (nextNode: React.ReactNode) => {
+    await act(async () => {
+      root.render(nextNode);
+    });
+    await settleUi();
+  };
 
+  const unmount = async () => {
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  };
+
+  await render(node);
+
+  return { host, render, unmount };
+}
+
+export async function renderMarkup(node: React.ReactNode) {
+  const ui = await mountUi(node);
+  const markup = ui.host.innerHTML;
+  await ui.unmount();
   return markup;
 }

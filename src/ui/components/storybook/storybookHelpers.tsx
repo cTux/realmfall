@@ -1,10 +1,10 @@
 import type { Decorator } from '@storybook/react-vite';
 import {
-  createGame,
   getRecipeBookEntries,
   getPlayerStats,
   getRecipeBookRecipes,
-} from '../../../game/state';
+} from '../../../game/stateSelectors';
+import { createGame } from '../../../game/stateFactory';
 import { EquipmentSlotId } from '../../../game/content/ids';
 import { addLog } from '../../../game/logs';
 import {
@@ -23,9 +23,9 @@ import type {
   LogKind,
   RecipeBookEntry,
   SkillName,
-} from '../../../game/state';
+} from '../../../game/stateTypes';
 import { createSkillRecord } from '../../../game/skillRecords';
-import { Skill } from '../../../game/types';
+import { Skill } from '../../../game/stateTypes';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { Icons } from '../../icons';
 import type { WindowDockEntry } from '../WindowDock/WindowDock';

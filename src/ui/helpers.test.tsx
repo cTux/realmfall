@@ -3,7 +3,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { vi } from 'vitest';
 import { GameTag } from '../game/content/tags';
-import type { Enemy, Item, Tile } from '../game/state';
+import type { Enemy, Item, Tile } from '../game/stateTypes';
 import { formatCompactNumber, formatCompactNumberish } from './formatters';
 import { Icons, iconForItem, itemTint, SkillIcon } from './icons';
 import { rarityColor } from './rarity';

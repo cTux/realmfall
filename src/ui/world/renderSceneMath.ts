@@ -1,4 +1,4 @@
-import type { HexCoord } from '../../game/state';
+import type { HexCoord } from '../../game/stateTypes';
 
 const WORLD_MAP_WIDTH_PADDING = 0.94;
 const WORLD_MAP_HEIGHT_PADDING = 0.9;

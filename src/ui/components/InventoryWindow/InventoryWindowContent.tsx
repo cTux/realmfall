@@ -1,4 +1,4 @@
-import { isRecipePage } from '../../../game/state';
+import { isRecipePage } from '../../../game/stateSelectors';
 import { t } from '../../../i18n';
 import { Icons } from '../../icons';
 import { ItemSlotButton } from '../ItemSlotButton/ItemSlotButton';

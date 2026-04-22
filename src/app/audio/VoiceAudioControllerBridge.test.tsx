@@ -1,6 +1,6 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { createGame } from '../../game/state';
+import { createGame } from '../../game/stateFactory';
 import { DEFAULT_AUDIO_SETTINGS } from '../audioSettings';
 import { VoiceAudioControllerBridge } from './VoiceAudioControllerBridge';
 

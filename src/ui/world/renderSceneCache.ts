@@ -5,7 +5,7 @@ import {
   TextStyle,
   type Application,
 } from 'pixi.js';
-import type { getVisibleTiles } from '../../game/state';
+import type { getVisibleTiles } from '../../game/stateSelectors';
 import type { CloudRenderInput } from './renderSceneEnvironment';
 import { WorldIcons } from './worldIcons';
 import {

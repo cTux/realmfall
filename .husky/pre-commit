@@ -1,3 +1,2 @@
-pnpm check:version
 pnpm quality:staged
 git update-index --again

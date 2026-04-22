@@ -3,10 +3,6 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import process from 'node:process';
-import {
-  getCommitVersion,
-  replacePackageVersion,
-} from '../git-commit.helpers.mjs';
 
 const gitBin = process.platform === 'win32' ? 'git.exe' : 'git';
 const gitCommitScriptPath = resolve(process.cwd(), 'scripts/git-commit.mjs');
@@ -35,53 +31,8 @@ function runGit(cwd, args) {
   return result.stdout.trim();
 }
 
-function writePackageJson(cwd, version) {
-  writeFileSync(
-    join(cwd, 'package.json'),
-    `${JSON.stringify({ name: 'tmp-repo', version }, null, 2)}\n`,
-    'utf8',
-  );
-}
-
 describe('git commit helper', () => {
-  it('bumps the patch version when package.json matches HEAD', () => {
-    expect(getCommitVersion('0.2.274', '0.2.274')).toBe('0.2.275');
-  });
-
-  it('keeps an already bumped patch version for retry commits', () => {
-    expect(getCommitVersion('0.2.275', '0.2.274')).toBe('0.2.275');
-    expect(getCommitVersion('0.2.280', '0.2.274')).toBe('0.2.280');
-  });
-
-  it('leaves the version unchanged when HEAD is unavailable', () => {
-    expect(getCommitVersion('0.2.275', null)).toBe('0.2.275');
-  });
-
-  it('replaces the version line without reformatting package.json', () => {
-    const packageJsonText = [
-      '{',
-      '  "name": "realmfall",',
-      '  "version": "0.2.274",',
-      '  "scripts": {',
-      '    "git:commit": "node scripts/git-commit.mjs"',
-      '  }',
-      '}',
-    ].join('\n');
-
-    expect(replacePackageVersion(packageJsonText, '0.2.275')).toBe(
-      [
-        '{',
-        '  "name": "realmfall",',
-        '  "version": "0.2.275",',
-        '  "scripts": {',
-        '    "git:commit": "node scripts/git-commit.mjs"',
-        '  }',
-        '}',
-      ].join('\n'),
-    );
-  });
-
-  it('stages an already bumped package.json before retry commits', () => {
+  it('commits staged changes without mutating package.json', () => {
     const repoDir = mkdtempSync(join(tmpdir(), 'realmfall-git-commit-'));
 
     try {
@@ -90,17 +41,20 @@ describe('git commit helper', () => {
       runGit(repoDir, ['config', 'user.email', 'codex@example.com']);
       runGit(repoDir, ['config', 'commit.gpgsign', 'false']);
 
-      writePackageJson(repoDir, '0.0.1');
+      writeFileSync(
+        join(repoDir, 'package.json'),
+        `${JSON.stringify({ name: 'tmp-repo', version: '0.0.1' }, null, 2)}\n`,
+        'utf8',
+      );
       runGit(repoDir, ['add', 'package.json']);
       runGit(repoDir, ['commit', '-m', 'init']);
 
-      writePackageJson(repoDir, '0.0.2');
-      writeFileSync(join(repoDir, 'note.txt'), 'retry commit\n', 'utf8');
+      writeFileSync(join(repoDir, 'note.txt'), 'commit helper\n', 'utf8');
       runGit(repoDir, ['add', 'note.txt']);
 
       const commitResult = spawnSync(
         process.execPath,
-        [gitCommitScriptPath, '-m', 'retry commit'],
+        [gitCommitScriptPath, '-m', 'follow-up'],
         {
           cwd: repoDir,
           env: isolatedGitEnv,
@@ -114,8 +68,9 @@ describe('git commit helper', () => {
         JSON.parse(runGit(repoDir, ['show', 'HEAD:package.json'])),
       ).toEqual({
         name: 'tmp-repo',
-        version: '0.0.2',
+        version: '0.0.1',
       });
+      expect(runGit(repoDir, ['show', 'HEAD:note.txt'])).toBe('commit helper');
     } finally {
       rmSync(repoDir, { force: true, recursive: true });
     }

@@ -20,24 +20,26 @@ Use this file for contributor process only. Canonical project guidance lives in
 ## Commit Workflow
 
 - Use Conventional Commits.
-- Use `pnpm git:commit -- -m "<message>"` for routine commits. It bumps the patch version in `package.json` when needed, stages that file, and then runs `git commit`.
-- If you commit without the helper, bump the patch version in `package.json` yourself first.
+- Use `pnpm git:commit -- -m "<message>"` for routine commits. It delegates to `git commit` through the repository helper without editing `package.json`.
+- Edit the `package.json` version only when you intentionally want to change the shipped release line.
 - Generate commit messages from the actual change set.
 - Keep commit messages focused on the behavioral change instead of enumerating every touched doc file.
 - Use `pnpm git:prune-gone-branches -- --dry-run` to preview local branches whose tracked remote ref was deleted, then rerun without `--dry-run` to remove them. Add `-- --safe` only when you want Git to keep its merged-branch protection.
-- Use `pnpm git:rebase-master-and-push` from a clean, already-committed feature branch when you need to replay it onto the default branch advertised by `origin/HEAD` and publish the rewritten branch. The script auto-resolves `package.json` version conflicts by carrying this branch's patch-version increments onto the incoming version, refuses to rewrite the current remote default branch directly, and then fetches the remote branch before `--force-with-lease`.
+- Use `pnpm git:rebase-master-and-push` from a clean, already-committed feature branch when you need to replay it onto the default branch advertised by `origin/HEAD` and publish the rewritten branch. The script auto-resolves `package.json` version conflicts when they occur, refuses to rewrite the current remote default branch directly, and then fetches the remote branch before `--force-with-lease`.
 - For pre-commit and pre-push policy details, use `docs/rules/60-testing-and-documentation.md` and the matching tooling spec instead of restating that policy here.
 
 ## Verification Workflow
 
 - Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` before pushing when you bypass hooks or need to verify the pre-push path manually.
-- Run targeted tests and any area-specific commands before committing.
+- Run targeted tests and any area-specific commands before committing. Prefer `pnpm test:node` for gameplay, persistence, i18n, and script coverage, and `pnpm test:jsdom` for React, Pixi, and browser-surface coverage.
 - Use `pnpm update:check` to inspect available dependency updates without modifying the worktree.
 - Run `pnpm update:minor` or `pnpm update:major` from a clean tracked worktree when you want an automated dependency refresh. Each command rewrites dependency ranges, runs `pnpm install --no-frozen-lockfile`, validates the result with `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build`, then commits through `pnpm git:commit`. Pass `-- --no-commit` when automation needs the refreshed manifests without creating a local commit.
 - Run `pnpm format` after wider refactors or repository-wide cleanup so formatting drift is fixed before it spreads across unrelated commits.
 - `pnpm lint` runs the main repository lint gate, including Oxlint for JavaScript and TypeScript plus Stylelint for `src` CSS and SCSS files.
 - `pnpm lint:css` is available when you only need the stylesheet subset locally.
-- `pnpm test` stores reusable Vitest results in `.tests/vitest-cache`; delete that directory when you need a cold run to verify cache behavior or rule out stale local state.
+- `pnpm test` runs the `node` and `jsdom` Vitest projects together and stores reusable results in `.tests/vitest-cache`; delete that directory when you need a cold run to verify cache behavior or rule out stale local state.
+- `pnpm test:node` runs the DOM-free Vitest project for gameplay, persistence, i18n, and script tests.
+- `pnpm test:jsdom` runs the browser-surface Vitest project for React, Pixi, and other DOM-dependent tests.
 - Use `pnpm test:memory:leaks` when a change could affect client-side route cleanup, event-listener teardown, or long-lived browser objects; the command starts the HTTPS dev server at `https://localhost:5173`, runs the dock-window toggle `fuite` scenario, and records the latest JSON report under `.tests/memory-leaks/latest.json`.
 - Run `pnpm build:budget` when startup chunks or lazy-loading strategy change. The command reports the tracked envelope and warns on overruns without failing the build.
 - Run `pnpm build:duplicate-deps` only when auditing dependency duplication. The duplicate-deps plugin is intentionally kept off the normal build path so routine builds stay focused on budget and correctness signals.

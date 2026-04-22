@@ -2,12 +2,9 @@ import React from 'react';
 import { getAbilityDefinition } from '../game/abilities';
 import { EquipmentSlotId } from '../game/content/ids';
 import { Skill } from '../game/types';
-import {
-  createGame,
-  getItemConfigByKey,
-  getPlayerStats,
-  type Item,
-} from '../game/state';
+import { getItemConfigByKey, getPlayerStats } from '../game/stateSelectors';
+import { createGame } from '../game/stateFactory';
+import type { Item } from '../game/stateTypes';
 import { DEFAULT_WINDOWS } from '../app/constants';
 import { rarityColor } from './rarity';
 import { CombatWindow } from './components/CombatWindow';

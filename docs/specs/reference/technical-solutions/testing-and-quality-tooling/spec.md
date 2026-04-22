@@ -7,10 +7,11 @@ This spec covers the repository quality baseline and current test coverage shape
 ## Current Solution
 
 - The repository uses TypeScript strict mode, Oxlint, Stylelint, Prettier, Vitest, Husky, Vite, and Storybook.
-- `pnpm test` runs Vitest through `@raegen/vite-plugin-vitest-cache`, storing reusable results in the repository-local `.tests/vitest-cache` directory so warm reruns and CI can restore unaffected test files without changing test correctness.
+- `pnpm test` runs the `node` and `jsdom` Vitest projects through `@raegen/vite-plugin-vitest-cache`, storing reusable results in the repository-local `.tests/vitest-cache` directory so warm reruns and CI can restore unaffected test files without changing test correctness.
+- `pnpm test:node` runs the DOM-free Vitest project for gameplay, persistence, i18n, and script tests, while `pnpm test:jsdom` runs the browser-surface project for React, Pixi, and other DOM-dependent tests.
 - `pnpm test:memory:leaks` starts the local HTTPS Vite dev server and runs `fuite` against `https://localhost:5173` with a custom dock-window toggle scenario because the app does not expose internal navigation links for the default `fuite` scenario, writing the latest JSON analysis to `.tests/memory-leaks/latest.json` for follow-up review.
 - `pnpm test:memory:leaks:prod` builds the app, serves the production bundle over local HTTPS at `https://localhost:4174`, and runs the same `fuite` scenario there, writing the JSON analysis to `.tests/memory-leaks/prod.json` so memory-retention checks can be compared between dev and production behavior.
-- Because the current repository is on Vitest 4, the Vite config uses a local compatibility shim for the plugin's runner and setup hooks instead of the package's older custom-pool entrypoint.
+- Because the current repository is on Vitest 4, the Vite config uses a local compatibility shim for the plugin's runner and setup hooks instead of the package's older custom-pool entrypoint, and each project layers its own setup file over that shared cache path.
 - `pnpm dev` and `pnpm serve` both run on local HTTPS using the shared localhost self-signed certificate helper, and cached certificates are regenerated automatically when they expire so secure-origin local workflows do not get stuck on stale TLS files.
 - The repository toolchain is pinned to Node `v25.9.0` through `.nvmrc`, with `package.json` `engines` set to `25.x` and GitHub Actions reading the same version file, keeping local commands, CI, and scheduled automation on the same runtime line.
 - Oxlint is the enforced JavaScript and TypeScript lint gate for contributor workflow and pre-commit automation, with its canonical configuration stored in `.oxlintrc.json`.
@@ -27,10 +28,12 @@ This spec covers the repository quality baseline and current test coverage shape
 - A Storybook parity test guards that each top-level component directory in `src/ui/components` keeps at least one story and that the entity catalog stories stay connected to the live config-derived fixtures.
 - Tests currently cover app bootstrapping, normalization, persistence storage helpers, world math, render behavior, time-of-day behavior, status effects, UI helpers, core state logic, and Storybook coverage expectations.
 - Broad gameplay-state coverage is split across focused suites such as `src/game/stateExploration.test.ts`, `src/game/stateSurvival.test.ts`, `src/game/stateCombat.test.ts`, `src/game/stateWorldEvents.test.ts`, `src/game/stateItemsAndProgression.test.ts`, `src/game/stateCrafting.test.ts`, `src/game/stateInventoryActions.test.ts`, `src/game/stateWorldActions.test.ts`, and `src/game/stateWorldQueries.test.ts` instead of one `state.test.ts` umbrella file.
-- Broad UI coverage is split across focused suites such as `src/ui/uiVisualHelpers.test.tsx`, `src/ui/uiTooltipContent.test.tsx`, `src/ui/uiWindowMarkup.test.tsx`, `src/ui/uiHeroAndLog.test.tsx`, `src/ui/uiTooltipBehavior.test.tsx`, `src/ui/uiRecipeBook.test.tsx`, and `src/ui/uiWindowShells.test.tsx` instead of one umbrella component test file.
+- Broad UI coverage is split across focused suites such as `src/ui/uiVisualHelpers.test.tsx`, `src/ui/uiTooltipContent.test.tsx`, `src/ui/uiWindowMarkup.test.tsx`, `src/ui/uiHeroAndLog.test.tsx`, `src/ui/uiTooltipBehavior.test.tsx`, `src/ui/uiRecipeBook.test.tsx`, `src/ui/uiRecipeBookWindow.test.tsx`, `src/ui/uiWindowInteractions.test.tsx`, `src/ui/uiWindowResizing.test.tsx`, and `src/ui/uiWindowShells.test.tsx` instead of one umbrella component test file.
+- UI, renderer, Storybook, and helper tests that only need builders, selectors, or shared types now import `src/game/stateFactory.ts`, `src/game/stateSelectors.ts`, or `src/game/stateTypes.ts` instead of the mutation-heavy `src/game/state.ts`, which keeps `vitest related` on gameplay mutation files scoped to the tests that actually exercise those entrypoints.
 - Tests that exercise typed gameplay helpers use complete domain fixtures or builder-backed objects instead of partial literals, so `pnpm typecheck` catches real integration drift rather than test-only shape shortcuts.
 - World-render coverage is split across focused suites such as `src/ui/world/renderSceneCache.test.ts`, `src/ui/world/renderSceneEnemyMarkers.test.ts`, `src/ui/world/renderSceneClaimMarkers.test.ts`, `src/ui/world/renderSceneWorldBossMarkers.test.ts`, `src/ui/world/renderSceneInteractions.test.ts`, `src/ui/world/renderSceneAtmosphere.test.ts`, `src/ui/world/renderSceneReuse.test.ts`, `src/ui/world/renderSceneCacheInvalidation.test.ts`, `src/ui/world/renderSceneMarkerAnimations.test.ts`, and `src/ui/world/renderScenePools.test.ts` instead of one renderer umbrella file.
 - The codebase favors deterministic tests for gameplay and rendering calculations.
+- Shared browser-test helpers such as `src/ui/uiTestHelpers.tsx` and `src/ui/uiRecipeBookTestHelpers.tsx` keep jsdom host setup and async-settle wiring out of the split suites, so moving tests across files does not duplicate the same render scaffolding.
 - Contributor guidance now includes an explicit performance verification checklist for React rerender breadth, Pixi redraw breadth, hover hot paths, and startup chunk growth so optimization work has a repeatable review path beyond functional correctness.
 - That guidance also defines lightweight budgets for routine desktop world interaction and the main startup chunks, giving contributors a small regression envelope to compare against during reviews and build checks.
 - The pull-request workflow reports startup delivery budgets through `pnpm build:budget`, which runs a production build, reads the Vite manifest, and warns if the bootstrap graph or its key chunks grow past the current thresholds without failing the build.
@@ -42,20 +45,19 @@ This spec covers the repository quality baseline and current test coverage shape
 - Non-blocking startup chrome such as the version-status overlay stays deferred behind a lazy chunk so polling and refresh affordances do not enlarge the first-interaction bootstrap graph.
 - Repeated localized content families, such as expansion recipe descriptions that vary only by item slot, keep concise shared phrasing so locale growth does not consume startup budget headroom unnecessarily.
 - The current startup bundle thresholds are derived from the live production build graph: `index` `4.743 kB`, `App` `78.900 kB`, `background-audio` `54.420 kB`, `react-core` `8.689 kB` when emitted separately, `react-dom-vendor` `199.966 kB`, `state` `532.132 kB`, `en` `120.000 kB`, `pixi` `549.560 kB`, and `1.510000 MB` for total startup JS.
-- The pull-request workflow restores and saves `.tests/vitest-cache` with `actions/cache` before the test step so CI warm runs can reuse valid cached results across workflow executions.
-- The pull-request workflow declares explicit read-only `contents: read` permissions and keeps checkout credentials disabled because the job only installs dependencies and runs verification.
+- The pull-request workflow restores and saves `.tests/vitest-cache` with `actions/cache` in the `test-node` and `test-jsdom` jobs, hashing `vite.config.ts`, the TypeScript configs, and the shared Vitest setup files so CI warm runs can reuse valid cached results across workflow executions.
+- The pull-request workflow declares explicit read-only `contents: read` permissions, keeps checkout credentials disabled, skips documentation-only diffs, and runs `typecheck-and-lint`, `test-node`, `test-jsdom`, and `build` as independent jobs so feedback arrives sooner than one long serial pipeline.
 - Dependency refresh automation now uses the dedicated `Dependency Update Workflow` path, where the mutating scripts rewrite dependency ranges, refresh the lockfile, and run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` before any commit or PR publication step.
 - The scheduled dependency-update workflow bootstraps its toolchain with SHA-pinned GitHub Actions and the repo-pinned `pnpm` version, runs `pnpm i --no-frozen-lockfile`, delegates the refresh and sanity-check sequence to `pnpm update:minor -- --no-commit`, audits the refreshed tree with read-only `pnpm audit --json`, and then stages the dependency manifests for PR publication.
 - The scheduled dependency-update workflow declares explicit `contents: write` and `pull-requests: write` permissions, keeps checkout credentials disabled, and uses the GitHub CLI to commit, push, and create or update the dependency PR instead of delegating that write path to a third-party action.
 - Before the scheduled dependency-update workflow force-pushes the reusable `dependencies-update` branch with `--force-with-lease`, it refreshes `origin/dependencies-update` so the lease compares against current remote state and later runs can update the existing PR branch reliably.
-- The pre-commit workflow enforces version progression through `pnpm check:version`, which blocks commits unless `package.json` advances by patch version relative to `HEAD`.
 - The pre-commit workflow formats staged Prettier-supported files first, then scopes Oxlint auto-fixes to staged JavaScript and TypeScript files, scopes Stylelint to staged `src` CSS and SCSS files, and scopes Vitest to tests related to staged source files, runtime JSON content, or test files.
 - The pre-push workflow now owns the full-project `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` gates so routine commits stay focused on fast staged checks while pushes validate the whole repository before publication.
-- A staged `package.json` diff that changes only the `version` field stays on the scoped pre-commit path, so routine commit-version bumps do not trigger the full test suite by themselves.
+- A staged `package.json` diff that changes only the `version` field stays on the scoped pre-commit path, so intentional release-metadata edits do not trigger the full test suite by themselves.
 - When staged changes touch shared test inputs such as `pnpm-lock.yaml`, `vite.config.ts`, TypeScript config, or `src/test/setup.ts`, or when `package.json` changes beyond the `version` field, the pre-commit workflow stays on staged checks and the pre-push workflow runs the full `pnpm test` suite instead of charging every commit for repository-wide verification.
 - The pre-push workflow also runs `pnpm build`, keeping full-repository runtime validation near publication while leaving commit-time hooks focused on staged changes.
 - Slow app integration tests that rely on lazy chunks, timer advancement, or full render cycles set explicit per-test timeouts so hook and CI runs do not fail on default five-second limits under heavier suite load.
-- Shared Vitest setup stubs `HTMLCanvasElement.getContext('2d')` under jsdom so Pixi- and canvas-adjacent tests run without repeated not-implemented warnings in the test output.
+- Shared Vitest setup lives in `src/test/setup.shared.ts`, while `src/test/setup.node.ts` keeps the DOM-free project on the shared storage, fetch, and i18n bootstrap path and `src/test/setup.ts` adds the jsdom-only canvas stub for Pixi- and canvas-adjacent tests.
 - Contributors can force a cold Vitest run by deleting `.tests/vitest-cache`; when the directory is absent, the next `pnpm test` run recreates it automatically.
 - The staged-quality and pre-push runners invoke `git` directly and route `pnpm` through its Node entrypoint when `npm_execpath` is available, while falling back to the bundled `pnpm.cjs` Node entrypoint on Windows when a script runs outside `pnpm run`.
 - The memory-leak runner uses the same `pnpm` entrypoint path instead of shelling through `cmd.exe`, keeping its browser-test arguments out of Windows shell parsing.
@@ -65,9 +67,9 @@ This spec covers the repository quality baseline and current test coverage shape
 ## Main Implementation Areas
 
 - `package.json`
+- `scripts/build-version.helpers.ts`
 - `scripts/check-bundle-budget.mjs`
 - `scripts/check-bundle-budget.helpers.mjs`
-- `scripts/check-package-version.mjs`
 - `scripts/dependency-updates.mjs`
 - `scripts/dependency-updates.helpers.mjs`
 - `scripts/fuite-dock-toggle-scenario.mjs`
@@ -79,6 +81,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - `scripts/run-memory-leak-test.mjs`
 - `scripts/run-duplicate-deps-audit.mjs`
 - `scripts/run-staged-quality.mjs`
+- `scripts/git-commit.mjs`
 - `.oxlintrc.json`
 - `.husky/pre-push`
 - `prettier.config.cjs`
@@ -90,6 +93,8 @@ This spec covers the repository quality baseline and current test coverage shape
 - `src/ui/components/storybook/storybookPreview.test.tsx`
 - `src/**/*.test.ts`
 - `src/**/*.test.tsx`
+- `src/test/setup.node.ts`
+- `src/test/setup.shared.ts`
 - `.github/workflows/pull-request.yml`
 - `scripts/vitest-cache/*.mjs`
 - `vite.config.ts`

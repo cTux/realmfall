@@ -35,6 +35,8 @@ pnpm dev
 - `pnpm lint`
 - `pnpm lint:css`
 - `pnpm test`
+- `pnpm test:node`
+- `pnpm test:jsdom`
 - `pnpm build`
 - `pnpm build:budget`
 

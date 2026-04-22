@@ -7,7 +7,8 @@ import React, {
   useState,
 } from 'react';
 import { createRoot } from 'react-dom/client';
-import { createGame, type GameState } from '../../../game/state';
+import { createGame } from '../../../game/stateFactory';
+import type { GameState } from '../../../game/stateTypes';
 import { createDefaultActionBarSlots } from '../actionBar';
 import {
   DEFAULT_LOG_FILTERS,

@@ -1,4 +1,5 @@
-import { createGame, getVisibleTiles } from '../../game/state';
+import { createGame } from '../../game/stateFactory';
+import { getVisibleTiles } from '../../game/stateSelectors';
 import {
   countDrawnPolygons,
   createMockApp,
@@ -131,7 +132,7 @@ describe('renderScene reuse', () => {
   });
 
   it('skips enemy lookups on pure animation-only frames once static layers are cached', async () => {
-    const stateModule = await import('../../game/state');
+    const stateModule = await import('../../game/stateSelectors');
     const getEnemiesAtSpy = vi.spyOn(stateModule, 'getEnemiesAt');
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-animation-only-skip');

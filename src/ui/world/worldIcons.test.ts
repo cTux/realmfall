@@ -1,4 +1,4 @@
-import { createGame } from '../../game/state';
+import { createGame } from '../../game/stateFactory';
 import { Texture } from 'pixi.js';
 
 vi.mock('pixi.js', () => ({

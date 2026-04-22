@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { getInventoryItemAction } from '../app/App/utils/getInventoryItemAction';
 import { GameTag } from '../game/content/tags';
 import { getAbilityDefinition } from '../game/abilities';
-import { getItemConfigByKey } from '../game/state';
+import { getItemConfigByKey } from '../game/stateSelectors';
 import {
   DEFAULT_LOG_FILTERS,
   DEFAULT_WINDOW_VISIBILITY,

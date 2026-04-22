@@ -8,7 +8,10 @@
 - Favor deterministic tests for game-state changes and rendering calculations.
 - Place tests in a colocated `tests/` directory for the feature or module they exercise.
 - Keep test files under roughly `250` lines when practical. Split larger suites by concern instead of accumulating all coverage in one file.
+- Keep DOM-free Vitest coverage on the `node` project and reserve the `jsdom` project for tests that need browser globals, React rendering, Pixi canvas behavior, or other DOM APIs.
+- When adding or moving tests, choose the narrowest Vitest project that matches the runtime surface so gameplay-only changes do not pay browser-environment startup cost.
 - When UI integration coverage grows beyond one broad `*.test.tsx` file, split it by surface such as recipe flows, window-shell interactions, renderer caches, or tooltip behavior instead of keeping one umbrella component suite.
+- When splitting browser-surface suites, move repeated DOM host setup and dynamic-import settling into shared helpers such as `src/ui/uiTestHelpers.tsx` or feature-specific `*TestHelpers.tsx` files so smaller suites do not reintroduce the same boilerplate in parallel.
 - Split broad gameplay-state suites by concern such as exploration, survival timing, combat cadence, world events, crafting, inventory actions, world actions, or item and progression flows instead of keeping one `src/game/state.test.ts` umbrella file.
 - Split large Pixi renderer suites by concern such as cache invalidation, interaction overlays, marker composition, marker animation, sprite-pool behavior, or atmosphere rendering instead of keeping one `renderScene.test.ts` umbrella file.
 - When tests call typed gameplay helpers such as item-action selectors, pass real domain fixtures or builder-backed objects that satisfy the full runtime type instead of partial literals that only cover the asserted field.
@@ -20,19 +23,22 @@
 - When repository automation scripts spawn long-lived or nested child processes, clean up the full child process tree when the parent script exits or is interrupted. On Windows, terminate the tree instead of only the direct child so `pnpm`, `vite`, `serve`, or browser helpers do not remain in memory after the wrapper script stops.
 - Keep stylesheet linting on the main repository lint path. `pnpm lint`, CI validation, pre-push checks, and dependency-refresh sanity runs should cover both Oxlint and Stylelint instead of leaving CSS and SCSS validation on a manual side command.
 - When a repository automation helper needs `pnpm` outside a `pnpm run` context, prefer the bundled `pnpm.cjs` Node entrypoint on Windows instead of failing or reintroducing shell dispatch through `cmd.exe`.
-- Keep dependency refreshes on the shared `pnpm update:check`, `pnpm update:minor`, and `pnpm update:major` scripts. The mutating flows should refresh the lockfile with `pnpm install --no-frozen-lockfile`, run the full sanity command set, and default to the version-aware `pnpm git:commit` path, while automation can pass `--no-commit` when it needs to stage dependency changes separately.
-- Keep routine commit metadata cheap. A staged `package.json` diff that only bumps the `version` field should keep the pre-commit workflow on scoped checks instead of forcing the full Vitest suite.
-- Keep contributor commit automation aligned with the versioning rule. The default commit path should auto-bump and stage `package.json` before invoking `git commit`, while preserving retry safety when the version already moved past `HEAD`.
+- Keep dependency refreshes on the shared `pnpm update:check`, `pnpm update:minor`, and `pnpm update:major` scripts. The mutating flows should refresh the lockfile with `pnpm install --no-frozen-lockfile`, run the full sanity command set, and default to the repository `pnpm git:commit` path, while automation can pass `--no-commit` when it needs to stage dependency changes separately.
+- Keep routine commits free of automatic `package.json` version churn. A staged `package.json` diff that only updates the `version` field should stay on the scoped pre-commit path because that change is intentional release metadata rather than a reason to rerun the full Vitest suite at commit time.
+- Keep contributor commit automation aligned with the runtime version strategy. `pnpm git:commit` should delegate to `git commit` without editing `package.json`, while build and runtime version metadata should come from the package release version plus git-derived build identity.
 - Keep the full-project TypeScript gate on the pre-push path rather than the pre-commit path when commit-latency improvements are the goal, and document that separation clearly in contributor workflow docs.
 - Keep repository-wide `test` and `build` gates on the pre-push path when speeding up commits is more important than catching every shared-input regression before each local commit, and document that tradeoff explicitly.
 - Keep scheduled dependency automation aligned with the repository toolchain. Use the repo-pinned package-manager version in CI jobs and keep audit steps read-only instead of mutating dependencies inside the workflow.
 - Keep GitHub Actions least-privilege by default. Declare explicit workflow permissions, disable persisted checkout credentials unless a job needs them, and prefer reviewed repository logic or the GitHub CLI over third-party PR automation in write-capable jobs.
+- Keep pull-request validation split into independent jobs when that meaningfully reduces wall-clock feedback time, and align each job with the narrowest local command set such as `pnpm test:node`, `pnpm test:jsdom`, or `pnpm build:budget`.
+- Keep documentation-only pull requests off the runtime CI path when the diff cannot affect shipped code, toolchain behavior, or workflow execution.
 - Before a workflow uses `git push --force-with-lease` against a reusable branch, fetch the matching remote branch into a local remote-tracking ref inside the job so the lease checks current remote state instead of stale or missing ref data.
 
 ## Documentation
 
 - Keep `README.md` accurate about the current game state, package manager, and primary local commands, but keep detailed contributor workflow and rule-loading policy in canonical docs instead of duplicating them there.
 - Keep `docs/WORKFLOW.md` aligned with the actual contributor workflow, verification steps, and commit conventions, but keep recurring policy details in `docs/RULES.md` and `docs/rules/` instead of restating them there.
+- Keep contributor docs aligned with the current Vitest project split, including `pnpm test`, `pnpm test:node`, and `pnpm test:jsdom`, whenever test runtime boundaries change.
 - Keep `docs/WORKFLOW.md` short and process-oriented. Prefer links back to canonical rule files over repeating save-policy, CI-permission, or shell-safety rules in a second long checklist.
 - Prefer documenting real project constraints and current behavior over aspirational wording.
 - In review findings, improvement notes, and project-health summaries, do not ship the word `still`. Rewrite the sentence to describe the current behavior and risk directly so the guidance remains accurate after follow-up fixes land.

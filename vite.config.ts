@@ -9,6 +9,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Plugin, ViteDevServer } from 'vite';
 import selfsigned from 'selfsigned';
+import { getAppBuildVersion } from './scripts/build-version.helpers';
 import {
   createSecurityHeaders,
   DEV_CONTENT_SECURITY_POLICY,
@@ -18,13 +19,21 @@ import {
 const CHUNK_SIZE_WARNING_LIMIT_KB = 560;
 const RUN_DUPLICATE_DEPS_AUDIT =
   process.env.REALMFALL_DUPLICATE_DEPS_AUDIT === '1';
+const VITEST_NODE_INCLUDE = [
+  'src/game/**/*.test.ts',
+  'src/i18n/**/*.test.ts',
+  'src/persistence/**/*.test.ts',
+  'scripts/**/*.test.ts',
+];
+const VITEST_JSDOM_INCLUDE = ['src/**/*.test.ts', 'src/**/*.test.tsx'];
 
 const packageVersion = JSON.parse(
   readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
 ).version as string;
+const appBuildVersion = getAppBuildVersion(packageVersion);
 
 function versionManifestPlugin(): Plugin {
-  const versionManifest = JSON.stringify({ version: packageVersion }, null, 2);
+  const versionManifest = JSON.stringify({ version: appBuildVersion }, null, 2);
 
   return {
     name: 'realmfall-version-manifest',
@@ -189,7 +198,7 @@ async function ensureLocalhostHttpsCertificate() {
 const localhostHttpsCertificate = await ensureLocalhostHttpsCertificate();
 export default defineConfig({
   define: {
-    __APP_VERSION__: JSON.stringify(packageVersion),
+    __APP_VERSION__: JSON.stringify(appBuildVersion),
   },
   server: {
     headers: createSecurityHeaders(DEV_CONTENT_SECURITY_POLICY),
@@ -252,11 +261,30 @@ export default defineConfig({
     },
   },
   test: {
-    environment: 'jsdom',
     globals: true,
-    setupFiles: ['src/test/setup.ts'],
     coverage: {
       provider: 'v8',
     },
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'node',
+          environment: 'node',
+          include: VITEST_NODE_INCLUDE,
+          setupFiles: ['src/test/setup.node.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'jsdom',
+          environment: 'jsdom',
+          include: VITEST_JSDOM_INCLUDE,
+          exclude: VITEST_NODE_INCLUDE,
+          setupFiles: ['src/test/setup.ts'],
+        },
+      },
+    ],
   },
 });
