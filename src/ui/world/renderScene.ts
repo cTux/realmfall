@@ -406,40 +406,13 @@ export function renderScene(
               );
 
               if (!isBossCenter && enemies.length >= 2) {
-                const badgeX = point.x + ENEMY_GROUP_BADGE_OFFSET.x;
-                const badgeY = point.y + ENEMY_GROUP_BADGE_OFFSET.y;
-                const badge = takeGraphics(
-                  scene.worldStaticMarkerBadgeGraphics,
-                );
-                badge
-                  .ellipse(
-                    badgeX,
-                    badgeY,
-                    ENEMY_GROUP_BADGE_RADIUS,
-                    ENEMY_GROUP_BADGE_RADIUS,
-                  )
-                  .fill({
-                    color: ENEMY_GROUP_BADGE_FILL,
-                    alpha: 0.96,
-                  })
-                  .stroke({
-                    width: 2,
-                    color: ENEMY_GROUP_BADGE_STROKE,
-                    alpha: 0.95,
-                  });
-
-                const badgeLabel = takeText(
-                  scene.worldStaticMarkerTexts,
-                  ENEMY_GROUP_LABEL_STYLE,
-                );
-                badgeLabel.text = enemies.length.toString();
-                const textHalfWidth = Math.ceil(badgeLabel.text.length * 3.5);
-                badgeLabel.position.set(
-                  badgeX - textHalfWidth,
-                  badgeY - ENEMY_GROUP_BADGE_TEXT_Y_OFFSET,
-                );
+                renderEnemyGroupBadge(scene, point, enemies.length);
               }
             }
+          }
+
+          if (tile.structure === 'dungeon' && enemies.length > 0) {
+            renderEnemyGroupBadge(scene, point, enemies.length);
           }
         }
 
@@ -736,4 +709,36 @@ function getStructureMarkerAnimationKind(structure: Tile['structure']) {
   }
 
   return null;
+}
+
+function renderEnemyGroupBadge(
+  scene: ReturnType<typeof getSceneCache>,
+  point: { x: number; y: number },
+  count: number,
+) {
+  const badgeX = point.x + ENEMY_GROUP_BADGE_OFFSET.x;
+  const badgeY = point.y + ENEMY_GROUP_BADGE_OFFSET.y;
+  const badge = takeGraphics(scene.worldStaticMarkerBadgeGraphics);
+  badge
+    .ellipse(badgeX, badgeY, ENEMY_GROUP_BADGE_RADIUS, ENEMY_GROUP_BADGE_RADIUS)
+    .fill({
+      color: ENEMY_GROUP_BADGE_FILL,
+      alpha: 0.96,
+    })
+    .stroke({
+      width: 2,
+      color: ENEMY_GROUP_BADGE_STROKE,
+      alpha: 0.95,
+    });
+
+  const badgeLabel = takeText(
+    scene.worldStaticMarkerTexts,
+    ENEMY_GROUP_LABEL_STYLE,
+  );
+  badgeLabel.text = count.toString();
+  const textHalfWidth = Math.ceil(badgeLabel.text.length * 3.5);
+  badgeLabel.position.set(
+    badgeX - textHalfWidth,
+    badgeY - ENEMY_GROUP_BADGE_TEXT_Y_OFFSET,
+  );
 }

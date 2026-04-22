@@ -307,4 +307,62 @@ describe('renderScene enemy markers', () => {
       ),
     ).toBe(true);
   });
+
+  it('renders an enemy count badge for dungeon hexes', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-dungeon-count-badge');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'forest',
+      structure: 'dungeon',
+      items: [],
+      enemyIds: ['enemy-1,0-0', 'enemy-1,0-1'],
+    };
+    game.enemies['enemy-1,0-0'] = {
+      id: 'enemy-1,0-0',
+      enemyTypeId: 'raider',
+      name: 'Raider',
+      coord: { q: 1, r: 0 },
+      rarity: 'common',
+      tier: 2,
+      hp: 5,
+      maxHp: 5,
+      attack: 3,
+      defense: 1,
+      xp: 5,
+      elite: false,
+    };
+    game.enemies['enemy-1,0-1'] = {
+      id: 'enemy-1,0-1',
+      enemyTypeId: 'wolf',
+      name: 'Wolf',
+      coord: { q: 1, r: 0 },
+      rarity: 'rare',
+      tier: 3,
+      hp: 7,
+      maxHp: 7,
+      attack: 4,
+      defense: 2,
+      xp: 8,
+      elite: true,
+    };
+
+    const app = createMockApp();
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    const badgeLayer = getBadgeLayer(app);
+    const badgeTexts = badgeLayer.children.filter(
+      (child): child is MockText => child instanceof MockText,
+    );
+
+    expect(badgeTexts.some((child) => child.text === '2')).toBe(true);
+  });
 });

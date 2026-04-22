@@ -33,6 +33,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - World-map hostile enemy markers tint by runtime enemy rarity, and mixed enemy parties use the highest rarity color on that tile.
 - World-map hostile enemy markers show a bottom-right count badge when a visible enemy party shares the hex, surfacing the party size for stacks of `2` or `3`.
 - Hostile battle-hex count badges keep the number visually centered and use a red badge plus red count text instead of the neutral slate treatment.
+- Dungeon hexes also surface the enemy-count badge, using the same red count treatment as standard hostile battle hexes.
 - World-map hostile enemy and world-boss markers now pulse with a small deterministic hover motion so combat-heavy hexes read as active without forcing a static-layer redraw.
 - World-map structure and dungeon markers now use the same intermittent shimmer treatment as gathering-site markers, so built hexes read as locations instead of hostile contacts.
 - Furnace markers now use a white glyph with the same black outlined treatment as the other structure icons.
