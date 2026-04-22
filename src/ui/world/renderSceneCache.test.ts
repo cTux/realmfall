@@ -1,3 +1,7 @@
+import { setupRenderSceneTestEnvironment } from './renderSceneTestHelpers';
+
+setupRenderSceneTestEnvironment();
+
 describe('renderSceneCache', () => {
   it('bounds scene caches with LRU-style eviction', async () => {
     const { getCachedValue, SCENE_CACHE_LIMITS, setBoundedCachedValue } =
