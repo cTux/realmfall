@@ -297,6 +297,56 @@ describe('GameSettingsWindowContent', () => {
     });
   });
 
+  it('saves the terrain background toggle inside the graphics payload', async () => {
+    const onSave = vi.fn(async () => undefined);
+
+    await act(async () => {
+      root.render(
+        <GameSettingsWindowContent
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
+          graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          onResetSaveData={async () => undefined}
+          onSave={onSave}
+          onSaveAndReload={async () => undefined}
+        />,
+      );
+    });
+
+    const terrainBackgroundsSwitch = Array.from(host.querySelectorAll('label'))
+      .find((candidate) =>
+        candidate.textContent?.includes(
+          t('ui.settings.graphics.showTerrainBackgrounds.label'),
+        ),
+      )
+      ?.querySelector('input[type="checkbox"]');
+    const saveButton = Array.from(host.querySelectorAll('button')).find(
+      (candidate) =>
+        candidate.textContent?.includes(t('ui.settings.actions.save')),
+    );
+
+    expect(terrainBackgroundsSwitch).toBeDefined();
+    expect(saveButton).toBeDefined();
+
+    await act(async () => {
+      terrainBackgroundsSwitch?.dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      );
+    });
+
+    await act(async () => {
+      saveButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    expect(onSave).toHaveBeenCalledWith({
+      audio: DEFAULT_AUDIO_SETTINGS,
+      graphics: {
+        ...DEFAULT_GRAPHICS_SETTINGS,
+        preset: 'custom',
+        showTerrainBackgrounds: false,
+      },
+    });
+  });
+
   it('saves selected voice actor and event toggles inside the audio payload', async () => {
     const onSave = vi.fn(async () => undefined);
 

@@ -21,6 +21,7 @@ export interface GraphicsSettings {
   clearBeforeRender: boolean;
   preserveDrawingBuffer: boolean;
   premultipliedAlpha: boolean;
+  showTerrainBackgrounds: boolean;
   useContextAlpha: boolean;
 }
 
@@ -51,6 +52,7 @@ const GRAPHICS_PRESET_SETTINGS = {
     clearBeforeRender: true,
     preserveDrawingBuffer: false,
     premultipliedAlpha: true,
+    showTerrainBackgrounds: true,
     useContextAlpha: true,
   },
   balanced: {
@@ -60,6 +62,7 @@ const GRAPHICS_PRESET_SETTINGS = {
     clearBeforeRender: true,
     preserveDrawingBuffer: false,
     premultipliedAlpha: true,
+    showTerrainBackgrounds: true,
     useContextAlpha: true,
   },
   performance: {
@@ -69,6 +72,7 @@ const GRAPHICS_PRESET_SETTINGS = {
     clearBeforeRender: true,
     preserveDrawingBuffer: false,
     premultipliedAlpha: true,
+    showTerrainBackgrounds: true,
     useContextAlpha: true,
   },
 } satisfies Record<Exclude<GraphicsPresetId, 'custom'>, PresetGraphicsSettings>;
@@ -125,7 +129,7 @@ export function deriveGraphicsPreset(
 }
 
 export function getGraphicsRenderResolution(
-  settings: GraphicsSettings,
+  settings: Pick<GraphicsSettings, 'resolutionCap'>,
   devicePixelRatio: number,
 ) {
   return Math.min(Math.max(devicePixelRatio || 1, 1), settings.resolutionCap);
@@ -156,6 +160,11 @@ export const GRAPHICS_SETTINGS_OPTIONS: GraphicsSettingsOptionDefinition[] = [
     key: 'premultipliedAlpha',
     labelKey: 'ui.settings.graphics.premultipliedAlpha.label',
     descriptionKey: 'ui.settings.graphics.premultipliedAlpha.description',
+  },
+  {
+    key: 'showTerrainBackgrounds',
+    labelKey: 'ui.settings.graphics.showTerrainBackgrounds.label',
+    descriptionKey: 'ui.settings.graphics.showTerrainBackgrounds.description',
   },
   {
     key: 'useContextAlpha',
@@ -258,6 +267,10 @@ function normalizeGraphicsSettings(settings: unknown): GraphicsSettings {
       settings.premultipliedAlpha,
       presetDefaults.premultipliedAlpha,
     ),
+    showTerrainBackgrounds: normalizeBooleanSetting(
+      settings.showTerrainBackgrounds,
+      presetDefaults.showTerrainBackgrounds,
+    ),
     useContextAlpha: normalizeBooleanSetting(
       settings.useContextAlpha,
       presetDefaults.useContextAlpha,
@@ -300,6 +313,7 @@ function stripPreset(
     clearBeforeRender: settings.clearBeforeRender,
     preserveDrawingBuffer: settings.preserveDrawingBuffer,
     premultipliedAlpha: settings.premultipliedAlpha,
+    showTerrainBackgrounds: settings.showTerrainBackgrounds,
     useContextAlpha: settings.useContextAlpha,
   };
 }
@@ -315,6 +329,7 @@ function graphicsSettingsEqual(
     current.clearBeforeRender === expected.clearBeforeRender &&
     current.preserveDrawingBuffer === expected.preserveDrawingBuffer &&
     current.premultipliedAlpha === expected.premultipliedAlpha &&
+    current.showTerrainBackgrounds === expected.showTerrainBackgrounds &&
     current.useContextAlpha === expected.useContextAlpha
   );
 }

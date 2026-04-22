@@ -8,7 +8,7 @@ import {
 } from '../../../ui/world/worldMapCamera';
 import {
   getGraphicsRenderResolution,
-  type GraphicsSettings,
+  type GraphicsResolutionCap,
 } from '../../graphicsSettings';
 import {
   loadWorldMapSettings,
@@ -31,13 +31,13 @@ export function loadSavedWorldMapCamera(
 export function createWorldResizeHandler({
   app,
   hostRef,
-  graphicsSettings,
+  resolutionCap,
   worldMapCameraRef,
   getWorldMapContainer,
 }: {
   app: Application;
   hostRef: MutableRefObject<HTMLDivElement | null>;
-  graphicsSettings: GraphicsSettings;
+  resolutionCap: GraphicsResolutionCap;
   worldMapCameraRef: MutableRefObject<WorldMapCameraState>;
   getWorldMapContainer: () => Container;
 }) {
@@ -45,7 +45,7 @@ export function createWorldResizeHandler({
     const width = hostRef.current?.clientWidth ?? window.innerWidth;
     const height = hostRef.current?.clientHeight ?? window.innerHeight;
     const resolution = getGraphicsRenderResolution(
-      graphicsSettings,
+      { resolutionCap },
       window.devicePixelRatio,
     );
     if (app.renderer.resolution !== resolution) {

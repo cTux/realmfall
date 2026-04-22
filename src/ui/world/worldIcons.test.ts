@@ -79,6 +79,7 @@ describe('worldIcons', () => {
       getVisibleWorldIconAssetIds,
       structureIconFor,
     } = await import('./worldIcons');
+    const { terrainArtFor } = await import('./worldTerrainArt');
 
     const game = createGame(2, 'world-icons-visible-assets');
     game.tiles['1,0'] = {
@@ -118,6 +119,7 @@ describe('worldIcons', () => {
         WorldIcons.Castle,
         WorldIcons.Village,
         enemyIconFor(game.enemies['enemy-1,0-0']),
+        terrainArtFor(game.tiles['1,0'].terrain),
       ]),
     );
     expect(icons).not.toContain(structureIconFor('town'));

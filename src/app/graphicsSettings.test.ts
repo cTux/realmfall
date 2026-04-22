@@ -78,6 +78,7 @@ describe('graphics settings persistence', () => {
       clearBeforeRender: 'later' as unknown as boolean,
       preserveDrawingBuffer: true,
       premultipliedAlpha: false,
+      showTerrainBackgrounds: false,
       useContextAlpha: false,
     });
 
@@ -92,6 +93,7 @@ describe('graphics settings persistence', () => {
         clearBeforeRender: DEFAULT_GRAPHICS_SETTINGS.clearBeforeRender,
         preserveDrawingBuffer: true,
         premultipliedAlpha: false,
+        showTerrainBackgrounds: false,
         useContextAlpha: false,
       },
     });

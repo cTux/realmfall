@@ -2,6 +2,7 @@ import type { MutableRefObject } from 'react';
 import type { Application } from 'pixi.js';
 import * as stateModule from '../../../game/state';
 import { getWorldTimeMinutesFromTimestamp } from '../../../game/worldTime';
+import { getWorldIconTextureVersion } from '../../../ui/world/worldIcons';
 import { sameCoord } from '../usePixiWorldHover';
 
 type RenderScene = typeof import('../../../ui/world/renderScene').renderScene;
@@ -14,6 +15,8 @@ export interface WorldRenderSnapshot {
   hoveredSafePath: stateModule.HexCoord[] | null;
   animationBucket: number;
   invalidationToken: number;
+  iconTextureVersion: number;
+  showTerrainBackgrounds: boolean;
 }
 
 const WORLD_ANIMATION_FPS = 30;
@@ -28,6 +31,8 @@ export function createWorldRenderSnapshot(): WorldRenderSnapshot {
     hoveredSafePath: null,
     animationBucket: -1,
     invalidationToken: 0,
+    iconTextureVersion: getWorldIconTextureVersion(),
+    showTerrainBackgrounds: true,
   };
 }
 
@@ -39,6 +44,7 @@ export function createWorldRenderFrame({
   selectedRef,
   hoveredMoveRef,
   hoveredSafePathRef,
+  showTerrainBackgroundsRef,
   pausedRef,
   pausedAnimationMsRef,
   worldTimeMsRef,
@@ -54,6 +60,7 @@ export function createWorldRenderFrame({
   selectedRef: MutableRefObject<stateModule.HexCoord>;
   hoveredMoveRef: MutableRefObject<stateModule.HexCoord | null>;
   hoveredSafePathRef: MutableRefObject<stateModule.HexCoord[] | null>;
+  showTerrainBackgroundsRef: MutableRefObject<boolean>;
   pausedRef: MutableRefObject<boolean>;
   pausedAnimationMsRef: MutableRefObject<number | null>;
   worldTimeMsRef: MutableRefObject<number>;
@@ -72,12 +79,16 @@ export function createWorldRenderFrame({
     const animationBucket = Math.floor(animationMs / WORLD_ANIMATION_FRAME_MS);
     const lastRenderSnapshot = lastRenderSnapshotRef.current;
     const invalidationToken = renderInvalidationRef.current;
+    const iconTextureVersion = getWorldIconTextureVersion();
+    const showTerrainBackgrounds = showTerrainBackgroundsRef.current;
 
     if (
       lastRenderSnapshot.game === currentGame &&
       lastRenderSnapshot.visibleTiles === currentVisibleTiles &&
       lastRenderSnapshot.animationBucket === animationBucket &&
       lastRenderSnapshot.invalidationToken === invalidationToken &&
+      lastRenderSnapshot.iconTextureVersion === iconTextureVersion &&
+      lastRenderSnapshot.showTerrainBackgrounds === showTerrainBackgrounds &&
       sameCoord(lastRenderSnapshot.selected, currentSelected) &&
       sameCoord(lastRenderSnapshot.hoveredMove, currentHoveredMove) &&
       sameCoordList(lastRenderSnapshot.hoveredSafePath, currentHoveredSafePath)
@@ -93,6 +104,8 @@ export function createWorldRenderFrame({
       hoveredSafePath: currentHoveredSafePath,
       animationBucket,
       invalidationToken,
+      iconTextureVersion,
+      showTerrainBackgrounds,
     };
     renderScene(
       app,
@@ -103,6 +116,7 @@ export function createWorldRenderFrame({
       getWorldTimeMinutesFromTimestamp(worldTimeMsRef.current),
       animationBucket * WORLD_ANIMATION_FRAME_MS,
       currentHoveredSafePath,
+      { showTerrainBackgrounds },
     );
   };
 }

@@ -69,6 +69,7 @@ export interface SceneCache {
   atmosphereShaftGraphics: GraphicsPool;
   atmosphereCelestialGraphics: GraphicsPool;
   worldGroundGraphics: GraphicsPool;
+  worldTerrainSprites: SpritePool;
   worldStaticDetailGraphics: GraphicsPool;
   worldBorderGraphics: GraphicsPool;
   worldInteractionGraphics: GraphicsPool;
@@ -109,6 +110,8 @@ export function getSceneCache(app: Application) {
   const worldMap = new Container();
   const world = new Container();
   const worldGround = new Container();
+  const worldGroundFill = new Container();
+  const worldTerrain = new Container();
   const worldStaticDetail = new Container();
   const worldInteraction = new Container();
   const worldBorders = new Container();
@@ -133,6 +136,7 @@ export function getSceneCache(app: Application) {
     worldMap.filterArea = worldMapFilterArea;
   }
 
+  worldGround.addChild(worldGroundFill, worldTerrain);
   world.addChild(
     worldGround,
     worldStaticDetail,
@@ -174,7 +178,8 @@ export function getSceneCache(app: Application) {
     worldMapFilter,
     atmosphereShaftGraphics: createGraphicsPool(atmosphereShafts),
     atmosphereCelestialGraphics: createGraphicsPool(atmosphereCelestials),
-    worldGroundGraphics: createGraphicsPool(worldGround),
+    worldGroundGraphics: createGraphicsPool(worldGroundFill),
+    worldTerrainSprites: createSpritePool(worldTerrain),
     worldStaticDetailGraphics: createGraphicsPool(worldStaticDetail),
     worldBorderGraphics: createGraphicsPool(worldBorders),
     worldInteractionGraphics: createGraphicsPool(worldInteraction),
@@ -233,6 +238,7 @@ export function completeAnimatedSceneRender(scene: SceneCache) {
 
 export function beginStaticSceneRender(scene: SceneCache) {
   resetGraphicsPool(scene.worldGroundGraphics);
+  resetSpritePool(scene.worldTerrainSprites);
   resetGraphicsPool(scene.worldStaticDetailGraphics);
   resetGraphicsPool(scene.worldBorderGraphics);
   resetSpritePool(scene.worldStaticDetailSprites);
@@ -244,6 +250,7 @@ export function beginStaticSceneRender(scene: SceneCache) {
 
 export function completeStaticSceneRender(scene: SceneCache) {
   finishGraphicsPool(scene.worldGroundGraphics);
+  finishSpritePool(scene.worldTerrainSprites);
   finishGraphicsPool(scene.worldStaticDetailGraphics);
   finishGraphicsPool(scene.worldBorderGraphics);
   finishSpritePool(scene.worldStaticDetailSprites);

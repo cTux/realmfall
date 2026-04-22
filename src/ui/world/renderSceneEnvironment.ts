@@ -260,11 +260,19 @@ export function renderCampfireLight(
 
 export function tileStyle(terrain: string) {
   switch (terrain) {
-    case 'rift':
-      return { color: 0xb91c1c, alpha: 0.36 };
+    case 'desert':
+      return { color: 0x92400e, alpha: 0.92 };
+    case 'forest':
+      return { color: 0x14532d, alpha: 0.94 };
     case 'mountain':
-      return { color: 0xb91c1c, alpha: 0.36 };
+      return { color: 0x475569, alpha: 0.88 };
+    case 'plains':
+      return { color: 0x3f6212, alpha: 0.92 };
+    case 'rift':
+      return { color: 0x7f1d1d, alpha: 0.72 };
+    case 'swamp':
+      return { color: 0x1f3a1f, alpha: 0.92 };
     default:
-      return { color: 0x166534, alpha: 1 };
+      return { color: 0x166534, alpha: 0.92 };
   }
 }
