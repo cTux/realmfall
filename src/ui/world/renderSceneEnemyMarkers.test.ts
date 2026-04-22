@@ -284,24 +284,30 @@ describe('renderScene enemy markers', () => {
 
     expect(badgeTexts.some((child) => child.text === '3')).toBe(true);
     expect(
-      badgeTexts.some((child) => child.style.value.fill === 0xfca5a5),
+      badgeTexts.some((child) => child.style.value.fill === 0xef4444),
     ).toBe(true);
     expect(
       badgeTexts.some(
         (child) =>
-          child.text === '3' && child.position.y > 0 && child.position.x > 0,
+          child.text === '3' &&
+          child.position.y > 0 &&
+          child.position.x > 0 &&
+          child.anchor.set.mock.calls.some(([anchor]) => anchor === 0.5),
       ),
     ).toBe(true);
     expect(
       badgeBackgrounds.some((child) =>
         child.drawEllipse.mock.calls.some(([x, y, radiusX, radiusY]) => {
           const fillCall = child.beginFill.mock.calls.at(-1);
+          const strokeCall = child.lineStyle.mock.calls.at(-1);
           return (
             x > 0 &&
             y > 0 &&
-            radiusX === 10 &&
-            radiusY === 10 &&
-            fillCall?.[0] === 0x991b1b
+            radiusX === 8 &&
+            radiusY === 8 &&
+            fillCall?.[0] === 0x020617 &&
+            strokeCall?.[0] === 1 &&
+            strokeCall?.[1] === 0xdc2626
           );
         }),
       ),

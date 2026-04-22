@@ -119,6 +119,8 @@ export class MockGraphics extends MockContainer {
 }
 
 export class MockText extends MockContainer {
+  anchor = { set: vi.fn() };
+
   constructor(
     public text: string,
     public style: unknown,

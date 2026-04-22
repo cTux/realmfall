@@ -88,11 +88,10 @@ const WORLD_BOSS_HEX_TINT_ALPHA = 0.22;
 const ANIMATED_LAYER_FPS = 15;
 const ANIMATED_LAYER_FRAME_MS = 1000 / ANIMATED_LAYER_FPS;
 const ZERO_SHADOW_OFFSET = { x: 0, y: 0 };
-const ENEMY_GROUP_BADGE_RADIUS = 10;
-const ENEMY_GROUP_BADGE_OFFSET = { x: 14, y: 12 };
-const ENEMY_GROUP_BADGE_TEXT_Y_OFFSET = 6;
-const ENEMY_GROUP_BADGE_FILL = 0x991b1b;
-const ENEMY_GROUP_BADGE_STROKE = 0xfca5a5;
+const ENEMY_GROUP_BADGE_RADIUS = 8;
+const ENEMY_GROUP_BADGE_OFFSET = { x: 13, y: 11 };
+const ENEMY_GROUP_BADGE_FILL = 0x020617;
+const ENEMY_GROUP_BADGE_STROKE = 0xdc2626;
 
 interface RenderSceneOptions {
   showTerrainBackgrounds?: boolean;
@@ -726,7 +725,7 @@ function renderEnemyGroupBadge(
       alpha: 0.96,
     })
     .stroke({
-      width: 2,
+      width: 1,
       color: ENEMY_GROUP_BADGE_STROKE,
       alpha: 0.95,
     });
@@ -736,9 +735,6 @@ function renderEnemyGroupBadge(
     ENEMY_GROUP_LABEL_STYLE,
   );
   badgeLabel.text = count.toString();
-  const textHalfWidth = Math.ceil(badgeLabel.text.length * 3.5);
-  badgeLabel.position.set(
-    badgeX - textHalfWidth,
-    badgeY - ENEMY_GROUP_BADGE_TEXT_Y_OFFSET,
-  );
+  badgeLabel.anchor.set(0.5);
+  badgeLabel.position.set(badgeX, badgeY);
 }
