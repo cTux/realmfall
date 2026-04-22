@@ -33,7 +33,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - World-map hostile enemy markers tint by runtime enemy rarity, and mixed enemy parties use the highest rarity color on that tile.
 - World-map hostile enemy markers show a bottom-right count badge when a visible enemy party shares the hex, surfacing the party size for stacks of `2` or `3`.
 - World-map hostile enemy and world-boss markers now pulse with a small deterministic hover motion so combat-heavy hexes read as active without forcing a static-layer redraw.
-- World-map settlement, faction-claim, dungeon, and crafting-site markers now bob or pulse subtly, with utility sites picking up a stronger warm tint after dark so the world view reads as inhabited instead of static.
+- World-map structure and dungeon markers now use the same intermittent shimmer treatment as gathering-site markers, so built hexes read as locations instead of hostile contacts.
 - World-map gathering markers for ore, herbs, timber, and water now catch an intermittent deterministic shimmer so resource hexes feel active without turning into constant bouncing icons.
 - The canvas renderer now shows a fullscreen red warning effect when the player's HP drops below `30%`, and the warning clears once HP reaches `30%` or higher.
 - Logs provide system, movement, combat, loot, and other gameplay feedback.

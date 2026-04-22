@@ -709,35 +709,27 @@ function getStructureHexIconTint(structure: Tile['structure']) {
 
 function getStructureMarkerAnimationKind(structure: Tile['structure']) {
   if (
+    structure === 'camp' ||
     structure === 'coal-ore' ||
     structure === 'copper-ore' ||
+    structure === 'corruption-altar' ||
+    structure === 'dungeon' ||
+    structure === 'forge' ||
+    structure === 'furnace' ||
     structure === 'gold-ore' ||
     structure === 'herbs' ||
     structure === 'iron-ore' ||
     structure === 'lake' ||
+    structure === 'mana-font' ||
     structure === 'platinum-ore' ||
     structure === 'pond' ||
+    structure === 'rune-forge' ||
     structure === 'tin-ore' ||
-    structure === 'tree'
-  ) {
-    return 'resource' as const;
-  }
-
-  if (
-    structure === 'camp' ||
-    structure === 'forge' ||
-    structure === 'furnace' ||
+    structure === 'town' ||
+    structure === 'tree' ||
     structure === 'workshop'
   ) {
-    return 'utility' as const;
-  }
-
-  if (structure === 'town') {
-    return 'settlement' as const;
-  }
-
-  if (structure === 'dungeon') {
-    return 'dungeon' as const;
+    return 'resource' as const;
   }
 
   return null;

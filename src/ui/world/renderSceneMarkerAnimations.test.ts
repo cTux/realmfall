@@ -285,7 +285,7 @@ describe('renderScene marker animation', () => {
     expect(totalPolygonCalls(world)).toBe(initialPolygonCalls);
   });
 
-  it('bobs settlement markers on animation-only frames without rebuilding static terrain', async () => {
+  it('shimmers town markers on animation-only frames without rebuilding static terrain', async () => {
     const { renderScene } = await import('./renderScene');
     const { getSceneCache } = await import('./renderSceneCache');
     const game = createGame(1, 'render-scene-animated-settlement-markers');
@@ -316,35 +316,43 @@ describe('renderScene marker animation', () => {
       .children[0] as MockContainer;
     const scene = getSceneCache(app as never);
     const settlementMarker = scene.animatedWorldMarkers.find(
-      (marker) => marker.kind === 'settlement',
+      (marker) => marker.kind === 'resource',
     );
     expect(settlementMarker).toBeDefined();
     const wrapper = settlementMarker?.entry.wrapper as unknown as MockContainer;
+    const sprite = getMainSprite(wrapper);
     const initialY = wrapper.position.y;
+    const initialTint = sprite.tint;
     const initialPolygonCalls = totalPolygonCalls(world);
 
-    renderScene(
-      app as never,
-      game,
-      visibleTiles,
-      game.player.coord,
-      null,
-      12 * 60,
-      240,
+    const shimmerObserved = [240, 480, 720, 960, 1200, 1440, 1680, 1920].some(
+      (animationMs) => {
+        renderScene(
+          app as never,
+          game,
+          visibleTiles,
+          game.player.coord,
+          null,
+          12 * 60,
+          animationMs,
+        );
+        return wrapper.scale.x !== 1 || sprite.tint !== initialTint;
+      },
     );
 
-    expect(wrapper.position.y).not.toBe(initialY);
+    expect(shimmerObserved).toBe(true);
+    expect(wrapper.position.y).toBe(initialY);
     expect(totalPolygonCalls(world)).toBe(initialPolygonCalls);
   });
 
-  it('warms utility markers at night without rebuilding static terrain', async () => {
+  it('shimmers dungeon markers on animation-only frames without rebuilding static terrain', async () => {
     const { renderScene } = await import('./renderScene');
     const { getSceneCache } = await import('./renderSceneCache');
-    const game = createGame(1, 'render-scene-animated-utility-markers');
+    const game = createGame(1, 'render-scene-animated-dungeon-markers');
     game.tiles['1,0'] = {
       coord: { q: 1, r: 0 },
       terrain: 'plains',
-      structure: 'camp',
+      structure: 'dungeon',
       items: [],
       enemyIds: [],
     };
@@ -368,25 +376,30 @@ describe('renderScene marker animation', () => {
       .children[0] as MockContainer;
     const scene = getSceneCache(app as never);
     const utilityMarker = scene.animatedWorldMarkers.find(
-      (marker) => marker.kind === 'utility',
+      (marker) => marker.kind === 'resource',
     );
     expect(utilityMarker).toBeDefined();
     const wrapper = utilityMarker?.entry.wrapper as unknown as MockContainer;
     const sprite = getMainSprite(wrapper);
     const initialPolygonCalls = totalPolygonCalls(world);
-    const dayTint = sprite.tint;
+    const initialTint = sprite.tint;
 
-    renderScene(
-      app as never,
-      game,
-      visibleTiles,
-      game.player.coord,
-      null,
-      0,
-      240,
+    const shimmerObserved = [240, 480, 720, 960, 1200, 1440, 1680, 1920].some(
+      (animationMs) => {
+        renderScene(
+          app as never,
+          game,
+          visibleTiles,
+          game.player.coord,
+          null,
+          12 * 60,
+          animationMs,
+        );
+        return wrapper.scale.x !== 1 || sprite.tint !== initialTint;
+      },
     );
 
-    expect(sprite.tint).not.toBe(dayTint);
+    expect(shimmerObserved).toBe(true);
     expect(totalPolygonCalls(world)).toBe(initialPolygonCalls);
   });
 
