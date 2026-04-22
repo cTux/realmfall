@@ -73,6 +73,13 @@
     }
   },
   "progression": {
+    "playerXp": {
+      "enemyBase": 20,
+      "firstLevelRequirement": 20,
+      "lastLevelRequirement": 20000000,
+      "masteryBaseRequirement": 25000000,
+      "masteryGrowthRate": 0.05
+    },
     "gatheringBonus": {
       "perLevel": 0.01,
       "max": 1

@@ -1,5 +1,6 @@
 import {
   BLOOD_MOON_STAT_SCALE,
+  BASE_ENEMY_XP,
   COMBAT_GLOBAL_COOLDOWN_MS,
   ENEMY_RARITY_MULTIPLIERS,
   pickBloodMoonItemKind,
@@ -162,13 +163,7 @@ export function makeEnemy(
     attack: scaledAttack,
     baseDefense: worldBoss ? scaledDefense : baseDefense,
     defense: scaledDefense,
-    xp: Math.round(
-      (18 +
-        statTier * 14 +
-        rarityRank * 12 +
-        (structure === 'dungeon' ? 8 : 0)) *
-        (worldBoss ? 10 : 1),
-    ),
+    xp: BASE_ENEMY_XP,
     elite: elite || worldBoss,
     worldBoss,
     aggressive: options?.aggressive ?? true,

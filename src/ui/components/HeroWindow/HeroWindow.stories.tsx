@@ -60,10 +60,12 @@ export const OvercappedSecondaryStats: Story = {
       ...fixtures.heroStats,
       secondaryStatTotals: {
         ...(fixtures.heroStats.secondaryStatTotals ?? {}),
+        bonusExperience: { effective: 143, raw: 143 },
         criticalStrikeChance: { effective: 75, raw: 143 },
         criticalStrikeDamage: { effective: 225, raw: 293 },
         attackSpeed: { effective: 1.75, raw: 2.43 },
       },
+      bonusExperience: 143,
       criticalStrikeChance: 75,
       criticalStrikeDamage: 225,
       attackSpeed: 1.75,

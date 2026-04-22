@@ -6,7 +6,6 @@ import {
   getPlayerStats,
   getTileAt,
   moveToTile,
-  progressCombat,
   startCombat,
   useItem,
   type GameState,
@@ -15,7 +14,8 @@ import {
 import { HOME_SCROLL_ITEM_NAME_KEY } from './config';
 import { t } from '../i18n';
 import { buildItemFromConfig } from './content/items';
-import { makeCombatState } from './stateTestHelpers';
+import { addLog } from './logs';
+import { gainXp, levelThreshold, masteryLevelThreshold } from './progression';
 
 describe('game state items and progression', () => {
   it('can use consumables and drop inventory items onto the ground', () => {
@@ -276,46 +276,55 @@ describe('game state items and progression', () => {
 
   it('caps player level at 100 and gains infinite mastery levels after that', () => {
     const game = createGame(3, 'mastery-seed');
-    const level100Xp = 40 + 99 * 25;
-    const firstMasteryXp = (40 + 100 * 25) * 20;
-    const secondMasteryXp = (40 + 101 * 25) * 20;
+    const level100Xp = levelThreshold(99);
+    const firstMasteryXp = masteryLevelThreshold(0);
+    const secondMasteryXp = masteryLevelThreshold(1);
 
     game.player.level = 99;
     game.player.xp = 0;
     game.player.masteryLevel = 0;
-    game.enemies['enemy-1'] = {
-      id: 'enemy-1',
+
+    gainXp(game, level100Xp + firstMasteryXp + secondMasteryXp, addLog);
+    const stats = getPlayerStats(game.player);
+
+    expect(game.player.level).toBe(100);
+    expect(game.player.masteryLevel).toBe(2);
+    expect(game.player.xp).toBe(0);
+    expect(stats.nextLevelXp).toBe(masteryLevelThreshold(2));
+    expect(game.logs.some((entry) => /mastery level 2/i.test(entry.text))).toBe(
+      true,
+    );
+  });
+
+  it('awards the flat enemy XP amount even when an enemy carries a legacy XP value', () => {
+    const game = createGame(3, 'legacy-enemy-xp-seed');
+    const target = { q: 2, r: 0 };
+    game.tiles['2,0'] = {
+      coord: target,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: ['enemy-flat-xp'],
+    };
+    game.enemies['enemy-flat-xp'] = {
+      id: 'enemy-flat-xp',
       name: 'Training Dummy',
-      coord: { q: 0, r: 0 },
-      tier: 1,
+      coord: target,
+      tier: 99,
       hp: 1,
       maxHp: 1,
       attack: 0,
       defense: 0,
-      xp: level100Xp + firstMasteryXp + secondMasteryXp,
+      xp: 999_999,
       elite: false,
     };
-    game.tiles['0,0'] = {
-      ...game.tiles['0,0'],
-      enemyIds: ['enemy-1'],
-      items: [],
-    };
-    game.combat = makeCombatState(
-      { q: 0, r: 0 },
-      ['enemy-1'],
-      game.worldTimeMs,
-    );
+    game.player.coord = { q: 1, r: 0 };
 
-    const resolved = progressCombat(game);
-    const stats = getPlayerStats(resolved.player);
+    const encountered = moveToTile(game, target);
+    const resolved = startCombat(encountered);
 
-    expect(resolved.player.level).toBe(100);
-    expect(resolved.player.masteryLevel).toBe(2);
+    expect(resolved.player.level).toBe(2);
     expect(resolved.player.xp).toBe(0);
-    expect(stats.nextLevelXp).toBe((40 + 102 * 25) * 20);
-    expect(
-      resolved.logs.some((entry) => /mastery level 2/i.test(entry.text)),
-    ).toBe(true);
   });
 
   it('does not restore hp or mana on level up', () => {

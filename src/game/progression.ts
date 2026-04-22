@@ -1,8 +1,13 @@
 import { buildEquippedAbilityIds } from './abilityRuntime';
 import {
+  BASE_ENEMY_XP,
   GATHERING_BONUS_MAX,
   GATHERING_BONUS_PER_LEVEL,
+  MASTERY_BASE_XP_REQUIREMENT,
+  MASTERY_XP_GROWTH_RATE,
   MAX_PLAYER_LEVEL,
+  PLAYER_FIRST_LEVEL_XP_REQUIREMENT,
+  PLAYER_LAST_LEVEL_XP_REQUIREMENT,
 } from './config';
 import { resolveSecondaryStatValue, syncPlayerBaseStats } from './balance';
 import { StatusEffectTypeId } from './content/ids';
@@ -30,6 +35,11 @@ import {
   type SkillName,
   type SkillProgress,
 } from './types';
+
+const ORDINARY_LEVEL_GROWTH_FACTOR = Math.pow(
+  PLAYER_LAST_LEVEL_XP_REQUIREMENT / PLAYER_FIRST_LEVEL_XP_REQUIREMENT,
+  1 / Math.max(1, MAX_PLAYER_LEVEL - 2),
+);
 
 export function makeStartingSkills(): Record<SkillName, SkillProgress> {
   return Object.fromEntries(
@@ -91,6 +101,12 @@ export function getPlayerStats(player: Player) {
     player.level >= MAX_PLAYER_LEVEL
       ? masteryLevelThreshold(player.masteryLevel)
       : levelThreshold(player.level);
+  const bonusExperienceValue = resolveSecondaryStatValue(
+    getEquipmentSecondaryStatTotal(equipped, 'bonusExperience'),
+    Number.POSITIVE_INFINITY,
+  );
+  const bonusExperience = bonusExperienceValue.effective;
+  const rawBonusExperience = bonusExperienceValue.raw;
   const rawMaxHp = player.baseMaxHp + maxHpBonus;
   const maxHp = Math.max(
     1,
@@ -227,6 +243,7 @@ export function getPlayerStats(player: Player) {
     rawAttack,
     rawDefense,
     attackSpeed,
+    bonusExperience,
     rawAttackSpeed,
     criticalStrikeChance,
     rawCriticalStrikeChance,
@@ -260,6 +277,10 @@ export function getPlayerStats(player: Player) {
     rawFrenzyBuffChance,
     secondaryStatTotals: {
       attackSpeed: { effective: attackSpeed, raw: rawAttackSpeed },
+      bonusExperience: {
+        effective: bonusExperience,
+        raw: rawBonusExperience,
+      },
       criticalStrikeChance: {
         effective: criticalStrikeChance,
         raw: rawCriticalStrikeChance,
@@ -367,7 +388,10 @@ export function gainXp(
   amount: number,
   addLog: (state: GameState, kind: 'system', text: string) => void,
 ) {
-  state.player.xp += amount;
+  const awardedXp = resolveExperienceAward(state.player, amount);
+  if (awardedXp <= 0) return;
+
+  state.player.xp += awardedXp;
   while (state.player.level < MAX_PLAYER_LEVEL) {
     const requiredXp = levelThreshold(state.player.level);
     if (state.player.xp < requiredXp) return;
@@ -426,11 +450,20 @@ export function rollGatheringBonus(state: GameState, skill: SkillName) {
 }
 
 export function levelThreshold(level: number) {
-  return 40 + level * 25;
+  const clampedLevel = clampOrdinaryThresholdLevel(level);
+  const exponent = clampedLevel - 1;
+
+  return Math.round(
+    PLAYER_FIRST_LEVEL_XP_REQUIREMENT *
+      Math.pow(ORDINARY_LEVEL_GROWTH_FACTOR, exponent),
+  );
 }
 
 export function masteryLevelThreshold(masteryLevel: number) {
-  return levelThreshold(MAX_PLAYER_LEVEL + masteryLevel) * 20;
+  return Math.round(
+    MASTERY_BASE_XP_REQUIREMENT *
+      Math.pow(MASTERY_XP_GROWTH_RATE + 1, Math.max(0, masteryLevel)),
+  );
 }
 
 export function skillLevelThreshold(level: number) {
@@ -443,4 +476,36 @@ export function gatheringYieldBonus(level: number) {
 
 export function gatheringBonusChance(level: number) {
   return Math.min(GATHERING_BONUS_MAX, level * GATHERING_BONUS_PER_LEVEL);
+}
+
+export function resolveExperienceAward(
+  player: Pick<Player, 'equipment'>,
+  baseAmount = BASE_ENEMY_XP,
+) {
+  const normalizedBaseAmount = Math.max(0, Math.round(baseAmount));
+  if (normalizedBaseAmount === 0) return 0;
+
+  return Math.max(
+    1,
+    Math.round(
+      normalizedBaseAmount * (1 + getBonusExperiencePercent(player) / 100),
+    ),
+  );
+}
+
+function getBonusExperiencePercent(player: Pick<Player, 'equipment'>) {
+  return resolveSecondaryStatValue(
+    getEquipmentSecondaryStatTotal(
+      Object.values(player.equipment),
+      'bonusExperience',
+    ),
+    Number.POSITIVE_INFINITY,
+  ).effective;
+}
+
+function clampOrdinaryThresholdLevel(level: number) {
+  return Math.max(
+    1,
+    Math.min(Math.round(level), Math.max(1, MAX_PLAYER_LEVEL - 1)),
+  );
 }

@@ -20,6 +20,7 @@ export interface HeroWindowStats {
   attack: number;
   defense: number;
   attackSpeed?: number;
+  bonusExperience?: number;
   criticalStrikeChance?: number;
   criticalStrikeDamage?: number;
   lifestealChance?: number;

@@ -37,6 +37,7 @@ export const UNIQUE_SECONDARY_STAT_KEYS: SecondaryStatKey[] = [
 
 export const STANDARD_SECONDARY_STAT_KEYS: SecondaryStatKey[] = [
   'attackSpeed',
+  'bonusExperience',
   'criticalStrikeChance',
   'criticalStrikeDamage',
   'lifestealChance',

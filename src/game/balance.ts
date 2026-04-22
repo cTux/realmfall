@@ -84,11 +84,12 @@ export function scaleSecondaryItemStatForLevel(level: number) {
 
 export function resolveSecondaryStatValue(
   rawValue: number,
+  maximum = SECONDARY_STAT_CAP,
 ): SecondaryStatValue {
   const normalized = Math.max(0, Math.round(rawValue));
   return {
     raw: normalized,
-    effective: Math.min(SECONDARY_STAT_CAP, normalized),
+    effective: Math.min(maximum, normalized),
   };
 }
 

@@ -52,6 +52,7 @@ import {
   selectAbilityTargetId,
 } from './combatTargeting';
 import { addLog } from './logs';
+import { BASE_ENEMY_XP } from './config';
 import { getPlayerStats, gainXp } from './progression';
 import { cloneForWorldMutation, message } from './stateMutationHelpers';
 import { dropEnemyRewards } from './stateRewards';
@@ -566,7 +567,7 @@ function handleEnemyDefeat(
 ) {
   if (!state.enemies[enemy.id]) return;
 
-  gainXp(state, enemy.xp, addLog);
+  gainXp(state, BASE_ENEMY_XP, addLog);
   dropEnemyRewards(state, enemy);
   addLog(
     state,
