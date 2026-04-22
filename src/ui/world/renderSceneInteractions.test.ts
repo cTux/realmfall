@@ -258,6 +258,38 @@ describe('renderScene interactions', () => {
     expect(desertTerrainSprites[0]?.height).toBeGreaterThan(0);
   });
 
+  it('skips terrain background sprites when the graphics setting disables them', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { terrainArtFor } = await import('./worldTerrainArt');
+    const game = createGame(2, 'render-scene-terrain-background-disabled');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'desert',
+      items: [],
+      enemyIds: [],
+    };
+    const app = createMockApp();
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      { showTerrainBackgrounds: false },
+    );
+
+    const desertTerrainSprites = collectDescendants(getWorld(app)).filter(
+      (child): child is MockSprite =>
+        child instanceof MockSprite && child.icon === terrainArtFor('desert'),
+    );
+
+    expect(desertTerrainSprites).toHaveLength(0);
+  });
+
   it('keeps claim borders visible above hovered safe-path overlays', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(3, 'render-scene-safe-path-claim-border');

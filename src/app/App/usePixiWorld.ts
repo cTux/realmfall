@@ -47,6 +47,16 @@ export function usePixiWorld({
   setGame,
   setTooltip,
 }: UsePixiWorldArgs) {
+  const {
+    antialias,
+    autoDensity,
+    clearBeforeRender,
+    premultipliedAlpha,
+    preserveDrawingBuffer,
+    resolutionCap,
+    showTerrainBackgrounds,
+    useContextAlpha,
+  } = graphicsSettings;
   const hostRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<Application | null>(null);
   const worldTooltipKeyRef = useRef<string | null>(null);
@@ -66,6 +76,7 @@ export function usePixiWorld({
   const hoveredSafePathRef = useRef<stateModule.HexCoord[] | null>(null);
   const hoverAnalysisCacheRef = useRef(new Map<string, WorldHoverSnapshot>());
   const hoverSnapshotRef = useRef(createEmptyWorldHoverSnapshot());
+  const showTerrainBackgroundsRef = useRef(showTerrainBackgrounds);
   const lastRenderSnapshotRef = useRef<WorldRenderSnapshot>(
     createInitialWorldRenderSnapshot(),
   );
@@ -81,6 +92,11 @@ export function usePixiWorld({
     pausedAnimationMsRef.current = paused ? performance.now() : null;
     renderInvalidationRef.current += 1;
   }, [paused]);
+
+  useEffect(() => {
+    showTerrainBackgroundsRef.current = showTerrainBackgrounds;
+    renderInvalidationRef.current += 1;
+  }, [showTerrainBackgrounds]);
 
   useEffect(() => {
     const visibleTilesState = {
@@ -165,16 +181,16 @@ export function usePixiWorld({
           width: Math.max(window.innerWidth, 640),
           height: Math.max(window.innerHeight, 480),
           backgroundColor: 0x0b1020,
-          backgroundAlpha: graphicsSettings.useContextAlpha ? 0 : 1,
-          antialias: graphicsSettings.antialias,
-          autoDensity: graphicsSettings.autoDensity,
-          clearBeforeRender: graphicsSettings.clearBeforeRender,
+          backgroundAlpha: useContextAlpha ? 0 : 1,
+          antialias,
+          autoDensity,
+          clearBeforeRender,
           manageImports: false,
-          preserveDrawingBuffer: graphicsSettings.preserveDrawingBuffer,
-          premultipliedAlpha: graphicsSettings.premultipliedAlpha,
+          preserveDrawingBuffer,
+          premultipliedAlpha,
           preference: 'webgl',
           resolution: getGraphicsRenderResolution(
-            graphicsSettings,
+            { resolutionCap },
             window.devicePixelRatio,
           ),
         });
@@ -197,7 +213,7 @@ export function usePixiWorld({
         const resize = cameraModule.createWorldResizeHandler({
           app,
           hostRef,
-          graphicsSettings,
+          resolutionCap,
           worldMapCameraRef,
           getWorldMapContainer,
         });
@@ -214,6 +230,7 @@ export function usePixiWorld({
           selectedRef,
           hoveredMoveRef,
           hoveredSafePathRef,
+          showTerrainBackgroundsRef,
           pausedRef,
           pausedAnimationMsRef,
           worldTimeMsRef,
@@ -291,10 +308,16 @@ export function usePixiWorld({
   }, [
     enabled,
     gameRef,
-    graphicsSettings,
+    antialias,
+    autoDensity,
+    clearBeforeRender,
+    premultipliedAlpha,
+    preserveDrawingBuffer,
+    resolutionCap,
     setGame,
     setTooltip,
     tooltipPositionRef,
+    useContextAlpha,
     worldTimeMsRef,
   ]);
 
@@ -311,5 +334,6 @@ function createInitialWorldRenderSnapshot(): WorldRenderSnapshot {
     animationBucket: -1,
     invalidationToken: 0,
     iconTextureVersion: -1,
+    showTerrainBackgrounds: true,
   };
 }

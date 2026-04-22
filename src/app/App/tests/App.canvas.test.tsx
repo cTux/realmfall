@@ -54,6 +54,7 @@ describe('App canvas setup', () => {
       clearBeforeRender: false,
       preserveDrawingBuffer: true,
       premultipliedAlpha: false,
+      showTerrainBackgrounds: false,
       useContextAlpha: false,
     });
 
@@ -67,6 +68,28 @@ describe('App canvas setup', () => {
       clearBeforeRender: false,
       preserveDrawingBuffer: true,
       premultipliedAlpha: false,
+    });
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('passes the terrain background toggle into world renders', async () => {
+    loadEncryptedState.mockResolvedValue(null);
+    saveGraphicsSettings({
+      ...applyGraphicsPreset('balanced'),
+      preset: 'custom',
+      showTerrainBackgrounds: false,
+    });
+
+    const { host, root } = await renderApp();
+    await flushLazyModules();
+
+    expect(renderScene).toHaveBeenCalled();
+    expect(renderScene.mock.calls[0]?.[8]).toEqual({
+      showTerrainBackgrounds: false,
     });
 
     await act(async () => {

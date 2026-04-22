@@ -90,6 +90,10 @@ const ENEMY_GROUP_BADGE_RADIUS = 10;
 const ENEMY_GROUP_BADGE_OFFSET = { x: 14, y: 12 };
 const ENEMY_GROUP_BADGE_TEXT_OFFSET = { x: 10, y: 4 };
 
+interface RenderSceneOptions {
+  showTerrainBackgrounds?: boolean;
+}
+
 export function renderScene(
   app: Application,
   state: GameState,
@@ -99,6 +103,7 @@ export function renderScene(
   worldTimeMinutes = 12 * 60,
   animationMs = 0,
   hoveredSafePath: HexCoord[] | null = null,
+  options: RenderSceneOptions = {},
 ) {
   const scene = getSceneCache(app);
   const cloudInputs = getCloudRenderInputs(scene, state.seed);
@@ -112,6 +117,7 @@ export function renderScene(
   const worldBossIconSize = hexSize * 3.4;
   const playerIconSize = hexSize * 1.58;
   const terrainArtSize = hexSize * 2;
+  const showTerrainBackgrounds = options.showTerrainBackgrounds ?? true;
 
   if (WORLD_MAP_FISHEYE_ENABLED) {
     scene.worldMapFilterArea.width = app.screen.width;
@@ -252,7 +258,7 @@ export function renderScene(
         return;
       }
 
-      if (shouldRenderStatic) {
+      if (shouldRenderStatic && showTerrainBackgrounds) {
         const terrainSprite = takeSprite(
           scene.worldTerrainSprites,
           terrainArtFor(tile.terrain),

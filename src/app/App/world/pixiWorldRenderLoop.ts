@@ -16,6 +16,7 @@ export interface WorldRenderSnapshot {
   animationBucket: number;
   invalidationToken: number;
   iconTextureVersion: number;
+  showTerrainBackgrounds: boolean;
 }
 
 const WORLD_ANIMATION_FPS = 30;
@@ -31,6 +32,7 @@ export function createWorldRenderSnapshot(): WorldRenderSnapshot {
     animationBucket: -1,
     invalidationToken: 0,
     iconTextureVersion: getWorldIconTextureVersion(),
+    showTerrainBackgrounds: true,
   };
 }
 
@@ -42,6 +44,7 @@ export function createWorldRenderFrame({
   selectedRef,
   hoveredMoveRef,
   hoveredSafePathRef,
+  showTerrainBackgroundsRef,
   pausedRef,
   pausedAnimationMsRef,
   worldTimeMsRef,
@@ -57,6 +60,7 @@ export function createWorldRenderFrame({
   selectedRef: MutableRefObject<stateModule.HexCoord>;
   hoveredMoveRef: MutableRefObject<stateModule.HexCoord | null>;
   hoveredSafePathRef: MutableRefObject<stateModule.HexCoord[] | null>;
+  showTerrainBackgroundsRef: MutableRefObject<boolean>;
   pausedRef: MutableRefObject<boolean>;
   pausedAnimationMsRef: MutableRefObject<number | null>;
   worldTimeMsRef: MutableRefObject<number>;
@@ -76,6 +80,7 @@ export function createWorldRenderFrame({
     const lastRenderSnapshot = lastRenderSnapshotRef.current;
     const invalidationToken = renderInvalidationRef.current;
     const iconTextureVersion = getWorldIconTextureVersion();
+    const showTerrainBackgrounds = showTerrainBackgroundsRef.current;
 
     if (
       lastRenderSnapshot.game === currentGame &&
@@ -83,6 +88,7 @@ export function createWorldRenderFrame({
       lastRenderSnapshot.animationBucket === animationBucket &&
       lastRenderSnapshot.invalidationToken === invalidationToken &&
       lastRenderSnapshot.iconTextureVersion === iconTextureVersion &&
+      lastRenderSnapshot.showTerrainBackgrounds === showTerrainBackgrounds &&
       sameCoord(lastRenderSnapshot.selected, currentSelected) &&
       sameCoord(lastRenderSnapshot.hoveredMove, currentHoveredMove) &&
       sameCoordList(lastRenderSnapshot.hoveredSafePath, currentHoveredSafePath)
@@ -99,6 +105,7 @@ export function createWorldRenderFrame({
       animationBucket,
       invalidationToken,
       iconTextureVersion,
+      showTerrainBackgrounds,
     };
     renderScene(
       app,
@@ -109,6 +116,7 @@ export function createWorldRenderFrame({
       getWorldTimeMinutesFromTimestamp(worldTimeMsRef.current),
       animationBucket * WORLD_ANIMATION_FRAME_MS,
       currentHoveredSafePath,
+      { showTerrainBackgrounds },
     );
   };
 }
