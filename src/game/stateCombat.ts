@@ -109,8 +109,14 @@ export function startCombat(state: GameState): GameState {
   return next;
 }
 
+type CombatAutomationTimingState = {
+  combat: GameState['combat'];
+  player: Pick<GameState['player'], 'statusEffects'>;
+  enemies: GameState['enemies'];
+};
+
 export function getCombatAutomationDelay(
-  state: Pick<GameState, 'combat' | 'player' | 'enemies'>,
+  state: CombatAutomationTimingState,
   worldTimeMs: number,
 ) {
   const { combat } = state;

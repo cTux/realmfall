@@ -108,7 +108,9 @@ describe('worldIcons', () => {
       elite: false,
     };
 
-    const icons = getVisibleWorldIconAssetIds(game, [game.tiles['1,0']]);
+    const icons = getVisibleWorldIconAssetIds(game.enemies, [
+      game.tiles['1,0'],
+    ]);
 
     expect(icons).toEqual(
       expect.arrayContaining([

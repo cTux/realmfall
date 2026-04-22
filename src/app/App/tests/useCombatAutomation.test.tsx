@@ -22,6 +22,7 @@ vi.mock('../../../game/state', async () => {
 describe('useCombatAutomation', () => {
   let host: HTMLDivElement;
   let root: Root;
+  const worldTimeMsRef = { current: 0 };
 
   beforeAll(() => {
     (
@@ -54,14 +55,12 @@ describe('useCombatAutomation', () => {
 
     function TestHarness() {
       useCombatAutomation({
-        game: {
-          combat: { started: true },
-          player: {},
-          enemies: {},
-        } as Pick<GameState, 'combat' | 'player' | 'enemies'>,
+        combat: { started: true } as GameState['combat'],
+        enemyLookup: {},
         paused: true,
+        playerStatusEffects: [],
         setGame,
-        worldTimeMsRef: { current: 0 },
+        worldTimeMsRef,
       });
 
       return null;
@@ -82,14 +81,12 @@ describe('useCombatAutomation', () => {
 
     function TestHarness({ paused }: { paused: boolean }) {
       useCombatAutomation({
-        game: {
-          combat: { started: true },
-          player: {},
-          enemies: {},
-        } as Pick<GameState, 'combat' | 'player' | 'enemies'>,
+        combat: { started: true } as GameState['combat'],
+        enemyLookup: {},
         paused,
+        playerStatusEffects: [],
         setGame,
-        worldTimeMsRef: { current: 0 },
+        worldTimeMsRef,
       });
 
       return null;
@@ -108,5 +105,44 @@ describe('useCombatAutomation', () => {
 
     expect(getCombatAutomationDelay).toHaveBeenCalledTimes(1);
     expect(setGame).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignores unrelated parent rerenders when the combat slices are unchanged', async () => {
+    const setGame = vi.fn();
+    const combat = { started: true } as GameState['combat'];
+    const playerStatusEffects: GameState['player']['statusEffects'] = [];
+    const enemyLookup: GameState['enemies'] = {};
+
+    function TestHarness({ unrelated }: { unrelated: number }) {
+      const appState = {
+        combat,
+        player: { statusEffects: playerStatusEffects },
+        enemies: enemyLookup,
+        unrelated,
+      };
+
+      useCombatAutomation({
+        combat: appState.combat,
+        enemyLookup: appState.enemies,
+        paused: false,
+        playerStatusEffects: appState.player.statusEffects,
+        setGame,
+        worldTimeMsRef,
+      });
+
+      return <div data-unrelated={appState.unrelated} />;
+    }
+
+    await act(async () => {
+      root.render(<TestHarness unrelated={0} />);
+    });
+
+    expect(getCombatAutomationDelay).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      root.render(<TestHarness unrelated={1} />);
+    });
+
+    expect(getCombatAutomationDelay).toHaveBeenCalledTimes(1);
   });
 });
