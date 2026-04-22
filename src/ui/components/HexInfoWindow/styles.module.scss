@@ -15,7 +15,7 @@
     background: rgb(14 165 233 / 18%);
   }
 
-  &:disabled {
+  &[aria-disabled='true'] {
     cursor: default;
     opacity: 1;
   }

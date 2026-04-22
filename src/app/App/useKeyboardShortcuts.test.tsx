@@ -30,12 +30,14 @@ describe('useKeyboardShortcuts', () => {
 
     function TestHarness() {
       useKeyboardShortcuts({
+        canTerritoryAction: false,
         combatStartAvailable: false,
         hexContentWindowShown: false,
         interactLabel: null,
         lootSnapshotLength: 0,
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
+        onTerritoryAction: vi.fn(),
         onTakeAllLoot: vi.fn(),
         onCloseAllWindows: vi.fn(),
         onTogglePause: vi.fn(),
@@ -84,12 +86,14 @@ describe('useKeyboardShortcuts', () => {
 
     function TestHarness() {
       useKeyboardShortcuts({
+        canTerritoryAction: false,
         combatStartAvailable: false,
         hexContentWindowShown: false,
         interactLabel: null,
         lootSnapshotLength: 0,
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
+        onTerritoryAction: vi.fn(),
         onTakeAllLoot: vi.fn(),
         onCloseAllWindows: vi.fn(),
         onTogglePause,
@@ -143,12 +147,14 @@ describe('useKeyboardShortcuts', () => {
 
     function TestHarness() {
       useKeyboardShortcuts({
+        canTerritoryAction: false,
         combatStartAvailable: false,
         hexContentWindowShown: false,
         interactLabel: null,
         lootSnapshotLength: 0,
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
+        onTerritoryAction: vi.fn(),
         onTakeAllLoot: vi.fn(),
         onCloseAllWindows: vi.fn(),
         onTogglePause,
@@ -192,5 +198,53 @@ describe('useKeyboardShortcuts', () => {
     expect(onTogglePause).not.toHaveBeenCalled();
     expect(spaceEvent).toBeDefined();
     expect(spaceEvent?.defaultPrevented).toBe(false);
+  });
+
+  it('triggers the hex territory hotkey when the hex window can act', async () => {
+    const onTerritoryAction = vi.fn();
+
+    function TestHarness() {
+      useKeyboardShortcuts({
+        canTerritoryAction: true,
+        combatStartAvailable: false,
+        hexContentWindowShown: true,
+        interactLabel: null,
+        lootSnapshotLength: 0,
+        onStartCombat: vi.fn(),
+        onInteract: vi.fn(),
+        onTerritoryAction,
+        onTakeAllLoot: vi.fn(),
+        onCloseAllWindows: vi.fn(),
+        onTogglePause: vi.fn(),
+        onToggleDockWindow: vi.fn(),
+        onUseActionBarSlot: vi.fn(),
+        windowShown: {
+          hero: false,
+          skills: false,
+          recipes: false,
+          hexInfo: true,
+          equipment: false,
+          inventory: false,
+          loot: false,
+          log: false,
+          combat: false,
+          settings: false,
+        },
+      });
+
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<TestHarness />);
+    });
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'a' }),
+      );
+    });
+
+    expect(onTerritoryAction).toHaveBeenCalledTimes(1);
   });
 });

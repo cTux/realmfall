@@ -115,7 +115,7 @@ export const CombatEncounter: Story = {
       terrain: 'Rift',
       enemyCount: 2,
       canTerritoryAction: false,
-      territoryActionLabel: 'Claim hex',
+      territoryActionLabel: 'Cl(a)im',
     }),
     combat: buildCombatState(),
     combatPlayerParty: [
@@ -240,7 +240,7 @@ function buildStructureArgs(
     interactLabel: overrides.interactLabel ?? structureActionLabel(structure),
     canInteract: overrides.canInteract ?? false,
     canTerritoryAction: overrides.canTerritoryAction ?? true,
-    territoryActionLabel: overrides.territoryActionLabel ?? 'Claim hex',
+    territoryActionLabel: overrides.territoryActionLabel ?? 'Cl(a)im',
     canBulkProspectEquipment: overrides.canBulkProspectEquipment ?? false,
     canBulkSellEquipment: overrides.canBulkSellEquipment ?? false,
     itemModification: overrides.itemModification ?? null,

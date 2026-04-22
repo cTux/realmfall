@@ -311,12 +311,14 @@ export function App() {
   }, []);
 
   useKeyboardShortcuts({
+    canTerritoryAction: claimStatus.canClaim,
     combatStartAvailable: Boolean(game.combat && !game.combat.started),
     hexContentWindowShown: windowShown.hexInfo,
     interactLabel,
     lootSnapshotLength: currentTile.items.length,
     onStartCombat: handleStartCombat,
     onInteract: handleInteract,
+    onTerritoryAction: handleClaimHex,
     onTakeAllLoot: handleTakeAllLoot,
     onCloseAllWindows: closeAllWindows,
     onTogglePause: handleTogglePause,

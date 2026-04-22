@@ -7,12 +7,14 @@ import {
 import { WINDOW_HOTKEYS } from './utils/windowHotkeys';
 
 interface UseKeyboardShortcutsOptions {
+  canTerritoryAction: boolean;
   combatStartAvailable: boolean;
   hexContentWindowShown: boolean;
   interactLabel: string | null;
   lootSnapshotLength: number;
   onStartCombat: () => void;
   onInteract: () => void;
+  onTerritoryAction: () => void;
   onTakeAllLoot: () => void;
   onCloseAllWindows: () => void;
   onCloseAllWindowsSound?: () => void;
@@ -24,12 +26,14 @@ interface UseKeyboardShortcutsOptions {
 }
 
 export function useKeyboardShortcuts({
+  canTerritoryAction,
   combatStartAvailable,
   hexContentWindowShown,
   interactLabel,
   lootSnapshotLength,
   onStartCombat,
   onInteract,
+  onTerritoryAction,
   onTakeAllLoot,
   onCloseAllWindows,
   onCloseAllWindowsSound,
@@ -85,6 +89,12 @@ export function useKeyboardShortcuts({
     if (lowerKey === 'q' && interactLabel) {
       event.preventDefault();
       onInteract();
+      return;
+    }
+
+    if (lowerKey === 'a' && hexContentWindowShown && canTerritoryAction) {
+      event.preventDefault();
+      onTerritoryAction();
       return;
     }
 

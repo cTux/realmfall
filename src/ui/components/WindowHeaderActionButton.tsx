@@ -32,12 +32,21 @@ export const WindowHeaderActionButton = ({
     <button
       type="button"
       className={className}
-      disabled={disabled}
+      aria-disabled={disabled ? 'true' : undefined}
       aria-pressed={ariaPressed}
+      tabIndex={disabled ? -1 : undefined}
       data-ui-audio-click="off"
-      onPointerDown={(event) => event.stopPropagation()}
+      onPointerDown={(event) => {
+        event.stopPropagation();
+        if (disabled) {
+          event.preventDefault();
+        }
+      }}
       onClick={(event) => {
         event.stopPropagation();
+        if (disabled) {
+          return;
+        }
         audio.click();
         onClick();
       }}

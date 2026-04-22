@@ -129,7 +129,7 @@ describe('ui window markup', () => {
           interactLabel="Chop tree"
           canInteract
           canTerritoryAction
-          territoryActionLabel="Claim hex"
+          territoryActionLabel="Cl(a)im"
           canBulkProspectEquipment={false}
           canBulkSellEquipment={false}
           territoryActionExplanation={null}
@@ -295,6 +295,7 @@ describe('ui window markup', () => {
     );
     expect(markup).toContain(WINDOW_LABELS.recipes.suffix);
     expect(markup).toContain(WINDOW_LABELS.hexInfo.suffix);
+    expect(markup).toContain('Cl(a)im');
     expect(markup).toContain('(Q) Gather');
     expect(markup).toContain('Structure HP');
     expect(markup).toContain('Town Stock');
@@ -330,7 +331,7 @@ describe('ui window markup', () => {
           interactLabel={null}
           canInteract={false}
           canTerritoryAction={false}
-          territoryActionLabel="Claim hex"
+          territoryActionLabel="Cl(a)im"
           canBulkProspectEquipment={false}
           canBulkSellEquipment={false}
           territoryActionExplanation={null}
@@ -360,7 +361,7 @@ describe('ui window markup', () => {
           interactLabel={null}
           canInteract={false}
           canTerritoryAction={false}
-          territoryActionLabel="Claim hex"
+          territoryActionLabel="Cl(a)im"
           canBulkProspectEquipment={false}
           canBulkSellEquipment={false}
           territoryActionExplanation={null}
@@ -401,7 +402,7 @@ describe('ui window markup', () => {
         interactLabel="Chop tree"
         canInteract
         canTerritoryAction={false}
-        territoryActionLabel="Claim hex"
+        territoryActionLabel="Cl(a)im"
         canBulkProspectEquipment={false}
         canBulkSellEquipment={false}
         territoryActionExplanation={null}
@@ -424,5 +425,45 @@ describe('ui window markup', () => {
 
     expect(markup).toContain('(Q) Gather');
     expect(markup).not.toContain('Nothing of note stirs here.');
+  });
+
+  it('keeps claim requirement copy out of the hex window body', async () => {
+    const markup = await renderMarkup(
+      <HexInfoWindow
+        position={DEFAULT_WINDOWS.hexInfo}
+        onMove={() => {}}
+        isHome={false}
+        onSetHome={() => {}}
+        terrain="Plains"
+        structure={null}
+        enemyCount={0}
+        interactLabel={null}
+        canInteract={false}
+        canTerritoryAction={false}
+        territoryActionLabel="Cl(a)im"
+        territoryActionExplanation="Claiming needs 1 Cloth and 1 Sticks for a banner."
+        canBulkProspectEquipment={false}
+        canBulkSellEquipment={false}
+        bulkProspectEquipmentExplanation={null}
+        bulkSellEquipmentExplanation={null}
+        onInteract={() => {}}
+        onTerritoryAction={() => {}}
+        onProspect={() => {}}
+        onSellAll={() => {}}
+        territoryName={null}
+        territoryOwnerType={null}
+        territoryNpc={null}
+        townStock={[]}
+        gold={0}
+        onBuyItem={() => {}}
+        onHoverItem={() => {}}
+        onLeaveItem={() => {}}
+      />,
+    );
+
+    expect(markup).toContain('Cl(a)im');
+    expect(markup).not.toContain(
+      'Claiming needs 1 Cloth and 1 Sticks for a banner.',
+    );
   });
 });

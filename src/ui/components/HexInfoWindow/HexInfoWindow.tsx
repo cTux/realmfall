@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { t } from '../../../i18n';
+import type { TooltipLine } from '../../tooltips';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { DeferredWindowShell } from '../DeferredWindowShell';
 import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
@@ -35,6 +36,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   canBulkSellEquipment,
   itemModification,
   canTerritoryAction,
+  territoryActionKind = 'claim',
   territoryActionLabel,
   territoryActionExplanation,
   bulkProspectEquipmentExplanation,
@@ -99,6 +101,14 @@ export const HexInfoWindow = memo(function HexInfoWindow({
       {t('ui.hexInfo.interactAction')}
     </WindowHeaderActionButton>
   ) : null;
+  const territoryActionTooltipLines = getTerritoryActionTooltipLines({
+    territoryActionExplanation,
+    territoryActionKind,
+  });
+  const territoryActionTooltipBorderColor =
+    territoryActionKind === 'unclaim'
+      ? 'rgba(248, 113, 113, 0.9)'
+      : 'rgba(74, 222, 128, 0.9)';
 
   return (
     <DeferredWindowShell
@@ -117,8 +127,20 @@ export const HexInfoWindow = memo(function HexInfoWindow({
         <>
           {primaryHeaderAction}
           <WindowHeaderActionButton
+            className={inventoryStyles.headerButton}
+            disabled={!canTerritoryAction}
+            onClick={onTerritoryAction}
+            tooltipTitle={territoryActionLabel}
+            tooltipLines={territoryActionTooltipLines}
+            tooltipBorderColor={territoryActionTooltipBorderColor}
+            onHoverDetail={onHoverDetail}
+            onLeaveDetail={onLeaveDetail}
+          >
+            {territoryActionLabel}
+          </WindowHeaderActionButton>
+          <WindowHeaderActionButton
             className={`${inventoryStyles.headerButton} ${styles.homeButton}`}
-            aria-pressed={isHome}
+            ariaPressed={isHome}
             disabled={!canSetHome || isHome}
             onClick={onSetHome}
             tooltipTitle={t('ui.hexInfo.setHomeAction')}
@@ -143,6 +165,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
         canBulkProspectEquipment,
         canBulkSellEquipment,
         itemModification,
+        territoryActionKind,
         canTerritoryAction,
         territoryActionLabel,
         territoryActionExplanation,
@@ -181,3 +204,31 @@ export const HexInfoWindow = memo(function HexInfoWindow({
     />
   );
 });
+
+function getTerritoryActionTooltipLines({
+  territoryActionExplanation,
+  territoryActionKind,
+}: {
+  territoryActionExplanation?: string | null;
+  territoryActionKind: 'claim' | 'unclaim';
+}) {
+  const lines: TooltipLine[] = [];
+  const claimMaterialExplanation = t('game.message.claim.status.needsBannerMaterials');
+
+  if (
+    territoryActionExplanation &&
+    territoryActionExplanation !== claimMaterialExplanation
+  ) {
+    lines.push({ kind: 'text', text: territoryActionExplanation });
+  }
+
+  lines.push({
+    kind: 'text',
+    text:
+      territoryActionKind === 'unclaim'
+        ? t('ui.tooltip.window.unclaim')
+        : t('ui.tooltip.window.claim'),
+  });
+
+  return lines;
+}

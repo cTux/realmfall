@@ -32,3 +32,17 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+export const Disabled: Story = {
+  args: {
+    children: 'Cl(a)im',
+    disabled: true,
+    tooltipTitle: 'Cl(a)im',
+    tooltipLines: [
+      {
+        kind: 'text',
+        text: 'Claim this hex by spending 1 Cloth and 1 Sticks for a banner.',
+      },
+    ],
+  },
+};

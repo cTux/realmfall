@@ -43,6 +43,7 @@ export interface HexInfoWindowProps extends WindowDetailTooltipHandlers {
     selectedReforgeStatIndex: number | null;
   } | null;
   canTerritoryAction: boolean;
+  territoryActionKind?: 'claim' | 'unclaim';
   territoryActionLabel: string;
   territoryActionExplanation?: string | null;
   bulkProspectEquipmentExplanation?: string | null;

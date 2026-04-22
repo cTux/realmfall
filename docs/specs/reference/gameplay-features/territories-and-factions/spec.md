@@ -15,6 +15,7 @@ This spec covers generated faction territories plus player land-claim behavior.
 - Claims cannot be placed next to foreign claims.
 - Player claims can be removed only when the remaining player-owned claimed hexes stay as a single connected territory, or no claimed territory remains.
 - Claiming consumes banner materials from inventory.
+- The hex info window surfaces claim and unclaim from the title-bar action row, and claim hover copy names the banner cost instead of rendering that requirement as body text.
 
 ## Main Implementation Areas
 

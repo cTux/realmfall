@@ -16,9 +16,6 @@ export function HexInfoWindowContent({
   enemyCount,
   interactLabel,
   canInteract,
-  canTerritoryAction,
-  territoryActionLabel,
-  territoryActionExplanation,
   canBulkProspectEquipment,
   canBulkSellEquipment,
   itemModification,
@@ -29,7 +26,6 @@ export function HexInfoWindowContent({
   onClearItemModificationSelection = () => undefined,
   onSelectItemModificationReforgeStat = () => undefined,
   onToggleItemModificationPicker = () => undefined,
-  onTerritoryAction,
   onProspect,
   onSellAll,
   structureHp,
@@ -144,27 +140,19 @@ export function HexInfoWindowContent({
                 </div>
               ) : null}
 
-              <div className={styles.actions}>
-                <button
-                  onClick={onTerritoryAction}
-                  disabled={!canTerritoryAction}
-                >
-                  {territoryActionLabel}
-                </button>
-                {canBulkProspectEquipment ? (
-                  <button onClick={onProspect}>
-                    {t('ui.hexInfo.prospectAction')}
-                  </button>
-                ) : null}
-                {canBulkSellEquipment ? (
-                  <button onClick={onSellAll}>
-                    {t('ui.hexInfo.sellAllAction')}
-                  </button>
-                ) : null}
-              </div>
-
-              {territoryActionExplanation ? (
-                <div className={styles.empty}>{territoryActionExplanation}</div>
+              {canBulkProspectEquipment || canBulkSellEquipment ? (
+                <div className={styles.actions}>
+                  {canBulkProspectEquipment ? (
+                    <button onClick={onProspect}>
+                      {t('ui.hexInfo.prospectAction')}
+                    </button>
+                  ) : null}
+                  {canBulkSellEquipment ? (
+                    <button onClick={onSellAll}>
+                      {t('ui.hexInfo.sellAllAction')}
+                    </button>
+                  ) : null}
+                </div>
               ) : null}
               {bulkProspectEquipmentExplanation ? (
                 <div className={styles.empty}>
