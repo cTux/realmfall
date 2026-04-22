@@ -296,6 +296,7 @@ describe('ui window markup', () => {
     expect(markup).toContain(WINDOW_LABELS.recipes.suffix);
     expect(markup).toContain(WINDOW_LABELS.hexInfo.suffix);
     expect(markup).toContain('Cl(a)im');
+    expect(markup).toContain('H(o)me');
     expect(markup).toContain('(Q) Gather');
     expect(markup).toContain('Structure HP');
     expect(markup).toContain('Town Stock');

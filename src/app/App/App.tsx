@@ -309,8 +309,13 @@ export function App() {
   const handleTogglePause = useCallback(() => {
     setPaused((current) => !current);
   }, []);
+  const canSetHomeAction =
+    (!currentTile.claim || currentTile.claim.ownerType === 'player') &&
+    (game.homeHex.q !== game.player.coord.q ||
+      game.homeHex.r !== game.player.coord.r);
 
   useKeyboardShortcuts({
+    canSetHomeAction,
     canTerritoryAction: claimStatus.canClaim,
     combatStartAvailable: Boolean(game.combat && !game.combat.started),
     hexContentWindowShown: windowShown.hexInfo,
@@ -318,6 +323,7 @@ export function App() {
     lootSnapshotLength: currentTile.items.length,
     onStartCombat: handleStartCombat,
     onInteract: handleInteract,
+    onSetHome: handleSetHome,
     onTerritoryAction: handleClaimHex,
     onTakeAllLoot: handleTakeAllLoot,
     onCloseAllWindows: closeAllWindows,

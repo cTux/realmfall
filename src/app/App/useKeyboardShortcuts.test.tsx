@@ -30,6 +30,7 @@ describe('useKeyboardShortcuts', () => {
 
     function TestHarness() {
       useKeyboardShortcuts({
+        canSetHomeAction: false,
         canTerritoryAction: false,
         combatStartAvailable: false,
         hexContentWindowShown: false,
@@ -37,6 +38,7 @@ describe('useKeyboardShortcuts', () => {
         lootSnapshotLength: 0,
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
+        onSetHome: vi.fn(),
         onTerritoryAction: vi.fn(),
         onTakeAllLoot: vi.fn(),
         onCloseAllWindows: vi.fn(),
@@ -86,6 +88,7 @@ describe('useKeyboardShortcuts', () => {
 
     function TestHarness() {
       useKeyboardShortcuts({
+        canSetHomeAction: false,
         canTerritoryAction: false,
         combatStartAvailable: false,
         hexContentWindowShown: false,
@@ -93,6 +96,7 @@ describe('useKeyboardShortcuts', () => {
         lootSnapshotLength: 0,
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
+        onSetHome: vi.fn(),
         onTerritoryAction: vi.fn(),
         onTakeAllLoot: vi.fn(),
         onCloseAllWindows: vi.fn(),
@@ -147,6 +151,7 @@ describe('useKeyboardShortcuts', () => {
 
     function TestHarness() {
       useKeyboardShortcuts({
+        canSetHomeAction: false,
         canTerritoryAction: false,
         combatStartAvailable: false,
         hexContentWindowShown: false,
@@ -154,6 +159,7 @@ describe('useKeyboardShortcuts', () => {
         lootSnapshotLength: 0,
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
+        onSetHome: vi.fn(),
         onTerritoryAction: vi.fn(),
         onTakeAllLoot: vi.fn(),
         onCloseAllWindows: vi.fn(),
@@ -205,6 +211,7 @@ describe('useKeyboardShortcuts', () => {
 
     function TestHarness() {
       useKeyboardShortcuts({
+        canSetHomeAction: false,
         canTerritoryAction: true,
         combatStartAvailable: false,
         hexContentWindowShown: true,
@@ -212,6 +219,7 @@ describe('useKeyboardShortcuts', () => {
         lootSnapshotLength: 0,
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
+        onSetHome: vi.fn(),
         onTerritoryAction,
         onTakeAllLoot: vi.fn(),
         onCloseAllWindows: vi.fn(),
@@ -246,5 +254,55 @@ describe('useKeyboardShortcuts', () => {
     });
 
     expect(onTerritoryAction).toHaveBeenCalledTimes(1);
+  });
+
+  it('triggers the home hotkey when the hex window can set home', async () => {
+    const onSetHome = vi.fn();
+
+    function TestHarness() {
+      useKeyboardShortcuts({
+        canSetHomeAction: true,
+        canTerritoryAction: false,
+        combatStartAvailable: false,
+        hexContentWindowShown: true,
+        interactLabel: null,
+        lootSnapshotLength: 0,
+        onStartCombat: vi.fn(),
+        onInteract: vi.fn(),
+        onSetHome,
+        onTerritoryAction: vi.fn(),
+        onTakeAllLoot: vi.fn(),
+        onCloseAllWindows: vi.fn(),
+        onTogglePause: vi.fn(),
+        onToggleDockWindow: vi.fn(),
+        onUseActionBarSlot: vi.fn(),
+        windowShown: {
+          hero: false,
+          skills: false,
+          recipes: false,
+          hexInfo: true,
+          equipment: false,
+          inventory: false,
+          loot: false,
+          log: false,
+          combat: false,
+          settings: false,
+        },
+      });
+
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<TestHarness />);
+    });
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'o' }),
+      );
+    });
+
+    expect(onSetHome).toHaveBeenCalledTimes(1);
   });
 });

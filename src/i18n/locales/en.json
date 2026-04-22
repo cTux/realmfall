@@ -560,7 +560,7 @@
   "ui.hexInfo.structureHint.runeForge": "Click the slot below, then choose an equippable item in Inventory or Equipment to pay gold and reforge one secondary stat. Reforging again rerolls the same pink stat.",
   "ui.hexInfo.structureHint.manaFont": "Click the slot below, then choose an equippable item in Inventory or Equipment to pay gold and add or replace one cyan enchanted stat.",
   "ui.hexInfo.structureHint.corruptionAltar": "Click the slot below, then choose an equippable item in Inventory or Equipment to pay gold and corrupt it. Corruption permanently blocks further changes and has a 5% chance to destroy the item.",
-  "ui.hexInfo.setHomeAction": "Home",
+  "ui.hexInfo.setHomeAction": "H(o)me",
   "ui.hexInfo.structureHpLabel": "Structure HP",
   "ui.hexInfo.structureLabel": "Structure",
   "ui.hexInfo.terrainLabel": "Terrain",

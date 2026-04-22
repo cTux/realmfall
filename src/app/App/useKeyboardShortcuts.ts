@@ -7,6 +7,7 @@ import {
 import { WINDOW_HOTKEYS } from './utils/windowHotkeys';
 
 interface UseKeyboardShortcutsOptions {
+  canSetHomeAction: boolean;
   canTerritoryAction: boolean;
   combatStartAvailable: boolean;
   hexContentWindowShown: boolean;
@@ -14,6 +15,7 @@ interface UseKeyboardShortcutsOptions {
   lootSnapshotLength: number;
   onStartCombat: () => void;
   onInteract: () => void;
+  onSetHome: () => void;
   onTerritoryAction: () => void;
   onTakeAllLoot: () => void;
   onCloseAllWindows: () => void;
@@ -26,6 +28,7 @@ interface UseKeyboardShortcutsOptions {
 }
 
 export function useKeyboardShortcuts({
+  canSetHomeAction,
   canTerritoryAction,
   combatStartAvailable,
   hexContentWindowShown,
@@ -33,6 +36,7 @@ export function useKeyboardShortcuts({
   lootSnapshotLength,
   onStartCombat,
   onInteract,
+  onSetHome,
   onTerritoryAction,
   onTakeAllLoot,
   onCloseAllWindows,
@@ -95,6 +99,12 @@ export function useKeyboardShortcuts({
     if (lowerKey === 'a' && hexContentWindowShown && canTerritoryAction) {
       event.preventDefault();
       onTerritoryAction();
+      return;
+    }
+
+    if (lowerKey === 'o' && hexContentWindowShown && canSetHomeAction) {
+      event.preventDefault();
+      onSetHome();
       return;
     }
 
