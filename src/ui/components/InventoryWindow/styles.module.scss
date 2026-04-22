@@ -5,7 +5,6 @@
   height: min(360px, calc(100vh - 16px));
   display: flex;
   flex-direction: column;
-  overflow: visible;
 
   @media (width <= 980px) {
     width: min(390px, calc(100vw - 16px));
