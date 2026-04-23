@@ -1,3 +1,13 @@
+import playerIcon from '../assets/icons/visored-helm.svg';
+import sparklesIcon from '../assets/icons/sparkles.svg';
+import bookCoverIcon from '../assets/icons/book-cover.svg';
+import villageIcon from '../assets/icons/village.svg';
+import armorIcon from '../assets/icons/checked-shield.svg';
+import coinsIcon from '../assets/icons/coins.svg';
+import stonePileIcon from '../assets/icons/stone-pile.svg';
+import logIcon from '../assets/icons/log.svg';
+import enemyIcon from '../assets/icons/wolf-head.svg';
+import gearsIcon from '../assets/icons/gears.svg';
 import { LOG_KINDS, type LogKind } from '../game/stateTypes';
 import { HEX_SIZE, WORLD_RADIUS, WORLD_REVEAL_RADIUS } from '../game/config';
 import { DEFAULT_AUDIO_SETTINGS } from './audioSettings';
@@ -21,60 +31,78 @@ export const WINDOW_REGISTRY = {
     dock: true,
     appDeferred: false,
     mountSource: 'windowShown',
+    hotkey: 'h',
+    icon: playerIcon,
   },
   skills: {
     defaultPosition: { x: 96, y: 430 },
     dock: true,
     appDeferred: true,
     mountSource: 'windowShown',
+    hotkey: 's',
+    icon: sparklesIcon,
   },
   recipes: {
     defaultPosition: { x: 620, y: 470 },
     dock: true,
     appDeferred: true,
     mountSource: 'windowShown',
+    hotkey: 'r',
+    icon: bookCoverIcon,
   },
   hexInfo: {
     defaultPosition: { x: 280, y: 20 },
     dock: true,
     appDeferred: true,
     mountSource: 'windowShown',
+    hotkey: 'c',
+    icon: villageIcon,
   },
   equipment: {
     defaultPosition: { x: 1000, y: 20 },
     dock: true,
     appDeferred: true,
     mountSource: 'windowShown',
+    hotkey: 'e',
+    icon: armorIcon,
   },
   inventory: {
     defaultPosition: { x: 820, y: 290 },
     dock: true,
     appDeferred: true,
     mountSource: 'windowShown',
+    hotkey: 'i',
+    icon: coinsIcon,
   },
   loot: {
     defaultPosition: { x: 820, y: 20 },
     dock: false,
     appDeferred: false,
     mountSource: 'lootTransition',
+    icon: stonePileIcon,
   },
   log: {
     defaultPosition: { x: 420, y: 20 },
     dock: true,
     appDeferred: true,
     mountSource: 'windowShown',
+    hotkey: 'g',
+    icon: logIcon,
   },
   combat: {
     defaultPosition: { x: 420, y: 470 },
     dock: false,
     appDeferred: false,
     mountSource: 'combatTransition',
+    icon: enemyIcon,
   },
   settings: {
     defaultPosition: { x: 188, y: 72, width: 640, height: 640 },
     dock: true,
     appDeferred: true,
     mountSource: 'windowShown',
+    hotkey: 'm',
+    icon: gearsIcon,
   },
 } as const satisfies Record<
   string,
@@ -83,6 +111,8 @@ export const WINDOW_REGISTRY = {
     dock: boolean;
     appDeferred: boolean;
     mountSource: WindowMountSource;
+    hotkey?: string;
+    icon: string;
   }
 >;
 

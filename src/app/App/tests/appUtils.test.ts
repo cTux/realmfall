@@ -1,4 +1,8 @@
-import { DEFAULT_WINDOW_VISIBILITY } from '../../constants';
+import {
+  DEFAULT_WINDOW_VISIBILITY,
+  WINDOW_DOCK_KEYS,
+  WINDOW_REGISTRY,
+} from '../../constants';
 import { GameTag } from '../../../game/content/tags';
 import { getDockEntries } from '../utils/getDockEntries';
 import { getInventoryItemAction } from '../utils/getInventoryItemAction';
@@ -6,6 +10,7 @@ import {
   isEditableTarget,
   isFocusableControlTarget,
 } from '../utils/isEditableTarget';
+import { WINDOW_HOTKEYS } from '../utils/windowHotkeys';
 
 describe('app utils', () => {
   it('builds dock entries for the shared dock windows', () => {
@@ -34,6 +39,27 @@ describe('app utils', () => {
         entry.key === 'hexInfo' ? true : !entry.requiresAttention,
       ),
     ).toBe(true);
+  });
+
+  it('derives dock icons from the canonical window registry', () => {
+    const entries = getDockEntries(DEFAULT_WINDOW_VISIBILITY);
+
+    expect(entries.map((entry) => entry.icon)).toEqual(
+      WINDOW_DOCK_KEYS.map((key) => WINDOW_REGISTRY[key].icon),
+    );
+  });
+
+  it('derives window hotkeys from the canonical window registry', () => {
+    expect(WINDOW_HOTKEYS).toEqual({
+      h: 'hero',
+      s: 'skills',
+      r: 'recipes',
+      c: 'hexInfo',
+      e: 'equipment',
+      i: 'inventory',
+      g: 'log',
+      m: 'settings',
+    });
   });
 
   it('derives the inventory action from item type', () => {
