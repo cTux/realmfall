@@ -126,6 +126,128 @@ describe('LogWindowContent', () => {
     expect(onLeaveDetail).toHaveBeenCalled();
   });
 
+  it('shows hover details for enemy entities and combat stat sources', async () => {
+    const onHoverDetail = vi.fn();
+
+    await act(async () => {
+      root.render(
+        <LogWindowContent
+          logs={[
+            {
+              id: 'log-entity-tooltip',
+              kind: 'combat',
+              text: 'Marauder critically hits you. You are healed for 6 through Lifesteal.',
+              turn: 1,
+              richText: [
+                {
+                  kind: 'entity',
+                  text: 'Marauder',
+                  rarity: 'rare',
+                  enemy: {
+                    id: 'enemy-1',
+                    name: 'Marauder',
+                    coord: { q: 0, r: 0 },
+                    tier: 3,
+                    hp: 20,
+                    maxHp: 20,
+                    attack: 12,
+                    defense: 4,
+                    xp: 1,
+                    elite: false,
+                    abilityIds: ['fireball'],
+                    statusEffects: [],
+                    rarity: 'rare',
+                    tags: ['humanoid'],
+                  },
+                },
+                {
+                  kind: 'text',
+                  text: ' critically hits you. You are healed for ',
+                },
+                { kind: 'healing', text: '6' },
+                { kind: 'text', text: ' through ' },
+                {
+                  kind: 'source',
+                  text: 'Lifesteal',
+                  source: {
+                    kind: 'secondaryStat',
+                    stat: 'lifestealAmount',
+                  },
+                },
+                { kind: 'text', text: '.' },
+              ],
+            },
+          ]}
+          onHoverDetail={onHoverDetail}
+        />,
+      );
+    });
+
+    const segments = Array.from(host.querySelectorAll('span[class]'));
+    const entitySegment = segments.find(
+      (node) => node.textContent === 'Marauder',
+    ) as HTMLSpanElement | undefined;
+
+    await act(async () => {
+      entitySegment?.dispatchEvent(
+        new MouseEvent('mouseover', { bubbles: true }),
+      );
+    });
+
+    expect(
+      onHoverDetail.mock.calls.some(
+        ([, title, lines]) =>
+          title === 'Marauder' && Array.isArray(lines) && lines.length > 0,
+      ),
+    ).toBe(true);
+
+    await act(async () => {
+      root.render(
+        <LogWindowContent
+          logs={[
+            {
+              id: 'log-stat-tooltip',
+              kind: 'combat',
+              text: 'You are healed for 6 through Lifesteal.',
+              turn: 2,
+              richText: [
+                { kind: 'text', text: 'You are healed for ' },
+                { kind: 'healing', text: '6' },
+                { kind: 'text', text: ' through ' },
+                {
+                  kind: 'source',
+                  text: 'Lifesteal',
+                  source: {
+                    kind: 'secondaryStat',
+                    stat: 'lifestealAmount',
+                  },
+                },
+                { kind: 'text', text: '.' },
+              ],
+            },
+          ]}
+          onHoverDetail={onHoverDetail}
+        />,
+      );
+    });
+
+    const statOnlySegment = host.querySelector(
+      'span[class*="sourceSegment"]',
+    ) as HTMLSpanElement | null;
+
+    await act(async () => {
+      statOnlySegment?.dispatchEvent(
+        new MouseEvent('mouseover', { bubbles: true }),
+      );
+    });
+
+    expect(
+      onHoverDetail.mock.calls.some(
+        ([, title, lines]) => title === 'Lifesteal' && Array.isArray(lines),
+      ),
+    ).toBe(true);
+  });
+
   it('reuses parsed metadata for unchanged log entries across rerenders', async () => {
     const parseSpy = vi.spyOn(timeOfDay, 'parseWorldCalendarDateTime');
     const olderLog = {
