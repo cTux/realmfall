@@ -39,6 +39,7 @@
 - Give every unique item its own configuration file for its gameplay and presentation data, including icon and non-chance item-specific values.
 - Keep `src/game/content/items/index.ts` as the thin public item-content facade. Put catalog assembly in `itemCatalog.ts`, item builders and cloning in `itemBuilders.ts`, and category or tag inference in `itemClassification.ts` plus `itemCategoryRules.ts`.
 - Keep item-specific tags, icon pools, category overrides, and granted-ability pools on the owning item config or a narrow family helper such as generated-equipment builders. Do not rebuild those overrides in `src/game/content/items/index.ts`.
+- Keep shared generated-equipment family metadata in one canonical helper under `src/game/content`, and derive world-drop generated configs plus craftable icon configs from that helper instead of maintaining parallel family tables.
 - Give every unique enemy its own configuration file for its gameplay and presentation data, including icon and non-chance enemy-specific values.
 - Give every unique structure its own configuration file for its gameplay and presentation data, including icon, provided functions, and non-chance structure-specific values.
 - Vendor gameplay icon assets in the repository and load them from local files. Do not point shipped item, enemy, structure, generated-equipment, or similar runtime icon paths at remote URLs.

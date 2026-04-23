@@ -1,13 +1,8 @@
 import { itemName } from './i18n';
-export { GENERATED_ICON_POOLS } from './generatedIconPools';
-import { GENERATED_ICON_POOLS } from './generatedIconPools';
 import type { AbilityId } from '../types';
-import { EquipmentSlotId } from './ids';
 import type { ItemConfig } from './types';
-import {
-  MAGICAL_OFFHAND_ABILITY_POOL,
-  SHIELD_OFFHAND_ABILITY_POOL,
-} from './items/itemAbilityPools';
+export { GENERATED_ICON_POOLS } from './generatedEquipmentFamilies';
+import { GENERATED_EQUIPMENT_FAMILIES } from './generatedEquipmentFamilies';
 
 const generated = (
   key: string,
@@ -38,335 +33,32 @@ const generated = (
 });
 
 export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
-  generated(
-    'generated-helmet',
-    EquipmentSlotId.Head,
-    'armor',
-    GENERATED_ICON_POOLS.helmet,
-    {
-      baseDefense: 1,
-      defensePerTier: 1,
-      baseMaxHp: 1,
-      maxHpPerTier: 1,
-    },
-  ),
-  generated(
-    'generated-shoulders',
-    EquipmentSlotId.Shoulders,
-    'armor',
-    GENERATED_ICON_POOLS.shoulders,
-    {
-      baseDefense: 1,
-      defensePerTier: 1,
-      baseMaxHp: 1,
-      maxHpPerTier: 1,
-    },
-  ),
-  generated(
-    'generated-chest',
-    EquipmentSlotId.Chest,
-    'armor',
-    GENERATED_ICON_POOLS.chest,
-    {
-      baseDefense: 2,
-      defensePerTier: 1,
-      baseMaxHp: 2,
-      maxHpPerTier: 2,
-    },
-  ),
-  generated(
-    'generated-bracers',
-    EquipmentSlotId.Bracers,
-    'armor',
-    GENERATED_ICON_POOLS.bracers,
-    {
-      baseDefense: 1,
-      defensePerTier: 1,
-      baseMaxHp: 0,
-      maxHpPerTier: 1,
-    },
-  ),
-  generated(
-    'generated-gloves',
-    EquipmentSlotId.Hands,
-    'armor',
-    GENERATED_ICON_POOLS.gloves,
-    {
-      baseDefense: 1,
-      defensePerTier: 1,
-      baseMaxHp: 0,
-      maxHpPerTier: 1,
-    },
-  ),
-  generated(
-    'generated-belt',
-    EquipmentSlotId.Belt,
-    'armor',
-    GENERATED_ICON_POOLS.belt,
-    {
-      baseDefense: 1,
-      defensePerTier: 1,
-      baseMaxHp: 1,
-      maxHpPerTier: 1,
-    },
-  ),
-  generated(
-    'generated-leggings',
-    EquipmentSlotId.Legs,
-    'armor',
-    GENERATED_ICON_POOLS.leggings,
-    {
-      baseDefense: 1,
-      defensePerTier: 1,
-      baseMaxHp: 1,
-      maxHpPerTier: 1,
-    },
-  ),
-  generated(
-    'generated-boots',
-    EquipmentSlotId.Feet,
-    'armor',
-    GENERATED_ICON_POOLS.feet,
-    {
-      baseDefense: 1,
-      defensePerTier: 1,
-      baseMaxHp: 0,
-      maxHpPerTier: 1,
-    },
-  ),
-  generated(
-    'generated-cloak',
-    EquipmentSlotId.Cloak,
-    'armor',
-    GENERATED_ICON_POOLS.cloak,
-    {
-      basePower: 1,
-      powerPerTier: 1,
-      baseDefense: 1,
-      defensePerTier: 1,
-      baseMaxHp: 1,
-      maxHpPerTier: 1,
-      randomMainStatPool: ['power', 'defense', 'maxHp'],
-      randomMainStatCount: 2,
-    },
-  ),
-  generated(
-    'generated-ring-left',
-    EquipmentSlotId.RingLeft,
-    'artifact',
-    GENERATED_ICON_POOLS.ring,
-    {
-      basePower: 1,
-      powerPerTier: 1,
-      baseDefense: 1,
-      defensePerTier: 1,
-      baseMaxHp: 1,
-      maxHpPerTier: 1,
-      randomMainStatPool: ['power', 'defense', 'maxHp'],
-      randomMainStatCount: 2,
-    },
-  ),
-  generated(
-    'generated-ring-right',
-    EquipmentSlotId.RingRight,
-    'artifact',
-    GENERATED_ICON_POOLS.ring,
-    {
-      basePower: 1,
-      powerPerTier: 1,
-      baseDefense: 1,
-      defensePerTier: 1,
-      baseMaxHp: 1,
-      maxHpPerTier: 1,
-      randomMainStatPool: ['power', 'defense', 'maxHp'],
-      randomMainStatCount: 2,
-    },
-  ),
-  generated(
-    'generated-necklace',
-    EquipmentSlotId.Amulet,
-    'artifact',
-    GENERATED_ICON_POOLS.necklace,
-    {
-      basePower: 1,
-      powerPerTier: 1,
-      baseDefense: 1,
-      defensePerTier: 1,
-      baseMaxHp: 2,
-      maxHpPerTier: 2,
-      randomMainStatPool: ['power', 'defense', 'maxHp'],
-      randomMainStatCount: 2,
-    },
-  ),
-  generated(
-    'generated-axe',
-    EquipmentSlotId.Weapon,
-    'weapon',
-    GENERATED_ICON_POOLS.axe,
-    {
-      basePower: 3,
-      powerPerTier: 2,
-    },
-    false,
-    ['crushingBlow', 'whirlwind', 'magmaStrike'],
-  ),
-  generated(
-    'generated-sword',
-    EquipmentSlotId.Weapon,
-    'weapon',
-    GENERATED_ICON_POOLS.sword,
-    {
-      basePower: 3,
-      powerPerTier: 2,
-    },
-    false,
-    ['slash', 'impale', 'iceLance'],
-  ),
-  generated(
-    'generated-mace',
-    EquipmentSlotId.Weapon,
-    'weapon',
-    GENERATED_ICON_POOLS.mace,
-    {
-      basePower: 3,
-      powerPerTier: 2,
-    },
-    false,
-    ['crushingBlow', 'thunderClap', 'staticField'],
-  ),
-  generated(
-    'generated-dagger',
-    EquipmentSlotId.Weapon,
-    'weapon',
-    GENERATED_ICON_POOLS.dagger,
-    {
-      basePower: 2,
-      powerPerTier: 2,
-    },
-    false,
-    ['slash', 'hamstring', 'cinderBurst'],
-  ),
-  generated(
-    'generated-wand',
-    EquipmentSlotId.Weapon,
-    'weapon',
-    GENERATED_ICON_POOLS.wand,
-    {
-      basePower: 4,
-      powerPerTier: 2,
-    },
-    false,
-    ['fireball', 'chainLightning', 'iceLance', 'searingNova'],
-  ),
-  generated(
-    'generated-offhand-dagger',
-    EquipmentSlotId.Offhand,
-    'weapon',
-    GENERATED_ICON_POOLS.dagger,
-    {
-      basePower: 2,
-      powerPerTier: 1,
-    },
-    false,
-    ['hamstring', 'slash', 'sunderArmor'],
-  ),
-  generated(
-    'generated-magical-sphere',
-    EquipmentSlotId.Offhand,
-    'artifact',
-    GENERATED_ICON_POOLS.magicalSphere,
-    {
-      baseDefense: 1,
-      defensePerTier: 1,
-      baseMaxHp: 1,
-      maxHpPerTier: 1,
-    },
-    false,
-    MAGICAL_OFFHAND_ABILITY_POOL,
-  ),
-  generated(
-    'generated-shield',
-    EquipmentSlotId.Offhand,
-    'armor',
-    GENERATED_ICON_POOLS.shield,
-    {
-      baseDefense: 2,
-      defensePerTier: 2,
-      baseMaxHp: 1,
-      maxHpPerTier: 1,
-    },
-    false,
-    SHIELD_OFFHAND_ABILITY_POOL,
-  ),
-  generated(
-    'generated-two-handed-sword',
-    EquipmentSlotId.Weapon,
-    'weapon',
-    GENERATED_ICON_POOLS.twoHandedSword,
-    {
-      basePower: 6,
-      powerPerTier: 4,
-    },
-    true,
-    ['whirlwind', 'impale', 'blizzard'],
-  ),
-  generated(
-    'generated-two-handed-axe',
-    EquipmentSlotId.Weapon,
-    'weapon',
-    GENERATED_ICON_POOLS.twoHandedAxe,
-    {
-      basePower: 6,
-      powerPerTier: 4,
-    },
-    true,
-    ['whirlwind', 'magmaStrike', 'wildfire'],
-  ),
-  generated(
-    'generated-two-handed-mace',
-    EquipmentSlotId.Weapon,
-    'weapon',
-    GENERATED_ICON_POOLS.twoHandedMace,
-    {
-      basePower: 6,
-      powerPerTier: 4,
-    },
-    true,
-    ['stormSurge', 'thunderClap', 'crushingBlow'],
-  ),
+  ...GENERATED_EQUIPMENT_FAMILIES.flatMap((family) => {
+    if (!family.drop) {
+      return [];
+    }
+
+    return [
+      generated(
+        family.drop.key,
+        family.drop.slot,
+        family.category,
+        GENERATED_ICON_POOLS[family.familyKey],
+        family.drop.generatedStats,
+        family.occupiesOffhand,
+        family.grantedAbilityPool as AbilityId[] | undefined,
+      ),
+    ];
+  }),
 ];
 
-export const GENERATED_ARMOR_KEYS = [
-  'generated-helmet',
-  'generated-shoulders',
-  'generated-chest',
-  'generated-bracers',
-  'generated-gloves',
-  'generated-belt',
-  'generated-leggings',
-  'generated-boots',
-  'generated-cloak',
-] as const;
+function getGeneratedKeysForGroup(group: 'armor' | 'accessory' | 'weapon' | 'offhand') {
+  return GENERATED_EQUIPMENT_FAMILIES.flatMap((family) =>
+    family.group === group && family.drop ? [family.drop.key] : [],
+  );
+}
 
-export const GENERATED_ACCESSORY_KEYS = [
-  'generated-ring-left',
-  'generated-ring-right',
-  'generated-necklace',
-] as const;
-
-export const GENERATED_WEAPON_KEYS = [
-  'generated-axe',
-  'generated-sword',
-  'generated-mace',
-  'generated-dagger',
-  'generated-wand',
-  'generated-two-handed-sword',
-  'generated-two-handed-axe',
-  'generated-two-handed-mace',
-] as const;
-
-export const GENERATED_OFFHAND_KEYS = [
-  'generated-shield',
-  'generated-offhand-dagger',
-  'generated-magical-sphere',
-] as const;
+export const GENERATED_ARMOR_KEYS = getGeneratedKeysForGroup('armor');
+export const GENERATED_ACCESSORY_KEYS = getGeneratedKeysForGroup('accessory');
+export const GENERATED_WEAPON_KEYS = getGeneratedKeysForGroup('weapon');
+export const GENERATED_OFFHAND_KEYS = getGeneratedKeysForGroup('offhand');
