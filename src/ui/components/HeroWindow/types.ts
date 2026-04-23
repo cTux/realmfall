@@ -1,4 +1,3 @@
-import type { WindowPosition } from '../../../app/constants';
 import type {
   AbilityId,
   PlayerStatusEffect,
@@ -6,6 +5,7 @@ import type {
   StatusEffectId,
 } from '../../../game/stateTypes';
 import type { SecondaryStatKey } from '../../../game/types';
+import type { ManagedWindowShellProps } from '../managedWindowProps';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 
 export interface HeroOverview {
@@ -51,11 +51,8 @@ export interface HeroOverview {
   skills: Record<SkillName, { level: number; xp: number }>;
 }
 
-export interface HeroWindowProps extends WindowDetailTooltipHandlers {
-  position: WindowPosition;
-  onMove: (position: WindowPosition) => void;
-  visible?: boolean;
-  onClose?: () => void;
+export interface HeroWindowProps
+  extends ManagedWindowShellProps, WindowDetailTooltipHandlers {
   hero: HeroOverview;
   hunger: number;
   thirst?: number;

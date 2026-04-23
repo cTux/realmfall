@@ -1,12 +1,9 @@
-import type { WindowPosition } from '../../../app/constants';
 import type { RecipeBookEntry, Skill, Tile } from '../../../game/stateTypes';
+import type { ManagedWindowShellProps } from '../managedWindowProps';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 
-export interface RecipeBookWindowProps extends WindowDetailTooltipHandlers {
-  position: WindowPosition;
-  onMove: (position: WindowPosition) => void;
-  visible?: boolean;
-  onClose?: () => void;
+export interface RecipeBookWindowProps
+  extends ManagedWindowShellProps, WindowDetailTooltipHandlers {
   currentStructure?: Tile['structure'];
   recipes: RecipeBookEntry[];
   recipeSkillLevels: Record<Skill, number>;

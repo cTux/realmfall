@@ -13,6 +13,7 @@
 - Keep lazy audio bridges, world overlays, and other shell-only composition grouped into focused local blocks so `App.tsx` remains a composition-first entrypoint instead of reclaiming broad orchestration detail.
 - When a UI control only needs the live world clock for display state, subscribe through `src/app/App/worldClockStore.ts` at the leaf component instead of threading `worldTimeMs` through broad app or window props.
 - When splitting `AppWindows` work, pass fixed and deferred window components only the view and action slices they actually consume instead of forwarding the full nested props object.
+- Share managed-window shell props such as `position`, `onMove`, `visible`, and `onClose` through a common UI type instead of redeclaring the same shell contract in every window prop interface.
 - Keep deferred app-window composition declarative. Route deferred window order, lazy module creation, mounted-window filtering, and per-window prop mapping through a shared registry under `src/app/App/components/` instead of expanding `AppDeferredWindows.tsx` with one manual branch per window.
 - Drive managed-window and deferred-window mounted-state records from one shared helper under `src/app/App/hooks` so window-key additions do not require parallel visibility maps in multiple hooks.
 - Name broad hero snapshots after the actual payload shape. Use `heroOverview` or `overview` for level, XP, skills, buffs, debuffs, and ability ids, and reserve `stats` for narrow combat-stat or stat-sheet payloads.

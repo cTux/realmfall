@@ -1,5 +1,4 @@
 import type { MouseEvent as ReactMouseEvent } from 'react';
-import type { WindowPosition } from '../../../app/constants';
 import type { ItemModificationKind } from '../../../game/itemModifications';
 import type {
   CombatState,
@@ -10,13 +9,11 @@ import type {
   TownStockEntry,
 } from '../../../game/stateTypes';
 import type { CombatPartyMember } from '../CombatWindow/types';
+import type { ManagedWindowShellProps } from '../managedWindowProps';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 
-export interface HexInfoWindowProps extends WindowDetailTooltipHandlers {
-  position: WindowPosition;
-  onMove: (position: WindowPosition) => void;
-  visible?: boolean;
-  onClose?: () => void;
+export interface HexInfoWindowProps
+  extends ManagedWindowShellProps, WindowDetailTooltipHandlers {
   isHome: boolean;
   onSetHome: () => void;
   canSetHome?: boolean;
