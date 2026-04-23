@@ -18,7 +18,7 @@ This spec covers inventory actions, gold handling, and town trading.
 - Consumables are only spent when at least one of their effects would change the current player state.
 - Using any consumable starts a shared `2s` consumable cooldown, and no other consumable can be used again until that cooldown expires.
 - Prospecting converts equippable inventory items into value through the forge flow.
-- While the hex info window is open at a forge or town, the bulk equippable prospect action keeps the `(Q)` body button, and the town bulk sell action moves to the title bar as `S(e)ll all`.
+- While the hex info window is open at a forge or town, the bulk equippable prospect action keeps the `(Q)` body button, and towns always show the title-bar `S(e)ll all` action, disabling it with the sell requirement tooltip when no unlocked equippable items can be sold.
 - Reforging, enchanting, and corrupting all consume gold through the same inventory-backed gold resource model used by town trading and prospecting.
 - Corruption menu copy surfaces the item-break risk before the player commits to the action.
 - Sell-all supports town-based liquidation of unlocked equippable inventory items.

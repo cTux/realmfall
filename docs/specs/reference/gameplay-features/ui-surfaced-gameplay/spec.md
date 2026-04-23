@@ -29,7 +29,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - While the hex info window is open, the title-bar land actions surface inline `A` and `O` hotkeys through `Cl(a)im` / `Uncl(a)im` and `H(o)me`, and those keys trigger the enabled action directly.
 - While the hex info window is open on a faction NPC hex, the title bar also surfaces `(Q) Heal`, and pressing `Q` prioritizes that paid heal action over other hex `Q` shortcuts when healing is available.
 - While the hex info window is open at a forge, the bulk equippable prospect action stays in the content body with `(Q) Prospect all equippables`.
-- While the hex info window is open at a town, the bulk equippable sell action lives in the title bar as `S(e)ll all`, and `E` triggers that sell action before the loot take-all shortcut.
+- While the hex info window is open at a town, the bulk equippable sell action always lives in the title bar as `S(e)ll all`, showing disabled-state tooltip guidance when nothing can be sold, and `E` triggers that sell action before the loot take-all shortcut when the action is available.
 - The hex info content body omits passive terrain, structure, territory, empty-state, and section-title copy so non-combat tiles present only actionable controls, bars, and item slots.
 - Town stock in the hex info content window wraps its item slots with a flex row layout instead of CSS grid so slot spacing follows the shared item-slot sizing more predictably.
 - The hex info window only renders the loot subsection when the current tile actually has loot, instead of showing an empty ground-loot panel.

@@ -111,6 +111,15 @@ export const Town: Story = {
   }),
 };
 
+export const TownWithoutSellables: Story = {
+  args: buildStructureArgs('town', {
+    terrain: 'Plains',
+    bulkSellEquipmentExplanation: 'No equippable items to sell.',
+    gold: 240,
+    townStock: buildTownStock('storybook-town-empty-sell', { q: 0, r: 0 }),
+  }),
+};
+
 export const FactionNpc: Story = {
   args: buildStructureArgs('camp', {
     terrain: 'Plains',

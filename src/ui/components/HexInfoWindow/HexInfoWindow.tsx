@@ -139,6 +139,8 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   const sellAllTooltipLines = getSellAllTooltipLines(
     bulkSellEquipmentExplanation,
   );
+  const showBulkSellAction =
+    canBulkSellEquipment || bulkSellEquipmentExplanation != null;
   const territoryActionTooltipBorderColor =
     territoryActionKind === 'unclaim'
       ? 'rgba(248, 113, 113, 0.9)'
@@ -174,9 +176,10 @@ export const HexInfoWindow = memo(function HexInfoWindow({
               {t('ui.hexInfo.healAction')}
             </WindowHeaderActionButton>
           ) : null}
-          {canBulkSellEquipment ? (
+          {showBulkSellAction ? (
             <WindowHeaderActionButton
               className={inventoryStyles.headerButton}
+              disabled={!canBulkSellEquipment}
               onClick={onSellAll}
               tooltipTitle={t('ui.hexInfo.sellAllAction')}
               tooltipLines={sellAllTooltipLines}
