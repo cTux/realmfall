@@ -11,7 +11,8 @@ Common workspace groups:
 Canonical policy and naming rules live in:
 
 - [Rules](../RULES.md)
-- [Testing And Documentation Rules](../rules/60-testing-and-documentation.md)
+- [Testing Rules](../rules/60-testing.md)
+- [Documentation Rules](../rules/61-documentation.md)
 - [Documentation Strategy Spec](../specs/reference/technical-solutions/documentation-strategy/spec.md)
 
 Keep this file navigation-only.
