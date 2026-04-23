@@ -26,6 +26,7 @@ import {
   createWorldRenderSnapshot,
   type WorldRenderSnapshot,
 } from './world/pixiWorldRenderLoop';
+import { attachPixiWorldTickerVisibilityPause } from './world/pixiWorldTickerVisibility';
 
 interface UsePixiWorldArgs {
   enabled: boolean;
@@ -247,6 +248,12 @@ export function usePixiWorld({
         resize();
         renderFrame();
         app.ticker.add(renderFrame);
+        const detachTickerVisibilityPause =
+          attachPixiWorldTickerVisibilityPause({
+            ticker: app.ticker,
+            renderFrame,
+            renderInvalidationRef,
+          });
         setCanvasReady(true);
         warmWorldIconTexturesInBackground();
 
@@ -295,6 +302,7 @@ export function usePixiWorld({
             window.clearTimeout(cameraSaveTimerRef.current);
             cameraSaveTimerRef.current = null;
           }
+          detachTickerVisibilityPause();
           app.ticker.remove(renderFrame);
           app.destroy(true, {
             children: true,

@@ -7,6 +7,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 ## Current Solution
 
 - Pixi owns the main world redraw loop through the ticker started in `usePixiWorld`.
+- The Pixi world ticker stops while the document is hidden, then invalidates and draws a single catch-up frame when the document becomes visible before normal ticking resumes.
 - Idle world frames now coalesce inside a lower animation cadence bucket, so unchanged state does not rerun the full world render path on every Pixi ticker tick.
 - React updates feed the renderer through refs and invalidation-sensitive cached inputs rather than by layering a second immediate render effect path.
 - The renderer separates static, interaction, and animated work.
