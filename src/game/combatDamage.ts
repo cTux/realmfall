@@ -129,7 +129,7 @@ export function resolveIncomingDamage(
   seedKey: string,
   incomingDamage: number,
   playerStats: ReturnType<typeof getPlayerStats>,
-) {
+): DamageResolution {
   return resolveIncomingDamageByChances(
     state,
     seedKey,
@@ -149,27 +149,15 @@ export function resolveIncomingDamageByChances(
   blockChance: number,
   suppressDamageChance: number,
   suppressDamageReduction: number,
-) {
+): DamageResolution {
   if (incomingDamage <= 0) {
-    return {
-      damage: 0,
-      outcome: 'absorbed',
-      critical: false,
-    } satisfies DamageResolution;
+    return { damage: 0, outcome: 'absorbed', critical: false };
   }
   if (resolveCombatProcCount(state, `${seedKey}:dodge`, dodgeChance) > 0) {
-    return {
-      damage: 0,
-      outcome: 'dodged',
-      critical: false,
-    } satisfies DamageResolution;
+    return { damage: 0, outcome: 'dodged', critical: false };
   }
   if (resolveCombatProcCount(state, `${seedKey}:block`, blockChance) > 0) {
-    return {
-      damage: 0,
-      outcome: 'blocked',
-      critical: false,
-    } satisfies DamageResolution;
+    return { damage: 0, outcome: 'blocked', critical: false };
   }
   if (
     resolveCombatProcCount(state, `${seedKey}:suppress`, suppressDamageChance) >
@@ -182,14 +170,10 @@ export function resolveIncomingDamageByChances(
       damage: Math.max(1, suppressedDamage),
       outcome: 'suppressed',
       critical: false,
-    } satisfies DamageResolution;
+    };
   }
 
-  return {
-    damage: incomingDamage,
-    outcome: 'hit',
-    critical: false,
-  } satisfies DamageResolution;
+  return { damage: incomingDamage, outcome: 'hit', critical: false };
 }
 
 function getCombatStatusValue(

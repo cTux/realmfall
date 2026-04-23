@@ -179,7 +179,11 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
             canBulkSellEquipment={worldView.canBulkSellEquipment}
             itemModification={worldView.itemModification}
             canTerritoryAction={worldView.claimStatus.canClaim}
-            territoryActionKind={worldView.claimStatus.action}
+            territoryActionKind={
+              worldView.claimStatus.action === 'none'
+                ? undefined
+                : worldView.claimStatus.action
+            }
             territoryActionLabel={claimStatusActionLabel(
               worldView.claimStatus.action,
             )}

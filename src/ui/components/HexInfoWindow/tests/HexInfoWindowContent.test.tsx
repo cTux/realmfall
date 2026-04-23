@@ -38,6 +38,7 @@ describe('HexInfoWindowContent', () => {
         onSellAll={() => {}}
         onTerritoryAction={() => {}}
         onHealTerritoryNpc={() => {}}
+        territoryNpc={null}
         townStock={[{ item: townItem, price: 12 }]}
         gold={20}
         loot={[lootItem]}

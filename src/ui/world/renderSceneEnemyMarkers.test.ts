@@ -279,7 +279,11 @@ describe('renderScene enemy markers', () => {
     );
     expect(badgeTexts.some((child) => child.text === '3')).toBe(true);
     expect(
-      badgeTexts.some((child) => child.style.value.fill === 0xef4444),
+      badgeTexts.some(
+        (child) =>
+          (child.style as { value?: { fill?: number } }).value?.fill ===
+          0xef4444,
+      ),
     ).toBe(true);
     expect(
       badgeTexts.some(

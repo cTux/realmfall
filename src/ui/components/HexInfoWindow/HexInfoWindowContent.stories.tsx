@@ -17,7 +17,7 @@ import type { HexInfoWindowProps } from './types';
 const noopBuyItem: HexInfoWindowProps['onBuyItem'] = () => undefined;
 const noopHoverItem: HexInfoWindowProps['onHoverItem'] = () => undefined;
 const noopLeaveItem: HexInfoWindowProps['onLeaveItem'] = () => undefined;
-const noopAction = () => undefined;
+const noopAction: () => void = () => {};
 
 const meta = {
   title: 'Windows/Hex Content/States',
@@ -348,6 +348,7 @@ type StoryArgs = Omit<
   ComponentProps<typeof HexInfoWindowContent>,
   | 'onInteract'
   | 'onTerritoryAction'
+  | 'onHealTerritoryNpc'
   | 'onProspect'
   | 'onSellAll'
   | 'onBuyItem'

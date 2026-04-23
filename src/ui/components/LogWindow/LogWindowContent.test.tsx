@@ -1,5 +1,6 @@
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
+import { GameTag } from '../../../game/content/tags';
 import * as timeOfDay from '../../world/timeOfDay';
 import { LogWindowContent } from './LogWindowContent';
 
@@ -157,7 +158,7 @@ describe('LogWindowContent', () => {
                     abilityIds: ['fireball'],
                     statusEffects: [],
                     rarity: 'rare',
-                    tags: ['humanoid'],
+                    tags: [GameTag.EnemyHumanoid],
                   },
                 },
                 {

@@ -7,6 +7,7 @@ import {
   getLabelsLayer,
   getMarkerLayer,
   getWorld,
+  MockContainer,
   MockGraphics,
   MockText,
   setupRenderSceneTestEnvironment,
@@ -103,9 +104,7 @@ describe('renderScene atmosphere', () => {
     );
 
     const nightWorld = getWorld(nightApp);
-    const nightAnimatedLayer = nightWorld.children[4] as {
-      children: unknown[];
-    };
+    const nightAnimatedLayer = nightWorld.children[4] as MockContainer;
     const nightGlowEllipses = collectDescendants(nightAnimatedLayer).filter(
       (child) =>
         child instanceof MockGraphics &&
@@ -125,9 +124,7 @@ describe('renderScene atmosphere', () => {
     );
 
     const dayWorld = getWorld(dayApp);
-    const dayAnimatedLayer = dayWorld.children[4] as {
-      children: unknown[];
-    };
+    const dayAnimatedLayer = dayWorld.children[4] as MockContainer;
     const dayGlowEllipses = collectDescendants(dayAnimatedLayer).filter(
       (child) =>
         child instanceof MockGraphics &&
