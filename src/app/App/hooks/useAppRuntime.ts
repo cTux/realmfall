@@ -9,12 +9,10 @@ import { useWindowTransitions } from '../useWindowTransitions';
 import { setWorldClockTime } from '../worldClockStore';
 import { useAppBootstrapState } from './useAppBootstrapState';
 import { useAppLifecycle } from './useAppLifecycle';
-import { useCombatAttentionWindow } from './useCombatAttentionWindow';
-import { useAppShortcutBindings } from './useAppShortcutBindings';
 import { useAppSettingsActions } from './useAppSettingsActions';
-import { useAppWindowActions } from './useAppWindowActions';
-import { useAppWindowViews } from './useAppWindowViews';
-import { useAppWindowsProps } from './useAppWindowsProps';
+import { useAppShortcutRuntime } from './useAppShortcutRuntime';
+import { useAppWindowRuntime } from './useAppWindowRuntime';
+import { useCombatAttentionWindow } from './useCombatAttentionWindow';
 import { useAppWorldClock } from './useAppWorldClock';
 
 export function useAppRuntime() {
@@ -132,21 +130,16 @@ export function useAppRuntime() {
     worldTimeMsRef: bootstrap.worldTimeMsRef,
   });
 
-  const canSetHomeAction =
-    (!gameView.currentTile.claim ||
-      gameView.currentTile.claim.ownerType === 'player') &&
-    (bootstrap.game.homeHex.q !== bootstrap.game.player.coord.q ||
-      bootstrap.game.homeHex.r !== bootstrap.game.player.coord.r);
-
-  useAppShortcutBindings({
+  useAppShortcutRuntime({
     canBulkProspectEquipment: gameView.canBulkProspectEquipment,
     canBulkSellEquipment: gameView.canBulkSellEquipment,
     canHealTerritoryNpc: gameView.territoryNpcHealStatus.canHeal,
-    canSetHomeAction,
     canTerritoryAction: gameView.claimStatus.canClaim,
     combat: bootstrap.game.combat,
+    currentTileClaim: gameView.currentTile.claim,
     currentTileItemsLength: gameView.currentTile.items.length,
     hexContentWindowShown: controllerState.windowShown.hexInfo,
+    homeHex: bootstrap.game.homeHex,
     interactLabel: gameView.interactLabel,
     onForfeitCombat: controllerActions.handleForfeitCombat,
     onStartCombat: controllerActions.handleStartCombat,
@@ -160,116 +153,115 @@ export function useAppRuntime() {
     onSellAll: controllerActions.handleSellAll,
     onToggleDockWindow: controllerActions.toggleDockWindow,
     onUseActionBarSlot: controllerActions.handleUseActionBarSlot,
+    playerCoord: bootstrap.game.player.coord,
     setPaused: bootstrap.setPaused,
     uiAudio: bootstrap.uiAudio,
     windowShown: controllerState.windowShown,
     worldTimeMs: bootstrap.game.worldTimeMs,
   });
 
-  const views = useAppWindowViews({
-    actionBarSlots: controllerState.actionBarSlots,
-    audioSettings: controllerState.audioSettings,
-    combatState: bootstrap.game.combat,
-    combatSnapshot: windowTransitions.combatSnapshot,
-    combatWindowVisible: windowTransitions.combatWindowVisible,
-    currentTile: gameView.currentTile,
-    currentTileHostileEnemyCount: gameView.currentTileHostileEnemyCount,
-    gold: gameView.gold,
-    graphicsSettings: controllerState.graphicsSettings,
-    homeHex: bootstrap.game.homeHex,
-    inventoryCountsByItemKey: gameView.inventoryCountsByItemKey,
-    itemModification: gameView.itemModification,
-    itemMenu: controllerState.itemMenu,
-    claimStatus: gameView.claimStatus,
-    territoryNpcHealStatus: gameView.territoryNpcHealStatus,
-    interactLabel: gameView.interactLabel,
-    filteredLogs: gameView.filteredLogs,
-    logFilters: controllerState.logFilters,
-    playerSlice: bootstrap.game.player,
-    tileLootSnapshot: windowTransitions.tileLootSnapshot,
-    lootWindowVisible: windowTransitions.lootWindowVisible,
-    canBulkProspectEquipment: gameView.canBulkProspectEquipment,
-    canBulkSellEquipment: gameView.canBulkSellEquipment,
-    bulkProspectEquipmentExplanation:
-      gameView.bulkProspectEquipmentExplanation,
-    recipes: gameView.recipes,
-    recipeMaterialFilterItemKey: controllerState.recipeMaterialFilterItemKey,
-    recipeSkillLevels: gameView.recipeSkillLevels,
-    bulkSellEquipmentExplanation: gameView.bulkSellEquipmentExplanation,
-    showFilterMenu: controllerState.showFilterMenu,
-    heroOverview: gameView.heroOverview,
-    townStock: gameView.townStock,
-    worldTimeMs: bootstrap.game.worldTimeMs,
-  });
-  const actions = useAppWindowActions({
-    closeItemMenu: controllerActions.closeItemMenu,
-    closeTooltip: controllerActions.closeTooltip,
-    handleActivateInventoryItem: controllerActions.handleActivateInventoryItem,
-    handleAssignActionBarSlot: controllerActions.handleAssignActionBarSlot,
-    handleBuyTownItem: controllerActions.handleBuyTownItem,
-    handleClaimHex: controllerActions.handleClaimHex,
-    handleHealTerritoryNpc: controllerActions.handleHealTerritoryNpc,
-    handleClearActionBarSlot: controllerActions.handleClearActionBarSlot,
-    handleClearRecipeMaterialFilter:
-      controllerActions.handleClearRecipeMaterialFilter,
-    handleContextItem: controllerActions.handleContextItem,
-    handleCraftRecipe: controllerActions.handleCraftRecipe,
-    handleCorruptItem: controllerActions.handleCorruptItem,
-    handleSelectHexItemModificationItem:
-      controllerActions.handleSelectHexModificationInventoryItem,
-    handleDropEquippedItem: controllerActions.handleDropEquippedItem,
-    handleDropItem: controllerActions.handleDropItem,
-    handleEnchantItem: controllerActions.handleEnchantItem,
-    handleEquipmentHover: controllerActions.handleEquipmentHover,
-    handleEquipItem: controllerActions.handleEquipItem,
-    handleEquippedContextItem: controllerActions.handleEquippedContextItem,
-    handleForfeitCombat: controllerActions.handleForfeitCombat,
-    handleInteract: controllerActions.handleInteract,
-    handleOpenRecipeBookWithMaterialFilter:
-      controllerActions.handleOpenRecipeBookWithMaterialFilter,
-    handleProspect: controllerActions.handleProspect,
-    handleProspectItem: controllerActions.handleProspectItem,
-    handleReforgeItem: controllerActions.handleReforgeItem,
-    handleResetSaveArea: settingsActions.handleResetSaveArea,
-    handleSaveSettings: settingsActions.handleSaveSettings,
-    handleSaveSettingsAndReload: settingsActions.handleSaveSettingsAndReload,
-    handleSellAll: controllerActions.handleSellAll,
-    handleSellItem: controllerActions.handleSellItem,
-    handleApplySelectedItemModification:
-      controllerActions.applySelectedItemModification,
-    handleClearSelectedItemModification: controllerActions.clearSelectedItem,
-    handleSelectItemModificationReforgeStat:
-      controllerMutators.setSelectedHexItemReforgeStatIndex,
-    handleSetHome: settingsActions.handleSetHome,
-    handleSetItemLocked: controllerActions.handleSetItemLocked,
-    handleSort: controllerActions.handleSort,
-    handleStartCombat: controllerActions.handleStartCombat,
-    handleTakeAllLoot: controllerActions.handleTakeAllLoot,
-    handleTakeLootItem: controllerActions.handleTakeLootItem,
-    handleUnequip: controllerActions.handleUnequip,
-    handleUseActionBarSlot: controllerActions.handleUseActionBarSlot,
-    handleUseItem: controllerActions.handleUseItem,
-    moveWindow: controllerMutators.moveWindow,
-    setWindowVisibility: controllerMutators.setWindowVisibility,
-    showActionBarItemTooltip: controllerActions.showActionBarItemTooltip,
-    showItemTooltip: controllerActions.showItemTooltip,
-    showTooltip: controllerActions.showTooltip,
-    toggleItemModificationPicker:
-      controllerActions.toggleHexItemModificationPicker,
-    toggleDockWindow: controllerActions.toggleDockWindow,
-    toggleFilterMenu: controllerActions.toggleFilterMenu,
-    toggleLogFilter: controllerActions.toggleLogFilter,
-  });
-
-  const windowsProps = useAppWindowsProps({
+  const windowsProps = useAppWindowRuntime({
+    actions: {
+      closeItemMenu: controllerActions.closeItemMenu,
+      closeTooltip: controllerActions.closeTooltip,
+      handleActivateInventoryItem:
+        controllerActions.handleActivateInventoryItem,
+      handleAssignActionBarSlot: controllerActions.handleAssignActionBarSlot,
+      handleBuyTownItem: controllerActions.handleBuyTownItem,
+      handleClaimHex: controllerActions.handleClaimHex,
+      handleHealTerritoryNpc: controllerActions.handleHealTerritoryNpc,
+      handleClearActionBarSlot: controllerActions.handleClearActionBarSlot,
+      handleClearRecipeMaterialFilter:
+        controllerActions.handleClearRecipeMaterialFilter,
+      handleContextItem: controllerActions.handleContextItem,
+      handleCraftRecipe: controllerActions.handleCraftRecipe,
+      handleCorruptItem: controllerActions.handleCorruptItem,
+      handleSelectHexItemModificationItem:
+        controllerActions.handleSelectHexModificationInventoryItem,
+      handleDropEquippedItem: controllerActions.handleDropEquippedItem,
+      handleDropItem: controllerActions.handleDropItem,
+      handleEnchantItem: controllerActions.handleEnchantItem,
+      handleEquipmentHover: controllerActions.handleEquipmentHover,
+      handleEquipItem: controllerActions.handleEquipItem,
+      handleEquippedContextItem: controllerActions.handleEquippedContextItem,
+      handleForfeitCombat: controllerActions.handleForfeitCombat,
+      handleInteract: controllerActions.handleInteract,
+      handleOpenRecipeBookWithMaterialFilter:
+        controllerActions.handleOpenRecipeBookWithMaterialFilter,
+      handleProspect: controllerActions.handleProspect,
+      handleProspectItem: controllerActions.handleProspectItem,
+      handleReforgeItem: controllerActions.handleReforgeItem,
+      handleResetSaveArea: settingsActions.handleResetSaveArea,
+      handleSaveSettings: settingsActions.handleSaveSettings,
+      handleSaveSettingsAndReload: settingsActions.handleSaveSettingsAndReload,
+      handleSellAll: controllerActions.handleSellAll,
+      handleSellItem: controllerActions.handleSellItem,
+      handleApplySelectedItemModification:
+        controllerActions.applySelectedItemModification,
+      handleClearSelectedItemModification: controllerActions.clearSelectedItem,
+      handleSelectItemModificationReforgeStat:
+        controllerMutators.setSelectedHexItemReforgeStatIndex,
+      handleSetHome: settingsActions.handleSetHome,
+      handleSetItemLocked: controllerActions.handleSetItemLocked,
+      handleSort: controllerActions.handleSort,
+      handleStartCombat: controllerActions.handleStartCombat,
+      handleTakeAllLoot: controllerActions.handleTakeAllLoot,
+      handleTakeLootItem: controllerActions.handleTakeLootItem,
+      handleUnequip: controllerActions.handleUnequip,
+      handleUseActionBarSlot: controllerActions.handleUseActionBarSlot,
+      handleUseItem: controllerActions.handleUseItem,
+      moveWindow: controllerMutators.moveWindow,
+      setWindowVisibility: controllerMutators.setWindowVisibility,
+      showActionBarItemTooltip: controllerActions.showActionBarItemTooltip,
+      showItemTooltip: controllerActions.showItemTooltip,
+      showTooltip: controllerActions.showTooltip,
+      toggleItemModificationPicker:
+        controllerActions.toggleHexItemModificationPicker,
+      toggleDockWindow: controllerActions.toggleDockWindow,
+      toggleFilterMenu: controllerActions.toggleFilterMenu,
+      toggleLogFilter: controllerActions.toggleLogFilter,
+    },
     appReady: isReady,
-    windows: controllerState.windows,
-    windowShown: controllerState.windowShown,
     keepLootWindowMounted: windowTransitions.keepLootWindowMounted,
     keepCombatWindowMounted: windowTransitions.keepCombatWindowMounted,
     tooltipPositionRef: bootstrap.tooltipPositionRef,
-    views,
-    actions,
+    views: {
+      actionBarSlots: controllerState.actionBarSlots,
+      audioSettings: controllerState.audioSettings,
+      combatState: bootstrap.game.combat,
+      combatSnapshot: windowTransitions.combatSnapshot,
+      combatWindowVisible: windowTransitions.combatWindowVisible,
+      currentTile: gameView.currentTile,
+      currentTileHostileEnemyCount: gameView.currentTileHostileEnemyCount,
+      gold: gameView.gold,
+      graphicsSettings: controllerState.graphicsSettings,
+      homeHex: bootstrap.game.homeHex,
+      inventoryCountsByItemKey: gameView.inventoryCountsByItemKey,
+      itemModification: gameView.itemModification,
+      itemMenu: controllerState.itemMenu,
+      claimStatus: gameView.claimStatus,
+      territoryNpcHealStatus: gameView.territoryNpcHealStatus,
+      interactLabel: gameView.interactLabel,
+      filteredLogs: gameView.filteredLogs,
+      logFilters: controllerState.logFilters,
+      playerSlice: bootstrap.game.player,
+      tileLootSnapshot: windowTransitions.tileLootSnapshot,
+      lootWindowVisible: windowTransitions.lootWindowVisible,
+      canBulkProspectEquipment: gameView.canBulkProspectEquipment,
+      canBulkSellEquipment: gameView.canBulkSellEquipment,
+      bulkProspectEquipmentExplanation:
+        gameView.bulkProspectEquipmentExplanation,
+      recipes: gameView.recipes,
+      recipeMaterialFilterItemKey: controllerState.recipeMaterialFilterItemKey,
+      recipeSkillLevels: gameView.recipeSkillLevels,
+      bulkSellEquipmentExplanation: gameView.bulkSellEquipmentExplanation,
+      showFilterMenu: controllerState.showFilterMenu,
+      heroOverview: gameView.heroOverview,
+      townStock: gameView.townStock,
+      worldTimeMs: bootstrap.game.worldTimeMs,
+    },
+    windows: controllerState.windows,
+    windowShown: controllerState.windowShown,
   });
 
   return {
