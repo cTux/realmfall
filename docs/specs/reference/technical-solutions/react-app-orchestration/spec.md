@@ -62,6 +62,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `AppShell` owns the lazy audio bridges, home-direction marker shell, pause overlay, and loading chrome so the main app entry can stay focused on hook composition and data flow.
 - The world-clock hook pauses its `requestAnimationFrame` loop while the document is hidden and resumes from a clean tick when the tab becomes visible again, avoiding idle background frame churn without desynchronizing world time.
 - Windows that only need the live world clock for cooldown or display state subscribe inside the leaf content component, so wrapper shells and suspense boundaries do not rerender on every clock tick.
+- `HexInfoWindow` now derives combat forfeit timing from `useWorldClockTime` in the content path, so combat timing no longer flows through the world view model and shell props.
 - Window dragging and resizing keep movement local to the window shell until pointer release, which avoids pushing every pointer delta through shared app state during the interaction.
 - The shared drag shell only commits `onMove` when pointer movement or resizing actually changed geometry, so focus clicks on a window header do not trigger redundant persistence or autosave work.
 - Transition hooks expose mounted-state booleans for deferred windows as mounted-state signals, not as render callbacks, so the desktop layout code can treat them as stateful visibility guards instead of ambiguous “render” flags.

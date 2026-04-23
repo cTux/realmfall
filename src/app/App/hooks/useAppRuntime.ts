@@ -258,7 +258,6 @@ export function useAppRuntime() {
       showFilterMenu: controllerState.showFilterMenu,
       heroOverview: gameView.heroOverview,
       townStock: gameView.townStock,
-      worldTimeMs: bootstrap.game.worldTimeMs,
     },
     windows: controllerState.windows,
     windowShown: controllerState.windowShown,

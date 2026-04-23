@@ -72,7 +72,6 @@ export const hexInfoDeferredWindow: AppDeferredWindowDescriptor = {
       combat={views.hex.combat}
       combatPlayerParty={combatPlayerParty}
       combatEnemies={views.combat.snapshot?.enemies ?? []}
-      combatWorldTimeMs={views.hex.worldTimeMs}
       onBuyItem={actions.hex.onBuyTownItem}
       onTakeAll={actions.inventory.onTakeAllLoot}
       onTakeItem={actions.inventory.onTakeLootItem}

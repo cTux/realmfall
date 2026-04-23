@@ -184,7 +184,6 @@ export const CombatEncounter: Story = {
         abilityIds: ['kick'],
       },
     ],
-    combatWorldTimeMs: 12_000,
     loot: [
       buildItemFromConfig(ItemId.Gold, { id: 'combat-gold', quantity: 22 }),
       buildItemFromConfig(ItemId.HideBuckler, {
@@ -199,7 +198,6 @@ export const LongCombatEncounter: Story = {
   args: {
     ...CombatEncounter.args,
     combat: buildCombatState({ started: true, startedAtMs: 0 }),
-    combatWorldTimeMs: 61_000,
   },
 };
 

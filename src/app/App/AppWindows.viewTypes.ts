@@ -47,7 +47,6 @@ export interface HexItemModificationViewState {
 
 export interface HexViewState {
   homeHex: GameState['homeHex'];
-  worldTimeMs: GameState['worldTimeMs'];
   currentTile: Tile;
   currentTileHostileEnemyCount: number;
   combat: GameState['combat'];

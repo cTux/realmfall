@@ -29,7 +29,6 @@ export function HexInfoWindowContent({
   combat = null,
   combatPlayerParty = [],
   combatEnemies = [],
-  combatWorldTimeMs,
   onBuyItem,
   onTakeAll = () => undefined,
   onTakeItem = () => undefined,
@@ -57,7 +56,6 @@ export function HexInfoWindowContent({
               combat={combat}
               playerParty={combatPlayerParty}
               enemies={combatEnemies}
-              worldTimeMs={combatWorldTimeMs}
               onHoverDetail={hoverDetail}
               onLeaveDetail={leaveDetail}
             />
