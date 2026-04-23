@@ -16,6 +16,18 @@ describe('Vite chunk policy', () => {
     ).toBeUndefined();
   });
 
+  it('routes directly imported gameplay mutation modules into the state chunk', () => {
+    expect(getManualChunk('/project/src/game/stateItemActions.ts')).toBe(
+      'state',
+    );
+    expect(
+      getManualChunk('/project/src/game/stateItemModificationActions.ts'),
+    ).toBe('state');
+    expect(getManualChunk('/project/src/game/stateWorldActions.ts')).toBe(
+      'state',
+    );
+  });
+
   it('filters lazy Pixi and audio chunks from modulepreload dependencies', () => {
     expect(
       resolveModulePreloadDependencies(

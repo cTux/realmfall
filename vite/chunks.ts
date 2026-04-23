@@ -1,6 +1,17 @@
 const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'avif'];
 const FONT_EXTENSIONS = ['woff', 'woff2', 'ttf', 'otf', 'eot'];
 const LAZY_DOMAIN_CHUNK_PREFIXES = ['background-audio', 'pixi'];
+const STATE_CHUNK_MODULES = [
+  '/src/game/state.ts',
+  '/src/game/stateFactory.ts',
+  '/src/game/stateFactionNpc.ts',
+  '/src/game/stateItemActions.ts',
+  '/src/game/stateItemModificationActions.ts',
+  '/src/game/stateWorldActions.ts',
+  '/src/game/stateWorldClock.ts',
+  '/src/game/stateWorldEvents.ts',
+  '/src/ui/rarity.ts',
+];
 
 function getBaseFileName(fileName: string) {
   return fileName.replace(/\\/g, '/').split('/').pop() ?? fileName;
@@ -85,8 +96,7 @@ function getAppChunk(id: string) {
   const normalizedId = id.replace(/\\/g, '/');
 
   if (
-    normalizedId.includes('/src/game/state.ts') ||
-    normalizedId.includes('/src/ui/rarity.ts')
+    STATE_CHUNK_MODULES.some((modulePath) => normalizedId.includes(modulePath))
   ) {
     return 'state';
   }

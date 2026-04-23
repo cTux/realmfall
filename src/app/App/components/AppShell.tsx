@@ -8,7 +8,6 @@ import {
   type UiAudioController,
 } from '../../audio/UiAudioContext';
 import type { AudioSettings } from '../../audioSettings';
-import { AppWindows } from '../AppWindows';
 import type { AppWindowsProps } from '../AppWindows.types';
 import styles from '../styles.module.scss';
 import { PauseOverlay } from './PauseOverlay';
@@ -27,6 +26,11 @@ const VoiceAudioControllerBridge = lazy(() =>
 const BackgroundMusicControllerBridge = lazy(() =>
   import('../../audio/BackgroundMusicControllerBridge').then((module) => ({
     default: module.BackgroundMusicControllerBridge,
+  })),
+);
+const AppWindows = lazy(() =>
+  import('../AppWindows').then((module) => ({
+    default: module.AppWindows,
   })),
 );
 const HomeIndicator = lazy(() =>
@@ -106,7 +110,9 @@ export function AppShell({
               radius={game.radius}
             />
           </Suspense>
-          <AppWindows {...windowsProps} />
+          <Suspense fallback={null}>
+            <AppWindows {...windowsProps} />
+          </Suspense>
           {isReady && paused ? (
             <PauseOverlay
               title={t('ui.pauseOverlay.title')}

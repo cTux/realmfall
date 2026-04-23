@@ -257,10 +257,6 @@ export async function flushLazyModules() {
     for (let index = 0; index < 20; index += 1) {
       await vi.dynamicImportSettled();
       await Promise.resolve();
-
-      if (applicationOptions.length > 0) {
-        break;
-      }
     }
   });
 }
@@ -281,6 +277,7 @@ export async function renderApp() {
   await act(async () => {
     root.render(<App />);
   });
+  await flushLazyModules();
 
   return { host, root };
 }
