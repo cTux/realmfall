@@ -13,6 +13,7 @@ This spec covers canvas-pointer world interaction and the shared tooltip system.
 - Same-hex pointermove events reuse the cached hover snapshot instead of re-running hover selectors, tooltip builders, or pathfinding.
 - Safe-path lookup and world tooltip derivation run only for actionable hovered hexes; non-actionable tiles clear hover affordances without the heavier recomputation path.
 - Unrevealed distant world-map targets are rejected before tile generation or safe-path lookup on both hover and click, so exploratory pointer sweeps do not build off-map terrain.
+- Pixi world input wiring is split into focused helpers under `src/app/App/world/`: hover analysis, click navigation, drag-pan state, zoom filtering, and shared pointer matching live in neighboring modules while `pixiWorldInteractions.ts` only attaches listeners and composes those helpers.
 - Tooltips are managed through the shared app tooltip store.
 - Tooltip builders use locale keys and shared label helpers for their visible copy instead of hardcoded English fragments.
 - Tooltip assembly is split by domain under `src/ui/tooltips/`, with `itemTooltips.ts`, `abilityTooltips.ts`, and `entityTooltips.ts` owning the gameplay-specific line builders while `src/ui/tooltips.ts` remains the shared import surface for UI consumers.
@@ -27,6 +28,12 @@ This spec covers canvas-pointer world interaction and the shared tooltip system.
 ## Main Implementation Areas
 
 - `src/app/App/usePixiWorld.ts`
+- `src/app/App/world/pixiWorldInteractions.ts`
+- `src/app/App/world/pixiWorldHoverInteractions.ts`
+- `src/app/App/world/pixiWorldClickNavigation.ts`
+- `src/app/App/world/pixiWorldMapDrag.ts`
+- `src/app/App/world/pixiWorldMapZoom.ts`
+- `src/app/App/world/pixiWorldInteractionShared.ts`
 - `src/app/App/tooltipStore.ts`
 - `src/ui/tooltips.ts`
 - `src/ui/tooltips/itemTooltips.ts`
