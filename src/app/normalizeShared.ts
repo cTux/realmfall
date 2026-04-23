@@ -1,4 +1,3 @@
-import { ENEMY_CONFIGS } from '../game/content/enemies';
 import { ENEMY_TYPE_IDS } from '../game/content/ids';
 import {
   EQUIPMENT_SLOTS,
@@ -11,9 +10,6 @@ import { RARITY_ORDER, STRUCTURE_TYPES, TERRAINS } from '../game/types';
 
 const SKILL_NAMES = Object.values(Skill);
 const ENEMY_TYPE_ID_SET = new Set<string>(ENEMY_TYPE_IDS);
-const LEGACY_ENEMY_TYPE_ID_BY_NAME = Object.fromEntries(
-  ENEMY_CONFIGS.map((config) => [config.name, config.id]),
-) as Record<string, NonNullable<Enemy['enemyTypeId']>>;
 const EQUIPMENT_SLOT_SET = new Set(EQUIPMENT_SLOTS);
 const ITEM_RARITY_SET = new Set<string>(RARITY_ORDER);
 const STRUCTURE_TYPE_SET = new Set<string>(STRUCTURE_TYPES);
@@ -55,17 +51,8 @@ export function isStructure(
 
 export function normalizeEnemyTypeId(
   value: unknown,
-  name: unknown,
 ): NonNullable<Enemy['enemyTypeId']> | null {
-  if (isEnemyTypeId(value)) {
-    return value;
-  }
-
-  if (value !== undefined || typeof name !== 'string') {
-    return null;
-  }
-
-  return LEGACY_ENEMY_TYPE_ID_BY_NAME[name] ?? null;
+  return isEnemyTypeId(value) ? value : null;
 }
 
 export function isItemRarity(value: unknown): value is Item['rarity'] {
