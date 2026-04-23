@@ -11,17 +11,17 @@ import {
 import { loadGraphicsSettings } from '../../graphicsSettings';
 
 export function useAppBootstrapState() {
-  const initialAudioSettingsRef = useRef(loadAudioSettings());
-  const initialGraphicsSettingsRef = useRef(loadGraphicsSettings());
-  const initialGameRef = useRef<GameState>(createGame(WORLD_RADIUS));
-  const gameRef = useRef<GameState>(initialGameRef.current);
+  const [initialAudioSettings] = useState(loadAudioSettings);
+  const [initialGraphicsSettings] = useState(loadGraphicsSettings);
+  const [initialGame] = useState<GameState>(() => createGame(WORLD_RADIUS));
+  const gameRef = useRef<GameState>(initialGame);
   const tooltipPositionRef = useRef<TooltipPosition | null>(null);
-  const worldTimeMsRef = useRef(initialGameRef.current.worldTimeMs);
+  const worldTimeMsRef = useRef(initialGame.worldTimeMs);
   const worldTimeTickRef = useRef<number | null>(null);
   const lastDisplayedWorldSecondRef = useRef(
-    Math.floor(initialGameRef.current.worldTimeMs / 1000),
+    Math.floor(initialGame.worldTimeMs / 1000),
   );
-  const [game, setGame] = useState<GameState>(initialGameRef.current);
+  const [game, setGame] = useState<GameState>(initialGame);
   const [paused, setPaused] = useState(false);
   const [uiAudio, setUiAudio] = useState<UiAudioController>(
     DEFAULT_UI_AUDIO_CONTROLLER,
@@ -30,9 +30,9 @@ export function useAppBootstrapState() {
   return {
     game,
     gameRef,
-    initialAudioSettings: initialAudioSettingsRef.current,
-    initialGame: initialGameRef.current,
-    initialGraphicsSettings: initialGraphicsSettingsRef.current,
+    initialAudioSettings,
+    initialGame,
+    initialGraphicsSettings,
     lastDisplayedWorldSecondRef,
     paused,
     setGame,
