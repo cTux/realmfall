@@ -79,6 +79,7 @@ const GameSettingsWindow = createLazyWindowComponent<
 );
 
 interface AppDeferredWindowsProps {
+  appReady: boolean;
   combatPlayerParty: ReturnType<
     typeof import('../hooks/useCombatPlayerParty').useCombatPlayerParty
   >;
@@ -110,6 +111,7 @@ interface AppDeferredWindowsProps {
 }
 
 export const AppDeferredWindows = memo(function AppDeferredWindows({
+  appReady,
   combatView,
   combatPlayerParty,
   hexInfoView,
@@ -133,7 +135,7 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
     onHoverDetail: tooltipActions.onShowTooltip,
     onLeaveDetail: tooltipActions.onCloseTooltip,
   };
-  const fallback = <WindowLoadingState />;
+  const fallback = appReady ? <WindowLoadingState /> : null;
 
   return (
     <>

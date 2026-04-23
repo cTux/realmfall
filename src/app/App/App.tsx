@@ -440,6 +440,7 @@ export function App() {
   });
 
   const appWindowsProps = useAppWindowsProps({
+    appReady: isReady,
     windows,
     windowShown,
     keepLootWindowMounted,

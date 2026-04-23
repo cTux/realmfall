@@ -6,6 +6,7 @@ import type {
 } from '../AppWindows.types';
 
 interface UseAppWindowsPropsArgs {
+  appReady: boolean;
   windows: AppWindowsProps['layout']['windows'];
   windowShown: AppWindowsProps['layout']['windowShown'];
   keepLootWindowMounted: AppWindowsProps['layout']['keepLootWindowMounted'];
@@ -16,6 +17,7 @@ interface UseAppWindowsPropsArgs {
 }
 
 export function useAppWindowsProps({
+  appReady,
   windows,
   windowShown,
   keepLootWindowMounted,
@@ -26,6 +28,7 @@ export function useAppWindowsProps({
 }: UseAppWindowsPropsArgs): AppWindowsProps {
   const layout = useMemo(
     () => ({
+      appReady,
       windows,
       windowShown,
       keepLootWindowMounted,
@@ -33,6 +36,7 @@ export function useAppWindowsProps({
       tooltipPositionRef,
     }),
     [
+      appReady,
       keepCombatWindowMounted,
       keepLootWindowMounted,
       tooltipPositionRef,

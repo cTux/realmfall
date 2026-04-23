@@ -25,6 +25,7 @@ export interface AppWindowsProps {
 }
 
 export interface AppWindowsLayout {
+  appReady: boolean;
   windows: WindowPositions;
   windowShown: WindowVisibilityState;
   keepLootWindowMounted: boolean;
