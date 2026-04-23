@@ -13,6 +13,7 @@ import { tileStyle } from './renderSceneEnvironment';
 import { getPlacedWorldBossCenter } from '../../game/worldBoss';
 import { hexKey } from '../../game/hex';
 import { renderClaimBorder } from './renderSceneClaimBorders';
+import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
 import { renderStaticMarkers } from './renderSceneStaticMarkers';
 
 export function renderStaticTile({
@@ -34,6 +35,7 @@ export function renderStaticTile({
   terrainArtSize,
   tile,
   visibleTileMap,
+  visibleTileRenderInput,
   worldBossIconSize,
 }: {
   emphasized: boolean;
@@ -54,6 +56,7 @@ export function renderStaticTile({
   terrainArtSize: number;
   tile: Tile;
   visibleTileMap: Map<string, Tile> | null;
+  visibleTileRenderInput: VisibleTileRenderInput;
   worldBossIconSize: number;
 }) {
   const worldBossCenter = getPlacedWorldBossCenter(
@@ -115,6 +118,7 @@ export function renderStaticTile({
       structureIconSize,
       tile,
       visibleTileMap,
+      visibleTileRenderInput,
       worldBossIconSize,
     });
   }

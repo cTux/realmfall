@@ -24,6 +24,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Cached scene state avoids unnecessary rebuilds when screen size, derived static-world render inputs, selected tile, or path highlights have not changed.
 - Static and interaction redraw invalidation derives from render-specific version keys rather than whole `GameState` identity, so log-only or other non-world state clones do not rebuild unchanged Pixi layers.
 - Static invalidation now ignores offscreen enemy container churn by comparing only the enemy presentation inputs that belong to visible tiles before rebuilding cached layers.
+- Static redraws build one shared visible-tile render input list and reuse it for static render-token derivation plus marker composition, so enemy lookups are not repeated for the same tile during one redraw.
 - When offscreen enemy-only clones leave the visible-enemy token unchanged, the scene cache advances its stored `enemies` source reference so later animation ticks do not keep recomputing the visible-enemy token against the same unchanged state.
 - `usePixiWorld` reuses the previous `visibleTiles` array when unrelated state clones leave the visible tile set untouched, and render-version caching keys off those stable world-facing inputs plus the specific enemy and world flags that actually affect Pixi output.
 - `usePixiWorld` updates the cached visible-tile list only when world-facing inputs such as player position, world radius, seed, or visible tile data change, instead of recomputing visible tiles on every unrelated root-state clone.
@@ -67,6 +68,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - `src/ui/world/renderSceneStaticTiles.ts`
 - `src/ui/world/renderSceneStaticMarkers.ts`
 - `src/ui/world/renderSceneInteractionTiles.ts`
+- `src/ui/world/renderSceneRenderInputs.ts`
 - `src/ui/world/renderSceneClaimBorders.ts`
 - `src/ui/world/renderSceneAnimated.ts`
 - `src/ui/world/renderSceneShared.ts`

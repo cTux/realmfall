@@ -1,4 +1,4 @@
-import { enemyRarityIndex, getEnemiesAt } from '../../game/stateSelectors';
+import { enemyRarityIndex } from '../../game/stateSelectors';
 import type { GameState, Tile } from '../../game/stateTypes';
 import { hexKey } from '../../game/hex';
 import {
@@ -22,6 +22,7 @@ import {
   getStructureHexIconTint,
   registerAnimatedWorldMarker,
 } from './renderSceneShared';
+import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
 
 export function renderStaticMarkers({
   enemyIconSize,
@@ -32,6 +33,7 @@ export function renderStaticMarkers({
   structureIconSize,
   tile,
   visibleTileMap,
+  visibleTileRenderInput,
   worldBossIconSize,
 }: {
   enemyIconSize: number;
@@ -42,6 +44,7 @@ export function renderStaticMarkers({
   structureIconSize: number;
   tile: Tile;
   visibleTileMap: Map<string, Tile> | null;
+  visibleTileRenderInput: VisibleTileRenderInput;
   worldBossIconSize: number;
 }) {
   if (tile.structure) {
@@ -74,8 +77,7 @@ export function renderStaticMarkers({
     );
   }
 
-  const enemies = getEnemiesAt(state, tile.coord);
-  const hostileEnemies = enemies.filter((enemy) => enemy.aggressive !== false);
+  const { enemies, hostileEnemies } = visibleTileRenderInput;
 
   if (tile.claim?.npc?.enemyId) {
     const marker = takeShadowedSprite(

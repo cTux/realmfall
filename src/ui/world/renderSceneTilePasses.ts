@@ -11,6 +11,10 @@ import {
   SAFE_PATH_HEX_INSET,
 } from './renderSceneShared';
 import { renderInteractionTile } from './renderSceneInteractionTiles';
+import {
+  getVisibleTileRenderInput,
+  type VisibleTileRenderInput,
+} from './renderSceneRenderInputs';
 import { renderStaticTile } from './renderSceneStaticTiles';
 
 interface RenderTilePassesOptions {
@@ -28,6 +32,7 @@ interface RenderTilePassesOptions {
   structureIconSize: number;
   terrainArtSize: number;
   visibleTileMap: Map<string, Tile> | null;
+  visibleTileRenderInputs: VisibleTileRenderInput[] | null;
   visibleTiles: Array<Tile>;
   worldBossIconSize: number;
   scene: SceneCache;
@@ -48,13 +53,14 @@ export function renderTilePasses({
   structureIconSize,
   terrainArtSize,
   visibleTileMap,
+  visibleTileRenderInputs,
   visibleTiles,
   worldBossIconSize,
   scene,
 }: RenderTilePassesOptions) {
   const nextCampfireLightPoints: Array<{ x: number; y: number }> = [];
 
-  visibleTiles.forEach((tile) => {
+  visibleTiles.forEach((tile, tileIndex) => {
     const distance = hexDistance(state.player.coord, tile.coord);
     const isPlayerTile =
       tile.coord.q === state.player.coord.q &&
@@ -102,6 +108,9 @@ export function renderTilePasses({
         terrainArtSize,
         tile,
         visibleTileMap,
+        visibleTileRenderInput:
+          visibleTileRenderInputs?.[tileIndex] ??
+          getVisibleTileRenderInput(state, tile),
         worldBossIconSize,
       });
     }

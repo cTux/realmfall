@@ -8,6 +8,7 @@ import {
 import type { getVisibleTiles } from '../../game/stateSelectors';
 import type { CloudRenderInput } from './renderSceneEnvironment';
 import { WorldIcons } from './worldIcons';
+import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
 import {
   createGraphicsPool,
   createShadowedSprite,
@@ -89,6 +90,7 @@ export interface SceneCache {
   player: ShadowedSpriteEntry;
   derivedRenderVisibleTilesSource: ReturnType<typeof getVisibleTiles> | null;
   derivedRenderEnemiesSource: Record<string, unknown> | null;
+  derivedRenderVisibleTileInputs: VisibleTileRenderInput[] | null;
   derivedRenderVisibleEnemyToken: number | null;
   derivedRenderPlayerCoordKey: string | null;
   derivedRenderHomeHexKey: string | null;
@@ -201,6 +203,7 @@ export function getSceneCache(app: Application) {
     player,
     derivedRenderVisibleTilesSource: null,
     derivedRenderEnemiesSource: null,
+    derivedRenderVisibleTileInputs: null,
     derivedRenderVisibleEnemyToken: null,
     derivedRenderPlayerCoordKey: null,
     derivedRenderHomeHexKey: null,

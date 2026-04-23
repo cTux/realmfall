@@ -16,6 +16,7 @@
 - Key static and interaction Pixi redraw invalidation off stable world-render inputs or explicit render-version tokens instead of whole `GameState` identity when broad state cloning would otherwise thrash cached layers.
 - Reuse `visibleTiles` arrays and other world-facing selector outputs across unrelated state clones when the visible tile set and relevant world data did not change, so Pixi invalidation can key off stable inputs instead of broad app state identity.
 - Avoid recomputing full visible-tile arrays only to decide whether the previous array could have been reused. Reuse checks should be cheaper than the redraw work they protect.
+- Carry shared visible-tile render inputs through token derivation and static marker rendering so tile-level enemy lookups are paid once per static redraw.
 - Cache deterministic per-tile or per-scene render inputs instead of recomputing stable randomness and presentation values every frame.
 - When a Pixi texture cache lives at module scope, treat destroyed textures or destroyed texture sources as invalid and reload them before reuse so HMR and app remounts do not inherit dead GPU resources.
 - Separate static world layers from animated or transient layers when doing so reduces repeated redraw cost without making the renderer harder to reason about.
