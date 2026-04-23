@@ -9,5 +9,9 @@ export const corruptionAltarStructureConfig: StructureConfig = {
   icon: ContentIcons.Totem,
   tint: 0xef4444,
   functionsProvided: ['corrupt'],
+  itemModification: {
+    kind: 'corrupt',
+    hintKey: 'ui.hexInfo.structureHint.corruptionAltar',
+  },
   globalAppearanceThreshold: 0.988,
 };

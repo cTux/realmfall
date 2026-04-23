@@ -9,5 +9,9 @@ export const runeForgeStructureConfig: StructureConfig = {
   icon: ContentIcons.Anvil,
   tint: 0xec4899,
   functionsProvided: ['reforge'],
+  itemModification: {
+    kind: 'reforge',
+    hintKey: 'ui.hexInfo.structureHint.runeForge',
+  },
   globalAppearanceThreshold: 0.98,
 };

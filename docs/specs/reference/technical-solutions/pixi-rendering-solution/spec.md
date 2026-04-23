@@ -11,6 +11,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - React updates feed the renderer through refs and invalidation-sensitive cached inputs rather than by layering a second immediate render effect path.
 - The renderer separates static, interaction, and animated work.
 - Static layers hold terrain, structures, claims, and stable ground cover.
+- Structure marker tinting and ambient-light behavior read from canonical structure config metadata and tags, so the renderer does not maintain its own parallel list of ore, campfire, or similar structure categories.
 - Interaction layers hold hover, selection, loot borders, and safe-path overlays.
 - Animated layers hold atmosphere, clouds, hot-structure lighting such as campfires and furnaces, and overlay work.
 - Animated overlay work now uses separate fills for time-of-day tinting and fullscreen visual effects, so gameplay-driven screen warnings can layer on top of ambient lighting without replacing it.

@@ -136,16 +136,10 @@ function buildStructureTags(config: StructureConfig) {
       ? GAME_TAGS.structure.gathering
       : config.type === 'dungeon'
         ? GAME_TAGS.structure.combat
-        : config.type === 'camp' ||
-            config.type === 'forge' ||
-            config.type === 'rune-forge' ||
-            config.type === 'furnace' ||
-            config.type === 'mana-font' ||
-            config.type === 'workshop' ||
-            config.type === 'corruption-altar'
-          ? GAME_TAGS.structure.crafting
-          : config.type === 'town'
-            ? GAME_TAGS.structure.settlement
+        : config.type === 'town'
+          ? GAME_TAGS.structure.settlement
+          : config.functionsProvided.length > 0
+            ? GAME_TAGS.structure.crafting
             : GAME_TAGS.structure.utility;
 
   const typeTag =

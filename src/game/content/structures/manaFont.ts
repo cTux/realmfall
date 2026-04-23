@@ -9,5 +9,9 @@ export const manaFontStructureConfig: StructureConfig = {
   icon: ContentIcons.Sparkles,
   tint: 0x22d3ee,
   functionsProvided: ['enchant'],
+  itemModification: {
+    kind: 'enchant',
+    hintKey: 'ui.hexInfo.structureHint.manaFont',
+  },
   globalAppearanceThreshold: 0.972,
 };

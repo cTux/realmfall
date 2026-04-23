@@ -5,6 +5,7 @@ import {
   getVisibleTiles,
   getStructureConfig,
 } from '../../game/stateSelectors';
+import { GAME_TAGS } from '../../game/content/tags';
 import { isPassable } from '../../game/shared';
 import type { GameState, HexCoord, Tile } from '../../game/stateTypes';
 import { hexDistance, hexKey } from '../../game/hex';
@@ -298,22 +299,17 @@ export function renderScene(
               shadowOffset,
               point,
             );
-            const markerAnimationKind = getStructureMarkerAnimationKind(
-              tile.structure,
+            registerAnimatedWorldMarker(
+              scene,
+              state.seed,
+              tile.coord,
+              marker,
+              point,
+              structureIconSize,
+              structureIconSize,
+              getStructureHexIconTint(tile.structure),
+              'resource',
             );
-            if (markerAnimationKind) {
-              registerAnimatedWorldMarker(
-                scene,
-                state.seed,
-                tile.coord,
-                marker,
-                point,
-                structureIconSize,
-                structureIconSize,
-                getStructureHexIconTint(tile.structure),
-                markerAnimationKind,
-              );
-            }
           }
 
           const hostileEnemies = enemies.filter(
@@ -422,7 +418,7 @@ export function renderScene(
           );
         }
 
-        if (tile.structure === 'camp' || tile.structure === 'furnace') {
+        if (structureEmitsCampfireLight(tile.structure)) {
           nextCampfireLightPoints.push(point);
         }
       }
@@ -666,12 +662,8 @@ function makeInsetHex(
 
 function getStructureHexIconTint(structure: Tile['structure']) {
   if (
-    structure === 'copper-ore' ||
-    structure === 'tin-ore' ||
-    structure === 'iron-ore' ||
-    structure === 'gold-ore' ||
-    structure === 'platinum-ore' ||
-    structure === 'coal-ore'
+    structure &&
+    getStructureConfig(structure).tags?.includes(GAME_TAGS.structure.ore)
   ) {
     return getStructureConfig(structure).tint;
   }
@@ -679,32 +671,15 @@ function getStructureHexIconTint(structure: Tile['structure']) {
   return STRUCTURE_HEX_ICON_TINT;
 }
 
-function getStructureMarkerAnimationKind(structure: Tile['structure']) {
-  if (
-    structure === 'camp' ||
-    structure === 'coal-ore' ||
-    structure === 'copper-ore' ||
-    structure === 'corruption-altar' ||
-    structure === 'dungeon' ||
-    structure === 'forge' ||
-    structure === 'furnace' ||
-    structure === 'gold-ore' ||
-    structure === 'herbs' ||
-    structure === 'iron-ore' ||
-    structure === 'lake' ||
-    structure === 'mana-font' ||
-    structure === 'platinum-ore' ||
-    structure === 'pond' ||
-    structure === 'rune-forge' ||
-    structure === 'tin-ore' ||
-    structure === 'town' ||
-    structure === 'tree' ||
-    structure === 'workshop'
-  ) {
-    return 'resource' as const;
+function structureEmitsCampfireLight(structure: Tile['structure']) {
+  if (!structure) {
+    return false;
   }
 
-  return null;
+  const { functionsProvided } = getStructureConfig(structure);
+  return (
+    functionsProvided.includes('cook') || functionsProvided.includes('smelt')
+  );
 }
 
 function renderEnemyGroupBadge(
