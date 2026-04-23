@@ -25,6 +25,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Focused hooks under `src/app/App/hooks` keep `AppWindows` centered on composition by separating deferred-window bookkeeping, stable handler maps, and memoized window-specific view models.
 - `useManagedWindowProps` builds the shared `position`, `onMove`, `visible`, and `onClose` prop map for managed windows so fixed and deferred window composition does not repeat the same shell wiring at every render site.
 - Fixed and deferred window composition receives narrow view and action slices instead of the full `AppWindowsProps` object, keeping unrelated window surfaces from rerendering together when one subtree changes.
+- `AppDeferredWindows` renders mounted deferred windows from a shared registry that owns the canonical window order, lazy module declarations, mounted-window filtering, and per-window prop mapping, so adding a deferred window does not require another hand-written `mountedWindows.* ? <Suspense>` branch in the app shell.
 - The game uses a desktop-style draggable window model with persisted positions, optional per-window dimensions for resizable windows, and visibility.
 - Shared draggable window shells keep stack order inside reserved z-index bands, so opening or refocusing a window brings it to the front without ad hoc per-window layering rules.
 - Windows that become visible automatically take focus through the shared drag shell so newly opened panes rise and accept keyboard interaction immediately.
@@ -86,6 +87,8 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `src/app/App/hooks/useHexInfoView.ts`
 - `src/app/App/hooks/useRecipeWindowStructure.ts`
 - `src/app/App/hooks/useCombatPlayerParty.ts`
+- `src/app/App/components/AppDeferredWindows.tsx`
+- `src/app/App/components/appDeferredWindowRegistry.tsx`
 - `src/app/App/useWindowTransitions.ts`
 - `src/ui/components/DeferredWindowShell.tsx`
 - `src/ui/components/WindowShell.tsx`
