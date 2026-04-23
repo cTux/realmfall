@@ -28,11 +28,19 @@ import { formatSecondaryStatLabel } from '../../i18n/labels';
 import { resolveBackgroundMusicMood } from '../audio/backgroundMusic';
 
 interface UseAppGameViewOptions {
-  game: GameState;
+  bloodMoonActive: GameState['bloodMoonActive'];
+  combat: GameState['combat'];
+  enemies: GameState['enemies'];
   hexItemModificationPickerActive: boolean;
+  homeHex: GameState['homeHex'];
   logFilters: Record<LogKind, boolean>;
+  logs: GameState['logs'];
+  player: GameState['player'];
+  seed: GameState['seed'];
   selectedHexItemModificationItem: Item | null;
   selectedHexItemReforgeStatIndex: number | null;
+  tiles: GameState['tiles'];
+  worldTimeMs: GameState['worldTimeMs'];
 }
 
 type EnemyLookupInput = Parameters<typeof getEnemiesAt>[0];
@@ -42,22 +50,20 @@ type FactionNpcHealStatusInput = Parameters<
 >[0];
 
 export function useAppGameView({
-  game,
+  bloodMoonActive,
+  combat,
+  enemies,
   hexItemModificationPickerActive,
+  homeHex,
   logFilters,
+  logs,
+  player,
+  seed,
   selectedHexItemModificationItem,
   selectedHexItemReforgeStatIndex,
+  tiles,
+  worldTimeMs,
 }: UseAppGameViewOptions) {
-  const {
-    bloodMoonActive,
-    combat,
-    enemies,
-    homeHex,
-    logs,
-    player,
-    seed,
-    tiles,
-  } = game;
   const { coord, inventory, learnedRecipeIds, skills } = player;
   const enemyLookupInput = useMemo<EnemyLookupInput>(
     () => ({
@@ -120,7 +126,16 @@ export function useAppGameView({
     () => inventory.some((item) => isEquippableItem(item) && !item.locked),
     [inventory],
   );
-  const townStock = useMemo(() => getTownStock(game), [game]);
+  const townStock = useMemo(
+    () =>
+      getTownStock({
+        player: { coord },
+        seed,
+        tiles,
+        worldTimeMs,
+      }),
+    [coord, seed, tiles, worldTimeMs],
+  );
   const gold = useMemo(() => getGoldAmount(inventory), [inventory]);
   const combatEnemies = useMemo(
     () => (combat ? getEnemiesAt(enemyLookupInput, combat.coord) : []),

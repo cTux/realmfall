@@ -1,6 +1,9 @@
 import { WINDOW_LABELS } from '../../../ui/windowLabels';
-import { WINDOW_DOCK_KEYS, type WindowVisibilityState } from '../../constants';
-import { DOCK_WINDOW_ICONS } from './dockWindowIcons';
+import {
+  WINDOW_DOCK_KEYS,
+  WINDOW_REGISTRY,
+  type WindowVisibilityState,
+} from '../../constants';
 
 export function getDockEntries(
   windowShown: WindowVisibilityState,
@@ -13,7 +16,7 @@ export function getDockEntries(
       key,
       label: WINDOW_LABELS[key].plain,
       title: WINDOW_LABELS[key],
-      icon: DOCK_WINDOW_ICONS[key],
+      icon: WINDOW_REGISTRY[key].icon,
       shown: windowShown[key],
       requiresAttention: requiresAttention[key] ?? false,
       align,
