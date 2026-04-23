@@ -83,6 +83,17 @@ export function usePixiWorld({
   const lastRenderSnapshotRef = useRef<WorldRenderSnapshot>(
     createWorldRenderSnapshot(),
   );
+  const renderTokenCacheRef = useRef({
+    derivedRenderVisibleTilesSource: null,
+    derivedRenderEnemiesSource: null,
+    derivedRenderVisibleEnemyToken: null,
+    derivedRenderPlayerCoordKey: null,
+    derivedRenderHomeHexKey: null,
+    derivedRenderBloodMoonActive: null,
+    derivedRenderIconTextureVersion: null,
+    derivedStaticRenderToken: null,
+    derivedInteractionRenderToken: null,
+  });
   const renderInvalidationRef = useRef(0);
   const [canvasReady, setCanvasReady] = useState(false);
 
@@ -143,6 +154,17 @@ export function usePixiWorld({
     let disposed = false;
     let cleanup: (() => void) | null = null;
     lastRenderSnapshotRef.current = createWorldRenderSnapshot();
+    renderTokenCacheRef.current = {
+      derivedRenderVisibleTilesSource: null,
+      derivedRenderEnemiesSource: null,
+      derivedRenderVisibleEnemyToken: null,
+      derivedRenderPlayerCoordKey: null,
+      derivedRenderHomeHexKey: null,
+      derivedRenderBloodMoonActive: null,
+      derivedRenderIconTextureVersion: null,
+      derivedStaticRenderToken: null,
+      derivedInteractionRenderToken: null,
+    };
 
     void Promise.all([
       import('./world/pixiWorldCamera'),
@@ -242,6 +264,7 @@ export function usePixiWorld({
           worldTimeMsRef,
           renderInvalidationRef,
           lastRenderSnapshotRef,
+          renderTokenCache: renderTokenCacheRef.current,
         });
 
         resize();

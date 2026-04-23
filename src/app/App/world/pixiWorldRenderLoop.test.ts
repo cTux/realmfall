@@ -23,11 +23,34 @@ import {
 } from './pixiWorldRenderLoop';
 
 describe('pixiWorldRenderLoop', () => {
+  const createRenderTokenCache = () => ({
+    derivedRenderVisibleTilesSource: null,
+    derivedRenderEnemiesSource: null,
+    derivedRenderVisibleEnemyToken: null,
+    derivedRenderPlayerCoordKey: null,
+    derivedRenderHomeHexKey: null,
+    derivedRenderBloodMoonActive: null,
+    derivedRenderIconTextureVersion: null,
+    derivedStaticRenderToken: null,
+    derivedInteractionRenderToken: null,
+  });
+
   it('re-renders when world icon textures finish loading after the first frame', () => {
     const performanceNowSpy = vi.spyOn(performance, 'now').mockReturnValue(0);
     const renderScene = vi.fn();
-    const game = { player: { coord: { q: 0, r: 0 } } };
-    const visibleTiles = [{ coord: { q: 0, r: 0 }, terrain: 'plains' }];
+    const game = {
+      bloodMoonActive: false,
+      homeHex: { q: 0, r: 0 },
+      player: { coord: { q: 0, r: 0 } },
+      enemies: {},
+    };
+    const visibleTiles = [
+      {
+        coord: { q: 0, r: 0 },
+        terrain: 'plains',
+        enemyIds: [],
+      },
+    ];
     const selected = { q: 0, r: 0 };
     const hoveredMove = null;
     const hoveredSafePath = null;
@@ -45,6 +68,7 @@ describe('pixiWorldRenderLoop', () => {
       worldTimeMsRef: { current: 0 },
       renderInvalidationRef: { current: 0 },
       lastRenderSnapshotRef: { current: createWorldRenderSnapshot() },
+      renderTokenCache: createRenderTokenCache(),
     });
 
     renderFrame();
@@ -63,8 +87,19 @@ describe('pixiWorldRenderLoop', () => {
   it('re-renders when terrain backgrounds are toggled', () => {
     const performanceNowSpy = vi.spyOn(performance, 'now').mockReturnValue(0);
     const renderScene = vi.fn();
-    const game = { player: { coord: { q: 0, r: 0 } } };
-    const visibleTiles = [{ coord: { q: 0, r: 0 }, terrain: 'plains' }];
+    const game = {
+      bloodMoonActive: false,
+      homeHex: { q: 0, r: 0 },
+      player: { coord: { q: 0, r: 0 } },
+      enemies: {},
+    };
+    const visibleTiles = [
+      {
+        coord: { q: 0, r: 0 },
+        terrain: 'plains',
+        enemyIds: [],
+      },
+    ];
     const selected = { q: 0, r: 0 };
     const showTerrainBackgroundsRef = { current: true };
     const renderFrame = createWorldRenderFrame({
@@ -81,6 +116,7 @@ describe('pixiWorldRenderLoop', () => {
       worldTimeMsRef: { current: 0 },
       renderInvalidationRef: { current: 0 },
       lastRenderSnapshotRef: { current: createWorldRenderSnapshot() },
+      renderTokenCache: createRenderTokenCache(),
     });
 
     renderFrame();
