@@ -403,7 +403,7 @@ describe('ui window markup', () => {
     expect(markup).not.toContain('No equippable items to sell.');
     expect(markup).not.toContain('Tak(e) all');
     expect(markup).not.toContain('Loot on the ground');
-    expect(markup).toContain('S(e)ll all');
+    expect(markup).not.toContain('S(e)ll all');
     expect(markup).not.toContain('>Prospect<');
   });
 
