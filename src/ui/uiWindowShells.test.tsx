@@ -73,16 +73,16 @@ describe('ui window shell surfaces', () => {
   it('forwards close-button tooltip handlers through shared window shells', async () => {
     const hoverDetail = vi.fn();
     const game = createGame(2, 'window-tooltip-forwarding');
-    const stats = getPlayerOverview(game.player);
+    const heroOverview = getPlayerOverview(game.player);
     const ui = await mountUi(
       <>
         <HeroWindow
           position={DEFAULT_WINDOWS.hero}
           onMove={() => {}}
-          stats={{
-            ...stats,
-            rawAttack: stats.attack,
-            rawDefense: stats.defense,
+          hero={{
+            ...heroOverview,
+            rawAttack: heroOverview.attack,
+            rawDefense: heroOverview.defense,
             buffs: [],
             debuffs: [],
             abilityIds: ['kick'],
@@ -178,12 +178,12 @@ describe('ui window shell surfaces', () => {
   it('uses PascalCase skill labels for profession tooltip titles', async () => {
     const hoverDetail = vi.fn();
     const game = createGame(2, 'skills-tooltip-title');
-    const stats = getPlayerOverview(game.player);
+    const heroOverview = getPlayerOverview(game.player);
     const ui = await mountUi(
       <SkillsWindow
         position={DEFAULT_WINDOWS.skills}
         onMove={() => {}}
-        skills={stats.skills}
+        skills={heroOverview.skills}
         onHoverDetail={hoverDetail}
         onLeaveDetail={() => {}}
       />,

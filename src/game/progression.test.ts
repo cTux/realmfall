@@ -3,7 +3,7 @@ import { BASE_ENEMY_XP, MAX_PLAYER_LEVEL } from './config';
 import { makeEnemy } from './combat';
 import {
   gainXp,
-  getPlayerStats,
+  getPlayerOverview,
   levelThreshold,
   masteryLevelThreshold,
   resolveExperienceAward,
@@ -52,10 +52,10 @@ describe('progression', () => {
       secondaryStats: [{ key: 'bonusExperience', value: 143 }],
     };
 
-    const stats = getPlayerStats(game.player);
+    const heroOverview = getPlayerOverview(game.player);
 
-    expect(stats.bonusExperience).toBe(143);
-    expect(stats.secondaryStatTotals?.bonusExperience).toEqual({
+    expect(heroOverview.bonusExperience).toBe(143);
+    expect(heroOverview.secondaryStatTotals?.bonusExperience).toEqual({
       effective: 143,
       raw: 143,
     });

@@ -40,7 +40,7 @@ export interface AppWindowsLayout {
 
 export interface AppWindowsViewState {
   hero: {
-    stats: ReturnType<typeof getPlayerOverview>;
+    overview: ReturnType<typeof getPlayerOverview>;
     hunger: GameState['player']['hunger'];
     thirst: GameState['player']['thirst'];
   };

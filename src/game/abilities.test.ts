@@ -10,7 +10,7 @@ import {
   buildItemFromConfig,
 } from './content/items';
 import { GAME_TAGS } from './content/tags';
-import { getPlayerStats } from './progression';
+import { getPlayerOverview } from './progression';
 import { createGame } from './state';
 import type { Item } from './types';
 
@@ -91,11 +91,11 @@ describe('ability loadouts', () => {
     });
     game.player.equipment.weapon = weapon;
 
-    const stats = getPlayerStats(game.player);
+    const heroOverview = getPlayerOverview(game.player);
 
     expect(weapon.grantedAbilityId).toBeTruthy();
-    expect(stats.abilityIds).toContain(weapon.grantedAbilityId);
-    expect(stats.abilityIds[stats.abilityIds.length - 1]).toBe(
+    expect(heroOverview.abilityIds).toContain(weapon.grantedAbilityId);
+    expect(heroOverview.abilityIds[heroOverview.abilityIds.length - 1]).toBe(
       DEFAULT_ABILITY_ID,
     );
   });
@@ -127,11 +127,11 @@ describe('ability loadouts', () => {
     });
     game.player.equipment.offhand = offhand;
 
-    const stats = getPlayerStats(game.player);
+    const heroOverview = getPlayerOverview(game.player);
 
     expect(offhand.grantedAbilityId).toBeTruthy();
-    expect(stats.abilityIds).toContain(offhand.grantedAbilityId);
-    expect(stats.abilityIds[stats.abilityIds.length - 1]).toBe(
+    expect(heroOverview.abilityIds).toContain(offhand.grantedAbilityId);
+    expect(heroOverview.abilityIds[heroOverview.abilityIds.length - 1]).toBe(
       DEFAULT_ABILITY_ID,
     );
   });

@@ -71,7 +71,7 @@ export const AppFixedWindows = memo(function AppFixedWindows({
       />
       <HeroWindow
         {...managedWindowProps.hero}
-        stats={heroView.stats}
+        hero={heroView.overview}
         hunger={heroView.hunger}
         thirst={heroView.thirst}
         {...detailTooltipHandlers}

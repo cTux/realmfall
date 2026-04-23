@@ -404,8 +404,6 @@ export function getPlayerProgressionSummary(player: Player) {
   };
 }
 
-export const getPlayerStats = getPlayerOverview;
-
 function getStatusEffectValue(
   effects: Player['statusEffects'],
   effectId: StatusEffectId,

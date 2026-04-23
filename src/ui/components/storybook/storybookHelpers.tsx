@@ -124,7 +124,7 @@ export function createStorybookFixtures() {
     dockEntries: buildWindowDockEntries(),
     enemies: ENEMY_CONFIGS,
     equipment,
-    heroStats: getPlayerOverview(state.player),
+    heroOverview: getPlayerOverview(state.player),
     inventory,
     inventoryCountsByItemKey,
     items: ITEM_CONFIGS,

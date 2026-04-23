@@ -150,7 +150,7 @@ export function App() {
     recipes,
     recipeSkillLevels,
     bulkSellEquipmentExplanation,
-    stats,
+    heroOverview,
     townStock,
     territoryNpcHealStatus,
   } = useAppGameView({
@@ -319,7 +319,7 @@ export function App() {
     recipeSkillLevels,
     bulkSellEquipmentExplanation,
     showFilterMenu,
-    stats,
+    heroOverview,
     townStock,
   });
   const appWindowActions = useAppWindowActions({

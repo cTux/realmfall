@@ -30,17 +30,17 @@ setupUiTestEnvironment();
 describe('ui window static markup', () => {
   it('renders all major windows to static markup', async () => {
     const game = createWindowMarkupGame();
-    const stats = getPlayerOverview(game.player);
+    const heroOverview = getPlayerOverview(game.player);
 
     const markup = await renderMarkup(
       <>
         <HeroWindow
           position={DEFAULT_WINDOWS.hero}
           onMove={() => {}}
-          stats={{
-            ...stats,
-            rawAttack: stats.attack + 2,
-            rawDefense: stats.defense + 2,
+          hero={{
+            ...heroOverview,
+            rawAttack: heroOverview.attack + 2,
+            rawDefense: heroOverview.defense + 2,
             buffs: [],
             debuffs: ['hunger'],
             abilityIds: ['kick'],
@@ -50,7 +50,7 @@ describe('ui window static markup', () => {
         <SkillsWindow
           position={DEFAULT_WINDOWS.skills}
           onMove={() => {}}
-          skills={stats.skills}
+          skills={heroOverview.skills}
         />
         <RecipeBookWindow
           position={DEFAULT_WINDOWS.recipes}

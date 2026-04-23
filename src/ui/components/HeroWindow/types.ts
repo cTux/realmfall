@@ -8,7 +8,7 @@ import type {
 import type { SecondaryStatKey } from '../../../game/types';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 
-export interface HeroWindowStats {
+export interface HeroOverview {
   hp: number;
   maxHp: number;
   mana: number;
@@ -56,7 +56,7 @@ export interface HeroWindowProps extends WindowDetailTooltipHandlers {
   onMove: (position: WindowPosition) => void;
   visible?: boolean;
   onClose?: () => void;
-  stats: HeroWindowStats;
+  hero: HeroOverview;
   hunger: number;
   thirst?: number;
 }

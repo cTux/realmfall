@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ABILITIES } from './abilities';
 import { createCombatActorState } from './combat';
-import { getPlayerStats } from './progression';
+import { getPlayerOverview } from './progression';
 import { createGame, startCombat } from './state';
 import type { CombatState, Item, SecondaryStatKey } from './types';
 
@@ -58,7 +58,7 @@ function prepareCombat(options?: {
   for (const item of options?.playerEquipment ?? []) {
     game.player.equipment[item.slot!] = item;
   }
-  game.player.hp = options?.playerHp ?? getPlayerStats(game.player).maxHp;
+  game.player.hp = options?.playerHp ?? getPlayerOverview(game.player).maxHp;
   game.tiles['2,0'] = {
     coord,
     terrain: 'plains',
@@ -182,7 +182,7 @@ describe('combat equipment stats', () => {
     expect(enemy.hp).toBeLessThan(baseline.enemies[enemyId]!.hp);
     expect(afterStart.player.hp).toBeGreaterThan(35);
     expect(afterStart.player.hp).toBeLessThanOrEqual(
-      getPlayerStats(afterStart.player).maxHp,
+      getPlayerOverview(afterStart.player).maxHp,
     );
   });
 
@@ -224,7 +224,7 @@ describe('combat equipment stats', () => {
       enemyReady: false,
     });
 
-    expect(getPlayerStats(game.player).criticalStrikeChance).toBe(5);
+    expect(getPlayerOverview(game.player).criticalStrikeChance).toBe(5);
   });
 
   it('starts the player at the baseline dodge and suppress-damage chances', () => {
@@ -233,8 +233,8 @@ describe('combat equipment stats', () => {
       enemyReady: false,
     });
 
-    expect(getPlayerStats(game.player).dodgeChance).toBe(5);
-    expect(getPlayerStats(game.player).suppressDamageChance).toBe(5);
+    expect(getPlayerOverview(game.player).dodgeChance).toBe(5);
+    expect(getPlayerOverview(game.player).suppressDamageChance).toBe(5);
   });
 
   it('respects defensive gear stats during battle', () => {
@@ -312,7 +312,7 @@ describe('combat equipment stats', () => {
       }).game,
     );
 
-    expect(absorbed.player.hp).toBe(getPlayerStats(absorbed.player).maxHp);
+    expect(absorbed.player.hp).toBe(getPlayerOverview(absorbed.player).maxHp);
     expect(
       absorbed.logs.some((entry) => /defended against/i.test(entry.text)),
     ).toBe(true);

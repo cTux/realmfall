@@ -20,7 +20,7 @@ describe('ui hero and log surfaces', () => {
         visible
         onClose={() => {}}
         hunger={100}
-        stats={{
+        hero={{
           level: 10,
           masteryLevel: 0,
           hp: 1127,
@@ -66,7 +66,7 @@ describe('ui hero and log surfaces', () => {
         visible
         onClose={() => {}}
         hunger={100}
-        stats={{
+        hero={{
           level: 100,
           masteryLevel: 1,
           hp: 100,

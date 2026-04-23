@@ -4,11 +4,11 @@ import type { AppWindowsViewState } from '../AppWindows.types';
 
 export function useCombatPlayerParty({
   combatSnapshot,
-  stats,
+  heroOverview,
   mana,
 }: {
   combatSnapshot: AppWindowsViewState['combat']['snapshot'];
-  stats: AppWindowsViewState['hero']['stats'];
+  heroOverview: AppWindowsViewState['hero']['overview'];
   mana: GameState['player']['mana'];
 }) {
   return useMemo(
@@ -18,22 +18,26 @@ export function useCombatPlayerParty({
             {
               id: 'player',
               name: 'Player',
-              level: stats.level,
-              hp: stats.hp,
-              maxHp: stats.maxHp,
+              level: heroOverview.level,
+              hp: heroOverview.hp,
+              maxHp: heroOverview.maxHp,
               mana,
-              maxMana: stats.maxMana,
-              attack: stats.attack,
+              maxMana: heroOverview.maxMana,
+              attack: heroOverview.attack,
               actor: combatSnapshot.combat.player,
-              buffs: stats.buffs.map(
+              buffs: heroOverview.buffs.map(
                 (id) =>
-                  stats.statusEffects.find((effect) => effect.id === id) ?? {
+                  heroOverview.statusEffects.find(
+                    (effect) => effect.id === id,
+                  ) ?? {
                     id,
                   },
               ),
-              debuffs: stats.debuffs.map(
+              debuffs: heroOverview.debuffs.map(
                 (id) =>
-                  stats.statusEffects.find((effect) => effect.id === id) ?? {
+                  heroOverview.statusEffects.find(
+                    (effect) => effect.id === id,
+                  ) ?? {
                     id,
                   },
               ),
@@ -42,15 +46,15 @@ export function useCombatPlayerParty({
         : [],
     [
       combatSnapshot,
+      heroOverview.attack,
+      heroOverview.buffs,
+      heroOverview.debuffs,
+      heroOverview.hp,
+      heroOverview.level,
+      heroOverview.maxHp,
+      heroOverview.maxMana,
+      heroOverview.statusEffects,
       mana,
-      stats.buffs,
-      stats.debuffs,
-      stats.statusEffects,
-      stats.attack,
-      stats.hp,
-      stats.level,
-      stats.maxHp,
-      stats.maxMana,
     ],
   );
 }

@@ -8,7 +8,7 @@ import {
 } from './balance';
 import { buildItemFromConfig } from './content/items';
 import { NON_CHANCE_BASED_SECONDARY_STAT_KEYS } from './itemSecondaryStats';
-import { getPlayerStats } from './progression';
+import { getPlayerOverview } from './progression';
 import { createGame } from './state';
 
 describe('balance anchors', () => {
@@ -97,24 +97,28 @@ describe('balance anchors', () => {
       ],
     };
 
-    const stats = getPlayerStats(game.player);
+    const heroOverview = getPlayerOverview(game.player);
 
-    expect(stats.bonusExperience).toBe(143);
-    expect(stats.criticalStrikeChance).toBe(80);
-    expect(stats.poisonChance).toBe(75);
-    expect(stats.secondaryStatTotals?.bonusExperience).toEqual({
+    expect(heroOverview.bonusExperience).toBe(143);
+    expect(heroOverview.criticalStrikeChance).toBe(80);
+    expect(heroOverview.poisonChance).toBe(75);
+    expect(heroOverview.secondaryStatTotals?.bonusExperience).toEqual({
       effective: 143,
       raw: 143,
     });
-    expect(stats.secondaryStatTotals?.criticalStrikeChance).toEqual({
+    expect(heroOverview.secondaryStatTotals?.criticalStrikeChance).toEqual({
       effective: 80,
       raw: 148,
     });
-    expect(stats.secondaryStatTotals?.poisonChance).toEqual({
+    expect(heroOverview.secondaryStatTotals?.poisonChance).toEqual({
       effective: 75,
       raw: 143,
     });
-    expect(stats.secondaryStatTotals?.attackSpeed?.effective).toBeCloseTo(1.75);
-    expect(stats.secondaryStatTotals?.attackSpeed?.raw).toBeCloseTo(2.43);
+    expect(
+      heroOverview.secondaryStatTotals?.attackSpeed?.effective,
+    ).toBeCloseTo(1.75);
+    expect(heroOverview.secondaryStatTotals?.attackSpeed?.raw).toBeCloseTo(
+      2.43,
+    );
   });
 });

@@ -42,7 +42,7 @@ export interface AppDeferredWindowsProps {
   recipeWindowStructure: ReturnType<
     typeof import('../hooks/useRecipeWindowStructure').useRecipeWindowStructure
   >;
-  heroStats: AppWindowsViewState['hero']['stats'];
+  heroOverview: AppWindowsViewState['hero']['overview'];
   inventoryView: AppWindowsViewState['inventory'];
   hexView: AppWindowsViewState['hex'];
   recipesView: AppWindowsViewState['recipes'];
@@ -159,12 +159,12 @@ const deferredWindowRenderers: Record<
     },
   ) => ReactElement
 > = {
-  skills: ({ detailTooltipHandlers, heroStats, managedWindowProps }) => {
+  skills: ({ detailTooltipHandlers, heroOverview, managedWindowProps }) => {
     const SkillsWindow = deferredWindowComponents.skills;
     return (
       <SkillsWindow
         {...managedWindowProps.skills}
-        skills={heroStats.skills}
+        skills={heroOverview.skills}
         {...detailTooltipHandlers}
       />
     );

@@ -22,7 +22,7 @@ const meta = {
     onMove: noop,
     visible: true,
     onClose: noop,
-    stats: fixtures.heroStats,
+    hero: fixtures.heroOverview,
     hunger: 24,
     thirst: fixtures.thirst,
     onHoverDetail: noopHoverDetail,
@@ -50,16 +50,16 @@ export const SurvivalBars: Story = {
 
 export const AbilityLoadout: Story = {
   args: {
-    stats: fixtures.heroStats,
+    hero: fixtures.heroOverview,
   },
 };
 
 export const OvercappedSecondaryStats: Story = {
   args: {
-    stats: {
-      ...fixtures.heroStats,
+    hero: {
+      ...fixtures.heroOverview,
       secondaryStatTotals: {
-        ...(fixtures.heroStats.secondaryStatTotals ?? {}),
+        ...(fixtures.heroOverview.secondaryStatTotals ?? {}),
         bonusExperience: { effective: 143, raw: 143 },
         criticalStrikeChance: { effective: 75, raw: 143 },
         criticalStrikeDamage: { effective: 225, raw: 293 },

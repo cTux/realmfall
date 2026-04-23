@@ -34,7 +34,7 @@ interface UseAppWindowViewsArgs {
   recipeSkillLevels: AppWindowsViewState['recipes']['skillLevels'];
   bulkSellEquipmentExplanation: string | null;
   showFilterMenu: boolean;
-  stats: AppWindowsViewState['hero']['stats'];
+  heroOverview: AppWindowsViewState['hero']['overview'];
   townStock: AppWindowsViewState['hex']['townStock'];
 }
 
@@ -66,16 +66,16 @@ export function useAppWindowViews({
   recipeSkillLevels,
   bulkSellEquipmentExplanation,
   showFilterMenu,
-  stats,
+  heroOverview,
   townStock,
 }: UseAppWindowViewsArgs): AppWindowsViewState {
   const hero = useMemo(
     () => ({
-      stats,
+      overview: heroOverview,
       hunger: game.player.hunger,
       thirst: game.player.thirst,
     }),
-    [game.player.hunger, game.player.thirst, stats],
+    [game.player.hunger, game.player.thirst, heroOverview],
   );
 
   const player = useMemo(

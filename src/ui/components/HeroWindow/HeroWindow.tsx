@@ -21,7 +21,7 @@ export const HeroWindow = createDeferredWindowComponent<
     onMove,
     visible,
     onClose,
-    stats,
+    hero,
     onHoverDetail,
     onLeaveDetail,
   }) => ({
@@ -31,8 +31,8 @@ export const HeroWindow = createDeferredWindowComponent<
       <>
         {' '}
         {'- Lv '}
-        {stats.level}
-        {stats.masteryLevel > 0 ? ` (${stats.masteryLevel})` : ''}
+        {hero.level}
+        {hero.masteryLevel > 0 ? ` (${hero.masteryLevel})` : ''}
       </>
     ),
     position,
@@ -46,13 +46,13 @@ export const HeroWindow = createDeferredWindowComponent<
     onLeaveDetail,
   }),
   mapContentProps: ({
-    stats,
+    hero,
     hunger,
     thirst,
     onHoverDetail,
     onLeaveDetail,
   }) => ({
-    stats,
+    hero,
     hunger,
     thirst,
     onHoverDetail,

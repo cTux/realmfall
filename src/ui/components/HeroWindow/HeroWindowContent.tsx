@@ -15,11 +15,11 @@ import styles from './styles.module.scss';
 
 type HeroWindowContentProps = Pick<
   HeroWindowProps,
-  'stats' | 'hunger' | 'thirst' | 'onHoverDetail' | 'onLeaveDetail'
+  'hero' | 'hunger' | 'thirst' | 'onHoverDetail' | 'onLeaveDetail'
 >;
 
 export function HeroWindowContent({
-  stats,
+  hero,
   hunger,
   thirst,
   onHoverDetail,
@@ -31,10 +31,10 @@ export function HeroWindowContent({
         className={styles.summary}
         title={t('ui.window.hero.plain')}
         showPrimaryTitle={false}
-        bars={buildHeroBars(stats, hunger, thirst)}
-        abilities={buildAbilityIcons(stats)}
-        buffs={buildEffectIcons(stats, 'buff')}
-        debuffs={buildEffectIcons(stats, 'debuff')}
+        bars={buildHeroBars(hero, hunger, thirst)}
+        abilities={buildAbilityIcons(hero)}
+        buffs={buildEffectIcons(hero, 'buff')}
+        debuffs={buildEffectIcons(hero, 'debuff')}
         onHoverDetail={onHoverDetail}
         onLeaveDetail={onLeaveDetail}
       />
@@ -43,7 +43,7 @@ export function HeroWindowContent({
           {t('ui.hero.statSheet.primary')}
         </h3>
         <div className={styles.statGrid}>
-          {buildPrimaryStatRows(stats).map((row) => (
+          {buildPrimaryStatRows(hero).map((row) => (
             <div key={row.label} className={styles.statRow}>
               <span className={styles.statLabel}>{row.label}</span>
               <span className={styles.statValue}>{row.value}</span>
@@ -56,7 +56,7 @@ export function HeroWindowContent({
           {t('ui.hero.statSheet.secondary')}
         </h3>
         <div className={styles.statGrid}>
-          {buildSecondaryStatRows(stats).map((row) => (
+          {buildSecondaryStatRows(hero).map((row) => (
             <div key={row.label} className={styles.statRow}>
               <span className={styles.statLabel}>{row.label}</span>
               <span className={styles.statValue}>{row.value}</span>
@@ -69,7 +69,7 @@ export function HeroWindowContent({
 }
 
 function buildHeroBars(
-  stats: HeroWindowProps['stats'],
+  hero: HeroWindowProps['hero'],
   hunger: number,
   thirst: number | undefined,
 ): [EntityStatusBar, ...EntityStatusBar[]] {
@@ -77,24 +77,24 @@ function buildHeroBars(
     {
       id: 'hp',
       label: t('ui.hero.hp'),
-      value: stats.hp,
-      max: stats.maxHp,
+      value: hero.hp,
+      max: hero.maxHp,
       tone: 'hp',
       description: t('ui.tooltip.bar.heroHp'),
     },
     {
       id: 'mana',
       label: t('ui.hero.mana'),
-      value: stats.mana,
-      max: stats.maxMana,
+      value: hero.mana,
+      max: hero.maxMana,
       tone: 'mana',
       description: t('ui.tooltip.bar.heroMana'),
     },
     {
       id: 'xp',
       label: t('ui.hero.xp'),
-      value: stats.xp,
-      max: stats.nextLevelXp,
+      value: hero.xp,
+      max: hero.nextLevelXp,
       tone: 'xp',
       description: t('ui.tooltip.bar.heroXp'),
     },
@@ -118,10 +118,10 @@ function buildHeroBars(
 }
 
 function buildEffectIcons(
-  stats: HeroWindowProps['stats'],
+  hero: HeroWindowProps['hero'],
   tone: 'buff' | 'debuff',
 ) {
-  return buildHeroEffectItems(stats, tone).map<EntityStatusIcon>((item) => ({
+  return buildHeroEffectItems(hero, tone).map<EntityStatusIcon>((item) => ({
     id: item.id,
     label: formatStatusEffectLabel(item.id),
     icon: statusEffectIcon(item.id),
@@ -132,7 +132,7 @@ function buildEffectIcons(
     tooltipLines: statusEffectTooltipLines(
       item.id,
       tone,
-      heroEffectExtraLines(item.id, stats),
+      heroEffectExtraLines(item.id, hero),
       item,
     ),
     tooltipBorderColor:
@@ -140,8 +140,8 @@ function buildEffectIcons(
   }));
 }
 
-function buildAbilityIcons(stats: HeroWindowProps['stats']) {
-  return stats.abilityIds.map<EntityStatusIcon>((abilityId) => {
+function buildAbilityIcons(hero: HeroWindowProps['hero']) {
+  return hero.abilityIds.map<EntityStatusIcon>((abilityId) => {
     const ability = getAbilityDefinition(abilityId);
     return {
       id: ability.id,
@@ -150,20 +150,20 @@ function buildAbilityIcons(stats: HeroWindowProps['stats']) {
       tint: '#f8fafc',
       borderColor: 'rgb(148 163 184 / 35%)',
       tooltipTitle: ability.name,
-      tooltipLines: abilityTooltipLines(ability, ability.target, stats.attack),
+      tooltipLines: abilityTooltipLines(ability, ability.target, hero.attack),
       tooltipBorderColor: 'rgba(148, 163, 184, 0.9)',
     };
   });
 }
 
 function buildHeroEffectItems(
-  stats: HeroWindowProps['stats'],
+  hero: HeroWindowProps['hero'],
   tone: 'buff' | 'debuff',
 ) {
-  const ids = tone === 'buff' ? stats.buffs : stats.debuffs;
+  const ids = tone === 'buff' ? hero.buffs : hero.debuffs;
   return ids.map(
     (id) =>
-      stats.statusEffects.find((effect) => effect.id === id) ?? {
+      hero.statusEffects.find((effect) => effect.id === id) ?? {
         id,
       },
   );
@@ -171,7 +171,7 @@ function buildHeroEffectItems(
 
 function heroEffectExtraLines(
   id: PlayerStatusEffect['id'],
-  stats: HeroWindowProps['stats'],
+  hero: HeroWindowProps['hero'],
 ) {
   switch (id) {
     case 'hunger':
@@ -179,13 +179,13 @@ function heroEffectExtraLines(
         {
           kind: 'stat' as const,
           label: t('ui.hero.attack'),
-          value: `-${stats.rawAttack - stats.attack}`,
+          value: `-${hero.rawAttack - hero.attack}`,
           tone: 'negative' as const,
         },
         {
           kind: 'stat' as const,
           label: t('ui.hero.defense'),
-          value: `-${stats.rawDefense - stats.defense}`,
+          value: `-${hero.rawDefense - hero.defense}`,
           tone: 'negative' as const,
         },
       ];
