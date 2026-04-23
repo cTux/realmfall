@@ -20,7 +20,7 @@ This spec covers the internal combat data structures and event-driven enemy stat
 - Combat encounter enemy synchronization lives in `src/game/stateCombatEncounterSync.ts`.
 - Player and enemy combat actor states are persisted and hydrated in the current runtime shape with no backward save-shape migration layer.
 - Ability definitions live in a registry keyed by stable ability ids.
-- Raw runtime ability definitions and fallback lookup live in `src/game/abilityCatalog.ts`, while enemy or equipment loadout selection plus combat-priority sorting live in `src/game/abilityRuntime.ts`.
+- Raw runtime ability definitions and fallback lookup keep `src/game/abilityCatalog.ts` as the public facade, while neighboring modules such as `abilityCatalogMelee.ts`, `abilityCatalogFire.ts`, `abilityCatalogLightning.ts`, `abilityCatalogIce.ts`, and `abilityCatalogSupport.ts` own the literal school-scoped registries. Enemy or equipment loadout selection plus combat-priority sorting live in `src/game/abilityRuntime.ts`.
 - The ability registry is split between that slim gameplay runtime catalog and a presentation wrapper that adds localized names, descriptions, and icons only for UI surfaces.
 - The current implementation intentionally keeps the runtime surface small, with `kick` as the shipped baseline ability.
 - Blood moon stat scaling is applied by synchronizing enemy state against stored base stats rather than permanently overwriting them.
