@@ -73,9 +73,18 @@ describe('background music helpers', () => {
       random,
     );
 
-    expect(new Set([firstTrack, secondTrack, thirdTrack])).toEqual(
-      new Set(playlist),
+    expect(new Set([firstTrack?.id, secondTrack?.id, thirdTrack?.id])).toEqual(
+      new Set(playlist.map((track) => track.id)),
     );
-    expect(fourthTrack).not.toBe(thirdTrack);
+    expect(fourthTrack?.id).not.toBe(thirdTrack?.id);
+  });
+
+  it('loads background music urls from the selected track descriptor', async () => {
+    const track = getNextBackgroundMusicTrack(
+      'town',
+      createBackgroundMusicCycleState(),
+    );
+
+    await expect(track?.loadUrl()).resolves.toMatch(/\.mp3/);
   });
 });

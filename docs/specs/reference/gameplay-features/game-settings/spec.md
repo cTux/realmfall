@@ -17,7 +17,7 @@ This spec covers the desktop-style game settings window, its dock and hotkey acc
 - The audio tab stores shared audio preferences for mute state, music-only mute state, reduced-motion muting, individual synthesized sound-effect toggles, master volume, the current Tiks theme selection, the selected recorded voice actor, and per-event gameplay voice toggles.
 - The mute toggle and master volume apply to background music, synthesized UI audio, and gameplay voice playback, the music-only mute toggle affects only background music, and the sound-effect toggles and Tiks theme remain scoped to synthesized interface sounds.
 - UI audio waits for a user activation before initializing the audio engine, then applies the saved audio settings to document-wide hover, click, toggle, range, tab, and window interaction sounds.
-- Gameplay voice playback waits for a user activation before playing, uses the selected actor and enabled event list, and stops any active voice clip immediately when mute or reduced-motion muting becomes active, including OS or browser reduced-motion preference changes that occur mid-playback.
+- Gameplay voice playback waits for a user activation before loading its bridge, uses the selected actor and enabled event list, resolves recorded clip URLs from a lazy per-file index only when a clip is chosen, and stops any active voice clip immediately when mute or reduced-motion muting becomes active, including OS or browser reduced-motion preference changes that occur mid-playback.
 - Graphics, audio, and world-map settings each persist in their own dedicated plain `localStorage` area outside the encrypted save areas, and the three settings modules reuse one shared browser-storage helper so startup can read renderer-init flags before game and renderer initialization begins.
 - Graphics settings are normalized on load and save so malformed persisted values fall back to the current defaults instead of reaching Pixi initialization.
 - `Save` persists the current settings immediately without reloading.
@@ -36,6 +36,7 @@ This spec covers the desktop-style game settings window, its dock and hotkey acc
 - Toggle `Terrain backgrounds`, use `Save`, and confirm revealed world hexes hide or show their biome art immediately without reloading.
 - Change audio toggles, volume, theme, voice actor, and voice event switches, use `Save`, and confirm the document-level UI sounds, background music, and gameplay voice playback respect the persisted choices after the next user activation.
 - Trigger a gameplay voice line, toggle mute or reduced-motion muting before the clip finishes, and confirm the active line stops immediately.
+- Inspect the production build or network panel before activation and confirm the gameplay voice bridge and selected WAV clip modules are not requested.
 - Trigger a gameplay voice line, enable reduced motion in the OS or browser while the clip is playing, and confirm the active line stops immediately without requiring another in-game state update.
 - Open the `Saves` tab, cancel a reset prompt, and confirm the selected save area is unchanged.
 - Reset `Adventure` or `Window layout`, confirm the page reloads, and confirm only that saved area falls back to defaults on the next hydration.

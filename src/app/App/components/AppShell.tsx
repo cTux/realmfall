@@ -12,6 +12,7 @@ import { AppWindows } from '../AppWindows';
 import type { AppWindowsProps } from '../AppWindows.types';
 import styles from '../styles.module.scss';
 import { PauseOverlay } from './PauseOverlay';
+import { useAudioBridgeActivation } from './useAudioBridgeActivation';
 
 const UiAudioControllerBridge = lazy(() =>
   import('../../audio/UiAudioControllerBridge').then((module) => ({
@@ -57,6 +58,8 @@ export function AppShell({
   windowsProps: AppWindowsProps;
   onUiAudioChange: (nextController: UiAudioController) => void;
 }) {
+  const audioBridgeActivated = useAudioBridgeActivation();
+
   return (
     <UiAudioProvider value={uiAudio}>
       <div className={styles.appRoot}>
@@ -65,14 +68,18 @@ export function AppShell({
             audioSettings={audioSettings}
             onChange={onUiAudioChange}
           />
-          <VoiceAudioControllerBridge
-            audioSettings={audioSettings}
-            game={game}
-          />
-          <BackgroundMusicControllerBridge
-            audioSettings={audioSettings}
-            mood={backgroundMusicMood}
-          />
+          {audioBridgeActivated ? (
+            <>
+              <VoiceAudioControllerBridge
+                audioSettings={audioSettings}
+                game={game}
+              />
+              <BackgroundMusicControllerBridge
+                audioSettings={audioSettings}
+                mood={backgroundMusicMood}
+              />
+            </>
+          ) : null}
         </Suspense>
         <div className={styles.appShell}>
           <div ref={hostRef} className={styles.mapViewport} />

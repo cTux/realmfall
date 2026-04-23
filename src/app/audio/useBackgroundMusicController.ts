@@ -48,15 +48,17 @@ export function useBackgroundMusicController({
       return;
     }
 
-    activeTrackRef.current = { mood: nextMood, src: nextTrack };
-    load(nextTrack, {
-      autoplay: true,
-      html5: true,
-      initialMute: audioSettings.muted || audioSettings.musicMuted,
-      initialVolume: audioSettings.volume,
-      onend: () => {
-        playNextTrack(moodRef.current);
-      },
+    void nextTrack.loadUrl().then((nextTrackUrl) => {
+      activeTrackRef.current = { mood: nextMood, src: nextTrackUrl };
+      load(nextTrackUrl, {
+        autoplay: true,
+        html5: true,
+        initialMute: audioSettings.muted || audioSettings.musicMuted,
+        initialVolume: audioSettings.volume,
+        onend: () => {
+          playNextTrack(moodRef.current);
+        },
+      });
     });
   });
 

@@ -5,8 +5,7 @@ import {
   VOICE_PLAYBACK_EVENT_OPTIONS,
   detectVoicePlaybackEvent,
 } from './voiceEvents';
-import { getVoiceClipUrls, type VoiceClipCategory } from './voiceLibrary';
-import type { VoiceActorId } from './voiceActors';
+import { pickVoiceClipUrl, type VoiceClipCategory } from './voiceLibrary';
 
 const ACTIVATION_EVENTS = ['keydown', 'mousedown', 'pointerdown', 'touchstart'];
 const MIN_PLAYBACK_INTERVAL_MS = 700;
@@ -24,6 +23,7 @@ export function VoiceAudioControllerBridge({
   const activatedRef = useRef(false);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
   const previousGameRef = useRef(game);
+  const playbackRequestIdRef = useRef(0);
   const previousClipIndexRef = useRef<
     Partial<Record<VoiceClipCategory, number>>
   >({});
@@ -85,6 +85,7 @@ export function VoiceAudioControllerBridge({
 
   useEffect(() => {
     if (muted || (respectReducedMotion && prefersReducedMotion(window))) {
+      playbackRequestIdRef.current += 1;
       stopAudio(currentAudioRef.current);
       currentAudioRef.current = null;
       return;
@@ -124,60 +125,47 @@ export function VoiceAudioControllerBridge({
       return;
     }
 
-    const clipUrl = pickVoiceClipUrl(
+    const playbackRequestId = playbackRequestIdRef.current + 1;
+    playbackRequestIdRef.current = playbackRequestId;
+
+    void pickVoiceClipUrl(
       audioSettings.voice.actorId,
       definition.audioCategory,
       previousClipIndexRef.current,
-    );
-    if (!clipUrl) {
-      return;
-    }
-
-    stopAudio(currentAudioRef.current);
-    currentAudioRef.current = null;
-
-    const audio = new Audio(clipUrl);
-    audio.preload = 'auto';
-    audio.volume = volume;
-    currentAudioRef.current = audio;
-    lastPlaybackRef.current = {
-      eventKey: playbackEventKey,
-      timestamp: now,
-    };
-
-    attemptPlayback(audio, () => {
-      if (currentAudioRef.current === audio) {
-        currentAudioRef.current = null;
+    ).then((clipUrl) => {
+      if (playbackRequestIdRef.current !== playbackRequestId) {
+        return;
       }
+
+      if (!clipUrl) {
+        return;
+      }
+
+      if (muted || (respectReducedMotion && prefersReducedMotion(window))) {
+        return;
+      }
+
+      stopAudio(currentAudioRef.current);
+      currentAudioRef.current = null;
+
+      const audio = new Audio(clipUrl);
+      audio.preload = 'auto';
+      audio.volume = volume;
+      currentAudioRef.current = audio;
+      lastPlaybackRef.current = {
+        eventKey: playbackEventKey,
+        timestamp: now,
+      };
+
+      attemptPlayback(audio, () => {
+        if (currentAudioRef.current === audio) {
+          currentAudioRef.current = null;
+        }
+      });
     });
   }, [audioSettings, game, muted, respectReducedMotion, volume]);
 
   return null;
-}
-
-function pickVoiceClipUrl(
-  actorId: VoiceActorId,
-  category: VoiceClipCategory,
-  previousClipIndexes: Partial<Record<VoiceClipCategory, number>>,
-) {
-  const clips = getVoiceClipUrls(actorId, category);
-  if (clips.length === 0) {
-    return null;
-  }
-
-  if (clips.length === 1) {
-    previousClipIndexes[category] = 0;
-    return clips[0] ?? null;
-  }
-
-  const previousIndex = previousClipIndexes[category] ?? -1;
-  let nextIndex = Math.floor(Math.random() * clips.length);
-  if (nextIndex === previousIndex) {
-    nextIndex = (nextIndex + 1) % clips.length;
-  }
-
-  previousClipIndexes[category] = nextIndex;
-  return clips[nextIndex] ?? null;
 }
 
 function prefersReducedMotion(target: Window) {

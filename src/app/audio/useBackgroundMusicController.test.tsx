@@ -3,7 +3,19 @@ import { createRoot, type Root } from 'react-dom/client';
 import { DEFAULT_AUDIO_SETTINGS } from '../audioSettings';
 import { useBackgroundMusicController } from './useBackgroundMusicController';
 
-const { loadMock, muteMock, setVolumeMock, unmuteMock } = vi.hoisted(() => ({
+const {
+  createBackgroundMusicCycleStateMock,
+  getNextBackgroundMusicTrackMock,
+  loadMock,
+  muteMock,
+  setVolumeMock,
+  unmuteMock,
+} = vi.hoisted(() => ({
+  createBackgroundMusicCycleStateMock: vi.fn(() => ({})),
+  getNextBackgroundMusicTrackMock: vi.fn((mood: string) => ({
+    id: `${mood}-track`,
+    loadUrl: vi.fn(async () => `/music/${mood}.mp3`),
+  })),
   loadMock: vi.fn(),
   muteMock: vi.fn(),
   setVolumeMock: vi.fn(),
@@ -17,6 +29,11 @@ vi.mock('react-use-audio-player', () => ({
     setVolume: setVolumeMock,
     unmute: unmuteMock,
   }),
+}));
+
+vi.mock('./backgroundMusicPlaylist', () => ({
+  createBackgroundMusicCycleState: createBackgroundMusicCycleStateMock,
+  getNextBackgroundMusicTrack: getNextBackgroundMusicTrackMock,
 }));
 
 describe('useBackgroundMusicController', () => {
@@ -34,6 +51,8 @@ describe('useBackgroundMusicController', () => {
     muteMock.mockClear();
     setVolumeMock.mockClear();
     unmuteMock.mockClear();
+    createBackgroundMusicCycleStateMock.mockClear();
+    getNextBackgroundMusicTrackMock.mockClear();
     host = document.createElement('div');
     document.body.appendChild(host);
     root = createRoot(host);
@@ -60,12 +79,15 @@ describe('useBackgroundMusicController', () => {
     expect(setVolumeMock).toHaveBeenCalledWith(DEFAULT_AUDIO_SETTINGS.volume);
     expect(unmuteMock).toHaveBeenCalled();
 
-    document.body.dispatchEvent(
-      new PointerEvent('pointerdown', {
-        bubbles: true,
-        pointerId: 1,
-      }),
-    );
+    await act(async () => {
+      document.body.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          pointerId: 1,
+        }),
+      );
+      await flushPromises();
+    });
 
     expect(loadMock).toHaveBeenCalledTimes(1);
     expect(loadMock).toHaveBeenNthCalledWith(
@@ -88,11 +110,21 @@ describe('useBackgroundMusicController', () => {
         />,
       );
     });
+    await act(async () => {
+      await flushPromises();
+    });
 
     expect(muteMock).toHaveBeenCalled();
     expect(loadMock).toHaveBeenCalledTimes(2);
   });
 });
+
+async function flushPromises() {
+  for (let index = 0; index < 5; index += 1) {
+    await Promise.resolve();
+  }
+  await new Promise((resolve) => window.setTimeout(resolve, 0));
+}
 
 function BackgroundMusicHarness({
   audioSettings,

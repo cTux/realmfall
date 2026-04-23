@@ -23,32 +23,70 @@ const ACTOR_NAME_TO_ID: Record<string, VoiceActorId> = {
 const voiceClipModules = import.meta.glob(
   '../../assets/dialogue-audio-pack/**/*.wav',
   {
-    eager: true,
     import: 'default',
   },
-) as Record<string, string>;
+) as Record<string, () => Promise<string>>;
 
 const VOICE_CLIP_LIBRARY = buildVoiceClipLibrary(voiceClipModules);
 
-export function getVoiceClipUrls(
+export function getVoiceClipCount(
   actorId: VoiceActorId,
   category: VoiceClipCategory,
 ) {
-  return VOICE_CLIP_LIBRARY[actorId][category];
+  return VOICE_CLIP_LIBRARY[actorId][category].length;
 }
 
-function buildVoiceClipLibrary(modules: Record<string, string>) {
+export async function getVoiceClipUrls(
+  actorId: VoiceActorId,
+  category: VoiceClipCategory,
+) {
+  return Promise.all(
+    VOICE_CLIP_LIBRARY[actorId][category].map((clip) => clip.loadUrl()),
+  );
+}
+
+export async function pickVoiceClipUrl(
+  actorId: VoiceActorId,
+  category: VoiceClipCategory,
+  previousClipIndexes: Partial<Record<VoiceClipCategory, number>>,
+) {
+  const clips = VOICE_CLIP_LIBRARY[actorId][category];
+  if (clips.length === 0) {
+    return null;
+  }
+
+  if (clips.length === 1) {
+    previousClipIndexes[category] = 0;
+    return clips[0]?.loadUrl() ?? null;
+  }
+
+  const previousIndex = previousClipIndexes[category] ?? -1;
+  let nextIndex = Math.floor(Math.random() * clips.length);
+  if (nextIndex === previousIndex) {
+    nextIndex = (nextIndex + 1) % clips.length;
+  }
+
+  previousClipIndexes[category] = nextIndex;
+  return clips[nextIndex]?.loadUrl() ?? null;
+}
+
+interface VoiceClipEntry {
+  loadUrl: () => Promise<string>;
+  path: string;
+}
+
+function buildVoiceClipLibrary(modules: Record<string, () => Promise<string>>) {
   const library = VOICE_ACTOR_OPTIONS.reduce<
-    Record<VoiceActorId, Record<VoiceClipCategory, string[]>>
+    Record<VoiceActorId, Record<VoiceClipCategory, VoiceClipEntry[]>>
   >(
     (current, actor) => ({
       ...current,
       [actor.id]: createEmptyActorLibrary(),
     }),
-    {} as Record<VoiceActorId, Record<VoiceClipCategory, string[]>>,
+    {} as Record<VoiceActorId, Record<VoiceClipCategory, VoiceClipEntry[]>>,
   );
 
-  Object.entries(modules).forEach(([path, url]) => {
+  Object.entries(modules).forEach(([path, loadUrl]) => {
     const normalizedPath = path.replace(/\\/g, '/');
     const parts = normalizedPath.split('/');
     const actorName = parts[parts.length - 2];
@@ -63,13 +101,15 @@ function buildVoiceClipLibrary(modules: Record<string, string>) {
       return;
     }
 
-    library[actorId][category].push(url);
+    library[actorId][category].push({ loadUrl, path: normalizedPath });
   });
 
   VOICE_ACTOR_OPTIONS.forEach((actor) => {
     const actorLibrary = library[actor.id];
     (Object.keys(actorLibrary) as VoiceClipCategory[]).forEach((category) => {
-      actorLibrary[category].sort();
+      actorLibrary[category].sort((left, right) =>
+        left.path.localeCompare(right.path),
+      );
     });
   });
 
