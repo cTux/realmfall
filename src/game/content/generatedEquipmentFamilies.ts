@@ -6,6 +6,8 @@ import {
 import type { ItemConfig } from './types';
 import { GENERATED_ICON_POOLS } from './generatedIconPools';
 
+export { GENERATED_ICON_POOLS };
+
 type GeneratedEquipmentGroup = 'armor' | 'accessory' | 'weapon' | 'offhand';
 type FamilyKey = keyof typeof GENERATED_ICON_POOLS;
 
