@@ -54,6 +54,7 @@
 - When a window content module owns multiple tab panels or large settings sections, split the tab-specific control wiring into neighboring panel components instead of keeping every section in one `*WindowContent` file.
 - Keep high-frequency pointer, hover, and world-interaction updates off broad React state paths when refs, invalidation flags, or narrower state can avoid avoidable rerenders.
 - For capped animated lists such as the log window, cache parsed row metadata by stable entry object and keep per-row typing or animation state inside the animated row instead of ticking the parent list component.
+- Keep ActionBar inventory filtering and slot item matching behind memoized derivation keyed to `inventory` and `slots`, so unrelated parent renders do not repeat consumable scans or slot lookups.
 - Deduplicate `pointermove` world-hover work by hovered hex before doing heavier interaction logic, and avoid rerunning tooltip derivation, enemy lookups, or pathfinding while the pointer stays on the same tile.
 - On the world-hover path, only run pathfinding, enemy tooltip derivation, or similar heavier selectors when the hovered tile is actually actionable.
 - For follow-cursor world tooltips, reuse the existing world-hover pipeline to push position updates instead of adding a separate global pointer listener just to move the tooltip DOM.

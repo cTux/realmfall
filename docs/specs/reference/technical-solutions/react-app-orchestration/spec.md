@@ -80,7 +80,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Rare maintenance actions such as per-area save resets defer the storage helper import until the user triggers that action, keeping persistence internals off the main app bootstrap chunk.
 - The log window renders new entries immediately instead of staging a typewriter reveal, which avoids the repeated newest-row stall path while keeping the active message readable under rapid updates.
 - The log window caches parsed timestamp and message metadata by log entry object and re-pins the list to the bottom when a new entry arrives, so older rows do not need to reparse when fresh gameplay logs append.
-- The recipe book keeps large result sets behind explicit batch growth, and combat card view models snap to a short visual time step before rebuilding ability-availability data, reducing avoidable window rerenders.
+- The recipe book keeps large result sets behind explicit batch growth, combat card view models snap to a short visual time step before rebuilding ability-availability data, and the ActionBar memoizes consumable filtering plus slot item matching by inventory and slot references.
 
 ## Main Implementation Areas
 
