@@ -3,9 +3,21 @@ import { getEnemiesAt, getVisibleTiles } from '../../game/stateSelectors';
 import type { GameState, HexCoord, Tile } from '../../game/stateTypes';
 import type { SceneCache } from './renderSceneCache';
 import { getWorldIconTextureVersion } from './worldIcons';
+type SceneRenderTokenCache = Pick<
+  SceneCache,
+  | 'derivedRenderVisibleTilesSource'
+  | 'derivedRenderEnemiesSource'
+  | 'derivedRenderVisibleEnemyToken'
+  | 'derivedRenderPlayerCoordKey'
+  | 'derivedRenderHomeHexKey'
+  | 'derivedRenderBloodMoonActive'
+  | 'derivedRenderIconTextureVersion'
+  | 'derivedStaticRenderToken'
+  | 'derivedInteractionRenderToken'
+>;
 
 export function getSceneRenderTokens(
-  scene: SceneCache,
+  scene: SceneRenderTokenCache,
   state: GameState,
   visibleTiles: ReturnType<typeof getVisibleTiles>,
 ) {
