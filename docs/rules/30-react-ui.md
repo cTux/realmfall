@@ -13,13 +13,18 @@
 - Keep lazy audio bridges, world overlays, and other shell-only composition grouped into focused local blocks so `App.tsx` remains a composition-first entrypoint instead of reclaiming broad orchestration detail.
 - When a UI control only needs the live world clock for display state, subscribe through `src/app/App/worldClockStore.ts` at the leaf component instead of threading `worldTimeMs` through broad app or window props.
 - When splitting `AppWindows` work, pass fixed and deferred window components only the view and action slices they actually consume instead of forwarding the full nested props object.
+- Share managed-window shell props such as `position`, `onMove`, `visible`, and `onClose` through a common UI type instead of redeclaring the same shell contract in every window prop interface.
 - Keep deferred app-window composition declarative. Route deferred window order, lazy module creation, mounted-window filtering, and per-window prop mapping through a shared registry under `src/app/App/components/` instead of expanding `AppDeferredWindows.tsx` with one manual branch per window.
+- Drive managed-window and deferred-window mounted-state records from one shared helper under `src/app/App/hooks` so window-key additions do not require parallel visibility maps in multiple hooks.
+- Name broad hero snapshots after the actual payload shape. Use `heroOverview` or `overview` for level, XP, skills, buffs, debuffs, and ability ids, and reserve `stats` for narrow combat-stat or stat-sheet payloads.
 - Avoid force-casting partial selector inputs to `GameState` in React view-model hooks. Use narrow selector input types and variable names that match the actual data shape being passed.
 - When a hook or helper only consumes a narrow gameplay slice, name its props after that slice and key effect dependencies to those slice references instead of threading a broad `game` object whose identity changes on unrelated state clones.
+- Name persisted or transitional loot arrays after their tile ownership, such as `tileLootSnapshot`, and type them from tile loot or window view state instead of reusing player inventory types for convenience.
 - Keep the base app shell visible while persistence hydration or Pixi bootstrap is in flight. Loading states may cover the map viewport, but they should not hide the dock, action bar, or other already-renderable shell UI behind a full-screen visibility gate.
 - Keep Storybook stories for every component under `src/ui/components`, including shared leaf components and window wrappers.
 - Every component addition, removal, or behavior-affecting UI change should add or update the corresponding Storybook story in the same task.
 - Keep aggregate Storybook catalogs for entity dictionaries such as `ITEM_CONFIGS`, `ENEMY_CONFIGS`, and `STRUCTURE_CONFIGS`, and prefer rendering those catalogs directly from the live config arrays so entity additions, removals, and edits appear automatically.
+- Derive Storybook window-dock fixtures from the same runtime dock builder and window registry used by the app instead of maintaining a separate Storybook-only dock entry list.
 - Prefer maximally reusable UI components and helpers. When multiple windows or controls share the same structure or behavior, reuse or extend a shared primitive instead of maintaining parallel implementations.
 - Keep user-facing UI copy in i18n resources instead of inline string literals in components, gameplay modules, or content definitions.
 - Default to `en` and keep locale resources lazy-loadable so additional languages can stay off the initial path when they are not needed.

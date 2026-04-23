@@ -1,10 +1,10 @@
-import type { WindowPosition } from '../../../app/constants';
 import type {
   CombatActorState,
   CombatState,
   Enemy,
 } from '../../../game/stateTypes';
 import type { PlayerStatusEffect } from '../../../game/types';
+import type { ManagedWindowShellProps } from '../managedWindowProps';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 
 export interface CombatPartyMember {
@@ -27,11 +27,8 @@ export interface CombatPartyMember {
   >[];
 }
 
-export interface CombatWindowProps extends WindowDetailTooltipHandlers {
-  position: WindowPosition;
-  onMove: (position: WindowPosition) => void;
-  visible?: boolean;
-  onClose?: () => void;
+export interface CombatWindowProps
+  extends ManagedWindowShellProps, WindowDetailTooltipHandlers {
   combat: CombatState;
   playerParty: CombatPartyMember[];
   enemies: Enemy[];

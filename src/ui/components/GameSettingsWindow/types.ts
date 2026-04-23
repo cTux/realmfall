@@ -1,7 +1,7 @@
-import type { WindowPosition } from '../../../app/constants';
 import type { AudioSettings } from '../../../app/audioSettings';
 import type { GraphicsSettings } from '../../../app/graphicsSettings';
 import type { ResettableSaveAreaId } from '../../../persistence/saveAreas';
+import type { ManagedWindowShellProps } from '../managedWindowProps';
 
 export interface GameSettingsSavePayload {
   audio: AudioSettings;
@@ -16,16 +16,12 @@ export type UpdateGraphicsSettings = (
   updater: (current: GraphicsSettings) => GraphicsSettings,
 ) => void;
 
-export interface GameSettingsWindowProps {
+export interface GameSettingsWindowProps extends ManagedWindowShellProps {
   audioSettings: AudioSettings;
   graphicsSettings: GraphicsSettings;
-  onClose?: () => void;
-  onMove: (position: WindowPosition) => void;
   onResetSaveArea: (areaId: ResettableSaveAreaId) => Promise<void>;
   onSave: (settings: GameSettingsSavePayload) => Promise<void>;
   onSaveAndReload: (settings: GameSettingsSavePayload) => Promise<void>;
-  position: WindowPosition;
-  visible?: boolean;
 }
 
 export interface GameSettingsWindowContentProps {

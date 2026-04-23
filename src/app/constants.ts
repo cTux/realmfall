@@ -13,45 +13,117 @@ export interface WindowPosition {
   height?: number;
 }
 
-export const WINDOW_VISIBILITY_KEYS = [
-  'hero',
-  'skills',
-  'recipes',
-  'hexInfo',
-  'equipment',
-  'inventory',
-  'loot',
-  'log',
-  'combat',
-  'settings',
-] as const;
+type WindowMountSource = 'windowShown' | 'lootTransition' | 'combatTransition';
 
-export type WindowKey = (typeof WINDOW_VISIBILITY_KEYS)[number];
+export const WINDOW_REGISTRY = {
+  hero: {
+    defaultPosition: { x: 96, y: 20 },
+    dock: true,
+    appDeferred: false,
+    mountSource: 'windowShown',
+  },
+  skills: {
+    defaultPosition: { x: 96, y: 430 },
+    dock: true,
+    appDeferred: true,
+    mountSource: 'windowShown',
+  },
+  recipes: {
+    defaultPosition: { x: 620, y: 470 },
+    dock: true,
+    appDeferred: true,
+    mountSource: 'windowShown',
+  },
+  hexInfo: {
+    defaultPosition: { x: 280, y: 20 },
+    dock: true,
+    appDeferred: true,
+    mountSource: 'windowShown',
+  },
+  equipment: {
+    defaultPosition: { x: 1000, y: 20 },
+    dock: true,
+    appDeferred: true,
+    mountSource: 'windowShown',
+  },
+  inventory: {
+    defaultPosition: { x: 820, y: 290 },
+    dock: true,
+    appDeferred: true,
+    mountSource: 'windowShown',
+  },
+  loot: {
+    defaultPosition: { x: 820, y: 20 },
+    dock: false,
+    appDeferred: false,
+    mountSource: 'lootTransition',
+  },
+  log: {
+    defaultPosition: { x: 420, y: 20 },
+    dock: true,
+    appDeferred: true,
+    mountSource: 'windowShown',
+  },
+  combat: {
+    defaultPosition: { x: 420, y: 470 },
+    dock: false,
+    appDeferred: false,
+    mountSource: 'combatTransition',
+  },
+  settings: {
+    defaultPosition: { x: 188, y: 72, width: 640, height: 640 },
+    dock: true,
+    appDeferred: true,
+    mountSource: 'windowShown',
+  },
+} as const satisfies Record<
+  string,
+  {
+    defaultPosition: WindowPosition;
+    dock: boolean;
+    appDeferred: boolean;
+    mountSource: WindowMountSource;
+  }
+>;
+
+export type WindowKey = keyof typeof WINDOW_REGISTRY;
 export type WindowPositions = Record<WindowKey, WindowPosition>;
 export type WindowVisibilityState = Record<WindowKey, boolean>;
-export const WINDOW_DOCK_KEYS = [
-  'hero',
-  'skills',
-  'recipes',
-  'hexInfo',
-  'equipment',
-  'inventory',
-  'log',
-  'settings',
-] as const satisfies readonly WindowKey[];
+export type DockWindowKey = {
+  [K in WindowKey]: (typeof WINDOW_REGISTRY)[K]['dock'] extends true
+    ? K
+    : never;
+}[WindowKey];
+export type AppDeferredWindowKey = {
+  [K in WindowKey]: (typeof WINDOW_REGISTRY)[K]['appDeferred'] extends true
+    ? K
+    : never;
+}[WindowKey];
 
-export const DEFAULT_WINDOWS: WindowPositions = {
-  hero: { x: 96, y: 20 },
-  skills: { x: 96, y: 430 },
-  recipes: { x: 620, y: 470 },
-  hexInfo: { x: 280, y: 20 },
-  equipment: { x: 1000, y: 20 },
-  inventory: { x: 820, y: 290 },
-  loot: { x: 820, y: 20 },
-  log: { x: 420, y: 20 },
-  combat: { x: 420, y: 470 },
-  settings: { x: 188, y: 72, width: 640, height: 640 },
-};
+export const WINDOW_VISIBILITY_KEYS = Object.freeze(
+  Object.keys(WINDOW_REGISTRY) as WindowKey[],
+);
+export const WINDOW_DOCK_KEYS = Object.freeze(
+  WINDOW_VISIBILITY_KEYS.filter(
+    (key): key is DockWindowKey => WINDOW_REGISTRY[key].dock,
+  ),
+);
+export const WINDOW_COMPONENT_DEFERRED_KEYS = Object.freeze(
+  WINDOW_VISIBILITY_KEYS.filter(
+    (key): key is AppDeferredWindowKey => WINDOW_REGISTRY[key].appDeferred,
+  ),
+);
+
+export function createDefaultWindowPositions(): WindowPositions {
+  return Object.fromEntries(
+    WINDOW_VISIBILITY_KEYS.map((key) => [
+      key,
+      { ...WINDOW_REGISTRY[key].defaultPosition },
+    ]),
+  ) as WindowPositions;
+}
+
+export const DEFAULT_WINDOWS = createDefaultWindowPositions();
 
 export function createWindowVisibilityState(
   shown = false,

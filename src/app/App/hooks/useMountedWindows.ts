@@ -1,27 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { AppWindowsLayout } from '../AppWindows.types';
 import { WINDOW_HANDLER_KEYS, type ManagedWindowKey } from './windowKeys';
+import { createManagedMountedWindowState } from './mountedWindowState';
 
 const WINDOW_UNMOUNT_DELAY_MS = 180;
-
-function createMountedWindowState(
-  windowShown: AppWindowsLayout['windowShown'],
-  keepLootWindowMounted: boolean,
-  keepCombatWindowMounted: boolean,
-) {
-  return {
-    hero: windowShown.hero,
-    skills: windowShown.skills,
-    recipes: windowShown.recipes,
-    hexInfo: windowShown.hexInfo,
-    equipment: windowShown.equipment,
-    inventory: windowShown.inventory,
-    loot: keepLootWindowMounted,
-    log: windowShown.log,
-    combat: keepCombatWindowMounted,
-    settings: windowShown.settings,
-  } satisfies Record<ManagedWindowKey, boolean>;
-}
 
 export function useMountedWindows({
   windowShown,
@@ -31,9 +13,9 @@ export function useMountedWindows({
   AppWindowsLayout,
   'windowShown' | 'keepLootWindowMounted' | 'keepCombatWindowMounted'
 >) {
-  const targetMountedWindows = useMemo(
+  const targetMountedWindows = useMemo<Record<ManagedWindowKey, boolean>>(
     () =>
-      createMountedWindowState(
+      createManagedMountedWindowState(
         windowShown,
         keepLootWindowMounted,
         keepCombatWindowMounted,

@@ -5,9 +5,9 @@ import { t } from '../../../i18n';
 import draggableWindowStyles from '../DraggableWindow/styles.module.scss';
 import { HeroWindow } from './HeroWindow';
 import styles from './styles.module.scss';
-import type { HeroWindowStats } from './types';
+import type { HeroOverview } from './types';
 
-const stats: HeroWindowStats = {
+const hero: HeroOverview = {
   hp: 10,
   maxHp: 10,
   mana: 5,
@@ -102,7 +102,7 @@ describe('HeroWindow', () => {
           position={{ x: 16, y: 24 }}
           onMove={() => {}}
           visible
-          stats={stats}
+          hero={hero}
           hunger={0}
           thirst={0}
         />,
@@ -122,7 +122,7 @@ describe('HeroWindow', () => {
           position={{ x: 16, y: 24 }}
           onMove={() => {}}
           visible
-          stats={stats}
+          hero={hero}
           hunger={0}
           thirst={0}
         />,
@@ -155,7 +155,7 @@ describe('HeroWindow', () => {
           position={{ x: 16, y: 24, width: 320, height: 260 }}
           onMove={() => {}}
           visible
-          stats={stats}
+          hero={hero}
           hunger={0}
           thirst={0}
         />,

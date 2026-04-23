@@ -286,12 +286,12 @@ describe('game state items and progression', () => {
     game.player.masteryLevel = 0;
 
     gainXp(game, level100Xp + firstMasteryXp + secondMasteryXp, addLog);
-    const stats = getPlayerOverview(game.player);
+    const heroOverview = getPlayerOverview(game.player);
 
     expect(game.player.level).toBe(100);
     expect(game.player.masteryLevel).toBe(2);
     expect(game.player.xp).toBe(0);
-    expect(stats.nextLevelXp).toBe(masteryLevelThreshold(2));
+    expect(heroOverview.nextLevelXp).toBe(masteryLevelThreshold(2));
     expect(game.logs.some((entry) => /mastery level 2/i.test(entry.text))).toBe(
       true,
     );

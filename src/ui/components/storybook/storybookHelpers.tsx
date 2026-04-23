@@ -14,7 +14,11 @@ import {
 } from '../../../game/content/items';
 import { ENEMY_CONFIGS } from '../../../game/content/enemies';
 import { STRUCTURE_CONFIGS } from '../../../game/content/structures';
-import { DEFAULT_LOG_FILTERS } from '../../../app/constants';
+import {
+  createWindowVisibilityState,
+  DEFAULT_LOG_FILTERS,
+} from '../../../app/constants';
+import { getDockEntries } from '../../../app/App/utils/getDockEntries';
 import type {
   Equipment,
   EquipmentSlot,
@@ -26,9 +30,6 @@ import type {
 } from '../../../game/stateTypes';
 import { createSkillRecord } from '../../../game/skillRecords';
 import { Skill } from '../../../game/stateTypes';
-import { WINDOW_LABELS } from '../../windowLabels';
-import { Icons } from '../../icons';
-import type { WindowDockEntry } from '../WindowDock/WindowDock';
 
 export const STORYBOOK_WINDOW_POSITION = { x: 64, y: 48 };
 
@@ -124,7 +125,7 @@ export function createStorybookFixtures() {
     dockEntries: buildWindowDockEntries(),
     enemies: ENEMY_CONFIGS,
     equipment,
-    heroStats: getPlayerOverview(state.player),
+    heroOverview: getPlayerOverview(state.player),
     inventory,
     inventoryCountsByItemKey,
     items: ITEM_CONFIGS,
@@ -198,66 +199,15 @@ function buildEquippedItem(slot: EquipmentSlot) {
   });
 }
 
-function buildWindowDockEntries(): WindowDockEntry[] {
-  return [
-    {
-      key: 'hero',
-      label: WINDOW_LABELS.hero.plain,
-      title: WINDOW_LABELS.hero,
-      icon: Icons.Player,
-      shown: true,
-    },
-    {
-      key: 'skills',
-      label: WINDOW_LABELS.skills.plain,
-      title: WINDOW_LABELS.skills,
-      icon: Icons.Sparkles,
-      shown: false,
-    },
-    {
-      key: 'recipes',
-      label: WINDOW_LABELS.recipes.plain,
-      title: WINDOW_LABELS.recipes,
-      icon: Icons.BookCover,
-      shown: true,
-    },
-    {
-      key: 'hexInfo',
-      label: WINDOW_LABELS.hexInfo.plain,
-      title: WINDOW_LABELS.hexInfo,
-      icon: Icons.Village,
-      shown: false,
-    },
-    {
-      key: 'equipment',
-      label: WINDOW_LABELS.equipment.plain,
-      title: WINDOW_LABELS.equipment,
-      icon: Icons.Armor,
-      shown: true,
-    },
-    {
-      key: 'inventory',
-      label: WINDOW_LABELS.inventory.plain,
-      title: WINDOW_LABELS.inventory,
-      icon: Icons.Coins,
-      shown: false,
-    },
-    {
-      key: 'log',
-      label: WINDOW_LABELS.log.plain,
-      title: WINDOW_LABELS.log,
-      icon: Icons.TiedScroll,
-      shown: true,
-    },
-    {
-      key: 'settings',
-      label: WINDOW_LABELS.settings.plain,
-      title: WINDOW_LABELS.settings,
-      icon: Icons.Gears,
-      shown: false,
-      align: 'end',
-    },
-  ];
+function buildWindowDockEntries() {
+  const storybookWindowShown = createWindowVisibilityState();
+
+  storybookWindowShown.hero = true;
+  storybookWindowShown.recipes = true;
+  storybookWindowShown.equipment = true;
+  storybookWindowShown.log = true;
+
+  return getDockEntries(storybookWindowShown);
 }
 
 export const noop = () => undefined;

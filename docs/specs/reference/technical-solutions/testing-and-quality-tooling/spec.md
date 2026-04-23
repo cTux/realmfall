@@ -7,7 +7,7 @@ This spec covers the repository quality baseline and current test coverage shape
 ## Current Solution
 
 - The repository uses TypeScript strict mode, Oxlint, Stylelint, Prettier, Vitest, Husky, Vite, and Storybook.
-- Contributor-facing verification policy, command-selection guidance, and documentation wording rules live in `docs/WORKFLOW.md` and `docs/rules/60-testing-and-documentation.md`; this spec records the implemented tooling and automation shape.
+- Contributor-facing verification policy and command-selection guidance live in `docs/WORKFLOW.md` and `docs/rules/60-testing.md`; documentation wording and spec-maintenance policy live in `docs/rules/61-documentation.md`. This spec records the implemented tooling and automation shape.
 - `pnpm test` runs the `node` and `jsdom` Vitest projects through `@raegen/vite-plugin-vitest-cache`, storing reusable results in the repository-local `.tests/vitest-cache` directory so warm reruns and CI can restore unaffected test files without changing test correctness.
 - `pnpm test:node` runs the DOM-free Vitest project for gameplay, persistence, i18n, and script tests, while `pnpm test:jsdom` runs the browser-surface project for React, Pixi, and other DOM-dependent tests.
 - `pnpm test:memory:leaks` starts the local HTTPS Vite dev server and runs `fuite` against `https://localhost:5173` with a custom dock-window toggle scenario because the app does not expose internal navigation links for the default `fuite` scenario, writing the latest JSON analysis to `.tests/memory-leaks/latest.json` for follow-up review.

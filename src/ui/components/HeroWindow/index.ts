@@ -1,2 +1,2 @@
 export { HeroWindow } from './HeroWindow';
-export type { HeroWindowProps, HeroWindowStats } from './types';
+export type { HeroOverview, HeroWindowProps } from './types';

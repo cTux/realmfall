@@ -1,13 +1,10 @@
 import type { MouseEvent as ReactMouseEvent } from 'react';
-import type { WindowPosition } from '../../../app/constants';
 import type { Equipment, EquipmentSlot, Item } from '../../../game/stateTypes';
+import type { ManagedWindowShellProps } from '../managedWindowProps';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 
-export interface EquipmentWindowProps extends WindowDetailTooltipHandlers {
-  position: WindowPosition;
-  onMove: (position: WindowPosition) => void;
-  visible?: boolean;
-  onClose?: () => void;
+export interface EquipmentWindowProps
+  extends ManagedWindowShellProps, WindowDetailTooltipHandlers {
   equipment: Equipment;
   hexItemModificationPickerActive?: boolean;
   onHoverItem: (event: ReactMouseEvent<HTMLElement>, item: Item) => void;

@@ -51,7 +51,7 @@ export function AppWindows(props: AppWindowsProps) {
   );
   const combatPlayerParty = useCombatPlayerParty({
     combatSnapshot: props.views.combat.snapshot,
-    stats: props.views.hero.stats,
+    heroOverview: props.views.hero.overview,
     mana: props.views.player.mana,
   });
 
@@ -76,7 +76,7 @@ export function AppWindows(props: AppWindowsProps) {
         mountedWindows={mountedWindows}
         managedWindowProps={managedWindowProps}
         recipeWindowStructure={recipeWindowStructure}
-        heroStats={props.views.hero.stats}
+        heroOverview={props.views.hero.overview}
         inventoryView={props.views.inventory}
         hexView={props.views.hex}
         recipesView={props.views.recipes}

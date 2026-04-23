@@ -16,7 +16,10 @@ This spec covers the internal combat data structures and event-driven enemy stat
 - Combat text and rich-text log formatting live in `src/game/combatLogText.ts`.
 - Combat runtime automation timing lives in `src/game/stateCombatAutomationTiming.ts`.
 - Combat cast-start logic lives in `src/game/stateCombatCasting.ts`.
-- Combat player and enemy ability execution lives in `src/game/stateCombatAbilityResolution.ts`.
+- `src/game/stateCombatAbilityResolution.ts` stays as the stable public combat-effects facade.
+- Player ability execution lives in `src/game/stateCombatPlayerAbility.ts`.
+- Enemy ability execution lives in `src/game/stateCombatEnemyAbility.ts`.
+- Enemy defeat, reward, XP, and encounter-sync side effects live in `src/game/stateCombatEnemyDefeat.ts`.
 - Combat encounter enemy synchronization lives in `src/game/stateCombatEncounterSync.ts`.
 - Player and enemy combat actor states are persisted and hydrated in the current runtime shape with no backward save-shape migration layer.
 - Ability definitions live in a registry keyed by stable ability ids.
@@ -42,5 +45,8 @@ This spec covers the internal combat data structures and event-driven enemy stat
 - `src/game/stateCombatAutomationTiming.ts`
 - `src/game/stateCombatCasting.ts`
 - `src/game/stateCombatAbilityResolution.ts`
+- `src/game/stateCombatPlayerAbility.ts`
+- `src/game/stateCombatEnemyAbility.ts`
+- `src/game/stateCombatEnemyDefeat.ts`
 - `src/game/stateCombatEncounterSync.ts`
 - `src/app/normalize.ts`

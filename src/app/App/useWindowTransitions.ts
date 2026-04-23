@@ -21,11 +21,13 @@ export function useWindowTransitions({
   const [keepLootWindowMounted, setKeepLootWindowMounted] =
     useState(showLootWindow);
   const [lootWindowVisible, setLootWindowVisible] = useState(showLootWindow);
-  const [lootSnapshot, setLootSnapshot] = useState<Item[]>(currentTile.items);
+  const [tileLootSnapshot, setTileLootSnapshot] = useState<Item[]>(
+    currentTile.items,
+  );
 
   useEffect(() => {
     if (showLootWindow) {
-      setLootSnapshot(currentTile.items);
+      setTileLootSnapshot(currentTile.items);
       setKeepLootWindowMounted(true);
       const frame = window.requestAnimationFrame(() =>
         setLootWindowVisible(true),
@@ -73,7 +75,7 @@ export function useWindowTransitions({
   return {
     combatSnapshot,
     combatWindowVisible,
-    lootSnapshot,
+    tileLootSnapshot,
     lootWindowVisible,
     keepCombatWindowMounted,
     keepLootWindowMounted,

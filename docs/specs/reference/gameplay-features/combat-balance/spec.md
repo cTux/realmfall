@@ -9,6 +9,7 @@ Full interpolation tables for item, player, and enemy scaling live in [scaling-t
 ## Current Behavior
 
 - Combat balance is centralized in `game.config.ts`, with inline parameter explanations and runtime helpers shared by combat, progression, item generation, persistence normalization, and the hero window.
+- Progression helpers keep the public `src/game/progression.ts` surface stable while focused neighbors split hero-overview reads, threshold curves, and XP-award or skill-gain mutation logic.
 - The baseline global cooldown is `2000ms` before attack-speed modifiers adjust actor timing.
 - Level `1` battle entities start from `150` HitPoints, `50` Attack, and `35` Defense.
 - Player base stats scale from `150 / 50 / 35` at level `1` to `4000 / 800 / 200` at level `100`.
@@ -37,4 +38,7 @@ Full interpolation tables for item, player, and enemy scaling live in [scaling-t
 - `src/game/config.ts`
 - `src/game/itemSecondaryStats.ts`
 - `src/game/progression.ts`
+- `src/game/progressionOverview.ts`
+- `src/game/progressionThresholds.ts`
+- `src/game/progressionExperience.ts`
 - `src/ui/components/HeroWindow/HeroWindowContent.tsx`

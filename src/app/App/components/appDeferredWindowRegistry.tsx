@@ -1,23 +1,17 @@
 import type { ComponentType, ReactElement } from 'react';
 import { t } from '../../../i18n';
 import { createLazyWindowComponent } from '../../../ui/components/lazyWindowComponent';
-import { DEFAULT_LOG_FILTERS } from '../../constants';
+import {
+  DEFAULT_LOG_FILTERS,
+  WINDOW_COMPONENT_DEFERRED_KEYS,
+  type AppDeferredWindowKey,
+} from '../../constants';
 import type {
   AppWindowsActions,
   AppWindowsViewState,
 } from '../AppWindows.types';
 
-export const APP_DEFERRED_WINDOW_KEYS = [
-  'skills',
-  'recipes',
-  'hexInfo',
-  'equipment',
-  'inventory',
-  'log',
-  'settings',
-] as const;
-
-type AppDeferredWindowKey = (typeof APP_DEFERRED_WINDOW_KEYS)[number];
+export const APP_DEFERRED_WINDOW_KEYS = WINDOW_COMPONENT_DEFERRED_KEYS;
 
 interface DetailTooltipHandlers {
   onHoverDetail: AppWindowsActions['tooltip']['onShowTooltip'];
@@ -42,7 +36,7 @@ export interface AppDeferredWindowsProps {
   recipeWindowStructure: ReturnType<
     typeof import('../hooks/useRecipeWindowStructure').useRecipeWindowStructure
   >;
-  heroStats: AppWindowsViewState['hero']['stats'];
+  heroOverview: AppWindowsViewState['hero']['overview'];
   inventoryView: AppWindowsViewState['inventory'];
   hexView: AppWindowsViewState['hex'];
   recipesView: AppWindowsViewState['recipes'];
@@ -159,12 +153,12 @@ const deferredWindowRenderers: Record<
     },
   ) => ReactElement
 > = {
-  skills: ({ detailTooltipHandlers, heroStats, managedWindowProps }) => {
+  skills: ({ detailTooltipHandlers, heroOverview, managedWindowProps }) => {
     const SkillsWindow = deferredWindowComponents.skills;
     return (
       <SkillsWindow
         {...managedWindowProps.skills}
-        skills={heroStats.skills}
+        skills={heroOverview.skills}
         {...detailTooltipHandlers}
       />
     );
