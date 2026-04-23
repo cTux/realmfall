@@ -20,9 +20,7 @@ describe('storybook coverage', () => {
     })
       .filter((entry) => entry.isFile() && entry.name.endsWith('.tsx'))
       .map((entry) => entry.name)
-      .filter(
-        (name) => !name.endsWith('.stories.tsx') && !name.endsWith('.test.tsx'),
-      )
+      .filter(isStandaloneComponentFile)
       .filter((name) => {
         const baseName = name.slice(0, -'.tsx'.length);
         return !existsSync(join(componentsDir, `${baseName}.stories.tsx`));
@@ -72,4 +70,12 @@ function hasStoryFile(directory: string): boolean {
     }
     return entry.isFile() && entry.name.endsWith('.stories.tsx');
   });
+}
+
+function isStandaloneComponentFile(name: string) {
+  return (
+    !name.endsWith('.stories.tsx') &&
+    !name.endsWith('.test.tsx') &&
+    /^[A-Z]/.test(name)
+  );
 }
