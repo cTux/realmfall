@@ -76,19 +76,23 @@ export function AppWindows(props: AppWindowsProps) {
         mountedWindows={mountedWindows}
         managedWindowProps={managedWindowProps}
         recipeWindowStructure={recipeWindowStructure}
-        heroOverview={props.views.hero.overview}
-        inventoryView={props.views.inventory}
-        hexView={props.views.hex}
-        recipesView={props.views.recipes}
-        combatView={props.views.combat}
-        logsView={props.views.logs}
-        settingsView={props.views.settings}
-        tooltipActions={props.actions.tooltip}
-        inventoryActions={props.actions.inventory}
-        hexActions={props.actions.hex}
-        recipeActions={props.actions.recipes}
-        logActions={props.actions.logs}
-        settingsActions={props.actions.settings}
+        views={{
+          hero: props.views.hero,
+          inventory: props.views.inventory,
+          hex: props.views.hex,
+          recipes: props.views.recipes,
+          combat: props.views.combat,
+          logs: props.views.logs,
+          settings: props.views.settings,
+        }}
+        actions={{
+          tooltip: props.actions.tooltip,
+          inventory: props.actions.inventory,
+          hex: props.actions.hex,
+          recipes: props.actions.recipes,
+          logs: props.actions.logs,
+          settings: props.actions.settings,
+        }}
       />
     </>
   );
