@@ -20,3 +20,4 @@
 - Keep shipped locale and other startup-budgeted JSON assets on LF line endings so emitted asset sizes and chunk-budget checks stay stable across platforms.
 - Keep large repeated locale families concise. When many entries differ only by set name or item slot, prefer shorter shared phrasing over long near-duplicate sentences so locale payloads do not grow faster than the feature surface.
 - Keep static production cache headers explicit. Vite hashed `assets/**` should ship with long-lived immutable caching, while HTML entry files and mutable metadata such as `version.json` should require revalidation.
+- Keep generated equipment icon SVG imports out of gameplay and state-facing content modules. Gameplay content should use stable generated icon ids and pool sizes; UI asset modules should resolve those ids to vendored SVG URLs before rendering masks or image tags.

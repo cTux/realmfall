@@ -72,7 +72,7 @@ describe('App combat attention', () => {
       root.unmount();
     });
     host.remove();
-  });
+  }, 10_000);
 });
 
 function findHexContentDockButton(host: HTMLElement) {

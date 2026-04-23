@@ -55,6 +55,7 @@ import furnaceIcon from '../assets/icons/furnace.svg';
 import minerIcon from '../assets/icons/miner.svg';
 import type { StructureType } from '../game/stateTypes';
 import { GAME_TAGS } from '../game/content/tags';
+import { resolveIconAsset } from './iconAssets';
 import { rarityColor } from './rarity';
 
 export const Icons = {
@@ -168,7 +169,7 @@ export function iconForItem(item?: Item, slot?: EquipmentSlot) {
   const slotIcon = slot ? ItemIcon[slot] : undefined;
   const itemSlotIcon = item?.slot ? ItemIcon[item.slot] : undefined;
   const configuredItem = item ? getItemConfig(item) : undefined;
-  if (item?.icon) return item.icon;
+  if (item?.icon) return resolveIconAsset(item.icon);
   const configuredItemIcon =
     item && (item.tags ?? []).includes(GAME_TAGS.item.totem)
       ? Icons.Totem
@@ -177,12 +178,12 @@ export function iconForItem(item?: Item, slot?: EquipmentSlot) {
   const kindIcon =
     category && category !== 'resource' ? ItemKindIcon[category] : undefined;
 
-  return (
+  return resolveIconAsset(
     configuredItemIcon ??
-    itemSlotIcon ??
-    kindIcon ??
-    slotIcon ??
-    DEFAULT_ITEM_ICON
+      itemSlotIcon ??
+      kindIcon ??
+      slotIcon ??
+      DEFAULT_ITEM_ICON,
   );
 }
 
