@@ -45,14 +45,22 @@ export function useAppRuntime() {
     worldTimeTickRef: bootstrap.worldTimeTickRef,
   });
   const gameView = useAppGameView({
-    game: bootstrap.game,
+    bloodMoonActive: bootstrap.game.bloodMoonActive,
+    combat: bootstrap.game.combat,
+    enemies: bootstrap.game.enemies,
     hexItemModificationPickerActive:
       controllerState.hexItemModificationPickerActive,
+    homeHex: bootstrap.game.homeHex,
     logFilters: controllerState.logFilters,
+    logs: bootstrap.game.logs,
+    player: bootstrap.game.player,
+    seed: bootstrap.game.seed,
     selectedHexItemModificationItem:
       controllerState.selectedHexItemModificationItem,
     selectedHexItemReforgeStatIndex:
       controllerState.selectedHexItemReforgeStatIndex,
+    tiles: bootstrap.game.tiles,
+    worldTimeMs: bootstrap.game.worldTimeMs,
   });
   const persistence = useAppPersistence({
     game: bootstrap.game,

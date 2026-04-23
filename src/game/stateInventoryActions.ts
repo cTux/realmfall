@@ -27,6 +27,10 @@ import { getCurrentTile } from './stateWorldQueries';
 import type { EquipmentSlot, GameState, TownStockEntry } from './types';
 import { ensureTileState, normalizeStructureState } from './world';
 
+type TownStockState = Pick<GameState, 'seed' | 'tiles' | 'worldTimeMs'> & {
+  player: Pick<GameState['player'], 'coord'>;
+};
+
 export function isOffhandSlotDisabled(
   equipment: GameState['player']['equipment'],
 ) {
@@ -176,7 +180,7 @@ export function takeTileItem(state: GameState, itemId: string): GameState {
   return next;
 }
 
-export function getTownStock(state: GameState): TownStockEntry[] {
+export function getTownStock(state: TownStockState): TownStockEntry[] {
   const tile = getCurrentTile(state);
   if (tile.structure !== 'town') {
     return [];
