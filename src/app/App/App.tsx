@@ -182,7 +182,7 @@ export function App() {
     combatWindowVisible,
     keepCombatWindowMounted,
     keepLootWindowMounted,
-    lootSnapshot,
+    tileLootSnapshot,
     lootWindowVisible,
   } = useWindowTransitions({
     combat: game.combat,
@@ -294,13 +294,14 @@ export function App() {
   const appWindowViews = useAppWindowViews({
     actionBarSlots,
     audioSettings,
+    combatState: game.combat,
     combatSnapshot,
     combatWindowVisible,
     currentTile,
     currentTileHostileEnemyCount,
-    game,
     gold,
     graphicsSettings,
+    homeHex: game.homeHex,
     inventoryCountsByItemKey,
     itemModification,
     itemMenu,
@@ -309,7 +310,8 @@ export function App() {
     interactLabel,
     filteredLogs,
     logFilters,
-    lootSnapshot,
+    playerSlice: game.player,
+    tileLootSnapshot,
     lootWindowVisible,
     canBulkProspectEquipment,
     canBulkSellEquipment,
@@ -321,6 +323,7 @@ export function App() {
     showFilterMenu,
     heroOverview,
     townStock,
+    worldTimeMs: game.worldTimeMs,
   });
   const appWindowActions = useAppWindowActions({
     closeItemMenu,

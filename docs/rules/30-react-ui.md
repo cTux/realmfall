@@ -19,6 +19,7 @@
 - Name broad hero snapshots after the actual payload shape. Use `heroOverview` or `overview` for level, XP, skills, buffs, debuffs, and ability ids, and reserve `stats` for narrow combat-stat or stat-sheet payloads.
 - Avoid force-casting partial selector inputs to `GameState` in React view-model hooks. Use narrow selector input types and variable names that match the actual data shape being passed.
 - When a hook or helper only consumes a narrow gameplay slice, name its props after that slice and key effect dependencies to those slice references instead of threading a broad `game` object whose identity changes on unrelated state clones.
+- Name persisted or transitional loot arrays after their tile ownership, such as `tileLootSnapshot`, and type them from tile loot or window view state instead of reusing player inventory types for convenience.
 - Keep the base app shell visible while persistence hydration or Pixi bootstrap is in flight. Loading states may cover the map viewport, but they should not hide the dock, action bar, or other already-renderable shell UI behind a full-screen visibility gate.
 - Keep Storybook stories for every component under `src/ui/components`, including shared leaf components and window wrappers.
 - Every component addition, removal, or behavior-affecting UI change should add or update the corresponding Storybook story in the same task.

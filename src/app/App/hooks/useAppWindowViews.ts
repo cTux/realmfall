@@ -6,16 +6,28 @@ import type { ActionBarSlots } from '../actionBar';
 import type { AppWindowsViewState } from '../AppWindows.types';
 import type { ItemContextMenuState } from '../types';
 
+type WindowViewsPlayerSlice = Pick<
+  GameState['player'],
+  | 'coord'
+  | 'equipment'
+  | 'hunger'
+  | 'inventory'
+  | 'learnedRecipeIds'
+  | 'mana'
+  | 'thirst'
+>;
+
 interface UseAppWindowViewsArgs {
   actionBarSlots: ActionBarSlots;
   audioSettings: AudioSettings;
+  combatState: GameState['combat'];
   combatSnapshot: AppWindowsViewState['combat']['snapshot'];
   combatWindowVisible: boolean;
   currentTile: AppWindowsViewState['hex']['currentTile'];
   currentTileHostileEnemyCount: number;
-  game: GameState;
   gold: number;
   graphicsSettings: GraphicsSettings;
+  homeHex: GameState['homeHex'];
   inventoryCountsByItemKey: Record<string, number>;
   itemModification: AppWindowsViewState['hex']['itemModification'];
   itemMenu: ItemContextMenuState | null;
@@ -24,7 +36,8 @@ interface UseAppWindowViewsArgs {
   interactLabel: string | null;
   filteredLogs: GameState['logs'];
   logFilters: Record<LogKind, boolean>;
-  lootSnapshot: GameState['player']['inventory'];
+  playerSlice: WindowViewsPlayerSlice;
+  tileLootSnapshot: AppWindowsViewState['loot']['snapshot'];
   lootWindowVisible: boolean;
   canBulkProspectEquipment: boolean;
   canBulkSellEquipment: boolean;
@@ -36,18 +49,20 @@ interface UseAppWindowViewsArgs {
   showFilterMenu: boolean;
   heroOverview: AppWindowsViewState['hero']['overview'];
   townStock: AppWindowsViewState['hex']['townStock'];
+  worldTimeMs: GameState['worldTimeMs'];
 }
 
 export function useAppWindowViews({
   actionBarSlots,
   audioSettings,
+  combatState,
   combatSnapshot,
   combatWindowVisible,
   currentTile,
   currentTileHostileEnemyCount,
-  game,
   gold,
   graphicsSettings,
+  homeHex,
   inventoryCountsByItemKey,
   itemModification,
   itemMenu,
@@ -56,7 +71,8 @@ export function useAppWindowViews({
   interactLabel,
   filteredLogs,
   logFilters,
-  lootSnapshot,
+  playerSlice,
+  tileLootSnapshot,
   lootWindowVisible,
   canBulkProspectEquipment,
   canBulkSellEquipment,
@@ -68,46 +84,47 @@ export function useAppWindowViews({
   showFilterMenu,
   heroOverview,
   townStock,
+  worldTimeMs,
 }: UseAppWindowViewsArgs): AppWindowsViewState {
   const hero = useMemo(
     () => ({
       overview: heroOverview,
-      hunger: game.player.hunger,
-      thirst: game.player.thirst,
+      hunger: playerSlice.hunger,
+      thirst: playerSlice.thirst,
     }),
-    [game.player.hunger, game.player.thirst, heroOverview],
+    [heroOverview, playerSlice.hunger, playerSlice.thirst],
   );
 
   const player = useMemo(
     () => ({
-      coord: game.player.coord,
-      mana: game.player.mana,
+      coord: playerSlice.coord,
+      mana: playerSlice.mana,
     }),
-    [game.player.coord, game.player.mana],
+    [playerSlice.coord, playerSlice.mana],
   );
 
   const inventory = useMemo(
     () => ({
       actionBarSlots,
-      equipment: game.player.equipment,
-      inventory: game.player.inventory,
-      learnedRecipeIds: game.player.learnedRecipeIds,
+      equipment: playerSlice.equipment,
+      inventory: playerSlice.inventory,
+      learnedRecipeIds: playerSlice.learnedRecipeIds,
     }),
     [
       actionBarSlots,
-      game.player.equipment,
-      game.player.inventory,
-      game.player.learnedRecipeIds,
+      playerSlice.equipment,
+      playerSlice.inventory,
+      playerSlice.learnedRecipeIds,
     ],
   );
 
   const hex = useMemo(
     () => ({
-      homeHex: game.homeHex,
-      worldTimeMs: game.worldTimeMs,
+      homeHex,
+      worldTimeMs,
       currentTile,
       currentTileHostileEnemyCount,
-      combat: game.combat,
+      combat: combatState,
       interactLabel,
       canBulkProspectEquipment,
       canBulkSellEquipment,
@@ -123,18 +140,18 @@ export function useAppWindowViews({
       canBulkProspectEquipment,
       canBulkSellEquipment,
       claimStatus,
+      combatState,
       currentTile,
       currentTileHostileEnemyCount,
-      game.combat,
-      game.homeHex,
-      game.worldTimeMs,
       gold,
+      homeHex,
       interactLabel,
       itemModification,
       bulkProspectEquipmentExplanation,
       bulkSellEquipmentExplanation,
       territoryNpcHealStatus,
       townStock,
+      worldTimeMs,
     ],
   );
 
@@ -156,9 +173,9 @@ export function useAppWindowViews({
   const loot = useMemo(
     () => ({
       visible: lootWindowVisible,
-      snapshot: lootSnapshot,
+      snapshot: tileLootSnapshot,
     }),
-    [lootSnapshot, lootWindowVisible],
+    [lootWindowVisible, tileLootSnapshot],
   );
 
   const combat = useMemo(
