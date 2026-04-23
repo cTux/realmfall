@@ -359,48 +359,46 @@ export function HexInfoWindowContent({
         </div>
       </section>
 
-      <section className={styles.lootSection}>
-        <div className={styles.sectionHeader}>
-          <span className={styles.sectionTitle}>{t('ui.loot.title')}</span>
-          <button
-            type="button"
-            onClick={onTakeAll}
-            disabled={loot.length === 0}
-            onMouseEnter={(event) =>
-              onHoverDetail?.(
-                event,
-                t('ui.loot.takeAllAction'),
-                [{ kind: 'text', text: t('ui.tooltip.window.takeAllLoot') }],
-                'rgba(74, 222, 128, 0.9)',
-              )
-            }
-            onMouseLeave={onLeaveDetail}
-          >
-            {t('ui.loot.takeAllAction')}
-          </button>
-        </div>
-        <div className={styles.lootGrid}>
-          {loot.map((item) => (
-            <ItemSlotButton
-              key={item.id}
-              item={item}
-              size="compact"
-              onClick={() => onTakeItem(item.id)}
+      {loot.length > 0 ? (
+        <section className={styles.lootSection}>
+          <div className={styles.sectionHeader}>
+            <span className={styles.sectionTitle}>{t('ui.loot.title')}</span>
+            <button
+              type="button"
+              onClick={onTakeAll}
               onMouseEnter={(event) =>
-                onHoverItem(
+                onHoverDetail?.(
                   event,
-                  item,
-                  item.slot ? equipment[item.slot] : undefined,
+                  t('ui.loot.takeAllAction'),
+                  [{ kind: 'text', text: t('ui.tooltip.window.takeAllLoot') }],
+                  'rgba(74, 222, 128, 0.9)',
                 )
               }
-              onMouseLeave={onLeaveItem}
-            />
-          ))}
-          {loot.length === 0 ? (
-            <div className={styles.empty}>{t('ui.common.empty')}</div>
-          ) : null}
-        </div>
-      </section>
+              onMouseLeave={onLeaveDetail}
+            >
+              {t('ui.loot.takeAllAction')}
+            </button>
+          </div>
+          <div className={styles.lootGrid}>
+            {loot.map((item) => (
+              <ItemSlotButton
+                key={item.id}
+                item={item}
+                size="compact"
+                onClick={() => onTakeItem(item.id)}
+                onMouseEnter={(event) =>
+                  onHoverItem(
+                    event,
+                    item,
+                    item.slot ? equipment[item.slot] : undefined,
+                  )
+                }
+                onMouseLeave={onLeaveItem}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

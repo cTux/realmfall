@@ -399,6 +399,8 @@ describe('ui window markup', () => {
 
     expect(markup).toContain('Nothing in your pack can be prospected.');
     expect(markup).toContain('No equippable items to sell.');
+    expect(markup).not.toContain('Tak(e) all');
+    expect(markup).not.toContain('Loot on the ground');
     expect(markup).not.toContain('Sell all equippable');
     expect(markup).not.toContain('>Prospect<');
   });
