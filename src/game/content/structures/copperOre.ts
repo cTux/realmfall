@@ -8,8 +8,10 @@ import {
 } from '../i18n';
 import { ContentIcons } from '../icons';
 import { ItemId } from '../ids';
+import { GAME_TAGS } from '../tags';
 import type { StructureConfig } from '../types';
 import { Skill } from '../../types';
+import { buildGatheringStructureTags } from './structureTagRules';
 
 export const copperOreStructureConfig: StructureConfig = {
   type: 'copper-ore',
@@ -18,6 +20,7 @@ export const copperOreStructureConfig: StructureConfig = {
   icon: ContentIcons.Ore,
   tint: 0xf59e0b,
   functionsProvided: ['mine-copper'],
+  tags: buildGatheringStructureTags(Skill.Mining, GAME_TAGS.structure.ore),
   appearanceChanceByTerrain: {
     plains: 0.84,
     desert: 0.84,

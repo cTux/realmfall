@@ -1,7 +1,9 @@
 import { ContentIcons } from '../icons';
 import { EnemyTypeId } from '../ids';
 import { enemyName } from '../i18n';
+import { GAME_TAGS } from '../tags';
 import type { EnemyConfig } from '../types';
+import { buildEnemyTags } from './enemyTagRules';
 
 export const boarEnemyConfig: EnemyConfig = {
   id: EnemyTypeId.Boar,
@@ -14,5 +16,8 @@ export const boarEnemyConfig: EnemyConfig = {
     plains: 0.33,
   },
   animal: true,
-  tags: [],
+  tags: buildEnemyTags({
+    animal: true,
+    tags: [GAME_TAGS.enemy.beast],
+  }),
 };

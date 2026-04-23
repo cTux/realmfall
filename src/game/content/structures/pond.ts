@@ -8,8 +8,10 @@ import {
 } from '../i18n';
 import { ContentIcons } from '../icons';
 import { ItemId } from '../ids';
+import { GAME_TAGS } from '../tags';
 import type { StructureConfig } from '../types';
 import { Skill } from '../../types';
+import { buildGatheringStructureTags } from './structureTagRules';
 
 export const pondStructureConfig: StructureConfig = {
   type: 'pond',
@@ -18,6 +20,7 @@ export const pondStructureConfig: StructureConfig = {
   icon: ContentIcons.Spill,
   tint: 0x38bdf8,
   functionsProvided: ['fish'],
+  tags: buildGatheringStructureTags(Skill.Fishing, GAME_TAGS.structure.fishing),
   appearanceChanceByTerrain: {
     swamp: 0.81,
   },

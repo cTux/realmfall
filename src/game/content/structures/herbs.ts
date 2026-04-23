@@ -8,8 +8,10 @@ import {
 } from '../i18n';
 import { ContentIcons } from '../icons';
 import { ItemId } from '../ids';
+import { GAME_TAGS } from '../tags';
 import type { StructureConfig } from '../types';
 import { Skill } from '../../types';
+import { buildGatheringStructureTags } from './structureTagRules';
 
 export const herbsStructureConfig: StructureConfig = {
   type: 'herbs',
@@ -18,6 +20,7 @@ export const herbsStructureConfig: StructureConfig = {
   icon: ContentIcons.HerbsBundle,
   tint: 0x22d3ee,
   functionsProvided: ['gather-herbs'],
+  tags: buildGatheringStructureTags(Skill.Gathering, GAME_TAGS.structure.herbs),
   gathering: {
     actionLabel: structureActionLabel('herbs'),
     maxHp: 3,

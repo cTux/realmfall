@@ -8,8 +8,10 @@ import {
 } from '../i18n';
 import { ContentIcons } from '../icons';
 import { ItemId } from '../ids';
+import { GAME_TAGS } from '../tags';
 import type { StructureConfig } from '../types';
 import { Skill } from '../../types';
+import { buildGatheringStructureTags } from './structureTagRules';
 
 export const goldOreStructureConfig: StructureConfig = {
   type: 'gold-ore',
@@ -18,6 +20,7 @@ export const goldOreStructureConfig: StructureConfig = {
   icon: ContentIcons.Ore,
   tint: 0xfbbf24,
   functionsProvided: ['mine-gold'],
+  tags: buildGatheringStructureTags(Skill.Mining, GAME_TAGS.structure.ore),
   appearanceChanceByTerrain: {
     desert: 0.855,
   },

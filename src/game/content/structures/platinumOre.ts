@@ -8,8 +8,10 @@ import {
 } from '../i18n';
 import { ContentIcons } from '../icons';
 import { ItemId } from '../ids';
+import { GAME_TAGS } from '../tags';
 import type { StructureConfig } from '../types';
 import { Skill } from '../../types';
+import { buildGatheringStructureTags } from './structureTagRules';
 
 export const platinumOreStructureConfig: StructureConfig = {
   type: 'platinum-ore',
@@ -18,6 +20,7 @@ export const platinumOreStructureConfig: StructureConfig = {
   icon: ContentIcons.Ore,
   tint: 0xe2e8f0,
   functionsProvided: ['mine-platinum'],
+  tags: buildGatheringStructureTags(Skill.Mining, GAME_TAGS.structure.ore),
   appearanceChanceByTerrain: {
     swamp: 0.84,
     desert: 0.845,
