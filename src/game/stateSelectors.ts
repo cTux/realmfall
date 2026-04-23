@@ -23,7 +23,9 @@ export { enemyRarityIndex } from './combat';
 export {
   gatheringBonusChance,
   gatheringYieldBonus,
-  getPlayerStats,
+  getPlayerCombatStats,
+  getPlayerOverview,
+  getPlayerProgressionSummary,
   skillLevelThreshold,
 } from './progression';
 export {

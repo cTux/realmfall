@@ -3,7 +3,8 @@ import {
   dropInventoryItem,
   EQUIPMENT_SLOTS,
   equipItem,
-  getPlayerStats,
+  getPlayerCombatStats,
+  getPlayerOverview,
   getTileAt,
   moveToTile,
   startCombat,
@@ -54,7 +55,7 @@ describe('game state items and progression', () => {
 
   it('does not consume a consumable when none of its effects would apply', () => {
     const game = createGame(3, 'use-no-effect-seed');
-    game.player.hp = getPlayerStats(game.player).maxHp;
+    game.player.hp = getPlayerCombatStats(game.player).maxHp;
     game.player.hunger = 100;
     game.player.thirst = 100;
 
@@ -285,7 +286,7 @@ describe('game state items and progression', () => {
     game.player.masteryLevel = 0;
 
     gainXp(game, level100Xp + firstMasteryXp + secondMasteryXp, addLog);
-    const stats = getPlayerStats(game.player);
+    const stats = getPlayerOverview(game.player);
 
     expect(game.player.level).toBe(100);
     expect(game.player.masteryLevel).toBe(2);
@@ -386,7 +387,7 @@ describe('game state items and progression', () => {
 
     const encountered = moveToTile(game, target);
     const resolved = startCombat(encountered);
-    const stats = getPlayerStats(resolved.player);
+    const stats = getPlayerCombatStats(resolved.player);
 
     expect(resolved.player.level).toBe(2);
     expect(resolved.player.hp).toBe(9);
@@ -427,8 +428,8 @@ describe('game state items and progression', () => {
     expect(Object.keys(equipped.player.equipment)).toHaveLength(
       EQUIPMENT_SLOTS.length,
     );
-    expect(getPlayerStats(equipped.player).defense).toBeGreaterThan(
-      getPlayerStats(game.player).defense,
+    expect(getPlayerCombatStats(equipped.player).defense).toBeGreaterThan(
+      getPlayerCombatStats(game.player).defense,
     );
   });
 });

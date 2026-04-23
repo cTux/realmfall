@@ -1,5 +1,5 @@
 import { getItemCategory } from '../../game/content/items';
-import type { Item } from '../../game/state';
+import type { Item } from '../../game/stateTypes';
 
 export const ACTION_BAR_SLOT_COUNT = 9;
 

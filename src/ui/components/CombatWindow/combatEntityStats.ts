@@ -7,8 +7,8 @@ import {
   getEnemyDodgeChance,
   getEnemySuppressDamageChance,
   getEnemySuppressDamageReduction,
-  type Enemy,
-} from '../../../game/state';
+} from '../../../game/stateCombat';
+import type { Enemy } from '../../../game/stateTypes';
 import type { SecondaryStatKey } from '../../../game/types';
 import { buildStatSheetTooltipLines } from '../statSheet';
 

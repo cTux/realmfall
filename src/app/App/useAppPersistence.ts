@@ -6,11 +6,8 @@ import {
   type MutableRefObject,
   type SetStateAction,
 } from 'react';
-import {
-  createFreshLogsAtTime,
-  type GameState,
-  type LogKind,
-} from '../../game/state';
+import { createFreshLogsAtTime } from '../../game/logs';
+import type { GameState, LogKind } from '../../game/stateTypes';
 import { loadEncryptedState } from '../../persistence/storage';
 import { type WindowPositions, type WindowVisibilityState } from '../constants';
 import {

@@ -14,10 +14,10 @@ export function AppWindows(props: AppWindowsProps) {
   const dockAttention = useMemo(
     () => ({
       hexInfo: Boolean(
-        props.views.world.combat && !props.views.world.combat.started,
+        props.views.hex.combat && !props.views.hex.combat.started,
       ),
     }),
-    [props.views.world.combat],
+    [props.views.hex.combat],
   );
   const dockEntries = useMemo(
     () => getDockEntries(props.layout.windowShown, dockAttention),
@@ -39,16 +39,15 @@ export function AppWindows(props: AppWindowsProps) {
     keepCombatWindowMounted: props.layout.keepCombatWindowMounted,
   });
   const hexInfoView = useHexInfoView({
-    homeHex: props.views.world.homeHex,
+    homeHex: props.views.hex.homeHex,
     playerCoord: props.views.player.coord,
-    currentTile: props.views.world.currentTile,
-    currentTileHostileEnemyCount:
-      props.views.world.currentTileHostileEnemyCount,
-    combat: props.views.world.combat,
+    currentTile: props.views.hex.currentTile,
+    currentTileHostileEnemyCount: props.views.hex.currentTileHostileEnemyCount,
+    combat: props.views.hex.combat,
     combatSnapshot: props.views.combat.snapshot,
   });
   const recipeWindowStructure = useRecipeWindowStructure(
-    props.views.world.currentTile.structure,
+    props.views.hex.currentTile.structure,
   );
   const combatPlayerParty = useCombatPlayerParty({
     combatSnapshot: props.views.combat.snapshot,
@@ -63,7 +62,7 @@ export function AppWindows(props: AppWindowsProps) {
         managedWindowProps={managedWindowProps}
         tooltipPositionRef={props.layout.tooltipPositionRef}
         heroView={props.views.hero}
-        playerView={props.views.player}
+        inventoryView={props.views.inventory}
         itemMenu={props.views.itemMenu}
         windowActions={props.actions.windows}
         tooltipActions={props.actions.tooltip}
@@ -78,15 +77,15 @@ export function AppWindows(props: AppWindowsProps) {
         managedWindowProps={managedWindowProps}
         recipeWindowStructure={recipeWindowStructure}
         heroStats={props.views.hero.stats}
-        playerView={props.views.player}
-        worldView={props.views.world}
+        inventoryView={props.views.inventory}
+        hexView={props.views.hex}
         recipesView={props.views.recipes}
         combatView={props.views.combat}
         logsView={props.views.logs}
         settingsView={props.views.settings}
         tooltipActions={props.actions.tooltip}
         inventoryActions={props.actions.inventory}
-        worldActions={props.actions.world}
+        hexActions={props.actions.hex}
         recipeActions={props.actions.recipes}
         logActions={props.actions.logs}
         settingsActions={props.actions.settings}

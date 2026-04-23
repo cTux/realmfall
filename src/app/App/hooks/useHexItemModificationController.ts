@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { Equipment, Item, StructureType } from '../../../game/state';
-import { isEquippableItem } from '../../../game/state';
+import { isEquippableItem } from '../../../game/inventory';
 import {
   getItemModificationKindForStructure,
   getReforgeableItemSecondaryStats,
 } from '../../../game/itemModifications';
+import type { Equipment, Item, StructureType } from '../../../game/stateTypes';
 
 interface UseHexItemModificationControllerOptions {
   currentStructure?: StructureType;

@@ -1,5 +1,5 @@
 import { memo, useEffect, useMemo, useState, type RefObject } from 'react';
-import { hexDistance, type HexCoord } from '../../game/state';
+import { hexDistance, type HexCoord } from '../../game/hex';
 import { t } from '../../i18n';
 import { getWorldHexSize, tileToPoint } from '../../ui/world/renderSceneMath';
 import { WORLD_REVEAL_RADIUS } from '../constants';

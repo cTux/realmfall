@@ -17,7 +17,7 @@ import {
   sellValue,
   spendGold,
 } from './inventory';
-import { getPlayerStats } from './progression';
+import { getPlayerCombatStats } from './progression';
 import {
   cloneForPlayerAndTileMutation,
   cloneForPlayerMutation,
@@ -305,7 +305,7 @@ export function dropEquippedItem(
   const tile = next.tiles[key];
   addItemToInventory(tile.items, equipped);
   next.tiles[key] = { ...tile, items: [...tile.items] };
-  const maxHp = getPlayerStats(next.player).maxHp;
+  const maxHp = getPlayerCombatStats(next.player).maxHp;
   next.player.hp = Math.min(maxHp, next.player.hp);
   addLog(next, 'loot', t('game.message.loot.drop', { item: equipped.name }));
   return next;

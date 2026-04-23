@@ -7,7 +7,7 @@ import {
   type MutableRefObject,
   type SetStateAction,
 } from 'react';
-import type { GameState, Item } from '../../game/state';
+import type { GameState, Item } from '../../game/stateTypes';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import type { AudioSettings } from '../audioSettings';
 import type { GraphicsSettings } from '../graphicsSettings';

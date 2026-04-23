@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { GAME_TAGS } from '../tags';
 import { getStructureConfig, pickStructureType } from './index';
 
 describe('pickStructureType', () => {
@@ -38,6 +39,25 @@ describe('pickStructureType', () => {
     expect(pickStructureType(0, 0.811, 'marsh')).toBe('pond');
     expect(pickStructureType(0, 0.856, 'dunes')).toBe('gold-ore');
     expect(pickStructureType(0, 0.841, 'highlands')).toBe('copper-ore');
+  });
+
+  it('decorates structures with shared tags and item-modification metadata', () => {
+    expect(getStructureConfig('tree').tags).toContain(GAME_TAGS.structure.tree);
+    expect(getStructureConfig('copper-ore').tags).toContain(
+      GAME_TAGS.structure.ore,
+    );
+    expect(getStructureConfig('rune-forge').itemModification).toEqual({
+      kind: 'reforge',
+      hintKey: 'ui.hexInfo.structureHint.runeForge',
+    });
+    expect(getStructureConfig('mana-font').itemModification).toEqual({
+      kind: 'enchant',
+      hintKey: 'ui.hexInfo.structureHint.manaFont',
+    });
+    expect(getStructureConfig('corruption-altar').itemModification).toEqual({
+      kind: 'corrupt',
+      hintKey: 'ui.hexInfo.structureHint.corruptionAltar',
+    });
   });
 });
 

@@ -1,6 +1,7 @@
 import type { MutableRefObject } from 'react';
 import type { Application } from 'pixi.js';
-import * as stateModule from '../../../game/state';
+import { getVisibleTiles } from '../../../game/stateSelectors';
+import type { GameState, HexCoord } from '../../../game/stateTypes';
 import { getWorldTimeMinutesFromTimestamp } from '../../../game/worldTime';
 import { getWorldIconTextureVersion } from '../../../ui/world/worldIcons';
 import { sameCoord } from '../usePixiWorldHover';
@@ -8,11 +9,11 @@ import { sameCoord } from '../usePixiWorldHover';
 type RenderScene = typeof import('../../../ui/world/renderScene').renderScene;
 
 export interface WorldRenderSnapshot {
-  game: stateModule.GameState | null;
-  visibleTiles: ReturnType<typeof stateModule.getVisibleTiles> | null;
-  selected: stateModule.HexCoord | null;
-  hoveredMove: stateModule.HexCoord | null;
-  hoveredSafePath: stateModule.HexCoord[] | null;
+  game: GameState | null;
+  visibleTiles: ReturnType<typeof getVisibleTiles> | null;
+  selected: HexCoord | null;
+  hoveredMove: HexCoord | null;
+  hoveredSafePath: HexCoord[] | null;
   animationBucket: number;
   invalidationToken: number;
   iconTextureVersion: number;
@@ -53,13 +54,11 @@ export function createWorldRenderFrame({
 }: {
   app: Application;
   renderScene: RenderScene;
-  gameRef: MutableRefObject<stateModule.GameState>;
-  visibleTilesRef: MutableRefObject<
-    ReturnType<typeof stateModule.getVisibleTiles>
-  >;
-  selectedRef: MutableRefObject<stateModule.HexCoord>;
-  hoveredMoveRef: MutableRefObject<stateModule.HexCoord | null>;
-  hoveredSafePathRef: MutableRefObject<stateModule.HexCoord[] | null>;
+  gameRef: MutableRefObject<GameState>;
+  visibleTilesRef: MutableRefObject<ReturnType<typeof getVisibleTiles>>;
+  selectedRef: MutableRefObject<HexCoord>;
+  hoveredMoveRef: MutableRefObject<HexCoord | null>;
+  hoveredSafePathRef: MutableRefObject<HexCoord[] | null>;
   showTerrainBackgroundsRef: MutableRefObject<boolean>;
   pausedRef: MutableRefObject<boolean>;
   pausedAnimationMsRef: MutableRefObject<number | null>;
@@ -121,10 +120,7 @@ export function createWorldRenderFrame({
   };
 }
 
-function sameCoordList(
-  left: stateModule.HexCoord[] | null,
-  right: stateModule.HexCoord[] | null,
-) {
+function sameCoordList(left: HexCoord[] | null, right: HexCoord[] | null) {
   if (left === right) {
     return true;
   }

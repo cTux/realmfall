@@ -1,22 +1,14 @@
-import {
-  lazy,
-  Suspense,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
-import { getCurrentTile } from '../../game/state';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { createGame } from '../../game/stateFactory';
+import { getCurrentTile } from '../../game/stateSelectors';
 import type { GameState } from '../../game/stateTypes';
-import { WORLD_RADIUS } from '../constants';
-import { AppWindows } from './AppWindows';
 import { useAppControllers } from './useAppControllers';
 import { useAppGameView } from './useAppGameView';
 import { useAppPersistence } from './useAppPersistence';
 import { useCombatAutomation } from './useCombatAutomation';
+import { AppShell } from './components/AppShell';
 import { useAppLifecycle } from './hooks/useAppLifecycle';
+import { useCombatAttentionWindow } from './hooks/useCombatAttentionWindow';
 import { useAppSettingsActions } from './hooks/useAppSettingsActions';
 import { useAppWindowActions } from './hooks/useAppWindowActions';
 import { useAppWindowViews } from './hooks/useAppWindowViews';
@@ -25,40 +17,15 @@ import { useAppWorldClock } from './hooks/useAppWorldClock';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { usePixiWorld } from './usePixiWorld';
 import { useWindowTransitions } from './useWindowTransitions';
-import { PauseOverlay } from './components/PauseOverlay';
+import { WORLD_RADIUS } from '../constants';
 import { loadAudioSettings } from '../audioSettings';
 import {
   DEFAULT_UI_AUDIO_CONTROLLER,
-  UiAudioProvider,
   type UiAudioController,
 } from '../audio/UiAudioContext';
 import { loadGraphicsSettings } from '../graphicsSettings';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
-import { LoadingSpinner } from '../../ui/components/LoadingSpinner';
-import styles from './styles.module.scss';
 import { setWorldClockTime } from './worldClockStore';
-import { t } from '../../i18n';
-
-const UiAudioControllerBridge = lazy(() =>
-  import('../audio/UiAudioControllerBridge').then((module) => ({
-    default: module.UiAudioControllerBridge,
-  })),
-);
-const VoiceAudioControllerBridge = lazy(() =>
-  import('../audio/VoiceAudioControllerBridge').then((module) => ({
-    default: module.VoiceAudioControllerBridge,
-  })),
-);
-const BackgroundMusicControllerBridge = lazy(() =>
-  import('../audio/BackgroundMusicControllerBridge').then((module) => ({
-    default: module.BackgroundMusicControllerBridge,
-  })),
-);
-const HomeIndicator = lazy(() =>
-  import('./HomeIndicator').then((module) => ({
-    default: module.HomeIndicator,
-  })),
-);
 
 export function App() {
   const initialAudioSettingsRef = useRef(loadAudioSettings());
@@ -73,11 +40,6 @@ export function App() {
   );
   const [game, setGame] = useState<GameState>(initialGameRef.current);
   const [paused, setPaused] = useState(false);
-  const previousCombatRef = useRef<GameState['combat']>(
-    initialGameRef.current.combat,
-  );
-  const previousPlayerCoordRef = useRef(initialGameRef.current.player.coord);
-  const combatAutoOpenReadyRef = useRef(false);
   const [uiAudio, setUiAudio] = useState<UiAudioController>(
     DEFAULT_UI_AUDIO_CONTROLLER,
   );
@@ -257,37 +219,13 @@ export function App() {
     setWorldClockTime(game.worldTimeMs);
   }, [game.worldTimeMs]);
 
-  useLayoutEffect(() => {
-    if (!hydrated) {
-      return;
-    }
-
-    if (!combatAutoOpenReadyRef.current) {
-      combatAutoOpenReadyRef.current = true;
-      previousCombatRef.current = game.combat;
-      previousPlayerCoordRef.current = game.player.coord;
-      return;
-    }
-
-    const hadCombat = Boolean(previousCombatRef.current);
-    const hasCombat = Boolean(game.combat);
-    const playerMoved =
-      previousPlayerCoordRef.current.q !== game.player.coord.q ||
-      previousPlayerCoordRef.current.r !== game.player.coord.r;
-
-    if (hasCombat && !hadCombat && playerMoved && !windowShown.hexInfo) {
-      setWindowVisibility('hexInfo', true);
-    }
-
-    previousCombatRef.current = game.combat;
-    previousPlayerCoordRef.current = game.player.coord;
-  }, [
-    game.combat,
-    game.player.coord,
+  useCombatAttentionWindow({
+    combat: game.combat,
     hydrated,
+    playerCoord: game.player.coord,
     setWindowVisibility,
-    windowShown.hexInfo,
-  ]);
+    windowShownHexInfo: windowShown.hexInfo,
+  });
 
   useAppLifecycle({
     game,
@@ -451,51 +389,17 @@ export function App() {
   });
 
   return (
-    <UiAudioProvider value={uiAudio}>
-      <div className={styles.appRoot}>
-        <Suspense fallback={null}>
-          <UiAudioControllerBridge
-            audioSettings={audioSettings}
-            onChange={setUiAudio}
-          />
-          <VoiceAudioControllerBridge
-            audioSettings={audioSettings}
-            game={game}
-          />
-          <BackgroundMusicControllerBridge
-            audioSettings={audioSettings}
-            mood={backgroundMusicMood}
-          />
-        </Suspense>
-        <div className={styles.appShell}>
-          <div ref={hostRef} className={styles.mapViewport} />
-          <Suspense fallback={null}>
-            <HomeIndicator
-              claimedHex={firstClaimedHex}
-              hostRef={hostRef}
-              homeHex={game.homeHex}
-              playerCoord={game.player.coord}
-              radius={game.radius}
-            />
-          </Suspense>
-          <AppWindows {...appWindowsProps} />
-          {isReady && paused ? (
-            <PauseOverlay
-              title={t('ui.pauseOverlay.title')}
-              subtitle={t('ui.pauseOverlay.subtitle')}
-            />
-          ) : null}
-        </div>
-        {isReady ? null : (
-          <div
-            className={styles.loadingScreen}
-            aria-live="polite"
-            aria-busy="true"
-          >
-            <LoadingSpinner className={styles.loadingSpinner} />
-          </div>
-        )}
-      </div>
-    </UiAudioProvider>
+    <AppShell
+      audioSettings={audioSettings}
+      backgroundMusicMood={backgroundMusicMood}
+      claimedHex={firstClaimedHex}
+      game={game}
+      hostRef={hostRef}
+      isReady={isReady}
+      paused={paused}
+      uiAudio={uiAudio}
+      windowsProps={appWindowsProps}
+      onUiAudioChange={setUiAudio}
+    />
   );
 }

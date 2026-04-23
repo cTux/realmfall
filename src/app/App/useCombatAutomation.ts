@@ -7,8 +7,8 @@ import {
 import {
   getCombatAutomationDelay,
   progressCombat,
-  type GameState,
-} from '../../game/state';
+} from '../../game/stateCombat';
+import type { GameState } from '../../game/stateTypes';
 
 interface UseCombatAutomationOptions {
   combat: GameState['combat'];

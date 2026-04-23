@@ -1,5 +1,9 @@
 import type { WindowPosition } from '../../../app/constants';
-import type { CombatActorState, CombatState, Enemy } from '../../../game/state';
+import type {
+  CombatActorState,
+  CombatState,
+  Enemy,
+} from '../../../game/stateTypes';
 import type { PlayerStatusEffect } from '../../../game/types';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 

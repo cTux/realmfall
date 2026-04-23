@@ -37,11 +37,16 @@ describe('App hover behavior', () => {
     };
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
 
-    const stateModule = await import('../../../game/state');
+    const hexModule = await import('../../../game/hex');
+    const pathfindingModule = await import('../../../game/statePathfinding');
+    const worldQueryModule = await import('../../../game/stateWorldQueries');
     const tooltipModule = await import('../../../ui/world/worldTooltips');
-    const getEnemiesAtSpy = vi.spyOn(stateModule, 'getEnemiesAt');
-    const getSafePathToTileSpy = vi.spyOn(stateModule, 'getSafePathToTile');
-    const hexAtPointSpy = vi.spyOn(stateModule, 'hexAtPoint');
+    const getEnemiesAtSpy = vi.spyOn(worldQueryModule, 'getEnemiesAt');
+    const getSafePathToTileSpy = vi.spyOn(
+      pathfindingModule,
+      'getSafePathToTile',
+    );
+    const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
     const enemyTooltipSpy = vi.spyOn(tooltipModule, 'enemyWorldTooltip');
     const structureTooltipSpy = vi.spyOn(
       tooltipModule,
@@ -176,11 +181,16 @@ describe('App hover behavior', () => {
     };
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
 
-    const stateModule = await import('../../../game/state');
+    const hexModule = await import('../../../game/hex');
+    const pathfindingModule = await import('../../../game/statePathfinding');
+    const worldQueryModule = await import('../../../game/stateWorldQueries');
     const tooltipModule = await import('../../../ui/world/worldTooltips');
-    const getEnemiesAtSpy = vi.spyOn(stateModule, 'getEnemiesAt');
-    const getSafePathToTileSpy = vi.spyOn(stateModule, 'getSafePathToTile');
-    const hexAtPointSpy = vi.spyOn(stateModule, 'hexAtPoint');
+    const getEnemiesAtSpy = vi.spyOn(worldQueryModule, 'getEnemiesAt');
+    const getSafePathToTileSpy = vi.spyOn(
+      pathfindingModule,
+      'getSafePathToTile',
+    );
+    const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
     const enemyTooltipSpy = vi.spyOn(tooltipModule, 'enemyWorldTooltip');
 
     const { host, root } = await renderApp();

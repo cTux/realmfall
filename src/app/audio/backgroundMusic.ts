@@ -1,5 +1,4 @@
-import type { GameState } from '../../game/state';
-import type { Tile } from '../../game/types';
+import type { CombatState, Tile } from '../../game/stateTypes';
 
 export type BackgroundMusicMood = 'ambient' | 'combat' | 'dungeon' | 'town';
 
@@ -7,7 +6,7 @@ export function resolveBackgroundMusicMood({
   combat,
   currentStructure,
 }: {
-  combat: GameState['combat'];
+  combat: CombatState | null;
   currentStructure: Tile['structure'];
 }): BackgroundMusicMood {
   if (combat) {

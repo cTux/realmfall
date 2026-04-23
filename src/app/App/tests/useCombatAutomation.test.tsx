@@ -3,14 +3,14 @@ import { createRoot, type Root } from 'react-dom/client';
 import {
   getCombatAutomationDelay,
   progressCombat,
-  type GameState,
-} from '../../../game/state';
+} from '../../../game/stateCombat';
+import type { GameState } from '../../../game/stateTypes';
 import { useCombatAutomation } from '../useCombatAutomation';
 
-vi.mock('../../../game/state', async () => {
-  const actual = await vi.importActual<typeof import('../../../game/state')>(
-    '../../../game/state',
-  );
+vi.mock('../../../game/stateCombat', async () => {
+  const actual = await vi.importActual<
+    typeof import('../../../game/stateCombat')
+  >('../../../game/stateCombat');
 
   return {
     ...actual,

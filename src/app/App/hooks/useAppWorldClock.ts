@@ -4,8 +4,11 @@ import {
   type MutableRefObject,
   type SetStateAction,
 } from 'react';
-import type { GameState } from '../../../game/state';
-import { syncBloodMoon, syncPlayerStatusEffects } from '../../../game/state';
+import {
+  syncBloodMoon,
+  syncPlayerStatusEffects,
+} from '../../../game/stateWorldClock';
+import type { GameState } from '../../../game/stateTypes';
 import { useWorldClockFps } from '../useWorldClockFps';
 
 export function useAppWorldClock({

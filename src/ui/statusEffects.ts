@@ -4,7 +4,7 @@ import {
   type StatusEffectDefinition,
 } from '../game/content/statusEffects';
 import { StatusEffectTypeId } from '../game/content/ids';
-import type { StatusEffectId } from '../game/state';
+import type { StatusEffectId } from '../game/stateTypes';
 
 export function statusEffectIcon(effect: StatusEffectId | string) {
   return getEffectDefinition(effect)?.icon ?? sparklesIcon;

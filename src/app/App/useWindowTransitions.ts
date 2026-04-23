@@ -1,14 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import {
-  getEnemiesAt,
-  type GameState,
-  type Item,
-  type Tile,
-} from '../../game/state';
+import type { Enemy, GameState, Item, Tile } from '../../game/stateTypes';
 
 interface UseWindowTransitionsOptions {
   combat: GameState['combat'];
-  combatEnemies: ReturnType<typeof getEnemiesAt>;
+  combatEnemies: Enemy[];
   currentTile: Tile;
 }
 
@@ -54,7 +49,7 @@ export function useWindowTransitions({
   );
   const [combatSnapshot, setCombatSnapshot] = useState<{
     combat: NonNullable<GameState['combat']>;
-    enemies: ReturnType<typeof getEnemiesAt>;
+    enemies: Enemy[];
   } | null>(combat ? { combat, enemies: combatEnemies } : null);
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { getPlayerStats } from '../../game/stateSelectors';
+import { getPlayerCombatStats } from '../../game/stateSelectors';
 import type { GameState } from '../../game/stateTypes';
 
 export interface FullscreenVisualOverlay {
@@ -25,7 +25,7 @@ export function getFullscreenVisualEffectsState(
   state: GameState,
   animationMs: number,
 ): FullscreenVisualEffectsState {
-  const { hp, maxHp } = getPlayerStats(state.player);
+  const { hp, maxHp } = getPlayerCombatStats(state.player);
   if (maxHp <= 0 || hp / maxHp >= LOW_HP_WARNING_THRESHOLD) {
     return NO_FULLSCREEN_VISUAL_EFFECTS;
   }

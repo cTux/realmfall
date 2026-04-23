@@ -1,5 +1,6 @@
 import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
+import { GAME_TAGS } from '../tags';
 import type { ItemConfig } from '../types';
 
 export const arcaneDustItemConfig: ItemConfig = {
@@ -14,4 +15,9 @@ export const arcaneDustItemConfig: ItemConfig = {
   healing: 0,
   hunger: 0,
   defaultQuantity: 1,
+  tags: [
+    GAME_TAGS.item.mana,
+    GAME_TAGS.item.prospectable,
+    GAME_TAGS.item.craftingMaterial,
+  ],
 };

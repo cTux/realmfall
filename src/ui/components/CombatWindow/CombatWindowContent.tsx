@@ -3,10 +3,8 @@ import { useWorldClockTime } from '../../../app/App/worldClockStore';
 import { getAbilityDefinition } from '../../../game/abilities';
 import { DEFAULT_ENEMY_MANA } from '../../../game/combat';
 import { getStatusEffectDefinition } from '../../../game/content/statusEffects';
-import {
-  getEnemyCombatAttack,
-  type CombatActorState,
-} from '../../../game/state';
+import { getEnemyCombatAttack } from '../../../game/stateCombat';
+import type { CombatActorState } from '../../../game/stateTypes';
 import type { PlayerStatusEffect } from '../../../game/types';
 import { t } from '../../../i18n';
 import {

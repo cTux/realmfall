@@ -1,6 +1,7 @@
 import { syncPlayerBaseStats } from '../game/balance';
 import type { Enemy, GameState, Item } from '../game/stateTypes';
 import { normalizeCombatState } from './normalizeCombat';
+import { resolveLegacyEnemyTypeId } from './normalizeCompatibility';
 import {
   normalizeItem,
   normalizeItems,
@@ -226,7 +227,11 @@ function normalizeEnemy(value: unknown): GameState['enemies'][string] | null {
 
   const coord = normalizeHexCoord(value.coord);
   const statusEffects = normalizeStatusEffects(value.statusEffects);
-  const enemyTypeId = normalizeEnemyTypeId(value.enemyTypeId, value.name);
+  const enemyTypeId =
+    normalizeEnemyTypeId(value.enemyTypeId) ??
+    (value.enemyTypeId === undefined
+      ? resolveLegacyEnemyTypeId(value.name)
+      : null);
   if (
     !coord ||
     typeof value.id !== 'string' ||

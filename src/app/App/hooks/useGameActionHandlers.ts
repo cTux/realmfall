@@ -4,33 +4,38 @@ import {
   type MutableRefObject,
   type SetStateAction,
 } from 'react';
+import { craftRecipe } from '../../../game/stateCrafting';
+import { forfeitCombat, startCombat } from '../../../game/stateCombat';
 import {
-  activateInventoryItem,
   buyTownItem,
-  claimCurrentHex,
-  corruptInventoryItem,
-  craftRecipe,
   dropEquippedItem,
   dropInventoryItem,
-  enchantInventoryItem,
-  equipItem,
-  forfeitCombat,
-  healAtFactionNpc,
-  interactWithStructure,
-  prospectInventoryItem,
   prospectInventory,
-  reforgeInventoryItem,
-  sellInventoryItem,
+  prospectInventoryItem,
   sellAllItems,
+  sellInventoryItem,
   setInventoryItemLocked,
   sortInventory,
-  startCombat,
   takeAllTileItems,
   takeTileItem,
+} from '../../../game/stateInventoryActions';
+import {
+  corruptInventoryItem,
+  enchantInventoryItem,
+  reforgeInventoryItem,
+} from '../../../game/stateItemModificationActions';
+import {
+  activateInventoryItem,
+  equipItem,
   unequipItem,
   useItem as applyItemUse,
-  type GameState,
-} from '../../../game/state';
+} from '../../../game/stateItemActions';
+import type { GameState } from '../../../game/stateTypes';
+import {
+  claimCurrentHex,
+  healAtFactionNpc,
+  interactWithStructure,
+} from '../../../game/stateWorldActions';
 
 interface UseGameActionHandlersOptions {
   paused: boolean;

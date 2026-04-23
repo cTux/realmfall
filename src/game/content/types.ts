@@ -86,6 +86,11 @@ export interface GatheringConfig {
   depletedText: string;
 }
 
+export interface StructureItemModificationConfig {
+  hintKey: string;
+  kind: 'reforge' | 'enchant' | 'corrupt';
+}
+
 export interface StructureConfig {
   type: StructureType;
   title: string;
@@ -97,6 +102,7 @@ export interface StructureConfig {
   globalAppearanceThreshold?: number;
   appearanceChanceByTerrain?: Partial<Record<Terrain, number>>;
   gathering?: GatheringConfig;
+  itemModification?: StructureItemModificationConfig;
 }
 
 export interface ItemBuildOverrides {

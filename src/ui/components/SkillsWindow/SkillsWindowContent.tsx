@@ -1,5 +1,5 @@
-import type { SkillName } from '../../../game/state';
-import { skillLevelThreshold } from '../../../game/state';
+import { skillLevelThreshold } from '../../../game/progression';
+import type { SkillName } from '../../../game/stateTypes';
 import { t } from '../../../i18n';
 import { formatSkillLabel } from '../../../i18n/labels';
 import { skillTooltip } from '../../tooltips';

@@ -1,6 +1,6 @@
 import { StatusEffectTypeId } from './content/ids';
 import { getEnemyCombatDefense, mitigateDamageByDefense } from './combatDamage';
-import { getPlayerStats } from './progression';
+import { getPlayerCombatStats } from './progression';
 import { resolveCombatProcCount } from './combatProcs';
 import type {
   AbilityRuntimeDefinition,
@@ -56,7 +56,7 @@ export function applyEnemyStatusEffectToPlayer(
     resolveCombatProcCount(
       state,
       `${seedKey}:suppress-debuff`,
-      getPlayerStats(state.player).suppressDebuffChance ?? 0,
+      getPlayerCombatStats(state.player).suppressDebuffChance ?? 0,
     ) > 0
   ) {
     return 'suppressed' satisfies PlayerDebuffApplicationResult;
@@ -70,7 +70,7 @@ export function applyEnemyStatusEffectToPlayer(
 export function applyLifesteal(
   state: GameState,
   damage: number,
-  playerStats: ReturnType<typeof getPlayerStats>,
+  playerStats: ReturnType<typeof getPlayerCombatStats>,
 ) {
   const lifestealChance = playerStats.lifestealChance ?? 0;
   if (lifestealChance <= 0) return 0;
@@ -85,7 +85,7 @@ export function applyLifesteal(
   const healPerProc = Math.max(
     1,
     Math.floor(
-      getPlayerStats(state.player).maxHp *
+      getPlayerCombatStats(state.player).maxHp *
         ((playerStats.lifestealAmount ?? 0) / 100),
     ),
   );
@@ -94,7 +94,7 @@ export function applyLifesteal(
   const healed = Math.max(
     0,
     Math.min(
-      getPlayerStats(state.player).maxHp - state.player.hp,
+      getPlayerCombatStats(state.player).maxHp - state.player.hp,
       healPerProc * procCount,
     ),
   );
@@ -106,7 +106,7 @@ export function applyPlayerOnHitEffects(
   state: GameState,
   enemy: NonNullable<GameState['enemies'][string]>,
   damage: number,
-  playerStats: ReturnType<typeof getPlayerStats>,
+  playerStats: ReturnType<typeof getPlayerCombatStats>,
 ) {
   if (damage <= 0) return;
 

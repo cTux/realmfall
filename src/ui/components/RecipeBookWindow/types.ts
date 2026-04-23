@@ -1,5 +1,5 @@
 import type { WindowPosition } from '../../../app/constants';
-import type { RecipeBookEntry, Skill, Tile } from '../../../game/state';
+import type { RecipeBookEntry, Skill, Tile } from '../../../game/stateTypes';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 
 export interface RecipeBookWindowProps extends WindowDetailTooltipHandlers {

@@ -4,7 +4,7 @@ import {
   canEquipItem,
   canUseItem,
   isEquippableItem,
-} from '../../../game/state';
+} from '../../../game/inventory';
 import { GameTooltip } from '../../../ui/components/GameTooltip';
 import { HeroWindow } from '../../../ui/components/HeroWindow';
 import { ItemContextMenu } from '../../../ui/components/ItemContextMenu';
@@ -27,7 +27,7 @@ interface AppFixedWindowsProps {
   >;
   tooltipPositionRef: AppWindowsLayout['tooltipPositionRef'];
   heroView: AppWindowsViewState['hero'];
-  playerView: AppWindowsViewState['player'];
+  inventoryView: AppWindowsViewState['inventory'];
   itemMenu: AppWindowsViewState['itemMenu'];
   windowActions: AppWindowsActions['windows'];
   tooltipActions: AppWindowsActions['tooltip'];
@@ -38,10 +38,10 @@ interface AppFixedWindowsProps {
 export const AppFixedWindows = memo(function AppFixedWindows({
   dockEntries,
   heroView,
+  inventoryView,
   inventoryActions,
   itemMenu,
   managedWindowProps,
-  playerView,
   recipeActions,
   tooltipActions,
   tooltipPositionRef,
@@ -62,8 +62,8 @@ export const AppFixedWindows = memo(function AppFixedWindows({
         onToggle={windowActions.onToggleDockWindow}
       />
       <ActionBar
-        inventory={playerView.inventory}
-        slots={playerView.actionBarSlots}
+        inventory={inventoryView.inventory}
+        slots={inventoryView.actionBarSlots}
         onAssignSlot={inventoryActions.onAssignActionBarSlot}
         onClearSlot={inventoryActions.onClearActionBarSlot}
         onHoverItem={tooltipActions.onShowActionBarItemTooltip}
@@ -87,7 +87,7 @@ export const AppFixedWindows = memo(function AppFixedWindows({
               : t('ui.itemMenu.equipAction')
           }
           canEquip={itemMenu.slot ? true : canEquipItem(itemMenu.item)}
-          canUse={canUseItem(itemMenu.item, playerView.learnedRecipeIds)}
+          canUse={canUseItem(itemMenu.item, inventoryView.learnedRecipeIds)}
           canToggleLock={!itemMenu.slot && isEquippableItem(itemMenu.item)}
           isLocked={Boolean(itemMenu.item.locked)}
           canShowRecipes={Boolean(recipeMaterialItemKey)}

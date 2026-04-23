@@ -1,4 +1,5 @@
 import { t } from '../i18n';
+import { getStructureConfig } from './content/structures';
 import { ITEM_MODIFICATION_BALANCE } from './config';
 import type { Item, ItemSecondaryStat, StructureType } from './types';
 
@@ -132,29 +133,16 @@ export function canModifyItem(item: Pick<Item, 'corrupted'>) {
 }
 
 export function getItemModificationKindForStructure(structure?: StructureType) {
-  switch (structure) {
-    case 'rune-forge':
-      return 'reforge' as const;
-    case 'mana-font':
-      return 'enchant' as const;
-    case 'corruption-altar':
-      return 'corrupt' as const;
-    default:
-      return null;
-  }
+  return structure
+    ? (getStructureConfig(structure).itemModification?.kind ?? null)
+    : null;
 }
 
 export function getItemModificationStructureHint(structure?: StructureType) {
-  switch (structure) {
-    case 'rune-forge':
-      return t('ui.hexInfo.structureHint.runeForge');
-    case 'mana-font':
-      return t('ui.hexInfo.structureHint.manaFont');
-    case 'corruption-altar':
-      return t('ui.hexInfo.structureHint.corruptionAltar');
-    default:
-      return null;
-  }
+  const hintKey = structure
+    ? getStructureConfig(structure).itemModification?.hintKey
+    : null;
+  return hintKey ? t(hintKey) : null;
 }
 
 export function applyCorruptionBonus(value: number) {

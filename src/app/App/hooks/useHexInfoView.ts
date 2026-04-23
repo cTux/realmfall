@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { describeStructure } from '../../../game/state';
+import { describeStructure } from '../../../game/world';
 import type { AppWindowsViewState } from '../AppWindows.types';
 import { formatTerrainLabel } from '../utils/formatTerrainLabel';
 
@@ -11,11 +11,11 @@ export function useHexInfoView({
   combat,
   combatSnapshot,
 }: {
-  homeHex: AppWindowsViewState['world']['homeHex'];
+  homeHex: AppWindowsViewState['hex']['homeHex'];
   playerCoord: AppWindowsViewState['player']['coord'];
-  currentTile: AppWindowsViewState['world']['currentTile'];
-  currentTileHostileEnemyCount: AppWindowsViewState['world']['currentTileHostileEnemyCount'];
-  combat: AppWindowsViewState['world']['combat'];
+  currentTile: AppWindowsViewState['hex']['currentTile'];
+  currentTileHostileEnemyCount: AppWindowsViewState['hex']['currentTileHostileEnemyCount'];
+  combat: AppWindowsViewState['hex']['combat'];
   combatSnapshot: AppWindowsViewState['combat']['snapshot'];
 }) {
   return useMemo(

@@ -1,4 +1,4 @@
-import { getAbilityDefinition } from './abilityRuntime';
+import { getAbilityDefinition } from './abilityCatalog';
 import { getEnemyMana } from './combatDamage';
 import { createRng } from './random';
 import type { AbilityId, Enemy, GameState } from './types';

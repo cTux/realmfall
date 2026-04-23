@@ -1,6 +1,5 @@
 import type { MutableRefObject } from 'react';
-import type { GameState } from '../../game/state';
-import * as stateModule from '../../game/state';
+import type { GameState, HexCoord } from '../../game/stateTypes';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import { syncFollowCursorTooltipPosition } from '../../ui/components/GameTooltip/followCursorSync';
 import { getTooltipState } from './tooltipStore';
@@ -9,10 +8,10 @@ import type { TooltipState } from './types';
 export const HOVER_ANALYSIS_CACHE_LIMIT = 24;
 
 export interface WorldHoverSnapshot {
-  target: stateModule.HexCoord | null;
+  target: HexCoord | null;
   clickable: boolean;
-  hoveredMove: stateModule.HexCoord | null;
-  hoveredSafePath: stateModule.HexCoord[] | null;
+  hoveredMove: HexCoord | null;
+  hoveredSafePath: HexCoord[] | null;
   tooltip: TooltipState | null;
   tooltipKey: string | null;
 }
@@ -38,8 +37,8 @@ export function applyHoverSnapshot({
   worldTooltipKeyRef,
 }: {
   hoverSnapshot: WorldHoverSnapshot;
-  hoveredMoveRef: MutableRefObject<stateModule.HexCoord | null>;
-  hoveredSafePathRef: MutableRefObject<stateModule.HexCoord[] | null>;
+  hoveredMoveRef: MutableRefObject<HexCoord | null>;
+  hoveredSafePathRef: MutableRefObject<HexCoord[] | null>;
   nextTooltipPosition: { x: number; y: number };
   setTooltip: (nextTooltip: TooltipState | null) => void;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
@@ -80,10 +79,7 @@ export function applyHoverSnapshot({
   }
 }
 
-export function getHoverAnalysisCacheKey(
-  state: GameState,
-  target: stateModule.HexCoord,
-) {
+export function getHoverAnalysisCacheKey(state: GameState, target: HexCoord) {
   const combatCoord = state.combat
     ? `${state.combat.coord.q},${state.combat.coord.r}`
     : 'none';
@@ -112,17 +108,11 @@ export function setCachedHoverSnapshot(
   }
 }
 
-export function sameCoord(
-  left: stateModule.HexCoord | null,
-  right: stateModule.HexCoord | null,
-) {
+export function sameCoord(left: HexCoord | null, right: HexCoord | null) {
   return left?.q === right?.q && left?.r === right?.r;
 }
 
-function samePath(
-  left: stateModule.HexCoord[] | null,
-  right: stateModule.HexCoord[] | null,
-) {
+function samePath(left: HexCoord[] | null, right: HexCoord[] | null) {
   if (left == null || right == null) {
     return left === right;
   }

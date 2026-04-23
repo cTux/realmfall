@@ -1,7 +1,7 @@
 import type { Decorator } from '@storybook/react-vite';
 import {
+  getPlayerOverview,
   getRecipeBookEntries,
-  getPlayerStats,
   getRecipeBookRecipes,
 } from '../../../game/stateSelectors';
 import { createGame } from '../../../game/stateFactory';
@@ -124,7 +124,7 @@ export function createStorybookFixtures() {
     dockEntries: buildWindowDockEntries(),
     enemies: ENEMY_CONFIGS,
     equipment,
-    heroStats: getPlayerStats(state.player),
+    heroStats: getPlayerOverview(state.player),
     inventory,
     inventoryCountsByItemKey,
     items: ITEM_CONFIGS,

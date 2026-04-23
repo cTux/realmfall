@@ -12,17 +12,21 @@ This spec covers the top-level React hook composition and derived view-model pat
 - The bootstrap path fetches the active locale asset before importing `App`, because some gameplay and content modules resolve translated labels during module evaluation and must not hydrate against an empty translation map.
 - The app shell stays visible while save hydration and Pixi initialization complete, so the dock, action bar, and other ready React chrome can paint before the world canvas finishes booting.
 - Bootstrap-loaded settings modules keep lightweight metadata such as voice actor ids separate from eager voice asset indexing so optional gameplay voice clips stay behind the lazy audio bridge boundary.
-- `useAppGameView` computes the current tile, filtered logs, town stock, recipe visibility, claim status, player stats, and other UI-ready derived values.
+- `useAppGameView` computes the current tile, filtered logs, town stock, recipe visibility, claim status, the player overview snapshot, and other UI-ready derived values.
 - This keeps presentational components mostly declarative.
+- Combat-facing systems and effects that only need survivability or speed values read `getPlayerCombatStats` instead of routing through the broader hero overview helper.
 - Shared window-key lists and small record builders back window visibility resets, dock composition, log-filter defaults, and recipe skill-level derivation so app wiring does not repeat the same key inventory in multiple modules.
 - `useAppGameView` keeps selector dependencies scoped to the gameplay slices each derived view actually reads, using narrow selector inputs instead of force-casting partial objects to `GameState`, so unrelated root-state clones do not invalidate every memoized view model together.
+- Production modules under `src/app` and `src/ui` route gameplay types, selectors, and builders through focused modules such as `src/game/stateTypes.ts`, `src/game/stateSelectors.ts`, `src/game/stateFactory.ts`, `src/game/stateCombat.ts`, and `src/game/stateWorldActions.ts` instead of treating `src/game/state.ts` as the default import path.
 - `AppWindows` owns the dock-entry composition, stable move and close handler maps, and narrow window-specific view models so `App.tsx` does not keep expanding as the desktop window surface grows.
 - `useAppWindowsProps` builds the nested `layout`, `views`, and `actions` payload passed to `AppWindows`, keeping `App.tsx` from rebuilding that whole prop tree inline.
 - `useAppWindowViews` and `useAppWindowActions` assemble the memoized window view slices and grouped action maps before `useAppWindowsProps` runs, so `App.tsx` coordinates lifecycle hooks without also owning every window-facing memo block directly.
+- Window-facing state groups are named by the window responsibility they serve: player-runtime values stay in `views.player`, inventory and action-bar state live in `views.inventory`, and hex interaction plus economy flows live in `views.hex` and `actions.hex`.
 - Window view hooks return the shared final view shape directly; presentation-only labels such as the hex claim action copy are derived at the window composition site instead of flowing through separate raw and enriched window-view types.
 - Focused hooks under `src/app/App/hooks` keep `AppWindows` centered on composition by separating deferred-window bookkeeping, stable handler maps, and memoized window-specific view models.
 - `useManagedWindowProps` builds the shared `position`, `onMove`, `visible`, and `onClose` prop map for managed windows so fixed and deferred window composition does not repeat the same shell wiring at every render site.
 - Fixed and deferred window composition receives narrow view and action slices instead of the full `AppWindowsProps` object, keeping unrelated window surfaces from rerendering together when one subtree changes.
+- `AppDeferredWindows` renders mounted deferred windows from a shared registry that owns the canonical window order, lazy module declarations, mounted-window filtering, and per-window prop mapping, so adding a deferred window does not require another hand-written `mountedWindows.* ? <Suspense>` branch in the app shell.
 - The game uses a desktop-style draggable window model with persisted positions, optional per-window dimensions for resizable windows, and visibility.
 - Shared draggable window shells keep stack order inside reserved z-index bands, so opening or refocusing a window brings it to the front without ad hoc per-window layering rules.
 - Windows that become visible automatically take focus through the shared drag shell so newly opened panes rise and accept keyboard interaction immediately.
@@ -36,12 +40,14 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `useItemTooltipController` owns inventory and action-bar hover tooltip orchestration, so tooltip caching, learned-recipe detection, and lazy tooltip-module loading stay together in one local hook instead of expanding the broader controller layer.
 - `useGameActionHandlers` separates inventory-slot activation from explicit equip and use actions so handler names match the behavior they trigger and context-menu equip actions stay equip-only.
 - `useAppWorldClock` keeps the top-level world-time sync callbacks next to the shared clock hook, so `App.tsx` does not rebuild the blood-moon and status-effect tick wiring inline.
+- `useCombatAttentionWindow` owns the auto-open hex-content behavior that reacts to combat entry on movement, so `App.tsx` does not keep lifecycle refs and transition bookkeeping for that single window rule.
 - `useAppSettingsActions` keeps save-reset, settings persistence, and home-hex shell actions in one local hook instead of mixing those imperative flows into the main app component body.
 - `useAppPersistence` keeps hydration and latest-input tracking in the hook while local `persistence/` helpers own segment serialization and autosave scheduling, separating save bootstrapping from debounce, idle-flush, and queued-write mechanics.
 - `useCombatAutomation` schedules the next combat step from the earliest pending combat event across actor cooldowns, cast completions, combat status-effect ticks, and effect expirations.
 - `useCombatAutomation` receives the specific combat-facing slices it reads, such as `combat`, `playerStatusEffects`, and the enemy lookup, so unrelated top-level game-state clones do not reschedule the combat timer path.
 - The top-level app owns a non-persistent pause state toggled by `Space`, and that state gates the shared world clock, combat automation, world-click travel, and controller-routed gameplay mutations while surfacing a centered overlay above the stage. The `Space` shortcut skips editable targets and focused interactive controls so native keyboard activation behavior remains intact.
 - Secondary stage overlays such as the home-direction marker and version polling panel stay behind lazy boundaries so the `App` entry prioritizes world bootstrap and core window composition.
+- `AppShell` owns the lazy audio bridges, home-direction marker shell, pause overlay, and loading chrome so the main app entry can stay focused on hook composition and data flow.
 - The world-clock hook pauses its `requestAnimationFrame` loop while the document is hidden and resumes from a clean tick when the tab becomes visible again, avoiding idle background frame churn without desynchronizing world time.
 - Windows that only need the live world clock for cooldown or display state subscribe inside the leaf content component, so wrapper shells and suspense boundaries do not rerender on every clock tick.
 - Window dragging and resizing keep movement local to the window shell until pointer release, which avoids pushing every pointer delta through shared app state during the interaction.
@@ -52,6 +58,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Secondary window content is separated into dedicated components and lazy-loaded bundles following the current project pattern.
 - Shared lazy-window creation goes through `createLazyWindowComponent`, keeping retrying deferred-window imports consistent instead of re-declaring the same `lazy(() => loadRetryingWindowModule(...))` wrapper in every window component.
 - `DeferredWindowShell` owns the common `WindowShell` plus `Suspense` plus `WindowLoadingState` scaffold for lazy window wrappers, so each window component only maps shell props and content props instead of repeating the same loading shell structure.
+- `createDeferredWindowComponent` pairs that lazy import helper with `DeferredWindowShell`, so ordinary window wrappers only declare their shell-prop and content-prop mappings instead of repeating the same content-loader and shell wiring boilerplate in every file.
 - Deferred window-content imports retry indefinitely when a bundle fails to load, keeping the rest of the game interactive while the affected window shell stays mounted on its loading fallback. This is expected browser-delivery behavior for optional window bundles, not an accidental retry loop.
 - Window loading fallbacks keep the spinner visible and add delayed explanatory copy when the deferred content remains unavailable after several seconds.
 - Rare maintenance actions such as per-area save resets defer the storage helper import until the user triggers that action, keeping persistence internals off the main app bootstrap chunk.
@@ -81,6 +88,8 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `src/app/App/hooks/useHexInfoView.ts`
 - `src/app/App/hooks/useRecipeWindowStructure.ts`
 - `src/app/App/hooks/useCombatPlayerParty.ts`
+- `src/app/App/components/AppDeferredWindows.tsx`
+- `src/app/App/components/appDeferredWindowRegistry.tsx`
 - `src/app/App/useWindowTransitions.ts`
 - `src/ui/components/DeferredWindowShell.tsx`
 - `src/ui/components/WindowShell.tsx`

@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 import { DEFAULT_WINDOWS } from '../app/constants';
 import { GameTag } from '../game/content/tags';
 import { createGame } from '../game/stateFactory';
-import { getPlayerStats } from '../game/stateSelectors';
+import { getPlayerOverview } from '../game/stateSelectors';
 import { Skill } from '../game/types';
 import { EquipmentWindow } from './components/EquipmentWindow';
 import { HeroWindow } from './components/HeroWindow';
@@ -73,7 +73,7 @@ describe('ui window shell surfaces', () => {
   it('forwards close-button tooltip handlers through shared window shells', async () => {
     const hoverDetail = vi.fn();
     const game = createGame(2, 'window-tooltip-forwarding');
-    const stats = getPlayerStats(game.player);
+    const stats = getPlayerOverview(game.player);
     const ui = await mountUi(
       <>
         <HeroWindow
@@ -178,7 +178,7 @@ describe('ui window shell surfaces', () => {
   it('uses PascalCase skill labels for profession tooltip titles', async () => {
     const hoverDetail = vi.fn();
     const game = createGame(2, 'skills-tooltip-title');
-    const stats = getPlayerStats(game.player);
+    const stats = getPlayerOverview(game.player);
     const ui = await mountUi(
       <SkillsWindow
         position={DEFAULT_WINDOWS.skills}

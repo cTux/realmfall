@@ -8,7 +8,7 @@ import {
 import { WindowLoadingState } from './WindowLoadingState';
 import { WindowShell } from './WindowShell';
 
-type DeferredWindowShellProps<ContentProps extends object> = Omit<
+export type DeferredWindowShellProps<ContentProps extends object> = Omit<
   ComponentProps<typeof WindowShell>,
   'children'
 > & {

@@ -13,6 +13,8 @@ import { createRng } from './random';
 import { itemName } from './content/i18n';
 import { buildItemFromConfig, getItemConfigByKey } from './content/items';
 import { ItemId } from './content/ids';
+import { getStructureConfig } from './content/structures';
+import { GAME_TAGS } from './content/tags';
 import { enemyRarityIndex, isAnimalEnemy } from './combat';
 import { RECIPE_BOOK_RECIPES } from './crafting';
 import { hexKey } from './hex';
@@ -84,25 +86,23 @@ export function maybeGatherByproduct(
   structure: GatheringStructureType,
   definition: GatheringDefinition,
 ) {
+  const structureTags = getStructureConfig(structure).tags ?? [];
+  const byproductKind = structureTags.includes(GAME_TAGS.structure.tree)
+    ? 'tree'
+    : structureTags.includes(GAME_TAGS.structure.ore)
+      ? 'ore'
+      : null;
+  if (!byproductKind) return null;
+
   const byproductItemKey =
-    structure === 'tree'
-      ? ItemId.Sticks
-      : structure === 'copper-ore' ||
-          structure === 'tin-ore' ||
-          structure === 'iron-ore' ||
-          structure === 'gold-ore' ||
-          structure === 'platinum-ore' ||
-          structure === 'coal-ore'
-        ? ItemId.Stone
-        : null;
-  if (!byproductItemKey) return null;
+    byproductKind === 'tree' ? ItemId.Sticks : ItemId.Stone;
 
   const rng = createRng(
     `${state.seed}:gather-byproduct:${structure}:${state.turn}:${hexKey(state.player.coord)}`,
   );
   if (
     rng() >=
-    (structure === 'tree'
+    (byproductKind === 'tree'
       ? GATHERING_BYPRODUCT_CHANCES.tree
       : GATHERING_BYPRODUCT_CHANCES.ore)
   ) {
@@ -112,7 +112,7 @@ export function maybeGatherByproduct(
   return {
     item: makeResourceStack(byproductItemKey, definition.rewardTier, 1),
     text:
-      structure === 'tree'
+      byproductKind === 'tree'
         ? t('game.message.gather.byproduct.sticks', {
             item: itemName(ItemId.Sticks),
           })

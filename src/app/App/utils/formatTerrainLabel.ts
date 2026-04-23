@@ -1,4 +1,4 @@
-import type { Terrain } from '../../../game/state';
+import type { Terrain } from '../../../game/stateTypes';
 import { formatTerrainLabel as formatLocalizedTerrainLabel } from '../../../i18n/labels';
 
 export function formatTerrainLabel(terrain: Terrain) {

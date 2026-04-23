@@ -6,9 +6,9 @@ interface UseAppWindowActionsArgs {
   closeTooltip: AppWindowsActions['tooltip']['onCloseTooltip'];
   handleActivateInventoryItem: AppWindowsActions['inventory']['onActivateItem'];
   handleAssignActionBarSlot: AppWindowsActions['inventory']['onAssignActionBarSlot'];
-  handleBuyTownItem: AppWindowsActions['world']['onBuyTownItem'];
-  handleClaimHex: AppWindowsActions['world']['onClaimHex'];
-  handleHealTerritoryNpc: AppWindowsActions['world']['onHealTerritoryNpc'];
+  handleBuyTownItem: AppWindowsActions['hex']['onBuyTownItem'];
+  handleClaimHex: AppWindowsActions['hex']['onClaimHex'];
+  handleHealTerritoryNpc: AppWindowsActions['hex']['onHealTerritoryNpc'];
   handleClearActionBarSlot: AppWindowsActions['inventory']['onClearActionBarSlot'];
   handleClearRecipeMaterialFilter: AppWindowsActions['recipes']['onClearMaterialFilter'];
   handleContextItem: AppWindowsActions['inventory']['onContextItem'];
@@ -16,29 +16,29 @@ interface UseAppWindowActionsArgs {
   handleDropEquippedItem: AppWindowsActions['inventory']['onDropEquippedItem'];
   handleDropItem: AppWindowsActions['inventory']['onDropItem'];
   handleEnchantItem: AppWindowsActions['inventory']['onEnchantItem'];
-  handleForfeitCombat: AppWindowsActions['world']['onForfeitCombat'];
+  handleForfeitCombat: AppWindowsActions['hex']['onForfeitCombat'];
   handleSelectHexItemModificationItem: AppWindowsActions['inventory']['onSelectHexItemModificationItem'];
   handleEquipmentHover: AppWindowsActions['tooltip']['onEquipmentHover'];
   handleEquipItem: AppWindowsActions['inventory']['onEquipItem'];
   handleEquippedContextItem: AppWindowsActions['inventory']['onEquippedContextItem'];
-  handleInteract: AppWindowsActions['world']['onInteract'];
+  handleInteract: AppWindowsActions['hex']['onInteract'];
   handleOpenRecipeBookWithMaterialFilter: AppWindowsActions['recipes']['onOpenWithMaterialFilter'];
   handleCorruptItem: AppWindowsActions['inventory']['onCorruptItem'];
-  handleProspect: AppWindowsActions['world']['onProspect'];
+  handleProspect: AppWindowsActions['hex']['onProspect'];
   handleProspectItem: AppWindowsActions['inventory']['onProspectItem'];
   handleReforgeItem: AppWindowsActions['inventory']['onReforgeItem'];
   handleResetSaveArea: AppWindowsActions['settings']['onResetSaveArea'];
   handleSaveSettings: AppWindowsActions['settings']['onSaveSettings'];
   handleSaveSettingsAndReload: AppWindowsActions['settings']['onSaveSettingsAndReload'];
-  handleSellAll: AppWindowsActions['world']['onSellAll'];
+  handleSellAll: AppWindowsActions['hex']['onSellAll'];
   handleSellItem: AppWindowsActions['inventory']['onSellItem'];
-  handleApplySelectedItemModification: AppWindowsActions['world']['onApplySelectedItemModification'];
-  handleClearSelectedItemModification: AppWindowsActions['world']['onClearSelectedItemModification'];
-  handleSelectItemModificationReforgeStat: AppWindowsActions['world']['onSelectItemModificationReforgeStat'];
-  handleSetHome: AppWindowsActions['world']['onSetHome'];
+  handleApplySelectedItemModification: AppWindowsActions['hex']['onApplySelectedItemModification'];
+  handleClearSelectedItemModification: AppWindowsActions['hex']['onClearSelectedItemModification'];
+  handleSelectItemModificationReforgeStat: AppWindowsActions['hex']['onSelectItemModificationReforgeStat'];
+  handleSetHome: AppWindowsActions['hex']['onSetHome'];
   handleSetItemLocked: AppWindowsActions['inventory']['onSetItemLocked'];
   handleSort: AppWindowsActions['inventory']['onSort'];
-  handleStartCombat: AppWindowsActions['world']['onStartCombat'];
+  handleStartCombat: AppWindowsActions['hex']['onStartCombat'];
   handleTakeAllLoot: AppWindowsActions['inventory']['onTakeAllLoot'];
   handleTakeLootItem: AppWindowsActions['inventory']['onTakeLootItem'];
   handleUnequip: AppWindowsActions['inventory']['onUnequip'];
@@ -49,7 +49,7 @@ interface UseAppWindowActionsArgs {
   showActionBarItemTooltip: AppWindowsActions['tooltip']['onShowActionBarItemTooltip'];
   showItemTooltip: AppWindowsActions['tooltip']['onShowItemTooltip'];
   showTooltip: AppWindowsActions['tooltip']['onShowTooltip'];
-  toggleItemModificationPicker: AppWindowsActions['world']['onToggleItemModificationPicker'];
+  toggleItemModificationPicker: AppWindowsActions['hex']['onToggleItemModificationPicker'];
   toggleDockWindow: AppWindowsActions['windows']['onToggleDockWindow'];
   toggleFilterMenu: AppWindowsActions['logs']['onToggleFilterMenu'];
   toggleLogFilter: AppWindowsActions['logs']['onToggleLogFilter'];
@@ -187,7 +187,7 @@ export function useAppWindowActions({
     ],
   );
 
-  const world = useMemo(
+  const hex = useMemo(
     () => ({
       onStartCombat: handleStartCombat,
       onForfeitCombat: handleForfeitCombat,
@@ -251,11 +251,11 @@ export function useAppWindowActions({
       windows,
       tooltip,
       inventory,
-      world,
+      hex,
       recipes,
       logs,
       settings,
     }),
-    [inventory, logs, recipes, settings, tooltip, windows, world],
+    [hex, inventory, logs, recipes, settings, tooltip, windows],
   );
 }
