@@ -6,7 +6,6 @@ This spec covers the repository quality baseline and current test coverage shape
 
 ## Current Solution
 
-- Contributor-facing verification workflow, hook policy, and command scope are canonical in `docs/rules/60-testing.md`, `docs/rules/61-documentation.md`, and `docs/WORKFLOW.md`. This spec records the shipped tooling and automation shape.
 - The repository uses TypeScript strict mode, Oxlint, Stylelint, Prettier, Vitest, Husky, Vite, and Storybook.
 - `pnpm test` runs the `node` and `jsdom` Vitest projects through `@raegen/vite-plugin-vitest-cache`, storing reusable results in the repository-local `.tests/vitest-cache` directory so warm reruns and CI can restore unaffected test files without changing test correctness.
 - `pnpm test:node` runs the DOM-free Vitest project for gameplay, persistence, i18n, and script tests, while `pnpm test:jsdom` runs the browser-surface project for React, Pixi, and other DOM-dependent tests.

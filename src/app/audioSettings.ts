@@ -1,9 +1,10 @@
 import type { ThemeName } from '@rexa-developer/tiks';
 import {
-  clearStoredSettingsSection,
-  loadStoredSettingsSection,
-  saveStoredSettingsSection,
-} from './settingsStorage';
+  isStoredSettingsRecord,
+  normalizeStoredBoolean,
+  normalizeStoredFiniteNumber,
+} from './settingsNormalization';
+import { createSettingsSectionStore } from './settingsSectionStore';
 import {
   VOICE_PLAYBACK_EVENT_OPTIONS,
   type VoicePlaybackEventId,
@@ -99,6 +100,12 @@ export const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
   },
 };
 
+const audioSettingsStore = createSettingsSectionStore({
+  areaId: 'audio',
+  defaults: DEFAULT_AUDIO_SETTINGS,
+  normalize: normalizeAudioSettings,
+});
+
 export const AUDIO_THEME_OPTIONS: AudioThemeOptionDefinition[] = [
   {
     value: 'soft',
@@ -186,54 +193,42 @@ export const AUDIO_SETTINGS_VOICE_EVENT_OPTIONS: AudioVoiceEventOptionDefinition
   }));
 
 export function loadAudioSettings() {
-  if (typeof window === 'undefined') {
-    return DEFAULT_AUDIO_SETTINGS;
-  }
-
-  return normalizeAudioSettings(loadStoredSettingsSection('audio'));
+  return audioSettingsStore.load();
 }
 
 export function saveAudioSettings(settings: AudioSettings) {
-  if (typeof window === 'undefined') return;
-
-  const normalizedSettings = normalizeAudioSettings(settings);
-  saveStoredSettingsSection(
-    'audio',
-    normalizedSettings as unknown as Record<string, unknown>,
-  );
+  audioSettingsStore.save(settings);
 }
 
 export function clearAudioSettings() {
-  if (typeof window === 'undefined') return;
-  clearStoredSettingsSection('audio');
+  audioSettingsStore.clear();
 }
 
 function normalizeAudioSettings(settings: unknown): AudioSettings {
-  if (!isRecord(settings)) {
+  if (!isStoredSettingsRecord(settings)) {
     return DEFAULT_AUDIO_SETTINGS;
   }
 
   return {
-    musicMuted:
-      typeof settings.musicMuted === 'boolean'
-        ? settings.musicMuted
-        : DEFAULT_AUDIO_SETTINGS.musicMuted,
-    muted:
-      typeof settings.muted === 'boolean'
-        ? settings.muted
-        : DEFAULT_AUDIO_SETTINGS.muted,
-    respectReducedMotion:
-      typeof settings.respectReducedMotion === 'boolean'
-        ? settings.respectReducedMotion
-        : DEFAULT_AUDIO_SETTINGS.respectReducedMotion,
+    musicMuted: normalizeStoredBoolean(
+      settings.musicMuted,
+      DEFAULT_AUDIO_SETTINGS.musicMuted,
+    ),
+    muted: normalizeStoredBoolean(settings.muted, DEFAULT_AUDIO_SETTINGS.muted),
+    respectReducedMotion: normalizeStoredBoolean(
+      settings.respectReducedMotion,
+      DEFAULT_AUDIO_SETTINGS.respectReducedMotion,
+    ),
     soundEffects: normalizeAudioSoundEffects(settings.soundEffects),
     theme: isThemeName(settings.theme)
       ? settings.theme
       : DEFAULT_AUDIO_SETTINGS.theme,
-    volume:
-      typeof settings.volume === 'number' && Number.isFinite(settings.volume)
-        ? clampVolume(settings.volume)
-        : DEFAULT_AUDIO_SETTINGS.volume,
+    volume: clampVolume(
+      normalizeStoredFiniteNumber(
+        settings.volume,
+        DEFAULT_AUDIO_SETTINGS.volume,
+      ),
+    ),
     voice: normalizeVoiceSettings(settings.voice),
   };
 }
@@ -245,52 +240,52 @@ function clampVolume(volume: number) {
 function normalizeAudioSoundEffects(
   soundEffects: unknown,
 ): AudioSoundEffectsSettings {
-  if (!isRecord(soundEffects)) {
+  if (!isStoredSettingsRecord(soundEffects)) {
     return DEFAULT_AUDIO_SOUND_EFFECTS;
   }
 
   return {
-    click:
-      typeof soundEffects.click === 'boolean'
-        ? soundEffects.click
-        : DEFAULT_AUDIO_SOUND_EFFECTS.click,
-    error:
-      typeof soundEffects.error === 'boolean'
-        ? soundEffects.error
-        : DEFAULT_AUDIO_SOUND_EFFECTS.error,
-    hover:
-      typeof soundEffects.hover === 'boolean'
-        ? soundEffects.hover
-        : DEFAULT_AUDIO_SOUND_EFFECTS.hover,
-    notify:
-      typeof soundEffects.notify === 'boolean'
-        ? soundEffects.notify
-        : DEFAULT_AUDIO_SOUND_EFFECTS.notify,
-    pop:
-      typeof soundEffects.pop === 'boolean'
-        ? soundEffects.pop
-        : DEFAULT_AUDIO_SOUND_EFFECTS.pop,
-    success:
-      typeof soundEffects.success === 'boolean'
-        ? soundEffects.success
-        : DEFAULT_AUDIO_SOUND_EFFECTS.success,
-    swoosh:
-      typeof soundEffects.swoosh === 'boolean'
-        ? soundEffects.swoosh
-        : DEFAULT_AUDIO_SOUND_EFFECTS.swoosh,
-    toggle:
-      typeof soundEffects.toggle === 'boolean'
-        ? soundEffects.toggle
-        : DEFAULT_AUDIO_SOUND_EFFECTS.toggle,
-    warning:
-      typeof soundEffects.warning === 'boolean'
-        ? soundEffects.warning
-        : DEFAULT_AUDIO_SOUND_EFFECTS.warning,
+    click: normalizeStoredBoolean(
+      soundEffects.click,
+      DEFAULT_AUDIO_SOUND_EFFECTS.click,
+    ),
+    error: normalizeStoredBoolean(
+      soundEffects.error,
+      DEFAULT_AUDIO_SOUND_EFFECTS.error,
+    ),
+    hover: normalizeStoredBoolean(
+      soundEffects.hover,
+      DEFAULT_AUDIO_SOUND_EFFECTS.hover,
+    ),
+    notify: normalizeStoredBoolean(
+      soundEffects.notify,
+      DEFAULT_AUDIO_SOUND_EFFECTS.notify,
+    ),
+    pop: normalizeStoredBoolean(
+      soundEffects.pop,
+      DEFAULT_AUDIO_SOUND_EFFECTS.pop,
+    ),
+    success: normalizeStoredBoolean(
+      soundEffects.success,
+      DEFAULT_AUDIO_SOUND_EFFECTS.success,
+    ),
+    swoosh: normalizeStoredBoolean(
+      soundEffects.swoosh,
+      DEFAULT_AUDIO_SOUND_EFFECTS.swoosh,
+    ),
+    toggle: normalizeStoredBoolean(
+      soundEffects.toggle,
+      DEFAULT_AUDIO_SOUND_EFFECTS.toggle,
+    ),
+    warning: normalizeStoredBoolean(
+      soundEffects.warning,
+      DEFAULT_AUDIO_SOUND_EFFECTS.warning,
+    ),
   };
 }
 
 function normalizeVoiceSettings(voice: unknown): VoiceSettings {
-  if (!isRecord(voice)) {
+  if (!isStoredSettingsRecord(voice)) {
     return DEFAULT_AUDIO_SETTINGS.voice;
   }
 
@@ -303,22 +298,19 @@ function normalizeVoiceSettings(voice: unknown): VoiceSettings {
 }
 
 function normalizeVoiceEventSettings(events: unknown): VoiceEventSettings {
-  if (!isRecord(events)) {
+  if (!isStoredSettingsRecord(events)) {
     return DEFAULT_VOICE_EVENT_SETTINGS;
   }
 
   return Object.fromEntries(
     VOICE_PLAYBACK_EVENT_OPTIONS.map((option) => [
       option.key,
-      typeof events[option.key] === 'boolean'
-        ? events[option.key]
-        : DEFAULT_VOICE_EVENT_SETTINGS[option.key],
+      normalizeStoredBoolean(
+        events[option.key],
+        DEFAULT_VOICE_EVENT_SETTINGS[option.key],
+      ),
     ]),
   ) as VoiceEventSettings;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
 }
 
 function isThemeName(value: unknown): value is ThemeName {

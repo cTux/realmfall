@@ -1,4 +1,5 @@
 const getWorldIconTexture = vi.fn((icon: string) => ({ icon, revision: 1 }));
+const textConstructorCalls: unknown[][] = [];
 
 vi.mock('./worldIcons', () => ({
   getWorldIconTexture,
@@ -46,16 +47,27 @@ vi.mock('pixi.js', () => {
   class MockText {
     visible = true;
     style: unknown;
+    text = '';
 
-    constructor(
-      public text: string,
-      style: unknown,
-    ) {
+    constructor(...args: unknown[]) {
+      textConstructorCalls.push(args);
+
+      const [{ style, text } = {}] = args as [
+        { style?: unknown; text?: string }?,
+      ];
+      if (typeof args[0] === 'string') {
+        this.text = args[0];
+        this.style = args[1];
+        return;
+      }
+
+      this.text = text ?? '';
       this.style = style;
     }
   }
 
   return {
+    __textConstructorCalls: textConstructorCalls,
     Container: MockContainer,
     Graphics: MockGraphics,
     Sprite: MockSprite,
@@ -66,6 +78,7 @@ vi.mock('pixi.js', () => {
 describe('renderScenePools', () => {
   beforeEach(() => {
     getWorldIconTexture.mockReset();
+    textConstructorCalls.length = 0;
   });
 
   it('refreshes pooled shadowed sprite textures when the icon texture cache updates', async () => {
@@ -125,5 +138,21 @@ describe('renderScenePools', () => {
     expect(entry.outline.alpha).toBe(1);
     expect(entry.sprite.width).toBe(30);
     expect(entry.sprite.height).toBe(40);
+  });
+
+  it('creates pooled text with the Pixi v8 object constructor signature', async () => {
+    const { createTextPool, takeText } = await import('./renderScenePools');
+    const pixiModule =
+      (await import('pixi.js')) as unknown as typeof import('pixi.js') & {
+        __textConstructorCalls: unknown[][];
+      };
+    const { Container, __textConstructorCalls } = pixiModule;
+
+    const style = { fill: 0xffffff };
+    const pool = createTextPool(new Container());
+
+    takeText(pool, style as never);
+
+    expect(__textConstructorCalls).toEqual([[{ style, text: '' }]]);
   });
 });

@@ -6,7 +6,6 @@ This spec covers the top-level React hook composition and derived view-model pat
 
 ## Current Solution
 
-- Contributor-facing React UI structure, naming, Storybook, and window-composition policy is canonical in `docs/rules/30-react-ui.md`. This spec records the shipped orchestration shape.
 - The app splits controller concerns into focused hooks such as persistence, keyboard shortcuts, world view integration, combat automation, window transitions, and top-level controller actions.
 - This reduces pressure on the top-level app component and keeps domain logic testable.
 - Bootstrap refs and initial app state live in `useAppBootstrapState`, while the top-level keyboard shortcut wiring lives in `useAppShortcutBindings`, keeping `App.tsx` focused on composing the major app flows instead of rebuilding every initialization detail inline.
@@ -17,6 +16,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Bootstrap-loaded settings modules keep lightweight metadata such as voice actor ids separate from eager voice asset indexing so optional gameplay voice clips stay behind the lazy audio bridge boundary.
 - `useAppGameView` computes the current tile, filtered logs, town stock, recipe visibility, claim status, the player overview snapshot, and other UI-ready derived values.
 - This keeps presentational components mostly declarative.
+- `useHexGameplayView` owns tile-facing gameplay derivation such as current-tile state, combat enemies at the focused hex, territory actions, home-setting availability inputs, and item-modification readiness so `useAppGameView` can stay centered on broader hero, recipe, and log view slices.
 - Combat-facing systems and effects that only need survivability or speed values read `getPlayerCombatStats` instead of routing through the broader hero overview helper.
 - A canonical window registry backs window visibility resets, default positions, dock composition, dock icons, hotkey derivation, deferred-window order, mounted-window derivation, and persistence normalization so app wiring does not repeat the same window inventory in multiple modules.
 - `useAppGameView` keeps selector dependencies scoped to the gameplay slices each derived view actually reads, using narrow selector inputs instead of force-casting partial objects to `GameState`, so unrelated root-state clones do not invalidate every memoized view model together.
@@ -52,6 +52,8 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `useCombatAttentionWindow` owns the auto-open hex-content behavior that reacts to combat entry on movement, so `App.tsx` does not keep lifecycle refs and transition bookkeeping for that single window rule.
 - `useAppSettingsActions` keeps save-reset, settings persistence, and home-hex shell actions in one local hook instead of mixing those imperative flows into the main app component body.
 - `useAppRuntime` groups those orchestration hooks into one local composition layer so the entry component no longer needs one large destructuring block for controllers, derived views, transitions, and shell props.
+- `useAppShortcutRuntime` owns shortcut-only availability wiring such as home-setting eligibility, keeping `useAppRuntime` from recomputing action gates inline next to unrelated lifecycle and persistence setup.
+- `useAppWindowRuntime` owns the memoized window view and action composition path before `AppWindows` props are assembled, so the top-level runtime hook does not rebuild the full window contract in the same block as combat automation and world bootstrap wiring.
 - `useAppPersistence` keeps hydration and latest-input tracking in the hook while local `persistence/` helpers own segment serialization and autosave scheduling, separating save bootstrapping from debounce, idle-flush, and queued-write mechanics.
 - `useCombatAutomation` schedules the next combat step from the earliest pending combat event across actor cooldowns, cast completions, combat status-effect ticks, and effect expirations.
 - `useCombatAutomation` receives the specific combat-facing slices it reads, such as `combat`, `playerStatusEffects`, and the enemy lookup, so unrelated top-level game-state clones do not reschedule the combat timer path.
@@ -92,8 +94,11 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `src/app/App/persistence/saveSegments.ts`
 - `src/app/App/persistence/saveScheduler.ts`
 - `src/app/App/hooks/useAppSettingsActions.ts`
+- `src/app/App/hooks/useAppShortcutRuntime.ts`
 - `src/app/App/hooks/useAppWorldClock.ts`
+- `src/app/App/hooks/useAppWindowRuntime.ts`
 - `src/app/App/hooks/useAppWindowsProps.ts`
+- `src/app/App/hooks/useHexGameplayView.ts`
 - `src/app/App/hooks/useAppWindowHandlers.ts`
 - `src/app/App/hooks/mountedWindowState.ts`
 - `src/app/App/hooks/useHexInfoView.ts`

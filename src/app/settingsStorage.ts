@@ -3,8 +3,6 @@ import {
   type SettingsSaveAreaId,
 } from '../persistence/saveAreas';
 
-const LEGACY_GRAPHICS_SETTINGS_STORAGE_KEY = 'realmfall-graphics-settings';
-
 export type PersistedSettingsPayload = Partial<
   Record<SettingsSaveAreaId, Record<string, unknown>>
 >;
@@ -30,10 +28,6 @@ export function loadStoredSettingsPayload() {
 
 export function clearStoredSettingsSection(key: SettingsSaveAreaId) {
   window.localStorage.removeItem(PERSISTED_SETTINGS_STORAGE_KEYS[key]);
-
-  if (key === 'graphics') {
-    window.localStorage.removeItem(LEGACY_GRAPHICS_SETTINGS_STORAGE_KEY);
-  }
 }
 
 export function loadStoredSettingsSection<T extends SettingsSaveAreaId>(
@@ -65,15 +59,10 @@ export function saveStoredSettingsSection(
       JSON.stringify(value),
     );
   }
-
-  if (key === 'graphics') {
-    window.localStorage.removeItem(LEGACY_GRAPHICS_SETTINGS_STORAGE_KEY);
-  }
 }
 
 export function clearStoredSettingsPayload() {
   SETTINGS_SAVE_AREA_IDS.forEach((areaId) => {
     window.localStorage.removeItem(PERSISTED_SETTINGS_STORAGE_KEYS[areaId]);
   });
-  window.localStorage.removeItem(LEGACY_GRAPHICS_SETTINGS_STORAGE_KEY);
 }

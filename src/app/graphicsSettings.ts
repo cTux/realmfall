@@ -1,8 +1,8 @@
 import {
-  clearStoredSettingsSection,
-  loadStoredSettingsSection,
-  saveStoredSettingsSection,
-} from './settingsStorage';
+  isStoredSettingsRecord,
+  normalizeStoredBoolean,
+} from './settingsNormalization';
+import { createSettingsSectionStore } from './settingsSectionStore';
 
 export type GraphicsPresetId =
   | 'quality'
@@ -76,8 +76,18 @@ const GRAPHICS_PRESET_SETTINGS = {
   },
 } satisfies Record<Exclude<GraphicsPresetId, 'custom'>, PresetGraphicsSettings>;
 
+const LEGACY_GRAPHICS_SETTINGS_STORAGE_KEY = 'realmfall-graphics-settings';
+
 export const DEFAULT_GRAPHICS_SETTINGS: GraphicsSettings =
   applyGraphicsPreset('balanced');
+
+const graphicsSettingsStore = createSettingsSectionStore({
+  areaId: 'graphics',
+  defaults: DEFAULT_GRAPHICS_SETTINGS,
+  normalize: normalizeGraphicsSettings,
+  onSave: clearLegacyGraphicsSettings,
+  onClear: clearLegacyGraphicsSettings,
+});
 
 export const GRAPHICS_PRESET_OPTIONS: GraphicsPresetOptionDefinition[] = [
   {
@@ -173,30 +183,19 @@ export const GRAPHICS_SETTINGS_OPTIONS: GraphicsSettingsOptionDefinition[] = [
 ];
 
 export function loadGraphicsSettings() {
-  if (typeof window === 'undefined') {
-    return DEFAULT_GRAPHICS_SETTINGS;
-  }
-
-  return normalizeGraphicsSettings(loadStoredSettingsSection('graphics'));
+  return graphicsSettingsStore.load();
 }
 
 export function saveGraphicsSettings(settings: GraphicsSettings) {
-  if (typeof window === 'undefined') return;
-
-  const normalizedSettings = normalizeGraphicsSettings(settings);
-  saveStoredSettingsSection(
-    'graphics',
-    normalizedSettings as unknown as Record<string, unknown>,
-  );
+  graphicsSettingsStore.save(settings);
 }
 
 export function clearGraphicsSettings() {
-  if (typeof window === 'undefined') return;
-  clearStoredSettingsSection('graphics');
+  graphicsSettingsStore.clear();
 }
 
 function normalizeGraphicsSettings(settings: unknown): GraphicsSettings {
-  if (!isRecord(settings)) {
+  if (!isStoredSettingsRecord(settings)) {
     return DEFAULT_GRAPHICS_SETTINGS;
   }
 
@@ -210,31 +209,31 @@ function normalizeGraphicsSettings(settings: unknown): GraphicsSettings {
       settings.resolutionCap,
       presetDefaults.resolutionCap,
     ),
-    antialias: normalizeBooleanSetting(
+    antialias: normalizeStoredBoolean(
       settings.antialias,
       presetDefaults.antialias,
     ),
-    autoDensity: normalizeBooleanSetting(
+    autoDensity: normalizeStoredBoolean(
       settings.autoDensity,
       presetDefaults.autoDensity,
     ),
-    clearBeforeRender: normalizeBooleanSetting(
+    clearBeforeRender: normalizeStoredBoolean(
       settings.clearBeforeRender,
       presetDefaults.clearBeforeRender,
     ),
-    preserveDrawingBuffer: normalizeBooleanSetting(
+    preserveDrawingBuffer: normalizeStoredBoolean(
       settings.preserveDrawingBuffer,
       presetDefaults.preserveDrawingBuffer,
     ),
-    premultipliedAlpha: normalizeBooleanSetting(
+    premultipliedAlpha: normalizeStoredBoolean(
       settings.premultipliedAlpha,
       presetDefaults.premultipliedAlpha,
     ),
-    showTerrainBackgrounds: normalizeBooleanSetting(
+    showTerrainBackgrounds: normalizeStoredBoolean(
       settings.showTerrainBackgrounds,
       presetDefaults.showTerrainBackgrounds,
     ),
-    useContextAlpha: normalizeBooleanSetting(
+    useContextAlpha: normalizeStoredBoolean(
       settings.useContextAlpha,
       presetDefaults.useContextAlpha,
     ),
@@ -244,10 +243,6 @@ function normalizeGraphicsSettings(settings: unknown): GraphicsSettings {
     preset: deriveGraphicsPreset(normalizedSettings),
     ...normalizedSettings,
   };
-}
-
-function normalizeBooleanSetting(value: unknown, fallback: boolean) {
-  return typeof value === 'boolean' ? value : fallback;
 }
 
 function normalizeResolutionCap(
@@ -297,6 +292,6 @@ function graphicsSettingsEqual(
   );
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
+function clearLegacyGraphicsSettings() {
+  window.localStorage.removeItem(LEGACY_GRAPHICS_SETTINGS_STORAGE_KEY);
 }

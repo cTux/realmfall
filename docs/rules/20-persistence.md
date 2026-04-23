@@ -12,4 +12,5 @@
 - Track gameplay persistence dirtiness separately from UI layout, window-visibility, and filter persistence dirtiness when that keeps narrow UI-only changes from rebuilding full gameplay snapshots.
 - If gameplay and UI persistence share one stored payload, keep their serialization, dirty detection, or snapshot assembly paths narrow enough that UI-only changes do not force avoidable gameplay snapshot rebuilds.
 - Keep `src/app/App/useAppPersistence.ts` focused on hydration and current-input wiring. Extract autosave scheduling, snapshot assembly, and similar single-purpose save helpers into local modules under `src/app/App/persistence/` instead of growing one broad persistence hook.
+- Keep graphics, audio, and world-map settings on one shared browser storage helper such as `src/app/settingsSectionStore.ts`, with module-specific normalization left in the owning settings file instead of repeating the same guarded load/save/clear sequence in every settings module.
 - Avoid rewriting identical save payloads when no persisted state meaningfully changed.
