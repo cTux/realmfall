@@ -5,37 +5,12 @@ import type { GameState, HexCoord } from '../../../game/stateTypes';
 import { getWorldTimeMinutesFromTimestamp } from '../../../game/worldTime';
 import { getWorldIconTextureVersion } from '../../../ui/world/worldIcons';
 import { sameCoord } from '../usePixiWorldHover';
+import type { WorldRenderSnapshot } from './worldRenderSnapshot';
 
 type RenderScene = typeof import('../../../ui/world/renderScene').renderScene;
 
-export interface WorldRenderSnapshot {
-  game: GameState | null;
-  visibleTiles: ReturnType<typeof getVisibleTiles> | null;
-  selected: HexCoord | null;
-  hoveredMove: HexCoord | null;
-  hoveredSafePath: HexCoord[] | null;
-  animationBucket: number;
-  invalidationToken: number;
-  iconTextureVersion: number;
-  showTerrainBackgrounds: boolean;
-}
-
 const WORLD_ANIMATION_FPS = 30;
 const WORLD_ANIMATION_FRAME_MS = 1000 / WORLD_ANIMATION_FPS;
-
-export function createWorldRenderSnapshot(): WorldRenderSnapshot {
-  return {
-    game: null,
-    visibleTiles: null,
-    selected: null,
-    hoveredMove: null,
-    hoveredSafePath: null,
-    animationBucket: -1,
-    invalidationToken: 0,
-    iconTextureVersion: getWorldIconTextureVersion(),
-    showTerrainBackgrounds: true,
-  };
-}
 
 export function createWorldRenderFrame({
   app,

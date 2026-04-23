@@ -17,10 +17,8 @@ vi.mock('../../../ui/world/worldIcons', () => ({
   getWorldIconTextureVersion,
 }));
 
-import {
-  createWorldRenderFrame,
-  createWorldRenderSnapshot,
-} from './pixiWorldRenderLoop';
+import { createWorldRenderFrame } from './pixiWorldRenderLoop';
+import { createInitialWorldRenderSnapshot } from './worldRenderSnapshot';
 
 describe('pixiWorldRenderLoop', () => {
   it('re-renders when world icon textures finish loading after the first frame', () => {
@@ -44,7 +42,7 @@ describe('pixiWorldRenderLoop', () => {
       pausedAnimationMsRef: { current: null },
       worldTimeMsRef: { current: 0 },
       renderInvalidationRef: { current: 0 },
-      lastRenderSnapshotRef: { current: createWorldRenderSnapshot() },
+      lastRenderSnapshotRef: { current: createInitialWorldRenderSnapshot() },
     });
 
     renderFrame();
@@ -80,7 +78,7 @@ describe('pixiWorldRenderLoop', () => {
       pausedAnimationMsRef: { current: null },
       worldTimeMsRef: { current: 0 },
       renderInvalidationRef: { current: 0 },
-      lastRenderSnapshotRef: { current: createWorldRenderSnapshot() },
+      lastRenderSnapshotRef: { current: createInitialWorldRenderSnapshot() },
     });
 
     renderFrame();

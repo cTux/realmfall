@@ -23,9 +23,9 @@ import {
 } from './usePixiWorldHover';
 import type { WorldMapDragState } from './world/pixiWorldInteractions';
 import {
-  createWorldRenderSnapshot,
+  createInitialWorldRenderSnapshot,
   type WorldRenderSnapshot,
-} from './world/pixiWorldRenderLoop';
+} from './world/worldRenderSnapshot';
 import { attachPixiWorldTickerVisibilityPause } from './world/pixiWorldTickerVisibility';
 
 interface UsePixiWorldArgs {
@@ -65,7 +65,7 @@ export function usePixiWorld({
   const appRef = useRef<Application | null>(null);
   const worldTooltipKeyRef = useRef<string | null>(null);
   const playerCoordRef = useRef(game.player.coord);
-  const visibleTilesRef = useRef(getVisibleTiles(game));
+  const visibleTilesRef = useLazyRef(() => getVisibleTiles(game));
   const hoverPointerRef = useRef<{ clientX: number; clientY: number } | null>(
     null,
   );
@@ -78,11 +78,13 @@ export function usePixiWorld({
   const selectedRef = useRef(game.player.coord);
   const hoveredMoveRef = useRef<HexCoord | null>(null);
   const hoveredSafePathRef = useRef<HexCoord[] | null>(null);
-  const hoverAnalysisCacheRef = useRef(new Map<string, WorldHoverSnapshot>());
-  const hoverSnapshotRef = useRef(createEmptyWorldHoverSnapshot());
+  const hoverAnalysisCacheRef = useLazyRef(
+    () => new Map<string, WorldHoverSnapshot>(),
+  );
+  const hoverSnapshotRef = useLazyRef(createEmptyWorldHoverSnapshot);
   const showTerrainBackgroundsRef = useRef(showTerrainBackgrounds);
-  const lastRenderSnapshotRef = useRef<WorldRenderSnapshot>(
-    createWorldRenderSnapshot(),
+  const lastRenderSnapshotRef = useLazyRef<WorldRenderSnapshot>(
+    createInitialWorldRenderSnapshot,
   );
   const renderInvalidationRef = useRef(0);
   const [canvasReady, setCanvasReady] = useState(false);
@@ -143,7 +145,7 @@ export function usePixiWorld({
 
     let disposed = false;
     let cleanup: (() => void) | null = null;
-    lastRenderSnapshotRef.current = createWorldRenderSnapshot();
+    lastRenderSnapshotRef.current = createInitialWorldRenderSnapshot();
 
     void Promise.all([
       import('./world/pixiWorldCamera'),
@@ -336,4 +338,14 @@ export function usePixiWorld({
   ]);
 
   return { hostRef, canvasReady };
+}
+
+function useLazyRef<T>(createValue: () => T): MutableRefObject<T> {
+  const ref = useRef<T | null>(null);
+
+  if (ref.current === null) {
+    ref.current = createValue();
+  }
+
+  return ref as MutableRefObject<T>;
 }
