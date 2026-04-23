@@ -1,5 +1,6 @@
 import { LOG_KINDS, type Item, type LogKind } from '../game/stateTypes';
 import {
+  createDefaultWindowPositions,
   DEFAULT_LOG_FILTERS,
   DEFAULT_WINDOWS,
   DEFAULT_WINDOW_VISIBILITY,
@@ -28,7 +29,7 @@ export function normalizePersistedUiState(
       actionBarSlots: Array.from({ length: 9 }, () => null),
       logFilters: DEFAULT_LOG_FILTERS,
       windowShown: DEFAULT_WINDOW_VISIBILITY,
-      windows: DEFAULT_WINDOWS,
+      windows: createDefaultWindowPositions(),
     };
   }
 
@@ -86,21 +87,15 @@ function normalizeWindowVisibility(value: unknown): WindowVisibilityState {
 
 function normalizeWindowPositions(value: unknown): WindowPositions {
   if (!isRecord(value)) {
-    return DEFAULT_WINDOWS;
+    return createDefaultWindowPositions();
   }
 
-  return {
-    hero: normalizeWindowPosition(value.hero, 'hero'),
-    skills: normalizeWindowPosition(value.skills, 'skills'),
-    recipes: normalizeWindowPosition(value.recipes, 'recipes'),
-    hexInfo: normalizeWindowPosition(value.hexInfo, 'hexInfo'),
-    equipment: normalizeWindowPosition(value.equipment, 'equipment'),
-    inventory: normalizeWindowPosition(value.inventory, 'inventory'),
-    loot: normalizeWindowPosition(value.loot, 'loot'),
-    log: normalizeWindowPosition(value.log, 'log'),
-    combat: normalizeWindowPosition(value.combat, 'combat'),
-    settings: normalizeWindowPosition(value.settings, 'settings'),
-  };
+  return Object.fromEntries(
+    WINDOW_VISIBILITY_KEYS.map((key) => [
+      key,
+      normalizeWindowPosition(value[key], key),
+    ]),
+  ) as WindowPositions;
 }
 
 function normalizeWindowPosition(

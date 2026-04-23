@@ -5,7 +5,7 @@ import {
 } from './appDeferredWindowRegistry';
 
 describe('app deferred window registry', () => {
-  it('keeps one canonical deferred window order', () => {
+  it('derives one canonical deferred window order from the window registry', () => {
     expect(APP_DEFERRED_WINDOW_KEYS).toEqual([
       'skills',
       'recipes',

@@ -1,33 +1,40 @@
 import type { AppWindowsLayout } from '../AppWindows.types';
 import {
-  DEFERRED_WINDOW_KEYS,
-  type DeferredWindowKey,
-  type ManagedWindowKey,
-} from './windowKeys';
+  WINDOW_REGISTRY,
+  WINDOW_VISIBILITY_KEYS,
+  type WindowKey,
+} from '../../constants';
 
 export function createManagedMountedWindowState(
   windowShown: AppWindowsLayout['windowShown'],
   keepLootWindowMounted: boolean,
   keepCombatWindowMounted: boolean,
 ) {
-  return {
-    hero: windowShown.hero,
-    skills: windowShown.skills,
-    recipes: windowShown.recipes,
-    hexInfo: windowShown.hexInfo,
-    equipment: windowShown.equipment,
-    inventory: windowShown.inventory,
-    loot: keepLootWindowMounted,
-    log: windowShown.log,
-    combat: keepCombatWindowMounted,
-    settings: windowShown.settings,
-  } satisfies Record<ManagedWindowKey, boolean>;
+  return Object.fromEntries(
+    WINDOW_VISIBILITY_KEYS.map((key) => [
+      key,
+      resolveMountedWindowValue(
+        key,
+        windowShown,
+        keepLootWindowMounted,
+        keepCombatWindowMounted,
+      ),
+    ]),
+  ) as Record<WindowKey, boolean>;
 }
 
-export function pickDeferredMountedWindowState(
-  managedWindowState: Record<ManagedWindowKey, boolean>,
+function resolveMountedWindowValue(
+  key: WindowKey,
+  windowShown: AppWindowsLayout['windowShown'],
+  keepLootWindowMounted: boolean,
+  keepCombatWindowMounted: boolean,
 ) {
-  return Object.fromEntries(
-    DEFERRED_WINDOW_KEYS.map((key) => [key, managedWindowState[key]]),
-  ) as Record<DeferredWindowKey, boolean>;
+  switch (WINDOW_REGISTRY[key].mountSource) {
+    case 'lootTransition':
+      return keepLootWindowMounted;
+    case 'combatTransition':
+      return keepCombatWindowMounted;
+    default:
+      return windowShown[key];
+  }
 }

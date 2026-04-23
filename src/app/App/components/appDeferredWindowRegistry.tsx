@@ -1,23 +1,17 @@
 import type { ComponentType, ReactElement } from 'react';
 import { t } from '../../../i18n';
 import { createLazyWindowComponent } from '../../../ui/components/lazyWindowComponent';
-import { DEFAULT_LOG_FILTERS } from '../../constants';
+import {
+  DEFAULT_LOG_FILTERS,
+  WINDOW_COMPONENT_DEFERRED_KEYS,
+  type AppDeferredWindowKey,
+} from '../../constants';
 import type {
   AppWindowsActions,
   AppWindowsViewState,
 } from '../AppWindows.types';
 
-export const APP_DEFERRED_WINDOW_KEYS = [
-  'skills',
-  'recipes',
-  'hexInfo',
-  'equipment',
-  'inventory',
-  'log',
-  'settings',
-] as const;
-
-type AppDeferredWindowKey = (typeof APP_DEFERRED_WINDOW_KEYS)[number];
+export const APP_DEFERRED_WINDOW_KEYS = WINDOW_COMPONENT_DEFERRED_KEYS;
 
 interface DetailTooltipHandlers {
   onHoverDetail: AppWindowsActions['tooltip']['onShowTooltip'];

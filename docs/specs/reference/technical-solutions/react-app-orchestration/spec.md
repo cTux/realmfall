@@ -15,7 +15,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `useAppGameView` computes the current tile, filtered logs, town stock, recipe visibility, claim status, the player overview snapshot, and other UI-ready derived values.
 - This keeps presentational components mostly declarative.
 - Combat-facing systems and effects that only need survivability or speed values read `getPlayerCombatStats` instead of routing through the broader hero overview helper.
-- Shared window-key lists and small record builders back window visibility resets, dock composition, log-filter defaults, and recipe skill-level derivation so app wiring does not repeat the same key inventory in multiple modules.
+- A canonical window registry backs window visibility resets, default positions, dock composition, deferred-window order, mounted-window derivation, and persistence normalization so app wiring does not repeat the same window inventory in multiple modules.
 - `useAppGameView` keeps selector dependencies scoped to the gameplay slices each derived view actually reads, using narrow selector inputs instead of force-casting partial objects to `GameState`, so unrelated root-state clones do not invalidate every memoized view model together.
 - Production modules under `src/app` and `src/ui` route gameplay types, selectors, and builders through focused modules such as `src/game/stateTypes.ts`, `src/game/stateSelectors.ts`, `src/game/stateFactory.ts`, `src/game/stateCombat.ts`, and `src/game/stateWorldActions.ts` instead of treating `src/game/state.ts` as the default import path.
 - `AppWindows` owns the dock-entry composition, stable move and close handler maps, and narrow window-specific view models so `App.tsx` does not keep expanding as the desktop window surface grows.
@@ -25,7 +25,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Window view hooks return the shared final view shape directly; presentation-only labels such as the hex claim action copy are derived at the window composition site instead of flowing through separate raw and enriched window-view types.
 - Focused hooks under `src/app/App/hooks` keep `AppWindows` centered on composition by separating deferred-window bookkeeping, stable handler maps, and memoized window-specific view models.
 - `useManagedWindowProps` builds the shared `position`, `onMove`, `visible`, and `onClose` prop map for managed windows so fixed and deferred window composition does not repeat the same shell wiring at every render site.
-- Managed-window and deferred-window mount visibility derive from a shared helper in `src/app/App/hooks/mountedWindowState.ts`, so window-key additions update one source of truth before both hooks consume the result.
+- Managed-window mount visibility derives from a shared helper in `src/app/App/hooks/mountedWindowState.ts`, keyed off the canonical window registry so window additions update one source of truth before persistence, dock composition, and mounted-state consumers consume the new key.
 - Broad player snapshots exposed to windows use `heroOverview` and `overview` naming so level, XP, skills, buffs, debuffs, and ability ids are not mislabeled as narrow stats payloads.
 - Fixed and deferred window composition receives narrow view and action slices instead of the full `AppWindowsProps` object, keeping unrelated window surfaces from rerendering together when one subtree changes.
 - `AppDeferredWindows` renders mounted deferred windows from a shared registry that owns the canonical window order, lazy module declarations, mounted-window filtering, and per-window prop mapping, so adding a deferred window does not require another hand-written `mountedWindows.* ? <Suspense>` branch in the app shell.
@@ -87,7 +87,6 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `src/app/App/hooks/useAppWindowsProps.ts`
 - `src/app/App/hooks/useAppWindowHandlers.ts`
 - `src/app/App/hooks/mountedWindowState.ts`
-- `src/app/App/hooks/useDeferredWindows.ts`
 - `src/app/App/hooks/useHexInfoView.ts`
 - `src/app/App/hooks/useRecipeWindowStructure.ts`
 - `src/app/App/hooks/useCombatPlayerParty.ts`
