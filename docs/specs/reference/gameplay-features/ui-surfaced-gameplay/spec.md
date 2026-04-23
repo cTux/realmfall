@@ -49,6 +49,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - The canvas renderer now shows a fullscreen red warning effect when the player's HP drops below `30%`, and the warning clears once HP reaches `30%` or higher.
 - Logs provide system, movement, combat, loot, and other gameplay feedback.
 - Combat log entries render with white baseline copy, color damage red and healing green, tint enemy names by rarity, and surface hoverable inline source chips with icons and combat tooltips for logged combat sources.
+- Combat log attack entries now call out critical hits, evaded or blocked attacks, suppressed damage, defended-against hits, and healing sourced from abilities or lifesteal so the full combat resolution is readable from the log alone.
 - The newest log row renders immediately and the log list stays pinned to the bottom when new entries arrive, so the active message does not linger on a partial fragment.
 - Filtered log viewing is part of the current gameplay readability loop.
 - Large recipe lists reveal additional rows in explicit batches instead of mounting the whole matching catalog at once.

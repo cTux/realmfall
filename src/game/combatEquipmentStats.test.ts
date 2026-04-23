@@ -254,7 +254,7 @@ describe('combat equipment stats', () => {
       }).game,
     );
     const dodged = findCombatResult(
-      (result) => result.logs.some((entry) => /dodge/i.test(entry.text)),
+      (result) => result.logs.some((entry) => /evade/i.test(entry.text)),
       {
         playerEquipment: [makeStatItem('offhand', [['dodgeChance', 100]])],
         playerAbilityIds: ['kick'],
@@ -263,7 +263,7 @@ describe('combat equipment stats', () => {
       },
     );
     const blocked = findCombatResult(
-      (result) => result.logs.some((entry) => /block/i.test(entry.text)),
+      (result) => result.logs.some((entry) => /blocked/i.test(entry.text)),
       {
         playerEquipment: [makeStatItem('offhand', [['blockChance', 100]])],
         playerAbilityIds: ['kick'],
@@ -272,7 +272,8 @@ describe('combat equipment stats', () => {
       },
     );
     const suppressed = findCombatResult(
-      (result) => result.logs.some((entry) => /suppress/i.test(entry.text)),
+      (result) =>
+        result.logs.some((entry) => /suppressed damage from/i.test(entry.text)),
       {
         playerEquipment: [
           makeStatItem('offhand', [
@@ -290,14 +291,18 @@ describe('combat equipment stats', () => {
     expect(dodged.player.hp).toBeGreaterThanOrEqual(baseline.player.hp);
     expect(blocked.player.hp).toBeGreaterThanOrEqual(baseline.player.hp);
     expect(suppressed.player.hp).toBeGreaterThan(baseline.player.hp);
-    expect(dodged.logs.some((entry) => /dodge/i.test(entry.text))).toBe(true);
-    expect(blocked.logs.some((entry) => /block/i.test(entry.text))).toBe(true);
-    expect(suppressed.logs.some((entry) => /suppress/i.test(entry.text))).toBe(
+    expect(dodged.logs.some((entry) => /evade/i.test(entry.text))).toBe(true);
+    expect(blocked.logs.some((entry) => /blocked/i.test(entry.text))).toBe(
       true,
     );
+    expect(
+      suppressed.logs.some((entry) =>
+        /suppressed damage from/i.test(entry.text),
+      ),
+    ).toBe(true);
   });
 
-  it('logs fully absorbed enemy hits instead of 0 damage', () => {
+  it('logs defended-against enemy hits instead of 0 damage', () => {
     const absorbed = startCombat(
       prepareCombat({
         playerEquipment: [makeEquipmentItem('offhand', { defense: 40 })],
@@ -309,11 +314,57 @@ describe('combat equipment stats', () => {
 
     expect(absorbed.player.hp).toBe(getPlayerStats(absorbed.player).maxHp);
     expect(
-      absorbed.logs.some((entry) => /fully absorb/i.test(entry.text)),
+      absorbed.logs.some((entry) => /defended against/i.test(entry.text)),
     ).toBe(true);
     expect(absorbed.logs.some((entry) => /for 0\b/i.test(entry.text))).toBe(
       false,
     );
+  });
+
+  it('logs critical hits and lifesteal healing with combat sources', () => {
+    const resolved = startCombat(
+      prepareCombat({
+        playerEquipment: [
+          makeStatItem('offhand', [
+            ['criticalStrikeChance', 100],
+            ['criticalStrikeDamage', 100],
+            ['lifestealChance', 100],
+            ['lifestealAmount', 10],
+          ]),
+        ],
+        playerHp: 20,
+        enemyReady: false,
+        enemyDefense: 0,
+        enemyHp: 200,
+      }).game,
+    );
+
+    const criticalHitLog = resolved.logs.find((entry) =>
+      /critically hit/i.test(entry.text),
+    );
+    const lifestealLog = resolved.logs.find((entry) =>
+      /healed for/i.test(entry.text),
+    );
+
+    expect(
+      criticalHitLog?.richText?.some((segment) => segment.kind === 'entity'),
+    ).toBe(true);
+    expect(
+      criticalHitLog?.richText?.some(
+        (segment) =>
+          segment.kind === 'source' &&
+          segment.source.kind === 'ability' &&
+          segment.source.abilityId === 'kick',
+      ),
+    ).toBe(true);
+    expect(
+      lifestealLog?.richText?.some(
+        (segment) =>
+          segment.kind === 'source' &&
+          segment.source.kind === 'secondaryStat' &&
+          segment.source.stat === 'lifestealAmount',
+      ),
+    ).toBe(true);
   });
 
   it('respects suppress-debuff gear stats against hostile abilities', () => {

@@ -1,7 +1,17 @@
 import { t } from '../i18n';
-import { formatAbilityLabel, formatStatusEffectLabel } from '../i18n/labels';
+import {
+  formatAbilityLabel,
+  formatSecondaryStatLabel,
+  formatStatusEffectLabel,
+} from '../i18n/labels';
 import type { DamageResolution } from './combatDamage';
-import type { AbilityId, Enemy, LogRichSegment, StatusEffectId } from './types';
+import type {
+  AbilityId,
+  Enemy,
+  LogRichSegment,
+  SecondaryStatKey,
+  StatusEffectId,
+} from './types';
 
 export function formatPlayerDamageLog(
   enemyName: string,
@@ -53,6 +63,9 @@ export function formatPlayerDamageLog(
       ability: formatAbilityLabel(abilityId),
       enemy: enemyName,
       damage: damageResolution.damage,
+      critically: damageResolution.critical
+        ? `${t('game.message.combat.criticalAdverb')} `
+        : '',
     },
   );
 }
@@ -119,8 +132,21 @@ export function formatEnemyDamageLog(
       ability: formatAbilityLabel(abilityId),
       enemy: enemyName,
       damage: damageResolution.damage,
+      critically: damageResolution.critical
+        ? `${t('game.message.combat.criticalAdverb')} `
+        : '',
     },
   );
+}
+
+export function formatPlayerStatHealLog(
+  stat: SecondaryStatKey,
+  amount: number,
+) {
+  return t('game.message.combat.playerStatHeal', {
+    amount,
+    stat: formatSecondaryStatLabel(stat),
+  });
 }
 
 export function formatSuppressedEnemyDebuffLog(
@@ -163,16 +189,18 @@ export function playerDamageRichText(
     case 'absorbed':
       return [
         combatEntityName(enemy),
-        textSegment(' fully absorbs '),
+        textSegment(' defended against '),
         source,
         textSegment('.'),
       ];
     default:
       return [
-        textSegment('You deal '),
-        damageSegment(damageResolution.damage),
-        textSegment(' to '),
+        textSegment(
+          damageResolution.critical ? 'You critically hit ' : 'You deal ',
+        ),
         combatEntityName(enemy),
+        textSegment(' for '),
+        damageSegment(damageResolution.damage),
         textSegment(' with '),
         source,
         textSegment('.'),
@@ -191,7 +219,7 @@ export function enemyDamageRichText(
   switch (damageResolution.outcome) {
     case 'dodged':
       return [
-        textSegment('You dodge '),
+        textSegment('You evade '),
         source,
         textSegment(' from '),
         combatEntityName(enemy),
@@ -199,7 +227,7 @@ export function enemyDamageRichText(
       ];
     case 'blocked':
       return [
-        textSegment('You block '),
+        textSegment('You blocked '),
         source,
         textSegment(' from '),
         combatEntityName(enemy),
@@ -207,16 +235,17 @@ export function enemyDamageRichText(
       ];
     case 'suppressed':
       return [
-        combatEntityName(enemy),
-        textSegment(' deals '),
-        damageSegment(damageResolution.damage),
-        textSegment(' to you with '),
+        textSegment('You suppressed damage from '),
         source,
-        textSegment(' after suppression.'),
+        textSegment(' used by '),
+        combatEntityName(enemy),
+        textSegment(' and take '),
+        damageSegment(damageResolution.damage),
+        textSegment('.'),
       ];
     case 'absorbed':
       return [
-        textSegment('You fully absorb '),
+        textSegment('You defended against '),
         source,
         textSegment(' from '),
         combatEntityName(enemy),
@@ -225,9 +254,11 @@ export function enemyDamageRichText(
     default:
       return [
         combatEntityName(enemy),
-        textSegment(' deals '),
+        textSegment(
+          damageResolution.critical ? ' critically hits you for ' : ' deals ',
+        ),
         damageSegment(damageResolution.damage),
-        textSegment(' to you with '),
+        textSegment(damageResolution.critical ? ' with ' : ' to you with '),
         source,
         textSegment('.'),
       ];
@@ -235,15 +266,20 @@ export function enemyDamageRichText(
 }
 
 export function playerHealRichText(
-  abilityId: AbilityId,
+  source:
+    | { kind: 'ability'; abilityId: AbilityId; attack?: number }
+    | { kind: 'secondaryStat'; stat: SecondaryStatKey; text?: string },
   amount: number,
-  attack?: number,
 ) {
+  const sourceSegment =
+    source.kind === 'ability'
+      ? abilitySourceSegment(source.abilityId, source.attack)
+      : secondaryStatSourceSegment(source.stat, source.text);
   return [
-    textSegment('You restore '),
+    textSegment('You are healed for '),
     healingSegment(amount),
-    textSegment(' with '),
-    abilitySourceSegment(abilityId, attack),
+    textSegment(source.kind === 'ability' ? ' with ' : ' through '),
+    sourceSegment,
     textSegment('.'),
   ];
 }
@@ -256,7 +292,7 @@ export function enemyHealRichText(
 ) {
   return [
     combatEntityName(enemy),
-    textSegment(' restores '),
+    textSegment(' is healed for '),
     healingSegment(amount),
     textSegment(' with '),
     abilitySourceSegment(abilityId, attack),
@@ -333,10 +369,6 @@ function textSegment(text: string): LogRichSegment {
   return { kind: 'text', text };
 }
 
-function entitySegment(text: string, rarity?: Enemy['rarity']): LogRichSegment {
-  return { kind: 'entity', text, rarity };
-}
-
 function damageSegment(damage: number): LogRichSegment {
   return { kind: 'damage', text: `${damage}` };
 }
@@ -356,6 +388,20 @@ function abilitySourceSegment(
       kind: 'ability',
       abilityId,
       attack,
+    },
+  };
+}
+
+function secondaryStatSourceSegment(
+  stat: SecondaryStatKey,
+  text = formatSecondaryStatLabel(stat),
+): LogRichSegment {
+  return {
+    kind: 'source',
+    text,
+    source: {
+      kind: 'secondaryStat',
+      stat,
     },
   };
 }
@@ -384,5 +430,13 @@ function statusEffectSourceSegment(
 }
 
 function combatEntityName(enemy: Enemy) {
-  return entitySegment(enemy.name, enemy.rarity ?? 'common');
+  return entitySegment(enemy.name, enemy.rarity ?? 'common', enemy);
+}
+
+function entitySegment(
+  text: string,
+  rarity?: Enemy['rarity'],
+  enemy?: Enemy,
+): LogRichSegment {
+  return { kind: 'entity', text, rarity, enemy };
 }

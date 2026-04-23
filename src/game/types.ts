@@ -363,7 +363,7 @@ export interface LogEntry {
 
 export type LogRichSegment =
   | { kind: 'text'; text: string }
-  | { kind: 'entity'; text: string; rarity?: EnemyRarity }
+  | { kind: 'entity'; text: string; rarity?: EnemyRarity; enemy?: Enemy }
   | { kind: 'damage'; text: string }
   | { kind: 'healing'; text: string }
   | {
@@ -382,6 +382,10 @@ export type LogRichSegment =
             value?: number;
             tickIntervalMs?: number;
             stacks?: number;
+          }
+        | {
+            kind: 'secondaryStat';
+            stat: SecondaryStatKey;
           };
     };
 

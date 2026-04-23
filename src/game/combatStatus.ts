@@ -72,14 +72,14 @@ export function applyLifesteal(
   playerStats: ReturnType<typeof getPlayerStats>,
 ) {
   const lifestealChance = playerStats.lifestealChance ?? 0;
-  if (lifestealChance <= 0) return;
+  if (lifestealChance <= 0) return 0;
 
   const procCount = resolveCombatProcCount(
     state,
     'player:lifesteal',
     lifestealChance,
   );
-  if (procCount <= 0) return;
+  if (procCount <= 0) return 0;
 
   const healPerProc = Math.max(
     1,
@@ -88,12 +88,17 @@ export function applyLifesteal(
         ((playerStats.lifestealAmount ?? 0) / 100),
     ),
   );
-  if (damage <= 0 || healPerProc <= 0) return;
+  if (damage <= 0 || healPerProc <= 0) return 0;
 
-  state.player.hp = Math.min(
-    getPlayerStats(state.player).maxHp,
-    state.player.hp + healPerProc * procCount,
+  const healed = Math.max(
+    0,
+    Math.min(
+      getPlayerStats(state.player).maxHp - state.player.hp,
+      healPerProc * procCount,
+    ),
   );
+  state.player.hp += healed;
+  return healed;
 }
 
 export function applyPlayerOnHitEffects(

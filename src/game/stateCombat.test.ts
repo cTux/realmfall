@@ -196,7 +196,7 @@ describe('game state combat flow', () => {
     expect(secondCastTooEarly.enemies['enemy-2,0-0']?.hp).toBe(150);
     expect(
       secondCastTooEarly.logs.filter((entry) =>
-        /you kick the/i.test(entry.text),
+        /you .*hit the/i.test(entry.text),
       ),
     ).toHaveLength(1);
 
@@ -603,7 +603,7 @@ describe('game state combat flow', () => {
     expect(resolvedRound.combat?.enemyIds).toHaveLength(2);
     expect(
       resolvedRound.logs.filter((entry) =>
-        /the wolf kicks you/i.test(entry.text),
+        /the wolf .*hits you/i.test(entry.text),
       ),
     ).toHaveLength(2);
     expect(resolvedRound.player.hp).toBeLessThan(
