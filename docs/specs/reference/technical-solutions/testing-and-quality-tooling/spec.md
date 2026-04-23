@@ -35,6 +35,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - The pull-request workflow reports startup delivery budgets through `pnpm build:budget`, which runs a production build, reads the Vite manifest, and warns if the bootstrap graph or its key chunks grow past the current thresholds without failing the build.
 - Dependency-duplication auditing runs through `pnpm build:duplicate-deps`, which enables the duplicate-deps Vite plugin only for explicit audits instead of adding that analysis cost to every production build.
 - Interactive bundle treemap auditing runs through `pnpm build:visualize`, which enables `rollup-plugin-visualizer` only for explicit audits and writes the HTML report to `.tests/bundle/visualizer.html`.
+- `vite.config.ts` stays as the top-level assembly file, while chunk routing, localhost HTTPS certificate management, plugin wiring, and Vitest project definitions live in focused `vite/chunks.ts`, `vite/https.ts`, `vite/plugins.ts`, and `vite/testProjects.ts` helpers.
 - The shared Vite build runner filters the known Rolldown plugin-timing warnings for `vite:asset`, the explicit duplicate-deps audit plugin, and the explicit visualizer audit plugin so routine builds stay focused on actionable failures while unexpected plugin timing warnings remain visible.
 - JSON assets that participate in startup budgets, including the bootstrap locale bundle, are committed with LF line endings so emitted asset sizes remain stable across platforms.
 - Vite keeps the gameplay runtime under an explicit `state` manual chunk so the bootstrap graph and budget checks do not drift when Rolldown would otherwise rename that shared chunk based on a smaller helper module.
@@ -87,3 +88,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - `.github/workflows/pull-request.yml`
 - `scripts/vitest-cache/*.mjs`
 - `vite.config.ts`
+- `vite/chunks.ts`
+- `vite/https.ts`
+- `vite/plugins.ts`
+- `vite/testProjects.ts`
