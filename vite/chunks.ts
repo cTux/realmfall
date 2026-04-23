@@ -1,5 +1,32 @@
 const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'avif'];
 const FONT_EXTENSIONS = ['woff', 'woff2', 'ttf', 'otf', 'eot'];
+const LAZY_DOMAIN_CHUNK_PREFIXES = ['background-audio', 'pixi'];
+
+function getBaseFileName(fileName: string) {
+  return fileName.replace(/\\/g, '/').split('/').pop() ?? fileName;
+}
+
+function isLazyDomainChunk(fileName: string) {
+  const baseFileName = getBaseFileName(fileName);
+
+  return LAZY_DOMAIN_CHUNK_PREFIXES.some((prefix) =>
+    baseFileName.startsWith(`${prefix}-`),
+  );
+}
+
+function getBuildRuntimeChunk(id: string) {
+  const normalizedId = id.replace(/\\/g, '/');
+
+  if (
+    normalizedId.includes('vite/preload-helper') ||
+    normalizedId.includes('vite/modulepreload-polyfill') ||
+    normalizedId.includes('rolldown/runtime')
+  ) {
+    return 'build-runtime';
+  }
+
+  return undefined;
+}
 
 export const CHUNK_SIZE_WARNING_LIMIT_KB = 560;
 
@@ -21,10 +48,11 @@ function getVendorChunk(id: string) {
     return 'audio-ui';
   }
 
-  if (
-    normalizedId.includes('/node_modules/react-use-audio-player/') ||
-    normalizedId.includes('/node_modules/howler/')
-  ) {
+  if (normalizedId.includes('/node_modules/react-use-audio-player/')) {
+    return undefined;
+  }
+
+  if (normalizedId.includes('/node_modules/howler/')) {
     return 'background-audio';
   }
 
@@ -67,10 +95,21 @@ function getAppChunk(id: string) {
 }
 
 export function getManualChunk(id: string) {
-  return getVendorChunk(id) ?? getAppChunk(id);
+  return getBuildRuntimeChunk(id) ?? getVendorChunk(id) ?? getAppChunk(id);
 }
 
-export function getAssetFileName(assetInfo: { names: string[]; name?: string }) {
+export function resolveModulePreloadDependencies(
+  _filename: string,
+  deps: string[],
+  _context: { hostId: string; hostType: 'html' | 'js' },
+) {
+  return deps.filter((dep) => !isLazyDomainChunk(dep));
+}
+
+export function getAssetFileName(assetInfo: {
+  names: string[];
+  name?: string;
+}) {
   const name = assetInfo.names[0] ?? assetInfo.name ?? '';
   const extension = name.split('.').pop()?.toLowerCase() ?? '';
 
