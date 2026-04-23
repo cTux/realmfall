@@ -321,7 +321,7 @@ export function HexInfoWindowContent({
                           <ItemSlotButton
                             item={item}
                             badgeLabel={`${price}`}
-                            badgeIcon={Icons.GoldBar}
+                            badgeIcon={Icons.Coins}
                             badgeIconLabel={t('game.item.gold.name')}
                             className={
                               affordable ? undefined : styles.shopItemDisabled
