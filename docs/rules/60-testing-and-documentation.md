@@ -39,6 +39,7 @@
 
 - Keep `README.md` accurate about the current game state, package manager, and primary local commands, but keep detailed contributor workflow and rule-loading policy in canonical docs instead of duplicating them there.
 - Keep `docs/WORKFLOW.md` aligned with the actual contributor workflow, verification steps, and commit conventions, but keep recurring policy details in `docs/RULES.md` and `docs/rules/` instead of restating them there.
+- Keep `docs/specs/README.md`, `docs/implementation-notes/README.md`, and similar documentation entrypoints navigation-only. Point them back to `docs/RULES.md`, the scoped rule files, and the relevant canonical specs instead of duplicating workflow checklists or policy bullets there.
 - Keep contributor docs aligned with the current Vitest project split, including `pnpm test`, `pnpm test:node`, and `pnpm test:jsdom`, whenever test runtime boundaries change.
 - Keep `docs/WORKFLOW.md` short and process-oriented. Prefer links back to canonical rule files over repeating save-policy, CI-permission, or shell-safety rules in a second long checklist.
 - Keep technical-solution specs implementation-oriented. When a spec needs to mention commands, hooks, or CI, describe the shipped toolchain behavior and link back to `docs/WORKFLOW.md` or this rule file for contributor policy instead of duplicating full operational checklists.
@@ -52,6 +53,7 @@
 - Keep lore-sensitive guidance aligned with the canonical world reference in `docs/lore/REALMFALL.md`.
 - Keep current-system specs under `docs/specs` for implemented gameplay features and technical solutions.
 - Keep transient plans, issue workspaces, research notes, and checklists outside `docs/specs`, using `docs/implementation-notes` for that material.
+- Keep transient design briefs out of parallel trees such as `docs/superpowers/specs`. Move them into an issue or improvement workspace under `docs/implementation-notes`.
 - Do not name transient implementation-note artifacts `spec.md`. Reserve `spec` naming for canonical shipped-reference documents under `docs/specs`, and use names such as `brief.md`, `plan.md`, `research.md`, or `checklist.md` for transient note files.
 - Keep `docs/PROJECT_REVIEW.md` as a lightweight transient note only. Do not let it become a second canonical source for workflow rules, best-practice checklists, or current-system specs.
 - When a transient note captures an observation that is no longer true, update or archive it promptly instead of leaving stale warning inventories or old performance claims in active planning paths.
