@@ -1,8 +1,8 @@
 import {
-  clearStoredSettingsSection,
-  loadStoredSettingsSection,
-  saveStoredSettingsSection,
-} from './settingsStorage';
+  isStoredSettingsRecord,
+  normalizeStoredFiniteNumber,
+} from './settingsNormalization';
+import { createSettingsSectionStore } from './settingsSectionStore';
 import {
   clampWorldMapZoom,
   DEFAULT_WORLD_MAP_CAMERA,
@@ -21,27 +21,22 @@ export const DEFAULT_WORLD_MAP_SETTINGS: WorldMapSettings = {
   scale: DEFAULT_WORLD_MAP_CAMERA.zoom,
 };
 
-export function loadWorldMapSettings(): WorldMapSettings {
-  if (typeof window === 'undefined') {
-    return DEFAULT_WORLD_MAP_SETTINGS;
-  }
+const worldMapSettingsStore = createSettingsSectionStore({
+  areaId: 'worldMap',
+  defaults: DEFAULT_WORLD_MAP_SETTINGS,
+  normalize: normalizeWorldMapSettings,
+});
 
-  return normalizeWorldMapSettings(loadStoredSettingsSection('worldMap'));
+export function loadWorldMapSettings(): WorldMapSettings {
+  return worldMapSettingsStore.load();
 }
 
 export function saveWorldMapSettings(settings: WorldMapSettings) {
-  if (typeof window === 'undefined') return;
-
-  const normalizedSettings = normalizeWorldMapSettings(settings);
-  saveStoredSettingsSection(
-    'worldMap',
-    normalizedSettings as unknown as Record<string, unknown>,
-  );
+  worldMapSettingsStore.save(settings);
 }
 
 export function clearWorldMapSettings() {
-  if (typeof window === 'undefined') return;
-  clearStoredSettingsSection('worldMap');
+  worldMapSettingsStore.clear();
 }
 
 export function worldMapCameraToSettings(
@@ -65,30 +60,24 @@ export function worldMapSettingsToCamera(
 }
 
 function normalizeWorldMapSettings(settings: unknown): WorldMapSettings {
-  if (!isRecord(settings)) {
+  if (!isStoredSettingsRecord(settings)) {
     return DEFAULT_WORLD_MAP_SETTINGS;
   }
 
   return {
-    offsetX: normalizeFiniteNumber(
+    offsetX: normalizeStoredFiniteNumber(
       settings.offsetX,
       DEFAULT_WORLD_MAP_SETTINGS.offsetX,
     ),
-    offsetY: normalizeFiniteNumber(
+    offsetY: normalizeStoredFiniteNumber(
       settings.offsetY,
       DEFAULT_WORLD_MAP_SETTINGS.offsetY,
     ),
-    scale:
-      typeof settings.scale === 'number' && Number.isFinite(settings.scale)
-        ? clampWorldMapZoom(settings.scale)
-        : DEFAULT_WORLD_MAP_SETTINGS.scale,
+    scale: clampWorldMapZoom(
+      normalizeStoredFiniteNumber(
+        settings.scale,
+        DEFAULT_WORLD_MAP_SETTINGS.scale,
+      ),
+    ),
   };
-}
-
-function normalizeFiniteNumber(value: unknown, fallback: number) {
-  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
 }

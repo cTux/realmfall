@@ -18,7 +18,7 @@ This spec covers the desktop-style game settings window, its dock and hotkey acc
 - The mute toggle and master volume apply to background music, synthesized UI audio, and gameplay voice playback, the music-only mute toggle affects only background music, and the sound-effect toggles and Tiks theme remain scoped to synthesized interface sounds.
 - UI audio waits for a user activation before initializing the audio engine, then applies the saved audio settings to document-wide hover, click, toggle, range, tab, and window interaction sounds.
 - Gameplay voice playback waits for a user activation before playing, uses the selected actor and enabled event list, and stops any active voice clip immediately when mute or reduced-motion muting becomes active, including OS or browser reduced-motion preference changes that occur mid-playback.
-- Graphics, audio, and world-map settings each persist in their own dedicated plain `localStorage` area outside the encrypted save areas so startup can read renderer-init flags before game and renderer initialization begins.
+- Graphics, audio, and world-map settings each persist in their own dedicated plain `localStorage` area outside the encrypted save areas, and the three settings modules reuse one shared browser-storage helper so startup can read renderer-init flags before game and renderer initialization begins.
 - Graphics settings are normalized on load and save so malformed persisted values fall back to the current defaults instead of reaching Pixi initialization.
 - `Save` persists the current settings immediately without reloading.
 - `Save & Reload` persists the current settings immediately and then reloads the page so renderer-init changes apply to the live world canvas.
@@ -48,6 +48,8 @@ This spec covers the desktop-style game settings window, its dock and hotkey acc
 - `src/app/audio`
 - `src/app/audioSettings.ts`
 - `src/app/graphicsSettings.ts`
+- `src/app/settingsNormalization.ts`
+- `src/app/settingsSectionStore.ts`
 - `src/app/settingsStorage.ts`
 - `src/app/worldMapSettings.ts`
 - `src/persistence/storage.ts`
