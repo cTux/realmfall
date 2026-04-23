@@ -1,4 +1,7 @@
-import { minifyJsonAssetsPlugin } from '../../vite/plugins';
+import {
+  createAppModulePreloadPlugin,
+  minifyJsonAssetsPlugin,
+} from '../../vite/plugins';
 
 describe('Vite plugin policy', () => {
   it('minifies emitted JSON assets without changing non-JSON assets', () => {
@@ -28,5 +31,68 @@ describe('Vite plugin policy', () => {
       '{"app.title":"Realmfall","ui.ready":true}\n',
     );
     expect(bundle['assets/js/App.js'].code).toBe('export {};');
+  });
+
+  it('injects a source App modulepreload hint before the dev bundle exists', () => {
+    const plugin = createAppModulePreloadPlugin();
+    const transformIndexHtml = plugin.transformIndexHtml;
+    const handler =
+      typeof transformIndexHtml === 'object'
+        ? transformIndexHtml.handler
+        : transformIndexHtml;
+
+    if (typeof handler !== 'function') {
+      throw new Error(
+        'Expected createAppModulePreloadPlugin to define transformIndexHtml',
+      );
+    }
+
+    expect(handler('<html></html>', {} as never)).toEqual([
+      {
+        tag: 'link',
+        attrs: {
+          href: '/src/app/App/index.ts',
+          rel: 'modulepreload',
+        },
+        injectTo: 'head',
+      },
+    ]);
+  });
+
+  it('injects the emitted App chunk modulepreload hint for production HTML', () => {
+    const plugin = createAppModulePreloadPlugin();
+    const transformIndexHtml = plugin.transformIndexHtml;
+    const handler =
+      typeof transformIndexHtml === 'object'
+        ? transformIndexHtml.handler
+        : transformIndexHtml;
+
+    if (typeof handler !== 'function') {
+      throw new Error(
+        'Expected createAppModulePreloadPlugin to define transformIndexHtml',
+      );
+    }
+
+    expect(
+      handler('<html></html>', {
+        bundle: {
+          'assets/js/App-abc.js': {
+            type: 'chunk',
+            name: 'App',
+            fileName: 'assets/js/App-abc.js',
+          },
+        },
+      } as never),
+    ).toEqual([
+      {
+        tag: 'link',
+        attrs: {
+          crossorigin: true,
+          href: '/assets/js/App-abc.js',
+          rel: 'modulepreload',
+        },
+        injectTo: 'head',
+      },
+    ]);
   });
 });

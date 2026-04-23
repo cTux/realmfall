@@ -7,6 +7,46 @@ import detectDuplicatedDeps from 'unplugin-detect-duplicated-deps/vite';
 import type { Plugin, PluginOption, ViteDevServer } from 'vite';
 
 const BUNDLE_VISUALIZER_OUTPUT = join('.tests', 'bundle', 'visualizer.html');
+const APP_MODULE_PRELOAD_SOURCE = '/src/app/App/index.ts';
+
+export function createAppModulePreloadPlugin(): Plugin {
+  return {
+    name: 'realmfall-app-modulepreload',
+    transformIndexHtml: {
+      order: 'post',
+      handler(_html, context) {
+        const emittedAppChunk = Object.values(context.bundle ?? {}).find(
+          (item) => item.type === 'chunk' && item.name === 'App',
+        );
+
+        if (emittedAppChunk?.type === 'chunk') {
+          return [
+            {
+              tag: 'link',
+              attrs: {
+                rel: 'modulepreload',
+                crossorigin: true,
+                href: `/${emittedAppChunk.fileName}`,
+              },
+              injectTo: 'head',
+            },
+          ];
+        }
+
+        return [
+          {
+            tag: 'link',
+            attrs: {
+              rel: 'modulepreload',
+              href: APP_MODULE_PRELOAD_SOURCE,
+            },
+            injectTo: 'head',
+          },
+        ];
+      },
+    },
+  };
+}
 
 export function createVersionManifestPlugin(appBuildVersion: string): Plugin {
   const versionManifest = JSON.stringify({ version: appBuildVersion }, null, 2);
@@ -103,6 +143,7 @@ export function createVitePlugins({
   return [
     isVitestRun && vitestCachePlugin(),
     react(),
+    createAppModulePreloadPlugin(),
     createVersionManifestPlugin(appBuildVersion),
     minifyJsonAssetsPlugin(),
     runDuplicateDepsAudit && detectDuplicatedDeps(),
