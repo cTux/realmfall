@@ -14,6 +14,7 @@ import {
 } from './state';
 import { GameTag } from './content/tags';
 import { buildItemFromConfig } from './content/items';
+import { GENERATED_CRAFTING_RECIPES } from './generatedCraftingRecipes';
 import { Skill } from './types';
 
 describe('game state crafting', () => {
@@ -70,32 +71,7 @@ describe('game state crafting', () => {
     game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'workshop' };
     game.player.learnedRecipeIds.push('craft-icon-axe-01');
     game.player.inventory.push(
-      {
-        id: 'ingot-1',
-        name: 'Iron Ingot',
-        itemKey: 'iron-ingot',
-        quantity: 20,
-        tier: 1,
-        rarity: 'common',
-        power: 0,
-        defense: 0,
-        maxHp: 0,
-        healing: 0,
-        hunger: 0,
-      },
-      {
-        id: 'sticks-1',
-        name: 'Sticks',
-        itemKey: 'sticks',
-        quantity: 20,
-        tier: 1,
-        rarity: 'common',
-        power: 0,
-        defense: 0,
-        maxHp: 0,
-        healing: 0,
-        hunger: 0,
-      },
+      ...buildRecipeInventory('craft-icon-axe-01', 20),
     );
 
     const crafted = craftRecipe(game, 'craft-icon-axe-01');
@@ -118,8 +94,7 @@ describe('game state crafting', () => {
         game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'workshop' };
         game.player.learnedRecipeIds.push('craft-icon-axe-01');
         game.player.inventory.push(
-          buildItemFromConfig('iron-ingot', { id: 'ingot-1', quantity: 20 }),
-          buildItemFromConfig('sticks', { id: 'sticks-1', quantity: 20 }),
+          ...buildRecipeInventory('craft-icon-axe-01', 20),
         );
 
         return craftRecipe(game, 'craft-icon-axe-01').player.inventory.find(
@@ -627,4 +602,20 @@ function seedRecipeDropEncounter(
     elite: true,
   };
   game.player.coord = { q: 1, r: 0 };
+}
+
+function buildRecipeInventory(recipeId: string, quantityMultiplier = 1) {
+  const recipe = GENERATED_CRAFTING_RECIPES.find(
+    (entry) => entry.id === recipeId,
+  );
+  if (!recipe) {
+    throw new Error(`Expected recipe ${recipeId}.`);
+  }
+
+  return recipe.ingredients.map((ingredient, index) =>
+    buildItemFromConfig(ingredient.itemKey!, {
+      id: `${ingredient.itemKey}-${index}`,
+      quantity: ingredient.quantity * quantityMultiplier,
+    }),
+  );
 }
