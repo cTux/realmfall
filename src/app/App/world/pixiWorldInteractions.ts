@@ -7,6 +7,7 @@ import { type WorldMapCameraState } from '../../../ui/world/worldMapCamera';
 import type { TooltipState } from '../types';
 import { type WorldHoverSnapshot } from '../usePixiWorldHover';
 import { createWorldClickHandler } from './pixiWorldClickNavigation';
+import { createWorldMapCameraUpdateScheduler } from './pixiWorldCameraUpdateScheduler';
 import { createWorldHoverInteractions } from './pixiWorldHoverInteractions';
 import { type WorldMapDragState } from './pixiWorldInteractionShared';
 import {
@@ -112,11 +113,15 @@ export function attachPixiWorldInteractions({
     tooltipPositionRef,
     worldTooltipKeyRef,
   });
+  const cameraUpdateScheduler = createWorldMapCameraUpdateScheduler({
+    getWorldMapContainer,
+    screen: app.screen,
+  });
 
   const onWheel = createWorldMapWheelHandler({
     app,
     canvas,
-    getWorldMapContainer,
+    queueCameraUpdate: cameraUpdateScheduler.queue,
     scheduleCameraSave,
     worldMapCameraRef,
   });
@@ -158,12 +163,11 @@ export function attachPixiWorldInteractions({
   const onPointerMove = (event: PointerEvent) => {
     if (
       handleWorldMapDragMove({
-        app,
         canvas,
         clearHoverState: hoverInteractions.clearHoverState,
         dragStateRef,
         event,
-        getWorldMapContainer,
+        queueCameraUpdate: cameraUpdateScheduler.queue,
         scheduleCameraSave,
         worldMapCameraRef,
       })
@@ -189,6 +193,7 @@ export function attachPixiWorldInteractions({
   });
 
   return () => {
+    cameraUpdateScheduler.dispose();
     hoverInteractions.dispose();
     canvas.removeEventListener('pointerdown', onPointerDown as EventListener);
     canvas.removeEventListener('pointerup', onPointerUp as EventListener);

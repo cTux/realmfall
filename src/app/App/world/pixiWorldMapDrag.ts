@@ -1,9 +1,6 @@
 import type { MutableRefObject } from 'react';
-import type { Application, Container } from 'pixi.js';
-import {
-  applyWorldMapCameraToContainer,
-  type WorldMapCameraState,
-} from '../../../ui/world/worldMapCamera';
+import type { WorldMapCameraState } from '../../../ui/world/worldMapCamera';
+import type { QueueWorldMapCameraUpdate } from './pixiWorldCameraUpdateScheduler';
 import {
   matchesActivePointer,
   type WorldMapDragState,
@@ -37,21 +34,19 @@ export function beginWorldMapDrag({
 }
 
 export function handleWorldMapDragMove({
-  app,
   canvas,
   clearHoverState,
   dragStateRef,
   event,
-  getWorldMapContainer,
+  queueCameraUpdate,
   scheduleCameraSave,
   worldMapCameraRef,
 }: {
-  app: Application;
   canvas: HTMLCanvasElement;
   clearHoverState: () => void;
   dragStateRef: MutableRefObject<WorldMapDragState | null>;
   event: Pick<PointerEvent, 'pointerId' | 'clientX' | 'clientY'>;
-  getWorldMapContainer: () => Container;
+  queueCameraUpdate: QueueWorldMapCameraUpdate;
   scheduleCameraSave: () => void;
   worldMapCameraRef: MutableRefObject<WorldMapCameraState>;
 }) {
@@ -73,11 +68,7 @@ export function handleWorldMapDragMove({
       panY: dragState.startPanY + deltaY,
     };
     worldMapCameraRef.current = nextCamera;
-    applyWorldMapCameraToContainer(
-      getWorldMapContainer(),
-      app.screen,
-      nextCamera,
-    );
+    queueCameraUpdate(nextCamera);
     canvas.style.cursor = 'grabbing';
     scheduleCameraSave();
   }
