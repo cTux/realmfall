@@ -1,59 +1,59 @@
-import { memo } from 'react';
 import { WINDOW_LABELS } from '../../windowLabels';
-import { DeferredWindowShell } from '../DeferredWindowShell';
-import { createLazyWindowComponent } from '../lazyWindowComponent';
+import { createDeferredWindowComponent } from '../deferredWindowComponent';
 import type { EquipmentWindowProps } from './types';
 import styles from './styles.module.scss';
 
-const EquipmentWindowContent = createLazyWindowComponent<
-  Parameters<
-    (typeof import('./EquipmentWindowContent'))['EquipmentWindowContent']
-  >[0]
->(() =>
-  import('./EquipmentWindowContent').then((module) => ({
-    default: module.EquipmentWindowContent,
-  })),
-);
+type EquipmentWindowContentProps = Parameters<
+  (typeof import('./EquipmentWindowContent'))['EquipmentWindowContent']
+>[0];
 
-export const EquipmentWindow = memo(function EquipmentWindow({
-  position,
-  onMove,
-  visible,
-  onClose,
-  equipment,
-  hexItemModificationPickerActive,
-  onHoverItem,
-  onLeaveItem,
-  onUnequip,
-  onContextItem,
-  onSelectHexItemModificationItem,
-  onHoverDetail,
-  onLeaveDetail,
-}: EquipmentWindowProps) {
-  return (
-    <DeferredWindowShell
-      title={WINDOW_LABELS.equipment.plain}
-      hotkeyLabel={WINDOW_LABELS.equipment}
-      position={position}
-      onMove={onMove}
-      className={styles.window}
-      visible={visible}
-      externalUnmount
-      onClose={onClose}
-      onHoverDetail={onHoverDetail}
-      onLeaveDetail={onLeaveDetail}
-      content={EquipmentWindowContent}
-      contentProps={{
-        equipment,
-        hexItemModificationPickerActive,
-        onHoverItem,
-        onLeaveItem,
-        onUnequip,
-        onContextItem,
-        onSelectHexItemModificationItem,
-        onHoverDetail,
-        onLeaveDetail,
-      }}
-    />
-  );
+export const EquipmentWindow = createDeferredWindowComponent<
+  EquipmentWindowProps,
+  EquipmentWindowContentProps
+>({
+  displayName: 'EquipmentWindow',
+  loadContent: () =>
+    import('./EquipmentWindowContent').then((module) => ({
+      default: module.EquipmentWindowContent,
+    })),
+  mapWindowProps: ({
+    position,
+    onMove,
+    visible,
+    onClose,
+    onHoverDetail,
+    onLeaveDetail,
+  }) => ({
+    title: WINDOW_LABELS.equipment.plain,
+    hotkeyLabel: WINDOW_LABELS.equipment,
+    position,
+    onMove,
+    className: styles.window,
+    visible,
+    externalUnmount: true,
+    onClose,
+    onHoverDetail,
+    onLeaveDetail,
+  }),
+  mapContentProps: ({
+    equipment,
+    hexItemModificationPickerActive,
+    onHoverItem,
+    onLeaveItem,
+    onUnequip,
+    onContextItem,
+    onSelectHexItemModificationItem,
+    onHoverDetail,
+    onLeaveDetail,
+  }) => ({
+    equipment,
+    hexItemModificationPickerActive,
+    onHoverItem,
+    onLeaveItem,
+    onUnequip,
+    onContextItem,
+    onSelectHexItemModificationItem,
+    onHoverDetail,
+    onLeaveDetail,
+  }),
 });

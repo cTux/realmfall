@@ -1,42 +1,44 @@
-import { memo } from 'react';
 import { WINDOW_LABELS } from '../../windowLabels';
-import { DeferredWindowShell } from '../DeferredWindowShell';
-import { createLazyWindowComponent } from '../lazyWindowComponent';
+import { createDeferredWindowComponent } from '../deferredWindowComponent';
 import type { SkillsWindowProps } from './types';
 import styles from './styles.module.scss';
 
-const SkillsWindowContent = createLazyWindowComponent<
-  Parameters<(typeof import('./SkillsWindowContent'))['SkillsWindowContent']>[0]
->(() =>
-  import('./SkillsWindowContent').then((module) => ({
-    default: module.SkillsWindowContent,
-  })),
-);
+type SkillsWindowContentProps = Parameters<
+  (typeof import('./SkillsWindowContent'))['SkillsWindowContent']
+>[0];
 
-export const SkillsWindow = memo(function SkillsWindow({
-  position,
-  onMove,
-  visible,
-  onClose,
-  skills,
-  onHoverDetail,
-  onLeaveDetail,
-}: SkillsWindowProps) {
-  return (
-    <DeferredWindowShell
-      title={WINDOW_LABELS.skills.plain}
-      hotkeyLabel={WINDOW_LABELS.skills}
-      position={position}
-      onMove={onMove}
-      className={styles.window}
-      visible={visible}
-      externalUnmount
-      onClose={onClose}
-      resizeBounds={{ minWidth: 300, minHeight: 240 }}
-      onHoverDetail={onHoverDetail}
-      onLeaveDetail={onLeaveDetail}
-      content={SkillsWindowContent}
-      contentProps={{ skills, onHoverDetail, onLeaveDetail }}
-    />
-  );
+export const SkillsWindow = createDeferredWindowComponent<
+  SkillsWindowProps,
+  SkillsWindowContentProps
+>({
+  displayName: 'SkillsWindow',
+  loadContent: () =>
+    import('./SkillsWindowContent').then((module) => ({
+      default: module.SkillsWindowContent,
+    })),
+  mapWindowProps: ({
+    position,
+    onMove,
+    visible,
+    onClose,
+    onHoverDetail,
+    onLeaveDetail,
+  }) => ({
+    title: WINDOW_LABELS.skills.plain,
+    hotkeyLabel: WINDOW_LABELS.skills,
+    position,
+    onMove,
+    className: styles.window,
+    visible,
+    externalUnmount: true,
+    onClose,
+    resizeBounds: { minWidth: 300, minHeight: 240 },
+    onHoverDetail,
+    onLeaveDetail,
+  }),
+  mapContentProps: ({ skills, onHoverDetail, onLeaveDetail }) => ({
+    skills,
+    onHoverDetail,
+    onLeaveDetail,
+  }),
 });

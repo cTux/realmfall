@@ -30,6 +30,7 @@
 - For label formatters that map stable identifiers such as status effects to i18n, prefer direct patterned key lookups over conditional `if` or `switch` chains when the key can be derived safely.
 - Lazy-load secondary UI only when it matches the existing usage pattern and helps keep the initial app path lighter.
 - Treat draggable window content as secondary UI by default. New windows should defer their content behind a lazy-loaded bundle, either by lazy-loading the whole window module or by lazy-loading a dedicated `*WindowContent` module inside the window component.
+- For deferred window wrappers that only map shell props and `*WindowContent` props, use the shared deferred-window component helper instead of pairing `createLazyWindowComponent` and `DeferredWindowShell` manually in each wrapper.
 - Preserve existing React containment patterns such as memoized window components when extending the current UI.
 - Maintain mobile-aware and desktop-safe behavior when changing interactions, even if the full mobile adaptation remains incomplete.
 - Keep component files under roughly `250` lines when practical. When a component grows past that size, prefer splitting view models, hooks, or subcomponents into neighboring files.
