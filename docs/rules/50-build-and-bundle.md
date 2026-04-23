@@ -18,3 +18,4 @@
 - Load bootstrap locales as compact data assets instead of eager application code when the app only needs a translation map before importing `App`. Keep the emitted locale payload small enough to remain under the tracked startup budget.
 - Keep shipped locale and other startup-budgeted JSON assets on LF line endings so emitted asset sizes and chunk-budget checks stay stable across platforms.
 - Keep large repeated locale families concise. When many entries differ only by set name or item slot, prefer shorter shared phrasing over long near-duplicate sentences so locale payloads do not grow faster than the feature surface.
+- Keep static production cache headers explicit. Vite hashed `assets/**` should ship with long-lived immutable caching, while HTML entry files and mutable metadata such as `version.json` should require revalidation.
