@@ -48,7 +48,7 @@ export function makeStartingSkills(): Record<SkillName, SkillProgress> {
   ) as Record<SkillName, SkillProgress>;
 }
 
-export function getPlayerStats(player: Player) {
+export function getPlayerOverview(player: Player) {
   const equipped = Object.values(player.equipment);
   const statusEffects = player.statusEffects ?? [];
   const recentDeathPenalty = getStatusEffectValue(
@@ -370,6 +370,41 @@ export function getPlayerStats(player: Player) {
     skills: player.skills,
   };
 }
+
+export function getPlayerCombatStats(player: Player) {
+  const {
+    bonusExperience: _bonusExperience,
+    level: _level,
+    masteryLevel: _masteryLevel,
+    nextLevelXp: _nextLevelXp,
+    skills: _skills,
+    xp: _xp,
+    secondaryStatTotals,
+    ...combatStats
+  } = getPlayerOverview(player);
+  const { bonusExperience: _bonusExperienceTotals, ...combatSecondaryTotals } =
+    secondaryStatTotals;
+
+  return {
+    ...combatStats,
+    secondaryStatTotals: combatSecondaryTotals,
+  };
+}
+
+export function getPlayerProgressionSummary(player: Player) {
+  const overview = getPlayerOverview(player);
+
+  return {
+    bonusExperience: overview.bonusExperience,
+    level: overview.level,
+    masteryLevel: overview.masteryLevel,
+    nextLevelXp: overview.nextLevelXp,
+    skills: overview.skills,
+    xp: overview.xp,
+  };
+}
+
+export const getPlayerStats = getPlayerOverview;
 
 function getStatusEffectValue(
   effects: Player['statusEffects'],

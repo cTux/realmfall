@@ -12,7 +12,7 @@ import {
   getEnemySuppressDamageReduction,
 } from './combatDamage';
 import { addLog } from './logs';
-import { getPlayerStats } from './progression';
+import { getPlayerCombatStats } from './progression';
 import { cloneForWorldMutation, message } from './stateMutationHelpers';
 import { getCombatAutomationDelay, resolveCombat } from './stateCombatRuntime';
 import { respawnAtNearestTown } from './stateSurvival';
@@ -89,7 +89,7 @@ export function createCombatState(
     started: false,
     player: createCombatActorState(
       worldTimeMs,
-      getPlayerStats(state.player).abilityIds,
+      getPlayerCombatStats(state.player).abilityIds,
     ),
     enemies: Object.fromEntries(
       enemyIds.map((enemyId) => [

@@ -23,6 +23,7 @@ This spec covers player leveling, mastery, and skill progression.
 - The skills window lists skill names with progress bars, inline `level/current/max XP` text, and tooltips, rounds bar values for display so floating-point residue does not leak into the UI, and does not render the old explanatory note above the skill list.
 - Skill rows in the skills window keep a stable intrinsic height instead of stretching vertically to fill extra window space.
 - Storybook includes a progression reference story that renders the live XP formulas and full level-requirement tables.
+- `src/game/progression.ts` now separates combat-facing derived player reads from broader hero-overview reads, so combat systems do not depend on the same helper that also bundles level, mastery, XP, and skills for UI windows.
 
 ## Main Implementation Areas
 

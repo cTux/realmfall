@@ -7,7 +7,7 @@ import {
   DEFAULT_SUPPRESS_DAMAGE_CHANCE,
   DEFAULT_SUPPRESS_DAMAGE_REDUCTION,
 } from './itemSecondaryStats';
-import { getPlayerStats } from './progression';
+import { getPlayerCombatStats } from './progression';
 import { resolveCombatProcCount } from './combatProcs';
 import type {
   Enemy,
@@ -128,7 +128,7 @@ export function resolveIncomingDamage(
   state: GameState,
   seedKey: string,
   incomingDamage: number,
-  playerStats: ReturnType<typeof getPlayerStats>,
+  playerStats: ReturnType<typeof getPlayerCombatStats>,
 ): DamageResolution {
   return resolveIncomingDamageByChances(
     state,

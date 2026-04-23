@@ -1,5 +1,5 @@
 import type { MutableRefObject } from 'react';
-import { getPlayerStats } from '../../game/progression';
+import { getPlayerOverview } from '../../game/progression';
 import { getCurrentHexClaimStatus } from '../../game/stateClaims';
 import { getRecipeBookEntries } from '../../game/stateCrafting';
 import { getTownStock } from '../../game/stateInventoryActions';
@@ -40,7 +40,7 @@ export interface AppWindowsLayout {
 
 export interface AppWindowsViewState {
   hero: {
-    stats: ReturnType<typeof getPlayerStats>;
+    stats: ReturnType<typeof getPlayerOverview>;
     hunger: GameState['player']['hunger'];
     thirst: GameState['player']['thirst'];
   };

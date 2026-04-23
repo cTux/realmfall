@@ -39,7 +39,9 @@ export { EQUIPMENT_SLOTS, LOG_KINDS, RARITY_ORDER, SKILL_NAMES } from './types';
 export {
   gatheringBonusChance,
   gatheringYieldBonus,
-  getPlayerStats,
+  getPlayerCombatStats,
+  getPlayerOverview,
+  getPlayerProgressionSummary,
   skillLevelThreshold,
 } from './progression';
 export {

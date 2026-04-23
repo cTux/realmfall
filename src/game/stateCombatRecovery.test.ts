@@ -1,6 +1,6 @@
 import {
   createGame,
-  getPlayerStats,
+  getPlayerCombatStats,
   moveToTile,
   startCombat,
   syncPlayerStatusEffects,
@@ -31,7 +31,7 @@ describe('game state combat recovery', () => {
     game.player.mana = 9;
 
     const respawned = startCombat(moveToTile(game, { q: 2, r: 0 }));
-    const stats = getPlayerStats(respawned.player);
+    const stats = getPlayerCombatStats(respawned.player);
 
     expect(respawned.player.coord).toEqual(game.homeHex);
     expect(respawned.player.hunger).toBe(100);

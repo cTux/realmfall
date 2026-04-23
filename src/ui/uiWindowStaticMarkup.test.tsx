@@ -1,6 +1,6 @@
 import React from 'react';
 import { getAbilityDefinition } from '../game/abilities';
-import { getItemConfigByKey, getPlayerStats } from '../game/stateSelectors';
+import { getItemConfigByKey, getPlayerOverview } from '../game/stateSelectors';
 import { DEFAULT_WINDOWS } from '../app/constants';
 import { rarityColor } from './rarity';
 import { CombatWindow } from './components/CombatWindow';
@@ -30,7 +30,7 @@ setupUiTestEnvironment();
 describe('ui window static markup', () => {
   it('renders all major windows to static markup', async () => {
     const game = createWindowMarkupGame();
-    const stats = getPlayerStats(game.player);
+    const stats = getPlayerOverview(game.player);
 
     const markup = await renderMarkup(
       <>

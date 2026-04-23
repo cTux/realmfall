@@ -1,7 +1,7 @@
 import { StatusEffectTypeId } from './content/ids';
 import { mitigateDamageByDefense } from './combatDamage';
 import { addLog } from './logs';
-import { getPlayerStats } from './progression';
+import { getPlayerCombatStats } from './progression';
 import { t } from '../i18n';
 import type { HexCoord } from './hex';
 import type { GameState, Item, PlayerStatusEffect } from './types';
@@ -35,7 +35,7 @@ export function respawnAtNearestTown(state: GameState, from: HexCoord) {
   state.player.mana = 1;
   state.player.hp = Math.min(
     state.player.hp,
-    getPlayerStats(state.player).maxHp,
+    getPlayerCombatStats(state.player).maxHp,
   );
   state.combat = null;
   addLog(state, 'combat', t('game.message.combat.defeated'));
@@ -104,7 +104,7 @@ export function processPlayerStatusEffects(state: GameState) {
   }
 
   state.player.statusEffects = remainingEffects;
-  const maxHp = getPlayerStats(state.player).maxHp;
+  const maxHp = getPlayerCombatStats(state.player).maxHp;
   if (state.player.hp > maxHp) {
     state.player.hp = maxHp;
     changed = true;
@@ -119,7 +119,7 @@ function processTickingPlayerEffect(
   tickCount: number,
 ) {
   if (tickCount <= 0) return false;
-  const playerStats = getPlayerStats(state.player);
+  const playerStats = getPlayerCombatStats(state.player);
 
   switch (effect.id) {
     case StatusEffectTypeId.Restoration: {

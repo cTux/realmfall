@@ -15,7 +15,7 @@ import {
   getGoldAmount,
   getHostileEnemyIds,
   getPlayerClaimedTiles,
-  getPlayerStats,
+  getPlayerOverview,
   getRecipeBookEntries,
   getTownStock,
 } from '../../game/stateSelectors';
@@ -91,7 +91,7 @@ export function useAppGameView({
     [player, seed, tiles],
   );
 
-  const stats = useMemo(() => getPlayerStats(player), [player]);
+  const stats = useMemo(() => getPlayerOverview(player), [player]);
   const currentTile = useMemo(
     () => tiles[hexKey(coord)] ?? buildTile(seed, coord),
     [coord, seed, tiles],

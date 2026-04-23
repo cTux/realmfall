@@ -9,7 +9,7 @@ import {
   canEnemyUseAbility,
   selectAbilityTargetId,
 } from './combatTargeting';
-import { getPlayerStats } from './progression';
+import { getPlayerCombatStats } from './progression';
 import type { AbilityId, GameState } from './types';
 
 export function startPlayerCasts(state: GameState) {
@@ -39,7 +39,7 @@ export function startPlayerCasts(state: GameState) {
     abilityId,
     targetId,
     now,
-    getPlayerStats(state.player).attackSpeed ?? 1,
+    getPlayerCombatStats(state.player).attackSpeed ?? 1,
   );
   return true;
 }

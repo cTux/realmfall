@@ -1,7 +1,7 @@
 import { t } from '../i18n';
 import { StatusEffectTypeId } from './content/ids';
 import { getGoldAmount } from './inventory';
-import { getPlayerStats } from './progression';
+import { getPlayerCombatStats } from './progression';
 import { getCurrentTile } from './stateWorldQueries';
 import type { GameState, PlayerStatusEffect } from './types';
 
@@ -59,7 +59,7 @@ export function getCurrentHexFactionNpcHealStatus(
       isNegativeStatusEffect(effect.id),
   );
   if (
-    state.player.hp >= getPlayerStats(state.player).maxHp &&
+    state.player.hp >= getPlayerCombatStats(state.player).maxHp &&
     !hasRemovableDebuff
   ) {
     return {

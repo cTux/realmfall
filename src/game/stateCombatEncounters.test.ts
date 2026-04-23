@@ -2,7 +2,7 @@ import {
   createGame,
   forfeitCombat,
   getEnemiesAt,
-  getPlayerStats,
+  getPlayerCombatStats,
   getTileAt,
   moveToTile,
   progressCombat,
@@ -177,7 +177,7 @@ describe('game state combat encounters', () => {
       ),
     ).toHaveLength(2);
     expect(resolvedRound.player.hp).toBeLessThan(
-      getPlayerStats(resolvedRound.player).maxHp,
+      getPlayerCombatStats(resolvedRound.player).maxHp,
     );
   });
 });

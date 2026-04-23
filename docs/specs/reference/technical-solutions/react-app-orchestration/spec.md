@@ -12,8 +12,9 @@ This spec covers the top-level React hook composition and derived view-model pat
 - The bootstrap path fetches the active locale asset before importing `App`, because some gameplay and content modules resolve translated labels during module evaluation and must not hydrate against an empty translation map.
 - The app shell stays visible while save hydration and Pixi initialization complete, so the dock, action bar, and other ready React chrome can paint before the world canvas finishes booting.
 - Bootstrap-loaded settings modules keep lightweight metadata such as voice actor ids separate from eager voice asset indexing so optional gameplay voice clips stay behind the lazy audio bridge boundary.
-- `useAppGameView` computes the current tile, filtered logs, town stock, recipe visibility, claim status, player stats, and other UI-ready derived values.
+- `useAppGameView` computes the current tile, filtered logs, town stock, recipe visibility, claim status, the player overview snapshot, and other UI-ready derived values.
 - This keeps presentational components mostly declarative.
+- Combat-facing systems and effects that only need survivability or speed values read `getPlayerCombatStats` instead of routing through the broader hero overview helper.
 - Shared window-key lists and small record builders back window visibility resets, dock composition, log-filter defaults, and recipe skill-level derivation so app wiring does not repeat the same key inventory in multiple modules.
 - `useAppGameView` keeps selector dependencies scoped to the gameplay slices each derived view actually reads, using narrow selector inputs instead of force-casting partial objects to `GameState`, so unrelated root-state clones do not invalidate every memoized view model together.
 - Production modules under `src/app` and `src/ui` route gameplay types, selectors, and builders through focused modules such as `src/game/stateTypes.ts`, `src/game/stateSelectors.ts`, `src/game/stateFactory.ts`, `src/game/stateCombat.ts`, and `src/game/stateWorldActions.ts` instead of treating `src/game/state.ts` as the default import path.

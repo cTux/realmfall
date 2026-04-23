@@ -44,7 +44,7 @@ import {
 } from './combatTargeting';
 import { BASE_ENEMY_XP } from './config';
 import { addLog } from './logs';
-import { getPlayerStats, gainXp } from './progression';
+import { getPlayerCombatStats, gainXp } from './progression';
 import { dropEnemyRewards } from './stateRewards';
 import { respawnAtNearestTown } from './stateSurvival';
 import { syncCombatEncounterEnemies } from './stateCombatEncounterSync';
@@ -56,7 +56,7 @@ export function applyPlayerAbility(
   targetId: string,
 ) {
   const ability = getAbilityDefinition(abilityId);
-  const playerStats = getPlayerStats(state.player);
+  const playerStats = getPlayerCombatStats(state.player);
   const enemyTargets = resolveEnemyTargetsForPlayerAbility(
     state,
     ability,
@@ -165,7 +165,7 @@ export function applyEnemyAbility(
   if (!enemy) return;
 
   const ability = getAbilityDefinition(abilityId);
-  const playerStats = getPlayerStats(state.player);
+  const playerStats = getPlayerCombatStats(state.player);
   for (const effect of ability.effects) {
     if (effect.kind === 'damage') {
       const critCount = resolveCombatProcCount(
@@ -316,7 +316,7 @@ function dealPlayerDamageToEnemy(
     ReturnType<typeof getAbilityDefinition>['effects'][number],
     { kind: 'damage' }
   >,
-  playerStats: ReturnType<typeof getPlayerStats>,
+  playerStats: ReturnType<typeof getPlayerCombatStats>,
 ) {
   const critCount = resolveCombatProcCount(
     state,
@@ -395,7 +395,7 @@ function healPlayerTargets(
           Math.max(1, effect.splitDivisor ?? 1),
       ),
     );
-    const maxHp = getPlayerStats(state.player).maxHp;
+    const maxHp = getPlayerCombatStats(state.player).maxHp;
     const healed = Math.max(0, Math.min(maxHp - target.hp, amount));
     target.hp += healed;
     return sum + healed;

@@ -7,7 +7,7 @@ import { GAME_TAGS } from './content/tags';
 import { hasItemTag } from './content/items';
 import {
   gatheringYieldBonus,
-  getPlayerStats,
+  getPlayerCombatStats,
   gainSkillXp,
   rollGatheringBonus,
 } from './progression';
@@ -229,7 +229,7 @@ export function healAtFactionNpc(state: GameState): GameState {
   }
 
   const next = cloneForPlayerMutation(state);
-  next.player.hp = getPlayerStats(next.player).maxHp;
+  next.player.hp = getPlayerCombatStats(next.player).maxHp;
   next.player.statusEffects = clearNonSurvivalDebuffs(
     next.player.statusEffects,
   );

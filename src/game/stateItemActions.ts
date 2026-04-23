@@ -16,7 +16,7 @@ import {
   consumeInventoryItem,
   isRecipePage,
 } from './inventory';
-import { getPlayerStats } from './progression';
+import { getPlayerCombatStats } from './progression';
 import {
   cloneForPlayerCombatMutation,
   cloneForPlayerMutation,
@@ -92,7 +92,7 @@ export function equipItem(state: GameState, itemId: string): GameState {
       delete next.player.equipment.offhand;
     }
   }
-  const maxHp = getPlayerStats(next.player).maxHp;
+  const maxHp = getPlayerCombatStats(next.player).maxHp;
   next.player.hp = Math.min(maxHp, next.player.hp);
   addLog(
     next,
@@ -118,7 +118,7 @@ export function unequipItem(state: GameState, slot: EquipmentSlot): GameState {
   const next = cloneForPlayerMutation(state);
   delete next.player.equipment[slot];
   addItemToInventory(next.player.inventory, equipped);
-  const maxHp = getPlayerStats(next.player).maxHp;
+  const maxHp = getPlayerCombatStats(next.player).maxHp;
   next.player.hp = Math.min(maxHp, next.player.hp);
   addLog(
     next,
@@ -218,7 +218,7 @@ function formatCooldownSeconds(remainingMs: number) {
 }
 
 function resolveConsumableUseEffects(state: GameState, item: Item) {
-  const stats = getPlayerStats(state.player);
+  const stats = getPlayerCombatStats(state.player);
   const appliedEffects = getConsumableEffectDescriptors(
     item,
   ).flatMap<AppliedConsumableEffect>((effect) =>
@@ -269,7 +269,7 @@ function formatConsumableLogEffect(
 
 function resolveConsumableEffect(
   state: GameState,
-  stats: ReturnType<typeof getPlayerStats>,
+  stats: ReturnType<typeof getPlayerCombatStats>,
   effect: ConsumableEffectDescriptor,
 ): AppliedConsumableEffect[] {
   switch (effect.kind) {
