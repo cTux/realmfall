@@ -63,6 +63,40 @@ describe('check-bundle-budget helpers', () => {
     );
   });
 
+  it('excludes lazy Pixi and audio domain chunks from startup budget files', () => {
+    const manifest = {
+      'src/main.tsx': {
+        file: 'assets/js/index-abc.js',
+        dynamicImports: ['src/app/App/index.ts'],
+      },
+      'src/app/App/index.ts': {
+        file: 'assets/js/App-abc.js',
+        imports: [
+          'node_modules/howler/dist/howler.js',
+          'node_modules/pixi.js/lib/index.mjs',
+          'src/game/state.ts',
+        ],
+      },
+      'node_modules/howler/dist/howler.js': {
+        file: 'assets/js/background-audio-abc.js',
+      },
+      'node_modules/pixi.js/lib/index.mjs': {
+        file: 'assets/js/pixi-abc.js',
+      },
+      'src/game/state.ts': {
+        file: 'assets/js/state-abc.js',
+      },
+    };
+
+    expect(getStartupChunkFiles(manifest, 'src/main.tsx')).toEqual(
+      new Set([
+        'assets/js/index-abc.js',
+        'assets/js/App-abc.js',
+        'assets/js/state-abc.js',
+      ]),
+    );
+  });
+
   it('tracks both react-core and background-audio startup chunk budgets', () => {
     expect(CHUNK_BUDGETS).toMatchObject({
       'background-audio': 54_420,
@@ -70,16 +104,12 @@ describe('check-bundle-budget helpers', () => {
     });
   });
 
-  it('treats react-core as covered by react-dom-vendor when the build merges them', () => {
+  it('requires a direct react-core chunk budget target', () => {
     const chunks = [
       { fileName: 'react-dom-vendor-abc.js', size: 181_790 },
       { fileName: 'background-audio-abc.js', size: 49_480 },
     ];
 
-    expect(getChunkBudgetTarget(chunks, 'react-core')).toEqual({
-      kind: 'merged',
-      chunk: { fileName: 'react-dom-vendor-abc.js', size: 181_790 },
-      mergedInto: 'react-dom-vendor',
-    });
+    expect(getChunkBudgetTarget(chunks, 'react-core')).toBeNull();
   });
 });

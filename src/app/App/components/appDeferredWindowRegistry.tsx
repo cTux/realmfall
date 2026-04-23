@@ -1,6 +1,7 @@
 import type {
   AppDeferredWindowContext,
   AppDeferredWindowDescriptor,
+  AppDeferredWindowDetailContext,
   AppDeferredWindowEntry,
 } from './appDeferredWindows/types';
 import { APP_DEFERRED_WINDOW_KEYS } from './appDeferredWindows/types';
@@ -42,18 +43,10 @@ export function getMountedDeferredWindowKeys(
 }
 
 export function getAppDeferredWindowEntries(
-  context: AppDeferredWindowContext,
+  context: AppDeferredWindowDetailContext,
 ): AppDeferredWindowEntry[] {
-  const detailTooltipHandlers = {
-    onHoverDetail: context.actions.tooltip.onShowTooltip,
-    onLeaveDetail: context.actions.tooltip.onCloseTooltip,
-  };
-
   return getMountedDeferredWindowKeys(context.mountedWindows).map((key) => ({
     key,
-    element: APP_DEFERRED_WINDOW_DESCRIPTOR_BY_KEY[key].render({
-      ...context,
-      detailTooltipHandlers,
-    }),
+    element: APP_DEFERRED_WINDOW_DESCRIPTOR_BY_KEY[key].render(context),
   }));
 }

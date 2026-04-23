@@ -3,14 +3,17 @@ import { createRoot, type Root } from 'react-dom/client';
 import { createGame } from '../../game/stateFactory';
 import { DEFAULT_AUDIO_SETTINGS } from '../audioSettings';
 import { VoiceAudioControllerBridge } from './VoiceAudioControllerBridge';
+import { selectVoicePlaybackEventState } from './voiceEvents';
 
-const { getVoiceClipUrlsMock } = vi.hoisted(() => ({
-  getVoiceClipUrlsMock: vi.fn(() => ['/voice/test.wav']),
+const { getVoiceClipUrlsMock, pickVoiceClipUrlMock } = vi.hoisted(() => ({
+  getVoiceClipUrlsMock: vi.fn(async () => ['/voice/test.wav']),
+  pickVoiceClipUrlMock: vi.fn(async () => '/voice/test.wav'),
 }));
 
 vi.mock('./voiceLibrary', async (importOriginal) => ({
   ...(await importOriginal<typeof import('./voiceLibrary')>()),
   getVoiceClipUrls: getVoiceClipUrlsMock,
+  pickVoiceClipUrl: pickVoiceClipUrlMock,
 }));
 
 let mockAudioInstances: MockAudio[] = [];
@@ -44,6 +47,7 @@ describe('VoiceAudioControllerBridge', () => {
         () => reducedMotionMediaQuery,
       ) as typeof window.matchMedia;
     getVoiceClipUrlsMock.mockClear();
+    pickVoiceClipUrlMock.mockClear();
   });
 
   afterEach(async () => {
@@ -64,7 +68,7 @@ describe('VoiceAudioControllerBridge', () => {
       root.render(
         <VoiceAudioControllerBridge
           audioSettings={DEFAULT_AUDIO_SETTINGS}
-          game={previous}
+          voicePlaybackState={selectVoicePlaybackEventState(previous)}
         />,
       );
     });
@@ -80,9 +84,10 @@ describe('VoiceAudioControllerBridge', () => {
       root.render(
         <VoiceAudioControllerBridge
           audioSettings={DEFAULT_AUDIO_SETTINGS}
-          game={next}
+          voicePlaybackState={selectVoicePlaybackEventState(next)}
         />,
       );
+      await flushPromises();
     });
 
     expect(mockAudioInstances).toHaveLength(1);
@@ -96,7 +101,7 @@ describe('VoiceAudioControllerBridge', () => {
             ...DEFAULT_AUDIO_SETTINGS,
             muted: true,
           }}
-          game={next}
+          voicePlaybackState={selectVoicePlaybackEventState(next)}
         />,
       );
     });
@@ -113,7 +118,7 @@ describe('VoiceAudioControllerBridge', () => {
       root.render(
         <VoiceAudioControllerBridge
           audioSettings={DEFAULT_AUDIO_SETTINGS}
-          game={previous}
+          voicePlaybackState={selectVoicePlaybackEventState(previous)}
         />,
       );
     });
@@ -129,9 +134,10 @@ describe('VoiceAudioControllerBridge', () => {
       root.render(
         <VoiceAudioControllerBridge
           audioSettings={DEFAULT_AUDIO_SETTINGS}
-          game={next}
+          voicePlaybackState={selectVoicePlaybackEventState(next)}
         />,
       );
+      await flushPromises();
     });
 
     expect(mockAudioInstances).toHaveLength(1);
@@ -200,4 +206,10 @@ function createMockMediaQueryList(initialMatches: boolean): MockMediaQueryList {
 
 interface MockMediaQueryList extends MediaQueryList {
   setMatches: (matches: boolean) => void;
+}
+
+async function flushPromises() {
+  await Promise.resolve();
+  await Promise.resolve();
+  await new Promise((resolve) => window.setTimeout(resolve, 0));
 }

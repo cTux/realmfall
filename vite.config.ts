@@ -5,6 +5,7 @@ import {
   CHUNK_SIZE_WARNING_LIMIT_KB,
   getAssetFileName,
   getManualChunk,
+  resolveModulePreloadDependencies,
 } from './vite/chunks';
 import { ensureLocalhostHttpsCertificate } from './vite/https';
 import { createVitePlugins } from './vite/plugins';
@@ -55,6 +56,10 @@ export default defineConfig({
   build: {
     manifest: true,
     chunkSizeWarningLimit: CHUNK_SIZE_WARNING_LIMIT_KB,
+    modulePreload: {
+      resolveDependencies: (_filename, deps, context) =>
+        resolveModulePreloadDependencies(_filename, deps, context),
+    },
     rollupOptions: {
       output: {
         entryFileNames: 'assets/js/[name]-[hash].js',

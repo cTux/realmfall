@@ -1,29 +1,29 @@
 import { useEffect, useRef } from 'react';
-import type { GameState } from '../../game/stateTypes';
 import type { AudioSettings } from '../audioSettings';
 import {
   VOICE_PLAYBACK_EVENT_OPTIONS,
   detectVoicePlaybackEvent,
+  type VoicePlaybackEventState,
 } from './voiceEvents';
-import { getVoiceClipUrls, type VoiceClipCategory } from './voiceLibrary';
-import type { VoiceActorId } from './voiceActors';
+import { pickVoiceClipUrl, type VoiceClipCategory } from './voiceLibrary';
 
 const ACTIVATION_EVENTS = ['keydown', 'mousedown', 'pointerdown', 'touchstart'];
 const MIN_PLAYBACK_INTERVAL_MS = 700;
 
 interface VoiceAudioControllerBridgeProps {
   audioSettings: AudioSettings;
-  game: GameState;
+  voicePlaybackState: VoicePlaybackEventState;
 }
 
 export function VoiceAudioControllerBridge({
   audioSettings,
-  game,
+  voicePlaybackState,
 }: VoiceAudioControllerBridgeProps) {
   const { muted, respectReducedMotion, volume } = audioSettings;
   const activatedRef = useRef(false);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
-  const previousGameRef = useRef(game);
+  const previousVoicePlaybackStateRef = useRef(voicePlaybackState);
+  const playbackRequestIdRef = useRef(0);
   const previousClipIndexRef = useRef<
     Partial<Record<VoiceClipCategory, number>>
   >({});
@@ -85,6 +85,7 @@ export function VoiceAudioControllerBridge({
 
   useEffect(() => {
     if (muted || (respectReducedMotion && prefersReducedMotion(window))) {
+      playbackRequestIdRef.current += 1;
       stopAudio(currentAudioRef.current);
       currentAudioRef.current = null;
       return;
@@ -96,10 +97,13 @@ export function VoiceAudioControllerBridge({
   }, [muted, respectReducedMotion, volume]);
 
   useEffect(() => {
-    const previousGame = previousGameRef.current;
-    previousGameRef.current = game;
+    const previousVoicePlaybackState = previousVoicePlaybackStateRef.current;
+    previousVoicePlaybackStateRef.current = voicePlaybackState;
 
-    const playbackEventKey = detectVoicePlaybackEvent(previousGame, game);
+    const playbackEventKey = detectVoicePlaybackEvent(
+      previousVoicePlaybackState,
+      voicePlaybackState,
+    );
     if (!playbackEventKey || !audioSettings.voice.events[playbackEventKey]) {
       return;
     }
@@ -124,60 +128,47 @@ export function VoiceAudioControllerBridge({
       return;
     }
 
-    const clipUrl = pickVoiceClipUrl(
+    const playbackRequestId = playbackRequestIdRef.current + 1;
+    playbackRequestIdRef.current = playbackRequestId;
+
+    void pickVoiceClipUrl(
       audioSettings.voice.actorId,
       definition.audioCategory,
       previousClipIndexRef.current,
-    );
-    if (!clipUrl) {
-      return;
-    }
-
-    stopAudio(currentAudioRef.current);
-    currentAudioRef.current = null;
-
-    const audio = new Audio(clipUrl);
-    audio.preload = 'auto';
-    audio.volume = volume;
-    currentAudioRef.current = audio;
-    lastPlaybackRef.current = {
-      eventKey: playbackEventKey,
-      timestamp: now,
-    };
-
-    attemptPlayback(audio, () => {
-      if (currentAudioRef.current === audio) {
-        currentAudioRef.current = null;
+    ).then((clipUrl) => {
+      if (playbackRequestIdRef.current !== playbackRequestId) {
+        return;
       }
+
+      if (!clipUrl) {
+        return;
+      }
+
+      if (muted || (respectReducedMotion && prefersReducedMotion(window))) {
+        return;
+      }
+
+      stopAudio(currentAudioRef.current);
+      currentAudioRef.current = null;
+
+      const audio = new Audio(clipUrl);
+      audio.preload = 'auto';
+      audio.volume = volume;
+      currentAudioRef.current = audio;
+      lastPlaybackRef.current = {
+        eventKey: playbackEventKey,
+        timestamp: now,
+      };
+
+      attemptPlayback(audio, () => {
+        if (currentAudioRef.current === audio) {
+          currentAudioRef.current = null;
+        }
+      });
     });
-  }, [audioSettings, game, muted, respectReducedMotion, volume]);
+  }, [audioSettings, muted, respectReducedMotion, voicePlaybackState, volume]);
 
   return null;
-}
-
-function pickVoiceClipUrl(
-  actorId: VoiceActorId,
-  category: VoiceClipCategory,
-  previousClipIndexes: Partial<Record<VoiceClipCategory, number>>,
-) {
-  const clips = getVoiceClipUrls(actorId, category);
-  if (clips.length === 0) {
-    return null;
-  }
-
-  if (clips.length === 1) {
-    previousClipIndexes[category] = 0;
-    return clips[0] ?? null;
-  }
-
-  const previousIndex = previousClipIndexes[category] ?? -1;
-  let nextIndex = Math.floor(Math.random() * clips.length);
-  if (nextIndex === previousIndex) {
-    nextIndex = (nextIndex + 1) % clips.length;
-  }
-
-  previousClipIndexes[category] = nextIndex;
-  return clips[nextIndex] ?? null;
 }
 
 function prefersReducedMotion(target: Window) {

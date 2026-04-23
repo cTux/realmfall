@@ -1,4 +1,4 @@
-import { lazy, Suspense, type MutableRefObject } from 'react';
+import { lazy, Suspense, useMemo, type MutableRefObject } from 'react';
 import type { GameState, HexCoord } from '../../../game/stateTypes';
 import { t } from '../../../i18n';
 import { LoadingSpinner } from '../../../ui/components/LoadingSpinner';
@@ -8,10 +8,10 @@ import {
   type UiAudioController,
 } from '../../audio/UiAudioContext';
 import type { AudioSettings } from '../../audioSettings';
-import { AppWindows } from '../AppWindows';
 import type { AppWindowsProps } from '../AppWindows.types';
 import styles from '../styles.module.scss';
 import { PauseOverlay } from './PauseOverlay';
+import { useAudioBridgeActivation } from './useAudioBridgeActivation';
 
 const UiAudioControllerBridge = lazy(() =>
   import('../../audio/UiAudioControllerBridge').then((module) => ({
@@ -26,6 +26,11 @@ const VoiceAudioControllerBridge = lazy(() =>
 const BackgroundMusicControllerBridge = lazy(() =>
   import('../../audio/BackgroundMusicControllerBridge').then((module) => ({
     default: module.BackgroundMusicControllerBridge,
+  })),
+);
+const AppWindows = lazy(() =>
+  import('../AppWindows').then((module) => ({
+    default: module.AppWindows,
   })),
 );
 const HomeIndicator = lazy(() =>
@@ -57,6 +62,22 @@ export function AppShell({
   windowsProps: AppWindowsProps;
   onUiAudioChange: (nextController: UiAudioController) => void;
 }) {
+  const audioBridgeActivated = useAudioBridgeActivation();
+  const { combat, logSequence, logs } = game;
+  const { hp, statusEffects } = game.player;
+  const voicePlaybackState = useMemo(
+    () => ({
+      combat,
+      logSequence,
+      logs,
+      player: {
+        hp,
+        statusEffects,
+      },
+    }),
+    [combat, hp, logSequence, logs, statusEffects],
+  );
+
   return (
     <UiAudioProvider value={uiAudio}>
       <div className={styles.appRoot}>
@@ -65,14 +86,18 @@ export function AppShell({
             audioSettings={audioSettings}
             onChange={onUiAudioChange}
           />
-          <VoiceAudioControllerBridge
-            audioSettings={audioSettings}
-            game={game}
-          />
-          <BackgroundMusicControllerBridge
-            audioSettings={audioSettings}
-            mood={backgroundMusicMood}
-          />
+          {audioBridgeActivated ? (
+            <>
+              <VoiceAudioControllerBridge
+                audioSettings={audioSettings}
+                voicePlaybackState={voicePlaybackState}
+              />
+              <BackgroundMusicControllerBridge
+                audioSettings={audioSettings}
+                mood={backgroundMusicMood}
+              />
+            </>
+          ) : null}
         </Suspense>
         <div className={styles.appShell}>
           <div ref={hostRef} className={styles.mapViewport} />
@@ -85,7 +110,9 @@ export function AppShell({
               radius={game.radius}
             />
           </Suspense>
-          <AppWindows {...windowsProps} />
+          <Suspense fallback={null}>
+            <AppWindows {...windowsProps} />
+          </Suspense>
           {isReady && paused ? (
             <PauseOverlay
               title={t('ui.pauseOverlay.title')}

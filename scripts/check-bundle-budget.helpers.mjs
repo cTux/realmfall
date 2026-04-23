@@ -17,9 +17,7 @@ export const CHUNK_BUDGETS = {
   pixi: 549_560,
 };
 
-export const MERGED_CHUNK_BUDGET_COVERAGE = {
-  'react-core': 'react-dom-vendor',
-};
+export const MERGED_CHUNK_BUDGET_COVERAGE = {};
 
 export const STARTUP_TOTAL_BUDGET = 1_510_000;
 
@@ -81,7 +79,10 @@ export function getStartupChunkFiles(manifest, entryKey) {
       return;
     }
 
-    if (entry.file?.endsWith('.js') || entry.file?.endsWith('.json')) {
+    if (
+      (entry.file?.endsWith('.js') || entry.file?.endsWith('.json')) &&
+      !isLazyDomainChunkFile(entry.file)
+    ) {
       startupFiles.add(
         relative(DIST_DIR, join(DIST_DIR, entry.file)).replaceAll('\\', '/'),
       );
@@ -100,6 +101,15 @@ export function getStartupChunkFiles(manifest, entryKey) {
   }
 
   return startupFiles;
+}
+
+function isLazyDomainChunkFile(fileName) {
+  const baseFileName = basename(fileName);
+
+  return (
+    baseFileName.startsWith('background-audio-') ||
+    baseFileName.startsWith('pixi-')
+  );
 }
 
 export function getChunkByPrefix(chunks, prefix) {

@@ -1,10 +1,10 @@
 import type { MutableRefObject } from 'react';
-import type { Application, Container } from 'pixi.js';
+import type { Application } from 'pixi.js';
 import {
-  applyWorldMapCameraToContainer,
   zoomWorldMapCameraAtPoint,
   type WorldMapCameraState,
 } from '../../../ui/world/worldMapCamera';
+import type { QueueWorldMapCameraUpdate } from './pixiWorldCameraUpdateScheduler';
 
 export function shouldIgnoreWorldMapWheelGesture(
   event: Pick<WheelEvent, 'deltaX' | 'deltaY'>,
@@ -17,13 +17,13 @@ export function shouldIgnoreWorldMapWheelGesture(
 export function createWorldMapWheelHandler({
   app,
   canvas,
-  getWorldMapContainer,
+  queueCameraUpdate,
   scheduleCameraSave,
   worldMapCameraRef,
 }: {
   app: Application;
   canvas: HTMLCanvasElement;
-  getWorldMapContainer: () => Container;
+  queueCameraUpdate: QueueWorldMapCameraUpdate;
   scheduleCameraSave: () => void;
   worldMapCameraRef: MutableRefObject<WorldMapCameraState>;
 }) {
@@ -48,11 +48,7 @@ export function createWorldMapWheelHandler({
     }
 
     worldMapCameraRef.current = nextCamera;
-    applyWorldMapCameraToContainer(
-      getWorldMapContainer(),
-      app.screen,
-      nextCamera,
-    );
+    queueCameraUpdate(nextCamera);
     scheduleCameraSave();
   };
 }

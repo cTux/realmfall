@@ -1,4 +1,7 @@
-import { BACKGROUND_MUSIC_PLAYLISTS } from './backgroundMusicLibrary';
+import {
+  BACKGROUND_MUSIC_PLAYLISTS,
+  type BackgroundMusicTrack,
+} from './backgroundMusicLibrary';
 import type { BackgroundMusicMood } from './backgroundMusic';
 
 export interface BackgroundMusicCycleEntry {
@@ -25,20 +28,28 @@ export function getNextBackgroundMusicTrack(
   cycleState: BackgroundMusicCycleState,
   random = Math.random,
 ) {
-  const playlist: readonly string[] = BACKGROUND_MUSIC_PLAYLISTS[mood];
+  const playlist: readonly BackgroundMusicTrack[] =
+    BACKGROUND_MUSIC_PLAYLISTS[mood];
   const cycle = cycleState[mood];
   const remainingTracks =
-    cycle.remainingTracks.length > 0 ? cycle.remainingTracks : [...playlist];
+    cycle.remainingTracks.length > 0
+      ? cycle.remainingTracks
+      : playlist.map((track) => track.id);
   const availableTracks =
     cycle.lastTrack && remainingTracks.length > 1
-      ? remainingTracks.filter((track) => track !== cycle.lastTrack)
+      ? remainingTracks.filter((trackId) => trackId !== cycle.lastTrack)
       : remainingTracks;
-  const nextTrack =
+  const nextTrackId =
     availableTracks[Math.floor(random() * availableTracks.length)];
+  const nextTrack = playlist.find((track) => track.id === nextTrackId);
 
-  cycle.lastTrack = nextTrack;
+  if (!nextTrack) {
+    return null;
+  }
+
+  cycle.lastTrack = nextTrack.id;
   cycle.remainingTracks = remainingTracks.filter(
-    (track) => track !== nextTrack,
+    (trackId) => trackId !== nextTrack.id,
   );
 
   return nextTrack;

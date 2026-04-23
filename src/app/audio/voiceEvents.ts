@@ -51,9 +51,30 @@ export const VOICE_PLAYBACK_EVENT_OPTIONS: VoicePlaybackEventOptionDefinition[] 
     },
   ];
 
+export interface VoicePlaybackEventState {
+  combat: GameState['combat'];
+  logs: GameState['logs'];
+  logSequence: GameState['logSequence'];
+  player: Pick<GameState['player'], 'hp' | 'statusEffects'>;
+}
+
+export function selectVoicePlaybackEventState(
+  game: GameState,
+): VoicePlaybackEventState {
+  return {
+    combat: game.combat,
+    logs: game.logs,
+    logSequence: game.logSequence,
+    player: {
+      hp: game.player.hp,
+      statusEffects: game.player.statusEffects,
+    },
+  };
+}
+
 export function detectVoicePlaybackEvent(
-  previous: GameState,
-  next: GameState,
+  previous: VoicePlaybackEventState,
+  next: VoicePlaybackEventState,
 ): VoicePlaybackEventId | null {
   if (gainedRecentDeath(previous, next)) {
     return 'playerDeath';
@@ -83,23 +104,32 @@ export function detectVoicePlaybackEvent(
   return null;
 }
 
-function getNewLogs(previous: GameState, next: GameState) {
+function getNewLogs(
+  previous: VoicePlaybackEventState,
+  next: VoicePlaybackEventState,
+) {
   const count = Math.max(0, next.logSequence - previous.logSequence);
   return next.logs.slice(0, count);
 }
 
-function gainedRecentDeath(previous: GameState, next: GameState) {
+function gainedRecentDeath(
+  previous: VoicePlaybackEventState,
+  next: VoicePlaybackEventState,
+) {
   return (
     !hasStatusEffect(previous, 'recentDeath') &&
     hasStatusEffect(next, 'recentDeath')
   );
 }
 
-function hasStatusEffect(state: GameState, effectId: string) {
+function hasStatusEffect(state: VoicePlaybackEventState, effectId: string) {
   return state.player.statusEffects.some((effect) => effect.id === effectId);
 }
 
-function playerTookDamage(previous: GameState, next: GameState) {
+function playerTookDamage(
+  previous: VoicePlaybackEventState,
+  next: VoicePlaybackEventState,
+) {
   return next.player.hp < previous.player.hp;
 }
 

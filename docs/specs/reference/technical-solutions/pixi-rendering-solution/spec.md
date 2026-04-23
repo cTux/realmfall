@@ -7,6 +7,8 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 ## Current Solution
 
 - Pixi owns the main world redraw loop through the ticker started in `usePixiWorld`.
+- The Pixi world ticker stops while the document is hidden, then invalidates and draws a single catch-up frame when the document becomes visible before normal ticking resumes.
+- Drag and wheel interactions update the canonical world-map camera ref synchronously, then coalesce Pixi container transform writes through one animation-frame scheduler so high-rate pointer input cannot force multiple container mutations in the same frame.
 - Idle world frames now coalesce inside a lower animation cadence bucket, so unchanged state does not rerun the full world render path on every Pixi ticker tick.
 - React updates feed the renderer through refs and invalidation-sensitive cached inputs rather than by layering a second immediate render effect path.
 - The renderer separates static, interaction, and animated work.
@@ -36,7 +38,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Fullscreen visual effects resolve through a dedicated renderer helper. The first shipped effect adds a pulsing red overlay when the player's HP drops below `30%`, and the warning turns off at `30%` HP or higher.
 - Rendering quality and icon sizing derive from screen state and world radius.
 - Pixi v8 initialization happens through the async `Application.init()` path rather than constructor options.
-- The world bootstrap loads Pixi through a dedicated `pixiRuntime` module and passes `manageImports: false`, so every Pixi feature used on the world path must be imported there explicitly. The current manual runtime setup includes the app, graphics, text, and filter extensions because the scene cache constructs a custom world-map `Filter`.
+- The world bootstrap loads Pixi through a dedicated `pixiRuntime` module and passes `manageImports: false`, so every Pixi feature used on the world path must be imported there explicitly. The current manual runtime setup includes the app, graphics, and text extensions, while disabled world-map filter code stays outside the live bootstrap path.
 - The custom world-map fisheye shader follows Pixi v8 filter shader semantics on both stages: the vertex shader emits `vTextureCoord`, and the fragment shader consumes `in vec2 vTextureCoord` and samples `uTexture` so the filter can compile cleanly when the fisheye path is enabled again.
 - World SVG icon URLs are promoted into `ImageSource`-backed textures before sprite creation, so Pixi marker sprites do not depend on string-based asset lookup in the browser runtime.
 - The world bootstrap keeps world-only icon preloading, scene-cache setup, and world-hover tooltip helpers behind the same async world bootstrap boundary as Pixi and scene rendering, so the initial `App` chunk does not absorb renderer-only code before the world canvas mounts.
