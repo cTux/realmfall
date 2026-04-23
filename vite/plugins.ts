@@ -47,7 +47,7 @@ export function vitestCachePlugin(): Plugin {
     name: 'realmfall-vitest-cache',
     config: () => ({
       test: {
-        // Vitest 4 still supports runner/globalSetup, while the package's
+        // Vitest 4 supports runner/globalSetup, while the package's
         // default export currently routes to its Vitest 3 custom pool path.
         vCache: defaults,
         runner: fileURLToPath(
@@ -59,6 +59,30 @@ export function vitestCachePlugin(): Plugin {
       },
     }),
   };
+}
+
+export function minifyJsonAssetsPlugin(): Plugin {
+  return {
+    name: 'realmfall-minify-json-assets',
+    generateBundle(_options, bundle) {
+      for (const item of Object.values(bundle)) {
+        if (item.type !== 'asset' || !item.fileName.endsWith('.json')) {
+          continue;
+        }
+
+        minifyJsonAsset(item);
+      }
+    },
+  };
+}
+
+function minifyJsonAsset(asset: { source: string | Uint8Array }) {
+  const source =
+    typeof asset.source === 'string'
+      ? asset.source
+      : new TextDecoder().decode(asset.source);
+
+  asset.source = `${JSON.stringify(JSON.parse(source))}\n`;
 }
 
 interface CreateVitePluginsOptions {
@@ -80,6 +104,7 @@ export function createVitePlugins({
     isVitestRun && vitestCachePlugin(),
     react(),
     createVersionManifestPlugin(appBuildVersion),
+    minifyJsonAssetsPlugin(),
     runDuplicateDepsAudit && detectDuplicatedDeps(),
     !isStorybookScript && minipic(),
     runBundleVisualizer &&
