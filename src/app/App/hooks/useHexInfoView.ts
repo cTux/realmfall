@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { describeStructure } from '../../../game/state';
+import { describeStructure } from '../../../game/world';
 import type { AppWindowsViewState } from '../AppWindows.types';
 import { formatTerrainLabel } from '../utils/formatTerrainLabel';
 

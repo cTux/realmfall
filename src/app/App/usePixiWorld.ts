@@ -7,8 +7,8 @@ import {
   type SetStateAction,
 } from 'react';
 import type { Application } from 'pixi.js';
-import * as stateModule from '../../game/state';
-import type { GameState } from '../../game/state';
+import { getVisibleTiles } from '../../game/stateSelectors';
+import type { GameState, HexCoord } from '../../game/stateTypes';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import { DEFAULT_WORLD_MAP_CAMERA } from '../../ui/world/worldMapCamera';
 import {
@@ -61,7 +61,7 @@ export function usePixiWorld({
   const appRef = useRef<Application | null>(null);
   const worldTooltipKeyRef = useRef<string | null>(null);
   const playerCoordRef = useRef(game.player.coord);
-  const visibleTilesRef = useRef(stateModule.getVisibleTiles(game));
+  const visibleTilesRef = useRef(getVisibleTiles(game));
   const hoverPointerRef = useRef<{ clientX: number; clientY: number } | null>(
     null,
   );
@@ -72,8 +72,8 @@ export function usePixiWorld({
   const hoverFrameRef = useRef<number | null>(null);
   const cameraSaveTimerRef = useRef<number | null>(null);
   const selectedRef = useRef(game.player.coord);
-  const hoveredMoveRef = useRef<stateModule.HexCoord | null>(null);
-  const hoveredSafePathRef = useRef<stateModule.HexCoord[] | null>(null);
+  const hoveredMoveRef = useRef<HexCoord | null>(null);
+  const hoveredSafePathRef = useRef<HexCoord[] | null>(null);
   const hoverAnalysisCacheRef = useRef(new Map<string, WorldHoverSnapshot>());
   const hoverSnapshotRef = useRef(createEmptyWorldHoverSnapshot());
   const showTerrainBackgroundsRef = useRef(showTerrainBackgrounds);

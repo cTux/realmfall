@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { GameState } from '../../../game/state';
+import type { GameState } from '../../../game/stateTypes';
 import type { AppWindowsViewState } from '../AppWindows.types';
 
 export function useCombatPlayerParty({

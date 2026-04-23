@@ -7,8 +7,8 @@ import {
   useRef,
   useState,
 } from 'react';
-import { getCurrentTile } from '../../game/state';
 import { createGame } from '../../game/stateFactory';
+import { getCurrentTile } from '../../game/stateSelectors';
 import type { GameState } from '../../game/stateTypes';
 import { WORLD_RADIUS } from '../constants';
 import { AppWindows } from './AppWindows';

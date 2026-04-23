@@ -1,19 +1,4 @@
 import { useMemo } from 'react';
-import {
-  getCurrentHexClaimStatus,
-  getCurrentHexFactionNpcHealStatus,
-  getEnemiesAt,
-  getGoldAmount,
-  getHostileEnemyIds,
-  getPlayerClaimedTiles,
-  getPlayerStats,
-  getRecipeBookEntries,
-  getTownStock,
-  structureActionLabel,
-  type GameState,
-  type Item,
-  type LogKind,
-} from '../../game/state';
 import { hexKey } from '../../game/hex';
 import { isEquippableItem } from '../../game/inventory';
 import {
@@ -24,7 +9,20 @@ import {
   getReforgeableItemSecondaryStats,
 } from '../../game/itemModifications';
 import { createSkillRecord } from '../../game/skillRecords';
+import {
+  getCurrentHexClaimStatus,
+  getEnemiesAt,
+  getGoldAmount,
+  getHostileEnemyIds,
+  getPlayerClaimedTiles,
+  getPlayerStats,
+  getRecipeBookEntries,
+  getTownStock,
+} from '../../game/stateSelectors';
+import { getCurrentHexFactionNpcHealStatus } from '../../game/stateFactionNpc';
+import type { GameState, Item, LogKind } from '../../game/stateTypes';
 import { buildTile } from '../../game/world';
+import { structureActionLabel } from '../../game/world';
 import { t } from '../../i18n';
 import { formatSecondaryStatLabel } from '../../i18n/labels';
 import { resolveBackgroundMusicMood } from '../audio/backgroundMusic';

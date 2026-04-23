@@ -1,5 +1,5 @@
 import { useCallback, type Dispatch, type SetStateAction } from 'react';
-import type { GameState } from '../../../game/state';
+import type { GameState } from '../../../game/stateTypes';
 import type { UiAudioController } from '../../audio/UiAudioContext';
 import {
   clearAudioSettings,

@@ -1,9 +1,5 @@
-import type {
-  EquipmentSlot,
-  Item,
-  LogKind,
-  SecondaryStatKey,
-} from '../../game/state';
+import type { EquipmentSlot, Item, LogKind } from '../../game/stateTypes';
+import type { SecondaryStatKey } from '../../game/types';
 import type { WindowVisibilityState } from '../constants';
 import type { TooltipLine } from '../../ui/tooltips';
 import type { TooltipPlacement } from '../../ui/tooltipPlacement';

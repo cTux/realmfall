@@ -5,7 +5,7 @@ import {
   formatItemLabel,
 } from '../../../i18n/labels';
 import { t } from '../../../i18n';
-import type { EquipmentSlot, Item } from '../../../game/state';
+import type { EquipmentSlot, Item } from '../../../game/stateTypes';
 import { iconForItem, itemTint } from '../../icons';
 import styles from './styles.module.scss';
 

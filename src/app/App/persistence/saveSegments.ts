@@ -1,4 +1,4 @@
-import type { GameState, LogKind } from '../../../game/state';
+import type { GameState, LogKind } from '../../../game/stateTypes';
 import type { PersistedData } from '../../../persistence/storage';
 import type { WindowPositions, WindowVisibilityState } from '../../constants';
 import type { ActionBarSlots } from '../actionBar';

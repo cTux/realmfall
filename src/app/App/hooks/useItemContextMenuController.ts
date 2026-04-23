@@ -4,12 +4,9 @@ import {
   type MouseEvent as ReactMouseEvent,
   type MutableRefObject,
 } from 'react';
-import {
-  canSellItem,
-  getCurrentTile,
-  isEquippableItem,
-  type GameState,
-} from '../../../game/state';
+import { canSellItem, isEquippableItem } from '../../../game/inventory';
+import { getCurrentTile } from '../../../game/stateSelectors';
+import type { GameState } from '../../../game/stateTypes';
 import {
   canModifyItem,
   getItemModificationCost,

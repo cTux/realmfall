@@ -4,11 +4,12 @@ import {
   type MouseEvent as ReactMouseEvent,
   type MutableRefObject,
 } from 'react';
-import { isRecipePage, type GameState } from '../../../game/state';
+import { isRecipePage } from '../../../game/inventory';
 import {
   CORRUPTED_ITEM_COLOR,
   getItemDisplayName,
 } from '../../../game/itemModifications';
+import type { GameState } from '../../../game/stateTypes';
 import type { TooltipPosition } from '../../../ui/components/GameTooltip';
 import { rarityColor } from '../../../ui/rarity';
 import { getTooltipPlacementForRect } from '../../../ui/tooltipPlacement';

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import type { GameState } from '../../game/state';
+import type { GameState } from '../../game/stateTypes';
 import type { AudioSettings } from '../audioSettings';
 import {
   VOICE_PLAYBACK_EVENT_OPTIONS,

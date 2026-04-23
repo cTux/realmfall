@@ -6,7 +6,7 @@ import {
   type MouseEvent as ReactMouseEvent,
 } from 'react';
 import { t } from '../../../i18n';
-import type { Item } from '../../../game/state';
+import type { Item } from '../../../game/stateTypes';
 import {
   ACTION_BAR_SLOT_COUNT,
   findActionBarItem,

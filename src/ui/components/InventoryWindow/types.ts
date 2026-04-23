@@ -1,6 +1,6 @@
 import type { MouseEvent as ReactMouseEvent } from 'react';
 import type { WindowPosition } from '../../../app/constants';
-import type { Equipment, Item } from '../../../game/state';
+import type { Equipment, Item } from '../../../game/stateTypes';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 
 export interface InventoryWindowProps extends WindowDetailTooltipHandlers {

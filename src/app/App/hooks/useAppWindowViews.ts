@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { GameState, LogKind } from '../../../game/state';
+import type { GameState, LogKind } from '../../../game/stateTypes';
 import type { AudioSettings } from '../../audioSettings';
 import type { GraphicsSettings } from '../../graphicsSettings';
 import type { ActionBarSlots } from '../actionBar';

@@ -8,7 +8,7 @@ import type {
   Item,
   TerritoryNpc,
   TownStockEntry,
-} from '../../../game/state';
+} from '../../../game/stateTypes';
 import type { CombatPartyMember } from '../CombatWindow/types';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 

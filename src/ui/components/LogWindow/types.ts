@@ -1,5 +1,5 @@
 import type { WindowPosition } from '../../../app/constants';
-import type { LogEntry, LogKind } from '../../../game/state';
+import type { LogEntry, LogKind } from '../../../game/stateTypes';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 
 export interface LogWindowProps extends WindowDetailTooltipHandlers {

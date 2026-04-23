@@ -4,7 +4,7 @@ import type {
   PlayerStatusEffect,
   SkillName,
   StatusEffectId,
-} from '../../../game/state';
+} from '../../../game/stateTypes';
 import type { SecondaryStatKey } from '../../../game/types';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 

@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useState, type MutableRefObject } from 'react';
-import {
-  useItem as applyItemUse,
-  type GameState,
-  type Item,
-} from '../../../game/state';
+import { useItem as applyItemUse } from '../../../game/stateItemActions';
+import type { GameState, Item } from '../../../game/stateTypes';
 import {
   createDefaultActionBarSlots,
   findActionBarItem,

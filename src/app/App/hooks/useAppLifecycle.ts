@@ -4,7 +4,8 @@ import {
   type MutableRefObject,
   type SetStateAction,
 } from 'react';
-import { setHomeHex, type GameState } from '../../../game/state';
+import { setHomeHex } from '../../../game/stateWorldActions';
+import type { GameState } from '../../../game/stateTypes';
 import { resetTooltipState as resetTooltipStore } from '../tooltipStore';
 import type { TooltipPosition } from '../../../ui/components/GameTooltip';
 

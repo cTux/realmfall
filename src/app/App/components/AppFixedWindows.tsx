@@ -4,7 +4,7 @@ import {
   canEquipItem,
   canUseItem,
   isEquippableItem,
-} from '../../../game/state';
+} from '../../../game/inventory';
 import { GameTooltip } from '../../../ui/components/GameTooltip';
 import { HeroWindow } from '../../../ui/components/HeroWindow';
 import { ItemContextMenu } from '../../../ui/components/ItemContextMenu';

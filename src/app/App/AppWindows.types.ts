@@ -1,4 +1,10 @@
 import type { MutableRefObject } from 'react';
+import { getPlayerStats } from '../../game/progression';
+import { getCurrentHexClaimStatus } from '../../game/stateClaims';
+import { getRecipeBookEntries } from '../../game/stateCrafting';
+import { getTownStock } from '../../game/stateInventoryActions';
+import { getCurrentHexFactionNpcHealStatus } from '../../game/stateFactionNpc';
+import { getEnemiesAt } from '../../game/stateWorldQueries';
 import type {
   EquipmentSlot,
   GameState,
@@ -6,8 +12,7 @@ import type {
   LogKind,
   Skill,
   Tile,
-  getPlayerStats,
-} from '../../game/state';
+} from '../../game/stateTypes';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import type { TooltipLine } from '../../ui/tooltips';
 import type { AudioSettings } from '../audioSettings';
@@ -71,19 +76,17 @@ export interface AppWindowsViewState {
       }>;
       selectedReforgeStatIndex: number | null;
     } | null;
-    claimStatus: ReturnType<
-      typeof import('../../game/state').getCurrentHexClaimStatus
-    >;
+    claimStatus: ReturnType<typeof getCurrentHexClaimStatus>;
     territoryNpcHealStatus: ReturnType<
-      typeof import('../../game/state').getCurrentHexFactionNpcHealStatus
+      typeof getCurrentHexFactionNpcHealStatus
     >;
     bulkProspectEquipmentExplanation: string | null;
     bulkSellEquipmentExplanation: string | null;
-    townStock: ReturnType<typeof import('../../game/state').getTownStock>;
+    townStock: ReturnType<typeof getTownStock>;
     gold: number;
   };
   recipes: {
-    entries: ReturnType<typeof import('../../game/state').getRecipeBookEntries>;
+    entries: ReturnType<typeof getRecipeBookEntries>;
     skillLevels: Record<Skill, number>;
     inventoryCountsByItemKey: Record<string, number>;
     materialFilterItemKey: string | null;
@@ -96,7 +99,7 @@ export interface AppWindowsViewState {
     visible: boolean;
     snapshot: {
       combat: NonNullable<GameState['combat']>;
-      enemies: ReturnType<typeof import('../../game/state').getEnemiesAt>;
+      enemies: ReturnType<typeof getEnemiesAt>;
     } | null;
   };
   logs: {
