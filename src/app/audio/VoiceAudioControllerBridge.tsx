@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
-import type { GameState } from '../../game/stateTypes';
 import type { AudioSettings } from '../audioSettings';
 import {
   VOICE_PLAYBACK_EVENT_OPTIONS,
   detectVoicePlaybackEvent,
+  type VoicePlaybackEventState,
 } from './voiceEvents';
 import { pickVoiceClipUrl, type VoiceClipCategory } from './voiceLibrary';
 
@@ -12,17 +12,17 @@ const MIN_PLAYBACK_INTERVAL_MS = 700;
 
 interface VoiceAudioControllerBridgeProps {
   audioSettings: AudioSettings;
-  game: GameState;
+  voicePlaybackState: VoicePlaybackEventState;
 }
 
 export function VoiceAudioControllerBridge({
   audioSettings,
-  game,
+  voicePlaybackState,
 }: VoiceAudioControllerBridgeProps) {
   const { muted, respectReducedMotion, volume } = audioSettings;
   const activatedRef = useRef(false);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
-  const previousGameRef = useRef(game);
+  const previousVoicePlaybackStateRef = useRef(voicePlaybackState);
   const playbackRequestIdRef = useRef(0);
   const previousClipIndexRef = useRef<
     Partial<Record<VoiceClipCategory, number>>
@@ -97,10 +97,13 @@ export function VoiceAudioControllerBridge({
   }, [muted, respectReducedMotion, volume]);
 
   useEffect(() => {
-    const previousGame = previousGameRef.current;
-    previousGameRef.current = game;
+    const previousVoicePlaybackState = previousVoicePlaybackStateRef.current;
+    previousVoicePlaybackStateRef.current = voicePlaybackState;
 
-    const playbackEventKey = detectVoicePlaybackEvent(previousGame, game);
+    const playbackEventKey = detectVoicePlaybackEvent(
+      previousVoicePlaybackState,
+      voicePlaybackState,
+    );
     if (!playbackEventKey || !audioSettings.voice.events[playbackEventKey]) {
       return;
     }
@@ -163,7 +166,7 @@ export function VoiceAudioControllerBridge({
         }
       });
     });
-  }, [audioSettings, game, muted, respectReducedMotion, volume]);
+  }, [audioSettings, muted, respectReducedMotion, voicePlaybackState, volume]);
 
   return null;
 }

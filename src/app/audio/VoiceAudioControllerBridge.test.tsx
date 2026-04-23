@@ -3,6 +3,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { createGame } from '../../game/stateFactory';
 import { DEFAULT_AUDIO_SETTINGS } from '../audioSettings';
 import { VoiceAudioControllerBridge } from './VoiceAudioControllerBridge';
+import { selectVoicePlaybackEventState } from './voiceEvents';
 
 const { getVoiceClipUrlsMock, pickVoiceClipUrlMock } = vi.hoisted(() => ({
   getVoiceClipUrlsMock: vi.fn(async () => ['/voice/test.wav']),
@@ -67,7 +68,7 @@ describe('VoiceAudioControllerBridge', () => {
       root.render(
         <VoiceAudioControllerBridge
           audioSettings={DEFAULT_AUDIO_SETTINGS}
-          game={previous}
+          voicePlaybackState={selectVoicePlaybackEventState(previous)}
         />,
       );
     });
@@ -83,7 +84,7 @@ describe('VoiceAudioControllerBridge', () => {
       root.render(
         <VoiceAudioControllerBridge
           audioSettings={DEFAULT_AUDIO_SETTINGS}
-          game={next}
+          voicePlaybackState={selectVoicePlaybackEventState(next)}
         />,
       );
       await flushPromises();
@@ -100,7 +101,7 @@ describe('VoiceAudioControllerBridge', () => {
             ...DEFAULT_AUDIO_SETTINGS,
             muted: true,
           }}
-          game={next}
+          voicePlaybackState={selectVoicePlaybackEventState(next)}
         />,
       );
     });
@@ -117,7 +118,7 @@ describe('VoiceAudioControllerBridge', () => {
       root.render(
         <VoiceAudioControllerBridge
           audioSettings={DEFAULT_AUDIO_SETTINGS}
-          game={previous}
+          voicePlaybackState={selectVoicePlaybackEventState(previous)}
         />,
       );
     });
@@ -133,7 +134,7 @@ describe('VoiceAudioControllerBridge', () => {
       root.render(
         <VoiceAudioControllerBridge
           audioSettings={DEFAULT_AUDIO_SETTINGS}
-          game={next}
+          voicePlaybackState={selectVoicePlaybackEventState(next)}
         />,
       );
       await flushPromises();

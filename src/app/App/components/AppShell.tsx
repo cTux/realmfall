@@ -1,4 +1,4 @@
-import { lazy, Suspense, type MutableRefObject } from 'react';
+import { lazy, Suspense, useMemo, type MutableRefObject } from 'react';
 import type { GameState, HexCoord } from '../../../game/stateTypes';
 import { t } from '../../../i18n';
 import { LoadingSpinner } from '../../../ui/components/LoadingSpinner';
@@ -59,6 +59,20 @@ export function AppShell({
   onUiAudioChange: (nextController: UiAudioController) => void;
 }) {
   const audioBridgeActivated = useAudioBridgeActivation();
+  const { combat, logSequence, logs } = game;
+  const { hp, statusEffects } = game.player;
+  const voicePlaybackState = useMemo(
+    () => ({
+      combat,
+      logSequence,
+      logs,
+      player: {
+        hp,
+        statusEffects,
+      },
+    }),
+    [combat, hp, logSequence, logs, statusEffects],
+  );
 
   return (
     <UiAudioProvider value={uiAudio}>
@@ -72,7 +86,7 @@ export function AppShell({
             <>
               <VoiceAudioControllerBridge
                 audioSettings={audioSettings}
-                game={game}
+                voicePlaybackState={voicePlaybackState}
               />
               <BackgroundMusicControllerBridge
                 audioSettings={audioSettings}

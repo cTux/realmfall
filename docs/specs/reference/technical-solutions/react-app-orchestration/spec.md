@@ -62,6 +62,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Secondary stage overlays such as the home-direction marker and version polling panel stay behind lazy boundaries so the `App` entry prioritizes world bootstrap and core window composition.
 - `AppShell` owns the lazy audio bridges, home-direction marker shell, pause overlay, and loading chrome so the main app entry can stay focused on hook composition and data flow.
 - `AppShell` mounts optional recorded-voice and background-music bridges only after the first keyboard, pointer, mouse, or touch activation, keeping their asset manifests and audio-player work out of the pre-interaction path while the lighter UI-audio bridge remains ready for document-level settings.
+- `AppShell` passes a memoized voice playback event slice to the recorded-voice bridge instead of the full `GameState`, limiting voice event checks to combat, log, HP, and status-effect changes.
 - The world-clock hook pauses its `requestAnimationFrame` loop while the document is hidden and resumes from a clean tick when the tab becomes visible again, avoiding idle background frame churn without desynchronizing world time.
 - Windows that only need the live world clock for cooldown or display state subscribe inside the leaf content component, so wrapper shells and suspense boundaries do not rerender on every clock tick.
 - Window dragging and resizing keep movement local to the window shell until pointer release, which avoids pushing every pointer delta through shared app state during the interaction.
