@@ -34,11 +34,13 @@ import { t } from '../i18n';
 import { formatAbilityLabel, formatStatusEffectLabel } from '../i18n/labels';
 import {
   ABILITY_RUNTIME_DEFINITIONS,
+  DEFAULT_ABILITY_ID,
+  getAbilityDefinition as getAbilityRuntimeDefinition,
+} from './abilityCatalog';
+import {
   buildEnemyAbilityIds,
   buildEquippedAbilityIds,
-  DEFAULT_ABILITY_ID,
   enemyAbilityCount,
-  getAbilityDefinition as getAbilityRuntimeDefinition,
   sortAbilityIdsForCombat,
 } from './abilityRuntime';
 import type {

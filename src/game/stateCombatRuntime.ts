@@ -1,6 +1,6 @@
 import { t } from '../i18n';
 import { formatAbilityLabel, formatStatusEffectLabel } from '../i18n/labels';
-import { getAbilityDefinition } from './abilityRuntime';
+import { getAbilityDefinition } from './abilityCatalog';
 import { createCombatActorState } from './combat';
 import {
   getEnemyCombatAttack,

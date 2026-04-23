@@ -5,7 +5,8 @@ import {
   ENEMY_RARITY_MULTIPLIERS,
   pickBloodMoonItemKind,
 } from './config';
-import { buildEnemyAbilityIds, DEFAULT_ABILITY_ID } from './abilityRuntime';
+import { DEFAULT_ABILITY_ID } from './abilityCatalog';
+import { buildEnemyAbilityIds } from './abilityRuntime';
 import { getEnemyBaseStatsForLevel } from './balance';
 import { isAnimalEnemyType, pickEnemyConfig } from './content/enemies';
 import { GAME_TAGS, uniqueTags } from './content/tags';
