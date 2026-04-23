@@ -190,33 +190,35 @@ export const HexInfoWindow = memo(function HexInfoWindow({
               {t('ui.hexInfo.sellAllAction')}
             </WindowHeaderActionButton>
           ) : null}
-          <WindowHeaderActionButton
-            className={inventoryStyles.headerButton}
-            disabled={!canTerritoryAction}
-            onClick={onTerritoryAction}
-            tooltipTitle={territoryActionLabel}
-            tooltipLines={territoryActionTooltipLines}
-            tooltipBorderColor={territoryActionTooltipBorderColor}
-            onHoverDetail={onHoverDetail}
-            onLeaveDetail={onLeaveDetail}
-          >
-            {territoryActionLabel}
-          </WindowHeaderActionButton>
-          <WindowHeaderActionButton
-            className={`${inventoryStyles.headerButton} ${styles.homeButton}`}
-            ariaPressed={isHome}
-            disabled={!canSetHome || isHome}
-            onClick={onSetHome}
-            tooltipTitle={t('ui.hexInfo.setHomeAction')}
-            tooltipLines={[
-              { kind: 'text', text: t('ui.tooltip.window.setHome') },
-            ]}
-            tooltipBorderColor="rgba(125, 211, 252, 0.9)"
-            onHoverDetail={onHoverDetail}
-            onLeaveDetail={onLeaveDetail}
-          >
-            {t('ui.hexInfo.setHomeAction')}
-          </WindowHeaderActionButton>
+          {canTerritoryAction ? (
+            <WindowHeaderActionButton
+              className={inventoryStyles.headerButton}
+              onClick={onTerritoryAction}
+              tooltipTitle={territoryActionLabel}
+              tooltipLines={territoryActionTooltipLines}
+              tooltipBorderColor={territoryActionTooltipBorderColor}
+              onHoverDetail={onHoverDetail}
+              onLeaveDetail={onLeaveDetail}
+            >
+              {territoryActionLabel}
+            </WindowHeaderActionButton>
+          ) : null}
+          {canSetHome && !isHome ? (
+            <WindowHeaderActionButton
+              className={`${inventoryStyles.headerButton} ${styles.homeButton}`}
+              ariaPressed={isHome}
+              onClick={onSetHome}
+              tooltipTitle={t('ui.hexInfo.setHomeAction')}
+              tooltipLines={[
+                { kind: 'text', text: t('ui.tooltip.window.setHome') },
+              ]}
+              tooltipBorderColor="rgba(125, 211, 252, 0.9)"
+              onHoverDetail={onHoverDetail}
+              onLeaveDetail={onLeaveDetail}
+            >
+              {t('ui.hexInfo.setHomeAction')}
+            </WindowHeaderActionButton>
+          ) : null}
         </>
       }
       content={HexInfoWindowContent}

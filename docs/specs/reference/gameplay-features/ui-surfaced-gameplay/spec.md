@@ -26,7 +26,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - Action bar consumable slots do not render a cooldown overlay while the shared consumable recharge is active.
 - Pressing `Space` toggles a paused state for gameplay mechanics and shows a centered full-stage overlay message until the game is resumed, except when keyboard focus is inside an editable field or another focusable UI control that should keep its native `Space` behavior.
 - Pressing `Esc` closes every currently open window.
-- While the hex info window is open, the title-bar land actions surface inline `A` and `O` hotkeys through `Cl(a)im` / `Uncl(a)im` and `H(o)me`, and those keys trigger the enabled action directly.
+- While the hex info window is open, the title-bar land actions surface inline `A` and `O` hotkeys through `Cl(a)im` / `Uncl(a)im` and `H(o)me` only when their requirements are currently met, and those keys trigger the visible enabled action directly.
 - While the hex info window is open on a faction NPC hex, the title bar also surfaces `(Q) Heal`, and pressing `Q` prioritizes that paid heal action over other hex `Q` shortcuts when healing is available.
 - While the hex info window is open at a forge, the bulk equippable prospect action stays in the content body with `(Q) Prospect all equippables`.
 - While the hex info window is open at a town, the bulk equippable sell action always lives in the title bar as `S(e)ll all`, showing disabled-state tooltip guidance when nothing can be sold, and `E` triggers that sell action before the loot take-all shortcut when the action is available.

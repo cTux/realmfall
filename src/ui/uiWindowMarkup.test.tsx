@@ -485,9 +485,50 @@ describe('ui window markup', () => {
       />,
     );
 
-    expect(markup).toContain('Cl(a)im');
     expect(markup).not.toContain(
       'Claiming needs 1 Cloth and 1 Sticks for a banner.',
     );
+  });
+
+  it('hides claim and home title actions when their requirements are not met', async () => {
+    const markup = await renderMarkup(
+      <HexInfoWindow
+        position={DEFAULT_WINDOWS.hexInfo}
+        onMove={() => {}}
+        isHome
+        canSetHome={false}
+        onSetHome={() => {}}
+        terrain="Plains"
+        structure={null}
+        enemyCount={0}
+        interactLabel={null}
+        canInteract={false}
+        canTerritoryAction={false}
+        territoryActionLabel="Cl(a)im"
+        canHealTerritoryNpc={false}
+        territoryNpcHealExplanation={null}
+        territoryActionExplanation="Claiming needs 1 Cloth and 1 Sticks for a banner."
+        canBulkProspectEquipment={false}
+        canBulkSellEquipment={false}
+        bulkProspectEquipmentExplanation={null}
+        bulkSellEquipmentExplanation={null}
+        onInteract={() => {}}
+        onTerritoryAction={() => {}}
+        onHealTerritoryNpc={() => {}}
+        onProspect={() => {}}
+        onSellAll={() => {}}
+        territoryName={null}
+        territoryOwnerType={null}
+        territoryNpc={null}
+        townStock={[]}
+        gold={0}
+        onBuyItem={() => {}}
+        onHoverItem={() => {}}
+        onLeaveItem={() => {}}
+      />,
+    );
+
+    expect(markup).not.toContain('Cl(a)im');
+    expect(markup).not.toContain('H(o)me');
   });
 });
