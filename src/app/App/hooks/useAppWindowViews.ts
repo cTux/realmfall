@@ -11,16 +11,16 @@ interface UseAppWindowViewsArgs {
   audioSettings: AudioSettings;
   combatSnapshot: AppWindowsViewState['combat']['snapshot'];
   combatWindowVisible: boolean;
-  currentTile: AppWindowsViewState['world']['currentTile'];
+  currentTile: AppWindowsViewState['hex']['currentTile'];
   currentTileHostileEnemyCount: number;
   game: GameState;
   gold: number;
   graphicsSettings: GraphicsSettings;
   inventoryCountsByItemKey: Record<string, number>;
-  itemModification: AppWindowsViewState['world']['itemModification'];
+  itemModification: AppWindowsViewState['hex']['itemModification'];
   itemMenu: ItemContextMenuState | null;
-  claimStatus: AppWindowsViewState['world']['claimStatus'];
-  territoryNpcHealStatus: AppWindowsViewState['world']['territoryNpcHealStatus'];
+  claimStatus: AppWindowsViewState['hex']['claimStatus'];
+  territoryNpcHealStatus: AppWindowsViewState['hex']['territoryNpcHealStatus'];
   interactLabel: string | null;
   filteredLogs: GameState['logs'];
   logFilters: Record<LogKind, boolean>;
@@ -35,7 +35,7 @@ interface UseAppWindowViewsArgs {
   bulkSellEquipmentExplanation: string | null;
   showFilterMenu: boolean;
   stats: AppWindowsViewState['hero']['stats'];
-  townStock: AppWindowsViewState['world']['townStock'];
+  townStock: AppWindowsViewState['hex']['townStock'];
 }
 
 export function useAppWindowViews({
@@ -82,6 +82,12 @@ export function useAppWindowViews({
     () => ({
       coord: game.player.coord,
       mana: game.player.mana,
+    }),
+    [game.player.coord, game.player.mana],
+  );
+
+  const inventory = useMemo(
+    () => ({
       actionBarSlots,
       equipment: game.player.equipment,
       inventory: game.player.inventory,
@@ -89,15 +95,13 @@ export function useAppWindowViews({
     }),
     [
       actionBarSlots,
-      game.player.coord,
       game.player.equipment,
       game.player.inventory,
       game.player.learnedRecipeIds,
-      game.player.mana,
     ],
   );
 
-  const world = useMemo(
+  const hex = useMemo(
     () => ({
       homeHex: game.homeHex,
       worldTimeMs: game.worldTimeMs,
@@ -186,7 +190,8 @@ export function useAppWindowViews({
     () => ({
       hero,
       player,
-      world,
+      inventory,
+      hex,
       recipes: recipeViews,
       loot,
       combat,
@@ -194,6 +199,17 @@ export function useAppWindowViews({
       settings,
       itemMenu,
     }),
-    [combat, hero, itemMenu, logs, loot, player, recipeViews, settings, world],
+    [
+      combat,
+      hero,
+      hex,
+      inventory,
+      itemMenu,
+      logs,
+      loot,
+      player,
+      recipeViews,
+      settings,
+    ],
   );
 }

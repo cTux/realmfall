@@ -11,11 +11,11 @@ export function useHexInfoView({
   combat,
   combatSnapshot,
 }: {
-  homeHex: AppWindowsViewState['world']['homeHex'];
+  homeHex: AppWindowsViewState['hex']['homeHex'];
   playerCoord: AppWindowsViewState['player']['coord'];
-  currentTile: AppWindowsViewState['world']['currentTile'];
-  currentTileHostileEnemyCount: AppWindowsViewState['world']['currentTileHostileEnemyCount'];
-  combat: AppWindowsViewState['world']['combat'];
+  currentTile: AppWindowsViewState['hex']['currentTile'];
+  currentTileHostileEnemyCount: AppWindowsViewState['hex']['currentTileHostileEnemyCount'];
+  combat: AppWindowsViewState['hex']['combat'];
   combatSnapshot: AppWindowsViewState['combat']['snapshot'];
 }) {
   return useMemo(

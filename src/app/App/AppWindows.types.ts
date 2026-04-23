@@ -47,12 +47,14 @@ export interface AppWindowsViewState {
   player: {
     coord: GameState['player']['coord'];
     mana: GameState['player']['mana'];
+  };
+  inventory: {
     actionBarSlots: ActionBarSlots;
     equipment: GameState['player']['equipment'];
     inventory: GameState['player']['inventory'];
     learnedRecipeIds: GameState['player']['learnedRecipeIds'];
   };
-  world: {
+  hex: {
     homeHex: GameState['homeHex'];
     worldTimeMs: GameState['worldTimeMs'];
     currentTile: Tile;
@@ -180,7 +182,7 @@ export interface AppWindowsActions {
     onTakeLootItem: (itemId: string) => void;
     onTakeAllLoot: () => void;
   };
-  world: {
+  hex: {
     onStartCombat: () => void;
     onForfeitCombat: () => void;
     onInteract: () => void;

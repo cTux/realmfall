@@ -25,6 +25,7 @@
 - Keep `src/game/stateCombat.ts` as the combat orchestration entrypoint and move combat damage resolution, target selection, status-effect mutation, proc math, and combat-log formatting into neighboring `src/game/combat*.ts` helpers instead of regrowing one broad combat runtime file.
 - Keep `src/game/stateCombat.ts` limited to public combat entrypoints and lightweight setup. Place the long-running combat resolution loop and cast-processing internals in focused neighboring runtime helpers instead of expanding the API surface file.
 - Keep `src/app/App/App.tsx` centered on top-level hook composition. Move shell markup, auto-open window effects, and other single-purpose orchestration branches into local components or hooks under `src/app/App/components` and `src/app/App/hooks`.
+- Name `AppWindows` view and action slices after the responsibility they serve, such as `inventory` and `hex`. Do not hide mixed inventory or hex-interaction state behind broad buckets like `player` or `world`.
 - Keep configurable balancing and world values in `game.config.ts` or dedicated config modules instead of scattering magic numbers through UI code.
 - Add all future chance-based gameplay parameters to `game.config.ts`, grouped by gameplay area, and document each parameter inline instead of introducing new chance constants in content files or other modules.
 - Give every unique item its own configuration file for its gameplay and presentation data, including icon and non-chance item-specific values.

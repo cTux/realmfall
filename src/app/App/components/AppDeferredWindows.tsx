@@ -96,15 +96,15 @@ interface AppDeferredWindowsProps {
     typeof import('../hooks/useRecipeWindowStructure').useRecipeWindowStructure
   >;
   heroStats: AppWindowsViewState['hero']['stats'];
-  playerView: AppWindowsViewState['player'];
-  worldView: AppWindowsViewState['world'];
+  inventoryView: AppWindowsViewState['inventory'];
+  hexView: AppWindowsViewState['hex'];
   recipesView: AppWindowsViewState['recipes'];
   combatView: AppWindowsViewState['combat'];
   logsView: AppWindowsViewState['logs'];
   settingsView: AppWindowsViewState['settings'];
   tooltipActions: AppWindowsActions['tooltip'];
   inventoryActions: AppWindowsActions['inventory'];
-  worldActions: AppWindowsActions['world'];
+  hexActions: AppWindowsActions['hex'];
   recipeActions: AppWindowsActions['recipes'];
   logActions: AppWindowsActions['logs'];
   settingsActions: AppWindowsActions['settings'];
@@ -114,22 +114,22 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
   appReady,
   combatView,
   combatPlayerParty,
+  hexActions,
+  hexView,
   hexInfoView,
   heroStats,
+  inventoryView,
   inventoryActions,
   logsView,
   logActions,
   mountedWindows,
   managedWindowProps,
-  playerView,
   recipeActions,
   recipesView,
   recipeWindowStructure,
   settingsActions,
   settingsView,
   tooltipActions,
-  worldActions,
-  worldView,
 }: AppDeferredWindowsProps) {
   const detailTooltipHandlers = {
     onHoverDetail: tooltipActions.onShowTooltip,
@@ -169,70 +169,64 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
             {...managedWindowProps.hexInfo}
             isHome={hexInfoView.isHome}
             canSetHome={hexInfoView.canSetHome}
-            onSetHome={worldActions.onSetHome}
+            onSetHome={hexActions.onSetHome}
             terrain={hexInfoView.terrain}
             structure={hexInfoView.structure}
             enemyCount={hexInfoView.enemyCount}
-            interactLabel={worldView.interactLabel}
-            canInteract={Boolean(worldView.interactLabel)}
-            canBulkProspectEquipment={worldView.canBulkProspectEquipment}
-            canBulkSellEquipment={worldView.canBulkSellEquipment}
-            itemModification={worldView.itemModification}
-            canTerritoryAction={worldView.claimStatus.canClaim}
+            interactLabel={hexView.interactLabel}
+            canInteract={Boolean(hexView.interactLabel)}
+            canBulkProspectEquipment={hexView.canBulkProspectEquipment}
+            canBulkSellEquipment={hexView.canBulkSellEquipment}
+            itemModification={hexView.itemModification}
+            canTerritoryAction={hexView.claimStatus.canClaim}
             territoryActionKind={
-              worldView.claimStatus.action === 'none'
+              hexView.claimStatus.action === 'none'
                 ? undefined
-                : worldView.claimStatus.action
+                : hexView.claimStatus.action
             }
             territoryActionLabel={claimStatusActionLabel(
-              worldView.claimStatus.action,
+              hexView.claimStatus.action,
             )}
-            territoryActionExplanation={worldView.claimStatus.reason}
+            territoryActionExplanation={hexView.claimStatus.reason}
             bulkProspectEquipmentExplanation={
-              worldView.bulkProspectEquipmentExplanation
+              hexView.bulkProspectEquipmentExplanation
             }
-            bulkSellEquipmentExplanation={
-              worldView.bulkSellEquipmentExplanation
-            }
-            onInteract={worldActions.onInteract}
-            onProspect={worldActions.onProspect}
-            onSellAll={worldActions.onSellAll}
-            onApplyItemModification={
-              worldActions.onApplySelectedItemModification
-            }
+            bulkSellEquipmentExplanation={hexView.bulkSellEquipmentExplanation}
+            onInteract={hexActions.onInteract}
+            onProspect={hexActions.onProspect}
+            onSellAll={hexActions.onSellAll}
+            onApplyItemModification={hexActions.onApplySelectedItemModification}
             onClearItemModificationSelection={
-              worldActions.onClearSelectedItemModification
+              hexActions.onClearSelectedItemModification
             }
             onSelectItemModificationReforgeStat={
-              worldActions.onSelectItemModificationReforgeStat
+              hexActions.onSelectItemModificationReforgeStat
             }
             onToggleItemModificationPicker={
-              worldActions.onToggleItemModificationPicker
+              hexActions.onToggleItemModificationPicker
             }
-            onTerritoryAction={worldActions.onClaimHex}
-            canHealTerritoryNpc={worldView.territoryNpcHealStatus.canHeal}
-            territoryNpcHealExplanation={
-              worldView.territoryNpcHealStatus.reason
-            }
-            onHealTerritoryNpc={worldActions.onHealTerritoryNpc}
-            structureHp={worldView.currentTile.structureHp}
-            structureMaxHp={worldView.currentTile.structureMaxHp}
-            territoryName={worldView.currentTile.claim?.ownerName ?? null}
-            territoryOwnerType={worldView.currentTile.claim?.ownerType ?? null}
-            territoryNpc={worldView.currentTile.claim?.npc ?? null}
-            townStock={worldView.townStock}
-            gold={worldView.gold}
-            equipment={playerView.equipment}
-            loot={worldView.currentTile.items}
-            combat={worldView.combat}
+            onTerritoryAction={hexActions.onClaimHex}
+            canHealTerritoryNpc={hexView.territoryNpcHealStatus.canHeal}
+            territoryNpcHealExplanation={hexView.territoryNpcHealStatus.reason}
+            onHealTerritoryNpc={hexActions.onHealTerritoryNpc}
+            structureHp={hexView.currentTile.structureHp}
+            structureMaxHp={hexView.currentTile.structureMaxHp}
+            territoryName={hexView.currentTile.claim?.ownerName ?? null}
+            territoryOwnerType={hexView.currentTile.claim?.ownerType ?? null}
+            territoryNpc={hexView.currentTile.claim?.npc ?? null}
+            townStock={hexView.townStock}
+            gold={hexView.gold}
+            equipment={inventoryView.equipment}
+            loot={hexView.currentTile.items}
+            combat={hexView.combat}
             combatPlayerParty={combatPlayerParty}
             combatEnemies={combatView.snapshot?.enemies ?? []}
-            combatWorldTimeMs={worldView.worldTimeMs}
-            onBuyItem={worldActions.onBuyTownItem}
+            combatWorldTimeMs={hexView.worldTimeMs}
+            onBuyItem={hexActions.onBuyTownItem}
             onTakeAll={inventoryActions.onTakeAllLoot}
             onTakeItem={inventoryActions.onTakeLootItem}
-            onStartCombat={worldActions.onStartCombat}
-            onForfeitCombat={worldActions.onForfeitCombat}
+            onStartCombat={hexActions.onStartCombat}
+            onForfeitCombat={hexActions.onForfeitCombat}
             onHoverItem={tooltipActions.onShowItemTooltip}
             onLeaveItem={tooltipActions.onCloseTooltip}
             {...detailTooltipHandlers}
@@ -243,7 +237,7 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
         <Suspense fallback={fallback}>
           <EquipmentWindow
             {...managedWindowProps.equipment}
-            equipment={playerView.equipment}
+            equipment={inventoryView.equipment}
             onHoverItem={tooltipActions.onEquipmentHover}
             onLeaveItem={tooltipActions.onCloseTooltip}
             onUnequip={inventoryActions.onUnequip}
@@ -252,7 +246,7 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
               inventoryActions.onSelectHexItemModificationItem
             }
             hexItemModificationPickerActive={Boolean(
-              worldView.itemModification?.pickerActive,
+              hexView.itemModification?.pickerActive,
             )}
             {...detailTooltipHandlers}
           />
@@ -262,9 +256,9 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
         <Suspense fallback={fallback}>
           <InventoryWindow
             {...managedWindowProps.inventory}
-            inventory={playerView.inventory}
-            equipment={playerView.equipment}
-            learnedRecipeIds={playerView.learnedRecipeIds}
+            inventory={inventoryView.inventory}
+            equipment={inventoryView.equipment}
+            learnedRecipeIds={inventoryView.learnedRecipeIds}
             onSort={inventoryActions.onSort}
             onActivateItem={inventoryActions.onActivateItem}
             onContextItem={inventoryActions.onContextItem}
@@ -272,7 +266,7 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
               inventoryActions.onSelectHexItemModificationItem
             }
             hexItemModificationPickerActive={Boolean(
-              worldView.itemModification?.pickerActive,
+              hexView.itemModification?.pickerActive,
             )}
             onHoverItem={tooltipActions.onShowItemTooltip}
             onLeaveItem={tooltipActions.onCloseTooltip}
@@ -311,7 +305,7 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
 });
 
 function claimStatusActionLabel(
-  action: AppWindowsViewState['world']['claimStatus']['action'],
+  action: AppWindowsViewState['hex']['claimStatus']['action'],
 ) {
   switch (action) {
     case 'unclaim':
