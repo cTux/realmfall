@@ -5,6 +5,14 @@ vi.mock('pixi.js', () => ({
   ImageSource: class MockImageSource {
     constructor(public options: unknown) {}
   },
+  Rectangle: class MockRectangle {
+    constructor(
+      public x: number,
+      public y: number,
+      public width: number,
+      public height: number,
+    ) {}
+  },
   Texture: class MockTexture {
     static from = vi.fn(
       (icon: string) =>
@@ -18,6 +26,7 @@ vi.mock('pixi.js', () => ({
 
     constructor(
       public options: {
+        frame?: unknown;
         icon?: string;
         source?: { destroyed?: boolean } | null;
       },
@@ -123,6 +132,62 @@ describe('worldIcons', () => {
       ]),
     );
     expect(icons).not.toContain(structureIconFor('town'));
+  });
+
+  it('loads generated terrain atlas once for multiple terrain frame textures', async () => {
+    const originalImage = globalThis.Image;
+    const originalNavigatorUserAgent = globalThis.navigator.userAgent;
+    const createdImages: MockImage[] = [];
+
+    class MockImage {
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      srcValue = '';
+
+      constructor() {
+        createdImages.push(this);
+      }
+
+      set src(value: string) {
+        this.srcValue = value;
+        queueMicrotask(() => this.onload?.());
+      }
+    }
+
+    try {
+      vi.resetModules();
+      vi.stubGlobal('Image', MockImage as unknown as typeof Image);
+      Object.defineProperty(globalThis.navigator, 'userAgent', {
+        configurable: true,
+        value: 'Mozilla/5.0',
+      });
+
+      const { getWorldTerrainAtlasImage, terrainArtFor } =
+        await import('./worldTerrainArt');
+      const { ensureWorldIconTexturesLoaded, getWorldIconTexture } =
+        await import('./worldIcons');
+
+      const plains = terrainArtFor('plains');
+      const forest = terrainArtFor('forest');
+
+      await ensureWorldIconTexturesLoaded([plains, forest]);
+
+      expect(createdImages).toHaveLength(1);
+      expect(createdImages[0].srcValue).toBe(getWorldTerrainAtlasImage());
+      expect(getWorldIconTexture(plains)).toBeDefined();
+      expect(getWorldIconTexture(forest)).toBeDefined();
+      expect(getWorldIconTexture(plains)).not.toBe(getWorldIconTexture(forest));
+    } finally {
+      if (originalImage === undefined) {
+        vi.unstubAllGlobals();
+      } else {
+        vi.stubGlobal('Image', originalImage);
+      }
+      Object.defineProperty(globalThis.navigator, 'userAgent', {
+        configurable: true,
+        value: originalNavigatorUserAgent,
+      });
+    }
   });
 
   it('reloads destroyed cached textures before reusing them', async () => {

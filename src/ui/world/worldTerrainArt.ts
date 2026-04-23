@@ -1,35 +1,21 @@
-import badlandsTerrain from '../../assets/images/terrain/badlands-v2.png';
-import blastedTerrain from '../../assets/images/terrain/blasted-v2.png';
-import desertTerrain from '../../assets/images/terrain/desert-v2.png';
-import dunesTerrain from '../../assets/images/terrain/dunes-v2.png';
-import forestTerrain from '../../assets/images/terrain/forest-v2.png';
-import groveTerrain from '../../assets/images/terrain/grove-v2.png';
-import highlandsTerrain from '../../assets/images/terrain/highlands-v2.png';
-import marshTerrain from '../../assets/images/terrain/marsh-v2.png';
-import meadowTerrain from '../../assets/images/terrain/meadow-v2.png';
-import mountainTerrain from '../../assets/images/terrain/mountain-v2.png';
-import plainsTerrain from '../../assets/images/terrain/plains-v2.png';
-import riftTerrain from '../../assets/images/terrain/rift-v2.png';
-import steppeTerrain from '../../assets/images/terrain/steppe-v2.png';
-import swampTerrain from '../../assets/images/terrain/swamp-v2.png';
+import worldTerrainAtlasManifest from '../../assets/generated/world-terrain-atlas.json';
+import worldTerrainAtlasImage from '../../assets/generated/world-terrain-atlas.png';
 import type { Terrain } from '../../game/stateTypes';
 
-export const WORLD_TERRAIN_ART = {
-  badlands: badlandsTerrain,
-  blasted: blastedTerrain,
-  desert: desertTerrain,
-  dunes: dunesTerrain,
-  forest: forestTerrain,
-  grove: groveTerrain,
-  highlands: highlandsTerrain,
-  marsh: marshTerrain,
-  meadow: meadowTerrain,
-  mountain: mountainTerrain,
-  plains: plainsTerrain,
-  rift: riftTerrain,
-  steppe: steppeTerrain,
-  swamp: swampTerrain,
-} as const satisfies Record<Terrain, string>;
+export type WorldTerrainAtlasFrameId = `world-terrain-atlas:${Terrain}`;
+
+const WORLD_TERRAIN_ATLAS_FRAME_PREFIX = 'world-terrain-atlas:';
+const WORLD_TERRAIN_ATLAS_FRAMES = worldTerrainAtlasManifest.frames as Record<
+  Terrain,
+  { x: number; y: number; w: number; h: number; source: string }
+>;
+
+export const WORLD_TERRAIN_ART = Object.fromEntries(
+  Object.keys(WORLD_TERRAIN_ATLAS_FRAMES).map((terrain) => [
+    terrain,
+    getWorldTerrainFrameId(terrain as Terrain),
+  ]),
+) as Record<Terrain, WorldTerrainAtlasFrameId>;
 
 export function terrainArtFor(terrain: Terrain) {
   return WORLD_TERRAIN_ART[terrain];
@@ -37,4 +23,43 @@ export function terrainArtFor(terrain: Terrain) {
 
 export function getWorldTerrainAssetIds() {
   return Object.values(WORLD_TERRAIN_ART);
+}
+
+export function getWorldTerrainAtlasImage() {
+  return worldTerrainAtlasImage;
+}
+
+export function getWorldTerrainFrameId(
+  terrain: Terrain,
+): WorldTerrainAtlasFrameId {
+  return `${WORLD_TERRAIN_ATLAS_FRAME_PREFIX}${terrain}`;
+}
+
+export function isWorldTerrainFrameId(
+  assetId: string,
+): assetId is WorldTerrainAtlasFrameId {
+  return assetId.startsWith(WORLD_TERRAIN_ATLAS_FRAME_PREFIX);
+}
+
+export function getWorldTerrainFrame(assetId: WorldTerrainAtlasFrameId): {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+} {
+  const terrain = assetId.slice(
+    WORLD_TERRAIN_ATLAS_FRAME_PREFIX.length,
+  ) as Terrain;
+  const frame = WORLD_TERRAIN_ATLAS_FRAMES[terrain];
+
+  if (!frame) {
+    throw new Error(`Unknown world terrain atlas frame: ${assetId}`);
+  }
+
+  return {
+    x: frame.x,
+    y: frame.y,
+    w: frame.w,
+    h: frame.h,
+  };
 }

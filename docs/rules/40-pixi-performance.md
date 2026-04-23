@@ -28,6 +28,7 @@
 - When static redraw invalidation needs enemy or structure presentation data, prefer carrying forward precomputed render inputs instead of repeating tile-level lookup work during both token derivation and render execution.
 - On Pixi bootstrap, block only on the world icon textures needed for the initial visible viewport. Warm the rest of the icon catalog in background idle slices so first paint is not tied to offscreen marker assets.
 - Keep the generated world terrain atlas in sync with terrain PNG changes by running `pnpm assets:world-atlas`; the generated manifest must cover every runtime terrain in `TERRAINS`.
+- Runtime terrain sprites should resolve through generated atlas frame ids. Treat individual terrain PNGs as atlas inputs, not as direct world-render texture imports.
 - Disabled renderer experiments such as optional filters must cost zero runtime bootstrap work. Keep the live runtime on a no-op path until the feature flag is enabled instead of importing or constructing disabled filter code during normal startup.
 - Use device-aware quality budgets for Pixi rendering. Cap expensive defaults such as full-resolution rendering or unconditional antialiasing when they threaten frame time on weaker or high-DPI devices.
 - Treat Pixi renderer creation options as page-lifetime initialization inputs. Keep those settings out of live Pixi bootstrap effect dependencies, and mark their controls as reload-required while routing live redraw toggles through explicit render invalidation.
