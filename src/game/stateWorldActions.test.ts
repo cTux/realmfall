@@ -319,41 +319,15 @@ describe('game state world actions', () => {
     expect(stoneFound).toBe(true);
   });
 
-  it('clears the home hex when home is set', () => {
+  it('sets home on an empty hex', () => {
     const game = createGame(3, 'set-home-empty-seed');
     game.player.coord = { q: 1, r: 0 };
     game.tiles['1,0'] = {
       coord: { q: 1, r: 0 },
       terrain: 'plains',
-      items: [
-        {
-          id: 'resource-gold-home',
-          name: 'Gold',
-          itemKey: 'gold',
-          quantity: 4,
-          tier: 1,
-          rarity: 'common',
-          power: 0,
-          defense: 0,
-          maxHp: 0,
-          healing: 0,
-          hunger: 0,
-        },
-      ],
-      structure: 'camp',
-      enemyIds: ['enemy-1,0-0'],
-    };
-    game.enemies['enemy-1,0-0'] = {
-      id: 'enemy-1,0-0',
-      name: 'Wolf',
-      coord: { q: 1, r: 0 },
-      tier: 1,
-      hp: 3,
-      maxHp: 3,
-      attack: 1,
-      defense: 0,
-      xp: 1,
-      elite: false,
+      items: [],
+      structure: undefined,
+      enemyIds: [],
     };
 
     const next = setHomeHex(game);
@@ -363,7 +337,6 @@ describe('game state world actions', () => {
     expect(homeTile.structure).toBeUndefined();
     expect(homeTile.items).toEqual([]);
     expect(homeTile.enemyIds).toEqual([]);
-    expect(next.enemies['enemy-1,0-0']).toBeUndefined();
   });
 
   it('prevents setting home on another territory', () => {
@@ -435,6 +408,51 @@ describe('game state world actions', () => {
     expect(
       next.logs.some((entry) =>
         entry.text.includes(t('game.message.home.blockedByTerritory')),
+      ),
+    ).toBe(true);
+  });
+
+  it('prevents setting home on a non-empty hex', () => {
+    const game = createGame(3, 'set-home-occupied-seed');
+    game.player.coord = { q: 1, r: 0 };
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      items: [
+        {
+          id: 'resource-gold-home-occupied',
+          name: 'Gold',
+          itemKey: 'gold',
+          quantity: 2,
+          tier: 1,
+          rarity: 'common',
+          power: 0,
+          defense: 0,
+          maxHp: 0,
+          healing: 0,
+          hunger: 0,
+        },
+      ],
+      structure: undefined,
+      enemyIds: [],
+    };
+
+    const next = setHomeHex(game);
+
+    expect(next.homeHex).toEqual(game.homeHex);
+    expect(getTileAt(next, { q: 1, r: 0 })).toMatchObject({
+      items: [
+        {
+          id: 'resource-gold-home-occupied',
+          quantity: 2,
+        },
+      ],
+      structure: undefined,
+      enemyIds: [],
+    });
+    expect(
+      next.logs.some((entry) =>
+        entry.text.includes(t('game.message.home.blockedByOccupied')),
       ),
     ).toBe(true);
   });

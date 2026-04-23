@@ -176,6 +176,13 @@ export function resolveIncomingDamageByChances(
   return { damage: incomingDamage, outcome: 'hit', critical: false };
 }
 
+export function mitigateDamageByDefense(
+  incomingDamage: number,
+  defense: number,
+) {
+  return Math.max(0, incomingDamage - Math.max(0, defense));
+}
+
 function getCombatStatusValue(
   effects: PlayerStatusEffect[] | undefined,
   effectId: StatusEffectId,

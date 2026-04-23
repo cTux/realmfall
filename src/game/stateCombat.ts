@@ -13,6 +13,7 @@ import {
   getEnemyMana,
   getEnemySuppressDamageChance,
   getEnemySuppressDamageReduction,
+  mitigateDamageByDefense,
   resolveIncomingDamage,
   resolveIncomingDamageByChances,
   scaleCombatCooldownMs,
@@ -486,7 +487,7 @@ function dealPlayerDamageToEnemy(
       : Math.max(
           0,
           Math.round(
-            Math.max(0, baseDamage - getEnemyCombatDefense(enemy)) *
+            mitigateDamageByDefense(baseDamage, getEnemyCombatDefense(enemy)) *
               critMultiplier,
           ),
         );
@@ -741,7 +742,8 @@ function applyEnemyAbility(
           return Math.max(
             0,
             Math.round(
-              Math.max(0, baseDamage - playerStats.defense) * critMultiplier,
+              mitigateDamageByDefense(baseDamage, playerStats.defense) *
+                critMultiplier,
             ),
           );
         })(),

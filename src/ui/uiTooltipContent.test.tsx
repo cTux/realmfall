@@ -417,6 +417,44 @@ describe('ui tooltip content', () => {
       { kind: 'stat', label: 'Enemies', value: '2' },
     ]);
 
+    const groupedFieldEnemies = enemyTooltip(
+      [
+        {
+          id: 'wolf-pack-1',
+          name: 'Wolf',
+          coord: { q: 1, r: 1 },
+          rarity: 'common',
+          tier: 2,
+          hp: 6,
+          maxHp: 6,
+          attack: 3,
+          defense: 1,
+          xp: 5,
+          elite: false,
+        },
+        {
+          id: 'wolf-pack-2',
+          name: 'Boar',
+          coord: { q: 1, r: 1 },
+          rarity: 'rare',
+          tier: 3,
+          hp: 8,
+          maxHp: 8,
+          attack: 4,
+          defense: 2,
+          xp: 8,
+          elite: false,
+        },
+      ],
+      'town',
+    );
+    expect(groupedFieldEnemies?.title).toBe('Wolf');
+    expect(groupedFieldEnemies?.lines).toEqual([
+      { kind: 'stat', label: 'Level', value: '3' },
+      { kind: 'stat', label: 'Rarity', value: 'Rare' },
+      { kind: 'stat', label: 'Enemies', value: '2' },
+    ]);
+
     expect(skillTooltip(Skill.Logging, 12)).toContainEqual({
       kind: 'stat',
       label: 'Base Yield Bonus',
