@@ -35,12 +35,14 @@ export interface GraphicsSettingsOptionDefinition {
   key: GraphicsToggleSettingKey;
   labelKey: string;
   descriptionKey: string;
+  reloadRequired?: boolean;
 }
 
 export interface GraphicsPresetOptionDefinition {
   value: Exclude<GraphicsPresetId, 'custom'>;
   labelKey: string;
   descriptionKey: string;
+  reloadRequired?: boolean;
 }
 
 const GRAPHICS_PRESET_SETTINGS = {
@@ -94,16 +96,19 @@ export const GRAPHICS_PRESET_OPTIONS: GraphicsPresetOptionDefinition[] = [
     value: 'quality',
     labelKey: 'ui.settings.graphics.preset.quality.label',
     descriptionKey: 'ui.settings.graphics.preset.quality.description',
+    reloadRequired: true,
   },
   {
     value: 'balanced',
     labelKey: 'ui.settings.graphics.preset.balanced.label',
     descriptionKey: 'ui.settings.graphics.preset.balanced.description',
+    reloadRequired: true,
   },
   {
     value: 'performance',
     labelKey: 'ui.settings.graphics.preset.performance.label',
     descriptionKey: 'ui.settings.graphics.preset.performance.description',
+    reloadRequired: true,
   },
 ];
 
@@ -149,26 +154,31 @@ export const GRAPHICS_SETTINGS_OPTIONS: GraphicsSettingsOptionDefinition[] = [
     key: 'antialias',
     labelKey: 'ui.settings.graphics.antialias.label',
     descriptionKey: 'ui.settings.graphics.antialias.description',
+    reloadRequired: true,
   },
   {
     key: 'autoDensity',
     labelKey: 'ui.settings.graphics.autoDensity.label',
     descriptionKey: 'ui.settings.graphics.autoDensity.description',
+    reloadRequired: true,
   },
   {
     key: 'clearBeforeRender',
     labelKey: 'ui.settings.graphics.clearBeforeRender.label',
     descriptionKey: 'ui.settings.graphics.clearBeforeRender.description',
+    reloadRequired: true,
   },
   {
     key: 'preserveDrawingBuffer',
     labelKey: 'ui.settings.graphics.preserveDrawingBuffer.label',
     descriptionKey: 'ui.settings.graphics.preserveDrawingBuffer.description',
+    reloadRequired: true,
   },
   {
     key: 'premultipliedAlpha',
     labelKey: 'ui.settings.graphics.premultipliedAlpha.label',
     descriptionKey: 'ui.settings.graphics.premultipliedAlpha.description',
+    reloadRequired: true,
   },
   {
     key: 'showTerrainBackgrounds',
@@ -179,6 +189,7 @@ export const GRAPHICS_SETTINGS_OPTIONS: GraphicsSettingsOptionDefinition[] = [
     key: 'useContextAlpha',
     labelKey: 'ui.settings.graphics.useContextAlpha.label',
     descriptionKey: 'ui.settings.graphics.useContextAlpha.description',
+    reloadRequired: true,
   },
 ];
 

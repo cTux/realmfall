@@ -821,6 +821,7 @@
   "ui.settings.graphics.premultipliedAlpha.label": "Premultiplied alpha",
   "ui.settings.graphics.preserveDrawingBuffer.description": "Keep rendered pixels in the drawing buffer after presenting the frame.",
   "ui.settings.graphics.preserveDrawingBuffer.label": "Preserve drawing buffer",
+  "ui.settings.graphics.reloadRequired": "Requires reload.",
   "ui.settings.graphics.showTerrainBackgrounds.description": "Show biome artwork behind icons on revealed world hexes.",
   "ui.settings.graphics.showTerrainBackgrounds.label": "Terrain backgrounds",
   "ui.settings.graphics.useContextAlpha.description": "Allow the renderer context to keep an alpha channel under the canvas background.",

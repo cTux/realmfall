@@ -54,7 +54,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Terrain background PNGs also have a generated atlas path through `pnpm assets:world-atlas`, which emits `src/assets/generated/world-terrain-atlas.png` and `src/assets/generated/world-terrain-atlas.json` from the canonical terrain source list.
 - Terrain background visibility is driven by a persisted graphics toggle that invalidates the cached static layer and rerenders the world map without recreating the Pixi app.
 - The Pixi canvas uses density-aware sizing so browser zoom and high-DPI displays keep the world viewport fitted to CSS pixels while renderer resolution tracks `window.devicePixelRatio` changes on resize within the current graphics preset cap.
-- Persisted settings now hydrate both Pixi renderer initialization flags and a preset-derived renderer density cap through a dedicated plain `localStorage` `settings` payload that is read before the initial game and Pixi setup; those init-time flags require a reload before they affect an already-running canvas.
+- Persisted settings now hydrate both Pixi renderer initialization flags and a preset-derived renderer density cap through a dedicated plain `localStorage` `settings` payload that is read before the initial game and Pixi setup; `usePixiWorld` captures those init-time flags for the current page lifetime, marks their controls as reload-required, and keeps live terrain-background changes on the redraw invalidation path.
 - Hover-analysis caching now invalidates from gameplay-state versions that materially affect interaction resolution rather than from every broad `tiles` or `enemies` container identity change.
 
 ## Main Implementation Areas

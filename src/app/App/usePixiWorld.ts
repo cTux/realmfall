@@ -28,6 +28,17 @@ import {
 } from './world/worldRenderSnapshot';
 import { attachPixiWorldTickerVisibilityPause } from './world/pixiWorldTickerVisibility';
 
+type PixiInitGraphicsSettings = Pick<
+  GraphicsSettings,
+  | 'antialias'
+  | 'autoDensity'
+  | 'clearBeforeRender'
+  | 'premultipliedAlpha'
+  | 'preserveDrawingBuffer'
+  | 'resolutionCap'
+  | 'useContextAlpha'
+>;
+
 interface UsePixiWorldArgs {
   enabled: boolean;
   game: GameState;
@@ -51,18 +62,10 @@ export function usePixiWorld({
   setGame,
   setTooltip,
 }: UsePixiWorldArgs) {
-  const {
-    antialias,
-    autoDensity,
-    clearBeforeRender,
-    premultipliedAlpha,
-    preserveDrawingBuffer,
-    resolutionCap,
-    showTerrainBackgrounds,
-    useContextAlpha,
-  } = graphicsSettings;
+  const { showTerrainBackgrounds } = graphicsSettings;
   const hostRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<Application | null>(null);
+  const initGraphicsSettingsRef = useRef<PixiInitGraphicsSettings | null>(null);
   const worldTooltipKeyRef = useRef<string | null>(null);
   const playerCoordRef = useRef(game.player.coord);
   const visibleTilesRef = useLazyRef(() => getVisibleTiles(game));
@@ -88,6 +91,11 @@ export function usePixiWorld({
   );
   const renderInvalidationRef = useRef(0);
   const [canvasReady, setCanvasReady] = useState(false);
+
+  if (initGraphicsSettingsRef.current === null) {
+    initGraphicsSettingsRef.current =
+      getPixiInitGraphicsSettings(graphicsSettings);
+  }
 
   useEffect(() => {
     gameRef.current = game;
@@ -145,6 +153,15 @@ export function usePixiWorld({
 
     let disposed = false;
     let cleanup: (() => void) | null = null;
+    const {
+      antialias,
+      autoDensity,
+      clearBeforeRender,
+      premultipliedAlpha,
+      preserveDrawingBuffer,
+      resolutionCap,
+      useContextAlpha,
+    } = initGraphicsSettingsRef.current!;
     lastRenderSnapshotRef.current = createInitialWorldRenderSnapshot();
 
     void Promise.all([
@@ -324,16 +341,9 @@ export function usePixiWorld({
   }, [
     enabled,
     gameRef,
-    antialias,
-    autoDensity,
-    clearBeforeRender,
-    premultipliedAlpha,
-    preserveDrawingBuffer,
-    resolutionCap,
     setGame,
     setTooltip,
     tooltipPositionRef,
-    useContextAlpha,
     worldTimeMsRef,
   ]);
 
@@ -348,4 +358,18 @@ function useLazyRef<T>(createValue: () => T): MutableRefObject<T> {
   }
 
   return ref as MutableRefObject<T>;
+}
+
+function getPixiInitGraphicsSettings(
+  graphicsSettings: GraphicsSettings,
+): PixiInitGraphicsSettings {
+  return {
+    antialias: graphicsSettings.antialias,
+    autoDensity: graphicsSettings.autoDensity,
+    clearBeforeRender: graphicsSettings.clearBeforeRender,
+    premultipliedAlpha: graphicsSettings.premultipliedAlpha,
+    preserveDrawingBuffer: graphicsSettings.preserveDrawingBuffer,
+    resolutionCap: graphicsSettings.resolutionCap,
+    useContextAlpha: graphicsSettings.useContextAlpha,
+  };
 }

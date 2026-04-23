@@ -3,6 +3,7 @@ import {
   applyGraphicsPreset,
   saveGraphicsSettings,
 } from '../../graphicsSettings';
+import { t } from '../../../i18n';
 import {
   applicationOptions,
   ensureWorldIconTexturesLoaded,
@@ -111,6 +112,53 @@ describe('App canvas setup', () => {
       autoDensity: true,
       resolution: 1,
     });
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('does not recreate Pixi when saving init-only graphics settings without reload', async () => {
+    loadEncryptedState.mockResolvedValue({
+      ui: {
+        windowShown: {
+          settings: true,
+        },
+      },
+    });
+
+    const { host, root } = await renderApp();
+    await flushLazyModules();
+
+    expect(applicationOptions).toHaveLength(1);
+
+    const antialiasSwitch = Array.from(host.querySelectorAll('label'))
+      .find((candidate) =>
+        candidate.textContent?.includes(
+          t('ui.settings.graphics.antialias.label'),
+        ),
+      )
+      ?.querySelector('input[type="checkbox"]');
+    const saveButton = Array.from(host.querySelectorAll('button')).find(
+      (candidate) => candidate.textContent === t('ui.settings.actions.save'),
+    );
+
+    expect(antialiasSwitch).toBeDefined();
+    expect(saveButton).toBeDefined();
+
+    await act(async () => {
+      antialiasSwitch?.dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      );
+    });
+
+    await act(async () => {
+      saveButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+    await flushLazyModules();
+
+    expect(applicationOptions).toHaveLength(1);
 
     await act(async () => {
       root.unmount();

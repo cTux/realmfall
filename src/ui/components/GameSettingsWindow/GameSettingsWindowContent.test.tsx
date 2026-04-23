@@ -384,6 +384,38 @@ describe('GameSettingsWindowContent', () => {
     });
   });
 
+  it('marks renderer initialization graphics toggles as reload-required', async () => {
+    await act(async () => {
+      root.render(
+        <GameSettingsWindowContent
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
+          graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          onResetSaveArea={async () => undefined}
+          onSave={async () => undefined}
+          onSaveAndReload={async () => undefined}
+        />,
+      );
+    });
+
+    const reloadRequired = t('ui.settings.graphics.reloadRequired');
+    const antialiasLabel = Array.from(host.querySelectorAll('label')).find(
+      (candidate) =>
+        candidate.textContent?.includes(
+          t('ui.settings.graphics.antialias.label'),
+        ),
+    );
+    const terrainBackgroundsLabel = Array.from(
+      host.querySelectorAll('label'),
+    ).find((candidate) =>
+      candidate.textContent?.includes(
+        t('ui.settings.graphics.showTerrainBackgrounds.label'),
+      ),
+    );
+
+    expect(antialiasLabel?.textContent).toContain(reloadRequired);
+    expect(terrainBackgroundsLabel?.textContent).not.toContain(reloadRequired);
+  });
+
   it('saves selected voice actor and event toggles inside the audio payload', async () => {
     const onSave = vi.fn(async () => undefined);
 
