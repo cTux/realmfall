@@ -18,6 +18,7 @@
 - Keep lazy audio bridges, world overlays, and other shell-only composition grouped into focused local blocks so `App.tsx` remains a composition-first entrypoint instead of reclaiming broad orchestration detail.
 - When a UI control only needs the live world clock for display state, subscribe through `src/app/App/worldClockStore.ts` at the leaf component instead of threading `worldTimeMs` through broad app or window props.
 - When splitting `AppWindows` work, pass fixed and deferred window components only the view and action slices they actually consume instead of forwarding the full nested props object.
+- Share memoized detail-tooltip handler wrapper objects between fixed and deferred window composition so memoized window shells do not receive fresh wrapper props from unrelated parent renders.
 - When shared `AppWindows` contracts grow, split layout, view, and action types into dedicated neighboring modules instead of regrowing one broad `AppWindows.types.ts` hub.
 - Share managed-window shell props such as `position`, `onMove`, `visible`, and `onClose` through a common UI type instead of redeclaring the same shell contract in every window prop interface.
 - Keep deferred app-window composition declarative. Route deferred window order, lazy module creation, mounted-window filtering, and per-window prop mapping through a shared registry under `src/app/App/components/` instead of expanding `AppDeferredWindows.tsx` with one manual branch per window.

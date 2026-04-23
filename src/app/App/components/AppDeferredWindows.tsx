@@ -4,6 +4,7 @@ import {
   getAppDeferredWindowEntries,
   type AppDeferredWindowsProps,
 } from './appDeferredWindowRegistry';
+import { useDetailTooltipHandlers } from './useDetailTooltipHandlers';
 
 export const AppDeferredWindows = memo(function AppDeferredWindows({
   appReady,
@@ -16,13 +17,7 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
   views,
 }: AppDeferredWindowsProps) {
   const fallback = appReady ? <WindowLoadingState /> : null;
-  const detailTooltipHandlers = useMemo(
-    () => ({
-      onHoverDetail: actions.tooltip.onShowTooltip,
-      onLeaveDetail: actions.tooltip.onCloseTooltip,
-    }),
-    [actions.tooltip.onCloseTooltip, actions.tooltip.onShowTooltip],
-  );
+  const detailTooltipHandlers = useDetailTooltipHandlers(actions.tooltip);
   const windowEntries = useMemo(
     () =>
       getAppDeferredWindowEntries({
