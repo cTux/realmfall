@@ -1,24 +1,10 @@
 import { useEffect, useState } from 'react';
 import type { AppWindowsLayout } from '../AppWindows.types';
 import { DEFERRED_WINDOW_KEYS, type DeferredWindowKey } from './windowKeys';
-
-function createMountedWindowState(
-  windowShown: AppWindowsLayout['windowShown'],
-  keepLootWindowMounted: boolean,
-  keepCombatWindowMounted: boolean,
-) {
-  return {
-    skills: windowShown.skills,
-    recipes: windowShown.recipes,
-    hexInfo: windowShown.hexInfo,
-    equipment: windowShown.equipment,
-    inventory: windowShown.inventory,
-    loot: keepLootWindowMounted,
-    log: windowShown.log,
-    combat: keepCombatWindowMounted,
-    settings: windowShown.settings,
-  } satisfies Record<DeferredWindowKey, boolean>;
-}
+import {
+  createManagedMountedWindowState,
+  pickDeferredMountedWindowState,
+} from './mountedWindowState';
 
 function mergeMountedWindowState(
   current: Record<DeferredWindowKey, boolean>,
@@ -26,10 +12,12 @@ function mergeMountedWindowState(
   keepLootWindowMounted: boolean,
   keepCombatWindowMounted: boolean,
 ) {
-  const next = createMountedWindowState(
-    windowShown,
-    keepLootWindowMounted,
-    keepCombatWindowMounted,
+  const next = pickDeferredMountedWindowState(
+    createManagedMountedWindowState(
+      windowShown,
+      keepLootWindowMounted,
+      keepCombatWindowMounted,
+    ),
   );
 
   for (const key of DEFERRED_WINDOW_KEYS) {
@@ -50,10 +38,12 @@ export function useDeferredWindows({
   'windowShown' | 'keepLootWindowMounted' | 'keepCombatWindowMounted'
 >) {
   const [mountedWindows, setMountedWindows] = useState(() =>
-    createMountedWindowState(
-      windowShown,
-      keepLootWindowMounted,
-      keepCombatWindowMounted,
+    pickDeferredMountedWindowState(
+      createManagedMountedWindowState(
+        windowShown,
+        keepLootWindowMounted,
+        keepCombatWindowMounted,
+      ),
     ),
   );
 

@@ -25,6 +25,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Window view hooks return the shared final view shape directly; presentation-only labels such as the hex claim action copy are derived at the window composition site instead of flowing through separate raw and enriched window-view types.
 - Focused hooks under `src/app/App/hooks` keep `AppWindows` centered on composition by separating deferred-window bookkeeping, stable handler maps, and memoized window-specific view models.
 - `useManagedWindowProps` builds the shared `position`, `onMove`, `visible`, and `onClose` prop map for managed windows so fixed and deferred window composition does not repeat the same shell wiring at every render site.
+- Managed-window and deferred-window mount visibility derive from a shared helper in `src/app/App/hooks/mountedWindowState.ts`, so window-key additions update one source of truth before both hooks consume the result.
 - Fixed and deferred window composition receives narrow view and action slices instead of the full `AppWindowsProps` object, keeping unrelated window surfaces from rerendering together when one subtree changes.
 - `AppDeferredWindows` renders mounted deferred windows from a shared registry that owns the canonical window order, lazy module declarations, mounted-window filtering, and per-window prop mapping, so adding a deferred window does not require another hand-written `mountedWindows.* ? <Suspense>` branch in the app shell.
 - The game uses a desktop-style draggable window model with persisted positions, optional per-window dimensions for resizable windows, and visibility.
@@ -84,6 +85,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `src/app/App/hooks/useAppWorldClock.ts`
 - `src/app/App/hooks/useAppWindowsProps.ts`
 - `src/app/App/hooks/useAppWindowHandlers.ts`
+- `src/app/App/hooks/mountedWindowState.ts`
 - `src/app/App/hooks/useDeferredWindows.ts`
 - `src/app/App/hooks/useHexInfoView.ts`
 - `src/app/App/hooks/useRecipeWindowStructure.ts`
