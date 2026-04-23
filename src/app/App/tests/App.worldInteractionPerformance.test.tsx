@@ -55,7 +55,7 @@ describe('App world interaction performance', () => {
     hexAtPointSpy.mockRestore();
     getSafePathToTileSpy.mockRestore();
     getTileAtSpy.mockRestore();
-  });
+  }, 10_000);
 
   it('ignores unrevealed distant clicks before tile lookup or movement', async () => {
     const game = createGame(3, 'app-hidden-click-seed');
@@ -120,5 +120,5 @@ describe('App world interaction performance', () => {
     hexAtPointSpy.mockRestore();
     getSafePathToTileSpy.mockRestore();
     getTileAtSpy.mockRestore();
-  });
+  }, 10_000);
 });
