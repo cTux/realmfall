@@ -59,7 +59,9 @@ button {
   }
 
   &:disabled,
-  &:disabled:hover {
+  &:disabled:hover,
+  &[aria-disabled='true'],
+  &[aria-disabled='true']:hover {
     background: #0f172a;
     color: #64748b;
     border-color: #1e293b;

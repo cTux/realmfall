@@ -59,11 +59,6 @@ const HomeIndicator = lazy(() =>
     default: module.HomeIndicator,
   })),
 );
-const VersionStatusPanel = lazy(() =>
-  import('./components/VersionStatusPanel').then((module) => ({
-    default: module.VersionStatusPanel,
-  })),
-);
 
 export function App() {
   const initialAudioSettingsRef = useRef(loadAudioSettings());
@@ -94,6 +89,7 @@ export function App() {
     closeTooltip,
     handleBuyTownItem,
     handleClaimHex,
+    handleHealTerritoryNpc,
     handleContextItem,
     handleCraftRecipe,
     handleCorruptItem,
@@ -104,6 +100,7 @@ export function App() {
     handleActivateInventoryItem,
     handleEquipItem,
     handleEquippedContextItem,
+    handleForfeitCombat,
     handleInteract,
     handleProspect,
     handleProspectItem,
@@ -193,6 +190,7 @@ export function App() {
     bulkSellEquipmentExplanation,
     stats,
     townStock,
+    territoryNpcHealStatus,
   } = useAppGameView({
     game,
     hexItemModificationPickerActive,
@@ -309,16 +307,37 @@ export function App() {
   const handleTogglePause = useCallback(() => {
     setPaused((current) => !current);
   }, []);
+  const canSetHomeAction =
+    (!currentTile.claim || currentTile.claim.ownerType === 'player') &&
+    (game.homeHex.q !== game.player.coord.q ||
+      game.homeHex.r !== game.player.coord.r);
+  const combatDeathAvailable = Boolean(
+    game.combat?.started &&
+    game.combat.startedAtMs != null &&
+    game.worldTimeMs - game.combat.startedAtMs >= 60_000,
+  );
 
   useKeyboardShortcuts({
+    canBulkProspectEquipment,
+    canBulkSellEquipment,
+    canHealTerritoryNpc: territoryNpcHealStatus.canHeal,
+    canSetHomeAction,
+    canTerritoryAction: claimStatus.canClaim,
+    combatDeathAvailable,
     combatStartAvailable: Boolean(game.combat && !game.combat.started),
     hexContentWindowShown: windowShown.hexInfo,
     interactLabel,
     lootSnapshotLength: currentTile.items.length,
+    onForfeitCombat: handleForfeitCombat,
     onStartCombat: handleStartCombat,
     onInteract: handleInteract,
+    onHealTerritoryNpc: handleHealTerritoryNpc,
+    onSetHome: handleSetHome,
+    onTerritoryAction: handleClaimHex,
     onTakeAllLoot: handleTakeAllLoot,
     onCloseAllWindows: closeAllWindows,
+    onProspect: handleProspect,
+    onSellAll: handleSellAll,
     onTogglePause: handleTogglePause,
     onToggleDockWindow: toggleDockWindow,
     onWindowToggleSound: (opened) => {
@@ -348,6 +367,7 @@ export function App() {
     itemModification,
     itemMenu,
     claimStatus,
+    territoryNpcHealStatus,
     interactLabel,
     filteredLogs,
     logFilters,
@@ -371,6 +391,7 @@ export function App() {
     handleAssignActionBarSlot,
     handleBuyTownItem,
     handleClaimHex,
+    handleHealTerritoryNpc,
     handleClearActionBarSlot,
     handleClearRecipeMaterialFilter,
     handleContextItem,
@@ -384,6 +405,7 @@ export function App() {
     handleEquipmentHover,
     handleEquipItem,
     handleEquippedContextItem,
+    handleForfeitCombat,
     handleInteract,
     handleOpenRecipeBookWithMaterialFilter,
     handleProspect,
@@ -418,6 +440,7 @@ export function App() {
   });
 
   const appWindowsProps = useAppWindowsProps({
+    appReady: isReady,
     windows,
     windowShown,
     keepLootWindowMounted,
@@ -454,9 +477,6 @@ export function App() {
               playerCoord={game.player.coord}
               radius={game.radius}
             />
-          </Suspense>
-          <Suspense fallback={null}>
-            <VersionStatusPanel onRefresh={() => window.location.reload()} />
           </Suspense>
           <AppWindows {...appWindowsProps} />
           {isReady && paused ? (

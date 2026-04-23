@@ -7,15 +7,27 @@ import {
 import { WINDOW_HOTKEYS } from './utils/windowHotkeys';
 
 interface UseKeyboardShortcutsOptions {
+  canBulkProspectEquipment: boolean;
+  canBulkSellEquipment: boolean;
+  canHealTerritoryNpc: boolean;
+  canSetHomeAction: boolean;
+  canTerritoryAction: boolean;
+  combatDeathAvailable: boolean;
   combatStartAvailable: boolean;
   hexContentWindowShown: boolean;
   interactLabel: string | null;
   lootSnapshotLength: number;
+  onForfeitCombat: () => void;
   onStartCombat: () => void;
   onInteract: () => void;
+  onHealTerritoryNpc: () => void;
+  onSetHome: () => void;
+  onTerritoryAction: () => void;
   onTakeAllLoot: () => void;
   onCloseAllWindows: () => void;
   onCloseAllWindowsSound?: () => void;
+  onProspect: () => void;
+  onSellAll: () => void;
   onTogglePause: () => void;
   onToggleDockWindow: (key: keyof WindowVisibilityState) => void;
   onUseActionBarSlot: (slotIndex: number) => void;
@@ -24,15 +36,27 @@ interface UseKeyboardShortcutsOptions {
 }
 
 export function useKeyboardShortcuts({
+  canBulkProspectEquipment,
+  canBulkSellEquipment,
+  canHealTerritoryNpc,
+  canSetHomeAction,
+  canTerritoryAction,
+  combatDeathAvailable,
   combatStartAvailable,
   hexContentWindowShown,
   interactLabel,
   lootSnapshotLength,
+  onForfeitCombat,
   onStartCombat,
   onInteract,
+  onHealTerritoryNpc,
+  onSetHome,
+  onTerritoryAction,
   onTakeAllLoot,
   onCloseAllWindows,
   onCloseAllWindowsSound,
+  onProspect,
+  onSellAll,
   onTogglePause,
   onToggleDockWindow,
   onUseActionBarSlot,
@@ -65,8 +89,19 @@ export function useKeyboardShortcuts({
     const lowerKey = event.key.toLowerCase();
     if (lowerKey === 'escape') {
       event.preventDefault();
-      onCloseAllWindowsSound?.();
-      onCloseAllWindows();
+      if (Object.values(windowShown).some(Boolean)) {
+        onCloseAllWindowsSound?.();
+        onCloseAllWindows();
+      } else {
+        onWindowToggleSound?.(true);
+        onToggleDockWindow('settings');
+      }
+      return;
+    }
+
+    if (lowerKey === 'e' && hexContentWindowShown && canBulkSellEquipment) {
+      event.preventDefault();
+      onSellAll();
       return;
     }
 
@@ -82,9 +117,39 @@ export function useKeyboardShortcuts({
       return;
     }
 
+    if (lowerKey === 'q' && hexContentWindowShown && canHealTerritoryNpc) {
+      event.preventDefault();
+      onHealTerritoryNpc();
+      return;
+    }
+
     if (lowerKey === 'q' && interactLabel) {
       event.preventDefault();
       onInteract();
+      return;
+    }
+
+    if (lowerKey === 'q' && hexContentWindowShown && canBulkProspectEquipment) {
+      event.preventDefault();
+      onProspect();
+      return;
+    }
+
+    if (lowerKey === 't' && combatDeathAvailable) {
+      event.preventDefault();
+      onForfeitCombat();
+      return;
+    }
+
+    if (lowerKey === 'a' && hexContentWindowShown && canTerritoryAction) {
+      event.preventDefault();
+      onTerritoryAction();
+      return;
+    }
+
+    if (lowerKey === 'o' && hexContentWindowShown && canSetHomeAction) {
+      event.preventDefault();
+      onSetHome();
       return;
     }
 

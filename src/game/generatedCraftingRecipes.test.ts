@@ -1,46 +1,102 @@
-import { describe, expect, it } from 'vitest';
-import { GENERATED_ICON_POOLS } from './content/generatedEquipment';
-import { CRAFTABLE_ICON_ITEM_CONFIGS } from './content/generatedCraftingEquipment';
+import { EquipmentSlotId } from './content/ids';
+import { buildItemFromConfig } from './content/items';
+import { RECIPE_BOOK_RECIPES } from './crafting';
 import { GENERATED_CRAFTING_RECIPES } from './generatedCraftingRecipes';
-import { Skill } from './types';
+import { craftRecipe, createGame } from './state';
+
+const REDISTRIBUTED_INGOT_KEYS = [
+  'copper-ingot',
+  'tin-ingot',
+  'iron-ingot',
+  'gold-ingot',
+  'platinum-ingot',
+] as const;
 
 describe('generated crafting recipes', () => {
-  it('keeps one crafting recipe and one base item for every equippable icon variation', () => {
-    const totalIconVariations = Object.values(GENERATED_ICON_POOLS).reduce(
-      (total, icons) => total + icons.length,
-      0,
+  it('splits redistributed metal gear recipes across all existing ingots', () => {
+    const redistributedRecipes = GENERATED_CRAFTING_RECIPES.filter(
+      ({ output }) =>
+        !output.itemKey?.startsWith('icon-wand-') &&
+        !output.itemKey?.startsWith('icon-magical-sphere-') &&
+        !output.itemKey?.startsWith('icon-ring-') &&
+        !output.itemKey?.startsWith('icon-necklace-'),
+    );
+    const counts = new Map<string, number>(
+      REDISTRIBUTED_INGOT_KEYS.map((itemKey) => [itemKey, 0]),
     );
 
-    expect(CRAFTABLE_ICON_ITEM_CONFIGS).toHaveLength(totalIconVariations);
-    expect(GENERATED_CRAFTING_RECIPES).toHaveLength(totalIconVariations);
+    redistributedRecipes.forEach((recipe) => {
+      const ingot = recipe.ingredients.find((ingredient) =>
+        REDISTRIBUTED_INGOT_KEYS.includes(
+          ingredient.itemKey as (typeof REDISTRIBUTED_INGOT_KEYS)[number],
+        ),
+      );
+      if (!ingot?.itemKey) {
+        throw new Error(`Recipe ${recipe.id} is missing an ingot ingredient.`);
+      }
+      counts.set(ingot.itemKey, (counts.get(ingot.itemKey) ?? 0) + 1);
+    });
+
+    const quantities = [...counts.values()];
+
+    expect([...counts.keys()]).toEqual([...REDISTRIBUTED_INGOT_KEYS]);
     expect(
-      GENERATED_CRAFTING_RECIPES.every(
-        (recipe) => recipe.skill === Skill.Crafting,
-      ),
-    ).toBe(true);
-    expect(
-      GENERATED_CRAFTING_RECIPES.every(
-        (recipe) =>
-          recipe.output.itemKey &&
-          recipe.id === `craft-${recipe.output.itemKey}`,
-      ),
-    ).toBe(true);
+      Math.max(...quantities) - Math.min(...quantities),
+    ).toBeLessThanOrEqual(1);
   });
 
-  it('uses lore-based names instead of numbered placeholder labels', () => {
+  it('keeps at least one weapon recipe craftable for every ingot', () => {
+    const weaponRecipes = GENERATED_CRAFTING_RECIPES.filter(
+      ({ output }) =>
+        output.slot === EquipmentSlotId.Weapon ||
+        output.slot === EquipmentSlotId.Offhand,
+    );
+
+    const coveredIngots = new Set(
+      weaponRecipes.flatMap((recipe) =>
+        recipe.ingredients.flatMap((ingredient) =>
+          REDISTRIBUTED_INGOT_KEYS.includes(
+            ingredient.itemKey as (typeof REDISTRIBUTED_INGOT_KEYS)[number],
+          )
+            ? [ingredient.itemKey]
+            : [],
+        ),
+      ),
+    );
+
+    expect([...coveredIngots].sort()).toEqual(
+      [...REDISTRIBUTED_INGOT_KEYS].sort(),
+    );
+  });
+
+  it('crafts a generated weapon with only its assigned ingot path available', () => {
+    const recipe = RECIPE_BOOK_RECIPES.find(
+      ({ output }) =>
+        output.slot === EquipmentSlotId.Weapon &&
+        output.itemKey !== undefined &&
+        !output.itemKey.startsWith('icon-wand-'),
+    );
+    if (!recipe?.output.itemKey) {
+      throw new Error('Expected a generated weapon recipe.');
+    }
+
+    const game = createGame(3, 'generated-crafting-ingot-path');
+    game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'workshop' };
+    game.player.learnedRecipeIds.push(recipe.id);
+    game.player.inventory.push(
+      ...recipe.ingredients.map((ingredient, index) =>
+        buildItemFromConfig(ingredient.itemKey!, {
+          id: `${ingredient.itemKey}-${index}`,
+          quantity: ingredient.quantity,
+        }),
+      ),
+    );
+
+    const crafted = craftRecipe(game, recipe.id);
+
     expect(
-      CRAFTABLE_ICON_ITEM_CONFIGS.find(
-        (config) => config.key === 'icon-helmet-01',
-      )?.name,
-    ).toBe('Ashwake Greathelm');
-    expect(
-      GENERATED_CRAFTING_RECIPES.find(
-        (recipe) => recipe.id === 'craft-icon-sword-01',
-      )?.name,
-    ).toBe('Shardwake Blade');
-    expect(
-      GENERATED_CRAFTING_RECIPES.every(
-        (recipe) => !/\b\d{2}\b/.test(recipe.name),
+      crafted.player.inventory.some(
+        (item) => item.itemKey === recipe.output.itemKey,
       ),
     ).toBe(true);
   });

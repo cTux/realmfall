@@ -90,4 +90,30 @@ describe('ui visual helpers', () => {
     expect(markup).toContain('box-shadow:0 0 0 1px #22c55e33 inset');
     expect(markup).toContain('background-color:rgba(96, 165, 250, 0.28)');
   });
+
+  it('renders a coin badge icon for priced item-slot badges', () => {
+    const markup = renderToStaticMarkup(
+      <ItemSlotButton
+        item={{
+          id: 'town-knife-priced',
+          name: 'Town Knife',
+          quantity: 1,
+          tier: 1,
+          rarity: 'common',
+          power: 1,
+          defense: 0,
+          maxHp: 0,
+          healing: 0,
+          hunger: 0,
+        }}
+        badgeLabel="12"
+        badgeIcon={Icons.Coins}
+        badgeIconLabel="Gold"
+      />,
+    );
+
+    expect(markup).toContain(Icons.Coins);
+    expect(markup).toContain('aria-label="Gold"');
+    expect(markup).toContain('>12<');
+  });
 });

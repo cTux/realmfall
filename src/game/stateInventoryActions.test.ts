@@ -15,6 +15,7 @@ import {
   takeAllTileItems,
   takeTileItem,
 } from './state';
+import { GAME_DAY_DURATION_MS } from './config';
 import { getItemCategory } from './content/items';
 
 describe('game state inventory actions', () => {
@@ -83,6 +84,7 @@ describe('game state inventory actions', () => {
 
     const stock = getTownStock(game);
     const bought = buyTownItem(game, stock[0].item.id);
+    const remainingStock = getTownStock(bought);
 
     expect(stock.length).toBeGreaterThanOrEqual(30);
     expect(stock.every((entry) => entry.item.slot)).toBe(true);
@@ -90,6 +92,10 @@ describe('game state inventory actions', () => {
       bought.player.inventory.some((item) => item.name === stock[0].item.name),
     ).toBe(true);
     expect(getGoldAmount(bought.player.inventory)).toBeLessThan(500);
+    expect(remainingStock).toHaveLength(stock.length - 1);
+    expect(
+      remainingStock.some((entry) => entry.item.id === stock[0]?.item.id),
+    ).toBe(false);
   });
 
   it('leaves loot on the tile until the player takes it', () => {
@@ -314,6 +320,68 @@ describe('game state inventory actions', () => {
     expect(getGoldAmount(sold.player.inventory)).toBeGreaterThan(0);
   });
 
+  it('lets the player sell consumables and crafting materials in town', () => {
+    const game = createGame(3, 'town-material-sale-seed');
+    game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'town' };
+    game.player.inventory = [
+      {
+        id: 'food-town-sale',
+        itemKey: 'trail-ration',
+        name: 'Trail Ration',
+        quantity: 2,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 8,
+        hunger: 12,
+      },
+      {
+        id: 'ore-town-sale',
+        itemKey: 'iron-ore',
+        name: 'Iron Ore',
+        quantity: 2,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'ingot-town-sale',
+        itemKey: 'iron-ingot',
+        name: 'Iron Ingot',
+        quantity: 2,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    ];
+
+    const soldConsumable = sellInventoryItem(game, 'food-town-sale');
+    const soldOre = sellInventoryItem(game, 'ore-town-sale');
+    const soldIngot = sellInventoryItem(game, 'ingot-town-sale');
+
+    expect(
+      soldConsumable.player.inventory.some(
+        (item) => item.id === 'food-town-sale',
+      ),
+    ).toBe(false);
+    expect(getGoldAmount(soldConsumable.player.inventory)).toBe(2);
+    expect(getGoldAmount(soldOre.player.inventory)).toBe(2);
+    expect(getGoldAmount(soldIngot.player.inventory)).toBe(6);
+    expect(getGoldAmount(soldIngot.player.inventory)).toBeGreaterThan(
+      getGoldAmount(soldOre.player.inventory),
+    );
+  });
+
   it('merges duplicate gold stacks when sorting inventory', () => {
     const game = createGame(3, 'gold-sort-seed');
     game.player.inventory = [
@@ -355,7 +423,7 @@ describe('game state inventory actions', () => {
     ).toHaveLength(1);
   });
 
-  it('assigns unique ids when buying the same non-stackable town item twice', () => {
+  it('removes a bought town item from the current stock list', () => {
     const game = createGame(3, 'town-duplicate-id-seed');
     game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'town' };
     game.player.inventory = [
@@ -363,7 +431,7 @@ describe('game state inventory actions', () => {
         id: 'resource-gold-town-test',
         name: 'Gold',
         itemKey: 'gold',
-        quantity: 100,
+        quantity: 2_000,
         tier: 1,
         rarity: 'common',
         power: 0,
@@ -379,12 +447,50 @@ describe('game state inventory actions', () => {
     expect(hood).toBeDefined();
 
     const boughtOnce = buyTownItem(game, hood!.item.id);
+    const remainingStock = getTownStock(boughtOnce);
     const boughtTwice = buyTownItem(boughtOnce, hood!.item.id);
-    const hoodIds = boughtTwice.player.inventory
-      .filter((item) => item.name === 'Scout Hood')
-      .map((item) => item.id);
 
-    expect(hoodIds).toHaveLength(2);
-    expect(new Set(hoodIds).size).toBe(2);
+    expect(
+      remainingStock.some((entry) => entry.item.id === hood!.item.id),
+    ).toBe(false);
+    expect(
+      boughtTwice.logs.some((entry) => /not available here/i.test(entry.text)),
+    ).toBe(true);
+  });
+
+  it('refreshes each town stock list every game day', () => {
+    const game = createGame(3, 'town-daily-refresh-seed');
+    game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'town' };
+    game.player.inventory = [
+      {
+        id: 'resource-gold-town-refresh',
+        name: 'Gold',
+        itemKey: 'gold',
+        quantity: 2_000,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+    ];
+
+    const firstDayStock = getTownStock(game);
+    const bought = buyTownItem(game, firstDayStock[0]!.item.id);
+
+    expect(getTownStock(bought)).toHaveLength(firstDayStock.length - 1);
+
+    const nextDayState = {
+      ...bought,
+      worldTimeMs: GAME_DAY_DURATION_MS,
+    };
+    const nextDayStock = getTownStock(nextDayState);
+
+    expect(nextDayStock).toHaveLength(firstDayStock.length);
+    expect(nextDayStock.map((entry) => entry.item.id)).not.toEqual(
+      firstDayStock.map((entry) => entry.item.id),
+    );
   });
 });

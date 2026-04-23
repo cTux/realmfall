@@ -1,4 +1,4 @@
-import rawGameConfig from '../../game.config.json';
+import rawGameConfig from '../../game.config';
 
 import type { GatheringStructureType, ItemRarity, Terrain } from './types';
 
@@ -69,6 +69,12 @@ interface GameChanceConfig {
           breakChance: number;
           statBonus: number;
         };
+      };
+    };
+    economy: {
+      townBuyPrice: {
+        minimum: number;
+        rarityMultiplier: Record<ItemRarity, number>;
       };
     };
   };
@@ -196,6 +202,7 @@ export const ITEM_SECONDARY_STAT_RANGE =
   GAME_CONFIG.balance.items.secondaryStat;
 export const SECONDARY_STAT_CAP = GAME_CONFIG.balance.items.secondaryStat.cap;
 export const ITEM_MODIFICATION_BALANCE = GAME_CONFIG.balance.items.modification;
+export const TOWN_BUY_PRICE_BALANCE = GAME_CONFIG.balance.economy.townBuyPrice;
 
 export const TOWN_SEARCH_LIMIT = 24;
 

@@ -98,14 +98,20 @@ function animateWorldMarker(
   let yOffset = 0;
 
   switch (marker.kind) {
-    case 'enemy':
-      yOffset = wave * 1.6;
-      scale = 1 + secondaryWave * 0.028;
+    case 'enemy': {
+      const jump = sampleHostileMarkerJump(
+        toAnimationCycle(animationMs, marker.phase),
+      );
+      yOffset = -jump * 1.8;
+      scale = 1 + jump * 0.045 + secondaryWave * 0.012;
       break;
+    }
     case 'worldBoss': {
-      const menace = (wave + 1) * 0.5;
-      yOffset = secondaryWave * 2.8;
-      scale = 1 + menace * 0.09;
+      const jump = sampleHostileMarkerJump(
+        toAnimationCycle(animationMs, marker.phase),
+      );
+      yOffset = -jump * 3.1;
+      scale = 1 + jump * 0.11 + secondaryWave * 0.016;
       break;
     }
     case 'settlement':
@@ -158,6 +164,19 @@ function animateWorldMarker(
   marker.entry.sprite.tint = tint;
   marker.entry.sprite.width = marker.baseWidth;
   marker.entry.sprite.height = marker.baseHeight;
+}
+
+export function sampleHostileMarkerJump(progress: number) {
+  const cycleProgress = wrapUnitInterval(progress);
+  return Math.sin(cycleProgress * Math.PI) ** 2;
+}
+
+function toAnimationCycle(animationMs: number, phase: number) {
+  return animationMs * 0.0007 + phase / (Math.PI * 2);
+}
+
+function wrapUnitInterval(value: number) {
+  return ((value % 1) + 1) % 1;
 }
 
 function mixColor(left: number, right: number, amount: number) {

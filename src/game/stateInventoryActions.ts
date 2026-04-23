@@ -2,15 +2,16 @@ import { hexKey } from './hex';
 import { t } from '../i18n';
 import { itemOccupiesOffhand } from './content/items';
 import { buildTownStock } from './economy';
+import { getWorldDayIndex } from './logs';
 import { addLog } from './logs';
 import {
   addItemToInventory,
   compareItems,
   consolidateInventory,
   describeItemStack,
+  canSellItem,
   getGoldAmount,
   isEquippableItem,
-  isRecipePage,
   makeGoldStack,
   prospectYield,
   sellValue,
@@ -72,11 +73,7 @@ export function sellInventoryItem(state: GameState, itemId: string): GameState {
   }
 
   const item = state.player.inventory.find((entry) => entry.id === itemId);
-  if (
-    !item ||
-    (!isEquippableItem(item) && !isRecipePage(item)) ||
-    item.locked
-  ) {
+  if (!item || !canSellItem(item) || item.locked) {
     return message(state, t('game.message.sell.empty'));
   }
 
@@ -185,7 +182,16 @@ export function getTownStock(state: GameState): TownStockEntry[] {
     return [];
   }
 
-  return buildTownStock(state.seed, tile.coord);
+  const currentDay = getWorldDayIndex(state.worldTimeMs);
+  const purchasedItemIds = new Set(
+    tile.townStockDay === currentDay
+      ? (tile.townStockPurchasedItemIds ?? [])
+      : [],
+  );
+
+  return buildTownStock(state.seed, tile.coord, currentDay).filter(
+    (entry) => !purchasedItemIds.has(entry.item.id),
+  );
 }
 
 export function hasEquippableInventoryItems(state: GameState) {
@@ -198,7 +204,7 @@ export function buyTownItem(state: GameState, itemId: string): GameState {
     return message(state, t('game.message.buy.townOnly'));
   }
 
-  const stock = buildTownStock(state.seed, tile.coord);
+  const stock = getTownStock(state);
   const entry = stock.find((candidate) => candidate.item.id === itemId);
   if (!entry) {
     return message(state, t('game.message.buy.unavailable'));
@@ -215,9 +221,19 @@ export function buyTownItem(state: GameState, itemId: string): GameState {
     );
   }
 
-  const next = cloneForPlayerMutation(state);
+  const next = cloneForPlayerAndTileMutation(state);
+  ensureTileState(next, next.player.coord);
+  const currentTileKey = hexKey(next.player.coord);
+  const currentTile = next.tiles[currentTileKey];
+  const currentDay = getWorldDayIndex(next.worldTimeMs);
   spendGold(next.player.inventory, entry.price);
   addItemToInventory(next.player.inventory, { ...entry.item });
+  const purchasedItemIds =
+    currentTile.townStockDay === currentDay
+      ? (currentTile.townStockPurchasedItemIds ?? [])
+      : [];
+  currentTile.townStockDay = currentDay;
+  currentTile.townStockPurchasedItemIds = [...purchasedItemIds, entry.item.id];
   addLog(
     next,
     'system',

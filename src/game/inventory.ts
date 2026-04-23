@@ -243,6 +243,16 @@ export function isRecipePage(item: Item) {
   return hasItemTag(item, GAME_TAGS.item.resource) && Boolean(item.recipeId);
 }
 
+export function canSellItem(item: Item) {
+  const category = getItemCategory(item);
+  return (
+    isEquippableItem(item) ||
+    isRecipePage(item) ||
+    category === 'consumable' ||
+    hasItemTag(item, GAME_TAGS.item.craftingMaterial)
+  );
+}
+
 export function getGoldAmount(inventory: Item[]) {
   return inventory.reduce(
     (sum, item) =>
@@ -281,6 +291,12 @@ export function sellValue(item: Item) {
   const rarityOrder = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
   const category = getItemCategory(item);
   const recipePage = isRecipePage(item);
+  if (category === 'consumable') {
+    return Math.max(1, item.quantity);
+  }
+  if (hasItemTag(item, GAME_TAGS.item.craftingMaterial)) {
+    return Math.max(1, getCraftingMaterialSellUnitValue(item) * item.quantity);
+  }
   const base = recipePage
     ? 24
     : category === 'artifact'
@@ -298,6 +314,25 @@ export function sellValue(item: Item) {
       rarityOrder.indexOf(item.rarity) * (recipePage ? 8 : 6)) *
       item.quantity,
   );
+}
+
+const INGOT_ITEM_KEYS = new Set<string>([
+  ItemId.CopperIngot,
+  ItemId.TinIngot,
+  ItemId.IronIngot,
+  ItemId.GoldIngot,
+  ItemId.PlatinumIngot,
+]);
+
+function getCraftingMaterialSellUnitValue(item: Item) {
+  if (item.itemKey && INGOT_ITEM_KEYS.has(item.itemKey)) {
+    return 3;
+  }
+  if (hasItemTag(item, GAME_TAGS.item.ore)) {
+    return 1;
+  }
+
+  return 2;
 }
 
 export function prospectYield(item: Item): Item[] {

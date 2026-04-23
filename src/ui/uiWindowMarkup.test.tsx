@@ -129,21 +129,24 @@ describe('ui window markup', () => {
           interactLabel="Chop tree"
           canInteract
           canTerritoryAction
-          territoryActionLabel="Claim hex"
+          territoryActionLabel="Cl(a)im"
+          canHealTerritoryNpc
+          territoryNpcHealExplanation={null}
           canBulkProspectEquipment={false}
-          canBulkSellEquipment={false}
+          canBulkSellEquipment
           territoryActionExplanation={null}
           bulkProspectEquipmentExplanation={null}
           bulkSellEquipmentExplanation={null}
           onInteract={() => {}}
           onTerritoryAction={() => {}}
+          onHealTerritoryNpc={() => {}}
           onProspect={() => {}}
           onSellAll={() => {}}
           structureHp={3}
           structureMaxHp={5}
           territoryName={null}
           territoryOwnerType={null}
-          territoryNpc={null}
+          territoryNpc={{ name: 'Araken' }}
           townStock={[
             {
               item: equippedItem,
@@ -295,14 +298,22 @@ describe('ui window markup', () => {
     );
     expect(markup).toContain(WINDOW_LABELS.recipes.suffix);
     expect(markup).toContain(WINDOW_LABELS.hexInfo.suffix);
+    expect(markup).toContain('Cl(a)im');
+    expect(markup).toContain('(Q) Heal');
+    expect(markup).toContain('H(o)me');
     expect(markup).toContain('(Q) Gather');
     expect(markup).toContain('Structure HP');
-    expect(markup).toContain('Town Stock');
+    expect(markup).toContain('12');
+    expect(markup).toContain('aria-label="Gold"');
+    expect(markup).not.toContain('gp');
     expect(markup).not.toContain('Enemies0');
+    expect(markup).not.toContain('Forest');
+    expect(markup).not.toContain('Tree');
     expect(markup).toContain('aria-label="armor"');
     expect(markup).toContain('x12');
     expect(markup).toContain('Empty');
     expect(markup).toContain('Tak(e) all');
+    expect(markup).toContain('S(e)ll all');
     expect(markup).toContain('Filters');
     expect(markup).toContain('Epic');
     expect(markup).toContain('Player Lv 10');
@@ -330,7 +341,9 @@ describe('ui window markup', () => {
           interactLabel={null}
           canInteract={false}
           canTerritoryAction={false}
-          territoryActionLabel="Claim hex"
+          territoryActionLabel="Cl(a)im"
+          canHealTerritoryNpc={false}
+          territoryNpcHealExplanation={null}
           canBulkProspectEquipment={false}
           canBulkSellEquipment={false}
           territoryActionExplanation={null}
@@ -338,6 +351,7 @@ describe('ui window markup', () => {
           bulkSellEquipmentExplanation={null}
           onInteract={() => {}}
           onTerritoryAction={() => {}}
+          onHealTerritoryNpc={() => {}}
           onProspect={() => {}}
           onSellAll={() => {}}
           territoryName={null}
@@ -360,7 +374,9 @@ describe('ui window markup', () => {
           interactLabel={null}
           canInteract={false}
           canTerritoryAction={false}
-          territoryActionLabel="Claim hex"
+          territoryActionLabel="Cl(a)im"
+          canHealTerritoryNpc={false}
+          territoryNpcHealExplanation={null}
           canBulkProspectEquipment={false}
           canBulkSellEquipment={false}
           territoryActionExplanation={null}
@@ -368,6 +384,7 @@ describe('ui window markup', () => {
           bulkSellEquipmentExplanation="No equippable items to sell."
           onInteract={() => {}}
           onTerritoryAction={() => {}}
+          onHealTerritoryNpc={() => {}}
           onProspect={() => {}}
           onSellAll={() => {}}
           territoryName={null}
@@ -382,9 +399,11 @@ describe('ui window markup', () => {
       </>,
     );
 
-    expect(markup).toContain('Nothing in your pack can be prospected.');
-    expect(markup).toContain('No equippable items to sell.');
-    expect(markup).not.toContain('Sell all equippable');
+    expect(markup).not.toContain('Nothing in your pack can be prospected.');
+    expect(markup).not.toContain('No equippable items to sell.');
+    expect(markup).not.toContain('Tak(e) all');
+    expect(markup).not.toContain('Loot on the ground');
+    expect(markup).not.toContain('S(e)ll all');
     expect(markup).not.toContain('>Prospect<');
   });
 
@@ -401,7 +420,9 @@ describe('ui window markup', () => {
         interactLabel="Chop tree"
         canInteract
         canTerritoryAction={false}
-        territoryActionLabel="Claim hex"
+        territoryActionLabel="Cl(a)im"
+        canHealTerritoryNpc={false}
+        territoryNpcHealExplanation={null}
         canBulkProspectEquipment={false}
         canBulkSellEquipment={false}
         territoryActionExplanation={null}
@@ -409,6 +430,7 @@ describe('ui window markup', () => {
         bulkSellEquipmentExplanation={null}
         onInteract={() => {}}
         onTerritoryAction={() => {}}
+        onHealTerritoryNpc={() => {}}
         onProspect={() => {}}
         onSellAll={() => {}}
         territoryName={null}
@@ -424,5 +446,89 @@ describe('ui window markup', () => {
 
     expect(markup).toContain('(Q) Gather');
     expect(markup).not.toContain('Nothing of note stirs here.');
+  });
+
+  it('keeps claim requirement copy out of the hex window body', async () => {
+    const markup = await renderMarkup(
+      <HexInfoWindow
+        position={DEFAULT_WINDOWS.hexInfo}
+        onMove={() => {}}
+        isHome={false}
+        onSetHome={() => {}}
+        terrain="Plains"
+        structure={null}
+        enemyCount={0}
+        interactLabel={null}
+        canInteract={false}
+        canTerritoryAction={false}
+        territoryActionLabel="Cl(a)im"
+        canHealTerritoryNpc={false}
+        territoryNpcHealExplanation={null}
+        territoryActionExplanation="Claiming needs 1 Cloth and 1 Sticks for a banner."
+        canBulkProspectEquipment={false}
+        canBulkSellEquipment={false}
+        bulkProspectEquipmentExplanation={null}
+        bulkSellEquipmentExplanation={null}
+        onInteract={() => {}}
+        onTerritoryAction={() => {}}
+        onHealTerritoryNpc={() => {}}
+        onProspect={() => {}}
+        onSellAll={() => {}}
+        territoryName={null}
+        territoryOwnerType={null}
+        territoryNpc={null}
+        townStock={[]}
+        gold={0}
+        onBuyItem={() => {}}
+        onHoverItem={() => {}}
+        onLeaveItem={() => {}}
+      />,
+    );
+
+    expect(markup).not.toContain(
+      'Claiming needs 1 Cloth and 1 Sticks for a banner.',
+    );
+  });
+
+  it('hides claim and home title actions when their requirements are not met', async () => {
+    const markup = await renderMarkup(
+      <HexInfoWindow
+        position={DEFAULT_WINDOWS.hexInfo}
+        onMove={() => {}}
+        isHome
+        canSetHome={false}
+        onSetHome={() => {}}
+        terrain="Plains"
+        structure={null}
+        enemyCount={0}
+        interactLabel={null}
+        canInteract={false}
+        canTerritoryAction={false}
+        territoryActionLabel="Cl(a)im"
+        canHealTerritoryNpc={false}
+        territoryNpcHealExplanation={null}
+        territoryActionExplanation="Claiming needs 1 Cloth and 1 Sticks for a banner."
+        canBulkProspectEquipment={false}
+        canBulkSellEquipment={false}
+        bulkProspectEquipmentExplanation={null}
+        bulkSellEquipmentExplanation={null}
+        onInteract={() => {}}
+        onTerritoryAction={() => {}}
+        onHealTerritoryNpc={() => {}}
+        onProspect={() => {}}
+        onSellAll={() => {}}
+        territoryName={null}
+        territoryOwnerType={null}
+        territoryNpc={null}
+        townStock={[]}
+        gold={0}
+        onBuyItem={() => {}}
+        onHoverItem={() => {}}
+        onLeaveItem={() => {}}
+      />,
+    );
+
+    expect(markup).not.toContain('Cl(a)im');
+    expect(markup).not.toContain('H(o)me');
   });
 });

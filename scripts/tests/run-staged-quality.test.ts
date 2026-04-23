@@ -10,7 +10,7 @@ import {
 
 describe('run-staged-quality helpers', () => {
   it('treats runtime JSON sources as related test inputs', () => {
-    expect(isVitestRelatedFile('game.config.json')).toBe(true);
+    expect(isVitestRelatedFile('game.config.ts')).toBe(true);
     expect(isVitestRelatedFile('src/i18n/locales/en.json')).toBe(true);
   });
 
@@ -28,7 +28,7 @@ describe('run-staged-quality helpers', () => {
 
   it('keeps shared test trigger files explicit', () => {
     expect(FULL_TEST_TRIGGER_FILES.has('package.json')).toBe(false);
-    expect(FULL_TEST_TRIGGER_FILES.has('game.config.json')).toBe(false);
+    expect(FULL_TEST_TRIGGER_FILES.has('game.config.ts')).toBe(false);
   });
 
   it('extracts lowercase extensions consistently', () => {

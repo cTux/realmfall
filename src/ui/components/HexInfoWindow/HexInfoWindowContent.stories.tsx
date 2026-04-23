@@ -17,7 +17,7 @@ import type { HexInfoWindowProps } from './types';
 const noopBuyItem: HexInfoWindowProps['onBuyItem'] = () => undefined;
 const noopHoverItem: HexInfoWindowProps['onHoverItem'] = () => undefined;
 const noopLeaveItem: HexInfoWindowProps['onLeaveItem'] = () => undefined;
-const noopAction = () => undefined;
+const noopAction: () => void = () => {};
 
 const meta = {
   title: 'Windows/Hex Content/States',
@@ -34,6 +34,7 @@ const meta = {
   args: {
     onInteract: noopAction,
     onTerritoryAction: noopAction,
+    onHealTerritoryNpc: noopAction,
     onProspect: noopAction,
     onSellAll: noopAction,
     onBuyItem: noopBuyItem,
@@ -47,6 +48,7 @@ const meta = {
       exclude: [
         'onInteract',
         'onTerritoryAction',
+        'onHealTerritoryNpc',
         'onProspect',
         'onSellAll',
         'onBuyItem',
@@ -109,13 +111,32 @@ export const Town: Story = {
   }),
 };
 
+export const TownWithoutSellables: Story = {
+  args: buildStructureArgs('town', {
+    terrain: 'Plains',
+    bulkSellEquipmentExplanation: 'No equippable items to sell.',
+    gold: 240,
+    townStock: buildTownStock('storybook-town-empty-sell', { q: 0, r: 0 }),
+  }),
+};
+
+export const FactionNpc: Story = {
+  args: buildStructureArgs('camp', {
+    terrain: 'Plains',
+    territoryName: 'Ghostline',
+    territoryOwnerType: 'faction',
+    territoryNpc: { name: 'Araken' },
+    canHealTerritoryNpc: true,
+  }),
+};
+
 export const CombatEncounter: Story = {
   args: {
     ...buildStructureArgs('dungeon', {
       terrain: 'Rift',
       enemyCount: 2,
       canTerritoryAction: false,
-      territoryActionLabel: 'Claim hex',
+      territoryActionLabel: 'Cl(a)im',
     }),
     combat: buildCombatState(),
     combatPlayerParty: [
@@ -163,6 +184,7 @@ export const CombatEncounter: Story = {
         abilityIds: ['kick'],
       },
     ],
+    combatWorldTimeMs: 12_000,
     loot: [
       buildItemFromConfig(ItemId.Gold, { id: 'combat-gold', quantity: 22 }),
       buildItemFromConfig(ItemId.HideBuckler, {
@@ -170,6 +192,14 @@ export const CombatEncounter: Story = {
         tier: 3,
       }),
     ],
+  },
+};
+
+export const LongCombatEncounter: Story = {
+  args: {
+    ...CombatEncounter.args,
+    combat: buildCombatState({ started: true, startedAtMs: 0 }),
+    combatWorldTimeMs: 61_000,
   },
 };
 
@@ -240,7 +270,9 @@ function buildStructureArgs(
     interactLabel: overrides.interactLabel ?? structureActionLabel(structure),
     canInteract: overrides.canInteract ?? false,
     canTerritoryAction: overrides.canTerritoryAction ?? true,
-    territoryActionLabel: overrides.territoryActionLabel ?? 'Claim hex',
+    territoryActionLabel: overrides.territoryActionLabel ?? 'Cl(a)im',
+    canHealTerritoryNpc: overrides.canHealTerritoryNpc ?? false,
+    territoryNpcHealExplanation: overrides.territoryNpcHealExplanation ?? null,
     canBulkProspectEquipment: overrides.canBulkProspectEquipment ?? false,
     canBulkSellEquipment: overrides.canBulkSellEquipment ?? false,
     itemModification: overrides.itemModification ?? null,
@@ -316,6 +348,7 @@ type StoryArgs = Omit<
   ComponentProps<typeof HexInfoWindowContent>,
   | 'onInteract'
   | 'onTerritoryAction'
+  | 'onHealTerritoryNpc'
   | 'onProspect'
   | 'onSellAll'
   | 'onBuyItem'
@@ -325,11 +358,18 @@ type StoryArgs = Omit<
   | 'onLeaveItem'
 >;
 
-function buildCombatState(): CombatState {
+function buildCombatState({
+  started = false,
+  startedAtMs,
+}: {
+  started?: boolean;
+  startedAtMs?: number;
+} = {}): CombatState {
   return {
     coord: { q: 1, r: 0 },
     enemyIds: ['enemy-1', 'enemy-2'],
-    started: false,
+    started,
+    startedAtMs,
     player: createCombatActorState(12_000, ['kick']),
     enemies: {
       'enemy-1': createCombatActorState(12_000, ['kick']),

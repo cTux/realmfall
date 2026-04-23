@@ -62,6 +62,9 @@ describe('App hydration and interactions', () => {
       await Promise.resolve();
     });
 
+    expect(host.querySelector(`.${styles.loadingScreen}`)).not.toBeNull();
+    expect(host.querySelector('[aria-label="Loading window"]')).toBeNull();
+
     await act(async () => {
       vi.advanceTimersByTime(200);
     });

@@ -237,6 +237,14 @@ describe('ui tooltip content', () => {
         text: 'Tags: item.food, item.healing',
         tone: 'subtle',
       },
+      {
+        kind: 'stat',
+        label: 'Sells for',
+        value: `${sellValue(consumable)} gold`,
+        icon: Icons.Coins,
+        iconTint: '#fbbf24',
+        tone: 'item',
+      },
     ]);
     expect(itemTooltipLines(manaPotion)).toEqual([
       { kind: 'text', text: 'Use to restore 35% MP.' },
@@ -244,6 +252,14 @@ describe('ui tooltip content', () => {
         kind: 'text',
         text: 'Tags: item.consumable, item.stackable',
         tone: 'subtle',
+      },
+      {
+        kind: 'stat',
+        label: 'Sells for',
+        value: `${sellValue(manaPotion)} gold`,
+        icon: Icons.Coins,
+        iconTint: '#fbbf24',
+        tone: 'item',
       },
     ]);
 
@@ -267,6 +283,26 @@ describe('ui tooltip content', () => {
     expect(
       itemTooltipLines(resource).some((line) => line.label === 'Sells for'),
     ).toBe(false);
+    expect(
+      itemTooltipLines({
+        id: 'iron-ore-1',
+        itemKey: 'iron-ore',
+        name: 'Iron Ore',
+        quantity: 2,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+        tags: [
+          GameTag.ItemResource,
+          GameTag.ItemOre,
+          GameTag.ItemCraftingMaterial,
+        ],
+      }).some((line) => line.label === 'Sells for' && line.value === '2 gold'),
+    ).toBe(true);
     expect(getInventoryItemAction(recipePage, ['cook-cooked-fish'])).toBe(
       'use',
     );

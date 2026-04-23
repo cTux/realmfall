@@ -1,4 +1,5 @@
 import { clampItemLevel } from './balance';
+import { TOWN_BUY_PRICE_BALANCE } from './config';
 import {
   buildGeneratedItemFromConfig,
   buildItemFromConfig,
@@ -37,6 +38,7 @@ const TOWN_STOCK_KEYS = [
 export function buildTownStock(
   seed: string,
   coord: HexCoord,
+  dayIndex = 0,
 ): TownStockEntry[] {
   const baseTier = resolveTownStockBaseTier(coord);
 
@@ -44,6 +46,7 @@ export function buildTownStock(
     const item = buildTownStockItem({
       seed,
       coord,
+      dayIndex,
       key,
       index,
       baseTier,
@@ -62,12 +65,14 @@ export function buildTownStock(
 function buildTownStockItem({
   seed,
   coord,
+  dayIndex,
   key,
   index,
   baseTier,
 }: {
   seed: string;
   coord: HexCoord;
+  dayIndex: number;
   key: string;
   index: number;
   baseTier: number;
@@ -77,10 +82,17 @@ function buildTownStockItem({
     throw new Error(`Missing item config for town stock: ${key}`);
   }
 
-  const itemId = `town-stock-${hexKey(coord)}-${key}-${index}`;
-  const tier = resolveTownStockTier(seed, coord, key, index, baseTier);
+  const itemId = `town-stock-${hexKey(coord)}-${dayIndex}-${key}-${index}`;
+  const tier = resolveTownStockTier(
+    seed,
+    coord,
+    key,
+    index,
+    dayIndex,
+    baseTier,
+  );
   const rarity = pickEquipmentRarity(
-    `${seed}:town-stock:${key}:${index}`,
+    `${seed}:town-stock:${dayIndex}:${key}:${index}`,
     coord,
     tier,
     config.category === 'artifact' ? 'uncommon' : 'common',
@@ -112,15 +124,19 @@ function resolveTownStockTier(
   coord: HexCoord,
   key: string,
   index: number,
+  dayIndex: number,
   baseTier: number,
 ) {
   const rng = createRng(
-    `${seed}:town-stock:tier:${key}:${index}:${coord.q}:${coord.r}`,
+    `${seed}:town-stock:tier:${dayIndex}:${key}:${index}:${coord.q}:${coord.r}`,
   );
 
   return clampItemLevel(baseTier + Math.floor(rng() * 3));
 }
 
-function getTownStockPrice(item: Item) {
-  return Math.max(10, sellValue(item) * 2);
+export function getTownStockPrice(item: Item) {
+  return Math.max(
+    TOWN_BUY_PRICE_BALANCE.minimum,
+    sellValue(item) * TOWN_BUY_PRICE_BALANCE.rarityMultiplier[item.rarity],
+  );
 }

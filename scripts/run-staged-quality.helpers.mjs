@@ -7,7 +7,6 @@ const PRETTIER_EXTENSIONS = new Set([
   '.json',
   '.md',
   '.html',
-  '.svg',
   '.yaml',
   '.yml',
 ]);
@@ -57,7 +56,7 @@ export function isVitestRelatedFile(file) {
   return (
     file.startsWith('src/') ||
     file.startsWith('scripts/') ||
-    file === 'game.config.json' ||
+    file === 'game.config.ts' ||
     file.includes('.test.')
   );
 }

@@ -5,7 +5,6 @@
   height: min(360px, calc(100vh - 16px));
   display: flex;
   flex-direction: column;
-  overflow: visible;
 
   @media (width <= 980px) {
     width: min(390px, calc(100vw - 16px));
@@ -34,7 +33,7 @@
   min-height: 0;
   overflow: visible auto;
   scrollbar-gutter: stable;
-  padding-bottom: 4px;
+  padding: 6px 4px 4px 6px;
   gap: 4px;
 }
 

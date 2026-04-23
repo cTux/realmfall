@@ -25,6 +25,7 @@ import {
   enemyStatusRichText,
   formatEnemyDamageLog,
   formatPlayerDamageLog,
+  formatPlayerStatHealLog,
   formatSuppressedEnemyDebuffLog,
   playerDamageRichText,
   playerHealRichText,
@@ -96,6 +97,7 @@ export function startCombat(state: GameState): GameState {
 
   const next = cloneForWorldMutation(state);
   next.combat!.started = true;
+  next.combat!.startedAtMs = next.worldTimeMs;
   addLog(
     next,
     'combat',
@@ -107,6 +109,16 @@ export function startCombat(state: GameState): GameState {
     ),
   );
   resolveCombat(next);
+  return next;
+}
+
+export function forfeitCombat(state: GameState): GameState {
+  if (!state.combat) return message(state, t('game.message.combat.noneActive'));
+  if (!state.combat.started)
+    return message(state, t('game.message.combat.pressStart'));
+
+  const next = cloneForWorldMutation(state);
+  respawnAtNearestTown(next, next.combat!.coord);
   return next;
 }
 
@@ -384,7 +396,14 @@ function applyPlayerAbility(
             ability: formatAbilityLabel(ability.id),
             amount: healed,
           }),
-          playerHealRichText(ability.id, healed, playerStats.attack),
+          playerHealRichText(
+            {
+              kind: 'ability',
+              abilityId: ability.id,
+              attack: playerStats.attack,
+            },
+            healed,
+          ),
         );
       }
       continue;
@@ -411,7 +430,22 @@ function applyPlayerAbility(
   }
 
   if (totalDamage > 0) {
-    applyLifesteal(state, totalDamage, playerStats);
+    const lifestealHealed = applyLifesteal(state, totalDamage, playerStats);
+    if (lifestealHealed > 0) {
+      addLog(
+        state,
+        'combat',
+        formatPlayerStatHealLog('lifestealAmount', lifestealHealed),
+        playerHealRichText(
+          {
+            kind: 'secondaryStat',
+            stat: 'lifestealAmount',
+            text: t('ui.combat.lifestealLabel'),
+          },
+          lifestealHealed,
+        ),
+      );
+    }
   }
 
   enemyTargets.forEach((enemy) => {
@@ -465,6 +499,7 @@ function dealPlayerDamageToEnemy(
     getEnemySuppressDamageChance(enemy),
     getEnemySuppressDamageReduction(enemy),
   );
+  damageResolution.critical = critCount > 0;
   enemy.hp = Math.max(0, enemy.hp - damageResolution.damage);
   applyPlayerOnHitEffects(state, enemy, damageResolution.damage, playerStats);
   if (
@@ -712,6 +747,7 @@ function applyEnemyAbility(
         })(),
         playerStats,
       );
+      damageResolution.critical = critCount > 0;
       if (damageResolution.damage > 0) {
         state.player.hp = Math.max(
           0,

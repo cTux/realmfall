@@ -79,6 +79,7 @@ const GameSettingsWindow = createLazyWindowComponent<
 );
 
 interface AppDeferredWindowsProps {
+  appReady: boolean;
   combatPlayerParty: ReturnType<
     typeof import('../hooks/useCombatPlayerParty').useCombatPlayerParty
   >;
@@ -110,6 +111,7 @@ interface AppDeferredWindowsProps {
 }
 
 export const AppDeferredWindows = memo(function AppDeferredWindows({
+  appReady,
   combatView,
   combatPlayerParty,
   hexInfoView,
@@ -133,7 +135,7 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
     onHoverDetail: tooltipActions.onShowTooltip,
     onLeaveDetail: tooltipActions.onCloseTooltip,
   };
-  const fallback = <WindowLoadingState />;
+  const fallback = appReady ? <WindowLoadingState /> : null;
 
   return (
     <>
@@ -177,6 +179,11 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
             canBulkSellEquipment={worldView.canBulkSellEquipment}
             itemModification={worldView.itemModification}
             canTerritoryAction={worldView.claimStatus.canClaim}
+            territoryActionKind={
+              worldView.claimStatus.action === 'none'
+                ? undefined
+                : worldView.claimStatus.action
+            }
             territoryActionLabel={claimStatusActionLabel(
               worldView.claimStatus.action,
             )}
@@ -203,6 +210,11 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
               worldActions.onToggleItemModificationPicker
             }
             onTerritoryAction={worldActions.onClaimHex}
+            canHealTerritoryNpc={worldView.territoryNpcHealStatus.canHeal}
+            territoryNpcHealExplanation={
+              worldView.territoryNpcHealStatus.reason
+            }
+            onHealTerritoryNpc={worldActions.onHealTerritoryNpc}
             structureHp={worldView.currentTile.structureHp}
             structureMaxHp={worldView.currentTile.structureMaxHp}
             territoryName={worldView.currentTile.claim?.ownerName ?? null}
@@ -215,10 +227,12 @@ export const AppDeferredWindows = memo(function AppDeferredWindows({
             combat={worldView.combat}
             combatPlayerParty={combatPlayerParty}
             combatEnemies={combatView.snapshot?.enemies ?? []}
+            combatWorldTimeMs={worldView.worldTimeMs}
             onBuyItem={worldActions.onBuyTownItem}
             onTakeAll={inventoryActions.onTakeAllLoot}
             onTakeItem={inventoryActions.onTakeLootItem}
             onStartCombat={worldActions.onStartCombat}
+            onForfeitCombat={worldActions.onForfeitCombat}
             onHoverItem={tooltipActions.onShowItemTooltip}
             onLeaveItem={tooltipActions.onCloseTooltip}
             {...detailTooltipHandlers}

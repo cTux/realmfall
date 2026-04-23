@@ -14,6 +14,8 @@ import {
   dropInventoryItem,
   enchantInventoryItem,
   equipItem,
+  forfeitCombat,
+  healAtFactionNpc,
   interactWithStructure,
   prospectInventoryItem,
   prospectInventory,
@@ -116,6 +118,10 @@ export function useGameActionHandlers({
     applyGameTransition(claimCurrentHex);
   }, [applyGameTransition]);
 
+  const handleHealTerritoryNpc = useCallback(() => {
+    applyGameTransition(healAtFactionNpc);
+  }, [applyGameTransition]);
+
   const handleBuyTownItem = useCallback(
     (itemId: string) => {
       applyGameTransition((current) => buyTownItem(current, itemId));
@@ -189,16 +195,22 @@ export function useGameActionHandlers({
     applyGameTransition(startCombat);
   }, [applyGameTransition]);
 
+  const handleForfeitCombat = useCallback(() => {
+    applyGameTransition(forfeitCombat);
+  }, [applyGameTransition]);
+
   return {
     applyGameTransition,
     handleActivateInventoryItem,
     handleBuyTownItem,
     handleClaimHex,
+    handleHealTerritoryNpc,
     handleCraftRecipe,
     handleDropEquippedItem,
     handleDropItem,
     handleEnchantItem,
     handleEquipItem,
+    handleForfeitCombat,
     handleInteract,
     handleCorruptItem,
     handleProspect,

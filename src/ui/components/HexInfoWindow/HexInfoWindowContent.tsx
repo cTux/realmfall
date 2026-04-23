@@ -1,7 +1,9 @@
+import type { CSSProperties } from 'react';
 import { t } from '../../../i18n';
 import { ITEM_MODIFICATION_BALANCE } from '../../../game/config';
 import { CombatWindowContent } from '../CombatWindow/CombatWindowContent';
 import { ItemSlotButton } from '../ItemSlotButton/ItemSlotButton';
+import { Icons } from '../../icons';
 import type { HexInfoWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -11,31 +13,15 @@ type HexInfoWindowContentProps = Omit<
 >;
 
 export function HexInfoWindowContent({
-  terrain,
-  structure,
-  enemyCount,
-  interactLabel,
-  canInteract,
-  canTerritoryAction,
-  territoryActionLabel,
-  territoryActionExplanation,
   canBulkProspectEquipment,
-  canBulkSellEquipment,
   itemModification,
-  bulkProspectEquipmentExplanation,
-  bulkSellEquipmentExplanation,
-  territoryNpc,
   onApplyItemModification = () => undefined,
   onClearItemModificationSelection = () => undefined,
   onSelectItemModificationReforgeStat = () => undefined,
   onToggleItemModificationPicker = () => undefined,
-  onTerritoryAction,
   onProspect,
-  onSellAll,
   structureHp,
   structureMaxHp,
-  territoryName,
-  territoryOwnerType,
   townStock,
   gold,
   equipment = {},
@@ -59,6 +45,8 @@ export function HexInfoWindowContent({
   const hoverDetail = onHoverDetail ?? (() => undefined);
   const leaveDetail = onLeaveDetail ?? (() => undefined);
   const selectedItemForModification = itemModification?.selectedItem ?? null;
+  const contentSlotStyle = buildContentSlotStyle();
+  const compactContentSlotStyle = buildContentSlotStyle('compact');
 
   return (
     <div className={styles.layout}>
@@ -75,42 +63,6 @@ export function HexInfoWindowContent({
             />
           ) : (
             <div className={styles.meta}>
-              <div className={styles.row}>
-                <span className={styles.label}>
-                  {t('ui.hexInfo.terrainLabel')}
-                </span>
-                <span className={styles.value}>{terrain}</span>
-              </div>
-              {structure ? (
-                <div className={styles.row}>
-                  <span className={styles.label}>
-                    {t('ui.hexInfo.structureLabel')}
-                  </span>
-                  <span className={styles.value}>{structure}</span>
-                </div>
-              ) : null}
-              {enemyCount > 0 ? (
-                <div className={styles.row}>
-                  <span className={styles.label}>
-                    {t('ui.hexInfo.enemiesLabel')}
-                  </span>
-                  <span className={styles.value}>{enemyCount}</span>
-                </div>
-              ) : null}
-              {territoryName ? (
-                <div className={styles.row}>
-                  <span className={styles.label}>
-                    {t('ui.hexInfo.territoryLabel')}
-                  </span>
-                  <span className={styles.value}>
-                    {territoryName}
-                    {territoryOwnerType === 'player'
-                      ? ` (${t('ui.hexInfo.playerTerritoryValue')})`
-                      : ''}
-                  </span>
-                </div>
-              ) : null}
-
               {structureHp != null && structureMaxHp != null ? (
                 <div className={styles.barBlock}>
                   <div className={styles.barLabel}>
@@ -144,36 +96,11 @@ export function HexInfoWindowContent({
                 </div>
               ) : null}
 
-              <div className={styles.actions}>
-                <button
-                  onClick={onTerritoryAction}
-                  disabled={!canTerritoryAction}
-                >
-                  {territoryActionLabel}
-                </button>
-                {canBulkProspectEquipment ? (
+              {canBulkProspectEquipment ? (
+                <div className={styles.actions}>
                   <button onClick={onProspect}>
                     {t('ui.hexInfo.prospectAction')}
                   </button>
-                ) : null}
-                {canBulkSellEquipment ? (
-                  <button onClick={onSellAll}>
-                    {t('ui.hexInfo.sellAllAction')}
-                  </button>
-                ) : null}
-              </div>
-
-              {territoryActionExplanation ? (
-                <div className={styles.empty}>{territoryActionExplanation}</div>
-              ) : null}
-              {bulkProspectEquipmentExplanation ? (
-                <div className={styles.empty}>
-                  {bulkProspectEquipmentExplanation}
-                </div>
-              ) : null}
-              {bulkSellEquipmentExplanation ? (
-                <div className={styles.empty}>
-                  {bulkSellEquipmentExplanation}
                 </div>
               ) : null}
               {itemModification ? (
@@ -202,6 +129,7 @@ export function HexInfoWindowContent({
                     <ItemSlotButton
                       ariaLabel={t('ui.hexInfo.itemModification.slotLabel')}
                       item={itemModification.selectedItem ?? undefined}
+                      style={contentSlotStyle}
                       className={
                         itemModification.pickerActive
                           ? styles.itemModificationSlotActive
@@ -306,22 +234,8 @@ export function HexInfoWindowContent({
                   ) : null}
                 </div>
               ) : null}
-              {territoryNpc ? (
-                <div className={styles.shop}>
-                  <div className={styles.shopTitle}>
-                    {t('ui.hexInfo.npcsTitle')}
-                  </div>
-                  <div className={styles.shopRow}>
-                    <span>{territoryNpc.name}</span>
-                  </div>
-                </div>
-              ) : null}
-
               {townStock.length > 0 ? (
                 <div className={styles.shop}>
-                  <div className={styles.shopTitle}>
-                    {t('ui.hexInfo.townStockTitle', { gold })}
-                  </div>
                   <div className={styles.shopGrid}>
                     {townStock.map(({ item, price }) => {
                       const affordable = gold >= price;
@@ -330,6 +244,10 @@ export function HexInfoWindowContent({
                         <div key={item.id} className={styles.shopCard}>
                           <ItemSlotButton
                             item={item}
+                            style={contentSlotStyle}
+                            badgeLabel={`${price}`}
+                            badgeIcon={Icons.Coins}
+                            badgeIconLabel={t('game.item.gold.name')}
                             className={
                               affordable ? undefined : styles.shopItemDisabled
                             }
@@ -345,77 +263,72 @@ export function HexInfoWindowContent({
                             }
                             onMouseLeave={onLeaveItem}
                           />
-                          <span
-                            className={`${styles.shopPrice} ${
-                              affordable ? '' : styles.shopPriceDisabled
-                            }`.trim()}
-                          >
-                            {price}
-                            {t('ui.hexInfo.buyPriceSuffix')}
-                          </span>
                         </div>
                       );
                     })}
                   </div>
                 </div>
               ) : null}
-
-              {!canTerritoryAction &&
-              !(interactLabel && canInteract) &&
-              !canBulkProspectEquipment &&
-              !canBulkSellEquipment &&
-              !itemModification &&
-              townStock.length === 0 &&
-              !territoryName ? (
-                <div className={styles.empty}>{t('ui.hexInfo.empty')}</div>
-              ) : null}
             </div>
           )}
         </div>
       </section>
 
-      <section className={styles.lootSection}>
-        <div className={styles.sectionHeader}>
-          <span className={styles.sectionTitle}>{t('ui.loot.title')}</span>
-          <button
-            type="button"
-            onClick={onTakeAll}
-            disabled={loot.length === 0}
-            onMouseEnter={(event) =>
-              onHoverDetail?.(
-                event,
-                t('ui.loot.takeAllAction'),
-                [{ kind: 'text', text: t('ui.tooltip.window.takeAllLoot') }],
-                'rgba(74, 222, 128, 0.9)',
-              )
-            }
-            onMouseLeave={onLeaveDetail}
-          >
-            {t('ui.loot.takeAllAction')}
-          </button>
-        </div>
-        <div className={styles.lootGrid}>
-          {loot.map((item) => (
-            <ItemSlotButton
-              key={item.id}
-              item={item}
-              size="compact"
-              onClick={() => onTakeItem(item.id)}
+      {loot.length > 0 ? (
+        <section className={styles.lootSection}>
+          <div className={styles.sectionHeader}>
+            <span className={styles.sectionTitle}>{t('ui.loot.title')}</span>
+            <button
+              type="button"
+              onClick={onTakeAll}
               onMouseEnter={(event) =>
-                onHoverItem(
+                onHoverDetail?.(
                   event,
-                  item,
-                  item.slot ? equipment[item.slot] : undefined,
+                  t('ui.loot.takeAllAction'),
+                  [{ kind: 'text', text: t('ui.tooltip.window.takeAllLoot') }],
+                  'rgba(74, 222, 128, 0.9)',
                 )
               }
-              onMouseLeave={onLeaveItem}
-            />
-          ))}
-          {loot.length === 0 ? (
-            <div className={styles.empty}>{t('ui.common.empty')}</div>
-          ) : null}
-        </div>
-      </section>
+              onMouseLeave={onLeaveDetail}
+            >
+              {t('ui.loot.takeAllAction')}
+            </button>
+          </div>
+          <div className={styles.lootGrid}>
+            {loot.map((item) => (
+              <ItemSlotButton
+                key={item.id}
+                item={item}
+                size="compact"
+                style={compactContentSlotStyle}
+                onClick={() => onTakeItem(item.id)}
+                onMouseEnter={(event) =>
+                  onHoverItem(
+                    event,
+                    item,
+                    item.slot ? equipment[item.slot] : undefined,
+                  )
+                }
+                onMouseLeave={onLeaveItem}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
     </div>
   );
+}
+
+function buildContentSlotStyle(size: 'default' | 'compact' = 'default') {
+  if (size === 'compact') {
+    return {
+      '--slot-size': '27.2px',
+      '--slot-icon-size': '24.48px',
+    } as CSSProperties;
+  }
+
+  return {
+    '--slot-size': '54.4px',
+    '--slot-icon-size': '1.76rem',
+  } as CSSProperties;
 }

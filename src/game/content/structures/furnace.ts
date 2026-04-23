@@ -7,7 +7,7 @@ export const furnaceStructureConfig: StructureConfig = {
   title: structureTitle('furnace'),
   description: structureDescription('furnace'),
   icon: ContentIcons.Furnace,
-  tint: 0xf59e0b,
+  tint: 0xffffff,
   functionsProvided: ['smelt'],
   globalAppearanceThreshold: 0.968,
 };

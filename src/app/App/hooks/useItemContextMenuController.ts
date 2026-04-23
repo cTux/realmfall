@@ -5,9 +5,9 @@ import {
   type MutableRefObject,
 } from 'react';
 import {
+  canSellItem,
   getCurrentTile,
   isEquippableItem,
-  isRecipePage,
   type GameState,
 } from '../../../game/state';
 import {
@@ -63,9 +63,7 @@ export function useItemContextMenuController({
           isEquippableItem(item) &&
           !item.locked,
         canSellEntry:
-          currentStructure === 'town' &&
-          (isEquippableItem(item) || isRecipePage(item)) &&
-          !item.locked,
+          currentStructure === 'town' && canSellItem(item) && !item.locked,
         reforgeOptions,
         enchantCost,
         corruptCost,

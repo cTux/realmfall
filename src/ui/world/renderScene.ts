@@ -88,9 +88,7 @@ const WORLD_BOSS_HEX_TINT_ALPHA = 0.22;
 const ANIMATED_LAYER_FPS = 15;
 const ANIMATED_LAYER_FRAME_MS = 1000 / ANIMATED_LAYER_FPS;
 const ZERO_SHADOW_OFFSET = { x: 0, y: 0 };
-const ENEMY_GROUP_BADGE_RADIUS = 10;
-const ENEMY_GROUP_BADGE_OFFSET = { x: 14, y: 12 };
-const ENEMY_GROUP_BADGE_TEXT_OFFSET = { x: 10, y: 4 };
+const ENEMY_GROUP_BADGE_OFFSET = { x: 13, y: 11 };
 
 interface RenderSceneOptions {
   showTerrainBackgrounds?: boolean;
@@ -404,39 +402,13 @@ export function renderScene(
               );
 
               if (!isBossCenter && enemies.length >= 2) {
-                const badgeX = point.x + ENEMY_GROUP_BADGE_OFFSET.x;
-                const badgeY = point.y + ENEMY_GROUP_BADGE_OFFSET.y;
-                const badge = takeGraphics(
-                  scene.worldStaticMarkerBadgeGraphics,
-                );
-                badge
-                  .ellipse(
-                    badgeX,
-                    badgeY,
-                    ENEMY_GROUP_BADGE_RADIUS,
-                    ENEMY_GROUP_BADGE_RADIUS,
-                  )
-                  .fill({
-                    color: 0x0f172a,
-                    alpha: 0.96,
-                  })
-                  .stroke({
-                    width: 2,
-                    color: 0xfef2f2,
-                    alpha: 0.95,
-                  });
-
-                const badgeLabel = takeText(
-                  scene.worldStaticMarkerTexts,
-                  ENEMY_GROUP_LABEL_STYLE,
-                );
-                badgeLabel.text = enemies.length.toString();
-                badgeLabel.position.set(
-                  badgeX - ENEMY_GROUP_BADGE_TEXT_OFFSET.x,
-                  badgeY - ENEMY_GROUP_BADGE_TEXT_OFFSET.y,
-                );
+                renderEnemyGroupBadge(scene, point, enemies.length);
               }
             }
+          }
+
+          if (tile.structure === 'dungeon' && enemies.length > 0) {
+            renderEnemyGroupBadge(scene, point, enemies.length);
           }
         }
 
@@ -709,36 +681,44 @@ function getStructureHexIconTint(structure: Tile['structure']) {
 
 function getStructureMarkerAnimationKind(structure: Tile['structure']) {
   if (
+    structure === 'camp' ||
     structure === 'coal-ore' ||
     structure === 'copper-ore' ||
+    structure === 'corruption-altar' ||
+    structure === 'dungeon' ||
+    structure === 'forge' ||
+    structure === 'furnace' ||
     structure === 'gold-ore' ||
     structure === 'herbs' ||
     structure === 'iron-ore' ||
     structure === 'lake' ||
+    structure === 'mana-font' ||
     structure === 'platinum-ore' ||
     structure === 'pond' ||
+    structure === 'rune-forge' ||
     structure === 'tin-ore' ||
-    structure === 'tree'
+    structure === 'town' ||
+    structure === 'tree' ||
+    structure === 'workshop'
   ) {
     return 'resource' as const;
   }
 
-  if (
-    structure === 'camp' ||
-    structure === 'forge' ||
-    structure === 'furnace' ||
-    structure === 'workshop'
-  ) {
-    return 'utility' as const;
-  }
-
-  if (structure === 'town') {
-    return 'settlement' as const;
-  }
-
-  if (structure === 'dungeon') {
-    return 'dungeon' as const;
-  }
-
   return null;
+}
+
+function renderEnemyGroupBadge(
+  scene: ReturnType<typeof getSceneCache>,
+  point: { x: number; y: number },
+  count: number,
+) {
+  const badgeX = point.x + ENEMY_GROUP_BADGE_OFFSET.x;
+  const badgeY = point.y + ENEMY_GROUP_BADGE_OFFSET.y;
+  const badgeLabel = takeText(
+    scene.worldStaticMarkerTexts,
+    ENEMY_GROUP_LABEL_STYLE,
+  );
+  badgeLabel.text = count.toString();
+  badgeLabel.anchor.set(0.5);
+  badgeLabel.position.set(badgeX, badgeY);
 }

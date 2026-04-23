@@ -2,6 +2,21 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 
+function buildWindowShown(hexInfo = false) {
+  return {
+    hero: false,
+    skills: false,
+    recipes: false,
+    hexInfo,
+    equipment: false,
+    inventory: false,
+    loot: false,
+    log: false,
+    combat: false,
+    settings: false,
+  };
+}
+
 describe('useKeyboardShortcuts', () => {
   let host: HTMLDivElement;
   let root: Root;
@@ -30,29 +45,30 @@ describe('useKeyboardShortcuts', () => {
 
     function TestHarness() {
       useKeyboardShortcuts({
+        canBulkProspectEquipment: false,
+        canBulkSellEquipment: false,
+        canHealTerritoryNpc: false,
+        canSetHomeAction: false,
+        canTerritoryAction: false,
+        combatDeathAvailable: false,
         combatStartAvailable: false,
         hexContentWindowShown: false,
         interactLabel: null,
         lootSnapshotLength: 0,
+        onForfeitCombat: vi.fn(),
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
+        onHealTerritoryNpc: vi.fn(),
+        onSetHome: vi.fn(),
+        onTerritoryAction: vi.fn(),
         onTakeAllLoot: vi.fn(),
         onCloseAllWindows: vi.fn(),
+        onProspect: vi.fn(),
+        onSellAll: vi.fn(),
         onTogglePause: vi.fn(),
         onToggleDockWindow: vi.fn(),
         onUseActionBarSlot,
-        windowShown: {
-          hero: false,
-          skills: false,
-          recipes: false,
-          hexInfo: false,
-          equipment: false,
-          inventory: false,
-          loot: false,
-          log: false,
-          combat: false,
-          settings: false,
-        },
+        windowShown: buildWindowShown(),
       });
 
       return null;
@@ -84,29 +100,30 @@ describe('useKeyboardShortcuts', () => {
 
     function TestHarness() {
       useKeyboardShortcuts({
+        canBulkProspectEquipment: false,
+        canBulkSellEquipment: false,
+        canHealTerritoryNpc: false,
+        canSetHomeAction: false,
+        canTerritoryAction: false,
+        combatDeathAvailable: false,
         combatStartAvailable: false,
         hexContentWindowShown: false,
         interactLabel: null,
         lootSnapshotLength: 0,
+        onForfeitCombat: vi.fn(),
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
+        onHealTerritoryNpc: vi.fn(),
+        onSetHome: vi.fn(),
+        onTerritoryAction: vi.fn(),
         onTakeAllLoot: vi.fn(),
         onCloseAllWindows: vi.fn(),
+        onProspect: vi.fn(),
+        onSellAll: vi.fn(),
         onTogglePause,
         onToggleDockWindow: vi.fn(),
         onUseActionBarSlot: vi.fn(),
-        windowShown: {
-          hero: false,
-          skills: false,
-          recipes: false,
-          hexInfo: false,
-          equipment: false,
-          inventory: false,
-          loot: false,
-          log: false,
-          combat: false,
-          settings: false,
-        },
+        windowShown: buildWindowShown(),
       });
 
       return null;
@@ -143,29 +160,30 @@ describe('useKeyboardShortcuts', () => {
 
     function TestHarness() {
       useKeyboardShortcuts({
+        canBulkProspectEquipment: false,
+        canBulkSellEquipment: false,
+        canHealTerritoryNpc: false,
+        canSetHomeAction: false,
+        canTerritoryAction: false,
+        combatDeathAvailable: false,
         combatStartAvailable: false,
         hexContentWindowShown: false,
         interactLabel: null,
         lootSnapshotLength: 0,
+        onForfeitCombat: vi.fn(),
         onStartCombat: vi.fn(),
         onInteract: vi.fn(),
+        onHealTerritoryNpc: vi.fn(),
+        onSetHome: vi.fn(),
+        onTerritoryAction: vi.fn(),
         onTakeAllLoot: vi.fn(),
         onCloseAllWindows: vi.fn(),
+        onProspect: vi.fn(),
+        onSellAll: vi.fn(),
         onTogglePause,
         onToggleDockWindow: vi.fn(),
         onUseActionBarSlot: vi.fn(),
-        windowShown: {
-          hero: false,
-          skills: false,
-          recipes: false,
-          hexInfo: false,
-          equipment: false,
-          inventory: false,
-          loot: false,
-          log: false,
-          combat: false,
-          settings: false,
-        },
+        windowShown: buildWindowShown(),
       });
 
       return <button type="button">Focusable control</button>;
@@ -192,5 +210,388 @@ describe('useKeyboardShortcuts', () => {
     expect(onTogglePause).not.toHaveBeenCalled();
     expect(spaceEvent).toBeDefined();
     expect(spaceEvent?.defaultPrevented).toBe(false);
+  });
+
+  it('triggers the hex territory hotkey when the hex window can act', async () => {
+    const onTerritoryAction = vi.fn();
+
+    function TestHarness() {
+      useKeyboardShortcuts({
+        canBulkProspectEquipment: false,
+        canBulkSellEquipment: false,
+        canHealTerritoryNpc: false,
+        canSetHomeAction: false,
+        canTerritoryAction: true,
+        combatDeathAvailable: false,
+        combatStartAvailable: false,
+        hexContentWindowShown: true,
+        interactLabel: null,
+        lootSnapshotLength: 0,
+        onForfeitCombat: vi.fn(),
+        onStartCombat: vi.fn(),
+        onInteract: vi.fn(),
+        onHealTerritoryNpc: vi.fn(),
+        onSetHome: vi.fn(),
+        onTerritoryAction,
+        onTakeAllLoot: vi.fn(),
+        onCloseAllWindows: vi.fn(),
+        onProspect: vi.fn(),
+        onSellAll: vi.fn(),
+        onTogglePause: vi.fn(),
+        onToggleDockWindow: vi.fn(),
+        onUseActionBarSlot: vi.fn(),
+        windowShown: buildWindowShown(true),
+      });
+
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<TestHarness />);
+    });
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'a' }),
+      );
+    });
+
+    expect(onTerritoryAction).toHaveBeenCalledTimes(1);
+  });
+
+  it('triggers the home hotkey when the hex window can set home', async () => {
+    const onSetHome = vi.fn();
+
+    function TestHarness() {
+      useKeyboardShortcuts({
+        canBulkProspectEquipment: false,
+        canBulkSellEquipment: false,
+        canHealTerritoryNpc: false,
+        canSetHomeAction: true,
+        canTerritoryAction: false,
+        combatDeathAvailable: false,
+        combatStartAvailable: false,
+        hexContentWindowShown: true,
+        interactLabel: null,
+        lootSnapshotLength: 0,
+        onForfeitCombat: vi.fn(),
+        onStartCombat: vi.fn(),
+        onInteract: vi.fn(),
+        onHealTerritoryNpc: vi.fn(),
+        onSetHome,
+        onTerritoryAction: vi.fn(),
+        onTakeAllLoot: vi.fn(),
+        onCloseAllWindows: vi.fn(),
+        onProspect: vi.fn(),
+        onSellAll: vi.fn(),
+        onTogglePause: vi.fn(),
+        onToggleDockWindow: vi.fn(),
+        onUseActionBarSlot: vi.fn(),
+        windowShown: buildWindowShown(true),
+      });
+
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<TestHarness />);
+    });
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'o' }),
+      );
+    });
+
+    expect(onSetHome).toHaveBeenCalledTimes(1);
+  });
+
+  it('triggers bulk prospect on Q when the forge action is available', async () => {
+    const onProspect = vi.fn();
+
+    function TestHarness() {
+      useKeyboardShortcuts({
+        canBulkProspectEquipment: true,
+        canBulkSellEquipment: false,
+        canHealTerritoryNpc: false,
+        canSetHomeAction: false,
+        canTerritoryAction: false,
+        combatDeathAvailable: false,
+        combatStartAvailable: false,
+        hexContentWindowShown: true,
+        interactLabel: null,
+        lootSnapshotLength: 0,
+        onForfeitCombat: vi.fn(),
+        onStartCombat: vi.fn(),
+        onInteract: vi.fn(),
+        onHealTerritoryNpc: vi.fn(),
+        onSetHome: vi.fn(),
+        onTerritoryAction: vi.fn(),
+        onTakeAllLoot: vi.fn(),
+        onCloseAllWindows: vi.fn(),
+        onProspect,
+        onSellAll: vi.fn(),
+        onTogglePause: vi.fn(),
+        onToggleDockWindow: vi.fn(),
+        onUseActionBarSlot: vi.fn(),
+        windowShown: buildWindowShown(true),
+      });
+
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<TestHarness />);
+    });
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'q' }),
+      );
+    });
+
+    expect(onProspect).toHaveBeenCalledTimes(1);
+  });
+
+  it('triggers bulk sell on E when the town action is available', async () => {
+    const onSellAll = vi.fn();
+
+    function TestHarness() {
+      useKeyboardShortcuts({
+        canBulkProspectEquipment: false,
+        canBulkSellEquipment: true,
+        canHealTerritoryNpc: false,
+        canSetHomeAction: false,
+        canTerritoryAction: false,
+        combatDeathAvailable: false,
+        combatStartAvailable: false,
+        hexContentWindowShown: true,
+        interactLabel: null,
+        lootSnapshotLength: 0,
+        onForfeitCombat: vi.fn(),
+        onStartCombat: vi.fn(),
+        onInteract: vi.fn(),
+        onHealTerritoryNpc: vi.fn(),
+        onSetHome: vi.fn(),
+        onTerritoryAction: vi.fn(),
+        onTakeAllLoot: vi.fn(),
+        onCloseAllWindows: vi.fn(),
+        onProspect: vi.fn(),
+        onSellAll,
+        onTogglePause: vi.fn(),
+        onToggleDockWindow: vi.fn(),
+        onUseActionBarSlot: vi.fn(),
+        windowShown: buildWindowShown(true),
+      });
+
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<TestHarness />);
+    });
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'e' }),
+      );
+    });
+
+    expect(onSellAll).toHaveBeenCalledTimes(1);
+  });
+
+  it('triggers the combat death hotkey when a long battle can be forfeited', async () => {
+    const onForfeitCombat = vi.fn();
+
+    function TestHarness() {
+      useKeyboardShortcuts({
+        canBulkProspectEquipment: false,
+        canBulkSellEquipment: false,
+        canHealTerritoryNpc: false,
+        canSetHomeAction: false,
+        canTerritoryAction: false,
+        combatDeathAvailable: true,
+        combatStartAvailable: false,
+        hexContentWindowShown: true,
+        interactLabel: null,
+        lootSnapshotLength: 0,
+        onForfeitCombat,
+        onStartCombat: vi.fn(),
+        onInteract: vi.fn(),
+        onHealTerritoryNpc: vi.fn(),
+        onSetHome: vi.fn(),
+        onTerritoryAction: vi.fn(),
+        onTakeAllLoot: vi.fn(),
+        onCloseAllWindows: vi.fn(),
+        onProspect: vi.fn(),
+        onSellAll: vi.fn(),
+        onTogglePause: vi.fn(),
+        onToggleDockWindow: vi.fn(),
+        onUseActionBarSlot: vi.fn(),
+        windowShown: buildWindowShown(true),
+      });
+
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<TestHarness />);
+    });
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 't' }),
+      );
+    });
+
+    expect(onForfeitCombat).toHaveBeenCalledTimes(1);
+  });
+
+  it('triggers faction NPC heal on Q before other hex actions', async () => {
+    const onHealTerritoryNpc = vi.fn();
+    const onSellAll = vi.fn();
+
+    function TestHarness() {
+      useKeyboardShortcuts({
+        canBulkProspectEquipment: false,
+        canBulkSellEquipment: true,
+        canHealTerritoryNpc: true,
+        canSetHomeAction: false,
+        canTerritoryAction: false,
+        combatDeathAvailable: false,
+        combatStartAvailable: false,
+        hexContentWindowShown: true,
+        interactLabel: null,
+        lootSnapshotLength: 0,
+        onForfeitCombat: vi.fn(),
+        onStartCombat: vi.fn(),
+        onInteract: vi.fn(),
+        onHealTerritoryNpc,
+        onSetHome: vi.fn(),
+        onTerritoryAction: vi.fn(),
+        onTakeAllLoot: vi.fn(),
+        onCloseAllWindows: vi.fn(),
+        onProspect: vi.fn(),
+        onSellAll,
+        onTogglePause: vi.fn(),
+        onToggleDockWindow: vi.fn(),
+        onUseActionBarSlot: vi.fn(),
+        windowShown: buildWindowShown(true),
+      });
+
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<TestHarness />);
+    });
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'q' }),
+      );
+    });
+
+    expect(onHealTerritoryNpc).toHaveBeenCalledTimes(1);
+    expect(onSellAll).not.toHaveBeenCalled();
+  });
+
+  it('prioritizes bulk sell over take-all on E when both are available', async () => {
+    const onSellAll = vi.fn();
+    const onTakeAllLoot = vi.fn();
+
+    function TestHarness() {
+      useKeyboardShortcuts({
+        canBulkProspectEquipment: false,
+        canBulkSellEquipment: true,
+        canHealTerritoryNpc: false,
+        canSetHomeAction: false,
+        canTerritoryAction: false,
+        combatDeathAvailable: false,
+        combatStartAvailable: false,
+        hexContentWindowShown: true,
+        interactLabel: null,
+        lootSnapshotLength: 2,
+        onForfeitCombat: vi.fn(),
+        onStartCombat: vi.fn(),
+        onInteract: vi.fn(),
+        onHealTerritoryNpc: vi.fn(),
+        onSetHome: vi.fn(),
+        onTerritoryAction: vi.fn(),
+        onTakeAllLoot,
+        onCloseAllWindows: vi.fn(),
+        onProspect: vi.fn(),
+        onSellAll,
+        onTogglePause: vi.fn(),
+        onToggleDockWindow: vi.fn(),
+        onUseActionBarSlot: vi.fn(),
+        windowShown: buildWindowShown(true),
+      });
+
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<TestHarness />);
+    });
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'e' }),
+      );
+    });
+
+    expect(onSellAll).toHaveBeenCalledTimes(1);
+    expect(onTakeAllLoot).not.toHaveBeenCalled();
+  });
+
+  it('opens settings on Escape when no windows are shown', async () => {
+    const onToggleDockWindow = vi.fn();
+    const onCloseAllWindows = vi.fn();
+
+    function TestHarness() {
+      useKeyboardShortcuts({
+        canBulkProspectEquipment: false,
+        canBulkSellEquipment: false,
+        canHealTerritoryNpc: false,
+        canSetHomeAction: false,
+        canTerritoryAction: false,
+        combatDeathAvailable: false,
+        combatStartAvailable: false,
+        hexContentWindowShown: false,
+        interactLabel: null,
+        lootSnapshotLength: 0,
+        onForfeitCombat: vi.fn(),
+        onStartCombat: vi.fn(),
+        onInteract: vi.fn(),
+        onHealTerritoryNpc: vi.fn(),
+        onSetHome: vi.fn(),
+        onTerritoryAction: vi.fn(),
+        onTakeAllLoot: vi.fn(),
+        onCloseAllWindows,
+        onProspect: vi.fn(),
+        onSellAll: vi.fn(),
+        onTogglePause: vi.fn(),
+        onToggleDockWindow,
+        onUseActionBarSlot: vi.fn(),
+        windowShown: buildWindowShown(),
+      });
+
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<TestHarness />);
+    });
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'Escape' }),
+      );
+    });
+
+    expect(onCloseAllWindows).not.toHaveBeenCalled();
+    expect(onToggleDockWindow).toHaveBeenCalledTimes(1);
+    expect(onToggleDockWindow).toHaveBeenCalledWith('settings');
   });
 });

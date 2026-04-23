@@ -3,10 +3,15 @@ import { memo, useEffect, useMemo, useRef } from 'react';
 import { getAbilityDefinition } from '../../../game/abilities';
 import { getStatusEffectDefinition } from '../../../game/content/statusEffects';
 import type { LogEntry, LogRichSegment } from '../../../game/types';
+import { t } from '../../../i18n';
 import { parseWorldCalendarDateTime } from '../../world/timeOfDay';
 import { rarityColor } from '../../rarity';
 import { statusEffectIcon, statusEffectTint } from '../../statusEffects';
-import { abilityTooltipLines, statusEffectTooltipLines } from '../../tooltips';
+import {
+  abilityTooltipLines,
+  enemyTooltip,
+  statusEffectTooltipLines,
+} from '../../tooltips';
 import { CalendarTimestamp } from '../CalendarTimestamp';
 import type { LogWindowProps } from './types';
 import styles from './styles.module.scss';
@@ -164,15 +169,12 @@ function renderRichText(
 
     if (segment.kind === 'entity') {
       return (
-        <span
+        <EntitySegment
           key={index}
-          className={styles.entitySegment}
-          style={
-            segment.rarity ? { color: rarityColor(segment.rarity) } : undefined
-          }
-        >
-          {segment.text}
-        </span>
+          segment={segment}
+          onHoverDetail={onHoverDetail}
+          onLeaveDetail={onLeaveDetail}
+        />
       );
     }
 
@@ -203,6 +205,48 @@ function renderRichText(
       />
     );
   });
+}
+
+function EntitySegment({
+  segment,
+  onHoverDetail,
+  onLeaveDetail,
+}: {
+  segment: Extract<LogRichSegment, { kind: 'entity' }>;
+  onHoverDetail?: LogWindowProps['onHoverDetail'];
+  onLeaveDetail?: LogWindowProps['onLeaveDetail'];
+}) {
+  const tooltip =
+    segment.enemy && enemyTooltip([segment.enemy], undefined)
+      ? {
+          ...enemyTooltip([segment.enemy], undefined)!,
+          borderColor: rarityColor(segment.enemy.rarity ?? 'common'),
+        }
+      : null;
+
+  const handleMouseEnter =
+    tooltip && onHoverDetail
+      ? (event: ReactMouseEvent<HTMLElement>) =>
+          onHoverDetail(
+            event,
+            tooltip.title,
+            tooltip.lines,
+            tooltip.borderColor,
+          )
+      : undefined;
+
+  return (
+    <span
+      className={styles.entitySegment}
+      style={
+        segment.rarity ? { color: rarityColor(segment.rarity) } : undefined
+      }
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseEnter ? onLeaveDetail : undefined}
+    >
+      {segment.text}
+    </span>
+  );
 }
 
 function SourceSegment({
@@ -255,6 +299,13 @@ function sourceIconStyle(
     return maskStyle(ability.icon, '#f8fafc');
   }
 
+  if (segment.source.kind === 'secondaryStat') {
+    return maskStyle(
+      getSecondaryStatIcon(segment.source.stat),
+      'rgba(34, 197, 94, 0.9)',
+    );
+  }
+
   return maskStyle(
     statusEffectIcon(segment.source.effectId),
     statusEffectTint(
@@ -283,6 +334,19 @@ function buildSourceTooltip(
     };
   }
 
+  if (segment.source.kind === 'secondaryStat') {
+    return {
+      title: segment.text,
+      lines: [
+        {
+          kind: 'text' as const,
+          text: t(`ui.secondaryStat.tooltip.${segment.source.stat}`),
+        },
+      ],
+      borderColor: 'rgba(34, 197, 94, 0.9)',
+    };
+  }
+
   const tone =
     segment.source.tone ??
     (getStatusEffectDefinition(segment.source.effectId)?.tone === 'buff'
@@ -300,6 +364,30 @@ function buildSourceTooltip(
     borderColor:
       tone === 'buff' ? 'rgba(34, 197, 94, 0.9)' : 'rgba(239, 68, 68, 0.9)',
   };
+}
+
+function getSecondaryStatIcon(
+  stat: Extract<
+    Extract<LogRichSegment, { kind: 'source' }>['source'],
+    { kind: 'secondaryStat' }
+  >['stat'],
+) {
+  switch (stat) {
+    case 'lifestealAmount':
+      return getStatusEffectDefinition('restoration')?.icon ?? '';
+    case 'criticalStrikeChance':
+    case 'criticalStrikeDamage':
+      return getAbilityDefinition('slash').icon;
+    case 'dodgeChance':
+      return getAbilityDefinition('hamstring').icon;
+    case 'blockChance':
+      return getAbilityDefinition('kick').icon;
+    case 'suppressDamageChance':
+    case 'suppressDamageReduction':
+      return getStatusEffectDefinition('guard')?.icon ?? '';
+    default:
+      return getStatusEffectDefinition('power')?.icon ?? '';
+  }
 }
 
 function maskStyle(icon: string, tint: string): CSSProperties {

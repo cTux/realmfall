@@ -13,6 +13,15 @@ export const ensureWorldIconTexturesLoaded = vi.fn(async () => undefined);
 export const getVisibleWorldIconAssetIds = vi.fn(() => ['visible-start-icon']);
 export const warmWorldIconTexturesInBackground = vi.fn();
 
+class ResizeObserverMock {
+  observe() {}
+  disconnect() {}
+}
+
+if (typeof globalThis.ResizeObserver === 'undefined') {
+  vi.stubGlobal('ResizeObserver', ResizeObserverMock);
+}
+
 class MockStage {
   children: unknown[] = [];
 
@@ -356,13 +365,6 @@ beforeAll(() => {
   vi.useFakeTimers();
   vi.stubGlobal('requestIdleCallback', undefined);
   vi.stubGlobal('cancelIdleCallback', undefined);
-
-  class ResizeObserverMock {
-    observe() {}
-    disconnect() {}
-  }
-
-  vi.stubGlobal('ResizeObserver', ResizeObserverMock);
 });
 
 afterAll(() => {

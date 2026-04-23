@@ -82,6 +82,10 @@ function copyTile(tile: Tile): Tile {
       secondaryStats: item.secondaryStats?.map((stat) => ({ ...stat })),
     })),
     enemyIds: [...tile.enemyIds],
+    townStockDay: tile.townStockDay,
+    townStockPurchasedItemIds: tile.townStockPurchasedItemIds
+      ? [...tile.townStockPurchasedItemIds]
+      : undefined,
     claim: tile.claim
       ? {
           ...tile.claim,

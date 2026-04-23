@@ -71,6 +71,7 @@ export function AppWindows(props: AppWindowsProps) {
         recipeActions={props.actions.recipes}
       />
       <AppDeferredWindows
+        appReady={props.layout.appReady}
         combatPlayerParty={combatPlayerParty}
         hexInfoView={hexInfoView}
         mountedWindows={mountedWindows}

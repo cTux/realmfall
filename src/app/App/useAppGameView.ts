@@ -1,18 +1,19 @@
 import { useMemo } from 'react';
 import {
   getCurrentHexClaimStatus,
+  getCurrentHexFactionNpcHealStatus,
   getEnemiesAt,
   getGoldAmount,
   getHostileEnemyIds,
   getPlayerClaimedTiles,
   getPlayerStats,
   getRecipeBookEntries,
+  getTownStock,
   structureActionLabel,
   type GameState,
   type Item,
   type LogKind,
 } from '../../game/state';
-import { buildTownStock } from '../../game/economy';
 import { hexKey } from '../../game/hex';
 import { isEquippableItem } from '../../game/inventory';
 import {
@@ -38,6 +39,9 @@ interface UseAppGameViewOptions {
 
 type EnemyLookupInput = Parameters<typeof getEnemiesAt>[0];
 type ClaimStatusInput = Parameters<typeof getCurrentHexClaimStatus>[0];
+type FactionNpcHealStatusInput = Parameters<
+  typeof getCurrentHexFactionNpcHealStatus
+>[0];
 
 export function useAppGameView({
   game,
@@ -80,6 +84,14 @@ export function useAppGameView({
     }),
     [bloodMoonActive, coord, enemies, homeHex, inventory, seed, tiles],
   );
+  const factionNpcHealStatusInput = useMemo<FactionNpcHealStatusInput>(
+    () => ({
+      player,
+      seed,
+      tiles,
+    }),
+    [player, seed, tiles],
+  );
 
   const stats = useMemo(() => getPlayerStats(player), [player]);
   const currentTile = useMemo(
@@ -110,13 +122,7 @@ export function useAppGameView({
     () => inventory.some((item) => isEquippableItem(item) && !item.locked),
     [inventory],
   );
-  const townStock = useMemo(
-    () =>
-      currentTile.structure === 'town'
-        ? buildTownStock(seed, currentTile.coord)
-        : [],
-    [currentTile.coord, currentTile.structure, seed],
-  );
+  const townStock = useMemo(() => getTownStock(game), [game]);
   const gold = useMemo(() => getGoldAmount(inventory), [inventory]);
   const combatEnemies = useMemo(
     () => (combat ? getEnemiesAt(enemyLookupInput, combat.coord) : []),
@@ -215,6 +221,10 @@ export function useAppGameView({
     () => getCurrentHexClaimStatus(claimStatusInput),
     [claimStatusInput],
   );
+  const territoryNpcHealStatus = useMemo(
+    () => getCurrentHexFactionNpcHealStatus(factionNpcHealStatusInput),
+    [factionNpcHealStatusInput],
+  );
   const backgroundMusicMood = useMemo(
     () =>
       resolveBackgroundMusicMood({
@@ -244,6 +254,7 @@ export function useAppGameView({
     bulkSellEquipmentExplanation,
     stats,
     townStock,
+    territoryNpcHealStatus,
   };
 }
 

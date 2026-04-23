@@ -22,6 +22,7 @@ import {
 } from './logs';
 import {
   canEquipItem,
+  canSellItem,
   canUseItem,
   getGoldAmount,
   isEquippableItem,
@@ -93,9 +94,11 @@ import {
 } from './stateWorldEvents';
 import {
   claimCurrentHex,
+  healAtFactionNpc,
   interactWithStructure,
   setHomeHex,
 } from './stateWorldActions';
+import { getCurrentHexFactionNpcHealStatus } from './stateFactionNpc';
 import {
   craftRecipe,
   getRecipeBookEntries,
@@ -142,6 +145,7 @@ export {
   gatheringBonusChance,
   gatheringYieldBonus,
   canEquipItem,
+  canSellItem,
   canUseItem,
   createFreshLogsAtTime,
   describeStructure,
@@ -171,10 +175,12 @@ export {
 } from './stateWorldQueries';
 export type { VisibleTilesState } from './stateWorldQueries';
 export { getCurrentHexClaimStatus } from './stateClaims';
+export { getCurrentHexFactionNpcHealStatus } from './stateFactionNpc';
 export { getSafePathToTile } from './statePathfinding';
 export { createGame } from './stateFactory';
 export {
   claimCurrentHex,
+  healAtFactionNpc,
   interactWithStructure,
   setHomeHex,
 } from './stateWorldActions';
@@ -212,6 +218,7 @@ export {
 } from './stateItemModificationActions';
 export {
   attackCombatEnemy,
+  forfeitCombat,
   getCombatAutomationDelay,
   getEnemyCombatAttack,
   getEnemyCombatAttackSpeed,

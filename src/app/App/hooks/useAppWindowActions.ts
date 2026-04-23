@@ -8,6 +8,7 @@ interface UseAppWindowActionsArgs {
   handleAssignActionBarSlot: AppWindowsActions['inventory']['onAssignActionBarSlot'];
   handleBuyTownItem: AppWindowsActions['world']['onBuyTownItem'];
   handleClaimHex: AppWindowsActions['world']['onClaimHex'];
+  handleHealTerritoryNpc: AppWindowsActions['world']['onHealTerritoryNpc'];
   handleClearActionBarSlot: AppWindowsActions['inventory']['onClearActionBarSlot'];
   handleClearRecipeMaterialFilter: AppWindowsActions['recipes']['onClearMaterialFilter'];
   handleContextItem: AppWindowsActions['inventory']['onContextItem'];
@@ -15,6 +16,7 @@ interface UseAppWindowActionsArgs {
   handleDropEquippedItem: AppWindowsActions['inventory']['onDropEquippedItem'];
   handleDropItem: AppWindowsActions['inventory']['onDropItem'];
   handleEnchantItem: AppWindowsActions['inventory']['onEnchantItem'];
+  handleForfeitCombat: AppWindowsActions['world']['onForfeitCombat'];
   handleSelectHexItemModificationItem: AppWindowsActions['inventory']['onSelectHexItemModificationItem'];
   handleEquipmentHover: AppWindowsActions['tooltip']['onEquipmentHover'];
   handleEquipItem: AppWindowsActions['inventory']['onEquipItem'];
@@ -60,6 +62,7 @@ export function useAppWindowActions({
   handleAssignActionBarSlot,
   handleBuyTownItem,
   handleClaimHex,
+  handleHealTerritoryNpc,
   handleClearActionBarSlot,
   handleClearRecipeMaterialFilter,
   handleContextItem,
@@ -67,6 +70,7 @@ export function useAppWindowActions({
   handleDropEquippedItem,
   handleDropItem,
   handleEnchantItem,
+  handleForfeitCombat,
   handleSelectHexItemModificationItem,
   handleEquipmentHover,
   handleEquipItem,
@@ -186,11 +190,13 @@ export function useAppWindowActions({
   const world = useMemo(
     () => ({
       onStartCombat: handleStartCombat,
+      onForfeitCombat: handleForfeitCombat,
       onInteract: handleInteract,
       onProspect: handleProspect,
       onSellAll: handleSellAll,
       onBuyTownItem: handleBuyTownItem,
       onClaimHex: handleClaimHex,
+      onHealTerritoryNpc: handleHealTerritoryNpc,
       onApplySelectedItemModification: handleApplySelectedItemModification,
       onClearSelectedItemModification: handleClearSelectedItemModification,
       onSelectItemModificationReforgeStat:
@@ -202,7 +208,9 @@ export function useAppWindowActions({
       handleApplySelectedItemModification,
       handleBuyTownItem,
       handleClaimHex,
+      handleHealTerritoryNpc,
       handleClearSelectedItemModification,
+      handleForfeitCombat,
       handleInteract,
       handleProspect,
       handleSellAll,

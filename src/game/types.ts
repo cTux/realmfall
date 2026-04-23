@@ -260,6 +260,8 @@ export interface Tile {
   structure?: StructureType;
   structureHp?: number;
   structureMaxHp?: number;
+  townStockDay?: number;
+  townStockPurchasedItemIds?: string[];
   items: Item[];
   enemyIds: string[];
   claim?: TileClaim;
@@ -309,6 +311,7 @@ export interface CombatState {
   coord: HexCoord;
   enemyIds: string[];
   started: boolean;
+  startedAtMs?: number;
   player: CombatActorState;
   enemies: Record<string, CombatActorState>;
 }
@@ -360,7 +363,7 @@ export interface LogEntry {
 
 export type LogRichSegment =
   | { kind: 'text'; text: string }
-  | { kind: 'entity'; text: string; rarity?: EnemyRarity }
+  | { kind: 'entity'; text: string; rarity?: EnemyRarity; enemy?: Enemy }
   | { kind: 'damage'; text: string }
   | { kind: 'healing'; text: string }
   | {
@@ -379,6 +382,10 @@ export type LogRichSegment =
             value?: number;
             tickIntervalMs?: number;
             stacks?: number;
+          }
+        | {
+            kind: 'secondaryStat';
+            stat: SecondaryStatKey;
           };
     };
 

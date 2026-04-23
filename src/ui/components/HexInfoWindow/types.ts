@@ -43,6 +43,7 @@ export interface HexInfoWindowProps extends WindowDetailTooltipHandlers {
     selectedReforgeStatIndex: number | null;
   } | null;
   canTerritoryAction: boolean;
+  territoryActionKind?: 'claim' | 'unclaim';
   territoryActionLabel: string;
   territoryActionExplanation?: string | null;
   bulkProspectEquipmentExplanation?: string | null;
@@ -55,6 +56,9 @@ export interface HexInfoWindowProps extends WindowDetailTooltipHandlers {
   onSelectItemModificationReforgeStat?: (statIndex: number) => void;
   onToggleItemModificationPicker?: () => void;
   onTerritoryAction: () => void;
+  canHealTerritoryNpc: boolean;
+  territoryNpcHealExplanation?: string | null;
+  onHealTerritoryNpc: () => void;
   structureHp?: number;
   structureMaxHp?: number;
   territoryName?: string | null;
@@ -72,6 +76,7 @@ export interface HexInfoWindowProps extends WindowDetailTooltipHandlers {
   onTakeAll?: () => void;
   onTakeItem?: (itemId: string) => void;
   onStartCombat?: () => void;
+  onForfeitCombat?: () => void;
   onHoverItem: (
     event: ReactMouseEvent<HTMLElement>,
     item: Item,

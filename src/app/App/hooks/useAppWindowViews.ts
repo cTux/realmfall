@@ -20,6 +20,7 @@ interface UseAppWindowViewsArgs {
   itemModification: AppWindowsViewState['world']['itemModification'];
   itemMenu: ItemContextMenuState | null;
   claimStatus: AppWindowsViewState['world']['claimStatus'];
+  territoryNpcHealStatus: AppWindowsViewState['world']['territoryNpcHealStatus'];
   interactLabel: string | null;
   filteredLogs: GameState['logs'];
   logFilters: Record<LogKind, boolean>;
@@ -51,6 +52,7 @@ export function useAppWindowViews({
   itemModification,
   itemMenu,
   claimStatus,
+  territoryNpcHealStatus,
   interactLabel,
   filteredLogs,
   logFilters,
@@ -98,6 +100,7 @@ export function useAppWindowViews({
   const world = useMemo(
     () => ({
       homeHex: game.homeHex,
+      worldTimeMs: game.worldTimeMs,
       currentTile,
       currentTileHostileEnemyCount,
       combat: game.combat,
@@ -106,6 +109,7 @@ export function useAppWindowViews({
       canBulkSellEquipment,
       itemModification,
       claimStatus,
+      territoryNpcHealStatus,
       bulkProspectEquipmentExplanation,
       bulkSellEquipmentExplanation,
       townStock,
@@ -119,11 +123,13 @@ export function useAppWindowViews({
       currentTileHostileEnemyCount,
       game.combat,
       game.homeHex,
+      game.worldTimeMs,
       gold,
       interactLabel,
       itemModification,
       bulkProspectEquipmentExplanation,
       bulkSellEquipmentExplanation,
+      territoryNpcHealStatus,
       townStock,
     ],
   );

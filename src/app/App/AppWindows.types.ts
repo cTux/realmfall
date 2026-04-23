@@ -25,6 +25,7 @@ export interface AppWindowsProps {
 }
 
 export interface AppWindowsLayout {
+  appReady: boolean;
   windows: WindowPositions;
   windowShown: WindowVisibilityState;
   keepLootWindowMounted: boolean;
@@ -48,6 +49,7 @@ export interface AppWindowsViewState {
   };
   world: {
     homeHex: GameState['homeHex'];
+    worldTimeMs: GameState['worldTimeMs'];
     currentTile: Tile;
     currentTileHostileEnemyCount: number;
     combat: GameState['combat'];
@@ -71,6 +73,9 @@ export interface AppWindowsViewState {
     } | null;
     claimStatus: ReturnType<
       typeof import('../../game/state').getCurrentHexClaimStatus
+    >;
+    territoryNpcHealStatus: ReturnType<
+      typeof import('../../game/state').getCurrentHexFactionNpcHealStatus
     >;
     bulkProspectEquipmentExplanation: string | null;
     bulkSellEquipmentExplanation: string | null;
@@ -174,11 +179,13 @@ export interface AppWindowsActions {
   };
   world: {
     onStartCombat: () => void;
+    onForfeitCombat: () => void;
     onInteract: () => void;
     onProspect: () => void;
     onSellAll: () => void;
     onBuyTownItem: (itemId: string) => void;
     onClaimHex: () => void;
+    onHealTerritoryNpc: () => void;
     onApplySelectedItemModification: () => void;
     onClearSelectedItemModification: () => void;
     onSelectItemModificationReforgeStat: (statIndex: number) => void;

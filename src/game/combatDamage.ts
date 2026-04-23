@@ -26,6 +26,7 @@ export type DamageOutcome =
 export interface DamageResolution {
   damage: number;
   outcome: DamageOutcome;
+  critical: boolean;
 }
 
 export function getEnemyCombatAttackSpeed(enemy: Enemy) {
@@ -128,7 +129,7 @@ export function resolveIncomingDamage(
   seedKey: string,
   incomingDamage: number,
   playerStats: ReturnType<typeof getPlayerStats>,
-) {
+): DamageResolution {
   return resolveIncomingDamageByChances(
     state,
     seedKey,
@@ -148,15 +149,15 @@ export function resolveIncomingDamageByChances(
   blockChance: number,
   suppressDamageChance: number,
   suppressDamageReduction: number,
-) {
+): DamageResolution {
   if (incomingDamage <= 0) {
-    return { damage: 0, outcome: 'absorbed' } satisfies DamageResolution;
+    return { damage: 0, outcome: 'absorbed', critical: false };
   }
   if (resolveCombatProcCount(state, `${seedKey}:dodge`, dodgeChance) > 0) {
-    return { damage: 0, outcome: 'dodged' } satisfies DamageResolution;
+    return { damage: 0, outcome: 'dodged', critical: false };
   }
   if (resolveCombatProcCount(state, `${seedKey}:block`, blockChance) > 0) {
-    return { damage: 0, outcome: 'blocked' } satisfies DamageResolution;
+    return { damage: 0, outcome: 'blocked', critical: false };
   }
   if (
     resolveCombatProcCount(state, `${seedKey}:suppress`, suppressDamageChance) >
@@ -168,10 +169,11 @@ export function resolveIncomingDamageByChances(
     return {
       damage: Math.max(1, suppressedDamage),
       outcome: 'suppressed',
-    } satisfies DamageResolution;
+      critical: false,
+    };
   }
 
-  return { damage: incomingDamage, outcome: 'hit' } satisfies DamageResolution;
+  return { damage: incomingDamage, outcome: 'hit', critical: false };
 }
 
 function getCombatStatusValue(
