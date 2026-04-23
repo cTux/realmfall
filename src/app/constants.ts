@@ -1,11 +1,11 @@
 import playerIcon from '../assets/icons/visored-helm.svg';
 import sparklesIcon from '../assets/icons/sparkles.svg';
 import bookCoverIcon from '../assets/icons/book-cover.svg';
+import tiedScrollIcon from '../assets/icons/tied-scroll.svg';
 import villageIcon from '../assets/icons/village.svg';
 import armorIcon from '../assets/icons/checked-shield.svg';
-import coinsIcon from '../assets/icons/coins.svg';
 import stonePileIcon from '../assets/icons/stone-pile.svg';
-import logIcon from '../assets/icons/log.svg';
+import backpackIcon from '../assets/game-icons/delapouite/backpack.svg';
 import enemyIcon from '../assets/icons/wolf-head.svg';
 import gearsIcon from '../assets/icons/gears.svg';
 import { LOG_KINDS, type LogKind } from '../game/stateTypes';
@@ -72,7 +72,7 @@ export const WINDOW_REGISTRY = {
     appDeferred: true,
     mountSource: 'windowShown',
     hotkey: 'i',
-    icon: coinsIcon,
+    icon: backpackIcon,
   },
   loot: {
     defaultPosition: { x: 820, y: 20 },
@@ -87,7 +87,7 @@ export const WINDOW_REGISTRY = {
     appDeferred: true,
     mountSource: 'windowShown',
     hotkey: 'g',
-    icon: logIcon,
+    icon: tiedScrollIcon,
   },
   combat: {
     defaultPosition: { x: 420, y: 470 },
