@@ -7,6 +7,7 @@ This spec covers the canonical rules model and the project spec structure itself
 ## Current Solution
 
 - Contributor policy is canonical in `docs/RULES.md` and the scoped rule files under `docs/rules/`, especially `docs/rules/61-documentation.md` for documentation expectations.
+- Technical-solution specs stay implementation-oriented and link back to the scoped rule files when they need recurring contributor policy such as naming, verification, or workflow guidance.
 - AI instruction entrypoints such as `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md` are synchronized through `pnpm sync:ai-entrypoints` and stay as thin loaders that point back to the canonical rules.
 - `README.md` is product-facing, and `docs/WORKFLOW.md` is process-facing. Neither is intended to be a second source of canonical contributor policy.
 - `docs/specs` holds canonical implemented reference specs.
