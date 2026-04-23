@@ -54,6 +54,44 @@ export function AppWindows(props: AppWindowsProps) {
     heroOverview: props.views.hero.overview,
     mana: props.views.player.mana,
   });
+  const deferredWindowViews = useMemo(
+    () => ({
+      hero: props.views.hero,
+      inventory: props.views.inventory,
+      hex: props.views.hex,
+      recipes: props.views.recipes,
+      combat: props.views.combat,
+      logs: props.views.logs,
+      settings: props.views.settings,
+    }),
+    [
+      props.views.combat,
+      props.views.hero,
+      props.views.hex,
+      props.views.inventory,
+      props.views.logs,
+      props.views.recipes,
+      props.views.settings,
+    ],
+  );
+  const deferredWindowActions = useMemo(
+    () => ({
+      tooltip: props.actions.tooltip,
+      inventory: props.actions.inventory,
+      hex: props.actions.hex,
+      recipes: props.actions.recipes,
+      logs: props.actions.logs,
+      settings: props.actions.settings,
+    }),
+    [
+      props.actions.hex,
+      props.actions.inventory,
+      props.actions.logs,
+      props.actions.recipes,
+      props.actions.settings,
+      props.actions.tooltip,
+    ],
+  );
 
   return (
     <>
@@ -76,23 +114,8 @@ export function AppWindows(props: AppWindowsProps) {
         mountedWindows={mountedWindows}
         managedWindowProps={managedWindowProps}
         recipeWindowStructure={recipeWindowStructure}
-        views={{
-          hero: props.views.hero,
-          inventory: props.views.inventory,
-          hex: props.views.hex,
-          recipes: props.views.recipes,
-          combat: props.views.combat,
-          logs: props.views.logs,
-          settings: props.views.settings,
-        }}
-        actions={{
-          tooltip: props.actions.tooltip,
-          inventory: props.actions.inventory,
-          hex: props.actions.hex,
-          recipes: props.actions.recipes,
-          logs: props.actions.logs,
-          settings: props.actions.settings,
-        }}
+        views={deferredWindowViews}
+        actions={deferredWindowActions}
       />
     </>
   );
