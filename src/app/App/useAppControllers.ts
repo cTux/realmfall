@@ -1,7 +1,5 @@
 import {
   useCallback,
-  useEffect,
-  useState,
   type Dispatch,
   type MouseEvent as ReactMouseEvent,
   type MutableRefObject,
@@ -14,11 +12,14 @@ import type { GraphicsSettings } from '../graphicsSettings';
 import type { TooltipItem } from './types';
 import { useActionBarController } from './hooks/useActionBarController';
 import { useAppLogFilters } from './hooks/useAppLogFilters';
+import { useAppSettingsState } from './hooks/useAppSettingsState';
 import { useAppWindowState } from './hooks/useAppWindowState';
 import { useGameActionHandlers } from './hooks/useGameActionHandlers';
+import { useHexInfoWindowPromotion } from './hooks/useHexInfoWindowPromotion';
 import { useHexItemModificationController } from './hooks/useHexItemModificationController';
 import { useItemContextMenuController } from './hooks/useItemContextMenuController';
 import { useItemTooltipController } from './hooks/useItemTooltipController';
+import { useRecipeMaterialFilter } from './hooks/useRecipeMaterialFilter';
 
 interface UseAppControllersOptions {
   currentStructure?: GameState['tiles'][string]['structure'];
@@ -45,13 +46,12 @@ export function useAppControllers({
   tooltipPositionRef,
   worldTimeMsRef,
 }: UseAppControllersOptions) {
-  const [audioSettings, setAudioSettings] =
-    useState<AudioSettings>(initialAudioSettings);
-  const [graphicsSettings, setGraphicsSettings] = useState<GraphicsSettings>(
-    initialGraphicsSettings,
-  );
-  const [recipeMaterialFilterItemKey, setRecipeMaterialFilterItemKey] =
-    useState<string | null>(null);
+  const {
+    audioSettings,
+    graphicsSettings,
+    setAudioSettings,
+    setGraphicsSettings,
+  } = useAppSettingsState(initialAudioSettings, initialGraphicsSettings);
   const {
     closeAllWindows,
     moveWindow,
@@ -120,35 +120,15 @@ export function useAppControllers({
     gameRef,
     tooltipPositionRef,
   });
-  useEffect(() => {
-    if (!windowShown.loot && !windowShown.combat) {
-      return;
-    }
-
-    setWindowShown((current) => {
-      if (!current.loot && !current.combat) {
-        return current;
-      }
-
-      return {
-        ...current,
-        hexInfo: current.hexInfo || current.loot || current.combat,
-        loot: false,
-        combat: false,
-      };
-    });
-  }, [setWindowShown, windowShown.combat, windowShown.loot]);
-  const handleOpenRecipeBookWithMaterialFilter = useCallback(
-    (itemKey: string) => {
-      setRecipeMaterialFilterItemKey(itemKey);
-      setWindowShown((current) => ({ ...current, recipes: true }));
-    },
-    [setWindowShown],
-  );
-
-  const handleClearRecipeMaterialFilter = useCallback(() => {
-    setRecipeMaterialFilterItemKey(null);
-  }, []);
+  useHexInfoWindowPromotion({
+    setWindowShown,
+    windowShown,
+  });
+  const {
+    handleClearRecipeMaterialFilter,
+    handleOpenRecipeBookWithMaterialFilter,
+    recipeMaterialFilterItemKey,
+  } = useRecipeMaterialFilter(setWindowShown);
 
   const handleEquipmentHover = useCallback(
     (event: ReactMouseEvent<HTMLElement>, item: TooltipItem) => {

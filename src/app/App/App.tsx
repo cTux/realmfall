@@ -1,48 +1,97 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { createGame } from '../../game/stateFactory';
+import { useEffect } from 'react';
 import { getCurrentTile } from '../../game/stateSelectors';
-import type { GameState } from '../../game/stateTypes';
 import { useAppControllers } from './useAppControllers';
 import { useAppGameView } from './useAppGameView';
 import { useAppPersistence } from './useAppPersistence';
 import { useCombatAutomation } from './useCombatAutomation';
 import { AppShell } from './components/AppShell';
+import { useAppBootstrapState } from './hooks/useAppBootstrapState';
 import { useAppLifecycle } from './hooks/useAppLifecycle';
 import { useCombatAttentionWindow } from './hooks/useCombatAttentionWindow';
+import { useAppShortcutBindings } from './hooks/useAppShortcutBindings';
 import { useAppSettingsActions } from './hooks/useAppSettingsActions';
 import { useAppWindowActions } from './hooks/useAppWindowActions';
 import { useAppWindowViews } from './hooks/useAppWindowViews';
 import { useAppWindowsProps } from './hooks/useAppWindowsProps';
 import { useAppWorldClock } from './hooks/useAppWorldClock';
-import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { usePixiWorld } from './usePixiWorld';
 import { useWindowTransitions } from './useWindowTransitions';
-import { WORLD_RADIUS } from '../constants';
-import { loadAudioSettings } from '../audioSettings';
-import {
-  DEFAULT_UI_AUDIO_CONTROLLER,
-  type UiAudioController,
-} from '../audio/UiAudioContext';
-import { loadGraphicsSettings } from '../graphicsSettings';
-import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import { setWorldClockTime } from './worldClockStore';
 
 export function App() {
-  const initialAudioSettingsRef = useRef(loadAudioSettings());
-  const initialGraphicsSettingsRef = useRef(loadGraphicsSettings());
-  const initialGameRef = useRef<GameState>(createGame(WORLD_RADIUS));
-  const gameRef = useRef<GameState>(initialGameRef.current);
-  const tooltipPositionRef = useRef<TooltipPosition | null>(null);
-  const worldTimeMsRef = useRef(initialGameRef.current.worldTimeMs);
-  const worldTimeTickRef = useRef<number | null>(null);
-  const lastDisplayedWorldSecondRef = useRef(
-    Math.floor(initialGameRef.current.worldTimeMs / 1000),
-  );
-  const [game, setGame] = useState<GameState>(initialGameRef.current);
-  const [paused, setPaused] = useState(false);
-  const [uiAudio, setUiAudio] = useState<UiAudioController>(
-    DEFAULT_UI_AUDIO_CONTROLLER,
-  );
+  const bootstrap = useAppBootstrapState();
+  const controllers = useAppControllers({
+    currentStructure: getCurrentTile(bootstrap.game).structure,
+    equipment: bootstrap.game.player.equipment,
+    inventory: bootstrap.game.player.inventory,
+    gameRef: bootstrap.gameRef,
+    initialAudioSettings: bootstrap.initialAudioSettings,
+    initialGraphicsSettings: bootstrap.initialGraphicsSettings,
+    paused: bootstrap.paused,
+    setGame: bootstrap.setGame,
+    tooltipPositionRef: bootstrap.tooltipPositionRef,
+    worldTimeMsRef: bootstrap.worldTimeMsRef,
+  });
+  const worldClock = useAppWorldClock({
+    initialWorldTimeMs: bootstrap.initialGame.worldTimeMs,
+    lastDisplayedWorldSecondRef: bootstrap.lastDisplayedWorldSecondRef,
+    paused: bootstrap.paused,
+    setGame: bootstrap.setGame,
+    worldTimeMsRef: bootstrap.worldTimeMsRef,
+    worldTimeTickRef: bootstrap.worldTimeTickRef,
+  });
+  const gameView = useAppGameView({
+    game: bootstrap.game,
+    hexItemModificationPickerActive: controllers.hexItemModificationPickerActive,
+    logFilters: controllers.logFilters,
+    selectedHexItemModificationItem:
+      controllers.selectedHexItemModificationItem,
+    selectedHexItemReforgeStatIndex:
+      controllers.selectedHexItemReforgeStatIndex,
+  });
+  const persistence = useAppPersistence({
+    game: bootstrap.game,
+    gameRef: bootstrap.gameRef,
+    logFilters: controllers.logFilters,
+    actionBarSlots: controllers.actionBarSlots,
+    setGame: bootstrap.setGame,
+    setActionBarSlots: controllers.setActionBarSlots,
+    setLogFilters: controllers.setLogFilters,
+    setWindows: controllers.setWindows,
+    setWindowShown: controllers.setWindowShown,
+    setWorldTimeMs: worldClock.setWorldTimeMs,
+    windows: controllers.windows,
+    windowShown: controllers.windowShown,
+    worldTimeMsRef: bootstrap.worldTimeMsRef,
+    worldTimeTickRef: bootstrap.worldTimeTickRef,
+    lastDisplayedWorldSecondRef: bootstrap.lastDisplayedWorldSecondRef,
+  });
+  const windowTransitions = useWindowTransitions({
+    combat: bootstrap.game.combat,
+    combatEnemies: gameView.combatEnemies,
+    currentTile: gameView.currentTile,
+  });
+  const settingsActions = useAppSettingsActions({
+    paused: bootstrap.paused,
+    persistNow: persistence.persistNow,
+    setAudioSettings: controllers.setAudioSettings,
+    setGame: bootstrap.setGame,
+    setGraphicsSettings: controllers.setGraphicsSettings,
+    uiAudio: bootstrap.uiAudio,
+  });
+  const pixiWorld = usePixiWorld({
+    enabled: persistence.hydrated,
+    game: bootstrap.game,
+    graphicsSettings: controllers.graphicsSettings,
+    paused: bootstrap.paused,
+    worldTimeMsRef: bootstrap.worldTimeMsRef,
+    gameRef: bootstrap.gameRef,
+    tooltipPositionRef: bootstrap.tooltipPositionRef,
+    setGame: bootstrap.setGame,
+    setTooltip: controllers.setTooltip,
+  });
+  const isReady = persistence.hydrated && pixiWorld.canvasReady;
+
   const {
     applySelectedItemModification,
     closeItemMenu,
@@ -111,27 +160,7 @@ export function App() {
     windowShown,
     windows,
     recipeMaterialFilterItemKey,
-  } = useAppControllers({
-    currentStructure: getCurrentTile(game).structure,
-    equipment: game.player.equipment,
-    inventory: game.player.inventory,
-    gameRef,
-    initialAudioSettings: initialAudioSettingsRef.current,
-    initialGraphicsSettings: initialGraphicsSettingsRef.current,
-    paused,
-    setGame,
-    tooltipPositionRef,
-    worldTimeMsRef,
-  });
-  const { setWorldTimeMs } = useAppWorldClock({
-    initialWorldTimeMs: initialGameRef.current.worldTimeMs,
-    lastDisplayedWorldSecondRef,
-    paused,
-    setGame,
-    worldTimeMsRef,
-    worldTimeTickRef,
-  });
-
+  } = controllers;
   const {
     backgroundMusicMood,
     claimStatus,
@@ -153,30 +182,8 @@ export function App() {
     heroOverview,
     townStock,
     territoryNpcHealStatus,
-  } = useAppGameView({
-    game,
-    hexItemModificationPickerActive,
-    logFilters,
-    selectedHexItemModificationItem,
-    selectedHexItemReforgeStatIndex,
-  });
-  const { hydrated, persistNow } = useAppPersistence({
-    game,
-    gameRef,
-    logFilters,
-    actionBarSlots,
-    setGame,
-    setActionBarSlots,
-    setLogFilters,
-    setWindows,
-    setWindowShown,
-    setWorldTimeMs,
-    windows,
-    windowShown,
-    worldTimeMsRef,
-    worldTimeTickRef,
-    lastDisplayedWorldSecondRef,
-  });
+  } = gameView;
+  const { hydrated, persistNow } = persistence;
   const {
     combatSnapshot,
     combatWindowVisible,
@@ -184,88 +191,56 @@ export function App() {
     keepLootWindowMounted,
     tileLootSnapshot,
     lootWindowVisible,
-  } = useWindowTransitions({
-    combat: game.combat,
-    combatEnemies,
-    currentTile,
-  });
+  } = windowTransitions;
   const {
     handleResetSaveArea,
     handleSaveSettings,
     handleSaveSettingsAndReload,
     handleSetHome,
-  } = useAppSettingsActions({
-    paused,
-    persistNow,
-    setAudioSettings,
-    setGame,
-    setGraphicsSettings,
-    uiAudio,
-  });
-  const { hostRef, canvasReady } = usePixiWorld({
-    enabled: hydrated,
-    game,
-    graphicsSettings,
-    paused,
-    worldTimeMsRef,
-    gameRef,
-    tooltipPositionRef,
-    setGame,
-    setTooltip,
-  });
-  const isReady = hydrated && canvasReady;
+  } = settingsActions;
 
   useEffect(() => {
-    setWorldClockTime(game.worldTimeMs);
-  }, [game.worldTimeMs]);
+    setWorldClockTime(bootstrap.game.worldTimeMs);
+  }, [bootstrap.game.worldTimeMs]);
 
   useCombatAttentionWindow({
-    combat: game.combat,
+    combat: bootstrap.game.combat,
     hydrated,
-    playerCoord: game.player.coord,
+    playerCoord: bootstrap.game.player.coord,
     setWindowVisibility,
     windowShownHexInfo: windowShown.hexInfo,
   });
 
   useAppLifecycle({
-    game,
-    gameRef,
-    tooltipPositionRef,
+    game: bootstrap.game,
+    gameRef: bootstrap.gameRef,
+    tooltipPositionRef: bootstrap.tooltipPositionRef,
   });
 
   useCombatAutomation({
-    combat: game.combat,
-    enemyLookup: game.enemies,
-    paused,
-    playerStatusEffects: game.player.statusEffects,
-    setGame,
-    worldTimeMsRef,
+    combat: bootstrap.game.combat,
+    enemyLookup: bootstrap.game.enemies,
+    paused: bootstrap.paused,
+    playerStatusEffects: bootstrap.game.player.statusEffects,
+    setGame: bootstrap.setGame,
+    worldTimeMsRef: bootstrap.worldTimeMsRef,
   });
 
-  const handleTogglePause = useCallback(() => {
-    setPaused((current) => !current);
-  }, []);
   const canSetHomeAction =
     (!currentTile.claim || currentTile.claim.ownerType === 'player') &&
-    (game.homeHex.q !== game.player.coord.q ||
-      game.homeHex.r !== game.player.coord.r);
-  const combatDeathAvailable = Boolean(
-    game.combat?.started &&
-    game.combat.startedAtMs != null &&
-    game.worldTimeMs - game.combat.startedAtMs >= 60_000,
-  );
+    (bootstrap.game.homeHex.q !== bootstrap.game.player.coord.q ||
+      bootstrap.game.homeHex.r !== bootstrap.game.player.coord.r);
 
-  useKeyboardShortcuts({
+  useAppShortcutBindings({
     canBulkProspectEquipment,
     canBulkSellEquipment,
     canHealTerritoryNpc: territoryNpcHealStatus.canHeal,
     canSetHomeAction,
     canTerritoryAction: claimStatus.canClaim,
-    combatDeathAvailable,
-    combatStartAvailable: Boolean(game.combat && !game.combat.started),
+    combat: bootstrap.game.combat,
+    currentTileItemsLength: currentTile.items.length,
     hexContentWindowShown: windowShown.hexInfo,
     interactLabel,
-    lootSnapshotLength: currentTile.items.length,
     onForfeitCombat: handleForfeitCombat,
     onStartCombat: handleStartCombat,
     onInteract: handleInteract,
@@ -276,32 +251,25 @@ export function App() {
     onCloseAllWindows: closeAllWindows,
     onProspect: handleProspect,
     onSellAll: handleSellAll,
-    onTogglePause: handleTogglePause,
     onToggleDockWindow: toggleDockWindow,
-    onWindowToggleSound: (opened) => {
-      if (opened) {
-        uiAudio.pop();
-        return;
-      }
-
-      uiAudio.swoosh();
-    },
-    onCloseAllWindowsSound: uiAudio.swoosh,
     onUseActionBarSlot: handleUseActionBarSlot,
+    setPaused: bootstrap.setPaused,
+    uiAudio: bootstrap.uiAudio,
     windowShown,
+    worldTimeMs: bootstrap.game.worldTimeMs,
   });
 
   const appWindowViews = useAppWindowViews({
     actionBarSlots,
     audioSettings,
-    combatState: game.combat,
+    combatState: bootstrap.game.combat,
     combatSnapshot,
     combatWindowVisible,
     currentTile,
     currentTileHostileEnemyCount,
     gold,
     graphicsSettings,
-    homeHex: game.homeHex,
+    homeHex: bootstrap.game.homeHex,
     inventoryCountsByItemKey,
     itemModification,
     itemMenu,
@@ -310,7 +278,7 @@ export function App() {
     interactLabel,
     filteredLogs,
     logFilters,
-    playerSlice: game.player,
+    playerSlice: bootstrap.game.player,
     tileLootSnapshot,
     lootWindowVisible,
     canBulkProspectEquipment,
@@ -323,7 +291,7 @@ export function App() {
     showFilterMenu,
     heroOverview,
     townStock,
-    worldTimeMs: game.worldTimeMs,
+    worldTimeMs: bootstrap.game.worldTimeMs,
   });
   const appWindowActions = useAppWindowActions({
     closeItemMenu,
@@ -396,13 +364,13 @@ export function App() {
       audioSettings={audioSettings}
       backgroundMusicMood={backgroundMusicMood}
       claimedHex={firstClaimedHex}
-      game={game}
-      hostRef={hostRef}
+      game={bootstrap.game}
+      hostRef={pixiWorld.hostRef}
       isReady={isReady}
-      paused={paused}
-      uiAudio={uiAudio}
+      paused={bootstrap.paused}
+      uiAudio={bootstrap.uiAudio}
       windowsProps={appWindowsProps}
-      onUiAudioChange={setUiAudio}
+      onUiAudioChange={bootstrap.setUiAudio}
     />
   );
 }

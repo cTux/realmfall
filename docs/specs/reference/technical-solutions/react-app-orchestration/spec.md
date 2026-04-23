@@ -9,6 +9,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Contributor-facing React UI structure, naming, Storybook, and window-composition policy is canonical in `docs/rules/30-react-ui.md`. This spec records the shipped orchestration shape.
 - The app splits controller concerns into focused hooks such as persistence, keyboard shortcuts, world view integration, combat automation, window transitions, and top-level controller actions.
 - This reduces pressure on the top-level app component and keeps domain logic testable.
+- Bootstrap refs and initial app state live in `useAppBootstrapState`, while the top-level keyboard shortcut wiring lives in `useAppShortcutBindings`, keeping `App.tsx` focused on composing the major app flows instead of rebuilding every initialization detail inline.
 - Before the main app finishes loading, `src/main.tsx` renders a fixed bootstrap shell with a spinner-only loading state so the first paint stays visible without depending on translated copy.
 - The bootstrap path fetches the active locale asset before importing `App`, because some gameplay and content modules resolve translated labels during module evaluation and must not hydrate against an empty translation map.
 - The app shell stays visible while save hydration and Pixi initialization complete, so the dock, action bar, and other ready React chrome can paint before the world canvas finishes booting.
@@ -38,6 +39,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Shared drag shells keep their open, mounted, and entered lifecycle phases explicit and unregister stack entries through stable window ids, keeping hook lint clean while the stack model tracks the rendered instance correctly.
 - Shared window-shell helpers are reused for move handlers, close handlers, deferred mount state, repeated title-bar labels, and the shared suspense-loading wrapper for lazy window content instead of maintaining parallel per-window implementations.
 - `useAppControllers` stays as a thin composition hook that wires together focused controller hooks for window state, log filters, action-bar state, item-context-menu state, timed gameplay mutations, and tooltip orchestration.
+- `useAppControllers` delegates app settings state, recipe-book material-filter state, and the loot/combat-to-hex-info window promotion effect to focused neighboring hooks so the controller layer stays composition-first.
 - `useGameActionHandlers` routes gameplay mutations through a shared timed-transition helper so controller actions inject the current world time consistently without repeating the same wrapper at every call site.
 - `useActionBarController` owns action-bar slot reconciliation, assignment, and slot activation so inventory-backed hotbar behavior does not share a file with unrelated window or menu state.
 - `useItemContextMenuController` keeps context-menu placement and capability gating next to the item-menu state instead of mixing that UI-specific behavior into the broader gameplay action hook.
