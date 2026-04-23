@@ -1,3 +1,5 @@
+import type { TestProjectConfiguration } from 'vitest/config';
+
 export const VITEST_NODE_INCLUDE = [
   'src/game/**/*.test.ts',
   'src/i18n/**/*.test.ts',
@@ -9,7 +11,7 @@ export const VITEST_JSDOM_INCLUDE = ['src/**/*.test.ts', 'src/**/*.test.tsx'];
 
 export const VITEST_PROJECTS = [
   {
-    extends: true,
+    extends: true as const,
     test: {
       name: 'node',
       environment: 'node',
@@ -18,7 +20,7 @@ export const VITEST_PROJECTS = [
     },
   },
   {
-    extends: true,
+    extends: true as const,
     test: {
       name: 'jsdom',
       environment: 'jsdom',
@@ -27,4 +29,4 @@ export const VITEST_PROJECTS = [
       setupFiles: ['src/test/setup.ts'],
     },
   },
-];
+] satisfies readonly TestProjectConfiguration[];

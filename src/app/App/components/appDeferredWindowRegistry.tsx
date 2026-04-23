@@ -3,9 +3,7 @@ import type {
   AppDeferredWindowDescriptor,
   AppDeferredWindowEntry,
 } from './appDeferredWindows/types';
-import {
-  APP_DEFERRED_WINDOW_KEYS,
-} from './appDeferredWindows/types';
+import { APP_DEFERRED_WINDOW_KEYS } from './appDeferredWindows/types';
 import { equipmentDeferredWindow } from './appDeferredWindows/equipmentDeferredWindow';
 import { hexInfoDeferredWindow } from './appDeferredWindows/hexInfoDeferredWindow';
 import { inventoryDeferredWindow } from './appDeferredWindows/inventoryDeferredWindow';
@@ -15,6 +13,7 @@ import { settingsDeferredWindow } from './appDeferredWindows/settingsDeferredWin
 import { skillsDeferredWindow } from './appDeferredWindows/skillsDeferredWindow';
 
 export type { AppDeferredWindowContext as AppDeferredWindowsProps } from './appDeferredWindows/types';
+export { APP_DEFERRED_WINDOW_KEYS } from './appDeferredWindows/types';
 
 const APP_DEFERRED_WINDOW_DESCRIPTORS = [
   skillsDeferredWindow,
@@ -27,8 +26,14 @@ const APP_DEFERRED_WINDOW_DESCRIPTORS = [
 ] as const satisfies readonly AppDeferredWindowDescriptor[];
 
 const APP_DEFERRED_WINDOW_DESCRIPTOR_BY_KEY = Object.fromEntries(
-  APP_DEFERRED_WINDOW_DESCRIPTORS.map((descriptor) => [descriptor.key, descriptor]),
-) as Record<(typeof APP_DEFERRED_WINDOW_DESCRIPTORS)[number]['key'], AppDeferredWindowDescriptor>;
+  APP_DEFERRED_WINDOW_DESCRIPTORS.map((descriptor) => [
+    descriptor.key,
+    descriptor,
+  ]),
+) as Record<
+  (typeof APP_DEFERRED_WINDOW_DESCRIPTORS)[number]['key'],
+  AppDeferredWindowDescriptor
+>;
 
 export function getMountedDeferredWindowKeys(
   mountedWindows: AppDeferredWindowContext['mountedWindows'],

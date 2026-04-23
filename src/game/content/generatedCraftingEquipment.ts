@@ -12,23 +12,25 @@ function padIndex(index: number) {
 
 export const CRAFTABLE_ICON_ITEM_CONFIGS: ItemConfig[] =
   GENERATED_EQUIPMENT_FAMILIES.flatMap((family) => {
-    if (!family.craft) {
+    const craft = family.craft;
+
+    if (!craft) {
       return [];
     }
 
     return GENERATED_ICON_POOLS[family.familyKey].map((icon, index) => {
       const ordinal = padIndex(index);
       return {
-        key: `${family.craft.keyPrefix}-${ordinal}`,
-        name: itemName(`${family.craft.keyPrefix}-${ordinal}`),
-        slot: family.craft.slot,
+        key: `${craft.keyPrefix}-${ordinal}`,
+        name: itemName(`${craft.keyPrefix}-${ordinal}`),
+        slot: craft.slot,
         icon,
         category: family.category,
-        tier: family.craft.tier,
-        rarity: family.craft.rarity,
-        power: family.craft.power,
-        defense: family.craft.defense,
-        maxHp: family.craft.maxHp,
+        tier: craft.tier,
+        rarity: craft.rarity,
+        power: craft.power,
+        defense: craft.defense,
+        maxHp: craft.maxHp,
         healing: 0,
         hunger: 0,
         thirst: 0,

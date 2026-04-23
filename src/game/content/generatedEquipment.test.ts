@@ -1,6 +1,8 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { CRAFTABLE_ICON_ITEM_CONFIGS } from './generatedCraftingEquipment';
+import { GENERATED_EQUIPMENT_FAMILIES } from './generatedEquipmentFamilies';
 import {
   GENERATED_EQUIPMENT_CONFIGS,
   GENERATED_ICON_POOLS,
@@ -24,6 +26,17 @@ describe('generated equipment icons', () => {
       expect(config.iconPool?.length).toBeGreaterThan(0);
       expect(config.iconPool).toContain(config.icon);
     });
+  });
+
+  it('hydrates craftable icon configs from every family with craft metadata', () => {
+    const expectedCraftableCount = GENERATED_EQUIPMENT_FAMILIES.reduce(
+      (total, family) =>
+        total +
+        (family.craft ? GENERATED_ICON_POOLS[family.familyKey].length : 0),
+      0,
+    );
+
+    expect(CRAFTABLE_ICON_ITEM_CONFIGS).toHaveLength(expectedCraftableCount);
   });
 
   it('keeps vendored generated SVGs mask-safe', () => {

@@ -2,7 +2,10 @@ import { itemName } from './i18n';
 import type { AbilityId } from '../types';
 import type { ItemConfig } from './types';
 export { GENERATED_ICON_POOLS } from './generatedEquipmentFamilies';
-import { GENERATED_EQUIPMENT_FAMILIES } from './generatedEquipmentFamilies';
+import {
+  GENERATED_EQUIPMENT_FAMILIES,
+  GENERATED_ICON_POOLS,
+} from './generatedEquipmentFamilies';
 
 const generated = (
   key: string,
@@ -52,7 +55,9 @@ export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
   }),
 ];
 
-function getGeneratedKeysForGroup(group: 'armor' | 'accessory' | 'weapon' | 'offhand') {
+function getGeneratedKeysForGroup(
+  group: 'armor' | 'accessory' | 'weapon' | 'offhand',
+) {
   return GENERATED_EQUIPMENT_FAMILIES.flatMap((family) =>
     family.group === group && family.drop ? [family.drop.key] : [],
   );
