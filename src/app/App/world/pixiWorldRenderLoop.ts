@@ -9,8 +9,12 @@ import type { WorldRenderSnapshot } from './worldRenderSnapshot';
 
 type RenderScene = typeof import('../../../ui/world/renderScene').renderScene;
 
-const WORLD_ANIMATION_FPS = 30;
+export const WORLD_ANIMATION_FPS = 30;
 const WORLD_ANIMATION_FRAME_MS = 1000 / WORLD_ANIMATION_FPS;
+
+export function configureWorldTickerCadence(ticker: { maxFPS: number }) {
+  ticker.maxFPS = WORLD_ANIMATION_FPS;
+}
 
 export function createWorldRenderFrame({
   app,

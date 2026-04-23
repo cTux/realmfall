@@ -265,6 +265,7 @@ export function usePixiWorld({
         });
 
         resize();
+        renderLoopModule.configureWorldTickerCadence(app.ticker);
         renderFrame();
         app.ticker.add(renderFrame);
         const detachTickerVisibilityPause =
