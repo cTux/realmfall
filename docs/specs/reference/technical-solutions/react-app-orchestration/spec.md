@@ -10,6 +10,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - The app splits controller concerns into focused hooks such as persistence, keyboard shortcuts, world view integration, combat automation, window transitions, and top-level controller actions.
 - This reduces pressure on the top-level app component and keeps domain logic testable.
 - Bootstrap refs and initial app state live in `useAppBootstrapState`, while the top-level keyboard shortcut wiring lives in `useAppShortcutBindings`, keeping `App.tsx` focused on composing the major app flows instead of rebuilding every initialization detail inline.
+- The remaining top-level orchestration graph now lives in `useAppRuntime`, which assembles bootstrap, controller, persistence, world, lifecycle, and shell-view wiring before `App.tsx` renders `AppShell`.
 - Before the main app finishes loading, `src/main.tsx` renders a fixed bootstrap shell with a spinner-only loading state so the first paint stays visible without depending on translated copy.
 - The bootstrap path fetches the active locale asset before importing `App`, because some gameplay and content modules resolve translated labels during module evaluation and must not hydrate against an empty translation map.
 - The app shell stays visible while save hydration and Pixi initialization complete, so the dock, action bar, and other ready React chrome can paint before the world canvas finishes booting.
@@ -48,6 +49,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `useAppWorldClock` keeps the top-level world-time sync callbacks next to the shared clock hook, so `App.tsx` does not rebuild the blood-moon and status-effect tick wiring inline.
 - `useCombatAttentionWindow` owns the auto-open hex-content behavior that reacts to combat entry on movement, so `App.tsx` does not keep lifecycle refs and transition bookkeeping for that single window rule.
 - `useAppSettingsActions` keeps save-reset, settings persistence, and home-hex shell actions in one local hook instead of mixing those imperative flows into the main app component body.
+- `useAppRuntime` groups those orchestration hooks into one local composition layer so the entry component no longer needs one large destructuring block for controllers, derived views, transitions, and shell props.
 - `useAppPersistence` keeps hydration and latest-input tracking in the hook while local `persistence/` helpers own segment serialization and autosave scheduling, separating save bootstrapping from debounce, idle-flush, and queued-write mechanics.
 - `useCombatAutomation` schedules the next combat step from the earliest pending combat event across actor cooldowns, cast completions, combat status-effect ticks, and effect expirations.
 - `useCombatAutomation` receives the specific combat-facing slices it reads, such as `combat`, `playerStatusEffects`, and the enemy lookup, so unrelated top-level game-state clones do not reschedule the combat timer path.
@@ -75,6 +77,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 ## Main Implementation Areas
 
 - `src/app/App/App.tsx`
+- `src/app/App/hooks/useAppRuntime.ts`
 - `src/app/App/useAppControllers.ts`
 - `src/app/App/hooks/useGameActionHandlers.ts`
 - `src/app/App/hooks/useActionBarController.ts`
