@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
+import { visualizer } from 'rollup-plugin-visualizer';
 import minipic from 'vite-plugin-minipic';
 import detectDuplicatedDeps from 'unplugin-detect-duplicated-deps/vite';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -7,7 +8,7 @@ import { X509Certificate } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Plugin, ViteDevServer } from 'vite';
+import type { Plugin, PluginOption, ViteDevServer } from 'vite';
 import selfsigned from 'selfsigned';
 import { getAppBuildVersion } from './scripts/build-version.helpers';
 import {
@@ -17,8 +18,10 @@ import {
 } from './vite.security';
 
 const CHUNK_SIZE_WARNING_LIMIT_KB = 560;
+const BUNDLE_VISUALIZER_OUTPUT = join('.tests', 'bundle', 'visualizer.html');
 const RUN_DUPLICATE_DEPS_AUDIT =
   process.env.REALMFALL_DUPLICATE_DEPS_AUDIT === '1';
+const RUN_BUNDLE_VISUALIZER = process.env.REALMFALL_BUNDLE_VISUALIZER === '1';
 const VITEST_NODE_INCLUDE = [
   'src/game/**/*.test.ts',
   'src/i18n/**/*.test.ts',
@@ -221,6 +224,15 @@ export default defineConfig({
       versionManifestPlugin(),
       RUN_DUPLICATE_DEPS_AUDIT && detectDuplicatedDeps(),
       !isStorybookScript && minipic(),
+      RUN_BUNDLE_VISUALIZER &&
+        (visualizer({
+          brotliSize: true,
+          filename: BUNDLE_VISUALIZER_OUTPUT,
+          gzipSize: true,
+          open: true,
+          projectRoot: process.cwd(),
+          template: 'treemap',
+        }) as PluginOption),
     ].filter(Boolean);
   })(),
   build: {

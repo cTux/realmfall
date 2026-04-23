@@ -23,6 +23,18 @@ describe('run-vite-build helpers', () => {
     expect(filterKnownPluginTimingWarnings(warning)).toBe('');
   });
 
+  it('suppresses the known visualizer timing breakdown', () => {
+    const warning = [
+      '[PLUGIN_TIMINGS] Warning: Your build spent significant time in plugins. Here is a breakdown:',
+      '  - rollup-plugin-visualizer (74%)',
+      '  - vite:asset (19%)',
+      'See https://rolldown.rs/options/checks#plugintimings for more details.',
+      '',
+    ].join('\n');
+
+    expect(filterKnownPluginTimingWarnings(warning)).toBe('');
+  });
+
   it('keeps unexpected plugin timing warnings visible', () => {
     const warning = [
       '[PLUGIN_TIMINGS] Warning: Your build spent significant time in plugins. Here is a breakdown:',

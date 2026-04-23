@@ -36,7 +36,8 @@ This spec covers the repository quality baseline and current test coverage shape
 - Shared browser-test helpers such as `src/ui/uiTestHelpers.tsx` and `src/ui/uiRecipeBookTestHelpers.tsx` keep jsdom host setup and async-settle wiring out of the split suites, so moving tests across files does not duplicate the same render scaffolding.
 - The pull-request workflow reports startup delivery budgets through `pnpm build:budget`, which runs a production build, reads the Vite manifest, and warns if the bootstrap graph or its key chunks grow past the current thresholds without failing the build.
 - Dependency-duplication auditing runs through `pnpm build:duplicate-deps`, which enables the duplicate-deps Vite plugin only for explicit audits instead of adding that analysis cost to every production build.
-- The shared Vite build runner filters the known Rolldown plugin-timing warnings for `vite:asset` and the explicit duplicate-deps audit plugin so routine builds stay focused on actionable failures while unexpected plugin timing warnings remain visible.
+- Interactive bundle treemap auditing runs through `pnpm build:visualize`, which enables `rollup-plugin-visualizer` only for explicit audits and writes the HTML report to `.tests/bundle/visualizer.html`.
+- The shared Vite build runner filters the known Rolldown plugin-timing warnings for `vite:asset`, the explicit duplicate-deps audit plugin, and the explicit visualizer audit plugin so routine builds stay focused on actionable failures while unexpected plugin timing warnings remain visible.
 - JSON assets that participate in startup budgets, including the bootstrap locale bundle, are committed with LF line endings so emitted asset sizes remain stable across platforms.
 - Vite keeps the gameplay runtime under an explicit `state` manual chunk so the bootstrap graph and budget checks do not drift when Rolldown would otherwise rename that shared chunk based on a smaller helper module.
 - The Vite config raises the generic chunk-size warning limit above the repository's intentional `state` and `pixi` chunk budgets so routine production builds stay focused on the explicit budget script rather than a lower default warning threshold.
@@ -72,6 +73,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - `scripts/run-vite-build.mjs`
 - `scripts/run-memory-leak-test.mjs`
 - `scripts/run-duplicate-deps-audit.mjs`
+- `scripts/run-bundle-visualizer.mjs`
 - `scripts/run-staged-quality.mjs`
 - `scripts/git-commit.mjs`
 - `.oxlintrc.json`
