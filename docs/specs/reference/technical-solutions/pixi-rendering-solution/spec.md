@@ -16,6 +16,8 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Animated layers hold atmosphere, clouds, hot-structure lighting such as campfires and furnaces, and overlay work.
 - Animated overlay work now uses separate fills for time-of-day tinting and fullscreen visual effects, so gameplay-driven screen warnings can layer on top of ambient lighting without replacing it.
 - The renderer reuses graphics and sprites through dedicated pool helpers.
+- `src/ui/world/renderScene.ts` now stays focused on screen sizing, render-token invalidation, layer lifecycle coordination, and top-level pass orchestration.
+- Per-tile static-layer work, interaction overlays, and marker or border helpers live in `src/ui/world/renderSceneTilePasses.ts`, while animated-only redraw work lives in `src/ui/world/renderSceneAnimated.ts` and shared render constants plus cache-backed helpers live in `src/ui/world/renderSceneShared.ts`.
 - Cached scene state avoids unnecessary rebuilds when screen size, derived static-world render inputs, selected tile, or path highlights have not changed.
 - Static and interaction redraw invalidation derives from render-specific version keys rather than whole `GameState` identity, so log-only or other non-world state clones do not rebuild unchanged Pixi layers.
 - Static invalidation now ignores offscreen enemy container churn by comparing only the enemy presentation inputs that belong to visible tiles before rebuilding cached layers.
@@ -58,6 +60,9 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - `src/app/App/world/pixiWorldInteractions.ts`
 - `src/ui/world/pixiRuntime.ts`
 - `src/ui/world/renderScene.ts`
+- `src/ui/world/renderSceneTilePasses.ts`
+- `src/ui/world/renderSceneAnimated.ts`
+- `src/ui/world/renderSceneShared.ts`
 - `src/ui/world/renderSceneCache.ts`
 - `src/ui/world/renderSceneFullscreenEffects.ts`
 - `src/ui/world/renderScenePools.ts`

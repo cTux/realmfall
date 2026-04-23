@@ -10,6 +10,7 @@
 - Prefer a single clear render scheduler for the world path. Avoid duplicate immediate redraw triggers layered on top of the ticker unless there is a measured reason.
 - When React-driven world state changes need a redraw, prefer updating refs or lightweight invalidation flags that the ticker consumes instead of adding a second immediate `renderScene` effect path.
 - Keep `usePixiWorld` focused on refs, lifecycle effects, and async bootstrap wiring. Move render-loop comparison, camera persistence, and pointer interaction details into neighboring `src/app/App/world` modules once the world hook starts accumulating those responsibilities.
+- Keep `src/ui/world/renderScene.ts` as a thin orchestration facade. Move per-tile static or interaction work, animated-only redraw work, and shared render helpers into neighboring `renderScene*.ts` modules instead of rebuilding one broad renderer file.
 - Key static and interaction Pixi redraw invalidation off stable world-render inputs or explicit render-version tokens instead of whole `GameState` identity when broad state cloning would otherwise thrash cached layers.
 - Reuse `visibleTiles` arrays and other world-facing selector outputs across unrelated state clones when the visible tile set and relevant world data did not change, so Pixi invalidation can key off stable inputs instead of broad app state identity.
 - Avoid recomputing full visible-tile arrays only to decide whether the previous array could have been reused. Reuse checks should be cheaper than the redraw work they protect.
