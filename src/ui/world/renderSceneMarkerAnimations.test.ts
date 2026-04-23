@@ -135,6 +135,18 @@ vi.mock('pixi.js', () => ({
 }));
 
 describe('renderScene marker animation', () => {
+  it('uses a smooth hostile jump profile with eased takeoff and landing', async () => {
+    const { sampleHostileMarkerJump } =
+      await import('./renderSceneMarkerAnimations');
+
+    expect(sampleHostileMarkerJump(0)).toBeCloseTo(0);
+    expect(sampleHostileMarkerJump(0.125)).toBeCloseTo(0.146447, 6);
+    expect(sampleHostileMarkerJump(0.25)).toBeCloseTo(0.5, 6);
+    expect(sampleHostileMarkerJump(0.5)).toBeCloseTo(1, 6);
+    expect(sampleHostileMarkerJump(0.75)).toBeCloseTo(0.5, 6);
+    expect(sampleHostileMarkerJump(1)).toBeCloseTo(0, 6);
+  });
+
   it('animates hostile markers on animation-only frames without rebuilding static terrain', async () => {
     const { renderScene } = await import('./renderScene');
     const { getSceneCache } = await import('./renderSceneCache');
