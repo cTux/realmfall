@@ -83,7 +83,7 @@ export function resetTextPool(pool: TextPool) {
 export function takeText(pool: TextPool, style: TextStyle) {
   let text = pool.items[pool.used];
   if (!text) {
-    text = new Text('', style);
+    text = new Text({ text: '', style });
     pool.items.push(text);
     pool.parent.addChild(text);
   }
