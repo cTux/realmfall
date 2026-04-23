@@ -89,8 +89,13 @@ export function useKeyboardShortcuts({
     const lowerKey = event.key.toLowerCase();
     if (lowerKey === 'escape') {
       event.preventDefault();
-      onCloseAllWindowsSound?.();
-      onCloseAllWindows();
+      if (Object.values(windowShown).some(Boolean)) {
+        onCloseAllWindowsSound?.();
+        onCloseAllWindows();
+      } else {
+        onWindowToggleSound?.(true);
+        onToggleDockWindow('settings');
+      }
       return;
     }
 

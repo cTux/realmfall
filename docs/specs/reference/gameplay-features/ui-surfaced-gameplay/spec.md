@@ -26,7 +26,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - Action bar consumable bindings clear themselves once the assigned stack no longer exists in inventory, so depleted consumables do not linger as unavailable stale slots.
 - Action bar consumable slots do not render a cooldown overlay while the shared consumable recharge is active.
 - Pressing `Space` toggles a paused state for gameplay mechanics and shows a centered full-stage overlay message until the game is resumed, except when keyboard focus is inside an editable field or another focusable UI control that should keep its native `Space` behavior.
-- Pressing `Esc` closes every currently open window.
+- Pressing `Esc` closes every currently open window, and when no windows are open it opens the settings window instead.
 - During refresh or persistence hydration, the app keeps one opaque full-screen loading spinner visible until the shell and deferred windows are ready, instead of surfacing translucent window-level loading spinners underneath it.
 - While the hex info window is open, the title-bar land actions surface inline `A` and `O` hotkeys through `Cl(a)im` / `Uncl(a)im` and `H(o)me` only when their requirements are currently met, and those keys trigger the visible enabled action directly.
 - While the hex info window is open on a faction NPC hex, the title bar also surfaces `(Q) Heal`, and pressing `Q` prioritizes that paid heal action over other hex `Q` shortcuts when healing is available.

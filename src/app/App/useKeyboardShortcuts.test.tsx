@@ -544,4 +544,54 @@ describe('useKeyboardShortcuts', () => {
     expect(onSellAll).toHaveBeenCalledTimes(1);
     expect(onTakeAllLoot).not.toHaveBeenCalled();
   });
+
+  it('opens settings on Escape when no windows are shown', async () => {
+    const onToggleDockWindow = vi.fn();
+    const onCloseAllWindows = vi.fn();
+
+    function TestHarness() {
+      useKeyboardShortcuts({
+        canBulkProspectEquipment: false,
+        canBulkSellEquipment: false,
+        canHealTerritoryNpc: false,
+        canSetHomeAction: false,
+        canTerritoryAction: false,
+        combatDeathAvailable: false,
+        combatStartAvailable: false,
+        hexContentWindowShown: false,
+        interactLabel: null,
+        lootSnapshotLength: 0,
+        onForfeitCombat: vi.fn(),
+        onStartCombat: vi.fn(),
+        onInteract: vi.fn(),
+        onHealTerritoryNpc: vi.fn(),
+        onSetHome: vi.fn(),
+        onTerritoryAction: vi.fn(),
+        onTakeAllLoot: vi.fn(),
+        onCloseAllWindows,
+        onProspect: vi.fn(),
+        onSellAll: vi.fn(),
+        onTogglePause: vi.fn(),
+        onToggleDockWindow,
+        onUseActionBarSlot: vi.fn(),
+        windowShown: buildWindowShown(),
+      });
+
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<TestHarness />);
+    });
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'Escape' }),
+      );
+    });
+
+    expect(onCloseAllWindows).not.toHaveBeenCalled();
+    expect(onToggleDockWindow).toHaveBeenCalledTimes(1);
+    expect(onToggleDockWindow).toHaveBeenCalledWith('settings');
+  });
 });
