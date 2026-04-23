@@ -1,7 +1,11 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import type { Application, Container } from 'pixi.js';
-import * as stateModule from '../../../game/state';
+import { hexAtPoint, hexDistance, type HexCoord } from '../../../game/hex';
 import { isPassable } from '../../../game/shared';
+import { moveAlongSafePath, moveToTile } from '../../../game/stateMovement';
+import { getSafePathToTile } from '../../../game/statePathfinding';
+import { getEnemiesAt, getTileAt } from '../../../game/stateWorldQueries';
+import type { GameState } from '../../../game/stateTypes';
 import type { TooltipPosition } from '../../../ui/components/GameTooltip';
 import { syncFollowCursorTooltipPosition } from '../../../ui/components/GameTooltip/followCursorSync';
 import { getWorldHexSize } from '../../../ui/world/renderSceneMath';
@@ -67,7 +71,7 @@ export function attachPixiWorldInteractions({
   canvas: HTMLCanvasElement;
   enemyWorldTooltip: EnemyWorldTooltip;
   structureWorldTooltip: StructureWorldTooltip;
-  gameRef: MutableRefObject<stateModule.GameState>;
+  gameRef: MutableRefObject<GameState>;
   getScenePoint: WorldScenePointMapper;
   getWorldMapContainer: () => Container;
   hoverAnalysisCacheRef: MutableRefObject<Map<string, WorldHoverSnapshot>>;
@@ -77,14 +81,14 @@ export function attachPixiWorldInteractions({
     clientY: number;
   } | null>;
   hoverSnapshotRef: MutableRefObject<WorldHoverSnapshot>;
-  hoveredMoveRef: MutableRefObject<stateModule.HexCoord | null>;
-  hoveredSafePathRef: MutableRefObject<stateModule.HexCoord[] | null>;
+  hoveredMoveRef: MutableRefObject<HexCoord | null>;
+  hoveredSafePathRef: MutableRefObject<HexCoord[] | null>;
   pausedRef: MutableRefObject<boolean>;
-  playerCoordRef: MutableRefObject<stateModule.HexCoord>;
-  selectedRef: MutableRefObject<stateModule.HexCoord>;
+  playerCoordRef: MutableRefObject<HexCoord>;
+  selectedRef: MutableRefObject<HexCoord>;
   renderInvalidationRef: MutableRefObject<number>;
   scheduleCameraSave: () => void;
-  setGame: Dispatch<SetStateAction<stateModule.GameState>>;
+  setGame: Dispatch<SetStateAction<GameState>>;
   setTooltip: (nextTooltip: TooltipState | null) => void;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
   worldMapCameraRef: MutableRefObject<WorldMapCameraState>;
@@ -148,7 +152,7 @@ export function attachPixiWorldInteractions({
 
     const scenePoint = getScenePoint(clientX, clientY);
     const hexSize = getWorldHexSize(app.screen, gameRef.current.radius);
-    const clickedOffset = stateModule.hexAtPoint(scenePoint.x, scenePoint.y, {
+    const clickedOffset = hexAtPoint(scenePoint.x, scenePoint.y, {
       centerX: app.screen.width / 2,
       centerY: app.screen.height / 2,
       size: hexSize,
@@ -158,9 +162,9 @@ export function attachPixiWorldInteractions({
       r: playerCoordRef.current.r + clickedOffset.r,
     };
     const current = gameRef.current;
-    const distance = stateModule.hexDistance(playerCoordRef.current, target);
+    const distance = hexDistance(playerCoordRef.current, target);
     if (distance === 1) {
-      const tile = stateModule.getTileAt(current, target);
+      const tile = getTileAt(current, target);
       if (!isPassable(tile.terrain)) {
         return;
       }
@@ -168,7 +172,7 @@ export function attachPixiWorldInteractions({
       selectedRef.current = target;
       renderInvalidationRef.current += 1;
       setGame((currentState) =>
-        stateModule.moveToTile(
+        moveToTile(
           { ...currentState, worldTimeMs: worldTimeMsRef.current },
           target,
         ),
@@ -180,7 +184,7 @@ export function attachPixiWorldInteractions({
       return;
     }
 
-    const safePath = stateModule.getSafePathToTile(current, target);
+    const safePath = getSafePathToTile(current, target);
     if (!safePath) {
       return;
     }
@@ -188,7 +192,7 @@ export function attachPixiWorldInteractions({
     selectedRef.current = target;
     renderInvalidationRef.current += 1;
     setGame((currentState) =>
-      stateModule.moveAlongSafePath(
+      moveAlongSafePath(
         { ...currentState, worldTimeMs: worldTimeMsRef.current },
         target,
       ),
@@ -198,7 +202,7 @@ export function attachPixiWorldInteractions({
   const processPointerMove = (clientX: number, clientY: number) => {
     const scenePoint = getScenePoint(clientX, clientY);
     const hexSize = getWorldHexSize(app.screen, gameRef.current.radius);
-    const hoveredOffset = stateModule.hexAtPoint(scenePoint.x, scenePoint.y, {
+    const hoveredOffset = hexAtPoint(scenePoint.x, scenePoint.y, {
       centerX: app.screen.width / 2,
       centerY: app.screen.height / 2,
       size: hexSize,
@@ -228,7 +232,7 @@ export function attachPixiWorldInteractions({
     }
 
     const current = gameRef.current;
-    const distance = stateModule.hexDistance(playerCoordRef.current, target);
+    const distance = hexDistance(playerCoordRef.current, target);
     const withinVisibleMap = distance <= WORLD_REVEAL_RADIUS;
     const hoverCacheKey = getHoverAnalysisCacheKey(current, target);
     const cachedHoverSnapshot =
@@ -250,29 +254,29 @@ export function attachPixiWorldInteractions({
       return;
     }
 
-    let tile: ReturnType<typeof stateModule.getTileAt> | null = null;
-    let safePath: stateModule.HexCoord[] | null = null;
+    let tile: ReturnType<typeof getTileAt> | null = null;
+    let safePath: HexCoord[] | null = null;
     let actionable = false;
 
     if (distance === 1) {
-      tile = stateModule.getTileAt(current, target);
+      tile = getTileAt(current, target);
       actionable = isPassable(tile.terrain);
     } else if (distance > 1 && withinVisibleMap) {
-      safePath = stateModule.getSafePathToTile(current, target);
+      safePath = getSafePathToTile(current, target);
       actionable = Boolean(safePath);
       if (actionable) {
-        tile = stateModule.getTileAt(current, target);
+        tile = getTileAt(current, target);
       }
     }
 
-    let nextHoveredPath: stateModule.HexCoord[] | null = null;
+    let nextHoveredPath: HexCoord[] | null = null;
     let nextTooltip: TooltipState | null = null;
     let nextTooltipKey: string | null = null;
 
     if (actionable && tile) {
       nextHoveredPath = safePath && safePath.length > 1 ? safePath : null;
 
-      const enemies = stateModule.getEnemiesAt(current, target);
+      const enemies = getEnemiesAt(current, target);
       const enemyInfo = enemyWorldTooltip(enemies, tile.structure);
 
       if (enemyInfo) {

@@ -13,10 +13,15 @@ describe('App world interaction performance', () => {
     const game = createGame(3, 'app-hidden-hover-seed');
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
 
-    const stateModule = await import('../../../game/state');
-    const getTileAtSpy = vi.spyOn(stateModule, 'getTileAt');
-    const getSafePathToTileSpy = vi.spyOn(stateModule, 'getSafePathToTile');
-    const hexAtPointSpy = vi.spyOn(stateModule, 'hexAtPoint');
+    const worldQueryModule = await import('../../../game/stateWorldQueries');
+    const pathfindingModule = await import('../../../game/statePathfinding');
+    const hexModule = await import('../../../game/hex');
+    const getTileAtSpy = vi.spyOn(worldQueryModule, 'getTileAt');
+    const getSafePathToTileSpy = vi.spyOn(
+      pathfindingModule,
+      'getSafePathToTile',
+    );
+    const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
 
     const { host, root } = await renderApp();
     await flushLazyModules();
@@ -56,12 +61,18 @@ describe('App world interaction performance', () => {
     const game = createGame(3, 'app-hidden-click-seed');
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
 
-    const stateModule = await import('../../../game/state');
-    const getTileAtSpy = vi.spyOn(stateModule, 'getTileAt');
-    const getSafePathToTileSpy = vi.spyOn(stateModule, 'getSafePathToTile');
-    const hexAtPointSpy = vi.spyOn(stateModule, 'hexAtPoint');
-    const moveAlongSafePathSpy = vi.spyOn(stateModule, 'moveAlongSafePath');
-    const moveToTileSpy = vi.spyOn(stateModule, 'moveToTile');
+    const worldQueryModule = await import('../../../game/stateWorldQueries');
+    const pathfindingModule = await import('../../../game/statePathfinding');
+    const movementModule = await import('../../../game/stateMovement');
+    const hexModule = await import('../../../game/hex');
+    const getTileAtSpy = vi.spyOn(worldQueryModule, 'getTileAt');
+    const getSafePathToTileSpy = vi.spyOn(
+      pathfindingModule,
+      'getSafePathToTile',
+    );
+    const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
+    const moveAlongSafePathSpy = vi.spyOn(movementModule, 'moveAlongSafePath');
+    const moveToTileSpy = vi.spyOn(movementModule, 'moveToTile');
 
     const { host, root } = await renderApp();
     await flushLazyModules();

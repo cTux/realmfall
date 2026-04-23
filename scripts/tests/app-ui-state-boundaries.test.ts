@@ -29,11 +29,6 @@ function getBroadStateImports(filePath: string) {
     .filter((specifier) => specifier.endsWith('/game/state'));
 }
 
-const ALLOWED_BROAD_STATE_IMPORT_FILES = new Set([
-  'src/app/App/hooks/useAppWorldClock.ts',
-  'src/app/App/world/pixiWorldInteractions.ts',
-]);
-
 describe('app and ui game-state boundaries', () => {
   it('keeps broad game/state imports out of non-test app and ui modules', () => {
     const sourceFiles = [
@@ -42,12 +37,10 @@ describe('app and ui game-state boundaries', () => {
     ];
 
     const violations = sourceFiles.flatMap((filePath) =>
-      getBroadStateImports(filePath)
-        .filter(() => !ALLOWED_BROAD_STATE_IMPORT_FILES.has(filePath))
-        .map((specifier) => ({
-          filePath,
-          specifier,
-        })),
+      getBroadStateImports(filePath).map((specifier) => ({
+        filePath,
+        specifier,
+      })),
     );
 
     expect(violations).toEqual([]);

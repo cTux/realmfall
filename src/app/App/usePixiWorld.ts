@@ -22,7 +22,10 @@ import {
   type WorldHoverSnapshot,
 } from './usePixiWorldHover';
 import type { WorldMapDragState } from './world/pixiWorldInteractions';
-import type { WorldRenderSnapshot } from './world/pixiWorldRenderLoop';
+import {
+  createWorldRenderSnapshot,
+  type WorldRenderSnapshot,
+} from './world/pixiWorldRenderLoop';
 
 interface UsePixiWorldArgs {
   enabled: boolean;
@@ -78,7 +81,7 @@ export function usePixiWorld({
   const hoverSnapshotRef = useRef(createEmptyWorldHoverSnapshot());
   const showTerrainBackgroundsRef = useRef(showTerrainBackgrounds);
   const lastRenderSnapshotRef = useRef<WorldRenderSnapshot>(
-    createInitialWorldRenderSnapshot(),
+    createWorldRenderSnapshot(),
   );
   const renderInvalidationRef = useRef(0);
   const [canvasReady, setCanvasReady] = useState(false);
@@ -139,7 +142,7 @@ export function usePixiWorld({
 
     let disposed = false;
     let cleanup: (() => void) | null = null;
-    lastRenderSnapshotRef.current = createInitialWorldRenderSnapshot();
+    lastRenderSnapshotRef.current = createWorldRenderSnapshot();
 
     void Promise.all([
       import('./world/pixiWorldCamera'),
@@ -325,18 +328,4 @@ export function usePixiWorld({
   ]);
 
   return { hostRef, canvasReady };
-}
-
-function createInitialWorldRenderSnapshot(): WorldRenderSnapshot {
-  return {
-    game: null,
-    visibleTiles: null,
-    selected: null,
-    hoveredMove: null,
-    hoveredSafePath: null,
-    animationBucket: -1,
-    invalidationToken: 0,
-    iconTextureVersion: -1,
-    showTerrainBackgrounds: true,
-  };
 }
