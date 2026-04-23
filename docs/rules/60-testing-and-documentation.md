@@ -12,6 +12,7 @@
 - When adding or moving tests, choose the narrowest Vitest project that matches the runtime surface so gameplay-only changes do not pay browser-environment startup cost.
 - When UI integration coverage grows beyond one broad `*.test.tsx` file, split it by surface such as recipe flows, window-shell interactions, renderer caches, or tooltip behavior instead of keeping one umbrella component suite.
 - When splitting browser-surface suites, move repeated DOM host setup and dynamic-import settling into shared helpers such as `src/ui/uiTestHelpers.tsx` or feature-specific `*TestHelpers.tsx` files so smaller suites do not reintroduce the same boilerplate in parallel.
+- When a suite grows into several unrelated assertions, split it by behavior slice and add a colocated domain helper such as `uiTooltipContentTestHelpers.ts`, `uiWindowMarkupTestHelpers.tsx`, or `state*TestHelpers.ts` so fixtures stay reusable without one giant umbrella file returning.
 - Split broad gameplay-state suites by concern such as exploration, survival timing, combat cadence, world events, crafting, inventory actions, world actions, or item and progression flows instead of keeping one `src/game/state.test.ts` umbrella file.
 - Split large Pixi renderer suites by concern such as cache invalidation, interaction overlays, marker composition, marker animation, sprite-pool behavior, or atmosphere rendering instead of keeping one `renderScene.test.ts` umbrella file.
 - When tests call typed gameplay helpers such as item-action selectors, pass real domain fixtures or builder-backed objects that satisfy the full runtime type instead of partial literals that only cover the asserted field.
@@ -44,8 +45,8 @@
 - Keep `docs/WORKFLOW.md` short and process-oriented. Prefer links back to canonical rule files over repeating save-policy, CI-permission, or shell-safety rules in a second long checklist.
 - Keep technical-solution specs implementation-oriented. When a spec needs to mention commands, hooks, or CI, describe the shipped toolchain behavior and link back to `docs/WORKFLOW.md` or this rule file for contributor policy instead of duplicating full operational checklists.
 - Prefer documenting real project constraints and current behavior over aspirational wording.
-- In review findings, improvement notes, and project-health summaries, do not ship the word `still`. Rewrite the sentence to describe the current behavior and risk directly so the guidance remains accurate after follow-up fixes land.
-- Before committing changed markdown for specs, workflow docs, or review notes, search the staged diff for standalone `still` and rewrite those sentences unless the word appears inside a source quote.
+- In review findings, improvement notes, and project-health summaries, avoid unresolved continuation wording. Rewrite the sentence to describe the current behavior and risk directly so the guidance remains accurate after follow-up fixes land.
+- Before committing changed markdown for specs, workflow docs, or review notes, search the staged diff for unresolved continuation wording and rewrite those sentences unless the term appears inside a source quote.
 - When prompts establish recurring workflow expectations, capture them here so future prompt handling stays consistent.
 - When a prompt establishes recurring structural placement rules for hooks, selectors, utilities, components, or tests, update this file and keep contributor-facing docs aligned instead of relying on one-off refactors.
 - Keep rule and workflow updates synchronized across `README.md`, `docs/WORKFLOW.md`, and the AI-specific instruction files when those updates affect future prompt execution.
