@@ -22,7 +22,6 @@ import {
   GENERATED_ACCESSORY_KEYS,
   GENERATED_ARMOR_KEYS,
   GENERATED_EQUIPMENT_CONFIGS,
-  GENERATED_ICON_POOLS,
   GENERATED_OFFHAND_KEYS,
   GENERATED_WEAPON_KEYS,
 } from '../generatedEquipment';
@@ -72,7 +71,6 @@ import { wayfarerCloakItemConfig } from './wayfarerCloak';
 import { waterFlaskItemConfig } from './waterFlask';
 import { workGlovesItemConfig } from './workGloves';
 import { CRAFTED_EXPANSION_ITEM_CONFIGS } from './expansion';
-import type { AbilityId } from '../../types';
 
 const RAW_ITEM_CONFIGS = [
   trailRationItemConfig,
@@ -175,51 +173,10 @@ const ARMOR_SLOTS = new Set<string>([
   EquipmentSlotId.Cloak,
 ]);
 
-const STATIC_ITEM_ICON_POOLS: Partial<Record<string, readonly string[]>> = {
-  [ItemId.TownKnife]: GENERATED_ICON_POOLS.dagger,
-  [ItemId.CampSpear]: GENERATED_ICON_POOLS.twoHandedSword,
-  [ItemId.HideBuckler]: GENERATED_ICON_POOLS.shield,
-  [ItemId.PatchworkHood]: GENERATED_ICON_POOLS.helmet,
-  [ItemId.ScoutHood]: GENERATED_ICON_POOLS.helmet,
-  [ItemId.SettlerVest]: GENERATED_ICON_POOLS.chest,
-  [ItemId.WorkGloves]: GENERATED_ICON_POOLS.gloves,
-  [ItemId.TrailLeggings]: GENERATED_ICON_POOLS.leggings,
-  [ItemId.FieldBoots]: GENERATED_ICON_POOLS.feet,
-  [ItemId.CopperLoop]: GENERATED_ICON_POOLS.ring,
-  [ItemId.CopperBand]: GENERATED_ICON_POOLS.ring,
-  [ItemId.CharmNecklace]: GENERATED_ICON_POOLS.necklace,
-  [ItemId.WayfarerCloak]: GENERATED_ICON_POOLS.cloak,
-  [ItemId.HearthTotem]: GENERATED_ICON_POOLS.magicalSphere,
-};
-
-const STATIC_ITEM_CATEGORY_OVERRIDES: Partial<Record<string, ItemCategory>> = {
-  [ItemId.WayfarerCloak]: 'armor',
-  [ItemId.HearthTotem]: 'artifact',
-};
-
-const SHIELD_OFFHAND_ABILITY_POOL: AbilityId[] = [
-  'ironGuard',
-  'arcWard',
-  'rallyingCry',
-];
-
-const MAGICAL_OFFHAND_ABILITY_POOL: AbilityId[] = [
-  'mendWounds',
-  'battlePrayer',
-  'arcWard',
-  'witheringHex',
-];
-
 export const ITEM_CONFIGS: ItemConfig[] = RAW_ITEM_CONFIGS.map((config) => ({
   ...config,
   name: itemName(config.key),
-  iconPool: config.iconPool ?? STATIC_ITEM_ICON_POOLS[config.key],
-  icon: pickConfigIcon(
-    config.iconPool ?? STATIC_ITEM_ICON_POOLS[config.key],
-    config.icon,
-    config.key,
-  ),
-  category: config.category ?? STATIC_ITEM_CATEGORY_OVERRIDES[config.key],
+  icon: pickConfigIcon(config.iconPool, config.icon, config.key),
   tags: buildItemConfigTags(config),
 }));
 
@@ -412,85 +369,6 @@ function buildItemConfigTags(
   config: Omit<ItemConfig, 'name'> & { name?: string },
 ) {
   const category = getItemConfigCategory(config);
-  const keyTags: Partial<Record<string, GameTag[]>> = {
-    [ItemId.Gold]: [GAME_TAGS.item.currency, GAME_TAGS.item.resource],
-    [ItemId.HomeScroll]: [GAME_TAGS.item.homeward],
-    [ItemId.Herbs]: [GAME_TAGS.item.gathered],
-    [ItemId.Logs]: [
-      GAME_TAGS.item.gathered,
-      GAME_TAGS.item.wood,
-      GAME_TAGS.item.craftingMaterial,
-    ],
-    [ItemId.Sticks]: [
-      GAME_TAGS.item.gathered,
-      GAME_TAGS.item.wood,
-      GAME_TAGS.item.craftingMaterial,
-    ],
-    [ItemId.Stone]: [GAME_TAGS.item.gathered],
-    [ItemId.CopperOre]: [
-      GAME_TAGS.item.gathered,
-      GAME_TAGS.item.ore,
-      GAME_TAGS.item.craftingMaterial,
-    ],
-    [ItemId.CopperIngot]: [GAME_TAGS.item.craftingMaterial],
-    [ItemId.TinOre]: [GAME_TAGS.item.ore, GAME_TAGS.item.craftingMaterial],
-    [ItemId.TinIngot]: [GAME_TAGS.item.craftingMaterial],
-    [ItemId.IronOre]: [
-      GAME_TAGS.item.gathered,
-      GAME_TAGS.item.ore,
-      GAME_TAGS.item.craftingMaterial,
-    ],
-    [ItemId.IronChunks]: [
-      GAME_TAGS.item.ore,
-      GAME_TAGS.item.prospectable,
-      GAME_TAGS.item.craftingMaterial,
-    ],
-    [ItemId.IronIngot]: [GAME_TAGS.item.craftingMaterial],
-    [ItemId.GoldOre]: [GAME_TAGS.item.ore, GAME_TAGS.item.craftingMaterial],
-    [ItemId.GoldIngot]: [GAME_TAGS.item.craftingMaterial],
-    [ItemId.PlatinumOre]: [GAME_TAGS.item.ore, GAME_TAGS.item.craftingMaterial],
-    [ItemId.PlatinumIngot]: [GAME_TAGS.item.craftingMaterial],
-    [ItemId.Coal]: [GAME_TAGS.item.gathered, GAME_TAGS.item.craftingMaterial],
-    [ItemId.RawFish]: [
-      GAME_TAGS.item.gathered,
-      GAME_TAGS.item.craftingMaterial,
-    ],
-    [ItemId.Cloth]: [
-      GAME_TAGS.item.cloth,
-      GAME_TAGS.item.prospectable,
-      GAME_TAGS.item.craftingMaterial,
-    ],
-    [ItemId.LeatherScraps]: [
-      GAME_TAGS.item.animalProduct,
-      GAME_TAGS.item.prospectable,
-      GAME_TAGS.item.craftingMaterial,
-    ],
-    [ItemId.ArcaneDust]: [
-      GAME_TAGS.item.mana,
-      GAME_TAGS.item.prospectable,
-      GAME_TAGS.item.craftingMaterial,
-    ],
-    [ItemId.CampSpear]: [GAME_TAGS.item.crafted],
-    [ItemId.HideBuckler]: [
-      GAME_TAGS.item.crafted,
-      GAME_TAGS.item.animalProduct,
-    ],
-    [ItemId.PatchworkHood]: [GAME_TAGS.item.crafted, GAME_TAGS.item.cloth],
-    [ItemId.SettlerVest]: [GAME_TAGS.item.crafted, GAME_TAGS.item.cloth],
-    [ItemId.WorkGloves]: [GAME_TAGS.item.crafted, GAME_TAGS.item.animalProduct],
-    [ItemId.TrailLeggings]: [GAME_TAGS.item.crafted, GAME_TAGS.item.cloth],
-    [ItemId.FieldBoots]: [GAME_TAGS.item.crafted, GAME_TAGS.item.animalProduct],
-    [ItemId.CopperLoop]: [GAME_TAGS.item.crafted, GAME_TAGS.item.mana],
-    [ItemId.CopperBand]: [GAME_TAGS.item.crafted, GAME_TAGS.item.mana],
-    [ItemId.CharmNecklace]: [GAME_TAGS.item.crafted, GAME_TAGS.item.mana],
-    [ItemId.WayfarerCloak]: [GAME_TAGS.item.crafted, GAME_TAGS.item.cloth],
-    [ItemId.HearthTotem]: [
-      GAME_TAGS.item.crafted,
-      GAME_TAGS.item.mana,
-      GAME_TAGS.item.totem,
-    ],
-  };
-
   return uniqueTags(
     ...(config.tags ?? []),
     category === 'consumable' || category === 'resource'
@@ -508,7 +386,6 @@ function buildItemConfigTags(
     config.hunger > 0 ? GAME_TAGS.item.food : undefined,
     (config.thirst ?? 0) > 0 ? GAME_TAGS.item.drink : undefined,
     config.healing > 0 ? GAME_TAGS.item.healing : undefined,
-    ...(keyTags[config.key] ?? []),
   );
 }
 
@@ -618,20 +495,12 @@ function pickGrantedAbilityId(
 }
 
 function resolveGrantedAbilityPool(
-  config: Pick<ItemConfig, 'grantedAbilityPool' | 'grantedAbilityId'> &
-    Partial<Pick<ItemConfig, 'key' | 'slot' | 'category'>>,
+  config: Pick<ItemConfig, 'grantedAbilityPool' | 'grantedAbilityId'>,
 ) {
   if (config.grantedAbilityId) return undefined;
-  if (config.grantedAbilityPool && config.grantedAbilityPool.length > 0) {
-    return config.grantedAbilityPool;
-  }
-  if (config.slot !== EquipmentSlotId.Offhand) {
-    return undefined;
-  }
-
-  return config.category === 'artifact'
-    ? MAGICAL_OFFHAND_ABILITY_POOL
-    : SHIELD_OFFHAND_ABILITY_POOL;
+  return config.grantedAbilityPool && config.grantedAbilityPool.length > 0
+    ? config.grantedAbilityPool
+    : undefined;
 }
 
 function seededIndex(seed: string) {

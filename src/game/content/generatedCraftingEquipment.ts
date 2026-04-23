@@ -3,6 +3,10 @@ import { GENERATED_ICON_POOLS } from './generatedIconPools';
 import { itemName } from './i18n';
 import { EquipmentSlotId } from './ids';
 import type { ItemConfig } from './types';
+import {
+  MAGICAL_OFFHAND_ABILITY_POOL,
+  SHIELD_OFFHAND_ABILITY_POOL,
+} from './items/itemAbilityPools';
 
 type FamilyKey = keyof typeof GENERATED_ICON_POOLS;
 
@@ -18,6 +22,7 @@ interface GeneratedCraftingFamily {
   defense: number;
   maxHp: number;
   occupiesOffhand?: boolean;
+  grantedAbilityPool?: ItemConfig['grantedAbilityPool'];
 }
 
 const GENERATED_CRAFTING_FAMILIES: GeneratedCraftingFamily[] = [
@@ -200,6 +205,7 @@ const GENERATED_CRAFTING_FAMILIES: GeneratedCraftingFamily[] = [
     power: 2,
     defense: 0,
     maxHp: 3,
+    grantedAbilityPool: MAGICAL_OFFHAND_ABILITY_POOL,
   },
   {
     familyKey: 'shield',
@@ -212,6 +218,7 @@ const GENERATED_CRAFTING_FAMILIES: GeneratedCraftingFamily[] = [
     power: 0,
     defense: 4,
     maxHp: 2,
+    grantedAbilityPool: SHIELD_OFFHAND_ABILITY_POOL,
   },
   {
     familyKey: 'twoHandedSword',
@@ -301,6 +308,7 @@ export const CRAFTABLE_ICON_ITEM_CONFIGS: ItemConfig[] =
         hunger: 0,
         thirst: 0,
         occupiesOffhand: family.occupiesOffhand,
+        grantedAbilityPool: family.grantedAbilityPool,
         tags: [GAME_TAGS.item.crafted],
       } satisfies ItemConfig;
     }),

@@ -29,6 +29,7 @@
 - Keep configurable balancing and world values in `game.config.ts` or dedicated config modules instead of scattering magic numbers through UI code.
 - Add all future chance-based gameplay parameters to `game.config.ts`, grouped by gameplay area, and document each parameter inline instead of introducing new chance constants in content files or other modules.
 - Give every unique item its own configuration file for its gameplay and presentation data, including icon and non-chance item-specific values.
+- Keep item-specific tags, icon pools, category overrides, and granted-ability pools on the owning item config or a narrow family helper such as generated-equipment builders. Do not rebuild those overrides in `src/game/content/items/index.ts`.
 - Give every unique enemy its own configuration file for its gameplay and presentation data, including icon and non-chance enemy-specific values.
 - Give every unique structure its own configuration file for its gameplay and presentation data, including icon, provided functions, and non-chance structure-specific values.
 - Vendor gameplay icon assets in the repository and load them from local files. Do not point shipped item, enemy, structure, generated-equipment, or similar runtime icon paths at remote URLs.

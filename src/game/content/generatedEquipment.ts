@@ -4,6 +4,10 @@ import { GENERATED_ICON_POOLS } from './generatedIconPools';
 import type { AbilityId } from '../types';
 import { EquipmentSlotId } from './ids';
 import type { ItemConfig } from './types';
+import {
+  MAGICAL_OFFHAND_ABILITY_POOL,
+  SHIELD_OFFHAND_ABILITY_POOL,
+} from './items/itemAbilityPools';
 
 const generated = (
   key: string,
@@ -277,6 +281,8 @@ export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
       baseMaxHp: 1,
       maxHpPerTier: 1,
     },
+    false,
+    MAGICAL_OFFHAND_ABILITY_POOL,
   ),
   generated(
     'generated-shield',
@@ -289,6 +295,8 @@ export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
       baseMaxHp: 1,
       maxHpPerTier: 1,
     },
+    false,
+    SHIELD_OFFHAND_ABILITY_POOL,
   ),
   generated(
     'generated-two-handed-sword',

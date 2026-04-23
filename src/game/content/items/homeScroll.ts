@@ -1,5 +1,6 @@
 import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
+import { GAME_TAGS } from '../tags';
 import type { ItemConfig } from '../types';
 
 export const homeScrollItemConfig: ItemConfig = {
@@ -16,4 +17,5 @@ export const homeScrollItemConfig: ItemConfig = {
   hunger: 0,
   defaultQuantity: 1,
   dropChance: 0.04,
+  tags: [GAME_TAGS.item.homeward],
 };

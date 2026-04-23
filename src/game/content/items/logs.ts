@@ -1,5 +1,6 @@
 import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
+import { GAME_TAGS } from '../tags';
 import type { ItemConfig } from '../types';
 
 export const logsItemConfig: ItemConfig = {
@@ -14,4 +15,9 @@ export const logsItemConfig: ItemConfig = {
   healing: 0,
   hunger: 0,
   defaultQuantity: 1,
+  tags: [
+    GAME_TAGS.item.gathered,
+    GAME_TAGS.item.wood,
+    GAME_TAGS.item.craftingMaterial,
+  ],
 };
