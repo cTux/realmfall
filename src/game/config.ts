@@ -74,6 +74,7 @@ interface GameChanceConfig {
     economy: {
       townBuyPrice: {
         minimum: number;
+        perTier: number;
         rarityMultiplier: Record<ItemRarity, number>;
       };
     };
@@ -85,6 +86,12 @@ interface GameChanceConfig {
       lastLevelRequirement: number;
       masteryBaseRequirement: number;
       masteryGrowthRate: number;
+      levelDifference: {
+        penaltyPerLevelBelowPlayer: number;
+        maxPenaltyLevels: number;
+        bonusPerLevelAbovePlayer: number;
+        maxBonusLevels: number;
+      };
     };
     gatheringBonus: {
       perLevel: number;
@@ -225,6 +232,8 @@ export const PLAYER_LAST_LEVEL_XP_REQUIREMENT =
 export const MASTERY_BASE_XP_REQUIREMENT =
   PLAYER_XP_BALANCE.masteryBaseRequirement;
 export const MASTERY_XP_GROWTH_RATE = PLAYER_XP_BALANCE.masteryGrowthRate;
+export const PLAYER_XP_LEVEL_DIFFERENCE_BALANCE =
+  PLAYER_XP_BALANCE.levelDifference;
 export const GATHERING_BONUS_PER_LEVEL =
   GAME_CONFIG.progression.gatheringBonus.perLevel;
 export const GATHERING_BONUS_MAX = GAME_CONFIG.progression.gatheringBonus.max;

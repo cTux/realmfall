@@ -602,7 +602,7 @@ function handleEnemyDefeat(
 ) {
   if (!state.enemies[enemy.id]) return;
 
-  gainXp(state, BASE_ENEMY_XP, addLog);
+  gainXp(state, BASE_ENEMY_XP, addLog, enemy.tier);
   dropEnemyRewards(state, enemy);
   addLog(
     state,

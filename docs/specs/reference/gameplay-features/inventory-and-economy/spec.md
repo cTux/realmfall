@@ -26,7 +26,7 @@ This spec covers inventory actions, gold handling, and town trading.
 - Towns provide a deterministic stock based on seed, coordinate, and the current game day.
 - Buying an item removes that specific town-stock entry from the active town list until the stock refreshes.
 - Each town refreshes its selling list at the start of a new game day.
-- Buying uses town stock entries with explicit prices, and town markups now scale sharply by item rarity so rare-to-legendary gear is much less affordable in the early game.
+- Buying uses town stock entries with explicit prices, and town markups scale by item rarity plus item tier so higher-level rare-to-legendary gear is much less affordable in the early game.
 - Town item-shop prices render on the item card itself using the same bottom badge treatment as inventory stack counts, but with the gold coin-pile icon instead of a text suffix.
 - Recipe pages can be sold individually in town for a premium value.
 - Consumables and crafting materials can also be sold individually in town for cheap prices, with ingots worth more gold than raw ores.

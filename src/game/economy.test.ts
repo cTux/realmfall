@@ -21,4 +21,23 @@ describe('town stock pricing', () => {
       getTownStockPrice(commonKnife) * 20,
     );
   });
+
+  it('adds a town-only level markup on top of rarity scaling', () => {
+    const levelOneKnife = buildItemFromConfig('town-knife', {
+      id: 'town-knife-level-1',
+      rarity: 'common',
+      tier: 1,
+    });
+    const levelTenKnife = buildItemFromConfig('town-knife', {
+      id: 'town-knife-level-10',
+      rarity: 'common',
+      tier: 10,
+    });
+
+    expect(getTownStockPrice(levelOneKnife)).toBe(24);
+    expect(getTownStockPrice(levelTenKnife)).toBe(114);
+    expect(getTownStockPrice(levelTenKnife)).toBeGreaterThan(
+      getTownStockPrice(levelOneKnife),
+    );
+  });
 });

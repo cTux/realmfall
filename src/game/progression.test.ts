@@ -67,6 +67,24 @@ describe('progression', () => {
     expect(game.player.xp).toBe(49 - levelThreshold(1) - levelThreshold(2));
   });
 
+  it('reduces XP by 20 percent per enemy tier below the player and caps at zero', () => {
+    const game = createGame(3, 'enemy-level-penalty-seed');
+    game.player.level = 10;
+
+    expect(resolveExperienceAward(game.player, BASE_ENEMY_XP, 9)).toBe(16);
+    expect(resolveExperienceAward(game.player, BASE_ENEMY_XP, 5)).toBe(0);
+    expect(resolveExperienceAward(game.player, BASE_ENEMY_XP, 1)).toBe(0);
+  });
+
+  it('increases XP by 10 percent per enemy tier above the player and caps at double', () => {
+    const game = createGame(3, 'enemy-level-bonus-seed');
+    game.player.level = 10;
+
+    expect(resolveExperienceAward(game.player, BASE_ENEMY_XP, 11)).toBe(22);
+    expect(resolveExperienceAward(game.player, BASE_ENEMY_XP, 20)).toBe(40);
+    expect(resolveExperienceAward(game.player, BASE_ENEMY_XP, 30)).toBe(40);
+  });
+
   it('gives every generated enemy the same base XP reward', () => {
     const commonEnemy = makeEnemy('enemy-xp-seed', { q: 0, r: 0 }, 'plains');
     const dungeonEnemy = makeEnemy(

@@ -135,8 +135,15 @@ function resolveTownStockTier(
 }
 
 export function getTownStockPrice(item: Item) {
+  const tierMultiplier =
+    1 + Math.max(0, item.tier - 1) * TOWN_BUY_PRICE_BALANCE.perTier;
+
   return Math.max(
     TOWN_BUY_PRICE_BALANCE.minimum,
-    sellValue(item) * TOWN_BUY_PRICE_BALANCE.rarityMultiplier[item.rarity],
+    Math.round(
+      sellValue(item) *
+        TOWN_BUY_PRICE_BALANCE.rarityMultiplier[item.rarity] *
+        tierMultiplier,
+    ),
   );
 }

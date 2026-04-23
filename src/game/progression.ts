@@ -6,6 +6,7 @@ import {
   MASTERY_BASE_XP_REQUIREMENT,
   MASTERY_XP_GROWTH_RATE,
   MAX_PLAYER_LEVEL,
+  PLAYER_XP_LEVEL_DIFFERENCE_BALANCE,
   PLAYER_FIRST_LEVEL_XP_REQUIREMENT,
   PLAYER_LAST_LEVEL_XP_REQUIREMENT,
 } from './config';
@@ -387,8 +388,9 @@ export function gainXp(
   state: GameState,
   amount: number,
   addLog: (state: GameState, kind: 'system', text: string) => void,
+  enemyLevel?: number,
 ) {
-  const awardedXp = resolveExperienceAward(state.player, amount);
+  const awardedXp = resolveExperienceAward(state.player, amount, enemyLevel);
   if (awardedXp <= 0) return;
 
   state.player.xp += awardedXp;
@@ -479,16 +481,25 @@ export function gatheringBonusChance(level: number) {
 }
 
 export function resolveExperienceAward(
-  player: Pick<Player, 'equipment'>,
+  player: Pick<Player, 'equipment' | 'level'>,
   baseAmount = BASE_ENEMY_XP,
+  enemyLevel?: number,
 ) {
   const normalizedBaseAmount = Math.max(0, Math.round(baseAmount));
   if (normalizedBaseAmount === 0) return 0;
 
+  const levelMultiplier = getEnemyLevelExperienceMultiplier(
+    player.level,
+    enemyLevel,
+  );
+  if (levelMultiplier <= 0) return 0;
+
   return Math.max(
     1,
     Math.round(
-      normalizedBaseAmount * (1 + getBonusExperiencePercent(player) / 100),
+      normalizedBaseAmount *
+        levelMultiplier *
+        (1 + getBonusExperiencePercent(player) / 100),
     ),
   );
 }
@@ -501,6 +512,36 @@ function getBonusExperiencePercent(player: Pick<Player, 'equipment'>) {
     ),
     Number.POSITIVE_INFINITY,
   ).effective;
+}
+
+function getEnemyLevelExperienceMultiplier(
+  playerLevel: number,
+  enemyLevel?: number,
+) {
+  if (enemyLevel == null) return 1;
+
+  const levelDelta = Math.round(enemyLevel) - Math.round(playerLevel);
+  if (levelDelta < 0) {
+    const penaltyLevels = Math.min(
+      PLAYER_XP_LEVEL_DIFFERENCE_BALANCE.maxPenaltyLevels,
+      Math.abs(levelDelta),
+    );
+    return Math.max(
+      0,
+      1 -
+        penaltyLevels *
+          PLAYER_XP_LEVEL_DIFFERENCE_BALANCE.penaltyPerLevelBelowPlayer,
+    );
+  }
+
+  const bonusLevels = Math.min(
+    PLAYER_XP_LEVEL_DIFFERENCE_BALANCE.maxBonusLevels,
+    levelDelta,
+  );
+  return (
+    1 +
+    bonusLevels * PLAYER_XP_LEVEL_DIFFERENCE_BALANCE.bonusPerLevelAbovePlayer
+  );
 }
 
 function clampOrdinaryThresholdLevel(level: number) {

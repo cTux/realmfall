@@ -6,9 +6,10 @@ This spec covers player leveling, mastery, and skill progression.
 
 ## Current Behavior
 
-- Every enemy awards a fixed base value of `20` XP before any bonus experience modifiers.
+- Every enemy awards a fixed base value of `20` XP before bonus modifiers are applied.
+- Enemy defeats reduce XP by `20%` per enemy tier below the player tier, capped at `-5` tiers for `0` XP, and increase XP by `10%` per enemy tier above the player tier, capped at `+10` tiers for double XP.
 - Player level requirements follow an exponential curve from `20` XP for level `1 -> 2` to `20,000,000` XP for level `99 -> 100`.
-- The player gains XP from gameplay outcomes such as combat, and uncapped `Bonus Experience` secondary stats increase the awarded amount.
+- The player gains XP from gameplay outcomes such as combat, and uncapped `Bonus Experience` secondary stats multiply the enemy-tier-adjusted award.
 - Level ups resync player base survivability and combat stats to anchored balance values instead of applying a flat per-level increment.
 - Player base stats scale from `150 / 50 / 35` at level `1` to `4000 / 800 / 200` at level `100`.
 - Level ups do not refill HP or mana; current resource values carry forward while only the maximums and base combat stats increase.
