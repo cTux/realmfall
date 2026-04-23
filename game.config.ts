@@ -1,4 +1,6 @@
-const gameConfig = {
+import { defineGameConfig } from './src/game/gameConfigSchema';
+
+const gameConfig = defineGameConfig({
   balance: {
     combat: {
       // Shared baseline cooldown before attack-speed modifiers scale timing.
@@ -341,6 +343,6 @@ const gameConfig = {
       none: 0.66,
     },
   },
-} as const;
+} as const);
 
 export default gameConfig;

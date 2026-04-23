@@ -35,6 +35,7 @@
 - Keep `src/app/App/App.tsx` centered on top-level hook composition. Move shell markup, auto-open window effects, and other single-purpose orchestration branches into local components or hooks under `src/app/App/components` and `src/app/App/hooks`.
 - Name `AppWindows` view and action slices after the responsibility they serve, such as `inventory` and `hex`. Do not hide mixed inventory or hex-interaction state behind broad buckets like `player` or `world`.
 - Keep configurable balancing and world values in `game.config.ts` or dedicated config modules instead of scattering magic numbers through UI code.
+- Keep the gameplay-config shape canonical in `src/game/gameConfigSchema.ts`, and type `game.config.ts` through that shared schema instead of recreating the nested contract in runtime helper modules.
 - Add all future chance-based gameplay parameters to `game.config.ts`, grouped by gameplay area, and document each parameter inline instead of introducing new chance constants in content files or other modules.
 - Give every unique item its own configuration file for its gameplay and presentation data, including icon and non-chance item-specific values.
 - Keep `src/game/content/items/index.ts` as the thin public item-content facade. Put catalog assembly in `itemCatalog.ts`, item builders and cloning in `itemBuilders.ts`, and category or tag inference in `itemClassification.ts` plus `itemCategoryRules.ts`.
