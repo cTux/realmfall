@@ -8,6 +8,7 @@
 - Keep contributor docs aligned with the current Vitest project split, including `pnpm test`, `pnpm test:node`, and `pnpm test:jsdom`, whenever test runtime boundaries change.
 - Keep `docs/WORKFLOW.md` short and process-oriented. Prefer links back to canonical rule files over repeating save-policy, CI-permission, or shell-safety rules in a second long checklist.
 - Keep technical-solution specs implementation-oriented. When a spec needs to mention commands, hooks, or CI, describe the shipped toolchain behavior and link back to `docs/WORKFLOW.md` or the scoped rule files for contributor policy instead of duplicating full operational checklists.
+- Keep `docs/specs/reference/technical-solutions/documentation-strategy/spec.md` focused on documentation-system structure, file roles, and lifecycle boundaries. Link back to `docs/RULES.md` and this file for contributor policy instead of copying those rule lists into the spec.
 - Prefer documenting real project constraints and current behavior over aspirational wording.
 - In review findings, improvement notes, and project-health summaries, avoid unresolved continuation wording. Rewrite the sentence to describe the current behavior and risk directly so the guidance remains accurate after follow-up fixes land.
 - Before committing changed markdown for specs, workflow docs, or review notes, search the staged diff for unresolved continuation wording and rewrite those sentences unless the term appears inside a source quote.
