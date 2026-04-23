@@ -37,6 +37,7 @@
     "build:duplicate-deps": "node scripts/run-duplicate-deps-audit.mjs",
     "build:visualize": "node scripts/run-bundle-visualizer.mjs",
     "build:storybook": "storybook build",
+    "assets:world-atlas": "node scripts/build-world-terrain-atlas.mjs",
     "git:commit": "node scripts/git-commit.mjs",
     "git:prune-gone-branches": "node scripts/prune-gone-branches.mjs",
     "git:rebase-master-and-push": "node scripts/rebase-master-and-push.mjs",

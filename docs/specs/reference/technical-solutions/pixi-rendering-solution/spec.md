@@ -51,6 +51,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - If a newly needed icon texture has not finished loading when a sprite pool requests it, the pool uses a transparent placeholder texture for that frame and rerenders when the real texture arrives.
 - Terrain background redraw invalidation also keys off the shared world-icon texture version, so newly loaded terrain art repaints the cached static layer without waiting for unrelated hover or gameplay changes.
 - Terrain background PNG assets ship as transparent pointy-top hex cutouts, so the static world layer can draw them through the regular sprite pool without a runtime mask path.
+- Terrain background PNGs also have a generated atlas path through `pnpm assets:world-atlas`, which emits `src/assets/generated/world-terrain-atlas.png` and `src/assets/generated/world-terrain-atlas.json` from the canonical terrain source list.
 - Terrain background visibility is driven by a persisted graphics toggle that invalidates the cached static layer and rerenders the world map without recreating the Pixi app.
 - The Pixi canvas uses density-aware sizing so browser zoom and high-DPI displays keep the world viewport fitted to CSS pixels while renderer resolution tracks `window.devicePixelRatio` changes on resize within the current graphics preset cap.
 - Persisted settings now hydrate both Pixi renderer initialization flags and a preset-derived renderer density cap through a dedicated plain `localStorage` `settings` payload that is read before the initial game and Pixi setup; those init-time flags require a reload before they affect an already-running canvas.
@@ -76,3 +77,5 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - `src/ui/world/renderSceneFullscreenEffects.ts`
 - `src/ui/world/renderScenePools.ts`
 - `src/ui/world/renderSceneAtmosphere.ts`
+- `scripts/build-world-terrain-atlas.mjs`
+- `scripts/world-terrain-atlas.config.mjs`
