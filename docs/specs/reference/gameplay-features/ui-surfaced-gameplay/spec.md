@@ -29,6 +29,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - While the hex info window is open, the title-bar land actions surface inline `A` and `O` hotkeys through `Cl(a)im` / `Uncl(a)im` and `H(o)me`, and those keys trigger the enabled action directly.
 - While the hex info window is open on a faction NPC hex, the title bar also surfaces `(Q) Heal`, and pressing `Q` prioritizes that paid heal action over other hex `Q` shortcuts when healing is available.
 - While the hex info window is open at a forge or town, the active bulk equippable action surfaces `(Q)` on its button and pressing `Q` triggers it directly.
+- Town stock in the hex info content window wraps its item slots with a flex row layout instead of CSS grid so slot spacing follows the shared item-slot sizing more predictably.
 - While a combat encounter remains active for longer than `60s`, the hex info title bar replaces the start action with `Dea(t)h`, and pressing `T` triggers the same defeat-and-respawn action.
 - World camp markers stay readable above their night-time glow effects instead of sinking beneath the bloom layer.
 - World-map hostile enemy markers tint by runtime enemy rarity, and mixed enemy parties use the highest rarity color on that tile.

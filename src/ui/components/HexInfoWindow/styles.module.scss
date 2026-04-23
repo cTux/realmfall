@@ -198,14 +198,14 @@
 }
 
 .shopGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.6rem;
 }
 
 .shopCard {
-  display: grid;
-  justify-items: center;
+  display: flex;
+  flex: 0 0 auto;
 }
 
 .shopItemDisabled {
@@ -261,9 +261,5 @@
 @media (width <= 720px) {
   .window {
     width: calc(100vw - 16px);
-  }
-
-  .shopGrid {
-    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
   }
 }
