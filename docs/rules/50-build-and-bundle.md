@@ -10,6 +10,7 @@
 - Document small bundle-size expectations in contributor-facing guidance so chunk regressions are easier to spot before they become large enough to require emergency refactors.
 - Keep the automated startup chunk budget check aligned with the current envelope. `pnpm build:budget` should report the live startup bootstrap graph, including the main entry, bootstrap-loaded app chunks, locale payloads, and core vendor chunks used before the first interactive render, and warn when the build exceeds the tracked envelope.
 - Keep one-off bundle audits, such as duplicate-dependency detection, behind explicit commands instead of paying their plugin cost on every production build.
+- Keep visual bundle treemap audits behind explicit commands such as `pnpm build:visualize` instead of enabling the visualizer plugin on every production build.
 - Tune Vite's generic chunk-size warning so it does not compete with the repository's explicit startup chunk budgets. `pnpm build:budget` should remain the primary signal for allowed large shared chunks such as `state` and `pixi`.
 - Keep diagnostic or refresh-only startup chrome, such as version polling widgets, off the bootstrap path when a lazy client-side load preserves first interaction and gameplay behavior.
 - Keep destructive, reset-only, or rare maintenance flows off the bootstrap graph. If a path only runs from a settings action or similar secondary UI, prefer importing its heavy helpers at action time instead of wiring them into `App` startup.

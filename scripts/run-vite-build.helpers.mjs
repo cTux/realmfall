@@ -5,6 +5,7 @@ const PLUGIN_TIMING_DOC_URL =
   'https://rolldown.rs/options/checks#plugintimings';
 const SUPPRESSED_PLUGIN_TIMINGS = new Set([
   'unplugin-detect-duplicated-deps',
+  'rollup-plugin-visualizer',
   'vite:asset',
 ]);
 
