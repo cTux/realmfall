@@ -296,9 +296,10 @@ describe('game state items and progression', () => {
     );
   });
 
-  it('awards the flat enemy XP amount even when an enemy carries a legacy XP value', () => {
+  it('awards level-scaled base enemy XP even when an enemy carries a legacy XP value', () => {
     const game = createGame(3, 'legacy-enemy-xp-seed');
     const target = { q: 2, r: 0 };
+    game.player.level = 10;
     game.tiles['2,0'] = {
       coord: target,
       terrain: 'plains',
@@ -310,7 +311,7 @@ describe('game state items and progression', () => {
       id: 'enemy-flat-xp',
       name: 'Training Dummy',
       coord: target,
-      tier: 99,
+      tier: 5,
       hp: 1,
       maxHp: 1,
       attack: 0,
@@ -323,8 +324,38 @@ describe('game state items and progression', () => {
     const encountered = moveToTile(game, target);
     const resolved = startCombat(encountered);
 
-    expect(resolved.player.level).toBe(2);
     expect(resolved.player.xp).toBe(0);
+  });
+
+  it('awards a bonus when the defeated enemy tier is above the player tier', () => {
+    const game = createGame(3, 'enemy-tier-bonus-xp-seed');
+    const target = { q: 2, r: 0 };
+    game.player.level = 10;
+    game.tiles['2,0'] = {
+      coord: target,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: ['enemy-bonus-xp'],
+    };
+    game.enemies['enemy-bonus-xp'] = {
+      id: 'enemy-bonus-xp',
+      name: 'Training Dummy',
+      coord: target,
+      tier: 20,
+      hp: 1,
+      maxHp: 1,
+      attack: 0,
+      defense: 0,
+      xp: 1,
+      elite: false,
+    };
+    game.player.coord = { q: 1, r: 0 };
+
+    const encountered = moveToTile(game, target);
+    const resolved = startCombat(encountered);
+
+    expect(resolved.player.xp).toBe(40);
   });
 
   it('does not restore hp or mana on level up', () => {

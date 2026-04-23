@@ -112,6 +112,8 @@ const gameConfig = {
       townBuyPrice: {
         // Minimum gold price a town stock entry can cost after all scaling.
         minimum: 10,
+        // Extra town-only price multiplier added per item tier above level 1.
+        perTier: 0.1,
         rarityMultiplier: {
           // Buy-price multiplier for common town stock entries.
           common: 2,
@@ -139,6 +141,16 @@ const gameConfig = {
       masteryBaseRequirement: 25000000,
       // Percentage growth applied to each subsequent mastery XP requirement.
       masteryGrowthRate: 0.05,
+      levelDifference: {
+        // XP penalty applied for each enemy tier below the player tier.
+        penaltyPerLevelBelowPlayer: 0.2,
+        // Maximum number of lower enemy tiers that reduce XP rewards.
+        maxPenaltyLevels: 5,
+        // XP bonus applied for each enemy tier above the player tier.
+        bonusPerLevelAbovePlayer: 0.1,
+        // Maximum number of higher enemy tiers that increase XP rewards.
+        maxBonusLevels: 10,
+      },
     },
     gatheringBonus: {
       // Additional gathering bonus gained per skill level.
