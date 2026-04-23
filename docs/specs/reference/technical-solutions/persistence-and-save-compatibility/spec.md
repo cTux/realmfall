@@ -21,7 +21,8 @@ This spec covers browser save storage, direct hydration of the current save shap
 - Autosave uses a five-second debounce plus five-second interval-backed flush model.
 - The five-second interval flush remains active during continuous gameplay or UI churn, so repeated sub-five-second updates persist progress without requiring a quiet period first.
 - Debounce-triggered and interval-triggered autosave flushes hand off the actual snapshot build and storage write to an idle browser callback when that API exists, reducing save-path contention with active interaction.
-- Gameplay and UI persistence dirtiness are tracked separately so UI-only changes do not rebuild the gameplay snapshot on every autosave scheduling pass.
+- Gameplay and UI persistence dirtiness are tracked separately so UI-only autosave flushes build, serialize, and write only the UI save area.
+- The storage layer reuses the IndexedDB connection promise and passphrase-derived CryptoKey promise across save and load calls, resetting the IndexedDB cache when a version change closes the connection.
 - `useAppPersistence` keeps hydration and latest-save inputs in the hook while local `persistence/` helpers own segment assembly, serialization, dirty detection, and autosave scheduling, reducing change blast radius inside the main app persistence hook.
 - Autosave scheduling tracks the latest game and UI inputs separately and only builds the persisted snapshot when a flush or manual save is actually needed, avoiding repeated full snapshot cloning during intermediate state churn.
 - The app serializes persisted segments and skips redundant writes when nothing meaningful changed.

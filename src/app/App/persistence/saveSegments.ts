@@ -8,6 +8,8 @@ export type PersistedSaveSegments = {
   ui: NonNullable<PersistedData['ui']>;
 };
 
+export type PartialPersistedSaveSegments = Partial<PersistedSaveSegments>;
+
 export type SerializedSaveSegments = {
   game: string | null;
   ui: string | null;
@@ -17,6 +19,11 @@ export type DirtySaveSegments = {
   game: boolean;
   ui: boolean;
 };
+
+const ALL_SAVE_SEGMENTS = {
+  game: true,
+  ui: true,
+} satisfies DirtySaveSegments;
 
 export type LatestSaveInputs = {
   actionBarSlots: ActionBarSlots;
@@ -52,29 +59,45 @@ function buildPersistedUiSnapshot({
 }
 
 export function buildPersistedSnapshot(
-  segments: PersistedSaveSegments,
+  segments: PartialPersistedSaveSegments,
+  dirtySegments: DirtySaveSegments = ALL_SAVE_SEGMENTS,
 ): PersistedData {
-  return {
-    game: segments.game,
-    ui: segments.ui,
-  };
+  const snapshot: PersistedData = {};
+
+  if (dirtySegments.game && segments.game !== undefined) {
+    snapshot.game = segments.game;
+  }
+
+  if (dirtySegments.ui && segments.ui !== undefined) {
+    snapshot.ui = segments.ui;
+  }
+
+  return snapshot;
 }
 
 export function buildPersistedSegments(
   latestInputs: LatestSaveInputs,
-): PersistedSaveSegments {
-  return {
-    game: buildPersistedGameSnapshot({
+  dirtySegments: DirtySaveSegments = ALL_SAVE_SEGMENTS,
+): PartialPersistedSaveSegments {
+  const segments: PartialPersistedSaveSegments = {};
+
+  if (dirtySegments.game) {
+    segments.game = buildPersistedGameSnapshot({
       game: latestInputs.game,
       worldTimeMs: latestInputs.worldTimeMs,
-    }),
-    ui: buildPersistedUiSnapshot({
+    });
+  }
+
+  if (dirtySegments.ui) {
+    segments.ui = buildPersistedUiSnapshot({
       actionBarSlots: latestInputs.actionBarSlots,
       logFilters: latestInputs.logFilters,
       windowShown: latestInputs.windowShown,
       windows: latestInputs.windows,
-    }),
-  };
+    });
+  }
+
+  return segments;
 }
 
 function serializeSegment(
@@ -84,20 +107,22 @@ function serializeSegment(
 }
 
 export function serializeSegments(
-  segments: PersistedSaveSegments,
+  segments: PartialPersistedSaveSegments,
 ): SerializedSaveSegments {
   return {
-    game: serializeSegment(segments.game),
-    ui: serializeSegment(segments.ui),
+    game: segments.game === undefined ? null : serializeSegment(segments.game),
+    ui: segments.ui === undefined ? null : serializeSegment(segments.ui),
   };
 }
 
 export function getDirtySegments(
   serialized: SerializedSaveSegments,
   lastSavedSerialized: SerializedSaveSegments,
+  candidateSegments: DirtySaveSegments = ALL_SAVE_SEGMENTS,
 ): DirtySaveSegments {
   return {
-    game: serialized.game !== lastSavedSerialized.game,
-    ui: serialized.ui !== lastSavedSerialized.ui,
+    game:
+      candidateSegments.game && serialized.game !== lastSavedSerialized.game,
+    ui: candidateSegments.ui && serialized.ui !== lastSavedSerialized.ui,
   };
 }

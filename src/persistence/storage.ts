@@ -4,6 +4,8 @@ const STORAGE_DATABASE_NAME = 'realmfall';
 const STORAGE_DATABASE_VERSION = 1;
 const STORAGE_OBJECT_STORE_NAME = 'app-state';
 const PASSPHRASE = 'survival-rpg-local-save-v1';
+let storageDatabasePromise: Promise<IDBDatabase | null> | null = null;
+let storageKeyPromise: Promise<CryptoKey> | null = null;
 
 // This passphrase-derived wrapper only obscures local saves in client storage.
 // It is not a real security boundary because the key material ships with the app.
@@ -98,6 +100,15 @@ async function decryptJson<T>(payload: string) {
 }
 
 async function getKey() {
+  storageKeyPromise ??= deriveStorageKey().catch((error: unknown) => {
+    storageKeyPromise = null;
+    throw error;
+  });
+
+  return storageKeyPromise;
+}
+
+async function deriveStorageKey() {
   const passphrase = new TextEncoder().encode(PASSPHRASE);
   const digest = await crypto.subtle.digest('SHA-256', passphrase);
   return crypto.subtle.importKey('raw', digest, 'AES-GCM', false, [
@@ -176,6 +187,12 @@ async function openStorageDatabase() {
     return null;
   }
 
+  storageDatabasePromise ??= openIndexedDbStorageDatabase();
+
+  return storageDatabasePromise;
+}
+
+async function openIndexedDbStorageDatabase() {
   return new Promise<IDBDatabase | null>((resolve) => {
     const request = indexedDB.open(
       STORAGE_DATABASE_NAME,
@@ -192,13 +209,16 @@ async function openStorageDatabase() {
       const database = request.result;
       database.onversionchange = () => {
         database.close();
+        storageDatabasePromise = null;
       };
       resolve(database);
     };
     request.onerror = () => {
+      storageDatabasePromise = null;
       resolve(null);
     };
     request.onblocked = () => {
+      storageDatabasePromise = null;
       resolve(null);
     };
   });

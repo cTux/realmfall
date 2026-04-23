@@ -10,7 +10,9 @@
 - Prefer debounced or meaningfully-triggered autosave work over repeated full serialization and storage writes on every eligible change.
 - When autosave work is not user-blocking, prefer scheduling snapshot assembly and flush work through idle browser callbacks or equivalent deferred execution instead of competing directly with live interaction.
 - Track gameplay persistence dirtiness separately from UI layout, window-visibility, and filter persistence dirtiness when that keeps narrow UI-only changes from rebuilding full gameplay snapshots.
+- Build, serialize, and write only candidate-dirty save segments during autosave flushes so UI-only changes do not force avoidable gameplay snapshot work or gameplay-area rewrites.
 - If gameplay and UI persistence share one stored payload, keep their serialization, dirty detection, or snapshot assembly paths narrow enough that UI-only changes do not force avoidable gameplay snapshot rebuilds.
+- Cache reusable persistence setup such as the IndexedDB connection promise and passphrase-derived CryptoKey promise at module scope, and reset those caches only when the browser invalidates the connection or key derivation fails.
 - Keep `src/app/App/useAppPersistence.ts` focused on hydration and current-input wiring. Extract autosave scheduling, snapshot assembly, and similar single-purpose save helpers into local modules under `src/app/App/persistence/` instead of growing one broad persistence hook.
 - Keep graphics, audio, and world-map settings on one shared browser storage helper such as `src/app/settingsSectionStore.ts`, with module-specific normalization left in the owning settings file instead of repeating the same guarded load/save/clear sequence in every settings module.
 - Avoid rewriting identical save payloads when no persisted state meaningfully changed.

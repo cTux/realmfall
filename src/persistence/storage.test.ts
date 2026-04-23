@@ -36,6 +36,26 @@ describe('encrypted storage', () => {
     await expect(loadEncryptedState()).resolves.toEqual(payload);
   });
 
+  it('reuses the IndexedDB connection and derived key across saves', async () => {
+    const { indexedDB } = createIndexedDbMock();
+    const digestSpy = vi.spyOn(crypto.subtle, 'digest');
+    const importKeySpy = vi.spyOn(crypto.subtle, 'importKey');
+
+    vi.stubGlobal('indexedDB', indexedDB);
+
+    const { saveEncryptedState } = await import('./storage');
+
+    await saveEncryptedState({ game: { turn: 1 } });
+    await saveEncryptedState({ ui: { windowShown: { hero: true } } });
+
+    expect(indexedDB.open).toHaveBeenCalledTimes(1);
+    expect(digestSpy).toHaveBeenCalledTimes(1);
+    expect(importKeySpy).toHaveBeenCalledTimes(1);
+
+    digestSpy.mockRestore();
+    importKeySpy.mockRestore();
+  });
+
   it('migrates localStorage save areas into IndexedDB on first IndexedDB-backed load', async () => {
     const payload = {
       game: { turn: 12, player: { hp: 9 } },

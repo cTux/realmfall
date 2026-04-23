@@ -294,6 +294,34 @@ describe('useAppPersistence', () => {
     host.remove();
   });
 
+  it('persists only the changed UI segment for UI-only autosaves', async () => {
+    const game = createGame(2, 'use-app-persistence-ui-segment-seed');
+    loadEncryptedState.mockResolvedValue({ game, ui: {} });
+    saveEncryptedState.mockResolvedValue(undefined);
+
+    const { handle, host, root } = await renderPersistenceHarness();
+
+    await act(async () => {
+      handle.toggleHeroWindow();
+    });
+
+    await act(async () => {
+      await flushAutosaveTimers();
+    });
+
+    expect(saveEncryptedState).toHaveBeenCalledTimes(1);
+    expect(saveEncryptedState.mock.calls[0][0]).toEqual({
+      ui: expect.objectContaining({
+        windowShown: expect.objectContaining({ hero: true }),
+      }),
+    });
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
   it('keeps hydrating ui when the saved game slice is malformed', async () => {
     loadEncryptedState.mockResolvedValue({
       game: {

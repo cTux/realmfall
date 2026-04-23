@@ -255,14 +255,20 @@ export function useAppPersistence({
       lastSavedSerializedRef.current,
     );
 
+    if (!dirtySegmentsRef.current.game && !dirtySegmentsRef.current.ui) {
+      return;
+    }
+
+    const savedDirtySegments = { ...dirtySegmentsRef.current };
     const result = await enqueuePersistSnapshot({
       dirtySegmentsRef,
       latestInputsRef,
       lastSavedSerializedRef,
       saveInFlightRef,
       saveQueueRef,
+      savedDirtySegments,
       serialized,
-      snapshot: buildPersistedSnapshot(nextSegments),
+      snapshot: buildPersistedSnapshot(nextSegments, savedDirtySegments),
     });
 
     if (!result.succeeded) {

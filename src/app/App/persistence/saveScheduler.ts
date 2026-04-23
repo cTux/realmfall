@@ -56,6 +56,7 @@ export function enqueuePersistSnapshot({
   lastSavedSerializedRef,
   saveInFlightRef,
   saveQueueRef,
+  savedDirtySegments,
   serialized,
   snapshot,
 }: {
@@ -64,6 +65,7 @@ export function enqueuePersistSnapshot({
   lastSavedSerializedRef: MutableRefObject<SerializedSaveSegments>;
   saveInFlightRef: MutableRefObject<boolean>;
   saveQueueRef: MutableRefObject<Promise<void>>;
+  savedDirtySegments: DirtySaveSegments;
   serialized: SerializedSaveSegments;
   snapshot: PersistedData;
 }) {
@@ -72,15 +74,23 @@ export function enqueuePersistSnapshot({
 
     try {
       await saveEncryptedState(snapshot);
-      lastSavedSerializedRef.current = { ...serialized };
+      lastSavedSerializedRef.current = mergeSavedSerializedSegments(
+        lastSavedSerializedRef.current,
+        serialized,
+        savedDirtySegments,
+      );
 
       return { succeeded: true } satisfies PersistSnapshotResult;
     } catch (error) {
       return { error, succeeded: false } satisfies PersistSnapshotResult;
     } finally {
+      const pendingDirtySegments = { ...dirtySegmentsRef.current };
       dirtySegmentsRef.current = getDirtySegments(
-        serializeSegments(buildPersistedSegments(latestInputsRef.current)),
+        serializeSegments(
+          buildPersistedSegments(latestInputsRef.current, pendingDirtySegments),
+        ),
         lastSavedSerializedRef.current,
+        pendingDirtySegments,
       );
       saveInFlightRef.current = false;
     }
@@ -109,11 +119,16 @@ function flushPendingSave({
     return;
   }
 
-  const nextSegments = buildPersistedSegments(latestInputsRef.current);
+  const candidateDirtySegments = { ...dirtySegmentsRef.current };
+  const nextSegments = buildPersistedSegments(
+    latestInputsRef.current,
+    candidateDirtySegments,
+  );
   const nextSerialized = serializeSegments(nextSegments);
   const nextDirtySegments = getDirtySegments(
     nextSerialized,
     lastSavedSerializedRef.current,
+    candidateDirtySegments,
   );
   if (!nextDirtySegments.game && !nextDirtySegments.ui) {
     dirtySegmentsRef.current = nextDirtySegments;
@@ -126,8 +141,9 @@ function flushPendingSave({
     lastSavedSerializedRef,
     saveInFlightRef,
     saveQueueRef,
+    savedDirtySegments: nextDirtySegments,
     serialized: nextSerialized,
-    snapshot: buildPersistedSnapshot(nextSegments),
+    snapshot: buildPersistedSnapshot(nextSegments, nextDirtySegments),
   }).then((result) => {
     if (
       result.succeeded &&
@@ -142,6 +158,21 @@ function flushPendingSave({
       });
     }
   });
+}
+
+function mergeSavedSerializedSegments(
+  currentSerialized: SerializedSaveSegments,
+  nextSerialized: SerializedSaveSegments,
+  savedDirtySegments: DirtySaveSegments,
+): SerializedSaveSegments {
+  return {
+    game: savedDirtySegments.game
+      ? (nextSerialized.game ?? currentSerialized.game)
+      : currentSerialized.game,
+    ui: savedDirtySegments.ui
+      ? (nextSerialized.ui ?? currentSerialized.ui)
+      : currentSerialized.ui,
+  };
 }
 
 export function scheduleIdleSave({
