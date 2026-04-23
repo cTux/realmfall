@@ -25,6 +25,7 @@
 - Load i18n before importing `src/app/App` during bootstrap. The app import graph contains module-level localized constants, so importing `App` before translations are ready can freeze raw i18n keys into runtime state on a cold start.
 - When new user-facing text is required, add a new i18n key instead of hardcoding a fallback string in code.
 - Keep tooltip sentence assembly, tag labels, and similar UI helper copy in i18n-backed formatters instead of embedding English fragments in `src/ui/tooltips.ts` or similar helper modules.
+- Split tooltip builders by domain. Keep item, ability/status-effect, and entity/structure tooltip assembly in focused modules under `src/ui/tooltips/`, and keep `src/ui/tooltips.ts` as the public facade instead of rebuilding one large mixed-domain tooltip file.
 - Share enemy and structure tooltip content builders across window helpers and world-hover helpers instead of maintaining parallel tooltip assembly paths with matching gameplay data.
 - Use dot-separated i18n keys in the form `{feature}.{area}.{property}` and extend with deeper segments only when needed for clarity.
 - For label formatters that map stable identifiers such as status effects to i18n, prefer direct patterned key lookups over conditional `if` or `switch` chains when the key can be derived safely.
