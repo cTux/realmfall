@@ -6,7 +6,6 @@ This spec covers the top-level React hook composition and derived view-model pat
 
 ## Current Solution
 
-- Contributor-facing React UI structure, naming, Storybook, and window-composition policy is canonical in `docs/rules/30-react-ui.md`. This spec records the shipped orchestration shape.
 - The app splits controller concerns into focused hooks such as persistence, keyboard shortcuts, world view integration, combat automation, window transitions, and top-level controller actions.
 - This reduces pressure on the top-level app component and keeps domain logic testable.
 - Bootstrap refs and initial app state live in `useAppBootstrapState`, while the top-level keyboard shortcut wiring lives in `useAppShortcutBindings`, keeping `App.tsx` focused on composing the major app flows instead of rebuilding every initialization detail inline.
