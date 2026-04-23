@@ -10,6 +10,7 @@ This spec covers canonical type ids and gameplay tags for item configs, enemy co
 - Every configured item type uses its stable enum-backed `key` as the canonical item type id.
 - Item configs and runtime items no longer store a separate `kind`; item behavior is derived from canonical ids, equipment slots, and hydrated tags instead.
 - Item-specific tags, icon-pool hints, category overrides, and granted-ability pools are declared on the owning item config or generated-item family helper before registry assembly.
+- `src/game/content/items/index.ts` remains the public item-content facade while `itemCatalog.ts` assembles hydrated configs and `itemClassification.ts` plus `itemCategoryRules.ts` own shared category and tag inference rules.
 - Gathering structures keep canonical `rewardItemKey` values separate from localized reward labels so harvesting never derives item ids from display text.
 - Equippable items use the shared equipment-slot enum instead of raw slot strings in content definitions and generator paths.
 - Every configured enemy type defines a stable enum-backed `id` separate from its localized display name.

@@ -48,6 +48,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - Generated weapons and offhands now roll a deterministic granted combat ability that matches the item archetype, and equipped combatants surface those granted abilities in battle on top of the baseline `Kick`.
 - Crafted and fixed offhand gear such as bucklers, shields, magical spheres, and totems also roll a deterministic active ability from an archetype-appropriate pool.
 - Equippable item tooltips surface the granted combat ability directly so players can see the rolled skill before equipping the item.
+- Item content keeps `src/game/content/items/index.ts` as a thin public facade while `itemCatalog.ts` assembles hydrated configs, `itemBuilders.ts` owns configured and generated item construction, and `itemClassification.ts` plus `itemCategoryRules.ts` own category and tag inference.
 
 ## Main Implementation Areas
 
