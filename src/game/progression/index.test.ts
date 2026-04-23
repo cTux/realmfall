@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { BASE_ENEMY_XP, MAX_PLAYER_LEVEL } from './config';
-import { makeEnemy } from './combat';
+import { BASE_ENEMY_XP, MAX_PLAYER_LEVEL } from '../config';
+import { makeEnemy } from '../combat';
 import {
   gainXp,
   getPlayerOverview,
   levelThreshold,
   masteryLevelThreshold,
   resolveExperienceAward,
-} from './progression';
-import { createGame } from './state';
-import { addLog } from './logs';
+} from './index';
+import { addLog } from '../logs';
+import { createGame } from '../state';
 
 describe('progression', () => {
   it('uses the exponential ordinary level curve from level 1 to level 100', () => {

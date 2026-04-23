@@ -3,7 +3,7 @@ import {
   ABILITY_RUNTIME_DEFINITIONS,
   DEFAULT_ABILITY_ID,
   getAbilityDefinition,
-} from './abilityCatalog';
+} from './index';
 
 describe('ability runtime catalog', () => {
   it('keeps the canonical runtime definitions in the dedicated catalog', () => {
