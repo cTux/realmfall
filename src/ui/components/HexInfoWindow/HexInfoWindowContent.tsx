@@ -12,18 +12,9 @@ type HexInfoWindowContentProps = Omit<
 >;
 
 export function HexInfoWindowContent({
-  terrain,
-  structure,
-  enemyCount,
-  interactLabel,
-  canInteract,
-  canTerritoryAction,
   canBulkProspectEquipment,
   canBulkSellEquipment,
   itemModification,
-  bulkProspectEquipmentExplanation,
-  bulkSellEquipmentExplanation,
-  territoryNpc,
   onApplyItemModification = () => undefined,
   onClearItemModificationSelection = () => undefined,
   onSelectItemModificationReforgeStat = () => undefined,
@@ -32,8 +23,6 @@ export function HexInfoWindowContent({
   onSellAll,
   structureHp,
   structureMaxHp,
-  territoryName,
-  territoryOwnerType,
   townStock,
   gold,
   equipment = {},
@@ -73,42 +62,6 @@ export function HexInfoWindowContent({
             />
           ) : (
             <div className={styles.meta}>
-              <div className={styles.row}>
-                <span className={styles.label}>
-                  {t('ui.hexInfo.terrainLabel')}
-                </span>
-                <span className={styles.value}>{terrain}</span>
-              </div>
-              {structure ? (
-                <div className={styles.row}>
-                  <span className={styles.label}>
-                    {t('ui.hexInfo.structureLabel')}
-                  </span>
-                  <span className={styles.value}>{structure}</span>
-                </div>
-              ) : null}
-              {enemyCount > 0 ? (
-                <div className={styles.row}>
-                  <span className={styles.label}>
-                    {t('ui.hexInfo.enemiesLabel')}
-                  </span>
-                  <span className={styles.value}>{enemyCount}</span>
-                </div>
-              ) : null}
-              {territoryName ? (
-                <div className={styles.row}>
-                  <span className={styles.label}>
-                    {t('ui.hexInfo.territoryLabel')}
-                  </span>
-                  <span className={styles.value}>
-                    {territoryName}
-                    {territoryOwnerType === 'player'
-                      ? ` (${t('ui.hexInfo.playerTerritoryValue')})`
-                      : ''}
-                  </span>
-                </div>
-              ) : null}
-
               {structureHp != null && structureMaxHp != null ? (
                 <div className={styles.barBlock}>
                   <div className={styles.barLabel}>
@@ -154,16 +107,6 @@ export function HexInfoWindowContent({
                       {t('ui.hexInfo.sellAllAction')}
                     </button>
                   ) : null}
-                </div>
-              ) : null}
-              {bulkProspectEquipmentExplanation ? (
-                <div className={styles.empty}>
-                  {bulkProspectEquipmentExplanation}
-                </div>
-              ) : null}
-              {bulkSellEquipmentExplanation ? (
-                <div className={styles.empty}>
-                  {bulkSellEquipmentExplanation}
                 </div>
               ) : null}
               {itemModification ? (
@@ -296,22 +239,8 @@ export function HexInfoWindowContent({
                   ) : null}
                 </div>
               ) : null}
-              {territoryNpc ? (
-                <div className={styles.shop}>
-                  <div className={styles.shopTitle}>
-                    {t('ui.hexInfo.npcsTitle')}
-                  </div>
-                  <div className={styles.shopRow}>
-                    <span>{territoryNpc.name}</span>
-                  </div>
-                </div>
-              ) : null}
-
               {townStock.length > 0 ? (
                 <div className={styles.shop}>
-                  <div className={styles.shopTitle}>
-                    {t('ui.hexInfo.townStockTitle', { gold })}
-                  </div>
                   <div className={styles.shopGrid}>
                     {townStock.map(({ item, price }) => {
                       const affordable = gold >= price;
@@ -343,16 +272,6 @@ export function HexInfoWindowContent({
                     })}
                   </div>
                 </div>
-              ) : null}
-
-              {!canTerritoryAction &&
-              !(interactLabel && canInteract) &&
-              !canBulkProspectEquipment &&
-              !canBulkSellEquipment &&
-              !itemModification &&
-              townStock.length === 0 &&
-              !territoryName ? (
-                <div className={styles.empty}>{t('ui.hexInfo.empty')}</div>
               ) : null}
             </div>
           )}

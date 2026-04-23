@@ -303,11 +303,12 @@ describe('ui window markup', () => {
     expect(markup).toContain('H(o)me');
     expect(markup).toContain('(Q) Gather');
     expect(markup).toContain('Structure HP');
-    expect(markup).toContain('Town Stock');
     expect(markup).toContain('12');
     expect(markup).toContain('aria-label="Gold"');
     expect(markup).not.toContain('gp');
     expect(markup).not.toContain('Enemies0');
+    expect(markup).not.toContain('Forest');
+    expect(markup).not.toContain('Tree');
     expect(markup).toContain('aria-label="armor"');
     expect(markup).toContain('x12');
     expect(markup).toContain('Empty');
@@ -397,8 +398,8 @@ describe('ui window markup', () => {
       </>,
     );
 
-    expect(markup).toContain('Nothing in your pack can be prospected.');
-    expect(markup).toContain('No equippable items to sell.');
+    expect(markup).not.toContain('Nothing in your pack can be prospected.');
+    expect(markup).not.toContain('No equippable items to sell.');
     expect(markup).not.toContain('Tak(e) all');
     expect(markup).not.toContain('Loot on the ground');
     expect(markup).not.toContain('Sell all equippable');
