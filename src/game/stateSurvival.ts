@@ -1,4 +1,5 @@
 import { StatusEffectTypeId } from './content/ids';
+import { mitigateDamageByDefense } from './combatDamage';
 import { addLog } from './logs';
 import { getPlayerStats } from './progression';
 import { t } from '../i18n';
@@ -118,15 +119,18 @@ function processTickingPlayerEffect(
   tickCount: number,
 ) {
   if (tickCount <= 0) return false;
+  const playerStats = getPlayerStats(state.player);
 
   switch (effect.id) {
     case StatusEffectTypeId.Restoration: {
-      const stats = getPlayerStats(state.player);
       const restorationPercent = Math.max(1, effect.value ?? 1);
       state.player.hp = Math.min(
-        stats.maxHp,
+        playerStats.maxHp,
         state.player.hp +
-          Math.max(1, Math.floor(stats.maxHp * (restorationPercent / 100))) *
+          Math.max(
+            1,
+            Math.floor(playerStats.maxHp * (restorationPercent / 100)),
+          ) *
             tickCount,
       );
       state.player.mana = Math.min(
@@ -144,15 +148,19 @@ function processTickingPlayerEffect(
       state.player.hp = Math.max(
         0,
         state.player.hp -
-          Math.max(1, Math.floor(effect.value ?? 0)) * tickCount,
+          mitigateDamageByDefense(
+            Math.max(1, Math.floor(effect.value ?? 0)),
+            playerStats.defense,
+          ) *
+            tickCount,
       );
       return true;
     }
     case StatusEffectTypeId.Poison: {
       const poisonStacks = Math.max(1, effect.stacks ?? 1);
-      const poisonDamage = Math.max(
-        1,
-        Math.floor(getPlayerStats(state.player).maxHp * 0.01 * poisonStacks),
+      const poisonDamage = mitigateDamageByDefense(
+        Math.max(1, Math.floor(playerStats.maxHp * 0.01 * poisonStacks)),
+        playerStats.defense,
       );
       state.player.hp = Math.max(0, state.player.hp - poisonDamage * tickCount);
       return true;
@@ -162,7 +170,10 @@ function processTickingPlayerEffect(
       state.player.hp = Math.max(
         0,
         state.player.hp -
-          Math.max(1, Math.floor(effect.value ?? 0) * burningStacks) *
+          mitigateDamageByDefense(
+            Math.max(1, Math.floor(effect.value ?? 0) * burningStacks),
+            playerStats.defense,
+          ) *
             tickCount,
       );
       return true;

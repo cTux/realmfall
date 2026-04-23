@@ -138,7 +138,7 @@ describe('ui helper coverage', () => {
       'town',
     );
 
-    expect(uncommonPack?.title).toBe('Enemy Party');
+    expect(uncommonPack?.title).toBe('Wolf');
     expect(uncommonPack?.lines).toEqual([
       { kind: 'stat', label: 'Level', value: '3' },
       { kind: 'stat', label: 'Rarity', value: 'Rare' },

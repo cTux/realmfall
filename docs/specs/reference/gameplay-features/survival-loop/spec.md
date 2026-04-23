@@ -16,7 +16,7 @@ This spec covers hunger, thirst, death recovery, home behavior, and player statu
 - `recentDeath` reduces max HP.
 - `restoration` recovers HP and mana over time until it expires.
 - The player has a dedicated home hex state.
-- Setting home sanitizes the tile so it remains safe.
+- Setting home is allowed only on an empty hex, keeping the respawn point free of items, structures, and enemies.
 - Home scroll usage teleports the player to the home hex.
 - Nearby world rules prevent hostile or conflicting territory states from remaining on the home tile.
 

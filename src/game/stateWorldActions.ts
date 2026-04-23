@@ -48,6 +48,9 @@ export function setHomeHex(
   if (targetTile.claim && !isPlayerClaim(targetTile.claim)) {
     return message(state, t('game.message.home.blockedByTerritory'));
   }
+  if (!isHomeHexEmpty(targetTile)) {
+    return message(state, t('game.message.home.blockedByOccupied'));
+  }
 
   const next = cloneForHomeMutation(state);
   next.homeHex = { ...coord };
@@ -280,4 +283,12 @@ function sanitizeHomeTile(tile: GameState['tiles'][string]) {
     structureMaxHp: undefined,
     enemyIds: [],
   };
+}
+
+function isHomeHexEmpty(tile: ReturnType<typeof getTileAt>) {
+  return (
+    tile.items.length === 0 &&
+    tile.structure == null &&
+    tile.enemyIds.length === 0
+  );
 }

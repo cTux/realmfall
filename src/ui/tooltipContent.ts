@@ -47,7 +47,7 @@ export function buildEnemyTooltip<Line>(
     title:
       structure === 'dungeon'
         ? getStructureConfig('dungeon').title
-        : t('ui.combat.enemyPartyTitle'),
+        : (enemies[0]?.name ?? t('ui.combat.enemyPartyTitle')),
     lines: [
       lineFactory.stat(t('ui.tooltip.level'), `${maxTier}`),
       lineFactory.stat(

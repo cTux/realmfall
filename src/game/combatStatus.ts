@@ -1,4 +1,5 @@
 import { StatusEffectTypeId } from './content/ids';
+import { getEnemyCombatDefense, mitigateDamageByDefense } from './combatDamage';
 import { getPlayerStats } from './progression';
 import { resolveCombatProcCount } from './combatProcs';
 import type {
@@ -258,11 +259,20 @@ export function processEnemyStatusEffects(
         const stacks = Math.max(1, effect.stacks ?? 1);
         const damagePerTick =
           effect.id === StatusEffectTypeId.Poison
-            ? Math.max(1, Math.floor(enemy.maxHp * 0.01 * stacks))
+            ? mitigateDamageByDefense(
+                Math.max(1, Math.floor(enemy.maxHp * 0.01 * stacks)),
+                getEnemyCombatDefense(enemy),
+              )
             : effect.id === StatusEffectTypeId.Burning
-              ? Math.max(1, Math.floor(effect.value ?? 0) * stacks)
+              ? mitigateDamageByDefense(
+                  Math.max(1, Math.floor(effect.value ?? 0) * stacks),
+                  getEnemyCombatDefense(enemy),
+                )
               : effect.id === StatusEffectTypeId.Bleeding
-                ? Math.max(1, Math.floor(effect.value ?? 0))
+                ? mitigateDamageByDefense(
+                    Math.max(1, Math.floor(effect.value ?? 0)),
+                    getEnemyCombatDefense(enemy),
+                  )
                 : 0;
         const healPerTick =
           effect.id === StatusEffectTypeId.Restoration

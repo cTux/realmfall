@@ -234,6 +234,7 @@
   "game.message.harvestMoon.hexes.one": "Harvest moon abundance spreads nearby (1 gathering hex).",
   "game.message.harvestMoon.hexes.other": "Harvest moon abundance spreads nearby ({count} gathering hexes).",
   "game.message.home.scroll": "The {item} tears a safe path through the Fracture and returns you home.",
+  "game.message.home.blockedByOccupied": "You can set home only on an empty hex.",
   "game.message.home.blockedByTerritory": "You cannot set home on another player's territory.",
   "game.message.home.set": "You set home at {q}, {r}.",
   "game.message.item.cannotUse": "That item cannot be used.",
