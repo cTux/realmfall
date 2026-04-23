@@ -86,8 +86,9 @@ if (failures.length > 0) {
     console.warn(`- ${failure}`);
   }
   console.warn(
-    'Bundle budget overruns are reported but do not fail the build.',
+    'Bundle budget overruns are treated as build failures.',
   );
+  process.exit(1);
 } else {
   console.log('Bundle budget check passed.');
 }
