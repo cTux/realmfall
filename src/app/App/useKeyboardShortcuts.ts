@@ -94,6 +94,12 @@ export function useKeyboardShortcuts({
       return;
     }
 
+    if (lowerKey === 'e' && hexContentWindowShown && canBulkSellEquipment) {
+      event.preventDefault();
+      onSellAll();
+      return;
+    }
+
     if (lowerKey === 'e' && hexContentWindowShown && lootSnapshotLength > 0) {
       event.preventDefault();
       onTakeAllLoot();
@@ -121,12 +127,6 @@ export function useKeyboardShortcuts({
     if (lowerKey === 'q' && hexContentWindowShown && canBulkProspectEquipment) {
       event.preventDefault();
       onProspect();
-      return;
-    }
-
-    if (lowerKey === 'q' && hexContentWindowShown && canBulkSellEquipment) {
-      event.preventDefault();
-      onSellAll();
       return;
     }
 

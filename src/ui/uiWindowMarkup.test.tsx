@@ -133,7 +133,7 @@ describe('ui window markup', () => {
           canHealTerritoryNpc
           territoryNpcHealExplanation={null}
           canBulkProspectEquipment={false}
-          canBulkSellEquipment={false}
+          canBulkSellEquipment
           territoryActionExplanation={null}
           bulkProspectEquipmentExplanation={null}
           bulkSellEquipmentExplanation={null}
@@ -313,6 +313,7 @@ describe('ui window markup', () => {
     expect(markup).toContain('x12');
     expect(markup).toContain('Empty');
     expect(markup).toContain('Tak(e) all');
+    expect(markup).toContain('S(e)ll all');
     expect(markup).toContain('Filters');
     expect(markup).toContain('Epic');
     expect(markup).toContain('Player Lv 10');

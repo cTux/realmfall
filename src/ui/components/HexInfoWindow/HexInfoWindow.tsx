@@ -136,6 +136,9 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   const territoryNpcHealTooltipLines = getTerritoryNpcHealTooltipLines(
     territoryNpcHealExplanation,
   );
+  const sellAllTooltipLines = getSellAllTooltipLines(
+    bulkSellEquipmentExplanation,
+  );
   const territoryActionTooltipBorderColor =
     territoryActionKind === 'unclaim'
       ? 'rgba(248, 113, 113, 0.9)'
@@ -169,6 +172,19 @@ export const HexInfoWindow = memo(function HexInfoWindow({
               onLeaveDetail={onLeaveDetail}
             >
               {t('ui.hexInfo.healAction')}
+            </WindowHeaderActionButton>
+          ) : null}
+          {canBulkSellEquipment ? (
+            <WindowHeaderActionButton
+              className={inventoryStyles.headerButton}
+              onClick={onSellAll}
+              tooltipTitle={t('ui.hexInfo.sellAllAction')}
+              tooltipLines={sellAllTooltipLines}
+              tooltipBorderColor="rgba(248, 250, 252, 0.9)"
+              onHoverDetail={onHoverDetail}
+              onLeaveDetail={onLeaveDetail}
+            >
+              {t('ui.hexInfo.sellAllAction')}
             </WindowHeaderActionButton>
           ) : null}
           <WindowHeaderActionButton
@@ -287,6 +303,18 @@ function getTerritoryActionTooltipLines({
 function getTerritoryNpcHealTooltipLines(reason?: string | null) {
   const lines: TooltipLine[] = [
     { kind: 'text', text: t('ui.tooltip.window.healAtFactionNpc') },
+  ];
+
+  if (reason) {
+    lines.push({ kind: 'text', text: reason });
+  }
+
+  return lines;
+}
+
+function getSellAllTooltipLines(reason?: string | null) {
+  const lines: TooltipLine[] = [
+    { kind: 'text', text: t('ui.tooltip.window.sellAll') },
   ];
 
   if (reason) {

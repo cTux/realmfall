@@ -13,14 +13,12 @@ type HexInfoWindowContentProps = Omit<
 
 export function HexInfoWindowContent({
   canBulkProspectEquipment,
-  canBulkSellEquipment,
   itemModification,
   onApplyItemModification = () => undefined,
   onClearItemModificationSelection = () => undefined,
   onSelectItemModificationReforgeStat = () => undefined,
   onToggleItemModificationPicker = () => undefined,
   onProspect,
-  onSellAll,
   structureHp,
   structureMaxHp,
   townStock,
@@ -95,18 +93,11 @@ export function HexInfoWindowContent({
                 </div>
               ) : null}
 
-              {canBulkProspectEquipment || canBulkSellEquipment ? (
+              {canBulkProspectEquipment ? (
                 <div className={styles.actions}>
-                  {canBulkProspectEquipment ? (
-                    <button onClick={onProspect}>
-                      {t('ui.hexInfo.prospectAction')}
-                    </button>
-                  ) : null}
-                  {canBulkSellEquipment ? (
-                    <button onClick={onSellAll}>
-                      {t('ui.hexInfo.sellAllAction')}
-                    </button>
-                  ) : null}
+                  <button onClick={onProspect}>
+                    {t('ui.hexInfo.prospectAction')}
+                  </button>
                 </div>
               ) : null}
               {itemModification ? (

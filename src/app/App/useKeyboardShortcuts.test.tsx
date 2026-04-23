@@ -353,7 +353,7 @@ describe('useKeyboardShortcuts', () => {
     expect(onProspect).toHaveBeenCalledTimes(1);
   });
 
-  it('triggers bulk sell on Q when the town action is available', async () => {
+  it('triggers bulk sell on E when the town action is available', async () => {
     const onSellAll = vi.fn();
 
     function TestHarness() {
@@ -393,7 +393,7 @@ describe('useKeyboardShortcuts', () => {
 
     await act(async () => {
       window.dispatchEvent(
-        new KeyboardEvent('keydown', { bubbles: true, key: 'q' }),
+        new KeyboardEvent('keydown', { bubbles: true, key: 'e' }),
       );
     });
 
@@ -494,5 +494,54 @@ describe('useKeyboardShortcuts', () => {
 
     expect(onHealTerritoryNpc).toHaveBeenCalledTimes(1);
     expect(onSellAll).not.toHaveBeenCalled();
+  });
+
+  it('prioritizes bulk sell over take-all on E when both are available', async () => {
+    const onSellAll = vi.fn();
+    const onTakeAllLoot = vi.fn();
+
+    function TestHarness() {
+      useKeyboardShortcuts({
+        canBulkProspectEquipment: false,
+        canBulkSellEquipment: true,
+        canHealTerritoryNpc: false,
+        canSetHomeAction: false,
+        canTerritoryAction: false,
+        combatDeathAvailable: false,
+        combatStartAvailable: false,
+        hexContentWindowShown: true,
+        interactLabel: null,
+        lootSnapshotLength: 2,
+        onForfeitCombat: vi.fn(),
+        onStartCombat: vi.fn(),
+        onInteract: vi.fn(),
+        onHealTerritoryNpc: vi.fn(),
+        onSetHome: vi.fn(),
+        onTerritoryAction: vi.fn(),
+        onTakeAllLoot,
+        onCloseAllWindows: vi.fn(),
+        onProspect: vi.fn(),
+        onSellAll,
+        onTogglePause: vi.fn(),
+        onToggleDockWindow: vi.fn(),
+        onUseActionBarSlot: vi.fn(),
+        windowShown: buildWindowShown(true),
+      });
+
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<TestHarness />);
+    });
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'e' }),
+      );
+    });
+
+    expect(onSellAll).toHaveBeenCalledTimes(1);
+    expect(onTakeAllLoot).not.toHaveBeenCalled();
   });
 });
