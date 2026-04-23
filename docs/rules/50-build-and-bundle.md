@@ -9,6 +9,7 @@
 - Treat bundle growth as a real performance cost, especially on the initial app path and in Pixi-heavy features.
 - Document small bundle-size expectations in contributor-facing guidance so chunk regressions are easier to spot before they become large enough to require emergency refactors.
 - Keep the automated startup chunk budget check aligned with the current envelope. `pnpm build:budget` should report the live startup bootstrap graph, including the main entry, bootstrap-loaded app chunks, locale payloads, and core vendor chunks used before the first interactive render, and warn when the build exceeds the tracked envelope.
+- Keep strict startup budget enforcement available for validation gates. `pnpm build:budget` remains warning-only for local diagnosis, while `pnpm build:budget:strict`, `--strict`, or `REALMFALL_BUNDLE_BUDGET_STRICT=1` should fail when tracked budgets are exceeded.
 - Keep one-off bundle audits, such as duplicate-dependency detection, behind explicit commands instead of paying their plugin cost on every production build.
 - Keep visual bundle treemap audits behind explicit commands such as `pnpm build:visualize` instead of enabling the visualizer plugin on every production build.
 - Keep `vite.config.ts` focused on top-level assembly. Move chunk routing, plugin wiring, local HTTPS certificate setup, and Vitest project definitions into neighboring `vite/*` helpers instead of regrowing one multi-responsibility config module.

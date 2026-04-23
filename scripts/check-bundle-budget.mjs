@@ -5,12 +5,15 @@ import {
   STARTUP_TOTAL_BUDGET,
   findEntryKey,
   formatKiB,
+  getBundleBudgetExitCode,
   getBuiltChunks,
   getChunkBudgetTarget,
   getStartupChunkFiles,
+  isStrictBundleBudgetMode,
   loadManifest,
 } from './check-bundle-budget.helpers.mjs';
 
+const strictMode = isStrictBundleBudgetMode();
 const chunks = getBuiltChunks();
 const manifest = loadManifest();
 const failures = [];
@@ -85,9 +88,15 @@ if (failures.length > 0) {
   for (const failure of failures) {
     console.warn(`- ${failure}`);
   }
-  console.warn(
-    'Bundle budget overruns are reported but do not fail the build.',
-  );
+  if (strictMode) {
+    console.warn('Bundle budget overruns fail the build in strict mode.');
+  } else {
+    console.warn(
+      'Bundle budget overruns are reported but do not fail the build.',
+    );
+  }
 } else {
   console.log('Bundle budget check passed.');
 }
+
+process.exitCode = getBundleBudgetExitCode(failures, strictMode);

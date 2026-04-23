@@ -37,6 +37,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 - Run `pnpm format` after wider refactors or repository-wide cleanup so formatting drift is fixed before it spreads across unrelated commits.
 - Use `pnpm test:memory:leaks` when a change could affect client-side route cleanup, event-listener teardown, or long-lived browser objects; the command starts the HTTPS dev server at `https://localhost:5173`, runs the dock-window toggle `fuite` scenario, and records the latest JSON report under `.tests/memory-leaks/latest.json`.
 - Run `pnpm build:budget` when startup chunks or lazy-loading strategy change. The command reports the tracked envelope and warns on overruns without failing the build.
+- Run `pnpm build:budget:strict` or `REALMFALL_BUNDLE_BUDGET_STRICT=1 node scripts/check-bundle-budget.mjs` when a budget overrun must fail local or CI validation.
 - Run `pnpm build:duplicate-deps` only when auditing dependency duplication. The duplicate-deps plugin is intentionally kept off the normal build path so routine builds stay focused on budget and correctness signals.
 - Run `pnpm build:visualize` when you need an interactive bundle treemap audit. The command writes `.tests/bundle/visualizer.html` and keeps the visualizer plugin off the normal build path.
 - When performance-sensitive behavior changes, record how rerender breadth, redraw breadth, hover hot paths, or startup chunk impact were verified.
