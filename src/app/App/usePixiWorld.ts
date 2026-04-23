@@ -65,9 +65,12 @@ export function usePixiWorld({
   const worldTooltipKeyRef = useRef<string | null>(null);
   const playerCoordRef = useRef(game.player.coord);
   const visibleTilesRef = useRef(getVisibleTiles(game));
-  const hoverPointerRef = useRef<{ clientX: number; clientY: number } | null>(
-    null,
-  );
+  const hoverPointerRef = useRef<{
+    clientX: number;
+    clientY: number;
+    sceneX: number;
+    sceneY: number;
+  } | null>(null);
   const dragStateRef = useRef<WorldMapDragState | null>(null);
   const worldMapCameraRef = useRef(DEFAULT_WORLD_MAP_CAMERA);
   const pausedRef = useRef(paused);
@@ -247,7 +250,6 @@ export function usePixiWorld({
         });
         const getScenePoint = cameraModule.createWorldScenePointMapper({
           app,
-          canvas,
           worldMapCameraRef,
         });
         const renderFrame = renderLoopModule.createWorldRenderFrame({

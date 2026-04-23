@@ -24,6 +24,24 @@ type EnemyWorldTooltip =
   typeof import('../../../ui/world/worldTooltips').enemyWorldTooltip;
 type StructureWorldTooltip =
   typeof import('../../../ui/world/worldTooltips').structureWorldTooltip;
+type PointerPosition = {
+  clientX: number;
+  clientY: number;
+  sceneX: number;
+  sceneY: number;
+};
+
+const toCanvasScenePosition = (event: {
+  clientX: number;
+  clientY: number;
+  offsetX?: number;
+  offsetY?: number;
+}): PointerPosition => ({
+  clientX: event.clientX,
+  clientY: event.clientY,
+  sceneX: typeof event.offsetX === 'number' ? event.offsetX : event.clientX,
+  sceneY: typeof event.offsetY === 'number' ? event.offsetY : event.clientY,
+});
 
 export function attachPixiWorldInteractions({
   app,
@@ -64,6 +82,8 @@ export function attachPixiWorldInteractions({
   hoverPointerRef: MutableRefObject<{
     clientX: number;
     clientY: number;
+    sceneX: number;
+    sceneY: number;
   } | null>;
   hoverSnapshotRef: MutableRefObject<WorldHoverSnapshot>;
   hoveredMoveRef: MutableRefObject<HexCoord | null>;
@@ -115,7 +135,6 @@ export function attachPixiWorldInteractions({
 
   const onWheel = createWorldMapWheelHandler({
     app,
-    canvas,
     getWorldMapContainer,
     scheduleCameraSave,
     worldMapCameraRef,
@@ -131,6 +150,7 @@ export function attachPixiWorldInteractions({
   };
 
   const onPointerUp = (event: PointerEvent) => {
+    const pointerPosition = toCanvasScenePosition(event);
     const dragState = finishWorldMapDrag({
       canvas,
       dragStateRef,
@@ -144,7 +164,7 @@ export function attachPixiWorldInteractions({
       return;
     }
 
-    handlePointerClick(event.clientX, event.clientY);
+    handlePointerClick(pointerPosition.sceneX, pointerPosition.sceneY);
   };
 
   const onPointerCancel = (event: PointerEvent) => {
@@ -156,6 +176,7 @@ export function attachPixiWorldInteractions({
   };
 
   const onPointerMove = (event: PointerEvent) => {
+    const pointerPosition = toCanvasScenePosition(event);
     if (
       handleWorldMapDragMove({
         app,
@@ -171,7 +192,7 @@ export function attachPixiWorldInteractions({
       return;
     }
 
-    hoverInteractions.queuePointerMove(event);
+    hoverInteractions.queuePointerMove(pointerPosition);
   };
 
   const onPointerLeave = () => {

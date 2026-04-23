@@ -31,12 +31,12 @@ export function createWorldClickHandler({
   setGame: Dispatch<SetStateAction<GameState>>;
   worldTimeMsRef: MutableRefObject<number>;
 }) {
-  return (clientX: number, clientY: number) => {
+  return (sceneX: number, sceneY: number) => {
     if (pausedRef.current) {
       return;
     }
 
-    const scenePoint = getScenePoint(clientX, clientY);
+    const scenePoint = getScenePoint(sceneX, sceneY);
     const hexSize = getWorldHexSize(app.screen, gameRef.current.radius);
     const clickedOffset = hexAtPoint(scenePoint.x, scenePoint.y, {
       centerX: app.screen.width / 2,

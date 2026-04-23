@@ -24,6 +24,12 @@ type EnemyWorldTooltip =
   typeof import('../../../ui/world/worldTooltips').enemyWorldTooltip;
 type StructureWorldTooltip =
   typeof import('../../../ui/world/worldTooltips').structureWorldTooltip;
+type PointerPosition = {
+  clientX: number;
+  clientY: number;
+  sceneX: number;
+  sceneY: number;
+};
 
 export function createWorldHoverInteractions({
   app,
@@ -54,6 +60,8 @@ export function createWorldHoverInteractions({
   hoverPointerRef: MutableRefObject<{
     clientX: number;
     clientY: number;
+    sceneX: number;
+    sceneY: number;
   } | null>;
   hoverSnapshotRef: MutableRefObject<WorldHoverSnapshot>;
   hoveredMoveRef: MutableRefObject<HexCoord | null>;
@@ -114,8 +122,13 @@ export function createWorldHoverInteractions({
     setTooltip(null);
   };
 
-  const processPointerMove = (clientX: number, clientY: number) => {
-    const scenePoint = getScenePoint(clientX, clientY);
+  const processPointerMove = (
+    sceneX: number,
+    sceneY: number,
+    clientX: number,
+    clientY: number,
+  ) => {
+    const scenePoint = getScenePoint(sceneX, sceneY);
     const hexSize = getWorldHexSize(app.screen, gameRef.current.radius);
     const hoveredOffset = hexAtPoint(scenePoint.x, scenePoint.y, {
       centerX: app.screen.width / 2,
@@ -252,12 +265,12 @@ export function createWorldHoverInteractions({
     });
   };
 
-  const queuePointerMove = (
-    event: Pick<PointerEvent, 'clientX' | 'clientY'>,
-  ) => {
+  const queuePointerMove = (event: PointerPosition) => {
     hoverPointerRef.current = {
       clientX: event.clientX,
       clientY: event.clientY,
+      sceneX: event.sceneX,
+      sceneY: event.sceneY,
     };
     if (hoverFrameRef.current !== null) {
       return;
@@ -270,7 +283,12 @@ export function createWorldHoverInteractions({
         return;
       }
 
-      processPointerMove(hoverPointer.clientX, hoverPointer.clientY);
+      processPointerMove(
+        hoverPointer.sceneX,
+        hoverPointer.sceneY,
+        hoverPointer.clientX,
+        hoverPointer.clientY,
+      );
     });
   };
 

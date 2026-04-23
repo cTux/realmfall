@@ -18,8 +18,8 @@ import {
 } from '../../worldMapSettings';
 
 export type WorldScenePointMapper = (
-  clientX: number,
-  clientY: number,
+  x: number,
+  y: number,
 ) => { x: number; y: number };
 
 export function loadSavedWorldMapCamera(
@@ -62,11 +62,9 @@ export function createWorldResizeHandler({
 
 export function createWorldScenePointMapper({
   app,
-  canvas,
   worldMapCameraRef,
 }: {
   app: Application;
-  canvas: HTMLCanvasElement;
   worldMapCameraRef: MutableRefObject<WorldMapCameraState>;
 }): WorldScenePointMapper {
   const getSourcePoint = (displayPoint: { x: number; y: number }) =>
@@ -75,11 +73,10 @@ export function createWorldScenePointMapper({
       y: app.screen.height / 2,
     });
 
-  return (clientX: number, clientY: number) => {
-    const rect = canvas.getBoundingClientRect();
+  return (x: number, y: number) => {
     const sourcePoint = getSourcePoint({
-      x: clientX - rect.left,
-      y: clientY - rect.top,
+      x,
+      y,
     });
 
     return mapWorldMapScreenPointToScenePoint(

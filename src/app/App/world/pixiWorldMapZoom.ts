@@ -16,13 +16,11 @@ export function shouldIgnoreWorldMapWheelGesture(
 
 export function createWorldMapWheelHandler({
   app,
-  canvas,
   getWorldMapContainer,
   scheduleCameraSave,
   worldMapCameraRef,
 }: {
   app: Application;
-  canvas: HTMLCanvasElement;
   getWorldMapContainer: () => Container;
   scheduleCameraSave: () => void;
   worldMapCameraRef: MutableRefObject<WorldMapCameraState>;
@@ -33,13 +31,16 @@ export function createWorldMapWheelHandler({
     }
 
     event.preventDefault();
-    const rect = canvas.getBoundingClientRect();
+    const point = {
+      x: typeof event.offsetX === 'number' ? event.offsetX : event.clientX,
+      y: typeof event.offsetY === 'number' ? event.offsetY : event.clientY,
+    };
     const nextCamera = zoomWorldMapCameraAtPoint(
       worldMapCameraRef.current,
       worldMapCameraRef.current.zoom * (event.deltaY < 0 ? 1.1 : 1 / 1.1),
       {
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top,
+        x: point.x,
+        y: point.y,
       },
       app.screen,
     );
