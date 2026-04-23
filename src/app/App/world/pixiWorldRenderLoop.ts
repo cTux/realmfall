@@ -3,7 +3,6 @@ import type { Application } from 'pixi.js';
 import { getVisibleTiles } from '../../../game/stateSelectors';
 import type { GameState, HexCoord } from '../../../game/stateTypes';
 import { getWorldTimeMinutesFromTimestamp } from '../../../game/worldTime';
-import { getWorldIconTextureVersion } from '../../../ui/world/worldIcons';
 import type { SceneCache } from '../../../ui/world/renderSceneCache';
 import { getSceneRenderTokens } from '../../../ui/world/renderSceneTokens';
 import { sameCoord } from '../usePixiWorldHover';
@@ -19,7 +18,6 @@ export interface WorldRenderSnapshot {
   invalidationToken: number;
   staticRenderToken: number | null;
   interactionRenderToken: number | null;
-  iconTextureVersion: number;
   screenWidth: number;
   screenHeight: number;
   showTerrainBackgrounds: boolean;
@@ -47,7 +45,6 @@ export function createWorldRenderSnapshot(): WorldRenderSnapshot {
     invalidationToken: 0,
     staticRenderToken: null,
     interactionRenderToken: null,
-    iconTextureVersion: getWorldIconTextureVersion(),
     screenWidth: -1,
     screenHeight: -1,
     showTerrainBackgrounds: true,
@@ -117,13 +114,14 @@ export function createWorldRenderFrame({
     const animationBucket = Math.floor(animationMs / WORLD_ANIMATION_FRAME_MS);
     const lastRenderSnapshot = lastRenderSnapshotRef.current;
     const invalidationToken = renderInvalidationRef.current;
-    const iconTextureVersion = getWorldIconTextureVersion();
     const showTerrainBackgrounds = showTerrainBackgroundsRef.current;
     const renderTokens = getSceneRenderTokens(
       renderTokenCache,
       currentGame,
       currentVisibleTiles,
     );
+    const iconTextureVersion =
+      renderTokenCache.derivedRenderIconTextureVersion ?? 0;
     const staticRenderToken = renderTokens.static;
     const interactionRenderToken = renderTokens.interactionWithSelection(
       currentSelected,
@@ -139,7 +137,8 @@ export function createWorldRenderFrame({
       lastRenderSnapshot.invalidationToken === invalidationToken &&
       lastRenderSnapshot.staticRenderToken === staticRenderToken &&
       lastRenderSnapshot.interactionRenderToken === interactionRenderToken &&
-      lastRenderSnapshot.iconTextureVersion === iconTextureVersion &&
+      lastRenderSnapshot.derivedRenderIconTextureVersion ===
+        iconTextureVersion &&
       lastRenderSnapshot.screenWidth === screenWidth &&
       lastRenderSnapshot.screenHeight === screenHeight &&
       lastRenderSnapshot.showTerrainBackgrounds === showTerrainBackgrounds &&
@@ -159,7 +158,6 @@ export function createWorldRenderFrame({
       invalidationToken,
       staticRenderToken,
       interactionRenderToken,
-      iconTextureVersion,
       screenWidth,
       screenHeight,
       showTerrainBackgrounds,
@@ -168,8 +166,7 @@ export function createWorldRenderFrame({
       derivedRenderEnemiesSource: renderTokenCache.derivedRenderEnemiesSource,
       derivedRenderVisibleEnemyToken:
         renderTokenCache.derivedRenderVisibleEnemyToken,
-      derivedRenderPlayerCoordKey:
-        renderTokenCache.derivedRenderPlayerCoordKey,
+      derivedRenderPlayerCoordKey: renderTokenCache.derivedRenderPlayerCoordKey,
       derivedRenderHomeHexKey: renderTokenCache.derivedRenderHomeHexKey,
       derivedRenderBloodMoonActive:
         renderTokenCache.derivedRenderBloodMoonActive,

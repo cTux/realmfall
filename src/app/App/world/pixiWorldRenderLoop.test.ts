@@ -23,6 +23,29 @@ import {
 } from './pixiWorldRenderLoop';
 
 describe('pixiWorldRenderLoop', () => {
+  const createGameState = () => ({
+    bloodMoonActive: false,
+    combat: null,
+    dayPhase: 'night' as const,
+    enemies: {},
+    harvestMoonActive: false,
+    harvestMoonCheckedTonight: false,
+    harvestMoonCycle: 0,
+    bloodMoonCheckedTonight: false,
+    bloodMoonCycle: 0,
+    gameOver: false,
+    homeHex: { q: 0, r: 0 },
+    lastEarthshakeDay: 0,
+    logSequence: 0,
+    logs: [],
+    player: { coord: { q: 0, r: 0 } },
+    radius: 1,
+    seed: 'test-seed',
+    turn: 0,
+    tiles: {},
+    worldTimeMs: 0,
+  });
+
   const createRenderTokenCache = () => ({
     derivedRenderVisibleTilesSource: null,
     derivedRenderEnemiesSource: null,
@@ -38,24 +61,20 @@ describe('pixiWorldRenderLoop', () => {
   it('re-renders when world icon textures finish loading after the first frame', () => {
     const performanceNowSpy = vi.spyOn(performance, 'now').mockReturnValue(0);
     const renderScene = vi.fn();
-    const game = {
-      bloodMoonActive: false,
-      homeHex: { q: 0, r: 0 },
-      player: { coord: { q: 0, r: 0 } },
-      enemies: {},
-    };
+    const game = createGameState();
     const visibleTiles = [
       {
         coord: { q: 0, r: 0 },
         terrain: 'plains',
         enemyIds: [],
+        items: [],
       },
     ];
     const selected = { q: 0, r: 0 };
     const hoveredMove = null;
     const hoveredSafePath = null;
     const renderFrame = createWorldRenderFrame({
-      app: {} as never,
+      app: { screen: { width: 800, height: 600 } } as never,
       renderScene,
       gameRef: { current: game } as never,
       visibleTilesRef: { current: visibleTiles } as never,
@@ -87,23 +106,19 @@ describe('pixiWorldRenderLoop', () => {
   it('re-renders when terrain backgrounds are toggled', () => {
     const performanceNowSpy = vi.spyOn(performance, 'now').mockReturnValue(0);
     const renderScene = vi.fn();
-    const game = {
-      bloodMoonActive: false,
-      homeHex: { q: 0, r: 0 },
-      player: { coord: { q: 0, r: 0 } },
-      enemies: {},
-    };
+    const game = createGameState();
     const visibleTiles = [
       {
         coord: { q: 0, r: 0 },
         terrain: 'plains',
         enemyIds: [],
+        items: [],
       },
     ];
     const selected = { q: 0, r: 0 };
     const showTerrainBackgroundsRef = { current: true };
     const renderFrame = createWorldRenderFrame({
-      app: {} as never,
+      app: { screen: { width: 800, height: 600 } } as never,
       renderScene,
       gameRef: { current: game } as never,
       visibleTilesRef: { current: visibleTiles } as never,

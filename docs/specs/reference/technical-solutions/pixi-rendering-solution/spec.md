@@ -8,6 +8,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 
 - Pixi owns the main world redraw loop through the ticker started in `usePixiWorld`.
 - Pointer-to-scene mapping in hover, click, and zoom handlers now uses canvas-local coordinates from the incoming pointer/wheel event when available, avoiding layout-bound `getBoundingClientRect` reads in high-frequency move paths.
+- Render-loop invalidation now reads icon texture version from `renderTokenCache.derivedRenderIconTextureVersion` instead of calling `worldIcons` directly, keeping frame gating aligned with cache-owned scene inputs.
 - Idle world frames now coalesce inside a lower animation cadence bucket, so unchanged state does not rerun the full world render path on every Pixi ticker tick.
 - React updates feed the renderer through refs and invalidation-sensitive cached inputs rather than by layering a second immediate render effect path.
 - The renderer separates static, interaction, and animated work.
