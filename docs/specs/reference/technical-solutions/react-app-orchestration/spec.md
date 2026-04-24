@@ -50,6 +50,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `useItemTooltipController` owns inventory and action-bar hover tooltip orchestration, so tooltip caching, learned-recipe detection, and lazy tooltip-module loading stay together in one local hook instead of expanding the broader controller layer.
 - `useGameActionHandlers` separates inventory-slot activation from explicit equip and use actions so handler names match the behavior they trigger and context-menu equip actions stay equip-only.
 - `useAppWorldClock` keeps the top-level world-time sync callbacks next to the shared clock hook, so `App.tsx` does not rebuild the blood-moon and status-effect tick wiring inline.
+- Ordinary live clock ticks update the world-clock ref and external clock store without cloning top-level `GameState`; `GameState.worldTimeMs` updates only when status effects, world events, or explicit gameplay transitions require a gameplay mutation.
 - `useCombatAttentionWindow` owns the auto-open hex-content behavior that reacts to combat entry on movement, so `App.tsx` does not keep lifecycle refs and transition bookkeeping for that single window rule.
 - `useAppSettingsActions` keeps save-reset, settings persistence, and home-hex shell actions in one local hook instead of mixing those imperative flows into the main app component body.
 - `useAppRuntime` groups those orchestration hooks into one local composition layer so the entry component no longer needs one large destructuring block for controllers, derived views, transitions, and shell props.

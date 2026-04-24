@@ -35,10 +35,7 @@ export function useAppWorldClock({
   const handleWorldMinuteChange = useCallback(
     (worldTimeMinutes: number) => {
       setGame((current) =>
-        syncBloodMoon(
-          { ...current, worldTimeMs: worldTimeMsRef.current },
-          worldTimeMinutes,
-        ),
+        syncBloodMoon(current, worldTimeMinutes, worldTimeMsRef.current),
       );
     },
     [setGame, worldTimeMsRef],

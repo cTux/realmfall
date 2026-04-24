@@ -34,6 +34,7 @@ interface PersistenceHarnessHandle {
   getHeroWindowPosition: () => WindowPositions['hero'];
   getHeroWindowVisible: () => boolean;
   persistNow: () => Promise<void>;
+  setLiveWorldTimeMs: (worldTimeMs: number) => void;
   toggleHeroWindow: () => void;
   setHeroWindowVisible: (visible: boolean) => void;
 }
@@ -100,6 +101,12 @@ const PersistenceHarness = forwardRef<PersistenceHarnessHandle>(
       getHeroWindowPosition: () => windows.hero,
       getHeroWindowVisible: () => windowShown.hero,
       persistNow,
+      setLiveWorldTimeMs: (nextWorldTimeMs: number) => {
+        worldTimeMsRef.current = nextWorldTimeMs;
+        lastDisplayedWorldSecondRef.current = Math.floor(
+          nextWorldTimeMs / 1000,
+        );
+      },
       toggleHeroWindow: () =>
         setWindowShown((current) => ({ ...current, hero: !current.hero })),
       setHeroWindowVisible: (visible: boolean) =>
@@ -313,6 +320,31 @@ describe('useAppPersistence', () => {
     expect(saveEncryptedState.mock.calls[0][0]).toEqual({
       ui: expect.objectContaining({
         windowShown: expect.objectContaining({ hero: true }),
+      }),
+    });
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('persists live world time from the clock ref on the autosave interval', async () => {
+    const game = createGame(2, 'use-app-persistence-world-time-ref-seed');
+    loadEncryptedState.mockResolvedValue({ game, ui: {} });
+    saveEncryptedState.mockResolvedValue(undefined);
+
+    const { handle, host, root } = await renderPersistenceHarness();
+
+    await act(async () => {
+      handle.setLiveWorldTimeMs(game.worldTimeMs + 12_000);
+      await flushAutosaveTimers();
+    });
+
+    expect(saveEncryptedState).toHaveBeenCalledTimes(1);
+    expect(saveEncryptedState.mock.calls[0][0]).toEqual({
+      game: expect.objectContaining({
+        worldTimeMs: game.worldTimeMs + 12_000,
       }),
     });
 

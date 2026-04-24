@@ -210,6 +210,12 @@ export function useAppPersistence({
     if (!hydrated) return;
 
     const interval = window.setInterval(() => {
+      if (latestInputsRef.current.worldTimeMs !== worldTimeMsRef.current) {
+        latestInputsRef.current.game = gameRef.current;
+        latestInputsRef.current.worldTimeMs = worldTimeMsRef.current;
+        dirtySegmentsRef.current.game = true;
+      }
+
       if (
         debounceDueAtRef.current !== null &&
         debounceDueAtRef.current <= Date.now()
@@ -232,7 +238,7 @@ export function useAppPersistence({
       clearDebounceSchedule(debounceDueAtRef, debounceTimerRef);
       clearIdleSave(idleSaveRef);
     };
-  }, [hydrated]);
+  }, [gameRef, hydrated, worldTimeMsRef]);
 
   const persistNow = async () => {
     clearDebounceSchedule(debounceDueAtRef, debounceTimerRef);

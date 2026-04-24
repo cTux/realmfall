@@ -15,6 +15,7 @@ import {
 import { makeEnemy } from './combat';
 import { GAME_DAY_DURATION_MS } from './config';
 import { hexDistance } from './hex';
+import { getWorldDayIndex } from './logs';
 import { getItemCategory } from './content/items';
 import { createPlacedWorldBossEncounter } from './stateTestHelpers';
 
@@ -152,6 +153,16 @@ describe('game state world events', () => {
     expect(
       morning.logs.some((entry) => /blood moon ends/i.test(entry.text)),
     ).toBe(false);
+  });
+
+  it('does not clone world state for ordinary daytime minute ticks', () => {
+    const worldTimeMs = GAME_DAY_DURATION_MS + 30_000;
+    const game = createGame(3, 'ordinary-daytime-minute-seed');
+    game.worldTimeMs = 0;
+    game.dayPhase = 'day';
+    game.lastEarthshakeDay = getWorldDayIndex(worldTimeMs);
+
+    expect(syncBloodMoon(game, 12 * 60, worldTimeMs)).toBe(game);
   });
 
   it('can trigger a harvest moon that spawns gathering nodes nearby', () => {
