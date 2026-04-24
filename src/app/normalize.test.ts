@@ -23,11 +23,42 @@ describe('normalizeLoadedGame', () => {
     });
   });
 
-  it('rejects malformed saved game state', () => {
+  it('falls back invalid inventory entries to defaults instead of rejecting the save', () => {
     const game = createGame(3, 'normalize-seed');
     game.player.inventory[0]!.quantity = Number.NaN;
 
-    expect(normalizeLoadedGame(game)).toBeNull();
+    expect(normalizeLoadedGame(game)?.player.inventory).toEqual(
+      game.player.inventory.slice(1),
+    );
+  });
+
+  it('fills missing skills from current runtime defaults while preserving saved progress', () => {
+    const game = createGame(3, 'normalize-missing-skill-seed');
+    const saved = structuredClone(game);
+
+    delete (saved.player.skills as Partial<typeof saved.player.skills>)
+      .crafting;
+    saved.player.skills.gathering = { level: 7, xp: 123 };
+
+    const normalized = normalizeLoadedGame(saved);
+
+    expect(normalized?.player.skills.gathering).toEqual({ level: 7, xp: 123 });
+    expect(normalized?.player.skills.crafting).toEqual(
+      game.player.skills.crafting,
+    );
+  });
+
+  it('falls back invalid nested player fields to defaults instead of rejecting the save', () => {
+    const game = createGame(3, 'normalize-invalid-player-field-seed');
+    const saved = structuredClone(game);
+
+    (saved.player as unknown as Record<string, unknown>).hunger = 'bad-value';
+    saved.player.level = 9;
+
+    const normalized = normalizeLoadedGame(saved);
+
+    expect(normalized?.player.level).toBe(9);
+    expect(normalized?.player.hunger).toBe(game.player.hunger);
   });
 
   it('rejects malformed saved ui items', () => {

@@ -17,7 +17,9 @@ This spec covers browser save storage, direct hydration of the current save shap
 - Loaded saves are validated before hydration, and malformed game or UI areas are rejected independently instead of being merged straight into runtime state or blocking the other valid area from hydrating.
 - Save normalization derives gameplay enum and union allowlists from shared game constants and content ids, so persistence validation tracks the canonical runtime model instead of maintaining parallel literal lists.
 - Save normalization keeps `src/app/normalize.ts` as the public surface while focused helpers split gameplay payloads, combat payloads, item payloads, UI payloads, shared validators, and narrow compatibility backfills into separate modules so save-shape updates touch narrower files.
-- The current project phase does not support broad backward save-format compatibility; older save payloads are expected to be cleared when the runtime save shape changes outside narrow deterministic canonical-id backfills.
+- Gameplay hydration uses the current runtime default game state as the canonical baseline, then applies valid persisted values field-by-field so additive save-shape changes do not wipe player progress.
+- Missing or invalid persisted gameplay values fall back to current defaults instead of rejecting the entire gameplay save.
+- The app does not depend on explicit save schema version checks for additive gameplay save evolution.
 - Autosave uses a five-second debounce plus five-second interval-backed flush model.
 - The five-second interval flush remains active during continuous gameplay or UI churn, so repeated sub-five-second updates persist progress without requiring a quiet period first.
 - Live world time is read from the clock ref on the interval flush path, so clock-only progress can persist without cloning React `GameState` or resetting the debounce timer on every displayed tick.

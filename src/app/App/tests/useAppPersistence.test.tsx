@@ -31,6 +31,7 @@ vi.mock('../../../persistence/storage', () => ({
 import { useAppPersistence } from '../useAppPersistence';
 
 interface PersistenceHarnessHandle {
+  getGame: () => GameState;
   getHeroWindowPosition: () => WindowPositions['hero'];
   getHeroWindowVisible: () => boolean;
   persistNow: () => Promise<void>;
@@ -98,6 +99,7 @@ const PersistenceHarness = forwardRef<PersistenceHarnessHandle>(
     });
 
     useImperativeHandle(ref, () => ({
+      getGame: () => gameRef.current,
       getHeroWindowPosition: () => windows.hero,
       getHeroWindowVisible: () => windowShown.hero,
       persistNow,
@@ -378,6 +380,33 @@ describe('useAppPersistence', () => {
     expect(host.querySelector('[data-hydrated="ready"]')).toBeTruthy();
     expect(handle.getHeroWindowPosition()).toEqual({ x: 42, y: 96 });
     expect(handle.getHeroWindowVisible()).toBe(true);
+    expect(saveEncryptedState).not.toHaveBeenCalled();
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('hydrates gameplay saves with per-field defaults instead of replacing them', async () => {
+    const game = createGame(2, 'use-app-persistence-default-fallback-seed');
+    const saved = structuredClone(game);
+
+    delete (saved.player.skills as Partial<typeof saved.player.skills>)
+      .crafting;
+    saved.player.level = 8;
+
+    loadEncryptedState.mockResolvedValue({ game: saved, ui: {} });
+    saveEncryptedState.mockResolvedValue(undefined);
+
+    const { handle, host, root } = await renderPersistenceHarness();
+    const hydratedGame = handle.getGame();
+
+    expect(host.querySelector('[data-hydrated="ready"]')).toBeTruthy();
+    expect(hydratedGame.player.level).toBe(8);
+    expect(hydratedGame.player.skills.crafting).toEqual(
+      game.player.skills.crafting,
+    );
     expect(saveEncryptedState).not.toHaveBeenCalled();
 
     await act(async () => {
