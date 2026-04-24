@@ -24,6 +24,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 - Plain `git commit` also runs the patch-version bump through the Husky pre-commit hook. Stage or stash unrelated `package.json` edits first, because the bump refuses to run when that file has unstaged changes.
 - Generate commit messages from the actual change set.
 - Keep commit messages focused on the behavioral change instead of enumerating every touched doc file.
+- Use `pnpm git:deploy` from a clean tracked worktree to build the app with the GitHub Pages base path and publish `dist/` to `origin/gh-pages`. Configure GitHub Pages to serve the `gh-pages` branch from `/`.
 - Use `pnpm git:prune-gone-branches -- --dry-run` to preview local branches whose tracked remote ref was deleted, then rerun without `--dry-run` to remove them. Add `-- --safe` only when you want Git to keep its merged-branch protection.
 - Use `pnpm git:rebase-master-and-push` from a clean, already-committed feature branch when you need to replay it onto the default branch advertised by `origin/HEAD` and publish the rewritten branch. The script auto-resolves `package.json` version conflicts when they occur, refuses to rewrite the current remote default branch directly, and then fetches the remote branch before `--force-with-lease`.
 - For hook behavior, staged-quality scope, and pre-push verification policy, use `docs/rules/60-testing.md` and the testing-tooling spec instead of repeating those details here.

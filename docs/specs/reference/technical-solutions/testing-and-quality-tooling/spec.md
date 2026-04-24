@@ -20,6 +20,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - Oxlint enforces React hook rules for TypeScript and TSX sources, including `react/rules-of-hooks` and `react/exhaustive-deps` as error-level checks.
 - `pnpm lint` is the shared repository lint gate and runs both Oxlint and Stylelint, while `pnpm lint:css` remains available for stylesheet-only local checks.
 - The Husky pre-commit hook runs the shared commit-version bump before staged quality checks so plain `git commit` receives the same package patch-version increment as `pnpm git:commit`.
+- `pnpm git:deploy` builds the Vite app with the `/realmfall/` GitHub Pages base path, writes `.nojekyll`, publishes the generated `dist/` contents through a temporary `gh-pages` worktree, and pushes with a lease-aware plan when the remote branch already exists.
 - The committed repository baseline is kept Prettier-clean so a failing `pnpm format` run points to current drift instead of long-lived formatting debt.
 - Ordinary `pnpm` installs keep dependency advisory output enabled so newly disclosed package issues are visible during routine local and CI dependency refreshes.
 - The Oxlint migration covers the prior ESLint rule set as closely as Oxlint currently allows, including nursery parity rules for `getter-return`, `no-undef`, and `no-unreachable`; `no-dupe-args` and `no-octal` remain outside the current Oxlint rule set.
@@ -77,6 +78,8 @@ This spec covers the repository quality baseline and current test coverage shape
 - `scripts/run-pre-push-quality.mjs`
 - `scripts/run-vite-build.helpers.mjs`
 - `scripts/run-vite-build.mjs`
+- `scripts/git-deploy.helpers.mjs`
+- `scripts/git-deploy.mjs`
 - `scripts/run-memory-leak-test.mjs`
 - `scripts/run-duplicate-deps-audit.mjs`
 - `scripts/run-bundle-visualizer.mjs`
