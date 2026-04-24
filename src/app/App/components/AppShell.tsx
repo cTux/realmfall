@@ -45,6 +45,11 @@ const HomeIndicator = lazy(() =>
     default: module.HomeIndicator,
   })),
 );
+const VersionStatusPanel = lazy(() =>
+  import('./VersionStatusPanel').then((module) => ({
+    default: module.VersionStatusPanel,
+  })),
+);
 
 export function AppShell({
   audioSettings,
@@ -136,6 +141,9 @@ export function AppShell({
               subtitle={t('ui.pauseOverlay.subtitle')}
             />
           ) : null}
+          <Suspense fallback={null}>
+            <VersionStatusPanel onRefresh={() => window.location.reload()} />
+          </Suspense>
         </div>
         {isReady ? null : (
           <div
