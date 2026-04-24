@@ -46,6 +46,7 @@ export function renderScene(
   options: RenderSceneOptions = {},
 ) {
   const scene = getSceneCache(app);
+  scene.renderCounts.total += 1;
   const cloudInputs = getCloudRenderInputs(scene, state.seed);
   const origin = {
     x: app.screen.width / 2,

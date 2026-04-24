@@ -129,6 +129,65 @@ describe('renderScene cache invalidation', () => {
     ).toBeGreaterThan(initialFullscreenEffectClearCalls);
   });
 
+  it('tracks render-pass counts for static-layer profiling', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { getSceneRenderCounts } = await import('./renderSceneCache');
+    const game = createGame(2, 'render-scene-profiling-counters');
+    const visibleTiles = getVisibleTiles(game);
+    const app = createMockApp();
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      100,
+    );
+
+    expect(getSceneRenderCounts(app as never)).toEqual({
+      animated: 1,
+      interaction: 1,
+      static: 1,
+      total: 1,
+    });
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      120,
+    );
+
+    expect(getSceneRenderCounts(app as never)).toEqual({
+      animated: 1,
+      interaction: 1,
+      static: 1,
+      total: 2,
+    });
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      { q: 1, r: 0 },
+      { q: 1, r: 0 },
+      12 * 60,
+      130,
+    );
+
+    expect(getSceneRenderCounts(app as never)).toEqual({
+      animated: 1,
+      interaction: 2,
+      static: 1,
+      total: 3,
+    });
+  });
+
   it('rerenders animated overlays when the low-HP warning toggles inside the same bucket', async () => {
     const { renderScene } = await import('./renderScene');
     const { getSceneCache } = await import('./renderSceneCache');
