@@ -97,6 +97,9 @@ export interface GameConfig {
     };
     itemRarity: WeightedChanceMap<Exclude<ItemRarity, 'common'>>;
   };
+  worldClock: {
+    dayDurationMs: number;
+  };
   worldGeneration: {
     terrain: WeightedChanceMap<Terrain>;
     enemySpawn: {

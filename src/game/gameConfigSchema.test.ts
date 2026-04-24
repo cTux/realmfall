@@ -118,6 +118,9 @@ describe('game config schema', () => {
           legendary: 1,
         },
       },
+      worldClock: {
+        dayDurationMs: 1,
+      },
       worldGeneration: {
         terrain: {
           plains: 1,

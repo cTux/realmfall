@@ -15,10 +15,13 @@ import { rarityColor } from '../../../ui/rarity';
 import { getTooltipPlacementForRect } from '../../../ui/tooltipPlacement';
 import type { TooltipLine } from '../../../ui/tooltips';
 import type { TooltipItem, TooltipState } from '../types';
+import {
+  loadItemTooltipModule as loadItemTooltipModuleChunk,
+  type ItemTooltipModule,
+} from '../itemTooltipModuleLoader';
 import { setTooltipState } from '../tooltipStore';
 
-type ItemTooltipLinesBuilder =
-  typeof import('../../../ui/tooltips').itemTooltipLines;
+type ItemTooltipLinesBuilder = ItemTooltipModule['itemTooltipLines'];
 
 type ItemTooltipLinesCache = WeakMap<
   TooltipItem,
@@ -165,9 +168,8 @@ export function useItemTooltipController({
 }: UseItemTooltipControllerOptions) {
   const itemTooltipLinesCacheRef = useRef<ItemTooltipLinesCache>(new WeakMap());
   const tooltipRequestIdRef = useRef(0);
-  const itemTooltipModulePromiseRef = useRef<Promise<
-    typeof import('../../../ui/tooltips') | null
-  > | null>(null);
+  const itemTooltipModulePromiseRef =
+    useRef<Promise<ItemTooltipModule | null>>(null);
 
   const closeTooltip = useCallback(() => {
     tooltipRequestIdRef.current += 1;
@@ -180,11 +182,12 @@ export function useItemTooltipController({
   }, []);
 
   const loadItemTooltipModule = useCallback(() => {
-    itemTooltipModulePromiseRef.current ??=
-      import('../../../ui/tooltips').catch(() => {
+    itemTooltipModulePromiseRef.current ??= loadItemTooltipModuleChunk().catch(
+      () => {
         itemTooltipModulePromiseRef.current = null;
         return null;
-      });
+      },
+    );
     return itemTooltipModulePromiseRef.current;
   }, []);
 
