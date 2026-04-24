@@ -33,7 +33,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - While the hex info window is open at a forge, the bulk equippable prospect action stays in the content body with `(Q) Prospect all equippables`.
 - While the hex info window is open at a town, the bulk equippable sell action lives in the title bar as `S(e)ll all` only while unlocked equippable items are available to sell, and `E` triggers that sell action before the loot take-all shortcut when the action is available.
 - The hex info content body omits passive terrain, structure, territory, empty-state, and section-title copy so non-combat tiles present only actionable controls, bars, and item slots.
-- Item-slot containers rendered inside the hex info content window use `0.8x` of the shared slot sizes so town stock, loot, and item-modification slots stay visually subordinate to the main inventory surfaces.
+- Item-slot containers rendered inside the hex info content window use shared stable style constants at `0.8x` of the shared slot sizes so town stock, loot, and item-modification slots stay visually subordinate to the main inventory surfaces without receiving fresh style-object props on every content render.
 - Town stock in the hex info content window wraps its item slots with a flex row layout instead of CSS grid so slot spacing follows the shared item-slot sizing more predictably.
 - The hex info window only renders the loot subsection when the current tile actually has loot, instead of showing an empty ground-loot panel.
 - While a combat encounter remains active for longer than `60s`, the hex info title bar replaces the start action with `Dea(t)h`, and pressing `T` triggers the same defeat-and-respawn action.

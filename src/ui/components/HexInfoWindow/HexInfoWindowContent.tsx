@@ -1,10 +1,13 @@
-import type { CSSProperties } from 'react';
 import { t } from '../../../i18n';
 import { ITEM_MODIFICATION_BALANCE } from '../../../game/config';
 import { CombatWindowContent } from '../CombatWindow/CombatWindowContent';
 import { ItemSlotButton } from '../ItemSlotButton/ItemSlotButton';
 import { Icons } from '../../icons';
 import type { HexInfoWindowProps } from './types';
+import {
+  HEX_INFO_COMPACT_CONTENT_SLOT_STYLE,
+  HEX_INFO_CONTENT_SLOT_STYLE,
+} from './hexInfoSlotStyles';
 import styles from './styles.module.scss';
 
 type HexInfoWindowContentProps = Omit<
@@ -45,8 +48,6 @@ export function HexInfoWindowContent({
   const hoverDetail = onHoverDetail ?? (() => undefined);
   const leaveDetail = onLeaveDetail ?? (() => undefined);
   const selectedItemForModification = itemModification?.selectedItem ?? null;
-  const contentSlotStyle = buildContentSlotStyle();
-  const compactContentSlotStyle = buildContentSlotStyle('compact');
 
   return (
     <div className={styles.layout}>
@@ -129,7 +130,7 @@ export function HexInfoWindowContent({
                     <ItemSlotButton
                       ariaLabel={t('ui.hexInfo.itemModification.slotLabel')}
                       item={itemModification.selectedItem ?? undefined}
-                      style={contentSlotStyle}
+                      style={HEX_INFO_CONTENT_SLOT_STYLE}
                       className={
                         itemModification.pickerActive
                           ? styles.itemModificationSlotActive
@@ -244,7 +245,7 @@ export function HexInfoWindowContent({
                         <div key={item.id} className={styles.shopCard}>
                           <ItemSlotButton
                             item={item}
-                            style={contentSlotStyle}
+                            style={HEX_INFO_CONTENT_SLOT_STYLE}
                             badgeLabel={`${price}`}
                             badgeIcon={Icons.Coins}
                             badgeIconLabel={t('game.item.gold.name')}
@@ -300,7 +301,7 @@ export function HexInfoWindowContent({
                 key={item.id}
                 item={item}
                 size="compact"
-                style={compactContentSlotStyle}
+                style={HEX_INFO_COMPACT_CONTENT_SLOT_STYLE}
                 onClick={() => onTakeItem(item.id)}
                 onMouseEnter={(event) =>
                   onHoverItem(
@@ -317,18 +318,4 @@ export function HexInfoWindowContent({
       ) : null}
     </div>
   );
-}
-
-function buildContentSlotStyle(size: 'default' | 'compact' = 'default') {
-  if (size === 'compact') {
-    return {
-      '--slot-size': '27.2px',
-      '--slot-icon-size': '24.48px',
-    } as CSSProperties;
-  }
-
-  return {
-    '--slot-size': '54.4px',
-    '--slot-icon-size': '1.76rem',
-  } as CSSProperties;
 }
