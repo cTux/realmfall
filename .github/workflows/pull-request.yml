@@ -154,5 +154,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build with bundle budget report
-        run: pnpm build:budget
+      - name: Build with strict bundle budget
+        run: pnpm build:budget:strict

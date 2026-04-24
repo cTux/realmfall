@@ -31,7 +31,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 ## Verification Workflow
 
 - Run targeted tests and any area-specific commands before committing. Prefer `pnpm test:node` for gameplay, persistence, i18n, and script coverage, and `pnpm test:jsdom` for React, Pixi, and browser-surface coverage.
-- Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` before pushing when you bypass hooks or need to verify the pre-push path manually.
+- Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build:budget:strict` before pushing when you bypass hooks or need to verify the pre-push path manually.
 - Use `pnpm update:check` to inspect available dependency updates without modifying the worktree.
 - Run `pnpm update:minor` or `pnpm update:major` from a clean tracked worktree when you want an automated dependency refresh. Pass `-- --no-commit` when automation needs the refreshed manifests without creating a local commit.
 - Run `pnpm format` after wider refactors or repository-wide cleanup so formatting drift is fixed before it spreads across unrelated commits.
