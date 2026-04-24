@@ -1,4 +1,5 @@
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import {
@@ -10,11 +11,43 @@ import {
   ensureNoJekyllFile,
   getDirtyStatusLines,
   getDeployCommitMessage,
+  getDeployWorktreeBranchName,
   getViteBasePath,
   parseCliArgs,
 } from '../git-deploy.helpers.mjs';
 
 describe('git deploy helpers', () => {
+  function runGit(cwd: string, args: string[]) {
+    const environment = { ...process.env };
+
+    delete environment.GIT_DIR;
+    delete environment.GIT_WORK_TREE;
+    delete environment.GIT_INDEX_FILE;
+    delete environment.GIT_PREFIX;
+
+    const result = spawnSync('git', args, {
+      cwd,
+      env: environment,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      windowsHide: true,
+    });
+
+    if (result.error) {
+      throw result.error;
+    }
+
+    if (result.status !== 0) {
+      throw new Error(
+        [`git ${args.join(' ')} failed.`, result.stderr, result.stdout]
+          .filter(Boolean)
+          .join('\n'),
+      );
+    }
+
+    return result.stdout.trim();
+  }
+
   it('parses supported CLI flags', () => {
     expect(parseCliArgs([])).toEqual({
       allowDirty: false,
@@ -62,6 +95,65 @@ describe('git deploy helpers', () => {
     expect(getDeployCommitMessage('e81c98b5baadf00d')).toBe(
       'deploy: publish e81c98b',
     );
+  });
+
+  it('creates a temporary publish branch name that avoids an existing gh-pages branch', async () => {
+    const repositoryDirectory = await mkdtemp(
+      join(tmpdir(), 'realmfall-git-deploy-repo-'),
+    );
+    const worktreeDirectory = await mkdtemp(
+      join(tmpdir(), 'realmfall-git-deploy-worktree-'),
+    );
+
+    try {
+      runGit(repositoryDirectory, ['init', '--initial-branch=main']);
+      runGit(repositoryDirectory, ['config', 'user.name', 'Realmfall Tests']);
+      runGit(repositoryDirectory, [
+        'config',
+        'user.email',
+        'realmfall-tests@example.com',
+      ]);
+      await writeFile(join(repositoryDirectory, 'README.md'), 'deploy test\n');
+      runGit(repositoryDirectory, ['add', 'README.md']);
+      runGit(repositoryDirectory, ['commit', '-m', 'init']);
+      runGit(repositoryDirectory, ['branch', DEPLOY_BRANCH]);
+
+      const sourceCommit = runGit(repositoryDirectory, ['rev-parse', 'HEAD']);
+      const publishBranch = getDeployWorktreeBranchName(sourceCommit);
+
+      expect(publishBranch).not.toBe(DEPLOY_BRANCH);
+
+      runGit(repositoryDirectory, [
+        'worktree',
+        'add',
+        '--detach',
+        worktreeDirectory,
+      ]);
+
+      expect(() =>
+        runGit(repositoryDirectory, [
+          '-C',
+          worktreeDirectory,
+          'checkout',
+          '--orphan',
+          publishBranch,
+        ]),
+      ).not.toThrow();
+    } finally {
+      try {
+        runGit(repositoryDirectory, [
+          'worktree',
+          'remove',
+          '--force',
+          worktreeDirectory,
+        ]);
+      } catch {
+        // Ignore teardown failures so the temporary directories still get removed.
+      }
+
+      await rm(worktreeDirectory, { force: true, recursive: true });
+      await rm(repositoryDirectory, { force: true, recursive: true });
+    }
   });
 
   it('creates a lease-aware gh-pages push plan', () => {

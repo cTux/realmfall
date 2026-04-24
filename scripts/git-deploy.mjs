@@ -13,6 +13,7 @@ import {
   ensureNoJekyllFile,
   getDeployCommitMessage,
   getDirtyStatusLines,
+  getDeployWorktreeBranchName,
   parseCliArgs,
 } from './git-deploy.helpers.mjs';
 import { spawnManagedChild } from './managed-child-process.mjs';
@@ -73,6 +74,20 @@ function remoteDeployBranchExists() {
   return result.status === 0;
 }
 
+function localBranchExists(branchName) {
+  return runGit(['branch', '--list', branchName]).length > 0;
+}
+
+function deleteLocalBranch(branchName) {
+  if (!localBranchExists(branchName)) {
+    return;
+  }
+
+  runGit(['branch', '-D', branchName], {
+    stdio: 'inherit',
+  });
+}
+
 function runPnpm(args, environment) {
   const invocation = createPnpmInvocation(args, environment);
   const child = spawnManagedChild(invocation.command, invocation.args, {
@@ -105,6 +120,7 @@ async function publishDistToPages(sourceCommit) {
   await ensureNoJekyllFile(distDirectory);
 
   const publishWorktree = await mkdtemp(join(tmpdir(), 'realmfall-pages-'));
+  const publishBranch = getDeployWorktreeBranchName(sourceCommit);
   let worktreeAdded = false;
 
   try {
@@ -114,11 +130,12 @@ async function publishDistToPages(sourceCommit) {
       runGit(pushPlan.fetchArgs, { stdio: 'inherit' });
     }
 
+    deleteLocalBranch(publishBranch);
     runGit(['worktree', 'add', '--detach', publishWorktree], {
       stdio: 'inherit',
     });
     worktreeAdded = true;
-    runGit(['-C', publishWorktree, 'checkout', '--orphan', DEPLOY_BRANCH], {
+    runGit(['-C', publishWorktree, 'checkout', '--orphan', publishBranch], {
       stdio: 'inherit',
     });
     runGit(['-C', publishWorktree, 'rm', '-rf', '.'], { stdio: 'ignore' });
@@ -149,6 +166,7 @@ async function publishDistToPages(sourceCommit) {
       });
     }
 
+    deleteLocalBranch(publishBranch);
     await rm(publishWorktree, { force: true, recursive: true });
   }
 }

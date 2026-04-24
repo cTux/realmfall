@@ -22,6 +22,7 @@ export function createDeployBuildEnvironment(
 export function getViteBasePath(environment?: NodeJS.ProcessEnv): string;
 export function getDirtyStatusLines(statusOutput: string): string[];
 export function getDeployCommitMessage(sourceCommit: string): string;
+export function getDeployWorktreeBranchName(sourceCommit: string): string;
 export function createPagesPushPlan(
   hasRemoteTrackingRef: boolean,
   remote?: string,

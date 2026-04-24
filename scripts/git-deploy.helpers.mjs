@@ -66,6 +66,10 @@ export function getDeployCommitMessage(sourceCommit) {
   return `deploy: publish ${sourceCommit.slice(0, 7)}`;
 }
 
+export function getDeployWorktreeBranchName(sourceCommit) {
+  return `realmfall-pages-publish-${sourceCommit.slice(0, 7)}`;
+}
+
 export function createPagesPushPlan(
   hasRemoteTrackingRef,
   remote = DEPLOY_REMOTE,
