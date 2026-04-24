@@ -1,2 +1,3 @@
+node scripts/commit-version-bump.mjs
 pnpm quality:staged
 git update-index --again
