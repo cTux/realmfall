@@ -1,13 +1,10 @@
 import { syncPlayerBaseStats } from '../game/balance';
 import { getEnemyConfig } from '../game/content/enemies';
+import { createGame } from '../game/stateFactory';
 import type { Enemy, GameState, Item } from '../game/stateTypes';
 import { normalizeCombatState } from './normalizeCombat';
 import { resolveLegacyEnemyTypeId } from './normalizeCompatibility';
-import {
-  normalizeItem,
-  normalizeItems,
-  normalizeStatusEffects,
-} from './normalizeItems';
+import { normalizeItem, normalizeStatusEffects } from './normalizeItems';
 import {
   getSkillNames,
   isDayPhase,
@@ -27,63 +24,59 @@ export function normalizeLoadedGame(game: unknown): GameState | null {
     return null;
   }
 
-  const homeHex = normalizeHexCoord(game.homeHex);
-  const player = normalizePlayer(game.player);
-  if (!homeHex || !player) {
-    return null;
-  }
-
-  const combat = normalizeCombatState(game.combat);
-  if (game.combat !== null && !combat) {
-    return null;
-  }
-
-  const tiles = normalizeTiles(game.tiles);
-  const enemies = normalizeEnemies(game.enemies);
-  if (!tiles || !enemies) {
-    return null;
-  }
-
-  if (
-    typeof game.seed !== 'string' ||
-    !isFiniteNumber(game.radius) ||
-    !isFiniteNumber(game.turn) ||
-    !isFiniteNumber(game.worldTimeMs) ||
-    !isDayPhase(game.dayPhase) ||
-    typeof game.bloodMoonActive !== 'boolean' ||
-    typeof game.bloodMoonCheckedTonight !== 'boolean' ||
-    !isFiniteNumber(game.bloodMoonCycle) ||
-    typeof game.harvestMoonActive !== 'boolean' ||
-    typeof game.harvestMoonCheckedTonight !== 'boolean' ||
-    !isFiniteNumber(game.harvestMoonCycle) ||
-    !isFiniteNumber(game.lastEarthshakeDay) ||
-    typeof game.gameOver !== 'boolean' ||
-    (game.playerLevelUpVisualEndsAt !== undefined &&
-      !isFiniteNumber(game.playerLevelUpVisualEndsAt)) ||
-    !isFiniteNumber(game.logSequence)
-  ) {
-    return null;
-  }
+  const baseline = createNormalizationBaseline(game);
+  const homeHex = normalizeHexCoord(game.homeHex) ?? baseline.homeHex;
+  const player = normalizePlayer(game.player, baseline.player);
+  const combat =
+    game.combat === null
+      ? null
+      : (normalizeCombatState(game.combat) ?? baseline.combat);
+  const tiles = normalizeTiles(game.tiles, baseline.tiles);
+  const enemies = normalizeEnemies(game.enemies, baseline.enemies);
 
   return {
-    seed: game.seed,
-    radius: game.radius,
+    ...baseline,
+    seed: typeof game.seed === 'string' ? game.seed : baseline.seed,
+    radius: isFiniteNumber(game.radius) ? game.radius : baseline.radius,
     homeHex,
-    turn: game.turn,
-    worldTimeMs: game.worldTimeMs,
-    dayPhase: game.dayPhase,
-    bloodMoonActive: game.bloodMoonActive,
-    bloodMoonCheckedTonight: game.bloodMoonCheckedTonight,
-    bloodMoonCycle: game.bloodMoonCycle,
-    harvestMoonActive: game.harvestMoonActive,
-    harvestMoonCheckedTonight: game.harvestMoonCheckedTonight,
-    harvestMoonCycle: game.harvestMoonCycle,
-    lastEarthshakeDay: game.lastEarthshakeDay,
-    gameOver: game.gameOver,
-    ...(game.playerLevelUpVisualEndsAt === undefined
-      ? {}
-      : { playerLevelUpVisualEndsAt: game.playerLevelUpVisualEndsAt }),
-    logSequence: game.logSequence,
+    turn: isFiniteNumber(game.turn) ? game.turn : baseline.turn,
+    worldTimeMs: isFiniteNumber(game.worldTimeMs)
+      ? game.worldTimeMs
+      : baseline.worldTimeMs,
+    dayPhase: isDayPhase(game.dayPhase) ? game.dayPhase : baseline.dayPhase,
+    bloodMoonActive:
+      typeof game.bloodMoonActive === 'boolean'
+        ? game.bloodMoonActive
+        : baseline.bloodMoonActive,
+    bloodMoonCheckedTonight:
+      typeof game.bloodMoonCheckedTonight === 'boolean'
+        ? game.bloodMoonCheckedTonight
+        : baseline.bloodMoonCheckedTonight,
+    bloodMoonCycle: isFiniteNumber(game.bloodMoonCycle)
+      ? game.bloodMoonCycle
+      : baseline.bloodMoonCycle,
+    harvestMoonActive:
+      typeof game.harvestMoonActive === 'boolean'
+        ? game.harvestMoonActive
+        : baseline.harvestMoonActive,
+    harvestMoonCheckedTonight:
+      typeof game.harvestMoonCheckedTonight === 'boolean'
+        ? game.harvestMoonCheckedTonight
+        : baseline.harvestMoonCheckedTonight,
+    harvestMoonCycle: isFiniteNumber(game.harvestMoonCycle)
+      ? game.harvestMoonCycle
+      : baseline.harvestMoonCycle,
+    lastEarthshakeDay: isFiniteNumber(game.lastEarthshakeDay)
+      ? game.lastEarthshakeDay
+      : baseline.lastEarthshakeDay,
+    gameOver:
+      typeof game.gameOver === 'boolean' ? game.gameOver : baseline.gameOver,
+    playerLevelUpVisualEndsAt: isFiniteNumber(game.playerLevelUpVisualEndsAt)
+      ? game.playerLevelUpVisualEndsAt
+      : baseline.playerLevelUpVisualEndsAt,
+    logSequence: isFiniteNumber(game.logSequence)
+      ? game.logSequence
+      : baseline.logSequence,
     logs: [],
     tiles,
     enemies,
@@ -92,83 +85,101 @@ export function normalizeLoadedGame(game: unknown): GameState | null {
   };
 }
 
-function normalizeTiles(value: unknown) {
-  if (!isRecord(value)) {
-    return null;
-  }
-
-  const tiles = Object.entries(value).map(([key, tile]) => {
-    const normalizedTile = normalizeTile(tile);
-    return normalizedTile ? ([key, normalizedTile] as const) : null;
-  });
-
-  if (tiles.some((tile) => tile === null)) {
-    return null;
-  }
-
-  return Object.fromEntries(
-    tiles as Array<readonly [string, GameState['tiles'][string]]>,
-  );
+function createNormalizationBaseline(game: Record<string, unknown>) {
+  const radius = isFiniteNumber(game.radius) ? game.radius : undefined;
+  const seed = typeof game.seed === 'string' ? game.seed : undefined;
+  return createGame(radius, seed);
 }
 
-function normalizeEnemies(value: unknown) {
+function normalizeTiles(
+  value: unknown,
+  fallback: GameState['tiles'],
+): GameState['tiles'] {
   if (!isRecord(value)) {
-    return null;
+    return cloneTiles(fallback);
   }
 
-  const enemies = Object.entries(value).map(([key, enemy]) => {
-    const normalizedEnemy = normalizeEnemy(enemy);
-    return normalizedEnemy ? ([key, normalizedEnemy] as const) : null;
-  });
+  const tiles = cloneTiles(fallback);
 
-  if (enemies.some((enemy) => enemy === null)) {
-    return null;
+  for (const [key, tile] of Object.entries(value)) {
+    const normalizedTile = normalizeTile(tile, fallback[key]);
+    if (normalizedTile) {
+      tiles[key] = normalizedTile;
+    }
   }
 
-  return Object.fromEntries(
-    enemies as Array<readonly [string, GameState['enemies'][string]]>,
-  );
+  return tiles;
 }
 
-function normalizeTile(value: unknown): GameState['tiles'][string] | null {
+function normalizeEnemies(
+  value: unknown,
+  fallback: GameState['enemies'],
+): GameState['enemies'] {
   if (!isRecord(value)) {
-    return null;
+    return cloneEnemies(fallback);
   }
 
-  const coord = normalizeHexCoord(value.coord);
-  const items = normalizeItems(value.items);
+  const enemies = cloneEnemies(fallback);
+
+  for (const [key, enemy] of Object.entries(value)) {
+    const normalizedEnemy = normalizeEnemy(enemy, fallback[key]);
+    if (normalizedEnemy) {
+      enemies[key] = normalizedEnemy;
+    }
+  }
+
+  return enemies;
+}
+
+function normalizeTile(
+  value: unknown,
+  fallback?: GameState['tiles'][string],
+): GameState['tiles'][string] | null {
+  if (!isRecord(value)) {
+    return fallback ? cloneTile(fallback) : null;
+  }
+
+  const coord = normalizeHexCoord(value.coord) ?? fallback?.coord ?? null;
+  const items = normalizeItemArray(value.items, fallback?.items ?? []);
   const claim = normalizeTileClaim(value.claim);
-  if (
-    !coord ||
-    !isTerrain(value.terrain) ||
-    !items ||
-    !isStringArray(value.enemyIds) ||
-    (value.structure !== undefined && !isStructure(value.structure))
-  ) {
-    return null;
-  }
 
-  if (
-    (value.structureHp !== undefined && !isFiniteNumber(value.structureHp)) ||
-    (value.structureMaxHp !== undefined &&
-      !isFiniteNumber(value.structureMaxHp))
-  ) {
+  if (!coord) {
     return null;
   }
 
   return {
     coord,
-    terrain: value.terrain,
-    ...(value.structure === undefined ? {} : { structure: value.structure }),
-    ...(value.structureHp === undefined
-      ? {}
-      : { structureHp: value.structureHp }),
-    ...(value.structureMaxHp === undefined
-      ? {}
-      : { structureMaxHp: value.structureMaxHp }),
+    terrain: isTerrain(value.terrain)
+      ? value.terrain
+      : (fallback?.terrain ?? 'plains'),
+    ...(isStructure(value.structure)
+      ? { structure: value.structure }
+      : fallback?.structure === undefined
+        ? {}
+        : { structure: fallback.structure }),
+    ...(isFiniteNumber(value.structureHp)
+      ? { structureHp: value.structureHp }
+      : fallback?.structureHp === undefined
+        ? {}
+        : { structureHp: fallback.structureHp }),
+    ...(isFiniteNumber(value.structureMaxHp)
+      ? { structureMaxHp: value.structureMaxHp }
+      : fallback?.structureMaxHp === undefined
+        ? {}
+        : { structureMaxHp: fallback.structureMaxHp }),
     items,
-    enemyIds: [...value.enemyIds],
-    ...(claim == null ? {} : { claim }),
+    enemyIds: isStringArray(value.enemyIds)
+      ? [...value.enemyIds]
+      : [...(fallback?.enemyIds ?? [])],
+    ...(claim === null
+      ? fallback?.claim === undefined
+        ? {}
+        : { claim: fallback.claim }
+      : claim === undefined
+        ? fallback?.claim === undefined
+          ? {}
+          : { claim: fallback.claim }
+        : { claim }),
   };
 }
 
@@ -226,79 +237,103 @@ function normalizeTileClaim(
   };
 }
 
-function normalizeEnemy(value: unknown): GameState['enemies'][string] | null {
+function normalizeEnemy(
+  value: unknown,
+  fallback?: GameState['enemies'][string],
+): GameState['enemies'][string] | null {
   if (!isRecord(value)) {
-    return null;
+    return fallback ? cloneEnemy(fallback) : null;
   }
 
-  const coord = normalizeHexCoord(value.coord);
+  const coord = normalizeHexCoord(value.coord) ?? fallback?.coord ?? null;
   const statusEffects = normalizeStatusEffects(value.statusEffects);
   const enemyTypeId =
     normalizeEnemyTypeId(value.enemyTypeId) ??
     (value.enemyTypeId === undefined
       ? resolveLegacyEnemyTypeId(value.name)
-      : null);
-  if (
-    !coord ||
-    typeof value.id !== 'string' ||
-    typeof value.name !== 'string' ||
-    enemyTypeId === null ||
-    !isFiniteNumber(value.tier) ||
-    !isFiniteNumber(value.hp) ||
-    !isFiniteNumber(value.maxHp) ||
-    !isFiniteNumber(value.attack) ||
-    !isFiniteNumber(value.defense) ||
-    !isFiniteNumber(value.xp) ||
-    typeof value.elite !== 'boolean'
-  ) {
-    return null;
-  }
-
-  if (
-    (value.tags !== undefined && !isStringArray(value.tags)) ||
-    (value.rarity !== undefined && !isItemRarity(value.rarity)) ||
-    (value.baseMaxHp !== undefined && !isFiniteNumber(value.baseMaxHp)) ||
-    (value.mana !== undefined && !isFiniteNumber(value.mana)) ||
-    (value.maxMana !== undefined && !isFiniteNumber(value.maxMana)) ||
-    (value.baseAttack !== undefined && !isFiniteNumber(value.baseAttack)) ||
-    (value.baseDefense !== undefined && !isFiniteNumber(value.baseDefense)) ||
-    (value.worldBoss !== undefined && typeof value.worldBoss !== 'boolean') ||
-    (value.aggressive !== undefined && typeof value.aggressive !== 'boolean') ||
-    (value.abilityIds !== undefined && !isStringArray(value.abilityIds)) ||
-    statusEffects === null
-  ) {
+      : (fallback?.enemyTypeId ?? null));
+  if (!coord || typeof value.id !== 'string' || enemyTypeId === null) {
     return null;
   }
 
   return {
     id: value.id,
     enemyTypeId,
-    ...(value.tags === undefined
+    ...(isStringArray(value.tags)
       ? {}
-      : { tags: [...value.tags] as Enemy['tags'] }),
-    name: normalizeConfiguredEnemyName(value.name, enemyTypeId),
+      : fallback?.tags === undefined
+        ? {}
+        : { tags: [...fallback.tags] as Enemy['tags'] }),
+    ...(isStringArray(value.tags)
+      ? { tags: [...value.tags] as Enemy['tags'] }
+      : {}),
+    name: normalizeConfiguredEnemyName(
+      typeof value.name === 'string'
+        ? value.name
+        : (fallback?.name ?? value.id),
+      enemyTypeId,
+    ),
     coord,
-    ...(value.rarity === undefined ? {} : { rarity: value.rarity }),
-    tier: value.tier,
-    ...(value.baseMaxHp === undefined ? {} : { baseMaxHp: value.baseMaxHp }),
-    hp: value.hp,
-    maxHp: value.maxHp,
-    ...(value.mana === undefined ? {} : { mana: value.mana }),
-    ...(value.maxMana === undefined ? {} : { maxMana: value.maxMana }),
-    ...(value.baseAttack === undefined ? {} : { baseAttack: value.baseAttack }),
-    attack: value.attack,
-    ...(value.baseDefense === undefined
-      ? {}
-      : { baseDefense: value.baseDefense }),
-    defense: value.defense,
-    xp: value.xp,
-    elite: value.elite,
-    ...(value.worldBoss === undefined ? {} : { worldBoss: value.worldBoss }),
-    ...(value.aggressive === undefined ? {} : { aggressive: value.aggressive }),
-    ...(statusEffects === undefined ? {} : { statusEffects }),
-    ...(value.abilityIds === undefined
-      ? {}
-      : { abilityIds: [...value.abilityIds] }),
+    ...(isItemRarity(value.rarity)
+      ? { rarity: value.rarity }
+      : fallback?.rarity === undefined
+        ? {}
+        : { rarity: fallback.rarity }),
+    tier: isFiniteNumber(value.tier) ? value.tier : (fallback?.tier ?? 1),
+    ...(isFiniteNumber(value.baseMaxHp)
+      ? { baseMaxHp: value.baseMaxHp }
+      : fallback?.baseMaxHp === undefined
+        ? {}
+        : { baseMaxHp: fallback.baseMaxHp }),
+    hp: isFiniteNumber(value.hp) ? value.hp : (fallback?.hp ?? 1),
+    maxHp: isFiniteNumber(value.maxHp) ? value.maxHp : (fallback?.maxHp ?? 1),
+    ...(isFiniteNumber(value.mana)
+      ? { mana: value.mana }
+      : fallback?.mana === undefined
+        ? {}
+        : { mana: fallback.mana }),
+    ...(isFiniteNumber(value.maxMana)
+      ? { maxMana: value.maxMana }
+      : fallback?.maxMana === undefined
+        ? {}
+        : { maxMana: fallback.maxMana }),
+    ...(isFiniteNumber(value.baseAttack)
+      ? { baseAttack: value.baseAttack }
+      : fallback?.baseAttack === undefined
+        ? {}
+        : { baseAttack: fallback.baseAttack }),
+    attack: isFiniteNumber(value.attack)
+      ? value.attack
+      : (fallback?.attack ?? 0),
+    ...(isFiniteNumber(value.baseDefense)
+      ? { baseDefense: value.baseDefense }
+      : fallback?.baseDefense === undefined
+        ? {}
+        : { baseDefense: fallback.baseDefense }),
+    defense: isFiniteNumber(value.defense)
+      ? value.defense
+      : (fallback?.defense ?? 0),
+    xp: isFiniteNumber(value.xp) ? value.xp : (fallback?.xp ?? 0),
+    elite:
+      typeof value.elite === 'boolean'
+        ? value.elite
+        : (fallback?.elite ?? false),
+    ...(typeof value.worldBoss === 'boolean'
+      ? { worldBoss: value.worldBoss }
+      : fallback?.worldBoss === undefined
+        ? {}
+        : { worldBoss: fallback.worldBoss }),
+    ...(typeof value.aggressive === 'boolean'
+      ? { aggressive: value.aggressive }
+      : fallback?.aggressive === undefined
+        ? {}
+        : { aggressive: fallback.aggressive }),
+    ...(statusEffects == null ? {} : { statusEffects }),
+    ...(isStringArray(value.abilityIds)
+      ? { abilityIds: [...value.abilityIds] }
+      : fallback?.abilityIds === undefined
+        ? {}
+        : { abilityIds: [...fallback.abilityIds] }),
   };
 }
 
@@ -313,118 +348,195 @@ function normalizeConfiguredEnemyName(
   return name;
 }
 
-function normalizePlayer(value: unknown): GameState['player'] | null {
+function normalizePlayer(
+  value: unknown,
+  fallback: GameState['player'],
+): GameState['player'] {
   if (!isRecord(value)) {
-    return null;
+    return clonePlayer(fallback);
   }
 
-  const coord = normalizeHexCoord(value.coord);
-  const skills = normalizeSkills(value.skills);
-  const inventory = normalizeItems(value.inventory);
-  const equipment = normalizeEquipment(value.equipment);
+  const coord = normalizeHexCoord(value.coord) ?? fallback.coord;
+  const skills = normalizeSkills(value.skills, fallback.skills);
+  const inventory = normalizeItemArray(value.inventory, fallback.inventory);
+  const equipment = normalizeEquipment(value.equipment, fallback.equipment);
   const statusEffects = normalizeStatusEffects(value.statusEffects);
-
-  if (
-    !coord ||
-    !skills ||
-    !inventory ||
-    !equipment ||
-    statusEffects === null ||
-    !isFiniteNumber(value.level) ||
-    !isFiniteNumber(value.masteryLevel) ||
-    !isFiniteNumber(value.xp) ||
-    !isFiniteNumber(value.hp) ||
-    !isFiniteNumber(value.baseMaxHp) ||
-    !isFiniteNumber(value.mana) ||
-    !isFiniteNumber(value.baseMaxMana) ||
-    !isFiniteNumber(value.hunger) ||
-    !isFiniteNumber(value.baseAttack) ||
-    !isFiniteNumber(value.baseDefense) ||
-    !isStringArray(value.learnedRecipeIds)
-  ) {
-    return null;
-  }
-
-  if (
-    (value.thirst !== undefined && !isFiniteNumber(value.thirst)) ||
-    (value.consumableCooldownEndsAt !== undefined &&
-      !isFiniteNumber(value.consumableCooldownEndsAt))
-  ) {
-    return null;
-  }
 
   return syncPlayerBaseStats({
     coord,
-    level: value.level,
-    masteryLevel: value.masteryLevel,
-    xp: value.xp,
-    hp: value.hp,
-    baseMaxHp: value.baseMaxHp,
-    mana: value.mana,
-    baseMaxMana: value.baseMaxMana,
-    hunger: value.hunger,
-    ...(value.thirst === undefined ? {} : { thirst: value.thirst }),
-    baseAttack: value.baseAttack,
-    baseDefense: value.baseDefense,
+    level: isFiniteNumber(value.level) ? value.level : fallback.level,
+    masteryLevel: isFiniteNumber(value.masteryLevel)
+      ? value.masteryLevel
+      : fallback.masteryLevel,
+    xp: isFiniteNumber(value.xp) ? value.xp : fallback.xp,
+    hp: isFiniteNumber(value.hp) ? value.hp : fallback.hp,
+    baseMaxHp: isFiniteNumber(value.baseMaxHp)
+      ? value.baseMaxHp
+      : fallback.baseMaxHp,
+    mana: isFiniteNumber(value.mana) ? value.mana : fallback.mana,
+    baseMaxMana: isFiniteNumber(value.baseMaxMana)
+      ? value.baseMaxMana
+      : fallback.baseMaxMana,
+    hunger: isFiniteNumber(value.hunger) ? value.hunger : fallback.hunger,
+    ...(isFiniteNumber(value.thirst)
+      ? { thirst: value.thirst }
+      : fallback.thirst === undefined
+        ? {}
+        : { thirst: fallback.thirst }),
+    baseAttack: isFiniteNumber(value.baseAttack)
+      ? value.baseAttack
+      : fallback.baseAttack,
+    baseDefense: isFiniteNumber(value.baseDefense)
+      ? value.baseDefense
+      : fallback.baseDefense,
     skills,
-    learnedRecipeIds: [...value.learnedRecipeIds],
+    learnedRecipeIds: isStringArray(value.learnedRecipeIds)
+      ? [...value.learnedRecipeIds]
+      : [...fallback.learnedRecipeIds],
     inventory,
     equipment,
-    statusEffects: statusEffects ?? [],
-    ...(value.consumableCooldownEndsAt === undefined
-      ? {}
-      : { consumableCooldownEndsAt: value.consumableCooldownEndsAt }),
+    statusEffects: statusEffects ?? [...fallback.statusEffects],
+    ...(isFiniteNumber(value.consumableCooldownEndsAt)
+      ? { consumableCooldownEndsAt: value.consumableCooldownEndsAt }
+      : fallback.consumableCooldownEndsAt === undefined
+        ? {}
+        : { consumableCooldownEndsAt: fallback.consumableCooldownEndsAt }),
   });
 }
 
-function normalizeSkills(value: unknown): GameState['player']['skills'] | null {
-  if (!isRecord(value)) {
-    return null;
-  }
-
-  const entries = getSkillNames().map((skill) => {
-    const progress = value[skill];
-    if (
-      !isRecord(progress) ||
-      !isFiniteNumber(progress.level) ||
-      !isFiniteNumber(progress.xp)
-    ) {
-      return null;
-    }
-
-    return [skill, { level: progress.level, xp: progress.xp }] as const;
-  });
-
-  if (entries.some((entry) => entry === null)) {
-    return null;
-  }
-
+function normalizeSkills(
+  value: unknown,
+  fallback: GameState['player']['skills'],
+): GameState['player']['skills'] {
   return Object.fromEntries(
-    entries as Array<readonly [string, { level: number; xp: number }]>,
+    getSkillNames().map((skill) => {
+      const progress = isRecord(value) ? value[skill] : undefined;
+      const fallbackProgress = fallback[skill];
+
+      if (
+        isRecord(progress) &&
+        isFiniteNumber(progress.level) &&
+        isFiniteNumber(progress.xp)
+      ) {
+        return [skill, { level: progress.level, xp: progress.xp }] as const;
+      }
+
+      return [
+        skill,
+        { level: fallbackProgress.level, xp: fallbackProgress.xp },
+      ] as const;
+    }),
   ) as GameState['player']['skills'];
 }
 
 function normalizeEquipment(
   value: unknown,
-): GameState['player']['equipment'] | null {
+  fallback: GameState['player']['equipment'],
+): GameState['player']['equipment'] {
   if (!isRecord(value)) {
-    return null;
+    return cloneEquipment(fallback);
   }
 
-  const entries = Object.entries(value).map(([key, item]) => {
+  const entries = Object.entries(value).flatMap(([key, item]) => {
     if (!isEquipmentSlot(key)) {
-      return null;
+      return [];
     }
 
     const normalizedItem = normalizeItem(item);
-    return normalizedItem ? ([key, normalizedItem] as const) : null;
+    return normalizedItem ? [[key, normalizedItem] as const] : [];
   });
 
-  if (entries.some((entry) => entry === null)) {
-    return null;
+  if (entries.length === 0) {
+    return cloneEquipment(fallback);
   }
 
   return Object.fromEntries(
     entries as Array<readonly [string, Item]>,
   ) as GameState['player']['equipment'];
+}
+
+function normalizeItemArray(value: unknown, fallback: Item[]) {
+  if (!Array.isArray(value)) {
+    return fallback.map((item) => ({ ...item }));
+  }
+
+  const items = value.flatMap((item) => {
+    const normalizedItem = normalizeItem(item);
+    return normalizedItem ? [normalizedItem] : [];
+  });
+
+  return items.length > 0 || value.length === 0
+    ? items
+    : fallback.map((item) => ({ ...item }));
+}
+
+function cloneTile(tile: GameState['tiles'][string]) {
+  return {
+    ...tile,
+    coord: { ...tile.coord },
+    items: tile.items.map((item) => ({ ...item })),
+    enemyIds: [...tile.enemyIds],
+    ...(tile.claim === undefined
+      ? {}
+      : {
+          claim: {
+            ...tile.claim,
+            ...(tile.claim.npc === undefined
+              ? {}
+              : { npc: { ...tile.claim.npc } }),
+          },
+        }),
+  };
+}
+
+function cloneTiles(tiles: GameState['tiles']) {
+  return Object.fromEntries(
+    Object.entries(tiles).map(([key, tile]) => [key, cloneTile(tile)]),
+  ) as GameState['tiles'];
+}
+
+function cloneEnemy(enemy: GameState['enemies'][string]) {
+  return {
+    ...enemy,
+    coord: { ...enemy.coord },
+    ...(enemy.tags === undefined ? {} : { tags: [...enemy.tags] }),
+    ...(enemy.statusEffects === undefined
+      ? {}
+      : {
+          statusEffects: enemy.statusEffects.map((effect) => ({
+            ...effect,
+            ...(effect.tags === undefined ? {} : { tags: [...effect.tags] }),
+          })),
+        }),
+    ...(enemy.abilityIds === undefined
+      ? {}
+      : { abilityIds: [...enemy.abilityIds] }),
+  };
+}
+
+function cloneEnemies(enemies: GameState['enemies']) {
+  return Object.fromEntries(
+    Object.entries(enemies).map(([key, enemy]) => [key, cloneEnemy(enemy)]),
+  ) as GameState['enemies'];
+}
+
+function cloneEquipment(equipment: GameState['player']['equipment']) {
+  return Object.fromEntries(
+    Object.entries(equipment).map(([key, item]) => [key, { ...item }]),
+  ) as GameState['player']['equipment'];
+}
+
+function clonePlayer(player: GameState['player']) {
+  return {
+    ...player,
+    coord: { ...player.coord },
+    skills: normalizeSkills(player.skills, player.skills),
+    learnedRecipeIds: [...player.learnedRecipeIds],
+    inventory: player.inventory.map((item) => ({ ...item })),
+    equipment: cloneEquipment(player.equipment),
+    statusEffects: player.statusEffects.map((effect) => ({
+      ...effect,
+      ...(effect.tags === undefined ? {} : { tags: [...effect.tags] }),
+    })),
+  };
 }

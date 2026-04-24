@@ -2,7 +2,7 @@
 
 ## Persistence
 
-- Do not add backward save-format compatibility yet. Load persisted game and UI state as-is, and clear browser save storage after major save-shape changes instead of adding migration code.
+- Preserve persisted gameplay saves across additive save-shape changes by hydrating onto current runtime defaults and falling back per field for missing or invalid values instead of deleting the save.
 - Treat `src/persistence/storage.ts` and similar local save protection as obfuscation, not real security. Do not describe client-side passphrase-based storage as secure encryption or meaningful secret protection.
 - Keep persistence concerns isolated from core game rules when possible.
 - Keep gameplay saves on the asynchronous IndexedDB path when browser support is available. Use `localStorage` only as a compatibility fallback or migration bridge, not as the primary autosave write target.
