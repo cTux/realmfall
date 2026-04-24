@@ -1,4 +1,5 @@
 import { syncPlayerBaseStats } from '../game/balance';
+import { getEnemyConfig } from '../game/content/enemies';
 import type { Enemy, GameState, Item } from '../game/stateTypes';
 import { normalizeCombatState } from './normalizeCombat';
 import { resolveLegacyEnemyTypeId } from './normalizeCompatibility';
@@ -270,7 +271,7 @@ function normalizeEnemy(value: unknown): GameState['enemies'][string] | null {
     ...(value.tags === undefined
       ? {}
       : { tags: [...value.tags] as Enemy['tags'] }),
-    name: value.name,
+    name: normalizeConfiguredEnemyName(value.name, enemyTypeId),
     coord,
     ...(value.rarity === undefined ? {} : { rarity: value.rarity }),
     tier: value.tier,
@@ -294,6 +295,17 @@ function normalizeEnemy(value: unknown): GameState['enemies'][string] | null {
       ? {}
       : { abilityIds: [...value.abilityIds] }),
   };
+}
+
+function normalizeConfiguredEnemyName(
+  name: string,
+  enemyTypeId: Enemy['enemyTypeId'],
+) {
+  if (enemyTypeId && name === `game.enemy.${enemyTypeId}.name`) {
+    return getEnemyConfig(enemyTypeId)?.name ?? name;
+  }
+
+  return name;
 }
 
 function normalizePlayer(value: unknown): GameState['player'] | null {

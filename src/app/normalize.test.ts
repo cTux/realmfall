@@ -122,6 +122,30 @@ describe('normalizeLoadedGame', () => {
       'wolf',
     );
   });
+
+  it('refreshes configured enemy names from canonical enemy configs when saves contain i18n keys', () => {
+    const game = createGame(3, 'normalize-world-boss-name-seed');
+    const enemyId = 'world-boss-8,-4';
+
+    game.tiles['0,0']!.enemyIds = [enemyId];
+    game.enemies[enemyId] = {
+      id: enemyId,
+      enemyTypeId: 'gluttony',
+      name: 'game.enemy.gluttony.name',
+      coord: { ...game.homeHex },
+      rarity: 'legendary',
+      tier: 12,
+      hp: 500,
+      maxHp: 500,
+      attack: 40,
+      defense: 20,
+      xp: 5,
+      elite: true,
+      worldBoss: true,
+    };
+
+    expect(normalizeLoadedGame(game)?.enemies[enemyId]?.name).toBe('Gluttony');
+  });
 });
 
 describe('normalizePersistedUiState', () => {
