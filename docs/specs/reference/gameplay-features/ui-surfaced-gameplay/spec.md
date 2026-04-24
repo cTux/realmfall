@@ -53,7 +53,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - Combat log hovers now extend beyond ability and status-effect chips to any structured combat segment with tooltip data, including enemy-name segments and secondary-stat sources such as lifesteal.
 - The newest log row renders immediately and the log list stays pinned to the bottom when new entries arrive, so the active message does not linger on a partial fragment.
 - Filtered log viewing is part of the current gameplay readability loop.
-- Large recipe lists reveal additional rows in explicit batches instead of mounting the whole matching catalog at once.
+- Large recipe lists derive memoized row view models for the visible batch, then reveal additional rows in explicit batches instead of mounting or recomputing the whole matching catalog at once.
 - Current and maximum value bars surface their meaning through the shared tooltip system.
 - Hovering a non-player combat entity's HP bar now opens a stat sheet tooltip with that entity's current combat stats.
 - The character info window now surfaces primary and secondary stat sections beneath the shared combat-style resource bars.
