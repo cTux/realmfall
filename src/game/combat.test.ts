@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   DEFAULT_ENEMY_MANA,
   enemyRarityIndex,
@@ -107,5 +107,29 @@ describe('enemy rarity', () => {
     expect(getEnemySuppressDamageChance(enemy)).toBe(
       DEFAULT_SUPPRESS_DAMAGE_CHANCE,
     );
+  });
+
+  it('refreshes world boss names after i18n loads when the enemy spawned first', async () => {
+    vi.resetModules();
+
+    const i18n = await import('../i18n');
+    const { makeEnemy: makeIsolatedEnemy } = await import('./combat');
+
+    const enemy = makeIsolatedEnemy(
+      'world-boss-i18n-seed',
+      { q: 8, r: -4 },
+      'forest',
+      0,
+      undefined,
+      false,
+      {
+        enemyId: 'world-boss-8,-4',
+        worldBoss: true,
+      },
+    );
+
+    await i18n.loadI18n();
+
+    expect(enemy.name).toBe('Gluttony');
   });
 });

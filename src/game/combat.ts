@@ -8,7 +8,11 @@ import {
 import { DEFAULT_ABILITY_ID } from './abilityCatalog';
 import { buildEnemyAbilityIds } from './abilityRuntime';
 import { getEnemyBaseStatsForLevel } from './balance';
-import { isAnimalEnemyType, pickEnemyConfig } from './content/enemies';
+import {
+  getEnemyConfig,
+  isAnimalEnemyType,
+  pickEnemyConfig,
+} from './content/enemies';
 import { GAME_TAGS, uniqueTags } from './content/tags';
 import type {
   AbilityId,
@@ -184,6 +188,13 @@ export function makeEnemy(
     ),
   };
 
+  if (
+    options?.name === undefined ||
+    options.name === `game.enemy.${config.id}.name`
+  ) {
+    defineConfiguredEnemyName(enemy, config.id);
+  }
+
   setEnemyBloodMoonState(enemy, bloodMoonActive);
   return enemy;
 }
@@ -243,4 +254,20 @@ function setEnemyBloodMoonState(enemy: Enemy, active: boolean) {
   enemy.hp = Math.max(0, Math.min(maxHp, Math.round(maxHp * currentRatio)));
   enemy.attack = active ? scaledBloodMoonStat(baseAttack) : baseAttack;
   enemy.defense = active ? scaledBloodMoonStat(baseDefense) : baseDefense;
+}
+
+function defineConfiguredEnemyName(
+  enemy: Enemy,
+  enemyTypeId: NonNullable<Enemy['enemyTypeId']>,
+) {
+  let override: Enemy['name'] | undefined;
+
+  Object.defineProperty(enemy, 'name', {
+    configurable: true,
+    enumerable: true,
+    get: () => override ?? getEnemyConfig(enemyTypeId)?.name ?? enemyTypeId,
+    set: (value: Enemy['name']) => {
+      override = value;
+    },
+  });
 }
