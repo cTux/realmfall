@@ -1,5 +1,6 @@
 import type { ComponentProps } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { setWorldClockTime } from '../../../app/App/worldClockStore';
 import { createCombatActorState } from '../../../game/combat';
 import { buildItemFromConfig } from '../../../game/content/items';
 import { ItemId } from '../../../game/content/ids';
@@ -23,13 +24,17 @@ const meta = {
   title: 'Windows/Hex Content/States',
   component: HexInfoWindowContent,
   decorators: [
-    (Story) => (
-      <div style={{ padding: '24px', minHeight: '100vh' }}>
-        <div style={{ width: 'min(720px, calc(100vw - 48px))' }}>
-          <Story />
+    (Story, context) => {
+      setWorldClockTime(context.parameters.worldTimeMs ?? 0);
+
+      return (
+        <div style={{ padding: '24px', minHeight: '100vh' }}>
+          <div style={{ width: 'min(720px, calc(100vw - 48px))' }}>
+            <Story />
+          </div>
         </div>
-      </div>
-    ),
+      );
+    },
   ],
   args: {
     onInteract: noopAction,
@@ -184,7 +189,6 @@ export const CombatEncounter: Story = {
         abilityIds: ['kick'],
       },
     ],
-    combatWorldTimeMs: 12_000,
     loot: [
       buildItemFromConfig(ItemId.Gold, { id: 'combat-gold', quantity: 22 }),
       buildItemFromConfig(ItemId.HideBuckler, {
@@ -193,13 +197,18 @@ export const CombatEncounter: Story = {
       }),
     ],
   },
+  parameters: {
+    worldTimeMs: 12_000,
+  },
 };
 
 export const LongCombatEncounter: Story = {
   args: {
     ...CombatEncounter.args,
     combat: buildCombatState({ started: true, startedAtMs: 0 }),
-    combatWorldTimeMs: 61_000,
+  },
+  parameters: {
+    worldTimeMs: 61_000,
   },
 };
 

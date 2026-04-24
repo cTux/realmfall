@@ -68,7 +68,6 @@ export interface HexInfoWindowProps
   combat?: CombatState | null;
   combatPlayerParty?: CombatPartyMember[];
   combatEnemies?: Enemy[];
-  combatWorldTimeMs?: number;
   onBuyItem: (itemId: string) => void;
   onTakeAll?: () => void;
   onTakeItem?: (itemId: string) => void;

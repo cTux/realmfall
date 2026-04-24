@@ -22,7 +22,7 @@ interface UseAppGameViewOptions {
   selectedHexItemModificationItem: Item | null;
   selectedHexItemReforgeStatIndex: number | null;
   tiles: GameState['tiles'];
-  worldTimeMs: GameState['worldTimeMs'];
+  worldDayIndex: number;
 }
 
 export function useAppGameView({
@@ -38,7 +38,7 @@ export function useAppGameView({
   selectedHexItemModificationItem,
   selectedHexItemReforgeStatIndex,
   tiles,
-  worldTimeMs,
+  worldDayIndex,
 }: UseAppGameViewOptions) {
   const { inventory, learnedRecipeIds, skills } = player;
   const hexGameplay = useHexGameplayView({
@@ -52,7 +52,7 @@ export function useAppGameView({
     selectedHexItemModificationItem,
     selectedHexItemReforgeStatIndex,
     tiles,
-    worldTimeMs,
+    worldDayIndex,
   });
   const heroOverview = useMemo(() => getPlayerOverview(player), [player]);
   const recipes = useMemo(

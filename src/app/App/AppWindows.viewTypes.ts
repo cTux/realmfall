@@ -1,10 +1,16 @@
 import { getPlayerOverview } from '../../game/progression';
 import { getCurrentHexClaimStatus } from '../../game/stateClaims';
 import { getRecipeBookEntries } from '../../game/stateCrafting';
-import { getTownStock } from '../../game/stateInventoryActions';
+import { getTownStockForDay } from '../../game/stateInventoryActions';
 import { getCurrentHexFactionNpcHealStatus } from '../../game/stateFactionNpc';
 import { getEnemiesAt } from '../../game/stateWorldQueries';
-import type { GameState, Item, LogKind, Skill, Tile } from '../../game/stateTypes';
+import type {
+  GameState,
+  Item,
+  LogKind,
+  Skill,
+  Tile,
+} from '../../game/stateTypes';
 import type { AudioSettings } from '../audioSettings';
 import type { GraphicsSettings } from '../graphicsSettings';
 import type { ActionBarSlots } from './actionBar';
@@ -47,7 +53,6 @@ export interface HexItemModificationViewState {
 
 export interface HexViewState {
   homeHex: GameState['homeHex'];
-  worldTimeMs: GameState['worldTimeMs'];
   currentTile: Tile;
   currentTileHostileEnemyCount: number;
   combat: GameState['combat'];
@@ -59,7 +64,7 @@ export interface HexViewState {
   territoryNpcHealStatus: ReturnType<typeof getCurrentHexFactionNpcHealStatus>;
   bulkProspectEquipmentExplanation: string | null;
   bulkSellEquipmentExplanation: string | null;
-  townStock: ReturnType<typeof getTownStock>;
+  townStock: ReturnType<typeof getTownStockForDay>;
   gold: number;
 }
 

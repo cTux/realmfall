@@ -31,6 +31,11 @@ type TownStockState = Pick<GameState, 'seed' | 'tiles' | 'worldTimeMs'> & {
   player: Pick<GameState['player'], 'coord'>;
 };
 
+type TownStockDayState = Pick<GameState, 'seed' | 'tiles'> & {
+  player: Pick<GameState['player'], 'coord'>;
+  worldDayIndex: number;
+};
+
 export function isOffhandSlotDisabled(
   equipment: GameState['player']['equipment'],
 ) {
@@ -181,19 +186,27 @@ export function takeTileItem(state: GameState, itemId: string): GameState {
 }
 
 export function getTownStock(state: TownStockState): TownStockEntry[] {
+  return getTownStockForDay({
+    player: state.player,
+    seed: state.seed,
+    tiles: state.tiles,
+    worldDayIndex: getWorldDayIndex(state.worldTimeMs),
+  });
+}
+
+export function getTownStockForDay(state: TownStockDayState): TownStockEntry[] {
   const tile = getCurrentTile(state);
   if (tile.structure !== 'town') {
     return [];
   }
 
-  const currentDay = getWorldDayIndex(state.worldTimeMs);
   const purchasedItemIds = new Set(
-    tile.townStockDay === currentDay
+    tile.townStockDay === state.worldDayIndex
       ? (tile.townStockPurchasedItemIds ?? [])
       : [],
   );
 
-  return buildTownStock(state.seed, tile.coord, currentDay).filter(
+  return buildTownStock(state.seed, tile.coord, state.worldDayIndex).filter(
     (entry) => !purchasedItemIds.has(entry.item.id),
   );
 }

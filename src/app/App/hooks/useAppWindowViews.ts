@@ -49,7 +49,6 @@ interface UseAppWindowViewsArgs {
   showFilterMenu: boolean;
   heroOverview: AppWindowsViewState['hero']['overview'];
   townStock: AppWindowsViewState['hex']['townStock'];
-  worldTimeMs: GameState['worldTimeMs'];
 }
 
 export function useAppWindowViews({
@@ -84,7 +83,6 @@ export function useAppWindowViews({
   showFilterMenu,
   heroOverview,
   townStock,
-  worldTimeMs,
 }: UseAppWindowViewsArgs): AppWindowsViewState {
   const hero = useMemo(
     () => ({
@@ -121,7 +119,6 @@ export function useAppWindowViews({
   const hex = useMemo(
     () => ({
       homeHex,
-      worldTimeMs,
       currentTile,
       currentTileHostileEnemyCount,
       combat: combatState,
@@ -151,7 +148,6 @@ export function useAppWindowViews({
       bulkSellEquipmentExplanation,
       territoryNpcHealStatus,
       townStock,
-      worldTimeMs,
     ],
   );
 

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { getWorldDayIndex } from '../../../game/logs';
 import { getCurrentTile } from '../../../game/stateSelectors';
 import { useAppControllers } from '../useAppControllers';
 import { useAppGameView } from '../useAppGameView';
@@ -58,7 +59,7 @@ export function useAppRuntime() {
     selectedHexItemReforgeStatIndex:
       controllerState.selectedHexItemReforgeStatIndex,
     tiles: bootstrap.game.tiles,
-    worldTimeMs: bootstrap.game.worldTimeMs,
+    worldDayIndex: getWorldDayIndex(bootstrap.game.worldTimeMs),
   });
   const persistence = useAppPersistence({
     game: bootstrap.game,
@@ -258,7 +259,6 @@ export function useAppRuntime() {
       showFilterMenu: controllerState.showFilterMenu,
       heroOverview: gameView.heroOverview,
       townStock: gameView.townStock,
-      worldTimeMs: bootstrap.game.worldTimeMs,
     },
     windows: controllerState.windows,
     windowShown: controllerState.windowShown,

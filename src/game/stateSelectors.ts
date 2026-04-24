@@ -36,6 +36,7 @@ export {
 export { getRecipeBookEntries, getRecipeBookRecipes } from './stateCrafting';
 export {
   getTownStock,
+  getTownStockForDay,
   hasEquippableInventoryItems,
   isOffhandSlotDisabled,
 } from './stateInventoryActions';

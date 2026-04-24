@@ -98,6 +98,7 @@ export {
   dropEquippedItem,
   dropInventoryItem,
   getTownStock,
+  getTownStockForDay,
   hasEquippableInventoryItems,
   isOffhandSlotDisabled,
   prospectInventory,

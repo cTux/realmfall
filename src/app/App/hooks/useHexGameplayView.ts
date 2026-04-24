@@ -13,7 +13,7 @@ import {
   getEnemiesAt,
   getGoldAmount,
   getHostileEnemyIds,
-  getTownStock,
+  getTownStockForDay,
 } from '../../../game/stateSelectors';
 import { getCurrentHexFactionNpcHealStatus } from '../../../game/stateFactionNpc';
 import type { GameState, Item } from '../../../game/stateTypes';
@@ -32,7 +32,7 @@ interface UseHexGameplayViewOptions {
   selectedHexItemModificationItem: Item | null;
   selectedHexItemReforgeStatIndex: number | null;
   tiles: GameState['tiles'];
-  worldTimeMs: GameState['worldTimeMs'];
+  worldDayIndex: number;
 }
 
 type EnemyLookupInput = Parameters<typeof getEnemiesAt>[0];
@@ -52,7 +52,7 @@ export function useHexGameplayView({
   selectedHexItemModificationItem,
   selectedHexItemReforgeStatIndex,
   tiles,
-  worldTimeMs,
+  worldDayIndex,
 }: UseHexGameplayViewOptions) {
   const { coord, inventory } = player;
   const enemyLookupInput = useMemo<EnemyLookupInput>(
@@ -98,13 +98,13 @@ export function useHexGameplayView({
   );
   const townStock = useMemo(
     () =>
-      getTownStock({
+      getTownStockForDay({
         player: { coord },
         seed,
         tiles,
-        worldTimeMs,
+        worldDayIndex,
       }),
-    [coord, seed, tiles, worldTimeMs],
+    [coord, seed, tiles, worldDayIndex],
   );
   const combatEnemies = useMemo(
     () => (combat ? getEnemiesAt(enemyLookupInput, combat.coord) : []),
