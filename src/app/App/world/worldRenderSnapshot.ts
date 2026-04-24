@@ -11,6 +11,7 @@ export interface WorldRenderSnapshot {
   invalidationToken: number;
   iconTextureVersion: number;
   showTerrainBackgrounds: boolean;
+  worldRenderFps: number;
 }
 
 export function createInitialWorldRenderSnapshot(): WorldRenderSnapshot {
@@ -24,5 +25,6 @@ export function createInitialWorldRenderSnapshot(): WorldRenderSnapshot {
     invalidationToken: 0,
     iconTextureVersion: -1,
     showTerrainBackgrounds: true,
+    worldRenderFps: 0,
   };
 }

@@ -2,6 +2,10 @@ import {
   applyGraphicsPreset,
   GRAPHICS_PRESET_OPTIONS,
   GRAPHICS_SETTINGS_OPTIONS,
+  MAX_WORLD_RENDER_FPS,
+  MIN_WORLD_RENDER_FPS,
+  WORLD_RENDER_FPS_STEP,
+  normalizeWorldRenderFps,
 } from '../../../app/graphicsSettings';
 import { t } from '../../../i18n';
 import { Switch } from '../Switch';
@@ -64,6 +68,38 @@ export function GameSettingsGraphicsPanel({
           })}
         </div>
       </div>
+      <label className={styles.rangeField}>
+        <span className={styles.rangeHeader}>
+          <span className={styles.rangeLabel}>
+            {t('ui.settings.graphics.worldRenderFps.label')}
+          </span>
+          <span className={styles.rangeValue}>
+            {t('ui.settings.graphics.worldRenderFps.value', {
+              fps: graphicsSettings.worldRenderFps,
+            })}
+          </span>
+        </span>
+        <span className={styles.rangeDescription}>
+          {t('ui.settings.graphics.worldRenderFps.description')}
+        </span>
+        <input
+          type="range"
+          min={MIN_WORLD_RENDER_FPS}
+          max={MAX_WORLD_RENDER_FPS}
+          step={WORLD_RENDER_FPS_STEP}
+          value={graphicsSettings.worldRenderFps}
+          onChange={(event) => {
+            const worldRenderFps = normalizeWorldRenderFps(
+              Number(event.currentTarget.value),
+            );
+
+            onChange((current) => ({
+              ...current,
+              worldRenderFps,
+            }));
+          }}
+        />
+      </label>
       <div className={styles.switches}>
         {GRAPHICS_SETTINGS_OPTIONS.map((option) => (
           <Switch

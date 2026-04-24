@@ -72,7 +72,7 @@ describe('renderScene cache invalidation', () => {
       game.player.coord,
       null,
       12 * 60,
-      100,
+      101,
     );
 
     const scene = getSceneCache(app as never);
@@ -93,7 +93,7 @@ describe('renderScene cache invalidation', () => {
       { q: 1, r: 0 },
       { q: 1, r: 0 },
       12 * 60,
-      120,
+      110,
     );
 
     expect(
@@ -114,7 +114,7 @@ describe('renderScene cache invalidation', () => {
       { q: 1, r: 0 },
       null,
       12 * 60,
-      180,
+      121,
     );
 
     expect(
@@ -143,7 +143,7 @@ describe('renderScene cache invalidation', () => {
       game.player.coord,
       null,
       12 * 60,
-      100,
+      101,
     );
 
     expect(getSceneRenderCounts(app as never)).toEqual({
@@ -160,7 +160,7 @@ describe('renderScene cache invalidation', () => {
       game.player.coord,
       null,
       12 * 60,
-      120,
+      110,
     );
 
     expect(getSceneRenderCounts(app as never)).toEqual({
@@ -177,7 +177,7 @@ describe('renderScene cache invalidation', () => {
       { q: 1, r: 0 },
       { q: 1, r: 0 },
       12 * 60,
-      130,
+      115,
     );
 
     expect(getSceneRenderCounts(app as never)).toEqual({
@@ -204,7 +204,7 @@ describe('renderScene cache invalidation', () => {
       game.player.coord,
       null,
       12 * 60,
-      100,
+      101,
     );
 
     const scene = getSceneCache(app as never);
@@ -226,7 +226,7 @@ describe('renderScene cache invalidation', () => {
       game.player.coord,
       null,
       12 * 60,
-      120,
+      110,
     );
 
     const lastBeginFillCall =

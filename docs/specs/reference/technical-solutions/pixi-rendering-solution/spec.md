@@ -9,8 +9,8 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Pixi owns the main world redraw loop through the ticker started in `usePixiWorld`.
 - The Pixi world ticker stops while the document is hidden, then invalidates and draws a single catch-up frame when the document becomes visible before normal ticking resumes.
 - Drag and wheel interactions update the canonical world-map camera ref synchronously, then coalesce Pixi container transform writes through one animation-frame scheduler so high-rate pointer input cannot force multiple container mutations in the same frame.
-- Idle world frames coalesce inside a lower animation cadence bucket, so unchanged state does not rerun the full world render path on every Pixi ticker tick.
-- The Pixi ticker is capped to the same `15 FPS` cadence used by the animated world-layer buckets, reducing idle wakeups before the render snapshot guard runs.
+- Idle world frames coalesce inside the configured render-FPS bucket, so unchanged state does not rerun the full world render path on every Pixi ticker tick.
+- The Pixi ticker is capped to the selected persisted Pixi render FPS, clamped between `60` and `240`, and the animated world-layer buckets use the same frame duration to reduce idle wakeups before the render snapshot guard runs.
 - React updates feed the renderer through refs and invalidation-sensitive cached inputs rather than by layering a second immediate render effect path.
 - The renderer separates static, interaction, and animated work.
 - Static layers hold terrain, structures, claims, and stable ground cover.
@@ -60,7 +60,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Runtime terrain drawing resolves `terrainArtFor(...)` to generated atlas frame ids, and the world texture cache loads the atlas image once before creating per-terrain frame textures for Pixi sprites.
 - Terrain background visibility is driven by a persisted graphics toggle that invalidates the cached static layer and rerenders the world map without recreating the Pixi app.
 - The Pixi canvas uses density-aware sizing so browser zoom and high-DPI displays keep the world viewport fitted to CSS pixels while renderer resolution tracks `window.devicePixelRatio` changes on resize within the current graphics preset cap.
-- Persisted settings now hydrate both Pixi renderer initialization flags and a preset-derived renderer density cap through a dedicated plain `localStorage` `settings` payload that is read before the initial game and Pixi setup; `usePixiWorld` captures those init-time flags for the current page lifetime, marks their controls as reload-required, and keeps live terrain-background changes on the redraw invalidation path.
+- Persisted settings now hydrate both Pixi renderer initialization flags, a preset-derived renderer density cap, and the live Pixi render-FPS cap through a dedicated plain `localStorage` `settings` payload that is read before the initial game and Pixi setup; `usePixiWorld` captures init-time flags for the current page lifetime, marks their controls as reload-required, and keeps live terrain-background plus render-FPS changes on the redraw invalidation path.
 - Hover-analysis caching now invalidates from gameplay-state versions that materially affect interaction resolution rather than from every broad `tiles` or `enemies` container identity change.
 
 ## Main Implementation Areas

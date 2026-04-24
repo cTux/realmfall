@@ -78,13 +78,14 @@ export function getAnimatedRenderToken(
   },
   animationMs: number,
   fullscreenVisualEffectToken: string,
+  frameMs = ANIMATED_LAYER_FRAME_MS,
 ) {
   return [
     state.seed,
     state.bloodMoonActive ? 'blood' : 'normal',
     state.harvestMoonActive ? 'harvest' : 'default',
     fullscreenVisualEffectToken,
-    Math.floor(animationMs / ANIMATED_LAYER_FRAME_MS),
+    Math.floor(animationMs / frameMs),
   ].join(':');
 }
 

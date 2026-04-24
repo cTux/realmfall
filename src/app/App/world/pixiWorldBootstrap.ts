@@ -53,6 +53,7 @@ interface BootstrapPixiWorldCanvasArgs {
   setGame: Dispatch<SetStateAction<GameState>>;
   setTooltip: (nextTooltip: TooltipState | null) => void;
   showTerrainBackgroundsRef: MutableRefObject<boolean>;
+  worldRenderFpsRef: MutableRefObject<number>;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
   visibleTilesRef: MutableRefObject<ReturnType<typeof getVisibleTiles>>;
   worldMapCameraRef: MutableRefObject<WorldMapCameraState>;
@@ -84,6 +85,7 @@ export async function bootstrapPixiWorldCanvas({
   setGame,
   setTooltip,
   showTerrainBackgroundsRef,
+  worldRenderFpsRef,
   tooltipPositionRef,
   visibleTilesRef,
   worldMapCameraRef,
@@ -196,6 +198,7 @@ export async function bootstrapPixiWorldCanvas({
     hoveredMoveRef,
     hoveredSafePathRef,
     showTerrainBackgroundsRef,
+    worldRenderFpsRef,
     pausedRef,
     pausedAnimationMsRef,
     worldTimeMsRef,
@@ -204,7 +207,10 @@ export async function bootstrapPixiWorldCanvas({
   });
 
   resize();
-  renderLoopModule.configureWorldTickerCadence(app.ticker);
+  renderLoopModule.configureWorldTickerCadence(
+    app.ticker,
+    worldRenderFpsRef.current,
+  );
   renderFrame();
   app.ticker.add(renderFrame);
   const detachTickerVisibilityPause =

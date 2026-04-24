@@ -9,7 +9,8 @@
 - Consider React rerender cost and Pixi redraw cost together for world-facing changes.
 - Prefer a single clear render scheduler for the world path. Avoid duplicate immediate redraw triggers layered on top of the ticker unless there is a measured reason.
 - When React-driven world state changes need a redraw, prefer updating refs or lightweight invalidation flags that the ticker consumes instead of adding a second immediate `renderScene` effect path.
-- Cap Pixi ticker wakeups to the world animation cadence when the render loop uses a lower animation bucket rate. The ticker cadence and render bucket rate should stay aligned so idle frames do not wake at display refresh speed only to no-op.
+- Cap Pixi ticker wakeups to the selected world render FPS, and keep the render bucket frame size aligned with that selected cadence so idle frames do not wake at display refresh speed only to no-op.
+- Keep user-facing Pixi render FPS controls normalized through graphics settings and clamped to the supported range before they reach ticker or render-bucket code.
 - Keep `usePixiWorld` focused on refs, lifecycle effects, and async bootstrap wiring. Move render-loop comparison, camera persistence, and pointer interaction details into neighboring `src/app/App/world` modules once the world hook starts accumulating those responsibilities.
 - Keep `src/app/App/usePixiWorld.ts` free of static value imports from Pixi render-loop and world texture modules. Only type imports or small non-Pixi snapshot helpers may cross the startup boundary; load render loops, runtime, scene rendering, and texture modules inside the async Pixi bootstrap.
 - Use lazy refs for expensive world hook defaults such as visible tiles, hover caches, and render snapshots. Avoid `useRef(expensiveFactory())` in world hooks because the argument is evaluated on every render.

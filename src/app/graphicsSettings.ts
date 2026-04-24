@@ -3,6 +3,19 @@ import {
   normalizeStoredBoolean,
 } from './settingsNormalization';
 import { createSettingsSectionStore } from './settingsSectionStore';
+import {
+  DEFAULT_WORLD_RENDER_FPS,
+  MAX_WORLD_RENDER_FPS,
+  MIN_WORLD_RENDER_FPS,
+  WORLD_RENDER_FPS_STEP,
+} from '../ui/world/renderCadence';
+
+export {
+  DEFAULT_WORLD_RENDER_FPS,
+  MAX_WORLD_RENDER_FPS,
+  MIN_WORLD_RENDER_FPS,
+  WORLD_RENDER_FPS_STEP,
+};
 
 export type GraphicsPresetId =
   | 'quality'
@@ -15,6 +28,7 @@ export type GraphicsResolutionCap = 1 | 1.5 | 2;
 export interface GraphicsSettings {
   preset: GraphicsPresetId;
   resolutionCap: GraphicsResolutionCap;
+  worldRenderFps: number;
   antialias: boolean;
   autoDensity: boolean;
   clearBeforeRender: boolean;
@@ -28,7 +42,7 @@ type PresetGraphicsSettings = Omit<GraphicsSettings, 'preset'>;
 
 type GraphicsToggleSettingKey = Exclude<
   keyof GraphicsSettings,
-  'preset' | 'resolutionCap'
+  'preset' | 'resolutionCap' | 'worldRenderFps'
 >;
 
 export interface GraphicsSettingsOptionDefinition {
@@ -48,6 +62,7 @@ export interface GraphicsPresetOptionDefinition {
 const GRAPHICS_PRESET_SETTINGS = {
   quality: {
     resolutionCap: 2,
+    worldRenderFps: DEFAULT_WORLD_RENDER_FPS,
     antialias: true,
     autoDensity: true,
     clearBeforeRender: true,
@@ -58,6 +73,7 @@ const GRAPHICS_PRESET_SETTINGS = {
   },
   balanced: {
     resolutionCap: 1.5,
+    worldRenderFps: DEFAULT_WORLD_RENDER_FPS,
     antialias: true,
     autoDensity: true,
     clearBeforeRender: true,
@@ -68,6 +84,7 @@ const GRAPHICS_PRESET_SETTINGS = {
   },
   performance: {
     resolutionCap: 1,
+    worldRenderFps: DEFAULT_WORLD_RENDER_FPS,
     antialias: false,
     autoDensity: true,
     clearBeforeRender: true,
@@ -149,6 +166,22 @@ export function getGraphicsRenderResolution(
   return Math.min(Math.max(devicePixelRatio || 1, 1), settings.resolutionCap);
 }
 
+export function normalizeWorldRenderFps(
+  value: unknown,
+  fallback = DEFAULT_WORLD_RENDER_FPS,
+) {
+  const numericValue = typeof value === 'number' ? value : Number.NaN;
+
+  if (!Number.isFinite(numericValue)) {
+    return fallback;
+  }
+
+  return Math.min(
+    MAX_WORLD_RENDER_FPS,
+    Math.max(MIN_WORLD_RENDER_FPS, Math.round(numericValue)),
+  );
+}
+
 export const GRAPHICS_SETTINGS_OPTIONS: GraphicsSettingsOptionDefinition[] = [
   {
     key: 'antialias',
@@ -220,6 +253,10 @@ function normalizeGraphicsSettings(settings: unknown): GraphicsSettings {
       settings.resolutionCap,
       presetDefaults.resolutionCap,
     ),
+    worldRenderFps: normalizeWorldRenderFps(
+      settings.worldRenderFps,
+      presetDefaults.worldRenderFps,
+    ),
     antialias: normalizeStoredBoolean(
       settings.antialias,
       presetDefaults.antialias,
@@ -277,6 +314,7 @@ function stripPreset(
 ): PresetGraphicsSettings {
   return {
     resolutionCap: settings.resolutionCap,
+    worldRenderFps: settings.worldRenderFps,
     antialias: settings.antialias,
     autoDensity: settings.autoDensity,
     clearBeforeRender: settings.clearBeforeRender,
@@ -293,6 +331,7 @@ function graphicsSettingsEqual(
 ) {
   return (
     current.resolutionCap === expected.resolutionCap &&
+    current.worldRenderFps === expected.worldRenderFps &&
     current.antialias === expected.antialias &&
     current.autoDensity === expected.autoDensity &&
     current.clearBeforeRender === expected.clearBeforeRender &&

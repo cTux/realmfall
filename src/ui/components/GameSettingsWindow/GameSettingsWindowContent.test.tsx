@@ -334,6 +334,58 @@ describe('GameSettingsWindowContent', () => {
     });
   });
 
+  it('saves the selected Pixi render FPS inside the graphics payload', async () => {
+    const onSave = vi.fn(async () => undefined);
+
+    await act(async () => {
+      root.render(
+        <GameSettingsWindowContent
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
+          graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          onResetSaveArea={async () => undefined}
+          onSave={onSave}
+          onSaveAndReload={async () => undefined}
+        />,
+      );
+    });
+
+    const renderFpsSlider = host.querySelector(
+      'input[type="range"]',
+    ) as HTMLInputElement | null;
+    const saveButton = Array.from(host.querySelectorAll('button')).find(
+      (candidate) =>
+        candidate.textContent?.includes(t('ui.settings.actions.save')),
+    );
+
+    expect(renderFpsSlider).not.toBeNull();
+    expect(saveButton).toBeDefined();
+
+    await act(async () => {
+      if (renderFpsSlider) {
+        const setValue = Object.getOwnPropertyDescriptor(
+          HTMLInputElement.prototype,
+          'value',
+        )?.set;
+
+        setValue?.call(renderFpsSlider, '120');
+        renderFpsSlider.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+
+    await act(async () => {
+      saveButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    expect(onSave).toHaveBeenCalledWith({
+      audio: DEFAULT_AUDIO_SETTINGS,
+      graphics: {
+        ...DEFAULT_GRAPHICS_SETTINGS,
+        preset: 'custom',
+        worldRenderFps: 120,
+      },
+    });
+  });
+
   it('saves the terrain background toggle inside the graphics payload', async () => {
     const onSave = vi.fn(async () => undefined);
 

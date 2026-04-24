@@ -9,7 +9,7 @@ This spec covers browser save storage, direct hydration of the current save shap
 - Saves are stored in browser IndexedDB under the `realmfall` database, using the `app-state` object store and separate `game-state-game` and `game-state-ui` keys.
 - Gameplay and UI data persist as separate encrypted save areas so each area can be cleared independently without rewriting the other.
 - If IndexedDB is unavailable, the encrypted save falls back to `localStorage`, and successful IndexedDB-backed loads clear the legacy `localStorage` copy after migrating it.
-- Graphics, audio, and world-map settings persist separately in plain `localStorage` under dedicated area keys outside the encrypted save areas, so startup can hydrate renderer and world-map initialization inputs before the game save finishes loading.
+- Graphics, audio, and world-map settings persist separately in plain `localStorage` under dedicated area keys outside the encrypted save areas, so startup can hydrate renderer initialization inputs, the live Pixi render-FPS cap, and world-map initialization inputs before the game save finishes loading.
 - The app persists snapshots with world time and UI window state while intentionally excluding transient log history from the saved payload.
 - `src/persistence/storage.ts` wraps saved JSON in AES-GCM using a client-side passphrase-derived key.
 - That wrapper is implementation obfuscation for local saves, not a real security boundary or meaningful client-side secret protection.

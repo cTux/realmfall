@@ -23,18 +23,33 @@ import {
   createWorldRenderFrame,
 } from './pixiWorldRenderLoop';
 import { createInitialWorldRenderSnapshot } from './worldRenderSnapshot';
+import {
+  DEFAULT_WORLD_RENDER_FPS,
+  MAX_WORLD_RENDER_FPS,
+  MIN_WORLD_RENDER_FPS,
+} from '../../graphicsSettings';
 
 describe('pixiWorldRenderLoop', () => {
-  it('caps Pixi ticker wakeups to the world animation cadence', () => {
+  it('caps Pixi ticker wakeups to the selected world render FPS', () => {
     const ticker = { maxFPS: 0 };
 
-    configureWorldTickerCadence(ticker);
+    configureWorldTickerCadence(ticker, 144);
 
-    expect(ticker.maxFPS).toBe(WORLD_ANIMATION_FPS);
+    expect(ticker.maxFPS).toBe(144);
   });
 
-  it('matches the animated layer frame bucket cadence', () => {
-    expect(WORLD_ANIMATION_FPS).toBe(15);
+  it('clamps Pixi ticker wakeups to the supported world render FPS range', () => {
+    const ticker = { maxFPS: 0 };
+
+    configureWorldTickerCadence(ticker, 12);
+    expect(ticker.maxFPS).toBe(MIN_WORLD_RENDER_FPS);
+
+    configureWorldTickerCadence(ticker, 999);
+    expect(ticker.maxFPS).toBe(MAX_WORLD_RENDER_FPS);
+  });
+
+  it('defaults the world render FPS to the minimum supported cadence', () => {
+    expect(WORLD_ANIMATION_FPS).toBe(DEFAULT_WORLD_RENDER_FPS);
   });
 
   it('re-renders when world icon textures finish loading after the first frame', () => {
@@ -54,6 +69,7 @@ describe('pixiWorldRenderLoop', () => {
       hoveredMoveRef: { current: hoveredMove },
       hoveredSafePathRef: { current: hoveredSafePath },
       showTerrainBackgroundsRef: { current: true },
+      worldRenderFpsRef: { current: DEFAULT_WORLD_RENDER_FPS },
       pausedRef: { current: false },
       pausedAnimationMsRef: { current: null },
       worldTimeMsRef: { current: 0 },
@@ -90,6 +106,7 @@ describe('pixiWorldRenderLoop', () => {
       hoveredMoveRef: { current: null },
       hoveredSafePathRef: { current: null },
       showTerrainBackgroundsRef,
+      worldRenderFpsRef: { current: DEFAULT_WORLD_RENDER_FPS },
       pausedRef: { current: false },
       pausedAnimationMsRef: { current: null },
       worldTimeMsRef: { current: 0 },
@@ -108,6 +125,45 @@ describe('pixiWorldRenderLoop', () => {
     expect(renderScene).toHaveBeenCalledTimes(2);
     expect(renderScene.mock.calls[1]?.[8]).toEqual({
       showTerrainBackgrounds: false,
+      worldRenderFps: DEFAULT_WORLD_RENDER_FPS,
+    });
+
+    performanceNowSpy.mockRestore();
+  });
+
+  it('uses the selected render FPS for animation buckets', () => {
+    let now = 0;
+    const performanceNowSpy = vi
+      .spyOn(performance, 'now')
+      .mockImplementation(() => now);
+    const renderScene = vi.fn();
+    const game = { player: { coord: { q: 0, r: 0 } } };
+    const visibleTiles = [{ coord: { q: 0, r: 0 }, terrain: 'plains' }];
+    const selected = { q: 0, r: 0 };
+    const renderFrame = createWorldRenderFrame({
+      app: {} as never,
+      renderScene,
+      gameRef: { current: game } as never,
+      visibleTilesRef: { current: visibleTiles } as never,
+      selectedRef: { current: selected } as never,
+      hoveredMoveRef: { current: null },
+      hoveredSafePathRef: { current: null },
+      showTerrainBackgroundsRef: { current: true },
+      worldRenderFpsRef: { current: 120 },
+      pausedRef: { current: false },
+      pausedAnimationMsRef: { current: null },
+      worldTimeMsRef: { current: 0 },
+      renderInvalidationRef: { current: 0 },
+      lastRenderSnapshotRef: { current: createInitialWorldRenderSnapshot() },
+    });
+
+    renderFrame();
+    now = 10;
+    renderFrame();
+
+    expect(renderScene).toHaveBeenCalledTimes(2);
+    expect(renderScene.mock.calls[1]?.[8]).toMatchObject({
+      worldRenderFps: 120,
     });
 
     performanceNowSpy.mockRestore();
