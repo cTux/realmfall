@@ -73,6 +73,52 @@ describe('App combat attention', () => {
     host.remove();
   }, 10_000);
 
+  it('keeps hex content open on empty hexes when loot is available', async () => {
+    const game = createHydratedAppGame();
+    game.tiles['0,1'] = {
+      coord: { q: 0, r: 1 },
+      terrain: 'plains',
+      items: [
+        {
+          id: 'loot-ore',
+          name: 'Iron Ore',
+          quantity: 2,
+          tier: 1,
+          rarity: 'common',
+          power: 0,
+          defense: 0,
+          maxHp: 0,
+          healing: 0,
+          hunger: 0,
+        },
+      ],
+      enemyIds: [],
+    };
+    loadEncryptedState.mockResolvedValue({ game, ui: {} });
+
+    const { host, root } = await renderApp();
+    await flushLazyModules();
+
+    await act(async () => {
+      setGameRef.current?.((current) =>
+        moveToTile(
+          { ...current, worldTimeMs: current.worldTimeMs },
+          { q: 0, r: 1 },
+        ),
+      );
+    });
+    await flushLazyModules();
+
+    const updatedHexContentButton = findHexContentDockButton(host);
+    expect(updatedHexContentButton?.dataset.opened).toBe('true');
+    expect(host.textContent).toContain('Tak(e) all');
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  }, 10_000);
+
   it('opens hex content and marks its dock entry when entering a battle hex', async () => {
     const game = createHydratedAppGame();
     loadEncryptedState.mockResolvedValue({ game, ui: {} });

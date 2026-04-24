@@ -3,6 +3,7 @@ import type { WindowVisibilityState } from '../../constants';
 
 interface UseHexInfoWindowPromotionArgs {
   combatActive: boolean;
+  currentLootAvailable: boolean;
   currentStructure: boolean;
   setWindowShown: Dispatch<SetStateAction<WindowVisibilityState>>;
   windowShown: WindowVisibilityState;
@@ -10,6 +11,7 @@ interface UseHexInfoWindowPromotionArgs {
 
 export function useHexInfoWindowPromotion({
   combatActive,
+  currentLootAvailable,
   currentStructure,
   setWindowShown,
   windowShown,
@@ -17,7 +19,11 @@ export function useHexInfoWindowPromotion({
   useEffect(() => {
     setWindowShown((current) => {
       const shouldShowHexInfo =
-        currentStructure || combatActive || current.loot || current.combat;
+        currentStructure ||
+        currentLootAvailable ||
+        combatActive ||
+        current.loot ||
+        current.combat;
 
       if (
         current.hexInfo === shouldShowHexInfo &&
@@ -36,6 +42,7 @@ export function useHexInfoWindowPromotion({
     });
   }, [
     combatActive,
+    currentLootAvailable,
     currentStructure,
     setWindowShown,
     windowShown.combat,

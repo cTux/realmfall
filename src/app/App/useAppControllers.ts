@@ -24,6 +24,7 @@ import { useRecipeMaterialFilter } from './hooks/useRecipeMaterialFilter';
 
 interface UseAppControllersOptions {
   combat: GameState['combat'];
+  currentTileItemsLength: number;
   currentStructure?: GameState['tiles'][string]['structure'];
   equipment: GameState['player']['equipment'];
   inventory: Item[];
@@ -138,6 +139,7 @@ export interface AppControllers {
 
 export function useAppControllers({
   combat,
+  currentTileItemsLength,
   currentStructure,
   equipment,
   inventory,
@@ -226,6 +228,7 @@ export function useAppControllers({
   });
   useHexInfoWindowPromotion({
     combatActive: combat != null,
+    currentLootAvailable: currentTileItemsLength > 0,
     currentStructure: currentStructure != null,
     setWindowShown,
     windowShown,
