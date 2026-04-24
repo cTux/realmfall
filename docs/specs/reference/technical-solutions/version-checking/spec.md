@@ -11,14 +11,17 @@ This spec covers the shipped version metadata flow from `package.json` into the 
 - The Vite config serves `/version.json` during local development and emits `dist/version.json` during production builds with the shape `{ "version": "<package version plus git build metadata>" }`.
 - `pnpm serve` runs the built `dist` output behind local HTTPS using a generated self-signed localhost certificate so release-like checks exercise the secure origin path.
 - The build continues to emit `version.json` for deployment metadata, but the app does not mount the in-game polling widget or refresh prompt.
-- Routine contributor commits do not mutate `package.json`; release-version edits are intentional source changes rather than mandatory commit metadata.
-- `pnpm git:commit` delegates to `git commit` through the repository helper without editing `package.json`, so routine PR work does not create version-only diff churn.
+- Routine contributor commits increment the `package.json` patch version before the commit is created, making the package release version advance monotonically with local commit history.
+- `scripts/commit-version-bump.mjs` owns the patch bump, stages `package.json`, skips when the helper has already bumped the version, and refuses to run when `package.json` has unstaged edits so unrelated manifest changes are not pulled into the commit.
+- `pnpm git:commit` runs the bump script before delegating to `git commit`, while `.husky/pre-commit` runs the same script for plain `git commit`. The helper marks the commit environment so the hook does not apply a second bump.
 
 ## Main Implementation Areas
 
 - `package.json`
 - `scripts/build-version.helpers.ts`
+- `scripts/commit-version-bump.mjs`
 - `scripts/git-commit.mjs`
+- `.husky/pre-commit`
 - `vite.config.ts`
 - `src/version.ts`
 - `src/main.tsx`

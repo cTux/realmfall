@@ -20,8 +20,8 @@ Use this file for contributor process only. Canonical project guidance lives in
 ## Commit Workflow
 
 - Use Conventional Commits.
-- Use `pnpm git:commit -- -m "<message>"` for routine commits. It delegates to `git commit` through the repository helper without editing `package.json`.
-- Edit the `package.json` version only when you intentionally want to change the shipped release line.
+- Use `pnpm git:commit -- -m "<message>"` for routine commits. It increments the `package.json` patch version, stages that bump, then delegates to `git commit` through the repository helper.
+- Plain `git commit` also runs the patch-version bump through the Husky pre-commit hook. Stage or stash unrelated `package.json` edits first, because the bump refuses to run when that file has unstaged changes.
 - Generate commit messages from the actual change set.
 - Keep commit messages focused on the behavioral change instead of enumerating every touched doc file.
 - Use `pnpm git:prune-gone-branches -- --dry-run` to preview local branches whose tracked remote ref was deleted, then rerun without `--dry-run` to remove them. Add `-- --safe` only when you want Git to keep its merged-branch protection.
