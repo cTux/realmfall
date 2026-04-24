@@ -74,6 +74,37 @@ describe('renderScene atmosphere', () => {
     expect(fullscreenEffectFill.beginFill).not.toHaveBeenCalled();
   });
 
+  it('renders a gold fullscreen glow after a player level up', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { getSceneCache } = await import('./renderSceneCache');
+    const game = createGame(2, 'render-scene-level-up-glow');
+    game.playerLevelUpVisualEndsAt = game.worldTimeMs + 2_500;
+    const app = createMockApp();
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      600,
+    );
+
+    const scene = getSceneCache(app as never);
+    const fullscreenEffectFill =
+      scene.fullscreenEffectFill as unknown as MockGraphics;
+    const lastBeginFillCall =
+      fullscreenEffectFill.beginFill.mock.calls[
+        fullscreenEffectFill.beginFill.mock.calls.length - 1
+      ];
+
+    expect(fullscreenEffectFill.visible).toBe(true);
+    expect(lastBeginFillCall?.[0]).toBe(0xfbbf24);
+    expect(lastBeginFillCall?.[1]).toBeGreaterThan(0);
+    expect(fullscreenEffectFill.drawRect).toHaveBeenCalledWith(0, 0, 800, 600);
+  });
+
   it('adds animated campfire and furnace glow only once the world gets dark', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-campfire-glow');

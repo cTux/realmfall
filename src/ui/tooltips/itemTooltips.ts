@@ -199,9 +199,19 @@ function consumableEffectDescription(item: Item) {
           }),
         ];
       case 'hunger':
-        return [t('game.message.useItem.hunger', { amount: effect.amount })];
+        return [
+          t('game.message.useItem.hunger', {
+            amount: effect.amount,
+            unit: '%',
+          }),
+        ];
       case 'thirst':
-        return [t('game.message.useItem.thirst', { amount: effect.amount })];
+        return [
+          t('game.message.useItem.thirst', {
+            amount: effect.amount,
+            unit: '%',
+          }),
+        ];
       case 'homeScroll':
         return [];
     }

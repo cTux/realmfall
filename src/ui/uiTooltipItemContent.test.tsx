@@ -150,7 +150,7 @@ describe('ui tooltip item content', () => {
     expect(itemTooltipLines(consumableTooltipItem)).toEqual([
       {
         kind: 'text',
-        text: 'Use to recover 12% HP and restore 12% MP and restore 8 hunger.',
+        text: 'Use to recover 12% HP and restore 12% MP and restore 8% hunger.',
       },
       {
         kind: 'text',

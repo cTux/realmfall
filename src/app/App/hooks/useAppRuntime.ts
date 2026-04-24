@@ -19,6 +19,8 @@ import { useAppWorldClock } from './useAppWorldClock';
 export function useAppRuntime() {
   const bootstrap = useAppBootstrapState();
   const controllers = useAppControllers({
+    combat: bootstrap.game.combat,
+    currentTileItemsLength: getCurrentTile(bootstrap.game).items.length,
     currentStructure: getCurrentTile(bootstrap.game).structure,
     equipment: bootstrap.game.player.equipment,
     inventory: bootstrap.game.player.inventory,
@@ -127,6 +129,7 @@ export function useAppRuntime() {
     combat: bootstrap.game.combat,
     enemyLookup: bootstrap.game.enemies,
     paused: bootstrap.paused,
+    playerMana: bootstrap.game.player.mana,
     playerStatusEffects: bootstrap.game.player.statusEffects,
     setGame: bootstrap.setGame,
     worldTimeMsRef: bootstrap.worldTimeMsRef,

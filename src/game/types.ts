@@ -404,6 +404,7 @@ export interface GameState {
   harvestMoonCycle: number;
   lastEarthshakeDay: number;
   gameOver: boolean;
+  playerLevelUpVisualEndsAt?: number;
   logSequence: number;
   logs: LogEntry[];
   tiles: Record<string, Tile>;

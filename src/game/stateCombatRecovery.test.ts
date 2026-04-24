@@ -34,8 +34,8 @@ describe('game state combat recovery', () => {
     const stats = getPlayerCombatStats(respawned.player);
 
     expect(respawned.player.coord).toEqual(game.homeHex);
-    expect(respawned.player.hunger).toBe(100);
-    expect(respawned.player.thirst).toBe(100);
+    expect(respawned.player.hunger).toBe(300);
+    expect(respawned.player.thirst).toBe(300);
     expect(respawned.player.hp).toBe(1);
     expect(respawned.player.mana).toBe(1);
     expect(stats.maxHp).toBe(Math.floor(respawned.player.baseMaxHp * 0.9));

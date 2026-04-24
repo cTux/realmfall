@@ -60,6 +60,19 @@ function setActorReadyAt(
 }
 
 describe('combat automation timing', () => {
+  it('skips earlier cooldowns for enemy abilities that cannot act yet', () => {
+    const { game, enemyId } = prepareCombatAutomationState();
+    const enemyActor = game.combat!.enemies[enemyId]!;
+    enemyActor.abilityIds = ['fieldDressing', 'kick'];
+    enemyActor.cooldownEndsAt = {
+      fieldDressing: 1_000,
+      kick: 2_000,
+    };
+    enemyActor.globalCooldownEndsAt = 0;
+
+    expect(getCombatAutomationDelay(game, 0)).toBe(2_000);
+  });
+
   it('wakes for the next ticking combat status effect before long ability cooldowns', () => {
     const { game, enemyId } = prepareCombatAutomationState();
     game.enemies[enemyId]!.statusEffects = [

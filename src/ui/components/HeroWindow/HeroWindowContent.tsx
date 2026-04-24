@@ -5,6 +5,10 @@ import { formatStatusEffectLabel } from '../../../i18n/labels';
 import { statusEffectIcon, statusEffectTint } from '../../statusEffects';
 import { abilityTooltipLines, statusEffectTooltipLines } from '../../tooltips';
 import {
+  getPlayerThirstValue,
+  PLAYER_SURVIVAL_MAX,
+} from '../../../game/survival';
+import {
   EntityStatusPanel,
   type EntityStatusBar,
   type EntityStatusIcon,
@@ -102,15 +106,15 @@ function buildHeroBars(
       id: 'hunger',
       label: t('ui.hero.hunger'),
       value: hunger,
-      max: 100,
+      max: PLAYER_SURVIVAL_MAX,
       tone: 'hunger',
       description: t('ui.tooltip.bar.heroHunger'),
     },
     {
       id: 'thirst',
       label: t('ui.hero.thirst'),
-      value: thirst ?? 100,
-      max: 100,
+      value: getPlayerThirstValue(thirst),
+      max: PLAYER_SURVIVAL_MAX,
       tone: 'thirst',
       description: t('ui.tooltip.bar.heroThirst'),
     },

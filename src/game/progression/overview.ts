@@ -18,6 +18,10 @@ import {
   type PlayerStatusEffect,
   type StatusEffectId,
 } from '../types';
+import {
+  getPlayerThirstValue,
+  PLAYER_SURVIVAL_WARNING_THRESHOLD,
+} from '../survival';
 import { levelThreshold, masteryLevelThreshold } from './thresholds';
 
 export function getPlayerOverview(player: Player) {
@@ -87,8 +91,9 @@ export function getPlayerOverview(player: Player) {
   );
   const rawAttack = Math.max(0, player.baseAttack + attackBonus);
   const rawDefense = Math.max(0, player.baseDefense + defenseBonus);
-  const hungerDebuffActive = player.hunger <= 30;
-  const thirstDebuffActive = (player.thirst ?? 100) <= 30;
+  const hungerDebuffActive = player.hunger <= PLAYER_SURVIVAL_WARNING_THRESHOLD;
+  const thirstDebuffActive =
+    getPlayerThirstValue(player.thirst) <= PLAYER_SURVIVAL_WARNING_THRESHOLD;
   const combatMultiplier =
     (hungerDebuffActive ? 0.9 : 1) *
     (1 + powerBonus / 100) *
