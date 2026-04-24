@@ -23,6 +23,7 @@ import { useCraftingRecipeBookPromotion } from './hooks/useCraftingRecipeBookPro
 import { useRecipeMaterialFilter } from './hooks/useRecipeMaterialFilter';
 
 interface UseAppControllersOptions {
+  combat: GameState['combat'];
   currentStructure?: GameState['tiles'][string]['structure'];
   equipment: GameState['player']['equipment'];
   inventory: Item[];
@@ -136,6 +137,7 @@ export interface AppControllers {
 }
 
 export function useAppControllers({
+  combat,
   currentStructure,
   equipment,
   inventory,
@@ -223,6 +225,8 @@ export function useAppControllers({
     tooltipPositionRef,
   });
   useHexInfoWindowPromotion({
+    combatActive: combat != null,
+    currentStructure: currentStructure != null,
     setWindowShown,
     windowShown,
   });
