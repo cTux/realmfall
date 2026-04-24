@@ -91,11 +91,17 @@ export function maybeGatherByproduct(
     ? 'tree'
     : structureTags.includes(GAME_TAGS.structure.ore)
       ? 'ore'
-      : null;
+      : structure === 'flax'
+        ? 'flax'
+        : null;
   if (!byproductKind) return null;
 
   const byproductItemKey =
-    byproductKind === 'tree' ? ItemId.Sticks : ItemId.Stone;
+    byproductKind === 'tree'
+      ? ItemId.Sticks
+      : byproductKind === 'ore'
+        ? ItemId.Stone
+        : ItemId.String;
 
   const rng = createRng(
     `${state.seed}:gather-byproduct:${structure}:${state.turn}:${hexKey(state.player.coord)}`,
@@ -104,7 +110,9 @@ export function maybeGatherByproduct(
     rng() >=
     (byproductKind === 'tree'
       ? GATHERING_BYPRODUCT_CHANCES.tree
-      : GATHERING_BYPRODUCT_CHANCES.ore)
+      : byproductKind === 'ore'
+        ? GATHERING_BYPRODUCT_CHANCES.ore
+        : 1)
   ) {
     return null;
   }
@@ -116,9 +124,13 @@ export function maybeGatherByproduct(
         ? t('game.message.gather.byproduct.sticks', {
             item: itemName(ItemId.Sticks),
           })
-        : t('game.message.gather.byproduct.stone', {
-            item: itemName(ItemId.Stone),
-          }),
+        : byproductKind === 'ore'
+          ? t('game.message.gather.byproduct.stone', {
+              item: itemName(ItemId.Stone),
+            })
+          : t('game.message.gather.byproduct.string', {
+              item: itemName(ItemId.String),
+            }),
   };
 }
 

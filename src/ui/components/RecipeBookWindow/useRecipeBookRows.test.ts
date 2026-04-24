@@ -73,4 +73,34 @@ describe('buildRecipeBookRows', () => {
 
     expect(rows[0]?.actionLabel).toBe('Cook');
   });
+
+  it('derives hand recipes without a required structure label', () => {
+    const rows = buildRecipeBookRows({
+      currentStructure: undefined,
+      inventoryCountsByItemKey: { flax: 1 },
+      recipeSkillLevels: DEFAULT_RECIPE_SKILL_LEVELS,
+      recipes: [
+        createRecipe({
+          id: 'hand-cloth',
+          name: 'Cloth',
+          description: 'Twist flax into cloth by hand.',
+          skill: Skill.Hand,
+          output: {
+            id: 'cloth-1',
+            itemKey: 'cloth',
+            name: 'Cloth',
+            power: 0,
+          },
+          ingredients: [{ itemKey: 'flax', name: 'Flax', quantity: 1 }],
+        }),
+      ],
+      visibleRecipeCount: 40,
+    });
+
+    expect(rows[0]).toMatchObject({
+      actionLabel: 'Craft',
+      canCraft: true,
+      requiredStructureLabel: 'By hand',
+    });
+  });
 });

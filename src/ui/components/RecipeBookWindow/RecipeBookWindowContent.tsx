@@ -16,7 +16,12 @@ import { compareRecipeBookEntries } from './utils/recipeBookEntries';
 import { useRecipeBookRows } from './useRecipeBookRows';
 import styles from './styles.module.scss';
 
-const RECIPE_BOOK_TAB_ORDER = [Skill.Cooking, Skill.Smelting, Skill.Crafting];
+const RECIPE_BOOK_TAB_ORDER = [
+  Skill.Hand,
+  Skill.Cooking,
+  Skill.Smelting,
+  Skill.Crafting,
+];
 const RECIPE_BOOK_BATCH_SIZE = 40;
 
 type RecipeBookWindowContentProps = Pick<
@@ -58,7 +63,7 @@ export function RecipeBookWindowContent({
   const [activeSkill, setActiveSkill] = useState<Skill>(
     preferredSkill && visibleTabs.includes(preferredSkill)
       ? preferredSkill
-      : (visibleTabs[0] ?? Skill.Cooking),
+      : (visibleTabs[0] ?? Skill.Hand),
   );
   const [visibleRecipeCount, setVisibleRecipeCount] = useState(
     RECIPE_BOOK_BATCH_SIZE,
@@ -71,7 +76,7 @@ export function RecipeBookWindowContent({
 
   useEffect(() => {
     if (visibleTabs.includes(activeSkill)) return;
-    setActiveSkill(visibleTabs[0] ?? Skill.Cooking);
+    setActiveSkill(visibleTabs[0] ?? Skill.Hand);
   }, [activeSkill, visibleTabs]);
 
   useEffect(() => {

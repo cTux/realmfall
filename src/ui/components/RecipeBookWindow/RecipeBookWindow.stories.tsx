@@ -39,6 +39,13 @@ type Story = StoryObj<typeof meta>;
 
 export const ForgeRecipes: Story = {};
 
+export const HandRecipes: Story = {
+  args: {
+    currentStructure: undefined,
+    preferredSkill: Skill.Hand,
+  },
+};
+
 export const WorkshopRecipes: Story = {
   args: {
     currentStructure: 'workshop',

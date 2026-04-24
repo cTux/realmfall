@@ -13,6 +13,7 @@ import { coalOreStructureConfig } from './coalOre';
 import { corruptionAltarStructureConfig } from './corruptionAltar';
 import { copperOreStructureConfig } from './copperOre';
 import { dungeonStructureConfig } from './dungeon';
+import { flaxStructureConfig } from './flax';
 import { forgeStructureConfig } from './forge';
 import { furnaceStructureConfig } from './furnace';
 import { goldOreStructureConfig } from './goldOre';
@@ -44,6 +45,7 @@ const RAW_STRUCTURE_CONFIGS = [
   goldOreStructureConfig,
   platinumOreStructureConfig,
   copperOreStructureConfig,
+  flaxStructureConfig,
   ironOreStructureConfig,
   coalOreStructureConfig,
   pondStructureConfig,

@@ -58,6 +58,8 @@ import rolledClothIcon from '../../assets/icons/rolled-cloth.svg';
 import raiderIcon from '../../assets/icons/raider.svg';
 import gluttonyIcon from '../../assets/icons/gluttony.svg';
 import furnaceIcon from '../../assets/icons/furnace.svg';
+import flaxIcon from '../../assets/game-icons/delapouite/flax.svg';
+import sewingStringIcon from '../../assets/game-icons/delapouite/sewing-string.svg';
 
 export const ContentIcons = {
   Player: playerIcon,
@@ -106,6 +108,7 @@ export const ContentIcons = {
   Raining: rainingIcon,
   Snowing: snowingIcon,
   HighGrass: highGrassIcon,
+  Flax: flaxIcon,
   Tomato: tomatoIcon,
   Totem: totemIcon,
   WoodStick: woodStickIcon,
@@ -120,4 +123,5 @@ export const ContentIcons = {
   Raider: raiderIcon,
   Gluttony: gluttonyIcon,
   Furnace: furnaceIcon,
+  SewingString: sewingStringIcon,
 } as const;

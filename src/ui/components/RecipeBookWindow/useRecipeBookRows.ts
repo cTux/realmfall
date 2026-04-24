@@ -70,8 +70,12 @@ export function buildRecipeBookRows({
       recipeSkillLevels[recipe.skill] ?? 1,
     );
     const requiredStructure = getRecipeRequiredStructure(recipe);
-    const requiredStructureLabel = getStructureConfig(requiredStructure).title;
-    const atRequiredStructure = currentStructure === requiredStructure;
+    const requiredStructureLabel =
+      requiredStructure === null
+        ? t('ui.recipeBook.siteHand')
+        : getStructureConfig(requiredStructure).title;
+    const atRequiredStructure =
+      requiredStructure === null || currentStructure === requiredStructure;
     const canCraft = canCraftRecipeEntry(recipe, {
       currentStructure,
       inventoryCountsByItemKey,
@@ -104,15 +108,18 @@ function buildRecipeTooltipLines(
   atRequiredStructure: boolean,
 ) {
   const requiredStructure = getRecipeRequiredStructure(recipe);
-  const requiredStructureConfig = getStructureConfig(requiredStructure);
+  const requiredStructureConfig =
+    requiredStructure === null ? null : getStructureConfig(requiredStructure);
   const lines: TooltipLine[] = [
     { kind: 'text' as const, text: recipe.description },
     {
       kind: 'stat' as const,
       label: t('ui.recipeBook.tooltip.siteLabel'),
       value: requiredStructureLabel,
-      icon: requiredStructureConfig.icon,
-      iconTint: pixiTintToCss(requiredStructureConfig.tint),
+      icon: requiredStructureConfig?.icon,
+      iconTint: requiredStructureConfig
+        ? pixiTintToCss(requiredStructureConfig.tint)
+        : undefined,
       tone: atRequiredStructure ? 'item' : 'negative',
     },
     {

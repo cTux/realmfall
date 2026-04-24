@@ -67,6 +67,7 @@ export enum GameTag {
   SkillMining = 'skill.mining',
   SkillSkinning = 'skill.skinning',
   SkillFishing = 'skill.fishing',
+  SkillHand = 'skill.hand',
   SkillCooking = 'skill.cooking',
   SkillSmelting = 'skill.smelting',
   SkillCrafting = 'skill.crafting',
@@ -162,6 +163,7 @@ export const GAME_TAGS = {
     mining: GameTag.SkillMining,
     skinning: GameTag.SkillSkinning,
     fishing: GameTag.SkillFishing,
+    hand: GameTag.SkillHand,
     cooking: GameTag.SkillCooking,
     smelting: GameTag.SkillSmelting,
     crafting: GameTag.SkillCrafting,
@@ -205,6 +207,8 @@ export function getSkillTags(skill: SkillName) {
       return uniqueTags(GAME_TAGS.skill.gathering, GAME_TAGS.skill.skinning);
     case Skill.Fishing:
       return uniqueTags(GAME_TAGS.skill.gathering, GAME_TAGS.skill.fishing);
+    case Skill.Hand:
+      return uniqueTags(GAME_TAGS.skill.profession, GAME_TAGS.skill.hand);
     case Skill.Cooking:
       return uniqueTags(GAME_TAGS.skill.profession, GAME_TAGS.skill.cooking);
     case Skill.Smelting:

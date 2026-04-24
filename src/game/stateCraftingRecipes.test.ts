@@ -4,6 +4,25 @@ import { Skill } from './types';
 import { buildRecipeInventory } from './stateCraftingTestHelpers';
 
 describe('game state crafting recipes', () => {
+  it('crafts cloth by hand without requiring a structure', () => {
+    const game = createGame(3, 'hand-crafting-seed');
+    game.player.learnedRecipeIds.push('hand-cloth');
+    game.player.inventory.push(
+      buildItemFromConfig('flax', { id: 'flax-1', quantity: 3 }),
+    );
+
+    const crafted = craftRecipe(game, 'hand-cloth');
+
+    expect(
+      crafted.player.inventory.find((item) => item.itemKey === 'cloth')
+        ?.quantity,
+    ).toBe(1);
+    expect(
+      crafted.player.inventory.find((item) => item.itemKey === 'flax')
+        ?.quantity,
+    ).toBe(2);
+  });
+
   it('cooks raw fish with available burnable fuel and levels cooking', () => {
     const game = createGame(3, 'cooking-seed');
     game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'camp' };
@@ -335,6 +354,14 @@ describe('game state crafting recipes', () => {
     const denied = craftRecipe(game, 'cook-cooked-fish');
 
     expect(denied.logs[0]?.text).toMatch(/stand at a campfire/i);
+  });
+
+  it('shows the hand recipe in the recipe book as learned when unlocked', () => {
+    const entries = getRecipeBookEntries(['hand-cloth']);
+
+    expect(
+      entries.some((entry) => entry.id === 'hand-cloth' && entry.learned),
+    ).toBe(true);
   });
 
   it('requires learning a recipe before crafting it', () => {

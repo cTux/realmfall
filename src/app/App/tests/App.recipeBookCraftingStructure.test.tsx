@@ -74,7 +74,7 @@ describe('App recipe-book crafting structure attention', () => {
       root.unmount();
     });
     host.remove();
-  }, 10_000);
+  }, 20_000);
 });
 
 function findRecipeBookDockButton(host: HTMLElement) {

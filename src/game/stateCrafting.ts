@@ -65,15 +65,20 @@ function craftRecipeOnce(
     return { ok: false, error: t('game.message.recipe.notLearned') };
   }
   const requiredStructure = getRecipeRequiredStructure(recipe);
-  const requiredLabel =
-    getStructureConfig(requiredStructure).title.toLowerCase();
   const recipeAction =
-    recipe.skill === Skill.Cooking
-      ? 'cook'
-      : recipe.skill === Skill.Smelting
-        ? 'smelt'
-        : 'craft';
-  if (getCurrentTile(state).structure !== requiredStructure) {
+    recipe.skill === Skill.Hand
+      ? 'craft'
+      : recipe.skill === Skill.Cooking
+        ? 'cook'
+        : recipe.skill === Skill.Smelting
+          ? 'smelt'
+          : 'craft';
+  if (
+    requiredStructure &&
+    getCurrentTile(state).structure !== requiredStructure
+  ) {
+    const requiredLabel =
+      getStructureConfig(requiredStructure).title.toLowerCase();
     return {
       ok: false,
       error: t('game.message.recipe.requiresStation', {
