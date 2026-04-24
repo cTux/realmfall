@@ -16,6 +16,7 @@ type HexInfoWindowContentProps = Omit<
 >;
 
 export function HexInfoWindowContent({
+  hexDescription,
   canBulkProspectEquipment,
   itemModification,
   onApplyItemModification = () => undefined,
@@ -47,6 +48,14 @@ export function HexInfoWindowContent({
   const hoverDetail = onHoverDetail ?? (() => undefined);
   const leaveDetail = onLeaveDetail ?? (() => undefined);
   const selectedItemForModification = itemModification?.selectedItem ?? null;
+  const hasContent = Boolean(
+    combat ||
+    (structureHp != null && structureMaxHp != null) ||
+    canBulkProspectEquipment ||
+    itemModification ||
+    townStock.length > 0 ||
+    loot.length > 0,
+  );
 
   return (
     <div className={styles.layout}>
@@ -101,6 +110,9 @@ export function HexInfoWindowContent({
                     {t('ui.hexInfo.prospectAction')}
                   </button>
                 </div>
+              ) : null}
+              {!hasContent ? (
+                <p className={styles.description}>{hexDescription}</p>
               ) : null}
               {itemModification ? (
                 <div className={styles.itemModificationPanel}>

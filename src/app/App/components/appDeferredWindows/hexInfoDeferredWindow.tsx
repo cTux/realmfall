@@ -33,6 +33,7 @@ export const hexInfoDeferredWindow: AppDeferredWindowDescriptor = {
       onSetHome={actions.hex.onSetHome}
       terrain={hexInfoView.terrain}
       structure={hexInfoView.structure}
+      hexDescription={hexInfoView.hexDescription}
       enemyCount={hexInfoView.enemyCount}
       interactLabel={views.hex.interactLabel}
       canInteract={Boolean(views.hex.interactLabel)}
