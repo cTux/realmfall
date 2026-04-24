@@ -4,10 +4,12 @@ import {
   type MutableRefObject,
   type SetStateAction,
 } from 'react';
+import { t } from '../../../i18n';
 import { craftRecipe } from '../../../game/stateCrafting';
 import { forfeitCombat, startCombat } from '../../../game/stateCombat';
 import {
   buyTownItem,
+  getTownStock,
   dropEquippedItem,
   dropInventoryItem,
   prospectInventory,
@@ -36,6 +38,7 @@ import {
   healAtFactionNpc,
   interactWithStructure,
 } from '../../../game/stateWorldActions';
+import { createLoggedGameTransition } from './useLoggedGameCommand';
 
 interface UseGameActionHandlersOptions {
   paused: boolean;
@@ -61,41 +64,87 @@ export function useGameActionHandlers({
 
   const handleUnequip = useCallback(
     (slot: Parameters<typeof unequipItem>[1]) => {
-      applyGameTransition((current) => unequipItem(current, slot));
+      applyGameTransition(
+        createLoggedGameTransition({
+          describe: () =>
+            t('game.log.command.unequipItem', {
+              slotName: t(`ui.equipmentSlot.${slot}.label`),
+            }),
+          transition: (current) => unequipItem(current, slot),
+        }),
+      );
     },
     [applyGameTransition],
   );
 
   const handleSort = useCallback(() => {
-    applyGameTransition(sortInventory);
+    applyGameTransition(
+      createLoggedGameTransition({
+        describe: () => t('game.log.command.sortInventory'),
+        transition: sortInventory,
+      }),
+    );
   }, [applyGameTransition]);
 
   const handleProspect = useCallback(() => {
-    applyGameTransition(prospectInventory);
+    applyGameTransition(
+      createLoggedGameTransition({
+        describe: () => t('game.log.command.prospectInventory'),
+        transition: prospectInventory,
+      }),
+    );
   }, [applyGameTransition]);
 
   const handleSellAll = useCallback(() => {
-    applyGameTransition(sellAllItems);
+    applyGameTransition(
+      createLoggedGameTransition({
+        describe: () => t('game.log.command.sellAllItems'),
+        transition: sellAllItems,
+      }),
+    );
   }, [applyGameTransition]);
 
   const handleProspectItem = useCallback(
     (itemId: string) => {
-      applyGameTransition((current) => prospectInventoryItem(current, itemId));
+      applyGameTransition(
+        createLoggedGameTransition({
+          describe: (current) =>
+            t('game.log.command.prospectItem', {
+              itemName: findInventoryItemName(current, itemId),
+            }),
+          transition: (current) => prospectInventoryItem(current, itemId),
+        }),
+      );
     },
     [applyGameTransition],
   );
 
   const handleSellItem = useCallback(
     (itemId: string) => {
-      applyGameTransition((current) => sellInventoryItem(current, itemId));
+      applyGameTransition(
+        createLoggedGameTransition({
+          describe: (current) =>
+            t('game.log.command.sellItem', {
+              itemName: findInventoryItemName(current, itemId),
+            }),
+          transition: (current) => sellInventoryItem(current, itemId),
+        }),
+      );
     },
     [applyGameTransition],
   );
 
   const handleReforgeItem = useCallback(
     (itemId: string, statIndex: number) => {
-      applyGameTransition((current) =>
-        reforgeInventoryItem(current, itemId, statIndex),
+      applyGameTransition(
+        createLoggedGameTransition({
+          describe: (current) =>
+            t('game.log.command.reforgeItem', {
+              itemName: findInventoryItemName(current, itemId),
+            }),
+          transition: (current) =>
+            reforgeInventoryItem(current, itemId, statIndex),
+        }),
       );
     },
     [applyGameTransition],
@@ -103,105 +152,221 @@ export function useGameActionHandlers({
 
   const handleEnchantItem = useCallback(
     (itemId: string) => {
-      applyGameTransition((current) => enchantInventoryItem(current, itemId));
+      applyGameTransition(
+        createLoggedGameTransition({
+          describe: (current) =>
+            t('game.log.command.enchantItem', {
+              itemName: findInventoryItemName(current, itemId),
+            }),
+          transition: (current) => enchantInventoryItem(current, itemId),
+        }),
+      );
     },
     [applyGameTransition],
   );
 
   const handleCorruptItem = useCallback(
     (itemId: string) => {
-      applyGameTransition((current) => corruptInventoryItem(current, itemId));
+      applyGameTransition(
+        createLoggedGameTransition({
+          describe: (current) =>
+            t('game.log.command.corruptItem', {
+              itemName: findInventoryItemName(current, itemId),
+            }),
+          transition: (current) => corruptInventoryItem(current, itemId),
+        }),
+      );
     },
     [applyGameTransition],
   );
 
   const handleInteract = useCallback(() => {
-    applyGameTransition(interactWithStructure);
+    applyGameTransition(
+      createLoggedGameTransition({
+        describe: () => t('game.log.command.interactWithStructure'),
+        transition: interactWithStructure,
+      }),
+    );
   }, [applyGameTransition]);
 
   const handleClaimHex = useCallback(() => {
-    applyGameTransition(claimCurrentHex);
+    applyGameTransition(
+      createLoggedGameTransition({
+        describe: () => t('game.log.command.claimHex'),
+        transition: claimCurrentHex,
+      }),
+    );
   }, [applyGameTransition]);
 
   const handleHealTerritoryNpc = useCallback(() => {
-    applyGameTransition(healAtFactionNpc);
+    applyGameTransition(
+      createLoggedGameTransition({
+        describe: () => t('game.log.command.healTerritoryNpc'),
+        transition: healAtFactionNpc,
+      }),
+    );
   }, [applyGameTransition]);
 
   const handleBuyTownItem = useCallback(
     (itemId: string) => {
-      applyGameTransition((current) => buyTownItem(current, itemId));
+      applyGameTransition(
+        createLoggedGameTransition({
+          describe: (current) =>
+            t('game.log.command.buyTownItem', {
+              itemName: findTownStockItemName(current, itemId),
+            }),
+          transition: (current) => buyTownItem(current, itemId),
+        }),
+      );
     },
     [applyGameTransition],
   );
 
   const handleActivateInventoryItem = useCallback(
     (itemId: string) => {
-      applyGameTransition((current) => activateInventoryItem(current, itemId));
+      applyGameTransition(
+        createLoggedGameTransition({
+          describe: (current) =>
+            t('game.log.command.activateInventoryItem', {
+              itemName: findInventoryItemName(current, itemId),
+            }),
+          transition: (current) => activateInventoryItem(current, itemId),
+        }),
+      );
     },
     [applyGameTransition],
   );
 
   const handleEquipItem = useCallback(
     (itemId: string) => {
-      applyGameTransition((current) => equipItem(current, itemId));
+      applyGameTransition(
+        createLoggedGameTransition({
+          describe: (current) =>
+            t('game.log.command.equipItem', {
+              itemName: findInventoryItemName(current, itemId),
+            }),
+          transition: (current) => equipItem(current, itemId),
+        }),
+      );
     },
     [applyGameTransition],
   );
 
   const handleUseItem = useCallback(
     (itemId: string) => {
-      applyGameTransition((current) => applyItemUse(current, itemId));
+      applyGameTransition(
+        createLoggedGameTransition({
+          describe: (current) =>
+            t('game.log.command.useItem', {
+              itemName: findInventoryItemName(current, itemId),
+            }),
+          transition: (current) => applyItemUse(current, itemId),
+        }),
+      );
     },
     [applyGameTransition],
   );
 
   const handleCraftRecipe = useCallback(
     (recipeId: string, count?: number | 'max') => {
-      applyGameTransition((current) => craftRecipe(current, recipeId, count));
+      applyGameTransition(
+        createLoggedGameTransition({
+          describe: () => t('game.log.command.craftRecipe'),
+          transition: (current) => craftRecipe(current, recipeId, count),
+        }),
+      );
     },
     [applyGameTransition],
   );
 
   const handleDropItem = useCallback(
     (itemId: string) => {
-      applyGameTransition((current) => dropInventoryItem(current, itemId));
+      applyGameTransition(
+        createLoggedGameTransition({
+          describe: (current) =>
+            t('game.log.command.dropItem', {
+              itemName: findInventoryItemName(current, itemId),
+            }),
+          transition: (current) => dropInventoryItem(current, itemId),
+        }),
+      );
     },
     [applyGameTransition],
   );
 
   const handleDropEquippedItem = useCallback(
     (slot: Parameters<typeof unequipItem>[1]) => {
-      applyGameTransition((current) => dropEquippedItem(current, slot));
+      applyGameTransition(
+        createLoggedGameTransition({
+          describe: () =>
+            t('game.log.command.dropEquippedItem', {
+              slotName: t(`ui.equipmentSlot.${slot}.label`),
+            }),
+          transition: (current) => dropEquippedItem(current, slot),
+        }),
+      );
     },
     [applyGameTransition],
   );
 
   const handleTakeLootItem = useCallback(
     (itemId: string) => {
-      applyGameTransition((current) => takeTileItem(current, itemId));
+      applyGameTransition(
+        createLoggedGameTransition({
+          describe: () => t('game.log.command.takeLootItem'),
+          transition: (current) => takeTileItem(current, itemId),
+        }),
+      );
     },
     [applyGameTransition],
   );
 
   const handleTakeAllLoot = useCallback(() => {
-    applyGameTransition(takeAllTileItems);
+    applyGameTransition(
+      createLoggedGameTransition({
+        describe: () => t('game.log.command.takeAllLoot'),
+        transition: takeAllTileItems,
+      }),
+    );
   }, [applyGameTransition]);
 
   const handleSetItemLocked = useCallback(
     (itemId: string, locked: boolean) => {
-      applyGameTransition((current) =>
-        setInventoryItemLocked(current, itemId, locked),
+      applyGameTransition(
+        createLoggedGameTransition({
+          describe: (current) =>
+            t(
+              locked
+                ? 'game.log.command.lockItem'
+                : 'game.log.command.unlockItem',
+              {
+                itemName: findInventoryItemName(current, itemId),
+              },
+            ),
+          transition: (current) =>
+            setInventoryItemLocked(current, itemId, locked),
+        }),
       );
     },
     [applyGameTransition],
   );
 
   const handleStartCombat = useCallback(() => {
-    applyGameTransition(startCombat);
+    applyGameTransition(
+      createLoggedGameTransition({
+        describe: () => t('game.log.command.startCombat'),
+        transition: startCombat,
+      }),
+    );
   }, [applyGameTransition]);
 
   const handleForfeitCombat = useCallback(() => {
-    applyGameTransition(forfeitCombat);
+    applyGameTransition(
+      createLoggedGameTransition({
+        describe: () => t('game.log.command.forfeitCombat'),
+        transition: forfeitCombat,
+      }),
+    );
   }, [applyGameTransition]);
 
   return {
@@ -240,5 +405,19 @@ function applyTimedGameTransition(
 ) {
   setGame((current) =>
     transition({ ...current, worldTimeMs: worldTimeMsRef.current }),
+  );
+}
+
+function findInventoryItemName(state: GameState, itemId: string) {
+  return (
+    state.player.inventory.find((item) => item.id === itemId)?.name ??
+    t('game.log.command.fallback.item')
+  );
+}
+
+function findTownStockItemName(state: GameState, itemId: string) {
+  return (
+    getTownStock(state).find((entry) => entry.item.id === itemId)?.item.name ??
+    t('game.log.command.fallback.item')
   );
 }

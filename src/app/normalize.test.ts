@@ -214,4 +214,23 @@ describe('normalizePersistedUiState', () => {
       },
     });
   });
+
+  it('restores a missing command log filter entry during UI normalization', () => {
+    expect(
+      normalizePersistedUiState({
+        actionBarSlots: createDefaultActionBarSlots(),
+        logFilters: {
+          movement: true,
+          combat: true,
+          loot: true,
+          survival: true,
+          rumor: true,
+          motd: true,
+          system: true,
+        },
+        windowShown: DEFAULT_WINDOW_VISIBILITY,
+        windows: DEFAULT_WINDOWS,
+      }).logFilters.command,
+    ).toBe(true);
+  });
 });

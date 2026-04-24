@@ -2,6 +2,11 @@ const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'avif'];
 const FONT_EXTENSIONS = ['woff', 'woff2', 'ttf', 'otf', 'eot'];
 const LAZY_DOMAIN_CHUNK_PREFIXES = ['background-audio', 'pixi'];
 const STATE_CHUNK_MODULES = [
+  '/src/app/App/hooks/useActionBarController.ts',
+  '/src/app/App/hooks/useGameActionHandlers.ts',
+  '/src/app/App/hooks/useLoggedGameCommand.ts',
+  '/src/app/App/world/pixiWorldClickNavigation.ts',
+  '/src/game/logs.ts',
   '/src/game/state.ts',
   '/src/game/stateFactory.ts',
   '/src/game/stateFactionNpc.ts',
@@ -10,6 +15,7 @@ const STATE_CHUNK_MODULES = [
   '/src/game/stateWorldActions.ts',
   '/src/game/stateWorldClock.ts',
   '/src/game/stateWorldEvents.ts',
+  '/src/game/types.ts',
   '/src/ui/rarity.ts',
 ];
 

@@ -349,6 +349,7 @@ export const LOG_KINDS = [
   'rumor',
   'motd',
   'system',
+  'command',
 ] as const;
 
 export type LogKind = (typeof LOG_KINDS)[number];

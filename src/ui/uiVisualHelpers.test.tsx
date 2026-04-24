@@ -26,6 +26,7 @@ describe('ui visual helpers', () => {
     expect(DEFAULT_WINDOWS.skills).toEqual({ x: 96, y: 430 });
     expect(DEFAULT_WINDOW_VISIBILITY.hero).toBe(false);
     expect(DEFAULT_LOG_FILTERS.combat).toBe(true);
+    expect(DEFAULT_LOG_FILTERS.command).toBe(true);
     expect(rarityColor('legendary')).toBe('#fb923c');
     expect(enemyIconFor('Unknown Foe')).toBe(enemyIconFor('Wolf'));
     expect(enemyTint('Unknown Foe')).toBe(0x60a5fa);
