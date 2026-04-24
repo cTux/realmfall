@@ -28,6 +28,8 @@ import {
 } from './world/worldRenderSnapshot';
 import { attachPixiWorldTickerVisibilityPause } from './world/pixiWorldTickerVisibility';
 
+type VisibleTiles = ReturnType<typeof getVisibleTiles>;
+
 type PixiInitGraphicsSettings = Pick<
   GraphicsSettings,
   | 'antialias'
@@ -68,7 +70,7 @@ export function usePixiWorld({
   const initGraphicsSettingsRef = useRef<PixiInitGraphicsSettings | null>(null);
   const worldTooltipKeyRef = useRef<string | null>(null);
   const playerCoordRef = useRef(game.player.coord);
-  const visibleTilesRef = useLazyRef(() => getVisibleTiles(game));
+  const visibleTilesRef = useRef<VisibleTiles>(undefined!);
   const hoverPointerRef = useRef<{ clientX: number; clientY: number } | null>(
     null,
   );
@@ -81,16 +83,30 @@ export function usePixiWorld({
   const selectedRef = useRef(game.player.coord);
   const hoveredMoveRef = useRef<HexCoord | null>(null);
   const hoveredSafePathRef = useRef<HexCoord[] | null>(null);
-  const hoverAnalysisCacheRef = useLazyRef(
-    () => new Map<string, WorldHoverSnapshot>(),
+  const hoverAnalysisCacheRef = useRef<Map<string, WorldHoverSnapshot>>(
+    undefined!,
   );
-  const hoverSnapshotRef = useLazyRef(createEmptyWorldHoverSnapshot);
+  const hoverSnapshotRef = useRef<WorldHoverSnapshot>(undefined!);
   const showTerrainBackgroundsRef = useRef(showTerrainBackgrounds);
-  const lastRenderSnapshotRef = useLazyRef<WorldRenderSnapshot>(
-    createInitialWorldRenderSnapshot,
-  );
+  const lastRenderSnapshotRef = useRef<WorldRenderSnapshot>(undefined!);
   const renderInvalidationRef = useRef(0);
   const [canvasReady, setCanvasReady] = useState(false);
+
+  if (visibleTilesRef.current === undefined) {
+    visibleTilesRef.current = getVisibleTiles(game);
+  }
+
+  if (hoverAnalysisCacheRef.current === undefined) {
+    hoverAnalysisCacheRef.current = new Map<string, WorldHoverSnapshot>();
+  }
+
+  if (hoverSnapshotRef.current === undefined) {
+    hoverSnapshotRef.current = createEmptyWorldHoverSnapshot();
+  }
+
+  if (lastRenderSnapshotRef.current === undefined) {
+    lastRenderSnapshotRef.current = createInitialWorldRenderSnapshot();
+  }
 
   if (initGraphicsSettingsRef.current === null) {
     initGraphicsSettingsRef.current =
@@ -349,16 +365,6 @@ export function usePixiWorld({
   ]);
 
   return { hostRef, canvasReady };
-}
-
-function useLazyRef<T>(createValue: () => T): MutableRefObject<T> {
-  const ref = useRef<T | null>(null);
-
-  if (ref.current === null) {
-    ref.current = createValue();
-  }
-
-  return ref as MutableRefObject<T>;
 }
 
 function getPixiInitGraphicsSettings(

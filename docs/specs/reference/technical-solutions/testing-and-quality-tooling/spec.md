@@ -15,6 +15,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - `pnpm dev` and `pnpm serve` both run on local HTTPS using the shared localhost self-signed certificate helper, and cached certificates are regenerated automatically when they expire so secure-origin local workflows do not get stuck on stale TLS files.
 - The repository toolchain is pinned to Node `v25.9.0` through `.nvmrc`, with `package.json` `engines` set to `25.x` and GitHub Actions reading the same version file, keeping local commands, CI, and scheduled automation on the same runtime line.
 - Oxlint is the enforced JavaScript and TypeScript lint gate, with its canonical configuration stored in `.oxlintrc.json`.
+- Oxlint enforces React hook rules for TypeScript and TSX sources, including `react/rules-of-hooks` and `react/exhaustive-deps` as error-level checks.
 - `pnpm lint` is the shared repository lint gate and runs both Oxlint and Stylelint, while `pnpm lint:css` remains available for stylesheet-only local checks.
 - The committed repository baseline is kept Prettier-clean so a failing `pnpm format` run points to current drift instead of long-lived formatting debt.
 - Ordinary `pnpm` installs keep dependency advisory output enabled so newly disclosed package issues are visible during routine local and CI dependency refreshes.

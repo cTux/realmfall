@@ -131,7 +131,7 @@
       "plugins": ["typescript", "unicorn", "react"],
       "rules": {
         "react/rules-of-hooks": "error",
-        "react/exhaustive-deps": "warn"
+        "react/exhaustive-deps": "error"
       },
       "env": {
         "browser": true,
