@@ -72,6 +72,7 @@ export interface RecipesViewState {
   entries: ReturnType<typeof getRecipeBookEntries>;
   skillLevels: Record<Skill, number>;
   inventoryCountsByItemKey: Record<string, number>;
+  preferredSkill: Skill | null;
   materialFilterItemKey: string | null;
 }
 

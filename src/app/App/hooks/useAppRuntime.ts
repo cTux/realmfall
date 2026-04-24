@@ -22,6 +22,7 @@ export function useAppRuntime() {
     currentStructure: getCurrentTile(bootstrap.game).structure,
     equipment: bootstrap.game.player.equipment,
     inventory: bootstrap.game.player.inventory,
+    playerCoord: bootstrap.game.player.coord,
     gameRef: bootstrap.gameRef,
     initialAudioSettings: bootstrap.initialAudioSettings,
     initialGraphicsSettings: bootstrap.initialGraphicsSettings,
@@ -253,6 +254,7 @@ export function useAppRuntime() {
       bulkProspectEquipmentExplanation:
         gameView.bulkProspectEquipmentExplanation,
       recipes: gameView.recipes,
+      preferredRecipeSkill: controllerState.preferredRecipeSkill,
       recipeMaterialFilterItemKey: controllerState.recipeMaterialFilterItemKey,
       recipeSkillLevels: gameView.recipeSkillLevels,
       bulkSellEquipmentExplanation: gameView.bulkSellEquipmentExplanation,

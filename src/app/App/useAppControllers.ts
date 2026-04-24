@@ -19,12 +19,14 @@ import { useHexInfoWindowPromotion } from './hooks/useHexInfoWindowPromotion';
 import { useHexItemModificationController } from './hooks/useHexItemModificationController';
 import { useItemContextMenuController } from './hooks/useItemContextMenuController';
 import { useItemTooltipController } from './hooks/useItemTooltipController';
+import { useCraftingRecipeBookPromotion } from './hooks/useCraftingRecipeBookPromotion';
 import { useRecipeMaterialFilter } from './hooks/useRecipeMaterialFilter';
 
 interface UseAppControllersOptions {
   currentStructure?: GameState['tiles'][string]['structure'];
   equipment: GameState['player']['equipment'];
   inventory: Item[];
+  playerCoord: GameState['player']['coord'];
   gameRef: MutableRefObject<GameState>;
   initialAudioSettings: AudioSettings;
   initialGraphicsSettings: GraphicsSettings;
@@ -42,6 +44,9 @@ export interface AppControllers {
     hexItemModificationPickerActive: boolean;
     itemMenu: ReturnType<typeof useItemContextMenuController>['itemMenu'];
     logFilters: ReturnType<typeof useAppLogFilters>['logFilters'];
+    preferredRecipeSkill: ReturnType<
+      typeof useRecipeMaterialFilter
+    >['preferredRecipeSkill'];
     recipeMaterialFilterItemKey: string | null;
     selectedHexItemModificationItem: Item | null;
     selectedHexItemReforgeStatIndex: number | null;
@@ -53,64 +58,79 @@ export interface AppControllers {
     ReturnType<typeof useGameActionHandlers>,
     'applyGameTransition'
   > & {
-    applySelectedItemModification:
-      ReturnType<
-        typeof useHexItemModificationController
-      >['applySelectedItemModification'];
-    clearSelectedItem:
-      ReturnType<typeof useHexItemModificationController>['clearSelectedItem'];
+    applySelectedItemModification: ReturnType<
+      typeof useHexItemModificationController
+    >['applySelectedItemModification'];
+    clearSelectedItem: ReturnType<
+      typeof useHexItemModificationController
+    >['clearSelectedItem'];
     closeAllWindows: ReturnType<typeof useAppWindowState>['closeAllWindows'];
-    closeItemMenu:
-      ReturnType<typeof useItemContextMenuController>['closeItemMenu'];
+    closeItemMenu: ReturnType<
+      typeof useItemContextMenuController
+    >['closeItemMenu'];
     closeTooltip: ReturnType<typeof useItemTooltipController>['closeTooltip'];
-    handleAssignActionBarSlot:
-      ReturnType<typeof useActionBarController>['handleAssignActionBarSlot'];
-    handleClearActionBarSlot:
-      ReturnType<typeof useActionBarController>['handleClearActionBarSlot'];
-    handleClearRecipeMaterialFilter:
-      ReturnType<typeof useRecipeMaterialFilter>['handleClearRecipeMaterialFilter'];
-    handleContextItem:
-      ReturnType<typeof useItemContextMenuController>['handleContextItem'];
+    handleAssignActionBarSlot: ReturnType<
+      typeof useActionBarController
+    >['handleAssignActionBarSlot'];
+    handleClearActionBarSlot: ReturnType<
+      typeof useActionBarController
+    >['handleClearActionBarSlot'];
+    handleClearRecipeMaterialFilter: ReturnType<
+      typeof useRecipeMaterialFilter
+    >['handleClearRecipeMaterialFilter'];
+    handleContextItem: ReturnType<
+      typeof useItemContextMenuController
+    >['handleContextItem'];
     handleEquipmentHover: (
       event: ReactMouseEvent<HTMLElement>,
       item: TooltipItem,
     ) => void;
-    handleEquippedContextItem:
-      ReturnType<typeof useItemContextMenuController>['handleEquippedContextItem'];
-    handleOpenRecipeBookWithMaterialFilter:
-      ReturnType<typeof useRecipeMaterialFilter>['handleOpenRecipeBookWithMaterialFilter'];
-    handleSelectHexModificationInventoryItem:
-      ReturnType<
-        typeof useHexItemModificationController
-      >['selectInventoryItem'];
-    handleUseActionBarSlot:
-      ReturnType<typeof useActionBarController>['handleUseActionBarSlot'];
-    showActionBarItemTooltip:
-      ReturnType<typeof useItemTooltipController>['showActionBarItemTooltip'];
-    showItemTooltip:
-      ReturnType<typeof useItemTooltipController>['showItemTooltip'];
+    handleEquippedContextItem: ReturnType<
+      typeof useItemContextMenuController
+    >['handleEquippedContextItem'];
+    handleOpenRecipeBookWithMaterialFilter: ReturnType<
+      typeof useRecipeMaterialFilter
+    >['handleOpenRecipeBookWithMaterialFilter'];
+    handleSelectHexModificationInventoryItem: ReturnType<
+      typeof useHexItemModificationController
+    >['selectInventoryItem'];
+    handleUseActionBarSlot: ReturnType<
+      typeof useActionBarController
+    >['handleUseActionBarSlot'];
+    showActionBarItemTooltip: ReturnType<
+      typeof useItemTooltipController
+    >['showActionBarItemTooltip'];
+    showItemTooltip: ReturnType<
+      typeof useItemTooltipController
+    >['showItemTooltip'];
     showTooltip: ReturnType<typeof useItemTooltipController>['showTooltip'];
     toggleDockWindow: ReturnType<typeof useAppWindowState>['toggleDockWindow'];
     toggleFilterMenu: ReturnType<typeof useAppLogFilters>['toggleFilterMenu'];
-    toggleHexItemModificationPicker:
-      ReturnType<typeof useHexItemModificationController>['togglePicker'];
+    toggleHexItemModificationPicker: ReturnType<
+      typeof useHexItemModificationController
+    >['togglePicker'];
     toggleLogFilter: ReturnType<typeof useAppLogFilters>['toggleLogFilter'];
   };
   mutators: {
     moveWindow: ReturnType<typeof useAppWindowState>['moveWindow'];
-    setActionBarSlots: ReturnType<typeof useActionBarController>['setActionBarSlots'];
-    setAudioSettings: ReturnType<typeof useAppSettingsState>['setAudioSettings'];
-    setGraphicsSettings:
-      ReturnType<typeof useAppSettingsState>['setGraphicsSettings'];
+    setActionBarSlots: ReturnType<
+      typeof useActionBarController
+    >['setActionBarSlots'];
+    setAudioSettings: ReturnType<
+      typeof useAppSettingsState
+    >['setAudioSettings'];
+    setGraphicsSettings: ReturnType<
+      typeof useAppSettingsState
+    >['setGraphicsSettings'];
     setLogFilters: ReturnType<typeof useAppLogFilters>['setLogFilters'];
-    setSelectedHexItemReforgeStatIndex:
-      ReturnType<
-        typeof useHexItemModificationController
-      >['setSelectedReforgeStatIndex'];
+    setSelectedHexItemReforgeStatIndex: ReturnType<
+      typeof useHexItemModificationController
+    >['setSelectedReforgeStatIndex'];
     setTooltip: ReturnType<typeof useItemTooltipController>['setTooltip'];
     setWindowShown: ReturnType<typeof useAppWindowState>['setWindowShown'];
-    setWindowVisibility:
-      ReturnType<typeof useAppWindowState>['setWindowVisibility'];
+    setWindowVisibility: ReturnType<
+      typeof useAppWindowState
+    >['setWindowVisibility'];
     setWindows: ReturnType<typeof useAppWindowState>['setWindows'];
   };
 }
@@ -119,6 +139,7 @@ export function useAppControllers({
   currentStructure,
   equipment,
   inventory,
+  playerCoord,
   gameRef,
   initialAudioSettings,
   initialGraphicsSettings,
@@ -208,8 +229,16 @@ export function useAppControllers({
   const {
     handleClearRecipeMaterialFilter,
     handleOpenRecipeBookWithMaterialFilter,
+    preferredRecipeSkill,
     recipeMaterialFilterItemKey,
+    setPreferredRecipeSkill,
   } = useRecipeMaterialFilter(setWindowShown);
+  useCraftingRecipeBookPromotion({
+    currentStructure,
+    playerCoord,
+    setPreferredRecipeSkill,
+    setWindowShown,
+  });
 
   const handleEquipmentHover = useCallback(
     (event: ReactMouseEvent<HTMLElement>, item: TooltipItem) => {
@@ -226,6 +255,7 @@ export function useAppControllers({
       hexItemModificationPickerActive,
       itemMenu,
       logFilters,
+      preferredRecipeSkill,
       recipeMaterialFilterItemKey,
       selectedHexItemModificationItem,
       selectedHexItemReforgeStatIndex,

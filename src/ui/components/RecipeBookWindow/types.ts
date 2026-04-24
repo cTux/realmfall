@@ -8,6 +8,7 @@ export interface RecipeBookWindowProps
   recipes: RecipeBookEntry[];
   recipeSkillLevels: Record<Skill, number>;
   inventoryCountsByItemKey: Record<string, number>;
+  preferredSkill: Skill | null;
   materialFilterItemKey: string | null;
   onResetMaterialFilter: () => void;
   onCraft: (recipeId: string, count?: number | 'max') => void;

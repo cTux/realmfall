@@ -60,6 +60,7 @@ describe('ui window static markup', () => {
           recipes={[]}
           recipeSkillLevels={recipeWindowSkillLevels}
           inventoryCountsByItemKey={{}}
+          preferredSkill={null}
           materialFilterItemKey={null}
           onResetMaterialFilter={() => {}}
           onCraft={() => {}}

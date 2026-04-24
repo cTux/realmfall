@@ -28,6 +28,7 @@ const defaultRecipeBookProps = {
   recipeSkillLevels: DEFAULT_RECIPE_SKILL_LEVELS,
   recipes: [],
   inventoryCountsByItemKey: {},
+  preferredSkill: null,
   materialFilterItemKey: null,
   onResetMaterialFilter: () => {},
   onCraft: () => {},

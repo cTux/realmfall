@@ -25,6 +25,7 @@ type RecipeBookWindowContentProps = Pick<
   | 'recipes'
   | 'recipeSkillLevels'
   | 'inventoryCountsByItemKey'
+  | 'preferredSkill'
   | 'materialFilterItemKey'
   | 'onResetMaterialFilter'
   | 'onCraft'
@@ -37,6 +38,7 @@ export function RecipeBookWindowContent({
   recipes,
   recipeSkillLevels,
   inventoryCountsByItemKey,
+  preferredSkill,
   materialFilterItemKey,
   onResetMaterialFilter,
   onCraft,
@@ -54,11 +56,18 @@ export function RecipeBookWindowContent({
     );
   }, [materialFilterItemKey, recipes]);
   const [activeSkill, setActiveSkill] = useState<Skill>(
-    visibleTabs[0] ?? Skill.Cooking,
+    preferredSkill && visibleTabs.includes(preferredSkill)
+      ? preferredSkill
+      : (visibleTabs[0] ?? Skill.Cooking),
   );
   const [visibleRecipeCount, setVisibleRecipeCount] = useState(
     RECIPE_BOOK_BATCH_SIZE,
   );
+
+  useEffect(() => {
+    if (!preferredSkill || !visibleTabs.includes(preferredSkill)) return;
+    setActiveSkill(preferredSkill);
+  }, [preferredSkill, visibleTabs]);
 
   useEffect(() => {
     if (visibleTabs.includes(activeSkill)) return;
