@@ -20,9 +20,26 @@ export const CHUNK_BUDGETS = {
 export const MERGED_CHUNK_BUDGET_COVERAGE = {};
 
 export const STARTUP_TOTAL_BUDGET = 1_510_000;
+export const BUDGET_NEAR_CAP_RATIO = 0.9;
 
 export function formatKiB(bytes) {
   return `${(bytes / 1000).toFixed(2)} kB`;
+}
+
+function formatPercent(value) {
+  return `${(value * 100).toFixed(1)}%`;
+}
+
+export function formatBudgetStatus(name, sizeBytes, budgetBytes) {
+  const remainingBytes = Math.max(0, budgetBytes - sizeBytes);
+  const usageRatio = budgetBytes === 0 ? 0 : sizeBytes / budgetBytes;
+  const nearCapText = usageRatio >= BUDGET_NEAR_CAP_RATIO ? ', near cap' : '';
+
+  return `${name}: ${formatKiB(sizeBytes)} within ${formatKiB(
+    budgetBytes,
+  )} (${formatKiB(remainingBytes)} headroom, ${formatPercent(
+    usageRatio,
+  )} used${nearCapText})`;
 }
 
 export function isStrictBundleBudgetMode(
