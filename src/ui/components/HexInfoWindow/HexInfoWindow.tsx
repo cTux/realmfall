@@ -32,6 +32,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   canSetHome = true,
   terrain,
   structure,
+  hexDescription,
   enemyCount,
   interactLabel,
   canInteract,
@@ -222,6 +223,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
       contentProps={{
         terrain,
         structure,
+        hexDescription,
         enemyCount,
         interactLabel,
         canInteract,

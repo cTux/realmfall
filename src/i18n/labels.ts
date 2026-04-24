@@ -14,6 +14,10 @@ export function formatTerrainLabel(terrain: Terrain) {
   return t(`game.terrain.${terrain}.label`);
 }
 
+export function formatTerrainDescription(terrain: Terrain) {
+  return t(`game.terrain.${terrain}.description`);
+}
+
 export function formatSkillLabel(skill: SkillName) {
   return t(`game.skill.${skill}.label`);
 }

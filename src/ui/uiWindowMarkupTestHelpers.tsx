@@ -80,6 +80,7 @@ export function buildBaseHexInfoProps() {
     onSetHome: () => {},
     terrain: 'Plains',
     structure: null,
+    hexDescription: 'A clear stretch of wind-scraped shardland.',
     enemyCount: 0,
     interactLabel: null,
     canInteract: false,

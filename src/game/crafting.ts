@@ -125,6 +125,15 @@ export function getRecipeRequiredStructure(
   return 'workshop';
 }
 
+export function getRecipeSkillForStructure(
+  structure?: StructureType,
+): SkillName | null {
+  if (structure === 'camp') return Skill.Cooking;
+  if (structure === 'furnace') return Skill.Smelting;
+  if (structure === 'workshop') return Skill.Crafting;
+  return null;
+}
+
 export function recipeUsesItemKey(
   recipe: Pick<RecipeDefinition, 'ingredients' | 'fuelOptions'>,
   itemKey: string,

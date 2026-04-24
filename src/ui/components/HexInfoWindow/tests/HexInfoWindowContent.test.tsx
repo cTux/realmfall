@@ -10,6 +10,50 @@ import {
 setupUiTestEnvironment();
 
 describe('HexInfoWindowContent', () => {
+  it('shows the hex description when the current hex has no other content', async () => {
+    const ui = await mountUi(
+      <HexInfoWindowContent
+        terrain="Plains"
+        structure={null}
+        hexDescription="A clear stretch of wind-scraped shardland."
+        enemyCount={0}
+        interactLabel={null}
+        canInteract={false}
+        canBulkProspectEquipment={false}
+        canBulkSellEquipment={false}
+        itemModification={null}
+        canTerritoryAction={false}
+        territoryActionLabel="Cl(a)im"
+        territoryActionKind="claim"
+        canHealTerritoryNpc={false}
+        territoryNpcHealExplanation={null}
+        territoryActionExplanation={null}
+        bulkProspectEquipmentExplanation={null}
+        bulkSellEquipmentExplanation={null}
+        onInteract={() => {}}
+        onProspect={() => {}}
+        onSellAll={() => {}}
+        onTerritoryAction={() => {}}
+        onHealTerritoryNpc={() => {}}
+        territoryNpc={null}
+        townStock={[]}
+        gold={0}
+        loot={[]}
+        onBuyItem={() => {}}
+        onTakeAll={() => {}}
+        onTakeItem={() => {}}
+        onHoverItem={() => {}}
+        onLeaveItem={() => {}}
+      />,
+    );
+
+    expect(ui.host.textContent).toContain(
+      'A clear stretch of wind-scraped shardland.',
+    );
+
+    await ui.unmount();
+  });
+
   it('shrinks content-window item slots to 0.8x of their shared sizes', async () => {
     const townItem = buildItemFromConfig(ItemId.TownKnife, {
       id: 'town-knife',
@@ -23,6 +67,7 @@ describe('HexInfoWindowContent', () => {
       <HexInfoWindowContent
         terrain="Plains"
         structure="Town"
+        hexDescription="A shardside refuge where survivors trade, resupply, and catch their breath."
         enemyCount={0}
         interactLabel={null}
         canInteract={false}

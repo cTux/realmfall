@@ -43,6 +43,7 @@ interface UseAppWindowViewsArgs {
   canBulkSellEquipment: boolean;
   bulkProspectEquipmentExplanation: string | null;
   recipes: AppWindowsViewState['recipes']['entries'];
+  preferredRecipeSkill: AppWindowsViewState['recipes']['preferredSkill'];
   recipeMaterialFilterItemKey: string | null;
   recipeSkillLevels: AppWindowsViewState['recipes']['skillLevels'];
   bulkSellEquipmentExplanation: string | null;
@@ -77,6 +78,7 @@ export function useAppWindowViews({
   canBulkSellEquipment,
   bulkProspectEquipmentExplanation,
   recipes,
+  preferredRecipeSkill,
   recipeMaterialFilterItemKey,
   recipeSkillLevels,
   bulkSellEquipmentExplanation,
@@ -156,10 +158,12 @@ export function useAppWindowViews({
       entries: recipes,
       skillLevels: recipeSkillLevels,
       inventoryCountsByItemKey,
+      preferredSkill: preferredRecipeSkill,
       materialFilterItemKey: recipeMaterialFilterItemKey,
     }),
     [
       inventoryCountsByItemKey,
+      preferredRecipeSkill,
       recipeMaterialFilterItemKey,
       recipeSkillLevels,
       recipes,

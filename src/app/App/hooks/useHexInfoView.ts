@@ -1,7 +1,13 @@
 import { useMemo } from 'react';
-import { describeStructure } from '../../../game/world';
+import {
+  describeStructure,
+  describeStructureDescription,
+} from '../../../game/world';
 import type { AppWindowsViewState } from '../AppWindows.types';
-import { formatTerrainLabel } from '../utils/formatTerrainLabel';
+import {
+  formatTerrainDescription,
+  formatTerrainLabel,
+} from '../utils/formatTerrainLabel';
 
 export function useHexInfoView({
   homeHex,
@@ -27,6 +33,9 @@ export function useHexInfoView({
       structure: currentTile.structure
         ? describeStructure(currentTile.structure)
         : null,
+      hexDescription:
+        describeStructureDescription(currentTile.structure) ??
+        formatTerrainDescription(currentTile.terrain),
       enemyCount: combat
         ? (combatSnapshot?.enemies.length ?? 0)
         : currentTileHostileEnemyCount,

@@ -98,6 +98,7 @@ describe('ui window shell surfaces', () => {
           recipes={[]}
           recipeSkillLevels={RECIPE_SKILL_LEVELS}
           inventoryCountsByItemKey={{}}
+          preferredSkill={null}
           materialFilterItemKey={null}
           onResetMaterialFilter={() => {}}
           onCraft={() => {}}

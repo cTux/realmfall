@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Skill } from '../../../game/types';
 import {
   createRecipeBookArgs,
   createStorybookFixtures,
@@ -37,3 +38,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const ForgeRecipes: Story = {};
+
+export const WorkshopRecipes: Story = {
+  args: {
+    currentStructure: 'workshop',
+    preferredSkill: Skill.Crafting,
+  },
+};

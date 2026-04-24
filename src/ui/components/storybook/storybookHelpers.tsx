@@ -226,5 +226,6 @@ export function createRecipeBookArgs(recipes: RecipeBookEntry[]) {
     currentStructure: 'forge' as const,
     recipes,
     recipeSkillLevels: createSkillRecord(() => 1),
+    preferredSkill: null,
   };
 }

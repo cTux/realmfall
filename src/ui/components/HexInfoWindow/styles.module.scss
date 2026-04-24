@@ -65,6 +65,13 @@
   text-align: right;
 }
 
+.description {
+  max-width: 56ch;
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;

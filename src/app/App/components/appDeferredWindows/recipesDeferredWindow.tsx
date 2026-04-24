@@ -29,6 +29,7 @@ export const recipesDeferredWindow: AppDeferredWindowDescriptor = {
       recipes={views.recipes.entries}
       recipeSkillLevels={views.recipes.skillLevels}
       inventoryCountsByItemKey={views.recipes.inventoryCountsByItemKey}
+      preferredSkill={views.recipes.preferredSkill}
       materialFilterItemKey={views.recipes.materialFilterItemKey}
       onResetMaterialFilter={actions.recipes.onClearMaterialFilter}
       onCraft={actions.inventory.onCraftRecipe}

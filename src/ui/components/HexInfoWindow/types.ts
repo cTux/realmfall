@@ -19,6 +19,7 @@ export interface HexInfoWindowProps
   canSetHome?: boolean;
   terrain: string;
   structure?: string | null;
+  hexDescription: string;
   enemyCount: number;
   interactLabel?: string | null;
   canInteract: boolean;

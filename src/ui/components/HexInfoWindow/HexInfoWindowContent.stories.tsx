@@ -8,6 +8,7 @@ import { buildTownStock } from '../../../game/economy';
 import { getItemModificationCost } from '../../../game/itemModifications';
 import {
   describeStructure,
+  describeStructureDescription,
   structureActionLabel,
   structureDefinition,
 } from '../../../game/world';
@@ -69,6 +70,33 @@ const meta = {
 export default meta;
 
 type Story = StoryObj<typeof meta>;
+
+export const EmptyPlains: Story = {
+  args: {
+    terrain: 'Plains',
+    structure: null,
+    hexDescription: 'A clear stretch of wind-scraped shardland.',
+    enemyCount: 0,
+    interactLabel: null,
+    canInteract: false,
+    canTerritoryAction: false,
+    territoryActionLabel: 'Cl(a)im',
+    canHealTerritoryNpc: false,
+    territoryNpcHealExplanation: null,
+    canBulkProspectEquipment: false,
+    canBulkSellEquipment: false,
+    itemModification: null,
+    territoryActionExplanation: null,
+    bulkProspectEquipmentExplanation: null,
+    bulkSellEquipmentExplanation: null,
+    territoryName: null,
+    territoryOwnerType: null,
+    territoryNpc: null,
+    townStock: [],
+    gold: 0,
+    loot: [],
+  },
+};
 
 export const Forge: Story = {
   args: buildStructureArgs('forge', {
@@ -275,6 +303,10 @@ function buildStructureArgs(
   return {
     terrain: overrides.terrain ?? 'Plains',
     structure: describeStructure(structure),
+    hexDescription:
+      overrides.hexDescription ??
+      describeStructureDescription(structure) ??
+      'A clear stretch of wind-scraped shardland.',
     enemyCount: overrides.enemyCount ?? (structure === 'dungeon' ? 2 : 0),
     interactLabel: overrides.interactLabel ?? structureActionLabel(structure),
     canInteract: overrides.canInteract ?? false,

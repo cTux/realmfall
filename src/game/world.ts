@@ -139,6 +139,11 @@ export function describeStructure(structure?: StructureType) {
   return getStructureConfig(structure).title;
 }
 
+export function describeStructureDescription(structure?: StructureType) {
+  if (!structure) return null;
+  return getStructureConfig(structure).description;
+}
+
 export function normalizeStructureState(tile: Tile): Tile {
   if (tile.structure === 'dungeon') {
     if (tile.enemyIds.length === 0 && tile.items.length === 0) {
