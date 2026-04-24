@@ -105,12 +105,13 @@ const RAW_ITEM_CONFIGS = [
   ...GENERATED_EQUIPMENT_CONFIGS,
 ] as const;
 
-export const ITEM_CONFIGS: ItemConfig[] = RAW_ITEM_CONFIGS.map((config) => ({
-  ...config,
-  name: itemName(config.key),
-  icon: pickConfigIcon(config.iconPool, config.icon, config.key),
-  tags: buildItemConfigTags(config),
-}));
+export const ITEM_CONFIGS: ItemConfig[] = RAW_ITEM_CONFIGS.map((config) =>
+  localizeItemConfig({
+    ...config,
+    icon: pickConfigIcon(config.iconPool, config.icon, config.key),
+    tags: buildItemConfigTags(config),
+  }),
+);
 
 const ITEM_CONFIG_BY_KEY = Object.fromEntries(
   ITEM_CONFIGS.map((config) => [config.key, config]),
@@ -148,4 +149,27 @@ function pickConfigIcon(
 
 function seededIndex(seed: string) {
   return [...seed].reduce((total, char) => total + char.charCodeAt(0), 0);
+}
+
+function localizeItemConfig(config: ItemConfig) {
+  defineLocalizedProperty(config, 'name', () => itemName(config.key));
+
+  return config;
+}
+
+function defineLocalizedProperty<T extends object, K extends keyof T>(
+  target: T,
+  key: K,
+  resolve: () => NonNullable<T[K]>,
+) {
+  let override: T[K] | undefined;
+
+  Object.defineProperty(target, key, {
+    configurable: true,
+    enumerable: true,
+    get: () => override ?? resolve(),
+    set: (value: T[K]) => {
+      override = value;
+    },
+  });
 }

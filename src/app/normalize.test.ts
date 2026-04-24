@@ -41,6 +41,25 @@ describe('normalizeLoadedGame', () => {
     expect(normalizeSavedUiItem(item)).toEqual(item);
   });
 
+  it('refreshes configured item names from canonical item configs', () => {
+    const normalized = normalizeSavedUiItem({
+      id: 'ration-1',
+      itemKey: 'trail-ration',
+      name: 'game.item.trail-ration.name',
+      quantity: 1,
+      tier: 1,
+      rarity: 'common',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 10,
+      hunger: 15,
+      thirst: 0,
+    });
+
+    expect(normalized?.name).toBe('Trail Ration');
+  });
+
   it('accepts canonical runtime save values from shared game constants', () => {
     const game = createGame(3, 'normalize-runtime-values-seed');
     const homeKey = `${game.homeHex.q},${game.homeHex.r}`;

@@ -5,6 +5,22 @@ export function itemName(key: string) {
   return getGeneratedCraftingLore(key)?.name ?? t(`game.item.${key}.name`);
 }
 
+export function recipeName(id: string, outputItemKey?: string) {
+  return (
+    (outputItemKey
+      ? getGeneratedCraftingLore(outputItemKey)?.name
+      : undefined) ?? t(`game.recipe.${id}.name`)
+  );
+}
+
+export function recipeDescription(id: string, outputItemKey?: string) {
+  return (
+    (outputItemKey
+      ? getGeneratedCraftingLore(outputItemKey)?.description
+      : undefined) ?? t(`game.recipe.${id}.description`)
+  );
+}
+
 export function enemyName(key: string) {
   return t(`game.enemy.${key}.name`);
 }
