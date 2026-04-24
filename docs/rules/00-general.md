@@ -8,9 +8,9 @@
 - Keep React hook lint checks on the enforced Oxlint path for TypeScript and TSX files, including invalid hook usage and effect dependency validation.
 - Keep the pre-commit hook aligned with the linting workflow. When Oxlint can safely auto-fix staged JavaScript and TypeScript issues, prefer applying the fix during pre-commit instead of failing only on fixable drift.
 - Keep the pre-commit hook aligned with the formatting workflow as well. Staged files that Prettier supports should be formatted during pre-commit so repository-wide formatting drift does not accumulate outside the enforced path.
-- Keep the pre-commit hook aligned with the local quality bar. It should enforce staged-file lint checks and staged-file related tests by default, including staged runtime JSON sources that affect app behavior or content, while the pre-push path owns the full repository test and build gates for shared-input changes.
-- Keep the pre-commit hook scoped to staged work, even when shared test inputs change. Move full-repository test and build gates to the pre-push path when commit-latency improvements are the goal.
-- Keep a full-project TypeScript gate in the pre-push path so routine commits do not pay that cost but rewritten branches and shared pushes validate the whole repository before publication.
+- Keep the pre-commit hook aligned with the local quality bar. It should enforce staged-file lint checks and staged-file related tests by default, including staged runtime JSON sources that affect app behavior or content, and it may also run the repository-wide validation path when the workflow intentionally prefers slower commits over slower pushes.
+- When the workflow chooses commit-time full validation, keep the pre-commit hook responsible for the repository-wide typecheck, lint, test, and strict build-budget gates instead of splitting those checks across pre-commit and pre-push.
+- When the workflow chooses commit-time full validation, keep the pre-push hook as a no-op so contributors do not pay the same repository-wide gates twice.
 - Treat a staged `package.json` change that only updates the `version` field as lightweight release metadata, not as a shared-input change that forces the full repository test suite.
 - Prefer the smallest correct change that fits the existing structure.
 - Apply the DRY principle. When logic, UI structure, or configuration patterns repeat, prefer extracting or extending an existing shared helper, component, or module instead of copying the pattern again.

@@ -12,6 +12,7 @@ import type { GameState } from '../../game/stateTypes';
 
 interface UseCombatAutomationOptions {
   combat: GameState['combat'];
+  playerMana: GameState['player']['mana'];
   playerStatusEffects: GameState['player']['statusEffects'];
   enemyLookup: GameState['enemies'];
   paused: boolean;
@@ -21,6 +22,7 @@ interface UseCombatAutomationOptions {
 
 export function useCombatAutomation({
   combat,
+  playerMana,
   playerStatusEffects,
   enemyLookup,
   paused,
@@ -34,7 +36,7 @@ export function useCombatAutomation({
     const delay = getCombatAutomationDelay(
       {
         combat,
-        player: { statusEffects: playerStatusEffects },
+        player: { mana: playerMana, statusEffects: playerStatusEffects },
         enemies: enemyLookup,
       },
       worldTimeMsRef.current,
@@ -55,6 +57,7 @@ export function useCombatAutomation({
     combat,
     enemyLookup,
     paused,
+    playerMana,
     playerStatusEffects,
     setGame,
     worldTimeMsRef,

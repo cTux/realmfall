@@ -22,17 +22,18 @@ Use this file for contributor process only. Canonical project guidance lives in
 - Use Conventional Commits.
 - Use `pnpm git:commit -- -m "<message>"` for routine commits. It increments the `package.json` patch version, stages that bump, then delegates to `git commit` through the repository helper.
 - Plain `git commit` also runs the patch-version bump through the Husky pre-commit hook. Stage or stash unrelated `package.json` edits first, because the bump refuses to run when that file has unstaged changes.
+- The Husky pre-commit hook now runs both the staged-file checks and the repository-wide validation path (`typecheck`, `lint`, `test`, and `build:budget:strict`). The pre-push hook intentionally does nothing.
 - Generate commit messages from the actual change set.
 - Keep commit messages focused on the behavioral change instead of enumerating every touched doc file.
 - Use `pnpm git:deploy` from a clean tracked worktree to build the app with the GitHub Pages base path and publish `dist/` to `origin/gh-pages`. Configure GitHub Pages to serve the `gh-pages` branch from `/`.
 - Use `pnpm git:prune-gone-branches -- --dry-run` to preview local branches whose tracked remote ref was deleted, then rerun without `--dry-run` to remove them. Add `-- --safe` only when you want Git to keep its merged-branch protection.
 - Use `pnpm git:rebase-master-and-push` from a clean, already-committed feature branch when you need to replay it onto the default branch advertised by `origin/HEAD` and publish the rewritten branch. The script auto-resolves `package.json` version conflicts when they occur, refuses to rewrite the current remote default branch directly, and then fetches the remote branch before `--force-with-lease`.
-- For hook behavior, staged-quality scope, and pre-push verification policy, use `docs/rules/60-testing.md` and the testing-tooling spec instead of repeating those details here.
+- For hook behavior, staged-quality scope, and commit-time repository validation policy, use `docs/rules/60-testing.md` and the testing-tooling spec instead of repeating those details here.
 
 ## Verification Workflow
 
 - Run targeted tests and any area-specific commands before committing. Prefer `pnpm test:node` for gameplay, persistence, i18n, and script coverage, and `pnpm test:jsdom` for React, Pixi, and browser-surface coverage.
-- Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build:budget:strict` before pushing when you bypass hooks or need to verify the pre-push path manually.
+- Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build:budget:strict` before committing when you bypass hooks or need to verify the full commit-validation path manually.
 - Use `pnpm update:check` to inspect available dependency updates without modifying the worktree.
 - Run `pnpm update:minor` or `pnpm update:major` from a clean tracked worktree when you want an automated dependency refresh. Pass `-- --no-commit` when automation needs the refreshed manifests without creating a local commit.
 - Run `pnpm format` after wider refactors or repository-wide cleanup so formatting drift is fixed before it spreads across unrelated commits.

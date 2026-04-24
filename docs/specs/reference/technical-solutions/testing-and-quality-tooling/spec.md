@@ -19,7 +19,8 @@ This spec covers the repository quality baseline and current test coverage shape
 - Oxlint is the enforced JavaScript and TypeScript lint gate, with its canonical configuration stored in `.oxlintrc.json`.
 - Oxlint enforces React hook rules for TypeScript and TSX sources, including `react/rules-of-hooks` and `react/exhaustive-deps` as error-level checks.
 - `pnpm lint` is the shared repository lint gate and runs both Oxlint and Stylelint, while `pnpm lint:css` remains available for stylesheet-only local checks.
-- The Husky pre-commit hook runs the shared commit-version bump before staged quality checks so plain `git commit` receives the same package patch-version increment as `pnpm git:commit`.
+- The Husky pre-commit hook runs the shared commit-version bump before staged quality checks and then runs the repository-wide validation path (`typecheck`, `lint`, `test`, and `build:budget:strict`) so plain `git commit` receives the same package patch-version increment and full verification path as `pnpm git:commit`.
+- The Husky pre-push hook is intentionally a no-op because the repository-wide validation path now runs during pre-commit.
 - `pnpm git:deploy` builds the Vite app with the `/realmfall/` GitHub Pages base path, writes `.nojekyll`, publishes the generated `dist/` contents through a temporary `gh-pages` worktree, and pushes with a lease-aware plan when the remote branch already exists.
 - The committed repository baseline is kept Prettier-clean so a failing `pnpm format` run points to current drift instead of long-lived formatting debt.
 - Ordinary `pnpm` installs keep dependency advisory output enabled so newly disclosed package issues are visible during routine local and CI dependency refreshes.

@@ -129,6 +129,7 @@ export function useAppRuntime() {
     combat: bootstrap.game.combat,
     enemyLookup: bootstrap.game.enemies,
     paused: bootstrap.paused,
+    playerMana: bootstrap.game.player.mana,
     playerStatusEffects: bootstrap.game.player.statusEffects,
     setGame: bootstrap.setGame,
     worldTimeMsRef: bootstrap.worldTimeMsRef,

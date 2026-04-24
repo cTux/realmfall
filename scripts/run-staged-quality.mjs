@@ -109,7 +109,7 @@ if (stylelintFiles.length > 0) {
 
 if (hasFullTestTrigger) {
   logStep(
-    'Shared test inputs changed, so pre-push will run the full Vitest suite',
+    'Shared test inputs changed, and full commit validation will run after staged checks',
   );
 }
 
@@ -129,7 +129,7 @@ if (vitestRelatedFiles.length > 0) {
 } else {
   logStep(
     hasFullTestTrigger
-      ? 'Skipping scoped Vitest in pre-commit because pre-push will run full validation'
+      ? 'Skipping scoped Vitest in staged checks because full commit validation runs next'
       : 'Skipping scoped Vitest, no related staged source files',
   );
 }
