@@ -31,6 +31,7 @@ export function createGame(
     harvestMoonCycle: 0,
     lastEarthshakeDay: -1,
     gameOver: false,
+    playerLevelUpVisualEndsAt: 0,
     logSequence: 3,
     logs: createFreshLogsAtTime(seed, 0),
     tiles: {},

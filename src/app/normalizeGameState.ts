@@ -58,6 +58,8 @@ export function normalizeLoadedGame(game: unknown): GameState | null {
     !isFiniteNumber(game.harvestMoonCycle) ||
     !isFiniteNumber(game.lastEarthshakeDay) ||
     typeof game.gameOver !== 'boolean' ||
+    (game.playerLevelUpVisualEndsAt !== undefined &&
+      !isFiniteNumber(game.playerLevelUpVisualEndsAt)) ||
     !isFiniteNumber(game.logSequence)
   ) {
     return null;
@@ -78,6 +80,9 @@ export function normalizeLoadedGame(game: unknown): GameState | null {
     harvestMoonCycle: game.harvestMoonCycle,
     lastEarthshakeDay: game.lastEarthshakeDay,
     gameOver: game.gameOver,
+    ...(game.playerLevelUpVisualEndsAt === undefined
+      ? {}
+      : { playerLevelUpVisualEndsAt: game.playerLevelUpVisualEndsAt }),
     logSequence: game.logSequence,
     logs: [],
     tiles,

@@ -17,6 +17,8 @@ import {
   skillLevelThreshold,
 } from './thresholds';
 
+const LEVEL_UP_FULLSCREEN_GLOW_MS = 2_500;
+
 export function gainXp(
   state: GameState,
   amount: number,
@@ -33,6 +35,8 @@ export function gainXp(
     state.player.xp -= requiredXp;
     state.player.level += 1;
     state.player.baseMaxMana += 2;
+    state.playerLevelUpVisualEndsAt =
+      state.worldTimeMs + LEVEL_UP_FULLSCREEN_GLOW_MS;
     syncPlayerBaseStats(state.player);
     addLog(
       state,

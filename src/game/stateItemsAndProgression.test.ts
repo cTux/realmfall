@@ -396,6 +396,15 @@ describe('game state items and progression', () => {
     expect(stats.maxMana).toBe(14);
   });
 
+  it('starts a temporary fullscreen glow effect on level up', () => {
+    const game = createGame(3, 'level-up-glow-seed');
+
+    gainXp(game, levelThreshold(game.player.level), addLog);
+
+    expect(game.player.level).toBe(2);
+    expect(game.playerLevelUpVisualEndsAt).toBeGreaterThan(game.worldTimeMs);
+  });
+
   it('supports many equipment slots and artifact loadouts', () => {
     const game = createGame(3, 'equip-seed');
     const inventory: Item[] = EQUIPMENT_SLOTS.map((slot, index) => ({
