@@ -20,6 +20,7 @@ describe('pickStructureType', () => {
     expect(pickStructureType(0, 0.819, 'forest')).toBeUndefined();
 
     expect(pickStructureType(0, 0.861, 'plains')).toBe('tin-ore');
+    expect(pickStructureType(0, 0.831, 'plains')).toBe('flax');
     expect(pickStructureType(0, 0.841, 'plains')).toBe('copper-ore');
     expect(pickStructureType(0, 0.8, 'plains')).toBe('lake');
     expect(pickStructureType(0, 0.789, 'plains')).toBeUndefined();
@@ -36,6 +37,7 @@ describe('pickStructureType', () => {
     expect(pickStructureType(0, 0.809, 'desert')).toBeUndefined();
 
     expect(pickStructureType(0, 0.861, 'grove')).toBe('tree');
+    expect(pickStructureType(0, 0.826, 'grove')).toBe('flax');
     expect(pickStructureType(0, 0.811, 'marsh')).toBe('pond');
     expect(pickStructureType(0, 0.856, 'dunes')).toBe('gold-ore');
     expect(pickStructureType(0, 0.841, 'highlands')).toBe('copper-ore');
@@ -43,6 +45,9 @@ describe('pickStructureType', () => {
 
   it('decorates structures with shared tags and item-modification metadata', () => {
     expect(getStructureConfig('tree').tags).toContain(GAME_TAGS.structure.tree);
+    expect(getStructureConfig('flax').tags).toContain(
+      GAME_TAGS.structure.herbs,
+    );
     expect(getStructureConfig('copper-ore').tags).toContain(
       GAME_TAGS.structure.ore,
     );
@@ -64,6 +69,7 @@ describe('pickStructureType', () => {
 describe('localized structure config text', () => {
   it('uses locale-backed gathering labels instead of inline fallback wording', () => {
     const herbs = getStructureConfig('herbs');
+    const flax = getStructureConfig('flax');
     const coalOre = getStructureConfig('coal-ore');
     const furnace = getStructureConfig('furnace');
 
@@ -72,6 +78,8 @@ describe('localized structure config text', () => {
     expect(herbs.gathering?.depletedText).toBe(
       'The herb patch is stripped bare.',
     );
+    expect(flax.title).toBe('Flax Field');
+    expect(flax.gathering?.actionLabel).toBe('Harvest flax');
     expect(coalOre.gathering?.actionLabel).toBe('Mine coal');
     expect(coalOre.gathering?.depletedText).toBe(
       'The coal vein crumbles into dead rock.',

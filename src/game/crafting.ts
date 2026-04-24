@@ -120,7 +120,8 @@ export function describeRequirement(requirement: RecipeRequirement) {
 
 export function getRecipeRequiredStructure(
   recipe: Pick<RecipeDefinition, 'skill'>,
-): StructureType {
+): StructureType | null {
+  if (recipe.skill === Skill.Hand) return null;
   if (recipe.skill === Skill.Cooking) return 'camp';
   if (recipe.skill === Skill.Smelting) return 'furnace';
   return 'workshop';
@@ -191,6 +192,14 @@ function scaleRequirements(
 }
 
 const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
+  {
+    id: 'hand-cloth',
+    name: 'Cloth',
+    description: 'Twist flax fibers into workable cloth by hand.',
+    skill: Skill.Hand,
+    output: buildItemFromConfig('cloth'),
+    ingredients: [{ itemKey: 'flax', name: 'Flax', quantity: 1 }],
+  },
   {
     id: 'cook-cooked-fish',
     name: 'Cooked Fish',
@@ -283,7 +292,9 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] =
         ? COOKING_RECIPE_REQUIREMENT_SCALE
         : recipe.skill === Skill.Smelting
           ? SMELTING_RECIPE_REQUIREMENT_SCALE
-          : RECIPE_REQUIREMENT_SCALE,
+          : recipe.skill === Skill.Hand
+            ? 1
+            : RECIPE_REQUIREMENT_SCALE,
     ),
     fuelOptions: recipe.fuelOptions
       ? scaleRequirements(recipe.fuelOptions, RECIPE_FUEL_SCALE)

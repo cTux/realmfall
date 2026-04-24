@@ -28,6 +28,7 @@ export const TERRAINS = [
 export type Terrain = (typeof TERRAINS)[number];
 
 export const GATHERING_STRUCTURE_TYPES = [
+  'flax',
   'herbs',
   'tree',
   'copper-ore',
@@ -98,6 +99,7 @@ export enum Skill {
   Mining = 'mining',
   Skinning = 'skinning',
   Fishing = 'fishing',
+  Hand = 'hand',
   Cooking = 'cooking',
   Smelting = 'smelting',
   Crafting = 'crafting',
@@ -331,7 +333,7 @@ export interface RecipeDefinition {
   id: string;
   name: string;
   description: string;
-  skill: Skill.Cooking | Skill.Smelting | Skill.Crafting;
+  skill: Skill.Hand | Skill.Cooking | Skill.Smelting | Skill.Crafting;
   output: Item;
   ingredients: RecipeRequirement[];
   fuelOptions?: RecipeRequirement[];

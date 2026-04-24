@@ -24,4 +24,15 @@ describe('game state crafting recipe book', () => {
       false,
     );
   });
+
+  it('can drop the hand cloth recipe from enemies', () => {
+    const dropped = findResolvedEnemyRecipeDrop(
+      'hand-recipe-drop-seed',
+      500,
+      'hand-cloth',
+    );
+
+    expect(dropped).not.toBeNull();
+    expect(dropped?.recipeId).toBe('hand-cloth');
+  });
 });

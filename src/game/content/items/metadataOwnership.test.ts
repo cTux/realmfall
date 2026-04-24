@@ -4,9 +4,11 @@ import { CRAFTABLE_ICON_ITEM_CONFIGS } from '../generatedCraftingEquipment';
 import { GENERATED_ICON_POOLS } from '../generatedEquipment';
 import { campSpearItemConfig } from './campSpear';
 import { clothItemConfig } from './cloth';
+import { flaxItemConfig } from './flax';
 import { hearthTotemItemConfig } from './hearthTotem';
 import { hideBucklerItemConfig } from './hideBuckler';
 import { logsItemConfig } from './logs';
+import { stringItemConfig } from './string';
 
 describe('item config metadata ownership', () => {
   it('keeps handcrafted item metadata on the owning configs', () => {
@@ -29,6 +31,19 @@ describe('item config metadata ownership', () => {
       expect.arrayContaining([
         GAME_TAGS.item.cloth,
         GAME_TAGS.item.prospectable,
+        GAME_TAGS.item.craftingMaterial,
+      ]),
+    );
+    expect(flaxItemConfig.tags).toEqual(
+      expect.arrayContaining([
+        GAME_TAGS.item.gathered,
+        GAME_TAGS.item.craftingMaterial,
+        GAME_TAGS.item.cloth,
+      ]),
+    );
+    expect(stringItemConfig.tags).toEqual(
+      expect.arrayContaining([
+        GAME_TAGS.item.gathered,
         GAME_TAGS.item.craftingMaterial,
       ]),
     );

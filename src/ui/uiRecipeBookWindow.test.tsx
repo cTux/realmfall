@@ -7,10 +7,22 @@ import { setupUiTestEnvironment } from './uiTestHelpers';
 setupUiTestEnvironment();
 
 describe('ui recipe book window surfaces', () => {
-  it('renders recipe-book tabs in cooking, smelting, crafting order', async () => {
+  it('renders recipe-book tabs in hand, cooking, smelting, crafting order', async () => {
     const ui = await mountRecipeBook({
       currentStructure: 'workshop',
       recipes: [
+        createRecipe({
+          id: 'hand-cloth',
+          name: 'Cloth',
+          description: 'Twist flax into cloth by hand.',
+          skill: Skill.Hand,
+          output: {
+            id: 'cloth-1',
+            itemKey: 'cloth',
+            name: 'Cloth',
+            power: 0,
+          },
+        }),
         createRecipe(),
         createRecipe({
           id: 'smelt-iron-ingot',
@@ -44,7 +56,7 @@ describe('ui recipe book window surfaces', () => {
     const tabLabels = Array.from(ui.host.querySelectorAll('[role="tab"]')).map(
       (tab) => tab.textContent,
     );
-    expect(tabLabels).toEqual(['cooking', 'smelting', 'crafting']);
+    expect(tabLabels).toEqual(['hand', 'cooking', 'smelting', 'crafting']);
 
     await ui.unmount();
   });

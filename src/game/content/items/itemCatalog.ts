@@ -22,6 +22,7 @@ import { copperLoopItemConfig } from './copperLoop';
 import { copperOreItemConfig } from './copperOre';
 import { CRAFTED_EXPANSION_ITEM_CONFIGS } from './expansion';
 import { fieldBootsItemConfig } from './fieldBoots';
+import { flaxItemConfig } from './flax';
 import { goldItemConfig } from './gold';
 import { goldIngotItemConfig } from './goldIngot';
 import { goldOreItemConfig } from './goldOre';
@@ -45,6 +46,7 @@ import { rawFishItemConfig } from './rawFish';
 import { scoutHoodItemConfig } from './scoutHood';
 import { settlerVestItemConfig } from './settlerVest';
 import { sticksItemConfig } from './sticks';
+import { stringItemConfig } from './string';
 import { stoneItemConfig } from './stone';
 import { tinIngotItemConfig } from './tinIngot';
 import { tinOreItemConfig } from './tinOre';
@@ -64,8 +66,10 @@ const RAW_ITEM_CONFIGS = [
   homeScrollItemConfig,
   goldItemConfig,
   herbsItemConfig,
+  flaxItemConfig,
   ...PRODUCE_ITEM_CONFIGS,
   logsItemConfig,
+  stringItemConfig,
   sticksItemConfig,
   stoneItemConfig,
   copperOreItemConfig,

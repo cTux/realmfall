@@ -22,8 +22,9 @@ export function canCraftRecipeEntry(
         (inventoryCountsByItemKey[fuel.itemKey ?? fuel.name] ?? 0) >=
         fuel.quantity,
     );
+  const requiredStructure = getRecipeRequiredStructure(recipe);
   const atRequiredStructure =
-    currentStructure === getRecipeRequiredStructure(recipe);
+    requiredStructure === null || currentStructure === requiredStructure;
 
   return recipe.learned && !missingIngredient && hasFuel && atRequiredStructure;
 }

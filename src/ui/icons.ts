@@ -114,6 +114,7 @@ export const SkillIcon: Record<SkillName, string> = {
   mining: Icons.Miner,
   skinning: Icons.AnimalHide,
   fishing: Icons.Salmon,
+  hand: Icons.RolledCloth,
   cooking: Icons.CampCookingPot,
   smelting: Icons.GoldBar,
   crafting: Icons.StoneCrafting,

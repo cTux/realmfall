@@ -20,6 +20,7 @@ const RECIPE_SKILL_LEVELS = {
   [Skill.Mining]: 1,
   [Skill.Skinning]: 1,
   [Skill.Fishing]: 1,
+  [Skill.Hand]: 1,
   [Skill.Cooking]: 1,
   [Skill.Smelting]: 1,
   [Skill.Crafting]: 1,

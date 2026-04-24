@@ -7,6 +7,7 @@ import {
 } from './state';
 import { buildItemFromConfig } from './content/items';
 import { GENERATED_CRAFTING_RECIPES } from './generatedCraftingRecipes';
+import { RECIPE_BOOK_RECIPES } from './crafting';
 
 export function buildRecipeInventory(recipeId: string, quantityMultiplier = 1) {
   const recipe = GENERATED_CRAFTING_RECIPES.find(
@@ -27,11 +28,16 @@ export function buildRecipeInventory(recipeId: string, quantityMultiplier = 1) {
 export function findResolvedEnemyRecipeDrop(
   seedPrefix: string,
   maxAttempts: number,
+  targetRecipeId?: string,
 ) {
   for (let index = 0; index < maxAttempts; index += 1) {
     const game = createGame(3, `${seedPrefix}-${index}`);
     const target = { q: 2, r: 0 };
-    game.player.learnedRecipeIds = ['cook-cooked-fish'];
+    game.player.learnedRecipeIds = targetRecipeId
+      ? RECIPE_BOOK_RECIPES.filter(
+          (recipe) => recipe.id !== targetRecipeId,
+        ).map((recipe) => recipe.id)
+      : ['cook-cooked-fish'];
     seedRecipeDropEncounter(game, target);
 
     const encountered = moveToTile(game, target);

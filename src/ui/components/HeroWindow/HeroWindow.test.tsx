@@ -62,6 +62,7 @@ const hero: HeroOverview = {
   masteryLevel: 0,
   skills: {
     gathering: { level: 1, xp: 0 },
+    hand: { level: 1, xp: 0 },
     cooking: { level: 1, xp: 0 },
     smelting: { level: 1, xp: 0 },
     crafting: { level: 1, xp: 0 },
