@@ -1,12 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 
 describe('game content i18n bootstrap order', () => {
-  it('resolves item, recipe, and structure text after i18n loads', async () => {
+  it('resolves item, recipe, structure, and enemy text after i18n loads', async () => {
     vi.resetModules();
 
     const i18n = await import('../../i18n');
     const { buildItemFromConfig } = await import('./items');
     const { RECIPE_BOOK_RECIPES } = await import('../crafting');
+    const { getEnemyConfig } = await import('./enemies');
     const { getStructureConfig } = await import('./structures');
 
     await i18n.loadI18n();
@@ -22,5 +23,6 @@ describe('game content i18n bootstrap order', () => {
       'A rich skillet of meat, aubergine, and tomato.',
     );
     expect(getStructureConfig('camp').title).toBe('Campfire');
+    expect(getEnemyConfig('stag')?.name).toBe('Stag');
   }, 15000);
 });
