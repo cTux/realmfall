@@ -25,6 +25,18 @@ describe('Pixi runtime imports', () => {
     );
   });
 
+  it('keeps direct async Pixi bootstrap imports out of usePixiWorld', () => {
+    const hookSource = readFileSync(
+      join(process.cwd(), 'src/app/App/usePixiWorld.ts'),
+      'utf8',
+    );
+
+    expect(hookSource).not.toContain("import('./world/pixiWorldCamera')");
+    expect(hookSource).not.toContain("import('./world/pixiWorldInteractions')");
+    expect(hookSource).not.toContain("import('./world/pixiWorldRenderLoop')");
+    expect(hookSource).not.toContain("import('../../ui/world/pixiRuntime')");
+  });
+
   it('does not pass expensive world defaults directly to useRef', () => {
     const hookSource = readFileSync(
       join(process.cwd(), 'src/app/App/usePixiWorld.ts'),
