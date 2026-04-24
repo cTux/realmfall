@@ -47,6 +47,8 @@ describe('main bootstrap', () => {
   });
 
   afterEach(() => {
+    delete window.__REALMFALL_PERF__;
+    window.localStorage.clear();
     document.body.innerHTML = '';
     vi.doUnmock('react-dom/client');
     vi.doUnmock('./i18n');
@@ -98,6 +100,29 @@ describe('main bootstrap', () => {
     await Promise.resolve();
 
     expect(appModuleImported).toHaveBeenCalledTimes(1);
+  });
+
+  it('loads the browser performance harness only when requested', async () => {
+    document.body.innerHTML = '<div id="root"></div>';
+    window.localStorage.setItem('realmfall:perf', '1');
+
+    await import('./main');
+    await vi.dynamicImportSettled();
+    await Promise.resolve();
+
+    const startupMarkNames = window.__REALMFALL_PERF__
+      ?.snapshot()
+      .startupMarks.map((mark) => mark.name);
+
+    expect(startupMarkNames).toEqual(
+      expect.arrayContaining([
+        'main-start',
+        'bootstrap-shell-rendered',
+        'i18n-loaded',
+        'app-module-loaded',
+        'app-render-scheduled',
+      ]),
+    );
   });
 
   it('renders a spinner-only bootstrap shell before the app loads', async () => {

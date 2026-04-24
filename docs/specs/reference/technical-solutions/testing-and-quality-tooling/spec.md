@@ -11,6 +11,8 @@ This spec covers the repository quality baseline and current test coverage shape
 - `pnpm test:node` runs the DOM-free Vitest project for gameplay, persistence, i18n, and script tests, while `pnpm test:jsdom` runs the browser-surface project for React, Pixi, and other DOM-dependent tests.
 - `pnpm test:memory:leaks` starts the local HTTPS Vite dev server and runs `fuite` against `https://localhost:5173` with a custom dock-window toggle scenario because the app does not expose internal navigation links for the default `fuite` scenario, writing the latest JSON analysis to `.tests/memory-leaks/latest.json` for follow-up review.
 - `pnpm test:memory:leaks:prod` builds the app, serves the production bundle over local HTTPS at `https://localhost:4174`, and runs the same `fuite` scenario there, writing the JSON analysis to `.tests/memory-leaks/prod.json` so memory-retention checks can be compared between dev and production behavior.
+- The browser performance harness activates only when `?perf=1`, `?realmfallPerf=1`, `localStorage["realmfall:perf"] = "1"`, or a test-only forced install is present, exposing `window.__REALMFALL_PERF__` with a `snapshot()` API for startup marks, React commits, Pixi render-pass counters, scenario timings, long tasks, and long animation frames.
+- The harness records bootstrap milestones from `src/main.tsx`, the first ready app shell mark, optional React Profiler commits around `App`, and Pixi render counters from the world render facade, so manual browser checks can correlate window toggles, hover paths, and map redraw breadth without enabling collection for normal sessions.
 - Because the current repository is on Vitest 4, the Vite config uses a local compatibility shim for the plugin's runner and setup hooks instead of the package's older custom-pool entrypoint, and each project layers its own setup file over that shared cache path.
 - `pnpm dev` and `pnpm serve` both run on local HTTPS using the shared localhost self-signed certificate helper, and cached certificates are regenerated automatically when they expire so secure-origin local workflows do not get stuck on stale TLS files.
 - The repository toolchain is pinned to Node `v25.9.0` through `.nvmrc`, with `package.json` `engines` set to `25.x` and GitHub Actions reading the same version file, keeping local commands, CI, and scheduled automation on the same runtime line.
@@ -75,6 +77,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - `scripts/run-memory-leak-test.mjs`
 - `scripts/run-duplicate-deps-audit.mjs`
 - `scripts/run-bundle-visualizer.mjs`
+- `src/performance/performanceHarness.ts`
 - `scripts/run-staged-quality.mjs`
 - `scripts/git-commit.mjs`
 - `.oxlintrc.json`

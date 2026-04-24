@@ -2,6 +2,7 @@ import { type Application } from 'pixi.js';
 import { getVisibleTiles } from '../../game/stateSelectors';
 import { hexKey } from '../../game/hex';
 import type { GameState, HexCoord } from '../../game/stateTypes';
+import { recordPixiRenderCounts } from '../../performance/performanceHarness';
 import {
   beginAnimatedSceneRender,
   beginInteractionSceneRender,
@@ -191,4 +192,6 @@ export function renderScene(
       scene,
     });
   }
+
+  recordPixiRenderCounts(scene.renderCounts);
 }

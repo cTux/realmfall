@@ -1,10 +1,24 @@
+import { Profiler, type ProfilerOnRenderCallback } from 'react';
 import { AppShell } from './components/AppShell';
 import { useAppRuntime } from './hooks/useAppRuntime';
+import {
+  isPerformanceHarnessActive,
+  recordReactCommit,
+} from '../../performance/performanceHarness';
+
+const handleProfilerRender: ProfilerOnRenderCallback = (
+  id,
+  phase,
+  actualDuration,
+  _baseDuration,
+  startTime,
+  commitTime,
+) => recordReactCommit(id, phase, actualDuration, startTime, commitTime);
 
 export function App() {
   const appRuntime = useAppRuntime();
 
-  return (
+  const shell = (
     <AppShell
       audioSettings={appRuntime.audioSettings}
       backgroundMusicMood={appRuntime.backgroundMusicMood}
@@ -19,5 +33,13 @@ export function App() {
       onRetryPixiWorld={appRuntime.onRetryPixiWorld}
       onUiAudioChange={appRuntime.onUiAudioChange}
     />
+  );
+
+  return isPerformanceHarnessActive() ? (
+    <Profiler id="App" onRender={handleProfilerRender}>
+      {shell}
+    </Profiler>
+  ) : (
+    shell
   );
 }

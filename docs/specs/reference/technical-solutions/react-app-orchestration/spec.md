@@ -12,6 +12,8 @@ This spec covers the top-level React hook composition and derived view-model pat
 - The remaining top-level orchestration graph now lives in `useAppRuntime`, which assembles bootstrap, controller, persistence, world, lifecycle, and shell-view wiring before `App.tsx` renders `AppShell`.
 - Before the main app finishes loading, `src/main.tsx` renders a fixed bootstrap shell with a spinner-only loading state so the first paint stays visible without depending on translated copy.
 - The bootstrap path fetches the active locale asset before importing `App`, because some gameplay and content modules resolve translated labels during module evaluation and must not hydrate against an empty translation map.
+- The optional browser performance harness records main-start, bootstrap-shell, i18n-loaded, app-module-loaded, app-render-scheduled, and app-ready marks when explicitly enabled, keeping startup milestone measurement available without changing normal app sessions.
+- When that harness is active, `App.tsx` wraps the app shell in a React Profiler and records commit timings through the shared harness; otherwise the entry component renders the shell directly.
 - The app shell stays visible while save hydration and Pixi initialization complete, so the dock, action bar, and other ready React chrome can paint before the world canvas finishes booting.
 - Bootstrap-loaded settings modules keep lightweight metadata such as voice actor ids separate from eager voice asset indexing so optional gameplay voice clips stay behind the lazy audio bridge boundary.
 - `useAppGameView` computes the current tile, filtered logs, town stock, recipe visibility, claim status, the player overview snapshot, and other UI-ready derived values.

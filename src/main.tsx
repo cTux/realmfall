@@ -5,7 +5,13 @@ import { LoadingSpinner } from './ui/components/LoadingSpinner';
 import { installGlobalVersion } from './version';
 import './styles/base.scss';
 
+type PerformanceHarnessModule =
+  typeof import('./performance/performanceHarness');
+
+const performanceHarnessModulePromise = loadPerformanceHarness();
+
 installGlobalVersion();
+recordPerformanceStartupMark('main-start');
 document.addEventListener('contextmenu', preventNativeContextMenu);
 
 const rootElement = document.getElementById('root') as HTMLElement;
@@ -19,13 +25,16 @@ root.render(
     <BootstrapShell />
   </React.StrictMode>,
 );
+recordPerformanceStartupMark('bootstrap-shell-rendered');
 
 void bootstrap();
 
 async function bootstrap() {
   try {
     await loadI18n();
+    recordPerformanceStartupMark('i18n-loaded');
     const { App } = await import('./app/App');
+    recordPerformanceStartupMark('app-module-loaded');
 
     root.render(
       <React.StrictMode>
@@ -34,6 +43,7 @@ async function bootstrap() {
         </RootErrorBoundary>
       </React.StrictMode>,
     );
+    recordPerformanceStartupMark('app-render-scheduled');
   } catch (error) {
     reportRootError(error);
     root.render(
@@ -128,6 +138,46 @@ function BootstrapErrorScreen() {
       </div>
     </div>
   );
+}
+
+function loadPerformanceHarness(): Promise<PerformanceHarnessModule | null> | null {
+  if (!isPerformanceHarnessRequested()) {
+    return null;
+  }
+
+  return import('./performance/performanceHarness')
+    .then((module) => {
+      module.installPerformanceHarness({ force: true });
+      return module;
+    })
+    .catch((error) => {
+      reportRootError(error);
+      return null;
+    });
+}
+
+function recordPerformanceStartupMark(name: string) {
+  const startTime = getPerformanceStartTime();
+  void performanceHarnessModulePromise?.then((module) => {
+    module?.recordStartupMark(name, startTime);
+  });
+}
+
+function isPerformanceHarnessRequested() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('perf') === '1' || params.get('realmfallPerf') === '1') {
+    return true;
+  }
+
+  try {
+    return window.localStorage.getItem('realmfall:perf') === '1';
+  } catch {
+    return false;
+  }
+}
+
+function getPerformanceStartTime() {
+  return window.performance?.now() ?? Date.now();
 }
 
 function reportRootError(error: unknown) {
