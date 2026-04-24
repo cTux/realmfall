@@ -10,9 +10,15 @@ import {
   getTimeOfDayLighting,
   getWorldTimeMinutesFromTimestamp,
 } from './timeOfDay';
+import rawGameConfig from '../../../game.config';
 
 describe('timeOfDay', () => {
-  it('maps timestamps into a continuous 24-hour clock for a one-hour day', () => {
+  it('uses the configured five-minute day-night cycle duration', () => {
+    expect(rawGameConfig.worldClock.dayDurationMs).toBe(5 * 60_000);
+    expect(GAME_DAY_DURATION_MS).toBe(rawGameConfig.worldClock.dayDurationMs);
+  });
+
+  it('maps timestamps into a continuous 24-hour clock for a configured day', () => {
     expect(getWorldTimeMinutesFromTimestamp(0)).toBe(0);
     expect(getWorldTimeMinutesFromTimestamp(GAME_DAY_DURATION_MS / 2)).toBe(
       720,

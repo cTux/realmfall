@@ -9,7 +9,7 @@ export const WORLD_REVEAL_RADIUS = 4;
 export const HEX_SIZE = 34;
 
 export const GAME_DAY_MINUTES = 1440;
-export const GAME_DAY_DURATION_MS = 60000;
+export const GAME_DAY_DURATION_MS = GAME_CONFIG.worldClock.dayDurationMs;
 export const SUNRISE_START = 300;
 export const DAYLIGHT_START = 420;
 export const MOONRISE_START = 1080;

@@ -171,6 +171,10 @@ const gameConfig = defineGameConfig({
       uncommon: 0.3,
     },
   },
+  worldClock: {
+    // Real milliseconds required for one complete 24-hour in-game day.
+    dayDurationMs: 5 * 60_000,
+  },
   worldGeneration: {
     terrain: {
       // Chance weight for generating rift terrain.
