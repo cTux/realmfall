@@ -12,6 +12,8 @@ export function GameSettingsGraphicsPanel({
   graphicsSettings,
   onChange,
 }: GameSettingsGraphicsPanelProps) {
+  const reloadRequiredText = t('ui.settings.graphics.reloadRequired');
+
   return (
     <div className={styles.panel}>
       <div
@@ -51,7 +53,11 @@ export function GameSettingsGraphicsPanel({
                   {t(option.labelKey)}
                 </span>
                 <span className={styles.themeOptionDescription}>
-                  {t(option.descriptionKey)}
+                  {formatGraphicsSettingDescription(
+                    t(option.descriptionKey),
+                    option.reloadRequired,
+                    reloadRequiredText,
+                  )}
                 </span>
               </button>
             );
@@ -64,7 +70,11 @@ export function GameSettingsGraphicsPanel({
             key={option.key}
             checked={graphicsSettings[option.key]}
             label={t(option.labelKey)}
-            description={t(option.descriptionKey)}
+            description={formatGraphicsSettingDescription(
+              t(option.descriptionKey),
+              option.reloadRequired,
+              reloadRequiredText,
+            )}
             onChange={(checked) =>
               onChange((current) => ({
                 ...current,
@@ -76,4 +86,12 @@ export function GameSettingsGraphicsPanel({
       </div>
     </div>
   );
+}
+
+function formatGraphicsSettingDescription(
+  description: string,
+  reloadRequired: boolean | undefined,
+  reloadRequiredText: string,
+) {
+  return reloadRequired ? `${description} ${reloadRequiredText}` : description;
 }

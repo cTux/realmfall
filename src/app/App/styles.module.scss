@@ -73,9 +73,46 @@
   display: grid;
   place-items: center;
   background: #050814;
-  pointer-events: none;
+  pointer-events: auto;
+  z-index: 20;
 }
 
 .loadingSpinner {
   place-self: center;
+}
+
+.loadingError {
+  display: grid;
+  gap: 0.8rem;
+  max-width: min(26rem, calc(100vw - 2rem));
+  padding: 1.25rem;
+  color: #e2e8f0;
+  text-align: center;
+  background: rgb(15 23 42 / 92%);
+  border: 1px solid rgb(248 113 113 / 42%);
+}
+
+.loadingError strong {
+  color: #fecaca;
+  font-size: 1rem;
+}
+
+.loadingError p {
+  margin: 0;
+  color: #cbd5e1;
+}
+
+.loadingError button {
+  justify-self: center;
+  padding: 0.5rem 0.85rem;
+  color: #0f172a;
+  font-weight: 700;
+  background: #e2e8f0;
+  border: 0;
+  cursor: pointer;
+}
+
+.loadingError button:hover,
+.loadingError button:focus-visible {
+  background: #f8fafc;
 }

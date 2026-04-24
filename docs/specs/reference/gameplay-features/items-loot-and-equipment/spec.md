@@ -43,12 +43,12 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - World loot and blood moon bonus gear now choose their top-level item family from equal random buckets instead of weighted family chances, so weapons, armor, offhands, artifacts, and consumables do not skew toward accessory-heavy drops.
 - Offhand shields and magical spheres always include a block-chance secondary stat, including both generated drops and fixed crafted icon variants.
 - Dungeon and blood moon rewards bias toward better rarity floors.
-- Generated artifacts and equipment use deterministic icon selection from curated vendored SVG pools in `src/assets/icons/generated` while their per-instance stats are derived from tier and rarity.
+- Generated artifacts and equipment use deterministic icon selection from stable generated icon ids while their per-instance stats are derived from tier and rarity. The vendored SVG pools in `src/assets/icons/generated` are resolved by UI asset helpers rather than imported by gameplay content.
 - Generated artifacts and equipment use the shared cascading rarity-event mechanism so higher tiers can promote drops through the same rarity ladder used elsewhere in gameplay, with base upgrade checks of `30%` uncommon, `5%` rare, `0.5%` epic, and `0.02%` legendary before tier bonuses.
 - Generated weapons and offhands now roll a deterministic granted combat ability that matches the item archetype, and equipped combatants surface those granted abilities in battle on top of the baseline `Kick`.
 - Crafted and fixed offhand gear such as bucklers, shields, magical spheres, and totems also roll a deterministic active ability from an archetype-appropriate pool.
 - Equippable item tooltips surface the granted combat ability directly so players can see the rolled skill before equipping the item.
-- Generated drop configs and craftable icon configs now derive their shared slot, category, icon-pool, offhand-occupancy, and granted-ability metadata from one canonical generated-equipment family manifest, so icon-family ownership does not drift between world drops and workshop outputs.
+- Generated drop configs and craftable icon configs now derive their shared slot, category, icon-pool id family, offhand-occupancy, and granted-ability metadata from one canonical generated-equipment family manifest, so icon-family ownership does not drift between world drops and workshop outputs.
 - Item content keeps `src/game/content/items/index.ts` as a thin public facade while `itemCatalog.ts` assembles hydrated configs, `itemBuilders.ts` owns configured and generated item construction, and `itemClassification.ts` plus `itemCategoryRules.ts` own category and tag inference.
 
 ## Main Implementation Areas
@@ -62,6 +62,9 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - `src/game/state.ts`
 - `src/game/stateRewards.ts`
 - `src/game/content/items`
+- `src/game/content/generatedIconPools.ts`
+- `src/ui/generatedIconAssets.ts`
+- `src/ui/iconAssets.ts`
 - `src/game/content/generatedEquipmentFamilies.ts`
 - `src/game/content/generatedEquipment.ts`
 - `src/app/normalize.ts`

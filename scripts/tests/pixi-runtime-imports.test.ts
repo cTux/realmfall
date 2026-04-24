@@ -10,4 +10,43 @@ describe('Pixi runtime imports', () => {
 
     expect(runtimeSource).not.toContain("import 'pixi.js/filters'");
   });
+
+  it('keeps world render-loop modules behind the async Pixi bootstrap', () => {
+    const hookSource = readFileSync(
+      join(process.cwd(), 'src/app/App/usePixiWorld.ts'),
+      'utf8',
+    );
+    const valueImports = hookSource.match(
+      /^import\s+(?!type\b)[\s\S]*?from\s+['"][^'"]+['"];?/gm,
+    );
+
+    expect(valueImports?.join('\n')).not.toContain(
+      './world/pixiWorldRenderLoop',
+    );
+  });
+
+  it('keeps direct async Pixi bootstrap imports out of usePixiWorld', () => {
+    const hookSource = readFileSync(
+      join(process.cwd(), 'src/app/App/usePixiWorld.ts'),
+      'utf8',
+    );
+
+    expect(hookSource).not.toContain("import('./world/pixiWorldCamera')");
+    expect(hookSource).not.toContain("import('./world/pixiWorldInteractions')");
+    expect(hookSource).not.toContain("import('./world/pixiWorldRenderLoop')");
+    expect(hookSource).not.toContain("import('../../ui/world/pixiRuntime')");
+  });
+
+  it('does not pass expensive world defaults directly to useRef', () => {
+    const hookSource = readFileSync(
+      join(process.cwd(), 'src/app/App/usePixiWorld.ts'),
+      'utf8',
+    );
+
+    expect(hookSource).not.toContain('useRef(getVisibleTiles(game))');
+    expect(hookSource).not.toContain(
+      'useRef(new Map<string, WorldHoverSnapshot>())',
+    );
+    expect(hookSource).not.toContain('createWorldRenderSnapshot()');
+  });
 });

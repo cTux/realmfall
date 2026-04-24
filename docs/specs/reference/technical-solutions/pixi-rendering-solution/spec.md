@@ -10,6 +10,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - The Pixi world ticker stops while the document is hidden, then invalidates and draws a single catch-up frame when the document becomes visible before normal ticking resumes.
 - Drag and wheel interactions update the canonical world-map camera ref synchronously, then coalesce Pixi container transform writes through one animation-frame scheduler so high-rate pointer input cannot force multiple container mutations in the same frame.
 - Idle world frames now coalesce inside a lower animation cadence bucket, so unchanged state does not rerun the full world render path on every Pixi ticker tick.
+- The Pixi ticker is capped to the same `30 FPS` cadence used by the world animation buckets, reducing idle wakeups before the render snapshot guard runs.
 - React updates feed the renderer through refs and invalidation-sensitive cached inputs rather than by layering a second immediate render effect path.
 - The renderer separates static, interaction, and animated work.
 - Static layers hold terrain, structures, claims, and stable ground cover.
@@ -24,6 +25,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Cached scene state avoids unnecessary rebuilds when screen size, derived static-world render inputs, selected tile, or path highlights have not changed.
 - Static and interaction redraw invalidation derives from render-specific version keys rather than whole `GameState` identity, so log-only or other non-world state clones do not rebuild unchanged Pixi layers.
 - Static invalidation now ignores offscreen enemy container churn by comparing only the enemy presentation inputs that belong to visible tiles before rebuilding cached layers.
+- Static redraws build one shared visible-tile render input list and reuse it for static render-token derivation plus marker composition, so enemy lookups are not repeated for the same tile during one redraw.
 - When offscreen enemy-only clones leave the visible-enemy token unchanged, the scene cache advances its stored `enemies` source reference so later animation ticks do not keep recomputing the visible-enemy token against the same unchanged state.
 - `usePixiWorld` reuses the previous `visibleTiles` array when unrelated state clones leave the visible tile set untouched, and render-version caching keys off those stable world-facing inputs plus the specific enemy and world flags that actually affect Pixi output.
 - `usePixiWorld` updates the cached visible-tile list only when world-facing inputs such as player position, world radius, seed, or visible tile data change, instead of recomputing visible tiles on every unrelated root-state clone.
@@ -43,21 +45,25 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - World SVG icon URLs are promoted into `ImageSource`-backed textures before sprite creation, so Pixi marker sprites do not depend on string-based asset lookup in the browser runtime.
 - The world bootstrap keeps world-only icon preloading, scene-cache setup, and world-hover tooltip helpers behind the same async world bootstrap boundary as Pixi and scene rendering, so the initial `App` chunk does not absorb renderer-only code before the world canvas mounts.
 - Visible world-icon preloading derives its dynamic icon set from the visible tiles plus the enemy lookup those tiles reference, rather than from a broad `GameState` object, so the preload path tracks the actual world marker inputs it consumes.
-- `usePixiWorld` now delegates render-loop comparison, pointer interaction wiring, and camera persistence to neighboring `src/app/App/world` modules so the hook stays centered on refs, invalidation state, and async world bootstrap.
+- `usePixiWorld` delegates Pixi canvas bootstrap, render-loop comparison, pointer interaction wiring, and camera persistence to neighboring `src/app/App/world` modules so the hook stays centered on refs, invalidation state, and bootstrap status.
 - While the fisheye feature flag is off, the live world runtime imports a no-op fisheye adapter instead of the shader implementation, so normal Pixi bootstrap does not load or construct the disabled filter.
 - The world bootstrap blocks only on the icon textures needed for the initial visible viewport, while the remaining icon catalog warms in background idle slices after the first canvas paint.
+- If Pixi world bootstrap fails during async module loading, visible-icon texture preload, or renderer initialization, the app surfaces a world-canvas error state with a retry action instead of leaving the shell in a loading-only state.
 - Shared world-icon texture caches discard destroyed textures before reuse, so Pixi app remounts such as HMR do not hand the next world scene a texture whose source has already been destroyed.
 - If a newly needed icon texture has not finished loading when a sprite pool requests it, the pool uses a transparent placeholder texture for that frame and rerenders when the real texture arrives.
 - Terrain background redraw invalidation also keys off the shared world-icon texture version, so newly loaded terrain art repaints the cached static layer without waiting for unrelated hover or gameplay changes.
 - Terrain background PNG assets ship as transparent pointy-top hex cutouts, so the static world layer can draw them through the regular sprite pool without a runtime mask path.
+- Terrain background PNGs are packed through `pnpm assets:world-atlas`, which emits `src/assets/generated/world-terrain-atlas.png` and `src/assets/generated/world-terrain-atlas.json` from the canonical terrain source list.
+- Runtime terrain drawing resolves `terrainArtFor(...)` to generated atlas frame ids, and the world texture cache loads the atlas image once before creating per-terrain frame textures for Pixi sprites.
 - Terrain background visibility is driven by a persisted graphics toggle that invalidates the cached static layer and rerenders the world map without recreating the Pixi app.
 - The Pixi canvas uses density-aware sizing so browser zoom and high-DPI displays keep the world viewport fitted to CSS pixels while renderer resolution tracks `window.devicePixelRatio` changes on resize within the current graphics preset cap.
-- Persisted settings now hydrate both Pixi renderer initialization flags and a preset-derived renderer density cap through a dedicated plain `localStorage` `settings` payload that is read before the initial game and Pixi setup; those init-time flags require a reload before they affect an already-running canvas.
+- Persisted settings now hydrate both Pixi renderer initialization flags and a preset-derived renderer density cap through a dedicated plain `localStorage` `settings` payload that is read before the initial game and Pixi setup; `usePixiWorld` captures those init-time flags for the current page lifetime, marks their controls as reload-required, and keeps live terrain-background changes on the redraw invalidation path.
 - Hover-analysis caching now invalidates from gameplay-state versions that materially affect interaction resolution rather than from every broad `tiles` or `enemies` container identity change.
 
 ## Main Implementation Areas
 
 - `src/app/App/usePixiWorld.ts`
+- `src/app/App/world/pixiWorldBootstrap.ts`
 - `src/app/App/world/pixiWorldRenderLoop.ts`
 - `src/app/App/world/pixiWorldCamera.ts`
 - `src/app/App/world/pixiWorldInteractions.ts`
@@ -67,6 +73,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - `src/ui/world/renderSceneStaticTiles.ts`
 - `src/ui/world/renderSceneStaticMarkers.ts`
 - `src/ui/world/renderSceneInteractionTiles.ts`
+- `src/ui/world/renderSceneRenderInputs.ts`
 - `src/ui/world/renderSceneClaimBorders.ts`
 - `src/ui/world/renderSceneAnimated.ts`
 - `src/ui/world/renderSceneShared.ts`
@@ -74,3 +81,5 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - `src/ui/world/renderSceneFullscreenEffects.ts`
 - `src/ui/world/renderScenePools.ts`
 - `src/ui/world/renderSceneAtmosphere.ts`
+- `scripts/build-world-terrain-atlas.mjs`
+- `scripts/world-terrain-atlas.config.mjs`

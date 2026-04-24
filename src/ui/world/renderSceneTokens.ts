@@ -1,7 +1,11 @@
 import { hexKey } from '../../game/hex';
-import { getEnemiesAt, getVisibleTiles } from '../../game/stateSelectors';
-import type { GameState, HexCoord, Tile } from '../../game/stateTypes';
+import { getVisibleTiles } from '../../game/stateSelectors';
+import type { GameState, HexCoord } from '../../game/stateTypes';
 import type { SceneCache } from './renderSceneCache';
+import {
+  getVisibleTileRenderInputs,
+  type VisibleTileRenderInput,
+} from './renderSceneRenderInputs';
 import { getWorldIconTextureVersion } from './worldIcons';
 
 export function getSceneRenderTokens(
@@ -11,13 +15,18 @@ export function getSceneRenderTokens(
 ) {
   const playerCoordKey = coordKey(state.player.coord);
   const homeHexKey = coordKey(state.homeHex);
-  const visibleEnemyToken =
+  const renderInputsChanged =
     scene.derivedRenderVisibleTilesSource !== visibleTiles ||
-    scene.derivedRenderEnemiesSource !== state.enemies
-      ? getVisibleEnemyToken(state, visibleTiles)
-      : scene.derivedRenderVisibleEnemyToken;
+    scene.derivedRenderEnemiesSource !== state.enemies ||
+    scene.derivedRenderVisibleTileInputs === null;
+  const visibleTileRenderInputs = renderInputsChanged
+    ? getVisibleTileRenderInputs(state, visibleTiles)
+    : scene.derivedRenderVisibleTileInputs!;
+  const visibleEnemyToken = renderInputsChanged
+    ? getVisibleEnemyToken(state, visibleTiles)
+    : scene.derivedRenderVisibleEnemyToken;
 
-  if (scene.derivedRenderEnemiesSource !== state.enemies) {
+  if (renderInputsChanged) {
     scene.derivedRenderEnemiesSource = state.enemies;
   }
   const iconTextureVersion = getWorldIconTextureVersion();
@@ -31,12 +40,16 @@ export function getSceneRenderTokens(
     scene.derivedRenderIconTextureVersion !== iconTextureVersion
   ) {
     scene.derivedRenderVisibleTilesSource = visibleTiles;
+    scene.derivedRenderVisibleTileInputs = visibleTileRenderInputs;
     scene.derivedRenderVisibleEnemyToken = visibleEnemyToken;
     scene.derivedRenderPlayerCoordKey = playerCoordKey;
     scene.derivedRenderHomeHexKey = homeHexKey;
     scene.derivedRenderBloodMoonActive = state.bloodMoonActive;
     scene.derivedRenderIconTextureVersion = iconTextureVersion;
-    scene.derivedStaticRenderToken = getStaticRenderToken(state, visibleTiles);
+    scene.derivedStaticRenderToken = getStaticRenderToken(
+      state,
+      visibleTileRenderInputs,
+    );
     scene.derivedInteractionRenderToken = getInteractionRenderToken(
       state,
       visibleTiles,
@@ -48,6 +61,7 @@ export function getSceneRenderTokens(
 
   return {
     static: staticToken,
+    visibleTileRenderInputs,
     interactionWithSelection: (
       selected: HexCoord,
       hoveredMove: HexCoord | null,
@@ -64,7 +78,7 @@ export function getSceneRenderTokens(
 
 function getStaticRenderToken(
   state: GameState,
-  visibleTiles: ReturnType<typeof getVisibleTiles>,
+  visibleTileRenderInputs: VisibleTileRenderInput[],
 ) {
   let token = 2166136261;
   token = mixRenderToken(token, coordToken(state.player.coord));
@@ -72,15 +86,15 @@ function getStaticRenderToken(
   token = mixRenderToken(token, state.bloodMoonActive ? 1 : 0);
   token = mixRenderToken(token, getWorldIconTextureVersion());
 
-  for (const tile of visibleTiles) {
-    token = mixRenderToken(token, getStaticTileRenderToken(state, tile));
+  for (const tileRenderInput of visibleTileRenderInputs) {
+    token = mixRenderToken(token, getStaticTileRenderToken(tileRenderInput));
   }
 
   return token;
 }
 
-function getStaticTileRenderToken(state: GameState, tile: Tile) {
-  const enemies = getEnemiesAt(state, tile.coord).reduce((token, enemy) => {
+function getStaticTileRenderToken({ enemies, tile }: VisibleTileRenderInput) {
+  const enemyToken = enemies.reduce((token, enemy) => {
     token = mixRenderToken(token, hashRenderString(enemy.id));
     token = mixRenderToken(
       token,
@@ -104,7 +118,7 @@ function getStaticTileRenderToken(state: GameState, tile: Tile) {
         )
       : 0,
   );
-  token = mixRenderToken(token, enemies);
+  token = mixRenderToken(token, enemyToken);
   return token;
 }
 

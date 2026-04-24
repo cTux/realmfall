@@ -17,6 +17,7 @@ import type {
 } from '../AppWindows.types';
 import { useTooltipState } from '../tooltipStore';
 import { getRecipeMaterialItemKey } from '../utils/getRecipeMaterialItemKey';
+import { useDetailTooltipHandlers } from './useDetailTooltipHandlers';
 
 interface AppFixedWindowsProps {
   dockEntries: ReturnType<
@@ -47,10 +48,7 @@ export const AppFixedWindows = memo(function AppFixedWindows({
   tooltipPositionRef,
   windowActions,
 }: AppFixedWindowsProps) {
-  const detailTooltipHandlers = {
-    onHoverDetail: tooltipActions.onShowTooltip,
-    onLeaveDetail: tooltipActions.onCloseTooltip,
-  };
+  const detailTooltipHandlers = useDetailTooltipHandlers(tooltipActions);
   const recipeMaterialItemKey = itemMenu
     ? getRecipeMaterialItemKey(itemMenu.item)
     : null;

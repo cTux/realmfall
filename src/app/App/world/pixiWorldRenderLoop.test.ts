@@ -18,11 +18,21 @@ vi.mock('../../../ui/world/worldIcons', () => ({
 }));
 
 import {
+  WORLD_ANIMATION_FPS,
+  configureWorldTickerCadence,
   createWorldRenderFrame,
-  createWorldRenderSnapshot,
 } from './pixiWorldRenderLoop';
+import { createInitialWorldRenderSnapshot } from './worldRenderSnapshot';
 
 describe('pixiWorldRenderLoop', () => {
+  it('caps Pixi ticker wakeups to the world animation cadence', () => {
+    const ticker = { maxFPS: 0 };
+
+    configureWorldTickerCadence(ticker);
+
+    expect(ticker.maxFPS).toBe(WORLD_ANIMATION_FPS);
+  });
+
   it('re-renders when world icon textures finish loading after the first frame', () => {
     const performanceNowSpy = vi.spyOn(performance, 'now').mockReturnValue(0);
     const renderScene = vi.fn();
@@ -44,7 +54,7 @@ describe('pixiWorldRenderLoop', () => {
       pausedAnimationMsRef: { current: null },
       worldTimeMsRef: { current: 0 },
       renderInvalidationRef: { current: 0 },
-      lastRenderSnapshotRef: { current: createWorldRenderSnapshot() },
+      lastRenderSnapshotRef: { current: createInitialWorldRenderSnapshot() },
     });
 
     renderFrame();
@@ -80,7 +90,7 @@ describe('pixiWorldRenderLoop', () => {
       pausedAnimationMsRef: { current: null },
       worldTimeMsRef: { current: 0 },
       renderInvalidationRef: { current: 0 },
-      lastRenderSnapshotRef: { current: createWorldRenderSnapshot() },
+      lastRenderSnapshotRef: { current: createInitialWorldRenderSnapshot() },
     });
 
     renderFrame();

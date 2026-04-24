@@ -97,6 +97,9 @@ export function renderScene(
   const visibleTileMap = shouldRenderStatic
     ? new Map(visibleTiles.map((tile) => [hexKey(tile.coord), tile] as const))
     : null;
+  const visibleTileRenderInputs = shouldRenderStatic
+    ? renderTokens.visibleTileRenderInputs
+    : null;
   const lightingState =
     shouldRenderAnimated || shouldRenderStatic
       ? getLightingState(
@@ -150,6 +153,7 @@ export function renderScene(
       structureIconSize,
       terrainArtSize,
       visibleTileMap,
+      visibleTileRenderInputs,
       visibleTiles,
       worldBossIconSize,
     });

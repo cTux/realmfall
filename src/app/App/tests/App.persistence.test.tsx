@@ -32,17 +32,11 @@ describe('App persistence', () => {
       await flushAutosaveTimers();
     });
 
-    expect(saveEncryptedState).toHaveBeenCalledWith(
-      expect.objectContaining({
-        game: expect.objectContaining({
-          turn: game.turn,
-          logs: [],
-        }),
-        ui: expect.objectContaining({
-          windowShown: expect.objectContaining({ hexInfo: true }),
-        }),
+    expect(saveEncryptedState).toHaveBeenCalledWith({
+      ui: expect.objectContaining({
+        windowShown: expect.objectContaining({ hexInfo: true }),
       }),
-    );
+    });
 
     await act(async () => {
       root.unmount();

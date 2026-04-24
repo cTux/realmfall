@@ -172,4 +172,27 @@ describe('renderScene reuse', () => {
 
     expect(getEnemiesAtSpy).toHaveBeenCalledTimes(initialEnemyLookupCount);
   });
+
+  it('looks up visible tile enemies once for static token and marker rendering', async () => {
+    const stateModule = await import('../../game/stateSelectors');
+    const getEnemiesAtSpy = vi.spyOn(stateModule, 'getEnemiesAt');
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-visible-input-cache');
+    const visibleTiles = getVisibleTiles(game);
+    const app = createMockApp();
+
+    getEnemiesAtSpy.mockClear();
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      0,
+      1200,
+    );
+
+    expect(getEnemiesAtSpy).toHaveBeenCalledTimes(visibleTiles.length);
+  });
 });

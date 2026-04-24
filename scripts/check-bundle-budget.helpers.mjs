@@ -25,6 +25,19 @@ export function formatKiB(bytes) {
   return `${(bytes / 1000).toFixed(2)} kB`;
 }
 
+export function isStrictBundleBudgetMode(
+  args = process.argv.slice(2),
+  env = process.env,
+) {
+  return (
+    args.includes('--strict') || env.REALMFALL_BUNDLE_BUDGET_STRICT === '1'
+  );
+}
+
+export function getBundleBudgetExitCode(failures, strictMode) {
+  return strictMode && failures.length > 0 ? 1 : 0;
+}
+
 export function getBuiltChunks(distAssetsDir = DIST_ASSETS_DIR) {
   const chunks = [];
 

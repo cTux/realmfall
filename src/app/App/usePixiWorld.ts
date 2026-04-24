@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -11,10 +12,7 @@ import { getVisibleTiles } from '../../game/stateSelectors';
 import type { GameState, HexCoord } from '../../game/stateTypes';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import { DEFAULT_WORLD_MAP_CAMERA } from '../../ui/world/worldMapCamera';
-import {
-  getGraphicsRenderResolution,
-  type GraphicsSettings,
-} from '../graphicsSettings';
+import type { GraphicsSettings } from '../graphicsSettings';
 import type { TooltipState } from './types';
 import { reuseVisibleTilesIfUnchanged } from './selectors/reuseVisibleTilesIfUnchanged';
 import {
@@ -22,11 +20,13 @@ import {
   type WorldHoverSnapshot,
 } from './usePixiWorldHover';
 import type { WorldMapDragState } from './world/pixiWorldInteractions';
+import type { PixiWorldInitGraphicsSettings } from './world/pixiWorldBootstrap';
 import {
-  createWorldRenderSnapshot,
+  createInitialWorldRenderSnapshot,
   type WorldRenderSnapshot,
-} from './world/pixiWorldRenderLoop';
-import { attachPixiWorldTickerVisibilityPause } from './world/pixiWorldTickerVisibility';
+} from './world/worldRenderSnapshot';
+
+type VisibleTiles = ReturnType<typeof getVisibleTiles>;
 
 interface UsePixiWorldArgs {
   enabled: boolean;
@@ -51,21 +51,15 @@ export function usePixiWorld({
   setGame,
   setTooltip,
 }: UsePixiWorldArgs) {
-  const {
-    antialias,
-    autoDensity,
-    clearBeforeRender,
-    premultipliedAlpha,
-    preserveDrawingBuffer,
-    resolutionCap,
-    showTerrainBackgrounds,
-    useContextAlpha,
-  } = graphicsSettings;
+  const { showTerrainBackgrounds } = graphicsSettings;
   const hostRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<Application | null>(null);
+  const initGraphicsSettingsRef = useRef<PixiWorldInitGraphicsSettings | null>(
+    null,
+  );
   const worldTooltipKeyRef = useRef<string | null>(null);
   const playerCoordRef = useRef(game.player.coord);
-  const visibleTilesRef = useRef(getVisibleTiles(game));
+  const visibleTilesRef = useRef<VisibleTiles>(undefined!);
   const hoverPointerRef = useRef<{ clientX: number; clientY: number } | null>(
     null,
   );
@@ -78,14 +72,42 @@ export function usePixiWorld({
   const selectedRef = useRef(game.player.coord);
   const hoveredMoveRef = useRef<HexCoord | null>(null);
   const hoveredSafePathRef = useRef<HexCoord[] | null>(null);
-  const hoverAnalysisCacheRef = useRef(new Map<string, WorldHoverSnapshot>());
-  const hoverSnapshotRef = useRef(createEmptyWorldHoverSnapshot());
-  const showTerrainBackgroundsRef = useRef(showTerrainBackgrounds);
-  const lastRenderSnapshotRef = useRef<WorldRenderSnapshot>(
-    createWorldRenderSnapshot(),
+  const hoverAnalysisCacheRef = useRef<Map<string, WorldHoverSnapshot>>(
+    undefined!,
   );
+  const hoverSnapshotRef = useRef<WorldHoverSnapshot>(undefined!);
+  const showTerrainBackgroundsRef = useRef(showTerrainBackgrounds);
+  const lastRenderSnapshotRef = useRef<WorldRenderSnapshot>(undefined!);
   const renderInvalidationRef = useRef(0);
   const [canvasReady, setCanvasReady] = useState(false);
+  const [canvasError, setCanvasError] = useState(false);
+  const [bootstrapAttempt, setBootstrapAttempt] = useState(0);
+  const retryCanvas = useCallback(() => {
+    setCanvasReady(false);
+    setCanvasError(false);
+    setBootstrapAttempt((current) => current + 1);
+  }, []);
+
+  if (visibleTilesRef.current === undefined) {
+    visibleTilesRef.current = getVisibleTiles(game);
+  }
+
+  if (hoverAnalysisCacheRef.current === undefined) {
+    hoverAnalysisCacheRef.current = new Map<string, WorldHoverSnapshot>();
+  }
+
+  if (hoverSnapshotRef.current === undefined) {
+    hoverSnapshotRef.current = createEmptyWorldHoverSnapshot();
+  }
+
+  if (lastRenderSnapshotRef.current === undefined) {
+    lastRenderSnapshotRef.current = createInitialWorldRenderSnapshot();
+  }
+
+  if (initGraphicsSettingsRef.current === null) {
+    initGraphicsSettingsRef.current =
+      getPixiInitGraphicsSettings(graphicsSettings);
+  }
 
   useEffect(() => {
     gameRef.current = game;
@@ -143,197 +165,86 @@ export function usePixiWorld({
 
     let disposed = false;
     let cleanup: (() => void) | null = null;
-    lastRenderSnapshotRef.current = createWorldRenderSnapshot();
+    const initGraphicsSettings = initGraphicsSettingsRef.current!;
+    lastRenderSnapshotRef.current = createInitialWorldRenderSnapshot();
+    setCanvasReady(false);
+    setCanvasError(false);
 
-    void Promise.all([
-      import('./world/pixiWorldCamera'),
-      import('./world/pixiWorldInteractions'),
-      import('./world/pixiWorldRenderLoop'),
-      import('../../ui/world/pixiRuntime'),
-      import('../../ui/world/renderScene'),
-      import('../../ui/world/worldIcons'),
-      import('../../ui/world/worldTooltips'),
-      import('../../ui/world/renderSceneCache'),
-    ]).then(
-      async ([
-        cameraModule,
-        interactionModule,
-        renderLoopModule,
-        pixiModule,
-        renderSceneModule,
-        worldIconsModule,
-        worldTooltipsModule,
-        sceneCacheModule,
-      ]) => {
-        if (disposed || !hostRef.current || appRef.current) {
-          return;
-        }
-
-        const {
-          ensureWorldIconTexturesLoaded,
-          getVisibleWorldIconAssetIds,
-          warmWorldIconTexturesInBackground,
-        } = worldIconsModule;
-        const { enemyWorldTooltip, structureWorldTooltip } =
-          worldTooltipsModule;
-        const { getSceneCache } = sceneCacheModule;
-        const app = new pixiModule.Application();
-        await ensureWorldIconTexturesLoaded(
-          getVisibleWorldIconAssetIds(
-            gameRef.current.enemies,
-            visibleTilesRef.current,
-          ),
-        );
-        await app.init({
-          width: Math.max(window.innerWidth, 640),
-          height: Math.max(window.innerHeight, 480),
-          backgroundColor: 0x0b1020,
-          backgroundAlpha: useContextAlpha ? 0 : 1,
-          antialias,
-          autoDensity,
-          clearBeforeRender,
-          manageImports: false,
-          preserveDrawingBuffer,
-          premultipliedAlpha,
-          preference: 'webgl',
-          resolution: getGraphicsRenderResolution(
-            { resolutionCap },
-            window.devicePixelRatio,
-          ),
-        });
-
-        if (disposed || !hostRef.current || appRef.current) {
-          app.destroy(true, {
-            children: true,
-            texture: true,
-            textureSource: true,
-          });
-          return;
-        }
-
-        appRef.current = app;
-        const canvas = app.canvas as HTMLCanvasElement;
-        const getWorldMapContainer = () => getSceneCache(app).worldMap;
-        cameraModule.loadSavedWorldMapCamera(worldMapCameraRef);
-        hostRef.current.replaceChildren(canvas);
-
-        const resize = cameraModule.createWorldResizeHandler({
-          app,
-          hostRef,
-          resolutionCap,
-          worldMapCameraRef,
-          getWorldMapContainer,
-        });
-        const getScenePoint = cameraModule.createWorldScenePointMapper({
-          app,
-          canvas,
-          worldMapCameraRef,
-        });
-        const renderFrame = renderLoopModule.createWorldRenderFrame({
-          app,
-          renderScene: renderSceneModule.renderScene,
+    void import('./world/pixiWorldBootstrap')
+      .then(({ bootstrapPixiWorldCanvas }) =>
+        bootstrapPixiWorldCanvas({
+          appRef,
+          cameraSaveTimerRef,
+          dragStateRef,
           gameRef,
-          visibleTilesRef,
-          selectedRef,
+          hostRef,
+          hoverAnalysisCacheRef,
+          hoverFrameRef,
+          hoverPointerRef,
+          hoverSnapshotRef,
           hoveredMoveRef,
           hoveredSafePathRef,
-          showTerrainBackgroundsRef,
-          pausedRef,
-          pausedAnimationMsRef,
-          worldTimeMsRef,
-          renderInvalidationRef,
+          initGraphicsSettings,
+          isDisposed: () => disposed,
           lastRenderSnapshotRef,
-        });
-
-        resize();
-        renderFrame();
-        app.ticker.add(renderFrame);
-        const detachTickerVisibilityPause =
-          attachPixiWorldTickerVisibilityPause({
-            ticker: app.ticker,
-            renderFrame,
-            renderInvalidationRef,
-          });
-        setCanvasReady(true);
-        warmWorldIconTexturesInBackground();
-
-        const observer = new ResizeObserver(() => resize());
-        observer.observe(hostRef.current);
-        window.addEventListener('resize', resize);
-
-        const scheduleCameraSave = cameraModule.createWorldCameraSaveScheduler({
-          cameraSaveTimerRef,
+          onReady: (nextCleanup) => {
+            cleanup = () => {
+              nextCleanup();
+              setCanvasReady(false);
+            };
+            setCanvasReady(true);
+          },
+          pausedAnimationMsRef,
+          pausedRef,
+          playerCoordRef,
+          renderInvalidationRef,
+          selectedRef,
+          setGame,
+          setTooltip,
+          showTerrainBackgroundsRef,
+          tooltipPositionRef,
+          visibleTilesRef,
           worldMapCameraRef,
-        });
-        const detachInteractions =
-          interactionModule.attachPixiWorldInteractions({
-            app,
-            canvas,
-            enemyWorldTooltip,
-            structureWorldTooltip,
-            gameRef,
-            getScenePoint,
-            getWorldMapContainer,
-            hoverAnalysisCacheRef,
-            hoverFrameRef,
-            hoverPointerRef,
-            hoverSnapshotRef,
-            hoveredMoveRef,
-            hoveredSafePathRef,
-            pausedRef,
-            playerCoordRef,
-            selectedRef,
-            renderInvalidationRef,
-            scheduleCameraSave,
-            setGame,
-            setTooltip,
-            tooltipPositionRef,
-            worldMapCameraRef,
-            worldTimeMsRef,
-            worldTooltipKeyRef,
-            dragStateRef,
-          });
-
-        cleanup = () => {
-          observer.disconnect();
-          window.removeEventListener('resize', resize);
-          detachInteractions();
-          if (cameraSaveTimerRef.current !== null) {
-            window.clearTimeout(cameraSaveTimerRef.current);
-            cameraSaveTimerRef.current = null;
-          }
-          detachTickerVisibilityPause();
-          app.ticker.remove(renderFrame);
-          app.destroy(true, {
-            children: true,
-            texture: true,
-            textureSource: true,
-          });
-          appRef.current = null;
-          setCanvasReady(false);
-        };
-      },
-    );
+          worldTimeMsRef,
+          worldTooltipKeyRef,
+        }),
+      )
+      .catch((error: unknown) => {
+        if (disposed) return;
+        console.error(error);
+        cleanup?.();
+        appRef.current = null;
+        setCanvasReady(false);
+        setCanvasError(true);
+      });
 
     return () => {
       disposed = true;
       cleanup?.();
     };
   }, [
+    bootstrapAttempt,
     enabled,
     gameRef,
-    antialias,
-    autoDensity,
-    clearBeforeRender,
-    premultipliedAlpha,
-    preserveDrawingBuffer,
-    resolutionCap,
     setGame,
     setTooltip,
     tooltipPositionRef,
-    useContextAlpha,
     worldTimeMsRef,
   ]);
 
-  return { hostRef, canvasReady };
+  return { hostRef, canvasReady, canvasError, retryCanvas };
+}
+
+function getPixiInitGraphicsSettings(
+  graphicsSettings: GraphicsSettings,
+): PixiWorldInitGraphicsSettings {
+  return {
+    antialias: graphicsSettings.antialias,
+    autoDensity: graphicsSettings.autoDensity,
+    clearBeforeRender: graphicsSettings.clearBeforeRender,
+    premultipliedAlpha: graphicsSettings.premultipliedAlpha,
+    preserveDrawingBuffer: graphicsSettings.preserveDrawingBuffer,
+    resolutionCap: graphicsSettings.resolutionCap,
+    useContextAlpha: graphicsSettings.useContextAlpha,
+  };
 }

@@ -7,13 +7,9 @@ import {
 } from 'react';
 import { t } from '../../../i18n';
 import type { Item } from '../../../game/stateTypes';
-import {
-  ACTION_BAR_SLOT_COUNT,
-  findActionBarItem,
-  getConsumablesFromInventory,
-  type ActionBarSlots,
-} from '../../../app/App/actionBar';
+import type { ActionBarSlots } from '../../../app/App/actionBar';
 import { ItemSlotButton } from '../ItemSlotButton/ItemSlotButton';
+import { useActionBarItems } from './hooks/useActionBarItems';
 import styles from './styles.module.scss';
 
 interface ActionBarProps {
@@ -39,7 +35,7 @@ export const ActionBar = memo(function ActionBar({
 }: ActionBarProps) {
   const [pickerSlotIndex, setPickerSlotIndex] = useState<number | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
-  const consumables = getConsumablesFromInventory(inventory);
+  const { consumables, slotItems } = useActionBarItems(inventory, slots);
 
   useEffect(() => {
     if (pickerSlotIndex === null) return;
@@ -90,45 +86,38 @@ export const ActionBar = memo(function ActionBar({
         </div>
       ) : null}
       <div className={styles.bar} aria-label={t('ui.actionBar.ariaLabel')}>
-        {Array.from({ length: ACTION_BAR_SLOT_COUNT }, (_, slotIndex) => {
-          const assigned = slots[slotIndex];
-          const linkedItem = findActionBarItem(inventory, assigned);
-          const displayItem = linkedItem ?? assigned?.item;
-          const depleted = Boolean(assigned && !linkedItem);
-
-          return (
-            <div key={slotIndex} className={styles.slotWrap}>
-              <ItemSlotButton
-                ariaLabel={getActionBarSlotLabel(slotIndex, displayItem)}
-                className={styles.slot}
-                item={displayItem}
-                size="compact"
-                overlayColorOverride={
-                  depleted ? 'rgba(239, 68, 68, 0.38)' : undefined
-                }
-                onClick={() =>
-                  setPickerSlotIndex((current) =>
-                    current === slotIndex ? null : slotIndex,
-                  )
-                }
-                onContextMenu={(event) => {
-                  event.preventDefault();
-                  setPickerSlotIndex(null);
-                  onClearSlot(slotIndex);
-                }}
-                onMouseEnter={
-                  displayItem
-                    ? (event) => onHoverItem(event, displayItem)
-                    : undefined
-                }
-                onMouseLeave={displayItem ? onLeaveItem : undefined}
-              />
-              <span className={styles.hotkey} aria-hidden="true">
-                {slotIndex + 1}
-              </span>
-            </div>
-          );
-        })}
+        {slotItems.map(({ slotIndex, displayItem, depleted }) => (
+          <div key={slotIndex} className={styles.slotWrap}>
+            <ItemSlotButton
+              ariaLabel={getActionBarSlotLabel(slotIndex, displayItem)}
+              className={styles.slot}
+              item={displayItem}
+              size="compact"
+              overlayColorOverride={
+                depleted ? 'rgba(239, 68, 68, 0.38)' : undefined
+              }
+              onClick={() =>
+                setPickerSlotIndex((current) =>
+                  current === slotIndex ? null : slotIndex,
+                )
+              }
+              onContextMenu={(event) => {
+                event.preventDefault();
+                setPickerSlotIndex(null);
+                onClearSlot(slotIndex);
+              }}
+              onMouseEnter={
+                displayItem
+                  ? (event) => onHoverItem(event, displayItem)
+                  : undefined
+              }
+              onMouseLeave={displayItem ? onLeaveItem : undefined}
+            />
+            <span className={styles.hotkey} aria-hidden="true">
+              {slotIndex + 1}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );

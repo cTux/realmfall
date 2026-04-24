@@ -10,9 +10,16 @@ import {
   getStructureConfig,
 } from '../../game/content/structures';
 import type { Enemy, StructureType, Tile } from '../../game/stateTypes';
-import { ImageSource, Texture } from 'pixi.js';
+import { ImageSource, Rectangle, Texture } from 'pixi.js';
 import { RARITY_COLOR } from '../rarity';
-import { getWorldTerrainAssetIds, terrainArtFor } from './worldTerrainArt';
+import {
+  getWorldTerrainAssetIds,
+  getWorldTerrainAtlasImage,
+  getWorldTerrainFrame,
+  isWorldTerrainFrameId,
+  terrainArtFor,
+  type WorldTerrainAtlasFrameId,
+} from './worldTerrainArt';
 
 const WORLD_ICON_BACKGROUND_WARMUP_BATCH_SIZE = 4;
 const WORLD_ICON_WARMUP_FALLBACK_SLICE_MS = 8;
@@ -113,6 +120,8 @@ const worldIconWarmupQueue: string[] = [];
 let worldIconWarmupHandle: number | null = null;
 let worldIconPlaceholderTexture: Texture | null = null;
 let worldIconTextureVersion = 0;
+let worldTerrainAtlasBaseTexture: Texture | null = null;
+let worldTerrainAtlasBaseTextureLoad: Promise<Texture> | null = null;
 
 export function getWorldIconTexture(
   icon: string,
@@ -203,7 +212,71 @@ function loadWorldIconTexture(icon: string) {
     return inFlight;
   }
 
-  const textureLoad = new Promise<Texture>((resolve, reject) => {
+  const textureLoad = (
+    isWorldTerrainFrameId(icon)
+      ? loadWorldTerrainAtlasFrameTexture(icon)
+      : loadStandaloneWorldIconTexture(icon)
+  )
+    .then((texture) => {
+      worldIconTextures.set(icon, texture);
+      worldIconTextureVersion =
+        worldIconTextureVersion >= Number.MAX_SAFE_INTEGER
+          ? 1
+          : worldIconTextureVersion + 1;
+      return texture;
+    })
+    .finally(() => {
+      worldIconTextureLoads.delete(icon);
+    });
+
+  worldIconTextureLoads.set(icon, textureLoad);
+  return textureLoad;
+}
+
+function loadStandaloneWorldIconTexture(icon: string) {
+  return loadImageTexture(icon, `Failed to load world icon texture: ${icon}`);
+}
+
+function loadWorldTerrainAtlasFrameTexture(icon: WorldTerrainAtlasFrameId) {
+  const frame = getWorldTerrainFrame(icon);
+
+  return loadWorldTerrainAtlasBaseTexture().then(
+    (atlasTexture) =>
+      new Texture({
+        label: icon,
+        source: atlasTexture.source,
+        frame: new Rectangle(frame.x, frame.y, frame.w, frame.h),
+        orig: new Rectangle(0, 0, frame.w, frame.h),
+      }),
+  );
+}
+
+function loadWorldTerrainAtlasBaseTexture() {
+  if (
+    worldTerrainAtlasBaseTexture &&
+    !isDestroyedWorldIconTexture(worldTerrainAtlasBaseTexture)
+  ) {
+    return Promise.resolve(worldTerrainAtlasBaseTexture);
+  }
+
+  worldTerrainAtlasBaseTexture = null;
+  worldTerrainAtlasBaseTextureLoad ??= loadImageTexture(
+    getWorldTerrainAtlasImage(),
+    'Failed to load world terrain atlas texture.',
+  )
+    .then((texture) => {
+      worldTerrainAtlasBaseTexture = texture;
+      return texture;
+    })
+    .finally(() => {
+      worldTerrainAtlasBaseTextureLoad = null;
+    });
+
+  return worldTerrainAtlasBaseTextureLoad;
+}
+
+function loadImageTexture(imageUrl: string, errorMessage: string) {
+  return new Promise<Texture>((resolve, reject) => {
     const image = new Image();
 
     image.onload = () => {
@@ -212,23 +285,13 @@ function loadWorldIconTexture(icon: string) {
           resource: image,
         }),
       });
-      worldIconTextureLoads.delete(icon);
-      worldIconTextures.set(icon, texture);
-      worldIconTextureVersion =
-        worldIconTextureVersion >= Number.MAX_SAFE_INTEGER
-          ? 1
-          : worldIconTextureVersion + 1;
       resolve(texture);
     };
     image.onerror = () => {
-      worldIconTextureLoads.delete(icon);
-      reject(new Error(`Failed to load world icon texture: ${icon}`));
+      reject(new Error(errorMessage));
     };
-    image.src = icon;
+    image.src = imageUrl;
   });
-
-  worldIconTextureLoads.set(icon, textureLoad);
-  return textureLoad;
 }
 
 function takeValidWorldIconTexture(cache: Map<string, Texture>, icon: string) {

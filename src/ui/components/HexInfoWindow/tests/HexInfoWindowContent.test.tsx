@@ -2,6 +2,10 @@ import { buildItemFromConfig } from '../../../../game/content/items';
 import { ItemId } from '../../../../game/content/ids';
 import { mountUi, setupUiTestEnvironment } from '../../../uiTestHelpers';
 import { HexInfoWindowContent } from '../HexInfoWindowContent';
+import {
+  HEX_INFO_COMPACT_CONTENT_SLOT_STYLE,
+  HEX_INFO_CONTENT_SLOT_STYLE,
+} from '../hexInfoSlotStyles';
 
 setupUiTestEnvironment();
 
@@ -66,5 +70,18 @@ describe('HexInfoWindowContent', () => {
     );
 
     await ui.unmount();
+  });
+
+  it('shares stable content slot style objects across renders', () => {
+    expect(HEX_INFO_CONTENT_SLOT_STYLE).toEqual({
+      '--slot-size': '54.4px',
+      '--slot-icon-size': '1.76rem',
+    });
+    expect(HEX_INFO_COMPACT_CONTENT_SLOT_STYLE).toEqual({
+      '--slot-size': '27.2px',
+      '--slot-icon-size': '24.48px',
+    });
+    expect(Object.isFrozen(HEX_INFO_CONTENT_SLOT_STYLE)).toBe(true);
+    expect(Object.isFrozen(HEX_INFO_COMPACT_CONTENT_SLOT_STYLE)).toBe(true);
   });
 });

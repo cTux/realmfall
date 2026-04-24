@@ -1,5 +1,6 @@
 import { memo, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { formatCompactNumber, formatCompactNumberish } from '../../formatters';
+import { resolveIconAsset } from '../../iconAssets';
 import type { GameTooltipProps, RenderedTooltipState } from './types';
 import {
   setFollowCursorTooltipElement,
@@ -151,22 +152,23 @@ export const GameTooltip = memo(function GameTooltip({
         }
 
         if (line.kind === 'stat' && line.label) {
+          const icon = line.icon ? resolveIconAsset(line.icon) : undefined;
           return (
             <div
               key={`${rendered.tooltip.title}-${line.label}-${index}`}
               className={`${styles.statRow} ${className ?? ''}`.trim()}
             >
               <span className={styles.statLabel}>
-                {line.icon ? (
+                {icon ? (
                   line.iconTint ? (
                     <span
                       aria-hidden="true"
                       className={styles.statIconMask}
-                      style={iconMaskStyle(line.icon, line.iconTint)}
+                      style={iconMaskStyle(icon, line.iconTint)}
                     />
                   ) : (
                     <img
-                      src={line.icon}
+                      src={icon}
                       alt=""
                       aria-hidden="true"
                       className={styles.statIcon}

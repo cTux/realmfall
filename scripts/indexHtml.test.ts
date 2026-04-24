@@ -16,3 +16,11 @@ describe('index.html favicon theme mapping', () => {
     );
   });
 });
+
+describe('index.html startup hints', () => {
+  it('leaves App modulepreload injection to the Vite plugin', () => {
+    const html = readFileSync(resolve(process.cwd(), 'index.html'), 'utf8');
+
+    expect(html).not.toContain('href="/src/app/App/index.ts"');
+  });
+});

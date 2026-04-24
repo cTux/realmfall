@@ -15,6 +15,7 @@ import { RecipeBookWindow } from './components/RecipeBookWindow';
 import { SkillsWindow } from './components/SkillsWindow';
 import { renderMarkup, setupUiTestEnvironment } from './uiTestHelpers';
 import { DEFAULT_LOG_FILTERS } from '../app/constants';
+import { resolveIconAsset } from './iconAssets';
 import { WINDOW_LABELS } from './windowLabels';
 import {
   buildBaseHexInfoProps,
@@ -250,6 +251,8 @@ describe('ui window static markup', () => {
     expect(markup).toContain(getAbilityDefinition('fireball').name);
     expect(markup).toContain('(Q) Start');
     expect(markup).toContain('Knight Blade');
-    expect(markup).toContain(getItemConfigByKey('town-knife')?.icon ?? '');
+    expect(markup).toContain(
+      resolveIconAsset(getItemConfigByKey('town-knife')?.icon ?? ''),
+    );
   });
 });

@@ -4,6 +4,8 @@ import {
   formatKiB,
   getChunkBudgetTarget,
   getStartupChunkFiles,
+  getBundleBudgetExitCode,
+  isStrictBundleBudgetMode,
 } from '../check-bundle-budget.helpers.mjs';
 
 describe('check-bundle-budget helpers', () => {
@@ -111,5 +113,21 @@ describe('check-bundle-budget helpers', () => {
     ];
 
     expect(getChunkBudgetTarget(chunks, 'react-core')).toBeNull();
+  });
+
+  it('keeps the default budget command warning-only', () => {
+    expect(isStrictBundleBudgetMode([], {})).toBe(false);
+    expect(getBundleBudgetExitCode(['App over budget'], false)).toBe(0);
+  });
+
+  it('supports strict budget failures from CLI and environment flags', () => {
+    expect(isStrictBundleBudgetMode(['--strict'], {})).toBe(true);
+    expect(
+      isStrictBundleBudgetMode([], {
+        REALMFALL_BUNDLE_BUDGET_STRICT: '1',
+      }),
+    ).toBe(true);
+    expect(getBundleBudgetExitCode(['App over budget'], true)).toBe(1);
+    expect(getBundleBudgetExitCode([], true)).toBe(0);
   });
 });
