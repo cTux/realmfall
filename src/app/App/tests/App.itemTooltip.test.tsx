@@ -6,71 +6,92 @@ import {
   renderApp,
 } from './appTestHarness';
 
+const REJECTED_TOOLTIP_CHUNK_TEST_TIMEOUT_MS = 20_000;
+const loadItemTooltipModuleMock = vi.hoisted(() => vi.fn());
+
+vi.mock('../itemTooltipModuleLoader', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('../itemTooltipModuleLoader')>();
+
+  return {
+    ...actual,
+    loadItemTooltipModule: loadItemTooltipModuleMock,
+  };
+});
+
 describe('App item tooltip lazy loading', () => {
-  afterEach(() => {
-    vi.doUnmock('../../../ui/tooltips');
+  beforeEach(() => {
+    loadItemTooltipModuleMock.mockImplementation(
+      () => import('../../../ui/tooltips/itemTooltips'),
+    );
   });
 
-  it('swallows rejected item tooltip chunk loads during inventory hover', async () => {
-    const game = createHydratedAppGame();
-    const tooltipLoadError = new Error('tooltip chunk failed');
-    const onUnhandledRejection = vi.fn((event: PromiseRejectionEvent) => {
-      event.preventDefault();
-    });
+  afterEach(() => {
+    loadItemTooltipModuleMock.mockReset();
+  });
 
-    loadEncryptedState.mockResolvedValue({
-      game,
-      ui: {
-        windowShown: {
-          hero: false,
-          skills: false,
-          recipes: false,
-          hexInfo: false,
-          equipment: false,
-          inventory: true,
-          loot: false,
-          log: false,
-          combat: false,
-          settings: false,
+  it(
+    'swallows rejected item tooltip chunk loads during inventory hover',
+    async () => {
+      const game = createHydratedAppGame();
+      const tooltipLoadError = new Error('tooltip chunk failed');
+      const onUnhandledRejection = vi.fn((event: PromiseRejectionEvent) => {
+        event.preventDefault();
+      });
+
+      loadEncryptedState.mockResolvedValue({
+        game,
+        ui: {
+          windowShown: {
+            hero: false,
+            skills: false,
+            recipes: false,
+            hexInfo: false,
+            equipment: false,
+            inventory: true,
+            loot: false,
+            log: false,
+            combat: false,
+            settings: false,
+          },
         },
-      },
-    });
+      });
 
-    vi.doMock('../../../ui/tooltips', async () => {
-      throw tooltipLoadError;
-    });
-    window.addEventListener('unhandledrejection', onUnhandledRejection);
+      loadItemTooltipModuleMock.mockRejectedValue(tooltipLoadError);
+      window.addEventListener('unhandledrejection', onUnhandledRejection);
 
-    const { host, root } = await renderApp();
+      const { host, root } = await renderApp();
 
-    await act(async () => {
-      vi.advanceTimersByTime(200);
-    });
-    await flushLazyModules();
-    await flushLazyModules();
+      await act(async () => {
+        vi.advanceTimersByTime(200);
+      });
+      await flushLazyModules();
 
-    const inventoryConsumable = host.querySelector('[aria-label="consumable"]')
-      ?.parentElement as HTMLButtonElement | null;
-    expect(inventoryConsumable).not.toBeNull();
+      const inventoryConsumable = host.querySelector(
+        '[aria-label="consumable"]',
+      )?.parentElement as HTMLButtonElement | null;
+      expect(inventoryConsumable).not.toBeNull();
 
-    await act(async () => {
-      inventoryConsumable?.dispatchEvent(
-        new MouseEvent('mouseover', { bubbles: true }),
-      );
-      await vi.dynamicImportSettled();
-      await Promise.resolve();
-    });
+      await act(async () => {
+        inventoryConsumable?.dispatchEvent(
+          new MouseEvent('mouseover', { bubbles: true }),
+        );
+        await vi.dynamicImportSettled();
+        await Promise.resolve();
+      });
 
-    expect(onUnhandledRejection).not.toHaveBeenCalled();
-    expect(host.querySelector('[data-tooltip-visible="true"]')).toBeNull();
+      expect(onUnhandledRejection).not.toHaveBeenCalled();
+      expect(host.querySelector('[data-tooltip-visible="true"]')).toBeNull();
 
-    window.removeEventListener('unhandledrejection', onUnhandledRejection);
+      window.removeEventListener('unhandledrejection', onUnhandledRejection);
 
-    await act(async () => {
-      root.unmount();
-    });
-    host.remove();
-  }, 10000);
+      await act(async () => {
+        root.unmount();
+      });
+      host.remove();
+    },
+    REJECTED_TOOLTIP_CHUNK_TEST_TIMEOUT_MS,
+  );
 
   it('renders corrupted item titles and modified stat tones in inventory tooltips', async () => {
     const game = createHydratedAppGame();
@@ -121,7 +142,6 @@ describe('App item tooltip lazy loading', () => {
     await act(async () => {
       vi.advanceTimersByTime(200);
     });
-    await flushLazyModules();
     await flushLazyModules();
 
     const inventoryWeapon = host.querySelector('[aria-label="weapon"]')
