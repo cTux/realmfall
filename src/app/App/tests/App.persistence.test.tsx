@@ -5,6 +5,7 @@ import {
   loadEncryptedState,
   renderApp,
   saveEncryptedState,
+  waitForAppSelector,
 } from './appTestHarness';
 
 async function flushAutosaveTimers(ms = 5000) {
@@ -19,6 +20,7 @@ describe('App persistence', () => {
 
     const { host, root } = await renderApp();
     await flushLazyModules();
+    await waitForAppSelector(host, 'canvas');
 
     saveEncryptedState.mockClear();
 
@@ -55,6 +57,7 @@ describe('App persistence', () => {
 
     const { host, root } = await renderApp();
     await flushLazyModules();
+    await waitForAppSelector(host, 'canvas');
 
     saveEncryptedState.mockClear();
 
@@ -95,6 +98,7 @@ describe('App persistence', () => {
 
     const { host, root } = await renderApp();
     await flushLazyModules();
+    await waitForAppSelector(host, 'canvas');
 
     await act(async () => {
       window.dispatchEvent(
@@ -103,10 +107,16 @@ describe('App persistence', () => {
     });
     await flushLazyModules();
 
-    const saveButton = Array.from(host.querySelectorAll('button')).find(
+    const saveButton = (await waitForAppSelector(
+      host,
+      'button',
+    )) as HTMLButtonElement;
+    const settingsSaveButton = Array.from(host.querySelectorAll('button')).find(
       (button) => button.textContent === 'Save',
     );
-    const settingsWindow = saveButton?.closest('section');
+    const settingsWindow = (settingsSaveButton ?? saveButton).closest(
+      'section',
+    );
 
     expect(settingsWindow).not.toBeNull();
     expect((settingsWindow as HTMLElement).style.width).toBe('720px');
@@ -124,25 +134,26 @@ describe('App persistence', () => {
 
     const { host, root } = await renderApp();
     await flushLazyModules();
+    await waitForAppSelector(host, 'canvas');
 
     saveEncryptedState.mockClear();
 
-    const actionBarSlot = host.querySelector(
+    const actionBarSlot = (await waitForAppSelector(
+      host,
       '[aria-label="Empty action bar slot 1"]',
-    ) as HTMLButtonElement | null;
-    expect(actionBarSlot).not.toBeNull();
+    )) as HTMLButtonElement;
 
     await act(async () => {
-      actionBarSlot?.click();
+      actionBarSlot.click();
     });
 
-    const assignButton = host.querySelector(
+    const assignButton = (await waitForAppSelector(
+      host,
       '[aria-label="Assign Trail Ration to action bar slot"]',
-    ) as HTMLButtonElement | null;
-    expect(assignButton).not.toBeNull();
+    )) as HTMLButtonElement;
 
     await act(async () => {
-      assignButton?.click();
+      assignButton.click();
     });
 
     await act(async () => {
