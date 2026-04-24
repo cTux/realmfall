@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type MutableRefObject } from 'react';
+import { t } from '../../../i18n';
 import { useItem as applyItemUse } from '../../../game/stateItemActions';
 import type { GameState, Item } from '../../../game/stateTypes';
 import {
@@ -7,6 +8,7 @@ import {
   reconcileActionBarSlots,
   type ActionBarSlots,
 } from '../actionBar';
+import { createLoggedGameTransition } from './useLoggedGameCommand';
 
 interface UseActionBarControllerOptions {
   applyGameTransition: (transition: (state: GameState) => GameState) => void;
@@ -61,7 +63,13 @@ export function useActionBarController({
         return;
       }
 
-      applyGameTransition((current) => applyItemUse(current, item.id));
+      applyGameTransition(
+        createLoggedGameTransition({
+          describe: () =>
+            t('game.log.command.useActionBarItem', { itemName: item.name }),
+          transition: (current) => applyItemUse(current, item.id),
+        }),
+      );
     },
     [actionBarSlots, applyGameTransition, gameRef],
   );

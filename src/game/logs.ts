@@ -37,6 +37,10 @@ export function addLog(
   ].slice(0, 100);
 }
 
+export function addCommandLog(state: GameState, text: string) {
+  addLog(state, 'command', text);
+}
+
 export function normalizeWorldMinutes(worldTimeMinutes: number) {
   return (
     ((worldTimeMinutes % GAME_DAY_MINUTES) + GAME_DAY_MINUTES) %

@@ -1,5 +1,6 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import type { Application } from 'pixi.js';
+import { t } from '../../../i18n';
 import { hexAtPoint, hexDistance, type HexCoord } from '../../../game/hex';
 import { isPassable } from '../../../game/shared';
 import { moveAlongSafePath, moveToTile } from '../../../game/stateMovement';
@@ -9,6 +10,7 @@ import type { GameState } from '../../../game/stateTypes';
 import { getWorldHexSize } from '../../../ui/world/renderSceneMath';
 import { WORLD_REVEAL_RADIUS } from '../../constants';
 import type { WorldScenePointMapper } from './pixiWorldCamera';
+import { createLoggedGameTransition } from '../hooks/useLoggedGameCommand';
 
 export function createWorldClickHandler({
   app,
@@ -58,10 +60,13 @@ export function createWorldClickHandler({
       selectedRef.current = target;
       renderInvalidationRef.current += 1;
       setGame((currentState) =>
-        moveToTile(
-          { ...currentState, worldTimeMs: worldTimeMsRef.current },
-          target,
-        ),
+        createLoggedGameTransition({
+          describe: () => t('game.log.command.moveToTile'),
+          transition: (timedState) => moveToTile(timedState, target),
+        })({
+          ...currentState,
+          worldTimeMs: worldTimeMsRef.current,
+        }),
       );
       return;
     }
@@ -78,10 +83,13 @@ export function createWorldClickHandler({
     selectedRef.current = target;
     renderInvalidationRef.current += 1;
     setGame((currentState) =>
-      moveAlongSafePath(
-        { ...currentState, worldTimeMs: worldTimeMsRef.current },
-        target,
-      ),
+      createLoggedGameTransition({
+        describe: () => t('game.log.command.followSafePath'),
+        transition: (timedState) => moveAlongSafePath(timedState, target),
+      })({
+        ...currentState,
+        worldTimeMs: worldTimeMsRef.current,
+      }),
     );
   };
 }

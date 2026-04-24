@@ -47,12 +47,13 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - Furnace markers now use a white glyph with the same black outlined treatment as the other structure icons.
 - World-map gathering markers for ore, herbs, timber, and water now catch an intermittent deterministic shimmer so resource hexes feel active without turning into constant bouncing icons.
 - The canvas renderer now shows a fullscreen red warning effect when the player's HP drops below `30%`, and the warning clears once HP reaches `30%` or higher.
-- Logs provide system, movement, combat, loot, and other gameplay feedback.
+- Logs provide command, system, movement, combat, loot, and other gameplay feedback.
+- Intentional player commands that change state or invoke an action now prepend a dedicated `command` log entry in the existing log window for covered surfaces such as inventory sorting, action-bar item use, and actionable world-click travel, while passive UI interactions such as window movement, hover updates, map drag, zoom, and filter toggles do not generate log rows.
 - Combat log entries render with white baseline copy, color damage red and healing green, tint enemy names by rarity, and surface hoverable inline source chips with icons and combat tooltips for logged combat sources.
 - Combat log attack entries now call out critical hits, evaded or blocked attacks, suppressed damage, defended-against hits, and healing sourced from abilities or lifesteal so the full combat resolution is readable from the log alone.
 - Combat log hovers now extend beyond ability and status-effect chips to any structured combat segment with tooltip data, including enemy-name segments and secondary-stat sources such as lifesteal.
 - The newest log row renders immediately and the log list stays pinned to the bottom when new entries arrive, so the active message does not linger on a partial fragment.
-- Filtered log viewing is part of the current gameplay readability loop.
+- Filtered log viewing is part of the current gameplay readability loop, including the dedicated `command` category.
 - Large recipe lists derive memoized row view models for the visible batch, then reveal additional rows in explicit batches instead of mounting or recomputing the whole matching catalog at once.
 - Current and maximum value bars surface their meaning through the shared tooltip system.
 - Hovering a non-player combat entity's HP bar now opens a stat sheet tooltip with that entity's current combat stats.
