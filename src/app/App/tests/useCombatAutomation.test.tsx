@@ -1,4 +1,4 @@
-import { act } from 'react';
+import { act, useState, type Dispatch, type SetStateAction } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import {
   getCombatAutomationDelay,
@@ -105,8 +105,56 @@ describe('useCombatAutomation', () => {
       await vi.advanceTimersByTimeAsync(250);
     });
 
-    expect(getCombatAutomationDelay).toHaveBeenCalledTimes(1);
+    expect(getCombatAutomationDelay).toHaveBeenCalledTimes(2);
     expect(setGame).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps polling after a no-op combat tick until the world clock catches up', async () => {
+    worldTimeMsRef.current = 0;
+    vi.mocked(getCombatAutomationDelay).mockImplementation(
+      (_state, worldTimeMs) => Math.max(0, 250 - worldTimeMs),
+    );
+
+    function TestHarness() {
+      const [game, setGame] = useState({
+        combat: { started: true } as GameState['combat'],
+        enemies: {} as GameState['enemies'],
+        player: {
+          mana: 0,
+          statusEffects: [],
+        } as Pick<GameState['player'], 'mana' | 'statusEffects'>,
+      });
+
+      useCombatAutomation({
+        combat: game.combat,
+        enemyLookup: game.enemies,
+        paused: false,
+        playerMana: game.player.mana,
+        playerStatusEffects: game.player.statusEffects,
+        setGame: setGame as Dispatch<SetStateAction<GameState>>,
+        worldTimeMsRef,
+      });
+
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<TestHarness />);
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(250);
+    });
+
+    expect(progressCombat).toHaveBeenCalledTimes(1);
+
+    worldTimeMsRef.current = 250;
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(250);
+    });
+
+    expect(progressCombat).toHaveBeenCalledTimes(2);
   });
 
   it('ignores unrelated parent rerenders when the combat slices are unchanged', async () => {
