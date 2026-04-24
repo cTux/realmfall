@@ -36,6 +36,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Gathering-site markers now reuse the cached wrapper animator with deterministic shimmer phases, so ore, herb, timber, and water icons can glint intermittently without adding a second marker traversal to animation-only frames.
 - Animated sky, atmosphere, cloud, overlay, and firelight layers use their own lower-cadence token, so hover or selection redraws inside the same animation bucket do not reset those animated stage layers again.
 - Deterministic ground-cover presentation and cloud inputs are memoized in bounded caches.
+- Hot animated atmosphere and cloud paths keep repeated layer configs at module scope and use indexed loops for cloud clusters, shadow layers, light shafts, and celestial halos so animation-only frames do not allocate those config arrays or callback closures repeatedly.
 - The world renderer includes time-of-day lighting, atmosphere passes, overlay tinting, and optional fish-eye processing.
 - Fullscreen visual effects resolve through a dedicated renderer helper. The first shipped effect adds a pulsing red overlay when the player's HP drops below `30%`, and the warning turns off at `30%` HP or higher.
 - Rendering quality and icon sizing derive from screen state and world radius.
