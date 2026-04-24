@@ -51,20 +51,11 @@ const RAW_STRUCTURE_CONFIGS = [
 ] as const;
 
 export const STRUCTURE_CONFIGS: StructureConfig[] = RAW_STRUCTURE_CONFIGS.map(
-  (config) => ({
-    ...config,
-    title: structureTitle(config.type),
-    description: structureDescription(config.type),
-    gathering: config.gathering
-      ? {
-          ...config.gathering,
-          actionLabel: structureActionLabel(config.type),
-          reward: itemName(config.gathering.rewardItemKey),
-          verb: structureGatherVerb(config.type),
-          depletedText: structureDepletedText(config.type),
-        }
-      : undefined,
-  }),
+  (config) =>
+    localizeStructureConfig({
+      ...config,
+      gathering: config.gathering ? { ...config.gathering } : undefined,
+    }),
 );
 
 const STRUCTURE_CONFIG_BY_TYPE = Object.fromEntries(
@@ -97,4 +88,45 @@ export function isGatheringStructureType(
     structure &&
     GATHERING_STRUCTURE_TYPES.includes(structure as GatheringStructureType),
   );
+}
+
+function localizeStructureConfig(config: StructureConfig) {
+  defineLocalizedProperty(config, 'title', () => structureTitle(config.type));
+  defineLocalizedProperty(config, 'description', () =>
+    structureDescription(config.type),
+  );
+
+  if (config.gathering) {
+    defineLocalizedProperty(config.gathering, 'actionLabel', () =>
+      structureActionLabel(config.type),
+    );
+    defineLocalizedProperty(config.gathering, 'reward', () =>
+      itemName(config.gathering!.rewardItemKey),
+    );
+    defineLocalizedProperty(config.gathering, 'verb', () =>
+      structureGatherVerb(config.type),
+    );
+    defineLocalizedProperty(config.gathering, 'depletedText', () =>
+      structureDepletedText(config.type),
+    );
+  }
+
+  return config;
+}
+
+function defineLocalizedProperty<T extends object, K extends keyof T>(
+  target: T,
+  key: K,
+  resolve: () => NonNullable<T[K]>,
+) {
+  let override: T[K] | undefined;
+
+  Object.defineProperty(target, key, {
+    configurable: true,
+    enumerable: true,
+    get: () => override ?? resolve(),
+    set: (value: T[K]) => {
+      override = value;
+    },
+  });
 }

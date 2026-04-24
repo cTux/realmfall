@@ -3,6 +3,7 @@ import { GENERATED_CRAFTING_RECIPES } from './generatedCraftingRecipes';
 import { HARVEST_COOKING_RECIPES } from './harvestCookingRecipes';
 import { t } from '../i18n';
 import { getGeneratedCraftingLore } from './content/generatedCraftingLore';
+import { itemName, recipeDescription, recipeName } from './content/i18n';
 import { buildItemFromConfig, getItemConfigByKey } from './content/items';
 import {
   Skill,
@@ -290,29 +291,18 @@ const RAW_RECIPE_BOOK_RECIPES: RecipeDefinition[] =
   }));
 
 export const RECIPE_BOOK_RECIPES: RecipeDefinition[] =
-  RAW_RECIPE_BOOK_RECIPES.map((recipe) => ({
-    ...recipe,
-    name:
-      (recipe.output.itemKey
-        ? getGeneratedCraftingLore(recipe.output.itemKey)?.name
-        : undefined) ?? t(`game.recipe.${recipe.id}.name`),
-    description:
-      (recipe.output.itemKey
-        ? getGeneratedCraftingLore(recipe.output.itemKey)?.description
-        : undefined) ?? t(`game.recipe.${recipe.id}.description`),
-    ingredients: recipe.ingredients.map((ingredient) => ({
-      ...ingredient,
-      name: ingredient.itemKey
-        ? (getItemConfigByKey(ingredient.itemKey)?.name ?? ingredient.name)
-        : ingredient.name,
-    })),
-    fuelOptions: recipe.fuelOptions?.map((option) => ({
-      ...option,
-      name: option.itemKey
-        ? (getItemConfigByKey(option.itemKey)?.name ?? option.name)
-        : option.name,
-    })),
-  }));
+  RAW_RECIPE_BOOK_RECIPES.map((recipe) =>
+    localizeRecipeDefinition({
+      ...recipe,
+      output: localizeItemName({ ...recipe.output }),
+      ingredients: recipe.ingredients.map((ingredient) =>
+        localizeRequirementName({ ...ingredient }),
+      ),
+      fuelOptions: recipe.fuelOptions?.map((option) =>
+        localizeRequirementName({ ...option }),
+      ),
+    }),
+  );
 
 export const RECIPE_BY_OUTPUT_ITEM_KEY = Object.freeze(
   Object.fromEntries(
@@ -321,3 +311,61 @@ export const RECIPE_BY_OUTPUT_ITEM_KEY = Object.freeze(
     ),
   ) satisfies Record<string, RecipeDefinition>,
 );
+
+function localizeRecipeDefinition(recipe: RecipeDefinition) {
+  defineLocalizedProperty(recipe, 'name', () =>
+    recipeName(recipe.id, recipe.output.itemKey),
+  );
+  defineLocalizedProperty(recipe, 'description', () =>
+    recipeDescription(recipe.id, recipe.output.itemKey),
+  );
+
+  return recipe;
+}
+
+function localizeRequirementName(requirement: RecipeRequirement) {
+  if (!requirement.itemKey) {
+    return requirement;
+  }
+
+  defineLocalizedProperty(
+    requirement,
+    'name',
+    () =>
+      getItemConfigByKey(requirement.itemKey!)?.name ?? requirement.itemKey!,
+  );
+
+  return requirement;
+}
+
+function localizeItemName(item: Item) {
+  if (!item.itemKey) {
+    return item;
+  }
+
+  defineLocalizedProperty(
+    item,
+    'name',
+    () =>
+      getGeneratedCraftingLore(item.itemKey!)?.name ?? itemName(item.itemKey!),
+  );
+
+  return item;
+}
+
+function defineLocalizedProperty<T extends object, K extends keyof T>(
+  target: T,
+  key: K,
+  resolve: () => NonNullable<T[K]>,
+) {
+  let override: T[K] | undefined;
+
+  Object.defineProperty(target, key, {
+    configurable: true,
+    enumerable: true,
+    get: () => override ?? resolve(),
+    set: (value: T[K]) => {
+      override = value;
+    },
+  });
+}

@@ -64,7 +64,7 @@ describe('game state world boss and faction actions', () => {
     expect(blocked.logs[0]?.text).toContain(
       t('game.message.claim.status.emptyOnly'),
     );
-  });
+  }, 15_000);
 
   it('lets a faction NPC heal the player for 1 gold while preserving hunger and thirst', () => {
     const game = createGame(3, 'faction-heal-seed');

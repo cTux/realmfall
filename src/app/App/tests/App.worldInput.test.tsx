@@ -10,6 +10,7 @@ import {
   renderApp,
   renderScene,
   tickerCallbacks,
+  waitForAppSelector,
 } from './appTestHarness';
 import { PERSISTED_SETTINGS_STORAGE_KEYS } from '../../settingsStorage';
 
@@ -21,8 +22,7 @@ describe('App world input', () => {
     const { host, root } = await renderApp();
     await flushLazyModules();
 
-    const canvas = host.querySelector('canvas');
-    expect(canvas).not.toBeNull();
+    const canvas = await waitForAppSelector(host, 'canvas');
     const screenCenter = {
       x: Math.max(window.innerWidth, 640) / 2,
       y: Math.max(window.innerHeight, 480) / 2,
@@ -93,8 +93,7 @@ describe('App world input', () => {
     const { host, root } = await renderApp();
     await flushLazyModules();
 
-    const canvas = host.querySelector('canvas');
-    expect(canvas).not.toBeNull();
+    const canvas = await waitForAppSelector(host, 'canvas');
 
     await act(async () => {
       canvas?.dispatchEvent(
@@ -127,8 +126,7 @@ describe('App world input', () => {
     const { host, root } = await renderApp();
     await flushLazyModules();
 
-    const canvas = host.querySelector('canvas');
-    expect(canvas).not.toBeNull();
+    const canvas = await waitForAppSelector(host, 'canvas');
 
     await act(async () => {
       canvas?.dispatchEvent(

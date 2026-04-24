@@ -1,4 +1,5 @@
 import { clampItemLevel } from '../game/balance';
+import { getItemConfigByKey } from '../game/content/items';
 import type { Enemy, Item } from '../game/stateTypes';
 import {
   isEquipmentSlot,
@@ -91,7 +92,10 @@ export function normalizeItem(value: unknown): Item | null {
     ...(value.locked === undefined ? {} : { locked: value.locked }),
     ...(value.slot === undefined ? {} : { slot: value.slot }),
     ...(value.icon === undefined ? {} : { icon: value.icon }),
-    name: value.name,
+    name:
+      (value.itemKey !== undefined
+        ? getItemConfigByKey(value.itemKey)?.name
+        : undefined) ?? value.name,
     quantity: value.quantity,
     tier: clampItemLevel(value.tier),
     rarity: value.rarity,

@@ -265,6 +265,7 @@ export async function flushLazyModules() {
   await act(async () => {
     for (let index = 0; index < 20; index += 1) {
       await vi.dynamicImportSettled();
+      await vi.advanceTimersByTimeAsync(0);
       await Promise.resolve();
     }
   });
@@ -289,6 +290,29 @@ export async function renderApp() {
   await flushLazyModules();
 
   return { host, root };
+}
+
+export async function waitForAppSelector(
+  host: HTMLElement,
+  selector: string,
+  timeoutMs = 10_000,
+) {
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() <= deadline) {
+    const match = host.querySelector(selector);
+    if (match) {
+      return match as HTMLElement;
+    }
+
+    await act(async () => {
+      await vi.dynamicImportSettled();
+      await vi.advanceTimersByTimeAsync(50);
+      await Promise.resolve();
+    });
+  }
+
+  throw new Error(`Timed out waiting for selector: ${selector}`);
 }
 
 export function createHydratedAppGame() {
