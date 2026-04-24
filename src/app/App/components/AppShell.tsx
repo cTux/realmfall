@@ -18,7 +18,6 @@ import type { AudioSettings } from '../../audioSettings';
 import type { AppWindowsProps } from '../AppWindows.types';
 import styles from '../styles.module.scss';
 import { PauseOverlay } from './PauseOverlay';
-import { VersionStatusPanel } from './VersionStatusPanel';
 import { useAudioBridgeActivation } from './useAudioBridgeActivation';
 
 const UiAudioControllerBridge = lazy(() =>
@@ -44,6 +43,11 @@ const AppWindows = lazy(() =>
 const HomeIndicator = lazy(() =>
   import('../HomeIndicator').then((module) => ({
     default: module.HomeIndicator,
+  })),
+);
+const VersionStatusPanel = lazy(() =>
+  import('./VersionStatusPanel').then((module) => ({
+    default: module.VersionStatusPanel,
   })),
 );
 
@@ -137,7 +141,9 @@ export function AppShell({
               subtitle={t('ui.pauseOverlay.subtitle')}
             />
           ) : null}
-          <VersionStatusPanel onRefresh={() => window.location.reload()} />
+          <Suspense fallback={null}>
+            <VersionStatusPanel onRefresh={() => window.location.reload()} />
+          </Suspense>
         </div>
         {isReady ? null : (
           <div
