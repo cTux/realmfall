@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { APP_VERSION } from '../../../version';
 
 export const VERSION_POLL_INTERVAL_MS = 5 * 60_000;
-const SHOULD_POLL_VERSION = !import.meta.env.DEV;
 
 export type VersionStatusState =
   | {
@@ -132,11 +131,7 @@ export function useVersionStatus(currentVersion = APP_VERSION) {
     };
 
     const startPolling = () => {
-      if (
-        !SHOULD_POLL_VERSION ||
-        interval != null ||
-        document.visibilityState === 'hidden'
-      ) {
+      if (interval != null || document.visibilityState === 'hidden') {
         return;
       }
 
@@ -151,9 +146,7 @@ export function useVersionStatus(currentVersion = APP_VERSION) {
         return;
       }
 
-      if (SHOULD_POLL_VERSION) {
-        void syncVersion(false);
-      }
+      void syncVersion(false);
       startPolling();
     };
 

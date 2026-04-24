@@ -8,37 +8,36 @@ export interface VersionStatusWidgetProps {
   status: 'fetching' | 'current' | 'outdated';
 }
 
+type VersionStatusLabelInput = Pick<
+  VersionStatusWidgetProps,
+  'currentVersion' | 'remoteVersion' | 'status'
+>;
+
 export function VersionStatusWidget({
   currentVersion,
   onRefresh,
   remoteVersion,
   status,
 }: VersionStatusWidgetProps) {
-  const remoteVersionLabel =
-    remoteVersion ?? t('ui.version.fetchingRemoteValue');
+  const statusLabel = getStatusLabel({
+    currentVersion,
+    remoteVersion,
+    status,
+  });
 
   return (
     <aside
       className={styles.widget}
       aria-live="polite"
+      aria-label={statusLabel}
       data-version-status={status}
     >
-      <div className={styles.summary}>
-        <span
-          aria-hidden="true"
-          className={styles.indicator}
-          data-status={status}
-        />
-        <div className={styles.text}>
-          <span className={styles.label}>{t('ui.version.label')}</span>
-          <span className={styles.value}>
-            {t('ui.version.currentValue', { version: currentVersion })}
-          </span>
-          <span className={styles.remoteValue}>
-            {t('ui.version.remoteValue', { version: remoteVersionLabel })}
-          </span>
-        </div>
-      </div>
+      <span
+        aria-hidden="true"
+        className={styles.indicator}
+        data-status={status}
+      />
+      <span className={styles.statusText}>{statusLabel}</span>
       {status === 'outdated' ? (
         <button
           className={styles.refreshButton}
@@ -50,4 +49,26 @@ export function VersionStatusWidget({
       ) : null}
     </aside>
   );
+}
+
+function getStatusLabel({
+  currentVersion,
+  remoteVersion,
+  status,
+}: VersionStatusLabelInput) {
+  if (status === 'fetching') {
+    return t('ui.version.fetchingStatus', {
+      version: currentVersion,
+    });
+  }
+
+  return status === 'current'
+    ? t('ui.version.currentStatus', {
+        currentVersion,
+        remoteVersion: remoteVersion ?? currentVersion,
+      })
+    : t('ui.version.outdatedStatus', {
+        currentVersion,
+        remoteVersion: remoteVersion ?? t('ui.version.fetchingRemoteValue'),
+      });
 }

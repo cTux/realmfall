@@ -18,6 +18,7 @@ import type { AudioSettings } from '../../audioSettings';
 import type { AppWindowsProps } from '../AppWindows.types';
 import styles from '../styles.module.scss';
 import { PauseOverlay } from './PauseOverlay';
+import { VersionStatusPanel } from './VersionStatusPanel';
 import { useAudioBridgeActivation } from './useAudioBridgeActivation';
 
 const UiAudioControllerBridge = lazy(() =>
@@ -136,6 +137,7 @@ export function AppShell({
               subtitle={t('ui.pauseOverlay.subtitle')}
             />
           ) : null}
+          <VersionStatusPanel onRefresh={() => window.location.reload()} />
         </div>
         {isReady ? null : (
           <div
