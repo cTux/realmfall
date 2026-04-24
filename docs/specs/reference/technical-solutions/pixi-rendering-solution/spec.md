@@ -9,8 +9,8 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Pixi owns the main world redraw loop through the ticker started in `usePixiWorld`.
 - The Pixi world ticker stops while the document is hidden, then invalidates and draws a single catch-up frame when the document becomes visible before normal ticking resumes.
 - Drag and wheel interactions update the canonical world-map camera ref synchronously, then coalesce Pixi container transform writes through one animation-frame scheduler so high-rate pointer input cannot force multiple container mutations in the same frame.
-- Idle world frames now coalesce inside a lower animation cadence bucket, so unchanged state does not rerun the full world render path on every Pixi ticker tick.
-- The Pixi ticker is capped to the same `30 FPS` cadence used by the world animation buckets, reducing idle wakeups before the render snapshot guard runs.
+- Idle world frames coalesce inside a lower animation cadence bucket, so unchanged state does not rerun the full world render path on every Pixi ticker tick.
+- The Pixi ticker is capped to the same `15 FPS` cadence used by the animated world-layer buckets, reducing idle wakeups before the render snapshot guard runs.
 - React updates feed the renderer through refs and invalidation-sensitive cached inputs rather than by layering a second immediate render effect path.
 - The renderer separates static, interaction, and animated work.
 - Static layers hold terrain, structures, claims, and stable ground cover.
@@ -76,6 +76,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - `src/ui/world/renderSceneRenderInputs.ts`
 - `src/ui/world/renderSceneClaimBorders.ts`
 - `src/ui/world/renderSceneAnimated.ts`
+- `src/ui/world/renderCadence.ts`
 - `src/ui/world/renderSceneShared.ts`
 - `src/ui/world/renderSceneCache.ts`
 - `src/ui/world/renderSceneFullscreenEffects.ts`

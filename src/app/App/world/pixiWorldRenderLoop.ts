@@ -3,14 +3,18 @@ import type { Application } from 'pixi.js';
 import { getVisibleTiles } from '../../../game/stateSelectors';
 import type { GameState, HexCoord } from '../../../game/stateTypes';
 import { getWorldTimeMinutesFromTimestamp } from '../../../game/worldTime';
+import {
+  ANIMATED_LAYER_FPS,
+  ANIMATED_LAYER_FRAME_MS,
+} from '../../../ui/world/renderCadence';
 import { getWorldIconTextureVersion } from '../../../ui/world/worldIcons';
 import { sameCoord } from '../usePixiWorldHover';
 import type { WorldRenderSnapshot } from './worldRenderSnapshot';
 
 type RenderScene = typeof import('../../../ui/world/renderScene').renderScene;
 
-export const WORLD_ANIMATION_FPS = 30;
-const WORLD_ANIMATION_FRAME_MS = 1000 / WORLD_ANIMATION_FPS;
+export const WORLD_ANIMATION_FPS = ANIMATED_LAYER_FPS;
+const WORLD_ANIMATION_FRAME_MS = ANIMATED_LAYER_FRAME_MS;
 
 export function configureWorldTickerCadence(ticker: { maxFPS: number }) {
   ticker.maxFPS = WORLD_ANIMATION_FPS;

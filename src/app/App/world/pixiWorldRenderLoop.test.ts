@@ -33,6 +33,10 @@ describe('pixiWorldRenderLoop', () => {
     expect(ticker.maxFPS).toBe(WORLD_ANIMATION_FPS);
   });
 
+  it('matches the animated layer frame bucket cadence', () => {
+    expect(WORLD_ANIMATION_FPS).toBe(15);
+  });
+
   it('re-renders when world icon textures finish loading after the first frame', () => {
     const performanceNowSpy = vi.spyOn(performance, 'now').mockReturnValue(0);
     const renderScene = vi.fn();
