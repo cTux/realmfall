@@ -4,6 +4,7 @@ import {
   getGoldAmount,
   getTileAt,
   getTownStock,
+  getTownStockForDay,
   moveToTile,
   prospectInventory,
   prospectInventoryItem,
@@ -492,5 +493,47 @@ describe('game state inventory actions', () => {
     expect(nextDayStock.map((entry) => entry.item.id)).not.toEqual(
       firstDayStock.map((entry) => entry.item.id),
     );
+  });
+
+  it('can derive town stock from a day token without exact world time', () => {
+    const game = createGame(3, 'town-stock-day-token-seed');
+    game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'town' };
+    game.player.inventory.push({
+      id: 'resource-gold-town-day-token',
+      name: 'Gold',
+      itemKey: 'gold',
+      quantity: 2_000,
+      tier: 1,
+      rarity: 'common',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+    });
+
+    const firstDayStock = getTownStockForDay({
+      player: { coord: game.player.coord },
+      seed: game.seed,
+      tiles: game.tiles,
+      worldDayIndex: 0,
+    });
+    const bought = buyTownItem(game, firstDayStock[0]!.item.id);
+
+    const remainingDayStock = getTownStockForDay({
+      player: { coord: bought.player.coord },
+      seed: bought.seed,
+      tiles: bought.tiles,
+      worldDayIndex: 0,
+    });
+    const nextDayStock = getTownStockForDay({
+      player: { coord: bought.player.coord },
+      seed: bought.seed,
+      tiles: bought.tiles,
+      worldDayIndex: 1,
+    });
+
+    expect(remainingDayStock).toHaveLength(firstDayStock.length - 1);
+    expect(nextDayStock).toHaveLength(firstDayStock.length);
   });
 });

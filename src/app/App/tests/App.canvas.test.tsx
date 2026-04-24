@@ -1,6 +1,7 @@
 import { act } from 'react';
 import {
   applyGraphicsPreset,
+  DEFAULT_WORLD_RENDER_FPS,
   saveGraphicsSettings,
 } from '../../graphicsSettings';
 import { t } from '../../../i18n';
@@ -13,6 +14,7 @@ import {
   renderApp,
   renderScene,
   tickerCallbacks,
+  tickerMaxFpsValues,
   warmWorldIconTexturesInBackground,
 } from './appTestHarness';
 
@@ -50,6 +52,7 @@ describe('App canvas setup', () => {
     saveGraphicsSettings({
       preset: 'custom',
       resolutionCap: 1.5,
+      worldRenderFps: DEFAULT_WORLD_RENDER_FPS,
       antialias: false,
       autoDensity: false,
       clearBeforeRender: false,
@@ -91,7 +94,78 @@ describe('App canvas setup', () => {
     expect(renderScene).toHaveBeenCalled();
     expect(renderScene.mock.calls[0]?.[8]).toEqual({
       showTerrainBackgrounds: false,
+      worldRenderFps: DEFAULT_WORLD_RENDER_FPS,
     });
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('hydrates the saved Pixi render FPS into the world ticker', async () => {
+    loadEncryptedState.mockResolvedValue(null);
+    saveGraphicsSettings({
+      ...applyGraphicsPreset('balanced'),
+      preset: 'custom',
+      worldRenderFps: 144,
+    });
+
+    const { host, root } = await renderApp();
+    await flushLazyModules();
+
+    expect(tickerMaxFpsValues[tickerMaxFpsValues.length - 1]).toBe(144);
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('updates the Pixi render FPS without recreating the renderer', async () => {
+    loadEncryptedState.mockResolvedValue({
+      ui: {
+        windowShown: {
+          settings: true,
+        },
+      },
+    });
+
+    const { host, root } = await renderApp();
+    await flushLazyModules();
+
+    expect(applicationOptions).toHaveLength(1);
+    expect(tickerMaxFpsValues[tickerMaxFpsValues.length - 1]).toBe(60);
+
+    const renderFpsSlider = host.querySelector(
+      'input[type="range"]',
+    ) as HTMLInputElement | null;
+    const saveButton = Array.from(host.querySelectorAll('button')).find(
+      (candidate) => candidate.textContent === t('ui.settings.actions.save'),
+    );
+
+    expect(renderFpsSlider).not.toBeNull();
+    expect(saveButton).toBeDefined();
+
+    await act(async () => {
+      if (renderFpsSlider) {
+        const setValue = Object.getOwnPropertyDescriptor(
+          HTMLInputElement.prototype,
+          'value',
+        )?.set;
+
+        setValue?.call(renderFpsSlider, '120');
+        renderFpsSlider.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+
+    await act(async () => {
+      saveButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+    await flushLazyModules();
+
+    expect(applicationOptions).toHaveLength(1);
+    expect(tickerMaxFpsValues[tickerMaxFpsValues.length - 1]).toBe(120);
 
     await act(async () => {
       root.unmount();

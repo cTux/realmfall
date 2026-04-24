@@ -1,9 +1,81 @@
+import { vi } from 'vitest';
 import {
   createAppModulePreloadPlugin,
+  createVitePlugins,
   minifyJsonAssetsPlugin,
 } from '../../vite/plugins';
 
+const reactCompilerPreset = vi.hoisted(() => ({
+  name: 'react-compiler-preset',
+}));
+const reactCompilerPresetOptions = vi.hoisted(() => [] as unknown[]);
+const babelPluginOptions = vi.hoisted(() => [] as unknown[]);
+const reactPluginOptions = vi.hoisted(() => [] as unknown[]);
+
+vi.mock('@vitejs/plugin-react', () => ({
+  default: (options: unknown) => {
+    reactPluginOptions.push(options);
+    return [
+      {
+        name: 'vite:react',
+      },
+    ];
+  },
+  reactCompilerPreset: (options: unknown) => {
+    reactCompilerPresetOptions.push(options);
+    return reactCompilerPreset;
+  },
+}));
+
+vi.mock('@rolldown/plugin-babel', () => ({
+  default: (options: unknown) => {
+    babelPluginOptions.push(options);
+    return {
+      name: 'rolldown:babel',
+    };
+  },
+}));
+
 describe('Vite plugin policy', () => {
+  beforeEach(() => {
+    babelPluginOptions.length = 0;
+    reactCompilerPresetOptions.length = 0;
+    reactPluginOptions.length = 0;
+  });
+
+  it('enables React Compiler through the Vite Babel plugin', () => {
+    createVitePlugins({
+      appBuildVersion: 'test-version',
+      isStorybookScript: false,
+      isVitestRun: false,
+      runBundleVisualizer: false,
+      runDuplicateDepsAudit: false,
+    });
+
+    expect(reactPluginOptions).toHaveLength(1);
+    expect(reactPluginOptions[0]).toBeUndefined();
+    expect(reactCompilerPresetOptions).toEqual([undefined]);
+    expect(babelPluginOptions).toEqual([
+      {
+        presets: [reactCompilerPreset],
+      },
+    ]);
+  });
+
+  it('keeps the Vitest cache plugin ahead of React transforms during test runs', () => {
+    const plugins = createVitePlugins({
+      appBuildVersion: 'test-version',
+      isStorybookScript: false,
+      isVitestRun: true,
+      runBundleVisualizer: false,
+      runDuplicateDepsAudit: false,
+    });
+
+    expect(JSON.stringify(plugins.slice(0, 3))).toContain(
+      'realmfall-vitest-cache',
+    );
+  });
+
   it('minifies emitted JSON assets without changing non-JSON assets', () => {
     const plugin = minifyJsonAssetsPlugin();
     const generateBundle = plugin.generateBundle;

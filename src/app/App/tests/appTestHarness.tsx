@@ -8,6 +8,7 @@ export const loadEncryptedState = vi.fn();
 export const saveEncryptedState = vi.fn();
 export const clearEncryptedState = vi.fn();
 export const tickerCallbacks = new Set<() => void>();
+export const tickerMaxFpsValues: number[] = [];
 export const applicationOptions: Array<Record<string, unknown>> = [];
 export const ensureWorldIconTexturesLoaded = vi.fn(async () => undefined);
 export const getVisibleWorldIconAssetIds = vi.fn(() => ['visible-start-icon']);
@@ -166,6 +167,14 @@ vi.mock('pixi.js', () => {
       resolution: 1,
     };
     ticker = {
+      _maxFPS: 0,
+      get maxFPS() {
+        return this._maxFPS;
+      },
+      set maxFPS(value: number) {
+        this._maxFPS = value;
+        tickerMaxFpsValues.push(value);
+      },
       add: vi.fn((callback: () => void) => {
         tickerCallbacks.add(callback);
       }),
@@ -372,6 +381,7 @@ afterAll(() => {
 beforeEach(() => {
   vi.clearAllMocks();
   tickerCallbacks.clear();
+  tickerMaxFpsValues.length = 0;
   applicationOptions.length = 0;
   window.localStorage.clear();
 });

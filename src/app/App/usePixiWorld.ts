@@ -12,7 +12,10 @@ import { getVisibleTiles } from '../../game/stateSelectors';
 import type { GameState, HexCoord } from '../../game/stateTypes';
 import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import { DEFAULT_WORLD_MAP_CAMERA } from '../../ui/world/worldMapCamera';
-import type { GraphicsSettings } from '../graphicsSettings';
+import {
+  normalizeWorldRenderFps,
+  type GraphicsSettings,
+} from '../graphicsSettings';
 import type { TooltipState } from './types';
 import { reuseVisibleTilesIfUnchanged } from './selectors/reuseVisibleTilesIfUnchanged';
 import {
@@ -51,7 +54,7 @@ export function usePixiWorld({
   setGame,
   setTooltip,
 }: UsePixiWorldArgs) {
-  const { showTerrainBackgrounds } = graphicsSettings;
+  const { showTerrainBackgrounds, worldRenderFps } = graphicsSettings;
   const hostRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<Application | null>(null);
   const initGraphicsSettingsRef = useRef<PixiWorldInitGraphicsSettings | null>(
@@ -77,6 +80,7 @@ export function usePixiWorld({
   );
   const hoverSnapshotRef = useRef<WorldHoverSnapshot>(undefined!);
   const showTerrainBackgroundsRef = useRef(showTerrainBackgrounds);
+  const worldRenderFpsRef = useRef(normalizeWorldRenderFps(worldRenderFps));
   const lastRenderSnapshotRef = useRef<WorldRenderSnapshot>(undefined!);
   const renderInvalidationRef = useRef(0);
   const [canvasReady, setCanvasReady] = useState(false);
@@ -123,6 +127,19 @@ export function usePixiWorld({
     showTerrainBackgroundsRef.current = showTerrainBackgrounds;
     renderInvalidationRef.current += 1;
   }, [showTerrainBackgrounds]);
+
+  useEffect(() => {
+    const normalizedWorldRenderFps = normalizeWorldRenderFps(worldRenderFps);
+    worldRenderFpsRef.current = normalizedWorldRenderFps;
+    renderInvalidationRef.current += 1;
+
+    const app = appRef.current;
+    if (!app) {
+      return;
+    }
+
+    app.ticker.maxFPS = normalizedWorldRenderFps;
+  }, [worldRenderFps]);
 
   useEffect(() => {
     const visibleTilesState = {
@@ -202,6 +219,7 @@ export function usePixiWorld({
           setGame,
           setTooltip,
           showTerrainBackgroundsRef,
+          worldRenderFpsRef,
           tooltipPositionRef,
           visibleTilesRef,
           worldMapCameraRef,

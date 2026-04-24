@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useWorldClockTime } from '../../../app/App/worldClockStore';
 import { t } from '../../../i18n';
 import type { TooltipLine } from '../../tooltips';
 import { WINDOW_LABELS } from '../../windowLabels';
@@ -66,7 +67,6 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   combat = null,
   combatPlayerParty = [],
   combatEnemies = [],
-  combatWorldTimeMs,
   onBuyItem,
   onTakeAll,
   onTakeItem,
@@ -77,11 +77,11 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   onHoverDetail,
   onLeaveDetail,
 }: HexInfoWindowProps) {
+  const liveWorldTimeMs = useWorldClockTime();
   const showForfeitAction = Boolean(
     combat?.started &&
     combat.startedAtMs != null &&
-    combatWorldTimeMs != null &&
-    combatWorldTimeMs - combat.startedAtMs >= COMBAT_FORFEIT_DELAY_MS,
+    liveWorldTimeMs - combat.startedAtMs >= COMBAT_FORFEIT_DELAY_MS,
   );
   const primaryHeaderAction = combat ? (
     combat.started ? (
@@ -257,7 +257,6 @@ export const HexInfoWindow = memo(function HexInfoWindow({
         combat,
         combatPlayerParty,
         combatEnemies,
-        combatWorldTimeMs,
         onBuyItem,
         onTakeAll,
         onTakeItem,

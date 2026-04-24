@@ -3,6 +3,8 @@ import {
   clearGraphicsSettings,
   DEFAULT_GRAPHICS_SETTINGS,
   loadGraphicsSettings,
+  MAX_WORLD_RENDER_FPS,
+  MIN_WORLD_RENDER_FPS,
   saveGraphicsSettings,
 } from './graphicsSettings';
 import { PERSISTED_SETTINGS_STORAGE_KEYS } from './settingsStorage';
@@ -54,10 +56,28 @@ describe('graphics settings persistence', () => {
     expect(loadGraphicsSettings()).toEqual(applyGraphicsPreset('performance'));
   });
 
+  it('clamps persisted world render FPS into the supported graphics range', () => {
+    window.localStorage.setItem(
+      PERSISTED_SETTINGS_STORAGE_KEYS.graphics,
+      JSON.stringify({
+        ...applyGraphicsPreset('balanced'),
+        preset: 'custom',
+        worldRenderFps: 999,
+      }),
+    );
+
+    expect(loadGraphicsSettings()).toEqual({
+      ...applyGraphicsPreset('balanced'),
+      preset: 'custom',
+      worldRenderFps: MAX_WORLD_RENDER_FPS,
+    });
+  });
+
   it('sanitizes malformed values before storing graphics settings', () => {
     saveGraphicsSettings({
       preset: 'custom',
       resolutionCap: 7 as unknown as 1,
+      worldRenderFps: 12,
       antialias: false,
       autoDensity: false,
       clearBeforeRender: 'later' as unknown as boolean,
@@ -75,6 +95,7 @@ describe('graphics settings persistence', () => {
     ).toEqual({
       preset: 'custom',
       resolutionCap: DEFAULT_GRAPHICS_SETTINGS.resolutionCap,
+      worldRenderFps: MIN_WORLD_RENDER_FPS,
       antialias: false,
       autoDensity: false,
       clearBeforeRender: DEFAULT_GRAPHICS_SETTINGS.clearBeforeRender,

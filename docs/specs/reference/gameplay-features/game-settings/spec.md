@@ -12,6 +12,7 @@ This spec covers the desktop-style game settings window, its dock and hotkey acc
 - The current settings content uses a reusable vertical tab strip and exposes `Graphics`, `Audio`, and `Saves` tabs.
 - The settings window keeps the tab-specific control markup in neighboring graphics, audio, and saves panel components so the lazy-loaded content shell only owns draft state, tab switching, and save or reset actions.
 - The graphics tab exposes preset-based renderer profiles for `Quality`, `Balanced`, and `Performance`, with `Balanced` as the current default profile and a `Custom` state when individual renderer flags diverge from a preset.
+- The graphics tab exposes a live Pixi render-FPS slider from `60` to `240`; changing it creates a `Custom` graphics state and applies on `Save` without recreating the Pixi renderer.
 - The graphics tab keeps reusable switch controls for the persisted Pixi renderer initialization flags so advanced overrides can stay independent from the higher-level preset.
 - The graphics tab also exposes a `Terrain backgrounds` switch that shows or hides biome art on revealed hexes, and this specific toggle applies on `Save` without a page reload.
 - The audio tab stores shared audio preferences for mute state, music-only mute state, reduced-motion muting, individual synthesized sound-effect toggles, master volume, the current Tiks theme selection, the selected recorded voice actor, and per-event gameplay voice toggles.
@@ -34,6 +35,7 @@ This spec covers the desktop-style game settings window, its dock and hotkey acc
 - Change the renderer preset or one or more renderer flags, use `Save`, reload manually, and confirm the saved preset and flags hydrate back into Pixi initialization.
 - Change the renderer preset or one or more renderer flags, use `Save & Reload`, and confirm the page reloads and the new renderer settings apply immediately after hydration.
 - Toggle `Terrain backgrounds`, use `Save`, and confirm revealed world hexes hide or show their biome art immediately without reloading.
+- Change `Pixi render FPS`, use `Save`, and confirm the world ticker cap updates without creating a second Pixi application.
 - Change audio toggles, volume, theme, voice actor, and voice event switches, use `Save`, and confirm the document-level UI sounds, background music, and gameplay voice playback respect the persisted choices after the next user activation.
 - Trigger a gameplay voice line, toggle mute or reduced-motion muting before the clip finishes, and confirm the active line stops immediately.
 - Inspect the production build or network panel before activation and confirm the gameplay voice bridge and selected WAV clip modules are not requested.

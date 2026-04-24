@@ -14,6 +14,8 @@ import {
 } from './renderSceneMarkerAnimations';
 import { makeHex, type tileToPoint } from './renderSceneMath';
 import { type ShadowedSpriteEntry } from './renderScenePools';
+import { ANIMATED_LAYER_FRAME_MS } from './renderCadence';
+export { ANIMATED_LAYER_FPS, ANIMATED_LAYER_FRAME_MS } from './renderCadence';
 
 export const HOME_HEX_TINT_COLOR = 0xa855f7;
 export const HOME_HEX_TINT_ALPHA = 0.22;
@@ -24,8 +26,6 @@ export const HOME_HEX_TINT_INSET = 3;
 export const STRUCTURE_HEX_ICON_TINT = 0xffffff;
 export const WORLD_BOSS_HEX_TINT_COLOR = 0x7f1d1d;
 export const WORLD_BOSS_HEX_TINT_ALPHA = 0.22;
-export const ANIMATED_LAYER_FPS = 15;
-export const ANIMATED_LAYER_FRAME_MS = 1000 / ANIMATED_LAYER_FPS;
 export const ZERO_SHADOW_OFFSET = { x: 0, y: 0 };
 export const ENEMY_GROUP_BADGE_OFFSET = { x: 13, y: 11 };
 
@@ -78,13 +78,14 @@ export function getAnimatedRenderToken(
   },
   animationMs: number,
   fullscreenVisualEffectToken: string,
+  frameMs = ANIMATED_LAYER_FRAME_MS,
 ) {
   return [
     state.seed,
     state.bloodMoonActive ? 'blood' : 'normal',
     state.harvestMoonActive ? 'harvest' : 'default',
     fullscreenVisualEffectToken,
-    Math.floor(animationMs / ANIMATED_LAYER_FRAME_MS),
+    Math.floor(animationMs / frameMs),
   ].join(':');
 }
 

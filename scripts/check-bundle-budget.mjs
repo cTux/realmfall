@@ -4,6 +4,7 @@ import {
   DIST_DIR,
   STARTUP_TOTAL_BUDGET,
   findEntryKey,
+  formatBudgetStatus,
   formatKiB,
   getBundleBudgetExitCode,
   getBuiltChunks,
@@ -48,9 +49,7 @@ for (const [chunkName, budgetBytes] of Object.entries(CHUNK_BUDGETS)) {
     continue;
   }
 
-  console.log(
-    `${chunkName}: ${formatKiB(chunk.size)} within ${formatKiB(budgetBytes)}`,
-  );
+  console.log(formatBudgetStatus(chunkName, chunk.size, budgetBytes));
 }
 
 const mainEntryKey =
@@ -78,7 +77,7 @@ if (!mainEntryKey) {
     );
   } else {
     console.log(
-      `startup-total: ${formatKiB(startupTotal)} within ${formatKiB(STARTUP_TOTAL_BUDGET)}`,
+      formatBudgetStatus('startup-total', startupTotal, STARTUP_TOTAL_BUDGET),
     );
   }
 }

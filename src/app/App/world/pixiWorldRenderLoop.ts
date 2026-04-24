@@ -3,17 +3,24 @@ import type { Application } from 'pixi.js';
 import { getVisibleTiles } from '../../../game/stateSelectors';
 import type { GameState, HexCoord } from '../../../game/stateTypes';
 import { getWorldTimeMinutesFromTimestamp } from '../../../game/worldTime';
+import { getWorldRenderFrameMs } from '../../../ui/world/renderCadence';
 import { getWorldIconTextureVersion } from '../../../ui/world/worldIcons';
+import {
+  DEFAULT_WORLD_RENDER_FPS,
+  normalizeWorldRenderFps,
+} from '../../graphicsSettings';
 import { sameCoord } from '../usePixiWorldHover';
 import type { WorldRenderSnapshot } from './worldRenderSnapshot';
 
 type RenderScene = typeof import('../../../ui/world/renderScene').renderScene;
 
-export const WORLD_ANIMATION_FPS = 30;
-const WORLD_ANIMATION_FRAME_MS = 1000 / WORLD_ANIMATION_FPS;
+export const WORLD_ANIMATION_FPS = DEFAULT_WORLD_RENDER_FPS;
 
-export function configureWorldTickerCadence(ticker: { maxFPS: number }) {
-  ticker.maxFPS = WORLD_ANIMATION_FPS;
+export function configureWorldTickerCadence(
+  ticker: { maxFPS: number },
+  worldRenderFps = DEFAULT_WORLD_RENDER_FPS,
+) {
+  ticker.maxFPS = normalizeWorldRenderFps(worldRenderFps);
 }
 
 export function createWorldRenderFrame({
@@ -25,6 +32,7 @@ export function createWorldRenderFrame({
   hoveredMoveRef,
   hoveredSafePathRef,
   showTerrainBackgroundsRef,
+  worldRenderFpsRef,
   pausedRef,
   pausedAnimationMsRef,
   worldTimeMsRef,
@@ -39,6 +47,7 @@ export function createWorldRenderFrame({
   hoveredMoveRef: MutableRefObject<HexCoord | null>;
   hoveredSafePathRef: MutableRefObject<HexCoord[] | null>;
   showTerrainBackgroundsRef: MutableRefObject<boolean>;
+  worldRenderFpsRef: MutableRefObject<number>;
   pausedRef: MutableRefObject<boolean>;
   pausedAnimationMsRef: MutableRefObject<number | null>;
   worldTimeMsRef: MutableRefObject<number>;
@@ -54,7 +63,9 @@ export function createWorldRenderFrame({
     const animationMs = pausedRef.current
       ? (pausedAnimationMsRef.current ?? performance.now())
       : performance.now();
-    const animationBucket = Math.floor(animationMs / WORLD_ANIMATION_FRAME_MS);
+    const worldRenderFps = normalizeWorldRenderFps(worldRenderFpsRef.current);
+    const worldRenderFrameMs = getWorldRenderFrameMs(worldRenderFps);
+    const animationBucket = Math.floor(animationMs / worldRenderFrameMs);
     const lastRenderSnapshot = lastRenderSnapshotRef.current;
     const invalidationToken = renderInvalidationRef.current;
     const iconTextureVersion = getWorldIconTextureVersion();
@@ -67,6 +78,7 @@ export function createWorldRenderFrame({
       lastRenderSnapshot.invalidationToken === invalidationToken &&
       lastRenderSnapshot.iconTextureVersion === iconTextureVersion &&
       lastRenderSnapshot.showTerrainBackgrounds === showTerrainBackgrounds &&
+      lastRenderSnapshot.worldRenderFps === worldRenderFps &&
       sameCoord(lastRenderSnapshot.selected, currentSelected) &&
       sameCoord(lastRenderSnapshot.hoveredMove, currentHoveredMove) &&
       sameCoordList(lastRenderSnapshot.hoveredSafePath, currentHoveredSafePath)
@@ -84,6 +96,7 @@ export function createWorldRenderFrame({
       invalidationToken,
       iconTextureVersion,
       showTerrainBackgrounds,
+      worldRenderFps,
     };
     renderScene(
       app,
@@ -92,9 +105,9 @@ export function createWorldRenderFrame({
       currentSelected,
       currentHoveredMove,
       getWorldTimeMinutesFromTimestamp(worldTimeMsRef.current),
-      animationBucket * WORLD_ANIMATION_FRAME_MS,
+      animationBucket * worldRenderFrameMs,
       currentHoveredSafePath,
-      { showTerrainBackgrounds },
+      { showTerrainBackgrounds, worldRenderFps },
     );
   };
 }

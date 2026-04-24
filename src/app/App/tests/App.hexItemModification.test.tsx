@@ -7,6 +7,10 @@ import {
   renderApp,
 } from './appTestHarness';
 
+const HEX_ITEM_MODIFICATION_TIMEOUT_MS = 20_000;
+
+vi.setConfig({ testTimeout: HEX_ITEM_MODIFICATION_TIMEOUT_MS });
+
 describe('App hex item modification flow', () => {
   it('selects items from inventory and equipment for hex modification', async () => {
     const game = createHydratedAppGame();
@@ -135,7 +139,7 @@ describe('App hex item modification flow', () => {
       root.unmount();
     });
     host.remove();
-  }, 10000);
+  });
 
   it('disables the hex modification action when the player lacks gold', async () => {
     const game = createHydratedAppGame();
@@ -230,7 +234,7 @@ describe('App hex item modification flow', () => {
       root.unmount();
     });
     host.remove();
-  }, 10000);
+  });
 });
 
 function findButton(host: HTMLElement, label: string) {

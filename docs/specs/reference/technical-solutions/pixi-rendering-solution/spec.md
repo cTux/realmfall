@@ -9,8 +9,8 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Pixi owns the main world redraw loop through the ticker started in `usePixiWorld`.
 - The Pixi world ticker stops while the document is hidden, then invalidates and draws a single catch-up frame when the document becomes visible before normal ticking resumes.
 - Drag and wheel interactions update the canonical world-map camera ref synchronously, then coalesce Pixi container transform writes through one animation-frame scheduler so high-rate pointer input cannot force multiple container mutations in the same frame.
-- Idle world frames now coalesce inside a lower animation cadence bucket, so unchanged state does not rerun the full world render path on every Pixi ticker tick.
-- The Pixi ticker is capped to the same `30 FPS` cadence used by the world animation buckets, reducing idle wakeups before the render snapshot guard runs.
+- Idle world frames coalesce inside the configured render-FPS bucket, so unchanged state does not rerun the full world render path on every Pixi ticker tick.
+- The Pixi ticker is capped to the selected persisted Pixi render FPS, clamped between `60` and `240`, and the animated world-layer buckets use the same frame duration to reduce idle wakeups before the render snapshot guard runs.
 - React updates feed the renderer through refs and invalidation-sensitive cached inputs rather than by layering a second immediate render effect path.
 - The renderer separates static, interaction, and animated work.
 - Static layers hold terrain, structures, claims, and stable ground cover.
@@ -25,6 +25,8 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Cached scene state avoids unnecessary rebuilds when screen size, derived static-world render inputs, selected tile, or path highlights have not changed.
 - Static and interaction redraw invalidation derives from render-specific version keys rather than whole `GameState` identity, so log-only or other non-world state clones do not rebuild unchanged Pixi layers.
 - Static invalidation now ignores offscreen enemy container churn by comparing only the enemy presentation inputs that belong to visible tiles before rebuilding cached layers.
+- The scene cache exposes lightweight render-pass counters for total, static, interaction, and animated passes. Profiling and future cache-as-texture experiments should use those counters to prove that stable static layers are avoiding rebuilds before adding GPU texture caching.
+- When the browser performance harness is active, `renderScene` forwards the latest render-pass counters into `window.__REALMFALL_PERF__`, letting manual scenarios compare hover, pan, and window-toggle redraw breadth against the static, interaction, and animated layer counters.
 - Static redraws build one shared visible-tile render input list and reuse it for static render-token derivation plus marker composition, so enemy lookups are not repeated for the same tile during one redraw.
 - When offscreen enemy-only clones leave the visible-enemy token unchanged, the scene cache advances its stored `enemies` source reference so later animation ticks do not keep recomputing the visible-enemy token against the same unchanged state.
 - `usePixiWorld` reuses the previous `visibleTiles` array when unrelated state clones leave the visible tile set untouched, and render-version caching keys off those stable world-facing inputs plus the specific enemy and world flags that actually affect Pixi output.
@@ -36,6 +38,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Gathering-site markers now reuse the cached wrapper animator with deterministic shimmer phases, so ore, herb, timber, and water icons can glint intermittently without adding a second marker traversal to animation-only frames.
 - Animated sky, atmosphere, cloud, overlay, and firelight layers use their own lower-cadence token, so hover or selection redraws inside the same animation bucket do not reset those animated stage layers again.
 - Deterministic ground-cover presentation and cloud inputs are memoized in bounded caches.
+- Hot animated atmosphere and cloud paths keep repeated layer configs at module scope and use indexed loops for cloud clusters, shadow layers, light shafts, and celestial halos so animation-only frames do not allocate those config arrays or callback closures repeatedly.
 - The world renderer includes time-of-day lighting, atmosphere passes, overlay tinting, and optional fish-eye processing.
 - Fullscreen visual effects resolve through a dedicated renderer helper. The first shipped effect adds a pulsing red overlay when the player's HP drops below `30%`, and the warning turns off at `30%` HP or higher.
 - Rendering quality and icon sizing derive from screen state and world radius.
@@ -57,7 +60,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Runtime terrain drawing resolves `terrainArtFor(...)` to generated atlas frame ids, and the world texture cache loads the atlas image once before creating per-terrain frame textures for Pixi sprites.
 - Terrain background visibility is driven by a persisted graphics toggle that invalidates the cached static layer and rerenders the world map without recreating the Pixi app.
 - The Pixi canvas uses density-aware sizing so browser zoom and high-DPI displays keep the world viewport fitted to CSS pixels while renderer resolution tracks `window.devicePixelRatio` changes on resize within the current graphics preset cap.
-- Persisted settings now hydrate both Pixi renderer initialization flags and a preset-derived renderer density cap through a dedicated plain `localStorage` `settings` payload that is read before the initial game and Pixi setup; `usePixiWorld` captures those init-time flags for the current page lifetime, marks their controls as reload-required, and keeps live terrain-background changes on the redraw invalidation path.
+- Persisted settings now hydrate both Pixi renderer initialization flags, a preset-derived renderer density cap, and the live Pixi render-FPS cap through a dedicated plain `localStorage` `settings` payload that is read before the initial game and Pixi setup; `usePixiWorld` captures init-time flags for the current page lifetime, marks their controls as reload-required, and keeps live terrain-background plus render-FPS changes on the redraw invalidation path.
 - Hover-analysis caching now invalidates from gameplay-state versions that materially affect interaction resolution rather than from every broad `tiles` or `enemies` container identity change.
 
 ## Main Implementation Areas
@@ -76,6 +79,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - `src/ui/world/renderSceneRenderInputs.ts`
 - `src/ui/world/renderSceneClaimBorders.ts`
 - `src/ui/world/renderSceneAnimated.ts`
+- `src/ui/world/renderCadence.ts`
 - `src/ui/world/renderSceneShared.ts`
 - `src/ui/world/renderSceneCache.ts`
 - `src/ui/world/renderSceneFullscreenEffects.ts`

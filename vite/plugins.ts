@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
-import react from '@vitejs/plugin-react';
+import babel from '@rolldown/plugin-babel';
+import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
 import minipic from 'vite-plugin-minipic';
 import detectDuplicatedDeps from 'unplugin-detect-duplicated-deps/vite';
@@ -143,6 +144,9 @@ export function createVitePlugins({
   return [
     isVitestRun && vitestCachePlugin(),
     react(),
+    babel({
+      presets: [reactCompilerPreset()],
+    }),
     createAppModulePreloadPlugin(),
     createVersionManifestPlugin(appBuildVersion),
     minifyJsonAssetsPlugin(),

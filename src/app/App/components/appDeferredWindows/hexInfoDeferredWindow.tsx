@@ -5,7 +5,9 @@ import { loadNamedWindowModule } from './lazyDeferredWindowModule';
 import type { AppDeferredWindowDescriptor } from './types';
 
 const HexInfoWindow = createLazyWindowComponent<
-  Parameters<(typeof import('../../../../ui/components/HexInfoWindow'))['HexInfoWindow']>[0]
+  Parameters<
+    (typeof import('../../../../ui/components/HexInfoWindow'))['HexInfoWindow']
+  >[0]
 >(
   loadNamedWindowModule(() =>
     import('../../../../ui/components/HexInfoWindow').then(
@@ -43,19 +45,27 @@ export const hexInfoDeferredWindow: AppDeferredWindowDescriptor = {
           ? undefined
           : views.hex.claimStatus.action
       }
-      territoryActionLabel={claimStatusActionLabel(views.hex.claimStatus.action)}
+      territoryActionLabel={claimStatusActionLabel(
+        views.hex.claimStatus.action,
+      )}
       territoryActionExplanation={views.hex.claimStatus.reason}
-      bulkProspectEquipmentExplanation={views.hex.bulkProspectEquipmentExplanation}
+      bulkProspectEquipmentExplanation={
+        views.hex.bulkProspectEquipmentExplanation
+      }
       bulkSellEquipmentExplanation={views.hex.bulkSellEquipmentExplanation}
       onInteract={actions.hex.onInteract}
       onProspect={actions.hex.onProspect}
       onSellAll={actions.hex.onSellAll}
       onApplyItemModification={actions.hex.onApplySelectedItemModification}
-      onClearItemModificationSelection={actions.hex.onClearSelectedItemModification}
+      onClearItemModificationSelection={
+        actions.hex.onClearSelectedItemModification
+      }
       onSelectItemModificationReforgeStat={
         actions.hex.onSelectItemModificationReforgeStat
       }
-      onToggleItemModificationPicker={actions.hex.onToggleItemModificationPicker}
+      onToggleItemModificationPicker={
+        actions.hex.onToggleItemModificationPicker
+      }
       onTerritoryAction={actions.hex.onClaimHex}
       canHealTerritoryNpc={views.hex.territoryNpcHealStatus.canHeal}
       territoryNpcHealExplanation={views.hex.territoryNpcHealStatus.reason}
@@ -72,7 +82,6 @@ export const hexInfoDeferredWindow: AppDeferredWindowDescriptor = {
       combat={views.hex.combat}
       combatPlayerParty={combatPlayerParty}
       combatEnemies={views.combat.snapshot?.enemies ?? []}
-      combatWorldTimeMs={views.hex.worldTimeMs}
       onBuyItem={actions.hex.onBuyTownItem}
       onTakeAll={actions.inventory.onTakeAllLoot}
       onTakeItem={actions.inventory.onTakeLootItem}
@@ -85,9 +94,7 @@ export const hexInfoDeferredWindow: AppDeferredWindowDescriptor = {
   ),
 };
 
-function claimStatusActionLabel(
-  action: HexViewState['claimStatus']['action'],
-) {
+function claimStatusActionLabel(action: HexViewState['claimStatus']['action']) {
   switch (action) {
     case 'unclaim':
       return t('ui.hexInfo.unclaimAction');

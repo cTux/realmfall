@@ -101,8 +101,16 @@ export interface SceneCache {
   staticRenderToken: number | null;
   interactionRenderToken: number | null;
   animatedRenderToken: string | null;
+  renderCounts: SceneRenderCounts;
   screenWidth: number;
   screenHeight: number;
+}
+
+export interface SceneRenderCounts {
+  total: number;
+  static: number;
+  interaction: number;
+  animated: number;
 }
 
 export function getSceneCache(app: Application) {
@@ -214,6 +222,7 @@ export function getSceneCache(app: Application) {
     staticRenderToken: null,
     interactionRenderToken: null,
     animatedRenderToken: null,
+    renderCounts: createEmptySceneRenderCounts(),
     screenWidth: app.screen.width,
     screenHeight: app.screen.height,
   };
@@ -222,7 +231,25 @@ export function getSceneCache(app: Application) {
   return scene;
 }
 
+function createEmptySceneRenderCounts(): SceneRenderCounts {
+  return {
+    total: 0,
+    static: 0,
+    interaction: 0,
+    animated: 0,
+  };
+}
+
+export function getSceneRenderCounts(app: Application): SceneRenderCounts {
+  return { ...getSceneCache(app).renderCounts };
+}
+
+export function resetSceneRenderCounts(app: Application) {
+  getSceneCache(app).renderCounts = createEmptySceneRenderCounts();
+}
+
 export function beginAnimatedSceneRender(scene: SceneCache) {
+  scene.renderCounts.animated += 1;
   resetGraphicsPool(scene.atmosphereShaftGraphics);
   resetGraphicsPool(scene.atmosphereCelestialGraphics);
   resetGraphicsPool(scene.worldAnimatedDetailGraphics);
@@ -243,6 +270,7 @@ export function completeAnimatedSceneRender(scene: SceneCache) {
 }
 
 export function beginStaticSceneRender(scene: SceneCache) {
+  scene.renderCounts.static += 1;
   resetGraphicsPool(scene.worldGroundGraphics);
   resetSpritePool(scene.worldTerrainSprites);
   resetGraphicsPool(scene.worldStaticDetailGraphics);
@@ -266,6 +294,7 @@ export function completeStaticSceneRender(scene: SceneCache) {
 }
 
 export function beginInteractionSceneRender(scene: SceneCache) {
+  scene.renderCounts.interaction += 1;
   resetGraphicsPool(scene.worldInteractionGraphics);
 }
 

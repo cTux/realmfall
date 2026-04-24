@@ -11,6 +11,22 @@ import { takeGraphics, type GraphicsPool } from './renderScenePools';
 let smoothedShadowSource: { x: number; y: number } | null = null;
 let lastShadowAnimationMs: number | null = null;
 
+const LIGHT_SHAFT_CONFIGS = [
+  { width: 90, reach: 0.62, alphaMultiplier: 0.6 },
+  { width: 140, reach: 0.74, alphaMultiplier: 0.38 },
+  { width: 210, reach: 0.88, alphaMultiplier: 0.22 },
+] as const;
+const CELESTIAL_HALO_LAYERS = [
+  { scale: 4.2, alphaMultiplier: 0.025 },
+  { scale: 3.75, alphaMultiplier: 0.04 },
+  { scale: 3.3, alphaMultiplier: 0.06 },
+  { scale: 2.9, alphaMultiplier: 0.085 },
+  { scale: 2.5, alphaMultiplier: 0.12 },
+  { scale: 2.15, alphaMultiplier: 0.16 },
+  { scale: 1.8, alphaMultiplier: 0.22 },
+  { scale: 1.48, alphaMultiplier: 0.3 },
+] as const;
+
 export function getLightingState(
   app: Application,
   worldTimeMinutes: number,
@@ -153,13 +169,9 @@ function renderLightShafts(
   if (opacity <= 0.01) return;
 
   const shaftDrift = Math.sin(animationMs * 0.00035) * 24;
-  const shaftConfigs = [
-    { width: 90, reach: 0.62, alpha: opacity * 0.6 },
-    { width: 140, reach: 0.74, alpha: opacity * 0.38 },
-    { width: 210, reach: 0.88, alpha: opacity * 0.22 },
-  ];
 
-  shaftConfigs.forEach((shaft, index) => {
+  for (let index = 0; index < LIGHT_SHAFT_CONFIGS.length; index += 1) {
+    const shaft = LIGHT_SHAFT_CONFIGS[index]!;
     const beam = takeGraphics(graphicsPool);
     const spread = shaft.width + index * 34;
     const focusPoint = {
@@ -183,8 +195,8 @@ function renderLightShafts(
         focusPoint.x - perpendicular.x * spread,
         focusPoint.y - perpendicular.y * spread,
       ])
-      .fill({ color: tint, alpha: shaft.alpha });
-  });
+      .fill({ color: tint, alpha: opacity * shaft.alphaMultiplier });
+  }
 }
 
 function renderCelestialBody(
@@ -196,23 +208,13 @@ function renderCelestialBody(
 ) {
   if (alpha <= 0.01) return;
 
-  const haloLayers = [
-    { scale: 4.2, alpha: 0.025 },
-    { scale: 3.75, alpha: 0.04 },
-    { scale: 3.3, alpha: 0.06 },
-    { scale: 2.9, alpha: 0.085 },
-    { scale: 2.5, alpha: 0.12 },
-    { scale: 2.15, alpha: 0.16 },
-    { scale: 1.8, alpha: 0.22 },
-    { scale: 1.48, alpha: 0.3 },
-  ];
-
-  haloLayers.forEach((halo) => {
+  for (let index = 0; index < CELESTIAL_HALO_LAYERS.length; index += 1) {
+    const halo = CELESTIAL_HALO_LAYERS[index]!;
     const glow = takeGraphics(graphicsPool);
     glow
       .ellipse(position.x, position.y, radius * halo.scale, radius * halo.scale)
-      .fill({ color: tint, alpha: alpha * halo.alpha });
-  });
+      .fill({ color: tint, alpha: alpha * halo.alphaMultiplier });
+  }
 
   const glow = takeGraphics(graphicsPool);
   glow
@@ -231,7 +233,7 @@ function smoothShadowSource(
   animationMs: number,
 ) {
   if (smoothedShadowSource == null || lastShadowAnimationMs == null) {
-    smoothedShadowSource = { ...target };
+    smoothedShadowSource = { x: target.x, y: target.y };
     lastShadowAnimationMs = animationMs;
     return smoothedShadowSource;
   }
@@ -241,10 +243,8 @@ function smoothShadowSource(
     Math.min(1000, animationMs - lastShadowAnimationMs),
   );
   const progress = Math.min(1, deltaMs / 1000);
-  smoothedShadowSource = {
-    x: lerp(smoothedShadowSource.x, target.x, progress),
-    y: lerp(smoothedShadowSource.y, target.y, progress),
-  };
+  smoothedShadowSource.x = lerp(smoothedShadowSource.x, target.x, progress);
+  smoothedShadowSource.y = lerp(smoothedShadowSource.y, target.y, progress);
   lastShadowAnimationMs = animationMs;
   return smoothedShadowSource;
 }

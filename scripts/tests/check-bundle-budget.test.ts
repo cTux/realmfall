@@ -1,6 +1,7 @@
 import {
   CHUNK_BUDGETS,
   findEntryKey,
+  formatBudgetStatus,
   formatKiB,
   getChunkBudgetTarget,
   getStartupChunkFiles,
@@ -11,6 +12,12 @@ import {
 describe('check-bundle-budget helpers', () => {
   it('formats bundle sizes in kilobytes', () => {
     expect(formatKiB(12_345)).toBe('12.35 kB');
+  });
+
+  it('reports budget headroom for near-cap startup chunks', () => {
+    expect(formatBudgetStatus('en', 116_300, 120_000)).toBe(
+      'en: 116.30 kB within 120.00 kB (3.70 kB headroom, 96.9% used, near cap)',
+    );
   });
 
   it('finds the main entry by source suffix', () => {
@@ -99,8 +106,9 @@ describe('check-bundle-budget helpers', () => {
     );
   });
 
-  it('tracks both react-core and background-audio startup chunk budgets', () => {
+  it('tracks React Compiler and core startup chunk budgets', () => {
     expect(CHUNK_BUDGETS).toMatchObject({
+      App: 92_000,
       'background-audio': 54_420,
       'react-core': 8_689,
     });

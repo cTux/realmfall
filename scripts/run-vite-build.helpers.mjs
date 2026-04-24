@@ -4,6 +4,7 @@ const PLUGIN_TIMING_LABEL = '[PLUGIN_TIMINGS] Warning:';
 const PLUGIN_TIMING_DOC_URL =
   'https://rolldown.rs/options/checks#plugintimings';
 const SUPPRESSED_PLUGIN_TIMINGS = new Set([
+  '@rolldown/plugin-babel',
   'unplugin-detect-duplicated-deps',
   'rollup-plugin-visualizer',
   'vite:asset',

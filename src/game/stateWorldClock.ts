@@ -24,13 +24,14 @@ import type { GameState } from './types';
 export function syncBloodMoon(
   state: GameState,
   worldTimeMinutes: number,
+  currentWorldTimeMs = state.worldTimeMs,
 ): GameState {
   const minutes = normalizeWorldMinutes(worldTimeMinutes);
   const phase = getDayPhase(minutes);
 
   if (state.dayPhase !== phase) {
     const next = cloneForWorldEventMutation(state);
-    next.worldTimeMs = worldTimeMsFromMinutes(minutes, state.worldTimeMs);
+    next.worldTimeMs = worldTimeMsFromMinutes(minutes, currentWorldTimeMs);
     next.dayPhase = phase;
     addLog(
       next,
@@ -39,7 +40,7 @@ export function syncBloodMoon(
         ? t('game.message.time.nightFalls')
         : t('game.message.time.morningBreaks'),
     );
-    return syncBloodMoon(next, minutes);
+    return syncBloodMoon(next, minutes, currentWorldTimeMs);
   }
 
   if (isBloodMoonRiseWindow(minutes)) {
@@ -48,7 +49,7 @@ export function syncBloodMoon(
     }
 
     const next = cloneForWorldEventMutation(state);
-    next.worldTimeMs = worldTimeMsFromMinutes(minutes, state.worldTimeMs);
+    next.worldTimeMs = worldTimeMsFromMinutes(minutes, currentWorldTimeMs);
     next.bloodMoonCheckedTonight = true;
     next.harvestMoonCheckedTonight = true;
 
@@ -103,10 +104,10 @@ export function syncBloodMoon(
       state.bloodMoonCheckedTonight ||
       state.harvestMoonActive ||
       state.harvestMoonCheckedTonight ||
-      state.lastEarthshakeDay !== getWorldDayIndex(state.worldTimeMs))
+      state.lastEarthshakeDay !== getWorldDayIndex(currentWorldTimeMs))
   ) {
     const next = cloneForWorldEventMutation(state);
-    next.worldTimeMs = worldTimeMsFromMinutes(minutes, state.worldTimeMs);
+    next.worldTimeMs = worldTimeMsFromMinutes(minutes, currentWorldTimeMs);
     const wasBloodMoonActive = next.bloodMoonActive;
     const wasHarvestMoonActive = next.harvestMoonActive;
     next.bloodMoonActive = false;

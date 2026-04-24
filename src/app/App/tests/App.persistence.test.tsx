@@ -13,7 +13,7 @@ async function flushAutosaveTimers(ms = 5000) {
 }
 
 describe('App persistence', () => {
-  it('autosaves UI-only changes without requiring gameplay mutations', async () => {
+  it('autosaves UI changes without requiring gameplay mutations', async () => {
     const game = createGame(2, 'app-ui-save-seed');
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
 
@@ -32,11 +32,16 @@ describe('App persistence', () => {
       await flushAutosaveTimers();
     });
 
-    expect(saveEncryptedState).toHaveBeenCalledWith({
-      ui: expect.objectContaining({
-        windowShown: expect.objectContaining({ hexInfo: true }),
+    expect(saveEncryptedState).toHaveBeenCalledWith(
+      expect.objectContaining({
+        game: expect.objectContaining({
+          worldTimeMs: expect.any(Number),
+        }),
+        ui: expect.objectContaining({
+          windowShown: expect.objectContaining({ hexInfo: true }),
+        }),
       }),
-    });
+    );
 
     await act(async () => {
       root.unmount();

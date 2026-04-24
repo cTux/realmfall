@@ -1,4 +1,5 @@
 import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 let render: ReturnType<typeof vi.fn>;
@@ -10,11 +11,6 @@ const reportRootError = vi.fn();
 type StrictModeElement = React.ReactElement<{
   children: React.ReactElement;
 }>;
-type BootstrapShellProps = {
-  children: React.ReactNode;
-  role: string;
-};
-type BootstrapShellElement = React.ReactElement<BootstrapShellProps>;
 
 describe('main bootstrap', () => {
   beforeEach(() => {
@@ -47,6 +43,8 @@ describe('main bootstrap', () => {
   });
 
   afterEach(() => {
+    delete window.__REALMFALL_PERF__;
+    window.localStorage.clear();
     document.body.innerHTML = '';
     vi.doUnmock('react-dom/client');
     vi.doUnmock('./i18n');
@@ -100,6 +98,29 @@ describe('main bootstrap', () => {
     expect(appModuleImported).toHaveBeenCalledTimes(1);
   });
 
+  it('loads the browser performance harness only when requested', async () => {
+    document.body.innerHTML = '<div id="root"></div>';
+    window.localStorage.setItem('realmfall:perf', '1');
+
+    await import('./main');
+    await vi.dynamicImportSettled();
+    await Promise.resolve();
+
+    const startupMarkNames = window.__REALMFALL_PERF__
+      ?.snapshot()
+      .startupMarks.map((mark) => mark.name);
+
+    expect(startupMarkNames).toEqual(
+      expect.arrayContaining([
+        'main-start',
+        'bootstrap-shell-rendered',
+        'i18n-loaded',
+        'app-module-loaded',
+        'app-render-scheduled',
+      ]),
+    );
+  });
+
   it('renders a spinner-only bootstrap shell before the app loads', async () => {
     document.body.innerHTML = '<div id="root"></div>';
 
@@ -107,18 +128,10 @@ describe('main bootstrap', () => {
 
     const firstRender = render.mock.calls[0]?.[0] as StrictModeElement;
     const bootstrapShellElement = firstRender.props
-      .children as BootstrapShellElement;
-    const bootstrapShell = (
-      bootstrapShellElement.type as (
-        props: typeof bootstrapShellElement.props,
-      ) => BootstrapShellElement
-    )(bootstrapShellElement.props);
-    const bootstrapChildren = React.Children.toArray(
-      bootstrapShell.props.children,
-    );
+      .children as React.ReactElement;
+    const bootstrapMarkup = renderToStaticMarkup(bootstrapShellElement);
 
-    expect(bootstrapShell.props.role).toBe('status');
-    expect(bootstrapChildren).toHaveLength(1);
+    expect(bootstrapMarkup).toContain('role="status"');
     expect(JSON.stringify(firstRender)).not.toContain('Loading Realmfall');
   });
 

@@ -23,7 +23,12 @@ const CLOUD_CLUSTER_OFFSETS = [
   { x: -16, y: -6, scale: 0.9 },
   { x: 14, y: 6, scale: 1 },
   { x: 40, y: -8, scale: 0.82 },
-];
+] as const;
+const CLOUD_SHADOW_LAYERS = [
+  { scale: 1.22, alphaMultiplier: 0.2, offsetScale: 0.85 },
+  { scale: 1.14, alphaMultiplier: 0.34, offsetScale: 1.2 },
+  { scale: 1.08, alphaMultiplier: 0.52, offsetScale: 1.65 },
+] as const;
 
 export interface CloudRenderInput {
   scale: number;
@@ -71,7 +76,8 @@ export function renderCloudLayer(
   cloudInputs: CloudRenderInput[],
   shadowOffset: { x: number; y: number },
 ) {
-  cloudInputs.forEach((cloudInput) => {
+  for (let cloudIndex = 0; cloudIndex < cloudInputs.length; cloudIndex += 1) {
+    const cloudInput = cloudInputs[cloudIndex]!;
     const scale = cloudInput.scale;
     const width = 92 * scale;
     const height = 92 * scale;
@@ -93,17 +99,21 @@ export function renderCloudLayer(
       cloudInput.cloudOpacity + lighting.cloudAlphaBoost,
     );
 
-    CLOUD_CLUSTER_OFFSETS.forEach((offset) => {
+    for (
+      let offsetIndex = 0;
+      offsetIndex < CLOUD_CLUSTER_OFFSETS.length;
+      offsetIndex += 1
+    ) {
+      const offset = CLOUD_CLUSTER_OFFSETS[offsetIndex]!;
       const spriteWidth = width * offset.scale;
       const spriteHeight = height * offset.scale;
 
-      const shadowLayers = [
-        { scale: 1.22, alpha: shadowOpacity * 0.2, offsetScale: 0.85 },
-        { scale: 1.14, alpha: shadowOpacity * 0.34, offsetScale: 1.2 },
-        { scale: 1.08, alpha: shadowOpacity * 0.52, offsetScale: 1.65 },
-      ];
-
-      shadowLayers.forEach((layer) => {
+      for (
+        let layerIndex = 0;
+        layerIndex < CLOUD_SHADOW_LAYERS.length;
+        layerIndex += 1
+      ) {
+        const layer = CLOUD_SHADOW_LAYERS[layerIndex]!;
         const shadow = takeSprite(shadowPool, icon);
         configureSprite(
           shadow,
@@ -113,7 +123,7 @@ export function renderCloudLayer(
           ),
           spriteWidth * layer.scale,
           spriteHeight * layer.scale,
-          layer.alpha,
+          shadowOpacity * layer.alphaMultiplier,
           {
             x:
               x +
@@ -127,7 +137,7 @@ export function renderCloudLayer(
               shadowOffset.y * layer.offsetScale,
           },
         );
-      });
+      }
 
       const cloud = takeSprite(cloudPool, icon);
       configureSprite(
@@ -141,8 +151,8 @@ export function renderCloudLayer(
           y: y + height * 0.5 + offset.y * scale,
         },
       );
-    });
-  });
+    }
+  }
 }
 
 export function renderEdgeWaterfall(

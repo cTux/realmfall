@@ -2,6 +2,7 @@ import { type Application } from 'pixi.js';
 import { getVisibleTiles } from '../../game/stateSelectors';
 import { hexKey } from '../../game/hex';
 import type { GameState, HexCoord } from '../../game/stateTypes';
+import { recordPixiRenderCounts } from '../../performance/performanceHarness';
 import {
   beginAnimatedSceneRender,
   beginInteractionSceneRender,
@@ -29,9 +30,14 @@ import {
 } from './renderSceneShared';
 import { renderTilePasses } from './renderSceneTilePasses';
 import { renderAnimatedScene } from './renderSceneAnimated';
+import {
+  DEFAULT_WORLD_RENDER_FPS,
+  getWorldRenderFrameMs,
+} from './renderCadence';
 
 interface RenderSceneOptions {
   showTerrainBackgrounds?: boolean;
+  worldRenderFps?: number;
 }
 
 export function renderScene(
@@ -46,6 +52,7 @@ export function renderScene(
   options: RenderSceneOptions = {},
 ) {
   const scene = getSceneCache(app);
+  scene.renderCounts.total += 1;
   const cloudInputs = getCloudRenderInputs(scene, state.seed);
   const origin = {
     x: app.screen.width / 2,
@@ -58,6 +65,9 @@ export function renderScene(
   const playerIconSize = hexSize * 1.58;
   const terrainArtSize = hexSize * 2;
   const showTerrainBackgrounds = options.showTerrainBackgrounds ?? true;
+  const worldRenderFrameMs = getWorldRenderFrameMs(
+    options.worldRenderFps ?? DEFAULT_WORLD_RENDER_FPS,
+  );
 
   if (WORLD_MAP_FISHEYE_ENABLED) {
     scene.worldMapFilterArea.width = app.screen.width;
@@ -76,6 +86,7 @@ export function renderScene(
     state,
     animationMs,
     fullscreenVisualEffects.renderToken,
+    worldRenderFrameMs,
   );
   const shouldRenderAnimated =
     screenChanged || scene.animatedRenderToken !== animatedRenderToken;
@@ -190,4 +201,6 @@ export function renderScene(
       scene,
     });
   }
+
+  recordPixiRenderCounts(scene.renderCounts);
 }

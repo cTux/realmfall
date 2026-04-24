@@ -1,6 +1,13 @@
-import { lazy, Suspense, useMemo, type MutableRefObject } from 'react';
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useMemo,
+  type MutableRefObject,
+} from 'react';
 import type { GameState, HexCoord } from '../../../game/stateTypes';
 import { t } from '../../../i18n';
+import { recordStartupMark } from '../../../performance/performanceHarness';
 import { LoadingSpinner } from '../../../ui/components/LoadingSpinner';
 import type { BackgroundMusicMood } from '../../audio/backgroundMusic';
 import {
@@ -69,6 +76,12 @@ export function AppShell({
   const audioBridgeActivated = useAudioBridgeActivation();
   const { combat, logSequence, logs } = game;
   const { hp, statusEffects } = game.player;
+  useEffect(() => {
+    if (isReady) {
+      recordStartupMark('app-ready');
+    }
+  }, [isReady]);
+
   const voicePlaybackState = useMemo(
     () => ({
       combat,
