@@ -45,7 +45,7 @@ describe('consumable scaling', () => {
 
     expect(used.player.hp).toBe(35);
     expect(used.player.mana).toBe(6);
-    expect(used.player.hunger).toBe(92);
+    expect(used.player.hunger).toBe(116);
     expect(
       used.player.inventory.find((item) => item.id === 'trail-ration-1'),
     ).toBeUndefined();
@@ -66,8 +66,8 @@ describe('consumable scaling', () => {
 
     expect(used.player.hp).toBe(50);
     expect(used.player.mana).toBe(7);
-    expect(used.player.hunger).toBe(80);
-    expect(used.player.thirst).toBe(52);
+    expect(used.player.hunger).toBe(200);
+    expect(used.player.thirst).toBe(76);
   });
 
   it('uses health and mana potions for 35 percent of the matching max stat', () => {

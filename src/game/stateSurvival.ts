@@ -2,6 +2,11 @@ import { StatusEffectTypeId } from './content/ids';
 import { mitigateDamageByDefense } from './combatDamage';
 import { addLog } from './logs';
 import { getPlayerCombatStats } from './progression';
+import {
+  getPlayerThirstValue,
+  PLAYER_SURVIVAL_MAX,
+  PLAYER_SURVIVAL_WARNING_THRESHOLD,
+} from './survival';
 import { t } from '../i18n';
 import type { HexCoord } from './hex';
 import type { GameState, Item, PlayerStatusEffect } from './types';
@@ -20,8 +25,8 @@ export function respawnAtNearestTown(state: GameState, from: HexCoord) {
   void from;
   const homeHex = { ...state.homeHex };
   state.player.coord = homeHex;
-  state.player.hunger = 100;
-  state.player.thirst = 100;
+  state.player.hunger = PLAYER_SURVIVAL_MAX;
+  state.player.thirst = PLAYER_SURVIVAL_MAX;
   upsertPlayerStatusEffect(state.player.statusEffects, {
     id: StatusEffectTypeId.RecentDeath,
   });
@@ -49,14 +54,20 @@ export function respawnAtNearestTown(state: GameState, from: HexCoord) {
 export function applySurvivalDecay(state: GameState) {
   processPlayerStatusEffects(state);
   state.player.hunger = Math.max(0, state.player.hunger - 1);
-  state.player.thirst = Math.max(0, (state.player.thirst ?? 100) - 1);
+  state.player.thirst = Math.max(
+    0,
+    getPlayerThirstValue(state.player.thirst) - 1,
+  );
 
   let damage = 0;
-  if (state.player.hunger <= 30) {
+  if (state.player.hunger <= PLAYER_SURVIVAL_WARNING_THRESHOLD) {
     damage += 1;
     addLog(state, 'survival', t('game.message.survival.starving'));
   }
-  if ((state.player.thirst ?? 100) <= 30) {
+  if (
+    getPlayerThirstValue(state.player.thirst) <=
+    PLAYER_SURVIVAL_WARNING_THRESHOLD
+  ) {
     damage += 1;
     addLog(state, 'survival', t('game.message.survival.dehydrated'));
   }

@@ -2,6 +2,7 @@ import { WORLD_RADIUS, STARTING_RECIPE_IDS } from './config';
 import { ItemId } from './content/ids';
 import { getPlayerBaseStatsForLevel } from './balance';
 import { createFreshLogsAtTime } from './logs';
+import { PLAYER_SURVIVAL_MAX } from './survival';
 import {
   makeConsumable,
   makeStarterArmor,
@@ -46,8 +47,8 @@ export function createGame(
       baseMaxHp: baseStats.maxHp,
       mana: 12,
       baseMaxMana: 12,
-      hunger: 100,
-      thirst: 100,
+      hunger: PLAYER_SURVIVAL_MAX,
+      thirst: PLAYER_SURVIVAL_MAX,
       baseAttack: baseStats.attack,
       baseDefense: baseStats.defense,
       skills: makeStartingSkills(),

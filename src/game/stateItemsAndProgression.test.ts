@@ -24,7 +24,7 @@ describe('game state items and progression', () => {
     game.player.hp = 20;
 
     const used = useItem(game, 'starter-ration');
-    expect(used.player.hunger).toBe(100);
+    expect(used.player.hunger).toBe(300);
     expect(
       used.player.inventory.find((item) => item.id === 'starter-ration')
         ?.quantity,
@@ -56,8 +56,8 @@ describe('game state items and progression', () => {
   it('does not consume a consumable when none of its effects would apply', () => {
     const game = createGame(3, 'use-no-effect-seed');
     game.player.hp = getPlayerCombatStats(game.player).maxHp;
-    game.player.hunger = 100;
-    game.player.thirst = 100;
+    game.player.hunger = 300;
+    game.player.thirst = 300;
 
     const untouched = useItem(game, 'starter-ration');
 

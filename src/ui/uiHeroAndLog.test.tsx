@@ -52,6 +52,7 @@ describe('ui hero and log surfaces', () => {
     );
 
     expect(markup).toContain('1.1k/1.1k');
+    expect(markup).toContain('100/300');
     expect(markup).toContain('HP');
     expect(markup).toContain('Mana');
     expect(markup).toContain('XP');

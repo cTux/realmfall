@@ -22,6 +22,7 @@ import {
   cloneForPlayerMutation,
   message,
 } from './stateMutationHelpers';
+import { getPlayerThirstValue, PLAYER_SURVIVAL_MAX } from './survival';
 import { teleportHome } from './stateSurvival';
 import type { EquipmentSlot, GameState, Item } from './types';
 
@@ -35,6 +36,8 @@ const CONSUMABLE_LOG_EFFECT_KEYS = {
 
 type AppliedConsumableEffect = {
   amount: number;
+  displayAmount?: number;
+  displayAsPercent?: boolean;
   kind: keyof typeof CONSUMABLE_LOG_EFFECT_KEYS;
 };
 
@@ -247,7 +250,8 @@ function applyConsumableEffects(
         state.player.hunger += effect.amount;
         break;
       case 'thirst':
-        state.player.thirst = (state.player.thirst ?? 100) + effect.amount;
+        state.player.thirst =
+          getPlayerThirstValue(state.player.thirst) + effect.amount;
         break;
     }
   }
@@ -263,7 +267,8 @@ function formatConsumableLogEffect(
   }
 
   return ` ${t('ui.common.and')} ${t(CONSUMABLE_LOG_EFFECT_KEYS[kind], {
-    amount: effect.amount,
+    amount: effect.displayAmount ?? effect.amount,
+    ...(effect.displayAsPercent ? { unit: '%' } : {}),
   })}`;
 }
 
@@ -316,22 +321,38 @@ function resolveConsumableEffect(
       return appliedEffect ? [appliedEffect] : [];
     }
     case 'hunger': {
-      const appliedEffect = resolveFlatConsumableEffect(
+      const appliedEffect = resolvePercentConsumableEffect(
         'hunger',
-        100,
+        PLAYER_SURVIVAL_MAX,
         state.player.hunger,
         effect.amount,
       );
-      return appliedEffect ? [appliedEffect] : [];
+      return appliedEffect
+        ? [
+            {
+              ...appliedEffect,
+              displayAmount: effect.amount,
+              displayAsPercent: true,
+            },
+          ]
+        : [];
     }
     case 'thirst': {
-      const appliedEffect = resolveFlatConsumableEffect(
+      const appliedEffect = resolvePercentConsumableEffect(
         'thirst',
-        100,
-        state.player.thirst ?? 100,
+        PLAYER_SURVIVAL_MAX,
+        getPlayerThirstValue(state.player.thirst),
         effect.amount,
       );
-      return appliedEffect ? [appliedEffect] : [];
+      return appliedEffect
+        ? [
+            {
+              ...appliedEffect,
+              displayAmount: effect.amount,
+              displayAsPercent: true,
+            },
+          ]
+        : [];
     }
     case 'homeScroll':
       return [];
@@ -339,7 +360,7 @@ function resolveConsumableEffect(
 }
 
 function resolvePercentConsumableEffect(
-  kind: 'healing' | 'mana',
+  kind: 'healing' | 'mana' | 'hunger' | 'thirst',
   maxValue: number,
   currentValue: number,
   percent: number,
@@ -353,15 +374,4 @@ function resolvePercentConsumableEffect(
   );
 
   return amount > 0 ? { kind, amount } : null;
-}
-
-function resolveFlatConsumableEffect(
-  kind: 'hunger' | 'thirst',
-  maxValue: number,
-  currentValue: number,
-  amount: number,
-) {
-  const resolvedAmount = Math.max(0, Math.min(maxValue - currentValue, amount));
-
-  return resolvedAmount > 0 ? { kind, amount: resolvedAmount } : null;
 }
