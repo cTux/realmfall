@@ -46,9 +46,11 @@ export function AppShell({
   game,
   hostRef,
   isReady,
+  pixiWorldError,
   paused,
   uiAudio,
   windowsProps,
+  onRetryPixiWorld,
   onUiAudioChange,
 }: {
   audioSettings: AudioSettings;
@@ -57,9 +59,11 @@ export function AppShell({
   game: GameState;
   hostRef: MutableRefObject<HTMLDivElement | null>;
   isReady: boolean;
+  pixiWorldError: boolean;
   paused: boolean;
   uiAudio: UiAudioController;
   windowsProps: AppWindowsProps;
+  onRetryPixiWorld: () => void;
   onUiAudioChange: (nextController: UiAudioController) => void;
 }) {
   const audioBridgeActivated = useAudioBridgeActivation();
@@ -124,9 +128,19 @@ export function AppShell({
           <div
             className={styles.loadingScreen}
             aria-live="polite"
-            aria-busy="true"
+            aria-busy={!pixiWorldError}
           >
-            <LoadingSpinner className={styles.loadingSpinner} />
+            {pixiWorldError ? (
+              <div className={styles.loadingError} role="alert">
+                <strong>{t('ui.loading.worldErrorTitle')}</strong>
+                <p>{t('ui.loading.worldErrorBody')}</p>
+                <button type="button" onClick={onRetryPixiWorld}>
+                  {t('ui.loading.worldRetryAction')}
+                </button>
+              </div>
+            ) : (
+              <LoadingSpinner className={styles.loadingSpinner} />
+            )}
           </div>
         )}
       </div>

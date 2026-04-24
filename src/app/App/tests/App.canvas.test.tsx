@@ -216,4 +216,40 @@ describe('App canvas setup', () => {
     });
     host.remove();
   });
+
+  it('surfaces a retry path when Pixi bootstrap fails before canvas init', async () => {
+    loadEncryptedState.mockResolvedValue(null);
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    ensureWorldIconTexturesLoaded
+      .mockRejectedValueOnce(new Error('icon preload failed'))
+      .mockResolvedValueOnce(undefined);
+
+    try {
+      const { host, root } = await renderApp();
+      await flushLazyModules();
+
+      expect(host.textContent).toContain('World renderer failed to start.');
+      const retryButton = Array.from(host.querySelectorAll('button')).find(
+        (button) => button.textContent === 'Retry',
+      );
+      expect(retryButton).toBeDefined();
+      expect(applicationOptions).toHaveLength(0);
+
+      await act(async () => {
+        retryButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      });
+      await flushLazyModules();
+
+      expect(applicationOptions).toHaveLength(1);
+      expect(host.textContent).not.toContain('World renderer failed to start.');
+      expect(errorSpy).toHaveBeenCalled();
+
+      await act(async () => {
+        root.unmount();
+      });
+      host.remove();
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 });

@@ -48,6 +48,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - `usePixiWorld` now delegates render-loop comparison, pointer interaction wiring, and camera persistence to neighboring `src/app/App/world` modules so the hook stays centered on refs, invalidation state, and async world bootstrap.
 - While the fisheye feature flag is off, the live world runtime imports a no-op fisheye adapter instead of the shader implementation, so normal Pixi bootstrap does not load or construct the disabled filter.
 - The world bootstrap blocks only on the icon textures needed for the initial visible viewport, while the remaining icon catalog warms in background idle slices after the first canvas paint.
+- If Pixi world bootstrap fails during async module loading, visible-icon texture preload, or renderer initialization, the app surfaces a world-canvas error state with a retry action instead of leaving the shell in a loading-only state.
 - Shared world-icon texture caches discard destroyed textures before reuse, so Pixi app remounts such as HMR do not hand the next world scene a texture whose source has already been destroyed.
 - If a newly needed icon texture has not finished loading when a sprite pool requests it, the pool uses a transparent placeholder texture for that frame and rerenders when the real texture arrives.
 - Terrain background redraw invalidation also keys off the shared world-icon texture version, so newly loaded terrain art repaints the cached static layer without waiting for unrelated hover or gameplay changes.

@@ -271,9 +271,11 @@ export function useAppRuntime() {
     game: bootstrap.game,
     hostRef: pixiWorld.hostRef,
     isReady,
+    pixiWorldError: pixiWorld.canvasError,
     paused: bootstrap.paused,
     uiAudio: bootstrap.uiAudio,
     windowsProps,
+    onRetryPixiWorld: pixiWorld.retryCanvas,
     onUiAudioChange: bootstrap.setUiAudio,
   };
 }
