@@ -106,8 +106,9 @@ describe('check-bundle-budget helpers', () => {
     );
   });
 
-  it('tracks both react-core and background-audio startup chunk budgets', () => {
+  it('tracks React Compiler and core startup chunk budgets', () => {
     expect(CHUNK_BUDGETS).toMatchObject({
+      App: 92_000,
       'background-audio': 54_420,
       'react-core': 8_689,
     });

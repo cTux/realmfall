@@ -35,6 +35,18 @@ describe('run-vite-build helpers', () => {
     expect(filterKnownPluginTimingWarnings(warning)).toBe('');
   });
 
+  it('suppresses the known React Compiler Babel timing breakdown', () => {
+    const warning = [
+      '[PLUGIN_TIMINGS] Warning: Your build spent significant time in plugins. Here is a breakdown:',
+      '  - vite:asset (82%)',
+      '  - @rolldown/plugin-babel (14%)',
+      'See https://rolldown.rs/options/checks#plugintimings for more details.',
+      '',
+    ].join('\n');
+
+    expect(filterKnownPluginTimingWarnings(warning)).toBe('');
+  });
+
   it('keeps unexpected plugin timing warnings visible', () => {
     const warning = [
       '[PLUGIN_TIMINGS] Warning: Your build spent significant time in plugins. Here is a breakdown:',

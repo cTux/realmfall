@@ -1,4 +1,5 @@
 import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 let render: ReturnType<typeof vi.fn>;
@@ -10,11 +11,6 @@ const reportRootError = vi.fn();
 type StrictModeElement = React.ReactElement<{
   children: React.ReactElement;
 }>;
-type BootstrapShellProps = {
-  children: React.ReactNode;
-  role: string;
-};
-type BootstrapShellElement = React.ReactElement<BootstrapShellProps>;
 
 describe('main bootstrap', () => {
   beforeEach(() => {
@@ -132,18 +128,10 @@ describe('main bootstrap', () => {
 
     const firstRender = render.mock.calls[0]?.[0] as StrictModeElement;
     const bootstrapShellElement = firstRender.props
-      .children as BootstrapShellElement;
-    const bootstrapShell = (
-      bootstrapShellElement.type as (
-        props: typeof bootstrapShellElement.props,
-      ) => BootstrapShellElement
-    )(bootstrapShellElement.props);
-    const bootstrapChildren = React.Children.toArray(
-      bootstrapShell.props.children,
-    );
+      .children as React.ReactElement;
+    const bootstrapMarkup = renderToStaticMarkup(bootstrapShellElement);
 
-    expect(bootstrapShell.props.role).toBe('status');
-    expect(bootstrapChildren).toHaveLength(1);
+    expect(bootstrapMarkup).toContain('role="status"');
     expect(JSON.stringify(firstRender)).not.toContain('Loading Realmfall');
   });
 
