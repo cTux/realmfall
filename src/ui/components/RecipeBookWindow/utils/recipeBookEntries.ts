@@ -65,12 +65,10 @@ export function getRecipeCraftAvailabilityCount(
   let count = 0;
 
   while (true) {
-    if (!hasSufficientMaterials(recipe, availableItems)) {
-      return count;
-    }
+    if (!hasSufficientMaterials(recipe, availableItems)) return count;
 
     const selectedFuel = getFuelSource(recipe, availableItems);
-    if (!selectedFuel) {
+    if (recipe.fuelOptions && !selectedFuel) {
       return count;
     }
 
