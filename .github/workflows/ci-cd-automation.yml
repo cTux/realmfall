@@ -6,11 +6,9 @@ on:
       - opened
       - reopened
       - synchronize
-  workflow_run:
-    workflows:
-      - Pull Request
+  release:
     types:
-      - completed
+      - published
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -71,9 +69,8 @@ jobs:
 
   deploy-pages:
     if: |
-      github.event_name == 'workflow_run' &&
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.head_branch == github.event.repository.default_branch
+      github.event_name == 'release' &&
+      github.event.action == 'published'
     runs-on: ubuntu-latest
     permissions:
       contents: write
