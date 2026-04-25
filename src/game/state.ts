@@ -141,5 +141,6 @@ export {
   syncPlayerStatusEffects,
   triggerEarthshake,
 } from './stateWorldClock';
+export { toggleFavoriteRecipe } from './crafting';
 
 export const HARVEST_MOON_RESOURCE_TYPE_CHANCES = HARVEST_MOON_RESOURCE_CHANCES;

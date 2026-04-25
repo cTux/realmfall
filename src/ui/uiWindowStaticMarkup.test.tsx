@@ -64,6 +64,7 @@ describe('ui window static markup', () => {
           materialFilterItemKey={null}
           onResetMaterialFilter={() => {}}
           onCraft={() => {}}
+          onToggleFavoriteRecipe={() => {}}
         />
         <HexInfoWindow
           {...buildBaseHexInfoProps()}

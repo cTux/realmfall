@@ -50,7 +50,13 @@ describe('ui recipe book logic and markup', () => {
     ).toBeNull();
   });
 
-  it('sorts craftable recipe-book entries ahead of other learned recipes', () => {
+  it('sorts favorite recipes ahead of non-favorites, then craftable recipes', () => {
+    const favoriteBlockedEntry = createRecipe({
+      id: 'favorite-blocked-recipe',
+      name: 'Favorite Blocked Entry',
+      favorite: true,
+      ingredients: [{ itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 2 }],
+    });
     const craftableEntry = createRecipe({
       id: 'craftable-recipe',
       name: 'Craftable Entry',
@@ -67,14 +73,16 @@ describe('ui recipe book logic and markup', () => {
       ingredients: [{ itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 2 }],
     });
 
-    const sorted = [blockedEntry, craftableEntry].sort((left, right) =>
-      compareRecipeBookEntries(left, right, {
-        currentStructure: 'workshop',
-        inventoryCountsByItemKey: { 'iron-ingot': 1 },
-      }),
+    const sorted = [blockedEntry, craftableEntry, favoriteBlockedEntry].sort(
+      (left, right) =>
+        compareRecipeBookEntries(left, right, {
+          currentStructure: 'workshop',
+          inventoryCountsByItemKey: { 'iron-ingot': 1 },
+        }),
     );
 
     expect(sorted.map((entry) => entry.id)).toEqual([
+      'favorite-blocked-recipe',
       'craftable-recipe',
       'blocked-recipe',
     ]);

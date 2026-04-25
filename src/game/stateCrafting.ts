@@ -24,10 +24,14 @@ export function getRecipeBookRecipes(learnedRecipeIds?: string[]) {
   );
 }
 
-export function getRecipeBookEntries(learnedRecipeIds: string[]) {
+export function getRecipeBookEntries(
+  learnedRecipeIds: string[],
+  favoriteRecipeIds: string[] = [],
+) {
   return getRecipeBookEntriesFromDefinitions(
     RECIPE_BOOK_RECIPES,
     learnedRecipeIds,
+    favoriteRecipeIds,
   );
 }
 

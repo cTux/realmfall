@@ -1,4 +1,8 @@
-import { getRecipeBookEntries } from './state';
+import {
+  createGame,
+  getRecipeBookEntries,
+  toggleFavoriteRecipe,
+} from './state';
 import { findResolvedEnemyRecipeDrop } from './stateCraftingTestHelpers';
 
 describe('game state crafting recipe book', () => {
@@ -34,5 +38,33 @@ describe('game state crafting recipe book', () => {
 
     expect(dropped).not.toBeNull();
     expect(dropped?.recipeId).toBe('hand-cloth');
+  });
+
+  it('marks favorite recipes in the recipe book entry list', () => {
+    const entries = getRecipeBookEntries(
+      ['cook-cooked-fish'],
+      ['cook-cooked-fish'],
+    );
+
+    expect(
+      entries.find((entry) => entry.id === 'cook-cooked-fish'),
+    ).toMatchObject({ favorite: true });
+  });
+
+  it('can toggle favorite recipes on learned-only entries', () => {
+    const state = createGame();
+    const action = toggleFavoriteRecipe(state, 'cook-cooked-fish');
+
+    expect(action.player.favoriteRecipeIds).toEqual(['cook-cooked-fish']);
+
+    const toggledAgain = toggleFavoriteRecipe(action, 'cook-cooked-fish');
+    expect(toggledAgain.player.favoriteRecipeIds).toEqual([]);
+  });
+
+  it('cannot favorite unlearned recipes', () => {
+    const state = createGame();
+    const next = toggleFavoriteRecipe(state, 'craft-icon-helmet-01');
+
+    expect(next.player.favoriteRecipeIds).toEqual([]);
   });
 });

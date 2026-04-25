@@ -33,6 +33,7 @@ export const recipesDeferredWindow: AppDeferredWindowDescriptor = {
       materialFilterItemKey={views.recipes.materialFilterItemKey}
       onResetMaterialFilter={actions.recipes.onClearMaterialFilter}
       onCraft={actions.inventory.onCraftRecipe}
+      onToggleFavoriteRecipe={actions.recipes.onToggleFavoriteRecipe}
       {...detailTooltipHandlers}
     />
   ),

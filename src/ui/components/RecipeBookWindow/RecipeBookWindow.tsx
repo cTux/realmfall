@@ -45,6 +45,7 @@ export const RecipeBookWindow = createDeferredWindowComponent<
     materialFilterItemKey,
     onResetMaterialFilter,
     onCraft,
+    onToggleFavoriteRecipe,
     onHoverDetail,
     onLeaveDetail,
   }) => ({
@@ -56,6 +57,7 @@ export const RecipeBookWindow = createDeferredWindowComponent<
     materialFilterItemKey,
     onResetMaterialFilter,
     onCraft,
+    onToggleFavoriteRecipe,
     onHoverDetail,
     onLeaveDetail,
   }),

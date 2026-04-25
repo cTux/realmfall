@@ -286,6 +286,7 @@ export interface Player {
   baseDefense: number;
   skills: Record<SkillName, SkillProgress>;
   learnedRecipeIds: string[];
+  favoriteRecipeIds: string[];
   inventory: Item[];
   equipment: Equipment;
   statusEffects: PlayerStatusEffect[];
@@ -341,6 +342,7 @@ export interface RecipeDefinition {
 
 export interface RecipeBookEntry extends RecipeDefinition {
   learned: boolean;
+  favorite: boolean;
 }
 
 export const LOG_KINDS = [

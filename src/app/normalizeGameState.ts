@@ -393,6 +393,9 @@ function normalizePlayer(
     learnedRecipeIds: isStringArray(value.learnedRecipeIds)
       ? [...value.learnedRecipeIds]
       : [...fallback.learnedRecipeIds],
+    favoriteRecipeIds: isStringArray(value.favoriteRecipeIds)
+      ? [...value.favoriteRecipeIds]
+      : [...fallback.favoriteRecipeIds],
     inventory,
     equipment,
     statusEffects: statusEffects ?? [...fallback.statusEffects],
@@ -532,6 +535,7 @@ function clonePlayer(player: GameState['player']) {
     coord: { ...player.coord },
     skills: normalizeSkills(player.skills, player.skills),
     learnedRecipeIds: [...player.learnedRecipeIds],
+    favoriteRecipeIds: [...player.favoriteRecipeIds],
     inventory: player.inventory.map((item) => ({ ...item })),
     equipment: cloneEquipment(player.equipment),
     statusEffects: player.statusEffects.map((effect) => ({

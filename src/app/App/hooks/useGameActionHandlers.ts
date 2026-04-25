@@ -5,6 +5,7 @@ import {
   type SetStateAction,
 } from 'react';
 import { t } from '../../../i18n';
+import { toggleFavoriteRecipe } from '../../../game/crafting';
 import { craftRecipe } from '../../../game/stateCrafting';
 import { forfeitCombat, startCombat } from '../../../game/stateCombat';
 import {
@@ -279,6 +280,23 @@ export function useGameActionHandlers({
     [applyGameTransition],
   );
 
+  const handleToggleFavoriteRecipe = useCallback(
+    (recipeId: string) => {
+      applyGameTransition((current) => {
+        const next = {
+          ...current,
+          player: {
+            ...current.player,
+            favoriteRecipeIds: [...current.player.favoriteRecipeIds],
+          },
+        };
+        toggleFavoriteRecipe(next, recipeId);
+        return next;
+      });
+    },
+    [applyGameTransition],
+  );
+
   const handleDropItem = useCallback(
     (itemId: string) => {
       applyGameTransition(
@@ -389,6 +407,7 @@ export function useGameActionHandlers({
     handleSellAll,
     handleSellItem,
     handleSetItemLocked,
+    handleToggleFavoriteRecipe,
     handleSort,
     handleStartCombat,
     handleTakeAllLoot,

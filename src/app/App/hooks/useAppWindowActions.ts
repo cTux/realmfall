@@ -23,6 +23,7 @@ interface UseAppWindowActionsArgs {
   handleEquippedContextItem: AppWindowsActions['inventory']['onEquippedContextItem'];
   handleInteract: AppWindowsActions['hex']['onInteract'];
   handleOpenRecipeBookWithMaterialFilter: AppWindowsActions['recipes']['onOpenWithMaterialFilter'];
+  handleToggleFavoriteRecipe: AppWindowsActions['recipes']['onToggleFavoriteRecipe'];
   handleCorruptItem: AppWindowsActions['inventory']['onCorruptItem'];
   handleProspect: AppWindowsActions['hex']['onProspect'];
   handleProspectItem: AppWindowsActions['inventory']['onProspectItem'];
@@ -77,6 +78,7 @@ export function useAppWindowActions({
   handleEquippedContextItem,
   handleInteract,
   handleOpenRecipeBookWithMaterialFilter,
+  handleToggleFavoriteRecipe,
   handleCorruptItem,
   handleProspect,
   handleProspectItem,
@@ -225,8 +227,13 @@ export function useAppWindowActions({
     () => ({
       onOpenWithMaterialFilter: handleOpenRecipeBookWithMaterialFilter,
       onClearMaterialFilter: handleClearRecipeMaterialFilter,
+      onToggleFavoriteRecipe: handleToggleFavoriteRecipe,
     }),
-    [handleClearRecipeMaterialFilter, handleOpenRecipeBookWithMaterialFilter],
+    [
+      handleClearRecipeMaterialFilter,
+      handleOpenRecipeBookWithMaterialFilter,
+      handleToggleFavoriteRecipe,
+    ],
   );
 
   const logs = useMemo(
