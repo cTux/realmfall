@@ -35,6 +35,18 @@ jobs:
           git fetch origin "${{ github.event.pull_request.head.ref }}:refs/remotes/origin/${{ github.event.pull_request.head.ref }}"
           git switch "${{ github.event.pull_request.head.ref }}"
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
       - name: Configure Git author
         run: |
           git config user.name "github-actions[bot]"
@@ -42,6 +54,13 @@ jobs:
 
       - name: Rebase PR and auto-resolve package.json version conflicts
         run: node scripts/rebase-master-and-push.mjs
+
+      - name: Validate rebased PR branch
+        run: |
+          pnpm typecheck
+          pnpm lint
+          pnpm test
+          pnpm build:budget:strict
 
   deploy-pages:
     if: |
