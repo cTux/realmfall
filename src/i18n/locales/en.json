@@ -207,6 +207,7 @@
   "game.message.combat.begin.one": "Battle begins against 1 foe.",
   "game.message.combat.begin.other": "Battle begins against {count} foes.",
   "game.message.combat.defeated": "You were defeated.",
+  "game.message.combat.ambush.one": "Ambush! A {enemy} appears.",
   "game.message.combat.encounter.one": "You encounter 1 foe. Press Start to begin the battle.",
   "game.message.combat.encounter.other": "You encounter {count} foes. Press Start to begin the battle.",
   "game.message.combat.enemyDefeated": "You defeated the {enemy}.",

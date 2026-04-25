@@ -1,13 +1,17 @@
 import { t } from '../i18n';
 import { hexDistance, type HexCoord } from './hex';
 import { addLog } from './logs';
+import { EnemyTypeId } from './content/ids';
+import { GAME_CONFIG } from './config';
+import { createRng } from './random';
+import { enemyKey, makeEnemy, nextEnemySpawnIndex } from './combat';
 import { isPassable } from './shared';
 import { createCombatState } from './stateCombat';
 import { cloneForWorldMutation, message } from './stateMutationHelpers';
 import { getSafePathToTile } from './statePathfinding';
 import { applySurvivalDecay, respawnAtNearestTown } from './stateSurvival';
 import { getHostileEnemyIds } from './stateWorldQueries';
-import type { GameState } from './types';
+import type { GameState, Tile } from './types';
 import { ensureTileState } from './world';
 
 export function moveToTile(state: GameState, target: HexCoord): GameState {
@@ -37,6 +41,8 @@ export function moveToTile(state: GameState, target: HexCoord): GameState {
     respawnAtNearestTown(next, target);
     return next;
   }
+
+  trySpawnNightAmbush(next, target, tile);
 
   const hostileEnemyIds = getHostileEnemyIds(next, target);
   if (hostileEnemyIds.length > 0) {
@@ -85,4 +91,48 @@ export function moveAlongSafePath(
   }
 
   return next;
+}
+
+function trySpawnNightAmbush(next: GameState, coord: HexCoord, tile: Tile) {
+  const chance = GAME_CONFIG.worldGeneration.ambush.chance;
+  if (next.dayPhase !== 'night' || chance <= 0) return;
+  if (!canSpawnNightAmbush(tile)) return;
+
+  const rng = createRng(
+    `${next.seed}:ambush:${next.turn}:${coord.q}:${coord.r}`,
+  );
+  if (rng() >= chance) return;
+
+  const ambushIndex = nextEnemySpawnIndex(tile.enemyIds);
+  const ambushEnemy = makeEnemy(
+    next.seed,
+    coord,
+    tile.terrain,
+    ambushIndex,
+    tile.structure,
+    next.bloodMoonActive,
+    {
+      enemyId: enemyKey(coord, ambushIndex),
+      enemyTypeId: EnemyTypeId.Raider,
+      rarity: 'common',
+    },
+  );
+
+  tile.enemyIds.push(ambushEnemy.id);
+  next.enemies[ambushEnemy.id] = ambushEnemy;
+
+  addLog(
+    next,
+    'combat',
+    t('game.message.combat.ambush.one', {
+      enemy: t('game.enemy.raider.name'),
+    }),
+  );
+}
+
+function canSpawnNightAmbush(tile: Tile) {
+  if (tile.claim) return false;
+  if (tile.structure) return false;
+  if (tile.enemyIds.length > 0) return false;
+  return true;
 }

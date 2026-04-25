@@ -141,6 +141,9 @@ describe('game config schema', () => {
         enemySpawn: {
           tile: 1,
         },
+        ambush: {
+          chance: 1,
+        },
         loot: {
           dungeon: 1,
           guardedBase: 1,
