@@ -167,4 +167,43 @@ describe('Vite plugin policy', () => {
       },
     ]);
   });
+
+  it('uses the Vite base for modulepreload paths', () => {
+    const plugin = createAppModulePreloadPlugin();
+    const transformIndexHtml = plugin.transformIndexHtml;
+    const handler =
+      typeof transformIndexHtml === 'object'
+        ? transformIndexHtml.handler
+        : transformIndexHtml;
+
+    plugin.configResolved?.({ base: '/realmfall/' } as never);
+
+    if (typeof handler !== 'function') {
+      throw new Error(
+        'Expected createAppModulePreloadPlugin to define transformIndexHtml',
+      );
+    }
+
+    expect(
+      handler('<html></html>', {
+        bundle: {
+          'assets/js/App-abc.js': {
+            type: 'chunk',
+            name: 'App',
+            fileName: 'assets/js/App-abc.js',
+          },
+        },
+      } as never,
+    )).toEqual([
+      {
+        tag: 'link',
+        attrs: {
+          crossorigin: true,
+          href: '/realmfall/assets/js/App-abc.js',
+          rel: 'modulepreload',
+        },
+        injectTo: 'head',
+      },
+    ]);
+  });
 });
