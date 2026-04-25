@@ -308,6 +308,13 @@ const gameConfig = defineGameConfig({
           plains: 0.83,
           grove: 0.825,
         },
+        // Herbs spawns support multiple terrain clusters.
+        herbs: {
+          meadow: 0.84,
+          plains: 0.89,
+          grove: 0.875,
+          swamp: 0.87,
+        },
         // Lake spawns are most common on plains.
         lake: {
           plains: 0.79,
