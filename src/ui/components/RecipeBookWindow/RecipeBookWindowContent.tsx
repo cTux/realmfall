@@ -2,6 +2,7 @@ import {
   startTransition,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type MouseEvent as ReactMouseEvent,
 } from 'react';
@@ -74,7 +75,14 @@ const CRAFTING_SLOT_FILTER_PREVIEW_ITEMS = (() => {
   return map;
 })();
 
-const getDefaultRecipeSkill = (tabs: readonly Skill[]) => {
+const getDefaultRecipeSkill = (
+  tabs: readonly Skill[],
+  preferredSkill: Skill | null,
+) => {
+  if (preferredSkill && tabs.includes(preferredSkill)) {
+    return preferredSkill;
+  }
+
   return tabs.includes(Skill.Hand) ? Skill.Hand : (tabs[0] ?? Skill.Hand);
 };
 
@@ -98,7 +106,7 @@ export function RecipeBookWindowContent({
   recipes,
   recipeSkillLevels,
   inventoryCountsByItemKey,
-  preferredSkill: _preferredSkill,
+  preferredSkill,
   materialFilterItemKey,
   onResetMaterialFilter,
   onCraft,
@@ -120,16 +128,27 @@ export function RecipeBookWindowContent({
     );
   }, [materialFilterItemKey, recipes]);
   const [activeSkill, setActiveSkill] = useState<Skill>(
-    getDefaultRecipeSkill(visibleTabs),
+    getDefaultRecipeSkill(visibleTabs, preferredSkill),
   );
+  const previousPreferredSkill = useRef<Skill | null>(preferredSkill);
   const [visibleRecipeCount, setVisibleRecipeCount] = useState(
     RECIPE_BOOK_BATCH_SIZE,
   );
 
   useEffect(() => {
     if (visibleTabs.includes(activeSkill)) return;
-    setActiveSkill(getDefaultRecipeSkill(visibleTabs));
-  }, [activeSkill, visibleTabs]);
+    setActiveSkill(getDefaultRecipeSkill(visibleTabs, preferredSkill));
+  }, [activeSkill, visibleTabs, preferredSkill]);
+
+  useEffect(() => {
+    if (previousPreferredSkill.current === preferredSkill) return;
+
+    previousPreferredSkill.current = preferredSkill;
+    if (!preferredSkill) return;
+    if (!visibleTabs.includes(preferredSkill)) return;
+
+    setActiveSkill(preferredSkill);
+  }, [activeSkill, preferredSkill, visibleTabs]);
 
   useEffect(() => {
     setVisibleRecipeCount(RECIPE_BOOK_BATCH_SIZE);
