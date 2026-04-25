@@ -73,8 +73,6 @@ export const InventoryWindow = createDeferredWindowComponent<
     inTownForQuickSell,
     onHoverItem,
     onLeaveItem,
-    onHoverDetail,
-    onLeaveDetail,
   }) => ({
     inventory,
     equipment,
@@ -87,7 +85,5 @@ export const InventoryWindow = createDeferredWindowComponent<
     inTownForQuickSell,
     onHoverItem,
     onLeaveItem,
-    onHoverDetail,
-    onLeaveDetail,
   }),
 });
