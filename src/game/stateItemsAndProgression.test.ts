@@ -12,7 +12,7 @@ import {
   type GameState,
   type Item,
 } from './state';
-import { HOME_SCROLL_ITEM_NAME_KEY } from './config';
+import { GAME_CONFIG, HOME_SCROLL_ITEM_NAME_KEY } from './config';
 import { t } from '../i18n';
 import { buildItemFromConfig } from './content/items';
 import { addLog } from './logs';
@@ -251,28 +251,38 @@ describe('game state items and progression', () => {
   });
 
   it('caps the log at 100 messages', () => {
+    const previousAmbushChance = GAME_CONFIG.worldGeneration.ambush.chance;
+    GAME_CONFIG.worldGeneration.ambush.chance = 0;
+
     let game = createGame(3, 'log-cap-seed');
-    game.tiles['1,0'] = {
-      coord: { q: 1, r: 0 },
-      terrain: 'plains',
-      items: [],
-      structure: undefined,
-      enemyIds: [],
-    };
-    game.tiles['0,0'] = {
-      ...game.tiles['0,0'],
-      items: [],
-      enemyIds: [],
-    };
-    game.player.hunger = 999;
-    game.player.thirst = 999;
+    try {
+      game.tiles['1,0'] = {
+        coord: { q: 1, r: 0 },
+        terrain: 'plains',
+        items: [],
+        structure: undefined,
+        enemyIds: [],
+      };
+      game.tiles['0,0'] = {
+        ...game.tiles['0,0'],
+        items: [],
+        enemyIds: [],
+      };
+      game.player.hunger = 999;
+      game.player.thirst = 999;
 
-    for (let turn = 0; turn < 120; turn += 1) {
-      game = moveToTile(game, turn % 2 === 0 ? { q: 1, r: 0 } : { q: 0, r: 0 });
+      for (let turn = 0; turn < 120; turn += 1) {
+        game = moveToTile(
+          game,
+          turn % 2 === 0 ? { q: 1, r: 0 } : { q: 0, r: 0 },
+        );
+      }
+
+      expect(game.logs).toHaveLength(100);
+      expect(game.logs[0]?.text).toMatch(/you travel to/i);
+    } finally {
+      GAME_CONFIG.worldGeneration.ambush.chance = previousAmbushChance;
     }
-
-    expect(game.logs).toHaveLength(100);
-    expect(game.logs[0]?.text).toMatch(/you travel to/i);
   });
 
   it('caps player level at 100 and gains infinite mastery levels after that', () => {

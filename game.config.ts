@@ -210,6 +210,10 @@ const gameConfig = defineGameConfig({
       // Base chance that an eligible non-structure tile spawns a hostile encounter.
       tile: 0.2,
     },
+    ambush: {
+      // Chance to trigger an ambush when moving through the night, per hex entered.
+      chance: 0.002,
+    },
     loot: {
       // Chance that a dungeon tile rolls a loot cache.
       dungeon: 0.7,

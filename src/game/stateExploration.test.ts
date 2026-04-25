@@ -10,8 +10,11 @@ import {
 import {
   GAME_DAY_DURATION_MS,
   GAME_DAY_MINUTES,
+  GAME_CONFIG,
+  WORLD_NIGHT_AMBUSH_CHANCE,
   WORLD_REVEAL_RADIUS,
 } from './config';
+import { EnemyTypeId } from './content/ids';
 import {
   findEnemy,
   findFactionNpcTile,
@@ -284,6 +287,68 @@ describe('game state exploration', () => {
     expect(moved.turn).toBe(3);
     expect(moved.combat?.coord).toEqual({ q: 2, r: 0 });
     expect(moved.combat?.enemyIds).toEqual(['enemy-2,0-0']);
+  });
+
+  it('can ambush at night when moving onto an empty tile', () => {
+    const previousChance = WORLD_NIGHT_AMBUSH_CHANCE;
+    GAME_CONFIG.worldGeneration.ambush.chance = 1;
+
+    const game = createGame(4, 'night-ambush-seed');
+    game.dayPhase = 'night';
+    game.player.hunger = 100;
+    game.player.thirst = 100;
+
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: [],
+    };
+
+    try {
+      const moved = moveToTile(game, { q: 1, r: 0 });
+
+      expect(moved.combat?.enemyIds).toHaveLength(1);
+      const ambushEnemyId = moved.combat?.enemyIds[0];
+      expect(moved.enemies[ambushEnemyId ?? '']?.enemyTypeId).toBe(
+        EnemyTypeId.Raider,
+      );
+      expect(moved.enemies[ambushEnemyId ?? '']?.rarity).toBe('common');
+      expect(
+        moved.logs.some(
+          (entry) => entry.kind === 'combat' && entry.text.includes('Ambush!'),
+        ),
+      ).toBe(true);
+    } finally {
+      GAME_CONFIG.worldGeneration.ambush.chance = previousChance;
+    }
+  });
+
+  it('does not ambush during day movement', () => {
+    const previousChance = WORLD_NIGHT_AMBUSH_CHANCE;
+    GAME_CONFIG.worldGeneration.ambush.chance = 1;
+
+    const game = createGame(4, 'day-no-ambush-seed');
+    game.dayPhase = 'day';
+    game.player.hunger = 100;
+    game.player.thirst = 100;
+
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: [],
+    };
+
+    try {
+      const moved = moveToTile(game, { q: 1, r: 0 });
+      expect(moved.combat).toBeNull();
+      expect(moved.player.coord).toEqual({ q: 1, r: 0 });
+    } finally {
+      GAME_CONFIG.worldGeneration.ambush.chance = previousChance;
+    }
   });
 
   it('does not find a safe path into fogged hexes beyond the reveal radius', () => {
