@@ -100,4 +100,21 @@ describe('generated crafting recipes', () => {
       ),
     ).toBe(true);
   });
+
+  it('assigns generated ring recipes evenly to left and right ring slots', () => {
+    const ringRecipes = GENERATED_CRAFTING_RECIPES.filter(
+      ({ output }) => output.itemKey?.startsWith('icon-ring-') ?? false,
+    );
+    const expectedLeft = Math.ceil(ringRecipes.length / 2);
+    const expectedRight = Math.floor(ringRecipes.length / 2);
+    const left = ringRecipes.filter(
+      ({ output }) => output.slot === EquipmentSlotId.RingLeft,
+    ).length;
+    const right = ringRecipes.filter(
+      ({ output }) => output.slot === EquipmentSlotId.RingRight,
+    ).length;
+
+    expect(left).toBe(expectedLeft);
+    expect(right).toBe(expectedRight);
+  });
 });
