@@ -63,7 +63,7 @@ export function useBackgroundMusicController({
             void playNextTrack(moodRef.current);
           },
         });
-      } catch {
+      } catch (_error) {
         if (attemptedLoads < retryLimit) {
           void playNextTrack(nextMood, attemptedLoads + 1);
         }
