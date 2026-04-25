@@ -224,10 +224,14 @@ function continueRebase() {
       continue;
     }
 
-    fail(
+  fail(
       'git rebase --continue failed. Resolve the reported issue, or run git rebase --skip/--abort manually before retrying.',
     );
   }
+}
+
+function getHeadSha() {
+  return readGit(['rev-parse', 'HEAD']);
 }
 
 function describePushPlan(branchName, pushPlan) {
@@ -288,11 +292,14 @@ if (options.dryRun) {
   process.exit(0);
 }
 let shouldRunChecks = false;
+let initialHeadSha = '';
+let isBranchUpToDate = false;
 
 if (!rebaseAlreadyInProgress) {
   ensureCleanWorktree();
 
   logStep(`Rebasing ${branchName} onto ${REMOTE}/${baseBranch}`);
+  initialHeadSha = getHeadSha();
 
   const pullResult = runGit(['pull', REMOTE, baseBranch, '--rebase'], {
     allowFailure: true,
@@ -310,6 +317,18 @@ if (isRebaseInProgress()) {
   continueRebase();
 
   shouldRunChecks = packageJsonConflictResolvedByScript;
+} else if (!rebaseAlreadyInProgress && hasRemoteTrackingRef(branchName)) {
+  isBranchUpToDate = getHeadSha() === initialHeadSha;
+  if (isBranchUpToDate) {
+    logStep(
+      `Branch ${branchName} is already up to date with ${REMOTE}/${baseBranch}; skipping push and checks.`,
+    );
+  }
+}
+
+if (isBranchUpToDate) {
+  outputPostRunFlags(false);
+  process.exit(0);
 }
 
 const pushPlan = createPushPlan(
