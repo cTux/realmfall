@@ -15,8 +15,8 @@ describe('check-bundle-budget helpers', () => {
   });
 
   it('reports budget headroom for near-cap startup chunks', () => {
-    expect(formatBudgetStatus('en', 116_300, 120_000)).toBe(
-      'en: 116.30 kB within 120.00 kB (3.70 kB headroom, 96.9% used, near cap)',
+    expect(formatBudgetStatus('en', 116_300, 121_000)).toBe(
+      'en: 116.30 kB within 121.00 kB (4.70 kB headroom, 96.1% used, near cap)',
     );
   });
 
