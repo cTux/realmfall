@@ -1,0 +1,4 @@
+interface:
+  display_name: "Realmfall Quality"
+  short_description: "Quality and verification workflow for Realmfall."
+  default_prompt: "Select the smallest sufficient validation scope, then escalate to full pipeline when commit gates are relevant."

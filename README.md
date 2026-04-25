@@ -54,5 +54,6 @@ pnpm dev
 
 - Contributor rules: `docs/RULES.md`
 - Contributor workflow: `docs/WORKFLOW.md`
+- Codex skills index: [`docs/realmfall-skills.md`](./docs/realmfall-skills.md)
 - Reference specs: `docs/specs/reference/gameplay-features/README.md` and `docs/specs/reference/technical-solutions/README.md`
 - Lore: `docs/lore/REALMFALL.md`

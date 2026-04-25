@@ -1,0 +1,4 @@
+interface:
+  display_name: "Realmfall Story"
+  short_description: "Lore-aware guidance for content and narrative consistency."
+  default_prompt: "Apply lore constraints and canonical content rules first, then check runtime IDs and save-shape impacts."

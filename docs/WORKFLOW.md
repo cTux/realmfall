@@ -13,6 +13,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 ## Daily Loop
 
 1. Inspect the current worktree and load the matching rules and specs.
+1. Before choosing a specialist skill, read the [Realmfall Codex skills index](./realmfall-skills.md).
 2. Make the smallest correct change for the task.
 3. Update the matching spec and any recurring rules before considering the task complete.
 4. Run the relevant verification commands for the changed area.
