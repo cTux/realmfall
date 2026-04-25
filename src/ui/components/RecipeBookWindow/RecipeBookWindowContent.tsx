@@ -2,14 +2,26 @@ import {
   startTransition,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type MouseEvent as ReactMouseEvent,
 } from 'react';
-import { getItemConfigByKey } from '../../../game/content/items';
+import {
+  buildItemFromConfig,
+  getItemConfigByKey,
+  ITEM_CONFIGS,
+} from '../../../game/content/items';
 import { recipeUsesItemKey } from '../../../game/crafting';
-import { Skill } from '../../../game/types';
+import {
+  EQUIPMENT_SLOTS,
+  Skill,
+  type EquipmentSlot,
+} from '../../../game/types';
 import { t } from '../../../i18n';
-import { formatSkillLabel } from '../../../i18n/labels';
+import {
+  formatEquipmentSlotLabel,
+  formatSkillLabel,
+} from '../../../i18n/labels';
 import roundStarIcon from '../../../assets/icons/round-star.svg';
 import { ItemSlotButton } from '../ItemSlotButton/ItemSlotButton';
 import type { RecipeBookWindowProps } from './types';
@@ -24,6 +36,55 @@ const RECIPE_BOOK_TAB_ORDER = [
   Skill.Crafting,
 ];
 const RECIPE_BOOK_BATCH_SIZE = 40;
+const CRAFTING_SLOT_FILTERS = EQUIPMENT_SLOTS;
+const CRAFTING_SLOT_FILTER_ICON_CHOICES: Partial<
+  Record<EquipmentSlot, readonly string[]>
+> = {
+  bracers: ['icon-bracers-01', 'icon-bracers-02'],
+  belt: ['icon-belt-01', 'icon-belt-02', 'icon-belt-03'],
+  cloak: ['icon-cloak-01', 'icon-cloak-02', 'icon-cloak-03'],
+};
+
+const CRAFTING_SLOT_FILTER_PREVIEW_ITEMS = (() => {
+  const map = new Map<EquipmentSlot, ReturnType<typeof buildItemFromConfig>>();
+  for (const slot of CRAFTING_SLOT_FILTERS) {
+    const preferred = CRAFTING_SLOT_FILTER_ICON_CHOICES[slot]
+      ?.map((itemKey) => getItemConfigByKey(itemKey))
+      .filter(
+        (
+          config,
+        ): config is Exclude<
+          ReturnType<typeof getItemConfigByKey>,
+          undefined
+        > => config !== undefined,
+      );
+    const slotItemConfigs =
+      preferred && preferred.length > 0
+        ? preferred
+        : ITEM_CONFIGS.filter((config) => config.slot === slot);
+
+    if (slotItemConfigs.length === 0) continue;
+    const seed = [...slot].reduce(
+      (total, char) => (total * 31 + char.charCodeAt(0)) % 997,
+      17,
+    );
+    const chosenConfig =
+      slotItemConfigs[Math.abs(seed) % slotItemConfigs.length];
+    map.set(slot, buildItemFromConfig(chosenConfig.key));
+  }
+  return map;
+})();
+
+const getDefaultRecipeSkill = (
+  tabs: readonly Skill[],
+  preferredSkill: Skill | null,
+) => {
+  if (preferredSkill && tabs.includes(preferredSkill)) {
+    return preferredSkill;
+  }
+
+  return tabs.includes(Skill.Hand) ? Skill.Hand : (tabs[0] ?? Skill.Hand);
+};
 
 type RecipeBookWindowContentProps = Pick<
   RecipeBookWindowProps,
@@ -53,6 +114,9 @@ export function RecipeBookWindowContent({
   onHoverDetail,
   onLeaveDetail,
 }: RecipeBookWindowContentProps) {
+  const [enabledCraftingSlots, setEnabledCraftingSlots] = useState(
+    () => new Set(CRAFTING_SLOT_FILTERS),
+  );
   const visibleTabs = useMemo(() => {
     const filtered = recipes.filter(
       (recipe) =>
@@ -64,27 +128,31 @@ export function RecipeBookWindowContent({
     );
   }, [materialFilterItemKey, recipes]);
   const [activeSkill, setActiveSkill] = useState<Skill>(
-    preferredSkill && visibleTabs.includes(preferredSkill)
-      ? preferredSkill
-      : (visibleTabs[0] ?? Skill.Hand),
+    getDefaultRecipeSkill(visibleTabs, preferredSkill),
   );
+  const previousPreferredSkill = useRef<Skill | null>(preferredSkill);
   const [visibleRecipeCount, setVisibleRecipeCount] = useState(
     RECIPE_BOOK_BATCH_SIZE,
   );
 
   useEffect(() => {
-    if (!preferredSkill || !visibleTabs.includes(preferredSkill)) return;
-    setActiveSkill(preferredSkill);
-  }, [preferredSkill, visibleTabs]);
+    if (visibleTabs.includes(activeSkill)) return;
+    setActiveSkill(getDefaultRecipeSkill(visibleTabs, preferredSkill));
+  }, [activeSkill, visibleTabs, preferredSkill]);
 
   useEffect(() => {
-    if (visibleTabs.includes(activeSkill)) return;
-    setActiveSkill(visibleTabs[0] ?? Skill.Hand);
-  }, [activeSkill, visibleTabs]);
+    if (previousPreferredSkill.current === preferredSkill) return;
+
+    previousPreferredSkill.current = preferredSkill;
+    if (!preferredSkill) return;
+    if (!visibleTabs.includes(preferredSkill)) return;
+
+    setActiveSkill(preferredSkill);
+  }, [activeSkill, preferredSkill, visibleTabs]);
 
   useEffect(() => {
     setVisibleRecipeCount(RECIPE_BOOK_BATCH_SIZE);
-  }, [activeSkill, materialFilterItemKey]);
+  }, [activeSkill, materialFilterItemKey, enabledCraftingSlots]);
 
   const visibleRecipes = useMemo(
     () =>
@@ -92,6 +160,9 @@ export function RecipeBookWindowContent({
         .filter(
           (recipe) =>
             recipe.skill === activeSkill &&
+            (!recipe.output.slot ||
+              activeSkill !== Skill.Crafting ||
+              enabledCraftingSlots.has(recipe.output.slot)) &&
             (!materialFilterItemKey ||
               recipeUsesItemKey(recipe, materialFilterItemKey)),
         )
@@ -108,6 +179,7 @@ export function RecipeBookWindowContent({
       inventoryCountsByItemKey,
       materialFilterItemKey,
       recipes,
+      enabledCraftingSlots,
     ],
   );
   const recipeRows = useRecipeBookRows({
@@ -117,6 +189,17 @@ export function RecipeBookWindowContent({
     recipes: visibleRecipes,
     visibleRecipeCount,
   });
+  const toggleCraftingSlotFilter = (slot: EquipmentSlot) => {
+    setEnabledCraftingSlots((current) => {
+      const next = new Set(current);
+      if (next.has(slot)) {
+        next.delete(slot);
+      } else {
+        next.add(slot);
+      }
+      return next;
+    });
+  };
   const hiddenRecipeCount = Math.max(
     0,
     visibleRecipes.length - recipeRows.length,
@@ -128,6 +211,68 @@ export function RecipeBookWindowContent({
   return (
     <div className={styles.layout}>
       <div className={styles.content}>
+        {activeSkill === Skill.Crafting ? (
+          <div className={styles.slotFilters}>
+            <div className={styles.slotFilterControls}>
+              <button
+                type="button"
+                className={styles.slotFilterControlButton}
+                onClick={() =>
+                  setEnabledCraftingSlots(new Set(CRAFTING_SLOT_FILTERS))
+                }
+              >
+                Enable all
+              </button>
+              <button
+                type="button"
+                className={styles.slotFilterControlButton}
+                onClick={() => setEnabledCraftingSlots(new Set())}
+              >
+                Disable all
+              </button>
+            </div>
+            {CRAFTING_SLOT_FILTERS.map((slot) => {
+              const isSlotEnabled = enabledCraftingSlots.has(slot);
+              return (
+                <ItemSlotButton
+                  key={slot}
+                  item={CRAFTING_SLOT_FILTER_PREVIEW_ITEMS.get(slot)}
+                  slot={slot}
+                  size="compact"
+                  ariaLabel={formatEquipmentSlotLabel(slot)}
+                  className={styles.slotFilterButton}
+                  tintOverride="#ffffff"
+                  onClick={() => toggleCraftingSlotFilter(slot)}
+                  onMouseEnter={(event) =>
+                    onHoverDetail?.(
+                      event,
+                      formatEquipmentSlotLabel(slot),
+                      [
+                        {
+                          kind: 'text',
+                          text: t('ui.tooltip.emptyEquipmentSlot', {
+                            slot: formatEquipmentSlotLabel(slot).toLowerCase(),
+                          }),
+                        },
+                      ],
+                      'rgba(148, 163, 184, 0.9)',
+                    )
+                  }
+                  onMouseLeave={onHoverDetail ? onLeaveDetail : undefined}
+                  borderColorOverride={
+                    isSlotEnabled
+                      ? 'rgba(96, 165, 250, 0.58)'
+                      : 'rgba(148, 163, 184, 0.14)'
+                  }
+                  overlayColorOverride={
+                    isSlotEnabled ? undefined : 'rgba(2, 6, 23, 0.45)'
+                  }
+                  style={{ opacity: isSlotEnabled ? 1 : 0.5 }}
+                />
+              );
+            })}
+          </div>
+        ) : null}
         {filterItemName ? (
           <div className={styles.filterBar}>
             <span className={styles.filterLabel}>

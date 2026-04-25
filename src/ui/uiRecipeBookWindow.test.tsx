@@ -113,7 +113,7 @@ describe('ui recipe book window surfaces', () => {
       ],
     });
 
-    const slot = ui.host.querySelector('button[data-size="compact"]');
+    const slot = getFirstRecipeSlot(ui.host);
     expect(slot?.getAttribute('style')).toContain(
       'border-color: rgb(248, 250, 252)',
     );
@@ -133,7 +133,7 @@ describe('ui recipe book window surfaces', () => {
       ],
     });
 
-    const slot = ui.host.querySelector('button[data-size="compact"]');
+    const slot = getFirstRecipeSlot(ui.host);
     expect(slot?.getAttribute('style')).toContain(
       'border-color: rgba(248, 113, 113, 0.92)',
     );
@@ -203,7 +203,8 @@ describe('ui recipe book window surfaces', () => {
     const craftButton = Array.from(ui.host.querySelectorAll('button')).find(
       (button) => button.textContent === 'Craft',
     );
-    const craftCount = craftButton?.parentElement?.querySelector('span')?.textContent;
+    const craftCount =
+      craftButton?.parentElement?.querySelector('span')?.textContent;
 
     expect(craftCount).toBe('x2');
 
@@ -282,7 +283,7 @@ describe('ui recipe book window surfaces', () => {
       onLeaveDetail: leaveDetail,
     });
 
-    const recipeSlot = ui.host.querySelector('button[data-size="compact"]');
+    const recipeSlot = getFirstRecipeSlot(ui.host);
     const actionButton = Array.from(ui.host.querySelectorAll('button')).find(
       (button) => button.textContent === 'Craft',
     );
@@ -462,3 +463,15 @@ describe('ui recipe book window surfaces', () => {
     await ui.unmount();
   });
 });
+
+function getFirstRecipeSlot(host: HTMLElement) {
+  const actionButton = Array.from(host.querySelectorAll('button')).find(
+    (button) =>
+      button.textContent === 'Craft' ||
+      button.textContent === 'Cook' ||
+      button.textContent === 'Smelt',
+  );
+  return actionButton?.parentElement?.parentElement?.parentElement?.querySelector(
+    'button[data-size="compact"]',
+  );
+}
