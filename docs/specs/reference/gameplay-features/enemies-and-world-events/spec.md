@@ -16,7 +16,7 @@ This spec covers enemy generation plus the blood moon, harvest moon, and earthsh
 - Enemy classification such as animal, elite, dungeon, and world-boss behavior resolves from canonical enemy ids and tags instead of display-name checks.
 - Blood moon checks occur during the rise window at night.
 - When active, nearby enemies spawn in clusters around the player except on blocked tiles.
-- Blood moon scales enemy stats upward.
+- Blood moon scales enemy max HP, attack, and defense to 110% of their stored base values while preserving each enemy's current HP ratio through the transition.
 - Blood moon increases combat danger and improves loot outcomes, while higher-rarity enemies also improve ordinary gold, consumable, and recipe drop quality.
 - Harvest moon is an alternate night event.
 - It spawns gathering structures around the player on eligible empty passable tiles.
