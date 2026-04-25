@@ -41,6 +41,9 @@ describe('pickStructureType', () => {
     expect(pickStructureType(0, 0.811, 'marsh')).toBe('pond');
     expect(pickStructureType(0, 0.856, 'dunes')).toBe('gold-ore');
     expect(pickStructureType(0, 0.841, 'highlands')).toBe('copper-ore');
+
+    expect(pickStructureType(0, 0.885, 'meadow')).toBe('herbs');
+    expect(pickStructureType(0, 0.895, 'plains')).toBe('herbs');
   });
 
   it('decorates structures with shared tags and item-modification metadata', () => {

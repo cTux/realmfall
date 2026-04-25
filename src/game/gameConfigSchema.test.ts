@@ -183,6 +183,10 @@ describe('game config schema', () => {
           armor: 1,
           consumable: 1,
         },
+        structure: {
+          globalAppearanceThreshold: {},
+          appearanceChanceByTerrain: {},
+        },
       },
       events: {
         bloodMoon: {
