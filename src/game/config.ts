@@ -38,7 +38,7 @@ export const TOWN_BUY_PRICE_BALANCE = GAME_CONFIG.balance.economy.townBuyPrice;
 export const TOWN_SEARCH_LIMIT = 24;
 
 export const BLOOD_MOON_SPAWN_RADIUS = 6;
-export const BLOOD_MOON_STAT_SCALE = 0.1;
+export const BLOOD_MOON_STAT_SCALE = 1.1;
 export const BLOOD_MOON_RISE_START = 1080;
 export const BLOOD_MOON_RISE_END = 1200;
 export const BLOOD_MOON_RESET_START = 420;

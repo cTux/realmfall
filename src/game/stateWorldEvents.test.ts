@@ -20,7 +20,7 @@ import { getItemCategory } from './content/items';
 import { createPlacedWorldBossEncounter } from './stateTestHelpers';
 
 describe('game state world events', () => {
-  it('can trigger a blood moon that weakens enemies and floods nearby tiles', () => {
+  it('can trigger a blood moon that strengthens enemies and floods nearby tiles', () => {
     let bloodMoonGame = createGame(6, 'blood-moon-seed');
     bloodMoonGame.player.coord = { q: 4, r: -2 };
     bloodMoonGame.enemies['enemy-test'] = {
@@ -50,9 +50,9 @@ describe('game state world events', () => {
     expect(
       bloodMoonGame.logs.some((entry) => /blood moon begins/i.test(entry.text)),
     ).toBe(true);
-    expect(bloodMoonGame.enemies['enemy-test']?.maxHp).toBe(3);
-    expect(bloodMoonGame.enemies['enemy-test']?.attack).toBe(1);
-    expect(bloodMoonGame.enemies['enemy-test']?.defense).toBe(1);
+    expect(bloodMoonGame.enemies['enemy-test']?.maxHp).toBe(35);
+    expect(bloodMoonGame.enemies['enemy-test']?.attack).toBe(10);
+    expect(bloodMoonGame.enemies['enemy-test']?.defense).toBe(6);
 
     const nearbyEnemyCount = Object.values(bloodMoonGame.enemies).filter(
       (enemy) =>
