@@ -73,14 +73,14 @@ export function itemTooltipLines(
 
   if (category === 'consumable') {
     const sellLine = itemSellLine(item);
-    const lines = [
+    const lines: TooltipLine[] = [
       { kind: 'text', text: consumableEffectDescription(item) },
       ...tagTooltipLines(tags),
       ...(sellLine ? [sellLine] : []),
     ];
     if (options.quickSellHint) {
       lines.push({
-        kind: 'text',
+        kind: 'text' as const,
         text: t('ui.tooltip.sellQuickShift'),
         tone: 'subtle' as const,
       });
