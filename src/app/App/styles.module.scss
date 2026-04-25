@@ -38,20 +38,43 @@
 
 .homeIndicatorArrow {
   display: block;
-  color: #9333ea;
-  font-size: 1.3rem;
+  color: #e9d5ff;
+  position: relative;
+  font-size: 0;
+  width: 0;
+  height: 0;
+  border-left: 0.66rem solid transparent;
+  border-right: 0.66rem solid transparent;
+  border-bottom: 1.6rem solid currentcolor;
+  filter: drop-shadow(0 0 8px rgb(147 51 234 / 90%));
   line-height: 1;
-  text-shadow: 0 0 14px rgb(107 33 168 / 78%);
+  transform-origin: 50% 100%;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 1.6rem;
+    transform: translateX(-50%);
+    width: 0.18rem;
+    height: 1rem;
+    background: currentcolor;
+    border-radius: 999px;
+    box-shadow: 0 0 8px currentcolor;
+  }
 }
 
 .claimIndicatorArrow {
-  color: #f59e0b;
-  text-shadow: 0 0 14px rgb(180 83 9 / 78%);
+  color: #fef3c7;
+  text-shadow:
+    0 0 4px rgb(255 255 255 / 95%),
+    0 0 16px rgb(245 158 11 / 90%);
 }
 
 .homeIndicatorLabel {
   display: block;
-  color: #ddd6fe;
+  color: #e9d5ff;
+  -webkit-text-stroke: 0.25px #3b0764;
   font-size: 0.84rem;
   font-weight: 700;
   line-height: 1;
@@ -60,11 +83,17 @@
   border: 1px solid rgb(148 163 184 / 20%);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  text-shadow: 0 2px 10px rgb(2 6 23 / 95%);
+  text-shadow:
+    0 0 4px rgb(255 255 255 / 95%),
+    0 0 10px rgb(147 51 234 / 90%);
 }
 
 .claimIndicatorLabel {
   color: #fef3c7;
+  -webkit-text-stroke: 0.25px rgb(120 53 15);
+  text-shadow:
+    0 0 4px rgb(255 255 255 / 95%),
+    0 0 10px rgb(245 158 11 / 90%);
 }
 
 .loadingScreen {
