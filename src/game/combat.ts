@@ -18,6 +18,7 @@ import type {
   AbilityId,
   CombatActorState,
   EnemyRarity,
+  EnemyTypeKey,
   Enemy,
   StructureType,
   Terrain,
@@ -114,7 +115,9 @@ export function makeEnemy(
   bloodMoonActive = false,
   options?: {
     enemyId?: string;
+    enemyTypeId?: EnemyTypeKey;
     aggressive?: boolean;
+    rarity?: EnemyRarity;
     name?: string;
     worldBoss?: boolean;
   },
@@ -123,20 +126,25 @@ export function makeEnemy(
   const roll = noise(`${seed}:enemy:type:${structure ?? 'field'}`, coord);
   const worldBoss =
     options?.worldBoss ?? isWorldBossEnemyId(options?.enemyId ?? '');
-  const rarity = worldBoss
-    ? 'legendary'
-    : resolveEnemyRarity(
-        createRng(`${seed}:enemy:rarity:${index}:${coord.q}:${coord.r}`),
-        enemyRarityMinimum(structure, worldBoss),
-        tier,
-        structure,
-      );
+  const config = worldBoss
+    ? pickEnemyConfig(terrain, roll, false, true)
+    : options?.enemyTypeId
+      ? getEnemyConfig(options.enemyTypeId) ??
+        pickEnemyConfig(terrain, roll, structure === 'dungeon')
+      : pickEnemyConfig(terrain, roll, structure === 'dungeon');
+  const rarity = options?.enemyTypeId
+    ? options.rarity ?? 'common'
+    : worldBoss
+      ? 'legendary'
+      : resolveEnemyRarity(
+          createRng(`${seed}:enemy:rarity:${index}:${coord.q}:${coord.r}`),
+          enemyRarityMinimum(structure, worldBoss),
+          tier,
+          structure,
+        );
   const rarityRank = enemyRarityIndex(rarity);
   const rarityMultiplier = enemyRarityMultiplier(rarity);
   const elite = rarityRank >= enemyRarityIndex('rare');
-  const config = worldBoss
-    ? pickEnemyConfig(terrain, roll, false, true)
-    : pickEnemyConfig(terrain, roll, structure === 'dungeon');
   const statTier = tier + Math.floor(rarityRank / 2);
   const baseStats = getEnemyBaseStatsForLevel(tier);
   const baseMaxHp = Math.round(baseStats.maxHp * rarityMultiplier);

@@ -67,6 +67,8 @@ export const BASE_CASCADING_RARITY_CHANCES = GAME_CONFIG.progression.itemRarity;
 export const TERRAIN_CHANCES = GAME_CONFIG.worldGeneration.terrain;
 export const WORLD_ENEMY_SPAWN_CHANCE =
   GAME_CONFIG.worldGeneration.enemySpawn.tile;
+export const WORLD_NIGHT_AMBUSH_CHANCE =
+  GAME_CONFIG.worldGeneration.ambush.chance;
 export const WORLD_LOOT_CHANCES = GAME_CONFIG.worldGeneration.loot;
 export const WORLD_GENERATED_ITEM_KIND_CHANCES =
   GAME_CONFIG.worldGeneration.generatedItemKind;

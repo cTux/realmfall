@@ -105,6 +105,9 @@ export interface GameConfig {
     enemySpawn: {
       tile: number;
     };
+    ambush: {
+      chance: number;
+    };
     loot: {
       dungeon: number;
       guardedBase: number;
