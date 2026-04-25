@@ -1,5 +1,9 @@
-import type { GatheringStructureType, ItemRarity, Terrain } from './types';
-import type { StructureType } from '../types';
+import type {
+  GatheringStructureType,
+  ItemRarity,
+  StructureType,
+  Terrain,
+} from './types';
 
 export type WeightedChanceMap<T extends string> = Record<T, number>;
 
