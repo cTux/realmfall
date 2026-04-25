@@ -4,6 +4,7 @@ import rainingIcon from '../../assets/icons/raining.svg';
 import snowingIcon from '../../assets/icons/snowing.svg';
 import tearTracksIcon from '../../assets/icons/tear-tracks.svg';
 import castleIcon from '../../assets/icons/castle.svg';
+import forgottenLootIcon from '../../assets/game-icons/lorc/swap-bag.svg';
 import { ENEMY_CONFIGS, getEnemyConfig } from '../../game/content/enemies';
 import {
   STRUCTURE_CONFIGS,
@@ -31,6 +32,7 @@ export const WorldIcons = {
   Snowing: snowingIcon,
   Village: tearTracksIcon,
   Castle: castleIcon,
+  ForgottenLoot: forgottenLootIcon,
 } as const;
 
 const ENEMY_RARITY_TINTS = Object.fromEntries(
@@ -95,6 +97,10 @@ export function getVisibleWorldIconAssetIds(
           ? WorldIcons.Castle
           : structureIconFor(tile.structure),
       );
+    }
+
+    if (tile.items.length > 0) {
+      iconAssetIds.add(WorldIcons.ForgottenLoot);
     }
 
     if (tile.claim?.npc?.enemyId) {
