@@ -188,6 +188,7 @@ describe('ui recipe book window surfaces', () => {
 
   it('shows available craft count next to craft action', async () => {
     const ui = await mountRecipeBook({
+      currentStructure: 'workshop',
       inventoryCountsByItemKey: { iron: 4 },
       recipes: [
         createRecipe({
@@ -202,9 +203,9 @@ describe('ui recipe book window surfaces', () => {
     const craftButton = Array.from(ui.host.querySelectorAll('button')).find(
       (button) => button.textContent === 'Craft',
     );
-    const craftCount = craftButton?.parentElement?.textContent;
+    const craftCount = craftButton?.parentElement?.querySelector('span')?.textContent;
 
-    expect(craftCount).toContain('x2');
+    expect(craftCount).toBe('x2');
 
     await ui.unmount();
   });
