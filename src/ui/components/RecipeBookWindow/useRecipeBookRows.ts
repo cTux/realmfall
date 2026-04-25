@@ -9,7 +9,10 @@ import { Skill, type RecipeBookEntry } from '../../../game/types';
 import type { Tile } from '../../../game/stateTypes';
 import { t } from '../../../i18n';
 import type { TooltipLine } from '../../tooltips';
-import { canCraftRecipeEntry } from './utils/recipeBookEntries';
+import {
+  canCraftRecipeEntry,
+  getRecipeCraftAvailabilityCount,
+} from './utils/recipeBookEntries';
 
 interface RecipeBookRowsArgs {
   currentStructure?: Tile['structure'];
@@ -22,6 +25,7 @@ interface RecipeBookRowsArgs {
 export interface RecipeBookRow {
   actionLabel: string;
   canCraft: boolean;
+  craftCount: number;
   recipe: RecipeBookEntry;
   recipeOutput: ReturnType<typeof getRecipeOutput>;
   requiredStructureLabel: string;
@@ -80,6 +84,12 @@ export function buildRecipeBookRows({
       currentStructure,
       inventoryCountsByItemKey,
     });
+    const craftCount = canCraft
+      ? getRecipeCraftAvailabilityCount(recipe, {
+          currentStructure,
+          inventoryCountsByItemKey,
+        })
+      : 0;
     const tintOverride = getRecipeSlotTint(recipe, canCraft);
     const tooltipLines = recipe.learned
       ? buildRecipeTooltipLines(
@@ -93,6 +103,7 @@ export function buildRecipeBookRows({
     return {
       actionLabel: getRecipeActionLabel(recipe.skill),
       canCraft,
+      craftCount,
       recipe,
       recipeOutput,
       requiredStructureLabel,

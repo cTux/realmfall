@@ -186,6 +186,26 @@ describe('ui recipe book window surfaces', () => {
     await ui.unmount();
   });
 
+  it('shows available craft count next to craft action', async () => {
+    const ui = await mountRecipeBook({
+      inventoryCountsByItemKey: { iron: 4 },
+      recipes: [
+        createRecipe({
+          id: 'craft-iron-shield',
+          name: 'Iron Shield',
+          learned: true,
+          ingredients: [{ itemKey: 'iron', name: 'Iron', quantity: 2 }],
+        }),
+      ],
+    });
+
+    const craftCount = ui.host.querySelector('.craftCount');
+
+    expect(craftCount?.textContent).toBe('x2');
+
+    await ui.unmount();
+  });
+
   it('shows blocked craft reasons when a learned recipe action button is disabled', async () => {
     const hoverDetail = vi.fn();
     const leaveDetail = vi.fn();

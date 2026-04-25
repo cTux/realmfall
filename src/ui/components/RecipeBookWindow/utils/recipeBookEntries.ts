@@ -6,27 +6,86 @@ interface RecipeBookEntryContext {
   inventoryCountsByItemKey: Record<string, number>;
 }
 
+function hasSufficientMaterials(
+  recipe: RecipeBookEntry,
+  inventoryCountsByItemKey: Record<string, number>,
+) {
+  return recipe.ingredients.every((ingredient) => {
+    const key = ingredient.itemKey ?? ingredient.name;
+    return (inventoryCountsByItemKey[key] ?? 0) >= ingredient.quantity;
+  });
+}
+
+function getFuelSource(
+  recipe: RecipeBookEntry,
+  inventoryCountsByItemKey: Record<string, number>,
+) {
+  if (!recipe.fuelOptions) return null;
+
+  for (const fuel of recipe.fuelOptions) {
+    const key = fuel.itemKey ?? fuel.name;
+    if ((inventoryCountsByItemKey[key] ?? 0) >= fuel.quantity) {
+      return fuel;
+    }
+  }
+
+  return null;
+}
+
 export function canCraftRecipeEntry(
   recipe: RecipeBookEntry,
   { currentStructure, inventoryCountsByItemKey }: RecipeBookEntryContext,
 ) {
-  const missingIngredient = recipe.ingredients.some(
-    (ingredient) =>
-      (inventoryCountsByItemKey[ingredient.itemKey ?? ingredient.name] ?? 0) <
-      ingredient.quantity,
+  if (!recipe.learned) return false;
+
+  const missingIngredient = !hasSufficientMaterials(
+    recipe,
+    inventoryCountsByItemKey,
   );
-  const hasFuel =
-    !recipe.fuelOptions ||
-    recipe.fuelOptions.some(
-      (fuel) =>
-        (inventoryCountsByItemKey[fuel.itemKey ?? fuel.name] ?? 0) >=
-        fuel.quantity,
-    );
+  const selectedFuel = getFuelSource(recipe, inventoryCountsByItemKey);
+  const hasFuel = !recipe.fuelOptions || selectedFuel !== null;
   const requiredStructure = getRecipeRequiredStructure(recipe);
   const atRequiredStructure =
     requiredStructure === null || currentStructure === requiredStructure;
 
-  return recipe.learned && !missingIngredient && hasFuel && atRequiredStructure;
+  return !missingIngredient && hasFuel && atRequiredStructure;
+}
+
+export function getRecipeCraftAvailabilityCount(
+  recipe: RecipeBookEntry,
+  { currentStructure, inventoryCountsByItemKey }: RecipeBookEntryContext,
+) {
+  if (
+    !canCraftRecipeEntry(recipe, { currentStructure, inventoryCountsByItemKey })
+  ) {
+    return 0;
+  }
+
+  const availableItems = { ...inventoryCountsByItemKey };
+  let count = 0;
+
+  while (true) {
+    if (!hasSufficientMaterials(recipe, availableItems)) {
+      return count;
+    }
+
+    const selectedFuel = getFuelSource(recipe, availableItems);
+    if (!selectedFuel) {
+      return count;
+    }
+
+    for (const ingredient of recipe.ingredients) {
+      const key = ingredient.itemKey ?? ingredient.name;
+      availableItems[key] -= ingredient.quantity;
+    }
+
+    if (selectedFuel) {
+      const key = selectedFuel.itemKey ?? selectedFuel.name;
+      availableItems[key] -= selectedFuel.quantity;
+    }
+
+    count += 1;
+  }
 }
 
 export function compareRecipeBookEntries(
