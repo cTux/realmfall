@@ -10,9 +10,23 @@ import type { Plugin, PluginOption, ViteDevServer } from 'vite';
 const BUNDLE_VISUALIZER_OUTPUT = join('.tests', 'bundle', 'visualizer.html');
 const APP_MODULE_PRELOAD_SOURCE = '/src/app/App/index.ts';
 
+function createBaseUrl(base: string, relativePath: string) {
+  const effectiveBase = base.length > 0 ? base : '/';
+  const normalizedBase = effectiveBase.endsWith('/')
+    ? effectiveBase
+    : `${effectiveBase}/`;
+
+  return `${normalizedBase}${relativePath.replace(/^\/+/, '')}`;
+}
+
 export function createAppModulePreloadPlugin(): Plugin {
+  let base = '/';
+
   return {
     name: 'realmfall-app-modulepreload',
+      configResolved(config) {
+      base = config.base;
+    },
     transformIndexHtml: {
       order: 'post',
       handler(_html, context) {
@@ -27,7 +41,7 @@ export function createAppModulePreloadPlugin(): Plugin {
               attrs: {
                 rel: 'modulepreload',
                 crossorigin: true,
-                href: `/${emittedAppChunk.fileName}`,
+                href: createBaseUrl(base, emittedAppChunk.fileName),
               },
               injectTo: 'head',
             },
@@ -39,7 +53,7 @@ export function createAppModulePreloadPlugin(): Plugin {
             tag: 'link',
             attrs: {
               rel: 'modulepreload',
-              href: APP_MODULE_PRELOAD_SOURCE,
+              href: createBaseUrl(base, APP_MODULE_PRELOAD_SOURCE),
             },
             injectTo: 'head',
           },

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Realmfall Pixi"
+  short_description: "Pixi rendering and frame-time optimization workflow for Realmfall."
+  default_prompt: "Apply pixi/performance rules first, then keep behavior stable and scope changes tightly."

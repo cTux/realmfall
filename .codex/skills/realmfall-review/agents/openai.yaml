@@ -1,0 +1,4 @@
+interface:
+  display_name: "Realmfall Review"
+  short_description: "Focused code review and bug-risk scanning for Realmfall."
+  default_prompt: "Prioritize highest-risk review findings first, then map verification commands and residual risks."

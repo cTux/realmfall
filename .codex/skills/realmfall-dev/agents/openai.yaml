@@ -1,0 +1,4 @@
+interface:
+  display_name: "Realmfall Dev"
+  short_description: "Apply Realmfall-specific workflow rules, conventions, and quality gates."
+  default_prompt: "Load Realmfall scoped rules first, then follow minimal-change implementation conventions for this task."

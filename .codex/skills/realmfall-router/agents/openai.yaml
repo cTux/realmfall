@@ -1,0 +1,4 @@
+interface:
+  display_name: "Realmfall Router"
+  short_description: "Select the right specialized Realmfall skill before execution."
+  default_prompt: "Load canonical rules, detect task intent, then route to the best Realmfall companion skill."

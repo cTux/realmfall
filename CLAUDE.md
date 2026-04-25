@@ -8,6 +8,7 @@ Load `docs/RULES.md` before acting and apply only the scoped rule files under
 ## Claude Notes
 
 - Keep this file as a thin generated entrypoint. Move recurring project guidance into `docs/RULES.md` and `docs/rules/`.
+- If a task touches workflow routing, see [`docs/realmfall-skills.md`](./docs/realmfall-skills.md) first.
 - If prompt-loading behavior changes, sync every AI instruction entrypoint in the same task.
 - Before finalizing review findings or improvement descriptions, remove the word `still` and describe the current behavior directly.
 - Use `docs/WORKFLOW.md`, `docs/PROJECT_REVIEW.md`, and `docs/lore/REALMFALL.md` as supporting references after the canonical rules are loaded.

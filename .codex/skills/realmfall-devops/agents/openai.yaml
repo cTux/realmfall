@@ -1,0 +1,4 @@
+interface:
+  display_name: "Realmfall DevOps"
+  short_description: "Deployment, versioning, and git process guidance."
+  default_prompt: "Follow project workflow for release and branch operations, then call out required preconditions."
