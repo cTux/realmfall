@@ -19,6 +19,7 @@ import { type TooltipLine, tagTooltipLines } from './shared';
 
 interface ItemTooltipOptions {
   recipeLearned?: boolean;
+  quickSellHint?: boolean;
 }
 
 const SELL_VALUE_TINT = '#fbbf24';
@@ -72,11 +73,19 @@ export function itemTooltipLines(
 
   if (category === 'consumable') {
     const sellLine = itemSellLine(item);
-    return [
+    const lines = [
       { kind: 'text', text: consumableEffectDescription(item) },
       ...tagTooltipLines(tags),
       ...(sellLine ? [sellLine] : []),
     ];
+    if (options.quickSellHint) {
+      lines.push({
+        kind: 'text',
+        text: t('ui.tooltip.sellQuickShift'),
+        tone: 'subtle' as const,
+      });
+    }
+    return lines;
   }
 
   const lines: TooltipLine[] =
@@ -168,6 +177,15 @@ export function itemTooltipLines(
   if (sellLine) {
     lines.push(sellLine);
   }
+
+  if (options.quickSellHint) {
+    lines.push({
+      kind: 'text',
+      text: t('ui.tooltip.sellQuickShift'),
+      tone: 'subtle' as const,
+    });
+  }
+
   return lines;
 }
 
