@@ -1,4 +1,5 @@
 import { getAbilityDefinition } from '../../../game/abilities';
+import { useWorldClockTime } from '../../../app/App/worldClockStore';
 import type { PlayerStatusEffect } from '../../../game/types';
 import { t } from '../../../i18n';
 import { formatStatusEffectLabel } from '../../../i18n/labels';
@@ -29,6 +30,8 @@ export function HeroWindowContent({
   onHoverDetail,
   onLeaveDetail,
 }: HeroWindowContentProps) {
+  const worldTimeMs = useWorldClockTime();
+
   return (
     <div className={styles.stats}>
       <EntityStatusPanel
@@ -37,8 +40,8 @@ export function HeroWindowContent({
         showPrimaryTitle={false}
         bars={buildHeroBars(hero, hunger, thirst)}
         abilities={buildAbilityIcons(hero)}
-        buffs={buildEffectIcons(hero, 'buff')}
-        debuffs={buildEffectIcons(hero, 'debuff')}
+        buffs={buildEffectIcons(hero, 'buff', worldTimeMs)}
+        debuffs={buildEffectIcons(hero, 'debuff', worldTimeMs)}
         onHoverDetail={onHoverDetail}
         onLeaveDetail={onLeaveDetail}
       />
@@ -124,6 +127,7 @@ function buildHeroBars(
 function buildEffectIcons(
   hero: HeroWindowProps['hero'],
   tone: 'buff' | 'debuff',
+  worldTimeMs: number,
 ) {
   return buildHeroEffectItems(hero, tone).map<EntityStatusIcon>((item) => ({
     id: item.id,
@@ -138,6 +142,7 @@ function buildEffectIcons(
       tone,
       heroEffectExtraLines(item.id, hero),
       item,
+      worldTimeMs,
     ),
     tooltipBorderColor:
       tone === 'buff' ? 'rgba(34, 197, 94, 0.9)' : 'rgba(239, 68, 68, 0.9)',

@@ -112,8 +112,8 @@ function toPlayerEntity(
       maxMana: member.maxMana,
     }),
     abilities: buildAbilityIcons(member.actor, member.attack, worldTimeMs),
-    buffs: buildEffectIcons(member.buffs, 'buff'),
-    debuffs: buildEffectIcons(member.debuffs, 'debuff'),
+    buffs: buildEffectIcons(member.buffs, 'buff', worldTimeMs),
+    debuffs: buildEffectIcons(member.debuffs, 'debuff', worldTimeMs),
   };
 }
 
@@ -155,8 +155,8 @@ function toEnemyEntity(
       getEnemyCombatAttack(enemy),
       worldTimeMs,
     ),
-    buffs: buildEffectIcons(effectGroups.buffs, 'buff'),
-    debuffs: buildEffectIcons(effectGroups.debuffs, 'debuff'),
+    buffs: buildEffectIcons(effectGroups.buffs, 'buff', worldTimeMs),
+    debuffs: buildEffectIcons(effectGroups.debuffs, 'debuff', worldTimeMs),
   };
 }
 
@@ -254,9 +254,10 @@ function buildAbilityIcons(
 function buildEffectIcons(
   items: Pick<
     PlayerStatusEffect,
-    'id' | 'value' | 'tickIntervalMs' | 'stacks'
+    'id' | 'value' | 'tickIntervalMs' | 'stacks' | 'expiresAt'
   >[],
   tone: 'buff' | 'debuff',
+  worldTimeMs: number,
 ) {
   return items.map<EntityStatusIcon>((item) => ({
     id: item.id,
@@ -266,7 +267,13 @@ function buildEffectIcons(
     borderColor:
       tone === 'buff' ? 'rgb(34 197 94 / 70%)' : 'rgb(239 68 68 / 70%)',
     tooltipTitle: formatStatusEffectLabel(item.id),
-    tooltipLines: statusEffectTooltipLines(item.id, tone, [], item),
+    tooltipLines: statusEffectTooltipLines(
+      item.id,
+      tone,
+      [],
+      item,
+      worldTimeMs,
+    ),
     tooltipBorderColor:
       tone === 'buff' ? 'rgba(34, 197, 94, 0.9)' : 'rgba(239, 68, 68, 0.9)',
   }));
@@ -275,17 +282,17 @@ function buildEffectIcons(
 function partitionStatusEffects(
   items: Pick<
     PlayerStatusEffect,
-    'id' | 'value' | 'tickIntervalMs' | 'stacks'
+    'id' | 'value' | 'tickIntervalMs' | 'stacks' | 'expiresAt'
   >[],
 ) {
   return items.reduce<{
     buffs: Pick<
       PlayerStatusEffect,
-      'id' | 'value' | 'tickIntervalMs' | 'stacks'
+      'id' | 'value' | 'tickIntervalMs' | 'stacks' | 'expiresAt'
     >[];
     debuffs: Pick<
       PlayerStatusEffect,
-      'id' | 'value' | 'tickIntervalMs' | 'stacks'
+      'id' | 'value' | 'tickIntervalMs' | 'stacks' | 'expiresAt'
     >[];
   }>(
     (groups, item) => {

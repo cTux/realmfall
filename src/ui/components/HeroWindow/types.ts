@@ -41,7 +41,7 @@ export interface HeroOverview {
   >;
   statusEffects: Pick<
     PlayerStatusEffect,
-    'id' | 'value' | 'tickIntervalMs' | 'stacks'
+    'id' | 'value' | 'tickIntervalMs' | 'stacks' | 'expiresAt'
   >[];
   buffs: StatusEffectId[];
   debuffs: StatusEffectId[];

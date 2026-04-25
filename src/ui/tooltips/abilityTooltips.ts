@@ -73,8 +73,9 @@ export function statusEffectTooltipLines(
   extraLines: TooltipLine[] = [],
   effect?: Pick<
     PlayerStatusEffect,
-    'id' | 'value' | 'tickIntervalMs' | 'stacks'
+    'id' | 'value' | 'tickIntervalMs' | 'stacks' | 'expiresAt'
   >,
+  worldTimeMs?: number,
 ): TooltipLine[] {
   const descriptionKeyByEffect: Partial<Record<StatusEffectId, string>> = {
     hunger: 'ui.hero.effect.hunger.description',
@@ -102,6 +103,7 @@ export function statusEffectTooltipLines(
       text: description,
     },
     ...statusEffectDamageLines(effect),
+    ...statusEffectDecayLines(effect, tone, worldTimeMs),
     ...extraLines,
     ...tagTooltipLines(getStatusEffectTags(effectId)),
   ];
@@ -156,7 +158,7 @@ function abilityStatusEffectLines(
 function statusEffectDamageLines(
   effect?: Pick<
     PlayerStatusEffect,
-    'id' | 'value' | 'tickIntervalMs' | 'stacks'
+    'id' | 'value' | 'tickIntervalMs' | 'stacks' | 'expiresAt'
   >,
 ) {
   if (!effect) return [];
@@ -207,7 +209,44 @@ function statusEffectDamageLines(
   }
 }
 
+function statusEffectDecayLines(
+  effect:
+    | Pick<
+        PlayerStatusEffect,
+        'id' | 'expiresAt' | 'tickIntervalMs' | 'stacks' | 'value'
+      >
+    | undefined,
+  tone: 'buff' | 'debuff',
+  worldTimeMs?: number,
+) {
+  if (effect?.expiresAt == null || worldTimeMs == null) {
+    return [];
+  }
+
+  const remainingMs = effect.expiresAt - worldTimeMs;
+  if (remainingMs <= 0) return [];
+
+  const decayTone: TooltipLine['tone'] = tone === 'buff' ? 'item' : 'negative';
+
+  return [
+    {
+      kind: 'stat' as const,
+      label: t('ui.tooltip.timeToDecay'),
+      value: formatMillisecondsToMinutesSeconds(remainingMs),
+      tone: decayTone,
+    },
+  ];
+}
+
 function formatStatusIntervalSeconds(tickIntervalMs = 1_000) {
   const seconds = tickIntervalMs / 1000;
   return Number.isInteger(seconds) ? `${seconds}` : seconds.toFixed(1);
+}
+
+function formatMillisecondsToMinutesSeconds(milliseconds: number) {
+  const totalSeconds = Math.ceil(Math.max(0, milliseconds) / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
