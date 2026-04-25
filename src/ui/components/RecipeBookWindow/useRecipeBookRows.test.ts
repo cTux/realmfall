@@ -74,6 +74,30 @@ describe('buildRecipeBookRows', () => {
     expect(rows[0]?.actionLabel).toBe('Cook');
   });
 
+  it('marks missing recipes with a loot-first tooltip line', () => {
+    const rows = buildRecipeBookRows({
+      currentStructure: 'camp',
+      inventoryCountsByItemKey: {},
+      recipeSkillLevels: DEFAULT_RECIPE_SKILL_LEVELS,
+      recipes: [
+        createRecipe({
+          id: 'missing-knife',
+          name: 'Missing Axe',
+          learned: false,
+        }),
+      ],
+      visibleRecipeCount: 40,
+    });
+
+    expect(rows[0]?.tooltipLines).toEqual([
+      {
+        kind: 'text',
+        text: 'This recipe is missing and requires to be looted first.',
+        tone: 'negative',
+      },
+    ]);
+  });
+
   it('derives hand recipes without a required structure label', () => {
     const rows = buildRecipeBookRows({
       currentStructure: undefined,

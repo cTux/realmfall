@@ -167,25 +167,45 @@ export function RecipeBookWindowContent({
                       .filter(Boolean)
                       .join(' ')}
                   >
-                    <ItemSlotButton
-                      item={recipeOutput}
-                      size="compact"
-                      disabled={!recipe.learned}
-                      tintOverride={tintOverride}
-                      onClick={canCraft ? () => onCraft(recipe.id) : undefined}
-                      onMouseEnter={
-                        recipe.learned
-                          ? (event) =>
-                              onHoverDetail?.(
-                                event,
-                                recipe.name,
-                                tooltipLines ?? [],
-                                tintOverride,
-                              )
-                          : undefined
-                      }
-                      onMouseLeave={recipe.learned ? onLeaveDetail : undefined}
-                    />
+                    {recipe.learned ? (
+                      <ItemSlotButton
+                        item={recipeOutput}
+                        size="compact"
+                        disabled={!recipe.learned}
+                        tintOverride={tintOverride}
+                        onClick={
+                          canCraft ? () => onCraft(recipe.id) : undefined
+                        }
+                        onMouseEnter={(event) =>
+                          onHoverDetail?.(
+                            event,
+                            recipe.name,
+                            tooltipLines ?? [],
+                            tintOverride,
+                          )
+                        }
+                        onMouseLeave={onHoverDetail ? onLeaveDetail : undefined}
+                      />
+                    ) : (
+                      <span
+                        onMouseEnter={(event) =>
+                          onHoverDetail?.(
+                            event,
+                            recipe.name,
+                            tooltipLines ?? [],
+                            tintOverride,
+                          )
+                        }
+                        onMouseLeave={onHoverDetail ? onLeaveDetail : undefined}
+                      >
+                        <ItemSlotButton
+                          item={recipeOutput}
+                          size="compact"
+                          disabled={!recipe.learned}
+                          tintOverride={tintOverride}
+                        />
+                      </span>
+                    )}
                     <div className={styles.meta}>
                       <div className={styles.titleRow}>
                         <span className={styles.title}>{recipe.name}</span>
@@ -199,32 +219,74 @@ export function RecipeBookWindowContent({
                         })}
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={(event) =>
-                        onCraft(recipe.id, getRecipeCraftCount(event))
-                      }
-                      onMouseEnter={(event) =>
-                        onHoverDetail?.(
-                          event,
-                          t('ui.recipeBook.tooltip.batchCraftTitle'),
-                          [
-                            {
-                              kind: 'text',
-                              text: t('ui.recipeBook.tooltip.batchCraftShift'),
-                            },
-                            {
-                              kind: 'text',
-                              text: t('ui.recipeBook.tooltip.batchCraftCtrl'),
-                            },
-                          ],
-                        )
-                      }
-                      onMouseLeave={onLeaveDetail}
-                      disabled={!canCraft}
-                    >
-                      {actionLabel}
-                    </button>
+                    {recipe.learned ? (
+                      canCraft ? (
+                        <button
+                          type="button"
+                          onClick={(event) =>
+                            onCraft(recipe.id, getRecipeCraftCount(event))
+                          }
+                          onMouseEnter={(event) =>
+                            onHoverDetail?.(
+                              event,
+                              t('ui.recipeBook.tooltip.batchCraftTitle'),
+                              [
+                                {
+                                  kind: 'text',
+                                  text: t(
+                                    'ui.recipeBook.tooltip.batchCraftShift',
+                                  ),
+                                },
+                                {
+                                  kind: 'text',
+                                  text: t(
+                                    'ui.recipeBook.tooltip.batchCraftCtrl',
+                                  ),
+                                },
+                              ],
+                            )
+                          }
+                          onMouseLeave={
+                            onHoverDetail ? onLeaveDetail : undefined
+                          }
+                        >
+                          {actionLabel}
+                        </button>
+                      ) : (
+                        <span
+                          onMouseEnter={(event) =>
+                            onHoverDetail?.(
+                              event,
+                              recipe.name,
+                              tooltipLines ?? [],
+                            )
+                          }
+                          onMouseLeave={
+                            onHoverDetail ? onLeaveDetail : undefined
+                          }
+                        >
+                          <button type="button" disabled={!canCraft}>
+                            {actionLabel}
+                          </button>
+                        </span>
+                      )
+                    ) : (
+                      <span
+                        onMouseEnter={(event) =>
+                          onHoverDetail?.(
+                            event,
+                            recipe.name,
+                            tooltipLines ?? [],
+                            tintOverride,
+                          )
+                        }
+                        onMouseLeave={onHoverDetail ? onLeaveDetail : undefined}
+                      >
+                        <button type="button" disabled={!recipe.learned}>
+                          {actionLabel}
+                        </button>
+                      </span>
+                    )}
                   </div>
                 ),
               )}

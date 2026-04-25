@@ -185,4 +185,130 @@ describe('ui recipe book window surfaces', () => {
 
     await ui.unmount();
   });
+
+  it('shows blocked craft reasons when a learned recipe action button is disabled', async () => {
+    const hoverDetail = vi.fn();
+    const leaveDetail = vi.fn();
+    const ui = await mountRecipeBook({
+      currentStructure: 'camp',
+      recipes: [
+        createRecipe({
+          id: 'missing-materials-camp-knife',
+          name: 'Camp Knife',
+          learned: true,
+          skill: Skill.Hand,
+          ingredients: [{ itemKey: 'wood', name: 'Wood', quantity: 2 }],
+          output: {
+            id: 'camp-knife',
+            name: 'Camp Knife',
+          },
+        }),
+      ],
+      onHoverDetail: hoverDetail,
+      onLeaveDetail: leaveDetail,
+    });
+
+    const actionButton = Array.from(ui.host.querySelectorAll('button')).find(
+      (button) =>
+        button.textContent === 'Craft' && button.hasAttribute('disabled'),
+    );
+
+    expect(actionButton).toBeDefined();
+
+    await act(async () => {
+      actionButton?.parentElement?.dispatchEvent(
+        new MouseEvent('mouseover', { bubbles: true }),
+      );
+    });
+
+    expect(hoverDetail).toHaveBeenCalled();
+    const actionHoverArgs =
+      hoverDetail.mock.calls[hoverDetail.mock.calls.length - 1];
+    expect(actionHoverArgs?.[1]).toBe('Camp Knife');
+    expect(actionHoverArgs?.[2]).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ kind: 'text', text: 'Materials' }),
+        expect.objectContaining({ kind: 'stat', label: 'Wood', value: '0/2' }),
+      ]),
+    );
+
+    await act(async () => {
+      actionButton?.parentElement?.dispatchEvent(
+        new MouseEvent('mouseout', { bubbles: true }),
+      );
+    });
+
+    expect(leaveDetail).toHaveBeenCalledTimes(1);
+    await ui.unmount();
+  });
+
+  it('shows a loot-first tooltip for missing recipes', async () => {
+    const hoverDetail = vi.fn();
+    const leaveDetail = vi.fn();
+    const ui = await mountRecipeBook({
+      recipes: [
+        createRecipe({
+          id: 'missing-cook-fish',
+          name: 'Missing Cooked Fish',
+          learned: false,
+          description: 'Defeat enemies for this recipe.',
+        }),
+      ],
+      onHoverDetail: hoverDetail,
+      onLeaveDetail: leaveDetail,
+    });
+
+    const recipeSlot = ui.host.querySelector('button[data-size="compact"]');
+    const actionButton = Array.from(ui.host.querySelectorAll('button')).find(
+      (button) => button.textContent === 'Craft',
+    );
+
+    await act(async () => {
+      recipeSlot?.parentElement?.dispatchEvent(
+        new MouseEvent('mouseover', { bubbles: true }),
+      );
+    });
+
+    expect(hoverDetail).toHaveBeenCalled();
+    const slotHoverArgs =
+      hoverDetail.mock.calls[hoverDetail.mock.calls.length - 1];
+    expect(slotHoverArgs?.[1]).toBe('Missing Cooked Fish');
+    expect(slotHoverArgs?.[2]).toEqual([
+      {
+        kind: 'text',
+        text: 'This recipe is missing and requires to be looted first.',
+        tone: 'negative',
+      },
+    ]);
+
+    await act(async () => {
+      actionButton?.parentElement?.dispatchEvent(
+        new MouseEvent('mouseover', { bubbles: true }),
+      );
+    });
+
+    const actionHoverArgs =
+      hoverDetail.mock.calls[hoverDetail.mock.calls.length - 1];
+    expect(actionHoverArgs?.[1]).toBe('Missing Cooked Fish');
+    expect(actionHoverArgs?.[2]).toEqual([
+      {
+        kind: 'text',
+        text: 'This recipe is missing and requires to be looted first.',
+        tone: 'negative',
+      },
+    ]);
+
+    await act(async () => {
+      recipeSlot?.parentElement?.dispatchEvent(
+        new MouseEvent('mouseout', { bubbles: true }),
+      );
+      actionButton?.parentElement?.dispatchEvent(
+        new MouseEvent('mouseout', { bubbles: true }),
+      );
+    });
+
+    expect(leaveDetail).toHaveBeenCalledTimes(2);
+
+    await ui.unmount();
+  });
 });
