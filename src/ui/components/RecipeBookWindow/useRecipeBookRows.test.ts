@@ -147,4 +147,23 @@ describe('buildRecipeBookRows', () => {
 
     expect(rows[0]?.craftCount).toBe(2);
   });
+
+  it('does not loop when a recipe has no consumable inputs', () => {
+    const rows = buildRecipeBookRows({
+      currentStructure: 'workshop',
+      inventoryCountsByItemKey: {},
+      recipeSkillLevels: DEFAULT_RECIPE_SKILL_LEVELS,
+      recipes: [
+        createRecipe({
+          id: 'craft-mythic-shield',
+          name: 'Mythic Shield',
+          ingredients: [],
+        }),
+      ],
+      visibleRecipeCount: 40,
+    });
+
+    expect(rows[0]?.canCraft).toBe(true);
+    expect(rows[0]?.craftCount).toBe(0);
+  });
 });

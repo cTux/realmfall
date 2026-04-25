@@ -72,14 +72,24 @@ export function getRecipeCraftAvailabilityCount(
       return count;
     }
 
+    let madeProgress = false;
+
     for (const ingredient of recipe.ingredients) {
       const key = ingredient.itemKey ?? ingredient.name;
+      if (ingredient.quantity <= 0) continue;
       availableItems[key] -= ingredient.quantity;
+      madeProgress = true;
     }
 
     if (selectedFuel) {
       const key = selectedFuel.itemKey ?? selectedFuel.name;
+      if (selectedFuel.quantity <= 0) continue;
       availableItems[key] -= selectedFuel.quantity;
+      madeProgress = true;
+    }
+
+    if (!madeProgress) {
+      return count;
     }
 
     count += 1;
