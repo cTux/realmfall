@@ -24,7 +24,7 @@ import anvilIcon from '../assets/icons/anvil.svg';
 import animalHideIcon from '../assets/icons/animal-hide.svg';
 import stonePileIcon from '../assets/icons/stone-pile.svg';
 import axeInStumpIcon from '../assets/icons/axe-in-stump.svg';
-import coinsIcon from '../assets/icons/coins.svg';
+const coinsIcon = `${import.meta.env.BASE_URL}assets/icons/coins.svg`;
 import herbsBundleIcon from '../assets/icons/herbs-bundle.svg';
 import scytheIcon from '../assets/icons/scythe.svg';
 import logIcon from '../assets/icons/log.svg';
