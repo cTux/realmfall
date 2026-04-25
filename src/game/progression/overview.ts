@@ -302,11 +302,12 @@ export function getPlayerOverview(player: Player) {
         ({
           id: effect.id,
           value: effect.value,
+          expiresAt: effect.expiresAt,
           tickIntervalMs: effect.tickIntervalMs,
           stacks: effect.stacks,
         }) satisfies Pick<
           PlayerStatusEffect,
-          'id' | 'value' | 'tickIntervalMs' | 'stacks'
+          'id' | 'value' | 'tickIntervalMs' | 'stacks' | 'expiresAt'
         >,
     ),
     buffs: [

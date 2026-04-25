@@ -19,11 +19,11 @@ export interface CombatPartyMember {
   actor: CombatActorState;
   buffs: Pick<
     PlayerStatusEffect,
-    'id' | 'value' | 'tickIntervalMs' | 'stacks'
+    'id' | 'value' | 'tickIntervalMs' | 'stacks' | 'expiresAt'
   >[];
   debuffs: Pick<
     PlayerStatusEffect,
-    'id' | 'value' | 'tickIntervalMs' | 'stacks'
+    'id' | 'value' | 'tickIntervalMs' | 'stacks' | 'expiresAt'
   >[];
 }
 

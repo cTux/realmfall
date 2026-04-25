@@ -766,6 +766,7 @@
   "ui.tooltip.consumable.effect.foodRestorePercent": "recover {amount}% HP and restore {amount}% MP",
   "ui.tooltip.consumable.effect.healingPercent": "recover {amount}% HP",
   "ui.tooltip.tags": "Tags: {tags}",
+  "ui.tooltip.timeToDecay": "Time to Decay",
   "ui.tooltip.consumable.effect.manaPercent": "restore {amount}% MP",
   "ui.tooltip.consumable.generic": "Use to trigger its effect.",
   "ui.tooltip.consumable.homeScroll": "Use to return instantly to your hearthmark.",

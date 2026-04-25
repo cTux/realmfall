@@ -182,6 +182,41 @@ describe('ui tooltip ability content', () => {
       value: '3% max HP / 2s',
       tone: 'negative',
     });
+    expect(
+      statusEffectTooltipLines(
+        'burning',
+        'debuff',
+        [],
+        {
+          id: 'burning',
+          value: 2,
+          expiresAt: 120_000,
+        },
+        15_000,
+      ),
+    ).toContainEqual({
+      kind: 'stat',
+      label: 'Time to Decay',
+      value: '01:45',
+      tone: 'negative',
+    });
+    expect(
+      statusEffectTooltipLines(
+        'guard',
+        'buff',
+        [],
+        {
+          id: 'guard',
+          expiresAt: 120_000,
+        },
+        15_000,
+      ),
+    ).toContainEqual({
+      kind: 'stat',
+      label: 'Time to Decay',
+      value: '01:45',
+      tone: 'item',
+    });
     expect(statusEffectTooltipLines('guard', 'buff')[0]).toEqual({
       kind: 'text',
       text: 'Guard raises defense for as long as the effect holds.',
