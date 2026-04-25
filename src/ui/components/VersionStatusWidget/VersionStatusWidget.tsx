@@ -1,7 +1,9 @@
 import { t } from '../../../i18n';
+import type { TooltipLine } from '../../tooltips';
+import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 import styles from './styles.module.scss';
 
-export interface VersionStatusWidgetProps {
+export interface VersionStatusWidgetProps extends WindowDetailTooltipHandlers {
   currentVersion: string;
   onRefresh: () => void;
   remoteVersion: string | null;
@@ -18,6 +20,8 @@ export function VersionStatusWidget({
   onRefresh,
   remoteVersion,
   status,
+  onHoverDetail,
+  onLeaveDetail,
 }: VersionStatusWidgetProps) {
   const statusLabel = getStatusLabel({
     currentVersion,
@@ -42,6 +46,15 @@ export function VersionStatusWidget({
         <button
           className={styles.refreshButton}
           type="button"
+          onMouseEnter={(event) =>
+            onHoverDetail?.(
+              event,
+              t('ui.version.refreshAction'),
+              getRefreshTooltipLines({ currentVersion, remoteVersion }),
+              'rgba(248, 113, 113, 0.9)',
+            )
+          }
+          onMouseLeave={onLeaveDetail}
           onClick={onRefresh}
         >
           {t('ui.version.refreshAction')}
@@ -49,6 +62,24 @@ export function VersionStatusWidget({
       ) : null}
     </aside>
   );
+}
+
+function getRefreshTooltipLines({
+  currentVersion,
+  remoteVersion,
+}: Pick<VersionStatusWidgetProps, 'currentVersion' | 'remoteVersion'>) {
+  return [
+    {
+      kind: 'text',
+      text: t('ui.version.currentValue', { version: currentVersion }),
+    },
+    {
+      kind: 'text',
+      text: t('ui.version.remoteValue', {
+        version: remoteVersion ?? t('ui.version.fetchingRemoteValue'),
+      }),
+    },
+  ] satisfies TooltipLine[];
 }
 
 function getStatusLabel({
