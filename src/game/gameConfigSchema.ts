@@ -1,4 +1,5 @@
 import type { GatheringStructureType, ItemRarity, Terrain } from './types';
+import type { StructureType } from '../types';
 
 export type WeightedChanceMap<T extends string> = Record<T, number>;
 
@@ -114,6 +115,12 @@ export interface GameConfig {
   };
   worldGeneration: {
     terrain: WeightedChanceMap<Terrain>;
+    structure: {
+      globalAppearanceThreshold: Partial<Record<StructureType, number>>;
+      appearanceChanceByTerrain: Partial<
+        Record<StructureType, Partial<Record<Terrain, number>>>
+      >;
+    };
     enemySpawn: {
       tile: number;
     };

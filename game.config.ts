@@ -246,6 +246,78 @@ const gameConfig = defineGameConfig({
       // Chance weight for generating steppe terrain.
       steppe: 0.13,
     },
+    structure: {
+      // Global roll thresholds for structures that bypass terrain-based selection.
+      globalAppearanceThreshold: {
+        // Chance threshold for camp structures on terrain-based noise roll.
+        camp: 0.96,
+        // Chance threshold for workshop structures on terrain-based noise roll.
+        workshop: 0.964,
+        // Chance threshold for furnace structures on terrain-based noise roll.
+        furnace: 0.968,
+        // Chance threshold for mana-font structures on terrain-based noise roll.
+        'mana-font': 0.972,
+        // Chance threshold for rune-forge structures on terrain-based noise roll.
+        'rune-forge': 0.98,
+        // Chance threshold for forge structures on terrain-based noise roll.
+        forge: 0.984,
+        // Chance threshold for town structures on terrain-based noise roll.
+        town: 0.976,
+        // Chance threshold for corruption altar structures on terrain-based noise roll.
+        'corruption-altar': 0.988,
+        // Chance threshold for dungeon structures on terrain-based noise roll.
+        dungeon: 0.992,
+      },
+      // Terrain-based thresholds for resource-ish structures (higher roll keeps empty).
+      appearanceChanceByTerrain: {
+        // Tree spawns become available at higher structure rolls on forest tiles.
+        tree: {
+          forest: 0.86,
+        },
+        // Tin-ore spawns are more likely on plains and forest.
+        'tin-ore': {
+          plains: 0.86,
+          forest: 0.845,
+        },
+        // Iron-ore spawns are more likely on swamp and forest.
+        'iron-ore': {
+          swamp: 0.82,
+          forest: 0.82,
+        },
+        // Copper-ore spawns prefer plains and desert terrain.
+        'copper-ore': {
+          plains: 0.84,
+          desert: 0.84,
+        },
+        // Gold-ore spawns are best on desert tiles.
+        'gold-ore': {
+          desert: 0.855,
+        },
+        // Platinum-ore spawns appear more on swamp and desert.
+        'platinum-ore': {
+          swamp: 0.84,
+          desert: 0.845,
+        },
+        // Coal-ore spawns occur most often on desert terrain.
+        'coal-ore': {
+          desert: 0.81,
+        },
+        // Flax-field spawns tilt toward meadow, plains, and grove.
+        flax: {
+          meadow: 0.84,
+          plains: 0.83,
+          grove: 0.825,
+        },
+        // Lake spawns are most common on plains.
+        lake: {
+          plains: 0.79,
+        },
+        // Pond spawns are most common on swamps.
+        pond: {
+          swamp: 0.81,
+        },
+      },
+    },
     enemySpawn: {
       // Base chance that an eligible non-structure tile spawns a hostile encounter.
       tile: 0.2,
