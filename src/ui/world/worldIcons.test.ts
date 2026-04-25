@@ -105,6 +105,25 @@ describe('worldIcons', () => {
         npc: { name: 'Araken', enemyId: 'faction-npc:1' },
       },
     };
+    game.tiles['-1,0'] = {
+      coord: { q: -1, r: 0 },
+      terrain: 'plains',
+      items: [
+        {
+          id: 'loot-gold',
+          name: 'Gold',
+          quantity: 3,
+          tier: 1,
+          rarity: 'common',
+          power: 0,
+          defense: 0,
+          maxHp: 0,
+          healing: 0,
+          hunger: 0,
+        },
+      ],
+      enemyIds: [],
+    };
     game.enemies['enemy-1,0-0'] = {
       id: 'enemy-1,0-0',
       name: 'Wolf',
@@ -120,12 +139,14 @@ describe('worldIcons', () => {
 
     const icons = getVisibleWorldIconAssetIds(game.enemies, [
       game.tiles['1,0'],
+      game.tiles['-1,0'],
     ]);
 
     expect(icons).toEqual(
       expect.arrayContaining([
         WorldIcons.Player,
         WorldIcons.Castle,
+        WorldIcons.ForgottenLoot,
         WorldIcons.Village,
         enemyIconFor(game.enemies['enemy-1,0-0']),
         terrainArtFor(game.tiles['1,0'].terrain),

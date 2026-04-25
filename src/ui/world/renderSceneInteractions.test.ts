@@ -197,6 +197,52 @@ describe('renderScene interactions', () => {
     expect(territoryBorders).toHaveLength(5);
   });
 
+  it('does not render the old loot pickup border around player tile', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-no-green-loot-border');
+    const playerCoord = game.player.coord;
+    game.tiles[`${playerCoord.q},${playerCoord.r}`] = {
+      ...game.tiles['0,0'],
+      items: [
+        {
+          id: 'loot-gold',
+          name: 'Gold',
+          quantity: 1,
+          tier: 1,
+          rarity: 'common',
+          power: 0,
+          defense: 0,
+          maxHp: 0,
+          healing: 0,
+          hunger: 0,
+        },
+      ],
+      enemyIds: [],
+    };
+    const app = createMockApp();
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    const worldDescendants = collectDescendants(getWorld(app));
+    const greenLootBorders = worldDescendants.filter(
+      (child) =>
+        child instanceof MockGraphics &&
+        child.lineStyle.mock.calls.some(
+          ([width, color, alpha]) =>
+            width === 3 && color === 0x22c55e && alpha === 0.95,
+        ),
+    );
+
+    expect(greenLootBorders).toHaveLength(0);
+  });
+
   it('highlights each hovered safe-path hex on the interaction layer', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(3, 'render-scene-safe-path');

@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import { pickBloodMoonItemKind, pickWorldGeneratedItemKind } from './config';
 import { resolveLootOutcomeRoll } from './world';
+import { buildRegularTile } from './worldTileGeneration';
+import { pickTerrain } from './worldTerrain';
 
 describe('world loot roll mapping', () => {
   it('maps world-generated item kinds to equal random buckets', () => {
@@ -22,5 +24,21 @@ describe('world loot roll mapping', () => {
   it('inverts loot rolls into deterministic outcome rolls', () => {
     expect(resolveLootOutcomeRoll(0.01)).toBeCloseTo(0.99);
     expect(resolveLootOutcomeRoll(0.35)).toBeCloseTo(0.65);
+  });
+
+  it('builds tiles with no loot by default', () => {
+    const seed = 'passive-loot-gone';
+    const coords = [
+      { q: 0, r: 0 },
+      { q: 1, r: -2 },
+      { q: -3, r: 4 },
+      { q: 7, r: -5 },
+    ];
+
+    for (const coord of coords) {
+      const terrain = pickTerrain(seed, coord);
+      const tile = buildRegularTile(seed, coord, terrain);
+      expect(tile.items).toEqual([]);
+    }
   });
 });

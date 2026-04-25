@@ -56,8 +56,5 @@ export function renderInteractionTile({
   ) {
     const outline = takeGraphics(scene.worldInteractionGraphics);
     outline.poly(poly).stroke({ width: 3, color: 0xf8fafc, alpha: 0.65 });
-  } else if (tile.items.length > 0 && isPlayerTile) {
-    const lootBorder = takeGraphics(scene.worldInteractionGraphics);
-    lootBorder.poly(poly).stroke({ width: 3, color: 0x22c55e, alpha: 0.95 });
   }
 }
