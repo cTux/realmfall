@@ -36,3 +36,5 @@
 - Keep pull-request validation split into independent jobs when that meaningfully reduces wall-clock feedback time, and align each job with the narrowest local command set such as `pnpm test:node`, `pnpm test:jsdom`, or `pnpm build:budget:strict`.
 - Keep documentation-only pull requests off the runtime CI path when the diff cannot affect shipped code, toolchain behavior, or workflow execution.
 - Before a workflow uses `git push --force-with-lease` against a reusable branch, fetch the matching remote branch into a local remote-tracking ref inside the job so the lease checks current remote state instead of stale or missing ref data.
+- Non-draft same-repository PRs targeting the repository default branch can auto-resolve package.json version conflicts through the `auto-rebase-package-json` workflow job.
+- Pushes to the repository default branch run an automated Pages deployment job that installs dependencies and executes `pnpm git:deploy` for publishing.
