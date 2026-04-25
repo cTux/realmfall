@@ -186,6 +186,30 @@ describe('ui recipe book window surfaces', () => {
     await ui.unmount();
   });
 
+  it('shows available craft count next to craft action', async () => {
+    const ui = await mountRecipeBook({
+      currentStructure: 'workshop',
+      inventoryCountsByItemKey: { iron: 4 },
+      recipes: [
+        createRecipe({
+          id: 'craft-iron-shield',
+          name: 'Iron Shield',
+          learned: true,
+          ingredients: [{ itemKey: 'iron', name: 'Iron', quantity: 2 }],
+        }),
+      ],
+    });
+
+    const craftButton = Array.from(ui.host.querySelectorAll('button')).find(
+      (button) => button.textContent === 'Craft',
+    );
+    const craftCount = craftButton?.parentElement?.querySelector('span')?.textContent;
+
+    expect(craftCount).toBe('x2');
+
+    await ui.unmount();
+  });
+
   it('shows blocked craft reasons when a learned recipe action button is disabled', async () => {
     const hoverDetail = vi.fn();
     const leaveDetail = vi.fn();
@@ -416,6 +440,25 @@ describe('ui recipe book window surfaces', () => {
     expect(starButton?.querySelector('span')?.getAttribute('style')).toContain(
       'background-color: rgb(245, 158, 11);',
     );
+    await ui.unmount();
+  });
+
+  it('shows available craft count for enabled recipes', async () => {
+    const ui = await mountRecipeBook({
+      currentStructure: 'workshop',
+      inventoryCountsByItemKey: { iron: 4 },
+      recipes: [
+        createRecipe({
+          id: 'craft-iron-shield',
+          name: 'Iron Shield',
+          learned: true,
+          ingredients: [{ itemKey: 'iron', name: 'Iron', quantity: 2 }],
+        }),
+      ],
+    });
+
+    expect(ui.host.textContent).toContain('x2');
+
     await ui.unmount();
   });
 });

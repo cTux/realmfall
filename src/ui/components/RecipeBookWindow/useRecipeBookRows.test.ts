@@ -29,6 +29,7 @@ describe('buildRecipeBookRows', () => {
     expect(rows[0]).toMatchObject({
       actionLabel: 'Craft',
       canCraft: true,
+      craftCount: 1,
       recipe: craftableRecipe,
       requiredStructureLabel: 'Workshop',
       tintOverride: '#f8fafc',
@@ -126,5 +127,43 @@ describe('buildRecipeBookRows', () => {
       canCraft: true,
       requiredStructureLabel: 'By hand',
     });
+  });
+
+  it('computes craft availability count for batch crafting', () => {
+    const rows = buildRecipeBookRows({
+      currentStructure: 'workshop',
+      inventoryCountsByItemKey: { iron: 4 },
+      recipeSkillLevels: DEFAULT_RECIPE_SKILL_LEVELS,
+      recipes: [
+        createRecipe({
+          id: 'craft-charm',
+          name: 'Charm',
+          learned: true,
+          ingredients: [{ itemKey: 'iron', name: 'Iron', quantity: 2 }],
+        }),
+      ],
+      visibleRecipeCount: 40,
+    });
+
+    expect(rows[0]?.craftCount).toBe(2);
+  });
+
+  it('does not loop when a recipe has no consumable inputs', () => {
+    const rows = buildRecipeBookRows({
+      currentStructure: 'workshop',
+      inventoryCountsByItemKey: {},
+      recipeSkillLevels: DEFAULT_RECIPE_SKILL_LEVELS,
+      recipes: [
+        createRecipe({
+          id: 'craft-mythic-shield',
+          name: 'Mythic Shield',
+          ingredients: [],
+        }),
+      ],
+      visibleRecipeCount: 40,
+    });
+
+    expect(rows[0]?.canCraft).toBe(true);
+    expect(rows[0]?.craftCount).toBe(0);
   });
 });

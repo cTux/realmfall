@@ -150,6 +150,18 @@
   gap: 0.35rem;
 }
 
+.actionButtonRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.craftCount {
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
 .favoriteButton {
   display: grid;
   place-items: center;

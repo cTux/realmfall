@@ -155,6 +155,7 @@ export function RecipeBookWindowContent({
                 ({
                   actionLabel,
                   canCraft,
+                  craftCount,
                   recipe,
                   recipeOutput,
                   requiredStructureLabel,
@@ -225,37 +226,42 @@ export function RecipeBookWindowContent({
                     <div className={styles.actions}>
                       {recipe.learned ? (
                         canCraft ? (
-                          <button
-                            type="button"
-                            onClick={(event) =>
-                              onCraft(recipe.id, getRecipeCraftCount(event))
-                            }
-                            onMouseEnter={(event) =>
-                              onHoverDetail?.(
-                                event,
-                                t('ui.recipeBook.tooltip.batchCraftTitle'),
-                                [
-                                  {
-                                    kind: 'text',
-                                    text: t(
-                                      'ui.recipeBook.tooltip.batchCraftShift',
-                                    ),
-                                  },
-                                  {
-                                    kind: 'text',
-                                    text: t(
-                                      'ui.recipeBook.tooltip.batchCraftCtrl',
-                                    ),
-                                  },
-                                ],
-                              )
-                            }
-                            onMouseLeave={
-                              onHoverDetail ? onLeaveDetail : undefined
-                            }
-                          >
-                            {actionLabel}
-                          </button>
+                          <span className={styles.actionButtonRow}>
+                            <span
+                              className={styles.craftCount}
+                            >{`x${craftCount}`}</span>
+                            <button
+                              type="button"
+                              onClick={(event) =>
+                                onCraft(recipe.id, getRecipeCraftCount(event))
+                              }
+                              onMouseEnter={(event) =>
+                                onHoverDetail?.(
+                                  event,
+                                  t('ui.recipeBook.tooltip.batchCraftTitle'),
+                                  [
+                                    {
+                                      kind: 'text',
+                                      text: t(
+                                        'ui.recipeBook.tooltip.batchCraftShift',
+                                      ),
+                                    },
+                                    {
+                                      kind: 'text',
+                                      text: t(
+                                        'ui.recipeBook.tooltip.batchCraftCtrl',
+                                      ),
+                                    },
+                                  ],
+                                )
+                              }
+                              onMouseLeave={
+                                onHoverDetail ? onLeaveDetail : undefined
+                              }
+                            >
+                              {actionLabel}
+                            </button>
+                          </span>
                         ) : (
                           <span
                             onMouseEnter={(event) =>
