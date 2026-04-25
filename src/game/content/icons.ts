@@ -19,7 +19,7 @@ import animalHideIcon from '../../assets/icons/animal-hide.svg';
 import boarIcon from '../../assets/icons/boar.svg';
 import stonePileIcon from '../../assets/icons/stone-pile.svg';
 import axeInStumpIcon from '../../assets/icons/axe-in-stump.svg';
-import coinsIcon from '../../assets/icons/coins.svg';
+const coinsIcon = `${import.meta.env.BASE_URL}assets/icons/coins.svg`;
 import herbsBundleIcon from '../../assets/icons/herbs-bundle.svg';
 import beetIcon from '../../assets/icons/beet.svg';
 import bellPepperIcon from '../../assets/icons/bell-pepper.svg';
