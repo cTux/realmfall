@@ -142,7 +142,11 @@ export function AppShell({
             />
           ) : null}
           <Suspense fallback={null}>
-            <VersionStatusPanel onRefresh={() => window.location.reload()} />
+            <VersionStatusPanel
+              onRefresh={() => window.location.reload()}
+              onHoverDetail={windowsProps.actions.tooltip.onShowTooltip}
+              onLeaveDetail={windowsProps.actions.tooltip.onCloseTooltip}
+            />
           </Suspense>
         </div>
         {isReady ? null : (
