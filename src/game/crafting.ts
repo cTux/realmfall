@@ -120,17 +120,18 @@ export function learnRecipe(
 
 export function toggleFavoriteRecipe(state: GameState, recipeId: string) {
   const recipe = RECIPE_BOOK_RECIPES.find((entry) => entry.id === recipeId);
-  if (!recipe) return;
-  if (!state.player.learnedRecipeIds.includes(recipe.id)) return;
+  if (!recipe) return state;
+  if (!state.player.learnedRecipeIds.includes(recipe.id)) return state;
 
   const index = state.player.favoriteRecipeIds.indexOf(recipe.id);
   if (index >= 0) {
     state.player.favoriteRecipeIds.splice(index, 1);
-    return;
+    return state;
   }
 
   state.player.favoriteRecipeIds.push(recipe.id);
   state.player.favoriteRecipeIds.sort();
+  return state;
 }
 
 export function describeRequirement(requirement: RecipeRequirement) {

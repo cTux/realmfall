@@ -5,7 +5,7 @@ import {
   type SetStateAction,
 } from 'react';
 import { t } from '../../../i18n';
-import { toggleFavoriteRecipe } from '../../../game/state';
+import { toggleFavoriteRecipe } from '../../../game/crafting';
 import { craftRecipe } from '../../../game/stateCrafting';
 import { forfeitCombat, startCombat } from '../../../game/stateCombat';
 import {

@@ -20,6 +20,7 @@ type FactionNpcHealStatusState = Pick<GameState, 'tiles' | 'seed'> & {
     | 'baseMaxMana'
     | 'hunger'
     | 'level'
+    | 'favoriteRecipeIds'
     | 'learnedRecipeIds'
     | 'mana'
     | 'masteryLevel'

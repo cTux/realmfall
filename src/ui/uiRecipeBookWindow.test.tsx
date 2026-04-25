@@ -331,7 +331,7 @@ describe('ui recipe book window surfaces', () => {
     expect(starButton).toBeTruthy();
     expect(starButton?.querySelector('span')).toBeTruthy();
     expect(starButton?.querySelector('span')?.getAttribute('style')).toContain(
-      'background-color: #94a3b8;',
+      'background-color: rgb(148, 163, 184);',
     );
     expect(starButton?.hasAttribute('disabled')).toBe(false);
 
