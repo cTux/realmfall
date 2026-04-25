@@ -78,7 +78,7 @@ export function buildRegularTile(
     factionClaim ?? undefined,
     territoryNpcEnemyId,
   );
-  const items = [];
+  const items: Tile['items'] = [];
 
   return {
     coord,
