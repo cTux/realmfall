@@ -4,6 +4,9 @@ on:
   schedule:
     - cron: '59 5 * * *'
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: write
   pull-requests: write
