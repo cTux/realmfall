@@ -19,6 +19,7 @@
 - When a requested CSS or SCSS syntax preference can be enforced mechanically, prefer enabling or adjusting the corresponding Stylelint rule instead of relying only on contributor discipline.
 - When a requested commit message format changes, update the Commitlint configuration in the same task when the repository can enforce that convention automatically.
 - Auto-bump the `package.json` patch version for routine commits through the shared commit-version bump script. Keep the bump guarded so it never stages unrelated unstaged `package.json` edits, and keep contributor guidance aligned with the helper script and Husky hook.
+- Do not use `&&` when composing PowerShell command chains for commit workflows; use `;` or separate commands because PowerShell does not treat `&&` as a command separator.
 - Preserve existing behavior unless the task explicitly changes behavior.
 - Favor existing project patterns over introducing new abstractions, state layers, or architectural styles without a clear need.
 - Keep documentation grounded in the current shipped behavior and known constraints, not aspirational plans.

@@ -32,7 +32,7 @@ export function useUiAudioController(
         window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
     tiks.setTheme(nextSettings.theme);
-    tiks.setVolume(nextSettings.volume);
+    tiks.setVolume(nextSettings.uiVolume);
     if (shouldMute) {
       tiks.mute();
     } else {
