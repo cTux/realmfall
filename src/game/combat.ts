@@ -13,12 +13,12 @@ import {
   isAnimalEnemyType,
   pickEnemyConfig,
 } from './content/enemies';
+import type { EnemyTypeKey } from './content/ids';
 import { GAME_TAGS, uniqueTags } from './content/tags';
 import type {
   AbilityId,
   CombatActorState,
   EnemyRarity,
-  EnemyTypeKey,
   Enemy,
   StructureType,
   Terrain,
@@ -129,11 +129,11 @@ export function makeEnemy(
   const config = worldBoss
     ? pickEnemyConfig(terrain, roll, false, true)
     : options?.enemyTypeId
-      ? getEnemyConfig(options.enemyTypeId) ??
-        pickEnemyConfig(terrain, roll, structure === 'dungeon')
+      ? (getEnemyConfig(options.enemyTypeId) ??
+        pickEnemyConfig(terrain, roll, structure === 'dungeon'))
       : pickEnemyConfig(terrain, roll, structure === 'dungeon');
   const rarity = options?.enemyTypeId
-    ? options.rarity ?? 'common'
+    ? (options.rarity ?? 'common')
     : worldBoss
       ? 'legendary'
       : resolveEnemyRarity(
