@@ -311,4 +311,113 @@ describe('ui recipe book window surfaces', () => {
 
     await ui.unmount();
   });
+
+  it('shows an outlined star for non-favorite learned recipes', async () => {
+    const ui = await mountRecipeBook({
+      recipes: [
+        createRecipe({
+          id: 'craft-town-knife',
+          name: 'Town Knife',
+          favorite: false,
+        }),
+      ],
+    });
+
+    const starButton = Array.from(ui.host.querySelectorAll('button')).find(
+      (button) =>
+        button.getAttribute('aria-label') === 'Favorite recipe: Town Knife',
+    );
+
+    expect(starButton).toBeTruthy();
+    expect(starButton?.querySelector('span')).toBeTruthy();
+    expect(starButton?.querySelector('span')?.getAttribute('style')).toContain(
+      'background-color: #94a3b8;',
+    );
+    expect(starButton?.hasAttribute('disabled')).toBe(false);
+
+    await ui.unmount();
+  });
+
+  it('shows a filled star and toggles favorite recipe state on click', async () => {
+    const onToggleFavoriteRecipe = vi.fn();
+    const ui = await mountRecipeBook({
+      recipes: [
+        createRecipe({
+          id: 'craft-town-knife',
+          name: 'Town Knife',
+          favorite: false,
+        }),
+      ],
+      onToggleFavoriteRecipe,
+    });
+
+    const starButton = Array.from(ui.host.querySelectorAll('button')).find(
+      (button) =>
+        button.getAttribute('aria-label') === 'Favorite recipe: Town Knife',
+    );
+
+    expect(starButton).toBeTruthy();
+
+    await act(async () => {
+      starButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    expect(onToggleFavoriteRecipe).toHaveBeenCalledWith('craft-town-knife');
+    await ui.unmount();
+  });
+
+  it('disables the favorite star for missing recipes', async () => {
+    const onToggleFavoriteRecipe = vi.fn();
+    const ui = await mountRecipeBook({
+      recipes: [
+        createRecipe({
+          id: 'missing-camp-knife',
+          name: 'Missing Knife',
+          learned: false,
+          favorite: false,
+        }),
+      ],
+      onToggleFavoriteRecipe,
+    });
+
+    const starButton = Array.from(ui.host.querySelectorAll('button')).find(
+      (button) =>
+        button.getAttribute('aria-label') === 'Favorite recipe: Missing Knife',
+    );
+
+    expect(starButton?.hasAttribute('disabled')).toBe(true);
+
+    await act(async () => {
+      starButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    expect(onToggleFavoriteRecipe).not.toHaveBeenCalled();
+    await ui.unmount();
+  });
+
+  it('shows a filled star for already-favorite recipes', async () => {
+    const ui = await mountRecipeBook({
+      recipes: [
+        createRecipe({
+          id: 'craft-town-knife',
+          name: 'Town Knife',
+          favorite: true,
+        }),
+      ],
+    });
+
+    const starButton = Array.from(ui.host.querySelectorAll('button')).find(
+      (button) =>
+        button.getAttribute('aria-label') === 'Unfavorite recipe: Town Knife',
+    );
+
+    expect(starButton).toBeTruthy();
+    expect(starButton?.querySelector('span')).toBeTruthy();
+    expect(starButton?.querySelector('span')?.getAttribute('style')).toContain(
+      'background-color: rgb(245, 158, 11);',
+    );
+    await ui.unmount();
+  });
 });
+
+

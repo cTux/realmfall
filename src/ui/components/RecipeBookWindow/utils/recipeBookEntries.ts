@@ -34,6 +34,9 @@ export function compareRecipeBookEntries(
   right: RecipeBookEntry,
   context: RecipeBookEntryContext,
 ) {
+  if (left.favorite !== right.favorite) {
+    return Number(right.favorite) - Number(left.favorite);
+  }
   const leftCanCraft = canCraftRecipeEntry(left, context);
   const rightCanCraft = canCraftRecipeEntry(right, context);
 

@@ -94,6 +94,7 @@ export interface HexActions {
 export interface RecipesActions {
   onOpenWithMaterialFilter: (itemKey: string) => void;
   onClearMaterialFilter: () => void;
+  onToggleFavoriteRecipe: (recipeId: string) => void;
 }
 
 export interface LogActions {

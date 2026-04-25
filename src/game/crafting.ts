@@ -37,10 +37,14 @@ export function getRecipeBookRecipes(
 export function getRecipeBookEntries(
   recipes: RecipeDefinition[],
   learnedRecipeIds: string[],
+  favoriteRecipeIds: string[] = [],
 ): RecipeBookEntry[] {
   return recipes.map((recipe) => ({
     ...recipe,
     learned: learnedRecipeIds.includes(recipe.id),
+    favorite:
+      learnedRecipeIds.includes(recipe.id) &&
+      favoriteRecipeIds.includes(recipe.id),
     output: { ...recipe.output },
     ingredients: recipe.ingredients.map((ingredient) => ({ ...ingredient })),
     fuelOptions: recipe.fuelOptions?.map((option) => ({ ...option })),
@@ -112,6 +116,21 @@ export function learnRecipe(
     'system',
     t('game.crafting.learnRecipe', { recipe: recipe.name }),
   );
+}
+
+export function toggleFavoriteRecipe(state: GameState, recipeId: string) {
+  const recipe = RECIPE_BOOK_RECIPES.find((entry) => entry.id === recipeId);
+  if (!recipe) return;
+  if (!state.player.learnedRecipeIds.includes(recipe.id)) return;
+
+  const index = state.player.favoriteRecipeIds.indexOf(recipe.id);
+  if (index >= 0) {
+    state.player.favoriteRecipeIds.splice(index, 1);
+    return;
+  }
+
+  state.player.favoriteRecipeIds.push(recipe.id);
+  state.player.favoriteRecipeIds.sort();
 }
 
 export function describeRequirement(requirement: RecipeRequirement) {

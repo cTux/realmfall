@@ -10,6 +10,7 @@ import { recipeUsesItemKey } from '../../../game/crafting';
 import { Skill } from '../../../game/types';
 import { t } from '../../../i18n';
 import { formatSkillLabel } from '../../../i18n/labels';
+import roundStarIcon from '../../../assets/icons/round-star.svg';
 import { ItemSlotButton } from '../ItemSlotButton/ItemSlotButton';
 import type { RecipeBookWindowProps } from './types';
 import { compareRecipeBookEntries } from './utils/recipeBookEntries';
@@ -34,6 +35,7 @@ type RecipeBookWindowContentProps = Pick<
   | 'materialFilterItemKey'
   | 'onResetMaterialFilter'
   | 'onCraft'
+  | 'onToggleFavoriteRecipe'
   | 'onHoverDetail'
   | 'onLeaveDetail'
 >;
@@ -47,6 +49,7 @@ export function RecipeBookWindowContent({
   materialFilterItemKey,
   onResetMaterialFilter,
   onCraft,
+  onToggleFavoriteRecipe,
   onHoverDetail,
   onLeaveDetail,
 }: RecipeBookWindowContentProps) {
@@ -219,39 +222,58 @@ export function RecipeBookWindowContent({
                         })}
                       </div>
                     </div>
-                    {recipe.learned ? (
-                      canCraft ? (
-                        <button
-                          type="button"
-                          onClick={(event) =>
-                            onCraft(recipe.id, getRecipeCraftCount(event))
-                          }
-                          onMouseEnter={(event) =>
-                            onHoverDetail?.(
-                              event,
-                              t('ui.recipeBook.tooltip.batchCraftTitle'),
-                              [
-                                {
-                                  kind: 'text',
-                                  text: t(
-                                    'ui.recipeBook.tooltip.batchCraftShift',
-                                  ),
-                                },
-                                {
-                                  kind: 'text',
-                                  text: t(
-                                    'ui.recipeBook.tooltip.batchCraftCtrl',
-                                  ),
-                                },
-                              ],
-                            )
-                          }
-                          onMouseLeave={
-                            onHoverDetail ? onLeaveDetail : undefined
-                          }
-                        >
-                          {actionLabel}
-                        </button>
+                    <div className={styles.actions}>
+                      {recipe.learned ? (
+                        canCraft ? (
+                          <button
+                            type="button"
+                            onClick={(event) =>
+                              onCraft(recipe.id, getRecipeCraftCount(event))
+                            }
+                            onMouseEnter={(event) =>
+                              onHoverDetail?.(
+                                event,
+                                t('ui.recipeBook.tooltip.batchCraftTitle'),
+                                [
+                                  {
+                                    kind: 'text',
+                                    text: t(
+                                      'ui.recipeBook.tooltip.batchCraftShift',
+                                    ),
+                                  },
+                                  {
+                                    kind: 'text',
+                                    text: t(
+                                      'ui.recipeBook.tooltip.batchCraftCtrl',
+                                    ),
+                                  },
+                                ],
+                              )
+                            }
+                            onMouseLeave={
+                              onHoverDetail ? onLeaveDetail : undefined
+                            }
+                          >
+                            {actionLabel}
+                          </button>
+                        ) : (
+                          <span
+                            onMouseEnter={(event) =>
+                              onHoverDetail?.(
+                                event,
+                                recipe.name,
+                                tooltipLines ?? [],
+                              )
+                            }
+                            onMouseLeave={
+                              onHoverDetail ? onLeaveDetail : undefined
+                            }
+                          >
+                            <button type="button" disabled={!canCraft}>
+                              {actionLabel}
+                            </button>
+                          </span>
+                        )
                       ) : (
                         <span
                           onMouseEnter={(event) =>
@@ -259,34 +281,53 @@ export function RecipeBookWindowContent({
                               event,
                               recipe.name,
                               tooltipLines ?? [],
+                              tintOverride,
                             )
                           }
-                          onMouseLeave={
-                            onHoverDetail ? onLeaveDetail : undefined
-                          }
+                          onMouseLeave={onHoverDetail ? onLeaveDetail : undefined}
                         >
-                          <button type="button" disabled={!canCraft}>
+                          <button type="button" disabled={!recipe.learned}>
                             {actionLabel}
                           </button>
                         </span>
-                      )
-                    ) : (
-                      <span
+                      )}
+                      <button
+                        type="button"
+                        className={styles.favoriteButton}
+                        onClick={() => onToggleFavoriteRecipe(recipe.id)}
                         onMouseEnter={(event) =>
                           onHoverDetail?.(
                             event,
-                            recipe.name,
-                            tooltipLines ?? [],
-                            tintOverride,
+                            recipe.favorite
+                              ? t('ui.recipeBook.favoriteAction.unfavoriteLabel')
+                              : t('ui.recipeBook.favoriteAction.favoriteLabel'),
+                            [
+                              {
+                                kind: 'text',
+                                text: recipe.favorite
+                                  ? t('ui.recipeBook.favoriteAction.unfavoriteHint')
+                                  : t('ui.recipeBook.favoriteAction.favoriteHint'),
+                              },
+                            ],
                           )
                         }
                         onMouseLeave={onHoverDetail ? onLeaveDetail : undefined}
+                        aria-label={`${recipe.favorite ? t('ui.recipeBook.favoriteAction.unfavoriteLabel') : t('ui.recipeBook.favoriteAction.favoriteLabel')}: ${recipe.name}`}
+                        aria-pressed={recipe.favorite}
+                        disabled={!recipe.learned}
                       >
-                        <button type="button" disabled={!recipe.learned}>
-                          {actionLabel}
-                        </button>
-                      </span>
-                    )}
+                          <span
+                          aria-hidden="true"
+                          className={styles.favoriteIcon}
+                          style={starIconMask(
+                            roundStarIcon,
+                            recipe.favorite
+                              ? '#f59e0b'
+                              : '#94a3b8',
+                          )}
+                        />
+                      </button>
+                    </div>
                   </div>
                 ),
               )}
@@ -338,3 +379,14 @@ export function getRecipeCraftCount(event: ReactMouseEvent<HTMLButtonElement>) {
   if (event.shiftKey) return 5;
   return 1;
 }
+
+function starIconMask(icon: string, color: string) {
+  const mask = `url("${icon}") center / contain no-repeat`;
+  return {
+    backgroundColor: color,
+    WebkitMask: mask,
+    mask,
+  };
+}
+
+

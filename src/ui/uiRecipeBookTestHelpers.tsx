@@ -33,6 +33,7 @@ const defaultRecipeBookProps = {
   materialFilterItemKey: null,
   onResetMaterialFilter: () => {},
   onCraft: () => {},
+  onToggleFavoriteRecipe: () => {},
 } satisfies RecipeBookWindowProps;
 
 export function createRecipe(overrides: RecipeOverride = {}): RecipeBookRecipe {
@@ -42,6 +43,7 @@ export function createRecipe(overrides: RecipeOverride = {}): RecipeBookRecipe {
     description: 'Workshop recipe',
     skill: Skill.Crafting,
     learned: true,
+    favorite: false,
     output: {
       id: 'crafted-town-knife',
       itemKey: 'town-knife',

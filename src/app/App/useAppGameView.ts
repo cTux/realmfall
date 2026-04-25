@@ -41,6 +41,7 @@ export function useAppGameView({
   worldDayIndex,
 }: UseAppGameViewOptions) {
   const { inventory, learnedRecipeIds, skills } = player;
+  const { favoriteRecipeIds } = player;
   const hexGameplay = useHexGameplayView({
     bloodMoonActive,
     combat,
@@ -56,8 +57,8 @@ export function useAppGameView({
   });
   const heroOverview = useMemo(() => getPlayerOverview(player), [player]);
   const recipes = useMemo(
-    () => getRecipeBookEntries(learnedRecipeIds),
-    [learnedRecipeIds],
+    () => getRecipeBookEntries(learnedRecipeIds, favoriteRecipeIds),
+    [learnedRecipeIds, favoriteRecipeIds],
   );
   const recipeSkillLevels = useMemo(
     () => createSkillRecord((skill) => skills[skill].level),

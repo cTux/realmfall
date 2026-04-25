@@ -53,6 +53,7 @@ export function createGame(
       baseDefense: baseStats.defense,
       skills: makeStartingSkills(),
       learnedRecipeIds: [...STARTING_RECIPE_IDS],
+      favoriteRecipeIds: [],
       statusEffects: [],
       consumableCooldownEndsAt: 0,
       inventory: [

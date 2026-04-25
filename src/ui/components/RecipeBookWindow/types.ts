@@ -12,4 +12,5 @@ export interface RecipeBookWindowProps
   materialFilterItemKey: string | null;
   onResetMaterialFilter: () => void;
   onCraft: (recipeId: string, count?: number | 'max') => void;
+  onToggleFavoriteRecipe: (recipeId: string) => void;
 }

@@ -114,6 +114,7 @@ function copyPlayer(player: Player): Player {
     ...player,
     coord: { ...player.coord },
     learnedRecipeIds: [...player.learnedRecipeIds],
+    favoriteRecipeIds: [...player.favoriteRecipeIds],
     skills: Object.fromEntries(
       Object.entries(player.skills).map(([key, value]) => [key, { ...value }]),
     ) as Player['skills'],

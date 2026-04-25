@@ -25,10 +25,11 @@ const meta = {
     materialFilterItemKey: null,
     onResetMaterialFilter: noop,
     onCraft: noop,
+    onToggleFavoriteRecipe: noop,
   },
   parameters: {
     controls: {
-      exclude: ['onMove', 'onClose', 'onCraft'],
+      exclude: ['onMove', 'onClose', 'onCraft', 'onToggleFavoriteRecipe'],
     },
   },
 } satisfies Meta<typeof RecipeBookWindow>;

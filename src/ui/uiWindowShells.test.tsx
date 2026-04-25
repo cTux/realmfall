@@ -104,6 +104,7 @@ describe('ui window shell surfaces', () => {
           onResetMaterialFilter={() => {}}
           onCraft={() => {}}
           onHoverDetail={hoverDetail}
+          onToggleFavoriteRecipe={() => {}}
         />
         <EquipmentWindow
           position={DEFAULT_WINDOWS.equipment}
