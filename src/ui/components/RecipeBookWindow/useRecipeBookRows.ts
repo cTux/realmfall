@@ -81,6 +81,14 @@ export function buildRecipeBookRows({
       inventoryCountsByItemKey,
     });
     const tintOverride = getRecipeSlotTint(recipe, canCraft);
+    const tooltipLines = recipe.learned
+      ? buildRecipeTooltipLines(
+          recipe,
+          inventoryCountsByItemKey,
+          requiredStructureLabel,
+          atRequiredStructure,
+        )
+      : buildMissingRecipeTooltipLines();
 
     return {
       actionLabel: getRecipeActionLabel(recipe.skill),
@@ -89,14 +97,7 @@ export function buildRecipeBookRows({
       recipeOutput,
       requiredStructureLabel,
       tintOverride,
-      tooltipLines: recipe.learned
-        ? buildRecipeTooltipLines(
-            recipe,
-            inventoryCountsByItemKey,
-            requiredStructureLabel,
-            atRequiredStructure,
-          )
-        : undefined,
+      tooltipLines,
     };
   });
 }
@@ -181,6 +182,16 @@ function buildRecipeTooltipLines(
   ];
 
   return lines;
+}
+
+function buildMissingRecipeTooltipLines() {
+  return [
+    {
+      kind: 'text' as const,
+      tone: 'negative' as const,
+      text: t('ui.recipeBook.tooltip.missing'),
+    },
+  ];
 }
 
 function getRecipeActionLabel(skill: Skill) {

@@ -708,6 +708,7 @@
   "ui.recipeBook.tooltip.fuelRequirement": "Fuel source: {options}",
   "ui.recipeBook.tooltip.fuelMaterialsLabel": "Fuel Materials",
   "ui.recipeBook.tooltip.fuelOneOfHint": "Use one of these fuel materials.",
+  "ui.recipeBook.tooltip.missing": "This recipe is missing and requires to be looted first.",
   "ui.recipeBook.tooltip.materialsLabel": "Materials",
   "ui.recipeBook.tooltip.fuelLabel": "Fuel",
   "ui.recipeBook.tooltip.siteLabel": "Craft at",
