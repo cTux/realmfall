@@ -55,9 +55,11 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Rebase PR and auto-resolve package.json version conflicts
+        id: rebase-pr
         run: node scripts/rebase-master-and-push.mjs
 
       - name: Validate rebased PR branch
+        if: steps.rebase-pr.outputs.run_checks == 'true'
         run: |
           pnpm typecheck
           pnpm lint
