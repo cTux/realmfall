@@ -138,11 +138,11 @@ const SLOT_POSITIONS: Record<PaperDollSlot, { left: number; top: number }> = {
   bracers: { left: 82.25, top: 41 },
   hands: { left: 17.75, top: 41 },
   belt: { left: 50, top: 49.5 },
-  ringLeft: { left: 24.5, top: 55.75 },
+  ringLeft: { left: 75.5, top: 55.75 },
   weapon: { left: 18.25, top: 69.75 },
   legs: { left: 50, top: 64.25 },
   offhand: { left: 81.75, top: 69.75 },
-  ringRight: { left: 75.5, top: 55.75 },
+  ringRight: { left: 24.5, top: 55.75 },
   feet: { left: 50, top: 83.5 },
 };
 
