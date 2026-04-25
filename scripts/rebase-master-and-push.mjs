@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import process from 'node:process';
@@ -14,6 +14,8 @@ import {
 const gitBin = process.platform === 'win32' ? 'git.exe' : 'git';
 const PACKAGE_JSON_PATH = resolve(process.cwd(), 'package.json');
 const REMOTE = 'origin';
+const CI_OUTPUT_PATH = process.env.GITHUB_OUTPUT || '';
+let packageJsonConflictResolvedByScript = false;
 const USAGE = `Usage: pnpm git:rebase-master-and-push [-- --dry-run]
 
 Rebases the current branch onto the default branch from origin/HEAD,
@@ -32,6 +34,14 @@ function fail(message) {
 
 function logStep(message) {
   console.log(`\n> ${message}`);
+}
+
+function setCiOutput(name, value) {
+  if (!CI_OUTPUT_PATH) {
+    return;
+  }
+
+  appendFileSync(CI_OUTPUT_PATH, `${name}=${value}\n`, 'utf8');
 }
 
 function getGitError(result, fallbackMessage) {
@@ -161,6 +171,7 @@ function resolvePackageJsonVersionConflict() {
   writeFileSync(PACKAGE_JSON_PATH, resolvedText, 'utf8');
   runGit(['add', 'package.json']);
   logStep(`Resolved package.json version conflict to ${resolvedVersion}`);
+  packageJsonConflictResolvedByScript = true;
 }
 
 function resolveKnownConflicts(unmergedFiles) {
@@ -172,6 +183,10 @@ function resolveKnownConflicts(unmergedFiles) {
   }
 
   return resolvedFiles;
+}
+
+function outputPostRunFlags(runChecks) {
+  setCiOutput('run_checks', runChecks ? 'true' : 'false');
 }
 
 function continueRebase() {
@@ -269,8 +284,10 @@ if (options.dryRun) {
   }
 
   describePushPlan(branchName, pushPlan);
+  outputPostRunFlags(false);
   process.exit(0);
 }
+let shouldRunChecks = false;
 
 if (!rebaseAlreadyInProgress) {
   ensureCleanWorktree();
@@ -291,6 +308,8 @@ if (!rebaseAlreadyInProgress) {
 
 if (isRebaseInProgress()) {
   continueRebase();
+
+  shouldRunChecks = packageJsonConflictResolvedByScript;
 }
 
 const pushPlan = createPushPlan(
@@ -334,3 +353,4 @@ logStep(
     : `Pushing ${branchName} to ${REMOTE}`,
 );
 runGit(pushPlan.pushArgs, { live: true });
+outputPostRunFlags(shouldRunChecks);

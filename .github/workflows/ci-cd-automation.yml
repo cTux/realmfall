@@ -6,9 +6,11 @@ on:
       - opened
       - reopened
       - synchronize
-  push:
-    branches-ignore:
-      - '**'
+  workflow_run:
+    workflows:
+      - Pull Request
+    types:
+      - completed
 
 permissions:
   contents: read
@@ -53,9 +55,11 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Rebase PR and auto-resolve package.json version conflicts
+        id: rebase-pr
         run: node scripts/rebase-master-and-push.mjs
 
       - name: Validate rebased PR branch
+        if: steps.rebase-pr.outputs.run_checks == 'true'
         run: |
           pnpm typecheck
           pnpm lint
@@ -64,8 +68,9 @@ jobs:
 
   deploy-pages:
     if: |
-      github.event_name == 'push' &&
-      github.ref_name == github.event.repository.default_branch
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == github.event.repository.default_branch
     runs-on: ubuntu-latest
     permissions:
       contents: write
