@@ -307,8 +307,6 @@ if (!rebaseAlreadyInProgress) {
 }
 
 if (isRebaseInProgress()) {
-  let resolvedByScript = false;
-
   continueRebase();
 
   shouldRunChecks = packageJsonConflictResolvedByScript;
