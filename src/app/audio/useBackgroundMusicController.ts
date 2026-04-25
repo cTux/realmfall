@@ -70,27 +70,6 @@ export function useBackgroundMusicController({
       }
     },
   );
-    const nextTrack = getNextBackgroundMusicTrack(
-      nextMood,
-      cycleStateRef.current,
-    );
-    if (!nextTrack) {
-      return;
-    }
-
-    void nextTrack.loadUrl().then((nextTrackUrl) => {
-      activeTrackRef.current = { mood: nextMood, src: nextTrackUrl };
-      load(nextTrackUrl, {
-        autoplay: true,
-        html5: true,
-        initialMute: audioSettings.muted || audioSettings.musicMuted,
-        initialVolume: audioSettings.musicVolume,
-        onend: () => {
-          playNextTrack(moodRef.current);
-        },
-      });
-    });
-  });
 
   const activatePlayback = useEffectEvent(() => {
     if (activatedRef.current) {
