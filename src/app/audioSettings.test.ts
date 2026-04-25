@@ -22,7 +22,9 @@ describe('audio settings persistence', () => {
         swoosh: false,
       },
       theme: 'crisp',
-      volume: 0.6,
+      musicVolume: 0.6,
+      uiVolume: 0.6,
+      voiceVolume: 0.6,
       voice: {
         actorId: 'karen-cenon',
         events: {
@@ -47,7 +49,9 @@ describe('audio settings persistence', () => {
         swoosh: false,
       },
       theme: 'crisp',
-      volume: 0.6,
+      musicVolume: 0.6,
+      uiVolume: 0.6,
+      voiceVolume: 0.6,
       voice: {
         actorId: 'karen-cenon',
         events: {
@@ -86,6 +90,9 @@ describe('audio settings persistence', () => {
         warning: false,
       },
       theme: 'crisp',
+      musicVolume: DEFAULT_AUDIO_SETTINGS.musicVolume,
+      uiVolume: DEFAULT_AUDIO_SETTINGS.uiVolume,
+      voiceVolume: DEFAULT_AUDIO_SETTINGS.voiceVolume,
       voice: {
         actorId: 'sean-lenhart',
         events: {
@@ -93,6 +100,35 @@ describe('audio settings persistence', () => {
           playerDeath: false,
         },
       },
+    });
+  });
+
+  it('migrates legacy master volume to all category volumes', () => {
+    window.localStorage.setItem(
+      PERSISTED_SETTINGS_STORAGE_KEYS.audio,
+      JSON.stringify({
+        muted: false,
+        musicMuted: false,
+        respectReducedMotion: true,
+        soundEffects: {
+          ...DEFAULT_AUDIO_SETTINGS.soundEffects,
+        },
+        theme: 'soft',
+        volume: 0.45,
+        voice: {
+          actorId: DEFAULT_AUDIO_SETTINGS.voice.actorId,
+          events: {
+            ...DEFAULT_AUDIO_SETTINGS.voice.events,
+          },
+        },
+      }),
+    );
+
+    expect(loadAudioSettings()).toEqual({
+      ...DEFAULT_AUDIO_SETTINGS,
+      musicVolume: 0.45,
+      uiVolume: 0.45,
+      voiceVolume: 0.45,
     });
   });
 
@@ -108,7 +144,9 @@ describe('audio settings persistence', () => {
           swoosh: false,
         },
         theme: 'broken',
-        volume: 4,
+        musicVolume: 'loud',
+        uiVolume: 2,
+        voiceVolume: -1,
         voice: {
           actorId: 'broken',
           events: {
@@ -125,7 +163,9 @@ describe('audio settings persistence', () => {
         ...DEFAULT_AUDIO_SETTINGS.soundEffects,
         swoosh: false,
       },
-      volume: 1,
+      musicVolume: DEFAULT_AUDIO_SETTINGS.musicVolume,
+      uiVolume: 1,
+      voiceVolume: 0,
       voice: {
         ...DEFAULT_AUDIO_SETTINGS.voice,
         events: {
@@ -146,7 +186,9 @@ describe('audio settings persistence', () => {
         click: false,
       },
       theme: 'soft',
-      volume: 3,
+      musicVolume: 3,
+      uiVolume: 3,
+      voiceVolume: 3,
       voice: {
         actorId: 'alex-brodie',
         events: {
@@ -170,7 +212,9 @@ describe('audio settings persistence', () => {
         click: false,
       },
       theme: 'soft',
-      volume: 1,
+      musicVolume: 1,
+      uiVolume: 1,
+      voiceVolume: 1,
       voice: {
         actorId: 'alex-brodie',
         events: {
@@ -193,7 +237,9 @@ describe('audio settings persistence', () => {
           error: false,
         },
         theme: 'crisp',
-        volume: 0.6,
+        musicVolume: 0.6,
+        uiVolume: 0.6,
+        voiceVolume: 0.6,
         voice: {
           actorId: 'meghan-christian',
           events: {

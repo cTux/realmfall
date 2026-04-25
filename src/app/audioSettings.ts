@@ -20,8 +20,10 @@ export interface AudioSettings {
   muted: boolean;
   respectReducedMotion: boolean;
   soundEffects: AudioSoundEffectsSettings;
+  musicVolume: number;
+  uiVolume: number;
+  voiceVolume: number;
   theme: ThemeName;
-  volume: number;
   voice: VoiceSettings;
 }
 
@@ -67,6 +69,12 @@ export interface AudioVoiceEventOptionDefinition {
   descriptionKey: string;
 }
 
+export interface AudioSettingsVolumeOptionDefinition {
+  key: 'musicVolume' | 'uiVolume' | 'voiceVolume';
+  labelKey: string;
+  descriptionKey: string;
+}
+
 export const DEFAULT_AUDIO_SOUND_EFFECTS: AudioSoundEffectsSettings = {
   click: true,
   error: true,
@@ -92,8 +100,10 @@ export const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
   muted: false,
   respectReducedMotion: true,
   soundEffects: DEFAULT_AUDIO_SOUND_EFFECTS,
+  musicVolume: 0.3,
+  uiVolume: 0.3,
+  voiceVolume: 0.3,
   theme: 'soft',
-  volume: 0.3,
   voice: {
     actorId: VOICE_ACTOR_OPTIONS[0]!.id,
     events: DEFAULT_VOICE_EVENT_SETTINGS,
@@ -185,6 +195,25 @@ export const AUDIO_SETTINGS_SOUND_EFFECT_OPTIONS: AudioSettingsSoundEffectOption
     },
   ];
 
+export const AUDIO_SETTINGS_VOLUME_OPTIONS: AudioSettingsVolumeOptionDefinition[] =
+  [
+    {
+      key: 'musicVolume',
+      labelKey: 'ui.settings.audio.musicVolume.label',
+      descriptionKey: 'ui.settings.audio.musicVolume.description',
+    },
+    {
+      key: 'uiVolume',
+      labelKey: 'ui.settings.audio.uiVolume.label',
+      descriptionKey: 'ui.settings.audio.uiVolume.description',
+    },
+    {
+      key: 'voiceVolume',
+      labelKey: 'ui.settings.audio.voiceVolume.label',
+      descriptionKey: 'ui.settings.audio.voiceVolume.description',
+    },
+  ];
+
 export const AUDIO_SETTINGS_VOICE_EVENT_OPTIONS: AudioVoiceEventOptionDefinition[] =
   VOICE_PLAYBACK_EVENT_OPTIONS.map((option) => ({
     key: option.key,
@@ -223,10 +252,31 @@ function normalizeAudioSettings(settings: unknown): AudioSettings {
     theme: isThemeName(settings.theme)
       ? settings.theme
       : DEFAULT_AUDIO_SETTINGS.theme,
-    volume: clampVolume(
+    musicVolume: clampVolume(
       normalizeStoredFiniteNumber(
-        settings.volume,
-        DEFAULT_AUDIO_SETTINGS.volume,
+        (settings as Record<string, unknown>).musicVolume,
+        normalizeStoredFiniteNumber(
+          (settings as Record<string, unknown>).volume,
+          DEFAULT_AUDIO_SETTINGS.musicVolume,
+        ),
+      ),
+    ),
+    uiVolume: clampVolume(
+      normalizeStoredFiniteNumber(
+        (settings as Record<string, unknown>).uiVolume,
+        normalizeStoredFiniteNumber(
+          (settings as Record<string, unknown>).volume,
+          DEFAULT_AUDIO_SETTINGS.uiVolume,
+        ),
+      ),
+    ),
+    voiceVolume: clampVolume(
+      normalizeStoredFiniteNumber(
+        (settings as Record<string, unknown>).voiceVolume,
+        normalizeStoredFiniteNumber(
+          (settings as Record<string, unknown>).volume,
+          DEFAULT_AUDIO_SETTINGS.voiceVolume,
+        ),
       ),
     ),
     voice: normalizeVoiceSettings(settings.voice),

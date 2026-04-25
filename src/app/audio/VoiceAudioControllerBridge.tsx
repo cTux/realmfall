@@ -19,7 +19,7 @@ export function VoiceAudioControllerBridge({
   audioSettings,
   voicePlaybackState,
 }: VoiceAudioControllerBridgeProps) {
-  const { muted, respectReducedMotion, volume } = audioSettings;
+  const { muted, respectReducedMotion, voiceVolume } = audioSettings;
   const activatedRef = useRef(false);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
   const previousVoicePlaybackStateRef = useRef(voicePlaybackState);
@@ -92,9 +92,9 @@ export function VoiceAudioControllerBridge({
     }
 
     if (currentAudioRef.current) {
-      currentAudioRef.current.volume = volume;
+      currentAudioRef.current.volume = voiceVolume;
     }
-  }, [muted, respectReducedMotion, volume]);
+  }, [muted, respectReducedMotion, voiceVolume]);
 
   useEffect(() => {
     const previousVoicePlaybackState = previousVoicePlaybackStateRef.current;
@@ -153,7 +153,7 @@ export function VoiceAudioControllerBridge({
 
       const audio = new Audio(clipUrl);
       audio.preload = 'auto';
-      audio.volume = volume;
+      audio.volume = voiceVolume;
       currentAudioRef.current = audio;
       lastPlaybackRef.current = {
         eventKey: playbackEventKey,
@@ -166,7 +166,13 @@ export function VoiceAudioControllerBridge({
         }
       });
     });
-  }, [audioSettings, muted, respectReducedMotion, voicePlaybackState, volume]);
+  }, [
+    audioSettings,
+    muted,
+    respectReducedMotion,
+    voicePlaybackState,
+    voiceVolume,
+  ]);
 
   return null;
 }

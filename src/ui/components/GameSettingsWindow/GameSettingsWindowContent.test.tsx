@@ -119,7 +119,7 @@ describe('GameSettingsWindowContent', () => {
     confirmSpy.mockRestore();
   });
 
-  it('updates the audio volume slider without reading a cleared event target', async () => {
+  it('updates the music volume slider without reading a cleared event target', async () => {
     await act(async () => {
       root.render(
         <GameSettingsWindowContent
@@ -143,29 +143,34 @@ describe('GameSettingsWindowContent', () => {
       audioTab?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
 
-    const volumeSlider = host.querySelector(
+    const musicVolumeContainer = Array.from(
+      host.querySelectorAll('label'),
+    ).find((candidate) =>
+      candidate.textContent?.includes(t('ui.settings.audio.musicVolume.label')),
+    );
+    const musicVolumeSlider = musicVolumeContainer?.querySelector(
       'input[type="range"]',
     ) as HTMLInputElement | null;
     const volumeValue = Array.from(host.querySelectorAll('span')).find(
       (candidate) => candidate.textContent === '30%',
     );
 
-    expect(volumeSlider).not.toBeNull();
+    expect(musicVolumeSlider).not.toBeNull();
     expect(volumeValue).toBeDefined();
 
     await act(async () => {
-      if (volumeSlider) {
+      if (musicVolumeSlider) {
         const setValue = Object.getOwnPropertyDescriptor(
           HTMLInputElement.prototype,
           'value',
         )?.set;
 
-        setValue?.call(volumeSlider, '65');
-        volumeSlider.dispatchEvent(new Event('input', { bubbles: true }));
+        setValue?.call(musicVolumeSlider, '65');
+        musicVolumeSlider.dispatchEvent(new Event('input', { bubbles: true }));
       }
     });
 
-    expect(volumeSlider?.value).toBe('65');
+    expect(musicVolumeSlider?.value).toBe('65');
     expect(host.textContent).toContain('65%');
   });
 

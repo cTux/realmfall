@@ -76,7 +76,9 @@ describe('useBackgroundMusicController', () => {
     });
 
     expect(loadMock).not.toHaveBeenCalled();
-    expect(setVolumeMock).toHaveBeenCalledWith(DEFAULT_AUDIO_SETTINGS.volume);
+    expect(setVolumeMock).toHaveBeenCalledWith(
+      DEFAULT_AUDIO_SETTINGS.musicVolume,
+    );
     expect(unmuteMock).toHaveBeenCalled();
 
     await act(async () => {
@@ -97,7 +99,7 @@ describe('useBackgroundMusicController', () => {
         autoplay: true,
         html5: true,
         initialMute: false,
-        initialVolume: DEFAULT_AUDIO_SETTINGS.volume,
+        initialVolume: DEFAULT_AUDIO_SETTINGS.musicVolume,
         onend: expect.any(Function),
       }),
     );

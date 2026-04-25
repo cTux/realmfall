@@ -1,6 +1,7 @@
 import {
   AUDIO_SETTINGS_SOUND_EFFECT_OPTIONS,
   AUDIO_SETTINGS_TOGGLE_OPTIONS,
+  AUDIO_SETTINGS_VOLUME_OPTIONS,
   AUDIO_SETTINGS_VOICE_EVENT_OPTIONS,
   AUDIO_THEME_OPTIONS,
   type AudioSettings,
@@ -62,34 +63,38 @@ export function GameSettingsAudioPanel({
           ))}
         </div>
       </section>
-      <label className={styles.rangeField} data-ui-audio-hover="true">
-        <span className={styles.rangeHeader}>
-          <span className={styles.rangeLabel}>
-            {t('ui.settings.audio.volume.label')}
+      {AUDIO_SETTINGS_VOLUME_OPTIONS.map((option) => (
+        <label
+          className={styles.rangeField}
+          key={option.key}
+          data-ui-audio-hover="true"
+        >
+          <span className={styles.rangeHeader}>
+            <span className={styles.rangeLabel}>{t(option.labelKey)}</span>
+            <span className={styles.rangeValue}>
+              {Math.round(audioSettings[option.key] * 100)}%
+            </span>
           </span>
-          <span className={styles.rangeValue}>
-            {Math.round(audioSettings.volume * 100)}%
+          <span className={styles.rangeDescription}>
+            {t(option.descriptionKey)}
           </span>
-        </span>
-        <span className={styles.rangeDescription}>
-          {t('ui.settings.audio.volume.description')}
-        </span>
-        <input
-          type="range"
-          min="0"
-          max="100"
-          step="1"
-          value={Math.round(audioSettings.volume * 100)}
-          onChange={(event) => {
-            const volume = Number(event.currentTarget.value) / 100;
+          <input
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+            value={Math.round(audioSettings[option.key] * 100)}
+            onChange={(event) => {
+              const volume = Number(event.currentTarget.value) / 100;
 
-            onChange((current) => ({
-              ...current,
-              volume,
-            }));
-          }}
-        />
-      </label>
+              onChange((current) => ({
+                ...current,
+                [option.key]: volume,
+              }));
+            }}
+          />
+        </label>
+      ))}
       <div
         className={styles.themeField}
         role="radiogroup"

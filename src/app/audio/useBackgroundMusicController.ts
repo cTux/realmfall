@@ -30,7 +30,7 @@ export function useBackgroundMusicController({
   }, [mood]);
 
   const applyAudioSettings = useEffectEvent((nextSettings: AudioSettings) => {
-    setVolume(nextSettings.volume);
+    setVolume(nextSettings.musicVolume);
     if (nextSettings.muted || nextSettings.musicMuted) {
       mute();
       return;
@@ -54,7 +54,7 @@ export function useBackgroundMusicController({
         autoplay: true,
         html5: true,
         initialMute: audioSettings.muted || audioSettings.musicMuted,
-        initialVolume: audioSettings.volume,
+        initialVolume: audioSettings.musicVolume,
         onend: () => {
           playNextTrack(moodRef.current);
         },
