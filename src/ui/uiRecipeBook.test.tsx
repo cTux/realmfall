@@ -73,15 +73,12 @@ describe('ui recipe book logic and markup', () => {
       ingredients: [{ itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 2 }],
     });
 
-    const sorted = [
-      blockedEntry,
-      craftableEntry,
-      favoriteBlockedEntry,
-    ].sort((left, right) =>
-      compareRecipeBookEntries(left, right, {
-        currentStructure: 'workshop',
-        inventoryCountsByItemKey: { 'iron-ingot': 1 },
-      }),
+    const sorted = [blockedEntry, craftableEntry, favoriteBlockedEntry].sort(
+      (left, right) =>
+        compareRecipeBookEntries(left, right, {
+          currentStructure: 'workshop',
+          inventoryCountsByItemKey: { 'iron-ingot': 1 },
+        }),
     );
 
     expect(sorted.map((entry) => entry.id)).toEqual([

@@ -284,7 +284,9 @@ export function RecipeBookWindowContent({
                               tintOverride,
                             )
                           }
-                          onMouseLeave={onHoverDetail ? onLeaveDetail : undefined}
+                          onMouseLeave={
+                            onHoverDetail ? onLeaveDetail : undefined
+                          }
                         >
                           <button type="button" disabled={!recipe.learned}>
                             {actionLabel}
@@ -299,14 +301,20 @@ export function RecipeBookWindowContent({
                           onHoverDetail?.(
                             event,
                             recipe.favorite
-                              ? t('ui.recipeBook.favoriteAction.unfavoriteLabel')
+                              ? t(
+                                  'ui.recipeBook.favoriteAction.unfavoriteLabel',
+                                )
                               : t('ui.recipeBook.favoriteAction.favoriteLabel'),
                             [
                               {
                                 kind: 'text',
                                 text: recipe.favorite
-                                  ? t('ui.recipeBook.favoriteAction.unfavoriteHint')
-                                  : t('ui.recipeBook.favoriteAction.favoriteHint'),
+                                  ? t(
+                                      'ui.recipeBook.favoriteAction.unfavoriteHint',
+                                    )
+                                  : t(
+                                      'ui.recipeBook.favoriteAction.favoriteHint',
+                                    ),
                               },
                             ],
                           )
@@ -316,14 +324,12 @@ export function RecipeBookWindowContent({
                         aria-pressed={recipe.favorite}
                         disabled={!recipe.learned}
                       >
-                          <span
+                        <span
                           aria-hidden="true"
                           className={styles.favoriteIcon}
                           style={starIconMask(
                             roundStarIcon,
-                            recipe.favorite
-                              ? '#f59e0b'
-                              : '#94a3b8',
+                            recipe.favorite ? '#f59e0b' : '#94a3b8',
                           )}
                         />
                       </button>
@@ -388,5 +394,3 @@ function starIconMask(icon: string, color: string) {
     mask,
   };
 }
-
-

@@ -419,5 +419,3 @@ describe('ui recipe book window surfaces', () => {
     await ui.unmount();
   });
 });
-
-

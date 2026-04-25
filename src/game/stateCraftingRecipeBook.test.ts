@@ -1,4 +1,8 @@
-import { createGame, getRecipeBookEntries, toggleFavoriteRecipe } from './state';
+import {
+  createGame,
+  getRecipeBookEntries,
+  toggleFavoriteRecipe,
+} from './state';
 import { findResolvedEnemyRecipeDrop } from './stateCraftingTestHelpers';
 
 describe('game state crafting recipe book', () => {

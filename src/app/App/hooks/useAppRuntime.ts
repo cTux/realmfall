@@ -193,8 +193,7 @@ export function useAppRuntime() {
       handleInteract: controllerActions.handleInteract,
       handleOpenRecipeBookWithMaterialFilter:
         controllerActions.handleOpenRecipeBookWithMaterialFilter,
-      handleToggleFavoriteRecipe:
-        controllerActions.handleToggleFavoriteRecipe,
+      handleToggleFavoriteRecipe: controllerActions.handleToggleFavoriteRecipe,
       handleProspect: controllerActions.handleProspect,
       handleProspectItem: controllerActions.handleProspectItem,
       handleReforgeItem: controllerActions.handleReforgeItem,
