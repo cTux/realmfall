@@ -119,6 +119,51 @@ describe('useBackgroundMusicController', () => {
     expect(muteMock).toHaveBeenCalled();
     expect(loadMock).toHaveBeenCalledTimes(2);
   });
+
+  it('advances to the next track when loading the selected track fails', async () => {
+    getNextBackgroundMusicTrackMock
+      .mockImplementationOnce((mood: string) => ({
+        id: `${mood}-track-failing`,
+        loadUrl: vi
+          .fn()
+          .mockRejectedValue(new Error('Unable to load failing track')),
+      }))
+      .mockImplementationOnce((mood: string) => ({
+        id: `${mood}-track-next`,
+        loadUrl: vi.fn(async () => `/music/${mood}-next.mp3`),
+      }));
+
+    await act(async () => {
+      root.render(
+        <BackgroundMusicHarness
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
+          mood="ambient"
+        />,
+      );
+    });
+
+    await act(async () => {
+      document.body.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          pointerId: 1,
+        }),
+      );
+      await flushPromises();
+    });
+
+    expect(getNextBackgroundMusicTrackMock).toHaveBeenCalledTimes(2);
+    expect(loadMock).toHaveBeenCalledTimes(1);
+    expect(loadMock).toHaveBeenCalledWith(
+      '/music/ambient-next.mp3',
+      expect.objectContaining({
+        autoplay: true,
+        html5: true,
+        initialMute: false,
+        initialVolume: DEFAULT_AUDIO_SETTINGS.musicVolume,
+      }),
+    );
+  });
 });
 
 async function flushPromises() {
