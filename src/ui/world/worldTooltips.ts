@@ -1,13 +1,12 @@
-import { t } from '../../i18n';
 import type { Enemy, StructureType, Tile } from '../../game/stateTypes';
 import { buildEnemyTooltip, buildStructureTooltip } from '../tooltipContent';
+import type { TooltipLine } from '../tooltips/shared';
+import { tagTooltipLines } from '../tooltips/shared';
 
-type WorldTooltipLine = {
-  text?: string;
-  label?: string;
-  value?: string;
-  kind?: 'text' | 'stat';
-};
+type WorldTooltipLine = Pick<
+  TooltipLine,
+  'kind' | 'text' | 'label' | 'value' | 'tone'
+>;
 
 export function enemyWorldTooltip(
   enemies: Enemy[],
@@ -28,15 +27,4 @@ export function structureWorldTooltip(
     stat: (label, value) => ({ kind: 'stat', label, value }),
     tags: tagTooltipLines,
   });
-}
-
-function tagTooltipLines(tags?: string[]): WorldTooltipLine[] {
-  if (!tags || tags.length === 0) return [];
-
-  return [
-    {
-      kind: 'text',
-      text: t('ui.tooltip.tags', { tags: tags.join(', ') }),
-    },
-  ];
 }
