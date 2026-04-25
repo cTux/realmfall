@@ -35,6 +35,24 @@ interface UseKeyboardShortcutsOptions {
   windowShown: WindowVisibilityState;
 }
 
+function getShortcutKey(event: KeyboardEvent): string {
+  if (event.code.startsWith('Key') && event.code.length === 4) {
+    return event.code[3].toLowerCase();
+  }
+
+  const digitMatch = /^Digit([1-9])$/.exec(event.code);
+  if (digitMatch) {
+    return digitMatch[1];
+  }
+
+  const numpadMatch = /^Numpad([1-9])$/.exec(event.code);
+  if (numpadMatch) {
+    return numpadMatch[1];
+  }
+
+  return event.key.toLowerCase();
+}
+
 export function useKeyboardShortcuts({
   canBulkProspectEquipment,
   canBulkSellEquipment,
@@ -86,7 +104,7 @@ export function useKeyboardShortcuts({
       return;
     }
 
-    const lowerKey = event.key.toLowerCase();
+    const lowerKey = getShortcutKey(event);
     if (lowerKey === 'escape') {
       event.preventDefault();
       if (Object.values(windowShown).some(Boolean)) {
