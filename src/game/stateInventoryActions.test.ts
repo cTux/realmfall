@@ -88,7 +88,14 @@ describe('game state inventory actions', () => {
     const remainingStock = getTownStock(bought);
 
     expect(stock.length).toBeGreaterThanOrEqual(30);
-    expect(stock.every((entry) => entry.item.slot)).toBe(true);
+    expect(
+      stock.some((entry) => getItemCategory(entry.item) !== 'consumable'),
+    ).toBe(true);
+    expect(
+      stock
+        .slice(0, 4)
+        .every((entry) => getItemCategory(entry.item) === 'consumable'),
+    ).toBe(true);
     expect(
       bought.player.inventory.some((item) => item.name === stock[0].item.name),
     ).toBe(true);

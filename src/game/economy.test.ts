@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import {
-  buildItemFromConfig,
-  buildTownStock,
-  getItemCategory,
-} from './content/items';
-import { getTownStockPrice } from './economy';
+import { buildItemFromConfig, getItemCategory } from './content/items';
+import { buildTownStock, getTownStockPrice } from './economy';
 
 describe('town stock pricing', () => {
   it('scales buy prices sharply with item rarity', () => {

@@ -10,6 +10,7 @@ export {
   getGeneratedArmorKeys,
   getGeneratedOffhandKeys,
   getGeneratedWeaponKeys,
+  getConsumableItemKeys,
   getItemConfigByKey,
 } from './itemCatalog';
 export {
