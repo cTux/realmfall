@@ -49,7 +49,15 @@ function getCachedItemTooltipLines(
   item: TooltipItem,
   equipped: TooltipItem | undefined,
   recipeLearned: boolean,
+  quickSellHint: boolean,
 ) {
+  if (quickSellHint) {
+    return buildItemTooltipLines(item, equipped, {
+      recipeLearned,
+      quickSellHint: true,
+    });
+  }
+
   let itemCache = cache.get(item);
   if (!itemCache) {
     itemCache = {
@@ -98,6 +106,7 @@ function getItemTooltipContentKey(
   item: TooltipItem,
   equipped: TooltipItem | undefined,
   recipeLearned: boolean,
+  quickSellHint: boolean,
 ) {
   return JSON.stringify({
     kind: 'item',
@@ -117,6 +126,7 @@ function getItemTooltipContentKey(
     },
     equippedId: equipped?.id ?? null,
     recipeLearned,
+    quickSellHint,
   });
 }
 
@@ -126,6 +136,7 @@ function buildItemTooltipState({
   item,
   equipped,
   recipeLearned,
+  quickSellHint,
   position,
 }: {
   cache: ItemTooltipLinesCache;
@@ -133,6 +144,7 @@ function buildItemTooltipState({
   item: TooltipItem;
   equipped: TooltipItem | undefined;
   recipeLearned: boolean;
+  quickSellHint: boolean;
   position: ReturnType<typeof getTooltipPlacementForRect>;
 }): TooltipState {
   return {
@@ -143,8 +155,14 @@ function buildItemTooltipState({
       item,
       equipped,
       recipeLearned,
+      quickSellHint,
     ),
-    contentKey: getItemTooltipContentKey(item, equipped, recipeLearned),
+    contentKey: getItemTooltipContentKey(
+      item,
+      equipped,
+      recipeLearned,
+      quickSellHint,
+    ),
     x: position.x,
     y: position.y,
     placement: position.placement,
@@ -196,6 +214,7 @@ export function useItemTooltipController({
       item: TooltipItem,
       position: ReturnType<typeof getTooltipPlacementForRect>,
       equipped?: TooltipItem,
+      quickSellHint = false,
     ) => {
       const recipeLearned = isRecipePageLearned(gameRef.current, item);
       const requestId = ++tooltipRequestIdRef.current;
@@ -219,6 +238,7 @@ export function useItemTooltipController({
             item,
             equipped,
             recipeLearned,
+            quickSellHint,
             position,
           }),
         );
@@ -232,11 +252,13 @@ export function useItemTooltipController({
       event: ReactMouseEvent<HTMLElement>,
       item: TooltipItem,
       equipped?: TooltipItem,
+      quickSellHint = false,
     ) => {
       presentItemTooltip(
         item,
         getTooltipPlacementForRect(event.currentTarget.getBoundingClientRect()),
         equipped,
+        quickSellHint,
       );
     },
     [presentItemTooltip],

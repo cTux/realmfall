@@ -1,3 +1,4 @@
+import { canSellItem } from '../../../game/inventory';
 import { isRecipePage } from '../../../game/stateSelectors';
 import { t } from '../../../i18n';
 import { Icons } from '../../icons';
@@ -12,8 +13,10 @@ type InventoryWindowContentProps = Pick<
   | 'hexItemModificationPickerActive'
   | 'learnedRecipeIds'
   | 'onActivateItem'
+  | 'onSellItem'
   | 'onContextItem'
   | 'onSelectHexItemModificationItem'
+  | 'inTownForQuickSell'
   | 'onHoverItem'
   | 'onLeaveItem'
 >;
@@ -24,8 +27,10 @@ export function InventoryWindowContent({
   hexItemModificationPickerActive = false,
   learnedRecipeIds,
   onActivateItem,
+  onSellItem,
   onContextItem,
   onSelectHexItemModificationItem,
+  inTownForQuickSell = false,
   onHoverItem,
   onLeaveItem,
 }: InventoryWindowContentProps) {
@@ -50,9 +55,20 @@ export function InventoryWindowContent({
             }
             borderColorOverride={recipeState.borderColor}
             overlayColorOverride={recipeState.overlayColor}
-            onClick={() => {
+            onClick={(event) => {
               if (hexItemModificationPickerActive) {
                 onSelectHexItemModificationItem?.(item);
+                return;
+              }
+
+              if (
+                event.shiftKey &&
+                inTownForQuickSell &&
+                !item.locked &&
+                canSellItem(item)
+              ) {
+                onSellItem(item.id);
+                onLeaveItem();
                 return;
               }
 

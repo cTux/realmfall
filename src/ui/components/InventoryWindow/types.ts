@@ -11,8 +11,10 @@ export interface InventoryWindowProps
   learnedRecipeIds: string[];
   onSort: () => void;
   onActivateItem: (itemId: string) => void;
+  onSellItem: (itemId: string) => void;
   onContextItem: (event: ReactMouseEvent<HTMLElement>, item: Item) => void;
   onSelectHexItemModificationItem?: (item: Item) => void;
+  inTownForQuickSell?: boolean;
   onHoverItem: (
     event: ReactMouseEvent<HTMLElement>,
     item: Item,

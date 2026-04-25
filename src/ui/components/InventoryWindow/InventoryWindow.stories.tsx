@@ -30,6 +30,7 @@ const meta = {
     learnedRecipeIds: [],
     onSort: noop,
     onActivateItem: noop,
+    onSellItem: noop,
     onContextItem: noopContextItem,
     onHoverItem: noopHoverItem,
     onLeaveItem: noop,

@@ -103,6 +103,7 @@ describe('ui window static markup', () => {
           learnedRecipeIds={[]}
           onSort={() => {}}
           onActivateItem={() => {}}
+          onSellItem={() => {}}
           onContextItem={() => {}}
           onHoverItem={() => {}}
           onLeaveItem={() => {}}
@@ -115,6 +116,7 @@ describe('ui window static markup', () => {
           learnedRecipeIds={[]}
           onSort={() => {}}
           onActivateItem={() => {}}
+          onSellItem={() => {}}
           onContextItem={() => {}}
           onHoverItem={() => {}}
           onLeaveItem={() => {}}
