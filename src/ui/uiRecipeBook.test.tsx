@@ -132,6 +132,7 @@ describe('ui recipe book logic and markup', () => {
         learnedRecipeIds={['craft-icon-axe-01']}
         onSort={() => {}}
         onActivateItem={() => {}}
+        onSellItem={() => {}}
         onContextItem={() => {}}
         onHoverItem={() => {}}
         onLeaveItem={() => {}}

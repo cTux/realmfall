@@ -23,6 +23,7 @@ export interface TooltipActions {
     event: React.MouseEvent<HTMLElement>,
     item: TooltipItem,
     equipped?: TooltipItem,
+    quickSellHint?: boolean,
   ) => void;
   onShowActionBarItemTooltip: (
     event: React.MouseEvent<HTMLElement>,

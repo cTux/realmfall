@@ -793,6 +793,7 @@
   "ui.tooltip.secondaryStatEmpty": "Empty secondary stat slot",
   "ui.tooltip.secondaryStats": "Secondary Stats",
   "ui.tooltip.sellsFor": "Sells for",
+  "ui.tooltip.sellQuickShift": "Shift-click: sell this item immediately.",
   "ui.tooltip.slotLabel": "Slot",
   "ui.tooltip.slot.amulet": "slot.amulet",
   "ui.tooltip.slot.belt": "slot.belt",

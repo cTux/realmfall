@@ -36,8 +36,25 @@ describe('ui tooltip item content', () => {
       tone: 'subtle',
     });
     expect(tooltipLines).toContainEqual({
+      kind: 'stat',
+      label: 'Sells for',
+      value: `${sellValue(weaponTooltipItem)} gold`,
+      icon: Icons.Coins,
+      iconTint: '#fbbf24',
+      tone: 'item',
+    });
+    expect(tooltipLines).toContainEqual({
       kind: 'text',
       text: 'Slot: slot.weapon',
+      tone: 'subtle',
+    });
+    expect(
+      itemTooltipLines(weaponTooltipItem, equippedTooltipItem, {
+        quickSellHint: true,
+      }),
+    ).toContainEqual({
+      kind: 'text',
+      text: 'Shift-click: sell this item immediately.',
       tone: 'subtle',
     });
     expect(tooltipLines).toContainEqual({

@@ -31,7 +31,7 @@ interface ItemSlotButtonProps {
   badgeIconLabel?: string;
   hidePlaceholderIconWhenEmpty?: boolean;
   disabled?: boolean;
-  onClick?: () => void;
+  onClick?: (event: ReactMouseEvent<HTMLButtonElement>) => void;
   onContextMenu?: (event: ReactMouseEvent<HTMLButtonElement>) => void;
   onMouseEnter?: (event: ReactMouseEvent<HTMLButtonElement>) => void;
   onEmptyMouseEnter?: (event: ReactMouseEvent<HTMLButtonElement>) => void;
@@ -92,7 +92,7 @@ export function ItemSlotButton({
         boxShadow: item ? `0 0 0 1px ${borderColor}33 inset` : undefined,
       }}
       data-size={size}
-      onClick={!disabled ? onClick : undefined}
+      onClick={!disabled ? (event) => onClick?.(event) : undefined}
       onContextMenu={!disabled ? onContextMenu : undefined}
       onMouseEnter={
         disabled ? undefined : item ? onMouseEnter : onEmptyMouseEnter
