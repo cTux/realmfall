@@ -18,7 +18,7 @@ export function renderInteractionTile({
   scene,
   selected,
   style,
-  tile,
+  tile: _tile,
 }: {
   clickable: boolean;
   highlightedInSafePath: boolean;
