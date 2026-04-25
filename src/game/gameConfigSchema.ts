@@ -74,6 +74,18 @@ export interface GameConfig {
         minimum: number;
         perTier: number;
         rarityMultiplier: Record<ItemRarity, number>;
+        consumable: {
+          minimum: number;
+          baseMultiplier: number;
+          perTier: number;
+          rarityMultiplier: Record<ItemRarity, number>;
+        };
+        consumableCraftedFood: {
+          minimum: number;
+          baseMultiplier: number;
+          perTier: number;
+          rarityMultiplier: Record<ItemRarity, number>;
+        };
       };
     };
   };

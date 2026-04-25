@@ -128,6 +128,46 @@ const gameConfig = defineGameConfig({
           // Buy-price multiplier for legendary town stock entries.
           legendary: 24,
         },
+        consumable: {
+          // Minimum gold price for consumable town stock entries.
+          minimum: 10,
+          // Base buy-price multiplier applied to consumable town stock entries.
+          baseMultiplier: 6,
+          // Extra town-only price multiplier added per item tier above level 1.
+          perTier: 0.1,
+          rarityMultiplier: {
+            // Buy-price multiplier for common consumable town stock entries.
+            common: 1,
+            // Buy-price multiplier for uncommon consumable town stock entries.
+            uncommon: 1.1,
+            // Buy-price multiplier for rare consumable town stock entries.
+            rare: 1.25,
+            // Buy-price multiplier for epic consumable town stock entries.
+            epic: 1.45,
+            // Buy-price multiplier for legendary consumable town stock entries.
+            legendary: 1.75,
+          },
+        },
+        consumableCraftedFood: {
+          // Minimum gold price for crafted-food consumable town stock entries.
+          minimum: 10,
+          // Base buy-price multiplier applied to crafted-food consumables.
+          baseMultiplier: 9,
+          // Extra town-only price multiplier added per item tier above level 1.
+          perTier: 0.1,
+          rarityMultiplier: {
+            // Buy-price multiplier for common crafted-food consumables.
+            common: 1,
+            // Buy-price multiplier for uncommon crafted-food consumables.
+            uncommon: 1.1,
+            // Buy-price multiplier for rare crafted-food consumables.
+            rare: 1.25,
+            // Buy-price multiplier for epic crafted-food consumables.
+            epic: 1.45,
+            // Buy-price multiplier for legendary crafted-food consumables.
+            legendary: 1.75,
+          },
+        },
       },
     },
   },

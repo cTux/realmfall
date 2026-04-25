@@ -3,13 +3,17 @@ import { TOWN_BUY_PRICE_BALANCE } from './config';
 import {
   buildGeneratedItemFromConfig,
   buildItemFromConfig,
+  getConsumableItemKeys,
   getGeneratedAccessoryKeys,
   getGeneratedArmorKeys,
   getGeneratedOffhandKeys,
   getGeneratedWeaponKeys,
   getItemConfigByKey,
+  getItemCategory,
+  hasItemTag,
 } from './content/items';
 import { ItemId } from './content/ids';
+import { GAME_TAGS } from './content/tags';
 import { hexDistance, hexKey, type HexCoord } from './hex';
 import { compareItems, sellValue } from './inventory';
 import { createRng } from './random';
@@ -34,6 +38,7 @@ const TOWN_STOCK_KEYS = [
   ...getGeneratedArmorKeys(),
   ...getGeneratedAccessoryKeys(),
 ] as const;
+const TOWN_STOCK_CONSUMABLE_COUNT = 4;
 
 export function buildTownStock(
   seed: string,
@@ -41,8 +46,7 @@ export function buildTownStock(
   dayIndex = 0,
 ): TownStockEntry[] {
   const baseTier = resolveTownStockBaseTier(coord);
-
-  return TOWN_STOCK_KEYS.map((key, index) => {
+  const equippableEntries = TOWN_STOCK_KEYS.map((key, index) => {
     const item = buildTownStockItem({
       seed,
       coord,
@@ -56,10 +60,54 @@ export function buildTownStock(
       item,
       price: getTownStockPrice(item),
     };
-  }).sort(
+  });
+  const consumableEntries = buildTownConsumables({
+    seed,
+    coord,
+    dayIndex,
+    baseTier,
+  });
+
+  return [...consumableEntries, ...equippableEntries].sort(
     (left, right) =>
-      left.price - right.price || compareItems(left.item, right.item),
+      townStockPriority(left.item, right.item) ||
+      left.price - right.price ||
+      compareItems(left.item, right.item),
   );
+}
+
+function buildTownConsumables({
+  seed,
+  coord,
+  dayIndex,
+  baseTier,
+}: {
+  seed: string;
+  coord: HexCoord;
+  dayIndex: number;
+  baseTier: number;
+}) {
+  const keys = pickRandomKeys(
+    getConsumableItemKeys(),
+    `${seed}:town-stock:consumables:${dayIndex}:${coord.q}:${coord.r}`,
+    TOWN_STOCK_CONSUMABLE_COUNT,
+  );
+
+  return keys.map((key, index) => {
+    const item = buildTownStockItem({
+      seed,
+      coord,
+      dayIndex,
+      key,
+      index: TOWN_STOCK_KEYS.length + index,
+      baseTier,
+    });
+
+    return {
+      item,
+      price: getTownStockPrice(item),
+    };
+  });
 }
 
 function buildTownStockItem({
@@ -135,6 +183,24 @@ function resolveTownStockTier(
 }
 
 export function getTownStockPrice(item: Item) {
+  const category = getItemCategory(item);
+  if (category === 'consumable') {
+    const isCraftedFood = hasItemTag(item, GAME_TAGS.item.crafted);
+    const consumableBalance = isCraftedFood
+      ? TOWN_BUY_PRICE_BALANCE.consumableCraftedFood
+      : TOWN_BUY_PRICE_BALANCE.consumable;
+
+    return Math.max(
+      consumableBalance.minimum,
+      Math.round(
+        sellValue(item) *
+          consumableBalance.baseMultiplier *
+          consumableBalance.rarityMultiplier[item.rarity] *
+          (1 + Math.max(0, item.tier - 1) * consumableBalance.perTier),
+      ),
+    );
+  }
+
   const tierMultiplier =
     1 + Math.max(0, item.tier - 1) * TOWN_BUY_PRICE_BALANCE.perTier;
 
@@ -146,4 +212,27 @@ export function getTownStockPrice(item: Item) {
         tierMultiplier,
     ),
   );
+}
+
+function townStockPriority(left: Item, right: Item) {
+  const leftIsConsumable = getItemCategory(left) === 'consumable';
+  const rightIsConsumable = getItemCategory(right) === 'consumable';
+  if (leftIsConsumable === rightIsConsumable) return 0;
+  return leftIsConsumable ? -1 : 1;
+}
+
+function pickRandomKeys<T>(items: readonly T[], seed: string, limit: number) {
+  const source = [...items];
+  const rng = createRng(seed);
+  const selected: T[] = [];
+  const count = Math.min(limit, source.length);
+
+  while (selected.length < count) {
+    const index = Math.floor(rng() * source.length);
+    const picked = source.splice(index, 1)[0];
+    if (!picked) break;
+    selected.push(picked);
+  }
+
+  return selected;
 }

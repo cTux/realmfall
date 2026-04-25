@@ -8,7 +8,10 @@ import {
 import { CRAFTABLE_ICON_ITEM_CONFIGS as GENERATED_CRAFTABLE_ICON_ITEM_CONFIGS } from '../generatedCraftingEquipment';
 import { itemName } from '../i18n';
 import type { ItemConfig } from '../types';
-import { buildItemConfigTags } from './itemCategoryRules';
+import {
+  buildItemConfigTags,
+  getItemConfigCategory,
+} from './itemCategoryRules';
 import { arcaneDustItemConfig } from './arcaneDust';
 import { appleItemConfig } from './apple';
 import { campSpearItemConfig } from './campSpear';
@@ -139,6 +142,12 @@ export function getGeneratedWeaponKeys() {
 
 export function getGeneratedOffhandKeys() {
   return [...GENERATED_OFFHAND_KEYS];
+}
+
+export function getConsumableItemKeys() {
+  return ITEM_CONFIGS.filter(
+    (config) => getItemConfigCategory(config) === 'consumable',
+  ).map((config) => config.key);
 }
 
 function pickConfigIcon(

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { buildItemFromConfig } from './content/items';
-import { getTownStockPrice } from './economy';
+import { buildItemFromConfig, getItemCategory } from './content/items';
+import { buildTownStock, getTownStockPrice } from './economy';
 
 describe('town stock pricing', () => {
   it('scales buy prices sharply with item rarity', () => {
@@ -39,5 +39,58 @@ describe('town stock pricing', () => {
     expect(getTownStockPrice(levelTenKnife)).toBeGreaterThan(
       getTownStockPrice(levelOneKnife),
     );
+  });
+
+  it('prices base consumables with the separate medium-town consumable scale', () => {
+    const commonPotion = buildItemFromConfig('health-potion', {
+      id: 'health-potion-common',
+      rarity: 'common',
+      tier: 1,
+    });
+    const highLevelPotion = buildItemFromConfig('health-potion', {
+      id: 'health-potion-high-level',
+      rarity: 'common',
+      tier: 10,
+    });
+
+    expect(getTownStockPrice(commonPotion)).toBeGreaterThan(1);
+    expect(getTownStockPrice(highLevelPotion)).toBeGreaterThan(
+      getTownStockPrice(commonPotion),
+    );
+  });
+
+  it('keeps crafted-food consumables priced above standard consumables', () => {
+    const craftedFood = buildItemFromConfig('trail-ration', {
+      id: 'trail-ration-tier-9',
+      rarity: 'common',
+      tier: 10,
+    });
+    const reagent = buildItemFromConfig('cooked-fish', {
+      id: 'cooked-fish-tier-9',
+      rarity: 'common',
+      tier: 10,
+    });
+
+    expect(getTownStockPrice(craftedFood)).toBeGreaterThan(
+      getTownStockPrice(reagent),
+    );
+  });
+
+  it('adds four random consumables and sorts them before equippables', () => {
+    const stock = buildTownStock('town-stock-seed', { q: 0, r: 0 });
+    const consumableStockEntries = stock.filter(
+      (entry) => getItemCategory(entry.item) === 'consumable',
+    );
+    const firstNonConsumableIndex = stock.findIndex(
+      (entry) => getItemCategory(entry.item) !== 'consumable',
+    );
+
+    expect(consumableStockEntries).toHaveLength(4);
+    expect(firstNonConsumableIndex).toBeGreaterThanOrEqual(4);
+    expect(
+      stock
+        .slice(0, firstNonConsumableIndex)
+        .every((entry) => getItemCategory(entry.item) === 'consumable'),
+    ).toBe(true);
   });
 });

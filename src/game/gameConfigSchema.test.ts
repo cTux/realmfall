@@ -83,6 +83,30 @@ describe('game config schema', () => {
           townBuyPrice: {
             minimum: 1,
             perTier: 0,
+            consumable: {
+              minimum: 1,
+              baseMultiplier: 1,
+              perTier: 0,
+              rarityMultiplier: {
+                common: 1,
+                uncommon: 1,
+                rare: 1,
+                epic: 1,
+                legendary: 1,
+              },
+            },
+            consumableCraftedFood: {
+              minimum: 1,
+              baseMultiplier: 1,
+              perTier: 0,
+              rarityMultiplier: {
+                common: 1,
+                uncommon: 1,
+                rare: 1,
+                epic: 1,
+                legendary: 1,
+              },
+            },
             rarityMultiplier: {
               common: 1,
               uncommon: 1,
