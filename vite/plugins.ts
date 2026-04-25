@@ -11,8 +11,18 @@ const BUNDLE_VISUALIZER_OUTPUT = join('.tests', 'bundle', 'visualizer.html');
 const APP_MODULE_PRELOAD_SOURCE = '/src/app/App/index.ts';
 
 export function createAppModulePreloadPlugin(): Plugin {
+  let appBase = '/';
+
+  const resolveWithBase = (path: string) => {
+    const base = appBase || '/';
+    return new URL(path, new URL(base, 'http://example.com')).pathname;
+  };
+
   return {
     name: 'realmfall-app-modulepreload',
+    configResolved(config) {
+      appBase = config.base;
+    },
     transformIndexHtml: {
       order: 'post',
       handler(_html, context) {
@@ -27,7 +37,7 @@ export function createAppModulePreloadPlugin(): Plugin {
               attrs: {
                 rel: 'modulepreload',
                 crossorigin: true,
-                href: `/${emittedAppChunk.fileName}`,
+                href: resolveWithBase(emittedAppChunk.fileName),
               },
               injectTo: 'head',
             },
@@ -39,7 +49,7 @@ export function createAppModulePreloadPlugin(): Plugin {
             tag: 'link',
             attrs: {
               rel: 'modulepreload',
-              href: APP_MODULE_PRELOAD_SOURCE,
+              href: resolveWithBase(APP_MODULE_PRELOAD_SOURCE),
             },
             injectTo: 'head',
           },
