@@ -156,4 +156,49 @@ describe('renderScene claim markers', () => {
 
     expect(markerSprites).toHaveLength(0);
   });
+
+  it('renders a forgotten-loot marker on empty hexes that still have ground loot', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { WorldIcons } = await import('./worldIcons');
+    const game = createGame(1, 'render-scene-forgotten-loot-marker');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      items: [
+        {
+          id: 'forgotten-loot-gold',
+          name: 'Gold',
+          quantity: 2,
+          tier: 1,
+          rarity: 'common',
+          power: 0,
+          defense: 0,
+          maxHp: 0,
+          healing: 0,
+          hunger: 0,
+        },
+      ],
+      enemyIds: [],
+    };
+
+    const app = createMockApp();
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    const markerSprites = collectDescendants(getMarkerLayer(app)).filter(
+      (child): child is MockSprite => child instanceof MockSprite,
+    );
+    const forgottenLootMarker = markerSprites.find(
+      (child) => child.icon === WorldIcons.ForgottenLoot,
+    );
+
+    expect(forgottenLootMarker).toBeDefined();
+  });
 });

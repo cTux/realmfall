@@ -10,7 +10,8 @@ export type WorldMarkerAnimationKind =
   | 'settlement'
   | 'utility'
   | 'dungeon'
-  | 'resource';
+  | 'resource'
+  | 'forgottenLoot';
 
 interface AnimatedWorldMarkerOptions {
   alpha: number;
@@ -136,6 +137,14 @@ function animateWorldMarker(
       scale = 1 + threat * 0.06;
       tint = mixColor(marker.baseTint, 0xa855f7, 0.14 + threat * 0.2);
       alpha = marker.baseAlpha * (0.94 + threat * 0.08);
+      break;
+    }
+    case 'forgottenLoot': {
+      const drift = (wave + 1) * 0.5;
+      yOffset = secondaryWave * 1.55;
+      scale = 1 + drift * 0.05;
+      alpha = marker.baseAlpha * (0.92 + drift * 0.1);
+      tint = mixColor(marker.baseTint, 0xf59e0b, drift * 0.28);
       break;
     }
     case 'resource': {

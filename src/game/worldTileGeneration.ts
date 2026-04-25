@@ -1,8 +1,6 @@
 import {
   TOWN_SEARCH_LIMIT,
   WORLD_ENEMY_SPAWN_CHANCE,
-  WORLD_LOOT_CHANCES,
-  resolveGuardedLootChance,
 } from './config';
 import {
   getGatheringStructureConfig,
@@ -16,14 +14,10 @@ import {
   getFactionStructure,
   makeFactionNpcEnemyId,
 } from './territories';
-import { isPassable, noise, scaledIndex, terrainTier } from './shared';
-import type { Item, StructureType, Terrain, Tile, TileClaim } from './types';
+import { isPassable, noise, scaledIndex } from './shared';
+import type { StructureType, Terrain, Tile, TileClaim } from './types';
 import { isWorldBossCenter } from './worldBoss';
 import { pickTerrain } from './worldTerrain';
-import {
-  makeBonusCacheItem,
-  makeWorldGeneratedItem,
-} from './worldGeneratedItems';
 
 export function findSpawnedWorldBossCenter(seed: string, coord: HexCoord) {
   const candidates = [coord, ...hexNeighbors(coord)];
@@ -84,14 +78,7 @@ export function buildRegularTile(
     factionClaim ?? undefined,
     territoryNpcEnemyId,
   );
-  const items = buildTileLoot(
-    seed,
-    coord,
-    terrain,
-    enemyIds.length > 0,
-    structure,
-    Boolean(factionClaim),
-  );
+  const items: Tile['items'] = [];
 
   return {
     coord,
@@ -147,53 +134,6 @@ function pickStructure(
 function shouldSpawnEnemy(seed: string, coord: HexCoord, terrain: Terrain) {
   if (!isPassable(terrain)) return false;
   return noise(`${seed}:enemy:spawn`, coord) < WORLD_ENEMY_SPAWN_CHANCE;
-}
-
-function buildTileLoot(
-  seed: string,
-  coord: HexCoord,
-  terrain: Terrain,
-  guarded: boolean,
-  structure?: StructureType,
-  claimed = false,
-) {
-  if (claimed) return [];
-
-  const roll = noise(`${seed}:loot`, coord);
-  const tier = terrainTier(coord, terrain) + (structure === 'dungeon' ? 2 : 0);
-  const lootChance = isGatheringStructureType(structure)
-    ? 0
-    : structure === 'dungeon'
-      ? WORLD_LOOT_CHANCES.dungeon
-      : guarded
-        ? resolveGuardedLootChance(tier)
-        : WORLD_LOOT_CHANCES.unguarded;
-  if (roll >= lootChance) return [];
-
-  const outcomeRoll = resolveLootOutcomeRoll(roll);
-  const items: Item[] = [];
-  items.push(makeWorldGeneratedItem(seed, coord, tier, outcomeRoll, structure));
-
-  if (structure === 'dungeon') {
-    items.push(
-      makeWorldGeneratedItem(
-        `${seed}:dungeon-chest`,
-        coord,
-        tier + 1,
-        outcomeRoll + 0.18,
-        structure,
-      ),
-    );
-  } else if (outcomeRoll >= 1 - WORLD_LOOT_CHANCES.bonusCache) {
-    items.push(makeBonusCacheItem(coord, tier));
-  }
-
-  return items;
-}
-
-function resolveLootOutcomeRoll(roll: number) {
-  const normalized = Math.max(0, Math.min(0.999999, roll));
-  return 1 - normalized;
 }
 
 function makeStructureState(structure: StructureType) {

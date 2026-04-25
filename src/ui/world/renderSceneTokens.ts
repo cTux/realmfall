@@ -119,7 +119,20 @@ function getStaticTileRenderToken({ enemies, tile }: VisibleTileRenderInput) {
       : 0,
   );
   token = mixRenderToken(token, enemyToken);
+  token = mixRenderToken(token, getTileItemRenderToken(tile.items));
   return token;
+}
+
+function getTileItemRenderToken(items: GameState['tiles'][string]['items']) {
+  let itemToken = 2166136261;
+
+  for (const item of items) {
+    itemToken = mixRenderToken(itemToken, hashRenderString(item.id));
+    itemToken = mixRenderToken(itemToken, hashRenderString(item.name));
+    itemToken = mixRenderToken(itemToken, hashRenderString(`${item.quantity}`));
+  }
+
+  return itemToken;
 }
 
 function getInteractionRenderToken(

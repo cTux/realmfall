@@ -166,6 +166,38 @@ export function renderStaticMarkers({
   if (tile.structure === 'dungeon' && enemies.length > 0) {
     renderEnemyGroupBadge(scene, point, enemies.length);
   }
+
+  const hasForgottenLootMarker =
+    tile.items.length > 0 &&
+    !tile.structure &&
+    !tile.claim &&
+    tile.enemyIds.length === 0;
+  if (hasForgottenLootMarker) {
+    const marker = takeShadowedSprite(
+      scene.worldStaticMarkerSprites,
+      WorldIcons.ForgottenLoot,
+    );
+    configureShadowedSprite(
+      marker,
+      0xfde68a,
+      enemyIconSize,
+      enemyIconSize,
+      1,
+      shadowOffset,
+      point,
+    );
+    registerAnimatedWorldMarker(
+      scene,
+      state.seed,
+      tile.coord,
+      marker,
+      point,
+      enemyIconSize,
+      enemyIconSize,
+      0xfde68a,
+      'forgottenLoot',
+    );
+  }
 }
 
 function renderEnemyGroupBadge(

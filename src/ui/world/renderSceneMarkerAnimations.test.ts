@@ -415,6 +415,72 @@ describe('renderScene marker animation', () => {
     expect(totalPolygonCalls(world)).toBe(initialPolygonCalls);
   });
 
+  it('animates forgotten-loot markers with a bob without rebuilding static terrain', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { getSceneCache } = await import('./renderSceneCache');
+    const game = createGame(2, 'render-scene-forgotten-loot-markers');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      items: [
+        {
+          id: 'forgotten-loot-gold',
+          name: 'Gold',
+          quantity: 1,
+          tier: 1,
+          rarity: 'common',
+          power: 0,
+          defense: 0,
+          maxHp: 0,
+          healing: 0,
+          hunger: 0,
+        },
+      ],
+      enemyIds: [],
+    };
+    const app = {
+      screen: { height: 600, width: 800 },
+      stage: new MockContainer(),
+    };
+    const visibleTiles = getVisibleTiles(game);
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+    );
+
+    const scene = getSceneCache(app as never);
+    const forgottenLootMarker = scene.animatedWorldMarkers.find(
+      (marker) => marker.kind === 'forgottenLoot',
+    );
+    expect(forgottenLootMarker).toBeDefined();
+    const world = (app.stage.children[1] as MockContainer)
+      .children[0] as MockContainer;
+    const wrapper = forgottenLootMarker?.entry.wrapper as unknown as MockContainer;
+    const initialScale = wrapper.scale.x;
+    const initialY = wrapper.position.y;
+    const initialPolygonCalls = totalPolygonCalls(world);
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      240,
+    );
+
+    expect(wrapper.scale.x).not.toBe(initialScale);
+    expect(wrapper.position.y).not.toBe(initialY);
+    expect(totalPolygonCalls(world)).toBe(initialPolygonCalls);
+  });
+
   it('adds intermittent shimmer to gathering markers without rebuilding static terrain', async () => {
     const { renderScene } = await import('./renderScene');
     const { getSceneCache } = await import('./renderSceneCache');
