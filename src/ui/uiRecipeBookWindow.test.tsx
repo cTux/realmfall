@@ -199,9 +199,12 @@ describe('ui recipe book window surfaces', () => {
       ],
     });
 
-    const craftCount = ui.host.querySelector('.craftCount');
+    const craftButton = Array.from(ui.host.querySelectorAll('button')).find(
+      (button) => button.textContent === 'Craft',
+    );
+    const craftCount = craftButton?.parentElement?.textContent;
 
-    expect(craftCount?.textContent).toBe('x2');
+    expect(craftCount).toContain('x2');
 
     await ui.unmount();
   });
