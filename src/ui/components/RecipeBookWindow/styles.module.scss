@@ -15,7 +15,8 @@
 }
 
 .content {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   align-content: start;
   gap: 0.65rem;
   min-height: 0;
@@ -64,6 +65,39 @@
   background: rgb(15 23 42 / 70%);
 }
 
+.slotFilters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.18rem;
+  padding: 0.25rem 0;
+}
+
+.slotFilterButton {
+  padding: 0;
+
+  &[data-size='compact'] {
+    --slot-size: 22px;
+    --slot-icon-size: 0.95rem;
+
+    padding: 0.06rem;
+  }
+}
+
+.slotFilterControls {
+  display: inline-flex;
+  gap: 0.18rem;
+}
+
+.slotFilterControlButton {
+  padding: 0.28rem 0.45rem;
+  border: 1px solid rgb(96 165 250 / 30%);
+  background: rgb(15 23 42 / 70%);
+  color: #dbeafe;
+  font-size: 0.68rem;
+  border-radius: 0 0.65rem;
+}
+
 .filterLabel {
   color: #dbeafe;
   font-size: 0.8rem;
@@ -82,16 +116,20 @@
   align-content: start;
   gap: 0.45rem;
   min-height: 0;
+  min-width: 0;
+  flex: 1 1 auto;
   overflow-y: auto;
   padding-right: 0.2rem;
 }
 
 .loadMoreButton {
   justify-self: start;
-  padding: 0.45rem 0.7rem;
+  padding: 0.24rem 0.55rem;
   border: 1px solid rgb(96 165 250 / 28%);
   background: rgb(15 23 42 / 72%);
   color: #dbeafe;
+  border-radius: 0 0.65rem;
+  line-height: 1.1;
 }
 
 .entry {
