@@ -226,6 +226,14 @@ export function canEquipItem(item: Item) {
   return isEquippableItem(item);
 }
 
+export function getItemRequiredLevel(item: Item) {
+  return item.requiredLevel ?? item.tier;
+}
+
+export function canWearItem(item: Item, playerLevel: number) {
+  return playerLevel >= getItemRequiredLevel(item);
+}
+
 export function canUseItem(item: Item, learnedRecipeIds: string[] = []) {
   if (hasItemTag(item, GAME_TAGS.item.consumable)) {
     return true;

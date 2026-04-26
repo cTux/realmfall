@@ -122,6 +122,7 @@ export interface Item {
   quantity: number;
   tier: number;
   rarity: ItemRarity;
+  requiredLevel?: number;
   power: number;
   defense: number;
   maxHp: number;

@@ -45,6 +45,7 @@ export interface ItemConfig {
   healing: number;
   hunger: number;
   thirst?: number;
+  requiredLevel?: Item['requiredLevel'];
   defaultQuantity?: number;
   dropChance?: number;
   occupiesOffhand?: boolean;
@@ -110,6 +111,7 @@ export interface ItemBuildOverrides {
   quantity?: number;
   tier?: number;
   rarity?: ItemRarity;
+  requiredLevel?: Item['requiredLevel'];
   power?: number;
   defense?: number;
   maxHp?: number;

@@ -37,6 +37,7 @@ export function buildItemFromConfig(
     tags: overrides.tags ?? [...(config.tags ?? [])],
     recipeId: overrides.recipeId,
     locked: overrides.locked ?? false,
+    requiredLevel: overrides.requiredLevel ?? config.requiredLevel,
     slot: config.slot,
     icon:
       overrides.icon ??

@@ -417,6 +417,7 @@ describe('game state items and progression', () => {
 
   it('supports many equipment slots and artifact loadouts', () => {
     const game = createGame(3, 'equip-seed');
+    game.player.level = 20;
     const inventory: Item[] = EQUIPMENT_SLOTS.map((slot, index) => ({
       id: `item-${slot}`,
       slot,
@@ -450,5 +451,88 @@ describe('game state items and progression', () => {
     expect(getPlayerCombatStats(equipped.player).defense).toBeGreaterThan(
       getPlayerCombatStats(game.player).defense,
     );
+  });
+
+  it('does not allow equipping when player level is too low', () => {
+    const game = createGame(3, 'equip-level-too-low-seed');
+    game.player.level = 3;
+    game.player.inventory.push({
+      id: 'level-locked-helm',
+      slot: 'head',
+      name: 'Level Locked Helm',
+      quantity: 1,
+      tier: 1,
+      rarity: 'rare',
+      power: 0,
+      defense: 1,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+      requiredLevel: 10,
+    });
+
+    const attempted = equipItem(game, 'level-locked-helm');
+
+    expect(
+      attempted.player.inventory.find(
+        (item) => item.id === 'level-locked-helm',
+      ),
+    ).toBeDefined();
+    expect(attempted.logs[0]?.text).toContain(
+      'You need to be level 10 or higher to wear Level Locked Helm.',
+    );
+  });
+
+  it('uses item tier as the default required level', () => {
+    const game = createGame(3, 'equip-tier-as-requirement-seed');
+    game.player.level = 3;
+    game.player.inventory.push({
+      id: 'tier-locked-helm',
+      slot: 'head',
+      name: 'Tier Locked Helm',
+      quantity: 1,
+      tier: 6,
+      rarity: 'rare',
+      power: 0,
+      defense: 1,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+    });
+
+    const attempted = equipItem(game, 'tier-locked-helm');
+
+    expect(
+      attempted.player.inventory.find((item) => item.id === 'tier-locked-helm'),
+    ).toBeDefined();
+    expect(attempted.logs[0]?.text).toContain(
+      'You need to be level 6 or higher to wear Tier Locked Helm.',
+    );
+  });
+
+  it('allows equipping when player level meets requirement', () => {
+    const game = createGame(3, 'equip-level-meets-requirement-seed');
+    game.player.level = 10;
+    game.player.inventory.push({
+      id: 'level-locked-helm',
+      slot: 'head',
+      name: 'Level Locked Helm',
+      quantity: 1,
+      tier: 1,
+      rarity: 'rare',
+      power: 0,
+      defense: 1,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+      requiredLevel: 10,
+    });
+
+    const equipped = equipItem(game, 'level-locked-helm');
+
+    expect(equipped.player.equipment.head?.id).toBe('level-locked-helm');
+    expect(
+      equipped.player.inventory.find((item) => item.id === 'level-locked-helm'),
+    ).toBeUndefined();
   });
 });

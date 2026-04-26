@@ -32,6 +32,11 @@ describe('ui tooltip item content', () => {
 
     expect(tooltipLines[0]).toEqual({
       kind: 'text',
+      text: 'Requires level 2',
+      tone: 'negative',
+    });
+    expect(tooltipLines[1]).toEqual({
+      kind: 'text',
       text: 'Rare T2 weapon',
       tone: 'subtle',
     });
@@ -90,12 +95,12 @@ describe('ui tooltip item content', () => {
     });
     expect(
       tooltipLines.findIndex((line) => line.text === 'Slot: slot.weapon'),
-    ).toBe(
+    ).toBeLessThan(
       tooltipLines.findIndex(
         (line) =>
           line.label === 'Ability' &&
           line.value === getAbilityDefinition('slash').name,
-      ) - 1,
+      ),
     );
     expect(
       tooltipLines.findIndex(
@@ -103,11 +108,11 @@ describe('ui tooltip item content', () => {
           line.label === 'Ability' &&
           line.value === getAbilityDefinition('slash').name,
       ),
-    ).toBe(
+    ).toBeLessThan(
       tooltipLines.findIndex(
         (line) =>
           line.text === 'Tags: item.equipment, item.weapon, item.slot.weapon',
-      ) - 1,
+      ),
     );
     expect(tooltipLines.some((line) => line.label === 'Attack')).toBe(true);
     expect(tooltipLines.some((line) => line.label?.includes('Change'))).toBe(
@@ -286,5 +291,59 @@ describe('ui tooltip item content', () => {
         }),
       ]),
     );
+  });
+
+  it('shows level requirements and highlights unmet requirements in red', () => {
+    expect(
+      itemTooltipLines(
+        {
+          ...weaponTooltipItem,
+          requiredLevel: 10,
+        },
+        undefined,
+        {
+          playerLevel: 4,
+        },
+      ),
+    ).toContainEqual({
+      kind: 'text',
+      text: 'Requires level 10',
+      tone: 'negative',
+    });
+
+    expect(
+      itemTooltipLines(
+        {
+          ...weaponTooltipItem,
+          requiredLevel: 10,
+        },
+        undefined,
+        {
+          playerLevel: 12,
+        },
+      ),
+    ).toContainEqual({
+      kind: 'text',
+      text: 'Requires level 10',
+      tone: 'subtle',
+    });
+
+    expect(
+      itemTooltipLines(
+        {
+          ...weaponTooltipItem,
+          requiredLevel: undefined,
+          tier: 20,
+        },
+        undefined,
+        {
+          playerLevel: 12,
+        },
+      ),
+    ).toContainEqual({
+      kind: 'text',
+      text: 'Requires level 20',
+      tone: 'negative',
+    });
   });
 });

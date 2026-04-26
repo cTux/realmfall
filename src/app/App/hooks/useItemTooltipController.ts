@@ -26,13 +26,13 @@ type ItemTooltipLinesBuilder = ItemTooltipModule['itemTooltipLines'];
 type ItemTooltipLinesCache = WeakMap<
   TooltipItem,
   {
-    withoutEquipped: TooltipLine[] | null;
-    withoutEquippedRecipeLearned: TooltipLine[] | null;
+    withoutEquipped: Map<number, TooltipLine[]>;
+    withoutEquippedRecipeLearned: Map<number, TooltipLine[]>;
     withEquipped: WeakMap<
       TooltipItem,
       {
-        recipeUnknown: TooltipLine[] | null;
-        recipeLearned: TooltipLine[] | null;
+        recipeUnknown: Map<number, TooltipLine[]>;
+        recipeLearned: Map<number, TooltipLine[]>;
       }
     >;
   }
@@ -50,9 +50,11 @@ function getCachedItemTooltipLines(
   equipped: TooltipItem | undefined,
   recipeLearned: boolean,
   quickSellHint: boolean,
+  playerLevel: number,
 ) {
   if (quickSellHint) {
     return buildItemTooltipLines(item, equipped, {
+      playerLevel,
       recipeLearned,
       quickSellHint: true,
     });
@@ -61,8 +63,8 @@ function getCachedItemTooltipLines(
   let itemCache = cache.get(item);
   if (!itemCache) {
     itemCache = {
-      withoutEquipped: null,
-      withoutEquippedRecipeLearned: null,
+      withoutEquipped: new Map(),
+      withoutEquippedRecipeLearned: new Map(),
       withEquipped: new WeakMap(),
     };
     cache.set(item, itemCache);
@@ -70,35 +72,42 @@ function getCachedItemTooltipLines(
 
   if (!equipped) {
     const cacheKey = recipeLearned
-      ? 'withoutEquippedRecipeLearned'
-      : 'withoutEquipped';
-    const cachedLines = itemCache[cacheKey];
+      ? itemCache.withoutEquippedRecipeLearned
+      : itemCache.withoutEquipped;
+    const cachedLines = cacheKey.get(playerLevel);
     if (cachedLines) {
       return cachedLines;
     }
 
-    const lines = buildItemTooltipLines(item, undefined, { recipeLearned });
-    itemCache[cacheKey] = lines;
+    const lines = buildItemTooltipLines(item, undefined, {
+      playerLevel,
+      recipeLearned,
+    });
+    cacheKey.set(playerLevel, lines);
     return lines;
   }
 
   let equippedCache = itemCache.withEquipped.get(equipped);
   if (!equippedCache) {
     equippedCache = {
-      recipeUnknown: null,
-      recipeLearned: null,
+      recipeUnknown: new Map(),
+      recipeLearned: new Map(),
     };
     itemCache.withEquipped.set(equipped, equippedCache);
   }
 
   const cacheKey = recipeLearned ? 'recipeLearned' : 'recipeUnknown';
-  const cachedLines = equippedCache[cacheKey];
+  const cacheBucket = equippedCache[cacheKey];
+  const cachedLines = cacheBucket.get(playerLevel);
   if (cachedLines) {
     return cachedLines;
   }
 
-  const lines = buildItemTooltipLines(item, equipped, { recipeLearned });
-  equippedCache[cacheKey] = lines;
+  const lines = buildItemTooltipLines(item, equipped, {
+    playerLevel,
+    recipeLearned,
+  });
+  cacheBucket.set(playerLevel, lines);
   return lines;
 }
 
@@ -107,6 +116,7 @@ function getItemTooltipContentKey(
   equipped: TooltipItem | undefined,
   recipeLearned: boolean,
   quickSellHint: boolean,
+  playerLevel: number,
 ) {
   return JSON.stringify({
     kind: 'item',
@@ -126,6 +136,7 @@ function getItemTooltipContentKey(
     },
     equippedId: equipped?.id ?? null,
     recipeLearned,
+    playerLevel,
     quickSellHint,
   });
 }
@@ -138,6 +149,7 @@ function buildItemTooltipState({
   recipeLearned,
   quickSellHint,
   position,
+  playerLevel,
 }: {
   cache: ItemTooltipLinesCache;
   buildItemTooltipLines: ItemTooltipLinesBuilder;
@@ -145,6 +157,7 @@ function buildItemTooltipState({
   equipped: TooltipItem | undefined;
   recipeLearned: boolean;
   quickSellHint: boolean;
+  playerLevel: number;
   position: ReturnType<typeof getTooltipPlacementForRect>;
 }): TooltipState {
   return {
@@ -156,12 +169,14 @@ function buildItemTooltipState({
       equipped,
       recipeLearned,
       quickSellHint,
+      playerLevel,
     ),
     contentKey: getItemTooltipContentKey(
       item,
       equipped,
       recipeLearned,
       quickSellHint,
+      playerLevel,
     ),
     x: position.x,
     y: position.y,
@@ -232,16 +247,17 @@ export function useItemTooltipController({
 
         tooltipPositionRef.current = position;
         setTooltipState(
-          buildItemTooltipState({
-            cache: itemTooltipLinesCacheRef.current,
-            buildItemTooltipLines: tooltipModule.itemTooltipLines,
-            item,
-            equipped,
-            recipeLearned,
-            quickSellHint,
-            position,
-          }),
-        );
+        buildItemTooltipState({
+          cache: itemTooltipLinesCacheRef.current,
+          buildItemTooltipLines: tooltipModule.itemTooltipLines,
+          item,
+          equipped,
+          recipeLearned,
+          quickSellHint,
+          playerLevel: gameRef.current.player.level,
+          position,
+        }),
+      );
       });
     },
     [gameRef, loadItemTooltipModule, tooltipPositionRef],

@@ -15,6 +15,7 @@ type WindowViewsPlayerSlice = Pick<
   | 'learnedRecipeIds'
   | 'mana'
   | 'thirst'
+  | 'level'
 >;
 
 interface UseAppWindowViewsArgs {
@@ -106,12 +107,14 @@ export function useAppWindowViews({
   const inventory = useMemo(
     () => ({
       actionBarSlots,
+      level: playerSlice.level,
       equipment: playerSlice.equipment,
       inventory: playerSlice.inventory,
       learnedRecipeIds: playerSlice.learnedRecipeIds,
     }),
     [
       actionBarSlots,
+      playerSlice.level,
       playerSlice.equipment,
       playerSlice.inventory,
       playerSlice.learnedRecipeIds,
