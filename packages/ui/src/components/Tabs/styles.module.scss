@@ -1,0 +1,29 @@
+.tabs {
+  display: flex;
+  gap: 0.2rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid rgb(148 163 184 / 18%);
+}
+
+.tab {
+  padding: 0.55rem 0.85rem 0.45rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  transition:
+    border-color 120ms ease,
+    color 120ms ease;
+
+  &[aria-selected='true'] {
+    border-color: rgb(56 189 248 / 72%);
+    color: #f8fafc;
+  }
+
+  &:hover {
+    color: #e2e8f0;
+  }
+}

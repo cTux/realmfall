@@ -8,7 +8,7 @@ import {
 import type { GameState, HexCoord } from '../../../game/stateTypes';
 import { t } from '../../../i18n';
 import { recordStartupMark } from '../../../performance/performanceHarness';
-import { LoadingSpinner } from '../../../ui/components/LoadingSpinner';
+import { LoadingSpinner } from '@realmfall/ui';
 import type { BackgroundMusicMood } from '../../audio/backgroundMusic';
 import {
   UiAudioProvider,

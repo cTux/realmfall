@@ -1,11 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { LoadingSpinner } from '@realmfall/ui';
-import { storyPanelDecorator } from './storybook/storybookHelpers';
+import { LoadingSpinner } from './LoadingSpinner';
 
 const meta = {
-  title: 'Components/Loading Spinner',
+  title: 'UI Primitives/LoadingSpinner',
   component: LoadingSpinner,
-  decorators: [storyPanelDecorator('240px')],
 } satisfies Meta<typeof LoadingSpinner>;
 
 export default meta;

@@ -1,12 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState, type ComponentProps } from 'react';
-import { storyPanelDecorator, noop } from '../storybook/storybookHelpers';
-import { Tabs } from '@realmfall/ui';
+import { Tabs } from './Tabs';
 
 const meta = {
-  title: 'Components/Tabs',
+  title: 'UI Primitives/Tabs',
   component: Tabs,
-  decorators: [storyPanelDecorator('420px')],
   args: {
     activeTabId: 'graphics',
     tabs: [
@@ -14,7 +12,7 @@ const meta = {
       { id: 'audio', label: 'Audio' },
       { id: 'controls', label: 'Controls' },
     ],
-    onChange: noop,
+    onChange: () => undefined,
   },
   render: (args) => <TabsStory {...args} />,
 } satisfies Meta<typeof Tabs>;

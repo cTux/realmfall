@@ -39,6 +39,7 @@
     "update:minor": "node ./scripts/dependency-updates.mjs update --target minor"
   },
   "dependencies": {
+    "@realmfall/ui": "workspace:*",
     "@rexa-developer/tiks": "^0.1.8",
     "pixi.js": "^8.18.1",
     "react": "^19.2.5",

@@ -1,12 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState, type ComponentProps } from 'react';
-import { storyPanelDecorator } from '../storybook/storybookHelpers';
-import { Switch } from '@realmfall/ui';
+import { Switch } from './Switch';
 
 const meta = {
-  title: 'Components/Switch',
+  title: 'UI Primitives/Switch',
   component: Switch,
-  decorators: [storyPanelDecorator('460px')],
   args: {
     checked: true,
     label: 'Antialias',
@@ -20,9 +18,7 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  args: {},
-};
+export const Default: Story = {};
 
 function SwitchStory(args: ComponentProps<typeof Switch>) {
   const [checked, setChecked] = useState(args.checked);
