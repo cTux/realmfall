@@ -48,10 +48,13 @@ export function resolveCascadingRarity(
   nextRoll: () => number,
   minimum: ItemRarity = 'common',
   chances: CascadingRarityChanceMap = BASE_CASCADING_RARITY_CHANCES,
+  chanceMultiplier = 1,
 ): ItemRarity {
   const rolledRarity =
     CASCADING_RARITY_CHECK_ORDER.find(
-      (rarity) => nextRoll() < clampChance(chances[rarity] ?? 0),
+      (rarity) =>
+        nextRoll() <
+        scaleCascadingRarityChance(chances[rarity] ?? 0, chanceMultiplier),
     ) ?? 'common';
 
   return (
@@ -69,6 +72,7 @@ export function pickEquipmentRarity(
   coord: HexCoord,
   tier: number,
   minimum: ItemRarity = 'common',
+  chanceMultiplier = 1,
 ): ItemRarity {
   const bonus = Math.min(0.06, tier * 0.0025);
   const rng = createRng(`${seed}:rarity:${coord.q}:${coord.r}:${tier}`);
@@ -82,6 +86,7 @@ export function pickEquipmentRarity(
       rare: bonus * 0.45,
       uncommon: bonus,
     }),
+    chanceMultiplier,
   );
 }
 
@@ -124,6 +129,10 @@ function rarityBonus(rarity: ItemRarity) {
     default:
       return 0;
   }
+}
+
+function scaleCascadingRarityChance(chance: number, chanceMultiplier: number) {
+  return clampChance(chance * chanceMultiplier);
 }
 
 function clampChance(chance: number) {

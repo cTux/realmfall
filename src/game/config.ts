@@ -105,6 +105,10 @@ export const EARTHSHAKE_CHANCE = GAME_CONFIG.events.earthshake.activation;
 export const ENEMY_GOLD_DROP_CHANCES = GAME_CONFIG.drops.enemyGold;
 export const ENEMY_RECIPE_DROP_CHANCES = GAME_CONFIG.drops.enemyRecipe;
 export const ENEMY_ITEM_DROP_CHANCES = GAME_CONFIG.drops.enemyItem;
+export const ENEMY_ITEM_BLOOD_MOON_RARITY_CHANCE_MULTIPLIER =
+  ENEMY_ITEM_DROP_CHANCES.chance.bloodMoonMultiplier;
+export const ENEMY_ITEM_DUNGEON_RARITY_CHANCE_MULTIPLIER =
+  ENEMY_ITEM_DROP_CHANCES.chance.dungeonMultiplier;
 export const HOME_SCROLL_DROP_CHANCES = GAME_CONFIG.drops.homeScroll;
 export const GATHERING_BYPRODUCT_CHANCES = GAME_CONFIG.drops.gatheringByproduct;
 export const BLOOD_MOON_ITEM_KIND_CHANCES = GAME_CONFIG.drops.bloodMoonItemKind;

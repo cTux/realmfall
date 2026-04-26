@@ -235,6 +235,8 @@ describe('game config schema', () => {
             base: 1,
             perRarity: 1,
             max: 1,
+            bloodMoonMultiplier: 1,
+            dungeonMultiplier: 1,
           },
           kindChances: {
             artifact: 1,

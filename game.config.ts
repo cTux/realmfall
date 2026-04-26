@@ -445,6 +445,10 @@ const gameConfig = defineGameConfig({
         perRarity: 0.15,
         // Maximum chance that any enemy-item roll succeeds after rarity scaling.
         max: 0.9,
+        // Multiplier for rarity checks during blood-moon enemy drops.
+        bloodMoonMultiplier: 2,
+        // Multiplier for rarity checks for dungeon tile enemy drops.
+        dungeonMultiplier: 3,
       },
       // Per-kind drop chances checked from minimum to maximum.
       // Each kind is evaluated in this order; a proc adds that drop and the

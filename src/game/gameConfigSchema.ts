@@ -189,6 +189,8 @@ export interface GameConfig {
         base: number;
         perRarity: number;
         max: number;
+        bloodMoonMultiplier: number;
+        dungeonMultiplier: number;
       };
       kindChances: WeightedChanceMap<
         'artifact' | 'weapon' | 'offhand' | 'armor' | 'consumable'
