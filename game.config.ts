@@ -372,14 +372,6 @@ const gameConfig = defineGameConfig({
       // Weight for generating a consumable from world-drop item rolls.
       consumable: 0.62,
     },
-    generatedItem: {
-      // Minimum item rarity assigned when generating from dungeon structures.
-      dungeonMinimumRarity: 'rare',
-      // Extra tier used when evaluating generated artifact rarity.
-      artifactTierBonus: 1,
-      // Fallback consumable for the highest world-gear loot band.
-      fallbackConsumable: 'trail-ration',
-    },
   },
   events: {
     bloodMoon: {

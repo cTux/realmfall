@@ -72,8 +72,6 @@ export const WORLD_NIGHT_AMBUSH_CHANCE =
 export const WORLD_LOOT_CHANCES = GAME_CONFIG.worldGeneration.loot;
 export const WORLD_GENERATED_ITEM_KIND_CHANCES =
   GAME_CONFIG.worldGeneration.generatedItemKind;
-export const WORLD_GENERATED_ITEM_OPTIONS =
-  GAME_CONFIG.worldGeneration.generatedItem;
 
 const WORLD_GENERATED_ITEM_KIND_ORDER = [
   'artifact',

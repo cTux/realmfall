@@ -147,11 +147,6 @@ export interface GameConfig {
     generatedItemKind: WeightedChanceMap<
       'artifact' | 'weapon' | 'offhand' | 'armor' | 'consumable'
     >;
-    generatedItem: {
-      dungeonMinimumRarity: Exclude<ItemRarity, 'common' | 'legendary'>;
-      artifactTierBonus: number;
-      fallbackConsumable: string;
-    };
   };
   events: {
     bloodMoon: {

@@ -193,11 +193,6 @@ describe('game config schema', () => {
           armor: 1,
           consumable: 1,
         },
-        generatedItem: {
-          dungeonMinimumRarity: 'rare',
-          artifactTierBonus: 1,
-          fallbackConsumable: 'apple',
-        },
         structure: {
           globalAppearanceThreshold: {},
           appearanceChanceByTerrain: {},
