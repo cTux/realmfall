@@ -95,6 +95,18 @@ describe('game config schema', () => {
                 legendary: 1,
               },
             },
+            terraformingConsumable: {
+              minimum: 1,
+              baseMultiplier: 1,
+              perTier: 0,
+              rarityMultiplier: {
+                common: 1,
+                uncommon: 1,
+                rare: 1,
+                epic: 1,
+                legendary: 1,
+              },
+            },
             consumableCraftedFood: {
               minimum: 1,
               baseMultiplier: 1,

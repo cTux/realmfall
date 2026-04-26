@@ -1,4 +1,4 @@
-import { TERRAINS, type Terrain } from '../types';
+import { TERRAINS, type Terrain } from '../../types';
 import { itemName } from '../i18n';
 import { ContentIcons } from '../icons';
 import type { ItemConfig } from '../types';
@@ -6,7 +6,9 @@ import type { ItemConfig } from '../types';
 const TERRAFORMING_CONSUMABLE_PREFIX = 'terraforming-';
 
 const TERRAFORMING_CONSUMABLE_TERRAINS: ReadonlyArray<Terrain> = [...TERRAINS];
-const TERRAFORMING_CONSUMABLE_TERRAIN_SET = new Set(TERRAFORMING_CONSUMABLE_TERRAINS);
+const TERRAFORMING_CONSUMABLE_TERRAIN_SET = new Set(
+  TERRAFORMING_CONSUMABLE_TERRAINS,
+);
 
 const TERRAFORMING_CONSUMABLE_TERRAINS_TO_TINT: Record<Terrain, string> = {
   plains: '#3f6212',
@@ -25,12 +27,13 @@ const TERRAFORMING_CONSUMABLE_TERRAINS_TO_TINT: Record<Terrain, string> = {
   swamp: '#1f3a1f',
 };
 
-export const TERRAFORMING_CONSUMABLE_ITEM_KEYS = TERRAFORMING_CONSUMABLE_TERRAINS.map(
-  (terrain) => `${TERRAFORMING_CONSUMABLE_PREFIX}${terrain}` as const,
-);
+export const TERRAFORMING_CONSUMABLE_ITEM_KEYS =
+  TERRAFORMING_CONSUMABLE_TERRAINS.map(
+    (terrain) => `${TERRAFORMING_CONSUMABLE_PREFIX}${terrain}` as const,
+  );
 
-export const TERRAFORMING_CONSUMABLE_ITEM_CONFIGS = TERRAFORMING_CONSUMABLE_TERRAINS.map(
-  (terrain) => {
+export const TERRAFORMING_CONSUMABLE_ITEM_CONFIGS =
+  TERRAFORMING_CONSUMABLE_TERRAINS.map((terrain) => {
     const key = `${TERRAFORMING_CONSUMABLE_PREFIX}${terrain}`;
     return {
       key,
@@ -47,8 +50,7 @@ export const TERRAFORMING_CONSUMABLE_ITEM_CONFIGS = TERRAFORMING_CONSUMABLE_TERR
       hunger: 0,
       defaultQuantity: 1,
     } satisfies ItemConfig;
-  },
-);
+  });
 
 export function getTerraformingConsumableTerrain(
   itemKey?: string,
