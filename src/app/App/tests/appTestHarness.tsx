@@ -273,15 +273,18 @@ vi.mock('../../audio/VoiceAudioControllerBridge', () => ({
   VoiceAudioControllerBridge: () => null,
 }));
 
-export function flushLazyModules() {
-  act(() => {
-    vi.runAllTicks();
-    vi.advanceTimersByTime(0);
-  });
+export async function flushLazyModules() {
+  for (let index = 0; index < 20; index += 1) {
+    await act(async () => {
+      vi.runAllTicks();
+      await vi.dynamicImportSettled();
+      vi.advanceTimersByTime(0);
+    });
+  }
 }
 
-export function flushAnimationFrame() {
-  act(() => {
+export async function flushAnimationFrame() {
+  await act(async () => {
     vi.runAllTicks();
     vi.advanceTimersByTime(16);
   });
@@ -301,7 +304,7 @@ export async function renderApp() {
   return { host, root };
 }
 
-export function waitForAppSelector(
+export async function waitForAppSelector(
   host: HTMLElement,
   selector: string,
   timeoutMs = 2_000,
@@ -314,9 +317,10 @@ export function waitForAppSelector(
       return match as HTMLElement;
     }
 
-    act(() => {
+    await act(async () => {
       vi.advanceTimersByTime(16);
       vi.runAllTicks();
+      await vi.dynamicImportSettled();
     });
   }
 
