@@ -59,6 +59,8 @@ const BIOME_SIGNAL_LAYERS = {
 >;
 
 const MIN_BIOME_CLUSTER_SIZE = 10;
+const MAX_BIOME_CLUSTER_SCAN_STEPS = MIN_BIOME_CLUSTER_SIZE ** 2;
+const MAX_BIOME_CLUSTER_SCAN_RADIUS = 8;
 
 const TERRAIN_PROFILES = {
   plains: {
@@ -187,15 +189,17 @@ function enforceMinimumBiomeClusterSize(
   const visited = new Set<string>();
   const queue: HexCoord[] = [coord];
   let clusterSize = 0;
+  let scanCount = 0;
 
   visited.add(hexKey(coord));
 
-  while (queue.length > 0) {
+  while (queue.length > 0 && scanCount < MAX_BIOME_CLUSTER_SCAN_STEPS) {
     const current = queue.pop();
     if (!current) {
       continue;
     }
 
+    scanCount += 1;
     clusterSize += 1;
 
     if (clusterSize >= MIN_BIOME_CLUSTER_SIZE) {
@@ -203,6 +207,10 @@ function enforceMinimumBiomeClusterSize(
     }
 
     for (const neighbor of hexNeighbors(current)) {
+      if (hexDistance(neighbor, coord) > MAX_BIOME_CLUSTER_SCAN_RADIUS) {
+        continue;
+      }
+
       const neighborTerrain = pickRawTerrain(seed, neighbor);
       const neighborBiome = getTerrainProfile(neighborTerrain).biome;
       const key = hexKey(neighbor);

@@ -262,13 +262,14 @@ vi.mock('../../audio/VoiceAudioControllerBridge', () => ({
 }));
 
 export async function flushLazyModules() {
-  await act(async () => {
-    for (let index = 0; index < 20; index += 1) {
+  for (let index = 0; index < 20; index += 1) {
+    await act(async () => {
       await vi.dynamicImportSettled();
+      await vi.runAllTicks();
       await vi.advanceTimersByTimeAsync(0);
       await Promise.resolve();
-    }
-  });
+    });
+  }
 }
 
 export async function flushAnimationFrame() {
@@ -307,11 +308,18 @@ export async function waitForAppSelector(
 
     await act(async () => {
       await vi.dynamicImportSettled();
+      await vi.runAllTicks();
       await vi.advanceTimersByTimeAsync(50);
       await Promise.resolve();
     });
   }
 
+  const loadingError = host.querySelector('.loadingError');
+  if (loadingError) {
+    throw new Error(
+      `Timed out waiting for selector: ${selector}; found loadingError=${loadingError.textContent}`,
+    );
+  }
   throw new Error(`Timed out waiting for selector: ${selector}`);
 }
 

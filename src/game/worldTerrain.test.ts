@@ -28,9 +28,11 @@ describe('worldTerrain', () => {
   });
 
   it('keeps connected biome regions at a minimum of 10 tiles', () => {
-    expect(
-      minimumConnectedBiomeClusterSize('biome-cluster-minimum', 14),
-    ).toBeGreaterThanOrEqual(10);
+    const minimumCluster = minimumConnectedBiomeClusterSize(
+      'biome-cluster-minimum',
+      14,
+    );
+    expect(minimumCluster).toBeGreaterThanOrEqual(10);
   });
 
   it('surfaces a broader terrain catalog across different deterministic worlds', () => {
@@ -126,7 +128,6 @@ function minimumConnectedBiomeClusterSize(seed: string, radius: number) {
     visited.add(startKey);
 
     let clusterSize = 0;
-    let touchesEdge = false;
 
     while (frontier.length > 0) {
       const current = frontier.pop();
@@ -138,7 +139,6 @@ function minimumConnectedBiomeClusterSize(seed: string, radius: number) {
 
       for (const neighbor of hexNeighbors(current)) {
         if (hexDistance(neighbor, { q: 0, r: 0 }) > radius) {
-          touchesEdge = true;
           continue;
         }
 
@@ -158,10 +158,6 @@ function minimumConnectedBiomeClusterSize(seed: string, radius: number) {
         visited.add(neighborKey);
         frontier.push(coordByKey.get(neighborKey)!);
       }
-    }
-
-    if (touchesEdge) {
-      continue;
     }
 
     if (minimumClusterSize === null || clusterSize < minimumClusterSize) {
