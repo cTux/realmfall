@@ -63,8 +63,6 @@ export const GATHERING_BONUS_PER_LEVEL =
 export const GATHERING_BONUS_MAX = GAME_CONFIG.progression.gatheringBonus.max;
 
 export const BASE_CASCADING_RARITY_CHANCES = GAME_CONFIG.progression.itemRarity;
-export const ITEM_RARITY_SCALING = GAME_CONFIG.progression.itemRarityScaling;
-
 export const TERRAIN_CHANCES = GAME_CONFIG.worldGeneration.terrain;
 export const WORLD_ENEMY_SPAWN_CHANCE =
   GAME_CONFIG.worldGeneration.enemySpawn.tile;
@@ -73,8 +71,6 @@ export const WORLD_NIGHT_AMBUSH_CHANCE =
 export const WORLD_LOOT_CHANCES = GAME_CONFIG.worldGeneration.loot;
 export const WORLD_GENERATED_ITEM_KIND_CHANCES =
   GAME_CONFIG.worldGeneration.generatedItemKind;
-export const WORLD_GENERATED_ITEM_OPTIONS =
-  GAME_CONFIG.worldGeneration.generatedItem;
 
 const WORLD_GENERATED_ITEM_KIND_ORDER = [
   'artifact',

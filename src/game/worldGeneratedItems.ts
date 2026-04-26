@@ -5,14 +5,18 @@ import {
   getGeneratedOffhandKeys,
   getGeneratedWeaponKeys,
 } from './content/items';
-import {
-  WORLD_GENERATED_ITEM_OPTIONS,
-  pickWorldGeneratedItemKind,
-} from './config';
+import { pickWorldGeneratedItemKind } from './config';
 import { hexKey, type HexCoord } from './hex';
 import { makeConsumable } from './inventory';
 import { itemId, pickEquipmentRarity, scaledIndex } from './shared';
 import type { Item, ItemRarity, StructureType } from './types';
+
+const DUNGEON_MINIMUM_DROPPED_ITEM_RARITY: Exclude<
+  ItemRarity,
+  'common' | 'legendary'
+> = 'rare';
+const ARTIFACT_ITEM_TIER_BONUS = 1;
+const FALLBACK_WORLD_GENERATED_CONSUMABLE = 'trail-ration';
 
 export function makeWorldGeneratedItem(
   seed: string,
@@ -22,9 +26,7 @@ export function makeWorldGeneratedItem(
   structure?: StructureType,
 ) {
   const minimumRarity =
-    structure === 'dungeon'
-      ? WORLD_GENERATED_ITEM_OPTIONS.dungeonMinimumRarity
-      : undefined;
+    structure === 'dungeon' ? DUNGEON_MINIMUM_DROPPED_ITEM_RARITY : undefined;
 
   switch (pickWorldGeneratedItemKind(roll)) {
     case 'artifact':
@@ -38,7 +40,7 @@ export function makeWorldGeneratedItem(
     default:
       return makeConsumable(
         itemId('consumable', coord, seed),
-        WORLD_GENERATED_ITEM_OPTIONS.fallbackConsumable,
+        FALLBACK_WORLD_GENERATED_CONSUMABLE,
         tier,
         8,
         12,
@@ -127,7 +129,7 @@ export function makeArtifact(
   const rarity = pickEquipmentRarity(
     seed,
     coord,
-    tier + WORLD_GENERATED_ITEM_OPTIONS.artifactTierBonus,
+    tier + ARTIFACT_ITEM_TIER_BONUS,
     minimumRarity ?? 'uncommon',
     chanceMultiplier,
   );

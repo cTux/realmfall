@@ -141,16 +141,6 @@ describe('game config schema', () => {
           epic: 1,
           legendary: 1,
         },
-        itemRarityScaling: {
-          bonusPerTier: 1,
-          bonusMax: 1,
-          rarityBonusMultipliers: {
-            uncommon: 1,
-            rare: 1,
-            epic: 1,
-            legendary: 1,
-          },
-        },
       },
       worldClock: {
         dayDurationMs: 1,
@@ -192,11 +182,6 @@ describe('game config schema', () => {
           offhand: 1,
           armor: 1,
           consumable: 1,
-        },
-        generatedItem: {
-          dungeonMinimumRarity: 'rare',
-          artifactTierBonus: 1,
-          fallbackConsumable: 'apple',
         },
         structure: {
           globalAppearanceThreshold: {},
@@ -275,17 +260,6 @@ describe('game config schema', () => {
             offhand: 1,
             armor: 1,
             consumable: 1,
-          },
-          bonuses: {
-            bloodMoon: {
-              minimumTierBonus: 1,
-              rarityStep: 1,
-            },
-            skinnedAnimal: {
-              minimum: 1,
-              tierDivisor: 1,
-              bloodMoonBonus: 1,
-            },
           },
         },
         homeScroll: {
