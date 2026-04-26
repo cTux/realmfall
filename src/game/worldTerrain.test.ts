@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
 import { isPassable } from './shared';
-import { pickTerrain } from './worldTerrain';
+import { getTerrainProfile, pickTerrain } from './worldTerrain';
 
 describe('worldTerrain', () => {
   it('keeps terrain generation deterministic for the same seed and coordinate', () => {
@@ -25,6 +25,12 @@ describe('worldTerrain', () => {
 
   it('forms sizeable contiguous terrain clusters instead of tile-by-tile noise', () => {
     expect(largestConnectedClusterSize('biome-clusters', 8)).toBeGreaterThan(8);
+  });
+
+  it('keeps connected biome regions at a minimum of 10 tiles', () => {
+    expect(
+      minimumConnectedBiomeClusterSize('biome-cluster-minimum', 14),
+    ).toBeGreaterThanOrEqual(10);
   });
 
   it('surfaces a broader terrain catalog across different deterministic worlds', () => {
@@ -93,6 +99,77 @@ function largestConnectedClusterSize(seed: string, radius: number) {
   }
 
   return largestCluster;
+}
+
+function minimumConnectedBiomeClusterSize(seed: string, radius: number) {
+  const coords = sampleCoords(radius);
+  const terrainByKey = new Map(
+    coords.map((coord) => [hexKey(coord), pickTerrain(seed, coord)]),
+  );
+  const coordByKey = new Map(coords.map((coord) => [hexKey(coord), coord]));
+  const visited = new Set<string>();
+  let minimumClusterSize: number | null = null;
+
+  for (const coord of coords) {
+    const startKey = hexKey(coord);
+    if (visited.has(startKey)) {
+      continue;
+    }
+
+    const terrain = terrainByKey.get(startKey);
+    if (!terrain) {
+      continue;
+    }
+
+    const startBiome = getTerrainProfile(terrain).biome;
+    const frontier: HexCoord[] = [coord];
+    visited.add(startKey);
+
+    let clusterSize = 0;
+    let touchesEdge = false;
+
+    while (frontier.length > 0) {
+      const current = frontier.pop();
+      if (!current) {
+        continue;
+      }
+
+      clusterSize += 1;
+
+      for (const neighbor of hexNeighbors(current)) {
+        if (hexDistance(neighbor, { q: 0, r: 0 }) > radius) {
+          touchesEdge = true;
+          continue;
+        }
+
+        const neighborKey = hexKey(neighbor);
+        const neighborTerrain = terrainByKey.get(neighborKey);
+        if (
+          !neighborTerrain ||
+          getTerrainProfile(neighborTerrain).biome !== startBiome
+        ) {
+          continue;
+        }
+
+        if (visited.has(neighborKey)) {
+          continue;
+        }
+
+        visited.add(neighborKey);
+        frontier.push(coordByKey.get(neighborKey)!);
+      }
+    }
+
+    if (touchesEdge) {
+      continue;
+    }
+
+    if (minimumClusterSize === null || clusterSize < minimumClusterSize) {
+      minimumClusterSize = clusterSize;
+    }
+  }
+
+  return minimumClusterSize ?? 0;
 }
 
 function sampleCoords(radius: number) {
