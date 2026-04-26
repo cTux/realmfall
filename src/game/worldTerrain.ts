@@ -1,4 +1,4 @@
-import { hexDistance, type HexCoord } from './hex';
+import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
 import { createRng } from './random';
 import type { Terrain } from './types';
 
@@ -57,6 +57,8 @@ const BIOME_SIGNAL_LAYERS = {
   'elevation' | 'moisture' | 'temperature' | 'corruption' | 'ruggedness',
   readonly NoiseLayer[]
 >;
+
+const MIN_BIOME_CLUSTER_SIZE = 10;
 
 const TERRAIN_PROFILES = {
   plains: {
@@ -160,12 +162,71 @@ const TERRAIN_PROFILES = {
 } as const satisfies Record<Terrain, TerrainProfile>;
 
 export function pickTerrain(seed: string, coord: HexCoord): Terrain {
+  return enforceMinimumBiomeClusterSize(
+    seed,
+    coord,
+    pickRawTerrain(seed, coord),
+  );
+}
+
+function pickRawTerrain(seed: string, coord: HexCoord): Terrain {
   const climate = sampleTerrainClimate(seed, coord);
-  const terrain = softenTerrainNearOrigin(
+  return softenTerrainNearOrigin(
     resolveTerrainFromClimate(climate),
     climate.distance,
   );
-  return terrain;
+}
+
+function enforceMinimumBiomeClusterSize(
+  seed: string,
+  coord: HexCoord,
+  terrain: Terrain,
+): Terrain {
+  const baseBiome = getTerrainProfile(terrain).biome;
+  const replacementCandidates = new Map<Terrain, number>();
+  const visited = new Set<string>();
+  const queue: HexCoord[] = [coord];
+  let clusterSize = 0;
+
+  visited.add(hexKey(coord));
+
+  while (queue.length > 0) {
+    const current = queue.pop();
+    if (!current) {
+      continue;
+    }
+
+    clusterSize += 1;
+
+    if (clusterSize >= MIN_BIOME_CLUSTER_SIZE) {
+      return terrain;
+    }
+
+    for (const neighbor of hexNeighbors(current)) {
+      const neighborTerrain = pickRawTerrain(seed, neighbor);
+      const neighborBiome = getTerrainProfile(neighborTerrain).biome;
+      const key = hexKey(neighbor);
+
+      if (neighborBiome === baseBiome) {
+        if (!visited.has(key)) {
+          visited.add(key);
+          queue.push(neighbor);
+        }
+        continue;
+      }
+
+      replacementCandidates.set(
+        neighborTerrain,
+        (replacementCandidates.get(neighborTerrain) ?? 0) + 1,
+      );
+    }
+  }
+
+  const replacement = [...replacementCandidates.entries()].sort(
+    (a, b) => b[1] - a[1] || a[0].localeCompare(b[0]),
+  )[0]?.[0];
+
+  return replacement ?? terrain;
 }
 
 export function getTerrainProfile(terrain: Terrain) {
