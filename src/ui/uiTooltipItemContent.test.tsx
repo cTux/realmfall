@@ -287,4 +287,40 @@ describe('ui tooltip item content', () => {
       ]),
     );
   });
+
+  it('shows level requirements and highlights unmet requirements in red', () => {
+    expect(
+      itemTooltipLines(
+        {
+          ...weaponTooltipItem,
+          requiredLevel: 10,
+        },
+        undefined,
+        {
+          playerLevel: 4,
+        },
+      ),
+    ).toContainEqual({
+      kind: 'text',
+      text: 'Requires level 10',
+      tone: 'negative',
+    });
+
+    expect(
+      itemTooltipLines(
+        {
+          ...weaponTooltipItem,
+          requiredLevel: 10,
+        },
+        undefined,
+        {
+          playerLevel: 12,
+        },
+      ),
+    ).toContainEqual({
+      kind: 'text',
+      text: 'Requires level 10',
+      tone: 'subtle',
+    });
+  });
 });

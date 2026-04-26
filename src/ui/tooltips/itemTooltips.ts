@@ -2,7 +2,7 @@ import { getAbilityDefinition } from '../../game/abilities';
 import { getConsumableEffectDescriptors } from '../../game/consumables';
 import { getItemCategory, inferItemTags } from '../../game/content/items';
 import { EquipmentSlotId } from '../../game/content/ids';
-import { canSellItem, isRecipePage, sellValue } from '../../game/inventory';
+import { canSellItem, canWearItem, isRecipePage, sellValue } from '../../game/inventory';
 import {
   getBaseItemSecondaryStatCount,
   getDisplayedItemSecondaryStats,
@@ -20,6 +20,7 @@ import { type TooltipLine, tagTooltipLines } from './shared';
 interface ItemTooltipOptions {
   recipeLearned?: boolean;
   quickSellHint?: boolean;
+  playerLevel?: number;
 }
 
 const SELL_VALUE_TINT = '#fbbf24';
@@ -43,6 +44,7 @@ export function itemTooltipLines(
 ): TooltipLine[] {
   const tags = item.tags ?? inferItemTags(item);
   const category = getItemCategory(item);
+  const playerLevel = options.playerLevel ?? 1;
   const recipeLearnedLine =
     isRecipePage(item) && options.recipeLearned
       ? {
@@ -58,6 +60,20 @@ export function itemTooltipLines(
         tone: 'subtle' as const,
       }
     : null;
+  const requiredLevelLine =
+    item.requiredLevel == null ||
+    category === 'consumable' ||
+    category === 'resource'
+      ? null
+      : {
+          kind: 'text' as const,
+          text: t('ui.tooltip.requiredLevel', {
+            requiredLevel: item.requiredLevel,
+          }),
+          tone: canWearItem(item, playerLevel)
+            ? ('subtle' as const)
+            : ('negative' as const),
+        };
   const abilityLine = item.grantedAbilityId
     ? (() => {
         const ability = getAbilityDefinition(item.grantedAbilityId);
@@ -84,6 +100,9 @@ export function itemTooltipLines(
         text: t('ui.tooltip.sellQuickShift'),
         tone: 'subtle' as const,
       });
+    }
+    if (requiredLevelLine && item.requiredLevel != null) {
+      lines.unshift(requiredLevelLine);
     }
     return lines;
   }
@@ -168,6 +187,9 @@ export function itemTooltipLines(
 
   if (slotLine) {
     lines.push(slotLine);
+  }
+  if (requiredLevelLine) {
+    lines.push(requiredLevelLine);
   }
   if (abilityLine) {
     lines.push(abilityLine);
