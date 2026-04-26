@@ -278,7 +278,7 @@ function makeEnemyDrop(
   rng: () => number,
   rarityChanceScale: number,
 ) {
-  const minimumRarity = getEnemyMinimumDropRarity(enemy);
+  const minimumRarity = getEnemyMinimumDropRarity();
   const tier = Math.max(1, enemy.tier);
   const seed = `${state.seed}:enemy-item:${enemy.id}:${state.turn}:${kind}`;
 
