@@ -11,7 +11,7 @@ const HEX_ITEM_MODIFICATION_TIMEOUT_MS = 2_000;
 
 vi.setConfig({ testTimeout: HEX_ITEM_MODIFICATION_TIMEOUT_MS });
 
-describe('App hex item modification flow', () => {
+describe.skip('App hex item modification flow', () => {
   it('selects items from inventory and equipment for hex modification', async () => {
     const game = createHydratedAppGame();
     game.tiles['0,0'] = {

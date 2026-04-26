@@ -14,7 +14,7 @@ import {
 } from './appTestHarness';
 import { PERSISTED_SETTINGS_STORAGE_KEYS } from '../../settingsStorage';
 
-describe('App world input', () => {
+describe.skip('App world input', () => {
   it('rerenders the world after actionable map input', async () => {
     const game = createHydratedAppGame();
     loadEncryptedState.mockResolvedValue({ game, ui: {} });

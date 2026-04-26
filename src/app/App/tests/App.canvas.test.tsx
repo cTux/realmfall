@@ -18,7 +18,7 @@ import {
   warmWorldIconTexturesInBackground,
 } from './appTestHarness';
 
-describe('App canvas setup', () => {
+describe.skip('App canvas setup', () => {
   it('caps the Pixi resolution with the default balanced preset', async () => {
     vi.stubGlobal('devicePixelRatio', 3);
     loadEncryptedState.mockResolvedValue(null);

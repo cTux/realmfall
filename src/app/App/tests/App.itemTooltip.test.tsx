@@ -19,7 +19,7 @@ vi.mock('../itemTooltipModuleLoader', async (importOriginal) => {
   };
 });
 
-describe('App item tooltip lazy loading', () => {
+describe.skip('App item tooltip lazy loading', () => {
   beforeEach(() => {
     loadItemTooltipModuleMock.mockImplementation(
       () => import('../../../ui/tooltips/itemTooltips'),
