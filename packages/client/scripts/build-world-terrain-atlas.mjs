@@ -8,7 +8,7 @@ import {
   WORLD_TERRAIN_ATLAS_SOURCES,
 } from './world-terrain-atlas.config.mjs';
 
-const rootDir = fileURLToPath(new URL('../', import.meta.url));
+const rootDir = fileURLToPath(new URL('../../', import.meta.url));
 const imagePath = join(rootDir, WORLD_TERRAIN_ATLAS_OUTPUTS.image);
 const manifestPath = join(rootDir, WORLD_TERRAIN_ATLAS_OUTPUTS.manifest);
 

@@ -13,7 +13,7 @@ const child = spawnManagedChild(
     serveBinPath,
     'dist',
     '--config',
-    '../serve.json',
+    'serve.json',
     '--ssl-cert',
     certPath,
     '--ssl-key',

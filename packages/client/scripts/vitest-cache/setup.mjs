@@ -1,12 +1,12 @@
 import { createVitest } from 'vitest/node';
-import { load } from '../../node_modules/@raegen/vite-plugin-vitest-cache/dist/load.js';
-import { prune } from '../../node_modules/@raegen/vite-plugin-vitest-cache/dist/prune.js';
+import { load } from '../../../node_modules/@raegen/vite-plugin-vitest-cache/dist/load.js';
+import { prune } from '../../../node_modules/@raegen/vite-plugin-vitest-cache/dist/prune.js';
 import {
   createMeasurement,
   format,
   formatDim,
   version,
-} from '../../node_modules/@raegen/vite-plugin-vitest-cache/dist/util.js';
+} from '../../../node_modules/@raegen/vite-plugin-vitest-cache/dist/util.js';
 
 const convertToUserConfig = ({ shard, cache: _cache, ...config }) => ({
   ...config,

@@ -7,7 +7,7 @@ import {
   getStartupChunkFiles,
   getBundleBudgetExitCode,
   isStrictBundleBudgetMode,
-} from '../check-bundle-budget.helpers.mjs';
+} from '../packages/client/scripts/check-bundle-budget.helpers.mjs';
 
 describe('check-bundle-budget helpers', () => {
   it('formats bundle sizes in kilobytes', () => {

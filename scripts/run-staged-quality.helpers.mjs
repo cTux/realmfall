@@ -21,9 +21,9 @@ const PACKAGE_JSON_VERSION_DIFF_LINE_PATTERN =
 
 export const FULL_TEST_TRIGGER_FILES = new Set([
   'pnpm-lock.yaml',
-  'vite.config.ts',
-  'tsconfig.json',
-  'tsconfig.node.json',
+  'packages/client/vite.config.ts',
+  'packages/client/tsconfig.json',
+  'packages/client/tsconfig.node.json',
   `${CLIENT_SRC_DIR}/test/setup.node.ts`,
   `${CLIENT_SRC_DIR}/test/setup.shared.ts`,
   `${CLIENT_SRC_DIR}/test/setup.ts`,

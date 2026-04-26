@@ -5,7 +5,7 @@ import {
   getUnexpectedChangedFiles,
   parseChangedFiles,
   parseCliArgs,
-} from '../dependency-updates.helpers.mjs';
+} from '../packages/client/scripts/dependency-updates.helpers.mjs';
 
 describe('dependency update helpers', () => {
   it('parses the supported CLI commands and flags', () => {

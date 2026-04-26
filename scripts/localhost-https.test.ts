@@ -1,5 +1,5 @@
 import selfsigned from 'selfsigned';
-import { shouldRotateLocalhostHttpsCertificate } from './localhost-https.mjs';
+import { shouldRotateLocalhostHttpsCertificate } from '../packages/client/scripts/localhost-https.mjs';
 
 describe('localhost HTTPS certificate rotation', () => {
   it('keeps unexpired certificates and rotates expired or invalid ones', async () => {

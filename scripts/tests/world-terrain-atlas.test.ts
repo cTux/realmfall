@@ -6,7 +6,7 @@ import {
   WORLD_TERRAIN_ATLAS_COLUMNS,
   WORLD_TERRAIN_ATLAS_OUTPUTS,
   WORLD_TERRAIN_ATLAS_SOURCES,
-} from '../world-terrain-atlas.config.mjs';
+} from '../packages/client/scripts/world-terrain-atlas.config.mjs';
 
 interface WorldTerrainAtlasManifest {
   columns: number;
@@ -28,15 +28,17 @@ interface WorldTerrainAtlasManifest {
 
 describe('world terrain atlas pipeline', () => {
   it('keeps the atlas build command wired to package scripts', () => {
-    const packageJson = JSON.parse(
+  const packageJson = JSON.parse(
       readFileSync(join(process.cwd(), 'package.json'), 'utf8'),
     ) as { scripts: Record<string, string> };
 
     expect(packageJson.scripts['assets:world-atlas']).toBe(
-      'node scripts/build-world-terrain-atlas.mjs',
+      'pnpm --filter @realmfall/client assets:world-atlas',
     );
     expect(
-      existsSync(join(process.cwd(), 'scripts/build-world-terrain-atlas.mjs')),
+      existsSync(
+        join(process.cwd(), 'packages/client/scripts/build-world-terrain-atlas.mjs'),
+      ),
     ).toBe(true);
   });
 
