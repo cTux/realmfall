@@ -20,9 +20,9 @@
     "typecheck":
       "tsc -p ./tsconfig.json --noEmit && tsc -p ./tsconfig.node.json --noEmit",
     "lint": "pnpm lint:oxlint && pnpm lint:css",
-    "lint:fix": "oxlint -c ../.oxlintrc.json --fix src ./.storybook ./scripts ./vite.config.ts ../commitlint.config.js",
+    "lint:fix": "oxlint -c ../.oxlintrc.json --fix src ./.storybook ./scripts ./vite.config.ts",
     "lint:oxlint":
-      "oxlint -c ../.oxlintrc.json src ./.storybook ./scripts ./vite.config.ts ../commitlint.config.js",
+      "oxlint -c ../.oxlintrc.json src ./.storybook ./scripts ./vite.config.ts",
     "lint:css": "stylelint \"src/**/*.{css,scss}\"",
     "format": "prettier --check ..",
     "test:jsdom": "node -e \"console.log('Tests are intentionally disabled')\"",
