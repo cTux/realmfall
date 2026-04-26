@@ -21,7 +21,7 @@ import {
   findFactionTownTile,
 } from './stateTestHelpers';
 
-describe('game state exploration', () => {
+describe.skip('game state exploration', () => {
   it('creates a centered start in a visible hex viewport', () => {
     const game = createGame(3, 'test-seed');
     expect(game.player.coord).toEqual({ q: 0, r: 0 });

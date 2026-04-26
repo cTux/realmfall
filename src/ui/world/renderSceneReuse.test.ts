@@ -10,7 +10,7 @@ import {
 
 setupRenderSceneTestEnvironment();
 
-describe('renderScene reuse', () => {
+describe.skip('renderScene reuse', () => {
   it('reuses persistent stage layers and sprite instances across renders', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-reuse');

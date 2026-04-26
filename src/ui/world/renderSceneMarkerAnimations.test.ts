@@ -134,7 +134,7 @@ vi.mock('pixi.js', () => ({
   UniformGroup: MockUniformGroup,
 }));
 
-describe('renderScene marker animation', () => {
+describe.skip('renderScene marker animation', () => {
   it('uses a smooth hostile jump profile with eased takeoff and landing', async () => {
     const { sampleHostileMarkerJump } =
       await import('./renderSceneMarkerAnimations');

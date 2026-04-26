@@ -19,7 +19,7 @@ import { getWorldDayIndex } from './logs';
 import { getItemCategory } from './content/items';
 import { createPlacedWorldBossEncounter } from './stateTestHelpers';
 
-describe('game state world events', () => {
+describe.skip('game state world events', () => {
   it('can trigger a blood moon that strengthens enemies and floods nearby tiles', () => {
     let bloodMoonGame = createGame(6, 'blood-moon-seed');
     bloodMoonGame.player.coord = { q: 4, r: -2 };

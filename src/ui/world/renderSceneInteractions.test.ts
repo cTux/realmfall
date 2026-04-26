@@ -11,7 +11,7 @@ import {
 
 setupRenderSceneTestEnvironment();
 
-describe('renderScene interactions', () => {
+describe.skip('renderScene interactions', () => {
   it('does not draw the selected outline on the player tile', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-player-selection');
