@@ -65,34 +65,42 @@ const stylelintFiles = stagedFiles.filter(isSrcStyleFile);
 const packageJsonDiffText = stagedFiles.includes('package.json')
   ? getPackageJsonDiffText()
   : '';
+const lintClientFiles = lintFiles.filter((file) =>
+  file.startsWith('packages/client/'),
+);
 const hasFullTestTrigger = shouldRunFullTestSuite(
   stagedFiles,
   packageJsonDiffText,
 );
 const vitestRelatedFiles = stagedFiles.filter(isVitestRelatedFile);
+const toAbsolutePaths = (files) => files.map((file) => resolve(file));
 
 if (prettierFiles.length > 0) {
   logStep(`Running Prettier --write on ${prettierFiles.length} staged file(s)`);
   const pnpm = createPnpmInvocation([
+    '--filter',
+    '@realmfall/client',
     'exec',
     'prettier',
     '--write',
-    ...prettierFiles,
+    ...toAbsolutePaths(prettierFiles),
   ]);
   run(pnpm.command, pnpm.args);
 } else {
   logStep('Skipping staged Prettier, no matching files');
 }
 
-if (lintFiles.length > 0) {
-  logStep(`Running Oxlint --fix on ${lintFiles.length} staged file(s)`);
+if (lintClientFiles.length > 0) {
+  logStep(`Running Oxlint --fix on ${lintClientFiles.length} staged file(s)`);
   const pnpm = createPnpmInvocation([
+    '--filter',
+    '@realmfall/client',
     'exec',
     'oxlint',
     '-c',
-    '.oxlintrc.json',
+    resolve('.oxlintrc.json'),
     '--fix',
-    ...lintFiles,
+    ...toAbsolutePaths(lintClientFiles),
   ]);
   run(pnpm.command, pnpm.args);
 } else {
@@ -101,7 +109,13 @@ if (lintFiles.length > 0) {
 
 if (stylelintFiles.length > 0) {
   logStep(`Running Stylelint on ${stylelintFiles.length} staged file(s)`);
-  const pnpm = createPnpmInvocation(['exec', 'stylelint', ...stylelintFiles]);
+  const pnpm = createPnpmInvocation([
+    '--filter',
+    '@realmfall/client',
+    'exec',
+    'stylelint',
+    ...toAbsolutePaths(stylelintFiles),
+  ]);
   run(pnpm.command, pnpm.args);
 } else {
   logStep('Skipping staged Stylelint, no matching files');
@@ -118,12 +132,14 @@ if (vitestRelatedFiles.length > 0) {
     `Running Vitest related for ${vitestRelatedFiles.length} staged file(s)`,
   );
   const pnpm = createPnpmInvocation([
+    '--filter',
+    '@realmfall/client',
     'exec',
     'vitest',
     'related',
     '--run',
     '--passWithNoTests',
-    ...vitestRelatedFiles,
+    ...toAbsolutePaths(vitestRelatedFiles),
   ]);
   run(pnpm.command, pnpm.args);
 } else {
