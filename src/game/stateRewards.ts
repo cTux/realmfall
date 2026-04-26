@@ -185,7 +185,12 @@ function maybeDropEnemyGold(state: GameState, enemy: Enemy) {
   const rng = createRng(`${state.seed}:enemy-gold:${enemy.id}:${state.turn}`);
   const rarityRank = enemyRarityIndex(enemy.rarity);
   if (enemy.worldBoss) {
-    const quantity = Math.max(40, enemy.tier * 12 + Math.floor(rng() * 40));
+    const { minimumQuantity, tierScaling, randomRange } =
+      ENEMY_GOLD_DROP_CHANCES.boss;
+    const quantity = Math.max(
+      minimumQuantity,
+      enemy.tier * tierScaling + Math.floor(rng() * randomRange),
+    );
     ensureTileState(state, enemy.coord);
     const key = hexKey(enemy.coord);
     const tile = state.tiles[key];
@@ -214,11 +219,23 @@ function maybeDropEnemyGold(state: GameState, enemy: Enemy) {
   if (rng() > chance) return;
 
   const quantity = Math.max(
-    1,
-    Math.floor(enemy.tier + rarityRank + rng() * (5 + rarityRank * 2)),
+    ENEMY_GOLD_DROP_CHANCES.quantity.minimum,
+    Math.floor(
+      enemy.tier * ENEMY_GOLD_DROP_CHANCES.quantity.tierWeight +
+        rarityRank * ENEMY_GOLD_DROP_CHANCES.quantity.rarityWeight +
+        rng() *
+          (ENEMY_GOLD_DROP_CHANCES.quantity.randomBase +
+            rarityRank * ENEMY_GOLD_DROP_CHANCES.quantity.randomRarityWeight),
+    ),
   );
   const bloodMoonQuantity = state.bloodMoonActive
-    ? Math.max(quantity + enemy.tier, Math.ceil(quantity * 2.5))
+    ? Math.max(
+        quantity +
+          enemy.tier * ENEMY_GOLD_DROP_CHANCES.bloodMoonMultiplier.tierWeight,
+        Math.ceil(
+          quantity * ENEMY_GOLD_DROP_CHANCES.bloodMoonMultiplier.quantity,
+        ),
+      )
     : quantity;
   ensureTileState(state, enemy.coord);
   const key = hexKey(enemy.coord);
@@ -450,9 +467,12 @@ function maybeDropBloodMoonLoot(state: GameState, enemy: Enemy) {
   const key = hexKey(enemy.coord);
   const tile = state.tiles[key];
   const rarityRank = enemyRarityIndex(enemy.rarity);
+  const { minimumTierBonus, rarityStep } =
+    ENEMY_ITEM_DROP_CHANCES.bonuses.bloodMoon;
   const baseTier = Math.max(
     1,
-    enemy.tier + Math.max(1, Math.floor(rarityRank / 2)),
+    enemy.tier +
+      Math.max(minimumTierBonus, Math.floor(rarityRank / rarityStep)),
   );
   const minimumRarity = enemy.worldBoss
     ? 'legendary'
@@ -521,8 +541,13 @@ function maybeSkinEnemy(state: GameState, enemy: Enemy) {
   const key = hexKey(enemy.coord);
   const tile = state.tiles[key];
   const quantity = Math.max(
-    1,
-    Math.ceil(enemy.tier / 2) + (state.bloodMoonActive ? 1 : 0),
+    ENEMY_ITEM_DROP_CHANCES.bonuses.skinnedAnimal.minimum,
+    Math.ceil(
+      enemy.tier / ENEMY_ITEM_DROP_CHANCES.bonuses.skinnedAnimal.tierDivisor,
+    ) +
+      (state.bloodMoonActive
+        ? ENEMY_ITEM_DROP_CHANCES.bonuses.skinnedAnimal.bloodMoonBonus
+        : 0),
   );
   addItemToInventory(
     tile.items,

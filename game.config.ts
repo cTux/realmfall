@@ -210,6 +210,19 @@ const gameConfig = defineGameConfig({
       // Chance to upgrade a generated item roll into uncommon rarity.
       uncommon: 0.3,
     },
+    itemRarityScaling: {
+      // Bonus rarity chance gained per item tier.
+      bonusPerTier: 0.0025,
+      // Maximum rarity chance bonus from item tier scaling.
+      bonusMax: 0.06,
+      // Additional rarity multipliers applied to each ascending rarity check.
+      rarityBonusMultipliers: {
+        uncommon: 1,
+        rare: 0.45,
+        epic: 0.2,
+        legendary: 0.08,
+      },
+    },
   },
   worldClock: {
     // Real milliseconds required for one complete 24-hour in-game day.
@@ -359,6 +372,14 @@ const gameConfig = defineGameConfig({
       // Weight for generating a consumable from world-drop item rolls.
       consumable: 0.62,
     },
+    generatedItem: {
+      // Minimum item rarity assigned when generating from dungeon structures.
+      dungeonMinimumRarity: 'rare',
+      // Extra tier used when evaluating generated artifact rarity.
+      artifactTierBonus: 1,
+      // Fallback consumable for the highest world-gear loot band.
+      fallbackConsumable: 'trail-ration',
+    },
   },
   events: {
     bloodMoon: {
@@ -414,6 +435,32 @@ const gameConfig = defineGameConfig({
       max: 0.9,
       // Forced gold-drop chance during blood moon bonus rolls.
       bloodMoon: 1,
+      boss: {
+        // Minimum quantity for any world-boss gold drop.
+        minimumQuantity: 40,
+        // Extra gold for each world-boss tier above base.
+        tierScaling: 12,
+        // Additional random gold added to boss drops.
+        randomRange: 40,
+      },
+      quantity: {
+        // Minimum quantity for standard enemy-gold drops.
+        minimum: 1,
+        // Base weight from enemy tier in the standard gold quantity roll.
+        tierWeight: 1,
+        // Base weight from enemy rarity in the standard gold quantity roll.
+        rarityWeight: 1,
+        // Base random gold range for standard drops.
+        randomBase: 5,
+        // Extra random gold range added per enemy rarity step.
+        randomRarityWeight: 2,
+      },
+      bloodMoonMultiplier: {
+        // Multiplies standard gold quantity when blood moon is active.
+        quantity: 2.5,
+        // Adds an extra tier-weighted gold bonus during blood moon.
+        tierWeight: 1,
+      },
     },
     enemyRecipe: {
       // Base chance for an enemy to drop a recipe page.
@@ -459,6 +506,24 @@ const gameConfig = defineGameConfig({
         offhand: 0.2,
         weapon: 0.22,
         consumable: 0.34,
+      },
+      bonuses: {
+        // Extra blood-moon minimum-tier bonus calculation for monster loot.
+        bloodMoon: {
+          // Minimum tier bonus when dropping blood-moon rewards.
+          minimumTierBonus: 1,
+          // Rarity rank step that grants one extra tier bonus.
+          rarityStep: 2,
+        },
+        // Animal-skinned loot scaling values.
+        skinnedAnimal: {
+          // Base minimum skinned quantity.
+          minimum: 1,
+          // Divider used for tier scaling on skinning quantity.
+          tierDivisor: 2,
+          // Additional skinned quantity added during blood moon.
+          bloodMoonBonus: 1,
+        },
       },
     },
     gatheringByproduct: {

@@ -1,5 +1,5 @@
 import { type HexCoord } from './hex';
-import { BASE_CASCADING_RARITY_CHANCES } from './config';
+import { BASE_CASCADING_RARITY_CHANCES, ITEM_RARITY_SCALING } from './config';
 import {
   RARITY_ORDER,
   type Item,
@@ -74,17 +74,20 @@ export function pickEquipmentRarity(
   minimum: ItemRarity = 'common',
   chanceMultiplier = 1,
 ): ItemRarity {
-  const bonus = Math.min(0.06, tier * 0.0025);
+  const bonus = Math.min(
+    ITEM_RARITY_SCALING.bonusMax,
+    tier * ITEM_RARITY_SCALING.bonusPerTier,
+  );
   const rng = createRng(`${seed}:rarity:${coord.q}:${coord.r}:${tier}`);
 
   return resolveCascadingRarity(
     rng,
     minimum,
     withCascadingRarityChanceBonus({
-      legendary: bonus * 0.08,
-      epic: bonus * 0.2,
-      rare: bonus * 0.45,
-      uncommon: bonus,
+      uncommon: bonus * ITEM_RARITY_SCALING.rarityBonusMultipliers.uncommon,
+      rare: bonus * ITEM_RARITY_SCALING.rarityBonusMultipliers.rare,
+      epic: bonus * ITEM_RARITY_SCALING.rarityBonusMultipliers.epic,
+      legendary: bonus * ITEM_RARITY_SCALING.rarityBonusMultipliers.legendary,
     }),
     chanceMultiplier,
   );
