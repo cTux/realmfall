@@ -8,9 +8,14 @@ import {
   waitForAppSelector,
 } from './appTestHarness';
 
-async function flushAutosaveTimers(ms = 5000) {
-  await vi.advanceTimersByTimeAsync(ms);
-  await vi.runOnlyPendingTimersAsync();
+async function flushAutosaveTimers(ms = 5_000) {
+  let remaining = ms;
+  while (remaining > 0) {
+    const step = Math.min(2_000, remaining);
+    await vi.advanceTimersByTimeAsync(step);
+    await vi.runOnlyPendingTimersAsync();
+    remaining -= step;
+  }
 }
 
 describe('App persistence', () => {

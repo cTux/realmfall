@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react';
+import { act } from 'react';
 import { loadRetryingWindowModule } from './lazyWindowComponent';
 
 describe('loadRetryingWindowModule', () => {
@@ -22,7 +23,9 @@ describe('loadRetryingWindowModule', () => {
 
     const promise = loadRetryingWindowModule(loader, 25);
 
-    await Promise.resolve();
+    await act(async () => {
+      vi.runAllTicks();
+    });
     expect(loader).toHaveBeenCalledTimes(1);
 
     await vi.advanceTimersByTimeAsync(25);

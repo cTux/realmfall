@@ -88,7 +88,7 @@ describe('useBackgroundMusicController', () => {
           pointerId: 1,
         }),
       );
-      await flushPromises();
+      flushPromises();
     });
 
     expect(loadMock).toHaveBeenCalledTimes(1);
@@ -113,7 +113,7 @@ describe('useBackgroundMusicController', () => {
       );
     });
     await act(async () => {
-      await flushPromises();
+      flushPromises();
     });
 
     expect(muteMock).toHaveBeenCalled();
@@ -149,7 +149,7 @@ describe('useBackgroundMusicController', () => {
           pointerId: 1,
         }),
       );
-      await flushPromises();
+      flushPromises();
     });
 
     expect(getNextBackgroundMusicTrackMock).toHaveBeenCalledTimes(2);
@@ -166,11 +166,8 @@ describe('useBackgroundMusicController', () => {
   });
 });
 
-async function flushPromises() {
-  for (let index = 0; index < 5; index += 1) {
-    await Promise.resolve();
-  }
-  await new Promise((resolve) => window.setTimeout(resolve, 0));
+function flushPromises() {
+  vi.runAllTicks();
 }
 
 function BackgroundMusicHarness({

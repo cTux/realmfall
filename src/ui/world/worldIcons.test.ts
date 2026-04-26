@@ -1,3 +1,4 @@
+import { act } from 'react';
 import { createGame } from '../../game/stateFactory';
 import { Texture } from 'pixi.js';
 
@@ -307,7 +308,9 @@ describe('worldIcons', () => {
       expect(placeholder).toBeDefined();
 
       createdImages[0].onload?.();
-      await Promise.resolve();
+      await act(async () => {
+        vi.runAllTicks();
+      });
 
       expect(getWorldIconTexture(WorldIcons.Player)).not.toBe(placeholder);
 
@@ -321,7 +324,9 @@ describe('worldIcons', () => {
       } as IdleDeadline);
 
       createdImages[1].onload?.();
-      await Promise.resolve();
+      await act(async () => {
+        vi.runAllTicks();
+      });
 
       expect(getWorldIconTexture(WorldIcons.Castle)).toBeDefined();
       expect(Texture.from).not.toHaveBeenCalled();

@@ -51,8 +51,8 @@ describe('useVersionStatus', () => {
     });
 
     await act(async () => {
-      await Promise.resolve();
-      await Promise.resolve();
+      vi.advanceTimersByTime(0);
+      vi.runAllTicks();
     });
 
     const statusNode = host.firstElementChild as HTMLDivElement | null;
@@ -61,8 +61,7 @@ describe('useVersionStatus', () => {
 
     await act(async () => {
       vi.advanceTimersByTime(VERSION_POLL_INTERVAL_MS);
-      await Promise.resolve();
-      await Promise.resolve();
+      vi.runAllTicks();
     });
 
     expect(fetchMock).toHaveBeenCalledTimes(2);

@@ -10,6 +10,15 @@ import {
   saveEncryptedState,
 } from './appTestHarness';
 
+function flushAppTimers(totalMs: number) {
+  let remaining = totalMs;
+  while (remaining > 0) {
+    const step = Math.min(2_000, remaining);
+    vi.advanceTimersByTime(step);
+    remaining -= step;
+  }
+}
+
 describe('App hydration and interactions', () => {
   it('hydrates saved state, handles ui interactions, and responds to map input', async () => {
     const game = createHydratedAppGame();
@@ -84,7 +93,7 @@ describe('App hydration and interactions', () => {
     expect(host.querySelector('[aria-label="Action bar"]')).not.toBeNull();
 
     await act(async () => {
-      vi.advanceTimersByTime(60 * 1000);
+      flushAppTimers(60_000);
     });
     await flushLazyModules();
 
@@ -247,7 +256,7 @@ describe('App hydration and interactions', () => {
     ).not.toBeNull();
 
     await act(async () => {
-      vi.advanceTimersByTime(2200);
+      flushAppTimers(2_200);
     });
     await flushLazyModules();
 
@@ -320,7 +329,7 @@ describe('App hydration and interactions', () => {
     ).not.toBeNull();
 
     await act(async () => {
-      vi.advanceTimersByTime(2200);
+      flushAppTimers(2_200);
     });
     await flushLazyModules();
 

@@ -87,7 +87,7 @@ describe('VoiceAudioControllerBridge', () => {
           voicePlaybackState={selectVoicePlaybackEventState(next)}
         />,
       );
-      await flushPromises();
+      flushPromises();
     });
 
     expect(mockAudioInstances).toHaveLength(1);
@@ -137,7 +137,7 @@ describe('VoiceAudioControllerBridge', () => {
           voicePlaybackState={selectVoicePlaybackEventState(next)}
         />,
       );
-      await flushPromises();
+      flushPromises();
     });
 
     expect(mockAudioInstances).toHaveLength(1);
@@ -208,8 +208,6 @@ interface MockMediaQueryList extends MediaQueryList {
   setMatches: (matches: boolean) => void;
 }
 
-async function flushPromises() {
-  await Promise.resolve();
-  await Promise.resolve();
-  await new Promise((resolve) => window.setTimeout(resolve, 0));
+function flushPromises() {
+  vi.runAllTicks();
 }

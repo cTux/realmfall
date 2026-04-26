@@ -144,8 +144,22 @@ async function renderPersistenceHarness() {
 }
 
 async function flushAutosaveTimers(ms = 5000) {
-  await vi.advanceTimersByTimeAsync(ms);
-  await vi.runOnlyPendingTimersAsync();
+  let remaining = ms;
+  while (remaining > 0) {
+    const step = Math.min(2_000, remaining);
+    await vi.advanceTimersByTimeAsync(step);
+    await vi.runOnlyPendingTimersAsync();
+    remaining -= step;
+  }
+}
+
+async function advanceForTest(ms = 4_000) {
+  let remaining = ms;
+  while (remaining > 0) {
+    const step = Math.min(2_000, remaining);
+    await vi.advanceTimersByTimeAsync(step);
+    remaining -= step;
+  }
 }
 
 describe('useAppPersistence', () => {
@@ -270,7 +284,7 @@ describe('useAppPersistence', () => {
     });
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(4000);
+      await advanceForTest(4_000);
     });
 
     await act(async () => {

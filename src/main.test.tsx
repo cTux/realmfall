@@ -66,7 +66,7 @@ describe('main bootstrap', () => {
     expect(render).toHaveBeenCalledTimes(1);
 
     await vi.dynamicImportSettled();
-    await Promise.resolve();
+    vi.runAllTicks();
 
     expect(render).toHaveBeenCalledTimes(2);
     expect(
@@ -86,14 +86,14 @@ describe('main bootstrap', () => {
     );
 
     await import('./main');
-    await Promise.resolve();
+    vi.runAllTicks();
 
     expect(loadI18n).toHaveBeenCalledTimes(1);
     expect(appModuleImported).not.toHaveBeenCalled();
 
     resolveI18n();
     await vi.dynamicImportSettled();
-    await Promise.resolve();
+    vi.runAllTicks();
 
     expect(appModuleImported).toHaveBeenCalledTimes(1);
   });
@@ -104,7 +104,7 @@ describe('main bootstrap', () => {
 
     await import('./main');
     await vi.dynamicImportSettled();
-    await Promise.resolve();
+    vi.runAllTicks();
 
     const startupMarkNames = window.__REALMFALL_PERF__
       ?.snapshot()

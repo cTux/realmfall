@@ -132,8 +132,7 @@ describe('HeroWindow', () => {
 
     await act(async () => {
       await vi.dynamicImportSettled();
-      await Promise.resolve();
-      await Promise.resolve();
+      vi.runAllTicks();
     });
 
     expect(host.textContent).toContain(t('ui.hero.statSheet.primary'));
@@ -165,8 +164,7 @@ describe('HeroWindow', () => {
 
     await act(async () => {
       await vi.dynamicImportSettled();
-      await Promise.resolve();
-      await Promise.resolve();
+      vi.runAllTicks();
     });
 
     const windowNode = host.querySelector(

@@ -69,7 +69,7 @@ describe('StorybookPreviewRuntime', () => {
           clientY: 20,
         }),
       );
-      await Promise.resolve();
+      vi.runAllTicks();
     });
 
     expect(host.textContent).toContain('Scout Hood');
@@ -78,7 +78,7 @@ describe('StorybookPreviewRuntime', () => {
     await act(async () => {
       button?.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }));
       vi.advanceTimersByTime(160);
-      await Promise.resolve();
+      vi.runAllTicks();
     });
 
     const tooltip = host.querySelector('[data-tooltip-visible]');
