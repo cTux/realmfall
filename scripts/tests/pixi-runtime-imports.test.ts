@@ -4,7 +4,7 @@ import { join } from 'node:path';
 describe('Pixi runtime imports', () => {
   it('does not register disabled filter extensions on the world bootstrap path', () => {
     const runtimeSource = readFileSync(
-      join(process.cwd(), 'src/ui/world/pixiRuntime.ts'),
+      join(process.cwd(), 'packages/client/src/ui/world/pixiRuntime.ts'),
       'utf8',
     );
 
@@ -13,7 +13,7 @@ describe('Pixi runtime imports', () => {
 
   it('keeps world render-loop modules behind the async Pixi bootstrap', () => {
     const hookSource = readFileSync(
-      join(process.cwd(), 'src/app/App/usePixiWorld.ts'),
+      join(process.cwd(), 'packages/client/src/app/App/usePixiWorld.ts'),
       'utf8',
     );
     const valueImports = hookSource.match(
@@ -27,7 +27,7 @@ describe('Pixi runtime imports', () => {
 
   it('keeps direct async Pixi bootstrap imports out of usePixiWorld', () => {
     const hookSource = readFileSync(
-      join(process.cwd(), 'src/app/App/usePixiWorld.ts'),
+      join(process.cwd(), 'packages/client/src/app/App/usePixiWorld.ts'),
       'utf8',
     );
 
@@ -39,7 +39,7 @@ describe('Pixi runtime imports', () => {
 
   it('does not pass expensive world defaults directly to useRef', () => {
     const hookSource = readFileSync(
-      join(process.cwd(), 'src/app/App/usePixiWorld.ts'),
+      join(process.cwd(), 'packages/client/src/app/App/usePixiWorld.ts'),
       'utf8',
     );
 

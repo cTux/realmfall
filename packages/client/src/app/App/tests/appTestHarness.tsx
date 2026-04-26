@@ -392,9 +392,19 @@ beforeAll(() => {
   (
     globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }
   ).IS_REACT_ACT_ENVIRONMENT = true;
-  vi.useFakeTimers();
   vi.stubGlobal('requestIdleCallback', undefined);
   vi.stubGlobal('cancelIdleCallback', undefined);
+});
+
+beforeEach(() => {
+  vi.resetModules();
+  vi.resetAllMocks();
+  vi.unmock('../usePixiWorld');
+  vi.useFakeTimers();
+  tickerCallbacks.clear();
+  tickerMaxFpsValues.length = 0;
+  applicationOptions.length = 0;
+  window.localStorage.clear();
 });
 
 afterAll(() => {
@@ -402,10 +412,7 @@ afterAll(() => {
   vi.unstubAllGlobals();
 });
 
-beforeEach(() => {
-  vi.clearAllMocks();
-  tickerCallbacks.clear();
-  tickerMaxFpsValues.length = 0;
-  applicationOptions.length = 0;
-  window.localStorage.clear();
+afterEach(() => {
+  vi.useRealTimers();
+  vi.unstubAllGlobals();
 });

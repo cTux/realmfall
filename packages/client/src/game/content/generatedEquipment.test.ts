@@ -7,6 +7,15 @@ import { GENERATED_ICON_POOLS, isGeneratedIconId } from './generatedIconPools';
 import { GENERATED_EQUIPMENT_CONFIGS } from './generatedEquipment';
 
 describe('generated equipment icons', () => {
+  const generatedIconPoolsSourcePath = resolve(
+    process.cwd(),
+    'packages/client/src/game/content/generatedIconPools.ts',
+  );
+  const generatedIconsDirPath = resolve(
+    process.cwd(),
+    'packages/client/src/assets/icons/generated',
+  );
+
   it('uses generated icon ids for gameplay-facing icon pool entries', () => {
     Object.entries(GENERATED_ICON_POOLS).forEach(([familyKey, icons]) => {
       icons.forEach((icon, index) => {
@@ -17,10 +26,7 @@ describe('generated equipment icons', () => {
   });
 
   it('keeps generated SVG asset imports out of gameplay icon pools', () => {
-    const source = readFileSync(
-      resolve(process.cwd(), 'src/game/content/generatedIconPools.ts'),
-      'utf8',
-    );
+    const source = readFileSync(generatedIconPoolsSourcePath, 'utf8');
 
     expect(source).not.toContain('assets/icons/generated');
   });
@@ -46,11 +52,11 @@ describe('generated equipment icons', () => {
   });
 
   it('keeps vendored generated SVGs mask-safe', () => {
-    readdirSync(resolve(process.cwd(), 'src/assets/icons/generated'))
+    readdirSync(generatedIconsDirPath)
       .filter((file) => file.endsWith('.svg'))
       .forEach((file) => {
         const svg = readFileSync(
-          resolve(process.cwd(), 'src/assets/icons/generated', file),
+          resolve(generatedIconsDirPath, file),
           'utf8',
         );
 

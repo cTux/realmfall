@@ -10,8 +10,10 @@ import {
 
 describe('run-staged-quality helpers', () => {
   it('treats runtime JSON sources as related test inputs', () => {
-    expect(isVitestRelatedFile('game.config.ts')).toBe(true);
-    expect(isVitestRelatedFile('src/i18n/locales/en.json')).toBe(true);
+    expect(isVitestRelatedFile('packages/client/game.config.ts')).toBe(true);
+    expect(isVitestRelatedFile('packages/client/src/i18n/locales/en.json')).toBe(
+      true,
+    );
   });
 
   it('does not treat unrelated root JSON files as related test inputs', () => {
@@ -21,18 +23,24 @@ describe('run-staged-quality helpers', () => {
 
   it('keeps staged Oxlint and Stylelint selectors narrow', () => {
     expect(isLintFile('scripts/run-staged-quality.helpers.mjs')).toBe(true);
-    expect(isLintFile('src/i18n/locales/en.json')).toBe(false);
-    expect(isSrcStyleFile('src/ui/components/App/styles.scss')).toBe(true);
+    expect(isLintFile('packages/client/src/i18n/locales/en.json')).toBe(false);
+    expect(
+      isSrcStyleFile('packages/client/src/ui/components/App/styles.scss'),
+    ).toBe(true);
     expect(isSrcStyleFile('styles.scss')).toBe(false);
   });
 
   it('keeps shared test trigger files explicit', () => {
     expect(FULL_TEST_TRIGGER_FILES.has('package.json')).toBe(false);
-    expect(FULL_TEST_TRIGGER_FILES.has('game.config.ts')).toBe(false);
+    expect(
+      FULL_TEST_TRIGGER_FILES.has('packages/client/game.config.ts'),
+    ).toBe(false);
   });
 
   it('extracts lowercase extensions consistently', () => {
-    expect(getExtension('src/i18n/locales/EN.JSON')).toBe('.json');
+    expect(
+      getExtension('packages/client/src/i18n/locales/EN.JSON'),
+    ).toBe('.json');
     expect(getExtension('scripts/run-staged-quality')).toBe('');
   });
 

@@ -1,5 +1,7 @@
 import { defineConfig } from 'vitest/config';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
 import { getAppBuildVersion } from './scripts/build-version.helpers';
 import { getViteBasePath } from './scripts/git-deploy.helpers.mjs';
 import {
@@ -25,10 +27,12 @@ const packageVersion = JSON.parse(
   readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
 ).version as string;
 const appBuildVersion = getAppBuildVersion(packageVersion);
+const repoRoot = fileURLToPath(new URL('.', import.meta.url));
 
 const localhostHttpsCertificate = await ensureLocalhostHttpsCertificate();
 export default defineConfig({
   base: getViteBasePath(),
+  root: resolve(repoRoot, 'packages/client'),
   define: {
     __APP_VERSION__: JSON.stringify(appBuildVersion),
   },
@@ -56,6 +60,7 @@ export default defineConfig({
     });
   })(),
   build: {
+    outDir: resolve(repoRoot, 'dist'),
     manifest: true,
     chunkSizeWarningLimit: CHUNK_SIZE_WARNING_LIMIT_KB,
     modulePreload: {

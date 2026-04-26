@@ -43,11 +43,11 @@ pnpm dev
 
 ## Repository Layout
 
-- `src/app`: app orchestration, hydration, persistence wiring, keyboard shortcuts, window coordination, and top-level hooks.
-- `src/game`: gameplay rules, combat, economy, crafting, progression, world generation, and shared game types.
-- `src/ui/components`: React windows and shared UI components.
-- `src/ui/world`: Pixi world rendering helpers, caches, and related tests.
-- `src/persistence`: local save storage helpers.
+- `packages/client/src/app`: app orchestration, hydration, persistence wiring, keyboard shortcuts, window coordination, and top-level hooks.
+- `packages/client/src/game`: gameplay rules, combat, economy, crafting, progression, world generation, and shared game types.
+- `packages/client/src/ui/components`: React windows and shared UI components.
+- `packages/client/src/ui/world`: Pixi world rendering helpers, caches, and related tests.
+- `packages/client/src/persistence`: local save storage helpers.
 - `docs`: canonical rules, workflow notes, specs, lore, and transient review material.
 
 ## Project References

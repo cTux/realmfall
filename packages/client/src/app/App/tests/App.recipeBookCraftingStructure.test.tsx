@@ -12,28 +12,31 @@ let setGameRef: MutableRefObject<Dispatch<SetStateAction<GameState>> | null> = {
   current: null,
 };
 
-vi.mock('../usePixiWorld', async () => {
-  const react = await import('react');
+function mockUsePixiWorld() {
+  vi.doMock('../usePixiWorld', async () => {
+    const react = await import('react');
 
-  return {
-    usePixiWorld: ({
-      setGame,
-    }: {
-      setGame: Dispatch<SetStateAction<GameState>>;
-    }) => {
-      setGameRef.current = setGame;
+    return {
+      usePixiWorld: ({
+        setGame,
+      }: {
+        setGame: Dispatch<SetStateAction<GameState>>;
+      }) => {
+        setGameRef.current = setGame;
 
-      return {
-        hostRef: react.useRef<HTMLDivElement | null>(null),
-        canvasReady: true,
-      };
-    },
-  };
-});
+        return {
+          hostRef: react.useRef<HTMLDivElement | null>(null),
+          canvasReady: true,
+        };
+      },
+    };
+  });
+}
 
 describe('App recipe-book crafting structure attention', () => {
   beforeEach(() => {
     setGameRef = { current: null };
+    mockUsePixiWorld();
   });
 
   it('opens the recipe book to the matching tab when entering a crafting structure hex', async () => {

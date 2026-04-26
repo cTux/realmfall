@@ -85,9 +85,9 @@ jobs:
               'vite.config.ts',
               'tsconfig.json',
               'tsconfig.node.json',
-              'src/test/setup.node.ts',
-              'src/test/setup.shared.ts',
-              'src/test/setup.ts'
+              'packages/client/src/test/setup.node.ts',
+              'packages/client/src/test/setup.shared.ts',
+              'packages/client/src/test/setup.ts'
             ) }}
           restore-keys: |
             vitest-cache-${{ runner.os }}-
@@ -127,9 +127,9 @@ jobs:
               'vite.config.ts',
               'tsconfig.json',
               'tsconfig.node.json',
-              'src/test/setup.node.ts',
-              'src/test/setup.shared.ts',
-              'src/test/setup.ts'
+              'packages/client/src/test/setup.node.ts',
+              'packages/client/src/test/setup.shared.ts',
+              'packages/client/src/test/setup.ts'
             ) }}
           restore-keys: |
             vitest-cache-${{ runner.os }}-

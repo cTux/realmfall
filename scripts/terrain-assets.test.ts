@@ -2,12 +2,12 @@ import sharp from 'sharp';
 import { fileURLToPath } from 'node:url';
 
 const TERRAIN_ASSET_PATHS = [
-  '../src/assets/images/terrain/plains-v2.png',
-  '../src/assets/images/terrain/forest-v2.png',
-  '../src/assets/images/terrain/rift-v2.png',
-  '../src/assets/images/terrain/mountain-v2.png',
-  '../src/assets/images/terrain/desert-v2.png',
-  '../src/assets/images/terrain/swamp-v2.png',
+  '../packages/client/src/assets/images/terrain/plains-v2.png',
+  '../packages/client/src/assets/images/terrain/forest-v2.png',
+  '../packages/client/src/assets/images/terrain/rift-v2.png',
+  '../packages/client/src/assets/images/terrain/mountain-v2.png',
+  '../packages/client/src/assets/images/terrain/desert-v2.png',
+  '../packages/client/src/assets/images/terrain/swamp-v2.png',
 ].map((relativePath) => new URL(relativePath, import.meta.url));
 
 describe('terrain hex assets', () => {
