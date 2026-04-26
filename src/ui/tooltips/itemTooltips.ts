@@ -2,7 +2,13 @@ import { getAbilityDefinition } from '../../game/abilities';
 import { getConsumableEffectDescriptors } from '../../game/consumables';
 import { getItemCategory, inferItemTags } from '../../game/content/items';
 import { EquipmentSlotId } from '../../game/content/ids';
-import { canSellItem, canWearItem, isRecipePage, sellValue } from '../../game/inventory';
+import {
+  canSellItem,
+  canWearItem,
+  getItemRequiredLevel,
+  isRecipePage,
+  sellValue,
+} from '../../game/inventory';
 import {
   getBaseItemSecondaryStatCount,
   getDisplayedItemSecondaryStats,
@@ -45,6 +51,7 @@ export function itemTooltipLines(
   const tags = item.tags ?? inferItemTags(item);
   const category = getItemCategory(item);
   const playerLevel = options.playerLevel ?? 1;
+  const requiredLevel = getItemRequiredLevel(item);
   const recipeLearnedLine =
     isRecipePage(item) && options.recipeLearned
       ? {
@@ -61,14 +68,14 @@ export function itemTooltipLines(
       }
     : null;
   const requiredLevelLine =
-    item.requiredLevel == null ||
+    requiredLevel == null ||
     category === 'consumable' ||
     category === 'resource'
       ? null
       : {
           kind: 'text' as const,
           text: t('ui.tooltip.requiredLevel', {
-            requiredLevel: item.requiredLevel,
+            requiredLevel,
           }),
           tone: canWearItem(item, playerLevel)
             ? ('subtle' as const)

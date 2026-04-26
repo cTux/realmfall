@@ -322,5 +322,23 @@ describe('ui tooltip item content', () => {
       text: 'Requires level 10',
       tone: 'subtle',
     });
+
+    expect(
+      itemTooltipLines(
+        {
+          ...weaponTooltipItem,
+          requiredLevel: undefined,
+          tier: 20,
+        },
+        undefined,
+        {
+          playerLevel: 12,
+        },
+      ),
+    ).toContainEqual({
+      kind: 'text',
+      text: 'Requires level 20',
+      tone: 'negative',
+    });
   });
 });
