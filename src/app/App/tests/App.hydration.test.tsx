@@ -1,6 +1,7 @@
 import { act } from 'react';
 import { createGame } from '../../../game/stateFactory';
 import styles from '../styles.module.scss';
+import type { PersistedData } from '../../../persistence/storage';
 import {
   createHydratedAppGame,
   flushLazyModules,
@@ -26,8 +27,8 @@ describe.skip('App hydration and interactions', () => {
     let resolveLoad: ((value: unknown) => void) | null = null;
     loadEncryptedState.mockImplementation(
       () =>
-        new Promise((resolve) => {
-          resolveLoad = resolve;
+        new Promise<PersistedData>((resolve) => {
+          resolveLoad = resolve as (value: unknown) => void;
         }),
     );
 

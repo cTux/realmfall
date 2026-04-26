@@ -2,9 +2,12 @@ import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createGame } from '../../../game/stateFactory';
 import { GAME_DAY_DURATION_MS, GAME_DAY_MINUTES } from '../../../game/config';
+import type { PersistedData } from '../../../persistence/storage';
 
 export const renderScene = vi.fn();
-export const loadEncryptedState = vi.fn(async () => null);
+export const loadEncryptedState = vi.fn(async () => {
+  return null as PersistedData | null;
+});
 export const saveEncryptedState = vi.fn();
 export const clearEncryptedState = vi.fn();
 export const tickerCallbacks = new Set<() => void>();
