@@ -278,7 +278,7 @@ function makeEnemyDrop(
   rng: () => number,
   rarityChanceScale: number,
 ) {
-  const minimumRarity = getEnemyMinimumDropRarity();
+  const minimumRarity = getEnemyMinimumDropRarity(enemy);
   const tier = Math.max(1, enemy.tier);
   const seed = `${state.seed}:enemy-item:${enemy.id}:${state.turn}:${kind}`;
 
@@ -365,8 +365,8 @@ function makeEnemyConsumableDrop(
   });
 }
 
-function getEnemyMinimumDropRarity(): ItemRarity {
-  return 'common';
+function getEnemyMinimumDropRarity(enemy: Enemy): ItemRarity {
+  return enemy.worldBoss ? 'legendary' : 'common';
 }
 
 function addEnemyDrop(state: GameState, enemy: Enemy, item: Item) {
@@ -477,11 +477,7 @@ function maybeDropBloodMoonLoot(state: GameState, enemy: Enemy) {
         ),
       ),
   );
-  const minimumRarity = enemy.worldBoss
-    ? 'legendary'
-    : rarityRank >= 2
-      ? 'epic'
-      : 'rare';
+  const minimumRarity = enemy.worldBoss ? 'legendary' : 'common';
   const rarityChanceScale = getEnemyDropRarityChanceScale(state, enemy);
   addItemToInventory(
     tile.items,
@@ -587,7 +583,7 @@ function makeBloodMoonDrop(
   enemy: Enemy,
   index: number,
   tier: number,
-  minimumRarity: 'rare' | 'epic' | 'legendary',
+  minimumRarity: ItemRarity,
   rarityChanceScale: number,
 ) {
   const coord = enemy.coord;
