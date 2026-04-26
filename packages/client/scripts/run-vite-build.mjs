@@ -1,12 +1,10 @@
-import { fileURLToPath } from 'node:url';
 import { spawnManagedChild } from './managed-child-process.mjs';
+import { createPnpmInvocation } from './pnpm-command.mjs';
 import { filterKnownPluginTimingWarnings } from './run-vite-build.helpers.mjs';
 
-const viteEntrypoint = fileURLToPath(
-  new URL('../../../node_modules/vite/bin/vite.js', import.meta.url),
-);
+const invocation = createPnpmInvocation(['exec', 'vite', 'build']);
 
-const child = spawnManagedChild(process.execPath, [viteEntrypoint, 'build'], {
+const child = spawnManagedChild(invocation.command, invocation.args, {
   env: process.env,
   stdio: ['inherit', 'pipe', 'pipe'],
 });
