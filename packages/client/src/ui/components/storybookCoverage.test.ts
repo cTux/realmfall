@@ -2,7 +2,14 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const componentsDir = join(process.cwd(), 'src', 'ui', 'components');
+const componentsDir = join(
+  process.cwd(),
+  'packages',
+  'client',
+  'src',
+  'ui',
+  'components',
+);
 
 describe('storybook coverage', () => {
   it('keeps a story for each top-level UI component directory', () => {

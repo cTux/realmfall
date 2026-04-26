@@ -14,6 +14,8 @@ const PRETTIER_EXTENSIONS = new Set([
 const STYLELINT_EXTENSIONS = new Set(['.css', '.scss']);
 const VITEST_RELATED_EXTENSIONS = new Set([...LINT_EXTENSIONS, '.json']);
 const PACKAGE_JSON_PATH = 'package.json';
+const CLIENT_SRC_DIR = 'packages/client/src';
+const CLIENT_GAME_CONFIG_PATH = 'packages/client/game.config.ts';
 const PACKAGE_JSON_VERSION_DIFF_LINE_PATTERN =
   /^[-+]\s*"version":\s*"[^"]+",\s*$/u;
 
@@ -22,9 +24,9 @@ export const FULL_TEST_TRIGGER_FILES = new Set([
   'vite.config.ts',
   'tsconfig.json',
   'tsconfig.node.json',
-  'src/test/setup.node.ts',
-  'src/test/setup.shared.ts',
-  'src/test/setup.ts',
+  `${CLIENT_SRC_DIR}/test/setup.node.ts`,
+  `${CLIENT_SRC_DIR}/test/setup.shared.ts`,
+  `${CLIENT_SRC_DIR}/test/setup.ts`,
 ]);
 
 export function getExtension(file) {
@@ -34,7 +36,8 @@ export function getExtension(file) {
 
 export function isSrcStyleFile(file) {
   return (
-    file.startsWith('src/') && STYLELINT_EXTENSIONS.has(getExtension(file))
+    file.startsWith(`${CLIENT_SRC_DIR}/`) &&
+    STYLELINT_EXTENSIONS.has(getExtension(file))
   );
 }
 
@@ -54,9 +57,9 @@ export function isVitestRelatedFile(file) {
   }
 
   return (
-    file.startsWith('src/') ||
+    file.startsWith(`${CLIENT_SRC_DIR}/`) ||
     file.startsWith('scripts/') ||
-    file === 'game.config.ts' ||
+    file === CLIENT_GAME_CONFIG_PATH ||
     file.includes('.test.')
   );
 }

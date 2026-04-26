@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import sharp from 'sharp';
-import { TERRAINS } from '../../src/game/types';
+import { TERRAINS } from '../../packages/client/src/game/types';
 import {
   WORLD_TERRAIN_ATLAS_COLUMNS,
   WORLD_TERRAIN_ATLAS_OUTPUTS,

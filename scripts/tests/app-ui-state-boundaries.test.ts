@@ -31,9 +31,9 @@ function getBroadStateImports(filePath: string) {
 
 describe('app and ui game-state boundaries', () => {
   it('keeps broad game/state imports out of non-test app and ui modules', () => {
-    const sourceFiles = [
-      ...collectSourceFiles('src/app'),
-      ...collectSourceFiles('src/ui'),
+  const sourceFiles = [
+      ...collectSourceFiles('packages/client/src/app'),
+      ...collectSourceFiles('packages/client/src/ui'),
     ];
 
     const violations = sourceFiles.flatMap((filePath) =>
