@@ -95,21 +95,21 @@ export function itemTooltipLines(
     : null;
 
   if (category === 'consumable') {
+    const lines: TooltipLine[] = requiredLevelLine ? [requiredLevelLine] : [];
     const sellLine = itemSellLine(item);
-    const lines: TooltipLine[] = [
-      { kind: 'text', text: consumableEffectDescription(item) },
-      ...tagTooltipLines(tags),
-      ...(sellLine ? [sellLine] : []),
-    ];
+    lines.push(
+      ...[
+        { kind: 'text' as const, text: consumableEffectDescription(item) },
+        ...tagTooltipLines(tags),
+        ...(sellLine ? [sellLine] : []),
+      ],
+    );
     if (options.quickSellHint) {
       lines.push({
         kind: 'text' as const,
         text: t('ui.tooltip.sellQuickShift'),
         tone: 'subtle' as const,
       });
-    }
-    if (requiredLevelLine && item.requiredLevel != null) {
-      lines.unshift(requiredLevelLine);
     }
     return lines;
   }
@@ -118,10 +118,11 @@ export function itemTooltipLines(
     category === 'resource'
       ? []
       : [
+          ...(requiredLevelLine ? [requiredLevelLine] : []),
           {
-            kind: 'text',
+            kind: 'text' as const,
             text: itemTierLabel(item),
-            tone: 'subtle',
+            tone: 'subtle' as const,
           },
         ];
 
@@ -194,9 +195,6 @@ export function itemTooltipLines(
 
   if (slotLine) {
     lines.push(slotLine);
-  }
-  if (requiredLevelLine) {
-    lines.push(requiredLevelLine);
   }
   if (abilityLine) {
     lines.push(abilityLine);

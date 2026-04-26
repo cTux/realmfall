@@ -32,6 +32,11 @@ describe('ui tooltip item content', () => {
 
     expect(tooltipLines[0]).toEqual({
       kind: 'text',
+      text: 'Requires level 2',
+      tone: 'negative',
+    });
+    expect(tooltipLines[1]).toEqual({
+      kind: 'text',
       text: 'Rare T2 weapon',
       tone: 'subtle',
     });
