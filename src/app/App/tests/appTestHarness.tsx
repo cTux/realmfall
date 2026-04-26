@@ -22,6 +22,12 @@ class ResizeObserverMock {
 if (typeof globalThis.ResizeObserver === 'undefined') {
   vi.stubGlobal('ResizeObserver', ResizeObserverMock);
 }
+if (typeof window.ResizeObserver === 'undefined') {
+  Object.defineProperty(window, 'ResizeObserver', {
+    value: ResizeObserverMock,
+    writable: true,
+  });
+}
 
 class MockStage {
   children: unknown[] = [];
@@ -118,6 +124,8 @@ vi.mock('pixi.js', () => {
   }
 
   class MockText extends MockContainer {
+    anchor = { set: vi.fn() };
+
     constructor(
       public text: string,
       public style: unknown,
@@ -266,6 +274,7 @@ export async function flushLazyModules() {
     await act(async () => {
       await vi.dynamicImportSettled();
       await vi.runAllTicks();
+      await Promise.resolve();
       await vi.advanceTimersByTimeAsync(0);
       await Promise.resolve();
     });
@@ -309,6 +318,7 @@ export async function waitForAppSelector(
     await act(async () => {
       await vi.dynamicImportSettled();
       await vi.runAllTicks();
+      await Promise.resolve();
       await vi.advanceTimersByTimeAsync(50);
       await Promise.resolve();
     });
