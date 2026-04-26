@@ -42,6 +42,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - World-generated weapons, armor, offhands, and artifacts scale by terrain tier and context, including generated shoulders, bracers, belts, shields, magical offhands, and one-handed or two-handed weapon archetypes.
 - World loot and blood moon bonus gear now choose their top-level item family from equal random buckets instead of weighted family chances, so weapons, armor, offhands, artifacts, and consumables do not skew toward accessory-heavy drops.
 - Offhand shields and magical spheres always include a block-chance secondary stat, including both generated drops and fixed crafted icon variants.
+- Enemy bonus drops now evaluate item-kind chances in ascending order from lowest to highest; each successful chance rolls an independent item drop so rarer kinds remain reachable while higher-chance kinds can still drop too.
 - Dungeon and blood moon rewards bias toward better rarity floors.
 - Generated artifacts and equipment use deterministic icon selection from stable generated icon ids while their per-instance stats are derived from tier and rarity. The vendored SVG pools in `src/assets/icons/generated` are resolved by UI asset helpers rather than imported by gameplay content.
 - Generated artifacts and equipment use the shared cascading rarity-event mechanism so higher tiers can promote drops through the same rarity ladder used elsewhere in gameplay, with base upgrade checks of `30%` uncommon, `5%` rare, `0.5%` epic, and `0.02%` legendary before tier bonuses.

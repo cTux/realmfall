@@ -141,6 +141,16 @@ describe('game config schema', () => {
           epic: 1,
           legendary: 1,
         },
+        itemRarityScaling: {
+          bonusPerTier: 1,
+          bonusMax: 1,
+          rarityBonusMultipliers: {
+            uncommon: 1,
+            rare: 1,
+            epic: 1,
+            legendary: 1,
+          },
+        },
       },
       worldClock: {
         dayDurationMs: 1,
@@ -221,6 +231,22 @@ describe('game config schema', () => {
           eliteBonus: 1,
           max: 1,
           bloodMoon: 1,
+          boss: {
+            minimumQuantity: 1,
+            tierScaling: 1,
+            randomRange: 1,
+          },
+          quantity: {
+            minimum: 1,
+            tierWeight: 1,
+            rarityWeight: 1,
+            randomBase: 1,
+            randomRarityWeight: 1,
+          },
+          bloodMoonMultiplier: {
+            quantity: 1,
+            tierWeight: 1,
+          },
         },
         enemyRecipe: {
           base: 1,
@@ -229,6 +255,33 @@ describe('game config schema', () => {
           max: 1,
           bloodMoonBonus: 1,
           bloodMoonMax: 1,
+        },
+        enemyItem: {
+          chance: {
+            base: 1,
+            perRarity: 1,
+            max: 1,
+            bloodMoonMultiplier: 1,
+            dungeonMultiplier: 1,
+          },
+          kindChances: {
+            artifact: 1,
+            weapon: 1,
+            offhand: 1,
+            armor: 1,
+            consumable: 1,
+          },
+          bonuses: {
+            bloodMoon: {
+              minimumTierBonus: 1,
+              rarityStep: 1,
+            },
+            skinnedAnimal: {
+              minimum: 1,
+              tierDivisor: 1,
+              bloodMoonBonus: 1,
+            },
+          },
         },
         homeScroll: {
           base: 1,

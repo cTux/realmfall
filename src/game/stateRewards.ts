@@ -2,7 +2,10 @@ import { t } from '../i18n';
 import { Skill } from './types';
 import {
   BLOOD_MOON_EXTRA_DROP_CHANCES,
+  ENEMY_ITEM_BLOOD_MOON_RARITY_CHANCE_MULTIPLIER,
+  ENEMY_ITEM_DUNGEON_RARITY_CHANCE_MULTIPLIER,
   ENEMY_GOLD_DROP_CHANCES,
+  ENEMY_ITEM_DROP_CHANCES,
   ENEMY_RECIPE_DROP_CHANCES,
   GATHERING_BYPRODUCT_CHANCES,
   HOME_SCROLL_DROP_CHANCES,
@@ -11,7 +14,7 @@ import {
 } from './config';
 import { createRng } from './random';
 import { itemName } from './content/i18n';
-import { buildItemFromConfig, getItemConfigByKey } from './content/items';
+import { buildItemFromConfig, getConsumableItemKeys } from './content/items';
 import { ItemId } from './content/ids';
 import { getStructureConfig } from './content/structures';
 import { GAME_TAGS } from './content/tags';
@@ -28,7 +31,7 @@ import {
   makeResourceStack,
 } from './inventory';
 import { gainSkillXp } from './progression';
-import { noise } from './shared';
+import { noise, pickEquipmentRarity } from './shared';
 import {
   ensureTileState,
   makeArmor,
@@ -37,7 +40,15 @@ import {
   makeWeapon,
   structureDefinition,
 } from './world';
-import type { Enemy, GameState, GatheringStructureType, Item } from './types';
+import type {
+  Enemy,
+  GameState,
+  GatheringStructureType,
+  Item,
+  ItemRarity,
+} from './types';
+
+type EnemyItemKind = keyof typeof ENEMY_ITEM_DROP_CHANCES.kindChances;
 
 type GatheringDefinition = ReturnType<typeof structureDefinition>;
 
@@ -136,7 +147,7 @@ export function maybeGatherByproduct(
 
 export function dropEnemyRewards(state: GameState, enemy: Enemy) {
   maybeDropEnemyGold(state, enemy);
-  maybeDropEnemyConsumables(state, enemy);
+  maybeDropEnemyItem(state, enemy);
   maybeDropEnemyRecipe(state, enemy);
   maybeDropHomeScroll(state, enemy);
   maybeDropBloodMoonLoot(state, enemy);
@@ -174,7 +185,12 @@ function maybeDropEnemyGold(state: GameState, enemy: Enemy) {
   const rng = createRng(`${state.seed}:enemy-gold:${enemy.id}:${state.turn}`);
   const rarityRank = enemyRarityIndex(enemy.rarity);
   if (enemy.worldBoss) {
-    const quantity = Math.max(40, enemy.tier * 12 + Math.floor(rng() * 40));
+    const { minimumQuantity, tierScaling, randomRange } =
+      ENEMY_GOLD_DROP_CHANCES.boss;
+    const quantity = Math.max(
+      minimumQuantity,
+      enemy.tier * tierScaling + Math.floor(rng() * randomRange),
+    );
     ensureTileState(state, enemy.coord);
     const key = hexKey(enemy.coord);
     const tile = state.tiles[key];
@@ -203,11 +219,23 @@ function maybeDropEnemyGold(state: GameState, enemy: Enemy) {
   if (rng() > chance) return;
 
   const quantity = Math.max(
-    1,
-    Math.floor(enemy.tier + rarityRank + rng() * (5 + rarityRank * 2)),
+    ENEMY_GOLD_DROP_CHANCES.quantity.minimum,
+    Math.floor(
+      enemy.tier * ENEMY_GOLD_DROP_CHANCES.quantity.tierWeight +
+        rarityRank * ENEMY_GOLD_DROP_CHANCES.quantity.rarityWeight +
+        rng() *
+          (ENEMY_GOLD_DROP_CHANCES.quantity.randomBase +
+            rarityRank * ENEMY_GOLD_DROP_CHANCES.quantity.randomRarityWeight),
+    ),
   );
   const bloodMoonQuantity = state.bloodMoonActive
-    ? Math.max(quantity + enemy.tier, Math.ceil(quantity * 2.5))
+    ? Math.max(
+        quantity +
+          enemy.tier * ENEMY_GOLD_DROP_CHANCES.bloodMoonMultiplier.tierWeight,
+        Math.ceil(
+          quantity * ENEMY_GOLD_DROP_CHANCES.bloodMoonMultiplier.quantity,
+        ),
+      )
     : quantity;
   ensureTileState(state, enemy.coord);
   const key = hexKey(enemy.coord);
@@ -224,46 +252,141 @@ function maybeDropEnemyGold(state: GameState, enemy: Enemy) {
   );
 }
 
-function maybeDropEnemyConsumables(state: GameState, enemy: Enemy) {
-  const dropKeys = [
-    ItemId.Apple,
-    ItemId.WaterFlask,
-    ItemId.HealthPotion,
-    ItemId.ManaPotion,
-  ] as const;
+function maybeDropEnemyItem(state: GameState, enemy: Enemy) {
+  const chance = Math.min(
+    ENEMY_ITEM_DROP_CHANCES.chance.max,
+    ENEMY_ITEM_DROP_CHANCES.chance.base +
+      enemyRarityIndex(enemy.rarity) * ENEMY_ITEM_DROP_CHANCES.chance.perRarity,
+  );
+  const rarityChanceScale = getEnemyDropRarityChanceScale(state, enemy);
+  const rng = createRng(`${state.seed}:enemy-item:${enemy.id}:${state.turn}`);
+  if (rng() >= chance) return;
 
-  dropKeys.forEach((itemKey) => {
-    const configured = getItemConfigByKey(itemKey);
-    const chance = Math.min(
-      0.92,
-      (configured?.dropChance ?? 0) + enemyRarityIndex(enemy.rarity) * 0.04,
-    );
-    if (chance <= 0) return;
+  const sortedKinds = getSortedEnemyItemKinds();
+  for (const [kind, kindChance] of sortedKinds) {
+    if (rng() >= clampChance(kindChance)) continue;
+    const drop = makeEnemyDrop(state, enemy, kind, rng, rarityChanceScale);
+    if (!drop) continue;
+    addEnemyDrop(state, enemy, drop);
+  }
+}
 
-    const rng = createRng(
-      `${state.seed}:enemy-consumable:${itemKey}:${enemy.id}:${state.turn}`,
-    );
-    if (rng() >= chance) return;
+function makeEnemyDrop(
+  state: GameState,
+  enemy: Enemy,
+  kind: EnemyItemKind,
+  rng: () => number,
+  rarityChanceScale: number,
+) {
+  const minimumRarity = getEnemyMinimumDropRarity(enemy);
+  const tier = Math.max(1, enemy.tier);
+  const seed = `${state.seed}:enemy-item:${enemy.id}:${state.turn}:${kind}`;
 
-    ensureTileState(state, enemy.coord);
-    const key = hexKey(enemy.coord);
-    const tile = state.tiles[key];
-    addItemToInventory(
-      tile.items,
-      buildItemFromConfig(itemKey, {
-        id: `${itemKey}:${enemy.id}:${state.turn}`,
-      }),
-    );
-    state.tiles[key] = { ...tile, items: [...tile.items] };
-    addLog(
-      state,
-      'loot',
-      t('game.message.enemyDrop.item', {
-        enemy: enemy.name,
-        item: configured?.name ?? itemKey,
-      }),
-    );
+  switch (kind) {
+    case 'artifact':
+      return makeArtifact(
+        seed,
+        enemy.coord,
+        tier,
+        minimumRarity,
+        rarityChanceScale,
+      );
+    case 'weapon':
+      return makeWeapon(
+        seed,
+        enemy.coord,
+        tier,
+        minimumRarity,
+        rarityChanceScale,
+      );
+    case 'offhand':
+      return makeOffhand(
+        seed,
+        enemy.coord,
+        tier,
+        minimumRarity,
+        rarityChanceScale,
+      );
+    case 'armor':
+      return makeArmor(
+        seed,
+        enemy.coord,
+        tier,
+        minimumRarity,
+        rarityChanceScale,
+      );
+    default:
+      return makeEnemyConsumableDrop(
+        state,
+        enemy,
+        seed,
+        tier,
+        minimumRarity,
+        rng,
+        rarityChanceScale,
+      );
+  }
+}
+
+function getSortedEnemyItemKinds() {
+  return (
+    Object.entries(ENEMY_ITEM_DROP_CHANCES.kindChances) as Array<
+      [EnemyItemKind, number]
+    >
+  ).sort(([kindA, chanceA], [kindB, chanceB]) => {
+    const chanceDelta = chanceA - chanceB;
+    return chanceDelta === 0 ? kindA.localeCompare(kindB) : chanceDelta;
   });
+}
+
+function makeEnemyConsumableDrop(
+  state: GameState,
+  enemy: Enemy,
+  seed: string,
+  tier: number,
+  minimumRarity: ItemRarity,
+  rng: () => number,
+  rarityChanceScale: number,
+) {
+  const keys = getConsumableItemKeys();
+  const itemKey = keys[Math.floor(rng() * keys.length)] ?? ItemId.Apple;
+  const rarity = pickEquipmentRarity(
+    `${seed}:consumable-rarity`,
+    enemy.coord,
+    tier,
+    minimumRarity,
+    rarityChanceScale,
+  );
+
+  return buildItemFromConfig(itemKey, {
+    id: `${seed}:consumable:${enemy.id}:${state.turn}`,
+    tier,
+    rarity,
+  });
+}
+
+function getEnemyMinimumDropRarity(enemy: Enemy): ItemRarity {
+  return enemy.worldBoss ? 'legendary' : 'common';
+}
+
+function addEnemyDrop(state: GameState, enemy: Enemy, item: Item) {
+  ensureTileState(state, enemy.coord);
+  const key = hexKey(enemy.coord);
+  const tile = state.tiles[key];
+  addItemToInventory(tile.items, item);
+  state.tiles[key] = { ...tile, items: [...tile.items] };
+  addLog(
+    state,
+    'loot',
+    t('game.message.enemyDrop.item', {
+      enemy: enemy.name,
+      item: item.name,
+    }),
+  );
+}
+
+function clampChance(chance: number) {
+  return Math.max(0, Math.min(1, chance));
 }
 
 function maybeDropEnemyRecipe(state: GameState, enemy: Enemy) {
@@ -346,16 +469,26 @@ function maybeDropBloodMoonLoot(state: GameState, enemy: Enemy) {
   const rarityRank = enemyRarityIndex(enemy.rarity);
   const baseTier = Math.max(
     1,
-    enemy.tier + Math.max(1, Math.floor(rarityRank / 2)),
+    enemy.tier +
+      Math.max(
+        ENEMY_ITEM_DROP_CHANCES.bonuses.bloodMoon.minimumTierBonus,
+        Math.floor(
+          rarityRank / ENEMY_ITEM_DROP_CHANCES.bonuses.bloodMoon.rarityStep,
+        ),
+      ),
   );
-  const minimumRarity = enemy.worldBoss
-    ? 'legendary'
-    : rarityRank >= 2
-      ? 'epic'
-      : 'rare';
+  const minimumRarity = enemy.worldBoss ? 'legendary' : 'common';
+  const rarityChanceScale = getEnemyDropRarityChanceScale(state, enemy);
   addItemToInventory(
     tile.items,
-    makeBloodMoonDrop(state, enemy, 0, baseTier, minimumRarity),
+    makeBloodMoonDrop(
+      state,
+      enemy,
+      0,
+      baseTier,
+      minimumRarity,
+      rarityChanceScale,
+    ),
   );
 
   const rng = createRng(
@@ -364,7 +497,14 @@ function maybeDropBloodMoonLoot(state: GameState, enemy: Enemy) {
   if (enemy.worldBoss) {
     addItemToInventory(
       tile.items,
-      makeBloodMoonDrop(state, enemy, 1, baseTier + 1, 'legendary'),
+      makeBloodMoonDrop(
+        state,
+        enemy,
+        1,
+        baseTier + 1,
+        'legendary',
+        rarityChanceScale,
+      ),
     );
   } else if (
     rarityRank >= 2 ||
@@ -374,7 +514,14 @@ function maybeDropBloodMoonLoot(state: GameState, enemy: Enemy) {
   ) {
     addItemToInventory(
       tile.items,
-      makeBloodMoonDrop(state, enemy, 1, baseTier + 1, minimumRarity),
+      makeBloodMoonDrop(
+        state,
+        enemy,
+        1,
+        baseTier + 1,
+        minimumRarity,
+        rarityChanceScale,
+      ),
     );
   }
 
@@ -393,8 +540,13 @@ function maybeSkinEnemy(state: GameState, enemy: Enemy) {
   const key = hexKey(enemy.coord);
   const tile = state.tiles[key];
   const quantity = Math.max(
-    1,
-    Math.ceil(enemy.tier / 2) + (state.bloodMoonActive ? 1 : 0),
+    ENEMY_ITEM_DROP_CHANCES.bonuses.skinnedAnimal.minimum,
+    Math.ceil(
+      enemy.tier / ENEMY_ITEM_DROP_CHANCES.bonuses.skinnedAnimal.tierDivisor,
+    ) +
+      (state.bloodMoonActive
+        ? ENEMY_ITEM_DROP_CHANCES.bonuses.skinnedAnimal.bloodMoonBonus
+        : 0),
   );
   addItemToInventory(
     tile.items,
@@ -431,18 +583,31 @@ function makeBloodMoonDrop(
   enemy: Enemy,
   index: number,
   tier: number,
-  minimumRarity: 'rare' | 'epic' | 'legendary',
+  minimumRarity: ItemRarity,
+  rarityChanceScale: number,
 ) {
   const coord = enemy.coord;
   const seed = `${state.seed}:blood-moon-drop:${enemy.id}:${state.turn}:${index}`;
   switch (pickBloodMoonItemKind(noise(`${seed}:roll`, coord))) {
     case 'artifact':
-      return makeArtifact(seed, coord, tier, minimumRarity);
+      return makeArtifact(seed, coord, tier, minimumRarity, rarityChanceScale);
     case 'weapon':
-      return makeWeapon(seed, coord, tier, minimumRarity);
+      return makeWeapon(seed, coord, tier, minimumRarity, rarityChanceScale);
     case 'offhand':
-      return makeOffhand(seed, coord, tier, minimumRarity);
+      return makeOffhand(seed, coord, tier, minimumRarity, rarityChanceScale);
     default:
-      return makeArmor(seed, coord, tier, minimumRarity);
+      return makeArmor(seed, coord, tier, minimumRarity, rarityChanceScale);
   }
+}
+
+function getEnemyDropRarityChanceScale(state: GameState, enemy: Enemy) {
+  const tile = state.tiles[hexKey(enemy.coord)];
+  const dungeonMultiplier =
+    tile?.structure === 'dungeon'
+      ? ENEMY_ITEM_DUNGEON_RARITY_CHANCE_MULTIPLIER
+      : 1;
+  const bloodMoonMultiplier = state.bloodMoonActive
+    ? ENEMY_ITEM_BLOOD_MOON_RARITY_CHANCE_MULTIPLIER
+    : 1;
+  return dungeonMultiplier * bloodMoonMultiplier;
 }

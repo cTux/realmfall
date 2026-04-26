@@ -45,10 +45,17 @@ export function makeWeapon(
   coord: HexCoord,
   tier: number,
   minimumRarity?: ItemRarity,
+  chanceMultiplier = 1,
 ): Item {
   const keys = getGeneratedWeaponKeys();
   const key = keys[scaledIndex(`${seed}:weapon:key`, coord, keys.length)];
-  const rarity = pickEquipmentRarity(seed, coord, tier, minimumRarity);
+  const rarity = pickEquipmentRarity(
+    seed,
+    coord,
+    tier,
+    minimumRarity,
+    chanceMultiplier,
+  );
   return buildGeneratedItemFromConfig(key, {
     id: itemId('weapon', coord, seed),
     tier,
@@ -61,10 +68,17 @@ export function makeOffhand(
   coord: HexCoord,
   tier: number,
   minimumRarity?: ItemRarity,
+  chanceMultiplier = 1,
 ) {
   const keys = getGeneratedOffhandKeys();
   const key = keys[scaledIndex(`${seed}:offhand:key`, coord, keys.length)];
-  const rarity = pickEquipmentRarity(seed, coord, tier, minimumRarity);
+  const rarity = pickEquipmentRarity(
+    seed,
+    coord,
+    tier,
+    minimumRarity,
+    chanceMultiplier,
+  );
   return buildGeneratedItemFromConfig(key, {
     id: itemId('offhand', coord, seed),
     tier,
@@ -77,10 +91,17 @@ export function makeArmor(
   coord: HexCoord,
   tier: number,
   minimumRarity?: ItemRarity,
-) {
+  chanceMultiplier = 1,
+): Item {
   const keys = getGeneratedArmorKeys();
   const key = keys[scaledIndex(`${seed}:armor:key`, coord, keys.length)];
-  const rarity = pickEquipmentRarity(seed, coord, tier, minimumRarity);
+  const rarity = pickEquipmentRarity(
+    seed,
+    coord,
+    tier,
+    minimumRarity,
+    chanceMultiplier,
+  );
   return buildGeneratedItemFromConfig(key, {
     id: itemId('armor', coord, seed),
     tier,
@@ -93,6 +114,7 @@ export function makeArtifact(
   coord: HexCoord,
   tier: number,
   minimumRarity?: ItemRarity,
+  chanceMultiplier = 1,
 ) {
   const keys = getGeneratedAccessoryKeys();
   const key = keys[scaledIndex(`${seed}:artifact:key`, coord, keys.length)];
@@ -101,6 +123,7 @@ export function makeArtifact(
     coord,
     tier + 1,
     minimumRarity ?? 'uncommon',
+    chanceMultiplier,
   );
   return buildGeneratedItemFromConfig(key, {
     id: itemId('artifact', coord, seed),

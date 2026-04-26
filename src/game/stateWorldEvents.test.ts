@@ -13,7 +13,7 @@ import {
   type GameState,
 } from './state';
 import { makeEnemy } from './combat';
-import { GAME_DAY_DURATION_MS } from './config';
+import { ENEMY_ITEM_DROP_CHANCES, GAME_DAY_DURATION_MS } from './config';
 import { hexDistance } from './hex';
 import { getWorldDayIndex } from './logs';
 import { getItemCategory } from './content/items';
@@ -321,42 +321,56 @@ describe('game state world events', () => {
   });
 
   it('grants rarer enemies stronger regular drop outcomes', () => {
-    const game = createGame(3, 'rare-enemy-drop-seed');
-    const target = { q: 2, r: 0 };
-    game.tiles['2,0'] = {
-      coord: target,
-      terrain: 'plains',
-      items: [],
-      structure: undefined,
-      enemyIds: ['enemy-2,0-0'],
+    const originalKindChances = {
+      ...ENEMY_ITEM_DROP_CHANCES.kindChances,
     };
-    game.enemies['enemy-2,0-0'] = {
-      id: 'enemy-2,0-0',
-      name: 'Raider',
-      coord: target,
-      rarity: 'legendary',
-      tier: 4,
-      hp: 1,
-      maxHp: 1,
-      attack: 1,
-      defense: 0,
-      xp: 5,
-      elite: true,
+    ENEMY_ITEM_DROP_CHANCES.kindChances = {
+      artifact: 1,
+      weapon: 1,
+      offhand: 1,
+      armor: 1,
+      consumable: 1,
     };
-    game.player.coord = { q: 1, r: 0 };
+    try {
+      const game = createGame(3, 'rare-enemy-drop-seed');
+      const target = { q: 2, r: 0 };
+      game.tiles['2,0'] = {
+        coord: target,
+        terrain: 'plains',
+        items: [],
+        structure: undefined,
+        enemyIds: ['enemy-2,0-0'],
+      };
+      game.enemies['enemy-2,0-0'] = {
+        id: 'enemy-2,0-0',
+        name: 'Raider',
+        coord: target,
+        rarity: 'legendary',
+        tier: 4,
+        hp: 1,
+        maxHp: 1,
+        attack: 1,
+        defense: 0,
+        xp: 5,
+        elite: true,
+      };
+      game.player.coord = { q: 1, r: 0 };
 
-    const encountered = moveToTile(game, target);
-    const resolved = startCombat(encountered);
-    const tileItems = getTileAt(resolved, target).items;
+      const encountered = moveToTile(game, target);
+      const resolved = startCombat(encountered);
+      const tileItems = getTileAt(resolved, target).items;
 
-    expect(tileItems.some((item) => item.name === 'Gold')).toBe(true);
-    expect(
-      tileItems.some((item) =>
-        ['apple', 'water-flask', 'health-potion', 'mana-potion'].includes(
-          item.itemKey ?? '',
+      expect(tileItems.some((item) => item.name === 'Gold')).toBe(true);
+      expect(
+        tileItems.some((item) =>
+          ['artifact', 'weapon', 'offhand', 'armor', 'consumable'].includes(
+            getItemCategory(item),
+          ),
         ),
-      ),
-    ).toBe(true);
+      ).toBe(true);
+    } finally {
+      ENEMY_ITEM_DROP_CHANCES.kindChances = originalKindChances;
+    }
   });
 
   it('spawns world bosses with boosted stats, a footprint, and guaranteed premium loot', () => {

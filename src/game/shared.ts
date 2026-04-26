@@ -1,5 +1,5 @@
 import { type HexCoord } from './hex';
-import { BASE_CASCADING_RARITY_CHANCES } from './config';
+import { BASE_CASCADING_RARITY_CHANCES, ITEM_RARITY_SCALING } from './config';
 import {
   RARITY_ORDER,
   type Item,
@@ -48,10 +48,13 @@ export function resolveCascadingRarity(
   nextRoll: () => number,
   minimum: ItemRarity = 'common',
   chances: CascadingRarityChanceMap = BASE_CASCADING_RARITY_CHANCES,
+  chanceMultiplier = 1,
 ): ItemRarity {
   const rolledRarity =
     CASCADING_RARITY_CHECK_ORDER.find(
-      (rarity) => nextRoll() < clampChance(chances[rarity] ?? 0),
+      (rarity) =>
+        nextRoll() <
+        scaleCascadingRarityChance(chances[rarity] ?? 0, chanceMultiplier),
     ) ?? 'common';
 
   return (
@@ -69,19 +72,24 @@ export function pickEquipmentRarity(
   coord: HexCoord,
   tier: number,
   minimum: ItemRarity = 'common',
+  chanceMultiplier = 1,
 ): ItemRarity {
-  const bonus = Math.min(0.06, tier * 0.0025);
+  const bonus = Math.min(
+    ITEM_RARITY_SCALING.bonusMax,
+    tier * ITEM_RARITY_SCALING.bonusPerTier,
+  );
   const rng = createRng(`${seed}:rarity:${coord.q}:${coord.r}:${tier}`);
 
   return resolveCascadingRarity(
     rng,
     minimum,
     withCascadingRarityChanceBonus({
-      legendary: bonus * 0.08,
-      epic: bonus * 0.2,
-      rare: bonus * 0.45,
-      uncommon: bonus,
+      uncommon: bonus * ITEM_RARITY_SCALING.rarityBonusMultipliers.uncommon,
+      rare: bonus * ITEM_RARITY_SCALING.rarityBonusMultipliers.rare,
+      epic: bonus * ITEM_RARITY_SCALING.rarityBonusMultipliers.epic,
+      legendary: bonus * ITEM_RARITY_SCALING.rarityBonusMultipliers.legendary,
     }),
+    chanceMultiplier,
   );
 }
 
@@ -124,6 +132,10 @@ function rarityBonus(rarity: ItemRarity) {
     default:
       return 0;
   }
+}
+
+function scaleCascadingRarityChance(chance: number, chanceMultiplier: number) {
+  return clampChance(chance * chanceMultiplier);
 }
 
 function clampChance(chance: number) {

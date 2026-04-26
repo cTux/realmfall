@@ -113,6 +113,11 @@ export interface GameConfig {
       max: number;
     };
     itemRarity: WeightedChanceMap<Exclude<ItemRarity, 'common'>>;
+    itemRarityScaling: {
+      bonusPerTier: number;
+      bonusMax: number;
+      rarityBonusMultipliers: Record<Exclude<ItemRarity, 'common'>, number>;
+    };
   };
   worldClock: {
     dayDurationMs: number;
@@ -175,6 +180,22 @@ export interface GameConfig {
       eliteBonus: number;
       max: number;
       bloodMoon: number;
+      boss: {
+        minimumQuantity: number;
+        tierScaling: number;
+        randomRange: number;
+      };
+      quantity: {
+        minimum: number;
+        tierWeight: number;
+        rarityWeight: number;
+        randomBase: number;
+        randomRarityWeight: number;
+      };
+      bloodMoonMultiplier: {
+        quantity: number;
+        tierWeight: number;
+      };
     };
     enemyRecipe: {
       base: number;
@@ -183,6 +204,29 @@ export interface GameConfig {
       max: number;
       bloodMoonBonus: number;
       bloodMoonMax: number;
+    };
+    enemyItem: {
+      chance: {
+        base: number;
+        perRarity: number;
+        max: number;
+        bloodMoonMultiplier: number;
+        dungeonMultiplier: number;
+      };
+      kindChances: WeightedChanceMap<
+        'artifact' | 'weapon' | 'offhand' | 'armor' | 'consumable'
+      >;
+      bonuses: {
+        bloodMoon: {
+          minimumTierBonus: number;
+          rarityStep: number;
+        };
+        skinnedAnimal: {
+          minimum: number;
+          tierDivisor: number;
+          bloodMoonBonus: number;
+        };
+      };
     };
     homeScroll: {
       base: number;
