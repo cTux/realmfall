@@ -210,6 +210,19 @@ const gameConfig = defineGameConfig({
       // Chance to upgrade a generated item roll into uncommon rarity.
       uncommon: 0.3,
     },
+    itemRarityScaling: {
+      // Bonus rarity chance gained per item tier.
+      bonusPerTier: 0.0025,
+      // Maximum rarity chance bonus from item-tier scaling.
+      bonusMax: 0.06,
+      // Additional rarity multipliers applied to each ascending rarity check.
+      rarityBonusMultipliers: {
+        uncommon: 1,
+        rare: 0.45,
+        epic: 0.2,
+        legendary: 0.08,
+      },
+    },
   },
   worldClock: {
     // Real milliseconds required for one complete 24-hour in-game day.
@@ -359,6 +372,14 @@ const gameConfig = defineGameConfig({
       // Weight for generating a consumable from world-drop item rolls.
       consumable: 0.62,
     },
+    generatedItem: {
+      // Minimum item rarity assigned when generating from dungeon structures.
+      dungeonMinimumRarity: 'rare',
+      // Extra tier used when evaluating generated artifact rarity.
+      artifactTierBonus: 1,
+      // Fallback consumable for the highest world-gear loot band.
+      fallbackConsumable: 'trail-ration',
+    },
   },
   events: {
     bloodMoon: {
@@ -485,6 +506,24 @@ const gameConfig = defineGameConfig({
         offhand: 0.2,
         weapon: 0.22,
         consumable: 0.34,
+      },
+      bonuses: {
+        // Extra blood-moon minimum-tier bonus calculation for monster loot.
+        bloodMoon: {
+          // Minimum tier bonus when dropping blood-moon rewards.
+          minimumTierBonus: 1,
+          // Rarity rank step that grants one extra tier bonus.
+          rarityStep: 2,
+        },
+        // Animal-skinned loot scaling values.
+        skinnedAnimal: {
+          // Base minimum skinned quantity.
+          minimum: 1,
+          // Divider used for tier scaling on skinning quantity.
+          tierDivisor: 2,
+          // Additional skinned quantity added during blood moon.
+          bloodMoonBonus: 1,
+        },
       },
     },
     gatheringByproduct: {

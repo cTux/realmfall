@@ -467,14 +467,14 @@ function maybeDropBloodMoonLoot(state: GameState, enemy: Enemy) {
   const key = hexKey(enemy.coord);
   const tile = state.tiles[key];
   const rarityRank = enemyRarityIndex(enemy.rarity);
-  const BLOOD_MOON_ITEM_DROP_MINIMUM_TIER_BONUS = 1;
-  const BLOOD_MOON_ITEM_DROP_RARITY_STEP = 2;
   const baseTier = Math.max(
     1,
     enemy.tier +
       Math.max(
-        BLOOD_MOON_ITEM_DROP_MINIMUM_TIER_BONUS,
-        Math.floor(rarityRank / BLOOD_MOON_ITEM_DROP_RARITY_STEP),
+        ENEMY_ITEM_DROP_CHANCES.bonuses.bloodMoon.minimumTierBonus,
+        Math.floor(
+          rarityRank / ENEMY_ITEM_DROP_CHANCES.bonuses.bloodMoon.rarityStep,
+        ),
       ),
   );
   const minimumRarity = enemy.worldBoss
@@ -543,13 +543,14 @@ function maybeSkinEnemy(state: GameState, enemy: Enemy) {
   ensureTileState(state, enemy.coord);
   const key = hexKey(enemy.coord);
   const tile = state.tiles[key];
-  const SKINNED_ANIMAL_MINIMUM_QUANTITY = 1;
-  const SKINNED_ANIMAL_TIER_DIVISOR = 2;
-  const SKINNED_ANIMAL_BLOOD_MOON_BONUS = 1;
   const quantity = Math.max(
-    SKINNED_ANIMAL_MINIMUM_QUANTITY,
-    Math.ceil(enemy.tier / SKINNED_ANIMAL_TIER_DIVISOR) +
-      (state.bloodMoonActive ? SKINNED_ANIMAL_BLOOD_MOON_BONUS : 0),
+    ENEMY_ITEM_DROP_CHANCES.bonuses.skinnedAnimal.minimum,
+    Math.ceil(
+      enemy.tier / ENEMY_ITEM_DROP_CHANCES.bonuses.skinnedAnimal.tierDivisor,
+    ) +
+      (state.bloodMoonActive
+        ? ENEMY_ITEM_DROP_CHANCES.bonuses.skinnedAnimal.bloodMoonBonus
+        : 0),
   );
   addItemToInventory(
     tile.items,
