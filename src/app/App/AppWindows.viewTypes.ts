@@ -30,6 +30,7 @@ export interface PlayerViewState {
 
 export interface InventoryViewState {
   actionBarSlots: ActionBarSlots;
+  level: GameState['player']['level'];
   equipment: GameState['player']['equipment'];
   inventory: GameState['player']['inventory'];
   learnedRecipeIds: GameState['player']['learnedRecipeIds'];

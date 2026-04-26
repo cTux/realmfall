@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { t } from '../../../i18n';
 import {
+  canWearItem,
   canEquipItem,
   canUseItem,
   isEquippableItem,
@@ -84,7 +85,12 @@ export const AppFixedWindows = memo(function AppFixedWindows({
               ? t('ui.itemMenu.unequipAction')
               : t('ui.itemMenu.equipAction')
           }
-          canEquip={itemMenu.slot ? true : canEquipItem(itemMenu.item)}
+          canEquip={
+            itemMenu.slot
+              ? true
+              : canEquipItem(itemMenu.item) &&
+                canWearItem(itemMenu.item, inventoryView.level)
+          }
           canUse={canUseItem(itemMenu.item, inventoryView.learnedRecipeIds)}
           canToggleLock={!itemMenu.slot && isEquippableItem(itemMenu.item)}
           isLocked={Boolean(itemMenu.item.locked)}

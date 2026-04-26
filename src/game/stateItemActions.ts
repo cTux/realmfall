@@ -13,7 +13,9 @@ import { addLog } from './logs';
 import {
   addItemToInventory,
   canUseItem,
+  canWearItem,
   consumeInventoryItem,
+  getItemRequiredLevel,
   isRecipePage,
 } from './inventory';
 import { getPlayerCombatStats } from './progression';
@@ -74,6 +76,17 @@ export function equipItem(state: GameState, itemId: string): GameState {
 
   if (!item.slot)
     return message(state, t('game.message.equipment.cannotEquip'));
+
+  const requiredLevel = getItemRequiredLevel(item);
+  if (!canWearItem(item, state.player.level)) {
+    return message(
+      state,
+      t('game.message.equipment.requiredLevel', {
+        item: item.name,
+        requiredLevel,
+      }),
+    );
+  }
 
   const next = cloneForPlayerMutation(state);
   next.player.inventory.splice(itemIndex, 1);
