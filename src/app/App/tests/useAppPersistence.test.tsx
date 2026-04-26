@@ -130,8 +130,8 @@ async function renderPersistenceHarness() {
   });
 
   for (let attempt = 0; attempt < 5; attempt += 1) {
-    await act(async () => {
-      await Promise.resolve();
+    act(() => {
+      vi.runAllTicks();
     });
     if (host.querySelector('[data-hydrated="ready"]')) break;
   }
@@ -199,7 +199,6 @@ describe('useAppPersistence', () => {
     let persistNowPromise!: Promise<void>;
     await act(async () => {
       persistNowPromise = handle.persistNow();
-      await Promise.resolve();
     });
 
     expect(saveEncryptedState).toHaveBeenCalledTimes(1);

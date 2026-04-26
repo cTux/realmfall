@@ -121,7 +121,7 @@ describe('App hover behavior', () => {
       root.unmount();
     });
     host.remove();
-  }, 10000);
+  }, 2_000);
 
   it('treats distant hostile target hexes as actionable when the route stays safe', async () => {
     const game = createGame(4, 'app-hover-distant-hostile-seed');
@@ -223,5 +223,5 @@ describe('App hover behavior', () => {
       root.unmount();
     });
     host.remove();
-  }, 10000);
+  }, 2_000);
 });

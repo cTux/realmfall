@@ -6,7 +6,7 @@ import {
   renderApp,
 } from './appTestHarness';
 
-const REJECTED_TOOLTIP_CHUNK_TEST_TIMEOUT_MS = 20_000;
+const REJECTED_TOOLTIP_CHUNK_TEST_TIMEOUT_MS = 2_000;
 const loadItemTooltipModuleMock = vi.hoisted(() => vi.fn());
 
 vi.mock('../itemTooltipModuleLoader', async (importOriginal) => {
@@ -77,7 +77,6 @@ describe('App item tooltip lazy loading', () => {
           new MouseEvent('mouseover', { bubbles: true }),
         );
         await vi.dynamicImportSettled();
-        await Promise.resolve();
       });
 
       expect(onUnhandledRejection).not.toHaveBeenCalled();
@@ -153,9 +152,7 @@ describe('App item tooltip lazy loading', () => {
         new MouseEvent('mouseover', { bubbles: true }),
       );
       await vi.dynamicImportSettled();
-      await Promise.resolve();
       vi.advanceTimersByTime(20);
-      await Promise.resolve();
     });
 
     const tooltip = host.querySelector(
@@ -177,5 +174,5 @@ describe('App item tooltip lazy loading', () => {
       root.unmount();
     });
     host.remove();
-  }, 10000);
+  }, 2_000);
 });

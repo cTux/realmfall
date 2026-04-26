@@ -71,7 +71,7 @@ describe('App combat attention', () => {
       root.unmount();
     });
     host.remove();
-  }, 10_000);
+  }, 2_000);
 
   it('keeps hex content open on empty hexes when loot is available', async () => {
     const game = createHydratedAppGame();
@@ -117,7 +117,7 @@ describe('App combat attention', () => {
       root.unmount();
     });
     host.remove();
-  }, 10_000);
+  }, 2_000);
 
   it('opens hex content and marks its dock entry when entering a battle hex', async () => {
     const game = createHydratedAppGame();
@@ -155,7 +155,7 @@ describe('App combat attention', () => {
       root.unmount();
     });
     host.remove();
-  }, 10_000);
+  }, 2_000);
 });
 
 function findHexContentDockButton(host: HTMLElement) {

@@ -4,7 +4,7 @@ import { createGame } from '../../../game/stateFactory';
 import { GAME_DAY_DURATION_MS, GAME_DAY_MINUTES } from '../../../game/config';
 
 export const renderScene = vi.fn();
-export const loadEncryptedState = vi.fn();
+export const loadEncryptedState = vi.fn(async () => null);
 export const saveEncryptedState = vi.fn();
 export const clearEncryptedState = vi.fn();
 export const tickerCallbacks = new Set<() => void>();
@@ -15,17 +15,21 @@ export const getVisibleWorldIconAssetIds = vi.fn(() => ['visible-start-icon']);
 export const warmWorldIconTexturesInBackground = vi.fn();
 
 class ResizeObserverMock {
-  observe() {}
+  constructor(private readonly callback: () => void = () => undefined) {}
+
+  observe() {
+    this.callback();
+  }
+
   disconnect() {}
 }
 
-if (typeof globalThis.ResizeObserver === 'undefined') {
-  vi.stubGlobal('ResizeObserver', ResizeObserverMock);
-}
-if (typeof window.ResizeObserver === 'undefined') {
+vi.stubGlobal('ResizeObserver', ResizeObserverMock);
+if (typeof window.ResizeObserver !== 'function') {
   Object.defineProperty(window, 'ResizeObserver', {
     value: ResizeObserverMock,
     writable: true,
+    configurable: true,
   });
 }
 
@@ -269,22 +273,17 @@ vi.mock('../../audio/VoiceAudioControllerBridge', () => ({
   VoiceAudioControllerBridge: () => null,
 }));
 
-export async function flushLazyModules() {
-  for (let index = 0; index < 20; index += 1) {
-    await act(async () => {
-      await vi.dynamicImportSettled();
-      await vi.runAllTicks();
-      await Promise.resolve();
-      await vi.advanceTimersByTimeAsync(0);
-      await Promise.resolve();
-    });
-  }
+export function flushLazyModules() {
+  act(() => {
+    vi.runAllTicks();
+    vi.advanceTimersByTime(0);
+  });
 }
 
-export async function flushAnimationFrame() {
-  await act(async () => {
+export function flushAnimationFrame() {
+  act(() => {
+    vi.runAllTicks();
     vi.advanceTimersByTime(16);
-    await Promise.resolve();
   });
 }
 
@@ -302,10 +301,10 @@ export async function renderApp() {
   return { host, root };
 }
 
-export async function waitForAppSelector(
+export function waitForAppSelector(
   host: HTMLElement,
   selector: string,
-  timeoutMs = 10_000,
+  timeoutMs = 2_000,
 ) {
   const deadline = Date.now() + timeoutMs;
 
@@ -315,12 +314,9 @@ export async function waitForAppSelector(
       return match as HTMLElement;
     }
 
-    await act(async () => {
-      await vi.dynamicImportSettled();
-      await vi.runAllTicks();
-      await Promise.resolve();
-      await vi.advanceTimersByTimeAsync(50);
-      await Promise.resolve();
+    act(() => {
+      vi.advanceTimersByTime(16);
+      vi.runAllTicks();
     });
   }
 

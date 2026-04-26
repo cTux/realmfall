@@ -59,7 +59,7 @@ describe('App hydration and interactions', () => {
           },
         },
       });
-      await Promise.resolve();
+      await flushLazyModules();
     });
 
     expect(host.querySelector(`.${styles.loadingScreen}`)).not.toBeNull();
@@ -193,7 +193,7 @@ describe('App hydration and interactions', () => {
       window.dispatchEvent(
         new KeyboardEvent('keydown', { bubbles: true, key: 'e' }),
       );
-      await Promise.resolve();
+      await flushLazyModules();
     });
 
     expect(takeAllButton).not.toBeNull();
@@ -202,7 +202,7 @@ describe('App hydration and interactions', () => {
       root.unmount();
     });
     host.remove();
-  }, 15000);
+  }, 2_000);
 
   it('clears an action bar slot after the last assigned consumable is used', async () => {
     const game = createGame(2, 'app-action-bar-consume-seed');

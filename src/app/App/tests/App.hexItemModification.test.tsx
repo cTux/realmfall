@@ -7,7 +7,7 @@ import {
   renderApp,
 } from './appTestHarness';
 
-const HEX_ITEM_MODIFICATION_TIMEOUT_MS = 20_000;
+const HEX_ITEM_MODIFICATION_TIMEOUT_MS = 2_000;
 
 vi.setConfig({ testTimeout: HEX_ITEM_MODIFICATION_TIMEOUT_MS });
 
