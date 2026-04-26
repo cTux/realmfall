@@ -13,7 +13,7 @@ export const CHUNK_BUDGETS = {
   'react-core': 8_689,
   'react-dom-vendor': 199_966,
   state: 532_132,
-  en: 121_000,
+  en: 122_000,
   pixi: 549_560,
 };
 

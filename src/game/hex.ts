@@ -40,6 +40,22 @@ export function hexAtPoint(
   return cubeRound(q, r);
 }
 
+export function hexesInRange(center: HexCoord, radius: number): HexCoord[] {
+  if (radius < 0) return [];
+  const coords: HexCoord[] = [];
+
+  for (let q = -radius; q <= radius; q += 1) {
+    const rMin = Math.max(-radius, -q - radius);
+    const rMax = Math.min(radius, -q + radius);
+
+    for (let r = rMin; r <= rMax; r += 1) {
+      coords.push({ q: center.q + q, r: center.r + r });
+    }
+  }
+
+  return coords;
+}
+
 function cubeRound(q: number, r: number) {
   const x = q;
   const z = r;

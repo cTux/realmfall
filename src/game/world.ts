@@ -5,7 +5,7 @@ import {
 } from './content/structures';
 import { enemyIndexFromId, makeEnemy } from './combat';
 import { isFactionNpcEnemyId } from './territories';
-import { hexKey, hexNeighbors, type HexCoord } from './hex';
+import { hexKey, hexNeighbors, hexesInRange, type HexCoord } from './hex';
 import { pickTerrain } from './worldTerrain';
 import { isWorldBossEnemyId, worldBossEnemyId } from './worldBoss';
 import {
@@ -18,6 +18,7 @@ import type {
   GatheringStructureType,
   StructureType,
   Tile,
+  Terrain,
 } from './types';
 
 export {
@@ -176,4 +177,62 @@ export function structureDefinition(structure: GatheringStructureType) {
 export function resolveLootOutcomeRoll(roll: number) {
   const normalized = Math.max(0, Math.min(0.999999, roll));
   return 1 - normalized;
+}
+
+export function countTerrainChangesForSet(
+  state: GameState,
+  coord: HexCoord,
+  terrain: Terrain,
+  radius: number,
+) {
+  let changedCount = 0;
+
+  for (const target of hexesInRange(coord, radius)) {
+    const targetKey = hexKey(target);
+    const tile = state.tiles[targetKey];
+    if (!tile || tile.terrain !== terrain) {
+      changedCount += 1;
+    }
+  }
+
+  return changedCount;
+}
+
+export function setTerrainInRadius(
+  state: GameState,
+  center: HexCoord,
+  terrain: Terrain,
+  radius: number,
+) {
+  if (radius < 0) return 0;
+
+  let changedCount = 0;
+
+  for (const coord of hexesInRange(center, radius)) {
+    const key = hexKey(coord);
+    const tile = state.tiles[key];
+    if (!tile) {
+      state.tiles[key] = makeEmptyTile(coord, terrain);
+      changedCount += 1;
+      continue;
+    }
+
+    if (tile.terrain === terrain) {
+      continue;
+    }
+
+    tile.terrain = terrain;
+    changedCount += 1;
+  }
+
+  return changedCount;
+}
+
+function makeEmptyTile(coord: HexCoord, terrain: Terrain): Tile {
+  return {
+    coord,
+    terrain,
+    items: [],
+    enemyIds: [],
+  };
 }

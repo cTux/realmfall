@@ -91,6 +91,12 @@ export interface GameConfig {
           perTier: number;
           rarityMultiplier: Record<ItemRarity, number>;
         };
+        terraformingConsumable: {
+          minimum: number;
+          baseMultiplier: number;
+          perTier: number;
+          rarityMultiplier: Record<ItemRarity, number>;
+        };
       };
     };
   };
@@ -240,6 +246,7 @@ export interface GameConfig {
     bloodMoonItemKind: WeightedChanceMap<
       'artifact' | 'weapon' | 'offhand' | 'armor'
     >;
+    terraformingConsumableChance: number;
   };
   territories: {
     factionRegion: {

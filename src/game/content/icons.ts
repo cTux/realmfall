@@ -60,6 +60,7 @@ import gluttonyIcon from '../../assets/icons/gluttony.svg';
 import furnaceIcon from '../../assets/icons/furnace.svg';
 import flaxIcon from '../../assets/game-icons/delapouite/flax.svg';
 import sewingStringIcon from '../../assets/game-icons/delapouite/sewing-string.svg';
+import earthCrackIcon from '../../assets/game-icons/lorc/earth-crack.svg';
 
 export const ContentIcons = {
   Player: playerIcon,
@@ -122,6 +123,7 @@ export const ContentIcons = {
   RolledCloth: rolledClothIcon,
   Raider: raiderIcon,
   Gluttony: gluttonyIcon,
+  EarthCrack: earthCrackIcon,
   Furnace: furnaceIcon,
   SewingString: sewingStringIcon,
 } as const;

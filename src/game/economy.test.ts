@@ -76,6 +76,24 @@ describe('town stock pricing', () => {
     );
   });
 
+  it('prices terraforming consumables as premium consumables', () => {
+    const terraformPlains = buildItemFromConfig('terraforming-plains', {
+      id: 'terraforming-plains-town',
+      rarity: 'common',
+      tier: 1,
+    });
+    const potion = buildItemFromConfig('health-potion', {
+      id: 'health-potion-town',
+      rarity: 'common',
+      tier: 1,
+    });
+
+    expect(getTownStockPrice(terraformPlains)).toBeGreaterThan(
+      getTownStockPrice(potion),
+    );
+    expect(getTownStockPrice(terraformPlains)).toBeGreaterThanOrEqual(50);
+  });
+
   it('adds four random consumables and sorts them before equippables', () => {
     const stock = buildTownStock('town-stock-seed', { q: 0, r: 0 });
     const consumableStockEntries = stock.filter(

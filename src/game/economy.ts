@@ -12,6 +12,7 @@ import {
   getItemCategory,
   hasItemTag,
 } from './content/items';
+import { isTerraformingConsumableItemKey } from './content/items/terraformingConsumables';
 import { ItemId } from './content/ids';
 import { GAME_TAGS } from './content/tags';
 import { hexDistance, hexKey, type HexCoord } from './hex';
@@ -139,12 +140,15 @@ function buildTownStockItem({
     dayIndex,
     baseTier,
   );
-  const rarity = pickEquipmentRarity(
-    `${seed}:town-stock:${dayIndex}:${key}:${index}`,
-    coord,
-    tier,
-    config.category === 'artifact' ? 'uncommon' : 'common',
-  );
+  const isTerraformingConsumable = isTerraformingConsumableItemKey(config.key);
+  const rarity = isTerraformingConsumable
+    ? 'common'
+    : pickEquipmentRarity(
+        `${seed}:town-stock:${dayIndex}:${key}:${index}`,
+        coord,
+        tier,
+        config.category === 'artifact' ? 'uncommon' : 'common',
+      );
 
   if (config.generatedStats) {
     return buildGeneratedItemFromConfig(key, {
@@ -185,6 +189,19 @@ function resolveTownStockTier(
 export function getTownStockPrice(item: Item) {
   const category = getItemCategory(item);
   if (category === 'consumable') {
+    if (isTerraformingConsumableItemKey(item.itemKey)) {
+      const balance =
+        TOWN_BUY_PRICE_BALANCE.terraformingConsumable ??
+        TOWN_BUY_PRICE_BALANCE.consumable;
+    return Math.max(
+      balance.minimum,
+      Math.round(
+        sellValue(item) *
+          balance.baseMultiplier *
+          (1 + Math.max(0, item.tier - 1) * balance.perTier),
+      ),
+    );
+  }
     const isCraftedFood = hasItemTag(item, GAME_TAGS.item.crafted);
     const consumableBalance = isCraftedFood
       ? TOWN_BUY_PRICE_BALANCE.consumableCraftedFood
