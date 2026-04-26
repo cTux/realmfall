@@ -45,6 +45,13 @@ function resetDropChances() {
   HOME_SCROLL_DROP_CHANCES.max = originalHomeScrollDropChances.max;
 }
 
+function classifyDropKind(
+  item: Parameters<typeof getItemCategory>[0] & { slot?: string },
+) {
+  if (item.slot === 'offhand') return 'offhand';
+  return getItemCategory(item);
+}
+
 describe('state rewards', () => {
   afterEach(() => {
     resetDropChances();
@@ -70,11 +77,11 @@ describe('state rewards', () => {
     ENEMY_ITEM_DROP_CHANCES.chance.perRarity = 0;
     ENEMY_ITEM_DROP_CHANCES.chance.max = 1;
     ENEMY_ITEM_DROP_CHANCES.kindChances = {
-      artifact: 0.1,
       armor: 0.2,
-      offhand: 0.3,
-      weapon: 0.4,
-      consumable: 0.5,
+      consumable: 0.3,
+      artifact: 0.4,
+      weapon: 0.5,
+      offhand: 0.6,
     };
     ENEMY_GOLD_DROP_CHANCES.base = 0;
     ENEMY_GOLD_DROP_CHANCES.max = 0;
@@ -86,8 +93,8 @@ describe('state rewards', () => {
     const tileItems = getTileAt(game, target).items;
 
     expect(tileItems).toHaveLength(3);
-    expect(tileItems.map((item) => getItemCategory(item)).sort()).toEqual(
-      ['armor', 'artifact', 'offhand'].sort(),
+    expect(tileItems.map(classifyDropKind).sort()).toEqual(
+      ['artifact', 'offhand', 'weapon'].sort(),
     );
   });
 
@@ -127,7 +134,7 @@ describe('state rewards', () => {
     const tileItems = getTileAt(game, target).items;
 
     expect(tileItems).toHaveLength(5);
-    expect(tileItems.map((item) => getItemCategory(item)).sort()).toEqual(
+    expect(tileItems.map(classifyDropKind).sort()).toEqual(
       ['armor', 'artifact', 'consumable', 'offhand', 'weapon'].sort(),
     );
   });
