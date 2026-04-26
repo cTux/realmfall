@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { getAppBuildVersion } from './scripts/build-version.helpers';
-import { getViteBasePath } from '../scripts/git-deploy.helpers.mjs';
+import { getViteBasePath } from '../../scripts/git-deploy.helpers.mjs';
 import {
   CHUNK_SIZE_WARNING_LIMIT_KB,
   getAssetFileName,
