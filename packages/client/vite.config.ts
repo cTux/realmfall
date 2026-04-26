@@ -24,7 +24,7 @@ const RUN_DUPLICATE_DEPS_AUDIT =
 const RUN_BUNDLE_VISUALIZER = process.env.REALMFALL_BUNDLE_VISUALIZER === '1';
 
 const packageVersion = JSON.parse(
-  readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
+  readFileSync(new URL('../../package.json', import.meta.url), 'utf8'),
 ).version as string;
 const appBuildVersion = getAppBuildVersion(packageVersion);
 const repoRoot = fileURLToPath(new URL('.', import.meta.url));
