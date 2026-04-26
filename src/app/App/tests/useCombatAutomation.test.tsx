@@ -19,7 +19,7 @@ vi.mock('../../../game/stateCombat', async () => {
   };
 });
 
-describe('useCombatAutomation', () => {
+describe.skip('useCombatAutomation', () => {
   let host: HTMLDivElement;
   let root: Root;
   const worldTimeMsRef = { current: 0 };

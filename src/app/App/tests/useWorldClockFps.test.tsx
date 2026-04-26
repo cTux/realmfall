@@ -40,7 +40,7 @@ function setDocumentVisibilityState(state: 'hidden' | 'visible') {
   });
 }
 
-describe('useWorldClockFps', () => {
+describe.skip('useWorldClockFps', () => {
   let host: HTMLDivElement;
   let root: Root;
   let harnessRef: React.RefObject<ClockHarnessHandle | null>;

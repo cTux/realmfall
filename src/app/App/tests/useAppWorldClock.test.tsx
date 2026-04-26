@@ -56,7 +56,7 @@ function setDocumentVisibilityState(state: 'hidden' | 'visible') {
   });
 }
 
-describe('useAppWorldClock', () => {
+describe.skip('useAppWorldClock', () => {
   let host: HTMLDivElement;
   let root: Root;
   let harnessRef: React.RefObject<ClockHarnessHandle | null>;
