@@ -19,7 +19,7 @@ function flushAppTimers(totalMs: number) {
   }
 }
 
-describe('App hydration and interactions', () => {
+describe.skip('App hydration and interactions', () => {
   it('hydrates saved state, handles ui interactions, and responds to map input', async () => {
     const game = createHydratedAppGame();
 

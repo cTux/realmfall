@@ -84,6 +84,7 @@ describe('HeroWindow', () => {
   });
 
   beforeEach(() => {
+    vi.useFakeTimers();
     host = document.createElement('div');
     document.body.appendChild(host);
     root = createRoot(host);
@@ -93,6 +94,7 @@ describe('HeroWindow', () => {
     await act(async () => {
       root.unmount();
     });
+    vi.useRealTimers();
     host.remove();
   });
 

@@ -32,6 +32,7 @@ describe('VoiceAudioControllerBridge', () => {
   });
 
   beforeEach(() => {
+    vi.useFakeTimers();
     host = document.createElement('div');
     document.body.appendChild(host);
     root = createRoot(host);
@@ -54,6 +55,7 @@ describe('VoiceAudioControllerBridge', () => {
     await act(async () => {
       root.unmount();
     });
+    vi.useRealTimers();
     globalThis.Audio = originalAudio;
     window.matchMedia = originalMatchMedia as typeof window.matchMedia;
     host.remove();

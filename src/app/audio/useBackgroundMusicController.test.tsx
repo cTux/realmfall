@@ -47,6 +47,7 @@ describe('useBackgroundMusicController', () => {
   });
 
   beforeEach(() => {
+    vi.useFakeTimers();
     loadMock.mockClear();
     muteMock.mockClear();
     setVolumeMock.mockClear();
@@ -62,6 +63,7 @@ describe('useBackgroundMusicController', () => {
     await act(async () => {
       root.unmount();
     });
+    vi.useRealTimers();
     host.remove();
   });
 

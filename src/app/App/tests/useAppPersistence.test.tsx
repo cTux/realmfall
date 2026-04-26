@@ -148,9 +148,9 @@ async function flushAutosaveTimers(ms = 5000) {
   while (remaining > 0) {
     const step = Math.min(2_000, remaining);
     await vi.advanceTimersByTimeAsync(step);
-    await vi.runOnlyPendingTimersAsync();
     remaining -= step;
   }
+  await vi.runOnlyPendingTimersAsync();
 }
 
 async function advanceForTest(ms = 4_000) {

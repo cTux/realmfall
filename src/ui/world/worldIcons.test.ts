@@ -40,6 +40,14 @@ vi.mock('pixi.js', () => ({
 }));
 
 describe('worldIcons', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('serves preloaded textures from the world icon cache in the browser path', async () => {
     const originalImage = globalThis.Image;
     const originalNavigatorUserAgent = globalThis.navigator.userAgent;

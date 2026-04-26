@@ -15,6 +15,7 @@ type StrictModeElement = React.ReactElement<{
 describe('main bootstrap', () => {
   beforeEach(() => {
     vi.resetModules();
+    vi.useFakeTimers();
     render = vi.fn();
     createRoot = vi.fn(() => ({ render }));
     loadI18n = vi.fn(() => Promise.resolve({}));
@@ -43,6 +44,7 @@ describe('main bootstrap', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     delete window.__REALMFALL_PERF__;
     window.localStorage.clear();
     document.body.innerHTML = '';
