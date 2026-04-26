@@ -1,0 +1,13 @@
+body {
+  margin: 0;
+  font-family:
+    'Inter',
+    'Segoe UI',
+    system-ui,
+    -apple-system,
+    sans-serif;
+  background:
+    radial-gradient(1200px 700px at 75% -10%, rgb(30 58 138 / 28%), transparent),
+    radial-gradient(1200px 700px at 20% 110%, rgb(15 23 42 / 45%), transparent),
+    #050816;
+}

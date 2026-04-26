@@ -8,7 +8,7 @@ import {
   normalizeWorldRenderFps,
 } from '../../../app/graphicsSettings';
 import { t } from '../../../i18n';
-import { Switch } from '../Switch';
+import { Switch } from '@realmfall/ui';
 import type { GameSettingsGraphicsPanelProps } from './types';
 import styles from './styles.module.scss';
 

@@ -9,6 +9,7 @@ Implemented technical solutions are split into dedicated spec files:
 - [Deterministic World Generation](./deterministic-world-generation/spec.md)
 - [Combat System Implementation](./combat-system-implementation/spec.md)
 - [Persistence And Save Compatibility](./persistence-and-save-compatibility/spec.md)
+- [UI Component Library](./ui-component-library/spec.md)
 - [React App Orchestration](./react-app-orchestration/spec.md)
 - [Pixi Rendering Solution](./pixi-rendering-solution/spec.md)
 - [Input And Tooltip Handling](./input-and-tooltip-handling/spec.md)

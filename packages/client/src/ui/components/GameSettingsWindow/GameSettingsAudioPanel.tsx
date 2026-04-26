@@ -8,7 +8,7 @@ import {
 } from '../../../app/audioSettings';
 import { VOICE_ACTOR_OPTIONS } from '../../../app/audio/voiceActors';
 import { t } from '../../../i18n';
-import { Switch } from '../Switch';
+import { Switch } from '@realmfall/ui';
 import type { GameSettingsAudioPanelProps } from './types';
 import styles from './styles.module.scss';
 

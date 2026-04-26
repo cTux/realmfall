@@ -1,6 +1,6 @@
 import styles from './LoadingSpinner.module.scss';
 
-type LoadingSpinnerProps = {
+export type LoadingSpinnerProps = {
   className?: string;
 };
 

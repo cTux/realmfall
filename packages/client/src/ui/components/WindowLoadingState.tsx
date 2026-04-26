@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { t } from '../../i18n';
-import { LoadingSpinner } from './LoadingSpinner';
+import { LoadingSpinner } from '@realmfall/ui';
 import styles from './WindowLoadingState.module.scss';
 
 export const WINDOW_LOADING_WARNING_DELAY_MS = 3000;
