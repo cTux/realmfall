@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { cp, mkdtemp, rm } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import process from 'node:process';
@@ -20,7 +21,22 @@ import { spawnManagedChild } from '../packages/client/scripts/managed-child-proc
 import { createPnpmInvocation } from '../packages/client/scripts/pnpm-command.mjs';
 
 const repositoryRoot = fileURLToPath(new URL('..', import.meta.url));
-const distDirectory = join(repositoryRoot, 'dist');
+const distDirectory = join(repositoryRoot, 'packages', 'client', 'dist');
+const legacyDistDirectory = join(repositoryRoot, 'dist');
+
+function resolveDistDirectory() {
+  if (existsSync(distDirectory)) {
+    return distDirectory;
+  }
+
+  if (existsSync(legacyDistDirectory)) {
+    return legacyDistDirectory;
+  }
+
+  throw new Error(
+    `Build output not found. Expected one of: ${distDirectory} or ${legacyDistDirectory}`,
+  );
+}
 
 function printUsage() {
   console.log(`Usage: pnpm git:deploy [--allow-dirty] [--dry-run]
@@ -117,7 +133,8 @@ function runPnpm(args, environment) {
 }
 
 async function publishDistToPages(sourceCommit) {
-  await ensureNoJekyllFile(distDirectory);
+  const publishSourceDirectory = resolveDistDirectory();
+  await ensureNoJekyllFile(publishSourceDirectory);
 
   const publishWorktree = await mkdtemp(join(tmpdir(), 'realmfall-pages-'));
   const publishBranch = getDeployWorktreeBranchName(sourceCommit);
@@ -140,7 +157,7 @@ async function publishDistToPages(sourceCommit) {
     });
     runGit(['-C', publishWorktree, 'rm', '-rf', '.'], { stdio: 'ignore' });
 
-    await cp(distDirectory, publishWorktree, {
+    await cp(publishSourceDirectory, publishWorktree, {
       force: true,
       recursive: true,
     });
