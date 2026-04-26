@@ -298,6 +298,7 @@ describe('game config schema', () => {
           offhand: 1,
           armor: 1,
         },
+        terraformingConsumableChance: 0,
       },
       territories: {
         factionRegion: {

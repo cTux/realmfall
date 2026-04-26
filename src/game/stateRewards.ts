@@ -4,6 +4,7 @@ import {
   BLOOD_MOON_EXTRA_DROP_CHANCES,
   ENEMY_ITEM_BLOOD_MOON_RARITY_CHANCE_MULTIPLIER,
   ENEMY_ITEM_DUNGEON_RARITY_CHANCE_MULTIPLIER,
+  GAME_CONFIG,
   ENEMY_GOLD_DROP_CHANCES,
   ENEMY_ITEM_DROP_CHANCES,
   ENEMY_RECIPE_DROP_CHANCES,
@@ -15,6 +16,7 @@ import {
 import { createRng } from './random';
 import { itemName } from './content/i18n';
 import { buildItemFromConfig, getConsumableItemKeys } from './content/items';
+import { TERRAFORMING_CONSUMABLE_ITEM_KEYS } from './content/items/terraformingConsumables';
 import { ItemId } from './content/ids';
 import { getStructureConfig } from './content/structures';
 import { GAME_TAGS } from './content/tags';
@@ -148,6 +150,7 @@ export function maybeGatherByproduct(
 export function dropEnemyRewards(state: GameState, enemy: Enemy) {
   maybeDropEnemyGold(state, enemy);
   maybeDropEnemyItem(state, enemy);
+  maybeDropTerraformingConsumable(state, enemy);
   maybeDropEnemyRecipe(state, enemy);
   maybeDropHomeScroll(state, enemy);
   maybeDropBloodMoonLoot(state, enemy);
@@ -269,6 +272,27 @@ function maybeDropEnemyItem(state: GameState, enemy: Enemy) {
     if (!drop) continue;
     addEnemyDrop(state, enemy, drop);
   }
+}
+
+function maybeDropTerraformingConsumable(state: GameState, enemy: Enemy) {
+  const chance = GAME_CONFIG.drops.terraformingConsumableChance;
+  if (chance <= 0) return;
+  const rng = createRng(
+    `${state.seed}:enemy-terraforming-consumable:${enemy.id}:${state.turn}`,
+  );
+  if (rng() >= chance) return;
+  if (TERRAFORMING_CONSUMABLE_ITEM_KEYS.length === 0) return;
+
+  const index = Math.floor(rng() * TERRAFORMING_CONSUMABLE_ITEM_KEYS.length);
+  const itemKey = TERRAFORMING_CONSUMABLE_ITEM_KEYS[index];
+  if (!itemKey) return;
+
+  const item = buildItemFromConfig(itemKey, {
+    id: `${state.seed}:enemy-terraforming-consumable:${enemy.id}:${state.turn}`,
+    rarity: 'common',
+    tier: 1,
+  });
+  addEnemyDrop(state, enemy, item);
 }
 
 function makeEnemyDrop(

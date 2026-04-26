@@ -23,6 +23,7 @@ import {
 } from './shared';
 import { createRng } from './random';
 import { getItemDisplayName } from './itemModifications';
+import { isTerraformingConsumableItemKey } from './content/items/terraformingConsumables';
 
 export function makeStarterWeapon(): Item {
   return buildItemFromConfig(ItemId.TownKnife, { id: 'starter-knife' });
@@ -299,6 +300,12 @@ export function sellValue(item: Item) {
   const rarityOrder = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
   const category = getItemCategory(item);
   const recipePage = isRecipePage(item);
+  if (
+    category === 'consumable' &&
+    isTerraformingConsumableItemKey(item.itemKey)
+  ) {
+    return 100 * item.quantity;
+  }
   if (category === 'consumable') {
     return Math.max(1, item.quantity);
   }

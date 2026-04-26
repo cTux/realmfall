@@ -1,5 +1,6 @@
 import { dropEnemyRewards } from './stateRewards';
 import {
+  GAME_CONFIG,
   ENEMY_GOLD_DROP_CHANCES,
   ENEMY_ITEM_DROP_CHANCES,
   ENEMY_RECIPE_DROP_CHANCES,
@@ -19,6 +20,8 @@ const originalEnemyItemDropChances = {
 const originalEnemyGoldDropChances = { ...ENEMY_GOLD_DROP_CHANCES };
 const originalEnemyRecipeDropChances = { ...ENEMY_RECIPE_DROP_CHANCES };
 const originalHomeScrollDropChances = { ...HOME_SCROLL_DROP_CHANCES };
+const originalTerraformingConsumableDropChance =
+  GAME_CONFIG.drops.terraformingConsumableChance;
 
 function resetDropChances() {
   ENEMY_ITEM_DROP_CHANCES.chance = { ...originalEnemyItemDropChances.chance };
@@ -43,6 +46,8 @@ function resetDropChances() {
   HOME_SCROLL_DROP_CHANCES.base = originalHomeScrollDropChances.base;
   HOME_SCROLL_DROP_CHANCES.perRarity = originalHomeScrollDropChances.perRarity;
   HOME_SCROLL_DROP_CHANCES.max = originalHomeScrollDropChances.max;
+  GAME_CONFIG.drops.terraformingConsumableChance =
+    originalTerraformingConsumableDropChance;
 }
 
 function classifyDropKind(
@@ -88,6 +93,7 @@ describe('state rewards', () => {
     ENEMY_RECIPE_DROP_CHANCES.base = 0;
     ENEMY_RECIPE_DROP_CHANCES.max = 0;
     HOME_SCROLL_DROP_CHANCES.max = 0;
+    GAME_CONFIG.drops.terraformingConsumableChance = 0;
 
     dropEnemyRewards(game, game.enemies['enemy-test']!);
     const tileItems = getTileAt(game, target).items;
@@ -129,6 +135,7 @@ describe('state rewards', () => {
     ENEMY_RECIPE_DROP_CHANCES.base = 0;
     ENEMY_RECIPE_DROP_CHANCES.max = 0;
     HOME_SCROLL_DROP_CHANCES.max = 0;
+    GAME_CONFIG.drops.terraformingConsumableChance = 0;
 
     dropEnemyRewards(game, game.enemies['enemy-test']!);
     const tileItems = getTileAt(game, target).items;

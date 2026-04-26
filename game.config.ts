@@ -168,6 +168,26 @@ const gameConfig = defineGameConfig({
             legendary: 1.75,
           },
         },
+        terraformingConsumable: {
+          // Minimum gold price for high-end terraforming consumables.
+          minimum: 50,
+          // Base buy-price multiplier applied to terraforming consumables.
+          baseMultiplier: 22,
+          // Extra town-only price multiplier added per item tier above level 1.
+          perTier: 0.3,
+          rarityMultiplier: {
+            // Buying multiplier for common terraforming consumables.
+            common: 1,
+            // Buying multiplier for uncommon terraforming consumables.
+            uncommon: 1.1,
+            // Buying multiplier for rare terraforming consumables.
+            rare: 1.25,
+            // Buying multiplier for epic terraforming consumables.
+            epic: 1.45,
+            // Buying multiplier for legendary terraforming consumables.
+            legendary: 1.75,
+          },
+        },
       },
     },
   },
@@ -476,6 +496,7 @@ const gameConfig = defineGameConfig({
       // Maximum home-scroll drop chance.
       max: 0.1,
     },
+    terraformingConsumableChance: 0.01,
     enemyItem: {
       // Base chance that a defeated enemy starts item-drop checks.
       chance: {

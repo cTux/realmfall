@@ -1,10 +1,15 @@
 import { ItemId } from './content/ids';
 import { hasItemTag } from './content/items';
 import { GAME_TAGS } from './content/tags';
-import type { Item } from './types';
+import {
+  getTerraformingConsumableTerrain,
+  isTerraformingConsumableItemKey,
+} from './content/items/terraformingConsumables';
+import type { Item, Terrain } from './types';
 
 export const MINIMUM_FOOD_RESTORE_PERCENT = 10;
 export const POTION_RESTORE_PERCENT = 35;
+export const TERRAFORMING_CONSUMABLE_RADIUS = 2;
 
 interface ConsumableRestoreProfile {
   healingPercent: number;
@@ -16,6 +21,7 @@ export type ConsumableEffectDescriptor =
   | { kind: 'healingPercent'; amount: number }
   | { kind: 'hunger'; amount: number }
   | { kind: 'manaPercent'; amount: number }
+  | { kind: 'terrain'; terrain: Terrain; radius: number; amount: number }
   | { kind: 'thirst'; amount: number }
   | { kind: 'homeScroll' };
 
@@ -64,6 +70,20 @@ export function resolvePercentRestoreAmount(maxValue: number, percent: number) {
 export function getConsumableEffectDescriptors(
   item: ConsumableRestoreItem,
 ): ConsumableEffectDescriptor[] {
+  if (isTerraformingConsumableItemKey(item.itemKey)) {
+    const terrain = getTerraformingConsumableTerrain(item.itemKey);
+    if (terrain) {
+      return [
+        {
+          kind: 'terrain',
+          terrain,
+          radius: TERRAFORMING_CONSUMABLE_RADIUS,
+          amount: 0,
+        },
+      ];
+    }
+  }
+
   if (item.itemKey === ItemId.HomeScroll) {
     return [{ kind: 'homeScroll' }];
   }

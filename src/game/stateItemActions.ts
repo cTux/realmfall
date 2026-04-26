@@ -25,8 +25,9 @@ import {
   message,
 } from './stateMutationHelpers';
 import { getPlayerThirstValue, PLAYER_SURVIVAL_MAX } from './survival';
+import { countTerrainChangesForSet, setTerrainInRadius } from './world';
 import { teleportHome } from './stateSurvival';
-import type { EquipmentSlot, GameState, Item } from './types';
+import type { EquipmentSlot, GameState, Item, Terrain } from './types';
 
 const CONSUMABLE_COOLDOWN_MS = 2_000;
 const CONSUMABLE_LOG_EFFECT_KEYS = {
@@ -40,7 +41,11 @@ type AppliedConsumableEffect = {
   amount: number;
   displayAmount?: number;
   displayAsPercent?: boolean;
-  kind: keyof typeof CONSUMABLE_LOG_EFFECT_KEYS;
+  kind:
+    | keyof typeof CONSUMABLE_LOG_EFFECT_KEYS
+    | 'terrain';
+  terrain?: Terrain;
+  radius?: number;
 };
 
 export function activateInventoryItem(
@@ -266,13 +271,23 @@ function applyConsumableEffects(
         state.player.thirst =
           getPlayerThirstValue(state.player.thirst) + effect.amount;
         break;
+      case 'terrain':
+        if (effect.terrain && effect.radius !== undefined) {
+          setTerrainInRadius(
+            state,
+            state.player.coord,
+            effect.terrain,
+            effect.radius,
+          );
+        }
+        break;
     }
   }
 }
 
 function formatConsumableLogEffect(
   appliedEffects: AppliedConsumableEffect[],
-  kind: AppliedConsumableEffect['kind'],
+  kind: keyof typeof CONSUMABLE_LOG_EFFECT_KEYS,
 ) {
   const effect = appliedEffects.find((candidate) => candidate.kind === kind);
   if (!effect) {
@@ -363,6 +378,24 @@ function resolveConsumableEffect(
               ...appliedEffect,
               displayAmount: effect.amount,
               displayAsPercent: true,
+            },
+          ]
+        : [];
+    }
+    case 'terrain': {
+      const changed = countTerrainChangesForSet(
+        state,
+        state.player.coord,
+        effect.terrain,
+        effect.radius,
+      );
+      return changed > 0
+        ? [
+            {
+              kind: 'terrain',
+              amount: changed,
+              terrain: effect.terrain,
+              radius: effect.radius,
             },
           ]
         : [];

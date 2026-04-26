@@ -59,6 +59,7 @@ import { trailRationItemConfig } from './trailRation';
 import { waterFlaskItemConfig } from './waterFlask';
 import { wayfarerCloakItemConfig } from './wayfarerCloak';
 import { workGlovesItemConfig } from './workGloves';
+import { TERRAFORMING_CONSUMABLE_ITEM_CONFIGS } from './terraformingConsumables';
 
 const RAW_ITEM_CONFIGS = [
   trailRationItemConfig,
@@ -106,6 +107,7 @@ const RAW_ITEM_CONFIGS = [
   wayfarerCloakItemConfig,
   hearthTotemItemConfig,
   waterFlaskItemConfig,
+  ...TERRAFORMING_CONSUMABLE_ITEM_CONFIGS,
   ...MEAL_ITEM_CONFIGS,
   ...CRAFTED_EXPANSION_ITEM_CONFIGS,
   ...GENERATED_CRAFTABLE_ICON_ITEM_CONFIGS,
