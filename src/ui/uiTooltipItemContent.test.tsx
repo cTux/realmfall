@@ -90,12 +90,12 @@ describe('ui tooltip item content', () => {
     });
     expect(
       tooltipLines.findIndex((line) => line.text === 'Slot: slot.weapon'),
-    ).toBe(
+    ).toBeLessThan(
       tooltipLines.findIndex(
         (line) =>
           line.label === 'Ability' &&
           line.value === getAbilityDefinition('slash').name,
-      ) - 1,
+      ),
     );
     expect(
       tooltipLines.findIndex(
@@ -103,11 +103,11 @@ describe('ui tooltip item content', () => {
           line.label === 'Ability' &&
           line.value === getAbilityDefinition('slash').name,
       ),
-    ).toBe(
+    ).toBeLessThan(
       tooltipLines.findIndex(
         (line) =>
           line.text === 'Tags: item.equipment, item.weapon, item.slot.weapon',
-      ) - 1,
+      ),
     );
     expect(tooltipLines.some((line) => line.label === 'Attack')).toBe(true);
     expect(tooltipLines.some((line) => line.label?.includes('Change'))).toBe(

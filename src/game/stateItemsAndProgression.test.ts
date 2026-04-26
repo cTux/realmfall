@@ -417,6 +417,7 @@ describe('game state items and progression', () => {
 
   it('supports many equipment slots and artifact loadouts', () => {
     const game = createGame(3, 'equip-seed');
+    game.player.level = 20;
     const inventory: Item[] = EQUIPMENT_SLOTS.map((slot, index) => ({
       id: `item-${slot}`,
       slot,
