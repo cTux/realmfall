@@ -437,6 +437,26 @@ const gameConfig = defineGameConfig({
       // Maximum home-scroll drop chance.
       max: 0.1,
     },
+    enemyItem: {
+      // Base chance that a defeated enemy starts item-drop checks.
+      chance: {
+        base: 0.3,
+        // Extra chance added for each enemy rarity step.
+        perRarity: 0.15,
+        // Maximum chance that any enemy-item roll succeeds after rarity scaling.
+        max: 0.9,
+      },
+      // Per-kind drop chances checked from minimum to maximum.
+      // Each kind is evaluated in this order; a proc adds that drop and the
+      // process continues to the next higher chance.
+      kindChances: {
+        artifact: 0.08,
+        armor: 0.16,
+        offhand: 0.2,
+        weapon: 0.22,
+        consumable: 0.34,
+      },
+    },
     gatheringByproduct: {
       // Chance that tree gathering awards a byproduct resource.
       tree: 0.35,

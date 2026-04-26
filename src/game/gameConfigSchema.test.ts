@@ -230,6 +230,20 @@ describe('game config schema', () => {
           bloodMoonBonus: 1,
           bloodMoonMax: 1,
         },
+        enemyItem: {
+          chance: {
+            base: 1,
+            perRarity: 1,
+            max: 1,
+          },
+          kindChances: {
+            artifact: 1,
+            weapon: 1,
+            offhand: 1,
+            armor: 1,
+            consumable: 1,
+          },
+        },
         homeScroll: {
           base: 1,
           perRarity: 1,

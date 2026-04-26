@@ -352,8 +352,8 @@ describe('game state world events', () => {
     expect(tileItems.some((item) => item.name === 'Gold')).toBe(true);
     expect(
       tileItems.some((item) =>
-        ['apple', 'water-flask', 'health-potion', 'mana-potion'].includes(
-          item.itemKey ?? '',
+        ['artifact', 'weapon', 'offhand', 'armor', 'consumable'].includes(
+          getItemCategory(item),
         ),
       ),
     ).toBe(true);

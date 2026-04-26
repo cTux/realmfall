@@ -3,6 +3,7 @@ import { Skill } from './types';
 import {
   BLOOD_MOON_EXTRA_DROP_CHANCES,
   ENEMY_GOLD_DROP_CHANCES,
+  ENEMY_ITEM_DROP_CHANCES,
   ENEMY_RECIPE_DROP_CHANCES,
   GATHERING_BYPRODUCT_CHANCES,
   HOME_SCROLL_DROP_CHANCES,
@@ -11,7 +12,7 @@ import {
 } from './config';
 import { createRng } from './random';
 import { itemName } from './content/i18n';
-import { buildItemFromConfig, getItemConfigByKey } from './content/items';
+import { buildItemFromConfig, getConsumableItemKeys } from './content/items';
 import { ItemId } from './content/ids';
 import { getStructureConfig } from './content/structures';
 import { GAME_TAGS } from './content/tags';
@@ -28,7 +29,7 @@ import {
   makeResourceStack,
 } from './inventory';
 import { gainSkillXp } from './progression';
-import { noise } from './shared';
+import { noise, pickEquipmentRarity } from './shared';
 import {
   ensureTileState,
   makeArmor,
@@ -37,7 +38,15 @@ import {
   makeWeapon,
   structureDefinition,
 } from './world';
-import type { Enemy, GameState, GatheringStructureType, Item } from './types';
+import type {
+  Enemy,
+  GameState,
+  GatheringStructureType,
+  Item,
+  ItemRarity,
+} from './types';
+
+type EnemyItemKind = keyof typeof ENEMY_ITEM_DROP_CHANCES.kindChances;
 
 type GatheringDefinition = ReturnType<typeof structureDefinition>;
 
@@ -136,7 +145,7 @@ export function maybeGatherByproduct(
 
 export function dropEnemyRewards(state: GameState, enemy: Enemy) {
   maybeDropEnemyGold(state, enemy);
-  maybeDropEnemyConsumables(state, enemy);
+  maybeDropEnemyItem(state, enemy);
   maybeDropEnemyRecipe(state, enemy);
   maybeDropHomeScroll(state, enemy);
   maybeDropBloodMoonLoot(state, enemy);
@@ -224,46 +233,110 @@ function maybeDropEnemyGold(state: GameState, enemy: Enemy) {
   );
 }
 
-function maybeDropEnemyConsumables(state: GameState, enemy: Enemy) {
-  const dropKeys = [
-    ItemId.Apple,
-    ItemId.WaterFlask,
-    ItemId.HealthPotion,
-    ItemId.ManaPotion,
-  ] as const;
+function maybeDropEnemyItem(state: GameState, enemy: Enemy) {
+  const chance = Math.min(
+    ENEMY_ITEM_DROP_CHANCES.chance.max,
+    ENEMY_ITEM_DROP_CHANCES.chance.base +
+      enemyRarityIndex(enemy.rarity) * ENEMY_ITEM_DROP_CHANCES.chance.perRarity,
+  );
+  const rng = createRng(`${state.seed}:enemy-item:${enemy.id}:${state.turn}`);
+  if (rng() >= chance) return;
 
-  dropKeys.forEach((itemKey) => {
-    const configured = getItemConfigByKey(itemKey);
-    const chance = Math.min(
-      0.92,
-      (configured?.dropChance ?? 0) + enemyRarityIndex(enemy.rarity) * 0.04,
-    );
-    if (chance <= 0) return;
+  const sortedKinds = getSortedEnemyItemKinds();
+  for (const [kind, kindChance] of sortedKinds) {
+    if (rng() >= clampChance(kindChance)) continue;
+    const drop = makeEnemyDrop(state, enemy, kind, rng);
+    if (!drop) continue;
+    addEnemyDrop(state, enemy, drop);
+  }
+}
 
-    const rng = createRng(
-      `${state.seed}:enemy-consumable:${itemKey}:${enemy.id}:${state.turn}`,
-    );
-    if (rng() >= chance) return;
+function makeEnemyDrop(
+  state: GameState,
+  enemy: Enemy,
+  kind: EnemyItemKind,
+  rng: () => number,
+) {
+  const minimumRarity = getEnemyMinimumDropRarity(enemy);
+  const tier = Math.max(1, enemy.tier);
+  const seed = `${state.seed}:enemy-item:${enemy.id}:${state.turn}:${kind}`;
 
-    ensureTileState(state, enemy.coord);
-    const key = hexKey(enemy.coord);
-    const tile = state.tiles[key];
-    addItemToInventory(
-      tile.items,
-      buildItemFromConfig(itemKey, {
-        id: `${itemKey}:${enemy.id}:${state.turn}`,
-      }),
-    );
-    state.tiles[key] = { ...tile, items: [...tile.items] };
-    addLog(
-      state,
-      'loot',
-      t('game.message.enemyDrop.item', {
-        enemy: enemy.name,
-        item: configured?.name ?? itemKey,
-      }),
-    );
+  switch (kind) {
+    case 'artifact':
+      return makeArtifact(seed, enemy.coord, tier, minimumRarity);
+    case 'weapon':
+      return makeWeapon(seed, enemy.coord, tier, minimumRarity);
+    case 'offhand':
+      return makeOffhand(seed, enemy.coord, tier, minimumRarity);
+    case 'armor':
+      return makeArmor(seed, enemy.coord, tier, minimumRarity);
+    default:
+      return makeEnemyConsumableDrop(
+        state,
+        enemy,
+        seed,
+        tier,
+        minimumRarity,
+        rng,
+      );
+  }
+}
+
+function getSortedEnemyItemKinds() {
+  return (Object.entries(ENEMY_ITEM_DROP_CHANCES.kindChances) as Array<
+    [EnemyItemKind, number]
+  >).sort(([kindA, chanceA], [kindB, chanceB]) => {
+    const chanceDelta = chanceA - chanceB;
+    return chanceDelta === 0 ? kindA.localeCompare(kindB) : chanceDelta;
   });
+}
+
+function makeEnemyConsumableDrop(
+  state: GameState,
+  enemy: Enemy,
+  seed: string,
+  tier: number,
+  minimumRarity: ItemRarity,
+  rng: () => number,
+) {
+  const keys = getConsumableItemKeys();
+  const itemKey = keys[Math.floor(rng() * keys.length)] ?? ItemId.Apple;
+  const rarity = pickEquipmentRarity(
+    `${seed}:consumable-rarity`,
+    enemy.coord,
+    tier,
+    minimumRarity,
+  );
+
+  return buildItemFromConfig(itemKey, {
+    id: `${seed}:consumable:${enemy.id}:${state.turn}`,
+    tier,
+    rarity,
+  });
+}
+
+function getEnemyMinimumDropRarity(enemy: Enemy): ItemRarity {
+  return enemy.worldBoss ? 'legendary' : enemy.rarity ?? 'common';
+}
+
+function addEnemyDrop(state: GameState, enemy: Enemy, item: Item) {
+  ensureTileState(state, enemy.coord);
+  const key = hexKey(enemy.coord);
+  const tile = state.tiles[key];
+  addItemToInventory(tile.items, item);
+  state.tiles[key] = { ...tile, items: [...tile.items] };
+  addLog(
+    state,
+    'loot',
+    t('game.message.enemyDrop.item', {
+      enemy: enemy.name,
+      item: item.name,
+    }),
+  );
+}
+
+function clampChance(chance: number) {
+  return Math.max(0, Math.min(1, chance));
 }
 
 function maybeDropEnemyRecipe(state: GameState, enemy: Enemy) {

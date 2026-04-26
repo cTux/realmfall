@@ -184,6 +184,16 @@ export interface GameConfig {
       bloodMoonBonus: number;
       bloodMoonMax: number;
     };
+    enemyItem: {
+      chance: {
+        base: number;
+        perRarity: number;
+        max: number;
+      };
+      kindChances: WeightedChanceMap<
+        'artifact' | 'weapon' | 'offhand' | 'armor' | 'consumable'
+      >;
+    };
     homeScroll: {
       base: number;
       perRarity: number;
