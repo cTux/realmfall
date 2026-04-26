@@ -365,8 +365,8 @@ function makeEnemyConsumableDrop(
   });
 }
 
-function getEnemyMinimumDropRarity(enemy: Enemy): ItemRarity {
-  return enemy.worldBoss ? 'legendary' : (enemy.rarity ?? 'common');
+function getEnemyMinimumDropRarity(): ItemRarity {
+  return 'common';
 }
 
 function addEnemyDrop(state: GameState, enemy: Enemy, item: Item) {
