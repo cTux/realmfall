@@ -35,6 +35,9 @@ describe('run-staged-quality helpers', () => {
     expect(
       FULL_TEST_TRIGGER_FILES.has('packages/client/game.config.ts'),
     ).toBe(false);
+    expect(FULL_TEST_TRIGGER_FILES.has('packages/client/vite.config.ts')).toBe(
+      true,
+    );
   });
 
   it('extracts lowercase extensions consistently', () => {
@@ -70,6 +73,8 @@ describe('run-staged-quality helpers', () => {
       false,
     );
     expect(shouldRunFullTestSuite(['package.json'], scriptDiff)).toBe(true);
-    expect(shouldRunFullTestSuite(['vite.config.ts'], '')).toBe(true);
+    expect(
+      shouldRunFullTestSuite(['packages/client/vite.config.ts'], ''),
+    ).toBe(true);
   });
 });

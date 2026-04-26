@@ -4,7 +4,7 @@ export const VITEST_NODE_INCLUDE = [
   'src/game/**/*.test.ts',
   'src/i18n/**/*.test.ts',
   'src/persistence/**/*.test.ts',
-  '../scripts/**/*.test.ts',
+  'scripts/**/*.test.ts',
 ];
 
 const VITEST_CANVAS_EXCLUDE = [

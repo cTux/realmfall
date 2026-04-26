@@ -1,4 +1,4 @@
-import { createPnpmInvocation } from '../pnpm-command.mjs';
+import { createPnpmInvocation } from '../packages/client/scripts/pnpm-command.mjs';
 
 describe('pnpm command helper', () => {
   it('wraps pnpm through node when npm_execpath is available', () => {

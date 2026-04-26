@@ -3,7 +3,7 @@ import {
   createAppModulePreloadPlugin,
   createVitePlugins,
   minifyJsonAssetsPlugin,
-} from '../../vite/plugins';
+} from '../../packages/client/vite/plugins';
 
 const reactCompilerPreset = vi.hoisted(() => ({
   name: 'react-compiler-preset',

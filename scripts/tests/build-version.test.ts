@@ -1,7 +1,7 @@
 import {
   createBuildVersion,
   getAppBuildVersion,
-} from '../build-version.helpers';
+} from '../packages/client/scripts/build-version.helpers';
 
 describe('build version helpers', () => {
   it('uses the package version when no git revision is available', () => {

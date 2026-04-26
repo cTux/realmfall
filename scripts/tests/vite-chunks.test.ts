@@ -1,7 +1,7 @@
 import {
   getManualChunk,
   resolveModulePreloadDependencies,
-} from '../../vite/chunks';
+} from '../../packages/client/vite/chunks';
 
 describe('Vite chunk policy', () => {
   it('keeps Vite preload helpers out of lazy domain chunks', () => {

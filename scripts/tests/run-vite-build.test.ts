@@ -1,7 +1,7 @@
 import {
   filterKnownPluginTimingWarnings,
   shouldSuppressPluginTimingBlock,
-} from '../run-vite-build.helpers.mjs';
+} from '../packages/client/scripts/run-vite-build.helpers.mjs';
 
 describe('run-vite-build helpers', () => {
   it('suppresses the known single-plugin vite asset timing warning', () => {

@@ -4,8 +4,8 @@ import { request as httpsRequest } from 'node:https';
 import process from 'node:process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawnManagedChild } from './managed-child-process.mjs';
-import { createPnpmInvocation } from './pnpm-command.mjs';
+import { spawnManagedChild } from '../packages/client/scripts/managed-child-process.mjs';
+import { createPnpmInvocation } from '../packages/client/scripts/pnpm-command.mjs';
 
 export const MEMORY_LEAK_PORT = 5173;
 export const MEMORY_LEAK_URL = `https://localhost:${MEMORY_LEAK_PORT}`;

@@ -8,7 +8,7 @@ import {
   isVitestRelatedFile,
   shouldRunFullTestSuite,
 } from './run-staged-quality.helpers.mjs';
-import { createPnpmInvocation } from './pnpm-command.mjs';
+import { createPnpmInvocation } from '../packages/client/scripts/pnpm-command.mjs';
 
 const gitBin = process.platform === 'win32' ? 'git.exe' : 'git';
 

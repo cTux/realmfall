@@ -5,7 +5,7 @@ import process from 'node:process';
 import {
   getManagedSpawnOptions,
   terminateProcessTreeSync,
-} from '../managed-child-process.mjs';
+} from '../packages/client/scripts/managed-child-process.mjs';
 
 function isProcessRunning(pid: number) {
   try {

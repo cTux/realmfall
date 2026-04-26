@@ -1,11 +1,11 @@
 import type { Preview } from '@storybook/react-vite';
-import { loadI18n } from '../packages/client/src/i18n';
-import '../packages/client/src/styles/base.scss';
+import { loadI18n } from '../src/i18n';
+import '../src/styles/base.scss';
 import './preview.scss';
 
 await loadI18n();
 const { storybookPreviewDecorator } =
-  await import('../packages/client/src/ui/components/storybook/storybookPreviewDecorator');
+  await import('../src/ui/components/storybook/storybookPreviewDecorator');
 
 const preview: Preview = {
   decorators: [storybookPreviewDecorator],
