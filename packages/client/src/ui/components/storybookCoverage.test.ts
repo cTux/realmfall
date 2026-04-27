@@ -10,13 +10,28 @@ const componentsDir = join(
   'ui',
   'components',
 );
+const sharedComponentsDir = join(
+  process.cwd(),
+  'packages',
+  'ui',
+  'src',
+  'components',
+);
+
+const sharedComponentStoryDirs = new Map<string, string>([
+  ['ActionBar', 'ActionBar'],
+  ['GameTooltip', 'Tooltip'],
+  ['ItemContextMenu', 'ContextMenu'],
+  ['ItemSlotButton', 'ItemSlot'],
+  ['WindowDock', 'DockPanel'],
+]);
 
 describe('storybook coverage', () => {
   it('keeps a story for each top-level UI component directory', () => {
     const missingDirs = readdirSync(componentsDir, { withFileTypes: true })
       .filter((entry) => entry.isDirectory() && entry.name !== 'storybook')
       .map((entry) => entry.name)
-      .filter((name) => !hasStoryFile(join(componentsDir, name)));
+      .filter((name) => !hasComponentStoryCoverage(name));
 
     expect(missingDirs).toEqual([]);
   });
@@ -77,6 +92,15 @@ function hasStoryFile(directory: string): boolean {
     }
     return entry.isFile() && entry.name.endsWith('.stories.tsx');
   });
+}
+
+function hasComponentStoryCoverage(componentDirectoryName: string) {
+  const sharedDirectory = sharedComponentStoryDirs.get(componentDirectoryName);
+  if (sharedDirectory) {
+    return hasStoryFile(join(sharedComponentsDir, sharedDirectory));
+  }
+
+  return hasStoryFile(join(componentsDir, componentDirectoryName));
 }
 
 function isStandaloneComponentFile(name: string) {

@@ -8,7 +8,7 @@ This spec covers the repository layer boundaries, state transition shape, and co
 
 - `src/game` contains gameplay and simulation rules.
 - `src/app` contains app orchestration, hydration, persistence wiring, clock wiring, and controller hooks.
-- `src/ui/components` contains React window components and presentational UI.
+- `packages/client/src/ui/components` contains client-only React window components and presentational UI, while `packages/ui/src/components` contains shared reusable controls consumed through `@realmfall/ui`.
 - `src/ui/world` contains Pixi world rendering, render math, scene caches, pools, and atmosphere helpers.
 - `src/persistence` contains local save storage helpers.
 - Game mutations are performed through state transition functions in `src/game/state.ts` that clone the incoming game state and return the next state.
@@ -37,5 +37,6 @@ This spec covers the repository layer boundaries, state transition shape, and co
 - `src/game/stateSelectors.ts`
 - `src/game/stateTypes.ts`
 - `src/app`
-- `src/ui/components`
+- `packages/client/src/ui/components`
+- `packages/ui/src/components`
 - `src/ui/world`

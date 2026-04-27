@@ -21,7 +21,7 @@
 - Keep production buildability in mind, not only local dev behavior.
 - When performance-sensitive behavior changes, verify both correctness and the likely rerender or redraw impact.
 - When optimization work changes React, Pixi, hover handling, or bundle shape, document a concrete verification path for rerender breadth, redraw breadth, hover hot paths, and startup chunk growth instead of leaving performance validation implicit.
-- Keep a coverage test for Storybook parity so component additions or removals in `src/ui/components` fail fast when corresponding stories are missing.
+- Keep a coverage test for Storybook parity so client-only component additions or removals in `packages/client/src/ui/components` and shared component migrations into `packages/ui/src/components` fail fast when corresponding stories are missing.
 - Keep repository automation scripts shell-safe across platforms. Do not route staged paths, generated file lists, or other user-controlled arguments through `cmd.exe` or other shells when a direct executable or Node entrypoint invocation can run the tool instead.
 - When repository automation scripts spawn long-lived or nested child processes, clean up the full child process tree when the parent script exits or is interrupted. On Windows, terminate the tree instead of only the direct child so `pnpm`, `vite`, `serve`, or browser helpers do not remain in memory after the wrapper script stops.
 - Keep stylesheet linting on the main repository lint path. `pnpm lint`, CI validation, pre-push checks, and dependency-refresh sanity runs should cover both Oxlint and Stylelint instead of leaving CSS and SCSS validation on a manual side command.

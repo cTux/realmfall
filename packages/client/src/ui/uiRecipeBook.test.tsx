@@ -1,13 +1,15 @@
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import {
+  ItemSlot as ItemSlotButton,
+  Tooltip as GameTooltip,
+} from '@realmfall/ui';
 import { DEFAULT_WINDOWS } from '../app/constants';
 import { getRecipeMaterialItemKey } from '../app/App/utils/getRecipeMaterialItemKey';
 import { GameTag } from '../game/content/tags';
 import { getItemConfigByKey } from '../game/stateSelectors';
 import type { Item } from '../game/stateTypes';
-import { GameTooltip } from './components/GameTooltip';
 import { InventoryWindow } from './components/InventoryWindow';
-import { ItemSlotButton } from './components/ItemSlotButton/ItemSlotButton';
 import { getRecipeCraftCount } from './components/RecipeBookWindow/RecipeBookWindowContent';
 import { compareRecipeBookEntries } from './components/RecipeBookWindow/utils/recipeBookEntries';
 import { iconForItem } from './icons';

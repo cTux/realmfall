@@ -1,7 +1,7 @@
+import { ItemSlot as ItemSlotButton } from '@realmfall/ui';
 import { t } from '../../../i18n';
 import { ITEM_MODIFICATION_BALANCE } from '../../../game/config';
 import { CombatWindowContent } from '../CombatWindow/CombatWindowContent';
-import { ItemSlotButton } from '../ItemSlotButton/ItemSlotButton';
 import { Icons } from '../../icons';
 import type { HexInfoWindowProps } from './types';
 import {

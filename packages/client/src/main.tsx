@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { loadI18n } from './i18n';
-import { LoadingSpinner } from '@realmfall/ui';
+import { LoadingSpinner } from '@realmfall/ui/loading-spinner';
 import { installGlobalVersion } from './version';
 import './styles/base.scss';
 

@@ -1,6 +1,6 @@
 import { inject, TestRunner as VitestTestRunner } from 'vitest';
-import { TaskCache } from '../../../node_modules/@raegen/vite-plugin-vitest-cache/dist/cache.js';
-import { flagCache } from '../../../node_modules/@raegen/vite-plugin-vitest-cache/dist/util.js';
+import { TaskCache } from '../../node_modules/@raegen/vite-plugin-vitest-cache/dist/cache.js';
+import { flagCache } from '../../node_modules/@raegen/vite-plugin-vitest-cache/dist/util.js';
 
 function getTasks(task) {
   if (!task || typeof task !== 'object') {

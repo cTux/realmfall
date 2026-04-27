@@ -8,9 +8,9 @@ import {
   type SetStateAction,
 } from 'react';
 import type { Application } from 'pixi.js';
+import type { TooltipPosition } from '@realmfall/ui';
 import { getVisibleTiles } from '../../game/stateSelectors';
 import type { GameState, HexCoord } from '../../game/stateTypes';
-import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import { DEFAULT_WORLD_MAP_CAMERA } from '../../ui/world/worldMapCamera';
 import {
   normalizeWorldRenderFps,

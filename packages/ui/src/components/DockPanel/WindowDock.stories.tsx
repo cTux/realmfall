@@ -10,7 +10,7 @@ import { WindowDock } from './WindowDock';
 const fixtures = createStorybookFixtures();
 
 const meta = {
-  title: 'Components/Window Dock',
+  title: 'Components/DockPanel',
   component: WindowDock,
   decorators: [storySurfaceDecorator],
   args: {

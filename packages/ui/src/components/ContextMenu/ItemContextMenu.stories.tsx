@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { getItemCategory } from '../../../game/content/items';
+import { getItemCategory } from '../../game/content/items';
 import {
   createStorybookFixtures,
   noop,
@@ -10,7 +10,7 @@ import { ItemContextMenu } from './ItemContextMenu';
 const fixtures = createStorybookFixtures();
 
 const meta = {
-  title: 'Components/Item Context Menu',
+  title: 'Components/ContextMenu',
   component: ItemContextMenu,
   decorators: [storySurfaceDecorator],
   args: {

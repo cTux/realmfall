@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { EquipmentSlotId } from '../../../game/content/ids';
+import { EquipmentSlotId } from '../../game/content/ids';
 import {
   createStorybookFixtures,
   noop,
@@ -10,7 +10,7 @@ import { ItemSlotButton } from './ItemSlotButton';
 const fixtures = createStorybookFixtures();
 
 const meta = {
-  title: 'Components/ItemSlotButton',
+  title: 'Components/ItemSlot',
   component: ItemSlotButton,
   decorators: [storySurfaceDecorator],
   args: {

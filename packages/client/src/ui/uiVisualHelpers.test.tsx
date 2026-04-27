@@ -1,4 +1,5 @@
 import { renderToStaticMarkup } from 'react-dom/server';
+import { ItemSlot as ItemSlotButton } from '@realmfall/ui';
 import { getInventoryItemAction } from '../app/App/utils/getInventoryItemAction';
 import { GameTag } from '../game/content/tags';
 import { getAbilityDefinition } from '../game/abilities';
@@ -18,7 +19,6 @@ import {
   structureTint,
 } from './icons';
 import { rarityColor } from './rarity';
-import { ItemSlotButton } from './components/ItemSlotButton/ItemSlotButton';
 
 describe('ui visual helpers', () => {
   it('exposes shared constants and lookup helpers', () => {

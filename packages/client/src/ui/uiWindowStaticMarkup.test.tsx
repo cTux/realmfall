@@ -1,11 +1,11 @@
 import React from 'react';
+import { Tooltip as GameTooltip } from '@realmfall/ui';
 import { getAbilityDefinition } from '../game/abilities';
 import { getItemConfigByKey, getPlayerOverview } from '../game/stateSelectors';
 import { DEFAULT_WINDOWS } from '../app/constants';
 import { rarityColor } from './rarity';
 import { CombatWindow } from './components/CombatWindow';
 import { EquipmentWindow } from './components/EquipmentWindow';
-import { GameTooltip } from './components/GameTooltip';
 import { HeroWindow } from './components/HeroWindow';
 import { HexInfoWindow } from './components/HexInfoWindow';
 import { InventoryWindow } from './components/InventoryWindow';

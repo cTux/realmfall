@@ -1,8 +1,8 @@
+import { ItemSlot as ItemSlotButton } from '@realmfall/ui';
 import { canSellItem } from '../../../game/inventory';
 import { isRecipePage } from '../../../game/stateSelectors';
 import { t } from '../../../i18n';
 import { Icons } from '../../icons';
-import { ItemSlotButton } from '../ItemSlotButton/ItemSlotButton';
 import type { InventoryWindowProps } from './types';
 import styles from './styles.module.scss';
 

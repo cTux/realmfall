@@ -4,13 +4,13 @@ import {
   type MouseEvent as ReactMouseEvent,
   type MutableRefObject,
 } from 'react';
+import type { TooltipPosition } from '@realmfall/ui';
 import { isRecipePage } from '../../../game/inventory';
 import {
   CORRUPTED_ITEM_COLOR,
   getItemDisplayName,
 } from '../../../game/itemModifications';
 import type { GameState } from '../../../game/stateTypes';
-import type { TooltipPosition } from '../../../ui/components/GameTooltip';
 import { rarityColor } from '../../../ui/rarity';
 import { getTooltipPlacementForRect } from '../../../ui/tooltipPlacement';
 import type { TooltipLine } from '../../../ui/tooltips';

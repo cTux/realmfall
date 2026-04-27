@@ -1,12 +1,14 @@
 import type { MutableRefObject } from 'react';
 import type { Application } from 'pixi.js';
+import {
+  syncFollowCursorTooltipPosition,
+  type TooltipPosition,
+} from '@realmfall/ui';
 import { hexAtPoint, hexDistance, type HexCoord } from '../../../game/hex';
 import { isPassable } from '../../../game/shared';
 import { getSafePathToTile } from '../../../game/statePathfinding';
 import { getEnemiesAt, getTileAt } from '../../../game/stateWorldQueries';
 import type { GameState } from '../../../game/stateTypes';
-import type { TooltipPosition } from '../../../ui/components/GameTooltip';
-import { syncFollowCursorTooltipPosition } from '../../../ui/components/GameTooltip/followCursorSync';
 import { getWorldHexSize } from '../../../ui/world/renderSceneMath';
 import { WORLD_REVEAL_RADIUS } from '../../constants';
 import type { TooltipState } from '../types';

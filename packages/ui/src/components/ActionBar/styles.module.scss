@@ -1,0 +1,86 @@
+@use '../../styles/ui';
+
+.root {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  z-index: 7;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.bar {
+  pointer-events: auto;
+  display: flex;
+  gap: 6px;
+}
+
+.slotWrap {
+  position: relative;
+}
+
+.slot {
+  --slot-size: 54.4px;
+
+  cursor: pointer;
+}
+
+.hotkey {
+  position: absolute;
+  left: 4px;
+  top: 3px;
+  z-index: 2;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #cbd5e1;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 75%);
+  pointer-events: none;
+}
+
+.picker {
+  pointer-events: auto;
+  min-width: 168px;
+  max-width: min(320px, calc(100vw - 24px));
+  padding: 8px;
+  background: linear-gradient(180deg, rgb(15 23 42 / 98%), rgb(2 6 23 / 98%));
+  border: 1px solid rgb(148 163 184 / 26%);
+  box-shadow: 0 14px 30px rgb(2 6 23 / 58%);
+}
+
+.pickerHeader {
+  margin-bottom: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.pickerGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.empty {
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+@media (width <= 720px) {
+  .root {
+    bottom: 12px;
+  }
+
+  .bar {
+    gap: 4px;
+  }
+
+  .picker {
+    justify-self: stretch;
+  }
+}

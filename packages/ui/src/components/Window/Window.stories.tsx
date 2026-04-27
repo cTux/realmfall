@@ -9,6 +9,7 @@ const meta = {
   component: Window,
   render: (args) => <WindowStory {...args} />,
   args: {
+    children: 'Reusable draggable window shell.',
     title: 'Window',
     position: WINDOW_STORY_POSITION,
     onMove: () => undefined,
@@ -22,13 +23,19 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 
 function WindowStory(
-  args: Omit<ComponentProps<typeof Window>, 'position' | 'onMove' | 'children'>,
+  args: Omit<ComponentProps<typeof Window>, 'position' | 'onMove'>,
 ) {
-  const [position, setPosition] = useState(WINDOW_STORY_POSITION);
+  const [position, setPosition] = useState<
+    ComponentProps<typeof Window>['position']
+  >(WINDOW_STORY_POSITION);
 
   return (
-    <Window {...args} position={position} onMove={setPosition}>
-      Reusable draggable window shell.
+    <Window
+      {...args}
+      position={position}
+      onMove={(nextPosition) => setPosition(nextPosition)}
+    >
+      {args.children}
     </Window>
   );
 }

@@ -1,8 +1,8 @@
 import React, { act } from 'react';
+import { ContextMenu as ItemContextMenu } from '@realmfall/ui';
 import { vi } from 'vitest';
 import type { Item } from '../game/stateTypes';
 import { DraggableWindow } from './components/DraggableWindow';
-import { ItemContextMenu } from './components/ItemContextMenu';
 import { mountUi, setupUiTestEnvironment } from './uiTestHelpers';
 import type { WindowPosition } from '../app/constants';
 

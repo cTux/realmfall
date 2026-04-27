@@ -1,4 +1,5 @@
 import React, { act } from 'react';
+import { ContextMenu as ItemContextMenu } from '@realmfall/ui';
 import { vi } from 'vitest';
 import { DEFAULT_WINDOWS } from '../app/constants';
 import { GameTag } from '../game/content/tags';
@@ -7,7 +8,6 @@ import { getPlayerOverview } from '../game/stateSelectors';
 import { Skill } from '../game/types';
 import { EquipmentWindow } from './components/EquipmentWindow';
 import { HeroWindow } from './components/HeroWindow';
-import { ItemContextMenu } from './components/ItemContextMenu';
 import { RecipeBookWindow } from './components/RecipeBookWindow';
 import { SkillsWindow } from './components/SkillsWindow';
 import { mountUi, renderMarkup, setupUiTestEnvironment } from './uiTestHelpers';

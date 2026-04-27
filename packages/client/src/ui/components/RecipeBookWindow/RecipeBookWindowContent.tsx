@@ -6,6 +6,7 @@ import {
   useState,
   type MouseEvent as ReactMouseEvent,
 } from 'react';
+import { ItemSlot as ItemSlotButton } from '@realmfall/ui';
 import {
   buildItemFromConfig,
   getItemConfigByKey,
@@ -23,7 +24,6 @@ import {
   formatSkillLabel,
 } from '../../../i18n/labels';
 import roundStarIcon from '../../../assets/icons/round-star.svg';
-import { ItemSlotButton } from '../ItemSlotButton/ItemSlotButton';
 import type { RecipeBookWindowProps } from './types';
 import { compareRecipeBookEntries } from './utils/recipeBookEntries';
 import { useRecipeBookRows } from './useRecipeBookRows';

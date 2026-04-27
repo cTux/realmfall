@@ -3,7 +3,7 @@ import { GameTooltip } from './GameTooltip';
 import { storySurfaceDecorator } from '../storybook/storybookHelpers';
 
 const meta = {
-  title: 'Components/Game Tooltip',
+  title: 'Components/Tooltip',
   component: GameTooltip,
   decorators: [storySurfaceDecorator],
   args: {

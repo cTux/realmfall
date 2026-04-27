@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
+import type { TooltipPosition } from '@realmfall/ui';
 import { createGame } from '../../../game/stateFactory';
 import type { GameState } from '../../../game/stateTypes';
-import type { TooltipPosition } from '../../../ui/components/GameTooltip';
 import { WORLD_RADIUS } from '../../constants';
 import { loadAudioSettings } from '../../audioSettings';
 import {
