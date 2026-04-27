@@ -4,10 +4,10 @@ import {
   type MutableRefObject,
   type SetStateAction,
 } from 'react';
+import type { TooltipPosition } from '@realmfall/ui';
 import { setHomeHex } from '../../../game/stateWorldActions';
 import type { GameState } from '../../../game/stateTypes';
 import { resetTooltipState as resetTooltipStore } from '../tooltipStore';
-import type { TooltipPosition } from '../../../ui/components/GameTooltip';
 
 interface UseAppLifecycleOptions {
   game: GameState;

@@ -1,5 +1,5 @@
+import { ItemSlot as ItemSlotButton } from '@realmfall/ui';
 import { t } from '../../../i18n';
-import { ItemSlotButton } from '../ItemSlotButton/ItemSlotButton';
 import type { LootWindowProps } from './types';
 import styles from '../InventoryWindow/styles.module.scss';
 

@@ -5,8 +5,8 @@ import {
   type MutableRefObject,
   type SetStateAction,
 } from 'react';
+import type { TooltipPosition } from '@realmfall/ui';
 import type { GameState, Item } from '../../game/stateTypes';
-import type { TooltipPosition } from '../../ui/components/GameTooltip';
 import type { AudioSettings } from '../audioSettings';
 import type { GraphicsSettings } from '../graphicsSettings';
 import type { TooltipItem } from './types';

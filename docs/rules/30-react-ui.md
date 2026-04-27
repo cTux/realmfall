@@ -31,7 +31,7 @@
 - When one view-model hook accumulates separate hero, logs, recipes, and tile-specific derivation together, split the tile-facing branch into a focused helper such as `useHexGameplayView` so hex availability, item modification state, and town interactions do not share a file with unrelated view slices.
 - Name persisted or transitional loot arrays after their tile ownership, such as `tileLootSnapshot`, and type them from tile loot or window view state instead of reusing player inventory types for convenience.
 - Keep the base app shell visible while persistence hydration or Pixi bootstrap is in flight. Loading states may cover the map viewport, but they should not hide the dock, action bar, or other already-renderable shell UI behind a full-screen visibility gate.
-- Keep Storybook stories for every component under `src/ui/components`, including shared leaf components and window wrappers.
+- Keep Storybook stories for every shared component under `packages/ui/src/components` and for every client-only window or wrapper component under `packages/client/src/ui/components`.
 - Every component addition, removal, or behavior-affecting UI change should add or update the corresponding Storybook story in the same task.
 - Keep aggregate Storybook catalogs for entity dictionaries such as `ITEM_CONFIGS`, `ENEMY_CONFIGS`, and `STRUCTURE_CONFIGS`, and prefer rendering those catalogs directly from the live config arrays so entity additions, removals, and edits appear automatically.
 - Derive Storybook window-dock fixtures from the same runtime dock builder and window registry used by the app instead of maintaining a separate Storybook-only dock entry list.

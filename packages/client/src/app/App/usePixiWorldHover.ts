@@ -1,7 +1,9 @@
 import type { MutableRefObject } from 'react';
+import {
+  syncFollowCursorTooltipPosition,
+  type TooltipPosition,
+} from '@realmfall/ui';
 import type { GameState, HexCoord } from '../../game/stateTypes';
-import type { TooltipPosition } from '../../ui/components/GameTooltip';
-import { syncFollowCursorTooltipPosition } from '../../ui/components/GameTooltip/followCursorSync';
 import { getTooltipState } from './tooltipStore';
 import type { TooltipState } from './types';
 

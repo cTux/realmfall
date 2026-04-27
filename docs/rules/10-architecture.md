@@ -3,7 +3,7 @@
 ## Architecture
 
 - Keep gameplay and simulation rules in `src/game` so they stay testable and mostly UI-independent.
-- Keep React app orchestration in `src/app` and presentational UI in `src/ui/components`.
+- Keep React app orchestration in `packages/client/src/app`, client-only presentational UI in `packages/client/src/ui/components`, and shared reusable UI controls in `packages/ui/src/components`.
 - Keep Pixi world rendering concerns in `src/ui/world` rather than mixing them into gameplay rules.
 - Prefer colocated structure inside a feature or component directory: place single-use hooks in a local `hooks/` directory, single-use selectors in a local `selectors/` directory, single-use utilities in a local `utils/` directory, and tests in a local `tests/` directory.
 - Place shared hooks in `src/hooks`, shared selectors in `src/selectors`, and shared utilities in `src/utils` when multiple features depend on the same module.

@@ -13,8 +13,8 @@ import {
   enemyTooltip,
   structureTooltip,
 } from './tooltips';
+import { DockPanel as WindowDock } from '@realmfall/ui';
 import { WindowLabel } from './components/WindowLabel/WindowLabel';
-import { WindowDock } from './components/WindowDock';
 import { WINDOW_LABELS } from './windowLabels';
 
 function createItem(overrides: Partial<Item> = {}): Item {

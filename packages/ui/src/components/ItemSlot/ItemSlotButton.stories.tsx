@@ -10,7 +10,7 @@ import { ItemSlotButton } from './ItemSlotButton';
 const fixtures = createStorybookFixtures();
 
 const meta = {
-  title: 'Components/ItemSlotButton',
+  title: 'Components/ItemSlot',
   component: ItemSlotButton,
   decorators: [storySurfaceDecorator],
   args: {

@@ -1,8 +1,8 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import type { Application, Container } from 'pixi.js';
+import type { TooltipPosition } from '@realmfall/ui';
 import type { HexCoord } from '../../../game/hex';
 import type { GameState } from '../../../game/stateTypes';
-import type { TooltipPosition } from '../../../ui/components/GameTooltip';
 import { type WorldMapCameraState } from '../../../ui/world/worldMapCamera';
 import type { TooltipState } from '../types';
 import { type WorldHoverSnapshot } from '../usePixiWorldHover';

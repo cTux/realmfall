@@ -5,6 +5,7 @@ import {
   type MouseEvent,
   type MutableRefObject,
 } from 'react';
+import { Tooltip as GameTooltip, type TooltipPosition } from '@realmfall/ui';
 import {
   resetTooltipState,
   setTooltipState,
@@ -14,7 +15,6 @@ import type { TooltipItem } from '../../../app/App/types';
 import { rarityColor } from '../../rarity';
 import { itemTooltipLines, type TooltipLine } from '../../tooltips';
 import { getTooltipPlacementForRect } from '../../tooltipPlacement';
-import { GameTooltip, type TooltipPosition } from '../GameTooltip';
 
 type StoryArgs = Record<string, unknown>;
 

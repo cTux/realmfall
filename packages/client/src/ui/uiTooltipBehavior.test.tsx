@@ -1,9 +1,11 @@
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { vi } from 'vitest';
+import {
+  syncFollowCursorTooltipPosition,
+  Tooltip as GameTooltip,
+} from '@realmfall/ui';
 import { getTooltipPlacementForRect } from './tooltipPlacement';
-import { GameTooltip } from './components/GameTooltip';
-import { syncFollowCursorTooltipPosition } from './components/GameTooltip/followCursorSync';
 import { rarityColor } from './rarity';
 import { setupUiTestEnvironment } from './uiTestHelpers';
 

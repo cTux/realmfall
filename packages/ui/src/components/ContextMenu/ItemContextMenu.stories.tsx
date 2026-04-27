@@ -10,7 +10,7 @@ import { ItemContextMenu } from './ItemContextMenu';
 const fixtures = createStorybookFixtures();
 
 const meta = {
-  title: 'Components/Item Context Menu',
+  title: 'Components/ContextMenu',
   component: ItemContextMenu,
   decorators: [storySurfaceDecorator],
   args: {
