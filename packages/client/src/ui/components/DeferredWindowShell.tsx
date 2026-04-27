@@ -1,6 +1,7 @@
 import {
   Suspense,
   createElement,
+  type ReactNode,
   type ComponentProps,
   type ComponentType,
   type LazyExoticComponent,
@@ -19,10 +20,11 @@ export type DeferredWindowShellProps<ContentProps extends object> = Omit<
 export function DeferredWindowShell<ContentProps extends object>({
   content: Content,
   contentProps,
+  title,
   ...windowProps
-}: DeferredWindowShellProps<ContentProps>) {
+}: DeferredWindowShellProps<ContentProps> & { title: ReactNode }) {
   return (
-    <WindowShell {...windowProps}>
+    <WindowShell {...windowProps} title={title}>
       <Suspense fallback={<WindowLoadingState />}>
         {createElement(Content, contentProps)}
       </Suspense>

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useUiAudio } from '../../app/audio/UiAudioContext';
+import { Button } from '@realmfall/ui';
 import type { TooltipLine } from '../tooltips';
 import type { WindowDetailTooltipHandlers } from './windowTooltipTypes';
 
@@ -29,7 +30,7 @@ export const WindowHeaderActionButton = ({
   const audio = useUiAudio();
 
   return (
-    <button
+    <Button
       type="button"
       className={className}
       aria-disabled={disabled ? 'true' : undefined}
@@ -56,6 +57,6 @@ export const WindowHeaderActionButton = ({
       onMouseLeave={onLeaveDetail}
     >
       {children}
-    </button>
+    </Button>
   );
 };

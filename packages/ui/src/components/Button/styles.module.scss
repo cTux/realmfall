@@ -1,0 +1,33 @@
+.button {
+  appearance: none;
+  border: 1px solid rgb(148 163 184 / 30%);
+  border-radius: 0 0.8rem 0 0.8rem;
+  background: rgb(15 23 42 / 75%);
+  color: #e2e8f0;
+  padding: 0.4rem 0.9rem;
+  min-height: 2.05rem;
+  font-size: 0.9rem;
+  line-height: 1.15;
+  cursor: pointer;
+  transition:
+    border-color 120ms ease,
+    color 120ms ease,
+    background-color 120ms ease,
+    box-shadow 120ms ease;
+
+  &:hover:enabled {
+    border-color: rgb(125 211 252 / 62%);
+    color: #f8fafc;
+    background: rgb(15 23 42 / 88%);
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgb(125 211 252 / 80%);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
