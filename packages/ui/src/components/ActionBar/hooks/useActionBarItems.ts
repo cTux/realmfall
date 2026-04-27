@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
-import type { Item } from '../../../../game/stateTypes';
+import type { Item } from '../../../game/stateTypes';
 import {
   ACTION_BAR_SLOT_COUNT,
   findActionBarItem,
   getConsumablesFromInventory,
   type ActionBarSlots,
-} from '../../../../app/App/actionBar';
+} from '../../../app/App/actionBar';
 
 export interface ActionBarSlotItem {
   slotIndex: number;

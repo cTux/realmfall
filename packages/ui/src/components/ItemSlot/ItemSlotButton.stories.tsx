@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { EquipmentSlotId } from '../../../game/content/ids';
+import { EquipmentSlotId } from '../../game/content/ids';
 import {
   createStorybookFixtures,
   noop,

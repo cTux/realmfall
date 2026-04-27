@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { getItemCategory } from '../../../game/content/items';
+import { getItemCategory } from '../../game/content/items';
 import {
   createStorybookFixtures,
   noop,

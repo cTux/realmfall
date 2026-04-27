@@ -5,9 +5,10 @@ import {
   useState,
   type MouseEvent as ReactMouseEvent,
 } from 'react';
-import { t } from '../../../i18n';
-import type { Item } from '../../../game/stateTypes';
-import type { ActionBarSlots } from '../../../app/App/actionBar';
+import { t } from '../../i18n';
+import type { Item } from '../../game/stateTypes';
+import type { ActionBarSlots } from '../../app/App/actionBar';
+import { ItemSlot } from '../ItemSlot';
 import { ActionBarSlot } from './ActionBarSlot';
 import { useActionBarItems } from './hooks/useActionBarItems';
 import styles from './styles.module.scss';
@@ -62,7 +63,7 @@ export const ActionBar = memo(function ActionBar({
           </div>
           <div className={styles.pickerGrid}>
             {consumables.map((item) => (
-              <ItemSlotButton
+              <ItemSlot
                 key={item.id}
                 ariaLabel={t('ui.actionBar.picker.optionLabel', {
                   item: item.name,

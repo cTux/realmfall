@@ -1,8 +1,8 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { vi } from 'vitest';
-import { GameTag } from '../../../game/content/tags';
-import type { Item } from '../../../game/stateTypes';
+import { GameTag } from '../../game/content/tags';
+import type { Item } from '../../game/stateTypes';
 import { ActionBar } from './ActionBar';
 
 describe('ActionBar', () => {

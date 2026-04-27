@@ -1,14 +1,14 @@
 import { memo, useState, type Dispatch, type SetStateAction } from 'react';
-import { useUiAudio } from '../../../app/audio/UiAudioContext';
-import type { WindowVisibilityState } from '../../../app/constants';
-import { t } from '../../../i18n';
+import { useUiAudio } from '../../app/audio/UiAudioContext';
+import type { WindowKey } from '../../app/constants';
+import { t } from '../../i18n';
 import type { WindowLabelDefinition } from '../../windowLabels';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
 import labelStyles from '../windowLabels.module.scss';
 import styles from './styles.module.scss';
 
 export interface WindowDockEntry {
-  key: keyof WindowVisibilityState;
+  key: WindowKey;
   label: string;
   title: WindowLabelDefinition;
   icon: string;
@@ -19,14 +19,14 @@ export interface WindowDockEntry {
 
 interface WindowDockProps {
   entries: WindowDockEntry[];
-  onToggle: (key: keyof WindowVisibilityState) => void;
+  onToggle: (key: WindowKey) => void;
 }
 
 export const WindowDock = memo(function WindowDock({
   entries,
   onToggle,
 }: WindowDockProps) {
-  const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
+  const [activeTooltip, setActiveTooltip] = useState<WindowKey | null>(null);
   const startEntries = entries.filter((entry) => entry.align !== 'end');
   const endEntries = entries.filter((entry) => entry.align === 'end');
 
@@ -62,9 +62,9 @@ export const WindowDock = memo(function WindowDock({
 
 interface DockButtonProps {
   entry: WindowDockEntry;
-  activeTooltip: string | null;
-  onToggle: (key: keyof WindowVisibilityState) => void;
-  setActiveTooltip: Dispatch<SetStateAction<string | null>>;
+  activeTooltip: WindowKey | null;
+  onToggle: (key: WindowKey) => void;
+  setActiveTooltip: Dispatch<SetStateAction<WindowKey | null>>;
 }
 
 function DockButton({

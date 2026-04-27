@@ -1,8 +1,8 @@
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
-import { createDefaultActionBarSlots } from '../../../../app/App/actionBar';
-import { GameTag } from '../../../../game/content/tags';
-import type { Item } from '../../../../game/stateTypes';
+import { createDefaultActionBarSlots } from '../../../app/App/actionBar';
+import { GameTag } from '../../../game/content/tags';
+import type { Item } from '../../../game/stateTypes';
 import { useActionBarItems } from './useActionBarItems';
 
 type ActionBarItems = ReturnType<typeof useActionBarItems>;

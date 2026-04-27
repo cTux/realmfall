@@ -1,5 +1,5 @@
-import type { Item } from '../../../game/stateTypes';
-import type { SecondaryStatKey } from '../../../game/types';
+import type { Item } from '../../game/stateTypes';
+import type { SecondaryStatKey } from '../../game/types';
 
 export interface ItemContextMenuProps {
   item: Item;

@@ -9,6 +9,7 @@ const meta = {
   component: ResizableWindow,
   render: (args) => <ResizableWindowStory {...args} />,
   args: {
+    children: 'Resize from this bottom-right handle.',
     title: 'Resizable Window',
     resizeBounds: { minWidth: 280, minHeight: 180 },
     position: WINDOW_STORY_POSITION,
@@ -23,17 +24,19 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 
 function ResizableWindowStory(
-  args: Omit<ComponentProps<typeof ResizableWindow>, 'position' | 'onMove' | 'children'>,
+  args: Omit<ComponentProps<typeof ResizableWindow>, 'position' | 'onMove'>,
 ) {
-  const [position, setPosition] = useState(WINDOW_STORY_POSITION);
+  const [position, setPosition] = useState<
+    ComponentProps<typeof ResizableWindow>['position']
+  >(WINDOW_STORY_POSITION);
 
   return (
     <ResizableWindow
       {...args}
       position={position}
-      onMove={setPosition}
+      onMove={(nextPosition) => setPosition(nextPosition)}
     >
-      Resize from this bottom-right handle.
+      {args.children}
     </ResizableWindow>
   );
 }

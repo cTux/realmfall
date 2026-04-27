@@ -1,6 +1,6 @@
 import type { MouseEvent as ReactMouseEvent } from 'react';
-import { t } from '../../../i18n';
-import type { Item } from '../../../game/stateTypes';
+import { t } from '../../i18n';
+import type { Item } from '../../game/stateTypes';
 import { ItemSlot } from '../ItemSlot';
 import styles from './styles.module.scss';
 
@@ -10,10 +10,7 @@ export interface ActionBarSlotProps {
   depleted?: boolean;
   onClick: () => void;
   onClear: () => void;
-  onHoverItem?: (
-    event: ReactMouseEvent<HTMLElement>,
-    item: Item,
-  ) => void;
+  onHoverItem?: (event: ReactMouseEvent<HTMLElement>, item: Item) => void;
   onLeaveItem?: () => void;
 }
 

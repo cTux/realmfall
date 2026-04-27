@@ -1,11 +1,8 @@
 import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react';
 import { formatCompactNumber } from '../../formatters';
-import {
-  formatEquipmentSlotLabel,
-  formatItemLabel,
-} from '../../../i18n/labels';
-import { t } from '../../../i18n';
-import type { EquipmentSlot, Item } from '../../../game/stateTypes';
+import { formatEquipmentSlotLabel, formatItemLabel } from '../../i18n/labels';
+import { t } from '../../i18n';
+import type { EquipmentSlot, Item } from '../../game/stateTypes';
 import { iconForItem, itemTint } from '../../icons';
 import styles from './styles.module.scss';
 
