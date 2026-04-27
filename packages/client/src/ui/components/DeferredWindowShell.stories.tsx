@@ -31,7 +31,7 @@ function DeferredWindowShellStory(
     <DeferredWindowShell
       {...args}
       position={position}
-      onMove={(nextPosition) => setPosition(nextPosition)}
+      onMove={(nextPosition: WindowPosition) => setPosition(nextPosition)}
       content={DemoContent}
       contentProps={{
         message:

@@ -1,6 +1,6 @@
 import React, { act } from 'react';
 import { vi } from 'vitest';
-import { DEFAULT_WINDOWS } from '../app/constants';
+import { DEFAULT_WINDOWS, type WindowPosition } from '../app/constants';
 import { createGame } from '../game/stateFactory';
 import { DraggableWindow } from './components/DraggableWindow';
 import { LootWindow } from './components/LootWindow';
@@ -63,7 +63,7 @@ describe('ui window resizing surfaces', () => {
       <DraggableWindow
         title="Resizable Window"
         position={{ x: 40, y: 50, width: 320, height: 240 }}
-        onMove={(position) => moves.push(position)}
+        onMove={(position: WindowPosition) => moves.push(position)}
         resizeBounds={{ minWidth: 280, minHeight: 200 }}
       >
         <div>Body</div>

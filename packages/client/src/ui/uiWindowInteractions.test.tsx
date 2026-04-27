@@ -4,6 +4,7 @@ import type { Item } from '../game/stateTypes';
 import { DraggableWindow } from './components/DraggableWindow';
 import { ItemContextMenu } from './components/ItemContextMenu';
 import { mountUi, setupUiTestEnvironment } from './uiTestHelpers';
+import type { WindowPosition } from '../app/constants';
 
 setupUiTestEnvironment();
 
@@ -42,7 +43,7 @@ describe('ui window interactions', () => {
         <DraggableWindow
           title="Test Window"
           position={{ x: 40, y: 50 }}
-          onMove={(position) => moves.push(position)}
+          onMove={(position: WindowPosition) => moves.push(position)}
           onClose={closeWindow}
         >
           <div>Body</div>
@@ -164,10 +165,10 @@ describe('ui window interactions', () => {
   it('commits draggable window movement on pointer release', async () => {
     const moves: Array<{ x: number; y: number }> = [];
     const ui = await mountUi(
-      <DraggableWindow
+        <DraggableWindow
         title="Batched Window"
         position={{ x: 40, y: 50 }}
-        onMove={(position) => moves.push(position)}
+        onMove={(position: WindowPosition) => moves.push(position)}
       >
         <div>Body</div>
       </DraggableWindow>,
@@ -216,11 +217,11 @@ describe('ui window interactions', () => {
   it('skips draggable window movement commit when no drag delta occurred', async () => {
     const moves: Array<{ x: number; y: number }> = [];
     const ui = await mountUi(
-      <DraggableWindow
-        title="Batched Window"
-        position={{ x: 40, y: 50 }}
-        onMove={(position) => moves.push(position)}
-      >
+        <DraggableWindow
+          title="Batched Window"
+          position={{ x: 40, y: 50 }}
+          onMove={(position: WindowPosition) => moves.push(position)}
+        >
         <div>Body</div>
       </DraggableWindow>,
     );

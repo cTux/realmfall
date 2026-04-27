@@ -6,7 +6,7 @@ import type {
 import type { WindowProps, WindowTooltipLine } from './types';
 import styles from './styles.module.scss';
 
-interface WindowFrameProps extends Omit<WindowProps, 'onClose'> {
+interface WindowFrameProps extends Omit<WindowProps, 'onClose' | 'onMove'> {
   onClose: () => void;
   onBlurCapture: (event: ReactFocusEvent<HTMLElement>) => void;
   onHeaderPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void;
