@@ -354,6 +354,7 @@ export function RecipeBookWindowContent({
                           size="compact"
                           disabled={!recipe.learned}
                           tintOverride={tintOverride}
+                          borderColorOverride={tintOverride}
                         />
                       </span>
                     )}

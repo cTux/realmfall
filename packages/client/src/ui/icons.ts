@@ -577,6 +577,7 @@ function isLeatherItem(item: Item) {
 function isMetalItem(item: Item) {
   return hasItemKeyFragment(
     item,
+    'dagger',
     'blade',
     'knife',
     'sword',

@@ -151,6 +151,35 @@ describe('ui recipe book window surfaces', () => {
     await ui.unmount();
   });
 
+  it('keeps unlearned equippable recipe slots on the muted disabled border instead of rarity color', async () => {
+    const ui = await mountRecipeBook({
+      recipes: [
+        createRecipe({
+          id: 'missing-rare-town-knife',
+          learned: false,
+          output: {
+            rarity: 'rare',
+          },
+        }),
+      ],
+    });
+
+    const slot = getFirstRecipeSlot(ui.host);
+    const icon = getRecipeSlotIcon(slot);
+
+    expect(slot?.getAttribute('style')).toContain(
+      'border-color: rgba(148, 163, 184, 0.45);',
+    );
+    expect(slot?.getAttribute('style')).not.toContain(
+      'border-color: rgb(96, 165, 250);',
+    );
+    expect(icon?.getAttribute('style')).toContain(
+      'background-color: rgba(148, 163, 184, 0.45);',
+    );
+
+    await ui.unmount();
+  });
+
   it('shows recipe action button tooltip lines for bulk craft modifiers', async () => {
     const hoverDetail = vi.fn();
     const leaveDetail = vi.fn();

@@ -73,4 +73,29 @@ describe('ui item slot colors', () => {
     expect(markup).toContain('border-color:#f8fafc');
     expect(markup).not.toContain('recipe.svg');
   });
+
+  it('treats dagger-family equippables as metal gear instead of neutral fallback', () => {
+    const parryingDagger: Item = {
+      id: 'generated-offhand-dagger-1',
+      itemKey: 'generated-offhand-dagger',
+      name: 'Parrying Dagger',
+      slot: 'offhand',
+      quantity: 1,
+      tier: 1,
+      rarity: 'common',
+      power: 2,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+      thirst: 0,
+    };
+
+    const markup = renderToStaticMarkup(
+      <ItemSlotButton item={parryingDagger} size="compact" />,
+    );
+
+    expect(markup).toContain('background-color:#94a3b8');
+    expect(markup).not.toContain('background-color:#cbd5e1');
+  });
 });
