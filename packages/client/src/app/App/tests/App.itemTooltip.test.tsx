@@ -1,6 +1,7 @@
 import { act } from 'react';
 import {
   createHydratedAppGame,
+  findItemSlotButtonByIconLabel,
   flushLazyModules,
   loadEncryptedState,
   renderApp,
@@ -67,9 +68,10 @@ describe('App item tooltip lazy loading', () => {
       });
       await flushLazyModules();
 
-      const inventoryConsumable = host.querySelector(
-        '[aria-label="consumable"]',
-      )?.parentElement as HTMLButtonElement | null;
+      const inventoryConsumable = findItemSlotButtonByIconLabel(
+        host,
+        'consumable',
+      );
       expect(inventoryConsumable).not.toBeNull();
 
       await act(async () => {
@@ -144,8 +146,7 @@ describe('App item tooltip lazy loading', () => {
     });
     await flushLazyModules();
 
-    const inventoryWeapon = host.querySelector('[aria-label="weapon"]')
-      ?.parentElement as HTMLButtonElement | null;
+    const inventoryWeapon = findItemSlotButtonByIconLabel(host, 'weapon');
     expect(inventoryWeapon).not.toBeNull();
 
     await act(async () => {

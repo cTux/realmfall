@@ -1,5 +1,13 @@
 @use '../../../styles/ui';
 
+@mixin inventory-control-surface($tone: default) {
+  @include ui.control-surface-base;
+  @include ui.control-surface($tone);
+  @include ui.compact-button;
+
+  border-radius: ui.$ability-radius;
+}
+
 .window {
   width: min(410px, calc(100vw - 16px));
   height: min(360px, calc(100vh - 16px));
@@ -9,6 +17,14 @@
   @media (width <= 980px) {
     width: min(390px, calc(100vw - 16px));
   }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .toolbar {
@@ -23,6 +39,37 @@
 
 .headerButton {
   @include ui.window-header-button;
+}
+
+.filterBar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.18rem;
+  padding: 0.15rem 0 0;
+}
+
+.slotFilterControls {
+  display: inline-flex;
+  gap: 0.18rem;
+}
+
+.slotFilterControlButton {
+  @include inventory-control-surface;
+
+  padding: 0.28rem 0.45rem;
+  font-size: 0.68rem;
+}
+
+.slotFilterButton {
+  padding: 0;
+
+  &[data-size='compact'] {
+    --slot-size: 22px;
+    --slot-icon-size: 0.95rem;
+
+    padding: 0.06rem;
+  }
 }
 
 .grid {
