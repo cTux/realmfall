@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { buildItemFromConfig, getItemCategory } from './content/items';
+import {
+  buildItemFromConfig,
+  getItemCategory,
+  getItemConfigByKey,
+} from './content/items';
 import { buildTownStock, getTownStockPrice } from './economy';
 
 describe('town stock pricing', () => {
@@ -110,5 +114,32 @@ describe('town stock pricing', () => {
         .slice(0, firstNonConsumableIndex)
         .every((entry) => getItemCategory(entry.item) === 'consumable'),
     ).toBe(true);
+  });
+
+  it('keeps town-stock consumables at their configured rarity', () => {
+    const mismatches = [
+      { seed: 'town-consumable-rarity-a', coord: { q: 12, r: 0 }, day: 3 },
+      { seed: 'town-consumable-rarity-b', coord: { q: 24, r: 0 }, day: 8 },
+      { seed: 'town-consumable-rarity-c', coord: { q: 36, r: 0 }, day: 13 },
+      { seed: 'town-consumable-rarity-d', coord: { q: 48, r: 0 }, day: 21 },
+    ].flatMap(({ seed, coord, day }) =>
+      buildTownStock(seed, coord, day)
+        .map((entry) => entry.item)
+        .filter((item) => getItemCategory(item) === 'consumable')
+        .filter(
+          (item) =>
+            item.itemKey &&
+            item.rarity !== getItemConfigByKey(item.itemKey)?.rarity,
+        )
+        .map((item) => ({
+          itemKey: item.itemKey,
+          rarity: item.rarity,
+          seed,
+          day,
+          coord,
+        })),
+    );
+
+    expect(mismatches).toEqual([]);
   });
 });

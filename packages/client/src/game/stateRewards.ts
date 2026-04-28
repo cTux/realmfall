@@ -33,7 +33,7 @@ import {
   makeResourceStack,
 } from './inventory';
 import { gainSkillXp } from './progression';
-import { noise, pickEquipmentRarity } from './shared';
+import { noise } from './shared';
 import {
   ensureTileState,
   makeArmor,
@@ -340,15 +340,7 @@ function makeEnemyDrop(
         rarityChanceScale,
       );
     default:
-      return makeEnemyConsumableDrop(
-        state,
-        enemy,
-        seed,
-        tier,
-        minimumRarity,
-        rng,
-        rarityChanceScale,
-      );
+      return makeEnemyConsumableDrop(state, enemy, seed, tier, rng);
   }
 }
 
@@ -368,24 +360,14 @@ function makeEnemyConsumableDrop(
   enemy: Enemy,
   seed: string,
   tier: number,
-  minimumRarity: ItemRarity,
   rng: () => number,
-  rarityChanceScale: number,
 ) {
   const keys = getConsumableItemKeys();
   const itemKey = keys[Math.floor(rng() * keys.length)] ?? ItemId.Apple;
-  const rarity = pickEquipmentRarity(
-    `${seed}:consumable-rarity`,
-    enemy.coord,
-    tier,
-    minimumRarity,
-    rarityChanceScale,
-  );
 
   return buildItemFromConfig(itemKey, {
     id: `${seed}:consumable:${enemy.id}:${state.turn}`,
     tier,
-    rarity,
   });
 }
 

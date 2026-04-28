@@ -1,5 +1,6 @@
 import { syncPlayerBaseStats } from '../game/balance';
 import { getEnemyConfig } from '../game/content/enemies';
+import { consolidateInventory } from '../game/inventory';
 import { createGame } from '../game/stateFactory';
 import type { Enemy, GameState, Item } from '../game/stateTypes';
 import { normalizeCombatState } from './normalizeCombat';
@@ -467,9 +468,10 @@ function normalizeItemArray(value: unknown, fallback: Item[]) {
     const normalizedItem = normalizeItem(item);
     return normalizedItem ? [normalizedItem] : [];
   });
+  const consolidatedItems = consolidateInventory(items);
 
   return items.length > 0 || value.length === 0
-    ? items
+    ? consolidatedItems
     : fallback.map((item) => ({ ...item }));
 }
 

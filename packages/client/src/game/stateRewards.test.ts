@@ -10,7 +10,7 @@ import {
   createCombatEncounterGame,
   seedCombatEncounter,
 } from './stateCombatTestHelpers';
-import { getItemCategory } from './content/items';
+import { getItemCategory, getItemConfigByKey } from './content/items';
 import { getTileAt } from './state';
 
 const originalEnemyItemDropChances = {
@@ -143,6 +143,53 @@ describe('state rewards', () => {
     expect(tileItems).toHaveLength(5);
     expect(tileItems.map(classifyDropKind).sort()).toEqual(
       ['armor', 'artifact', 'consumable', 'offhand', 'weapon'].sort(),
+    );
+  });
+
+  it('keeps world-boss consumable drops at their configured rarity', () => {
+    const game = createCombatEncounterGame('world-boss-consumable-rarity');
+    const target = { q: 2, r: 0 };
+    seedCombatEncounter(game, {
+      id: 'enemy-boss-consumable',
+      name: 'Boss',
+      coord: target,
+      tier: 12,
+      hp: 1,
+      maxHp: 1,
+      attack: 0,
+      defense: 0,
+      xp: 50,
+      elite: true,
+      worldBoss: true,
+      rarity: 'legendary',
+    });
+
+    ENEMY_ITEM_DROP_CHANCES.chance.base = 1;
+    ENEMY_ITEM_DROP_CHANCES.chance.perRarity = 0;
+    ENEMY_ITEM_DROP_CHANCES.chance.max = 1;
+    ENEMY_ITEM_DROP_CHANCES.kindChances = {
+      artifact: 0,
+      armor: 0,
+      consumable: 1,
+      offhand: 0,
+      weapon: 0,
+    };
+    ENEMY_GOLD_DROP_CHANCES.base = 0;
+    ENEMY_GOLD_DROP_CHANCES.max = 0;
+    ENEMY_RECIPE_DROP_CHANCES.base = 0;
+    ENEMY_RECIPE_DROP_CHANCES.max = 0;
+    HOME_SCROLL_DROP_CHANCES.max = 0;
+    GAME_CONFIG.drops.terraformingConsumableChance = 0;
+
+    dropEnemyRewards(game, game.enemies['enemy-boss-consumable']!);
+    const droppedItem = getTileAt(game, target).items.find(
+      (item) => getItemCategory(item) === 'consumable',
+    );
+
+    expect(droppedItem).toBeTruthy();
+    expect(droppedItem?.itemKey).toBeTruthy();
+    expect(droppedItem?.rarity).toBe(
+      getItemConfigByKey(droppedItem!.itemKey!)?.rarity,
     );
   });
 });
