@@ -119,4 +119,23 @@ describe('ui item slot colors', () => {
     );
     expect(markup).not.toContain('rgba(96, 165, 250, 0.58)33');
   });
+
+  it('renders valid inset shadows for shared slot rgb border overrides', () => {
+    const townKnife = buildItemFromConfig('town-knife', {
+      id: 'town-knife-rgb-border',
+    });
+
+    const markup = renderToStaticMarkup(
+      <SharedItemSlotButton
+        item={townKnife}
+        size="compact"
+        borderColorOverride="rgb(96, 165, 250)"
+      />,
+    );
+
+    expect(markup).toContain('border-color:rgb(96, 165, 250)');
+    expect(markup).toContain(
+      'box-shadow:0 0 0 1px rgba(96, 165, 250, 0.2) inset',
+    );
+  });
 });
