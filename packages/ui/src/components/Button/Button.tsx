@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes } from 'react';
 import styles from './styles.module.scss';
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {}
+export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
 
 export function Button({
   type = 'button',
@@ -17,4 +17,3 @@ export function Button({
     </button>
   );
 }
-

@@ -3,6 +3,7 @@
 ## Documentation
 
 - Keep `README.md` accurate about the current game state, package manager, and primary local commands, but keep detailed contributor workflow and rule-loading policy in canonical docs instead of duplicating them there.
+- Keep package-local operational docs in `packages/*/README.md` when the content only applies to one workspace package, and keep root docs focused on cross-package behavior.
 - Keep `docs/WORKFLOW.md` aligned with the actual contributor workflow, verification steps, and commit conventions, but keep recurring policy details in `docs/RULES.md` and `docs/rules/` instead of restating them there.
 - Keep `docs/specs/README.md`, `docs/implementation-notes/README.md`, and similar documentation entrypoints navigation-only. Point them back to `docs/RULES.md`, the scoped rule files, and the relevant canonical specs instead of duplicating workflow checklists or policy bullets there.
 - Keep contributor docs aligned with the current Vitest project split, including `pnpm test`, `pnpm test:node`, and `pnpm test:jsdom`, whenever test runtime boundaries change.
@@ -17,6 +18,7 @@
 - When prompts establish recurring workflow expectations, capture them here so future prompt handling stays consistent.
 - When a prompt establishes recurring structural placement rules for hooks, selectors, utilities, components, or tests, update this file and keep contributor-facing docs aligned instead of relying on one-off refactors.
 - Keep rule and workflow updates synchronized across `README.md`, `docs/WORKFLOW.md`, and the AI-specific instruction files when those updates affect future prompt execution.
+- When package-local commands, package layout, or package-only API notes change, update the matching `packages/*/README.md` in the same task.
 - Keep `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md` generated from one shared sync path. When their shared wording changes, update the generator and rerun it instead of hand-maintaining parallel copies.
 - Keep lore-sensitive guidance aligned with the canonical world reference in `docs/lore/REALMFALL.md`.
 - Keep current-system specs under `docs/specs` for implemented gameplay features and technical solutions.

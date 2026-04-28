@@ -1,6 +1,14 @@
 import './setup.shared';
 import { vi } from 'vitest';
 
+class ResizeObserverMock {
+  disconnect = vi.fn();
+  observe = vi.fn();
+  unobserve = vi.fn();
+}
+
+vi.stubGlobal('ResizeObserver', ResizeObserverMock);
+
 if (typeof HTMLCanvasElement !== 'undefined') {
   const context2dStub = {
     canvas: null,

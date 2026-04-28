@@ -9,14 +9,15 @@ Use this file for contributor process only. Canonical project guidance lives in
 - Treat `docs/WORKFLOW.md` and `docs/PROJECT_REVIEW.md` as supporting references, not canonical policy sources.
 - Use Node `v25.9.0` from `.nvmrc` for local commands and automation.
 - Follow the matching scoped rule file for recurring policy questions instead of expanding this file with parallel rule lists.
+- Check the package README for package-local commands and boundaries when the task is scoped to `packages/client`, `packages/server`, `packages/common`, or `packages/ui`.
 
 ## Daily Loop
 
 1. Inspect the current worktree and load the matching rules and specs.
 1. Before choosing a specialist skill, read the [Realmfall Codex skills index](./realmfall-skills.md).
-2. Make the smallest correct change for the task.
-3. Update the matching spec and any recurring rules before considering the task complete.
-4. Run the relevant verification commands for the changed area.
+1. Make the smallest correct change for the task.
+1. Update the matching spec and any recurring rules before considering the task complete.
+1. Run the relevant verification commands for the changed area.
 
 ## Commit Workflow
 
@@ -33,8 +34,13 @@ Use this file for contributor process only. Canonical project guidance lives in
 
 ## Verification Workflow
 
-- Run targeted tests and any area-specific commands before committing. Prefer `pnpm test:node` for gameplay, persistence, i18n, and script coverage, and `pnpm test:jsdom` for React, Pixi, and browser-surface coverage.
+- Run targeted tests and any area-specific commands before committing. Prefer `pnpm test:node` for client gameplay, persistence, i18n, and script coverage, and `pnpm test:jsdom` for client React, Pixi, and browser-surface coverage.
+- Use `pnpm typecheck` for the shared workspace typecheck path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
+- Use `pnpm lint` for the shared workspace lint path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
+- Use `pnpm test` for the shared server-plus-client automated test path, with the client side running the stable `node` Vitest project.
+- Pull-request CI currently skips `pnpm test:jsdom` and runs the stable `typecheck-and-lint`, `test-node`, and `build` jobs only.
 - Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build:budget:strict` before committing when you bypass hooks or need to verify the full commit-validation path manually.
+- Use `pnpm dev:server`, `pnpm build:server`, and `pnpm start:server` for the server package lifecycle.
 - Use `pnpm update:check` to inspect available dependency updates without modifying the worktree.
 - Run `pnpm update:minor` or `pnpm update:major` from a clean tracked worktree when you want an automated dependency refresh. Pass `-- --no-commit` when automation needs the refreshed manifests without creating a local commit.
 - Run `pnpm format` after wider refactors or repository-wide cleanup so formatting drift is fixed before it spreads across unrelated commits.
@@ -52,6 +58,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 - Update the matching spec in `docs/specs` whenever a shipped behavior or technical solution changes.
 - Keep transient plans, review snapshots, and checklists outside `docs/specs`.
 - Keep `README.md` product-facing and concise. Put contributor workflow, rule-loading policy, and review hygiene details in `docs/RULES.md`, `docs/rules/`, or this file instead of duplicating them there.
+- Move package-local commands, layout notes, and API notes into the corresponding `packages/*/README.md` instead of growing root docs around one package.
 - When the shared AI instruction entrypoint wording changes, run `pnpm sync:ai-entrypoints` instead of hand-editing `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md` separately.
 - Prefer short references back to `docs/RULES.md` and `docs/rules/` over restating long policy lists here.
 - For wording hygiene, spec-update expectations, and sync rules for generated AI instruction files, defer to `docs/rules/61-documentation.md`.

@@ -13,7 +13,7 @@ $mobile-window-width: min(92vw, 420px);
   width: min(320px, calc(100vw - 16px));
   background: #08101e;
   border: 1px solid rgb(148 163 184 / 20%);
-  border-radius: 0 $window-corner-radius 0 $window-corner-radius;
+  border-radius: 0 $window-corner-radius;
   box-shadow: 0 20px 60px rgb(0 0 0 / 35%);
   overflow: hidden;
   opacity: 1;
@@ -84,7 +84,7 @@ $mobile-window-width: min(92vw, 420px);
 
 .headerButton {
   border: 1px solid rgb(148 163 184 / 35%);
-  border-radius: 0 $window-corner-radius 0 $window-corner-radius;
+  border-radius: 0 $window-corner-radius;
   width: 1.82rem;
   height: 1.82rem;
   background: rgb(15 23 42 / 72%);

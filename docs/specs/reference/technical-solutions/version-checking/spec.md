@@ -2,13 +2,15 @@
 
 ## Scope
 
-This spec covers the shipped version metadata flow from `package.json` into the browser runtime, build output, and in-game refresh indicator.
+This spec covers the shipped version metadata flow from `package.json` into the browser runtime, build output, in-game refresh indicator, and server version endpoint.
 
 ## Current Solution
 
 - `package.json` is the canonical release-version source for the shipped line.
-- Vite derives the runtime build version by appending the current git short SHA to the package release version when that revision is available, defines that build version as `__APP_VERSION__`, and app bootstrap publishes it on the global `version` variable.
-- The Vite config serves `/version.json` during local development and emits `dist/version.json` during production builds with the shape `{ "version": "<package version plus git build metadata>" }`.
+- `packages/client/vite.config.ts` derives the runtime build version by appending the current git short SHA to the package release version when that revision is available, defines that build version as `__APP_VERSION__`, and app bootstrap publishes it on the global `version` variable.
+- The client Vite config serves `/version.json` during local development and emits `dist/version.json` during production builds with the shape `{ "version": "<package version plus git build metadata>" }`.
+- `packages/server/src/version.ts` derives the server build version from the same root `package.json` source and the same git short SHA strategy, falling back to the plain release version when git metadata is unavailable.
+- `packages/server/src/app.ts` exposes `GET /api/version`, returning `{ "version": "<package version plus git build metadata>" }`.
 - `pnpm serve` runs the built `dist` output behind local HTTPS using a generated self-signed localhost certificate so release-like checks exercise the secure origin path.
 - The app mounts an in-game version-status widget in the bottom-right corner, polls `/version.json`, shows yellow while checking, green when versions match, red when they differ, and exposes a reload action only for the mismatched state.
 - Routine contributor commits increment the `package.json` patch version before the commit is created, making the package release version advance monotonically with local commit history.
@@ -18,10 +20,12 @@ This spec covers the shipped version metadata flow from `package.json` into the 
 ## Main Implementation Areas
 
 - `package.json`
-- `scripts/build-version.helpers.ts`
+- `packages/client/scripts/build-version.helpers.ts`
 - `scripts/commit-version-bump.mjs`
 - `scripts/git-commit.mjs`
 - `.husky/pre-commit`
-- `vite.config.ts`
-- `src/version.ts`
-- `src/main.tsx`
+- `packages/client/vite.config.ts`
+- `packages/client/src/version.ts`
+- `packages/client/src/main.tsx`
+- `packages/server/src/app.ts`
+- `packages/server/src/version.ts`

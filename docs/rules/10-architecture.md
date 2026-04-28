@@ -2,9 +2,12 @@
 
 ## Architecture
 
-- Keep gameplay and simulation rules in `src/game` so they stay testable and mostly UI-independent.
+- Client-side `src/*` paths in this file resolve under `packages/client/` unless a rule explicitly names another package.
+- Keep gameplay and simulation rules in `packages/client/src/game` so they stay testable and mostly UI-independent.
 - Keep React app orchestration in `packages/client/src/app`, client-only presentational UI in `packages/client/src/ui/components`, and shared reusable UI controls in `packages/ui/src/components`.
-- Keep Pixi world rendering concerns in `src/ui/world` rather than mixing them into gameplay rules.
+- Keep Pixi world rendering concerns in `packages/client/src/ui/world` rather than mixing them into gameplay rules.
+- Keep HTTP entrypoints, request handlers, and other server-only runtime code in `packages/server/src`.
+- Keep cross-runtime shared types, schemas, and utilities in `packages/common/src`, and keep that package free of client-only or server-only side effects.
 - Prefer colocated structure inside a feature or component directory: place single-use hooks in a local `hooks/` directory, single-use selectors in a local `selectors/` directory, single-use utilities in a local `utils/` directory, and tests in a local `tests/` directory.
 - Place shared hooks in `src/hooks`, shared selectors in `src/selectors`, and shared utilities in `src/utils` when multiple features depend on the same module.
 - When a file grows multiple exports that are not tightly related types or closely related library or entity helpers, decompose it into focused files instead of expanding one broad module.

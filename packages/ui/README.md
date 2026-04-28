@@ -25,6 +25,7 @@
 ## Local commands
 
 - `pnpm --filter @realmfall/ui typecheck`
+- `pnpm --filter @realmfall/ui lint`
 - `pnpm --filter @realmfall/ui build`
 - `pnpm --filter @realmfall/ui dev:storybook`
 - `pnpm --filter @realmfall/ui build:storybook`

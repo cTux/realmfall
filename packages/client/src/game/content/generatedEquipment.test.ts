@@ -1,4 +1,5 @@
 import { readdirSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { CRAFTABLE_ICON_ITEM_CONFIGS } from './generatedCraftingEquipment';
@@ -7,13 +8,16 @@ import { GENERATED_ICON_POOLS, isGeneratedIconId } from './generatedIconPools';
 import { GENERATED_EQUIPMENT_CONFIGS } from './generatedEquipment';
 
 describe('generated equipment icons', () => {
+  const packageRoot = resolve(
+    fileURLToPath(new URL('../../..', import.meta.url)),
+  );
   const generatedIconPoolsSourcePath = resolve(
-    process.cwd(),
-    'packages/client/src/game/content/generatedIconPools.ts',
+    packageRoot,
+    'src/game/content/generatedIconPools.ts',
   );
   const generatedIconsDirPath = resolve(
-    process.cwd(),
-    'packages/client/src/assets/icons/generated',
+    packageRoot,
+    'src/assets/icons/generated',
   );
 
   it('uses generated icon ids for gameplay-facing icon pool entries', () => {
@@ -55,10 +59,7 @@ describe('generated equipment icons', () => {
     readdirSync(generatedIconsDirPath)
       .filter((file) => file.endsWith('.svg'))
       .forEach((file) => {
-        const svg = readFileSync(
-          resolve(generatedIconsDirPath, file),
-          'utf8',
-        );
+        const svg = readFileSync(resolve(generatedIconsDirPath, file), 'utf8');
 
         expect(svg).not.toContain('M0 0h512v512H0z');
       });
