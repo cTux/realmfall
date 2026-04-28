@@ -1,5 +1,11 @@
 import { act } from 'react';
 import { createGame } from '../../../game/stateFactory';
+import { t } from '../../../i18n';
+import {
+  renderWindowHotkeyLabelText,
+  stripBracketHotkeyLabel,
+} from '../../../ui/hotkeyLabels';
+import { WINDOW_LABELS } from '../../../ui/windowLabels';
 import styles from '../styles.module.scss';
 import {
   createHydratedAppGame,
@@ -75,12 +81,22 @@ describe('App hydration and interactions', () => {
     expect(renderScene).toHaveBeenCalled();
     expect(saveEncryptedState).not.toHaveBeenCalled();
     expect(host.querySelector(`.${styles.loadingScreen}`)).toBeNull();
-    expect(host.textContent).not.toContain('(H)ero info');
-    expect(host.textContent).toContain('(S)kills');
-    expect(host.textContent).toContain('(R)ecipe book');
-    expect(host.textContent).toContain('(C)ontent');
+    expect(host.textContent).not.toContain(
+      renderWindowHotkeyLabelText(WINDOW_LABELS.hero),
+    );
+    expect(host.textContent).toContain(
+      renderWindowHotkeyLabelText(WINDOW_LABELS.skills),
+    );
+    expect(host.textContent).toContain(
+      renderWindowHotkeyLabelText(WINDOW_LABELS.recipes),
+    );
+    expect(host.textContent).toContain(
+      renderWindowHotkeyLabelText(WINDOW_LABELS.hexInfo),
+    );
     expect(host.textContent).not.toContain('old log');
-    expect(host.textContent).toContain('Lo(g)');
+    expect(host.textContent).toContain(
+      renderWindowHotkeyLabelText(WINDOW_LABELS.log),
+    );
     expect(host.querySelector('[aria-label="Action bar"]')).not.toBeNull();
 
     await act(async () => {
@@ -105,7 +121,9 @@ describe('App hydration and interactions', () => {
       );
     });
     await flushLazyModules();
-    expect(host.textContent).not.toContain('(H)ero info');
+    expect(host.textContent).not.toContain(
+      renderWindowHotkeyLabelText(WINDOW_LABELS.hero),
+    );
 
     await act(async () => {
       window.dispatchEvent(
@@ -113,7 +131,9 @@ describe('App hydration and interactions', () => {
       );
     });
     await flushLazyModules();
-    expect(host.textContent).toContain('(H)ero info');
+    expect(host.textContent).toContain(
+      renderWindowHotkeyLabelText(WINDOW_LABELS.hero),
+    );
     expect(host.textContent).toContain('Hunger');
     expect(heroDockButton?.getAttribute('aria-pressed')).toBe('true');
 
@@ -187,7 +207,9 @@ describe('App hydration and interactions', () => {
     expect(host.querySelector('[aria-label="Action bar"]')).not.toBeNull();
 
     const takeAllButton = Array.from(host.querySelectorAll('button')).find(
-      (button) => button.textContent === 'Tak(e) all',
+      (button) =>
+        button.textContent ===
+        stripBracketHotkeyLabel(t('ui.loot.takeAllAction')),
     );
     await act(async () => {
       window.dispatchEvent(

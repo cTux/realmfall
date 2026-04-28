@@ -7,7 +7,9 @@ import { createGame } from '../game/stateFactory';
 import { HeroWindow } from './components/HeroWindow';
 import { LogWindow } from './components/LogWindow';
 import { LogWindowContent } from './components/LogWindow/LogWindowContent';
+import { renderWindowHotkeyLabelText } from './hotkeyLabels';
 import { renderMarkup, setupUiTestEnvironment } from './uiTestHelpers';
+import { WINDOW_LABELS } from './windowLabels';
 
 setupUiTestEnvironment();
 
@@ -126,7 +128,9 @@ describe('ui hero and log surfaces', () => {
       );
     });
 
-    expect(host.textContent).toContain('Lo(g)');
+    expect(host.textContent).toContain(
+      renderWindowHotkeyLabelText(WINDOW_LABELS.log),
+    );
     expect(host.textContent).not.toContain(game.logs[0]?.text ?? '');
     expect(host.textContent).toContain('00:00');
 

@@ -5,6 +5,7 @@ import { vi } from 'vitest';
 import { GameTag } from '../game/content/tags';
 import type { Enemy, Item, Tile } from '../game/stateTypes';
 import { formatCompactNumber, formatCompactNumberish } from './formatters';
+import { renderWindowHotkeyLabelText } from './hotkeyLabels';
 import { Icons, iconForItem, itemTint, SkillIcon } from './icons';
 import { rarityColor } from './rarity';
 import {
@@ -283,6 +284,14 @@ describe('ui helper coverage', () => {
     expect(markup).toBe('Loot window');
   });
 
+  it('renders window hotkeys without bracket glyphs', () => {
+    const markup = renderToStaticMarkup(
+      <WindowLabel label={WINDOW_LABELS.hero} hotkeyClassName="hotkey" />,
+    );
+
+    expect(markup).toBe('<span class="hotkey">H</span>ero info');
+  });
+
   it('shows and hides dock tooltips through focus interactions', () => {
     const host = document.createElement('div');
     document.body.appendChild(host);
@@ -312,12 +321,16 @@ describe('ui helper coverage', () => {
     act(() => {
       button?.focus();
     });
-    expect(host.textContent).toContain('(H)ero info');
+    expect(host.textContent).toContain(
+      renderWindowHotkeyLabelText(WINDOW_LABELS.hero),
+    );
 
     act(() => {
       button?.blur();
     });
-    expect(host.textContent).not.toContain('(H)ero info');
+    expect(host.textContent).not.toContain(
+      renderWindowHotkeyLabelText(WINDOW_LABELS.hero),
+    );
 
     act(() => {
       button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));

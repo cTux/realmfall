@@ -1,9 +1,14 @@
 import React from 'react';
 import { Tooltip as GameTooltip } from '@realmfall/ui';
+import { t } from '../i18n';
 import { getAbilityDefinition } from '../game/abilities';
 import { getItemConfigByKey, getPlayerOverview } from '../game/stateSelectors';
 import { DEFAULT_WINDOWS } from '../app/constants';
 import { rarityColor } from './rarity';
+import {
+  renderWindowHotkeyLabelText,
+  stripBracketHotkeyLabel,
+} from './hotkeyLabels';
 import { CombatWindow } from './components/CombatWindow';
 import { EquipmentWindow } from './components/EquipmentWindow';
 import { HeroWindow } from './components/HeroWindow';
@@ -217,46 +222,72 @@ describe('ui window static markup', () => {
       </>,
     );
 
-    expect(markup).toContain(WINDOW_LABELS.hero.suffix);
-    expect(markup).toContain('Hunger');
-    expect(markup).toContain('Attack');
-    expect(markup).toContain('Defense');
-    expect(markup).toContain(')kills');
-    expect(markup).toContain('logging');
-    expect(markup).toContain('Lv 1 - 0/8');
-    expect(markup).not.toContain(
+    const markupText = extractTextContent(markup);
+
+    expect(markupText).toContain(
+      renderWindowHotkeyLabelText(WINDOW_LABELS.hero),
+    );
+    expect(markupText).toContain('Hunger');
+    expect(markupText).toContain('Attack');
+    expect(markupText).toContain('Defense');
+    expect(markupText).toContain(
+      renderWindowHotkeyLabelText(WINDOW_LABELS.skills),
+    );
+    expect(markupText).toContain('logging');
+    expect(markupText).toContain('Lv 1 - 0/8');
+    expect(markupText).not.toContain(
       'gathering level equals the percent chance to pull +1 extra resource',
     );
-    expect(markup).toContain(WINDOW_LABELS.recipes.suffix);
-    expect(markup).toContain(WINDOW_LABELS.hexInfo.suffix);
-    expect(markup).toContain('Cl(a)im');
-    expect(markup).toContain('(Q) Heal');
-    expect(markup).toContain('H(o)me');
-    expect(markup).toContain('(Q) Gather');
-    expect(markup).toContain('Structure HP');
-    expect(markup).toContain('12');
+    expect(markupText).toContain(
+      renderWindowHotkeyLabelText(WINDOW_LABELS.recipes),
+    );
+    expect(markupText).toContain(
+      renderWindowHotkeyLabelText(WINDOW_LABELS.hexInfo),
+    );
+    expect(markupText).toContain('Claim');
+    expect(markupText).toContain(
+      stripBracketHotkeyLabel(t('ui.hexInfo.healAction')),
+    );
+    expect(markupText).toContain(
+      stripBracketHotkeyLabel(t('ui.hexInfo.setHomeAction')),
+    );
+    expect(markupText).toContain(
+      stripBracketHotkeyLabel(t('ui.hexInfo.interactAction')),
+    );
+    expect(markupText).toContain('Structure HP');
+    expect(markupText).toContain('12');
     expect(markup).toContain('aria-label="Gold"');
-    expect(markup).not.toContain('gp');
-    expect(markup).not.toContain('Enemies0');
-    expect(markup).not.toContain('Forest');
-    expect(markup).not.toContain('Tree');
+    expect(markupText).not.toContain('gp');
+    expect(markupText).not.toContain('Enemies0');
+    expect(markupText).not.toContain('Forest');
+    expect(markupText).not.toContain('Tree');
     expect(markup).toContain('aria-label="armor"');
-    expect(markup).toContain('x12');
-    expect(markup).toContain('Empty');
-    expect(markup).toContain('Tak(e) all');
-    expect(markup).toContain('S(e)ll all');
-    expect(markup).toContain('Filters');
-    expect(markup).toContain('Epic');
-    expect(markup).toContain('Player Lv 10');
-    expect(markup).toContain('Marauder Lv 3');
-    expect(markup).toContain('MP');
-    expect(markup).not.toContain('Casting');
+    expect(markupText).toContain('x12');
+    expect(markupText).toContain('Empty');
+    expect(markupText).toContain(
+      stripBracketHotkeyLabel(t('ui.loot.takeAllAction')),
+    );
+    expect(markupText).toContain(
+      stripBracketHotkeyLabel(t('ui.hexInfo.sellAllAction')),
+    );
+    expect(markupText).toContain('Filters');
+    expect(markupText).toContain('Epic');
+    expect(markupText).toContain('Player Lv 10');
+    expect(markupText).toContain('Marauder Lv 3');
+    expect(markupText).toContain('MP');
+    expect(markupText).not.toContain('Casting');
     expect(markup).toContain('Kick');
     expect(markup).toContain(getAbilityDefinition('fireball').name);
-    expect(markup).toContain('(Q) Start');
-    expect(markup).toContain('Knight Blade');
+    expect(markupText).toContain(
+      stripBracketHotkeyLabel(t('ui.combat.startAction')),
+    );
+    expect(markupText).toContain('Knight Blade');
     expect(markup).toContain(
       resolveIconAsset(getItemConfigByKey('town-knife')?.icon ?? ''),
     );
   });
 });
+
+function extractTextContent(markup: string) {
+  return markup.replace(/<[^>]+>/g, '');
+}

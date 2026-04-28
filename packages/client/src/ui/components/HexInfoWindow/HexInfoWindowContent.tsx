@@ -3,6 +3,9 @@ import { t } from '../../../i18n';
 import { ITEM_MODIFICATION_BALANCE } from '../../../game/config';
 import { CombatWindowContent } from '../CombatWindow/CombatWindowContent';
 import { Icons } from '../../icons';
+import { stripBracketHotkeyLabel } from '../../hotkeyLabels';
+import { BracketHotkeyLabel } from '../BracketHotkeyLabel';
+import labelStyles from '../windowLabels.module.scss';
 import type { HexInfoWindowProps } from './types';
 import {
   HEX_INFO_COMPACT_CONTENT_SLOT_STYLE,
@@ -56,6 +59,9 @@ export function HexInfoWindowContent({
     townStock.length > 0 ||
     loot.length > 0,
   );
+  const prospectActionLabel = t('ui.hexInfo.prospectAction');
+  const takeAllActionLabel = t('ui.loot.takeAllAction');
+  const takeAllTooltipTitle = stripBracketHotkeyLabel(takeAllActionLabel);
 
   return (
     <div className={styles.layout}>
@@ -107,7 +113,10 @@ export function HexInfoWindowContent({
               {canBulkProspectEquipment ? (
                 <div className={styles.actions}>
                   <Button onClick={onProspect}>
-                    {t('ui.hexInfo.prospectAction')}
+                    <BracketHotkeyLabel
+                      label={prospectActionLabel}
+                      hotkeyClassName={labelStyles.hotkey}
+                    />
                   </Button>
                 </div>
               ) : null}
@@ -295,14 +304,17 @@ export function HexInfoWindowContent({
               onMouseEnter={(event) =>
                 onHoverDetail?.(
                   event,
-                  t('ui.loot.takeAllAction'),
+                  takeAllTooltipTitle,
                   [{ kind: 'text', text: t('ui.tooltip.window.takeAllLoot') }],
                   'rgba(74, 222, 128, 0.9)',
                 )
               }
               onMouseLeave={onLeaveDetail}
             >
-              {t('ui.loot.takeAllAction')}
+              <BracketHotkeyLabel
+                label={takeAllActionLabel}
+                hotkeyClassName={labelStyles.hotkey}
+              />
             </Button>
           </div>
           <div className={styles.lootGrid}>

@@ -1,5 +1,7 @@
 import React from 'react';
 import { HexInfoWindow } from './components/HexInfoWindow';
+import { stripBracketHotkeyLabel } from './hotkeyLabels';
+import { t } from '../i18n';
 import { renderMarkup, setupUiTestEnvironment } from './uiTestHelpers';
 import { buildBaseHexInfoProps } from './uiWindowMarkupTestHelpers';
 
@@ -22,12 +24,20 @@ describe('ui hex info markup', () => {
       </>,
     );
 
-    expect(markup).not.toContain('Nothing in your pack can be prospected.');
-    expect(markup).not.toContain('No equippable items to sell.');
-    expect(markup).not.toContain('Tak(e) all');
-    expect(markup).not.toContain('Loot on the ground');
-    expect(markup).not.toContain('S(e)ll all');
-    expect(markup).not.toContain('>Prospect<');
+    const markupText = extractTextContent(markup);
+
+    expect(markupText).not.toContain('Nothing in your pack can be prospected.');
+    expect(markupText).not.toContain('No equippable items to sell.');
+    expect(markupText).not.toContain(
+      stripBracketHotkeyLabel(t('ui.loot.takeAllAction')),
+    );
+    expect(markupText).not.toContain('Loot on the ground');
+    expect(markupText).not.toContain(
+      stripBracketHotkeyLabel(t('ui.hexInfo.sellAllAction')),
+    );
+    expect(markupText).not.toContain(
+      stripBracketHotkeyLabel(t('ui.hexInfo.prospectAction')),
+    );
   });
 
   it('does not show empty-state text when a hex has an available interact action', async () => {
@@ -41,8 +51,12 @@ describe('ui hex info markup', () => {
       />,
     );
 
-    expect(markup).toContain('(Q) Gather');
-    expect(markup).not.toContain('Nothing of note stirs here.');
+    const markupText = extractTextContent(markup);
+
+    expect(markupText).toContain(
+      stripBracketHotkeyLabel(t('ui.hexInfo.interactAction')),
+    );
+    expect(markupText).not.toContain('Nothing of note stirs here.');
   });
 
   it('keeps claim requirement copy out of the hex window body', async () => {
@@ -68,7 +82,15 @@ describe('ui hex info markup', () => {
       />,
     );
 
-    expect(markup).not.toContain('Cl(a)im');
-    expect(markup).not.toContain('H(o)me');
+    const markupText = extractTextContent(markup);
+
+    expect(markupText).not.toContain('Claim');
+    expect(markupText).not.toContain(
+      stripBracketHotkeyLabel(t('ui.hexInfo.setHomeAction')),
+    );
   });
 });
+
+function extractTextContent(markup: string) {
+  return markup.replace(/<[^>]+>/g, '');
+}

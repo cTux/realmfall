@@ -59,7 +59,7 @@ export const EncounterWaitingForStart: Story = {
 export const EncounterStartsFromButton: Story = {
   args: buildBattleScenario({ started: false }),
   play: async ({ canvasElement }) => {
-    const startButton = await waitForButton(canvasElement, '(Q) Start');
+    const startButton = await waitForButton(canvasElement, 'Q Start');
     startButton.click();
   },
 };
