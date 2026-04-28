@@ -123,6 +123,7 @@ $tile-transition:
 
 @mixin compact-button {
   padding: 0.2rem 0.5rem;
+  min-height: 1.6rem;
   font-size: 0.75rem;
   line-height: 1.15;
 }
