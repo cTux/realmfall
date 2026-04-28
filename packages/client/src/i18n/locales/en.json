@@ -598,7 +598,7 @@
   "ui.hero.effect.poison.description": "Poison deals 1% max HP per stack on each tick.",
   "ui.hero.effect.poison.value": "1% max HP per stack",
   "ui.hero.effect.power.description": "Power increases attack by 10%.",
-  "ui.hero.effect.recentDeath.description": "Death still clings to you, reducing your maximum hitpoints by 10%.",
+  "ui.hero.effect.recentDeath.description": "Death clings to you, reducing your maximum hitpoints by 10%. Faction healers can clear this wound.",
   "ui.hero.effect.restoration.description": "Restoration mends HP and MP each second until the effect fades.",
   "ui.hero.effect.shocked.description": "Shocked lowers defense while crackling mana hangs on you.",
   "ui.hero.effect.thirst.description": "You are thirsty and act 20% slower.",
