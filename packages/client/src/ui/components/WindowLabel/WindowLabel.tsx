@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { stripHotkeyBracketGlyphs } from '../../hotkeyLabels';
 import type { WindowLabelDefinition } from '../../windowLabels';
 
 interface WindowLabelProps {
@@ -14,11 +15,11 @@ export function WindowLabel({
 }: WindowLabelProps) {
   return (
     <>
-      {label.prefix}
+      {stripHotkeyBracketGlyphs(label.prefix)}
       {label.hotkey ? (
         <span className={hotkeyClassName}>{label.hotkey}</span>
       ) : null}
-      {label.suffix}
+      {stripHotkeyBracketGlyphs(label.suffix)}
       {suffix}
     </>
   );

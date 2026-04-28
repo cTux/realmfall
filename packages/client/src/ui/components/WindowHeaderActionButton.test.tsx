@@ -1,6 +1,7 @@
 import { act } from 'react';
 import { WindowHeaderActionButton } from './WindowHeaderActionButton';
 import { mountUi, setupUiTestEnvironment } from '../uiTestHelpers';
+import labelStyles from './windowLabels.module.scss';
 
 setupUiTestEnvironment();
 
@@ -32,12 +33,17 @@ describe('WindowHeaderActionButton', () => {
     expect(button?.getAttribute('data-size')).toBe('small');
     expect(button?.getAttribute('aria-disabled')).toBe('true');
     expect(button?.classList.contains('headerButton')).toBe(true);
+    expect(button?.textContent).toBe('Claim');
+    expect(button?.querySelector(`.${labelStyles.hotkey}`)?.textContent).toBe(
+      'a',
+    );
 
     await act(async () => {
       button?.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     });
 
     expect(onHoverDetail).toHaveBeenCalledTimes(1);
+    expect(onHoverDetail.mock.calls[0]?.[1]).toBe('Claim');
 
     await act(async () => {
       button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));

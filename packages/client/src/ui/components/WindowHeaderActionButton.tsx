@@ -1,7 +1,10 @@
 import type { ReactNode } from 'react';
 import { useUiAudio } from '../../app/audio/UiAudioContext';
 import { Button } from '@realmfall/ui';
+import { stripBracketHotkeyLabel } from '../hotkeyLabels';
 import type { TooltipLine } from '../tooltips';
+import { BracketHotkeyLabel } from './BracketHotkeyLabel';
+import labelStyles from './windowLabels.module.scss';
 import type { WindowDetailTooltipHandlers } from './windowTooltipTypes';
 
 interface WindowHeaderActionButtonProps extends WindowDetailTooltipHandlers {
@@ -28,6 +31,16 @@ export const WindowHeaderActionButton = ({
   onLeaveDetail,
 }: WindowHeaderActionButtonProps) => {
   const audio = useUiAudio();
+  const renderedChildren =
+    typeof children === 'string' ? (
+      <BracketHotkeyLabel
+        label={children}
+        hotkeyClassName={labelStyles.hotkey}
+      />
+    ) : (
+      children
+    );
+  const renderedTooltipTitle = stripBracketHotkeyLabel(tooltipTitle);
 
   return (
     <Button
@@ -54,11 +67,16 @@ export const WindowHeaderActionButton = ({
         onClick();
       }}
       onMouseEnter={(event) =>
-        onHoverDetail?.(event, tooltipTitle, tooltipLines, tooltipBorderColor)
+        onHoverDetail?.(
+          event,
+          renderedTooltipTitle,
+          tooltipLines,
+          tooltipBorderColor,
+        )
       }
       onMouseLeave={onLeaveDetail}
     >
-      {children}
+      {renderedChildren}
     </Button>
   );
 };

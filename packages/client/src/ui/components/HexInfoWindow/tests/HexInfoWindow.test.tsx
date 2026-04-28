@@ -2,6 +2,7 @@ import { createCombatActorState } from '../../../../game/combat';
 import type { CombatState } from '../../../../game/types';
 import { setWorldClockTime } from '../../../../app/App/worldClockStore';
 import { t } from '../../../../i18n';
+import { stripBracketHotkeyLabel } from '../../../hotkeyLabels';
 import { mountUi, setupUiTestEnvironment } from '../../../uiTestHelpers';
 import { HexInfoWindow } from '../HexInfoWindow';
 
@@ -54,7 +55,11 @@ describe('HexInfoWindow', () => {
     ) as HTMLButtonElement | null;
     const homeButton = Array.from(
       ui.host.querySelectorAll<HTMLButtonElement>('button'),
-    ).find((button) => button.textContent === t('ui.hexInfo.setHomeAction'));
+    ).find(
+      (button) =>
+        button.textContent ===
+        stripBracketHotkeyLabel(t('ui.hexInfo.setHomeAction')),
+    );
 
     expect(closeButton).not.toBeNull();
     expect(homeButton).toBeDefined();
@@ -112,7 +117,11 @@ describe('HexInfoWindow', () => {
 
     const forfeitButton = Array.from(
       ui.host.querySelectorAll<HTMLButtonElement>('button'),
-    ).find((button) => button.textContent === t('ui.combat.forfeitAction'));
+    ).find(
+      (button) =>
+        button.textContent ===
+        stripBracketHotkeyLabel(t('ui.combat.forfeitAction')),
+    );
 
     expect(forfeitButton).toBeDefined();
 

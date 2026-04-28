@@ -2,9 +2,11 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { vi } from 'vitest';
 import { t } from '../../../i18n';
+import { renderWindowHotkeyLabelText } from '../../hotkeyLabels';
 import { HeroWindow } from './HeroWindow';
 import styles from './styles.module.scss';
 import type { HeroOverview } from './types';
+import { WINDOW_LABELS } from '../../windowLabels';
 
 const hero: HeroOverview = {
   hp: 10,
@@ -109,7 +111,9 @@ describe('HeroWindow', () => {
       );
     });
 
-    expect(host.textContent).toContain(t('ui.window.hero.suffix'));
+    expect(host.textContent).toContain(
+      renderWindowHotkeyLabelText(WINDOW_LABELS.hero),
+    );
     expect(
       host.querySelector(`[aria-label="${t('ui.loading.window')}"]`),
     ).not.toBeNull();
@@ -144,7 +148,9 @@ describe('HeroWindow', () => {
     expect(host.textContent).toContain('Attack Speed');
     expect(host.textContent).toContain('25%');
     expect(host.textContent).toContain('Suppress Debuff Chance');
-    expect(host.textContent).toContain(t('ui.window.hero.suffix'));
+    expect(host.textContent).toContain(
+      renderWindowHotkeyLabelText(WINDOW_LABELS.hero),
+    );
     expect(host.textContent).not.toContain('Hero infoHP');
   });
 

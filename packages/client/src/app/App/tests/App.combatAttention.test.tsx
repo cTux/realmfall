@@ -1,6 +1,12 @@
 import { act } from 'react';
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import { moveToTile, type GameState } from '../../../game/state';
+import { t } from '../../../i18n';
+import {
+  renderWindowHotkeyLabelText,
+  stripBracketHotkeyLabel,
+} from '../../../ui/hotkeyLabels';
+import { WINDOW_LABELS } from '../../../ui/windowLabels';
 import {
   createHydratedAppGame,
   flushLazyModules,
@@ -54,8 +60,12 @@ describe('App combat attention', () => {
 
     const initialHexContentButton = findHexContentDockButton(host);
     expect(initialHexContentButton?.dataset.opened).toBe('true');
-    expect(host.textContent).toContain('(C)ontent');
-    expect(host.textContent).toContain('H(o)me');
+    expect(host.textContent).toContain(
+      renderWindowHotkeyLabelText(WINDOW_LABELS.hexInfo),
+    );
+    expect(host.textContent).toContain(
+      stripBracketHotkeyLabel(t('ui.hexInfo.setHomeAction')),
+    );
 
     await act(async () => {
       setGameRef.current?.((current) =>
@@ -114,7 +124,9 @@ describe('App combat attention', () => {
 
     const updatedHexContentButton = findHexContentDockButton(host);
     expect(updatedHexContentButton?.dataset.opened).toBe('true');
-    expect(host.textContent).toContain('Tak(e) all');
+    expect(host.textContent).toContain(
+      stripBracketHotkeyLabel(t('ui.loot.takeAllAction')),
+    );
 
     await act(async () => {
       root.unmount();
@@ -151,8 +163,12 @@ describe('App combat attention', () => {
     expect(
       updatedHexContentButton?.querySelector('[class*="attentionBadge"]'),
     ).not.toBeNull();
-    expect(host.textContent).toContain('(C)ontent');
-    expect(host.textContent).toContain('(Q) Start');
+    expect(host.textContent).toContain(
+      renderWindowHotkeyLabelText(WINDOW_LABELS.hexInfo),
+    );
+    expect(host.textContent).toContain(
+      stripBracketHotkeyLabel(t('ui.combat.startAction')),
+    );
 
     await act(async () => {
       root.unmount();
