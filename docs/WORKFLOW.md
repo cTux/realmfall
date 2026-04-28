@@ -38,6 +38,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 - Use `pnpm typecheck` for the shared workspace typecheck path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
 - Use `pnpm lint` for the shared workspace lint path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
 - Use `pnpm test` for the shared server-plus-client automated test path, with the client side running the stable `node` Vitest project.
+- Pull-request CI currently skips `pnpm test:jsdom` and runs the stable `typecheck-and-lint`, `test-node`, and `build` jobs only.
 - Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build:budget:strict` before committing when you bypass hooks or need to verify the full commit-validation path manually.
 - Use `pnpm dev:server`, `pnpm build:server`, and `pnpm start:server` for the server package lifecycle.
 - Use `pnpm update:check` to inspect available dependency updates without modifying the worktree.
