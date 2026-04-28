@@ -5,6 +5,7 @@ import {
 } from '../game/stateSelectors';
 import type { EquipmentSlot, Enemy, Item, SkillName } from '../game/stateTypes';
 import { EquipmentSlotId } from '../game/content/ids';
+import { ContentIcons } from '../game/content/icons';
 import {
   getItemCategory,
   isEquippableItemCategory,
@@ -328,7 +329,7 @@ const ITEM_TINT_BY_KEY: Record<string, string> = {
   'leather-scraps': '#92400e',
   'arcane-dust': '#a855f7',
   beet: '#b91c1c',
-  'bell-pepper': '#22c55e',
+  pepper: '#22c55e',
   cabbage: '#84cc16',
   carrot: '#f97316',
   cherry: '#dc2626',
@@ -353,6 +354,25 @@ const ITEM_TINT_BY_KEY: Record<string, string> = {
   'charm-necklace': '#fbbf24',
   'wayfarer-cloak': '#64748b',
   'hearth-totem': '#f97316',
+};
+
+const ITEM_TINT_BY_ICON: Record<string, string> = {
+  [ContentIcons.Aubergine]: '#7c3aed',
+  [ContentIcons.Beet]: '#b91c1c',
+  [ContentIcons.BellPepper]: '#22c55e',
+  [ContentIcons.Cabbage]: '#84cc16',
+  [ContentIcons.CampCookingPot]: '#c2410c',
+  [ContentIcons.Carrot]: '#f97316',
+  [ContentIcons.Cherry]: '#dc2626',
+  [ContentIcons.FriedFish]: '#f59e0b',
+  [ContentIcons.Garlic]: '#f8fafc',
+  [ContentIcons.HerbsBundle]: '#22c55e',
+  [ContentIcons.Leek]: '#65a30d',
+  [ContentIcons.Lemon]: '#facc15',
+  [ContentIcons.Peas]: '#22c55e',
+  [ContentIcons.ShinyApple]: '#ef4444',
+  [ContentIcons.Steak]: '#b45309',
+  [ContentIcons.Tomato]: '#ef4444',
 };
 
 export const ItemIcon: Record<EquipmentSlot, string> = {
@@ -473,6 +493,12 @@ function getFallbackItemTint(item: Item) {
 function getConsumableTint(item: Item) {
   if (item.itemKey && ITEM_TINT_BY_KEY[item.itemKey]) {
     return ITEM_TINT_BY_KEY[item.itemKey];
+  }
+
+  const configuredItem = getItemConfig(item);
+  const icon = item.icon ?? configuredItem?.icon;
+  if (icon && ITEM_TINT_BY_ICON[icon]) {
+    return ITEM_TINT_BY_ICON[icon];
   }
 
   if ((item.thirst ?? 0) > 0 && item.hunger === 0 && item.healing === 0) {

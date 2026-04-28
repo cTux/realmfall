@@ -47,6 +47,29 @@ describe('ui item slot colors', () => {
     expect(markup).toContain('background-color:#fbbf24');
   });
 
+  it('keeps white borders while tinting produce and crafted meals from their icon families', () => {
+    const pepper = buildItemFromConfig('pepper', {
+      id: 'pepper-stack',
+      quantity: 3,
+    });
+    const beetTonic = buildItemFromConfig('beet-tonic', {
+      id: 'beet-tonic-stack',
+      quantity: 1,
+    });
+
+    const pepperMarkup = renderToStaticMarkup(
+      <SharedItemSlotButton item={pepper} size="compact" />,
+    );
+    const beetTonicMarkup = renderToStaticMarkup(
+      <SharedItemSlotButton item={beetTonic} size="compact" />,
+    );
+
+    expect(pepperMarkup).toContain('border-color:#f8fafc');
+    expect(pepperMarkup).toContain('background-color:#22c55e');
+    expect(beetTonicMarkup).toContain('border-color:#f8fafc');
+    expect(beetTonicMarkup).toContain('background-color:#b91c1c');
+  });
+
   it('renders recipe pages as green scroll-quill icons with a white border', () => {
     const recipePage: Item = {
       id: 'recipe-craft-weapon',

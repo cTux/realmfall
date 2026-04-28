@@ -125,6 +125,20 @@ describe('ui helper coverage', () => {
         }),
       ),
     ).toBe('#cbd5e1');
+    expect(
+      itemTint(
+        buildItemFromConfig('pepper', {
+          id: 'pepper-1',
+        }),
+      ),
+    ).toBe('#22c55e');
+    expect(
+      itemTint(
+        buildItemFromConfig('beet-tonic', {
+          id: 'beet-tonic-1',
+        }),
+      ),
+    ).toBe('#b91c1c');
     expect(iconForItem(recipePage)).toBe(Icons.ScrollQuill);
     expect(itemTint(recipePage)).toBe('#22c55e');
   });
