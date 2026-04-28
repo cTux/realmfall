@@ -13,14 +13,18 @@ export const applicationOptions: Array<Record<string, unknown>> = [];
 export const ensureWorldIconTexturesLoaded = vi.fn(async () => undefined);
 export const getVisibleWorldIconAssetIds = vi.fn(() => ['visible-start-icon']);
 export const warmWorldIconTexturesInBackground = vi.fn();
+const DEFAULT_DEVICE_PIXEL_RATIO = globalThis.devicePixelRatio;
 
 class ResizeObserverMock {
   observe() {}
   disconnect() {}
 }
 
-if (typeof globalThis.ResizeObserver === 'undefined') {
+function installAppTestGlobals() {
   vi.stubGlobal('ResizeObserver', ResizeObserverMock);
+  vi.stubGlobal('requestIdleCallback', undefined);
+  vi.stubGlobal('cancelIdleCallback', undefined);
+  vi.stubGlobal('devicePixelRatio', DEFAULT_DEVICE_PIXEL_RATIO);
 }
 
 class MockStage {
@@ -279,6 +283,8 @@ export async function flushAnimationFrame() {
 }
 
 export async function renderApp() {
+  const { loadI18n } = await import('../../../i18n');
+  await loadI18n();
   const { App } = await import('../index');
   const host = document.createElement('div');
   document.body.appendChild(host);
@@ -392,14 +398,13 @@ beforeAll(() => {
   (
     globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }
   ).IS_REACT_ACT_ENVIRONMENT = true;
-  vi.stubGlobal('requestIdleCallback', undefined);
-  vi.stubGlobal('cancelIdleCallback', undefined);
 });
 
 beforeEach(() => {
   vi.resetModules();
   vi.resetAllMocks();
-  vi.unmock('../usePixiWorld');
+  vi.doUnmock('../usePixiWorld');
+  installAppTestGlobals();
   vi.useFakeTimers();
   tickerCallbacks.clear();
   tickerMaxFpsValues.length = 0;
@@ -409,10 +414,9 @@ beforeEach(() => {
 
 afterAll(() => {
   vi.useRealTimers();
-  vi.unstubAllGlobals();
 });
 
 afterEach(() => {
   vi.useRealTimers();
-  vi.unstubAllGlobals();
+  installAppTestGlobals();
 });

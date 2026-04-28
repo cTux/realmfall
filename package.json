@@ -1,7 +1,7 @@
 {
   "name": "realmfall",
   "private": true,
-  "version": "0.2.472",
+  "version": "0.2.473",
   "description": "Single-player browser survival RPG with hex exploration, turn-based systems, React UI, and Pixi.js world rendering.",
   "keywords": [
     "browser-game",
@@ -35,7 +35,7 @@
     "dev:ui-storybook": "pnpm --filter @realmfall/ui dev:storybook",
     "dev:random": "pnpm --filter @realmfall/client dev:random",
     "dev:storybook": "pnpm --filter @realmfall/client dev:storybook",
-    "build": "pnpm --filter @realmfall/client build",
+    "build": "pnpm --filter @realmfall/common build && pnpm --filter @realmfall/server build && pnpm --filter @realmfall/ui build && pnpm --filter @realmfall/client build",
     "build:server": "pnpm --filter @realmfall/server build",
     "build:common": "pnpm --filter @realmfall/common build",
     "build:ui": "pnpm --filter @realmfall/ui build",
@@ -74,7 +74,7 @@
     "update:minor": "pnpm --filter @realmfall/client update:minor"
   },
   "devDependencies": {
-    "@commitlint/cli": "^20.5.0",
+    "@commitlint/cli": "^20.5.2",
     "@commitlint/config-conventional": "^20.5.0",
     "husky": "^9.1.7"
   },

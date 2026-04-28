@@ -10,6 +10,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - The repository uses TypeScript strict mode, Oxlint, Stylelint, Prettier, Vitest, Husky, Vite, and Storybook.
 - `pnpm typecheck` runs the shared workspace typecheck path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
 - `pnpm lint` runs the shared workspace lint path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
+- `pnpm build` runs the shared workspace build path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
 - `pnpm test` runs the server package test suite and the client `node` Vitest project, keeping the root automated test path meaningful after the monorepo split without depending on the broader jsdom suite.
 - `pnpm test:node` runs the client DOM-free Vitest project for gameplay, persistence, i18n, and script tests, while `pnpm test:jsdom` remains available for the client browser-surface project for React, Pixi, and other DOM-dependent tests.
 - `pnpm test:memory:leaks` starts the local HTTPS Vite dev server and runs `fuite` against `https://localhost:5173` with a custom dock-window toggle scenario because the app does not expose internal navigation links for the default `fuite` scenario, writing the latest JSON analysis to `.tests/memory-leaks/latest.json` for follow-up review.

@@ -2,7 +2,6 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { vi } from 'vitest';
 import { t } from '../../../i18n';
-import draggableWindowStyles from '../DraggableWindow/styles.module.scss';
 import { HeroWindow } from './HeroWindow';
 import styles from './styles.module.scss';
 import type { HeroOverview } from './types';
@@ -180,7 +179,7 @@ describe('HeroWindow', () => {
     expect(windowNode?.style.width).toBe('320px');
     expect(windowNode?.style.height).toBe('260px');
     expect(
-      windowNode?.querySelector(`.${draggableWindowStyles.resizeHandle}`),
+      windowNode?.querySelector('div[class*="resizeHandle"]'),
     ).not.toBeNull();
     expect(statsScroller).not.toBeNull();
   });
