@@ -29,6 +29,7 @@ describe('WindowHeaderActionButton', () => {
     );
 
     const button = ui.host.querySelector('button') as HTMLButtonElement | null;
+    expect(button?.getAttribute('data-size')).toBe('small');
     expect(button?.getAttribute('aria-disabled')).toBe('true');
 
     await act(async () => {

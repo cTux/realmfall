@@ -105,13 +105,11 @@ $mobile-window-width: min(92vw, 420px);
     background-color: rgb(12 20 34 / 95%);
     box-shadow: 0 0 0 1px rgb(59 130 246 / 18%);
   }
-}
 
-.headerButtonIcon {
-  font-size: 0.96rem;
-  line-height: 1;
-  display: block;
-  pointer-events: none;
+  &[data-size='small'] {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
 }
 
 .windowBody {

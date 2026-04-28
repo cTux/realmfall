@@ -3,7 +3,9 @@ import type {
   PointerEvent as ReactPointerEvent,
   RefObject,
 } from 'react';
+import { Button } from '../Button/Button';
 import type { WindowProps, WindowTooltipLine } from './types';
+import { WindowCloseIcon } from './WindowCloseIcon';
 import styles from './styles.module.scss';
 
 interface WindowFrameProps extends Omit<WindowProps, 'onClose' | 'onMove'> {
@@ -53,7 +55,8 @@ export function WindowFrame({
       text: closeButtonTooltip ?? tooltipLabel,
     },
   ];
-  const closeButtonColor = closeButtonTooltipColor ?? 'rgba(248, 113, 113, 0.9)';
+  const closeButtonColor =
+    closeButtonTooltipColor ?? 'rgba(248, 113, 113, 0.9)';
   const canShowCloseButton = showCloseButton !== false;
   const normalizedBodyClassName = `${styles.windowBody} ${
     bodyClassName ?? ''
@@ -94,8 +97,10 @@ export function WindowFrame({
             </div>
           ) : null}
           {canShowCloseButton ? (
-            <button
+            <Button
               type="button"
+              size="small"
+              unstyled
               className={styles.headerButton}
               data-ui-audio-click="off"
               aria-label={tooltipLabel}
@@ -114,10 +119,8 @@ export function WindowFrame({
               }
               onMouseLeave={onLeaveDetail}
             >
-              <span className={styles.headerButtonIcon} aria-hidden="true">
-                {closeButtonContent ?? 'x'}
-              </span>
-            </button>
+              {closeButtonContent ?? <WindowCloseIcon />}
+            </Button>
           ) : null}
         </div>
       </div>

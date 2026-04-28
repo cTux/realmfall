@@ -83,12 +83,12 @@
 
 .headerButton {
   @include ui.window-header-button;
-}
 
-.headerButtonIcon {
-  @include ui.masked-icon(0.95rem, $background: currentcolor);
-
-  display: block;
+  &[data-size='small'] {
+    width: 1.6rem;
+    height: 1.6rem;
+    padding: 0;
+  }
 }
 
 .windowBody {

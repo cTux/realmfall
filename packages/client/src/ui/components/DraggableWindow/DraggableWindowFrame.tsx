@@ -4,11 +4,10 @@ import type {
   ReactNode,
   RefObject,
 } from 'react';
-import { Button } from '@realmfall/ui';
+import { Button, WindowCloseIcon } from '@realmfall/ui';
 import { useUiAudio } from '../../../app/audio/UiAudioContext';
 import type { WindowPosition } from '../../../app/constants';
 import { t } from '../../../i18n';
-import { Icons } from '../../icons';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 import type { WindowResizeBounds } from './types';
 import styles from './styles.module.scss';
@@ -97,6 +96,7 @@ export function DraggableWindowFrame({
           ) : null}
           {showCloseButton ? (
             <Button
+              size="small"
               unstyled
               type="button"
               className={styles.headerButton}
@@ -123,14 +123,7 @@ export function DraggableWindowFrame({
               }
               onMouseLeave={onLeaveDetail}
             >
-              <span
-                className={styles.headerButtonIcon}
-                style={{
-                  WebkitMaskImage: `url("${Icons.ArrowDunk}")`,
-                  maskImage: `url("${Icons.ArrowDunk}")`,
-                }}
-                aria-hidden="true"
-              />
+              <WindowCloseIcon />
             </Button>
           ) : null}
         </div>

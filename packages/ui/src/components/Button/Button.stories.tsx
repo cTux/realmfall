@@ -25,6 +25,13 @@ export const Disabled: Story = {
   },
 };
 
+export const Small: Story = {
+  args: {
+    size: 'small',
+    children: 'Compact action',
+  },
+};
+
 export const Unstyled: Story = {
   args: {
     unstyled: true,
