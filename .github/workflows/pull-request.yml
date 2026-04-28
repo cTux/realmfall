@@ -92,8 +92,8 @@ jobs:
           restore-keys: |
             vitest-cache-${{ runner.os }}-
 
-      - name: Run node test project
-        run: pnpm test:node
+      - name: Run workspace node tests
+        run: pnpm test
 
   build:
     runs-on: ubuntu-latest

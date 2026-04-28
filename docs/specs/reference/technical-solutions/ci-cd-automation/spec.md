@@ -6,7 +6,7 @@ This spec covers the continuous integration flow for PR handling and deployment 
 
 ## Current Solution
 
-- The pull-request workflow runs `typecheck-and-lint`, `test-node`, and strict bundle-budget `build` jobs, and it does not run the browser-facing `test-jsdom` project.
+- The pull-request workflow runs `typecheck-and-lint`, `test-node`, and strict bundle-budget `build` jobs, does not run the browser-facing `test-jsdom` project, runs `pnpm test` in `test-node` for the server package plus the client `node` project, and runs `pnpm build:budget:strict` in `build` for the shared workspace build path plus the client startup-budget gate.
 - `pull_request_target` runs the `auto-rebase-package-json` job for non-draft same-repository pull requests targeting the repository default branch.
 - The job checks out the base repository, switches to the PR head branch, and runs `node scripts/rebase-master-and-push.mjs`.
 - After the rebase, the job installs dependencies and runs `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build:budget:strict` before any branch update push.
