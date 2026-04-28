@@ -5,11 +5,11 @@ import { describe, expect, it } from 'vitest';
 describe('status effect icon assets', () => {
   const recentDeathSvgPath = resolve(
     process.cwd(),
-    'packages/client/src/assets/icons/recent-death.svg',
+    'src/assets/icons/recent-death.svg',
   );
   const restorationSvgPath = resolve(
     process.cwd(),
-    'packages/client/src/assets/icons/restoration.svg',
+    'src/assets/icons/restoration.svg',
   );
 
   it('uses transparent mask-safe SVGs for death effect icons', () => {

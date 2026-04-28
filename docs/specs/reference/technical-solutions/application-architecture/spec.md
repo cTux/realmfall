@@ -6,11 +6,14 @@ This spec covers the repository layer boundaries, state transition shape, and co
 
 ## Current Solution
 
-- `src/game` contains gameplay and simulation rules.
-- `src/app` contains app orchestration, hydration, persistence wiring, clock wiring, and controller hooks.
+- Client-side `src/*` paths below live under `packages/client/` after the monorepo split.
+- `packages/client/src/game` contains gameplay and simulation rules.
+- `packages/client/src/app` contains app orchestration, hydration, persistence wiring, clock wiring, and controller hooks.
 - `packages/client/src/ui/components` contains client-only React window components and presentational UI, while `packages/ui/src/components` contains shared reusable controls consumed through `@realmfall/ui`.
-- `src/ui/world` contains Pixi world rendering, render math, scene caches, pools, and atmosphere helpers.
-- `src/persistence` contains local save storage helpers.
+- `packages/client/src/ui/world` contains Pixi world rendering, render math, scene caches, pools, and atmosphere helpers.
+- `packages/client/src/persistence` contains local save storage helpers.
+- `packages/server/src` contains the server runtime entrypoint, HTTP routes, and server-only version metadata resolution.
+- `packages/common/src` is reserved for cross-runtime shared code and remains empty until a client/server abstraction is genuinely shared.
 - Game mutations are performed through state transition functions in `src/game/state.ts` that clone the incoming game state and return the next state.
 - Save hydration enters through `src/app/normalize.ts`, while focused helpers such as `src/app/normalizeGameState.ts`, `src/app/normalizeCombat.ts`, `src/app/normalizeItems.ts`, `src/app/normalizeUiState.ts`, `src/app/normalizeShared.ts`, and `src/app/normalizeCompatibility.ts` own narrower validation and compatibility concerns.
 - Read-only game creation, queries, and shared gameplay types are split across `src/game/stateFactory.ts`, `src/game/stateSelectors.ts`, and `src/game/stateTypes.ts`, which keeps UI and renderer imports off the broad mutation entrypoint.
@@ -27,16 +30,20 @@ This spec covers the repository layer boundaries, state transition shape, and co
 - React controllers invoke these transitions with the current world time injected from refs.
 - Shared selectors derive view-ready data without pushing gameplay logic down into windows.
 - Unique items, enemies, and structures live in dedicated content files under `src/game/content`.
+- Package-local setup and command notes live in `packages/client/README.md`, `packages/server/README.md`, `packages/common/README.md`, and `packages/ui/README.md`, while `docs/specs` stays canonical for cross-package technical solutions.
 
 ## Main Implementation Areas
 
-- `src/game`
-- `src/game/consumables.ts`
-- `src/game/stateItemActions.ts`
-- `src/game/stateFactory.ts`
-- `src/game/stateSelectors.ts`
-- `src/game/stateTypes.ts`
-- `src/app`
+- `packages/client/src/game`
+- `packages/client/src/game/consumables.ts`
+- `packages/client/src/game/stateItemActions.ts`
+- `packages/client/src/game/stateFactory.ts`
+- `packages/client/src/game/stateSelectors.ts`
+- `packages/client/src/game/stateTypes.ts`
+- `packages/client/src/app`
 - `packages/client/src/ui/components`
+- `packages/client/src/ui/world`
+- `packages/client/src/persistence`
 - `packages/ui/src/components`
-- `src/ui/world`
+- `packages/server/src`
+- `packages/common/src`

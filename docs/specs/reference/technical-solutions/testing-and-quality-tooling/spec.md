@@ -6,9 +6,12 @@ This spec covers the repository quality baseline and current test coverage shape
 
 ## Current Solution
 
+- Client-side `src/*` and `scripts/*` paths below live under `packages/client/` after the monorepo split unless the path explicitly names another package.
 - The repository uses TypeScript strict mode, Oxlint, Stylelint, Prettier, Vitest, Husky, Vite, and Storybook.
-- `pnpm test` runs the `node` and `jsdom` Vitest projects through `@raegen/vite-plugin-vitest-cache`, storing reusable results in the repository-local `.tests/vitest-cache` directory so warm reruns and CI can restore unaffected test files without changing test correctness.
-- `pnpm test:node` runs the DOM-free Vitest project for gameplay, persistence, i18n, and script tests, while `pnpm test:jsdom` runs the browser-surface project for React, Pixi, and other DOM-dependent tests.
+- `pnpm typecheck` runs the shared workspace typecheck path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
+- `pnpm lint` runs the shared workspace lint path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
+- `pnpm test` runs the server package test suite and the client `node` Vitest project, keeping the root automated test path meaningful after the monorepo split without depending on the broader jsdom suite.
+- `pnpm test:node` runs the client DOM-free Vitest project for gameplay, persistence, i18n, and script tests, while `pnpm test:jsdom` runs the client browser-surface project for React, Pixi, and other DOM-dependent tests.
 - `pnpm test:memory:leaks` starts the local HTTPS Vite dev server and runs `fuite` against `https://localhost:5173` with a custom dock-window toggle scenario because the app does not expose internal navigation links for the default `fuite` scenario, writing the latest JSON analysis to `.tests/memory-leaks/latest.json` for follow-up review.
 - `pnpm test:memory:leaks:prod` builds the app, serves the production bundle over local HTTPS at `https://localhost:4174`, and runs the same `fuite` scenario there, writing the JSON analysis to `.tests/memory-leaks/prod.json` so memory-retention checks can be compared between dev and production behavior.
 - The browser performance harness activates only when `?perf=1`, `?realmfallPerf=1`, `localStorage["realmfall:perf"] = "1"`, or a test-only forced install is present, exposing `window.__REALMFALL_PERF__` with a `snapshot()` API for startup marks, React commits, Pixi render-pass counters, scenario timings, long tasks, and long animation frames.

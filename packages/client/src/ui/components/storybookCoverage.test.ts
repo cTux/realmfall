@@ -1,22 +1,9 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const componentsDir = join(
-  process.cwd(),
-  'packages',
-  'client',
-  'src',
-  'ui',
-  'components',
-);
-const sharedComponentsDir = join(
-  process.cwd(),
-  'packages',
-  'ui',
-  'src',
-  'components',
-);
+const componentsDir = resolve(process.cwd(), 'src/ui/components');
+const sharedComponentsDir = resolve(process.cwd(), '../ui/src/components');
 
 const sharedComponentStoryDirs = new Map<string, string>([
   ['ActionBar', 'ActionBar'],
