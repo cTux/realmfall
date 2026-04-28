@@ -5,10 +5,10 @@ import {
   useMemo,
   type MutableRefObject,
 } from 'react';
+import { Button, LoadingSpinner } from '@realmfall/ui';
 import type { GameState, HexCoord } from '../../../game/stateTypes';
 import { t } from '../../../i18n';
 import { recordStartupMark } from '../../../performance/performanceHarness';
-import { LoadingSpinner } from '@realmfall/ui';
 import type { BackgroundMusicMood } from '../../audio/backgroundMusic';
 import {
   UiAudioProvider,
@@ -159,9 +159,9 @@ export function AppShell({
               <div className={styles.loadingError} role="alert">
                 <strong>{t('ui.loading.worldErrorTitle')}</strong>
                 <p>{t('ui.loading.worldErrorBody')}</p>
-                <button type="button" onClick={onRetryPixiWorld}>
+                <Button unstyled type="button" onClick={onRetryPixiWorld}>
                   {t('ui.loading.worldRetryAction')}
-                </button>
+                </Button>
               </div>
             ) : (
               <LoadingSpinner className={styles.loadingSpinner} />

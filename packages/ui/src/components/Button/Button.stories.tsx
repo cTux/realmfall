@@ -25,6 +25,13 @@ export const Disabled: Story = {
   },
 };
 
+export const Unstyled: Story = {
+  args: {
+    unstyled: true,
+    children: 'Browser chrome',
+  },
+};
+
 function ButtonStory(args: ComponentProps<typeof Button>) {
   const [pressed, setPressed] = useState(false);
 

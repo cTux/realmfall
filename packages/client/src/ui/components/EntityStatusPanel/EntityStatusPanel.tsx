@@ -1,3 +1,4 @@
+import { Button } from '@realmfall/ui';
 import { formatCompactNumber } from '../../formatters';
 import type { TooltipLine } from '../../tooltips';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
@@ -206,7 +207,8 @@ function StatusIcon({
   onLeaveDetail,
 }: WindowDetailTooltipHandlers & { icon: EntityStatusIcon }) {
   return (
-    <button
+    <Button
+      unstyled
       type="button"
       className={`${styles.iconButton} ${
         icon.disabled ? styles.iconButtonDisabled : ''
@@ -229,7 +231,7 @@ function StatusIcon({
         className={styles.icon}
         style={iconMaskStyle(icon.icon, icon.tint)}
       />
-    </button>
+    </Button>
   );
 }
 

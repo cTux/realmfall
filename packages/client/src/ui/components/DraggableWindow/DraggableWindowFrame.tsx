@@ -4,6 +4,7 @@ import type {
   ReactNode,
   RefObject,
 } from 'react';
+import { Button } from '@realmfall/ui';
 import { useUiAudio } from '../../../app/audio/UiAudioContext';
 import type { WindowPosition } from '../../../app/constants';
 import { t } from '../../../i18n';
@@ -95,7 +96,8 @@ export function DraggableWindowFrame({
             </div>
           ) : null}
           {showCloseButton ? (
-            <button
+            <Button
+              unstyled
               type="button"
               className={styles.headerButton}
               data-ui-audio-click="off"
@@ -129,7 +131,7 @@ export function DraggableWindowFrame({
                 }}
                 aria-hidden="true"
               />
-            </button>
+            </Button>
           ) : null}
         </div>
       </div>

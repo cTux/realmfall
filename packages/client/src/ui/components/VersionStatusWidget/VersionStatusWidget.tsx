@@ -1,3 +1,4 @@
+import { Button } from '@realmfall/ui';
 import { t } from '../../../i18n';
 import type { TooltipLine } from '../../tooltips';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
@@ -43,7 +44,8 @@ export function VersionStatusWidget({
       />
       <span className={styles.statusText}>{statusLabel}</span>
       {status === 'outdated' ? (
-        <button
+        <Button
+          unstyled
           className={styles.refreshButton}
           type="button"
           onMouseEnter={(event) =>
@@ -58,7 +60,7 @@ export function VersionStatusWidget({
           onClick={onRefresh}
         >
           {t('ui.version.refreshAction')}
-        </button>
+        </Button>
       ) : null}
     </aside>
   );

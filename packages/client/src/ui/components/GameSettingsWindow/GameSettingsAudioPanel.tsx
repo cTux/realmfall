@@ -1,3 +1,4 @@
+import { Button, Switch } from '@realmfall/ui';
 import {
   AUDIO_SETTINGS_SOUND_EFFECT_OPTIONS,
   AUDIO_SETTINGS_TOGGLE_OPTIONS,
@@ -8,7 +9,6 @@ import {
 } from '../../../app/audioSettings';
 import { VOICE_ACTOR_OPTIONS } from '../../../app/audio/voiceActors';
 import { t } from '../../../i18n';
-import { Switch } from '@realmfall/ui';
 import type { GameSettingsAudioPanelProps } from './types';
 import styles from './styles.module.scss';
 
@@ -113,7 +113,8 @@ export function GameSettingsAudioPanel({
             const selected = audioSettings.theme === option.value;
 
             return (
-              <button
+              <Button
+                unstyled
                 key={option.value}
                 id={`audio-theme-${option.value}`}
                 type="button"
@@ -129,7 +130,7 @@ export function GameSettingsAudioPanel({
                 }
               >
                 {t(option.labelKey)}
-              </button>
+              </Button>
             );
           })}
         </div>

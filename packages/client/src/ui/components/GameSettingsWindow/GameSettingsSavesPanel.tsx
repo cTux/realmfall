@@ -1,3 +1,4 @@
+import { Button } from '@realmfall/ui';
 import { useUiAudio } from '../../../app/audio/UiAudioContext';
 import {
   RESETTABLE_SAVE_AREA_IDS,
@@ -53,7 +54,8 @@ export function GameSettingsSavesPanel({
                 {t(`ui.settings.saves.areas.${areaId}.description`)}
               </p>
             </div>
-            <button
+            <Button
+              unstyled
               type="button"
               className={styles.saveAreaResetButton}
               disabled={busyAreaId !== null}
@@ -62,7 +64,7 @@ export function GameSettingsSavesPanel({
               {busyAreaId === areaId
                 ? t('ui.settings.saves.actions.resetting')
                 : t('ui.settings.saves.actions.reset')}
-            </button>
+            </Button>
           </section>
         ))}
       </div>

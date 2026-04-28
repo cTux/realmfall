@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { ComponentProps } from 'react';
 import { useState } from 'react';
+import { Button } from '@realmfall/ui';
 import {
   STORYBOOK_WINDOW_POSITION,
   storySurfaceDecorator,
@@ -41,9 +42,9 @@ export const WithHeaderActions: Story = {
     position: STORYBOOK_WINDOW_POSITION,
     onMove: () => undefined,
     headerActions: (
-      <button type="button" style={{ padding: '6px 10px' }}>
+      <Button type="button" style={{ padding: '6px 10px' }}>
         Pin
-      </button>
+      </Button>
     ),
   },
 };

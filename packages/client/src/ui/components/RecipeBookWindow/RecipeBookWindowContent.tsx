@@ -6,7 +6,7 @@ import {
   useState,
   type MouseEvent as ReactMouseEvent,
 } from 'react';
-import { ItemSlot as ItemSlotButton } from '@realmfall/ui';
+import { Button, ItemSlot as ItemSlotButton } from '@realmfall/ui';
 import {
   buildItemFromConfig,
   getItemConfigByKey,
@@ -214,7 +214,8 @@ export function RecipeBookWindowContent({
         {activeSkill === Skill.Crafting ? (
           <div className={styles.slotFilters}>
             <div className={styles.slotFilterControls}>
-              <button
+              <Button
+                unstyled
                 type="button"
                 className={styles.slotFilterControlButton}
                 onClick={() =>
@@ -222,14 +223,15 @@ export function RecipeBookWindowContent({
                 }
               >
                 Enable all
-              </button>
-              <button
+              </Button>
+              <Button
+                unstyled
                 type="button"
                 className={styles.slotFilterControlButton}
                 onClick={() => setEnabledCraftingSlots(new Set())}
               >
                 Disable all
-              </button>
+              </Button>
             </div>
             {CRAFTING_SLOT_FILTERS.map((slot) => {
               const isSlotEnabled = enabledCraftingSlots.has(slot);
@@ -278,13 +280,13 @@ export function RecipeBookWindowContent({
             <span className={styles.filterLabel}>
               {t('ui.recipeBook.filterLabel', { item: filterItemName })}
             </span>
-            <button
+            <Button
               type="button"
               className={styles.filterReset}
               onClick={onResetMaterialFilter}
             >
               {t('ui.recipeBook.resetFilterAction')}
-            </button>
+            </Button>
           </div>
         ) : null}
         {visibleRecipes.length === 0 ? (
@@ -375,7 +377,7 @@ export function RecipeBookWindowContent({
                             <span
                               className={styles.craftCount}
                             >{`x${craftCount}`}</span>
-                            <button
+                            <Button
                               type="button"
                               onClick={(event) =>
                                 onCraft(recipe.id, getRecipeCraftCount(event))
@@ -405,7 +407,7 @@ export function RecipeBookWindowContent({
                               }
                             >
                               {actionLabel}
-                            </button>
+                            </Button>
                           </span>
                         ) : (
                           <span
@@ -420,9 +422,9 @@ export function RecipeBookWindowContent({
                               onHoverDetail ? onLeaveDetail : undefined
                             }
                           >
-                            <button type="button" disabled={!canCraft}>
+                            <Button type="button" disabled={!canCraft}>
                               {actionLabel}
-                            </button>
+                            </Button>
                           </span>
                         )
                       ) : (
@@ -439,12 +441,13 @@ export function RecipeBookWindowContent({
                             onHoverDetail ? onLeaveDetail : undefined
                           }
                         >
-                          <button type="button" disabled={!recipe.learned}>
+                          <Button type="button" disabled={!recipe.learned}>
                             {actionLabel}
-                          </button>
+                          </Button>
                         </span>
                       )}
-                      <button
+                      <Button
+                        unstyled
                         type="button"
                         className={styles.favoriteButton}
                         onClick={() => onToggleFavoriteRecipe(recipe.id)}
@@ -483,14 +486,15 @@ export function RecipeBookWindowContent({
                             recipe.favorite ? '#f59e0b' : '#94a3b8',
                           )}
                         />
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ),
               )}
             </div>
             {hiddenRecipeCount > 0 ? (
-              <button
+              <Button
+                unstyled
                 type="button"
                 className={styles.loadMoreButton}
                 onClick={() =>
@@ -507,14 +511,15 @@ export function RecipeBookWindowContent({
                 {t('ui.recipeBook.showMoreAction', {
                   count: Math.min(RECIPE_BOOK_BATCH_SIZE, hiddenRecipeCount),
                 })}
-              </button>
+              </Button>
             ) : null}
           </>
         )}
       </div>
       <div className={styles.tabs} role="tablist">
         {visibleTabs.map((skill) => (
-          <button
+          <Button
+            unstyled
             key={skill}
             type="button"
             role="tab"
@@ -524,7 +529,7 @@ export function RecipeBookWindowContent({
             onClick={() => setActiveSkill(skill)}
           >
             {formatSkillLabel(skill)}
-          </button>
+          </Button>
         ))}
       </div>
     </div>

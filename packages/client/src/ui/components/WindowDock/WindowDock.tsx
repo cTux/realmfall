@@ -1,4 +1,5 @@
 import { memo, useState, type Dispatch, type SetStateAction } from 'react';
+import { Button } from '@realmfall/ui';
 import { useUiAudio } from '../../../app/audio/UiAudioContext';
 import type { WindowVisibilityState } from '../../../app/constants';
 import { t } from '../../../i18n';
@@ -76,7 +77,8 @@ function DockButton({
   const audio = useUiAudio();
 
   return (
-    <button
+    <Button
+      unstyled
       type="button"
       className={styles.dockButton}
       data-opened={entry.shown}
@@ -127,7 +129,7 @@ function DockButton({
           />
         </span>
       ) : null}
-    </button>
+    </Button>
   );
 }
 
