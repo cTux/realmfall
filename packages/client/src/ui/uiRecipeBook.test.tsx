@@ -115,7 +115,7 @@ describe('ui recipe book logic and markup', () => {
     expect(markup).toContain('-webkit-mask:url(');
   });
 
-  it('renders learned recipe pages with a red inventory border and no overlay', async () => {
+  it('renders learned recipe pages with a white border and a green scroll-quill icon', async () => {
     const recipePage: Item = {
       id: 'recipe-craft-weapon',
       recipeId: 'craft-icon-axe-01',
@@ -149,8 +149,10 @@ describe('ui recipe book logic and markup', () => {
       />,
     );
 
-    expect(markup).toContain('border-color: rgb(239, 68, 68)');
-    expect(markup).toContain('box-shadow: 0 0 0 1px #ef444433 inset');
+    expect(markup).toContain('border-color: rgb(248, 250, 252)');
+    expect(markup).toContain('box-shadow: 0 0 0 1px #f8fafc33 inset');
+    expect(markup).toContain('background-color: rgb(34, 197, 94)');
+    expect(markup).not.toContain('recipe.svg');
     expect(markup).not.toContain('background-color:rgba(96, 165, 250, 0.28)');
   });
 

@@ -7,7 +7,7 @@ import {
 } from '../../../i18n/labels';
 import { t } from '../../../i18n';
 import type { EquipmentSlot, Item } from '../../../game/stateTypes';
-import { iconForItem, itemTint } from '../../icons';
+import { iconForItem, itemBorderColor, itemTint } from '../../icons';
 import styles from './styles.module.scss';
 
 interface ItemSlotCornerIcon {
@@ -63,7 +63,8 @@ export function ItemSlotButton({
 }: ItemSlotButtonProps) {
   const tint =
     tintOverride ?? (item ? itemTint(item) : 'rgba(148, 163, 184, 0.32)');
-  const borderColor = borderColorOverride ?? tint;
+  const borderColor =
+    borderColorOverride ?? (item ? itemBorderColor(item) : tint);
   const isInteractive = Boolean(
     !disabled &&
     (onClick || onContextMenu || onMouseEnter || onEmptyMouseEnter),

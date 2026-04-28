@@ -117,6 +117,53 @@ describe('ui inventory window surfaces', () => {
 
     await ui.unmount();
   });
+
+  it('renders learned recipe pages in inventory with shared recipe slot colors', async () => {
+    const recipePage = makeRecipePage(
+      createRecipe({
+        id: 'craft-camp-spear',
+        name: 'Camp Spear',
+        output: {
+          id: 'crafted-camp-spear',
+          itemKey: ItemId.CampSpear,
+          icon: getItemConfigByKey(ItemId.CampSpear)?.icon,
+          name: 'Camp Spear',
+          power: 3,
+        },
+      }),
+    );
+    const ui = await mountUi(
+      <InventoryWindowContent
+        inventory={[recipePage]}
+        equipment={{}}
+        learnedRecipeIds={['craft-camp-spear']}
+        onActivateItem={() => {}}
+        onSellItem={() => {}}
+        onContextItem={() => {}}
+        onHoverItem={() => {}}
+        onLeaveItem={() => {}}
+      />,
+    );
+
+    const compactButtons = Array.from(
+      ui.host.querySelectorAll('button[data-size="compact"]'),
+    );
+    const recipeSlot = compactButtons[compactButtons.length - 1];
+    const recipeIcon = recipeSlot?.querySelector('span[aria-label]');
+
+    expect(recipeSlot?.getAttribute('style')).toContain(
+      'border-color: rgb(248, 250, 252)',
+    );
+    expect(recipeSlot?.getAttribute('style')).toContain(
+      'box-shadow: 0 0 0 1px #f8fafc33 inset',
+    );
+    expect(recipeSlot?.querySelector('[aria-hidden="true"]')).toBeNull();
+    expect(recipeIcon?.getAttribute('style')).toContain(
+      'background-color: rgb(34, 197, 94)',
+    );
+
+    await ui.unmount();
+  });
 });
 
 function itemButtonCount(host: HTMLElement) {
