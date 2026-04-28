@@ -324,6 +324,7 @@ export function RecipeBookWindowContent({
                         size="compact"
                         disabled={!recipe.learned}
                         tintOverride={tintOverride}
+                        borderColorOverride={tintOverride}
                         onClick={
                           canCraft ? () => onCraft(recipe.id) : undefined
                         }

@@ -1,0 +1,76 @@
+import { renderToStaticMarkup } from 'react-dom/server';
+import { ItemSlot as ItemSlotButton } from '@realmfall/ui';
+import { buildItemFromConfig } from '../game/content/items';
+import { ItemId } from '../game/content/ids';
+import { GameTag } from '../game/content/tags';
+import type { Item } from '../game/stateTypes';
+
+describe('ui item slot colors', () => {
+  it('keeps rarity borders while splitting equippable tint within the same themed set', () => {
+    const rareStormBlade = buildItemFromConfig('storm-blade', {
+      id: 'storm-blade-rare',
+      rarity: 'rare',
+    });
+    const rareStormCloak = buildItemFromConfig('storm-cloak', {
+      id: 'storm-cloak-rare',
+      rarity: 'rare',
+    });
+
+    const bladeMarkup = renderToStaticMarkup(
+      <ItemSlotButton item={rareStormBlade} size="compact" />,
+    );
+    const cloakMarkup = renderToStaticMarkup(
+      <ItemSlotButton item={rareStormCloak} size="compact" />,
+    );
+
+    expect(bladeMarkup).toContain('border-color:#60a5fa');
+    expect(bladeMarkup).toContain('box-shadow:0 0 0 1px #60a5fa33 inset');
+    expect(bladeMarkup).toContain('background-color:#67e8f9');
+    expect(cloakMarkup).toContain('border-color:#60a5fa');
+    expect(cloakMarkup).toContain('box-shadow:0 0 0 1px #60a5fa33 inset');
+    expect(cloakMarkup).toContain('background-color:#14b8a6');
+  });
+
+  it('uses a white border for non-equippable items while keeping their configured tint', () => {
+    const gold = buildItemFromConfig(ItemId.Gold, {
+      id: 'gold-stack',
+      quantity: 12,
+    });
+
+    const markup = renderToStaticMarkup(
+      <ItemSlotButton item={gold} size="compact" />,
+    );
+
+    expect(markup).toContain('border-color:#f8fafc');
+    expect(markup).toContain('box-shadow:0 0 0 1px #f8fafc33 inset');
+    expect(markup).toContain('background-color:#fbbf24');
+  });
+
+  it('renders recipe pages as green scroll-quill icons with a white border', () => {
+    const recipePage: Item = {
+      id: 'recipe-craft-weapon',
+      itemKey: ItemId.RecipeBook,
+      recipeId: 'craft-icon-axe-01',
+      icon: 'recipe.svg',
+      name: 'Recipe: Axe 01',
+      tags: [GameTag.ItemResource, GameTag.ItemRecipe],
+      quantity: 1,
+      tier: 1,
+      rarity: 'uncommon',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+      thirst: 0,
+    };
+
+    const markup = renderToStaticMarkup(
+      <ItemSlotButton item={recipePage} size="compact" />,
+    );
+
+    expect(markup).toContain('background-color:#22c55e');
+    expect(markup).toContain('border-color:#f8fafc');
+    expect(markup).not.toContain('recipe.svg');
+  });
+});

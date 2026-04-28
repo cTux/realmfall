@@ -2,6 +2,8 @@ import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { vi } from 'vitest';
+import { ItemId } from '../game/content/ids';
+import { buildItemFromConfig } from '../game/content/items';
 import { GameTag } from '../game/content/tags';
 import type { Enemy, Item, Tile } from '../game/stateTypes';
 import { formatCompactNumber, formatCompactNumberish } from './formatters';
@@ -78,6 +80,14 @@ describe('ui helper coverage', () => {
   });
 
   it('covers item icon and tint fallback branches', () => {
+    const recipePage = createItem({
+      itemKey: 'recipe-book',
+      slot: undefined,
+      recipeId: 'cook-cooked-fish',
+      icon: 'recipe.svg',
+      tags: [GameTag.ItemResource, GameTag.ItemRecipe],
+    });
+
     expect(
       iconForItem(
         createItem({ itemKey: undefined, tags: [GameTag.ItemTotem] }),
@@ -105,7 +115,58 @@ describe('ui helper coverage', () => {
     expect(
       itemTint(createItem({ itemKey: 'gold', name: 'Gold', slot: undefined })),
     ).toBe('#fbbf24');
-    expect(itemTint(createItem({ rarity: 'rare' }))).toBe(rarityColor('rare'));
+    expect(
+      itemTint(
+        createItem({
+          itemKey: undefined,
+          slot: 'weapon',
+          rarity: 'rare',
+          name: 'Iron Blade',
+        }),
+      ),
+    ).toBe('#cbd5e1');
+    expect(iconForItem(recipePage)).toBe(Icons.ScrollQuill);
+    expect(itemTint(recipePage)).toBe('#22c55e');
+  });
+
+  it('uses theme-first equippable tint families before neutral fallback', () => {
+    expect(
+      itemTint(
+        buildItemFromConfig('ashen-blade', {
+          id: 'ashen-blade-1',
+        }),
+      ),
+    ).toBe('#d6d3d1');
+    expect(
+      itemTint(
+        buildItemFromConfig('ashen-boots', {
+          id: 'ashen-boots-1',
+        }),
+      ),
+    ).toBe('#44403c');
+    expect(
+      itemTint(
+        buildItemFromConfig(ItemId.WayfarerCloak, {
+          id: 'wayfarer-cloak-1',
+        }),
+      ),
+    ).toBe('#64748b');
+    expect(
+      itemTint(
+        buildItemFromConfig(ItemId.CharmNecklace, {
+          id: 'charm-necklace-1',
+        }),
+      ),
+    ).toBe('#fbbf24');
+    expect(
+      itemTint(
+        createItem({
+          itemKey: 'unknown-equippable',
+          slot: 'weapon',
+          name: 'Unknown Weapon',
+        }),
+      ),
+    ).toBe('#cbd5e1');
   });
 
   it('uses the dedicated miner icon for the mining skill', () => {
