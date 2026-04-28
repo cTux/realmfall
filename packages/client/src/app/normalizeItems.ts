@@ -1,5 +1,8 @@
 import { clampItemLevel } from '../game/balance';
-import { getItemConfigByKey } from '../game/content/items';
+import {
+  getItemConfigByKey,
+  getItemConfigCategory,
+} from '../game/content/items';
 import type { Enemy, Item } from '../game/stateTypes';
 import {
   isEquipmentSlot,
@@ -81,6 +84,12 @@ export function normalizeItem(value: unknown): Item | null {
     value.enchantedSecondaryStatIndex < secondaryStats.length
       ? value.enchantedSecondaryStatIndex
       : undefined;
+  const configuredItem =
+    value.itemKey !== undefined ? getItemConfigByKey(value.itemKey) : undefined;
+  const rarity =
+    configuredItem && getItemConfigCategory(configuredItem) === 'consumable'
+      ? configuredItem.rarity
+      : value.rarity;
 
   return {
     id: value.id,
@@ -92,13 +101,10 @@ export function normalizeItem(value: unknown): Item | null {
     ...(value.locked === undefined ? {} : { locked: value.locked }),
     ...(value.slot === undefined ? {} : { slot: value.slot }),
     ...(value.icon === undefined ? {} : { icon: value.icon }),
-    name:
-      (value.itemKey !== undefined
-        ? getItemConfigByKey(value.itemKey)?.name
-        : undefined) ?? value.name,
+    name: configuredItem?.name ?? value.name,
     quantity: value.quantity,
     tier: clampItemLevel(value.tier),
-    rarity: value.rarity,
+    rarity,
     power: value.power,
     defense: value.defense,
     maxHp: value.maxHp,
