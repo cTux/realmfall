@@ -170,6 +170,12 @@ describe('ui recipe book window surfaces', () => {
     expect(slot?.getAttribute('style')).toContain(
       'border-color: rgba(148, 163, 184, 0.45);',
     );
+    expect(slot?.getAttribute('style')).toContain(
+      'box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.2) inset;',
+    );
+    expect(slot?.getAttribute('style')).not.toContain(
+      'rgba(148, 163, 184, 0.45)33',
+    );
     expect(slot?.getAttribute('style')).not.toContain(
       'border-color: rgb(96, 165, 250);',
     );

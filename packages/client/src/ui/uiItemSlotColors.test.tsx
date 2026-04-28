@@ -1,9 +1,10 @@
 import { renderToStaticMarkup } from 'react-dom/server';
-import { ItemSlot as ItemSlotButton } from '@realmfall/ui';
+import { ItemSlot as SharedItemSlotButton } from '@realmfall/ui';
 import { buildItemFromConfig } from '../game/content/items';
 import { ItemId } from '../game/content/ids';
 import { GameTag } from '../game/content/tags';
 import type { Item } from '../game/stateTypes';
+import { ItemSlotButton as ClientItemSlotButton } from './components/ItemSlotButton/ItemSlotButton';
 
 describe('ui item slot colors', () => {
   it('keeps rarity borders while splitting equippable tint within the same themed set', () => {
@@ -17,10 +18,10 @@ describe('ui item slot colors', () => {
     });
 
     const bladeMarkup = renderToStaticMarkup(
-      <ItemSlotButton item={rareStormBlade} size="compact" />,
+      <SharedItemSlotButton item={rareStormBlade} size="compact" />,
     );
     const cloakMarkup = renderToStaticMarkup(
-      <ItemSlotButton item={rareStormCloak} size="compact" />,
+      <SharedItemSlotButton item={rareStormCloak} size="compact" />,
     );
 
     expect(bladeMarkup).toContain('border-color:#60a5fa');
@@ -38,7 +39,7 @@ describe('ui item slot colors', () => {
     });
 
     const markup = renderToStaticMarkup(
-      <ItemSlotButton item={gold} size="compact" />,
+      <SharedItemSlotButton item={gold} size="compact" />,
     );
 
     expect(markup).toContain('border-color:#f8fafc');
@@ -66,7 +67,7 @@ describe('ui item slot colors', () => {
     };
 
     const markup = renderToStaticMarkup(
-      <ItemSlotButton item={recipePage} size="compact" />,
+      <SharedItemSlotButton item={recipePage} size="compact" />,
     );
 
     expect(markup).toContain('background-color:#22c55e');
@@ -92,10 +93,30 @@ describe('ui item slot colors', () => {
     };
 
     const markup = renderToStaticMarkup(
-      <ItemSlotButton item={parryingDagger} size="compact" />,
+      <SharedItemSlotButton item={parryingDagger} size="compact" />,
     );
 
     expect(markup).toContain('background-color:#94a3b8');
     expect(markup).not.toContain('background-color:#cbd5e1');
+  });
+
+  it('renders valid inset shadows for client slot rgba border overrides', () => {
+    const townKnife = buildItemFromConfig('town-knife', {
+      id: 'town-knife-rgba-border',
+    });
+
+    const markup = renderToStaticMarkup(
+      <ClientItemSlotButton
+        item={townKnife}
+        size="compact"
+        borderColorOverride="rgba(96, 165, 250, 0.58)"
+      />,
+    );
+
+    expect(markup).toContain('border-color:rgba(96, 165, 250, 0.58)');
+    expect(markup).toContain(
+      'box-shadow:0 0 0 1px rgba(96, 165, 250, 0.2) inset',
+    );
+    expect(markup).not.toContain('rgba(96, 165, 250, 0.58)33');
   });
 });
