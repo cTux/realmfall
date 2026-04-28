@@ -221,6 +221,10 @@ describe('ui tooltip ability content', () => {
       kind: 'text',
       text: 'Guard raises defense for as long as the effect holds.',
     });
+    expect(statusEffectTooltipLines('recentDeath', 'debuff')[0]).toEqual({
+      kind: 'text',
+      text: 'Death clings to you, reducing your maximum hitpoints by 10%. Faction healers can clear this wound.',
+    });
     expect(statusEffectTooltipLines('weakened', 'debuff')[0]).toEqual({
       kind: 'text',
       text: 'Weakened lowers attack while the effect remains.',
