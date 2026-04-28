@@ -4,6 +4,26 @@ $panel-bg: rgb(15 23 42 / 85%);
 $panel-shadow: inset 0 0 0 1px rgb(255 255 255 / 3%);
 $ability-radius: 0 16px;
 $fill-transition: width 220ms ease;
+$control-surface-rest-border: rgb(22 31 48 / 78%);
+$control-surface-rest-fill: rgb(34 47 67 / 84%);
+$control-surface-rest-color: #e2e8f0;
+$control-surface-hover-border: rgb(125 211 252 / 62%);
+$control-surface-hover-fill: rgb(51 65 85 / 92%);
+$control-surface-hover-color: #f8fafc;
+$control-surface-active-border: rgb(226 232 240 / 48%);
+$control-surface-active-fill: rgb(71 85 105 / 94%);
+$control-surface-active-shadow: inset 0 0 0 1px rgb(125 211 252 / 16%);
+$control-surface-focus-ring: rgb(125 211 252 / 80%);
+$control-surface-danger-rest-border: rgb(185 28 28 / 82%);
+$control-surface-danger-rest-fill: rgb(127 29 29 / 84%);
+$control-surface-danger-rest-color: #fee2e2;
+$control-surface-danger-hover-border: rgb(252 165 165 / 62%);
+$control-surface-danger-hover-fill: rgb(153 27 27 / 90%);
+$control-surface-danger-hover-color: #fff1f2;
+$control-surface-danger-active-border: rgb(254 202 202 / 54%);
+$control-surface-danger-active-fill: rgb(185 28 28 / 92%);
+$control-surface-danger-active-shadow: inset 0 0 0 1px rgb(254 202 202 / 18%);
+$control-surface-danger-focus-ring: rgb(252 165 165 / 82%);
 $tile-transition:
   transform 120ms ease,
   border-color 120ms ease,
@@ -27,16 +47,122 @@ $tile-transition:
   }
 }
 
+@mixin control-surface-base {
+  appearance: none;
+  border: 1px solid transparent;
+  box-shadow: none;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    border-color 120ms ease,
+    color 120ms ease,
+    background-color 120ms ease,
+    box-shadow 120ms ease,
+    transform 120ms ease;
+
+  &:focus-visible {
+    outline: 2px solid $control-surface-focus-ring;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+@mixin control-surface($tone: default) {
+  @if $tone == danger {
+    background: $control-surface-danger-rest-fill;
+    border-color: $control-surface-danger-rest-border;
+    color: $control-surface-danger-rest-color;
+
+    &:hover:enabled {
+      background: $control-surface-danger-hover-fill;
+      border-color: $control-surface-danger-hover-border;
+      color: $control-surface-danger-hover-color;
+    }
+
+    &:focus-visible {
+      outline-color: $control-surface-danger-focus-ring;
+    }
+
+    &:active:enabled,
+    &[data-opened='true'],
+    &[data-selected='true'],
+    &[aria-pressed='true'],
+    &[aria-selected='true'] {
+      background: $control-surface-danger-active-fill;
+      border-color: $control-surface-danger-active-border;
+      box-shadow: $control-surface-danger-active-shadow;
+      color: $control-surface-danger-hover-color;
+    }
+  } @else {
+    background: $control-surface-rest-fill;
+    border-color: $control-surface-rest-border;
+    color: $control-surface-rest-color;
+
+    &:hover:enabled {
+      background: $control-surface-hover-fill;
+      border-color: $control-surface-hover-border;
+      color: $control-surface-hover-color;
+    }
+
+    &:active:enabled,
+    &[data-opened='true'],
+    &[data-selected='true'],
+    &[aria-pressed='true'],
+    &[aria-selected='true'] {
+      background: $control-surface-active-fill;
+      border-color: $control-surface-active-border;
+      box-shadow: $control-surface-active-shadow;
+      color: $control-surface-hover-color;
+    }
+  }
+}
+
 @mixin compact-button {
   padding: 0.2rem 0.5rem;
   font-size: 0.75rem;
   line-height: 1.15;
 }
 
-@mixin window-header-button {
+@mixin window-header-button($tone: default) {
+  @include control-surface-base;
+  @include control-surface($tone);
   @include compact-button;
 
   border-radius: $ability-radius;
+}
+
+@mixin tab-surface($tone: default) {
+  @include control-surface-base;
+  @include control-surface($tone);
+
+  padding: 0.55rem 0.85rem 0.45rem;
+  border-radius: $ability-radius;
+  font-size: 0.85rem;
+  line-height: 1.15;
+}
+
+@mixin dock-button-surface($tone: default) {
+  @include control-surface-base;
+  @include control-surface($tone);
+
+  display: grid;
+  place-items: center;
+  padding: 0.18rem;
+  border-radius: $ability-radius;
+}
+
+@mixin chip-surface($tone: default) {
+  @include control-surface-base;
+  @include control-surface($tone);
+
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  line-height: 1.15;
 }
 
 @mixin progress-fill($gradient) {

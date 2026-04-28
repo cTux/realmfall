@@ -38,7 +38,9 @@ describe('Window', () => {
     const closeButton = host.querySelector(
       'button[aria-label="Close"]',
     ) as HTMLButtonElement | null;
-    const closeIcon = closeButton?.querySelector('span[aria-hidden="true"]');
+    const closeIcon = closeButton?.querySelector(
+      '[data-close-icon="true"]',
+    ) as HTMLSpanElement | null;
     expect(closeButton?.getAttribute('data-size')).toBe('small');
     expect(closeButton?.textContent?.trim()).toBe('');
     expect(closeIcon).not.toBeNull();

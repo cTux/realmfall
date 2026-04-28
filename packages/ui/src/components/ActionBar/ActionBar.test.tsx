@@ -3,13 +3,23 @@ import { createRoot, type Root } from 'react-dom/client';
 import { vi } from 'vitest';
 import { GameTag } from '../../game/content/tags';
 import type { Item } from '../../game/stateTypes';
+import { loadI18n } from '../../i18n';
 import { ActionBar } from './ActionBar';
+import enTranslations from '../../../../client/src/i18n/locales/en.json';
 
 describe('ActionBar', () => {
   let host: HTMLDivElement;
   let root: Root;
 
-  beforeAll(() => {
+  beforeAll(async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue(enTranslations),
+      }),
+    );
+    await loadI18n();
     (
       globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }
     ).IS_REACT_ACT_ENVIRONMENT = true;
@@ -27,6 +37,10 @@ describe('ActionBar', () => {
     });
     host.remove();
     vi.restoreAllMocks();
+  });
+
+  afterAll(() => {
+    vi.unstubAllGlobals();
   });
 
   it('does not render cooldown overlays for populated slots', async () => {

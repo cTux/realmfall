@@ -4,7 +4,7 @@ import type {
   ReactNode,
   RefObject,
 } from 'react';
-import { Button, WindowCloseIcon } from '@realmfall/ui';
+import { Button } from '@realmfall/ui';
 import { useUiAudio } from '../../../app/audio/UiAudioContext';
 import type { WindowPosition } from '../../../app/constants';
 import { t } from '../../../i18n';
@@ -123,7 +123,11 @@ export function DraggableWindowFrame({
               }
               onMouseLeave={onLeaveDetail}
             >
-              <WindowCloseIcon />
+              <span
+                className={styles.closeIcon}
+                data-close-icon="true"
+                aria-hidden="true"
+              />
             </Button>
           ) : null}
         </div>

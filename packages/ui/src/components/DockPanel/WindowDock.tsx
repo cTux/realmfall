@@ -3,6 +3,7 @@ import { useUiAudio } from '../../app/audio/UiAudioContext';
 import type { WindowKey } from '../../app/constants';
 import { t } from '../../i18n';
 import type { WindowLabelDefinition } from '../../windowLabels';
+import { Button } from '../Button/Button';
 import { WindowLabel } from '../WindowLabel/WindowLabel';
 import labelStyles from '../windowLabels.module.scss';
 import styles from './styles.module.scss';
@@ -76,7 +77,8 @@ function DockButton({
   const audio = useUiAudio();
 
   return (
-    <button
+    <Button
+      unstyled
       type="button"
       className={styles.dockButton}
       data-opened={entry.shown}
@@ -127,7 +129,7 @@ function DockButton({
           />
         </span>
       ) : null}
-    </button>
+    </Button>
   );
 }
 

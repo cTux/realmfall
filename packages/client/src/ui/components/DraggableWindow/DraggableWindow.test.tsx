@@ -128,6 +128,14 @@ describe('DraggableWindow', () => {
       );
     });
 
+    const closeButton = host.querySelector(
+      'button[aria-label="Close"]',
+    ) as HTMLButtonElement | null;
+
+    expect(closeButton?.getAttribute('data-size')).toBe('small');
+    expect(
+      closeButton?.querySelector('[data-close-icon="true"]'),
+    ).not.toBeNull();
     expect(onMove).not.toHaveBeenCalled();
   });
 

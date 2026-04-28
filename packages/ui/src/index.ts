@@ -4,10 +4,6 @@ export {
 } from './components/LoadingSpinner/LoadingSpinner';
 export { Button, type ButtonProps } from './components/Button/Button';
 export { Window } from './components/Window/Window';
-export {
-  WindowCloseIcon,
-  type WindowCloseIconProps,
-} from './components/Window/WindowCloseIcon';
 export type {
   WindowProps,
   WindowPosition,

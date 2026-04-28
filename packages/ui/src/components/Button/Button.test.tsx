@@ -34,4 +34,13 @@ describe('Button', () => {
     const button = host.querySelector('button');
     expect(button?.getAttribute('data-size')).toBe('small');
   });
+
+  it('marks destructive buttons with the shared tone attribute', async () => {
+    await act(async () => {
+      root.render(<Button tone="danger">Delete save</Button>);
+    });
+
+    const button = host.querySelector('button');
+    expect(button?.getAttribute('data-tone')).toBe('danger');
+  });
 });

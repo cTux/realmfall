@@ -34,7 +34,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 
 ## Verification Workflow
 
-- Run targeted tests and any area-specific commands before committing. Prefer `pnpm test:node` for client gameplay, persistence, i18n, and script coverage, and `pnpm test:jsdom` for client React, Pixi, and browser-surface coverage.
+- Run targeted tests and any area-specific commands before committing. Prefer `pnpm test:node` for client gameplay, persistence, i18n, and script coverage, and `pnpm test:jsdom` for shared UI plus client React, Pixi, and other browser-surface coverage.
 - Use `pnpm typecheck` for the shared workspace typecheck path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
 - Use `pnpm lint` for the shared workspace lint path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
 - Use `pnpm build` for the shared workspace build path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.

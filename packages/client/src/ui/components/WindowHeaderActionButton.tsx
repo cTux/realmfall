@@ -33,6 +33,7 @@ export const WindowHeaderActionButton = ({
     <Button
       type="button"
       size="small"
+      unstyled
       className={className}
       aria-disabled={disabled ? 'true' : undefined}
       aria-pressed={ariaPressed}

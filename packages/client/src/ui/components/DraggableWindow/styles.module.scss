@@ -84,10 +84,43 @@
 .headerButton {
   @include ui.window-header-button;
 
+  display: inline-grid;
+  place-items: center;
+  font-size: 0;
+
   &[data-size='small'] {
     width: 1.6rem;
     height: 1.6rem;
     padding: 0;
+  }
+}
+
+.closeIcon {
+  position: relative;
+  width: 0.95rem;
+  height: 0.95rem;
+  display: block;
+  pointer-events: none;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0.82rem;
+    height: 2px;
+    border-radius: 999px;
+    background: currentcolor;
+    transform-origin: center;
+  }
+
+  &::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+
+  &::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
   }
 }
 

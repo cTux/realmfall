@@ -16,6 +16,7 @@
     "lint": "pnpm lint:oxlint && pnpm lint:css",
     "lint:oxlint": "oxlint -c ../../.oxlintrc.json src ./.storybook ./vite.config.ts",
     "lint:css": "stylelint \"src/**/*.{css,scss}\"",
+    "test:jsdom": "vitest run --environment jsdom --globals",
     "dev:storybook": "storybook dev -p 6008 --config-dir ./.storybook",
     "build:storybook": "storybook build --config-dir ./.storybook"
   },

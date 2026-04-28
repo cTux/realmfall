@@ -5,7 +5,7 @@ import { mountUi, setupUiTestEnvironment } from '../uiTestHelpers';
 setupUiTestEnvironment();
 
 describe('WindowHeaderActionButton', () => {
-  it('keeps tooltip hover active while blocking clicks for disabled actions', async () => {
+  it('keeps header actions on the shared small-button contract while blocking disabled clicks', async () => {
     const onClick = vi.fn();
     const onHoverDetail = vi.fn();
     const onLeaveDetail = vi.fn();
@@ -31,6 +31,7 @@ describe('WindowHeaderActionButton', () => {
     const button = ui.host.querySelector('button') as HTMLButtonElement | null;
     expect(button?.getAttribute('data-size')).toBe('small');
     expect(button?.getAttribute('aria-disabled')).toBe('true');
+    expect(button?.classList.contains('headerButton')).toBe(true);
 
     await act(async () => {
       button?.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));

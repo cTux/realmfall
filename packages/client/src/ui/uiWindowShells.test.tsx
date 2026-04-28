@@ -125,6 +125,7 @@ describe('ui window shell surfaces', () => {
     expect(closeButtons).toHaveLength(3);
     closeButtons.forEach((button) => {
       expect(button.getAttribute('data-size')).toBe('small');
+      expect(button.querySelector('[data-close-icon="true"]')).not.toBeNull();
     });
 
     await act(async () => {

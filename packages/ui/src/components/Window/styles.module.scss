@@ -1,3 +1,5 @@
+@use '../../styles/ui';
+
 $window-corner-radius: 16px;
 $mobile-window-width: min(92vw, 420px);
 
@@ -83,32 +85,45 @@ $mobile-window-width: min(92vw, 420px);
 }
 
 .headerButton {
-  border: 1px solid rgb(148 163 184 / 35%);
-  border-radius: 0 $window-corner-radius;
-  width: 1.82rem;
-  height: 1.82rem;
-  background: rgb(15 23 42 / 72%);
-  color: var(--window-action-color);
-  font-size: 0;
+  @include ui.window-header-button;
+
   display: inline-grid;
   place-items: center;
-  transition:
-    border-color 120ms ease,
-    color 120ms ease,
-    background-color 120ms ease,
-    box-shadow 120ms ease;
-  cursor: pointer;
-
-  &:hover {
-    border-color: var(--window-action-hover-color);
-    color: #f8fafc;
-    background-color: rgb(12 20 34 / 95%);
-    box-shadow: 0 0 0 1px rgb(59 130 246 / 18%);
-  }
+  font-size: 0;
 
   &[data-size='small'] {
     width: 1.6rem;
     height: 1.6rem;
+    padding: 0;
+  }
+}
+
+.closeIcon {
+  position: relative;
+  width: 0.95rem;
+  height: 0.95rem;
+  display: block;
+  pointer-events: none;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0.82rem;
+    height: 2px;
+    border-radius: 999px;
+    background: currentcolor;
+    transform-origin: center;
+  }
+
+  &::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+
+  &::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
   }
 }
 
