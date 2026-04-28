@@ -1,4 +1,7 @@
-export { LoadingSpinner, type LoadingSpinnerProps } from './components/LoadingSpinner/LoadingSpinner';
+export {
+  LoadingSpinner,
+  type LoadingSpinnerProps,
+} from './components/LoadingSpinner/LoadingSpinner';
 export { Button, type ButtonProps } from './components/Button/Button';
 export { Window } from './components/Window/Window';
 export type {
@@ -8,7 +11,10 @@ export type {
   WindowStackLayer,
 } from './components/Window/types';
 export { ResizableWindow } from './components/Window/ResizableWindow';
-export type { WindowDetailTooltipHandlers, WindowTooltipLine } from './components/Window/types';
+export type {
+  WindowDetailTooltipHandlers,
+  WindowTooltipLine,
+} from './components/Window/types';
 export { Switch } from './components/Switch/Switch';
 export { Tabs, type TabDefinition } from './components/Tabs/Tabs';
 export { ActionBar, ActionBarSlot } from './components/ActionBar';

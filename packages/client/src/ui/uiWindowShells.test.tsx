@@ -123,6 +123,10 @@ describe('ui window shell surfaces', () => {
       ui.host.querySelectorAll('button[aria-label="Close"]'),
     );
     expect(closeButtons).toHaveLength(3);
+    closeButtons.forEach((button) => {
+      expect(button.getAttribute('data-size')).toBe('small');
+      expect(button.querySelector('[data-close-icon="true"]')).not.toBeNull();
+    });
 
     await act(async () => {
       closeButtons.forEach((button) => {

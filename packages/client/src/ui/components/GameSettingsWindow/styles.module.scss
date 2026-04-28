@@ -1,5 +1,13 @@
 @use '../../../styles/ui';
 
+@mixin settings-button-surface($tone: default) {
+  @include ui.control-surface-base;
+  @include ui.control-surface($tone);
+  @include ui.compact-button;
+
+  border-radius: ui.$ability-radius;
+}
+
 .overlay {
   position: fixed;
   inset: 0;
@@ -46,24 +54,15 @@
 }
 
 .tab {
+  @include ui.tab-surface;
+
   writing-mode: vertical-rl;
   transform: rotate(180deg);
   min-height: 112px;
   padding: 0.65rem 0.45rem;
-  border: 1px solid rgb(148 163 184 / 20%);
-  background: rgb(15 23 42 / 72%);
-  color: #94a3b8;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-size: 0.72rem;
-}
-
-.tab[data-active='true'] {
-  border-color: rgb(96 165 250 / 38%);
-  color: #dbeafe;
-  background:
-    linear-gradient(180deg, rgb(30 41 59 / 82%), rgb(15 23 42 / 92%)),
-    rgb(15 23 42 / 82%);
 }
 
 .tabPanel {
@@ -178,39 +177,24 @@
 }
 
 .themeOption {
-  @include ui.compact-button;
+  @include settings-button-surface;
 
   display: grid;
   gap: 0.3rem;
   align-content: start;
   padding: 0.65rem 0.75rem;
-  border: 1px solid rgb(148 163 184 / 18%);
-  background: rgb(8 15 30 / 82%);
-  color: #cbd5e1;
   text-align: left;
-  transition:
-    border-color 120ms ease,
-    color 120ms ease,
-    background-color 120ms ease;
 
   &[data-active='true'] {
-    border-color: rgb(56 189 248 / 48%);
-    background: linear-gradient(
-      180deg,
-      rgb(14 116 144 / 22%),
-      rgb(8 15 30 / 92%)
-    );
-    color: #f8fafc;
-  }
-
-  &:hover:enabled {
-    border-color: rgb(125 211 252 / 55%);
-    color: #f8fafc;
+    background: ui.$control-surface-active-fill;
+    border-color: ui.$control-surface-active-border;
+    box-shadow: ui.$control-surface-active-shadow;
+    color: ui.$control-surface-hover-color;
   }
 }
 
 .themeOptionLabel {
-  color: #f8fafc;
+  color: inherit;
   font-size: 0.8rem;
 }
 
@@ -227,21 +211,9 @@
   align-items: center;
 
   button {
-    @include ui.compact-button;
+    @include settings-button-surface;
 
     padding: 0.55rem 0.85rem;
-    border: 1px solid rgb(148 163 184 / 22%);
-    background: rgb(8 15 30 / 86%);
-    color: #e2e8f0;
-    transition:
-      border-color 120ms ease,
-      color 120ms ease,
-      background-color 120ms ease;
-
-    &:hover:enabled {
-      border-color: rgb(125 211 252 / 55%);
-      color: #f8fafc;
-    }
   }
 }
 
@@ -290,24 +262,12 @@
 }
 
 .saveAreaResetButton {
-  @include ui.compact-button;
+  @include settings-button-surface(danger);
 
   width: auto;
   min-height: 0;
   padding: 0.55rem 0.85rem;
-  border: 1px solid rgb(239 68 68 / 30%);
-  background: rgb(127 29 29 / 92%);
-  color: #fee2e2;
   white-space: nowrap;
-  transition:
-    border-color 120ms ease,
-    color 120ms ease,
-    background-color 120ms ease;
-
-  &:hover:enabled {
-    border-color: rgb(248 113 113 / 58%);
-    color: #fff1f2;
-  }
 }
 
 @media (width <= 980px) {

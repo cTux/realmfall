@@ -1,0 +1,166 @@
+<style>
+  .split {
+    align-items: stretch;
+  }
+
+  .mockup-body {
+    display: grid;
+    gap: 1rem;
+    background: linear-gradient(
+      180deg,
+      rgba(8, 16, 30, 0.96),
+      rgba(4, 10, 20, 0.98)
+    );
+  }
+
+  .source-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .icon-tile {
+    width: 6rem;
+    height: 6rem;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 0 18px;
+    background: rgba(15, 23, 42, 0.82);
+  }
+
+  .icon-tile img,
+  .icon-tile svg {
+    width: 3.25rem;
+    height: 3.25rem;
+    display: block;
+  }
+
+  .window-shell {
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 0 16px;
+    overflow: hidden;
+    background: #08101e;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
+  }
+
+  .window-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.8rem 1rem;
+    background: #0f172a;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+  }
+
+  .window-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #e2e8f0;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 0.35rem;
+  }
+
+  .title-button {
+    width: 1.6rem;
+    height: 1.6rem;
+    display: inline-grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid rgba(88, 112, 145, 0.95);
+    border-radius: 0 12px;
+    background: rgba(22, 34, 58, 0.9);
+    color: #cbd5e1;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  }
+
+  .title-button svg {
+    width: 0.82rem;
+    height: 0.82rem;
+    display: block;
+    fill: currentColor;
+  }
+
+  .body {
+    display: grid;
+    gap: 0.75rem;
+    padding: 0.95rem 1rem 1rem;
+    color: #cbd5e1;
+    font-size: 0.84rem;
+  }
+
+  .label {
+    color: #94a3b8;
+  }
+
+  .callout {
+    padding: 0.75rem 0.85rem;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 0 14px;
+    background: rgba(15, 23, 42, 0.62);
+  }
+</style>
+
+<h2>Close icon interpretation</h2>
+<p class="subtitle">
+  Source reference: <code>sbed/cancel</code>. Proposed UI usage: keep the inner
+  cancel cross, remove the outer ring, and center the glyph inside the compact
+  title button.
+</p>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">Reference</div>
+    <div class="mockup-body">
+      <div class="source-row">
+        <div class="icon-tile">
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Cancel_-_Sbed_-_white_-_game-icons.svg"
+            alt="sbed cancel icon with circle"
+          />
+        </div>
+        <div>
+          <div class="label">Original</div>
+          <p>
+            The full icon is a circular border with the cancel cross inside.
+          </p>
+        </div>
+      </div>
+      <div class="callout">
+        The shape request is to drop the circular border entirely, not to keep a
+        ring or badge treatment around the close glyph.
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">Proposed Title Close Button</div>
+    <div class="mockup-body">
+      <div class="window-shell">
+        <div class="window-header">
+          <div class="window-title">Inventory</div>
+          <div class="header-actions">
+            <div class="title-button" aria-hidden="true">
+              <svg viewBox="0 0 512 512" role="presentation" focusable="false">
+                <path
+                  d="M175.375 136c-.97-.005-2.006.112-3.063.313v-.032c-18.297 3.436-45.264 34.743-33.375 46.626l73.157 73.125-73.156 73.126c-14.63 14.625 29.275 58.534 43.906 43.906L256 299.906l73.156 73.156c14.63 14.628 58.537-29.28 43.906-43.906l-73.156-73.125 73.156-73.124c14.63-14.625-29.275-58.5-43.906-43.875L256 212.157l-73.156-73.125c-2.06-2.046-4.56-3.015-7.47-3.03z"
+                ></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="body">
+          <div class="label">Centered no-circle glyph</div>
+          <p>
+            This uses the cross shape from the source icon, removes the ring,
+            and centers it in the small title button instead of rendering a text
+            character.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

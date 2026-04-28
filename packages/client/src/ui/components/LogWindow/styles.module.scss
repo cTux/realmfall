@@ -41,18 +41,27 @@
 }
 
 .filterChip {
+  @include ui.chip-surface;
+
   display: inline-flex;
   gap: 0.3rem;
   align-items: center;
-  padding: 0.16rem 0.22rem;
-  border: 0;
-  border-radius: ui.$ability-radius;
-  background: transparent;
-  color: #cbd5e1;
+  padding: 0.16rem 0.38rem;
   text-transform: capitalize;
   font-size: 0.76rem;
   line-height: 1.1;
-  cursor: pointer;
+
+  &:focus-within {
+    outline: 2px solid ui.$control-surface-focus-ring;
+    outline-offset: 2px;
+  }
+
+  &:has(.styledCheckbox:checked) {
+    background: ui.$control-surface-active-fill;
+    border-color: ui.$control-surface-active-border;
+    box-shadow: ui.$control-surface-active-shadow;
+    color: ui.$control-surface-hover-color;
+  }
 }
 
 .styledCheckbox {

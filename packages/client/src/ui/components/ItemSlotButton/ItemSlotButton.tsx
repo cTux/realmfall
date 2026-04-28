@@ -1,4 +1,5 @@
 import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react';
+import { Button } from '@realmfall/ui';
 import { formatCompactNumber } from '../../formatters';
 import {
   formatEquipmentSlotLabel,
@@ -75,7 +76,8 @@ export function ItemSlotButton({
       : null);
 
   return (
-    <button
+    <Button
+      unstyled
       type="button"
       className={[
         styles.slot,
@@ -134,7 +136,7 @@ export function ItemSlotButton({
           aria-label={cornerIcon.label}
         />
       ) : null}
-    </button>
+    </Button>
   );
 }
 

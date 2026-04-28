@@ -1,0 +1,342 @@
+<style>
+  .cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .card {
+    min-height: 100%;
+  }
+
+  .card-body {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #94a3b8;
+  }
+
+  .eyebrow strong {
+    color: #e2e8f0;
+  }
+
+  .mockup-body {
+    background: linear-gradient(
+      180deg,
+      rgba(8, 16, 30, 0.96),
+      rgba(4, 10, 20, 0.98)
+    );
+    padding: 0;
+  }
+
+  .window-shell {
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 0 16px;
+    overflow: hidden;
+    background: #08101e;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
+  }
+
+  .window-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.8rem 1rem;
+    background: #0f172a;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+  }
+
+  .window-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #e2e8f0;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 0.35rem;
+  }
+
+  .body {
+    display: grid;
+    gap: 0.7rem;
+    padding: 0.95rem 1rem 1rem;
+  }
+
+  .button-row {
+    display: flex;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+
+  .tab-row {
+    display: flex;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
+
+  .chip-row {
+    display: flex;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
+
+  .dock-row {
+    display: flex;
+    gap: 0.45rem;
+  }
+
+  .swatch-button,
+  .swatch-tab,
+  .swatch-chip,
+  .swatch-title-button,
+  .swatch-dock {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-style: solid;
+    border-width: 1px;
+    color: #e2e8f0;
+    font-weight: 600;
+    line-height: 1;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  }
+
+  .swatch-button {
+    min-height: 2.05rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 0 0.8rem;
+    font-size: 0.88rem;
+  }
+
+  .swatch-tab,
+  .swatch-chip {
+    min-height: 1.8rem;
+    padding: 0.28rem 0.68rem;
+    border-radius: 0 0.72rem;
+    font-size: 0.76rem;
+  }
+
+  .swatch-title-button {
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 0 0.72rem;
+    padding: 0;
+    font-size: 0.8rem;
+  }
+
+  .swatch-dock {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 0 0.8rem;
+    padding: 0;
+    font-size: 0.85rem;
+  }
+
+  .detail-list {
+    margin: 0;
+    padding-left: 1rem;
+    color: #cbd5e1;
+    font-size: 0.84rem;
+  }
+
+  .detail-list li + li {
+    margin-top: 0.35rem;
+  }
+
+  .a-base {
+    background: rgba(22, 34, 58, 0.9);
+    border-color: rgba(88, 112, 145, 0.95);
+  }
+
+  .b-base {
+    background: rgba(34, 51, 81, 0.96);
+    border-color: rgba(132, 159, 197, 0.95);
+  }
+
+  .c-base {
+    background: linear-gradient(
+      180deg,
+      rgba(26, 39, 64, 0.96),
+      rgba(20, 30, 50, 0.96)
+    );
+    border-color: rgba(103, 125, 157, 0.95);
+  }
+
+  .active {
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+      0 0 0 1px rgba(125, 211, 252, 0.18);
+    color: #f8fafc;
+  }
+</style>
+
+<h2>Button palette directions</h2>
+<p class="subtitle">
+  Goal: every interactive button surface sits lighter than the title bar
+  <code>#0f172a</code>, and its border lands visually between the button fill
+  and the title background.
+</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">A. Slate Lift</div>
+        <div class="mockup-body">
+          <div class="window-shell">
+            <div class="window-header">
+              <div class="window-title">Inventory</div>
+              <div class="header-actions">
+                <div class="swatch-title-button a-base">+</div>
+                <div class="swatch-title-button a-base">×</div>
+              </div>
+            </div>
+            <div class="body">
+              <div class="button-row">
+                <div class="swatch-button a-base active">Primary</div>
+                <div class="swatch-button a-base">Secondary</div>
+              </div>
+              <div class="tab-row">
+                <div class="swatch-tab a-base active">Stats</div>
+                <div class="swatch-tab a-base">Skills</div>
+              </div>
+              <div class="chip-row">
+                <div class="swatch-chip a-base">filter</div>
+                <div class="swatch-chip a-base">rare</div>
+              </div>
+              <div class="dock-row">
+                <div class="swatch-dock a-base">H</div>
+                <div class="swatch-dock a-base active">B</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="eyebrow"><strong>Recommended</strong> calm, clear lift</div>
+      <p>
+        Slightly lighter than the title bar everywhere, with medium slate
+        borders. Keeps the UI disciplined while making click targets read as
+        separate controls.
+      </p>
+      <ul class="detail-list">
+        <li>Lowest churn relative to the current palette.</li>
+        <li>Applies well to buttons, tabs, dock entries, and title actions.</li>
+        <li>
+          Safer if you want the windows to stay dominant over the controls.
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">B. Strong Separation</div>
+        <div class="mockup-body">
+          <div class="window-shell">
+            <div class="window-header">
+              <div class="window-title">Inventory</div>
+              <div class="header-actions">
+                <div class="swatch-title-button b-base">+</div>
+                <div class="swatch-title-button b-base">×</div>
+              </div>
+            </div>
+            <div class="body">
+              <div class="button-row">
+                <div class="swatch-button b-base active">Primary</div>
+                <div class="swatch-button b-base">Secondary</div>
+              </div>
+              <div class="tab-row">
+                <div class="swatch-tab b-base active">Stats</div>
+                <div class="swatch-tab b-base">Skills</div>
+              </div>
+              <div class="chip-row">
+                <div class="swatch-chip b-base">filter</div>
+                <div class="swatch-chip b-base">rare</div>
+              </div>
+              <div class="dock-row">
+                <div class="swatch-dock b-base">H</div>
+                <div class="swatch-dock b-base active">B</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="eyebrow">
+        <strong>High contrast</strong> brighter controls
+      </div>
+      <p>
+        Pushes every button noticeably lighter, with clearer borders and more
+        immediate separation from the title bar and body panels.
+      </p>
+      <ul class="detail-list">
+        <li>Best if you want controls to pop instantly.</li>
+        <li>Very readable for tabs and dock buttons.</li>
+        <li>Risk: can make busy windows feel louder than the content.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">C. Tempered Metal</div>
+        <div class="mockup-body">
+          <div class="window-shell">
+            <div class="window-header">
+              <div class="window-title">Inventory</div>
+              <div class="header-actions">
+                <div class="swatch-title-button c-base">+</div>
+                <div class="swatch-title-button c-base">×</div>
+              </div>
+            </div>
+            <div class="body">
+              <div class="button-row">
+                <div class="swatch-button c-base active">Primary</div>
+                <div class="swatch-button c-base">Secondary</div>
+              </div>
+              <div class="tab-row">
+                <div class="swatch-tab c-base active">Stats</div>
+                <div class="swatch-tab c-base">Skills</div>
+              </div>
+              <div class="chip-row">
+                <div class="swatch-chip c-base">filter</div>
+                <div class="swatch-chip c-base">rare</div>
+              </div>
+              <div class="dock-row">
+                <div class="swatch-dock c-base">H</div>
+                <div class="swatch-dock c-base active">B</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="eyebrow">
+        <strong>Textured</strong> subtle gradient treatment
+      </div>
+      <p>
+        Keeps the same brightness rule, but uses a more material-like button
+        surface with restrained borders to feel a bit more crafted.
+      </p>
+      <ul class="detail-list">
+        <li>Most “designed” option without changing structure.</li>
+        <li>Good fit if you want buttons to feel less flat.</li>
+        <li>Risk: gradients across every surface can get inconsistent fast.</li>
+      </ul>
+    </div>
+  </div>
+</div>

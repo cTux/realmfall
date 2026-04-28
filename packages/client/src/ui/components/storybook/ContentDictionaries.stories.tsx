@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useState, type MouseEvent } from 'react';
+import { Button } from '@realmfall/ui';
 import { loadI18n } from '../../../i18n';
 import type { TooltipLine } from '../../tooltips';
 
@@ -225,8 +226,9 @@ function IconDictionaryGrid({
         }}
       >
         {entries.map((entry) => (
-          <button
+          <Button
             key={entry.id}
+            unstyled
             type="button"
             aria-label={entry.label}
             onMouseEnter={(event) =>
@@ -253,7 +255,7 @@ function IconDictionaryGrid({
             }}
           >
             <MaskedIcon icon={entry.icon} tint={entry.tint} />
-          </button>
+          </Button>
         ))}
       </div>
     </section>

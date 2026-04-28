@@ -1,3 +1,13 @@
+@use '../../../styles/ui';
+
+@mixin recipe-control-surface($tone: default) {
+  @include ui.control-surface-base;
+  @include ui.control-surface($tone);
+  @include ui.compact-button;
+
+  border-radius: ui.$ability-radius;
+}
+
 .window {
   width: min(540px, calc(100vw - 16px));
   height: min(420px, calc(100vh - 16px));
@@ -29,24 +39,15 @@
 }
 
 .tab {
+  @include ui.tab-surface;
+
   writing-mode: vertical-rl;
   transform: rotate(180deg);
   min-height: 96px;
   padding: 0.55rem 0.4rem;
-  border: 1px solid rgb(148 163 184 / 20%);
-  background: rgb(15 23 42 / 72%);
-  color: #94a3b8;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-size: 0.72rem;
-}
-
-.tab[data-active='true'] {
-  border-color: rgb(96 165 250 / 38%);
-  color: #dbeafe;
-  background:
-    linear-gradient(180deg, rgb(30 41 59 / 82%), rgb(15 23 42 / 92%)),
-    rgb(15 23 42 / 82%);
 }
 
 .note {
@@ -90,12 +91,10 @@
 }
 
 .slotFilterControlButton {
+  @include recipe-control-surface;
+
   padding: 0.28rem 0.45rem;
-  border: 1px solid rgb(96 165 250 / 30%);
-  background: rgb(15 23 42 / 70%);
-  color: #dbeafe;
   font-size: 0.68rem;
-  border-radius: 0 0.65rem;
 }
 
 .filterLabel {
@@ -123,12 +122,10 @@
 }
 
 .loadMoreButton {
+  @include recipe-control-surface;
+
   justify-self: start;
   padding: 0.24rem 0.55rem;
-  border: 1px solid rgb(96 165 250 / 28%);
-  background: rgb(15 23 42 / 72%);
-  color: #dbeafe;
-  border-radius: 0 0.65rem;
   line-height: 1.1;
 }
 
@@ -201,18 +198,16 @@
 }
 
 .favoriteButton {
+  @include ui.window-header-button;
+
   display: grid;
   place-items: center;
+  width: 1.8rem;
   min-width: 1.8rem;
   min-height: 1.8rem;
   padding: 0;
-  border: none;
-  background: transparent;
   line-height: 1;
-}
-
-.favoriteButton:hover:not(:disabled) {
-  background: transparent;
+  font-size: 0;
 }
 
 .favoriteIcon {

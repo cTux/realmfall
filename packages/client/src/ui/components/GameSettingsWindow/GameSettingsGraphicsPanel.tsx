@@ -1,3 +1,4 @@
+import { Button, Switch } from '@realmfall/ui';
 import {
   applyGraphicsPreset,
   GRAPHICS_PRESET_OPTIONS,
@@ -8,7 +9,6 @@ import {
   normalizeWorldRenderFps,
 } from '../../../app/graphicsSettings';
 import { t } from '../../../i18n';
-import { Switch } from '@realmfall/ui';
 import type { GameSettingsGraphicsPanelProps } from './types';
 import styles from './styles.module.scss';
 
@@ -41,7 +41,8 @@ export function GameSettingsGraphicsPanel({
             const selected = graphicsSettings.preset === option.value;
 
             return (
-              <button
+              <Button
+                unstyled
                 key={option.value}
                 id={`graphics-preset-${option.value}`}
                 type="button"
@@ -63,7 +64,7 @@ export function GameSettingsGraphicsPanel({
                     reloadRequiredText,
                   )}
                 </span>
-              </button>
+              </Button>
             );
           })}
         </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Button } from '@realmfall/ui';
 import { type AudioSettings } from '../../../app/audioSettings';
 import {
   deriveGraphicsPreset,
@@ -132,7 +133,8 @@ export function GameSettingsWindowContent({
         </section>
         <div className={styles.actions}>
           <div className={styles.primaryActions}>
-            <button
+            <Button
+              unstyled
               type="button"
               onClick={() => void handleSave()}
               disabled={busyAction !== null || !dirty}
@@ -140,8 +142,9 @@ export function GameSettingsWindowContent({
               {busyAction?.kind === 'save'
                 ? t('ui.settings.actions.saving')
                 : t('ui.settings.actions.save')}
-            </button>
-            <button
+            </Button>
+            <Button
+              unstyled
               type="button"
               onClick={() => void handleSaveAndReload()}
               disabled={busyAction !== null || !dirty}
@@ -149,13 +152,14 @@ export function GameSettingsWindowContent({
               {busyAction?.kind === 'saveReload'
                 ? t('ui.settings.actions.savingReload')
                 : t('ui.settings.actions.saveReload')}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
       <div className={styles.tabs} role="tablist" aria-orientation="vertical">
         {TAB_ORDER.map((tabId) => (
-          <button
+          <Button
+            unstyled
             key={tabId}
             id={`${tabId}-tab`}
             type="button"
@@ -167,7 +171,7 @@ export function GameSettingsWindowContent({
             onClick={() => setActiveTabId(tabId)}
           >
             {t(`ui.settings.tabs.${tabId}`)}
-          </button>
+          </Button>
         ))}
       </div>
     </div>

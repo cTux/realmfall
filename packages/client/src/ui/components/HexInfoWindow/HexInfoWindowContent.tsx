@@ -1,4 +1,4 @@
-import { ItemSlot as ItemSlotButton } from '@realmfall/ui';
+import { Button, ItemSlot as ItemSlotButton } from '@realmfall/ui';
 import { t } from '../../../i18n';
 import { ITEM_MODIFICATION_BALANCE } from '../../../game/config';
 import { CombatWindowContent } from '../CombatWindow/CombatWindowContent';
@@ -106,9 +106,9 @@ export function HexInfoWindowContent({
 
               {canBulkProspectEquipment ? (
                 <div className={styles.actions}>
-                  <button onClick={onProspect}>
+                  <Button onClick={onProspect}>
                     {t('ui.hexInfo.prospectAction')}
-                  </button>
+                  </Button>
                 </div>
               ) : null}
               {!hasContent ? (
@@ -227,7 +227,7 @@ export function HexInfoWindowContent({
                   ) : null}
 
                   <div className={styles.itemModificationActions}>
-                    <button
+                    <Button
                       type="button"
                       onClick={onApplyItemModification}
                       disabled={!itemModification.canApply}
@@ -235,7 +235,7 @@ export function HexInfoWindowContent({
                       {t(
                         `game.itemModification.${itemModification.kind}.label`,
                       )}
-                    </button>
+                    </Button>
                   </div>
 
                   {itemModification.disabledReason ? (
@@ -289,7 +289,7 @@ export function HexInfoWindowContent({
         <section className={styles.lootSection}>
           <div className={styles.sectionHeader}>
             <span className={styles.sectionTitle}>{t('ui.loot.title')}</span>
-            <button
+            <Button
               type="button"
               onClick={onTakeAll}
               onMouseEnter={(event) =>
@@ -303,7 +303,7 @@ export function HexInfoWindowContent({
               onMouseLeave={onLeaveDetail}
             >
               {t('ui.loot.takeAllAction')}
-            </button>
+            </Button>
           </div>
           <div className={styles.lootGrid}>
             {loot.map((item) => (
