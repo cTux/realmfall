@@ -7,8 +7,9 @@ This spec covers inventory actions, gold handling, and town trading.
 ## Current Behavior
 
 - Inventory supports sorting, dropping, consuming, equipping, recipe-page learning, and contextual actions.
-- Recipe pages in inventory show a green border plus a blue translucent slot overlay while unlearned.
-- Learned recipe pages add a red `Already learned` hint in their inventory tooltip, use a red inventory border, stay in the pack until sold or dropped, and route primary-click handling through the recipe-use flow so they show the dedicated already-known feedback instead of generic equip errors.
+- Equippable inventory items color their slot border by rarity, while their icon tint follows a theme-first palette with low-intensity slot variation inside each set or gear family; non-equippable inventory items keep a fixed white border so icon tint carries the item identity.
+- Recipe pages in inventory render with the green scroll-quill icon, keep the same white border as other non-equippables, and do not use the old colored overlay state.
+- Learned recipe pages add a red `Already learned` hint in their inventory tooltip, stay in the pack until sold or dropped, and route primary-click handling through the recipe-use flow so they show the dedicated already-known feedback instead of generic equip errors.
 - Sellable item tooltips end with a coin-marked `Sells for N gold` line derived from the same town sell-value rules used by gameplay, including consumables and crafting materials.
 - In town, sellable item tooltips show a quick-sell hint and `Shift`-clicking those items sells them immediately from inventory.
 - Stack-count badges remain fully visible on tinted and overlaid item slots.
