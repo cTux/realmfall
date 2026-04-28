@@ -2,6 +2,7 @@ import { act } from 'react';
 import { getItemModificationCost } from '../../../game/itemModifications';
 import {
   createHydratedAppGame,
+  findItemSlotButtonByIconLabel,
   flushLazyModules,
   loadEncryptedState,
   renderApp,
@@ -107,8 +108,7 @@ describe('App hex item modification flow', () => {
       selectionSlot?.click();
     });
 
-    const inventoryWeapon = host.querySelector('[aria-label="weapon"]')
-      ?.parentElement as HTMLButtonElement | null;
+    const inventoryWeapon = findItemSlotButtonByIconLabel(host, 'weapon');
     expect(inventoryWeapon).not.toBeNull();
 
     await act(async () => {
@@ -123,8 +123,7 @@ describe('App hex item modification flow', () => {
       selectionSlot?.click();
     });
 
-    const equippedArmor = host.querySelector('[aria-label="armor"]')
-      ?.parentElement as HTMLButtonElement | null;
+    const equippedArmor = findItemSlotButtonByIconLabel(host, 'armor');
     expect(equippedArmor).not.toBeNull();
 
     await act(async () => {
@@ -216,8 +215,7 @@ describe('App hex item modification flow', () => {
       selectionSlot?.click();
     });
 
-    const inventoryWeapon = host.querySelector('[aria-label="weapon"]')
-      ?.parentElement as HTMLButtonElement | null;
+    const inventoryWeapon = findItemSlotButtonByIconLabel(host, 'weapon');
 
     await act(async () => {
       inventoryWeapon?.click();

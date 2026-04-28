@@ -9,6 +9,7 @@ import { WINDOW_LABELS } from '../../../ui/windowLabels';
 import styles from '../styles.module.scss';
 import {
   createHydratedAppGame,
+  findItemSlotButtonByIconLabel,
   flushLazyModules,
   loadEncryptedState,
   renderApp,
@@ -168,8 +169,10 @@ describe('App hydration and interactions', () => {
     expect(host.textContent).not.toContain('Filters');
     expect(logDockButton?.getAttribute('aria-pressed')).toBe('false');
 
-    const inventoryConsumable = host.querySelector('[aria-label="consumable"]')
-      ?.parentElement as HTMLButtonElement | null;
+    const inventoryConsumable = findItemSlotButtonByIconLabel(
+      host,
+      'consumable',
+    );
     expect(inventoryConsumable).not.toBeNull();
 
     await act(async () => {

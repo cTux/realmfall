@@ -109,7 +109,7 @@ export function ItemSlotButton({
         <span
           className={styles.icon}
           style={iconMaskStyle(iconForItem(item, slot), tint)}
-          aria-label={item ? formatItemLabel(item) : undefined}
+          aria-label={item && !ariaLabel ? formatItemLabel(item) : undefined}
         />
       ) : null}
       {resolvedBadgeLabel ? (

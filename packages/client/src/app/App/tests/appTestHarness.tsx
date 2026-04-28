@@ -321,6 +321,19 @@ export async function waitForAppSelector(
   throw new Error(`Timed out waiting for selector: ${selector}`);
 }
 
+export function findItemSlotButtonByIconLabel(
+  host: HTMLElement,
+  iconAriaLabel: string,
+) {
+  return Array.from(host.querySelectorAll(`[aria-label="${iconAriaLabel}"]`))
+    .map((element) => element.parentElement)
+    .find(
+      (element): element is HTMLButtonElement =>
+        element instanceof HTMLButtonElement &&
+        !element.hasAttribute('aria-pressed'),
+    );
+}
+
 export function createHydratedAppGame() {
   const game = createGame(3, 'app-test-seed');
   game.homeHex = { q: 2, r: -1 };
