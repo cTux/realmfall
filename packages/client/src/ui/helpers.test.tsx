@@ -160,6 +160,48 @@ describe('ui helper coverage', () => {
     ).toBe('#fbbf24');
     expect(
       itemTint(
+        buildItemFromConfig('generated-helmet', {
+          id: 'generated-helmet-1',
+        }),
+      ),
+    ).toBe('#94a3b8');
+    expect(
+      itemTint(
+        buildItemFromConfig('icon-helmet-01', {
+          id: 'icon-helmet-01-1',
+        }),
+      ),
+    ).toBe('#94a3b8');
+    expect(
+      itemTint(
+        buildItemFromConfig('generated-shoulders', {
+          id: 'generated-shoulders-1',
+        }),
+      ),
+    ).toBe('#64748b');
+    expect(
+      itemTint(
+        buildItemFromConfig('icon-shoulders-01', {
+          id: 'icon-shoulders-01-1',
+        }),
+      ),
+    ).toBe('#64748b');
+    expect(
+      itemTint(
+        buildItemFromConfig('generated-chest', {
+          id: 'generated-chest-1',
+        }),
+      ),
+    ).toBe('#64748b');
+    expect(
+      itemTint(
+        buildItemFromConfig('icon-chest-01', {
+          id: 'icon-chest-01-1',
+        }),
+      ),
+    ).toBe('#64748b');
+    expect(
+      itemTint(
         createItem({
           itemKey: 'unknown-equippable',
           slot: 'weapon',
