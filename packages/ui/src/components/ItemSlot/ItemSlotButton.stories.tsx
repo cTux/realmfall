@@ -58,6 +58,14 @@ export const CompactFilled: Story = {
 };
 
 export const ThemeFirstEquippables: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Occupied slots render a subtle edge-wash inset gradient that reuses the exact border color value.',
+      },
+    },
+  },
   render: (args) => (
     <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
       <ItemSlotButton {...args} item={stormBlade} size="compact" />

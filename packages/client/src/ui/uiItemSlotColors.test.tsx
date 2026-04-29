@@ -25,10 +25,14 @@ describe('ui item slot colors', () => {
     );
 
     expect(bladeMarkup).toContain('border-color:#60a5fa');
-    expect(bladeMarkup).toContain('box-shadow:0 0 0 1px #60a5fa33 inset');
+    expect(bladeMarkup).toContain(
+      'box-shadow:inset 0 0 0 1px #60a5fa, inset 0 10px 18px -14px #60a5fa, inset 0 -14px 20px -18px rgba(0, 0, 0, 0.85)',
+    );
     expect(bladeMarkup).toContain('background-color:#67e8f9');
     expect(cloakMarkup).toContain('border-color:#60a5fa');
-    expect(cloakMarkup).toContain('box-shadow:0 0 0 1px #60a5fa33 inset');
+    expect(cloakMarkup).toContain(
+      'box-shadow:inset 0 0 0 1px #60a5fa, inset 0 10px 18px -14px #60a5fa, inset 0 -14px 20px -18px rgba(0, 0, 0, 0.85)',
+    );
     expect(cloakMarkup).toContain('background-color:#14b8a6');
   });
 
@@ -43,7 +47,9 @@ describe('ui item slot colors', () => {
     );
 
     expect(markup).toContain('border-color:#f8fafc');
-    expect(markup).toContain('box-shadow:0 0 0 1px #f8fafc33 inset');
+    expect(markup).toContain(
+      'box-shadow:inset 0 0 0 1px #f8fafc, inset 0 10px 18px -14px #f8fafc, inset 0 -14px 20px -18px rgba(0, 0, 0, 0.85)',
+    );
     expect(markup).toContain('background-color:#fbbf24');
   });
 
@@ -123,7 +129,7 @@ describe('ui item slot colors', () => {
     expect(markup).not.toContain('background-color:#cbd5e1');
   });
 
-  it('renders valid inset shadows for client slot rgba border overrides', () => {
+  it('renders exact-color edge-wash inset shadows for client slot rgba border overrides', () => {
     const townKnife = buildItemFromConfig('town-knife', {
       id: 'town-knife-rgba-border',
     });
@@ -138,12 +144,11 @@ describe('ui item slot colors', () => {
 
     expect(markup).toContain('border-color:rgba(96, 165, 250, 0.58)');
     expect(markup).toContain(
-      'box-shadow:0 0 0 1px rgba(96, 165, 250, 0.2) inset',
+      'box-shadow:inset 0 0 0 1px rgba(96, 165, 250, 0.58), inset 0 10px 18px -14px rgba(96, 165, 250, 0.58), inset 0 -14px 20px -18px rgba(0, 0, 0, 0.85)',
     );
-    expect(markup).not.toContain('rgba(96, 165, 250, 0.58)33');
   });
 
-  it('renders valid inset shadows for shared slot rgb border overrides', () => {
+  it('renders exact-color edge-wash inset shadows for shared slot rgb border overrides', () => {
     const townKnife = buildItemFromConfig('town-knife', {
       id: 'town-knife-rgb-border',
     });
@@ -158,7 +163,7 @@ describe('ui item slot colors', () => {
 
     expect(markup).toContain('border-color:rgb(96, 165, 250)');
     expect(markup).toContain(
-      'box-shadow:0 0 0 1px rgba(96, 165, 250, 0.2) inset',
+      'box-shadow:inset 0 0 0 1px rgb(96, 165, 250), inset 0 10px 18px -14px rgb(96, 165, 250), inset 0 -14px 20px -18px rgba(0, 0, 0, 0.85)',
     );
   });
 });

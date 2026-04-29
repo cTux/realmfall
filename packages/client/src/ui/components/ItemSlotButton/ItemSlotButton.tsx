@@ -65,7 +65,7 @@ export function ItemSlotButton({
     tintOverride ?? (item ? itemTint(item) : 'rgba(148, 163, 184, 0.32)');
   const borderColor =
     borderColorOverride ?? (item ? itemBorderColor(item) : tint);
-  const insetOutlineColor = getInsetOutlineColor(borderColor);
+  const insetShadow = getInsetShadow(borderColor);
   const isInteractive = Boolean(
     !disabled &&
     (onClick || onContextMenu || onMouseEnter || onEmptyMouseEnter),
@@ -93,7 +93,7 @@ export function ItemSlotButton({
       style={{
         ...style,
         borderColor,
-        boxShadow: item ? `0 0 0 1px ${insetOutlineColor} inset` : undefined,
+        boxShadow: item ? insetShadow : undefined,
       }}
       data-size={size}
       onClick={!disabled ? (event) => onClick?.(event) : undefined}
@@ -156,21 +156,5 @@ function iconMaskStyle(icon: string, color: string) {
   };
 }
 
-function getInsetOutlineColor(color: string) {
-  const compactHexMatch = color.match(/^#([\da-f]{3}|[\da-f]{4})$/i);
-  if (compactHexMatch) {
-    const [red, green, blue] = compactHexMatch[1];
-    return `#${red}${red}${green}${green}${blue}${blue}33`;
-  }
-
-  const longHexMatch = color.match(/^#([\da-f]{6}|[\da-f]{8})$/i);
-  if (longHexMatch) return `#${longHexMatch[1].slice(0, 6)}33`;
-
-  const rgbMatch = color.match(
-    /^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*[\d.]+\s*)?\)$/i,
-  );
-  if (!rgbMatch) return color;
-
-  const [, red, green, blue] = rgbMatch;
-  return `rgba(${red}, ${green}, ${blue}, 0.2)`;
-}
+const getInsetShadow = (color: string) =>
+  `inset 0 0 0 1px ${color}, inset 0 10px 18px -14px ${color}, inset 0 -14px 20px -18px rgba(0, 0, 0, 0.85)`;

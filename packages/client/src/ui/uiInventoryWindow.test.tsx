@@ -155,7 +155,7 @@ describe('ui inventory window surfaces', () => {
       'border-color: rgb(248, 250, 252)',
     );
     expect(recipeSlot?.getAttribute('style')).toContain(
-      'box-shadow: 0 0 0 1px #f8fafc33 inset',
+      'box-shadow: inset 0 0 0 1px #f8fafc, inset 0 10px 18px -14px #f8fafc, inset 0 -14px 20px -18px rgba(0, 0, 0, 0.85)',
     );
     expect(recipeSlot?.querySelector('[aria-hidden="true"]')).toBeNull();
     expect(recipeIcon?.getAttribute('style')).toContain(
