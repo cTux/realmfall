@@ -50,8 +50,17 @@ describe('DraggableWindow', () => {
       .mockImplementation(function mockGetBoundingClientRect(
         this: HTMLElement,
       ) {
-        const left = Number(this.style.left.replace('px', '') || 0);
-        const top = Number(this.style.top.replace('px', '') || 0);
+        const left = Number(
+          (
+            this.style.getPropertyValue('--window-position-x') ||
+            this.style.left
+          ).replace('px', '') || 0,
+        );
+        const top = Number(
+          (
+            this.style.getPropertyValue('--window-position-y') || this.style.top
+          ).replace('px', '') || 0,
+        );
         const width = Number(this.style.width.replace('px', '') || 320);
         const height = Number(this.style.height.replace('px', '') || 220);
 
@@ -189,6 +198,63 @@ describe('DraggableWindow', () => {
       width: 280,
       height: 220,
     });
+  });
+
+  it('updates drag visuals through compositor position vars before commit', async () => {
+    const onMove = vi.fn();
+
+    await act(async () => {
+      root.render(
+        <DraggableWindow
+          title="Drag Visuals"
+          position={{ x: 40, y: 32, width: 220, height: 160 }}
+          onMove={onMove}
+        >
+          <div>Content</div>
+        </DraggableWindow>,
+      );
+    });
+
+    const header = host.querySelector(
+      'div[class*="windowHeader"]',
+    ) as HTMLDivElement | null;
+    const windowElement = host.querySelector(
+      'section[class*="floatingWindow"]',
+    ) as HTMLElement | null;
+
+    expect(header).not.toBeNull();
+    expect(windowElement).not.toBeNull();
+
+    await act(async () => {
+      header?.dispatchEvent(
+        new MouseEvent('pointerdown', {
+          bubbles: true,
+          clientX: 80,
+          clientY: 100,
+        }),
+      );
+      window.dispatchEvent(
+        new MouseEvent('pointermove', {
+          clientX: 140,
+          clientY: 160,
+        }),
+      );
+    });
+
+    expect(onMove).not.toHaveBeenCalled();
+    expect(windowElement?.dataset.windowInteracting).toBe('true');
+    expect(windowElement?.style.getPropertyValue('--window-position-x')).toBe(
+      '100px',
+    );
+    expect(windowElement?.style.getPropertyValue('--window-position-y')).toBe(
+      '92px',
+    );
+
+    await act(async () => {
+      window.dispatchEvent(new MouseEvent('pointerup'));
+    });
+
+    expect(windowElement?.dataset.windowInteracting).toBe('false');
   });
 
   it('brings reopened and reactivated windows to the front of their stack layer', async () => {

@@ -51,6 +51,7 @@ export function Window({
   const [isOpenState, setIsOpenState] = useState(true);
   const [hovered, setHovered] = useState(false);
   const [active, setActive] = useState(false);
+  const [interacting, setInteracting] = useState(false);
   const isVisibilityControlled = visibleProp !== undefined;
   const isOpen = isVisibilityControlled ? visibleProp : isOpenState;
   const [isMounted, setIsMounted] = useState(() => isOpen);
@@ -73,6 +74,7 @@ export function Window({
     onLeaveDetail?.();
     setHovered(false);
     setActive(false);
+    setInteracting(false);
   }, [onLeaveDetail]);
 
   const applyVisualPosition = useCallback((nextPosition: WindowPosition) => {
@@ -82,8 +84,8 @@ export function Window({
       return;
     }
 
-    node.style.left = `${nextPosition.x}px`;
-    node.style.top = `${nextPosition.y}px`;
+    node.style.setProperty('--window-position-x', `${nextPosition.x}px`);
+    node.style.setProperty('--window-position-y', `${nextPosition.y}px`);
     node.style.width =
       nextPosition.width === undefined ? '' : `${nextPosition.width}px`;
     node.style.height =
@@ -108,6 +110,8 @@ export function Window({
   } = useWindowInteractions({
     activateWindow,
     applyVisualPosition,
+    onInteractionEnd: () => setInteracting(false),
+    onInteractionStart: () => setInteracting(true),
     onMove,
     resizeBounds,
     visualPositionRef,
@@ -264,6 +268,7 @@ export function Window({
       closeButtonTooltip={closeButtonTooltip}
       closeButtonTooltipColor={closeButtonTooltipColor}
       emphasis={emphasis}
+      interacting={interacting}
       headerActions={headerActions}
       isEntered={isEntered}
       onBlurCapture={onBlurCapture}

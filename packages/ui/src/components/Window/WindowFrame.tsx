@@ -1,4 +1,5 @@
 import type {
+  CSSProperties,
   FocusEvent as ReactFocusEvent,
   PointerEvent as ReactPointerEvent,
   RefObject,
@@ -11,6 +12,7 @@ interface WindowFrameProps extends Omit<WindowProps, 'onClose' | 'onMove'> {
   onClose: () => void;
   onBlurCapture: (event: ReactFocusEvent<HTMLElement>) => void;
   onHeaderPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void;
+  interacting: boolean;
   onResizePointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void;
   onWindowActivate: () => void;
   onWindowHoverEnter: () => void;
@@ -30,6 +32,7 @@ export function WindowFrame({
   closeButtonTooltipColor,
   emphasis,
   headerActions,
+  interacting,
   isEntered,
   onBlurCapture,
   onClose,
@@ -57,6 +60,12 @@ export function WindowFrame({
   const closeButtonColor =
     closeButtonTooltipColor ?? 'rgba(248, 113, 113, 0.9)';
   const canShowCloseButton = showCloseButton !== false;
+  const windowStyle = {
+    '--window-position-x': `${position.x}px`,
+    '--window-position-y': `${position.y}px`,
+    width: position.width === undefined ? undefined : `${position.width}px`,
+    height: position.height === undefined ? undefined : `${position.height}px`,
+  } as CSSProperties;
   const resolvedCloseButtonContent = closeButtonContent ?? (
     <span
       className={styles.closeIcon}
@@ -76,15 +85,10 @@ export function WindowFrame({
       ref={windowRef}
       className={`${styles.floatingWindow} ${className ?? ''}`.trim()}
       data-window-emphasis={emphasis}
+      data-window-interacting={interacting}
       data-window-visible={isEntered}
       tabIndex={-1}
-      style={{
-        left: position.x,
-        top: position.y,
-        width: position.width === undefined ? undefined : `${position.width}px`,
-        height:
-          position.height === undefined ? undefined : `${position.height}px`,
-      }}
+      style={windowStyle}
       onPointerEnter={onWindowHoverEnter}
       onPointerLeave={onWindowHoverLeave}
       onPointerDown={onWindowActivate}
