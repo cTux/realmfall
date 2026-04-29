@@ -11,12 +11,18 @@
   }
 }
 
+.windowBody {
+  min-height: 0;
+  overflow: hidden;
+}
+
 .content {
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
   flex: 1 1 auto;
   min-height: 0;
+  overflow: hidden;
 }
 
 .toolbar {

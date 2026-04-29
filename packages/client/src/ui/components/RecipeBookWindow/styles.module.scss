@@ -16,12 +16,18 @@
   min-height: 0;
 }
 
+.windowBody {
+  min-height: 0;
+  overflow: hidden;
+}
+
 .layout {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   flex: 1 1 auto;
   min-height: 0;
+  overflow: hidden;
 }
 
 .content {
@@ -29,7 +35,9 @@
   flex-direction: column;
   align-content: start;
   gap: 0.65rem;
+  flex: 1 1 auto;
   min-height: 0;
+  overflow: hidden;
 }
 
 .tabs {
