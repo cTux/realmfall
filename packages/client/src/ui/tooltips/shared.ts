@@ -10,6 +10,10 @@ export interface TooltipLine {
   max?: number;
   kind?: 'text' | 'stat' | 'bar';
   tone?:
+    | 'hp'
+    | 'mana'
+    | 'hunger'
+    | 'thirst'
     | 'positive'
     | 'negative'
     | 'item'

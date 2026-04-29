@@ -212,4 +212,51 @@ describe('ui tooltip behavior', () => {
     });
     host.remove();
   });
+
+  it('applies stat-specific tone classes to consumable restore rows', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+
+    await act(async () => {
+      root.render(
+        <GameTooltip
+          tooltip={{
+            title: 'Pepper Steak',
+            x: 160,
+            y: 120,
+            lines: [
+              { kind: 'text', text: 'Restores:', tone: 'section' },
+              { kind: 'stat', label: 'HP', value: '18%', tone: 'hp' },
+              { kind: 'stat', label: 'MP', value: '18%', tone: 'mana' },
+              { kind: 'stat', label: 'Hunger', value: '18%', tone: 'hunger' },
+              { kind: 'stat', label: 'Thirst', value: '18%', tone: 'thirst' },
+            ],
+          }}
+        />,
+      );
+    });
+
+    const rows = Array.from(
+      host.querySelectorAll('div[class*="statRow"]'),
+    ) as HTMLElement[];
+
+    expect(
+      rows.find((row) => row.textContent === 'HP18%')?.className,
+    ).toContain('hp');
+    expect(
+      rows.find((row) => row.textContent === 'MP18%')?.className,
+    ).toContain('mana');
+    expect(
+      rows.find((row) => row.textContent === 'Hunger18%')?.className,
+    ).toContain('hunger');
+    expect(
+      rows.find((row) => row.textContent === 'Thirst18%')?.className,
+    ).toContain('thirst');
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
 });
