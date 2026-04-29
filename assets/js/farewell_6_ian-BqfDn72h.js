@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/farewell_6_ian-CxII38qZ.wav`;export{e as default};

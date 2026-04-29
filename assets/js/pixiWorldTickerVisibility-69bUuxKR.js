@@ -1,0 +1,1 @@
+function e({ticker:e,renderFrame:t,renderInvalidationRef:n,target:r=document}){let i=()=>{if(r.visibilityState===`hidden`){e.stop();return}n.current+=1,e.start(),t()};return r.addEventListener(`visibilitychange`,i),r.visibilityState===`hidden`&&e.stop(),()=>{r.removeEventListener(`visibilitychange`,i)}}export{e as attachPixiWorldTickerVisibilityPause};

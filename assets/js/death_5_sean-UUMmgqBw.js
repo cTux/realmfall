@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/death_5_sean-Bu19uotZ.wav`;export{e as default};

@@ -1,0 +1,1 @@
+import{r as e}from"./rolldown-runtime-CsWUnieo.js";import{r as t}from"./react-core-Db-KvNoz.js";var n=e(t(),1),r=0,i=new Set;function a(){i.forEach(e=>e())}function o(){return r}function s(e){r!==e&&(r=e,a())}function c(e){return i.add(e),()=>i.delete(e)}function l(){return(0,n.useSyncExternalStore)(c,o,o)}export{l as n,s as t};

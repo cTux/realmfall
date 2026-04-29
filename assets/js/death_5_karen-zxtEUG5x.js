@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/death_5_karen-Cu3P5Gb4.wav`;export{e as default};

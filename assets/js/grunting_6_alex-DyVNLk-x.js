@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/grunting_6_alex-0DXeqFzo.wav`;export{e as default};

@@ -1,0 +1,1 @@
+var e={window:`_window_g37xy_1`,layout:`_layout_g37xy_5`,figure:`_figure_g37xy_13`,slot:`_slot_g37xy_23`};export{e as t};

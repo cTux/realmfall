@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/completion_4_alex-CNcX9rV5.wav`;export{e as default};

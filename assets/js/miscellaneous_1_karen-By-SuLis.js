@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/miscellaneous_1_karen-DwBfbOpN.wav`;export{e as default};

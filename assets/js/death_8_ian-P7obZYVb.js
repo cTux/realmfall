@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/death_8_ian-BB2tcr3r.wav`;export{e as default};

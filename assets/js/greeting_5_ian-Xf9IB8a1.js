@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/greeting_5_ian-C1euk_uf.wav`;export{e as default};

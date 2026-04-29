@@ -1,0 +1,1 @@
+import{t as e}from"./shared-BsYP5lff.js";import{n as t,t as n}from"./tooltipContent-CF_482rr.js";function r(t,r){return n(t,r,{text:e=>({kind:`text`,text:e}),stat:(e,t)=>({kind:`stat`,label:e,value:t}),tags:e})}function i(n){return t(n,{text:e=>({kind:`text`,text:e}),stat:(e,t)=>({kind:`stat`,label:e,value:t}),tags:e})}export{r as enemyWorldTooltip,i as structureWorldTooltip};

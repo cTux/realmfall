@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/shouting_7_meghan-KnzO_THg.wav`;export{e as default};

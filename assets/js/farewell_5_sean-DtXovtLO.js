@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/farewell_5_sean-tOTl-Tbm.wav`;export{e as default};

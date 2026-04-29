@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/completion_8_sean-BR4ZP1cw.wav`;export{e as default};

@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/miscellaneous_14_alex-QXlc9Fgc.wav`;export{e as default};

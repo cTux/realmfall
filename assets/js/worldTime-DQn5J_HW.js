@@ -1,0 +1,1 @@
+import{Mr as e,Nr as t}from"./state-mAr3mad7.js";function n(n){return(n%e+e)%e/e*t}function r(t){return Math.max(1,Math.floor(t/e)+1)}export{n,r as t};

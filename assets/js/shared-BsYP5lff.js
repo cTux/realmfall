@@ -1,0 +1,1 @@
+import{Rr as e}from"./state-mAr3mad7.js";function t(t){return!t||t.length===0?[]:[{kind:`text`,text:e(`ui.tooltip.tags`,{tags:t.join(`, `)}),tone:`subtle`}]}export{t};

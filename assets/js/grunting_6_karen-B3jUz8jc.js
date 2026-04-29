@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/grunting_6_karen-b21zOen6.wav`;export{e as default};

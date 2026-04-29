@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/phantasticbeats-rpg-city-8381-DuJi5o4O.mp3`;export{e as default};

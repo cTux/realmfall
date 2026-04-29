@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/completion_8_alex-CBF-qet-.wav`;export{e as default};

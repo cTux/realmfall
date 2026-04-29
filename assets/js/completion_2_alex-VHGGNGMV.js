@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/completion_2_alex-MRPMBXno.wav`;export{e as default};

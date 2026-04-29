@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/death_6_alex-CXEfOuOq.wav`;export{e as default};

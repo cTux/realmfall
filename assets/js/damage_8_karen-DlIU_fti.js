@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/damage_8_karen-zCKY7yfM.wav`;export{e as default};

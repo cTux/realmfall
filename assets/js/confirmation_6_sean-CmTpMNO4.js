@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/confirmation_6_sean-Cc2gj5_C.wav`;export{e as default};

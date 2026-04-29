@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/shouting_1_ian-DOH3cN2l.wav`;export{e as default};
