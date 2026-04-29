@@ -106,22 +106,7 @@ export const GameTooltip = memo(function GameTooltip({
         {rendered.tooltip.title}
       </strong>
       {rendered.tooltip.lines.map((line, index) => {
-        const className =
-          line.tone === 'section'
-            ? styles.sectionLabel
-            : line.tone === 'item'
-              ? styles.item
-              : line.tone === 'reforged'
-                ? styles.reforged
-                : line.tone === 'enchanted'
-                  ? styles.enchanted
-                  : line.tone === 'subtle'
-                    ? styles.subtle
-                    : line.tone === 'positive'
-                      ? styles.positive
-                      : line.tone === 'negative'
-                        ? styles.negative
-                        : undefined;
+        const className = tooltipToneClassName(line.tone);
 
         if (
           line.kind === 'bar' &&
@@ -243,4 +228,33 @@ function iconMaskStyle(icon: string, color: string) {
     WebkitMask: mask,
     mask,
   };
+}
+
+function tooltipToneClassName(tone?: string) {
+  switch (tone) {
+    case 'section':
+      return styles.sectionLabel;
+    case 'item':
+      return styles.item;
+    case 'reforged':
+      return styles.reforged;
+    case 'enchanted':
+      return styles.enchanted;
+    case 'subtle':
+      return styles.subtle;
+    case 'positive':
+      return styles.positive;
+    case 'negative':
+      return styles.negative;
+    case 'hp':
+      return styles.hp;
+    case 'mana':
+      return styles.mana;
+    case 'hunger':
+      return styles.hunger;
+    case 'thirst':
+      return styles.thirst;
+    default:
+      return undefined;
+  }
 }

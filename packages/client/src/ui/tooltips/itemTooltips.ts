@@ -99,7 +99,7 @@ export function itemTooltipLines(
     const sellLine = itemSellLine(item);
     lines.push(
       ...[
-        { kind: 'text' as const, text: consumableEffectDescription(item) },
+        ...consumableEffectLines(item),
         ...tagTooltipLines(tags),
         ...(sellLine ? [sellLine] : []),
       ],
@@ -216,68 +216,65 @@ export function itemTooltipLines(
   return lines;
 }
 
-function consumableEffectDescription(item: Item) {
+function consumableEffectLines(item: Item): TooltipLine[] {
   const effects = getConsumableEffectDescriptors(item);
 
   if (effects.some((effect) => effect.kind === 'homeScroll')) {
-    return t('ui.tooltip.consumable.homeScroll');
+    return [{ kind: 'text', text: t('ui.tooltip.consumable.homeScroll') }];
   }
 
-  const effectDescriptions = effects.flatMap((effect) => {
+  const restoreLines = effects.flatMap<TooltipLine>((effect) => {
     switch (effect.kind) {
       case 'foodRestorePercent':
         return [
-          t('ui.tooltip.consumable.effect.foodRestorePercent', {
-            amount: effect.amount,
-          }),
+          consumableRestoreLine(t('ui.hero.hp'), effect.amount, 'hp'),
+          consumableRestoreLine(t('ui.combat.mp'), effect.amount, 'mana'),
         ];
       case 'healingPercent':
-        return [
-          t('ui.tooltip.consumable.effect.healingPercent', {
-            amount: effect.amount,
-          }),
-        ];
+        return [consumableRestoreLine(t('ui.hero.hp'), effect.amount, 'hp')];
       case 'manaPercent':
         return [
-          t('ui.tooltip.consumable.effect.manaPercent', {
-            amount: effect.amount,
-          }),
+          consumableRestoreLine(t('ui.combat.mp'), effect.amount, 'mana'),
         ];
       case 'hunger':
         return [
-          t('game.message.useItem.hunger', {
-            amount: effect.amount,
-            unit: '%',
-          }),
+          consumableRestoreLine(t('ui.hero.hunger'), effect.amount, 'hunger'),
         ];
       case 'thirst':
         return [
-          t('game.message.useItem.thirst', {
-            amount: effect.amount,
-            unit: '%',
-          }),
+          consumableRestoreLine(t('ui.hero.thirst'), effect.amount, 'thirst'),
         ];
+      case 'terrain':
       case 'homeScroll':
         return [];
     }
   });
 
-  if (effectDescriptions.length === 0)
-    return t('ui.tooltip.consumable.generic');
-  if (effectDescriptions.length === 1)
-    return t('ui.tooltip.consumable.oneEffect', {
-      first: effectDescriptions[0],
-    });
-  if (effectDescriptions.length === 2)
-    return t('ui.tooltip.consumable.twoEffects', {
-      first: effectDescriptions[0],
-      second: effectDescriptions[1],
-    });
-  return t('ui.tooltip.consumable.threeEffects', {
-    first: effectDescriptions[0],
-    second: effectDescriptions[1],
-    third: effectDescriptions[2],
-  });
+  if (restoreLines.length === 0) {
+    return [{ kind: 'text', text: t('ui.tooltip.consumable.generic') }];
+  }
+
+  return [
+    {
+      kind: 'text',
+      text: t('ui.tooltip.consumable.restores'),
+      tone: 'section',
+    },
+    ...restoreLines,
+  ];
+}
+
+function consumableRestoreLine(
+  label: string,
+  amount: number,
+  tone: 'hp' | 'mana' | 'hunger' | 'thirst',
+): TooltipLine {
+  return {
+    kind: 'stat',
+    label,
+    value: `${amount}%`,
+    tone,
+  };
 }
 
 function itemTypeLabel(item: Item) {

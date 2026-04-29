@@ -172,7 +172,26 @@ describe('ui tooltip item content', () => {
     expect(itemTooltipLines(consumableTooltipItem)).toEqual([
       {
         kind: 'text',
-        text: 'Use to recover 12% HP and restore 12% MP and restore 8% hunger.',
+        text: 'Restores:',
+        tone: 'section',
+      },
+      {
+        kind: 'stat',
+        label: 'HP',
+        value: '12%',
+        tone: 'hp',
+      },
+      {
+        kind: 'stat',
+        label: 'MP',
+        value: '12%',
+        tone: 'mana',
+      },
+      {
+        kind: 'stat',
+        label: 'Hunger',
+        value: '8%',
+        tone: 'hunger',
       },
       {
         kind: 'text',
@@ -189,7 +208,17 @@ describe('ui tooltip item content', () => {
       },
     ]);
     expect(itemTooltipLines(manaPotionTooltipItem)).toEqual([
-      { kind: 'text', text: 'Use to restore 35% MP.' },
+      {
+        kind: 'text',
+        text: 'Restores:',
+        tone: 'section',
+      },
+      {
+        kind: 'stat',
+        label: 'MP',
+        value: '35%',
+        tone: 'mana',
+      },
       {
         kind: 'text',
         text: 'Tags: item.consumable, item.stackable',
@@ -204,6 +233,48 @@ describe('ui tooltip item content', () => {
         tone: 'item',
       },
     ]);
+    expect(
+      itemTooltipLines({
+        ...consumableTooltipItem,
+        id: 'pepper-steak-1',
+        name: 'Pepper Steak',
+        healing: 18,
+        hunger: 18,
+        thirst: 18,
+      }),
+    ).toEqual(
+      expect.arrayContaining([
+        {
+          kind: 'text',
+          text: 'Restores:',
+          tone: 'section',
+        },
+        {
+          kind: 'stat',
+          label: 'HP',
+          value: '18%',
+          tone: 'hp',
+        },
+        {
+          kind: 'stat',
+          label: 'MP',
+          value: '18%',
+          tone: 'mana',
+        },
+        {
+          kind: 'stat',
+          label: 'Hunger',
+          value: '18%',
+          tone: 'hunger',
+        },
+        {
+          kind: 'stat',
+          label: 'Thirst',
+          value: '18%',
+          tone: 'thirst',
+        },
+      ]),
+    );
 
     const recipeTooltipLines = itemTooltipLines(
       recipePageTooltipItem,
