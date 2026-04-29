@@ -11,10 +11,18 @@
   overflow: hidden;
 }
 
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .stats {
   display: grid;
-  height: 100%;
   gap: 0.75rem;
+  flex: 1 1 auto;
   min-height: 0;
   overflow: hidden auto;
   scrollbar-gutter: stable;

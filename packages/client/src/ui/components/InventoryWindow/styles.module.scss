@@ -1,13 +1,5 @@
 @use '../../../styles/ui';
 
-@mixin inventory-control-surface($tone: default) {
-  @include ui.control-surface-base;
-  @include ui.control-surface($tone);
-  @include ui.compact-button;
-
-  border-radius: ui.$ability-radius;
-}
-
 .window {
   width: min(410px, calc(100vw - 16px));
   height: min(360px, calc(100vh - 16px));
@@ -19,12 +11,18 @@
   }
 }
 
+.windowBody {
+  min-height: 0;
+  overflow: hidden;
+}
+
 .content {
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
   flex: 1 1 auto;
   min-height: 0;
+  overflow: hidden;
 }
 
 .toolbar {
@@ -55,10 +53,7 @@
 }
 
 .slotFilterControlButton {
-  @include inventory-control-surface;
-
-  padding: 0.28rem 0.45rem;
-  font-size: 0.68rem;
+  @include ui.compact-control-chip;
 }
 
 .slotFilterButton {

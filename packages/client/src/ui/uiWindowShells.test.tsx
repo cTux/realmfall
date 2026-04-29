@@ -8,8 +8,12 @@ import { getPlayerOverview } from '../game/stateSelectors';
 import { Skill } from '../game/types';
 import { EquipmentWindow } from './components/EquipmentWindow';
 import { HeroWindow } from './components/HeroWindow';
+import { InventoryWindow } from './components/InventoryWindow';
 import { RecipeBookWindow } from './components/RecipeBookWindow';
 import { SkillsWindow } from './components/SkillsWindow';
+import inventoryStyles from './components/InventoryWindow/styles.module.scss';
+import recipeStyles from './components/RecipeBookWindow/styles.module.scss';
+import { createRecipe } from './uiRecipeBookTestHelpers';
 import { mountUi, renderMarkup, setupUiTestEnvironment } from './uiTestHelpers';
 
 setupUiTestEnvironment();
@@ -213,6 +217,60 @@ describe('ui window shell surfaces', () => {
       expect.any(Array),
       'rgba(56, 189, 248, 0.9)',
     );
+
+    await ui.unmount();
+  });
+
+  it('keeps inventory and recipe book scroll regions inside clipped window bodies', async () => {
+    const game = createGame(2, 'window-scroll-region-shells');
+    const ui = await mountUi(
+      <>
+        <InventoryWindow
+          position={DEFAULT_WINDOWS.inventory}
+          onMove={() => {}}
+          inventory={game.player.inventory}
+          equipment={game.player.equipment}
+          learnedRecipeIds={[]}
+          onSort={() => {}}
+          onActivateItem={() => {}}
+          onSellItem={() => {}}
+          onContextItem={() => {}}
+          onHoverItem={() => {}}
+          onLeaveItem={() => {}}
+        />
+        <RecipeBookWindow
+          position={DEFAULT_WINDOWS.recipes}
+          onMove={() => {}}
+          currentStructure="workshop"
+          recipes={[createRecipe()]}
+          recipeSkillLevels={RECIPE_SKILL_LEVELS}
+          inventoryCountsByItemKey={{}}
+          preferredSkill={Skill.Crafting}
+          materialFilterItemKey={null}
+          onResetMaterialFilter={() => {}}
+          onCraft={() => {}}
+          onToggleFavoriteRecipe={() => {}}
+        />
+      </>,
+    );
+
+    const inventoryContent = ui.host.querySelector(
+      `.${inventoryStyles.content}`,
+    ) as HTMLElement | null;
+    const inventoryBody = inventoryContent?.parentElement;
+    const inventoryGrid = ui.host.querySelector(`.${inventoryStyles.grid}`);
+    const recipeLayout = ui.host.querySelector(
+      `.${recipeStyles.layout}`,
+    ) as HTMLElement | null;
+    const recipeBody = recipeLayout?.parentElement;
+    const recipeList = ui.host.querySelector(`.${recipeStyles.list}`);
+
+    expect(inventoryContent).not.toBeNull();
+    expect(inventoryGrid).not.toBeNull();
+    expect(inventoryBody?.className).toContain(inventoryStyles.windowBody);
+    expect(recipeLayout).not.toBeNull();
+    expect(recipeList).not.toBeNull();
+    expect(recipeBody?.className).toContain(recipeStyles.windowBody);
 
     await ui.unmount();
   });

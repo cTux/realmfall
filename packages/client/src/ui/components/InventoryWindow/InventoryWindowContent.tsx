@@ -69,20 +69,22 @@ export function InventoryWindowContent({
           <Button
             unstyled
             type="button"
+            size="small"
             className={styles.slotFilterControlButton}
             onClick={() =>
               setEnabledFilters(new Set(ALL_INVENTORY_ITEM_FILTER_IDS))
             }
           >
-            {t('ui.inventory.filter.enableAllAction')}
+            {t('ui.common.allAction')}
           </Button>
           <Button
             unstyled
             type="button"
+            size="small"
             className={styles.slotFilterControlButton}
             onClick={() => setEnabledFilters(new Set())}
           >
-            {t('ui.inventory.filter.disableAllAction')}
+            {t('ui.common.noneAction')}
           </Button>
         </div>
         {INVENTORY_ITEM_FILTERS.map((filter) => {

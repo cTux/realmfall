@@ -33,7 +33,7 @@ export function HeroWindowContent({
   const worldTimeMs = useWorldClockTime();
 
   return (
-    <div className={styles.stats}>
+    <div className={styles.layout}>
       <EntityStatusPanel
         className={styles.summary}
         title={t('ui.window.hero.plain')}
@@ -45,32 +45,34 @@ export function HeroWindowContent({
         onHoverDetail={onHoverDetail}
         onLeaveDetail={onLeaveDetail}
       />
-      <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>
-          {t('ui.hero.statSheet.primary')}
-        </h3>
-        <div className={styles.statGrid}>
-          {buildPrimaryStatRows(hero).map((row) => (
-            <div key={row.label} className={styles.statRow}>
-              <span className={styles.statLabel}>{row.label}</span>
-              <span className={styles.statValue}>{row.value}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-      <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>
-          {t('ui.hero.statSheet.secondary')}
-        </h3>
-        <div className={styles.statGrid}>
-          {buildSecondaryStatRows(hero).map((row) => (
-            <div key={row.label} className={styles.statRow}>
-              <span className={styles.statLabel}>{row.label}</span>
-              <span className={styles.statValue}>{row.value}</span>
-            </div>
-          ))}
-        </div>
-      </section>
+      <div className={styles.stats}>
+        <section className={styles.section}>
+          <h3 className={styles.sectionTitle}>
+            {t('ui.hero.statSheet.primary')}
+          </h3>
+          <div className={styles.statGrid}>
+            {buildPrimaryStatRows(hero).map((row) => (
+              <div key={row.label} className={styles.statRow}>
+                <span className={styles.statLabel}>{row.label}</span>
+                <span className={styles.statValue}>{row.value}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+        <section className={styles.section}>
+          <h3 className={styles.sectionTitle}>
+            {t('ui.hero.statSheet.secondary')}
+          </h3>
+          <div className={styles.statGrid}>
+            {buildSecondaryStatRows(hero).map((row) => (
+              <div key={row.label} className={styles.statRow}>
+                <span className={styles.statLabel}>{row.label}</span>
+                <span className={styles.statValue}>{row.value}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

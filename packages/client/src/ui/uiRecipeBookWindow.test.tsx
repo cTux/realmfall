@@ -56,7 +56,47 @@ describe('ui recipe book window surfaces', () => {
     const tabLabels = Array.from(ui.host.querySelectorAll('[role="tab"]')).map(
       (tab) => tab.textContent,
     );
-    expect(tabLabels).toEqual(['hand', 'cooking', 'smelting', 'crafting']);
+    expect(tabLabels).toEqual(['Hand', 'Cooking', 'Smelting', 'Crafting']);
+
+    await ui.unmount();
+  });
+
+  it('uses a horizontal compact tab row with all and none crafting filters', async () => {
+    const ui = await mountRecipeBook({
+      currentStructure: 'workshop',
+      preferredSkill: Skill.Crafting,
+      recipes: [
+        createRecipe({
+          id: 'hand-cloth',
+          name: 'Cloth',
+          description: 'Twist flax into cloth by hand.',
+          skill: Skill.Hand,
+          output: {
+            id: 'cloth-1',
+            itemKey: 'cloth',
+            name: 'Cloth',
+            power: 0,
+          },
+        }),
+        createRecipe(),
+      ],
+    });
+
+    const tablist = ui.host.querySelector('[role="tablist"]');
+    const tabs = Array.from(ui.host.querySelectorAll('[role="tab"]'));
+    const allButton = Array.from(ui.host.querySelectorAll('button')).find(
+      (button) => button.textContent === 'All',
+    );
+    const noneButton = Array.from(ui.host.querySelectorAll('button')).find(
+      (button) => button.textContent === 'None',
+    );
+
+    expect(tablist?.getAttribute('aria-orientation')).toBe('horizontal');
+    expect(allButton?.getAttribute('data-size')).toBe('small');
+    expect(noneButton?.getAttribute('data-size')).toBe('small');
+    expect(tabs.every((tab) => tab.getAttribute('data-size') === 'small')).toBe(
+      true,
+    );
 
     await ui.unmount();
   });

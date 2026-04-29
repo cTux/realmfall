@@ -128,6 +128,20 @@ $tile-transition:
   line-height: 1.15;
 }
 
+@mixin compact-control-chip($tone: default) {
+  @include control-surface-base;
+  @include control-surface($tone);
+  @include compact-button;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.28rem 0.45rem;
+  border-radius: $ability-radius;
+  font-size: 0.68rem;
+  line-height: 1.1;
+}
+
 @mixin window-header-button($tone: default) {
   @include control-surface-base;
   @include control-surface($tone);

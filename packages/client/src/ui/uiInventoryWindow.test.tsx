@@ -88,29 +88,27 @@ describe('ui inventory window surfaces', () => {
 
     expect(itemButtonCount(ui.host)).toBe(5);
 
-    const disableAllButton = Array.from(
-      ui.host.querySelectorAll('button'),
-    ).find((button) => button.textContent === 'Disable all');
-    expect(disableAllButton).toBeTruthy();
+    const noneButton = Array.from(ui.host.querySelectorAll('button')).find(
+      (button) => button.textContent === 'None',
+    );
+    expect(noneButton).toBeTruthy();
+    expect(noneButton?.getAttribute('data-size')).toBe('small');
 
     await act(async () => {
-      disableAllButton?.dispatchEvent(
-        new MouseEvent('click', { bubbles: true }),
-      );
+      noneButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
 
     expect(itemButtonCount(ui.host)).toBe(0);
     expect(ui.host.textContent).toContain('No items match the active filters.');
 
-    const enableAllButton = Array.from(ui.host.querySelectorAll('button')).find(
-      (button) => button.textContent === 'Enable all',
+    const allButton = Array.from(ui.host.querySelectorAll('button')).find(
+      (button) => button.textContent === 'All',
     );
-    expect(enableAllButton).toBeTruthy();
+    expect(allButton).toBeTruthy();
+    expect(allButton?.getAttribute('data-size')).toBe('small');
 
     await act(async () => {
-      enableAllButton?.dispatchEvent(
-        new MouseEvent('click', { bubbles: true }),
-      );
+      allButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
 
     expect(itemButtonCount(ui.host)).toBe(6);

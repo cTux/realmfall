@@ -47,7 +47,7 @@ export const HandRecipes: Story = {
   },
 };
 
-export const WorkshopRecipes: Story = {
+export const CraftingFilters: Story = {
   args: {
     currentStructure: 'workshop',
     preferredSkill: Skill.Crafting,

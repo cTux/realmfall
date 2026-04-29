@@ -189,4 +189,42 @@ describe('HeroWindow', () => {
     ).not.toBeNull();
     expect(statsScroller).not.toBeNull();
   });
+
+  it('keeps the hero summary outside the stat scroller', async () => {
+    await act(async () => {
+      root.render(
+        <HeroWindow
+          position={{ x: 16, y: 24, width: 320, height: 260 }}
+          onMove={() => {}}
+          visible
+          hero={hero}
+          hunger={0}
+          thirst={0}
+        />,
+      );
+    });
+
+    await act(async () => {
+      await vi.dynamicImportSettled();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const summary = host.querySelector(
+      `.${styles.summary}`,
+    ) as HTMLElement | null;
+    const statsScroller = host.querySelector(
+      `.${styles.stats}`,
+    ) as HTMLElement | null;
+
+    expect(summary).not.toBeNull();
+    expect(statsScroller).not.toBeNull();
+    expect(statsScroller?.contains(summary as Node)).toBe(false);
+    expect(statsScroller?.textContent).toContain(
+      t('ui.hero.statSheet.primary'),
+    );
+    expect(statsScroller?.textContent).toContain(
+      t('ui.hero.statSheet.secondary'),
+    );
+  });
 });

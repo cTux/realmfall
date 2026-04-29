@@ -32,6 +32,7 @@ export const InventoryWindow = createDeferredWindowComponent<
     position,
     onMove,
     className: styles.window,
+    bodyClassName: styles.windowBody,
     visible,
     externalUnmount: true,
     onClose,
