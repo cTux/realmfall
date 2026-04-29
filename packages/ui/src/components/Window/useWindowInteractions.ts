@@ -11,6 +11,8 @@ import { WINDOW_VIEWPORT_PADDING_PX } from './windowViewport';
 interface UseWindowInteractionsArgs {
   activateWindow: () => void;
   applyVisualPosition: (nextPosition: WindowPosition) => void;
+  onInteractionEnd: () => void;
+  onInteractionStart: () => void;
   onMove: (position: WindowPosition) => void;
   resizeBounds?: WindowResizeBounds;
   visualPositionRef: RefObject<WindowPosition>;
@@ -20,6 +22,8 @@ interface UseWindowInteractionsArgs {
 export function useWindowInteractions({
   activateWindow,
   applyVisualPosition,
+  onInteractionEnd,
+  onInteractionStart,
   onMove,
   resizeBounds,
   visualPositionRef,
@@ -66,6 +70,7 @@ export function useWindowInteractions({
         dy: event.clientY - currentPosition.y,
       };
       dragMovedRef.current = false;
+      onInteractionStart();
 
       const onPointerMove = (moveEvent: PointerEvent) => {
         const drag = dragRef.current;
@@ -100,6 +105,7 @@ export function useWindowInteractions({
       dragCleanupRef.current = () => {
         dragRef.current = null;
         dragMovedRef.current = false;
+        onInteractionEnd();
         window.removeEventListener('pointermove', onPointerMove);
         window.removeEventListener('pointerup', onPointerUp);
         dragCleanupRef.current = null;
@@ -113,6 +119,8 @@ export function useWindowInteractions({
       applyVisualPosition,
       cancelInteractions,
       cleanupDrag,
+      onInteractionEnd,
+      onInteractionStart,
       onMove,
       visualPositionRef,
     ],
@@ -141,6 +149,7 @@ export function useWindowInteractions({
         startHeight: rect.height,
       };
       resizeMovedRef.current = false;
+      onInteractionStart();
 
       const onPointerMove = (moveEvent: PointerEvent) => {
         const resize = resizeRef.current;
@@ -181,6 +190,7 @@ export function useWindowInteractions({
       resizeCleanupRef.current = () => {
         resizeRef.current = null;
         resizeMovedRef.current = false;
+        onInteractionEnd();
         window.removeEventListener('pointermove', onPointerMove);
         window.removeEventListener('pointerup', onPointerUp);
         resizeCleanupRef.current = null;
@@ -194,6 +204,8 @@ export function useWindowInteractions({
       applyVisualPosition,
       cancelInteractions,
       cleanupResize,
+      onInteractionEnd,
+      onInteractionStart,
       onMove,
       resizeBounds,
       visualPositionRef,
