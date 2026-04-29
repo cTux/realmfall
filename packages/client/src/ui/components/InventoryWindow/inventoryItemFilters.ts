@@ -1,21 +1,13 @@
-import {
-  buildItemFromConfig,
-  getItemCategory,
-  hasItemTag,
-  isEquippableItemCategory,
-} from '../../../game/content/items';
+import { buildItemFromConfig } from '../../../game/content/items';
 import { ItemId } from '../../../game/content/ids';
 import { GAME_TAGS } from '../../../game/content/tags';
-import { isRecipePage } from '../../../game/inventory';
+import {
+  getInventoryItemGroup,
+  type InventoryItemGroup,
+} from '../../../game/inventory';
 import type { Item } from '../../../game/stateTypes';
 
-export type InventoryItemFilterId =
-  | 'equippable'
-  | 'consumable'
-  | 'material'
-  | 'recipe'
-  | 'currency'
-  | 'resource';
+export type InventoryItemFilterId = InventoryItemGroup;
 
 interface InventoryItemFilterDefinition {
   id: InventoryItemFilterId;
@@ -91,12 +83,5 @@ export const ALL_INVENTORY_ITEM_FILTER_IDS = INVENTORY_ITEM_FILTERS.map(
 );
 
 export function getInventoryItemFilterId(item: Item): InventoryItemFilterId {
-  if (isRecipePage(item)) return 'recipe';
-
-  const category = getItemCategory(item);
-  if (isEquippableItemCategory(category)) return 'equippable';
-  if (category === 'consumable') return 'consumable';
-  if (hasItemTag(item, GAME_TAGS.item.currency)) return 'currency';
-  if (hasItemTag(item, GAME_TAGS.item.craftingMaterial)) return 'material';
-  return 'resource';
+  return getInventoryItemGroup(item);
 }

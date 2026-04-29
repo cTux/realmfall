@@ -26,17 +26,48 @@
 }
 
 .toolbar {
-  display: grid;
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
+  position: relative;
 }
 
 .headerButton {
   @include ui.window-header-button;
+}
+
+.sortMenu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  z-index: 5;
+  min-width: 150px;
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.35rem;
+  background: rgb(8 15 30 / 98%);
+  border: 1px solid rgb(148 163 184 / 24%);
+  border-radius: ui.$ability-radius;
+  box-shadow: 0 12px 30px rgb(0 0 0 / 45%);
+}
+
+.sortOption {
+  @include ui.chip-surface;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  padding: 0.16rem 0.38rem;
+  font-size: 0.76rem;
+  line-height: 1.1;
+  text-transform: capitalize;
 }
 
 .filterBar {

@@ -6,6 +6,7 @@ import { getWorldDayIndex } from './logs';
 import { addLog } from './logs';
 import {
   addItemToInventory,
+  compareInventoryItems,
   compareItems,
   consolidateInventory,
   describeItemStack,
@@ -16,6 +17,7 @@ import {
   prospectYield,
   sellValue,
   spendGold,
+  type InventorySortMode,
 } from './inventory';
 import { getPlayerCombatStats } from './progression';
 import {
@@ -42,14 +44,14 @@ export function isOffhandSlotDisabled(
   return itemOccupiesOffhand(equipment.weapon);
 }
 
-export function sortInventory(state: GameState): GameState {
+export function sortInventory(
+  state: GameState,
+  mode: InventorySortMode = 'type',
+): GameState {
   const next = cloneForPlayerMutation(state);
-  next.player.inventory = consolidateInventory(next.player.inventory);
-  const equippable = next.player.inventory
-    .filter(isEquippableItem)
-    .sort(compareItems);
-  const other = next.player.inventory.filter((item) => !isEquippableItem(item));
-  next.player.inventory = [...equippable, ...other];
+  next.player.inventory = consolidateInventory(next.player.inventory).sort(
+    (left, right) => compareInventoryItems(left, right, mode),
+  );
   addLog(next, 'system', t('game.message.inventory.sort'));
   return next;
 }

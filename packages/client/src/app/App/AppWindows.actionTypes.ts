@@ -3,6 +3,7 @@ import type { AudioSettings } from '../audioSettings';
 import type { WindowPositions, WindowVisibilityState } from '../constants';
 import type { GraphicsSettings } from '../graphicsSettings';
 import type { ResettableSaveAreaId } from '../../persistence/saveAreas';
+import type { InventorySortMode } from '../../game/inventory';
 import type { EquipmentSlot, Item, LogKind } from '../../game/stateTypes';
 import type { TooltipItem } from './types';
 
@@ -45,7 +46,7 @@ export interface TooltipActions {
 
 export interface InventoryActions {
   onUnequip: (slot: EquipmentSlot) => void;
-  onSort: () => void;
+  onSort: (mode: InventorySortMode) => void;
   onActivateItem: (itemId: string) => void;
   onEquipItem: (itemId: string) => void;
   onUseItem: (itemId: string) => void;

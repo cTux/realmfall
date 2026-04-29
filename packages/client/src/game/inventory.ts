@@ -10,6 +10,7 @@ import { clampItemLevel, scaleMainItemStatForLevel } from './balance';
 import { getRecipeOutput } from './crafting';
 import { GAME_TAGS } from './content/tags';
 import {
+  RARITY_ORDER,
   Skill,
   type EquipmentSlot,
   type GameState,
@@ -24,6 +25,27 @@ import {
 import { createRng } from './random';
 import { getItemDisplayName } from './itemModifications';
 import { isTerraformingConsumableItemKey } from './content/items/terraformingConsumables';
+
+export const INVENTORY_SORT_MODES = ['type', 'rarity', 'tier', 'name'] as const;
+
+export type InventorySortMode = (typeof INVENTORY_SORT_MODES)[number];
+
+export type InventoryItemGroup =
+  | 'equippable'
+  | 'consumable'
+  | 'material'
+  | 'recipe'
+  | 'currency'
+  | 'resource';
+
+const INVENTORY_ITEM_GROUP_ORDER: Record<InventoryItemGroup, number> = {
+  equippable: 0,
+  consumable: 1,
+  material: 2,
+  recipe: 3,
+  currency: 4,
+  resource: 5,
+};
 
 export function makeStarterWeapon(): Item {
   return buildItemFromConfig(ItemId.TownKnife, { id: 'starter-knife' });
@@ -205,18 +227,61 @@ export function describeItemStack(item: Item) {
   return item.quantity > 1 ? `${item.quantity}x ${name}` : name;
 }
 
+export function getInventoryItemGroup(item: Item): InventoryItemGroup {
+  if (isRecipePage(item)) return 'recipe';
+
+  const category = getItemCategory(item);
+  if (isEquippableItemCategory(category)) return 'equippable';
+  if (category === 'consumable') return 'consumable';
+  if (hasItemTag(item, GAME_TAGS.item.currency)) return 'currency';
+  if (hasItemTag(item, GAME_TAGS.item.craftingMaterial)) return 'material';
+  return 'resource';
+}
+
 export function compareItems(left: Item, right: Item) {
   const kindOrder = ['resource', 'consumable', 'artifact', 'armor', 'weapon'];
   const kindDelta =
     kindOrder.indexOf(getItemCategory(left)) -
     kindOrder.indexOf(getItemCategory(right));
   if (kindDelta !== 0) return kindDelta;
-  const rarityOrder = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
   const rarityDelta =
-    rarityOrder.indexOf(right.rarity) - rarityOrder.indexOf(left.rarity);
+    RARITY_ORDER.indexOf(right.rarity) - RARITY_ORDER.indexOf(left.rarity);
   if (rarityDelta !== 0) return rarityDelta;
   if (right.tier !== left.tier) return right.tier - left.tier;
   return left.name.localeCompare(right.name);
+}
+
+export function compareInventoryItems(
+  left: Item,
+  right: Item,
+  mode: InventorySortMode = 'type',
+) {
+  switch (mode) {
+    case 'rarity': {
+      const rarityDelta = compareItemRarity(left, right);
+      if (rarityDelta !== 0) return rarityDelta;
+      return compareTypeThenTier(left, right);
+    }
+    case 'tier': {
+      const tierDelta = compareItemTier(left, right);
+      if (tierDelta !== 0) return tierDelta;
+      const rarityDelta = compareItemRarity(left, right);
+      if (rarityDelta !== 0) return rarityDelta;
+      return compareTypeThenName(left, right);
+    }
+    case 'name': {
+      const nameDelta = left.name.localeCompare(right.name);
+      if (nameDelta !== 0) return nameDelta;
+      const groupDelta = compareItemGroup(left, right);
+      if (groupDelta !== 0) return groupDelta;
+      const rarityDelta = compareItemRarity(left, right);
+      if (rarityDelta !== 0) return rarityDelta;
+      return compareItemTier(left, right);
+    }
+    case 'type':
+    default:
+      return compareTypeThenTier(left, right);
+  }
 }
 
 export function isEquippableItem(item: Item) {
@@ -294,6 +359,37 @@ export function spendGold(inventory: Item[], amount: number) {
     remaining -= spent;
     if (item.quantity <= 0) inventory.splice(index, 1);
   }
+}
+
+function compareItemGroup(left: Item, right: Item) {
+  return (
+    INVENTORY_ITEM_GROUP_ORDER[getInventoryItemGroup(left)] -
+    INVENTORY_ITEM_GROUP_ORDER[getInventoryItemGroup(right)]
+  );
+}
+
+function compareItemRarity(left: Item, right: Item) {
+  return RARITY_ORDER.indexOf(right.rarity) - RARITY_ORDER.indexOf(left.rarity);
+}
+
+function compareItemTier(left: Item, right: Item) {
+  return right.tier - left.tier;
+}
+
+function compareTypeThenTier(left: Item, right: Item) {
+  const groupDelta = compareItemGroup(left, right);
+  if (groupDelta !== 0) return groupDelta;
+  const rarityDelta = compareItemRarity(left, right);
+  if (rarityDelta !== 0) return rarityDelta;
+  const tierDelta = compareItemTier(left, right);
+  if (tierDelta !== 0) return tierDelta;
+  return left.name.localeCompare(right.name);
+}
+
+function compareTypeThenName(left: Item, right: Item) {
+  const groupDelta = compareItemGroup(left, right);
+  if (groupDelta !== 0) return groupDelta;
+  return left.name.localeCompare(right.name);
 }
 
 export function sellValue(item: Item) {

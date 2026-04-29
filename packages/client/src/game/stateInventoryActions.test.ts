@@ -17,6 +17,8 @@ import {
   takeTileItem,
 } from './state';
 import { GAME_DAY_DURATION_MS } from './config';
+import { buildItemFromConfig } from './content/items';
+import { ItemId } from './content/ids';
 import { getItemCategory } from './content/items';
 
 describe('game state inventory actions', () => {
@@ -226,6 +228,48 @@ describe('game state inventory actions', () => {
     sorted.tiles['0,0'] = { ...sorted.tiles['0,0'], structure: 'town' };
     const soldInTown = sellAllItems(sorted);
     expect(getGoldAmount(soldInTown.player.inventory)).toBeGreaterThan(0);
+  });
+
+  it('sorts inventory by the selected mode', () => {
+    const game = createGame(3, 'sort-mode-seed');
+    game.player.inventory = [
+      buildItemFromConfig(ItemId.TownKnife, {
+        id: 'weapon-1',
+        name: 'Rust Blade',
+        tier: 2,
+        rarity: 'common',
+      }),
+      buildItemFromConfig(ItemId.TrailRation, {
+        id: 'consumable-1',
+        name: 'Moon Tonic',
+        tier: 1,
+        rarity: 'epic',
+      }),
+      buildItemFromConfig(ItemId.Cloth, {
+        id: 'material-1',
+        name: 'Aether Cloth',
+        quantity: 3,
+        tier: 3,
+        rarity: 'rare',
+      }),
+      buildItemFromConfig(ItemId.Gold, {
+        id: 'gold-1',
+        quantity: 12,
+      }),
+    ];
+
+    expect(
+      sortInventory(game, 'type').player.inventory.map((item) => item.id),
+    ).toEqual(['weapon-1', 'consumable-1', 'material-1', 'gold-1']);
+    expect(
+      sortInventory(game, 'rarity').player.inventory.map((item) => item.id),
+    ).toEqual(['consumable-1', 'material-1', 'weapon-1', 'gold-1']);
+    expect(
+      sortInventory(game, 'tier').player.inventory.map((item) => item.id),
+    ).toEqual(['material-1', 'weapon-1', 'consumable-1', 'gold-1']);
+    expect(
+      sortInventory(game, 'name').player.inventory.map((item) => item.id),
+    ).toEqual(['material-1', 'gold-1', 'consumable-1', 'weapon-1']);
   });
 
   it('keeps locked equippable items out of prospecting and selling', () => {

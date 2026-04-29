@@ -6,6 +6,7 @@ import {
 } from 'react';
 import { t } from '../../../i18n';
 import { toggleFavoriteRecipe } from '../../../game/crafting';
+import type { InventorySortMode } from '../../../game/inventory';
 import { craftRecipe } from '../../../game/stateCrafting';
 import { forfeitCombat, startCombat } from '../../../game/stateCombat';
 import {
@@ -78,14 +79,17 @@ export function useGameActionHandlers({
     [applyGameTransition],
   );
 
-  const handleSort = useCallback(() => {
-    applyGameTransition(
-      createLoggedGameTransition({
-        describe: () => t('game.log.command.sortInventory'),
-        transition: sortInventory,
-      }),
-    );
-  }, [applyGameTransition]);
+  const handleSort = useCallback(
+    (mode: InventorySortMode = 'type') => {
+      applyGameTransition(
+        createLoggedGameTransition({
+          describe: () => t('game.log.command.sortInventory'),
+          transition: (current) => sortInventory(current, mode),
+        }),
+      );
+    },
+    [applyGameTransition],
+  );
 
   const handleProspect = useCallback(() => {
     applyGameTransition(
