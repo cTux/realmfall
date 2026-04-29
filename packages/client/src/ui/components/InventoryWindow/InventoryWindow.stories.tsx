@@ -63,6 +63,15 @@ type Story = StoryObj<typeof meta>;
 
 export const PackedInventory: Story = {};
 
+export const SortMenuOpen: Story = {
+  play: async ({ canvasElement }) => {
+    const sortButton = Array.from(
+      canvasElement.querySelectorAll('button'),
+    ).find((button) => button.textContent?.includes('Sort'));
+    sortButton?.click();
+  },
+};
+
 export const MixedCategories: Story = {
   args: {
     inventory: [
