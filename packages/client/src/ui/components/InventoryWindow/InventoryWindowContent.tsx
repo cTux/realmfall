@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Button, ItemSlot as ItemSlotButton } from '@realmfall/ui';
 import { canSellItem } from '../../../game/inventory';
-import { isRecipePage } from '../../../game/stateSelectors';
 import { t } from '../../../i18n';
 import { Icons } from '../../icons';
 import type { InventoryWindowProps } from './types';
@@ -32,7 +31,6 @@ export function InventoryWindowContent({
   inventory,
   equipment,
   hexItemModificationPickerActive = false,
-  learnedRecipeIds,
   onActivateItem,
   onSellItem,
   onContextItem,
@@ -116,8 +114,6 @@ export function InventoryWindowContent({
       </div>
       <div className={styles.grid}>
         {visibleInventory.map((item) => {
-          const recipeState = getRecipeInventoryState(item, learnedRecipeIds);
-
           return (
             <ItemSlotButton
               key={item.id}
@@ -132,8 +128,6 @@ export function InventoryWindowContent({
                     }
                   : undefined
               }
-              borderColorOverride={recipeState.borderColor}
-              overlayColorOverride={recipeState.overlayColor}
               onClick={(event) => {
                 if (hexItemModificationPickerActive) {
                   onSelectHexItemModificationItem?.(item);
@@ -173,28 +167,4 @@ export function InventoryWindowContent({
       </div>
     </div>
   );
-}
-
-function getRecipeInventoryState(
-  item: InventoryWindowContentProps['inventory'][number],
-  learnedRecipeIds: string[],
-) {
-  if (!isRecipePage(item) || !item.recipeId) {
-    return {
-      borderColor: undefined,
-      overlayColor: undefined,
-    };
-  }
-
-  if (learnedRecipeIds.includes(item.recipeId)) {
-    return {
-      borderColor: '#ef4444',
-      overlayColor: undefined,
-    };
-  }
-
-  return {
-    borderColor: '#22c55e',
-    overlayColor: 'rgba(96, 165, 250, 0.28)',
-  };
 }

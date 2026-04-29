@@ -101,7 +101,7 @@ describe('ui recipe book window surfaces', () => {
     await ui.unmount();
   });
 
-  it('renders learned crafting recipe slots with a fixed white tint', async () => {
+  it('keeps rarity borders on learned crafting recipe slots while showing the craftable white icon tint', async () => {
     const ui = await mountRecipeBook({
       currentStructure: 'workshop',
       recipes: [
@@ -114,14 +114,19 @@ describe('ui recipe book window surfaces', () => {
     });
 
     const slot = getFirstRecipeSlot(ui.host);
+    const icon = getRecipeSlotIcon(slot);
+
     expect(slot?.getAttribute('style')).toContain(
-      'border-color: rgb(248, 250, 252)',
+      'border-color: rgb(96, 165, 250)',
+    );
+    expect(icon?.getAttribute('style')).toContain(
+      'background-color: rgb(248, 250, 252);',
     );
 
     await ui.unmount();
   });
 
-  it('renders learned crafting recipe slots red when the required workshop hex is missing', async () => {
+  it('keeps rarity borders on blocked learned crafting recipe slots while showing the blocked red icon tint', async () => {
     const ui = await mountRecipeBook({
       currentStructure: 'camp',
       recipes: [
@@ -134,8 +139,45 @@ describe('ui recipe book window surfaces', () => {
     });
 
     const slot = getFirstRecipeSlot(ui.host);
+    const icon = getRecipeSlotIcon(slot);
+
     expect(slot?.getAttribute('style')).toContain(
-      'border-color: rgba(248, 113, 113, 0.92)',
+      'border-color: rgb(96, 165, 250)',
+    );
+    expect(icon?.getAttribute('style')).toContain(
+      'background-color: rgba(248, 113, 113, 0.92);',
+    );
+
+    await ui.unmount();
+  });
+
+  it('keeps unlearned equippable recipe slots on the muted disabled border instead of rarity color', async () => {
+    const ui = await mountRecipeBook({
+      recipes: [
+        createRecipe({
+          id: 'missing-rare-town-knife',
+          learned: false,
+          output: {
+            rarity: 'rare',
+          },
+        }),
+      ],
+    });
+
+    const slot = getFirstRecipeSlot(ui.host);
+    const icon = getRecipeSlotIcon(slot);
+
+    expect(slot?.getAttribute('style')).toContain(
+      'border-color: rgba(148, 163, 184, 0.45);',
+    );
+    expect(slot?.getAttribute('style')).toContain(
+      'box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.45), inset 0 10px 18px -14px rgba(148, 163, 184, 0.45), inset 0 -14px 20px -18px rgba(0, 0, 0, 0.85);',
+    );
+    expect(slot?.getAttribute('style')).not.toContain(
+      'border-color: rgb(96, 165, 250);',
+    );
+    expect(icon?.getAttribute('style')).toContain(
+      'background-color: rgba(148, 163, 184, 0.45);',
     );
 
     await ui.unmount();
@@ -474,4 +516,8 @@ function getFirstRecipeSlot(host: HTMLElement) {
   return actionButton?.parentElement?.parentElement?.parentElement?.querySelector(
     'button[data-size="compact"]',
   );
+}
+
+function getRecipeSlotIcon(slot?: Element | null) {
+  return slot?.querySelector('span[aria-label]');
 }

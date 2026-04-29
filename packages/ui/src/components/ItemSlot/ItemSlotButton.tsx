@@ -3,7 +3,7 @@ import { formatCompactNumber } from '../../formatters';
 import { formatEquipmentSlotLabel, formatItemLabel } from '../../i18n/labels';
 import { t } from '../../i18n';
 import type { EquipmentSlot, Item } from '../../game/stateTypes';
-import { iconForItem, itemTint } from '../../icons';
+import { iconForItem, itemBorderColor, itemTint } from '../../icons';
 import styles from './styles.module.scss';
 
 interface ItemSlotCornerIcon {
@@ -59,7 +59,9 @@ export function ItemSlotButton({
 }: ItemSlotButtonProps) {
   const tint =
     tintOverride ?? (item ? itemTint(item) : 'rgba(148, 163, 184, 0.32)');
-  const borderColor = borderColorOverride ?? tint;
+  const borderColor =
+    borderColorOverride ?? (item ? itemBorderColor(item) : tint);
+  const insetShadow = getInsetShadow(borderColor);
   const isInteractive = Boolean(
     !disabled &&
     (onClick || onContextMenu || onMouseEnter || onEmptyMouseEnter),
@@ -86,7 +88,7 @@ export function ItemSlotButton({
       style={{
         ...style,
         borderColor,
-        boxShadow: item ? `0 0 0 1px ${borderColor}33 inset` : undefined,
+        boxShadow: item ? insetShadow : undefined,
       }}
       data-size={size}
       onClick={!disabled ? (event) => onClick?.(event) : undefined}
@@ -148,3 +150,6 @@ function iconMaskStyle(icon: string, color: string) {
     mask,
   };
 }
+
+const getInsetShadow = (color: string) =>
+  `inset 0 0 0 1px ${color}, inset 0 10px 18px -14px ${color}, inset 0 -14px 20px -18px rgba(0, 0, 0, 0.85)`;

@@ -25,6 +25,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - A new game now starts with a `Town Knife` and `Settler Vest`; removed placeholder gear is not preserved through runtime display-name fallbacks.
 - The equipment window presents a silhouette-backed paper-doll layout where each slot is anchored near the matching body part and equipped items reuse the same icon-card treatment shown in inventory.
 - Inventory and ground-loot windows use a denser item-card treatment than the paper-doll equipment layout, with compact slots at roughly 60% of the prior compact footprint and icons sized to 90% of the slot box so larger item piles fit without pushing the window size upward.
+- Inventory-style equippable item icons now use theme-first palettes with low-intensity slot-role variation inside each set or generic gear family, while equippable item rarity is communicated through the slot border instead of recoloring the icon itself.
 - Tiles may spawn deterministic loot from world generation.
 - Enemies can drop gold, consumables, recipe pages, home scrolls, health potions, mana potions, blood moon gear, meat, and skinning materials depending on enemy ids and tags rather than localized names.
 - Food consumables restore HP and MP by percentage instead of flat values, using the item's healing rating as the restore percent with a minimum of `10%` for each resource while hunger and thirst remain flat restores.

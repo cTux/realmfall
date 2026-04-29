@@ -88,7 +88,9 @@ describe('ui visual helpers', () => {
     );
 
     expect(markup).toContain('border-color:#22c55e');
-    expect(markup).toContain('box-shadow:0 0 0 1px #22c55e33 inset');
+    expect(markup).toContain(
+      'box-shadow:inset 0 0 0 1px #22c55e, inset 0 10px 18px -14px #22c55e, inset 0 -14px 20px -18px rgba(0, 0, 0, 0.85)',
+    );
     expect(markup).toContain('background-color:rgba(96, 165, 250, 0.28)');
   });
 
