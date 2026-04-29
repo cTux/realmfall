@@ -86,6 +86,12 @@ const getDefaultRecipeSkill = (
   return tabs.includes(Skill.Hand) ? Skill.Hand : (tabs[0] ?? Skill.Hand);
 };
 
+const formatRecipeBookTabLabel = (skill: Skill) => {
+  const label = formatSkillLabel(skill);
+  if (label.length === 0) return label;
+  return label[0].toUpperCase() + label.slice(1);
+};
+
 type RecipeBookWindowContentProps = Pick<
   RecipeBookWindowProps,
   | 'currentStructure'
@@ -210,6 +216,23 @@ export function RecipeBookWindowContent({
 
   return (
     <div className={styles.layout}>
+      <div className={styles.tabs} role="tablist" aria-orientation="horizontal">
+        {visibleTabs.map((skill) => (
+          <Button
+            unstyled
+            key={skill}
+            type="button"
+            size="small"
+            role="tab"
+            aria-selected={activeSkill === skill}
+            className={styles.tab}
+            data-active={activeSkill === skill}
+            onClick={() => setActiveSkill(skill)}
+          >
+            {formatRecipeBookTabLabel(skill)}
+          </Button>
+        ))}
+      </div>
       <div className={styles.content}>
         {activeSkill === Skill.Crafting ? (
           <div className={styles.slotFilters}>
@@ -217,20 +240,22 @@ export function RecipeBookWindowContent({
               <Button
                 unstyled
                 type="button"
+                size="small"
                 className={styles.slotFilterControlButton}
                 onClick={() =>
                   setEnabledCraftingSlots(new Set(CRAFTING_SLOT_FILTERS))
                 }
               >
-                Enable all
+                {t('ui.common.allAction')}
               </Button>
               <Button
                 unstyled
                 type="button"
+                size="small"
                 className={styles.slotFilterControlButton}
                 onClick={() => setEnabledCraftingSlots(new Set())}
               >
-                Disable all
+                {t('ui.common.noneAction')}
               </Button>
             </div>
             {CRAFTING_SLOT_FILTERS.map((slot) => {
@@ -516,22 +541,6 @@ export function RecipeBookWindowContent({
             ) : null}
           </>
         )}
-      </div>
-      <div className={styles.tabs} role="tablist">
-        {visibleTabs.map((skill) => (
-          <Button
-            unstyled
-            key={skill}
-            type="button"
-            role="tab"
-            aria-selected={activeSkill === skill}
-            className={styles.tab}
-            data-active={activeSkill === skill}
-            onClick={() => setActiveSkill(skill)}
-          >
-            {formatSkillLabel(skill)}
-          </Button>
-        ))}
       </div>
     </div>
   );

@@ -69,7 +69,7 @@ describe('App recipe-book crafting structure attention', () => {
 
     const updatedRecipeBookButton = findRecipeBookDockButton(host);
     expect(updatedRecipeBookButton?.dataset.opened).toBe('true');
-    expect(getTab(host, 'crafting')?.getAttribute('aria-selected')).toBe(
+    expect(getTab(host, 'Crafting')?.getAttribute('aria-selected')).toBe(
       'true',
     );
 
