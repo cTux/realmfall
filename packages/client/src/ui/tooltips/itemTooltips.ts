@@ -10,8 +10,8 @@ import {
   sellValue,
 } from '../../game/inventory';
 import {
-  getBaseItemSecondaryStatCount,
   getDisplayedItemSecondaryStats,
+  getVisibleItemSecondaryEmptySlotCount,
 } from '../../game/itemModifications';
 import type { Item } from '../../game/stateTypes';
 import type { SecondaryStatKey } from '../../game/types';
@@ -385,12 +385,7 @@ function formatSecondaryStatValue(key: SecondaryStatKey, value: number) {
 
 function secondarySlotLines(item: Item): TooltipLine[] {
   const stats = getDisplayedItemSecondaryStats(item);
-  const baseSecondaryStatCount = getBaseItemSecondaryStatCount(item);
-  const capacity = Math.max(
-    item.secondaryStatCapacity ?? baseSecondaryStatCount,
-    baseSecondaryStatCount,
-  );
-  const emptySlots = Math.max(0, capacity - baseSecondaryStatCount);
+  const emptySlots = getVisibleItemSecondaryEmptySlotCount(item);
 
   return [
     ...stats.map(

@@ -9,6 +9,7 @@ import { getCurrentTile } from '../../../game/stateSelectors';
 import type { GameState } from '../../../game/stateTypes';
 import {
   canModifyItem,
+  formatReforgeableItemSecondaryStatLabel,
   getItemModificationCost,
   getReforgeableItemSecondaryStats,
 } from '../../../game/itemModifications';
@@ -35,7 +36,7 @@ export function useItemContextMenuController({
         canModifyItem(item)
           ? getReforgeableItemSecondaryStats(item).map((entry) => ({
               cost: getItemModificationCost(item, 'reforge'),
-              key: entry.stat.key,
+              label: formatReforgeableItemSecondaryStatLabel(entry),
               statIndex: entry.index,
             }))
           : [];

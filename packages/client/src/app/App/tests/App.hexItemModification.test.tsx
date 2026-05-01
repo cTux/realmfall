@@ -233,6 +233,102 @@ describe('App hex item modification flow', () => {
     });
     host.remove();
   });
+
+  it('shows one empty secondary slot option in the rune-forge dropdown', async () => {
+    const game = createHydratedAppGame();
+    game.tiles['0,0'] = {
+      ...game.tiles['0,0'],
+      structure: 'rune-forge',
+      items: [],
+    };
+    game.player.inventory = [
+      {
+        id: 'resource-gold-1',
+        itemKey: 'gold',
+        name: 'Gold',
+        quantity: 500,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'ring-1',
+        slot: 'ringLeft',
+        name: 'Ancient Ring',
+        quantity: 1,
+        tier: 12,
+        rarity: 'legendary',
+        power: 0,
+        defense: 0,
+        maxHp: 20,
+        healing: 0,
+        hunger: 0,
+        secondaryStatCapacity: 3,
+        secondaryStats: [{ key: 'attackSpeed', value: 5 }],
+      },
+    ];
+
+    loadEncryptedState.mockResolvedValue({
+      game,
+      ui: {
+        windowShown: {
+          hero: false,
+          skills: false,
+          recipes: false,
+          hexInfo: true,
+          equipment: false,
+          inventory: true,
+          loot: false,
+          log: false,
+          combat: false,
+          settings: false,
+        },
+      },
+    });
+
+    const { host, root } = await renderApp();
+
+    await act(async () => {
+      vi.advanceTimersByTime(200);
+    });
+    await flushLazyModules();
+    await flushLazyModules();
+
+    const selectionSlot = host.querySelector(
+      '[aria-label="Selected item for hex modification"]',
+    ) as HTMLButtonElement | null;
+
+    await act(async () => {
+      selectionSlot?.click();
+    });
+
+    const inventoryRing = findItemSlotButtonByIconLabel(host, 'artifact');
+
+    await act(async () => {
+      inventoryRing?.click();
+    });
+
+    const reforgeSelect = host.querySelector('select');
+    const optionLabels = Array.from(
+      reforgeSelect?.querySelectorAll('option') ?? [],
+    )
+      .map((option) => option.textContent)
+      .filter((label): label is string => Boolean(label));
+
+    expect(optionLabels).toContain('Attack Speed');
+    expect(
+      optionLabels.filter((label) => label === 'Empty secondary stat slot'),
+    ).toHaveLength(1);
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
 });
 
 function findButton(host: HTMLElement, label: string) {

@@ -1,5 +1,4 @@
 import type { Item } from '../../game/stateTypes';
-import type { SecondaryStatKey } from '../../game/types';
 
 export interface ItemContextMenuProps {
   item: Item;
@@ -15,7 +14,7 @@ export interface ItemContextMenuProps {
   canSellEntry?: boolean;
   reforgeOptions?: Array<{
     cost: number;
-    key: SecondaryStatKey;
+    label: string;
     statIndex: number;
   }>;
   enchantCost?: number | null;

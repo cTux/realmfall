@@ -364,6 +364,28 @@ describe('ui tooltip item content', () => {
     );
   });
 
+  it('shows at most one empty secondary stat slot for an item', () => {
+    const tooltipLines = itemTooltipLines({
+      id: 'legendary-single-empty-slot',
+      slot: EquipmentSlotId.RingLeft,
+      name: 'Legendary Ring',
+      quantity: 1,
+      tier: 12,
+      rarity: 'legendary',
+      power: 0,
+      defense: 0,
+      maxHp: 24,
+      healing: 0,
+      hunger: 0,
+      secondaryStatCapacity: 3,
+      secondaryStats: [{ key: 'attackSpeed', value: 5 }],
+    });
+
+    expect(
+      tooltipLines.filter((line) => line.text === 'Empty secondary stat slot'),
+    ).toHaveLength(1);
+  });
+
   it('shows level requirements and highlights unmet requirements in red', () => {
     expect(
       itemTooltipLines(

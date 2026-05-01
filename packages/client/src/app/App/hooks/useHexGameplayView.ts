@@ -3,6 +3,7 @@ import { hexKey } from '../../../game/hex';
 import { isEquippableItem } from '../../../game/inventory';
 import {
   canModifyItem,
+  formatReforgeableItemSecondaryStatLabel,
   getItemModificationCost,
   getItemModificationKindForStructure,
   getItemModificationStructureHint,
@@ -19,7 +20,6 @@ import { getCurrentHexFactionNpcHealStatus } from '../../../game/stateFactionNpc
 import type { GameState, Item } from '../../../game/stateTypes';
 import { buildTile, structureActionLabel } from '../../../game/world';
 import { t } from '../../../i18n';
-import { formatSecondaryStatLabel } from '../../../i18n/labels';
 
 interface UseHexGameplayViewOptions {
   bloodMoonActive: GameState['bloodMoonActive'];
@@ -129,7 +129,7 @@ export function useHexGameplayView({
     const reforgeOptions =
       kind === 'reforge' && selectedItem
         ? getReforgeableItemSecondaryStats(selectedItem).map((entry) => ({
-            label: formatSecondaryStatLabel(entry.stat.key),
+            label: formatReforgeableItemSecondaryStatLabel(entry),
             statIndex: entry.index,
           }))
         : [];

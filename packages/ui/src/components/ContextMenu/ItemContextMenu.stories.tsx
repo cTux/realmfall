@@ -57,12 +57,12 @@ export const RuneForgeAction: Story = {
     reforgeOptions: [
       {
         cost: 74,
-        key: 'attackSpeed',
+        label: 'Attack Speed',
         statIndex: 0,
       },
       {
         cost: 74,
-        key: 'dodgeChance',
+        label: 'Dodge Chance',
         statIndex: 1,
       },
     ],

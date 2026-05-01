@@ -1,4 +1,5 @@
 import { t } from '../i18n';
+import { formatSecondaryStatLabel } from '../i18n/labels';
 import { getStructureConfig } from './content/structures';
 import { ITEM_MODIFICATION_BALANCE } from './config';
 import type { Item, ItemSecondaryStat, StructureType } from './types';
@@ -11,6 +12,24 @@ export interface DisplayedItemSecondaryStat {
   stat: ItemSecondaryStat;
   source: ItemSecondaryStatSource;
 }
+
+type FilledReforgeableItemSecondaryStatSource = Exclude<
+  ItemSecondaryStatSource,
+  'enchanted'
+>;
+
+export type ReforgeableItemSecondaryStat =
+  | {
+      index: number;
+      stat: ItemSecondaryStat;
+      source: FilledReforgeableItemSecondaryStatSource;
+    }
+  | {
+      index: typeof EMPTY_REFORGEABLE_SECONDARY_STAT_INDEX;
+      source: 'empty';
+    };
+
+export const EMPTY_REFORGEABLE_SECONDARY_STAT_INDEX = -1;
 
 export const CORRUPTED_ITEM_COLOR = '#ef4444';
 
@@ -104,18 +123,33 @@ export function getReforgeableItemSecondaryStats(
   item: Pick<
     Item,
     | 'secondaryStats'
+    | 'secondaryStatCapacity'
     | 'reforgedSecondaryStatIndex'
     | 'enchantedSecondaryStatIndex'
   >,
-) {
+): ReforgeableItemSecondaryStat[] {
   const displayedStats = getDisplayedItemSecondaryStats(item).filter(
-    (entry) => entry.source !== 'enchanted',
+    (
+      entry,
+    ): entry is DisplayedItemSecondaryStat & {
+      source: FilledReforgeableItemSecondaryStatSource;
+    } => entry.source !== 'enchanted',
   );
   const reforgedIndex = getItemReforgedSecondaryStatIndex(item);
 
-  return reforgedIndex === undefined
+  if (reforgedIndex !== undefined) {
+    return displayedStats.filter((entry) => entry.index === reforgedIndex);
+  }
+
+  return getVisibleItemSecondaryEmptySlotCount(item) === 0
     ? displayedStats
-    : displayedStats.filter((entry) => entry.index === reforgedIndex);
+    : [
+        ...displayedStats,
+        {
+          index: EMPTY_REFORGEABLE_SECONDARY_STAT_INDEX,
+          source: 'empty',
+        },
+      ];
 }
 
 export function getBaseItemSecondaryStatCount(
@@ -126,6 +160,32 @@ export function getBaseItemSecondaryStatCount(
     secondaryStatCount -
     (getItemEnchantedSecondaryStatIndex(item) == null ? 0 : 1)
   );
+}
+
+export function getVisibleItemSecondaryEmptySlotCount(
+  item: Pick<
+    Item,
+    'secondaryStats' | 'secondaryStatCapacity' | 'enchantedSecondaryStatIndex'
+  >,
+) {
+  const baseSecondaryStatCount = getBaseItemSecondaryStatCount(item);
+  const baseSecondaryStatCapacity = Math.max(
+    item.secondaryStatCapacity ?? baseSecondaryStatCount,
+    baseSecondaryStatCount,
+  );
+
+  return Math.min(
+    1,
+    Math.max(0, baseSecondaryStatCapacity - baseSecondaryStatCount),
+  );
+}
+
+export function formatReforgeableItemSecondaryStatLabel(
+  stat: ReforgeableItemSecondaryStat,
+) {
+  return stat.source === 'empty'
+    ? t('ui.tooltip.secondaryStatEmpty')
+    : formatSecondaryStatLabel(stat.stat.key);
 }
 
 export function canModifyItem(item: Pick<Item, 'corrupted'>) {

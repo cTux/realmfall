@@ -67,6 +67,62 @@ describe('game state item modification actions', () => {
     expect(restricted.logs[0]?.text).toMatch(/same pink stat/i);
   });
 
+  it('reforges one empty secondary slot into a new stat and locks future rerolls to that new slot', () => {
+    const game = createGame(3, 'reforge-empty-slot-seed');
+    game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'rune-forge' };
+    game.player.inventory = [
+      {
+        id: 'resource-gold-1',
+        itemKey: 'gold',
+        name: 'Gold',
+        quantity: 500,
+        tier: 1,
+        rarity: 'common',
+        power: 0,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+      },
+      {
+        id: 'ring-1',
+        slot: 'ringLeft',
+        name: 'Ancient Ring',
+        quantity: 1,
+        tier: 12,
+        rarity: 'legendary',
+        power: 0,
+        defense: 0,
+        maxHp: 20,
+        healing: 0,
+        hunger: 0,
+        secondaryStatCapacity: 3,
+        secondaryStats: [{ key: 'attackSpeed', value: 5 }],
+      },
+    ];
+
+    const item = game.player.inventory[1]!;
+    const reforgeCost = getItemModificationCost(item, 'reforge');
+    const reforged = reforgeInventoryItem(game, item.id, -1);
+    const reforgedItem = reforged.player.inventory.find(
+      (entry) => entry.id === item.id,
+    )!;
+
+    expect(reforgedItem.secondaryStats).toHaveLength(2);
+    expect(reforgedItem.secondaryStats?.[0]?.key).toBe('attackSpeed');
+    expect(reforgedItem.secondaryStats?.[1]?.key).not.toBe('attackSpeed');
+    expect(reforgedItem.reforgedSecondaryStatIndex).toBe(1);
+    expect(getGoldAmount(reforged.player.inventory)).toBe(500 - reforgeCost);
+
+    const restricted = reforgeInventoryItem(reforged, item.id, 0);
+    const restrictedItem = restricted.player.inventory.find(
+      (entry) => entry.id === item.id,
+    )!;
+
+    expect(restrictedItem.secondaryStats).toEqual(reforgedItem.secondaryStats);
+    expect(restricted.logs[0]?.text).toMatch(/same pink stat/i);
+  });
+
   it('adds and replaces an enchanted stat without growing the item stats list', () => {
     const game = createGame(3, 'enchant-seed');
     game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'mana-font' };
