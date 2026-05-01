@@ -16,6 +16,13 @@ export interface TileResolutionClaim {
   npc?: TileResolutionNpc;
 }
 
+type TileResolutionRarity =
+  | 'common'
+  | 'uncommon'
+  | 'rare'
+  | 'epic'
+  | 'legendary';
+
 export interface TileResolutionItem {
   id: string;
   itemKey?: string;
@@ -23,7 +30,7 @@ export interface TileResolutionItem {
   name: string;
   quantity: number;
   tier: number;
-  rarity: string;
+  rarity: TileResolutionRarity;
   requiredLevel?: number;
   power: number;
   defense: number;
@@ -44,7 +51,7 @@ export interface TileResolutionEnemy {
   enemyTypeId?: string;
   name: string;
   coord: TileResolutionCoord;
-  rarity?: string;
+  rarity?: TileResolutionRarity;
   tier: number;
   baseMaxHp?: number;
   hp: number;
