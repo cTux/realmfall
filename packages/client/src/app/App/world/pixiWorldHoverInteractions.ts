@@ -7,7 +7,10 @@ import {
 import { hexAtPoint, hexDistance, type HexCoord } from '../../../game/hex';
 import { isPassable } from '../../../game/shared';
 import { getSafePathToTile } from '../../../game/statePathfinding';
-import { getEnemiesAt, getTileAt } from '../../../game/stateWorldQueries';
+import {
+  getEnemiesAt,
+  getResolvedTileAt,
+} from '../../../game/stateWorldQueries';
 import type { GameState } from '../../../game/stateTypes';
 import { getWorldHexSize } from '../../../ui/world/renderSceneMath';
 import { WORLD_REVEAL_RADIUS } from '../../constants';
@@ -171,18 +174,18 @@ export function createWorldHoverInteractions({
       return;
     }
 
-    let tile: ReturnType<typeof getTileAt> | null = null;
+    let tile: ReturnType<typeof getResolvedTileAt> | null = null;
     let safePath: HexCoord[] | null = null;
     let actionable = false;
 
     if (distance === 1) {
-      tile = getTileAt(current, target);
-      actionable = isPassable(tile.terrain);
+      tile = getResolvedTileAt(current, target);
+      actionable = Boolean(tile && isPassable(tile.terrain));
     } else if (distance > 1 && withinVisibleMap) {
       safePath = getSafePathToTile(current, target);
       actionable = Boolean(safePath);
       if (actionable) {
-        tile = getTileAt(current, target);
+        tile = getResolvedTileAt(current, target);
       }
     }
 

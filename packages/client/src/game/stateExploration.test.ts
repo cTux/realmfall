@@ -20,6 +20,7 @@ import {
   findFactionNpcTile,
   findFactionTownTile,
 } from './stateTestHelpers';
+import { worldTimeMsFromMinutes } from './logs';
 
 describe('game state exploration', () => {
   it('creates a centered start in a visible hex viewport', () => {
@@ -68,7 +69,7 @@ describe('game state exploration', () => {
     const next = moveToTile(game, target);
     expect(next.player.coord).toEqual(target);
     expect(next.turn).toBe(1);
-    expect(next.worldTimeMs).toBe(
+    expect(next.worldTimeMs).toBeCloseTo(
       game.worldTimeMs + GAME_CONFIG.worldClock.moveHexDurationMs,
     );
     expect(next.logs[0]?.text).toMatch(/^\[Year 1, Day 1, 18:37\] /);
@@ -83,6 +84,26 @@ describe('game state exploration', () => {
 
     expect(next.player.coord).toEqual({ q: 1, r: 0 });
     expect(next.logs[0]?.text).toContain('not resolved yet');
+  });
+
+  it('syncs day-phase transitions after movement advances world time', () => {
+    const game = createGame(4, 'move-day-phase-sync');
+    game.dayPhase = 'night';
+    game.worldTimeMs = worldTimeMsFromMinutes(418);
+    game.player.coord = { q: 1, r: 0 };
+    game.tiles['2,0'] = {
+      coord: { q: 2, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+
+    const next = moveToTile(game, { q: 2, r: 0 });
+
+    expect(next.dayPhase).toBe('day');
+    expect(next.logs.some((entry) => /morning breaks/i.test(entry.text))).toBe(
+      true,
+    );
   });
 
   it('generates faction territories with borders, neutral residents, and safe interiors', () => {
@@ -370,6 +391,7 @@ describe('game state exploration', () => {
 
     const game = createGame(4, 'day-no-ambush-seed');
     game.dayPhase = 'day';
+    game.worldTimeMs = worldTimeMsFromMinutes(12 * 60);
     game.player.hunger = 100;
     game.player.thirst = 100;
 
