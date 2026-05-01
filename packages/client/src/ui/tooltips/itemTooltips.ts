@@ -25,21 +25,26 @@ import { type TooltipLine, tagTooltipLines } from './shared';
 
 interface ItemTooltipOptions {
   recipeLearned?: boolean;
+  replacedOffhand?: Item;
   quickSellHint?: boolean;
   playerLevel?: number;
 }
 
 const SELL_VALUE_TINT = '#fbbf24';
 
-export function comparisonLines(item: Item, equipped?: Item) {
+export function comparisonLines(
+  item: Item,
+  equipped?: Item,
+  replacedOffhand?: Item,
+) {
   const category = getItemCategory(item);
   if (category === 'consumable' || category === 'resource') return [];
-  const compare = equipped ?? { power: 0, defense: 0, maxHp: 0 };
+  const compare = summarizeComparedItems(equipped, replacedOffhand);
   return [
     { label: t('ui.tooltip.attack'), value: item.power - compare.power },
     { label: t('ui.tooltip.defense'), value: item.defense - compare.defense },
     { label: t('ui.tooltip.maxHealth'), value: item.maxHp - compare.maxHp },
-    ...secondaryStatDeltaLines(item, equipped),
+    ...secondaryStatDeltaLines(item, compare.secondaryStats),
   ].filter((line) => line.value !== 0);
 }
 
@@ -163,8 +168,8 @@ export function itemTooltipLines(
     }
   }
 
-  if (equipped) {
-    const deltas = comparisonLines(item, equipped);
+  if (equipped || options.replacedOffhand) {
+    const deltas = comparisonLines(item, equipped, options.replacedOffhand);
 
     lines.push({
       kind: 'text',
@@ -327,9 +332,36 @@ function capitalize(value: string) {
   return value[0].toUpperCase() + value.slice(1);
 }
 
-function secondaryStatDeltaLines(item: Item, equipped?: Item) {
+function summarizeComparedItems(...items: Array<Item | undefined>) {
+  const secondaryStatsMap = new Map<SecondaryStatKey, number>();
+
+  items.forEach((item) => {
+    if (!item) return;
+    item.secondaryStats?.forEach((stat) => {
+      secondaryStatsMap.set(
+        stat.key,
+        (secondaryStatsMap.get(stat.key) ?? 0) + stat.value,
+      );
+    });
+  });
+
+  return {
+    power: items.reduce((total, item) => total + (item?.power ?? 0), 0),
+    defense: items.reduce((total, item) => total + (item?.defense ?? 0), 0),
+    maxHp: items.reduce((total, item) => total + (item?.maxHp ?? 0), 0),
+    secondaryStats: [...secondaryStatsMap.entries()].map(([key, value]) => ({
+      key,
+      value,
+    })),
+  };
+}
+
+function secondaryStatDeltaLines(
+  item: Item,
+  equippedSecondaryStats: Item['secondaryStats'] = [],
+) {
   const equippedMap = new Map(
-    (equipped?.secondaryStats ?? []).map((stat) => [stat.key, stat.value]),
+    equippedSecondaryStats.map((stat) => [stat.key, stat.value]),
   );
   const itemMap = new Map(
     (item.secondaryStats ?? []).map((stat) => [stat.key, stat.value]),

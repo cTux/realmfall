@@ -5,6 +5,7 @@ import {
   type MutableRefObject,
 } from 'react';
 import type { TooltipPosition } from '@realmfall/ui';
+import { itemOccupiesOffhand } from '../../../game/content/items';
 import { isRecipePage } from '../../../game/inventory';
 import {
   CORRUPTED_ITEM_COLOR,
@@ -48,15 +49,17 @@ function getCachedItemTooltipLines(
   buildItemTooltipLines: ItemTooltipLinesBuilder,
   item: TooltipItem,
   equipped: TooltipItem | undefined,
+  replacedOffhand: TooltipItem | undefined,
   recipeLearned: boolean,
   quickSellHint: boolean,
   playerLevel: number,
 ) {
-  if (quickSellHint) {
+  if (quickSellHint || replacedOffhand) {
     return buildItemTooltipLines(item, equipped, {
       playerLevel,
       recipeLearned,
-      quickSellHint: true,
+      replacedOffhand,
+      quickSellHint,
     });
   }
 
@@ -114,6 +117,7 @@ function getCachedItemTooltipLines(
 function getItemTooltipContentKey(
   item: TooltipItem,
   equipped: TooltipItem | undefined,
+  replacedOffhand: TooltipItem | undefined,
   recipeLearned: boolean,
   quickSellHint: boolean,
   playerLevel: number,
@@ -135,6 +139,15 @@ function getItemTooltipContentKey(
       grantedAbilityId: item.grantedAbilityId,
     },
     equippedId: equipped?.id ?? null,
+    replacedOffhand: replacedOffhand
+      ? {
+          id: replacedOffhand.id,
+          defense: replacedOffhand.defense,
+          maxHp: replacedOffhand.maxHp,
+          power: replacedOffhand.power,
+          secondaryStats: replacedOffhand.secondaryStats,
+        }
+      : null,
     recipeLearned,
     playerLevel,
     quickSellHint,
@@ -146,6 +159,7 @@ function buildItemTooltipState({
   buildItemTooltipLines,
   item,
   equipped,
+  replacedOffhand,
   recipeLearned,
   quickSellHint,
   position,
@@ -155,6 +169,7 @@ function buildItemTooltipState({
   buildItemTooltipLines: ItemTooltipLinesBuilder;
   item: TooltipItem;
   equipped: TooltipItem | undefined;
+  replacedOffhand: TooltipItem | undefined;
   recipeLearned: boolean;
   quickSellHint: boolean;
   playerLevel: number;
@@ -167,6 +182,7 @@ function buildItemTooltipState({
       buildItemTooltipLines,
       item,
       equipped,
+      replacedOffhand,
       recipeLearned,
       quickSellHint,
       playerLevel,
@@ -174,6 +190,7 @@ function buildItemTooltipState({
     contentKey: getItemTooltipContentKey(
       item,
       equipped,
+      replacedOffhand,
       recipeLearned,
       quickSellHint,
       playerLevel,
@@ -232,6 +249,9 @@ export function useItemTooltipController({
       quickSellHint = false,
     ) => {
       const recipeLearned = isRecipePageLearned(gameRef.current, item);
+      const replacedOffhand = itemOccupiesOffhand(item)
+        ? gameRef.current.player.equipment.offhand
+        : undefined;
       const requestId = ++tooltipRequestIdRef.current;
 
       void loadItemTooltipModule().then((tooltipModule) => {
@@ -247,17 +267,18 @@ export function useItemTooltipController({
 
         tooltipPositionRef.current = position;
         setTooltipState(
-        buildItemTooltipState({
-          cache: itemTooltipLinesCacheRef.current,
-          buildItemTooltipLines: tooltipModule.itemTooltipLines,
-          item,
-          equipped,
-          recipeLearned,
-          quickSellHint,
-          playerLevel: gameRef.current.player.level,
-          position,
-        }),
-      );
+          buildItemTooltipState({
+            cache: itemTooltipLinesCacheRef.current,
+            buildItemTooltipLines: tooltipModule.itemTooltipLines,
+            item,
+            equipped,
+            replacedOffhand,
+            recipeLearned,
+            quickSellHint,
+            playerLevel: gameRef.current.player.level,
+            position,
+          }),
+        );
       });
     },
     [gameRef, loadItemTooltipModule, tooltipPositionRef],
