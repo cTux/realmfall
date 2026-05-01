@@ -101,6 +101,8 @@ export interface SettingsViewState {
   graphics: GraphicsSettings;
 }
 
+export type DebugViewState = Record<string, never>;
+
 export interface AppWindowsViewState {
   hero: HeroViewState;
   player: PlayerViewState;
@@ -111,5 +113,6 @@ export interface AppWindowsViewState {
   combat: CombatViewState;
   logs: LogsViewState;
   settings: SettingsViewState;
+  debug: DebugViewState;
   itemMenu: ItemContextMenuState | null;
 }

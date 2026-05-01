@@ -23,6 +23,7 @@ describe('app utils', () => {
       'equipment',
       'inventory',
       'log',
+      'debug',
       'settings',
     ]);
   });
@@ -58,6 +59,7 @@ describe('app utils', () => {
       e: 'equipment',
       i: 'inventory',
       g: 'log',
+      d: 'debug',
       m: 'settings',
     });
   });

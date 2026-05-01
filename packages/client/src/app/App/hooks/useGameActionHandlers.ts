@@ -28,6 +28,8 @@ import {
   enchantInventoryItem,
   reforgeInventoryItem,
 } from '../../../game/stateItemModificationActions';
+import type { EnemyTypeKey, ItemKey } from '../../../game/content/ids';
+import type { DebugEquipmentType } from '../../../game/stateDebug';
 import {
   activateInventoryItem,
   equipItem,
@@ -35,6 +37,8 @@ import {
   useItem as applyItemUse,
 } from '../../../game/stateItemActions';
 import type { GameState } from '../../../game/stateTypes';
+import type { ItemRarity } from '../../../game/stateTypes';
+import type { EnemyRarity } from '../../../game/types';
 import {
   claimCurrentHex,
   healAtFactionNpc,
@@ -47,6 +51,8 @@ interface UseGameActionHandlersOptions {
   setGame: Dispatch<SetStateAction<GameState>>;
   worldTimeMsRef: MutableRefObject<number>;
 }
+
+type DebugStateModule = typeof import('../../../game/stateDebug');
 
 export function useGameActionHandlers({
   paused,
@@ -391,11 +397,118 @@ export function useGameActionHandlers({
     );
   }, [applyGameTransition]);
 
+  const handleCreateDebugEquipmentItem = useCallback(
+    (type: DebugEquipmentType, rarity: ItemRarity) => {
+      void loadStateDebugModule().then(
+        ({ addDebugEquipmentItemToInventory }) => {
+          applyGameTransition(
+            createLoggedGameTransition({
+              describe: () =>
+                `You command: create a ${t(`ui.rarity.${rarity}`)} ${getDebugEquipmentTypeLabel(type)}.`,
+              transition: (current) =>
+                addDebugEquipmentItemToInventory(current, { rarity, type }),
+            }),
+          );
+        },
+      );
+    },
+    [applyGameTransition],
+  );
+
+  const handleCreateDebugDropItem = useCallback(
+    (itemKey: ItemKey) => {
+      void loadStateDebugModule().then(({ addDebugDropItemToInventory }) => {
+        applyGameTransition(
+          createLoggedGameTransition({
+            describe: () =>
+              `You command: create ${t(`game.item.${itemKey}.name`)}.`,
+            transition: (current) =>
+              addDebugDropItemToInventory(current, itemKey),
+          }),
+        );
+      });
+    },
+    [applyGameTransition],
+  );
+
+  const handleSpawnDebugEnemyNearby = useCallback(
+    (enemyTypeId: EnemyTypeKey, rarity: EnemyRarity) => {
+      void loadStateDebugModule().then(({ spawnDebugEnemyNearby }) => {
+        applyGameTransition(
+          createLoggedGameTransition({
+            describe: () =>
+              `You command: spawn a ${t(`ui.rarity.${rarity}`)} ${t(`game.enemy.${enemyTypeId}.name`)} nearby.`,
+            transition: (current) =>
+              spawnDebugEnemyNearby(current, { enemyTypeId, rarity }),
+          }),
+        );
+      });
+    },
+    [applyGameTransition],
+  );
+
+  const handleTriggerDebugBloodMoon = useCallback(() => {
+    void loadStateDebugModule().then(({ forceDebugBloodMoon }) => {
+      applyGameTransition(
+        createLoggedGameTransition({
+          describe: () => 'You command: force a blood moon.',
+          transition: forceDebugBloodMoon,
+        }),
+      );
+    });
+  }, [applyGameTransition]);
+
+  const handleTriggerDebugHarvestMoon = useCallback(() => {
+    void loadStateDebugModule().then(({ forceDebugHarvestMoon }) => {
+      applyGameTransition(
+        createLoggedGameTransition({
+          describe: () => 'You command: force a harvest moon.',
+          transition: forceDebugHarvestMoon,
+        }),
+      );
+    });
+  }, [applyGameTransition]);
+
+  const handleTriggerDebugEarthquake = useCallback(() => {
+    void loadStateDebugModule().then(({ triggerDebugEarthquake }) => {
+      applyGameTransition(
+        createLoggedGameTransition({
+          describe: () => 'You command: trigger an earthquake.',
+          transition: triggerDebugEarthquake,
+        }),
+      );
+    });
+  }, [applyGameTransition]);
+
+  const handleSetDebugMorning = useCallback(() => {
+    void loadStateDebugModule().then(({ setDebugMorning }) => {
+      applyGameTransition(
+        createLoggedGameTransition({
+          describe: () => 'You command: set the world to morning.',
+          transition: setDebugMorning,
+        }),
+      );
+    });
+  }, [applyGameTransition]);
+
+  const handleSetDebugNight = useCallback(() => {
+    void loadStateDebugModule().then(({ setDebugNight }) => {
+      applyGameTransition(
+        createLoggedGameTransition({
+          describe: () => 'You command: set the world to night.',
+          transition: setDebugNight,
+        }),
+      );
+    });
+  }, [applyGameTransition]);
+
   return {
     applyGameTransition,
     handleActivateInventoryItem,
     handleBuyTownItem,
     handleClaimHex,
+    handleCreateDebugDropItem,
+    handleCreateDebugEquipmentItem,
     handleHealTerritoryNpc,
     handleCraftRecipe,
     handleDropEquippedItem,
@@ -410,15 +523,34 @@ export function useGameActionHandlers({
     handleReforgeItem,
     handleSellAll,
     handleSellItem,
+    handleSetDebugMorning,
+    handleSetDebugNight,
     handleSetItemLocked,
+    handleSpawnDebugEnemyNearby,
     handleToggleFavoriteRecipe,
     handleSort,
     handleStartCombat,
     handleTakeAllLoot,
     handleTakeLootItem,
+    handleTriggerDebugBloodMoon,
+    handleTriggerDebugEarthquake,
+    handleTriggerDebugHarvestMoon,
     handleUnequip,
     handleUseItem,
   };
+}
+
+function getDebugEquipmentTypeLabel(type: DebugEquipmentType) {
+  return {
+    weapon: 'weapon',
+    offhand: 'offhand',
+    armor: 'armor',
+    artifact: 'artifact',
+  }[type];
+}
+
+function loadStateDebugModule(): Promise<DebugStateModule> {
+  return import('../../../game/stateDebug');
 }
 
 function applyTimedGameTransition(

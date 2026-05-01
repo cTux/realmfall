@@ -4,8 +4,16 @@ import type { WindowPositions, WindowVisibilityState } from '../constants';
 import type { GraphicsSettings } from '../graphicsSettings';
 import type { ResettableSaveAreaId } from '../../persistence/saveAreas';
 import type { InventorySortMode } from '../../game/inventory';
-import type { EquipmentSlot, Item, LogKind } from '../../game/stateTypes';
+import type {
+  EquipmentSlot,
+  Item,
+  ItemRarity,
+  LogKind,
+} from '../../game/stateTypes';
+import type { EnemyRarity } from '../../game/types';
 import type { TooltipItem } from './types';
+import type { DebugEquipmentType } from '../../game/stateDebug';
+import type { EnemyTypeKey, ItemKey } from '../../game/content/ids';
 
 export interface WindowActions {
   onMoveWindow: (
@@ -115,6 +123,17 @@ export interface SettingsActions {
   }) => Promise<void>;
 }
 
+export interface DebugActions {
+  onCreateEquipmentItem: (type: DebugEquipmentType, rarity: ItemRarity) => void;
+  onCreateDropItem: (itemKey: ItemKey) => void;
+  onSpawnEnemyNearby: (enemyTypeId: EnemyTypeKey, rarity: EnemyRarity) => void;
+  onTriggerBloodMoon: () => void;
+  onTriggerHarvestMoon: () => void;
+  onTriggerEarthquake: () => void;
+  onSetMorning: () => void;
+  onSetNight: () => void;
+}
+
 export interface AppWindowsActions {
   windows: WindowActions;
   tooltip: TooltipActions;
@@ -123,4 +142,5 @@ export interface AppWindowsActions {
   recipes: RecipesActions;
   logs: LogActions;
   settings: SettingsActions;
+  debug: DebugActions;
 }

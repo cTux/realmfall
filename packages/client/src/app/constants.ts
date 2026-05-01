@@ -8,6 +8,7 @@ import stonePileIcon from '../assets/icons/stone-pile.svg';
 import backpackIcon from '../assets/game-icons/delapouite/backpack.svg';
 import enemyIcon from '../assets/icons/wolf-head.svg';
 import gearsIcon from '../assets/icons/gears.svg';
+import toolboxIcon from '../assets/game-icons/delapouite/toolbox.svg';
 import { LOG_KINDS, type LogKind } from '../game/stateTypes';
 import { HEX_SIZE, WORLD_RADIUS, WORLD_REVEAL_RADIUS } from '../game/config';
 import { DEFAULT_AUDIO_SETTINGS } from './audioSettings';
@@ -88,6 +89,14 @@ export const WINDOW_REGISTRY = {
     mountSource: 'windowShown',
     hotkey: 'g',
     icon: tiedScrollIcon,
+  },
+  debug: {
+    defaultPosition: { x: 1040, y: 80, width: 760, height: 640 },
+    dock: true,
+    appDeferred: true,
+    mountSource: 'windowShown',
+    hotkey: 'd',
+    icon: toolboxIcon,
   },
   combat: {
     defaultPosition: { x: 420, y: 470 },
