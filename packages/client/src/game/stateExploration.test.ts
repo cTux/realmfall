@@ -68,7 +68,21 @@ describe('game state exploration', () => {
     const next = moveToTile(game, target);
     expect(next.player.coord).toEqual(target);
     expect(next.turn).toBe(1);
-    expect(next.logs[0]?.text).toMatch(/^\[Year 1, Day 1, 18:33\] /);
+    expect(next.worldTimeMs).toBe(
+      game.worldTimeMs + GAME_CONFIG.worldClock.moveHexDurationMs,
+    );
+    expect(next.logs[0]?.text).toMatch(/^\[Year 1, Day 1, 18:37\] /);
+  });
+
+  it('blocks movement onto an unresolved adjacent hex', () => {
+    const game = createGame(4, 'unresolved-adjacent-move');
+    game.player.coord = { q: 1, r: 0 };
+    delete game.tiles['2,0'];
+
+    const next = moveToTile(game, { q: 2, r: 0 });
+
+    expect(next.player.coord).toEqual({ q: 1, r: 0 });
+    expect(next.logs[0]?.text).toContain('not resolved yet');
   });
 
   it('generates faction territories with borders, neutral residents, and safe interiors', () => {
@@ -133,6 +147,7 @@ describe('game state exploration', () => {
     const game = createGame(4, 'safe-path-move-seed');
     game.player.hunger = 100;
     game.player.thirst = 100;
+    game.worldTimeMs = 12_345;
 
     game.tiles['1,0'] = {
       coord: { q: 1, r: 0 },
@@ -163,9 +178,33 @@ describe('game state exploration', () => {
 
     expect(moved.player.coord).toEqual({ q: 2, r: 0 });
     expect(moved.turn).toBe(3);
+    expect(moved.worldTimeMs).toBe(
+      12_345 + GAME_CONFIG.worldClock.moveHexDurationMs * 3,
+    );
     expect(
       moved.logs.filter((entry) => entry.kind === 'movement'),
     ).toHaveLength(3);
+  });
+
+  it('does not safe-path through unresolved visible hexes', () => {
+    const game = createGame(4, 'safe-path-unresolved-seed');
+
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'mountain',
+      items: [],
+      enemyIds: [],
+    };
+    game.tiles['2,0'] = {
+      coord: { q: 2, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+    delete game.tiles['1,-1'];
+    delete game.tiles['2,-1'];
+
+    expect(getSafePathToTile(game, { q: 2, r: 0 })).toBeNull();
   });
 
   it('finds a safe path to a distant hostile target without crossing hostile tiles', () => {

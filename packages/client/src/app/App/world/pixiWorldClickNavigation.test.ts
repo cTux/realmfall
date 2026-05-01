@@ -70,6 +70,12 @@ describe('createWorldClickHandler', () => {
   it('adds a command log when clicking a reachable safe-path tile', () => {
     const game = createGame(3, 'safe-path-click-command');
     let nextGame = game;
+    game.tiles['2,0'] = {
+      coord: { q: 2, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
     const safePathPoint = tileToPoint(
       { q: 2, r: 0 },
       app.screen.width / 2,

@@ -166,6 +166,7 @@ describe('game config schema', () => {
       },
       worldClock: {
         dayDurationMs: 1,
+        moveHexDurationMs: 1,
       },
       worldGeneration: {
         terrain: {

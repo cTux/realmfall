@@ -1,5 +1,9 @@
 import { t } from '../i18n';
-import { BLOOD_MOON_CHANCE, HARVEST_MOON_CHANCE } from './config';
+import {
+  BLOOD_MOON_CHANCE,
+  HARVEST_MOON_CHANCE,
+  WORLD_MOVE_HEX_DURATION_MS,
+} from './config';
 import { syncEnemyBloodMoonState } from './combat';
 import {
   addLog,
@@ -20,6 +24,14 @@ import {
 } from './stateWorldEvents';
 import { processPlayerStatusEffects } from './stateSurvival';
 import type { GameState } from './types';
+
+export function advanceWorldTimeForMovement(state: GameState, steps = 1) {
+  if (steps <= 0) {
+    return state.worldTimeMs;
+  }
+
+  return state.worldTimeMs + WORLD_MOVE_HEX_DURATION_MS * steps;
+}
 
 export function syncBloodMoon(
   state: GameState,

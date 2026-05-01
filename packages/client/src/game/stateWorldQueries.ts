@@ -31,8 +31,12 @@ export function getVisibleTiles(state: VisibleTilesState) {
   return tiles;
 }
 
+export function getResolvedTileAt(state: WorldTileState, coord: HexCoord) {
+  return state.tiles[hexKey(coord)] ?? null;
+}
+
 export function getTileAt(state: WorldTileState, coord: HexCoord) {
-  return state.tiles[hexKey(coord)] ?? buildTile(state.seed, coord);
+  return getResolvedTileAt(state, coord) ?? buildTile(state.seed, coord);
 }
 
 export function getCurrentTile(state: CurrentTileState) {

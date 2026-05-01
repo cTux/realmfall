@@ -46,7 +46,7 @@ describe('game state survival timing', () => {
     game.player.coord = { q: 1, r: 0 };
 
     const next = moveToTile(game, target);
-    expect(next.logs[0]?.text).toMatch(/^\[Year 1, Day 2, 18:33\] /);
+    expect(next.logs[0]?.text).toMatch(/^\[Year 1, Day 2, 18:37\] /);
   });
 
   it('reduces player debuff tick damage by defense', () => {

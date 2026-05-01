@@ -86,7 +86,7 @@ describe('game state combat encounters', () => {
     const encountered = moveToTile(game, target);
     const started = startCombat(encountered);
 
-    expect(started.combat?.startedAtMs).toBe(75_000);
+    expect(started.combat?.startedAtMs).toBe(encountered.worldTimeMs);
 
     const forfeited = forfeitCombat(started);
 

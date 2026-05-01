@@ -10,9 +10,9 @@ import { createCombatState } from './stateCombat';
 import { cloneForWorldMutation, message } from './stateMutationHelpers';
 import { getSafePathToTile } from './statePathfinding';
 import { applySurvivalDecay, respawnAtNearestTown } from './stateSurvival';
-import { getHostileEnemyIds } from './stateWorldQueries';
+import { advanceWorldTimeForMovement } from './stateWorldClock';
+import { getHostileEnemyIds, getResolvedTileAt } from './stateWorldQueries';
 import type { GameState, Tile } from './types';
-import { ensureTileState } from './world';
 
 export function moveToTile(state: GameState, target: HexCoord): GameState {
   if (state.gameOver) return state;
@@ -26,14 +26,17 @@ export function moveToTile(state: GameState, target: HexCoord): GameState {
   }
 
   const next = cloneForWorldMutation(state);
-  ensureTileState(next, target);
-  const tile = next.tiles[`${target.q},${target.r}`]!;
+  const tile = getResolvedTileAt(next, target);
+  if (!tile) {
+    return message(next, t('game.message.travel.unknownHex'));
+  }
 
   if (!isPassable(tile.terrain)) {
     return message(next, t('game.message.travel.blockedTerrain'));
   }
 
   next.turn += 1;
+  next.worldTimeMs = advanceWorldTimeForMovement(next, 1);
   applySurvivalDecay(next);
   next.player.coord = target;
 

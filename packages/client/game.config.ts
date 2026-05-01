@@ -247,6 +247,8 @@ const gameConfig = defineGameConfig({
   worldClock: {
     // Real milliseconds required for one complete 24-hour in-game day.
     dayDurationMs: 5 * 60_000,
+    // In-game time cost applied for each hex the player successfully crosses.
+    moveHexDurationMs: 1_000,
   },
   worldGeneration: {
     terrain: {
