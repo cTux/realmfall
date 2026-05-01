@@ -26,6 +26,10 @@ type TileResolutionRarity =
 export interface TileResolutionItem {
   id: string;
   itemKey?: string;
+  tags?: string[];
+  recipeId?: string;
+  locked?: boolean;
+  slot?: string;
   icon?: string;
   name: string;
   quantity: number;
@@ -49,6 +53,7 @@ export interface TileResolutionItem {
 export interface TileResolutionEnemy {
   id: string;
   enemyTypeId?: string;
+  tags?: string[];
   name: string;
   coord: TileResolutionCoord;
   rarity?: TileResolutionRarity;
@@ -66,7 +71,18 @@ export interface TileResolutionEnemy {
   elite: boolean;
   worldBoss?: boolean;
   aggressive?: boolean;
+  statusEffects?: TileResolutionStatusEffect[];
   abilityIds?: string[];
+}
+
+export interface TileResolutionStatusEffect {
+  id: string;
+  tags?: string[];
+  expiresAt?: number;
+  tickIntervalMs?: number;
+  lastProcessedAt?: number;
+  stacks?: number;
+  value?: number;
 }
 
 export interface TileResolutionTile {
