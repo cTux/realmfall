@@ -1,6 +1,5 @@
 import { memo, useEffect, useRef } from 'react';
 import { t } from '../../i18n';
-import { formatSecondaryStatLabel } from '../../i18n/labels';
 import { ITEM_MODIFICATION_BALANCE } from '../../game/config';
 import type { ItemContextMenuProps } from './types';
 import styles from './styles.module.scss';
@@ -88,12 +87,12 @@ export const ItemContextMenu = memo(function ItemContextMenu({
       ) : null}
       {reforgeOptions.map((option) => (
         <button
-          key={`reforge-${option.statIndex}-${option.key}`}
+          key={`reforge-${option.statIndex}-${option.label}`}
           className={styles.action}
           onClick={() => onReforge?.(option.statIndex)}
         >
           {t('ui.itemMenu.reforgeAction', {
-            stat: formatSecondaryStatLabel(option.key),
+            stat: option.label,
             gold: option.cost,
           })}
         </button>

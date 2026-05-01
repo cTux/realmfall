@@ -86,7 +86,8 @@ export function reforgeInventoryItem(
   const nextStat = buildRandomSecondaryStat(
     {
       occupiedKeys: otherStatKeys,
-      excludedKeys: [selectedStat.stat.key],
+      excludedKeys:
+        selectedStat.source === 'empty' ? [] : [selectedStat.stat.key],
       tier: item.tier,
       rarity: item.rarity,
     },
@@ -109,16 +110,31 @@ export function reforgeInventoryItem(
     return state;
   }
 
-  nextItem.secondaryStats = (nextItem.secondaryStats ?? []).map(
-    (stat, index) => (index === selectedStat.index ? nextStat : stat),
-  );
-  nextItem.reforgedSecondaryStatIndex = selectedStat.index;
+  let fromStatLabel: string;
+  if (selectedStat.source === 'empty') {
+    const secondaryStats = [...(nextItem.secondaryStats ?? [])];
+    const enchantedIndex = getItemEnchantedSecondaryStatIndex(nextItem);
+    const insertedIndex = enchantedIndex ?? secondaryStats.length;
+    secondaryStats.splice(insertedIndex, 0, nextStat);
+    nextItem.secondaryStats = secondaryStats;
+    nextItem.reforgedSecondaryStatIndex = insertedIndex;
+    if (enchantedIndex != null) {
+      nextItem.enchantedSecondaryStatIndex = enchantedIndex + 1;
+    }
+    fromStatLabel = t('ui.tooltip.secondaryStatEmpty');
+  } else {
+    nextItem.secondaryStats = (nextItem.secondaryStats ?? []).map(
+      (stat, index) => (index === selectedStat.index ? nextStat : stat),
+    );
+    nextItem.reforgedSecondaryStatIndex = selectedStat.index;
+    fromStatLabel = formatSecondaryStatLabel(selectedStat.stat.key);
+  }
   addLog(
     next,
     'system',
     t('game.message.itemModification.reforge.success', {
       item: getItemDisplayName(nextItem),
-      fromStat: formatSecondaryStatLabel(selectedStat.stat.key),
+      fromStat: fromStatLabel,
       toStat: formatSecondaryStatLabel(nextStat.key),
       gold: goldCost,
     }),
