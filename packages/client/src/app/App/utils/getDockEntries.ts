@@ -1,5 +1,6 @@
 import { WINDOW_LABELS } from '../../../ui/windowLabels';
 import {
+  type DockWindowKey,
   WINDOW_DOCK_KEYS,
   WINDOW_REGISTRY,
   type WindowVisibilityState,
@@ -8,9 +9,11 @@ import {
 export function getDockEntries(
   windowShown: WindowVisibilityState,
   requiresAttention: Partial<Record<keyof WindowVisibilityState, boolean>> = {},
+  dockKeys: readonly DockWindowKey[] = WINDOW_DOCK_KEYS,
 ) {
-  return WINDOW_DOCK_KEYS.map((key) => {
-    const align: 'start' | 'end' = key === 'settings' ? 'end' : 'start';
+  return dockKeys.map((key) => {
+    const align: 'start' | 'end' =
+      key === 'settings' || key === 'debug' ? 'end' : 'start';
 
     return {
       key,

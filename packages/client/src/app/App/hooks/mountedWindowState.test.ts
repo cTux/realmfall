@@ -24,6 +24,7 @@ describe('mountedWindowState', () => {
       inventory: true,
       loot: true,
       log: true,
+      debug: false,
       combat: false,
       settings: false,
     });

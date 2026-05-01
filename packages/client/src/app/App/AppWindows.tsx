@@ -1,4 +1,6 @@
 import { useMemo } from 'react';
+import { WINDOW_DOCK_KEYS } from '../constants';
+import { isDebugWindowRequested } from '../debugWindow';
 import type { AppWindowsProps } from './AppWindows.types';
 import { AppDeferredWindows } from './components/AppDeferredWindows';
 import { AppFixedWindows } from './components/AppFixedWindows';
@@ -11,6 +13,7 @@ import { useManagedWindowProps } from './hooks/useManagedWindowProps';
 import { getDockEntries } from './utils/getDockEntries';
 
 export function AppWindows(props: AppWindowsProps) {
+  const debugWindowEnabled = isDebugWindowRequested();
   const dockAttention = useMemo(
     () => ({
       hexInfo: Boolean(
@@ -20,8 +23,15 @@ export function AppWindows(props: AppWindowsProps) {
     [props.views.hex.combat],
   );
   const dockEntries = useMemo(
-    () => getDockEntries(props.layout.windowShown, dockAttention),
-    [dockAttention, props.layout.windowShown],
+    () =>
+      getDockEntries(
+        props.layout.windowShown,
+        dockAttention,
+        debugWindowEnabled
+          ? WINDOW_DOCK_KEYS
+          : WINDOW_DOCK_KEYS.filter((key) => key !== 'debug'),
+      ),
+    [debugWindowEnabled, dockAttention, props.layout.windowShown],
   );
   const { windowMoveHandlers, windowCloseHandlers } = useAppWindowHandlers({
     onMoveWindow: props.actions.windows.onMoveWindow,
@@ -63,9 +73,11 @@ export function AppWindows(props: AppWindowsProps) {
       combat: props.views.combat,
       logs: props.views.logs,
       settings: props.views.settings,
+      debug: props.views.debug,
     }),
     [
       props.views.combat,
+      props.views.debug,
       props.views.hero,
       props.views.hex,
       props.views.inventory,
@@ -82,8 +94,10 @@ export function AppWindows(props: AppWindowsProps) {
       recipes: props.actions.recipes,
       logs: props.actions.logs,
       settings: props.actions.settings,
+      debug: props.actions.debug,
     }),
     [
+      props.actions.debug,
       props.actions.hex,
       props.actions.inventory,
       props.actions.logs,

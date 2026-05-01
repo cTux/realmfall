@@ -1,5 +1,6 @@
 import { useEffect, useEffectEvent } from 'react';
 import type { WindowVisibilityState } from '../constants';
+import { isDebugWindowRequested } from '../debugWindow';
 import {
   isEditableTarget,
   isFocusableControlTarget,
@@ -81,6 +82,7 @@ export function useKeyboardShortcuts({
   onWindowToggleSound,
   windowShown,
 }: UseKeyboardShortcutsOptions) {
+  const debugWindowEnabled = isDebugWindowRequested();
   const handleKeyDown = useEffectEvent((event: KeyboardEvent) => {
     if (
       event.altKey ||
@@ -182,6 +184,9 @@ export function useKeyboardShortcuts({
 
     const key = WINDOW_HOTKEYS[lowerKey];
     if (!key) return;
+    if (key === 'debug' && !debugWindowEnabled) {
+      return;
+    }
 
     event.preventDefault();
     onWindowToggleSound?.(!windowShown[key]);

@@ -12,6 +12,7 @@ function buildWindowShown(hexInfo = false) {
     inventory: false,
     loot: false,
     log: false,
+    debug: false,
     combat: false,
     settings: false,
   };

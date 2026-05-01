@@ -5,7 +5,9 @@ import type {
   AppDeferredWindowEntry,
 } from './appDeferredWindows/types';
 import { APP_DEFERRED_WINDOW_KEYS } from './appDeferredWindows/types';
+import { isDebugWindowRequested } from '../../debugWindow';
 import { equipmentDeferredWindow } from './appDeferredWindows/equipmentDeferredWindow';
+import { debugDeferredWindow } from './appDeferredWindows/debugDeferredWindow';
 import { hexInfoDeferredWindow } from './appDeferredWindows/hexInfoDeferredWindow';
 import { inventoryDeferredWindow } from './appDeferredWindows/inventoryDeferredWindow';
 import { logDeferredWindow } from './appDeferredWindows/logDeferredWindow';
@@ -23,6 +25,7 @@ const APP_DEFERRED_WINDOW_DESCRIPTORS = [
   equipmentDeferredWindow,
   inventoryDeferredWindow,
   logDeferredWindow,
+  debugDeferredWindow,
   settingsDeferredWindow,
 ] as const satisfies readonly AppDeferredWindowDescriptor[];
 
@@ -38,8 +41,11 @@ const APP_DEFERRED_WINDOW_DESCRIPTOR_BY_KEY = Object.fromEntries(
 
 export function getMountedDeferredWindowKeys(
   mountedWindows: AppDeferredWindowContext['mountedWindows'],
+  debugWindowEnabled = isDebugWindowRequested(),
 ) {
-  return APP_DEFERRED_WINDOW_KEYS.filter((key) => mountedWindows[key]);
+  return APP_DEFERRED_WINDOW_KEYS.filter(
+    (key) => mountedWindows[key] && (debugWindowEnabled || key !== 'debug'),
+  );
 }
 
 export function getAppDeferredWindowEntries(

@@ -179,6 +179,9 @@ export function useAppRuntime() {
       handleClearRecipeMaterialFilter:
         controllerActions.handleClearRecipeMaterialFilter,
       handleContextItem: controllerActions.handleContextItem,
+      handleCreateDebugDropItem: controllerActions.handleCreateDebugDropItem,
+      handleCreateDebugEquipmentItem:
+        controllerActions.handleCreateDebugEquipmentItem,
       handleCraftRecipe: controllerActions.handleCraftRecipe,
       handleCorruptItem: controllerActions.handleCorruptItem,
       handleSelectHexItemModificationItem:
@@ -197,6 +200,16 @@ export function useAppRuntime() {
       handleProspect: controllerActions.handleProspect,
       handleProspectItem: controllerActions.handleProspectItem,
       handleReforgeItem: controllerActions.handleReforgeItem,
+      handleSetDebugMorning: controllerActions.handleSetDebugMorning,
+      handleSetDebugNight: controllerActions.handleSetDebugNight,
+      handleSpawnDebugEnemyNearby:
+        controllerActions.handleSpawnDebugEnemyNearby,
+      handleTriggerDebugBloodMoon:
+        controllerActions.handleTriggerDebugBloodMoon,
+      handleTriggerDebugEarthquake:
+        controllerActions.handleTriggerDebugEarthquake,
+      handleTriggerDebugHarvestMoon:
+        controllerActions.handleTriggerDebugHarvestMoon,
       handleResetSaveArea: settingsActions.handleResetSaveArea,
       handleSaveSettings: settingsActions.handleSaveSettings,
       handleSaveSettingsAndReload: settingsActions.handleSaveSettingsAndReload,

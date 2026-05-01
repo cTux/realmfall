@@ -18,9 +18,13 @@ export interface AppDeferredWindowContext {
   combatPlayerParty: ReturnType<
     typeof import('../../hooks/useCombatPlayerParty').useCombatPlayerParty
   >;
-  hexInfoView: ReturnType<typeof import('../../hooks/useHexInfoView').useHexInfoView>;
+  hexInfoView: ReturnType<
+    typeof import('../../hooks/useHexInfoView').useHexInfoView
+  >;
   mountedWindows: Pick<
-    ReturnType<typeof import('../../hooks/useMountedWindows').useMountedWindows>,
+    ReturnType<
+      typeof import('../../hooks/useMountedWindows').useMountedWindows
+    >,
     AppDeferredWindowKey
   >;
   managedWindowProps: ReturnType<
@@ -31,11 +35,18 @@ export interface AppDeferredWindowContext {
   >;
   views: Pick<
     AppWindowsViewState,
-    'hero' | 'inventory' | 'hex' | 'recipes' | 'combat' | 'logs' | 'settings'
+    | 'hero'
+    | 'inventory'
+    | 'hex'
+    | 'recipes'
+    | 'combat'
+    | 'logs'
+    | 'settings'
+    | 'debug'
   >;
   actions: Pick<
     AppWindowsActions,
-    'tooltip' | 'inventory' | 'hex' | 'recipes' | 'logs' | 'settings'
+    'tooltip' | 'inventory' | 'hex' | 'recipes' | 'logs' | 'settings' | 'debug'
   >;
 }
 

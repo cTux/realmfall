@@ -8,6 +8,8 @@ interface UseAppWindowActionsArgs {
   handleAssignActionBarSlot: AppWindowsActions['inventory']['onAssignActionBarSlot'];
   handleBuyTownItem: AppWindowsActions['hex']['onBuyTownItem'];
   handleClaimHex: AppWindowsActions['hex']['onClaimHex'];
+  handleCreateDebugDropItem: AppWindowsActions['debug']['onCreateDropItem'];
+  handleCreateDebugEquipmentItem: AppWindowsActions['debug']['onCreateEquipmentItem'];
   handleHealTerritoryNpc: AppWindowsActions['hex']['onHealTerritoryNpc'];
   handleClearActionBarSlot: AppWindowsActions['inventory']['onClearActionBarSlot'];
   handleClearRecipeMaterialFilter: AppWindowsActions['recipes']['onClearMaterialFilter'];
@@ -29,10 +31,13 @@ interface UseAppWindowActionsArgs {
   handleProspectItem: AppWindowsActions['inventory']['onProspectItem'];
   handleReforgeItem: AppWindowsActions['inventory']['onReforgeItem'];
   handleResetSaveArea: AppWindowsActions['settings']['onResetSaveArea'];
+  handleSetDebugMorning: AppWindowsActions['debug']['onSetMorning'];
+  handleSetDebugNight: AppWindowsActions['debug']['onSetNight'];
   handleSaveSettings: AppWindowsActions['settings']['onSaveSettings'];
   handleSaveSettingsAndReload: AppWindowsActions['settings']['onSaveSettingsAndReload'];
   handleSellAll: AppWindowsActions['hex']['onSellAll'];
   handleSellItem: AppWindowsActions['inventory']['onSellItem'];
+  handleSpawnDebugEnemyNearby: AppWindowsActions['debug']['onSpawnEnemyNearby'];
   handleApplySelectedItemModification: AppWindowsActions['hex']['onApplySelectedItemModification'];
   handleClearSelectedItemModification: AppWindowsActions['hex']['onClearSelectedItemModification'];
   handleSelectItemModificationReforgeStat: AppWindowsActions['hex']['onSelectItemModificationReforgeStat'];
@@ -42,6 +47,9 @@ interface UseAppWindowActionsArgs {
   handleStartCombat: AppWindowsActions['hex']['onStartCombat'];
   handleTakeAllLoot: AppWindowsActions['inventory']['onTakeAllLoot'];
   handleTakeLootItem: AppWindowsActions['inventory']['onTakeLootItem'];
+  handleTriggerDebugBloodMoon: AppWindowsActions['debug']['onTriggerBloodMoon'];
+  handleTriggerDebugEarthquake: AppWindowsActions['debug']['onTriggerEarthquake'];
+  handleTriggerDebugHarvestMoon: AppWindowsActions['debug']['onTriggerHarvestMoon'];
   handleUnequip: AppWindowsActions['inventory']['onUnequip'];
   handleUseActionBarSlot: AppWindowsActions['inventory']['onUseActionBarSlot'];
   handleUseItem: AppWindowsActions['inventory']['onUseItem'];
@@ -63,6 +71,8 @@ export function useAppWindowActions({
   handleAssignActionBarSlot,
   handleBuyTownItem,
   handleClaimHex,
+  handleCreateDebugDropItem,
+  handleCreateDebugEquipmentItem,
   handleHealTerritoryNpc,
   handleClearActionBarSlot,
   handleClearRecipeMaterialFilter,
@@ -84,10 +94,13 @@ export function useAppWindowActions({
   handleProspectItem,
   handleReforgeItem,
   handleResetSaveArea,
+  handleSetDebugMorning,
+  handleSetDebugNight,
   handleSaveSettings,
   handleSaveSettingsAndReload,
   handleSellAll,
   handleSellItem,
+  handleSpawnDebugEnemyNearby,
   handleApplySelectedItemModification,
   handleClearSelectedItemModification,
   handleSelectItemModificationReforgeStat,
@@ -97,6 +110,9 @@ export function useAppWindowActions({
   handleStartCombat,
   handleTakeAllLoot,
   handleTakeLootItem,
+  handleTriggerDebugBloodMoon,
+  handleTriggerDebugEarthquake,
+  handleTriggerDebugHarvestMoon,
   handleUnequip,
   handleUseActionBarSlot,
   handleUseItem,
@@ -253,6 +269,29 @@ export function useAppWindowActions({
     [handleResetSaveArea, handleSaveSettings, handleSaveSettingsAndReload],
   );
 
+  const debug = useMemo(
+    () => ({
+      onCreateEquipmentItem: handleCreateDebugEquipmentItem,
+      onCreateDropItem: handleCreateDebugDropItem,
+      onSpawnEnemyNearby: handleSpawnDebugEnemyNearby,
+      onTriggerBloodMoon: handleTriggerDebugBloodMoon,
+      onTriggerHarvestMoon: handleTriggerDebugHarvestMoon,
+      onTriggerEarthquake: handleTriggerDebugEarthquake,
+      onSetMorning: handleSetDebugMorning,
+      onSetNight: handleSetDebugNight,
+    }),
+    [
+      handleCreateDebugDropItem,
+      handleCreateDebugEquipmentItem,
+      handleSetDebugMorning,
+      handleSetDebugNight,
+      handleSpawnDebugEnemyNearby,
+      handleTriggerDebugBloodMoon,
+      handleTriggerDebugEarthquake,
+      handleTriggerDebugHarvestMoon,
+    ],
+  );
+
   return useMemo(
     () => ({
       windows,
@@ -262,7 +301,8 @@ export function useAppWindowActions({
       recipes,
       logs,
       settings,
+      debug,
     }),
-    [hex, inventory, logs, recipes, settings, tooltip, windows],
+    [debug, hex, inventory, logs, recipes, settings, tooltip, windows],
   );
 }

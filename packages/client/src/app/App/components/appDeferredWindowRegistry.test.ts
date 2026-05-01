@@ -13,21 +13,26 @@ describe('app deferred window registry', () => {
       'equipment',
       'inventory',
       'log',
+      'debug',
       'settings',
     ]);
   });
 
   it('filters mounted deferred windows in registry order', () => {
     expect(
-      getMountedDeferredWindowKeys({
-        skills: true,
-        recipes: false,
-        hexInfo: true,
-        equipment: false,
-        inventory: true,
-        log: false,
-        settings: true,
-      }),
-    ).toEqual(['skills', 'hexInfo', 'inventory', 'settings']);
+      getMountedDeferredWindowKeys(
+        {
+          skills: true,
+          recipes: false,
+          hexInfo: true,
+          equipment: false,
+          inventory: true,
+          log: false,
+          debug: true,
+          settings: true,
+        },
+        true,
+      ),
+    ).toEqual(['skills', 'hexInfo', 'inventory', 'debug', 'settings']);
   });
 });

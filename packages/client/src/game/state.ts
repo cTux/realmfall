@@ -141,6 +141,18 @@ export {
   syncPlayerStatusEffects,
   triggerEarthshake,
 } from './stateWorldClock';
+export {
+  DEBUG_EQUIPMENT_TYPES,
+  addDebugDropItemToInventory,
+  addDebugEquipmentItemToInventory,
+  forceDebugBloodMoon,
+  forceDebugHarvestMoon,
+  setDebugMorning,
+  setDebugNight,
+  spawnDebugEnemyNearby,
+  triggerDebugEarthquake,
+  type DebugEquipmentType,
+} from './stateDebug';
 export { toggleFavoriteRecipe } from './crafting';
 
 export const HARVEST_MOON_RESOURCE_TYPE_CHANCES = HARVEST_MOON_RESOURCE_CHANCES;

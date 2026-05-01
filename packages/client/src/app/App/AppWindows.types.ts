@@ -22,6 +22,7 @@ export type { AppWindowsActions } from './AppWindows.actionTypes';
 export type {
   AppWindowsViewState,
   CombatViewState,
+  DebugViewState,
   HexViewState,
   HeroViewState,
   InventoryViewState,

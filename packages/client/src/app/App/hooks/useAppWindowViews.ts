@@ -206,6 +206,8 @@ export function useAppWindowViews({
     [audioSettings, graphicsSettings],
   );
 
+  const debug = useMemo(() => ({}), []);
+
   return useMemo(
     () => ({
       hero,
@@ -217,10 +219,12 @@ export function useAppWindowViews({
       combat,
       logs,
       settings,
+      debug,
       itemMenu,
     }),
     [
       combat,
+      debug,
       hero,
       hex,
       inventory,
