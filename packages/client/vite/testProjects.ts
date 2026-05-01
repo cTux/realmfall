@@ -2,6 +2,7 @@ import type { TestProjectConfiguration } from 'vitest/config';
 
 export const VITEST_NODE_INCLUDE = [
   'src/game/**/*.test.ts',
+  'src/app/App/tests/reuseVisibleTilesIfUnchanged.test.ts',
   'src/app/App/world/tileResolution/**/*.test.ts',
   'src/i18n/**/*.test.ts',
   'src/persistence/**/*.test.ts',

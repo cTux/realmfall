@@ -1,10 +1,10 @@
 import type { MutableRefObject } from 'react';
 import type { Application } from 'pixi.js';
-import { getVisibleTiles } from '../../../game/stateSelectors';
 import type { GameState, HexCoord } from '../../../game/stateTypes';
 import { getWorldTimeMinutesFromTimestamp } from '../../../game/worldTime';
 import { getWorldRenderFrameMs } from '../../../ui/world/renderCadence';
 import { getWorldIconTextureVersion } from '../../../ui/world/worldIcons';
+import type { VisibleWorldTile } from '../../../ui/world/visibleWorldTiles';
 import {
   DEFAULT_WORLD_RENDER_FPS,
   normalizeWorldRenderFps,
@@ -42,7 +42,7 @@ export function createWorldRenderFrame({
   app: Application;
   renderScene: RenderScene;
   gameRef: MutableRefObject<GameState>;
-  visibleTilesRef: MutableRefObject<ReturnType<typeof getVisibleTiles>>;
+  visibleTilesRef: MutableRefObject<VisibleWorldTile[]>;
   selectedRef: MutableRefObject<HexCoord>;
   hoveredMoveRef: MutableRefObject<HexCoord | null>;
   hoveredSafePathRef: MutableRefObject<HexCoord[] | null>;

@@ -1,9 +1,9 @@
-import type { getVisibleTiles } from '../../../game/stateSelectors';
 import type { GameState, HexCoord } from '../../../game/stateTypes';
+import type { VisibleWorldTile } from '../../../ui/world/visibleWorldTiles';
 
 export interface WorldRenderSnapshot {
   game: GameState | null;
-  visibleTiles: ReturnType<typeof getVisibleTiles> | null;
+  visibleTiles: VisibleWorldTile[] | null;
   selected: HexCoord | null;
   hoveredMove: HexCoord | null;
   hoveredSafePath: HexCoord[] | null;

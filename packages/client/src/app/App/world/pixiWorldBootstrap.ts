@@ -1,8 +1,8 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import type { Application } from 'pixi.js';
 import type { TooltipPosition } from '@realmfall/ui';
-import type { getVisibleTiles } from '../../../game/stateSelectors';
 import type { GameState, HexCoord } from '../../../game/stateTypes';
+import type { VisibleWorldTile } from '../../../ui/world/visibleWorldTiles';
 import type { WorldMapCameraState } from '../../../ui/world/worldMapCamera';
 import {
   getGraphicsRenderResolution,
@@ -55,7 +55,7 @@ interface BootstrapPixiWorldCanvasArgs {
   showTerrainBackgroundsRef: MutableRefObject<boolean>;
   worldRenderFpsRef: MutableRefObject<number>;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
-  visibleTilesRef: MutableRefObject<ReturnType<typeof getVisibleTiles>>;
+  visibleTilesRef: MutableRefObject<VisibleWorldTile[]>;
   worldMapCameraRef: MutableRefObject<WorldMapCameraState>;
   worldTimeMsRef: MutableRefObject<number>;
   worldTooltipKeyRef: MutableRefObject<string | null>;
