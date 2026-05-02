@@ -11,6 +11,7 @@ export const VITEST_NODE_INCLUDE = [
   'src/persistence/**/*.test.ts',
   'scripts/**/*.test.ts',
   'src/ui/world/renderSceneMovementCooldown.test.ts',
+  'src/ui/world/renderScenePlayerResources.test.ts',
 ];
 
 const VITEST_CANVAS_EXCLUDE = [

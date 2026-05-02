@@ -82,6 +82,7 @@ export interface SceneCache {
   worldStaticMarkerSprites: ShadowedSpritePool;
   worldStaticMarkerBadgeGraphics: GraphicsPool;
   worldStaticMarkerTexts: TextPool;
+  playerResourceGraphics: GraphicsPool;
   playerCooldownGraphics: GraphicsPool;
   cloudShadowSprites: SpritePool;
   cloudSprites: SpritePool;
@@ -101,6 +102,7 @@ export interface SceneCache {
   derivedInteractionRenderToken: number | null;
   staticRenderToken: number | null;
   interactionRenderToken: number | null;
+  playerResourceRenderToken: string | null;
   animatedRenderToken: string | null;
   renderCounts: SceneRenderCounts;
   screenWidth: number;
@@ -131,6 +133,7 @@ export function getSceneCache(app: Application) {
   const worldMarkerBadges = new Container();
   const worldAnimatedDetail = new Container();
   const worldPlayer = new Container();
+  const playerResources = new Container();
   const playerCooldown = new Container();
   const waterfalls = new Container();
   const labels = new Container();
@@ -179,7 +182,7 @@ export function getSceneCache(app: Application) {
   overlay.addChild(overlayFill, fullscreenEffectFill);
 
   const player = createShadowedSprite(WorldIcons.Player);
-  worldPlayer.addChild(playerCooldown, player.wrapper);
+  worldPlayer.addChild(playerResources, playerCooldown, player.wrapper);
 
   const scene: SceneCache = {
     skyFill,
@@ -205,6 +208,7 @@ export function getSceneCache(app: Application) {
     worldStaticMarkerSprites: createShadowedSpritePool(worldMarkers),
     worldStaticMarkerBadgeGraphics: createGraphicsPool(worldMarkerBadges),
     worldStaticMarkerTexts: createTextPool(worldMarkerBadges),
+    playerResourceGraphics: createGraphicsPool(playerResources),
     playerCooldownGraphics: createGraphicsPool(playerCooldown),
     cloudShadowSprites: createSpritePool(cloudShadows),
     cloudSprites: createSpritePool(clouds),
@@ -224,6 +228,7 @@ export function getSceneCache(app: Application) {
     derivedInteractionRenderToken: null,
     staticRenderToken: null,
     interactionRenderToken: null,
+    playerResourceRenderToken: null,
     animatedRenderToken: null,
     renderCounts: createEmptySceneRenderCounts(),
     screenWidth: app.screen.width,
@@ -301,10 +306,12 @@ export function completeStaticSceneRender(scene: SceneCache) {
 export function beginInteractionSceneRender(scene: SceneCache) {
   scene.renderCounts.interaction += 1;
   resetGraphicsPool(scene.worldInteractionGraphics);
+  resetGraphicsPool(scene.playerResourceGraphics);
 }
 
 export function completeInteractionSceneRender(scene: SceneCache) {
   finishGraphicsPool(scene.worldInteractionGraphics);
+  finishGraphicsPool(scene.playerResourceGraphics);
 }
 
 export function getCachedValue<K, V>(cache: Map<K, V>, key: K) {

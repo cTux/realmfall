@@ -177,9 +177,12 @@ describe('renderScene movement cooldown', () => {
     );
 
     expect(
-      cooldownGraphics.some((graphic) =>
-        graphic.beginFill.mock.calls.some(([color]) => color === 0xfacc15),
-      ),
+      cooldownGraphics.some((graphic) => {
+        const lastFillCall =
+          graphic.beginFill.mock.calls[graphic.beginFill.mock.calls.length - 1];
+
+        return lastFillCall?.[0] === 0xfacc15;
+      }),
     ).toBe(false);
   });
 });
