@@ -379,4 +379,250 @@ describe('pixiWorldRenderLoop', () => {
 
     performanceNowSpy.mockRestore();
   });
+
+  it('skips rendering the intermediate frame after a move updates game state before transition refs catch up', () => {
+    const performanceNowSpy = vi.spyOn(performance, 'now').mockReturnValue(0);
+    const renderScene = vi.fn();
+    const previousGame = { player: { coord: { q: 0, r: 0 } } };
+    const nextGame = { player: { coord: { q: 1, r: 0 } } };
+    const previousVisibleTiles = [{ coord: { q: 0, r: 0 }, terrain: 'plains' }];
+    const visibleTilesRef = { current: previousVisibleTiles };
+    const renderFrame = createWorldRenderFrame({
+      app: {} as never,
+      renderScene,
+      gameRef: { current: previousGame } as never,
+      visibleTilesRef: visibleTilesRef as never,
+      selectedRef: { current: { q: 0, r: 0 } } as never,
+      hoveredMoveRef: { current: null },
+      hoveredSafePathRef: { current: null },
+      showTerrainBackgroundsRef: { current: true },
+      worldRenderFpsRef: { current: DEFAULT_WORLD_RENDER_FPS },
+      pausedRef: { current: false },
+      pausedAnimationMsRef: { current: null },
+      worldTimeMsRef: { current: 0 },
+      renderInvalidationRef: { current: 0 },
+      lastRenderSnapshotRef: { current: createInitialWorldRenderSnapshot() },
+      movementCooldownEndAtRef: { current: 1_000 },
+      movementTransitionRef: { current: null },
+    });
+
+    renderFrame();
+
+    expect(renderScene).toHaveBeenCalledTimes(1);
+
+    const gameRef = { current: nextGame };
+    const renderFrameWithMovedGame = createWorldRenderFrame({
+      app: {} as never,
+      renderScene,
+      gameRef: gameRef as never,
+      visibleTilesRef: visibleTilesRef as never,
+      selectedRef: { current: { q: 1, r: 0 } } as never,
+      hoveredMoveRef: { current: null },
+      hoveredSafePathRef: { current: null },
+      showTerrainBackgroundsRef: { current: true },
+      worldRenderFpsRef: { current: DEFAULT_WORLD_RENDER_FPS },
+      pausedRef: { current: false },
+      pausedAnimationMsRef: { current: null },
+      worldTimeMsRef: { current: 0 },
+      renderInvalidationRef: { current: 0 },
+      lastRenderSnapshotRef: {
+        current: {
+          ...createInitialWorldRenderSnapshot(),
+          animationBucket: 0,
+          game: previousGame as never,
+          hoveredMove: null,
+          hoveredSafePath: null,
+          iconTextureVersion: 0,
+          invalidationToken: 0,
+          movementCooldownEndAtMs: null,
+          movementCooldownRenderToken: -1,
+          movementTransitionRenderToken: -1,
+          selected: { q: 0, r: 0 },
+          showTerrainBackgrounds: true,
+          visibleTiles: previousVisibleTiles as never,
+          worldRenderFps: DEFAULT_WORLD_RENDER_FPS,
+        },
+      },
+      movementCooldownEndAtRef: { current: 1_000 },
+      movementTransitionRef: { current: null },
+    });
+
+    renderFrameWithMovedGame();
+
+    expect(renderScene).toHaveBeenCalledTimes(1);
+
+    performanceNowSpy.mockRestore();
+  });
+
+  it('skips the intermediate adjacent-move frame when visible tiles update before the transition ref', () => {
+    const performanceNowSpy = vi.spyOn(performance, 'now').mockReturnValue(0);
+    const renderScene = vi.fn();
+    const previousGame = { player: { coord: { q: 0, r: 0 } } };
+    const nextGame = { player: { coord: { q: 1, r: 0 } } };
+    const previousVisibleTiles = [{ coord: { q: 0, r: 0 }, terrain: 'plains' }];
+    const nextVisibleTiles = [{ coord: { q: 1, r: 0 }, terrain: 'plains' }];
+    const renderFrame = createWorldRenderFrame({
+      app: {} as never,
+      renderScene,
+      gameRef: { current: nextGame } as never,
+      visibleTilesRef: { current: nextVisibleTiles } as never,
+      selectedRef: { current: { q: 1, r: 0 } } as never,
+      hoveredMoveRef: { current: null },
+      hoveredSafePathRef: { current: null },
+      showTerrainBackgroundsRef: { current: true },
+      worldRenderFpsRef: { current: DEFAULT_WORLD_RENDER_FPS },
+      pausedRef: { current: false },
+      pausedAnimationMsRef: { current: null },
+      worldTimeMsRef: { current: 0 },
+      renderInvalidationRef: { current: 0 },
+      movementCooldownEndAtRef: { current: 1_000 },
+      lastRenderSnapshotRef: {
+        current: {
+          ...createInitialWorldRenderSnapshot(),
+          animationBucket: 0,
+          game: previousGame as never,
+          hoveredMove: null,
+          hoveredSafePath: null,
+          iconTextureVersion: 0,
+          invalidationToken: 0,
+          movementCooldownEndAtMs: null,
+          movementCooldownRenderToken: -1,
+          movementTransitionRenderToken: -1,
+          selected: { q: 0, r: 0 },
+          showTerrainBackgrounds: true,
+          visibleTiles: previousVisibleTiles as never,
+          worldRenderFps: DEFAULT_WORLD_RENDER_FPS,
+        },
+      },
+      movementTransitionRef: { current: null },
+    });
+
+    renderFrame();
+
+    expect(renderScene).not.toHaveBeenCalled();
+
+    performanceNowSpy.mockRestore();
+  });
+
+  it('treats an expired transition ref as missing while the next adjacent move is waiting for fresh transition refs', () => {
+    const performanceNowSpy = vi
+      .spyOn(performance, 'now')
+      .mockReturnValue(2_000);
+    const renderScene = vi.fn();
+    const previousGame = { player: { coord: { q: 0, r: 0 } } };
+    const nextGame = { player: { coord: { q: 1, r: 0 } } };
+    const renderFrame = createWorldRenderFrame({
+      app: {} as never,
+      renderScene,
+      gameRef: { current: nextGame } as never,
+      visibleTilesRef: {
+        current: [{ coord: { q: 1, r: 0 }, terrain: 'plains' }],
+      } as never,
+      selectedRef: { current: { q: 1, r: 0 } } as never,
+      hoveredMoveRef: { current: null },
+      hoveredSafePathRef: { current: null },
+      showTerrainBackgroundsRef: { current: true },
+      worldRenderFpsRef: { current: DEFAULT_WORLD_RENDER_FPS },
+      pausedRef: { current: false },
+      pausedAnimationMsRef: { current: null },
+      worldTimeMsRef: { current: 0 },
+      renderInvalidationRef: { current: 0 },
+      movementCooldownEndAtRef: { current: 3_000 },
+      lastRenderSnapshotRef: {
+        current: {
+          ...createInitialWorldRenderSnapshot(),
+          animationBucket: 0,
+          game: previousGame as never,
+          hoveredMove: null,
+          hoveredSafePath: null,
+          iconTextureVersion: 0,
+          invalidationToken: 0,
+          movementCooldownEndAtMs: null,
+          movementCooldownRenderToken: -1,
+          movementTransitionRenderToken: -1,
+          selected: { q: 0, r: 0 },
+          showTerrainBackgrounds: true,
+          visibleTiles: [{ coord: { q: 0, r: 0 }, terrain: 'plains' }] as never,
+          worldRenderFps: DEFAULT_WORLD_RENDER_FPS,
+        },
+      },
+      movementTransitionRef: {
+        current: {
+          durationMs: 1_000,
+          displayTiles: [],
+          fromCoord: { q: -1, r: 0 },
+          incomingTiles: [],
+          outgoingTiles: [],
+          startedAtMs: 0,
+          toCoord: { q: 0, r: 0 },
+        },
+      },
+    });
+
+    renderFrame();
+
+    expect(renderScene).not.toHaveBeenCalled();
+
+    performanceNowSpy.mockRestore();
+  });
+
+  it('treats an active transition for the previous move as missing when its destination no longer matches the current player coord', () => {
+    const performanceNowSpy = vi.spyOn(performance, 'now').mockReturnValue(500);
+    const renderScene = vi.fn();
+    const previousGame = { player: { coord: { q: 0, r: 0 } } };
+    const nextGame = { player: { coord: { q: -1, r: 0 } } };
+    const renderFrame = createWorldRenderFrame({
+      app: {} as never,
+      renderScene,
+      gameRef: { current: nextGame } as never,
+      visibleTilesRef: {
+        current: [{ coord: { q: -1, r: 0 }, terrain: 'plains' }],
+      } as never,
+      selectedRef: { current: { q: -1, r: 0 } } as never,
+      hoveredMoveRef: { current: null },
+      hoveredSafePathRef: { current: null },
+      showTerrainBackgroundsRef: { current: true },
+      worldRenderFpsRef: { current: DEFAULT_WORLD_RENDER_FPS },
+      pausedRef: { current: false },
+      pausedAnimationMsRef: { current: null },
+      worldTimeMsRef: { current: 0 },
+      renderInvalidationRef: { current: 0 },
+      movementCooldownEndAtRef: { current: 1_500 },
+      lastRenderSnapshotRef: {
+        current: {
+          ...createInitialWorldRenderSnapshot(),
+          animationBucket: 0,
+          game: previousGame as never,
+          hoveredMove: null,
+          hoveredSafePath: null,
+          iconTextureVersion: 0,
+          invalidationToken: 0,
+          movementCooldownEndAtMs: null,
+          movementCooldownRenderToken: -1,
+          movementTransitionRenderToken: -1,
+          selected: { q: 0, r: 0 },
+          showTerrainBackgrounds: true,
+          visibleTiles: [{ coord: { q: 0, r: 0 }, terrain: 'plains' }] as never,
+          worldRenderFps: DEFAULT_WORLD_RENDER_FPS,
+        },
+      },
+      movementTransitionRef: {
+        current: {
+          durationMs: 1_000,
+          displayTiles: [],
+          fromCoord: { q: 0, r: 0 },
+          incomingTiles: [],
+          outgoingTiles: [],
+          startedAtMs: 0,
+          toCoord: { q: 1, r: 0 },
+        },
+      },
+    });
+
+    renderFrame();
+
+    expect(renderScene).not.toHaveBeenCalled();
+
+    performanceNowSpy.mockRestore();
+  });
 });

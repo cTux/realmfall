@@ -1,6 +1,7 @@
 import type { MutableRefObject } from 'react';
 import type { Application } from 'pixi.js';
 import { WORLD_MOVE_HEX_COOLDOWN_MS } from '../../../game/config';
+import { hexDistance } from '../../../game/hex';
 import type { GameState, HexCoord } from '../../../game/stateTypes';
 import { getWorldTimeMinutesFromTimestamp } from '../../../game/worldTime';
 import { getWorldRenderFrameMs } from '../../../ui/world/renderCadence';
@@ -89,9 +90,26 @@ export function createWorldRenderFrame({
     const iconTextureVersion = getWorldIconTextureVersion();
     const showTerrainBackgrounds = showTerrainBackgroundsRef.current;
     const movementCooldownEndAtMs = movementCooldownEndAtRef?.current ?? null;
+    const rawMovementTransition = movementTransitionRef?.current ?? null;
+    const activeMovementTransition = getWorldMovementTransitionRenderState(
+      rawMovementTransition,
+      wallClockMs,
+    );
+    const currentMovementTransition =
+      activeMovementTransition !== null &&
+      !sameCoord(activeMovementTransition.toCoord, currentGame.player.coord)
+        ? null
+        : activeMovementTransition;
+    if (
+      rawMovementTransition !== null &&
+      currentMovementTransition === null &&
+      movementTransitionRef
+    ) {
+      movementTransitionRef.current = null;
+    }
     const movementTransitionRenderToken = getWorldMovementTransitionRenderToken(
       {
-        transition: movementTransitionRef?.current ?? null,
+        transition: currentMovementTransition,
         nowMs: wallClockMs,
         worldRenderFrameMs,
       },
@@ -111,6 +129,19 @@ export function createWorldRenderFrame({
       );
       lastReachableWarmPlayerCoord = { ...currentGame.player.coord };
       lastReachableWarmRadius = currentGame.radius;
+    }
+
+    const movedBeforeTransitionRefsUpdated =
+      lastRenderSnapshot.game !== null &&
+      currentMovementTransition === null &&
+      movementCooldownEndAtMs !== null &&
+      hexDistance(
+        lastRenderSnapshot.game.player.coord,
+        currentGame.player.coord,
+      ) === 1;
+
+    if (movedBeforeTransitionRefsUpdated) {
+      return;
     }
 
     if (
@@ -156,11 +187,6 @@ export function createWorldRenderFrame({
             endAtMs: movementCooldownEndAtMs,
             nowMs: wallClockMs,
           };
-    const movementTransition = getWorldMovementTransitionRenderState(
-      movementTransitionRef?.current ?? null,
-      wallClockMs,
-    );
-
     renderScene(
       app,
       currentGame,
@@ -170,10 +196,10 @@ export function createWorldRenderFrame({
       getWorldTimeMinutesFromTimestamp(worldTimeMsRef.current),
       animationBucket * worldRenderFrameMs,
       currentHoveredSafePath,
-      movementCooldown || movementTransition
+      movementCooldown || currentMovementTransition
         ? {
             movementCooldown,
-            movementTransition,
+            movementTransition: currentMovementTransition,
             showTerrainBackgrounds,
             worldRenderFps,
           }

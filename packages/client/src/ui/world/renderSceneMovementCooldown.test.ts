@@ -1,11 +1,14 @@
 import { createGame } from '../../game/stateFactory';
+import { hexKey, hexesInRange } from '../../game/hex';
 import { getVisibleTiles } from '../../game/stateSelectors';
 import {
   collectDescendants,
   createMockApp,
+  getMarkerLayer,
   getPlayerLayer,
   getWorld,
   getWorldGroundLayer,
+  MockContainer,
   MockGraphics,
   MockSprite,
   setupRenderSceneTestEnvironment,
@@ -444,6 +447,338 @@ describe('renderScene movement cooldown', () => {
     expect(findSpriteAt(terrainSprites, incomingPoint)).toBeUndefined();
     expect(findGraphicAt(fogGraphics, incomingPoint)).toBeDefined();
   });
+
+  it('keeps outgoing marker wrappers anchored to the outgoing hex during the transition', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { createWorldMovementTransition } =
+      await import('../../app/App/world/movement/worldMovementTransition');
+    const game = createGame(2, 'render-scene-move-transition-marker-anchor');
+    const app = createMockApp();
+    const outgoingTile = {
+      coord: { q: -2, r: 0 },
+      enemyIds: [],
+      items: [],
+      structure: 'copper-ore' as const,
+      terrain: 'plains' as const,
+    };
+    const incomingTile = {
+      coord: { q: 3, r: 0 },
+      enemyIds: [],
+      items: [],
+      structure: 'copper-ore' as const,
+      terrain: 'plains' as const,
+    };
+
+    new Set(
+      [
+        ...hexesInRange({ q: 0, r: 0 }, game.radius),
+        ...hexesInRange({ q: 1, r: 0 }, game.radius),
+      ].map((coord) => hexKey(coord)),
+    ).forEach((coordKey) => {
+      const [q, r] = coordKey.split(',').map(Number);
+      game.tiles[coordKey] = {
+        coord: { q, r },
+        enemyIds: [],
+        items: [],
+        terrain: 'plains',
+      };
+    });
+    game.tiles['-2,0'] = outgoingTile;
+    game.tiles['3,0'] = incomingTile;
+
+    const previousVisibleTiles = getVisibleTiles(game);
+
+    renderScene(
+      app as never,
+      game,
+      previousVisibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+    );
+
+    const hexSize = getWorldHexSize(app.screen, game.radius);
+    const originalMarkerWrappers = getMarkerLayer(app).children.filter(
+      (child): child is MockContainer => child instanceof MockContainer,
+    );
+    const originalOutgoingWrapper = originalMarkerWrappers[0];
+
+    expect(originalMarkerWrappers).toHaveLength(1);
+    expect(originalOutgoingWrapper).toBeDefined();
+
+    game.player.coord = { q: 1, r: 0 };
+    const nextVisibleTiles = getVisibleTiles(game);
+    const movementTransition = createWorldMovementTransition({
+      fromCoord: { q: 0, r: 0 },
+      nextVisibleTiles,
+      previousVisibleTiles,
+      startedAtMs: 0,
+      toCoord: { q: 1, r: 0 },
+    });
+
+    expect(movementTransition).toBeDefined();
+
+    renderScene(
+      app as never,
+      game,
+      nextVisibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        movementTransition: movementTransition
+          ? { ...movementTransition, nowMs: 0 }
+          : null,
+      } as never,
+    );
+
+    const markerWrappers = getMarkerLayer(app).children.filter(
+      (child): child is MockContainer => child instanceof MockContainer,
+    );
+    const transitionOutgoingPoint = tileToPoint(
+      { q: -3, r: 0 },
+      app.screen.width / 2,
+      app.screen.height / 2,
+      hexSize,
+    );
+    const transitionIncomingPoint = tileToPoint(
+      { q: 2, r: 0 },
+      app.screen.width / 2,
+      app.screen.height / 2,
+      hexSize,
+    );
+    const transitionOutgoingWrapper = findContainerAt(
+      markerWrappers,
+      transitionOutgoingPoint,
+    );
+    const transitionIncomingWrapper = findContainerAt(
+      markerWrappers,
+      transitionIncomingPoint,
+    );
+
+    expect(transitionOutgoingWrapper).toBeDefined();
+    expect(transitionIncomingWrapper).toBeDefined();
+    expect(transitionOutgoingWrapper).toBe(originalOutgoingWrapper);
+    expect(transitionIncomingWrapper).not.toBe(originalOutgoingWrapper);
+  });
+
+  it('keeps existing same-icon markers anchored when moving off a marked player tile', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { createWorldMovementTransition } =
+      await import('../../app/App/world/movement/worldMovementTransition');
+    const game = createGame(2, 'render-scene-transition-player-tile-marker');
+    const app = createMockApp();
+    const playerTile = {
+      coord: { q: 0, r: 0 },
+      enemyIds: [],
+      items: [],
+      structure: 'copper-ore' as const,
+      terrain: 'plains' as const,
+    };
+    const stableTile = {
+      coord: { q: 2, r: -1 },
+      enemyIds: [],
+      items: [],
+      structure: 'copper-ore' as const,
+      terrain: 'plains' as const,
+    };
+
+    new Set(
+      [
+        ...hexesInRange({ q: 0, r: 0 }, game.radius),
+        ...hexesInRange({ q: 1, r: 0 }, game.radius),
+      ].map((coord) => hexKey(coord)),
+    ).forEach((coordKey) => {
+      const [q, r] = coordKey.split(',').map(Number);
+      game.tiles[coordKey] = {
+        coord: { q, r },
+        enemyIds: [],
+        items: [],
+        terrain: 'plains',
+      };
+    });
+    game.tiles['0,0'] = playerTile;
+    game.tiles['2,-1'] = stableTile;
+
+    const previousVisibleTiles = getVisibleTiles(game);
+
+    renderScene(
+      app as never,
+      game,
+      previousVisibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+    );
+
+    const originalMarkerWrappers = getMarkerLayer(app).children.filter(
+      (child): child is MockContainer => child instanceof MockContainer,
+    );
+    const originalStableWrapper = originalMarkerWrappers[0];
+
+    expect(originalMarkerWrappers).toHaveLength(1);
+    expect(originalStableWrapper).toBeDefined();
+
+    game.player.coord = { q: 1, r: 0 };
+    const nextVisibleTiles = getVisibleTiles(game);
+    const movementTransition = createWorldMovementTransition({
+      fromCoord: { q: 0, r: 0 },
+      nextVisibleTiles,
+      previousVisibleTiles,
+      startedAtMs: 0,
+      toCoord: { q: 1, r: 0 },
+    });
+
+    expect(movementTransition).toBeDefined();
+
+    renderScene(
+      app as never,
+      game,
+      nextVisibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        movementTransition: movementTransition
+          ? { ...movementTransition, nowMs: 0 }
+          : null,
+      } as never,
+    );
+
+    const markerWrappers = getMarkerLayer(app).children.filter(
+      (child): child is MockContainer => child instanceof MockContainer,
+    );
+    const hexSize = getWorldHexSize(app.screen, game.radius);
+    const oldPlayerPoint = tileToPoint(
+      { q: -1, r: 0 },
+      app.screen.width / 2,
+      app.screen.height / 2,
+      hexSize,
+    );
+    const stableTilePoint = tileToPoint(
+      { q: 1, r: -1 },
+      app.screen.width / 2,
+      app.screen.height / 2,
+      hexSize,
+    );
+    const transitionOldPlayerWrapper = findContainerAt(
+      markerWrappers,
+      oldPlayerPoint,
+    );
+    const transitionStableWrapper = findContainerAt(
+      markerWrappers,
+      stableTilePoint,
+    );
+
+    expect(transitionOldPlayerWrapper).toBeDefined();
+    expect(transitionStableWrapper).toBeDefined();
+    expect(transitionStableWrapper).toBe(originalStableWrapper);
+    expect(transitionOldPlayerWrapper).not.toBe(originalStableWrapper);
+  });
+
+  it('keeps each same-icon marker on its own hex across the transition frame', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { createWorldMovementTransition } =
+      await import('../../app/App/world/movement/worldMovementTransition');
+    const game = createGame(2, 'render-scene-transition-multi-same-icon');
+    const app = createMockApp();
+    const markedTiles = [
+      { key: '-2,0', coord: { q: -2, r: 0 } },
+      { key: '0,0', coord: { q: 0, r: 0 } },
+      { key: '2,-1', coord: { q: 2, r: -1 } },
+      { key: '3,0', coord: { q: 3, r: 0 } },
+    ] as const;
+
+    new Set(
+      [
+        ...hexesInRange({ q: 0, r: 0 }, game.radius),
+        ...hexesInRange({ q: 1, r: 0 }, game.radius),
+      ].map((coord) => hexKey(coord)),
+    ).forEach((coordKey) => {
+      const [q, r] = coordKey.split(',').map(Number);
+      game.tiles[coordKey] = {
+        coord: { q, r },
+        enemyIds: [],
+        items: [],
+        terrain: 'plains',
+      };
+    });
+    markedTiles.forEach(({ key, coord }) => {
+      game.tiles[key] = {
+        coord,
+        enemyIds: [],
+        items: [],
+        structure: 'copper-ore',
+        terrain: 'plains',
+      };
+    });
+
+    const previousVisibleTiles = getVisibleTiles(game);
+    game.player.coord = { q: 1, r: 0 };
+    const nextVisibleTiles = getVisibleTiles(game);
+    const movementTransition = createWorldMovementTransition({
+      fromCoord: { q: 0, r: 0 },
+      nextVisibleTiles,
+      previousVisibleTiles,
+      startedAtMs: 0,
+      toCoord: { q: 1, r: 0 },
+    });
+
+    expect(movementTransition).toBeDefined();
+
+    renderScene(
+      app as never,
+      game,
+      nextVisibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        movementTransition: movementTransition
+          ? { ...movementTransition, nowMs: 0 }
+          : null,
+      } as never,
+    );
+
+    const markerWrappers = getMarkerLayer(app).children.filter(
+      (child): child is MockContainer => child instanceof MockContainer,
+    );
+    const hexSize = getWorldHexSize(app.screen, game.radius);
+    const expectedPoints = [
+      { q: -3, r: 0 },
+      { q: -1, r: 0 },
+      { q: 1, r: -1 },
+      { q: 2, r: 0 },
+    ].map((relative) =>
+      tileToPoint(
+        relative,
+        app.screen.width / 2,
+        app.screen.height / 2,
+        hexSize,
+      ),
+    );
+
+    expectedPoints.forEach((point) => {
+      expect(findContainerAt(markerWrappers, point)).toBeDefined();
+    });
+    expect(
+      markerWrappers.filter((wrapper) =>
+        expectedPoints.some(
+          (point) =>
+            Math.abs(wrapper.position.x - point.x) < 1 &&
+            Math.abs(wrapper.position.y - point.y) < 1,
+        ),
+      ),
+    ).toHaveLength(expectedPoints.length);
+  });
 });
 
 function findGraphicAt(
@@ -474,6 +809,18 @@ function findSpriteAt(
     (sprite) =>
       Math.abs(sprite.position.x - point.x) < tolerance &&
       Math.abs(sprite.position.y - point.y) < tolerance,
+  );
+}
+
+function findContainerAt(
+  containers: MockContainer[],
+  point: { x: number; y: number },
+  tolerance = 1,
+) {
+  return containers.find(
+    (container) =>
+      Math.abs(container.position.x - point.x) < tolerance &&
+      Math.abs(container.position.y - point.y) < tolerance,
   );
 }
 

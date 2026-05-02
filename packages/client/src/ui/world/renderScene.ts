@@ -52,6 +52,7 @@ interface RenderSceneMovementCooldown {
 }
 
 interface RenderSceneMovementTransition {
+  displayTiles?: VisibleWorldTile[];
   durationMs: number;
   fromCoord: HexCoord;
   incomingTiles: VisibleWorldTile[];
@@ -130,7 +131,10 @@ export function renderScene(
   const shouldRenderAnimated =
     screenChanged || scene.animatedRenderToken !== animatedRenderToken;
   const displayVisibleTiles = movementTransition
-    ? [...visibleTiles, ...movementTransition.outgoingTiles]
+    ? (movementTransition.displayTiles ?? [
+        ...visibleTiles,
+        ...movementTransition.outgoingTiles,
+      ])
     : visibleTiles;
   const renderTokens = getSceneRenderTokens(
     scene,

@@ -32,6 +32,7 @@ import {
 export function renderStaticMarkers({
   animationMs,
   enemyIconSize,
+  markerIdentityKeyBase,
   point,
   scene,
   shadowOffset,
@@ -45,6 +46,7 @@ export function renderStaticMarkers({
 }: {
   animationMs: number;
   enemyIconSize: number;
+  markerIdentityKeyBase: string | null;
   point: { x: number; y: number };
   scene: SceneCache;
   shadowOffset: { x: number; y: number };
@@ -61,11 +63,18 @@ export function renderStaticMarkers({
   const unknownMarkerAlpha = isUnknownVisibleWorldTile(tile)
     ? appearanceAlpha
     : (1 - revealProgress) * appearanceAlpha;
+  const getMarkerIdentityKey = (markerKind: string) =>
+    markerIdentityKeyBase === null
+      ? undefined
+      : `${markerIdentityKeyBase}:${markerKind}`;
 
   if (unknownMarkerAlpha > 0) {
     const marker = takeShadowedSprite(
       scene.worldStaticMarkerSprites,
       WorldIcons.UnknownHex,
+      {
+        stableKey: getMarkerIdentityKey('unknown'),
+      },
     );
     configureShadowedSprite(
       marker,
@@ -88,6 +97,9 @@ export function renderStaticMarkers({
       tile.structure === 'town' && tile.claim?.ownerType === 'faction'
         ? WorldIcons.Castle
         : structureIconFor(tile.structure),
+      {
+        stableKey: getMarkerIdentityKey('structure'),
+      },
     );
     const tint = getStructureHexIconTint(tile.structure);
     configureShadowedSprite(
@@ -119,6 +131,9 @@ export function renderStaticMarkers({
     const marker = takeShadowedSprite(
       scene.worldStaticMarkerSprites,
       WorldIcons.Village,
+      {
+        stableKey: getMarkerIdentityKey('claim-npc'),
+      },
     );
     configureShadowedSprite(
       marker,
@@ -164,6 +179,11 @@ export function renderStaticMarkers({
       const sprite = takeShadowedSprite(
         scene.worldStaticMarkerSprites,
         enemyIconFor(leadEnemy),
+        {
+          stableKey: getMarkerIdentityKey(
+            isBossCenter ? 'world-boss' : 'enemy',
+          ),
+        },
       );
       const tint = enemyIconTintFor(highestRarityEnemy);
       const markerPoint = isBossCenter
@@ -219,6 +239,9 @@ export function renderStaticMarkers({
     const marker = takeShadowedSprite(
       scene.worldStaticMarkerSprites,
       WorldIcons.ForgottenLoot,
+      {
+        stableKey: getMarkerIdentityKey('forgotten-loot'),
+      },
     );
     configureShadowedSprite(
       marker,

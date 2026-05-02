@@ -26,6 +26,7 @@ export function renderStaticTile({
   enemyIconSize,
   animationMs,
   isHomeTile,
+  markerIdentityKeyBase,
   isPlayerTile,
   nextCampfireLightPoints,
   point,
@@ -49,6 +50,7 @@ export function renderStaticTile({
   enemyIconSize: number;
   animationMs: number;
   isHomeTile: boolean;
+  markerIdentityKeyBase: string | null;
   isPlayerTile: boolean;
   nextCampfireLightPoints: Array<{ x: number; y: number }>;
   point: { x: number; y: number };
@@ -123,6 +125,7 @@ export function renderStaticTile({
     renderStaticMarkers({
       animationMs,
       enemyIconSize,
+      markerIdentityKeyBase,
       point,
       scene,
       shadowOffset,

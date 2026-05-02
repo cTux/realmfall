@@ -55,6 +55,7 @@ describe('createWorldClickHandler', () => {
       selectedRef: { current: game.player.coord },
       movementTransitionRef: {
         current: {
+          displayTiles: [],
           durationMs: 1_000,
           fromCoord: { q: 0, r: 0 },
           incomingTiles: [],

@@ -5,6 +5,7 @@ import type { VisibleWorldTile } from '../../../../ui/world/visibleWorldTiles';
 export const WORLD_MOVE_VISUAL_DURATION_MS = 1_000;
 
 export interface WorldMovementTransition {
+  displayTiles: VisibleWorldTile[];
   durationMs: number;
   fromCoord: HexCoord;
   incomingTiles: VisibleWorldTile[];
@@ -39,19 +40,30 @@ export function createWorldMovementTransition({
   const nextVisibleTileKeys = new Set(
     nextVisibleTiles.map((tile) => hexKey(tile.coord)),
   );
+  const nextVisibleTilesByKey = new Map(
+    nextVisibleTiles.map((tile) => [hexKey(tile.coord), tile] as const),
+  );
   const previousVisibleTileKeys = new Set(
     previousVisibleTiles.map((tile) => hexKey(tile.coord)),
   );
+  const incomingTiles = nextVisibleTiles.filter(
+    (tile) => !previousVisibleTileKeys.has(hexKey(tile.coord)),
+  );
+  const outgoingTiles = previousVisibleTiles.filter(
+    (tile) => !nextVisibleTileKeys.has(hexKey(tile.coord)),
+  );
 
   return {
+    displayTiles: [
+      ...previousVisibleTiles.map(
+        (tile) => nextVisibleTilesByKey.get(hexKey(tile.coord)) ?? tile,
+      ),
+      ...incomingTiles,
+    ],
     durationMs,
     fromCoord,
-    incomingTiles: nextVisibleTiles.filter(
-      (tile) => !previousVisibleTileKeys.has(hexKey(tile.coord)),
-    ),
-    outgoingTiles: previousVisibleTiles.filter(
-      (tile) => !nextVisibleTileKeys.has(hexKey(tile.coord)),
-    ),
+    incomingTiles,
+    outgoingTiles,
     startedAtMs,
     toCoord,
   } satisfies WorldMovementTransition;

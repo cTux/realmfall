@@ -41,6 +41,11 @@ describe('worldMovementTransition', () => {
         toCoord: { q: 1, r: 0 },
       }),
     ).toMatchObject({
+      displayTiles: [
+        { coord: { q: -2, r: 0 } },
+        { coord: { q: 0, r: 0 } },
+        { coord: { q: 3, r: 0 } },
+      ],
       incomingTiles: [{ coord: { q: 3, r: 0 } }],
       outgoingTiles: [{ coord: { q: -2, r: 0 } }],
     });

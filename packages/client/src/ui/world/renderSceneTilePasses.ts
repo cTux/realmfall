@@ -127,6 +127,7 @@ export function renderTilePasses({
         enemyIconSize,
         animationMs,
         isHomeTile,
+        markerIdentityKeyBase: tileKey,
         isPlayerTile,
         nextCampfireLightPoints,
         point,
