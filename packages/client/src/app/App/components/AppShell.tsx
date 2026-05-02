@@ -3,6 +3,7 @@ import {
   Suspense,
   useEffect,
   useMemo,
+  type CSSProperties,
   type MutableRefObject,
 } from 'react';
 import { Button, LoadingSpinner } from '@realmfall/ui';
@@ -15,6 +16,7 @@ import {
   type UiAudioController,
 } from '../../audio/UiAudioContext';
 import type { AudioSettings } from '../../audioSettings';
+import type { InterfaceSettings } from '../../interfaceSettings';
 import type { AppWindowsProps } from '../AppWindows.types';
 import styles from '../styles.module.scss';
 import { PauseOverlay } from './PauseOverlay';
@@ -57,6 +59,7 @@ export function AppShell({
   claimedHex,
   game,
   hostRef,
+  interfaceSettings,
   isReady,
   pixiWorldError,
   paused,
@@ -70,6 +73,7 @@ export function AppShell({
   claimedHex: HexCoord | null;
   game: GameState;
   hostRef: MutableRefObject<HTMLDivElement | null>;
+  interfaceSettings: InterfaceSettings;
   isReady: boolean;
   pixiWorldError: boolean;
   paused: boolean;
@@ -99,10 +103,20 @@ export function AppShell({
     }),
     [combat, hp, logSequence, logs, statusEffects],
   );
+  const appRootStyle = useMemo(
+    () =>
+      ({
+        '--app-window-opacity': `${Math.max(
+          0,
+          1 - interfaceSettings.windowTransparency / 100,
+        )}`,
+      }) as CSSProperties,
+    [interfaceSettings.windowTransparency],
+  );
 
   return (
     <UiAudioProvider value={uiAudio}>
-      <div className={styles.appRoot}>
+      <div className={styles.appRoot} style={appRootStyle}>
         <Suspense fallback={null}>
           <UiAudioControllerBridge
             audioSettings={audioSettings}

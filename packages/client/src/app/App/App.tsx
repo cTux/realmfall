@@ -25,6 +25,7 @@ export function App() {
       claimedHex={appRuntime.claimedHex}
       game={appRuntime.game}
       hostRef={appRuntime.hostRef}
+      interfaceSettings={appRuntime.interfaceSettings}
       isReady={appRuntime.isReady}
       pixiWorldError={appRuntime.pixiWorldError}
       paused={appRuntime.paused}

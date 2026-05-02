@@ -12,7 +12,9 @@ import type {
   Tile,
 } from '../../game/stateTypes';
 import type { AudioSettings } from '../audioSettings';
+import type { GameplaySettings } from '../gameplaySettings';
 import type { GraphicsSettings } from '../graphicsSettings';
+import type { InterfaceSettings } from '../interfaceSettings';
 import type { ActionBarSlots } from './actionBar';
 import type { ItemContextMenuState } from './types';
 import type { ItemModificationKind } from '../../game/itemModifications';
@@ -98,7 +100,9 @@ export interface LogsViewState {
 
 export interface SettingsViewState {
   audio: AudioSettings;
+  gameplay: GameplaySettings;
   graphics: GraphicsSettings;
+  interface: InterfaceSettings;
 }
 
 export type DebugViewState = Record<string, never>;

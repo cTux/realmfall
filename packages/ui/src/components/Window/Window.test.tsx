@@ -1,4 +1,4 @@
-import { act } from 'react';
+import { act, type CSSProperties } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { Window } from './Window';
@@ -44,5 +44,26 @@ describe('Window', () => {
     expect(closeButton?.getAttribute('data-size')).toBe('small');
     expect(closeButton?.textContent?.trim()).toBe('');
     expect(closeIcon).not.toBeNull();
+  });
+
+  it('uses the shared app window opacity variable when it is provided', async () => {
+    await act(async () => {
+      root.render(
+        <div style={{ '--app-window-opacity': '0.35' } as CSSProperties}>
+          <Window title="Window" position={{ x: 24, y: 32 }} onMove={() => {}}>
+            Body
+          </Window>
+        </div>,
+      );
+    });
+
+    const windowElement = host.querySelector(
+      'section[class*="floatingWindow"]',
+    ) as HTMLElement | null;
+
+    expect(windowElement).not.toBeNull();
+    expect(windowElement?.style.opacity).toBe(
+      'var(--window-opacity, var(--app-window-opacity, 1))',
+    );
   });
 });

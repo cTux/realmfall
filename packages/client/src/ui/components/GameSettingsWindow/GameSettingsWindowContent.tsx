@@ -1,23 +1,35 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@realmfall/ui';
 import { type AudioSettings } from '../../../app/audioSettings';
+import { type GameplaySettings } from '../../../app/gameplaySettings';
 import {
   deriveGraphicsPreset,
   type GraphicsSettings,
 } from '../../../app/graphicsSettings';
+import { type InterfaceSettings } from '../../../app/interfaceSettings';
 import type { ResettableSaveAreaId } from '../../../persistence/saveAreas';
 import { t } from '../../../i18n';
 import { GameSettingsAudioPanel } from './GameSettingsAudioPanel';
+import { GameSettingsGameplayPanel } from './GameSettingsGameplayPanel';
 import { GameSettingsGraphicsPanel } from './GameSettingsGraphicsPanel';
+import { GameSettingsInterfacePanel } from './GameSettingsInterfacePanel';
 import { GameSettingsSavesPanel } from './GameSettingsSavesPanel';
 import type {
   GameSettingsWindowContentProps,
+  UpdateGameplaySettings,
   UpdateAudioSettings,
   UpdateGraphicsSettings,
+  UpdateInterfaceSettings,
 } from './types';
 import styles from './styles.module.scss';
 
-const TAB_ORDER = ['graphics', 'audio', 'saves'] as const;
+const TAB_ORDER = [
+  'graphics',
+  'audio',
+  'interface',
+  'gameplay',
+  'saves',
+] as const;
 
 type SettingsTabId = (typeof TAB_ORDER)[number];
 
@@ -29,7 +41,9 @@ type BusyAction =
 
 export function GameSettingsWindowContent({
   audioSettings,
+  gameplaySettings,
   graphicsSettings,
+  interfaceSettings,
   onClose,
   onResetSaveArea,
   onSave,
@@ -38,6 +52,10 @@ export function GameSettingsWindowContent({
   const [activeTabId, setActiveTabId] = useState<SettingsTabId>('graphics');
   const [draftGraphicsSettings, setDraftGraphicsSettings] =
     useState<GraphicsSettings>(graphicsSettings);
+  const [draftInterfaceSettings, setDraftInterfaceSettings] =
+    useState<InterfaceSettings>(interfaceSettings);
+  const [draftGameplaySettings, setDraftGameplaySettings] =
+    useState<GameplaySettings>(gameplaySettings);
   const [draftAudioSettings, setDraftAudioSettings] =
     useState<AudioSettings>(audioSettings);
   const [busyAction, setBusyAction] = useState<BusyAction>(null);
@@ -50,14 +68,27 @@ export function GameSettingsWindowContent({
     setDraftAudioSettings(audioSettings);
   }, [audioSettings]);
 
+  useEffect(() => {
+    setDraftInterfaceSettings(interfaceSettings);
+  }, [interfaceSettings]);
+
+  useEffect(() => {
+    setDraftGameplaySettings(gameplaySettings);
+  }, [gameplaySettings]);
+
   const dirty =
     JSON.stringify(draftGraphicsSettings) !==
       JSON.stringify(graphicsSettings) ||
-    JSON.stringify(draftAudioSettings) !== JSON.stringify(audioSettings);
+    JSON.stringify(draftAudioSettings) !== JSON.stringify(audioSettings) ||
+    JSON.stringify(draftInterfaceSettings) !==
+      JSON.stringify(interfaceSettings) ||
+    JSON.stringify(draftGameplaySettings) !== JSON.stringify(gameplaySettings);
 
   const savePayload = {
     audio: draftAudioSettings,
+    gameplay: draftGameplaySettings,
     graphics: draftGraphicsSettings,
+    interface: draftInterfaceSettings,
   };
   const resettingAreaId =
     busyAction?.kind === 'reset' ? busyAction.areaId : null;
@@ -75,6 +106,14 @@ export function GameSettingsWindowContent({
 
   const updateDraftAudioSettings: UpdateAudioSettings = (updater) => {
     setDraftAudioSettings(updater);
+  };
+
+  const updateDraftInterfaceSettings: UpdateInterfaceSettings = (updater) => {
+    setDraftInterfaceSettings(updater);
+  };
+
+  const updateDraftGameplaySettings: UpdateGameplaySettings = (updater) => {
+    setDraftGameplaySettings(updater);
   };
 
   const handleResetSaveArea = async (areaId: ResettableSaveAreaId) => {
@@ -107,12 +146,31 @@ export function GameSettingsWindowContent({
 
   return (
     <div className={styles.layout}>
+      <div className={styles.tabs} role="tablist" aria-orientation="horizontal">
+        {TAB_ORDER.map((tabId) => (
+          <Button
+            unstyled
+            key={tabId}
+            id={`${tabId}-tab`}
+            type="button"
+            size="small"
+            role="tab"
+            aria-selected={activeTabId === tabId}
+            aria-controls={`${tabId}-panel`}
+            className={styles.tab}
+            data-active={activeTabId === tabId}
+            onClick={() => setActiveTabId(tabId)}
+          >
+            {t(`ui.settings.tabs.${tabId}`)}
+          </Button>
+        ))}
+      </div>
       <div className={styles.content}>
         <section
           id={`${activeTabId}-panel`}
           role="tabpanel"
           aria-labelledby={`${activeTabId}-tab`}
-          className={`${styles.tabPanel} ${activeTabId === 'audio' ? styles.audioTabPanel : ''}`}
+          className={styles.tabPanel}
         >
           {activeTabId === 'graphics' ? (
             <GameSettingsGraphicsPanel
@@ -123,6 +181,16 @@ export function GameSettingsWindowContent({
             <GameSettingsAudioPanel
               audioSettings={draftAudioSettings}
               onChange={updateDraftAudioSettings}
+            />
+          ) : activeTabId === 'interface' ? (
+            <GameSettingsInterfacePanel
+              interfaceSettings={draftInterfaceSettings}
+              onChange={updateDraftInterfaceSettings}
+            />
+          ) : activeTabId === 'gameplay' ? (
+            <GameSettingsGameplayPanel
+              gameplaySettings={draftGameplaySettings}
+              onChange={updateDraftGameplaySettings}
             />
           ) : (
             <GameSettingsSavesPanel
@@ -155,24 +223,6 @@ export function GameSettingsWindowContent({
             </Button>
           </div>
         </div>
-      </div>
-      <div className={styles.tabs} role="tablist" aria-orientation="vertical">
-        {TAB_ORDER.map((tabId) => (
-          <Button
-            unstyled
-            key={tabId}
-            id={`${tabId}-tab`}
-            type="button"
-            role="tab"
-            aria-selected={activeTabId === tabId}
-            aria-controls={`${tabId}-panel`}
-            className={styles.tab}
-            data-active={activeTabId === tabId}
-            onClick={() => setActiveTabId(tabId)}
-          >
-            {t(`ui.settings.tabs.${tabId}`)}
-          </Button>
-        ))}
       </div>
     </div>
   );

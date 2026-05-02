@@ -5,6 +5,8 @@ export type EncryptedSaveAreaId = (typeof ENCRYPTED_SAVE_AREA_IDS)[number];
 export const SETTINGS_SAVE_AREA_IDS = [
   'audio',
   'graphics',
+  'interface',
+  'gameplay',
   'worldMap',
 ] as const;
 

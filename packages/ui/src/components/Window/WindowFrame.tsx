@@ -65,6 +65,7 @@ export function WindowFrame({
     '--window-position-y': `${position.y}px`,
     width: position.width === undefined ? undefined : `${position.width}px`,
     height: position.height === undefined ? undefined : `${position.height}px`,
+    opacity: 'var(--window-opacity, var(--app-window-opacity, 1))',
   } as CSSProperties;
   const resolvedCloseButtonContent = closeButtonContent ?? (
     <span

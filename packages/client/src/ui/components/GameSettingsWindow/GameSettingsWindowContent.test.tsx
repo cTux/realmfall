@@ -8,6 +8,16 @@ import { applyGraphicsPreset } from '../../../app/graphicsSettings';
 import { t } from '../../../i18n';
 import { GameSettingsWindowContent } from './GameSettingsWindowContent';
 
+const DEFAULT_INTERFACE_SETTINGS = {
+  windowTransparency: 0,
+};
+
+const DEFAULT_GAMEPLAY_SETTINGS = {
+  autoGatherResources: false,
+  autoLoot: false,
+  autoStartCombat: false,
+};
+
 describe('GameSettingsWindowContent', () => {
   let host: HTMLDivElement;
   let root: Root;
@@ -45,6 +55,8 @@ describe('GameSettingsWindowContent', () => {
         <GameSettingsWindowContent
           audioSettings={DEFAULT_AUDIO_SETTINGS}
           graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          interfaceSettings={DEFAULT_INTERFACE_SETTINGS}
+          gameplaySettings={DEFAULT_GAMEPLAY_SETTINGS}
           onResetSaveArea={onResetSaveArea}
           onSave={async () => undefined}
           onSaveAndReload={async () => undefined}
@@ -89,6 +101,8 @@ describe('GameSettingsWindowContent', () => {
         <GameSettingsWindowContent
           audioSettings={DEFAULT_AUDIO_SETTINGS}
           graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          interfaceSettings={DEFAULT_INTERFACE_SETTINGS}
+          gameplaySettings={DEFAULT_GAMEPLAY_SETTINGS}
           onResetSaveArea={onResetSaveArea}
           onSave={async () => undefined}
           onSaveAndReload={async () => undefined}
@@ -125,6 +139,8 @@ describe('GameSettingsWindowContent', () => {
         <GameSettingsWindowContent
           audioSettings={DEFAULT_AUDIO_SETTINGS}
           graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          interfaceSettings={DEFAULT_INTERFACE_SETTINGS}
+          gameplaySettings={DEFAULT_GAMEPLAY_SETTINGS}
           onResetSaveArea={async () => undefined}
           onSave={async () => undefined}
           onSaveAndReload={async () => undefined}
@@ -182,6 +198,8 @@ describe('GameSettingsWindowContent', () => {
         <GameSettingsWindowContent
           audioSettings={DEFAULT_AUDIO_SETTINGS}
           graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          interfaceSettings={DEFAULT_INTERFACE_SETTINGS}
+          gameplaySettings={DEFAULT_GAMEPLAY_SETTINGS}
           onResetSaveArea={async () => undefined}
           onSave={onSave}
           onSaveAndReload={async () => undefined}
@@ -206,8 +224,7 @@ describe('GameSettingsWindowContent', () => {
       )
       ?.querySelector('input[type="checkbox"]');
     const saveButton = Array.from(host.querySelectorAll('button')).find(
-      (candidate) =>
-        candidate.textContent?.includes(t('ui.settings.actions.save')),
+      (candidate) => candidate.textContent === t('ui.settings.actions.save'),
     );
 
     expect(windowOpenSwitch).toBeDefined();
@@ -231,7 +248,9 @@ describe('GameSettingsWindowContent', () => {
           pop: false,
         },
       },
+      gameplay: DEFAULT_GAMEPLAY_SETTINGS,
       graphics: DEFAULT_GRAPHICS_SETTINGS,
+      interface: DEFAULT_INTERFACE_SETTINGS,
     });
   });
 
@@ -243,6 +262,8 @@ describe('GameSettingsWindowContent', () => {
         <GameSettingsWindowContent
           audioSettings={DEFAULT_AUDIO_SETTINGS}
           graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          interfaceSettings={DEFAULT_INTERFACE_SETTINGS}
+          gameplaySettings={DEFAULT_GAMEPLAY_SETTINGS}
           onResetSaveArea={async () => undefined}
           onSave={onSave}
           onSaveAndReload={async () => undefined}
@@ -267,8 +288,7 @@ describe('GameSettingsWindowContent', () => {
       )
       ?.querySelector('input[type="checkbox"]');
     const saveButton = Array.from(host.querySelectorAll('button')).find(
-      (candidate) =>
-        candidate.textContent?.includes(t('ui.settings.actions.save')),
+      (candidate) => candidate.textContent === t('ui.settings.actions.save'),
     );
 
     expect(musicMuteSwitch).toBeDefined();
@@ -289,7 +309,9 @@ describe('GameSettingsWindowContent', () => {
         ...DEFAULT_AUDIO_SETTINGS,
         musicMuted: true,
       },
+      gameplay: DEFAULT_GAMEPLAY_SETTINGS,
       graphics: DEFAULT_GRAPHICS_SETTINGS,
+      interface: DEFAULT_INTERFACE_SETTINGS,
     });
   });
 
@@ -301,6 +323,8 @@ describe('GameSettingsWindowContent', () => {
         <GameSettingsWindowContent
           audioSettings={DEFAULT_AUDIO_SETTINGS}
           graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          interfaceSettings={DEFAULT_INTERFACE_SETTINGS}
+          gameplaySettings={DEFAULT_GAMEPLAY_SETTINGS}
           onResetSaveArea={async () => undefined}
           onSave={onSave}
           onSaveAndReload={async () => undefined}
@@ -316,8 +340,7 @@ describe('GameSettingsWindowContent', () => {
       ),
     );
     const saveButton = Array.from(host.querySelectorAll('button')).find(
-      (candidate) =>
-        candidate.textContent?.includes(t('ui.settings.actions.save')),
+      (candidate) => candidate.textContent === t('ui.settings.actions.save'),
     );
 
     expect(performancePreset).toBeDefined();
@@ -335,7 +358,9 @@ describe('GameSettingsWindowContent', () => {
 
     expect(onSave).toHaveBeenCalledWith({
       audio: DEFAULT_AUDIO_SETTINGS,
+      gameplay: DEFAULT_GAMEPLAY_SETTINGS,
       graphics: applyGraphicsPreset('performance'),
+      interface: DEFAULT_INTERFACE_SETTINGS,
     });
   });
 
@@ -347,6 +372,8 @@ describe('GameSettingsWindowContent', () => {
         <GameSettingsWindowContent
           audioSettings={DEFAULT_AUDIO_SETTINGS}
           graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          interfaceSettings={DEFAULT_INTERFACE_SETTINGS}
+          gameplaySettings={DEFAULT_GAMEPLAY_SETTINGS}
           onResetSaveArea={async () => undefined}
           onSave={onSave}
           onSaveAndReload={async () => undefined}
@@ -358,8 +385,7 @@ describe('GameSettingsWindowContent', () => {
       'input[type="range"]',
     ) as HTMLInputElement | null;
     const saveButton = Array.from(host.querySelectorAll('button')).find(
-      (candidate) =>
-        candidate.textContent?.includes(t('ui.settings.actions.save')),
+      (candidate) => candidate.textContent === t('ui.settings.actions.save'),
     );
 
     expect(renderFpsSlider).not.toBeNull();
@@ -383,11 +409,13 @@ describe('GameSettingsWindowContent', () => {
 
     expect(onSave).toHaveBeenCalledWith({
       audio: DEFAULT_AUDIO_SETTINGS,
+      gameplay: DEFAULT_GAMEPLAY_SETTINGS,
       graphics: {
         ...DEFAULT_GRAPHICS_SETTINGS,
         preset: 'custom',
         worldRenderFps: 120,
       },
+      interface: DEFAULT_INTERFACE_SETTINGS,
     });
   });
 
@@ -399,6 +427,8 @@ describe('GameSettingsWindowContent', () => {
         <GameSettingsWindowContent
           audioSettings={DEFAULT_AUDIO_SETTINGS}
           graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          interfaceSettings={DEFAULT_INTERFACE_SETTINGS}
+          gameplaySettings={DEFAULT_GAMEPLAY_SETTINGS}
           onResetSaveArea={async () => undefined}
           onSave={onSave}
           onSaveAndReload={async () => undefined}
@@ -414,8 +444,7 @@ describe('GameSettingsWindowContent', () => {
       )
       ?.querySelector('input[type="checkbox"]');
     const saveButton = Array.from(host.querySelectorAll('button')).find(
-      (candidate) =>
-        candidate.textContent?.includes(t('ui.settings.actions.save')),
+      (candidate) => candidate.textContent === t('ui.settings.actions.save'),
     );
 
     expect(terrainBackgroundsSwitch).toBeDefined();
@@ -433,11 +462,13 @@ describe('GameSettingsWindowContent', () => {
 
     expect(onSave).toHaveBeenCalledWith({
       audio: DEFAULT_AUDIO_SETTINGS,
+      gameplay: DEFAULT_GAMEPLAY_SETTINGS,
       graphics: {
         ...DEFAULT_GRAPHICS_SETTINGS,
         preset: 'custom',
         showTerrainBackgrounds: false,
       },
+      interface: DEFAULT_INTERFACE_SETTINGS,
     });
   });
 
@@ -447,6 +478,8 @@ describe('GameSettingsWindowContent', () => {
         <GameSettingsWindowContent
           audioSettings={DEFAULT_AUDIO_SETTINGS}
           graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          interfaceSettings={DEFAULT_INTERFACE_SETTINGS}
+          gameplaySettings={DEFAULT_GAMEPLAY_SETTINGS}
           onResetSaveArea={async () => undefined}
           onSave={async () => undefined}
           onSaveAndReload={async () => undefined}
@@ -481,6 +514,8 @@ describe('GameSettingsWindowContent', () => {
         <GameSettingsWindowContent
           audioSettings={DEFAULT_AUDIO_SETTINGS}
           graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          interfaceSettings={DEFAULT_INTERFACE_SETTINGS}
+          gameplaySettings={DEFAULT_GAMEPLAY_SETTINGS}
           onResetSaveArea={async () => undefined}
           onSave={onSave}
           onSaveAndReload={async () => undefined}
@@ -506,8 +541,7 @@ describe('GameSettingsWindowContent', () => {
       )
       ?.querySelector('input[type="checkbox"]');
     const saveButton = Array.from(host.querySelectorAll('button')).find(
-      (candidate) =>
-        candidate.textContent?.includes(t('ui.settings.actions.save')),
+      (candidate) => candidate.textContent === t('ui.settings.actions.save'),
     );
 
     expect(actorSelect).not.toBeNull();
@@ -547,7 +581,9 @@ describe('GameSettingsWindowContent', () => {
           },
         },
       },
+      gameplay: DEFAULT_GAMEPLAY_SETTINGS,
       graphics: DEFAULT_GRAPHICS_SETTINGS,
+      interface: DEFAULT_INTERFACE_SETTINGS,
     });
   });
 
@@ -557,6 +593,8 @@ describe('GameSettingsWindowContent', () => {
         <GameSettingsWindowContent
           audioSettings={DEFAULT_AUDIO_SETTINGS}
           graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          interfaceSettings={DEFAULT_INTERFACE_SETTINGS}
+          gameplaySettings={DEFAULT_GAMEPLAY_SETTINGS}
           onResetSaveArea={async () => undefined}
           onSave={async () => undefined}
           onSaveAndReload={async () => undefined}
@@ -593,5 +631,150 @@ describe('GameSettingsWindowContent', () => {
     });
 
     expect(actorSelect?.value).toBe('karen-cenon');
+  });
+
+  it('uses a horizontal tab row with interface and gameplay tabs', async () => {
+    await act(async () => {
+      root.render(
+        <GameSettingsWindowContent
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
+          graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          interfaceSettings={DEFAULT_INTERFACE_SETTINGS}
+          gameplaySettings={DEFAULT_GAMEPLAY_SETTINGS}
+          onResetSaveArea={async () => undefined}
+          onSave={async () => undefined}
+          onSaveAndReload={async () => undefined}
+        />,
+      );
+    });
+
+    const tabList = host.querySelector('[role="tablist"]');
+    const tabLabels = Array.from(host.querySelectorAll('[role="tab"]')).map(
+      (tab) => tab.textContent?.trim(),
+    );
+
+    expect(tabList?.getAttribute('aria-orientation')).toBe('horizontal');
+    expect(tabLabels).toEqual([
+      t('ui.settings.tabs.graphics'),
+      t('ui.settings.tabs.audio'),
+      t('ui.settings.tabs.interface'),
+      t('ui.settings.tabs.gameplay'),
+      t('ui.settings.tabs.saves'),
+    ]);
+  });
+
+  it('saves interface transparency and gameplay automation toggles in the payload', async () => {
+    const onSave = vi.fn(async () => undefined);
+
+    await act(async () => {
+      root.render(
+        <GameSettingsWindowContent
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
+          graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          interfaceSettings={DEFAULT_INTERFACE_SETTINGS}
+          gameplaySettings={DEFAULT_GAMEPLAY_SETTINGS}
+          onResetSaveArea={async () => undefined}
+          onSave={onSave}
+          onSaveAndReload={async () => undefined}
+        />,
+      );
+    });
+
+    const interfaceTab = Array.from(host.querySelectorAll('[role="tab"]')).find(
+      (candidate) =>
+        candidate.textContent?.includes(t('ui.settings.tabs.interface')),
+    );
+
+    expect(interfaceTab).toBeDefined();
+
+    await act(async () => {
+      interfaceTab?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    const transparencySlider = host.querySelector(
+      'input[type="range"]',
+    ) as HTMLInputElement | null;
+
+    expect(transparencySlider).not.toBeNull();
+
+    await act(async () => {
+      if (transparencySlider) {
+        const setValue = Object.getOwnPropertyDescriptor(
+          HTMLInputElement.prototype,
+          'value',
+        )?.set;
+
+        setValue?.call(transparencySlider, '45');
+        transparencySlider.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+
+    const gameplayTab = Array.from(host.querySelectorAll('[role="tab"]')).find(
+      (candidate) =>
+        candidate.textContent?.includes(t('ui.settings.tabs.gameplay')),
+    );
+
+    expect(gameplayTab).toBeDefined();
+
+    await act(async () => {
+      gameplayTab?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    const autoLootSwitch = Array.from(host.querySelectorAll('label'))
+      .find((candidate) =>
+        candidate.textContent?.includes(
+          t('ui.settings.gameplay.autoLoot.label'),
+        ),
+      )
+      ?.querySelector('input[type="checkbox"]');
+    const autoStartCombatSwitch = Array.from(host.querySelectorAll('label'))
+      .find((candidate) =>
+        candidate.textContent?.includes(
+          t('ui.settings.gameplay.autoStartCombat.label'),
+        ),
+      )
+      ?.querySelector('input[type="checkbox"]');
+    const autoGatherResourcesSwitch = Array.from(host.querySelectorAll('label'))
+      .find((candidate) =>
+        candidate.textContent?.includes(
+          t('ui.settings.gameplay.autoGatherResources.label'),
+        ),
+      )
+      ?.querySelector('input[type="checkbox"]');
+    const saveButton = Array.from(host.querySelectorAll('button')).find(
+      (candidate) => candidate.textContent === t('ui.settings.actions.save'),
+    );
+
+    expect(autoLootSwitch).toBeDefined();
+    expect(autoStartCombatSwitch).toBeDefined();
+    expect(autoGatherResourcesSwitch).toBeDefined();
+    expect(saveButton).toBeDefined();
+
+    await act(async () => {
+      autoLootSwitch?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      autoStartCombatSwitch?.dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      );
+      autoGatherResourcesSwitch?.dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      );
+    });
+
+    await act(async () => {
+      saveButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    expect(onSave).toHaveBeenCalledWith({
+      audio: DEFAULT_AUDIO_SETTINGS,
+      graphics: DEFAULT_GRAPHICS_SETTINGS,
+      interface: {
+        windowTransparency: 45,
+      },
+      gameplay: {
+        autoGatherResources: true,
+        autoLoot: true,
+        autoStartCombat: true,
+      },
+    });
   });
 });
