@@ -8,7 +8,7 @@ import {
 import { startCombat } from '../../../game/stateCombat';
 import { takeAllTileItems } from '../../../game/stateInventoryActions';
 import type { GameState, Tile } from '../../../game/stateTypes';
-import { interactWithStructure } from '../../../game/stateWorldActions';
+import { interactWithStructureUntilDepleted } from '../../../game/stateWorldActions';
 import { isGatheringStructure } from '../../../game/world';
 import type { GameplaySettings } from '../../gameplaySettings';
 
@@ -66,7 +66,7 @@ export function useGameplayAutomation({
       gameplaySettings.autoGatherResources &&
       isGatheringStructure(currentTile.structure)
     ) {
-      applyTransition(interactWithStructure);
+      applyTransition(interactWithStructureUntilDepleted);
     }
   }, [
     combat,

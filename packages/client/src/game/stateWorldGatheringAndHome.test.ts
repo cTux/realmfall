@@ -3,6 +3,7 @@ import {
   createGame,
   getTileAt,
   interactWithStructure,
+  interactWithStructureUntilDepleted,
   setHomeHex,
 } from './state';
 import { getStructureConfig } from './content/structures';
@@ -50,6 +51,28 @@ describe('game state world gathering and home', () => {
     expect(logs?.quantity).toBe(27);
     expect(gathered.logs.some((entry) => /extra logs/i.test(entry.text))).toBe(
       true,
+    );
+  });
+
+  it('compacts auto-gathering into one loot log entry', () => {
+    const game = createGame(3, 'auto-gather-compact-seed');
+    game.tiles['0,0'] = {
+      ...game.tiles['0,0'],
+      structure: 'tree',
+      structureHp: 5,
+      structureMaxHp: 5,
+      items: [],
+      enemyIds: [],
+    };
+
+    const gathered = interactWithStructureUntilDepleted(game);
+
+    expect(getTileAt(gathered, { q: 0, r: 0 }).structure).toBeUndefined();
+    expect(gathered.player.inventory.some((item) => item.name === 'Logs')).toBe(
+      true,
+    );
+    expect(gathered.logs.filter((entry) => entry.kind === 'loot')).toHaveLength(
+      1,
     );
   });
 
