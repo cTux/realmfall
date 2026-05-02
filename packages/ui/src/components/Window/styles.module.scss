@@ -23,7 +23,6 @@ $mobile-window-width: min(92vw, 420px);
   box-shadow: 0 20px 60px rgb(0 0 0 / 35%);
   contain: layout paint;
   overflow: hidden;
-  opacity: 1;
   transform: translate3d(var(--window-position-x), var(--window-position-y), 0)
     translateY(calc(var(--window-press-y) + var(--window-visibility-y)))
     scale(var(--window-scale));
@@ -55,8 +54,8 @@ $mobile-window-width: min(92vw, 420px);
   &[data-window-visible='false'] {
     --window-visibility-y: 10px;
     --window-scale: 0.98;
+    --window-opacity: 0;
 
-    opacity: 0;
     pointer-events: none;
   }
 

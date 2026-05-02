@@ -20,7 +20,9 @@ export const settingsDeferredWindow: AppDeferredWindowDescriptor = {
     <GameSettingsWindow
       {...managedWindowProps.settings}
       audioSettings={views.settings.audio}
+      gameplaySettings={views.settings.gameplay}
       graphicsSettings={views.settings.graphics}
+      interfaceSettings={views.settings.interface}
       onSave={actions.settings.onSaveSettings}
       onSaveAndReload={actions.settings.onSaveSettingsAndReload}
       onResetSaveArea={actions.settings.onResetSaveArea}

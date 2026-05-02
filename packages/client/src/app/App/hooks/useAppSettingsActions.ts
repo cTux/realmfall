@@ -7,10 +7,20 @@ import {
   type AudioSettings,
 } from '../../audioSettings';
 import {
+  clearGameplaySettings,
+  saveGameplaySettings,
+  type GameplaySettings,
+} from '../../gameplaySettings';
+import {
   clearGraphicsSettings,
   saveGraphicsSettings,
   type GraphicsSettings,
 } from '../../graphicsSettings';
+import {
+  clearInterfaceSettings,
+  saveInterfaceSettings,
+  type InterfaceSettings,
+} from '../../interfaceSettings';
 import { clearWorldMapSettings } from '../../worldMapSettings';
 import type { ResettableSaveAreaId } from '../../../persistence/saveAreas';
 import { setHomeHexForApp } from './useAppLifecycle';
@@ -20,37 +30,61 @@ export function useAppSettingsActions({
   persistNow,
   setAudioSettings,
   setGame,
+  setGameplaySettings,
   setGraphicsSettings,
+  setInterfaceSettings,
   uiAudio,
 }: {
   paused: boolean;
   persistNow: () => Promise<void>;
   setAudioSettings: Dispatch<SetStateAction<AudioSettings>>;
   setGame: Dispatch<SetStateAction<GameState>>;
+  setGameplaySettings: Dispatch<SetStateAction<GameplaySettings>>;
   setGraphicsSettings: Dispatch<SetStateAction<GraphicsSettings>>;
+  setInterfaceSettings: Dispatch<SetStateAction<InterfaceSettings>>;
   uiAudio: UiAudioController;
 }) {
   const handleSaveSettings = useCallback(
     async ({
       audio: nextAudioSettings,
+      gameplay: nextGameplaySettings,
       graphics: nextGraphicsSettings,
+      interface: nextInterfaceSettings,
     }: {
       audio: AudioSettings;
+      gameplay: GameplaySettings;
       graphics: GraphicsSettings;
+      interface: InterfaceSettings;
     }) => {
       setAudioSettings(nextAudioSettings);
+      setGameplaySettings(nextGameplaySettings);
       setGraphicsSettings(nextGraphicsSettings);
+      setInterfaceSettings(nextInterfaceSettings);
       saveAudioSettings(nextAudioSettings);
+      saveGameplaySettings(nextGameplaySettings);
       saveGraphicsSettings(nextGraphicsSettings);
+      saveInterfaceSettings(nextInterfaceSettings);
       uiAudio.applySettings(nextAudioSettings);
       await persistNow();
       uiAudio.success();
     },
-    [persistNow, setAudioSettings, setGraphicsSettings, uiAudio],
+    [
+      persistNow,
+      setAudioSettings,
+      setGameplaySettings,
+      setGraphicsSettings,
+      setInterfaceSettings,
+      uiAudio,
+    ],
   );
 
   const handleSaveSettingsAndReload = useCallback(
-    async (settings: { audio: AudioSettings; graphics: GraphicsSettings }) => {
+    async (settings: {
+      audio: AudioSettings;
+      gameplay: GameplaySettings;
+      graphics: GraphicsSettings;
+      interface: InterfaceSettings;
+    }) => {
       await handleSaveSettings(settings);
       uiAudio.notify();
       window.location.reload();
@@ -75,6 +109,12 @@ export function useAppSettingsActions({
           break;
         case 'graphics':
           clearGraphicsSettings();
+          break;
+        case 'interface':
+          clearInterfaceSettings();
+          break;
+        case 'gameplay':
+          clearGameplaySettings();
           break;
         case 'worldMap':
           clearWorldMapSettings();

@@ -40,6 +40,8 @@ import { applySurvivalDecay, respawnAtNearestTown } from './stateSurvival';
 import { getCurrentTile, getTileAt } from './stateWorldQueries';
 import type { GameState, Item } from './types';
 
+const MAX_AUTO_GATHER_STEPS_PER_NODE = 32;
+
 export function setHomeHex(
   state: GameState,
   coord: HexCoord = state.player.coord,
@@ -209,6 +211,89 @@ export function interactWithStructure(state: GameState): GameState {
   return next;
 }
 
+export function interactWithStructureUntilDepleted(
+  state: GameState,
+): GameState {
+  if (state.gameOver) return state;
+  if (state.combat) {
+    return message(state, t('game.message.combat.finishCurrentBattleFirst'));
+  }
+
+  const tile = getCurrentTile(state);
+  if (!isGatheringStructure(tile.structure)) {
+    return message(state, t('game.message.gather.nothingHere'));
+  }
+
+  const next = cloneForPlayerAndTileMutation(state);
+  ensureTileState(next, next.player.coord);
+  const key = hexKey(next.player.coord);
+  const currentTile = next.tiles[key];
+  if (!isGatheringStructure(currentTile.structure)) {
+    return message(state, t('game.message.gather.nothingHere'));
+  }
+
+  const definition = structureDefinition(currentTile.structure);
+  const aggregatedRewards: Item[] = [];
+
+  for (
+    let remainingSteps = MAX_AUTO_GATHER_STEPS_PER_NODE;
+    remainingSteps > 0;
+    remainingSteps -= 1
+  ) {
+    const gatheringTile = next.tiles[key];
+    if (!isGatheringStructure(gatheringTile.structure)) {
+      break;
+    }
+
+    next.turn += 1;
+    applySurvivalDecay(next);
+
+    if (next.player.hp <= 0) {
+      flushAutoGatherRewards(next.player.inventory, aggregatedRewards);
+      addAutoGatherLog(next, definition.verb, aggregatedRewards);
+      respawnAtNearestTown(next, next.player.coord);
+      return next;
+    }
+
+    const skill = next.player.skills[definition.skill];
+    const damage = Math.min(gatheringTile.structureHp ?? definition.maxHp, 1);
+    const bonusLoot = rollGatheringBonus(next, definition.skill);
+    const quantity =
+      definition.baseYield + gatheringYieldBonus(skill.level) + bonusLoot;
+
+    gatheringTile.structureHp = Math.max(
+      0,
+      (gatheringTile.structureHp ?? definition.maxHp) - damage,
+    );
+    const rewards = buildGatheringRewards(
+      next,
+      gatheringTile.structure,
+      definition,
+      quantity,
+    );
+    rewards.forEach((reward) => addItemToInventory(aggregatedRewards, reward));
+
+    const byproduct = maybeGatherByproduct(
+      next,
+      gatheringTile.structure,
+      definition,
+    );
+    if (byproduct) {
+      addItemToInventory(aggregatedRewards, byproduct.item);
+    }
+
+    gainSkillXp(next, definition.skill, damage, addLog);
+    next.tiles[key] = normalizeStructureState({
+      ...gatheringTile,
+      items: [...gatheringTile.items],
+    });
+  }
+
+  flushAutoGatherRewards(next.player.inventory, aggregatedRewards);
+  addAutoGatherLog(next, definition.verb, aggregatedRewards);
+  return next;
+}
+
 export function healAtFactionNpc(state: GameState): GameState {
   if (state.gameOver) return state;
   if (state.combat) {
@@ -290,5 +375,28 @@ function isHomeHexEmpty(tile: ReturnType<typeof getTileAt>) {
     tile.items.length === 0 &&
     tile.structure == null &&
     tile.enemyIds.length === 0
+  );
+}
+
+function flushAutoGatherRewards(inventory: Item[], aggregatedRewards: Item[]) {
+  aggregatedRewards.forEach((reward) => addItemToInventory(inventory, reward));
+}
+
+function addAutoGatherLog(
+  state: GameState,
+  action: string,
+  aggregatedRewards: Item[],
+) {
+  if (aggregatedRewards.length === 0) {
+    return;
+  }
+
+  addLog(
+    state,
+    'loot',
+    t('game.message.gather.success', {
+      action,
+      item: describeItemStacks(aggregatedRewards),
+    }),
   );
 }

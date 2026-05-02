@@ -8,11 +8,15 @@ import {
   DEFAULT_UI_AUDIO_CONTROLLER,
   type UiAudioController,
 } from '../../audio/UiAudioContext';
+import { loadGameplaySettings } from '../../gameplaySettings';
 import { loadGraphicsSettings } from '../../graphicsSettings';
+import { loadInterfaceSettings } from '../../interfaceSettings';
 
 export function useAppBootstrapState() {
   const [initialAudioSettings] = useState(loadAudioSettings);
+  const [initialGameplaySettings] = useState(loadGameplaySettings);
   const [initialGraphicsSettings] = useState(loadGraphicsSettings);
+  const [initialInterfaceSettings] = useState(loadInterfaceSettings);
   const [initialGame] = useState<GameState>(() => createGame(WORLD_RADIUS));
   const gameRef = useRef<GameState>(initialGame);
   const tooltipPositionRef = useRef<TooltipPosition | null>(null);
@@ -32,7 +36,9 @@ export function useAppBootstrapState() {
     gameRef,
     initialAudioSettings,
     initialGame,
+    initialGameplaySettings,
     initialGraphicsSettings,
+    initialInterfaceSettings,
     lastDisplayedWorldSecondRef,
     paused,
     setGame,

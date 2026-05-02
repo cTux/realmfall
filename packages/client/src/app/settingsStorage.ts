@@ -9,7 +9,9 @@ export type PersistedSettingsPayload = Partial<
 
 export const PERSISTED_SETTINGS_STORAGE_KEYS = {
   audio: 'realmfall-settings-audio',
+  gameplay: 'realmfall-settings-gameplay',
   graphics: 'realmfall-settings-graphics',
+  interface: 'realmfall-settings-interface',
   worldMap: 'realmfall-settings-world-map',
 } satisfies Record<SettingsSaveAreaId, string>;
 

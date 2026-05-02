@@ -32,8 +32,8 @@
 }
 
 .layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
+  flex-direction: column;
   gap: 0.75rem;
   box-sizing: border-box;
   height: 100%;
@@ -48,21 +48,13 @@
 }
 
 .tabs {
-  display: grid;
-  align-content: start;
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.35rem;
 }
 
 .tab {
-  @include ui.tab-surface;
-
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  min-height: 112px;
-  padding: 0.65rem 0.45rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-size: 0.72rem;
+  @include ui.compact-control-chip;
 }
 
 .tabPanel {
@@ -73,10 +65,6 @@
   min-height: 0;
   overflow: auto;
   padding-right: 0.2rem;
-}
-
-.audioTabPanel {
-  padding-bottom: 1.6rem;
 }
 
 .switches,
@@ -277,19 +265,7 @@
 }
 
 @media (width <= 720px) {
-  .layout {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .tabs {
-    grid-auto-flow: column;
-    grid-auto-columns: 1fr;
-  }
-
   .tab {
-    writing-mode: horizontal-tb;
-    transform: none;
-    min-height: auto;
     min-width: 0;
   }
 

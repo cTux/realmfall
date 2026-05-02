@@ -86,6 +86,7 @@ export {
   claimCurrentHex,
   healAtFactionNpc,
   interactWithStructure,
+  interactWithStructureUntilDepleted,
   setHomeHex,
 } from './stateWorldActions';
 export {

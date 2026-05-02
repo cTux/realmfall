@@ -16,6 +16,7 @@ import { useAppWindowRuntime } from './useAppWindowRuntime';
 import { useCombatAttentionWindow } from './useCombatAttentionWindow';
 import { useAppWorldClock } from './useAppWorldClock';
 import { useCraftingRecipeBookPromotion } from './useCraftingRecipeBookPromotion';
+import { useGameplayAutomation } from './useGameplayAutomation';
 import { useHexInfoWindowPromotion } from './useHexInfoWindowPromotion';
 
 export function useAppRuntime() {
@@ -27,7 +28,9 @@ export function useAppRuntime() {
     inventory: bootstrap.game.player.inventory,
     gameRef: bootstrap.gameRef,
     initialAudioSettings: bootstrap.initialAudioSettings,
+    initialGameplaySettings: bootstrap.initialGameplaySettings,
     initialGraphicsSettings: bootstrap.initialGraphicsSettings,
+    initialInterfaceSettings: bootstrap.initialInterfaceSettings,
     paused: bootstrap.paused,
     setGame: bootstrap.setGame,
     tooltipPositionRef: bootstrap.tooltipPositionRef,
@@ -86,7 +89,9 @@ export function useAppRuntime() {
     persistNow: persistence.persistNow,
     setAudioSettings: controllerMutators.setAudioSettings,
     setGame: bootstrap.setGame,
+    setGameplaySettings: controllerMutators.setGameplaySettings,
     setGraphicsSettings: controllerMutators.setGraphicsSettings,
+    setInterfaceSettings: controllerMutators.setInterfaceSettings,
     uiAudio: bootstrap.uiAudio,
   });
   const pixiWorld = usePixiWorld({
@@ -99,6 +104,15 @@ export function useAppRuntime() {
     tooltipPositionRef: bootstrap.tooltipPositionRef,
     setGame: bootstrap.setGame,
     setTooltip: controllerMutators.setTooltip,
+  });
+  useGameplayAutomation({
+    combat: bootstrap.game.combat,
+    currentTile: gameView.currentTile,
+    enabled: persistence.hydrated,
+    gameplaySettings: controllerState.gameplaySettings,
+    paused: bootstrap.paused,
+    setGame: bootstrap.setGame,
+    worldTimeMsRef: bootstrap.worldTimeMsRef,
   });
   const windowTransitions = useWindowTransitions({
     combat: bootstrap.game.combat,
@@ -271,12 +285,14 @@ export function useAppRuntime() {
       combatWindowVisible: windowTransitions.combatWindowVisible,
       currentTile: gameView.currentTile,
       currentTileHostileEnemyCount: gameView.currentTileHostileEnemyCount,
+      gameplaySettings: controllerState.gameplaySettings,
       gold: gameView.gold,
       graphicsSettings: controllerState.graphicsSettings,
       homeHex: bootstrap.game.homeHex,
       inventoryCountsByItemKey: gameView.inventoryCountsByItemKey,
       itemModification: gameView.itemModification,
       itemMenu: controllerState.itemMenu,
+      interfaceSettings: controllerState.interfaceSettings,
       claimStatus: gameView.claimStatus,
       territoryNpcHealStatus: gameView.territoryNpcHealStatus,
       interactLabel: gameView.interactLabel,
@@ -308,6 +324,7 @@ export function useAppRuntime() {
     claimedHex: gameView.firstClaimedHex,
     game: bootstrap.game,
     hostRef: pixiWorld.hostRef,
+    interfaceSettings: controllerState.interfaceSettings,
     isReady,
     pixiWorldError: pixiWorld.canvasError,
     paused: bootstrap.paused,

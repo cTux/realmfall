@@ -31,14 +31,18 @@ export const GameSettingsWindow = createDeferredWindowComponent<
   }),
   mapContentProps: ({
     audioSettings,
+    gameplaySettings,
     graphicsSettings,
+    interfaceSettings,
     onClose,
     onResetSaveArea,
     onSave,
     onSaveAndReload,
   }) => ({
     audioSettings,
+    gameplaySettings,
     graphicsSettings,
+    interfaceSettings,
     onClose,
     onResetSaveArea,
     onSave,

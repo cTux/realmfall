@@ -8,7 +8,9 @@ import {
 import type { TooltipPosition } from '@realmfall/ui';
 import type { GameState, Item } from '../../game/stateTypes';
 import type { AudioSettings } from '../audioSettings';
+import type { GameplaySettings } from '../gameplaySettings';
 import type { GraphicsSettings } from '../graphicsSettings';
+import type { InterfaceSettings } from '../interfaceSettings';
 import type { TooltipItem } from './types';
 import { useActionBarController } from './hooks/useActionBarController';
 import { useAppLogFilters } from './hooks/useAppLogFilters';
@@ -26,7 +28,9 @@ interface UseAppControllersOptions {
   inventory: Item[];
   gameRef: MutableRefObject<GameState>;
   initialAudioSettings: AudioSettings;
+  initialGameplaySettings: GameplaySettings;
   initialGraphicsSettings: GraphicsSettings;
+  initialInterfaceSettings: InterfaceSettings;
   paused: boolean;
   setGame: Dispatch<SetStateAction<GameState>>;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
@@ -37,6 +41,7 @@ export interface AppControllers {
   state: {
     actionBarSlots: ReturnType<typeof useActionBarController>['actionBarSlots'];
     audioSettings: AudioSettings;
+    gameplaySettings: GameplaySettings;
     graphicsSettings: GraphicsSettings;
     hexItemModificationPickerActive: boolean;
     itemMenu: ReturnType<typeof useItemContextMenuController>['itemMenu'];
@@ -50,6 +55,7 @@ export interface AppControllers {
     showFilterMenu: ReturnType<typeof useAppLogFilters>['showFilterMenu'];
     windowShown: ReturnType<typeof useAppWindowState>['windowShown'];
     windows: ReturnType<typeof useAppWindowState>['windows'];
+    interfaceSettings: InterfaceSettings;
   };
   actions: Omit<
     ReturnType<typeof useGameActionHandlers>,
@@ -116,9 +122,15 @@ export interface AppControllers {
     setAudioSettings: ReturnType<
       typeof useAppSettingsState
     >['setAudioSettings'];
+    setGameplaySettings: ReturnType<
+      typeof useAppSettingsState
+    >['setGameplaySettings'];
     setGraphicsSettings: ReturnType<
       typeof useAppSettingsState
     >['setGraphicsSettings'];
+    setInterfaceSettings: ReturnType<
+      typeof useAppSettingsState
+    >['setInterfaceSettings'];
     setLogFilters: ReturnType<typeof useAppLogFilters>['setLogFilters'];
     setPreferredRecipeSkill: ReturnType<
       typeof useRecipeMaterialFilter
@@ -141,7 +153,9 @@ export function useAppControllers({
   inventory,
   gameRef,
   initialAudioSettings,
+  initialGameplaySettings,
   initialGraphicsSettings,
+  initialInterfaceSettings,
   paused,
   setGame,
   tooltipPositionRef,
@@ -149,10 +163,19 @@ export function useAppControllers({
 }: UseAppControllersOptions): AppControllers {
   const {
     audioSettings,
+    gameplaySettings,
     graphicsSettings,
+    interfaceSettings,
     setAudioSettings,
+    setGameplaySettings,
     setGraphicsSettings,
-  } = useAppSettingsState(initialAudioSettings, initialGraphicsSettings);
+    setInterfaceSettings,
+  } = useAppSettingsState(
+    initialAudioSettings,
+    initialGraphicsSettings,
+    initialInterfaceSettings,
+    initialGameplaySettings,
+  );
   const {
     closeAllWindows,
     moveWindow,
@@ -240,6 +263,7 @@ export function useAppControllers({
     state: {
       actionBarSlots,
       audioSettings,
+      gameplaySettings,
       graphicsSettings,
       hexItemModificationPickerActive,
       itemMenu,
@@ -251,6 +275,7 @@ export function useAppControllers({
       showFilterMenu,
       windowShown,
       windows,
+      interfaceSettings,
     },
     actions: {
       ...gameActionHandlers,
@@ -280,7 +305,9 @@ export function useAppControllers({
       moveWindow,
       setActionBarSlots,
       setAudioSettings,
+      setGameplaySettings,
       setGraphicsSettings,
+      setInterfaceSettings,
       setLogFilters,
       setPreferredRecipeSkill,
       setSelectedHexItemReforgeStatIndex,

@@ -1,7 +1,9 @@
 import type { TooltipLine } from '../../ui/tooltips';
 import type { AudioSettings } from '../audioSettings';
 import type { WindowPositions, WindowVisibilityState } from '../constants';
+import type { GameplaySettings } from '../gameplaySettings';
 import type { GraphicsSettings } from '../graphicsSettings';
+import type { InterfaceSettings } from '../interfaceSettings';
 import type { ResettableSaveAreaId } from '../../persistence/saveAreas';
 import type { InventorySortMode } from '../../game/inventory';
 import type {
@@ -115,11 +117,15 @@ export interface SettingsActions {
   onResetSaveArea: (areaId: ResettableSaveAreaId) => Promise<void>;
   onSaveSettings: (settings: {
     audio: AudioSettings;
+    gameplay: GameplaySettings;
     graphics: GraphicsSettings;
+    interface: InterfaceSettings;
   }) => Promise<void>;
   onSaveSettingsAndReload: (settings: {
     audio: AudioSettings;
+    gameplay: GameplaySettings;
     graphics: GraphicsSettings;
+    interface: InterfaceSettings;
   }) => Promise<void>;
 }
 

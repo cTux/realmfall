@@ -2,7 +2,9 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState, type ComponentProps } from 'react';
 import {
   DEFAULT_AUDIO_SETTINGS,
+  DEFAULT_GAMEPLAY_SETTINGS,
   DEFAULT_GRAPHICS_SETTINGS,
+  DEFAULT_INTERFACE_SETTINGS,
 } from '../../../app/constants';
 import {
   STORYBOOK_WINDOW_POSITION,
@@ -17,7 +19,9 @@ const meta = {
   render: (args) => <GameSettingsWindowStory {...args} />,
   args: {
     audioSettings: DEFAULT_AUDIO_SETTINGS,
+    gameplaySettings: DEFAULT_GAMEPLAY_SETTINGS,
     graphicsSettings: DEFAULT_GRAPHICS_SETTINGS,
+    interfaceSettings: DEFAULT_INTERFACE_SETTINGS,
     onMove: () => undefined,
     onResetSaveArea: async () => undefined,
     onSave: async () => undefined,
@@ -40,8 +44,14 @@ function GameSettingsWindowStory(
 ) {
   const [position, setPosition] = useState(args.position);
   const [audioSettings, setAudioSettings] = useState(args.audioSettings);
+  const [gameplaySettings, setGameplaySettings] = useState(
+    args.gameplaySettings,
+  );
   const [graphicsSettings, setGraphicsSettings] = useState(
     args.graphicsSettings,
+  );
+  const [interfaceSettings, setInterfaceSettings] = useState(
+    args.interfaceSettings,
   );
   const [visible, setVisible] = useState(args.visible);
 
@@ -49,7 +59,9 @@ function GameSettingsWindowStory(
     <GameSettingsWindow
       {...args}
       audioSettings={audioSettings}
+      gameplaySettings={gameplaySettings}
       graphicsSettings={graphicsSettings}
+      interfaceSettings={interfaceSettings}
       position={position}
       visible={visible}
       onClose={() => setVisible(false)}
@@ -57,11 +69,15 @@ function GameSettingsWindowStory(
       onResetSaveArea={async () => undefined}
       onSave={async (nextSettings) => {
         setAudioSettings(nextSettings.audio);
+        setGameplaySettings(nextSettings.gameplay);
         setGraphicsSettings(nextSettings.graphics);
+        setInterfaceSettings(nextSettings.interface);
       }}
       onSaveAndReload={async (nextSettings) => {
         setAudioSettings(nextSettings.audio);
+        setGameplaySettings(nextSettings.gameplay);
         setGraphicsSettings(nextSettings.graphics);
+        setInterfaceSettings(nextSettings.interface);
       }}
     />
   );

@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
 import type { GameState, LogKind } from '../../../game/stateTypes';
 import type { AudioSettings } from '../../audioSettings';
+import type { GameplaySettings } from '../../gameplaySettings';
 import type { GraphicsSettings } from '../../graphicsSettings';
+import type { InterfaceSettings } from '../../interfaceSettings';
 import type { ActionBarSlots } from '../actionBar';
 import type { AppWindowsViewState } from '../AppWindows.types';
 import type { ItemContextMenuState } from '../types';
@@ -26,12 +28,14 @@ interface UseAppWindowViewsArgs {
   combatWindowVisible: boolean;
   currentTile: AppWindowsViewState['hex']['currentTile'];
   currentTileHostileEnemyCount: number;
+  gameplaySettings: GameplaySettings;
   gold: number;
   graphicsSettings: GraphicsSettings;
   homeHex: GameState['homeHex'];
   inventoryCountsByItemKey: Record<string, number>;
   itemModification: AppWindowsViewState['hex']['itemModification'];
   itemMenu: ItemContextMenuState | null;
+  interfaceSettings: InterfaceSettings;
   claimStatus: AppWindowsViewState['hex']['claimStatus'];
   territoryNpcHealStatus: AppWindowsViewState['hex']['territoryNpcHealStatus'];
   interactLabel: string | null;
@@ -61,12 +65,14 @@ export function useAppWindowViews({
   combatWindowVisible,
   currentTile,
   currentTileHostileEnemyCount,
+  gameplaySettings,
   gold,
   graphicsSettings,
   homeHex,
   inventoryCountsByItemKey,
   itemModification,
   itemMenu,
+  interfaceSettings,
   claimStatus,
   territoryNpcHealStatus,
   interactLabel,
@@ -201,9 +207,11 @@ export function useAppWindowViews({
   const settings = useMemo(
     () => ({
       audio: audioSettings,
+      gameplay: gameplaySettings,
       graphics: graphicsSettings,
+      interface: interfaceSettings,
     }),
-    [audioSettings, graphicsSettings],
+    [audioSettings, gameplaySettings, graphicsSettings, interfaceSettings],
   );
 
   const debug = useMemo(() => ({}), []);
