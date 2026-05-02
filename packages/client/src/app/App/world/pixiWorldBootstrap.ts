@@ -1,4 +1,4 @@
-import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
+import type { MutableRefObject } from 'react';
 import type { Application } from 'pixi.js';
 import type { TooltipPosition } from '@realmfall/ui';
 import type { GameState, HexCoord } from '../../../game/stateTypes';
@@ -25,6 +25,12 @@ export type PixiWorldInitGraphicsSettings = Pick<
 >;
 
 type PixiWorldCleanup = () => void;
+type WorldMovementController =
+  typeof import('./movement/worldMovementController').createWorldMovementController extends (
+    ...args: never[]
+  ) => infer TResult
+    ? TResult
+    : never;
 
 interface BootstrapPixiWorldCanvasArgs {
   appRef: MutableRefObject<Application | null>;
@@ -50,7 +56,7 @@ interface BootstrapPixiWorldCanvasArgs {
   playerCoordRef: MutableRefObject<HexCoord>;
   renderInvalidationRef: MutableRefObject<number>;
   selectedRef: MutableRefObject<HexCoord>;
-  setGame: Dispatch<SetStateAction<GameState>>;
+  movementController: WorldMovementController;
   setTooltip: (nextTooltip: TooltipState | null) => void;
   showTerrainBackgroundsRef: MutableRefObject<boolean>;
   worldRenderFpsRef: MutableRefObject<number>;
@@ -82,7 +88,7 @@ export async function bootstrapPixiWorldCanvas({
   playerCoordRef,
   renderInvalidationRef,
   selectedRef,
-  setGame,
+  movementController,
   setTooltip,
   showTerrainBackgroundsRef,
   worldRenderFpsRef,
@@ -247,11 +253,10 @@ export async function bootstrapPixiWorldCanvas({
     selectedRef,
     renderInvalidationRef,
     scheduleCameraSave,
-    setGame,
+    movementController,
     setTooltip,
     tooltipPositionRef,
     worldMapCameraRef,
-    worldTimeMsRef,
     worldTooltipKeyRef,
     dragStateRef,
   });

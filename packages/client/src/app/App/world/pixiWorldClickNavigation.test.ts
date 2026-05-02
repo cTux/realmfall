@@ -10,9 +10,9 @@ describe('createWorldClickHandler', () => {
     screen: { width: 800, height: 600 },
   } as const;
 
-  it('adds a command log when clicking an adjacent passable tile moves the player', () => {
+  it('queues an adjacent click through the movement controller', () => {
     const game = createGame(2, 'adjacent-click-command');
-    let nextGame = game;
+    const replaceQueuedPath = vi.fn();
     const adjacentPoint = tileToPoint(
       { q: 1, r: 0 },
       app.screen.width / 2,
@@ -28,18 +28,15 @@ describe('createWorldClickHandler', () => {
       playerCoordRef: { current: game.player.coord },
       renderInvalidationRef: { current: 0 },
       selectedRef: { current: game.player.coord },
-      setGame: (value) => {
-        nextGame = typeof value === 'function' ? value(nextGame) : value;
-      },
-      worldTimeMsRef: { current: game.worldTimeMs },
+      movementController: { replaceQueuedPath },
     });
 
     handleClick(320, 240);
 
-    expect(nextGame.logs[0]?.kind).toBe('command');
+    expect(replaceQueuedPath).toHaveBeenCalledWith([{ q: 1, r: 0 }]);
   });
 
-  it('does not add a command log when clicking an impassable adjacent tile', () => {
+  it('does not queue movement when clicking an impassable adjacent tile', () => {
     const game = createGame(2, 'blocked-click-command');
     game.tiles['1,0'] = { ...game.tiles['1,0'], terrain: 'mountain' };
     const adjacentPoint = tileToPoint(
@@ -48,7 +45,7 @@ describe('createWorldClickHandler', () => {
       app.screen.height / 2,
       getWorldHexSize(app.screen, game.radius),
     );
-    const setGame = vi.fn();
+    const replaceQueuedPath = vi.fn();
 
     const handleClick = createWorldClickHandler({
       app: app as never,
@@ -58,16 +55,15 @@ describe('createWorldClickHandler', () => {
       playerCoordRef: { current: game.player.coord },
       renderInvalidationRef: { current: 0 },
       selectedRef: { current: game.player.coord },
-      setGame,
-      worldTimeMsRef: { current: game.worldTimeMs },
+      movementController: { replaceQueuedPath },
     });
 
     handleClick(320, 240);
 
-    expect(setGame).not.toHaveBeenCalled();
+    expect(replaceQueuedPath).not.toHaveBeenCalled();
   });
 
-  it('does not add a command log when clicking an unresolved adjacent tile', () => {
+  it('does not queue movement when clicking an unresolved adjacent tile', () => {
     const game = createGame(2, 'unresolved-click-command');
     delete game.tiles['1,0'];
     const adjacentPoint = tileToPoint(
@@ -76,7 +72,7 @@ describe('createWorldClickHandler', () => {
       app.screen.height / 2,
       getWorldHexSize(app.screen, game.radius),
     );
-    const setGame = vi.fn();
+    const replaceQueuedPath = vi.fn();
 
     const handleClick = createWorldClickHandler({
       app: app as never,
@@ -86,18 +82,17 @@ describe('createWorldClickHandler', () => {
       playerCoordRef: { current: game.player.coord },
       renderInvalidationRef: { current: 0 },
       selectedRef: { current: game.player.coord },
-      setGame,
-      worldTimeMsRef: { current: game.worldTimeMs },
+      movementController: { replaceQueuedPath },
     });
 
     handleClick(320, 240);
 
-    expect(setGame).not.toHaveBeenCalled();
+    expect(replaceQueuedPath).not.toHaveBeenCalled();
   });
 
-  it('adds a command log when clicking a reachable safe-path tile', () => {
+  it('queues the resolved safe path instead of applying movement immediately', () => {
     const game = createGame(3, 'safe-path-click-command');
-    let nextGame = game;
+    const replaceQueuedPath = vi.fn();
     game.tiles['2,0'] = {
       coord: { q: 2, r: 0 },
       terrain: 'plains',
@@ -119,23 +114,28 @@ describe('createWorldClickHandler', () => {
       playerCoordRef: { current: game.player.coord },
       renderInvalidationRef: { current: 0 },
       selectedRef: { current: game.player.coord },
-      setGame: (value) => {
-        nextGame = typeof value === 'function' ? value(nextGame) : value;
-      },
-      worldTimeMsRef: { current: game.worldTimeMs },
+      movementController: { replaceQueuedPath },
     });
 
     handleClick(320, 240);
 
-    expect(nextGame.logs[0]?.kind).toBe('command');
+    expect(replaceQueuedPath).toHaveBeenCalledWith([
+      { q: 1, r: 0 },
+      { q: 2, r: 0 },
+    ]);
   });
 
-  it('keeps the click world-time ref aligned with the moved state', () => {
-    const game = createGame(2, 'adjacent-click-world-time');
-    let nextGame = game;
-    const worldTimeMsRef = { current: game.worldTimeMs };
-    const adjacentPoint = tileToPoint(
-      { q: 1, r: 0 },
+  it('ignores unrevealed distant clicks before pathfinding', async () => {
+    const pathfindingModule = await import('../../../game/statePathfinding');
+    const getSafePathToTileSpy = vi.spyOn(
+      pathfindingModule,
+      'getSafePathToTile',
+    );
+    const game = createGame(3, 'unrevealed-safe-path-click');
+    const replaceQueuedPath = vi.fn();
+    delete game.tiles['2,0'];
+    const safePathPoint = tileToPoint(
+      { q: 2, r: 0 },
       app.screen.width / 2,
       app.screen.height / 2,
       getWorldHexSize(app.screen, game.radius),
@@ -144,19 +144,21 @@ describe('createWorldClickHandler', () => {
     const handleClick = createWorldClickHandler({
       app: app as never,
       gameRef: { current: game },
-      getScenePoint: () => ({ x: adjacentPoint.x, y: adjacentPoint.y }),
+      getScenePoint: () => ({ x: safePathPoint.x, y: safePathPoint.y }),
       pausedRef: { current: false },
       playerCoordRef: { current: game.player.coord },
       renderInvalidationRef: { current: 0 },
       selectedRef: { current: game.player.coord },
-      setGame: (value) => {
-        nextGame = typeof value === 'function' ? value(nextGame) : value;
-      },
-      worldTimeMsRef,
+      movementController: { replaceQueuedPath },
     });
 
-    handleClick(320, 240);
+    try {
+      handleClick(320, 240);
 
-    expect(worldTimeMsRef.current).toBe(nextGame.worldTimeMs);
+      expect(getSafePathToTileSpy).not.toHaveBeenCalled();
+      expect(replaceQueuedPath).not.toHaveBeenCalled();
+    } finally {
+      getSafePathToTileSpy.mockRestore();
+    }
   });
 });

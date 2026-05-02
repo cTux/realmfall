@@ -1,4 +1,4 @@
-import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
+import type { MutableRefObject } from 'react';
 import type { Application, Container } from 'pixi.js';
 import type { TooltipPosition } from '@realmfall/ui';
 import type { HexCoord } from '../../../game/hex';
@@ -25,6 +25,12 @@ type EnemyWorldTooltip =
   typeof import('../../../ui/world/worldTooltips').enemyWorldTooltip;
 type StructureWorldTooltip =
   typeof import('../../../ui/world/worldTooltips').structureWorldTooltip;
+type WorldMovementController =
+  typeof import('./movement/worldMovementController').createWorldMovementController extends (
+    ...args: never[]
+  ) => infer TResult
+    ? TResult
+    : never;
 
 export function attachPixiWorldInteractions({
   app,
@@ -45,11 +51,10 @@ export function attachPixiWorldInteractions({
   selectedRef,
   renderInvalidationRef,
   scheduleCameraSave,
-  setGame,
+  movementController,
   setTooltip,
   tooltipPositionRef,
   worldMapCameraRef,
-  worldTimeMsRef,
   worldTooltipKeyRef,
   dragStateRef,
 }: {
@@ -74,11 +79,10 @@ export function attachPixiWorldInteractions({
   selectedRef: MutableRefObject<HexCoord>;
   renderInvalidationRef: MutableRefObject<number>;
   scheduleCameraSave: () => void;
-  setGame: Dispatch<SetStateAction<GameState>>;
+  movementController: WorldMovementController;
   setTooltip: (nextTooltip: TooltipState | null) => void;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
   worldMapCameraRef: MutableRefObject<WorldMapCameraState>;
-  worldTimeMsRef: MutableRefObject<number>;
   worldTooltipKeyRef: MutableRefObject<string | null>;
   dragStateRef: MutableRefObject<WorldMapDragState | null>;
 }) {
@@ -90,8 +94,7 @@ export function attachPixiWorldInteractions({
     playerCoordRef,
     renderInvalidationRef,
     selectedRef,
-    setGame,
-    worldTimeMsRef,
+    movementController,
   });
 
   const hoverInteractions = createWorldHoverInteractions({

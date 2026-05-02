@@ -11,7 +11,7 @@ import type { Application } from 'pixi.js';
 import type { TooltipPosition } from '@realmfall/ui';
 import { hexKey, hexesInRange } from '../../game/hex';
 import type { GameState, HexCoord } from '../../game/stateTypes';
-import type { VisibleWorldTile } from '../../ui/world/visibleWorldTiles';
+import { type VisibleWorldTile } from '../../ui/world/visibleWorldTiles';
 import { DEFAULT_WORLD_MAP_CAMERA } from '../../ui/world/worldMapCamera';
 import {
   normalizeWorldRenderFps,
@@ -71,6 +71,12 @@ interface UsePixiWorldArgs {
   setTooltip: (nextTooltip: TooltipState | null) => void;
 }
 
+interface WorldMovementController {
+  clear(): void;
+  dispose(): void;
+  replaceQueuedPath(nextSteps: HexCoord[]): void;
+}
+
 export function usePixiWorld({
   enabled,
   game,
@@ -121,6 +127,8 @@ export function usePixiWorld({
   const worldRenderFpsRef = useRef(normalizeWorldRenderFps(worldRenderFps));
   const lastRenderSnapshotRef = useRef<WorldRenderSnapshot>(undefined!);
   const renderInvalidationRef = useRef(0);
+  const movementCooldownEndAtRef = useRef<number | null>(null);
+  const movementControllerRef = useRef<WorldMovementController | null>(null);
   const [canvasReady, setCanvasReady] = useState(false);
   const [canvasError, setCanvasError] = useState(false);
   const [bootstrapAttempt, setBootstrapAttempt] = useState(0);
@@ -371,6 +379,14 @@ export function usePixiWorld({
     hoverAnalysisCacheRef.current.clear();
   }, [game.bloodMoonActive, game.combat, game.turn]);
 
+  useEffect(() => {
+    if (!game.combat) {
+      return;
+    }
+
+    movementControllerRef.current?.clear();
+  }, [game.combat]);
+
   useEffect(
     () => () => {
       if (cameraSaveTimerRef.current !== null) {
@@ -385,55 +401,78 @@ export function usePixiWorld({
 
     let disposed = false;
     let cleanup: (() => void) | null = null;
+    let movementController: WorldMovementController | null = null;
     const initGraphicsSettings = initGraphicsSettingsRef.current!;
     lastRenderSnapshotRef.current = createInitialWorldRenderSnapshot();
+    movementCooldownEndAtRef.current = null;
     setCanvasReady(false);
     setCanvasError(false);
 
-    void import('./world/pixiWorldBootstrap')
-      .then(({ bootstrapPixiWorldCanvas }) =>
-        bootstrapPixiWorldCanvas({
-          appRef,
-          cameraSaveTimerRef,
-          dragStateRef,
-          gameRef,
-          hostRef,
-          hoverAnalysisCacheRef,
-          hoverFrameRef,
-          hoverPointerRef,
-          hoverSnapshotRef,
-          hoveredMoveRef,
-          hoveredSafePathRef,
-          initGraphicsSettings,
-          isDisposed: () => disposed,
-          lastRenderSnapshotRef,
-          onReady: (nextCleanup) => {
-            cleanup = () => {
-              nextCleanup();
-              setCanvasReady(false);
-            };
-            setCanvasReady(true);
-          },
-          pausedAnimationMsRef,
-          pausedRef,
-          playerCoordRef,
-          renderInvalidationRef,
-          selectedRef,
-          setGame,
-          setTooltip,
-          showTerrainBackgroundsRef,
-          worldRenderFpsRef,
-          tooltipPositionRef,
-          visibleTilesRef,
-          worldMapCameraRef,
-          worldTimeMsRef,
-          worldTooltipKeyRef,
-        }),
+    void Promise.all([
+      import('./world/pixiWorldBootstrap'),
+      import('./world/movement/createAppWorldMovementController'),
+    ])
+      .then(
+        ([
+          { bootstrapPixiWorldCanvas },
+          { createAppWorldMovementController },
+        ]) => {
+          movementController = createAppWorldMovementController({
+            gameRef,
+            movementCooldownEndAtRef,
+            renderInvalidationRef,
+            setGame,
+            worldTimeMsRef,
+          });
+          movementControllerRef.current = movementController;
+
+          return bootstrapPixiWorldCanvas({
+            appRef,
+            cameraSaveTimerRef,
+            dragStateRef,
+            gameRef,
+            hostRef,
+            hoverAnalysisCacheRef,
+            hoverFrameRef,
+            hoverPointerRef,
+            hoverSnapshotRef,
+            hoveredMoveRef,
+            hoveredSafePathRef,
+            initGraphicsSettings,
+            isDisposed: () => disposed,
+            lastRenderSnapshotRef,
+            onReady: (nextCleanup) => {
+              cleanup = () => {
+                nextCleanup();
+                setCanvasReady(false);
+              };
+              setCanvasReady(true);
+            },
+            pausedAnimationMsRef,
+            pausedRef,
+            playerCoordRef,
+            renderInvalidationRef,
+            selectedRef,
+            movementController,
+            setTooltip,
+            showTerrainBackgroundsRef,
+            worldRenderFpsRef,
+            tooltipPositionRef,
+            visibleTilesRef,
+            worldMapCameraRef,
+            worldTimeMsRef,
+            worldTooltipKeyRef,
+          });
+        },
       )
       .catch((error: unknown) => {
         if (disposed) return;
         console.error(error);
         cleanup?.();
+        movementController?.dispose();
+        if (movementControllerRef.current === movementController) {
+          movementControllerRef.current = null;
+        }
         appRef.current = null;
         setCanvasReady(false);
         setCanvasError(true);
@@ -442,6 +481,11 @@ export function usePixiWorld({
     return () => {
       disposed = true;
       cleanup?.();
+      movementController?.dispose();
+      if (movementControllerRef.current === movementController) {
+        movementControllerRef.current = null;
+      }
+      movementCooldownEndAtRef.current = null;
     };
   }, [
     bootstrapAttempt,

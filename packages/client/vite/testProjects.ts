@@ -3,6 +3,7 @@ import type { TestProjectConfiguration } from 'vitest/config';
 export const VITEST_NODE_INCLUDE = [
   'src/game/**/*.test.ts',
   'src/app/App/tests/reuseVisibleTilesIfUnchanged.test.ts',
+  'src/app/App/world/pixiWorldClickNavigation.test.ts',
   'src/app/App/world/movement/**/*.test.ts',
   'src/app/App/world/tileResolution/**/*.test.ts',
   'src/i18n/**/*.test.ts',
@@ -17,7 +18,6 @@ const VITEST_CANVAS_EXCLUDE = [
   'src/app/App/tests/App.hover.test.tsx',
   'src/app/App/tests/App.persistence.test.tsx',
   'src/app/App/tests/App.worldInput.test.tsx',
-  'src/app/App/tests/App.worldInteractionPerformance.test.tsx',
 ];
 
 export const VITEST_JSDOM_INCLUDE = ['src/**/*.test.ts', 'src/**/*.test.tsx'];
