@@ -27,6 +27,7 @@ import {
 import {
   getAnimatedRenderToken,
   getCloudRenderInputs,
+  WORLD_MAP_CLOUD_PARALLAX_FACTOR,
   ZERO_SHADOW_OFFSET,
 } from './renderSceneShared';
 import { renderTilePasses } from './renderSceneTilePasses';
@@ -99,10 +100,27 @@ export function renderScene(
   const playerCombatStats = getPlayerCombatStats(state.player);
   const playerResourceRenderToken =
     getPlayerResourceRenderToken(playerCombatStats);
+  const playerWorldOffset = getWorldHexSizeOffset({
+    hexSize,
+    q: state.player.coord.q,
+    r: state.player.coord.r,
+  });
   const movementTransitionOffset = getMovementTransitionOffset(
     movementTransition,
     hexSize,
   );
+  const worldMapScale =
+    typeof scene.worldMap.scale.x === 'number' ? scene.worldMap.scale.x : 1;
+  const cloudParallaxOffset = {
+    x:
+      (movementTransitionOffset.x - playerWorldOffset.x) *
+      worldMapScale *
+      WORLD_MAP_CLOUD_PARALLAX_FACTOR,
+    y:
+      (movementTransitionOffset.y - playerWorldOffset.y) *
+      worldMapScale *
+      WORLD_MAP_CLOUD_PARALLAX_FACTOR,
+  };
 
   applyWorldSceneOffset(scene, movementTransitionOffset);
 
@@ -269,6 +287,7 @@ export function renderScene(
       hexSize,
       lightingState,
       movementCooldown,
+      cloudParallaxOffset,
       origin,
       playerIconSize,
       scene,

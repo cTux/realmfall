@@ -4,11 +4,13 @@ import {
   collectDescendants,
   createMockApp,
   getCloudLayer,
+  getCloudShadowLayer,
   getLabelsLayer,
   getMarkerLayer,
   getWorld,
   MockContainer,
   MockGraphics,
+  MockSprite,
   MockText,
   setupRenderSceneTestEnvironment,
 } from './renderSceneTestHelpers';
@@ -217,6 +219,52 @@ describe('renderScene atmosphere', () => {
     );
 
     expect(uniqueCloudYBands.size).toBeGreaterThanOrEqual(8);
+  });
+
+  it('drops cloud shadows well below their matching cloud sprites', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-cloud-shadow-drop');
+    const app = createMockApp();
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      1600,
+    );
+
+    const firstShadow = getCloudShadowLayer(app).children[0] as MockSprite;
+    const firstCloud = getCloudLayer(app).children[0] as MockSprite;
+
+    expect(
+      firstShadow.position.y - firstCloud.position.y,
+    ).toBeGreaterThanOrEqual(48);
+  });
+
+  it('renders readable cloud shadows over the world map', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-cloud-shadow-opacity');
+    const app = createMockApp();
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      1600,
+    );
+
+    const strongestShadowAlphas = getCloudShadowLayer(app)
+      .children.filter((_, index) => index % 3 === 2)
+      .map((child) => (child as { alpha: number }).alpha);
+
+    expect(strongestShadowAlphas.length).toBeGreaterThan(0);
+    expect(Math.min(...strongestShadowAlphas)).toBeGreaterThanOrEqual(0.06);
   });
 
   it('covers hexes beyond the reveal radius with fog of war', async () => {

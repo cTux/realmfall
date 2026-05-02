@@ -194,11 +194,16 @@ export async function bootstrapPixiWorldCanvas({
   appRef.current = app;
   const canvas = app.canvas as HTMLCanvasElement;
   const getWorldMapContainer = () => getSceneCache(app).worldMap;
+  const getCloudParallaxContainers = () => {
+    const scene = getSceneCache(app);
+    return [scene.cloudShadowSprites.parent, scene.cloudSprites.parent];
+  };
   cameraModule.loadSavedWorldMapCamera(worldMapCameraRef);
   hostRef.current.replaceChildren(canvas);
 
   const resize = cameraModule.createWorldResizeHandler({
     app,
+    getCloudParallaxContainers,
     hostRef,
     resolutionCap,
     worldMapCameraRef,
@@ -257,6 +262,7 @@ export async function bootstrapPixiWorldCanvas({
     structureWorldTooltip,
     gameRef,
     getScenePoint,
+    getCloudParallaxContainers,
     getWorldMapContainer,
     hoverAnalysisCacheRef,
     hoverAnalysisControllerRef,

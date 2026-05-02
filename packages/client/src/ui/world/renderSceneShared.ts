@@ -15,6 +15,7 @@ import {
 import { makeHex, type tileToPoint } from './renderSceneMath';
 import { type ShadowedSpriteEntry } from './renderScenePools';
 import { ANIMATED_LAYER_FRAME_MS } from './renderCadence';
+export { WORLD_MAP_CLOUD_PARALLAX_FACTOR } from './worldMapCamera';
 export { ANIMATED_LAYER_FPS, ANIMATED_LAYER_FRAME_MS } from './renderCadence';
 
 export const HOME_HEX_TINT_COLOR = 0xa855f7;
