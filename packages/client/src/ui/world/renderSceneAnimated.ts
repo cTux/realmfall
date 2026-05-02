@@ -80,6 +80,7 @@ export function renderAnimatedScene({
   );
   renderPlayerMovementCooldown({
     scene,
+    hexSize,
     origin,
     playerIconSize,
     movementCooldown,
@@ -112,11 +113,13 @@ export function renderAnimatedScene({
 
 function renderPlayerMovementCooldown({
   scene,
+  hexSize,
   origin,
   playerIconSize,
   movementCooldown,
 }: {
   scene: SceneCache;
+  hexSize: number;
   origin: { x: number; y: number };
   playerIconSize: number;
   movementCooldown: {
@@ -138,16 +141,58 @@ function renderPlayerMovementCooldown({
   }
 
   const progress = Math.min(1, remainingMs / movementCooldown.durationMs);
-  const width = playerIconSize * 0.9;
-  const height = Math.max(3, playerIconSize * 0.12);
-  const x = origin.x - width / 2;
-  const y = origin.y + playerIconSize * 0.46;
+  const edgeStart = {
+    x: origin.x + Math.cos(Math.PI / 6) * hexSize,
+    y: origin.y + Math.sin(Math.PI / 6) * hexSize,
+  };
+  const edgeEnd = {
+    x: origin.x + Math.cos(Math.PI / 2) * hexSize,
+    y: origin.y + Math.sin(Math.PI / 2) * hexSize,
+  };
+  const edgeVector = {
+    x: edgeEnd.x - edgeStart.x,
+    y: edgeEnd.y - edgeStart.y,
+  };
+  const edgeLength = Math.hypot(edgeVector.x, edgeVector.y) || 1;
+  const edgeDirection = {
+    x: edgeVector.x / edgeLength,
+    y: edgeVector.y / edgeLength,
+  };
+  const inwardNormal = {
+    x: -edgeDirection.y,
+    y: edgeDirection.x,
+  };
+  const thickness = Math.max(3, playerIconSize * 0.075);
+  const start = edgeStart;
+  const end = edgeEnd;
+  const fillEnd = {
+    x: start.x + (end.x - start.x) * progress,
+    y: start.y + (end.y - start.y) * progress,
+  };
 
   takeGraphics(scene.playerCooldownGraphics)
-    .rect(x, y, width, height)
+    .poly(buildMovementCooldownQuad(start, end, inwardNormal, thickness))
     .fill({ color: 0x422006, alpha: 0.85 });
 
   takeGraphics(scene.playerCooldownGraphics)
-    .rect(x, y, width * progress, height)
+    .poly(buildMovementCooldownQuad(start, fillEnd, inwardNormal, thickness))
     .fill({ color: 0xfacc15, alpha: 0.95 });
+}
+
+function buildMovementCooldownQuad(
+  start: { x: number; y: number },
+  end: { x: number; y: number },
+  inwardNormal: { x: number; y: number },
+  thickness: number,
+) {
+  return [
+    start.x,
+    start.y,
+    end.x,
+    end.y,
+    end.x + inwardNormal.x * thickness,
+    end.y + inwardNormal.y * thickness,
+    start.x + inwardNormal.x * thickness,
+    start.y + inwardNormal.y * thickness,
+  ];
 }
