@@ -69,10 +69,8 @@ describe('game state exploration', () => {
     const next = moveToTile(game, target);
     expect(next.player.coord).toEqual(target);
     expect(next.turn).toBe(1);
-    expect(next.worldTimeMs).toBeCloseTo(
-      game.worldTimeMs + GAME_CONFIG.worldClock.moveHexCooldownMs,
-    );
-    expect(next.logs[0]?.text).toMatch(/^\[Year 1, Day 1, 18:37\] /);
+    expect(next.worldTimeMs).toBe(game.worldTimeMs);
+    expect(next.logs[0]?.text).toMatch(/^\[Year 1, Day 1, 18:33\] /);
   });
 
   it('blocks movement onto an unresolved adjacent hex', () => {
@@ -86,7 +84,7 @@ describe('game state exploration', () => {
     expect(next.logs[0]?.text).toContain('not resolved yet');
   });
 
-  it('syncs day-phase transitions after movement advances world time', () => {
+  it('does not sync day-phase transitions from movement alone', () => {
     const game = createGame(4, 'move-day-phase-sync');
     game.dayPhase = 'night';
     game.worldTimeMs = worldTimeMsFromMinutes(418);
@@ -100,9 +98,10 @@ describe('game state exploration', () => {
 
     const next = moveToTile(game, { q: 2, r: 0 });
 
-    expect(next.dayPhase).toBe('day');
+    expect(next.worldTimeMs).toBe(game.worldTimeMs);
+    expect(next.dayPhase).toBe('night');
     expect(next.logs.some((entry) => /morning breaks/i.test(entry.text))).toBe(
-      true,
+      false,
     );
   });
 
@@ -199,9 +198,7 @@ describe('game state exploration', () => {
 
     expect(moved.player.coord).toEqual({ q: 2, r: 0 });
     expect(moved.turn).toBe(3);
-    expect(moved.worldTimeMs).toBe(
-      12_345 + GAME_CONFIG.worldClock.moveHexCooldownMs * 3,
-    );
+    expect(moved.worldTimeMs).toBe(12_345);
     expect(
       moved.logs.filter((entry) => entry.kind === 'movement'),
     ).toHaveLength(3);

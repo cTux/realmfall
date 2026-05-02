@@ -10,10 +10,8 @@ import { createCombatState } from './stateCombat';
 import { cloneForWorldMutation, message } from './stateMutationHelpers';
 import { getSafePathToTile } from './statePathfinding';
 import { applySurvivalDecay, respawnAtNearestTown } from './stateSurvival';
-import { advanceWorldTimeForMovement, syncBloodMoon } from './stateWorldClock';
 import { getHostileEnemyIds, getResolvedTileAt } from './stateWorldQueries';
 import type { GameState, Tile } from './types';
-import { getWorldTimeMinutesFromTimestamp } from './worldTime';
 
 export function moveToTile(state: GameState, target: HexCoord): GameState {
   if (state.gameOver) return state;
@@ -37,37 +35,31 @@ export function moveToTile(state: GameState, target: HexCoord): GameState {
   }
 
   next.turn += 1;
-  next.worldTimeMs = advanceWorldTimeForMovement(next, 1);
-  const timedNext = syncBloodMoon(
-    next,
-    getWorldTimeMinutesFromTimestamp(next.worldTimeMs),
-    next.worldTimeMs,
-  );
-  applySurvivalDecay(timedNext);
-  timedNext.player.coord = target;
+  applySurvivalDecay(next);
+  next.player.coord = target;
 
-  if (timedNext.player.hp <= 0) {
-    respawnAtNearestTown(timedNext, target);
-    return timedNext;
+  if (next.player.hp <= 0) {
+    respawnAtNearestTown(next, target);
+    return next;
   }
 
-  const currentTile = getResolvedTileAt(timedNext, target);
+  const currentTile = getResolvedTileAt(next, target);
   if (!currentTile) {
-    return timedNext;
+    return next;
   }
 
-  trySpawnNightAmbush(timedNext, target, currentTile);
+  trySpawnNightAmbush(next, target, currentTile);
 
-  const hostileEnemyIds = getHostileEnemyIds(timedNext, target);
+  const hostileEnemyIds = getHostileEnemyIds(next, target);
   if (hostileEnemyIds.length > 0) {
-    timedNext.combat = createCombatState(
-      timedNext,
+    next.combat = createCombatState(
+      next,
       target,
       hostileEnemyIds,
-      timedNext.worldTimeMs,
+      next.worldTimeMs,
     );
     addLog(
-      timedNext,
+      next,
       'combat',
       t(
         hostileEnemyIds.length === 1
@@ -76,15 +68,15 @@ export function moveToTile(state: GameState, target: HexCoord): GameState {
         { count: hostileEnemyIds.length },
       ),
     );
-    return timedNext;
+    return next;
   }
 
   addLog(
-    timedNext,
+    next,
     'movement',
     t('game.message.travel.toHex', { q: target.q, r: target.r }),
   );
-  return timedNext;
+  return next;
 }
 
 export function moveAlongSafePath(
