@@ -9,9 +9,11 @@ export interface WorldMoveRequest {
 export type WorldMoveResponse =
   | {
       ok: true;
+      requestId: string;
       cooldownMs: number;
     }
   | {
       ok: false;
+      requestId: string;
       remainingCooldownMs: number;
     };
