@@ -143,4 +143,41 @@ describe('App world movement cooldown', () => {
       hexAtPointSpy.mockRestore();
     }
   }, 10_000);
+
+  it('passes the remaining queued path into world rendering after the first approved far-hex move', async () => {
+    const game = createGame(3, 'app-movement-queued-path-render');
+    game.tiles['2,0'] = {
+      coord: { q: 2, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+    loadEncryptedState.mockResolvedValue({ game, ui: {} });
+    const hexModule = await import('../../../game/hex');
+    const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
+    hexAtPointSpy.mockReturnValue({ q: 2, r: 0 });
+
+    try {
+      const { host, root } = await renderApp();
+      await flushLazyModules();
+
+      const canvas = await waitForAppSelector(host, 'canvas');
+      await clickWorldTile(canvas);
+      await flushLazyModules();
+      await renderTickerFrame();
+
+      expect(
+        renderScene.mock.calls[renderScene.mock.calls.length - 1]?.[8],
+      ).toMatchObject({
+        queuedPath: [{ q: 2, r: 0 }],
+      });
+
+      await act(async () => {
+        root.unmount();
+      });
+      host.remove();
+    } finally {
+      hexAtPointSpy.mockRestore();
+    }
+  }, 10_000);
 });

@@ -2,6 +2,8 @@ import type { HexCoord, Tile } from '../../game/stateTypes';
 import type { SceneCache } from './renderSceneCache';
 import { takeGraphics } from './renderScenePools';
 import {
+  QUEUED_PATH_TINT_ALPHA,
+  QUEUED_PATH_TINT_COLOR,
   SAFE_PATH_TINT_ALPHA,
   SAFE_PATH_TINT_COLOR,
 } from './renderSceneShared';
@@ -9,6 +11,7 @@ import { tileStyle } from './renderSceneEnvironment';
 
 export function renderInteractionTile({
   clickable,
+  highlightedInQueuedPath,
   highlightedInSafePath,
   hovered,
   isPlayerTile,
@@ -21,6 +24,7 @@ export function renderInteractionTile({
   tile: _tile,
 }: {
   clickable: boolean;
+  highlightedInQueuedPath: boolean;
   highlightedInSafePath: boolean;
   hovered: boolean;
   isPlayerTile: boolean;
@@ -45,6 +49,12 @@ export function renderInteractionTile({
     safePathOverlay.poly(safePolygon).fill({
       color: SAFE_PATH_TINT_COLOR,
       alpha: SAFE_PATH_TINT_ALPHA,
+    });
+  } else if (highlightedInQueuedPath) {
+    const queuedPathOverlay = takeGraphics(scene.worldInteractionGraphics);
+    queuedPathOverlay.poly(safePolygon).fill({
+      color: QUEUED_PATH_TINT_COLOR,
+      alpha: QUEUED_PATH_TINT_ALPHA,
     });
   }
 

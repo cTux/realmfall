@@ -5,6 +5,7 @@ export interface WorldRenderSnapshot {
   game: GameState | null;
   visibleTiles: VisibleWorldTile[] | null;
   selected: HexCoord | null;
+  queuedPath: HexCoord[] | null;
   hoveredMove: HexCoord | null;
   hoveredSafePath: HexCoord[] | null;
   animationBucket: number;
@@ -22,6 +23,7 @@ export function createInitialWorldRenderSnapshot(): WorldRenderSnapshot {
     game: null,
     visibleTiles: null,
     selected: null,
+    queuedPath: null,
     hoveredMove: null,
     hoveredSafePath: null,
     animationBucket: -1,

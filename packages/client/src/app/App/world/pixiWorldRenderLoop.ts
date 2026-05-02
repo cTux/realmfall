@@ -40,6 +40,7 @@ export function createWorldRenderFrame({
   gameRef,
   visibleTilesRef,
   selectedRef,
+  getQueuedPath,
   hoveredMoveRef,
   hoveredSafePathRef,
   showTerrainBackgroundsRef,
@@ -57,6 +58,7 @@ export function createWorldRenderFrame({
   gameRef: MutableRefObject<GameState>;
   visibleTilesRef: MutableRefObject<VisibleWorldTile[]>;
   selectedRef: MutableRefObject<HexCoord>;
+  getQueuedPath?: () => HexCoord[] | null;
   hoveredMoveRef: MutableRefObject<HexCoord | null>;
   hoveredSafePathRef: MutableRefObject<HexCoord[] | null>;
   showTerrainBackgroundsRef: MutableRefObject<boolean>;
@@ -76,6 +78,7 @@ export function createWorldRenderFrame({
     const currentGame = gameRef.current;
     const currentVisibleTiles = visibleTilesRef.current;
     const currentSelected = selectedRef.current;
+    const currentQueuedPath = getQueuedPath?.() ?? null;
     const currentHoveredMove = hoveredMoveRef.current;
     const currentHoveredSafePath = hoveredSafePathRef.current;
     const wallClockMs = performance.now();
@@ -158,6 +161,7 @@ export function createWorldRenderFrame({
       lastRenderSnapshot.showTerrainBackgrounds === showTerrainBackgrounds &&
       lastRenderSnapshot.worldRenderFps === worldRenderFps &&
       sameCoord(lastRenderSnapshot.selected, currentSelected) &&
+      sameCoordList(lastRenderSnapshot.queuedPath, currentQueuedPath) &&
       sameCoord(lastRenderSnapshot.hoveredMove, currentHoveredMove) &&
       sameCoordList(lastRenderSnapshot.hoveredSafePath, currentHoveredSafePath)
     ) {
@@ -168,6 +172,7 @@ export function createWorldRenderFrame({
       game: currentGame,
       visibleTiles: currentVisibleTiles,
       selected: currentSelected,
+      queuedPath: currentQueuedPath,
       hoveredMove: currentHoveredMove,
       hoveredSafePath: currentHoveredSafePath,
       animationBucket,
@@ -200,10 +205,15 @@ export function createWorldRenderFrame({
         ? {
             movementCooldown,
             movementTransition: currentMovementTransition,
+            ...(currentQueuedPath ? { queuedPath: currentQueuedPath } : {}),
             showTerrainBackgrounds,
             worldRenderFps,
           }
-        : { showTerrainBackgrounds, worldRenderFps },
+        : {
+            ...(currentQueuedPath ? { queuedPath: currentQueuedPath } : {}),
+            showTerrainBackgrounds,
+            worldRenderFps,
+          },
     );
   };
 }
