@@ -1,10 +1,15 @@
 import type { MutableRefObject } from 'react';
 import type { Application } from 'pixi.js';
 import { WORLD_MOVE_HEX_COOLDOWN_MS } from '../../../game/config';
+import { hexDistance } from '../../../game/hex';
 import type { GameState, HexCoord } from '../../../game/stateTypes';
 import { getWorldTimeMinutesFromTimestamp } from '../../../game/worldTime';
 import { getWorldRenderFrameMs } from '../../../ui/world/renderCadence';
-import { getWorldIconTextureVersion } from '../../../ui/world/worldIcons';
+import {
+  getReachableWorldIconAssetIds,
+  getWorldIconTextureVersion,
+  warmWorldIconTexturesInBackground,
+} from '../../../ui/world/worldIcons';
 import type { VisibleWorldTile } from '../../../ui/world/visibleWorldTiles';
 import {
   DEFAULT_WORLD_RENDER_FPS,
@@ -12,6 +17,11 @@ import {
 } from '../../graphicsSettings';
 import { sameCoord } from '../usePixiWorldHover';
 import type { WorldRenderSnapshot } from './worldRenderSnapshot';
+import {
+  getWorldMovementTransitionRenderState,
+  getWorldMovementTransitionRenderToken,
+  type WorldMovementTransition,
+} from './movement/worldMovementTransition';
 
 type RenderScene = typeof import('../../../ui/world/renderScene').renderScene;
 
@@ -40,6 +50,7 @@ export function createWorldRenderFrame({
   renderInvalidationRef,
   lastRenderSnapshotRef,
   movementCooldownEndAtRef,
+  movementTransitionRef,
 }: {
   app: Application;
   renderScene: RenderScene;
@@ -56,7 +67,11 @@ export function createWorldRenderFrame({
   renderInvalidationRef: MutableRefObject<number>;
   lastRenderSnapshotRef: MutableRefObject<WorldRenderSnapshot>;
   movementCooldownEndAtRef?: MutableRefObject<number | null>;
+  movementTransitionRef?: MutableRefObject<WorldMovementTransition | null>;
 }) {
+  let lastReachableWarmPlayerCoord = { ...gameRef.current.player.coord };
+  let lastReachableWarmRadius = gameRef.current.radius;
+
   return () => {
     const currentGame = gameRef.current;
     const currentVisibleTiles = visibleTilesRef.current;
@@ -75,11 +90,59 @@ export function createWorldRenderFrame({
     const iconTextureVersion = getWorldIconTextureVersion();
     const showTerrainBackgrounds = showTerrainBackgroundsRef.current;
     const movementCooldownEndAtMs = movementCooldownEndAtRef?.current ?? null;
+    const rawMovementTransition = movementTransitionRef?.current ?? null;
+    const activeMovementTransition = getWorldMovementTransitionRenderState(
+      rawMovementTransition,
+      wallClockMs,
+    );
+    const currentMovementTransition =
+      activeMovementTransition !== null &&
+      !sameCoord(activeMovementTransition.toCoord, currentGame.player.coord)
+        ? null
+        : activeMovementTransition;
+    if (
+      rawMovementTransition !== null &&
+      currentMovementTransition === null &&
+      movementTransitionRef
+    ) {
+      movementTransitionRef.current = null;
+    }
+    const movementTransitionRenderToken = getWorldMovementTransitionRenderToken(
+      {
+        transition: currentMovementTransition,
+        nowMs: wallClockMs,
+        worldRenderFrameMs,
+      },
+    );
     const movementCooldownRenderToken = getMovementCooldownRenderToken({
       endAtMs: movementCooldownEndAtMs,
       nowMs: wallClockMs,
       worldRenderFrameMs,
     });
+
+    if (
+      !sameCoord(lastReachableWarmPlayerCoord, currentGame.player.coord) ||
+      lastReachableWarmRadius !== currentGame.radius
+    ) {
+      warmWorldIconTexturesInBackground(
+        getReachableWorldIconAssetIds(currentGame),
+      );
+      lastReachableWarmPlayerCoord = { ...currentGame.player.coord };
+      lastReachableWarmRadius = currentGame.radius;
+    }
+
+    const movedBeforeTransitionRefsUpdated =
+      lastRenderSnapshot.game !== null &&
+      currentMovementTransition === null &&
+      movementCooldownEndAtMs !== null &&
+      hexDistance(
+        lastRenderSnapshot.game.player.coord,
+        currentGame.player.coord,
+      ) === 1;
+
+    if (movedBeforeTransitionRefsUpdated) {
+      return;
+    }
 
     if (
       lastRenderSnapshot.game === currentGame &&
@@ -90,6 +153,8 @@ export function createWorldRenderFrame({
       lastRenderSnapshot.movementCooldownEndAtMs === movementCooldownEndAtMs &&
       lastRenderSnapshot.movementCooldownRenderToken ===
         movementCooldownRenderToken &&
+      lastRenderSnapshot.movementTransitionRenderToken ===
+        movementTransitionRenderToken &&
       lastRenderSnapshot.showTerrainBackgrounds === showTerrainBackgrounds &&
       lastRenderSnapshot.worldRenderFps === worldRenderFps &&
       sameCoord(lastRenderSnapshot.selected, currentSelected) &&
@@ -110,6 +175,7 @@ export function createWorldRenderFrame({
       iconTextureVersion,
       movementCooldownEndAtMs,
       movementCooldownRenderToken,
+      movementTransitionRenderToken,
       showTerrainBackgrounds,
       worldRenderFps,
     };
@@ -121,7 +187,6 @@ export function createWorldRenderFrame({
             endAtMs: movementCooldownEndAtMs,
             nowMs: wallClockMs,
           };
-
     renderScene(
       app,
       currentGame,
@@ -131,8 +196,13 @@ export function createWorldRenderFrame({
       getWorldTimeMinutesFromTimestamp(worldTimeMsRef.current),
       animationBucket * worldRenderFrameMs,
       currentHoveredSafePath,
-      movementCooldown
-        ? { showTerrainBackgrounds, worldRenderFps, movementCooldown }
+      movementCooldown || currentMovementTransition
+        ? {
+            movementCooldown,
+            movementTransition: currentMovementTransition,
+            showTerrainBackgrounds,
+            worldRenderFps,
+          }
         : { showTerrainBackgrounds, worldRenderFps },
     );
   };

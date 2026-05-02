@@ -21,9 +21,13 @@ export interface ShadowedSpriteEntry {
 }
 
 export interface ShadowedSpritePool {
+  freeStableItems: ShadowedSpriteEntry[];
+  itemsByStableKey: Map<string, ShadowedSpriteEntry>;
   parent: Container;
   itemsByIcon: Map<string, ShadowedSpriteEntry[]>;
-  usedByIcon: Map<string, number>;
+  stableOnlyItems: WeakSet<ShadowedSpriteEntry>;
+  usedEntries: Set<ShadowedSpriteEntry>;
+  usedStableKeys: Set<string>;
 }
 
 export interface SpritePool {
@@ -102,19 +106,60 @@ export function finishTextPool(pool: TextPool) {
 export function createShadowedSpritePool(
   parent: Container,
 ): ShadowedSpritePool {
-  return { parent, itemsByIcon: new Map(), usedByIcon: new Map() };
+  return {
+    freeStableItems: [],
+    itemsByStableKey: new Map(),
+    parent,
+    itemsByIcon: new Map(),
+    stableOnlyItems: new WeakSet(),
+    usedEntries: new Set(),
+    usedStableKeys: new Set(),
+  };
 }
 
 export function resetShadowedSpritePool(pool: ShadowedSpritePool) {
-  pool.usedByIcon.clear();
+  pool.usedEntries.clear();
+  pool.usedStableKeys.clear();
 }
 
-export function takeShadowedSprite(pool: ShadowedSpritePool, icon: string) {
+export function takeShadowedSprite(
+  pool: ShadowedSpritePool,
+  icon: string,
+  options?: { stableKey?: string },
+) {
+  const stableKey = options?.stableKey;
+  if (stableKey) {
+    const texture = getWorldIconTexture(icon, { allowPending: true });
+    let item = pool.itemsByStableKey.get(stableKey);
+
+    if (!item) {
+      const items = pool.itemsByIcon.get(icon) ?? [];
+      item = items.find((candidate) => !pool.usedEntries.has(candidate));
+      if (!item) {
+        item = pool.freeStableItems.pop() ?? createShadowedSprite(icon);
+        pool.stableOnlyItems.add(item);
+        if (!pool.parent.children.includes(item.wrapper)) {
+          pool.parent.addChild(item.wrapper);
+        }
+      }
+      pool.itemsByStableKey.set(stableKey, item);
+    }
+
+    item.outline.texture = texture;
+    item.shadows.forEach((shadow) => {
+      shadow.texture = texture;
+    });
+    item.sprite.texture = texture;
+    item.wrapper.visible = true;
+    pool.usedEntries.add(item);
+    pool.usedStableKeys.add(stableKey);
+    return item;
+  }
+
   const items = pool.itemsByIcon.get(icon) ?? [];
-  const used = pool.usedByIcon.get(icon) ?? 0;
   const texture = getWorldIconTexture(icon, { allowPending: true });
 
-  let item = items[used];
+  let item = items.find((candidate) => !pool.usedEntries.has(candidate));
   if (!item) {
     item = createShadowedSprite(icon);
     items.push(item);
@@ -128,16 +173,36 @@ export function takeShadowedSprite(pool: ShadowedSpritePool, icon: string) {
   });
   item.sprite.texture = texture;
   item.wrapper.visible = true;
-  pool.usedByIcon.set(icon, used + 1);
+  pool.usedEntries.add(item);
   return item;
 }
 
 export function finishShadowedSpritePool(pool: ShadowedSpritePool) {
-  pool.itemsByIcon.forEach((items, icon) => {
-    const used = pool.usedByIcon.get(icon) ?? 0;
-    for (let index = used; index < items.length; index += 1) {
-      items[index].wrapper.visible = false;
+  pool.itemsByIcon.forEach((items) => {
+    items.forEach((item) => {
+      if (pool.usedEntries.has(item)) {
+        return;
+      }
+
+      item.wrapper.visible = false;
+    });
+  });
+
+  const staleStableKeys: string[] = [];
+  pool.itemsByStableKey.forEach((item, stableKey) => {
+    if (pool.usedStableKeys.has(stableKey)) {
+      return;
     }
+
+    item.wrapper.visible = false;
+    if (pool.stableOnlyItems.has(item)) {
+      pool.freeStableItems.push(item);
+    }
+    staleStableKeys.push(stableKey);
+  });
+
+  staleStableKeys.forEach((stableKey) => {
+    pool.itemsByStableKey.delete(stableKey);
   });
 }
 

@@ -22,6 +22,7 @@ import {
   createEmptyWorldHoverSnapshot,
   type WorldHoverSnapshot,
 } from './world/worldHoverSnapshot';
+import { sameCoord } from './usePixiWorldHover';
 import type { WorldHoverAnalysisController } from './world/pixiWorldHoverInteractions';
 import type { WorldMapDragState } from './world/pixiWorldInteractions';
 import type { PixiWorldInitGraphicsSettings } from './world/pixiWorldBootstrap';
@@ -30,6 +31,11 @@ import {
   createInitialWorldRenderSnapshot,
   type WorldRenderSnapshot,
 } from './world/worldRenderSnapshot';
+import {
+  createWorldMovementTransition,
+  WORLD_MOVE_VISUAL_DURATION_MS,
+  type WorldMovementTransition,
+} from './world/movement/worldMovementTransition';
 import type { WorldMovementAutoOpenSuppressionState } from './world/movement/worldMovementController';
 
 type VisibleWorldResolutionState = Pick<
@@ -140,6 +146,7 @@ export function usePixiWorld({
   const lastRenderSnapshotRef = useRef<WorldRenderSnapshot>(undefined!);
   const renderInvalidationRef = useRef(0);
   const movementCooldownEndAtRef = useRef<number | null>(null);
+  const movementTransitionRef = useRef<WorldMovementTransition | null>(null);
   const movementControllerRef = useRef<WorldMovementController | null>(null);
   const [canvasReady, setCanvasReady] = useState(false);
   const [canvasError, setCanvasError] = useState(false);
@@ -342,8 +349,9 @@ export function usePixiWorld({
   }, [enabled, gameRef, setGame]);
 
   useEffect(() => {
-    playerCoordRef.current = game.player.coord;
-    visibleTilesRef.current = reuseVisibleTilesRef.current(
+    const previousPlayerCoord = playerCoordRef.current;
+    const previousVisibleTiles = visibleTilesRef.current;
+    const nextVisibleTiles = reuseVisibleTilesRef.current(
       visibleTilesRef.current,
       buildVisibleTilesRef.current({
         overlay: resolutionOverlayRef.current,
@@ -352,6 +360,33 @@ export function usePixiWorld({
         resolvedTiles: game.tiles,
       }),
     );
+
+    playerCoordRef.current = game.player.coord;
+    visibleTilesRef.current = nextVisibleTiles;
+
+    if (sameCoord(previousPlayerCoord, game.player.coord)) {
+      return;
+    }
+
+    const nextTransition = createWorldMovementTransition({
+      durationMs: WORLD_MOVE_VISUAL_DURATION_MS,
+      fromCoord: previousPlayerCoord,
+      nextVisibleTiles,
+      previousVisibleTiles,
+      startedAtMs: performance.now(),
+      toCoord: game.player.coord,
+    });
+
+    if (nextTransition) {
+      movementTransitionRef.current = nextTransition;
+      renderInvalidationRef.current += 1;
+      return;
+    }
+
+    if (movementTransitionRef.current !== null) {
+      movementTransitionRef.current = null;
+      renderInvalidationRef.current += 1;
+    }
   }, [game.player.coord, game.radius, game.tiles]);
 
   useEffect(() => {
@@ -438,6 +473,7 @@ export function usePixiWorld({
     const initGraphicsSettings = initGraphicsSettingsRef.current!;
     lastRenderSnapshotRef.current = createInitialWorldRenderSnapshot();
     movementCooldownEndAtRef.current = null;
+    movementTransitionRef.current = null;
     setQueuedTravelAutoOpenSuppressionState('idle');
     setCanvasReady(false);
     setCanvasError(false);
@@ -490,6 +526,7 @@ export function usePixiWorld({
             pausedRef,
             playerCoordRef,
             movementCooldownEndAtRef,
+            movementTransitionRef,
             renderInvalidationRef,
             selectedRef,
             movementController,
@@ -525,6 +562,7 @@ export function usePixiWorld({
         movementControllerRef.current = null;
       }
       movementCooldownEndAtRef.current = null;
+      movementTransitionRef.current = null;
       setQueuedTravelAutoOpenSuppressionState('idle');
     };
   }, [

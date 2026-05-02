@@ -9,6 +9,7 @@ import {
   applicationOptions,
   ensureWorldIconTexturesLoaded,
   flushLazyModules,
+  getReachableWorldIconAssetIds,
   getVisibleWorldIconAssetIds,
   loadEncryptedState,
   renderApp,
@@ -280,8 +281,10 @@ describe('App canvas setup', () => {
     await flushLazyModules();
 
     expect(getVisibleWorldIconAssetIds).toHaveBeenCalled();
+    expect(getReachableWorldIconAssetIds).toHaveBeenCalled();
     expect(ensureWorldIconTexturesLoaded).toHaveBeenCalledWith([
       'visible-start-icon',
+      'move-buffer-icon',
     ]);
     expect(warmWorldIconTexturesInBackground).toHaveBeenCalledTimes(1);
 

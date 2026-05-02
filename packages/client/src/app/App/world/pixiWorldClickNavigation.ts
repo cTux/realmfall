@@ -8,6 +8,10 @@ import type { GameState } from '../../../game/stateTypes';
 import { getWorldHexSize } from '../../../ui/world/renderSceneMath';
 import { WORLD_REVEAL_RADIUS } from '../../constants';
 import type { WorldScenePointMapper } from './pixiWorldCamera';
+import {
+  getWorldMovementTransitionSceneCenter,
+  type WorldMovementTransition,
+} from './movement/worldMovementTransition';
 
 interface WorldMovementQueueController {
   replaceQueuedPath(nextSteps: HexCoord[]): void;
@@ -21,6 +25,7 @@ export function createWorldClickHandler({
   playerCoordRef,
   renderInvalidationRef,
   selectedRef,
+  movementTransitionRef,
   movementController,
 }: {
   app: Application;
@@ -30,6 +35,7 @@ export function createWorldClickHandler({
   playerCoordRef: MutableRefObject<HexCoord>;
   renderInvalidationRef: MutableRefObject<number>;
   selectedRef: MutableRefObject<HexCoord>;
+  movementTransitionRef?: MutableRefObject<WorldMovementTransition | null>;
   movementController: WorldMovementQueueController;
 }) {
   return (clientX: number, clientY: number) => {
@@ -39,9 +45,15 @@ export function createWorldClickHandler({
 
     const scenePoint = getScenePoint(clientX, clientY);
     const hexSize = getWorldHexSize(app.screen, gameRef.current.radius);
+    const worldCenter = getWorldMovementTransitionSceneCenter({
+      hexSize,
+      nowMs: performance.now(),
+      screen: app.screen,
+      transition: movementTransitionRef?.current ?? null,
+    });
     const clickedOffset = hexAtPoint(scenePoint.x, scenePoint.y, {
-      centerX: app.screen.width / 2,
-      centerY: app.screen.height / 2,
+      centerX: worldCenter.x,
+      centerY: worldCenter.y,
       size: hexSize,
     });
     const target = {

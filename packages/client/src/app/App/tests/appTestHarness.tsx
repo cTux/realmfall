@@ -12,6 +12,7 @@ export const tickerMaxFpsValues: number[] = [];
 export const applicationOptions: Array<Record<string, unknown>> = [];
 export const ensureWorldIconTexturesLoaded = vi.fn(async () => undefined);
 export const getVisibleWorldIconAssetIds = vi.fn(() => ['visible-start-icon']);
+export const getReachableWorldIconAssetIds = vi.fn(() => ['move-buffer-icon']);
 export const warmWorldIconTexturesInBackground = vi.fn();
 const DEFAULT_DEVICE_PIXEL_RATIO = globalThis.devicePixelRatio;
 
@@ -256,6 +257,7 @@ vi.mock('../../../ui/world/worldIcons', async (importOriginal) => {
   return {
     ...actual,
     ensureWorldIconTexturesLoaded,
+    getReachableWorldIconAssetIds,
     getVisibleWorldIconAssetIds,
     warmWorldIconTexturesInBackground,
   };

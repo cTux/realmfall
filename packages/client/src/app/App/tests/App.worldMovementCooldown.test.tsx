@@ -3,6 +3,7 @@ import { createGame } from '../../../game/stateFactory';
 import {
   flushLazyModules,
   loadEncryptedState,
+  renderScene,
   renderApp,
   waitForAppSelector,
 } from './appTestHarness';
@@ -38,6 +39,15 @@ describe('App world movement cooldown', () => {
       await renderTickerFrame();
 
       expect(getRenderedGame()?.player.coord).toEqual({ q: 1, r: 0 });
+      expect(
+        renderScene.mock.calls[renderScene.mock.calls.length - 1]?.[8],
+      ).toMatchObject({
+        movementTransition: {
+          durationMs: 1_000,
+          fromCoord: { q: 0, r: 0 },
+          toCoord: { q: 1, r: 0 },
+        },
+      });
 
       await act(async () => {
         await vi.advanceTimersByTimeAsync(999);

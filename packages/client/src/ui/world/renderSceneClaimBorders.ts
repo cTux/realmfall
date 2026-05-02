@@ -18,6 +18,7 @@ export function renderClaimBorder(
   tile: Tile,
   poly: number[],
   visibleTileMap: Map<string, Tile>,
+  appearanceAlpha = 1,
 ) {
   const claim = tile.claim;
   if (!claim) return;
@@ -49,7 +50,7 @@ export function renderClaimBorder(
       .stroke({
         width: claim.ownerType === 'player' ? 4 : 3,
         color: 0xffffff,
-        alpha: 0.92,
+        alpha: 0.92 * appearanceAlpha,
       });
   });
 }

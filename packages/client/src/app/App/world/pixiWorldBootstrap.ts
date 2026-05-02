@@ -13,6 +13,7 @@ import type { WorldHoverSnapshot } from '../usePixiWorldHover';
 import type { WorldMapDragState } from './pixiWorldInteractions';
 import type { WorldHoverAnalysisController } from './pixiWorldHoverInteractions';
 import type { WorldRenderSnapshot } from './worldRenderSnapshot';
+import type { WorldMovementTransition } from './movement/worldMovementTransition';
 
 export type PixiWorldInitGraphicsSettings = Pick<
   GraphicsSettings,
@@ -58,6 +59,7 @@ interface BootstrapPixiWorldCanvasArgs {
   pausedRef: MutableRefObject<boolean>;
   playerCoordRef: MutableRefObject<HexCoord>;
   movementCooldownEndAtRef: MutableRefObject<number | null>;
+  movementTransitionRef: MutableRefObject<WorldMovementTransition | null>;
   renderInvalidationRef: MutableRefObject<number>;
   selectedRef: MutableRefObject<HexCoord>;
   movementController: WorldMovementController;
@@ -93,6 +95,7 @@ export async function bootstrapPixiWorldCanvas({
   pausedRef,
   playerCoordRef,
   movementCooldownEndAtRef,
+  movementTransitionRef,
   renderInvalidationRef,
   selectedRef,
   movementController,
@@ -142,18 +145,22 @@ export async function bootstrapPixiWorldCanvas({
   } = initGraphicsSettings;
   const {
     ensureWorldIconTexturesLoaded,
+    getReachableWorldIconAssetIds,
     getVisibleWorldIconAssetIds,
     warmWorldIconTexturesInBackground,
   } = worldIconsModule;
   const { enemyWorldTooltip, structureWorldTooltip } = worldTooltipsModule;
   const { getSceneCache } = sceneCacheModule;
 
-  await ensureWorldIconTexturesLoaded(
-    getVisibleWorldIconAssetIds(
-      gameRef.current.enemies,
-      visibleTilesRef.current,
-    ),
-  );
+  await ensureWorldIconTexturesLoaded([
+    ...new Set([
+      ...getVisibleWorldIconAssetIds(
+        gameRef.current.enemies,
+        visibleTilesRef.current,
+      ),
+      ...getReachableWorldIconAssetIds(gameRef.current),
+    ]),
+  ]);
 
   const app = new pixiModule.Application();
   try {
@@ -218,6 +225,7 @@ export async function bootstrapPixiWorldCanvas({
     renderInvalidationRef,
     lastRenderSnapshotRef,
     movementCooldownEndAtRef,
+    movementTransitionRef,
   });
 
   resize();
@@ -261,6 +269,7 @@ export async function bootstrapPixiWorldCanvas({
     pausedRef,
     playerCoordRef,
     selectedRef,
+    movementTransitionRef,
     renderInvalidationRef,
     scheduleCameraSave,
     movementController,
