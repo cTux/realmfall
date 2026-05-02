@@ -43,6 +43,7 @@ export function attachPixiWorldInteractions({
   structureWorldTooltip,
   gameRef,
   getScenePoint,
+  getCloudParallaxContainers,
   getWorldMapContainer,
   hoverAnalysisCacheRef,
   hoverAnalysisControllerRef,
@@ -71,6 +72,7 @@ export function attachPixiWorldInteractions({
   structureWorldTooltip: StructureWorldTooltip;
   gameRef: MutableRefObject<GameState>;
   getScenePoint: WorldScenePointMapper;
+  getCloudParallaxContainers: () => Container[];
   getWorldMapContainer: () => Container;
   hoverAnalysisCacheRef: MutableRefObject<Map<string, WorldHoverSnapshot>>;
   hoverAnalysisControllerRef: MutableRefObject<WorldHoverAnalysisController | null>;
@@ -131,6 +133,7 @@ export function attachPixiWorldInteractions({
   });
   hoverAnalysisControllerRef.current = hoverInteractions;
   const cameraUpdateScheduler = createWorldMapCameraUpdateScheduler({
+    getCloudParallaxContainers,
     getWorldMapContainer,
     screen: app.screen,
   });

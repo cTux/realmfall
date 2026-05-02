@@ -33,6 +33,7 @@ interface RenderAnimatedSceneOptions {
     endAtMs: number;
     nowMs: number;
   } | null;
+  cloudParallaxOffset: { x: number; y: number };
   origin: { x: number; y: number };
   playerIconSize: number;
 }
@@ -47,6 +48,7 @@ export function renderAnimatedScene({
   hexSize,
   lightingState,
   movementCooldown,
+  cloudParallaxOffset,
   origin,
   playerIconSize,
 }: RenderAnimatedSceneOptions) {
@@ -95,6 +97,7 @@ export function renderAnimatedScene({
     lightingState.lighting,
     cloudInputs,
     lightingState.shadowOffset,
+    cloudParallaxOffset,
   );
   renderWorldOverlay(
     app,

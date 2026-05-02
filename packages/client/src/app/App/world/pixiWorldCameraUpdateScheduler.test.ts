@@ -72,4 +72,24 @@ describe('pixiWorldCameraUpdateScheduler', () => {
     expect(frameControls.cancelFrame).toHaveBeenCalledWith(1);
     expect(container.position.set).not.toHaveBeenCalled();
   });
+
+  it('applies half-pan parallax to cloud containers when the camera updates', () => {
+    const container = createContainer();
+    const cloudShadowContainer = createContainer();
+    const cloudContainer = createContainer();
+    const frameControls = createFrameControls();
+    const scheduler = createWorldMapCameraUpdateScheduler({
+      getWorldMapContainer: () => container,
+      getCloudParallaxContainers: () => [cloudShadowContainer, cloudContainer],
+      screen: { width: 800, height: 600 },
+      requestFrame: frameControls.requestFrame,
+      cancelFrame: frameControls.cancelFrame,
+    });
+
+    scheduler.queue({ zoom: 1.5, panX: 30, panY: 40 });
+    frameControls.runFrame(1);
+
+    expect(cloudShadowContainer.position.set).toHaveBeenCalledWith(15, 20);
+    expect(cloudContainer.position.set).toHaveBeenCalledWith(15, 20);
+  });
 });

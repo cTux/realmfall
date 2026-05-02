@@ -14,6 +14,7 @@ export const DEFAULT_WORLD_MAP_CAMERA: WorldMapCameraState = {
 
 export const MIN_WORLD_MAP_ZOOM = 0.7;
 export const MAX_WORLD_MAP_ZOOM = 2.5;
+export const WORLD_MAP_CLOUD_PARALLAX_FACTOR = 0.5;
 
 export function getWorldMapCameraCenter(screen: {
   width: number;
@@ -38,6 +39,19 @@ export function applyWorldMapCameraToContainer(
   setPoint(container.pivot, center.x, center.y);
   setPoint(container.position, center.x + camera.panX, center.y + camera.panY);
   setScale(container.scale, camera.zoom);
+}
+
+export function applyWorldMapCloudParallaxToContainers(
+  containers: Container[],
+  camera: WorldMapCameraState,
+  factor = WORLD_MAP_CLOUD_PARALLAX_FACTOR,
+) {
+  const parallaxX = camera.panX * factor;
+  const parallaxY = camera.panY * factor;
+
+  containers.forEach((container) => {
+    setPoint(container.position, parallaxX, parallaxY);
+  });
 }
 
 export function mapWorldMapScreenPointToScenePoint(

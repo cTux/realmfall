@@ -1,5 +1,6 @@
 import type { Container } from 'pixi.js';
 import {
+  applyWorldMapCloudParallaxToContainers,
   applyWorldMapCameraToContainer,
   type WorldMapCameraState,
 } from '../../../ui/world/worldMapCamera';
@@ -10,6 +11,7 @@ export type QueueWorldMapCameraUpdate = (
 
 interface WorldMapCameraUpdateSchedulerArgs {
   getWorldMapContainer: () => Container;
+  getCloudParallaxContainers?: () => Container[];
   screen: { width: number; height: number };
   requestFrame?: typeof window.requestAnimationFrame;
   cancelFrame?: typeof window.cancelAnimationFrame;
@@ -17,6 +19,7 @@ interface WorldMapCameraUpdateSchedulerArgs {
 
 export function createWorldMapCameraUpdateScheduler({
   getWorldMapContainer,
+  getCloudParallaxContainers,
   screen,
   requestFrame = window.requestAnimationFrame.bind(window),
   cancelFrame = window.cancelAnimationFrame.bind(window),
@@ -35,6 +38,12 @@ export function createWorldMapCameraUpdateScheduler({
     }
 
     applyWorldMapCameraToContainer(getWorldMapContainer(), screen, nextCamera);
+    if (getCloudParallaxContainers) {
+      applyWorldMapCloudParallaxToContainers(
+        getCloudParallaxContainers(),
+        nextCamera,
+      );
+    }
   };
 
   return {

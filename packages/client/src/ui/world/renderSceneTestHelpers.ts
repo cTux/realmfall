@@ -288,6 +288,10 @@ export function getAnimatedDetailLayer(app: MockApp) {
   return getWorld(app).children[4] as MockContainer;
 }
 
+export function getCloudShadowLayer(app: MockApp) {
+  return app.stage.children[4] as MockContainer;
+}
+
 export function getCloudLayer(app: MockApp) {
   return app.stage.children[5] as MockContainer;
 }

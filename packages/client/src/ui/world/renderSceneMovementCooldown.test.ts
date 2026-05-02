@@ -6,6 +6,7 @@ import {
   createMockApp,
   getMarkerLayer,
   getPlayerLayer,
+  getCloudLayer,
   getWorld,
   getWorldGroundLayer,
   MockContainer,
@@ -266,6 +267,153 @@ describe('renderScene movement cooldown', () => {
 
     expect(getWorldGroundLayer(app).position.x).toBeCloseTo(0, 4);
     expect(getWorldGroundLayer(app).position.y).toBeCloseTo(0, 4);
+  });
+
+  it('moves cloud sprites with the transition at half the world offset', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-cloud-parallax-transition');
+    const baselineApp = createMockApp();
+    const transitionApp = createMockApp();
+
+    game.player.coord = { q: 1, r: 0 };
+
+    const visibleTiles = getVisibleTiles(game);
+
+    renderScene(
+      baselineApp as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+    );
+
+    renderScene(
+      transitionApp as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        movementTransition: {
+          durationMs: 1_000,
+          fromCoord: { q: 0, r: 0 },
+          incomingTiles: [],
+          nowMs: 0,
+          outgoingTiles: [
+            {
+              coord: { q: -2, r: 0 },
+              enemyIds: [],
+              items: [],
+              terrain: 'plains',
+            },
+          ],
+          startedAtMs: 0,
+          toCoord: { q: 1, r: 0 },
+        },
+      } as never,
+    );
+
+    const expectedOffsetX =
+      getWorldHexSize(transitionApp.screen, game.radius) * Math.sqrt(3) * 0.5;
+    const baselineCloud = getCloudLayer(baselineApp).children[0] as MockSprite;
+    const transitionCloud = getCloudLayer(transitionApp)
+      .children[0] as MockSprite;
+
+    expect(transitionCloud.position.x - baselineCloud.position.x).toBeCloseTo(
+      expectedOffsetX,
+      4,
+    );
+    expect(transitionCloud.position.y - baselineCloud.position.y).toBeCloseTo(
+      0,
+      4,
+    );
+  });
+
+  it('keeps cloud sprites continuous between the pre-move frame and transition start', async () => {
+    const { renderScene } = await import('./renderScene');
+    const preMoveGame = createGame(2, 'render-scene-cloud-parallax-seam');
+    const preMoveApp = createMockApp();
+    const transitionGame = createGame(2, 'render-scene-cloud-parallax-seam');
+    const transitionApp = createMockApp();
+
+    renderScene(
+      preMoveApp as never,
+      preMoveGame,
+      getVisibleTiles(preMoveGame),
+      preMoveGame.player.coord,
+      null,
+      12 * 60,
+      0,
+    );
+
+    transitionGame.player.coord = { q: 1, r: 0 };
+    renderScene(
+      transitionApp as never,
+      transitionGame,
+      getVisibleTiles(transitionGame),
+      transitionGame.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        movementTransition: {
+          durationMs: 1_000,
+          fromCoord: { q: 0, r: 0 },
+          incomingTiles: [],
+          nowMs: 0,
+          outgoingTiles: [
+            {
+              coord: { q: -2, r: 0 },
+              enemyIds: [],
+              items: [],
+              terrain: 'plains',
+            },
+          ],
+          startedAtMs: 0,
+          toCoord: { q: 1, r: 0 },
+        },
+      } as never,
+    );
+
+    const preMoveCloud = getCloudLayer(preMoveApp).children[0] as MockSprite;
+    const transitionCloud = getCloudLayer(transitionApp)
+      .children[0] as MockSprite;
+
+    expect(transitionCloud.position.x).toBeCloseTo(preMoveCloud.position.x, 4);
+    expect(transitionCloud.position.y).toBeCloseTo(preMoveCloud.position.y, 4);
+  });
+
+  it('keeps clouds on-screen after larger world travel offsets', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-cloud-parallax-visibility');
+    const app = createMockApp();
+
+    game.player.coord = { q: 200, r: 0 };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+    );
+
+    const visibleClouds = getCloudLayer(app).children.filter((child) => {
+      const sprite = child as MockSprite;
+      return (
+        sprite.position.x >= -160 && sprite.position.x <= app.screen.width + 160
+      );
+    });
+
+    expect(visibleClouds.length).toBeGreaterThan(0);
   });
 
   it('keeps outgoing terrain art present and hides incoming terrain art at the start of the transition', async () => {

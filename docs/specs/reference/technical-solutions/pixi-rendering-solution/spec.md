@@ -17,6 +17,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Structure marker tinting and ambient-light behavior read from canonical structure config metadata and tags, so the renderer does not maintain its own parallel list of ore, campfire, or similar structure categories.
 - Interaction layers hold hover, selection, loot borders, and safe-path overlays.
 - Animated layers hold atmosphere, clouds, hot-structure lighting such as campfires and furnaces, and overlay work.
+- Cloud animation layers follow world-map pan and movement transitions at half-speed parallax, wrap their offset through the cloud travel span so long-distance travel does not push the entire layer off-screen, and render deeper shadow drops than the visible cloud sprites.
 - Animated overlay work now uses separate fills for time-of-day tinting and fullscreen visual effects, so gameplay-driven screen warnings can layer on top of ambient lighting without replacing it.
 - The renderer reuses graphics and sprites through dedicated pool helpers.
 - `src/ui/world/renderScene.ts` now stays focused on screen sizing, render-token invalidation, layer lifecycle coordination, and top-level pass orchestration.

@@ -2,6 +2,7 @@ import type { Application, Container } from 'pixi.js';
 import type { MutableRefObject } from 'react';
 import { mapWorldMapFishEyeDisplayPointToSourcePoint } from '../../../ui/world/worldMapFishEyeRuntime';
 import {
+  applyWorldMapCloudParallaxToContainers,
   applyWorldMapCameraToContainer,
   mapWorldMapScreenPointToScenePoint,
   type WorldMapCameraState,
@@ -34,12 +35,14 @@ export function createWorldResizeHandler({
   resolutionCap,
   worldMapCameraRef,
   getWorldMapContainer,
+  getCloudParallaxContainers,
 }: {
   app: Application;
   hostRef: MutableRefObject<HTMLDivElement | null>;
   resolutionCap: GraphicsResolutionCap;
   worldMapCameraRef: MutableRefObject<WorldMapCameraState>;
   getWorldMapContainer: () => Container;
+  getCloudParallaxContainers?: () => Container[];
 }) {
   return () => {
     const width = hostRef.current?.clientWidth ?? window.innerWidth;
@@ -57,6 +60,12 @@ export function createWorldResizeHandler({
       app.screen,
       worldMapCameraRef.current,
     );
+    if (getCloudParallaxContainers) {
+      applyWorldMapCloudParallaxToContainers(
+        getCloudParallaxContainers(),
+        worldMapCameraRef.current,
+      );
+    }
   };
 }
 
