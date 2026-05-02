@@ -145,18 +145,22 @@ export async function bootstrapPixiWorldCanvas({
   } = initGraphicsSettings;
   const {
     ensureWorldIconTexturesLoaded,
+    getReachableWorldIconAssetIds,
     getVisibleWorldIconAssetIds,
     warmWorldIconTexturesInBackground,
   } = worldIconsModule;
   const { enemyWorldTooltip, structureWorldTooltip } = worldTooltipsModule;
   const { getSceneCache } = sceneCacheModule;
 
-  await ensureWorldIconTexturesLoaded(
-    getVisibleWorldIconAssetIds(
-      gameRef.current.enemies,
-      visibleTilesRef.current,
-    ),
-  );
+  await ensureWorldIconTexturesLoaded([
+    ...new Set([
+      ...getVisibleWorldIconAssetIds(
+        gameRef.current.enemies,
+        visibleTilesRef.current,
+      ),
+      ...getReachableWorldIconAssetIds(gameRef.current),
+    ]),
+  ]);
 
   const app = new pixiModule.Application();
   try {

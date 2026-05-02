@@ -4,7 +4,11 @@ import { WORLD_MOVE_HEX_COOLDOWN_MS } from '../../../game/config';
 import type { GameState, HexCoord } from '../../../game/stateTypes';
 import { getWorldTimeMinutesFromTimestamp } from '../../../game/worldTime';
 import { getWorldRenderFrameMs } from '../../../ui/world/renderCadence';
-import { getWorldIconTextureVersion } from '../../../ui/world/worldIcons';
+import {
+  getReachableWorldIconAssetIds,
+  getWorldIconTextureVersion,
+  warmWorldIconTexturesInBackground,
+} from '../../../ui/world/worldIcons';
 import type { VisibleWorldTile } from '../../../ui/world/visibleWorldTiles';
 import {
   DEFAULT_WORLD_RENDER_FPS,
@@ -64,6 +68,9 @@ export function createWorldRenderFrame({
   movementCooldownEndAtRef?: MutableRefObject<number | null>;
   movementTransitionRef?: MutableRefObject<WorldMovementTransition | null>;
 }) {
+  let lastReachableWarmPlayerCoord = { ...gameRef.current.player.coord };
+  let lastReachableWarmRadius = gameRef.current.radius;
+
   return () => {
     const currentGame = gameRef.current;
     const currentVisibleTiles = visibleTilesRef.current;
@@ -94,6 +101,17 @@ export function createWorldRenderFrame({
       nowMs: wallClockMs,
       worldRenderFrameMs,
     });
+
+    if (
+      !sameCoord(lastReachableWarmPlayerCoord, currentGame.player.coord) ||
+      lastReachableWarmRadius !== currentGame.radius
+    ) {
+      warmWorldIconTexturesInBackground(
+        getReachableWorldIconAssetIds(currentGame),
+      );
+      lastReachableWarmPlayerCoord = { ...currentGame.player.coord };
+      lastReachableWarmRadius = currentGame.radius;
+    }
 
     if (
       lastRenderSnapshot.game === currentGame &&

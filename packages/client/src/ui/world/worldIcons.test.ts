@@ -155,6 +155,51 @@ describe('worldIcons', () => {
     expect(icons).not.toContain(structureIconFor('town'));
   });
 
+  it('collects next movement ring icons including synthesized enemy markers', async () => {
+    const {
+      WorldIcons,
+      enemyIconFor,
+      getReachableWorldIconAssetIds,
+      structureIconFor,
+    } = await import('./worldIcons');
+    const { getEnemiesAt } = await import('../../game/stateSelectors');
+    const { terrainArtFor } = await import('./worldTerrainArt');
+
+    const game = createGame(1, 'world-icons-reachable-assets');
+    game.tiles['2,0'] = {
+      coord: { q: 2, r: 0 },
+      terrain: 'forest',
+      structure: 'town',
+      items: [
+        {
+          id: 'loot-gold',
+          name: 'Gold',
+          quantity: 2,
+          tier: 1,
+          rarity: 'common',
+          power: 0,
+          defense: 0,
+          maxHp: 0,
+          healing: 0,
+          hunger: 0,
+        },
+      ],
+      enemyIds: ['enemy-2,0-0'],
+    };
+
+    const icons = getReachableWorldIconAssetIds(game);
+    const synthesizedEnemy = getEnemiesAt(game, { q: 2, r: 0 })[0];
+
+    expect(icons).toEqual(
+      expect.arrayContaining([
+        terrainArtFor('forest'),
+        structureIconFor('town'),
+        WorldIcons.ForgottenLoot,
+        enemyIconFor(synthesizedEnemy),
+      ]),
+    );
+  });
+
   it('loads generated terrain atlas once for multiple terrain frame textures', async () => {
     const originalImage = globalThis.Image;
     const originalNavigatorUserAgent = globalThis.navigator.userAgent;

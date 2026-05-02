@@ -11,7 +11,9 @@ import {
   STRUCTURE_CONFIGS,
   getStructureConfig,
 } from '../../game/content/structures';
-import type { Enemy, StructureType } from '../../game/stateTypes';
+import { hexDistance, hexesInRange } from '../../game/hex';
+import { getEnemiesAt, getTileAt } from '../../game/stateWorldQueries';
+import type { Enemy, GameState, StructureType } from '../../game/stateTypes';
 import { ImageSource, Rectangle, Texture } from 'pixi.js';
 import { RARITY_COLOR } from '../rarity';
 import {
@@ -92,41 +94,37 @@ export function getVisibleWorldIconAssetIds(
   enemyLookup: Record<string, Enemy | undefined>,
   visibleTiles: VisibleWorldTile[],
 ) {
-  const iconAssetIds = new Set(getCoreWorldIconAssetIds());
+  return [
+    ...collectWorldIconAssetIdsForTiles({
+      iconAssetIds: new Set(getCoreWorldIconAssetIds()),
+      resolveEnemies: (tile) =>
+        tile.enemyIds
+          .map((enemyId) => enemyLookup[enemyId])
+          .filter((enemy): enemy is Enemy => enemy !== undefined),
+      tiles: visibleTiles,
+    }),
+  ];
+}
 
-  for (const tile of visibleTiles) {
-    if (isUnknownVisibleWorldTile(tile)) {
-      iconAssetIds.add(WorldIcons.UnknownHex);
-      continue;
-    }
+export function getReachableWorldIconAssetIds(
+  state: Pick<
+    GameState,
+    'bloodMoonActive' | 'enemies' | 'player' | 'radius' | 'seed' | 'tiles'
+  >,
+) {
+  const reachableTiles = hexesInRange(state.player.coord, state.radius + 1)
+    .filter(
+      (coord) => hexDistance(state.player.coord, coord) === state.radius + 1,
+    )
+    .map((coord) => getTileAt(state, coord));
 
-    iconAssetIds.add(terrainArtFor(tile.terrain));
-
-    if (tile.structure) {
-      iconAssetIds.add(
-        tile.structure === 'town' && tile.claim?.ownerType === 'faction'
-          ? WorldIcons.Castle
-          : structureIconFor(tile.structure),
-      );
-    }
-
-    if (tile.items.length > 0) {
-      iconAssetIds.add(WorldIcons.ForgottenLoot);
-    }
-
-    if (tile.claim?.npc?.enemyId) {
-      iconAssetIds.add(WorldIcons.Village);
-    }
-
-    for (const enemyId of tile.enemyIds) {
-      const enemy = enemyLookup[enemyId];
-      if (enemy) {
-        iconAssetIds.add(enemyIconFor(enemy));
-      }
-    }
-  }
-
-  return [...iconAssetIds];
+  return [
+    ...collectWorldIconAssetIdsForTiles({
+      iconAssetIds: new Set<string>(),
+      resolveEnemies: (tile) => getEnemiesAt(state, tile.coord),
+      tiles: reachableTiles,
+    }),
+  ];
 }
 
 const worldIconTextures = new Map<string, Texture>();
@@ -248,6 +246,47 @@ function loadWorldIconTexture(icon: string) {
 
   worldIconTextureLoads.set(icon, textureLoad);
   return textureLoad;
+}
+
+function collectWorldIconAssetIdsForTiles({
+  iconAssetIds,
+  resolveEnemies,
+  tiles,
+}: {
+  iconAssetIds: Set<string>;
+  resolveEnemies: (tile: VisibleWorldTile) => Enemy[];
+  tiles: VisibleWorldTile[];
+}) {
+  for (const tile of tiles) {
+    if (isUnknownVisibleWorldTile(tile)) {
+      iconAssetIds.add(WorldIcons.UnknownHex);
+      continue;
+    }
+
+    iconAssetIds.add(terrainArtFor(tile.terrain));
+
+    if (tile.structure) {
+      iconAssetIds.add(
+        tile.structure === 'town' && tile.claim?.ownerType === 'faction'
+          ? WorldIcons.Castle
+          : structureIconFor(tile.structure),
+      );
+    }
+
+    if (tile.items.length > 0) {
+      iconAssetIds.add(WorldIcons.ForgottenLoot);
+    }
+
+    if (tile.claim?.npc?.enemyId) {
+      iconAssetIds.add(WorldIcons.Village);
+    }
+
+    resolveEnemies(tile).forEach((enemy) => {
+      iconAssetIds.add(enemyIconFor(enemy));
+    });
+  }
+
+  return iconAssetIds;
 }
 
 function loadStandaloneWorldIconTexture(icon: string) {

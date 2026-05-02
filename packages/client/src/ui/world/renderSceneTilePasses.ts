@@ -82,9 +82,13 @@ export function renderTilePasses({
 
   visibleTiles.forEach((tile, tileIndex) => {
     const tileKey = hexKey(tile.coord);
-    const distance = hexDistance(state.player.coord, tile.coord);
     const isOutgoingTile =
       movementTransitionState?.outgoingTileKeys.has(tileKey) ?? false;
+    const revealOrigin =
+      isOutgoingTile && movementTransition
+        ? movementTransition.fromCoord
+        : state.player.coord;
+    const distance = hexDistance(revealOrigin, tile.coord);
     const isPlayerTile =
       tile.coord.q === state.player.coord.q &&
       tile.coord.r === state.player.coord.r;
@@ -94,7 +98,7 @@ export function renderTilePasses({
       !isUnknownVisibleWorldTile(tile) &&
       isPassable(tile.terrain);
     const emphasized = isPlayerTile;
-    const revealed = isOutgoingTile || distance <= WORLD_REVEAL_RADIUS;
+    const revealed = distance <= WORLD_REVEAL_RADIUS;
     const appearanceAlpha =
       getTileTransitionAlpha(movementTransitionState, tileKey) ?? 1;
     const relative = {

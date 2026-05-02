@@ -4,6 +4,7 @@ import {
   collectDescendants,
   createMockApp,
   getPlayerLayer,
+  getWorld,
   getWorldGroundLayer,
   MockGraphics,
   MockSprite,
@@ -313,14 +314,181 @@ describe('renderScene movement cooldown', () => {
     const hexSize = getWorldHexSize(app.screen, game.radius);
     const outgoingPoint = tileToPoint({ q: -3, r: 0 }, 400, 300, hexSize);
     const incomingPoint = tileToPoint({ q: 2, r: 0 }, 400, 300, hexSize);
-    const findSpriteAt = (point: { x: number; y: number }) =>
+    const findTransitionSpriteAt = (point: { x: number; y: number }) =>
       terrainSprites.find(
         (sprite) =>
           Math.abs(sprite.position.x - point.x) < 0.01 &&
           Math.abs(sprite.position.y - point.y) < 0.01,
       );
 
-    expect(findSpriteAt(outgoingPoint)).toBeDefined();
-    expect(findSpriteAt(incomingPoint)?.alpha).toBeCloseTo(0, 4);
+    expect(findTransitionSpriteAt(outgoingPoint)).toBeDefined();
+    expect(findTransitionSpriteAt(incomingPoint)?.alpha).toBeCloseTo(0, 4);
+  });
+
+  it('keeps outgoing edge tiles under fog when they were never revealed', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(6, 'render-scene-move-transition-outgoing-fog');
+    const app = createMockApp(960, 720);
+    const outgoingTile = {
+      coord: { q: -6, r: 0 },
+      enemyIds: [],
+      items: [],
+      structure: 'town' as const,
+      terrain: 'forest' as const,
+    };
+
+    game.tiles['-6,0'] = outgoingTile;
+    game.player.coord = { q: 1, r: 0 };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        movementTransition: {
+          durationMs: 1_000,
+          fromCoord: { q: 0, r: 0 },
+          incomingTiles: [],
+          nowMs: 0,
+          outgoingTiles: [outgoingTile],
+          startedAtMs: 0,
+          toCoord: { q: 1, r: 0 },
+        },
+      } as never,
+    );
+
+    const hexSize = getWorldHexSize(app.screen, game.radius);
+    const outgoingPoint = tileToPoint(
+      { q: -7, r: 0 },
+      app.screen.width / 2,
+      app.screen.height / 2,
+      hexSize,
+    );
+    const terrainSprites = collectDescendants(getWorldGroundLayer(app)).filter(
+      (child): child is MockSprite =>
+        child instanceof MockSprite && child.visible,
+    );
+    const fogGraphics = collectDescendants(getWorld(app)).filter(
+      (child): child is MockGraphics =>
+        child instanceof MockGraphics &&
+        child.beginFill.mock.calls.some(
+          ([color, alpha]) => color === 0x020617 && alpha === 0.78,
+        ),
+    );
+
+    expect(findSpriteAt(terrainSprites, outgoingPoint)).toBeUndefined();
+    expect(findGraphicAt(fogGraphics, outgoingPoint)).toBeDefined();
+  });
+
+  it('keeps incoming edge tiles under fog until they are actually revealed', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(6, 'render-scene-move-transition-incoming-fog');
+    const app = createMockApp(960, 720);
+    const incomingTile = {
+      coord: { q: 7, r: 0 },
+      enemyIds: [],
+      items: [],
+      structure: 'town' as const,
+      terrain: 'forest' as const,
+    };
+
+    game.tiles['7,0'] = incomingTile;
+    game.player.coord = { q: 1, r: 0 };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        movementTransition: {
+          durationMs: 1_000,
+          fromCoord: { q: 0, r: 0 },
+          incomingTiles: [incomingTile],
+          nowMs: 500,
+          outgoingTiles: [],
+          startedAtMs: 0,
+          toCoord: { q: 1, r: 0 },
+        },
+      } as never,
+    );
+
+    const hexSize = getWorldHexSize(app.screen, game.radius);
+    const incomingPoint = tileToPoint(
+      { q: 6, r: 0 },
+      app.screen.width / 2,
+      app.screen.height / 2,
+      hexSize,
+    );
+    const terrainSprites = collectDescendants(getWorldGroundLayer(app)).filter(
+      (child): child is MockSprite =>
+        child instanceof MockSprite && child.visible,
+    );
+    const fogGraphics = collectDescendants(getWorld(app)).filter(
+      (child): child is MockGraphics =>
+        child instanceof MockGraphics &&
+        child.beginFill.mock.calls.some(
+          ([color, alpha]) => color === 0x020617 && alpha === 0.39,
+        ),
+    );
+
+    expect(findSpriteAt(terrainSprites, incomingPoint)).toBeUndefined();
+    expect(findGraphicAt(fogGraphics, incomingPoint)).toBeDefined();
   });
 });
+
+function findGraphicAt(
+  graphics: MockGraphics[],
+  point: { x: number; y: number },
+  tolerance = 0.01,
+) {
+  return graphics.find((graphic) => {
+    const [polygon] = graphic.drawPolygon.mock.calls[0] ?? [];
+    if (!Array.isArray(polygon) || polygon.length < 6) {
+      return false;
+    }
+
+    const center = getPolygonCenter(polygon);
+    return (
+      Math.abs(center.x - point.x) < tolerance &&
+      Math.abs(center.y - point.y) < tolerance
+    );
+  });
+}
+
+function findSpriteAt(
+  sprites: MockSprite[],
+  point: { x: number; y: number },
+  tolerance = 0.01,
+) {
+  return sprites.find(
+    (sprite) =>
+      Math.abs(sprite.position.x - point.x) < tolerance &&
+      Math.abs(sprite.position.y - point.y) < tolerance,
+  );
+}
+
+function getPolygonCenter(points: number[]) {
+  const vertexCount = points.length / 2;
+  let sumX = 0;
+  let sumY = 0;
+
+  for (let index = 0; index < points.length; index += 2) {
+    sumX += points[index]!;
+    sumY += points[index + 1]!;
+  }
+
+  return {
+    x: sumX / vertexCount,
+    y: sumY / vertexCount,
+  };
+}

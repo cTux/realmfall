@@ -1,20 +1,27 @@
 import { vi } from 'vitest';
 
-const { getWorldIconTextureVersion, setWorldIconTextureVersion } = vi.hoisted(
-  () => {
-    let iconTextureVersion = 0;
+const {
+  getReachableWorldIconAssetIds,
+  getWorldIconTextureVersion,
+  setWorldIconTextureVersion,
+  warmWorldIconTexturesInBackground,
+} = vi.hoisted(() => {
+  let iconTextureVersion = 0;
 
-    return {
-      getWorldIconTextureVersion: () => iconTextureVersion,
-      setWorldIconTextureVersion: (nextVersion: number) => {
-        iconTextureVersion = nextVersion;
-      },
-    };
-  },
-);
+  return {
+    getReachableWorldIconAssetIds: vi.fn(() => ['move-buffer-icon']),
+    getWorldIconTextureVersion: () => iconTextureVersion,
+    setWorldIconTextureVersion: (nextVersion: number) => {
+      iconTextureVersion = nextVersion;
+    },
+    warmWorldIconTexturesInBackground: vi.fn(),
+  };
+});
 
 vi.mock('../../../ui/world/worldIcons', () => ({
+  getReachableWorldIconAssetIds,
   getWorldIconTextureVersion,
+  warmWorldIconTexturesInBackground,
 }));
 
 import {
@@ -30,6 +37,11 @@ import {
 } from '../../graphicsSettings';
 
 describe('pixiWorldRenderLoop', () => {
+  beforeEach(() => {
+    getReachableWorldIconAssetIds.mockClear();
+    warmWorldIconTexturesInBackground.mockClear();
+  });
+
   it('caps Pixi ticker wakeups to the selected world render FPS', () => {
     const ticker = { maxFPS: 0 };
 
@@ -86,6 +98,44 @@ describe('pixiWorldRenderLoop', () => {
     renderFrame();
 
     expect(renderScene).toHaveBeenCalledTimes(2);
+
+    performanceNowSpy.mockRestore();
+  });
+
+  it('warms reachable icon assets when the player position changes', () => {
+    const performanceNowSpy = vi.spyOn(performance, 'now').mockReturnValue(0);
+    const renderScene = vi.fn();
+    const game = { player: { coord: { q: 0, r: 0 } }, radius: 2 };
+    const renderFrame = createWorldRenderFrame({
+      app: {} as never,
+      renderScene,
+      gameRef: { current: game } as never,
+      visibleTilesRef: {
+        current: [{ coord: { q: 0, r: 0 }, terrain: 'plains' }],
+      } as never,
+      selectedRef: { current: { q: 0, r: 0 } } as never,
+      hoveredMoveRef: { current: null },
+      hoveredSafePathRef: { current: null },
+      showTerrainBackgroundsRef: { current: true },
+      worldRenderFpsRef: { current: DEFAULT_WORLD_RENDER_FPS },
+      pausedRef: { current: false },
+      pausedAnimationMsRef: { current: null },
+      worldTimeMsRef: { current: 0 },
+      renderInvalidationRef: { current: 0 },
+      lastRenderSnapshotRef: { current: createInitialWorldRenderSnapshot() },
+    });
+
+    renderFrame();
+
+    expect(warmWorldIconTexturesInBackground).not.toHaveBeenCalled();
+
+    game.player.coord = { q: 1, r: 0 };
+    renderFrame();
+
+    expect(getReachableWorldIconAssetIds).toHaveBeenCalledWith(game);
+    expect(warmWorldIconTexturesInBackground).toHaveBeenCalledWith([
+      'move-buffer-icon',
+    ]);
 
     performanceNowSpy.mockRestore();
   });
