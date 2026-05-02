@@ -35,6 +35,7 @@ interface RenderTilePassesOptions {
   animationMs: number;
   enemyIconSize: number;
   hexSize: number;
+  queuedPathKeys: Set<string> | null;
   hoveredMove: HexCoord | null;
   hoveredSafePathKeys: Set<string> | null;
   origin: { x: number; y: number };
@@ -58,6 +59,7 @@ export function renderTilePasses({
   animationMs,
   enemyIconSize,
   hexSize,
+  queuedPathKeys,
   hoveredMove,
   hoveredSafePathKeys,
   origin,
@@ -114,9 +116,11 @@ export function renderTilePasses({
       hoveredMove?.q === tile.coord.q && hoveredMove?.r === tile.coord.r;
     const highlightedInSafePath =
       hoveredSafePathKeys?.has(hexKey(tile.coord)) ?? false;
+    const highlightedInQueuedPath =
+      queuedPathKeys?.has(hexKey(tile.coord)) ?? false;
     const insetPx = isHomeTile
       ? HOME_HEX_TINT_INSET
-      : highlightedInSafePath
+      : highlightedInSafePath || highlightedInQueuedPath
         ? SAFE_PATH_HEX_INSET
         : 0;
     const safePolygon = makeInsetHex(point, hexSize, insetPx);
@@ -158,6 +162,7 @@ export function renderTilePasses({
     if (shouldRenderInteraction && !isOutgoingTile) {
       renderInteractionTile({
         clickable,
+        highlightedInQueuedPath,
         highlightedInSafePath,
         hovered,
         isPlayerTile,

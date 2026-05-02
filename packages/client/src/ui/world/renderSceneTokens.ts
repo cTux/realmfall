@@ -81,11 +81,13 @@ export function getSceneRenderTokens(
       selected: HexCoord,
       hoveredMove: HexCoord | null,
       hoveredSafePath: HexCoord[] | null,
+      queuedPath: HexCoord[] | null,
     ) => {
       let token = interactionBaseToken;
       token = mixRenderToken(token, coordToken(selected));
       token = mixRenderToken(token, coordToken(hoveredMove));
       token = mixRenderToken(token, pathToken(hoveredSafePath));
+      token = mixRenderToken(token, pathToken(queuedPath));
       return token;
     },
   };

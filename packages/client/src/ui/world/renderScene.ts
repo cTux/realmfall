@@ -41,6 +41,7 @@ import type { VisibleWorldTile } from './visibleWorldTiles';
 
 interface RenderSceneOptions {
   showTerrainBackgrounds?: boolean;
+  queuedPath?: HexCoord[] | null;
   worldRenderFps?: number;
   movementCooldown?: RenderSceneMovementCooldown | null;
   movementTransition?: RenderSceneMovementTransition | null;
@@ -91,6 +92,7 @@ export function renderScene(
   const worldRenderFrameMs = getWorldRenderFrameMs(
     options.worldRenderFps ?? DEFAULT_WORLD_RENDER_FPS,
   );
+  const queuedPath = options.queuedPath ?? null;
   const movementCooldown = options.movementCooldown ?? null;
   const movementTransition = options.movementTransition ?? null;
   const movementTransitionRenderToken = getMovementTransitionRenderToken(
@@ -175,10 +177,15 @@ export function renderScene(
         selected,
         hoveredMove,
         hoveredSafePath,
+        queuedPath,
       );
   const hoveredSafePathKeys =
     shouldRenderInteraction && hoveredSafePath
       ? new Set(hoveredSafePath.map((coord) => hexKey(coord)))
+      : null;
+  const queuedPathKeys =
+    shouldRenderInteraction && queuedPath
+      ? new Set(queuedPath.map((coord) => hexKey(coord)))
       : null;
   const visibleTileMap = shouldRenderStatic
     ? new Map(
@@ -228,6 +235,7 @@ export function renderScene(
     renderTilePasses({
       enemyIconSize,
       hexSize,
+      queuedPathKeys,
       hoveredMove,
       hoveredSafePathKeys,
       origin,
@@ -270,6 +278,7 @@ export function renderScene(
       selected,
       hoveredMove,
       hoveredSafePath,
+      queuedPath,
     );
     scene.playerResourceRenderToken = playerResourceRenderToken;
   }

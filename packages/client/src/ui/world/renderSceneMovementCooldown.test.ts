@@ -136,6 +136,39 @@ describe('renderScene movement cooldown', () => {
     expect(distanceToBorder(x4, y4)).toBeCloseTo(expectedThickness, 4);
   });
 
+  it('renders queued path hexes with a green tint at a lower alpha', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(3, 'render-scene-queued-safe-path');
+    const app = createMockApp();
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      { q: 2, r: 0 },
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        queuedPath: [
+          { q: 1, r: 0 },
+          { q: 2, r: 0 },
+        ],
+      } as never,
+    );
+
+    const queuedPathTint = collectDescendants(getWorld(app)).filter(
+      (child) =>
+        child instanceof MockGraphics &&
+        child.beginFill.mock.calls.some(
+          ([color, alpha]) => color === 0x22c55e && alpha === 0.24,
+        ),
+    );
+
+    expect(queuedPathTint).toHaveLength(2);
+  });
+
   it('hides the cooldown bar once the wall-clock deadline has passed', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-move-cooldown-expired');

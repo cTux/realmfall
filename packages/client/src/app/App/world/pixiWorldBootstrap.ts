@@ -220,6 +220,7 @@ export async function bootstrapPixiWorldCanvas({
     gameRef,
     visibleTilesRef,
     selectedRef,
+    getQueuedPath: movementController.getQueuedPath,
     hoveredMoveRef,
     hoveredSafePathRef,
     showTerrainBackgroundsRef,

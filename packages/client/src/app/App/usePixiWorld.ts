@@ -88,6 +88,7 @@ interface UsePixiWorldArgs {
 interface WorldMovementController {
   clear(): void;
   dispose(): void;
+  getQueuedPath(): HexCoord[] | null;
   releaseCombatAutoOpenSuppression(): void;
   replaceQueuedPath(nextSteps: HexCoord[]): void;
 }

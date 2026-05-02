@@ -211,6 +211,10 @@ export function createWorldMovementController({
   };
 
   return {
+    getQueuedPath() {
+      return queuedSteps.length > 0 ? queuedSteps : null;
+    },
+
     replaceQueuedPath(nextSteps: HexCoord[]) {
       queuedSteps = [...nextSteps];
       if (queuedSteps.length === 0) {
