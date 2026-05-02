@@ -1,6 +1,6 @@
 import { createGame } from './state';
 import { makePlayerClaim } from './territories';
-import { getPlayerClaimedTiles } from './stateWorldQueries';
+import { getPlayerClaimedTiles, getResolvedTileAt } from './stateWorldQueries';
 
 describe('stateWorldQueries', () => {
   it('reuses claimed-tile scans while the tiles container is unchanged', () => {
@@ -37,5 +37,12 @@ describe('stateWorldQueries', () => {
 
     expect(secondLookup).not.toBe(firstLookup);
     expect(secondLookup).toHaveLength(2);
+  });
+
+  it('returns null for unresolved coordinates without generating a tile', () => {
+    const game = createGame(3, 'resolved-tile-only-query');
+
+    expect(getResolvedTileAt(game, { q: 6, r: -3 })).toBeNull();
+    expect(game.tiles['6,-3']).toBeUndefined();
   });
 });

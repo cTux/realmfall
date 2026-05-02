@@ -1,7 +1,7 @@
 import { WORLD_REVEAL_RADIUS } from './config';
 import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
 import { isPassable } from './shared';
-import { getHostileEnemyIds, getTileAt } from './stateWorldQueries';
+import { getHostileEnemyIds, getResolvedTileAt } from './stateWorldQueries';
 import type { GameState } from './types';
 
 export function getSafePathToTile(state: GameState, target: HexCoord) {
@@ -30,7 +30,8 @@ export function getSafePathToTile(state: GameState, target: HexCoord) {
       if (visited.has(key)) continue;
       visited.add(key);
 
-      const tile = getTileAt(state, neighbor);
+      const tile = getResolvedTileAt(state, neighbor);
+      if (!tile) continue;
       if (!isPassable(tile.terrain)) continue;
       if (
         (neighbor.q !== target.q || neighbor.r !== target.r) &&

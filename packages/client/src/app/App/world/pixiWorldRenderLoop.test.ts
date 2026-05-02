@@ -168,4 +168,101 @@ describe('pixiWorldRenderLoop', () => {
 
     performanceNowSpy.mockRestore();
   });
+
+  it('re-renders when the player movement cooldown changes', () => {
+    let now = 500;
+    const performanceNowSpy = vi
+      .spyOn(performance, 'now')
+      .mockImplementation(() => now);
+    const renderScene = vi.fn();
+    const movementCooldownEndAtRef = { current: null as number | null };
+    const renderFrame = createWorldRenderFrame({
+      app: {} as never,
+      renderScene,
+      gameRef: { current: { player: { coord: { q: 0, r: 0 } } } } as never,
+      visibleTilesRef: {
+        current: [{ coord: { q: 0, r: 0 }, terrain: 'plains' }],
+      } as never,
+      selectedRef: { current: { q: 0, r: 0 } } as never,
+      hoveredMoveRef: { current: null },
+      hoveredSafePathRef: { current: null },
+      showTerrainBackgroundsRef: { current: true },
+      worldRenderFpsRef: { current: DEFAULT_WORLD_RENDER_FPS },
+      pausedRef: { current: false },
+      pausedAnimationMsRef: { current: null },
+      worldTimeMsRef: { current: 0 },
+      renderInvalidationRef: { current: 0 },
+      lastRenderSnapshotRef: { current: createInitialWorldRenderSnapshot() },
+      movementCooldownEndAtRef,
+    } as never);
+
+    renderFrame();
+    movementCooldownEndAtRef.current = 1_500;
+    renderFrame();
+
+    expect(renderScene).toHaveBeenCalledTimes(2);
+    expect(renderScene.mock.calls[1]?.[8]).toMatchObject({
+      movementCooldown: {
+        endAtMs: 1_500,
+      },
+    });
+
+    now = 1_500;
+    renderFrame();
+
+    expect(renderScene).toHaveBeenCalledTimes(3);
+    expect(renderScene.mock.calls[2]?.[8]).toMatchObject({
+      movementCooldown: {
+        endAtMs: 1_500,
+      },
+    });
+
+    performanceNowSpy.mockRestore();
+  });
+
+  it('keeps cooldown redraws on wall-clock time while world animation is paused', () => {
+    let now = 500;
+    const performanceNowSpy = vi
+      .spyOn(performance, 'now')
+      .mockImplementation(() => now);
+    const renderScene = vi.fn();
+    const movementCooldownEndAtRef = { current: 1_500 as number | null };
+    const renderFrame = createWorldRenderFrame({
+      app: {} as never,
+      renderScene,
+      gameRef: { current: { player: { coord: { q: 0, r: 0 } } } } as never,
+      visibleTilesRef: {
+        current: [{ coord: { q: 0, r: 0 }, terrain: 'plains' }],
+      } as never,
+      selectedRef: { current: { q: 0, r: 0 } } as never,
+      hoveredMoveRef: { current: null },
+      hoveredSafePathRef: { current: null },
+      showTerrainBackgroundsRef: { current: true },
+      worldRenderFpsRef: { current: DEFAULT_WORLD_RENDER_FPS },
+      pausedRef: { current: true },
+      pausedAnimationMsRef: { current: 400 },
+      worldTimeMsRef: { current: 0 },
+      renderInvalidationRef: { current: 0 },
+      lastRenderSnapshotRef: { current: createInitialWorldRenderSnapshot() },
+      movementCooldownEndAtRef,
+    } as never);
+
+    renderFrame();
+    now = 1_000;
+    renderFrame();
+
+    expect(renderScene).toHaveBeenCalledTimes(2);
+    expect(renderScene.mock.calls[0]?.[8]).toMatchObject({
+      movementCooldown: {
+        nowMs: 500,
+      },
+    });
+    expect(renderScene.mock.calls[1]?.[8]).toMatchObject({
+      movementCooldown: {
+        nowMs: 1_000,
+      },
+    });
+
+    performanceNowSpy.mockRestore();
+  });
 });

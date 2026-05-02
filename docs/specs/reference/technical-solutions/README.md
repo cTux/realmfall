@@ -3,6 +3,7 @@
 Implemented technical solutions are split into dedicated spec files:
 
 - [Application Architecture](./application-architecture/spec.md)
+- [Async World Tile Resolution](./async-world-tile-resolution/spec.md)
 - [Browser Response Hardening](./browser-response-hardening/spec.md)
 - [Browser Entry Metadata](./browser-entry-metadata/spec.md)
 - [Content Ids And Tags](./content-ids-and-tags/spec.md)
@@ -14,6 +15,7 @@ Implemented technical solutions are split into dedicated spec files:
 - [Pixi Rendering Solution](./pixi-rendering-solution/spec.md)
 - [Input And Tooltip Handling](./input-and-tooltip-handling/spec.md)
 - [Internationalization](./internationalization/spec.md)
+- [Movement Cooldown](./movement-cooldown/spec.md)
 - [Git Branch Cleanup](./git-branch-cleanup/spec.md)
 - [Git Branch Rebase And Push](./git-branch-rebase-and-push/spec.md)
 - [CI/CD Automation](./ci-cd-automation/spec.md)

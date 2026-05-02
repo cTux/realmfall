@@ -20,6 +20,7 @@ import {
   findFactionNpcTile,
   findFactionTownTile,
 } from './stateTestHelpers';
+import { worldTimeMsFromMinutes } from './logs';
 
 describe('game state exploration', () => {
   it('creates a centered start in a visible hex viewport', () => {
@@ -68,7 +69,40 @@ describe('game state exploration', () => {
     const next = moveToTile(game, target);
     expect(next.player.coord).toEqual(target);
     expect(next.turn).toBe(1);
+    expect(next.worldTimeMs).toBe(game.worldTimeMs);
     expect(next.logs[0]?.text).toMatch(/^\[Year 1, Day 1, 18:33\] /);
+  });
+
+  it('blocks movement onto an unresolved adjacent hex', () => {
+    const game = createGame(4, 'unresolved-adjacent-move');
+    game.player.coord = { q: 1, r: 0 };
+    delete game.tiles['2,0'];
+
+    const next = moveToTile(game, { q: 2, r: 0 });
+
+    expect(next.player.coord).toEqual({ q: 1, r: 0 });
+    expect(next.logs[0]?.text).toContain('not resolved yet');
+  });
+
+  it('does not sync day-phase transitions from movement alone', () => {
+    const game = createGame(4, 'move-day-phase-sync');
+    game.dayPhase = 'night';
+    game.worldTimeMs = worldTimeMsFromMinutes(418);
+    game.player.coord = { q: 1, r: 0 };
+    game.tiles['2,0'] = {
+      coord: { q: 2, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+
+    const next = moveToTile(game, { q: 2, r: 0 });
+
+    expect(next.worldTimeMs).toBe(game.worldTimeMs);
+    expect(next.dayPhase).toBe('night');
+    expect(next.logs.some((entry) => /morning breaks/i.test(entry.text))).toBe(
+      false,
+    );
   });
 
   it('generates faction territories with borders, neutral residents, and safe interiors', () => {
@@ -133,6 +167,7 @@ describe('game state exploration', () => {
     const game = createGame(4, 'safe-path-move-seed');
     game.player.hunger = 100;
     game.player.thirst = 100;
+    game.worldTimeMs = 12_345;
 
     game.tiles['1,0'] = {
       coord: { q: 1, r: 0 },
@@ -163,9 +198,67 @@ describe('game state exploration', () => {
 
     expect(moved.player.coord).toEqual({ q: 2, r: 0 });
     expect(moved.turn).toBe(3);
+    expect(moved.worldTimeMs).toBe(12_345);
     expect(
       moved.logs.filter((entry) => entry.kind === 'movement'),
     ).toHaveLength(3);
+  });
+
+  it('stops a safe path when a movement step respawns the player', () => {
+    const game = createGame(4, 'safe-path-respawn-stop-seed');
+    game.player.hp = 1;
+    game.player.hunger = 30;
+    game.player.thirst = 30;
+
+    game.tiles['1,-1'] = {
+      coord: { q: 1, r: -1 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+    game.tiles['2,-1'] = {
+      coord: { q: 2, r: -1 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+    game.tiles['2,0'] = {
+      coord: { q: 2, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+
+    const moved = moveAlongSafePath(game, { q: 2, r: 0 });
+
+    expect(moved.player.coord).toEqual(game.homeHex);
+    expect(moved.turn).toBe(1);
+    expect(
+      moved.logs.some((entry) =>
+        entry.text.includes('Move one hex at a time.'),
+      ),
+    ).toBe(false);
+  });
+
+  it('does not safe-path through unresolved visible hexes', () => {
+    const game = createGame(4, 'safe-path-unresolved-seed');
+
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'mountain',
+      items: [],
+      enemyIds: [],
+    };
+    game.tiles['2,0'] = {
+      coord: { q: 2, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+    delete game.tiles['1,-1'];
+    delete game.tiles['2,-1'];
+
+    expect(getSafePathToTile(game, { q: 2, r: 0 })).toBeNull();
   });
 
   it('finds a safe path to a distant hostile target without crossing hostile tiles', () => {
@@ -331,6 +424,7 @@ describe('game state exploration', () => {
 
     const game = createGame(4, 'day-no-ambush-seed');
     game.dayPhase = 'day';
+    game.worldTimeMs = worldTimeMsFromMinutes(12 * 60);
     game.player.hunger = 100;
     game.player.thirst = 100;
 

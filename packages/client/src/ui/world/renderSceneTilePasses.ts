@@ -1,6 +1,6 @@
 import { WORLD_REVEAL_RADIUS } from '../../app/constants';
 import { isPassable } from '../../game/shared';
-import type { GameState, HexCoord, Tile } from '../../game/stateTypes';
+import type { GameState, HexCoord } from '../../game/stateTypes';
 import { hexDistance, hexKey } from '../../game/hex';
 import { tileStyle } from './renderSceneEnvironment';
 import { makeHex, tileToPoint } from './renderSceneMath';
@@ -16,8 +16,13 @@ import {
   type VisibleTileRenderInput,
 } from './renderSceneRenderInputs';
 import { renderStaticTile } from './renderSceneStaticTiles';
+import {
+  isUnknownVisibleWorldTile,
+  type VisibleWorldTile,
+} from './visibleWorldTiles';
 
 interface RenderTilePassesOptions {
+  animationMs: number;
   enemyIconSize: number;
   hexSize: number;
   hoveredMove: HexCoord | null;
@@ -31,14 +36,15 @@ interface RenderTilePassesOptions {
   state: GameState;
   structureIconSize: number;
   terrainArtSize: number;
-  visibleTileMap: Map<string, Tile> | null;
+  visibleTileMap: Map<string, VisibleWorldTile> | null;
   visibleTileRenderInputs: VisibleTileRenderInput[] | null;
-  visibleTiles: Array<Tile>;
+  visibleTiles: VisibleWorldTile[];
   worldBossIconSize: number;
   scene: SceneCache;
 }
 
 export function renderTilePasses({
+  animationMs,
   enemyIconSize,
   hexSize,
   hoveredMove,
@@ -65,7 +71,10 @@ export function renderTilePasses({
     const isPlayerTile =
       tile.coord.q === state.player.coord.q &&
       tile.coord.r === state.player.coord.r;
-    const clickable = distance === 1 && isPassable(tile.terrain);
+    const clickable =
+      distance === 1 &&
+      !isUnknownVisibleWorldTile(tile) &&
+      isPassable(tile.terrain);
     const emphasized = isPlayerTile;
     const revealed = distance <= WORLD_REVEAL_RADIUS;
     const relative = {
@@ -92,6 +101,7 @@ export function renderTilePasses({
       renderStaticTile({
         emphasized,
         enemyIconSize,
+        animationMs,
         isHomeTile,
         isPlayerTile,
         nextCampfireLightPoints,

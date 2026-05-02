@@ -1,4 +1,4 @@
-import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
+import type { MutableRefObject } from 'react';
 import type { Application, Container } from 'pixi.js';
 import type { TooltipPosition } from '@realmfall/ui';
 import type { HexCoord } from '../../../game/hex';
@@ -8,7 +8,10 @@ import type { TooltipState } from '../types';
 import { type WorldHoverSnapshot } from '../usePixiWorldHover';
 import { createWorldClickHandler } from './pixiWorldClickNavigation';
 import { createWorldMapCameraUpdateScheduler } from './pixiWorldCameraUpdateScheduler';
-import { createWorldHoverInteractions } from './pixiWorldHoverInteractions';
+import {
+  createWorldHoverInteractions,
+  type WorldHoverAnalysisController,
+} from './pixiWorldHoverInteractions';
 import { type WorldMapDragState } from './pixiWorldInteractionShared';
 import {
   beginWorldMapDrag,
@@ -25,6 +28,12 @@ type EnemyWorldTooltip =
   typeof import('../../../ui/world/worldTooltips').enemyWorldTooltip;
 type StructureWorldTooltip =
   typeof import('../../../ui/world/worldTooltips').structureWorldTooltip;
+type WorldMovementController =
+  typeof import('./movement/worldMovementController').createWorldMovementController extends (
+    ...args: never[]
+  ) => infer TResult
+    ? TResult
+    : never;
 
 export function attachPixiWorldInteractions({
   app,
@@ -35,6 +44,8 @@ export function attachPixiWorldInteractions({
   getScenePoint,
   getWorldMapContainer,
   hoverAnalysisCacheRef,
+  hoverAnalysisControllerRef,
+  hoverAnalysisVersionRef,
   hoverFrameRef,
   hoverPointerRef,
   hoverSnapshotRef,
@@ -45,11 +56,10 @@ export function attachPixiWorldInteractions({
   selectedRef,
   renderInvalidationRef,
   scheduleCameraSave,
-  setGame,
+  movementController,
   setTooltip,
   tooltipPositionRef,
   worldMapCameraRef,
-  worldTimeMsRef,
   worldTooltipKeyRef,
   dragStateRef,
 }: {
@@ -61,6 +71,8 @@ export function attachPixiWorldInteractions({
   getScenePoint: WorldScenePointMapper;
   getWorldMapContainer: () => Container;
   hoverAnalysisCacheRef: MutableRefObject<Map<string, WorldHoverSnapshot>>;
+  hoverAnalysisControllerRef: MutableRefObject<WorldHoverAnalysisController | null>;
+  hoverAnalysisVersionRef: MutableRefObject<number>;
   hoverFrameRef: MutableRefObject<number | null>;
   hoverPointerRef: MutableRefObject<{
     clientX: number;
@@ -74,11 +86,10 @@ export function attachPixiWorldInteractions({
   selectedRef: MutableRefObject<HexCoord>;
   renderInvalidationRef: MutableRefObject<number>;
   scheduleCameraSave: () => void;
-  setGame: Dispatch<SetStateAction<GameState>>;
+  movementController: WorldMovementController;
   setTooltip: (nextTooltip: TooltipState | null) => void;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
   worldMapCameraRef: MutableRefObject<WorldMapCameraState>;
-  worldTimeMsRef: MutableRefObject<number>;
   worldTooltipKeyRef: MutableRefObject<string | null>;
   dragStateRef: MutableRefObject<WorldMapDragState | null>;
 }) {
@@ -90,8 +101,7 @@ export function attachPixiWorldInteractions({
     playerCoordRef,
     renderInvalidationRef,
     selectedRef,
-    setGame,
-    worldTimeMsRef,
+    movementController,
   });
 
   const hoverInteractions = createWorldHoverInteractions({
@@ -101,6 +111,7 @@ export function attachPixiWorldInteractions({
     gameRef,
     getScenePoint,
     hoverAnalysisCacheRef,
+    hoverAnalysisVersionRef,
     hoverFrameRef,
     hoverPointerRef,
     hoverSnapshotRef,
@@ -113,6 +124,7 @@ export function attachPixiWorldInteractions({
     tooltipPositionRef,
     worldTooltipKeyRef,
   });
+  hoverAnalysisControllerRef.current = hoverInteractions;
   const cameraUpdateScheduler = createWorldMapCameraUpdateScheduler({
     getWorldMapContainer,
     screen: app.screen,
@@ -193,6 +205,9 @@ export function attachPixiWorldInteractions({
   });
 
   return () => {
+    if (hoverAnalysisControllerRef.current === hoverInteractions) {
+      hoverAnalysisControllerRef.current = null;
+    }
     cameraUpdateScheduler.dispose();
     hoverInteractions.dispose();
     canvas.removeEventListener('pointerdown', onPointerDown as EventListener);

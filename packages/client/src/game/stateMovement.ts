@@ -10,9 +10,8 @@ import { createCombatState } from './stateCombat';
 import { cloneForWorldMutation, message } from './stateMutationHelpers';
 import { getSafePathToTile } from './statePathfinding';
 import { applySurvivalDecay, respawnAtNearestTown } from './stateSurvival';
-import { getHostileEnemyIds } from './stateWorldQueries';
+import { getHostileEnemyIds, getResolvedTileAt } from './stateWorldQueries';
 import type { GameState, Tile } from './types';
-import { ensureTileState } from './world';
 
 export function moveToTile(state: GameState, target: HexCoord): GameState {
   if (state.gameOver) return state;
@@ -26,8 +25,10 @@ export function moveToTile(state: GameState, target: HexCoord): GameState {
   }
 
   const next = cloneForWorldMutation(state);
-  ensureTileState(next, target);
-  const tile = next.tiles[`${target.q},${target.r}`]!;
+  const tile = getResolvedTileAt(next, target);
+  if (!tile) {
+    return message(next, t('game.message.travel.unknownHex'));
+  }
 
   if (!isPassable(tile.terrain)) {
     return message(next, t('game.message.travel.blockedTerrain'));
@@ -42,7 +43,12 @@ export function moveToTile(state: GameState, target: HexCoord): GameState {
     return next;
   }
 
-  trySpawnNightAmbush(next, target, tile);
+  const currentTile = getResolvedTileAt(next, target);
+  if (!currentTile) {
+    return next;
+  }
+
+  trySpawnNightAmbush(next, target, currentTile);
 
   const hostileEnemyIds = getHostileEnemyIds(next, target);
   if (hostileEnemyIds.length > 0) {
@@ -85,7 +91,9 @@ export function moveAlongSafePath(
   let next = state;
   for (const step of path) {
     next = moveToTile(next, step);
-    if (next === state || next.gameOver || next.combat) {
+    const endedOnStep =
+      next.player.coord.q === step.q && next.player.coord.r === step.r;
+    if (!endedOnStep || next.gameOver || next.combat) {
       return next;
     }
   }

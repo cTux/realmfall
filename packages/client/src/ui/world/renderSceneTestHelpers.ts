@@ -133,12 +133,36 @@ class MockTextStyle {
   constructor(public value: unknown) {}
 }
 
+class MockTexture {
+  static EMPTY = { icon: undefined };
+  static from = textureFrom;
+
+  destroyed = false;
+  source: { destroyed: boolean } | null;
+
+  constructor(
+    public options: {
+      frame?: unknown;
+      icon?: string;
+      source?: { destroyed?: boolean } | null;
+    },
+  ) {
+    this.source = options.source
+      ? { destroyed: options.source.destroyed ?? false }
+      : { destroyed: false };
+  }
+}
+
 class MockFilter {
   resources: Record<string, unknown>;
 
   constructor(options?: { resources?: Record<string, unknown> }) {
     this.resources = options?.resources ?? {};
   }
+}
+
+class MockImageSource {
+  constructor(public options: unknown) {}
 }
 
 class MockUniformGroup {
@@ -177,16 +201,14 @@ vi.mock('pixi.js', () => ({
     from: vi.fn((options: Record<string, unknown>) => options),
   },
   Graphics: MockGraphics,
+  ImageSource: MockImageSource,
   loadSvg: { extension: { name: 'loadSVG' } },
   loadTextures: { extension: { name: 'loadTextures' } },
   Rectangle: MockRectangle,
   Sprite: MockSprite,
   Text: MockText,
   TextStyle: MockTextStyle,
-  Texture: {
-    EMPTY: { icon: undefined },
-    from: textureFrom,
-  },
+  Texture: MockTexture,
   UniformGroup: MockUniformGroup,
 }));
 
@@ -252,6 +274,10 @@ export function getMarkerLayer(app: MockApp) {
 
 export function getBadgeLayer(app: MockApp) {
   return getWorld(app).children[6] as MockContainer;
+}
+
+export function getPlayerLayer(app: MockApp) {
+  return getWorld(app).children[7] as MockContainer;
 }
 
 export function getCloudLayer(app: MockApp) {

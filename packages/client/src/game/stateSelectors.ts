@@ -4,6 +4,7 @@ export {
   getEnemyAt,
   getHostileEnemyIds,
   getPlayerClaimedTiles,
+  getResolvedCurrentTile,
   getTileAt,
   getVisibleTiles,
   type VisibleTilesState,

@@ -1,4 +1,4 @@
-import type { GameState, Tile } from '../../game/stateTypes';
+import type { GameState } from '../../game/stateTypes';
 import { configureSprite, takeGraphics, takeSprite } from './renderScenePools';
 import type { SceneCache } from './renderSceneCache';
 import { terrainArtFor } from './worldTerrainArt';
@@ -15,10 +15,16 @@ import { hexKey } from '../../game/hex';
 import { renderClaimBorder } from './renderSceneClaimBorders';
 import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
 import { renderStaticMarkers } from './renderSceneStaticMarkers';
+import {
+  getVisibleWorldTileRevealProgress,
+  isUnknownVisibleWorldTile,
+  type VisibleWorldTile,
+} from './visibleWorldTiles';
 
 export function renderStaticTile({
   emphasized,
   enemyIconSize,
+  animationMs,
   isHomeTile,
   isPlayerTile,
   nextCampfireLightPoints,
@@ -40,6 +46,7 @@ export function renderStaticTile({
 }: {
   emphasized: boolean;
   enemyIconSize: number;
+  animationMs: number;
   isHomeTile: boolean;
   isPlayerTile: boolean;
   nextCampfireLightPoints: Array<{ x: number; y: number }>;
@@ -54,8 +61,8 @@ export function renderStaticTile({
   structureIconSize: number;
   style: ReturnType<typeof tileStyle>;
   terrainArtSize: number;
-  tile: Tile;
-  visibleTileMap: Map<string, Tile> | null;
+  tile: VisibleWorldTile;
+  visibleTileMap: Map<string, VisibleWorldTile> | null;
   visibleTileRenderInput: VisibleTileRenderInput;
   worldBossIconSize: number;
 }) {
@@ -93,7 +100,9 @@ export function renderStaticTile({
     return;
   }
 
-  if (showTerrainBackgrounds) {
+  const revealProgress = getVisibleWorldTileRevealProgress(tile, animationMs);
+
+  if (showTerrainBackgrounds && !isUnknownVisibleWorldTile(tile)) {
     const terrainSprite = takeSprite(
       scene.worldTerrainSprites,
       terrainArtFor(tile.terrain),
@@ -103,13 +112,14 @@ export function renderStaticTile({
       0xffffff,
       terrainArtSize,
       terrainArtSize,
-      emphasized ? 0.84 : 0.76,
+      (emphasized ? 0.84 : 0.76) * revealProgress,
       point,
     );
   }
 
   if (!isPlayerTile) {
     renderStaticMarkers({
+      animationMs,
       enemyIconSize,
       point,
       scene,

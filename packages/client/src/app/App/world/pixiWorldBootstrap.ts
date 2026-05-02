@@ -1,8 +1,8 @@
-import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
+import type { MutableRefObject } from 'react';
 import type { Application } from 'pixi.js';
 import type { TooltipPosition } from '@realmfall/ui';
-import type { getVisibleTiles } from '../../../game/stateSelectors';
 import type { GameState, HexCoord } from '../../../game/stateTypes';
+import type { VisibleWorldTile } from '../../../ui/world/visibleWorldTiles';
 import type { WorldMapCameraState } from '../../../ui/world/worldMapCamera';
 import {
   getGraphicsRenderResolution,
@@ -11,6 +11,7 @@ import {
 import type { TooltipState } from '../types';
 import type { WorldHoverSnapshot } from '../usePixiWorldHover';
 import type { WorldMapDragState } from './pixiWorldInteractions';
+import type { WorldHoverAnalysisController } from './pixiWorldHoverInteractions';
 import type { WorldRenderSnapshot } from './worldRenderSnapshot';
 
 export type PixiWorldInitGraphicsSettings = Pick<
@@ -25,6 +26,12 @@ export type PixiWorldInitGraphicsSettings = Pick<
 >;
 
 type PixiWorldCleanup = () => void;
+type WorldMovementController =
+  typeof import('./movement/worldMovementController').createWorldMovementController extends (
+    ...args: never[]
+  ) => infer TResult
+    ? TResult
+    : never;
 
 interface BootstrapPixiWorldCanvasArgs {
   appRef: MutableRefObject<Application | null>;
@@ -33,6 +40,8 @@ interface BootstrapPixiWorldCanvasArgs {
   gameRef: MutableRefObject<GameState>;
   hostRef: MutableRefObject<HTMLDivElement | null>;
   hoverAnalysisCacheRef: MutableRefObject<Map<string, WorldHoverSnapshot>>;
+  hoverAnalysisControllerRef: MutableRefObject<WorldHoverAnalysisController | null>;
+  hoverAnalysisVersionRef: MutableRefObject<number>;
   hoverFrameRef: MutableRefObject<number | null>;
   hoverPointerRef: MutableRefObject<{
     clientX: number;
@@ -48,14 +57,15 @@ interface BootstrapPixiWorldCanvasArgs {
   pausedAnimationMsRef: MutableRefObject<number | null>;
   pausedRef: MutableRefObject<boolean>;
   playerCoordRef: MutableRefObject<HexCoord>;
+  movementCooldownEndAtRef: MutableRefObject<number | null>;
   renderInvalidationRef: MutableRefObject<number>;
   selectedRef: MutableRefObject<HexCoord>;
-  setGame: Dispatch<SetStateAction<GameState>>;
+  movementController: WorldMovementController;
   setTooltip: (nextTooltip: TooltipState | null) => void;
   showTerrainBackgroundsRef: MutableRefObject<boolean>;
   worldRenderFpsRef: MutableRefObject<number>;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
-  visibleTilesRef: MutableRefObject<ReturnType<typeof getVisibleTiles>>;
+  visibleTilesRef: MutableRefObject<VisibleWorldTile[]>;
   worldMapCameraRef: MutableRefObject<WorldMapCameraState>;
   worldTimeMsRef: MutableRefObject<number>;
   worldTooltipKeyRef: MutableRefObject<string | null>;
@@ -68,6 +78,8 @@ export async function bootstrapPixiWorldCanvas({
   gameRef,
   hostRef,
   hoverAnalysisCacheRef,
+  hoverAnalysisControllerRef,
+  hoverAnalysisVersionRef,
   hoverFrameRef,
   hoverPointerRef,
   hoverSnapshotRef,
@@ -80,9 +92,10 @@ export async function bootstrapPixiWorldCanvas({
   pausedAnimationMsRef,
   pausedRef,
   playerCoordRef,
+  movementCooldownEndAtRef,
   renderInvalidationRef,
   selectedRef,
-  setGame,
+  movementController,
   setTooltip,
   showTerrainBackgroundsRef,
   worldRenderFpsRef,
@@ -204,6 +217,7 @@ export async function bootstrapPixiWorldCanvas({
     worldTimeMsRef,
     renderInvalidationRef,
     lastRenderSnapshotRef,
+    movementCooldownEndAtRef,
   });
 
   resize();
@@ -237,6 +251,8 @@ export async function bootstrapPixiWorldCanvas({
     getScenePoint,
     getWorldMapContainer,
     hoverAnalysisCacheRef,
+    hoverAnalysisControllerRef,
+    hoverAnalysisVersionRef,
     hoverFrameRef,
     hoverPointerRef,
     hoverSnapshotRef,
@@ -247,11 +263,10 @@ export async function bootstrapPixiWorldCanvas({
     selectedRef,
     renderInvalidationRef,
     scheduleCameraSave,
-    setGame,
+    movementController,
     setTooltip,
     tooltipPositionRef,
     worldMapCameraRef,
-    worldTimeMsRef,
     worldTooltipKeyRef,
     dragStateRef,
   });

@@ -1,6 +1,5 @@
 import type { GameState, HexCoord, Tile } from '../../game/stateTypes';
 import { hexKey } from '../../game/hex';
-import { buildTile } from '../../game/world';
 import type { SceneCache } from './renderSceneCache';
 import { takeGraphics } from './renderScenePools';
 
@@ -61,9 +60,5 @@ function resolveNeighborClaim(
   coord: HexCoord,
 ) {
   const key = hexKey(coord);
-  return (
-    visibleTileMap.get(key)?.claim ??
-    state.tiles[key]?.claim ??
-    buildTile(state.seed, coord).claim
-  );
+  return visibleTileMap.get(key)?.claim ?? state.tiles[key]?.claim;
 }

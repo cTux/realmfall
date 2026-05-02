@@ -1,16 +1,17 @@
-import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
+import type { MutableRefObject } from 'react';
 import type { Application } from 'pixi.js';
-import { t } from '../../../i18n';
 import { hexAtPoint, hexDistance, type HexCoord } from '../../../game/hex';
 import { isPassable } from '../../../game/shared';
-import { moveAlongSafePath, moveToTile } from '../../../game/stateMovement';
 import { getSafePathToTile } from '../../../game/statePathfinding';
-import { getTileAt } from '../../../game/stateWorldQueries';
+import { getResolvedTileAt } from '../../../game/stateWorldQueries';
 import type { GameState } from '../../../game/stateTypes';
 import { getWorldHexSize } from '../../../ui/world/renderSceneMath';
 import { WORLD_REVEAL_RADIUS } from '../../constants';
 import type { WorldScenePointMapper } from './pixiWorldCamera';
-import { createLoggedGameTransition } from '../hooks/useLoggedGameCommand';
+
+interface WorldMovementQueueController {
+  replaceQueuedPath(nextSteps: HexCoord[]): void;
+}
 
 export function createWorldClickHandler({
   app,
@@ -20,8 +21,7 @@ export function createWorldClickHandler({
   playerCoordRef,
   renderInvalidationRef,
   selectedRef,
-  setGame,
-  worldTimeMsRef,
+  movementController,
 }: {
   app: Application;
   gameRef: MutableRefObject<GameState>;
@@ -30,8 +30,7 @@ export function createWorldClickHandler({
   playerCoordRef: MutableRefObject<HexCoord>;
   renderInvalidationRef: MutableRefObject<number>;
   selectedRef: MutableRefObject<HexCoord>;
-  setGame: Dispatch<SetStateAction<GameState>>;
-  worldTimeMsRef: MutableRefObject<number>;
+  movementController: WorldMovementQueueController;
 }) {
   return (clientX: number, clientY: number) => {
     if (pausedRef.current) {
@@ -52,26 +51,22 @@ export function createWorldClickHandler({
     const current = gameRef.current;
     const distance = hexDistance(playerCoordRef.current, target);
     if (distance === 1) {
-      const tile = getTileAt(current, target);
-      if (!isPassable(tile.terrain)) {
+      const tile = getResolvedTileAt(current, target);
+      if (!tile || !isPassable(tile.terrain)) {
         return;
       }
 
       selectedRef.current = target;
       renderInvalidationRef.current += 1;
-      setGame((currentState) =>
-        createLoggedGameTransition({
-          describe: () => t('game.log.command.moveToTile'),
-          transition: (timedState) => moveToTile(timedState, target),
-        })({
-          ...currentState,
-          worldTimeMs: worldTimeMsRef.current,
-        }),
-      );
+      movementController.replaceQueuedPath([target]);
       return;
     }
 
     if (distance === 0 || distance > WORLD_REVEAL_RADIUS) {
+      return;
+    }
+
+    if (!getResolvedTileAt(current, target)) {
       return;
     }
 
@@ -82,14 +77,6 @@ export function createWorldClickHandler({
 
     selectedRef.current = target;
     renderInvalidationRef.current += 1;
-    setGame((currentState) =>
-      createLoggedGameTransition({
-        describe: () => t('game.log.command.followSafePath'),
-        transition: (timedState) => moveAlongSafePath(timedState, target),
-      })({
-        ...currentState,
-        worldTimeMs: worldTimeMsRef.current,
-      }),
-    );
+    movementController.replaceQueuedPath(safePath);
   };
 }

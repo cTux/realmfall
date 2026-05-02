@@ -14,21 +14,16 @@ import { useActionBarController } from './hooks/useActionBarController';
 import { useAppLogFilters } from './hooks/useAppLogFilters';
 import { useAppSettingsState } from './hooks/useAppSettingsState';
 import { useAppWindowState } from './hooks/useAppWindowState';
+import { useRecipeMaterialFilter } from './hooks/useRecipeMaterialFilter';
 import { useGameActionHandlers } from './hooks/useGameActionHandlers';
-import { useHexInfoWindowPromotion } from './hooks/useHexInfoWindowPromotion';
 import { useHexItemModificationController } from './hooks/useHexItemModificationController';
 import { useItemContextMenuController } from './hooks/useItemContextMenuController';
 import { useItemTooltipController } from './hooks/useItemTooltipController';
-import { useCraftingRecipeBookPromotion } from './hooks/useCraftingRecipeBookPromotion';
-import { useRecipeMaterialFilter } from './hooks/useRecipeMaterialFilter';
 
 interface UseAppControllersOptions {
-  combat: GameState['combat'];
-  currentTileItemsLength: number;
   currentStructure?: GameState['tiles'][string]['structure'];
   equipment: GameState['player']['equipment'];
   inventory: Item[];
-  playerCoord: GameState['player']['coord'];
   gameRef: MutableRefObject<GameState>;
   initialAudioSettings: AudioSettings;
   initialGraphicsSettings: GraphicsSettings;
@@ -125,6 +120,9 @@ export interface AppControllers {
       typeof useAppSettingsState
     >['setGraphicsSettings'];
     setLogFilters: ReturnType<typeof useAppLogFilters>['setLogFilters'];
+    setPreferredRecipeSkill: ReturnType<
+      typeof useRecipeMaterialFilter
+    >['setPreferredRecipeSkill'];
     setSelectedHexItemReforgeStatIndex: ReturnType<
       typeof useHexItemModificationController
     >['setSelectedReforgeStatIndex'];
@@ -138,12 +136,9 @@ export interface AppControllers {
 }
 
 export function useAppControllers({
-  combat,
-  currentTileItemsLength,
   currentStructure,
   equipment,
   inventory,
-  playerCoord,
   gameRef,
   initialAudioSettings,
   initialGraphicsSettings,
@@ -226,13 +221,6 @@ export function useAppControllers({
     gameRef,
     tooltipPositionRef,
   });
-  useHexInfoWindowPromotion({
-    combatActive: combat != null,
-    currentLootAvailable: currentTileItemsLength > 0,
-    currentStructure: currentStructure != null,
-    setWindowShown,
-    windowShown,
-  });
   const {
     handleClearRecipeMaterialFilter,
     handleOpenRecipeBookWithMaterialFilter,
@@ -240,12 +228,6 @@ export function useAppControllers({
     recipeMaterialFilterItemKey,
     setPreferredRecipeSkill,
   } = useRecipeMaterialFilter(setWindowShown);
-  useCraftingRecipeBookPromotion({
-    currentStructure,
-    playerCoord,
-    setPreferredRecipeSkill,
-    setWindowShown,
-  });
 
   const handleEquipmentHover = useCallback(
     (event: ReactMouseEvent<HTMLElement>, item: TooltipItem) => {
@@ -300,6 +282,7 @@ export function useAppControllers({
       setAudioSettings,
       setGraphicsSettings,
       setLogFilters,
+      setPreferredRecipeSkill,
       setSelectedHexItemReforgeStatIndex,
       setTooltip,
       setWindowShown,

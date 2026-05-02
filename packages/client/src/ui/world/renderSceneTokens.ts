@@ -1,5 +1,4 @@
 import { hexKey } from '../../game/hex';
-import { getVisibleTiles } from '../../game/stateSelectors';
 import type { GameState, HexCoord } from '../../game/stateTypes';
 import type { SceneCache } from './renderSceneCache';
 import {
@@ -7,11 +6,18 @@ import {
   type VisibleTileRenderInput,
 } from './renderSceneRenderInputs';
 import { getWorldIconTextureVersion } from './worldIcons';
+import {
+  getVisibleWorldTileRenderKey,
+  isVisibleWorldTileRevealActive,
+  type VisibleWorldTile,
+} from './visibleWorldTiles';
 
 export function getSceneRenderTokens(
   scene: SceneCache,
   state: GameState,
-  visibleTiles: ReturnType<typeof getVisibleTiles>,
+  visibleTiles: VisibleWorldTile[],
+  animationMs: number,
+  worldRenderFrameMs: number,
 ) {
   const playerCoordKey = coordKey(state.player.coord);
   const homeHexKey = coordKey(state.homeHex);
@@ -58,9 +64,18 @@ export function getSceneRenderTokens(
 
   const staticToken = scene.derivedStaticRenderToken ?? 0;
   const interactionBaseToken = scene.derivedInteractionRenderToken ?? 0;
+  const revealRenderBucket = getRevealRenderBucket(
+    visibleTiles,
+    animationMs,
+    worldRenderFrameMs,
+  );
+  const staticRenderToken =
+    revealRenderBucket === 0
+      ? staticToken
+      : mixRenderToken(staticToken, revealRenderBucket);
 
   return {
-    static: staticToken,
+    static: staticRenderToken,
     visibleTileRenderInputs,
     interactionWithSelection: (
       selected: HexCoord,
@@ -107,16 +122,9 @@ function getStaticTileRenderToken({ enemies, tile }: VisibleTileRenderInput) {
   }, 2166136261);
 
   let token = 2166136261;
-  token = mixRenderToken(token, coordToken(tile.coord));
-  token = mixRenderToken(token, hashRenderString(tile.terrain));
-  token = mixRenderToken(token, hashRenderString(tile.structure ?? 'none'));
   token = mixRenderToken(
     token,
-    tile.claim
-      ? hashRenderString(
-          `${tile.claim.ownerType}:${tile.claim.ownerId}:${tile.claim.npc?.enemyId ?? 'none'}`,
-        )
-      : 0,
+    hashRenderString(getVisibleWorldTileRenderKey(tile)),
   );
   token = mixRenderToken(token, enemyToken);
   token = mixRenderToken(token, getTileItemRenderToken(tile.items));
@@ -137,7 +145,7 @@ function getTileItemRenderToken(items: GameState['tiles'][string]['items']) {
 
 function getInteractionRenderToken(
   state: GameState,
-  visibleTiles: ReturnType<typeof getVisibleTiles>,
+  visibleTiles: VisibleWorldTile[],
 ) {
   const playerTile =
     visibleTiles.find((tile) => sameCoord(tile.coord, state.player.coord)) ??
@@ -151,7 +159,7 @@ function getInteractionRenderToken(
 
 function getVisibleEnemyToken(
   state: GameState,
-  visibleTiles: ReturnType<typeof getVisibleTiles>,
+  visibleTiles: VisibleWorldTile[],
 ) {
   let token = 2166136261;
 
@@ -224,4 +232,20 @@ function sameCoord(left: HexCoord | null, right: HexCoord | null) {
 
 function coordKey(coord: HexCoord | null) {
   return coord ? hexKey(coord) : 'none';
+}
+
+function getRevealRenderBucket(
+  visibleTiles: VisibleWorldTile[],
+  animationMs: number,
+  worldRenderFrameMs: number,
+) {
+  if (
+    !visibleTiles.some((tile) =>
+      isVisibleWorldTileRevealActive(tile, animationMs),
+    )
+  ) {
+    return 0;
+  }
+
+  return Math.floor(animationMs / worldRenderFrameMs) + 1;
 }

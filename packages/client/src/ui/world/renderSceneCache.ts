@@ -5,7 +5,6 @@ import {
   TextStyle,
   type Application,
 } from 'pixi.js';
-import type { getVisibleTiles } from '../../game/stateSelectors';
 import type { CloudRenderInput } from './renderSceneEnvironment';
 import { WorldIcons } from './worldIcons';
 import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
@@ -35,6 +34,7 @@ import {
   type WorldMapFishEyeFilter,
 } from './worldMapFishEyeRuntime';
 import type { AnimatedWorldMarker } from './renderSceneMarkerAnimations';
+import type { VisibleWorldTile } from './visibleWorldTiles';
 
 const SCENE_CACHE_KEY = Symbol('renderSceneCache');
 const MAX_CLOUD_INPUT_CACHE_ENTRIES = 4;
@@ -82,13 +82,14 @@ export interface SceneCache {
   worldStaticMarkerSprites: ShadowedSpritePool;
   worldStaticMarkerBadgeGraphics: GraphicsPool;
   worldStaticMarkerTexts: TextPool;
+  playerCooldownGraphics: GraphicsPool;
   cloudShadowSprites: SpritePool;
   cloudSprites: SpritePool;
   cloudInputsBySeed: Map<string, CloudRenderInput[]>;
   campfireLightPoints: Array<{ x: number; y: number }>;
   animatedWorldMarkers: AnimatedWorldMarker[];
   player: ShadowedSpriteEntry;
-  derivedRenderVisibleTilesSource: ReturnType<typeof getVisibleTiles> | null;
+  derivedRenderVisibleTilesSource: VisibleWorldTile[] | null;
   derivedRenderEnemiesSource: Record<string, unknown> | null;
   derivedRenderVisibleTileInputs: VisibleTileRenderInput[] | null;
   derivedRenderVisibleEnemyToken: number | null;
@@ -130,6 +131,7 @@ export function getSceneCache(app: Application) {
   const worldMarkerBadges = new Container();
   const worldAnimatedDetail = new Container();
   const worldPlayer = new Container();
+  const playerCooldown = new Container();
   const waterfalls = new Container();
   const labels = new Container();
   const atmosphereShafts = new Container();
@@ -177,7 +179,7 @@ export function getSceneCache(app: Application) {
   overlay.addChild(overlayFill, fullscreenEffectFill);
 
   const player = createShadowedSprite(WorldIcons.Player);
-  worldPlayer.addChild(player.wrapper);
+  worldPlayer.addChild(playerCooldown, player.wrapper);
 
   const scene: SceneCache = {
     skyFill,
@@ -203,6 +205,7 @@ export function getSceneCache(app: Application) {
     worldStaticMarkerSprites: createShadowedSpritePool(worldMarkers),
     worldStaticMarkerBadgeGraphics: createGraphicsPool(worldMarkerBadges),
     worldStaticMarkerTexts: createTextPool(worldMarkerBadges),
+    playerCooldownGraphics: createGraphicsPool(playerCooldown),
     cloudShadowSprites: createSpritePool(cloudShadows),
     cloudSprites: createSpritePool(clouds),
     cloudInputsBySeed: new Map(),
@@ -253,6 +256,7 @@ export function beginAnimatedSceneRender(scene: SceneCache) {
   resetGraphicsPool(scene.atmosphereShaftGraphics);
   resetGraphicsPool(scene.atmosphereCelestialGraphics);
   resetGraphicsPool(scene.worldAnimatedDetailGraphics);
+  resetGraphicsPool(scene.playerCooldownGraphics);
   resetGraphicsPool(scene.waterfallGraphics);
   resetTextPool(scene.labelTexts);
   resetSpritePool(scene.cloudShadowSprites);
@@ -263,6 +267,7 @@ export function completeAnimatedSceneRender(scene: SceneCache) {
   finishGraphicsPool(scene.atmosphereShaftGraphics);
   finishGraphicsPool(scene.atmosphereCelestialGraphics);
   finishGraphicsPool(scene.worldAnimatedDetailGraphics);
+  finishGraphicsPool(scene.playerCooldownGraphics);
   finishGraphicsPool(scene.waterfallGraphics);
   finishTextPool(scene.labelTexts);
   finishSpritePool(scene.cloudShadowSprites);

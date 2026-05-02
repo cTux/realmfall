@@ -5,12 +5,14 @@ export function useCombatAttentionWindow({
   combat,
   hydrated,
   playerCoord,
+  suppressHexInfoAutoOpen,
   setWindowVisibility,
   windowShownHexInfo,
 }: {
   combat: GameState['combat'];
   hydrated: boolean;
   playerCoord: HexCoord;
+  suppressHexInfoAutoOpen: boolean;
   setWindowVisibility: (windowKey: 'hexInfo', visible: boolean) => void;
   windowShownHexInfo: boolean;
 }) {
@@ -36,11 +38,24 @@ export function useCombatAttentionWindow({
       previousPlayerCoordRef.current.q !== playerCoord.q ||
       previousPlayerCoordRef.current.r !== playerCoord.r;
 
-    if (hasCombat && !hadCombat && playerMoved && !windowShownHexInfo) {
+    if (
+      hasCombat &&
+      !hadCombat &&
+      playerMoved &&
+      !windowShownHexInfo &&
+      !suppressHexInfoAutoOpen
+    ) {
       setWindowVisibility('hexInfo', true);
     }
 
     previousCombatRef.current = combat;
     previousPlayerCoordRef.current = playerCoord;
-  }, [combat, hydrated, playerCoord, setWindowVisibility, windowShownHexInfo]);
+  }, [
+    combat,
+    hydrated,
+    playerCoord,
+    setWindowVisibility,
+    suppressHexInfoAutoOpen,
+    windowShownHexInfo,
+  ]);
 }

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { getWorldDayIndex } from '../../../game/logs';
-import { getCurrentTile } from '../../../game/stateSelectors';
+import { getResolvedCurrentTile } from '../../../game/stateSelectors';
 import { useAppControllers } from '../useAppControllers';
 import { useAppGameView } from '../useAppGameView';
 import { useAppPersistence } from '../useAppPersistence';
@@ -15,16 +15,16 @@ import { useAppShortcutRuntime } from './useAppShortcutRuntime';
 import { useAppWindowRuntime } from './useAppWindowRuntime';
 import { useCombatAttentionWindow } from './useCombatAttentionWindow';
 import { useAppWorldClock } from './useAppWorldClock';
+import { useCraftingRecipeBookPromotion } from './useCraftingRecipeBookPromotion';
+import { useHexInfoWindowPromotion } from './useHexInfoWindowPromotion';
 
 export function useAppRuntime() {
   const bootstrap = useAppBootstrapState();
+  const resolvedCurrentTile = getResolvedCurrentTile(bootstrap.game);
   const controllers = useAppControllers({
-    combat: bootstrap.game.combat,
-    currentTileItemsLength: getCurrentTile(bootstrap.game).items.length,
-    currentStructure: getCurrentTile(bootstrap.game).structure,
+    currentStructure: resolvedCurrentTile?.structure,
     equipment: bootstrap.game.player.equipment,
     inventory: bootstrap.game.player.inventory,
-    playerCoord: bootstrap.game.player.coord,
     gameRef: bootstrap.gameRef,
     initialAudioSettings: bootstrap.initialAudioSettings,
     initialGraphicsSettings: bootstrap.initialGraphicsSettings,
@@ -81,11 +81,6 @@ export function useAppRuntime() {
     worldTimeTickRef: bootstrap.worldTimeTickRef,
     lastDisplayedWorldSecondRef: bootstrap.lastDisplayedWorldSecondRef,
   });
-  const windowTransitions = useWindowTransitions({
-    combat: bootstrap.game.combat,
-    combatEnemies: gameView.combatEnemies,
-    currentTile: gameView.currentTile,
-  });
   const settingsActions = useAppSettingsActions({
     paused: bootstrap.paused,
     persistNow: persistence.persistNow,
@@ -105,7 +100,30 @@ export function useAppRuntime() {
     setGame: bootstrap.setGame,
     setTooltip: controllerMutators.setTooltip,
   });
+  const windowTransitions = useWindowTransitions({
+    combat: bootstrap.game.combat,
+    combatEnemies: gameView.combatEnemies,
+    currentTile: gameView.currentTile,
+    suppressLootAutoOpen: pixiWorld.queuedTravelAutoOpenSuppressed,
+  });
   const isReady = persistence.hydrated && pixiWorld.canvasReady;
+
+  useHexInfoWindowPromotion({
+    combatActive: bootstrap.game.combat != null,
+    currentLootAvailable: gameView.currentTile.items.length > 0,
+    currentStructure: gameView.currentTile.structure != null,
+    suppressAutoOpen: pixiWorld.queuedTravelAutoOpenSuppressed,
+    setWindowShown: controllerMutators.setWindowShown,
+    windowShown: controllerState.windowShown,
+  });
+
+  useCraftingRecipeBookPromotion({
+    currentStructure: gameView.currentTile.structure,
+    playerCoord: bootstrap.game.player.coord,
+    setPreferredRecipeSkill: controllerMutators.setPreferredRecipeSkill,
+    setWindowShown: controllerMutators.setWindowShown,
+    suppressAutoOpen: pixiWorld.queuedTravelAutoOpenSuppressed,
+  });
 
   useEffect(() => {
     setWorldClockTime(bootstrap.game.worldTimeMs);
@@ -115,6 +133,7 @@ export function useAppRuntime() {
     combat: bootstrap.game.combat,
     hydrated: persistence.hydrated,
     playerCoord: bootstrap.game.player.coord,
+    suppressHexInfoAutoOpen: pixiWorld.queuedTravelAutoOpenSuppressed,
     setWindowVisibility: controllerMutators.setWindowVisibility,
     windowShownHexInfo: controllerState.windowShown.hexInfo,
   });

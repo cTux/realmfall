@@ -63,7 +63,6 @@ describe('App world interaction performance', () => {
 
     const worldQueryModule = await import('../../../game/stateWorldQueries');
     const pathfindingModule = await import('../../../game/statePathfinding');
-    const movementModule = await import('../../../game/stateMovement');
     const hexModule = await import('../../../game/hex');
     const getTileAtSpy = vi.spyOn(worldQueryModule, 'getTileAt');
     const getSafePathToTileSpy = vi.spyOn(
@@ -71,8 +70,6 @@ describe('App world interaction performance', () => {
       'getSafePathToTile',
     );
     const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
-    const moveAlongSafePathSpy = vi.spyOn(movementModule, 'moveAlongSafePath');
-    const moveToTileSpy = vi.spyOn(movementModule, 'moveToTile');
 
     const { host, root } = await renderApp();
     await flushLazyModules();
@@ -82,8 +79,6 @@ describe('App world interaction performance', () => {
 
     getTileAtSpy.mockClear();
     getSafePathToTileSpy.mockClear();
-    moveAlongSafePathSpy.mockClear();
-    moveToTileSpy.mockClear();
     hexAtPointSpy.mockReturnValue({ q: WORLD_REVEAL_RADIUS + 2, r: 0 });
 
     await act(async () => {
@@ -107,16 +102,12 @@ describe('App world interaction performance', () => {
 
     expect(getTileAtSpy).not.toHaveBeenCalled();
     expect(getSafePathToTileSpy).not.toHaveBeenCalled();
-    expect(moveToTileSpy).not.toHaveBeenCalled();
-    expect(moveAlongSafePathSpy).not.toHaveBeenCalled();
 
     await act(async () => {
       root.unmount();
     });
     host.remove();
 
-    moveToTileSpy.mockRestore();
-    moveAlongSafePathSpy.mockRestore();
     hexAtPointSpy.mockRestore();
     getSafePathToTileSpy.mockRestore();
     getTileAtSpy.mockRestore();

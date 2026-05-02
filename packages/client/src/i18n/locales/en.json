@@ -328,6 +328,7 @@
   "game.message.travel.blockedTerrain": "The terrain blocks your path.",
   "game.message.travel.noSafePath": "No safe path reaches that hex.",
   "game.message.travel.oneHexAtATime": "Move one hex at a time.",
+  "game.message.travel.unknownHex": "That hex has not resolved yet.",
   "game.message.time.morningBreaks": "Morning breaks over the wilds.",
   "game.message.time.nightFalls": "Night falls across the wilds.",
   "game.message.travel.toHex": "You travel to {q}, {r}.",

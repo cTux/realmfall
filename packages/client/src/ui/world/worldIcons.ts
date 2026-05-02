@@ -5,14 +5,19 @@ import snowingIcon from '../../assets/icons/snowing.svg';
 import tearTracksIcon from '../../assets/icons/tear-tracks.svg';
 import castleIcon from '../../assets/icons/castle.svg';
 import forgottenLootIcon from '../../assets/game-icons/lorc/swap-bag.svg';
+import unknownHexIcon from '../../assets/game-icons/delapouite/perspective-dice-six-faces-random.svg';
 import { ENEMY_CONFIGS, getEnemyConfig } from '../../game/content/enemies';
 import {
   STRUCTURE_CONFIGS,
   getStructureConfig,
 } from '../../game/content/structures';
-import type { Enemy, StructureType, Tile } from '../../game/stateTypes';
+import type { Enemy, StructureType } from '../../game/stateTypes';
 import { ImageSource, Rectangle, Texture } from 'pixi.js';
 import { RARITY_COLOR } from '../rarity';
+import {
+  isUnknownVisibleWorldTile,
+  type VisibleWorldTile,
+} from './visibleWorldTiles';
 import {
   getWorldTerrainAssetIds,
   getWorldTerrainAtlasImage,
@@ -33,6 +38,7 @@ export const WorldIcons = {
   Village: tearTracksIcon,
   Castle: castleIcon,
   ForgottenLoot: forgottenLootIcon,
+  UnknownHex: unknownHexIcon,
 } as const;
 
 const ENEMY_RARITY_TINTS = Object.fromEntries(
@@ -84,11 +90,16 @@ export function getCoreWorldIconAssetIds() {
 
 export function getVisibleWorldIconAssetIds(
   enemyLookup: Record<string, Enemy | undefined>,
-  visibleTiles: Tile[],
+  visibleTiles: VisibleWorldTile[],
 ) {
   const iconAssetIds = new Set(getCoreWorldIconAssetIds());
 
   for (const tile of visibleTiles) {
+    if (isUnknownVisibleWorldTile(tile)) {
+      iconAssetIds.add(WorldIcons.UnknownHex);
+      continue;
+    }
+
     iconAssetIds.add(terrainArtFor(tile.terrain));
 
     if (tile.structure) {

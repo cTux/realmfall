@@ -1,25 +1,37 @@
-import { getEnemiesAt, getVisibleTiles } from '../../game/stateSelectors';
-import type { GameState, Tile } from '../../game/stateTypes';
+import { getEnemiesAt } from '../../game/stateSelectors';
+import type { GameState } from '../../game/stateTypes';
+import {
+  isUnknownVisibleWorldTile,
+  type VisibleWorldTile,
+} from './visibleWorldTiles';
 
 export type VisibleTileEnemies = ReturnType<typeof getEnemiesAt>;
 
 export interface VisibleTileRenderInput {
   enemies: VisibleTileEnemies;
   hostileEnemies: VisibleTileEnemies;
-  tile: Tile;
+  tile: VisibleWorldTile;
 }
 
 export function getVisibleTileRenderInputs(
   state: GameState,
-  visibleTiles: ReturnType<typeof getVisibleTiles>,
+  visibleTiles: VisibleWorldTile[],
 ) {
   return visibleTiles.map((tile) => getVisibleTileRenderInput(state, tile));
 }
 
 export function getVisibleTileRenderInput(
   state: GameState,
-  tile: Tile,
+  tile: VisibleWorldTile,
 ): VisibleTileRenderInput {
+  if (isUnknownVisibleWorldTile(tile)) {
+    return {
+      enemies: [],
+      hostileEnemies: [],
+      tile,
+    };
+  }
+
   const enemies = getEnemiesAt(state, tile.coord);
 
   return {

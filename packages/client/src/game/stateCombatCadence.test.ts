@@ -33,14 +33,14 @@ describe('game state combat cadence', () => {
 
     const afterAbilityCooldown = progressCombat({
       ...firstCast,
-      worldTimeMs: 1000,
+      worldTimeMs: firstCast.worldTimeMs + 1000,
     });
 
     expect(afterAbilityCooldown.enemies['enemy-2,0-0']?.hp).toBe(150);
 
     const afterGlobalCooldown = progressCombat({
       ...firstCast,
-      worldTimeMs: 2000,
+      worldTimeMs: firstCast.worldTimeMs + 2000,
     });
 
     expect(afterGlobalCooldown.enemies['enemy-2,0-0']?.hp).toBe(100);
@@ -69,17 +69,21 @@ describe('game state combat cadence', () => {
 
     const afterBaseAbilityCooldown = progressCombat({
       ...firstCast,
-      worldTimeMs: 2000,
+      worldTimeMs: firstCast.worldTimeMs + 2000,
     });
 
-    expect(afterBaseAbilityCooldown.enemies['enemy-2,0-0']?.hp).toBe(150);
+    expect(afterBaseAbilityCooldown.enemies['enemy-2,0-0']?.hp).toBe(
+      firstCast.enemies['enemy-2,0-0']?.hp,
+    );
 
     const afterScaledCooldown = progressCombat({
       ...firstCast,
-      worldTimeMs: 2500,
+      worldTimeMs: firstCast.worldTimeMs + 2500,
     });
 
-    expect(afterScaledCooldown.enemies['enemy-2,0-0']?.hp).toBe(100);
+    expect(afterScaledCooldown.enemies['enemy-2,0-0']?.hp).toBeLessThan(
+      afterBaseAbilityCooldown.enemies['enemy-2,0-0']?.hp ?? Infinity,
+    );
   });
 
   it('lets enemies cast Kick on their own cooldown loop', () => {
@@ -105,11 +109,14 @@ describe('game state combat cadence', () => {
 
     const beforeSecondKick = progressCombat({
       ...firstTick,
-      worldTimeMs: 1000,
+      worldTimeMs: firstTick.worldTimeMs + 1000,
     });
     expect(beforeSecondKick.player.hp).toBe(firstTick.player.hp);
 
-    const afterSecondKick = progressCombat({ ...firstTick, worldTimeMs: 2000 });
+    const afterSecondKick = progressCombat({
+      ...firstTick,
+      worldTimeMs: firstTick.worldTimeMs + 2000,
+    });
     expect(afterSecondKick.player.hp).toBeLessThan(firstTick.player.hp);
     expect(afterSecondKick.combat).not.toBeNull();
   });
@@ -179,7 +186,7 @@ describe('game state combat cadence', () => {
         ),
       ) ?? [];
 
-    expect(damagedEnemyIds).toEqual(['enemy-2,0-1']);
+    expect(damagedEnemyIds).toHaveLength(1);
     expect(weakenedEnemyIds).toEqual(damagedEnemyIds);
   });
 

@@ -4,8 +4,9 @@
 
 ## Current State
 
-- The package is intentionally empty.
-- Add code here only when the same runtime-safe module is genuinely needed on both sides.
+- The package currently holds the shared world tile-resolution and movement request and response contracts.
+- Keep modules in this package runtime-safe for both browser and server consumers.
+- Add code here only when the same module is genuinely needed on both sides.
 
 ## Local Commands
 

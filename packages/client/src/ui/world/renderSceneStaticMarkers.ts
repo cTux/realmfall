@@ -1,5 +1,5 @@
 import { enemyRarityIndex } from '../../game/stateSelectors';
-import type { GameState, Tile } from '../../game/stateTypes';
+import type { GameState } from '../../game/stateTypes';
 import { hexKey } from '../../game/hex';
 import {
   getPlacedWorldBossCenter,
@@ -23,8 +23,14 @@ import {
   registerAnimatedWorldMarker,
 } from './renderSceneShared';
 import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
+import {
+  getVisibleWorldTileRevealProgress,
+  isUnknownVisibleWorldTile,
+  type VisibleWorldTile,
+} from './visibleWorldTiles';
 
 export function renderStaticMarkers({
+  animationMs,
   enemyIconSize,
   point,
   scene,
@@ -36,17 +42,44 @@ export function renderStaticMarkers({
   visibleTileRenderInput,
   worldBossIconSize,
 }: {
+  animationMs: number;
   enemyIconSize: number;
   point: { x: number; y: number };
   scene: SceneCache;
   shadowOffset: { x: number; y: number };
   state: GameState;
   structureIconSize: number;
-  tile: Tile;
-  visibleTileMap: Map<string, Tile> | null;
+  tile: VisibleWorldTile;
+  visibleTileMap: Map<string, VisibleWorldTile> | null;
   visibleTileRenderInput: VisibleTileRenderInput;
   worldBossIconSize: number;
 }) {
+  const revealProgress = getVisibleWorldTileRevealProgress(tile, animationMs);
+  const resolvedMarkerAlpha = revealProgress;
+  const unknownMarkerAlpha = isUnknownVisibleWorldTile(tile)
+    ? 1
+    : 1 - revealProgress;
+
+  if (unknownMarkerAlpha > 0) {
+    const marker = takeShadowedSprite(
+      scene.worldStaticMarkerSprites,
+      WorldIcons.UnknownHex,
+    );
+    configureShadowedSprite(
+      marker,
+      0xffffff,
+      enemyIconSize,
+      enemyIconSize,
+      unknownMarkerAlpha,
+      shadowOffset,
+      point,
+    );
+  }
+
+  if (isUnknownVisibleWorldTile(tile)) {
+    return;
+  }
+
   if (tile.structure) {
     const marker = takeShadowedSprite(
       scene.worldStaticMarkerSprites,
@@ -60,7 +93,7 @@ export function renderStaticMarkers({
       tint,
       structureIconSize,
       structureIconSize,
-      1,
+      resolvedMarkerAlpha,
       shadowOffset,
       point,
     );
@@ -74,6 +107,7 @@ export function renderStaticMarkers({
       structureIconSize,
       tint,
       'resource',
+      resolvedMarkerAlpha,
     );
   }
 
@@ -89,7 +123,7 @@ export function renderStaticMarkers({
       0xffffff,
       enemyIconSize,
       enemyIconSize,
-      1,
+      resolvedMarkerAlpha,
       shadowOffset,
       point,
     );
@@ -103,6 +137,7 @@ export function renderStaticMarkers({
       enemyIconSize,
       0xffffff,
       'settlement',
+      resolvedMarkerAlpha,
     );
     return;
   }
@@ -141,7 +176,7 @@ export function renderStaticMarkers({
         tint,
         markerSize,
         markerSize,
-        1,
+        resolvedMarkerAlpha,
         shadowOffset,
         markerPoint,
       );
@@ -155,16 +190,22 @@ export function renderStaticMarkers({
         markerSize,
         tint,
         isBossCenter ? 'worldBoss' : 'enemy',
+        resolvedMarkerAlpha,
       );
 
       if (!isBossCenter && enemies.length >= 2) {
-        renderEnemyGroupBadge(scene, point, enemies.length);
+        renderEnemyGroupBadge(
+          scene,
+          point,
+          enemies.length,
+          resolvedMarkerAlpha,
+        );
       }
     }
   }
 
   if (tile.structure === 'dungeon' && enemies.length > 0) {
-    renderEnemyGroupBadge(scene, point, enemies.length);
+    renderEnemyGroupBadge(scene, point, enemies.length, resolvedMarkerAlpha);
   }
 
   const hasForgottenLootMarker =
@@ -182,7 +223,7 @@ export function renderStaticMarkers({
       0xfde68a,
       enemyIconSize,
       enemyIconSize,
-      1,
+      resolvedMarkerAlpha,
       shadowOffset,
       point,
     );
@@ -196,6 +237,7 @@ export function renderStaticMarkers({
       enemyIconSize,
       0xfde68a,
       'forgottenLoot',
+      resolvedMarkerAlpha,
     );
   }
 }
@@ -204,12 +246,14 @@ function renderEnemyGroupBadge(
   scene: SceneCache,
   point: { x: number; y: number },
   count: number,
+  alpha = 1,
 ) {
   const badgeLabel = takeText(
     scene.worldStaticMarkerTexts,
     ENEMY_GROUP_LABEL_STYLE,
   );
   badgeLabel.text = count.toString();
+  badgeLabel.alpha = alpha;
   badgeLabel.anchor.set(0.5);
   badgeLabel.position.set(
     point.x + ENEMY_GROUP_BADGE_OFFSET.x,

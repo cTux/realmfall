@@ -6,28 +6,13 @@ import {
 import type { GameState, HexCoord } from '../../game/stateTypes';
 import { getTooltipState } from './tooltipStore';
 import type { TooltipState } from './types';
+import {
+  createEmptyWorldHoverSnapshot,
+  type WorldHoverSnapshot,
+} from './world/worldHoverSnapshot';
 
 export const HOVER_ANALYSIS_CACHE_LIMIT = 24;
-
-export interface WorldHoverSnapshot {
-  target: HexCoord | null;
-  clickable: boolean;
-  hoveredMove: HexCoord | null;
-  hoveredSafePath: HexCoord[] | null;
-  tooltip: TooltipState | null;
-  tooltipKey: string | null;
-}
-
-export function createEmptyWorldHoverSnapshot(): WorldHoverSnapshot {
-  return {
-    target: null,
-    clickable: false,
-    hoveredMove: null,
-    hoveredSafePath: null,
-    tooltip: null,
-    tooltipKey: null,
-  };
-}
+export { createEmptyWorldHoverSnapshot, type WorldHoverSnapshot };
 
 export function applyHoverSnapshot({
   hoverSnapshot,

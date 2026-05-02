@@ -7,7 +7,10 @@ import {
 import { hexAtPoint, hexDistance, type HexCoord } from '../../../game/hex';
 import { isPassable } from '../../../game/shared';
 import { getSafePathToTile } from '../../../game/statePathfinding';
-import { getEnemiesAt, getTileAt } from '../../../game/stateWorldQueries';
+import {
+  getEnemiesAt,
+  getResolvedTileAt,
+} from '../../../game/stateWorldQueries';
 import type { GameState } from '../../../game/stateTypes';
 import { getWorldHexSize } from '../../../ui/world/renderSceneMath';
 import { WORLD_REVEAL_RADIUS } from '../../constants';
@@ -27,6 +30,14 @@ type EnemyWorldTooltip =
 type StructureWorldTooltip =
   typeof import('../../../ui/world/worldTooltips').structureWorldTooltip;
 
+export interface WorldHoverAnalysisController {
+  clearHoverState(): void;
+  dispose(): void;
+  queuePointerMove(event: Pick<PointerEvent, 'clientX' | 'clientY'>): void;
+  refreshHoverAnalysis(): void;
+  resetHoverAnalysis(): void;
+}
+
 export function createWorldHoverInteractions({
   app,
   canvas,
@@ -34,6 +45,7 @@ export function createWorldHoverInteractions({
   gameRef,
   getScenePoint,
   hoverAnalysisCacheRef,
+  hoverAnalysisVersionRef,
   hoverFrameRef,
   hoverPointerRef,
   hoverSnapshotRef,
@@ -52,6 +64,7 @@ export function createWorldHoverInteractions({
   gameRef: MutableRefObject<GameState>;
   getScenePoint: WorldScenePointMapper;
   hoverAnalysisCacheRef: MutableRefObject<Map<string, WorldHoverSnapshot>>;
+  hoverAnalysisVersionRef: MutableRefObject<number>;
   hoverFrameRef: MutableRefObject<number | null>;
   hoverPointerRef: MutableRefObject<{
     clientX: number;
@@ -66,7 +79,7 @@ export function createWorldHoverInteractions({
   structureWorldTooltip: StructureWorldTooltip;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
   worldTooltipKeyRef: MutableRefObject<string | null>;
-}) {
+}): WorldHoverAnalysisController {
   const commitHoverSnapshot = ({
     hoverCacheKey,
     nextHoverSnapshot,
@@ -105,7 +118,9 @@ export function createWorldHoverInteractions({
     tooltipPositionRef.current = null;
     syncFollowCursorTooltipPosition(null);
     worldTooltipKeyRef.current = null;
-    hoverSnapshotRef.current = createEmptyWorldHoverSnapshot();
+    hoverSnapshotRef.current = createEmptyWorldHoverSnapshot(
+      hoverAnalysisVersionRef.current,
+    );
     if (hoveredMoveRef.current) {
       hoveredMoveRef.current = null;
     }
@@ -114,6 +129,38 @@ export function createWorldHoverInteractions({
     }
     renderInvalidationRef.current += 1;
     setTooltip(null);
+  };
+
+  const resetHoverAnalysis = () => {
+    hoverAnalysisVersionRef.current += 1;
+    hoverAnalysisCacheRef.current.clear();
+    clearHoverState();
+  };
+
+  const refreshHoverAnalysis = () => {
+    if (
+      hoverAnalysisCacheRef.current.size === 0 &&
+      hoverSnapshotRef.current.target === null &&
+      hoverPointerRef.current === null
+    ) {
+      return;
+    }
+
+    hoverAnalysisVersionRef.current += 1;
+    hoverAnalysisCacheRef.current.clear();
+
+    const hoverPointer = hoverPointerRef.current;
+    if (hoverPointer == null || hoverFrameRef.current !== null) {
+      return;
+    }
+
+    canvas.dispatchEvent(
+      new PointerEvent('pointermove', {
+        bubbles: true,
+        clientX: hoverPointer.clientX,
+        clientY: hoverPointer.clientY,
+      }),
+    );
   };
 
   const processPointerMove = (clientX: number, clientY: number) => {
@@ -134,7 +181,10 @@ export function createWorldHoverInteractions({
     };
     const hoverSnapshot = hoverSnapshotRef.current;
 
-    if (sameCoord(hoverSnapshot.target, target)) {
+    if (
+      sameCoord(hoverSnapshot.target, target) &&
+      hoverSnapshot.analysisVersion === hoverAnalysisVersionRef.current
+    ) {
       canvas.style.cursor = hoverSnapshot.clickable ? 'pointer' : 'default';
       applyHoverSnapshot({
         hoverSnapshot,
@@ -154,7 +204,10 @@ export function createWorldHoverInteractions({
     const hoverCacheKey = getHoverAnalysisCacheKey(current, target);
     const cachedHoverSnapshot =
       hoverAnalysisCacheRef.current.get(hoverCacheKey);
-    if (cachedHoverSnapshot) {
+    if (
+      cachedHoverSnapshot &&
+      cachedHoverSnapshot.analysisVersion === hoverAnalysisVersionRef.current
+    ) {
       canvas.style.cursor = cachedHoverSnapshot.clickable
         ? 'pointer'
         : 'default';
@@ -171,18 +224,18 @@ export function createWorldHoverInteractions({
       return;
     }
 
-    let tile: ReturnType<typeof getTileAt> | null = null;
+    let tile: ReturnType<typeof getResolvedTileAt> | null = null;
     let safePath: HexCoord[] | null = null;
     let actionable = false;
 
     if (distance === 1) {
-      tile = getTileAt(current, target);
-      actionable = isPassable(tile.terrain);
+      tile = getResolvedTileAt(current, target);
+      actionable = Boolean(tile && isPassable(tile.terrain));
     } else if (distance > 1 && withinVisibleMap) {
       safePath = getSafePathToTile(current, target);
       actionable = Boolean(safePath);
       if (actionable) {
-        tile = getTileAt(current, target);
+        tile = getResolvedTileAt(current, target);
       }
     }
 
@@ -211,6 +264,7 @@ export function createWorldHoverInteractions({
         const structureInfo = structureWorldTooltip(tile);
         if (!structureInfo) {
           const nextHoverSnapshot = {
+            analysisVersion: hoverAnalysisVersionRef.current,
             target,
             clickable: actionable,
             hoveredMove: actionable ? target : null,
@@ -240,6 +294,7 @@ export function createWorldHoverInteractions({
     }
 
     const nextHoverSnapshot = {
+      analysisVersion: hoverAnalysisVersionRef.current,
       target,
       clickable: actionable,
       hoveredMove: actionable ? target : null,
@@ -287,5 +342,7 @@ export function createWorldHoverInteractions({
     clearHoverState,
     dispose,
     queuePointerMove,
+    refreshHoverAnalysis,
+    resetHoverAnalysis,
   };
 }

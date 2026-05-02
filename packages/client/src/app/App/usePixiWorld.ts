@@ -9,27 +9,63 @@ import {
 } from 'react';
 import type { Application } from 'pixi.js';
 import type { TooltipPosition } from '@realmfall/ui';
-import { getVisibleTiles } from '../../game/stateSelectors';
+import { hexKey, hexesInRange } from '../../game/hex';
 import type { GameState, HexCoord } from '../../game/stateTypes';
-import { DEFAULT_WORLD_MAP_CAMERA } from '../../ui/world/worldMapCamera';
+import { type VisibleWorldTile } from '../../ui/world/visibleWorldTiles';
+import type { WorldMapCameraState } from '../../ui/world/worldMapCamera';
 import {
   normalizeWorldRenderFps,
   type GraphicsSettings,
 } from '../graphicsSettings';
 import type { TooltipState } from './types';
-import { reuseVisibleTilesIfUnchanged } from './selectors/reuseVisibleTilesIfUnchanged';
 import {
   createEmptyWorldHoverSnapshot,
   type WorldHoverSnapshot,
-} from './usePixiWorldHover';
+} from './world/worldHoverSnapshot';
+import type { WorldHoverAnalysisController } from './world/pixiWorldHoverInteractions';
 import type { WorldMapDragState } from './world/pixiWorldInteractions';
 import type { PixiWorldInitGraphicsSettings } from './world/pixiWorldBootstrap';
+import type { WorldTileResolutionOverlayEntry } from './world/tileResolution/worldTileResolutionCoordinator';
 import {
   createInitialWorldRenderSnapshot,
   type WorldRenderSnapshot,
 } from './world/worldRenderSnapshot';
+import type { WorldMovementAutoOpenSuppressionState } from './world/movement/worldMovementController';
 
-type VisibleTiles = ReturnType<typeof getVisibleTiles>;
+type VisibleWorldResolutionState = Pick<
+  GameState,
+  'bloodMoonActive' | 'radius' | 'seed'
+> & {
+  playerCoord: HexCoord;
+  resolvedTiles: GameState['tiles'];
+};
+
+interface TileResolutionCoordinator {
+  dispose(): Promise<void>;
+  syncVisibleCoords(state: VisibleWorldResolutionState): Promise<void>;
+}
+
+interface VisibleWorldTileBuildArgs {
+  overlay: ReadonlyMap<string, WorldTileResolutionOverlayEntry>;
+  playerCoord: HexCoord;
+  radius: GameState['radius'];
+  resolvedTiles: GameState['tiles'];
+}
+
+type BuildVisibleWorldTiles = (
+  args: VisibleWorldTileBuildArgs,
+) => VisibleWorldTile[];
+
+type ReuseVisibleTiles = (
+  previousVisibleTiles: VisibleWorldTile[],
+  nextVisibleTiles: VisibleWorldTile[],
+) => VisibleWorldTile[];
+
+const DEFAULT_WORLD_MAP_CAMERA: WorldMapCameraState = {
+  zoom: 1,
+  panX: 0,
+  panY: 0,
+};
 
 interface UsePixiWorldArgs {
   enabled: boolean;
@@ -41,6 +77,13 @@ interface UsePixiWorldArgs {
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
   setGame: Dispatch<SetStateAction<GameState>>;
   setTooltip: (nextTooltip: TooltipState | null) => void;
+}
+
+interface WorldMovementController {
+  clear(): void;
+  dispose(): void;
+  releaseCombatAutoOpenSuppression(): void;
+  replaceQueuedPath(nextSteps: HexCoord[]): void;
 }
 
 export function usePixiWorld({
@@ -62,7 +105,17 @@ export function usePixiWorld({
   );
   const worldTooltipKeyRef = useRef<string | null>(null);
   const playerCoordRef = useRef(game.player.coord);
-  const visibleTilesRef = useRef<VisibleTiles>(undefined!);
+  const resolutionCoordinatorRef = useRef<TileResolutionCoordinator | null>(
+    null,
+  );
+  const resolutionOverlayRef = useRef<
+    ReadonlyMap<string, WorldTileResolutionOverlayEntry>
+  >(new Map());
+  const buildVisibleTilesRef = useRef<BuildVisibleWorldTiles>(
+    buildResolvedVisibleWorldTiles,
+  );
+  const reuseVisibleTilesRef = useRef<ReuseVisibleTiles>((_, next) => next);
+  const visibleTilesRef = useRef<VisibleWorldTile[]>(undefined!);
   const hoverPointerRef = useRef<{ clientX: number; clientY: number } | null>(
     null,
   );
@@ -78,13 +131,22 @@ export function usePixiWorld({
   const hoverAnalysisCacheRef = useRef<Map<string, WorldHoverSnapshot>>(
     undefined!,
   );
+  const hoverAnalysisControllerRef =
+    useRef<WorldHoverAnalysisController | null>(null);
+  const hoverAnalysisVersionRef = useRef(0);
   const hoverSnapshotRef = useRef<WorldHoverSnapshot>(undefined!);
   const showTerrainBackgroundsRef = useRef(showTerrainBackgrounds);
   const worldRenderFpsRef = useRef(normalizeWorldRenderFps(worldRenderFps));
   const lastRenderSnapshotRef = useRef<WorldRenderSnapshot>(undefined!);
   const renderInvalidationRef = useRef(0);
+  const movementCooldownEndAtRef = useRef<number | null>(null);
+  const movementControllerRef = useRef<WorldMovementController | null>(null);
   const [canvasReady, setCanvasReady] = useState(false);
   const [canvasError, setCanvasError] = useState(false);
+  const [
+    queuedTravelAutoOpenSuppressionState,
+    setQueuedTravelAutoOpenSuppressionState,
+  ] = useState<WorldMovementAutoOpenSuppressionState>('idle');
   const [bootstrapAttempt, setBootstrapAttempt] = useState(0);
   const retryCanvas = useCallback(() => {
     setCanvasReady(false);
@@ -93,7 +155,12 @@ export function usePixiWorld({
   }, []);
 
   if (visibleTilesRef.current === undefined) {
-    visibleTilesRef.current = getVisibleTiles(game);
+    visibleTilesRef.current = buildVisibleTilesRef.current({
+      overlay: resolutionOverlayRef.current,
+      playerCoord: game.player.coord,
+      radius: game.radius,
+      resolvedTiles: game.tiles,
+    });
   }
 
   if (hoverAnalysisCacheRef.current === undefined) {
@@ -101,7 +168,9 @@ export function usePixiWorld({
   }
 
   if (hoverSnapshotRef.current === undefined) {
-    hoverSnapshotRef.current = createEmptyWorldHoverSnapshot();
+    hoverSnapshotRef.current = createEmptyWorldHoverSnapshot(
+      hoverAnalysisVersionRef.current,
+    );
   }
 
   if (lastRenderSnapshotRef.current === undefined) {
@@ -142,31 +211,214 @@ export function usePixiWorld({
   }, [worldRenderFps]);
 
   useEffect(() => {
-    const visibleTilesState = {
-      player: { coord: game.player.coord },
-      radius: game.radius,
-      seed: game.seed,
-      tiles: game.tiles,
+    if (!enabled) {
+      return;
+    }
+
+    if (resolutionCoordinatorRef.current !== null) {
+      return;
+    }
+
+    let disposed = false;
+    let coordinator: TileResolutionCoordinator | null = null;
+
+    const initializeCoordinator = async () => {
+      const [
+        { buildVisibleWorldTiles },
+        { reuseVisibleTilesIfUnchanged },
+        { hydrateResolvedWorldTilePayload },
+        { createLocalTileResolutionSource },
+        { createWorkerTileResolutionSource },
+        { createWorldTileResolutionCoordinator },
+      ] = await Promise.all([
+        import('./world/buildVisibleWorldTiles'),
+        import('./selectors/reuseVisibleTilesIfUnchanged'),
+        import('../../game/worldTileResolutionRuntime'),
+        import('./world/tileResolution/createLocalTileResolutionSource'),
+        import('./world/tileResolution/createWorkerTileResolutionSource'),
+        import('./world/tileResolution/worldTileResolutionCoordinator'),
+      ]);
+
+      if (disposed || resolutionCoordinatorRef.current !== null) {
+        return;
+      }
+
+      buildVisibleTilesRef.current = buildVisibleWorldTiles;
+      reuseVisibleTilesRef.current = reuseVisibleTilesIfUnchanged;
+      visibleTilesRef.current = reuseVisibleTilesRef.current(
+        visibleTilesRef.current,
+        buildVisibleTilesRef.current({
+          overlay: resolutionOverlayRef.current,
+          playerCoord: playerCoordRef.current,
+          radius: gameRef.current.radius,
+          resolvedTiles: gameRef.current.tiles,
+        }),
+      );
+      renderInvalidationRef.current += 1;
+
+      let source;
+      try {
+        source = createWorkerTileResolutionSource();
+      } catch {
+        source = createLocalTileResolutionSource();
+      }
+
+      coordinator = createWorldTileResolutionCoordinator({
+        now: () => performance.now(),
+        onMergeResolvedTiles: (payloads) => {
+          if (payloads.length === 0) {
+            return;
+          }
+
+          setGame((current) => {
+            const nextTiles = { ...current.tiles };
+            const nextEnemies = { ...current.enemies };
+
+            for (const resolvedPayload of payloads.map(
+              hydrateResolvedWorldTilePayload,
+            )) {
+              nextTiles[hexKey(resolvedPayload.coord)] = resolvedPayload.tile;
+              for (const enemy of resolvedPayload.enemies) {
+                nextEnemies[enemy.id] ??= enemy;
+              }
+            }
+
+            const nextGame = {
+              ...current,
+              tiles: nextTiles,
+              enemies: nextEnemies,
+            };
+            gameRef.current = nextGame;
+            return nextGame;
+          });
+        },
+        onOverlayChange: (overlay) => {
+          resolutionOverlayRef.current = overlay;
+          visibleTilesRef.current = reuseVisibleTilesRef.current(
+            visibleTilesRef.current,
+            buildVisibleTilesRef.current({
+              overlay,
+              playerCoord: playerCoordRef.current,
+              radius: gameRef.current.radius,
+              resolvedTiles: gameRef.current.tiles,
+            }),
+          );
+          renderInvalidationRef.current += 1;
+        },
+        source,
+      });
+
+      if (disposed) {
+        void coordinator.dispose();
+        coordinator = null;
+        return;
+      }
+
+      resolutionCoordinatorRef.current = coordinator;
+      try {
+        await syncTileResolutionCoordinator(coordinator, gameRef.current);
+      } catch (error) {
+        if (!disposed) {
+          console.error(error);
+        }
+      }
     };
+
+    void initializeCoordinator().catch((error: unknown) => {
+      if (!disposed) {
+        console.error(error);
+      }
+    });
+
+    return () => {
+      disposed = true;
+      if (resolutionCoordinatorRef.current === coordinator && coordinator) {
+        resolutionCoordinatorRef.current = null;
+      }
+      if (coordinator !== null) {
+        void coordinator.dispose();
+      }
+    };
+  }, [enabled, gameRef, setGame]);
+
+  useEffect(() => {
     playerCoordRef.current = game.player.coord;
-    visibleTilesRef.current = reuseVisibleTilesIfUnchanged(
+    visibleTilesRef.current = reuseVisibleTilesRef.current(
       visibleTilesRef.current,
-      visibleTilesState,
+      buildVisibleTilesRef.current({
+        overlay: resolutionOverlayRef.current,
+        playerCoord: game.player.coord,
+        radius: game.radius,
+        resolvedTiles: game.tiles,
+      }),
     );
-  }, [game.player.coord, game.radius, game.seed, game.tiles]);
+  }, [game.player.coord, game.radius, game.tiles]);
+
+  useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
+    const coordinator = resolutionCoordinatorRef.current;
+    if (!coordinator) {
+      return;
+    }
+
+    void coordinator
+      .syncVisibleCoords({
+        bloodMoonActive: game.bloodMoonActive,
+        playerCoord: game.player.coord,
+        radius: game.radius,
+        resolvedTiles: game.tiles,
+        seed: game.seed,
+      })
+      .catch((error: unknown) => {
+        console.error(error);
+      });
+  }, [
+    enabled,
+    game.bloodMoonActive,
+    game.player.coord,
+    game.radius,
+    game.seed,
+    game.tiles,
+  ]);
 
   useEffect(() => {
     selectedRef.current = game.player.coord;
+    const hoverAnalysisController = hoverAnalysisControllerRef.current;
+    if (hoverAnalysisController) {
+      hoverAnalysisController.resetHoverAnalysis();
+      return;
+    }
+
+    hoverAnalysisVersionRef.current += 1;
+    hoverAnalysisCacheRef.current.clear();
+    hoverPointerRef.current = null;
+    hoverSnapshotRef.current = createEmptyWorldHoverSnapshot(
+      hoverAnalysisVersionRef.current,
+    );
     hoveredMoveRef.current = null;
     hoveredSafePathRef.current = null;
-    hoverAnalysisCacheRef.current.clear();
-    hoverSnapshotRef.current = createEmptyWorldHoverSnapshot();
-    renderInvalidationRef.current += 1;
-  }, [game.player.coord]);
+    worldTooltipKeyRef.current = null;
+    tooltipPositionRef.current = null;
+    setTooltip(null);
+  }, [game.player.coord, setTooltip, tooltipPositionRef]);
 
   useEffect(() => {
-    hoverAnalysisCacheRef.current.clear();
-  }, [game.bloodMoonActive, game.combat, game.turn]);
+    hoverAnalysisControllerRef.current?.refreshHoverAnalysis();
+  }, [game.bloodMoonActive, game.combat, game.tiles, game.turn]);
+
+  useEffect(() => {
+    if (!game.combat) {
+      if (queuedTravelAutoOpenSuppressionState === 'combat') {
+        movementControllerRef.current?.releaseCombatAutoOpenSuppression();
+      }
+      return;
+    }
+
+    movementControllerRef.current?.clear();
+  }, [game.combat, queuedTravelAutoOpenSuppressionState]);
 
   useEffect(
     () => () => {
@@ -182,55 +434,84 @@ export function usePixiWorld({
 
     let disposed = false;
     let cleanup: (() => void) | null = null;
+    let movementController: WorldMovementController | null = null;
     const initGraphicsSettings = initGraphicsSettingsRef.current!;
     lastRenderSnapshotRef.current = createInitialWorldRenderSnapshot();
+    movementCooldownEndAtRef.current = null;
+    setQueuedTravelAutoOpenSuppressionState('idle');
     setCanvasReady(false);
     setCanvasError(false);
 
-    void import('./world/pixiWorldBootstrap')
-      .then(({ bootstrapPixiWorldCanvas }) =>
-        bootstrapPixiWorldCanvas({
-          appRef,
-          cameraSaveTimerRef,
-          dragStateRef,
-          gameRef,
-          hostRef,
-          hoverAnalysisCacheRef,
-          hoverFrameRef,
-          hoverPointerRef,
-          hoverSnapshotRef,
-          hoveredMoveRef,
-          hoveredSafePathRef,
-          initGraphicsSettings,
-          isDisposed: () => disposed,
-          lastRenderSnapshotRef,
-          onReady: (nextCleanup) => {
-            cleanup = () => {
-              nextCleanup();
-              setCanvasReady(false);
-            };
-            setCanvasReady(true);
-          },
-          pausedAnimationMsRef,
-          pausedRef,
-          playerCoordRef,
-          renderInvalidationRef,
-          selectedRef,
-          setGame,
-          setTooltip,
-          showTerrainBackgroundsRef,
-          worldRenderFpsRef,
-          tooltipPositionRef,
-          visibleTilesRef,
-          worldMapCameraRef,
-          worldTimeMsRef,
-          worldTooltipKeyRef,
-        }),
+    void Promise.all([
+      import('./world/pixiWorldBootstrap'),
+      import('./world/movement/createAppWorldMovementController'),
+    ])
+      .then(
+        ([
+          { bootstrapPixiWorldCanvas },
+          { createAppWorldMovementController },
+        ]) => {
+          movementController = createAppWorldMovementController({
+            gameRef,
+            movementCooldownEndAtRef,
+            onAutoOpenSuppressionStateChange:
+              setQueuedTravelAutoOpenSuppressionState,
+            renderInvalidationRef,
+            setGame,
+            worldTimeMsRef,
+          });
+          movementControllerRef.current = movementController;
+
+          return bootstrapPixiWorldCanvas({
+            appRef,
+            cameraSaveTimerRef,
+            dragStateRef,
+            gameRef,
+            hostRef,
+            hoverAnalysisCacheRef,
+            hoverAnalysisControllerRef,
+            hoverAnalysisVersionRef,
+            hoverFrameRef,
+            hoverPointerRef,
+            hoverSnapshotRef,
+            hoveredMoveRef,
+            hoveredSafePathRef,
+            initGraphicsSettings,
+            isDisposed: () => disposed,
+            lastRenderSnapshotRef,
+            onReady: (nextCleanup) => {
+              cleanup = () => {
+                nextCleanup();
+                setCanvasReady(false);
+              };
+              setCanvasReady(true);
+            },
+            pausedAnimationMsRef,
+            pausedRef,
+            playerCoordRef,
+            movementCooldownEndAtRef,
+            renderInvalidationRef,
+            selectedRef,
+            movementController,
+            setTooltip,
+            showTerrainBackgroundsRef,
+            worldRenderFpsRef,
+            tooltipPositionRef,
+            visibleTilesRef,
+            worldMapCameraRef,
+            worldTimeMsRef,
+            worldTooltipKeyRef,
+          });
+        },
       )
       .catch((error: unknown) => {
         if (disposed) return;
         console.error(error);
         cleanup?.();
+        movementController?.dispose();
+        if (movementControllerRef.current === movementController) {
+          movementControllerRef.current = null;
+        }
         appRef.current = null;
         setCanvasReady(false);
         setCanvasError(true);
@@ -239,6 +520,12 @@ export function usePixiWorld({
     return () => {
       disposed = true;
       cleanup?.();
+      movementController?.dispose();
+      if (movementControllerRef.current === movementController) {
+        movementControllerRef.current = null;
+      }
+      movementCooldownEndAtRef.current = null;
+      setQueuedTravelAutoOpenSuppressionState('idle');
     };
   }, [
     bootstrapAttempt,
@@ -250,7 +537,14 @@ export function usePixiWorld({
     worldTimeMsRef,
   ]);
 
-  return { hostRef, canvasReady, canvasError, retryCanvas };
+  return {
+    hostRef,
+    canvasReady,
+    canvasError,
+    retryCanvas,
+    queuedTravelAutoOpenSuppressed:
+      queuedTravelAutoOpenSuppressionState !== 'idle',
+  };
 }
 
 function getPixiInitGraphicsSettings(
@@ -265,4 +559,40 @@ function getPixiInitGraphicsSettings(
     resolutionCap: graphicsSettings.resolutionCap,
     useContextAlpha: graphicsSettings.useContextAlpha,
   };
+}
+
+function buildResolvedVisibleWorldTiles({
+  playerCoord,
+  radius,
+  resolvedTiles,
+}: VisibleWorldTileBuildArgs): VisibleWorldTile[] {
+  return hexesInRange(playerCoord, radius).map((coord) => {
+    const tile = resolvedTiles[hexKey(coord)];
+    return (
+      tile ?? {
+        coord,
+        requestedAt: 0,
+        unknown: true,
+        terrain: 'mountain',
+        items: [],
+        enemyIds: [],
+      }
+    );
+  });
+}
+
+function syncTileResolutionCoordinator(
+  coordinator: TileResolutionCoordinator,
+  game: Pick<
+    GameState,
+    'bloodMoonActive' | 'player' | 'radius' | 'seed' | 'tiles'
+  >,
+) {
+  return coordinator.syncVisibleCoords({
+    bloodMoonActive: game.bloodMoonActive,
+    playerCoord: game.player.coord,
+    radius: game.radius,
+    resolvedTiles: game.tiles,
+    seed: game.seed,
+  });
 }

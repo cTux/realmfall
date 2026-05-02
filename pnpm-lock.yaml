@@ -24,12 +24,21 @@ importers:
 
   packages/client:
     dependencies:
+      '@realmfall/common':
+        specifier: workspace:*
+        version: link:../common
       '@realmfall/ui':
         specifier: workspace:*
         version: link:../ui
       '@rexa-developer/tiks':
         specifier: ^0.1.8
         version: 0.1.8(react@19.2.5)
+      easy-cancelable-promise:
+        specifier: ^2.0.1
+        version: 2.0.1
+      easy-web-worker:
+        specifier: ^7.0.5
+        version: 7.0.5(easy-cancelable-promise@2.0.1)
       pixi.js:
         specifier: ^8.18.1
         version: 8.18.1
@@ -3744,6 +3753,20 @@ packages:
       {
         integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==,
       }
+
+  easy-cancelable-promise@2.0.1:
+    resolution:
+      {
+        integrity: sha512-z9nWwEMh3oGkCO2KNlTRxJFyQRJDLvu7sdDr0dka8lR69a43z3l1zJMS8nGEgWThIethC9EScF0XIzYkDDWDEw==,
+      }
+
+  easy-web-worker@7.0.5:
+    resolution:
+      {
+        integrity: sha512-r5i2Uam47/HOY0uaCJdrHjaHAWvwiqaTt3nphvI/bv19ddyu5EtY4j+S7dMT1QRqLPv2u/R+18BJZsQONdZeoQ==,
+      }
+    peerDependencies:
+      easy-cancelable-promise: ^1.0.3
 
   electron-to-chromium@1.5.334:
     resolution:
@@ -9063,6 +9086,12 @@ snapshots:
   earcut@3.0.2: {}
 
   eastasianwidth@0.2.0: {}
+
+  easy-cancelable-promise@2.0.1: {}
+
+  easy-web-worker@7.0.5(easy-cancelable-promise@2.0.1):
+    dependencies:
+      easy-cancelable-promise: 2.0.1
 
   electron-to-chromium@1.5.334: {}
 
