@@ -247,7 +247,8 @@ const gameConfig = defineGameConfig({
   worldClock: {
     // Real milliseconds required for one complete 24-hour in-game day.
     dayDurationMs: 5 * 60_000,
-    // In-game time cost applied for each hex the player successfully crosses.
+    // Real-time cooldown applied after each hex the player successfully crosses.
+    moveHexCooldownMs: 1_000,
     moveHexDurationMs: 1_000,
   },
   worldGeneration: {

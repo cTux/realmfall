@@ -166,6 +166,7 @@ describe('game config schema', () => {
       },
       worldClock: {
         dayDurationMs: 1,
+        moveHexCooldownMs: 1,
         moveHexDurationMs: 1,
       },
       worldGeneration: {
@@ -329,7 +330,9 @@ describe('game config schema', () => {
     expect(defineGameConfig(sampleConfig)).toBe(sampleConfig);
   });
 
-  it('reuses the typed root config object in the runtime config surface', () => {
+  it('exposes the movement cooldown config through the runtime surface', () => {
     expect(GAME_CONFIG).toBe(rawGameConfig);
+    expect(rawGameConfig.worldClock.moveHexCooldownMs).toBe(1_000);
+    expect(GAME_CONFIG.worldClock.moveHexCooldownMs).toBe(1_000);
   });
 });
