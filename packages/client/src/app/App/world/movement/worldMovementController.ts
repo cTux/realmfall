@@ -3,6 +3,12 @@ import type { WorldMoveSource } from './worldMoveSource';
 
 type ScheduledRetryHandle = ReturnType<typeof setTimeout>;
 
+interface ActiveMoveRequest {
+  requestId: string;
+  requestedAtMs: number;
+  step: HexCoord;
+}
+
 export function createWorldMovementController({
   moveSource,
   now,
@@ -24,7 +30,7 @@ export function createWorldMovementController({
   let cooldownEndAtMs: number | null = null;
   let retryTimer: ScheduledRetryHandle | null = null;
   let requestSequence = 0;
-  let activeRequestId: string | null = null;
+  let activeRequest: ActiveMoveRequest | null = null;
   let disposed = false;
 
   const emitCooldownChange = (nextCooldownEndAtMs: number | null) => {
@@ -66,8 +72,18 @@ export function createWorldMovementController({
     emitCooldownChange(null);
   };
 
+  const syncCooldown = (deadlineMs: number) => {
+    if (deadlineMs <= now()) {
+      emitCooldownChange(null);
+      return 0;
+    }
+
+    emitCooldownChange(deadlineMs);
+    return Math.max(0, deadlineMs - now());
+  };
+
   const requestNextStep = async () => {
-    if (disposed || activeRequestId !== null) {
+    if (disposed || activeRequest !== null) {
       return;
     }
 
@@ -85,36 +101,68 @@ export function createWorldMovementController({
 
     requestSequence += 1;
     const requestId = `world-move-${requestSequence}`;
-    activeRequestId = requestId;
-
-    const response = await moveSource.requestMove({
+    const request = {
       requestId,
-      target: nextStep,
-    });
+      requestedAtMs: now(),
+      step: nextStep,
+    } satisfies ActiveMoveRequest;
+    activeRequest = request;
 
-    if (disposed || activeRequestId !== requestId) {
-      return;
-    }
+    try {
+      const response = await moveSource.requestMove({
+        requestId,
+        target: nextStep,
+      });
 
-    activeRequestId = null;
-    if (response.requestId !== requestId) {
-      return;
-    }
+      if (disposed || activeRequest?.requestId !== requestId) {
+        return;
+      }
 
-    if (!response.ok) {
-      emitCooldownChange(now() + response.remainingCooldownMs);
-      scheduleRetry(response.remainingCooldownMs);
-      return;
-    }
+      activeRequest = null;
+      if (response.requestId !== requestId) {
+        return;
+      }
 
-    if (queuedSteps[0]?.q === nextStep.q && queuedSteps[0]?.r === nextStep.r) {
-      queuedSteps = queuedSteps.slice(1);
-    }
-    applyApprovedStep(nextStep);
-    emitCooldownChange(now() + response.cooldownMs);
+      const cooldownDeadlineMs =
+        request.requestedAtMs +
+        (response.ok ? response.cooldownMs : response.remainingCooldownMs);
+      const retryDelayMs = syncCooldown(cooldownDeadlineMs);
 
-    if (queuedSteps.length > 0) {
-      scheduleRetry(response.cooldownMs);
+      if (!response.ok) {
+        if (queuedSteps.length > 0) {
+          if (retryDelayMs === 0) {
+            void requestNextStep();
+            return;
+          }
+
+          scheduleRetry(retryDelayMs);
+        }
+        return;
+      }
+
+      if (
+        queuedSteps[0]?.q === request.step.q &&
+        queuedSteps[0]?.r === request.step.r
+      ) {
+        queuedSteps = queuedSteps.slice(1);
+      }
+      applyApprovedStep(request.step);
+
+      if (queuedSteps.length > 0) {
+        if (retryDelayMs === 0) {
+          void requestNextStep();
+          return;
+        }
+
+        scheduleRetry(retryDelayMs);
+      }
+    } catch {
+      if (disposed || activeRequest?.requestId !== requestId) {
+        return;
+      }
+
+      activeRequest = null;
+      clearCooldownIfExpired();
     }
   };
 
@@ -123,12 +171,11 @@ export function createWorldMovementController({
       queuedSteps = [...nextSteps];
       if (queuedSteps.length === 0) {
         clearRetryTimer();
-        activeRequestId = null;
         clearCooldownIfExpired();
         return;
       }
 
-      if (activeRequestId !== null || retryTimer !== null) {
+      if (activeRequest !== null || retryTimer !== null) {
         return;
       }
 
@@ -137,14 +184,13 @@ export function createWorldMovementController({
 
     clear() {
       clearQueuedPath();
-      activeRequestId = null;
       clearCooldownIfExpired();
     },
 
     dispose() {
       disposed = true;
       clearQueuedPath();
-      activeRequestId = null;
+      activeRequest = null;
       emitCooldownChange(null);
     },
   };
