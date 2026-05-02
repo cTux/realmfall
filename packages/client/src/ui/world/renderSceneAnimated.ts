@@ -5,7 +5,7 @@ import {
   renderCampfireLight,
   renderCloudLayer,
 } from './renderSceneEnvironment';
-import { configureShadowedSprite } from './renderScenePools';
+import { configureShadowedSprite, takeGraphics } from './renderScenePools';
 import { renderWorldOverlay } from './renderSceneAtmosphere';
 import {
   completeAnimatedSceneRender,
@@ -27,6 +27,11 @@ interface RenderAnimatedSceneOptions {
   lightingState: NonNullable<
     ReturnType<typeof import('./renderSceneAtmosphere').getLightingState>
   >;
+  movementCooldown: {
+    durationMs: number;
+    endAtMs: number;
+    nowMs: number;
+  } | null;
   origin: { x: number; y: number };
   playerIconSize: number;
 }
@@ -40,6 +45,7 @@ export function renderAnimatedScene({
   fullscreenVisualEffects,
   hexSize,
   lightingState,
+  movementCooldown,
   origin,
   playerIconSize,
 }: RenderAnimatedSceneOptions) {
@@ -72,6 +78,12 @@ export function renderAnimatedScene({
     lightingState.shadowOffset,
     origin,
   );
+  renderPlayerMovementCooldown({
+    scene,
+    origin,
+    playerIconSize,
+    movementCooldown,
+  });
 
   renderCloudLayer(
     app.screen,
@@ -96,4 +108,46 @@ export function renderAnimatedScene({
   );
   completeAnimatedSceneRender(scene);
   scene.animatedRenderToken = animatedRenderToken;
+}
+
+function renderPlayerMovementCooldown({
+  scene,
+  origin,
+  playerIconSize,
+  movementCooldown,
+}: {
+  scene: SceneCache;
+  origin: { x: number; y: number };
+  playerIconSize: number;
+  movementCooldown: {
+    durationMs: number;
+    endAtMs: number;
+    nowMs: number;
+  } | null;
+}) {
+  if (!movementCooldown) {
+    return;
+  }
+
+  const remainingMs = Math.max(
+    0,
+    movementCooldown.endAtMs - movementCooldown.nowMs,
+  );
+  if (remainingMs <= 0) {
+    return;
+  }
+
+  const progress = Math.min(1, remainingMs / movementCooldown.durationMs);
+  const width = playerIconSize * 0.9;
+  const height = Math.max(3, playerIconSize * 0.12);
+  const x = origin.x - width / 2;
+  const y = origin.y + playerIconSize * 0.46;
+
+  takeGraphics(scene.playerCooldownGraphics)
+    .rect(x, y, width, height)
+    .fill({ color: 0x422006, alpha: 0.85 });
+
+  takeGraphics(scene.playerCooldownGraphics)
+    .rect(x, y, width * progress, height)
+    .fill({ color: 0xfacc15, alpha: 0.95 });
 }

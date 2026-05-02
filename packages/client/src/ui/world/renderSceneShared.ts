@@ -54,10 +54,11 @@ export function registerAnimatedWorldMarker(
   height: number,
   tint: number,
   kind: WorldMarkerAnimationKind,
+  alpha = 1,
 ) {
   scene.animatedWorldMarkers.push(
     createAnimatedWorldMarker({
-      alpha: 1,
+      alpha,
       coord,
       entry,
       height,

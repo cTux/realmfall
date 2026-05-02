@@ -5,7 +5,7 @@ import {
   type MutableRefObject,
 } from 'react';
 import { canSellItem, isEquippableItem } from '../../../game/inventory';
-import { getCurrentTile } from '../../../game/stateSelectors';
+import { getResolvedCurrentTile } from '../../../game/stateSelectors';
 import type { GameState } from '../../../game/stateTypes';
 import {
   canModifyItem,
@@ -29,7 +29,9 @@ export function useItemContextMenuController({
   const handleContextItem = useCallback(
     (event: ReactMouseEvent<HTMLElement>, item: TooltipItem) => {
       event.preventDefault();
-      const currentStructure = getCurrentTile(gameRef.current).structure;
+      const currentStructure = getResolvedCurrentTile(
+        gameRef.current,
+      )?.structure;
       const reforgeOptions =
         currentStructure === 'rune-forge' &&
         isEquippableItem(item) &&

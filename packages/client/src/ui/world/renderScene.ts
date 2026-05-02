@@ -1,5 +1,4 @@
 import { type Application } from 'pixi.js';
-import { getVisibleTiles } from '../../game/stateSelectors';
 import { hexKey } from '../../game/hex';
 import type { GameState, HexCoord } from '../../game/stateTypes';
 import { recordPixiRenderCounts } from '../../performance/performanceHarness';
@@ -34,16 +33,24 @@ import {
   DEFAULT_WORLD_RENDER_FPS,
   getWorldRenderFrameMs,
 } from './renderCadence';
+import type { VisibleWorldTile } from './visibleWorldTiles';
 
 interface RenderSceneOptions {
   showTerrainBackgrounds?: boolean;
   worldRenderFps?: number;
+  movementCooldown?: RenderSceneMovementCooldown | null;
+}
+
+interface RenderSceneMovementCooldown {
+  durationMs: number;
+  endAtMs: number;
+  nowMs: number;
 }
 
 export function renderScene(
   app: Application,
   state: GameState,
-  visibleTiles: ReturnType<typeof getVisibleTiles>,
+  visibleTiles: VisibleWorldTile[],
   selected: HexCoord,
   hoveredMove: HexCoord | null,
   worldTimeMinutes = 12 * 60,
@@ -68,6 +75,7 @@ export function renderScene(
   const worldRenderFrameMs = getWorldRenderFrameMs(
     options.worldRenderFps ?? DEFAULT_WORLD_RENDER_FPS,
   );
+  const movementCooldown = options.movementCooldown ?? null;
 
   if (WORLD_MAP_FISHEYE_ENABLED) {
     scene.worldMapFilterArea.width = app.screen.width;
@@ -82,15 +90,24 @@ export function renderScene(
     state,
     animationMs,
   );
-  const animatedRenderToken = getAnimatedRenderToken(
-    state,
-    animationMs,
-    fullscreenVisualEffects.renderToken,
-    worldRenderFrameMs,
-  );
+  const animatedRenderToken = [
+    getAnimatedRenderToken(
+      state,
+      animationMs,
+      fullscreenVisualEffects.renderToken,
+      worldRenderFrameMs,
+    ),
+    getMovementCooldownRenderToken(movementCooldown, worldRenderFrameMs),
+  ].join(':');
   const shouldRenderAnimated =
     screenChanged || scene.animatedRenderToken !== animatedRenderToken;
-  const renderTokens = getSceneRenderTokens(scene, state, visibleTiles);
+  const renderTokens = getSceneRenderTokens(
+    scene,
+    state,
+    visibleTiles,
+    animationMs,
+    worldRenderFrameMs,
+  );
   const shouldRenderStatic =
     screenChanged || scene.staticRenderToken !== renderTokens.static;
   const shouldRenderInteraction =
@@ -154,6 +171,7 @@ export function renderScene(
       hoveredMove,
       hoveredSafePathKeys,
       origin,
+      animationMs,
       scene,
       selected,
       shadowOffset,
@@ -196,6 +214,7 @@ export function renderScene(
       fullscreenVisualEffects,
       hexSize,
       lightingState,
+      movementCooldown,
       origin,
       playerIconSize,
       scene,
@@ -203,4 +222,20 @@ export function renderScene(
   }
 
   recordPixiRenderCounts(scene.renderCounts);
+}
+
+function getMovementCooldownRenderToken(
+  movementCooldown: RenderSceneMovementCooldown | null,
+  worldRenderFrameMs: number,
+) {
+  if (!movementCooldown) {
+    return -1;
+  }
+
+  return Math.max(
+    0,
+    Math.ceil(
+      (movementCooldown.endAtMs - movementCooldown.nowMs) / worldRenderFrameMs,
+    ),
+  );
 }

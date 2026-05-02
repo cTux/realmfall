@@ -40,6 +40,35 @@ export function isUnknownVisibleWorldTile(
   return tile.unknown === true;
 }
 
+export function getVisibleWorldTileRevealProgress(
+  tile: VisibleWorldTile,
+  animationMs: number,
+) {
+  if (isUnknownVisibleWorldTile(tile)) {
+    return 0;
+  }
+
+  if (tile.resolvedAt == null) {
+    return 1;
+  }
+
+  return Math.max(
+    0,
+    Math.min(1, (animationMs - tile.resolvedAt) / WORLD_HEX_REVEAL_DURATION_MS),
+  );
+}
+
+export function isVisibleWorldTileRevealActive(
+  tile: VisibleWorldTile,
+  animationMs: number,
+) {
+  return (
+    !isUnknownVisibleWorldTile(tile) &&
+    tile.resolvedAt != null &&
+    animationMs < tile.resolvedAt + WORLD_HEX_REVEAL_DURATION_MS
+  );
+}
+
 export function getVisibleWorldTileRenderKey(tile: VisibleWorldTile) {
   if (isUnknownVisibleWorldTile(tile)) {
     return `${hexKey(tile.coord)}|unknown|${tile.requestedAt}`;

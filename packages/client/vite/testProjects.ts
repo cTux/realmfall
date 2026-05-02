@@ -4,11 +4,13 @@ export const VITEST_NODE_INCLUDE = [
   'src/game/**/*.test.ts',
   'src/app/App/tests/reuseVisibleTilesIfUnchanged.test.ts',
   'src/app/App/world/pixiWorldClickNavigation.test.ts',
+  'src/app/App/world/pixiWorldRenderLoop.test.ts',
   'src/app/App/world/movement/**/*.test.ts',
   'src/app/App/world/tileResolution/**/*.test.ts',
   'src/i18n/**/*.test.ts',
   'src/persistence/**/*.test.ts',
   'scripts/**/*.test.ts',
+  'src/ui/world/renderSceneMovementCooldown.test.ts',
 ];
 
 const VITEST_CANVAS_EXCLUDE = [

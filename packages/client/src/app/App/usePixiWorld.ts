@@ -12,7 +12,7 @@ import type { TooltipPosition } from '@realmfall/ui';
 import { hexKey, hexesInRange } from '../../game/hex';
 import type { GameState, HexCoord } from '../../game/stateTypes';
 import { type VisibleWorldTile } from '../../ui/world/visibleWorldTiles';
-import { DEFAULT_WORLD_MAP_CAMERA } from '../../ui/world/worldMapCamera';
+import type { WorldMapCameraState } from '../../ui/world/worldMapCamera';
 import {
   normalizeWorldRenderFps,
   type GraphicsSettings,
@@ -21,7 +21,8 @@ import type { TooltipState } from './types';
 import {
   createEmptyWorldHoverSnapshot,
   type WorldHoverSnapshot,
-} from './usePixiWorldHover';
+} from './world/worldHoverSnapshot';
+import type { WorldHoverAnalysisController } from './world/pixiWorldHoverInteractions';
 import type { WorldMapDragState } from './world/pixiWorldInteractions';
 import type { PixiWorldInitGraphicsSettings } from './world/pixiWorldBootstrap';
 import type { WorldTileResolutionOverlayEntry } from './world/tileResolution/worldTileResolutionCoordinator';
@@ -58,6 +59,12 @@ type ReuseVisibleTiles = (
   previousVisibleTiles: VisibleWorldTile[],
   nextVisibleTiles: VisibleWorldTile[],
 ) => VisibleWorldTile[];
+
+const DEFAULT_WORLD_MAP_CAMERA: WorldMapCameraState = {
+  zoom: 1,
+  panX: 0,
+  panY: 0,
+};
 
 interface UsePixiWorldArgs {
   enabled: boolean;
@@ -122,6 +129,9 @@ export function usePixiWorld({
   const hoverAnalysisCacheRef = useRef<Map<string, WorldHoverSnapshot>>(
     undefined!,
   );
+  const hoverAnalysisControllerRef =
+    useRef<WorldHoverAnalysisController | null>(null);
+  const hoverAnalysisVersionRef = useRef(0);
   const hoverSnapshotRef = useRef<WorldHoverSnapshot>(undefined!);
   const showTerrainBackgroundsRef = useRef(showTerrainBackgrounds);
   const worldRenderFpsRef = useRef(normalizeWorldRenderFps(worldRenderFps));
@@ -152,7 +162,9 @@ export function usePixiWorld({
   }
 
   if (hoverSnapshotRef.current === undefined) {
-    hoverSnapshotRef.current = createEmptyWorldHoverSnapshot();
+    hoverSnapshotRef.current = createEmptyWorldHoverSnapshot(
+      hoverAnalysisVersionRef.current,
+    );
   }
 
   if (lastRenderSnapshotRef.current === undefined) {
@@ -368,16 +380,28 @@ export function usePixiWorld({
 
   useEffect(() => {
     selectedRef.current = game.player.coord;
+    const hoverAnalysisController = hoverAnalysisControllerRef.current;
+    if (hoverAnalysisController) {
+      hoverAnalysisController.resetHoverAnalysis();
+      return;
+    }
+
+    hoverAnalysisVersionRef.current += 1;
+    hoverAnalysisCacheRef.current.clear();
+    hoverPointerRef.current = null;
+    hoverSnapshotRef.current = createEmptyWorldHoverSnapshot(
+      hoverAnalysisVersionRef.current,
+    );
     hoveredMoveRef.current = null;
     hoveredSafePathRef.current = null;
-    hoverAnalysisCacheRef.current.clear();
-    hoverSnapshotRef.current = createEmptyWorldHoverSnapshot();
-    renderInvalidationRef.current += 1;
-  }, [game.player.coord]);
+    worldTooltipKeyRef.current = null;
+    tooltipPositionRef.current = null;
+    setTooltip(null);
+  }, [game.player.coord, setTooltip, tooltipPositionRef]);
 
   useEffect(() => {
-    hoverAnalysisCacheRef.current.clear();
-  }, [game.bloodMoonActive, game.combat, game.turn]);
+    hoverAnalysisControllerRef.current?.refreshHoverAnalysis();
+  }, [game.bloodMoonActive, game.combat, game.tiles, game.turn]);
 
   useEffect(() => {
     if (!game.combat) {
@@ -433,6 +457,8 @@ export function usePixiWorld({
             gameRef,
             hostRef,
             hoverAnalysisCacheRef,
+            hoverAnalysisControllerRef,
+            hoverAnalysisVersionRef,
             hoverFrameRef,
             hoverPointerRef,
             hoverSnapshotRef,
@@ -451,6 +477,7 @@ export function usePixiWorld({
             pausedAnimationMsRef,
             pausedRef,
             playerCoordRef,
+            movementCooldownEndAtRef,
             renderInvalidationRef,
             selectedRef,
             movementController,
@@ -519,9 +546,18 @@ function buildResolvedVisibleWorldTiles({
   radius,
   resolvedTiles,
 }: VisibleWorldTileBuildArgs): VisibleWorldTile[] {
-  return hexesInRange(playerCoord, radius).flatMap((coord) => {
+  return hexesInRange(playerCoord, radius).map((coord) => {
     const tile = resolvedTiles[hexKey(coord)];
-    return tile ? [tile] : [];
+    return (
+      tile ?? {
+        coord,
+        requestedAt: 0,
+        unknown: true,
+        terrain: 'mountain',
+        items: [],
+        enemyIds: [],
+      }
+    );
   });
 }
 

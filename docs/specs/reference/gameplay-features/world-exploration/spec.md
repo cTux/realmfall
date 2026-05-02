@@ -22,6 +22,8 @@ This spec covers deterministic hex-world traversal, visibility, and safe-path tr
 - Manual movement is one adjacent hex at a time.
 - A safe-path move can route to a visible destination when a path exists.
 - Unrevealed distant world-map hexes do not trigger movement, tooltip, or pathfinding work until they fall inside the revealed travel radius.
+- Missing visible frontier hexes appear immediately as unknown placeholders, cannot be entered or pathfound through until resolved, and each successful movement step starts a real-time `1000 ms` movement cooldown before the next approved step.
+- Safe-path travel auto-continues one resolved hex at a time across cooldown windows and does not advance `worldTimeMs`.
 - Safe-path routing avoids impassable terrain and hostile occupied intermediate tiles, but it may end on a visible hostile destination so long-range travel can start combat there without stepping through danger first.
 - Movement is blocked while combat is active or when the run is over.
 

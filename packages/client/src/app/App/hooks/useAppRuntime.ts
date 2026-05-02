@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { getWorldDayIndex } from '../../../game/logs';
-import { getCurrentTile } from '../../../game/stateSelectors';
+import { getResolvedCurrentTile } from '../../../game/stateSelectors';
 import { useAppControllers } from '../useAppControllers';
 import { useAppGameView } from '../useAppGameView';
 import { useAppPersistence } from '../useAppPersistence';
@@ -18,10 +18,11 @@ import { useAppWorldClock } from './useAppWorldClock';
 
 export function useAppRuntime() {
   const bootstrap = useAppBootstrapState();
+  const resolvedCurrentTile = getResolvedCurrentTile(bootstrap.game);
   const controllers = useAppControllers({
     combat: bootstrap.game.combat,
-    currentTileItemsLength: getCurrentTile(bootstrap.game).items.length,
-    currentStructure: getCurrentTile(bootstrap.game).structure,
+    currentTileItemsLength: resolvedCurrentTile?.items.length ?? 0,
+    currentStructure: resolvedCurrentTile?.structure,
     equipment: bootstrap.game.player.equipment,
     inventory: bootstrap.game.player.inventory,
     playerCoord: bootstrap.game.player.coord,

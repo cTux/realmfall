@@ -10,6 +10,8 @@ export interface WorldRenderSnapshot {
   animationBucket: number;
   invalidationToken: number;
   iconTextureVersion: number;
+  movementCooldownEndAtMs: number | null;
+  movementCooldownRenderToken: number;
   showTerrainBackgrounds: boolean;
   worldRenderFps: number;
 }
@@ -24,6 +26,8 @@ export function createInitialWorldRenderSnapshot(): WorldRenderSnapshot {
     animationBucket: -1,
     invalidationToken: 0,
     iconTextureVersion: -1,
+    movementCooldownEndAtMs: null,
+    movementCooldownRenderToken: -1,
     showTerrainBackgrounds: true,
     worldRenderFps: 0,
   };

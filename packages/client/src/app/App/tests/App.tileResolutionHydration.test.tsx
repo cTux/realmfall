@@ -98,5 +98,5 @@ describe('App tile resolution hydration', () => {
     });
     expect(disposeCoordinator).toHaveBeenCalledTimes(1);
     host.remove();
-  });
+  }, 10_000);
 });

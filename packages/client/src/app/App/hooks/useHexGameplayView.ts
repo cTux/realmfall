@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { hexKey } from '../../../game/hex';
 import { isEquippableItem } from '../../../game/inventory';
 import {
   canModifyItem,
@@ -16,9 +15,14 @@ import {
   getHostileEnemyIds,
   getTownStockForDay,
 } from '../../../game/stateSelectors';
-import { getCurrentHexFactionNpcHealStatus } from '../../../game/stateFactionNpc';
+import { getResolvedCurrentHexClaimStatus } from '../../../game/stateClaims';
+import {
+  FACTION_NPC_HEAL_COST,
+  getCurrentHexFactionNpcHealStatus,
+} from '../../../game/stateFactionNpc';
+import { getResolvedTileAt } from '../../../game/stateWorldQueries';
 import type { GameState, Item } from '../../../game/stateTypes';
-import { buildTile, structureActionLabel } from '../../../game/world';
+import { structureActionLabel } from '../../../game/world';
 import { t } from '../../../i18n';
 
 interface UseHexGameplayViewOptions {
@@ -86,10 +90,20 @@ export function useHexGameplayView({
     }),
     [player, seed, tiles],
   );
+  const resolvedCurrentTile = useMemo(
+    () => getResolvedTileAt({ tiles }, coord),
+    [coord, tiles],
+  );
 
   const currentTile = useMemo(
-    () => tiles[hexKey(coord)] ?? buildTile(seed, coord),
-    [coord, seed, tiles],
+    () =>
+      resolvedCurrentTile ?? {
+        coord,
+        terrain: 'plains',
+        items: [],
+        enemyIds: [],
+      },
+    [coord, resolvedCurrentTile],
   );
   const gold = useMemo(() => getGoldAmount(inventory), [inventory]);
   const hasUnlockedEquipmentInInventory = useMemo(
@@ -98,21 +112,26 @@ export function useHexGameplayView({
   );
   const townStock = useMemo(
     () =>
-      getTownStockForDay({
-        player: { coord },
-        seed,
-        tiles,
-        worldDayIndex,
-      }),
-    [coord, seed, tiles, worldDayIndex],
+      resolvedCurrentTile
+        ? getTownStockForDay({
+            player: { coord },
+            seed,
+            tiles,
+            worldDayIndex,
+          })
+        : [],
+    [coord, resolvedCurrentTile, seed, tiles, worldDayIndex],
   );
   const combatEnemies = useMemo(
     () => (combat ? getEnemiesAt(enemyLookupInput, combat.coord) : []),
     [combat, enemyLookupInput],
   );
   const currentTileHostileEnemyCount = useMemo(
-    () => getHostileEnemyIds(enemyLookupInput, currentTile.coord).length,
-    [currentTile.coord, enemyLookupInput],
+    () =>
+      resolvedCurrentTile
+        ? getHostileEnemyIds(enemyLookupInput, resolvedCurrentTile.coord).length
+        : 0,
+    [enemyLookupInput, resolvedCurrentTile],
   );
   const canBulkProspectEquipment =
     currentTile.structure === 'forge' && hasUnlockedEquipmentInInventory;
@@ -183,12 +202,19 @@ export function useHexGameplayView({
       : null;
   const interactLabel = structureActionLabel(currentTile.structure);
   const claimStatus = useMemo(
-    () => getCurrentHexClaimStatus(claimStatusInput),
+    () => getResolvedCurrentHexClaimStatus(claimStatusInput),
     [claimStatusInput],
   );
   const territoryNpcHealStatus = useMemo(
-    () => getCurrentHexFactionNpcHealStatus(factionNpcHealStatusInput),
-    [factionNpcHealStatusInput],
+    () =>
+      resolvedCurrentTile
+        ? getCurrentHexFactionNpcHealStatus(factionNpcHealStatusInput)
+        : {
+            canHeal: false,
+            cost: FACTION_NPC_HEAL_COST,
+            reason: t('game.message.factionNpcHeal.noResident'),
+          },
+    [factionNpcHealStatusInput, resolvedCurrentTile],
   );
 
   return {

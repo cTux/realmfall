@@ -11,6 +11,7 @@ import {
 import type { TooltipState } from '../types';
 import type { WorldHoverSnapshot } from '../usePixiWorldHover';
 import type { WorldMapDragState } from './pixiWorldInteractions';
+import type { WorldHoverAnalysisController } from './pixiWorldHoverInteractions';
 import type { WorldRenderSnapshot } from './worldRenderSnapshot';
 
 export type PixiWorldInitGraphicsSettings = Pick<
@@ -39,6 +40,8 @@ interface BootstrapPixiWorldCanvasArgs {
   gameRef: MutableRefObject<GameState>;
   hostRef: MutableRefObject<HTMLDivElement | null>;
   hoverAnalysisCacheRef: MutableRefObject<Map<string, WorldHoverSnapshot>>;
+  hoverAnalysisControllerRef: MutableRefObject<WorldHoverAnalysisController | null>;
+  hoverAnalysisVersionRef: MutableRefObject<number>;
   hoverFrameRef: MutableRefObject<number | null>;
   hoverPointerRef: MutableRefObject<{
     clientX: number;
@@ -54,6 +57,7 @@ interface BootstrapPixiWorldCanvasArgs {
   pausedAnimationMsRef: MutableRefObject<number | null>;
   pausedRef: MutableRefObject<boolean>;
   playerCoordRef: MutableRefObject<HexCoord>;
+  movementCooldownEndAtRef: MutableRefObject<number | null>;
   renderInvalidationRef: MutableRefObject<number>;
   selectedRef: MutableRefObject<HexCoord>;
   movementController: WorldMovementController;
@@ -74,6 +78,8 @@ export async function bootstrapPixiWorldCanvas({
   gameRef,
   hostRef,
   hoverAnalysisCacheRef,
+  hoverAnalysisControllerRef,
+  hoverAnalysisVersionRef,
   hoverFrameRef,
   hoverPointerRef,
   hoverSnapshotRef,
@@ -86,6 +92,7 @@ export async function bootstrapPixiWorldCanvas({
   pausedAnimationMsRef,
   pausedRef,
   playerCoordRef,
+  movementCooldownEndAtRef,
   renderInvalidationRef,
   selectedRef,
   movementController,
@@ -210,6 +217,7 @@ export async function bootstrapPixiWorldCanvas({
     worldTimeMsRef,
     renderInvalidationRef,
     lastRenderSnapshotRef,
+    movementCooldownEndAtRef,
   });
 
   resize();
@@ -243,6 +251,8 @@ export async function bootstrapPixiWorldCanvas({
     getScenePoint,
     getWorldMapContainer,
     hoverAnalysisCacheRef,
+    hoverAnalysisControllerRef,
+    hoverAnalysisVersionRef,
     hoverFrameRef,
     hoverPointerRef,
     hoverSnapshotRef,

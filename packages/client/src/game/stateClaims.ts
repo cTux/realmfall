@@ -6,10 +6,12 @@ import { isWorldBossFootprintOccupied } from './stateWorldBoss';
 import {
   getCurrentTile,
   getPlayerClaimedTiles,
+  getResolvedCurrentTile,
   getTileAt,
 } from './stateWorldQueries';
 import type { GameState, Item } from './types';
 import { isPlayerClaim } from './territories';
+import { isWorldBossEnemyId } from './worldBoss';
 
 type ClaimStatusState = Pick<
   GameState,
@@ -63,7 +65,51 @@ function canUnclaimWithoutSplittingTerritory(
 
 export function getCurrentHexClaimStatus(state: ClaimStatusState) {
   const tile = getCurrentTile(state);
-  const playerClaims = getPlayerClaimedTiles(state);
+  return getClaimStatusCore({
+    claimState: state,
+    isNeighborOtherClaimed: (coord) => {
+      const neighborTile = getTileAt(state, coord);
+      return Boolean(neighborTile.claim && !isPlayerClaim(neighborTile.claim));
+    },
+    isWorldBossOccupied: (coord) => isWorldBossFootprintOccupied(state, coord),
+    tile,
+  });
+}
+
+export function getResolvedCurrentHexClaimStatus(state: ClaimStatusState) {
+  const tile = getResolvedCurrentTile(state);
+  if (!tile) {
+    return {
+      action: 'none' as const,
+      canClaim: false,
+      reason: t('game.message.travel.unknownHex'),
+    };
+  }
+
+  return getClaimStatusCore({
+    claimState: state,
+    isNeighborOtherClaimed: (coord) => {
+      const neighborTile = state.tiles[hexKey(coord)];
+      return Boolean(neighborTile?.claim && !isPlayerClaim(neighborTile.claim));
+    },
+    isWorldBossOccupied: (coord) =>
+      isResolvedWorldBossFootprintOccupied(state, coord),
+    tile,
+  });
+}
+
+function getClaimStatusCore({
+  claimState,
+  isNeighborOtherClaimed,
+  isWorldBossOccupied,
+  tile,
+}: {
+  claimState: ClaimStatusState;
+  isNeighborOtherClaimed: (coord: HexCoord) => boolean;
+  isWorldBossOccupied: (coord: HexCoord) => boolean;
+  tile: NonNullable<ReturnType<typeof getResolvedCurrentTile>>;
+}) {
+  const playerClaims = getPlayerClaimedTiles(claimState);
   if (tile.claim) {
     if (isPlayerClaim(tile.claim)) {
       return canUnclaimWithoutSplittingTerritory(playerClaims, tile.coord)
@@ -100,7 +146,7 @@ export function getCurrentHexClaimStatus(state: ClaimStatusState) {
     tile.structure ||
     tile.enemyIds.length > 0 ||
     tile.items.length > 0 ||
-    isWorldBossFootprintOccupied(state, tile.coord)
+    isWorldBossOccupied(tile.coord)
   ) {
     return {
       action: 'none' as const,
@@ -112,7 +158,7 @@ export function getCurrentHexClaimStatus(state: ClaimStatusState) {
   if (
     playerClaims.length > 0 &&
     !hexNeighbors(tile.coord).some((neighbor) => {
-      const neighborTile = state.tiles[hexKey(neighbor)];
+      const neighborTile = claimState.tiles[hexKey(neighbor)];
       return isPlayerClaim(neighborTile?.claim);
     })
   ) {
@@ -125,8 +171,7 @@ export function getCurrentHexClaimStatus(state: ClaimStatusState) {
 
   if (
     hexNeighbors(tile.coord).some((neighbor) => {
-      const neighborTile = getTileAt(state, neighbor);
-      return neighborTile.claim && !isPlayerClaim(neighborTile.claim);
+      return isNeighborOtherClaimed(neighbor);
     })
   ) {
     return {
@@ -145,11 +190,11 @@ export function getCurrentHexClaimStatus(state: ClaimStatusState) {
   }
 
   const clothCount = countInventoryResource(
-    state.player.inventory,
+    claimState.player.inventory,
     ItemId.Cloth,
   );
   const stickCount = countInventoryResource(
-    state.player.inventory,
+    claimState.player.inventory,
     ItemId.Sticks,
   );
   if (clothCount < 1 || stickCount < 1) {
@@ -161,6 +206,22 @@ export function getCurrentHexClaimStatus(state: ClaimStatusState) {
   }
 
   return { action: 'claim' as const, canClaim: true, reason: null };
+}
+
+function isResolvedWorldBossFootprintOccupied(
+  state: Pick<GameState, 'tiles'>,
+  coord: HexCoord,
+) {
+  for (const candidate of [coord, ...hexNeighbors(coord)]) {
+    const enemyIds = state.tiles[hexKey(candidate)]?.enemyIds;
+    if (!enemyIds?.some(isWorldBossEnemyId)) {
+      continue;
+    }
+
+    return candidate.q !== coord.q || candidate.r !== coord.r;
+  }
+
+  return false;
 }
 
 function countInventoryResource(

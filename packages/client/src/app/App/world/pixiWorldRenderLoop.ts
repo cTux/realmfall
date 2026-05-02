@@ -1,5 +1,6 @@
 import type { MutableRefObject } from 'react';
 import type { Application } from 'pixi.js';
+import { WORLD_MOVE_HEX_COOLDOWN_MS } from '../../../game/config';
 import type { GameState, HexCoord } from '../../../game/stateTypes';
 import { getWorldTimeMinutesFromTimestamp } from '../../../game/worldTime';
 import { getWorldRenderFrameMs } from '../../../ui/world/renderCadence';
@@ -38,6 +39,7 @@ export function createWorldRenderFrame({
   worldTimeMsRef,
   renderInvalidationRef,
   lastRenderSnapshotRef,
+  movementCooldownEndAtRef,
 }: {
   app: Application;
   renderScene: RenderScene;
@@ -53,6 +55,7 @@ export function createWorldRenderFrame({
   worldTimeMsRef: MutableRefObject<number>;
   renderInvalidationRef: MutableRefObject<number>;
   lastRenderSnapshotRef: MutableRefObject<WorldRenderSnapshot>;
+  movementCooldownEndAtRef?: MutableRefObject<number | null>;
 }) {
   return () => {
     const currentGame = gameRef.current;
@@ -60,9 +63,10 @@ export function createWorldRenderFrame({
     const currentSelected = selectedRef.current;
     const currentHoveredMove = hoveredMoveRef.current;
     const currentHoveredSafePath = hoveredSafePathRef.current;
+    const wallClockMs = performance.now();
     const animationMs = pausedRef.current
-      ? (pausedAnimationMsRef.current ?? performance.now())
-      : performance.now();
+      ? (pausedAnimationMsRef.current ?? wallClockMs)
+      : wallClockMs;
     const worldRenderFps = normalizeWorldRenderFps(worldRenderFpsRef.current);
     const worldRenderFrameMs = getWorldRenderFrameMs(worldRenderFps);
     const animationBucket = Math.floor(animationMs / worldRenderFrameMs);
@@ -70,6 +74,12 @@ export function createWorldRenderFrame({
     const invalidationToken = renderInvalidationRef.current;
     const iconTextureVersion = getWorldIconTextureVersion();
     const showTerrainBackgrounds = showTerrainBackgroundsRef.current;
+    const movementCooldownEndAtMs = movementCooldownEndAtRef?.current ?? null;
+    const movementCooldownRenderToken = getMovementCooldownRenderToken({
+      endAtMs: movementCooldownEndAtMs,
+      nowMs: wallClockMs,
+      worldRenderFrameMs,
+    });
 
     if (
       lastRenderSnapshot.game === currentGame &&
@@ -77,6 +87,9 @@ export function createWorldRenderFrame({
       lastRenderSnapshot.animationBucket === animationBucket &&
       lastRenderSnapshot.invalidationToken === invalidationToken &&
       lastRenderSnapshot.iconTextureVersion === iconTextureVersion &&
+      lastRenderSnapshot.movementCooldownEndAtMs === movementCooldownEndAtMs &&
+      lastRenderSnapshot.movementCooldownRenderToken ===
+        movementCooldownRenderToken &&
       lastRenderSnapshot.showTerrainBackgrounds === showTerrainBackgrounds &&
       lastRenderSnapshot.worldRenderFps === worldRenderFps &&
       sameCoord(lastRenderSnapshot.selected, currentSelected) &&
@@ -95,9 +108,20 @@ export function createWorldRenderFrame({
       animationBucket,
       invalidationToken,
       iconTextureVersion,
+      movementCooldownEndAtMs,
+      movementCooldownRenderToken,
       showTerrainBackgrounds,
       worldRenderFps,
     };
+    const movementCooldown =
+      movementCooldownEndAtMs === null
+        ? null
+        : {
+            durationMs: WORLD_MOVE_HEX_COOLDOWN_MS,
+            endAtMs: movementCooldownEndAtMs,
+            nowMs: wallClockMs,
+          };
+
     renderScene(
       app,
       currentGame,
@@ -107,7 +131,9 @@ export function createWorldRenderFrame({
       getWorldTimeMinutesFromTimestamp(worldTimeMsRef.current),
       animationBucket * worldRenderFrameMs,
       currentHoveredSafePath,
-      { showTerrainBackgrounds, worldRenderFps },
+      movementCooldown
+        ? { showTerrainBackgrounds, worldRenderFps, movementCooldown }
+        : { showTerrainBackgrounds, worldRenderFps },
     );
   };
 }
@@ -122,4 +148,20 @@ function sameCoordList(left: HexCoord[] | null, right: HexCoord[] | null) {
   }
 
   return left.every((coord, index) => sameCoord(coord, right[index] ?? null));
+}
+
+function getMovementCooldownRenderToken({
+  endAtMs,
+  nowMs,
+  worldRenderFrameMs,
+}: {
+  endAtMs: number | null;
+  nowMs: number;
+  worldRenderFrameMs: number;
+}) {
+  if (endAtMs === null) {
+    return -1;
+  }
+
+  return Math.max(0, Math.ceil((endAtMs - nowMs) / worldRenderFrameMs));
 }

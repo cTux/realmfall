@@ -6,6 +6,7 @@ import { isWorldBossEnemyId } from './worldBoss';
 import type { Enemy, GameState, Tile } from './types';
 
 type WorldTileState = Pick<GameState, 'seed' | 'tiles'>;
+type ResolvedWorldTileState = Pick<GameState, 'tiles'>;
 export type VisibleTilesState = WorldTileState &
   Pick<GameState, 'radius'> & {
     player: Pick<GameState['player'], 'coord'>;
@@ -13,6 +14,9 @@ export type VisibleTilesState = WorldTileState &
 type EnemyLookupState = WorldTileState &
   Pick<GameState, 'bloodMoonActive' | 'enemies'>;
 type CurrentTileState = WorldTileState & {
+  player: Pick<GameState['player'], 'coord'>;
+};
+type ResolvedCurrentTileState = ResolvedWorldTileState & {
   player: Pick<GameState['player'], 'coord'>;
 };
 const playerClaimedTilesCache = new WeakMap<GameState['tiles'], Tile[]>();
@@ -31,7 +35,10 @@ export function getVisibleTiles(state: VisibleTilesState) {
   return tiles;
 }
 
-export function getResolvedTileAt(state: WorldTileState, coord: HexCoord) {
+export function getResolvedTileAt(
+  state: ResolvedWorldTileState,
+  coord: HexCoord,
+) {
   return state.tiles[hexKey(coord)] ?? null;
 }
 
@@ -41,6 +48,10 @@ export function getTileAt(state: WorldTileState, coord: HexCoord) {
 
 export function getCurrentTile(state: CurrentTileState) {
   return getTileAt(state, state.player.coord);
+}
+
+export function getResolvedCurrentTile(state: ResolvedCurrentTileState) {
+  return getResolvedTileAt(state, state.player.coord);
 }
 
 export function getPlayerClaimedTiles(state: Pick<GameState, 'tiles'>) {

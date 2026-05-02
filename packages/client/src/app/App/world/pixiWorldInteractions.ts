@@ -8,7 +8,10 @@ import type { TooltipState } from '../types';
 import { type WorldHoverSnapshot } from '../usePixiWorldHover';
 import { createWorldClickHandler } from './pixiWorldClickNavigation';
 import { createWorldMapCameraUpdateScheduler } from './pixiWorldCameraUpdateScheduler';
-import { createWorldHoverInteractions } from './pixiWorldHoverInteractions';
+import {
+  createWorldHoverInteractions,
+  type WorldHoverAnalysisController,
+} from './pixiWorldHoverInteractions';
 import { type WorldMapDragState } from './pixiWorldInteractionShared';
 import {
   beginWorldMapDrag,
@@ -41,6 +44,8 @@ export function attachPixiWorldInteractions({
   getScenePoint,
   getWorldMapContainer,
   hoverAnalysisCacheRef,
+  hoverAnalysisControllerRef,
+  hoverAnalysisVersionRef,
   hoverFrameRef,
   hoverPointerRef,
   hoverSnapshotRef,
@@ -66,6 +71,8 @@ export function attachPixiWorldInteractions({
   getScenePoint: WorldScenePointMapper;
   getWorldMapContainer: () => Container;
   hoverAnalysisCacheRef: MutableRefObject<Map<string, WorldHoverSnapshot>>;
+  hoverAnalysisControllerRef: MutableRefObject<WorldHoverAnalysisController | null>;
+  hoverAnalysisVersionRef: MutableRefObject<number>;
   hoverFrameRef: MutableRefObject<number | null>;
   hoverPointerRef: MutableRefObject<{
     clientX: number;
@@ -104,6 +111,7 @@ export function attachPixiWorldInteractions({
     gameRef,
     getScenePoint,
     hoverAnalysisCacheRef,
+    hoverAnalysisVersionRef,
     hoverFrameRef,
     hoverPointerRef,
     hoverSnapshotRef,
@@ -116,6 +124,7 @@ export function attachPixiWorldInteractions({
     tooltipPositionRef,
     worldTooltipKeyRef,
   });
+  hoverAnalysisControllerRef.current = hoverInteractions;
   const cameraUpdateScheduler = createWorldMapCameraUpdateScheduler({
     getWorldMapContainer,
     screen: app.screen,
@@ -196,6 +205,9 @@ export function attachPixiWorldInteractions({
   });
 
   return () => {
+    if (hoverAnalysisControllerRef.current === hoverInteractions) {
+      hoverAnalysisControllerRef.current = null;
+    }
     cameraUpdateScheduler.dispose();
     hoverInteractions.dispose();
     canvas.removeEventListener('pointerdown', onPointerDown as EventListener);
