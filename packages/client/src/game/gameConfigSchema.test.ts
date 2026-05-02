@@ -167,7 +167,6 @@ describe('game config schema', () => {
       worldClock: {
         dayDurationMs: 1,
         moveHexCooldownMs: 1,
-        moveHexDurationMs: 1,
       },
       worldGeneration: {
         terrain: {
@@ -334,5 +333,7 @@ describe('game config schema', () => {
     expect(GAME_CONFIG).toBe(rawGameConfig);
     expect(rawGameConfig.worldClock.moveHexCooldownMs).toBe(1_000);
     expect(GAME_CONFIG.worldClock.moveHexCooldownMs).toBe(1_000);
+    expect(rawGameConfig.worldClock).not.toHaveProperty('moveHexDurationMs');
+    expect(GAME_CONFIG.worldClock).not.toHaveProperty('moveHexDurationMs');
   });
 });

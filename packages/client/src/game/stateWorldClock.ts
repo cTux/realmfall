@@ -2,7 +2,7 @@ import { t } from '../i18n';
 import {
   BLOOD_MOON_CHANCE,
   HARVEST_MOON_CHANCE,
-  WORLD_MOVE_HEX_DURATION_MS,
+  WORLD_MOVE_HEX_COOLDOWN_MS,
 } from './config';
 import { syncEnemyBloodMoonState } from './combat';
 import {
@@ -30,7 +30,7 @@ export function advanceWorldTimeForMovement(state: GameState, steps = 1) {
     return state.worldTimeMs;
   }
 
-  return state.worldTimeMs + WORLD_MOVE_HEX_DURATION_MS * steps;
+  return state.worldTimeMs + WORLD_MOVE_HEX_COOLDOWN_MS * steps;
 }
 
 export function syncBloodMoon(

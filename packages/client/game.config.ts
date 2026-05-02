@@ -249,7 +249,6 @@ const gameConfig = defineGameConfig({
     dayDurationMs: 5 * 60_000,
     // Real-time cooldown applied after each hex the player successfully crosses.
     moveHexCooldownMs: 1_000,
-    moveHexDurationMs: 1_000,
   },
   worldGeneration: {
     terrain: {

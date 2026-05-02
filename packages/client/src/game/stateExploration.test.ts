@@ -70,7 +70,7 @@ describe('game state exploration', () => {
     expect(next.player.coord).toEqual(target);
     expect(next.turn).toBe(1);
     expect(next.worldTimeMs).toBeCloseTo(
-      game.worldTimeMs + GAME_CONFIG.worldClock.moveHexDurationMs,
+      game.worldTimeMs + GAME_CONFIG.worldClock.moveHexCooldownMs,
     );
     expect(next.logs[0]?.text).toMatch(/^\[Year 1, Day 1, 18:37\] /);
   });
@@ -200,7 +200,7 @@ describe('game state exploration', () => {
     expect(moved.player.coord).toEqual({ q: 2, r: 0 });
     expect(moved.turn).toBe(3);
     expect(moved.worldTimeMs).toBe(
-      12_345 + GAME_CONFIG.worldClock.moveHexDurationMs * 3,
+      12_345 + GAME_CONFIG.worldClock.moveHexCooldownMs * 3,
     );
     expect(
       moved.logs.filter((entry) => entry.kind === 'movement'),

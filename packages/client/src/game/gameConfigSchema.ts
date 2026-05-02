@@ -128,7 +128,6 @@ export interface GameConfig {
   worldClock: {
     dayDurationMs: number;
     moveHexCooldownMs: number;
-    moveHexDurationMs: number;
   };
   worldGeneration: {
     terrain: WeightedChanceMap<Terrain>;
