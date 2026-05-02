@@ -91,7 +91,9 @@ export function moveAlongSafePath(
   let next = state;
   for (const step of path) {
     next = moveToTile(next, step);
-    if (next === state || next.gameOver || next.combat) {
+    const endedOnStep =
+      next.player.coord.q === step.q && next.player.coord.r === step.r;
+    if (!endedOnStep || next.gameOver || next.combat) {
       return next;
     }
   }

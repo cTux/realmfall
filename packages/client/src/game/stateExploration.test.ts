@@ -204,6 +204,42 @@ describe('game state exploration', () => {
     ).toHaveLength(3);
   });
 
+  it('stops a safe path when a movement step respawns the player', () => {
+    const game = createGame(4, 'safe-path-respawn-stop-seed');
+    game.player.hp = 1;
+    game.player.hunger = 30;
+    game.player.thirst = 30;
+
+    game.tiles['1,-1'] = {
+      coord: { q: 1, r: -1 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+    game.tiles['2,-1'] = {
+      coord: { q: 2, r: -1 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+    game.tiles['2,0'] = {
+      coord: { q: 2, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+
+    const moved = moveAlongSafePath(game, { q: 2, r: 0 });
+
+    expect(moved.player.coord).toEqual(game.homeHex);
+    expect(moved.turn).toBe(1);
+    expect(
+      moved.logs.some((entry) =>
+        entry.text.includes('Move one hex at a time.'),
+      ),
+    ).toBe(false);
+  });
+
   it('does not safe-path through unresolved visible hexes', () => {
     const game = createGame(4, 'safe-path-unresolved-seed');
 
