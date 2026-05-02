@@ -1,5 +1,6 @@
 import { type Application } from 'pixi.js';
 import { hexKey } from '../../game/hex';
+import { getPlayerCombatStats } from '../../game/stateSelectors';
 import type { GameState, HexCoord } from '../../game/stateTypes';
 import { recordPixiRenderCounts } from '../../performance/performanceHarness';
 import {
@@ -29,6 +30,7 @@ import {
 } from './renderSceneShared';
 import { renderTilePasses } from './renderSceneTilePasses';
 import { renderAnimatedScene } from './renderSceneAnimated';
+import { renderPlayerResourceBars } from './renderScenePlayerBars';
 import {
   DEFAULT_WORLD_RENDER_FPS,
   getWorldRenderFrameMs,
@@ -76,6 +78,9 @@ export function renderScene(
     options.worldRenderFps ?? DEFAULT_WORLD_RENDER_FPS,
   );
   const movementCooldown = options.movementCooldown ?? null;
+  const playerCombatStats = getPlayerCombatStats(state.player);
+  const playerResourceRenderToken =
+    getPlayerResourceRenderToken(playerCombatStats);
 
   if (WORLD_MAP_FISHEYE_ENABLED) {
     scene.worldMapFilterArea.width = app.screen.width;
@@ -112,6 +117,7 @@ export function renderScene(
     screenChanged || scene.staticRenderToken !== renderTokens.static;
   const shouldRenderInteraction =
     shouldRenderStatic ||
+    scene.playerResourceRenderToken !== playerResourceRenderToken ||
     scene.interactionRenderToken !==
       renderTokens.interactionWithSelection(
         selected,
@@ -188,6 +194,16 @@ export function renderScene(
     });
   }
 
+  if (shouldRenderInteraction) {
+    renderPlayerResourceBars({
+      hexSize,
+      origin,
+      playerCombatStats,
+      playerIconSize,
+      scene,
+    });
+  }
+
   if (shouldRenderStatic) {
     completeStaticSceneRender(scene);
     scene.staticRenderToken = renderTokens.static;
@@ -200,6 +216,7 @@ export function renderScene(
       hoveredMove,
       hoveredSafePath,
     );
+    scene.playerResourceRenderToken = playerResourceRenderToken;
   }
 
   scene.screenWidth = app.screen.width;
@@ -238,4 +255,16 @@ function getMovementCooldownRenderToken(
       (movementCooldown.endAtMs - movementCooldown.nowMs) / worldRenderFrameMs,
     ),
   );
+}
+
+function getPlayerResourceRenderToken({
+  hp,
+  mana,
+  maxHp,
+  maxMana,
+}: Pick<
+  ReturnType<typeof getPlayerCombatStats>,
+  'hp' | 'mana' | 'maxHp' | 'maxMana'
+>) {
+  return [hp, maxHp, mana, maxMana].join(':');
 }
