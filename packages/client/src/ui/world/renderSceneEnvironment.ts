@@ -29,7 +29,7 @@ const CLOUD_SHADOW_LAYERS = [
   { scale: 1.14, alphaMultiplier: 0.34, offsetScale: 1.2 },
   { scale: 1.08, alphaMultiplier: 0.52, offsetScale: 1.65 },
 ] as const;
-const CLOUD_SHADOW_DROP_RATIO = 0.34;
+const CLOUD_SHADOW_DROP_RATIO = 0.42;
 
 export interface CloudRenderInput {
   scale: number;
@@ -60,7 +60,7 @@ export function buildCloudRenderInputs(worldSeed: string) {
       bobPhase: rng() * Math.PI * 2,
       bobAmplitude: 4 + rng() * 10,
       icon: WEATHER_ICONS[Math.floor(rng() * WEATHER_ICONS.length)],
-      shadowOpacity: 0.035 + rng() * 0.025,
+      shadowOpacity: 0.12 + rng() * 0.05,
       cloudOpacity: 0.34 + rng() * 0.12,
     });
   }

@@ -241,7 +241,30 @@ describe('renderScene atmosphere', () => {
 
     expect(
       firstShadow.position.y - firstCloud.position.y,
-    ).toBeGreaterThanOrEqual(24);
+    ).toBeGreaterThanOrEqual(48);
+  });
+
+  it('renders readable cloud shadows over the world map', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-cloud-shadow-opacity');
+    const app = createMockApp();
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      1600,
+    );
+
+    const strongestShadowAlphas = getCloudShadowLayer(app)
+      .children.filter((_, index) => index % 3 === 2)
+      .map((child) => (child as { alpha: number }).alpha);
+
+    expect(strongestShadowAlphas.length).toBeGreaterThan(0);
+    expect(Math.min(...strongestShadowAlphas)).toBeGreaterThanOrEqual(0.06);
   });
 
   it('covers hexes beyond the reveal radius with fog of war', async () => {
