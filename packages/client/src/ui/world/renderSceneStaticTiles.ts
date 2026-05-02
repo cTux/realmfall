@@ -31,6 +31,7 @@ export function renderStaticTile({
   point,
   poly,
   revealed,
+  appearanceAlpha,
   safePolygon,
   scene,
   shadowOffset,
@@ -53,6 +54,7 @@ export function renderStaticTile({
   point: { x: number; y: number };
   poly: number[];
   revealed: boolean;
+  appearanceAlpha: number;
   safePolygon: number[];
   scene: SceneCache;
   shadowOffset: { x: number; y: number };
@@ -71,18 +73,18 @@ export function renderStaticTile({
     (bossCoord) => visibleTileMap?.get(hexKey(bossCoord))?.enemyIds,
   );
   const isWorldBossFootprint = worldBossCenter !== null;
-  const fillAlpha = emphasized ? style.alpha : 0.8;
+  const fillAlpha = (emphasized ? style.alpha : 0.8) * appearanceAlpha;
   const shape = takeGraphics(scene.worldGroundGraphics);
   shape
     .poly(poly)
     .fill({ color: style.color, alpha: fillAlpha })
-    .stroke({ width: 1, color: 0x1e293b, alpha: 0.9 });
+    .stroke({ width: 1, color: 0x1e293b, alpha: 0.9 * appearanceAlpha });
 
   if (isHomeTile) {
     const homeTint = takeGraphics(scene.worldStaticDetailGraphics);
     homeTint.poly(safePolygon).fill({
       color: HOME_HEX_TINT_COLOR,
-      alpha: HOME_HEX_TINT_ALPHA,
+      alpha: HOME_HEX_TINT_ALPHA * appearanceAlpha,
     });
   }
 
@@ -90,13 +92,13 @@ export function renderStaticTile({
     const worldBossTint = takeGraphics(scene.worldStaticDetailGraphics);
     worldBossTint.poly(poly).fill({
       color: WORLD_BOSS_HEX_TINT_COLOR,
-      alpha: WORLD_BOSS_HEX_TINT_ALPHA,
+      alpha: WORLD_BOSS_HEX_TINT_ALPHA * appearanceAlpha,
     });
   }
 
   if (!revealed) {
     const fog = takeGraphics(scene.worldStaticDetailGraphics);
-    fog.poly(poly).fill({ color: 0x020617, alpha: 0.78 });
+    fog.poly(poly).fill({ color: 0x020617, alpha: 0.78 * appearanceAlpha });
     return;
   }
 
@@ -112,7 +114,7 @@ export function renderStaticTile({
       0xffffff,
       terrainArtSize,
       terrainArtSize,
-      (emphasized ? 0.84 : 0.76) * revealProgress,
+      (emphasized ? 0.84 : 0.76) * revealProgress * appearanceAlpha,
       point,
     );
   }
@@ -127,6 +129,7 @@ export function renderStaticTile({
       state,
       structureIconSize,
       tile,
+      appearanceAlpha,
       visibleTileMap,
       visibleTileRenderInput,
       worldBossIconSize,
@@ -140,6 +143,7 @@ export function renderStaticTile({
       tile,
       poly,
       visibleTileMap,
+      appearanceAlpha,
     );
   }
 

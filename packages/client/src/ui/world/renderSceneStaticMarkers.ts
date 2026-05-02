@@ -38,6 +38,7 @@ export function renderStaticMarkers({
   state,
   structureIconSize,
   tile,
+  appearanceAlpha,
   visibleTileMap,
   visibleTileRenderInput,
   worldBossIconSize,
@@ -50,15 +51,16 @@ export function renderStaticMarkers({
   state: GameState;
   structureIconSize: number;
   tile: VisibleWorldTile;
+  appearanceAlpha: number;
   visibleTileMap: Map<string, VisibleWorldTile> | null;
   visibleTileRenderInput: VisibleTileRenderInput;
   worldBossIconSize: number;
 }) {
   const revealProgress = getVisibleWorldTileRevealProgress(tile, animationMs);
-  const resolvedMarkerAlpha = revealProgress;
+  const resolvedMarkerAlpha = revealProgress * appearanceAlpha;
   const unknownMarkerAlpha = isUnknownVisibleWorldTile(tile)
-    ? 1
-    : 1 - revealProgress;
+    ? appearanceAlpha
+    : (1 - revealProgress) * appearanceAlpha;
 
   if (unknownMarkerAlpha > 0) {
     const marker = takeShadowedSprite(

@@ -64,6 +64,14 @@ export interface SceneCache {
   fullscreenEffectFill: Graphics;
   worldMap: Container;
   world: Container;
+  worldGround: Container;
+  worldStaticDetail: Container;
+  worldInteraction: Container;
+  worldBorders: Container;
+  worldAnimatedDetail: Container;
+  worldMarkers: Container;
+  worldMarkerBadges: Container;
+  worldPlayer: Container;
   waterfalls: Container;
   labels: Container;
   worldMapFilterArea: Rectangle;
@@ -190,6 +198,14 @@ export function getSceneCache(app: Application) {
     fullscreenEffectFill,
     worldMap,
     world,
+    worldGround,
+    worldStaticDetail,
+    worldInteraction,
+    worldBorders,
+    worldAnimatedDetail,
+    worldMarkers,
+    worldMarkerBadges,
+    worldPlayer,
     waterfalls,
     labels,
     worldMapFilterArea,
@@ -237,6 +253,27 @@ export function getSceneCache(app: Application) {
 
   cachedApp[SCENE_CACHE_KEY] = scene;
   return scene;
+}
+
+export function applyWorldSceneOffset(
+  scene: SceneCache,
+  offset: { x: number; y: number },
+) {
+  [
+    scene.worldGround,
+    scene.worldStaticDetail,
+    scene.worldInteraction,
+    scene.worldBorders,
+    scene.worldAnimatedDetail,
+    scene.worldMarkers,
+    scene.worldMarkerBadges,
+    scene.waterfalls,
+    scene.labels,
+  ].forEach((container) => {
+    container.position.set(offset.x, offset.y);
+  });
+
+  scene.worldPlayer.position.set(0, 0);
 }
 
 function createEmptySceneRenderCounts(): SceneRenderCounts {

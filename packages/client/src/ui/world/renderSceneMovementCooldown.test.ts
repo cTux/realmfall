@@ -4,10 +4,12 @@ import {
   collectDescendants,
   createMockApp,
   getPlayerLayer,
+  getWorldGroundLayer,
   MockGraphics,
+  MockSprite,
   setupRenderSceneTestEnvironment,
 } from './renderSceneTestHelpers';
-import { getWorldHexSize } from './renderSceneMath';
+import { getWorldHexSize, tileToPoint } from './renderSceneMath';
 
 setupRenderSceneTestEnvironment();
 
@@ -184,5 +186,141 @@ describe('renderScene movement cooldown', () => {
         return lastFillCall?.[0] === 0xfacc15;
       }),
     ).toBe(false);
+  });
+
+  it('offsets the world layers during the move animation while keeping the player layer fixed', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-move-transition');
+    const app = createMockApp();
+
+    game.player.coord = { q: 1, r: 0 };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        movementTransition: {
+          durationMs: 1_000,
+          fromCoord: { q: 0, r: 0 },
+          incomingTiles: [],
+          nowMs: 0,
+          outgoingTiles: [
+            {
+              coord: { q: -2, r: 0 },
+              enemyIds: [],
+              items: [],
+              terrain: 'plains',
+            },
+          ],
+          startedAtMs: 0,
+          toCoord: { q: 1, r: 0 },
+        },
+      } as never,
+    );
+
+    const expectedOffsetX =
+      getWorldHexSize(app.screen, game.radius) * Math.sqrt(3);
+    expect(getWorldGroundLayer(app).position.x).toBeCloseTo(expectedOffsetX, 4);
+    expect(getWorldGroundLayer(app).position.y).toBeCloseTo(0, 4);
+    expect(getPlayerLayer(app).position.x).toBe(0);
+    expect(getPlayerLayer(app).position.y).toBe(0);
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        movementTransition: {
+          durationMs: 1_000,
+          fromCoord: { q: 0, r: 0 },
+          incomingTiles: [],
+          nowMs: 1_000,
+          outgoingTiles: [
+            {
+              coord: { q: -2, r: 0 },
+              enemyIds: [],
+              items: [],
+              terrain: 'plains',
+            },
+          ],
+          startedAtMs: 0,
+          toCoord: { q: 1, r: 0 },
+        },
+      } as never,
+    );
+
+    expect(getWorldGroundLayer(app).position.x).toBeCloseTo(0, 4);
+    expect(getWorldGroundLayer(app).position.y).toBeCloseTo(0, 4);
+  });
+
+  it('keeps outgoing terrain art present and hides incoming terrain art at the start of the transition', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-move-transition-edge-tiles');
+    const app = createMockApp();
+
+    game.player.coord = { q: 1, r: 0 };
+
+    const visibleTiles = getVisibleTiles(game);
+    const incomingTile = visibleTiles.find(
+      (tile) => tile.coord.q === 3 && tile.coord.r === 0,
+    );
+    expect(incomingTile).toBeDefined();
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        movementTransition: {
+          durationMs: 1_000,
+          fromCoord: { q: 0, r: 0 },
+          incomingTiles: incomingTile ? [incomingTile] : [],
+          nowMs: 0,
+          outgoingTiles: [
+            {
+              coord: { q: -2, r: 0 },
+              enemyIds: [],
+              items: [],
+              terrain: 'plains',
+            },
+          ],
+          startedAtMs: 0,
+          toCoord: { q: 1, r: 0 },
+        },
+      } as never,
+    );
+
+    const terrainSprites = collectDescendants(getWorldGroundLayer(app)).filter(
+      (child): child is MockSprite =>
+        child instanceof MockSprite && child.visible,
+    );
+    const hexSize = getWorldHexSize(app.screen, game.radius);
+    const outgoingPoint = tileToPoint({ q: -3, r: 0 }, 400, 300, hexSize);
+    const incomingPoint = tileToPoint({ q: 2, r: 0 }, 400, 300, hexSize);
+    const findSpriteAt = (point: { x: number; y: number }) =>
+      terrainSprites.find(
+        (sprite) =>
+          Math.abs(sprite.position.x - point.x) < 0.01 &&
+          Math.abs(sprite.position.y - point.y) < 0.01,
+      );
+
+    expect(findSpriteAt(outgoingPoint)).toBeDefined();
+    expect(findSpriteAt(incomingPoint)?.alpha).toBeCloseTo(0, 4);
   });
 });

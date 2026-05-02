@@ -24,6 +24,10 @@ import {
   type WorldHoverSnapshot,
 } from '../usePixiWorldHover';
 import type { WorldScenePointMapper } from './pixiWorldCamera';
+import {
+  getWorldMovementTransitionSceneCenter,
+  type WorldMovementTransition,
+} from './movement/worldMovementTransition';
 
 type EnemyWorldTooltip =
   typeof import('../../../ui/world/worldTooltips').enemyWorldTooltip;
@@ -52,6 +56,7 @@ export function createWorldHoverInteractions({
   hoveredMoveRef,
   hoveredSafePathRef,
   playerCoordRef,
+  movementTransitionRef,
   renderInvalidationRef,
   setTooltip,
   structureWorldTooltip,
@@ -74,6 +79,7 @@ export function createWorldHoverInteractions({
   hoveredMoveRef: MutableRefObject<HexCoord | null>;
   hoveredSafePathRef: MutableRefObject<HexCoord[] | null>;
   playerCoordRef: MutableRefObject<HexCoord>;
+  movementTransitionRef?: MutableRefObject<WorldMovementTransition | null>;
   renderInvalidationRef: MutableRefObject<number>;
   setTooltip: (nextTooltip: TooltipState | null) => void;
   structureWorldTooltip: StructureWorldTooltip;
@@ -166,9 +172,15 @@ export function createWorldHoverInteractions({
   const processPointerMove = (clientX: number, clientY: number) => {
     const scenePoint = getScenePoint(clientX, clientY);
     const hexSize = getWorldHexSize(app.screen, gameRef.current.radius);
+    const worldCenter = getWorldMovementTransitionSceneCenter({
+      hexSize,
+      nowMs: performance.now(),
+      screen: app.screen,
+      transition: movementTransitionRef?.current ?? null,
+    });
     const hoveredOffset = hexAtPoint(scenePoint.x, scenePoint.y, {
-      centerX: app.screen.width / 2,
-      centerY: app.screen.height / 2,
+      centerX: worldCenter.x,
+      centerY: worldCenter.y,
       size: hexSize,
     });
     const target = {

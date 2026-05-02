@@ -36,6 +36,42 @@ describe('createWorldClickHandler', () => {
     expect(replaceQueuedPath).toHaveBeenCalledWith([{ q: 1, r: 0 }]);
   });
 
+  it('maps clicks against the animated world center during a move transition', () => {
+    const performanceNowSpy = vi.spyOn(performance, 'now').mockReturnValue(0);
+    const game = createGame(2, 'transition-click-command');
+    const replaceQueuedPath = vi.fn();
+    game.player.coord = { q: 1, r: 0 };
+
+    const handleClick = createWorldClickHandler({
+      app: app as never,
+      gameRef: { current: game },
+      getScenePoint: () => ({
+        x: app.screen.width / 2,
+        y: app.screen.height / 2,
+      }),
+      pausedRef: { current: false },
+      playerCoordRef: { current: game.player.coord },
+      renderInvalidationRef: { current: 0 },
+      selectedRef: { current: game.player.coord },
+      movementTransitionRef: {
+        current: {
+          durationMs: 1_000,
+          fromCoord: { q: 0, r: 0 },
+          incomingTiles: [],
+          outgoingTiles: [],
+          startedAtMs: 0,
+          toCoord: { q: 1, r: 0 },
+        },
+      },
+      movementController: { replaceQueuedPath },
+    });
+
+    handleClick(320, 240);
+
+    expect(replaceQueuedPath).toHaveBeenCalledWith([{ q: 0, r: 0 }]);
+    performanceNowSpy.mockRestore();
+  });
+
   it('does not queue movement when clicking an impassable adjacent tile', () => {
     const game = createGame(2, 'blocked-click-command');
     game.tiles['1,0'] = { ...game.tiles['1,0'], terrain: 'mountain' };

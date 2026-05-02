@@ -13,6 +13,7 @@ import type { WorldHoverSnapshot } from '../usePixiWorldHover';
 import type { WorldMapDragState } from './pixiWorldInteractions';
 import type { WorldHoverAnalysisController } from './pixiWorldHoverInteractions';
 import type { WorldRenderSnapshot } from './worldRenderSnapshot';
+import type { WorldMovementTransition } from './movement/worldMovementTransition';
 
 export type PixiWorldInitGraphicsSettings = Pick<
   GraphicsSettings,
@@ -58,6 +59,7 @@ interface BootstrapPixiWorldCanvasArgs {
   pausedRef: MutableRefObject<boolean>;
   playerCoordRef: MutableRefObject<HexCoord>;
   movementCooldownEndAtRef: MutableRefObject<number | null>;
+  movementTransitionRef: MutableRefObject<WorldMovementTransition | null>;
   renderInvalidationRef: MutableRefObject<number>;
   selectedRef: MutableRefObject<HexCoord>;
   movementController: WorldMovementController;
@@ -93,6 +95,7 @@ export async function bootstrapPixiWorldCanvas({
   pausedRef,
   playerCoordRef,
   movementCooldownEndAtRef,
+  movementTransitionRef,
   renderInvalidationRef,
   selectedRef,
   movementController,
@@ -218,6 +221,7 @@ export async function bootstrapPixiWorldCanvas({
     renderInvalidationRef,
     lastRenderSnapshotRef,
     movementCooldownEndAtRef,
+    movementTransitionRef,
   });
 
   resize();
@@ -261,6 +265,7 @@ export async function bootstrapPixiWorldCanvas({
     pausedRef,
     playerCoordRef,
     selectedRef,
+    movementTransitionRef,
     renderInvalidationRef,
     scheduleCameraSave,
     movementController,

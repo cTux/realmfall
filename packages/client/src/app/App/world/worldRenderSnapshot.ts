@@ -12,6 +12,7 @@ export interface WorldRenderSnapshot {
   iconTextureVersion: number;
   movementCooldownEndAtMs: number | null;
   movementCooldownRenderToken: number;
+  movementTransitionRenderToken: number;
   showTerrainBackgrounds: boolean;
   worldRenderFps: number;
 }
@@ -28,6 +29,7 @@ export function createInitialWorldRenderSnapshot(): WorldRenderSnapshot {
     iconTextureVersion: -1,
     movementCooldownEndAtMs: null,
     movementCooldownRenderToken: -1,
+    movementTransitionRenderToken: -1,
     showTerrainBackgrounds: true,
     worldRenderFps: 0,
   };

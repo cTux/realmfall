@@ -280,6 +280,14 @@ export function getPlayerLayer(app: MockApp) {
   return getWorld(app).children[7] as MockContainer;
 }
 
+export function getWorldGroundLayer(app: MockApp) {
+  return getWorld(app).children[0] as MockContainer;
+}
+
+export function getAnimatedDetailLayer(app: MockApp) {
+  return getWorld(app).children[4] as MockContainer;
+}
+
 export function getCloudLayer(app: MockApp) {
   return app.stage.children[5] as MockContainer;
 }

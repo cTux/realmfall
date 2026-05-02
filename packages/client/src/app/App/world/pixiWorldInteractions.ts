@@ -21,6 +21,7 @@ import {
 } from './pixiWorldMapDrag';
 import { createWorldMapWheelHandler } from './pixiWorldMapZoom';
 import type { WorldScenePointMapper } from './pixiWorldCamera';
+import type { WorldMovementTransition } from './movement/worldMovementTransition';
 
 export type { WorldMapDragState } from './pixiWorldInteractionShared';
 
@@ -54,6 +55,7 @@ export function attachPixiWorldInteractions({
   pausedRef,
   playerCoordRef,
   selectedRef,
+  movementTransitionRef,
   renderInvalidationRef,
   scheduleCameraSave,
   movementController,
@@ -84,6 +86,7 @@ export function attachPixiWorldInteractions({
   pausedRef: MutableRefObject<boolean>;
   playerCoordRef: MutableRefObject<HexCoord>;
   selectedRef: MutableRefObject<HexCoord>;
+  movementTransitionRef: MutableRefObject<WorldMovementTransition | null>;
   renderInvalidationRef: MutableRefObject<number>;
   scheduleCameraSave: () => void;
   movementController: WorldMovementController;
@@ -101,6 +104,7 @@ export function attachPixiWorldInteractions({
     playerCoordRef,
     renderInvalidationRef,
     selectedRef,
+    movementTransitionRef,
     movementController,
   });
 
@@ -118,6 +122,7 @@ export function attachPixiWorldInteractions({
     hoveredMoveRef,
     hoveredSafePathRef,
     playerCoordRef,
+    movementTransitionRef,
     renderInvalidationRef,
     setTooltip,
     structureWorldTooltip,

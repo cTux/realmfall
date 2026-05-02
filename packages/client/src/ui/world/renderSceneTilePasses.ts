@@ -21,6 +21,16 @@ import {
   type VisibleWorldTile,
 } from './visibleWorldTiles';
 
+interface MovementTransitionRenderState {
+  durationMs: number;
+  fromCoord: HexCoord;
+  incomingTiles: VisibleWorldTile[];
+  nowMs: number;
+  outgoingTiles: VisibleWorldTile[];
+  startedAtMs: number;
+  toCoord: HexCoord;
+}
+
 interface RenderTilePassesOptions {
   animationMs: number;
   enemyIconSize: number;
@@ -36,6 +46,7 @@ interface RenderTilePassesOptions {
   state: GameState;
   structureIconSize: number;
   terrainArtSize: number;
+  movementTransition: MovementTransitionRenderState | null;
   visibleTileMap: Map<string, VisibleWorldTile> | null;
   visibleTileRenderInputs: VisibleTileRenderInput[] | null;
   visibleTiles: VisibleWorldTile[];
@@ -58,6 +69,7 @@ export function renderTilePasses({
   state,
   structureIconSize,
   terrainArtSize,
+  movementTransition,
   visibleTileMap,
   visibleTileRenderInputs,
   visibleTiles,
@@ -65,18 +77,26 @@ export function renderTilePasses({
   scene,
 }: RenderTilePassesOptions) {
   const nextCampfireLightPoints: Array<{ x: number; y: number }> = [];
+  const movementTransitionState =
+    getMovementTransitionState(movementTransition);
 
   visibleTiles.forEach((tile, tileIndex) => {
+    const tileKey = hexKey(tile.coord);
     const distance = hexDistance(state.player.coord, tile.coord);
+    const isOutgoingTile =
+      movementTransitionState?.outgoingTileKeys.has(tileKey) ?? false;
     const isPlayerTile =
       tile.coord.q === state.player.coord.q &&
       tile.coord.r === state.player.coord.r;
     const clickable =
+      !isOutgoingTile &&
       distance === 1 &&
       !isUnknownVisibleWorldTile(tile) &&
       isPassable(tile.terrain);
     const emphasized = isPlayerTile;
-    const revealed = distance <= WORLD_REVEAL_RADIUS;
+    const revealed = isOutgoingTile || distance <= WORLD_REVEAL_RADIUS;
+    const appearanceAlpha =
+      getTileTransitionAlpha(movementTransitionState, tileKey) ?? 1;
     const relative = {
       q: tile.coord.q - state.player.coord.q,
       r: tile.coord.r - state.player.coord.r,
@@ -108,6 +128,7 @@ export function renderTilePasses({
         point,
         poly,
         revealed,
+        appearanceAlpha,
         safePolygon,
         scene,
         shadowOffset,
@@ -129,7 +150,7 @@ export function renderTilePasses({
       return;
     }
 
-    if (shouldRenderInteraction) {
+    if (shouldRenderInteraction && !isOutgoingTile) {
       renderInteractionTile({
         clickable,
         highlightedInSafePath,
@@ -149,4 +170,51 @@ export function renderTilePasses({
   if (shouldRenderStatic) {
     scene.campfireLightPoints = nextCampfireLightPoints;
   }
+}
+
+function getMovementTransitionState(
+  movementTransition: MovementTransitionRenderState | null,
+) {
+  if (!movementTransition) {
+    return null;
+  }
+
+  const progress = Math.max(
+    0,
+    Math.min(
+      1,
+      (movementTransition.nowMs - movementTransition.startedAtMs) /
+        movementTransition.durationMs,
+    ),
+  );
+
+  return {
+    incomingAlpha: progress,
+    incomingTileKeys: new Set(
+      movementTransition.incomingTiles.map((tile) => hexKey(tile.coord)),
+    ),
+    outgoingAlpha: 1 - progress,
+    outgoingTileKeys: new Set(
+      movementTransition.outgoingTiles.map((tile) => hexKey(tile.coord)),
+    ),
+  };
+}
+
+function getTileTransitionAlpha(
+  movementTransitionState: ReturnType<typeof getMovementTransitionState>,
+  tileKey: string,
+) {
+  if (!movementTransitionState) {
+    return null;
+  }
+
+  if (movementTransitionState.outgoingTileKeys.has(tileKey)) {
+    return movementTransitionState.outgoingAlpha;
+  }
+
+  if (movementTransitionState.incomingTileKeys.has(tileKey)) {
+    return movementTransitionState.incomingAlpha;
+  }
+
+  return 1;
 }

@@ -12,6 +12,11 @@ import {
 } from '../../graphicsSettings';
 import { sameCoord } from '../usePixiWorldHover';
 import type { WorldRenderSnapshot } from './worldRenderSnapshot';
+import {
+  getWorldMovementTransitionRenderState,
+  getWorldMovementTransitionRenderToken,
+  type WorldMovementTransition,
+} from './movement/worldMovementTransition';
 
 type RenderScene = typeof import('../../../ui/world/renderScene').renderScene;
 
@@ -40,6 +45,7 @@ export function createWorldRenderFrame({
   renderInvalidationRef,
   lastRenderSnapshotRef,
   movementCooldownEndAtRef,
+  movementTransitionRef,
 }: {
   app: Application;
   renderScene: RenderScene;
@@ -56,6 +62,7 @@ export function createWorldRenderFrame({
   renderInvalidationRef: MutableRefObject<number>;
   lastRenderSnapshotRef: MutableRefObject<WorldRenderSnapshot>;
   movementCooldownEndAtRef?: MutableRefObject<number | null>;
+  movementTransitionRef?: MutableRefObject<WorldMovementTransition | null>;
 }) {
   return () => {
     const currentGame = gameRef.current;
@@ -75,6 +82,13 @@ export function createWorldRenderFrame({
     const iconTextureVersion = getWorldIconTextureVersion();
     const showTerrainBackgrounds = showTerrainBackgroundsRef.current;
     const movementCooldownEndAtMs = movementCooldownEndAtRef?.current ?? null;
+    const movementTransitionRenderToken = getWorldMovementTransitionRenderToken(
+      {
+        transition: movementTransitionRef?.current ?? null,
+        nowMs: wallClockMs,
+        worldRenderFrameMs,
+      },
+    );
     const movementCooldownRenderToken = getMovementCooldownRenderToken({
       endAtMs: movementCooldownEndAtMs,
       nowMs: wallClockMs,
@@ -90,6 +104,8 @@ export function createWorldRenderFrame({
       lastRenderSnapshot.movementCooldownEndAtMs === movementCooldownEndAtMs &&
       lastRenderSnapshot.movementCooldownRenderToken ===
         movementCooldownRenderToken &&
+      lastRenderSnapshot.movementTransitionRenderToken ===
+        movementTransitionRenderToken &&
       lastRenderSnapshot.showTerrainBackgrounds === showTerrainBackgrounds &&
       lastRenderSnapshot.worldRenderFps === worldRenderFps &&
       sameCoord(lastRenderSnapshot.selected, currentSelected) &&
@@ -110,6 +126,7 @@ export function createWorldRenderFrame({
       iconTextureVersion,
       movementCooldownEndAtMs,
       movementCooldownRenderToken,
+      movementTransitionRenderToken,
       showTerrainBackgrounds,
       worldRenderFps,
     };
@@ -121,6 +138,10 @@ export function createWorldRenderFrame({
             endAtMs: movementCooldownEndAtMs,
             nowMs: wallClockMs,
           };
+    const movementTransition = getWorldMovementTransitionRenderState(
+      movementTransitionRef?.current ?? null,
+      wallClockMs,
+    );
 
     renderScene(
       app,
@@ -131,8 +152,13 @@ export function createWorldRenderFrame({
       getWorldTimeMinutesFromTimestamp(worldTimeMsRef.current),
       animationBucket * worldRenderFrameMs,
       currentHoveredSafePath,
-      movementCooldown
-        ? { showTerrainBackgrounds, worldRenderFps, movementCooldown }
+      movementCooldown || movementTransition
+        ? {
+            movementCooldown,
+            movementTransition,
+            showTerrainBackgrounds,
+            worldRenderFps,
+          }
         : { showTerrainBackgrounds, worldRenderFps },
     );
   };

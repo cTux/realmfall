@@ -4,6 +4,7 @@ import { getPlayerCombatStats } from '../../game/stateSelectors';
 import type { GameState, HexCoord } from '../../game/stateTypes';
 import { recordPixiRenderCounts } from '../../performance/performanceHarness';
 import {
+  applyWorldSceneOffset,
   beginAnimatedSceneRender,
   beginInteractionSceneRender,
   beginStaticSceneRender,
@@ -41,12 +42,23 @@ interface RenderSceneOptions {
   showTerrainBackgrounds?: boolean;
   worldRenderFps?: number;
   movementCooldown?: RenderSceneMovementCooldown | null;
+  movementTransition?: RenderSceneMovementTransition | null;
 }
 
 interface RenderSceneMovementCooldown {
   durationMs: number;
   endAtMs: number;
   nowMs: number;
+}
+
+interface RenderSceneMovementTransition {
+  durationMs: number;
+  fromCoord: HexCoord;
+  incomingTiles: VisibleWorldTile[];
+  nowMs: number;
+  outgoingTiles: VisibleWorldTile[];
+  startedAtMs: number;
+  toCoord: HexCoord;
 }
 
 export function renderScene(
@@ -78,9 +90,20 @@ export function renderScene(
     options.worldRenderFps ?? DEFAULT_WORLD_RENDER_FPS,
   );
   const movementCooldown = options.movementCooldown ?? null;
+  const movementTransition = options.movementTransition ?? null;
+  const movementTransitionRenderToken = getMovementTransitionRenderToken(
+    movementTransition,
+    worldRenderFrameMs,
+  );
   const playerCombatStats = getPlayerCombatStats(state.player);
   const playerResourceRenderToken =
     getPlayerResourceRenderToken(playerCombatStats);
+  const movementTransitionOffset = getMovementTransitionOffset(
+    movementTransition,
+    hexSize,
+  );
+
+  applyWorldSceneOffset(scene, movementTransitionOffset);
 
   if (WORLD_MAP_FISHEYE_ENABLED) {
     scene.worldMapFilterArea.width = app.screen.width;
@@ -106,15 +129,22 @@ export function renderScene(
   ].join(':');
   const shouldRenderAnimated =
     screenChanged || scene.animatedRenderToken !== animatedRenderToken;
+  const displayVisibleTiles = movementTransition
+    ? [...visibleTiles, ...movementTransition.outgoingTiles]
+    : visibleTiles;
   const renderTokens = getSceneRenderTokens(
     scene,
     state,
-    visibleTiles,
+    displayVisibleTiles,
     animationMs,
     worldRenderFrameMs,
   );
+  const staticRenderToken =
+    movementTransitionRenderToken === -1
+      ? renderTokens.static
+      : mixRenderToken(renderTokens.static, movementTransitionRenderToken);
   const shouldRenderStatic =
-    screenChanged || scene.staticRenderToken !== renderTokens.static;
+    screenChanged || scene.staticRenderToken !== staticRenderToken;
   const shouldRenderInteraction =
     shouldRenderStatic ||
     scene.playerResourceRenderToken !== playerResourceRenderToken ||
@@ -129,7 +159,9 @@ export function renderScene(
       ? new Set(hoveredSafePath.map((coord) => hexKey(coord)))
       : null;
   const visibleTileMap = shouldRenderStatic
-    ? new Map(visibleTiles.map((tile) => [hexKey(tile.coord), tile] as const))
+    ? new Map(
+        displayVisibleTiles.map((tile) => [hexKey(tile.coord), tile] as const),
+      )
     : null;
   const visibleTileRenderInputs = shouldRenderStatic
     ? renderTokens.visibleTileRenderInputs
@@ -187,9 +219,10 @@ export function renderScene(
       state,
       structureIconSize,
       terrainArtSize,
+      movementTransition,
       visibleTileMap,
       visibleTileRenderInputs,
-      visibleTiles,
+      visibleTiles: displayVisibleTiles,
       worldBossIconSize,
     });
   }
@@ -206,7 +239,7 @@ export function renderScene(
 
   if (shouldRenderStatic) {
     completeStaticSceneRender(scene);
-    scene.staticRenderToken = renderTokens.static;
+    scene.staticRenderToken = staticRenderToken;
   }
 
   if (shouldRenderInteraction) {
@@ -255,6 +288,89 @@ function getMovementCooldownRenderToken(
       (movementCooldown.endAtMs - movementCooldown.nowMs) / worldRenderFrameMs,
     ),
   );
+}
+
+function getMovementTransitionRenderToken(
+  movementTransition: RenderSceneMovementTransition | null,
+  worldRenderFrameMs: number,
+) {
+  if (!movementTransition) {
+    return -1;
+  }
+
+  return Math.max(
+    -1,
+    Math.ceil(
+      (movementTransition.startedAtMs +
+        movementTransition.durationMs -
+        movementTransition.nowMs) /
+        worldRenderFrameMs,
+    ),
+  );
+}
+
+function getMovementTransitionOffset(
+  movementTransition: RenderSceneMovementTransition | null,
+  hexSize: number,
+) {
+  if (!movementTransition) {
+    return { x: 0, y: 0 };
+  }
+
+  const progress = getMovementTransitionProgress(movementTransition);
+  if (progress === null) {
+    return { x: 0, y: 0 };
+  }
+
+  const remainingProgress = 1 - progress;
+
+  return getWorldHexSizeOffset({
+    hexSize,
+    q:
+      (movementTransition.toCoord.q - movementTransition.fromCoord.q) *
+      remainingProgress,
+    r:
+      (movementTransition.toCoord.r - movementTransition.fromCoord.r) *
+      remainingProgress,
+  });
+}
+
+function getMovementTransitionProgress(
+  movementTransition: RenderSceneMovementTransition,
+) {
+  const endAtMs =
+    movementTransition.startedAtMs + movementTransition.durationMs;
+  if (movementTransition.nowMs >= endAtMs) {
+    return null;
+  }
+
+  return Math.max(
+    0,
+    Math.min(
+      1,
+      (movementTransition.nowMs - movementTransition.startedAtMs) /
+        movementTransition.durationMs,
+    ),
+  );
+}
+
+function getWorldHexSizeOffset({
+  hexSize,
+  q,
+  r,
+}: {
+  hexSize: number;
+  q: number;
+  r: number;
+}) {
+  return {
+    x: hexSize * Math.sqrt(3) * (q + r / 2),
+    y: hexSize * 1.5 * r,
+  };
+}
+
+function mixRenderToken(token: number, value: number) {
+  return Math.imul(token ^ value, 16777619) >>> 0;
 }
 
 function getPlayerResourceRenderToken({

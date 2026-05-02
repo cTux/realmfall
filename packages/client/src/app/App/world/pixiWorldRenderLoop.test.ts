@@ -265,4 +265,68 @@ describe('pixiWorldRenderLoop', () => {
 
     performanceNowSpy.mockRestore();
   });
+
+  it('re-renders while a world movement transition is active and drops it after expiry', () => {
+    let now = 0;
+    const performanceNowSpy = vi
+      .spyOn(performance, 'now')
+      .mockImplementation(() => now);
+    const renderScene = vi.fn();
+    const renderFrame = createWorldRenderFrame({
+      app: {} as never,
+      renderScene,
+      gameRef: { current: { player: { coord: { q: 1, r: 0 } } } } as never,
+      visibleTilesRef: {
+        current: [{ coord: { q: 1, r: 0 }, terrain: 'plains' }],
+      } as never,
+      selectedRef: { current: { q: 1, r: 0 } } as never,
+      hoveredMoveRef: { current: null },
+      hoveredSafePathRef: { current: null },
+      showTerrainBackgroundsRef: { current: true },
+      worldRenderFpsRef: { current: DEFAULT_WORLD_RENDER_FPS },
+      pausedRef: { current: false },
+      pausedAnimationMsRef: { current: null },
+      worldTimeMsRef: { current: 0 },
+      renderInvalidationRef: { current: 0 },
+      lastRenderSnapshotRef: { current: createInitialWorldRenderSnapshot() },
+      movementTransitionRef: {
+        current: {
+          durationMs: 1_000,
+          fromCoord: { q: 0, r: 0 },
+          nowMs: 0,
+          outgoingTiles: [],
+          startedAtMs: 0,
+          toCoord: { q: 1, r: 0 },
+        },
+      },
+    } as never);
+
+    renderFrame();
+    renderFrame();
+
+    expect(renderScene).toHaveBeenCalledTimes(1);
+
+    now = 500;
+    renderFrame();
+
+    expect(renderScene).toHaveBeenCalledTimes(2);
+    expect(renderScene.mock.calls[1]?.[8]).toMatchObject({
+      movementTransition: {
+        durationMs: 1_000,
+        fromCoord: { q: 0, r: 0 },
+        nowMs: 500,
+        toCoord: { q: 1, r: 0 },
+      },
+    });
+
+    now = 1_000;
+    renderFrame();
+
+    expect(renderScene).toHaveBeenCalledTimes(3);
+    expect(renderScene.mock.calls[2]?.[8]).not.toHaveProperty(
+      'movementTransition',
+    );
+
+    performanceNowSpy.mockRestore();
+  });
 });
