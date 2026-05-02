@@ -1,5 +1,10 @@
+import { act } from 'react';
 import { createGame } from '../../../game/stateFactory';
-import { loadEncryptedState, renderApp } from './appTestHarness';
+import {
+  flushLazyModules,
+  loadEncryptedState,
+  renderApp,
+} from './appTestHarness';
 
 describe('App unknown hex bootstrap', () => {
   it('preloads the first world frame with unknown placeholders for missing visible tiles', async () => {
@@ -35,6 +40,7 @@ describe('App unknown hex bootstrap', () => {
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
 
     const { host, root } = await renderApp();
+    await flushLazyModules();
     expect(bootstrappedVisibleTiles).not.toBeNull();
 
     expect(bootstrappedVisibleTiles).toEqual(
@@ -54,7 +60,9 @@ describe('App unknown hex bootstrap', () => {
       ]),
     );
 
-    root.unmount();
+    await act(async () => {
+      root.unmount();
+    });
     host.remove();
   }, 10_000);
 });

@@ -9,6 +9,7 @@ interface UseCraftingRecipeBookPromotionArgs {
   playerCoord: GameState['player']['coord'];
   setPreferredRecipeSkill: Dispatch<SetStateAction<Skill | null>>;
   setWindowShown: Dispatch<SetStateAction<WindowVisibilityState>>;
+  suppressAutoOpen: boolean;
 }
 
 export function useCraftingRecipeBookPromotion({
@@ -16,18 +17,29 @@ export function useCraftingRecipeBookPromotion({
   playerCoord,
   setPreferredRecipeSkill,
   setWindowShown,
+  suppressAutoOpen,
 }: UseCraftingRecipeBookPromotionArgs) {
   const currentHexKey = hexKey(playerCoord);
   const previousHexKeyRef = useRef(currentHexKey);
+  const previousSuppressedRef = useRef(suppressAutoOpen);
 
   useEffect(() => {
     const previousHexKey = previousHexKeyRef.current;
+    const previousSuppressed = previousSuppressedRef.current;
     previousHexKeyRef.current = currentHexKey;
+    previousSuppressedRef.current = suppressAutoOpen;
 
-    if (previousHexKey === currentHexKey) return;
+    if (
+      suppressAutoOpen ||
+      (previousHexKey === currentHexKey && !previousSuppressed)
+    ) {
+      return;
+    }
 
     const preferredSkill = getRecipeSkillForStructure(currentStructure);
-    if (!preferredSkill) return;
+    if (!preferredSkill) {
+      return;
+    }
 
     setPreferredRecipeSkill(preferredSkill);
     setWindowShown((current) =>
@@ -38,5 +50,6 @@ export function useCraftingRecipeBookPromotion({
     currentStructure,
     setPreferredRecipeSkill,
     setWindowShown,
+    suppressAutoOpen,
   ]);
 }

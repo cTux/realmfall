@@ -12,6 +12,9 @@ This spec covers the client-side movement request boundary, real-time cooldown q
 - Approved steps apply immediately through `moveToTile` and do not advance `worldTimeMs`.
 - Multi-step travel auto-continues by requesting the next adjacent step after the active cooldown expires.
 - Clicking a new destination during cooldown replaces queued continuation without resetting the active cooldown.
+- Multi-step queued travel suppresses automatic `hexInfo`, recipe-book, and loot-window opening on intermediate transit hexes.
+- Replacing the queued destination during cooldown updates the final eligible destination and does not replay window opens from the abandoned path.
+- If combat starts on a queued step, the remaining queue clears immediately and combat continues from combat transition state.
 - Pixi renders a yellow cooldown indicator under the player icon from wall-clock time.
 
 ## Main Implementation Areas

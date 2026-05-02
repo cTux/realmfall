@@ -45,7 +45,10 @@ describe('createWorldMovementController', () => {
       getCurrentCoord: () => ({ q: 0, r: 0 }),
       schedule: (callback, delayMs) => setTimeout(callback, delayMs),
       clearScheduled: (timerId) => clearTimeout(timerId),
-      applyApprovedStep: (step) => appliedSteps.push(step),
+      applyApprovedStep: (step) => {
+        appliedSteps.push(step);
+        return { combatStarted: false };
+      },
       onCooldownChange,
     });
 
@@ -82,7 +85,10 @@ describe('createWorldMovementController', () => {
       getCurrentCoord: () => ({ q: 0, r: 0 }),
       schedule: (callback, delayMs) => setTimeout(callback, delayMs),
       clearScheduled: (timerId) => clearTimeout(timerId),
-      applyApprovedStep: (step) => appliedSteps.push(step),
+      applyApprovedStep: (step) => {
+        appliedSteps.push(step);
+        return { combatStarted: false };
+      },
       onCooldownChange: vi.fn(),
     });
 
@@ -122,6 +128,7 @@ describe('createWorldMovementController', () => {
         appliedSteps.push(step);
         currentCoord = step;
         now += 1;
+        return { combatStarted: false };
       },
       onCooldownChange: vi.fn(),
     });
@@ -169,6 +176,7 @@ describe('createWorldMovementController', () => {
       clearScheduled: (timerId) => clearTimeout(timerId),
       applyApprovedStep: (step) => {
         currentCoord = step;
+        return { combatStarted: false };
       },
       onCooldownChange: vi.fn(),
     });
@@ -214,6 +222,7 @@ describe('createWorldMovementController', () => {
       applyApprovedStep: (step) => {
         appliedSteps.push(step);
         currentCoord = step;
+        return { combatStarted: false };
       },
       onCooldownChange: vi.fn(),
     });
@@ -261,6 +270,7 @@ describe('createWorldMovementController', () => {
       clearScheduled: (timerId) => clearTimeout(timerId),
       applyApprovedStep: () => {
         currentCoord = { q: 1, r: 0 };
+        return { combatStarted: false };
       },
       onCooldownChange: vi.fn(),
     });
@@ -310,6 +320,7 @@ describe('createWorldMovementController', () => {
       clearScheduled: (timerId) => clearTimeout(timerId),
       applyApprovedStep: (step) => {
         currentCoord = step;
+        return { combatStarted: false };
       },
       onCooldownChange,
     });
@@ -364,7 +375,10 @@ describe('createWorldMovementController', () => {
       getCurrentCoord: () => ({ q: 0, r: 0 }),
       schedule: (callback, delayMs) => setTimeout(callback, delayMs),
       clearScheduled: (timerId) => clearTimeout(timerId),
-      applyApprovedStep: (step) => appliedSteps.push(step),
+      applyApprovedStep: (step) => {
+        appliedSteps.push(step);
+        return { combatStarted: false };
+      },
       onCooldownChange: vi.fn(),
     });
 
@@ -377,5 +391,100 @@ describe('createWorldMovementController', () => {
     expect(requestMove).toHaveBeenCalledTimes(2);
 
     controller.dispose();
+  });
+
+  it('keeps queued-travel suppression active until the final approved step', async () => {
+    vi.useFakeTimers();
+    let currentCoord: HexCoord = { q: 0, r: 0 };
+    const autoOpenSuppressionStates: string[] = [];
+    const requestMove = vi
+      .fn<WorldMoveSource['requestMove']>()
+      .mockImplementation(async (request) => ({
+        ok: true,
+        requestId: request.requestId,
+        cooldownMs: 1_000,
+      }));
+    const controller = createWorldMovementController({
+      moveSource: {
+        requestMove,
+      },
+      now: () => 0,
+      getCurrentCoord: () => currentCoord,
+      schedule: (callback, delayMs) => setTimeout(callback, delayMs),
+      clearScheduled: (timerId) => clearTimeout(timerId),
+      applyApprovedStep: (step) => {
+        currentCoord = step;
+        return { combatStarted: false };
+      },
+      onCooldownChange: vi.fn(),
+      onAutoOpenSuppressionStateChange: (state) => {
+        autoOpenSuppressionStates.push(state);
+      },
+    });
+
+    controller.replaceQueuedPath([
+      { q: 1, r: 0 },
+      { q: 2, r: 0 },
+    ]);
+    await flushMicrotasks();
+
+    expect(autoOpenSuppressionStates).toEqual(['travel']);
+
+    await vi.advanceTimersByTimeAsync(1_000);
+
+    expect(autoOpenSuppressionStates).toEqual(['travel', 'idle']);
+
+    controller.dispose();
+    vi.useRealTimers();
+  });
+
+  it('clears queued travel and keeps auto-open suppression on combat from a queued step', async () => {
+    vi.useFakeTimers();
+    let currentCoord: HexCoord = { q: 0, r: 0 };
+    const autoOpenSuppressionStates: string[] = [];
+    const requestMove = vi
+      .fn<WorldMoveSource['requestMove']>()
+      .mockImplementation(async (request) => ({
+        ok: true,
+        requestId: request.requestId,
+        cooldownMs: 1_000,
+      }));
+
+    const controller = createWorldMovementController({
+      moveSource: { requestMove },
+      now: () => 0,
+      getCurrentCoord: () => currentCoord,
+      schedule: (callback, delayMs) => setTimeout(callback, delayMs),
+      clearScheduled: (timerId) => clearTimeout(timerId),
+      applyApprovedStep: (step) => {
+        currentCoord = step;
+        return { combatStarted: true };
+      },
+      onCooldownChange: vi.fn(),
+      onAutoOpenSuppressionStateChange: (state) => {
+        autoOpenSuppressionStates.push(state);
+      },
+    });
+
+    controller.replaceQueuedPath([
+      { q: 1, r: 0 },
+      { q: 2, r: 0 },
+    ]);
+    await flushMicrotasks();
+
+    expect(currentCoord).toEqual({ q: 1, r: 0 });
+    expect(requestMove).toHaveBeenCalledTimes(1);
+    expect(autoOpenSuppressionStates).toEqual(['travel', 'combat']);
+
+    await vi.advanceTimersByTimeAsync(1_000);
+
+    expect(requestMove).toHaveBeenCalledTimes(1);
+    expect(autoOpenSuppressionStates).toEqual(['travel', 'combat']);
+
+    controller.releaseCombatAutoOpenSuppression();
+    expect(autoOpenSuppressionStates).toEqual(['travel', 'combat', 'idle']);
+
+    controller.dispose();
+    vi.useRealTimers();
   });
 });

@@ -17,6 +17,7 @@ import {
 let setGameRef: MutableRefObject<Dispatch<SetStateAction<GameState>> | null> = {
   current: null,
 };
+let queuedTravelAutoOpenSuppressed = false;
 
 function mockUsePixiWorld() {
   vi.doMock('../usePixiWorld', async () => {
@@ -33,6 +34,9 @@ function mockUsePixiWorld() {
         return {
           hostRef: react.useRef<HTMLDivElement | null>(null),
           canvasReady: true,
+          canvasError: false,
+          queuedTravelAutoOpenSuppressed,
+          retryCanvas: vi.fn(),
         };
       },
     };
@@ -42,6 +46,7 @@ function mockUsePixiWorld() {
 describe('App combat attention', () => {
   beforeEach(() => {
     setGameRef = { current: null };
+    queuedTravelAutoOpenSuppressed = false;
     mockUsePixiWorld();
   });
 
@@ -169,6 +174,32 @@ describe('App combat attention', () => {
     expect(host.textContent).toContain(
       stripBracketHotkeyLabel(t('ui.combat.startAction')),
     );
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  }, 10_000);
+
+  it('does not auto-open hex content on a suppressed combat move', async () => {
+    queuedTravelAutoOpenSuppressed = true;
+    const game = createHydratedAppGame();
+    loadEncryptedState.mockResolvedValue({ game, ui: {} });
+
+    const { host, root } = await renderApp();
+    await flushLazyModules();
+
+    await act(async () => {
+      setGameRef.current?.((current) =>
+        moveToTile(
+          { ...current, worldTimeMs: current.worldTimeMs },
+          { q: 1, r: 0 },
+        ),
+      );
+    });
+    await flushLazyModules();
+
+    expect(findHexContentDockButton(host)?.dataset.opened).toBe('false');
 
     await act(async () => {
       root.unmount();

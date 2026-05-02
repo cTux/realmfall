@@ -11,6 +11,7 @@ import {
 let setGameRef: MutableRefObject<Dispatch<SetStateAction<GameState>> | null> = {
   current: null,
 };
+let queuedTravelAutoOpenSuppressed = false;
 
 function mockUsePixiWorld() {
   vi.doMock('../usePixiWorld', async () => {
@@ -27,6 +28,9 @@ function mockUsePixiWorld() {
         return {
           hostRef: react.useRef<HTMLDivElement | null>(null),
           canvasReady: true,
+          canvasError: false,
+          queuedTravelAutoOpenSuppressed,
+          retryCanvas: vi.fn(),
         };
       },
     };
@@ -36,6 +40,7 @@ function mockUsePixiWorld() {
 describe('App recipe-book crafting structure attention', () => {
   beforeEach(() => {
     setGameRef = { current: null };
+    queuedTravelAutoOpenSuppressed = false;
     mockUsePixiWorld();
   });
 

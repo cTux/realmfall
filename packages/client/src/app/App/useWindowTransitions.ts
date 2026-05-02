@@ -5,18 +5,22 @@ interface UseWindowTransitionsOptions {
   combat: GameState['combat'];
   combatEnemies: Enemy[];
   currentTile: Tile;
+  suppressLootAutoOpen: boolean;
 }
 
 export function useWindowTransitions({
   combat,
   combatEnemies,
   currentTile,
+  suppressLootAutoOpen,
 }: UseWindowTransitionsOptions) {
   const lootWindowKey = useMemo(() => {
     if (currentTile.items.length === 0) return null;
     return `${currentTile.coord.q},${currentTile.coord.r}:${currentTile.items.map((item) => `${item.id}:${item.quantity}`).join('|')}`;
   }, [currentTile]);
-  const showLootWindow = Boolean(!combat && lootWindowKey);
+  const showLootWindow = Boolean(
+    !combat && lootWindowKey && !suppressLootAutoOpen,
+  );
 
   const [keepLootWindowMounted, setKeepLootWindowMounted] =
     useState(showLootWindow);

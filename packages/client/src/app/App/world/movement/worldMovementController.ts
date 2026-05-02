@@ -3,10 +3,19 @@ import type { WorldMoveSource } from './worldMoveSource';
 
 type ScheduledRetryHandle = ReturnType<typeof setTimeout>;
 
+export type WorldMovementAutoOpenSuppressionState =
+  | 'idle'
+  | 'travel'
+  | 'combat';
+
 interface ActiveMoveRequest {
   requestId: string;
   requestedAtMs: number;
   step: HexCoord;
+}
+
+interface ApplyApprovedStepResult {
+  combatStarted: boolean;
 }
 
 export function createWorldMovementController({
@@ -17,20 +26,25 @@ export function createWorldMovementController({
   clearScheduled,
   applyApprovedStep,
   onCooldownChange,
+  onAutoOpenSuppressionStateChange = () => undefined,
 }: {
   moveSource: WorldMoveSource;
   now: () => number;
   getCurrentCoord: () => HexCoord;
   schedule: (callback: () => void, delayMs: number) => ScheduledRetryHandle;
   clearScheduled: (timerId: ScheduledRetryHandle) => void;
-  applyApprovedStep: (step: HexCoord) => void;
+  applyApprovedStep: (step: HexCoord) => ApplyApprovedStepResult;
   onCooldownChange: (endAtMs: number | null) => void;
+  onAutoOpenSuppressionStateChange?: (
+    state: WorldMovementAutoOpenSuppressionState,
+  ) => void;
 }) {
   let queuedSteps: HexCoord[] = [];
   let cooldownEndAtMs: number | null = null;
   let retryTimer: ScheduledRetryHandle | null = null;
   let requestSequence = 0;
   let activeRequest: ActiveMoveRequest | null = null;
+  let autoOpenSuppressionState: WorldMovementAutoOpenSuppressionState = 'idle';
   let disposed = false;
 
   const emitCooldownChange = (nextCooldownEndAtMs: number | null) => {
@@ -40,6 +54,17 @@ export function createWorldMovementController({
 
     cooldownEndAtMs = nextCooldownEndAtMs;
     onCooldownChange(nextCooldownEndAtMs);
+  };
+
+  const emitAutoOpenSuppressionStateChange = (
+    nextState: WorldMovementAutoOpenSuppressionState,
+  ) => {
+    if (autoOpenSuppressionState === nextState) {
+      return;
+    }
+
+    autoOpenSuppressionState = nextState;
+    onAutoOpenSuppressionStateChange(nextState);
   };
 
   const clearRetryTimer = () => {
@@ -54,6 +79,15 @@ export function createWorldMovementController({
   const clearQueuedPath = () => {
     queuedSteps = [];
     clearRetryTimer();
+  };
+
+  const clearQueuedTravel = ({
+    nextAutoOpenSuppressionState = 'idle',
+  }: {
+    nextAutoOpenSuppressionState?: WorldMovementAutoOpenSuppressionState;
+  } = {}) => {
+    clearQueuedPath();
+    emitAutoOpenSuppressionStateChange(nextAutoOpenSuppressionState);
   };
 
   const scheduleRetry = (delayMs: number) => {
@@ -89,12 +123,13 @@ export function createWorldMovementController({
 
     const nextStep = queuedSteps[0];
     if (!nextStep) {
+      emitAutoOpenSuppressionStateChange('idle');
       emitCooldownChange(null);
       return;
     }
 
     if (hexDistance(getCurrentCoord(), nextStep) !== 1) {
-      clearQueuedPath();
+      clearQueuedTravel();
       emitCooldownChange(null);
       return;
     }
@@ -146,16 +181,25 @@ export function createWorldMovementController({
       ) {
         queuedSteps = queuedSteps.slice(1);
       }
-      applyApprovedStep(request.step);
 
-      if (queuedSteps.length > 0) {
-        if (retryDelayMs === 0) {
-          void requestNextStep();
-          return;
-        }
+      const appliedStep = applyApprovedStep(request.step);
 
-        scheduleRetry(retryDelayMs);
+      if (appliedStep.combatStarted) {
+        clearQueuedTravel({ nextAutoOpenSuppressionState: 'combat' });
+        return;
       }
+
+      if (queuedSteps.length === 0) {
+        emitAutoOpenSuppressionStateChange('idle');
+        return;
+      }
+
+      if (retryDelayMs === 0) {
+        void requestNextStep();
+        return;
+      }
+
+      scheduleRetry(retryDelayMs);
     } catch {
       if (disposed || activeRequest?.requestId !== requestId) {
         return;
@@ -171,8 +215,15 @@ export function createWorldMovementController({
       queuedSteps = [...nextSteps];
       if (queuedSteps.length === 0) {
         clearRetryTimer();
+        emitAutoOpenSuppressionStateChange('idle');
         clearCooldownIfExpired();
         return;
+      }
+
+      if (nextSteps.length > 1) {
+        emitAutoOpenSuppressionStateChange('travel');
+      } else if (autoOpenSuppressionState === 'travel') {
+        emitAutoOpenSuppressionStateChange('idle');
       }
 
       if (activeRequest !== null || retryTimer !== null) {
@@ -183,13 +234,24 @@ export function createWorldMovementController({
     },
 
     clear() {
-      clearQueuedPath();
+      clearQueuedTravel({
+        nextAutoOpenSuppressionState:
+          autoOpenSuppressionState === 'combat' ? 'combat' : 'idle',
+      });
       clearCooldownIfExpired();
+    },
+
+    releaseCombatAutoOpenSuppression() {
+      if (autoOpenSuppressionState !== 'combat') {
+        return;
+      }
+
+      emitAutoOpenSuppressionStateChange('idle');
     },
 
     dispose() {
       disposed = true;
-      clearQueuedPath();
+      clearQueuedTravel();
       activeRequest = null;
       emitCooldownChange(null);
     },

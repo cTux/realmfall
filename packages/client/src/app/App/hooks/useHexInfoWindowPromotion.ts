@@ -5,6 +5,7 @@ interface UseHexInfoWindowPromotionArgs {
   combatActive: boolean;
   currentLootAvailable: boolean;
   currentStructure: boolean;
+  suppressAutoOpen: boolean;
   setWindowShown: Dispatch<SetStateAction<WindowVisibilityState>>;
   windowShown: WindowVisibilityState;
 }
@@ -13,10 +14,15 @@ export function useHexInfoWindowPromotion({
   combatActive,
   currentLootAvailable,
   currentStructure,
+  suppressAutoOpen,
   setWindowShown,
   windowShown,
 }: UseHexInfoWindowPromotionArgs) {
   useEffect(() => {
+    if (suppressAutoOpen) {
+      return;
+    }
+
     setWindowShown((current) => {
       const shouldShowHexInfo =
         currentStructure ||
@@ -44,6 +50,7 @@ export function useHexInfoWindowPromotion({
     combatActive,
     currentLootAvailable,
     currentStructure,
+    suppressAutoOpen,
     setWindowShown,
     windowShown.combat,
     windowShown.loot,

@@ -14,9 +14,74 @@ import {
   renderTickerFrame,
 } from './appWorldMovementTestHelpers';
 
-describe('App world movement cooldown', () => {
-  it('moves one resolved hex per cooldown window while auto-continuing a queued path', async () => {
-    const game = createGame(3, 'app-movement-cooldown');
+describe('App queued travel window suppression', () => {
+  it('skips intermediate workshop auto-open and opens the recipe book on final arrival', async () => {
+    const game = createGame(3, 'queued-travel-final-workshop');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      items: [],
+      structure: 'workshop',
+      enemyIds: [],
+    };
+    game.tiles['2,0'] = {
+      coord: { q: 2, r: 0 },
+      terrain: 'plains',
+      items: [],
+      structure: 'workshop',
+      enemyIds: [],
+    };
+    loadEncryptedState.mockResolvedValue({ game, ui: {} });
+    const hexModule = await import('../../../game/hex');
+    const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
+    hexAtPointSpy.mockReturnValue({ q: 2, r: 0 });
+
+    try {
+      const { host, root } = await renderApp();
+      await flushLazyModules();
+
+      const canvas = await waitForAppSelector(host, 'canvas');
+      await clickWorldTile(canvas);
+      await flushLazyModules();
+      await renderTickerFrame();
+
+      expect(findRecipeBookDockButton(host)?.dataset.opened).toBe('false');
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1_000);
+      });
+      await flushLazyModules();
+      await flushLazyModules();
+      await renderTickerFrame();
+
+      expect(findRecipeBookDockButton(host)?.dataset.opened).toBe('true');
+      expect(getTab(host, 'Crafting')?.getAttribute('aria-selected')).toBe(
+        'true',
+      );
+
+      await act(async () => {
+        root.unmount();
+      });
+      host.remove();
+    } finally {
+      hexAtPointSpy.mockRestore();
+    }
+  }, 10_000);
+
+  it('clears queued travel on ambush and does not continue after cooldown expiry', async () => {
+    const { GAME_CONFIG } = await import('../../../game/config');
+    const previousAmbushChance = GAME_CONFIG.worldGeneration.ambush.chance;
+    GAME_CONFIG.worldGeneration.ambush.chance = 1;
+    const game = createGame(3, 'queued-travel-ambush');
+    game.dayPhase = 'night';
+    game.player.hunger = 100;
+    game.player.thirst = 100;
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
     game.tiles['2,0'] = {
       coord: { q: 2, r: 0 },
       terrain: 'plains',
@@ -35,101 +100,26 @@ describe('App world movement cooldown', () => {
       const canvas = await waitForAppSelector(host, 'canvas');
       await clickWorldTile(canvas);
       await flushLazyModules();
+      await flushLazyModules();
       await renderTickerFrame();
 
       expect(getRenderedGame()?.player.coord).toEqual({ q: 1, r: 0 });
+      expect(getRenderedGame()?.combat).not.toBeNull();
 
       await act(async () => {
-        await vi.advanceTimersByTimeAsync(999);
+        await vi.advanceTimersByTimeAsync(1_000);
       });
       await flushLazyModules();
       await renderTickerFrame();
 
       expect(getRenderedGame()?.player.coord).toEqual({ q: 1, r: 0 });
-
-      await act(async () => {
-        await vi.advanceTimersByTimeAsync(1);
-      });
-      await flushLazyModules();
-      await renderTickerFrame();
-
-      expect(getRenderedGame()?.player.coord).toEqual({ q: 2, r: 0 });
 
       await act(async () => {
         root.unmount();
       });
       host.remove();
     } finally {
-      hexAtPointSpy.mockRestore();
-    }
-  }, 10_000);
-
-  it('replaces queued travel during cooldown without resetting the active cooldown', async () => {
-    const game = createGame(3, 'app-movement-replacement');
-    game.tiles['2,0'] = {
-      coord: { q: 2, r: 0 },
-      terrain: 'plains',
-      items: [],
-      structure: 'workshop',
-      enemyIds: [],
-    };
-    game.tiles['1,-1'] = {
-      coord: { q: 1, r: -1 },
-      terrain: 'plains',
-      items: [],
-      structure: 'camp',
-      enemyIds: [],
-    };
-    loadEncryptedState.mockResolvedValue({ game, ui: {} });
-    const hexModule = await import('../../../game/hex');
-    const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
-    hexAtPointSpy
-      .mockReturnValueOnce({ q: 2, r: 0 })
-      .mockReturnValueOnce({ q: 0, r: -1 });
-
-    try {
-      const { host, root } = await renderApp();
-      await flushLazyModules();
-
-      const canvas = await waitForAppSelector(host, 'canvas');
-      await clickWorldTile(canvas);
-      await flushLazyModules();
-      await renderTickerFrame();
-
-      expect(getRenderedGame()?.player.coord).toEqual({ q: 1, r: 0 });
-
-      await act(async () => {
-        await vi.advanceTimersByTimeAsync(500);
-      });
-      await flushLazyModules();
-
-      await clickWorldTile(canvas);
-      await flushLazyModules();
-      await renderTickerFrame();
-
-      expect(getRenderedGame()?.player.coord).toEqual({ q: 1, r: 0 });
-
-      await act(async () => {
-        await vi.advanceTimersByTimeAsync(500);
-      });
-      await flushLazyModules();
-      await flushLazyModules();
-      await renderTickerFrame();
-
-      expect(getRenderedGame()?.player.coord).toEqual({ q: 1, r: -1 });
-      expect(findRecipeBookDockButton(host)?.dataset.opened).toBe('true');
-      expect(getTab(host, 'Cooking')?.getAttribute('aria-selected')).toBe(
-        'true',
-      );
-      expect(getTab(host, 'Crafting')?.getAttribute('aria-selected')).toBe(
-        'false',
-      );
-
-      await act(async () => {
-        root.unmount();
-      });
-      host.remove();
-    } finally {
+      GAME_CONFIG.worldGeneration.ambush.chance = previousAmbushChance;
       hexAtPointSpy.mockRestore();
     }
   }, 10_000);

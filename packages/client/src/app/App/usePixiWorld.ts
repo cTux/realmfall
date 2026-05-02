@@ -30,6 +30,7 @@ import {
   createInitialWorldRenderSnapshot,
   type WorldRenderSnapshot,
 } from './world/worldRenderSnapshot';
+import type { WorldMovementAutoOpenSuppressionState } from './world/movement/worldMovementController';
 
 type VisibleWorldResolutionState = Pick<
   GameState,
@@ -81,6 +82,7 @@ interface UsePixiWorldArgs {
 interface WorldMovementController {
   clear(): void;
   dispose(): void;
+  releaseCombatAutoOpenSuppression(): void;
   replaceQueuedPath(nextSteps: HexCoord[]): void;
 }
 
@@ -141,6 +143,10 @@ export function usePixiWorld({
   const movementControllerRef = useRef<WorldMovementController | null>(null);
   const [canvasReady, setCanvasReady] = useState(false);
   const [canvasError, setCanvasError] = useState(false);
+  const [
+    queuedTravelAutoOpenSuppressionState,
+    setQueuedTravelAutoOpenSuppressionState,
+  ] = useState<WorldMovementAutoOpenSuppressionState>('idle');
   const [bootstrapAttempt, setBootstrapAttempt] = useState(0);
   const retryCanvas = useCallback(() => {
     setCanvasReady(false);
@@ -405,11 +411,14 @@ export function usePixiWorld({
 
   useEffect(() => {
     if (!game.combat) {
+      if (queuedTravelAutoOpenSuppressionState === 'combat') {
+        movementControllerRef.current?.releaseCombatAutoOpenSuppression();
+      }
       return;
     }
 
     movementControllerRef.current?.clear();
-  }, [game.combat]);
+  }, [game.combat, queuedTravelAutoOpenSuppressionState]);
 
   useEffect(
     () => () => {
@@ -429,6 +438,7 @@ export function usePixiWorld({
     const initGraphicsSettings = initGraphicsSettingsRef.current!;
     lastRenderSnapshotRef.current = createInitialWorldRenderSnapshot();
     movementCooldownEndAtRef.current = null;
+    setQueuedTravelAutoOpenSuppressionState('idle');
     setCanvasReady(false);
     setCanvasError(false);
 
@@ -444,6 +454,8 @@ export function usePixiWorld({
           movementController = createAppWorldMovementController({
             gameRef,
             movementCooldownEndAtRef,
+            onAutoOpenSuppressionStateChange:
+              setQueuedTravelAutoOpenSuppressionState,
             renderInvalidationRef,
             setGame,
             worldTimeMsRef,
@@ -513,6 +525,7 @@ export function usePixiWorld({
         movementControllerRef.current = null;
       }
       movementCooldownEndAtRef.current = null;
+      setQueuedTravelAutoOpenSuppressionState('idle');
     };
   }, [
     bootstrapAttempt,
@@ -524,7 +537,14 @@ export function usePixiWorld({
     worldTimeMsRef,
   ]);
 
-  return { hostRef, canvasReady, canvasError, retryCanvas };
+  return {
+    hostRef,
+    canvasReady,
+    canvasError,
+    retryCanvas,
+    queuedTravelAutoOpenSuppressed:
+      queuedTravelAutoOpenSuppressionState !== 'idle',
+  };
 }
 
 function getPixiInitGraphicsSettings(
