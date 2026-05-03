@@ -2,7 +2,9 @@ import type { TestProjectConfiguration } from 'vitest/config';
 
 export const VITEST_NODE_INCLUDE = [
   'src/game/**/*.test.ts',
+  'src/app/normalize.test.ts',
   'src/app/normalizeShared.test.ts',
+  'src/app/tests/**/*.test.ts',
   'src/app/App/tests/reuseVisibleTilesIfUnchanged.test.ts',
   'src/app/App/world/pixiWorldClickNavigation.test.ts',
   'src/app/App/world/pixiWorldRenderLoop.test.ts',
