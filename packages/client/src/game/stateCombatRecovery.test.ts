@@ -29,6 +29,7 @@ describe('game state combat recovery', () => {
     game.player.thirst = 3;
     game.player.hp = 5;
     game.player.mana = 9;
+    game.player.consumableCooldownEndsAt = 80_000;
 
     const respawned = startCombat(moveToTile(game, { q: 2, r: 0 }));
     const stats = getPlayerCombatStats(respawned.player);
@@ -41,25 +42,17 @@ describe('game state combat recovery', () => {
     expect(stats.maxHp).toBe(Math.floor(respawned.player.baseMaxHp * 0.9));
     expect(respawned.player.statusEffects.map((effect) => effect.id)).toEqual([
       'recentDeath',
-      'restoration',
     ]);
+    expect(respawned.player.consumableCooldownEndsAt).toBe(0);
   });
 
-  it('ticks restoration once per second and removes it after 100 seconds', () => {
+  it('regenerates 1 percent hp and mp per second outside combat', () => {
     const game = createGame(3, 'death-restoration-seed');
     game.player.baseMaxHp = 1_000;
     game.player.baseMaxMana = 100;
     game.player.hp = 1;
     game.player.mana = 1;
-    game.player.statusEffects = [
-      { id: 'recentDeath' },
-      {
-        id: 'restoration',
-        expiresAt: 100_000,
-        tickIntervalMs: 1_000,
-        lastProcessedAt: 0,
-      },
-    ];
+    game.player.statusEffects = [{ id: 'recentDeath' }];
 
     const afterOneSecond = syncPlayerStatusEffects(game, 1_000);
     expect(afterOneSecond.player.hp).toBe(10);
@@ -68,7 +61,7 @@ describe('game state combat recovery', () => {
       afterOneSecond.player.statusEffects.some(
         (effect) => effect.id === 'restoration',
       ),
-    ).toBe(true);
+    ).toBe(false);
 
     const afterExpiry = syncPlayerStatusEffects(afterOneSecond, 100_000);
     expect(afterExpiry.player.hp).toBe(900);

@@ -1,4 +1,5 @@
 import { StatusEffectTypeId } from './content/ids';
+import { clearConsumableCooldownIfOutOfCombat } from './combatActivity';
 import { mitigateDamageByDefense } from './combatDamage';
 import { addLog } from './logs';
 import { getPlayerCombatStats } from './progression';
@@ -18,6 +19,7 @@ export function teleportHome(state: GameState, itemIndex: number, item: Item) {
   }
   state.player.coord = { ...state.homeHex };
   state.combat = null;
+  clearConsumableCooldownIfOutOfCombat(state);
   addLog(state, 'system', t('game.message.home.scroll', { item: item.name }));
 }
 
@@ -30,12 +32,6 @@ export function respawnAtNearestTown(state: GameState, from: HexCoord) {
   upsertPlayerStatusEffect(state.player.statusEffects, {
     id: StatusEffectTypeId.RecentDeath,
   });
-  upsertPlayerStatusEffect(state.player.statusEffects, {
-    id: StatusEffectTypeId.Restoration,
-    expiresAt: state.worldTimeMs + 100_000,
-    tickIntervalMs: 1_000,
-    lastProcessedAt: state.worldTimeMs,
-  });
   state.player.hp = 1;
   state.player.mana = 1;
   state.player.hp = Math.min(
@@ -43,6 +39,7 @@ export function respawnAtNearestTown(state: GameState, from: HexCoord) {
     getPlayerCombatStats(state.player).maxHp,
   );
   state.combat = null;
+  clearConsumableCooldownIfOutOfCombat(state);
   addLog(state, 'combat', t('game.message.combat.defeated'));
   addLog(
     state,

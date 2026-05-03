@@ -1,5 +1,6 @@
 import { t } from '../i18n';
 import { createCombatActorState } from './combat';
+import { clearConsumableCooldownIfOutOfCombat } from './combatActivity';
 import { hexKey } from './hex';
 import { addLog } from './logs';
 import { createCombatEnemyEncounterState } from './stateCombatTreasureGoblin';
@@ -40,6 +41,7 @@ export function syncCombatEncounterEnemies(state: GameState) {
 
   if (enemyIds.length === 0) {
     state.combat = null;
+    clearConsumableCooldownIfOutOfCombat(state);
     addLog(state, 'combat', t('game.message.combat.over'));
   }
 }

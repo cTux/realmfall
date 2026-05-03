@@ -12,9 +12,10 @@ This spec covers hunger, thirst, death recovery, home behavior, and player statu
 - Low thirst reduces effective attack speed.
 - If the player dies, the run does not hard reset immediately.
 - The player is respawned at the nearest town or protected home flow.
-- Current recovery behavior includes survival restoration logic, home handling, and timed status effects.
+- Current recovery behavior includes passive out-of-combat regeneration, home handling, and timed status effects.
 - `recentDeath` reduces max HP.
-- `restoration` recovers HP and mana over time until it expires.
+- While not in an active battle, the player regenerates `1%` of max HP and `1%` of max MP each second.
+- Death recovery does not grant a separate `restoration` buff.
 - The player has a dedicated home hex state.
 - Setting home is allowed only on an empty hex, keeping the respawn point free of items, structures, and enemies.
 - Home scroll usage teleports the player to the home hex.

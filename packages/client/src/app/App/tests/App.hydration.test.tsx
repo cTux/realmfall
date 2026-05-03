@@ -295,7 +295,7 @@ describe('App hydration and interactions', () => {
     host.remove();
   });
 
-  it('does not render an action bar cooldown overlay after consumable use', async () => {
+  it('does not render an action bar cooldown overlay after out-of-combat consumable use', async () => {
     const game = createGame(2, 'app-action-bar-cooldown-seed');
     game.player.hp = 20;
     game.player.hunger = 80;
@@ -342,27 +342,7 @@ describe('App hydration and interactions', () => {
 
     expect(
       host.querySelector('[aria-label="Action bar slot 1: Trail Ration"]'),
-    ).not.toBeNull();
-
-    await act(async () => {
-      vi.advanceTimersByTime(2200);
-    });
-    await flushLazyModules();
-
-    const refreshedSlotButton = host.querySelector(
-      '[aria-label="Action bar slot 1: Trail Ration"]',
-    ) as HTMLButtonElement | null;
-    expect(refreshedSlotButton?.className).not.toContain('cooldownActive');
-    expect(
-      refreshedSlotButton?.querySelector('[class*="cooldownOverlay"]'),
     ).toBeNull();
-
-    await act(async () => {
-      window.dispatchEvent(
-        new KeyboardEvent('keydown', { bubbles: true, key: '1' }),
-      );
-    });
-
     expect(
       host.querySelector('[aria-label="Empty action bar slot 1"]'),
     ).not.toBeNull();

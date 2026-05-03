@@ -3,6 +3,7 @@ import { t } from '../i18n';
 import { formatSkillLabel } from '../i18n/labels';
 import { addLog } from './logs';
 import { addItemToInventory, spendGold } from './inventory';
+import { clearConsumableCooldownIfOutOfCombat } from './combatActivity';
 import { GAME_TAGS } from './content/tags';
 import { hasItemTag } from './content/items';
 import {
@@ -66,6 +67,7 @@ export function setHomeHex(
 
   if (next.combat?.coord.q === coord.q && next.combat.coord.r === coord.r) {
     next.combat = null;
+    clearConsumableCooldownIfOutOfCombat(next);
   }
 
   addLog(
