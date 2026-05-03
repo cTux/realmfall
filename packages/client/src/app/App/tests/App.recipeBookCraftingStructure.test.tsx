@@ -44,13 +44,13 @@ describe('App recipe-book crafting structure attention', () => {
     mockUsePixiWorld();
   });
 
-  it('opens the recipe book to the matching tab when entering a crafting structure hex', async () => {
+  it('opens only the recipe book when entering a campfire hex', async () => {
     const game = createHydratedAppGame();
     game.tiles['1,0'] = {
       coord: { q: 1, r: 0 },
       terrain: 'plains',
       items: [],
-      structure: 'workshop',
+      structure: 'camp',
       enemyIds: [],
     };
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
@@ -74,9 +74,8 @@ describe('App recipe-book crafting structure attention', () => {
 
     const updatedRecipeBookButton = findRecipeBookDockButton(host);
     expect(updatedRecipeBookButton?.dataset.opened).toBe('true');
-    expect(getTab(host, 'Crafting')?.getAttribute('aria-selected')).toBe(
-      'true',
-    );
+    expect(findHexInfoDockButton(host)?.dataset.opened).toBe('false');
+    expect(getTab(host, 'Cooking')?.getAttribute('aria-selected')).toBe('true');
 
     await act(async () => {
       root.unmount();
@@ -95,4 +94,10 @@ function getTab(host: HTMLElement, label: string) {
   return Array.from(host.querySelectorAll('[role="tab"]')).find(
     (tab) => tab.textContent === label,
   );
+}
+
+function findHexInfoDockButton(host: HTMLElement) {
+  return Array.from(host.querySelectorAll('button')).find((button) =>
+    button.getAttribute('aria-label')?.startsWith('Toggle Hex Content window'),
+  ) as HTMLButtonElement | undefined;
 }
