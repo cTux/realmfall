@@ -32,7 +32,7 @@ export {
 export { getCombatAutomationDelay };
 
 export function attackCombatEnemy(state: GameState): GameState {
-  if (!state.combat) return message(state, t('game.message.combat.noneActive'));
+  if (!state.combat) return message(state, t('game.message.noBattle'));
   if (!state.combat.started)
     return message(state, t('game.message.combat.pressStart'));
 
@@ -48,7 +48,7 @@ export function progressCombat(state: GameState): GameState {
 }
 
 export function startCombat(state: GameState): GameState {
-  if (!state.combat) return message(state, t('game.message.combat.noneActive'));
+  if (!state.combat) return message(state, t('game.message.noBattle'));
   if (state.combat.started) return state;
 
   const next = cloneForWorldMutation(state);
@@ -69,7 +69,7 @@ export function startCombat(state: GameState): GameState {
 }
 
 export function forfeitCombat(state: GameState): GameState {
-  if (!state.combat) return message(state, t('game.message.combat.noneActive'));
+  if (!state.combat) return message(state, t('game.message.noBattle'));
   if (!state.combat.started)
     return message(state, t('game.message.combat.pressStart'));
 
