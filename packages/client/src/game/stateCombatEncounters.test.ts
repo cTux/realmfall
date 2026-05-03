@@ -98,6 +98,44 @@ describe('game state combat encounters', () => {
     ).toBe(true);
   });
 
+  it('rolls treasure goblin encounter thresholds per battle instead of per enemy id', () => {
+    const game = createCombatEncounterGame('combat-treasure-goblin-seed');
+    const target = seedCombatEncounter(game, {
+      id: 'enemy-2,0-0',
+      enemyTypeId: 'treasure-goblin',
+      name: 'Treasure Goblin',
+      rarity: 'legendary',
+      tier: 3,
+      hp: 50,
+      maxHp: 50,
+      attack: 5,
+      defense: 2,
+      xp: 10,
+      elite: true,
+    });
+    game.homeHex = { q: 1, r: 0 };
+    game.player.coord = { q: 1, r: 0 };
+    game.worldTimeMs = 1_234;
+
+    const firstEncounter = moveToTile(game, target);
+    const firstThreshold =
+      firstEncounter.combat?.enemyStateById['enemy-2,0-0']?.treasureGoblin
+        ?.fleeHitsRequired;
+
+    const forfeited = forfeitCombat(startCombat(firstEncounter));
+    forfeited.worldTimeMs = 98_765;
+    forfeited.player.coord = { q: 1, r: 0 };
+
+    const secondEncounter = moveToTile(forfeited, target);
+    const secondThreshold =
+      secondEncounter.combat?.enemyStateById['enemy-2,0-0']?.treasureGoblin
+        ?.fleeHitsRequired;
+
+    expect(firstThreshold).toBe(4);
+    expect(secondThreshold).toBe(3);
+    expect(secondThreshold).not.toBe(firstThreshold);
+  });
+
   it('automatically skins animal enemies on kill', () => {
     const game = createCombatEncounterGame('skinning-seed');
     const target = seedCombatEncounter(

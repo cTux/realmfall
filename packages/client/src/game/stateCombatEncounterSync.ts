@@ -22,6 +22,7 @@ export function syncCombatEncounterEnemies(state: GameState) {
   });
 
   const worldTimeMs = state.worldTimeMs;
+  const encounterSeed = state.combat.startedAtMs ?? worldTimeMs;
   state.combat.enemies = Object.fromEntries(
     enemyIds.map((enemyId) => [
       enemyId,
@@ -32,7 +33,7 @@ export function syncCombatEncounterEnemies(state: GameState) {
     enemyIds.map((enemyId) => [
       enemyId,
       state.combat?.enemyStateById[enemyId] ??
-        createCombatEnemyEncounterState(state, enemyId),
+        createCombatEnemyEncounterState(state, enemyId, encounterSeed),
     ]),
   );
   state.combat.enemyIds = enemyIds;

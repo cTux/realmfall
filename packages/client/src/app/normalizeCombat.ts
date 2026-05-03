@@ -1,4 +1,5 @@
 import type { GameState } from '../game/stateTypes';
+import { TREASURE_GOBLIN_BALANCE } from '../game/config';
 import {
   isCooldownMap,
   isFiniteNumber,
@@ -163,8 +164,8 @@ function normalizeCombatEnemyEncounterState(
 function normalizeCombatTreasureGoblinEncounterState(value: unknown) {
   if (
     !isRecord(value) ||
-    !isFiniteNumber(value.damageHitsTaken) ||
-    !isFiniteNumber(value.fleeHitsRequired)
+    !isValidNonNegativeInteger(value.damageHitsTaken) ||
+    !isValidTreasureGoblinFleeHitsRequired(value.fleeHitsRequired)
   ) {
     return null;
   }
@@ -173,4 +174,18 @@ function normalizeCombatTreasureGoblinEncounterState(value: unknown) {
     damageHitsTaken: value.damageHitsTaken,
     fleeHitsRequired: value.fleeHitsRequired,
   };
+}
+
+function isValidNonNegativeInteger(value: unknown): value is number {
+  return isFiniteNumber(value) && Number.isInteger(value) && value >= 0;
+}
+
+function isValidTreasureGoblinFleeHitsRequired(
+  value: unknown,
+): value is number {
+  return (
+    isValidNonNegativeInteger(value) &&
+    value >= TREASURE_GOBLIN_BALANCE.fleeHitsMin &&
+    value <= TREASURE_GOBLIN_BALANCE.fleeHitsMax
+  );
 }

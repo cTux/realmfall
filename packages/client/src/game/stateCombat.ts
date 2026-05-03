@@ -101,7 +101,7 @@ export function createCombatState(
     enemyStateById: Object.fromEntries(
       enemyIds.map((enemyId) => [
         enemyId,
-        createCombatEnemyEncounterState(state, enemyId),
+        createCombatEnemyEncounterState(state, enemyId, worldTimeMs),
       ]),
     ),
   };

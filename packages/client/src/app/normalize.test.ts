@@ -282,6 +282,83 @@ describe('normalizeLoadedGame', () => {
       [enemyId]: {},
     });
   });
+
+  it('drops negative, fractional, and out-of-range treasure goblin metadata during hydration', () => {
+    const game = createGame(3, 'normalize-invalid-treasure-goblin-range-seed');
+    const enemyId = 'enemy-2,0-0';
+    const coord = { q: 2, r: 0 };
+
+    game.tiles['2,0'] = {
+      coord,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: [enemyId],
+    };
+    game.enemies[enemyId] = {
+      id: enemyId,
+      enemyTypeId: 'treasure-goblin',
+      name: 'Treasure Goblin',
+      coord,
+      rarity: 'legendary',
+      tier: 3,
+      hp: 50,
+      maxHp: 50,
+      attack: 5,
+      defense: 2,
+      xp: 10,
+      elite: true,
+    };
+
+    const buildSavedCombat = (treasureGoblin: Record<string, unknown>) => ({
+      coord,
+      enemyIds: [enemyId],
+      started: true,
+      startedAtMs: 1234,
+      player: createCombatActorState(0, ['kick']),
+      enemies: {
+        [enemyId]: createCombatActorState(0, ['kick']),
+      },
+      enemyStateById: {
+        [enemyId]: { treasureGoblin },
+      },
+    });
+
+    const negativeSaved = structuredClone(game);
+    (negativeSaved as unknown as { combat: Record<string, unknown> }).combat =
+      buildSavedCombat({
+        damageHitsTaken: -1,
+        fleeHitsRequired: 4,
+      });
+
+    const fractionalSaved = structuredClone(game);
+    (fractionalSaved as unknown as { combat: Record<string, unknown> }).combat =
+      buildSavedCombat({
+        damageHitsTaken: 1.5,
+        fleeHitsRequired: 4.25,
+      });
+
+    const outOfRangeSaved = structuredClone(game);
+    (outOfRangeSaved as unknown as { combat: Record<string, unknown> }).combat =
+      buildSavedCombat({
+        damageHitsTaken: 1,
+        fleeHitsRequired: 99,
+      });
+
+    expect(normalizeLoadedGame(negativeSaved)?.combat?.enemyStateById).toEqual({
+      [enemyId]: {},
+    });
+    expect(
+      normalizeLoadedGame(fractionalSaved)?.combat?.enemyStateById,
+    ).toEqual({
+      [enemyId]: {},
+    });
+    expect(
+      normalizeLoadedGame(outOfRangeSaved)?.combat?.enemyStateById,
+    ).toEqual({
+      [enemyId]: {},
+    });
+  });
 });
 
 describe('normalizePersistedUiState', () => {

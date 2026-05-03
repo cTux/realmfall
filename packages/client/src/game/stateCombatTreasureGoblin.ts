@@ -5,6 +5,7 @@ import type { CombatEnemyEncounterState, Enemy, GameState } from './types';
 export function createCombatEnemyEncounterState(
   state: Pick<GameState, 'seed' | 'enemies'>,
   enemyId: string,
+  encounterSeed: number,
 ): CombatEnemyEncounterState {
   const enemy = state.enemies[enemyId];
   if (!enemy || !isTreasureGoblinEnemy(enemy)) {
@@ -16,7 +17,9 @@ export function createCombatEnemyEncounterState(
   const fleeHitsRequired =
     minHits +
     Math.floor(
-      createRng(`${state.seed}:combat:treasure-goblin:${enemyId}`)() *
+      createRng(
+        `${state.seed}:combat:treasure-goblin:${encounterSeed}:${enemyId}`,
+      )() *
         (maxHits - minHits + 1),
     );
 
