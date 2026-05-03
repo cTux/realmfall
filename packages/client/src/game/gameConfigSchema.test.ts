@@ -343,6 +343,17 @@ describe('game config schema', () => {
     expect(defineGameConfig(sampleConfig)).toBe(sampleConfig);
   });
 
+  it('rejects malformed runtime config values', () => {
+    const invalidConfig = structuredClone(rawGameConfig) as {
+      worldClock: { moveHexCooldownMs: number };
+    };
+    invalidConfig.worldClock.moveHexCooldownMs = Number.NaN;
+
+    expect(() =>
+      defineGameConfig(invalidConfig as typeof rawGameConfig),
+    ).toThrow();
+  });
+
   it('exposes the movement cooldown config through the runtime surface', () => {
     expect(GAME_CONFIG).toBe(rawGameConfig);
     expect(rawGameConfig.worldClock.moveHexCooldownMs).toBe(1_000);
