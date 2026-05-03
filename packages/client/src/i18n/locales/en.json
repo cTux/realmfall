@@ -243,7 +243,7 @@
   "game.message.combat.finishCurrentBattleFirst": "Finish the current battle first.",
   "game.message.noBattle": "There is no active battle.",
   "game.message.combat.over": "The battle is over.",
-  "game.message.fled": "Fled",
+  "game.message.fled": "Rift-taken.",
   "game.message.combat.playerAbilityDamage": "You {critically}hit the {enemy} with {ability} for {damage}.",
   "game.message.combat.playerAbilityDodged": "The {enemy} dodges your {ability}.",
   "game.message.combat.playerAbilitySuppressed": "The {enemy} suppressed your {ability} and took {damage}.",

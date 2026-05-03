@@ -93,7 +93,7 @@ export function recordTreasureGoblinDamageHits(
   }
 
   moveTreasureGoblinToCoord(state, enemy, escapeCoord);
-  addLog(state, 'combat', t('game.message.fled'));
+  addLog(state, 'combat', `${enemy.name}: ${t('game.message.fled')}`);
   endCombatAfterTreasureGoblinEscape(state, enemy.id);
   return true;
 }

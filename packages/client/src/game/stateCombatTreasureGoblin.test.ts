@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { t } from '../i18n';
 import { createCombatActorState } from './combat';
 import { TREASURE_GOBLIN_BALANCE } from './config';
 import { StatusEffectTypeId } from './content/ids';
@@ -49,7 +50,13 @@ describe('treasure goblin combat behavior', () => {
     expect(
       hexDistance(game.player.coord, game.enemies[enemyId]!.coord),
     ).toBeLessThanOrEqual(TREASURE_GOBLIN_BALANCE.fleeRadius);
-    expect(game.logs.some((entry) => /fled/i.test(entry.text))).toBe(true);
+    expect(
+      game.logs.some((entry) =>
+        entry.text.endsWith(
+          `${game.enemies[enemyId]!.name}: ${t('game.message.fled')}`,
+        ),
+      ),
+    ).toBe(true);
   });
 
   it('opens a follow-on encounter when a treasure goblin escapes from a mixed encounter', () => {
