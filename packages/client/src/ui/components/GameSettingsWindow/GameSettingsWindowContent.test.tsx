@@ -729,7 +729,7 @@ describe('GameSettingsWindowContent', () => {
     expect(languageSelect?.value).toBe('en');
     expect(
       Array.from(languageSelect?.options ?? []).map((option) => option.value),
-    ).toEqual(['en']);
+    ).toEqual(['en', 'ua']);
 
     await act(async () => {
       const fontSizeSlider = interfaceSliders[0];
@@ -759,7 +759,7 @@ describe('GameSettingsWindowContent', () => {
           'value',
         )?.set;
 
-        setValue?.call(languageSelect, 'en');
+        setValue?.call(languageSelect, 'ua');
         languageSelect.dispatchEvent(new Event('change', { bubbles: true }));
       }
     });
@@ -841,7 +841,7 @@ describe('GameSettingsWindowContent', () => {
       audio: DEFAULT_AUDIO_SETTINGS,
       graphics: DEFAULT_GRAPHICS_SETTINGS,
       interface: {
-        language: 'en',
+        language: 'ua',
         fontFamily: 'ubuntu',
         fontSize: 118,
         interfaceScale: 126,

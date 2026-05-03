@@ -10,7 +10,9 @@ import {
 } from './interfaceFonts';
 import { createSettingsSectionStore } from './settingsSectionStore';
 
-export type InterfaceLanguage = 'en';
+const INTERFACE_LANGUAGE_VALUES = ['en', 'ua'] as const;
+
+export type InterfaceLanguage = (typeof INTERFACE_LANGUAGE_VALUES)[number];
 
 export interface InterfaceSettings {
   language: InterfaceLanguage;
@@ -58,6 +60,10 @@ export const INTERFACE_LANGUAGE_OPTIONS: InterfaceLanguageOptionDefinition[] = [
   {
     labelKey: 'ui.settings.interface.language.option.en',
     value: 'en',
+  },
+  {
+    labelKey: 'ui.settings.interface.language.option.ua',
+    value: 'ua',
   },
 ];
 
@@ -161,7 +167,10 @@ function normalizeInterfaceSettings(settings: unknown): InterfaceSettings {
 }
 
 function isInterfaceLanguage(value: unknown): value is InterfaceLanguage {
-  return value === 'en';
+  return (
+    typeof value === 'string' &&
+    INTERFACE_LANGUAGE_VALUES.includes(value as InterfaceLanguage)
+  );
 }
 
 function normalizeInterfacePercent(
