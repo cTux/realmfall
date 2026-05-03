@@ -58,7 +58,7 @@
 }
 
 .sortOption {
-  @include ui.chip-surface;
+  @include ui.menu-item-surface;
 
   display: inline-flex;
   align-items: center;

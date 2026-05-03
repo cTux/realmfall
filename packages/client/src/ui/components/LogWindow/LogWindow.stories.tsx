@@ -34,7 +34,16 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const ExpeditionLog: Story = {};
+export const ExpeditionLog: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Filter rows use the same transparent default and angled-corner hover or checked treatment as the inventory sort menu.',
+      },
+    },
+  },
+};
 
 export const RecentEntry: Story = {
   render: () => (

@@ -41,7 +41,7 @@
 }
 
 .filterChip {
-  @include ui.chip-surface;
+  @include ui.menu-item-surface;
 
   display: inline-flex;
   gap: 0.3rem;
