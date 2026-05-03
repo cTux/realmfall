@@ -21,6 +21,7 @@ describe('background music helpers', () => {
             casting: null,
           },
           enemies: {},
+          enemyStateById: {},
         },
         currentStructure: undefined,
       }),

@@ -4,6 +4,7 @@ import {
   normalizeSavedUiItem,
 } from './normalize';
 import { ENEMY_TYPE_IDS } from '../game/content/ids';
+import { createCombatActorState } from '../game/combat';
 import { RARITY_ORDER, STRUCTURE_TYPES, TERRAINS } from '../game/types';
 import { createGame } from '../game/stateFactory';
 import { createDefaultActionBarSlots } from './App/actionBar';
@@ -176,6 +177,110 @@ describe('normalizeLoadedGame', () => {
     };
 
     expect(normalizeLoadedGame(game)?.enemies[enemyId]?.name).toBe('Gluttony');
+  });
+
+  it('preserves treasure goblin combat metadata during hydration', () => {
+    const game = createGame(3, 'normalize-treasure-goblin-combat-seed');
+    const enemyId = 'enemy-2,0-0';
+    const coord = { q: 2, r: 0 };
+
+    game.tiles['2,0'] = {
+      coord,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: [enemyId],
+    };
+    game.enemies[enemyId] = {
+      id: enemyId,
+      enemyTypeId: 'treasure-goblin',
+      name: 'Treasure Goblin',
+      coord,
+      rarity: 'legendary',
+      tier: 3,
+      hp: 50,
+      maxHp: 50,
+      attack: 5,
+      defense: 2,
+      xp: 10,
+      elite: true,
+    };
+    game.combat = {
+      coord,
+      enemyIds: [enemyId],
+      started: true,
+      startedAtMs: 1234,
+      player: createCombatActorState(0, ['kick']),
+      enemies: {
+        [enemyId]: createCombatActorState(0, ['kick']),
+      },
+      enemyStateById: {
+        [enemyId]: {
+          treasureGoblin: {
+            damageHitsTaken: 2,
+            fleeHitsRequired: 4,
+          },
+        },
+      },
+    };
+
+    expect(normalizeLoadedGame(game)?.combat).toEqual(game.combat);
+  });
+
+  it('defaults invalid combat encounter metadata safely during hydration', () => {
+    const game = createGame(3, 'normalize-invalid-combat-metadata-seed');
+    const enemyId = 'enemy-2,0-0';
+    const coord = { q: 2, r: 0 };
+
+    game.tiles['2,0'] = {
+      coord,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: [enemyId],
+    };
+    game.enemies[enemyId] = {
+      id: enemyId,
+      enemyTypeId: 'treasure-goblin',
+      name: 'Treasure Goblin',
+      coord,
+      rarity: 'legendary',
+      tier: 3,
+      hp: 50,
+      maxHp: 50,
+      attack: 5,
+      defense: 2,
+      xp: 10,
+      elite: true,
+    };
+
+    const saved = structuredClone(game);
+    const invalidEnemyStateById: Record<string, unknown> = {
+      [enemyId]: {
+        treasureGoblin: {
+          damageHitsTaken: 'bad',
+          fleeHitsRequired: Number.NaN,
+        },
+      },
+    };
+
+    const invalidCombat: Record<string, unknown> = {
+      coord,
+      enemyIds: [enemyId],
+      started: true,
+      startedAtMs: 1234,
+      player: createCombatActorState(0, ['kick']),
+      enemies: {
+        [enemyId]: createCombatActorState(0, ['kick']),
+      },
+      enemyStateById: invalidEnemyStateById,
+    };
+    (saved as unknown as { combat: Record<string, unknown> }).combat =
+      invalidCombat;
+
+    expect(normalizeLoadedGame(saved)?.combat?.enemyStateById).toEqual({
+      [enemyId]: {},
+    });
   });
 });
 

@@ -109,6 +109,7 @@ function prepareCombat(options?: {
     started: false,
     player: playerActor,
     enemies: { [enemyId]: enemyActor },
+    enemyStateById: { [enemyId]: {} },
   };
   game.combat = combat;
 

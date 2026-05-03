@@ -67,6 +67,9 @@ const combat: CombatState = {
   enemies: {
     'enemy-1': createCombatActorState(WORLD_TIME_MS, ['kick']),
   },
+  enemyStateById: {
+    'enemy-1': {},
+  },
 };
 
 describe('CombatWindowContent', () => {

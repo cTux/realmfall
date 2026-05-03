@@ -103,6 +103,9 @@ describe('game state survival timing', () => {
       enemies: {
         [enemyId]: createCombatActorState(0, []),
       },
+      enemyStateById: {
+        [enemyId]: {},
+      },
     };
     game.worldTimeMs = 1_000;
 

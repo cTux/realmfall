@@ -236,6 +236,10 @@ describe('game state combat cadence', () => {
         'enemy-2,0-0': createCombatActorState(0, ['kick']),
         'enemy-2,0-1': createCombatActorState(0, ['kick']),
       },
+      enemyStateById: {
+        'enemy-2,0-0': {},
+        'enemy-2,0-1': {},
+      },
     };
 
     const started = startCombat(game);

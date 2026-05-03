@@ -51,6 +51,9 @@ describe('detectVoicePlaybackEvent', () => {
           globalCooldownMs: 0,
         },
       },
+      enemyStateById: {
+        'enemy-1,0-0': {},
+      },
     };
     const next = startCombat(combatReady);
 
@@ -97,6 +100,9 @@ describe('detectVoicePlaybackEvent', () => {
           globalCooldownEndsAt: 0,
           globalCooldownMs: 0,
         },
+      },
+      enemyStateById: {
+        'enemy-1,0-0': {},
       },
     };
     const next = { ...previous, combat: null };

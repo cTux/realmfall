@@ -59,6 +59,9 @@ export const combatWindowState = {
       casting: null,
     },
   },
+  enemyStateById: {
+    'enemy-1': {},
+  },
 };
 
 export const recipeWindowSkillLevels = {

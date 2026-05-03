@@ -139,5 +139,8 @@ function buildCombatState(): CombatState {
     enemies: {
       'enemy-1': createCombatActorState(0, ['kick']),
     },
+    enemyStateById: {
+      'enemy-1': {},
+    },
   };
 }

@@ -14,6 +14,7 @@ import {
 import { addLog } from './logs';
 import { getPlayerCombatStats } from './progression';
 import { cloneForWorldMutation, message } from './stateMutationHelpers';
+import { createCombatEnemyEncounterState } from './stateCombatTreasureGoblin';
 import { getCombatAutomationDelay, resolveCombat } from './stateCombatRuntime';
 import { respawnAtNearestTown } from './stateSurvival';
 import type { GameState } from './types';
@@ -95,6 +96,12 @@ export function createCombatState(
       enemyIds.map((enemyId) => [
         enemyId,
         createCombatActorState(worldTimeMs, state.enemies[enemyId]?.abilityIds),
+      ]),
+    ),
+    enemyStateById: Object.fromEntries(
+      enemyIds.map((enemyId) => [
+        enemyId,
+        createCombatEnemyEncounterState(state, enemyId),
       ]),
     ),
   };
