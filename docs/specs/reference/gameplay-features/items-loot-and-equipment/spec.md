@@ -45,7 +45,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - Offhand shields and magical spheres always include a block-chance secondary stat, including both generated drops and fixed crafted icon variants.
 - Enemy bonus drops now evaluate item-kind chances in ascending order from lowest to highest; each successful chance rolls an independent item drop so rarer kinds remain reachable while higher-chance kinds can still drop too.
 - Dungeon and blood moon rewards bias toward better rarity floors.
-- Treasure goblins apply their loot bonuses only when killed before escaping, multiplying item-drop entry chance by `3`, item-rarity scaling by `3`, and resolved gold quantity by `20`.
+- Killing a treasure goblin applies its loot bonuses based on enemy type, multiplying item-drop entry chance by `3`, item-rarity scaling by `3`, and resolved gold quantity by `20`, including kills after an earlier escape from the same goblin.
 - Generated artifacts and equipment use deterministic icon selection from stable generated icon ids while their per-instance stats are derived from tier and rarity. The vendored SVG pools in `src/assets/icons/generated` are resolved by UI asset helpers rather than imported by gameplay content.
 - Generated artifacts and equipment use the shared cascading rarity-event mechanism so higher tiers can promote drops through the same rarity ladder used elsewhere in gameplay, with base upgrade checks of `30%` uncommon, `5%` rare, `0.5%` epic, and `0.02%` legendary before tier bonuses.
 - Generated weapons and offhands now roll a deterministic granted combat ability that matches the item archetype, and equipped combatants surface those granted abilities in battle on top of the baseline `Kick`.
