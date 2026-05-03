@@ -1,10 +1,18 @@
-import { dropEnemyRewards } from './stateRewards';
 import {
+  dropEnemyRewards,
+  getEnemyDropRarityChanceScale,
+  getEnemyItemDropChance,
+} from './stateRewards';
+import {
+  ENEMY_ITEM_BLOOD_MOON_RARITY_CHANCE_MULTIPLIER,
+  ENEMY_ITEM_DUNGEON_RARITY_CHANCE_MULTIPLIER,
   GAME_CONFIG,
   ENEMY_GOLD_DROP_CHANCES,
   ENEMY_ITEM_DROP_CHANCES,
   ENEMY_RECIPE_DROP_CHANCES,
   HOME_SCROLL_DROP_CHANCES,
+  TREASURE_GOBLIN_GOLD_MULTIPLIER,
+  TREASURE_GOBLIN_ITEM_DROP_MULTIPLIERS,
 } from './config';
 import {
   createCombatEncounterGame,
@@ -190,6 +198,182 @@ describe('state rewards', () => {
     expect(droppedItem?.itemKey).toBeTruthy();
     expect(droppedItem?.rarity).toBe(
       getItemConfigByKey(droppedItem!.itemKey!)?.rarity,
+    );
+  });
+
+  it('triples treasure goblin item-drop chance', () => {
+    const ordinaryGame = createCombatEncounterGame(
+      'treasure-goblin-item-chance',
+    );
+    const treasureGoblinGame = createCombatEncounterGame(
+      'treasure-goblin-item-chance',
+    );
+
+    seedCombatEncounter(ordinaryGame, {
+      id: 'enemy-drop-chance',
+      name: 'Raider',
+      coord: { q: 2, r: 0 },
+      tier: 1,
+      hp: 1,
+      maxHp: 1,
+      attack: 0,
+      defense: 0,
+      xp: 5,
+      elite: false,
+    });
+    seedCombatEncounter(treasureGoblinGame, {
+      id: 'enemy-drop-chance',
+      name: 'Treasure Goblin',
+      enemyTypeId: 'treasure-goblin',
+      coord: { q: 2, r: 0 },
+      tier: 1,
+      hp: 1,
+      maxHp: 1,
+      attack: 0,
+      defense: 0,
+      xp: 5,
+      elite: false,
+    });
+
+    ENEMY_ITEM_DROP_CHANCES.chance.base = 0.2;
+    ENEMY_ITEM_DROP_CHANCES.chance.perRarity = 0;
+    ENEMY_ITEM_DROP_CHANCES.chance.max = 1;
+
+    expect(
+      getEnemyItemDropChance(ordinaryGame.enemies['enemy-drop-chance']!),
+    ).toBe(0.2);
+    expect(
+      getEnemyItemDropChance(treasureGoblinGame.enemies['enemy-drop-chance']!),
+    ).toBe(0.2 * TREASURE_GOBLIN_ITEM_DROP_MULTIPLIERS.chanceMultiplier);
+  });
+
+  it('triples treasure goblin item rarity scale on top of other multipliers', () => {
+    const ordinaryGame = createCombatEncounterGame(
+      'treasure-goblin-rarity-scale',
+    );
+    const treasureGoblinGame = createCombatEncounterGame(
+      'treasure-goblin-rarity-scale',
+    );
+    const target = { q: 2, r: 0 };
+
+    ordinaryGame.bloodMoonActive = true;
+    treasureGoblinGame.bloodMoonActive = true;
+
+    seedCombatEncounter(
+      ordinaryGame,
+      {
+        id: 'enemy-rarity-scale',
+        name: 'Raider',
+        coord: target,
+        tier: 1,
+        hp: 1,
+        maxHp: 1,
+        attack: 0,
+        defense: 0,
+        xp: 5,
+        elite: false,
+      },
+      { structure: 'dungeon' },
+    );
+    seedCombatEncounter(
+      treasureGoblinGame,
+      {
+        id: 'enemy-rarity-scale',
+        name: 'Treasure Goblin',
+        enemyTypeId: 'treasure-goblin',
+        coord: target,
+        tier: 1,
+        hp: 1,
+        maxHp: 1,
+        attack: 0,
+        defense: 0,
+        xp: 5,
+        elite: false,
+      },
+      { structure: 'dungeon' },
+    );
+
+    const ordinaryScale = getEnemyDropRarityChanceScale(
+      ordinaryGame,
+      ordinaryGame.enemies['enemy-rarity-scale']!,
+    );
+    const treasureGoblinScale = getEnemyDropRarityChanceScale(
+      treasureGoblinGame,
+      treasureGoblinGame.enemies['enemy-rarity-scale']!,
+    );
+
+    expect(ordinaryScale).toBe(
+      ENEMY_ITEM_DUNGEON_RARITY_CHANCE_MULTIPLIER *
+        ENEMY_ITEM_BLOOD_MOON_RARITY_CHANCE_MULTIPLIER,
+    );
+    expect(treasureGoblinScale).toBe(
+      ordinaryScale * TREASURE_GOBLIN_ITEM_DROP_MULTIPLIERS.rarityMultiplier,
+    );
+  });
+
+  it('multiplies treasure goblin gold quantity after the normal drop succeeds', () => {
+    const ordinaryGame = createCombatEncounterGame('treasure-goblin-gold');
+    const treasureGoblinGame = createCombatEncounterGame(
+      'treasure-goblin-gold',
+    );
+    const target = { q: 2, r: 0 };
+
+    seedCombatEncounter(ordinaryGame, {
+      id: 'enemy-gold',
+      name: 'Raider',
+      coord: target,
+      tier: 4,
+      hp: 1,
+      maxHp: 1,
+      attack: 0,
+      defense: 0,
+      xp: 5,
+      elite: false,
+    });
+    seedCombatEncounter(treasureGoblinGame, {
+      id: 'enemy-gold',
+      name: 'Treasure Goblin',
+      enemyTypeId: 'treasure-goblin',
+      coord: target,
+      tier: 4,
+      hp: 1,
+      maxHp: 1,
+      attack: 0,
+      defense: 0,
+      xp: 5,
+      elite: false,
+    });
+
+    ENEMY_GOLD_DROP_CHANCES.base = 1;
+    ENEMY_GOLD_DROP_CHANCES.perTier = 0;
+    ENEMY_GOLD_DROP_CHANCES.perRarity = 0;
+    ENEMY_GOLD_DROP_CHANCES.eliteBonus = 0;
+    ENEMY_GOLD_DROP_CHANCES.max = 1;
+    ENEMY_ITEM_DROP_CHANCES.chance.base = 0;
+    ENEMY_ITEM_DROP_CHANCES.chance.max = 0;
+    ENEMY_RECIPE_DROP_CHANCES.base = 0;
+    ENEMY_RECIPE_DROP_CHANCES.max = 0;
+    HOME_SCROLL_DROP_CHANCES.max = 0;
+    GAME_CONFIG.drops.terraformingConsumableChance = 0;
+
+    dropEnemyRewards(ordinaryGame, ordinaryGame.enemies['enemy-gold']!);
+    dropEnemyRewards(
+      treasureGoblinGame,
+      treasureGoblinGame.enemies['enemy-gold']!,
+    );
+
+    const ordinaryGoldQuantity =
+      getTileAt(ordinaryGame, target).items.find(
+        (item) => item.itemKey === 'gold',
+      )?.quantity ?? 0;
+    const treasureGoblinGoldQuantity =
+      getTileAt(treasureGoblinGame, target).items.find(
+        (item) => item.itemKey === 'gold',
+      )?.quantity ?? 0;
+
+    expect(ordinaryGoldQuantity).toBeGreaterThan(0);
+    expect(treasureGoblinGoldQuantity).toBe(
+      ordinaryGoldQuantity * TREASURE_GOBLIN_GOLD_MULTIPLIER,
     );
   });
 });
