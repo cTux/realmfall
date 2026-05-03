@@ -59,6 +59,7 @@ import raiderIcon from '../../assets/icons/raider.svg';
 import gluttonyIcon from '../../assets/icons/gluttony.svg';
 import furnaceIcon from '../../assets/icons/furnace.svg';
 import flaxIcon from '../../assets/game-icons/delapouite/flax.svg';
+import goblinHeadIcon from '../../assets/game-icons/delapouite/goblin-head.svg';
 import sewingStringIcon from '../../assets/game-icons/delapouite/sewing-string.svg';
 import earthCrackIcon from '../../assets/game-icons/lorc/earth-crack.svg';
 
@@ -126,5 +127,5 @@ export const ContentIcons = {
   EarthCrack: earthCrackIcon,
   Furnace: furnaceIcon,
   SewingString: sewingStringIcon,
-  TreasureGoblin: coinsIcon,
+  TreasureGoblin: goblinHeadIcon,
 } as const;
