@@ -49,7 +49,7 @@ export function GameSettingsInterfacePanel({
           <span className={styles.rangeHeader}>
             <span className={styles.rangeLabel}>{t(option.labelKey)}</span>
             <span className={styles.rangeValue}>
-              {t('ui.settings.interface.windowTransparency.value', {
+              {t(option.valueKey, {
                 value: interfaceSettings[option.key],
               })}
             </span>
@@ -59,16 +59,16 @@ export function GameSettingsInterfacePanel({
           </span>
           <input
             type="range"
-            min="0"
-            max="100"
-            step="1"
+            min={String(option.min)}
+            max={String(option.max)}
+            step={String(option.step)}
             value={interfaceSettings[option.key]}
             onChange={(event) => {
-              const windowTransparency = Number(event.currentTarget.value);
+              const nextValue = Number(event.currentTarget.value);
 
               onChange((current) => ({
                 ...current,
-                windowTransparency,
+                [option.key]: nextValue,
               }));
             }}
           />

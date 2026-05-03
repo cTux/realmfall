@@ -6,12 +6,16 @@
   left: 0;
   height: 100%;
   z-index: 35;
+  pointer-events: auto;
+}
+
+.scaleShell {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  justify-content: flex-start;
+  height: 100%;
   padding: 2px;
   box-sizing: border-box;
+  zoom: var(--app-ui-scale, 1);
 }
 
 .group {
@@ -47,7 +51,7 @@
   border: 1px solid rgb(148 163 184 / 28%);
   background: rgb(8 15 30 / 96%);
   color: #e2e8f0;
-  font-size: 1.2rem;
+  font-size: ui.scaled-font-size(1.2rem);
   line-height: 1.1;
   box-shadow: 0 10px 24px rgb(0 0 0 / 32%);
 }
@@ -98,7 +102,7 @@
 }
 
 @media (width <= 980px) {
-  .dock {
+  .scaleShell {
     padding-right: 0.25rem;
   }
 }

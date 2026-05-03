@@ -112,30 +112,30 @@
 .sectionTitle {
   margin: 0;
   color: #f8fafc;
-  font-size: 0.96rem;
+  font-size: ui.scaled-font-size(0.96rem);
 }
 
 .sectionDescription {
   margin: 0;
   color: #94a3b8;
-  font-size: 0.76rem;
+  font-size: ui.scaled-font-size(0.76rem);
   line-height: 1.5;
 }
 
 .rangeLabel {
   color: #e2e8f0;
-  font-size: 0.84rem;
+  font-size: ui.scaled-font-size(0.84rem);
 }
 
 .rangeDescription {
   color: #94a3b8;
-  font-size: 0.76rem;
+  font-size: ui.scaled-font-size(0.76rem);
   line-height: 1.4;
 }
 
 .rangeValue {
   color: #7dd3fc;
-  font-size: 0.78rem;
+  font-size: ui.scaled-font-size(0.78rem);
   font-variant-numeric: tabular-nums;
 }
 
@@ -183,12 +183,12 @@
 
 .themeOptionLabel {
   color: inherit;
-  font-size: 0.8rem;
+  font-size: ui.scaled-font-size(0.8rem);
 }
 
 .themeOptionDescription {
   color: #94a3b8;
-  font-size: 0.72rem;
+  font-size: ui.scaled-font-size(0.72rem);
   line-height: 1.4;
 }
 
@@ -239,13 +239,13 @@
 .saveAreaTitle {
   margin: 0;
   color: #f8fafc;
-  font-size: 0.82rem;
+  font-size: ui.scaled-font-size(0.82rem);
 }
 
 .saveAreaDescription {
   margin: 0;
   color: #94a3b8;
-  font-size: 0.74rem;
+  font-size: ui.scaled-font-size(0.74rem);
   line-height: 1.45;
 }
 

@@ -1,3 +1,5 @@
+@use '../../styles/ui';
+
 .switch {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -15,12 +17,12 @@
 
 .label {
   color: #f8fafc;
-  font-size: 0.9rem;
+  font-size: ui.scaled-font-size(0.9rem);
 }
 
 .description {
   color: #94a3b8;
-  font-size: 0.74rem;
+  font-size: ui.scaled-font-size(0.74rem);
   line-height: 1.4;
 }
 

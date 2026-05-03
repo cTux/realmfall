@@ -32,7 +32,10 @@ describe('ui tooltip behavior', () => {
     });
 
     const tooltip = host.querySelector('div[class*="tooltip"]') as HTMLElement;
+    const tooltipAnchor = tooltip.parentElement as HTMLElement;
     expect(tooltip.style.transform).toBe('translateX(-100%)');
+    expect(tooltipAnchor.style.left).toBe('120px');
+    expect(tooltipAnchor.style.top).toBe('80px');
 
     expect(
       getTooltipPlacementForRect(
@@ -138,6 +141,7 @@ describe('ui tooltip behavior', () => {
     });
 
     let tooltip = host.querySelector('div[class*="tooltip"]') as HTMLElement;
+    let tooltipAnchor = tooltip.parentElement as HTMLElement;
     expect(tooltip.dataset.tooltipVisible).toBe('true');
 
     await act(async () => {
@@ -145,9 +149,10 @@ describe('ui tooltip behavior', () => {
     });
 
     tooltip = host.querySelector('div[class*="tooltip"]') as HTMLElement;
+    tooltipAnchor = tooltip.parentElement as HTMLElement;
     expect(tooltip.dataset.tooltipVisible).toBe('true');
-    expect(tooltip.style.left).toBe('90px');
-    expect(tooltip.style.top).toBe('120px');
+    expect(tooltipAnchor.style.left).toBe('90px');
+    expect(tooltipAnchor.style.top).toBe('120px');
 
     await act(async () => {
       root.render(<GameTooltip tooltip={null} />);
@@ -203,9 +208,10 @@ describe('ui tooltip behavior', () => {
     });
 
     const tooltip = host.querySelector('div[class*="tooltip"]') as HTMLElement;
+    const tooltipAnchor = tooltip.parentElement as HTMLElement;
     expect(tooltip.dataset.tooltipVisible).toBe('true');
-    expect(tooltip.style.left).toBe('110px');
-    expect(tooltip.style.top).toBe('130px');
+    expect(tooltipAnchor.style.left).toBe('110px');
+    expect(tooltipAnchor.style.top).toBe('130px');
 
     await act(async () => {
       root.unmount();

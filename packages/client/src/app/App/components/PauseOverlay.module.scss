@@ -1,3 +1,5 @@
+@use '../../../styles/ui';
+
 .overlay {
   position: absolute;
   inset: 0;
@@ -9,6 +11,11 @@
   background:
     radial-gradient(circle at center, rgb(15 23 42 / 18%), rgb(2 6 23 / 62%)),
     linear-gradient(180deg, rgb(2 6 23 / 22%), rgb(2 6 23 / 55%));
+}
+
+.cardShell {
+  display: grid;
+  zoom: var(--app-ui-scale, 1);
 }
 
 .card {
@@ -25,13 +32,13 @@
 .title {
   margin: 0;
   color: #f8fafc;
-  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  font-size: ui.scaled-font-size(clamp(1.8rem, 3vw, 2.8rem));
   line-height: 1.05;
 }
 
 .subtitle {
   margin: 0.7rem 0 0;
   color: #cbd5e1;
-  font-size: 0.98rem;
+  font-size: ui.scaled-font-size(0.98rem);
   line-height: 1.5;
 }

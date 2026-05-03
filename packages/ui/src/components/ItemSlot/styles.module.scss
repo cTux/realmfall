@@ -74,13 +74,13 @@
   border: 1px solid rgb(148 163 184 / 25%);
   border-radius: 999px;
   padding: 0.04rem 0.26rem;
-  font-size: 0.74rem;
+  font-size: ui.scaled-font-size(0.74rem);
   line-height: 1;
 
   .slot[data-size='compact'] & {
     bottom: -4px;
     padding: 0.02rem 0.18rem;
-    font-size: 0.58rem;
+    font-size: ui.scaled-font-size(0.58rem);
   }
 }
 

@@ -33,20 +33,9 @@ export const WindowDock = memo(function WindowDock({
 
   return (
     <aside className={styles.dock} aria-label={t('ui.dock.ariaLabel')}>
-      <div className={styles.group}>
-        {startEntries.map((entry) => (
-          <DockButton
-            key={entry.key}
-            entry={entry}
-            activeTooltip={activeTooltip}
-            onToggle={onToggle}
-            setActiveTooltip={setActiveTooltip}
-          />
-        ))}
-      </div>
-      {endEntries.length > 0 ? (
-        <div className={styles.group} data-align="end">
-          {endEntries.map((entry) => (
+      <div className={styles.scaleShell}>
+        <div className={styles.group}>
+          {startEntries.map((entry) => (
             <DockButton
               key={entry.key}
               entry={entry}
@@ -56,7 +45,20 @@ export const WindowDock = memo(function WindowDock({
             />
           ))}
         </div>
-      ) : null}
+        {endEntries.length > 0 ? (
+          <div className={styles.group} data-align="end">
+            {endEntries.map((entry) => (
+              <DockButton
+                key={entry.key}
+                entry={entry}
+                activeTooltip={activeTooltip}
+                onToggle={onToggle}
+                setActiveTooltip={setActiveTooltip}
+              />
+            ))}
+          </div>
+        ) : null}
+      </div>
     </aside>
   );
 });

@@ -91,111 +91,122 @@ export const GameTooltip = memo(function GameTooltip({
   return (
     <div
       ref={tooltipRef}
-      className={styles.tooltip}
-      data-tooltip-visible={rendered.visible}
-      style={tooltipStyle(displayPosition, rendered.tooltip.placement)}
+      className={styles.anchor}
+      style={tooltipAnchorStyle(displayPosition)}
     >
-      <strong
-        className={styles.title}
-        style={
-          rendered.tooltip.borderColor
-            ? { color: rendered.tooltip.borderColor }
-            : undefined
-        }
+      <div
+        className={styles.tooltip}
+        data-tooltip-visible={rendered.visible}
+        style={tooltipSurfaceStyle(rendered.tooltip.placement)}
       >
-        {rendered.tooltip.title}
-      </strong>
-      {rendered.tooltip.lines.map((line, index) => {
-        const className = tooltipToneClassName(line.tone);
+        <strong
+          className={styles.title}
+          style={
+            rendered.tooltip.borderColor
+              ? { color: rendered.tooltip.borderColor }
+              : undefined
+          }
+        >
+          {rendered.tooltip.title}
+        </strong>
+        {rendered.tooltip.lines.map((line, index) => {
+          const className = tooltipToneClassName(line.tone);
 
-        if (
-          line.kind === 'bar' &&
-          typeof line.current === 'number' &&
-          typeof line.max === 'number'
-        ) {
-          const fill =
-            line.max > 0
-              ? Math.max(0, Math.min(100, (line.current / line.max) * 100))
-              : 0;
-          return (
-            <div
-              key={`${rendered.tooltip.title}-${line.label ?? 'bar'}-${index}`}
-              className={styles.barBlock}
-            >
-              <div className={styles.statRow}>
-                <span>{line.label}</span>
-                <span>
-                  {formatCompactNumber(line.current)}/
-                  {formatCompactNumber(line.max)}
+          if (
+            line.kind === 'bar' &&
+            typeof line.current === 'number' &&
+            typeof line.max === 'number'
+          ) {
+            const fill =
+              line.max > 0
+                ? Math.max(0, Math.min(100, (line.current / line.max) * 100))
+                : 0;
+            return (
+              <div
+                key={`${rendered.tooltip.title}-${line.label ?? 'bar'}-${index}`}
+                className={styles.barBlock}
+              >
+                <div className={styles.statRow}>
+                  <span>{line.label}</span>
+                  <span>
+                    {formatCompactNumber(line.current)}/
+                    {formatCompactNumber(line.max)}
+                  </span>
+                </div>
+                <div className={styles.barTrack}>
+                  <div
+                    className={styles.barFill}
+                    style={{ width: `${fill}%` }}
+                  />
+                </div>
+              </div>
+            );
+          }
+
+          if (line.kind === 'stat' && line.label) {
+            const icon = line.icon ? resolveIconAsset(line.icon) : undefined;
+            return (
+              <div
+                key={`${rendered.tooltip.title}-${line.label}-${index}`}
+                className={`${styles.statRow} ${className ?? ''}`.trim()}
+              >
+                <span className={styles.statLabel}>
+                  {icon ? (
+                    line.iconTint ? (
+                      <span
+                        aria-hidden="true"
+                        className={styles.statIconMask}
+                        style={iconMaskStyle(icon, line.iconTint)}
+                      />
+                    ) : (
+                      <img
+                        src={icon}
+                        alt=""
+                        aria-hidden="true"
+                        className={styles.statIcon}
+                      />
+                    )
+                  ) : null}
+                  <span>{line.label}</span>
                 </span>
+                <span>{formatCompactNumberish(line.value ?? '')}</span>
               </div>
-              <div className={styles.barTrack}>
-                <div className={styles.barFill} style={{ width: `${fill}%` }} />
-              </div>
-            </div>
-          );
-        }
+            );
+          }
 
-        if (line.kind === 'stat' && line.label) {
-          const icon = line.icon ? resolveIconAsset(line.icon) : undefined;
           return (
             <div
-              key={`${rendered.tooltip.title}-${line.label}-${index}`}
-              className={`${styles.statRow} ${className ?? ''}`.trim()}
+              key={`${rendered.tooltip.title}-${line.text ?? 'text'}-${index}`}
+              className={
+                isSubtitleLine(line.text)
+                  ? styles.subtitle
+                  : (className ?? undefined)
+              }
             >
-              <span className={styles.statLabel}>
-                {icon ? (
-                  line.iconTint ? (
-                    <span
-                      aria-hidden="true"
-                      className={styles.statIconMask}
-                      style={iconMaskStyle(icon, line.iconTint)}
-                    />
-                  ) : (
-                    <img
-                      src={icon}
-                      alt=""
-                      aria-hidden="true"
-                      className={styles.statIcon}
-                    />
-                  )
-                ) : null}
-                <span>{line.label}</span>
-              </span>
-              <span>{formatCompactNumberish(line.value ?? '')}</span>
+              {line.text}
             </div>
           );
-        }
-
-        return (
-          <div
-            key={`${rendered.tooltip.title}-${line.text ?? 'text'}-${index}`}
-            className={
-              isSubtitleLine(line.text)
-                ? styles.subtitle
-                : (className ?? undefined)
-            }
-          >
-            {line.text}
-          </div>
-        );
-      })}
+        })}
+      </div>
     </div>
   );
 });
 
-function tooltipStyle(
-  position: { x: number; y: number },
+function tooltipAnchorStyle(position: { x: number; y: number }) {
+  return {
+    left: position.x,
+    top: position.y,
+  } satisfies CSSProperties;
+}
+
+function tooltipSurfaceStyle(
   placement?: GameTooltipProps['tooltip'] extends infer T
     ? T extends { placement?: infer P }
       ? P
       : never
     : never,
 ) {
-  const style: CSSProperties = {
-    left: position.x,
-    top: position.y,
-  };
+  const style: CSSProperties = {};
 
   if (placement === 'left') {
     style.transform = 'translateX(-100%)';

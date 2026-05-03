@@ -50,7 +50,12 @@ describe('Window', () => {
     await act(async () => {
       root.render(
         <div style={{ '--app-window-opacity': '0.35' } as CSSProperties}>
-          <Window title="Window" position={{ x: 24, y: 32 }} onMove={() => {}}>
+          <Window
+            title="Window"
+            position={{ x: 24, y: 32, width: 560, height: 567 }}
+            onMove={() => {}}
+            resizeBounds={{ minWidth: 280, minHeight: 180 }}
+          >
             Body
           </Window>
         </div>,
@@ -60,10 +65,28 @@ describe('Window', () => {
     const windowElement = host.querySelector(
       'section[class*="floatingWindow"]',
     ) as HTMLElement | null;
+    const windowSurface = host.querySelector(
+      'div[class*="windowSurface"]',
+    ) as HTMLDivElement | null;
+    const resizeHandle = host.querySelector(
+      'div[class*="resizeHandle"]',
+    ) as HTMLDivElement | null;
 
     expect(windowElement).not.toBeNull();
+    expect(windowSurface).not.toBeNull();
+    expect(resizeHandle).not.toBeNull();
     expect(windowElement?.style.opacity).toBe(
       'var(--window-opacity, var(--app-window-opacity, 1))',
     );
+    expect(windowElement?.style.getPropertyValue('--window-base-width')).toBe(
+      '560px',
+    );
+    expect(windowElement?.style.getPropertyValue('--window-base-height')).toBe(
+      '567px',
+    );
+    expect(getComputedStyle(windowElement!).pointerEvents).toBe('auto');
+    expect(windowSurface?.style.width).toBe('var(--window-base-width)');
+    expect(windowSurface?.style.height).toBe('var(--window-base-height)');
+    expect(resizeHandle?.parentElement).toBe(windowSurface);
   });
 });

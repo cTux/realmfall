@@ -52,60 +52,62 @@ export const ActionBar = memo(function ActionBar({
 
   return (
     <div className={styles.root} ref={rootRef}>
-      {pickerSlotIndex !== null ? (
-        <div
-          className={styles.picker}
-          role="dialog"
-          aria-label={t('ui.actionBar.picker.title')}
-        >
-          <div className={styles.pickerHeader}>
-            {t('ui.actionBar.picker.title')}
+      <div className={styles.scaleShell}>
+        {pickerSlotIndex !== null ? (
+          <div
+            className={styles.picker}
+            role="dialog"
+            aria-label={t('ui.actionBar.picker.title')}
+          >
+            <div className={styles.pickerHeader}>
+              {t('ui.actionBar.picker.title')}
+            </div>
+            <div className={styles.pickerGrid}>
+              {consumables.map((item) => (
+                <ItemSlot
+                  key={item.id}
+                  ariaLabel={t('ui.actionBar.picker.optionLabel', {
+                    item: item.name,
+                  })}
+                  item={item}
+                  size="compact"
+                  onClick={() => {
+                    onAssignSlot(pickerSlotIndex, item);
+                    setPickerSlotIndex(null);
+                  }}
+                  onMouseEnter={(event) => onHoverItem(event, item)}
+                  onMouseLeave={onLeaveItem}
+                />
+              ))}
+              {consumables.length === 0 ? (
+                <div className={styles.empty}>
+                  {t('ui.actionBar.picker.empty')}
+                </div>
+              ) : null}
+            </div>
           </div>
-          <div className={styles.pickerGrid}>
-            {consumables.map((item) => (
-              <ItemSlot
-                key={item.id}
-                ariaLabel={t('ui.actionBar.picker.optionLabel', {
-                  item: item.name,
-                })}
-                item={item}
-                size="compact"
-                onClick={() => {
-                  onAssignSlot(pickerSlotIndex, item);
-                  setPickerSlotIndex(null);
-                }}
-                onMouseEnter={(event) => onHoverItem(event, item)}
-                onMouseLeave={onLeaveItem}
-              />
-            ))}
-            {consumables.length === 0 ? (
-              <div className={styles.empty}>
-                {t('ui.actionBar.picker.empty')}
-              </div>
-            ) : null}
-          </div>
+        ) : null}
+        <div className={styles.bar} aria-label={t('ui.actionBar.ariaLabel')}>
+          {slotItems.map(({ slotIndex, displayItem, depleted }) => (
+            <ActionBarSlot
+              key={slotIndex}
+              slotIndex={slotIndex}
+              item={displayItem}
+              depleted={depleted}
+              onClick={() =>
+                setPickerSlotIndex((current) =>
+                  current === slotIndex ? null : slotIndex,
+                )
+              }
+              onClear={() => {
+                setPickerSlotIndex(null);
+                onClearSlot(slotIndex);
+              }}
+              onHoverItem={onHoverItem}
+              onLeaveItem={onLeaveItem}
+            />
+          ))}
         </div>
-      ) : null}
-      <div className={styles.bar} aria-label={t('ui.actionBar.ariaLabel')}>
-        {slotItems.map(({ slotIndex, displayItem, depleted }) => (
-          <ActionBarSlot
-            key={slotIndex}
-            slotIndex={slotIndex}
-            item={displayItem}
-            depleted={depleted}
-            onClick={() =>
-              setPickerSlotIndex((current) =>
-                current === slotIndex ? null : slotIndex,
-              )
-            }
-            onClear={() => {
-              setPickerSlotIndex(null);
-              onClearSlot(slotIndex);
-            }}
-            onHoverItem={onHoverItem}
-            onLeaveItem={onLeaveItem}
-          />
-        ))}
       </div>
     </div>
   );

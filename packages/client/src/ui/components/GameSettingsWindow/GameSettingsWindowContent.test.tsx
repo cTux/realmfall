@@ -10,6 +10,8 @@ import { GameSettingsWindowContent } from './GameSettingsWindowContent';
 
 const DEFAULT_INTERFACE_SETTINGS = {
   fontFamily: 'pixelifySans' as const,
+  fontSize: 100,
+  interfaceScale: 100,
   windowTransparency: 0,
 };
 
@@ -664,7 +666,7 @@ describe('GameSettingsWindowContent', () => {
     ]);
   });
 
-  it('saves interface font and transparency plus gameplay automation toggles in the payload', async () => {
+  it('saves interface font, font size, interface scale, and transparency plus gameplay automation toggles in the payload', async () => {
     const onSave = vi.fn(async () => undefined);
 
     await act(async () => {
@@ -692,21 +694,30 @@ describe('GameSettingsWindowContent', () => {
       interfaceTab?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
 
-    const transparencySlider = host.querySelector(
-      'input[type="range"]',
-    ) as HTMLInputElement | null;
+    const interfaceSliders = Array.from(
+      host.querySelectorAll('input[type="range"]'),
+    ) as HTMLInputElement[];
     const fontSelect = host.querySelector('select') as HTMLSelectElement | null;
 
-    expect(transparencySlider).not.toBeNull();
+    expect(interfaceSliders).toHaveLength(3);
     expect(fontSelect).not.toBeNull();
 
     await act(async () => {
-      if (transparencySlider) {
+      const fontSizeSlider = interfaceSliders[0];
+      const interfaceScaleSlider = interfaceSliders[1];
+      const transparencySlider = interfaceSliders[2];
+      if (fontSizeSlider && interfaceScaleSlider && transparencySlider) {
         const setValue = Object.getOwnPropertyDescriptor(
           HTMLInputElement.prototype,
           'value',
         )?.set;
 
+        setValue?.call(fontSizeSlider, '118');
+        fontSizeSlider.dispatchEvent(new Event('input', { bubbles: true }));
+        setValue?.call(interfaceScaleSlider, '126');
+        interfaceScaleSlider.dispatchEvent(
+          new Event('input', { bubbles: true }),
+        );
         setValue?.call(transparencySlider, '45');
         transparencySlider.dispatchEvent(new Event('input', { bubbles: true }));
       }
@@ -784,6 +795,8 @@ describe('GameSettingsWindowContent', () => {
       graphics: DEFAULT_GRAPHICS_SETTINGS,
       interface: {
         fontFamily: 'ubuntu',
+        fontSize: 118,
+        interfaceScale: 126,
         windowTransparency: 45,
       },
       gameplay: {

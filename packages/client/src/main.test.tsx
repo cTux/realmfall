@@ -23,6 +23,8 @@ describe('main bootstrap', () => {
     loadI18n = vi.fn(() => Promise.resolve({}));
     loadInterfaceSettings = vi.fn(() => ({
       fontFamily: 'pixelifySans',
+      fontSize: 100,
+      interfaceScale: 100,
       windowTransparency: 0,
     }));
     applyInterfaceFontFamily = vi.fn();
@@ -124,6 +126,8 @@ describe('main bootstrap', () => {
     let resolveFont!: () => void;
     loadInterfaceSettings.mockReturnValueOnce({
       fontFamily: 'ubuntu',
+      fontSize: 100,
+      interfaceScale: 100,
       windowTransparency: 0,
     });
     loadInterfaceFontFamily.mockImplementationOnce(
