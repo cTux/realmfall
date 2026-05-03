@@ -71,7 +71,13 @@ describe('ui inventory window surfaces', () => {
         ui.host.querySelectorAll(
           'button[aria-label="Equippable"], button[aria-label="Consumable"], button[aria-label="Materials"], button[aria-label="Recipes"], button[aria-label="Currency"], button[aria-label="Resources"]',
         ),
-      ).every((button) => button.textContent === ''),
+      ).every(
+        (button) =>
+          button.getAttribute('data-filter-button') === 'true' &&
+          button.getAttribute('data-size') === 'small' &&
+          button.textContent === '' &&
+          button.querySelector('[data-filter-icon="true"]') !== null,
+      ),
     ).toBe(true);
     expect(itemButtonCount(ui.host)).toBe(6);
 
@@ -165,10 +171,5 @@ describe('ui inventory window surfaces', () => {
 });
 
 function itemButtonCount(host: HTMLElement) {
-  return (
-    host.querySelectorAll('button[data-size="compact"]').length -
-    host.querySelectorAll(
-      'button[aria-label="Equippable"], button[aria-label="Consumable"], button[aria-label="Materials"], button[aria-label="Recipes"], button[aria-label="Currency"], button[aria-label="Resources"]',
-    ).length
-  );
+  return host.querySelectorAll('button[data-size="compact"]').length;
 }

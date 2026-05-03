@@ -154,6 +154,18 @@ $tile-transition:
   border-radius: $ability-radius;
 }
 
+@mixin window-header-icon-button($tone: default) {
+  @include window-header-button($tone);
+
+  display: inline-grid;
+  place-items: center;
+  font-size: 0;
+
+  &[data-size='small'] {
+    min-width: 1.6rem;
+  }
+}
+
 @mixin tab-surface($tone: default) {
   @include control-surface-base;
   @include control-surface($tone);

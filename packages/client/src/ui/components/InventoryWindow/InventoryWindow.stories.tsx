@@ -73,6 +73,14 @@ export const SortMenuOpen: Story = {
 };
 
 export const MixedCategories: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Category filters render as icon-only controls on the shared close-button surface.',
+      },
+    },
+  },
   args: {
     inventory: [
       buildItemFromConfig(ItemId.TownKnife, { id: 'story-knife' }),

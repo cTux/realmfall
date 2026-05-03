@@ -90,6 +90,9 @@ describe('ui recipe book window surfaces', () => {
     const noneButton = Array.from(ui.host.querySelectorAll('button')).find(
       (button) => button.textContent === 'None',
     );
+    const slotFilterButtons = Array.from(
+      ui.host.querySelectorAll('button[data-filter-button="true"]'),
+    );
 
     expect(tablist?.getAttribute('aria-orientation')).toBe('horizontal');
     expect(allButton?.getAttribute('data-size')).toBe('small');
@@ -97,6 +100,15 @@ describe('ui recipe book window surfaces', () => {
     expect(tabs.every((tab) => tab.getAttribute('data-size') === 'small')).toBe(
       true,
     );
+    expect(slotFilterButtons.length).toBeGreaterThan(0);
+    expect(
+      slotFilterButtons.every(
+        (button) =>
+          button.getAttribute('data-size') === 'small' &&
+          button.textContent === '' &&
+          button.querySelector('[data-filter-icon="true"]') !== null,
+      ),
+    ).toBe(true);
 
     await ui.unmount();
   });

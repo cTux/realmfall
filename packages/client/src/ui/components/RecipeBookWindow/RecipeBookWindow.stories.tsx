@@ -48,6 +48,14 @@ export const HandRecipes: Story = {
 };
 
 export const CraftingFilters: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Crafting slot filters reuse the shared close-button surface with centered item icons.',
+      },
+    },
+  },
   args: {
     currentStructure: 'workshop',
     preferredSkill: Skill.Crafting,
