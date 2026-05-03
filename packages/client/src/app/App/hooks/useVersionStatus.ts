@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
+import * as v from 'valibot';
 import { APP_VERSION } from '../../../version';
 
 export const VERSION_POLL_INTERVAL_MS = 5 * 60_000;
+const versionPayloadSchema = v.object({
+  version: v.string(),
+});
 
 export type VersionStatusState =
   | {
@@ -23,12 +27,7 @@ function getVersionJsonUrl() {
 }
 
 function isVersionPayload(value: unknown): value is { version: string } {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'version' in value &&
-    typeof value.version === 'string'
-  );
+  return v.is(versionPayloadSchema, value);
 }
 
 function getResolvedStatus(remoteVersion: string, currentVersion: string) {

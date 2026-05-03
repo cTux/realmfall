@@ -69,4 +69,42 @@ describe('useVersionStatus', () => {
     expect(statusNode?.dataset.status).toBe('outdated');
     expect(statusNode?.dataset.version).toBe('1.0.1');
   });
+
+  it('keeps polling when the version payload is malformed and recovers on a later response', async () => {
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ version: 101 }),
+      } as unknown as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ version: '1.0.1' }),
+      } as unknown as Response);
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    await act(async () => {
+      root.render(<VersionStatusHarness />);
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const statusNode = host.firstElementChild as HTMLDivElement | null;
+    expect(statusNode?.dataset.status).toBe('fetching');
+    expect(statusNode?.dataset.version).toBe('');
+
+    await act(async () => {
+      vi.advanceTimersByTime(VERSION_POLL_INTERVAL_MS);
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(statusNode?.dataset.status).toBe('outdated');
+    expect(statusNode?.dataset.version).toBe('1.0.1');
+  });
 });
