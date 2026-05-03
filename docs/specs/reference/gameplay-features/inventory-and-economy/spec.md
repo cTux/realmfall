@@ -18,7 +18,7 @@ This spec covers inventory actions, gold handling, and town trading.
 - While standing at a rune forge, mana font, or corruption altar, eligible non-corrupted equippable inventory items expose item-context actions for reforge, enchant, or corrupt flows directly from the inventory menu.
 - Crafting materials carry a dedicated crafting-material tag, and their context menu can open the recipe book filtered to matching recipes with a reset-filter action in the book.
 - Consumables are only spent when at least one of their effects would change the current player state.
-- Using any consumable starts a shared `2s` consumable cooldown, and no other consumable can be used again until that cooldown expires.
+- Using a consumable during active combat starts a shared `2s` consumable cooldown, and leaving combat clears that cooldown immediately.
 - Prospecting converts equippable inventory items into value through the forge flow.
 - While the hex info window is open at a forge or town, the bulk equippable prospect action keeps the `(Q)` body button, and towns only show the title-bar `S(e)ll all` action when unlocked equippable items can actually be sold.
 - Reforging, enchanting, and corrupting all consume gold through the same inventory-backed gold resource model used by town trading and prospecting.

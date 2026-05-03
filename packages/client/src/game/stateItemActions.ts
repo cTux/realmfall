@@ -1,4 +1,8 @@
 import { t } from '../i18n';
+import {
+  clearConsumableCooldownIfOutOfCombat,
+  isCombatActive,
+} from './combatActivity';
 import { formatEquipmentSlotLabel } from '../i18n/labels';
 import {
   type ConsumableEffectDescriptor,
@@ -41,9 +45,7 @@ type AppliedConsumableEffect = {
   amount: number;
   displayAmount?: number;
   displayAsPercent?: boolean;
-  kind:
-    | keyof typeof CONSUMABLE_LOG_EFFECT_KEYS
-    | 'terrain';
+  kind: keyof typeof CONSUMABLE_LOG_EFFECT_KEYS | 'terrain';
   terrain?: Terrain;
   radius?: number;
 };
@@ -177,7 +179,10 @@ function applyInventoryItemUse(state: GameState, itemId: string): GameState {
   }
   if (!hasItemTag(item, GAME_TAGS.item.consumable))
     return message(state, t('game.message.item.cannotUse'));
-  if ((state.player.consumableCooldownEndsAt ?? 0) > state.worldTimeMs) {
+  if (
+    isCombatActive(state.combat) &&
+    (state.player.consumableCooldownEndsAt ?? 0) > state.worldTimeMs
+  ) {
     return message(
       state,
       t('game.message.useItem.cooldown', {
@@ -229,6 +234,11 @@ function consumeItem(state: GameState, itemIndex: number, item: Item) {
 }
 
 function startConsumableCooldown(state: GameState) {
+  if (!isCombatActive(state.combat)) {
+    clearConsumableCooldownIfOutOfCombat(state);
+    return;
+  }
+
   state.player.consumableCooldownEndsAt =
     state.worldTimeMs + CONSUMABLE_COOLDOWN_MS;
 }

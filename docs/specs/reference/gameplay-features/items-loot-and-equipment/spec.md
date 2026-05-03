@@ -30,7 +30,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - Enemies can drop gold, consumables, recipe pages, home scrolls, health potions, mana potions, blood moon gear, meat, and skinning materials depending on enemy ids and tags rather than localized names.
 - Food consumables restore HP and MP by percentage instead of flat values, using the item's healing rating as the restore percent with a minimum of `10%` for each resource while hunger and thirst remain flat restores.
 - Health potions and mana potions use vendored local SVG assets and restore `35%` of the corresponding max stat on use.
-- Consumables share a single `2s` cooldown lockout, and Home Scroll usage also starts that same shared consumable cooldown.
+- Consumables share a single `2s` cooldown lockout only during active combat, and leaving combat clears that shared cooldown immediately.
 - Consumable-use effects and cooldown application are resolved from the focused item-action mutation flow rather than from the broad gameplay state facade.
 - Consumable tooltip copy and consumable-use resolution both read from the same shared consumable-effect descriptor model, so percent restores and hunger or thirst restores do not drift between UI text and gameplay behavior.
 - Equippable items can carry persistent modification metadata for a reforged secondary-stat slot, one enchanted extra secondary stat, and a corrupted flag that survives cloning, scaling, tooltip rendering, and save normalization.

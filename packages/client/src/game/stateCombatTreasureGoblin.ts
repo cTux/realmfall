@@ -1,5 +1,6 @@
 import { t } from '../i18n';
 import { TREASURE_GOBLIN_BALANCE } from './config';
+import { clearConsumableCooldownIfOutOfCombat } from './combatActivity';
 import { hexKey, hexesInRange, type HexCoord } from './hex';
 import { addLog } from './logs';
 import { createRng } from './random';
@@ -172,6 +173,7 @@ function endCombatAfterTreasureGoblinEscape(
       { count: followOnEnemyIds.length },
     ),
   );
+  clearConsumableCooldownIfOutOfCombat(state);
 }
 
 function compareHexCoords(a: HexCoord, b: HexCoord) {

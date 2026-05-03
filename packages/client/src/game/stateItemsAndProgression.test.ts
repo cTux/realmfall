@@ -12,6 +12,7 @@ import {
   type GameState,
   type Item,
 } from './state';
+import { createCombatActorState } from './combat';
 import { GAME_CONFIG, HOME_SCROLL_ITEM_NAME_KEY } from './config';
 import { t } from '../i18n';
 import { buildItemFromConfig } from './content/items';
@@ -70,25 +71,62 @@ describe('game state items and progression', () => {
     );
   });
 
-  it('applies a shared consumable cooldown after using one', () => {
+  it('does not apply a consumable cooldown outside combat', () => {
     const game = createGame(3, 'use-cooldown-seed');
-    game.player.hp = 20;
-    game.player.hunger = 80;
+    game.player.hp = 25;
+    game.player.mana = 3;
+    game.player.inventory.push(
+      buildItemFromConfig('health-potion', {
+        id: 'health-potion-no-combat',
+      }),
+      buildItemFromConfig('mana-potion', { id: 'mana-potion-no-combat' }),
+    );
 
-    const used = useItem(game, 'starter-ration');
+    const healed = useItem(game, 'health-potion-no-combat');
+
+    expect(healed.player.consumableCooldownEndsAt).toBe(0);
+    expect(
+      healed.player.inventory.find(
+        (item) => item.id === 'health-potion-no-combat',
+      ),
+    ).toBeUndefined();
+
+    expect(
+      useItem(healed, 'mana-potion-no-combat').player.inventory.find(
+        (item) => item.id === 'mana-potion-no-combat',
+      ),
+    ).toBeUndefined();
+  });
+
+  it('applies the shared consumable cooldown during active combat', () => {
+    const game = createGame(3, 'combat-consumable-cooldown-seed');
+    game.player.hp = 25;
+    game.player.mana = 3;
+    game.combat = {
+      coord: { q: 0, r: 0 },
+      enemyIds: [],
+      started: true,
+      player: createCombatActorState(0, []),
+      enemies: {},
+      enemyStateById: {},
+    };
+    game.player.inventory.push(
+      buildItemFromConfig('health-potion', { id: 'health-potion-combat' }),
+      buildItemFromConfig('mana-potion', { id: 'mana-potion-combat' }),
+    );
+
+    const used = useItem(game, 'health-potion-combat');
 
     expect(used.player.consumableCooldownEndsAt).toBe(2_000);
     expect(
-      used.player.inventory.find((item) => item.id === 'starter-ration')
-        ?.quantity,
-    ).toBe(1);
+      used.player.inventory.find((item) => item.id === 'health-potion-combat'),
+    ).toBeUndefined();
 
-    const blocked = useItem(used, 'starter-ration');
+    const blocked = useItem(used, 'mana-potion-combat');
 
     expect(
-      blocked.player.inventory.find((item) => item.id === 'starter-ration')
-        ?.quantity,
-    ).toBe(1);
+      blocked.player.inventory.find((item) => item.id === 'mana-potion-combat'),
+    ).toBeDefined();
     expect(blocked.logs[0]?.text).toContain(
       'Consumables are on cooldown for 2s.',
     );
@@ -97,19 +135,29 @@ describe('game state items and progression', () => {
       ...used,
       worldTimeMs: 2_000,
     };
-    const usedAgain = useItem(ready, 'starter-ration');
+    const usedAgain = useItem(ready, 'mana-potion-combat');
 
     expect(
-      usedAgain.player.inventory.find((item) => item.id === 'starter-ration'),
+      usedAgain.player.inventory.find(
+        (item) => item.id === 'mana-potion-combat',
+      ),
     ).toBeUndefined();
   });
 
-  it('applies the shared consumable cooldown after using a home scroll', () => {
+  it('clears the shared consumable cooldown immediately when a home scroll exits combat', () => {
     const game = createGame(3, 'home-scroll-cooldown-seed');
     game.player.coord = { q: 2, r: -1 };
     game.homeHex = { q: 0, r: 0 };
     game.player.hp = 20;
     game.player.hunger = 80;
+    game.combat = {
+      coord: { q: 2, r: -1 },
+      enemyIds: [],
+      started: true,
+      player: createCombatActorState(0, []),
+      enemies: {},
+      enemyStateById: {},
+    };
     game.player.inventory.push({
       id: 'home-scroll-1',
       itemKey: 'home-scroll',
@@ -127,20 +175,18 @@ describe('game state items and progression', () => {
     const usedScroll = useItem(game, 'home-scroll-1');
 
     expect(usedScroll.player.coord).toEqual({ q: 0, r: 0 });
-    expect(usedScroll.player.consumableCooldownEndsAt).toBe(2_000);
+    expect(usedScroll.player.consumableCooldownEndsAt).toBe(0);
+    expect(usedScroll.combat).toBeNull();
     expect(
       usedScroll.player.inventory.find((item) => item.id === 'home-scroll-1'),
     ).toBeUndefined();
 
-    const blocked = useItem(usedScroll, 'starter-ration');
+    const usedRation = useItem(usedScroll, 'starter-ration');
 
     expect(
-      blocked.player.inventory.find((item) => item.id === 'starter-ration')
+      usedRation.player.inventory.find((item) => item.id === 'starter-ration')
         ?.quantity,
-    ).toBe(2);
-    expect(blocked.logs[0]?.text).toContain(
-      'Consumables are on cooldown for 2s.',
-    );
+    ).toBe(1);
   });
 
   it('uses health and mana potions for 35 percent of the matching max stat', () => {

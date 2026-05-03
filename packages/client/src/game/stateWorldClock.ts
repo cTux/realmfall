@@ -1,9 +1,14 @@
 import { t } from '../i18n';
 import {
+  clearConsumableCooldownIfOutOfCombat,
+  isCombatActive,
+} from './combatActivity';
+import {
   BLOOD_MOON_CHANCE,
   HARVEST_MOON_CHANCE,
   WORLD_MOVE_HEX_COOLDOWN_MS,
 } from './config';
+import { getPlayerCombatStats } from './progression';
 import { syncEnemyBloodMoonState } from './combat';
 import {
   addLog,
@@ -156,10 +161,53 @@ export function syncPlayerStatusEffects(
 ): GameState {
   const next = copyGameState(state, { player: true });
   next.worldTimeMs = worldTimeMs;
+  const previousWorldTimeMs = state.worldTimeMs;
 
-  if (!processPlayerStatusEffects(next)) {
+  const statusEffectsChanged = processPlayerStatusEffects(next);
+  const passiveRegenChanged = regenerateOutOfCombatResources(
+    next,
+    previousWorldTimeMs,
+  );
+  const cooldownChanged = clearConsumableCooldownIfOutOfCombat(next);
+
+  if (!statusEffectsChanged && !passiveRegenChanged && !cooldownChanged) {
     return state;
   }
 
   return next;
+}
+
+function regenerateOutOfCombatResources(
+  state: GameState,
+  previousWorldTimeMs: number,
+) {
+  if (isCombatActive(state.combat)) {
+    return false;
+  }
+
+  const tickCount = Math.max(
+    0,
+    Math.floor(state.worldTimeMs / 1_000) -
+      Math.floor(previousWorldTimeMs / 1_000),
+  );
+  if (tickCount <= 0) {
+    return false;
+  }
+
+  const stats = getPlayerCombatStats(state.player);
+  const hpPerTick = Math.max(1, Math.floor(stats.maxHp * 0.01));
+  const manaPerTick = Math.max(1, Math.floor(stats.maxMana * 0.01));
+  const previousHp = state.player.hp;
+  const previousMana = state.player.mana;
+
+  state.player.hp = Math.min(
+    stats.maxHp,
+    state.player.hp + hpPerTick * tickCount,
+  );
+  state.player.mana = Math.min(
+    stats.maxMana,
+    state.player.mana + manaPerTick * tickCount,
+  );
+
+  return state.player.hp !== previousHp || state.player.mana !== previousMana;
 }

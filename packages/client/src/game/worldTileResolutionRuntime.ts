@@ -1,4 +1,5 @@
 import type { ResolvedWorldTilePayload } from '@realmfall/common';
+import { normalizeConfiguredEnemyName } from './configuredEnemyName';
 import type { Enemy, Item, PlayerStatusEffect, Tile, TileClaim } from './types';
 
 export function hydrateResolvedWorldTilePayload(
@@ -75,7 +76,7 @@ function hydrateEnemy(
     id: enemy.id,
     enemyTypeId: enemy.enemyTypeId as Enemy['enemyTypeId'],
     tags: enemy.tags as Enemy['tags'],
-    name: enemy.name,
+    name: normalizeConfiguredEnemyName(enemy.name, enemy.enemyTypeId),
     coord: enemy.coord,
     rarity: enemy.rarity,
     tier: enemy.tier,
