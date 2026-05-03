@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { pickBloodMoonItemKind, pickWorldGeneratedItemKind } from './config';
-import { resolveLootOutcomeRoll } from './world';
+import {
+  GAME_CONFIG,
+  pickBloodMoonItemKind,
+  pickWorldGeneratedItemKind,
+} from './config';
+import { createGame } from './state';
+import { spawnDebugEnemyNearby } from './stateDebug';
+import { ensureTileState, resolveLootOutcomeRoll } from './world';
 import { buildRegularTile } from './worldTileGeneration';
 import { pickTerrain } from './worldTerrain';
 
@@ -39,6 +45,38 @@ describe('world loot roll mapping', () => {
       const terrain = pickTerrain(seed, coord);
       const tile = buildRegularTile(seed, coord, terrain);
       expect(tile.items).toEqual([]);
+    }
+  });
+
+  it('does not rebuild a resolved debug spawn into a treasure goblin after enemy-state loss', () => {
+    const previousChance =
+      GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance;
+    GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance = 1;
+
+    try {
+      const game = createGame(3, 'debug-rebuild-seed');
+      game.player.coord = { q: 0, r: 0 };
+      const next = spawnDebugEnemyNearby(game, {
+        enemyTypeId: 'wolf',
+        rarity: 'common',
+      });
+      const spawnedEnemy = Object.values(next.enemies).find(
+        (enemy) =>
+          enemy.enemyTypeId === 'wolf' &&
+          (enemy.coord.q !== 0 || enemy.coord.r !== 0),
+      );
+
+      expect(spawnedEnemy).toBeDefined();
+      delete next.enemies[spawnedEnemy!.id];
+
+      ensureTileState(next, spawnedEnemy!.coord);
+
+      expect(next.enemies[spawnedEnemy!.id]?.enemyTypeId).not.toBe(
+        'treasure-goblin',
+      );
+    } finally {
+      GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance =
+        previousChance;
     }
   });
 });

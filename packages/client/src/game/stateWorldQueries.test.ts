@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { GAME_CONFIG } from './config';
 import { createGame } from './state';
+import { forceDebugBloodMoon } from './stateDebug';
 import { makePlayerClaim } from './territories';
 import {
   getEnemiesAt,
@@ -131,6 +132,35 @@ describe('stateWorldQueries', () => {
       expect(enemies[0]?.enemyTypeId).not.toBe('treasure-goblin');
       expect(enemies[0]?.name).toBe('Quartermaster Pell');
       expect(enemies[0]?.aggressive).toBe(false);
+    } finally {
+      GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance =
+        previousChance;
+    }
+  });
+
+  it('does not rebuild a resolved blood moon spawn into a treasure goblin after enemy-state loss', () => {
+    const previousChance =
+      GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance;
+    GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance = 1;
+
+    try {
+      const game = createGame(4, 'blood-moon-rebuild-seed');
+      game.player.coord = { q: 1, r: -1 };
+      const bloodMoon = forceDebugBloodMoon(game);
+      const targetTile = Object.values(bloodMoon.tiles).find(
+        (tile) =>
+          tile.structure === undefined &&
+          tile.claim === undefined &&
+          tile.enemyIds.length === 1,
+      );
+
+      expect(targetTile).toBeDefined();
+      const enemyId = targetTile!.enemyIds[0]!;
+      delete bloodMoon.enemies[enemyId];
+
+      const enemies = getEnemiesAt(bloodMoon, targetTile!.coord);
+
+      expect(enemies[0]?.enemyTypeId).not.toBe('treasure-goblin');
     } finally {
       GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance =
         previousChance;

@@ -56,7 +56,8 @@ export function cacheSafeStart(state: GameState) {
 
 export function ensureTileState(state: GameState, coord: HexCoord) {
   const key = hexKey(coord);
-  if (!state.tiles[key]) {
+  const tileWasUnresolved = !state.tiles[key];
+  if (tileWasUnresolved) {
     state.tiles[key] = buildTile(state.seed, coord);
   }
 
@@ -78,6 +79,7 @@ export function ensureTileState(state: GameState, coord: HexCoord) {
           name: enemyName,
           aggressive: hostile,
           allowTreasureGoblinOverride:
+            tileWasUnresolved &&
             hostile &&
             tile.structure === undefined &&
             tile.enemyIds.length === 1 &&
