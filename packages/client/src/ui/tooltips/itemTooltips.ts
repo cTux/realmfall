@@ -160,13 +160,6 @@ export function itemTooltipLines(
         tone: 'item',
       });
     const secondaryStatLines = secondarySlotLines(item);
-    if (secondaryStatLines.length > 0) {
-      lines.push({
-        kind: 'text',
-        text: t('ui.tooltip.secondaryStats'),
-        tone: 'section',
-      });
-    }
     for (const stat of secondaryStatLines) {
       lines.push({
         ...stat,

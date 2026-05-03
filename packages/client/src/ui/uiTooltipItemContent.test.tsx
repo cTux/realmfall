@@ -187,13 +187,27 @@ describe('ui tooltip item content', () => {
     ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          text: 'Secondary Stats',
-        }),
-        expect.objectContaining({
           text: 'Empty secondary stat slot',
         }),
       ]),
     );
+    expect(
+      itemTooltipLines({
+        id: 'rare-loot-empty-slot',
+        name: 'Rare Ring',
+        slot: 'ringLeft',
+        quantity: 1,
+        tier: 4,
+        rarity: 'rare',
+        power: 5,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+        secondaryStatCapacity: 1,
+        secondaryStats: [],
+      }).some((line) => line.text === 'Secondary Stats'),
+    ).toBe(false);
     expect(
       itemTooltipLines(resourceTooltipItem).some(
         (line) =>
