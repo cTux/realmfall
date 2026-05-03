@@ -32,6 +32,7 @@ export interface CombatWindowProps
   combat: CombatState;
   playerParty: CombatPartyMember[];
   enemies: Enemy[];
+  showTooltipTags?: boolean;
   worldTimeMs?: number;
   onStart: () => void;
   onHoverDetail: NonNullable<WindowDetailTooltipHandlers['onHoverDetail']>;

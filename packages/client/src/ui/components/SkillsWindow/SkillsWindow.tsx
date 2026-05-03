@@ -36,8 +36,14 @@ export const SkillsWindow = createDeferredWindowComponent<
     onHoverDetail,
     onLeaveDetail,
   }),
-  mapContentProps: ({ skills, onHoverDetail, onLeaveDetail }) => ({
+  mapContentProps: ({
     skills,
+    showTooltipTags,
+    onHoverDetail,
+    onLeaveDetail,
+  }) => ({
+    skills,
+    showTooltipTags,
     onHoverDetail,
     onLeaveDetail,
   }),

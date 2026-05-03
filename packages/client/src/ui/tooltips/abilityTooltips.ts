@@ -24,6 +24,7 @@ export function abilityTooltipLines(
   >,
   target: AbilityDefinition['target'] = 'enemy',
   attack = 0,
+  showTags = true,
 ): TooltipLine[] {
   const damageLine =
     ability.category === 'attacking'
@@ -63,7 +64,7 @@ export function abilityTooltipLines(
       kind: 'text',
       text: t(`ui.ability.target.${target}`),
     },
-    ...tagTooltipLines(ability.tags),
+    ...tagTooltipLines(ability.tags, showTags),
   ];
 }
 
@@ -76,6 +77,7 @@ export function statusEffectTooltipLines(
     'id' | 'value' | 'tickIntervalMs' | 'stacks' | 'expiresAt'
   >,
   worldTimeMs?: number,
+  showTags = true,
 ): TooltipLine[] {
   const descriptionKeyByEffect: Partial<Record<StatusEffectId, string>> = {
     hunger: 'ui.hero.effect.hunger.description',
@@ -105,7 +107,7 @@ export function statusEffectTooltipLines(
     ...statusEffectDamageLines(effect),
     ...statusEffectDecayLines(effect, tone, worldTimeMs),
     ...extraLines,
-    ...tagTooltipLines(getStatusEffectTags(effectId)),
+    ...tagTooltipLines(getStatusEffectTags(effectId), showTags),
   ];
 }
 

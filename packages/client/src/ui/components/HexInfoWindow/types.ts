@@ -17,6 +17,7 @@ export interface HexInfoWindowProps
   isHome: boolean;
   onSetHome: () => void;
   canSetHome?: boolean;
+  showTooltipTags?: boolean;
   terrain: string;
   structure?: string | null;
   hexDescription: string;

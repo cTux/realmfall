@@ -48,12 +48,14 @@ export const HeroWindow = createDeferredWindowComponent<
   mapContentProps: ({
     hero,
     hunger,
+    showTooltipTags,
     thirst,
     onHoverDetail,
     onLeaveDetail,
   }) => ({
     hero,
     hunger,
+    showTooltipTags,
     thirst,
     onHoverDetail,
     onLeaveDetail,

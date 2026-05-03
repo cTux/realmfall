@@ -28,6 +28,7 @@ interface ItemTooltipOptions {
   replacedOffhand?: Item;
   quickSellHint?: boolean;
   playerLevel?: number;
+  showTags?: boolean;
 }
 
 const SELL_VALUE_TINT = '#fbbf24';
@@ -56,6 +57,7 @@ export function itemTooltipLines(
   const tags = item.tags ?? inferItemTags(item);
   const category = getItemCategory(item);
   const playerLevel = options.playerLevel ?? 1;
+  const showTags = options.showTags ?? true;
   const requiredLevel = getItemRequiredLevel(item);
   const recipeLearnedLine =
     isRecipePage(item) && options.recipeLearned
@@ -105,7 +107,7 @@ export function itemTooltipLines(
     lines.push(
       ...[
         ...consumableEffectLines(item),
-        ...tagTooltipLines(tags),
+        ...tagTooltipLines(tags, showTags),
         ...(sellLine ? [sellLine] : []),
       ],
     );
@@ -204,7 +206,7 @@ export function itemTooltipLines(
   if (abilityLine) {
     lines.push(abilityLine);
   }
-  lines.push(...tagTooltipLines(tags));
+  lines.push(...tagTooltipLines(tags, showTags));
   const sellLine = itemSellLine(item);
   if (sellLine) {
     lines.push(sellLine);

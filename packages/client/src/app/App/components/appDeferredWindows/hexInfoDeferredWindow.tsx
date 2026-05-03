@@ -31,6 +31,7 @@ export const hexInfoDeferredWindow: AppDeferredWindowDescriptor = {
       isHome={hexInfoView.isHome}
       canSetHome={hexInfoView.canSetHome}
       onSetHome={actions.hex.onSetHome}
+      showTooltipTags={views.settings.interface.showTooltipTags}
       terrain={hexInfoView.terrain}
       structure={hexInfoView.structure}
       hexDescription={hexInfoView.hexDescription}

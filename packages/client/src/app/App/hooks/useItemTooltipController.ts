@@ -41,6 +41,7 @@ type ItemTooltipLinesCache = WeakMap<
 
 interface UseItemTooltipControllerOptions {
   gameRef: MutableRefObject<GameState>;
+  showTooltipTags: boolean;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
 }
 
@@ -53,6 +54,7 @@ function getCachedItemTooltipLines(
   recipeLearned: boolean,
   quickSellHint: boolean,
   playerLevel: number,
+  showTooltipTags: boolean,
 ) {
   if (quickSellHint || replacedOffhand) {
     return buildItemTooltipLines(item, equipped, {
@@ -60,6 +62,7 @@ function getCachedItemTooltipLines(
       recipeLearned,
       replacedOffhand,
       quickSellHint,
+      showTags: showTooltipTags,
     });
   }
 
@@ -77,7 +80,9 @@ function getCachedItemTooltipLines(
     const cacheKey = recipeLearned
       ? itemCache.withoutEquippedRecipeLearned
       : itemCache.withoutEquipped;
-    const cachedLines = cacheKey.get(playerLevel);
+    const cachedLines = cacheKey.get(
+      getTooltipLineCacheKey(playerLevel, showTooltipTags),
+    );
     if (cachedLines) {
       return cachedLines;
     }
@@ -85,8 +90,9 @@ function getCachedItemTooltipLines(
     const lines = buildItemTooltipLines(item, undefined, {
       playerLevel,
       recipeLearned,
+      showTags: showTooltipTags,
     });
-    cacheKey.set(playerLevel, lines);
+    cacheKey.set(getTooltipLineCacheKey(playerLevel, showTooltipTags), lines);
     return lines;
   }
 
@@ -101,7 +107,9 @@ function getCachedItemTooltipLines(
 
   const cacheKey = recipeLearned ? 'recipeLearned' : 'recipeUnknown';
   const cacheBucket = equippedCache[cacheKey];
-  const cachedLines = cacheBucket.get(playerLevel);
+  const cachedLines = cacheBucket.get(
+    getTooltipLineCacheKey(playerLevel, showTooltipTags),
+  );
   if (cachedLines) {
     return cachedLines;
   }
@@ -109,8 +117,9 @@ function getCachedItemTooltipLines(
   const lines = buildItemTooltipLines(item, equipped, {
     playerLevel,
     recipeLearned,
+    showTags: showTooltipTags,
   });
-  cacheBucket.set(playerLevel, lines);
+  cacheBucket.set(getTooltipLineCacheKey(playerLevel, showTooltipTags), lines);
   return lines;
 }
 
@@ -121,6 +130,7 @@ function getItemTooltipContentKey(
   recipeLearned: boolean,
   quickSellHint: boolean,
   playerLevel: number,
+  showTooltipTags: boolean,
 ) {
   return JSON.stringify({
     kind: 'item',
@@ -151,6 +161,7 @@ function getItemTooltipContentKey(
     recipeLearned,
     playerLevel,
     quickSellHint,
+    showTooltipTags,
   });
 }
 
@@ -164,6 +175,7 @@ function buildItemTooltipState({
   quickSellHint,
   position,
   playerLevel,
+  showTooltipTags,
 }: {
   cache: ItemTooltipLinesCache;
   buildItemTooltipLines: ItemTooltipLinesBuilder;
@@ -174,6 +186,7 @@ function buildItemTooltipState({
   quickSellHint: boolean;
   playerLevel: number;
   position: ReturnType<typeof getTooltipPlacementForRect>;
+  showTooltipTags: boolean;
 }): TooltipState {
   return {
     title: getItemDisplayName(item),
@@ -186,6 +199,7 @@ function buildItemTooltipState({
       recipeLearned,
       quickSellHint,
       playerLevel,
+      showTooltipTags,
     ),
     contentKey: getItemTooltipContentKey(
       item,
@@ -194,6 +208,7 @@ function buildItemTooltipState({
       recipeLearned,
       quickSellHint,
       playerLevel,
+      showTooltipTags,
     ),
     x: position.x,
     y: position.y,
@@ -214,6 +229,7 @@ function isRecipePageLearned(state: GameState, item: TooltipItem) {
 
 export function useItemTooltipController({
   gameRef,
+  showTooltipTags,
   tooltipPositionRef,
 }: UseItemTooltipControllerOptions) {
   const itemTooltipLinesCacheRef = useRef<ItemTooltipLinesCache>(new WeakMap());
@@ -277,11 +293,12 @@ export function useItemTooltipController({
             quickSellHint,
             playerLevel: gameRef.current.player.level,
             position,
+            showTooltipTags,
           }),
         );
       });
     },
-    [gameRef, loadItemTooltipModule, tooltipPositionRef],
+    [gameRef, loadItemTooltipModule, showTooltipTags, tooltipPositionRef],
   );
 
   const showItemTooltip = useCallback(
@@ -346,4 +363,8 @@ export function useItemTooltipController({
     showItemTooltip,
     showTooltip,
   };
+}
+
+function getTooltipLineCacheKey(playerLevel: number, showTooltipTags: boolean) {
+  return playerLevel * 2 + Number(showTooltipTags);
 }

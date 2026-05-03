@@ -29,6 +29,7 @@ interface CombatWindowContentProps {
   combat: CombatWindowProps['combat'];
   playerParty: CombatWindowProps['playerParty'];
   enemies: CombatWindowProps['enemies'];
+  showTooltipTags?: CombatWindowProps['showTooltipTags'];
   worldTimeMs?: number;
   onHoverDetail: CombatWindowProps['onHoverDetail'];
   onLeaveDetail: CombatWindowProps['onLeaveDetail'];
@@ -51,6 +52,7 @@ export function CombatWindowContent({
   combat,
   playerParty,
   enemies,
+  showTooltipTags = true,
   worldTimeMs,
   onHoverDetail,
   onLeaveDetail,
@@ -62,8 +64,10 @@ export function CombatWindowContent({
     COMBAT_VISUAL_STEP_MS;
   const alliedParty = useMemo(
     () =>
-      playerParty.map((member) => toPlayerEntity(member, visualWorldTimeMs)),
-    [playerParty, visualWorldTimeMs],
+      playerParty.map((member) =>
+        toPlayerEntity(member, visualWorldTimeMs, showTooltipTags),
+      ),
+    [playerParty, showTooltipTags, visualWorldTimeMs],
   );
   const enemyParty = useMemo(
     () =>
@@ -72,9 +76,16 @@ export function CombatWindowContent({
           enemy,
           combat.enemies[enemy.id] ?? combat.player,
           visualWorldTimeMs,
+          showTooltipTags,
         ),
       ),
-    [combat.enemies, combat.player, enemies, visualWorldTimeMs],
+    [
+      combat.enemies,
+      combat.player,
+      enemies,
+      showTooltipTags,
+      visualWorldTimeMs,
+    ],
   );
 
   return (
@@ -98,6 +109,7 @@ export function CombatWindowContent({
 function toPlayerEntity(
   member: CombatPartyMember,
   worldTimeMs: number,
+  showTooltipTags: boolean,
 ): CombatEntityView {
   return {
     id: member.id,
@@ -111,9 +123,19 @@ function toPlayerEntity(
       mana: member.mana,
       maxMana: member.maxMana,
     }),
-    abilities: buildAbilityIcons(member.actor, member.attack, worldTimeMs),
-    buffs: buildEffectIcons(member.buffs, 'buff', worldTimeMs),
-    debuffs: buildEffectIcons(member.debuffs, 'debuff', worldTimeMs),
+    abilities: buildAbilityIcons(
+      member.actor,
+      member.attack,
+      worldTimeMs,
+      showTooltipTags,
+    ),
+    buffs: buildEffectIcons(member.buffs, 'buff', worldTimeMs, showTooltipTags),
+    debuffs: buildEffectIcons(
+      member.debuffs,
+      'debuff',
+      worldTimeMs,
+      showTooltipTags,
+    ),
   };
 }
 
@@ -121,6 +143,7 @@ function toEnemyEntity(
   enemy: CombatWindowProps['enemies'][number],
   actor: CombatActorState,
   worldTimeMs: number,
+  showTooltipTags: boolean,
 ): CombatEntityView {
   const effectGroups = partitionStatusEffects(enemy.statusEffects ?? []);
   const rarity = enemy.rarity ?? 'common';
@@ -154,9 +177,20 @@ function toEnemyEntity(
       actor,
       getEnemyCombatAttack(enemy),
       worldTimeMs,
+      showTooltipTags,
     ),
-    buffs: buildEffectIcons(effectGroups.buffs, 'buff', worldTimeMs),
-    debuffs: buildEffectIcons(effectGroups.debuffs, 'debuff', worldTimeMs),
+    buffs: buildEffectIcons(
+      effectGroups.buffs,
+      'buff',
+      worldTimeMs,
+      showTooltipTags,
+    ),
+    debuffs: buildEffectIcons(
+      effectGroups.debuffs,
+      'debuff',
+      worldTimeMs,
+      showTooltipTags,
+    ),
   };
 }
 
@@ -228,6 +262,7 @@ function buildAbilityIcons(
   actor: CombatActorState,
   attack: number,
   worldTimeMs: number,
+  showTooltipTags: boolean,
 ) {
   return actor.abilityIds.map<EntityStatusIcon>((abilityId) => {
     const ability = getAbilityDefinition(abilityId);
@@ -244,7 +279,12 @@ function buildAbilityIcons(
       tint: '#f8fafc',
       borderColor: 'rgb(148 163 184 / 35%)',
       tooltipTitle: ability.name,
-      tooltipLines: abilityTooltipLines(ability, ability.target, attack),
+      tooltipLines: abilityTooltipLines(
+        ability,
+        ability.target,
+        attack,
+        showTooltipTags,
+      ),
       tooltipBorderColor: 'rgba(148, 163, 184, 0.9)',
       disabled: remainingMs > 0,
     };
@@ -258,6 +298,7 @@ function buildEffectIcons(
   >[],
   tone: 'buff' | 'debuff',
   worldTimeMs: number,
+  showTooltipTags: boolean,
 ) {
   return items.map<EntityStatusIcon>((item) => ({
     id: item.id,
@@ -273,6 +314,7 @@ function buildEffectIcons(
       [],
       item,
       worldTimeMs,
+      showTooltipTags,
     ),
     tooltipBorderColor:
       tone === 'buff' ? 'rgba(34, 197, 94, 0.9)' : 'rgba(239, 68, 68, 0.9)',

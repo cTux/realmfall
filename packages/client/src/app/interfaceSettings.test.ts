@@ -17,6 +17,7 @@ describe('interface settings persistence', () => {
       fontFamily: 'ubuntu',
       fontSize: 118,
       interfaceScale: 126,
+      showTooltipTags: false,
       windowTransparency: 45,
     });
 
@@ -31,6 +32,7 @@ describe('interface settings persistence', () => {
       fontFamily: 'ubuntu',
       fontSize: 118,
       interfaceScale: 126,
+      showTooltipTags: false,
       windowTransparency: 45,
     });
   });
@@ -43,6 +45,7 @@ describe('interface settings persistence', () => {
         fontFamily: 'roboto',
         fontSize: 118,
         interfaceScale: 126,
+        showTooltipTags: false,
         windowTransparency: 28,
       }),
     );
@@ -53,6 +56,7 @@ describe('interface settings persistence', () => {
       fontFamily: 'roboto',
       fontSize: 118,
       interfaceScale: 126,
+      showTooltipTags: false,
       windowTransparency: 28,
     });
   });
@@ -65,6 +69,7 @@ describe('interface settings persistence', () => {
         fontFamily: 'broken',
         fontSize: 999,
         interfaceScale: -20,
+        showTooltipTags: 'broken',
         windowTransparency: 'opaque',
       }),
     );
@@ -84,6 +89,7 @@ describe('interface settings persistence', () => {
         fontFamily: 'roboto',
         fontSize: 92,
         interfaceScale: 108,
+        showTooltipTags: false,
         windowTransparency: 12,
       }),
     );

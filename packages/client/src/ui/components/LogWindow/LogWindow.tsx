@@ -77,8 +77,14 @@ export const LogWindow = createDeferredWindowComponent<
       </div>
     ),
   }),
-  mapContentProps: ({ logs, onHoverDetail, onLeaveDetail }) => ({
+  mapContentProps: ({
     logs,
+    showTooltipTags,
+    onHoverDetail,
+    onLeaveDetail,
+  }) => ({
+    logs,
+    showTooltipTags,
     onHoverDetail,
     onLeaveDetail,
   }),

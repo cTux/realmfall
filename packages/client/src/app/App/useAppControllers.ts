@@ -242,6 +242,7 @@ export function useAppControllers({
     showTooltip,
   } = useItemTooltipController({
     gameRef,
+    showTooltipTags: interfaceSettings.showTooltipTags,
     tooltipPositionRef,
   });
   const {

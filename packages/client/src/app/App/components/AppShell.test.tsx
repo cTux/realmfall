@@ -77,6 +77,7 @@ describe('AppShell', () => {
             fontFamily: 'ubuntu',
             fontSize: 118,
             interfaceScale: 126,
+            showTooltipTags: true,
             windowTransparency: 45,
           }}
           isReady

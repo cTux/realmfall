@@ -3,7 +3,9 @@ import { loadNamedWindowModule } from './lazyDeferredWindowModule';
 import type { AppDeferredWindowDescriptor } from './types';
 
 const SkillsWindow = createLazyWindowComponent<
-  Parameters<(typeof import('../../../../ui/components/SkillsWindow'))['SkillsWindow']>[0]
+  Parameters<
+    (typeof import('../../../../ui/components/SkillsWindow'))['SkillsWindow']
+  >[0]
 >(
   loadNamedWindowModule(() =>
     import('../../../../ui/components/SkillsWindow').then(
@@ -18,6 +20,7 @@ export const skillsDeferredWindow: AppDeferredWindowDescriptor = {
     <SkillsWindow
       {...managedWindowProps.skills}
       skills={views.hero.overview.skills}
+      showTooltipTags={views.settings.interface.showTooltipTags}
       {...detailTooltipHandlers}
     />
   ),

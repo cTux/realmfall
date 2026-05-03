@@ -61,6 +61,7 @@ export function attachPixiWorldInteractions({
   scheduleCameraSave,
   movementController,
   setTooltip,
+  showTooltipTagsRef,
   tooltipPositionRef,
   worldMapCameraRef,
   worldTooltipKeyRef,
@@ -93,6 +94,7 @@ export function attachPixiWorldInteractions({
   scheduleCameraSave: () => void;
   movementController: WorldMovementController;
   setTooltip: (nextTooltip: TooltipState | null) => void;
+  showTooltipTagsRef: MutableRefObject<boolean>;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
   worldMapCameraRef: MutableRefObject<WorldMapCameraState>;
   worldTooltipKeyRef: MutableRefObject<string | null>;
@@ -127,6 +129,7 @@ export function attachPixiWorldInteractions({
     movementTransitionRef,
     renderInvalidationRef,
     setTooltip,
+    showTooltipTagsRef,
     structureWorldTooltip,
     tooltipPositionRef,
     worldTooltipKeyRef,

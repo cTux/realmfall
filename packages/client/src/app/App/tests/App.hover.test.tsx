@@ -1,5 +1,6 @@
 import { act } from 'react';
 import { createGame } from '../../../game/stateFactory';
+import { PERSISTED_SETTINGS_STORAGE_KEYS } from '../../settingsStorage';
 import {
   flushAnimationFrame,
   flushLazyModules,
@@ -252,6 +253,74 @@ describe('App hover behavior', () => {
     expect(getEnemiesAtSpy).toHaveBeenCalledTimes(1);
     expect(enemyTooltipSpy).toHaveBeenCalledTimes(1);
     expect(canvas?.style.cursor).toBe('pointer');
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  }, 10000);
+
+  it('passes disabled tooltip-tag settings into world hover tooltip builders', async () => {
+    const game = createGame(3, 'app-hover-tooltip-tag-setting');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: ['enemy-1,0-0'],
+    };
+    game.enemies['enemy-1,0-0'] = {
+      id: 'enemy-1,0-0',
+      enemyTypeId: 'wolf',
+      name: 'Wolf',
+      coord: { q: 1, r: 0 },
+      tier: 1,
+      hp: 1,
+      maxHp: 1,
+      attack: 0,
+      defense: 0,
+      xp: 2,
+      elite: false,
+    };
+    window.localStorage.setItem(
+      PERSISTED_SETTINGS_STORAGE_KEYS.interface,
+      JSON.stringify({ showTooltipTags: false }),
+    );
+    loadEncryptedState.mockResolvedValue({ game, ui: {} });
+
+    const hexModule = await import('../../../game/hex');
+    const tooltipModule = await import('../../../ui/world/worldTooltips');
+    const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
+    const enemyTooltipSpy = vi.spyOn(tooltipModule, 'enemyWorldTooltip');
+
+    const { host, root } = await renderApp();
+    await flushLazyModules();
+
+    const canvas = host.querySelector('canvas');
+    expect(canvas).not.toBeNull();
+
+    enemyTooltipSpy.mockClear();
+    hexAtPointSpy.mockReturnValue({ q: 1, r: 0 });
+
+    await act(async () => {
+      canvas?.dispatchEvent(
+        new MouseEvent('pointermove', {
+          bubbles: true,
+          clientX: 400,
+          clientY: 240,
+        }),
+      );
+    });
+    await flushAnimationFrame();
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(enemyTooltipSpy).toHaveBeenCalledWith(
+      expect.any(Array),
+      undefined,
+      false,
+    );
 
     await act(async () => {
       root.unmount();

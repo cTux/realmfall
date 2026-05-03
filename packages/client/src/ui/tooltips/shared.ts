@@ -23,8 +23,11 @@ export interface TooltipLine {
     | 'subtle';
 }
 
-export function tagTooltipLines(tags?: string[]): TooltipLine[] {
-  if (!tags || tags.length === 0) return [];
+export function tagTooltipLines(
+  tags?: string[],
+  showTags = true,
+): TooltipLine[] {
+  if (!showTags || !tags || tags.length === 0) return [];
 
   return [
     {

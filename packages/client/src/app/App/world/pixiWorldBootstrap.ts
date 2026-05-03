@@ -64,6 +64,7 @@ interface BootstrapPixiWorldCanvasArgs {
   selectedRef: MutableRefObject<HexCoord>;
   movementController: WorldMovementController;
   setTooltip: (nextTooltip: TooltipState | null) => void;
+  showTooltipTagsRef: MutableRefObject<boolean>;
   showTerrainBackgroundsRef: MutableRefObject<boolean>;
   worldRenderFpsRef: MutableRefObject<number>;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
@@ -100,6 +101,7 @@ export async function bootstrapPixiWorldCanvas({
   selectedRef,
   movementController,
   setTooltip,
+  showTooltipTagsRef,
   showTerrainBackgroundsRef,
   worldRenderFpsRef,
   tooltipPositionRef,
@@ -281,6 +283,7 @@ export async function bootstrapPixiWorldCanvas({
     scheduleCameraSave,
     movementController,
     setTooltip,
+    showTooltipTagsRef,
     tooltipPositionRef,
     worldMapCameraRef,
     worldTooltipKeyRef,

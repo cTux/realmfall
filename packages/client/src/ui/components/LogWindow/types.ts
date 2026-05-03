@@ -7,6 +7,7 @@ export interface LogWindowProps
   filters: Record<LogKind, boolean>;
   defaultFilters: Record<LogKind, boolean>;
   showFilterMenu: boolean;
+  showTooltipTags?: boolean;
   onToggleMenu: () => void;
   onToggleFilter: (kind: LogKind) => void;
   logs: LogEntry[];

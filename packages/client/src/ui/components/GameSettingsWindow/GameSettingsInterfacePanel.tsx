@@ -1,3 +1,4 @@
+import { Switch } from '@realmfall/ui';
 import {
   INTERFACE_FONT_OPTIONS,
   type InterfaceFontFamily,
@@ -6,6 +7,7 @@ import {
 import {
   INTERFACE_LANGUAGE_OPTIONS,
   INTERFACE_SETTINGS_RANGE_OPTIONS,
+  INTERFACE_SETTINGS_TOGGLE_OPTIONS,
 } from '../../../app/interfaceSettings';
 import { t } from '../../../i18n';
 import type { GameSettingsInterfacePanelProps } from './types';
@@ -105,6 +107,22 @@ export function GameSettingsInterfacePanel({
           />
         </label>
       ))}
+      <div className={styles.switches}>
+        {INTERFACE_SETTINGS_TOGGLE_OPTIONS.map((option) => (
+          <Switch
+            key={option.key}
+            checked={interfaceSettings[option.key]}
+            label={t(option.labelKey)}
+            description={t(option.descriptionKey)}
+            onChange={(checked) =>
+              onChange((current) => ({
+                ...current,
+                [option.key]: checked,
+              }))
+            }
+          />
+        ))}
+      </div>
     </div>
   );
 }

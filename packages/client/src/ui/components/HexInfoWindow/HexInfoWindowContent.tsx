@@ -43,6 +43,7 @@ export function HexInfoWindowContent({
   onLeaveItem,
   onHoverDetail,
   onLeaveDetail,
+  showTooltipTags = true,
 }: HexInfoWindowContentProps) {
   const hpPercent =
     structureHp != null && structureMaxHp
@@ -72,6 +73,7 @@ export function HexInfoWindowContent({
               combat={combat}
               playerParty={combatPlayerParty}
               enemies={combatEnemies}
+              showTooltipTags={showTooltipTags}
               onHoverDetail={hoverDetail}
               onLeaveDetail={leaveDetail}
             />

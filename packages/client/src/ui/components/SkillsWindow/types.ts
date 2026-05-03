@@ -4,5 +4,6 @@ import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 
 export interface SkillsWindowProps
   extends ManagedWindowShellProps, WindowDetailTooltipHandlers {
+  showTooltipTags?: boolean;
   skills: Record<SkillName, { level: number; xp: number }>;
 }

@@ -13,6 +13,7 @@ const DEFAULT_INTERFACE_SETTINGS = {
   fontFamily: 'pixelifySans' as const,
   fontSize: 100,
   interfaceScale: 100,
+  showTooltipTags: true,
   windowTransparency: 0,
 };
 
@@ -712,10 +713,18 @@ describe('GameSettingsWindowContent', () => {
         ),
       )
       ?.querySelector('select') as HTMLSelectElement | null;
+    const showTooltipTagsSwitch = Array.from(host.querySelectorAll('label'))
+      .find((candidate) =>
+        candidate.textContent?.includes(
+          t('ui.settings.interface.showTooltipTags.label'),
+        ),
+      )
+      ?.querySelector('input[type="checkbox"]');
 
     expect(interfaceSliders).toHaveLength(3);
     expect(languageSelect).not.toBeNull();
     expect(fontSelect).not.toBeNull();
+    expect(showTooltipTagsSwitch).toBeDefined();
 
     expect(languageSelect?.value).toBe('en');
     expect(
@@ -765,6 +774,12 @@ describe('GameSettingsWindowContent', () => {
         setValue?.call(fontSelect, 'ubuntu');
         fontSelect.dispatchEvent(new Event('change', { bubbles: true }));
       }
+    });
+
+    await act(async () => {
+      showTooltipTagsSwitch?.dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      );
     });
 
     const gameplayTab = Array.from(host.querySelectorAll('[role="tab"]')).find(
@@ -830,6 +845,7 @@ describe('GameSettingsWindowContent', () => {
         fontFamily: 'ubuntu',
         fontSize: 118,
         interfaceScale: 126,
+        showTooltipTags: false,
         windowTransparency: 45,
       },
       gameplay: {
