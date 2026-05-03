@@ -40,7 +40,7 @@ void bootstrap();
 async function bootstrap() {
   try {
     await Promise.all([
-      loadI18n().then(() => {
+      loadI18n(bootstrapInterfaceSettings.language).then(() => {
         recordPerformanceStartupMark('i18n-loaded');
       }),
       loadInterfaceFontFamily(bootstrapInterfaceSettings.fontFamily),

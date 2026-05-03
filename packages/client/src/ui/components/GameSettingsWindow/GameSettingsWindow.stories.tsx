@@ -21,7 +21,10 @@ const meta = {
     audioSettings: DEFAULT_AUDIO_SETTINGS,
     gameplaySettings: DEFAULT_GAMEPLAY_SETTINGS,
     graphicsSettings: DEFAULT_GRAPHICS_SETTINGS,
-    interfaceSettings: DEFAULT_INTERFACE_SETTINGS,
+    interfaceSettings: {
+      ...DEFAULT_INTERFACE_SETTINGS,
+      language: 'en',
+    },
     onMove: () => undefined,
     onResetSaveArea: async () => undefined,
     onSave: async () => undefined,

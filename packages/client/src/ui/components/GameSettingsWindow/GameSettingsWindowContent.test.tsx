@@ -9,6 +9,7 @@ import { t } from '../../../i18n';
 import { GameSettingsWindowContent } from './GameSettingsWindowContent';
 
 const DEFAULT_INTERFACE_SETTINGS = {
+  language: 'en' as const,
   fontFamily: 'pixelifySans' as const,
   fontSize: 100,
   interfaceScale: 100,
@@ -666,7 +667,7 @@ describe('GameSettingsWindowContent', () => {
     ]);
   });
 
-  it('saves interface font, font size, interface scale, and transparency plus gameplay automation toggles in the payload', async () => {
+  it('saves interface language, font, font size, interface scale, and transparency plus gameplay automation toggles in the payload', async () => {
     const onSave = vi.fn(async () => undefined);
 
     await act(async () => {
@@ -697,10 +698,29 @@ describe('GameSettingsWindowContent', () => {
     const interfaceSliders = Array.from(
       host.querySelectorAll('input[type="range"]'),
     ) as HTMLInputElement[];
-    const fontSelect = host.querySelector('select') as HTMLSelectElement | null;
+    const languageSelect = Array.from(host.querySelectorAll('label'))
+      .find((candidate) =>
+        candidate.textContent?.includes(
+          t('ui.settings.interface.language.label'),
+        ),
+      )
+      ?.querySelector('select') as HTMLSelectElement | null;
+    const fontSelect = Array.from(host.querySelectorAll('label'))
+      .find((candidate) =>
+        candidate.textContent?.includes(
+          t('ui.settings.interface.fontFamily.label'),
+        ),
+      )
+      ?.querySelector('select') as HTMLSelectElement | null;
 
     expect(interfaceSliders).toHaveLength(3);
+    expect(languageSelect).not.toBeNull();
     expect(fontSelect).not.toBeNull();
+
+    expect(languageSelect?.value).toBe('en');
+    expect(
+      Array.from(languageSelect?.options ?? []).map((option) => option.value),
+    ).toEqual(['en']);
 
     await act(async () => {
       const fontSizeSlider = interfaceSliders[0];
@@ -720,6 +740,18 @@ describe('GameSettingsWindowContent', () => {
         );
         setValue?.call(transparencySlider, '45');
         transparencySlider.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+
+    await act(async () => {
+      if (languageSelect) {
+        const setValue = Object.getOwnPropertyDescriptor(
+          HTMLSelectElement.prototype,
+          'value',
+        )?.set;
+
+        setValue?.call(languageSelect, 'en');
+        languageSelect.dispatchEvent(new Event('change', { bubbles: true }));
       }
     });
 
@@ -794,6 +826,7 @@ describe('GameSettingsWindowContent', () => {
       audio: DEFAULT_AUDIO_SETTINGS,
       graphics: DEFAULT_GRAPHICS_SETTINGS,
       interface: {
+        language: 'en',
         fontFamily: 'ubuntu',
         fontSize: 118,
         interfaceScale: 126,

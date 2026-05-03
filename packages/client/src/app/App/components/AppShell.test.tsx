@@ -73,6 +73,7 @@ describe('AppShell', () => {
           game={createGame(2, 'app-shell-interface-scale')}
           hostRef={hostRef}
           interfaceSettings={{
+            language: 'en',
             fontFamily: 'ubuntu',
             fontSize: 118,
             interfaceScale: 126,
