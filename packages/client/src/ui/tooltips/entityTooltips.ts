@@ -19,27 +19,33 @@ import { type TooltipLine, tagTooltipLines } from './shared';
 export function enemyTooltip(
   enemies: Enemy[],
   structure?: StructureType,
+  showTags = true,
 ): { title: string; lines: TooltipLine[] } | null {
-  return buildEnemyTooltip(enemies, structure, {
+  return buildEnemyTooltip<TooltipLine>(enemies, structure, {
     text: (text) => ({ kind: 'text', text }),
     stat: (label, value) => ({ kind: 'stat', label, value }),
-    tags: tagTooltipLines,
+    tags: (tags) => tagTooltipLines(tags, showTags),
   });
 }
 
 export function structureTooltip(
   tile: Tile,
+  showTags = true,
 ): { title: string; lines: TooltipLine[] } | null {
-  return buildStructureTooltip(tile, {
+  return buildStructureTooltip<TooltipLine>(tile, {
     text: (text) => ({ kind: 'text', text }),
     stat: (label, value) => ({ kind: 'stat', label, value }),
-    tags: tagTooltipLines,
+    tags: (tags) => tagTooltipLines(tags, showTags),
   });
 }
 
-export function skillTooltip(skill: SkillName, level: number): TooltipLine[] {
+export function skillTooltip(
+  skill: SkillName,
+  level: number,
+  showTags = true,
+): TooltipLine[] {
   const nextLevelXp = skillLevelThreshold(level);
-  const tags = tagTooltipLines(getSkillTags(skill));
+  const tags = tagTooltipLines(getSkillTags(skill), showTags);
 
   if (isGatheringSkill(skill)) {
     return [

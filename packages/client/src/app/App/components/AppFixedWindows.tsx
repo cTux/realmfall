@@ -32,6 +32,7 @@ interface AppFixedWindowsProps {
   tooltipPositionRef: AppWindowsLayout['tooltipPositionRef'];
   heroView: AppWindowsViewState['hero'];
   inventoryView: AppWindowsViewState['inventory'];
+  showTooltipTags: boolean;
   itemMenu: AppWindowsViewState['itemMenu'];
   windowActions: AppWindowsActions['windows'];
   tooltipActions: AppWindowsActions['tooltip'];
@@ -47,6 +48,7 @@ export const AppFixedWindows = memo(function AppFixedWindows({
   itemMenu,
   managedWindowProps,
   recipeActions,
+  showTooltipTags,
   tooltipActions,
   tooltipPositionRef,
   windowActions,
@@ -74,6 +76,7 @@ export const AppFixedWindows = memo(function AppFixedWindows({
         {...managedWindowProps.hero}
         hero={heroView.overview}
         hunger={heroView.hunger}
+        showTooltipTags={showTooltipTags}
         thirst={heroView.thirst}
         {...detailTooltipHandlers}
       />

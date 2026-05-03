@@ -60,6 +60,7 @@ export function createWorldHoverInteractions({
   movementTransitionRef,
   renderInvalidationRef,
   setTooltip,
+  showTooltipTagsRef,
   structureWorldTooltip,
   tooltipPositionRef,
   worldTooltipKeyRef,
@@ -83,6 +84,7 @@ export function createWorldHoverInteractions({
   movementTransitionRef?: MutableRefObject<WorldMovementTransition | null>;
   renderInvalidationRef: MutableRefObject<number>;
   setTooltip: (nextTooltip: TooltipState | null) => void;
+  showTooltipTagsRef: MutableRefObject<boolean>;
   structureWorldTooltip: StructureWorldTooltip;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
   worldTooltipKeyRef: MutableRefObject<string | null>;
@@ -173,7 +175,11 @@ export function createWorldHoverInteractions({
       nextHoveredPath = safePath && safePath.length > 1 ? safePath : null;
 
       const enemies = getEnemiesAt(current, target);
-      const enemyInfo = enemyWorldTooltip(enemies, tile.structure);
+      const enemyInfo = enemyWorldTooltip(
+        enemies,
+        tile.structure,
+        showTooltipTagsRef.current,
+      );
 
       if (enemyInfo) {
         nextTooltipKey = `enemy:${target.q},${target.r}:${tile.structure ?? 'none'}`;
@@ -187,7 +193,10 @@ export function createWorldHoverInteractions({
           followCursor: true,
         };
       } else {
-        const structureInfo = structureWorldTooltip(tile);
+        const structureInfo = structureWorldTooltip(
+          tile,
+          showTooltipTagsRef.current,
+        );
         if (structureInfo) {
           nextTooltipKey = `structure:${target.q},${target.r}:${tile.structure ?? 'none'}`;
           nextTooltip = {

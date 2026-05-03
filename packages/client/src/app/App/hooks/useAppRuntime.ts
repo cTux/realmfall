@@ -99,6 +99,7 @@ export function useAppRuntime() {
     game: bootstrap.game,
     graphicsSettings: controllerState.graphicsSettings,
     paused: bootstrap.paused,
+    showTooltipTags: controllerState.interfaceSettings.showTooltipTags,
     worldTimeMsRef: bootstrap.worldTimeMsRef,
     gameRef: bootstrap.gameRef,
     tooltipPositionRef: bootstrap.tooltipPositionRef,

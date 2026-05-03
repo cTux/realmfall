@@ -9,11 +9,12 @@ import styles from './styles.module.scss';
 
 type SkillsWindowContentProps = Pick<
   SkillsWindowProps,
-  'skills' | 'onHoverDetail' | 'onLeaveDetail'
+  'skills' | 'showTooltipTags' | 'onHoverDetail' | 'onLeaveDetail'
 >;
 
 export function SkillsWindowContent({
   skills,
+  showTooltipTags = true,
   onHoverDetail,
   onLeaveDetail,
 }: SkillsWindowContentProps) {
@@ -23,7 +24,11 @@ export function SkillsWindowContent({
         {Object.entries(skills).map(([name, skill]) => {
           const xpMax = skillLevelThreshold(skill.level);
           const fill = Math.max(0, Math.min(100, (skill.xp / xpMax) * 100));
-          const tooltipLines = skillTooltip(name as SkillName, skill.level);
+          const tooltipLines = skillTooltip(
+            name as SkillName,
+            skill.level,
+            showTooltipTags,
+          );
 
           return (
             <div

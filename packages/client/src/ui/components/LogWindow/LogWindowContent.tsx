@@ -30,7 +30,7 @@ const LOG_VIRTUAL_INITIAL_RECT = { height: 240, width: 0 };
 
 type LogWindowContentProps = Pick<
   LogWindowProps,
-  'logs' | 'onHoverDetail' | 'onLeaveDetail'
+  'logs' | 'showTooltipTags' | 'onHoverDetail' | 'onLeaveDetail'
 >;
 
 type ParsedLogEntry = {
@@ -58,10 +58,12 @@ const StaticLogLine = memo(function StaticLogLine({
   parsedEntry,
   onHoverDetail,
   onLeaveDetail,
+  showTooltipTags,
 }: {
   parsedEntry: ParsedLogEntry;
   onHoverDetail?: LogWindowProps['onHoverDetail'];
   onLeaveDetail?: LogWindowProps['onLeaveDetail'];
+  showTooltipTags?: boolean;
 }) {
   const { entry, message, timestampMs } = parsedEntry;
 
@@ -79,7 +81,12 @@ const StaticLogLine = memo(function StaticLogLine({
         </>
       ) : null}
       {entry.richText && entry.richText.length > 0
-        ? renderRichText(entry.richText, onHoverDetail, onLeaveDetail)
+        ? renderRichText(
+            entry.richText,
+            onHoverDetail,
+            onLeaveDetail,
+            showTooltipTags,
+          )
         : message}
     </span>
   );
@@ -87,6 +94,7 @@ const StaticLogLine = memo(function StaticLogLine({
 
 export function LogWindowContent({
   logs,
+  showTooltipTags = true,
   onHoverDetail,
   onLeaveDetail,
 }: LogWindowContentProps) {
@@ -157,6 +165,7 @@ export function LogWindowContent({
                 parsedEntry={parsedEntry}
                 onHoverDetail={onHoverDetail}
                 onLeaveDetail={onLeaveDetail}
+                showTooltipTags={showTooltipTags}
               />
             </div>
           );
@@ -213,6 +222,7 @@ function renderRichText(
   segments: LogRichSegment[],
   onHoverDetail?: LogWindowProps['onHoverDetail'],
   onLeaveDetail?: LogWindowProps['onLeaveDetail'],
+  showTooltipTags = true,
 ) {
   return segments.map((segment, index) => {
     if (segment.kind === 'text') {
@@ -226,6 +236,7 @@ function renderRichText(
           segment={segment}
           onHoverDetail={onHoverDetail}
           onLeaveDetail={onLeaveDetail}
+          showTooltipTags={showTooltipTags}
         />
       );
     }
@@ -254,6 +265,7 @@ function renderRichText(
         fullyVisible
         onHoverDetail={onHoverDetail}
         onLeaveDetail={onLeaveDetail}
+        showTooltipTags={showTooltipTags}
       />
     );
   });
@@ -263,15 +275,17 @@ function EntitySegment({
   segment,
   onHoverDetail,
   onLeaveDetail,
+  showTooltipTags,
 }: {
   segment: Extract<LogRichSegment, { kind: 'entity' }>;
   onHoverDetail?: LogWindowProps['onHoverDetail'];
   onLeaveDetail?: LogWindowProps['onLeaveDetail'];
+  showTooltipTags?: boolean;
 }) {
   const tooltip =
-    segment.enemy && enemyTooltip([segment.enemy], undefined)
+    segment.enemy && enemyTooltip([segment.enemy], undefined, showTooltipTags)
       ? {
-          ...enemyTooltip([segment.enemy], undefined)!,
+          ...enemyTooltip([segment.enemy], undefined, showTooltipTags)!,
           borderColor: rarityColor(segment.enemy.rarity ?? 'common'),
         }
       : null;
@@ -307,14 +321,16 @@ function SourceSegment({
   fullyVisible,
   onHoverDetail,
   onLeaveDetail,
+  showTooltipTags,
 }: {
   segment: Extract<LogRichSegment, { kind: 'source' }>;
   visibleText: string;
   fullyVisible: boolean;
   onHoverDetail?: LogWindowProps['onHoverDetail'];
   onLeaveDetail?: LogWindowProps['onLeaveDetail'];
+  showTooltipTags?: boolean;
 }) {
-  const tooltip = buildSourceTooltip(segment);
+  const tooltip = buildSourceTooltip(segment, showTooltipTags);
 
   const handleMouseEnter =
     fullyVisible && tooltip && onHoverDetail
@@ -372,6 +388,7 @@ function sourceIconStyle(
 
 function buildSourceTooltip(
   segment: Extract<LogRichSegment, { kind: 'source' }>,
+  showTooltipTags = true,
 ) {
   if (segment.source.kind === 'ability') {
     const ability = getAbilityDefinition(segment.source.abilityId);
@@ -381,6 +398,7 @@ function buildSourceTooltip(
         ability,
         ability.target,
         segment.source.attack,
+        showTooltipTags,
       ),
       borderColor: 'rgba(148, 163, 184, 0.9)',
     };
@@ -407,12 +425,19 @@ function buildSourceTooltip(
 
   return {
     title: segment.text,
-    lines: statusEffectTooltipLines(segment.source.effectId, tone, [], {
-      id: segment.source.effectId,
-      value: segment.source.value,
-      tickIntervalMs: segment.source.tickIntervalMs,
-      stacks: segment.source.stacks,
-    }),
+    lines: statusEffectTooltipLines(
+      segment.source.effectId,
+      tone,
+      [],
+      {
+        id: segment.source.effectId,
+        value: segment.source.value,
+        tickIntervalMs: segment.source.tickIntervalMs,
+        stacks: segment.source.stacks,
+      },
+      undefined,
+      showTooltipTags,
+    ),
     borderColor:
       tone === 'buff' ? 'rgba(34, 197, 94, 0.9)' : 'rgba(239, 68, 68, 0.9)',
   };

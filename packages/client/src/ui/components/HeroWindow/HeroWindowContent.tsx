@@ -20,12 +20,18 @@ import styles from './styles.module.scss';
 
 type HeroWindowContentProps = Pick<
   HeroWindowProps,
-  'hero' | 'hunger' | 'thirst' | 'onHoverDetail' | 'onLeaveDetail'
+  | 'hero'
+  | 'hunger'
+  | 'thirst'
+  | 'showTooltipTags'
+  | 'onHoverDetail'
+  | 'onLeaveDetail'
 >;
 
 export function HeroWindowContent({
   hero,
   hunger,
+  showTooltipTags = true,
   thirst,
   onHoverDetail,
   onLeaveDetail,
@@ -39,9 +45,9 @@ export function HeroWindowContent({
         title={t('ui.window.hero.plain')}
         showPrimaryTitle={false}
         bars={buildHeroBars(hero, hunger, thirst)}
-        abilities={buildAbilityIcons(hero)}
-        buffs={buildEffectIcons(hero, 'buff', worldTimeMs)}
-        debuffs={buildEffectIcons(hero, 'debuff', worldTimeMs)}
+        abilities={buildAbilityIcons(hero, showTooltipTags)}
+        buffs={buildEffectIcons(hero, 'buff', worldTimeMs, showTooltipTags)}
+        debuffs={buildEffectIcons(hero, 'debuff', worldTimeMs, showTooltipTags)}
         onHoverDetail={onHoverDetail}
         onLeaveDetail={onLeaveDetail}
       />
@@ -130,6 +136,7 @@ function buildEffectIcons(
   hero: HeroWindowProps['hero'],
   tone: 'buff' | 'debuff',
   worldTimeMs: number,
+  showTooltipTags: boolean,
 ) {
   return buildHeroEffectItems(hero, tone).map<EntityStatusIcon>((item) => ({
     id: item.id,
@@ -145,13 +152,17 @@ function buildEffectIcons(
       heroEffectExtraLines(item.id, hero),
       item,
       worldTimeMs,
+      showTooltipTags,
     ),
     tooltipBorderColor:
       tone === 'buff' ? 'rgba(34, 197, 94, 0.9)' : 'rgba(239, 68, 68, 0.9)',
   }));
 }
 
-function buildAbilityIcons(hero: HeroWindowProps['hero']) {
+function buildAbilityIcons(
+  hero: HeroWindowProps['hero'],
+  showTooltipTags: boolean,
+) {
   return hero.abilityIds.map<EntityStatusIcon>((abilityId) => {
     const ability = getAbilityDefinition(abilityId);
     return {
@@ -161,7 +172,12 @@ function buildAbilityIcons(hero: HeroWindowProps['hero']) {
       tint: '#f8fafc',
       borderColor: 'rgb(148 163 184 / 35%)',
       tooltipTitle: ability.name,
-      tooltipLines: abilityTooltipLines(ability, ability.target, hero.attack),
+      tooltipLines: abilityTooltipLines(
+        ability,
+        ability.target,
+        hero.attack,
+        showTooltipTags,
+      ),
       tooltipBorderColor: 'rgba(148, 163, 184, 0.9)',
     };
   });

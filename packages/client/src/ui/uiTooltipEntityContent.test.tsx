@@ -1,6 +1,13 @@
 import { GameTag } from '../game/content/tags';
+import { getAbilityDefinition } from '../game/abilities';
 import { Skill } from '../game/types';
-import { enemyTooltip, skillTooltip, structureTooltip } from './tooltips';
+import {
+  abilityTooltipLines,
+  enemyTooltip,
+  skillTooltip,
+  statusEffectTooltipLines,
+  structureTooltip,
+} from './tooltips';
 
 describe('ui tooltip entity content', () => {
   it('builds enemy, skill, and structure tooltip variants', () => {
@@ -145,6 +152,33 @@ describe('ui tooltip entity content', () => {
       text: 'Tags: skill.profession, skill.smelting',
       tone: 'subtle',
     });
+    expect(
+      enemyTooltip(
+        [
+          {
+            id: 'wolf-1',
+            name: 'Wolf',
+            coord: { q: 0, r: 0 },
+            rarity: 'uncommon',
+            tier: 2,
+            hp: 5,
+            maxHp: 8,
+            attack: 3,
+            defense: 1,
+            tags: [GameTag.EnemyHostile, GameTag.EnemyAnimal],
+            xp: 4,
+            elite: false,
+          },
+        ],
+        'town',
+        false,
+      )?.lines.some((line) => line.text?.startsWith('Tags:')),
+    ).toBe(false);
+    expect(
+      skillTooltip(Skill.Crafting, 4, false).some((line) =>
+        line.text?.startsWith('Tags:'),
+      ),
+    ).toBe(false);
 
     const treeTooltip = structureTooltip({
       coord: { q: 0, r: 0 },
@@ -164,5 +198,37 @@ describe('ui tooltip entity content', () => {
         tone: 'subtle',
       },
     ]);
+    expect(
+      structureTooltip(
+        {
+          coord: { q: 0, r: 0 },
+          terrain: 'forest',
+          structure: 'tree',
+          structureHp: 3,
+          structureMaxHp: 5,
+          items: [],
+          enemyIds: [],
+        },
+        false,
+      )?.lines.some((line) => line.text?.startsWith('Tags:')),
+    ).toBe(false);
+    expect(
+      abilityTooltipLines(
+        getAbilityDefinition('fireball'),
+        'enemy',
+        12,
+        false,
+      ).some((line) => line.text?.startsWith('Tags:')),
+    ).toBe(false);
+    expect(
+      statusEffectTooltipLines(
+        'shocked',
+        'debuff',
+        [],
+        undefined,
+        undefined,
+        false,
+      ).some((line) => line.text?.startsWith('Tags:')),
+    ).toBe(false);
   });
 });

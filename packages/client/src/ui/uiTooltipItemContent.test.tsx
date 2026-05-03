@@ -166,6 +166,11 @@ describe('ui tooltip item content', () => {
           line.tone === 'subtle',
       ),
     ).toBe(true);
+    expect(
+      itemTooltipLines(resourceTooltipItem, undefined, {
+        showTags: false,
+      }).some((line) => line.text?.startsWith('Tags:')),
+    ).toBe(false);
   });
 
   it('builds consumable and recipe tooltip variants', () => {

@@ -1,5 +1,6 @@
 import {
   isStoredSettingsRecord,
+  normalizeStoredBoolean,
   normalizeStoredFiniteNumber,
 } from './settingsNormalization';
 import {
@@ -16,12 +17,19 @@ export interface InterfaceSettings {
   fontFamily: InterfaceFontFamily;
   fontSize: number;
   interfaceScale: number;
+  showTooltipTags: boolean;
   windowTransparency: number;
 }
 
 export interface InterfaceLanguageOptionDefinition {
   labelKey: string;
   value: InterfaceLanguage;
+}
+
+export interface InterfaceSettingsToggleOptionDefinition {
+  key: Extract<keyof InterfaceSettings, 'showTooltipTags'>;
+  labelKey: string;
+  descriptionKey: string;
 }
 
 export interface InterfaceSettingsRangeOptionDefinition {
@@ -42,6 +50,7 @@ export const DEFAULT_INTERFACE_SETTINGS: InterfaceSettings = {
   fontFamily: DEFAULT_INTERFACE_FONT_FAMILY,
   fontSize: 100,
   interfaceScale: 100,
+  showTooltipTags: true,
   windowTransparency: 0,
 };
 
@@ -89,6 +98,15 @@ export const INTERFACE_SETTINGS_RANGE_OPTIONS: InterfaceSettingsRangeOptionDefin
     },
   ];
 
+export const INTERFACE_SETTINGS_TOGGLE_OPTIONS: InterfaceSettingsToggleOptionDefinition[] =
+  [
+    {
+      key: 'showTooltipTags',
+      labelKey: 'ui.settings.interface.showTooltipTags.label',
+      descriptionKey: 'ui.settings.interface.showTooltipTags.description',
+    },
+  ];
+
 export function loadInterfaceSettings() {
   return interfaceSettingsStore.load();
 }
@@ -131,6 +149,10 @@ function normalizeInterfaceSettings(settings: unknown): InterfaceSettings {
       DEFAULT_INTERFACE_SETTINGS.interfaceScale,
       75,
       150,
+    ),
+    showTooltipTags: normalizeStoredBoolean(
+      settings.showTooltipTags,
+      DEFAULT_INTERFACE_SETTINGS.showTooltipTags,
     ),
     windowTransparency: normalizeWindowTransparency(
       settings.windowTransparency,

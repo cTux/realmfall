@@ -78,6 +78,7 @@ interface UsePixiWorldArgs {
   game: GameState;
   graphicsSettings: GraphicsSettings;
   paused: boolean;
+  showTooltipTags: boolean;
   worldTimeMsRef: MutableRefObject<number>;
   gameRef: MutableRefObject<GameState>;
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
@@ -98,6 +99,7 @@ export function usePixiWorld({
   game,
   graphicsSettings,
   paused,
+  showTooltipTags,
   worldTimeMsRef,
   gameRef,
   tooltipPositionRef,
@@ -143,6 +145,7 @@ export function usePixiWorld({
   const hoverAnalysisVersionRef = useRef(0);
   const hoverSnapshotRef = useRef<WorldHoverSnapshot>(undefined!);
   const showTerrainBackgroundsRef = useRef(showTerrainBackgrounds);
+  const showTooltipTagsRef = useRef(showTooltipTags);
   const worldRenderFpsRef = useRef(normalizeWorldRenderFps(worldRenderFps));
   const lastRenderSnapshotRef = useRef<WorldRenderSnapshot>(undefined!);
   const renderInvalidationRef = useRef(0);
@@ -204,6 +207,10 @@ export function usePixiWorld({
     showTerrainBackgroundsRef.current = showTerrainBackgrounds;
     renderInvalidationRef.current += 1;
   }, [showTerrainBackgrounds]);
+
+  useEffect(() => {
+    showTooltipTagsRef.current = showTooltipTags;
+  }, [showTooltipTags]);
 
   useEffect(() => {
     const normalizedWorldRenderFps = normalizeWorldRenderFps(worldRenderFps);
@@ -541,6 +548,7 @@ export function usePixiWorld({
             selectedRef,
             movementController,
             setTooltip,
+            showTooltipTagsRef,
             showTerrainBackgroundsRef,
             worldRenderFpsRef,
             tooltipPositionRef,

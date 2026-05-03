@@ -4,7 +4,9 @@ import { loadNamedWindowModule } from './lazyDeferredWindowModule';
 import type { AppDeferredWindowDescriptor } from './types';
 
 const LogWindow = createLazyWindowComponent<
-  Parameters<(typeof import('../../../../ui/components/LogWindow'))['LogWindow']>[0]
+  Parameters<
+    (typeof import('../../../../ui/components/LogWindow'))['LogWindow']
+  >[0]
 >(
   loadNamedWindowModule(() =>
     import('../../../../ui/components/LogWindow').then(
@@ -21,6 +23,7 @@ export const logDeferredWindow: AppDeferredWindowDescriptor = {
       filters={views.logs.filters}
       defaultFilters={DEFAULT_LOG_FILTERS}
       showFilterMenu={views.logs.showFilterMenu}
+      showTooltipTags={views.settings.interface.showTooltipTags}
       onToggleMenu={actions.logs.onToggleFilterMenu}
       onToggleFilter={actions.logs.onToggleLogFilter}
       logs={views.logs.filtered}

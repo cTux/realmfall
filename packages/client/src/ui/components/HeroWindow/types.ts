@@ -55,5 +55,6 @@ export interface HeroWindowProps
   extends ManagedWindowShellProps, WindowDetailTooltipHandlers {
   hero: HeroOverview;
   hunger: number;
+  showTooltipTags?: boolean;
   thirst?: number;
 }

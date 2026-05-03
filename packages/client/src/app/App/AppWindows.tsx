@@ -115,6 +115,7 @@ export function AppWindows(props: AppWindowsProps) {
         tooltipPositionRef={props.layout.tooltipPositionRef}
         heroView={props.views.hero}
         inventoryView={props.views.inventory}
+        showTooltipTags={props.views.settings.interface.showTooltipTags}
         itemMenu={props.views.itemMenu}
         windowActions={props.actions.windows}
         tooltipActions={props.actions.tooltip}

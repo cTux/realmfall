@@ -75,6 +75,7 @@ describe('useItemTooltipController', () => {
     function Harness() {
       controller = useItemTooltipController({
         gameRef,
+        showTooltipTags: true,
         tooltipPositionRef,
       });
       return <button id="anchor">Anchor</button>;
@@ -114,6 +115,81 @@ describe('useItemTooltipController', () => {
       value: '-5',
       tone: 'negative',
     });
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('rebuilds tooltip content when the tag-visibility setting changes', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    let controller: ReturnType<typeof useItemTooltipController> | null = null;
+    const game = createGame(2, 'tooltip-tag-visibility-setting');
+    const previewItem: Item = {
+      id: 'preview-weapon',
+      itemKey: 'generated-sword',
+      name: 'Sword',
+      slot: 'weapon',
+      quantity: 1,
+      tier: 3,
+      rarity: 'rare',
+      power: 4,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+    };
+    const gameRef: { current: GameState } = { current: game };
+    const tooltipPositionRef = { current: null };
+    let showTooltipTags = true;
+
+    function Harness() {
+      controller = useItemTooltipController({
+        gameRef,
+        showTooltipTags,
+        tooltipPositionRef,
+      });
+      return <button id="anchor">Anchor</button>;
+    }
+
+    await act(async () => {
+      root.render(<Harness />);
+    });
+
+    const anchor = host.querySelector('#anchor') as HTMLElement | null;
+    expect(anchor).toBeTruthy();
+
+    await act(async () => {
+      controller?.showItemTooltip(
+        { currentTarget: anchor! } as ReactMouseEvent<HTMLElement>,
+        previewItem,
+      );
+    });
+    await settleUi();
+
+    expect(
+      getTooltipState()?.lines.some((line) => line.text?.startsWith('Tags:')),
+    ).toBe(true);
+
+    showTooltipTags = false;
+    await act(async () => {
+      root.render(<Harness />);
+    });
+
+    await act(async () => {
+      controller?.showItemTooltip(
+        { currentTarget: anchor! } as ReactMouseEvent<HTMLElement>,
+        previewItem,
+      );
+    });
+    await settleUi();
+
+    expect(
+      getTooltipState()?.lines.some((line) => line.text?.startsWith('Tags:')),
+    ).toBe(false);
 
     await act(async () => {
       root.unmount();
