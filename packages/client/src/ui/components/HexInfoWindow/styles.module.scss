@@ -58,7 +58,7 @@
   color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  font-size: 0.78rem;
+  font-size: ui.scaled-font-size(0.78rem);
 }
 
 .value {
@@ -88,7 +88,7 @@
 .barLabel {
   display: flex;
   justify-content: space-between;
-  font-size: 0.84rem;
+  font-size: ui.scaled-font-size(0.84rem);
 }
 
 .barTrack {
@@ -148,7 +148,7 @@
 
 .itemModificationHint {
   color: #94a3b8;
-  font-size: 0.82rem;
+  font-size: ui.scaled-font-size(0.82rem);
 }
 
 .itemModificationField {
@@ -174,7 +174,7 @@
 
 .itemModificationCost {
   color: #fbbf24;
-  font-size: 0.82rem;
+  font-size: ui.scaled-font-size(0.82rem);
   font-weight: 700;
 }
 
@@ -184,7 +184,7 @@
 
 .itemModificationWarning {
   color: #fca5a5;
-  font-size: 0.82rem;
+  font-size: ui.scaled-font-size(0.82rem);
 }
 
 .itemModificationSlotActive {
@@ -237,7 +237,7 @@
 
 .sectionTitle {
   color: #e2e8f0;
-  font-size: 0.84rem;
+  font-size: ui.scaled-font-size(0.84rem);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;

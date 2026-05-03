@@ -114,8 +114,14 @@ export function AppShell({
           0,
           1 - interfaceSettings.windowTransparency / 100,
         )}`,
+        '--app-ui-font-scale': `${interfaceSettings.fontSize / 100}`,
+        '--app-ui-scale': `${interfaceSettings.interfaceScale / 100}`,
       }) as CSSProperties,
-    [interfaceSettings.windowTransparency],
+    [
+      interfaceSettings.fontSize,
+      interfaceSettings.interfaceScale,
+      interfaceSettings.windowTransparency,
+    ],
   );
 
   return (
@@ -150,42 +156,46 @@ export function AppShell({
               radius={game.radius}
             />
           </Suspense>
-          <Suspense fallback={null}>
-            <AppWindows {...windowsProps} />
-          </Suspense>
-          {isReady && paused ? (
-            <PauseOverlay
-              title={t('ui.pauseOverlay.title')}
-              subtitle={t('ui.pauseOverlay.subtitle')}
-            />
-          ) : null}
-          <Suspense fallback={null}>
-            <VersionStatusPanel
-              onRefresh={() => window.location.reload()}
-              onHoverDetail={windowsProps.actions.tooltip.onShowTooltip}
-              onLeaveDetail={windowsProps.actions.tooltip.onCloseTooltip}
-            />
-          </Suspense>
-        </div>
-        {isReady ? null : (
-          <div
-            className={styles.loadingScreen}
-            aria-live="polite"
-            aria-busy={!pixiWorldError}
-          >
-            {pixiWorldError ? (
-              <div className={styles.loadingError} role="alert">
-                <strong>{t('ui.loading.worldErrorTitle')}</strong>
-                <p>{t('ui.loading.worldErrorBody')}</p>
-                <Button unstyled type="button" onClick={onRetryPixiWorld}>
-                  {t('ui.loading.worldRetryAction')}
-                </Button>
+          <div className={styles.uiShell}>
+            <Suspense fallback={null}>
+              <AppWindows {...windowsProps} />
+            </Suspense>
+            {isReady && paused ? (
+              <PauseOverlay
+                title={t('ui.pauseOverlay.title')}
+                subtitle={t('ui.pauseOverlay.subtitle')}
+              />
+            ) : null}
+            <Suspense fallback={null}>
+              <VersionStatusPanel
+                onRefresh={() => window.location.reload()}
+                onHoverDetail={windowsProps.actions.tooltip.onShowTooltip}
+                onLeaveDetail={windowsProps.actions.tooltip.onCloseTooltip}
+              />
+            </Suspense>
+            {isReady ? null : (
+              <div
+                className={styles.loadingScreen}
+                aria-live="polite"
+                aria-busy={!pixiWorldError}
+              >
+                <div className={styles.loadingContentShell}>
+                  {pixiWorldError ? (
+                    <div className={styles.loadingError} role="alert">
+                      <strong>{t('ui.loading.worldErrorTitle')}</strong>
+                      <p>{t('ui.loading.worldErrorBody')}</p>
+                      <Button unstyled type="button" onClick={onRetryPixiWorld}>
+                        {t('ui.loading.worldRetryAction')}
+                      </Button>
+                    </div>
+                  ) : (
+                    <LoadingSpinner className={styles.loadingSpinner} />
+                  )}
+                </div>
               </div>
-            ) : (
-              <LoadingSpinner className={styles.loadingSpinner} />
             )}
           </div>
-        )}
+        </div>
       </div>
     </UiAudioProvider>
   );

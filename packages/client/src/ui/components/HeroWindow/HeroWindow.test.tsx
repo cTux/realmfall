@@ -177,13 +177,21 @@ describe('HeroWindow', () => {
     const windowNode = host.querySelector(
       `.${styles.window}`,
     ) as HTMLElement | null;
+    const windowShell = host.querySelector(
+      'section[class*="floatingWindow"]',
+    ) as HTMLElement | null;
     const statsScroller = host.querySelector(
       `.${styles.stats}`,
     ) as HTMLElement | null;
 
     expect(windowNode).not.toBeNull();
-    expect(windowNode?.style.width).toBe('320px');
-    expect(windowNode?.style.height).toBe('260px');
+    expect(windowShell).not.toBeNull();
+    expect(windowShell?.style.getPropertyValue('--window-base-width')).toBe(
+      '320px',
+    );
+    expect(windowShell?.style.getPropertyValue('--window-base-height')).toBe(
+      '260px',
+    );
     expect(
       windowNode?.querySelector('div[class*="resizeHandle"]'),
     ).not.toBeNull();

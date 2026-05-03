@@ -31,38 +31,40 @@ export function VersionStatusWidget({
   });
 
   return (
-    <aside
-      className={styles.widget}
-      aria-live="polite"
-      aria-label={statusLabel}
-      data-version-status={status}
-    >
-      <span
-        aria-hidden="true"
-        className={styles.indicator}
-        data-status={status}
-      />
-      <span className={styles.statusText}>{statusLabel}</span>
-      {status === 'outdated' ? (
-        <Button
-          unstyled
-          className={styles.refreshButton}
-          type="button"
-          onMouseEnter={(event) =>
-            onHoverDetail?.(
-              event,
-              t('ui.version.refreshAction'),
-              getRefreshTooltipLines({ currentVersion, remoteVersion }),
-              'rgba(248, 113, 113, 0.9)',
-            )
-          }
-          onMouseLeave={onLeaveDetail}
-          onClick={onRefresh}
-        >
-          {t('ui.version.refreshAction')}
-        </Button>
-      ) : null}
-    </aside>
+    <div className={styles.anchor}>
+      <aside
+        className={styles.widget}
+        aria-live="polite"
+        aria-label={statusLabel}
+        data-version-status={status}
+      >
+        <span
+          aria-hidden="true"
+          className={styles.indicator}
+          data-status={status}
+        />
+        <span className={styles.statusText}>{statusLabel}</span>
+        {status === 'outdated' ? (
+          <Button
+            unstyled
+            className={styles.refreshButton}
+            type="button"
+            onMouseEnter={(event) =>
+              onHoverDetail?.(
+                event,
+                t('ui.version.refreshAction'),
+                getRefreshTooltipLines({ currentVersion, remoteVersion }),
+                'rgba(248, 113, 113, 0.9)',
+              )
+            }
+            onMouseLeave={onLeaveDetail}
+            onClick={onRefresh}
+          >
+            {t('ui.version.refreshAction')}
+          </Button>
+        ) : null}
+      </aside>
+    </div>
   );
 }
 

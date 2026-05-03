@@ -24,7 +24,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 0.35rem;
-  font-size: 0.72rem;
+  font-size: ui.scaled-font-size(0.72rem);
   line-height: 1;
   color: #f8fafc;
   text-shadow: 0 1px 1px rgb(15 23 42 / 90%);

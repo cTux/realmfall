@@ -7,7 +7,7 @@
   border-radius: 0 0.8rem;
   padding: 0.4rem 0.9rem;
   min-height: 2.05rem;
-  font-size: 0.9rem;
+  font-size: ui.scaled-font-size(0.9rem);
   line-height: 1.15;
 
   &[data-tone='danger'] {
@@ -17,6 +17,6 @@
   &[data-size='small'] {
     padding: 0.2rem 0.5rem;
     min-height: 1.6rem;
-    font-size: 0.75rem;
+    font-size: ui.scaled-font-size(0.75rem);
   }
 }

@@ -19,7 +19,9 @@ This spec covers the desktop-style game settings window, its dock and hotkey acc
 - The mute toggle and master volume apply to background music, synthesized UI audio, and gameplay voice playback, the music-only mute toggle affects only background music, and the sound-effect toggles and Tiks theme remain scoped to synthesized interface sounds.
 - UI audio waits for a user activation before initializing the audio engine, then applies the saved audio settings to document-wide hover, click, toggle, range, tab, and window interaction sounds.
 - Gameplay voice playback waits for a user activation before loading its bridge, uses the selected actor and enabled event list, resolves recorded clip URLs from a lazy per-file index only when a clip is chosen, and stops any active voice clip immediately when mute or reduced-motion muting becomes active, including OS or browser reduced-motion preference changes that occur mid-playback.
-- The interface tab stores a global window-transparency slider plus a game-font selector, with `Pixelify Sans` as the default face and `Roboto` plus `Ubuntu` as optional alternatives.
+- The interface tab stores a text-only `Font size` slider, a UI-only `Interface size` slider, a global window-transparency slider, and a game-font selector, with `Pixelify Sans` as the default face and `Roboto` plus `Ubuntu` as optional alternatives.
+- `Font size` scales explicit HTML UI typography without scaling the Pixi canvas or enlarging window chrome.
+- `Interface size` scales the dock, windows, overlays, and controls through anchored HTML UI surfaces without scaling the world canvas, world-positioned overlays, or the screen anchors used for map input.
 - Interface font choices use bundled local font files, and `Save` waits for the selected font to finish loading before the shell updates so window chrome does not flash back to a fallback face.
 - The gameplay tab stores automation toggles for auto-loot, auto-start combat, and auto-gather resources.
 - Graphics, audio, interface, gameplay, and world-map settings each persist in their own dedicated plain `localStorage` area outside the encrypted save areas, and the shared settings storage helper normalizes those values before startup or live save flows consume them.
@@ -41,6 +43,8 @@ This spec covers the desktop-style game settings window, its dock and hotkey acc
 - Change `Pixi render FPS`, use `Save`, and confirm the world ticker cap updates without creating a second Pixi application.
 - Change audio toggles, volume, theme, voice actor, and voice event switches, use `Save`, and confirm the document-level UI sounds, background music, and gameplay voice playback respect the persisted choices after the next user activation.
 - Change the game font, use `Save`, and confirm the shell updates to the selected bundled font without a page reload. Reload manually and confirm the same font is active during the next bootstrap.
+- Change `Font size`, use `Save`, and confirm text grows or shrinks without changing window chrome dimensions.
+- Change `Interface size`, use `Save`, and confirm dock, windows, overlays, and controls scale while the Pixi world canvas stays unchanged, the action bar and dock stay anchored, and world-map movement or hover input keeps working.
 - Change interface transparency and gameplay automation toggles, use `Save`, and confirm the persisted values survive a manual reload.
 - Trigger a gameplay voice line, toggle mute or reduced-motion muting before the clip finishes, and confirm the active line stops immediately.
 - Inspect the production build or network panel before activation and confirm the gameplay voice bridge and selected WAV clip modules are not requested.

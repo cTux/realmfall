@@ -6,10 +6,15 @@
   bottom: 18px;
   z-index: 7;
   transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.scaleShell {
   display: grid;
   justify-items: center;
   gap: 8px;
-  pointer-events: none;
+  pointer-events: auto;
+  zoom: var(--app-ui-scale, 1);
 }
 
 .bar {
@@ -33,7 +38,7 @@
   left: 4px;
   top: 3px;
   z-index: 2;
-  font-size: 0.7rem;
+  font-size: ui.scaled-font-size(0.7rem);
   font-weight: 700;
   line-height: 1;
   color: #cbd5e1;
@@ -53,7 +58,7 @@
 
 .pickerHeader {
   margin-bottom: 8px;
-  font-size: 0.72rem;
+  font-size: ui.scaled-font-size(0.72rem);
   font-weight: 700;
   color: #e2e8f0;
   text-transform: uppercase;
@@ -68,7 +73,7 @@
 
 .empty {
   color: #94a3b8;
-  font-size: 0.8rem;
+  font-size: ui.scaled-font-size(0.8rem);
 }
 
 @media (width <= 720px) {

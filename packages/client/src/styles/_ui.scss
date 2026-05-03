@@ -29,6 +29,10 @@ $tile-transition:
   border-color 120ms ease,
   background-color 120ms ease;
 
+@function scaled-font-size($size) {
+  @return calc(#{$size} * var(--app-ui-font-scale, 1));
+}
+
 @mixin masked-icon($width, $height: $width, $background: null, $shadow: null) {
   width: $width;
   height: $height;
@@ -124,7 +128,7 @@ $tile-transition:
 @mixin compact-button {
   padding: 0.2rem 0.5rem;
   min-height: 1.6rem;
-  font-size: 0.75rem;
+  font-size: scaled-font-size(0.75rem);
   line-height: 1.15;
 }
 
@@ -138,7 +142,7 @@ $tile-transition:
   justify-content: center;
   padding: 0.28rem 0.45rem;
   border-radius: $ability-radius;
-  font-size: 0.68rem;
+  font-size: scaled-font-size(0.68rem);
   line-height: 1.1;
 }
 
@@ -156,7 +160,7 @@ $tile-transition:
 
   padding: 0.55rem 0.85rem 0.45rem;
   border-radius: $ability-radius;
-  font-size: 0.85rem;
+  font-size: scaled-font-size(0.85rem);
   line-height: 1.15;
 }
 
@@ -176,7 +180,7 @@ $tile-transition:
 
   padding: 0.25rem 0.6rem;
   border-radius: 999px;
-  font-size: 0.75rem;
+  font-size: scaled-font-size(0.75rem);
   line-height: 1.15;
 }
 

@@ -46,6 +46,7 @@ describe('WindowDock', () => {
     });
 
     const button = host.querySelector('button') as HTMLButtonElement | null;
+    const dock = host.querySelector('aside') as HTMLElement | null;
     const [firstButtonProps] = buttonRenderSpy.mock.calls[0] ?? [];
 
     expect(buttonRenderSpy).toHaveBeenCalledTimes(1);
@@ -53,6 +54,7 @@ describe('WindowDock', () => {
     expect(firstButtonProps?.className).toBe(styles.dockButton);
     expect(button?.classList.contains(styles.dockButton)).toBe(true);
     expect(button?.classList.contains(buttonStyles.button)).toBe(false);
+    expect(getComputedStyle(dock!).pointerEvents).toBe('auto');
     expect(findTooltip()).toBeNull();
 
     await act(async () => {

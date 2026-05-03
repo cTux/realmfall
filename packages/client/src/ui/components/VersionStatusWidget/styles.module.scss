@@ -1,8 +1,14 @@
-.widget {
+@use '../../../styles/ui';
+
+.anchor {
   position: fixed;
   right: 1rem;
   bottom: 1rem;
   z-index: 40;
+  pointer-events: auto;
+}
+
+.widget {
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -12,6 +18,7 @@
   background: rgb(8 15 30 / 94%);
   box-shadow: 0 16px 36px rgb(0 0 0 / 34%);
   backdrop-filter: blur(14px);
+  zoom: var(--app-ui-scale, 1);
 }
 
 .indicator {
@@ -52,7 +59,7 @@
   border: 1px solid rgb(248 113 113 / 38%);
   background: rgb(69 10 10 / 68%);
   color: #fee2e2;
-  font-size: 0.76rem;
+  font-size: ui.scaled-font-size(0.76rem);
   font-weight: 700;
   line-height: 1;
   cursor: pointer;
@@ -70,7 +77,7 @@
 }
 
 @media (width <= 980px) {
-  .widget {
+  .anchor {
     right: 0.75rem;
     bottom: 0.75rem;
   }

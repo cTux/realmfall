@@ -52,7 +52,7 @@
 
 .note {
   color: #94a3b8;
-  font-size: 0.82rem;
+  font-size: ui.scaled-font-size(0.82rem);
   line-height: 1.4;
 }
 
@@ -96,7 +96,7 @@
 
 .filterLabel {
   color: #dbeafe;
-  font-size: 0.8rem;
+  font-size: ui.scaled-font-size(0.8rem);
 }
 
 .filterReset {
@@ -155,24 +155,24 @@
 
 .title {
   color: #e2e8f0;
-  font-size: 0.84rem;
+  font-size: ui.scaled-font-size(0.84rem);
 }
 
 .skill {
   color: #94a3b8;
-  font-size: 0.72rem;
+  font-size: ui.scaled-font-size(0.72rem);
   text-transform: capitalize;
 }
 
 .description {
   color: #cbd5e1;
-  font-size: 0.76rem;
+  font-size: ui.scaled-font-size(0.76rem);
   line-height: 1.35;
 }
 
 .site {
   color: #94a3b8;
-  font-size: 0.74rem;
+  font-size: ui.scaled-font-size(0.74rem);
 }
 
 .actions {
@@ -190,7 +190,7 @@
 
 .craftCount {
   color: #cbd5e1;
-  font-size: 0.95rem;
+  font-size: ui.scaled-font-size(0.95rem);
   font-weight: 500;
 }
 

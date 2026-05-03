@@ -13,9 +13,11 @@ export function PauseOverlay({ title, subtitle }: PauseOverlayProps) {
       aria-atomic="true"
       role="status"
     >
-      <div className={styles.card}>
-        <h2 className={styles.title}>{title}</h2>
-        <p className={styles.subtitle}>{subtitle}</p>
+      <div className={styles.cardShell}>
+        <div className={styles.card}>
+          <h2 className={styles.title}>{title}</h2>
+          <p className={styles.subtitle}>{subtitle}</p>
+        </div>
       </div>
     </div>
   );

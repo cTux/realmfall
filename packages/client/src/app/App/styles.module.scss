@@ -1,3 +1,5 @@
+@use '../../styles/ui';
+
 .appRoot {
   position: relative;
   width: 100vw;
@@ -14,6 +16,12 @@
 .appShell {
   position: absolute;
   inset: 0;
+}
+
+.uiShell {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 
 .mapViewport {
@@ -75,7 +83,7 @@
   display: block;
   color: #e9d5ff;
   -webkit-text-stroke: 0.25px #3b0764;
-  font-size: 0.84rem;
+  font-size: ui.scaled-font-size(0.84rem);
   font-weight: 700;
   line-height: 1;
   padding: 0.22rem 0.42rem;
@@ -110,6 +118,11 @@
   place-self: center;
 }
 
+.loadingContentShell {
+  display: grid;
+  zoom: var(--app-ui-scale, 1);
+}
+
 .loadingError {
   display: grid;
   gap: 0.8rem;
@@ -123,7 +136,7 @@
 
 .loadingError strong {
   color: #fecaca;
-  font-size: 1rem;
+  font-size: ui.scaled-font-size(1rem);
 }
 
 .loadingError p {

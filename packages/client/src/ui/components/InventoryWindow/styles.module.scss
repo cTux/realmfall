@@ -65,7 +65,7 @@
   justify-content: flex-start;
   width: 100%;
   padding: 0.16rem 0.38rem;
-  font-size: 0.76rem;
+  font-size: ui.scaled-font-size(0.76rem);
   line-height: 1.1;
   text-transform: capitalize;
 }

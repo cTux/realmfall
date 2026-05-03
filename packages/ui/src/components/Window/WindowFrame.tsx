@@ -63,8 +63,10 @@ export function WindowFrame({
   const windowStyle = {
     '--window-position-x': `${position.x}px`,
     '--window-position-y': `${position.y}px`,
-    width: position.width === undefined ? undefined : `${position.width}px`,
-    height: position.height === undefined ? undefined : `${position.height}px`,
+    '--window-base-width':
+      position.width === undefined ? undefined : `${position.width}px`,
+    '--window-base-height':
+      position.height === undefined ? undefined : `${position.height}px`,
     opacity: 'var(--window-opacity, var(--app-window-opacity, 1))',
   } as CSSProperties;
   const resolvedCloseButtonContent = closeButtonContent ?? (
@@ -80,11 +82,14 @@ export function WindowFrame({
   const normalizedTitleClassName = `${styles.windowTitle} ${
     titleClassName ?? ''
   }`.trim();
+  const normalizedSurfaceClassName = `${styles.windowSurface} ${
+    className ?? ''
+  }`.trim();
 
   return (
     <section
       ref={windowRef}
-      className={`${styles.floatingWindow} ${className ?? ''}`.trim()}
+      className={styles.floatingWindow}
       data-window-emphasis={emphasis}
       data-window-interacting={interacting}
       data-window-visible={isEntered}
@@ -96,53 +101,58 @@ export function WindowFrame({
       onFocusCapture={onWindowActivate}
       onBlurCapture={onBlurCapture}
     >
-      <div className={styles.windowHeader} onPointerDown={onHeaderPointerDown}>
-        <h2 className={normalizedTitleClassName}>{title}</h2>
-        <div className={styles.windowHeaderActions}>
-          {headerActions ? (
-            <div
-              className={styles.headerActions}
-              onPointerDown={(event) => event.stopPropagation()}
-            >
-              {headerActions}
-            </div>
-          ) : null}
-          {canShowCloseButton ? (
-            <Button
-              type="button"
-              size="small"
-              unstyled
-              className={styles.headerButton}
-              data-ui-audio-click="off"
-              aria-label={tooltipLabel}
-              onPointerDown={(event) => event.stopPropagation()}
-              onClick={(event) => {
-                event.currentTarget.blur();
-                onClose();
-              }}
-              onMouseEnter={(event) =>
-                onHoverDetail?.(
-                  event,
-                  tooltipLabel,
-                  tooltipLines,
-                  closeButtonColor,
-                )
-              }
-              onMouseLeave={onLeaveDetail}
-            >
-              {resolvedCloseButtonContent}
-            </Button>
-          ) : null}
-        </div>
-      </div>
-      <div className={normalizedBodyClassName}>{children}</div>
-      {resizeBounds ? (
+      <div className={normalizedSurfaceClassName}>
         <div
-          className={styles.resizeHandle}
-          onPointerDown={onResizePointerDown}
-          aria-hidden="true"
-        />
-      ) : null}
+          className={styles.windowHeader}
+          onPointerDown={onHeaderPointerDown}
+        >
+          <h2 className={normalizedTitleClassName}>{title}</h2>
+          <div className={styles.windowHeaderActions}>
+            {headerActions ? (
+              <div
+                className={styles.headerActions}
+                onPointerDown={(event) => event.stopPropagation()}
+              >
+                {headerActions}
+              </div>
+            ) : null}
+            {canShowCloseButton ? (
+              <Button
+                type="button"
+                size="small"
+                unstyled
+                className={styles.headerButton}
+                data-ui-audio-click="off"
+                aria-label={tooltipLabel}
+                onPointerDown={(event) => event.stopPropagation()}
+                onClick={(event) => {
+                  event.currentTarget.blur();
+                  onClose();
+                }}
+                onMouseEnter={(event) =>
+                  onHoverDetail?.(
+                    event,
+                    tooltipLabel,
+                    tooltipLines,
+                    closeButtonColor,
+                  )
+                }
+                onMouseLeave={onLeaveDetail}
+              >
+                {resolvedCloseButtonContent}
+              </Button>
+            ) : null}
+          </div>
+        </div>
+        <div className={normalizedBodyClassName}>{children}</div>
+        {resizeBounds ? (
+          <div
+            className={styles.resizeHandle}
+            onPointerDown={onResizePointerDown}
+            aria-hidden="true"
+          />
+        ) : null}
+      </div>
     </section>
   );
 }

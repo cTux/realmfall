@@ -1,3 +1,5 @@
+@use '../../styles/ui';
+
 .loadingState {
   display: grid;
   place-items: center;
@@ -11,6 +13,6 @@
 .message {
   margin: 0;
   max-width: 18rem;
-  font-size: 0.9rem;
+  font-size: ui.scaled-font-size(0.9rem);
   line-height: 1.4;
 }

@@ -1,3 +1,5 @@
+@use '../../../styles/ui';
+
 .window {
   width: min(380px, calc(100vw - 16px));
   height: min(520px, calc(100vh - 16px));
@@ -42,7 +44,7 @@
 .sectionTitle {
   margin: 0;
   color: rgb(226 232 240 / 88%);
-  font-size: 0.72rem;
+  font-size: ui.scaled-font-size(0.72rem);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -67,12 +69,12 @@
 .statLabel {
   min-width: 0;
   color: rgb(203 213 225 / 88%);
-  font-size: 0.82rem;
+  font-size: ui.scaled-font-size(0.82rem);
 }
 
 .statValue {
   color: rgb(248 250 252 / 96%);
-  font-size: 0.82rem;
+  font-size: ui.scaled-font-size(0.82rem);
   font-variant-numeric: tabular-nums;
   text-align: right;
 }

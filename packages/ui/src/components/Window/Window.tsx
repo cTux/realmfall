@@ -86,10 +86,19 @@ export function Window({
 
     node.style.setProperty('--window-position-x', `${nextPosition.x}px`);
     node.style.setProperty('--window-position-y', `${nextPosition.y}px`);
-    node.style.width =
-      nextPosition.width === undefined ? '' : `${nextPosition.width}px`;
-    node.style.height =
-      nextPosition.height === undefined ? '' : `${nextPosition.height}px`;
+    if (nextPosition.width === undefined) {
+      node.style.removeProperty('--window-base-width');
+    } else {
+      node.style.setProperty('--window-base-width', `${nextPosition.width}px`);
+    }
+    if (nextPosition.height === undefined) {
+      node.style.removeProperty('--window-base-height');
+    } else {
+      node.style.setProperty(
+        '--window-base-height',
+        `${nextPosition.height}px`,
+      );
+    }
   }, []);
 
   const activateWindow = useCallback(() => {

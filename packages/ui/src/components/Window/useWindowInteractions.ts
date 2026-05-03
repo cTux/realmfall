@@ -19,6 +19,19 @@ interface UseWindowInteractionsArgs {
   windowRef: RefObject<HTMLElement | null>;
 }
 
+function getInterfaceScale(node: HTMLElement | null) {
+  if (!node) {
+    return 1;
+  }
+
+  const scaleValue = window
+    .getComputedStyle(node)
+    .getPropertyValue('--app-ui-scale')
+    .trim();
+  const scale = Number.parseFloat(scaleValue);
+  return Number.isFinite(scale) && scale > 0 ? scale : 1;
+}
+
 export function useWindowInteractions({
   activateWindow,
   applyVisualPosition,
@@ -142,11 +155,13 @@ export function useWindowInteractions({
       }
 
       const rect = node.getBoundingClientRect();
+      const interfaceScale = getInterfaceScale(node);
+      const currentPosition = visualPositionRef.current;
       resizeRef.current = {
         startX: event.clientX,
         startY: event.clientY,
-        startWidth: rect.width,
-        startHeight: rect.height,
+        startWidth: currentPosition.width ?? rect.width / interfaceScale,
+        startHeight: currentPosition.height ?? rect.height / interfaceScale,
       };
       resizeMovedRef.current = false;
       onInteractionStart();
@@ -163,11 +178,13 @@ export function useWindowInteractions({
           y: position.y,
           width: Math.max(
             resizeBounds.minWidth,
-            resize.startWidth + (moveEvent.clientX - resize.startX),
+            resize.startWidth +
+              (moveEvent.clientX - resize.startX) / interfaceScale,
           ),
           height: Math.max(
             resizeBounds.minHeight,
-            resize.startHeight + (moveEvent.clientY - resize.startY),
+            resize.startHeight +
+              (moveEvent.clientY - resize.startY) / interfaceScale,
           ),
         };
 

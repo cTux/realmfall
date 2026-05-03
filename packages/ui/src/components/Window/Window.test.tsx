@@ -65,5 +65,6 @@ describe('Window', () => {
     expect(windowElement?.style.opacity).toBe(
       'var(--window-opacity, var(--app-window-opacity, 1))',
     );
+    expect(getComputedStyle(windowElement!).pointerEvents).toBe('auto');
   });
 });

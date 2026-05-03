@@ -14,6 +14,8 @@ describe('interface settings persistence', () => {
   it('stores interface settings in the interface save area', () => {
     saveInterfaceSettings({
       fontFamily: 'ubuntu',
+      fontSize: 118,
+      interfaceScale: 126,
       windowTransparency: 45,
     });
 
@@ -25,6 +27,8 @@ describe('interface settings persistence', () => {
       ),
     ).toEqual({
       fontFamily: 'ubuntu',
+      fontSize: 118,
+      interfaceScale: 126,
       windowTransparency: 45,
     });
   });
@@ -34,6 +38,8 @@ describe('interface settings persistence', () => {
       PERSISTED_SETTINGS_STORAGE_KEYS.interface,
       JSON.stringify({
         fontFamily: 'roboto',
+        fontSize: 118,
+        interfaceScale: 126,
         windowTransparency: 28,
       }),
     );
@@ -41,6 +47,8 @@ describe('interface settings persistence', () => {
     expect(loadInterfaceSettings()).toEqual({
       ...DEFAULT_INTERFACE_SETTINGS,
       fontFamily: 'roboto',
+      fontSize: 118,
+      interfaceScale: 126,
       windowTransparency: 28,
     });
   });
@@ -50,11 +58,17 @@ describe('interface settings persistence', () => {
       PERSISTED_SETTINGS_STORAGE_KEYS.interface,
       JSON.stringify({
         fontFamily: 'broken',
+        fontSize: 999,
+        interfaceScale: -20,
         windowTransparency: 'opaque',
       }),
     );
 
-    expect(loadInterfaceSettings()).toEqual(DEFAULT_INTERFACE_SETTINGS);
+    expect(loadInterfaceSettings()).toEqual({
+      ...DEFAULT_INTERFACE_SETTINGS,
+      fontSize: 150,
+      interfaceScale: 75,
+    });
   });
 
   it('clears only the interface save area', () => {
@@ -62,6 +76,8 @@ describe('interface settings persistence', () => {
       PERSISTED_SETTINGS_STORAGE_KEYS.interface,
       JSON.stringify({
         fontFamily: 'roboto',
+        fontSize: 92,
+        interfaceScale: 108,
         windowTransparency: 12,
       }),
     );
