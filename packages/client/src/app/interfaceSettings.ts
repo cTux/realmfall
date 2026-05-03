@@ -9,11 +9,19 @@ import {
 } from './interfaceFonts';
 import { createSettingsSectionStore } from './settingsSectionStore';
 
+export type InterfaceLanguage = 'en';
+
 export interface InterfaceSettings {
+  language: InterfaceLanguage;
   fontFamily: InterfaceFontFamily;
   fontSize: number;
   interfaceScale: number;
   windowTransparency: number;
+}
+
+export interface InterfaceLanguageOptionDefinition {
+  labelKey: string;
+  value: InterfaceLanguage;
 }
 
 export interface InterfaceSettingsRangeOptionDefinition {
@@ -30,11 +38,19 @@ export interface InterfaceSettingsRangeOptionDefinition {
 }
 
 export const DEFAULT_INTERFACE_SETTINGS: InterfaceSettings = {
+  language: 'en',
   fontFamily: DEFAULT_INTERFACE_FONT_FAMILY,
   fontSize: 100,
   interfaceScale: 100,
   windowTransparency: 0,
 };
+
+export const INTERFACE_LANGUAGE_OPTIONS: InterfaceLanguageOptionDefinition[] = [
+  {
+    labelKey: 'ui.settings.interface.language.option.en',
+    value: 'en',
+  },
+];
 
 const interfaceSettingsStore = createSettingsSectionStore({
   areaId: 'interface',
@@ -98,6 +114,9 @@ function normalizeInterfaceSettings(settings: unknown): InterfaceSettings {
   }
 
   return {
+    language: isInterfaceLanguage(settings.language)
+      ? settings.language
+      : DEFAULT_INTERFACE_SETTINGS.language,
     fontFamily: isInterfaceFontFamily(settings.fontFamily)
       ? settings.fontFamily
       : DEFAULT_INTERFACE_SETTINGS.fontFamily,
@@ -117,6 +136,10 @@ function normalizeInterfaceSettings(settings: unknown): InterfaceSettings {
       settings.windowTransparency,
     ),
   };
+}
+
+function isInterfaceLanguage(value: unknown): value is InterfaceLanguage {
+  return value === 'en';
 }
 
 function normalizeInterfacePercent(

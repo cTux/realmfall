@@ -3,7 +3,10 @@ import {
   type InterfaceFontFamily,
   resolveInterfaceFontStack,
 } from '../../../app/interfaceFonts';
-import { INTERFACE_SETTINGS_RANGE_OPTIONS } from '../../../app/interfaceSettings';
+import {
+  INTERFACE_LANGUAGE_OPTIONS,
+  INTERFACE_SETTINGS_RANGE_OPTIONS,
+} from '../../../app/interfaceSettings';
 import { t } from '../../../i18n';
 import type { GameSettingsInterfacePanelProps } from './types';
 import styles from './styles.module.scss';
@@ -14,6 +17,34 @@ export function GameSettingsInterfacePanel({
 }: GameSettingsInterfacePanelProps) {
   return (
     <div className={styles.panel}>
+      <label className={styles.selectField}>
+        <span className={styles.sectionHeader}>
+          <span className={styles.rangeLabel}>
+            {t('ui.settings.interface.language.label')}
+          </span>
+          <span className={styles.rangeDescription}>
+            {t('ui.settings.interface.language.description')}
+          </span>
+        </span>
+        <select
+          value={interfaceSettings.language}
+          onChange={(event) => {
+            const language = event.currentTarget
+              .value as (typeof interfaceSettings)['language'];
+
+            onChange((current) => ({
+              ...current,
+              language,
+            }));
+          }}
+        >
+          {INTERFACE_LANGUAGE_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {t(option.labelKey)}
+            </option>
+          ))}
+        </select>
+      </label>
       <label className={styles.selectField}>
         <span className={styles.sectionHeader}>
           <span className={styles.rangeLabel}>

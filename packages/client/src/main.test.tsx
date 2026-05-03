@@ -22,6 +22,7 @@ describe('main bootstrap', { timeout: 10000 }, () => {
     createRoot = vi.fn(() => ({ render }));
     loadI18n = vi.fn(() => Promise.resolve({}));
     loadInterfaceSettings = vi.fn(() => ({
+      language: 'en',
       fontFamily: 'pixelifySans',
       fontSize: 100,
       interfaceScale: 100,
@@ -111,7 +112,7 @@ describe('main bootstrap', { timeout: 10000 }, () => {
     await import('./main');
     await Promise.resolve();
 
-    expect(loadI18n).toHaveBeenCalledTimes(1);
+    expect(loadI18n).toHaveBeenCalledWith('en');
     expect(appModuleImported).not.toHaveBeenCalled();
 
     resolveI18n();
@@ -126,6 +127,7 @@ describe('main bootstrap', { timeout: 10000 }, () => {
 
     let resolveFont!: () => void;
     loadInterfaceSettings.mockReturnValueOnce({
+      language: 'en',
       fontFamily: 'ubuntu',
       fontSize: 100,
       interfaceScale: 100,

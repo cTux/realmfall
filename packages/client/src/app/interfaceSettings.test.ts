@@ -13,6 +13,7 @@ describe('interface settings persistence', () => {
 
   it('stores interface settings in the interface save area', () => {
     saveInterfaceSettings({
+      language: 'en',
       fontFamily: 'ubuntu',
       fontSize: 118,
       interfaceScale: 126,
@@ -26,6 +27,7 @@ describe('interface settings persistence', () => {
         ) ?? 'null',
       ),
     ).toEqual({
+      language: 'en',
       fontFamily: 'ubuntu',
       fontSize: 118,
       interfaceScale: 126,
@@ -37,6 +39,7 @@ describe('interface settings persistence', () => {
     window.localStorage.setItem(
       PERSISTED_SETTINGS_STORAGE_KEYS.interface,
       JSON.stringify({
+        language: 'en',
         fontFamily: 'roboto',
         fontSize: 118,
         interfaceScale: 126,
@@ -46,6 +49,7 @@ describe('interface settings persistence', () => {
 
     expect(loadInterfaceSettings()).toEqual({
       ...DEFAULT_INTERFACE_SETTINGS,
+      language: 'en',
       fontFamily: 'roboto',
       fontSize: 118,
       interfaceScale: 126,
@@ -57,6 +61,7 @@ describe('interface settings persistence', () => {
     window.localStorage.setItem(
       PERSISTED_SETTINGS_STORAGE_KEYS.interface,
       JSON.stringify({
+        language: 'broken',
         fontFamily: 'broken',
         fontSize: 999,
         interfaceScale: -20,
@@ -75,6 +80,7 @@ describe('interface settings persistence', () => {
     window.localStorage.setItem(
       PERSISTED_SETTINGS_STORAGE_KEYS.interface,
       JSON.stringify({
+        language: 'en',
         fontFamily: 'roboto',
         fontSize: 92,
         interfaceScale: 108,
