@@ -55,6 +55,7 @@ $mobile-window-width: min(92vw, 420px);
   --window-action-color: #94a3b8;
   --window-action-hover-color: #e2e8f0;
 
+  position: relative;
   width: var(
     --window-base-width,
     min(320px, calc((100vw - 16px) / var(--app-ui-scale, 1)))

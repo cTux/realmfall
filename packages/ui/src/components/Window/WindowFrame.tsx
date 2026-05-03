@@ -69,6 +69,12 @@ export function WindowFrame({
       position.height === undefined ? undefined : `${position.height}px`,
     opacity: 'var(--window-opacity, var(--app-window-opacity, 1))',
   } as CSSProperties;
+  const windowSurfaceStyle = {
+    width:
+      position.width === undefined ? undefined : 'var(--window-base-width)',
+    height:
+      position.height === undefined ? undefined : 'var(--window-base-height)',
+  } as CSSProperties;
   const resolvedCloseButtonContent = closeButtonContent ?? (
     <span
       className={styles.closeIcon}
@@ -101,7 +107,7 @@ export function WindowFrame({
       onFocusCapture={onWindowActivate}
       onBlurCapture={onBlurCapture}
     >
-      <div className={normalizedSurfaceClassName}>
+      <div className={normalizedSurfaceClassName} style={windowSurfaceStyle}>
         <div
           className={styles.windowHeader}
           onPointerDown={onHeaderPointerDown}
