@@ -56,4 +56,32 @@ describe('inventory and recipe book window layout styles', () => {
       /\.filterIconButton\s*\{[\s\S]*?@include ui\.window-header-icon-button;/u,
     );
   });
+
+  it('keeps dropdown menu items transparent by default with angled corners', () => {
+    const uiSource = readFileSync(
+      resolve(process.cwd(), 'src/styles/_ui.scss'),
+      'utf8',
+    );
+    const inventorySource = readFileSync(
+      resolve(
+        process.cwd(),
+        'src/ui/components/InventoryWindow/styles.module.scss',
+      ),
+      'utf8',
+    );
+    const logSource = readFileSync(
+      resolve(process.cwd(), 'src/ui/components/LogWindow/styles.module.scss'),
+      'utf8',
+    );
+
+    expect(uiSource).toMatch(
+      /@mixin menu-item-surface(?:\([^)]*\))?\s*\{[\s\S]*?\bbackground:\s*transparent;[\s\S]*?\bborder-color:\s*transparent;[\s\S]*?\bborder-radius:\s*\$ability-radius;/u,
+    );
+    expect(inventorySource).toMatch(
+      /\.sortOption\s*\{[\s\S]*?@include ui\.menu-item-surface;/u,
+    );
+    expect(logSource).toMatch(
+      /\.filterChip\s*\{[\s\S]*?@include ui\.menu-item-surface;/u,
+    );
+  });
 });

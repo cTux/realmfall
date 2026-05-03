@@ -64,6 +64,14 @@ type Story = StoryObj<typeof meta>;
 export const PackedInventory: Story = {};
 
 export const SortMenuOpen: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Sort menu rows stay transparent at rest, then pick up the shared angled-corner surface on hover and selection.',
+      },
+    },
+  },
   play: async ({ canvasElement }) => {
     const sortButton = Array.from(
       canvasElement.querySelectorAll('button'),
