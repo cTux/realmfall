@@ -53,6 +53,39 @@ describe('LogWindowContent', () => {
     expect(host.querySelector('[class*="logCursor"]')).toBeNull();
   });
 
+  it('virtualizes long log histories and reveals later entries on scroll', async () => {
+    const logs = Array.from({ length: 80 }, (_, index) => ({
+      id: `log-${index + 1}`,
+      kind: 'system' as const,
+      text: `[Year 1, Day 1, ${String(index).padStart(2, '0')}:00] Event #${String(index + 1).padStart(3, '0')}`,
+      turn: index + 1,
+    })).reverse();
+
+    await act(async () => {
+      root.render(<LogWindowContent logs={logs} />);
+    });
+
+    expect(
+      host.querySelector('[data-virtualized-list="log-window"]'),
+    ).toBeTruthy();
+    expect(host.textContent).toContain('Event #001');
+    expect(host.textContent).not.toContain('Event #080');
+
+    const logList = host.querySelector(
+      '[data-virtualized-list="log-window"]',
+    ) as HTMLDivElement | null;
+
+    await act(async () => {
+      if (logList) {
+        logList.scrollTop = 100_000;
+        logList.dispatchEvent(new Event('scroll', { bubbles: true }));
+      }
+    });
+
+    expect(host.textContent).toContain('Event #080');
+    expect(host.textContent).not.toContain('Event #001');
+  });
+
   it('shows status effect source icons with hover details', async () => {
     const onHoverDetail = vi.fn();
     const onLeaveDetail = vi.fn();
@@ -308,7 +341,7 @@ describe('LogWindowContent', () => {
 
       const logList = host.querySelector('div') as HTMLDivElement;
 
-      expect(logList.scrollTop).toBe(logList.scrollHeight);
+      expect(logList.scrollTop).toBeGreaterThan(0);
     } finally {
       if (originalScrollHeightDescriptor) {
         Object.defineProperty(

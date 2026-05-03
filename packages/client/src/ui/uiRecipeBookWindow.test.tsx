@@ -113,42 +113,43 @@ describe('ui recipe book window surfaces', () => {
     await ui.unmount();
   });
 
-  it('reveals large recipe lists in batches', async () => {
+  it('virtualizes large recipe lists and reveals later recipes on scroll', async () => {
     const ui = await mountRecipeBook({
       currentStructure: 'workshop',
-      recipes: Array.from({ length: 45 }, (_, index) =>
+      recipes: Array.from({ length: 100 }, (_, index) =>
         createRecipe({
           id: `craft-batch-${index + 1}`,
-          name: `Recipe ${index + 1}`,
+          name: `Recipe ${String(index + 1).padStart(3, '0')}`,
           output: {
             id: `crafted-batch-${index + 1}`,
-            name: `Recipe ${index + 1}`,
+            name: `Recipe ${String(index + 1).padStart(3, '0')}`,
             power: 1,
           },
         }),
       ),
     });
 
+    expect(ui.host.textContent).toContain('Recipe 001');
+    expect(ui.host.textContent).not.toContain('Recipe 100');
     expect(
-      Array.from(ui.host.querySelectorAll('span')).filter((node) =>
-        node.textContent?.startsWith('Recipe '),
+      Array.from(ui.host.querySelectorAll('button')).some((button) =>
+        button.textContent?.includes('Show'),
       ),
-    ).toHaveLength(40);
+    ).toBe(false);
 
-    const loadMoreButton = Array.from(ui.host.querySelectorAll('button')).find(
-      (button) => button.textContent?.includes('Show 5 more'),
-    );
-    expect(loadMoreButton).toBeDefined();
+    const recipeList = ui.host.querySelector(
+      '[data-virtualized-list="recipe-book"]',
+    ) as HTMLDivElement | null;
+    expect(recipeList).toBeTruthy();
 
     await act(async () => {
-      loadMoreButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      if (recipeList) {
+        recipeList.scrollTop = 100_000;
+        recipeList.dispatchEvent(new Event('scroll', { bubbles: true }));
+      }
     });
 
-    expect(
-      Array.from(ui.host.querySelectorAll('span')).filter((node) =>
-        node.textContent?.startsWith('Recipe '),
-      ),
-    ).toHaveLength(45);
+    expect(ui.host.textContent).toContain('Recipe 100');
 
     await ui.unmount();
   });

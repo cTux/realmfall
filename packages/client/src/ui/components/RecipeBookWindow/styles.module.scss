@@ -119,9 +119,6 @@
 }
 
 .list {
-  display: grid;
-  align-content: start;
-  gap: 0.45rem;
   min-height: 0;
   min-width: 0;
   flex: 1 1 auto;
@@ -129,12 +126,16 @@
   padding-right: 0.2rem;
 }
 
-.loadMoreButton {
-  @include recipe-control-surface;
+.virtualListBody {
+  position: relative;
+  width: 100%;
+}
 
-  justify-self: start;
-  padding: 0.24rem 0.55rem;
-  line-height: 1.1;
+.virtualRow {
+  position: absolute;
+  width: 100%;
+  padding-bottom: 0.45rem;
+  box-sizing: border-box;
 }
 
 .entry {
