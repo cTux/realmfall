@@ -74,8 +74,7 @@ function BootstrapShell() {
       role="status"
       style={{
         alignItems: 'center',
-        background:
-          'radial-gradient(circle at top, #1f2a44 0%, #0b1020 55%, #050814 100%)',
+        background: '#050814',
         display: 'flex',
         fontFamily: 'var(--app-font-family)',
         inset: 0,

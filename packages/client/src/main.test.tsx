@@ -188,6 +188,8 @@ describe('main bootstrap', { timeout: 10000 }, () => {
     const bootstrapMarkup = renderToStaticMarkup(bootstrapShellElement);
 
     expect(bootstrapMarkup).toContain('role="status"');
+    expect(bootstrapMarkup).toContain('background:#050814');
+    expect(bootstrapMarkup).not.toContain('radial-gradient');
     expect(JSON.stringify(firstRender)).not.toContain('Loading Realmfall');
   });
 
