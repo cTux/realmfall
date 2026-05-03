@@ -44,6 +44,9 @@ function prepareCombatAutomationState() {
     enemies: {
       [enemyId]: enemyActor,
     },
+    enemyStateById: {
+      [enemyId]: {},
+    },
   };
 
   return { game, enemyId };

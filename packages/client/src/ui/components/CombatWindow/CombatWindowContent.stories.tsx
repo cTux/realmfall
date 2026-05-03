@@ -289,6 +289,7 @@ function buildBattleScenario({
     started,
     player: buildActor('player', 0, casting.player),
     enemies: combatEnemies,
+    enemyStateById: Object.fromEntries(enemies.map((enemy) => [enemy.id, {}])),
   };
 
   return {

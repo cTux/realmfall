@@ -56,6 +56,7 @@ export enum EnemyTypeId {
   Boar = 'boar',
   Stag = 'stag',
   Spider = 'spider',
+  TreasureGoblin = 'treasure-goblin',
 }
 
 export type EnemyTypeKey = `${EnemyTypeId}`;

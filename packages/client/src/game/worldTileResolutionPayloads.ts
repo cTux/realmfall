@@ -38,23 +38,7 @@ function buildResolvedWorldTilePayload(
   const tile = mapTile(runtimeTile);
   const enemies = runtimeTile.enemyIds.map((enemyId) =>
     mapEnemy(
-      makeEnemy(
-        seed,
-        coord,
-        runtimeTile.terrain,
-        enemyIndexFromId(enemyId),
-        runtimeTile.structure,
-        bloodMoonActive,
-        {
-          enemyId,
-          aggressive: !isFactionNpcEnemyId(enemyId),
-          name:
-            runtimeTile.claim?.npc?.enemyId === enemyId
-              ? runtimeTile.claim.npc.name
-              : undefined,
-          worldBoss: isWorldBossEnemyId(enemyId),
-        },
-      ),
+      resolveTileEnemy(seed, coord, runtimeTile, enemyId, bloodMoonActive),
     ),
   );
 
@@ -63,6 +47,41 @@ function buildResolvedWorldTilePayload(
     tile,
     enemies,
   };
+}
+
+function resolveTileEnemy(
+  seed: string,
+  coord: ResolveWorldTilesRequest['coords'][number],
+  runtimeTile: ReturnType<typeof buildTile>,
+  enemyId: string,
+  bloodMoonActive: boolean,
+) {
+  const aggressive = !isFactionNpcEnemyId(enemyId);
+  const worldBoss = isWorldBossEnemyId(enemyId);
+
+  return makeEnemy(
+    seed,
+    coord,
+    runtimeTile.terrain,
+    enemyIndexFromId(enemyId),
+    runtimeTile.structure,
+    bloodMoonActive,
+    {
+      enemyId,
+      aggressive,
+      allowTreasureGoblinOverride:
+        aggressive &&
+        runtimeTile.structure === undefined &&
+        runtimeTile.enemyIds.length === 1 &&
+        runtimeTile.claim?.npc?.enemyId !== enemyId &&
+        !worldBoss,
+      name:
+        runtimeTile.claim?.npc?.enemyId === enemyId
+          ? runtimeTile.claim.npc.name
+          : undefined,
+      worldBoss,
+    },
+  );
 }
 
 function mapCoord(coord: TileResolutionCoord): TileResolutionCoord {

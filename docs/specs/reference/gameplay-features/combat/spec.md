@@ -27,6 +27,9 @@ This spec covers encounter activation, actor timing, and combat resolution.
 - Enemy ability loadouts are rolled deterministically by rarity:
   `common` enemies keep only `Kick`, `uncommon` enemies add `1` extra ability, `rare` and `epic` enemies add `2`, and `legendary` enemies or world bosses add `3`.
 - Enemy AI evaluates its available abilities in priority order, favoring higher-cooldown skills before low-cooldown fillers and only falling back to `Kick` after stronger options are unavailable.
+- Treasure goblins are legendary enemies that never start enemy attacks or casts.
+- Each treasure goblin battle rolls a deterministic escape threshold of `3` to `5` successful damaging hits, counting direct damage and damage-over-time ticks only when they deal positive damage.
+- When a treasure goblin reaches its escape threshold and a free valid hex exists within radius `10`, it teleports away and the current battle ends immediately; when no valid escape hex exists, it stays in combat.
 - Actors track cooldowns, cast state, and effective cooldown values.
 - Hovering a non-player combat entity's HP bar surfaces that entity's current primary stats plus combat-relevant secondary stats in the shared tooltip system.
 - Combat progresses through repeated state resolution.

@@ -42,6 +42,12 @@ export interface GameConfig {
       };
       postLevel100PerLevel: number;
       rarityMultiplier: Record<ItemRarity, number>;
+      treasureGoblin: {
+        hpMultiplier: number;
+        fleeHitsMin: number;
+        fleeHitsMax: number;
+        fleeRadius: number;
+      };
     };
     items: {
       maxLevel: number;
@@ -139,6 +145,9 @@ export interface GameConfig {
     };
     enemySpawn: {
       tile: number;
+      treasureGoblin: {
+        chance: number;
+      };
     };
     ambush: {
       chance: number;
@@ -203,6 +212,7 @@ export interface GameConfig {
         quantity: number;
         tierWeight: number;
       };
+      treasureGoblinMultiplier: number;
     };
     enemyRecipe: {
       base: number;
@@ -219,6 +229,10 @@ export interface GameConfig {
         max: number;
         bloodMoonMultiplier: number;
         dungeonMultiplier: number;
+      };
+      treasureGoblin: {
+        chanceMultiplier: number;
+        rarityMultiplier: number;
       };
       kindChances: WeightedChanceMap<
         'artifact' | 'weapon' | 'offhand' | 'armor' | 'consumable'

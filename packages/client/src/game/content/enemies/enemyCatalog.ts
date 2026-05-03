@@ -7,6 +7,7 @@ import { marauderEnemyConfig } from './marauder';
 import { raiderEnemyConfig } from './raider';
 import { spiderEnemyConfig } from './spider';
 import { stagEnemyConfig } from './stag';
+import { treasureGoblinEnemyConfig } from './treasureGoblin';
 import { wolfEnemyConfig } from './wolf';
 
 const RAW_ENEMY_CONFIGS = [
@@ -17,6 +18,7 @@ const RAW_ENEMY_CONFIGS = [
   boarEnemyConfig,
   stagEnemyConfig,
   spiderEnemyConfig,
+  treasureGoblinEnemyConfig,
 ] as const;
 
 export const ENEMY_CONFIGS: EnemyConfig[] = RAW_ENEMY_CONFIGS.map((config) =>

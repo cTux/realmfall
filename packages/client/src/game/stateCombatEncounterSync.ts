@@ -2,6 +2,7 @@ import { t } from '../i18n';
 import { createCombatActorState } from './combat';
 import { hexKey } from './hex';
 import { addLog } from './logs';
+import { createCombatEnemyEncounterState } from './stateCombatTreasureGoblin';
 import type { GameState } from './types';
 import { buildTile, normalizeStructureState } from './world';
 
@@ -21,10 +22,18 @@ export function syncCombatEncounterEnemies(state: GameState) {
   });
 
   const worldTimeMs = state.worldTimeMs;
+  const encounterSeed = state.combat.startedAtMs ?? worldTimeMs;
   state.combat.enemies = Object.fromEntries(
     enemyIds.map((enemyId) => [
       enemyId,
       state.combat?.enemies[enemyId] ?? createCombatActorState(worldTimeMs),
+    ]),
+  );
+  state.combat.enemyStateById = Object.fromEntries(
+    enemyIds.map((enemyId) => [
+      enemyId,
+      state.combat?.enemyStateById[enemyId] ??
+        createCombatEnemyEncounterState(state, enemyId, encounterSeed),
     ]),
   );
   state.combat.enemyIds = enemyIds;

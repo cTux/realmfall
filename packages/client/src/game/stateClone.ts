@@ -42,6 +42,12 @@ function copyCombatState(
       combat.enemies[enemyId] ?? createCombatActorState(worldTimeMs),
     ]),
   );
+  const enemyStateById = Object.fromEntries(
+    combat.enemyIds.map((enemyId) => [
+      enemyId,
+      combat.enemyStateById[enemyId] ?? {},
+    ]),
+  );
 
   return {
     ...combat,
@@ -61,6 +67,18 @@ function copyCombatState(
           abilityIds: [...actor.abilityIds],
           cooldownEndsAt: { ...actor.cooldownEndsAt },
           casting: actor.casting ? { ...actor.casting } : null,
+        },
+      ]),
+    ),
+    enemyStateById: Object.fromEntries(
+      Object.entries(enemyStateById).map(([enemyId, enemyState]) => [
+        enemyId,
+        {
+          ...(enemyState.treasureGoblin === undefined
+            ? {}
+            : {
+                treasureGoblin: { ...enemyState.treasureGoblin },
+              }),
         },
       ]),
     ),

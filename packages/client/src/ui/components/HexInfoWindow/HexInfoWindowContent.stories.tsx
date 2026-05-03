@@ -416,5 +416,9 @@ function buildCombatState({
       'enemy-1': createCombatActorState(12_000, ['kick']),
       'enemy-2': createCombatActorState(12_000, ['kick']),
     },
+    enemyStateById: {
+      'enemy-1': {},
+      'enemy-2': {},
+    },
   };
 }

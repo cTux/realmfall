@@ -47,6 +47,12 @@ describe('game config schema', () => {
             epic: 1,
             legendary: 1,
           },
+          treasureGoblin: {
+            hpMultiplier: 1,
+            fleeHitsMin: 1,
+            fleeHitsMax: 1,
+            fleeRadius: 1,
+          },
         },
         items: {
           maxLevel: 1,
@@ -187,6 +193,9 @@ describe('game config schema', () => {
         },
         enemySpawn: {
           tile: 1,
+          treasureGoblin: {
+            chance: 1,
+          },
         },
         ambush: {
           chance: 1,
@@ -260,6 +269,7 @@ describe('game config schema', () => {
             quantity: 1,
             tierWeight: 1,
           },
+          treasureGoblinMultiplier: 1,
         },
         enemyRecipe: {
           base: 1,
@@ -276,6 +286,10 @@ describe('game config schema', () => {
             max: 1,
             bloodMoonMultiplier: 1,
             dungeonMultiplier: 1,
+          },
+          treasureGoblin: {
+            chanceMultiplier: 1,
+            rarityMultiplier: 1,
           },
           kindChances: {
             artifact: 1,

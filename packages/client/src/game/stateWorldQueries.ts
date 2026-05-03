@@ -68,7 +68,8 @@ export function getPlayerClaimedTiles(state: Pick<GameState, 'tiles'>) {
 }
 
 export function getEnemiesAt(state: EnemyLookupState, coord: HexCoord) {
-  const tile = getTileAt(state, coord);
+  const resolvedTile = getResolvedTileAt(state, coord);
+  const tile = resolvedTile ?? buildTile(state.seed, coord);
   return tile.enemyIds.map((enemyId) => {
     const enemy = state.enemies[enemyId];
     if (enemy) return enemy;
@@ -76,6 +77,7 @@ export function getEnemiesAt(state: EnemyLookupState, coord: HexCoord) {
     const hostile = isHostileTileEnemy(state, tile, enemyId);
     const enemyName =
       tile.claim?.npc?.enemyId === enemyId ? tile.claim.npc?.name : undefined;
+    const worldBoss = isWorldBossEnemyId(enemyId);
 
     return makeEnemy(
       state.seed,
@@ -87,8 +89,15 @@ export function getEnemiesAt(state: EnemyLookupState, coord: HexCoord) {
       {
         enemyId,
         aggressive: hostile,
+        allowTreasureGoblinOverride:
+          resolvedTile === null &&
+          hostile &&
+          tile.structure === undefined &&
+          tile.enemyIds.length === 1 &&
+          tile.claim?.npc?.enemyId !== enemyId &&
+          !worldBoss,
         name: enemyName,
-        worldBoss: isWorldBossEnemyId(enemyId),
+        worldBoss,
       },
     );
   });

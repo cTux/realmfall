@@ -7,6 +7,7 @@ import {
   makeEnemy,
   resolveEnemyRarity,
 } from './combat';
+import { GAME_CONFIG } from './config';
 import {
   DEFAULT_CRITICAL_STRIKE_CHANCE,
   DEFAULT_DODGE_CHANCE,
@@ -131,5 +132,105 @@ describe('enemy rarity', () => {
     await i18n.loadI18n();
 
     expect(enemy.name).toBe('Gluttony');
+  });
+
+  it('can promote an eligible ordinary field spawn into a treasure goblin', () => {
+    const previousChance =
+      GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance;
+    GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance = 1;
+
+    try {
+      const enemy = makeEnemy(
+        'treasure-goblin-field-seed',
+        { q: 2, r: 1 },
+        'plains',
+        0,
+        undefined,
+        false,
+        {
+          allowTreasureGoblinOverride: true,
+        },
+      );
+
+      expect(enemy.enemyTypeId).toBe('treasure-goblin');
+      expect(enemy.rarity).toBe('legendary');
+    } finally {
+      GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance =
+        previousChance;
+    }
+  });
+
+  it('does not promote dungeon or explicit enemy type paths into treasure goblins', () => {
+    const previousChance =
+      GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance;
+    GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance = 1;
+
+    try {
+      const dungeonEnemy = makeEnemy(
+        'treasure-goblin-dungeon-seed',
+        { q: 2, r: 1 },
+        'plains',
+        0,
+        'dungeon',
+      );
+      const explicitEnemy = makeEnemy(
+        'treasure-goblin-explicit-seed',
+        { q: 2, r: 1 },
+        'plains',
+        0,
+        undefined,
+        false,
+        {
+          enemyTypeId: 'wolf',
+          rarity: 'legendary',
+          allowTreasureGoblinOverride: true,
+        },
+      );
+
+      expect(dungeonEnemy.enemyTypeId).not.toBe('treasure-goblin');
+      expect(explicitEnemy.enemyTypeId).toBe('wolf');
+    } finally {
+      GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance =
+        previousChance;
+    }
+  });
+
+  it('multiplies treasure goblin HP above the ordinary legendary baseline without changing attack or defense', () => {
+    const previousChance =
+      GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance;
+    GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance = 1;
+
+    try {
+      const baselineLegendary = makeEnemy(
+        'treasure-goblin-baseline-seed',
+        { q: 4, r: -2 },
+        'plains',
+        0,
+        undefined,
+        false,
+        {
+          enemyTypeId: 'wolf',
+          rarity: 'legendary',
+        },
+      );
+      const treasureGoblin = makeEnemy(
+        'treasure-goblin-baseline-seed',
+        { q: 4, r: -2 },
+        'plains',
+        0,
+        undefined,
+        false,
+        {
+          allowTreasureGoblinOverride: true,
+        },
+      );
+
+      expect(treasureGoblin.maxHp).toBe(baselineLegendary.maxHp * 20);
+      expect(treasureGoblin.attack).toBe(baselineLegendary.attack);
+      expect(treasureGoblin.defense).toBe(baselineLegendary.defense);
+    } finally {
+      GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance =
+        previousChance;
+    }
   });
 });

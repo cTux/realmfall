@@ -105,7 +105,7 @@ export function GameSettingsAudioPanel({
             {t('ui.settings.audio.theme.label')}
           </span>
           <span className={styles.rangeDescription}>
-            {t('ui.settings.audio.theme.description')}
+            {t('ui.settings.audio.theme.desc')}
           </span>
         </div>
         <div className={styles.themeOptions}>

@@ -1,4 +1,5 @@
 import type { GameState } from '../game/stateTypes';
+import { TREASURE_GOBLIN_BALANCE } from '../game/config';
 import {
   isCooldownMap,
   isFiniteNumber,
@@ -19,12 +20,13 @@ export function normalizeCombatState(value: unknown) {
   const coord = normalizeHexCoord(value.coord);
   const player = normalizeCombatActorState(value.player);
   const enemies = normalizeCombatActors(value.enemies);
+  const enemyIds = isStringArray(value.enemyIds) ? [...value.enemyIds] : null;
 
   if (
     !coord ||
     !player ||
     !enemies ||
-    !isStringArray(value.enemyIds) ||
+    !enemyIds ||
     typeof value.started !== 'boolean'
   ) {
     return null;
@@ -32,10 +34,17 @@ export function normalizeCombatState(value: unknown) {
 
   return {
     coord,
-    enemyIds: [...value.enemyIds],
+    enemyIds,
     started: value.started,
+    ...(isFiniteNumber(value.startedAtMs)
+      ? { startedAtMs: value.startedAtMs }
+      : {}),
     player,
     enemies,
+    enemyStateById: normalizeCombatEnemyEncounterStates(
+      value.enemyStateById,
+      enemyIds,
+    ),
   };
 }
 
@@ -122,4 +131,61 @@ function normalizeCombatCastState(value: unknown) {
     targetId: value.targetId,
     endsAt: value.endsAt,
   };
+}
+
+function normalizeCombatEnemyEncounterStates(
+  value: unknown,
+  enemyIds: string[],
+): NonNullable<GameState['combat']>['enemyStateById'] {
+  const states = isRecord(value) ? value : {};
+
+  return Object.fromEntries(
+    enemyIds.map((enemyId) => [
+      enemyId,
+      normalizeCombatEnemyEncounterState(states[enemyId]),
+    ]),
+  );
+}
+
+function normalizeCombatEnemyEncounterState(
+  value: unknown,
+): NonNullable<GameState['combat']>['enemyStateById'][string] {
+  if (!isRecord(value)) {
+    return {};
+  }
+
+  const treasureGoblin = normalizeCombatTreasureGoblinEncounterState(
+    value.treasureGoblin,
+  );
+
+  return treasureGoblin ? { treasureGoblin } : {};
+}
+
+function normalizeCombatTreasureGoblinEncounterState(value: unknown) {
+  if (
+    !isRecord(value) ||
+    !isValidNonNegativeInteger(value.damageHitsTaken) ||
+    !isValidTreasureGoblinFleeHitsRequired(value.fleeHitsRequired)
+  ) {
+    return null;
+  }
+
+  return {
+    damageHitsTaken: value.damageHitsTaken,
+    fleeHitsRequired: value.fleeHitsRequired,
+  };
+}
+
+function isValidNonNegativeInteger(value: unknown): value is number {
+  return isFiniteNumber(value) && Number.isInteger(value) && value >= 0;
+}
+
+function isValidTreasureGoblinFleeHitsRequired(
+  value: unknown,
+): value is number {
+  return (
+    isValidNonNegativeInteger(value) &&
+    value >= TREASURE_GOBLIN_BALANCE.fleeHitsMin &&
+    value <= TREASURE_GOBLIN_BALANCE.fleeHitsMax
+  );
 }

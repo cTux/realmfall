@@ -10,6 +10,7 @@ import {
   selectAbilityTargetId,
 } from './combatTargeting';
 import { getPlayerCombatStats } from './progression';
+import { isTreasureGoblinEnemy } from './stateCombatTreasureGoblin';
 import type { AbilityId, GameState } from './types';
 
 export function startPlayerCasts(state: GameState) {
@@ -52,7 +53,10 @@ export function startEnemyCasts(state: GameState) {
 
   state.combat.enemyIds.forEach((enemyId) => {
     const actor = state.combat?.enemies[enemyId];
-    if (!actor || actor.casting || !state.enemies[enemyId]) return;
+    const enemy = state.enemies[enemyId];
+    if (!actor || actor.casting || !enemy || isTreasureGoblinEnemy(enemy)) {
+      return;
+    }
 
     const abilityId = actor.abilityIds.find((candidate) => {
       const definition = getAbilityDefinition(candidate);
@@ -71,15 +75,14 @@ export function startEnemyCasts(state: GameState) {
 
     state.enemies[enemyId]!.mana = Math.max(
       0,
-      getEnemyMana(state.enemies[enemyId]!) -
-        getAbilityDefinition(abilityId).manaCost,
+      getEnemyMana(enemy) - getAbilityDefinition(abilityId).manaCost,
     );
     startAbilityCast(
       actor,
       abilityId,
       targetId,
       now,
-      getEnemyCombatAttackSpeed(state.enemies[enemyId]!),
+      getEnemyCombatAttackSpeed(enemy),
     );
     changed = true;
   });

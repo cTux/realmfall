@@ -49,6 +49,7 @@ export enum GameTag {
   EnemyWorldBoss = 'enemy.worldBoss',
   EnemyElite = 'enemy.elite',
   EnemyDungeon = 'enemy.dungeon',
+  EnemyTreasureGoblin = 'enemy.treasureGoblin',
   AbilityCombat = 'ability.combat',
   AbilityMelee = 'ability.melee',
   AbilityPhysical = 'ability.physical',
@@ -139,6 +140,7 @@ export const GAME_TAGS = {
     worldBoss: GameTag.EnemyWorldBoss,
     elite: GameTag.EnemyElite,
     dungeon: GameTag.EnemyDungeon,
+    treasureGoblin: GameTag.EnemyTreasureGoblin,
   },
   ability: {
     combat: GameTag.AbilityCombat,

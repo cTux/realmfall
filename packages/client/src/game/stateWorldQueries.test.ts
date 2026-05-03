@@ -1,6 +1,14 @@
+import { describe, expect, it } from 'vitest';
+import { GAME_CONFIG } from './config';
 import { createGame } from './state';
+import { forceDebugBloodMoon } from './stateDebug';
 import { makePlayerClaim } from './territories';
-import { getPlayerClaimedTiles, getResolvedTileAt } from './stateWorldQueries';
+import {
+  getEnemiesAt,
+  getPlayerClaimedTiles,
+  getResolvedTileAt,
+} from './stateWorldQueries';
+import { buildTile } from './world';
 
 describe('stateWorldQueries', () => {
   it('reuses claimed-tile scans while the tiles container is unchanged', () => {
@@ -44,5 +52,118 @@ describe('stateWorldQueries', () => {
 
     expect(getResolvedTileAt(game, { q: 6, r: -3 })).toBeNull();
     expect(game.tiles['6,-3']).toBeUndefined();
+  });
+
+  it('can resolve an unresolved ordinary hostile tile into a treasure goblin', () => {
+    const previousChance =
+      GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance;
+    GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance = 1;
+
+    try {
+      let targetCoord: { q: number; r: number } | null = null;
+
+      for (let q = -8; q <= 8 && !targetCoord; q += 1) {
+        for (let r = -8; r <= 8; r += 1) {
+          const coord = { q, r };
+          const tile = buildTile('state-world-query-treasure-goblin', coord);
+          if (
+            tile.structure === undefined &&
+            tile.enemyIds.length === 1 &&
+            tile.claim?.npc === undefined
+          ) {
+            targetCoord = coord;
+            break;
+          }
+        }
+      }
+
+      expect(targetCoord).not.toBeNull();
+      const enemies = getEnemiesAt(
+        {
+          seed: 'state-world-query-treasure-goblin',
+          bloodMoonActive: false,
+          enemies: {},
+          tiles: {},
+        },
+        targetCoord!,
+      );
+
+      expect(enemies[0]?.enemyTypeId).toBe('treasure-goblin');
+      expect(enemies[0]?.rarity).toBe('legendary');
+    } finally {
+      GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance =
+        previousChance;
+    }
+  });
+
+  it('does not apply the treasure goblin override when reconstructing faction NPCs', () => {
+    const previousChance =
+      GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance;
+    GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance = 1;
+
+    try {
+      const enemies = getEnemiesAt(
+        {
+          seed: 'state-world-query-faction-npc',
+          bloodMoonActive: false,
+          enemies: {},
+          tiles: {
+            '3,-2': {
+              coord: { q: 3, r: -2 },
+              terrain: 'plains',
+              items: [],
+              enemyIds: ['enemy-3,-2-0'],
+              claim: {
+                ownerId: 'faction-1',
+                ownerType: 'faction',
+                ownerName: 'Valewatch',
+                borderColor: '#ffffff',
+                npc: {
+                  name: 'Quartermaster Pell',
+                  enemyId: 'enemy-3,-2-0',
+                },
+              },
+            },
+          },
+        },
+        { q: 3, r: -2 },
+      );
+
+      expect(enemies[0]?.enemyTypeId).not.toBe('treasure-goblin');
+      expect(enemies[0]?.name).toBe('Quartermaster Pell');
+      expect(enemies[0]?.aggressive).toBe(false);
+    } finally {
+      GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance =
+        previousChance;
+    }
+  });
+
+  it('does not rebuild a resolved blood moon spawn into a treasure goblin after enemy-state loss', () => {
+    const previousChance =
+      GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance;
+    GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance = 1;
+
+    try {
+      const game = createGame(4, 'blood-moon-rebuild-seed');
+      game.player.coord = { q: 1, r: -1 };
+      const bloodMoon = forceDebugBloodMoon(game);
+      const targetTile = Object.values(bloodMoon.tiles).find(
+        (tile) =>
+          tile.structure === undefined &&
+          tile.claim === undefined &&
+          tile.enemyIds.length === 1,
+      );
+
+      expect(targetTile).toBeDefined();
+      const enemyId = targetTile!.enemyIds[0]!;
+      delete bloodMoon.enemies[enemyId];
+
+      const enemies = getEnemiesAt(bloodMoon, targetTile!.coord);
+
+      expect(enemies[0]?.enemyTypeId).not.toBe('treasure-goblin');
+    } finally {
+      GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance =
+        previousChance;
+    }
   });
 });

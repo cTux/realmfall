@@ -257,6 +257,15 @@ export interface CombatActorState {
   casting: CombatCastState | null;
 }
 
+export interface CombatTreasureGoblinEncounterState {
+  damageHitsTaken: number;
+  fleeHitsRequired: number;
+}
+
+export interface CombatEnemyEncounterState {
+  treasureGoblin?: CombatTreasureGoblinEncounterState;
+}
+
 export interface Tile {
   coord: HexCoord;
   terrain: Terrain;
@@ -318,6 +327,7 @@ export interface CombatState {
   startedAtMs?: number;
   player: CombatActorState;
   enemies: Record<string, CombatActorState>;
+  enemyStateById: Record<string, CombatEnemyEncounterState>;
 }
 
 export interface TownStockEntry {

@@ -1,6 +1,4 @@
-import type { HexCoord } from './hex';
 import { t } from '../i18n';
-import { createCombatActorState } from './combat';
 import {
   getEnemyCombatAttack,
   getEnemyCombatAttackSpeed,
@@ -12,7 +10,6 @@ import {
   getEnemySuppressDamageReduction,
 } from './combatDamage';
 import { addLog } from './logs';
-import { getPlayerCombatStats } from './progression';
 import { cloneForWorldMutation, message } from './stateMutationHelpers';
 import { getCombatAutomationDelay, resolveCombat } from './stateCombatRuntime';
 import { respawnAtNearestTown } from './stateSurvival';
@@ -29,9 +26,10 @@ export {
   getEnemySuppressDamageReduction,
 };
 export { getCombatAutomationDelay };
+export { createCombatState } from './stateCombatState';
 
 export function attackCombatEnemy(state: GameState): GameState {
-  if (!state.combat) return message(state, t('game.message.combat.noneActive'));
+  if (!state.combat) return message(state, t('game.message.noBattle'));
   if (!state.combat.started)
     return message(state, t('game.message.combat.pressStart'));
 
@@ -47,7 +45,7 @@ export function progressCombat(state: GameState): GameState {
 }
 
 export function startCombat(state: GameState): GameState {
-  if (!state.combat) return message(state, t('game.message.combat.noneActive'));
+  if (!state.combat) return message(state, t('game.message.noBattle'));
   if (state.combat.started) return state;
 
   const next = cloneForWorldMutation(state);
@@ -68,34 +66,11 @@ export function startCombat(state: GameState): GameState {
 }
 
 export function forfeitCombat(state: GameState): GameState {
-  if (!state.combat) return message(state, t('game.message.combat.noneActive'));
+  if (!state.combat) return message(state, t('game.message.noBattle'));
   if (!state.combat.started)
     return message(state, t('game.message.combat.pressStart'));
 
   const next = cloneForWorldMutation(state);
   respawnAtNearestTown(next, next.combat!.coord);
   return next;
-}
-
-export function createCombatState(
-  state: GameState,
-  coord: HexCoord,
-  enemyIds: string[],
-  worldTimeMs: number,
-): GameState['combat'] {
-  return {
-    coord,
-    enemyIds: [...enemyIds],
-    started: false,
-    player: createCombatActorState(
-      worldTimeMs,
-      getPlayerCombatStats(state.player).abilityIds,
-    ),
-    enemies: Object.fromEntries(
-      enemyIds.map((enemyId) => [
-        enemyId,
-        createCombatActorState(worldTimeMs, state.enemies[enemyId]?.abilityIds),
-      ]),
-    ),
-  };
 }

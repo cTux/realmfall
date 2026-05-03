@@ -149,5 +149,8 @@ export function makeCombatState(
         },
       ]),
     ),
+    enemyStateById: Object.fromEntries(
+      enemyIds.map((enemyId) => [enemyId, {}]),
+    ),
   };
 }

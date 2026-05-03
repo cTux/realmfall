@@ -13,11 +13,18 @@ import {
   type GameState,
 } from './state';
 import { makeEnemy } from './combat';
-import { ENEMY_ITEM_DROP_CHANCES, GAME_DAY_DURATION_MS } from './config';
+import {
+  BLOOD_MOON_SPAWN_RADIUS,
+  ENEMY_ITEM_DROP_CHANCES,
+  GAME_CONFIG,
+  GAME_DAY_DURATION_MS,
+} from './config';
 import { hexDistance } from './hex';
 import { getWorldDayIndex } from './logs';
 import { getItemCategory } from './content/items';
 import { createPlacedWorldBossEncounter } from './stateTestHelpers';
+import { spawnBloodMoonEnemies } from './stateWorldEvents';
+import { buildTile } from './world';
 
 describe('game state world events', () => {
   it('can trigger a blood moon that strengthens enemies and floods nearby tiles', () => {
@@ -133,6 +140,60 @@ describe('game state world events', () => {
     const synced = syncBloodMoon(game, 18 * 60);
 
     expect(getTileAt(synced, { q: 1, r: 0 }).enemyIds).toHaveLength(3);
+  });
+
+  it('does not promote unresolved hostile tiles into treasure goblins during blood moon scans', () => {
+    const previousChance =
+      GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance;
+    GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance = 1;
+
+    try {
+      let targetCoord: { q: number; r: number } | null = null;
+
+      for (
+        let q = -BLOOD_MOON_SPAWN_RADIUS;
+        q <= BLOOD_MOON_SPAWN_RADIUS;
+        q += 1
+      ) {
+        for (
+          let r = -BLOOD_MOON_SPAWN_RADIUS;
+          r <= BLOOD_MOON_SPAWN_RADIUS;
+          r += 1
+        ) {
+          const coord = { q, r };
+          if (hexDistance({ q: 0, r: 0 }, coord) > BLOOD_MOON_SPAWN_RADIUS) {
+            continue;
+          }
+
+          const tile = buildTile('blood-moon-materialization-no-goblin', coord);
+          if (
+            tile.structure === undefined &&
+            tile.enemyIds.length === 1 &&
+            tile.claim?.npc === undefined
+          ) {
+            targetCoord = coord;
+            break;
+          }
+        }
+      }
+
+      expect(targetCoord).not.toBeNull();
+
+      const game = createGame(6, 'blood-moon-materialization-no-goblin');
+      game.player.coord = { q: 0, r: 0 };
+      game.bloodMoonCycle = 5;
+
+      const unresolvedTile = buildTile(game.seed, targetCoord!);
+      const enemyId = unresolvedTile.enemyIds[0]!;
+
+      spawnBloodMoonEnemies(game);
+
+      expect(game.enemies[enemyId]).toBeDefined();
+      expect(game.enemies[enemyId]?.enemyTypeId).not.toBe('treasure-goblin');
+    } finally {
+      GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance =
+        previousChance;
+    }
   });
 
   it('logs ordinary nightfall and morning transitions', () => {
