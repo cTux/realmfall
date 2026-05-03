@@ -41,7 +41,7 @@ describe('interface settings persistence', () => {
     window.localStorage.setItem(
       PERSISTED_SETTINGS_STORAGE_KEYS.interface,
       JSON.stringify({
-        language: 'en',
+        language: 'ua',
         fontFamily: 'roboto',
         fontSize: 118,
         interfaceScale: 126,
@@ -52,7 +52,7 @@ describe('interface settings persistence', () => {
 
     expect(loadInterfaceSettings()).toEqual({
       ...DEFAULT_INTERFACE_SETTINGS,
-      language: 'en',
+      language: 'ua',
       fontFamily: 'roboto',
       fontSize: 118,
       interfaceScale: 126,

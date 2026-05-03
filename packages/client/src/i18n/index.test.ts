@@ -5,6 +5,9 @@ async function importI18nModule() {
   vi.doMock('./locales/en.json?url', () => ({
     default: '/assets/misc/en-test.json',
   }));
+  vi.doMock('./locales/ua.json?url', () => ({
+    default: '/assets/misc/ua-test.json',
+  }));
 
   return import('./index');
 }
@@ -13,6 +16,7 @@ describe('i18n loader', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.doUnmock('./locales/en.json?url');
+    vi.doUnmock('./locales/ua.json?url');
   });
 
   it('fetches the locale asset and updates translations', async () => {
@@ -59,5 +63,24 @@ describe('i18n loader', () => {
     const { loadI18n } = await importI18nModule();
 
     await expect(loadI18n()).rejects.toThrow('Failed to load locale asset: en');
+  });
+
+  it('loads the Ukrainian locale asset when requested', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        'ui.settings.interface.language.option.ua': 'Ukrainian',
+      }),
+    });
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { getCurrentLanguage, loadI18n, t } = await importI18nModule();
+
+    await loadI18n('ua');
+
+    expect(fetchMock).toHaveBeenCalledWith('/assets/misc/ua-test.json');
+    expect(getCurrentLanguage()).toBe('ua');
+    expect(t('ui.settings.interface.language.option.ua')).toBe('Ukrainian');
   });
 });

@@ -941,6 +941,7 @@
   "ui.settings.interface.language.description": "Choose the interface language used for labels, menus, and window text.",
   "ui.settings.interface.language.label": "Language",
   "ui.settings.interface.language.option.en": "English",
+  "ui.settings.interface.language.option.ua": "Українська",
   "ui.settings.interface.fontFamily.description": "Choose the default typeface for the game shell, windows, and menus.",
   "ui.settings.interface.fontFamily.label": "Game font",
   "ui.settings.interface.fontFamily.option.pixelifySans": "Pixelify Sans",

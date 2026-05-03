@@ -1,4 +1,5 @@
 import enLocaleUrl from './locales/en.json?url';
+import uaLocaleUrl from './locales/ua.json?url';
 
 type TranslationValue = string | number;
 
@@ -6,6 +7,7 @@ let translations: Record<string, string> = {};
 let currentLanguage = 'en';
 const LOCALE_ASSET_URLS: Record<string, string> = {
   en: enLocaleUrl,
+  ua: uaLocaleUrl,
 };
 
 export async function loadI18n(language = 'en') {
