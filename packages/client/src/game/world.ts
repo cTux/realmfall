@@ -65,6 +65,7 @@ export function ensureTileState(state: GameState, coord: HexCoord) {
     if (!state.enemies[enemyId]) {
       const enemyName =
         tile.claim?.npc?.enemyId === enemyId ? tile.claim?.npc.name : undefined;
+      const hostile = !isFactionNpcEnemyId(enemyId);
       state.enemies[enemyId] = makeEnemy(
         state.seed,
         coord,
@@ -75,7 +76,13 @@ export function ensureTileState(state: GameState, coord: HexCoord) {
         {
           enemyId,
           name: enemyName,
-          aggressive: !isFactionNpcEnemyId(enemyId),
+          aggressive: hostile,
+          allowTreasureGoblinOverride:
+            hostile &&
+            tile.structure === undefined &&
+            tile.enemyIds.length === 1 &&
+            tile.claim?.npc?.enemyId !== enemyId &&
+            !isWorldBossEnemyId(enemyId),
           worldBoss: isWorldBossEnemyId(enemyId),
         },
       );

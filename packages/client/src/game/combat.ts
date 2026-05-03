@@ -3,6 +3,8 @@ import {
   BASE_ENEMY_XP,
   COMBAT_GLOBAL_COOLDOWN_MS,
   ENEMY_RARITY_MULTIPLIERS,
+  GAME_CONFIG,
+  TREASURE_GOBLIN_BALANCE,
   pickBloodMoonItemKind,
 } from './config';
 import { DEFAULT_ABILITY_ID } from './abilityCatalog';
@@ -117,6 +119,7 @@ export function makeEnemy(
     enemyId?: string;
     enemyTypeId?: EnemyTypeKey;
     aggressive?: boolean;
+    allowTreasureGoblinOverride?: boolean;
     rarity?: EnemyRarity;
     name?: string;
     worldBoss?: boolean;
@@ -126,22 +129,34 @@ export function makeEnemy(
   const roll = noise(`${seed}:enemy:type:${structure ?? 'field'}`, coord);
   const worldBoss =
     options?.worldBoss ?? isWorldBossEnemyId(options?.enemyId ?? '');
-  const config = worldBoss
-    ? pickEnemyConfig(terrain, roll, false, true)
-    : options?.enemyTypeId
-      ? (getEnemyConfig(options.enemyTypeId) ??
-        pickEnemyConfig(terrain, roll, structure === 'dungeon'))
-      : pickEnemyConfig(terrain, roll, structure === 'dungeon');
-  const rarity = options?.enemyTypeId
-    ? (options.rarity ?? 'common')
+  const treasureGoblinOverride =
+    options?.allowTreasureGoblinOverride === true &&
+    structure === undefined &&
+    !worldBoss &&
+    options?.enemyTypeId === undefined &&
+    createRng(
+      `${seed}:enemy:treasure-goblin:${index}:${coord.q}:${coord.r}`,
+    )() < GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance;
+  const config = treasureGoblinOverride
+    ? getEnemyConfig('treasure-goblin')!
     : worldBoss
-      ? 'legendary'
-      : resolveEnemyRarity(
-          createRng(`${seed}:enemy:rarity:${index}:${coord.q}:${coord.r}`),
-          enemyRarityMinimum(structure, worldBoss),
-          tier,
-          structure,
-        );
+      ? pickEnemyConfig(terrain, roll, false, true)
+      : options?.enemyTypeId
+        ? (getEnemyConfig(options.enemyTypeId) ??
+          pickEnemyConfig(terrain, roll, structure === 'dungeon'))
+        : pickEnemyConfig(terrain, roll, structure === 'dungeon');
+  const rarity = treasureGoblinOverride
+    ? 'legendary'
+    : options?.enemyTypeId
+      ? (options.rarity ?? 'common')
+      : worldBoss
+        ? 'legendary'
+        : resolveEnemyRarity(
+            createRng(`${seed}:enemy:rarity:${index}:${coord.q}:${coord.r}`),
+            enemyRarityMinimum(structure, worldBoss),
+            tier,
+            structure,
+          );
   const rarityRank = enemyRarityIndex(rarity);
   const rarityMultiplier = enemyRarityMultiplier(rarity);
   const elite = rarityRank >= enemyRarityIndex('rare');
@@ -150,7 +165,10 @@ export function makeEnemy(
   const baseMaxHp = Math.round(baseStats.maxHp * rarityMultiplier);
   const baseAttack = Math.round(baseStats.attack * rarityMultiplier);
   const baseDefense = Math.round(baseStats.defense * rarityMultiplier);
-  const scaledMaxHp = worldBoss ? baseMaxHp * 50 : baseMaxHp;
+  const treasureGoblinBaseMaxHp = treasureGoblinOverride
+    ? Math.round(baseMaxHp * TREASURE_GOBLIN_BALANCE.hpMultiplier)
+    : baseMaxHp;
+  const scaledMaxHp = worldBoss ? baseMaxHp * 50 : treasureGoblinBaseMaxHp;
   const scaledAttack = worldBoss ? baseAttack * 5 : baseAttack;
   const scaledDefense = worldBoss
     ? Math.max(baseDefense + statTier * 3, baseDefense * 3)
@@ -167,7 +185,7 @@ export function makeEnemy(
     coord,
     rarity,
     tier: worldBoss ? statTier + 3 : statTier,
-    baseMaxHp: worldBoss ? scaledMaxHp : baseMaxHp,
+    baseMaxHp: worldBoss ? scaledMaxHp : treasureGoblinBaseMaxHp,
     maxHp: scaledMaxHp,
     hp: scaledMaxHp,
     mana: DEFAULT_ENEMY_MANA,

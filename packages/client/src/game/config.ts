@@ -30,6 +30,7 @@ export const ENEMY_POST_LEVEL_100_PER_LEVEL =
   GAME_CONFIG.balance.enemy.postLevel100PerLevel;
 export const ENEMY_RARITY_MULTIPLIERS =
   GAME_CONFIG.balance.enemy.rarityMultiplier;
+export const TREASURE_GOBLIN_BALANCE = GAME_CONFIG.balance.enemy.treasureGoblin;
 export const ITEM_BASE_STAT_RANGE = GAME_CONFIG.balance.items.baseStat;
 export const ITEM_SECONDARY_STAT_RANGE =
   GAME_CONFIG.balance.items.secondaryStat;
@@ -69,6 +70,8 @@ export const ITEM_RARITY_SCALING = GAME_CONFIG.progression.itemRarityScaling;
 export const TERRAIN_CHANCES = GAME_CONFIG.worldGeneration.terrain;
 export const WORLD_ENEMY_SPAWN_CHANCE =
   GAME_CONFIG.worldGeneration.enemySpawn.tile;
+export const TREASURE_GOBLIN_SPAWN_CHANCE =
+  GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance;
 export const WORLD_NIGHT_AMBUSH_CHANCE =
   GAME_CONFIG.worldGeneration.ambush.chance;
 export const WORLD_LOOT_CHANCES = GAME_CONFIG.worldGeneration.loot;
@@ -107,6 +110,10 @@ export const EARTHSHAKE_CHANCE = GAME_CONFIG.events.earthshake.activation;
 export const ENEMY_GOLD_DROP_CHANCES = GAME_CONFIG.drops.enemyGold;
 export const ENEMY_RECIPE_DROP_CHANCES = GAME_CONFIG.drops.enemyRecipe;
 export const ENEMY_ITEM_DROP_CHANCES = GAME_CONFIG.drops.enemyItem;
+export const TREASURE_GOBLIN_GOLD_MULTIPLIER =
+  GAME_CONFIG.drops.enemyGold.treasureGoblinMultiplier;
+export const TREASURE_GOBLIN_ITEM_DROP_MULTIPLIERS =
+  GAME_CONFIG.drops.enemyItem.treasureGoblin;
 export const TERRAFORMING_CONSUMABLE_DROP_CHANCE =
   GAME_CONFIG.drops.terraformingConsumableChance;
 export const ENEMY_ITEM_BLOOD_MOON_RARITY_CHANCE_MULTIPLIER =

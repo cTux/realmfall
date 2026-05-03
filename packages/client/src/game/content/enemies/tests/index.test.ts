@@ -18,6 +18,9 @@ describe('enemy content registry', () => {
     expect(getEnemyConfig('gluttony')?.tags).toContain(
       GAME_TAGS.enemy.aberration,
     );
+    expect(getEnemyConfig('treasure-goblin')?.tags).toContain(
+      GAME_TAGS.enemy.treasureGoblin,
+    );
   });
 
   it('selects enemy spawns from the extracted terrain chooser', () => {

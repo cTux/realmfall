@@ -305,8 +305,142 @@ describe('resolveWorldTiles DTO mapping', () => {
       {
         enemyId: 'world-boss-6,-2',
         aggressive: false,
+        allowTreasureGoblinOverride: false,
         name: 'Marshal Vey',
         worldBoss: true,
+      },
+    );
+  });
+
+  it('forwards treasure goblin override only for ordinary hostile overworld tiles', async () => {
+    const makeEnemy = vi.fn(() => ({
+      id: 'enemy-5,-1-0',
+      name: 'Treasure Goblin',
+      coord: { q: 5, r: -1 },
+      tier: 4,
+      hp: 50,
+      maxHp: 50,
+      attack: 10,
+      defense: 8,
+      xp: 100,
+      elite: true,
+    }));
+
+    vi.doMock('./world', () => ({
+      buildTile: () => ({
+        coord: { q: 5, r: -1 },
+        terrain: 'plains',
+        structure: undefined,
+        items: [],
+        enemyIds: ['enemy-5,-1-0'],
+      }),
+    }));
+    vi.doMock('./combat', () => ({
+      enemyIndexFromId: () => 0,
+      makeEnemy,
+    }));
+    vi.doMock('./territories', () => ({
+      isFactionNpcEnemyId: () => false,
+    }));
+    vi.doMock('./worldBoss', () => ({
+      isWorldBossEnemyId: () => false,
+    }));
+
+    const { resolveWorldTiles: resolveMockedWorldTiles } =
+      await import('./worldTileResolutionPayloads');
+
+    resolveMockedWorldTiles({
+      requestId: 'req-hostile',
+      seed: 'hostile-seed',
+      bloodMoonActive: false,
+      coords: [{ q: 5, r: -1 }],
+    });
+
+    expect(makeEnemy).toHaveBeenCalledWith(
+      'hostile-seed',
+      { q: 5, r: -1 },
+      'plains',
+      0,
+      undefined,
+      false,
+      {
+        enemyId: 'enemy-5,-1-0',
+        aggressive: true,
+        allowTreasureGoblinOverride: true,
+        name: undefined,
+        worldBoss: false,
+      },
+    );
+  });
+
+  it('keeps treasure goblin override disabled for claim NPC worker tiles without world boss flags', async () => {
+    const makeEnemy = vi.fn(() => ({
+      id: 'enemy-4,-1-0',
+      name: 'Quartermaster Pell',
+      coord: { q: 4, r: -1 },
+      tier: 4,
+      hp: 50,
+      maxHp: 50,
+      attack: 10,
+      defense: 8,
+      xp: 100,
+      elite: false,
+      worldBoss: false,
+    }));
+
+    vi.doMock('./world', () => ({
+      buildTile: () => ({
+        coord: { q: 4, r: -1 },
+        terrain: 'plains',
+        structure: undefined,
+        items: [],
+        enemyIds: ['enemy-4,-1-0'],
+        claim: {
+          ownerId: 'faction-1',
+          ownerType: 'faction',
+          ownerName: 'Valewatch',
+          borderColor: '#ffffff',
+          npc: {
+            name: 'Quartermaster Pell',
+            enemyId: 'enemy-4,-1-0',
+          },
+        },
+      }),
+    }));
+    vi.doMock('./combat', () => ({
+      enemyIndexFromId: () => 0,
+      makeEnemy,
+    }));
+    vi.doMock('./territories', () => ({
+      isFactionNpcEnemyId: (enemyId: string) => enemyId === 'enemy-4,-1-0',
+    }));
+    vi.doMock('./worldBoss', () => ({
+      isWorldBossEnemyId: () => false,
+    }));
+
+    const { resolveWorldTiles: resolveMockedWorldTiles } =
+      await import('./worldTileResolutionPayloads');
+
+    resolveMockedWorldTiles({
+      requestId: 'req-claim-npc',
+      seed: 'claim-npc-seed',
+      bloodMoonActive: false,
+      coords: [{ q: 4, r: -1 }],
+    });
+
+    expect(makeEnemy).toHaveBeenCalledWith(
+      'claim-npc-seed',
+      { q: 4, r: -1 },
+      'plains',
+      0,
+      undefined,
+      false,
+      {
+        enemyId: 'enemy-4,-1-0',
+        aggressive: false,
+        allowTreasureGoblinOverride: false,
+        name: 'Quartermaster Pell',
+        worldBoss: false,
       },
     );
   });

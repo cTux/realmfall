@@ -126,4 +126,5 @@ export const ContentIcons = {
   EarthCrack: earthCrackIcon,
   Furnace: furnaceIcon,
   SewingString: sewingStringIcon,
+  TreasureGoblin: coinsIcon,
 } as const;
