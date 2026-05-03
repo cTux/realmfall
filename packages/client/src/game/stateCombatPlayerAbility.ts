@@ -28,6 +28,7 @@ import { resolveEnemyTargetsForPlayerAbility } from './combatTargeting';
 import { addLog } from './logs';
 import { getPlayerCombatStats } from './progression';
 import { handleEnemyDefeat } from './stateCombatEnemyDefeat';
+import { recordTreasureGoblinDamageHits } from './stateCombatTreasureGoblin';
 import type { AbilityId, GameState } from './types';
 
 export function applyPlayerAbility(
@@ -198,6 +199,9 @@ function dealPlayerDamageToEnemy(
       playerStats.attack,
     ),
   );
+  if (damageResolution.damage > 0) {
+    recordTreasureGoblinDamageHits(state, enemy);
+  }
   return damageResolution.damage;
 }
 

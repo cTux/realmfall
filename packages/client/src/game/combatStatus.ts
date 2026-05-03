@@ -2,6 +2,7 @@ import { StatusEffectTypeId } from './content/ids';
 import { getEnemyCombatDefense, mitigateDamageByDefense } from './combatDamage';
 import { getPlayerCombatStats } from './progression';
 import { resolveCombatProcCount } from './combatProcs';
+import { recordTreasureGoblinDamageHits } from './stateCombatTreasureGoblin';
 import type {
   AbilityRuntimeDefinition,
   Enemy,
@@ -246,6 +247,7 @@ export function processEnemyStatusEffects(
     if (!enemy?.statusEffects || enemy.statusEffects.length === 0) continue;
 
     const nextEffects = [];
+    let damageHitCount = 0;
     for (const effect of enemy.statusEffects) {
       const lastProcessedAt = effect.lastProcessedAt ?? state.worldTimeMs;
       const effectEndAt = effect.expiresAt ?? lastProcessedAt;
@@ -280,6 +282,7 @@ export function processEnemyStatusEffects(
             : 0;
         if (damagePerTick > 0) {
           enemy.hp = Math.max(0, enemy.hp - damagePerTick * tickCount);
+          damageHitCount += tickCount;
           changed = true;
         }
         if (healPerTick > 0) {
@@ -301,6 +304,17 @@ export function processEnemyStatusEffects(
     }
 
     enemy.statusEffects = nextEffects;
+    if (damageHitCount > 0) {
+      const escaped = recordTreasureGoblinDamageHits(
+        state,
+        enemy,
+        damageHitCount,
+      );
+      changed = true;
+      if (escaped || !state.combat) {
+        return true;
+      }
+    }
     if (enemy.hp <= 0) {
       onEnemyDefeat(state, enemy);
       changed = true;
