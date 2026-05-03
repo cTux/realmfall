@@ -88,6 +88,9 @@ importers:
       concurrently:
         specifier: ^9.2.1
         version: 9.2.1
+      fast-check:
+        specifier: ^4.7.0
+        version: 4.7.0
       fuite:
         specifier: ^5.0.9
         version: 5.0.9(typescript@6.0.3)
@@ -4000,6 +4003,13 @@ packages:
     engines: { node: '>= 10.17.0' }
     hasBin: true
 
+  fast-check@4.7.0:
+    resolution:
+      {
+        integrity: sha512-NsZRtqvSSoCP0HbNjUD+r1JH8zqZalyp6gLY9e7OYs7NK9b6AHOs2baBFeBG7bVNsuoukh89x2Yg3rPsul8ziQ==,
+      }
+    engines: { node: '>=12.17.0' }
+
   fast-decode-uri-component@1.0.1:
     resolution:
       {
@@ -5725,6 +5735,12 @@ packages:
     resolution:
       {
         integrity: sha512-VS7sjc6KR7e1ukRFhQSY5LM2uBWAUPiOPa/A3mkKmiMwSmRFUITt0xuj+/lesgnCv+dPIEYlkzrcyXgquIHMcA==,
+      }
+
+  pure-rand@8.4.0:
+    resolution:
+      {
+        integrity: sha512-IoM8YF/jY0hiugFo/wOWqfmarlE6J0wc6fDK1PhftMk7MGhVZl88sZimmqBBFomLOCSmcCCpsfj7wXASCpvK9A==,
       }
 
   punycode@2.3.1:
@@ -9290,6 +9306,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  fast-check@4.7.0:
+    dependencies:
+      pure-rand: 8.4.0
+
   fast-decode-uri-component@1.0.1: {}
 
   fast-deep-equal@3.1.3: {}
@@ -10244,6 +10264,8 @@ snapshots:
     dependencies:
       end-of-stream: 1.4.5
       once: 1.4.0
+
+  pure-rand@8.4.0: {}
 
   punycode@2.3.1: {}
 
