@@ -1,5 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import {
+  applyInterfaceFontFamily,
+  loadInterfaceFontFamily,
+} from './app/interfaceFonts';
+import { loadInterfaceSettings } from './app/interfaceSettings';
 import { loadI18n } from './i18n';
 import { LoadingSpinner } from '@realmfall/ui/loading-spinner';
 import { installGlobalVersion } from './version';
@@ -13,6 +18,8 @@ const performanceHarnessModulePromise = loadPerformanceHarness();
 installGlobalVersion();
 recordPerformanceStartupMark('main-start');
 document.addEventListener('contextmenu', preventNativeContextMenu);
+const bootstrapInterfaceSettings = loadInterfaceSettings();
+applyInterfaceFontFamily(bootstrapInterfaceSettings.fontFamily);
 
 const rootElement = document.getElementById('root') as HTMLElement;
 const root = ReactDOM.createRoot(rootElement, {
@@ -31,8 +38,12 @@ void bootstrap();
 
 async function bootstrap() {
   try {
-    await loadI18n();
-    recordPerformanceStartupMark('i18n-loaded');
+    await Promise.all([
+      loadI18n().then(() => {
+        recordPerformanceStartupMark('i18n-loaded');
+      }),
+      loadInterfaceFontFamily(bootstrapInterfaceSettings.fontFamily),
+    ]);
     const { App } = await import('./app/App');
     recordPerformanceStartupMark('app-module-loaded');
 
@@ -65,6 +76,7 @@ function BootstrapShell() {
         background:
           'radial-gradient(circle at top, #1f2a44 0%, #0b1020 55%, #050814 100%)',
         display: 'flex',
+        fontFamily: 'var(--app-font-family)',
         inset: 0,
         justifyContent: 'center',
         position: 'fixed',
@@ -119,8 +131,7 @@ function BootstrapErrorScreen() {
           'radial-gradient(circle at top, #2f1725 0%, #1f1220 55%, #0b0911 100%)',
         color: '#f8fafc',
         display: 'flex',
-        fontFamily:
-          '"Segoe UI", "Trebuchet MS", "Gill Sans", "Century Gothic", sans-serif',
+        fontFamily: 'var(--app-font-family)',
         inset: 0,
         justifyContent: 'center',
         padding: '2rem',

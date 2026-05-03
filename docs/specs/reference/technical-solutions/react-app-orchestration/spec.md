@@ -11,7 +11,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Bootstrap refs and initial app state live in `useAppBootstrapState`, while the top-level keyboard shortcut wiring lives in `useAppShortcutBindings`, keeping `App.tsx` focused on composing the major app flows instead of rebuilding every initialization detail inline.
 - The remaining top-level orchestration graph now lives in `useAppRuntime`, which assembles bootstrap, controller, persistence, world, lifecycle, and shell-view wiring before `App.tsx` renders `AppShell`.
 - Before the main app finishes loading, `src/main.tsx` renders a fixed bootstrap shell with a spinner-only loading state so the first paint stays visible without depending on translated copy.
-- The bootstrap path fetches the active locale asset before importing `App`, because some gameplay and content modules resolve translated labels during module evaluation and must not hydrate against an empty translation map.
+- The bootstrap path reads the persisted interface font choice synchronously, applies that font stack to the document root, and waits for the selected bundled font plus the active locale asset before importing `App`, because module-level UI constants must not hydrate against missing translations or swap through an unready fallback face.
 - The optional browser performance harness records main-start, bootstrap-shell, i18n-loaded, app-module-loaded, app-render-scheduled, and app-ready marks when explicitly enabled, keeping startup milestone measurement available without changing normal app sessions.
 - When that harness is active, `App.tsx` wraps the app shell in a React Profiler and records commit timings through the shared harness; otherwise the entry component renders the shell directly.
 - The app shell stays visible while save hydration and Pixi initialization complete, so the dock, action bar, and other ready React chrome can paint before the world canvas finishes booting.
@@ -58,6 +58,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Hex-window combat header timing and combat content cooldowns subscribe to the leaf world-clock store, while town stock view derivation receives a day token instead of exact milliseconds.
 - `useCombatAttentionWindow` owns the auto-open hex-content behavior that reacts to combat entry on movement, so `App.tsx` does not keep lifecycle refs and transition bookkeeping for that single window rule.
 - `useAppSettingsActions` keeps save-reset, settings persistence, and home-hex shell actions in one local hook instead of mixing those imperative flows into the main app component body.
+- `useAppSettingsActions` waits for the selected interface font to load before persisting and applying interface-setting changes, keeping live font switches aligned with the current document shell.
 - `useAppRuntime` groups those orchestration hooks into one local composition layer so the entry component no longer needs one large destructuring block for controllers, derived views, transitions, and shell props.
 - `useAppShortcutRuntime` owns shortcut-only availability wiring such as home-setting eligibility, keeping `useAppRuntime` from recomputing action gates inline next to unrelated lifecycle and persistence setup.
 - `useAppWindowRuntime` owns the memoized window view and action composition path before `AppWindows` props are assembled, so the top-level runtime hook does not rebuild the full window contract in the same block as combat automation and world bootstrap wiring.
@@ -105,6 +106,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `src/app/App/persistence/saveSegments.ts`
 - `src/app/App/persistence/saveScheduler.ts`
 - `src/app/App/hooks/useAppSettingsActions.ts`
+- `src/app/interfaceFonts.ts`
 - `src/app/App/hooks/useAppShortcutRuntime.ts`
 - `src/app/App/hooks/useAppWorldClock.ts`
 - `src/app/App/hooks/useAppWindowRuntime.ts`

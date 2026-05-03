@@ -1,6 +1,40 @@
+@font-face {
+  font-family: 'Pixelify Sans';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('../assets/fonts/pixelify-sans-latin-400-700.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../assets/fonts/roboto-latin-400-700.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: Ubuntu;
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/ubuntu-latin-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: Ubuntu;
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../assets/fonts/ubuntu-latin-700.woff2') format('woff2');
+}
+
 :root {
+  --app-font-family: 'Pixelify Sans', system-ui, sans-serif;
+
   color-scheme: dark;
-  font-family: Inter, system-ui, sans-serif;
+  font-family: var(--app-font-family);
   background: #050816;
   color: #e5eefb;
 }
@@ -42,7 +76,9 @@ body {
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }
 

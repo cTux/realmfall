@@ -9,6 +9,7 @@ import { t } from '../../../i18n';
 import { GameSettingsWindowContent } from './GameSettingsWindowContent';
 
 const DEFAULT_INTERFACE_SETTINGS = {
+  fontFamily: 'pixelifySans' as const,
   windowTransparency: 0,
 };
 
@@ -663,7 +664,7 @@ describe('GameSettingsWindowContent', () => {
     ]);
   });
 
-  it('saves interface transparency and gameplay automation toggles in the payload', async () => {
+  it('saves interface font and transparency plus gameplay automation toggles in the payload', async () => {
     const onSave = vi.fn(async () => undefined);
 
     await act(async () => {
@@ -694,8 +695,10 @@ describe('GameSettingsWindowContent', () => {
     const transparencySlider = host.querySelector(
       'input[type="range"]',
     ) as HTMLInputElement | null;
+    const fontSelect = host.querySelector('select') as HTMLSelectElement | null;
 
     expect(transparencySlider).not.toBeNull();
+    expect(fontSelect).not.toBeNull();
 
     await act(async () => {
       if (transparencySlider) {
@@ -706,6 +709,18 @@ describe('GameSettingsWindowContent', () => {
 
         setValue?.call(transparencySlider, '45');
         transparencySlider.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+
+    await act(async () => {
+      if (fontSelect) {
+        const setValue = Object.getOwnPropertyDescriptor(
+          HTMLSelectElement.prototype,
+          'value',
+        )?.set;
+
+        setValue?.call(fontSelect, 'ubuntu');
+        fontSelect.dispatchEvent(new Event('change', { bubbles: true }));
       }
     });
 
@@ -768,6 +783,7 @@ describe('GameSettingsWindowContent', () => {
       audio: DEFAULT_AUDIO_SETTINGS,
       graphics: DEFAULT_GRAPHICS_SETTINGS,
       interface: {
+        fontFamily: 'ubuntu',
         windowTransparency: 45,
       },
       gameplay: {

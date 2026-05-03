@@ -1,3 +1,8 @@
+import {
+  INTERFACE_FONT_OPTIONS,
+  type InterfaceFontFamily,
+  resolveInterfaceFontStack,
+} from '../../../app/interfaceFonts';
 import { INTERFACE_SETTINGS_RANGE_OPTIONS } from '../../../app/interfaceSettings';
 import { t } from '../../../i18n';
 import type { GameSettingsInterfacePanelProps } from './types';
@@ -9,6 +14,36 @@ export function GameSettingsInterfacePanel({
 }: GameSettingsInterfacePanelProps) {
   return (
     <div className={styles.panel}>
+      <label className={styles.selectField}>
+        <span className={styles.sectionHeader}>
+          <span className={styles.rangeLabel}>
+            {t('ui.settings.interface.fontFamily.label')}
+          </span>
+          <span className={styles.rangeDescription}>
+            {t('ui.settings.interface.fontFamily.description')}
+          </span>
+        </span>
+        <select
+          value={interfaceSettings.fontFamily}
+          style={{
+            fontFamily: resolveInterfaceFontStack(interfaceSettings.fontFamily),
+          }}
+          onChange={(event) => {
+            const fontFamily = event.currentTarget.value as InterfaceFontFamily;
+
+            onChange((current) => ({
+              ...current,
+              fontFamily,
+            }));
+          }}
+        >
+          {INTERFACE_FONT_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {t(option.labelKey)}
+            </option>
+          ))}
+        </select>
+      </label>
       {INTERFACE_SETTINGS_RANGE_OPTIONS.map((option) => (
         <label className={styles.rangeField} key={option.key}>
           <span className={styles.rangeHeader}>

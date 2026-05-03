@@ -21,6 +21,10 @@ import {
   saveInterfaceSettings,
   type InterfaceSettings,
 } from '../../interfaceSettings';
+import {
+  applyInterfaceFontFamily,
+  loadInterfaceFontFamily,
+} from '../../interfaceFonts';
 import { clearWorldMapSettings } from '../../worldMapSettings';
 import type { ResettableSaveAreaId } from '../../../persistence/saveAreas';
 import { setHomeHexForApp } from './useAppLifecycle';
@@ -56,6 +60,8 @@ export function useAppSettingsActions({
       graphics: GraphicsSettings;
       interface: InterfaceSettings;
     }) => {
+      await loadInterfaceFontFamily(nextInterfaceSettings.fontFamily);
+      applyInterfaceFontFamily(nextInterfaceSettings.fontFamily);
       setAudioSettings(nextAudioSettings);
       setGameplaySettings(nextGameplaySettings);
       setGraphicsSettings(nextGraphicsSettings);

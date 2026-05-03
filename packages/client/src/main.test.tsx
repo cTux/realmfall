@@ -5,6 +5,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 let render: ReturnType<typeof vi.fn>;
 let createRoot: ReturnType<typeof vi.fn>;
 let loadI18n: ReturnType<typeof vi.fn>;
+let loadInterfaceSettings: ReturnType<typeof vi.fn>;
+let applyInterfaceFontFamily: ReturnType<typeof vi.fn>;
+let loadInterfaceFontFamily: ReturnType<typeof vi.fn>;
 let appModuleImported: ReturnType<typeof vi.fn>;
 const reportRootError = vi.fn();
 
@@ -18,6 +21,12 @@ describe('main bootstrap', () => {
     render = vi.fn();
     createRoot = vi.fn(() => ({ render }));
     loadI18n = vi.fn(() => Promise.resolve({}));
+    loadInterfaceSettings = vi.fn(() => ({
+      fontFamily: 'pixelifySans',
+      windowTransparency: 0,
+    }));
+    applyInterfaceFontFamily = vi.fn();
+    loadInterfaceFontFamily = vi.fn(() => Promise.resolve());
     appModuleImported = vi.fn();
     reportRootError.mockReset();
 
@@ -27,6 +36,15 @@ describe('main bootstrap', () => {
 
     vi.doMock('./i18n', () => ({
       loadI18n,
+    }));
+
+    vi.doMock('./app/interfaceSettings', () => ({
+      loadInterfaceSettings,
+    }));
+
+    vi.doMock('./app/interfaceFonts', () => ({
+      applyInterfaceFontFamily,
+      loadInterfaceFontFamily,
     }));
 
     vi.doMock('./app/App', () => {
@@ -48,6 +66,8 @@ describe('main bootstrap', () => {
     document.body.innerHTML = '';
     vi.doUnmock('react-dom/client');
     vi.doUnmock('./i18n');
+    vi.doUnmock('./app/interfaceSettings');
+    vi.doUnmock('./app/interfaceFonts');
     vi.doUnmock('./app/App');
   });
 
@@ -92,6 +112,35 @@ describe('main bootstrap', () => {
     expect(appModuleImported).not.toHaveBeenCalled();
 
     resolveI18n();
+    await vi.dynamicImportSettled();
+    await Promise.resolve();
+
+    expect(appModuleImported).toHaveBeenCalledTimes(1);
+  });
+
+  it('waits for the selected interface font before importing App', async () => {
+    document.body.innerHTML = '<div id="root"></div>';
+
+    let resolveFont!: () => void;
+    loadInterfaceSettings.mockReturnValueOnce({
+      fontFamily: 'ubuntu',
+      windowTransparency: 0,
+    });
+    loadInterfaceFontFamily.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveFont = resolve;
+        }),
+    );
+
+    await import('./main');
+    await Promise.resolve();
+
+    expect(applyInterfaceFontFamily).toHaveBeenCalledWith('ubuntu');
+    expect(loadInterfaceFontFamily).toHaveBeenCalledWith('ubuntu');
+    expect(appModuleImported).not.toHaveBeenCalled();
+
+    resolveFont();
     await vi.dynamicImportSettled();
     await Promise.resolve();
 

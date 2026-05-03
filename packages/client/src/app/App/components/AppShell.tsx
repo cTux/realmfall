@@ -16,6 +16,7 @@ import {
   type UiAudioController,
 } from '../../audio/UiAudioContext';
 import type { AudioSettings } from '../../audioSettings';
+import { applyInterfaceFontFamily } from '../../interfaceFonts';
 import type { InterfaceSettings } from '../../interfaceSettings';
 import type { AppWindowsProps } from '../AppWindows.types';
 import styles from '../styles.module.scss';
@@ -90,6 +91,9 @@ export function AppShell({
       recordStartupMark('app-ready');
     }
   }, [isReady]);
+  useEffect(() => {
+    applyInterfaceFontFamily(interfaceSettings.fontFamily);
+  }, [interfaceSettings.fontFamily]);
 
   const voicePlaybackState = useMemo(
     () => ({
