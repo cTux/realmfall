@@ -21,10 +21,12 @@ import {
 } from './inventory';
 import { getPlayerCombatStats } from './progression';
 import {
+  cloneForPlayerCombatAndTileMutation,
   cloneForPlayerAndTileMutation,
   cloneForPlayerMutation,
   message,
 } from './stateMutationHelpers';
+import { syncCombatPlayerLoadout } from './stateCombatState';
 import { getCurrentTile } from './stateWorldQueries';
 import type { EquipmentSlot, GameState, TownStockEntry } from './types';
 import { ensureTileState, normalizeStructureState } from './world';
@@ -317,7 +319,7 @@ export function dropEquippedItem(
     return message(state, t('game.message.equipment.slotEmpty'));
   }
 
-  const next = cloneForPlayerAndTileMutation(state);
+  const next = cloneForPlayerCombatAndTileMutation(state);
   delete next.player.equipment[slot];
   ensureTileState(next, next.player.coord);
   const key = hexKey(next.player.coord);
@@ -326,6 +328,7 @@ export function dropEquippedItem(
   next.tiles[key] = { ...tile, items: [...tile.items] };
   const maxHp = getPlayerCombatStats(next.player).maxHp;
   next.player.hp = Math.min(maxHp, next.player.hp);
+  syncCombatPlayerLoadout(next);
   addLog(next, 'loot', t('game.message.loot.drop', { item: equipped.name }));
   return next;
 }

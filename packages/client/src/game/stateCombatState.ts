@@ -32,3 +32,18 @@ export function createCombatState(
     ),
   };
 }
+
+export function syncCombatPlayerLoadout(
+  state: Pick<GameState, 'combat' | 'player'>,
+) {
+  if (!state.combat) return;
+
+  const abilityIds = getPlayerCombatStats(state.player).abilityIds;
+  state.combat.player.abilityIds = [...abilityIds];
+  if (
+    state.combat.player.casting &&
+    !abilityIds.includes(state.combat.player.casting.abilityId)
+  ) {
+    state.combat.player.casting = null;
+  }
+}
