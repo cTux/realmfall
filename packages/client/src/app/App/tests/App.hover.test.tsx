@@ -7,7 +7,33 @@ import {
   renderApp,
 } from './appTestHarness';
 
+const createWorkerWorldHoverAnalysisSource = vi.fn();
+
 describe('App hover behavior', () => {
+  beforeEach(() => {
+    const workerSource = {
+      analyze: vi.fn(async () => ({
+        actionable: true,
+        safePath: [
+          { q: 1, r: -1 },
+          { q: 2, r: -1 },
+          { q: 2, r: 0 },
+        ],
+      })),
+      dispose: vi.fn(async () => undefined),
+      syncState: vi.fn(async () => undefined),
+    };
+
+    createWorkerWorldHoverAnalysisSource.mockReset();
+    createWorkerWorldHoverAnalysisSource.mockReturnValue(workerSource);
+    vi.doMock(
+      '../world/hoverAnalysis/createWorkerWorldHoverAnalysisSource',
+      () => ({
+        createWorkerWorldHoverAnalysisSource,
+      }),
+    );
+  });
+
   it('deduplicates expensive pointermove hover work by hex and skips non-actionable tiles', async () => {
     const game = createGame(3, 'app-hover-dedup-seed');
     game.tiles['0,0'] = {
@@ -214,10 +240,18 @@ describe('App hover behavior', () => {
       );
     });
     await flushAnimationFrame();
+    await act(async () => {
+      await Promise.resolve();
+    });
 
-    expect(getSafePathToTileSpy).toHaveBeenCalledTimes(1);
+    expect(createWorkerWorldHoverAnalysisSource).toHaveBeenCalledTimes(1);
+    expect(
+      createWorkerWorldHoverAnalysisSource.mock.results[0]?.value.analyze,
+    ).toHaveBeenCalledWith({ q: 2, r: 0 });
+    expect(getSafePathToTileSpy).not.toHaveBeenCalled();
     expect(getEnemiesAtSpy).toHaveBeenCalledTimes(1);
     expect(enemyTooltipSpy).toHaveBeenCalledTimes(1);
+    expect(canvas?.style.cursor).toBe('pointer');
 
     await act(async () => {
       root.unmount();

@@ -4,7 +4,20 @@ import { isPassable } from './shared';
 import { getHostileEnemyIds, getResolvedTileAt } from './stateWorldQueries';
 import type { GameState } from './types';
 
-export function getSafePathToTile(state: GameState, target: HexCoord) {
+export type PathfindingState = Pick<
+  GameState,
+  | 'bloodMoonActive'
+  | 'combat'
+  | 'enemies'
+  | 'gameOver'
+  | 'radius'
+  | 'seed'
+  | 'tiles'
+> & {
+  player: Pick<GameState['player'], 'coord'>;
+};
+
+export function getSafePathToTile(state: PathfindingState, target: HexCoord) {
   if (state.gameOver || state.combat) return null;
 
   const start = state.player.coord;

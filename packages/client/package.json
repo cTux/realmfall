@@ -40,6 +40,7 @@
     "@realmfall/ui": "workspace:*",
     "@rexa-developer/tiks": "^0.1.8",
     "@tanstack/react-virtual": "^3.13.24",
+    "comlink": "^4.4.2",
     "easy-cancelable-promise": "^2.0.1",
     "easy-web-worker": "^7.0.5",
     "pixi.js": "^8.18.1",

@@ -443,7 +443,16 @@ export function usePixiWorld({
 
   useEffect(() => {
     hoverAnalysisControllerRef.current?.refreshHoverAnalysis();
-  }, [game.bloodMoonActive, game.combat, game.tiles, game.turn]);
+  }, [
+    game.bloodMoonActive,
+    game.combat,
+    game.enemies,
+    game.gameOver,
+    game.radius,
+    game.seed,
+    game.tiles,
+    game.turn,
+  ]);
 
   useEffect(() => {
     if (!game.combat) {
