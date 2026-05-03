@@ -1,10 +1,12 @@
 import { useEffect, type Dispatch, type SetStateAction } from 'react';
+import { getRecipeSkillForStructure } from '../../../game/crafting';
+import type { Tile } from '../../../game/stateTypes';
 import type { WindowVisibilityState } from '../../constants';
 
 interface UseHexInfoWindowPromotionArgs {
   combatActive: boolean;
   currentLootAvailable: boolean;
-  currentStructure: boolean;
+  currentStructure?: Tile['structure'];
   suppressAutoOpen: boolean;
   setWindowShown: Dispatch<SetStateAction<WindowVisibilityState>>;
   windowShown: WindowVisibilityState;
@@ -24,8 +26,11 @@ export function useHexInfoWindowPromotion({
     }
 
     setWindowShown((current) => {
+      const shouldAutoOpenStructureInfo =
+        currentStructure != null &&
+        getRecipeSkillForStructure(currentStructure) == null;
       const shouldShowHexInfo =
-        currentStructure ||
+        shouldAutoOpenStructureInfo ||
         currentLootAvailable ||
         combatActive ||
         current.loot ||
