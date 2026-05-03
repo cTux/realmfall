@@ -52,7 +52,7 @@ describe('treasure goblin combat behavior', () => {
     expect(game.logs.some((entry) => /fled/i.test(entry.text))).toBe(true);
   });
 
-  it('ends combat immediately when a treasure goblin escapes from a mixed encounter', () => {
+  it('opens a follow-on encounter when a treasure goblin escapes from a mixed encounter', () => {
     const game = createTreasureGoblinCombatGame('treasure-goblin-mixed-escape');
     const goblinId = game.combat!.enemyIds[0]!;
     const otherEnemyId = 'enemy-2,0-1';
@@ -88,10 +88,14 @@ describe('treasure goblin combat behavior', () => {
 
     applyPlayerAbility(game, 'kick', goblinId);
 
-    expect(game.combat).toBeNull();
+    expect(game.combat).not.toBeNull();
+    expect(game.combat?.started).toBe(false);
+    expect(game.combat?.coord).toEqual({ q: 2, r: 0 });
+    expect(game.combat?.enemyIds).toEqual([otherEnemyId]);
     expect(game.enemies[goblinId]?.coord).toEqual(escapeCoord);
     expect(game.tiles['2,0']?.enemyIds).toEqual([otherEnemyId]);
     expect(game.enemies[otherEnemyId]?.hp).toBe(30);
+    expect(game.logs.some((entry) => /encounter/i.test(entry.text))).toBe(true);
     expect(game.logs.some((entry) => /battle is over/i.test(entry.text))).toBe(
       true,
     );

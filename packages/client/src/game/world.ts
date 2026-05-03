@@ -56,8 +56,7 @@ export function cacheSafeStart(state: GameState) {
 
 export function ensureTileState(state: GameState, coord: HexCoord) {
   const key = hexKey(coord);
-  const tileWasUnresolved = !state.tiles[key];
-  if (tileWasUnresolved) {
+  if (!state.tiles[key]) {
     state.tiles[key] = buildTile(state.seed, coord);
   }
 
@@ -78,13 +77,7 @@ export function ensureTileState(state: GameState, coord: HexCoord) {
           enemyId,
           name: enemyName,
           aggressive: hostile,
-          allowTreasureGoblinOverride:
-            tileWasUnresolved &&
-            hostile &&
-            tile.structure === undefined &&
-            tile.enemyIds.length === 1 &&
-            tile.claim?.npc?.enemyId !== enemyId &&
-            !isWorldBossEnemyId(enemyId),
+          allowTreasureGoblinOverride: false,
           worldBoss: isWorldBossEnemyId(enemyId),
         },
       );

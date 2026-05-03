@@ -4,6 +4,7 @@ import { hexKey, hexesInRange, type HexCoord } from './hex';
 import { addLog } from './logs';
 import { createRng } from './random';
 import { isPassable } from './shared';
+import { createCombatState } from './stateCombatState';
 import { getTileAt } from './stateWorldQueries';
 import type { CombatEnemyEncounterState, Enemy, GameState } from './types';
 import { isWorldBossFootprint } from './worldBoss';
@@ -93,7 +94,7 @@ export function recordTreasureGoblinDamageHits(
 
   moveTreasureGoblinToCoord(state, enemy, escapeCoord);
   addLog(state, 'combat', t('game.message.fled'));
-  endCombatAfterTreasureGoblinEscape(state);
+  endCombatAfterTreasureGoblinEscape(state, enemy.id);
   return true;
 }
 
@@ -136,13 +137,41 @@ function moveTreasureGoblinToCoord(
   enemy.coord = coord;
 }
 
-function endCombatAfterTreasureGoblinEscape(state: GameState) {
-  if (!state.combat) {
+function endCombatAfterTreasureGoblinEscape(
+  state: GameState,
+  escapedEnemyId: string,
+) {
+  const combat = state.combat;
+  if (!combat) {
     return;
   }
 
   state.combat = null;
   addLog(state, 'combat', t('game.message.combat.over'));
+
+  const followOnEnemyIds = combat.enemyIds.filter(
+    (enemyId) => enemyId !== escapedEnemyId && Boolean(state.enemies[enemyId]),
+  );
+  if (followOnEnemyIds.length === 0) {
+    return;
+  }
+
+  state.combat = createCombatState(
+    state,
+    combat.coord,
+    followOnEnemyIds,
+    state.worldTimeMs,
+  );
+  addLog(
+    state,
+    'combat',
+    t(
+      followOnEnemyIds.length === 1
+        ? 'game.message.combat.encounter.one'
+        : 'game.message.combat.encounter.other',
+      { count: followOnEnemyIds.length },
+    ),
+  );
 }
 
 function compareHexCoords(a: HexCoord, b: HexCoord) {

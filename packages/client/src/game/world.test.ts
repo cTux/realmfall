@@ -79,4 +79,46 @@ describe('world loot roll mapping', () => {
         previousChance;
     }
   });
+
+  it('does not promote unresolved hostile tiles into treasure goblins during generic materialization', () => {
+    const previousChance =
+      GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance;
+    GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance = 1;
+
+    try {
+      let targetCoord: { q: number; r: number } | null = null;
+
+      for (let q = -8; q <= 8 && !targetCoord; q += 1) {
+        for (let r = -8; r <= 8; r += 1) {
+          const coord = { q, r };
+          const tile = buildRegularTile(
+            'ensure-tile-state-no-goblin',
+            coord,
+            pickTerrain('ensure-tile-state-no-goblin', coord),
+          );
+          if (
+            tile.structure === undefined &&
+            tile.enemyIds.length === 1 &&
+            tile.claim?.npc === undefined
+          ) {
+            targetCoord = coord;
+            break;
+          }
+        }
+      }
+
+      expect(targetCoord).not.toBeNull();
+
+      const game = createGame(3, 'ensure-tile-state-no-goblin');
+      ensureTileState(game, targetCoord!);
+
+      const enemyId =
+        game.tiles[`${targetCoord!.q},${targetCoord!.r}`]?.enemyIds[0];
+      expect(enemyId).toBeDefined();
+      expect(game.enemies[enemyId!]?.enemyTypeId).not.toBe('treasure-goblin');
+    } finally {
+      GAME_CONFIG.worldGeneration.enemySpawn.treasureGoblin.chance =
+        previousChance;
+    }
+  });
 });
