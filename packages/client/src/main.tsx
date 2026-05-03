@@ -7,6 +7,7 @@ import {
 import { loadInterfaceSettings } from './app/interfaceSettings';
 import { loadI18n } from './i18n';
 import { LoadingSpinner } from '@realmfall/ui/loading-spinner';
+import { BootstrapErrorScreen } from './ui/components/BootstrapErrorScreen';
 import { installGlobalVersion } from './version';
 import './styles/base.scss';
 
@@ -118,37 +119,6 @@ class RootErrorBoundary extends React.Component<
 
     return this.props.children;
   }
-}
-
-function BootstrapErrorScreen() {
-  return (
-    <div
-      aria-live="assertive"
-      role="alert"
-      style={{
-        alignItems: 'center',
-        background:
-          'radial-gradient(circle at top, #2f1725 0%, #1f1220 55%, #0b0911 100%)',
-        color: '#f8fafc',
-        display: 'flex',
-        fontFamily: 'var(--app-font-family)',
-        inset: 0,
-        justifyContent: 'center',
-        padding: '2rem',
-        position: 'fixed',
-        textAlign: 'center',
-      }}
-    >
-      <div>
-        <strong style={{ display: 'block', fontSize: '1.1rem' }}>
-          Realmfall failed to load.
-        </strong>
-        <span style={{ color: 'rgba(226, 232, 240, 0.82)' }}>
-          Reload the page to retry.
-        </span>
-      </div>
-    </div>
-  );
 }
 
 function loadPerformanceHarness(): Promise<PerformanceHarnessModule | null> | null {

@@ -679,6 +679,8 @@
   "ui.itemMenu.useAction": "Use",
   "ui.loot.takeAllAction": "Tak(e) all",
   "ui.loot.title": "Loot on the Ground",
+  "ui.loading.bootstrapErrorTitle": "Realmfall failed to load.",
+  "ui.loading.bootstrapRetryCountdown": "Trying to recover automatically in {seconds} sec.",
   "ui.loading.window": "Loading window",
   "ui.loading.windowDelayed": "This window is taking longer to load than expected. Trying again...",
   "ui.loading.worldErrorBody": "The world canvas could not initialize. Retry after the browser finishes recovering graphics resources.",

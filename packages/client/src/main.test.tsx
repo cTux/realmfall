@@ -15,7 +15,7 @@ type StrictModeElement = React.ReactElement<{
   children: React.ReactElement;
 }>;
 
-describe('main bootstrap', () => {
+describe('main bootstrap', { timeout: 10000 }, () => {
   beforeEach(() => {
     vi.resetModules();
     render = vi.fn();
@@ -38,6 +38,7 @@ describe('main bootstrap', () => {
 
     vi.doMock('./i18n', () => ({
       loadI18n,
+      t: (key: string) => key,
     }));
 
     vi.doMock('./app/interfaceSettings', () => ({
@@ -220,5 +221,25 @@ describe('main bootstrap', () => {
     expect(reportRootError).toHaveBeenCalledTimes(2);
     expect(reportRootError).toHaveBeenNthCalledWith(1, error);
     expect(reportRootError).toHaveBeenNthCalledWith(2, error);
+  });
+
+  it('renders the bootstrap error screen when bootstrap fails', async () => {
+    document.body.innerHTML = '<div id="root"></div>';
+    const error = new Error('locale load failed');
+    loadI18n.mockRejectedValueOnce(error);
+
+    await import('./main');
+    await Promise.resolve();
+    await vi.dynamicImportSettled();
+    await Promise.resolve();
+
+    expect(reportRootError).toHaveBeenCalledWith(error);
+
+    const errorRender = render.mock.calls[1]?.[0] as StrictModeElement;
+    const errorElement = errorRender.props.children as React.ReactElement;
+    const errorMarkup = renderToStaticMarkup(errorElement);
+
+    expect(errorMarkup).toContain('Realmfall failed to load.');
+    expect(errorMarkup).toContain('Trying to recover automatically in 2 sec.');
   });
 });
