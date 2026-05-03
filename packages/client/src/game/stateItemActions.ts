@@ -28,6 +28,7 @@ import {
   cloneForPlayerMutation,
   message,
 } from './stateMutationHelpers';
+import { syncCombatPlayerLoadout } from './stateCombatState';
 import { getPlayerThirstValue, PLAYER_SURVIVAL_MAX } from './survival';
 import { countTerrainChangesForSet, setTerrainInRadius } from './world';
 import { teleportHome } from './stateSurvival';
@@ -95,7 +96,7 @@ export function equipItem(state: GameState, itemId: string): GameState {
     );
   }
 
-  const next = cloneForPlayerMutation(state);
+  const next = cloneForPlayerCombatMutation(state);
   next.player.inventory.splice(itemIndex, 1);
 
   if (
@@ -117,6 +118,7 @@ export function equipItem(state: GameState, itemId: string): GameState {
   }
   const maxHp = getPlayerCombatStats(next.player).maxHp;
   next.player.hp = Math.min(maxHp, next.player.hp);
+  syncCombatPlayerLoadout(next);
   addLog(
     next,
     'system',
@@ -138,11 +140,12 @@ export function unequipItem(state: GameState, slot: EquipmentSlot): GameState {
   const equipped = state.player.equipment[slot];
   if (!equipped) return message(state, t('game.message.equipment.slotEmpty'));
 
-  const next = cloneForPlayerMutation(state);
+  const next = cloneForPlayerCombatMutation(state);
   delete next.player.equipment[slot];
   addItemToInventory(next.player.inventory, equipped);
   const maxHp = getPlayerCombatStats(next.player).maxHp;
   next.player.hp = Math.min(maxHp, next.player.hp);
+  syncCombatPlayerLoadout(next);
   addLog(
     next,
     'system',

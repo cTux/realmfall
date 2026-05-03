@@ -41,6 +41,15 @@ export function cloneForPlayerAndTileMutation(state: GameState) {
   });
 }
 
+export function cloneForPlayerCombatAndTileMutation(state: GameState) {
+  return copyGameState(state, {
+    logs: true,
+    combat: true,
+    tiles: true,
+    player: true,
+  });
+}
+
 export function cloneForWorldEventMutation(state: GameState) {
   return copyGameState(state, {
     logs: true,
