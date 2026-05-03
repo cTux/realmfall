@@ -4,7 +4,6 @@ import { hexKey, hexesInRange, type HexCoord } from './hex';
 import { addLog } from './logs';
 import { createRng } from './random';
 import { isPassable } from './shared';
-import { syncCombatEncounterEnemies } from './stateCombatEncounterSync';
 import { getTileAt } from './stateWorldQueries';
 import type { CombatEnemyEncounterState, Enemy, GameState } from './types';
 import { isWorldBossFootprint } from './worldBoss';
@@ -94,7 +93,7 @@ export function recordTreasureGoblinDamageHits(
 
   moveTreasureGoblinToCoord(state, enemy, escapeCoord);
   addLog(state, 'combat', t('game.message.combat.flee'));
-  syncCombatEncounterEnemies(state);
+  endCombatAfterTreasureGoblinEscape(state);
   return true;
 }
 
@@ -135,6 +134,15 @@ function moveTreasureGoblinToCoord(
     enemyIds: [...nextTile.enemyIds, enemy.id],
   };
   enemy.coord = coord;
+}
+
+function endCombatAfterTreasureGoblinEscape(state: GameState) {
+  if (!state.combat) {
+    return;
+  }
+
+  state.combat = null;
+  addLog(state, 'combat', t('game.message.combat.over'));
 }
 
 function compareHexCoords(a: HexCoord, b: HexCoord) {

@@ -52,6 +52,51 @@ describe('treasure goblin combat behavior', () => {
     expect(game.logs.some((entry) => /fled/i.test(entry.text))).toBe(true);
   });
 
+  it('ends combat immediately when a treasure goblin escapes from a mixed encounter', () => {
+    const game = createTreasureGoblinCombatGame('treasure-goblin-mixed-escape');
+    const goblinId = game.combat!.enemyIds[0]!;
+    const otherEnemyId = 'enemy-2,0-1';
+    const escapeCoord = { q: 4, r: 0 };
+
+    game.tiles['2,0']!.enemyIds.push(otherEnemyId);
+    game.enemies[otherEnemyId] = {
+      id: otherEnemyId,
+      enemyTypeId: 'wolf',
+      name: 'Wolf',
+      coord: { q: 2, r: 0 },
+      rarity: 'common',
+      tier: 1,
+      hp: 30,
+      maxHp: 30,
+      attack: 3,
+      defense: 0,
+      xp: 2,
+      elite: false,
+      statusEffects: [],
+      abilityIds: ['kick'],
+    };
+    game.combat!.enemyIds.push(otherEnemyId);
+    game.combat!.enemies[otherEnemyId] = createCombatActorState(0, ['kick']);
+    game.combat!.enemyStateById[otherEnemyId] = {};
+    game.combat!.enemyStateById[goblinId] = {
+      treasureGoblin: {
+        damageHitsTaken: TREASURE_GOBLIN_BALANCE.fleeHitsMax - 1,
+        fleeHitsRequired: TREASURE_GOBLIN_BALANCE.fleeHitsMax,
+      },
+    };
+    blockEscapeTilesExcept(game, escapeCoord);
+
+    applyPlayerAbility(game, 'kick', goblinId);
+
+    expect(game.combat).toBeNull();
+    expect(game.enemies[goblinId]?.coord).toEqual(escapeCoord);
+    expect(game.tiles['2,0']?.enemyIds).toEqual([otherEnemyId]);
+    expect(game.enemies[otherEnemyId]?.hp).toBe(30);
+    expect(game.logs.some((entry) => /battle is over/i.test(entry.text))).toBe(
+      true,
+    );
+  });
+
   it('zero-damage hits do not advance flee progress', () => {
     const game = createTreasureGoblinCombatGame('treasure-goblin-zero-damage');
     const enemyId = game.combat!.enemyIds[0]!;
@@ -105,6 +150,27 @@ describe('treasure goblin combat behavior', () => {
     expect(game.combat).toBeNull();
     expect(game.enemies[enemyId]?.hp).toBeGreaterThan(0);
     expect(game.enemies[enemyId]?.coord).toEqual(escapeCoord);
+  });
+
+  it('stops later player ability effects after the goblin escape ends combat', () => {
+    const game = createTreasureGoblinCombatGame('treasure-goblin-stop-effects');
+    const enemyId = game.combat!.enemyIds[0]!;
+    const escapeCoord = { q: 4, r: 0 };
+
+    blockEscapeTilesExcept(game, escapeCoord);
+    game.combat!.enemyStateById[enemyId] = {
+      treasureGoblin: {
+        damageHitsTaken: TREASURE_GOBLIN_BALANCE.fleeHitsMin - 1,
+        fleeHitsRequired: TREASURE_GOBLIN_BALANCE.fleeHitsMin,
+      },
+    };
+
+    applyPlayerAbility(game, 'crushingBlow', enemyId);
+
+    expect(game.combat).toBeNull();
+    expect(game.enemies[enemyId]?.coord).toEqual(escapeCoord);
+    expect(game.enemies[enemyId]?.statusEffects).toEqual([]);
+    expect(game.logs.some((entry) => /weakened/i.test(entry.text))).toBe(false);
   });
 });
 

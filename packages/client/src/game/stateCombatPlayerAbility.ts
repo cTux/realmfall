@@ -46,6 +46,10 @@ export function applyPlayerAbility(
   let totalDamage = 0;
 
   for (const effect of ability.effects) {
+    if (!state.combat) {
+      return;
+    }
+
     if (effect.kind === 'damage') {
       for (const enemy of enemyTargets) {
         if (enemy.hp <= 0) continue;
@@ -56,6 +60,9 @@ export function applyPlayerAbility(
           effect,
           playerStats,
         );
+        if (!state.combat) {
+          return;
+        }
       }
       continue;
     }
