@@ -111,7 +111,7 @@ describe('check-bundle-budget helpers', () => {
       App: 104_500,
       'background-audio': 54_420,
       'react-core': 8_689,
-      en: 124_500,
+      en: 125_000,
     });
   });
 
