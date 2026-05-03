@@ -2,9 +2,15 @@ import {
   isStoredSettingsRecord,
   normalizeStoredFiniteNumber,
 } from './settingsNormalization';
+import {
+  DEFAULT_INTERFACE_FONT_FAMILY,
+  isInterfaceFontFamily,
+  type InterfaceFontFamily,
+} from './interfaceFonts';
 import { createSettingsSectionStore } from './settingsSectionStore';
 
 export interface InterfaceSettings {
+  fontFamily: InterfaceFontFamily;
   windowTransparency: number;
 }
 
@@ -15,6 +21,7 @@ export interface InterfaceSettingsRangeOptionDefinition {
 }
 
 export const DEFAULT_INTERFACE_SETTINGS: InterfaceSettings = {
+  fontFamily: DEFAULT_INTERFACE_FONT_FAMILY,
   windowTransparency: 0,
 };
 
@@ -61,6 +68,9 @@ function normalizeInterfaceSettings(settings: unknown): InterfaceSettings {
   }
 
   return {
+    fontFamily: isInterfaceFontFamily(settings.fontFamily)
+      ? settings.fontFamily
+      : DEFAULT_INTERFACE_SETTINGS.fontFamily,
     windowTransparency: normalizeWindowTransparency(
       settings.windowTransparency,
     ),
