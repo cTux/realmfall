@@ -1,11 +1,12 @@
 import {
-  startTransition,
+  type CSSProperties,
   useEffect,
   useMemo,
   useRef,
   useState,
   type MouseEvent as ReactMouseEvent,
 } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { Button, ItemSlot as ItemSlotButton } from '@realmfall/ui';
 import {
   buildItemFromConfig,
@@ -29,6 +30,10 @@ import roundStarIcon from '../../../assets/icons/round-star.svg';
 import type { RecipeBookWindowProps } from './types';
 import { compareRecipeBookEntries } from './utils/recipeBookEntries';
 import { useRecipeBookRows } from './useRecipeBookRows';
+import {
+  measureElementWithFallback,
+  observeElementRectWithFallback,
+} from '../../virtualizer';
 import styles from './styles.module.scss';
 
 const RECIPE_BOOK_TAB_ORDER = [
@@ -37,7 +42,8 @@ const RECIPE_BOOK_TAB_ORDER = [
   Skill.Smelting,
   Skill.Crafting,
 ];
-const RECIPE_BOOK_BATCH_SIZE = 40;
+const RECIPE_BOOK_VIRTUAL_ROW_ESTIMATE = 110;
+const RECIPE_BOOK_VIRTUAL_INITIAL_RECT = { height: 280, width: 0 };
 const CRAFTING_SLOT_FILTERS = EQUIPMENT_SLOTS;
 const CRAFTING_SLOT_FILTER_ICON_CHOICES: Partial<
   Record<EquipmentSlot, readonly string[]>
@@ -139,9 +145,7 @@ export function RecipeBookWindowContent({
     getDefaultRecipeSkill(visibleTabs, preferredSkill),
   );
   const previousPreferredSkill = useRef<Skill | null>(preferredSkill);
-  const [visibleRecipeCount, setVisibleRecipeCount] = useState(
-    RECIPE_BOOK_BATCH_SIZE,
-  );
+  const recipeListRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (visibleTabs.includes(activeSkill)) return;
@@ -157,10 +161,6 @@ export function RecipeBookWindowContent({
 
     setActiveSkill(preferredSkill);
   }, [activeSkill, preferredSkill, visibleTabs]);
-
-  useEffect(() => {
-    setVisibleRecipeCount(RECIPE_BOOK_BATCH_SIZE);
-  }, [activeSkill, materialFilterItemKey, enabledCraftingSlots]);
 
   const visibleRecipes = useMemo(
     () =>
@@ -190,12 +190,30 @@ export function RecipeBookWindowContent({
       enabledCraftingSlots,
     ],
   );
+  const recipeVirtualizer = useVirtualizer({
+    count: visibleRecipes.length,
+    getScrollElement: () => recipeListRef.current,
+    estimateSize: () => RECIPE_BOOK_VIRTUAL_ROW_ESTIMATE,
+    overscan: 4,
+    getItemKey: (index) => visibleRecipes[index]!.id,
+    observeElementRect: observeElementRectWithFallback(
+      RECIPE_BOOK_VIRTUAL_INITIAL_RECT,
+    ),
+    initialRect: RECIPE_BOOK_VIRTUAL_INITIAL_RECT,
+    measureElement: measureElementWithFallback(
+      RECIPE_BOOK_VIRTUAL_ROW_ESTIMATE,
+    ),
+    useFlushSync: false,
+  });
+  const virtualRecipeItems = recipeVirtualizer.getVirtualItems();
   const recipeRows = useRecipeBookRows({
     currentStructure,
     inventoryCountsByItemKey,
     recipeSkillLevels,
-    recipes: visibleRecipes,
-    visibleRecipeCount,
+    recipes: virtualRecipeItems.map((virtualItem) => {
+      return visibleRecipes[virtualItem.index]!;
+    }),
+    visibleRecipeCount: virtualRecipeItems.length,
   });
   const toggleCraftingSlotFilter = (slot: EquipmentSlot) => {
     setEnabledCraftingSlots((current) => {
@@ -208,10 +226,6 @@ export function RecipeBookWindowContent({
       return next;
     });
   };
-  const hiddenRecipeCount = Math.max(
-    0,
-    visibleRecipes.length - recipeRows.length,
-  );
   const filterItemName = materialFilterItemKey
     ? (getItemConfigByKey(materialFilterItemKey)?.name ?? materialFilterItemKey)
     : null;
@@ -324,10 +338,19 @@ export function RecipeBookWindowContent({
               : t('ui.recipeBook.empty')}
           </div>
         ) : (
-          <>
-            <div className={styles.list}>
-              {recipeRows.map(
-                ({
+          <div
+            ref={recipeListRef}
+            className={styles.list}
+            data-virtualized-list="recipe-book"
+          >
+            <div
+              className={styles.virtualListBody}
+              style={{
+                height: `${recipeVirtualizer.getTotalSize()}px`,
+              }}
+            >
+              {virtualRecipeItems.map((virtualItem, index) => {
+                const {
                   actionLabel,
                   canCraft,
                   craftCount,
@@ -336,126 +359,45 @@ export function RecipeBookWindowContent({
                   requiredStructureLabel,
                   tintOverride,
                   tooltipLines,
-                }) => (
+                } = recipeRows[index]!;
+
+                return (
                   <div
-                    key={recipe.id}
-                    className={[
-                      styles.entry,
-                      recipe.learned ? '' : styles.entryDisabled,
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
+                    key={virtualItem.key}
+                    data-index={virtualItem.index}
+                    ref={recipeVirtualizer.measureElement}
+                    className={styles.virtualRow}
+                    style={virtualRowStyle(virtualItem.start)}
                   >
-                    {recipe.learned ? (
-                      <ItemSlotButton
-                        item={recipeOutput}
-                        size="compact"
-                        disabled={!recipe.learned}
-                        tintOverride={tintOverride}
-                        onClick={
-                          canCraft ? () => onCraft(recipe.id) : undefined
-                        }
-                        onMouseEnter={(event) =>
-                          onHoverDetail?.(
-                            event,
-                            recipe.name,
-                            tooltipLines ?? [],
-                            tintOverride,
-                          )
-                        }
-                        onMouseLeave={onHoverDetail ? onLeaveDetail : undefined}
-                      />
-                    ) : (
-                      <span
-                        onMouseEnter={(event) =>
-                          onHoverDetail?.(
-                            event,
-                            recipe.name,
-                            tooltipLines ?? [],
-                            tintOverride,
-                          )
-                        }
-                        onMouseLeave={onHoverDetail ? onLeaveDetail : undefined}
-                      >
+                    <div
+                      className={[
+                        styles.entry,
+                        recipe.learned ? '' : styles.entryDisabled,
+                      ]
+                        .filter(Boolean)
+                        .join(' ')}
+                    >
+                      {recipe.learned ? (
                         <ItemSlotButton
                           item={recipeOutput}
                           size="compact"
                           disabled={!recipe.learned}
                           tintOverride={tintOverride}
-                          borderColorOverride={tintOverride}
+                          onClick={
+                            canCraft ? () => onCraft(recipe.id) : undefined
+                          }
+                          onMouseEnter={(event) =>
+                            onHoverDetail?.(
+                              event,
+                              recipe.name,
+                              tooltipLines ?? [],
+                              tintOverride,
+                            )
+                          }
+                          onMouseLeave={
+                            onHoverDetail ? onLeaveDetail : undefined
+                          }
                         />
-                      </span>
-                    )}
-                    <div className={styles.meta}>
-                      <div className={styles.titleRow}>
-                        <span className={styles.title}>{recipe.name}</span>
-                      </div>
-                      <div className={styles.description}>
-                        {recipe.description}
-                      </div>
-                      <div className={styles.site}>
-                        {t('ui.recipeBook.siteLabel', {
-                          site: requiredStructureLabel,
-                        })}
-                      </div>
-                    </div>
-                    <div className={styles.actions}>
-                      {recipe.learned ? (
-                        canCraft ? (
-                          <span className={styles.actionButtonRow}>
-                            <span
-                              className={styles.craftCount}
-                            >{`x${craftCount}`}</span>
-                            <Button
-                              type="button"
-                              onClick={(event) =>
-                                onCraft(recipe.id, getRecipeCraftCount(event))
-                              }
-                              onMouseEnter={(event) =>
-                                onHoverDetail?.(
-                                  event,
-                                  t('ui.recipeBook.tooltip.batchCraftTitle'),
-                                  [
-                                    {
-                                      kind: 'text',
-                                      text: t(
-                                        'ui.recipeBook.tooltip.batchCraftShift',
-                                      ),
-                                    },
-                                    {
-                                      kind: 'text',
-                                      text: t(
-                                        'ui.recipeBook.tooltip.batchCraftCtrl',
-                                      ),
-                                    },
-                                  ],
-                                )
-                              }
-                              onMouseLeave={
-                                onHoverDetail ? onLeaveDetail : undefined
-                              }
-                            >
-                              {actionLabel}
-                            </Button>
-                          </span>
-                        ) : (
-                          <span
-                            onMouseEnter={(event) =>
-                              onHoverDetail?.(
-                                event,
-                                recipe.name,
-                                tooltipLines ?? [],
-                              )
-                            }
-                            onMouseLeave={
-                              onHoverDetail ? onLeaveDetail : undefined
-                            }
-                          >
-                            <Button type="button" disabled={!canCraft}>
-                              {actionLabel}
-                            </Button>
-                          </span>
-                        )
                       ) : (
                         <span
                           onMouseEnter={(event) =>
@@ -470,79 +412,156 @@ export function RecipeBookWindowContent({
                             onHoverDetail ? onLeaveDetail : undefined
                           }
                         >
-                          <Button type="button" disabled={!recipe.learned}>
-                            {actionLabel}
-                          </Button>
+                          <ItemSlotButton
+                            item={recipeOutput}
+                            size="compact"
+                            disabled={!recipe.learned}
+                            tintOverride={tintOverride}
+                            borderColorOverride={tintOverride}
+                          />
                         </span>
                       )}
-                      <Button
-                        unstyled
-                        type="button"
-                        className={styles.favoriteButton}
-                        onClick={() => onToggleFavoriteRecipe(recipe.id)}
-                        onMouseEnter={(event) =>
-                          onHoverDetail?.(
-                            event,
-                            recipe.favorite
-                              ? t(
-                                  'ui.recipeBook.favoriteAction.unfavoriteLabel',
+                      <div className={styles.meta}>
+                        <div className={styles.titleRow}>
+                          <span className={styles.title}>{recipe.name}</span>
+                        </div>
+                        <div className={styles.description}>
+                          {recipe.description}
+                        </div>
+                        <div className={styles.site}>
+                          {t('ui.recipeBook.siteLabel', {
+                            site: requiredStructureLabel,
+                          })}
+                        </div>
+                      </div>
+                      <div className={styles.actions}>
+                        {recipe.learned ? (
+                          canCraft ? (
+                            <span className={styles.actionButtonRow}>
+                              <span
+                                className={styles.craftCount}
+                              >{`x${craftCount}`}</span>
+                              <Button
+                                type="button"
+                                onClick={(event) =>
+                                  onCraft(recipe.id, getRecipeCraftCount(event))
+                                }
+                                onMouseEnter={(event) =>
+                                  onHoverDetail?.(
+                                    event,
+                                    t('ui.recipeBook.tooltip.batchCraftTitle'),
+                                    [
+                                      {
+                                        kind: 'text',
+                                        text: t(
+                                          'ui.recipeBook.tooltip.batchCraftShift',
+                                        ),
+                                      },
+                                      {
+                                        kind: 'text',
+                                        text: t(
+                                          'ui.recipeBook.tooltip.batchCraftCtrl',
+                                        ),
+                                      },
+                                    ],
+                                  )
+                                }
+                                onMouseLeave={
+                                  onHoverDetail ? onLeaveDetail : undefined
+                                }
+                              >
+                                {actionLabel}
+                              </Button>
+                            </span>
+                          ) : (
+                            <span
+                              onMouseEnter={(event) =>
+                                onHoverDetail?.(
+                                  event,
+                                  recipe.name,
+                                  tooltipLines ?? [],
                                 )
-                              : t('ui.recipeBook.favoriteAction.favoriteLabel'),
-                            [
-                              {
-                                kind: 'text',
-                                text: recipe.favorite
-                                  ? t(
-                                      'ui.recipeBook.favoriteAction.unfavoriteHint',
-                                    )
-                                  : t(
-                                      'ui.recipeBook.favoriteAction.favoriteHint',
-                                    ),
-                              },
-                            ],
+                              }
+                              onMouseLeave={
+                                onHoverDetail ? onLeaveDetail : undefined
+                              }
+                            >
+                              <Button type="button" disabled={!canCraft}>
+                                {actionLabel}
+                              </Button>
+                            </span>
                           )
-                        }
-                        onMouseLeave={onHoverDetail ? onLeaveDetail : undefined}
-                        aria-label={`${recipe.favorite ? t('ui.recipeBook.favoriteAction.unfavoriteLabel') : t('ui.recipeBook.favoriteAction.favoriteLabel')}: ${recipe.name}`}
-                        aria-pressed={recipe.favorite}
-                        disabled={!recipe.learned}
-                      >
-                        <span
-                          aria-hidden="true"
-                          className={styles.favoriteIcon}
-                          style={starIconMask(
-                            roundStarIcon,
-                            recipe.favorite ? '#f59e0b' : '#94a3b8',
-                          )}
-                        />
-                      </Button>
+                        ) : (
+                          <span
+                            onMouseEnter={(event) =>
+                              onHoverDetail?.(
+                                event,
+                                recipe.name,
+                                tooltipLines ?? [],
+                                tintOverride,
+                              )
+                            }
+                            onMouseLeave={
+                              onHoverDetail ? onLeaveDetail : undefined
+                            }
+                          >
+                            <Button type="button" disabled={!recipe.learned}>
+                              {actionLabel}
+                            </Button>
+                          </span>
+                        )}
+                        <Button
+                          unstyled
+                          type="button"
+                          className={styles.favoriteButton}
+                          onClick={() => onToggleFavoriteRecipe(recipe.id)}
+                          onMouseEnter={(event) =>
+                            onHoverDetail?.(
+                              event,
+                              recipe.favorite
+                                ? t(
+                                    'ui.recipeBook.favoriteAction.unfavoriteLabel',
+                                  )
+                                : t(
+                                    'ui.recipeBook.favoriteAction.favoriteLabel',
+                                  ),
+                              [
+                                {
+                                  kind: 'text',
+                                  text: recipe.favorite
+                                    ? t(
+                                        'ui.recipeBook.favoriteAction.unfavoriteHint',
+                                      )
+                                    : t(
+                                        'ui.recipeBook.favoriteAction.favoriteHint',
+                                      ),
+                                },
+                              ],
+                            )
+                          }
+                          onMouseLeave={
+                            onHoverDetail ? onLeaveDetail : undefined
+                          }
+                          aria-label={`${recipe.favorite ? t('ui.recipeBook.favoriteAction.unfavoriteLabel') : t('ui.recipeBook.favoriteAction.favoriteLabel')}: ${recipe.name}`}
+                          aria-pressed={recipe.favorite}
+                          disabled={!recipe.learned}
+                        >
+                          <span
+                            aria-hidden="true"
+                            className={styles.favoriteIcon}
+                            style={starIconMask(
+                              roundStarIcon,
+                              recipe.favorite ? '#f59e0b' : '#94a3b8',
+                            )}
+                          />
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                ),
-              )}
+                );
+              })}
             </div>
-            {hiddenRecipeCount > 0 ? (
-              <Button
-                unstyled
-                type="button"
-                className={styles.loadMoreButton}
-                onClick={() =>
-                  startTransition(() => {
-                    setVisibleRecipeCount((current) =>
-                      Math.min(
-                        current + RECIPE_BOOK_BATCH_SIZE,
-                        visibleRecipes.length,
-                      ),
-                    );
-                  })
-                }
-              >
-                {t('ui.recipeBook.showMoreAction', {
-                  count: Math.min(RECIPE_BOOK_BATCH_SIZE, hiddenRecipeCount),
-                })}
-              </Button>
-            ) : null}
-          </>
+          </div>
         )}
       </div>
     </div>
@@ -561,5 +580,15 @@ function starIconMask(icon: string, color: string) {
     backgroundColor: color,
     WebkitMask: mask,
     mask,
+  };
+}
+
+function virtualRowStyle(start: number): CSSProperties {
+  return {
+    left: 0,
+    position: 'absolute',
+    top: 0,
+    transform: `translateY(${start}px)`,
+    width: '100%',
   };
 }

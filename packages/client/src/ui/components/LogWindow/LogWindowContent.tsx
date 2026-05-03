@@ -1,5 +1,6 @@
 import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react';
 import { memo, useEffect, useMemo, useRef } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { getAbilityDefinition } from '../../../game/abilities';
 import { getStatusEffectDefinition } from '../../../game/content/statusEffects';
 import type { LogEntry, LogRichSegment } from '../../../game/types';
@@ -13,12 +14,19 @@ import {
   statusEffectTooltipLines,
 } from '../../tooltips';
 import { CalendarTimestamp } from '../CalendarTimestamp';
+import {
+  measureElementWithFallback,
+  observeElementRectWithFallback,
+  scrollElementToOffset,
+} from '../../virtualizer';
 import type { LogWindowProps } from './types';
 import styles from './styles.module.scss';
 
 const LOG_PREFIX_PATTERN = /^\[(Year \d+, Day \d+, [0-9]{2}:[0-9]{2})\]\s/;
 const BLOOD_MOON_PATTERN = /blood moon/i;
 const HARVEST_MOON_PATTERN = /harvest moon/i;
+const LOG_VIRTUAL_ROW_ESTIMATE = 28;
+const LOG_VIRTUAL_INITIAL_RECT = { height: 240, width: 0 };
 
 type LogWindowContentProps = Pick<
   LogWindowProps,
@@ -88,28 +96,72 @@ export function LogWindowContent({
     [logs],
   );
   const logListRef = useRef<HTMLDivElement | null>(null);
+  const logVirtualizer = useVirtualizer({
+    count: parsedEntries.length,
+    getScrollElement: () => logListRef.current,
+    estimateSize: () => LOG_VIRTUAL_ROW_ESTIMATE,
+    overscan: 12,
+    getItemKey: (index) => parsedEntries[index]!.entry.id,
+    observeElementRect: observeElementRectWithFallback(
+      LOG_VIRTUAL_INITIAL_RECT,
+    ),
+    initialRect: LOG_VIRTUAL_INITIAL_RECT,
+    measureElement: measureElementWithFallback(LOG_VIRTUAL_ROW_ESTIMATE),
+    scrollToFn: scrollElementToOffset,
+    useFlushSync: false,
+  });
+  const virtualLogItems = logVirtualizer.getVirtualItems();
   const newestEntry = parsedEntries[parsedEntries.length - 1] ?? null;
   const newestLogId = newestEntry?.entry.id;
 
   useEffect(() => {
     const list = logListRef.current;
     if (!list) return;
-    list.scrollTop = list.scrollHeight;
-  }, [newestLogId]);
+    if (list.scrollHeight > 0) {
+      list.scrollTop = Math.max(
+        list.scrollHeight,
+        logVirtualizer.getTotalSize(),
+      );
+      list.dispatchEvent(new Event('scroll'));
+      return;
+    }
+    if (parsedEntries.length > 0) {
+      logVirtualizer.scrollToIndex(parsedEntries.length - 1, {
+        align: 'end',
+      });
+    }
+  }, [logVirtualizer, newestLogId, parsedEntries.length]);
 
   return (
-    <div ref={logListRef} className={styles.logList}>
-      {parsedEntries.map((parsedEntry) => {
-        return (
-          <div key={parsedEntry.entry.id} className={parsedEntry.className}>
-            <StaticLogLine
-              parsedEntry={parsedEntry}
-              onHoverDetail={onHoverDetail}
-              onLeaveDetail={onLeaveDetail}
-            />
-          </div>
-        );
-      })}
+    <div
+      ref={logListRef}
+      className={styles.logList}
+      data-virtualized-list="log-window"
+    >
+      <div
+        className={styles.virtualListBody}
+        style={{ height: `${logVirtualizer.getTotalSize()}px` }}
+      >
+        {virtualLogItems.map((virtualItem) => {
+          const parsedEntry = parsedEntries[virtualItem.index]!;
+
+          return (
+            <div
+              key={virtualItem.key}
+              data-index={virtualItem.index}
+              ref={logVirtualizer.measureElement}
+              className={[styles.virtualRow, parsedEntry.className].join(' ')}
+              style={virtualRowStyle(virtualItem.start)}
+            >
+              <StaticLogLine
+                parsedEntry={parsedEntry}
+                onHoverDetail={onHoverDetail}
+                onLeaveDetail={onLeaveDetail}
+              />
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -396,5 +448,15 @@ function maskStyle(icon: string, tint: string): CSSProperties {
     backgroundColor: tint,
     WebkitMask: mask,
     mask,
+  };
+}
+
+function virtualRowStyle(start: number): CSSProperties {
+  return {
+    left: 0,
+    position: 'absolute',
+    top: 0,
+    transform: `translateY(${start}px)`,
+    width: '100%',
   };
 }

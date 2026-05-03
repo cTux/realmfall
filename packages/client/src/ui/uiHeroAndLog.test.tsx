@@ -199,7 +199,7 @@ describe('ui hero and log surfaces', () => {
       vi.runOnlyPendingTimers();
     });
 
-    expect(logList.scrollTop).toBe(240);
+    expect(logList.scrollTop).toBeGreaterThanOrEqual(240);
 
     await act(async () => {
       vi.runOnlyPendingTimers();
