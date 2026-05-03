@@ -87,15 +87,26 @@
   @include ui.compact-control-chip;
 }
 
-.slotFilterButton {
-  padding: 0;
+.filterIconButton {
+  @include ui.window-header-icon-button;
 
-  &[data-size='compact'] {
-    --slot-size: 22px;
-    --slot-icon-size: 0.95rem;
-
-    padding: 0.06rem;
+  &[aria-pressed='true'] {
+    background: ui.$control-surface-rest-fill;
+    border-color: ui.$control-surface-rest-border;
+    box-shadow: none;
+    color: ui.$control-surface-rest-color;
   }
+}
+
+.filterIcon {
+  @include ui.masked-icon(
+    0.95rem,
+    $background: currentcolor,
+    $shadow: 0 2px 4px rgb(0 0 0 / 45%)
+  );
+
+  display: block;
+  pointer-events: none;
 }
 
 .grid {

@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react';
 import { Button, ItemSlot as ItemSlotButton } from '@realmfall/ui';
 import { canSellItem } from '../../../game/inventory';
 import { t } from '../../../i18n';
-import { Icons } from '../../icons';
+import { iconForItem, Icons } from '../../icons';
+import { iconMaskStyle } from '../../iconMaskStyle';
 import type { InventoryWindowProps } from './types';
 import {
   ALL_INVENTORY_ITEM_FILTER_IDS,
@@ -91,26 +92,25 @@ export function InventoryWindowContent({
           const isFilterEnabled = enabledFilters.has(filter.id);
           const label = t(filter.labelKey);
           return (
-            <ItemSlotButton
+            <Button
               key={filter.id}
-              item={filter.previewItem}
-              size="compact"
-              ariaLabel={label}
+              unstyled
+              type="button"
+              size="small"
+              data-filter-button="true"
+              aria-label={label}
               aria-pressed={isFilterEnabled}
-              badgeLabel=""
-              className={styles.slotFilterButton}
-              tintOverride="#ffffff"
+              className={styles.filterIconButton}
               onClick={() => toggleFilter(filter.id)}
-              borderColorOverride={
-                isFilterEnabled
-                  ? 'rgba(96, 165, 250, 0.58)'
-                  : 'rgba(148, 163, 184, 0.14)'
-              }
-              overlayColorOverride={
-                isFilterEnabled ? undefined : 'rgba(2, 6, 23, 0.45)'
-              }
               style={{ opacity: isFilterEnabled ? 1 : 0.5 }}
-            />
+            >
+              <span
+                className={styles.filterIcon}
+                style={iconMaskStyle(iconForItem(filter.previewItem))}
+                data-filter-icon="true"
+                aria-hidden="true"
+              />
+            </Button>
           );
         })}
       </div>

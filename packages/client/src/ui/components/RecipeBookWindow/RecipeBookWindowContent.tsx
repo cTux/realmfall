@@ -23,6 +23,8 @@ import {
   formatEquipmentSlotLabel,
   formatSkillLabel,
 } from '../../../i18n/labels';
+import { iconForItem } from '../../icons';
+import { iconMaskStyle } from '../../iconMaskStyle';
 import roundStarIcon from '../../../assets/icons/round-star.svg';
 import type { RecipeBookWindowProps } from './types';
 import { compareRecipeBookEntries } from './utils/recipeBookEntries';
@@ -260,15 +262,17 @@ export function RecipeBookWindowContent({
             </div>
             {CRAFTING_SLOT_FILTERS.map((slot) => {
               const isSlotEnabled = enabledCraftingSlots.has(slot);
+              const previewItem = CRAFTING_SLOT_FILTER_PREVIEW_ITEMS.get(slot);
               return (
-                <ItemSlotButton
+                <Button
                   key={slot}
-                  item={CRAFTING_SLOT_FILTER_PREVIEW_ITEMS.get(slot)}
-                  slot={slot}
-                  size="compact"
-                  ariaLabel={formatEquipmentSlotLabel(slot)}
-                  className={styles.slotFilterButton}
-                  tintOverride="#ffffff"
+                  unstyled
+                  type="button"
+                  size="small"
+                  data-filter-button="true"
+                  aria-label={formatEquipmentSlotLabel(slot)}
+                  aria-pressed={isSlotEnabled}
+                  className={styles.filterIconButton}
                   onClick={() => toggleCraftingSlotFilter(slot)}
                   onMouseEnter={(event) =>
                     onHoverDetail?.(
@@ -286,16 +290,15 @@ export function RecipeBookWindowContent({
                     )
                   }
                   onMouseLeave={onHoverDetail ? onLeaveDetail : undefined}
-                  borderColorOverride={
-                    isSlotEnabled
-                      ? 'rgba(96, 165, 250, 0.58)'
-                      : 'rgba(148, 163, 184, 0.14)'
-                  }
-                  overlayColorOverride={
-                    isSlotEnabled ? undefined : 'rgba(2, 6, 23, 0.45)'
-                  }
                   style={{ opacity: isSlotEnabled ? 1 : 0.5 }}
-                />
+                >
+                  <span
+                    className={styles.filterIcon}
+                    style={iconMaskStyle(iconForItem(previewItem, slot))}
+                    data-filter-icon="true"
+                    aria-hidden="true"
+                  />
+                </Button>
               );
             })}
           </div>

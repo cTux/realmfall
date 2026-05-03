@@ -82,15 +82,7 @@
 }
 
 .headerButton {
-  @include ui.window-header-button;
-
-  display: inline-grid;
-  place-items: center;
-  font-size: 0;
-
-  &[data-size='small'] {
-    min-width: 1.6rem;
-  }
+  @include ui.window-header-icon-button;
 }
 
 .closeIcon {

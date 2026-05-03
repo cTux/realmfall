@@ -28,4 +28,32 @@ describe('inventory and recipe book window layout styles', () => {
     expect(source).toMatch(/\.content\s*\{[\s\S]*?\bflex:\s*1\s+1\s+auto;/u);
     expect(source).toMatch(/\.content\s*\{[\s\S]*?\boverflow:\s*hidden;/u);
   });
+
+  it('keeps inventory filter icons on the shared close-button surface', () => {
+    const source = readFileSync(
+      resolve(
+        process.cwd(),
+        'src/ui/components/InventoryWindow/styles.module.scss',
+      ),
+      'utf8',
+    );
+
+    expect(source).toMatch(
+      /\.filterIconButton\s*\{[\s\S]*?@include ui\.window-header-icon-button;/u,
+    );
+  });
+
+  it('keeps recipe-book filter icons on the shared close-button surface', () => {
+    const source = readFileSync(
+      resolve(
+        process.cwd(),
+        'src/ui/components/RecipeBookWindow/styles.module.scss',
+      ),
+      'utf8',
+    );
+
+    expect(source).toMatch(
+      /\.filterIconButton\s*\{[\s\S]*?@include ui\.window-header-icon-button;/u,
+    );
+  });
 });
