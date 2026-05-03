@@ -6,7 +6,6 @@ import {
 } from '@realmfall/ui';
 import { hexAtPoint, hexDistance, type HexCoord } from '../../../game/hex';
 import { isPassable } from '../../../game/shared';
-import { getSafePathToTile } from '../../../game/statePathfinding';
 import {
   getEnemiesAt,
   getResolvedTileAt,
@@ -28,6 +27,8 @@ import {
   getWorldMovementTransitionSceneCenter,
   type WorldMovementTransition,
 } from './movement/worldMovementTransition';
+import { createWorkerWorldHoverAnalysisSource } from './hoverAnalysis/createWorkerWorldHoverAnalysisSource';
+import { buildWorldHoverAnalysisState } from './hoverAnalysis/worldHoverAnalysisTypes';
 
 type EnemyWorldTooltip =
   typeof import('../../../ui/world/worldTooltips').enemyWorldTooltip;
@@ -86,6 +87,40 @@ export function createWorldHoverInteractions({
   tooltipPositionRef: MutableRefObject<TooltipPosition | null>;
   worldTooltipKeyRef: MutableRefObject<string | null>;
 }): WorldHoverAnalysisController {
+  const hoverAnalysisSource = createWorkerWorldHoverAnalysisSource();
+  let disposed = false;
+  let hoverAnalysisRequestToken = 0;
+  let pendingHoverAnalysis: {
+    analysisVersion: number;
+    cacheKey: string;
+    token: number;
+  } | null = null;
+
+  const syncHoverAnalysisState = () => {
+    void hoverAnalysisSource
+      .syncState(buildWorldHoverAnalysisState(gameRef.current))
+      .catch((error: unknown) => {
+        console.error(error);
+      });
+  };
+
+  const invalidatePendingHoverAnalysis = () => {
+    hoverAnalysisRequestToken += 1;
+    pendingHoverAnalysis = null;
+  };
+
+  const getCurrentTooltipPosition = () => {
+    const hoverPointer = hoverPointerRef.current;
+    if (!hoverPointer) {
+      return null;
+    }
+
+    return {
+      x: hoverPointer.clientX + 16,
+      y: hoverPointer.clientY + 16,
+    };
+  };
+
   const commitHoverSnapshot = ({
     hoverCacheKey,
     nextHoverSnapshot,
@@ -114,7 +149,79 @@ export function createWorldHoverInteractions({
     });
   };
 
+  const commitAnalyzedHoverTarget = ({
+    actionable,
+    hoverCacheKey,
+    nextTooltipPosition,
+    safePath,
+    target,
+  }: {
+    actionable: boolean;
+    hoverCacheKey: string;
+    nextTooltipPosition: TooltipPosition;
+    safePath: HexCoord[] | null;
+    target: HexCoord;
+  }) => {
+    const current = gameRef.current;
+    const tile = actionable ? getResolvedTileAt(current, target) : null;
+    const actionableTarget = actionable && tile !== null;
+    let nextHoveredPath: HexCoord[] | null = null;
+    let nextTooltip: TooltipState | null = null;
+    let nextTooltipKey: string | null = null;
+
+    if (actionableTarget && tile) {
+      nextHoveredPath = safePath && safePath.length > 1 ? safePath : null;
+
+      const enemies = getEnemiesAt(current, target);
+      const enemyInfo = enemyWorldTooltip(enemies, tile.structure);
+
+      if (enemyInfo) {
+        nextTooltipKey = `enemy:${target.q},${target.r}:${tile.structure ?? 'none'}`;
+        nextTooltip = {
+          title: enemyInfo.title,
+          lines: enemyInfo.lines,
+          contentKey: nextTooltipKey,
+          x: nextTooltipPosition.x,
+          y: nextTooltipPosition.y,
+          borderColor: tile.structure === 'dungeon' ? '#a855f7' : '#ef4444',
+          followCursor: true,
+        };
+      } else {
+        const structureInfo = structureWorldTooltip(tile);
+        if (structureInfo) {
+          nextTooltipKey = `structure:${target.q},${target.r}:${tile.structure ?? 'none'}`;
+          nextTooltip = {
+            title: structureInfo.title,
+            lines: structureInfo.lines,
+            contentKey: nextTooltipKey,
+            x: nextTooltipPosition.x,
+            y: nextTooltipPosition.y,
+            borderColor: '#38bdf8',
+            followCursor: true,
+          };
+        }
+      }
+    }
+
+    commitHoverSnapshot({
+      hoverCacheKey,
+      nextHoverSnapshot: {
+        analysisVersion: hoverAnalysisVersionRef.current,
+        target,
+        clickable: actionableTarget,
+        hoveredMove: actionableTarget ? target : null,
+        hoveredSafePath: nextHoveredPath,
+        tooltip: nextTooltip,
+        tooltipKey: nextTooltipKey,
+      },
+      nextTooltipPosition,
+    });
+  };
+
+  syncHoverAnalysisState();
+
   const clearHoverState = () => {
+    invalidatePendingHoverAnalysis();
     hoverPointerRef.current = null;
     if (hoverFrameRef.current !== null) {
       window.cancelAnimationFrame(hoverFrameRef.current);
@@ -138,12 +245,16 @@ export function createWorldHoverInteractions({
   };
 
   const resetHoverAnalysis = () => {
+    syncHoverAnalysisState();
+    invalidatePendingHoverAnalysis();
     hoverAnalysisVersionRef.current += 1;
     hoverAnalysisCacheRef.current.clear();
     clearHoverState();
   };
 
   const refreshHoverAnalysis = () => {
+    syncHoverAnalysisState();
+
     if (
       hoverAnalysisCacheRef.current.size === 0 &&
       hoverSnapshotRef.current.target === null &&
@@ -152,6 +263,7 @@ export function createWorldHoverInteractions({
       return;
     }
 
+    invalidatePendingHoverAnalysis();
     hoverAnalysisVersionRef.current += 1;
     hoverAnalysisCacheRef.current.clear();
 
@@ -236,89 +348,92 @@ export function createWorldHoverInteractions({
       return;
     }
 
-    let tile: ReturnType<typeof getResolvedTileAt> | null = null;
-    let safePath: HexCoord[] | null = null;
-    let actionable = false;
-
-    if (distance === 1) {
-      tile = getResolvedTileAt(current, target);
-      actionable = Boolean(tile && isPassable(tile.terrain));
-    } else if (distance > 1 && withinVisibleMap) {
-      safePath = getSafePathToTile(current, target);
-      actionable = Boolean(safePath);
-      if (actionable) {
-        tile = getResolvedTileAt(current, target);
-      }
+    if (distance === 0 || !withinVisibleMap) {
+      invalidatePendingHoverAnalysis();
+      commitAnalyzedHoverTarget({
+        actionable: false,
+        hoverCacheKey,
+        nextTooltipPosition,
+        safePath: null,
+        target,
+      });
+      return;
     }
 
-    let nextHoveredPath: HexCoord[] | null = null;
-    let nextTooltip: TooltipState | null = null;
-    let nextTooltipKey: string | null = null;
+    const tile = getResolvedTileAt(current, target);
+    if (!tile) {
+      invalidatePendingHoverAnalysis();
+      commitAnalyzedHoverTarget({
+        actionable: false,
+        hoverCacheKey,
+        nextTooltipPosition,
+        safePath: null,
+        target,
+      });
+      return;
+    }
 
-    if (actionable && tile) {
-      nextHoveredPath = safePath && safePath.length > 1 ? safePath : null;
+    if (distance === 1) {
+      invalidatePendingHoverAnalysis();
+      commitAnalyzedHoverTarget({
+        actionable: isPassable(tile.terrain),
+        hoverCacheKey,
+        nextTooltipPosition,
+        safePath: null,
+        target,
+      });
+      return;
+    }
 
-      const enemies = getEnemiesAt(current, target);
-      const enemyInfo = enemyWorldTooltip(enemies, tile.structure);
+    const analysisVersion = hoverAnalysisVersionRef.current;
+    if (
+      pendingHoverAnalysis?.cacheKey === hoverCacheKey &&
+      pendingHoverAnalysis.analysisVersion === analysisVersion
+    ) {
+      return;
+    }
 
-      if (enemyInfo) {
-        nextTooltipKey = `enemy:${target.q},${target.r}:${tile.structure ?? 'none'}`;
-        nextTooltip = {
-          title: enemyInfo.title,
-          lines: enemyInfo.lines,
-          contentKey: nextTooltipKey,
-          x: nextTooltipPosition.x,
-          y: nextTooltipPosition.y,
-          borderColor: tile.structure === 'dungeon' ? '#a855f7' : '#ef4444',
-          followCursor: true,
-        };
-      } else {
-        const structureInfo = structureWorldTooltip(tile);
-        if (!structureInfo) {
-          const nextHoverSnapshot = {
-            analysisVersion: hoverAnalysisVersionRef.current,
-            target,
-            clickable: actionable,
-            hoveredMove: actionable ? target : null,
-            hoveredSafePath: nextHoveredPath,
-            tooltip: null,
-            tooltipKey: null,
-          };
-          commitHoverSnapshot({
-            hoverCacheKey,
-            nextHoverSnapshot,
-            nextTooltipPosition,
-          });
+    hoverAnalysisRequestToken += 1;
+    const analysisToken = hoverAnalysisRequestToken;
+    pendingHoverAnalysis = {
+      analysisVersion,
+      cacheKey: hoverCacheKey,
+      token: analysisToken,
+    };
+
+    void hoverAnalysisSource
+      .analyze(target)
+      .then((analysis) => {
+        if (
+          disposed ||
+          hoverAnalysisVersionRef.current !== analysisVersion ||
+          pendingHoverAnalysis?.token !== analysisToken
+        ) {
           return;
         }
 
-        nextTooltipKey = `structure:${target.q},${target.r}:${tile.structure ?? 'none'}`;
-        nextTooltip = {
-          title: structureInfo.title,
-          lines: structureInfo.lines,
-          contentKey: nextTooltipKey,
-          x: nextTooltipPosition.x,
-          y: nextTooltipPosition.y,
-          borderColor: '#38bdf8',
-          followCursor: true,
-        };
-      }
-    }
+        pendingHoverAnalysis = null;
+        const currentTooltipPosition = getCurrentTooltipPosition();
+        if (currentTooltipPosition === null) {
+          return;
+        }
 
-    const nextHoverSnapshot = {
-      analysisVersion: hoverAnalysisVersionRef.current,
-      target,
-      clickable: actionable,
-      hoveredMove: actionable ? target : null,
-      hoveredSafePath: nextHoveredPath,
-      tooltip: nextTooltip,
-      tooltipKey: nextTooltipKey,
-    };
-    commitHoverSnapshot({
-      hoverCacheKey,
-      nextHoverSnapshot,
-      nextTooltipPosition,
-    });
+        commitAnalyzedHoverTarget({
+          actionable: analysis.actionable,
+          hoverCacheKey,
+          nextTooltipPosition: currentTooltipPosition,
+          safePath: analysis.safePath,
+          target,
+        });
+      })
+      .catch((error: unknown) => {
+        if (disposed || pendingHoverAnalysis?.token !== analysisToken) {
+          return;
+        }
+
+        pendingHoverAnalysis = null;
+        console.error(error);
+      });
   };
 
   const queuePointerMove = (
@@ -344,10 +459,15 @@ export function createWorldHoverInteractions({
   };
 
   const dispose = () => {
+    disposed = true;
+    invalidatePendingHoverAnalysis();
     if (hoverFrameRef.current !== null) {
       window.cancelAnimationFrame(hoverFrameRef.current);
       hoverFrameRef.current = null;
     }
+    void hoverAnalysisSource.dispose().catch((error: unknown) => {
+      console.error(error);
+    });
   };
 
   return {
