@@ -56,6 +56,10 @@ export function itemTooltipLines(
 ): TooltipLine[] {
   const tags = item.tags ?? inferItemTags(item);
   const category = getItemCategory(item);
+  const showComparisonStats =
+    category !== 'consumable' &&
+    category !== 'resource' &&
+    Boolean(equipped || options.replacedOffhand);
   const playerLevel = options.playerLevel ?? 1;
   const showTags = options.showTags ?? true;
   const requiredLevel = getItemRequiredLevel(item);
@@ -133,7 +137,7 @@ export function itemTooltipLines(
           },
         ];
 
-  if (category !== 'resource') {
+  if (category !== 'resource' && !showComparisonStats) {
     if (item.power !== 0)
       lines.push({
         kind: 'stat',
@@ -156,13 +160,6 @@ export function itemTooltipLines(
         tone: 'item',
       });
     const secondaryStatLines = secondarySlotLines(item);
-    if (secondaryStatLines.length > 0) {
-      lines.push({
-        kind: 'text',
-        text: t('ui.tooltip.secondaryStats'),
-        tone: 'section',
-      });
-    }
     for (const stat of secondaryStatLines) {
       lines.push({
         ...stat,
@@ -170,7 +167,7 @@ export function itemTooltipLines(
     }
   }
 
-  if (equipped || options.replacedOffhand) {
+  if (showComparisonStats) {
     const deltas = comparisonLines(item, equipped, options.replacedOffhand);
 
     lines.push({

@@ -16,7 +16,7 @@ import {
 } from './uiTooltipContentTestHelpers';
 
 describe('ui tooltip item content', () => {
-  it('builds comparison and equipment item tooltip lines', () => {
+  it('shows comparison-only stats for preview items and base stats otherwise', () => {
     expect(comparisonLines(consumableTooltipItem)).toEqual([]);
     expect(comparisonLines(resourceTooltipItem)).toEqual([]);
     expect(comparisonLines(weaponTooltipItem, equippedTooltipItem)).toEqual([
@@ -25,22 +25,24 @@ describe('ui tooltip item content', () => {
       { label: 'Max Health', value: 3 },
     ]);
 
-    const tooltipLines = itemTooltipLines(
+    const comparisonTooltipLines = itemTooltipLines(
       weaponTooltipItem,
       equippedTooltipItem,
     );
+    const standaloneTooltipLines = itemTooltipLines(weaponTooltipItem);
+    const equippedItemTooltipLines = itemTooltipLines(equippedTooltipItem);
 
-    expect(tooltipLines[0]).toEqual({
+    expect(comparisonTooltipLines[0]).toEqual({
       kind: 'text',
       text: 'Requires level 2',
       tone: 'negative',
     });
-    expect(tooltipLines[1]).toEqual({
+    expect(comparisonTooltipLines[1]).toEqual({
       kind: 'text',
       text: 'Rare T2 weapon',
       tone: 'subtle',
     });
-    expect(tooltipLines).toContainEqual({
+    expect(comparisonTooltipLines).toContainEqual({
       kind: 'stat',
       label: 'Sells for',
       value: `${sellValue(weaponTooltipItem)} gold`,
@@ -48,7 +50,7 @@ describe('ui tooltip item content', () => {
       iconTint: '#fbbf24',
       tone: 'item',
     });
-    expect(tooltipLines).toContainEqual({
+    expect(comparisonTooltipLines).toContainEqual({
       kind: 'text',
       text: 'Slot: slot.weapon',
       tone: 'subtle',
@@ -62,30 +64,36 @@ describe('ui tooltip item content', () => {
       text: 'Shift-click: sell this item immediately.',
       tone: 'subtle',
     });
-    expect(tooltipLines).toContainEqual({
+    expect(comparisonTooltipLines).toContainEqual({
       kind: 'stat',
       label: 'Ability',
       value: getAbilityDefinition('slash').name,
       icon: getAbilityDefinition('slash').icon,
       tone: 'item',
     });
-    expect(tooltipLines).toContainEqual({
+    expect(comparisonTooltipLines).toContainEqual({
+      kind: 'stat',
+      label: 'Attack',
+      value: '+3',
+      tone: 'item',
+    });
+    expect(comparisonTooltipLines).not.toContainEqual({
       kind: 'stat',
       label: 'Attack',
       value: '+4',
       tone: 'item',
     });
-    expect(tooltipLines).toContainEqual({
+    expect(comparisonTooltipLines).toContainEqual({
       kind: 'text',
       text: 'Comparing to equipped',
       tone: 'section',
     });
-    expect(tooltipLines).toContainEqual({
+    expect(comparisonTooltipLines).toContainEqual({
       kind: 'text',
       text: 'Tags: item.equipment, item.weapon, item.slot.weapon',
       tone: 'subtle',
     });
-    expect(tooltipLines[tooltipLines.length - 1]).toEqual({
+    expect(comparisonTooltipLines[comparisonTooltipLines.length - 1]).toEqual({
       kind: 'stat',
       label: 'Sells for',
       value: `${sellValue(weaponTooltipItem)} gold`,
@@ -94,30 +102,57 @@ describe('ui tooltip item content', () => {
       tone: 'item',
     });
     expect(
-      tooltipLines.findIndex((line) => line.text === 'Slot: slot.weapon'),
+      comparisonTooltipLines.findIndex(
+        (line) => line.text === 'Slot: slot.weapon',
+      ),
     ).toBeLessThan(
-      tooltipLines.findIndex(
+      comparisonTooltipLines.findIndex(
         (line) =>
           line.label === 'Ability' &&
           line.value === getAbilityDefinition('slash').name,
       ),
     );
     expect(
-      tooltipLines.findIndex(
+      comparisonTooltipLines.findIndex(
         (line) =>
           line.label === 'Ability' &&
           line.value === getAbilityDefinition('slash').name,
       ),
     ).toBeLessThan(
-      tooltipLines.findIndex(
+      comparisonTooltipLines.findIndex(
         (line) =>
           line.text === 'Tags: item.equipment, item.weapon, item.slot.weapon',
       ),
     );
-    expect(tooltipLines.some((line) => line.label === 'Attack')).toBe(true);
-    expect(tooltipLines.some((line) => line.label?.includes('Change'))).toBe(
-      false,
-    );
+    expect(
+      standaloneTooltipLines.some(
+        (line) =>
+          line.kind === 'stat' &&
+          line.label === 'Attack' &&
+          line.value === '+4',
+      ),
+    ).toBe(true);
+    expect(
+      standaloneTooltipLines.some(
+        (line) => line.text === 'Comparing to equipped',
+      ),
+    ).toBe(false);
+    expect(
+      equippedItemTooltipLines.some(
+        (line) =>
+          line.kind === 'stat' &&
+          line.label === 'Attack' &&
+          line.value === '+1',
+      ),
+    ).toBe(true);
+    expect(
+      equippedItemTooltipLines.some(
+        (line) => line.text === 'Comparing to equipped',
+      ),
+    ).toBe(false);
+    expect(
+      comparisonTooltipLines.some((line) => line.label?.includes('Change')),
+    ).toBe(false);
     expect(
       itemTooltipLines(resourceTooltipItem).some(
         (line) => line.label === 'Type',
@@ -152,13 +187,27 @@ describe('ui tooltip item content', () => {
     ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          text: 'Secondary Stats',
-        }),
-        expect.objectContaining({
           text: 'Empty secondary stat slot',
         }),
       ]),
     );
+    expect(
+      itemTooltipLines({
+        id: 'rare-loot-empty-slot',
+        name: 'Rare Ring',
+        slot: 'ringLeft',
+        quantity: 1,
+        tier: 4,
+        rarity: 'rare',
+        power: 5,
+        defense: 0,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+        secondaryStatCapacity: 1,
+        secondaryStats: [],
+      }).some((line) => line.text === 'Secondary Stats'),
+    ).toBe(false);
     expect(
       itemTooltipLines(resourceTooltipItem).some(
         (line) =>
