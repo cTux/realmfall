@@ -1,5 +1,5 @@
 import { syncPlayerBaseStats } from '../game/balance';
-import { getEnemyConfig } from '../game/content/enemies';
+import { normalizeConfiguredEnemyName } from '../game/configuredEnemyName';
 import { consolidateInventory } from '../game/inventory';
 import { createGame } from '../game/stateFactory';
 import type { Enemy, GameState, Item } from '../game/stateTypes';
@@ -336,17 +336,6 @@ function normalizeEnemy(
         ? {}
         : { abilityIds: [...fallback.abilityIds] }),
   };
-}
-
-function normalizeConfiguredEnemyName(
-  name: string,
-  enemyTypeId: Enemy['enemyTypeId'],
-) {
-  if (enemyTypeId && name === `game.enemy.${enemyTypeId}.name`) {
-    return getEnemyConfig(enemyTypeId)?.name ?? name;
-  }
-
-  return name;
 }
 
 function normalizePlayer(
