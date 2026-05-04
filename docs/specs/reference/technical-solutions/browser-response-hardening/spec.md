@@ -7,7 +7,8 @@ This spec covers the browser security headers emitted by the local Vite server, 
 ## Current Solution
 
 - The app emits a strict `Content-Security-Policy` in both Vite-served and static preview responses.
-- The current CSP blocks framing, disallows plugin content, restricts script execution to same-origin sources, and limits network, worker, image, font, and manifest sources to the current app runtime needs.
+- The current CSP blocks framing, disallows plugin content, restricts script execution to same-origin sources, and limits network, worker, image, font, media, and manifest sources to the current app runtime needs.
+- Runtime media sources explicitly allow same-origin, `data:`, and `blob:` audio so the browser audio stack and lazy background-music runtime can unlock playback without widening the default source policy.
 - The current CSP separates style element and style attribute allowances so production responses keep inline style elements disabled while allowing the runtime's existing inline style attributes.
 - `Cross-Origin-Opener-Policy: same-origin` is sent so the app keeps a same-origin browsing context group instead of sharing one with unrelated cross-origin windows.
 - `Cross-Origin-Resource-Policy: same-origin` is sent so other origins cannot embed app-hosted resources unless the response is explicitly relaxed.
