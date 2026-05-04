@@ -83,6 +83,14 @@ export { getSafePathToTile } from './statePathfinding';
 export { createGame } from './stateFactory';
 export { moveAlongSafePath, moveToTile } from './stateMovement';
 export {
+  activateDungeonWorld,
+  leaveDungeonWorld,
+  markDungeonCleared,
+  markDungeonEliteDefeated,
+  registerDungeonEntrance,
+} from './stateDungeonActions';
+export { openDungeonChest } from './stateDungeonChest';
+export {
   claimCurrentHex,
   healAtFactionNpc,
   interactWithStructure,

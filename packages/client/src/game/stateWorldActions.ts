@@ -37,6 +37,8 @@ import {
   maybeGatherByproduct,
 } from './stateRewards';
 import { getCurrentHexClaimStatus } from './stateClaims';
+import { activateDungeonWorld, leaveDungeonWorld } from './stateDungeonActions';
+import { openDungeonChest } from './stateDungeonChest';
 import { applySurvivalDecay, respawnAtNearestTown } from './stateSurvival';
 import { getCurrentTile, getTileAt } from './stateWorldQueries';
 import type { GameState, Item } from './types';
@@ -131,6 +133,14 @@ export function interactWithStructure(state: GameState): GameState {
   }
 
   const tile = getCurrentTile(state);
+  if (tile.structure === 'dungeon') {
+    return state.activeDungeon
+      ? leaveDungeonWorld(state)
+      : activateDungeonWorld(state);
+  }
+  if (tile.structure === 'dungeon-chest') {
+    return openDungeonChest(state);
+  }
   if (!isGatheringStructure(tile.structure)) {
     return message(state, t('game.message.gather.nothingHere'));
   }

@@ -1,5 +1,6 @@
 import { StatusEffectTypeId } from './content/ids';
 import { clearConsumableCooldownIfOutOfCombat } from './combatActivity';
+import { getActiveWorld, setActiveWorld } from './dungeons/worldState';
 import { mitigateDamageByDefense } from './combatDamage';
 import { addLog } from './logs';
 import { getPlayerCombatStats } from './progression';
@@ -25,6 +26,11 @@ export function teleportHome(state: GameState, itemIndex: number, item: Item) {
 
 export function respawnAtNearestTown(state: GameState, from: HexCoord) {
   void from;
+  const activeWorld = getActiveWorld(state);
+  if (activeWorld?.kind === 'dungeon') {
+    setActiveWorld(state, state.surfaceWorldId);
+    state.activeDungeon = null;
+  }
   const homeHex = { ...state.homeHex };
   state.player.coord = homeHex;
   state.player.hunger = PLAYER_SURVIVAL_MAX;
