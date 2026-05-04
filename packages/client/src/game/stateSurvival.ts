@@ -18,6 +18,7 @@ export function teleportHome(state: GameState, itemIndex: number, item: Item) {
   if (state.player.inventory[itemIndex]!.quantity <= 0) {
     state.player.inventory.splice(itemIndex, 1);
   }
+  leaveDungeonForSurface(state);
   state.player.coord = { ...state.homeHex };
   state.combat = null;
   clearConsumableCooldownIfOutOfCombat(state);
@@ -26,11 +27,7 @@ export function teleportHome(state: GameState, itemIndex: number, item: Item) {
 
 export function respawnAtNearestTown(state: GameState, from: HexCoord) {
   void from;
-  const activeWorld = getActiveWorld(state);
-  if (activeWorld?.kind === 'dungeon') {
-    setActiveWorld(state, state.surfaceWorldId);
-    state.activeDungeon = null;
-  }
+  leaveDungeonForSurface(state);
   const homeHex = { ...state.homeHex };
   state.player.coord = homeHex;
   state.player.hunger = PLAYER_SURVIVAL_MAX;
@@ -52,6 +49,16 @@ export function respawnAtNearestTown(state: GameState, from: HexCoord) {
     'system',
     t('game.message.combat.respawn', { q: homeHex.q, r: homeHex.r }),
   );
+}
+
+function leaveDungeonForSurface(state: GameState) {
+  const activeWorld = getActiveWorld(state);
+  if (activeWorld?.kind !== 'dungeon') {
+    return;
+  }
+
+  setActiveWorld(state, state.surfaceWorldId);
+  state.activeDungeon = null;
 }
 
 export function applySurvivalDecay(state: GameState) {
