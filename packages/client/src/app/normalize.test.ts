@@ -378,6 +378,63 @@ describe('normalizeLoadedGame', () => {
       [enemyId]: {},
     });
   });
+
+  it('normalizes dungeon world registries and the dungeon chest structure', () => {
+    const normalized = normalizeLoadedGame({
+      seed: 'normalize-dungeon-world',
+      radius: 3,
+      surfaceWorldId: 'surface',
+      activeWorldId: 'dungeon:normalize-dungeon-world:1,0',
+      worlds: {
+        surface: {
+          id: 'surface',
+          kind: 'surface',
+          tiles: {},
+          enemies: {},
+        },
+        'dungeon:normalize-dungeon-world:1,0': {
+          id: 'dungeon:normalize-dungeon-world:1,0',
+          kind: 'dungeon',
+          tiles: {
+            '0,0': {
+              coord: { q: 0, r: 0 },
+              terrain: 'dungeon-obsidian-floor',
+              structure: 'dungeon-chest',
+              items: [],
+              enemyIds: [],
+            },
+          },
+          enemies: {},
+          dungeon: {
+            cleared: false,
+            entranceCoord: { q: 0, r: 0 },
+            finalChestCoord: { q: 0, r: 0 },
+            finalEliteEnemyId: 'enemy-0,1-0',
+            paddingRadius: 6,
+            surfaceEntranceCoord: { q: 1, r: 0 },
+            templateId: 'dense-maze',
+            themeId: 'obsidian-vault',
+          },
+        },
+      },
+      dungeonEntrances: {
+        '1,0': {
+          dungeonId: 'dungeon:normalize-dungeon-world:1,0',
+          surfaceCoord: { q: 1, r: 0 },
+        },
+      },
+      activeDungeon: {
+        dungeonId: 'dungeon:normalize-dungeon-world:1,0',
+        returnCoord: { q: 1, r: 0 },
+        surfaceCoord: { q: 1, r: 0 },
+      },
+    });
+
+    expect(normalized?.activeWorldId).toBe(
+      'dungeon:normalize-dungeon-world:1,0',
+    );
+    expect(normalized?.tiles['0,0']?.structure).toBe('dungeon-chest');
+  });
 });
 
 describe('normalizePersistedUiState', () => {

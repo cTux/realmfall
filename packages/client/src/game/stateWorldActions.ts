@@ -14,7 +14,7 @@ import {
 } from './progression';
 import { isPlayerClaim, makePlayerClaim } from './territories';
 import {
-  buildTile,
+  buildTileForState,
   ensureTileState,
   isGatheringStructure,
   normalizeStructureState,
@@ -59,7 +59,7 @@ export function setHomeHex(
   next.homeHex = { ...coord };
 
   const key = hexKey(coord);
-  const existingTile = next.tiles[key] ?? buildTile(next.seed, coord);
+  const existingTile = next.tiles[key] ?? buildTileForState(next, coord);
   existingTile.enemyIds.forEach((enemyId) => {
     delete next.enemies[enemyId];
   });

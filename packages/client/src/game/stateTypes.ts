@@ -1,4 +1,18 @@
 export type { HexCoord } from './hex';
+export type {
+  ActiveDungeonRun,
+  DungeonEntranceRecord,
+  DungeonWorldMetadata,
+  DungeonWorldState,
+  GameWorldState,
+  WorldKind,
+} from './dungeons/types';
+export {
+  DUNGEON_TEMPLATE_IDS,
+  DUNGEON_THEME_IDS,
+  SURFACE_WORLD_ID,
+  WORLD_KINDS,
+} from './dungeons/types';
 export { Skill } from './types';
 export type {
   AbilityDefinition,

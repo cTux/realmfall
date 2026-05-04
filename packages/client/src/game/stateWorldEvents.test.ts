@@ -554,7 +554,7 @@ describe('game state world events', () => {
     expect(ordinarySpawn.defense).toBeLessThan(explicitBoss.defense);
   });
 
-  it('turns an emptied dungeon back into a regular hex', () => {
+  it('keeps a dungeon entrance after it is emptied', () => {
     const game = createGame(3, 'dungeon-clear-seed');
     const target = { q: 2, r: 0 };
     game.tiles['2,0'] = {
@@ -597,6 +597,6 @@ describe('game state world events', () => {
     expect(getTileAt(clearedCombat, target).structure).toBe('dungeon');
 
     const looted = takeAllTileItems(clearedCombat);
-    expect(getTileAt(looted, target).structure).toBeUndefined();
+    expect(getTileAt(looted, target).structure).toBe('dungeon');
   });
 });

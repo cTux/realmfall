@@ -10,11 +10,7 @@ import { createFreshLogsAtTime } from '../../game/logs';
 import type { GameState, LogKind } from '../../game/stateTypes';
 import { loadEncryptedState } from '../../persistence/storage';
 import { type WindowPositions, type WindowVisibilityState } from '../constants';
-import {
-  normalizeLoadedGame,
-  normalizePersistedUiState,
-  normalizeSavedUiItem,
-} from '../normalize';
+import { normalizePersistedUiState, normalizeSavedUiItem } from '../normalize';
 import { normalizeActionBarSlots, type ActionBarSlots } from './actionBar';
 import {
   buildPersistedSegments,
@@ -95,7 +91,7 @@ export function useAppPersistence({
   useEffect(() => {
     let alive = true;
 
-    void loadEncryptedState().then((saved) => {
+    void loadEncryptedState().then(async (saved) => {
       if (!alive) return;
 
       const snapshotUi = normalizePersistedUiState(saved?.ui);
@@ -107,6 +103,8 @@ export function useAppPersistence({
         normalizeSavedUiItem,
       );
       if (saved?.game) {
+        const { normalizeLoadedGame } = await import('../normalize');
+        if (!alive) return;
         const loadedGame = normalizeLoadedGame(saved.game);
         if (loadedGame) {
           worldTimeMsRef.current = loadedGame.worldTimeMs;

@@ -290,6 +290,19 @@ const gameConfig = defineGameConfig({
       plains: 0.13,
       // Chance weight for generating steppe terrain.
       steppe: 0.13,
+      // Dungeon terrains are registered in the shared enum but never roll on the surface map.
+      'dungeon-brick-floor': 0,
+      'dungeon-brick-cracked': 0,
+      'dungeon-brick-moss': 0,
+      'dungeon-brick-wall': 0,
+      'dungeon-mud-floor': 0,
+      'dungeon-mud-rut': 0,
+      'dungeon-mud-puddle': 0,
+      'dungeon-mud-wall': 0,
+      'dungeon-obsidian-floor': 0,
+      'dungeon-obsidian-ash': 0,
+      'dungeon-obsidian-ember': 0,
+      'dungeon-obsidian-wall': 0,
     },
     structure: {
       // Global roll thresholds for structures that bypass terrain-based selection.

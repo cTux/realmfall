@@ -40,57 +40,60 @@ afterEach(() => {
 
 describe('resolveWorldTiles DTO mapping', () => {
   it('maps gameplay tile and enemy state into serializable DTO literals', async () => {
-    vi.doMock('./world', () => ({
-      buildTile: () => ({
-        coord: { q: 4, r: -2 },
-        terrain: 'forest',
-        structure: 'town',
-        structureHp: 12,
-        structureMaxHp: 20,
-        townStockDay: 7,
-        townStockPurchasedItemIds: ['stock-1'],
-        items: [
-          {
-            id: 'item-1',
-            itemKey: 'wolf-pelt',
-            tags: ['resource'],
-            recipeId: 'recipe-1',
-            locked: true,
-            slot: 'weapon',
-            icon: 'icon-1',
-            name: 'Wolf Pelt',
-            quantity: 3,
-            tier: 2,
-            rarity: 'rare',
-            requiredLevel: 4,
-            power: 5,
-            defense: 1,
-            maxHp: 0,
-            healing: 0,
-            hunger: 0,
-            thirst: 0,
-            secondaryStatCapacity: 1,
-            secondaryStats: [{ key: 'attackSpeed', value: 2 }],
-            reforgedSecondaryStatIndex: 0,
-            enchantedSecondaryStatIndex: 0,
-            corrupted: true,
-            grantedAbilityId: 'skill-1',
-            extraField: 'drop-me',
-          },
-        ],
-        enemyIds: ['enemy-4,-2-0'],
-        claim: {
-          ownerId: 'faction-1',
-          ownerType: 'faction',
-          ownerName: 'Arkenreach',
-          borderColor: '#ffffff',
-          npc: {
-            name: 'Sera',
-            enemyId: 'enemy-4,-2-0',
-          },
+    const buildSurfaceTile = () => ({
+      coord: { q: 4, r: -2 },
+      terrain: 'forest',
+      structure: 'town',
+      structureHp: 12,
+      structureMaxHp: 20,
+      townStockDay: 7,
+      townStockPurchasedItemIds: ['stock-1'],
+      items: [
+        {
+          id: 'item-1',
+          itemKey: 'wolf-pelt',
+          tags: ['resource'],
+          recipeId: 'recipe-1',
+          locked: true,
+          slot: 'weapon',
+          icon: 'icon-1',
+          name: 'Wolf Pelt',
+          quantity: 3,
+          tier: 2,
+          rarity: 'rare',
+          requiredLevel: 4,
+          power: 5,
+          defense: 1,
+          maxHp: 0,
+          healing: 0,
+          hunger: 0,
+          thirst: 0,
+          secondaryStatCapacity: 1,
+          secondaryStats: [{ key: 'attackSpeed', value: 2 }],
+          reforgedSecondaryStatIndex: 0,
+          enchantedSecondaryStatIndex: 0,
+          corrupted: true,
+          grantedAbilityId: 'skill-1',
+          extraField: 'drop-me',
         },
-        extraTileField: 'drop-me',
-      }),
+      ],
+      enemyIds: ['enemy-4,-2-0'],
+      claim: {
+        ownerId: 'faction-1',
+        ownerType: 'faction',
+        ownerName: 'Arkenreach',
+        borderColor: '#ffffff',
+        npc: {
+          name: 'Sera',
+          enemyId: 'enemy-4,-2-0',
+        },
+      },
+      extraTileField: 'drop-me',
+    });
+
+    vi.doMock('./world', () => ({
+      buildTile: buildSurfaceTile,
+      buildSurfaceTile,
     }));
     vi.doMock('./combat', () => ({
       enemyIndexFromId: () => 0,
@@ -255,24 +258,27 @@ describe('resolveWorldTiles DTO mapping', () => {
       elite: true,
     }));
 
-    vi.doMock('./world', () => ({
-      buildTile: () => ({
-        coord: { q: 6, r: -2 },
-        terrain: 'forest',
-        structure: undefined,
-        items: [],
-        enemyIds: ['world-boss-6,-2'],
-        claim: {
-          ownerId: 'faction-2',
-          ownerType: 'faction',
-          ownerName: 'Valewatch',
-          borderColor: '#f59e0b',
-          npc: {
-            name: 'Marshal Vey',
-            enemyId: 'world-boss-6,-2',
-          },
+    const buildSurfaceTile = () => ({
+      coord: { q: 6, r: -2 },
+      terrain: 'forest',
+      structure: undefined,
+      items: [],
+      enemyIds: ['world-boss-6,-2'],
+      claim: {
+        ownerId: 'faction-2',
+        ownerType: 'faction',
+        ownerName: 'Valewatch',
+        borderColor: '#f59e0b',
+        npc: {
+          name: 'Marshal Vey',
+          enemyId: 'world-boss-6,-2',
         },
-      }),
+      },
+    });
+
+    vi.doMock('./world', () => ({
+      buildTile: buildSurfaceTile,
+      buildSurfaceTile,
     }));
     vi.doMock('./combat', () => ({
       enemyIndexFromId: () => 9,
@@ -326,14 +332,17 @@ describe('resolveWorldTiles DTO mapping', () => {
       elite: true,
     }));
 
+    const buildSurfaceTile = () => ({
+      coord: { q: 5, r: -1 },
+      terrain: 'plains',
+      structure: undefined,
+      items: [],
+      enemyIds: ['enemy-5,-1-0'],
+    });
+
     vi.doMock('./world', () => ({
-      buildTile: () => ({
-        coord: { q: 5, r: -1 },
-        terrain: 'plains',
-        structure: undefined,
-        items: [],
-        enemyIds: ['enemy-5,-1-0'],
-      }),
+      buildTile: buildSurfaceTile,
+      buildSurfaceTile,
     }));
     vi.doMock('./combat', () => ({
       enemyIndexFromId: () => 0,
@@ -388,24 +397,27 @@ describe('resolveWorldTiles DTO mapping', () => {
       worldBoss: false,
     }));
 
-    vi.doMock('./world', () => ({
-      buildTile: () => ({
-        coord: { q: 4, r: -1 },
-        terrain: 'plains',
-        structure: undefined,
-        items: [],
-        enemyIds: ['enemy-4,-1-0'],
-        claim: {
-          ownerId: 'faction-1',
-          ownerType: 'faction',
-          ownerName: 'Valewatch',
-          borderColor: '#ffffff',
-          npc: {
-            name: 'Quartermaster Pell',
-            enemyId: 'enemy-4,-1-0',
-          },
+    const buildSurfaceTile = () => ({
+      coord: { q: 4, r: -1 },
+      terrain: 'plains',
+      structure: undefined,
+      items: [],
+      enemyIds: ['enemy-4,-1-0'],
+      claim: {
+        ownerId: 'faction-1',
+        ownerType: 'faction',
+        ownerName: 'Valewatch',
+        borderColor: '#ffffff',
+        npc: {
+          name: 'Quartermaster Pell',
+          enemyId: 'enemy-4,-1-0',
         },
-      }),
+      },
+    });
+
+    vi.doMock('./world', () => ({
+      buildTile: buildSurfaceTile,
+      buildSurfaceTile,
     }));
     vi.doMock('./combat', () => ({
       enemyIndexFromId: () => 0,
