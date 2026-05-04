@@ -6,8 +6,8 @@ import { VoiceAudioControllerBridge } from './VoiceAudioControllerBridge';
 import { selectVoicePlaybackEventState } from './voiceEvents';
 
 const { getVoiceClipUrlsMock, pickVoiceClipUrlMock } = vi.hoisted(() => ({
-  getVoiceClipUrlsMock: vi.fn(async () => ['/voice/test.wav']),
-  pickVoiceClipUrlMock: vi.fn(async () => '/voice/test.wav'),
+  getVoiceClipUrlsMock: vi.fn(async () => ['/voice/test.flac']),
+  pickVoiceClipUrlMock: vi.fn(async () => '/voice/test.flac'),
 }));
 
 vi.mock('./voiceLibrary', async (importOriginal) => ({
