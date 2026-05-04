@@ -57,20 +57,27 @@ export function useDungeonTransitionController({
       const dungeonId =
         current.dungeonEntrances[hexKey(surfaceCoord)]?.dungeonId ??
         `dungeon:${current.seed}:${hexKey(surfaceCoord)}`;
+      if (current.worlds[dungeonId]) {
+        applyStateTransition(setGame, activateDungeonWorld);
+        return;
+      }
+
       const persistedWorld =
         await loadEncryptedDungeonState<DungeonWorldState>(dungeonId);
 
       applyStateTransition(setGame, (next) =>
         activateDungeonWorld(
-          persistedWorld
-            ? {
-                ...next,
-                worlds: {
-                  ...next.worlds,
-                  [dungeonId]: persistedWorld,
-                },
-              }
-            : next,
+          next.worlds[dungeonId]
+            ? next
+            : persistedWorld
+              ? {
+                  ...next,
+                  worlds: {
+                    ...next.worlds,
+                    [dungeonId]: persistedWorld,
+                  },
+                }
+              : next,
         ),
       );
     };

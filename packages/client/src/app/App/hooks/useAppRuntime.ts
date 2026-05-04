@@ -140,12 +140,16 @@ export function useAppRuntime() {
     [gameView.interactAction],
   );
   const handleInteract = useCallback(() => {
+    if (bootstrap.paused) {
+      return;
+    }
+
     if (dungeonTransition.tryHandleInteract()) {
       return;
     }
 
     controllerActions.handleInteract();
-  }, [controllerActions, dungeonTransition]);
+  }, [bootstrap.paused, controllerActions, dungeonTransition]);
   const isReady =
     persistence.hydrated &&
     pixiWorld.canvasReady &&
