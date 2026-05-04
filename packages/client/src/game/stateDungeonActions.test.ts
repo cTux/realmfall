@@ -169,4 +169,25 @@ describe('stateDungeonActions', () => {
         ?.structure,
     ).toBeUndefined();
   });
+
+  it('grants chest loot before retiring the cleared dungeon', () => {
+    const { game } = seedSurfaceDungeonEntrance('dungeon-chest-loot');
+    const entered = activateDungeonWorld(game);
+    const dungeonId = entered.activeDungeon!.dungeonId;
+    const world = getDungeonWorld(entered, dungeonId);
+    const inventoryIds = new Set(
+      entered.player.inventory.map((item) => item.id),
+    );
+
+    removeDungeonEnemy(entered, dungeonId, world.dungeon.finalEliteEnemyId);
+    entered.player.coord = { ...world.dungeon.finalChestCoord };
+
+    const cleared = openDungeonChest(entered);
+    const newLoot = cleared.player.inventory.find(
+      (item) => !inventoryIds.has(item.id),
+    );
+
+    expect(newLoot).toBeDefined();
+    expect(getDungeonWorld(cleared, dungeonId).dungeon.cleared).toBe(true);
+  });
 });

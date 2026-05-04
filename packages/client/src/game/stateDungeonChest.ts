@@ -1,3 +1,6 @@
+import { addItemToInventory } from './inventory';
+import { createRng } from './random';
+import { terrainTier } from './shared';
 import { hexKey } from './hex';
 import { getActiveWorld } from './dungeons/worldState';
 import {
@@ -5,6 +8,7 @@ import {
   markDungeonEliteDefeated,
 } from './stateDungeonActions';
 import { cloneForWorldMutation } from './stateMutationHelpers';
+import { makeWorldGeneratedItem } from './worldGeneratedItems';
 import type { GameState } from './types';
 
 export function openDungeonChest(state: GameState): GameState {
@@ -26,6 +30,14 @@ export function openDungeonChest(state: GameState): GameState {
     return next;
   }
 
+  const loot = makeWorldGeneratedItem(
+    `${next.seed}:${activeWorld.id}:final-chest`,
+    next.player.coord,
+    terrainTier(next.player.coord, currentTile.terrain) + 2,
+    createRng(`${next.seed}:${activeWorld.id}:final-chest:roll`)(),
+    'dungeon',
+  );
+  addItemToInventory(next.player.inventory, loot);
   markDungeonCleared(next, activeWorld.id);
   return next;
 }

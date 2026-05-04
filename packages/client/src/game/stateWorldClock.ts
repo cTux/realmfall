@@ -74,7 +74,7 @@ export function syncBloodMoon(
     if (rng() < BLOOD_MOON_CHANCE) {
       next.bloodMoonActive = true;
       next.harvestMoonActive = false;
-      syncWorldEnemyBloodMoonState(next, true);
+      syncSurfaceEnemyBloodMoonState(next, true);
       const spawnedCount = spawnBloodMoonEnemies(next);
       addLog(next, 'combat', t('game.message.bloodMoon.begin'));
       if (spawnedCount > 0) {
@@ -133,7 +133,7 @@ export function syncBloodMoon(
     next.harvestMoonActive = false;
     next.harvestMoonCheckedTonight = false;
     next.harvestMoonCycle += 1;
-    syncWorldEnemyBloodMoonState(next, false);
+    syncSurfaceEnemyBloodMoonState(next, false);
     maybeTriggerEarthshake(next);
     if (wasBloodMoonActive) {
       addLog(next, 'combat', t('game.message.bloodMoon.end'));
@@ -212,8 +212,11 @@ function regenerateOutOfCombatResources(
   return state.player.hp !== previousHp || state.player.mana !== previousMana;
 }
 
-function syncWorldEnemyBloodMoonState(state: GameState, active: boolean) {
-  Object.values(state.worlds).forEach((world) => {
-    syncEnemyBloodMoonState(world.enemies, active);
-  });
+function syncSurfaceEnemyBloodMoonState(state: GameState, active: boolean) {
+  const surfaceWorld = state.worlds[state.surfaceWorldId];
+  if (!surfaceWorld) {
+    return;
+  }
+
+  syncEnemyBloodMoonState(surfaceWorld.enemies, active);
 }
