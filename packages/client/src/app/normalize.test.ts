@@ -49,6 +49,25 @@ describe('normalizeLoadedGame', () => {
     );
   });
 
+  it('fills missing lockpicking progress from current runtime defaults while preserving saved skills', () => {
+    const game = createGame(3, 'normalize-lockpicking-seed');
+    const saved = structuredClone(game);
+
+    delete (saved.player.skills as Partial<typeof saved.player.skills>)
+      .lockpicking;
+    saved.player.skills.gathering = { level: 7, xp: 123 };
+
+    const normalized = normalizeLoadedGame(saved);
+
+    expect(normalized?.player.skills.gathering).toEqual({
+      level: 7,
+      xp: 123,
+    });
+    expect(normalized?.player.skills.lockpicking).toEqual(
+      game.player.skills.lockpicking,
+    );
+  });
+
   it('falls back invalid nested player fields to defaults instead of rejecting the save', () => {
     const game = createGame(3, 'normalize-invalid-player-field-seed');
     const saved = structuredClone(game);

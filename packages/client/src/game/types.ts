@@ -53,6 +53,7 @@ export const STRUCTURE_TYPES = [
   'town',
   'corruption-altar',
   'dungeon',
+  'locked-chest',
   ...GATHERING_STRUCTURE_TYPES,
 ] as const;
 
@@ -103,6 +104,7 @@ export enum Skill {
   Cooking = 'cooking',
   Smelting = 'smelting',
   Crafting = 'crafting',
+  Lockpicking = 'lockpicking',
 }
 
 export type SkillName = Skill;

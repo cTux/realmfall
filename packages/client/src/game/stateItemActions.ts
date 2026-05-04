@@ -23,6 +23,7 @@ import {
   isRecipePage,
 } from './inventory';
 import { getPlayerCombatStats } from './progression';
+import { applyLockedChestOpener } from './stateLockedChests';
 import {
   cloneForPlayerCombatMutation,
   cloneForPlayerMutation,
@@ -182,6 +183,9 @@ function applyInventoryItemUse(state: GameState, itemId: string): GameState {
   }
   if (!hasItemTag(item, GAME_TAGS.item.consumable))
     return message(state, t('game.message.item.cannotUse'));
+  if (item.itemKey === ItemId.Lockpick || item.itemKey === ItemId.ChestKey) {
+    return applyLockedChestOpener(state, itemIndex, item);
+  }
   if (
     isCombatActive(state.combat) &&
     (state.player.consumableCooldownEndsAt ?? 0) > state.worldTimeMs
@@ -414,6 +418,8 @@ function resolveConsumableEffect(
         : [];
     }
     case 'homeScroll':
+    case 'lockpick':
+    case 'lockedChestKey':
       return [];
   }
 }

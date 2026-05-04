@@ -4,6 +4,7 @@ import { getStructureConfig, pickStructureType } from './index';
 
 describe('pickStructureType', () => {
   it('uses the expected global and resource spawn bands across terrains', () => {
+    expect(pickStructureType(0.995, 0, 'plains')).toBe('locked-chest');
     expect(pickStructureType(0.993, 0, 'plains')).toBe('dungeon');
     expect(pickStructureType(0.989, 0, 'plains')).toBe('corruption-altar');
     expect(pickStructureType(0.985, 0, 'plains')).toBe('forge');

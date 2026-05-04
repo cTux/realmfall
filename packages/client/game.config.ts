@@ -310,6 +310,8 @@ const gameConfig = defineGameConfig({
         town: 0.976,
         // Chance threshold for corruption altar structures on terrain-based noise roll.
         'corruption-altar': 0.988,
+        // Chance threshold for locked chest structures on terrain-based noise roll.
+        'locked-chest': 0.994,
         // Chance threshold for dungeon structures on terrain-based noise roll.
         dungeon: 0.992,
       },

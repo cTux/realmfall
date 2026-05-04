@@ -4,6 +4,7 @@ import type { EnemyConfig } from '../types';
 import { boarEnemyConfig } from './boar';
 import { gluttonyEnemyConfig } from './gluttony';
 import { marauderEnemyConfig } from './marauder';
+import { mimicEnemyConfig } from './mimic';
 import { raiderEnemyConfig } from './raider';
 import { spiderEnemyConfig } from './spider';
 import { stagEnemyConfig } from './stag';
@@ -14,6 +15,7 @@ const RAW_ENEMY_CONFIGS = [
   gluttonyEnemyConfig,
   raiderEnemyConfig,
   marauderEnemyConfig,
+  mimicEnemyConfig,
   wolfEnemyConfig,
   boarEnemyConfig,
   stagEnemyConfig,

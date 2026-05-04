@@ -1,5 +1,6 @@
 import React from 'react';
 import { DEFAULT_WINDOWS } from '../app/constants';
+import { createSkillRecord } from '../game/skillRecords';
 import { Skill } from '../game/types';
 import { RecipeBookWindow } from './components/RecipeBookWindow';
 import { mountUi } from './uiTestHelpers';
@@ -10,17 +11,9 @@ type RecipeOverride = Omit<Partial<RecipeBookRecipe>, 'output'> & {
   output?: Partial<RecipeBookRecipe['output']>;
 };
 
-export const DEFAULT_RECIPE_SKILL_LEVELS = {
-  [Skill.Gathering]: 1,
-  [Skill.Logging]: 1,
-  [Skill.Mining]: 1,
-  [Skill.Skinning]: 1,
-  [Skill.Fishing]: 1,
-  [Skill.Hand]: 1,
-  [Skill.Cooking]: 1,
-  [Skill.Smelting]: 1,
-  [Skill.Crafting]: 1,
-} satisfies RecipeBookWindowProps['recipeSkillLevels'];
+export const DEFAULT_RECIPE_SKILL_LEVELS = createSkillRecord(
+  () => 1,
+) satisfies RecipeBookWindowProps['recipeSkillLevels'];
 
 const defaultRecipeBookProps = {
   position: DEFAULT_WINDOWS.recipes,

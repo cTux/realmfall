@@ -16,9 +16,11 @@ This spec covers player leveling, mastery, and skill progression.
 - Ordinary player levels cap at `100`.
 - After the normal cap, XP advances mastery levels instead of ordinary levels.
 - Mastery starts at `25,000,000` XP for the first mastery level and each additional mastery level requires `5%` more XP than the previous one.
-- Current skills are gathering, logging, mining, skinning, fishing, cooking, smelting, and crafting.
+- Current skills are gathering, logging, mining, skinning, fishing, cooking, smelting, crafting, and lockpicking.
 - Skill XP is awarded by related actions.
+- Lockpicking awards `1` skill XP per real lockpick chest interaction, including mimic reveals.
 - Higher skill levels improve gathering yield bonus and bonus proc chance where applicable.
+- Higher lockpicking levels reduce lockpick break chance by `0.5%` per level from a `75%` base chance down to a `25%` floor.
 - The skills window uses the shared resizable window shell and scrolls its skill list inside the window body when the content outgrows the current size.
 - The skills window lists skill names with progress bars, inline `level/current/max XP` text, and tooltips, rounds bar values for display so floating-point residue does not leak into the UI, and does not render the old explanatory note above the skill list.
 - Skill rows in the skills window keep a stable intrinsic height instead of stretching vertically to fill extra window space.

@@ -60,8 +60,11 @@ import gluttonyIcon from '../../assets/icons/gluttony.svg';
 import furnaceIcon from '../../assets/icons/furnace.svg';
 import flaxIcon from '../../assets/game-icons/delapouite/flax.svg';
 import goblinHeadIcon from '../../assets/game-icons/delapouite/goblin-head.svg';
+import lockpicksIcon from '../../assets/game-icons/delapouite/lockpicks.svg';
 import sewingStringIcon from '../../assets/game-icons/delapouite/sewing-string.svg';
 import earthCrackIcon from '../../assets/game-icons/lorc/earth-crack.svg';
+import lockedChestIcon from '../../assets/game-icons/lorc/locked-chest.svg';
+import chestKeyIcon from '../../assets/game-icons/sbed/key.svg';
 
 export const ContentIcons = {
   Player: playerIcon,
@@ -128,4 +131,7 @@ export const ContentIcons = {
   Furnace: furnaceIcon,
   SewingString: sewingStringIcon,
   TreasureGoblin: goblinHeadIcon,
+  Lockpicks: lockpicksIcon,
+  LockedChest: lockedChestIcon,
+  ChestKey: chestKeyIcon,
 } as const;

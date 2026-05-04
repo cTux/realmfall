@@ -1,5 +1,5 @@
 import { EquipmentSlotId } from '../game/content/ids';
-import { Skill } from '../game/types';
+import { createSkillRecord } from '../game/skillRecords';
 import { createGame } from '../game/stateFactory';
 import type { Item } from '../game/stateTypes';
 import { DEFAULT_WINDOWS } from '../app/constants';
@@ -64,17 +64,7 @@ export const combatWindowState = {
   },
 };
 
-export const recipeWindowSkillLevels = {
-  [Skill.Gathering]: 1,
-  [Skill.Logging]: 1,
-  [Skill.Mining]: 1,
-  [Skill.Skinning]: 1,
-  [Skill.Fishing]: 1,
-  [Skill.Hand]: 1,
-  [Skill.Cooking]: 1,
-  [Skill.Smelting]: 1,
-  [Skill.Crafting]: 1,
-};
+export const recipeWindowSkillLevels = createSkillRecord(() => 1);
 
 export function buildBaseHexInfoProps() {
   return {

@@ -65,6 +65,7 @@ export function createStorybookFixtures() {
   state.player.thirst = 18;
   state.player.statusEffects = [{ id: 'restoration' }, { id: 'recentDeath' }];
   state.player.skills = {
+    ...createSkillRecord(() => ({ level: 1, xp: 0 })),
     [Skill.Gathering]: { level: 6, xp: 4 },
     [Skill.Logging]: { level: 8, xp: 7 },
     [Skill.Mining]: { level: 6, xp: 5 },
@@ -74,6 +75,7 @@ export function createStorybookFixtures() {
     [Skill.Cooking]: { level: 7, xp: 1 },
     [Skill.Smelting]: { level: 5, xp: 4 },
     [Skill.Crafting]: { level: 9, xp: 3 },
+    [Skill.Lockpicking]: { level: 2, xp: 1 },
   };
   state.player.equipment = equipment;
   state.player.inventory = inventory;

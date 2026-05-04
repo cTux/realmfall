@@ -17,6 +17,8 @@ interface ConsumableRestoreProfile {
 }
 
 export type ConsumableEffectDescriptor =
+  | { kind: 'lockedChestKey' }
+  | { kind: 'lockpick' }
   | { kind: 'foodRestorePercent'; amount: number }
   | { kind: 'healingPercent'; amount: number }
   | { kind: 'hunger'; amount: number }
@@ -86,6 +88,14 @@ export function getConsumableEffectDescriptors(
 
   if (item.itemKey === ItemId.HomeScroll) {
     return [{ kind: 'homeScroll' }];
+  }
+
+  if (item.itemKey === ItemId.Lockpick) {
+    return [{ kind: 'lockpick' }];
+  }
+
+  if (item.itemKey === ItemId.ChestKey) {
+    return [{ kind: 'lockedChestKey' }];
   }
 
   const restoreProfile = getConsumableRestoreProfile(item);

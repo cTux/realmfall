@@ -13,22 +13,13 @@ import { RecipeBookWindow } from './components/RecipeBookWindow';
 import { SkillsWindow } from './components/SkillsWindow';
 import inventoryStyles from './components/InventoryWindow/styles.module.scss';
 import recipeStyles from './components/RecipeBookWindow/styles.module.scss';
-import { createRecipe } from './uiRecipeBookTestHelpers';
+import {
+  createRecipe,
+  DEFAULT_RECIPE_SKILL_LEVELS,
+} from './uiRecipeBookTestHelpers';
 import { mountUi, renderMarkup, setupUiTestEnvironment } from './uiTestHelpers';
 
 setupUiTestEnvironment();
-
-const RECIPE_SKILL_LEVELS = {
-  [Skill.Gathering]: 1,
-  [Skill.Logging]: 1,
-  [Skill.Mining]: 1,
-  [Skill.Skinning]: 1,
-  [Skill.Fishing]: 1,
-  [Skill.Hand]: 1,
-  [Skill.Cooking]: 1,
-  [Skill.Smelting]: 1,
-  [Skill.Crafting]: 1,
-};
 
 describe('ui window shell surfaces', () => {
   it('renders lock and recipe actions in the item context menu when available', async () => {
@@ -101,7 +92,7 @@ describe('ui window shell surfaces', () => {
           onMove={() => {}}
           currentStructure="camp"
           recipes={[]}
-          recipeSkillLevels={RECIPE_SKILL_LEVELS}
+          recipeSkillLevels={DEFAULT_RECIPE_SKILL_LEVELS}
           inventoryCountsByItemKey={{}}
           preferredSkill={null}
           materialFilterItemKey={null}
@@ -243,7 +234,7 @@ describe('ui window shell surfaces', () => {
           onMove={() => {}}
           currentStructure="workshop"
           recipes={[createRecipe()]}
-          recipeSkillLevels={RECIPE_SKILL_LEVELS}
+          recipeSkillLevels={DEFAULT_RECIPE_SKILL_LEVELS}
           inventoryCountsByItemKey={{}}
           preferredSkill={Skill.Crafting}
           materialFilterItemKey={null}

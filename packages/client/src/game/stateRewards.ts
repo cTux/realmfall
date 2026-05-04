@@ -25,6 +25,7 @@ import { GAME_TAGS } from './content/tags';
 import { enemyRarityIndex, isAnimalEnemy } from './combat';
 import { RECIPE_BOOK_RECIPES } from './crafting';
 import { hexKey } from './hex';
+import { CHEST_KEY_DROP_CHANCE, LOCKPICK_DROP_CHANCE } from './lockedChests';
 import { addLog } from './logs';
 import {
   addItemToInventory,
@@ -153,6 +154,14 @@ export function maybeGatherByproduct(
 export function dropEnemyRewards(state: GameState, enemy: Enemy) {
   maybeDropEnemyGold(state, enemy);
   maybeDropEnemyItem(state, enemy);
+  maybeDropLockedChestOpener(state, enemy, {
+    itemKey: ItemId.Lockpick,
+    chance: LOCKPICK_DROP_CHANCE,
+  });
+  maybeDropLockedChestOpener(state, enemy, {
+    itemKey: ItemId.ChestKey,
+    chance: CHEST_KEY_DROP_CHANCE,
+  });
   maybeDropTerraformingConsumable(state, enemy);
   maybeDropEnemyRecipe(state, enemy);
   maybeDropHomeScroll(state, enemy);
@@ -243,7 +252,7 @@ function maybeDropEnemyGold(state: GameState, enemy: Enemy) {
         ),
       )
     : quantity;
-  const finalQuantity = isTreasureGoblinRewardEnemy(enemy)
+  const finalQuantity = isTreasureGoblinEnemy(enemy)
     ? bloodMoonQuantity * TREASURE_GOBLIN_GOLD_MULTIPLIER
     : bloodMoonQuantity;
   ensureTileState(state, enemy.coord);
@@ -257,6 +266,33 @@ function maybeDropEnemyGold(state: GameState, enemy: Enemy) {
     t('game.message.enemyDrop.gold', {
       enemy: enemy.name,
       amount: finalQuantity,
+    }),
+  );
+}
+
+export function maybeDropLockedChestOpener(
+  state: GameState,
+  enemy: Enemy,
+  {
+    itemKey,
+    chance,
+  }: {
+    itemKey: ItemId.Lockpick | ItemId.ChestKey;
+    chance: number;
+  },
+) {
+  if (chance <= 0) return;
+
+  const rng = createRng(
+    `${state.seed}:enemy:${itemKey}:${enemy.id}:${state.turn}`,
+  );
+  if (rng() >= chance) return;
+
+  addEnemyDrop(
+    state,
+    enemy,
+    buildItemFromConfig(itemKey, {
+      id: `${itemKey}:${enemy.id}:${state.turn}`,
     }),
   );
 }
@@ -616,7 +652,7 @@ export function getEnemyItemDropChance(enemy: Enemy) {
   );
   return clampChance(
     baseChance *
-      (isTreasureGoblinRewardEnemy(enemy)
+      (hasTreasureGoblinItemRewardMultipliers(enemy)
         ? TREASURE_GOBLIN_ITEM_DROP_MULTIPLIERS.chanceMultiplier
         : 1),
   );
@@ -631,12 +667,12 @@ export function getEnemyDropRarityChanceScale(state: GameState, enemy: Enemy) {
   const bloodMoonMultiplier = state.bloodMoonActive
     ? ENEMY_ITEM_BLOOD_MOON_RARITY_CHANCE_MULTIPLIER
     : 1;
-  const treasureGoblinMultiplier = isTreasureGoblinRewardEnemy(enemy)
+  const treasureGoblinMultiplier = hasTreasureGoblinItemRewardMultipliers(enemy)
     ? TREASURE_GOBLIN_ITEM_DROP_MULTIPLIERS.rarityMultiplier
     : 1;
   return dungeonMultiplier * bloodMoonMultiplier * treasureGoblinMultiplier;
 }
 
-function isTreasureGoblinRewardEnemy(enemy: Enemy) {
-  return isTreasureGoblinEnemy(enemy);
+function hasTreasureGoblinItemRewardMultipliers(enemy: Enemy) {
+  return isTreasureGoblinEnemy(enemy) || enemy.enemyTypeId === 'mimic';
 }

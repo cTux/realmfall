@@ -233,4 +233,34 @@ describe('enemy rarity', () => {
         previousChance;
     }
   });
+
+  it('forces mimics to legendary rarity and doubles attack above the ordinary legendary baseline', () => {
+    const baselineLegendary = makeEnemy(
+      'mimic-baseline-seed',
+      { q: 4, r: -2 },
+      'plains',
+      0,
+      undefined,
+      false,
+      {
+        enemyTypeId: 'wolf',
+        rarity: 'legendary',
+      },
+    );
+    const mimic = makeEnemy(
+      'mimic-baseline-seed',
+      { q: 4, r: -2 },
+      'plains',
+      0,
+      undefined,
+      false,
+      {
+        enemyTypeId: 'mimic',
+      },
+    );
+
+    expect(mimic.rarity).toBe('legendary');
+    expect(mimic.attack).toBe(baselineLegendary.attack * 2);
+    expect(mimic.defense).toBe(baselineLegendary.defense);
+  });
 });

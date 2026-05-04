@@ -18,6 +18,7 @@ describe('enemy content registry', () => {
     expect(getEnemyConfig('gluttony')?.tags).toContain(
       GAME_TAGS.enemy.aberration,
     );
+    expect(getEnemyConfig('mimic')?.tags).toContain(GAME_TAGS.enemy.mimic);
     expect(getEnemyConfig('treasure-goblin')?.tags).toContain(
       GAME_TAGS.enemy.treasureGoblin,
     );

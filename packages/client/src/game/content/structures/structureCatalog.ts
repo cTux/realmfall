@@ -20,6 +20,7 @@ import { goldOreStructureConfig } from './goldOre';
 import { herbsStructureConfig } from './herbs';
 import { ironOreStructureConfig } from './ironOre';
 import { lakeStructureConfig } from './lake';
+import { lockedChestStructureConfig } from './lockedChest';
 import { manaFontStructureConfig } from './manaFont';
 import { platinumOreStructureConfig } from './platinumOre';
 import { pondStructureConfig } from './pond';
@@ -30,6 +31,7 @@ import { treeStructureConfig } from './tree';
 import { workshopStructureConfig } from './workshop';
 
 const RAW_STRUCTURE_CONFIGS = [
+  lockedChestStructureConfig,
   dungeonStructureConfig,
   corruptionAltarStructureConfig,
   forgeStructureConfig,

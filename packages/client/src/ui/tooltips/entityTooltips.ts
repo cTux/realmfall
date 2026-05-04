@@ -73,6 +73,26 @@ export function skillTooltip(
     ];
   }
 
+  if (skill === Skill.Lockpicking) {
+    return [
+      {
+        kind: 'text',
+        text: t('ui.skills.tooltip.professionDescription'),
+      },
+      {
+        kind: 'stat',
+        label: t('ui.tooltip.lockpickBreakChance'),
+        value: `${lockpickBreakChancePercent(level)}%`,
+        tone: 'item',
+      },
+      {
+        kind: 'text',
+        text: t('ui.skills.tooltip.nextLevelNeeds', { xp: nextLevelXp }),
+      },
+      ...tags,
+    ];
+  }
+
   return [
     {
       kind: 'text',
@@ -109,4 +129,8 @@ function isGatheringSkill(skill: SkillName) {
     skill === Skill.Skinning ||
     skill === Skill.Fishing
   );
+}
+
+function lockpickBreakChancePercent(level: number) {
+  return Math.round(Math.max(25, 75 - Math.max(0, level - 1) * 0.5));
 }

@@ -7,7 +7,9 @@ This spec covers canonical type ids and gameplay tags for item configs, enemy co
 ## Current Solution
 
 - `src/game/content/ids.ts` provides enum-backed canonical ids for item types, enemy types, status effects, and equipment slots.
+- The shared runtime enums also carry `Skill.Lockpicking` plus the canonical locked chest structure id, so progression, world generation, normalization, and tooltips reference the same identifiers.
 - Every configured item type uses its stable enum-backed `key` as the canonical item type id.
+- Locked chest content extends those canonical ids with `lockpick`, `chest-key`, `mimic`, and the matching chest-opener, mimic, chest, and lockpicking gameplay tags instead of display-name checks.
 - Item configs and runtime items no longer store a separate `kind`; item behavior is derived from canonical ids, equipment slots, and hydrated tags instead.
 - Item-specific tags, icon-pool hints, category overrides, and granted-ability pools are declared on the owning item config or generated-item family helper before registry assembly.
 - `src/game/content/items/index.ts` remains the public item-content facade while `itemCatalog.ts` assembles hydrated configs and `itemClassification.ts` plus `itemCategoryRules.ts` own shared category and tag inference rules.
