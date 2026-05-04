@@ -12,6 +12,8 @@ This spec covers enemy generation plus the blood moon, harvest moon, and earthsh
 - Rarer enemies scale their combat stats and XP upward beyond the terrain baseline instead of relying only on a binary elite flag.
 - Treasure goblin is a canonical legendary enemy type that can replace only the explicit unresolved ordinary single-enemy hostile overworld spawn path at a deterministic `0.5%` chance.
 - Treasure goblins use ordinary legendary attack and defense scaling, but their max HP is multiplied by `20`.
+- Locked chests deterministically conceal a mimic on a `10%` per-chest replacement roll derived from world seed and hex coordinate.
+- Mimics present as ordinary locked chests until revealed, always resolve as legendary enemies, double the ordinary attack baseline for their tier, and reuse treasure-goblin item-drop chance plus rarity multipliers without the treasure-goblin gold multiplier.
 - Enemy base stats scale from `150 / 50 / 35` at level `1` to `5000 / 1600 / 1100` at level `100`.
 - Enemy levels can exceed `100`, and each level above `100` adds `10%` of the level-`100` base max HP, attack, and defense anchors.
 - Faction NPCs use non-hostile territory-specific enemy identities so they can participate in the same world systems without behaving like ordinary hostiles.

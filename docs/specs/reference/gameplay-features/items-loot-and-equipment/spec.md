@@ -33,6 +33,10 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - Consumables share a single `2s` cooldown lockout only during active combat, and leaving combat clears that shared cooldown immediately.
 - Consumable-use effects and cooldown application are resolved from the focused item-action mutation flow rather than from the broad gameplay state facade.
 - Consumable tooltip copy and consumable-use resolution both read from the same shared consumable-effect descriptor model, so percent restores and hunger or thirst restores do not drift between UI text and gameplay behavior.
+- Lockpicks and chest keys are stackable chest-only consumables that route through the dedicated inventory item-action path instead of the ordinary consumable flow.
+- Lockpicks have a base `75%` break chance that the lockpicking skill reduces to a `25%` floor, while chest keys always consume `1` stack on use.
+- Chest openers are excluded from generic consumable pools and only enter the world through dedicated enemy drop rolls: `0.5%` for lockpicks and `0.01%` for chest keys.
+- Opening an ordinary locked chest consumes the opener, removes the chest structure, and drops one world-generated item onto the tile.
 - Equippable items can carry persistent modification metadata for a reforged secondary-stat slot, one enchanted extra secondary stat, and a corrupted flag that survives cloning, scaling, tooltip rendering, and save normalization.
 - Rune-forge reforging rerolls one chosen base secondary stat or one visible empty base-secondary slot into a new random compatible stat, charges gold, and locks all later reforges on that item to the same already-reforged real slot instead of reopening every base stat.
 - Mana-font enchanting charges gold and grants one extra random compatible secondary stat; enchanting the same item again replaces that dedicated enchant stat instead of adding another slot.

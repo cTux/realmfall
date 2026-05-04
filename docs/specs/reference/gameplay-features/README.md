@@ -9,6 +9,7 @@ Implemented gameplay features are split into dedicated spec files:
 - [Combat Balance](./combat-balance/spec.md)
 - [Enemies And World Events](./enemies-and-world-events/spec.md)
 - [Items Loot And Equipment](./items-loot-and-equipment/spec.md)
+- [Locked Chests And Lockpicking](./locked-chests-and-lockpicking/spec.md)
 - [Inventory And Economy](./inventory-and-economy/spec.md)
 - [Gathering Structures And Interaction](./gathering-structures-and-interaction/spec.md)
 - [Crafting And Recipes](./crafting-and-recipes/spec.md)
