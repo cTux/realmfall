@@ -63,7 +63,7 @@
     "concurrently": "^9.2.1",
     "fast-check": "^4.7.0",
     "fuite": "^5.0.9",
-    "globals": "^17.5.0",
+    "globals": "^17.6.0",
     "jsdom": "^29.1.0",
     "npm-check-updates": "^22.0.1",
     "oxlint": "^1.62.0",
