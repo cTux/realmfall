@@ -45,6 +45,9 @@ importers:
       easy-web-worker:
         specifier: ^7.0.5
         version: 7.0.5(easy-cancelable-promise@2.0.1)
+      howler:
+        specifier: ^2.2.4
+        version: 2.2.4
       pixi.js:
         specifier: ^8.18.1
         version: 8.18.1
@@ -54,9 +57,6 @@ importers:
       react-dom:
         specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
-      react-use-audio-player:
-        specifier: ^4.0.2
-        version: 4.0.2(react@19.2.5)
       valibot:
         specifier: ^1.3.1
         version: 1.3.1(typescript@6.0.3)
@@ -70,6 +70,9 @@ importers:
       '@storybook/react-vite':
         specifier: ^10.3.5
         version: 10.3.5(esbuild@0.27.7)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(rollup@4.60.1)(storybook@10.3.5(@testing-library/dom@10.4.1)(prettier@3.8.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(typescript@6.0.3)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0))
+      '@types/howler':
+        specifier: ^2.2.12
+        version: 2.2.12
       '@types/node':
         specifier: ^25.6.0
         version: 25.6.0
@@ -2605,6 +2608,12 @@ packages:
     resolution:
       {
         integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==,
+      }
+
+  '@types/howler@2.2.12':
+    resolution:
+      {
+        integrity: sha512-hy769UICzOSdK0Kn1FBk4gN+lswcj1EKRkmiDtMkUGvFfYJzgaDXmVXkSShS2m89ERAatGIPnTUlp2HhfkVo5g==,
       }
 
   '@types/node@25.6.0':
@@ -5746,12 +5755,6 @@ packages:
         integrity: sha512-VS7sjc6KR7e1ukRFhQSY5LM2uBWAUPiOPa/A3mkKmiMwSmRFUITt0xuj+/lesgnCv+dPIEYlkzrcyXgquIHMcA==,
       }
 
-  pure-rand@8.4.0:
-    resolution:
-      {
-        integrity: sha512-IoM8YF/jY0hiugFo/wOWqfmarlE6J0wc6fDK1PhftMk7MGhVZl88sZimmqBBFomLOCSmcCCpsfj7wXASCpvK9A==,
-      }
-
   punycode@2.3.1:
     resolution:
       {
@@ -5773,6 +5776,12 @@ packages:
       }
     engines: { node: '>=18' }
     hasBin: true
+
+  pure-rand@8.4.0:
+    resolution:
+      {
+        integrity: sha512-IoM8YF/jY0hiugFo/wOWqfmarlE6J0wc6fDK1PhftMk7MGhVZl88sZimmqBBFomLOCSmcCCpsfj7wXASCpvK9A==,
+      }
 
   pvtsutils@1.3.6:
     resolution:
@@ -5855,14 +5864,6 @@ packages:
       {
         integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==,
       }
-
-  react-use-audio-player@4.0.2:
-    resolution:
-      {
-        integrity: sha512-qOgcQUAcRJ6skFeAFMPaAv1ZTXQG3zHBHjvHaaTZkGMlAqga9xiVJ826CbtxTXRsqrxexZ61puzeaPhDrJR6SQ==,
-      }
-    peerDependencies:
-      react: '>=18.0.0'
 
   react@19.2.5:
     resolution:
@@ -8489,6 +8490,8 @@ snapshots:
 
   '@types/estree@1.0.8': {}
 
+  '@types/howler@2.2.12': {}
+
   '@types/node@25.6.0':
     dependencies:
       undici-types: 7.19.2
@@ -10276,8 +10279,6 @@ snapshots:
       end-of-stream: 1.4.5
       once: 1.4.0
 
-  pure-rand@8.4.0: {}
-
   punycode@2.3.1: {}
 
   puppeteer-core@24.41.0:
@@ -10313,6 +10314,8 @@ snapshots:
       - supports-color
       - typescript
       - utf-8-validate
+
+  pure-rand@8.4.0: {}
 
   pvtsutils@1.3.6:
     dependencies:
@@ -10364,11 +10367,6 @@ snapshots:
       scheduler: 0.27.0
 
   react-is@17.0.2: {}
-
-  react-use-audio-player@4.0.2(react@19.2.5):
-    dependencies:
-      howler: 2.2.4
-      react: 19.2.5
 
   react@19.2.5: {}
 
