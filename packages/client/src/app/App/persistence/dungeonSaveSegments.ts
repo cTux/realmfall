@@ -17,6 +17,20 @@ export function serializePersistedDungeonWorlds(game: GameState) {
   );
 }
 
+export function serializePersistedDungeonWorldsForIds(
+  game: GameState,
+  dungeonIds: Iterable<string>,
+) {
+  const dungeonWorlds = buildPersistedDungeonWorlds(game);
+
+  return Object.fromEntries(
+    Array.from(dungeonIds).flatMap((dungeonId) => {
+      const world = dungeonWorlds[dungeonId];
+      return world === undefined ? [] : [[dungeonId, JSON.stringify(world)]];
+    }),
+  );
+}
+
 export function getDirtyPersistedDungeonIds(
   serializedDungeonWorlds: Record<string, string>,
   lastSavedDungeonSerialized: Record<string, string>,

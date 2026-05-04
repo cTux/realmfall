@@ -19,6 +19,7 @@ import { normalizeActionBarSlots, type ActionBarSlots } from './actionBar';
 import {
   buildPersistedDungeonWorlds,
   getDirtyPersistedDungeonIds,
+  serializePersistedDungeonWorldsForIds,
   serializePersistedDungeonWorlds,
 } from './persistence/dungeonSaveSegments';
 import {
@@ -119,7 +120,7 @@ export function useAppPersistence({
           saved.game,
         );
         if (!alive) return;
-        const loadedGame = normalizeLoadedGame(hydratedSavedGame);
+        const loadedGame = normalizeLoadedGame(hydratedSavedGame.game);
         if (loadedGame) {
           syncActiveWorldAliases(loadedGame);
           worldTimeMsRef.current = loadedGame.worldTimeMs;
@@ -139,7 +140,10 @@ export function useAppPersistence({
           latestInputsRef.current.game = loadedGame;
           latestInputsRef.current.worldTimeMs = loadedGame.worldTimeMs;
           lastSavedDungeonSerializedRef.current =
-            serializePersistedDungeonWorlds(loadedGame);
+            serializePersistedDungeonWorldsForIds(
+              loadedGame,
+              hydratedSavedGame.persistedDungeonIds,
+            );
         }
       }
 
@@ -315,9 +319,16 @@ export function useAppPersistence({
   return { hydrated, persistNow };
 }
 
-async function hydrateSavedGameWithDungeonWorlds(savedGame: unknown) {
+interface HydratedSavedGameResult {
+  game: unknown;
+  persistedDungeonIds: string[];
+}
+
+async function hydrateSavedGameWithDungeonWorlds(
+  savedGame: unknown,
+): Promise<HydratedSavedGameResult> {
   if (!isRecord(savedGame)) {
-    return savedGame;
+    return { game: savedGame, persistedDungeonIds: [] };
   }
 
   const activeDungeonId =
@@ -338,13 +349,14 @@ async function hydrateSavedGameWithDungeonWorlds(savedGame: unknown) {
     dungeonIds.add(activeDungeonId);
   }
   if (dungeonIds.size === 0) {
-    return savedGame;
+    return { game: savedGame, persistedDungeonIds: [] };
   }
 
   const hydratedGame: Record<string, unknown> = {
     ...savedGame,
     worlds: isRecord(savedGame.worlds) ? { ...savedGame.worlds } : {},
   };
+  const persistedDungeonIds: string[] = [];
   const loadedDungeonWorlds = await Promise.all(
     Array.from(dungeonIds).map(
       async (dungeonId) =>
@@ -356,11 +368,18 @@ async function hydrateSavedGameWithDungeonWorlds(savedGame: unknown) {
     if (dungeonWorld !== null) {
       (hydratedGame.worlds as Record<string, unknown>)[dungeonId] =
         dungeonWorld;
+      persistedDungeonIds.push(dungeonId);
     }
   });
 
+  const hasActiveDungeonBodyInline =
+    activeDungeonId !== null &&
+    isRecord(hydratedGame.worlds) &&
+    isRecord(hydratedGame.worlds[activeDungeonId]);
+
   if (
     activeDungeonId &&
+    !hasActiveDungeonBodyInline &&
     !loadedDungeonWorlds.some(
       ([dungeonId, dungeonWorld]) =>
         dungeonId === activeDungeonId && dungeonWorld !== null,
@@ -383,6 +402,7 @@ async function hydrateSavedGameWithDungeonWorlds(savedGame: unknown) {
 
     hydratedGame.activeDungeon = null;
     hydratedGame.activeWorldId = surfaceWorldId;
+    hydratedGame.combat = null;
     if (surfaceCoord && isRecord(hydratedGame.player)) {
       hydratedGame.player = {
         ...hydratedGame.player,
@@ -391,7 +411,10 @@ async function hydrateSavedGameWithDungeonWorlds(savedGame: unknown) {
     }
   }
 
-  return hydratedGame;
+  return {
+    game: hydratedGame,
+    persistedDungeonIds,
+  };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

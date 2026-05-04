@@ -7,6 +7,8 @@ import React, {
   useState,
 } from 'react';
 import { createRoot } from 'react-dom/client';
+import { createCombatActorState } from '../../../game/combat';
+import { createDungeonWorldState } from '../../../game/dungeons/worldState';
 import { createGame } from '../../../game/stateFactory';
 import type { GameState } from '../../../game/stateTypes';
 import { createDefaultActionBarSlots } from '../actionBar';
@@ -155,6 +157,35 @@ async function renderPersistenceHarness() {
 async function flushAutosaveTimers(ms = 5000) {
   await vi.advanceTimersByTimeAsync(ms);
   await vi.runOnlyPendingTimersAsync();
+}
+
+function createPersistedDungeonWorld(
+  dungeonId: string,
+  surfaceEntranceCoord = { q: 1, r: 0 },
+) {
+  return createDungeonWorldState({
+    id: dungeonId,
+    tiles: {
+      '0,0': {
+        coord: { q: 0, r: 0 },
+        terrain: 'dungeon-brick-floor',
+        structure: 'dungeon',
+        items: [],
+        enemyIds: [],
+      },
+    },
+    enemies: {},
+    dungeon: {
+      cleared: false,
+      entranceCoord: { q: 0, r: 0 },
+      finalChestCoord: { q: 6, r: 0 },
+      finalEliteEnemyId: 'enemy-6,0-0',
+      paddingRadius: 6,
+      surfaceEntranceCoord,
+      templateId: 'rooms-and-corridors',
+      themeId: 'brick-halls',
+    },
+  });
 }
 
 describe('useAppPersistence', () => {
@@ -471,6 +502,125 @@ describe('useAppPersistence', () => {
       'dungeon:hydrate-dungeon-body:1,0',
     );
     expect(handle.getGame().tiles['0,0']?.terrain).toBe('dungeon-brick-floor');
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('writes inline legacy dungeon worlds to dedicated saves on the next persist', async () => {
+    const savedGame = createGame(3, 'legacy-inline-dungeon-upgrade');
+    const dungeonId = 'dungeon:legacy-inline-dungeon-upgrade:1,0';
+    const dungeonWorld = createPersistedDungeonWorld(dungeonId);
+
+    savedGame.dungeonEntrances['1,0'] = {
+      dungeonId,
+      surfaceCoord: { q: 1, r: 0 },
+    };
+    savedGame.worlds[dungeonId] = dungeonWorld;
+
+    loadEncryptedState.mockResolvedValue({ game: savedGame, ui: {} });
+    loadEncryptedDungeonState.mockResolvedValue(null);
+    saveEncryptedState.mockResolvedValue(undefined);
+    saveEncryptedDungeonState.mockResolvedValue(undefined);
+
+    const { handle, root, host } = await renderPersistenceHarness();
+
+    await act(async () => {
+      await handle.persistNow();
+    });
+
+    expect(host.querySelector('[data-hydrated="ready"]')).toBeTruthy();
+    expect(saveEncryptedDungeonState).toHaveBeenCalledWith(
+      dungeonId,
+      expect.objectContaining({
+        id: dungeonId,
+        kind: 'dungeon',
+      }),
+    );
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('keeps an active legacy inline dungeon loaded when the dedicated save is missing', async () => {
+    const savedGame = createGame(3, 'legacy-inline-active-dungeon');
+    const dungeonId = 'dungeon:legacy-inline-active-dungeon:1,0';
+    const dungeonWorld = createPersistedDungeonWorld(dungeonId);
+
+    savedGame.activeWorldId = dungeonId;
+    savedGame.dungeonEntrances['1,0'] = {
+      dungeonId,
+      surfaceCoord: { q: 1, r: 0 },
+    };
+    savedGame.activeDungeon = {
+      dungeonId,
+      returnCoord: { q: 1, r: 0 },
+      surfaceCoord: { q: 1, r: 0 },
+    };
+    savedGame.worlds[dungeonId] = dungeonWorld;
+
+    loadEncryptedState.mockResolvedValue({ game: savedGame, ui: {} });
+    loadEncryptedDungeonState.mockResolvedValue(null);
+    saveEncryptedState.mockResolvedValue(undefined);
+
+    const { handle, host, root } = await renderPersistenceHarness();
+
+    expect(host.querySelector('[data-hydrated="ready"]')).toBeTruthy();
+    expect(handle.getGame().activeWorldId).toBe(dungeonId);
+    expect(handle.getGame().activeDungeon?.dungeonId).toBe(dungeonId);
+    expect(handle.getGame().tiles['0,0']?.terrain).toBe('dungeon-brick-floor');
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('clears combat when active dungeon recovery falls back to the surface', async () => {
+    const savedGame = createGame(3, 'missing-dungeon-combat-fallback');
+    const dungeonId = 'dungeon:missing-dungeon-combat-fallback:1,0';
+
+    savedGame.activeWorldId = dungeonId;
+    savedGame.dungeonEntrances['1,0'] = {
+      dungeonId,
+      surfaceCoord: { q: 1, r: 0 },
+    };
+    savedGame.activeDungeon = {
+      dungeonId,
+      returnCoord: { q: 1, r: 0 },
+      surfaceCoord: { q: 1, r: 0 },
+    };
+    savedGame.combat = {
+      coord: { q: 0, r: 0 },
+      enemyIds: ['enemy-0,0-0'],
+      started: true,
+      startedAtMs: savedGame.worldTimeMs,
+      player: createCombatActorState(savedGame.worldTimeMs, ['kick']),
+      enemies: {
+        'enemy-0,0-0': createCombatActorState(savedGame.worldTimeMs, ['kick']),
+      },
+      enemyStateById: {
+        'enemy-0,0-0': {},
+      },
+    };
+
+    loadEncryptedState.mockResolvedValue({ game: savedGame, ui: {} });
+    loadEncryptedDungeonState.mockResolvedValue(null);
+    saveEncryptedState.mockResolvedValue(undefined);
+
+    const { handle, host, root } = await renderPersistenceHarness();
+
+    expect(host.querySelector('[data-hydrated="ready"]')).toBeTruthy();
+    expect(handle.getGame().activeWorldId).toBe(
+      handle.getGame().surfaceWorldId,
+    );
+    expect(handle.getGame().activeDungeon).toBeNull();
+    expect(handle.getGame().player.coord).toEqual({ q: 1, r: 0 });
+    expect(handle.getGame().combat).toBeNull();
 
     await act(async () => {
       root.unmount();
