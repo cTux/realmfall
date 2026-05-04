@@ -63,7 +63,7 @@
     "fast-check": "^4.7.0",
     "fuite": "^5.0.9",
     "globals": "^17.5.0",
-    "jsdom": "^29.1.0",
+    "jsdom": "^29.1.1",
     "npm-check-updates": "^22.0.1",
     "oxlint": "^1.62.0",
     "prettier": "^3.8.3",
