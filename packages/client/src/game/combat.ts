@@ -145,18 +145,21 @@ export function makeEnemy(
         ? (getEnemyConfig(options.enemyTypeId) ??
           pickEnemyConfig(terrain, roll, structure === 'dungeon'))
         : pickEnemyConfig(terrain, roll, structure === 'dungeon');
+  const mimic = config.id === 'mimic';
   const rarity = treasureGoblinOverride
     ? 'legendary'
-    : options?.enemyTypeId
-      ? (options.rarity ?? 'common')
-      : worldBoss
-        ? 'legendary'
-        : resolveEnemyRarity(
-            createRng(`${seed}:enemy:rarity:${index}:${coord.q}:${coord.r}`),
-            enemyRarityMinimum(structure, worldBoss),
-            tier,
-            structure,
-          );
+    : mimic
+      ? 'legendary'
+      : options?.enemyTypeId
+        ? (options.rarity ?? 'common')
+        : worldBoss
+          ? 'legendary'
+          : resolveEnemyRarity(
+              createRng(`${seed}:enemy:rarity:${index}:${coord.q}:${coord.r}`),
+              enemyRarityMinimum(structure, worldBoss),
+              tier,
+              structure,
+            );
   const rarityRank = enemyRarityIndex(rarity);
   const rarityMultiplier = enemyRarityMultiplier(rarity);
   const elite = rarityRank >= enemyRarityIndex('rare');
@@ -164,12 +167,13 @@ export function makeEnemy(
   const baseStats = getEnemyBaseStatsForLevel(tier);
   const baseMaxHp = Math.round(baseStats.maxHp * rarityMultiplier);
   const baseAttack = Math.round(baseStats.attack * rarityMultiplier);
+  const adjustedBaseAttack = mimic ? baseAttack * 2 : baseAttack;
   const baseDefense = Math.round(baseStats.defense * rarityMultiplier);
   const treasureGoblinBaseMaxHp = treasureGoblinOverride
     ? Math.round(baseMaxHp * TREASURE_GOBLIN_BALANCE.hpMultiplier)
     : baseMaxHp;
   const scaledMaxHp = worldBoss ? baseMaxHp * 50 : treasureGoblinBaseMaxHp;
-  const scaledAttack = worldBoss ? baseAttack * 5 : baseAttack;
+  const scaledAttack = worldBoss ? adjustedBaseAttack * 5 : adjustedBaseAttack;
   const scaledDefense = worldBoss
     ? Math.max(baseDefense + statTier * 3, baseDefense * 3)
     : baseDefense;
@@ -190,7 +194,7 @@ export function makeEnemy(
     hp: scaledMaxHp,
     mana: DEFAULT_ENEMY_MANA,
     maxMana: DEFAULT_ENEMY_MANA,
-    baseAttack: worldBoss ? scaledAttack : baseAttack,
+    baseAttack: worldBoss ? scaledAttack : adjustedBaseAttack,
     attack: scaledAttack,
     baseDefense: worldBoss ? scaledDefense : baseDefense,
     defense: scaledDefense,

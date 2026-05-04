@@ -2,6 +2,7 @@ import {
   dropEnemyRewards,
   getEnemyDropRarityChanceScale,
   getEnemyItemDropChance,
+  maybeDropLockedChestOpener,
 } from './stateRewards';
 import {
   ENEMY_ITEM_BLOOD_MOON_RARITY_CHANCE_MULTIPLIER,
@@ -19,6 +20,7 @@ import {
   seedCombatEncounter,
 } from './stateCombatTestHelpers';
 import { getItemCategory, getItemConfigByKey } from './content/items';
+import { ItemId } from './content/ids';
 import { getTileAt } from './state';
 
 const originalEnemyItemDropChances = {
@@ -311,6 +313,57 @@ describe('state rewards', () => {
     );
   });
 
+  it('applies treasure goblin item reward multipliers to mimics without applying treasure goblin gold scaling', () => {
+    const ordinaryGame = createCombatEncounterGame('mimic-item-rewards');
+    const mimicGame = createCombatEncounterGame('mimic-item-rewards');
+    const target = { q: 2, r: 0 };
+
+    ENEMY_ITEM_DROP_CHANCES.chance.base = 0.2;
+    ENEMY_ITEM_DROP_CHANCES.chance.perRarity = 0;
+    ENEMY_ITEM_DROP_CHANCES.chance.max = 1;
+
+    seedCombatEncounter(ordinaryGame, {
+      id: 'ordinary-item-reward-enemy',
+      name: 'Wolf',
+      enemyTypeId: 'wolf',
+      coord: target,
+      tier: 4,
+      hp: 1,
+      maxHp: 1,
+      attack: 0,
+      defense: 0,
+      xp: 5,
+      elite: false,
+      rarity: 'legendary',
+    });
+    seedCombatEncounter(mimicGame, {
+      id: 'mimic-item-reward-enemy',
+      name: 'Mimic',
+      enemyTypeId: 'mimic',
+      coord: target,
+      tier: 4,
+      hp: 1,
+      maxHp: 1,
+      attack: 0,
+      defense: 0,
+      xp: 5,
+      elite: false,
+      rarity: 'legendary',
+    });
+
+    const ordinaryLegendary =
+      ordinaryGame.enemies['ordinary-item-reward-enemy']!;
+    const mimicEnemy = mimicGame.enemies['mimic-item-reward-enemy']!;
+
+    expect(getEnemyItemDropChance(mimicEnemy)).toBe(
+      getEnemyItemDropChance(ordinaryLegendary) *
+        TREASURE_GOBLIN_ITEM_DROP_MULTIPLIERS.chanceMultiplier,
+    );
+    expect(getEnemyDropRarityChanceScale(mimicGame, mimicEnemy)).toBe(
+      TREASURE_GOBLIN_ITEM_DROP_MULTIPLIERS.rarityMultiplier,
+    );
+  });
+
   it('multiplies treasure goblin gold quantity after the normal drop succeeds', () => {
     const ordinaryGame = createCombatEncounterGame('treasure-goblin-gold');
     const treasureGoblinGame = createCombatEncounterGame(
@@ -374,6 +427,36 @@ describe('state rewards', () => {
     expect(ordinaryGoldQuantity).toBeGreaterThan(0);
     expect(treasureGoblinGoldQuantity).toBe(
       ordinaryGoldQuantity * TREASURE_GOBLIN_GOLD_MULTIPLIER,
+    );
+  });
+
+  it('drops lockpicks and chest keys through dedicated forced-chance helpers', () => {
+    const game = createCombatEncounterGame('locked-chest-opener-drops');
+    const target = seedCombatEncounter(game, {
+      id: 'enemy-chest-openers',
+      name: 'Raider',
+      coord: { q: 2, r: 0 },
+      tier: 1,
+      hp: 1,
+      maxHp: 1,
+      attack: 0,
+      defense: 0,
+      xp: 5,
+      elite: false,
+    });
+    const enemy = game.enemies['enemy-chest-openers']!;
+
+    maybeDropLockedChestOpener(game, enemy, {
+      itemKey: ItemId.Lockpick,
+      chance: 1,
+    });
+    maybeDropLockedChestOpener(game, enemy, {
+      itemKey: ItemId.ChestKey,
+      chance: 1,
+    });
+
+    expect(getTileAt(game, target).items.map((item) => item.itemKey)).toEqual(
+      expect.arrayContaining([ItemId.Lockpick, ItemId.ChestKey]),
     );
   });
 });
