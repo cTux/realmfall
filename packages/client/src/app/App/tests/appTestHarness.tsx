@@ -4,8 +4,11 @@ import { createGame } from '../../../game/stateFactory';
 import { GAME_DAY_DURATION_MS, GAME_DAY_MINUTES } from '../../../game/config';
 
 export const renderScene = vi.fn();
+export const loadEncryptedDungeonState = vi.fn();
 export const loadEncryptedState = vi.fn();
+export const saveEncryptedDungeonState = vi.fn();
 export const saveEncryptedState = vi.fn();
+export const clearEncryptedDungeonStates = vi.fn();
 export const clearEncryptedState = vi.fn();
 export const tickerCallbacks = new Set<() => void>();
 export const tickerMaxFpsValues: number[] = [];
@@ -241,8 +244,11 @@ vi.mock('pixi.js', () => {
 });
 
 vi.mock('../../../persistence/storage', () => ({
+  clearEncryptedDungeonStates,
   clearEncryptedState,
+  loadEncryptedDungeonState,
   loadEncryptedState,
+  saveEncryptedDungeonState,
   saveEncryptedState,
 }));
 

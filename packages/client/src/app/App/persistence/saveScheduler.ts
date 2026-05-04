@@ -1,8 +1,14 @@
 import type { MutableRefObject } from 'react';
 import {
+  saveEncryptedDungeonState,
   saveEncryptedState,
   type PersistedData,
 } from '../../../persistence/storage';
+import {
+  buildPersistedDungeonWorlds,
+  getDirtyPersistedDungeonIds,
+  serializePersistedDungeonWorlds,
+} from './dungeonSaveSegments';
 import {
   buildPersistedSegments,
   buildPersistedSnapshot,
@@ -52,7 +58,10 @@ interface PersistSnapshotResult {
 
 export function enqueuePersistSnapshot({
   dirtySegmentsRef,
+  dirtyDungeonIds,
+  dungeonSnapshots,
   latestInputsRef,
+  lastSavedDungeonSerializedRef,
   lastSavedSerializedRef,
   saveInFlightRef,
   saveQueueRef,
@@ -61,7 +70,10 @@ export function enqueuePersistSnapshot({
   snapshot,
 }: {
   dirtySegmentsRef: MutableRefObject<DirtySaveSegments>;
+  dirtyDungeonIds: string[];
+  dungeonSnapshots: Record<string, unknown>;
   latestInputsRef: MutableRefObject<LatestSaveInputs>;
+  lastSavedDungeonSerializedRef: MutableRefObject<Record<string, string>>;
   lastSavedSerializedRef: MutableRefObject<SerializedSaveSegments>;
   saveInFlightRef: MutableRefObject<boolean>;
   saveQueueRef: MutableRefObject<Promise<void>>;
@@ -74,24 +86,48 @@ export function enqueuePersistSnapshot({
 
     try {
       await saveEncryptedState(snapshot);
+      await Promise.all(
+        dirtyDungeonIds.map((dungeonId) =>
+          saveEncryptedDungeonState(dungeonId, dungeonSnapshots[dungeonId]),
+        ),
+      );
       lastSavedSerializedRef.current = mergeSavedSerializedSegments(
         lastSavedSerializedRef.current,
         serialized,
         savedDirtySegments,
       );
+      if (dirtyDungeonIds.length > 0) {
+        lastSavedDungeonSerializedRef.current = {
+          ...lastSavedDungeonSerializedRef.current,
+          ...Object.fromEntries(
+            dirtyDungeonIds.map((dungeonId) => [
+              dungeonId,
+              JSON.stringify(dungeonSnapshots[dungeonId]),
+            ]),
+          ),
+        };
+      }
 
       return { succeeded: true } satisfies PersistSnapshotResult;
     } catch (error) {
       return { error, succeeded: false } satisfies PersistSnapshotResult;
     } finally {
       const pendingDirtySegments = { ...dirtySegmentsRef.current };
-      dirtySegmentsRef.current = getDirtySegments(
+      const recomputedDirtySegments = getDirtySegments(
         serializeSegments(
           buildPersistedSegments(latestInputsRef.current, pendingDirtySegments),
         ),
         lastSavedSerializedRef.current,
         pendingDirtySegments,
       );
+      const dirtyDungeonIds = getDirtyPersistedDungeonIds(
+        serializePersistedDungeonWorlds(latestInputsRef.current.game),
+        lastSavedDungeonSerializedRef.current,
+      );
+      dirtySegmentsRef.current = {
+        ...recomputedDirtySegments,
+        game: recomputedDirtySegments.game || dirtyDungeonIds.length > 0,
+      };
       saveInFlightRef.current = false;
     }
   });
@@ -104,12 +140,14 @@ export function enqueuePersistSnapshot({
 function flushPendingSave({
   dirtySegmentsRef,
   latestInputsRef,
+  lastSavedDungeonSerializedRef,
   lastSavedSerializedRef,
   saveInFlightRef,
   saveQueueRef,
 }: {
   dirtySegmentsRef: MutableRefObject<DirtySaveSegments>;
   latestInputsRef: MutableRefObject<LatestSaveInputs>;
+  lastSavedDungeonSerializedRef: MutableRefObject<Record<string, string>>;
   lastSavedSerializedRef: MutableRefObject<SerializedSaveSegments>;
   saveInFlightRef: MutableRefObject<boolean>;
   saveQueueRef: MutableRefObject<Promise<void>>;
@@ -130,14 +168,28 @@ function flushPendingSave({
     lastSavedSerializedRef.current,
     candidateDirtySegments,
   );
-  if (!nextDirtySegments.game && !nextDirtySegments.ui) {
+  const dungeonSnapshots = buildPersistedDungeonWorlds(
+    latestInputsRef.current.game,
+  );
+  const dirtyDungeonIds = getDirtyPersistedDungeonIds(
+    serializePersistedDungeonWorlds(latestInputsRef.current.game),
+    lastSavedDungeonSerializedRef.current,
+  );
+  if (
+    !nextDirtySegments.game &&
+    !nextDirtySegments.ui &&
+    dirtyDungeonIds.length === 0
+  ) {
     dirtySegmentsRef.current = nextDirtySegments;
     return;
   }
 
   void enqueuePersistSnapshot({
     dirtySegmentsRef,
+    dirtyDungeonIds,
+    dungeonSnapshots,
     latestInputsRef,
+    lastSavedDungeonSerializedRef,
     lastSavedSerializedRef,
     saveInFlightRef,
     saveQueueRef,
@@ -152,6 +204,7 @@ function flushPendingSave({
       flushPendingSave({
         dirtySegmentsRef,
         latestInputsRef,
+        lastSavedDungeonSerializedRef,
         lastSavedSerializedRef,
         saveInFlightRef,
         saveQueueRef,
@@ -179,6 +232,7 @@ export function scheduleIdleSave({
   dirtySegmentsRef,
   idleSaveRef,
   latestInputsRef,
+  lastSavedDungeonSerializedRef,
   lastSavedSerializedRef,
   saveInFlightRef,
   saveQueueRef,
@@ -186,6 +240,7 @@ export function scheduleIdleSave({
   dirtySegmentsRef: MutableRefObject<DirtySaveSegments>;
   idleSaveRef: MutableRefObject<number | null>;
   latestInputsRef: MutableRefObject<LatestSaveInputs>;
+  lastSavedDungeonSerializedRef: MutableRefObject<Record<string, string>>;
   lastSavedSerializedRef: MutableRefObject<SerializedSaveSegments>;
   saveInFlightRef: MutableRefObject<boolean>;
   saveQueueRef: MutableRefObject<Promise<void>>;
@@ -199,6 +254,7 @@ export function scheduleIdleSave({
     flushPendingSave({
       dirtySegmentsRef,
       latestInputsRef,
+      lastSavedDungeonSerializedRef,
       lastSavedSerializedRef,
       saveInFlightRef,
       saveQueueRef,
@@ -219,6 +275,7 @@ export function scheduleSave({
   dirtySegmentsRef,
   idleSaveRef,
   latestInputsRef,
+  lastSavedDungeonSerializedRef,
   lastSavedSerializedRef,
   saveInFlightRef,
   saveQueueRef,
@@ -228,6 +285,7 @@ export function scheduleSave({
   dirtySegmentsRef: MutableRefObject<DirtySaveSegments>;
   idleSaveRef: MutableRefObject<number | null>;
   latestInputsRef: MutableRefObject<LatestSaveInputs>;
+  lastSavedDungeonSerializedRef: MutableRefObject<Record<string, string>>;
   lastSavedSerializedRef: MutableRefObject<SerializedSaveSegments>;
   saveInFlightRef: MutableRefObject<boolean>;
   saveQueueRef: MutableRefObject<Promise<void>>;
@@ -247,6 +305,7 @@ export function scheduleSave({
       dirtySegmentsRef,
       idleSaveRef,
       latestInputsRef,
+      lastSavedDungeonSerializedRef,
       lastSavedSerializedRef,
       saveInFlightRef,
       saveQueueRef,

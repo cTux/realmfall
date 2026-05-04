@@ -7,11 +7,20 @@ import {
   type SetStateAction,
 } from 'react';
 import { createFreshLogsAtTime } from '../../game/logs';
+import { syncActiveWorldAliases } from '../../game/dungeons/worldState';
 import type { GameState, LogKind } from '../../game/stateTypes';
-import { loadEncryptedState } from '../../persistence/storage';
+import {
+  loadEncryptedDungeonState,
+  loadEncryptedState,
+} from '../../persistence/storage';
 import { type WindowPositions, type WindowVisibilityState } from '../constants';
 import { normalizePersistedUiState, normalizeSavedUiItem } from '../normalize';
 import { normalizeActionBarSlots, type ActionBarSlots } from './actionBar';
+import {
+  buildPersistedDungeonWorlds,
+  getDirtyPersistedDungeonIds,
+  serializePersistedDungeonWorlds,
+} from './persistence/dungeonSaveSegments';
 import {
   buildPersistedSegments,
   buildPersistedSnapshot,
@@ -78,6 +87,7 @@ export function useAppPersistence({
     game: null,
     ui: null,
   });
+  const lastSavedDungeonSerializedRef = useRef<Record<string, string>>({});
   const dirtySegmentsRef = useRef<DirtySaveSegments>({
     game: false,
     ui: false,
@@ -105,8 +115,13 @@ export function useAppPersistence({
       if (saved?.game) {
         const { normalizeLoadedGame } = await import('../normalize');
         if (!alive) return;
-        const loadedGame = normalizeLoadedGame(saved.game);
+        const hydratedSavedGame = await hydrateSavedGameWithDungeonWorlds(
+          saved.game,
+        );
+        if (!alive) return;
+        const loadedGame = normalizeLoadedGame(hydratedSavedGame);
         if (loadedGame) {
+          syncActiveWorldAliases(loadedGame);
           worldTimeMsRef.current = loadedGame.worldTimeMs;
           worldTimeTickRef.current = null;
           lastDisplayedWorldSecondRef.current = Math.floor(
@@ -123,6 +138,8 @@ export function useAppPersistence({
           });
           latestInputsRef.current.game = loadedGame;
           latestInputsRef.current.worldTimeMs = loadedGame.worldTimeMs;
+          lastSavedDungeonSerializedRef.current =
+            serializePersistedDungeonWorlds(loadedGame);
         }
       }
 
@@ -178,6 +195,7 @@ export function useAppPersistence({
       dirtySegmentsRef,
       idleSaveRef,
       latestInputsRef,
+      lastSavedDungeonSerializedRef,
       lastSavedSerializedRef,
       saveInFlightRef,
       saveQueueRef,
@@ -198,6 +216,7 @@ export function useAppPersistence({
       dirtySegmentsRef,
       idleSaveRef,
       latestInputsRef,
+      lastSavedDungeonSerializedRef,
       lastSavedSerializedRef,
       saveInFlightRef,
       saveQueueRef,
@@ -225,6 +244,7 @@ export function useAppPersistence({
         dirtySegmentsRef,
         idleSaveRef,
         latestInputsRef,
+        lastSavedDungeonSerializedRef,
         lastSavedSerializedRef,
         saveInFlightRef,
         saveQueueRef,
@@ -253,20 +273,32 @@ export function useAppPersistence({
 
     const nextSegments = buildPersistedSegments(latestInputsRef.current);
     const serialized = serializeSegments(nextSegments);
+    const dungeonSnapshots = buildPersistedDungeonWorlds(gameRef.current);
+    const dirtyDungeonIds = getDirtyPersistedDungeonIds(
+      serializePersistedDungeonWorlds(gameRef.current),
+      lastSavedDungeonSerializedRef.current,
+    );
 
     dirtySegmentsRef.current = getDirtySegments(
       serialized,
       lastSavedSerializedRef.current,
     );
 
-    if (!dirtySegmentsRef.current.game && !dirtySegmentsRef.current.ui) {
+    if (
+      !dirtySegmentsRef.current.game &&
+      !dirtySegmentsRef.current.ui &&
+      dirtyDungeonIds.length === 0
+    ) {
       return;
     }
 
     const savedDirtySegments = { ...dirtySegmentsRef.current };
     const result = await enqueuePersistSnapshot({
       dirtySegmentsRef,
+      dirtyDungeonIds,
+      dungeonSnapshots,
       latestInputsRef,
+      lastSavedDungeonSerializedRef,
       lastSavedSerializedRef,
       saveInFlightRef,
       saveQueueRef,
@@ -281,4 +313,87 @@ export function useAppPersistence({
   };
 
   return { hydrated, persistNow };
+}
+
+async function hydrateSavedGameWithDungeonWorlds(savedGame: unknown) {
+  if (!isRecord(savedGame)) {
+    return savedGame;
+  }
+
+  const activeDungeonId =
+    isRecord(savedGame.activeDungeon) &&
+    typeof savedGame.activeDungeon.dungeonId === 'string'
+      ? savedGame.activeDungeon.dungeonId
+      : null;
+  const dungeonIds = new Set<string>();
+
+  if (isRecord(savedGame.dungeonEntrances)) {
+    Object.values(savedGame.dungeonEntrances).forEach((value) => {
+      if (isRecord(value) && typeof value.dungeonId === 'string') {
+        dungeonIds.add(value.dungeonId);
+      }
+    });
+  }
+  if (activeDungeonId) {
+    dungeonIds.add(activeDungeonId);
+  }
+  if (dungeonIds.size === 0) {
+    return savedGame;
+  }
+
+  const hydratedGame: Record<string, unknown> = {
+    ...savedGame,
+    worlds: isRecord(savedGame.worlds) ? { ...savedGame.worlds } : {},
+  };
+  const loadedDungeonWorlds = await Promise.all(
+    Array.from(dungeonIds).map(
+      async (dungeonId) =>
+        [dungeonId, await loadEncryptedDungeonState(dungeonId)] as const,
+    ),
+  );
+
+  loadedDungeonWorlds.forEach(([dungeonId, dungeonWorld]) => {
+    if (dungeonWorld !== null) {
+      (hydratedGame.worlds as Record<string, unknown>)[dungeonId] =
+        dungeonWorld;
+    }
+  });
+
+  if (
+    activeDungeonId &&
+    !loadedDungeonWorlds.some(
+      ([dungeonId, dungeonWorld]) =>
+        dungeonId === activeDungeonId && dungeonWorld !== null,
+    )
+  ) {
+    const surfaceWorldId =
+      typeof savedGame.surfaceWorldId === 'string'
+        ? savedGame.surfaceWorldId
+        : 'surface';
+    const surfaceCoord =
+      isRecord(savedGame.activeDungeon) &&
+      isRecord(savedGame.activeDungeon.surfaceCoord) &&
+      typeof savedGame.activeDungeon.surfaceCoord.q === 'number' &&
+      typeof savedGame.activeDungeon.surfaceCoord.r === 'number'
+        ? {
+            q: savedGame.activeDungeon.surfaceCoord.q,
+            r: savedGame.activeDungeon.surfaceCoord.r,
+          }
+        : null;
+
+    hydratedGame.activeDungeon = null;
+    hydratedGame.activeWorldId = surfaceWorldId;
+    if (surfaceCoord && isRecord(hydratedGame.player)) {
+      hydratedGame.player = {
+        ...hydratedGame.player,
+        coord: surfaceCoord,
+      };
+    }
+  }
+
+  return hydratedGame;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }

@@ -18,13 +18,22 @@ import {
   type WindowVisibilityState,
 } from '../../constants';
 
-const { loadEncryptedState, saveEncryptedState } = vi.hoisted(() => ({
+const {
+  loadEncryptedDungeonState,
+  loadEncryptedState,
+  saveEncryptedDungeonState,
+  saveEncryptedState,
+} = vi.hoisted(() => ({
+  loadEncryptedDungeonState: vi.fn(),
   loadEncryptedState: vi.fn(),
+  saveEncryptedDungeonState: vi.fn(),
   saveEncryptedState: vi.fn(),
 }));
 
 vi.mock('../../../persistence/storage', () => ({
+  loadEncryptedDungeonState,
   loadEncryptedState,
+  saveEncryptedDungeonState,
   saveEncryptedState,
 }));
 
@@ -408,6 +417,60 @@ describe('useAppPersistence', () => {
       game.player.skills.crafting,
     );
     expect(saveEncryptedState).not.toHaveBeenCalled();
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('hydrates the active dungeon body from its dedicated save key', async () => {
+    const savedGame = createGame(3, 'hydrate-dungeon-body');
+    savedGame.activeWorldId = 'dungeon:hydrate-dungeon-body:1,0';
+    savedGame.dungeonEntrances['1,0'] = {
+      dungeonId: 'dungeon:hydrate-dungeon-body:1,0',
+      surfaceCoord: { q: 1, r: 0 },
+    };
+    savedGame.activeDungeon = {
+      dungeonId: 'dungeon:hydrate-dungeon-body:1,0',
+      returnCoord: { q: 1, r: 0 },
+      surfaceCoord: { q: 1, r: 0 },
+    };
+
+    loadEncryptedState.mockResolvedValue({ game: savedGame, ui: {} });
+    loadEncryptedDungeonState.mockResolvedValue({
+      id: 'dungeon:hydrate-dungeon-body:1,0',
+      kind: 'dungeon',
+      tiles: {
+        '0,0': {
+          coord: { q: 0, r: 0 },
+          terrain: 'dungeon-brick-floor',
+          structure: 'dungeon',
+          items: [],
+          enemyIds: [],
+        },
+      },
+      enemies: {},
+      dungeon: {
+        cleared: false,
+        entranceCoord: { q: 0, r: 0 },
+        finalChestCoord: { q: 6, r: 0 },
+        finalEliteEnemyId: 'enemy-6,0-0',
+        paddingRadius: 6,
+        surfaceEntranceCoord: { q: 1, r: 0 },
+        templateId: 'rooms-and-corridors',
+        themeId: 'brick-halls',
+      },
+    });
+    saveEncryptedState.mockResolvedValue(undefined);
+
+    const { handle, host, root } = await renderPersistenceHarness();
+
+    expect(host.querySelector('[data-hydrated="ready"]')).toBeTruthy();
+    expect(handle.getGame().activeWorldId).toBe(
+      'dungeon:hydrate-dungeon-body:1,0',
+    );
+    expect(handle.getGame().tiles['0,0']?.terrain).toBe('dungeon-brick-floor');
 
     await act(async () => {
       root.unmount();

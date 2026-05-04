@@ -41,7 +41,25 @@ function buildPersistedGameSnapshot({
   game: GameState;
   worldTimeMs: number;
 }) {
-  return { ...game, worldTimeMs, logs: [] };
+  const surfaceWorld = game.worlds[game.surfaceWorldId];
+  const surfaceTiles = surfaceWorld?.tiles ?? game.tiles;
+  const surfaceEnemies = surfaceWorld?.enemies ?? game.enemies;
+
+  return {
+    ...game,
+    worldTimeMs,
+    logs: [],
+    worlds: {
+      [game.surfaceWorldId]: surfaceWorld ?? {
+        id: game.surfaceWorldId,
+        kind: 'surface',
+        tiles: surfaceTiles,
+        enemies: surfaceEnemies,
+      },
+    },
+    tiles: surfaceTiles,
+    enemies: surfaceEnemies,
+  };
 }
 
 function buildPersistedUiSnapshot({
