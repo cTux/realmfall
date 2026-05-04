@@ -7,6 +7,7 @@ Implemented gameplay features are split into dedicated spec files:
 - [Survival Loop](./survival-loop/spec.md)
 - [Combat](./combat/spec.md)
 - [Combat Balance](./combat-balance/spec.md)
+- [Dungeons](./dungeons/spec.md)
 - [Enemies And World Events](./enemies-and-world-events/spec.md)
 - [Items Loot And Equipment](./items-loot-and-equipment/spec.md)
 - [Locked Chests And Lockpicking](./locked-chests-and-lockpicking/spec.md)

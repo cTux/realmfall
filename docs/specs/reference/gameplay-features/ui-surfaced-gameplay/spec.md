@@ -28,10 +28,14 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - Pressing `Space` toggles a paused state for gameplay mechanics and shows a centered full-stage overlay message until the game is resumed, except when keyboard focus is inside an editable field or another focusable UI control that should keep its native `Space` behavior.
 - Pressing `Esc` closes every currently open window, and when no windows are open it opens the settings window instead.
 - During refresh or persistence hydration, the app keeps one opaque full-screen loading spinner visible until the shell and deferred windows are ready, instead of surfacing translucent window-level loading spinners underneath it.
+- Triggering `Enter dungeon` or `Leave dungeon` reuses that same fullscreen loading overlay for the world switch, and the action bar remains mounted under the overlay while the transition runs.
 - While the hex info window is open, the title-bar land actions surface inline `A` and `O` hotkeys through `Cl(a)im` / `Uncl(a)im` and `H(o)me` only when their requirements are currently met, and those keys trigger the visible enabled action directly.
 - While the hex info window is open on a faction NPC hex, the title bar also surfaces `(Q) Heal`, and pressing `Q` prioritizes that paid heal action over other hex `Q` shortcuts when healing is available.
 - While the hex info window is open at a forge, the bulk equippable prospect action stays in the content body with `(Q) Prospect all equippables`.
 - While the hex info window is open at a town, the bulk equippable sell action lives in the title bar as `S(e)ll all` only while unlocked equippable items are available to sell, and `E` triggers that sell action before the loot take-all shortcut when the action is available.
+- While the hex info window is open on a surface dungeon entrance, the content body surfaces `Enter dungeon`.
+- While the hex info window is open on the dungeon entrance tile inside a dungeon world, the content body surfaces `Leave dungeon`.
+- While the hex info window is open on the final dungeon chest tile, the content body surfaces `Open dungeon chest`.
 - The hex info content body omits passive terrain, structure, territory, empty-state, and section-title copy so non-combat tiles present only actionable controls, bars, and item slots.
 - Item-slot containers rendered inside the hex info content window use shared stable style constants at `0.8x` of the shared slot sizes so town stock, loot, and item-modification slots stay visually subordinate to the main inventory surfaces without receiving fresh style-object props on every content render.
 - Town stock in the hex info content window wraps its item slots with a flex row layout instead of CSS grid so slot spacing follows the shared item-slot sizing more predictably.
@@ -42,6 +46,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - World-map hostile enemy markers show a bottom-right count indicator when a visible enemy party shares the hex, surfacing the party size for stacks of `2` or `3`.
 - Hostile battle-hex count indicators keep the number visually centered as red text with a black outline, without a surrounding badge disk.
 - Dungeon hexes also surface the same text-only hostile enemy-count indicator and centered numeral treatment as standard hostile battle hexes.
+- Dungeon hostile markers appear only inside dungeon worlds; the surface entrance tile remains enemy-free and reads as a location marker instead of a hostile contact.
 - World-map hostile enemy and world-boss markers now use a smoother deterministic jump cycle with eased takeoff and landing so combat-heavy hexes read as active without forcing a static-layer redraw.
 - World-map structure and dungeon markers now use the same intermittent shimmer treatment as gathering-site markers, so built hexes read as locations instead of hostile contacts.
 - Furnace markers now use a white glyph with the same black outlined treatment as the other structure icons.

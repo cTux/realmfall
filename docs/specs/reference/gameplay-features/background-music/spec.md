@@ -2,14 +2,14 @@
 
 ## Scope
 
-This spec covers the runtime background-music player, its area and combat-based playlist switching, and the current playlist-cycle behavior.
+This spec covers the runtime background-music player, its world-kind and combat-based playlist switching, and the current playlist-cycle behavior.
 
 ## Current Behavior
 
 - Realmfall now ships area music playlists under `src/assets/music` for `ambient`, `combat`, `dungeon`, and `town`.
 - Background music uses direct `howler` playback from a lazily loaded controller so the main startup path does not absorb the full background-music runtime eagerly.
 - The background music controller bridge is mounted after the first user activation, and playlist entries store lazy URL loaders so MP3 URLs resolve only when a selected track is about to play.
-- Music selection is driven by the current play state in this priority order: active combat uses the combat playlist, dungeon tiles use the dungeon playlist, town tiles use the town playlist, and every other location uses the ambient playlist.
+- Music selection is driven by the current play state in this priority order: active combat uses the combat playlist, any active dungeon world uses the dungeon playlist, surface town tiles use the town playlist, and every other surface location uses the ambient playlist.
 - Each playlist chooses a random track, removes it from the current cycle, and avoids repeating a track until every track in that playlist has been played once.
 - When a playlist cycle resets and multiple tracks exist, the first track of the next cycle does not immediately repeat the last track from the previous cycle.
 - Background music waits for a user activation before starting playback so browser autoplay restrictions do not break the runtime.
@@ -23,7 +23,7 @@ This spec covers the runtime background-music player, its area and combat-based 
 - Inspect the production build or network panel before activation and confirm the background music bridge and selected MP3 track modules are not requested.
 - Interact once, remain in the standard world, and confirm an ambient track begins.
 - Enter combat and confirm the current music crossfades into a combat track.
-- Move onto a dungeon tile outside combat and confirm dungeon music crossfades from the previous playlist.
+- Enter a dungeon world outside combat and confirm dungeon music crossfades from the previous playlist.
 - Move onto a town tile, including faction-owned towns, and confirm the town playlist crossfades in.
 - Let tracks finish within the same mood and confirm the playlist rotates through different tracks before repeating.
 
