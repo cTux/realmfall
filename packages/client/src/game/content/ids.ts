@@ -4,6 +4,8 @@ export enum ItemId {
   RecipeBook = 'recipe-book',
   HealthPotion = 'health-potion',
   ManaPotion = 'mana-potion',
+  Lockpick = 'lockpick',
+  ChestKey = 'chest-key',
   CookedFish = 'cooked-fish',
   HomeScroll = 'home-scroll',
   Gold = 'gold',
@@ -57,6 +59,7 @@ export enum EnemyTypeId {
   Stag = 'stag',
   Spider = 'spider',
   TreasureGoblin = 'treasure-goblin',
+  Mimic = 'mimic',
 }
 
 export type EnemyTypeKey = `${EnemyTypeId}`;

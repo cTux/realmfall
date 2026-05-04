@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { vi } from 'vitest';
 import { DEFAULT_LOG_FILTERS, DEFAULT_WINDOWS } from '../app/constants';
+import { createSkillRecord } from '../game/skillRecords';
 import { createGame } from '../game/stateFactory';
 import { HeroWindow } from './components/HeroWindow';
 import { LogWindow } from './components/LogWindow';
@@ -39,17 +40,7 @@ describe('ui hero and log surfaces', () => {
           buffs: [],
           debuffs: [],
           abilityIds: ['kick'],
-          skills: {
-            gathering: { level: 1, xp: 0 },
-            logging: { level: 1, xp: 0 },
-            mining: { level: 1, xp: 0 },
-            skinning: { level: 1, xp: 0 },
-            fishing: { level: 1, xp: 0 },
-            hand: { level: 1, xp: 0 },
-            cooking: { level: 1, xp: 0 },
-            smelting: { level: 1, xp: 0 },
-            crafting: { level: 1, xp: 0 },
-          },
+          skills: createSkillRecord(() => ({ level: 1, xp: 0 })),
         }}
       />,
     );
@@ -87,17 +78,7 @@ describe('ui hero and log surfaces', () => {
           buffs: [],
           debuffs: [],
           abilityIds: ['kick'],
-          skills: {
-            gathering: { level: 1, xp: 0 },
-            logging: { level: 1, xp: 0 },
-            mining: { level: 1, xp: 0 },
-            skinning: { level: 1, xp: 0 },
-            fishing: { level: 1, xp: 0 },
-            hand: { level: 1, xp: 0 },
-            cooking: { level: 1, xp: 0 },
-            smelting: { level: 1, xp: 0 },
-            crafting: { level: 1, xp: 0 },
-          },
+          skills: createSkillRecord(() => ({ level: 1, xp: 0 })),
         }}
       />,
     );

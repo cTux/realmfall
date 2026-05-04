@@ -52,6 +52,7 @@ import stoneCraftingIcon from '../assets/icons/stone-crafting.svg';
 import spiderAltIcon from '../assets/icons/spider-alt.svg';
 import tiedScrollIcon from '../assets/icons/tied-scroll.svg';
 import scrollQuillIcon from '../assets/game-icons/delapouite/scroll-quill.svg';
+import keyIcon from '../assets/game-icons/lorc/key.svg';
 import arrowDunkIcon from '../assets/icons/arrow-dunk.svg';
 import rolledClothIcon from '../assets/icons/rolled-cloth.svg';
 import gearsIcon from '../assets/icons/gears.svg';
@@ -113,6 +114,7 @@ export const Icons = {
   Padlock: padlockIcon,
   Furnace: furnaceIcon,
   Miner: minerIcon,
+  Key: keyIcon,
 } as const;
 
 export const SkillIcon: Record<SkillName, string> = {
@@ -125,6 +127,7 @@ export const SkillIcon: Record<SkillName, string> = {
   cooking: Icons.CampCookingPot,
   smelting: Icons.GoldBar,
   crafting: Icons.StoneCrafting,
+  lockpicking: Icons.Key,
 };
 
 const DEFAULT_ENEMY_ICON = Icons.Enemy;

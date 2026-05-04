@@ -26,12 +26,15 @@ describe('normalizeShared', () => {
 
   it('accepts canonical runtime picklist values', () => {
     expect(getSkillNames()).toEqual(Object.values(Skill));
+    expect(getSkillNames()).toContain(Skill.Lockpicking);
     expect(isTerrain(TERRAINS[TERRAINS.length - 1])).toBe(true);
+    expect(isStructure('locked-chest')).toBe(true);
     expect(isStructure(STRUCTURE_TYPES[STRUCTURE_TYPES.length - 1])).toBe(true);
     expect(isItemRarity(RARITY_ORDER[RARITY_ORDER.length - 1])).toBe(true);
     expect(isEquipmentSlot(EQUIPMENT_SLOTS[EQUIPMENT_SLOTS.length - 1])).toBe(
       true,
     );
+    expect(normalizeEnemyTypeId('mimic')).toBe('mimic');
     expect(
       normalizeEnemyTypeId(ENEMY_TYPE_IDS[ENEMY_TYPE_IDS.length - 1]),
     ).toBe(ENEMY_TYPE_IDS[ENEMY_TYPE_IDS.length - 1]);

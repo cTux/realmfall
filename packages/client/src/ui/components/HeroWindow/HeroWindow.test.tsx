@@ -1,6 +1,7 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { vi } from 'vitest';
+import { createSkillRecord } from '../../../game/skillRecords';
 import { t } from '../../../i18n';
 import { renderWindowHotkeyLabelText } from '../../hotkeyLabels';
 import { HeroWindow } from './HeroWindow';
@@ -61,17 +62,7 @@ const hero: HeroOverview = {
   abilityIds: [],
   level: 1,
   masteryLevel: 0,
-  skills: {
-    gathering: { level: 1, xp: 0 },
-    hand: { level: 1, xp: 0 },
-    cooking: { level: 1, xp: 0 },
-    smelting: { level: 1, xp: 0 },
-    crafting: { level: 1, xp: 0 },
-    fishing: { level: 1, xp: 0 },
-    logging: { level: 1, xp: 0 },
-    mining: { level: 1, xp: 0 },
-    skinning: { level: 1, xp: 0 },
-  },
+  skills: createSkillRecord(() => ({ level: 1, xp: 0 })),
 };
 
 describe('HeroWindow', () => {

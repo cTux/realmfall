@@ -26,6 +26,7 @@ export enum GameTag {
   ItemMana = 'item.mana',
   ItemHomeward = 'item.homeward',
   ItemTotem = 'item.totem',
+  ItemChestOpener = 'item.chestOpener',
   ItemSlotWeapon = 'item.slot.weapon',
   ItemSlotOffhand = 'item.slot.offhand',
   ItemSlotHead = 'item.slot.head',
@@ -50,6 +51,7 @@ export enum GameTag {
   EnemyElite = 'enemy.elite',
   EnemyDungeon = 'enemy.dungeon',
   EnemyTreasureGoblin = 'enemy.treasureGoblin',
+  EnemyMimic = 'enemy.mimic',
   AbilityCombat = 'ability.combat',
   AbilityMelee = 'ability.melee',
   AbilityPhysical = 'ability.physical',
@@ -72,6 +74,7 @@ export enum GameTag {
   SkillCooking = 'skill.cooking',
   SkillSmelting = 'skill.smelting',
   SkillCrafting = 'skill.crafting',
+  SkillLockpicking = 'skill.lockpicking',
   StructureUtility = 'structure.utility',
   StructureGathering = 'structure.gathering',
   StructureCrafting = 'structure.crafting',
@@ -83,6 +86,7 @@ export enum GameTag {
   StructureFurnace = 'structure.furnace',
   StructureWorkshop = 'structure.workshop',
   StructureDungeon = 'structure.dungeon',
+  StructureChest = 'structure.chest',
   StructureTree = 'structure.tree',
   StructureHerbs = 'structure.herbs',
   StructureOre = 'structure.ore',
@@ -115,6 +119,7 @@ export const GAME_TAGS = {
     mana: GameTag.ItemMana,
     homeward: GameTag.ItemHomeward,
     totem: GameTag.ItemTotem,
+    chestOpener: GameTag.ItemChestOpener,
     slotWeapon: GameTag.ItemSlotWeapon,
     slotOffhand: GameTag.ItemSlotOffhand,
     slotHead: GameTag.ItemSlotHead,
@@ -141,6 +146,7 @@ export const GAME_TAGS = {
     elite: GameTag.EnemyElite,
     dungeon: GameTag.EnemyDungeon,
     treasureGoblin: GameTag.EnemyTreasureGoblin,
+    mimic: GameTag.EnemyMimic,
   },
   ability: {
     combat: GameTag.AbilityCombat,
@@ -169,6 +175,7 @@ export const GAME_TAGS = {
     cooking: GameTag.SkillCooking,
     smelting: GameTag.SkillSmelting,
     crafting: GameTag.SkillCrafting,
+    lockpicking: GameTag.SkillLockpicking,
   },
   structure: {
     utility: GameTag.StructureUtility,
@@ -182,6 +189,7 @@ export const GAME_TAGS = {
     furnace: GameTag.StructureFurnace,
     workshop: GameTag.StructureWorkshop,
     dungeon: GameTag.StructureDungeon,
+    chest: GameTag.StructureChest,
     tree: GameTag.StructureTree,
     herbs: GameTag.StructureHerbs,
     ore: GameTag.StructureOre,
@@ -217,6 +225,11 @@ export function getSkillTags(skill: SkillName) {
       return uniqueTags(GAME_TAGS.skill.profession, GAME_TAGS.skill.smelting);
     case Skill.Crafting:
       return uniqueTags(GAME_TAGS.skill.profession, GAME_TAGS.skill.crafting);
+    case Skill.Lockpicking:
+      return uniqueTags(
+        GAME_TAGS.skill.profession,
+        GAME_TAGS.skill.lockpicking,
+      );
   }
 }
 

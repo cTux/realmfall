@@ -7,6 +7,7 @@ import {
 } from '../generatedEquipment';
 import { CRAFTABLE_ICON_ITEM_CONFIGS as GENERATED_CRAFTABLE_ICON_ITEM_CONFIGS } from '../generatedCraftingEquipment';
 import { itemName } from '../i18n';
+import { ItemId } from '../ids';
 import type { ItemConfig } from '../types';
 import {
   buildItemConfigTags,
@@ -15,6 +16,7 @@ import {
 import { arcaneDustItemConfig } from './arcaneDust';
 import { appleItemConfig } from './apple';
 import { campSpearItemConfig } from './campSpear';
+import { chestKeyItemConfig } from './chestKey';
 import { charmNecklaceItemConfig } from './charmNecklace';
 import { clothItemConfig } from './cloth';
 import { coalItemConfig } from './coal';
@@ -38,6 +40,7 @@ import { ironChunksItemConfig } from './ironChunks';
 import { ironIngotItemConfig } from './ironIngot';
 import { ironOreItemConfig } from './ironOre';
 import { leatherScrapsItemConfig } from './leatherScraps';
+import { lockpickItemConfig } from './lockpick';
 import { logsItemConfig } from './logs';
 import { manaPotionItemConfig } from './manaPotion';
 import { MEAL_ITEM_CONFIGS } from './meals';
@@ -66,6 +69,8 @@ const RAW_ITEM_CONFIGS: ItemConfig[] = [
   appleItemConfig,
   healthPotionItemConfig,
   manaPotionItemConfig,
+  lockpickItemConfig,
+  chestKeyItemConfig,
   cookedFishItemConfig,
   homeScrollItemConfig,
   goldItemConfig,
@@ -126,6 +131,11 @@ const ITEM_CONFIG_BY_KEY = Object.fromEntries(
   ITEM_CONFIGS.map((config) => [config.key, config]),
 );
 
+const NON_RANDOM_CONSUMABLE_KEYS = new Set<string>([
+  ItemId.Lockpick,
+  ItemId.ChestKey,
+]);
+
 export function getItemConfigByKey(key: string) {
   return ITEM_CONFIG_BY_KEY[key];
 }
@@ -148,7 +158,9 @@ export function getGeneratedOffhandKeys() {
 
 export function getConsumableItemKeys() {
   return ITEM_CONFIGS.filter(
-    (config) => getItemConfigCategory(config) === 'consumable',
+    (config) =>
+      getItemConfigCategory(config) === 'consumable' &&
+      !NON_RANDOM_CONSUMABLE_KEYS.has(config.key),
   ).map((config) => config.key);
 }
 
