@@ -10,11 +10,40 @@ import type {
 } from '../game/types';
 import { t } from './index';
 
+type DungeonTerrainTheme = 'brick' | 'mud' | 'obsidian';
+
+const DUNGEON_TERRAIN_THEME_BY_ID: Partial<
+  Record<Terrain, DungeonTerrainTheme>
+> = {
+  'dungeon-brick-floor': 'brick',
+  'dungeon-brick-cracked': 'brick',
+  'dungeon-brick-moss': 'brick',
+  'dungeon-brick-wall': 'brick',
+  'dungeon-mud-floor': 'mud',
+  'dungeon-mud-rut': 'mud',
+  'dungeon-mud-puddle': 'mud',
+  'dungeon-mud-wall': 'mud',
+  'dungeon-obsidian-floor': 'obsidian',
+  'dungeon-obsidian-ash': 'obsidian',
+  'dungeon-obsidian-ember': 'obsidian',
+  'dungeon-obsidian-wall': 'obsidian',
+};
+
 export function formatTerrainLabel(terrain: Terrain) {
+  const dungeonTheme = DUNGEON_TERRAIN_THEME_BY_ID[terrain];
+  if (dungeonTheme) {
+    return t(`game.terrain.dungeon.${dungeonTheme}`);
+  }
+
   return t(`game.terrain.${terrain}.label`);
 }
 
 export function formatTerrainDescription(terrain: Terrain) {
+  const dungeonTheme = DUNGEON_TERRAIN_THEME_BY_ID[terrain];
+  if (dungeonTheme) {
+    return t(`game.terrain.dungeon.${dungeonTheme}`);
+  }
+
   return t(`game.terrain.${terrain}.description`);
 }
 

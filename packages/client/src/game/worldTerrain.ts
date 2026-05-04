@@ -8,7 +8,14 @@ interface NoiseLayer {
 }
 
 interface TerrainProfile {
-  biome: 'grassland' | 'woodland' | 'wetland' | 'arid' | 'alpine' | 'corrupted';
+  biome:
+    | 'grassland'
+    | 'woodland'
+    | 'wetland'
+    | 'arid'
+    | 'alpine'
+    | 'corrupted'
+    | 'dungeon';
   passable: boolean;
   tierBonus: number;
   contentTerrain: Terrain;
@@ -158,84 +165,84 @@ const TERRAIN_PROFILES = {
     worldBossEligible: false,
   },
   'dungeon-brick-floor': {
-    biome: 'alpine',
+    biome: 'dungeon',
     passable: true,
     tierBonus: 1,
     contentTerrain: 'highlands',
     worldBossEligible: false,
   },
   'dungeon-brick-cracked': {
-    biome: 'alpine',
+    biome: 'dungeon',
     passable: true,
     tierBonus: 1,
     contentTerrain: 'highlands',
     worldBossEligible: false,
   },
   'dungeon-brick-moss': {
-    biome: 'woodland',
+    biome: 'dungeon',
     passable: true,
     tierBonus: 1,
     contentTerrain: 'grove',
     worldBossEligible: false,
   },
   'dungeon-brick-wall': {
-    biome: 'alpine',
+    biome: 'dungeon',
     passable: false,
     tierBonus: 2,
     contentTerrain: 'mountain',
     worldBossEligible: false,
   },
   'dungeon-mud-floor': {
-    biome: 'wetland',
+    biome: 'dungeon',
     passable: true,
     tierBonus: 1,
     contentTerrain: 'marsh',
     worldBossEligible: false,
   },
   'dungeon-mud-rut': {
-    biome: 'wetland',
+    biome: 'dungeon',
     passable: true,
     tierBonus: 1,
     contentTerrain: 'marsh',
     worldBossEligible: false,
   },
   'dungeon-mud-puddle': {
-    biome: 'wetland',
+    biome: 'dungeon',
     passable: true,
     tierBonus: 1,
     contentTerrain: 'swamp',
     worldBossEligible: false,
   },
   'dungeon-mud-wall': {
-    biome: 'wetland',
+    biome: 'dungeon',
     passable: false,
     tierBonus: 2,
     contentTerrain: 'swamp',
     worldBossEligible: false,
   },
   'dungeon-obsidian-floor': {
-    biome: 'corrupted',
+    biome: 'dungeon',
     passable: true,
     tierBonus: 2,
     contentTerrain: 'blasted',
     worldBossEligible: false,
   },
   'dungeon-obsidian-ash': {
-    biome: 'corrupted',
+    biome: 'dungeon',
     passable: true,
     tierBonus: 2,
     contentTerrain: 'blasted',
     worldBossEligible: false,
   },
   'dungeon-obsidian-ember': {
-    biome: 'corrupted',
+    biome: 'dungeon',
     passable: true,
     tierBonus: 2,
     contentTerrain: 'rift',
     worldBossEligible: false,
   },
   'dungeon-obsidian-wall': {
-    biome: 'corrupted',
+    biome: 'dungeon',
     passable: false,
     tierBonus: 2,
     contentTerrain: 'rift',

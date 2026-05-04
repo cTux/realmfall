@@ -40,8 +40,7 @@ export const WORLD_TERRAIN_ATLAS_SOURCES = [
   },
   {
     id: 'highlands',
-    source:
-      'packages/client/src/assets/images/terrain/highlands-v2.png',
+    source: 'packages/client/src/assets/images/terrain/highlands-v2.png',
   },
   {
     id: 'mountain',
@@ -62,5 +61,65 @@ export const WORLD_TERRAIN_ATLAS_SOURCES = [
   {
     id: 'swamp',
     source: 'packages/client/src/assets/images/terrain/swamp-v2.png',
+  },
+  {
+    id: 'dungeon-brick-floor',
+    source:
+      'packages/client/src/assets/images/terrain/dungeons/dungeon-brick-floor.png',
+  },
+  {
+    id: 'dungeon-brick-cracked',
+    source:
+      'packages/client/src/assets/images/terrain/dungeons/dungeon-brick-cracked.png',
+  },
+  {
+    id: 'dungeon-brick-moss',
+    source:
+      'packages/client/src/assets/images/terrain/dungeons/dungeon-brick-moss.png',
+  },
+  {
+    id: 'dungeon-brick-wall',
+    source:
+      'packages/client/src/assets/images/terrain/dungeons/dungeon-brick-wall.png',
+  },
+  {
+    id: 'dungeon-mud-floor',
+    source:
+      'packages/client/src/assets/images/terrain/dungeons/dungeon-mud-floor.png',
+  },
+  {
+    id: 'dungeon-mud-rut',
+    source:
+      'packages/client/src/assets/images/terrain/dungeons/dungeon-mud-rut.png',
+  },
+  {
+    id: 'dungeon-mud-puddle',
+    source:
+      'packages/client/src/assets/images/terrain/dungeons/dungeon-mud-puddle.png',
+  },
+  {
+    id: 'dungeon-mud-wall',
+    source:
+      'packages/client/src/assets/images/terrain/dungeons/dungeon-mud-wall.png',
+  },
+  {
+    id: 'dungeon-obsidian-floor',
+    source:
+      'packages/client/src/assets/images/terrain/dungeons/dungeon-obsidian-floor.png',
+  },
+  {
+    id: 'dungeon-obsidian-ash',
+    source:
+      'packages/client/src/assets/images/terrain/dungeons/dungeon-obsidian-ash.png',
+  },
+  {
+    id: 'dungeon-obsidian-ember',
+    source:
+      'packages/client/src/assets/images/terrain/dungeons/dungeon-obsidian-ember.png',
+  },
+  {
+    id: 'dungeon-obsidian-wall',
+    source:
+      'packages/client/src/assets/images/terrain/dungeons/dungeon-obsidian-wall.png',
   },
 ];

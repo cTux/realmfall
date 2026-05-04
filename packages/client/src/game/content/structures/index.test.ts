@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { ContentIcons } from '../icons';
 import { GAME_TAGS } from '../tags';
 import { getStructureConfig, pickStructureType } from './index';
 
@@ -71,6 +72,14 @@ describe('pickStructureType', () => {
 });
 
 describe('localized structure config text', () => {
+  it('registers the dungeon chest as utility loot content with localized text', () => {
+    const config = getStructureConfig('dungeon-chest');
+
+    expect(config.icon).toBe(ContentIcons.LockedChest);
+    expect(config.functionsProvided).toContain('loot');
+    expect(config.title).toBe('Dungeon Chest');
+  });
+
   it('uses locale-backed gathering labels instead of inline fallback wording', () => {
     const herbs = getStructureConfig('herbs');
     const flax = getStructureConfig('flax');

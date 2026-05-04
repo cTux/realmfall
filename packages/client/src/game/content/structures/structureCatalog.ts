@@ -13,6 +13,7 @@ import { coalOreStructureConfig } from './coalOre';
 import { corruptionAltarStructureConfig } from './corruptionAltar';
 import { copperOreStructureConfig } from './copperOre';
 import { dungeonStructureConfig } from './dungeon';
+import { dungeonChestStructureConfig } from './dungeonChest';
 import { flaxStructureConfig } from './flax';
 import { forgeStructureConfig } from './forge';
 import { furnaceStructureConfig } from './furnace';
@@ -31,6 +32,7 @@ import { treeStructureConfig } from './tree';
 import { workshopStructureConfig } from './workshop';
 
 const RAW_STRUCTURE_CONFIGS = [
+  dungeonChestStructureConfig,
   lockedChestStructureConfig,
   dungeonStructureConfig,
   corruptionAltarStructureConfig,
