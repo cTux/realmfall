@@ -248,6 +248,8 @@ function consumableEffectLines(item: Item): TooltipLine[] {
         return [
           consumableRestoreLine(t('ui.hero.thirst'), effect.amount, 'thirst'),
         ];
+      case 'lockpick':
+      case 'lockedChestKey':
       case 'terrain':
       case 'homeScroll':
         return [];
