@@ -65,10 +65,6 @@ function getVendorChunk(id: string) {
     return 'audio-ui';
   }
 
-  if (normalizedId.includes('/node_modules/react-use-audio-player/')) {
-    return undefined;
-  }
-
   if (normalizedId.includes('/node_modules/howler/')) {
     return 'background-audio';
   }

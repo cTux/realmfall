@@ -3,32 +3,75 @@ import { createRoot, type Root } from 'react-dom/client';
 import { DEFAULT_AUDIO_SETTINGS } from '../audioSettings';
 import { useBackgroundMusicController } from './useBackgroundMusicController';
 
+interface MockHowlInstance {
+  fade: ReturnType<typeof vi.fn>;
+  mute: ReturnType<typeof vi.fn>;
+  off: ReturnType<typeof vi.fn>;
+  once: ReturnType<typeof vi.fn>;
+  play: ReturnType<typeof vi.fn>;
+  stop: ReturnType<typeof vi.fn>;
+  unload: ReturnType<typeof vi.fn>;
+  volume: ReturnType<typeof vi.fn>;
+  trigger(event: string, soundId?: number): void;
+}
+
 const {
+  HowlMock,
   createBackgroundMusicCycleStateMock,
   getNextBackgroundMusicTrackMock,
-  loadMock,
-  muteMock,
-  setVolumeMock,
-  unmuteMock,
-} = vi.hoisted(() => ({
-  createBackgroundMusicCycleStateMock: vi.fn(() => ({})),
-  getNextBackgroundMusicTrackMock: vi.fn((mood: string) => ({
+  howlInstances,
+} = vi.hoisted(() => {
+  const howlInstances: MockHowlInstance[] = [];
+  const createBackgroundMusicCycleStateMock = vi.fn(() => ({}));
+  const getNextBackgroundMusicTrackMock = vi.fn((mood: string) => ({
     id: `${mood}-track`,
     loadUrl: vi.fn(async () => `/music/${mood}.mp3`),
-  })),
-  loadMock: vi.fn(),
-  muteMock: vi.fn(),
-  setVolumeMock: vi.fn(),
-  unmuteMock: vi.fn(),
-}));
+  }));
 
-vi.mock('react-use-audio-player', () => ({
-  useAudioPlayer: () => ({
-    load: loadMock,
-    mute: muteMock,
-    setVolume: setVolumeMock,
-    unmute: unmuteMock,
-  }),
+  const HowlMock = vi.fn(function MockHowl() {
+    const listeners = new Map<string, Set<(soundId?: number) => void>>();
+    const on = (event: string, handler: (soundId?: number) => void) => {
+      const current =
+        listeners.get(event) ?? new Set<(soundId?: number) => void>();
+      current.add(handler);
+      listeners.set(event, current);
+    };
+    const off = (event: string, handler?: (soundId?: number) => void) => {
+      if (!handler) {
+        listeners.delete(event);
+        return;
+      }
+      listeners.get(event)?.delete(handler);
+    };
+
+    const instance: MockHowlInstance = {
+      fade: vi.fn(),
+      mute: vi.fn(),
+      off: vi.fn(off),
+      once: vi.fn(on),
+      play: vi.fn(() => 7),
+      stop: vi.fn(),
+      unload: vi.fn(),
+      volume: vi.fn(),
+      trigger: (event, soundId = 7) => {
+        listeners.get(event)?.forEach((handler) => handler(soundId));
+      },
+    };
+
+    howlInstances.push(instance);
+    return instance;
+  });
+
+  return {
+    HowlMock,
+    createBackgroundMusicCycleStateMock,
+    getNextBackgroundMusicTrackMock,
+    howlInstances,
+  };
+});
+
+vi.mock('howler', () => ({
+  Howl: HowlMock,
 }));
 
 vi.mock('./backgroundMusicPlaylist', () => ({
@@ -47,10 +90,8 @@ describe('useBackgroundMusicController', () => {
   });
 
   beforeEach(() => {
-    loadMock.mockClear();
-    muteMock.mockClear();
-    setVolumeMock.mockClear();
-    unmuteMock.mockClear();
+    HowlMock.mockClear();
+    howlInstances.length = 0;
     createBackgroundMusicCycleStateMock.mockClear();
     getNextBackgroundMusicTrackMock.mockClear();
     host = document.createElement('div');
@@ -65,7 +106,7 @@ describe('useBackgroundMusicController', () => {
     host.remove();
   });
 
-  it('waits for activation, then starts the current mood playlist and reapplies volume state', async () => {
+  it('waits for activation, then creates a Howl instance and fades the selected track in', async () => {
     await act(async () => {
       root.render(
         <BackgroundMusicHarness
@@ -75,11 +116,7 @@ describe('useBackgroundMusicController', () => {
       );
     });
 
-    expect(loadMock).not.toHaveBeenCalled();
-    expect(setVolumeMock).toHaveBeenCalledWith(
-      DEFAULT_AUDIO_SETTINGS.musicVolume,
-    );
-    expect(unmuteMock).toHaveBeenCalled();
+    expect(HowlMock).not.toHaveBeenCalled();
 
     await act(async () => {
       document.body.dispatchEvent(
@@ -91,48 +128,24 @@ describe('useBackgroundMusicController', () => {
       await flushPromises();
     });
 
-    expect(loadMock).toHaveBeenCalledTimes(1);
-    expect(loadMock).toHaveBeenNthCalledWith(
-      1,
-      expect.any(String),
+    expect(HowlMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        autoplay: true,
         html5: true,
-        initialMute: false,
-        initialVolume: DEFAULT_AUDIO_SETTINGS.musicVolume,
-        onend: expect.any(Function),
+        mute: false,
+        src: ['/music/ambient.mp3'],
+        volume: 0,
       }),
     );
-
-    await act(async () => {
-      root.render(
-        <BackgroundMusicHarness
-          audioSettings={{ ...DEFAULT_AUDIO_SETTINGS, muted: true }}
-          mood="combat"
-        />,
-      );
-    });
-    await act(async () => {
-      await flushPromises();
-    });
-
-    expect(muteMock).toHaveBeenCalled();
-    expect(loadMock).toHaveBeenCalledTimes(2);
+    expect(howlInstances[0]?.play).toHaveBeenCalledTimes(1);
+    expect(howlInstances[0]?.fade).toHaveBeenCalledWith(
+      0,
+      DEFAULT_AUDIO_SETTINGS.musicVolume,
+      500,
+      7,
+    );
   });
 
-  it('advances to the next track when loading the selected track fails', async () => {
-    getNextBackgroundMusicTrackMock
-      .mockImplementationOnce((mood: string) => ({
-        id: `${mood}-track-failing`,
-        loadUrl: vi
-          .fn()
-          .mockRejectedValue(new Error('Unable to load failing track')),
-      }))
-      .mockImplementationOnce((mood: string) => ({
-        id: `${mood}-track-next`,
-        loadUrl: vi.fn(async () => `/music/${mood}-next.mp3`),
-      }));
-
+  it('syncs mute and music volume changes onto the active Howl instance', async () => {
     await act(async () => {
       root.render(
         <BackgroundMusicHarness
@@ -152,17 +165,21 @@ describe('useBackgroundMusicController', () => {
       await flushPromises();
     });
 
-    expect(getNextBackgroundMusicTrackMock).toHaveBeenCalledTimes(2);
-    expect(loadMock).toHaveBeenCalledTimes(1);
-    expect(loadMock).toHaveBeenCalledWith(
-      '/music/ambient-next.mp3',
-      expect.objectContaining({
-        autoplay: true,
-        html5: true,
-        initialMute: false,
-        initialVolume: DEFAULT_AUDIO_SETTINGS.musicVolume,
-      }),
-    );
+    await act(async () => {
+      root.render(
+        <BackgroundMusicHarness
+          audioSettings={{
+            ...DEFAULT_AUDIO_SETTINGS,
+            musicVolume: 0.65,
+            musicMuted: true,
+          }}
+          mood="ambient"
+        />,
+      );
+    });
+
+    expect(howlInstances[0]?.volume).toHaveBeenCalledWith(0.65, 7);
+    expect(howlInstances[0]?.mute).toHaveBeenCalledWith(true, 7);
   });
 });
 
