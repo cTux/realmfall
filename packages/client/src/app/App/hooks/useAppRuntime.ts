@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { getWorldDayIndex } from '../../../game/logs';
 import { getResolvedCurrentTile } from '../../../game/stateSelectors';
 import { useAppControllers } from '../useAppControllers';
-import { useAppGameView } from '../useAppGameView';
+import { getHexInteractActionLabel, useAppGameView } from '../useAppGameView';
 import { useAppPersistence } from '../useAppPersistence';
 import { useCombatAutomation } from '../useCombatAutomation';
 import { usePixiWorld } from '../usePixiWorld';
@@ -17,6 +17,7 @@ import { useCombatAttentionWindow } from './useCombatAttentionWindow';
 import { useAppWorldClock } from './useAppWorldClock';
 import { useCraftingRecipeBookPromotion } from './useCraftingRecipeBookPromotion';
 import { useGameplayAutomation } from './useGameplayAutomation';
+import { useDungeonTransitionController } from './useDungeonTransitionController';
 import { useHexInfoWindowPromotion } from './useHexInfoWindowPromotion';
 
 export function useAppRuntime() {
@@ -50,6 +51,7 @@ export function useAppRuntime() {
     worldTimeTickRef: bootstrap.worldTimeTickRef,
   });
   const gameView = useAppGameView({
+    activeWorldId: bootstrap.game.activeWorldId,
     bloodMoonActive: bootstrap.game.bloodMoonActive,
     combat: bootstrap.game.combat,
     enemies: bootstrap.game.enemies,
@@ -65,7 +67,13 @@ export function useAppRuntime() {
     selectedHexItemReforgeStatIndex:
       controllerState.selectedHexItemReforgeStatIndex,
     tiles: bootstrap.game.tiles,
+    worlds: bootstrap.game.worlds,
     worldDayIndex: getWorldDayIndex(bootstrap.game.worldTimeMs),
+  });
+  const dungeonTransition = useDungeonTransitionController({
+    gameRef: bootstrap.gameRef,
+    interactAction: gameView.interactAction,
+    setGame: bootstrap.setGame,
   });
   const persistence = useAppPersistence({
     game: bootstrap.game,
@@ -98,6 +106,9 @@ export function useAppRuntime() {
     enabled: persistence.hydrated,
     game: bootstrap.game,
     graphicsSettings: controllerState.graphicsSettings,
+    interactionBlocked:
+      dungeonTransition.hasTransitionError ||
+      dungeonTransition.transitionActive,
     paused: bootstrap.paused,
     showTooltipTags: controllerState.interfaceSettings.showTooltipTags,
     worldTimeMsRef: bootstrap.worldTimeMsRef,
@@ -121,7 +132,25 @@ export function useAppRuntime() {
     currentTile: gameView.currentTile,
     suppressLootAutoOpen: pixiWorld.queuedTravelAutoOpenSuppressed,
   });
-  const isReady = persistence.hydrated && pixiWorld.canvasReady;
+  const interactLabel = useMemo(
+    () =>
+      getHexInteractActionLabel({
+        interactAction: gameView.interactAction,
+      }),
+    [gameView.interactAction],
+  );
+  const handleInteract = useCallback(() => {
+    if (dungeonTransition.tryHandleInteract()) {
+      return;
+    }
+
+    controllerActions.handleInteract();
+  }, [controllerActions, dungeonTransition]);
+  const isReady =
+    persistence.hydrated &&
+    pixiWorld.canvasReady &&
+    !dungeonTransition.transitionActive &&
+    !dungeonTransition.hasTransitionError;
 
   useHexInfoWindowPromotion({
     combatActive: bootstrap.game.combat != null,
@@ -179,10 +208,10 @@ export function useAppRuntime() {
     currentTileItemsLength: gameView.currentTile.items.length,
     hexContentWindowShown: controllerState.windowShown.hexInfo,
     homeHex: bootstrap.game.homeHex,
-    interactLabel: gameView.interactLabel,
+    interactLabel,
     onForfeitCombat: controllerActions.handleForfeitCombat,
     onStartCombat: controllerActions.handleStartCombat,
-    onInteract: controllerActions.handleInteract,
+    onInteract: handleInteract,
     onHealTerritoryNpc: controllerActions.handleHealTerritoryNpc,
     onSetHome: settingsActions.handleSetHome,
     onTerritoryAction: controllerActions.handleClaimHex,
@@ -227,7 +256,7 @@ export function useAppRuntime() {
       handleEquipItem: controllerActions.handleEquipItem,
       handleEquippedContextItem: controllerActions.handleEquippedContextItem,
       handleForfeitCombat: controllerActions.handleForfeitCombat,
-      handleInteract: controllerActions.handleInteract,
+      handleInteract,
       handleOpenRecipeBookWithMaterialFilter:
         controllerActions.handleOpenRecipeBookWithMaterialFilter,
       handleToggleFavoriteRecipe: controllerActions.handleToggleFavoriteRecipe,
@@ -296,7 +325,7 @@ export function useAppRuntime() {
       interfaceSettings: controllerState.interfaceSettings,
       claimStatus: gameView.claimStatus,
       territoryNpcHealStatus: gameView.territoryNpcHealStatus,
-      interactLabel: gameView.interactLabel,
+      interactLabel,
       filteredLogs: gameView.filteredLogs,
       logFilters: controllerState.logFilters,
       playerSlice: bootstrap.game.player,
@@ -327,11 +356,14 @@ export function useAppRuntime() {
     hostRef: pixiWorld.hostRef,
     interfaceSettings: controllerState.interfaceSettings,
     isReady,
-    pixiWorldError: pixiWorld.canvasError,
+    pixiWorldError:
+      pixiWorld.canvasError || dungeonTransition.hasTransitionError,
     paused: bootstrap.paused,
     uiAudio: bootstrap.uiAudio,
     windowsProps,
-    onRetryPixiWorld: pixiWorld.retryCanvas,
+    onRetryPixiWorld: dungeonTransition.hasTransitionError
+      ? dungeonTransition.retryTransition
+      : pixiWorld.retryCanvas,
     onUiAudioChange: bootstrap.setUiAudio,
   };
 }

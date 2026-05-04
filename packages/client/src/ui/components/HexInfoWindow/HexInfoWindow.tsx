@@ -80,6 +80,12 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   onLeaveDetail,
 }: HexInfoWindowProps) {
   const liveWorldTimeMs = useWorldClockTime();
+  const headerInteractLabel =
+    interactLabel && interactLabel.includes('(')
+      ? interactLabel
+      : interactLabel
+        ? t('ui.hexInfo.interactAction')
+        : null;
   const showForfeitAction = Boolean(
     combat?.started &&
     combat.startedAtMs != null &&
@@ -117,18 +123,18 @@ export const HexInfoWindow = memo(function HexInfoWindow({
         {t('ui.combat.startAction')}
       </WindowHeaderActionButton>
     )
-  ) : interactLabel ? (
+  ) : headerInteractLabel ? (
     <WindowHeaderActionButton
       className={`${inventoryStyles.headerButton} ${styles.homeButton}`}
       disabled={!canInteract}
       onClick={onInteract}
-      tooltipTitle={t('ui.hexInfo.interactAction')}
+      tooltipTitle={headerInteractLabel}
       tooltipLines={[{ kind: 'text', text: t('ui.tooltip.window.interact') }]}
       tooltipBorderColor="rgba(74, 222, 128, 0.9)"
       onHoverDetail={onHoverDetail}
       onLeaveDetail={onLeaveDetail}
     >
-      {t('ui.hexInfo.interactAction')}
+      {headerInteractLabel}
     </WindowHeaderActionButton>
   ) : null;
   const territoryActionTooltipLines = getTerritoryActionTooltipLines({

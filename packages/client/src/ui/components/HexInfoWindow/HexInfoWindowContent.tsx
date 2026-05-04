@@ -20,8 +20,11 @@ type HexInfoWindowContentProps = Omit<
 
 export function HexInfoWindowContent({
   hexDescription,
+  interactLabel,
+  canInteract,
   canBulkProspectEquipment,
   itemModification,
+  onInteract,
   onApplyItemModification = () => undefined,
   onClearItemModificationSelection = () => undefined,
   onSelectItemModificationReforgeStat = () => undefined,
@@ -117,6 +120,20 @@ export function HexInfoWindowContent({
                   <Button onClick={onProspect}>
                     <BracketHotkeyLabel
                       label={prospectActionLabel}
+                      hotkeyClassName={labelStyles.hotkey}
+                    />
+                  </Button>
+                </div>
+              ) : null}
+              {interactLabel ? (
+                <div className={styles.actions}>
+                  <Button
+                    type="button"
+                    disabled={!canInteract}
+                    onClick={onInteract}
+                  >
+                    <BracketHotkeyLabel
+                      label={interactLabel}
                       hotkeyClassName={labelStyles.hotkey}
                     />
                   </Button>

@@ -19,6 +19,12 @@ import type { ActionBarSlots } from './actionBar';
 import type { ItemContextMenuState } from './types';
 import type { ItemModificationKind } from '../../game/itemModifications';
 
+export type HexInteractAction =
+  | 'gather'
+  | 'enter-dungeon'
+  | 'leave-dungeon'
+  | 'open-dungeon-chest';
+
 export interface HeroViewState {
   overview: ReturnType<typeof getPlayerOverview>;
   hunger: GameState['player']['hunger'];
