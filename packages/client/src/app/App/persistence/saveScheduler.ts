@@ -85,12 +85,12 @@ export function enqueuePersistSnapshot({
     saveInFlightRef.current = true;
 
     try {
-      await saveEncryptedState(snapshot);
       await Promise.all(
         dirtyDungeonIds.map((dungeonId) =>
           saveEncryptedDungeonState(dungeonId, dungeonSnapshots[dungeonId]),
         ),
       );
+      await saveEncryptedState(snapshot);
       lastSavedSerializedRef.current = mergeSavedSerializedSegments(
         lastSavedSerializedRef.current,
         serialized,

@@ -546,6 +546,51 @@ describe('useAppPersistence', () => {
     host.remove();
   });
 
+  it('writes dirty dungeon bodies before the root snapshot in a combined flush', async () => {
+    const savedGame = createGame(3, 'dungeon-save-ordering');
+    const dungeonId = 'dungeon:dungeon-save-ordering:1,0';
+    const dungeonWorld = createPersistedDungeonWorld(dungeonId);
+
+    savedGame.dungeonEntrances['1,0'] = {
+      dungeonId,
+      surfaceCoord: { q: 1, r: 0 },
+    };
+    savedGame.worlds[dungeonId] = dungeonWorld;
+
+    loadEncryptedState.mockResolvedValue({ game: savedGame, ui: {} });
+    loadEncryptedDungeonState.mockResolvedValue(null);
+    saveEncryptedDungeonState.mockResolvedValue(undefined);
+    saveEncryptedState.mockResolvedValue(undefined);
+
+    const { handle, root, host } = await renderPersistenceHarness();
+
+    await act(async () => {
+      handle.setLiveWorldTimeMs(savedGame.worldTimeMs + 5_000);
+      await handle.persistNow();
+    });
+
+    expect(host.querySelector('[data-hydrated="ready"]')).toBeTruthy();
+    expect(saveEncryptedDungeonState).toHaveBeenCalledWith(
+      dungeonId,
+      expect.objectContaining({ id: dungeonId }),
+    );
+    expect(saveEncryptedState).toHaveBeenCalledWith(
+      expect.objectContaining({
+        game: expect.objectContaining({
+          worldTimeMs: savedGame.worldTimeMs + 5_000,
+        }),
+      }),
+    );
+    expect(saveEncryptedDungeonState.mock.invocationCallOrder[0]).toBeLessThan(
+      saveEncryptedState.mock.invocationCallOrder[0],
+    );
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
   it('keeps an active legacy inline dungeon loaded when the dedicated save is missing', async () => {
     const savedGame = createGame(3, 'legacy-inline-active-dungeon');
     const dungeonId = 'dungeon:legacy-inline-active-dungeon:1,0';
