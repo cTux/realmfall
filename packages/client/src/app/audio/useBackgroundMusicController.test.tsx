@@ -79,6 +79,15 @@ vi.mock('./backgroundMusicPlaylist', () => ({
   getNextBackgroundMusicTrack: getNextBackgroundMusicTrackMock,
 }));
 
+vi.mock('./backgroundMusicLibrary', () => ({
+  BACKGROUND_MUSIC_PLAYLISTS: {
+    ambient: [{ id: 'ambient-a' }, { id: 'ambient-b' }],
+    combat: [{ id: 'combat-a' }, { id: 'combat-b' }],
+    dungeon: [{ id: 'dungeon-a' }],
+    town: [{ id: 'town-a' }],
+  },
+}));
+
 describe('useBackgroundMusicController', () => {
   let host: HTMLDivElement;
   let root: Root;
@@ -180,6 +189,130 @@ describe('useBackgroundMusicController', () => {
 
     expect(howlInstances[0]?.volume).toHaveBeenCalledWith(0.65, 7);
     expect(howlInstances[0]?.mute).toHaveBeenCalledWith(true, 7);
+  });
+
+  it('crossfades immediately when the music mood changes', async () => {
+    await act(async () => {
+      root.render(
+        <BackgroundMusicHarness
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
+          mood="ambient"
+        />,
+      );
+    });
+
+    await act(async () => {
+      document.body.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          pointerId: 1,
+        }),
+      );
+      await flushPromises();
+    });
+
+    await act(async () => {
+      root.render(
+        <BackgroundMusicHarness
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
+          mood="combat"
+        />,
+      );
+      await flushPromises();
+    });
+
+    expect(HowlMock).toHaveBeenCalledTimes(2);
+    expect(howlInstances[0]?.fade).toHaveBeenCalledWith(
+      DEFAULT_AUDIO_SETTINGS.musicVolume,
+      0,
+      1000,
+      7,
+    );
+    expect(howlInstances[1]?.fade).toHaveBeenCalledWith(
+      0,
+      DEFAULT_AUDIO_SETTINGS.musicVolume,
+      1000,
+      7,
+    );
+
+    howlInstances[0]?.trigger('fade');
+
+    expect(howlInstances[0]?.stop).toHaveBeenCalledWith(7);
+    expect(howlInstances[0]?.unload).toHaveBeenCalledTimes(1);
+  });
+
+  it('retries failed track loads within the playlist budget and then stops retrying', async () => {
+    getNextBackgroundMusicTrackMock
+      .mockImplementationOnce(() => ({
+        id: 'ambient-a',
+        loadUrl: vi.fn().mockRejectedValue(new Error('broken-a')),
+      }))
+      .mockImplementationOnce(() => ({
+        id: 'ambient-b',
+        loadUrl: vi.fn().mockRejectedValue(new Error('broken-b')),
+      }));
+
+    await act(async () => {
+      root.render(
+        <BackgroundMusicHarness
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
+          mood="ambient"
+        />,
+      );
+    });
+
+    await act(async () => {
+      document.body.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          pointerId: 1,
+        }),
+      );
+      await flushPromises();
+    });
+
+    expect(getNextBackgroundMusicTrackMock).toHaveBeenCalledTimes(2);
+    expect(HowlMock).not.toHaveBeenCalled();
+  });
+
+  it('stops and unloads both the current and outgoing tracks on unmount', async () => {
+    await act(async () => {
+      root.render(
+        <BackgroundMusicHarness
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
+          mood="ambient"
+        />,
+      );
+    });
+
+    await act(async () => {
+      document.body.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          pointerId: 1,
+        }),
+      );
+      await flushPromises();
+    });
+
+    await act(async () => {
+      root.render(
+        <BackgroundMusicHarness
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
+          mood="combat"
+        />,
+      );
+      await flushPromises();
+    });
+
+    await act(async () => {
+      root.unmount();
+    });
+
+    expect(howlInstances[0]?.stop).toHaveBeenCalledWith(7);
+    expect(howlInstances[0]?.unload).toHaveBeenCalled();
+    expect(howlInstances[1]?.stop).toHaveBeenCalledWith(7);
+    expect(howlInstances[1]?.unload).toHaveBeenCalled();
   });
 });
 
