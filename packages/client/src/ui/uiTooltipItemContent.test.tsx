@@ -1,5 +1,6 @@
 import { getInventoryItemAction } from '../app/App/utils/getInventoryItemAction';
-import { EquipmentSlotId } from '../game/content/ids';
+import { buildItemFromConfig } from '../game/content/items';
+import { EquipmentSlotId, ItemId } from '../game/content/ids';
 import { GameTag } from '../game/content/tags';
 import { getAbilityDefinition } from '../game/abilities';
 import type { Item } from '../game/stateTypes';
@@ -287,6 +288,42 @@ describe('ui tooltip item content', () => {
         tone: 'item',
       },
     ]);
+    const lockpickTooltipItem = buildItemFromConfig(ItemId.Lockpick, {
+      id: 'lockpick-tooltip',
+    });
+    const chestKeyTooltipItem = buildItemFromConfig(ItemId.ChestKey, {
+      id: 'chest-key-tooltip',
+    });
+    expect(
+      itemTooltipLines(lockpickTooltipItem, undefined, {
+        lockpickingLevel: 25,
+      }),
+    ).toEqual(
+      expect.arrayContaining([
+        {
+          kind: 'text',
+          text: 'Lockpick can only be used on a locked chest.',
+        },
+        {
+          kind: 'stat',
+          label: 'Lockpick Break Chance',
+          value: '63%',
+          tone: 'item',
+        },
+      ]),
+    );
+    expect(itemTooltipLines(chestKeyTooltipItem)).toEqual(
+      expect.arrayContaining([
+        {
+          kind: 'text',
+          text: 'Chest Key can only be used on a locked chest.',
+        },
+        {
+          kind: 'text',
+          text: 'Consumes 1 key on use.',
+        },
+      ]),
+    );
     expect(
       itemTooltipLines({
         ...consumableTooltipItem,

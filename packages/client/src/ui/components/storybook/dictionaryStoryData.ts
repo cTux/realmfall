@@ -53,6 +53,10 @@ export function loadDictionaryCatalogs() {
           id: config.key,
           quantity: 1,
         }),
+        undefined,
+        {
+          lockpickingLevel: fixtures.skills.lockpicking.level,
+        },
       ),
     })),
     enemies: fixtures.enemies.map((config) => ({

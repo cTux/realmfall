@@ -9,6 +9,7 @@ import {
   isRecipePage,
   sellValue,
 } from '../../game/inventory';
+import { getLockpickBreakChance } from '../../game/lockedChests';
 import {
   getDisplayedItemSecondaryStats,
   getVisibleItemSecondaryEmptySlotCount,
@@ -24,6 +25,7 @@ import { Icons } from '../icons';
 import { type TooltipLine, tagTooltipLines } from './shared';
 
 interface ItemTooltipOptions {
+  lockpickingLevel?: number;
   recipeLearned?: boolean;
   replacedOffhand?: Item;
   quickSellHint?: boolean;
@@ -60,6 +62,7 @@ export function itemTooltipLines(
     category !== 'consumable' &&
     category !== 'resource' &&
     Boolean(equipped || options.replacedOffhand);
+  const lockpickingLevel = options.lockpickingLevel ?? 1;
   const playerLevel = options.playerLevel ?? 1;
   const showTags = options.showTags ?? true;
   const requiredLevel = getItemRequiredLevel(item);
@@ -110,7 +113,7 @@ export function itemTooltipLines(
     const sellLine = itemSellLine(item);
     lines.push(
       ...[
-        ...consumableEffectLines(item),
+        ...consumableEffectLines(item, lockpickingLevel),
         ...tagTooltipLines(tags, showTags),
         ...(sellLine ? [sellLine] : []),
       ],
@@ -220,11 +223,46 @@ export function itemTooltipLines(
   return lines;
 }
 
-function consumableEffectLines(item: Item): TooltipLine[] {
+function consumableEffectLines(
+  item: Item,
+  lockpickingLevel: number,
+): TooltipLine[] {
   const effects = getConsumableEffectDescriptors(item);
 
   if (effects.some((effect) => effect.kind === 'homeScroll')) {
     return [{ kind: 'text', text: t('ui.tooltip.consumable.homeScroll') }];
+  }
+
+  if (effects.some((effect) => effect.kind === 'lockpick')) {
+    return [
+      {
+        kind: 'text',
+        text: t('game.message.lockedChest.requiresChest', {
+          item: item.name,
+        }),
+      },
+      {
+        kind: 'stat',
+        label: t('ui.tooltip.lockpickBreakChance'),
+        value: `${Math.round(getLockpickBreakChance(lockpickingLevel) * 100)}%`,
+        tone: 'item',
+      },
+    ];
+  }
+
+  if (effects.some((effect) => effect.kind === 'lockedChestKey')) {
+    return [
+      {
+        kind: 'text',
+        text: t('game.message.lockedChest.requiresChest', {
+          item: item.name,
+        }),
+      },
+      {
+        kind: 'text',
+        text: t('ui.tooltip.chestKeyUse'),
+      },
+    ];
   }
 
   const restoreLines = effects.flatMap<TooltipLine>((effect) => {

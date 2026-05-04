@@ -138,6 +138,12 @@ describe('ui tooltip entity content', () => {
       value: '+1',
       tone: 'item',
     });
+    expect(skillTooltip(Skill.Lockpicking, 25)).toContainEqual({
+      kind: 'stat',
+      label: 'Lockpick Break Chance',
+      value: '63%',
+      tone: 'item',
+    });
     expect(skillTooltip(Skill.Crafting, 4)).toContainEqual({
       kind: 'text',
       text: 'Skill level does not change recipe costs, output, or quality directly yet.',

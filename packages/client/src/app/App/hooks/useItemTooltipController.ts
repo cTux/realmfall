@@ -27,13 +27,13 @@ type ItemTooltipLinesBuilder = ItemTooltipModule['itemTooltipLines'];
 type ItemTooltipLinesCache = WeakMap<
   TooltipItem,
   {
-    withoutEquipped: Map<number, TooltipLine[]>;
-    withoutEquippedRecipeLearned: Map<number, TooltipLine[]>;
+    withoutEquipped: Map<string, TooltipLine[]>;
+    withoutEquippedRecipeLearned: Map<string, TooltipLine[]>;
     withEquipped: WeakMap<
       TooltipItem,
       {
-        recipeUnknown: Map<number, TooltipLine[]>;
-        recipeLearned: Map<number, TooltipLine[]>;
+        recipeUnknown: Map<string, TooltipLine[]>;
+        recipeLearned: Map<string, TooltipLine[]>;
       }
     >;
   }
@@ -54,10 +54,12 @@ function getCachedItemTooltipLines(
   recipeLearned: boolean,
   quickSellHint: boolean,
   playerLevel: number,
+  lockpickingLevel: number,
   showTooltipTags: boolean,
 ) {
   if (quickSellHint || replacedOffhand) {
     return buildItemTooltipLines(item, equipped, {
+      lockpickingLevel,
       playerLevel,
       recipeLearned,
       replacedOffhand,
@@ -81,18 +83,22 @@ function getCachedItemTooltipLines(
       ? itemCache.withoutEquippedRecipeLearned
       : itemCache.withoutEquipped;
     const cachedLines = cacheKey.get(
-      getTooltipLineCacheKey(playerLevel, showTooltipTags),
+      getTooltipLineCacheKey(playerLevel, lockpickingLevel, showTooltipTags),
     );
     if (cachedLines) {
       return cachedLines;
     }
 
     const lines = buildItemTooltipLines(item, undefined, {
+      lockpickingLevel,
       playerLevel,
       recipeLearned,
       showTags: showTooltipTags,
     });
-    cacheKey.set(getTooltipLineCacheKey(playerLevel, showTooltipTags), lines);
+    cacheKey.set(
+      getTooltipLineCacheKey(playerLevel, lockpickingLevel, showTooltipTags),
+      lines,
+    );
     return lines;
   }
 
@@ -108,18 +114,22 @@ function getCachedItemTooltipLines(
   const cacheKey = recipeLearned ? 'recipeLearned' : 'recipeUnknown';
   const cacheBucket = equippedCache[cacheKey];
   const cachedLines = cacheBucket.get(
-    getTooltipLineCacheKey(playerLevel, showTooltipTags),
+    getTooltipLineCacheKey(playerLevel, lockpickingLevel, showTooltipTags),
   );
   if (cachedLines) {
     return cachedLines;
   }
 
   const lines = buildItemTooltipLines(item, equipped, {
+    lockpickingLevel,
     playerLevel,
     recipeLearned,
     showTags: showTooltipTags,
   });
-  cacheBucket.set(getTooltipLineCacheKey(playerLevel, showTooltipTags), lines);
+  cacheBucket.set(
+    getTooltipLineCacheKey(playerLevel, lockpickingLevel, showTooltipTags),
+    lines,
+  );
   return lines;
 }
 
@@ -130,38 +140,40 @@ function getItemTooltipContentKey(
   recipeLearned: boolean,
   quickSellHint: boolean,
   playerLevel: number,
+  lockpickingLevel: number,
   showTooltipTags: boolean,
 ) {
   return JSON.stringify({
-    kind: 'item',
-    item: {
+    k: 'i',
+    i: {
       id: item.id,
-      name: item.name,
-      rarity: item.rarity,
-      power: item.power,
-      defense: item.defense,
-      maxHp: item.maxHp,
-      secondaryStats: item.secondaryStats,
-      secondaryStatCapacity: item.secondaryStatCapacity,
-      reforgedSecondaryStatIndex: item.reforgedSecondaryStatIndex,
-      enchantedSecondaryStatIndex: item.enchantedSecondaryStatIndex,
-      corrupted: item.corrupted ?? false,
-      grantedAbilityId: item.grantedAbilityId,
+      n: item.name,
+      r: item.rarity,
+      p: item.power,
+      d: item.defense,
+      h: item.maxHp,
+      s: item.secondaryStats,
+      c: item.secondaryStatCapacity,
+      rf: item.reforgedSecondaryStatIndex,
+      en: item.enchantedSecondaryStatIndex,
+      x: item.corrupted ?? false,
+      a: item.grantedAbilityId,
     },
-    equippedId: equipped?.id ?? null,
-    replacedOffhand: replacedOffhand
+    e: equipped?.id ?? null,
+    o: replacedOffhand
       ? {
           id: replacedOffhand.id,
-          defense: replacedOffhand.defense,
-          maxHp: replacedOffhand.maxHp,
-          power: replacedOffhand.power,
-          secondaryStats: replacedOffhand.secondaryStats,
+          d: replacedOffhand.defense,
+          h: replacedOffhand.maxHp,
+          p: replacedOffhand.power,
+          s: replacedOffhand.secondaryStats,
         }
       : null,
-    recipeLearned,
-    playerLevel,
-    quickSellHint,
-    showTooltipTags,
+    r: recipeLearned,
+    l: lockpickingLevel,
+    p: playerLevel,
+    q: quickSellHint,
+    t: showTooltipTags,
   });
 }
 
@@ -175,6 +187,7 @@ function buildItemTooltipState({
   quickSellHint,
   position,
   playerLevel,
+  lockpickingLevel,
   showTooltipTags,
 }: {
   cache: ItemTooltipLinesCache;
@@ -185,6 +198,7 @@ function buildItemTooltipState({
   recipeLearned: boolean;
   quickSellHint: boolean;
   playerLevel: number;
+  lockpickingLevel: number;
   position: ReturnType<typeof getTooltipPlacementForRect>;
   showTooltipTags: boolean;
 }): TooltipState {
@@ -199,6 +213,7 @@ function buildItemTooltipState({
       recipeLearned,
       quickSellHint,
       playerLevel,
+      lockpickingLevel,
       showTooltipTags,
     ),
     contentKey: getItemTooltipContentKey(
@@ -208,6 +223,7 @@ function buildItemTooltipState({
       recipeLearned,
       quickSellHint,
       playerLevel,
+      lockpickingLevel,
       showTooltipTags,
     ),
     x: position.x,
@@ -282,6 +298,7 @@ export function useItemTooltipController({
         }
 
         tooltipPositionRef.current = position;
+        const lockpickingLevel = getPlayerLockpickingLevel(gameRef.current);
         setTooltipState(
           buildItemTooltipState({
             cache: itemTooltipLinesCacheRef.current,
@@ -292,6 +309,7 @@ export function useItemTooltipController({
             recipeLearned,
             quickSellHint,
             playerLevel: gameRef.current.player.level,
+            lockpickingLevel,
             position,
             showTooltipTags,
           }),
@@ -365,6 +383,14 @@ export function useItemTooltipController({
   };
 }
 
-function getTooltipLineCacheKey(playerLevel: number, showTooltipTags: boolean) {
-  return playerLevel * 2 + Number(showTooltipTags);
+function getPlayerLockpickingLevel(state: GameState) {
+  return state.player.skills.lockpicking.level;
+}
+
+function getTooltipLineCacheKey(
+  playerLevel: number,
+  lockpickingLevel: number,
+  showTooltipTags: boolean,
+) {
+  return `${playerLevel}:${lockpickingLevel}:${Number(showTooltipTags)}`;
 }
