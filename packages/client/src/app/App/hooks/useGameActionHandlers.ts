@@ -8,7 +8,7 @@ import { t } from '../../../i18n';
 import { toggleFavoriteRecipe } from '../../../game/crafting';
 import type { InventorySortMode } from '../../../game/inventory';
 import { craftRecipe } from '../../../game/stateCrafting';
-import { forfeitCombat, startCombat } from '../../../game/stateCombat';
+import { forfeitCombat } from '../../../game/stateCombat';
 import {
   buyTownItem,
   getTownStock,
@@ -379,15 +379,6 @@ export function useGameActionHandlers({
     [applyGameTransition],
   );
 
-  const handleStartCombat = useCallback(() => {
-    applyGameTransition(
-      createLoggedGameTransition({
-        describe: () => t('game.log.command.startCombat'),
-        transition: startCombat,
-      }),
-    );
-  }, [applyGameTransition]);
-
   const handleForfeitCombat = useCallback(() => {
     applyGameTransition(
       createLoggedGameTransition({
@@ -529,7 +520,6 @@ export function useGameActionHandlers({
     handleSpawnDebugEnemyNearby,
     handleToggleFavoriteRecipe,
     handleSort,
-    handleStartCombat,
     handleTakeAllLoot,
     handleTakeLootItem,
     handleTriggerDebugBloodMoon,

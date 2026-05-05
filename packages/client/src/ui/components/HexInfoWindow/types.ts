@@ -73,7 +73,6 @@ export interface HexInfoWindowProps
   onBuyItem: (itemId: string) => void;
   onTakeAll?: () => void;
   onTakeItem?: (itemId: string) => void;
-  onStartCombat?: () => void;
   onForfeitCombat?: () => void;
   onHoverItem: (
     event: ReactMouseEvent<HTMLElement>,

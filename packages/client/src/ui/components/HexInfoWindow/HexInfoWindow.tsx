@@ -72,7 +72,6 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   onBuyItem,
   onTakeAll,
   onTakeItem,
-  onStartCombat = () => undefined,
   onForfeitCombat = () => undefined,
   onHoverItem,
   onLeaveItem,
@@ -92,37 +91,21 @@ export const HexInfoWindow = memo(function HexInfoWindow({
     liveWorldTimeMs - combat.startedAtMs >= COMBAT_FORFEIT_DELAY_MS,
   );
   const primaryHeaderAction = combat ? (
-    combat.started ? (
-      showForfeitAction ? (
-        <WindowHeaderActionButton
-          className={inventoryStyles.headerButton}
-          onClick={onForfeitCombat}
-          tooltipTitle={t('ui.combat.forfeitAction')}
-          tooltipLines={[
-            { kind: 'text', text: t('ui.tooltip.window.forfeitCombat') },
-          ]}
-          tooltipBorderColor="rgba(248, 113, 113, 0.9)"
-          onHoverDetail={onHoverDetail}
-          onLeaveDetail={onLeaveDetail}
-        >
-          {t('ui.combat.forfeitAction')}
-        </WindowHeaderActionButton>
-      ) : null
-    ) : (
+    showForfeitAction ? (
       <WindowHeaderActionButton
         className={inventoryStyles.headerButton}
-        onClick={onStartCombat}
-        tooltipTitle={t('ui.combat.startAction')}
+        onClick={onForfeitCombat}
+        tooltipTitle={t('ui.combat.forfeitAction')}
         tooltipLines={[
-          { kind: 'text', text: t('ui.tooltip.window.startCombat') },
+          { kind: 'text', text: t('ui.tooltip.window.forfeitCombat') },
         ]}
-        tooltipBorderColor="rgba(248, 250, 252, 0.9)"
+        tooltipBorderColor="rgba(248, 113, 113, 0.9)"
         onHoverDetail={onHoverDetail}
         onLeaveDetail={onLeaveDetail}
       >
-        {t('ui.combat.startAction')}
+        {t('ui.combat.forfeitAction')}
       </WindowHeaderActionButton>
-    )
+    ) : null
   ) : headerInteractLabel ? (
     <WindowHeaderActionButton
       className={`${inventoryStyles.headerButton} ${styles.homeButton}`}
@@ -270,7 +253,6 @@ export const HexInfoWindow = memo(function HexInfoWindow({
         onBuyItem,
         onTakeAll,
         onTakeItem,
-        onStartCombat,
         onForfeitCombat,
         onHoverItem,
         onLeaveItem,

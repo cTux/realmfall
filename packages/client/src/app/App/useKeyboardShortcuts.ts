@@ -14,12 +14,10 @@ interface UseKeyboardShortcutsOptions {
   canSetHomeAction: boolean;
   canTerritoryAction: boolean;
   combatDeathAvailable: boolean;
-  combatStartAvailable: boolean;
   hexContentWindowShown: boolean;
   interactLabel: string | null;
   lootSnapshotLength: number;
   onForfeitCombat: () => void;
-  onStartCombat: () => void;
   onInteract: () => void;
   onHealTerritoryNpc: () => void;
   onSetHome: () => void;
@@ -61,12 +59,10 @@ export function useKeyboardShortcuts({
   canSetHomeAction,
   canTerritoryAction,
   combatDeathAvailable,
-  combatStartAvailable,
   hexContentWindowShown,
   interactLabel,
   lootSnapshotLength,
   onForfeitCombat,
-  onStartCombat,
   onInteract,
   onHealTerritoryNpc,
   onSetHome,
@@ -131,21 +127,15 @@ export function useKeyboardShortcuts({
       return;
     }
 
-    if (lowerKey === 'q' && combatStartAvailable) {
+    if (lowerKey === 'q' && interactLabel) {
       event.preventDefault();
-      onStartCombat();
+      onInteract();
       return;
     }
 
     if (lowerKey === 'q' && hexContentWindowShown && canHealTerritoryNpc) {
       event.preventDefault();
       onHealTerritoryNpc();
-      return;
-    }
-
-    if (lowerKey === 'q' && interactLabel) {
-      event.preventDefault();
-      onInteract();
       return;
     }
 

@@ -31,7 +31,7 @@ describe('App gameplay settings', () => {
     host.remove();
   }, 10_000);
 
-  it('hydrates an already-started combat encounter without requiring a start action', async () => {
+  it('ignores a removed auto-start combat setting while hydrating an already-started encounter', async () => {
     const game = moveToTile(createHydratedAppGame(), { q: 1, r: 0 });
     expect(game.combat?.started).toBe(true);
 

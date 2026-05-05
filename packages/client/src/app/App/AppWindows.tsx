@@ -16,9 +16,7 @@ export function AppWindows(props: AppWindowsProps) {
   const debugWindowEnabled = isDebugWindowRequested();
   const dockAttention = useMemo(
     () => ({
-      hexInfo: Boolean(
-        props.views.hex.combat && !props.views.hex.combat.started,
-      ),
+      hexInfo: Boolean(props.views.hex.combat),
     }),
     [props.views.hex.combat],
   );

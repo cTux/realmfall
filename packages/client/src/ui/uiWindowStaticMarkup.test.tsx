@@ -278,9 +278,7 @@ describe('ui window static markup', () => {
     expect(markupText).not.toContain('Casting');
     expect(markup).toContain('Kick');
     expect(markup).toContain(getAbilityDefinition('fireball').name);
-    expect(markupText).toContain(
-      stripBracketHotkeyLabel(t('ui.combat.startAction')),
-    );
+    expect(markupText).not.toContain(stripBracketHotkeyLabel('(Q) Start'));
     expect(markupText).toContain('Knight Blade');
     expect(markup).toContain(
       resolveIconAsset(getItemConfigByKey('town-knife')?.icon ?? ''),

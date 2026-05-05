@@ -44,7 +44,6 @@ interface UseAppWindowActionsArgs {
   handleSetHome: AppWindowsActions['hex']['onSetHome'];
   handleSetItemLocked: AppWindowsActions['inventory']['onSetItemLocked'];
   handleSort: AppWindowsActions['inventory']['onSort'];
-  handleStartCombat: AppWindowsActions['hex']['onStartCombat'];
   handleTakeAllLoot: AppWindowsActions['inventory']['onTakeAllLoot'];
   handleTakeLootItem: AppWindowsActions['inventory']['onTakeLootItem'];
   handleTriggerDebugBloodMoon: AppWindowsActions['debug']['onTriggerBloodMoon'];
@@ -107,7 +106,6 @@ export function useAppWindowActions({
   handleSetHome,
   handleSetItemLocked,
   handleSort,
-  handleStartCombat,
   handleTakeAllLoot,
   handleTakeLootItem,
   handleTriggerDebugBloodMoon,
@@ -207,7 +205,6 @@ export function useAppWindowActions({
 
   const hex = useMemo(
     () => ({
-      onStartCombat: handleStartCombat,
       onForfeitCombat: handleForfeitCombat,
       onInteract: handleInteract,
       onProspect: handleProspect,
@@ -234,7 +231,6 @@ export function useAppWindowActions({
       handleSellAll,
       handleSelectItemModificationReforgeStat,
       handleSetHome,
-      handleStartCombat,
       toggleItemModificationPicker,
     ],
   );

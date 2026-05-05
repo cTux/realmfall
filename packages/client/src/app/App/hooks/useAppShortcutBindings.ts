@@ -21,7 +21,6 @@ interface UseAppShortcutBindingsArgs {
   onProspect: () => void;
   onSellAll: () => void;
   onSetHome: () => void;
-  onStartCombat: () => void;
   onTakeAllLoot: () => void;
   onTerritoryAction: () => void;
   onToggleDockWindow: (key: keyof WindowVisibilityState) => void;
@@ -49,7 +48,6 @@ export function useAppShortcutBindings({
   onProspect,
   onSellAll,
   onSetHome,
-  onStartCombat,
   onTakeAllLoot,
   onTerritoryAction,
   onToggleDockWindow,
@@ -65,8 +63,8 @@ export function useAppShortcutBindings({
 
   const combatDeathAvailable = Boolean(
     combat?.started &&
-      combat.startedAtMs != null &&
-      worldTimeMs - combat.startedAtMs >= 60_000,
+    combat.startedAtMs != null &&
+    worldTimeMs - combat.startedAtMs >= 60_000,
   );
 
   useKeyboardShortcuts({
@@ -76,12 +74,10 @@ export function useAppShortcutBindings({
     canSetHomeAction,
     canTerritoryAction,
     combatDeathAvailable,
-    combatStartAvailable: Boolean(combat && !combat.started),
     hexContentWindowShown,
     interactLabel,
     lootSnapshotLength: currentTileItemsLength,
     onForfeitCombat,
-    onStartCombat,
     onInteract,
     onHealTerritoryNpc,
     onSetHome,

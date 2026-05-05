@@ -87,7 +87,6 @@ export const hexInfoDeferredWindow: AppDeferredWindowDescriptor = {
       onBuyItem={actions.hex.onBuyTownItem}
       onTakeAll={actions.inventory.onTakeAllLoot}
       onTakeItem={actions.inventory.onTakeLootItem}
-      onStartCombat={actions.hex.onStartCombat}
       onForfeitCombat={actions.hex.onForfeitCombat}
       onHoverItem={actions.tooltip.onShowItemTooltip}
       onLeaveItem={actions.tooltip.onCloseTooltip}

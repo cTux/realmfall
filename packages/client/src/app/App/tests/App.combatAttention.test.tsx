@@ -171,8 +171,8 @@ describe('App combat attention', () => {
     expect(host.textContent).toContain(
       renderWindowHotkeyLabelText(WINDOW_LABELS.hexInfo),
     );
-    expect(host.textContent).toContain(
-      stripBracketHotkeyLabel(t('ui.combat.startAction')),
+    expect(host.textContent).not.toContain(
+      stripBracketHotkeyLabel('(Q) Start'),
     );
 
     await act(async () => {
