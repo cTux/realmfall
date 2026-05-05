@@ -1,5 +1,6 @@
 import { hexKey } from '../../game/hex';
 import type { GameState, HexCoord } from '../../game/stateTypes';
+import { getAppliedInterfaceFontStack } from '../../app/interfaceFonts';
 import type { SceneCache } from './renderSceneCache';
 import {
   getVisibleTileRenderInputs,
@@ -31,6 +32,7 @@ export function getSceneRenderTokens(
   const visibleEnemyToken = renderInputsChanged
     ? getVisibleEnemyToken(state, visibleTiles)
     : scene.derivedRenderVisibleEnemyToken;
+  const interfaceFontStack = getAppliedInterfaceFontStack();
 
   if (renderInputsChanged) {
     scene.derivedRenderEnemiesSource = state.enemies;
@@ -43,6 +45,7 @@ export function getSceneRenderTokens(
     scene.derivedRenderPlayerCoordKey !== playerCoordKey ||
     scene.derivedRenderHomeHexKey !== homeHexKey ||
     scene.derivedRenderBloodMoonActive !== state.bloodMoonActive ||
+    scene.derivedRenderInterfaceFontStack !== interfaceFontStack ||
     scene.derivedRenderIconTextureVersion !== iconTextureVersion
   ) {
     scene.derivedRenderVisibleTilesSource = visibleTiles;
@@ -51,9 +54,11 @@ export function getSceneRenderTokens(
     scene.derivedRenderPlayerCoordKey = playerCoordKey;
     scene.derivedRenderHomeHexKey = homeHexKey;
     scene.derivedRenderBloodMoonActive = state.bloodMoonActive;
+    scene.derivedRenderInterfaceFontStack = interfaceFontStack;
     scene.derivedRenderIconTextureVersion = iconTextureVersion;
     scene.derivedStaticRenderToken = getStaticRenderToken(
       state,
+      interfaceFontStack,
       visibleTileRenderInputs,
     );
     scene.derivedInteractionRenderToken = getInteractionRenderToken(
@@ -95,12 +100,14 @@ export function getSceneRenderTokens(
 
 function getStaticRenderToken(
   state: GameState,
+  interfaceFontStack: string,
   visibleTileRenderInputs: VisibleTileRenderInput[],
 ) {
   let token = 2166136261;
   token = mixRenderToken(token, coordToken(state.player.coord));
   token = mixRenderToken(token, coordToken(state.homeHex));
   token = mixRenderToken(token, state.bloodMoonActive ? 1 : 0);
+  token = mixRenderToken(token, hashRenderString(interfaceFontStack));
   token = mixRenderToken(token, getWorldIconTextureVersion());
 
   for (const tileRenderInput of visibleTileRenderInputs) {
@@ -118,6 +125,11 @@ function getStaticTileRenderToken({ enemies, tile }: VisibleTileRenderInput) {
       hashRenderString(enemy.enemyTypeId ?? 'unknown'),
     );
     token = mixRenderToken(token, hashRenderString(enemy.rarity ?? 'common'));
+    token = mixRenderToken(token, enemy.tier);
+    token = mixRenderToken(token, enemy.hp);
+    token = mixRenderToken(token, enemy.maxHp);
+    token = mixRenderToken(token, enemy.mana ?? 0);
+    token = mixRenderToken(token, enemy.maxMana ?? 0);
     token = mixRenderToken(token, enemy.aggressive === false ? 0 : 1);
     token = mixRenderToken(token, enemy.worldBoss ? 1 : 0);
     return token;
@@ -180,6 +192,11 @@ function getVisibleEnemyToken(
         hashRenderString(enemy.enemyTypeId ?? 'unknown'),
       );
       token = mixRenderToken(token, hashRenderString(enemy.rarity ?? 'common'));
+      token = mixRenderToken(token, enemy.tier);
+      token = mixRenderToken(token, enemy.hp);
+      token = mixRenderToken(token, enemy.maxHp);
+      token = mixRenderToken(token, enemy.mana ?? 0);
+      token = mixRenderToken(token, enemy.maxMana ?? 0);
       token = mixRenderToken(token, enemy.aggressive === false ? 0 : 1);
       token = mixRenderToken(token, enemy.worldBoss ? 1 : 0);
     }

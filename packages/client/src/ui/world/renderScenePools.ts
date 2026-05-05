@@ -15,6 +15,12 @@ export interface TextPool {
 
 export interface ShadowedSpriteEntry {
   wrapper: Container;
+  badgeBackground: Graphics;
+  badgeTrackGraphics: Graphics;
+  badgeFillGraphics: Graphics;
+  badgePlateGraphics: Graphics;
+  badgePrimaryText: Text;
+  badgeSecondaryText: Text;
   outline: Sprite;
   shadows: Sprite[];
   sprite: Sprite;
@@ -138,6 +144,7 @@ export function takeShadowedSprite(
       shadow.texture = texture;
     });
     item.sprite.texture = texture;
+    resetShadowedSpriteBadge(item);
     item.wrapper.visible = true;
     pool.usedEntries.add(item);
     pool.usedStableKeys.add(stableKey);
@@ -160,6 +167,7 @@ export function takeShadowedSprite(
     shadow.texture = texture;
   });
   item.sprite.texture = texture;
+  resetShadowedSpriteBadge(item);
   item.wrapper.visible = true;
   pool.usedEntries.add(item);
   return item;
@@ -233,6 +241,17 @@ export function finishSpritePool(pool: SpritePool) {
 
 export function createShadowedSprite(icon: string): ShadowedSpriteEntry {
   const wrapper = new Container();
+  const badgeBackground = new Graphics();
+  const badgeTrackGraphics = new Graphics();
+  const badgeFillGraphics = new Graphics();
+  const badgePlateGraphics = new Graphics();
+  const badgePrimaryText = new Text({ text: '' });
+  const badgeSecondaryText = new Text({ text: '' });
+
+  setTextAnchor(badgePrimaryText, 0.5);
+  setTextAnchor(badgeSecondaryText, 0.5);
+  wrapper.addChild(badgeBackground);
+  wrapper.addChild(badgeTrackGraphics);
   const shadows = [0.3, 0.55, 0.8, 1].map(() => {
     const shadow = new Sprite(
       getWorldIconTexture(icon, { allowPending: true }),
@@ -247,7 +266,34 @@ export function createShadowedSprite(icon: string): ShadowedSpriteEntry {
   const sprite = new Sprite(getWorldIconTexture(icon, { allowPending: true }));
   sprite.anchor.set(0.5);
   wrapper.addChild(sprite);
-  return { wrapper, outline, shadows, sprite };
+  wrapper.addChild(badgeFillGraphics);
+  wrapper.addChild(badgePlateGraphics);
+  wrapper.addChild(badgePrimaryText);
+  wrapper.addChild(badgeSecondaryText);
+  resetShadowedSpriteBadge({
+    badgeBackground,
+    badgeFillGraphics,
+    badgePlateGraphics,
+    badgePrimaryText,
+    badgeSecondaryText,
+    badgeTrackGraphics,
+    outline,
+    shadows,
+    sprite,
+    wrapper,
+  });
+  return {
+    wrapper,
+    badgeBackground,
+    badgeTrackGraphics,
+    badgeFillGraphics,
+    badgePlateGraphics,
+    badgePrimaryText,
+    badgeSecondaryText,
+    outline,
+    shadows,
+    sprite,
+  };
 }
 
 export function configureShadowedSprite(
@@ -316,4 +362,61 @@ export function configureSprite(
   sprite.height = height;
   sprite.tint = tint;
   sprite.alpha = alpha;
+}
+
+export function resetShadowedSpriteBadge(entry: ShadowedSpriteEntry) {
+  entry.badgeBackground.visible = false;
+  clearGraphics(entry.badgeBackground);
+  entry.badgeTrackGraphics.visible = false;
+  clearGraphics(entry.badgeTrackGraphics);
+  entry.badgeFillGraphics.visible = false;
+  clearGraphics(entry.badgeFillGraphics);
+  entry.badgePlateGraphics.visible = false;
+  clearGraphics(entry.badgePlateGraphics);
+
+  [entry.badgePrimaryText, entry.badgeSecondaryText].forEach((text) => {
+    text.visible = false;
+    text.text = '';
+    text.alpha = 1;
+    setTextPosition(text, 0, 0);
+    setTextScale(text, 1, 1);
+  });
+}
+
+function setTextAnchor(text: Text, value: number) {
+  const anchor = (text as Text & { anchor?: { set?: (next: number) => void } })
+    .anchor;
+  anchor?.set?.(value);
+}
+
+export function setTextPosition(text: Text, x: number, y: number) {
+  const candidate = text as Text & {
+    position?: { set?: (nextX: number, nextY?: number) => void };
+    x?: number;
+    y?: number;
+  };
+
+  candidate.position?.set?.(x, y);
+  if (typeof candidate.x === 'number') {
+    candidate.x = x;
+  }
+  if (typeof candidate.y === 'number') {
+    candidate.y = y;
+  }
+}
+
+export function setTextScale(text: Text, x: number, y = x) {
+  const candidate = text as Text & {
+    scale?: { set?: (nextX: number, nextY?: number) => void };
+  };
+
+  candidate.scale?.set?.(x, y);
+}
+
+function clearGraphics(graphics: Graphics) {
+  (
+    graphics as Graphics & {
+      clear?: () => void;
+    }
+  ).clear?.();
 }

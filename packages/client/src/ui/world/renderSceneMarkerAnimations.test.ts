@@ -461,7 +461,8 @@ describe('renderScene marker animation', () => {
     expect(forgottenLootMarker).toBeDefined();
     const world = (app.stage.children[1] as MockContainer)
       .children[0] as MockContainer;
-    const wrapper = forgottenLootMarker?.entry.wrapper as unknown as MockContainer;
+    const wrapper = forgottenLootMarker?.entry
+      .wrapper as unknown as MockContainer;
     const initialScale = wrapper.scale.x;
     const initialY = wrapper.position.y;
     const initialPolygonCalls = totalPolygonCalls(world);
@@ -557,5 +558,8 @@ function totalPolygonCalls(world: MockContainer) {
 }
 
 function getMainSprite(wrapper: MockContainer) {
-  return wrapper.children[wrapper.children.length - 1] as MockSprite;
+  const sprites = wrapper.children.filter(
+    (child): child is MockSprite => child instanceof MockSprite,
+  );
+  return sprites[sprites.length - 1] as MockSprite;
 }
