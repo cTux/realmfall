@@ -296,14 +296,18 @@ export interface CombatEngagementMetadata {
   autoStepOnVictory: boolean;
 }
 
+export type WorldFloatingTextAnchor =
+  | { kind: 'player' }
+  | { kind: 'enemy'; enemyId: string; coord: HexCoord };
+
+export type WorldFloatingTextKind = 'damage' | 'critical-damage' | 'healing';
+
 export interface WorldFloatingTextEvent {
   id: string;
-  anchor:
-    | { kind: 'player' }
-    | { kind: 'enemy'; enemyId: string; coord: HexCoord };
+  anchor: WorldFloatingTextAnchor;
   amount: number;
   createdAtMs: number;
-  kind: 'damage' | 'critical-damage' | 'healing';
+  kind: WorldFloatingTextKind;
 }
 
 export interface Tile {

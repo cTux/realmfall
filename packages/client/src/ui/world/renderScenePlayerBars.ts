@@ -1,14 +1,18 @@
-import type { HexCoord, WorldKind } from '../../game/stateTypes';
-import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
-import { tileToPoint } from './renderSceneMath';
-import { takeGraphics, type GraphicsPool } from './renderScenePools';
-import type { SceneCache } from './renderSceneCache';
 import { WORLD_MOVE_HEX_COOLDOWN_MS } from '../../game/config';
+import type { HexCoord, WorldKind } from '../../game/stateTypes';
+import type { SceneCache } from './renderSceneCache';
 import {
   decorateEntityBadge,
   ENTITY_BADGE_BACKGROUND_COLORS,
+  ENTITY_BADGE_MP_ARC_ANGLES,
   ENTITY_BADGE_RADIUS_SCALE,
+  drawEntityBadgeArc,
+  expandEntityBadgeArcBand,
+  getEntityBadgeArcBand,
 } from './renderSceneEntityBadge';
+import { tileToPoint } from './renderSceneMath';
+import { takeGraphics, type GraphicsPool } from './renderScenePools';
+import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
 import {
   getVisibleTileRevealState,
   type MovementTransitionRevealState,
@@ -18,16 +22,17 @@ const PLAYER_BAR_TRACK_COLOR = 0x422006;
 const PLAYER_BAR_TRACK_ALPHA = 0.85;
 const PLAYER_BAR_FILL_ALPHA = 0.95;
 const MOVEMENT_COOLDOWN_BAR_COLOR = 0xfacc15;
+const PLAYER_BADGE_OUTER_RADIUS_SCALE = 0.78;
+const HOSTILE_BADGE_OUTER_RADIUS_SCALE = 0.76;
+const COOLDOWN_ARC_GAP_PX = 3;
 
 export function renderPlayerMovementCooldown({
   scene,
-  hexSize,
   origin,
   playerIconSize,
   movementCooldown,
 }: {
   scene: SceneCache;
-  hexSize: number;
   origin: { x: number; y: number };
   playerIconSize: number;
   movementCooldown: {
@@ -48,26 +53,19 @@ export function renderPlayerMovementCooldown({
     return;
   }
 
-  const progress = Math.min(1, remainingMs / movementCooldown.durationMs);
-  const thickness = Math.max(3, playerIconSize * 0.075);
-
-  renderPlayerEdgeBar({
-    fillAlpha: PLAYER_BAR_FILL_ALPHA,
-    color: MOVEMENT_COOLDOWN_BAR_COLOR,
-    endAngle: Math.PI / 2,
-    hexSize,
+  renderMovementCooldownArc({
+    cooldownBand: getMovementCooldownArcBand(
+      getPlayerBadgeOuterRadius(playerIconSize),
+    ),
     origin,
-    progress,
-    startAngle: Math.PI / 6,
-    thickness,
-    trackAlpha: PLAYER_BAR_TRACK_ALPHA,
-    trackColor: PLAYER_BAR_TRACK_COLOR,
+    progress: Math.min(1, remainingMs / movementCooldown.durationMs),
     trackPool: scene.playerCooldownGraphics,
   });
 }
 
 export function renderDungeonEnemyMovementCooldowns({
   scene,
+  enemyIconSize,
   hexSize,
   movementTransitionRevealState,
   origin,
@@ -77,6 +75,7 @@ export function renderDungeonEnemyMovementCooldowns({
   worldTimeMs,
 }: {
   scene: SceneCache;
+  enemyIconSize: number;
   hexSize: number;
   origin: { x: number; y: number };
   movementTransitionRevealState: MovementTransitionRevealState | null;
@@ -88,6 +87,10 @@ export function renderDungeonEnemyMovementCooldowns({
   if (worldKind !== 'dungeon') {
     return;
   }
+
+  const cooldownBand = getMovementCooldownArcBand(
+    getHostileEnemyBadgeOuterRadius(enemyIconSize),
+  );
 
   for (const { enemies, tile } of visibleTileRenderInputs) {
     const revealState = getVisibleTileRevealState({
@@ -117,21 +120,17 @@ export function renderDungeonEnemyMovementCooldowns({
         continue;
       }
 
-      const remainingMs = enemy.dungeonMovementCooldownEndsAt - worldTimeMs;
-      const progress = Math.min(1, remainingMs / WORLD_MOVE_HEX_COOLDOWN_MS);
-      const thickness = Math.max(3, hexSize * 0.11);
-
-      renderPlayerEdgeBar({
-        fillAlpha: PLAYER_BAR_FILL_ALPHA,
-        color: MOVEMENT_COOLDOWN_BAR_COLOR,
-        endAngle: -Math.PI / 6,
-        hexSize,
-        origin: point,
-        progress,
-        startAngle: -Math.PI / 2,
-        thickness,
-        trackAlpha: PLAYER_BAR_TRACK_ALPHA,
-        trackColor: PLAYER_BAR_TRACK_COLOR,
+      renderMovementCooldownArc({
+        cooldownBand,
+        origin: {
+          x: point.x,
+          y: point.y - 2,
+        },
+        progress: Math.min(
+          1,
+          (enemy.dungeonMovementCooldownEndsAt - worldTimeMs) /
+            WORLD_MOVE_HEX_COOLDOWN_MS,
+        ),
         trackPool: scene.worldAnimatedMarkerBadgeGraphics,
       });
     }
@@ -166,98 +165,66 @@ export function renderPlayerResourceBars({
       current: playerCombatStats.mana,
       max: playerCombatStats.maxMana,
     },
-    outerRadius:
-      Math.max(18, playerIconSize * 0.78) * ENTITY_BADGE_RADIUS_SCALE,
+    outerRadius: getPlayerBadgeOuterRadius(playerIconSize),
   });
 }
 
-function renderPlayerEdgeBar({
-  color,
-  endAngle,
-  fillAlpha,
-  hexSize,
+export function getPlayerBadgeOuterRadius(playerIconSize: number) {
+  return (
+    Math.max(18, playerIconSize * PLAYER_BADGE_OUTER_RADIUS_SCALE) *
+    ENTITY_BADGE_RADIUS_SCALE
+  );
+}
+
+export function getHostileEnemyBadgeOuterRadius(enemyIconSize: number) {
+  return (
+    enemyIconSize * HOSTILE_BADGE_OUTER_RADIUS_SCALE * ENTITY_BADGE_RADIUS_SCALE
+  );
+}
+
+function getMovementCooldownArcBand(badgeOuterRadius: number) {
+  return expandEntityBadgeArcBand(
+    getEntityBadgeArcBand(badgeOuterRadius),
+    COOLDOWN_ARC_GAP_PX,
+  );
+}
+
+function renderMovementCooldownArc({
+  cooldownBand,
   origin,
   progress,
-  startAngle,
-  thickness,
-  trackAlpha,
-  trackColor,
   trackPool,
 }: {
-  color: number;
-  endAngle: number;
-  fillAlpha: number;
-  hexSize: number;
+  cooldownBand: ReturnType<typeof getMovementCooldownArcBand>;
   origin: { x: number; y: number };
   progress: number;
-  startAngle: number;
-  thickness: number;
-  trackAlpha: number;
-  trackColor: number;
   trackPool: GraphicsPool;
 }) {
-  const start = {
-    x: origin.x + Math.cos(startAngle) * hexSize,
-    y: origin.y + Math.sin(startAngle) * hexSize,
-  };
-  const end = {
-    x: origin.x + Math.cos(endAngle) * hexSize,
-    y: origin.y + Math.sin(endAngle) * hexSize,
-  };
-  const inwardNormal = getInwardNormal(start, end);
-
-  takeGraphics(trackPool)
-    .poly(buildPlayerBarQuad(start, end, inwardNormal, thickness))
-    .fill({ color: trackColor, alpha: trackAlpha });
+  const trackGraphic = takeGraphics(trackPool);
+  trackGraphic.position.set(origin.x, origin.y);
+  drawEntityBadgeArc(trackGraphic, {
+    alpha: PLAYER_BAR_TRACK_ALPHA,
+    color: PLAYER_BAR_TRACK_COLOR,
+    endAngle: ENTITY_BADGE_MP_ARC_ANGLES.endAngle,
+    innerRadius: cooldownBand.innerRadius,
+    outerRadius: cooldownBand.outerRadius,
+    progress: 1,
+    startAngle: ENTITY_BADGE_MP_ARC_ANGLES.startAngle,
+  });
 
   if (progress <= 0) {
     return;
   }
 
-  const fillEnd = {
-    x: start.x + (end.x - start.x) * progress,
-    y: start.y + (end.y - start.y) * progress,
-  };
-
-  takeGraphics(trackPool)
-    .poly(buildPlayerBarQuad(start, fillEnd, inwardNormal, thickness))
-    .fill({ color, alpha: fillAlpha });
-}
-
-function getInwardNormal(
-  start: { x: number; y: number },
-  end: { x: number; y: number },
-) {
-  const edgeVector = {
-    x: end.x - start.x,
-    y: end.y - start.y,
-  };
-  const edgeLength = Math.hypot(edgeVector.x, edgeVector.y) || 1;
-  const edgeDirection = {
-    x: edgeVector.x / edgeLength,
-    y: edgeVector.y / edgeLength,
-  };
-
-  return {
-    x: -edgeDirection.y,
-    y: edgeDirection.x,
-  };
-}
-
-function buildPlayerBarQuad(
-  start: { x: number; y: number },
-  end: { x: number; y: number },
-  inwardNormal: { x: number; y: number },
-  thickness: number,
-) {
-  return [
-    start.x,
-    start.y,
-    end.x,
-    end.y,
-    end.x + inwardNormal.x * thickness,
-    end.y + inwardNormal.y * thickness,
-    start.x + inwardNormal.x * thickness,
-    start.y + inwardNormal.y * thickness,
-  ];
+  const fillGraphic = takeGraphics(trackPool);
+  fillGraphic.position.set(origin.x, origin.y);
+  drawEntityBadgeArc(fillGraphic, {
+    alpha: PLAYER_BAR_FILL_ALPHA,
+    color: MOVEMENT_COOLDOWN_BAR_COLOR,
+    endAngle: ENTITY_BADGE_MP_ARC_ANGLES.endAngle,
+    innerRadius: cooldownBand.innerRadius,
+    outerRadius: cooldownBand.outerRadius,
+    progress,
+    startAngle: ENTITY_BADGE_MP_ARC_ANGLES.startAngle,
+  });
 }

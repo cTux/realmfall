@@ -108,6 +108,22 @@ function createEnemyMarkerGame(
 }
 
 describe('renderScene enemy markers', () => {
+  beforeEach(() => {
+    vi.stubGlobal(
+      'OffscreenCanvas',
+      class MockOffscreenCanvas {
+        constructor(
+          public width: number,
+          public height: number,
+        ) {}
+      },
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it('renders highlighted tiles, structures, enemies, and player markers', async () => {
     const { renderScene } = await import('./renderScene');
     const { WorldIcons, structureIconFor } = await import('./worldIcons');
@@ -470,6 +486,97 @@ describe('renderScene enemy markers', () => {
     );
 
     expect(badgeTexts.some((child) => child.text === '2')).toBe(true);
+  });
+
+  it('refreshes visible hostile badge HP and MP arcs during combat without requiring a new enemy map object', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createEnemyMarkerGame(
+      'render-scene-live-combat-badge-refresh',
+      'common',
+    );
+    const app = createMockApp();
+    const visibleTiles = getVisibleTiles(game);
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    const initialGraphics = collectDescendants(getMarkerLayer(app)).filter(
+      (child): child is MockGraphics =>
+        child instanceof MockGraphics && child.visible,
+    );
+    const initialHpArc = findMarkerArc(initialGraphics, 0xff2d55, 'top');
+    const initialManaArc = findMarkerArc(initialGraphics, 0x38bdf8, 'bottom');
+    const initialHpCallCount = initialHpArc?.drawPolygon.mock.calls.length ?? 0;
+    const initialManaCallCount =
+      initialManaArc?.drawPolygon.mock.calls.length ?? 0;
+    expect(initialHpArc).toBeDefined();
+    expect(initialManaArc).toBeDefined();
+
+    game.enemies['enemy-1,0-0']!.hp = 0;
+    game.enemies['enemy-1,0-0']!.mana = 1;
+    game.combat = {
+      coord: { q: 0, r: 0 },
+      enemyIds: ['enemy-1,0-0'],
+      started: true,
+      startedAtMs: 0,
+      engagement: {
+        autoStepOnVictory: false,
+        engageMode: 'staged-click',
+        originCoord: { q: 0, r: 0 },
+        stagingCoord: { q: 0, r: 0 },
+        targetCoord: { q: 1, r: 0 },
+      },
+      player: {
+        abilityIds: ['slash'],
+        globalCooldownMs: 1500,
+        globalCooldownEndsAt: 0,
+        cooldownEndsAt: {},
+        casting: null,
+      },
+      enemies: {
+        'enemy-1,0-0': {
+          abilityIds: ['kick'],
+          globalCooldownMs: 1500,
+          globalCooldownEndsAt: 0,
+          cooldownEndsAt: {},
+          casting: null,
+        },
+      },
+      enemyStateById: {
+        'enemy-1,0-0': {},
+      },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    const updatedGraphics = collectDescendants(getMarkerLayer(app)).filter(
+      (child): child is MockGraphics =>
+        child instanceof MockGraphics && child.visible,
+    );
+    const updatedHpArc = findMarkerArc(updatedGraphics, 0xff2d55, 'top');
+    const updatedManaArc = findMarkerArc(updatedGraphics, 0x38bdf8, 'bottom');
+
+    expect(updatedHpArc).toBe(initialHpArc);
+    expect(updatedManaArc).toBe(initialManaArc);
+    expect(updatedHpArc?.drawPolygon.mock.calls.length).toBeGreaterThan(
+      initialHpCallCount,
+    );
+    expect(updatedManaArc?.drawPolygon.mock.calls.length).toBeGreaterThan(
+      initialManaCallCount,
+    );
   });
 });
 

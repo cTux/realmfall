@@ -7,6 +7,7 @@ import type {
   GameState,
   Player,
   Tile,
+  WorldFloatingTextAnchor,
   WorldFloatingTextEvent,
 } from './types';
 
@@ -141,15 +142,18 @@ function copyCombatState(
 function copyWorldFloatingTextEvent(event: WorldFloatingTextEvent) {
   return {
     ...event,
-    anchor:
-      event.anchor.kind === 'player'
-        ? { kind: 'player' as const }
-        : {
-            kind: 'enemy' as const,
-            enemyId: event.anchor.enemyId,
-            coord: { ...event.anchor.coord },
-          },
+    anchor: copyWorldFloatingTextAnchor(event.anchor),
   };
+}
+
+function copyWorldFloatingTextAnchor(anchor: WorldFloatingTextAnchor) {
+  return anchor.kind === 'player'
+    ? { kind: 'player' as const }
+    : {
+        kind: 'enemy' as const,
+        enemyId: anchor.enemyId,
+        coord: { ...anchor.coord },
+      };
 }
 
 function copyTiles(tiles: GameState['tiles']) {

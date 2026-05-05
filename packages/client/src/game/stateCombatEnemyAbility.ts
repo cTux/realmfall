@@ -27,6 +27,10 @@ import { resolveEnemyTargetsForEnemyAbility } from './combatTargeting';
 import { addLog } from './logs';
 import { getPlayerCombatStats } from './progression';
 import { respawnAtNearestTown } from './stateSurvival';
+import {
+  appendWorldFloatingTextEvent,
+  createEnemyFloatingTextAnchor,
+} from './worldFloatingText';
 import type { AbilityId, GameState } from './types';
 
 export function applyEnemyAbility(
@@ -81,6 +85,11 @@ export function applyEnemyAbility(
           0,
           state.player.hp - damageResolution.damage,
         );
+        appendWorldFloatingTextEvent(state, {
+          anchor: { kind: 'player' },
+          amount: damageResolution.damage,
+          kind: damageResolution.critical ? 'critical-damage' : 'damage',
+        });
       }
       const debuffApplication =
         damageResolution.outcome === 'dodged' ||
@@ -205,6 +214,13 @@ function healEnemyTargets(
     );
     const healed = Math.max(0, Math.min(enemy.maxHp - enemy.hp, amount));
     enemy.hp += healed;
+    if (healed > 0) {
+      appendWorldFloatingTextEvent(state, {
+        anchor: createEnemyFloatingTextAnchor(enemy),
+        amount: healed,
+        kind: 'healing',
+      });
+    }
     return sum + healed;
   }, 0);
 }

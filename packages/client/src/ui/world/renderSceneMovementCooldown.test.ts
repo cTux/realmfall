@@ -1,6 +1,7 @@
 import { createGame } from '../../game/stateFactory';
 import { hexKey, hexesInRange } from '../../game/hex';
 import { getVisibleTiles } from '../../game/stateSelectors';
+import './renderSceneCombatFeedback.test';
 import {
   collectDescendants,
   createMockApp,
@@ -35,7 +36,7 @@ describe('renderScene movement cooldown', () => {
     vi.unstubAllGlobals();
   });
 
-  it('draws a yellow cooldown bar along the south-east edge of the current hex while movement cooldown remains active', async () => {
+  it('draws a yellow outer cooldown arc outside the player mana ring while movement cooldown remains active', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-move-cooldown');
     const app = createMockApp();
@@ -71,69 +72,38 @@ describe('renderScene movement cooldown', () => {
       ),
     ).toBe(true);
 
-    const angledBar = cooldownGraphics.find(
+    const cooldownFillArc = cooldownGraphics.find(
       (graphic) =>
         graphic.beginFill.mock.calls.some(
           ([color, alpha]) => color === 0xfacc15 && alpha === 0.95,
         ) && graphic.drawPolygon.mock.calls.length > 0,
     );
-    const borderBar = cooldownGraphics.find(
+    const cooldownTrackArc = cooldownGraphics.find(
       (graphic) =>
         graphic.beginFill.mock.calls.some(
           ([color, alpha]) => color === 0x422006 && alpha === 0.85,
         ) && graphic.drawPolygon.mock.calls.length > 0,
     );
+    const manaTrackArc = cooldownGraphics.find(
+      (graphic) =>
+        graphic.beginFill.mock.calls.some(
+          ([color, alpha]) => color === 0x172554 && alpha === 0.94,
+        ) && graphic.drawPolygon.mock.calls.length > 0,
+    );
 
-    expect(angledBar).toBeDefined();
-    expect(borderBar).toBeDefined();
+    expect(cooldownFillArc).toBeDefined();
+    expect(cooldownTrackArc).toBeDefined();
+    expect(manaTrackArc).toBeDefined();
 
-    const [points] = angledBar!.drawPolygon.mock.calls[0]!;
-    const [borderPoints] = borderBar!.drawPolygon.mock.calls[0]!;
-    expect(points).toHaveLength(8);
-    expect(borderPoints).toHaveLength(8);
-
-    const [x1, y1, x2, y2, x3, y3, x4, y4] = points;
-    const [borderX1, borderY1, borderX2, borderY2] = borderPoints;
-    const hexOriginX = app.screen.width / 2;
-    const hexOriginY = app.screen.height / 2;
-    const centroidX = (x1 + x2 + x3 + x4) / 4;
-    const centroidY = (y1 + y2 + y3 + y4) / 4;
-    const edgeSlope = (y2 - y1) / (x2 - x1);
-    const expectedEdgeSlope = -1 / Math.sqrt(3);
-    const hexSize = getWorldHexSize(app.screen, game.radius);
-    const expectedThickness = Math.max(3, hexSize * 0.95 * 0.075);
-    const borderStart = {
-      x: hexOriginX + Math.cos(Math.PI / 6) * hexSize,
-      y: hexOriginY + Math.sin(Math.PI / 6) * hexSize,
-    };
-    const borderEnd = {
-      x: hexOriginX + Math.cos(Math.PI / 2) * hexSize,
-      y: hexOriginY + Math.sin(Math.PI / 2) * hexSize,
-    };
-    const borderVector = {
-      x: borderEnd.x - borderStart.x,
-      y: borderEnd.y - borderStart.y,
-    };
-    const borderLength = Math.hypot(borderVector.x, borderVector.y) || 1;
-    const distanceToBorder = (x: number, y: number) =>
-      Math.abs(
-        borderVector.y * x -
-          borderVector.x * y +
-          borderEnd.x * borderStart.y -
-          borderEnd.y * borderStart.x,
-      ) / borderLength;
-
-    expect(centroidX).toBeGreaterThan(hexOriginX + hexSize * 0.2);
-    expect(centroidY).toBeGreaterThan(hexOriginY + hexSize * 0.2);
-    expect(edgeSlope).toBeCloseTo(expectedEdgeSlope, 4);
-    expect(borderX1).toBeCloseTo(borderStart.x, 4);
-    expect(borderY1).toBeCloseTo(borderStart.y, 4);
-    expect(borderX2).toBeCloseTo(borderEnd.x, 4);
-    expect(borderY2).toBeCloseTo(borderEnd.y, 4);
-    expect(distanceToBorder(x1, y1)).toBeCloseTo(0, 4);
-    expect(distanceToBorder(x2, y2)).toBeCloseTo(0, 4);
-    expect(distanceToBorder(x3, y3)).toBeCloseTo(expectedThickness, 4);
-    expect(distanceToBorder(x4, y4)).toBeCloseTo(expectedThickness, 4);
+    expect(getAverageGraphicY(cooldownFillArc!)).toBeGreaterThan(0);
+    expect(getAverageGraphicY(cooldownTrackArc!)).toBeGreaterThan(0);
+    expect(getGraphicThickness(cooldownTrackArc!)).toBeCloseTo(
+      getGraphicThickness(manaTrackArc!),
+      3,
+    );
+    expect(getMaxGraphicRadius(cooldownTrackArc!)).toBeGreaterThan(
+      getMaxGraphicRadius(manaTrackArc!),
+    );
   });
 
   it('renders queued path hexes with a green tint at a lower alpha', async () => {
@@ -1019,4 +989,63 @@ function getPolygonCenter(points: number[]) {
     x: sumX / vertexCount,
     y: sumY / vertexCount,
   };
+}
+
+function getAverageGraphicY(graphic: MockGraphics) {
+  const lastCall =
+    graphic.drawPolygon.mock.calls[graphic.drawPolygon.mock.calls.length - 1];
+  const points = lastCall?.[0] as number[] | undefined;
+  if (!points || points.length === 0) {
+    return 0;
+  }
+
+  return (
+    points.reduce(
+      (sum, value, index) => sum + (index % 2 === 1 ? value : 0),
+      0,
+    ) /
+    (points.length / 2)
+  );
+}
+
+function getMaxGraphicRadius(graphic: MockGraphics) {
+  const lastCall =
+    graphic.drawPolygon.mock.calls[graphic.drawPolygon.mock.calls.length - 1];
+  const points = lastCall?.[0] as number[] | undefined;
+  if (!points || points.length === 0) {
+    return 0;
+  }
+
+  let maxRadius = 0;
+  for (let index = 0; index < points.length; index += 2) {
+    maxRadius = Math.max(
+      maxRadius,
+      Math.hypot(points[index] ?? 0, points[index + 1] ?? 0),
+    );
+  }
+
+  return maxRadius;
+}
+
+function getMinGraphicRadius(graphic: MockGraphics) {
+  const lastCall =
+    graphic.drawPolygon.mock.calls[graphic.drawPolygon.mock.calls.length - 1];
+  const points = lastCall?.[0] as number[] | undefined;
+  if (!points || points.length === 0) {
+    return 0;
+  }
+
+  let minRadius = Number.POSITIVE_INFINITY;
+  for (let index = 0; index < points.length; index += 2) {
+    minRadius = Math.min(
+      minRadius,
+      Math.hypot(points[index] ?? 0, points[index + 1] ?? 0),
+    );
+  }
+
+  return Number.isFinite(minRadius) ? minRadius : 0;
+}
+
+function getGraphicThickness(graphic: MockGraphics) {
+  return getMaxGraphicRadius(graphic) - getMinGraphicRadius(graphic);
 }

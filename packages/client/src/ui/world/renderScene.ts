@@ -31,6 +31,7 @@ import {
   WORLD_MAP_CLOUD_PARALLAX_FACTOR,
   ZERO_SHADOW_OFFSET,
 } from './renderSceneShared';
+import { getCombatFeedbackRenderToken } from './renderSceneCombatFeedback';
 import { renderTilePasses } from './renderSceneTilePasses';
 import { renderAnimatedScene } from './renderSceneAnimated';
 import { renderPlayerResourceBars } from './renderScenePlayerBars';
@@ -171,6 +172,11 @@ export function renderScene(
       worldRenderFrameMs,
     ),
     getMovementCooldownRenderToken(movementCooldown, worldRenderFrameMs),
+    getCombatFeedbackRenderToken({
+      state,
+      worldRenderFrameMs,
+      worldTimeMs: renderWorldTimeMs,
+    }),
   ].join(':');
   const shouldRenderAnimated =
     screenChanged || scene.animatedRenderToken !== animatedRenderToken;
@@ -187,12 +193,17 @@ export function renderScene(
     animationMs,
     worldRenderFrameMs,
   );
+  const visibleEnemyBadgeRenderToken = getVisibleEnemyBadgeRenderToken(
+    renderTokens.visibleTileRenderInputs,
+  );
   const staticRenderToken =
     movementTransitionRenderToken === -1
       ? renderTokens.static
       : mixRenderToken(renderTokens.static, movementTransitionRenderToken);
   const shouldRenderStatic =
-    screenChanged || scene.staticRenderToken !== staticRenderToken;
+    screenChanged ||
+    scene.staticRenderToken !== staticRenderToken ||
+    scene.visibleEnemyBadgeRenderToken !== visibleEnemyBadgeRenderToken;
   const shouldRenderInteraction =
     shouldRenderStatic ||
     scene.playerResourceRenderToken !== playerResourceRenderToken ||
@@ -305,6 +316,7 @@ export function renderScene(
   if (shouldRenderStatic) {
     completeStaticSceneRender(scene);
     scene.staticRenderToken = staticRenderToken;
+    scene.visibleEnemyBadgeRenderToken = visibleEnemyBadgeRenderToken;
   }
 
   if (shouldRenderInteraction) {
@@ -331,11 +343,13 @@ export function renderScene(
       hexSize,
       lightingState,
       movementCooldown,
+      enemyIconSize,
       cloudParallaxOffset,
       origin,
       playerIconSize,
       scene,
       playerCoord: state.player.coord,
+      state,
       movementTransitionRevealState,
       visibleTileRenderInputs: renderTokens.visibleTileRenderInputs,
       worldKind: currentWorldKind,
@@ -458,4 +472,40 @@ function getPlayerResourceRenderToken({
   level: number;
 }) {
   return [level, hp, maxHp, mana, maxMana].join(':');
+}
+
+function getVisibleEnemyBadgeRenderToken(
+  visibleTileRenderInputs: ReturnType<
+    typeof getSceneRenderTokens
+  >['visibleTileRenderInputs'],
+) {
+  return visibleTileRenderInputs.reduce((token, { enemies, tile }) => {
+    token = mixRenderToken(token, coordToken(tile.coord));
+
+    return enemies.reduce((enemyToken, enemy) => {
+      enemyToken = mixRenderToken(enemyToken, hashRenderString(enemy.id));
+      enemyToken = mixRenderToken(enemyToken, enemy.hp);
+      enemyToken = mixRenderToken(enemyToken, enemy.maxHp);
+      enemyToken = mixRenderToken(enemyToken, enemy.mana ?? 0);
+      enemyToken = mixRenderToken(enemyToken, enemy.maxMana ?? 0);
+      return enemyToken;
+    }, token);
+  }, 2166136261);
+}
+
+function hashRenderString(value: string) {
+  let token = 2166136261;
+
+  for (let index = 0; index < value.length; index += 1) {
+    token = mixRenderToken(token, value.charCodeAt(index));
+  }
+
+  return token;
+}
+
+function coordToken(coord: HexCoord) {
+  let token = 2166136261;
+  token = mixRenderToken(token, coord.q + 2048);
+  token = mixRenderToken(token, coord.r + 2048);
+  return token;
 }

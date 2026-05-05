@@ -114,6 +114,7 @@ export interface SceneCache {
   derivedStaticRenderToken: number | null;
   derivedInteractionRenderToken: number | null;
   staticRenderToken: number | null;
+  visibleEnemyBadgeRenderToken: number | null;
   interactionRenderToken: number | null;
   playerResourceRenderToken: string | null;
   animatedRenderToken: string | null;
@@ -250,6 +251,7 @@ export function getSceneCache(app: Application) {
     derivedStaticRenderToken: null,
     derivedInteractionRenderToken: null,
     staticRenderToken: null,
+    visibleEnemyBadgeRenderToken: null,
     interactionRenderToken: null,
     playerResourceRenderToken: null,
     animatedRenderToken: null,
