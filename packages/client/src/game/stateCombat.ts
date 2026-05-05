@@ -56,7 +56,7 @@ export function progressCombat(state: GameState): GameState {
 
 export function startCombat(state: GameState): GameState {
   if (!state.combat) return message(state, t('game.message.noBattle'));
-  if (state.combat.started) return progressCombat(state);
+  if (state.combat.started) return state;
 
   const next = cloneForWorldMutation(state);
   next.combat!.started = true;

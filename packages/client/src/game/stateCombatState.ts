@@ -38,8 +38,7 @@ export function createCombatState(
   return {
     coord: { ...coord },
     enemyIds: [...enemyIds],
-    started: true,
-    startedAtMs: worldTimeMs,
+    started: false,
     engagement: cloneCombatEngagementMetadata(engagement),
     player: createCombatActorState(
       worldTimeMs,

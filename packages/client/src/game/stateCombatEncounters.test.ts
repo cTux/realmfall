@@ -31,8 +31,9 @@ describe('game state combat encounters', () => {
 
     const encountered = moveToTile(game, target);
     expect(encountered.combat).not.toBeNull();
+    expect(startCombat(encountered)).toBe(encountered);
 
-    const resolved = startCombat(encountered);
+    const resolved = progressCombat(encountered);
     expect(resolved.combat).toBeNull();
     expect(getEnemiesAt(resolved, target)).toHaveLength(0);
     expect(
@@ -58,6 +59,7 @@ describe('game state combat encounters', () => {
 
     const encountered = moveToTile(game, target);
     expect(encountered.combat?.started).toBe(true);
+    expect(startCombat(encountered)).toBe(encountered);
     expect(progressCombat(encountered)).not.toBe(encountered);
     expect(
       encountered.logs.some((entry) => /press start/i.test(entry.text)),
@@ -81,11 +83,10 @@ describe('game state combat encounters', () => {
     game.worldTimeMs = 75_000;
 
     const encountered = moveToTile(game, target);
-    const started = startCombat(encountered);
+    expect(startCombat(encountered)).toBe(encountered);
+    expect(encountered.combat?.startedAtMs).toBe(encountered.worldTimeMs);
 
-    expect(started.combat?.startedAtMs).toBe(encountered.worldTimeMs);
-
-    const forfeited = forfeitCombat(started);
+    const forfeited = forfeitCombat(encountered);
 
     expect(forfeited.combat).toBeNull();
     expect(forfeited.player.coord).toEqual({ q: 0, r: 0 });
@@ -119,7 +120,7 @@ describe('game state combat encounters', () => {
       firstEncounter.combat?.enemyStateById['enemy-2,0-0']?.treasureGoblin
         ?.fleeHitsRequired;
 
-    const forfeited = forfeitCombat(startCombat(firstEncounter));
+    const forfeited = forfeitCombat(firstEncounter);
     forfeited.worldTimeMs = 98_765;
     forfeited.player.coord = { q: 1, r: 0 };
 
@@ -153,7 +154,7 @@ describe('game state combat encounters', () => {
     );
 
     const encountered = moveToTile(game, target);
-    const resolved = startCombat(encountered);
+    const resolved = progressCombat(encountered);
 
     expect(
       getTileAt(resolved, target).items.some(
@@ -203,7 +204,7 @@ describe('game state combat encounters', () => {
     game.player.coord = { q: 1, r: 0 };
 
     const encountered = moveToTile(game, target);
-    const resolvedRound = startCombat(encountered);
+    const resolvedRound = progressCombat(encountered);
 
     expect(resolvedRound.combat?.enemyIds).toHaveLength(2);
     expect(

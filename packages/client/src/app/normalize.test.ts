@@ -388,7 +388,7 @@ describe('normalizeLoadedGame', () => {
     });
   });
 
-  it('normalizes combat engagement metadata and drops malformed floating-text leftovers', () => {
+  it('normalizes combat engagement metadata and drops persisted floating-text leftovers', () => {
     const baseline = createGame(3, 'normalize-combat-engagement');
     const normalized = normalizeLoadedGame({
       seed: 'normalize-combat-engagement',
@@ -415,7 +415,15 @@ describe('normalizeLoadedGame', () => {
       lastEarthshakeDay: 0,
       gameOver: false,
       logSequence: 0,
-      worldFloatingTextEvents: [{ bad: true }],
+      worldFloatingTextEvents: [
+        {
+          id: 'stale-event',
+          anchor: { kind: 'player' },
+          amount: 7,
+          createdAtMs: 1200,
+          kind: 'damage',
+        },
+      ],
       combat: {
         coord: { q: 0, r: 0 },
         enemyIds: ['enemy-0,0-0'],

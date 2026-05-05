@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { createGame } from './stateFactory';
+import { createCombatState } from './stateCombatState';
+import { startCombat } from './stateCombat';
+import { syncCombatEncounterEnemies } from './stateCombatEncounterSync';
 import {
   applyCombatVictoryAutoStep,
   createStartedCombatEncounter,
@@ -79,5 +82,94 @@ describe('stateCombatEngagement', () => {
 
     expect(changed).toBe(true);
     expect(game.player.coord).toEqual({ q: 1, r: 0 });
+  });
+
+  it('keeps createCombatState and startCombat on the staged manual path', () => {
+    const game = createGame(3, 'legacy-staged-combat');
+    const enemyId = 'enemy-2,0-0';
+    const coord = { q: 2, r: 0 };
+
+    game.tiles['2,0'] = {
+      coord,
+      terrain: 'plains',
+      items: [],
+      enemyIds: [enemyId],
+    };
+    game.enemies[enemyId] = {
+      id: enemyId,
+      enemyTypeId: 'wolf',
+      name: 'Wolf',
+      coord,
+      tier: 1,
+      hp: 200,
+      maxHp: 200,
+      attack: 2,
+      defense: 0,
+      xp: 1,
+      elite: false,
+    };
+    game.combat = createCombatState(game, coord, [enemyId], game.worldTimeMs);
+
+    expect(game.combat?.started).toBe(false);
+    expect(game.combat?.startedAtMs).toBeUndefined();
+
+    const started = startCombat(game);
+
+    expect(started.combat?.started).toBe(true);
+    expect(started.combat?.startedAtMs).toBe(game.worldTimeMs);
+    expect(startCombat(started)).toBe(started);
+  });
+
+  it('applies the deferred auto-step when encounter teardown clears the final enemy', () => {
+    const game = createGame(3, 'victory-auto-step-sync');
+    const enemyId = 'enemy-0,0-0';
+    const targetCoord = { q: 1, r: 0 };
+    const initialLogCount = game.logs.length;
+
+    game.player.coord = { q: 0, r: 0 };
+    game.tiles['0,0'] = {
+      coord: { q: 0, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [enemyId],
+    };
+    game.tiles['1,0'] = {
+      coord: targetCoord,
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+    game.enemies[enemyId] = {
+      id: enemyId,
+      enemyTypeId: 'wolf',
+      name: 'Wolf',
+      coord: { q: 0, r: 0 },
+      tier: 1,
+      hp: 5,
+      maxHp: 5,
+      attack: 2,
+      defense: 0,
+      xp: 1,
+      elite: false,
+    };
+    game.combat = createStartedCombatEncounter(game, {
+      autoStepOnVictory: true,
+      engageMode: 'enemy-chase',
+      enemyIds: [enemyId],
+      originCoord: { q: 0, r: 0 },
+      stagingCoord: { q: 0, r: 0 },
+      targetCoord,
+      worldTimeMs: game.worldTimeMs,
+    });
+
+    delete game.enemies[enemyId];
+
+    syncCombatEncounterEnemies(game);
+
+    expect(game.combat).toBeNull();
+    expect(game.player.coord).toEqual(targetCoord);
+    expect(game.logs.length).toBe(initialLogCount + 3);
+    expect(game.logs[0]?.kind).toBe('movement');
+    expect(game.logs[1]?.kind).toBe('combat');
   });
 });
