@@ -55,6 +55,7 @@ export function createWorldMovementController({
   let queuedSteps: HexCoord[] = [];
   let pendingHostileApproach: PendingHostileApproach | null = null;
   let cooldownEndAtMs: number | null = null;
+  let enforcedCooldownEndAtMs: number | null = null;
   let retryTimer: ScheduledRetryHandle | null = null;
   let requestSequence = 0;
   let activeRequest: ActiveMoveRequest | null = null;
@@ -121,6 +122,21 @@ export function createWorldMovementController({
     emitCooldownChange(null);
   };
 
+  const getRemainingEnforcedCooldownMs = () => {
+    if (enforcedCooldownEndAtMs === null) {
+      return 0;
+    }
+
+    const remainingCooldownMs = enforcedCooldownEndAtMs - now();
+    if (remainingCooldownMs > 0) {
+      return remainingCooldownMs;
+    }
+
+    enforcedCooldownEndAtMs = null;
+    clearCooldownIfExpired();
+    return 0;
+  };
+
   const syncCooldown = (deadlineMs: number) => {
     if (deadlineMs <= now()) {
       emitCooldownChange(null);
@@ -175,6 +191,12 @@ export function createWorldMovementController({
     if (hexDistance(getCurrentCoord(), nextStep) !== 1) {
       clearQueuedTravel();
       emitCooldownChange(null);
+      return;
+    }
+
+    const remainingCooldownMs = getRemainingEnforcedCooldownMs();
+    if (remainingCooldownMs > 0) {
+      scheduleRetry(remainingCooldownMs);
       return;
     }
 
@@ -316,10 +338,30 @@ export function createWorldMovementController({
       emitAutoOpenSuppressionStateChange('idle');
     },
 
+    seedCooldownUntil(endAtMs: number) {
+      enforcedCooldownEndAtMs =
+        enforcedCooldownEndAtMs === null
+          ? endAtMs
+          : Math.max(enforcedCooldownEndAtMs, endAtMs);
+      const nextCooldownEndAtMs =
+        cooldownEndAtMs === null
+          ? enforcedCooldownEndAtMs
+          : Math.max(cooldownEndAtMs, enforcedCooldownEndAtMs);
+      const remainingCooldownMs = syncCooldown(nextCooldownEndAtMs);
+      if (remainingCooldownMs === 0 || queuedSteps.length === 0) {
+        return;
+      }
+
+      if (activeRequest === null) {
+        scheduleRetry(remainingCooldownMs);
+      }
+    },
+
     dispose() {
       disposed = true;
       clearQueuedTravel();
       activeRequest = null;
+      enforcedCooldownEndAtMs = null;
       emitCooldownChange(null);
     },
   };

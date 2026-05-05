@@ -47,8 +47,14 @@ describe('App world hostile click combat', () => {
     vi.doUnmock('../useCombatAutomation');
   });
 
-  it('starts adjacent hostile combat in place and auto-steps onto the hostile tile after victory', async () => {
+  it('starts adjacent hostile combat in place, auto-steps after victory, and enforces movement cooldown', async () => {
     const game = createHydratedAppGame();
+    game.tiles['2,0'] = {
+      coord: { q: 2, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
     game.enemies['enemy-1,0-0'] = {
       ...game.enemies['enemy-1,0-0']!,
       attack: 0,
@@ -96,6 +102,20 @@ describe('App world hostile click combat', () => {
       expect(resolvedGame?.combat).toBeNull();
       expect(resolvedGame?.player.coord).toEqual({ q: 1, r: 0 });
 
+      await clickWorldTile(canvas);
+      await flushLazyModules();
+      await renderTickerFrame();
+
+      expect(getRenderedGame()?.player.coord).toEqual({ q: 1, r: 0 });
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(WORLD_MOVE_HEX_COOLDOWN_MS);
+      });
+      await flushLazyModules();
+      await renderTickerFrame();
+
+      expect(getRenderedGame()?.player.coord).toEqual({ q: 2, r: 0 });
+
       await act(async () => {
         root.unmount();
       });
@@ -105,7 +125,7 @@ describe('App world hostile click combat', () => {
     }
   }, 10_000);
 
-  it('walks only to the safe staging tile for a distant hostile click, then auto-steps onto the hostile target after victory with cooldown active', async () => {
+  it('walks only to the safe staging tile for a distant hostile click, then auto-steps after victory and enforces movement cooldown', async () => {
     const game = createHydratedAppGame();
     game.tiles['1,0'] = {
       ...game.tiles['1,0'],
@@ -117,6 +137,12 @@ describe('App world hostile click combat', () => {
       terrain: 'plains',
       items: [],
       enemyIds: ['enemy-2,0-0'],
+    };
+    game.tiles['3,0'] = {
+      coord: { q: 3, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
     };
     game.enemies['enemy-2,0-0'] = {
       id: 'enemy-2,0-0',
@@ -154,6 +180,11 @@ describe('App world hostile click combat', () => {
         stagingCoord: { q: 1, r: 0 },
         targetCoord: { q: 2, r: 0 },
       });
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(WORLD_MOVE_HEX_COOLDOWN_MS);
+      });
+      await flushLazyModules();
       const renderCallCountBeforeResolution = renderScene.mock.calls.length;
 
       await act(async () => {
@@ -183,6 +214,21 @@ describe('App world hostile click combat', () => {
       expect(renderOptions?.movementCooldown?.endAtMs).toBeGreaterThan(
         renderOptions?.movementCooldown?.nowMs ?? 0,
       );
+
+      hexAtPointSpy.mockReturnValue({ q: 1, r: 0 });
+      await clickWorldTile(canvas);
+      await flushLazyModules();
+      await renderTickerFrame();
+
+      expect(getRenderedGame()?.player.coord).toEqual({ q: 2, r: 0 });
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(WORLD_MOVE_HEX_COOLDOWN_MS);
+      });
+      await flushLazyModules();
+      await renderTickerFrame();
+
+      expect(getRenderedGame()?.player.coord).toEqual({ q: 3, r: 0 });
 
       await act(async () => {
         root.unmount();

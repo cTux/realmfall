@@ -99,6 +99,7 @@ interface WorldMovementController {
   ): void;
   releaseCombatAutoOpenSuppression(): void;
   replaceQueuedPath(nextSteps: HexCoord[]): void;
+  seedCooldownUntil(endAtMs: number): void;
   startHostileEngagement(targetCoord: HexCoord): void;
 }
 
@@ -224,9 +225,14 @@ export function usePixiWorld({
       sameCoord(game.player.coord, previousEngagement.targetCoord) &&
       !sameCoord(previousGame.player.coord, previousEngagement.targetCoord)
     ) {
-      movementCooldownEndAtRef.current =
-        performance.now() + WORLD_MOVE_HEX_COOLDOWN_MS;
-      renderInvalidationRef.current += 1;
+      const cooldownEndAtMs = performance.now() + WORLD_MOVE_HEX_COOLDOWN_MS;
+      const movementController = movementControllerRef.current;
+      if (movementController) {
+        movementController.seedCooldownUntil(cooldownEndAtMs);
+      } else {
+        movementCooldownEndAtRef.current = cooldownEndAtMs;
+        renderInvalidationRef.current += 1;
+      }
     }
 
     previousGameRef.current = game;
