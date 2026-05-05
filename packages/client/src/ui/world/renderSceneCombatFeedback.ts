@@ -1,6 +1,5 @@
 import { TextStyle } from 'pixi.js';
 import { getAppliedInterfaceFontStack } from '../../app/interfaceFonts';
-import { hexKey } from '../../game/hex';
 import type { WorldFloatingTextEvent } from '../../game/types';
 import type { GameState, HexCoord } from '../../game/stateTypes';
 import { tileToPoint } from './renderSceneMath';
@@ -11,6 +10,7 @@ import {
 import { setTextPosition, setTextScale, takeText } from './renderScenePools';
 import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
 import type { SceneCache } from './renderSceneCache';
+import { ENEMY_GROUP_BADGE_OFFSET } from './renderSceneShared';
 
 const WORLD_FLOATING_TEXT_LIFETIME_MS = 1_200;
 const PLAYER_LUNGE_DURATION_MS = 180;
@@ -24,6 +24,7 @@ const HEALING_COLOR = 0x4ade80;
 const NORMAL_TEXT_SCALE = 0.95;
 const CRITICAL_TEXT_SCALE = 1.1;
 const HEALING_TEXT_SCALE = 0.98;
+const DUNGEON_HOSTILE_GROUP_BADGE_RADIUS_RATIO = 0.4;
 const textStylesByKey = new Map<string, TextStyle>();
 
 export function getCombatFeedbackRenderToken({
@@ -149,9 +150,12 @@ export function renderSceneCombatFeedback({
     string,
     { point: { x: number; y: number }; radius: number }
   >();
-  const tilePointByCoordKey = new Map<string, { x: number; y: number }>();
 
   for (const { hostileEnemies, tile } of visibleTileRenderInputs) {
+    if (hostileEnemies.length === 0) {
+      continue;
+    }
+
     const point = tileToPoint(
       {
         q: tile.coord.q - playerCoord.q,
@@ -161,21 +165,28 @@ export function renderSceneCombatFeedback({
       origin.y,
       hexSize,
     );
-    tilePointByCoordKey.set(hexKey(tile.coord), point);
+    const anchor =
+      tile.structure === 'dungeon'
+        ? {
+            point: {
+              x: point.x + ENEMY_GROUP_BADGE_OFFSET.x,
+              y: point.y + ENEMY_GROUP_BADGE_OFFSET.y,
+            },
+            radius: Math.max(
+              8,
+              enemyBadgeOuterRadius * DUNGEON_HOSTILE_GROUP_BADGE_RADIUS_RATIO,
+            ),
+          }
+        : {
+            point: {
+              x: point.x,
+              y: point.y - 2,
+            },
+            radius: enemyBadgeOuterRadius,
+          };
 
-    if (hostileEnemies.length === 0 || tile.structure === 'dungeon') {
-      continue;
-    }
-
-    const markerPoint = {
-      x: point.x,
-      y: point.y - 2,
-    };
     hostileEnemies.forEach((enemy) => {
-      anchorByEnemyId.set(enemy.id, {
-        point: markerPoint,
-        radius: enemyBadgeOuterRadius,
-      });
+      anchorByEnemyId.set(enemy.id, anchor);
     });
   }
 
@@ -195,11 +206,8 @@ export function renderSceneCombatFeedback({
 
     const resolvedAnchor = resolveFloatingTextAnchor({
       anchorByEnemyId,
-      enemyBadgeOuterRadius,
       event,
-      hexSize,
       playerAnchor,
-      tilePointByCoordKey,
     });
     if (!resolvedAnchor) {
       continue;
@@ -226,40 +234,21 @@ export function renderSceneCombatFeedback({
 
 function resolveFloatingTextAnchor({
   anchorByEnemyId,
-  enemyBadgeOuterRadius,
   event,
-  hexSize,
   playerAnchor,
-  tilePointByCoordKey,
 }: {
   anchorByEnemyId: Map<
     string,
     { point: { x: number; y: number }; radius: number }
   >;
-  enemyBadgeOuterRadius: number;
   event: WorldFloatingTextEvent;
-  hexSize: number;
   playerAnchor: { point: { x: number; y: number }; radius: number };
-  tilePointByCoordKey: Map<string, { x: number; y: number }>;
 }) {
   if (event.anchor.kind === 'player') {
     return playerAnchor;
   }
 
-  const visibleEnemyAnchor = anchorByEnemyId.get(event.anchor.enemyId);
-  if (visibleEnemyAnchor) {
-    return visibleEnemyAnchor;
-  }
-
-  const tilePoint = tilePointByCoordKey.get(hexKey(event.anchor.coord));
-  if (!tilePoint) {
-    return null;
-  }
-
-  return {
-    point: tilePoint,
-    radius: Math.max(enemyBadgeOuterRadius, hexSize * 0.38),
-  };
+  return anchorByEnemyId.get(event.anchor.enemyId) ?? null;
 }
 
 function getFloatingTextStyle(kind: WorldFloatingTextEvent['kind']) {

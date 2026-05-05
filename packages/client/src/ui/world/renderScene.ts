@@ -194,6 +194,7 @@ export function renderScene(
     worldRenderFrameMs,
   );
   const visibleEnemyBadgeRenderToken = getVisibleEnemyBadgeRenderToken(
+    state.combat?.enemyIds,
     renderTokens.visibleTileRenderInputs,
   );
   const staticRenderToken =
@@ -475,22 +476,40 @@ function getPlayerResourceRenderToken({
 }
 
 function getVisibleEnemyBadgeRenderToken(
+  engagedEnemyIds: string[] | undefined,
   visibleTileRenderInputs: ReturnType<
     typeof getSceneRenderTokens
   >['visibleTileRenderInputs'],
 ) {
-  return visibleTileRenderInputs.reduce((token, { enemies, tile }) => {
+  if (!engagedEnemyIds?.length) {
+    return -1;
+  }
+
+  const engagedEnemyIdSet = new Set(engagedEnemyIds);
+  let token = 2166136261;
+  let hasVisibleEngagedEnemy = false;
+
+  visibleTileRenderInputs.forEach(({ hostileEnemies, tile }) => {
+    const engagedHostiles = hostileEnemies.filter((enemy) =>
+      engagedEnemyIdSet.has(enemy.id),
+    );
+    if (engagedHostiles.length === 0) {
+      return;
+    }
+
+    hasVisibleEngagedEnemy = true;
     token = mixRenderToken(token, coordToken(tile.coord));
 
-    return enemies.reduce((enemyToken, enemy) => {
-      enemyToken = mixRenderToken(enemyToken, hashRenderString(enemy.id));
-      enemyToken = mixRenderToken(enemyToken, enemy.hp);
-      enemyToken = mixRenderToken(enemyToken, enemy.maxHp);
-      enemyToken = mixRenderToken(enemyToken, enemy.mana ?? 0);
-      enemyToken = mixRenderToken(enemyToken, enemy.maxMana ?? 0);
-      return enemyToken;
-    }, token);
-  }, 2166136261);
+    engagedHostiles.forEach((enemy) => {
+      token = mixRenderToken(token, hashRenderString(enemy.id));
+      token = mixRenderToken(token, enemy.hp);
+      token = mixRenderToken(token, enemy.maxHp);
+      token = mixRenderToken(token, enemy.mana ?? 0);
+      token = mixRenderToken(token, enemy.maxMana ?? 0);
+    });
+  });
+
+  return hasVisibleEngagedEnemy ? token : -1;
 }
 
 function hashRenderString(value: string) {

@@ -104,6 +104,13 @@ export function applyLifesteal(
     ),
   );
   state.player.hp += healed;
+  if (healed > 0) {
+    appendWorldFloatingTextEvent(state, {
+      anchor: { kind: 'player' },
+      amount: healed,
+      kind: 'healing',
+    });
+  }
   return healed;
 }
 
