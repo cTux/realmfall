@@ -18,12 +18,16 @@ This spec covers surface dungeon entrances, dungeon-world generation, dungeon en
 - Dungeon worlds roll one weighted layout family from `rooms-and-corridors`, `branching-spine`, and `dense-maze`.
 - Dungeon worlds roll one terrain theme package from `brick-halls`, `mud-catacombs`, and `obsidian-vault`.
 - Each theme provides three passable floor variants and one impassable wall terrain, and each generated dungeon guarantees at least `200` passable hexes.
+- Dungeon terrain artwork is generated from the same painted hex-terrain source family as the surface world, and the source PNGs keep the same transparent hex footprint as other atlas inputs.
+- Dungeon floor and wall hexes use dedicated theme-aware underlay colors so impassable wall tiles read darker and more blocked than passable dungeon floors during play.
 - The dungeon entrance tile is safe, and dungeon enemies spawn only inside the dungeon world.
 - Each dungeon contains a final elite enemy, plus one closed `dungeon-chest` placed at the far end of the layout.
 - The final chest does nothing until the final elite is defeated.
 - Opening the final chest grants one dungeon-scaled world-generated item, marks the dungeon cleared, removes every remaining dungeon enemy, and retires the chest tile.
 - Cleared dungeons remain accessible and persistent. Re-entering a cleared entrance resumes the same retired empty dungeon instead of generating a new run.
 - Inside the dungeon, the entrance tile is the only tile that exposes `Leave dungeon`.
+- While the player is inside a dungeon, the offscreen landmark pointer replaces `Home` with `Exit dungeon` and targets the dungeon entrance tile.
+- Dungeon atmosphere swaps overworld weather clouds for drifting bats and omits the sun and moon layers.
 - Leaving a dungeon returns the player to the same surface entrance coordinate that owns that dungeon instance.
 - Home-scroll use and death recovery both exit the player back to the surface-world flow, clear the active dungeon run pointer, and preserve the dungeon world's progress for later re-entry.
 

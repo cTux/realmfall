@@ -267,6 +267,65 @@ describe('renderScene atmosphere', () => {
     expect(Math.min(...strongestShadowAlphas)).toBeGreaterThanOrEqual(0.06);
   });
 
+  it('renders bats instead of weather clouds and skips celestial layers in dungeons', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { WorldIcons } = await import('./worldIcons');
+    const { createDungeonWorldState, setActiveWorld } =
+      await import('../../game/dungeons/worldState');
+
+    const game = createGame(2, 'render-scene-dungeon-atmosphere');
+    const dungeonId = 'dungeon:render-scene-dungeon-atmosphere:1,0';
+    game.worlds[dungeonId] = createDungeonWorldState({
+      id: dungeonId,
+      tiles: {
+        '0,0': {
+          coord: { q: 0, r: 0 },
+          terrain: 'dungeon-brick-floor',
+          structure: 'dungeon',
+          items: [],
+          enemyIds: [],
+        },
+      },
+      enemies: {},
+      dungeon: {
+        cleared: false,
+        entranceCoord: { q: 0, r: 0 },
+        finalChestCoord: { q: 1, r: 0 },
+        finalEliteEnemyId: 'elite-test',
+        paddingRadius: 4,
+        surfaceEntranceCoord: { q: 1, r: 0 },
+        templateId: 'rooms-and-corridors',
+        themeId: 'brick-halls',
+      },
+    });
+    setActiveWorld(game, dungeonId);
+    game.player.coord = { q: 0, r: 0 };
+
+    const app = createMockApp();
+
+    renderScene(
+      app as never,
+      game,
+      [game.tiles['0,0']!],
+      game.player.coord,
+      null,
+      12 * 60,
+      1600,
+    );
+
+    const cloudIcons = getCloudLayer(app).children.map(
+      (child) => (child as MockSprite).icon,
+    );
+    const shaftsLayer = app.stage.children[2] as MockContainer;
+    const celestialsLayer = app.stage.children[3] as MockContainer;
+
+    expect(cloudIcons.length).toBeGreaterThan(0);
+    expect(cloudIcons.every((icon) => icon === WorldIcons.Bat)).toBe(true);
+    expect(getCloudShadowLayer(app).children).toHaveLength(0);
+    expect(shaftsLayer.children).toHaveLength(0);
+    expect(celestialsLayer.children).toHaveLength(0);
+  });
+
   it('covers hexes beyond the reveal radius with fog of war', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(6, 'render-scene-fog-of-war');

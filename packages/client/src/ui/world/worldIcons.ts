@@ -4,6 +4,7 @@ import rainingIcon from '../../assets/icons/raining.svg';
 import snowingIcon from '../../assets/icons/snowing.svg';
 import tearTracksIcon from '../../assets/icons/tear-tracks.svg';
 import castleIcon from '../../assets/icons/castle.svg';
+import batIcon from '../../assets/game-icons/delapouite/bat.svg';
 import forgottenLootIcon from '../../assets/game-icons/lorc/swap-bag.svg';
 import unknownHexIcon from '../../assets/game-icons/delapouite/perspective-dice-six-faces-random.svg';
 import { ENEMY_CONFIGS, getEnemyConfig } from '../../game/content/enemies';
@@ -37,6 +38,7 @@ export const WorldIcons = {
   SunCloud: sunCloudIcon,
   Raining: rainingIcon,
   Snowing: snowingIcon,
+  Bat: batIcon,
   Village: tearTracksIcon,
   Castle: castleIcon,
   ForgottenLoot: forgottenLootIcon,

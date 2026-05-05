@@ -75,7 +75,9 @@ export function renderStaticTile({
     (bossCoord) => visibleTileMap?.get(hexKey(bossCoord))?.enemyIds,
   );
   const isWorldBossFootprint = worldBossCenter !== null;
-  const fillAlpha = (emphasized ? style.alpha : 0.8) * appearanceAlpha;
+  const fillAlpha =
+    (emphasized || tile.terrain.startsWith('dungeon-') ? style.alpha : 0.8) *
+    appearanceAlpha;
   const shape = takeGraphics(scene.worldGroundGraphics);
   shape
     .poly(poly)
@@ -107,6 +109,8 @@ export function renderStaticTile({
   const revealProgress = getVisibleWorldTileRevealProgress(tile, animationMs);
 
   if (showTerrainBackgrounds && !isUnknownVisibleWorldTile(tile)) {
+    const terrainAlpha =
+      (emphasized ? 0.84 : 0.76) * revealProgress * appearanceAlpha;
     const terrainSprite = takeSprite(
       scene.worldTerrainSprites,
       terrainArtFor(tile.terrain),
@@ -116,7 +120,7 @@ export function renderStaticTile({
       0xffffff,
       terrainArtSize,
       terrainArtSize,
-      (emphasized ? 0.84 : 0.76) * revealProgress * appearanceAlpha,
+      terrainAlpha,
       point,
     );
   }

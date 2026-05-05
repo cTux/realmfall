@@ -1,4 +1,5 @@
 import { type Application, type Graphics } from 'pixi.js';
+import type { WorldKind } from '../../game/stateTypes';
 import { getTimeOfDayLighting, scaleColor } from './timeOfDay';
 import {
   blendLightSources,
@@ -93,9 +94,14 @@ export function renderAtmosphere(
   sunPosition: { x: number; y: number },
   moonPosition: { x: number; y: number },
   focalPoint: { x: number; y: number },
+  worldKind: WorldKind,
   bloodMoon = false,
   harvestMoon = false,
 ) {
+  if (worldKind === 'dungeon') {
+    return;
+  }
+
   if (lighting.shaftAlpha > 0.01) {
     renderLightShafts(
       app,

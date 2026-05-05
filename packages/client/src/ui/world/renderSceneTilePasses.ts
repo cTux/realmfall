@@ -1,6 +1,6 @@
 import { WORLD_REVEAL_RADIUS } from '../../app/constants';
 import { isPassable } from '../../game/shared';
-import type { GameState, HexCoord } from '../../game/stateTypes';
+import type { GameState, HexCoord, WorldKind } from '../../game/stateTypes';
 import { hexDistance, hexKey } from '../../game/hex';
 import { tileStyle } from './renderSceneEnvironment';
 import { makeHex, tileToPoint } from './renderSceneMath';
@@ -34,6 +34,7 @@ interface MovementTransitionRenderState {
 interface RenderTilePassesOptions {
   animationMs: number;
   enemyIconSize: number;
+  currentWorldKind: WorldKind;
   hexSize: number;
   queuedPathKeys: Set<string> | null;
   hoveredMove: HexCoord | null;
@@ -58,6 +59,7 @@ interface RenderTilePassesOptions {
 export function renderTilePasses({
   animationMs,
   enemyIconSize,
+  currentWorldKind,
   hexSize,
   queuedPathKeys,
   hoveredMove,
@@ -111,7 +113,9 @@ export function renderTilePasses({
     const poly = makeHex(point.x, point.y, hexSize);
     const style = tileStyle(tile.terrain);
     const isHomeTile =
-      tile.coord.q === state.homeHex.q && tile.coord.r === state.homeHex.r;
+      currentWorldKind === 'surface' &&
+      tile.coord.q === state.homeHex.q &&
+      tile.coord.r === state.homeHex.r;
     const hovered =
       hoveredMove?.q === tile.coord.q && hoveredMove?.r === tile.coord.r;
     const highlightedInSafePath =

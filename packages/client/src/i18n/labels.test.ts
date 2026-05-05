@@ -4,7 +4,8 @@ vi.mock('./index', () => ({
   t: (key: string) =>
     ({
       'game.terrain.dungeon.brick': 'Brick Halls',
-      'game.terrain.dungeon.mud': 'Mud Halls',
+      'game.terrain.dungeon.mud': 'Mud Catacombs',
+      'game.terrain.dungeon.obsidian': 'Obsidian Vault',
       'game.terrain.plains.description':
         'A clear stretch of wind-scraped shardland.',
       'game.terrain.plains.label': 'Plains',
@@ -18,7 +19,10 @@ describe('terrain label formatting', () => {
 
     expect(formatTerrainLabel('dungeon-brick-floor')).toBe('Brick Halls');
     expect(formatTerrainDescription('dungeon-brick-wall')).toBe('Brick Halls');
-    expect(formatTerrainLabel('dungeon-mud-puddle')).toBe('Mud Halls');
+    expect(formatTerrainLabel('dungeon-mud-puddle')).toBe('Mud Catacombs');
+    expect(formatTerrainDescription('dungeon-obsidian-wall')).toBe(
+      'Obsidian Vault',
+    );
   });
 
   it('keeps surface terrain labels on the direct terrain keys', async () => {

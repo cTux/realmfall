@@ -61,7 +61,7 @@ describe('HexInfoWindowContent', () => {
       <HexInfoWindowContent
         terrain="Rift"
         structure="Dungeon"
-        hexDescription="A broken ruin where stronger foes and old spoils gather beneath the fracture."
+        hexDescription="A rift-torn ruin that marks the entrance to a dungeon below."
         enemyCount={2}
         interactLabel="Enter dungeon"
         canInteract
@@ -112,7 +112,7 @@ describe('HexInfoWindowContent', () => {
       <HexInfoWindowContent
         terrain="Dungeon"
         structure="Dungeon"
-        hexDescription="A broken ruin where stronger foes and old spoils gather beneath the fracture."
+        hexDescription="A rift-torn ruin that marks the entrance to a dungeon below."
         enemyCount={0}
         interactLabel="Leave dungeon"
         canInteract

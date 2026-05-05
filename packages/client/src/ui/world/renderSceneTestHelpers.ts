@@ -76,6 +76,7 @@ export class MockContainer {
 }
 
 export class MockGraphics extends MockContainer {
+  renderable = true;
   clear = vi.fn();
   beginFill = vi.fn();
   lineStyle = vi.fn();

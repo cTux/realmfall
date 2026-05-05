@@ -1,5 +1,6 @@
 import { memo, useEffect, useMemo, useState, type RefObject } from 'react';
 import { hexDistance, type HexCoord } from '../../game/hex';
+import type { WorldKind } from '../../game/stateTypes';
 import { t } from '../../i18n';
 import { getWorldHexSize, tileToPoint } from '../../ui/world/renderSceneMath';
 import { WORLD_REVEAL_RADIUS } from '../constants';
@@ -7,6 +8,8 @@ import styles from './styles.module.scss';
 
 interface HomeIndicatorProps {
   claimedHex?: HexCoord | null;
+  dungeonExitHex?: HexCoord | null;
+  currentWorldKind?: WorldKind;
   homeHex: HexCoord;
   hostRef: RefObject<HTMLDivElement | null>;
   playerCoord: HexCoord;
@@ -15,6 +18,8 @@ interface HomeIndicatorProps {
 
 export const HomeIndicator = memo(function HomeIndicator({
   claimedHex = null,
+  dungeonExitHex = null,
+  currentWorldKind = 'surface',
   homeHex,
   hostRef,
   playerCoord,
@@ -46,14 +51,24 @@ export const HomeIndicator = memo(function HomeIndicator({
       y: viewportSize.height / 2,
     };
     const seenTargets = new Set<string>();
+    const primaryTarget =
+      currentWorldKind === 'dungeon' && dungeonExitHex
+        ? {
+            ariaLabelKey: 'app.dungeonExit.directionLabel',
+            coord: dungeonExitHex,
+            key: 'dungeon-exit',
+            labelKey: 'app.dungeonExit.label',
+            tone: 'exit' as const,
+          }
+        : {
+            ariaLabelKey: 'app.home.directionLabel',
+            coord: homeHex,
+            key: 'home',
+            labelKey: 'app.home.label',
+            tone: 'home' as const,
+          };
     const targets = [
-      {
-        ariaLabelKey: 'app.home.directionLabel',
-        coord: homeHex,
-        key: 'home',
-        labelKey: 'app.home.label',
-        tone: 'home' as const,
-      },
+      primaryTarget,
       claimedHex
         ? {
             ariaLabelKey: 'app.claimed.directionLabel',
@@ -108,7 +123,15 @@ export const HomeIndicator = memo(function HomeIndicator({
         y: center.y + vector.y * ringScale + normalized.y * borderOffset,
       };
     });
-  }, [claimedHex, homeHex, playerCoord, radius, viewportSize]);
+  }, [
+    claimedHex,
+    currentWorldKind,
+    dungeonExitHex,
+    homeHex,
+    playerCoord,
+    radius,
+    viewportSize,
+  ]);
 
   if (indicators.length === 0) return null;
 
@@ -116,6 +139,7 @@ export const HomeIndicator = memo(function HomeIndicator({
     <div
       key={indicator.key}
       className={styles.homeIndicator}
+      data-indicator-tone={indicator.tone}
       style={{
         left: indicator.x,
         top: indicator.y,
@@ -137,6 +161,7 @@ export const HomeIndicator = memo(function HomeIndicator({
         className={[
           styles.homeIndicatorLabel,
           indicator.tone === 'claim' ? styles.claimIndicatorLabel : '',
+          indicator.tone === 'exit' ? styles.exitIndicatorLabel : '',
         ]
           .filter(Boolean)
           .join(' ')}

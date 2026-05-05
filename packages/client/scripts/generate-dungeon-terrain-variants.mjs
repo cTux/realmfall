@@ -4,133 +4,162 @@ import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 const rootDir = fileURLToPath(new URL('../../../', import.meta.url));
-const terrainDir = join(
-  rootDir,
-  'packages/client/src/assets/images/terrain/dungeons',
-);
+const terrainDir = join(rootDir, 'packages/client/src/assets/images/terrain');
+const dungeonTerrainDir = join(terrainDir, 'dungeons');
 const tileSize = 200;
+const insetHexPoints = '100,12 182,56 182,144 100,188 18,144 18,56';
 
 const terrainDefinitions = [
   {
     file: 'dungeon-brick-floor.png',
-    svg: buildBrickSvg({
-      base: '#4b5563',
-      mortar: '#374151',
-      accent: '#6b7280',
-      overlay: '#9ca3af',
+    base: 'mountain-v2.png',
+    modulate: { brightness: 0.93, saturation: 0.52 },
+    overlays: buildBrickOverlays({
+      accent: '#dbe4ee',
+      base: '#64748b',
+      mortar: '#334155',
+      overlay: '#94a3b8',
     }),
   },
   {
     file: 'dungeon-brick-cracked.png',
-    svg: buildBrickSvg({
-      base: '#52525b',
-      mortar: '#3f3f46',
-      accent: '#71717a',
-      overlay: '#a1a1aa',
+    base: 'mountain-v2.png',
+    modulate: { brightness: 0.88, saturation: 0.44 },
+    overlays: buildBrickOverlays({
+      accent: '#cbd5e1',
+      base: '#586273',
       cracks: true,
+      mortar: '#1e293b',
+      overlay: '#e2e8f0',
     }),
   },
   {
     file: 'dungeon-brick-moss.png',
-    svg: buildBrickSvg({
-      base: '#4b5563',
+    base: 'highlands-v2.png',
+    modulate: { brightness: 0.94, saturation: 0.7 },
+    overlays: buildBrickOverlays({
+      accent: '#dce7c2',
+      base: '#5f6b59',
       mortar: '#334155',
-      accent: '#6b7280',
-      overlay: '#65a30d',
       moss: true,
+      overlay: '#84cc16',
     }),
   },
   {
     file: 'dungeon-brick-wall.png',
-    svg: buildBrickSvg({
-      base: '#374151',
-      mortar: '#1f2937',
-      accent: '#4b5563',
+    base: 'mountain-v2.png',
+    modulate: { brightness: 0.8, saturation: 0.36 },
+    overlays: buildBrickOverlays({
+      accent: '#cbd5e1',
+      base: '#475569',
+      mortar: '#0f172a',
       overlay: '#94a3b8',
       wall: true,
     }),
   },
   {
     file: 'dungeon-mud-floor.png',
-    svg: buildMudSvg({
+    base: 'marsh-v2.png',
+    modulate: { brightness: 0.9, saturation: 0.78 },
+    overlays: buildMudOverlays({
+      accent: '#9a6b45',
       base: '#6b4f3a',
-      accent: '#7c5a42',
-      puddle: '#8b6b4f',
+      puddle: '#4b5563',
     }),
   },
   {
     file: 'dungeon-mud-rut.png',
-    svg: buildMudSvg({
-      base: '#5b4331',
-      accent: '#7a5a43',
-      puddle: '#6b4f3a',
+    base: 'badlands-v2.png',
+    modulate: { brightness: 0.84, saturation: 0.82 },
+    overlays: buildMudOverlays({
+      accent: '#533728',
+      base: '#5f4330',
+      puddle: '#42342a',
       ruts: true,
     }),
   },
   {
     file: 'dungeon-mud-puddle.png',
-    svg: buildMudSvg({
-      base: '#5c4636',
+    base: 'swamp-v2.png',
+    modulate: { brightness: 0.92, saturation: 0.84 },
+    overlays: buildMudOverlays({
       accent: '#86634a',
-      puddle: '#4c6475',
+      base: '#654938',
+      puddle: '#4d6675',
       puddles: true,
     }),
   },
   {
     file: 'dungeon-mud-wall.png',
-    svg: buildMudSvg({
-      base: '#4a3729',
-      accent: '#6d4f39',
-      puddle: '#8b6b4f',
+    base: 'badlands-v2.png',
+    modulate: { brightness: 0.76, saturation: 0.58 },
+    overlays: buildMudOverlays({
+      accent: '#4d3425',
+      base: '#4f3828',
+      puddle: '#2d221c',
       wall: true,
     }),
   },
   {
     file: 'dungeon-obsidian-floor.png',
-    svg: buildObsidianSvg({
+    base: 'blasted-v2.png',
+    modulate: { brightness: 0.8, saturation: 0.55 },
+    overlays: buildObsidianOverlays({
       base: '#16181f',
-      shard: '#2d3748',
       glow: '#7c3aed',
+      shard: '#475569',
     }),
   },
   {
     file: 'dungeon-obsidian-ash.png',
-    svg: buildObsidianSvg({
-      base: '#1f2933',
-      shard: '#4b5563',
-      glow: '#94a3b8',
+    base: 'blasted-v2.png',
+    modulate: { brightness: 0.86, saturation: 0.5 },
+    overlays: buildObsidianOverlays({
       ash: true,
+      base: '#232a35',
+      glow: '#e2e8f0',
+      shard: '#94a3b8',
     }),
   },
   {
     file: 'dungeon-obsidian-ember.png',
-    svg: buildObsidianSvg({
-      base: '#170f14',
-      shard: '#3b1f2b',
-      glow: '#f97316',
+    base: 'rift-v2.png',
+    modulate: { brightness: 0.82, saturation: 0.7 },
+    overlays: buildObsidianOverlays({
+      base: '#1b1117',
       embers: true,
+      glow: '#f97316',
+      shard: '#4b1f2d',
     }),
   },
   {
     file: 'dungeon-obsidian-wall.png',
-    svg: buildObsidianSvg({
+    base: 'rift-v2.png',
+    modulate: { brightness: 0.72, saturation: 0.55 },
+    overlays: buildObsidianOverlays({
       base: '#111827',
-      shard: '#374151',
       glow: '#ef4444',
+      shard: '#334155',
       wall: true,
     }),
   },
 ];
 
-await mkdir(terrainDir, { recursive: true });
+await mkdir(dungeonTerrainDir, { recursive: true });
 
 for (const definition of terrainDefinitions) {
-  const outputPath = join(terrainDir, definition.file);
-  await sharp(Buffer.from(definition.svg)).png().toFile(outputPath);
+  const outputPath = join(dungeonTerrainDir, definition.file);
+  let image = sharp(join(terrainDir, definition.base)).ensureAlpha();
+
+  if (definition.modulate) {
+    image = image.modulate(definition.modulate);
+  }
+
+  await image.composite(definition.overlays).png().toFile(outputPath);
   console.log(`Wrote ${outputPath}`);
 }
 
-function buildBrickSvg({
+function buildBrickOverlays({
   base,
   mortar,
   accent,
@@ -139,54 +168,69 @@ function buildBrickSvg({
   moss = false,
   wall = false,
 }) {
-  const brickWidth = wall ? 60 : 52;
-  const brickHeight = wall ? 24 : 28;
-  const bricks = [];
-  const extras = [];
+  const brickWidth = wall ? 54 : 48;
+  const brickHeight = wall ? 22 : 26;
+  const mortarLines = [];
+  const detailOverlays = [];
 
   for (let row = -1; row < 10; row += 1) {
-    const y = row * brickHeight;
+    const y = 22 + row * brickHeight;
     const offset = row % 2 === 0 ? 0 : brickWidth / 2;
 
     for (let column = -1; column < 6; column += 1) {
-      const x = column * brickWidth + offset;
-      bricks.push(
-        `<rect x="${x}" y="${y}" width="${brickWidth - 4}" height="${brickHeight - 4}" rx="6" fill="${accent}" opacity="0.62" />`,
+      const x = 12 + column * brickWidth + offset;
+      mortarLines.push(
+        `<rect x="${x}" y="${y}" width="${brickWidth - 4}" height="${brickHeight - 4}" rx="5" fill="none" stroke="${mortar}" stroke-width="2.8" opacity="${
+          wall ? 0.4 : 0.28
+        }" />`,
+      );
+      detailOverlays.push(
+        `<rect x="${x + 5}" y="${y + 5}" width="${brickWidth - 16}" height="${
+          brickHeight - 14
+        }" rx="4" fill="${accent}" opacity="${wall ? 0.14 : 0.11}" />`,
       );
 
       if (moss && (row + column) % 3 === 0) {
-        extras.push(
-          `<ellipse cx="${x + brickWidth * 0.5}" cy="${y + brickHeight * 0.55}" rx="12" ry="7" fill="${overlay}" opacity="0.42" />`,
+        detailOverlays.push(
+          `<ellipse cx="${x + brickWidth * 0.54}" cy="${y + brickHeight * 0.54}" rx="13" ry="8" fill="${overlay}" opacity="0.28" />`,
         );
       }
 
       if (cracks && (row + column) % 2 === 0) {
-        extras.push(
-          `<path d="M ${x + 10} ${y + 8} L ${x + 22} ${y + 14} L ${x + 16} ${y + 24} L ${x + 30} ${y + 30}" stroke="${overlay}" stroke-width="2.2" stroke-linecap="round" opacity="0.45" />`,
+        detailOverlays.push(
+          `<path d="M ${x + 10} ${y + 8} L ${x + 24} ${y + 13} L ${x + 15} ${
+            y + 24
+          } L ${x + 30} ${y + 31}" stroke="${overlay}" stroke-width="2.3" stroke-linecap="round" opacity="0.38" />`,
         );
       }
     }
   }
 
   if (wall) {
-    for (let column = 18; column < tileSize; column += 40) {
-      extras.push(
-        `<rect x="${column}" y="0" width="6" height="${tileSize}" fill="${overlay}" opacity="0.12" />`,
+    for (let column = 24; column < tileSize; column += 40) {
+      detailOverlays.push(
+        `<rect x="${column}" y="16" width="7" height="${
+          tileSize - 32
+        }" fill="${overlay}" opacity="0.1" />`,
       );
     }
   }
 
-  return buildSvgDocument([
-    `<rect width="${tileSize}" height="${tileSize}" rx="26" fill="${base}" />`,
-    `<rect x="8" y="8" width="${tileSize - 16}" height="${
-      tileSize - 16
-    }" rx="22" fill="none" stroke="${mortar}" stroke-width="8" opacity="0.72" />`,
-    ...bricks,
-    ...extras,
-  ]);
+  return [
+    createSvgOverlay(
+      [
+        `<rect x="8" y="8" width="${tileSize - 16}" height="${
+          tileSize - 16
+        }" fill="${base}" opacity="${wall ? 0.16 : 0.12}" />`,
+      ],
+      'soft-light',
+    ),
+    createSvgOverlay(mortarLines, 'multiply'),
+    createSvgOverlay(detailOverlays),
+  ];
 }
 
-function buildMudSvg({
+function buildMudOverlays({
   base,
   accent,
   puddle,
@@ -194,8 +238,8 @@ function buildMudSvg({
   puddles = false,
   wall = false,
 }) {
-  const ridges = [];
   const blobs = [];
+  const ridges = [];
 
   for (let index = 0; index < 18; index += 1) {
     const x = 18 + ((index * 31) % 168);
@@ -205,37 +249,43 @@ function buildMudSvg({
     blobs.push(
       `<ellipse cx="${x}" cy="${y}" rx="${width}" ry="${height}" fill="${
         index % 2 === 0 ? accent : puddle
-      }" opacity="${puddles && index % 3 === 0 ? 0.42 : 0.22}" />`,
+      }" opacity="${
+        puddles && index % 3 === 0 ? 0.34 : wall ? 0.22 : 0.28
+      }" />`,
     );
   }
 
   if (ruts) {
-    for (let y = 30; y < tileSize; y += 34) {
+    for (let y = 32; y < tileSize; y += 34) {
       ridges.push(
-        `<path d="M 18 ${y} C 58 ${y - 12}, 112 ${y + 14}, 182 ${y - 6}" stroke="${accent}" stroke-width="8" stroke-linecap="round" opacity="0.32" />`,
+        `<path d="M 18 ${y} C 58 ${y - 12}, 112 ${y + 14}, 182 ${y - 6}" stroke="${accent}" stroke-width="9" stroke-linecap="round" opacity="0.42" />`,
       );
     }
   }
 
   if (wall) {
-    for (let x = 18; x < tileSize; x += 26) {
+    for (let x = 24; x < tileSize; x += 26) {
       ridges.push(
-        `<path d="M ${x} 8 C ${x - 8} 64, ${x + 8} 132, ${x} 192" stroke="${accent}" stroke-width="10" stroke-linecap="round" opacity="0.24" />`,
+        `<path d="M ${x} 16 C ${x - 10} 64, ${x + 8} 132, ${x} 184" stroke="${accent}" stroke-width="10" stroke-linecap="round" opacity="0.36" />`,
       );
     }
   }
 
-  return buildSvgDocument([
-    `<rect width="${tileSize}" height="${tileSize}" rx="26" fill="${base}" />`,
-    `<rect x="10" y="10" width="${tileSize - 20}" height="${
-      tileSize - 20
-    }" rx="22" fill="none" stroke="${accent}" stroke-width="6" opacity="0.18" />`,
-    ...blobs,
-    ...ridges,
-  ]);
+  return [
+    createSvgOverlay(
+      [
+        `<rect x="8" y="8" width="${tileSize - 16}" height="${
+          tileSize - 16
+        }" fill="${base}" opacity="${wall ? 0.24 : 0.18}" />`,
+      ],
+      'soft-light',
+    ),
+    createSvgOverlay(blobs, puddles ? 'soft-light' : 'over'),
+    createSvgOverlay(ridges, 'multiply'),
+  ];
 }
 
-function buildObsidianSvg({
+function buildObsidianOverlays({
   base,
   shard,
   glow,
@@ -256,7 +306,7 @@ function buildObsidianSvg({
       `${x - 8},${y + 18}`,
     ].join(' ');
     shards.push(
-      `<polygon points="${points}" fill="${shard}" opacity="${wall ? 0.74 : 0.54}" />`,
+      `<polygon points="${points}" fill="${shard}" opacity="${wall ? 0.22 : 0.16}" />`,
     );
   }
 
@@ -264,7 +314,7 @@ function buildObsidianSvg({
     glows.push(
       `<path d="M 14 ${y} C 54 ${y - 10}, 102 ${y + 12}, 186 ${y - 8}" stroke="${glow}" stroke-width="${
         wall ? 3.5 : 2.4
-      }" stroke-linecap="round" opacity="${embers ? 0.45 : 0.28}" />`,
+      }" stroke-linecap="round" opacity="${embers ? 0.4 : wall ? 0.24 : 0.18}" />`,
     );
   }
 
@@ -273,7 +323,7 @@ function buildObsidianSvg({
       const x = 10 + ((index * 17) % 180);
       const y = 14 + ((index * 23) % 176);
       glows.push(
-        `<circle cx="${x}" cy="${y}" r="${1 + (index % 3)}" fill="${glow}" opacity="0.18" />`,
+        `<circle cx="${x}" cy="${y}" r="${1 + (index % 3)}" fill="${glow}" opacity="0.14" />`,
       );
     }
   }
@@ -283,22 +333,43 @@ function buildObsidianSvg({
       const x = 18 + ((index * 31) % 164);
       const y = 26 + ((index * 37) % 148);
       glows.push(
-        `<circle cx="${x}" cy="${y}" r="${2 + (index % 2)}" fill="${glow}" opacity="0.36" />`,
+        `<circle cx="${x}" cy="${y}" r="${2 + (index % 2)}" fill="${glow}" opacity="0.3" />`,
       );
     }
   }
 
-  return buildSvgDocument([
-    `<rect width="${tileSize}" height="${tileSize}" rx="26" fill="${base}" />`,
-    ...shards,
-    ...glows,
-  ]);
+  return [
+    createSvgOverlay(
+      [
+        `<rect x="8" y="8" width="${tileSize - 16}" height="${
+          tileSize - 16
+        }" fill="${base}" opacity="${wall ? 0.22 : 0.16}" />`,
+      ],
+      'soft-light',
+    ),
+    createSvgOverlay(shards),
+    createSvgOverlay(glows, embers || ash ? 'screen' : 'over'),
+  ];
 }
 
-function buildSvgDocument(contents) {
+function createSvgOverlay(contents, blend = 'over') {
+  return {
+    blend,
+    input: Buffer.from(buildOverlayDocument(contents)),
+  };
+}
+
+function buildOverlayDocument(contents) {
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${tileSize}" height="${tileSize}" viewBox="0 0 ${tileSize} ${tileSize}">`,
+    '<defs>',
+    '<clipPath id="hex-clip">',
+    `<polygon points="${insetHexPoints}" />`,
+    '</clipPath>',
+    '</defs>',
+    '<g clip-path="url(#hex-clip)">',
     ...contents,
+    '</g>',
     '</svg>',
   ].join('');
 }

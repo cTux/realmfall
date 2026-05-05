@@ -146,15 +146,15 @@ export function getHexInteractActionLabel({
   }
 
   if (interactAction === 'enter-dungeon') {
-    return '(Q) Enter dungeon';
+    return t('ui.hexInfo.enterDungeonAction');
   }
 
   if (interactAction === 'leave-dungeon') {
-    return '(Q) Leave dungeon';
+    return t('ui.hexInfo.leaveDungeonAction');
   }
 
   if (interactAction === 'open-dungeon-chest') {
-    return '(Q) Open dungeon chest';
+    return t('ui.hexInfo.openDungeonChestAction');
   }
 
   return null;

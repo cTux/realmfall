@@ -1,0 +1,268 @@
+<style>
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+
+  .card {
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    background: rgba(15, 23, 42, 0.72);
+    cursor: pointer;
+  }
+
+  .card-image {
+    padding: 1rem;
+    background:
+      radial-gradient(circle at top, rgba(251, 191, 36, 0.12), transparent 48%),
+      linear-gradient(180deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+  }
+
+  .diagram {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 0.8rem;
+    background: linear-gradient(
+      180deg,
+      rgba(15, 23, 42, 0.96),
+      rgba(2, 6, 23, 0.98)
+    );
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    overflow: hidden;
+  }
+
+  .card-body p {
+    min-height: 4.5rem;
+  }
+
+  .legend {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+    color: rgba(226, 232, 240, 0.92);
+    font-size: 0.9rem;
+  }
+
+  .legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .swatch {
+    width: 0.8rem;
+    height: 0.8rem;
+    border-radius: 999px;
+    display: inline-block;
+  }
+
+  @media (max-width: 980px) {
+    .cards {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<h2>Which dungeon shape should be the baseline?</h2>
+<p class="subtitle">
+  Each option assumes one themed dungeon instance, at least 200 hexes, walls as
+  impassable terrain, and one chest placed near the end.
+</p>
+
+<div class="cards">
+  <div class="card" data-choice="branching-spine" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <svg
+        class="diagram"
+        viewBox="0 0 240 240"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-label="Branching spine layout"
+      >
+        <rect width="240" height="240" fill="#020617" />
+        <path
+          d="M28 122 L62 122 L92 98 L122 98 L150 122 L182 122 L208 96"
+          stroke="#f59e0b"
+          stroke-width="18"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          fill="none"
+        />
+        <path
+          d="M62 122 L62 164 L88 188"
+          stroke="#fb7185"
+          stroke-width="14"
+          stroke-linecap="round"
+          fill="none"
+        />
+        <path
+          d="M122 98 L122 52 L152 28"
+          stroke="#38bdf8"
+          stroke-width="14"
+          stroke-linecap="round"
+          fill="none"
+        />
+        <path
+          d="M182 122 L182 170 L208 194"
+          stroke="#a78bfa"
+          stroke-width="14"
+          stroke-linecap="round"
+          fill="none"
+        />
+        <circle cx="28" cy="122" r="11" fill="#22c55e" />
+        <rect x="198" y="84" width="18" height="18" rx="3" fill="#fbbf24" />
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>A. Branching Spine</h3>
+      <p>
+        One readable main route with side branches for fights and detours. The
+        chest sits at the far sanctum, so the player always feels a clear push
+        toward an endpoint.
+      </p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="rooms-corridors" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <svg
+        class="diagram"
+        viewBox="0 0 240 240"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-label="Rooms and corridors layout"
+      >
+        <rect width="240" height="240" fill="#020617" />
+        <rect
+          x="24"
+          y="92"
+          width="56"
+          height="44"
+          rx="10"
+          fill="#334155"
+          stroke="#38bdf8"
+          stroke-width="4"
+        />
+        <rect
+          x="94"
+          y="40"
+          width="52"
+          height="52"
+          rx="10"
+          fill="#334155"
+          stroke="#38bdf8"
+          stroke-width="4"
+        />
+        <rect
+          x="92"
+          y="126"
+          width="62"
+          height="54"
+          rx="10"
+          fill="#334155"
+          stroke="#38bdf8"
+          stroke-width="4"
+        />
+        <rect
+          x="174"
+          y="88"
+          width="42"
+          height="84"
+          rx="10"
+          fill="#334155"
+          stroke="#38bdf8"
+          stroke-width="4"
+        />
+        <path
+          d="M80 114 H106 V66 H120"
+          stroke="#f59e0b"
+          stroke-width="14"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          fill="none"
+        />
+        <path
+          d="M120 92 V126"
+          stroke="#f59e0b"
+          stroke-width="14"
+          stroke-linecap="round"
+          fill="none"
+        />
+        <path
+          d="M154 153 H174"
+          stroke="#f59e0b"
+          stroke-width="14"
+          stroke-linecap="round"
+          fill="none"
+        />
+        <circle cx="38" cy="114" r="11" fill="#22c55e" />
+        <rect x="185" y="143" width="18" height="18" rx="3" fill="#fbbf24" />
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>B. Rooms And Corridors</h3>
+      <p>
+        Distinct chambers linked by narrow routes. This gives good combat
+        pockets, clear places for themed terrain clusters, and a natural final
+        room for a chest or boss-like encounter.
+      </p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="dense-maze" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <svg
+        class="diagram"
+        viewBox="0 0 240 240"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-label="Dense maze layout"
+      >
+        <rect width="240" height="240" fill="#020617" />
+        <path
+          d="M24 24 H216 V52 H52 V80 H188 V108 H80 V136 H160 V164 H52 V216 H216"
+          stroke="#f59e0b"
+          stroke-width="18"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          fill="none"
+        />
+        <path
+          d="M108 24 V108"
+          stroke="#38bdf8"
+          stroke-width="10"
+          stroke-linecap="round"
+        />
+        <path
+          d="M160 80 V188"
+          stroke="#38bdf8"
+          stroke-width="10"
+          stroke-linecap="round"
+        />
+        <circle cx="24" cy="24" r="11" fill="#22c55e" />
+        <rect x="199" y="199" width="18" height="18" rx="3" fill="#fbbf24" />
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>C. Dense Maze</h3>
+      <p>
+        A labyrinth-first dungeon with more wrong turns and longer navigation.
+        It leans hardest into exploration pressure, but it risks feeling slower
+        if movement pacing is not tuned carefully.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="legend">
+  <span><i class="swatch" style="background: #22c55e"></i> entrance</span>
+  <span
+    ><i class="swatch" style="background: #f59e0b"></i> main traversable
+    route</span
+  >
+  <span
+    ><i class="swatch" style="background: #38bdf8"></i> branches or room
+    splits</span
+  >
+  <span
+    ><i class="swatch" style="background: #fbbf24"></i> chest near the end</span
+  >
+</div>

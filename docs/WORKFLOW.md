@@ -38,8 +38,8 @@ Use this file for contributor process only. Canonical project guidance lives in
 - Use `pnpm typecheck` for the shared workspace typecheck path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
 - Use `pnpm lint` for the shared workspace lint path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
 - Use `pnpm build` for the shared workspace build path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
-- Use `pnpm test` for the shared server-plus-client automated test path, with the client side running the stable `node` Vitest project.
-- Pull-request CI currently skips `pnpm test:jsdom` and runs the stable `typecheck-and-lint`, `test-node`, and `build` jobs only. The `test-node` job runs `pnpm test` for the server package plus the client `node` Vitest project, and the `build` job runs `pnpm build:budget:strict` for the shared workspace build path plus the client startup-budget gate.
+- Use `pnpm test` for the shared server-plus-client automated test path, with the client side running the full Vitest matrix through `test:all`.
+- Pull-request CI runs the `typecheck-and-lint`, `test-node`, and `build` jobs. The `test-node` job runs `pnpm test`, which covers the server suite plus the full client Vitest matrix, and the `build` job runs `pnpm build:budget:strict` for the shared workspace build path plus the client startup-budget gate.
 - Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build:budget:strict` before committing when you bypass hooks or need to verify the full commit-validation path manually.
 - Use `pnpm dev:server`, `pnpm build:server`, and `pnpm start:server` for the server package lifecycle.
 - Use `pnpm update:check` to inspect available dependency updates without modifying the worktree.
@@ -49,6 +49,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 - Use `?perf=1` or `localStorage["realmfall:perf"] = "1"` during manual browser checks when React commit breadth, Pixi render-pass counters, startup marks, long tasks, or long animation frames need to be captured from `window.__REALMFALL_PERF__.snapshot()`.
 - Run `pnpm build:budget` when startup chunks or lazy-loading strategy change. The command reports the tracked envelope and warns on overruns without failing the build.
 - Run `pnpm build:budget:strict` or `REALMFALL_BUNDLE_BUDGET_STRICT=1 node scripts/check-bundle-budget.mjs` when a budget overrun must fail local or CI validation.
+- When clear localization additions push a locale asset over its tracked cap, raise the relevant locale budget instead of rewriting the copy into something less clear.
 - Run `pnpm build:duplicate-deps` only when auditing dependency duplication. The duplicate-deps plugin is intentionally kept off the normal build path so routine builds stay focused on budget and correctness signals.
 - Run `pnpm build:visualize` when you need an interactive bundle treemap audit. The command writes `.tests/bundle/visualizer.html` and keeps the visualizer plugin off the normal build path.
 - When performance-sensitive behavior changes, record how rerender breadth, redraw breadth, hover hot paths, or startup chunk impact were verified.

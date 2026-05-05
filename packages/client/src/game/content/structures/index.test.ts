@@ -77,7 +77,7 @@ describe('localized structure config text', () => {
 
     expect(config.icon).toBe(ContentIcons.LockedChest);
     expect(config.functionsProvided).toContain('loot');
-    expect(config.title).toBe('Dungeon Chest');
+    expect(config.title).toBe('Sealed Dungeon Chest');
   });
 
   it('uses locale-backed gathering labels instead of inline fallback wording', () => {

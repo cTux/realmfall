@@ -328,9 +328,7 @@ describe('ui helper coverage', () => {
     );
     expect(
       structureTooltip(createTile({ structure: 'dungeon' }))?.lines[0]?.text,
-    ).toBe(
-      'A broken ruin where stronger foes and old spoils gather beneath the fracture.',
-    );
+    ).toBe('A rift-torn ruin that marks the entrance to a dungeon below.');
     expect(
       structureTooltip(createTile({ structure: 'dungeon' }))?.lines[1],
     ).toEqual({
