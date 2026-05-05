@@ -15,6 +15,7 @@ export const VITEST_NODE_INCLUDE = [
   'src/persistence/**/*.test.ts',
   'scripts/**/*.test.ts',
   'src/ui/world/renderSceneCombatFeedback.test.ts',
+  'src/ui/world/renderSceneEnemyMarkers.test.ts',
   'src/ui/world/renderSceneMovementCooldown.test.ts',
   'src/ui/world/renderScenePlayerResources.test.ts',
 ];

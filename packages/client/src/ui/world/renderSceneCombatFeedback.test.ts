@@ -6,11 +6,8 @@ import {
   collectDescendants,
   createMockApp,
   getLabelsLayer,
-  getMarkerLayer,
   getPlayerLayer,
   MockContainer,
-  MockGraphics,
-  MockText,
   setupRenderSceneTestEnvironment,
 } from './renderSceneTestHelpers';
 
@@ -21,6 +18,7 @@ const HEALING_COLOR = 0x4ade80;
 
 describe('renderScene combat feedback', () => {
   beforeEach(() => {
+    vi.stubGlobal('navigator', { userAgent: 'jsdom' });
     vi.stubGlobal(
       'OffscreenCanvas',
       class MockOffscreenCanvas {
@@ -102,9 +100,7 @@ describe('renderScene combat feedback', () => {
       } as never,
     );
 
-    const texts = collectDescendants(getLabelsLayer(app)).filter(
-      (child): child is MockText => child instanceof MockText && child.visible,
-    );
+    const texts = getVisibleFloatingTexts(app);
     const normalDamageText = texts.find((text) => text.text === '6');
     const criticalDamageText = texts.find((text) => text.text === '18!');
 
@@ -307,6 +303,82 @@ describe('renderScene combat feedback', () => {
     expect(texts.find((text) => text.text === '9')).toBeDefined();
   });
 
+  it('anchors world-boss floating text to the real boss badge geometry', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { ENTITY_BADGE_RADIUS_SCALE } =
+      await import('./renderSceneEntityBadge');
+    const { getWorldHexSize, tileToPoint } = await import('./renderSceneMath');
+    const { getHostileEnemyBadgeOuterRadius } =
+      await import('./renderScenePlayerBars');
+    const { createPlacedWorldBossRenderGame } =
+      await import('./renderSceneTestHelpers');
+    const { game, center } = createPlacedWorldBossRenderGame();
+    const app = createMockApp(960, 720);
+    const bossId = game.tiles['4,0']?.enemyIds[0];
+
+    expect(bossId).toBeDefined();
+    game.worldFloatingTextEvents = [
+      {
+        id: 'world-boss-damage',
+        anchor: {
+          kind: 'enemy',
+          enemyId: bossId!,
+          coord: center,
+        },
+        amount: 21,
+        createdAtMs: 200,
+        kind: 'damage',
+      },
+    ];
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        worldTimeMs: 500,
+      } as never,
+    );
+
+    const bossText = getVisibleFloatingTexts(app).find(
+      (text) => text.text === '21',
+    );
+    const origin = {
+      x: app.screen.width / 2,
+      y: app.screen.height / 2,
+    };
+    const hexSize = getWorldHexSize(app.screen, game.radius);
+    const bossPoint = tileToPoint(
+      {
+        q: center.q - game.player.coord.q,
+        r: center.r - game.player.coord.r,
+      },
+      origin.x,
+      origin.y,
+      hexSize,
+    );
+    const floatingTextRiseOffset = 12 + (300 / 1200) * 18;
+    const genericEnemyY =
+      bossPoint.y -
+      2 -
+      getHostileEnemyBadgeOuterRadius(hexSize * 0.945) -
+      floatingTextRiseOffset;
+    const bossBadgeY =
+      bossPoint.y -
+      hexSize * 3.4 * 0.58 * ENTITY_BADGE_RADIUS_SCALE -
+      floatingTextRiseOffset;
+
+    expect(bossText).toBeDefined();
+    expect(bossText!.position.x).toBeCloseTo(bossPoint.x, 4);
+    expect(bossText!.position.y).toBeCloseTo(bossBadgeY, 3);
+    expect(Math.abs(bossText!.position.y - genericEnemyY)).toBeGreaterThan(12);
+  });
+
   it('visually lunges the player wrapper toward the hostile target without changing gameplay coordinates', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-player-lunge');
@@ -482,9 +554,18 @@ describe('renderScene combat feedback', () => {
   });
 
   it('keeps killing-blow text visible above the last hostile marker location after enemy cleanup', async () => {
-    const { renderScene } = await import('./renderScene');
+    const {
+      beginAnimatedSceneRender,
+      completeAnimatedSceneRender,
+      getSceneCache,
+    } = await import('./renderSceneCache');
+    const { renderSceneCombatFeedback } =
+      await import('./renderSceneCombatFeedback');
+    const { getVisibleTileRenderInputs } =
+      await import('./renderSceneRenderInputs');
     const game = createGame(2, 'render-scene-killing-blow-floating-text');
     const app = createMockApp();
+    const defeatedEnemyId = 'defeated-enemy-1,0-0';
 
     game.tiles['1,0'] = {
       coord: { q: 1, r: 0 },
@@ -492,12 +573,29 @@ describe('renderScene combat feedback', () => {
       items: [],
       enemyIds: [],
     };
+    game.enemies[defeatedEnemyId] = {
+      id: defeatedEnemyId,
+      enemyTypeId: 'raider',
+      name: 'Raider',
+      coord: { q: 1, r: 0 },
+      rarity: 'common',
+      tier: 2,
+      hp: 0,
+      maxHp: 10,
+      mana: 0,
+      maxMana: 8,
+      attack: 3,
+      defense: 1,
+      xp: 5,
+      elite: false,
+    };
+    delete game.enemies[defeatedEnemyId];
     game.worldFloatingTextEvents = [
       {
         id: 'killing-blow',
         anchor: {
           kind: 'enemy',
-          enemyId: 'enemy-1,0-0',
+          enemyId: defeatedEnemyId,
           coord: { q: 1, r: 0 },
         },
         amount: 11,
@@ -506,19 +604,29 @@ describe('renderScene combat feedback', () => {
       },
     ];
 
-    renderScene(
-      app as never,
+    const scene = getSceneCache(app as never);
+    const hexSize = getWorldHexSize(app.screen, game.radius);
+    const visibleTileRenderInputs = getVisibleTileRenderInputs(
       game,
       getVisibleTiles(game),
-      game.player.coord,
-      null,
-      12 * 60,
-      0,
-      null,
-      {
-        worldTimeMs: 500,
-      } as never,
     );
+    beginAnimatedSceneRender(scene);
+    renderSceneCombatFeedback({
+      enemyIconSize: hexSize * 0.945,
+      hexSize,
+      origin: {
+        x: app.screen.width / 2,
+        y: app.screen.height / 2,
+      },
+      playerCoord: game.player.coord,
+      playerIconSize: hexSize * 0.95,
+      playerLungeOffset: { x: 0, y: 0 },
+      scene,
+      state: game,
+      visibleTileRenderInputs,
+      worldTimeMs: 500,
+    });
+    completeAnimatedSceneRender(scene);
 
     const killingBlowText = getVisibleFloatingTexts(app).find(
       (text) => text.text === '11',
@@ -526,204 +634,39 @@ describe('renderScene combat feedback', () => {
 
     expect(killingBlowText).toBeDefined();
   });
-
-  it('refreshes visible hostile badge HP and MP arcs during combat without requiring a new enemy map object', async () => {
-    const { renderScene } = await import('./renderScene');
-    const game = createEnemyMarkerGame(
-      'render-scene-live-combat-badge-refresh',
-    );
-    const app = createMockApp();
-    const visibleTiles = getVisibleTiles(game);
-
-    renderScene(
-      app as never,
-      game,
-      visibleTiles,
-      game.player.coord,
-      null,
-      12 * 60,
-    );
-
-    const initialGraphics = collectDescendants(getMarkerLayer(app)).filter(
-      (child): child is MockGraphics =>
-        child instanceof MockGraphics && child.visible,
-    );
-    const initialHpArc = findMarkerArc(initialGraphics, 0xff2d55, 'top');
-    const initialManaArc = findMarkerArc(initialGraphics, 0x38bdf8, 'bottom');
-    const initialHpCallCount = initialHpArc?.drawPolygon.mock.calls.length ?? 0;
-    const initialManaCallCount =
-      initialManaArc?.drawPolygon.mock.calls.length ?? 0;
-    expect(initialHpArc).toBeDefined();
-    expect(initialManaArc).toBeDefined();
-
-    game.enemies['enemy-1,0-0']!.hp = 0;
-    game.enemies['enemy-1,0-0']!.mana = 1;
-    game.combat = {
-      coord: { q: 0, r: 0 },
-      enemyIds: ['enemy-1,0-0'],
-      started: true,
-      startedAtMs: 0,
-      engagement: {
-        autoStepOnVictory: false,
-        engageMode: 'staged-click',
-        originCoord: { q: 0, r: 0 },
-        stagingCoord: { q: 0, r: 0 },
-        targetCoord: { q: 1, r: 0 },
-      },
-      player: {
-        abilityIds: ['slash'],
-        globalCooldownMs: 1500,
-        globalCooldownEndsAt: 0,
-        cooldownEndsAt: {},
-        casting: null,
-      },
-      enemies: {
-        'enemy-1,0-0': {
-          abilityIds: ['kick'],
-          globalCooldownMs: 1500,
-          globalCooldownEndsAt: 0,
-          cooldownEndsAt: {},
-          casting: null,
-        },
-      },
-      enemyStateById: {
-        'enemy-1,0-0': {},
-      },
-    };
-
-    renderScene(
-      app as never,
-      game,
-      visibleTiles,
-      game.player.coord,
-      null,
-      12 * 60,
-    );
-
-    const updatedGraphics = collectDescendants(getMarkerLayer(app)).filter(
-      (child): child is MockGraphics =>
-        child instanceof MockGraphics && child.visible,
-    );
-    const updatedHpArc = findMarkerArc(updatedGraphics, 0xff2d55, 'top');
-    const updatedManaArc = findMarkerArc(updatedGraphics, 0x38bdf8, 'bottom');
-
-    expect(updatedHpArc).toBe(initialHpArc);
-    expect(updatedManaArc).toBe(initialManaArc);
-    expect(updatedHpArc?.drawPolygon.mock.calls.length).toBeGreaterThan(
-      initialHpCallCount,
-    );
-    expect(updatedManaArc?.drawPolygon.mock.calls.length).toBeGreaterThan(
-      initialManaCallCount,
-    );
-  });
-
-  it('does not refresh unrelated visible hostile badges outside the engaged combat subset', async () => {
-    const { renderScene } = await import('./renderScene');
-    const game = createEnemyMarkerGame(
-      'render-scene-engaged-badge-refresh-scope',
-    );
-    const app = createMockApp();
-
-    game.tiles['0,1'] = {
-      coord: { q: 0, r: 1 },
-      terrain: 'plains',
-      items: [],
-      enemyIds: ['enemy-0,1-0'],
-    };
-    game.enemies['enemy-0,1-0'] = {
-      id: 'enemy-0,1-0',
-      enemyTypeId: 'wolf',
-      name: 'Watcher',
-      coord: { q: 0, r: 1 },
-      rarity: 'common',
-      tier: 2,
-      hp: 7,
-      maxHp: 10,
-      mana: 5,
-      maxMana: 10,
-      attack: 3,
-      defense: 1,
-      xp: 5,
-      elite: false,
-    };
-
-    const visibleTiles = getVisibleTiles(game);
-    game.combat = createCombatState('enemy-1,0-0', { q: 1, r: 0 });
-
-    renderScene(
-      app as never,
-      game,
-      visibleTiles,
-      game.player.coord,
-      null,
-      12 * 60,
-    );
-
-    const initialDrawPolygonCallCount = sumDrawPolygonCalls(
-      getVisibleMarkerGraphics(app),
-    );
-
-    game.enemies['enemy-0,1-0']!.hp = 1;
-    game.enemies['enemy-0,1-0']!.mana = 0;
-
-    renderScene(
-      app as never,
-      game,
-      visibleTiles,
-      game.player.coord,
-      null,
-      12 * 60,
-    );
-
-    expect(sumDrawPolygonCalls(getVisibleMarkerGraphics(app))).toBe(
-      initialDrawPolygonCallCount,
-    );
-  });
 });
 
-function getTextFill(text: MockText) {
+function getTextFill(text: { style: unknown }) {
   return (text.style as { value?: { fill?: number } }).value?.fill;
 }
 
 function getVisibleFloatingTexts(app: ReturnType<typeof createMockApp>) {
   return collectDescendants(getLabelsLayer(app)).filter(
-    (child): child is MockText => child instanceof MockText && child.visible,
+    (child): child is FloatingTextNode =>
+      isFloatingTextNode(child) && child.visible,
   );
 }
 
-function getVisibleMarkerGraphics(app: ReturnType<typeof createMockApp>) {
-  return collectDescendants(getMarkerLayer(app)).filter(
-    (child): child is MockGraphics =>
-      child instanceof MockGraphics && child.visible,
+type FloatingTextNode = {
+  position: { x: number; y: number };
+  scale: { x: number; y: number };
+  style: unknown;
+  text: string;
+  visible: boolean;
+};
+
+function isFloatingTextNode(value: unknown): value is FloatingTextNode {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  return (
+    'position' in value &&
+    'scale' in value &&
+    'style' in value &&
+    'text' in value &&
+    'visible' in value
   );
-}
-
-function createEnemyMarkerGame(seed: string) {
-  const game = createGame(2, seed);
-  game.tiles['1,0'] = {
-    coord: { q: 1, r: 0 },
-    terrain: 'forest',
-    items: [],
-    enemyIds: ['enemy-1,0-0'],
-  };
-  game.enemies['enemy-1,0-0'] = {
-    id: 'enemy-1,0-0',
-    enemyTypeId: 'raider',
-    name: 'Raider',
-    coord: { q: 1, r: 0 },
-    rarity: 'common',
-    tier: 2,
-    hp: 5,
-    maxHp: 10,
-    mana: 3,
-    maxMana: 10,
-    attack: 3,
-    defense: 1,
-    xp: 5,
-    elite: false,
-  };
-
-  return game;
 }
 
 function createLungeCombatGame(seed: string) {
@@ -786,79 +729,4 @@ function createLungeCombatGame(seed: string) {
   };
 
   return game;
-}
-
-function createCombatState(
-  enemyId: string,
-  targetCoord: { q: number; r: number },
-) {
-  return {
-    coord: { q: 0, r: 0 },
-    enemyIds: [enemyId],
-    started: true,
-    startedAtMs: 0,
-    engagement: {
-      autoStepOnVictory: false,
-      engageMode: 'staged-click' as const,
-      originCoord: { q: 0, r: 0 },
-      stagingCoord: { q: 0, r: 0 },
-      targetCoord,
-    },
-    player: {
-      abilityIds: ['slash'],
-      globalCooldownMs: 1500,
-      globalCooldownEndsAt: 0,
-      cooldownEndsAt: {},
-      casting: null,
-    },
-    enemies: {
-      [enemyId]: {
-        abilityIds: ['kick'],
-        globalCooldownMs: 1500,
-        globalCooldownEndsAt: 0,
-        cooldownEndsAt: {},
-        casting: null,
-      },
-    },
-    enemyStateById: {
-      [enemyId]: {},
-    },
-  };
-}
-
-function findMarkerArc(
-  graphics: MockGraphics[],
-  color: number,
-  hemisphere: 'bottom' | 'top',
-) {
-  return graphics.find((graphic) => {
-    if (
-      !graphic.beginFill.mock.calls.some(([fillColor]) => fillColor === color)
-    ) {
-      return false;
-    }
-
-    if (graphic.drawPolygon.mock.calls.length === 0) {
-      return false;
-    }
-
-    return graphic.drawPolygon.mock.calls.some(([points]) => {
-      const numericPoints = points as number[];
-      const averageY =
-        numericPoints.reduce(
-          (sum, value, index) => sum + (index % 2 === 1 ? value : 0),
-          0,
-        ) /
-        (numericPoints.length / 2);
-
-      return hemisphere === 'top' ? averageY < 0 : averageY > 0;
-    });
-  });
-}
-
-function sumDrawPolygonCalls(graphics: MockGraphics[]) {
-  return graphics.reduce(
-    (total, graphic) => total + graphic.drawPolygon.mock.calls.length,
-    0,
-  );
 }

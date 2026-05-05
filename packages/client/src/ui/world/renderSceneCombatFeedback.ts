@@ -3,6 +3,8 @@ import { getAppliedInterfaceFontStack } from '../../app/interfaceFonts';
 import { hexKey } from '../../game/hex';
 import type { WorldFloatingTextEvent } from '../../game/types';
 import type { GameState, HexCoord } from '../../game/stateTypes';
+import { isWorldBossEnemyId } from '../../game/worldBoss';
+import { ENTITY_BADGE_RADIUS_SCALE } from './renderSceneEntityBadge';
 import { tileToPoint } from './renderSceneMath';
 import {
   getHostileEnemyBadgeOuterRadius,
@@ -26,7 +28,19 @@ const NORMAL_TEXT_SCALE = 0.95;
 const CRITICAL_TEXT_SCALE = 1.1;
 const HEALING_TEXT_SCALE = 0.98;
 const DUNGEON_HOSTILE_GROUP_BADGE_RADIUS_RATIO = 0.4;
+const WORLD_BOSS_BADGE_RADIUS_RATIO = 0.58;
+const WORLD_BOSS_ICON_SIZE_RATIO = 3.4;
 const textStylesByKey = new Map<string, TextStyle>();
+
+interface FloatingTextAnchor {
+  point: { x: number; y: number };
+  radius: number;
+}
+
+interface HostileMarkerAnchorSet {
+  boss: FloatingTextAnchor;
+  enemy: FloatingTextAnchor;
+}
 
 export function getCombatFeedbackRenderToken({
   state,
@@ -146,15 +160,14 @@ export function renderSceneCombatFeedback({
   worldTimeMs: number;
 }) {
   const enemyBadgeOuterRadius = getHostileEnemyBadgeOuterRadius(enemyIconSize);
+  const worldBossBadgeOuterRadius =
+    hexSize *
+    WORLD_BOSS_ICON_SIZE_RATIO *
+    WORLD_BOSS_BADGE_RADIUS_RATIO *
+    ENTITY_BADGE_RADIUS_SCALE;
   const playerBadgeOuterRadius = getPlayerBadgeOuterRadius(playerIconSize);
-  const anchorByEnemyId = new Map<
-    string,
-    { point: { x: number; y: number }; radius: number }
-  >();
-  const fallbackAnchorByCoordKey = new Map<
-    string,
-    { point: { x: number; y: number }; radius: number }
-  >();
+  const anchorByEnemyId = new Map<string, FloatingTextAnchor>();
+  const fallbackAnchorByCoordKey = new Map<string, HostileMarkerAnchorSet>();
 
   for (const { hostileEnemies, tile } of visibleTileRenderInputs) {
     const point = tileToPoint(
@@ -166,23 +179,27 @@ export function renderSceneCombatFeedback({
       origin.y,
       hexSize,
     );
-    const anchor = createHostileMarkerAnchor(
+    const anchorSet = createHostileMarkerAnchorSet(
       point,
       tile.structure,
       enemyBadgeOuterRadius,
+      worldBossBadgeOuterRadius,
     );
-    fallbackAnchorByCoordKey.set(hexKey(tile.coord), anchor);
+    fallbackAnchorByCoordKey.set(hexKey(tile.coord), anchorSet);
 
     if (hostileEnemies.length === 0) {
       continue;
     }
 
     hostileEnemies.forEach((enemy) => {
-      anchorByEnemyId.set(enemy.id, anchor);
+      anchorByEnemyId.set(
+        enemy.id,
+        isWorldBossEnemyId(enemy.id) ? anchorSet.boss : anchorSet.enemy,
+      );
     });
   }
 
-  const playerAnchor = {
+  const playerAnchor: FloatingTextAnchor = {
     point: {
       x: origin.x + playerLungeOffset.x,
       y: origin.y + playerLungeOffset.y,
@@ -235,17 +252,11 @@ function resolveFloatingTextAnchor({
   isEnemyDefeated,
   playerAnchor,
 }: {
-  anchorByEnemyId: Map<
-    string,
-    { point: { x: number; y: number }; radius: number }
-  >;
-  fallbackAnchorByCoordKey: Map<
-    string,
-    { point: { x: number; y: number }; radius: number }
-  >;
+  anchorByEnemyId: Map<string, FloatingTextAnchor>;
+  fallbackAnchorByCoordKey: Map<string, HostileMarkerAnchorSet>;
   event: WorldFloatingTextEvent;
   isEnemyDefeated: boolean;
-  playerAnchor: { point: { x: number; y: number }; radius: number };
+  playerAnchor: FloatingTextAnchor;
 }) {
   if (event.anchor.kind === 'player') {
     return playerAnchor;
@@ -260,7 +271,16 @@ function resolveFloatingTextAnchor({
     return null;
   }
 
-  return fallbackAnchorByCoordKey.get(hexKey(event.anchor.coord)) ?? null;
+  const fallbackAnchor = fallbackAnchorByCoordKey.get(
+    hexKey(event.anchor.coord),
+  );
+  if (!fallbackAnchor) {
+    return null;
+  }
+
+  return isWorldBossEnemyId(event.anchor.enemyId)
+    ? fallbackAnchor.boss
+    : fallbackAnchor.enemy;
 }
 
 function getFloatingTextStyle(kind: WorldFloatingTextEvent['kind']) {
@@ -351,29 +371,42 @@ function getCombatLungeProgress(
   return Math.sin(rawProgress * Math.PI);
 }
 
-function createHostileMarkerAnchor(
+function createHostileMarkerAnchorSet(
   point: { x: number; y: number },
   structure: VisibleTileRenderInput['tile']['structure'],
   enemyBadgeOuterRadius: number,
+  worldBossBadgeOuterRadius: number,
 ) {
-  return structure === 'dungeon'
-    ? {
-        point: {
-          x: point.x + ENEMY_GROUP_BADGE_OFFSET.x,
-          y: point.y + ENEMY_GROUP_BADGE_OFFSET.y,
-        },
-        radius: Math.max(
-          8,
-          enemyBadgeOuterRadius * DUNGEON_HOSTILE_GROUP_BADGE_RADIUS_RATIO,
-        ),
-      }
-    : {
-        point: {
-          x: point.x,
-          y: point.y - 2,
-        },
-        radius: enemyBadgeOuterRadius,
-      };
+  if (structure === 'dungeon') {
+    const dungeonAnchor = {
+      point: {
+        x: point.x + ENEMY_GROUP_BADGE_OFFSET.x,
+        y: point.y + ENEMY_GROUP_BADGE_OFFSET.y,
+      },
+      radius: Math.max(
+        8,
+        enemyBadgeOuterRadius * DUNGEON_HOSTILE_GROUP_BADGE_RADIUS_RATIO,
+      ),
+    };
+    return {
+      boss: dungeonAnchor,
+      enemy: dungeonAnchor,
+    };
+  }
+
+  return {
+    boss: {
+      point,
+      radius: worldBossBadgeOuterRadius,
+    },
+    enemy: {
+      point: {
+        x: point.x,
+        y: point.y - 2,
+      },
+      radius: enemyBadgeOuterRadius,
+    },
+  };
 }
 
 function sameCoord(left: HexCoord, right: HexCoord) {
