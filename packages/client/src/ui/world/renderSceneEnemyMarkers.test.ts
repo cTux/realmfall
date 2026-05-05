@@ -6,6 +6,7 @@ import {
   getBadgeLayer,
   getLabelsLayer,
   getMarkerLayer,
+  MockGraphics,
   MockSprite,
   MockText,
   playerIcon,
@@ -69,6 +70,8 @@ function createEnemyMarkerGame(
     tier: 2,
     hp: 5,
     maxHp: 5,
+    mana: 3,
+    maxMana: 10,
     attack: 3,
     defense: 1,
     xp: 5,
@@ -83,6 +86,8 @@ function createEnemyMarkerGame(
     tier: 3,
     hp: 7,
     maxHp: 7,
+    mana: 6,
+    maxMana: 12,
     attack: 4,
     defense: 2,
     xp: 8,
@@ -210,7 +215,7 @@ describe('renderScene enemy markers', () => {
     expect(updatedMarkers.some((child) => child.tint === 0xc084fc)).toBe(true);
   });
 
-  it('renders a bottom-right count label for multi-enemy hostile hexes', async () => {
+  it('renders hostile markers inside a red circular badge with top level and bottom count plates', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-enemy-count-badge');
     game.tiles['1,0'] = {
@@ -227,7 +232,9 @@ describe('renderScene enemy markers', () => {
       rarity: 'common',
       tier: 2,
       hp: 5,
-      maxHp: 5,
+      maxHp: 10,
+      mana: 3,
+      maxMana: 10,
       attack: 3,
       defense: 1,
       xp: 5,
@@ -242,6 +249,8 @@ describe('renderScene enemy markers', () => {
       tier: 3,
       hp: 7,
       maxHp: 7,
+      mana: 6,
+      maxMana: 12,
       attack: 4,
       defense: 2,
       xp: 8,
@@ -256,6 +265,8 @@ describe('renderScene enemy markers', () => {
       tier: 4,
       hp: 9,
       maxHp: 9,
+      mana: 5,
+      maxMana: 15,
       attack: 6,
       defense: 3,
       xp: 11,
@@ -273,30 +284,34 @@ describe('renderScene enemy markers', () => {
       12 * 60,
     );
 
-    const badgeLayer = getBadgeLayer(app);
-    const badgeTexts = badgeLayer.children.filter(
+    const markerDescendants = collectDescendants(getMarkerLayer(app));
+    const badgeGraphics = markerDescendants.filter(
+      (child): child is MockGraphics =>
+        child instanceof MockGraphics && child.visible,
+    );
+    const badgeTexts = markerDescendants.filter(
       (child): child is MockText => child instanceof MockText,
     );
-    expect(badgeTexts.some((child) => child.text === '3')).toBe(true);
+
     expect(
-      badgeTexts.some(
-        (child) =>
-          (child.style as { value?: { fill?: number } }).value?.fill ===
-          0xef4444,
+      badgeGraphics.some(
+        (graphic) =>
+          graphic.drawEllipse.mock.calls.length > 0 &&
+          graphic.beginFill.mock.calls.some(
+            ([fillColor]) => fillColor === 0xef4444,
+          ),
       ),
     ).toBe(true);
     expect(
-      badgeTexts.some(
-        (child) =>
-          child.text === '3' &&
-          child.position.y > 0 &&
-          child.position.x > 0 &&
-          child.anchor.set.mock.calls.some(([anchor]) => anchor === 0.5),
-      ),
+      badgeTexts.some((child) => child.text === '2' && child.position.y < 0),
     ).toBe(true);
     expect(
-      badgeLayer.children.every((child) => child instanceof MockText),
+      badgeTexts.some((child) => child.text === '3' && child.position.y > 0),
     ).toBe(true);
+    expect(findMarkerArc(badgeGraphics, 0x7f1d1d, 'top')).toBeDefined();
+    expect(findMarkerArc(badgeGraphics, 0xff2d55, 'top')).toBeDefined();
+    expect(findMarkerArc(badgeGraphics, 0x1e40af, 'bottom')).toBeDefined();
+    expect(findMarkerArc(badgeGraphics, 0x38bdf8, 'bottom')).toBeDefined();
   });
 
   it('renders an enemy count badge for dungeon hexes', async () => {
@@ -318,6 +333,8 @@ describe('renderScene enemy markers', () => {
       tier: 2,
       hp: 5,
       maxHp: 5,
+      mana: 3,
+      maxMana: 10,
       attack: 3,
       defense: 1,
       xp: 5,
@@ -332,6 +349,8 @@ describe('renderScene enemy markers', () => {
       tier: 3,
       hp: 7,
       maxHp: 7,
+      mana: 6,
+      maxMana: 12,
       attack: 4,
       defense: 2,
       xp: 8,
@@ -357,3 +376,33 @@ describe('renderScene enemy markers', () => {
     expect(badgeTexts.some((child) => child.text === '2')).toBe(true);
   });
 });
+
+function findMarkerArc(
+  graphics: MockGraphics[],
+  color: number,
+  hemisphere: 'bottom' | 'top',
+) {
+  return graphics.find((graphic) => {
+    if (
+      !graphic.beginFill.mock.calls.some(([fillColor]) => fillColor === color)
+    ) {
+      return false;
+    }
+
+    if (graphic.drawPolygon.mock.calls.length === 0) {
+      return false;
+    }
+
+    return graphic.drawPolygon.mock.calls.some(([points]) => {
+      const numericPoints = points as number[];
+      const averageY =
+        numericPoints.reduce(
+          (sum, value, index) => sum + (index % 2 === 1 ? value : 0),
+          0,
+        ) /
+        (numericPoints.length / 2);
+
+      return hemisphere === 'top' ? averageY < 0 : averageY > 0;
+    });
+  });
+}

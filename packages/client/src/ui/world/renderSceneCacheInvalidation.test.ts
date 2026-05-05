@@ -359,4 +359,73 @@ describe('renderScene cache invalidation', () => {
       offscreenEnemyClone.enemies,
     );
   });
+
+  it('rerenders static marker layers when a visible enemy HP or MP value changes inside the same frame bucket', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { getSceneCache } = await import('./renderSceneCache');
+    const game = createGame(2, 'render-scene-visible-enemy-resource-cache');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: ['enemy-1,0-0'],
+    };
+    game.enemies['enemy-1,0-0'] = {
+      id: 'enemy-1,0-0',
+      enemyTypeId: 'wolf',
+      name: 'Wolf',
+      coord: { q: 1, r: 0 },
+      tier: 2,
+      rarity: 'rare',
+      hp: 8,
+      maxHp: 10,
+      mana: 6,
+      maxMana: 10,
+      attack: 2,
+      defense: 1,
+      xp: 4,
+      elite: false,
+    };
+    const visibleTiles = getVisibleTiles(game);
+    const app = createMockApp();
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      101,
+    );
+
+    const scene = getSceneCache(app as never);
+    const initialStaticCount = scene.renderCounts.static;
+    const initialPolygonCalls = countDrawnPolygons(getWorld(app));
+
+    renderScene(
+      app as never,
+      {
+        ...game,
+        enemies: {
+          ...game.enemies,
+          'enemy-1,0-0': {
+            ...game.enemies['enemy-1,0-0']!,
+            hp: 5,
+            mana: 2,
+          },
+        },
+      },
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      110,
+    );
+
+    expect(scene.renderCounts.static).toBe(initialStaticCount + 1);
+    expect(countDrawnPolygons(getWorld(app))).toBeGreaterThan(
+      initialPolygonCalls,
+    );
+  });
 });

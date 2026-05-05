@@ -100,7 +100,7 @@ export function renderScene(
   const structureIconSize = hexSize * 1.065;
   const enemyIconSize = hexSize * 0.945;
   const worldBossIconSize = hexSize * 3.4;
-  const playerIconSize = hexSize * 1.58;
+  const playerIconSize = hexSize * 0.95;
   const terrainArtSize = hexSize * 2;
   const showTerrainBackgrounds = options.showTerrainBackgrounds ?? true;
   const worldRenderFrameMs = getWorldRenderFrameMs(
@@ -117,8 +117,10 @@ export function renderScene(
   const movementTransitionRevealState =
     getMovementTransitionRevealState(movementTransition);
   const playerCombatStats = getPlayerCombatStats(state.player);
-  const playerResourceRenderToken =
-    getPlayerResourceRenderToken(playerCombatStats);
+  const playerResourceRenderToken = getPlayerResourceRenderToken({
+    ...playerCombatStats,
+    level: state.player.level,
+  });
   const playerWorldOffset = getWorldHexSizeOffset({
     hexSize,
     q: state.player.coord.q,
@@ -293,10 +295,9 @@ export function renderScene(
 
   if (shouldRenderInteraction) {
     renderPlayerResourceBars({
-      hexSize,
-      origin,
       playerCombatStats,
       playerIconSize,
+      playerLevel: state.player.level,
       scene,
     });
   }
@@ -446,12 +447,15 @@ function mixRenderToken(token: number, value: number) {
 
 function getPlayerResourceRenderToken({
   hp,
+  level,
   mana,
   maxHp,
   maxMana,
 }: Pick<
   ReturnType<typeof getPlayerCombatStats>,
   'hp' | 'mana' | 'maxHp' | 'maxMana'
->) {
-  return [hp, maxHp, mana, maxMana].join(':');
+> & {
+  level: number;
+}) {
+  return [level, hp, maxHp, mana, maxMana].join(':');
 }

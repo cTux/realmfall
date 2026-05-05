@@ -5,16 +5,17 @@ import { takeGraphics, type GraphicsPool } from './renderScenePools';
 import type { SceneCache } from './renderSceneCache';
 import { WORLD_MOVE_HEX_COOLDOWN_MS } from '../../game/config';
 import {
+  decorateEntityBadge,
+  ENTITY_BADGE_BACKGROUND_COLORS,
+} from './renderSceneEntityBadge';
+import {
   getVisibleTileRevealState,
   type MovementTransitionRevealState,
 } from './renderSceneVisibility';
 
 const PLAYER_BAR_TRACK_COLOR = 0x422006;
 const PLAYER_BAR_TRACK_ALPHA = 0.85;
-const PLAYER_RESOURCE_TRACK_ALPHA = 0.4;
 const PLAYER_BAR_FILL_ALPHA = 0.95;
-const PLAYER_HEALTH_BAR_COLOR = 0xdc2626;
-const PLAYER_MANA_BAR_COLOR = 0x38bdf8;
 const MOVEMENT_COOLDOWN_BAR_COLOR = 0xfacc15;
 
 export function renderPlayerMovementCooldown({
@@ -137,14 +138,11 @@ export function renderDungeonEnemyMovementCooldowns({
 }
 
 export function renderPlayerResourceBars({
-  hexSize,
-  origin,
   playerCombatStats,
   playerIconSize,
+  playerLevel,
   scene,
 }: {
-  hexSize: number;
-  origin: { x: number; y: number };
   playerCombatStats: {
     hp: number;
     mana: number;
@@ -152,41 +150,22 @@ export function renderPlayerResourceBars({
     maxMana: number;
   };
   playerIconSize: number;
+  playerLevel: number;
   scene: SceneCache;
 }) {
-  const thickness = Math.max(3, playerIconSize * 0.075);
-
-  renderPlayerEdgeBar({
-    fillAlpha: PLAYER_BAR_FILL_ALPHA,
-    color: PLAYER_HEALTH_BAR_COLOR,
-    endAngle: (3 * Math.PI) / 2,
-    hexSize,
-    origin,
-    progress: getResourceProgress(
-      playerCombatStats.hp,
-      playerCombatStats.maxHp,
-    ),
-    startAngle: (7 * Math.PI) / 6,
-    thickness,
-    trackAlpha: PLAYER_RESOURCE_TRACK_ALPHA,
-    trackColor: PLAYER_HEALTH_BAR_COLOR,
-    trackPool: scene.playerResourceGraphics,
-  });
-  renderPlayerEdgeBar({
-    fillAlpha: PLAYER_BAR_FILL_ALPHA,
-    color: PLAYER_MANA_BAR_COLOR,
-    endAngle: (11 * Math.PI) / 6,
-    hexSize,
-    origin,
-    progress: getResourceProgress(
-      playerCombatStats.mana,
-      playerCombatStats.maxMana,
-    ),
-    startAngle: (3 * Math.PI) / 2,
-    thickness,
-    trackAlpha: PLAYER_RESOURCE_TRACK_ALPHA,
-    trackColor: PLAYER_MANA_BAR_COLOR,
-    trackPool: scene.playerResourceGraphics,
+  decorateEntityBadge(scene.player, {
+    alpha: 1,
+    backgroundColor: ENTITY_BADGE_BACKGROUND_COLORS.player,
+    hp: {
+      current: playerCombatStats.hp,
+      max: playerCombatStats.maxHp,
+    },
+    levelLabel: playerLevel.toString(),
+    mana: {
+      current: playerCombatStats.mana,
+      max: playerCombatStats.maxMana,
+    },
+    outerRadius: Math.max(18, playerIconSize * 0.78),
   });
 }
 
@@ -261,14 +240,6 @@ function getInwardNormal(
     x: -edgeDirection.y,
     y: edgeDirection.x,
   };
-}
-
-function getResourceProgress(value: number, max: number) {
-  if (max <= 0) {
-    return 0;
-  }
-
-  return Math.min(1, Math.max(0, value / max));
 }
 
 function buildPlayerBarQuad(

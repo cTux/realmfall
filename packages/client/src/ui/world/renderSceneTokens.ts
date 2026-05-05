@@ -118,6 +118,11 @@ function getStaticTileRenderToken({ enemies, tile }: VisibleTileRenderInput) {
       hashRenderString(enemy.enemyTypeId ?? 'unknown'),
     );
     token = mixRenderToken(token, hashRenderString(enemy.rarity ?? 'common'));
+    token = mixRenderToken(token, enemy.tier);
+    token = mixRenderToken(token, enemy.hp);
+    token = mixRenderToken(token, enemy.maxHp);
+    token = mixRenderToken(token, enemy.mana ?? 0);
+    token = mixRenderToken(token, enemy.maxMana ?? 0);
     token = mixRenderToken(token, enemy.aggressive === false ? 0 : 1);
     token = mixRenderToken(token, enemy.worldBoss ? 1 : 0);
     return token;
@@ -180,6 +185,11 @@ function getVisibleEnemyToken(
         hashRenderString(enemy.enemyTypeId ?? 'unknown'),
       );
       token = mixRenderToken(token, hashRenderString(enemy.rarity ?? 'common'));
+      token = mixRenderToken(token, enemy.tier);
+      token = mixRenderToken(token, enemy.hp);
+      token = mixRenderToken(token, enemy.maxHp);
+      token = mixRenderToken(token, enemy.mana ?? 0);
+      token = mixRenderToken(token, enemy.maxMana ?? 0);
       token = mixRenderToken(token, enemy.aggressive === false ? 0 : 1);
       token = mixRenderToken(token, enemy.worldBoss ? 1 : 0);
     }

@@ -5,16 +5,17 @@ import {
   createMockApp,
   getPlayerLayer,
   MockGraphics,
+  MockText,
   setupRenderSceneTestEnvironment,
 } from './renderSceneTestHelpers';
-import { getWorldHexSize } from './renderSceneMath';
 
 setupRenderSceneTestEnvironment();
 
-const PLAYER_BAR_TRACK_ALPHA = 0.4;
-const PLAYER_HEALTH_BAR_COLOR = 0xdc2626;
-const PLAYER_MANA_BAR_COLOR = 0x38bdf8;
-const PLAYER_BAR_FILL_ALPHA = 0.95;
+const PLAYER_BACKGROUND_COLOR = 0x22d3ee;
+const PLAYER_HEALTH_TRACK_COLOR = 0x7f1d1d;
+const PLAYER_HEALTH_FILL_COLOR = 0xff2d55;
+const PLAYER_MANA_TRACK_COLOR = 0x1e40af;
+const PLAYER_MANA_FILL_COLOR = 0x38bdf8;
 
 describe('renderScene player resource bars', () => {
   beforeEach(() => {
@@ -33,7 +34,7 @@ describe('renderScene player resource bars', () => {
     vi.unstubAllGlobals();
   });
 
-  it('draws health and mana bars along the north-west and north-east edges of the current hex', async () => {
+  it('renders the player inside a cyan circular badge with top HP, bottom MP, and a level plate', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-player-resources');
     const app = createMockApp();
@@ -52,112 +53,45 @@ describe('renderScene player resource bars', () => {
       250,
     );
 
-    const resourceGraphics = collectDescendants(getPlayerLayer(app)).filter(
+    const playerLayerEntries = collectDescendants(getPlayerLayer(app));
+    const resourceGraphics = playerLayerEntries.filter(
       (child): child is MockGraphics =>
         child instanceof MockGraphics && child.visible,
     );
-    const hexOriginX = app.screen.width / 2;
-    const hexOriginY = app.screen.height / 2;
-    const hexSize = getWorldHexSize(app.screen, game.radius);
-    const thickness = Math.max(3, hexSize * 1.58 * 0.075);
-    const healthTrack = findEdgeGraphic(resourceGraphics, {
-      color: PLAYER_HEALTH_BAR_COLOR,
-      alpha: PLAYER_BAR_TRACK_ALPHA,
-      slope: -1 / Math.sqrt(3),
-      centroidX: { kind: 'lt', value: hexOriginX },
-      centroidY: { kind: 'lt', value: hexOriginY },
-    });
-    const healthFill = findEdgeGraphic(resourceGraphics, {
-      color: PLAYER_HEALTH_BAR_COLOR,
-      alpha: PLAYER_BAR_FILL_ALPHA,
-      slope: -1 / Math.sqrt(3),
-      centroidX: { kind: 'lt', value: hexOriginX },
-      centroidY: { kind: 'lt', value: hexOriginY },
-    });
-    const manaTrack = findEdgeGraphic(resourceGraphics, {
-      color: PLAYER_MANA_BAR_COLOR,
-      alpha: PLAYER_BAR_TRACK_ALPHA,
-      slope: 1 / Math.sqrt(3),
-      centroidX: { kind: 'gt', value: hexOriginX },
-      centroidY: { kind: 'lt', value: hexOriginY },
-    });
-    const manaFill = findEdgeGraphic(resourceGraphics, {
-      color: PLAYER_MANA_BAR_COLOR,
-      alpha: PLAYER_BAR_FILL_ALPHA,
-      slope: 1 / Math.sqrt(3),
-      centroidX: { kind: 'gt', value: hexOriginX },
-      centroidY: { kind: 'lt', value: hexOriginY },
-    });
+    const playerTexts = playerLayerEntries.filter(
+      (child): child is MockText => child instanceof MockText && child.visible,
+    );
 
-    expect(healthTrack).toBeDefined();
-    expect(healthFill).toBeDefined();
-    expect(manaTrack).toBeDefined();
-    expect(manaFill).toBeDefined();
-    assertQuadMatchesEdge({
-      expectedEnd: vertexAtAngle(
-        hexOriginX,
-        hexOriginY,
-        hexSize,
-        (3 * Math.PI) / 2,
+    expect(
+      resourceGraphics.some(
+        (graphic) =>
+          graphic.drawEllipse.mock.calls.length > 0 &&
+          graphic.beginFill.mock.calls.some(
+            ([fillColor]) => fillColor === PLAYER_BACKGROUND_COLOR,
+          ),
       ),
-      expectedStart: vertexAtAngle(
-        hexOriginX,
-        hexOriginY,
-        hexSize,
-        (7 * Math.PI) / 6,
+    ).toBe(true);
+    expect(
+      playerTexts.some(
+        (child) =>
+          child.text === game.player.level.toString() && child.position.y < 0,
       ),
-      expectedThickness: thickness,
-      quad: getQuadPoints(healthTrack!),
-    });
-    assertQuadMatchesEdge({
-      expectedEnd: midpointAlongEdge(
-        vertexAtAngle(hexOriginX, hexOriginY, hexSize, (7 * Math.PI) / 6),
-        vertexAtAngle(hexOriginX, hexOriginY, hexSize, (3 * Math.PI) / 2),
-        0.5,
-      ),
-      expectedStart: vertexAtAngle(
-        hexOriginX,
-        hexOriginY,
-        hexSize,
-        (7 * Math.PI) / 6,
-      ),
-      expectedThickness: thickness,
-      quad: getQuadPoints(healthFill!),
-    });
-    assertQuadMatchesEdge({
-      expectedEnd: vertexAtAngle(
-        hexOriginX,
-        hexOriginY,
-        hexSize,
-        (11 * Math.PI) / 6,
-      ),
-      expectedStart: vertexAtAngle(
-        hexOriginX,
-        hexOriginY,
-        hexSize,
-        (3 * Math.PI) / 2,
-      ),
-      expectedThickness: thickness,
-      quad: getQuadPoints(manaTrack!),
-    });
-    assertQuadMatchesEdge({
-      expectedEnd: midpointAlongEdge(
-        vertexAtAngle(hexOriginX, hexOriginY, hexSize, (3 * Math.PI) / 2),
-        vertexAtAngle(hexOriginX, hexOriginY, hexSize, (11 * Math.PI) / 6),
-        0.25,
-      ),
-      expectedStart: vertexAtAngle(
-        hexOriginX,
-        hexOriginY,
-        hexSize,
-        (3 * Math.PI) / 2,
-      ),
-      expectedThickness: thickness,
-      quad: getQuadPoints(manaFill!),
-    });
+    ).toBe(true);
+    expect(
+      findHemisphereArc(resourceGraphics, PLAYER_HEALTH_TRACK_COLOR, 'top'),
+    ).toBeDefined();
+    expect(
+      findHemisphereArc(resourceGraphics, PLAYER_HEALTH_FILL_COLOR, 'top'),
+    ).toBeDefined();
+    expect(
+      findHemisphereArc(resourceGraphics, PLAYER_MANA_TRACK_COLOR, 'bottom'),
+    ).toBeDefined();
+    expect(
+      findHemisphereArc(resourceGraphics, PLAYER_MANA_FILL_COLOR, 'bottom'),
+    ).toBeDefined();
   });
 
-  it('keeps the transparent resource track visible across the full edge even when the resource is empty', async () => {
+  it('keeps the top and bottom resource tracks visible when the player resource values are empty', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-empty-resource-track');
     const app = createMockApp();
@@ -180,77 +114,18 @@ describe('renderScene player resource bars', () => {
       (child): child is MockGraphics =>
         child instanceof MockGraphics && child.visible,
     );
-    const hexOriginX = app.screen.width / 2;
-    const hexOriginY = app.screen.height / 2;
-    const hexSize = getWorldHexSize(app.screen, game.radius);
-    const thickness = Math.max(3, hexSize * 1.58 * 0.075);
-    const healthTrack = findEdgeGraphic(resourceGraphics, {
-      color: PLAYER_HEALTH_BAR_COLOR,
-      alpha: PLAYER_BAR_TRACK_ALPHA,
-      slope: -1 / Math.sqrt(3),
-      centroidX: { kind: 'lt', value: hexOriginX },
-      centroidY: { kind: 'lt', value: hexOriginY },
-    });
-    const manaTrack = findEdgeGraphic(resourceGraphics, {
-      color: PLAYER_MANA_BAR_COLOR,
-      alpha: PLAYER_BAR_TRACK_ALPHA,
-      slope: 1 / Math.sqrt(3),
-      centroidX: { kind: 'gt', value: hexOriginX },
-      centroidY: { kind: 'lt', value: hexOriginY },
-    });
-
-    expect(healthTrack).toBeDefined();
-    expect(manaTrack).toBeDefined();
     expect(
-      resourceGraphics.some((graphic) =>
-        graphic.beginFill.mock.calls.some(
-          ([color, alpha]) =>
-            color === PLAYER_HEALTH_BAR_COLOR &&
-            alpha === PLAYER_BAR_FILL_ALPHA,
-        ),
-      ),
-    ).toBe(false);
+      findHemisphereArc(resourceGraphics, PLAYER_HEALTH_TRACK_COLOR, 'top'),
+    ).toBeDefined();
     expect(
-      resourceGraphics.some((graphic) =>
-        graphic.beginFill.mock.calls.some(
-          ([color, alpha]) =>
-            color === PLAYER_MANA_BAR_COLOR && alpha === PLAYER_BAR_FILL_ALPHA,
-        ),
-      ),
-    ).toBe(false);
-
-    assertQuadMatchesEdge({
-      expectedEnd: vertexAtAngle(
-        hexOriginX,
-        hexOriginY,
-        hexSize,
-        (3 * Math.PI) / 2,
-      ),
-      expectedStart: vertexAtAngle(
-        hexOriginX,
-        hexOriginY,
-        hexSize,
-        (7 * Math.PI) / 6,
-      ),
-      expectedThickness: thickness,
-      quad: getQuadPoints(healthTrack!),
-    });
-    assertQuadMatchesEdge({
-      expectedEnd: vertexAtAngle(
-        hexOriginX,
-        hexOriginY,
-        hexSize,
-        (11 * Math.PI) / 6,
-      ),
-      expectedStart: vertexAtAngle(
-        hexOriginX,
-        hexOriginY,
-        hexSize,
-        (3 * Math.PI) / 2,
-      ),
-      expectedThickness: thickness,
-      quad: getQuadPoints(manaTrack!),
-    });
+      findHemisphereArc(resourceGraphics, PLAYER_MANA_TRACK_COLOR, 'bottom'),
+    ).toBeDefined();
+    expect(
+      findHemisphereArc(resourceGraphics, PLAYER_HEALTH_FILL_COLOR, 'top'),
+    ).toBeUndefined();
+    expect(
+      findHemisphereArc(resourceGraphics, PLAYER_MANA_FILL_COLOR, 'bottom'),
+    ).toBeUndefined();
   });
 
   it('rerenders the player resource layer when hp or mana changes inside the same render bucket', async () => {
@@ -293,29 +168,55 @@ describe('renderScene player resource bars', () => {
 
     expect(scene.renderCounts.interaction).toBe(initialInteractionCount + 1);
   });
+
+  it('rerenders the player marker layer when the player level changes inside the same render bucket', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { getSceneCache } = await import('./renderSceneCache');
+    const game = createGame(2, 'render-scene-player-level-invalidation');
+    const visibleTiles = getVisibleTiles(game);
+    const app = createMockApp();
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      101,
+    );
+
+    const scene = getSceneCache(app as never);
+    const initialInteractionCount = scene.renderCounts.interaction;
+
+    renderScene(
+      app as never,
+      {
+        ...game,
+        player: {
+          ...game.player,
+          level: game.player.level + 1,
+        },
+      },
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      110,
+    );
+
+    expect(scene.renderCounts.interaction).toBe(initialInteractionCount + 1);
+  });
 });
 
-function findEdgeGraphic(
+function findHemisphereArc(
   graphics: MockGraphics[],
-  {
-    alpha,
-    centroidX,
-    centroidY,
-    color,
-    slope,
-  }: {
-    alpha: number;
-    centroidX: Comparator;
-    centroidY: Comparator;
-    color: number;
-    slope: number;
-  },
+  color: number,
+  hemisphere: 'bottom' | 'top',
 ) {
   return graphics.find((graphic) => {
     if (
-      !graphic.beginFill.mock.calls.some(
-        ([fillColor, fillAlpha]) => fillColor === color && fillAlpha === alpha,
-      )
+      !graphic.beginFill.mock.calls.some(([fillColor]) => fillColor === color)
     ) {
       return false;
     }
@@ -324,89 +225,17 @@ function findEdgeGraphic(
       return false;
     }
 
-    const [x1, y1, x2, y2, x3, y3, x4, y4] = getQuadPoints(graphic);
-    const edgeSlope = (y2 - y1) / (x2 - x1);
-    const centroid = {
-      x: (x1 + x2 + x3 + x4) / 4,
-      y: (y1 + y2 + y3 + y4) / 4,
-    };
+    return graphic.drawPolygon.mock.calls.some(([points]) => {
+      const numericPoints = points as number[];
+      expect(numericPoints.length).toBeGreaterThan(8);
+      const averageY =
+        numericPoints.reduce(
+          (sum, value, index) => sum + (index % 2 === 1 ? value : 0),
+          0,
+        ) /
+        (numericPoints.length / 2);
 
-    return (
-      Math.abs(edgeSlope - slope) < 0.0001 &&
-      compare(centroid.x, centroidX) &&
-      compare(centroid.y, centroidY)
-    );
+      return hemisphere === 'top' ? averageY < 0 : averageY > 0;
+    });
   });
-}
-
-function getQuadPoints(graphic: MockGraphics) {
-  const [points] = graphic.drawPolygon.mock.calls[0]!;
-  expect(points).toHaveLength(8);
-  return points as number[];
-}
-
-function assertQuadMatchesEdge({
-  expectedEnd,
-  expectedStart,
-  expectedThickness,
-  quad,
-}: {
-  expectedEnd: { x: number; y: number };
-  expectedStart: { x: number; y: number };
-  expectedThickness: number;
-  quad: number[];
-}) {
-  const [x1, y1, x2, y2, x3, y3, x4, y4] = quad;
-  const edgeVector = {
-    x: expectedEnd.x - expectedStart.x,
-    y: expectedEnd.y - expectedStart.y,
-  };
-  const edgeLength = Math.hypot(edgeVector.x, edgeVector.y) || 1;
-  const distanceToEdge = (x: number, y: number) =>
-    Math.abs(
-      edgeVector.y * x -
-        edgeVector.x * y +
-        expectedEnd.x * expectedStart.y -
-        expectedEnd.y * expectedStart.x,
-    ) / edgeLength;
-
-  expect(x1).toBeCloseTo(expectedStart.x, 4);
-  expect(y1).toBeCloseTo(expectedStart.y, 4);
-  expect(x2).toBeCloseTo(expectedEnd.x, 4);
-  expect(y2).toBeCloseTo(expectedEnd.y, 4);
-  expect(distanceToEdge(x1, y1)).toBeCloseTo(0, 4);
-  expect(distanceToEdge(x2, y2)).toBeCloseTo(0, 4);
-  expect(distanceToEdge(x3, y3)).toBeCloseTo(expectedThickness, 4);
-  expect(distanceToEdge(x4, y4)).toBeCloseTo(expectedThickness, 4);
-}
-
-function vertexAtAngle(
-  originX: number,
-  originY: number,
-  radius: number,
-  angle: number,
-) {
-  return {
-    x: originX + Math.cos(angle) * radius,
-    y: originY + Math.sin(angle) * radius,
-  };
-}
-
-function midpointAlongEdge(
-  start: { x: number; y: number },
-  end: { x: number; y: number },
-  progress: number,
-) {
-  return {
-    x: start.x + (end.x - start.x) * progress,
-    y: start.y + (end.y - start.y) * progress,
-  };
-}
-
-type Comparator = { kind: 'gt'; value: number } | { kind: 'lt'; value: number };
-
-function compare(value: number, comparator: Comparator) {
-  return comparator.kind === 'gt'
-    ? value > comparator.value
-    : value < comparator.value;
 }

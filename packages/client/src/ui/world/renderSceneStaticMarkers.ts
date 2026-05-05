@@ -12,6 +12,10 @@ import {
   structureIconFor,
 } from './worldIcons';
 import {
+  configureEntityBadgeSprite,
+  ENTITY_BADGE_BACKGROUND_COLORS,
+} from './renderSceneEntityBadge';
+import {
   configureShadowedSprite,
   takeShadowedSprite,
   takeText,
@@ -193,15 +197,38 @@ export function renderStaticMarkers({
             y: point.y - 2,
           };
       const markerSize = isBossCenter ? worldBossIconSize : enemyIconSize;
-      configureShadowedSprite(
-        sprite,
-        tint,
-        markerSize,
-        markerSize,
-        resolvedMarkerAlpha,
-        shadowOffset,
-        markerPoint,
-      );
+      if (isBossCenter) {
+        configureShadowedSprite(
+          sprite,
+          tint,
+          markerSize,
+          markerSize,
+          resolvedMarkerAlpha,
+          shadowOffset,
+          markerPoint,
+        );
+      } else {
+        configureEntityBadgeSprite(sprite, {
+          alpha: resolvedMarkerAlpha,
+          backgroundColor: ENTITY_BADGE_BACKGROUND_COLORS.enemy,
+          countLabel:
+            enemies.length >= 2 ? enemies.length.toString() : undefined,
+          hp: {
+            current: leadEnemy.hp,
+            max: leadEnemy.maxHp,
+          },
+          iconSize: markerSize,
+          iconTint: tint,
+          levelLabel: leadEnemy.tier.toString(),
+          mana: {
+            current: leadEnemy.mana ?? 0,
+            max: leadEnemy.maxMana ?? 0,
+          },
+          outerRadius: markerSize * 0.76,
+          point: markerPoint,
+          shadowOffset,
+        });
+      }
       registerAnimatedWorldMarker(
         scene,
         state.seed,
@@ -214,15 +241,6 @@ export function renderStaticMarkers({
         isBossCenter ? 'worldBoss' : 'enemy',
         resolvedMarkerAlpha,
       );
-
-      if (!isBossCenter && enemies.length >= 2) {
-        renderEnemyGroupBadge(
-          scene,
-          point,
-          enemies.length,
-          resolvedMarkerAlpha,
-        );
-      }
     }
   }
 

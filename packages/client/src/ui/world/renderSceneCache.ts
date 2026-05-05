@@ -40,9 +40,9 @@ const SCENE_CACHE_KEY = Symbol('renderSceneCache');
 const MAX_CLOUD_INPUT_CACHE_ENTRIES = 4;
 
 export const ENEMY_LEVEL_LABEL_STYLE = new TextStyle({
-  fill: 0xfef2f2,
-  fontSize: 12,
-  fontWeight: '700',
+  fill: 0x0f172a,
+  fontSize: 11,
+  fontWeight: '800',
 });
 
 export const ENEMY_GROUP_LABEL_STYLE = new TextStyle({

@@ -101,7 +101,7 @@ describe('renderScene movement cooldown', () => {
     const edgeSlope = (y2 - y1) / (x2 - x1);
     const expectedEdgeSlope = -1 / Math.sqrt(3);
     const hexSize = getWorldHexSize(app.screen, game.radius);
-    const expectedThickness = Math.max(3, hexSize * 1.58 * 0.075);
+    const expectedThickness = Math.max(3, hexSize * 0.95 * 0.075);
     const borderStart = {
       x: hexOriginX + Math.cos(Math.PI / 6) * hexSize,
       y: hexOriginY + Math.sin(Math.PI / 6) * hexSize,
