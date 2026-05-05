@@ -164,6 +164,52 @@ describe('renderScene combat feedback', () => {
     expect(getTextFill(lifestealText!)).toBe(HEALING_COLOR);
   });
 
+  it('does not apply lifesteal from the per-hit player on-hit helper', async () => {
+    const { applyPlayerOnHitEffects } = await import('../../game/combatStatus');
+    const game = createGame(2, 'render-scene-lifesteal-on-hit-helper');
+    const enemyId = 'enemy-1,0-0';
+
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'forest',
+      items: [],
+      enemyIds: [enemyId],
+    };
+    game.enemies[enemyId] = {
+      id: enemyId,
+      enemyTypeId: 'raider',
+      name: 'Raider',
+      coord: { q: 1, r: 0 },
+      rarity: 'common',
+      tier: 2,
+      hp: 20,
+      maxHp: 20,
+      mana: 0,
+      maxMana: 0,
+      attack: 3,
+      defense: 0,
+      xp: 5,
+      elite: false,
+    };
+
+    const playerStats = {
+      ...getPlayerCombatStats(game.player),
+      lifestealAmount: 12,
+      lifestealChance: 100,
+    };
+    game.player.hp = Math.max(1, playerStats.maxHp - 6);
+    const initialHp = game.player.hp;
+
+    applyPlayerOnHitEffects(game, game.enemies[enemyId]!, 6, playerStats);
+
+    const healingEvents = game.worldFloatingTextEvents.filter(
+      (event) => event.kind === 'healing' && event.anchor.kind === 'player',
+    );
+
+    expect(game.player.hp).toBe(initialHp);
+    expect(healingEvents).toHaveLength(0);
+  });
+
   it('renders enemy floating text only when a real hostile marker anchor exists', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-floating-text-anchor-scope');

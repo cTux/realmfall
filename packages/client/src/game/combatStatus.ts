@@ -122,7 +122,6 @@ export function applyPlayerOnHitEffects(
 ) {
   if (damage <= 0) return;
 
-  applyLifesteal(state, damage, playerStats);
   applyStatusProcToEnemy(
     state,
     enemy,
