@@ -33,6 +33,9 @@ const INTERFACE_FONT_DEFINITIONS = {
 
 export const DEFAULT_INTERFACE_FONT_FAMILY: InterfaceFontFamily =
   'pixelifySans';
+let appliedInterfaceFontStack = resolveInterfaceFontStack(
+  DEFAULT_INTERFACE_FONT_FAMILY,
+);
 
 export const INTERFACE_FONT_OPTIONS: InterfaceFontOptionDefinition[] = [
   {
@@ -59,14 +62,36 @@ export function resolveInterfaceFontStack(fontFamily: InterfaceFontFamily) {
   return INTERFACE_FONT_DEFINITIONS[fontFamily].stack;
 }
 
+export function getAppliedInterfaceFontStack() {
+  const fallback = appliedInterfaceFontStack;
+  if (typeof document === 'undefined') {
+    return fallback;
+  }
+
+  const inlineStack = document.documentElement.style
+    .getPropertyValue(APP_FONT_CSS_VARIABLE)
+    .trim();
+  if (inlineStack.length > 0) {
+    return inlineStack;
+  }
+
+  const computedStack = globalThis
+    .getComputedStyle?.(document.documentElement)
+    ?.getPropertyValue(APP_FONT_CSS_VARIABLE)
+    .trim();
+
+  return computedStack && computedStack.length > 0 ? computedStack : fallback;
+}
+
 export function applyInterfaceFontFamily(fontFamily: InterfaceFontFamily) {
+  appliedInterfaceFontStack = resolveInterfaceFontStack(fontFamily);
   if (typeof document === 'undefined') {
     return;
   }
 
   document.documentElement.style.setProperty(
     APP_FONT_CSS_VARIABLE,
-    resolveInterfaceFontStack(fontFamily),
+    appliedInterfaceFontStack,
   );
 }
 

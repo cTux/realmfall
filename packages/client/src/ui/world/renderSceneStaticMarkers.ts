@@ -14,6 +14,9 @@ import {
 import {
   configureEntityBadgeSprite,
   ENTITY_BADGE_BACKGROUND_COLORS,
+  ENTITY_BADGE_RADIUS_SCALE,
+  ENTITY_BADGE_STRUCTURE_BACKGROUND_ALPHA,
+  ENTITY_BADGE_STRUCTURE_BORDER_WIDTH,
 } from './renderSceneEntityBadge';
 import {
   configureShadowedSprite,
@@ -32,6 +35,10 @@ import {
   isUnknownVisibleWorldTile,
   type VisibleWorldTile,
 } from './visibleWorldTiles';
+
+const STRUCTURE_BADGE_RADIUS_SCALE = 0.7;
+const STRUCTURE_BADGE_ICON_SCALE = 0.6;
+const WORLD_BOSS_ICON_SCALE = 0.92 * 0.8 * 0.8 * 1.1 * 1.1 * 1.05 * 1.05;
 
 export function renderStaticMarkers({
   animationMs,
@@ -106,23 +113,31 @@ export function renderStaticMarkers({
       },
     );
     const tint = getStructureHexIconTint(tile.structure);
-    configureShadowedSprite(
-      marker,
-      tint,
-      structureIconSize,
-      structureIconSize,
-      resolvedMarkerAlpha,
-      shadowOffset,
+    const structureBadgeIconSize =
+      structureIconSize * STRUCTURE_BADGE_ICON_SCALE;
+    configureEntityBadgeSprite(marker, {
+      alpha: resolvedMarkerAlpha,
+      backgroundAlpha: ENTITY_BADGE_STRUCTURE_BACKGROUND_ALPHA,
+      backgroundColor: ENTITY_BADGE_BACKGROUND_COLORS.default,
+      borderWidth: ENTITY_BADGE_STRUCTURE_BORDER_WIDTH,
+      iconSize: structureBadgeIconSize,
+      iconTint: tint,
+      outerRadius:
+        structureIconSize *
+        0.76 *
+        ENTITY_BADGE_RADIUS_SCALE *
+        STRUCTURE_BADGE_RADIUS_SCALE,
       point,
-    );
+      shadowOffset,
+    });
     registerAnimatedWorldMarker(
       scene,
       state.seed,
       tile.coord,
       marker,
       point,
-      structureIconSize,
-      structureIconSize,
+      structureBadgeIconSize,
+      structureBadgeIconSize,
       tint,
       'resource',
       resolvedMarkerAlpha,
@@ -197,46 +212,37 @@ export function renderStaticMarkers({
             y: point.y - 2,
           };
       const markerSize = isBossCenter ? worldBossIconSize : enemyIconSize;
-      if (isBossCenter) {
-        configureShadowedSprite(
-          sprite,
-          tint,
-          markerSize,
-          markerSize,
-          resolvedMarkerAlpha,
-          shadowOffset,
-          markerPoint,
-        );
-      } else {
-        configureEntityBadgeSprite(sprite, {
-          alpha: resolvedMarkerAlpha,
-          backgroundColor: ENTITY_BADGE_BACKGROUND_COLORS.enemy,
-          countLabel:
-            enemies.length >= 2 ? enemies.length.toString() : undefined,
-          hp: {
-            current: leadEnemy.hp,
-            max: leadEnemy.maxHp,
-          },
-          iconSize: markerSize,
-          iconTint: tint,
-          levelLabel: leadEnemy.tier.toString(),
-          mana: {
-            current: leadEnemy.mana ?? 0,
-            max: leadEnemy.maxMana ?? 0,
-          },
-          outerRadius: markerSize * 0.76,
-          point: markerPoint,
-          shadowOffset,
-        });
-      }
+      const markerIconSize = isBossCenter
+        ? markerSize * WORLD_BOSS_ICON_SCALE
+        : markerSize;
+      configureEntityBadgeSprite(sprite, {
+        alpha: resolvedMarkerAlpha,
+        backgroundColor: ENTITY_BADGE_BACKGROUND_COLORS.enemy,
+        countLabel: enemies.length >= 2 ? enemies.length.toString() : undefined,
+        hp: {
+          current: leadEnemy.hp,
+          max: leadEnemy.maxHp,
+        },
+        iconSize: markerIconSize,
+        iconTint: tint,
+        levelLabel: leadEnemy.tier.toString(),
+        mana: {
+          current: leadEnemy.mana ?? 0,
+          max: leadEnemy.maxMana ?? 0,
+        },
+        outerRadius:
+          markerSize * (isBossCenter ? 0.58 : 0.76) * ENTITY_BADGE_RADIUS_SCALE,
+        point: markerPoint,
+        shadowOffset,
+      });
       registerAnimatedWorldMarker(
         scene,
         state.seed,
         tile.coord,
         sprite,
         markerPoint,
-        markerSize,
-        markerSize,
+        markerIconSize,
+        markerIconSize,
         tint,
         isBossCenter ? 'worldBoss' : 'enemy',
         resolvedMarkerAlpha,

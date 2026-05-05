@@ -6,6 +6,7 @@ import {
   getBadgeLayer,
   getLabelsLayer,
   getMarkerLayer,
+  MockContainer,
   MockGraphics,
   MockSprite,
   MockText,
@@ -15,6 +16,15 @@ import {
 } from './renderSceneTestHelpers';
 
 setupRenderSceneTestEnvironment();
+
+const ENEMY_BACKGROUND_COLOR = 0x2a0505;
+const ENEMY_HEALTH_TRACK_COLOR = 0x450a0a;
+const ENEMY_MANA_TRACK_COLOR = 0x172554;
+const BADGE_PLATE_BACKGROUND_COLOR = 0x000000;
+const BADGE_PLATE_TEXT_COLOR = 0xffffff;
+const STRUCTURE_BACKGROUND_COLOR = 0x123524;
+const STRUCTURE_BACKGROUND_ALPHA = 0.4;
+const STRUCTURE_BORDER_COLOR = 0x000000;
 
 function createEnemyMarkerGame(
   seed: string,
@@ -127,6 +137,8 @@ describe('renderScene enemy markers', () => {
 
     const markerLayer = getMarkerLayer(app);
     const villageIcon = WorldIcons.Village;
+    const townIcon = structureIconFor('town');
+    const oreIcon = structureIconFor('copper-ore');
     const rareEnemyMarker = collectDescendants(markerLayer).find(
       (child) =>
         child instanceof MockSprite &&
@@ -143,14 +155,16 @@ describe('renderScene enemy markers', () => {
     );
     const copperOreMarker = collectDescendants(markerLayer).find(
       (child) =>
-        child instanceof MockSprite &&
-        child.icon === structureIconFor('copper-ore') &&
-        child.visible,
+        child instanceof MockSprite && child.icon === oreIcon && child.visible,
     );
+    const townWrapper = findMarkerWrapperByIcon(markerLayer, townIcon);
+    const oreWrapper = findMarkerWrapperByIcon(markerLayer, oreIcon);
 
     expect(rareEnemyMarker).toBeDefined();
     expect(whiteStructureMarker).toBeDefined();
     expect(copperOreMarker).toBeDefined();
+    assertStructureBadgeWrapper(townWrapper);
+    assertStructureBadgeWrapper(oreWrapper);
   });
 
   it('updates a cached enemy marker tint when only visible enemy rarity changes', async () => {
@@ -284,7 +298,21 @@ describe('renderScene enemy markers', () => {
       12 * 60,
     );
 
-    const markerDescendants = collectDescendants(getMarkerLayer(app));
+    const markerLayer = getMarkerLayer(app);
+    const badgeWrapper = markerLayer.children.find((child) => {
+      if (!(child instanceof MockContainer)) {
+        return false;
+      }
+
+      const texts = collectDescendants(child).filter(
+        (descendant): descendant is MockText => descendant instanceof MockText,
+      );
+      return (
+        texts.some((text) => text.text === '2' && text.position.y < 0) &&
+        texts.some((text) => text.text === '3' && text.position.y > 0)
+      );
+    }) as MockContainer | undefined;
+    const markerDescendants = collectDescendants(badgeWrapper ?? markerLayer);
     const badgeGraphics = markerDescendants.filter(
       (child): child is MockGraphics =>
         child instanceof MockGraphics && child.visible,
@@ -292,25 +320,93 @@ describe('renderScene enemy markers', () => {
     const badgeTexts = markerDescendants.filter(
       (child): child is MockText => child instanceof MockText,
     );
+    const backgroundGraphic = findBadgeBackground(
+      badgeGraphics,
+      ENEMY_BACKGROUND_COLOR,
+    );
+    const badgePlateGraphic = badgeGraphics.find(
+      (graphic) => graphic.drawRect.mock.calls.length > 0,
+    );
+    const levelText = badgeTexts.find(
+      (child) => child.text === '2' && child.position.y < 0,
+    );
+    const countText = badgeTexts.find(
+      (child) => child.text === '3' && child.position.y > 0,
+    );
+    const healthTrack = findMarkerArc(
+      badgeGraphics,
+      ENEMY_HEALTH_TRACK_COLOR,
+      'top',
+    );
+    const badgeSprites = markerDescendants.filter(
+      (child): child is MockSprite => child instanceof MockSprite,
+    );
+    const badgeSprite = badgeSprites[badgeSprites.length - 1];
 
+    expect(backgroundGraphic).toBeDefined();
+    expect(backgroundGraphic?.lineStyle).not.toHaveBeenCalled();
+    expect(getEllipseRadius(backgroundGraphic!)).toBeLessThan(
+      (badgeSprite?.width ?? Number.POSITIVE_INFINITY) * 0.7,
+    );
+    expect(levelText).toBeDefined();
+    expect(levelText?.scale.x).toBeLessThanOrEqual(0.6);
+    expect(levelText?.scale.y).toBeLessThanOrEqual(0.6);
+    expect(getTextFill(levelText!)).toBe(BADGE_PLATE_TEXT_COLOR);
+    expect(levelText?.position.y).toBeGreaterThan(
+      -getEllipseRadius(backgroundGraphic!),
+    );
+    expect(countText).toBeDefined();
+    expect(countText?.scale.x).toBeLessThanOrEqual(0.6);
+    expect(countText?.scale.y).toBeLessThanOrEqual(0.6);
+    expect(getTextFill(countText!)).toBe(BADGE_PLATE_TEXT_COLOR);
+    expect(countText?.position.y).toBeLessThan(
+      getEllipseRadius(backgroundGraphic!),
+    );
+    expect(badgePlateGraphic).toBeDefined();
     expect(
-      badgeGraphics.some(
-        (graphic) =>
-          graphic.drawEllipse.mock.calls.length > 0 &&
-          graphic.beginFill.mock.calls.some(
-            ([fillColor]) => fillColor === 0xef4444,
-          ),
+      badgePlateGraphic?.beginFill.mock.calls.some(
+        ([fillColor]) => fillColor === BADGE_PLATE_BACKGROUND_COLOR,
       ),
     ).toBe(true);
+    expect(badgePlateGraphic?.lineStyle).not.toHaveBeenCalled();
     expect(
-      badgeTexts.some((child) => child.text === '2' && child.position.y < 0),
+      badgePlateGraphic?.drawRect.mock.calls.every(
+        ([, , , height]) => (height as number) <= 10,
+      ),
     ).toBe(true);
+    expect(healthTrack).toBeDefined();
     expect(
-      badgeTexts.some((child) => child.text === '3' && child.position.y > 0),
-    ).toBe(true);
-    expect(findMarkerArc(badgeGraphics, 0x7f1d1d, 'top')).toBeDefined();
+      getGraphicThickness(healthTrack!) / getMaxGraphicRadius(healthTrack!),
+    ).toBeLessThanOrEqual(0.1);
+    expect(
+      getMaxGraphicRadius(healthTrack!) - getEllipseRadius(backgroundGraphic!),
+    ).toBeCloseTo(0, 3);
+    assertPlateOverlapsRingCenter(
+      badgePlateGraphic!,
+      healthTrack!,
+      badgeTexts.find((child) => child.text === '2' && child.position.y < 0)
+        ? 'top'
+        : 'bottom',
+    );
+    const manaTrack = findMarkerArc(
+      badgeGraphics,
+      ENEMY_MANA_TRACK_COLOR,
+      'bottom',
+    );
+    expect(manaTrack).toBeDefined();
+    assertPlateOverlapsRingCenter(badgePlateGraphic!, manaTrack!, 'bottom');
+    expect(levelText?.position.y).toBeCloseTo(
+      -getGraphicCenterRadius(healthTrack!),
+      1,
+    );
+    expect(countText?.position.y).toBeCloseTo(
+      getGraphicCenterRadius(manaTrack!),
+      1,
+    );
+    expect(
+      findMarkerArc(badgeGraphics, ENEMY_HEALTH_TRACK_COLOR, 'top'),
+    ).toBeDefined();
     expect(findMarkerArc(badgeGraphics, 0xff2d55, 'top')).toBeDefined();
-    expect(findMarkerArc(badgeGraphics, 0x1e40af, 'bottom')).toBeDefined();
     expect(findMarkerArc(badgeGraphics, 0x38bdf8, 'bottom')).toBeDefined();
   });
 
@@ -405,4 +501,135 @@ function findMarkerArc(
       return hemisphere === 'top' ? averageY < 0 : averageY > 0;
     });
   });
+}
+
+function findBadgeBackground(graphics: MockGraphics[], color: number) {
+  return graphics.find(
+    (graphic) =>
+      graphic.drawEllipse.mock.calls.length > 0 &&
+      graphic.beginFill.mock.calls.some(([fillColor]) => fillColor === color),
+  );
+}
+
+function getEllipseRadius(graphic: MockGraphics) {
+  const [, , radiusX] = graphic.drawEllipse.mock.calls[0] as [
+    number,
+    number,
+    number,
+    number,
+  ];
+  return radiusX;
+}
+
+function getMaxGraphicRadius(graphic: MockGraphics) {
+  return Math.max(
+    ...graphic.drawPolygon.mock.calls.flatMap(([points]) => {
+      const numericPoints = points as number[];
+      const radii: number[] = [];
+      for (let index = 0; index < numericPoints.length; index += 2) {
+        radii.push(
+          Math.hypot(numericPoints[index] ?? 0, numericPoints[index + 1] ?? 0),
+        );
+      }
+      return radii;
+    }),
+  );
+}
+
+function getMinGraphicRadius(graphic: MockGraphics) {
+  return Math.min(
+    ...graphic.drawPolygon.mock.calls.flatMap(([points]) => {
+      const numericPoints = points as number[];
+      const radii: number[] = [];
+      for (let index = 0; index < numericPoints.length; index += 2) {
+        radii.push(
+          Math.hypot(numericPoints[index] ?? 0, numericPoints[index + 1] ?? 0),
+        );
+      }
+      return radii;
+    }),
+  );
+}
+
+function getGraphicThickness(graphic: MockGraphics) {
+  return getMaxGraphicRadius(graphic) - getMinGraphicRadius(graphic);
+}
+
+function getGraphicCenterRadius(graphic: MockGraphics) {
+  return (getMaxGraphicRadius(graphic) + getMinGraphicRadius(graphic)) / 2;
+}
+
+function assertPlateOverlapsRingCenter(
+  graphic: MockGraphics,
+  ringGraphic: MockGraphics,
+  placement: 'bottom' | 'top',
+) {
+  const ringCenter =
+    (placement === 'top' ? -1 : 1) * getGraphicCenterRadius(ringGraphic);
+
+  expect(
+    graphic.drawRect.mock.calls.some(([, y, , height]) => {
+      const plateTop = y as number;
+      const plateBottom = (y as number) + (height as number);
+      return plateTop < ringCenter && plateBottom > ringCenter;
+    }),
+  ).toBe(true);
+}
+
+function getTextFill(text: MockText) {
+  return (text.style as { value?: { fill?: number } }).value?.fill;
+}
+
+function findMarkerWrapperByIcon(markerLayer: MockContainer, icon: string) {
+  return markerLayer.children.find((child) => {
+    if (!(child instanceof MockContainer)) {
+      return false;
+    }
+
+    return collectDescendants(child).some(
+      (descendant) =>
+        descendant instanceof MockSprite && descendant.icon === icon,
+    );
+  }) as MockContainer | undefined;
+}
+
+function assertStructureBadgeWrapper(wrapper: MockContainer | undefined) {
+  expect(wrapper).toBeDefined();
+  const descendants = collectDescendants(wrapper!);
+  const graphics = descendants.filter(
+    (child): child is MockGraphics => child instanceof MockGraphics,
+  );
+  const sprites = descendants.filter(
+    (child): child is MockSprite => child instanceof MockSprite,
+  );
+  const background = graphics.find(
+    (graphic) =>
+      graphic.drawEllipse.mock.calls.length > 0 &&
+      graphic.beginFill.mock.calls.some(
+        ([fillColor, alpha]) =>
+          fillColor === STRUCTURE_BACKGROUND_COLOR &&
+          alpha === STRUCTURE_BACKGROUND_ALPHA,
+      ),
+  );
+
+  expect(background).toBeDefined();
+  expect(background?.lineStyle).toHaveBeenCalledWith(
+    1,
+    STRUCTURE_BORDER_COLOR,
+    1,
+  );
+  const mainSprite = sprites[sprites.length - 1];
+  expect(mainSprite).toBeDefined();
+  expect(mainSprite?.width ?? 0).toBeLessThan(50);
+  expect(mainSprite?.height ?? 0).toBeLessThan(50);
+  expect(getEllipseRadius(background!)).toBeLessThan(40);
+  expect((mainSprite?.width ?? 0) / getEllipseRadius(background!)).toBeLessThan(
+    1.3,
+  );
+  expect(
+    graphics.every((graphic) => graphic.drawPolygon.mock.calls.length === 0),
+  ).toBe(true);
+  expect(
+    graphics.every((graphic) => graphic.drawRect.mock.calls.length === 0),
+  ).toBe(true);
 }

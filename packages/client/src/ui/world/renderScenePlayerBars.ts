@@ -7,6 +7,7 @@ import { WORLD_MOVE_HEX_COOLDOWN_MS } from '../../game/config';
 import {
   decorateEntityBadge,
   ENTITY_BADGE_BACKGROUND_COLORS,
+  ENTITY_BADGE_RADIUS_SCALE,
 } from './renderSceneEntityBadge';
 import {
   getVisibleTileRevealState,
@@ -165,7 +166,8 @@ export function renderPlayerResourceBars({
       current: playerCombatStats.mana,
       max: playerCombatStats.maxMana,
     },
-    outerRadius: Math.max(18, playerIconSize * 0.78),
+    outerRadius:
+      Math.max(18, playerIconSize * 0.78) * ENTITY_BADGE_RADIUS_SCALE,
   });
 }
 

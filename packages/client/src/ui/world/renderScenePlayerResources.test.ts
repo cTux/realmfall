@@ -5,17 +5,20 @@ import {
   createMockApp,
   getPlayerLayer,
   MockGraphics,
+  MockSprite,
   MockText,
   setupRenderSceneTestEnvironment,
 } from './renderSceneTestHelpers';
 
 setupRenderSceneTestEnvironment();
 
-const PLAYER_BACKGROUND_COLOR = 0x22d3ee;
-const PLAYER_HEALTH_TRACK_COLOR = 0x7f1d1d;
+const PLAYER_BACKGROUND_COLOR = 0x041821;
+const PLAYER_HEALTH_TRACK_COLOR = 0x450a0a;
 const PLAYER_HEALTH_FILL_COLOR = 0xff2d55;
-const PLAYER_MANA_TRACK_COLOR = 0x1e40af;
+const PLAYER_MANA_TRACK_COLOR = 0x172554;
 const PLAYER_MANA_FILL_COLOR = 0x38bdf8;
+const BADGE_PLATE_BACKGROUND_COLOR = 0x000000;
+const BADGE_PLATE_TEXT_COLOR = 0xffffff;
 
 describe('renderScene player resource bars', () => {
   beforeEach(() => {
@@ -34,14 +37,17 @@ describe('renderScene player resource bars', () => {
     vi.unstubAllGlobals();
   });
 
-  it('renders the player inside a cyan circular badge with top HP, bottom MP, and a level plate', async () => {
+  it('renders the player inside a darker circular badge with top HP, bottom MP, and a level plate', async () => {
     const { renderScene } = await import('./renderScene');
+    const { applyInterfaceFontFamily, resolveInterfaceFontStack } =
+      await import('../../app/interfaceFonts');
     const game = createGame(2, 'render-scene-player-resources');
     const app = createMockApp();
     game.player.baseMaxHp = 100;
     game.player.hp = 50;
     game.player.baseMaxMana = 20;
     game.player.mana = 5;
+    applyInterfaceFontFamily('ubuntu');
 
     renderScene(
       app as never,
@@ -61,25 +67,64 @@ describe('renderScene player resource bars', () => {
     const playerTexts = playerLayerEntries.filter(
       (child): child is MockText => child instanceof MockText && child.visible,
     );
+    const playerSprites = playerLayerEntries.filter(
+      (child): child is MockSprite => child instanceof MockSprite,
+    );
+    const playerSprite = playerSprites[playerSprites.length - 1];
+    const backgroundGraphic = findBadgeBackground(resourceGraphics);
+    const levelText = playerTexts.find(
+      (child) =>
+        child.text === game.player.level.toString() && child.position.y < 0,
+    );
+    const levelPlateGraphic = findBadgePlate(resourceGraphics);
+    const healthTrack = findHemisphereArc(
+      resourceGraphics,
+      PLAYER_HEALTH_TRACK_COLOR,
+      'top',
+    );
 
+    expect(backgroundGraphic).toBeDefined();
     expect(
-      resourceGraphics.some(
-        (graphic) =>
-          graphic.drawEllipse.mock.calls.length > 0 &&
-          graphic.beginFill.mock.calls.some(
-            ([fillColor]) => fillColor === PLAYER_BACKGROUND_COLOR,
-          ),
+      backgroundGraphic?.beginFill.mock.calls.some(
+        ([fillColor]) => fillColor === PLAYER_BACKGROUND_COLOR,
       ),
     ).toBe(true);
+    expect(backgroundGraphic?.lineStyle).not.toHaveBeenCalled();
+    expect(levelText).toBeDefined();
+    expect(levelText?.scale.x).toBeLessThanOrEqual(0.6);
+    expect(levelText?.scale.y).toBeLessThanOrEqual(0.6);
+    expect(getTextFill(levelText!)).toBe(BADGE_PLATE_TEXT_COLOR);
+    expect(getTextFontFamily(levelText!)).toBe(
+      resolveInterfaceFontStack('ubuntu'),
+    );
+    expect(levelPlateGraphic).toBeDefined();
     expect(
-      playerTexts.some(
-        (child) =>
-          child.text === game.player.level.toString() && child.position.y < 0,
+      levelPlateGraphic?.beginFill.mock.calls.some(
+        ([fillColor]) => fillColor === BADGE_PLATE_BACKGROUND_COLOR,
       ),
     ).toBe(true);
+    expect(levelPlateGraphic?.lineStyle).not.toHaveBeenCalled();
     expect(
-      findHemisphereArc(resourceGraphics, PLAYER_HEALTH_TRACK_COLOR, 'top'),
-    ).toBeDefined();
+      levelPlateGraphic?.drawRect.mock.calls.every(
+        ([, , , height]) => (height as number) <= 10,
+      ),
+    ).toBe(true);
+    expect(levelPlateGraphic).toBeDefined();
+    expect(getEllipseRadius(backgroundGraphic!)).toBeLessThan(
+      (playerSprite?.width ?? Number.POSITIVE_INFINITY) * 0.72,
+    );
+    expect(healthTrack).toBeDefined();
+    expect(
+      getGraphicThickness(healthTrack!) / getMaxGraphicRadius(healthTrack!),
+    ).toBeLessThanOrEqual(0.1);
+    expect(
+      getMaxGraphicRadius(healthTrack!) - getEllipseRadius(backgroundGraphic!),
+    ).toBeCloseTo(0, 3);
+    assertPlateOverlapsRingCenter(levelPlateGraphic!, healthTrack!, 'top');
+    expect(levelText?.position.y).toBeCloseTo(
+      -getGraphicCenterRadius(healthTrack!),
+      1,
+    );
     expect(
       findHemisphereArc(resourceGraphics, PLAYER_HEALTH_FILL_COLOR, 'top'),
     ).toBeDefined();
@@ -89,6 +134,8 @@ describe('renderScene player resource bars', () => {
     expect(
       findHemisphereArc(resourceGraphics, PLAYER_MANA_FILL_COLOR, 'bottom'),
     ).toBeDefined();
+
+    applyInterfaceFontFamily('pixelifySans');
   });
 
   it('keeps the top and bottom resource tracks visible when the player resource values are empty', async () => {
@@ -238,4 +285,92 @@ function findHemisphereArc(
       return hemisphere === 'top' ? averageY < 0 : averageY > 0;
     });
   });
+}
+
+function findBadgeBackground(graphics: MockGraphics[]) {
+  return graphics.find((graphic) =>
+    graphic.beginFill.mock.calls.some(
+      ([fillColor]) => fillColor === PLAYER_BACKGROUND_COLOR,
+    ),
+  );
+}
+
+function findBadgePlate(graphics: MockGraphics[]) {
+  return graphics.find((graphic) => graphic.drawRect.mock.calls.length > 0);
+}
+
+function getEllipseRadius(graphic: MockGraphics) {
+  const [, , radiusX] = graphic.drawEllipse.mock.calls[0] as [
+    number,
+    number,
+    number,
+    number,
+  ];
+  return radiusX;
+}
+
+function getMaxGraphicRadius(graphic: MockGraphics) {
+  return Math.max(
+    ...graphic.drawPolygon.mock.calls.flatMap(([points]) => {
+      const numericPoints = points as number[];
+      const radii: number[] = [];
+      for (let index = 0; index < numericPoints.length; index += 2) {
+        radii.push(
+          Math.hypot(numericPoints[index] ?? 0, numericPoints[index + 1] ?? 0),
+        );
+      }
+      return radii;
+    }),
+  );
+}
+
+function getMinGraphicRadius(graphic: MockGraphics) {
+  return Math.min(
+    ...graphic.drawPolygon.mock.calls.flatMap(([points]) => {
+      const numericPoints = points as number[];
+      const radii: number[] = [];
+      for (let index = 0; index < numericPoints.length; index += 2) {
+        radii.push(
+          Math.hypot(numericPoints[index] ?? 0, numericPoints[index + 1] ?? 0),
+        );
+      }
+      return radii;
+    }),
+  );
+}
+
+function getGraphicThickness(graphic: MockGraphics) {
+  return getMaxGraphicRadius(graphic) - getMinGraphicRadius(graphic);
+}
+
+function getGraphicCenterRadius(graphic: MockGraphics) {
+  return (getMaxGraphicRadius(graphic) + getMinGraphicRadius(graphic)) / 2;
+}
+
+function assertPlateOverlapsRingCenter(
+  graphic: MockGraphics,
+  ringGraphic: MockGraphics,
+  placement: 'bottom' | 'top',
+) {
+  const [, y, , height] = graphic.drawRect.mock.calls[0] as [
+    number,
+    number,
+    number,
+    number,
+  ];
+  const plateTop = y;
+  const plateBottom = y + height;
+  const ringCenter =
+    (placement === 'top' ? -1 : 1) * getGraphicCenterRadius(ringGraphic);
+
+  expect(plateTop).toBeLessThan(ringCenter);
+  expect(plateBottom).toBeGreaterThan(ringCenter);
+}
+
+function getTextFill(text: MockText) {
+  return (text.style as { value?: { fill?: number } }).value?.fill;
+}
+
+function getTextFontFamily(text: MockText) {
+  return (text.style as { value?: { fontFamily?: string } }).value?.fontFamily;
 }

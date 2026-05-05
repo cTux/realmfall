@@ -5,6 +5,7 @@ import {
   TextStyle,
   type Application,
 } from 'pixi.js';
+import { getAppliedInterfaceFontStack } from '../../app/interfaceFonts';
 import type { CloudRenderInput } from './renderSceneEnvironment';
 import { WorldIcons } from './worldIcons';
 import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
@@ -40,7 +41,7 @@ const SCENE_CACHE_KEY = Symbol('renderSceneCache');
 const MAX_CLOUD_INPUT_CACHE_ENTRIES = 4;
 
 export const ENEMY_LEVEL_LABEL_STYLE = new TextStyle({
-  fill: 0x0f172a,
+  fill: 0xffffff,
   fontSize: 11,
   fontWeight: '800',
 });
@@ -57,6 +58,8 @@ export const ENEMY_GROUP_LABEL_STYLE = new TextStyle({
 });
 
 type CachedApplication = Application & { [SCENE_CACHE_KEY]?: SceneCache };
+
+const enemyLevelLabelStylesByFont = new Map<string, TextStyle>();
 
 export interface SceneCache {
   skyFill: Graphics;
@@ -106,6 +109,7 @@ export interface SceneCache {
   derivedRenderPlayerCoordKey: string | null;
   derivedRenderHomeHexKey: string | null;
   derivedRenderBloodMoonActive: boolean | null;
+  derivedRenderInterfaceFontStack: string | null;
   derivedRenderIconTextureVersion: number | null;
   derivedStaticRenderToken: number | null;
   derivedInteractionRenderToken: number | null;
@@ -241,6 +245,7 @@ export function getSceneCache(app: Application) {
     derivedRenderPlayerCoordKey: null,
     derivedRenderHomeHexKey: null,
     derivedRenderBloodMoonActive: null,
+    derivedRenderInterfaceFontStack: null,
     derivedRenderIconTextureVersion: null,
     derivedStaticRenderToken: null,
     derivedInteractionRenderToken: null,
@@ -364,6 +369,23 @@ export function getCachedValue<K, V>(cache: Map<K, V>, key: K) {
   cache.delete(key);
   cache.set(key, value);
   return value;
+}
+
+export function getEnemyLevelLabelStyle() {
+  const fontFamily = getAppliedInterfaceFontStack();
+  const cachedStyle = enemyLevelLabelStylesByFont.get(fontFamily);
+  if (cachedStyle) {
+    return cachedStyle;
+  }
+
+  const style = new TextStyle({
+    fill: 0xffffff,
+    fontFamily,
+    fontSize: 11,
+    fontWeight: '800',
+  });
+  enemyLevelLabelStylesByFont.set(fontFamily, style);
+  return style;
 }
 
 export function setBoundedCachedValue<K, V>(

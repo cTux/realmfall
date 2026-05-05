@@ -1,46 +1,56 @@
-import { ENEMY_LEVEL_LABEL_STYLE } from './renderSceneCache';
+import { getEnemyLevelLabelStyle } from './renderSceneCache';
 import {
   configureShadowedSprite,
   resetShadowedSpriteBadge,
   setTextPosition,
+  setTextScale,
   type ShadowedSpriteEntry,
 } from './renderScenePools';
 
-const ENTITY_BADGE_BORDER_COLOR = 0x020617;
-const ENTITY_BADGE_PLATE_FILL = 0xf8fafc;
+const ENTITY_BADGE_PLATE_FILL = 0x000000;
 const ENTITY_BADGE_BACKGROUND_ALPHA = 0.94;
 const ENTITY_BADGE_ARC_ALPHA = 0.98;
 const ENTITY_BADGE_ARC_TRACK_ALPHA = 0.94;
-const ENTITY_BADGE_ARC_INSET = 2;
-const ENTITY_BADGE_MIN_ARC_THICKNESS = 4;
-const ENTITY_BADGE_ARC_THICKNESS_RATIO = 0.18;
-const ENTITY_BADGE_PLATE_HEIGHT_RATIO = 0.34;
-const ENTITY_BADGE_MIN_PLATE_HEIGHT = 16;
-const ENTITY_BADGE_PLATE_TEXT_PADDING = 12;
+const ENTITY_BADGE_ARC_INSET = 0;
+const ENTITY_BADGE_MIN_ARC_THICKNESS = 2;
+const ENTITY_BADGE_ARC_THICKNESS_RATIO = 0.09;
+const ENTITY_BADGE_PLATE_HEIGHT_RATIO = 0.18;
+const ENTITY_BADGE_MIN_PLATE_HEIGHT = 8;
+const ENTITY_BADGE_PLATE_TEXT_PADDING = 6;
+const ENTITY_BADGE_PLATE_CHAR_WIDTH = 4;
+const ENTITY_BADGE_PLATE_TEXT_SCALE = 0.55;
+const ENTITY_BADGE_BORDER_COLOR = 0x000000;
+
+export const ENTITY_BADGE_RADIUS_SCALE = 0.9;
+export const ENTITY_BADGE_STRUCTURE_BACKGROUND_ALPHA = 0.4;
+export const ENTITY_BADGE_STRUCTURE_BORDER_WIDTH = 1;
 
 export const ENTITY_BADGE_BACKGROUND_COLORS = {
-  default: 0x22c55e,
-  enemy: 0xef4444,
-  player: 0x22d3ee,
+  default: 0x123524,
+  enemy: 0x2a0505,
+  player: 0x041821,
 } as const;
 
 export const ENTITY_BADGE_HP_FILL_COLOR = 0xff2d55;
-export const ENTITY_BADGE_HP_TRACK_COLOR = 0x7f1d1d;
+export const ENTITY_BADGE_HP_TRACK_COLOR = 0x450a0a;
 export const ENTITY_BADGE_MP_FILL_COLOR = 0x38bdf8;
-export const ENTITY_BADGE_MP_TRACK_COLOR = 0x1e40af;
+export const ENTITY_BADGE_MP_TRACK_COLOR = 0x172554;
 
 interface EntityBadgeOptions {
   alpha: number;
   backgroundColor: number;
+  backgroundAlpha?: number;
+  borderColor?: number;
+  borderWidth?: number;
   countLabel?: string;
-  hp: {
+  hp?: {
     current: number;
     max: number;
   };
   iconSize: number;
   iconTint: number;
   levelLabel?: string;
-  mana: {
+  mana?: {
     current: number;
     max: number;
   };
@@ -52,13 +62,16 @@ interface EntityBadgeOptions {
 interface EntityBadgeDecorationOptions {
   alpha: number;
   backgroundColor: number;
+  backgroundAlpha?: number;
+  borderColor?: number;
+  borderWidth?: number;
   countLabel?: string;
-  hp: {
+  hp?: {
     current: number;
     max: number;
   };
   levelLabel?: string;
-  mana: {
+  mana?: {
     current: number;
     max: number;
   };
@@ -70,6 +83,9 @@ export function configureEntityBadgeSprite(
   {
     alpha,
     backgroundColor,
+    backgroundAlpha,
+    borderColor,
+    borderWidth,
     countLabel,
     hp,
     iconSize,
@@ -93,6 +109,9 @@ export function configureEntityBadgeSprite(
   decorateEntityBadge(entry, {
     alpha,
     backgroundColor,
+    backgroundAlpha,
+    borderColor,
+    borderWidth,
     countLabel,
     hp,
     levelLabel,
@@ -106,6 +125,9 @@ export function decorateEntityBadge(
   {
     alpha,
     backgroundColor,
+    backgroundAlpha,
+    borderColor,
+    borderWidth,
     countLabel,
     hp,
     levelLabel,
@@ -116,17 +138,23 @@ export function decorateEntityBadge(
   resetShadowedSpriteBadge(entry);
 
   entry.badgeBackground.visible = true;
-  entry.badgeBackground
+  const background = entry.badgeBackground
     .ellipse(0, 0, outerRadius, outerRadius)
     .fill({
-      alpha: alpha * ENTITY_BADGE_BACKGROUND_ALPHA,
+      alpha: alpha * (backgroundAlpha ?? ENTITY_BADGE_BACKGROUND_ALPHA),
       color: backgroundColor,
-    })
-    .stroke({
-      alpha,
-      color: ENTITY_BADGE_BORDER_COLOR,
-      width: 2,
     });
+  if ((borderWidth ?? 0) > 0) {
+    background.stroke({
+      alpha,
+      color: borderColor ?? ENTITY_BADGE_BORDER_COLOR,
+      width: borderWidth,
+    });
+  }
+
+  if (!hp || !mana) {
+    return;
+  }
 
   const ringOuterRadius = Math.max(outerRadius - ENTITY_BADGE_ARC_INSET, 1);
   const ringInnerRadius = Math.max(
@@ -189,6 +217,7 @@ export function decorateEntityBadge(
       label: levelLabel,
       outerRadius,
       placement: 'top',
+      ringInnerRadius,
     });
   }
 
@@ -198,6 +227,7 @@ export function decorateEntityBadge(
       label: countLabel,
       outerRadius,
       placement: 'bottom',
+      ringInnerRadius,
     });
   }
 }
@@ -210,11 +240,13 @@ function renderBadgePlate(
     label,
     outerRadius,
     placement,
+    ringInnerRadius,
   }: {
     alpha: number;
     label: string;
     outerRadius: number;
     placement: 'bottom' | 'top';
+    ringInnerRadius: number;
   },
 ) {
   const plateHeight = Math.max(
@@ -223,31 +255,29 @@ function renderBadgePlate(
   );
   const plateWidth = Math.max(
     plateHeight * 1.2,
-    label.length * 7 + ENTITY_BADGE_PLATE_TEXT_PADDING,
+    label.length * ENTITY_BADGE_PLATE_CHAR_WIDTH +
+      ENTITY_BADGE_PLATE_TEXT_PADDING,
   );
-  const plateY =
-    placement === 'top'
-      ? -outerRadius - plateHeight * 0.65
-      : outerRadius - plateHeight * 0.35;
+  const ringCenterRadius = (outerRadius + ringInnerRadius) / 2;
+  const plateCenterY = (placement === 'top' ? -1 : 1) * ringCenterRadius;
+  const plateY = plateCenterY - plateHeight / 2;
 
   graphics.visible = true;
-  graphics
-    .rect(-plateWidth / 2, plateY, plateWidth, plateHeight)
-    .fill({
-      alpha,
-      color: ENTITY_BADGE_PLATE_FILL,
-    })
-    .stroke({
-      alpha,
-      color: ENTITY_BADGE_BORDER_COLOR,
-      width: 2,
-    });
+  graphics.rect(-plateWidth / 2, plateY, plateWidth, plateHeight).fill({
+    alpha,
+    color: ENTITY_BADGE_PLATE_FILL,
+  });
 
   text.visible = true;
-  text.style = ENEMY_LEVEL_LABEL_STYLE;
+  text.style = getEnemyLevelLabelStyle();
   text.text = label;
   text.alpha = alpha;
-  setTextPosition(text, 0, plateY + plateHeight / 2);
+  setTextScale(
+    text,
+    ENTITY_BADGE_PLATE_TEXT_SCALE,
+    ENTITY_BADGE_PLATE_TEXT_SCALE,
+  );
+  setTextPosition(text, 0, plateCenterY);
 }
 
 function drawBadgeArc(

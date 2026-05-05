@@ -379,6 +379,7 @@ export function resetShadowedSpriteBadge(entry: ShadowedSpriteEntry) {
     text.text = '';
     text.alpha = 1;
     setTextPosition(text, 0, 0);
+    setTextScale(text, 1, 1);
   });
 }
 
@@ -402,6 +403,14 @@ export function setTextPosition(text: Text, x: number, y: number) {
   if (typeof candidate.y === 'number') {
     candidate.y = y;
   }
+}
+
+export function setTextScale(text: Text, x: number, y = x) {
+  const candidate = text as Text & {
+    scale?: { set?: (nextX: number, nextY?: number) => void };
+  };
+
+  candidate.scale?.set?.(x, y);
 }
 
 function clearGraphics(graphics: Graphics) {
