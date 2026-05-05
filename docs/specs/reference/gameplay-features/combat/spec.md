@@ -6,9 +6,12 @@ This spec covers encounter activation, actor timing, and combat resolution.
 
 ## Current Behavior
 
-- Entering a tile with hostile enemies opens a combat state.
-- Combat must be started explicitly from the combat window.
+- Any encounter source starts combat immediately, including stepping onto a hostile tile, clicking a hostile world hex, and contact from a roaming dungeon enemy chase.
+- Hostile world clicks never move the player onto the hostile hex before the encounter begins.
+- Clicking an adjacent hostile hex starts combat from the current hex, keeps the player on that staging hex until victory, and preserves the hostile hex as the encounter target.
+- Clicking a farther hostile hex paths only to the nearest reachable adjacent staging hex, then starts combat there against the originally clicked hostile hex while preserving that hostile target through the encounter.
 - Battles that run for longer than `60s` surface a `Dea(t)h` title-bar action that accepts defeat, kills the player, and respawns them at their home hex.
+- Winning a hostile-click or roaming-chase encounter can auto-step the player onto the preserved hostile target after the final enemy dies, then the app applies the normal movement cooldown for that step.
 - While combat is active, regular travel is blocked.
 - Combat uses actor state for the player and each enemy.
 - Every actor has a global cooldown.

@@ -26,6 +26,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Cached scene state avoids unnecessary rebuilds when screen size, derived static-world render inputs, selected tile, or path highlights have not changed.
 - Static and interaction redraw invalidation derives from render-specific version keys rather than whole `GameState` identity, so log-only or other non-world state clones do not rebuild unchanged Pixi layers.
 - Static invalidation now ignores offscreen enemy container churn by comparing only the enemy presentation inputs that belong to visible tiles before rebuilding cached layers.
+- Player and hostile world badges reuse shared entity-badge helpers, and combat-time badge refresh updates the player plus the engaged hostile subset with live HP and mana values without forcing unrelated visible hostile markers to redraw.
 - The scene cache exposes lightweight render-pass counters for total, static, interaction, and animated passes. Profiling and future cache-as-texture experiments should use those counters to prove that stable static layers are avoiding rebuilds before adding GPU texture caching.
 - When the browser performance harness is active, `renderScene` forwards the latest render-pass counters into `window.__REALMFALL_PERF__`, letting manual scenarios compare hover, pan, and window-toggle redraw breadth against the static, interaction, and animated layer counters.
 - Static redraws build one shared visible-tile render input list and reuse it for static render-token derivation plus marker composition, so enemy lookups are not repeated for the same tile during one redraw.
@@ -37,6 +38,8 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Cached world-marker wrappers now keep deterministic per-hex animation metadata, so animation-only frames can pulse or bob hostile markers by mutating live sprite transforms instead of rebuilding static marker pools.
 - Settlement, claim, and utility structure markers now route through the same cached-wrapper animation path, with night-aware tint pulses applied directly to live marker sprites instead of triggering a static-layer refresh.
 - Gathering-site markers now reuse the cached wrapper animator with deterministic shimmer phases, so ore, herb, timber, and water icons can glint intermittently without adding a second marker traversal to animation-only frames.
+- `renderSceneCombatFeedback.ts` owns a render-only player lunge toward `combat.engagement.targetCoord`, using engagement staging and target coordinates plus combat start time without mutating gameplay position.
+- The renderer consumes a bounded gameplay-authored `worldFloatingTextEvents` list and displays damage, critical-damage, and healing text above resolved player or hostile badge anchors, including defeated-enemy fallback anchors until the event lifetime expires.
 - Animated sky, atmosphere, cloud, overlay, and firelight layers use their own lower-cadence token, so hover or selection redraws inside the same animation bucket do not reset those animated stage layers again.
 - Deterministic ground-cover presentation and cloud inputs are memoized in bounded caches.
 - Hot animated atmosphere and cloud paths keep repeated layer configs at module scope and use indexed loops for cloud clusters, shadow layers, light shafts, and celestial halos so animation-only frames do not allocate those config arrays or callback closures repeatedly.
@@ -63,6 +66,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - The Pixi canvas uses density-aware sizing so browser zoom and high-DPI displays keep the world viewport fitted to CSS pixels while renderer resolution tracks `window.devicePixelRatio` changes on resize within the current graphics preset cap.
 - Persisted settings now hydrate both Pixi renderer initialization flags, a preset-derived renderer density cap, and the live Pixi render-FPS cap through a dedicated plain `localStorage` `settings` payload that is read before the initial game and Pixi setup; `usePixiWorld` captures init-time flags for the current page lifetime, marks their controls as reload-required, and keeps live terrain-background plus render-FPS changes on the redraw invalidation path.
 - Hover-analysis caching now invalidates from gameplay-state versions that materially affect interaction resolution rather than from every broad `tiles` or `enemies` container identity change.
+- Player movement cooldown and revealed roaming dungeon enemy movement cooldowns render as outer arcs just outside the badge MP ring instead of as separate under-icon bars.
 
 ## Main Implementation Areas
 

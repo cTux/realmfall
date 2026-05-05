@@ -14,8 +14,10 @@ This spec covers the client-side movement request boundary, real-time cooldown q
 - Clicking a new destination during cooldown replaces queued continuation without resetting the active cooldown.
 - Multi-step queued travel suppresses automatic `hexInfo`, recipe-book, and loot-window opening on intermediate transit hexes.
 - Replacing the queued destination during cooldown updates the final eligible destination and does not replay window opens from the abandoned path.
-- If combat starts on a queued step, the remaining queue clears immediately and combat continues from combat transition state.
-- Pixi renders a yellow cooldown indicator under the player icon from wall-clock time.
+- If immediate-start combat starts on a queued step, the remaining queue clears immediately and combat continues from combat transition state.
+- Hostile-click encounters that auto-step onto their preserved hostile target after victory seed the same normal movement cooldown controller and transition path as any other approved one-hex move.
+- Roaming dungeon enemies patrol and chase on the same wall-clock cooldown duration as player movement, and chase contact uses the same immediate-start combat model as the player-facing hostile-click flow.
+- Pixi renders a yellow outer cooldown arc from wall-clock time just outside the player MP ring, and roaming dungeon enemies reuse that same outer-ring presentation on revealed tiles during their movement cooldown.
 
 ## Main Implementation Areas
 

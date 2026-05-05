@@ -23,6 +23,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - Combat ability tiles render the live ability icon asset and visually desaturate and fade while the ability is unavailable, without showing a ticking cooldown overlay.
 - Combat entity cards show HP and mana bars only; active casts do not render a separate cast bar.
 - Combat entity cards snap their ability-availability view models to a short visual cadence instead of rebuilding every card on every world-clock tick.
+- World-map combat feedback keeps the player badge and the engaged hostile marker badges synchronized to live HP and mana values during combat, shows bounded floating damage and healing text above those badge anchors, and applies a brief render-only player lunge toward the engaged target.
 - Action bar consumable bindings clear themselves once the assigned stack no longer exists in inventory, so depleted consumables do not linger as unavailable stale slots.
 - Action bar consumable slots do not render a cooldown overlay while the shared consumable recharge is active.
 - Pressing `Space` toggles a paused state for gameplay mechanics and shows a centered full-stage overlay message until the game is resumed, except when keyboard focus is inside an editable field or another focusable UI control that should keep its native `Space` behavior.
@@ -40,7 +41,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - Item-slot containers rendered inside the hex info content window use shared stable style constants at `0.8x` of the shared slot sizes so town stock, loot, and item-modification slots stay visually subordinate to the main inventory surfaces without receiving fresh style-object props on every content render.
 - Town stock in the hex info content window wraps its item slots with a flex row layout instead of CSS grid so slot spacing follows the shared item-slot sizing more predictably.
 - The hex info window only renders the loot subsection when the current tile actually has loot, instead of showing an empty ground-loot panel.
-- While a combat encounter remains active for longer than `60s`, the hex info title bar replaces the start action with `Dea(t)h`, and pressing `T` triggers the same defeat-and-respawn action.
+- While a combat encounter remains active for longer than `60s`, the hex info title bar surfaces `Dea(t)h`, and pressing `T` triggers the same defeat-and-respawn action.
 - World camp markers stay readable above their night-time glow effects instead of sinking beneath the bloom layer.
 - World-map hostile enemy markers tint by runtime enemy rarity, and mixed enemy parties use the highest rarity color on that tile.
 - World-map hostile enemy markers show a bottom-right count indicator when a visible enemy party shares the hex, surfacing the party size for stacks of `2` or `3`.

@@ -9,6 +9,9 @@ This spec covers the internal combat data structures and event-driven enemy stat
 - Combat uses per-actor state objects that track abilities, cooldowns, effective cooldown adjustments, global cooldown, and optional casting state.
 - Combat automation timing derives from combat actor state plus live combat status effects on the player and current enemies, so ticking effects and expirations advance on time even when the next ability cooldown is far away.
 - Encounter setup remains on the world-travel path in `state.ts`, while `stateCombat.ts` coordinates combat start and combat-step scheduling through focused neighboring helpers.
+- All shipped encounter sources route through `stateCombatEngagement.ts`, so tile-step, hostile-click, and dungeon-chase encounters are created with `started: true` and no manual-start phase.
+- Combat engagement metadata now records `engageMode`, `originCoord`, `stagingCoord`, `targetCoord`, and `autoStepOnVictory` so hostile-click staging, dungeon chase contact, and deferred victory stepping all share one normalized runtime shape.
+- Encounter teardown can apply a deferred post-victory step onto the preserved engagement target before combat clears, letting hostile-click and chase encounters finish on their original hostile destination when that tile is safe.
 - Combat damage and stat calculations live in `src/game/combatDamage.ts`.
 - Combat proc rolls live in `src/game/combatProcs.ts`.
 - Combat target selection and actor-readiness helpers live in `src/game/combatTargeting.ts`.
@@ -21,7 +24,7 @@ This spec covers the internal combat data structures and event-driven enemy stat
 - Enemy ability execution lives in `src/game/stateCombatEnemyAbility.ts`.
 - Enemy defeat, reward, XP, and encounter-sync side effects live in `src/game/stateCombatEnemyDefeat.ts`.
 - Combat encounter enemy synchronization lives in `src/game/stateCombatEncounterSync.ts`.
-- Player and enemy combat actor states are persisted and hydrated in the current runtime shape with no backward save-shape migration layer.
+- Player and enemy combat actor states are persisted and hydrated in the current runtime shape with no backward save-shape migration layer, while hydration backfills missing engagement metadata to the safe `tile-step` default and drops transient world floating-text leftovers.
 - Ability definitions live in a registry keyed by stable ability ids.
 - Raw runtime ability definitions and fallback lookup keep `src/game/abilityCatalog.ts` as the public facade, while neighboring modules such as `abilityCatalogMelee.ts`, `abilityCatalogFire.ts`, `abilityCatalogLightning.ts`, `abilityCatalogIce.ts`, and `abilityCatalogSupport.ts` own the literal school-scoped registries. Enemy or equipment loadout selection plus combat-priority sorting live in `src/game/abilityRuntime.ts`.
 - The ability registry is split between that slim gameplay runtime catalog and a presentation wrapper that adds localized names, descriptions, and icons only for UI surfaces.
