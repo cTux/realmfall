@@ -21,7 +21,7 @@ const ACTOR_NAME_TO_ID: Record<string, VoiceActorId> = {
 };
 
 const voiceClipModules = import.meta.glob(
-  '../../assets/dialogue-audio-pack/**/*.wav',
+  '../../assets/dialogue-audio-pack/**/*.flac',
   {
     import: 'default',
   },
