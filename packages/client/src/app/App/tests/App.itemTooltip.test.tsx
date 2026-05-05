@@ -179,4 +179,64 @@ describe('App item tooltip lazy loading', () => {
     });
     host.remove();
   }, 10000);
+
+  it('keeps inventory tooltips open while the world clock updates without moving the player', async () => {
+    const game = createHydratedAppGame();
+    game.player.hp = Math.max(1, game.player.hp - 5);
+
+    loadEncryptedState.mockResolvedValue({
+      game,
+      ui: {
+        windowShown: {
+          hero: false,
+          skills: false,
+          recipes: false,
+          hexInfo: false,
+          equipment: false,
+          inventory: true,
+          loot: false,
+          log: false,
+          combat: false,
+          settings: false,
+        },
+      },
+    });
+
+    const { host, root } = await renderApp();
+
+    await act(async () => {
+      vi.advanceTimersByTime(200);
+    });
+    await flushLazyModules();
+
+    const inventoryConsumable = findItemSlotButtonByIconLabel(
+      host,
+      'consumable',
+    );
+    expect(inventoryConsumable).not.toBeNull();
+
+    await act(async () => {
+      inventoryConsumable?.dispatchEvent(
+        new MouseEvent('mouseover', { bubbles: true }),
+      );
+      await vi.dynamicImportSettled();
+      await Promise.resolve();
+      vi.advanceTimersByTime(20);
+      await Promise.resolve();
+    });
+
+    expect(host.querySelector('[data-tooltip-visible="true"]')).not.toBeNull();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1_200);
+      await Promise.resolve();
+    });
+
+    expect(host.querySelector('[data-tooltip-visible="true"]')).not.toBeNull();
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  }, 10000);
 });

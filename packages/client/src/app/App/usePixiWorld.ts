@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type Dispatch,
@@ -109,6 +110,12 @@ export function usePixiWorld({
   setTooltip,
 }: UsePixiWorldArgs) {
   const { showTerrainBackgrounds, worldRenderFps } = graphicsSettings;
+  const playerCoordQ = game.player.coord.q;
+  const playerCoordR = game.player.coord.r;
+  const playerCoord = useMemo(
+    () => ({ q: playerCoordQ, r: playerCoordR }),
+    [playerCoordQ, playerCoordR],
+  );
   const hostRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<Application | null>(null);
   const initGraphicsSettingsRef = useRef<PixiWorldInitGraphicsSettings | null>(
@@ -381,16 +388,16 @@ export function usePixiWorld({
       visibleTilesRef.current,
       buildVisibleTilesRef.current({
         overlay: resolutionOverlayRef.current,
-        playerCoord: game.player.coord,
+        playerCoord,
         radius: game.radius,
         resolvedTiles: game.tiles,
       }),
     );
 
-    playerCoordRef.current = game.player.coord;
+    playerCoordRef.current = playerCoord;
     visibleTilesRef.current = nextVisibleTiles;
 
-    if (sameCoord(previousPlayerCoord, game.player.coord)) {
+    if (sameCoord(previousPlayerCoord, playerCoord)) {
       return;
     }
 
@@ -400,7 +407,7 @@ export function usePixiWorld({
       nextVisibleTiles,
       previousVisibleTiles,
       startedAtMs: performance.now(),
-      toCoord: game.player.coord,
+      toCoord: playerCoord,
     });
 
     if (nextTransition) {
@@ -413,7 +420,7 @@ export function usePixiWorld({
       movementTransitionRef.current = null;
       renderInvalidationRef.current += 1;
     }
-  }, [game.player.coord, game.radius, game.tiles]);
+  }, [game.radius, game.tiles, playerCoord]);
 
   useEffect(() => {
     if (!enabled) {
@@ -428,7 +435,7 @@ export function usePixiWorld({
     void coordinator
       .syncVisibleCoords({
         bloodMoonActive: game.bloodMoonActive,
-        playerCoord: game.player.coord,
+        playerCoord,
         radius: game.radius,
         resolvedTiles: game.tiles,
         seed: game.seed,
@@ -439,14 +446,14 @@ export function usePixiWorld({
   }, [
     enabled,
     game.bloodMoonActive,
-    game.player.coord,
+    playerCoord,
     game.radius,
     game.seed,
     game.tiles,
   ]);
 
   useEffect(() => {
-    selectedRef.current = game.player.coord;
+    selectedRef.current = playerCoord;
     const hoverAnalysisController = hoverAnalysisControllerRef.current;
     if (hoverAnalysisController) {
       hoverAnalysisController.resetHoverAnalysis();
@@ -464,7 +471,7 @@ export function usePixiWorld({
     worldTooltipKeyRef.current = null;
     tooltipPositionRef.current = null;
     setTooltip(null);
-  }, [game.player.coord, setTooltip, tooltipPositionRef]);
+  }, [playerCoord, setTooltip, tooltipPositionRef]);
 
   useEffect(() => {
     hoverAnalysisControllerRef.current?.refreshHoverAnalysis();
