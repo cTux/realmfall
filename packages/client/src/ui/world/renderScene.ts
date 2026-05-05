@@ -34,6 +34,7 @@ import {
 import { renderTilePasses } from './renderSceneTilePasses';
 import { renderAnimatedScene } from './renderSceneAnimated';
 import { renderPlayerResourceBars } from './renderScenePlayerBars';
+import { getMovementTransitionRevealState } from './renderSceneVisibility';
 import {
   DEFAULT_WORLD_RENDER_FPS,
   getWorldRenderFrameMs,
@@ -44,6 +45,7 @@ interface RenderSceneOptions {
   showTerrainBackgrounds?: boolean;
   queuedPath?: HexCoord[] | null;
   worldRenderFps?: number;
+  worldTimeMs?: number;
   movementCooldown?: RenderSceneMovementCooldown | null;
   movementTransition?: RenderSceneMovementTransition | null;
 }
@@ -105,12 +107,15 @@ export function renderScene(
     options.worldRenderFps ?? DEFAULT_WORLD_RENDER_FPS,
   );
   const queuedPath = options.queuedPath ?? null;
+  const renderWorldTimeMs = options.worldTimeMs ?? state.worldTimeMs;
   const movementCooldown = options.movementCooldown ?? null;
   const movementTransition = options.movementTransition ?? null;
   const movementTransitionRenderToken = getMovementTransitionRenderToken(
     movementTransition,
     worldRenderFrameMs,
   );
+  const movementTransitionRevealState =
+    getMovementTransitionRevealState(movementTransition);
   const playerCombatStats = getPlayerCombatStats(state.player);
   const playerResourceRenderToken =
     getPlayerResourceRenderToken(playerCombatStats);
@@ -278,6 +283,7 @@ export function renderScene(
       structureIconSize,
       terrainArtSize,
       movementTransition,
+      movementTransitionRevealState,
       visibleTileMap,
       visibleTileRenderInputs,
       visibleTiles: displayVisibleTiles,
@@ -328,6 +334,11 @@ export function renderScene(
       origin,
       playerIconSize,
       scene,
+      playerCoord: state.player.coord,
+      movementTransitionRevealState,
+      visibleTileRenderInputs: renderTokens.visibleTileRenderInputs,
+      worldKind: currentWorldKind,
+      worldTimeMs: renderWorldTimeMs,
     });
   }
 

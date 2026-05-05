@@ -23,6 +23,7 @@ describe('generateDungeonWorld', () => {
     expect(passableTiles.length).toBeGreaterThanOrEqual(200);
     expect(world.tiles['0,0']?.structure).toBe('dungeon');
     expect(finalElite?.elite).toBe(true);
+    expect(finalElite?.rarity).toBe('legendary');
     expect(chestTile?.coord).toEqual(world.dungeon.finalChestCoord);
     expect(
       hexDistance(world.dungeon.entranceCoord, world.dungeon.finalChestCoord),

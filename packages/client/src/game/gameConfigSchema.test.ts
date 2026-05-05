@@ -203,6 +203,12 @@ describe('game config schema', () => {
           'dungeon-obsidian-ember': 0,
           'dungeon-obsidian-wall': 0,
         },
+        dungeon: {
+          enemyMovement: {
+            chaseRadius: 2,
+            spawnLeashRadius: 3,
+          },
+        },
         enemySpawn: {
           tile: 1,
           treasureGoblin: {

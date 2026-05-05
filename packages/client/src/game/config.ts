@@ -77,6 +77,10 @@ export const WORLD_NIGHT_AMBUSH_CHANCE =
 export const WORLD_LOOT_CHANCES = GAME_CONFIG.worldGeneration.loot;
 export const WORLD_GENERATED_ITEM_KIND_CHANCES =
   GAME_CONFIG.worldGeneration.generatedItemKind;
+export const DUNGEON_ENEMY_CHASE_RADIUS =
+  GAME_CONFIG.worldGeneration.dungeon.enemyMovement.chaseRadius;
+export const DUNGEON_ENEMY_SPAWN_LEASH_RADIUS =
+  GAME_CONFIG.worldGeneration.dungeon.enemyMovement.spawnLeashRadius;
 
 const WORLD_GENERATED_ITEM_KIND_ORDER = [
   'artifact',

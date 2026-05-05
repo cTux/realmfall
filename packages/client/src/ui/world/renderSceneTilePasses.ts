@@ -1,7 +1,6 @@
-import { WORLD_REVEAL_RADIUS } from '../../app/constants';
 import { isPassable } from '../../game/shared';
 import type { GameState, HexCoord, WorldKind } from '../../game/stateTypes';
-import { hexDistance, hexKey } from '../../game/hex';
+import { hexKey } from '../../game/hex';
 import { tileStyle } from './renderSceneEnvironment';
 import { makeHex, tileToPoint } from './renderSceneMath';
 import { type SceneCache } from './renderSceneCache';
@@ -20,6 +19,10 @@ import {
   isUnknownVisibleWorldTile,
   type VisibleWorldTile,
 } from './visibleWorldTiles';
+import {
+  getVisibleTileRevealState,
+  type MovementTransitionRevealState,
+} from './renderSceneVisibility';
 
 interface MovementTransitionRenderState {
   durationMs: number;
@@ -49,6 +52,7 @@ interface RenderTilePassesOptions {
   structureIconSize: number;
   terrainArtSize: number;
   movementTransition: MovementTransitionRenderState | null;
+  movementTransitionRevealState: MovementTransitionRevealState | null;
   visibleTileMap: Map<string, VisibleWorldTile> | null;
   visibleTileRenderInputs: VisibleTileRenderInput[] | null;
   visibleTiles: VisibleWorldTile[];
@@ -74,6 +78,7 @@ export function renderTilePasses({
   structureIconSize,
   terrainArtSize,
   movementTransition,
+  movementTransitionRevealState,
   visibleTileMap,
   visibleTileRenderInputs,
   visibleTiles,
@@ -88,11 +93,11 @@ export function renderTilePasses({
     const tileKey = hexKey(tile.coord);
     const isOutgoingTile =
       movementTransitionState?.outgoingTileKeys.has(tileKey) ?? false;
-    const revealOrigin =
-      isOutgoingTile && movementTransition
-        ? movementTransition.fromCoord
-        : state.player.coord;
-    const distance = hexDistance(revealOrigin, tile.coord);
+    const { distance, revealed } = getVisibleTileRevealState({
+      movementTransitionState: movementTransitionRevealState,
+      playerCoord: state.player.coord,
+      tile,
+    });
     const isPlayerTile =
       tile.coord.q === state.player.coord.q &&
       tile.coord.r === state.player.coord.r;
@@ -102,7 +107,6 @@ export function renderTilePasses({
       !isUnknownVisibleWorldTile(tile) &&
       isPassable(tile.terrain);
     const emphasized = isPlayerTile;
-    const revealed = distance <= WORLD_REVEAL_RADIUS;
     const appearanceAlpha =
       getTileTransitionAlpha(movementTransitionState, tileKey) ?? 1;
     const relative = {

@@ -165,6 +165,9 @@ function copyEnemy(enemy: Enemy): Enemy {
   return {
     ...enemy,
     coord: { ...enemy.coord },
+    ...(enemy.dungeonSpawnCoord === undefined
+      ? {}
+      : { dungeonSpawnCoord: { ...enemy.dungeonSpawnCoord } }),
     statusEffects: enemy.statusEffects?.map((effect) => ({ ...effect })),
   };
 }

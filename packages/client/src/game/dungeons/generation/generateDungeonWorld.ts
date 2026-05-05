@@ -74,6 +74,7 @@ export function generateDungeonWorld({
       'dungeon',
       false,
     );
+    enemy.dungeonSpawnCoord = { ...coord };
 
     tiles[tileKey]!.enemyIds.push(enemy.id);
     enemies[enemy.id] = enemy;
@@ -90,10 +91,11 @@ export function generateDungeonWorld({
     false,
     {
       enemyId: finalEliteEnemyId,
-      rarity: 'epic',
+      rarity: 'legendary',
     },
   );
   finalElite.elite = true;
+  finalElite.dungeonSpawnCoord = { ...layoutPlan.finalEliteCoord };
   tiles[eliteKey]!.enemyIds.push(finalEliteEnemyId);
   enemies[finalEliteEnemyId] = finalElite;
 

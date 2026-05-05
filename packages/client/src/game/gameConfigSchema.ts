@@ -186,6 +186,12 @@ export const gameConfigSchema = v.strictObject({
   }),
   worldGeneration: v.strictObject({
     terrain: createRequiredNumberMapSchema(TERRAINS),
+    dungeon: v.strictObject({
+      enemyMovement: v.strictObject({
+        chaseRadius: finiteNumberSchema,
+        spawnLeashRadius: finiteNumberSchema,
+      }),
+    }),
     structure: v.strictObject({
       globalAppearanceThreshold: createPartialNumberMapSchema(STRUCTURE_TYPES),
       appearanceChanceByTerrain: structureAppearanceChanceByTerrainSchema,

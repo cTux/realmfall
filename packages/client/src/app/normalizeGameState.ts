@@ -494,6 +494,21 @@ function normalizeEnemy(
       enemyTypeId,
     ),
     coord,
+    ...(normalizeHexCoord(value.dungeonSpawnCoord)
+      ? {
+          dungeonSpawnCoord: normalizeHexCoord(value.dungeonSpawnCoord)!,
+        }
+      : fallback?.dungeonSpawnCoord === undefined
+        ? {}
+        : { dungeonSpawnCoord: { ...fallback.dungeonSpawnCoord } }),
+    ...(isFiniteNumber(value.dungeonMovementCooldownEndsAt)
+      ? { dungeonMovementCooldownEndsAt: value.dungeonMovementCooldownEndsAt }
+      : fallback?.dungeonMovementCooldownEndsAt === undefined
+        ? {}
+        : {
+            dungeonMovementCooldownEndsAt:
+              fallback.dungeonMovementCooldownEndsAt,
+          }),
     ...(isItemRarity(value.rarity)
       ? { rarity: value.rarity }
       : fallback?.rarity === undefined
@@ -712,6 +727,9 @@ function cloneEnemy(enemy: GameState['enemies'][string]) {
   return {
     ...enemy,
     coord: { ...enemy.coord },
+    ...(enemy.dungeonSpawnCoord === undefined
+      ? {}
+      : { dungeonSpawnCoord: { ...enemy.dungeonSpawnCoord } }),
     ...(enemy.tags === undefined ? {} : { tags: [...enemy.tags] }),
     ...(enemy.statusEffects === undefined
       ? {}

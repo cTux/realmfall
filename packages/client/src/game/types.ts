@@ -163,6 +163,8 @@ export interface Enemy {
   tags?: GameTag[];
   name: string;
   coord: HexCoord;
+  dungeonSpawnCoord?: HexCoord;
+  dungeonMovementCooldownEndsAt?: number;
   rarity?: EnemyRarity;
   tier: number;
   baseMaxHp?: number;

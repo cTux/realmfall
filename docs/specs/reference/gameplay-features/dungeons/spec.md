@@ -21,7 +21,10 @@ This spec covers surface dungeon entrances, dungeon-world generation, dungeon en
 - Dungeon terrain artwork is generated from the same painted hex-terrain source family as the surface world, and the source PNGs keep the same transparent hex footprint as other atlas inputs.
 - Dungeon floor and wall hexes use dedicated theme-aware underlay colors so impassable wall tiles read darker and more blocked than passable dungeon floors during play.
 - The dungeon entrance tile is safe, and dungeon enemies spawn only inside the dungeon world.
-- Each dungeon contains a final elite enemy, plus one closed `dungeon-chest` placed at the far end of the layout.
+- Each dungeon contains one legendary final guard, plus one closed `dungeon-chest` placed at the far end of the layout.
+- Non-guard dungeon enemies patrol around their initial spawn hex on the shared world-movement cadence, show the same style of movement cooldown bar only on revealed dungeon tiles, and chase the player when they come within `2` hexes.
+- Dungeon enemy chase movement follows the shortest passable path toward the player instead of relying on greedy straight-line stepping, while patrol movement remains spawn-leashed.
+- Dungeon enemy patrol movement is leashed to the spawn area, while the final guard remains stationary.
 - The final chest does nothing until the final elite is defeated.
 - Opening the final chest grants one dungeon-scaled world-generated item, marks the dungeon cleared, removes every remaining dungeon enemy, and retires the chest tile.
 - Cleared dungeons remain accessible and persistent. Re-entering a cleared entrance resumes the same retired empty dungeon instead of generating a new run.
@@ -35,8 +38,10 @@ This spec covers surface dungeon entrances, dungeon-world generation, dungeon en
 
 - `src/game/stateDungeonActions.ts`
 - `src/game/stateDungeonChest.ts`
+- `src/game/stateDungeonWorldClock.ts`
 - `src/game/stateSurvival.ts`
 - `src/game/dungeons/generation`
 - `src/game/dungeons/worldState.ts`
 - `src/app/App/hooks/useDungeonTransitionController.ts`
 - `src/app/App/tests/App.dungeonFlow.test.tsx`
+- `src/ui/world/renderScenePlayerBars.ts`

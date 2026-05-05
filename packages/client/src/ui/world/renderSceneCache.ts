@@ -90,6 +90,7 @@ export interface SceneCache {
   worldStaticMarkerSprites: ShadowedSpritePool;
   worldStaticMarkerBadgeGraphics: GraphicsPool;
   worldStaticMarkerTexts: TextPool;
+  worldAnimatedMarkerBadgeGraphics: GraphicsPool;
   playerResourceGraphics: GraphicsPool;
   playerCooldownGraphics: GraphicsPool;
   cloudShadowSprites: SpritePool;
@@ -224,6 +225,7 @@ export function getSceneCache(app: Application) {
     worldStaticMarkerSprites: createShadowedSpritePool(worldMarkers),
     worldStaticMarkerBadgeGraphics: createGraphicsPool(worldMarkerBadges),
     worldStaticMarkerTexts: createTextPool(worldMarkerBadges),
+    worldAnimatedMarkerBadgeGraphics: createGraphicsPool(worldMarkerBadges),
     playerResourceGraphics: createGraphicsPool(playerResources),
     playerCooldownGraphics: createGraphicsPool(playerCooldown),
     cloudShadowSprites: createSpritePool(cloudShadows),
@@ -298,6 +300,7 @@ export function beginAnimatedSceneRender(scene: SceneCache) {
   resetGraphicsPool(scene.atmosphereShaftGraphics);
   resetGraphicsPool(scene.atmosphereCelestialGraphics);
   resetGraphicsPool(scene.worldAnimatedDetailGraphics);
+  resetGraphicsPool(scene.worldAnimatedMarkerBadgeGraphics);
   resetGraphicsPool(scene.playerCooldownGraphics);
   resetGraphicsPool(scene.waterfallGraphics);
   resetTextPool(scene.labelTexts);
@@ -309,6 +312,7 @@ export function completeAnimatedSceneRender(scene: SceneCache) {
   finishGraphicsPool(scene.atmosphereShaftGraphics);
   finishGraphicsPool(scene.atmosphereCelestialGraphics);
   finishGraphicsPool(scene.worldAnimatedDetailGraphics);
+  finishGraphicsPool(scene.worldAnimatedMarkerBadgeGraphics);
   finishGraphicsPool(scene.playerCooldownGraphics);
   finishGraphicsPool(scene.waterfallGraphics);
   finishTextPool(scene.labelTexts);

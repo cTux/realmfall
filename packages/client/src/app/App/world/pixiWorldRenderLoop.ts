@@ -207,11 +207,13 @@ export function createWorldRenderFrame({
             movementTransition: currentMovementTransition,
             ...(currentQueuedPath ? { queuedPath: currentQueuedPath } : {}),
             showTerrainBackgrounds,
+            worldTimeMs: worldTimeMsRef.current,
             worldRenderFps,
           }
         : {
             ...(currentQueuedPath ? { queuedPath: currentQueuedPath } : {}),
             showTerrainBackgrounds,
+            worldTimeMs: worldTimeMsRef.current,
             worldRenderFps,
           },
     );

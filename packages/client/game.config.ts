@@ -304,6 +304,14 @@ const gameConfig = defineGameConfig({
       'dungeon-obsidian-ember': 0,
       'dungeon-obsidian-wall': 0,
     },
+    dungeon: {
+      enemyMovement: {
+        // Radius around a dungeon enemy that causes it to chase the player.
+        chaseRadius: 2,
+        // Maximum distance a roaming dungeon enemy can drift from its spawn hex.
+        spawnLeashRadius: 3,
+      },
+    },
     structure: {
       // Global roll thresholds for structures that bypass terrain-based selection.
       globalAppearanceThreshold: {

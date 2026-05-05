@@ -27,6 +27,10 @@ import {
   spawnBloodMoonEnemies,
   spawnHarvestMoonResources,
 } from './stateWorldEvents';
+import {
+  shouldSyncActiveDungeonEnemyMovement,
+  syncActiveDungeonEnemyMovement,
+} from './stateDungeonWorldClock';
 import { processPlayerStatusEffects } from './stateSurvival';
 import type { GameState } from './types';
 
@@ -159,7 +163,13 @@ export function syncPlayerStatusEffects(
   state: GameState,
   worldTimeMs: number,
 ): GameState {
-  const next = copyGameState(state, { player: true });
+  const shouldSyncDungeonEnemies = shouldSyncActiveDungeonEnemyMovement(state);
+  const next = copyGameState(state, {
+    player: true,
+    ...(shouldSyncDungeonEnemies
+      ? { combat: true, enemies: true, logs: true, tiles: true }
+      : {}),
+  });
   next.worldTimeMs = worldTimeMs;
   const previousWorldTimeMs = state.worldTimeMs;
 
@@ -169,8 +179,16 @@ export function syncPlayerStatusEffects(
     previousWorldTimeMs,
   );
   const cooldownChanged = clearConsumableCooldownIfOutOfCombat(next);
+  const dungeonEnemyMovementChanged = shouldSyncDungeonEnemies
+    ? syncActiveDungeonEnemyMovement(next)
+    : false;
 
-  if (!statusEffectsChanged && !passiveRegenChanged && !cooldownChanged) {
+  if (
+    !statusEffectsChanged &&
+    !passiveRegenChanged &&
+    !cooldownChanged &&
+    !dungeonEnemyMovementChanged
+  ) {
     return state;
   }
 
