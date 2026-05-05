@@ -6,6 +6,7 @@ import {
   DEFAULT_GRAPHICS_SETTINGS,
   DEFAULT_INTERFACE_SETTINGS,
 } from '../../../app/constants';
+import { applyGraphicsPreset } from '../../../app/graphicsSettings';
 import {
   STORYBOOK_WINDOW_POSITION,
   storySurfaceDecorator,
@@ -40,6 +41,12 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {},
+};
+
+export const QualityPreset: Story = {
+  args: {
+    graphicsSettings: applyGraphicsPreset('quality'),
+  },
 };
 
 function GameSettingsWindowStory(

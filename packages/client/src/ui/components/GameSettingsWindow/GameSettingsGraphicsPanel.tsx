@@ -6,7 +6,9 @@ import {
   MAX_WORLD_RENDER_FPS,
   MIN_WORLD_RENDER_FPS,
   WORLD_RENDER_FPS_STEP,
+  getWorldRenderFpsPerformanceImpact,
   normalizeWorldRenderFps,
+  type GraphicsPerformanceImpact,
 } from '../../../app/graphicsSettings';
 import { t } from '../../../i18n';
 import type { GameSettingsGraphicsPanelProps } from './types';
@@ -17,6 +19,12 @@ export function GameSettingsGraphicsPanel({
   onChange,
 }: GameSettingsGraphicsPanelProps) {
   const reloadRequiredText = t('ui.settings.graphics.reloadRequired');
+  const performanceImpactLabel = t(
+    'ui.settings.graphics.performanceImpact.label',
+  );
+  const worldRenderFpsImpact = getWorldRenderFpsPerformanceImpact(
+    graphicsSettings.worldRenderFps,
+  );
 
   return (
     <div className={styles.panel}>
@@ -58,11 +66,15 @@ export function GameSettingsGraphicsPanel({
                   {t(option.labelKey)}
                 </span>
                 <span className={styles.themeOptionDescription}>
-                  {formatGraphicsSettingDescription(
-                    t(option.descriptionKey),
-                    option.reloadRequired,
-                    reloadRequiredText,
-                  )}
+                  <GraphicsSettingMeta
+                    description={formatGraphicsSettingDescription(
+                      t(option.descriptionKey),
+                      option.reloadRequired,
+                      reloadRequiredText,
+                    )}
+                    performanceImpact={option.performanceImpact}
+                    performanceImpactLabel={performanceImpactLabel}
+                  />
                 </span>
               </Button>
             );
@@ -81,7 +93,11 @@ export function GameSettingsGraphicsPanel({
           </span>
         </span>
         <span className={styles.rangeDescription}>
-          {t('ui.settings.graphics.worldRenderFps.description')}
+          <GraphicsSettingMeta
+            description={t('ui.settings.graphics.worldRenderFps.description')}
+            performanceImpact={worldRenderFpsImpact}
+            performanceImpactLabel={performanceImpactLabel}
+          />
         </span>
         <input
           type="range"
@@ -107,11 +123,17 @@ export function GameSettingsGraphicsPanel({
             key={option.key}
             checked={graphicsSettings[option.key]}
             label={t(option.labelKey)}
-            description={formatGraphicsSettingDescription(
-              t(option.descriptionKey),
-              option.reloadRequired,
-              reloadRequiredText,
-            )}
+            description={
+              <GraphicsSettingMeta
+                description={formatGraphicsSettingDescription(
+                  t(option.descriptionKey),
+                  option.reloadRequired,
+                  reloadRequiredText,
+                )}
+                performanceImpact={option.performanceImpact}
+                performanceImpactLabel={performanceImpactLabel}
+              />
+            }
             onChange={(checked) =>
               onChange((current) => ({
                 ...current,
@@ -131,4 +153,33 @@ function formatGraphicsSettingDescription(
   reloadRequiredText: string,
 ) {
   return reloadRequired ? `${description} ${reloadRequiredText}` : description;
+}
+
+interface GraphicsSettingMetaProps {
+  description: string;
+  performanceImpact: GraphicsPerformanceImpact;
+  performanceImpactLabel: string;
+}
+
+function GraphicsSettingMeta({
+  description,
+  performanceImpact,
+  performanceImpactLabel,
+}: GraphicsSettingMetaProps) {
+  return (
+    <span className={styles.settingMeta}>
+      <span>{description}</span>
+      <span className={styles.performanceImpactLine}>
+        <span className={styles.performanceImpactLabel}>
+          {performanceImpactLabel}
+        </span>
+        <span
+          className={styles.performanceImpactValue}
+          data-impact-level={performanceImpact}
+        >
+          {t(`ui.settings.graphics.performanceImpact.${performanceImpact}`)}
+        </span>
+      </span>
+    </span>
+  );
 }

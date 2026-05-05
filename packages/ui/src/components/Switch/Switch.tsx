@@ -1,9 +1,9 @@
-import { memo } from 'react';
+import { memo, type ReactNode } from 'react';
 import styles from './styles.module.scss';
 
 interface SwitchProps {
   checked: boolean;
-  description?: string;
+  description?: ReactNode;
   label: string;
   onChange: (checked: boolean) => void;
 }

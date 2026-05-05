@@ -21,6 +21,8 @@
 }
 
 .description {
+  display: grid;
+  gap: 0.3rem;
   color: #94a3b8;
   font-size: ui.scaled-font-size(0.74rem);
   line-height: 1.4;
