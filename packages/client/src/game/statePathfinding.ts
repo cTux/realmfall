@@ -70,6 +70,7 @@ export function getSafePathToHostileStagingTile(
   hostileTarget: HexCoord,
 ) {
   const candidatePaths = hexNeighbors(hostileTarget)
+    .filter((coord) => getHostileEnemyIds(state, coord).length === 0)
     .map((coord) => ({
       coord,
       path: getSafePathToTile(state, coord),
