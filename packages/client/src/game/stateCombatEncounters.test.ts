@@ -15,7 +15,7 @@ import {
 } from './stateCombatTestHelpers';
 
 describe('game state combat encounters', () => {
-  it('opens and resolves combat encounters on enemy tiles', () => {
+  it('keeps startCombat(moveToTile(...)) compatible for immediate-start encounters', () => {
     const game = createCombatEncounterGame('combat-seed');
     const target = seedCombatEncounter(game, {
       id: 'enemy-2,0-0',
@@ -29,11 +29,8 @@ describe('game state combat encounters', () => {
       elite: false,
     });
 
-    const encountered = moveToTile(game, target);
-    expect(encountered.combat).not.toBeNull();
-    expect(startCombat(encountered)).toBe(encountered);
+    const resolved = startCombat(moveToTile(game, target));
 
-    const resolved = progressCombat(encountered);
     expect(resolved.combat).toBeNull();
     expect(getEnemiesAt(resolved, target)).toHaveLength(0);
     expect(
@@ -49,8 +46,8 @@ describe('game state combat encounters', () => {
       id: 'enemy-2,0-0',
       name: 'Wolf',
       tier: 1,
-      hp: 5,
-      maxHp: 5,
+      hp: 200,
+      maxHp: 200,
       attack: 2,
       defense: 0,
       xp: 5,
@@ -58,9 +55,12 @@ describe('game state combat encounters', () => {
     });
 
     const encountered = moveToTile(game, target);
+    const advanced = startCombat(encountered);
+
     expect(encountered.combat?.started).toBe(true);
-    expect(startCombat(encountered)).toBe(encountered);
-    expect(progressCombat(encountered)).not.toBe(encountered);
+    expect(advanced.enemies['enemy-2,0-0']?.hp).toBeLessThan(
+      encountered.enemies['enemy-2,0-0']?.hp ?? Infinity,
+    );
     expect(
       encountered.logs.some((entry) => /press start/i.test(entry.text)),
     ).toBe(false);
@@ -83,10 +83,11 @@ describe('game state combat encounters', () => {
     game.worldTimeMs = 75_000;
 
     const encountered = moveToTile(game, target);
-    expect(startCombat(encountered)).toBe(encountered);
-    expect(encountered.combat?.startedAtMs).toBe(encountered.worldTimeMs);
+    const progressed = startCombat(encountered);
 
-    const forfeited = forfeitCombat(encountered);
+    expect(progressed.combat?.startedAtMs).toBe(encountered.worldTimeMs);
+
+    const forfeited = forfeitCombat(progressed);
 
     expect(forfeited.combat).toBeNull();
     expect(forfeited.player.coord).toEqual({ q: 0, r: 0 });

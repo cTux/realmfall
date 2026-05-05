@@ -163,7 +163,9 @@ function endCombatAfterTreasureGoblinEscape(
     enemyIds: followOnEnemyIds,
     originCoord: combat.engagement?.originCoord ?? combat.coord,
     stagingCoord: combat.engagement?.stagingCoord ?? combat.coord,
-    targetCoord: combat.engagement?.targetCoord ?? combat.coord,
+    targetCoord: combat.engagement
+      ? combat.engagement.targetCoord
+      : combat.coord,
     worldTimeMs: state.worldTimeMs,
   });
   clearConsumableCooldownIfOutOfCombat(state);

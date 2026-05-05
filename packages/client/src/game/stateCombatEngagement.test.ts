@@ -117,7 +117,6 @@ describe('stateCombatEngagement', () => {
 
     expect(started.combat?.started).toBe(true);
     expect(started.combat?.startedAtMs).toBe(game.worldTimeMs);
-    expect(startCombat(started)).toBe(started);
   });
 
   it('applies the deferred auto-step when encounter teardown clears the final enemy', () => {
