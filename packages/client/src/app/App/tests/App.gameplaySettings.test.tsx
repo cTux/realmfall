@@ -31,9 +31,9 @@ describe('App gameplay settings', () => {
     host.remove();
   }, 10_000);
 
-  it('auto-starts combat when the hydrated game already has a pending encounter', async () => {
+  it('hydrates an already-started combat encounter without requiring a start action', async () => {
     const game = moveToTile(createHydratedAppGame(), { q: 1, r: 0 });
-    expect(game.combat?.started).toBe(false);
+    expect(game.combat?.started).toBe(true);
 
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
     window.localStorage.setItem(
@@ -43,7 +43,7 @@ describe('App gameplay settings', () => {
 
     const { host, root } = await renderApp();
 
-    expect(getRenderedGame()?.combat?.started ?? true).toBe(true);
+    expect(getRenderedGame()?.combat?.started).toBe(true);
 
     await act(async () => {
       root.unmount();

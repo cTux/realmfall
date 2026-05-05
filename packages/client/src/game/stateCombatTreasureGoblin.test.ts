@@ -96,7 +96,7 @@ describe('treasure goblin combat behavior', () => {
     applyPlayerAbility(game, 'kick', goblinId);
 
     expect(game.combat).not.toBeNull();
-    expect(game.combat?.started).toBe(false);
+    expect(game.combat?.started).toBe(true);
     expect(game.combat?.coord).toEqual({ q: 2, r: 0 });
     expect(game.combat?.enemyIds).toEqual([otherEnemyId]);
     expect(game.enemies[goblinId]?.coord).toEqual(escapeCoord);
