@@ -8,6 +8,21 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const createEasyWebWorker = vi.fn();
 const createLocalTileResolutionSource = vi.fn();
 
+class MockWorker {
+  static instances: MockWorker[] = [];
+
+  addEventListener = vi.fn();
+  removeEventListener = vi.fn();
+  terminate = vi.fn();
+
+  constructor(
+    public url: URL,
+    public options: WorkerOptions,
+  ) {
+    MockWorker.instances.push(this);
+  }
+}
+
 vi.mock('easy-web-worker', () => ({
   createEasyWebWorker,
 }));
@@ -21,6 +36,48 @@ describe('createWorkerTileResolutionSource', () => {
     vi.resetModules();
     createEasyWebWorker.mockReset();
     createLocalTileResolutionSource.mockReset();
+    MockWorker.instances = [];
+    vi.stubGlobal('Worker', MockWorker as unknown as typeof Worker);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('wraps a module worker instance instead of a direct URL source', async () => {
+    createEasyWebWorker.mockReturnValue({
+      dispose: vi.fn(async () => undefined),
+      send: vi.fn(() =>
+        CancelablePromise.resolve({
+          requestId: 'worker-instance',
+          tiles: [],
+        }),
+      ),
+    });
+    createLocalTileResolutionSource.mockReturnValue({
+      dispose: vi.fn(async () => undefined),
+      resolve: vi.fn(() =>
+        CancelablePromise.resolve({
+          requestId: 'local-instance',
+          tiles: [],
+        }),
+      ),
+    });
+
+    const { createWorkerTileResolutionSource } =
+      await import('./createWorkerTileResolutionSource');
+    const source = createWorkerTileResolutionSource();
+
+    expect(MockWorker.instances).toHaveLength(1);
+    expect(createEasyWebWorker.mock.calls[0]?.[0]).toBe(
+      MockWorker.instances[0],
+    );
+    expect(MockWorker.instances[0]?.options).toMatchObject({
+      name: 'world-tile-resolution',
+      type: 'module',
+    });
+
+    await source.dispose();
   });
 
   it('falls back to the local resolver when the worker errors after startup', async () => {
