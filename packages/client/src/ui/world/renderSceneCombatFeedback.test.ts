@@ -335,7 +335,7 @@ describe('renderScene combat feedback', () => {
       xp: 5,
       elite: false,
     };
-    game.worldTimeMs = 240;
+    game.worldTimeMs = 90;
     game.combat = {
       coord: { q: 0, r: 0 },
       enemyIds: ['enemy-1,0-0'],
@@ -420,6 +420,111 @@ describe('renderScene combat feedback', () => {
       lungingWrapper!.position.x - baselineWrapper!.position.x,
     ).toBeLessThan(getWorldHexSize(lungingApp.screen, game.radius) * 0.5);
     expect(game.player.coord).toEqual({ q: 0, r: 0 });
+  });
+
+  it('returns the player wrapper to baseline after the opening lunge window elapses', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createLungeCombatGame('render-scene-player-lunge-relax');
+    const baselineApp = createMockApp();
+    const settledApp = createMockApp();
+
+    renderScene(
+      baselineApp as never,
+      {
+        ...game,
+        combat: null,
+      },
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        worldTimeMs: 240,
+      } as never,
+    );
+
+    renderScene(
+      settledApp as never,
+      {
+        ...game,
+        worldTimeMs: 240,
+      },
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        worldTimeMs: 240,
+      } as never,
+    );
+
+    const baselineWrapper = getPlayerLayer(baselineApp).children[2] as
+      | MockContainer
+      | undefined;
+    const settledWrapper = getPlayerLayer(settledApp).children[2] as
+      | MockContainer
+      | undefined;
+
+    expect(baselineWrapper).toBeDefined();
+    expect(settledWrapper).toBeDefined();
+    expect(settledWrapper!.position.x).toBeCloseTo(
+      baselineWrapper!.position.x,
+      4,
+    );
+    expect(settledWrapper!.position.y).toBeCloseTo(
+      baselineWrapper!.position.y,
+      4,
+    );
+  });
+
+  it('keeps killing-blow text visible above the last hostile marker location after enemy cleanup', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-killing-blow-floating-text');
+    const app = createMockApp();
+
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'forest',
+      items: [],
+      enemyIds: [],
+    };
+    game.worldFloatingTextEvents = [
+      {
+        id: 'killing-blow',
+        anchor: {
+          kind: 'enemy',
+          enemyId: 'enemy-1,0-0',
+          coord: { q: 1, r: 0 },
+        },
+        amount: 11,
+        createdAtMs: 200,
+        kind: 'damage',
+      },
+    ];
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        worldTimeMs: 500,
+      } as never,
+    );
+
+    const killingBlowText = getVisibleFloatingTexts(app).find(
+      (text) => text.text === '11',
+    );
+
+    expect(killingBlowText).toBeDefined();
   });
 
   it('refreshes visible hostile badge HP and MP arcs during combat without requiring a new enemy map object', async () => {
@@ -616,6 +721,68 @@ function createEnemyMarkerGame(seed: string) {
     defense: 1,
     xp: 5,
     elite: false,
+  };
+
+  return game;
+}
+
+function createLungeCombatGame(seed: string) {
+  const game = createGame(2, seed);
+
+  game.tiles['1,0'] = {
+    coord: { q: 1, r: 0 },
+    terrain: 'forest',
+    items: [],
+    enemyIds: ['enemy-1,0-0'],
+  };
+  game.enemies['enemy-1,0-0'] = {
+    id: 'enemy-1,0-0',
+    enemyTypeId: 'raider',
+    name: 'Raider',
+    coord: { q: 1, r: 0 },
+    rarity: 'common',
+    tier: 2,
+    hp: 8,
+    maxHp: 10,
+    mana: 4,
+    maxMana: 8,
+    attack: 3,
+    defense: 1,
+    xp: 5,
+    elite: false,
+  };
+  game.worldTimeMs = 90;
+  game.combat = {
+    coord: { q: 0, r: 0 },
+    enemyIds: ['enemy-1,0-0'],
+    started: true,
+    startedAtMs: 0,
+    engagement: {
+      autoStepOnVictory: false,
+      engageMode: 'staged-click',
+      originCoord: { q: 0, r: 0 },
+      stagingCoord: { q: 0, r: 0 },
+      targetCoord: { q: 1, r: 0 },
+    },
+    player: {
+      abilityIds: ['slash'],
+      globalCooldownMs: 1500,
+      globalCooldownEndsAt: 0,
+      cooldownEndsAt: {},
+      casting: null,
+    },
+    enemies: {
+      'enemy-1,0-0': {
+        abilityIds: ['kick'],
+        globalCooldownMs: 1500,
+        globalCooldownEndsAt: 0,
+        cooldownEndsAt: {},
+        casting: null,
+      },
+    },
+    enemyStateById: {
+      'enemy-1,0-0': {},
+    },
   };
 
   return game;

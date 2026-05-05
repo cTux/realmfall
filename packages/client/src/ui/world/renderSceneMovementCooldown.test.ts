@@ -1,7 +1,6 @@
 import { createGame } from '../../game/stateFactory';
 import { hexKey, hexesInRange } from '../../game/hex';
 import { getVisibleTiles } from '../../game/stateSelectors';
-import './renderSceneCombatFeedback.test';
 import {
   collectDescendants,
   createMockApp,

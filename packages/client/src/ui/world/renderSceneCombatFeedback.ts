@@ -1,5 +1,6 @@
 import { TextStyle } from 'pixi.js';
 import { getAppliedInterfaceFontStack } from '../../app/interfaceFonts';
+import { hexKey } from '../../game/hex';
 import type { WorldFloatingTextEvent } from '../../game/types';
 import type { GameState, HexCoord } from '../../game/stateTypes';
 import { tileToPoint } from './renderSceneMath';
@@ -150,12 +151,12 @@ export function renderSceneCombatFeedback({
     string,
     { point: { x: number; y: number }; radius: number }
   >();
+  const fallbackAnchorByCoordKey = new Map<
+    string,
+    { point: { x: number; y: number }; radius: number }
+  >();
 
   for (const { hostileEnemies, tile } of visibleTileRenderInputs) {
-    if (hostileEnemies.length === 0) {
-      continue;
-    }
-
     const point = tileToPoint(
       {
         q: tile.coord.q - playerCoord.q,
@@ -165,25 +166,16 @@ export function renderSceneCombatFeedback({
       origin.y,
       hexSize,
     );
-    const anchor =
-      tile.structure === 'dungeon'
-        ? {
-            point: {
-              x: point.x + ENEMY_GROUP_BADGE_OFFSET.x,
-              y: point.y + ENEMY_GROUP_BADGE_OFFSET.y,
-            },
-            radius: Math.max(
-              8,
-              enemyBadgeOuterRadius * DUNGEON_HOSTILE_GROUP_BADGE_RADIUS_RATIO,
-            ),
-          }
-        : {
-            point: {
-              x: point.x,
-              y: point.y - 2,
-            },
-            radius: enemyBadgeOuterRadius,
-          };
+    const anchor = createHostileMarkerAnchor(
+      point,
+      tile.structure,
+      enemyBadgeOuterRadius,
+    );
+    fallbackAnchorByCoordKey.set(hexKey(tile.coord), anchor);
+
+    if (hostileEnemies.length === 0) {
+      continue;
+    }
 
     hostileEnemies.forEach((enemy) => {
       anchorByEnemyId.set(enemy.id, anchor);
@@ -204,9 +196,13 @@ export function renderSceneCombatFeedback({
       continue;
     }
 
+    const isEnemyDefeated =
+      event.anchor.kind === 'enemy' && !state.enemies[event.anchor.enemyId];
     const resolvedAnchor = resolveFloatingTextAnchor({
       anchorByEnemyId,
+      fallbackAnchorByCoordKey,
       event,
+      isEnemyDefeated,
       playerAnchor,
     });
     if (!resolvedAnchor) {
@@ -234,21 +230,37 @@ export function renderSceneCombatFeedback({
 
 function resolveFloatingTextAnchor({
   anchorByEnemyId,
+  fallbackAnchorByCoordKey,
   event,
+  isEnemyDefeated,
   playerAnchor,
 }: {
   anchorByEnemyId: Map<
     string,
     { point: { x: number; y: number }; radius: number }
   >;
+  fallbackAnchorByCoordKey: Map<
+    string,
+    { point: { x: number; y: number }; radius: number }
+  >;
   event: WorldFloatingTextEvent;
+  isEnemyDefeated: boolean;
   playerAnchor: { point: { x: number; y: number }; radius: number };
 }) {
   if (event.anchor.kind === 'player') {
     return playerAnchor;
   }
 
-  return anchorByEnemyId.get(event.anchor.enemyId) ?? null;
+  const liveAnchor = anchorByEnemyId.get(event.anchor.enemyId);
+  if (liveAnchor) {
+    return liveAnchor;
+  }
+
+  if (!isEnemyDefeated) {
+    return null;
+  }
+
+  return fallbackAnchorByCoordKey.get(hexKey(event.anchor.coord)) ?? null;
 }
 
 function getFloatingTextStyle(kind: WorldFloatingTextEvent['kind']) {
@@ -306,10 +318,15 @@ function getCombatLungeDescriptor(state: GameState, worldTimeMs: number) {
     return null;
   }
 
+  if (
+    state.combat.startedAtMs != null &&
+    worldTimeMs >= state.combat.startedAtMs + PLAYER_LUNGE_DURATION_MS
+  ) {
+    return null;
+  }
+
   return {
-    animating:
-      state.combat.startedAtMs != null &&
-      worldTimeMs < state.combat.startedAtMs + PLAYER_LUNGE_DURATION_MS,
+    animating: state.combat.startedAtMs != null,
     startedAtMs: state.combat.startedAtMs,
     stagingCoord,
     targetCoord,
@@ -331,7 +348,32 @@ function getCombatLungeProgress(
       (worldTimeMs - descriptor.startedAtMs) / PLAYER_LUNGE_DURATION_MS,
     ),
   );
-  return 1 - Math.pow(1 - rawProgress, 2);
+  return Math.sin(rawProgress * Math.PI);
+}
+
+function createHostileMarkerAnchor(
+  point: { x: number; y: number },
+  structure: VisibleTileRenderInput['tile']['structure'],
+  enemyBadgeOuterRadius: number,
+) {
+  return structure === 'dungeon'
+    ? {
+        point: {
+          x: point.x + ENEMY_GROUP_BADGE_OFFSET.x,
+          y: point.y + ENEMY_GROUP_BADGE_OFFSET.y,
+        },
+        radius: Math.max(
+          8,
+          enemyBadgeOuterRadius * DUNGEON_HOSTILE_GROUP_BADGE_RADIUS_RATIO,
+        ),
+      }
+    : {
+        point: {
+          x: point.x,
+          y: point.y - 2,
+        },
+        radius: enemyBadgeOuterRadius,
+      };
 }
 
 function sameCoord(left: HexCoord, right: HexCoord) {
