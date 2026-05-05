@@ -5,7 +5,7 @@ import { hexKey, hexesInRange, type HexCoord } from './hex';
 import { addLog } from './logs';
 import { createRng } from './random';
 import { isPassable } from './shared';
-import { createCombatState } from './stateCombatState';
+import { createStartedCombatEncounter } from './stateCombatEngagement';
 import { getTileAt } from './stateWorldQueries';
 import type { CombatEnemyEncounterState, Enemy, GameState } from './types';
 import { isWorldBossFootprint } from './worldBoss';
@@ -157,22 +157,15 @@ function endCombatAfterTreasureGoblinEscape(
     return;
   }
 
-  state.combat = createCombatState(
-    state,
-    combat.coord,
-    followOnEnemyIds,
-    state.worldTimeMs,
-  );
-  addLog(
-    state,
-    'combat',
-    t(
-      followOnEnemyIds.length === 1
-        ? 'game.message.combat.encounter.one'
-        : 'game.message.combat.encounter.other',
-      { count: followOnEnemyIds.length },
-    ),
-  );
+  state.combat = createStartedCombatEncounter(state, {
+    autoStepOnVictory: combat.engagement?.autoStepOnVictory ?? false,
+    engageMode: combat.engagement?.engageMode ?? 'tile-step',
+    enemyIds: followOnEnemyIds,
+    originCoord: combat.engagement?.originCoord ?? combat.coord,
+    stagingCoord: combat.engagement?.stagingCoord ?? combat.coord,
+    targetCoord: combat.engagement?.targetCoord ?? combat.coord,
+    worldTimeMs: state.worldTimeMs,
+  });
   clearConsumableCooldownIfOutOfCombat(state);
 }
 

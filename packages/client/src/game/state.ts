@@ -7,6 +7,7 @@ export type {
   AbilityId,
   CombatActorState,
   CombatCastState,
+  CombatEngagementMetadata,
   CombatState,
   Enemy,
   Equipment,
@@ -33,6 +34,7 @@ export type {
   TileClaim,
   Tile,
   TownStockEntry,
+  WorldFloatingTextEvent,
 } from './types';
 export { Skill } from './types';
 export { EQUIPMENT_SLOTS, LOG_KINDS, RARITY_ORDER, SKILL_NAMES } from './types';
@@ -132,6 +134,8 @@ export {
 } from './stateItemModificationActions';
 export {
   attackCombatEnemy,
+  applyCombatVictoryAutoStep,
+  createStartedCombatEncounter,
   forfeitCombat,
   getCombatAutomationDelay,
   getEnemyCombatAttack,

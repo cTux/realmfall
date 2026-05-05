@@ -42,8 +42,8 @@ describe('game state combat encounters', () => {
     ).toBe(true);
   });
 
-  it('creates an encounter that waits for Start before battle begins', () => {
-    const game = createCombatEncounterGame('combat-start-seed');
+  it('starts battle immediately when entering a hostile tile', () => {
+    const game = createCombatEncounterGame('combat-immediate-start');
     const target = seedCombatEncounter(game, {
       id: 'enemy-2,0-0',
       name: 'Wolf',
@@ -57,14 +57,11 @@ describe('game state combat encounters', () => {
     });
 
     const encountered = moveToTile(game, target);
-    expect(encountered.combat?.started).toBe(false);
-    expect(progressCombat(encountered)).toBe(encountered);
-    expect(encountered.enemies['enemy-2,0-0']?.hp).toBe(5);
+    expect(encountered.combat?.started).toBe(true);
+    expect(progressCombat(encountered)).not.toBe(encountered);
     expect(
-      encountered.logs.some((entry) =>
-        /press start to begin the battle/i.test(entry.text),
-      ),
-    ).toBe(true);
+      encountered.logs.some((entry) => /press start/i.test(entry.text)),
+    ).toBe(false);
   });
 
   it('lets the player forfeit a battle after combat has started', () => {

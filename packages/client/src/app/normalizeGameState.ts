@@ -28,6 +28,8 @@ import {
   normalizeHexCoord,
 } from './normalizeShared';
 
+const MAX_WORLD_FLOATING_TEXT_EVENTS = 24;
+
 export function normalizeLoadedGame(game: unknown): GameState | null {
   if (!isRecord(game)) {
     return null;
@@ -108,6 +110,9 @@ export function normalizeLoadedGame(game: unknown): GameState | null {
       ? game.logSequence
       : baseline.logSequence,
     logs: [],
+    worldFloatingTextEvents: normalizeWorldFloatingTextEvents(
+      game.worldFloatingTextEvents,
+    ),
     tiles,
     enemies,
     player,
@@ -771,4 +776,81 @@ function clonePlayer(player: GameState['player']) {
       ...(effect.tags === undefined ? {} : { tags: [...effect.tags] }),
     })),
   };
+}
+
+function normalizeWorldFloatingTextEvents(
+  value: unknown,
+): GameState['worldFloatingTextEvents'] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .flatMap((event) => {
+      const normalizedEvent = normalizeWorldFloatingTextEvent(event);
+      return normalizedEvent ? [normalizedEvent] : [];
+    })
+    .slice(-MAX_WORLD_FLOATING_TEXT_EVENTS);
+}
+
+function normalizeWorldFloatingTextEvent(
+  value: unknown,
+): GameState['worldFloatingTextEvents'][number] | null {
+  if (
+    !isRecord(value) ||
+    typeof value.id !== 'string' ||
+    !isFiniteNumber(value.amount) ||
+    !isFiniteNumber(value.createdAtMs) ||
+    !isWorldFloatingTextKind(value.kind)
+  ) {
+    return null;
+  }
+
+  const anchor = normalizeWorldFloatingTextAnchor(value.anchor);
+  if (!anchor) {
+    return null;
+  }
+
+  return {
+    id: value.id,
+    anchor,
+    amount: value.amount,
+    createdAtMs: value.createdAtMs,
+    kind: value.kind,
+  };
+}
+
+function normalizeWorldFloatingTextAnchor(
+  value: unknown,
+): GameState['worldFloatingTextEvents'][number]['anchor'] | null {
+  if (!isRecord(value) || typeof value.kind !== 'string') {
+    return null;
+  }
+
+  if (value.kind === 'player') {
+    return { kind: 'player' };
+  }
+
+  if (value.kind !== 'enemy' || typeof value.enemyId !== 'string') {
+    return null;
+  }
+
+  const coord = normalizeHexCoord(value.coord);
+  if (!coord) {
+    return null;
+  }
+
+  return {
+    kind: 'enemy',
+    enemyId: value.enemyId,
+    coord,
+  };
+}
+
+function isWorldFloatingTextKind(
+  value: unknown,
+): value is GameState['worldFloatingTextEvents'][number]['kind'] {
+  return (
+    value === 'damage' || value === 'critical-damage' || value === 'healing'
+  );
 }

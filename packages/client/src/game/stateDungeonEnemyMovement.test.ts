@@ -91,6 +91,13 @@ describe('dungeon enemy world movement', () => {
     expect(secondStep.enemies[enemyId]?.coord).toEqual(ENTRANCE_COORD);
     expect(secondStep.combat?.coord).toEqual(ENTRANCE_COORD);
     expect(secondStep.combat?.enemyIds).toEqual([enemyId]);
+    expect(secondStep.combat?.started).toBe(true);
+    expect(secondStep.combat?.engagement).toMatchObject({
+      autoStepOnVictory: true,
+      engageMode: 'enemy-chase',
+      stagingCoord: { q: 0, r: 0 },
+      targetCoord: { q: 1, r: 0 },
+    });
   });
 
   it('uses a passable chase path around walls instead of freezing on a blocked direct line', () => {

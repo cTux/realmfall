@@ -8,8 +8,7 @@ import { createRng } from './random';
 import { addItemToInventory, consumeInventoryItem } from './inventory';
 import { gainSkillXp } from './progression';
 import { terrainTier } from './shared';
-import { startCombat } from './stateCombat';
-import { createCombatState } from './stateCombatState';
+import { createStartedCombatEncounter } from './stateCombatEngagement';
 import { cloneForWorldMutation, message } from './stateMutationHelpers';
 import { getCurrentTile } from './stateWorldQueries';
 import { getLockpickBreakChance, isLockedChestMimic } from './lockedChests';
@@ -57,18 +56,21 @@ export function applyLockedChestOpener(
     tile.enemyIds = [mimic.id];
     next.tiles[tileKey] = { ...tile, enemyIds: [...tile.enemyIds] };
     next.enemies[mimic.id] = mimic;
-    next.combat = createCombatState(
-      next,
-      next.player.coord,
-      [mimic.id],
-      next.worldTimeMs,
-    );
     addLog(
       next,
       'combat',
       t('game.message.lockedChest.mimicReveal', { item: item.name }),
     );
-    return startCombat(next);
+    next.combat = createStartedCombatEncounter(next, {
+      autoStepOnVictory: false,
+      engageMode: 'tile-step',
+      enemyIds: [mimic.id],
+      originCoord: next.player.coord,
+      stagingCoord: next.player.coord,
+      targetCoord: next.player.coord,
+      worldTimeMs: next.worldTimeMs,
+    });
+    return next;
   }
 
   if (item.itemKey === ItemId.ChestKey) {

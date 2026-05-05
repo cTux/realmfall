@@ -130,6 +130,14 @@ export function makeCombatState(
     coord,
     enemyIds,
     started,
+    ...(started ? { startedAtMs: worldTimeMs } : {}),
+    engagement: {
+      autoStepOnVictory: false,
+      engageMode: 'tile-step',
+      originCoord: { ...coord },
+      stagingCoord: { ...coord },
+      targetCoord: { ...coord },
+    },
     player: {
       abilityIds: ['kick'],
       globalCooldownMs: 1500,

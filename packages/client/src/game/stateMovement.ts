@@ -1,12 +1,12 @@
 import { t } from '../i18n';
+import { EnemyTypeId } from './content/ids';
+import { enemyKey, makeEnemy, nextEnemySpawnIndex } from './combat';
+import { GAME_CONFIG } from './config';
 import { hexDistance, type HexCoord } from './hex';
 import { addLog } from './logs';
-import { EnemyTypeId } from './content/ids';
-import { GAME_CONFIG } from './config';
 import { createRng } from './random';
-import { enemyKey, makeEnemy, nextEnemySpawnIndex } from './combat';
 import { isPassable } from './shared';
-import { createCombatState } from './stateCombat';
+import { createStartedCombatEncounter } from './stateCombatEngagement';
 import { cloneForWorldMutation, message } from './stateMutationHelpers';
 import { getSafePathToTile } from './statePathfinding';
 import { applySurvivalDecay, respawnAtNearestTown } from './stateSurvival';
@@ -52,22 +52,15 @@ export function moveToTile(state: GameState, target: HexCoord): GameState {
 
   const hostileEnemyIds = getHostileEnemyIds(next, target);
   if (hostileEnemyIds.length > 0) {
-    next.combat = createCombatState(
-      next,
-      target,
-      hostileEnemyIds,
-      next.worldTimeMs,
-    );
-    addLog(
-      next,
-      'combat',
-      t(
-        hostileEnemyIds.length === 1
-          ? 'game.message.combat.encounter.one'
-          : 'game.message.combat.encounter.other',
-        { count: hostileEnemyIds.length },
-      ),
-    );
+    next.combat = createStartedCombatEncounter(next, {
+      autoStepOnVictory: false,
+      engageMode: 'tile-step',
+      enemyIds: hostileEnemyIds,
+      originCoord: current,
+      stagingCoord: target,
+      targetCoord: target,
+      worldTimeMs: next.worldTimeMs,
+    });
     return next;
   }
 
