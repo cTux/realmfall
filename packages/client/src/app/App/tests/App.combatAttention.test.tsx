@@ -1,6 +1,7 @@
 import { act } from 'react';
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import { moveToTile, type GameState } from '../../../game/state';
+import { createCombatState } from '../../../game/stateCombatState';
 import { t } from '../../../i18n';
 import {
   renderWindowHotkeyLabelText,
@@ -174,6 +175,32 @@ describe('App combat attention', () => {
     expect(host.textContent).not.toContain(
       stripBracketHotkeyLabel('(Q) Start'),
     );
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  }, 10_000);
+
+  it('does not mark hex content attention for a hydrated combat that never started', async () => {
+    const game = createHydratedAppGame();
+    game.player.coord = { q: 1, r: 0 };
+    game.combat = createCombatState(
+      game,
+      { q: 1, r: 0 },
+      ['enemy-1,0-0'],
+      game.worldTimeMs,
+    );
+    loadEncryptedState.mockResolvedValue({ game, ui: {} });
+
+    const { host, root } = await renderApp();
+    await flushLazyModules();
+
+    const hexContentButton = findHexContentDockButton(host);
+    expect(hexContentButton?.dataset.opened).toBe('true');
+    expect(
+      hexContentButton?.querySelector('[class*="attentionBadge"]'),
+    ).toBeNull();
 
     await act(async () => {
       root.unmount();

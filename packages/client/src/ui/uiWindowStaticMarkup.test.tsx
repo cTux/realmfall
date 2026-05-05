@@ -194,7 +194,6 @@ describe('ui window static markup', () => {
             },
           ]}
           worldTimeMs={0}
-          onStart={() => {}}
           onHoverDetail={() => {}}
           onLeaveDetail={() => {}}
         />
