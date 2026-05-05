@@ -337,12 +337,8 @@ describe('GameSettingsWindowContent', () => {
       );
     });
 
-    const performancePreset = Array.from(
-      host.querySelectorAll('[role="radio"]'),
-    ).find((candidate) =>
-      candidate.textContent?.includes(
-        t('ui.settings.graphics.preset.performance.label'),
-      ),
+    const performancePreset = host.querySelector(
+      '#graphics-preset-performance',
     );
     const saveButton = Array.from(host.querySelectorAll('button')).find(
       (candidate) => candidate.textContent === t('ui.settings.actions.save'),
@@ -509,6 +505,103 @@ describe('GameSettingsWindowContent', () => {
 
     expect(antialiasLabel?.textContent).toContain(reloadRequired);
     expect(terrainBackgroundsLabel?.textContent).not.toContain(reloadRequired);
+  });
+
+  it('shows performance impact labels on graphics presets, the FPS control, and toggles', async () => {
+    await act(async () => {
+      root.render(
+        <GameSettingsWindowContent
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
+          graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          interfaceSettings={DEFAULT_INTERFACE_SETTINGS}
+          gameplaySettings={DEFAULT_GAMEPLAY_SETTINGS}
+          onResetSaveArea={async () => undefined}
+          onSave={async () => undefined}
+          onSaveAndReload={async () => undefined}
+        />,
+      );
+    });
+
+    const impactLabel = t('ui.settings.graphics.performanceImpact.label');
+    const qualityPreset = Array.from(
+      host.querySelectorAll('[role="radio"]'),
+    ).find((candidate) =>
+      candidate.textContent?.includes(
+        t('ui.settings.graphics.preset.quality.label'),
+      ),
+    );
+    const renderFpsField = Array.from(host.querySelectorAll('label')).find(
+      (candidate) =>
+        candidate.textContent?.includes(
+          t('ui.settings.graphics.worldRenderFps.label'),
+        ),
+    );
+    const terrainBackgroundsLabel = Array.from(
+      host.querySelectorAll('label'),
+    ).find((candidate) =>
+      candidate.textContent?.includes(
+        t('ui.settings.graphics.showTerrainBackgrounds.label'),
+      ),
+    );
+
+    expect(host.textContent).toContain(impactLabel);
+    expect(
+      qualityPreset?.querySelector('[data-impact-level="high"]')?.textContent,
+    ).toBe(t('ui.settings.graphics.performanceImpact.high'));
+    expect(
+      renderFpsField?.querySelector('[data-impact-level="low"]')?.textContent,
+    ).toBe(t('ui.settings.graphics.performanceImpact.low'));
+    expect(
+      terrainBackgroundsLabel?.querySelector('[data-impact-level="medium"]')
+        ?.textContent,
+    ).toBe(t('ui.settings.graphics.performanceImpact.medium'));
+  });
+
+  it('updates the Pixi render FPS impact label as the slider changes', async () => {
+    await act(async () => {
+      root.render(
+        <GameSettingsWindowContent
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
+          graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          interfaceSettings={DEFAULT_INTERFACE_SETTINGS}
+          gameplaySettings={DEFAULT_GAMEPLAY_SETTINGS}
+          onResetSaveArea={async () => undefined}
+          onSave={async () => undefined}
+          onSaveAndReload={async () => undefined}
+        />,
+      );
+    });
+
+    const renderFpsField = Array.from(host.querySelectorAll('label')).find(
+      (candidate) =>
+        candidate.textContent?.includes(
+          t('ui.settings.graphics.worldRenderFps.label'),
+        ),
+    );
+    const renderFpsSlider = renderFpsField?.querySelector(
+      'input[type="range"]',
+    ) as HTMLInputElement | null;
+
+    expect(
+      renderFpsField?.querySelector('[data-impact-level="low"]')?.textContent,
+    ).toBe(t('ui.settings.graphics.performanceImpact.low'));
+    expect(renderFpsSlider).not.toBeNull();
+
+    await act(async () => {
+      if (renderFpsSlider) {
+        const setValue = Object.getOwnPropertyDescriptor(
+          HTMLInputElement.prototype,
+          'value',
+        )?.set;
+
+        setValue?.call(renderFpsSlider, '180');
+        renderFpsSlider.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+
+    expect(
+      renderFpsField?.querySelector('[data-impact-level="high"]')?.textContent,
+    ).toBe(t('ui.settings.graphics.performanceImpact.high'));
   });
 
   it('saves selected voice actor and event toggles inside the audio payload', async () => {

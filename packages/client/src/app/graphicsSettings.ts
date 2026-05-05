@@ -24,6 +24,7 @@ export type GraphicsPresetId =
   | 'custom';
 
 export type GraphicsResolutionCap = 1 | 1.5 | 2;
+export type GraphicsPerformanceImpact = 'high' | 'medium' | 'low';
 
 export interface GraphicsSettings {
   preset: GraphicsPresetId;
@@ -49,6 +50,7 @@ export interface GraphicsSettingsOptionDefinition {
   key: GraphicsToggleSettingKey;
   labelKey: string;
   descriptionKey: string;
+  performanceImpact: GraphicsPerformanceImpact;
   reloadRequired?: boolean;
 }
 
@@ -56,6 +58,7 @@ export interface GraphicsPresetOptionDefinition {
   value: Exclude<GraphicsPresetId, 'custom'>;
   labelKey: string;
   descriptionKey: string;
+  performanceImpact: GraphicsPerformanceImpact;
   reloadRequired?: boolean;
 }
 
@@ -113,18 +116,21 @@ export const GRAPHICS_PRESET_OPTIONS: GraphicsPresetOptionDefinition[] = [
     value: 'quality',
     labelKey: 'ui.settings.graphics.preset.quality.label',
     descriptionKey: 'ui.settings.graphics.preset.quality.description',
+    performanceImpact: 'high',
     reloadRequired: true,
   },
   {
     value: 'balanced',
     labelKey: 'ui.settings.graphics.preset.balanced.label',
     descriptionKey: 'ui.settings.graphics.preset.balanced.description',
+    performanceImpact: 'medium',
     reloadRequired: true,
   },
   {
     value: 'performance',
     labelKey: 'ui.settings.graphics.preset.performance.label',
     descriptionKey: 'ui.settings.graphics.preset.performance.description',
+    performanceImpact: 'low',
     reloadRequired: true,
   },
 ];
@@ -182,46 +188,67 @@ export function normalizeWorldRenderFps(
   );
 }
 
+export function getWorldRenderFpsPerformanceImpact(
+  fps: number,
+): GraphicsPerformanceImpact {
+  if (fps >= 151) {
+    return 'high';
+  }
+
+  if (fps >= 91) {
+    return 'medium';
+  }
+
+  return 'low';
+}
+
 export const GRAPHICS_SETTINGS_OPTIONS: GraphicsSettingsOptionDefinition[] = [
   {
     key: 'antialias',
     labelKey: 'ui.settings.graphics.antialias.label',
     descriptionKey: 'ui.settings.graphics.antialias.description',
+    performanceImpact: 'medium',
     reloadRequired: true,
   },
   {
     key: 'autoDensity',
     labelKey: 'ui.settings.graphics.autoDensity.label',
     descriptionKey: 'ui.settings.graphics.autoDensity.description',
+    performanceImpact: 'medium',
     reloadRequired: true,
   },
   {
     key: 'clearBeforeRender',
     labelKey: 'ui.settings.graphics.clearBeforeRender.label',
     descriptionKey: 'ui.settings.graphics.clearBeforeRender.description',
+    performanceImpact: 'low',
     reloadRequired: true,
   },
   {
     key: 'preserveDrawingBuffer',
     labelKey: 'ui.settings.graphics.preserveDrawingBuffer.label',
     descriptionKey: 'ui.settings.graphics.preserveDrawingBuffer.description',
+    performanceImpact: 'high',
     reloadRequired: true,
   },
   {
     key: 'premultipliedAlpha',
     labelKey: 'ui.settings.graphics.premultipliedAlpha.label',
     descriptionKey: 'ui.settings.graphics.premultipliedAlpha.description',
+    performanceImpact: 'low',
     reloadRequired: true,
   },
   {
     key: 'showTerrainBackgrounds',
     labelKey: 'ui.settings.graphics.showTerrainBackgrounds.label',
     descriptionKey: 'ui.settings.graphics.showTerrainBackgrounds.description',
+    performanceImpact: 'medium',
   },
   {
     key: 'useContextAlpha',
     labelKey: 'ui.settings.graphics.useContextAlpha.label',
     descriptionKey: 'ui.settings.graphics.useContextAlpha.description',
+    performanceImpact: 'low',
     reloadRequired: true,
   },
 ];
