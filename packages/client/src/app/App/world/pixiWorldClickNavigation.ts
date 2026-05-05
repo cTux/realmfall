@@ -2,8 +2,14 @@ import type { MutableRefObject } from 'react';
 import type { Application } from 'pixi.js';
 import { hexAtPoint, hexDistance, type HexCoord } from '../../../game/hex';
 import { isPassable } from '../../../game/shared';
-import { getSafePathToTile } from '../../../game/statePathfinding';
-import { getResolvedTileAt } from '../../../game/stateWorldQueries';
+import {
+  getSafePathToHostileStagingTile,
+  getSafePathToTile,
+} from '../../../game/statePathfinding';
+import {
+  getHostileEnemyIds,
+  getResolvedTileAt,
+} from '../../../game/stateWorldQueries';
 import type { GameState } from '../../../game/stateTypes';
 import { getWorldHexSize } from '../../../ui/world/renderSceneMath';
 import { WORLD_REVEAL_RADIUS } from '../../constants';
@@ -14,7 +20,12 @@ import {
 } from './movement/worldMovementTransition';
 
 interface WorldMovementQueueController {
+  queueHostileApproach(
+    nextSteps: HexCoord[],
+    engageTargetCoord: HexCoord,
+  ): void;
   replaceQueuedPath(nextSteps: HexCoord[]): void;
+  startHostileEngagement(targetCoord: HexCoord): void;
 }
 
 export function createWorldClickHandler({
@@ -68,8 +79,15 @@ export function createWorldClickHandler({
         return;
       }
 
+      const hostileEnemyIds = getHostileEnemyIds(current, target);
+
       selectedRef.current = target;
       renderInvalidationRef.current += 1;
+      if (hostileEnemyIds.length > 0) {
+        movementController.startHostileEngagement(target);
+        return;
+      }
+
       movementController.replaceQueuedPath([target]);
       return;
     }
@@ -79,6 +97,19 @@ export function createWorldClickHandler({
     }
 
     if (!getResolvedTileAt(current, target)) {
+      return;
+    }
+
+    const hostileEnemyIds = getHostileEnemyIds(current, target);
+    if (hostileEnemyIds.length > 0) {
+      const stagingPath = getSafePathToHostileStagingTile(current, target);
+      if (!stagingPath) {
+        return;
+      }
+
+      selectedRef.current = target;
+      renderInvalidationRef.current += 1;
+      movementController.queueHostileApproach(stagingPath, target);
       return;
     }
 

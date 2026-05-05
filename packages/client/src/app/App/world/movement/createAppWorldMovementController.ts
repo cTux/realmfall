@@ -21,6 +21,11 @@ interface CreateAppWorldMovementControllerArgs {
   movementCooldownEndAtRef: MutableRefObject<number | null>;
 }
 
+interface ApplyWorldMovementStepOptions {
+  engageMode?: 'adjacent-click' | 'staged-click';
+  engageTargetCoord?: HexCoord;
+}
+
 export function createAppWorldMovementController({
   gameRef,
   now = () => performance.now(),
@@ -36,10 +41,13 @@ export function createAppWorldMovementController({
     getCurrentCoord: () => gameRef.current.player.coord,
     schedule: (callback, delayMs) => setTimeout(callback, delayMs),
     clearScheduled: (timerId) => clearTimeout(timerId),
-    applyApprovedStep: (target: HexCoord) => {
+    applyApprovedStep: (
+      target: HexCoord,
+      options?: ApplyWorldMovementStepOptions,
+    ) => {
       const nextState = createLoggedGameTransition({
         describe: () => t('game.log.command.moveToTile'),
-        transition: (timedState) => moveToTile(timedState, target),
+        transition: (timedState) => moveToTile(timedState, target, options),
       })({
         ...gameRef.current,
         worldTimeMs: worldTimeMsRef.current,

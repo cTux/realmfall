@@ -10,6 +10,7 @@ import {
 } from 'react';
 import type { Application } from 'pixi.js';
 import type { TooltipPosition } from '@realmfall/ui';
+import { WORLD_MOVE_HEX_COOLDOWN_MS } from '../../game/config';
 import { hexKey, hexesInRange } from '../../game/hex';
 import type { GameState, HexCoord } from '../../game/stateTypes';
 import { type VisibleWorldTile } from '../../ui/world/visibleWorldTiles';
@@ -92,8 +93,13 @@ interface WorldMovementController {
   clear(): void;
   dispose(): void;
   getQueuedPath(): HexCoord[] | null;
+  queueHostileApproach(
+    nextSteps: HexCoord[],
+    engageTargetCoord: HexCoord,
+  ): void;
   releaseCombatAutoOpenSuppression(): void;
   replaceQueuedPath(nextSteps: HexCoord[]): void;
+  startHostileEngagement(targetCoord: HexCoord): void;
 }
 
 export function usePixiWorld({
@@ -153,6 +159,7 @@ export function usePixiWorld({
     useRef<WorldHoverAnalysisController | null>(null);
   const hoverAnalysisVersionRef = useRef(0);
   const hoverSnapshotRef = useRef<WorldHoverSnapshot>(undefined!);
+  const previousGameRef = useRef(game);
   const showTerrainBackgroundsRef = useRef(showTerrainBackgrounds);
   const showTooltipTagsRef = useRef(showTooltipTags);
   const worldRenderFpsRef = useRef(normalizeWorldRenderFps(worldRenderFps));
@@ -205,6 +212,25 @@ export function usePixiWorld({
   useEffect(() => {
     gameRef.current = game;
   }, [game, gameRef]);
+
+  useEffect(() => {
+    const previousGame = previousGameRef.current;
+    const previousEngagement = previousGame.combat?.engagement;
+    if (
+      previousGame !== game &&
+      previousEngagement?.autoStepOnVictory &&
+      previousEngagement.targetCoord !== null &&
+      game.combat === null &&
+      sameCoord(game.player.coord, previousEngagement.targetCoord) &&
+      !sameCoord(previousGame.player.coord, previousEngagement.targetCoord)
+    ) {
+      movementCooldownEndAtRef.current =
+        performance.now() + WORLD_MOVE_HEX_COOLDOWN_MS;
+      renderInvalidationRef.current += 1;
+    }
+
+    previousGameRef.current = game;
+  }, [game]);
 
   useEffect(() => {
     pausedRef.current = paused;
