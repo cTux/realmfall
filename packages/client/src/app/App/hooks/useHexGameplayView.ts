@@ -15,6 +15,7 @@ import {
   getHostileEnemyIds,
   getTownStockForDay,
 } from '../../../game/stateSelectors';
+import { getActiveWorld } from '../../../game/dungeons/worldState';
 import { getResolvedCurrentHexClaimStatus } from '../../../game/stateClaims';
 import {
   FACTION_NPC_HEAL_COST,
@@ -22,10 +23,12 @@ import {
 } from '../../../game/stateFactionNpc';
 import { getResolvedTileAt } from '../../../game/stateWorldQueries';
 import type { GameState, Item } from '../../../game/stateTypes';
-import { structureActionLabel } from '../../../game/world';
+import { isGatheringStructure } from '../../../game/world';
 import { t } from '../../../i18n';
+import type { HexInteractAction } from '../AppWindows.viewTypes';
 
 interface UseHexGameplayViewOptions {
+  activeWorldId?: GameState['activeWorldId'];
   bloodMoonActive: GameState['bloodMoonActive'];
   combat: GameState['combat'];
   enemies: GameState['enemies'];
@@ -36,6 +39,7 @@ interface UseHexGameplayViewOptions {
   selectedHexItemModificationItem: Item | null;
   selectedHexItemReforgeStatIndex: number | null;
   tiles: GameState['tiles'];
+  worlds?: GameState['worlds'];
   worldDayIndex: number;
 }
 
@@ -46,6 +50,7 @@ type FactionNpcHealStatusInput = Parameters<
 >[0];
 
 export function useHexGameplayView({
+  activeWorldId,
   bloodMoonActive,
   combat,
   enemies,
@@ -56,6 +61,7 @@ export function useHexGameplayView({
   selectedHexItemModificationItem,
   selectedHexItemReforgeStatIndex,
   tiles,
+  worlds,
   worldDayIndex,
 }: UseHexGameplayViewOptions) {
   const { coord, inventory } = player;
@@ -200,7 +206,6 @@ export function useHexGameplayView({
     currentTile.structure === 'town' && !hasUnlockedEquipmentInInventory
       ? t('game.message.sell.empty')
       : null;
-  const interactLabel = structureActionLabel(currentTile.structure);
   const claimStatus = useMemo(
     () => getResolvedCurrentHexClaimStatus(claimStatusInput),
     [claimStatusInput],
@@ -216,6 +221,18 @@ export function useHexGameplayView({
           },
     [factionNpcHealStatusInput, resolvedCurrentTile],
   );
+  const currentWorldKind = useMemo(
+    () => getActiveWorld({ activeWorldId, worlds })?.kind ?? 'surface',
+    [activeWorldId, worlds],
+  );
+  const interactAction = useMemo<HexInteractAction | null>(
+    () =>
+      resolveHexInteractAction({
+        currentStructure: currentTile.structure,
+        currentWorldKind,
+      }),
+    [currentTile.structure, currentWorldKind],
+  );
 
   return {
     bulkProspectEquipmentExplanation,
@@ -226,12 +243,31 @@ export function useHexGameplayView({
     combatEnemies,
     currentTile,
     currentTileHostileEnemyCount,
+    currentWorldKind,
     gold,
-    interactLabel,
+    interactAction,
     itemModification,
     territoryNpcHealStatus,
     townStock,
   };
+}
+
+function resolveHexInteractAction({
+  currentStructure,
+  currentWorldKind,
+}: {
+  currentStructure: GameState['tiles'][string]['structure'];
+  currentWorldKind: 'surface' | 'dungeon';
+}): HexInteractAction | null {
+  if (currentStructure === 'dungeon') {
+    return currentWorldKind === 'dungeon' ? 'leave-dungeon' : 'enter-dungeon';
+  }
+
+  if (currentStructure === 'dungeon-chest') {
+    return 'open-dungeon-chest';
+  }
+
+  return isGatheringStructure(currentStructure) ? 'gather' : null;
 }
 
 function getItemModificationDisabledReason({

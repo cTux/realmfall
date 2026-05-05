@@ -92,7 +92,7 @@ jobs:
           restore-keys: |
             vitest-cache-${{ runner.os }}-
 
-      - name: Run workspace node tests
+      - name: Run workspace tests
         run: pnpm test
 
   build:

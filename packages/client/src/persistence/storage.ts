@@ -4,6 +4,7 @@ const STORAGE_DATABASE_NAME = 'realmfall';
 const STORAGE_DATABASE_VERSION = 1;
 const STORAGE_OBJECT_STORE_NAME = 'app-state';
 const PASSPHRASE = 'survival-rpg-local-save-v1';
+const DUNGEON_STORAGE_KEY_PREFIX = 'game-state-dungeon-';
 let storageDatabasePromise: Promise<IDBDatabase | null> | null = null;
 let storageKeyPromise: Promise<CryptoKey> | null = null;
 
@@ -16,6 +17,10 @@ export const PERSISTED_SAVE_STORAGE_KEYS = {
   game: 'game-state-game',
   ui: 'game-state-ui',
 } satisfies Record<EncryptedSaveAreaId, string>;
+
+export function getDungeonSaveStorageKey(dungeonId: string) {
+  return `${DUNGEON_STORAGE_KEY_PREFIX}${dungeonId}`;
+}
 
 export async function loadEncryptedState(): Promise<PersistedData | null> {
   const database = await openStorageDatabase();
@@ -40,6 +45,25 @@ export async function loadEncryptedState(): Promise<PersistedData | null> {
   return Object.keys(loaded).length > 0 ? loaded : null;
 }
 
+export async function loadEncryptedDungeonState<T>(
+  dungeonId: string,
+): Promise<T | null> {
+  const database = await openStorageDatabase();
+  const payload = await loadPersistedPayloadByKey(
+    getDungeonSaveStorageKey(dungeonId),
+    database,
+  );
+  if (!payload) {
+    return null;
+  }
+
+  try {
+    return await decryptJson<T>(payload);
+  } catch {
+    return null;
+  }
+}
+
 export async function saveEncryptedState(data: PersistedData) {
   const database = await openStorageDatabase();
 
@@ -56,6 +80,20 @@ export async function saveEncryptedState(data: PersistedData) {
   );
 }
 
+export async function saveEncryptedDungeonState(
+  dungeonId: string,
+  data: unknown,
+) {
+  const database = await openStorageDatabase();
+  const payload = await encryptJson(data);
+
+  await writePersistedPayloadByKey(
+    getDungeonSaveStorageKey(dungeonId),
+    payload,
+    database,
+  );
+}
+
 export async function clearEncryptedState(areaId?: EncryptedSaveAreaId) {
   const database = await openStorageDatabase();
   const areas = areaId ? [areaId] : ENCRYPTED_SAVE_AREA_IDS;
@@ -65,6 +103,11 @@ export async function clearEncryptedState(areaId?: EncryptedSaveAreaId) {
       clearPersistedPayload(currentAreaId, database),
     ),
   );
+}
+
+export async function clearEncryptedDungeonStates() {
+  const database = await openStorageDatabase();
+  await clearPersistedPayloadsByPrefix(DUNGEON_STORAGE_KEY_PREFIX, database);
 }
 
 function getStorageKey(areaId: EncryptedSaveAreaId) {
@@ -133,22 +176,29 @@ async function loadPersistedPayload(
   areaId: EncryptedSaveAreaId,
   database: IDBDatabase | null,
 ) {
+  return loadPersistedPayloadByKey(getStorageKey(areaId), database);
+}
+
+async function loadPersistedPayloadByKey(
+  storageKey: string,
+  database: IDBDatabase | null,
+) {
   if (database) {
     try {
-      const payload = await readIndexedDbPayload(database, areaId);
+      const payload = await readIndexedDbPayloadByKey(database, storageKey);
       if (payload) {
         return payload;
       }
     } catch {
-      return loadLocalStoragePayload(areaId);
+      return loadLocalStoragePayloadByKey(storageKey);
     }
   }
 
-  const legacyPayload = loadLocalStoragePayload(areaId);
+  const legacyPayload = loadLocalStoragePayloadByKey(storageKey);
   if (legacyPayload && database) {
     try {
-      await writeIndexedDbPayload(database, areaId, legacyPayload);
-      clearLocalStoragePayload(areaId);
+      await writeIndexedDbPayloadByKey(database, storageKey, legacyPayload);
+      clearLocalStoragePayloadByKey(storageKey);
     } catch {
       return legacyPayload;
     }
@@ -162,24 +212,60 @@ async function writePersistedPayload(
   payload: string,
   database: IDBDatabase | null,
 ) {
+  await writePersistedPayloadByKey(getStorageKey(areaId), payload, database);
+}
+
+async function writePersistedPayloadByKey(
+  storageKey: string,
+  payload: string,
+  database: IDBDatabase | null,
+) {
   if (database) {
-    await writeIndexedDbPayload(database, areaId, payload);
-    clearLocalStoragePayload(areaId);
+    await writeIndexedDbPayloadByKey(database, storageKey, payload);
+    clearLocalStoragePayloadByKey(storageKey);
     return;
   }
 
-  writeLocalStoragePayload(areaId, payload);
+  writeLocalStoragePayloadByKey(storageKey, payload);
 }
 
 async function clearPersistedPayload(
   areaId: EncryptedSaveAreaId,
   database: IDBDatabase | null,
 ) {
+  await clearPersistedPayloadByKey(getStorageKey(areaId), database);
+}
+
+async function clearPersistedPayloadByKey(
+  storageKey: string,
+  database: IDBDatabase | null,
+) {
   if (database) {
-    await deleteIndexedDbPayload(database, areaId);
+    await deleteIndexedDbPayloadByKey(database, storageKey);
   }
 
-  clearLocalStoragePayload(areaId);
+  clearLocalStoragePayloadByKey(storageKey);
+}
+
+async function clearPersistedPayloadsByPrefix(
+  storageKeyPrefix: string,
+  database: IDBDatabase | null,
+) {
+  try {
+    if (database) {
+      const storageKeys = await readIndexedDbKeysByPrefix(
+        database,
+        storageKeyPrefix,
+      );
+      await Promise.all(
+        storageKeys.map((storageKey) =>
+          deleteIndexedDbPayloadByKey(database, storageKey),
+        ),
+      );
+    }
+  } finally {
+    clearLocalStoragePayloadsByPrefix(storageKeyPrefix);
+  }
 }
 
 async function openStorageDatabase() {
@@ -224,9 +310,9 @@ async function openIndexedDbStorageDatabase() {
   });
 }
 
-async function readIndexedDbPayload(
+async function readIndexedDbPayloadByKey(
   database: IDBDatabase,
-  areaId: EncryptedSaveAreaId,
+  storageKey: string,
 ) {
   return new Promise<string | null>((resolve, reject) => {
     const transaction = database.transaction(
@@ -235,7 +321,7 @@ async function readIndexedDbPayload(
     );
     const request = transaction
       .objectStore(STORAGE_OBJECT_STORE_NAME)
-      .get(getStorageKey(areaId));
+      .get(storageKey);
 
     request.onsuccess = () => {
       resolve(typeof request.result === 'string' ? request.result : null);
@@ -249,9 +335,37 @@ async function readIndexedDbPayload(
   });
 }
 
-async function writeIndexedDbPayload(
+async function readIndexedDbKeysByPrefix(
   database: IDBDatabase,
-  areaId: EncryptedSaveAreaId,
+  storageKeyPrefix: string,
+) {
+  return new Promise<string[]>((resolve, reject) => {
+    const transaction = database.transaction(
+      STORAGE_OBJECT_STORE_NAME,
+      'readonly',
+    );
+    const request = transaction
+      .objectStore(STORAGE_OBJECT_STORE_NAME)
+      .getAllKeys();
+
+    request.onsuccess = () => {
+      const keys = Array.isArray(request.result)
+        ? request.result.map(String)
+        : [];
+      resolve(keys.filter((key) => key.startsWith(storageKeyPrefix)));
+    };
+    request.onerror = () => {
+      reject(request.error ?? new Error('Failed to read persisted save.'));
+    };
+    transaction.onerror = () => {
+      reject(transaction.error ?? new Error('Failed to read persisted save.'));
+    };
+  });
+}
+
+async function writeIndexedDbPayloadByKey(
+  database: IDBDatabase,
+  storageKey: string,
   payload: string,
 ) {
   return new Promise<void>((resolve, reject) => {
@@ -260,9 +374,7 @@ async function writeIndexedDbPayload(
       'readwrite',
     );
 
-    transaction
-      .objectStore(STORAGE_OBJECT_STORE_NAME)
-      .put(payload, getStorageKey(areaId));
+    transaction.objectStore(STORAGE_OBJECT_STORE_NAME).put(payload, storageKey);
     transaction.oncomplete = () => {
       resolve();
     };
@@ -275,9 +387,9 @@ async function writeIndexedDbPayload(
   });
 }
 
-async function deleteIndexedDbPayload(
+async function deleteIndexedDbPayloadByKey(
   database: IDBDatabase,
-  areaId: EncryptedSaveAreaId,
+  storageKey: string,
 ) {
   return new Promise<void>((resolve, reject) => {
     const transaction = database.transaction(
@@ -285,9 +397,7 @@ async function deleteIndexedDbPayload(
       'readwrite',
     );
 
-    transaction
-      .objectStore(STORAGE_OBJECT_STORE_NAME)
-      .delete(getStorageKey(areaId));
+    transaction.objectStore(STORAGE_OBJECT_STORE_NAME).delete(storageKey);
     transaction.oncomplete = () => {
       resolve();
     };
@@ -300,17 +410,23 @@ async function deleteIndexedDbPayload(
   });
 }
 
-function loadLocalStoragePayload(areaId: EncryptedSaveAreaId) {
-  return localStorage.getItem(getStorageKey(areaId));
+function loadLocalStoragePayloadByKey(storageKey: string) {
+  return localStorage.getItem(storageKey);
 }
 
-function writeLocalStoragePayload(
-  areaId: EncryptedSaveAreaId,
-  payload: string,
-) {
-  localStorage.setItem(getStorageKey(areaId), payload);
+function writeLocalStoragePayloadByKey(storageKey: string, payload: string) {
+  localStorage.setItem(storageKey, payload);
 }
 
-function clearLocalStoragePayload(areaId: EncryptedSaveAreaId) {
-  localStorage.removeItem(getStorageKey(areaId));
+function clearLocalStoragePayloadByKey(storageKey: string) {
+  localStorage.removeItem(storageKey);
+}
+
+function clearLocalStoragePayloadsByPrefix(storageKeyPrefix: string) {
+  for (let index = localStorage.length - 1; index >= 0; index -= 1) {
+    const storageKey = localStorage.key(index);
+    if (storageKey?.startsWith(storageKeyPrefix)) {
+      localStorage.removeItem(storageKey);
+    }
+  }
 }

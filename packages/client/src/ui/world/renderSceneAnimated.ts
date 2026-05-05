@@ -1,4 +1,5 @@
 import { type Application } from 'pixi.js';
+import type { HexCoord, WorldKind } from '../../game/stateTypes';
 import { scaleColor } from './timeOfDay';
 import { animateWorldMarkers } from './renderSceneMarkerAnimations';
 import {
@@ -11,7 +12,12 @@ import {
   completeAnimatedSceneRender,
   type SceneCache,
 } from './renderSceneCache';
-import { renderPlayerMovementCooldown } from './renderScenePlayerBars';
+import {
+  renderDungeonEnemyMovementCooldowns,
+  renderPlayerMovementCooldown,
+} from './renderScenePlayerBars';
+import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
+import type { MovementTransitionRevealState } from './renderSceneVisibility';
 
 interface RenderAnimatedSceneOptions {
   app: Application;
@@ -33,9 +39,14 @@ interface RenderAnimatedSceneOptions {
     endAtMs: number;
     nowMs: number;
   } | null;
+  movementTransitionRevealState: MovementTransitionRevealState | null;
+  playerCoord: HexCoord;
   cloudParallaxOffset: { x: number; y: number };
   origin: { x: number; y: number };
   playerIconSize: number;
+  visibleTileRenderInputs: VisibleTileRenderInput[];
+  worldKind: WorldKind;
+  worldTimeMs: number;
 }
 
 export function renderAnimatedScene({
@@ -48,9 +59,14 @@ export function renderAnimatedScene({
   hexSize,
   lightingState,
   movementCooldown,
+  movementTransitionRevealState,
+  playerCoord,
   cloudParallaxOffset,
   origin,
   playerIconSize,
+  visibleTileRenderInputs,
+  worldKind,
+  worldTimeMs,
 }: RenderAnimatedSceneOptions) {
   animateWorldMarkers(
     scene.animatedWorldMarkers,
@@ -87,6 +103,16 @@ export function renderAnimatedScene({
     origin,
     playerIconSize,
     movementCooldown,
+  });
+  renderDungeonEnemyMovementCooldowns({
+    scene,
+    hexSize,
+    movementTransitionRevealState,
+    origin,
+    playerCoord,
+    visibleTileRenderInputs,
+    worldKind,
+    worldTimeMs,
   });
 
   renderCloudLayer(

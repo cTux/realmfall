@@ -19,6 +19,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `useAppGameView` computes the current tile, filtered logs, town stock, recipe visibility, claim status, the player overview snapshot, and other UI-ready derived values.
 - This keeps presentational components mostly declarative.
 - `useHexGameplayView` owns tile-facing gameplay derivation such as current-tile state, combat enemies at the focused hex, territory actions, home-setting availability inputs, and item-modification readiness so `useAppGameView` can stay centered on broader hero, recipe, and log view slices.
+- `useHexGameplayView` also derives the active world kind, so the same `dungeon` structure can surface `Enter dungeon` on the surface and `Leave dungeon` inside a dungeon world.
 - Combat-facing systems and effects that only need survivability or speed values read `getPlayerCombatStats` instead of routing through the broader hero overview helper.
 - A canonical window registry backs window visibility resets, default positions, dock composition, dock icons, hotkey derivation, deferred-window order, mounted-window derivation, and persistence normalization so app wiring does not repeat the same window inventory in multiple modules.
 - `useAppGameView` keeps selector dependencies scoped to the gameplay slices each derived view actually reads, using narrow selector inputs instead of force-casting partial objects to `GameState`, so unrelated root-state clones do not invalidate every memoized view model together.
@@ -60,6 +61,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `useAppSettingsActions` keeps save-reset, settings persistence, and home-hex shell actions in one local hook instead of mixing those imperative flows into the main app component body.
 - `useAppSettingsActions` waits for the selected interface font to load before persisting and applying interface-setting changes, keeping live font switches aligned with the current document shell.
 - `useAppRuntime` groups those orchestration hooks into one local composition layer so the entry component no longer needs one large destructuring block for controllers, derived views, transitions, and shell props.
+- `useDungeonTransitionController` owns dungeon enter or leave transitions, loading any persisted dungeon body before activation and surfacing transition state through the same top-level app readiness and retry path used by world bootstrap.
 - `useAppShortcutRuntime` owns shortcut-only availability wiring such as home-setting eligibility, keeping `useAppRuntime` from recomputing action gates inline next to unrelated lifecycle and persistence setup.
 - `useAppWindowRuntime` owns the memoized window view and action composition path before `AppWindows` props are assembled, so the top-level runtime hook does not rebuild the full window contract in the same block as combat automation and world bootstrap wiring.
 - `useAppPersistence` keeps hydration and latest-input tracking in the hook while local `persistence/` helpers own segment serialization and autosave scheduling, separating save bootstrapping from debounce, idle-flush, and queued-write mechanics.
@@ -69,6 +71,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Actionable world-click travel routes adjacent movement and safe-path travel through the same logged-command helper used by controller actions, while non-actionable clicks such as blocked terrain or out-of-range targets return early without adding command entries.
 - Secondary stage overlays such as the home-direction marker and version polling panel stay behind lazy boundaries so the `App` entry prioritizes world bootstrap and core window composition.
 - `AppShell` owns the lazy audio bridges, home-direction marker shell, pause overlay, and loading chrome so the main app entry can stay focused on hook composition and data flow.
+- That loading chrome is reused for dungeon world entry and exit, so world switching blocks interaction behind the fullscreen shell overlay instead of opening a window-local spinner.
 - `AppShell` lazy-loads the desktop window surface separately from the canvas shell, keeping fixed and deferred window composition out of the first App chunk while the world canvas bootstraps.
 - `AppShell` mounts optional recorded-voice and background-music bridges only after the first keyboard, pointer, mouse, or touch activation, keeping their asset manifests and deferred background-music `howler` work out of the pre-interaction path while the lighter UI-audio bridge remains ready for document-level settings.
 - `AppShell` passes a memoized voice playback event slice to the recorded-voice bridge instead of the full `GameState`, limiting voice event checks to combat, log, HP, and status-effect changes.
@@ -94,6 +97,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 
 - `src/app/App/App.tsx`
 - `src/app/App/hooks/useAppRuntime.ts`
+- `src/app/App/hooks/useDungeonTransitionController.ts`
 - `src/app/App/useAppControllers.ts`
 - `src/app/App/hooks/useGameActionHandlers.ts`
 - `src/app/App/hooks/useActionBarController.ts`

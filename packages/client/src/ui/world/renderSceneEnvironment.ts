@@ -1,6 +1,6 @@
 import { HEX_SIZE } from '../../app/constants';
 import { createRng } from '../../game/random';
-import type { HexCoord, Terrain } from '../../game/stateTypes';
+import type { HexCoord, Terrain, WorldKind } from '../../game/stateTypes';
 import { scaleColor, type getTimeOfDayLighting } from './timeOfDay';
 import { normalizeVector } from './renderSceneMath';
 import { WorldIcons } from './worldIcons';
@@ -18,6 +18,7 @@ const WEATHER_ICONS = [
   WorldIcons.Raining,
   WorldIcons.Snowing,
 ];
+const DUNGEON_BAT_ICON = WorldIcons.Bat;
 const CLOUD_CLUSTER_OFFSETS = [
   { x: -38, y: 12, scale: 0.72 },
   { x: -16, y: -6, scale: 0.9 },
@@ -32,6 +33,7 @@ const CLOUD_SHADOW_LAYERS = [
 const CLOUD_SHADOW_DROP_RATIO = 0.42;
 
 export interface CloudRenderInput {
+  kind: 'cloud' | 'bat';
   scale: number;
   travelPadding: number;
   baseOffsetRatio: number;
@@ -45,23 +47,30 @@ export interface CloudRenderInput {
   cloudOpacity: number;
 }
 
-export function buildCloudRenderInputs(worldSeed: string) {
+export function buildCloudRenderInputs(
+  worldSeed: string,
+  worldKind: WorldKind = 'surface',
+) {
   const inputs: CloudRenderInput[] = [];
+  const isDungeon = worldKind === 'dungeon';
 
   for (let index = 0; index < CLOUD_COUNT; index += 1) {
     const rng = createRng(`${worldSeed}-cloud-${index}`);
     inputs.push({
-      scale: 0.88 + rng() * 0.68,
-      travelPadding: 180 + rng() * 220,
+      kind: isDungeon ? 'bat' : 'cloud',
+      scale: isDungeon ? 0.34 + rng() * 0.34 : 0.88 + rng() * 0.68,
+      travelPadding: isDungeon ? 96 + rng() * 120 : 180 + rng() * 220,
       baseOffsetRatio: rng(),
-      speed: 0.0048 + rng() * 0.0062,
+      speed: isDungeon ? 0.009 + rng() * 0.0105 : 0.0048 + rng() * 0.0062,
       yRatio: rng(),
-      bobSpeed: 0.00024 + rng() * 0.0002,
+      bobSpeed: isDungeon ? 0.0011 + rng() * 0.0008 : 0.00024 + rng() * 0.0002,
       bobPhase: rng() * Math.PI * 2,
-      bobAmplitude: 4 + rng() * 10,
-      icon: WEATHER_ICONS[Math.floor(rng() * WEATHER_ICONS.length)],
-      shadowOpacity: 0.12 + rng() * 0.05,
-      cloudOpacity: 0.34 + rng() * 0.12,
+      bobAmplitude: isDungeon ? 10 + rng() * 14 : 4 + rng() * 10,
+      icon: isDungeon
+        ? DUNGEON_BAT_ICON
+        : WEATHER_ICONS[Math.floor(rng() * WEATHER_ICONS.length)],
+      shadowOpacity: isDungeon ? 0 : 0.12 + rng() * 0.05,
+      cloudOpacity: isDungeon ? 0.38 + rng() * 0.24 : 0.34 + rng() * 0.12,
     });
   }
 
@@ -81,8 +90,8 @@ export function renderCloudLayer(
   for (let cloudIndex = 0; cloudIndex < cloudInputs.length; cloudIndex += 1) {
     const cloudInput = cloudInputs[cloudIndex]!;
     const scale = cloudInput.scale;
-    const width = 92 * scale;
-    const height = 92 * scale;
+    const width = (cloudInput.kind === 'bat' ? 54 : 92) * scale;
+    const height = (cloudInput.kind === 'bat' ? 54 : 92) * scale;
     const travelPadding = cloudInput.travelPadding;
     const travel = screen.width + travelPadding + width * 2;
     const baseOffset = cloudInput.baseOffsetRatio * travel;
@@ -107,9 +116,28 @@ export function renderCloudLayer(
     const icon = cloudInput.icon;
     const shadowOpacity = cloudInput.shadowOpacity;
     const cloudOpacity = Math.max(
-      0.24,
+      cloudInput.kind === 'bat' ? 0.28 : 0.24,
       cloudInput.cloudOpacity + lighting.cloudAlphaBoost,
     );
+
+    if (cloudInput.kind === 'bat') {
+      const bat = takeSprite(cloudPool, icon);
+      configureSprite(
+        bat,
+        scaleColor(
+          0x111827,
+          Math.max(0.72, lighting.ambientBrightness * 0.92 + 0.16),
+        ),
+        width,
+        height,
+        cloudOpacity,
+        {
+          x: x + width * 0.5,
+          y: y + height * 0.5,
+        },
+      );
+      continue;
+    }
 
     for (
       let offsetIndex = 0;
@@ -292,6 +320,30 @@ export function tileStyle(terrain: Terrain) {
       return { color: 0x7c2d12, alpha: 0.9 };
     case 'desert':
       return { color: 0x92400e, alpha: 0.92 };
+    case 'dungeon-brick-floor':
+      return { color: 0x334155, alpha: 0.82 };
+    case 'dungeon-brick-cracked':
+      return { color: 0x293548, alpha: 0.84 };
+    case 'dungeon-brick-moss':
+      return { color: 0x283f32, alpha: 0.84 };
+    case 'dungeon-brick-wall':
+      return { color: 0x020617, alpha: 0.98 };
+    case 'dungeon-mud-floor':
+      return { color: 0x4a2f22, alpha: 0.84 };
+    case 'dungeon-mud-rut':
+      return { color: 0x3d2419, alpha: 0.86 };
+    case 'dungeon-mud-puddle':
+      return { color: 0x243741, alpha: 0.84 };
+    case 'dungeon-mud-wall':
+      return { color: 0x1c120d, alpha: 0.98 };
+    case 'dungeon-obsidian-floor':
+      return { color: 0x111827, alpha: 0.84 };
+    case 'dungeon-obsidian-ash':
+      return { color: 0x1f2937, alpha: 0.84 };
+    case 'dungeon-obsidian-ember':
+      return { color: 0x2b1010, alpha: 0.86 };
+    case 'dungeon-obsidian-wall':
+      return { color: 0x020617, alpha: 0.98 };
     case 'dunes':
       return { color: 0xc2410c, alpha: 0.92 };
     case 'forest':

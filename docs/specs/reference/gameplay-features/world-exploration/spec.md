@@ -8,14 +8,17 @@ This spec covers deterministic hex-world traversal, visibility, and safe-path tr
 
 - The game world is a deterministic hex grid generated from a seed.
 - The player starts at `(0, 0)` on a safe plains tile.
+- The runtime now supports a persistent surface world plus persistent dungeon worlds, with one active world selected at a time.
 - Terrain includes `plains`, `meadow`, `steppe`, `grove`, `forest`, `marsh`, `swamp`, `dunes`, `desert`, `badlands`, `highlands`, `mountain`, `blasted`, and `rift`.
+- Dungeon worlds also use themed terrain families: `dungeon-brick-*`, `dungeon-mud-*`, and `dungeon-obsidian-*`.
 - Terrain is generated in deterministic biome clusters with smoother transitions between neighboring hexes instead of independent per-tile random terrain rolls.
-- `mountain` and `rift` tiles are not passable.
+- `mountain`, `rift`, and dungeon wall terrain are not passable.
 - The player sees a revealed radius around the current position.
 - Visible tiles are rendered around the player and update as movement changes the origin.
 - The world map supports pointer-wheel zoom plus click-and-drag camera panning, and zoom anchors around the pointer position instead of snapping toward screen center.
 - World map camera scale and pan offsets persist in the dedicated world-map settings save area, hydrate before the Pixi world becomes interactive, and can be reset independently from the other saved settings areas.
 - Home hex, claims, loot, hostile enemies, structures, and safe-path highlights are surfaced through the world view.
+- Surface dungeon entrances are permanent structure landmarks and do not host surface enemies.
 - The top global structure band includes rare locked chest hexes above dungeons, and their shared tile tooltip explains that the player must stand on the hex and use a lockpick or chest key.
 - A mimic uses the same locked chest world marker and tooltip as an ordinary chest until the player spends an opener on that tile.
 - Faction-owned town tiles use a distinct castle marker, while faction NPC claim markers continue using their separate village-style icon.
@@ -33,11 +36,15 @@ This spec covers deterministic hex-world traversal, visibility, and safe-path tr
 - The arrived final destination may auto-open its normal tile window behavior when queued travel ends without combat.
 - Night ambushes interrupt queued travel, clear the remaining queue, and stop the player on the ambush hex.
 - Movement is blocked while combat is active or when the run is over.
+- Entering a dungeon activates that entrance's dungeon world and places the player on the dungeon entrance tile at `(0, 0)`.
+- Leaving a dungeon is only available on that dungeon entrance tile and returns the player to the owning surface entrance coordinate.
 
 ## Main Implementation Areas
 
 - `src/game/state.ts`
 - `src/game/world.ts`
+- `src/game/stateDungeonActions.ts`
+- `src/game/dungeons`
 - `src/game/hex.ts`
 - `src/ui/world/renderScene.ts`
 - `src/app/App/usePixiWorld.ts`

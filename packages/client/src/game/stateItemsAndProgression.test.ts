@@ -1,4 +1,5 @@
 import {
+  activateDungeonWorld,
   createGame,
   dropInventoryItem,
   EQUIPMENT_SLOTS,
@@ -247,6 +248,42 @@ describe('game state items and progression', () => {
     expect(
       returned.logs.some((entry) => /returns you home/i.test(entry.text)),
     ).toBe(true);
+  });
+
+  it('uses a hearthshard wayscroll to leave a dungeon and return to the surface home hex', () => {
+    const game = createGame(3, 'home-scroll-leaves-dungeon-seed');
+    const surfaceCoord = { q: 1, r: 0 };
+    game.homeHex = { q: -2, r: 1 };
+    game.player.coord = surfaceCoord;
+    game.tiles['1,0'] = {
+      coord: surfaceCoord,
+      terrain: 'plains',
+      structure: 'dungeon',
+      items: [],
+      enemyIds: [],
+    };
+    game.player.inventory.push({
+      id: 'home-scroll-dungeon',
+      itemKey: 'home-scroll',
+      name: 'Pergamino del hogar',
+      quantity: 1,
+      tier: 1,
+      rarity: 'common',
+      power: 0,
+      defense: 0,
+      maxHp: 0,
+      healing: 0,
+      hunger: 0,
+    });
+
+    const entered = activateDungeonWorld(game);
+    expect(entered.activeDungeon).not.toBeNull();
+
+    const returned = useItem(entered, 'home-scroll-dungeon');
+
+    expect(returned.player.coord).toEqual(game.homeHex);
+    expect(returned.activeWorldId).toBe(returned.surfaceWorldId);
+    expect(returned.activeDungeon).toBeNull();
   });
 
   it('can drop a hearthshard wayscroll from a defeated enemy', () => {

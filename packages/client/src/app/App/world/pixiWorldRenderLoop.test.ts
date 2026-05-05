@@ -173,8 +173,9 @@ describe('pixiWorldRenderLoop', () => {
     renderFrame();
 
     expect(renderScene).toHaveBeenCalledTimes(2);
-    expect(renderScene.mock.calls[1]?.[8]).toEqual({
+    expect(renderScene.mock.calls[1]?.[8]).toMatchObject({
       showTerrainBackgrounds: false,
+      worldTimeMs: 0,
       worldRenderFps: DEFAULT_WORLD_RENDER_FPS,
     });
 

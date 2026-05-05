@@ -1,5 +1,10 @@
 import * as v from 'valibot';
 
+import {
+  DUNGEON_TEMPLATE_IDS,
+  DUNGEON_THEME_IDS,
+  WORLD_KINDS,
+} from '../game/dungeons/types';
 import { ENEMY_TYPE_IDS } from '../game/content/ids';
 import {
   EQUIPMENT_SLOTS,
@@ -16,6 +21,9 @@ const EQUIPMENT_SLOT_SET = new Set(EQUIPMENT_SLOTS);
 const ITEM_RARITY_SET = new Set<string>(RARITY_ORDER);
 const STRUCTURE_TYPE_SET = new Set<string>(STRUCTURE_TYPES);
 const TERRAIN_SET = new Set<string>(TERRAINS);
+const WORLD_KIND_SET = new Set<string>(WORLD_KINDS);
+const DUNGEON_TEMPLATE_ID_SET = new Set<string>(DUNGEON_TEMPLATE_IDS);
+const DUNGEON_THEME_ID_SET = new Set<string>(DUNGEON_THEME_IDS);
 const finiteNumberSchema = v.pipe(v.number(), v.finite());
 const hexCoordSchema = v.object({
   q: finiteNumberSchema,
@@ -29,6 +37,9 @@ const structureSchema = v.picklist(STRUCTURE_TYPES);
 const itemRaritySchema = v.picklist(RARITY_ORDER);
 const equipmentSlotSchema = v.picklist(EQUIPMENT_SLOTS);
 const enemyTypeIdSchema = v.picklist(ENEMY_TYPE_IDS);
+const worldKindSchema = v.picklist(WORLD_KINDS);
+const dungeonTemplateIdSchema = v.picklist(DUNGEON_TEMPLATE_IDS);
+const dungeonThemeIdSchema = v.picklist(DUNGEON_THEME_IDS);
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -61,6 +72,24 @@ export function normalizeEnemyTypeId(
   value: unknown,
 ): NonNullable<Enemy['enemyTypeId']> | null {
   return isEnemyTypeId(value) ? value : null;
+}
+
+export function isWorldKind(value: unknown): value is 'surface' | 'dungeon' {
+  return v.is(worldKindSchema, value) && WORLD_KIND_SET.has(value);
+}
+
+export function isDungeonTemplateId(
+  value: unknown,
+): value is (typeof DUNGEON_TEMPLATE_IDS)[number] {
+  return (
+    v.is(dungeonTemplateIdSchema, value) && DUNGEON_TEMPLATE_ID_SET.has(value)
+  );
+}
+
+export function isDungeonThemeId(
+  value: unknown,
+): value is (typeof DUNGEON_THEME_IDS)[number] {
+  return v.is(dungeonThemeIdSchema, value) && DUNGEON_THEME_ID_SET.has(value);
 }
 
 export function isItemRarity(value: unknown): value is Item['rarity'] {

@@ -1,6 +1,5 @@
 import worldTerrainAtlasManifest from '../../assets/generated/world-terrain-atlas.json';
 import worldTerrainAtlasImage from '../../assets/generated/world-terrain-atlas.png';
-import type { Terrain } from '../../game/stateTypes';
 
 describe('worldTerrainArt', () => {
   it('uses generated atlas frame ids for runtime terrain art', async () => {
@@ -11,7 +10,9 @@ describe('worldTerrainArt', () => {
       terrainArtFor,
     } = await import('./worldTerrainArt');
 
-    const terrains = Object.keys(worldTerrainAtlasManifest.frames) as Terrain[];
+    const terrains = Object.keys(worldTerrainAtlasManifest.frames) as Array<
+      keyof typeof worldTerrainAtlasManifest.frames
+    >;
 
     expect(getWorldTerrainAtlasImage()).toBe(worldTerrainAtlasImage);
     expect(getWorldTerrainAssetIds()).toEqual(

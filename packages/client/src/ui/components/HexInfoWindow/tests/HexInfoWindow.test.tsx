@@ -26,7 +26,7 @@ describe('HexInfoWindow', () => {
         onSetHome={() => {}}
         terrain="Rift"
         structure="Dungeon"
-        hexDescription="A broken ruin where stronger foes and old spoils gather beneath the fracture."
+        hexDescription="A rift-torn ruin that marks the entrance to a dungeon below."
         enemyCount={1}
         interactLabel={null}
         canInteract={false}
@@ -90,7 +90,7 @@ describe('HexInfoWindow', () => {
         onSetHome={() => {}}
         terrain="Rift"
         structure="Dungeon"
-        hexDescription="A broken ruin where stronger foes and old spoils gather beneath the fracture."
+        hexDescription="A rift-torn ruin that marks the entrance to a dungeon below."
         enemyCount={1}
         interactLabel={null}
         canInteract={false}

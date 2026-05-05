@@ -1,5 +1,5 @@
 import { GAME_TAGS } from '../../game/content/tags';
-import type { HexCoord, Tile } from '../../game/stateTypes';
+import type { HexCoord, Tile, WorldKind } from '../../game/stateTypes';
 import { getStructureConfig } from '../../game/stateSelectors';
 import type { SceneCache } from './renderSceneCache';
 import {
@@ -32,13 +32,17 @@ export const WORLD_BOSS_HEX_TINT_ALPHA = 0.22;
 export const ZERO_SHADOW_OFFSET = { x: 0, y: 0 };
 export const ENEMY_GROUP_BADGE_OFFSET = { x: 13, y: 11 };
 
-export function getCloudRenderInputs(scene: SceneCache, seed: string) {
-  let cloudInputs = getCachedValue(scene.cloudInputsBySeed, seed);
+export function getCloudRenderInputs(
+  scene: SceneCache,
+  cacheKey: string,
+  worldKind: WorldKind,
+) {
+  let cloudInputs = getCachedValue(scene.cloudInputsBySeed, cacheKey);
   if (!cloudInputs) {
-    cloudInputs = buildCloudRenderInputs(seed);
+    cloudInputs = buildCloudRenderInputs(cacheKey, worldKind);
     setBoundedCachedValue(
       scene.cloudInputsBySeed,
-      seed,
+      cacheKey,
       cloudInputs,
       SCENE_CACHE_LIMITS.cloudInputsBySeed,
     );
@@ -76,6 +80,7 @@ export function registerAnimatedWorldMarker(
 
 export function getAnimatedRenderToken(
   state: {
+    activeWorldId: string;
     seed: string;
     bloodMoonActive: boolean;
     harvestMoonActive: boolean;
@@ -86,6 +91,7 @@ export function getAnimatedRenderToken(
 ) {
   return [
     state.seed,
+    state.activeWorldId,
     state.bloodMoonActive ? 'blood' : 'normal',
     state.harvestMoonActive ? 'harvest' : 'default',
     fullscreenVisualEffectToken,

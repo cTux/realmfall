@@ -6,10 +6,13 @@ import {
   getRecipeBookEntries,
 } from '../../game/stateSelectors';
 import type { GameState, Item, LogKind } from '../../game/stateTypes';
+import { t } from '../../i18n';
 import { resolveBackgroundMusicMood } from '../audio/backgroundMusic';
+import type { HexInteractAction } from './AppWindows.viewTypes';
 import { useHexGameplayView } from './hooks/useHexGameplayView';
 
 interface UseAppGameViewOptions {
+  activeWorldId: GameState['activeWorldId'];
   bloodMoonActive: GameState['bloodMoonActive'];
   combat: GameState['combat'];
   enemies: GameState['enemies'];
@@ -22,10 +25,12 @@ interface UseAppGameViewOptions {
   selectedHexItemModificationItem: Item | null;
   selectedHexItemReforgeStatIndex: number | null;
   tiles: GameState['tiles'];
+  worlds: GameState['worlds'];
   worldDayIndex: number;
 }
 
 export function useAppGameView({
+  activeWorldId,
   bloodMoonActive,
   combat,
   enemies,
@@ -38,11 +43,13 @@ export function useAppGameView({
   selectedHexItemModificationItem,
   selectedHexItemReforgeStatIndex,
   tiles,
+  worlds,
   worldDayIndex,
 }: UseAppGameViewOptions) {
   const { inventory, learnedRecipeIds, skills } = player;
   const { favoriteRecipeIds } = player;
   const hexGameplay = useHexGameplayView({
+    activeWorldId,
     bloodMoonActive,
     combat,
     enemies,
@@ -53,6 +60,7 @@ export function useAppGameView({
     selectedHexItemModificationItem,
     selectedHexItemReforgeStatIndex,
     tiles,
+    worlds,
     worldDayIndex,
   });
   const heroOverview = useMemo(() => getPlayerOverview(player), [player]);
@@ -96,9 +104,10 @@ export function useAppGameView({
     () =>
       resolveBackgroundMusicMood({
         combat,
+        currentWorldKind: hexGameplay.currentWorldKind,
         currentStructure: hexGameplay.currentTile.structure,
       }),
-    [combat, hexGameplay.currentTile.structure],
+    [combat, hexGameplay.currentTile.structure, hexGameplay.currentWorldKind],
   );
 
   return {
@@ -109,11 +118,12 @@ export function useAppGameView({
     combatEnemies: hexGameplay.combatEnemies,
     currentTile: hexGameplay.currentTile,
     currentTileHostileEnemyCount: hexGameplay.currentTileHostileEnemyCount,
+    currentWorldKind: hexGameplay.currentWorldKind,
     firstClaimedHex,
     filteredLogs,
     gold: hexGameplay.gold,
+    interactAction: hexGameplay.interactAction,
     itemModification: hexGameplay.itemModification,
-    interactLabel: hexGameplay.interactLabel,
     inventoryCountsByItemKey,
     bulkProspectEquipmentExplanation:
       hexGameplay.bulkProspectEquipmentExplanation,
@@ -124,4 +134,28 @@ export function useAppGameView({
     townStock: hexGameplay.townStock,
     territoryNpcHealStatus: hexGameplay.territoryNpcHealStatus,
   };
+}
+
+export function getHexInteractActionLabel({
+  interactAction,
+}: {
+  interactAction: HexInteractAction | null;
+}) {
+  if (interactAction === 'gather') {
+    return t('ui.hexInfo.interactAction');
+  }
+
+  if (interactAction === 'enter-dungeon') {
+    return t('ui.hexInfo.enterDungeonAction');
+  }
+
+  if (interactAction === 'leave-dungeon') {
+    return t('ui.hexInfo.leaveDungeonAction');
+  }
+
+  if (interactAction === 'open-dungeon-chest') {
+    return t('ui.hexInfo.openDungeonChestAction');
+  }
+
+  return null;
 }

@@ -11,7 +11,7 @@ import type {
 } from '@realmfall/common';
 import { enemyIndexFromId, makeEnemy } from './combat';
 import { isFactionNpcEnemyId } from './territories';
-import { buildTile } from './world';
+import { buildSurfaceTile } from './world';
 import { isWorldBossEnemyId } from './worldBoss';
 
 export function resolveWorldTiles(
@@ -34,7 +34,7 @@ function buildResolvedWorldTilePayload(
   coord: ResolveWorldTilesRequest['coords'][number],
   bloodMoonActive: boolean,
 ): ResolvedWorldTilePayload {
-  const runtimeTile = buildTile(seed, coord);
+  const runtimeTile = buildSurfaceTile(seed, coord);
   const tile = mapTile(runtimeTile);
   const enemies = runtimeTile.enemyIds.map((enemyId) =>
     mapEnemy(
@@ -52,7 +52,7 @@ function buildResolvedWorldTilePayload(
 function resolveTileEnemy(
   seed: string,
   coord: ResolveWorldTilesRequest['coords'][number],
-  runtimeTile: ReturnType<typeof buildTile>,
+  runtimeTile: ReturnType<typeof buildSurfaceTile>,
   enemyId: string,
   bloodMoonActive: boolean,
 ) {

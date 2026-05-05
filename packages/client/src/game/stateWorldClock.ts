@@ -27,6 +27,10 @@ import {
   spawnBloodMoonEnemies,
   spawnHarvestMoonResources,
 } from './stateWorldEvents';
+import {
+  shouldSyncActiveDungeonEnemyMovement,
+  syncActiveDungeonEnemyMovement,
+} from './stateDungeonWorldClock';
 import { processPlayerStatusEffects } from './stateSurvival';
 import type { GameState } from './types';
 
@@ -74,7 +78,7 @@ export function syncBloodMoon(
     if (rng() < BLOOD_MOON_CHANCE) {
       next.bloodMoonActive = true;
       next.harvestMoonActive = false;
-      syncEnemyBloodMoonState(next.enemies, true);
+      syncSurfaceEnemyBloodMoonState(next, true);
       const spawnedCount = spawnBloodMoonEnemies(next);
       addLog(next, 'combat', t('game.message.bloodMoon.begin'));
       if (spawnedCount > 0) {
@@ -133,7 +137,7 @@ export function syncBloodMoon(
     next.harvestMoonActive = false;
     next.harvestMoonCheckedTonight = false;
     next.harvestMoonCycle += 1;
-    syncEnemyBloodMoonState(next.enemies, false);
+    syncSurfaceEnemyBloodMoonState(next, false);
     maybeTriggerEarthshake(next);
     if (wasBloodMoonActive) {
       addLog(next, 'combat', t('game.message.bloodMoon.end'));
@@ -159,7 +163,13 @@ export function syncPlayerStatusEffects(
   state: GameState,
   worldTimeMs: number,
 ): GameState {
-  const next = copyGameState(state, { player: true });
+  const shouldSyncDungeonEnemies = shouldSyncActiveDungeonEnemyMovement(state);
+  const next = copyGameState(state, {
+    player: true,
+    ...(shouldSyncDungeonEnemies
+      ? { combat: true, enemies: true, logs: true, tiles: true }
+      : {}),
+  });
   next.worldTimeMs = worldTimeMs;
   const previousWorldTimeMs = state.worldTimeMs;
 
@@ -169,8 +179,16 @@ export function syncPlayerStatusEffects(
     previousWorldTimeMs,
   );
   const cooldownChanged = clearConsumableCooldownIfOutOfCombat(next);
+  const dungeonEnemyMovementChanged = shouldSyncDungeonEnemies
+    ? syncActiveDungeonEnemyMovement(next)
+    : false;
 
-  if (!statusEffectsChanged && !passiveRegenChanged && !cooldownChanged) {
+  if (
+    !statusEffectsChanged &&
+    !passiveRegenChanged &&
+    !cooldownChanged &&
+    !dungeonEnemyMovementChanged
+  ) {
     return state;
   }
 
@@ -210,4 +228,13 @@ function regenerateOutOfCombatResources(
   );
 
   return state.player.hp !== previousHp || state.player.mana !== previousMana;
+}
+
+function syncSurfaceEnemyBloodMoonState(state: GameState, active: boolean) {
+  const surfaceWorld = state.worlds[state.surfaceWorldId];
+  if (!surfaceWorld) {
+    return;
+  }
+
+  syncEnemyBloodMoonState(surfaceWorld.enemies, active);
 }

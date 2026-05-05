@@ -5,14 +5,14 @@ import { hexKey } from './hex';
 import { addLog } from './logs';
 import { createCombatEnemyEncounterState } from './stateCombatTreasureGoblin';
 import type { GameState } from './types';
-import { buildTile, normalizeStructureState } from './world';
+import { buildTileForState, normalizeStructureState } from './world';
 
 export function syncCombatEncounterEnemies(state: GameState) {
   if (!state.combat) return;
 
   const tile =
     state.tiles[hexKey(state.combat.coord)] ??
-    buildTile(state.seed, state.combat.coord);
+    buildTileForState(state, state.combat.coord);
   const enemyIds = tile.enemyIds.filter((enemyId) =>
     Boolean(state.enemies[enemyId]),
   );

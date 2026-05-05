@@ -4,6 +4,11 @@ import {
   isGatheringStructureType,
 } from './content/structures';
 import { enemyIndexFromId, makeEnemy } from './combat';
+import {
+  buildDungeonFallbackTile,
+  getActiveWorld,
+  getEnemySpawnStructure,
+} from './dungeons/worldState';
 import { isFactionNpcEnemyId } from './territories';
 import { hexKey, hexNeighbors, hexesInRange, type HexCoord } from './hex';
 import { pickTerrain } from './worldTerrain';
@@ -54,38 +59,7 @@ export function cacheSafeStart(state: GameState) {
   });
 }
 
-export function ensureTileState(state: GameState, coord: HexCoord) {
-  const key = hexKey(coord);
-  if (!state.tiles[key]) {
-    state.tiles[key] = buildTile(state.seed, coord);
-  }
-
-  const tile = state.tiles[key];
-  tile.enemyIds.forEach((enemyId) => {
-    if (!state.enemies[enemyId]) {
-      const enemyName =
-        tile.claim?.npc?.enemyId === enemyId ? tile.claim?.npc.name : undefined;
-      const hostile = !isFactionNpcEnemyId(enemyId);
-      state.enemies[enemyId] = makeEnemy(
-        state.seed,
-        coord,
-        tile.terrain,
-        enemyIndexFromId(enemyId),
-        tile.structure,
-        state.bloodMoonActive,
-        {
-          enemyId,
-          name: enemyName,
-          aggressive: hostile,
-          allowTreasureGoblinOverride: false,
-          worldBoss: isWorldBossEnemyId(enemyId),
-        },
-      );
-    }
-  });
-}
-
-export function buildTile(seed: string, coord: HexCoord): Tile {
+export function buildSurfaceTile(seed: string, coord: HexCoord): Tile {
   if (coord.q === 0 && coord.r === 0) {
     return {
       coord,
@@ -114,6 +88,54 @@ export function buildTile(seed: string, coord: HexCoord): Tile {
     };
   }
   return buildRegularTile(seed, coord, terrain);
+}
+
+export function buildTile(seed: string, coord: HexCoord): Tile {
+  return buildSurfaceTile(seed, coord);
+}
+
+export function buildTileForState(
+  state: Pick<GameState, 'seed'> &
+    Partial<Pick<GameState, 'activeWorldId' | 'worlds'>>,
+  coord: HexCoord,
+) {
+  const world = getActiveWorld(state);
+  if (world?.kind === 'dungeon') {
+    return world.tiles[hexKey(coord)] ?? buildDungeonFallbackTile(world, coord);
+  }
+
+  return buildSurfaceTile(state.seed, coord);
+}
+
+export function ensureTileState(state: GameState, coord: HexCoord) {
+  const key = hexKey(coord);
+  if (!state.tiles[key]) {
+    state.tiles[key] = buildTileForState(state, coord);
+  }
+
+  const tile = state.tiles[key]!;
+  tile.enemyIds.forEach((enemyId) => {
+    if (!state.enemies[enemyId]) {
+      const enemyName =
+        tile.claim?.npc?.enemyId === enemyId ? tile.claim?.npc.name : undefined;
+      const hostile = !isFactionNpcEnemyId(enemyId);
+      state.enemies[enemyId] = makeEnemy(
+        state.seed,
+        coord,
+        tile.terrain,
+        enemyIndexFromId(enemyId),
+        getEnemySpawnStructure(state, tile),
+        state.bloodMoonActive,
+        {
+          enemyId,
+          name: enemyName,
+          aggressive: hostile,
+          allowTreasureGoblinOverride: false,
+          worldBoss: isWorldBossEnemyId(enemyId),
+        },
+      );
+    }
+  });
 }
 
 export function findNearestStructure(
@@ -148,15 +170,7 @@ export function describeStructureDescription(structure?: StructureType) {
 }
 
 export function normalizeStructureState(tile: Tile): Tile {
-  if (tile.structure === 'dungeon') {
-    if (tile.enemyIds.length === 0 && tile.items.length === 0) {
-      return {
-        ...tile,
-        structure: undefined,
-        structureHp: undefined,
-        structureMaxHp: undefined,
-      };
-    }
+  if (tile.structure === 'dungeon' || tile.structure === 'dungeon-chest') {
     return tile;
   }
 

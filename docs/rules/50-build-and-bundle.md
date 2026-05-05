@@ -21,5 +21,6 @@
 - Keep React Compiler enabled through the repository's Vite plugin helper for React 19 app builds, and guard the integration with a Vite plugin policy test when the compiler or plugin path changes.
 - Keep shipped locale and other startup-budgeted JSON assets on LF line endings so emitted asset sizes and chunk-budget checks stay stable across platforms.
 - Keep large repeated locale families concise. When many entries differ only by set name or item slot, prefer shorter shared phrasing over long near-duplicate sentences so locale payloads do not grow faster than the feature surface.
+- When clear new localization copy legitimately grows a startup-budgeted locale asset, raise the tracked locale budget instead of trimming the player-facing text into unclear shorthand just to stay under the old cap.
 - Keep static production cache headers explicit. Vite hashed `assets/**` should ship with long-lived immutable caching, while HTML entry files and mutable metadata such as `version.json` should require revalidation.
 - Keep generated equipment icon SVG imports out of gameplay and state-facing content modules. Gameplay content should use stable generated icon ids and pool sizes; UI asset modules should resolve those ids to vendored SVG URLs before rendering masks or image tags.

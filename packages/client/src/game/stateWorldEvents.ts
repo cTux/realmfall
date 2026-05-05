@@ -9,17 +9,28 @@ import {
   pickHarvestMoonSpawnChance,
 } from './config';
 import { createRng } from './random';
-import { enemyKey, makeEnemy, nextEnemySpawnIndex } from './combat';
+import { makeEnemy, nextEnemySpawnIndex } from './combat';
+import { getSurfaceWorld } from './dungeons/worldState';
 import { hexDistance, hexKey, type HexCoord } from './hex';
 import { addLog, getWorldDayIndex } from './logs';
 import { isPassable } from './shared';
+import { registerDungeonEntrance } from './stateDungeonActions';
 import { isWorldBossFootprintOccupied } from './stateWorldBoss';
-import { ensureTileState, structureDefinition } from './world';
+import {
+  buildSurfaceTile,
+  ensureTileState,
+  structureDefinition,
+} from './world';
 import type { GameState, Tile } from './types';
 
 export function spawnBloodMoonEnemies(state: GameState) {
   let spawned = 0;
   const maxEnemiesPerTile = 3;
+  const center = getSurfaceEventCenter(state);
+  const surfaceWorld = getSurfaceWorld(state);
+  if (!surfaceWorld) {
+    return spawned;
+  }
 
   for (
     let dq = -BLOOD_MOON_SPAWN_RADIUS;
@@ -32,16 +43,15 @@ export function spawnBloodMoonEnemies(state: GameState) {
       dr += 1
     ) {
       const coord = {
-        q: state.player.coord.q + dq,
-        r: state.player.coord.r + dr,
+        q: center.q + dq,
+        r: center.r + dr,
       };
-      const distance = hexDistance(state.player.coord, coord);
+      const distance = hexDistance(center, coord);
       if (distance === 0 || distance > BLOOD_MOON_SPAWN_RADIUS) continue;
       if (isHomeHex(state, coord)) continue;
 
-      ensureTileState(state, coord);
       const key = hexKey(coord);
-      const tile = state.tiles[key];
+      const tile = ensureSurfaceTileState(state, coord);
       if (!canSpawnBloodMoonEnemiesOnTile(state, tile)) continue;
 
       const rng = createRng(
@@ -71,12 +81,12 @@ export function spawnBloodMoonEnemies(state: GameState) {
           true,
         );
         tile.enemyIds.push(enemy.id);
-        state.enemies[enemy.id] = enemy;
+        surfaceWorld.enemies[enemy.id] = enemy;
         nextIndex += 1;
         spawned += 1;
       }
 
-      state.tiles[key] = { ...tile, enemyIds: [...tile.enemyIds] };
+      surfaceWorld.tiles[key] = { ...tile, enemyIds: [...tile.enemyIds] };
     }
   }
 
@@ -85,6 +95,11 @@ export function spawnBloodMoonEnemies(state: GameState) {
 
 export function spawnHarvestMoonResources(state: GameState) {
   let spawned = 0;
+  const center = getSurfaceEventCenter(state);
+  const surfaceWorld = getSurfaceWorld(state);
+  if (!surfaceWorld) {
+    return spawned;
+  }
 
   for (
     let dq = -HARVEST_MOON_SPAWN_RADIUS;
@@ -97,16 +112,15 @@ export function spawnHarvestMoonResources(state: GameState) {
       dr += 1
     ) {
       const coord = {
-        q: state.player.coord.q + dq,
-        r: state.player.coord.r + dr,
+        q: center.q + dq,
+        r: center.r + dr,
       };
-      const distance = hexDistance(state.player.coord, coord);
+      const distance = hexDistance(center, coord);
       if (distance === 0 || distance > HARVEST_MOON_SPAWN_RADIUS) continue;
       if (isHomeHex(state, coord)) continue;
 
-      ensureTileState(state, coord);
       const key = hexKey(coord);
-      const tile = state.tiles[key];
+      const tile = ensureSurfaceTileState(state, coord);
       if (!canSpawnHarvestMoonResourceOnTile(state, tile)) continue;
 
       const rng = createRng(
@@ -116,7 +130,7 @@ export function spawnHarvestMoonResources(state: GameState) {
 
       const structure = pickHarvestMoonResourceType(rng());
       const definition = structureDefinition(structure);
-      state.tiles[key] = {
+      surfaceWorld.tiles[key] = {
         ...tile,
         structure,
         structureHp: definition.maxHp,
@@ -153,28 +167,20 @@ export function openEarthshakeDungeon(state: GameState, forced: boolean) {
   if (!coord) return false;
 
   const key = hexKey(coord);
-  const tile = state.tiles[key];
-  const enemyIds = Array.from(
-    { length: 1 + Math.floor(earthshakeRng() * 3) },
-    (_, index) => enemyKey(coord, index),
-  );
-  state.tiles[key] = {
+  const surfaceWorld = getSurfaceWorld(state);
+  if (!surfaceWorld) {
+    return false;
+  }
+
+  const tile = ensureSurfaceTileState(state, coord);
+  surfaceWorld.tiles[key] = {
     ...tile,
     structure: 'dungeon',
     structureHp: undefined,
     structureMaxHp: undefined,
-    enemyIds,
+    enemyIds: [],
   };
-  enemyIds.forEach((enemyId, index) => {
-    state.enemies[enemyId] = makeEnemy(
-      state.seed,
-      coord,
-      tile.terrain,
-      index,
-      'dungeon',
-      state.bloodMoonActive,
-    );
-  });
+  registerDungeonEntrance(state, coord);
   addLog(
     state,
     'system',
@@ -189,19 +195,19 @@ function findNearbyDungeonSpawn(
   searchRadius: number,
 ) {
   const candidates: HexCoord[] = [];
+  const center = getSurfaceEventCenter(state);
 
   for (let dq = -searchRadius; dq <= searchRadius; dq += 1) {
     for (let dr = -searchRadius; dr <= searchRadius; dr += 1) {
       const coord = {
-        q: state.player.coord.q + dq,
-        r: state.player.coord.r + dr,
+        q: center.q + dq,
+        r: center.r + dr,
       };
-      const distance = hexDistance(state.player.coord, coord);
+      const distance = hexDistance(center, coord);
       if (distance === 0 || distance > searchRadius) continue;
       if (isHomeHex(state, coord)) continue;
 
-      ensureTileState(state, coord);
-      const tile = state.tiles[hexKey(coord)];
+      const tile = ensureSurfaceTileState(state, coord);
       if (!isPassable(tile.terrain)) continue;
       if (
         tile.structure ||
@@ -218,14 +224,12 @@ function findNearbyDungeonSpawn(
 
   if (candidates.length === 0) return null;
   candidates.sort(
-    (left, right) =>
-      hexDistance(state.player.coord, left) -
-      hexDistance(state.player.coord, right),
+    (left, right) => hexDistance(center, left) - hexDistance(center, right),
   );
   const nearestCandidates = candidates.filter(
     (candidate) =>
-      hexDistance(state.player.coord, candidate) ===
-      hexDistance(state.player.coord, candidates[0] ?? state.player.coord),
+      hexDistance(center, candidate) ===
+      hexDistance(center, candidates[0] ?? center),
   );
   return (
     nearestCandidates[Math.floor(rng() * nearestCandidates.length)] ?? null
@@ -246,11 +250,33 @@ function canSpawnHarvestMoonResourceOnTile(state: GameState, tile: Tile) {
 function canSpawnBloodMoonEnemiesOnTile(state: GameState, tile: Tile) {
   if (!isPassable(tile.terrain)) return false;
   if (tile.claim) return false;
-  if (tile.structure && tile.structure !== 'dungeon') return false;
+  if (tile.structure) return false;
   if (isWorldBossFootprintOccupied(state, tile.coord)) return false;
   return true;
 }
 
 function isHomeHex(state: GameState, coord: HexCoord) {
   return state.homeHex.q === coord.q && state.homeHex.r === coord.r;
+}
+
+function getSurfaceEventCenter(state: GameState) {
+  return state.activeDungeon?.surfaceCoord ?? state.player.coord;
+}
+
+function ensureSurfaceTileState(state: GameState, coord: HexCoord) {
+  const surfaceWorld = getSurfaceWorld(state);
+  if (!surfaceWorld) {
+    return buildSurfaceTile(state.seed, coord);
+  }
+
+  ensureTileState(
+    {
+      ...state,
+      activeWorldId: state.surfaceWorldId,
+      tiles: surfaceWorld.tiles,
+      enemies: surfaceWorld.enemies,
+    },
+    coord,
+  );
+  return surfaceWorld.tiles[hexKey(coord)]!;
 }

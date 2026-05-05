@@ -28,7 +28,7 @@ interface WorldTerrainAtlasManifest {
 
 describe('world terrain atlas pipeline', () => {
   it('keeps the atlas build command wired to package scripts', () => {
-  const packageJson = JSON.parse(
+    const packageJson = JSON.parse(
       readFileSync(join(process.cwd(), 'package.json'), 'utf8'),
     ) as { scripts: Record<string, string> };
 
@@ -37,7 +37,10 @@ describe('world terrain atlas pipeline', () => {
     );
     expect(
       existsSync(
-        join(process.cwd(), 'packages/client/scripts/build-world-terrain-atlas.mjs'),
+        join(
+          process.cwd(),
+          'packages/client/scripts/build-world-terrain-atlas.mjs',
+        ),
       ),
     ).toBe(true);
   });
@@ -88,6 +91,31 @@ describe('world terrain atlas pipeline', () => {
           Math.floor(terrainIndex / WORLD_TERRAIN_ATLAS_COLUMNS) *
           manifest.tileHeight,
       });
+    }
+  });
+
+  it('keeps dungeon terrain source art on the same transparent hex footprint', async () => {
+    const dungeonSources = WORLD_TERRAIN_ATLAS_SOURCES.filter(({ id }) =>
+      id.startsWith('dungeon-'),
+    );
+
+    for (const source of dungeonSources) {
+      const { data, info } = await sharp(join(process.cwd(), source.source))
+        .ensureAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+      const alphaAt = (x: number, y: number) =>
+        data[(y * info.width + x) * info.channels + 3] ?? 0;
+
+      expect(alphaAt(0, 0)).toBe(0);
+      expect(alphaAt(info.width - 1, 0)).toBe(0);
+      expect(alphaAt(0, info.height - 1)).toBe(0);
+      expect(alphaAt(info.width - 1, info.height - 1)).toBe(0);
+      expect(alphaAt(Math.floor(info.width / 2), 0)).toBe(0);
+      expect(alphaAt(Math.floor(info.width / 2), info.height - 1)).toBe(0);
+      expect(
+        alphaAt(Math.floor(info.width / 2), Math.floor(info.height / 2)),
+      ).toBe(255);
     }
   });
 });

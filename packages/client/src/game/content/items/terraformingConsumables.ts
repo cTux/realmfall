@@ -5,12 +5,20 @@ import type { ItemConfig } from '../types';
 
 const TERRAFORMING_CONSUMABLE_PREFIX = 'terraforming-';
 
-const TERRAFORMING_CONSUMABLE_TERRAINS: ReadonlyArray<Terrain> = [...TERRAINS];
+type TerraformingConsumableTerrain = Exclude<Terrain, `dungeon-${string}`>;
+
+const TERRAFORMING_CONSUMABLE_TERRAINS = TERRAINS.filter(
+  (terrain): terrain is TerraformingConsumableTerrain =>
+    !terrain.startsWith('dungeon-'),
+);
 const TERRAFORMING_CONSUMABLE_TERRAIN_SET = new Set(
   TERRAFORMING_CONSUMABLE_TERRAINS,
 );
 
-const TERRAFORMING_CONSUMABLE_TERRAINS_TO_TINT: Record<Terrain, string> = {
+const TERRAFORMING_CONSUMABLE_TERRAINS_TO_TINT: Record<
+  TerraformingConsumableTerrain,
+  string
+> = {
   plains: '#3f6212',
   meadow: '#4d7c0f',
   steppe: '#65a30d',
@@ -59,13 +67,15 @@ export function getTerraformingConsumableTerrain(
     return null;
   }
   const terrain = itemKey.slice(TERRAFORMING_CONSUMABLE_PREFIX.length);
-  return TERRAFORMING_CONSUMABLE_TERRAIN_SET.has(terrain as Terrain)
-    ? (terrain as Terrain)
+  return TERRAFORMING_CONSUMABLE_TERRAIN_SET.has(
+    terrain as TerraformingConsumableTerrain,
+  )
+    ? (terrain as TerraformingConsumableTerrain)
     : null;
 }
 
 export function isTerraformingConsumableItemKey(
   itemKey?: string,
-): itemKey is `terraforming-${Terrain}` {
+): itemKey is `terraforming-${TerraformingConsumableTerrain}` {
   return getTerraformingConsumableTerrain(itemKey) !== null;
 }

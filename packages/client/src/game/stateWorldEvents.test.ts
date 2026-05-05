@@ -8,7 +8,6 @@ import {
   progressCombat,
   startCombat,
   syncBloodMoon,
-  takeAllTileItems,
   triggerEarthshake,
   type GameState,
 } from './state';
@@ -301,11 +300,19 @@ describe('game state world events', () => {
           /earthshake\. a rift ruin opens nearby at/i.test(entry.text),
       ),
     ).toBe(true);
+    const entranceTile = Object.values(shaken?.tiles ?? {}).find(
+      (tile) => tile.structure === 'dungeon',
+    );
+    expect(entranceTile?.enemyIds).toEqual([]);
     expect(
-      Object.values(shaken?.tiles ?? {}).some(
-        (tile) => tile.structure === 'dungeon' && tile.enemyIds.length > 0,
-      ),
-    ).toBe(true);
+      shaken?.dungeonEntrances[
+        `${entranceTile?.coord.q},${entranceTile?.coord.r}`
+      ]?.dungeonId,
+    ).toBe(
+      entranceTile
+        ? `dungeon:${shaken?.seed}:${entranceTile.coord.q},${entranceTile.coord.r}`
+        : undefined,
+    );
   });
 
   it('can force an earthshake through the debugger action', () => {
@@ -319,11 +326,19 @@ describe('game state world events', () => {
         /earthshake\. a rift ruin opens nearby at/i.test(entry.text),
       ),
     ).toBe(true);
+    const entranceTile = Object.values(shaken.tiles).find(
+      (tile) => tile.structure === 'dungeon',
+    );
+    expect(entranceTile?.enemyIds).toEqual([]);
     expect(
-      Object.values(shaken.tiles).some(
-        (tile) => tile.structure === 'dungeon' && tile.enemyIds.length > 0,
-      ),
-    ).toBe(true);
+      shaken.dungeonEntrances[
+        `${entranceTile?.coord.q},${entranceTile?.coord.r}`
+      ]?.dungeonId,
+    ).toBe(
+      entranceTile
+        ? `dungeon:${shaken.seed}:${entranceTile.coord.q},${entranceTile.coord.r}`
+        : undefined,
+    );
     expect(getTileAt(shaken, shaken.homeHex).structure).toBeUndefined();
   });
 
@@ -554,49 +569,25 @@ describe('game state world events', () => {
     expect(ordinarySpawn.defense).toBeLessThan(explicitBoss.defense);
   });
 
-  it('turns an emptied dungeon back into a regular hex', () => {
+  it('keeps an earthshake dungeon entrance normalized as a permanent surface entrance', () => {
     const game = createGame(3, 'dungeon-clear-seed');
-    const target = { q: 2, r: 0 };
-    game.tiles['2,0'] = {
-      coord: target,
-      terrain: 'plains',
-      structure: 'dungeon',
-      items: [
-        {
-          id: 'resource-gold-1',
-          name: 'Gold',
-          itemKey: 'gold',
-          quantity: 3,
-          tier: 1,
-          rarity: 'common',
-          power: 0,
-          defense: 0,
-          maxHp: 0,
-          healing: 0,
-          hunger: 0,
-        },
+    game.player.coord = { q: 0, r: 0 };
+
+    const shaken = triggerEarthshake(game);
+    const entranceTile = Object.values(shaken.tiles).find(
+      (tile) => tile.structure === 'dungeon',
+    );
+
+    expect(entranceTile).toBeDefined();
+    expect(entranceTile?.enemyIds).toEqual([]);
+    expect(
+      shaken.dungeonEntrances[
+        `${entranceTile?.coord.q},${entranceTile?.coord.r}`
       ],
-      enemyIds: ['enemy-2,0-0'],
-    };
-    game.enemies['enemy-2,0-0'] = {
-      id: 'enemy-2,0-0',
-      name: 'Raider',
-      coord: target,
-      tier: 1,
-      hp: 1,
-      maxHp: 1,
-      attack: 0,
-      defense: 0,
-      xp: 5,
-      elite: true,
-    };
-    game.player.coord = { q: 1, r: 0 };
-
-    const encountered = moveToTile(game, target);
-    const clearedCombat = startCombat(encountered);
-    expect(getTileAt(clearedCombat, target).structure).toBe('dungeon');
-
-    const looted = takeAllTileItems(clearedCombat);
-    expect(getTileAt(looted, target).structure).toBeUndefined();
+    ).toEqual({
+      dungeonId: `dungeon:${shaken.seed}:${entranceTile?.coord.q},${entranceTile?.coord.r}`,
+      surfaceCoord: entranceTile?.coord,
+    });
+    expect(getTileAt(shaken, entranceTile!.coord).structure).toBe('dungeon');
   });
 });

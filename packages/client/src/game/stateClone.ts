@@ -1,4 +1,5 @@
 import { createCombatActorState } from './combat';
+import { syncActiveWorldAliases } from './dungeons/worldState';
 import type { CombatState, Enemy, GameState, Player, Tile } from './types';
 
 interface CopyStateSlices {
@@ -14,17 +15,58 @@ export function copyGameState(
   state: GameState,
   slices: CopyStateSlices = {},
 ): GameState {
-  return {
+  const worlds =
+    slices.tiles || slices.enemies ? copyWorlds(state.worlds) : state.worlds;
+  const next: GameState = {
     ...state,
+    worlds,
+    dungeonEntrances: Object.fromEntries(
+      Object.entries(state.dungeonEntrances).map(([key, value]) => [
+        key,
+        { ...value, surfaceCoord: { ...value.surfaceCoord } },
+      ]),
+    ),
+    activeDungeon: state.activeDungeon
+      ? {
+          ...state.activeDungeon,
+          returnCoord: { ...state.activeDungeon.returnCoord },
+          surfaceCoord: { ...state.activeDungeon.surfaceCoord },
+        }
+      : null,
     homeHex: slices.homeHex ? { ...state.homeHex } : state.homeHex,
     logs: slices.logs ? [...state.logs] : state.logs,
     combat: slices.combat
       ? copyCombatState(state.combat, state.worldTimeMs)
       : state.combat,
-    tiles: slices.tiles ? copyTiles(state.tiles) : state.tiles,
-    enemies: slices.enemies ? copyEnemies(state.enemies) : state.enemies,
+    tiles: state.tiles,
+    enemies: state.enemies,
     player: slices.player ? copyPlayer(state.player) : state.player,
   };
+
+  return syncActiveWorldAliases(next);
+}
+
+function copyWorlds(worlds: GameState['worlds']): GameState['worlds'] {
+  return Object.fromEntries(
+    Object.entries(worlds).map(([worldId, world]) => [
+      worldId,
+      {
+        ...world,
+        tiles: copyTiles(world.tiles),
+        enemies: copyEnemies(world.enemies),
+        ...(world.kind !== 'dungeon'
+          ? {}
+          : {
+              dungeon: {
+                ...world.dungeon,
+                entranceCoord: { ...world.dungeon.entranceCoord },
+                finalChestCoord: { ...world.dungeon.finalChestCoord },
+                surfaceEntranceCoord: { ...world.dungeon.surfaceEntranceCoord },
+              },
+            }),
+      },
+    ]),
+  );
 }
 
 function copyCombatState(
@@ -123,6 +165,9 @@ function copyEnemy(enemy: Enemy): Enemy {
   return {
     ...enemy,
     coord: { ...enemy.coord },
+    ...(enemy.dungeonSpawnCoord === undefined
+      ? {}
+      : { dungeonSpawnCoord: { ...enemy.dungeonSpawnCoord } }),
     statusEffects: enemy.statusEffects?.map((effect) => ({ ...effect })),
   };
 }

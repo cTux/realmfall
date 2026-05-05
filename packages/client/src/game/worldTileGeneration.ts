@@ -1,7 +1,4 @@
-import {
-  TOWN_SEARCH_LIMIT,
-  WORLD_ENEMY_SPAWN_CHANCE,
-} from './config';
+import { TOWN_SEARCH_LIMIT, WORLD_ENEMY_SPAWN_CHANCE } from './config';
 import {
   getGatheringStructureConfig,
   isGatheringStructureType,
@@ -14,7 +11,7 @@ import {
   getFactionStructure,
   makeFactionNpcEnemyId,
 } from './territories';
-import { isPassable, noise, scaledIndex } from './shared';
+import { isPassable, noise } from './shared';
 import type { StructureType, Terrain, Tile, TileClaim } from './types';
 import { isWorldBossCenter } from './worldBoss';
 import { pickTerrain } from './worldTerrain';
@@ -103,11 +100,7 @@ function buildEnemyIds(
   if (!isPassable(terrain)) return [];
   if (claim) return claim.npc ? [claim.npc.enemyId ?? npcEnemyId] : [];
   if (hexDistance(coord, { q: 0, r: 0 }) <= 1) return [];
-  if (structure && structure !== 'dungeon') return [];
-  if (structure === 'dungeon') {
-    const count = 1 + scaledIndex(`${seed}:dungeon-count`, coord, 3);
-    return Array.from({ length: count }, (_, index) => enemyKey(coord, index));
-  }
+  if (structure) return [];
   return shouldSpawnEnemy(seed, coord, terrain) ? [enemyKey(coord, 0)] : [];
 }
 

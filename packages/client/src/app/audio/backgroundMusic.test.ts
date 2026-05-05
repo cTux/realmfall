@@ -6,7 +6,7 @@ import {
 } from './backgroundMusicPlaylist';
 
 describe('background music helpers', () => {
-  it('maps combat, dungeon, town, and world tiles to the correct mood', () => {
+  it('maps combat, dungeon worlds, town tiles, and ambient tiles to the correct mood', () => {
     expect(
       resolveBackgroundMusicMood({
         combat: {
@@ -31,6 +31,13 @@ describe('background music helpers', () => {
         combat: null,
         currentStructure: 'dungeon',
       }),
+    ).toBe('ambient');
+    expect(
+      resolveBackgroundMusicMood({
+        combat: null,
+        currentStructure: 'forge',
+        currentWorldKind: 'dungeon',
+      } as never),
     ).toBe('dungeon');
     expect(
       resolveBackgroundMusicMood({

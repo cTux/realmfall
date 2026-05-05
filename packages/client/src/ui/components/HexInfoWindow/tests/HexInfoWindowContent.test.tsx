@@ -1,3 +1,4 @@
+import { act } from 'react';
 import { buildItemFromConfig } from '../../../../game/content/items';
 import { ItemId } from '../../../../game/content/ids';
 import { mountUi, setupUiTestEnvironment } from '../../../uiTestHelpers';
@@ -52,6 +53,110 @@ describe('HexInfoWindowContent', () => {
     );
 
     await ui.unmount();
+  });
+
+  it('renders explicit enter and leave dungeon buttons in the content actions', async () => {
+    const onEnterDungeon = vi.fn();
+    const enterUi = await mountUi(
+      <HexInfoWindowContent
+        terrain="Rift"
+        structure="Dungeon"
+        hexDescription="A rift-torn ruin that marks the entrance to a dungeon below."
+        enemyCount={2}
+        interactLabel="Enter dungeon"
+        canInteract
+        canBulkProspectEquipment={false}
+        canBulkSellEquipment={false}
+        itemModification={null}
+        canTerritoryAction={false}
+        territoryActionLabel="Cl(a)im"
+        territoryActionKind="claim"
+        canHealTerritoryNpc={false}
+        territoryNpcHealExplanation={null}
+        territoryActionExplanation={null}
+        bulkProspectEquipmentExplanation={null}
+        bulkSellEquipmentExplanation={null}
+        onInteract={onEnterDungeon}
+        onProspect={() => {}}
+        onSellAll={() => {}}
+        onTerritoryAction={() => {}}
+        onHealTerritoryNpc={() => {}}
+        territoryNpc={null}
+        townStock={[]}
+        gold={0}
+        loot={[]}
+        onBuyItem={() => {}}
+        onTakeAll={() => {}}
+        onTakeItem={() => {}}
+        onHoverItem={() => {}}
+        onLeaveItem={() => {}}
+      />,
+    );
+
+    const enterButton = Array.from(
+      enterUi.host.querySelectorAll<HTMLButtonElement>('button'),
+    ).find((button) => button.textContent?.includes('Enter dungeon'));
+
+    expect(enterButton).not.toBeNull();
+
+    await act(async () => {
+      enterButton?.click();
+    });
+
+    expect(onEnterDungeon).toHaveBeenCalledTimes(1);
+
+    await enterUi.unmount();
+
+    const onLeaveDungeon = vi.fn();
+    const leaveUi = await mountUi(
+      <HexInfoWindowContent
+        terrain="Dungeon"
+        structure="Dungeon"
+        hexDescription="A rift-torn ruin that marks the entrance to a dungeon below."
+        enemyCount={0}
+        interactLabel="Leave dungeon"
+        canInteract
+        canBulkProspectEquipment={false}
+        canBulkSellEquipment={false}
+        itemModification={null}
+        canTerritoryAction={false}
+        territoryActionLabel="Cl(a)im"
+        territoryActionKind="claim"
+        canHealTerritoryNpc={false}
+        territoryNpcHealExplanation={null}
+        territoryActionExplanation={null}
+        bulkProspectEquipmentExplanation={null}
+        bulkSellEquipmentExplanation={null}
+        onInteract={onLeaveDungeon}
+        onProspect={() => {}}
+        onSellAll={() => {}}
+        onTerritoryAction={() => {}}
+        onHealTerritoryNpc={() => {}}
+        territoryNpc={null}
+        townStock={[]}
+        gold={0}
+        loot={[]}
+        onBuyItem={() => {}}
+        onTakeAll={() => {}}
+        onTakeItem={() => {}}
+        onHoverItem={() => {}}
+        onLeaveItem={() => {}}
+      />,
+    );
+
+    const leaveButton = Array.from(
+      leaveUi.host.querySelectorAll<HTMLButtonElement>('button'),
+    ).find((button) => button.textContent?.includes('Leave dungeon'));
+
+    expect(leaveButton).not.toBeNull();
+
+    await act(async () => {
+      leaveButton?.click();
+    });
+
+    expect(onLeaveDungeon).toHaveBeenCalledTimes(1);
+
+    await leaveUi.unmount();
   });
 
   it('shrinks content-window item slots to 0.8x of their shared sizes', async () => {

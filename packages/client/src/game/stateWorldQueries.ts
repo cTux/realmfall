@@ -1,11 +1,13 @@
 import { hexKey, type HexCoord } from './hex';
 import { enemyIndexFromId, makeEnemy } from './combat';
-import { buildTile } from './world';
+import { getEnemySpawnStructure } from './dungeons/worldState';
 import { isFactionNpcEnemyId, isPlayerClaim } from './territories';
 import { isWorldBossEnemyId } from './worldBoss';
+import { buildTileForState } from './world';
 import type { Enemy, GameState, Tile } from './types';
 
-type WorldTileState = Pick<GameState, 'seed' | 'tiles'>;
+type WorldTileState = Pick<GameState, 'seed' | 'tiles'> &
+  Partial<Pick<GameState, 'activeWorldId' | 'worlds'>>;
 type ResolvedWorldTileState = Pick<GameState, 'tiles'>;
 export type VisibleTilesState = WorldTileState &
   Pick<GameState, 'radius'> & {
@@ -43,7 +45,7 @@ export function getResolvedTileAt(
 }
 
 export function getTileAt(state: WorldTileState, coord: HexCoord) {
-  return getResolvedTileAt(state, coord) ?? buildTile(state.seed, coord);
+  return getResolvedTileAt(state, coord) ?? buildTileForState(state, coord);
 }
 
 export function getCurrentTile(state: CurrentTileState) {
@@ -69,7 +71,7 @@ export function getPlayerClaimedTiles(state: Pick<GameState, 'tiles'>) {
 
 export function getEnemiesAt(state: EnemyLookupState, coord: HexCoord) {
   const resolvedTile = getResolvedTileAt(state, coord);
-  const tile = resolvedTile ?? buildTile(state.seed, coord);
+  const tile = resolvedTile ?? buildTileForState(state, coord);
   return tile.enemyIds.map((enemyId) => {
     const enemy = state.enemies[enemyId];
     if (enemy) return enemy;
@@ -84,7 +86,7 @@ export function getEnemiesAt(state: EnemyLookupState, coord: HexCoord) {
       coord,
       tile.terrain,
       enemyIndexFromId(enemyId),
-      tile.structure,
+      getEnemySpawnStructure(state, tile),
       state.bloodMoonActive,
       {
         enemyId,

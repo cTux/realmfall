@@ -65,7 +65,7 @@ describe('game state inventory actions', () => {
     expect(getTileAt(clearedCombat, target).structure).toBe('dungeon');
 
     const looted = takeAllTileItems(clearedCombat);
-    expect(getTileAt(looted, target).structure).toBeUndefined();
+    expect(getTileAt(looted, target).structure).toBe('dungeon');
   });
 
   it('lets the player buy items from town stock', () => {

@@ -150,8 +150,8 @@ export function makeEnemy(
     ? 'legendary'
     : mimic
       ? 'legendary'
-      : options?.enemyTypeId
-        ? (options.rarity ?? 'common')
+      : options?.rarity
+        ? options.rarity
         : worldBoss
           ? 'legendary'
           : resolveEnemyRarity(

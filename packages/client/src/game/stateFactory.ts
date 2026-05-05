@@ -1,6 +1,10 @@
 import { WORLD_RADIUS, STARTING_RECIPE_IDS } from './config';
 import { ItemId } from './content/ids';
 import { getPlayerBaseStatsForLevel } from './balance';
+import {
+  createSurfaceWorldState,
+  SURFACE_WORLD_ID,
+} from './dungeons/worldState';
 import { createFreshLogsAtTime } from './logs';
 import { PLAYER_SURVIVAL_MAX } from './survival';
 import {
@@ -17,9 +21,17 @@ export function createGame(
   seed = `world-${Date.now()}`,
 ): GameState {
   const baseStats = getPlayerBaseStatsForLevel(1);
+  const surfaceWorld = createSurfaceWorldState();
   const state: GameState = {
     seed,
     radius,
+    surfaceWorldId: SURFACE_WORLD_ID,
+    activeWorldId: SURFACE_WORLD_ID,
+    worlds: {
+      [SURFACE_WORLD_ID]: surfaceWorld,
+    },
+    dungeonEntrances: {},
+    activeDungeon: null,
     homeHex: { q: 0, r: 0 },
     turn: 0,
     worldTimeMs: 0,
@@ -35,8 +47,8 @@ export function createGame(
     playerLevelUpVisualEndsAt: 0,
     logSequence: 3,
     logs: createFreshLogsAtTime(seed, 0),
-    tiles: {},
-    enemies: {},
+    tiles: surfaceWorld.tiles,
+    enemies: surfaceWorld.enemies,
     combat: null,
     player: {
       coord: { q: 0, r: 0 },

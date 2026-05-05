@@ -7,6 +7,7 @@ import {
   type MutableRefObject,
 } from 'react';
 import { Button, LoadingSpinner } from '@realmfall/ui';
+import { getActiveWorld } from '../../../game/dungeons/worldState';
 import type { GameState, HexCoord } from '../../../game/stateTypes';
 import { t } from '../../../i18n';
 import { recordStartupMark } from '../../../performance/performanceHarness';
@@ -107,6 +108,17 @@ export function AppShell({
     }),
     [combat, hp, logSequence, logs, statusEffects],
   );
+  const activeWorld = useMemo(
+    () =>
+      getActiveWorld({
+        activeWorldId: game.activeWorldId,
+        worlds: game.worlds,
+      }),
+    [game.activeWorldId, game.worlds],
+  );
+  const currentWorldKind = activeWorld?.kind ?? 'surface';
+  const dungeonExitHex =
+    activeWorld?.kind === 'dungeon' ? activeWorld.dungeon.entranceCoord : null;
   const appRootStyle = useMemo(
     () =>
       ({
@@ -150,6 +162,8 @@ export function AppShell({
           <Suspense fallback={null}>
             <HomeIndicator
               claimedHex={claimedHex}
+              currentWorldKind={currentWorldKind}
+              dungeonExitHex={dungeonExitHex}
               hostRef={hostRef}
               homeHex={game.homeHex}
               playerCoord={game.player.coord}

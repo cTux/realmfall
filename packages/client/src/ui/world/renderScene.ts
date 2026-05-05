@@ -1,7 +1,8 @@
 import { type Application } from 'pixi.js';
+import { getActiveWorld } from '../../game/dungeons/worldState';
 import { hexKey } from '../../game/hex';
 import { getPlayerCombatStats } from '../../game/stateSelectors';
-import type { GameState, HexCoord } from '../../game/stateTypes';
+import type { GameState, HexCoord, WorldKind } from '../../game/stateTypes';
 import { recordPixiRenderCounts } from '../../performance/performanceHarness';
 import {
   applyWorldSceneOffset,
@@ -33,6 +34,7 @@ import {
 import { renderTilePasses } from './renderSceneTilePasses';
 import { renderAnimatedScene } from './renderSceneAnimated';
 import { renderPlayerResourceBars } from './renderScenePlayerBars';
+import { getMovementTransitionRevealState } from './renderSceneVisibility';
 import {
   DEFAULT_WORLD_RENDER_FPS,
   getWorldRenderFrameMs,
@@ -43,6 +45,7 @@ interface RenderSceneOptions {
   showTerrainBackgrounds?: boolean;
   queuedPath?: HexCoord[] | null;
   worldRenderFps?: number;
+  worldTimeMs?: number;
   movementCooldown?: RenderSceneMovementCooldown | null;
   movementTransition?: RenderSceneMovementTransition | null;
 }
@@ -77,7 +80,18 @@ export function renderScene(
 ) {
   const scene = getSceneCache(app);
   scene.renderCounts.total += 1;
-  const cloudInputs = getCloudRenderInputs(scene, state.seed);
+  const currentWorld = getActiveWorld(state);
+  const currentWorldKind: WorldKind = currentWorld?.kind ?? 'surface';
+  const currentWorldId = currentWorld?.id ?? state.surfaceWorldId;
+  const atmosphereSeed =
+    currentWorldKind === 'dungeon'
+      ? `${state.seed}:${currentWorldId}`
+      : state.seed;
+  const cloudInputs = getCloudRenderInputs(
+    scene,
+    atmosphereSeed,
+    currentWorldKind,
+  );
   const origin = {
     x: app.screen.width / 2,
     y: app.screen.height / 2,
@@ -93,12 +107,15 @@ export function renderScene(
     options.worldRenderFps ?? DEFAULT_WORLD_RENDER_FPS,
   );
   const queuedPath = options.queuedPath ?? null;
+  const renderWorldTimeMs = options.worldTimeMs ?? state.worldTimeMs;
   const movementCooldown = options.movementCooldown ?? null;
   const movementTransition = options.movementTransition ?? null;
   const movementTransitionRenderToken = getMovementTransitionRenderToken(
     movementTransition,
     worldRenderFrameMs,
   );
+  const movementTransitionRevealState =
+    getMovementTransitionRevealState(movementTransition);
   const playerCombatStats = getPlayerCombatStats(state.player);
   const playerResourceRenderToken =
     getPlayerResourceRenderToken(playerCombatStats);
@@ -141,7 +158,12 @@ export function renderScene(
   );
   const animatedRenderToken = [
     getAnimatedRenderToken(
-      state,
+      {
+        activeWorldId: currentWorldId,
+        bloodMoonActive: state.bloodMoonActive,
+        harvestMoonActive: state.harvestMoonActive,
+        seed: state.seed,
+      },
       animationMs,
       fullscreenVisualEffects.renderToken,
       worldRenderFrameMs,
@@ -205,10 +227,19 @@ export function renderScene(
           state.harvestMoonActive,
         )
       : null;
-  const shadowOffset = lightingState?.shadowOffset ?? ZERO_SHADOW_OFFSET;
+  const shadowOffset =
+    currentWorldKind === 'dungeon'
+      ? ZERO_SHADOW_OFFSET
+      : (lightingState?.shadowOffset ?? ZERO_SHADOW_OFFSET);
 
   if (shouldRenderAnimated && lightingState) {
-    renderSkyLayer(app, scene.skyFill, lightingState.lighting.skyColor);
+    renderSkyLayer(
+      app,
+      scene.skyFill,
+      currentWorldKind === 'dungeon'
+        ? 0x0b1220
+        : lightingState.lighting.skyColor,
+    );
     beginAnimatedSceneRender(scene);
     renderAtmosphere(
       app,
@@ -219,6 +250,7 @@ export function renderScene(
       lightingState.sunPosition,
       lightingState.moonPosition,
       origin,
+      currentWorldKind,
       state.bloodMoonActive,
       state.harvestMoonActive,
     );
@@ -235,6 +267,7 @@ export function renderScene(
     renderTilePasses({
       enemyIconSize,
       hexSize,
+      currentWorldKind,
       queuedPathKeys,
       hoveredMove,
       hoveredSafePathKeys,
@@ -250,6 +283,7 @@ export function renderScene(
       structureIconSize,
       terrainArtSize,
       movementTransition,
+      movementTransitionRevealState,
       visibleTileMap,
       visibleTileRenderInputs,
       visibleTiles: displayVisibleTiles,
@@ -300,6 +334,11 @@ export function renderScene(
       origin,
       playerIconSize,
       scene,
+      playerCoord: state.player.coord,
+      movementTransitionRevealState,
+      visibleTileRenderInputs: renderTokens.visibleTileRenderInputs,
+      worldKind: currentWorldKind,
+      worldTimeMs: renderWorldTimeMs,
     });
   }
 

@@ -1,4 +1,9 @@
 import type { HexCoord } from './hex';
+import type {
+  ActiveDungeonRun,
+  DungeonEntranceRecord,
+  GameWorldState,
+} from './dungeons/types';
 import {
   EquipmentSlotId,
   type EnemyTypeKey,
@@ -23,6 +28,18 @@ export const TERRAINS = [
   'badlands',
   'desert',
   'swamp',
+  'dungeon-brick-floor',
+  'dungeon-brick-cracked',
+  'dungeon-brick-moss',
+  'dungeon-brick-wall',
+  'dungeon-mud-floor',
+  'dungeon-mud-rut',
+  'dungeon-mud-puddle',
+  'dungeon-mud-wall',
+  'dungeon-obsidian-floor',
+  'dungeon-obsidian-ash',
+  'dungeon-obsidian-ember',
+  'dungeon-obsidian-wall',
 ] as const;
 
 export type Terrain = (typeof TERRAINS)[number];
@@ -53,6 +70,7 @@ export const STRUCTURE_TYPES = [
   'town',
   'corruption-altar',
   'dungeon',
+  'dungeon-chest',
   'locked-chest',
   ...GATHERING_STRUCTURE_TYPES,
 ] as const;
@@ -145,6 +163,8 @@ export interface Enemy {
   tags?: GameTag[];
   name: string;
   coord: HexCoord;
+  dungeonSpawnCoord?: HexCoord;
+  dungeonMovementCooldownEndsAt?: number;
   rarity?: EnemyRarity;
   tier: number;
   baseMaxHp?: number;
@@ -410,6 +430,11 @@ export type LogRichSegment =
 export interface GameState {
   seed: string;
   radius: number;
+  surfaceWorldId: string;
+  activeWorldId: string;
+  worlds: Record<string, GameWorldState>;
+  dungeonEntrances: Record<string, DungeonEntranceRecord>;
+  activeDungeon: ActiveDungeonRun | null;
   homeHex: HexCoord;
   turn: number;
   worldTimeMs: number;

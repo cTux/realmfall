@@ -103,7 +103,13 @@ export function useAppSettingsActions({
       uiAudio.error();
 
       switch (areaId) {
-        case 'game':
+        case 'game': {
+          const { clearEncryptedDungeonStates, clearEncryptedState } =
+            await import('../../../persistence/storage');
+          await clearEncryptedState(areaId);
+          await clearEncryptedDungeonStates();
+          break;
+        }
         case 'ui': {
           const { clearEncryptedState } =
             await import('../../../persistence/storage');

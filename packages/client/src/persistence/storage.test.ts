@@ -116,6 +116,77 @@ describe('encrypted storage', () => {
     localStorage.setItem(PERSISTED_SAVE_STORAGE_KEYS.game, 'not-json');
     await expect(loadEncryptedState()).resolves.toBeNull();
   });
+
+  it('stores dungeon bodies under dedicated keys that include the dungeon id', async () => {
+    const { records, indexedDB } = createIndexedDbMock();
+
+    vi.stubGlobal('indexedDB', indexedDB);
+
+    const {
+      getDungeonSaveStorageKey,
+      loadEncryptedDungeonState,
+      saveEncryptedDungeonState,
+    } = await import('./storage');
+
+    await saveEncryptedDungeonState('dungeon:storage-seed:1,0', {
+      id: 'dungeon:storage-seed:1,0',
+      kind: 'dungeon',
+      tiles: {},
+      enemies: {},
+      dungeon: {
+        cleared: false,
+        entranceCoord: { q: 0, r: 0 },
+        finalChestCoord: { q: 6, r: 0 },
+        finalEliteEnemyId: 'enemy-6,0-0',
+        paddingRadius: 6,
+        surfaceEntranceCoord: { q: 1, r: 0 },
+        templateId: 'rooms-and-corridors',
+        themeId: 'brick-halls',
+      },
+    });
+
+    expect(
+      records.has(getDungeonSaveStorageKey('dungeon:storage-seed:1,0')),
+    ).toBe(true);
+    await expect(
+      loadEncryptedDungeonState('dungeon:storage-seed:1,0'),
+    ).resolves.toMatchObject({ id: 'dungeon:storage-seed:1,0' });
+  });
+
+  it('clears all dungeon keys when clearing the game save area', async () => {
+    const { records, indexedDB } = createIndexedDbMock();
+
+    vi.stubGlobal('indexedDB', indexedDB);
+
+    const {
+      clearEncryptedDungeonStates,
+      getDungeonSaveStorageKey,
+      saveEncryptedDungeonState,
+    } = await import('./storage');
+
+    await saveEncryptedDungeonState('dungeon:storage-seed:2,-1', {
+      id: 'dungeon:storage-seed:2,-1',
+      kind: 'dungeon',
+      tiles: {},
+      enemies: {},
+      dungeon: {
+        cleared: false,
+        entranceCoord: { q: 0, r: 0 },
+        finalChestCoord: { q: 4, r: 0 },
+        finalEliteEnemyId: 'enemy-4,0-0',
+        paddingRadius: 6,
+        surfaceEntranceCoord: { q: 2, r: -1 },
+        templateId: 'dense-maze',
+        themeId: 'obsidian-vault',
+      },
+    });
+
+    await clearEncryptedDungeonStates();
+
+    expect(
+      records.has(getDungeonSaveStorageKey('dungeon:storage-seed:2,-1')),
+    ).toBe(false);
+  });
 });
 
 function createIndexedDbMock() {
@@ -197,6 +268,10 @@ function createMockTransaction(records: Map<string, string>) {
 
   transaction.objectStore = () =>
     ({
+      getAllKeys: () =>
+        queueIndexedDbRequest(
+          () => Array.from(records.keys()) as unknown as IDBValidKey[],
+        ),
       delete: (key: IDBValidKey) =>
         queueIndexedDbRequest(() => {
           records.delete(String(key));

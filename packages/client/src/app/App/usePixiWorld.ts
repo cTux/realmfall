@@ -77,6 +77,7 @@ interface UsePixiWorldArgs {
   enabled: boolean;
   game: GameState;
   graphicsSettings: GraphicsSettings;
+  interactionBlocked: boolean;
   paused: boolean;
   showTooltipTags: boolean;
   worldTimeMsRef: MutableRefObject<number>;
@@ -98,6 +99,7 @@ export function usePixiWorld({
   enabled,
   game,
   graphicsSettings,
+  interactionBlocked,
   paused,
   showTooltipTags,
   worldTimeMsRef,
@@ -460,6 +462,17 @@ export function usePixiWorld({
     game.tiles,
     game.turn,
   ]);
+
+  useEffect(() => {
+    if (!interactionBlocked) {
+      return;
+    }
+
+    hoverAnalysisControllerRef.current?.resetHoverAnalysis();
+    worldTooltipKeyRef.current = null;
+    tooltipPositionRef.current = null;
+    setTooltip(null);
+  }, [interactionBlocked, setTooltip, tooltipPositionRef]);
 
   useEffect(() => {
     if (!game.combat) {

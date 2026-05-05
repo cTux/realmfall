@@ -8,7 +8,14 @@ interface NoiseLayer {
 }
 
 interface TerrainProfile {
-  biome: 'grassland' | 'woodland' | 'wetland' | 'arid' | 'alpine' | 'corrupted';
+  biome:
+    | 'grassland'
+    | 'woodland'
+    | 'wetland'
+    | 'arid'
+    | 'alpine'
+    | 'corrupted'
+    | 'dungeon';
   passable: boolean;
   tierBonus: number;
   contentTerrain: Terrain;
@@ -152,6 +159,90 @@ const TERRAIN_PROFILES = {
   },
   rift: {
     biome: 'corrupted',
+    passable: false,
+    tierBonus: 2,
+    contentTerrain: 'rift',
+    worldBossEligible: false,
+  },
+  'dungeon-brick-floor': {
+    biome: 'dungeon',
+    passable: true,
+    tierBonus: 1,
+    contentTerrain: 'highlands',
+    worldBossEligible: false,
+  },
+  'dungeon-brick-cracked': {
+    biome: 'dungeon',
+    passable: true,
+    tierBonus: 1,
+    contentTerrain: 'highlands',
+    worldBossEligible: false,
+  },
+  'dungeon-brick-moss': {
+    biome: 'dungeon',
+    passable: true,
+    tierBonus: 1,
+    contentTerrain: 'grove',
+    worldBossEligible: false,
+  },
+  'dungeon-brick-wall': {
+    biome: 'dungeon',
+    passable: false,
+    tierBonus: 2,
+    contentTerrain: 'mountain',
+    worldBossEligible: false,
+  },
+  'dungeon-mud-floor': {
+    biome: 'dungeon',
+    passable: true,
+    tierBonus: 1,
+    contentTerrain: 'marsh',
+    worldBossEligible: false,
+  },
+  'dungeon-mud-rut': {
+    biome: 'dungeon',
+    passable: true,
+    tierBonus: 1,
+    contentTerrain: 'marsh',
+    worldBossEligible: false,
+  },
+  'dungeon-mud-puddle': {
+    biome: 'dungeon',
+    passable: true,
+    tierBonus: 1,
+    contentTerrain: 'swamp',
+    worldBossEligible: false,
+  },
+  'dungeon-mud-wall': {
+    biome: 'dungeon',
+    passable: false,
+    tierBonus: 2,
+    contentTerrain: 'swamp',
+    worldBossEligible: false,
+  },
+  'dungeon-obsidian-floor': {
+    biome: 'dungeon',
+    passable: true,
+    tierBonus: 2,
+    contentTerrain: 'blasted',
+    worldBossEligible: false,
+  },
+  'dungeon-obsidian-ash': {
+    biome: 'dungeon',
+    passable: true,
+    tierBonus: 2,
+    contentTerrain: 'blasted',
+    worldBossEligible: false,
+  },
+  'dungeon-obsidian-ember': {
+    biome: 'dungeon',
+    passable: true,
+    tierBonus: 2,
+    contentTerrain: 'rift',
+    worldBossEligible: false,
+  },
+  'dungeon-obsidian-wall': {
+    biome: 'dungeon',
     passable: false,
     tierBonus: 2,
     contentTerrain: 'rift',

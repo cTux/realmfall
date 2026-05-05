@@ -661,6 +661,7 @@ export function getEnemyItemDropChance(enemy: Enemy) {
 export function getEnemyDropRarityChanceScale(state: GameState, enemy: Enemy) {
   const tile = state.tiles[hexKey(enemy.coord)];
   const dungeonMultiplier =
+    enemy.tags?.includes(GAME_TAGS.enemy.dungeon) ||
     tile?.structure === 'dungeon'
       ? ENEMY_ITEM_DUNGEON_RARITY_CHANCE_MULTIPLIER
       : 1;

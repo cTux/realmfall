@@ -3,105 +3,189 @@
   "tileWidth": 200,
   "tileHeight": 200,
   "columns": 4,
-  "rows": 4,
+  "rows": 7,
   "frames": {
     "plains": {
       "x": 0,
       "y": 0,
       "w": 200,
       "h": 200,
-      "source": "src/assets/images/terrain/plains-v2.png"
+      "source": "packages/client/src/assets/images/terrain/plains-v2.png"
     },
     "meadow": {
       "x": 200,
       "y": 0,
       "w": 200,
       "h": 200,
-      "source": "src/assets/images/terrain/meadow-v2.png"
+      "source": "packages/client/src/assets/images/terrain/meadow-v2.png"
     },
     "steppe": {
       "x": 400,
       "y": 0,
       "w": 200,
       "h": 200,
-      "source": "src/assets/images/terrain/steppe-v2.png"
+      "source": "packages/client/src/assets/images/terrain/steppe-v2.png"
     },
     "grove": {
       "x": 600,
       "y": 0,
       "w": 200,
       "h": 200,
-      "source": "src/assets/images/terrain/grove-v2.png"
+      "source": "packages/client/src/assets/images/terrain/grove-v2.png"
     },
     "forest": {
       "x": 0,
       "y": 200,
       "w": 200,
       "h": 200,
-      "source": "src/assets/images/terrain/forest-v2.png"
+      "source": "packages/client/src/assets/images/terrain/forest-v2.png"
     },
     "marsh": {
       "x": 200,
       "y": 200,
       "w": 200,
       "h": 200,
-      "source": "src/assets/images/terrain/marsh-v2.png"
+      "source": "packages/client/src/assets/images/terrain/marsh-v2.png"
     },
     "rift": {
       "x": 400,
       "y": 200,
       "w": 200,
       "h": 200,
-      "source": "src/assets/images/terrain/rift-v2.png"
+      "source": "packages/client/src/assets/images/terrain/rift-v2.png"
     },
     "blasted": {
       "x": 600,
       "y": 200,
       "w": 200,
       "h": 200,
-      "source": "src/assets/images/terrain/blasted-v2.png"
+      "source": "packages/client/src/assets/images/terrain/blasted-v2.png"
     },
     "highlands": {
       "x": 0,
       "y": 400,
       "w": 200,
       "h": 200,
-      "source": "src/assets/images/terrain/highlands-v2.png"
+      "source": "packages/client/src/assets/images/terrain/highlands-v2.png"
     },
     "mountain": {
       "x": 200,
       "y": 400,
       "w": 200,
       "h": 200,
-      "source": "src/assets/images/terrain/mountain-v2.png"
+      "source": "packages/client/src/assets/images/terrain/mountain-v2.png"
     },
     "dunes": {
       "x": 400,
       "y": 400,
       "w": 200,
       "h": 200,
-      "source": "src/assets/images/terrain/dunes-v2.png"
+      "source": "packages/client/src/assets/images/terrain/dunes-v2.png"
     },
     "badlands": {
       "x": 600,
       "y": 400,
       "w": 200,
       "h": 200,
-      "source": "src/assets/images/terrain/badlands-v2.png"
+      "source": "packages/client/src/assets/images/terrain/badlands-v2.png"
     },
     "desert": {
       "x": 0,
       "y": 600,
       "w": 200,
       "h": 200,
-      "source": "src/assets/images/terrain/desert-v2.png"
+      "source": "packages/client/src/assets/images/terrain/desert-v2.png"
     },
     "swamp": {
       "x": 200,
       "y": 600,
       "w": 200,
       "h": 200,
-      "source": "src/assets/images/terrain/swamp-v2.png"
+      "source": "packages/client/src/assets/images/terrain/swamp-v2.png"
+    },
+    "dungeon-brick-floor": {
+      "x": 400,
+      "y": 600,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client/src/assets/images/terrain/dungeons/dungeon-brick-floor.png"
+    },
+    "dungeon-brick-cracked": {
+      "x": 600,
+      "y": 600,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client/src/assets/images/terrain/dungeons/dungeon-brick-cracked.png"
+    },
+    "dungeon-brick-moss": {
+      "x": 0,
+      "y": 800,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client/src/assets/images/terrain/dungeons/dungeon-brick-moss.png"
+    },
+    "dungeon-brick-wall": {
+      "x": 200,
+      "y": 800,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client/src/assets/images/terrain/dungeons/dungeon-brick-wall.png"
+    },
+    "dungeon-mud-floor": {
+      "x": 400,
+      "y": 800,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client/src/assets/images/terrain/dungeons/dungeon-mud-floor.png"
+    },
+    "dungeon-mud-rut": {
+      "x": 600,
+      "y": 800,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client/src/assets/images/terrain/dungeons/dungeon-mud-rut.png"
+    },
+    "dungeon-mud-puddle": {
+      "x": 0,
+      "y": 1000,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client/src/assets/images/terrain/dungeons/dungeon-mud-puddle.png"
+    },
+    "dungeon-mud-wall": {
+      "x": 200,
+      "y": 1000,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client/src/assets/images/terrain/dungeons/dungeon-mud-wall.png"
+    },
+    "dungeon-obsidian-floor": {
+      "x": 400,
+      "y": 1000,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client/src/assets/images/terrain/dungeons/dungeon-obsidian-floor.png"
+    },
+    "dungeon-obsidian-ash": {
+      "x": 600,
+      "y": 1000,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client/src/assets/images/terrain/dungeons/dungeon-obsidian-ash.png"
+    },
+    "dungeon-obsidian-ember": {
+      "x": 0,
+      "y": 1200,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client/src/assets/images/terrain/dungeons/dungeon-obsidian-ember.png"
+    },
+    "dungeon-obsidian-wall": {
+      "x": 200,
+      "y": 1200,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client/src/assets/images/terrain/dungeons/dungeon-obsidian-wall.png"
     }
   }
 }

@@ -1,5 +1,13 @@
-import { takeGraphics } from './renderScenePools';
+import type { HexCoord, WorldKind } from '../../game/stateTypes';
+import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
+import { tileToPoint } from './renderSceneMath';
+import { takeGraphics, type GraphicsPool } from './renderScenePools';
 import type { SceneCache } from './renderSceneCache';
+import { WORLD_MOVE_HEX_COOLDOWN_MS } from '../../game/config';
+import {
+  getVisibleTileRevealState,
+  type MovementTransitionRevealState,
+} from './renderSceneVisibility';
 
 const PLAYER_BAR_TRACK_COLOR = 0x422006;
 const PLAYER_BAR_TRACK_ALPHA = 0.85;
@@ -42,6 +50,7 @@ export function renderPlayerMovementCooldown({
   const thickness = Math.max(3, playerIconSize * 0.075);
 
   renderPlayerEdgeBar({
+    fillAlpha: PLAYER_BAR_FILL_ALPHA,
     color: MOVEMENT_COOLDOWN_BAR_COLOR,
     endAngle: Math.PI / 2,
     hexSize,
@@ -53,6 +62,78 @@ export function renderPlayerMovementCooldown({
     trackColor: PLAYER_BAR_TRACK_COLOR,
     trackPool: scene.playerCooldownGraphics,
   });
+}
+
+export function renderDungeonEnemyMovementCooldowns({
+  scene,
+  hexSize,
+  movementTransitionRevealState,
+  origin,
+  playerCoord,
+  visibleTileRenderInputs,
+  worldKind,
+  worldTimeMs,
+}: {
+  scene: SceneCache;
+  hexSize: number;
+  origin: { x: number; y: number };
+  movementTransitionRevealState: MovementTransitionRevealState | null;
+  playerCoord: HexCoord;
+  visibleTileRenderInputs: VisibleTileRenderInput[];
+  worldKind: WorldKind;
+  worldTimeMs: number;
+}) {
+  if (worldKind !== 'dungeon') {
+    return;
+  }
+
+  for (const { enemies, tile } of visibleTileRenderInputs) {
+    const revealState = getVisibleTileRevealState({
+      movementTransitionState: movementTransitionRevealState,
+      playerCoord,
+      tile,
+    });
+    if (!revealState.revealed || !revealState.resolved) {
+      continue;
+    }
+
+    const point = tileToPoint(
+      {
+        q: tile.coord.q - playerCoord.q,
+        r: tile.coord.r - playerCoord.r,
+      },
+      origin.x,
+      origin.y,
+      hexSize,
+    );
+
+    for (const enemy of enemies) {
+      if (
+        enemy.dungeonMovementCooldownEndsAt === undefined ||
+        enemy.dungeonMovementCooldownEndsAt <= worldTimeMs
+      ) {
+        continue;
+      }
+
+      const remainingMs = enemy.dungeonMovementCooldownEndsAt - worldTimeMs;
+      const progress = Math.min(1, remainingMs / WORLD_MOVE_HEX_COOLDOWN_MS);
+      const thickness = Math.max(3, hexSize * 0.11);
+
+      renderPlayerEdgeBar({
+        fillAlpha: PLAYER_BAR_FILL_ALPHA,
+        color: MOVEMENT_COOLDOWN_BAR_COLOR,
+        endAngle: -Math.PI / 6,
+        hexSize,
+        origin: point,
+        progress,
+        startAngle: -Math.PI / 2,
+        thickness,
+        trackAlpha: PLAYER_BAR_TRACK_ALPHA,
+        trackColor: PLAYER_BAR_TRACK_COLOR,
+        trackPool: scene.worldAnimatedMarkerBadgeGraphics,
+      });
+    }
+  }
 }
 
 export function renderPlayerResourceBars({
@@ -76,6 +157,7 @@ export function renderPlayerResourceBars({
   const thickness = Math.max(3, playerIconSize * 0.075);
 
   renderPlayerEdgeBar({
+    fillAlpha: PLAYER_BAR_FILL_ALPHA,
     color: PLAYER_HEALTH_BAR_COLOR,
     endAngle: (3 * Math.PI) / 2,
     hexSize,
@@ -91,6 +173,7 @@ export function renderPlayerResourceBars({
     trackPool: scene.playerResourceGraphics,
   });
   renderPlayerEdgeBar({
+    fillAlpha: PLAYER_BAR_FILL_ALPHA,
     color: PLAYER_MANA_BAR_COLOR,
     endAngle: (11 * Math.PI) / 6,
     hexSize,
@@ -110,6 +193,7 @@ export function renderPlayerResourceBars({
 function renderPlayerEdgeBar({
   color,
   endAngle,
+  fillAlpha,
   hexSize,
   origin,
   progress,
@@ -121,6 +205,7 @@ function renderPlayerEdgeBar({
 }: {
   color: number;
   endAngle: number;
+  fillAlpha: number;
   hexSize: number;
   origin: { x: number; y: number };
   progress: number;
@@ -128,7 +213,7 @@ function renderPlayerEdgeBar({
   thickness: number;
   trackAlpha: number;
   trackColor: number;
-  trackPool: SceneCache['playerCooldownGraphics'];
+  trackPool: GraphicsPool;
 }) {
   const start = {
     x: origin.x + Math.cos(startAngle) * hexSize,
@@ -155,7 +240,7 @@ function renderPlayerEdgeBar({
 
   takeGraphics(trackPool)
     .poly(buildPlayerBarQuad(start, fillEnd, inwardNormal, thickness))
-    .fill({ color, alpha: PLAYER_BAR_FILL_ALPHA });
+    .fill({ color, alpha: fillAlpha });
 }
 
 function getInwardNormal(
