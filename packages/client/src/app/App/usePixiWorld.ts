@@ -290,6 +290,11 @@ export function usePixiWorld({
           setGame((current) => {
             const nextTiles = { ...current.tiles };
             const nextEnemies = { ...current.enemies };
+            const activeWorldId =
+              current.worlds[current.activeWorldId] !== undefined
+                ? current.activeWorldId
+                : current.surfaceWorldId;
+            const activeWorld = current.worlds[activeWorldId];
 
             for (const resolvedPayload of payloads.map(
               hydrateResolvedWorldTilePayload,
@@ -302,6 +307,17 @@ export function usePixiWorld({
 
             const nextGame = {
               ...current,
+              worlds:
+                activeWorld === undefined
+                  ? current.worlds
+                  : {
+                      ...current.worlds,
+                      [activeWorldId]: {
+                        ...activeWorld,
+                        tiles: nextTiles,
+                        enemies: nextEnemies,
+                      },
+                    },
               tiles: nextTiles,
               enemies: nextEnemies,
             };

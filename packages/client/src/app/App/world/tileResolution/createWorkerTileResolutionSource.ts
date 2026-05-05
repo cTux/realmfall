@@ -15,9 +15,15 @@ export function createWorkerTileResolutionSource(): TileResolutionSource {
   const localSource = createLocalTileResolutionSource();
   const pendingResolutions = new Set<PendingWorkerResolution>();
   let workerDisposed = false;
+  let worker: ReturnType<
+    typeof createEasyWebWorker<
+      ResolveWorldTilesRequest,
+      ResolveWorldTilesResponse
+    >
+  > | null = null;
 
   const disposeWorker = async () => {
-    if (workerDisposed) {
+    if (workerDisposed || worker === null) {
       return;
     }
 
@@ -37,17 +43,13 @@ export function createWorkerTileResolutionSource(): TileResolutionSource {
     }
   };
 
-  const worker = createEasyWebWorker<
-    ResolveWorldTilesRequest,
-    ResolveWorldTilesResponse
-  >(new URL('./worldTileResolution.worker.ts', import.meta.url), {
-    keepAlive: true,
-    name: 'world-tile-resolution',
-    onWorkerError: (error) => {
-      switchToLocalFallback(normalizeWorkerResolutionError(error));
-    },
-    workerOptions: { type: 'module' },
+  worker = createWrappedTileResolutionWorker((error) => {
+    switchToLocalFallback(normalizeWorkerResolutionError(error));
   });
+
+  if (worker === null) {
+    return localSource;
+  }
 
   return {
     resolve(request) {
@@ -151,4 +153,35 @@ function normalizeWorkerResolutionError(error: ErrorEvent | unknown) {
   }
 
   return new Error('World tile resolution worker failed.');
+}
+
+function createWrappedTileResolutionWorker(
+  onWorkerError: (error: ErrorEvent | unknown) => void,
+) {
+  if (typeof Worker !== 'function') {
+    return null;
+  }
+
+  let workerInstance: Worker | null = null;
+  try {
+    workerInstance = new Worker(
+      new URL('./worldTileResolution.worker.ts', import.meta.url),
+      {
+        name: 'world-tile-resolution',
+        type: 'module',
+      },
+    );
+
+    return createEasyWebWorker<
+      ResolveWorldTilesRequest,
+      ResolveWorldTilesResponse
+    >(workerInstance, {
+      keepAlive: true,
+      name: 'world-tile-resolution',
+      onWorkerError,
+    });
+  } catch {
+    workerInstance?.terminate();
+    return null;
+  }
 }
