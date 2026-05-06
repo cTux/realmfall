@@ -9,6 +9,7 @@ This spec covers the repository layer boundaries, state transition shape, and co
 - Client-side `src/*` paths below live under `packages/client/` after the monorepo split.
 - `packages/client/src/game` contains gameplay and simulation rules.
 - `packages/client/src/app` contains app orchestration, hydration, persistence wiring, clock wiring, and controller hooks.
+- Repeated app-controller command families that only adapt gameplay transitions into UI handlers stay in focused neighbors such as `packages/client/src/app/App/hooks/gameActionHandlers/*` instead of regrowing broad orchestration hooks with hand-wired callback lists.
 - `packages/client/src/ui/components` contains client-only React window components and presentational UI, while `packages/ui/src/components` contains shared reusable controls consumed through `@realmfall/ui`.
 - Shared `packages/ui` controls keep UI-owned view contracts and helper logic under `packages/ui/src/game` and receive caller-derived action metadata instead of importing client `stateTypes`, app-only controller types, or gameplay config modules into the shared package implementation.
 - `packages/ui/src/game` does not re-export `packages/client/src/game/content/*`; a local boundary test keeps that subtree UI-owned.
