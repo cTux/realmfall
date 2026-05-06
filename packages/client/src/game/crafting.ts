@@ -1,4 +1,3 @@
-import { makeCookedFish } from './inventory';
 import { GENERATED_CRAFTING_RECIPES } from './generatedCraftingRecipes';
 import { HARVEST_COOKING_RECIPES } from './harvestCookingRecipes';
 import { t } from '../i18n';
@@ -225,7 +224,7 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
     name: 'Cooked Fish',
     description: 'Cook raw fish over a small fire.',
     skill: Skill.Cooking,
-    output: makeCookedFish(),
+    output: buildItemFromConfig('cooked-fish'),
     ingredients: [{ itemKey: 'raw-fish', name: 'Raw Fish', quantity: 1 }],
     fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },

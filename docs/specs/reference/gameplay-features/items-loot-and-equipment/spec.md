@@ -56,11 +56,14 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - Crafted and fixed offhand gear such as bucklers, shields, magical spheres, and totems also roll a deterministic active ability from an archetype-appropriate pool.
 - Equippable item tooltips surface the granted combat ability directly so players can see the rolled skill before equipping the item.
 - Generated drop configs and craftable icon configs now derive their shared slot, category, icon-pool id family, offhand-occupancy, and granted-ability metadata from one canonical generated-equipment family manifest, so icon-family ownership does not drift between world drops and workshop outputs.
+- Generated craftable icon recipes now derive ingredient sources and ring slot assignments from that same generated-equipment family manifest instead of prefix-based recipe heuristics.
+- Recipe-page construction and crafted-output materialization now live in crafting-owned helpers, leaving `inventory.ts` focused on inventory mechanics instead of recipe ownership.
 - Item content keeps `src/game/content/items/index.ts` as a thin public facade while `itemCatalog.ts` assembles hydrated configs, `itemBuilders.ts` owns configured and generated item construction, and `itemClassification.ts` plus `itemCategoryRules.ts` own category and tag inference.
 
 ## Main Implementation Areas
 
 - `src/game/inventory.ts`
+- `src/game/craftingOutputs.ts`
 - `src/game/itemModifications.ts`
 - `src/game/consumables.ts`
 - `src/game/stateItemActions.ts`
@@ -68,6 +71,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - `src/game/world.ts`
 - `src/game/state.ts`
 - `src/game/stateRewards.ts`
+- `src/game/generatedCraftingRecipes.ts`
 - `src/game/content/items`
 - `src/game/content/generatedIconPools.ts`
 - `src/ui/generatedIconAssets.ts`

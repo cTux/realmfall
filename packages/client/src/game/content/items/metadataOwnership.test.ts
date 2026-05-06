@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { GAME_TAGS } from '../tags';
 import { CRAFTABLE_ICON_ITEM_CONFIGS } from '../generatedCraftingEquipment';
+import { GENERATED_EQUIPMENT_FAMILIES } from '../generatedEquipmentFamilies';
+import { EquipmentSlotId } from '../ids';
 import { GENERATED_ICON_POOLS } from '../generatedEquipment';
 import { campSpearItemConfig } from './campSpear';
 import { clothItemConfig } from './cloth';
@@ -75,5 +77,43 @@ describe('item config metadata ownership', () => {
 
     expect(magicalSphere?.grantedAbilityPool).toBeTruthy();
     expect(shield?.grantedAbilityPool).toBeTruthy();
+  });
+
+  it('keeps generated crafting ingredient and ring-slot metadata on the family configs', () => {
+    const ringCraft = GENERATED_EQUIPMENT_FAMILIES.find(
+      (family) => family.familyKey === 'ring' && family.craft !== undefined,
+    )?.craft;
+    const swordCraft = GENERATED_EQUIPMENT_FAMILIES.find(
+      (family) => family.familyKey === 'sword' && family.craft !== undefined,
+    )?.craft;
+    const magicalSphereCraft = GENERATED_EQUIPMENT_FAMILIES.find(
+      (family) =>
+        family.familyKey === 'magicalSphere' && family.craft !== undefined,
+    )?.craft;
+
+    expect(ringCraft?.slotAssignments).toBeTruthy();
+    expect(ringCraft?.slotAssignments).toHaveLength(
+      GENERATED_ICON_POOLS.ring.length,
+    );
+    expect(
+      ringCraft?.slotAssignments?.filter(
+        (slot) => slot === EquipmentSlotId.RingLeft,
+      ),
+    ).toHaveLength(Math.ceil(GENERATED_ICON_POOLS.ring.length / 2));
+    expect(
+      ringCraft?.slotAssignments?.filter(
+        (slot) => slot === EquipmentSlotId.RingRight,
+      ),
+    ).toHaveLength(Math.floor(GENERATED_ICON_POOLS.ring.length / 2));
+
+    expect(swordCraft?.ingredients).toEqual([
+      { kind: 'redistributed-ingot', quantity: 2 },
+      { itemKey: 'sticks', quantity: 1 },
+    ]);
+    expect(magicalSphereCraft?.ingredients).toEqual([
+      { itemKey: 'gold-ingot', quantity: 2 },
+      { itemKey: 'platinum-ingot', quantity: 1 },
+      { itemKey: 'arcane-dust', quantity: 3 },
+    ]);
   });
 });

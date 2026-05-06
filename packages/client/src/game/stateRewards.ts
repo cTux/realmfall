@@ -24,6 +24,7 @@ import { getStructureConfig } from './content/structures';
 import { GAME_TAGS } from './content/tags';
 import { enemyRarityIndex, isAnimalEnemy } from './combat';
 import { RECIPE_BOOK_RECIPES } from './crafting';
+import { makeRecipePage } from './craftingOutputs';
 import { hexKey } from './hex';
 import { CHEST_KEY_DROP_CHANCE, LOCKPICK_DROP_CHANCE } from './lockedChests';
 import { addLog } from './logs';
@@ -32,7 +33,6 @@ import {
   describeItemStack,
   makeGoldStack,
   makeHomeScroll,
-  makeRecipePage,
   makeResourceStack,
 } from './inventory';
 import { gainSkillXp } from './progression';

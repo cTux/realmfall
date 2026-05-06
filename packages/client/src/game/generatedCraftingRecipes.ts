@@ -1,5 +1,6 @@
-import { CRAFTABLE_ICON_ITEM_CONFIGS } from './content/generatedCraftingEquipment';
+import { CRAFTABLE_ICON_ITEM_ENTRIES } from './content/generatedCraftingEquipment';
 import { getGeneratedCraftingLore } from './content/generatedCraftingLore';
+import type { GeneratedCraftIngredient } from './content/generatedEquipmentFamilies';
 import { buildItemFromConfig, getItemConfigByKey } from './content/items';
 import { Skill, type RecipeDefinition, type RecipeRequirement } from './types';
 
@@ -27,15 +28,6 @@ function buildItemKeyRequirement(itemKey: string, quantity: number) {
   );
 }
 
-function usesRedistributedIngot(itemKey: string) {
-  return (
-    !itemKey.startsWith('icon-wand-') &&
-    !itemKey.startsWith('icon-magical-sphere-') &&
-    !itemKey.startsWith('icon-ring-') &&
-    !itemKey.startsWith('icon-necklace-')
-  );
-}
-
 function buildRedistributedIngotRequirement(
   redistributedIngotIndex: number,
   quantity: number,
@@ -48,96 +40,27 @@ function buildRedistributedIngotRequirement(
   );
 }
 
+function usesRedistributedIngot(
+  ingredients: readonly GeneratedCraftIngredient[],
+) {
+  return ingredients.some(
+    (ingredient) =>
+      'kind' in ingredient && ingredient.kind === 'redistributed-ingot',
+  );
+}
+
 function buildGeneratedRecipeIngredients(
-  itemKey: string,
+  ingredients: readonly GeneratedCraftIngredient[],
   redistributedIngotIndex: number,
 ) {
-  if (itemKey.startsWith('icon-wand-')) {
-    return [
-      buildItemKeyRequirement('tin-ingot', 2),
-      buildItemKeyRequirement('arcane-dust', 2),
-      buildItemKeyRequirement('sticks', 1),
-    ];
-  }
-  if (itemKey.startsWith('icon-magical-sphere-')) {
-    return [
-      buildItemKeyRequirement('gold-ingot', 2),
-      buildItemKeyRequirement('platinum-ingot', 1),
-      buildItemKeyRequirement('arcane-dust', 3),
-    ];
-  }
-  if (itemKey.startsWith('icon-shield-')) {
-    return [
-      buildRedistributedIngotRequirement(redistributedIngotIndex, 2),
-      buildItemKeyRequirement('logs', 1),
-      buildItemKeyRequirement('leather-scraps', 2),
-    ];
-  }
-  if (itemKey.startsWith('icon-ring-')) {
-    return [
-      buildItemKeyRequirement('gold-ingot', 1),
-      buildItemKeyRequirement('arcane-dust', 2),
-    ];
-  }
-  if (itemKey.startsWith('icon-necklace-')) {
-    return [
-      buildItemKeyRequirement('gold-ingot', 1),
-      buildItemKeyRequirement('platinum-ingot', 1),
-      buildItemKeyRequirement('arcane-dust', 2),
-    ];
-  }
-  if (
-    itemKey.startsWith('icon-two-handed-sword-') ||
-    itemKey.startsWith('icon-two-handed-axe-') ||
-    itemKey.startsWith('icon-two-handed-mace-')
-  ) {
-    return [
-      buildRedistributedIngotRequirement(redistributedIngotIndex, 4),
-      buildItemKeyRequirement('logs', 1),
-    ];
-  }
-  if (itemKey.startsWith('icon-offhand-dagger-')) {
-    return [
-      buildRedistributedIngotRequirement(redistributedIngotIndex, 1),
-      buildItemKeyRequirement('leather-scraps', 1),
-    ];
-  }
-  if (
-    itemKey.startsWith('icon-axe-') ||
-    itemKey.startsWith('icon-sword-') ||
-    itemKey.startsWith('icon-mace-') ||
-    itemKey.startsWith('icon-dagger-')
-  ) {
-    return [
-      buildRedistributedIngotRequirement(redistributedIngotIndex, 2),
-      buildItemKeyRequirement('sticks', 1),
-    ];
-  }
-  if (itemKey.startsWith('icon-chest-')) {
-    return [
-      buildItemKeyRequirement('cloth', 4),
-      buildItemKeyRequirement('leather-scraps', 4),
-      buildRedistributedIngotRequirement(redistributedIngotIndex, 2),
-    ];
-  }
-  if (
-    itemKey.startsWith('icon-helmet-') ||
-    itemKey.startsWith('icon-shoulders-') ||
-    itemKey.startsWith('icon-leggings-') ||
-    itemKey.startsWith('icon-boots-') ||
-    itemKey.startsWith('icon-cloak-')
-  ) {
-    return [
-      buildItemKeyRequirement('cloth', 2),
-      buildItemKeyRequirement('leather-scraps', 2),
-      buildRedistributedIngotRequirement(redistributedIngotIndex, 1),
-    ];
-  }
-  return [
-    buildItemKeyRequirement('leather-scraps', 2),
-    buildItemKeyRequirement('cloth', 1),
-    buildRedistributedIngotRequirement(redistributedIngotIndex, 1),
-  ];
+  return ingredients.map((ingredient) =>
+    'kind' in ingredient
+      ? buildRedistributedIngotRequirement(
+          redistributedIngotIndex,
+          ingredient.quantity,
+        )
+      : buildItemKeyRequirement(ingredient.itemKey, ingredient.quantity),
+  );
 }
 
 function buildGeneratedRecipeDescription(itemKey: string) {
@@ -150,13 +73,13 @@ function buildGeneratedRecipeDescription(itemKey: string) {
 export const GENERATED_CRAFTING_RECIPES: RecipeDefinition[] = (() => {
   let redistributedIngotIndex = 0;
 
-  return CRAFTABLE_ICON_ITEM_CONFIGS.map((config) => {
+  return CRAFTABLE_ICON_ITEM_ENTRIES.map(({ config, craft }) => {
     const ingredients = buildGeneratedRecipeIngredients(
-      config.key,
+      craft.ingredients,
       redistributedIngotIndex,
     );
 
-    if (usesRedistributedIngot(config.key)) {
+    if (usesRedistributedIngot(craft.ingredients)) {
       redistributedIngotIndex += 1;
     }
 

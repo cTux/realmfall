@@ -11,8 +11,9 @@ import {
   pickSatisfiedRequirement,
   RECIPE_BOOK_RECIPES,
 } from './crafting';
+import { materializeRecipeOutput } from './craftingOutputs';
 import { addLog } from './logs';
-import { addItemToInventory, materializeRecipeOutput } from './inventory';
+import { addItemToInventory } from './inventory';
 import { gainSkillXp } from './progression';
 import { cloneForPlayerMutation, message } from './stateMutationHelpers';
 import { getCurrentTile } from './stateWorldQueries';
