@@ -11,14 +11,15 @@ import { buildTileForState, normalizeStructureState } from './world';
 export function syncCombatEncounterEnemies(state: GameState) {
   if (!state.combat) return;
 
+  const encounterCoord = getCombatEncounterCoord(state.combat);
   const tile =
-    state.tiles[hexKey(state.combat.coord)] ??
-    buildTileForState(state, state.combat.coord);
+    state.tiles[hexKey(encounterCoord)] ??
+    buildTileForState(state, encounterCoord);
   const enemyIds = tile.enemyIds.filter((enemyId) =>
     Boolean(state.enemies[enemyId]),
   );
 
-  state.tiles[hexKey(state.combat.coord)] = normalizeStructureState({
+  state.tiles[hexKey(encounterCoord)] = normalizeStructureState({
     ...tile,
     enemyIds,
   });
@@ -56,4 +57,8 @@ export function syncCombatEncounterEnemies(state: GameState) {
       );
     }
   }
+}
+
+function getCombatEncounterCoord(combat: NonNullable<GameState['combat']>) {
+  return combat.engagement?.targetCoord ?? combat.coord;
 }

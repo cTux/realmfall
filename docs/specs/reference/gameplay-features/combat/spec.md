@@ -15,6 +15,7 @@ This spec covers encounter activation, actor timing, and combat resolution.
 - While combat is active, the world presentation keeps the player visually held in the lunged position instead of snapping them back to the staging-hex center.
 - Winning a hostile-click encounter can auto-step the player onto the preserved hostile target after the final enemy dies, and that full hex move continues from the held lunge offset while the app applies the normal movement cooldown for the step.
 - Winning a roaming dungeon chase encounter ends on the staging hex instead of moving the player onto the chaser's prior hex.
+- Combat teardown clears defeated enemies from the preserved encounter target hex before control returns, so staged hostile fights and roaming chase fights do not leave ghost enemies behind.
 - While combat is active, regular travel is blocked.
 - Combat uses actor state for the player and each enemy.
 - Every actor has a global cooldown.
