@@ -12,6 +12,7 @@ This spec covers gatherable structures, world interaction sites, and contextual 
 - Gather actions can award byproducts such as sticks from trees and stone from any ore seam.
 - Structures also include non-gathering interaction sites such as towns, camps, furnaces, workshops, forges, rune forges, mana fonts, corruption altars, and dungeons.
 - Structure interaction labels are driven from structure definitions.
+- Crafting-site capabilities for camps, furnaces, and workshops are declared through structure `functionsProvided` metadata, and recipe-station checks resolve from that canonical structure data.
 - Camps influence atmosphere and world presentation in the renderer.
 - Hex interactions are contextual to the current tile and available structure.
 - Current interactions include gathering, buying, selling, prospecting, reforging, enchanting, corrupting, smelting, taking loot, combat start, and claim attempts.

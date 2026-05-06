@@ -12,6 +12,7 @@ This spec covers the recipe book, recipe learning, and crafting execution.
 - Learning a recipe page replaces the learned recipe id list by value, so the recipe book refreshes immediately without reloading the app.
 - Learned recipes are tracked on the player state.
 - Crafting and smelting check recipe knowledge, scaled ingredient requirements, optional fuel requirements, and the required crafting site.
+- Recipe ingredient and fuel requirements resolve from canonical `itemKey` values, use one shared default cooking-fuel table for campfire and furnace recipes, and localize requirement display names when recipes are read for UI or logs instead of storing presentation names in the canonical tables.
 - Crafting consumes required inputs and materializes a configured output item.
 - The recipe book shows both learned and unlearned recipes, splits them into right-side profession tabs ordered as cooking, smelting, then crafting, supports resizing, and can be filtered by a crafting material from the inventory context menu.
 - The crafting tab also supports per-equipment-slot icon filters at the top of the panel so players can show and hide recipes by equipped slot.
@@ -24,7 +25,8 @@ This spec covers the recipe book, recipe learning, and crafting execution.
 - Cooking coverage now also includes a broad harvest-and-meat meal set built from herb-patch produce, orchard fruit, and animal meat drops.
 - Metal progression now routes through furnace smelting recipes for copper, tin, iron, gold, and platinum ores, with workshop gear recipes consuming ingots instead of raw ore and redistributing former iron-only metal requirements across the full ingot set in a deterministic near-even split.
 - Ingot item bases use the shared bar icon with bright material-specific tinting so each refined metal reads distinctly in inventory and tooltips.
-- Workshop material costs are scaled 10x from their base requirements. Smelting recipes refine ore into matching ingots at a true 1:1 ratio, so one ingot craft consumes one ore while keeping the existing lower fuel quantities as alternative single-source requirements. Cooking recipes keep one-to-one food ingredient quantities so one raw source ingredient still produces one cooked result.
+- Recipe station access resolves through canonical structure capability metadata, so cooking, smelting, and workshop crafts follow the `functionsProvided` declarations on camps, furnaces, and workshops instead of parallel structure-name branches in crafting runtime code.
+- Workshop material costs are scaled 10x from their base requirements. Smelting recipes refine ore into matching ingots at a true 1:1 ratio, so one ingot craft consumes one ore while keeping the existing lower fuel quantities as alternative single-source requirements. Cooking recipes keep one-to-one food ingredient quantities so one raw source ingredient produces one cooked result.
 - Cooking and smelting profession levels increase recipe output quantity without raising material or fuel costs, and the recipe book preview reflects the current output stack for those professions.
 - Crafted equipment outputs now also resolve through the shared cascading rarity-event mechanism, using the recipe's configured rarity as the minimum floor instead of always materializing at the base rarity.
 - Crafted workshop equipment now materializes at the player's current level, using that level as the output tier before rarity bonuses are applied.

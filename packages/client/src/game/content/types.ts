@@ -92,13 +92,41 @@ export interface StructureItemModificationConfig {
   kind: 'reforge' | 'enchant' | 'corrupt';
 }
 
+export const STRUCTURE_FUNCTIONS = [
+  'buy',
+  'chop-wood',
+  'cook',
+  'corrupt',
+  'craft',
+  'elite-combat',
+  'enchant',
+  'fish',
+  'gather-herbs',
+  'harvest-flax',
+  'locked-loot',
+  'loot',
+  'mine-coal',
+  'mine-copper',
+  'mine-gold',
+  'mine-iron',
+  'mine-platinum',
+  'mine-tin',
+  'prospect',
+  'reforge',
+  'sell',
+  'smelt',
+  'trade',
+] as const;
+
+export type StructureFunction = (typeof STRUCTURE_FUNCTIONS)[number];
+
 export interface StructureConfig {
   type: StructureType;
   title: string;
   description: string;
   icon: string;
   tint: number;
-  functionsProvided: string[];
+  functionsProvided: StructureFunction[];
   tags?: GameTag[];
   globalAppearanceThreshold?: number;
   appearanceChanceByTerrain?: Partial<Record<Terrain, number>>;

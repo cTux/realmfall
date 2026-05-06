@@ -24,6 +24,7 @@ This spec covers the repository layer boundaries, state transition shape, and co
 - Active-world and surface-world alias semantics live in `src/game/dungeons/worldState.ts`, and surface-only systems such as blood moon, harvest moon, and earthshake reuse those helpers instead of rebuilding one-off alias shims.
 - Shared consumable effect descriptors live in `src/game/consumables.ts`, and both tooltip formatting plus item-use resolution consume that shared descriptor model instead of rebuilding parallel consumable-effect rules in UI and gameplay modules.
 - Item, enemy, and structure content keep thin public facades under `src/game/content/**/index.ts`, with neighboring catalog, selection, and builder helpers assembling the live registries.
+- Recipe requirement tables use canonical item-key helpers, while structure capability lookups derive from `src/game/content/structures` metadata so gameplay runtime code does not duplicate localized requirement names or structure-name capability branches.
 - Broad gameplay families move behind dedicated folders once they outgrow a couple of neighboring files, with root-level facades preserved for stable import paths.
 - Ability-definition assembly now lives under `src/game/content/abilities/*`, with `src/game/abilityCatalog.ts` and its school-specific root files kept as compatibility facades.
 - Progression implementation and tests now live under `src/game/progression/*`, with `src/game/progression.ts` and the legacy helper entrypoints kept as thin re-export surfaces.

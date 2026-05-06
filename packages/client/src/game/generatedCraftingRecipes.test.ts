@@ -143,67 +143,51 @@ describe('generated crafting recipes', () => {
 
   it('preserves ingredient profiles for each generated crafting family', () => {
     expect(getRecipe('icon-wand-01').ingredients).toEqual([
-      { itemKey: 'tin-ingot', name: 'Tin Ingot', quantity: 2 },
-      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 2 },
-      { itemKey: 'sticks', name: 'Sticks', quantity: 1 },
+      { itemKey: 'tin-ingot', quantity: 2 },
+      { itemKey: 'arcane-dust', quantity: 2 },
+      { itemKey: 'sticks', quantity: 1 },
     ]);
     expect(getRecipe('icon-magical-sphere-01').ingredients).toEqual([
-      { itemKey: 'gold-ingot', name: 'Gold Ingot', quantity: 2 },
-      { itemKey: 'platinum-ingot', name: 'Platinum Ingot', quantity: 1 },
-      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 3 },
+      { itemKey: 'gold-ingot', quantity: 2 },
+      { itemKey: 'platinum-ingot', quantity: 1 },
+      { itemKey: 'arcane-dust', quantity: 3 },
     ]);
     expect(getRecipe('icon-shield-01').ingredients).toEqual([
-      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 2 },
-      { itemKey: 'logs', name: 'Logs', quantity: 1 },
-      {
-        itemKey: 'leather-scraps',
-        name: 'Leather Scraps',
-        quantity: 2,
-      },
+      { itemKey: 'iron-ingot', quantity: 2 },
+      { itemKey: 'logs', quantity: 1 },
+      { itemKey: 'leather-scraps', quantity: 2 },
     ]);
     expect(getRecipe('icon-ring-01').ingredients).toEqual([
-      { itemKey: 'gold-ingot', name: 'Gold Ingot', quantity: 1 },
-      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 2 },
+      { itemKey: 'gold-ingot', quantity: 1 },
+      { itemKey: 'arcane-dust', quantity: 2 },
     ]);
     expect(getRecipe('icon-necklace-01').ingredients).toEqual([
-      { itemKey: 'gold-ingot', name: 'Gold Ingot', quantity: 1 },
-      { itemKey: 'platinum-ingot', name: 'Platinum Ingot', quantity: 1 },
-      { itemKey: 'arcane-dust', name: 'Mana Dust', quantity: 2 },
+      { itemKey: 'gold-ingot', quantity: 1 },
+      { itemKey: 'platinum-ingot', quantity: 1 },
+      { itemKey: 'arcane-dust', quantity: 2 },
     ]);
     expect(getRecipe('icon-two-handed-sword-01').ingredients).toEqual([
-      { itemKey: 'iron-ingot', name: 'Iron Ingot', quantity: 4 },
-      { itemKey: 'logs', name: 'Logs', quantity: 1 },
+      { itemKey: 'iron-ingot', quantity: 4 },
+      { itemKey: 'logs', quantity: 1 },
     ]);
     expect(getRecipe('icon-sword-01').ingredients).toEqual([
-      { itemKey: 'tin-ingot', name: 'Tin Ingot', quantity: 2 },
-      { itemKey: 'sticks', name: 'Sticks', quantity: 1 },
+      { itemKey: 'tin-ingot', quantity: 2 },
+      { itemKey: 'sticks', quantity: 1 },
     ]);
     expect(getRecipe('icon-chest-01').ingredients).toEqual([
-      { itemKey: 'cloth', name: 'Cloth', quantity: 4 },
-      {
-        itemKey: 'leather-scraps',
-        name: 'Leather Scraps',
-        quantity: 4,
-      },
-      { itemKey: 'copper-ingot', name: 'Copper Ingot', quantity: 2 },
+      { itemKey: 'cloth', quantity: 4 },
+      { itemKey: 'leather-scraps', quantity: 4 },
+      { itemKey: 'copper-ingot', quantity: 2 },
     ]);
     expect(getRecipe('icon-helmet-01').ingredients).toEqual([
-      { itemKey: 'cloth', name: 'Cloth', quantity: 2 },
-      {
-        itemKey: 'leather-scraps',
-        name: 'Leather Scraps',
-        quantity: 2,
-      },
-      { itemKey: 'copper-ingot', name: 'Copper Ingot', quantity: 1 },
+      { itemKey: 'cloth', quantity: 2 },
+      { itemKey: 'leather-scraps', quantity: 2 },
+      { itemKey: 'copper-ingot', quantity: 1 },
     ]);
     expect(getRecipe('icon-bracers-01').ingredients).toEqual([
-      {
-        itemKey: 'leather-scraps',
-        name: 'Leather Scraps',
-        quantity: 2,
-      },
-      { itemKey: 'cloth', name: 'Cloth', quantity: 1 },
-      { itemKey: 'platinum-ingot', name: 'Platinum Ingot', quantity: 1 },
+      { itemKey: 'leather-scraps', quantity: 2 },
+      { itemKey: 'cloth', quantity: 1 },
+      { itemKey: 'platinum-ingot', quantity: 1 },
     ]);
   });
 });

@@ -1,16 +1,9 @@
 import { CRAFTABLE_ICON_ITEM_ENTRIES } from './content/generatedCraftingEquipment';
 import { getGeneratedCraftingLore } from './content/generatedCraftingLore';
 import type { GeneratedCraftIngredient } from './content/generatedEquipmentFamilies';
-import { buildItemFromConfig, getItemConfigByKey } from './content/items';
-import { Skill, type RecipeDefinition, type RecipeRequirement } from './types';
-
-function buildRequirement(
-  itemKey: string,
-  name: string,
-  quantity: number,
-): RecipeRequirement {
-  return { itemKey, name, quantity };
-}
+import { buildItemFromConfig } from './content/items';
+import { buildRecipeRequirement } from './recipeRequirements';
+import { Skill, type RecipeDefinition } from './types';
 
 const REDISTRIBUTED_INGOT_ITEM_KEYS = [
   'copper-ingot',
@@ -21,11 +14,7 @@ const REDISTRIBUTED_INGOT_ITEM_KEYS = [
 ] as const;
 
 function buildItemKeyRequirement(itemKey: string, quantity: number) {
-  return buildRequirement(
-    itemKey,
-    getItemConfigByKey(itemKey)?.name ?? itemKey,
-    quantity,
-  );
+  return buildRecipeRequirement(itemKey, quantity);
 }
 
 function buildRedistributedIngotRequirement(
