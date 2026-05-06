@@ -12,6 +12,7 @@ This spec covers the reusable UI component library in `packages/ui`, its Storybo
 - `packages/client` imports shared components directly from `@realmfall/ui` at their call sites.
 - `packages/ui` is the single shared export surface for reusable UI primitives via `packages/ui/src/index.ts`.
 - Shared gameplay-aware controls such as `ActionBar`, `ActionBarSlot`, `Tooltip`, `ContextMenu`, `ItemSlot`, and `DockPanel` live in `packages/ui`, and their stories live there as well.
+- Legacy client-local copies of shared controls such as `ActionBar`, `Tooltip`, `ContextMenu`, and `ItemSlot` have been removed; client coverage now asserts the shared exports directly instead of comparing parallel implementations.
 - `packages/client` receives the library through a workspace dependency (`@realmfall/ui`) added in
   `packages/client/package.json`.
 - `packages/ui` can bridge to existing client-owned i18n, gameplay, and Storybook fixture helpers through narrow local re-export modules under `packages/ui/src` while the reusable component implementations stay consolidated in the shared package.
