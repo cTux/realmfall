@@ -52,7 +52,7 @@
   "devDependencies": {
     "@raegen/vite-plugin-vitest-cache": "^0.3.7",
     "@rolldown/plugin-babel": "0.2.3",
-    "@storybook/react-vite": "^10.3.5",
+    "@storybook/react-vite": "^10.3.6",
     "@types/howler": "^2.2.12",
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
