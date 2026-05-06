@@ -78,21 +78,24 @@ export function syncActiveDungeonEnemyMovement(state: GameState) {
     }
 
     const previousCoord = { ...enemy.coord };
-    moveDungeonEnemy(state, enemy, target);
-    changed = true;
-
     if (sameCoord(target, state.player.coord)) {
-      const hostileEnemyIds = getHostileEnemyIds(state, state.player.coord);
-      if (hostileEnemyIds.length > 0) {
-        startDungeonEnemyCombat(
-          state,
-          state.player.coord,
-          hostileEnemyIds,
-          previousCoord,
-        );
-      }
+      startDungeonEnemyCombat(
+        state,
+        state.player.coord,
+        [
+          enemy.id,
+          ...getHostileEnemyIds(state, state.player.coord).filter(
+            (hostileEnemyId) => hostileEnemyId !== enemy.id,
+          ),
+        ],
+        previousCoord,
+      );
+      changed = true;
       break;
     }
+
+    moveDungeonEnemy(state, enemy, target);
+    changed = true;
   }
 
   return changed;

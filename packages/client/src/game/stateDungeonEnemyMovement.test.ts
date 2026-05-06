@@ -89,7 +89,9 @@ describe('dungeon enemy world movement', () => {
       WORLD_MOVE_HEX_COOLDOWN_MS * 2,
     );
 
-    expect(secondStep.enemies[enemyId]?.coord).toEqual(ENTRANCE_COORD);
+    expect(secondStep.enemies[enemyId]?.coord).toEqual({ q: 1, r: 0 });
+    expect(secondStep.tiles['0,0']?.enemyIds).not.toContain(enemyId);
+    expect(secondStep.tiles['1,0']?.enemyIds).toContain(enemyId);
     expect(secondStep.combat?.coord).toEqual(ENTRANCE_COORD);
     expect(secondStep.combat?.enemyIds).toEqual([enemyId]);
     expect(secondStep.combat?.started).toBe(false);

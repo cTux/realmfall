@@ -117,7 +117,9 @@ export function createWorldRenderFrame({
         worldRenderFrameMs,
       },
     );
-    const combatActive = currentGame.combat != null;
+    const combatActive =
+      currentGame.combat?.started === true ||
+      currentGame.combat?.startedAtMs != null;
     const movementCooldownRenderToken = combatActive
       ? -1
       : getMovementCooldownRenderToken({
