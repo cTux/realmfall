@@ -13,7 +13,8 @@ This spec covers encounter activation, actor timing, and combat resolution.
 - Roaming dungeon enemy chase contact uses that same staged intro model, preserving the enemy hex as the encounter target instead of starting combat on the contact tick.
 - Battles that run for longer than `60s` surface a `Dea(t)h` title-bar action that accepts defeat, kills the player, and respawns them at their home hex.
 - While combat is active, the world presentation keeps the player visually held in the lunged position instead of snapping them back to the staging-hex center.
-- Winning a hostile-click or roaming-chase encounter can auto-step the player onto the preserved hostile target after the final enemy dies, and that full hex move continues from the held lunge offset while the app applies the normal movement cooldown for the step.
+- Winning a hostile-click encounter can auto-step the player onto the preserved hostile target after the final enemy dies, and that full hex move continues from the held lunge offset while the app applies the normal movement cooldown for the step.
+- Winning a roaming dungeon chase encounter ends on the staging hex instead of moving the player onto the chaser's prior hex.
 - While combat is active, regular travel is blocked.
 - Combat uses actor state for the player and each enemy.
 - Every actor has a global cooldown.

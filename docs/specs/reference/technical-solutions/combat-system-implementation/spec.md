@@ -11,7 +11,7 @@ This spec covers the internal combat data structures and event-driven enemy stat
 - Encounter setup remains on the world-travel path in `state.ts`, while `stateCombat.ts` coordinates combat start and combat-step scheduling through focused neighboring helpers.
 - All shipped encounter sources route through `stateCombatEngagement.ts`, so tile-step, hostile-click, and dungeon-chase encounters are created with `started: true` and no manual-start phase.
 - Combat engagement metadata now records `engageMode`, `originCoord`, `stagingCoord`, `targetCoord`, and `autoStepOnVictory` so hostile-click staging, dungeon chase contact, and deferred victory stepping all share one normalized runtime shape.
-- Encounter teardown can apply a deferred post-victory step onto the preserved engagement target before combat clears, letting hostile-click and chase encounters finish on their original hostile destination when that tile is safe.
+- Encounter teardown can apply a deferred post-victory step onto the preserved engagement target before combat clears for hostile-click encounters, while roaming chase encounters clear in place on the staging hex.
 - Combat damage and stat calculations live in `src/game/combatDamage.ts`.
 - Combat proc rolls live in `src/game/combatProcs.ts`.
 - Combat target selection and actor-readiness helpers live in `src/game/combatTargeting.ts`.

@@ -121,7 +121,7 @@ describe('stateCombatEngagement', () => {
     expect(started.combat?.startedAtMs).toBe(game.worldTimeMs);
   });
 
-  it('applies the deferred auto-step when encounter teardown clears the final enemy', () => {
+  it('does not apply a deferred auto-step after a roaming chase victory', () => {
     const game = createGame(3, 'victory-auto-step-sync');
     const enemyId = 'enemy-0,0-0';
     const targetCoord = { q: 1, r: 0 };
@@ -154,7 +154,7 @@ describe('stateCombatEngagement', () => {
       elite: false,
     };
     game.combat = createStartedCombatEncounter(game, {
-      autoStepOnVictory: true,
+      autoStepOnVictory: false,
       engageMode: 'enemy-chase',
       enemyIds: [enemyId],
       originCoord: { q: 0, r: 0 },
@@ -168,9 +168,9 @@ describe('stateCombatEngagement', () => {
     syncCombatEncounterEnemies(game);
 
     expect(game.combat).toBeNull();
-    expect(game.player.coord).toEqual(targetCoord);
-    expect(game.logs.length).toBe(initialLogCount + 3);
-    expect(game.logs[0]?.kind).toBe('movement');
+    expect(game.player.coord).toEqual({ q: 0, r: 0 });
+    expect(game.logs.length).toBe(initialLogCount + 2);
+    expect(game.logs[0]?.kind).toBe('combat');
     expect(game.logs[1]?.kind).toBe('combat');
   });
 });

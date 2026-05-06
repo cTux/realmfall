@@ -272,7 +272,7 @@ function startDungeonEnemyCombat(
   }
 
   state.combat = createPendingCombatEncounter(state, {
-    autoStepOnVictory: true,
+    autoStepOnVictory: false,
     engageMode: 'enemy-chase',
     enemyIds: hostileEnemyIds,
     originCoord: coord,
