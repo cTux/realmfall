@@ -12,7 +12,7 @@ This spec covers canonical type ids and gameplay tags for item configs, enemy co
 - Locked chest content extends those canonical ids with `lockpick`, `chest-key`, `mimic`, and the matching chest-opener, mimic, chest, and lockpicking gameplay tags instead of display-name checks.
 - Item configs and runtime items no longer store a separate `kind`; item behavior is derived from canonical ids, equipment slots, and hydrated tags instead.
 - Item-specific tags, icon-pool hints, category overrides, and granted-ability pools are declared on the owning item config or generated-item family helper before registry assembly.
-- Generated craftable icon families also own their workshop ingredient sources and ring slot assignments, so crafting outputs and recipes project from canonical family metadata instead of item-key prefix rules.
+- Generated craftable icon families also own their workshop ingredient sources, mirrored ring drop keys, and ring craft-slot distribution, so crafting outputs and recipes project from canonical family metadata instead of item-key prefix rules.
 - `src/game/content/items/index.ts` remains the public item-content facade while `itemCatalog.ts` assembles hydrated configs and `itemClassification.ts` plus `itemCategoryRules.ts` own shared category and tag inference rules.
 - Gathering structures keep canonical `rewardItemKey` values separate from localized reward labels so harvesting never derives item ids from display text.
 - Equippable items use the shared equipment-slot enum instead of raw slot strings in content definitions and generator paths.

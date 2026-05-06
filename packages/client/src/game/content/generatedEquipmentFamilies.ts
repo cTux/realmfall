@@ -17,6 +17,11 @@ interface GeneratedDropDefinition {
   generatedStats: NonNullable<ItemConfig['generatedStats']>;
 }
 
+interface GeneratedMirroredDropVariantDefinition {
+  key: ItemConfig['key'];
+  slot: ItemConfig['slot'];
+}
+
 export type GeneratedCraftIngredient =
   | {
       itemKey: ItemConfig['key'];
@@ -30,13 +35,23 @@ export type GeneratedCraftIngredient =
 export interface GeneratedCraftDefinition {
   keyPrefix: string;
   slot: ItemConfig['slot'];
-  slotAssignments?: readonly NonNullable<ItemConfig['slot']>[];
   tier: number;
   rarity: ItemConfig['rarity'];
   power: number;
   defense: number;
   maxHp: number;
   ingredients: readonly GeneratedCraftIngredient[];
+}
+
+interface GeneratedMirroredCraftSlotDistribution {
+  slots: readonly NonNullable<ItemConfig['slot']>[];
+  oddCountBias: 'first';
+}
+
+interface GeneratedRingFamilyDefinition {
+  generatedStats: NonNullable<ItemConfig['generatedStats']>;
+  mirroredDropVariants: readonly GeneratedMirroredDropVariantDefinition[];
+  craftedSlotDistribution: GeneratedMirroredCraftSlotDistribution;
 }
 
 export interface GeneratedEquipmentFamilyDefinition {
@@ -47,6 +62,7 @@ export interface GeneratedEquipmentFamilyDefinition {
   grantedAbilityPool?: ItemConfig['grantedAbilityPool'];
   drop?: GeneratedDropDefinition;
   craft?: GeneratedCraftDefinition;
+  ring?: GeneratedRingFamilyDefinition;
 }
 
 const LEATHER_TRIM_CRAFT_INGREDIENTS = [
@@ -106,13 +122,32 @@ const MAGICAL_SPHERE_CRAFT_INGREDIENTS = [
   { itemKey: 'arcane-dust', quantity: 3 },
 ] as const satisfies readonly GeneratedCraftIngredient[];
 
-function buildRingSlotAssignments(iconCount: number) {
-  const leftCount = Math.ceil(iconCount / 2);
+const GENERATED_RING_STATS = {
+  basePower: 1,
+  powerPerTier: 1,
+  baseDefense: 1,
+  defensePerTier: 1,
+  baseMaxHp: 1,
+  maxHpPerTier: 1,
+  randomMainStatPool: ['power', 'defense', 'maxHp'],
+  randomMainStatCount: 2,
+} as const satisfies NonNullable<ItemConfig['generatedStats']>;
 
-  return Array.from({ length: iconCount }, (_, index) =>
-    index < leftCount ? EquipmentSlotId.RingLeft : EquipmentSlotId.RingRight,
-  ) as readonly NonNullable<ItemConfig['slot']>[];
-}
+const GENERATED_RING_DROP_VARIANTS = [
+  {
+    key: 'generated-ring-left',
+    slot: EquipmentSlotId.RingLeft,
+  },
+  {
+    key: 'generated-ring-right',
+    slot: EquipmentSlotId.RingRight,
+  },
+] as const satisfies readonly GeneratedMirroredDropVariantDefinition[];
+
+const GENERATED_RING_CRAFTED_SLOT_DISTRIBUTION = {
+  slots: [EquipmentSlotId.RingLeft, EquipmentSlotId.RingRight],
+  oddCountBias: 'first',
+} as const satisfies GeneratedMirroredCraftSlotDistribution;
 
 export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefinition[] =
   [
@@ -349,51 +384,20 @@ export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefi
       familyKey: 'ring',
       group: 'accessory',
       category: 'artifact',
-      drop: {
-        key: 'generated-ring-left',
-        slot: EquipmentSlotId.RingLeft,
-        generatedStats: {
-          basePower: 1,
-          powerPerTier: 1,
-          baseDefense: 1,
-          defensePerTier: 1,
-          baseMaxHp: 1,
-          maxHpPerTier: 1,
-          randomMainStatPool: ['power', 'defense', 'maxHp'],
-          randomMainStatCount: 2,
-        },
+      ring: {
+        generatedStats: GENERATED_RING_STATS,
+        mirroredDropVariants: GENERATED_RING_DROP_VARIANTS,
+        craftedSlotDistribution: GENERATED_RING_CRAFTED_SLOT_DISTRIBUTION,
       },
       craft: {
         keyPrefix: 'icon-ring',
         slot: EquipmentSlotId.RingLeft,
-        slotAssignments: buildRingSlotAssignments(
-          GENERATED_ICON_POOLS.ring.length,
-        ),
         tier: 3,
         rarity: 'uncommon',
         power: 2,
         defense: 0,
         maxHp: 2,
         ingredients: RING_CRAFT_INGREDIENTS,
-      },
-    },
-    {
-      familyKey: 'ring',
-      group: 'accessory',
-      category: 'artifact',
-      drop: {
-        key: 'generated-ring-right',
-        slot: EquipmentSlotId.RingRight,
-        generatedStats: {
-          basePower: 1,
-          powerPerTier: 1,
-          baseDefense: 1,
-          defensePerTier: 1,
-          baseMaxHp: 1,
-          maxHpPerTier: 1,
-          randomMainStatPool: ['power', 'defense', 'maxHp'],
-          randomMainStatCount: 2,
-        },
       },
     },
     {

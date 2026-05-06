@@ -79,10 +79,11 @@ describe('item config metadata ownership', () => {
     expect(shield?.grantedAbilityPool).toBeTruthy();
   });
 
-  it('keeps generated crafting ingredient and ring-slot metadata on the family configs', () => {
-    const ringCraft = GENERATED_EQUIPMENT_FAMILIES.find(
+  it('keeps generated crafting ingredient and declarative ring metadata on the family configs', () => {
+    const ringFamily = GENERATED_EQUIPMENT_FAMILIES.find(
       (family) => family.familyKey === 'ring' && family.craft !== undefined,
-    )?.craft;
+    );
+    const ringCraft = ringFamily?.craft;
     const swordCraft = GENERATED_EQUIPMENT_FAMILIES.find(
       (family) => family.familyKey === 'sword' && family.craft !== undefined,
     )?.craft;
@@ -91,20 +92,20 @@ describe('item config metadata ownership', () => {
         family.familyKey === 'magicalSphere' && family.craft !== undefined,
     )?.craft;
 
-    expect(ringCraft?.slotAssignments).toBeTruthy();
-    expect(ringCraft?.slotAssignments).toHaveLength(
-      GENERATED_ICON_POOLS.ring.length,
-    );
     expect(
-      ringCraft?.slotAssignments?.filter(
-        (slot) => slot === EquipmentSlotId.RingLeft,
+      GENERATED_EQUIPMENT_FAMILIES.filter(
+        (family) => family.familyKey === 'ring',
       ),
-    ).toHaveLength(Math.ceil(GENERATED_ICON_POOLS.ring.length / 2));
-    expect(
-      ringCraft?.slotAssignments?.filter(
-        (slot) => slot === EquipmentSlotId.RingRight,
-      ),
-    ).toHaveLength(Math.floor(GENERATED_ICON_POOLS.ring.length / 2));
+    ).toHaveLength(1);
+    expect(ringFamily?.ring?.mirroredDropVariants).toEqual([
+      { key: 'generated-ring-left', slot: EquipmentSlotId.RingLeft },
+      { key: 'generated-ring-right', slot: EquipmentSlotId.RingRight },
+    ]);
+    expect(ringFamily?.ring?.craftedSlotDistribution).toEqual({
+      slots: [EquipmentSlotId.RingLeft, EquipmentSlotId.RingRight],
+      oddCountBias: 'first',
+    });
+    expect(ringCraft?.slot).toBe(EquipmentSlotId.RingLeft);
 
     expect(swordCraft?.ingredients).toEqual([
       { kind: 'redistributed-ingot', quantity: 2 },

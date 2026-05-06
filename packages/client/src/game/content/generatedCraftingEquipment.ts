@@ -27,7 +27,12 @@ export const CRAFTABLE_ICON_ITEM_ENTRIES: CraftableIconItemEntry[] =
     }
 
     return GENERATED_ICON_POOLS[family.familyKey].map((icon, index) => {
-      const slot = craft.slotAssignments?.[index] ?? craft.slot;
+      const slot =
+        resolveMirroredCraftSlot(
+          family.ring?.craftedSlotDistribution,
+          index,
+          GENERATED_ICON_POOLS[family.familyKey].length,
+        ) ?? craft.slot;
       const ordinal = padIndex(index);
 
       return {
@@ -54,6 +59,40 @@ export const CRAFTABLE_ICON_ITEM_ENTRIES: CraftableIconItemEntry[] =
       };
     });
   });
+
+function resolveMirroredCraftSlot(
+  distribution:
+    | NonNullable<
+        GeneratedEquipmentFamilyDefinition['ring']
+      >['craftedSlotDistribution']
+    | undefined,
+  index: number,
+  itemCount: number,
+) {
+  if (!distribution || distribution.slots.length === 0 || itemCount <= 0) {
+    return undefined;
+  }
+
+  const baseCount = Math.floor(itemCount / distribution.slots.length);
+  const remainder = itemCount % distribution.slots.length;
+  let remainingIndex = index;
+
+  for (
+    let slotIndex = 0;
+    slotIndex < distribution.slots.length;
+    slotIndex += 1
+  ) {
+    const slotCount =
+      baseCount +
+      (distribution.oddCountBias === 'first' && slotIndex < remainder ? 1 : 0);
+    if (remainingIndex < slotCount) {
+      return distribution.slots[slotIndex];
+    }
+    remainingIndex -= slotCount;
+  }
+
+  return distribution.slots[distribution.slots.length - 1];
+}
 
 export const CRAFTABLE_ICON_ITEM_CONFIGS: ItemConfig[] =
   CRAFTABLE_ICON_ITEM_ENTRIES.map(({ config }) => config);

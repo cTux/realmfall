@@ -44,6 +44,21 @@ describe('generated equipment icons', () => {
     });
   });
 
+  it('keeps one generated config per declared drop or mirrored ring variant', () => {
+    const expectedGeneratedCount = GENERATED_EQUIPMENT_FAMILIES.reduce(
+      (total, family) =>
+        total +
+        (family.drop ? 1 : (family.ring?.mirroredDropVariants.length ?? 0)),
+      0,
+    );
+    const ringFamilies = GENERATED_EQUIPMENT_FAMILIES.filter(
+      (family) => family.familyKey === 'ring',
+    );
+
+    expect(ringFamilies).toHaveLength(1);
+    expect(GENERATED_EQUIPMENT_CONFIGS).toHaveLength(expectedGeneratedCount);
+  });
+
   it('hydrates craftable icon configs from every family with craft metadata', () => {
     const expectedCraftableCount = GENERATED_EQUIPMENT_FAMILIES.reduce(
       (total, family) =>

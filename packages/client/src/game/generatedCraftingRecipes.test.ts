@@ -111,12 +111,13 @@ describe('generated crafting recipes', () => {
     ).toBe(true);
   });
 
-  it('assigns generated ring recipes evenly to left and right ring slots', () => {
+  it('assigns generated ring recipes with the preserved left-first mirrored split', () => {
     const ringRecipes = GENERATED_CRAFTING_RECIPES.filter(
       ({ output }) => output.itemKey?.startsWith('icon-ring-') ?? false,
     );
     const expectedLeft = Math.ceil(ringRecipes.length / 2);
     const expectedRight = Math.floor(ringRecipes.length / 2);
+    const outputSlots = ringRecipes.map(({ output }) => output.slot);
     const left = ringRecipes.filter(
       ({ output }) => output.slot === EquipmentSlotId.RingLeft,
     ).length;
@@ -126,6 +127,10 @@ describe('generated crafting recipes', () => {
 
     expect(left).toBe(expectedLeft);
     expect(right).toBe(expectedRight);
+    expect(outputSlots).toEqual([
+      ...Array.from({ length: expectedLeft }, () => EquipmentSlotId.RingLeft),
+      ...Array.from({ length: expectedRight }, () => EquipmentSlotId.RingRight),
+    ]);
   });
 
   it('preserves generated recipe ids and output item keys', () => {

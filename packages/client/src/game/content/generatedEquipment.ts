@@ -35,31 +35,49 @@ const generated = (
   grantedAbilityPool,
 });
 
-export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
-  ...GENERATED_EQUIPMENT_FAMILIES.flatMap((family) => {
-    if (!family.drop) {
-      return [];
-    }
-
+function getGeneratedFamilyDropEntries(
+  family: (typeof GENERATED_EQUIPMENT_FAMILIES)[number],
+) {
+  if (family.drop) {
     return [
+      {
+        key: family.drop.key,
+        slot: family.drop.slot,
+        generatedStats: family.drop.generatedStats,
+      },
+    ];
+  }
+
+  return (family.ring?.mirroredDropVariants ?? []).map((variant) => ({
+    key: variant.key,
+    slot: variant.slot,
+    generatedStats: family.ring!.generatedStats,
+  }));
+}
+
+export const GENERATED_EQUIPMENT_CONFIGS: ItemConfig[] = [
+  ...GENERATED_EQUIPMENT_FAMILIES.flatMap((family) =>
+    getGeneratedFamilyDropEntries(family).map((drop) =>
       generated(
-        family.drop.key,
-        family.drop.slot,
+        drop.key,
+        drop.slot,
         family.category,
         GENERATED_ICON_POOLS[family.familyKey],
-        family.drop.generatedStats,
+        drop.generatedStats,
         family.occupiesOffhand,
         family.grantedAbilityPool as AbilityId[] | undefined,
       ),
-    ];
-  }),
+    ),
+  ),
 ];
 
 function getGeneratedKeysForGroup(
   group: 'armor' | 'accessory' | 'weapon' | 'offhand',
 ) {
   return GENERATED_EQUIPMENT_FAMILIES.flatMap((family) =>
-    family.group === group && family.drop ? [family.drop.key] : [],
+    family.group === group
+      ? getGeneratedFamilyDropEntries(family).map((drop) => drop.key)
+      : [],
   );
 }
 
