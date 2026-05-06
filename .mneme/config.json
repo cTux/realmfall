@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "embeddings": {
+    "provider": "bundled",
+    "model": "Xenova/all-MiniLM-L6-v2"
+  },
+  "index": {
+    "maxCount": 5000
+  },
+  "webPort": 4711
+}

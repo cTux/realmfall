@@ -16,6 +16,7 @@
 - In review findings, improvement notes, and project-health summaries, avoid unresolved continuation wording. Rewrite the sentence to describe the current behavior and risk directly so the guidance remains accurate after follow-up fixes land.
 - Before committing changed markdown for specs, workflow docs, or review notes, search the staged diff for unresolved continuation wording and rewrite those sentences unless the term appears inside a source quote.
 - When prompts establish recurring workflow expectations, capture them here so future prompt handling stays consistent.
+- When repo-local AI tooling becomes part of the recurring workflow, update the matching scoped rule file, `docs/WORKFLOW.md`, and the relevant technical-solution spec in the same task, and keep runtime-only artifacts such as local indexes or databases out of git.
 - When a prompt establishes recurring structural placement rules for hooks, selectors, utilities, components, or tests, update this file and keep contributor-facing docs aligned instead of relying on one-off refactors.
 - Keep rule and workflow updates synchronized across `README.md`, `docs/WORKFLOW.md`, and the AI-specific instruction files when those updates affect future prompt execution.
 - When package-local commands, package layout, or package-only API notes change, update the matching `packages/*/README.md` in the same task.
