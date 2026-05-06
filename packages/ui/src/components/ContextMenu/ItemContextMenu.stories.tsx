@@ -82,6 +82,7 @@ export const CorruptionAltarAction: Story = {
   args: {
     canEquip: true,
     corruptCost: 132,
+    corruptBreakChancePercent: 5,
     onCorrupt: noop,
   },
 };

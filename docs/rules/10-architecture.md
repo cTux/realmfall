@@ -5,6 +5,7 @@
 - Client-side `src/*` paths in this file resolve under `packages/client/` unless a rule explicitly names another package.
 - Keep gameplay and simulation rules in `packages/client/src/game` so they stay testable and mostly UI-independent.
 - Keep React app orchestration in `packages/client/src/app`, client-only presentational UI in `packages/client/src/ui/components`, and shared reusable UI controls in `packages/ui/src/components`.
+- When shared `packages/ui` controls need gameplay-shaped data, define narrow structural contracts under `packages/ui/src/game` and keep client-only state modules out of the shared component import graph.
 - Keep Pixi world rendering concerns in `packages/client/src/ui/world` rather than mixing them into gameplay rules.
 - Keep HTTP entrypoints, request handlers, and other server-only runtime code in `packages/server/src`.
 - Keep cross-runtime shared types, schemas, and utilities in `packages/common/src`, and keep that package free of client-only or server-only side effects.

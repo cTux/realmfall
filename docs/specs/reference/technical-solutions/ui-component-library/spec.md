@@ -16,6 +16,8 @@ This spec covers the reusable UI component library in `packages/ui`, its Storybo
 - `packages/client` receives the library through a workspace dependency (`@realmfall/ui`) added in
   `packages/client/package.json`.
 - `packages/ui` can bridge to existing client-owned i18n, gameplay, and Storybook fixture helpers through narrow local re-export modules under `packages/ui/src` while the reusable component implementations stay consolidated in the shared package.
+- Shared gameplay-aware controls inside `packages/ui` own narrow structural view contracts under `packages/ui/src/game` for item-centric display and interaction state instead of importing broad client gameplay state types directly.
+- Shared controls that only need gameplay-derived scalar values, such as corruption break chance text, receive those values from the client caller through props instead of importing client gameplay config into the shared package.
 - Shared display-only chrome such as `WindowLabel` and `WindowDock` now render from structural props owned in `packages/ui` instead of importing client window registries or client-only label types just to render text.
 - Shared buttons and button-like controls use one Slate Lift surface system, with the canonical palette and shared state selectors defined in `packages/client/src/styles/_ui.scss` and forwarded to the shared package through `packages/ui/src/styles/_ui.scss`.
 - The Slate Lift resting fills stay lighter than the shared window title bar background, while selected and opened states reuse a brighter active fill so toggled controls read as elevated from the surrounding shell chrome.

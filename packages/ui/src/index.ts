@@ -22,6 +22,7 @@ export type {
   ActionBarProps,
   ActionBarSlotProps,
 } from './components/ActionBar';
+export type { ActionBarSlotBinding, ActionBarSlots } from './game/actionBar';
 export { ContextMenu, ItemContextMenu } from './components/ContextMenu';
 export type {
   ContextMenuProps,
@@ -31,6 +32,13 @@ export { DockPanel, WindowDock } from './components/DockPanel';
 export type { DockPanelEntry, WindowDockEntry } from './components/DockPanel';
 export { ItemSlot, ItemSlotButton } from './components/ItemSlot';
 export type { ItemSlotProps, ItemSlotButtonProps } from './components/ItemSlot';
+export type {
+  EquipmentSlot,
+  EquipmentSlotView,
+  Item,
+  ItemRarity,
+  ItemView,
+} from './game/stateTypes';
 export { WindowLabel } from './components/WindowLabel';
 export type {
   WindowLabelParts,

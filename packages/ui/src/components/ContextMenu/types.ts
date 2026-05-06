@@ -1,7 +1,7 @@
-import type { Item } from '../../game/stateTypes';
+import type { ItemView } from '../../game/stateTypes';
 
 export interface ItemContextMenuProps {
-  item: Item;
+  item: ItemView;
   x: number;
   y: number;
   equipLabel?: string;
@@ -19,6 +19,7 @@ export interface ItemContextMenuProps {
   }>;
   enchantCost?: number | null;
   corruptCost?: number | null;
+  corruptBreakChancePercent?: number | null;
   onEquip: () => void;
   onUse: () => void;
   onDrop: () => void;

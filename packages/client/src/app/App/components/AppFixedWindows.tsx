@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { t } from '../../../i18n';
+import { ITEM_MODIFICATION_BALANCE } from '../../../game/config';
 import {
   canWearItem,
   canEquipItem,
@@ -105,6 +106,9 @@ export const AppFixedWindows = memo(function AppFixedWindows({
           reforgeOptions={itemMenu.reforgeOptions}
           enchantCost={itemMenu.enchantCost}
           corruptCost={itemMenu.corruptCost}
+          corruptBreakChancePercent={Math.round(
+            ITEM_MODIFICATION_BALANCE.corrupt.breakChance * 100,
+          )}
           onEquip={() => {
             if (itemMenu.slot) {
               inventoryActions.onUnequip(itemMenu.slot);

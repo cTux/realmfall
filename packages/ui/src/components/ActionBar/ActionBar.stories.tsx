@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { createDefaultActionBarSlots } from '../../game/actionBar';
 import {
   createStorybookFixtures,
   noop,
@@ -7,6 +8,13 @@ import {
 import { ActionBar } from './ActionBar';
 
 const fixtures = createStorybookFixtures();
+const defaultSlots = createDefaultActionBarSlots();
+defaultSlots[0] = { item: fixtures.inventory[0]! };
+defaultSlots[1] = {
+  item: fixtures.inventory.find((item) => item.healing > 0)!,
+};
+const depletedSlots = createDefaultActionBarSlots();
+depletedSlots[0] = { item: fixtures.inventory[0]! };
 
 const meta = {
   title: 'Components/ActionBar',
@@ -14,17 +22,7 @@ const meta = {
   decorators: [storySurfaceDecorator],
   args: {
     inventory: fixtures.inventory,
-    slots: [
-      { item: fixtures.inventory[0]! },
-      { item: fixtures.inventory.find((item) => item.healing > 0)! },
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-    ],
+    slots: defaultSlots,
     onAssignSlot: noop,
     onClearSlot: noop,
     onHoverItem: noop,
@@ -48,10 +46,7 @@ export const DepletedSlot: Story = {
     inventory: fixtures.inventory.filter(
       (item) => item.name !== fixtures.inventory[0]?.name,
     ),
-    slots: [
-      { item: fixtures.inventory[0]! },
-      ...Array.from({ length: 8 }, () => null),
-    ],
+    slots: depletedSlots,
     onClearSlot: noop,
   },
 };

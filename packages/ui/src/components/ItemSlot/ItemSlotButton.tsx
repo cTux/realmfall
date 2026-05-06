@@ -2,7 +2,7 @@ import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react';
 import { formatCompactNumber } from '../../formatters';
 import { formatEquipmentSlotLabel, formatItemLabel } from '../../i18n/labels';
 import { t } from '../../i18n';
-import type { EquipmentSlot, Item } from '../../game/stateTypes';
+import type { EquipmentSlotView, ItemView } from '../../game/stateTypes';
 import { iconForItem, itemBorderColor, itemTint } from '../../icons';
 import styles from './styles.module.scss';
 
@@ -14,8 +14,8 @@ interface ItemSlotCornerIcon {
 
 export interface ItemSlotButtonProps {
   ariaLabel?: string;
-  item?: Item;
-  slot?: EquipmentSlot;
+  item?: ItemView;
+  slot?: EquipmentSlotView;
   size?: 'default' | 'compact';
   className?: string;
   style?: CSSProperties;
@@ -137,7 +137,7 @@ export function ItemSlotButton({
   );
 }
 
-function getEmptySlotLabel(slot?: EquipmentSlot) {
+function getEmptySlotLabel(slot?: EquipmentSlotView) {
   if (!slot) return t('ui.common.empty');
   return `${formatEquipmentSlotLabel(slot)} ${t('ui.common.empty').toLowerCase()}`;
 }

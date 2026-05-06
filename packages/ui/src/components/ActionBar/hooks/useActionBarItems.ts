@@ -1,25 +1,25 @@
 import { useMemo } from 'react';
-import type { Item } from '../../../game/stateTypes';
+import type { ItemView } from '../../../game/stateTypes';
 import {
   ACTION_BAR_SLOT_COUNT,
   findActionBarItem,
   getConsumablesFromInventory,
   type ActionBarSlots,
-} from '../../../app/App/actionBar';
+} from '../../../game/actionBar';
 
 export interface ActionBarSlotItem {
   slotIndex: number;
-  displayItem?: Item;
+  displayItem?: ItemView;
   depleted: boolean;
 }
 
 export interface ActionBarItems {
-  consumables: Item[];
+  consumables: ItemView[];
   slotItems: ActionBarSlotItem[];
 }
 
 export function useActionBarItems(
-  inventory: Item[],
+  inventory: ItemView[],
   slots: ActionBarSlots,
 ): ActionBarItems {
   const consumables = useMemo(

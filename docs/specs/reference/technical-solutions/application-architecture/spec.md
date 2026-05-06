@@ -10,6 +10,7 @@ This spec covers the repository layer boundaries, state transition shape, and co
 - `packages/client/src/game` contains gameplay and simulation rules.
 - `packages/client/src/app` contains app orchestration, hydration, persistence wiring, clock wiring, and controller hooks.
 - `packages/client/src/ui/components` contains client-only React window components and presentational UI, while `packages/ui/src/components` contains shared reusable controls consumed through `@realmfall/ui`.
+- Shared `packages/ui` controls keep UI-owned view contracts under `packages/ui/src/game` and receive caller-derived action metadata instead of importing client `stateTypes`, app-only controller types, or gameplay config modules into the shared package implementation.
 - `packages/client/src/ui/world` contains Pixi world rendering, render math, scene caches, pools, and atmosphere helpers.
 - `packages/client/src/persistence` contains local save storage helpers.
 - `packages/server/src` contains the server runtime entrypoint, HTTP routes, and server-only version metadata resolution.
