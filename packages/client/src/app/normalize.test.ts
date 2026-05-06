@@ -418,7 +418,7 @@ describe('normalizeLoadedGame', () => {
       worldFloatingTextEvents: [
         {
           id: 'stale-event',
-          anchor: { kind: 'player' },
+          anchor: { kind: 'player', coord: { q: 0, r: 0 } },
           amount: 7,
           createdAtMs: 1200,
           kind: 'damage',

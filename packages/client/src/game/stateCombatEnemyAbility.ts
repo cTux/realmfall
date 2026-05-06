@@ -30,6 +30,7 @@ import { respawnAtNearestTown } from './stateSurvival';
 import {
   appendWorldFloatingTextEvent,
   createEnemyFloatingTextAnchor,
+  createPlayerFloatingTextAnchor,
 } from './worldFloatingText';
 import type { AbilityId, GameState } from './types';
 
@@ -86,7 +87,7 @@ export function applyEnemyAbility(
           state.player.hp - damageResolution.damage,
         );
         appendWorldFloatingTextEvent(state, {
-          anchor: { kind: 'player' },
+          anchor: createPlayerFloatingTextAnchor(state.player),
           amount: damageResolution.damage,
           kind: damageResolution.critical ? 'critical-damage' : 'damage',
         });

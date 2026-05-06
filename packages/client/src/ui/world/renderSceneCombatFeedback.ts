@@ -86,9 +86,9 @@ export function getCombatFeedbackRenderToken({
     token = mixToken(token, event.amount);
     token = mixToken(token, hashString(event.kind));
     token = mixToken(token, event.anchor.kind === 'player' ? 1 : 2);
+    token = mixToken(token, coordToken(event.anchor.coord));
     if (event.anchor.kind === 'enemy') {
       token = mixToken(token, hashString(event.anchor.enemyId));
-      token = mixToken(token, coordToken(event.anchor.coord));
     }
     token = mixToken(token, Math.floor(ageMs / worldRenderFrameMs) + 1);
   }
@@ -203,8 +203,12 @@ export function renderSceneCombatFeedback({
       anchorByEnemyId,
       fallbackAnchorByCoordKey,
       event,
+      hexSize,
       isEnemyDefeated,
+      origin,
+      playerBadgeOuterRadius,
       playerAnchor,
+      playerCoord,
     });
     if (!resolvedAnchor) {
       continue;
@@ -233,17 +237,40 @@ function resolveFloatingTextAnchor({
   anchorByEnemyId,
   fallbackAnchorByCoordKey,
   event,
+  hexSize,
   isEnemyDefeated,
+  origin,
+  playerBadgeOuterRadius,
   playerAnchor,
+  playerCoord,
 }: {
   anchorByEnemyId: Map<string, FloatingTextAnchor>;
   fallbackAnchorByCoordKey: Map<string, HostileMarkerAnchorSet>;
   event: WorldFloatingTextEvent;
+  hexSize: number;
   isEnemyDefeated: boolean;
+  origin: { x: number; y: number };
+  playerBadgeOuterRadius: number;
   playerAnchor: FloatingTextAnchor;
+  playerCoord: HexCoord;
 }) {
   if (event.anchor.kind === 'player') {
-    return playerAnchor;
+    if (sameCoord(event.anchor.coord, playerCoord)) {
+      return playerAnchor;
+    }
+
+    return {
+      point: tileToPoint(
+        {
+          q: event.anchor.coord.q - playerCoord.q,
+          r: event.anchor.coord.r - playerCoord.r,
+        },
+        origin.x,
+        origin.y,
+        hexSize,
+      ),
+      radius: playerBadgeOuterRadius,
+    };
   }
 
   const liveAnchor = anchorByEnemyId.get(event.anchor.enemyId);

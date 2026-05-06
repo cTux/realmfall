@@ -134,7 +134,7 @@ describe('renderScene combat feedback', () => {
     expect(game.worldFloatingTextEvents).toHaveLength(1);
     expect(game.worldFloatingTextEvents[0]).toMatchObject({
       amount: healed,
-      anchor: { kind: 'player' },
+      anchor: { kind: 'player', coord: game.player.coord },
       kind: 'healing',
     });
 

@@ -1,6 +1,7 @@
 import { createCombatActorState } from './combat';
 import { syncActiveWorldAliases } from './dungeons/worldState';
 import { getCombatEngagementOrDefault } from './stateCombatEngagement';
+import { cloneWorldFloatingTextAnchor } from './worldFloatingText';
 import type {
   CombatState,
   Enemy,
@@ -147,13 +148,7 @@ function copyWorldFloatingTextEvent(event: WorldFloatingTextEvent) {
 }
 
 function copyWorldFloatingTextAnchor(anchor: WorldFloatingTextAnchor) {
-  return anchor.kind === 'player'
-    ? { kind: 'player' as const }
-    : {
-        kind: 'enemy' as const,
-        enemyId: anchor.enemyId,
-        coord: { ...anchor.coord },
-      };
+  return cloneWorldFloatingTextAnchor(anchor);
 }
 
 function copyTiles(tiles: GameState['tiles']) {

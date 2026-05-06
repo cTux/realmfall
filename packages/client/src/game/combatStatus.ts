@@ -6,6 +6,7 @@ import { recordTreasureGoblinDamageHits } from './stateCombatTreasureGoblin';
 import {
   appendWorldFloatingTextEvent,
   createEnemyFloatingTextAnchor,
+  createPlayerFloatingTextAnchor,
 } from './worldFloatingText';
 import type {
   AbilityRuntimeDefinition,
@@ -106,7 +107,7 @@ export function applyLifesteal(
   state.player.hp += healed;
   if (healed > 0) {
     appendWorldFloatingTextEvent(state, {
-      anchor: { kind: 'player' },
+      anchor: createPlayerFloatingTextAnchor(state.player),
       amount: healed,
       kind: 'healing',
     });

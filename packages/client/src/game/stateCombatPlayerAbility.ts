@@ -32,6 +32,7 @@ import { recordTreasureGoblinDamageHits } from './stateCombatTreasureGoblin';
 import {
   appendWorldFloatingTextEvent,
   createEnemyFloatingTextAnchor,
+  createPlayerFloatingTextAnchor,
 } from './worldFloatingText';
 import type { AbilityId, GameState } from './types';
 
@@ -247,7 +248,7 @@ function healPlayerTargets(
     target.hp += healed;
     if (healed > 0) {
       appendWorldFloatingTextEvent(state, {
-        anchor: { kind: 'player' },
+        anchor: createPlayerFloatingTextAnchor(target),
         amount: healed,
         kind: 'healing',
       });

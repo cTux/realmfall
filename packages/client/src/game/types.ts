@@ -297,7 +297,7 @@ export interface CombatEngagementMetadata {
 }
 
 export type WorldFloatingTextAnchor =
-  | { kind: 'player' }
+  | { kind: 'player'; coord: HexCoord }
   | { kind: 'enemy'; enemyId: string; coord: HexCoord };
 
 export type WorldFloatingTextKind = 'damage' | 'critical-damage' | 'healing';

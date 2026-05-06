@@ -1,6 +1,7 @@
 import type {
   Enemy,
   GameState,
+  Player,
   WorldFloatingTextAnchor,
   WorldFloatingTextEvent,
 } from './types';
@@ -43,9 +44,21 @@ export function createEnemyFloatingTextAnchor(
   };
 }
 
-function cloneWorldFloatingTextAnchor(anchor: WorldFloatingTextAnchor) {
+export function createPlayerFloatingTextAnchor(
+  player: Pick<Player, 'coord'>,
+): Extract<WorldFloatingTextAnchor, { kind: 'player' }> {
+  return {
+    kind: 'player',
+    coord: { ...player.coord },
+  };
+}
+
+export function cloneWorldFloatingTextAnchor(anchor: WorldFloatingTextAnchor) {
   return anchor.kind === 'player'
-    ? { kind: 'player' as const }
+    ? {
+        kind: 'player' as const,
+        coord: { ...anchor.coord },
+      }
     : {
         kind: 'enemy' as const,
         enemyId: anchor.enemyId,
