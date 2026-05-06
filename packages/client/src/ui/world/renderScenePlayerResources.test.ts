@@ -12,7 +12,7 @@ import {
 
 setupRenderSceneTestEnvironment();
 
-const PLAYER_BACKGROUND_COLOR = 0x86efac;
+const PLAYER_BACKGROUND_COLOR = 0x4ade80;
 const PLAYER_BACKGROUND_ALPHA = 0.6;
 const PLAYER_HEALTH_TRACK_COLOR = 0x450a0a;
 const PLAYER_HEALTH_FILL_COLOR = 0xff2d55;
@@ -38,7 +38,7 @@ describe('renderScene player resource bars', () => {
     vi.unstubAllGlobals();
   });
 
-  it('renders the player inside a light green circular badge with top HP, bottom MP, and a level plate', async () => {
+  it('renders the player inside a green circular badge with top HP, bottom MP, and a level plate', async () => {
     const { renderScene } = await import('./renderScene');
     const { applyInterfaceFontFamily, resolveInterfaceFontStack } =
       await import('../../app/interfaceFonts');

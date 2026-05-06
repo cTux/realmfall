@@ -36,7 +36,7 @@ export const ENTITY_BADGE_MP_ARC_ANGLES = {
 export const ENTITY_BADGE_BACKGROUND_COLORS = {
   default: 0x123524,
   enemy: 0x2a0505,
-  player: 0x86efac,
+  player: 0x4ade80,
   structure: 0x082f49,
 } as const;
 
