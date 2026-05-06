@@ -11,7 +11,6 @@ import { craftRecipe } from '../../../game/stateCrafting';
 import { forfeitCombat } from '../../../game/stateCombat';
 import {
   buyTownItem,
-  getTownStock,
   dropEquippedItem,
   dropInventoryItem,
   prospectInventory,
@@ -44,6 +43,12 @@ import {
   healAtFactionNpc,
   interactWithStructure,
 } from '../../../game/stateWorldActions';
+import {
+  createEquipmentSlotLoggedTransition,
+  createInventoryItemLoggedTransition,
+  createStaticLoggedTransition,
+  createTownStockItemLoggedTransition,
+} from './gameActionHandlers/loggedTransitions';
 import { createLoggedGameTransition } from './useLoggedGameCommand';
 
 interface UseGameActionHandlersOptions {
@@ -73,11 +78,9 @@ export function useGameActionHandlers({
   const handleUnequip = useCallback(
     (slot: Parameters<typeof unequipItem>[1]) => {
       applyGameTransition(
-        createLoggedGameTransition({
-          describe: () =>
-            t('game.log.command.unequipItem', {
-              slotName: t(`ui.equipmentSlot.${slot}.label`),
-            }),
+        createEquipmentSlotLoggedTransition({
+          logKey: 'game.log.command.unequipItem',
+          slot,
           transition: (current) => unequipItem(current, slot),
         }),
       );
@@ -88,8 +91,8 @@ export function useGameActionHandlers({
   const handleSort = useCallback(
     (mode: InventorySortMode = 'type') => {
       applyGameTransition(
-        createLoggedGameTransition({
-          describe: () => t('game.log.command.sortInventory'),
+        createStaticLoggedTransition({
+          description: t('game.log.command.sortInventory'),
           transition: (current) => sortInventory(current, mode),
         }),
       );
@@ -99,8 +102,8 @@ export function useGameActionHandlers({
 
   const handleProspect = useCallback(() => {
     applyGameTransition(
-      createLoggedGameTransition({
-        describe: () => t('game.log.command.prospectInventory'),
+      createStaticLoggedTransition({
+        description: t('game.log.command.prospectInventory'),
         transition: prospectInventory,
       }),
     );
@@ -108,8 +111,8 @@ export function useGameActionHandlers({
 
   const handleSellAll = useCallback(() => {
     applyGameTransition(
-      createLoggedGameTransition({
-        describe: () => t('game.log.command.sellAllItems'),
+      createStaticLoggedTransition({
+        description: t('game.log.command.sellAllItems'),
         transition: sellAllItems,
       }),
     );
@@ -118,12 +121,10 @@ export function useGameActionHandlers({
   const handleProspectItem = useCallback(
     (itemId: string) => {
       applyGameTransition(
-        createLoggedGameTransition({
-          describe: (current) =>
-            t('game.log.command.prospectItem', {
-              itemName: findInventoryItemName(current, itemId),
-            }),
-          transition: (current) => prospectInventoryItem(current, itemId),
+        createInventoryItemLoggedTransition({
+          itemId,
+          logKey: 'game.log.command.prospectItem',
+          transition: prospectInventoryItem,
         }),
       );
     },
@@ -133,12 +134,10 @@ export function useGameActionHandlers({
   const handleSellItem = useCallback(
     (itemId: string) => {
       applyGameTransition(
-        createLoggedGameTransition({
-          describe: (current) =>
-            t('game.log.command.sellItem', {
-              itemName: findInventoryItemName(current, itemId),
-            }),
-          transition: (current) => sellInventoryItem(current, itemId),
+        createInventoryItemLoggedTransition({
+          itemId,
+          logKey: 'game.log.command.sellItem',
+          transition: sellInventoryItem,
         }),
       );
     },
@@ -148,11 +147,9 @@ export function useGameActionHandlers({
   const handleReforgeItem = useCallback(
     (itemId: string, statIndex: number) => {
       applyGameTransition(
-        createLoggedGameTransition({
-          describe: (current) =>
-            t('game.log.command.reforgeItem', {
-              itemName: findInventoryItemName(current, itemId),
-            }),
+        createInventoryItemLoggedTransition({
+          itemId,
+          logKey: 'game.log.command.reforgeItem',
           transition: (current) =>
             reforgeInventoryItem(current, itemId, statIndex),
         }),
@@ -164,12 +161,10 @@ export function useGameActionHandlers({
   const handleEnchantItem = useCallback(
     (itemId: string) => {
       applyGameTransition(
-        createLoggedGameTransition({
-          describe: (current) =>
-            t('game.log.command.enchantItem', {
-              itemName: findInventoryItemName(current, itemId),
-            }),
-          transition: (current) => enchantInventoryItem(current, itemId),
+        createInventoryItemLoggedTransition({
+          itemId,
+          logKey: 'game.log.command.enchantItem',
+          transition: enchantInventoryItem,
         }),
       );
     },
@@ -179,12 +174,10 @@ export function useGameActionHandlers({
   const handleCorruptItem = useCallback(
     (itemId: string) => {
       applyGameTransition(
-        createLoggedGameTransition({
-          describe: (current) =>
-            t('game.log.command.corruptItem', {
-              itemName: findInventoryItemName(current, itemId),
-            }),
-          transition: (current) => corruptInventoryItem(current, itemId),
+        createInventoryItemLoggedTransition({
+          itemId,
+          logKey: 'game.log.command.corruptItem',
+          transition: corruptInventoryItem,
         }),
       );
     },
@@ -193,8 +186,8 @@ export function useGameActionHandlers({
 
   const handleInteract = useCallback(() => {
     applyGameTransition(
-      createLoggedGameTransition({
-        describe: () => t('game.log.command.interactWithStructure'),
+      createStaticLoggedTransition({
+        description: t('game.log.command.interactWithStructure'),
         transition: interactWithStructure,
       }),
     );
@@ -202,8 +195,8 @@ export function useGameActionHandlers({
 
   const handleClaimHex = useCallback(() => {
     applyGameTransition(
-      createLoggedGameTransition({
-        describe: () => t('game.log.command.claimHex'),
+      createStaticLoggedTransition({
+        description: t('game.log.command.claimHex'),
         transition: claimCurrentHex,
       }),
     );
@@ -211,8 +204,8 @@ export function useGameActionHandlers({
 
   const handleHealTerritoryNpc = useCallback(() => {
     applyGameTransition(
-      createLoggedGameTransition({
-        describe: () => t('game.log.command.healTerritoryNpc'),
+      createStaticLoggedTransition({
+        description: t('game.log.command.healTerritoryNpc'),
         transition: healAtFactionNpc,
       }),
     );
@@ -221,12 +214,10 @@ export function useGameActionHandlers({
   const handleBuyTownItem = useCallback(
     (itemId: string) => {
       applyGameTransition(
-        createLoggedGameTransition({
-          describe: (current) =>
-            t('game.log.command.buyTownItem', {
-              itemName: findTownStockItemName(current, itemId),
-            }),
-          transition: (current) => buyTownItem(current, itemId),
+        createTownStockItemLoggedTransition({
+          itemId,
+          logKey: 'game.log.command.buyTownItem',
+          transition: buyTownItem,
         }),
       );
     },
@@ -236,12 +227,10 @@ export function useGameActionHandlers({
   const handleActivateInventoryItem = useCallback(
     (itemId: string) => {
       applyGameTransition(
-        createLoggedGameTransition({
-          describe: (current) =>
-            t('game.log.command.activateInventoryItem', {
-              itemName: findInventoryItemName(current, itemId),
-            }),
-          transition: (current) => activateInventoryItem(current, itemId),
+        createInventoryItemLoggedTransition({
+          itemId,
+          logKey: 'game.log.command.activateInventoryItem',
+          transition: activateInventoryItem,
         }),
       );
     },
@@ -251,12 +240,10 @@ export function useGameActionHandlers({
   const handleEquipItem = useCallback(
     (itemId: string) => {
       applyGameTransition(
-        createLoggedGameTransition({
-          describe: (current) =>
-            t('game.log.command.equipItem', {
-              itemName: findInventoryItemName(current, itemId),
-            }),
-          transition: (current) => equipItem(current, itemId),
+        createInventoryItemLoggedTransition({
+          itemId,
+          logKey: 'game.log.command.equipItem',
+          transition: equipItem,
         }),
       );
     },
@@ -266,12 +253,10 @@ export function useGameActionHandlers({
   const handleUseItem = useCallback(
     (itemId: string) => {
       applyGameTransition(
-        createLoggedGameTransition({
-          describe: (current) =>
-            t('game.log.command.useItem', {
-              itemName: findInventoryItemName(current, itemId),
-            }),
-          transition: (current) => applyItemUse(current, itemId),
+        createInventoryItemLoggedTransition({
+          itemId,
+          logKey: 'game.log.command.useItem',
+          transition: applyItemUse,
         }),
       );
     },
@@ -281,8 +266,8 @@ export function useGameActionHandlers({
   const handleCraftRecipe = useCallback(
     (recipeId: string, count?: number | 'max') => {
       applyGameTransition(
-        createLoggedGameTransition({
-          describe: () => t('game.log.command.craftRecipe'),
+        createStaticLoggedTransition({
+          description: t('game.log.command.craftRecipe'),
           transition: (current) => craftRecipe(current, recipeId, count),
         }),
       );
@@ -310,12 +295,10 @@ export function useGameActionHandlers({
   const handleDropItem = useCallback(
     (itemId: string) => {
       applyGameTransition(
-        createLoggedGameTransition({
-          describe: (current) =>
-            t('game.log.command.dropItem', {
-              itemName: findInventoryItemName(current, itemId),
-            }),
-          transition: (current) => dropInventoryItem(current, itemId),
+        createInventoryItemLoggedTransition({
+          itemId,
+          logKey: 'game.log.command.dropItem',
+          transition: dropInventoryItem,
         }),
       );
     },
@@ -325,11 +308,9 @@ export function useGameActionHandlers({
   const handleDropEquippedItem = useCallback(
     (slot: Parameters<typeof unequipItem>[1]) => {
       applyGameTransition(
-        createLoggedGameTransition({
-          describe: () =>
-            t('game.log.command.dropEquippedItem', {
-              slotName: t(`ui.equipmentSlot.${slot}.label`),
-            }),
+        createEquipmentSlotLoggedTransition({
+          logKey: 'game.log.command.dropEquippedItem',
+          slot,
           transition: (current) => dropEquippedItem(current, slot),
         }),
       );
@@ -340,8 +321,8 @@ export function useGameActionHandlers({
   const handleTakeLootItem = useCallback(
     (itemId: string) => {
       applyGameTransition(
-        createLoggedGameTransition({
-          describe: () => t('game.log.command.takeLootItem'),
+        createStaticLoggedTransition({
+          description: t('game.log.command.takeLootItem'),
           transition: (current) => takeTileItem(current, itemId),
         }),
       );
@@ -351,8 +332,8 @@ export function useGameActionHandlers({
 
   const handleTakeAllLoot = useCallback(() => {
     applyGameTransition(
-      createLoggedGameTransition({
-        describe: () => t('game.log.command.takeAllLoot'),
+      createStaticLoggedTransition({
+        description: t('game.log.command.takeAllLoot'),
         transition: takeAllTileItems,
       }),
     );
@@ -361,16 +342,11 @@ export function useGameActionHandlers({
   const handleSetItemLocked = useCallback(
     (itemId: string, locked: boolean) => {
       applyGameTransition(
-        createLoggedGameTransition({
-          describe: (current) =>
-            t(
-              locked
-                ? 'game.log.command.lockItem'
-                : 'game.log.command.unlockItem',
-              {
-                itemName: findInventoryItemName(current, itemId),
-              },
-            ),
+        createInventoryItemLoggedTransition({
+          itemId,
+          logKey: locked
+            ? 'game.log.command.lockItem'
+            : 'game.log.command.unlockItem',
           transition: (current) =>
             setInventoryItemLocked(current, itemId, locked),
         }),
@@ -381,8 +357,8 @@ export function useGameActionHandlers({
 
   const handleForfeitCombat = useCallback(() => {
     applyGameTransition(
-      createLoggedGameTransition({
-        describe: () => t('game.log.command.forfeitCombat'),
+      createStaticLoggedTransition({
+        description: t('game.log.command.forfeitCombat'),
         transition: forfeitCombat,
       }),
     );
@@ -550,19 +526,5 @@ function applyTimedGameTransition(
 ) {
   setGame((current) =>
     transition({ ...current, worldTimeMs: worldTimeMsRef.current }),
-  );
-}
-
-function findInventoryItemName(state: GameState, itemId: string) {
-  return (
-    state.player.inventory.find((item) => item.id === itemId)?.name ??
-    t('game.log.command.fallback.item')
-  );
-}
-
-function findTownStockItemName(state: GameState, itemId: string) {
-  return (
-    getTownStock(state).find((entry) => entry.item.id === itemId)?.item.name ??
-    t('game.log.command.fallback.item')
   );
 }
