@@ -35,7 +35,7 @@ describe('renderScene movement cooldown', () => {
     vi.unstubAllGlobals();
   });
 
-  it('draws a yellow outer cooldown arc outside the player mana ring while movement cooldown remains active', async () => {
+  it('draws a yellow outer cooldown arc that touches the player mana ring with no gap while movement cooldown remains active', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-move-cooldown');
     const app = createMockApp();
@@ -100,8 +100,123 @@ describe('renderScene movement cooldown', () => {
       getGraphicThickness(manaTrackArc!),
       3,
     );
-    expect(getMaxGraphicRadius(cooldownTrackArc!)).toBeGreaterThan(
+    expect(getMinGraphicRadius(cooldownTrackArc!)).toBeCloseTo(
       getMaxGraphicRadius(manaTrackArc!),
+      3,
+    );
+    expect(getMinGraphicRadius(cooldownFillArc!)).toBeCloseTo(
+      getMaxGraphicRadius(manaTrackArc!),
+      3,
+    );
+  });
+
+  it('keeps the player wrapper forward during a carried transition and eases it back to center by the end', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-post-combat-carry');
+    const baselineApp = createMockApp();
+    const startApp = createMockApp();
+    const midApp = createMockApp();
+    const endApp = createMockApp();
+
+    game.player.coord = { q: 2, r: 0 };
+    const visibleTiles = getVisibleTiles(game);
+    const carriedTransition = {
+      durationMs: 1_000,
+      fromCoord: { q: 1, r: 0 },
+      incomingTiles: [],
+      nowMs: 0,
+      outgoingTiles: [],
+      playerOffsetAtStart: { x: 18, y: 0 },
+      startedAtMs: 0,
+      toCoord: { q: 2, r: 0 },
+    };
+
+    renderScene(
+      baselineApp as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+    );
+    renderScene(
+      startApp as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        movementTransition: {
+          ...carriedTransition,
+          nowMs: 0,
+        },
+      } as never,
+    );
+    renderScene(
+      midApp as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        movementTransition: {
+          ...carriedTransition,
+          nowMs: 500,
+        },
+      } as never,
+    );
+    renderScene(
+      endApp as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        movementTransition: {
+          ...carriedTransition,
+          nowMs: 1_000,
+        },
+      } as never,
+    );
+
+    const baselineWrapper = getPlayerLayer(baselineApp).children[2] as
+      | MockContainer
+      | undefined;
+    const startWrapper = getPlayerLayer(startApp).children[2] as
+      | MockContainer
+      | undefined;
+    const midWrapper = getPlayerLayer(midApp).children[2] as
+      | MockContainer
+      | undefined;
+    const endWrapper = getPlayerLayer(endApp).children[2] as
+      | MockContainer
+      | undefined;
+
+    expect(baselineWrapper).toBeDefined();
+    expect(startWrapper).toBeDefined();
+    expect(midWrapper).toBeDefined();
+    expect(endWrapper).toBeDefined();
+    expect(startWrapper!.position.x - baselineWrapper!.position.x).toBeCloseTo(
+      18,
+      4,
+    );
+    expect(midWrapper!.position.x - baselineWrapper!.position.x).toBeCloseTo(
+      9,
+      4,
+    );
+    expect(endWrapper!.position.x).toBeCloseTo(
+      baselineWrapper!.position.x,
+      4,
     );
   });
 

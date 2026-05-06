@@ -552,6 +552,128 @@ describe('renderScene combat feedback', () => {
     );
   });
 
+  it('combines an active combat lunge with a carried movement-transition offset', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createLungeCombatGame('render-scene-player-lunge-carry-overlap');
+    const baselineApp = createMockApp();
+    const lungeOnlyApp = createMockApp();
+    const transitionOnlyApp = createMockApp();
+    const combinedApp = createMockApp();
+    const visibleTiles = getVisibleTiles(game);
+    const movementTransition = {
+      durationMs: 1_000,
+      fromCoord: { q: -1, r: 0 },
+      incomingTiles: [],
+      nowMs: 500,
+      outgoingTiles: [],
+      playerOffsetAtStart: { x: 18, y: 0 },
+      startedAtMs: 0,
+      toCoord: game.player.coord,
+    };
+
+    renderScene(
+      baselineApp as never,
+      {
+        ...game,
+        combat: null,
+      },
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        worldTimeMs: 240,
+      } as never,
+    );
+
+    renderScene(
+      lungeOnlyApp as never,
+      {
+        ...game,
+        worldTimeMs: 240,
+      },
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        worldTimeMs: 240,
+      } as never,
+    );
+
+    renderScene(
+      transitionOnlyApp as never,
+      {
+        ...game,
+        combat: null,
+      },
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        movementTransition,
+        worldTimeMs: 240,
+      } as never,
+    );
+
+    renderScene(
+      combinedApp as never,
+      {
+        ...game,
+        worldTimeMs: 240,
+      },
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        movementTransition,
+        worldTimeMs: 240,
+      } as never,
+    );
+
+    const baselineWrapper = getPlayerLayer(baselineApp).children[2] as
+      | MockContainer
+      | undefined;
+    const lungeOnlyWrapper = getPlayerLayer(lungeOnlyApp).children[2] as
+      | MockContainer
+      | undefined;
+    const transitionOnlyWrapper = getPlayerLayer(transitionOnlyApp)
+      .children[2] as MockContainer | undefined;
+    const combinedWrapper = getPlayerLayer(combinedApp).children[2] as
+      | MockContainer
+      | undefined;
+
+    expect(baselineWrapper).toBeDefined();
+    expect(lungeOnlyWrapper).toBeDefined();
+    expect(transitionOnlyWrapper).toBeDefined();
+    expect(combinedWrapper).toBeDefined();
+
+    const lungeDeltaX =
+      lungeOnlyWrapper!.position.x - baselineWrapper!.position.x;
+    const transitionDeltaX =
+      transitionOnlyWrapper!.position.x - baselineWrapper!.position.x;
+    const combinedDeltaX =
+      combinedWrapper!.position.x - baselineWrapper!.position.x;
+
+    expect(lungeDeltaX).toBeGreaterThan(0);
+    expect(transitionDeltaX).toBeCloseTo(9, 4);
+    expect(combinedDeltaX).toBeCloseTo(lungeDeltaX + transitionDeltaX, 4);
+    expect(combinedWrapper!.position.y).toBeCloseTo(
+      baselineWrapper!.position.y,
+      4,
+    );
+  });
+
   it('does not offset the player wrapper before the pre-combat lunge starts', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createLungeCombatGame('render-scene-player-lunge-pending');

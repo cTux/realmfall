@@ -64,6 +64,10 @@ interface RenderSceneMovementTransition {
   incomingTiles: VisibleWorldTile[];
   nowMs: number;
   outgoingTiles: VisibleWorldTile[];
+  playerOffsetAtStart?: {
+    x: number;
+    y: number;
+  };
   startedAtMs: number;
   toCoord: HexCoord;
 }
@@ -131,6 +135,8 @@ export function renderScene(
     movementTransition,
     hexSize,
   );
+  const playerTransitionOffset =
+    getMovementTransitionPlayerOffset(movementTransition);
   const worldMapScale =
     typeof scene.worldMap.scale.x === 'number' ? scene.worldMap.scale.x : 1;
   const cloudParallaxOffset = {
@@ -348,6 +354,7 @@ export function renderScene(
       cloudParallaxOffset,
       origin,
       playerIconSize,
+      playerTransitionOffset,
       scene,
       playerCoord: state.player.coord,
       state,
@@ -420,6 +427,25 @@ function getMovementTransitionOffset(
       (movementTransition.toCoord.r - movementTransition.fromCoord.r) *
       remainingProgress,
   });
+}
+
+function getMovementTransitionPlayerOffset(
+  movementTransition: RenderSceneMovementTransition | null,
+) {
+  if (!movementTransition?.playerOffsetAtStart) {
+    return { x: 0, y: 0 };
+  }
+
+  const progress = getMovementTransitionProgress(movementTransition);
+  if (progress === null) {
+    return { x: 0, y: 0 };
+  }
+
+  const remainingProgress = 1 - progress;
+  return {
+    x: movementTransition.playerOffsetAtStart.x * remainingProgress,
+    y: movementTransition.playerOffsetAtStart.y * remainingProgress,
+  };
 }
 
 function getMovementTransitionProgress(

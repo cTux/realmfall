@@ -49,6 +49,7 @@ interface RenderAnimatedSceneOptions {
   cloudParallaxOffset: { x: number; y: number };
   origin: { x: number; y: number };
   playerIconSize: number;
+  playerTransitionOffset: { x: number; y: number };
   state: GameState;
   visibleTileRenderInputs: VisibleTileRenderInput[];
   worldKind: WorldKind;
@@ -71,6 +72,7 @@ export function renderAnimatedScene({
   cloudParallaxOffset,
   origin,
   playerIconSize,
+  playerTransitionOffset,
   state,
   visibleTileRenderInputs,
   worldKind,
@@ -93,11 +95,15 @@ export function renderAnimatedScene({
     );
   });
 
-  const playerLungeOffset = getCombatLungeOffset({
+  const combatLungeOffset = getCombatLungeOffset({
     hexSize,
     state,
     worldTimeMs,
   });
+  const playerLungeOffset = {
+    x: combatLungeOffset.x + playerTransitionOffset.x,
+    y: combatLungeOffset.y + playerTransitionOffset.y,
+  };
   const playerOrigin = {
     x: origin.x + playerLungeOffset.x,
     y: origin.y + playerLungeOffset.y,

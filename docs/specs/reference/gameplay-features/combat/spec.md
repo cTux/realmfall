@@ -6,12 +6,14 @@ This spec covers encounter activation, actor timing, and combat resolution.
 
 ## Current Behavior
 
-- Any encounter source starts combat immediately, including stepping onto a hostile tile, clicking a hostile world hex, and contact from a roaming dungeon enemy chase.
+- Any encounter source creates combat immediately, but hostile world clicks and roaming dungeon enemy chase contact only mark combat as started after their shared visual intro completes.
 - Hostile world clicks never move the player onto the hostile hex before the encounter begins.
-- Clicking an adjacent hostile hex starts combat from the current hex, keeps the player on that staging hex until victory, and preserves the hostile hex as the encounter target.
-- Clicking a farther hostile hex paths only to the nearest reachable adjacent staging hex, then starts combat there against the originally clicked hostile hex while preserving that hostile target through the encounter.
+- Clicking an adjacent hostile hex keeps the current hex as the staging hex, runs the short lunge toward the target, and starts combat only after that lunge completes while preserving the hostile hex as the encounter target.
+- Clicking a farther hostile hex paths only to the nearest reachable adjacent staging hex, waits for the full move arrival, then runs the short lunge and starts combat there against the originally clicked hostile hex while preserving that hostile target through the encounter.
+- Roaming dungeon enemy chase contact uses that same staged intro model, preserving the enemy hex as the encounter target instead of starting combat on the contact tick.
 - Battles that run for longer than `60s` surface a `Dea(t)h` title-bar action that accepts defeat, kills the player, and respawns them at their home hex.
-- Winning a hostile-click or roaming-chase encounter can auto-step the player onto the preserved hostile target after the final enemy dies, then the app applies the normal movement cooldown for that step.
+- While combat is active, the world presentation keeps the player visually held in the lunged position instead of snapping them back to the staging-hex center.
+- Winning a hostile-click or roaming-chase encounter can auto-step the player onto the preserved hostile target after the final enemy dies, and that full hex move continues from the held lunge offset while the app applies the normal movement cooldown for the step.
 - While combat is active, regular travel is blocked.
 - Combat uses actor state for the player and each enemy.
 - Every actor has a global cooldown.

@@ -15,8 +15,10 @@ import { hexKey, hexesInRange } from '../../game/hex';
 import { startCombat } from '../../game/stateCombat';
 import type { GameState, HexCoord } from '../../game/stateTypes';
 import { WORLD_COMBAT_LUNGE_DURATION_MS } from '../../game/worldCombatPresentation';
+import { getWorldHexSize } from '../../ui/world/renderSceneMath';
 import { type VisibleWorldTile } from '../../ui/world/visibleWorldTiles';
 import type { WorldMapCameraState } from '../../ui/world/worldMapCamera';
+import { getWorldCombatLungeOffset } from '../../ui/world/worldCombatLunge';
 import {
   normalizeWorldRenderFps,
   type GraphicsSettings,
@@ -170,6 +172,11 @@ export function usePixiWorld({
   const renderInvalidationRef = useRef(0);
   const movementCooldownEndAtRef = useRef<number | null>(null);
   const movementTransitionRef = useRef<WorldMovementTransition | null>(null);
+  const pendingVictoryTransitionOffsetRef = useRef<{
+    fromCoord: HexCoord;
+    offset: { x: number; y: number };
+    toCoord: HexCoord;
+  } | null>(null);
   const movementControllerRef = useRef<WorldMovementController | null>(null);
   const combatIntroTimerRef = useRef<number | null>(null);
   const [canvasReady, setCanvasReady] = useState(false);
@@ -228,6 +235,18 @@ export function usePixiWorld({
       sameCoord(game.player.coord, previousEngagement.targetCoord) &&
       !sameCoord(previousGame.player.coord, previousEngagement.targetCoord)
     ) {
+      const carriedOffset = getPostCombatTransitionOffset({
+        app: appRef.current,
+        previousGame,
+      });
+      pendingVictoryTransitionOffsetRef.current = carriedOffset
+        ? {
+            fromCoord: previousGame.player.coord,
+            offset: carriedOffset,
+            toCoord: previousEngagement.targetCoord,
+          }
+        : null;
+
       const cooldownEndAtMs = performance.now() + WORLD_MOVE_HEX_COOLDOWN_MS;
       const movementController = movementControllerRef.current;
       if (movementController) {
@@ -436,10 +455,21 @@ export function usePixiWorld({
       return;
     }
 
+    const pendingVictoryTransitionOffset =
+      pendingVictoryTransitionOffsetRef.current;
+    const playerOffsetAtStart =
+      pendingVictoryTransitionOffset &&
+      sameCoord(pendingVictoryTransitionOffset.fromCoord, previousPlayerCoord) &&
+      sameCoord(pendingVictoryTransitionOffset.toCoord, playerCoord)
+        ? pendingVictoryTransitionOffset.offset
+        : undefined;
+    pendingVictoryTransitionOffsetRef.current = null;
+
     const nextTransition = createWorldMovementTransition({
       durationMs: WORLD_MOVE_VISUAL_DURATION_MS,
       fromCoord: previousPlayerCoord,
       nextVisibleTiles,
+      playerOffsetAtStart,
       previousVisibleTiles,
       startedAtMs: performance.now(),
       toCoord: playerCoord,
@@ -895,4 +925,36 @@ function autoStartPendingCombat({
   });
   gameRef.current = next;
   return next;
+}
+
+function getPostCombatTransitionOffset({
+  app,
+  previousGame,
+}: {
+  app: Application | null;
+  previousGame: GameState;
+}) {
+  const combat = previousGame.combat;
+  const engagement = combat?.engagement;
+  if (
+    !app ||
+    combat === null ||
+    combat.startedAtMs == null ||
+    !engagement?.stagingCoord ||
+    !engagement.targetCoord
+  ) {
+    return null;
+  }
+
+  const hexSize = getWorldHexSize(app.screen, previousGame.radius);
+  const offset = getWorldCombatLungeOffset({
+    hexSize,
+    phase: combat.started ? 'held' : 'animating',
+    stagingCoord: engagement.stagingCoord,
+    startedAtMs: combat.startedAtMs,
+    targetCoord: engagement.targetCoord,
+    worldTimeMs: previousGame.worldTimeMs,
+  });
+
+  return Math.hypot(offset.x, offset.y) > 0 ? offset : null;
 }

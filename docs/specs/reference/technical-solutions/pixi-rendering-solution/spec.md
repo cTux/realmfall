@@ -38,7 +38,9 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Cached world-marker wrappers now keep deterministic per-hex animation metadata, so animation-only frames can pulse or bob hostile markers by mutating live sprite transforms instead of rebuilding static marker pools.
 - Settlement, claim, and utility structure markers now route through the same cached-wrapper animation path, with night-aware tint pulses applied directly to live marker sprites instead of triggering a static-layer refresh.
 - Gathering-site markers now reuse the cached wrapper animator with deterministic shimmer phases, so ore, herb, timber, and water icons can glint intermittently without adding a second marker traversal to animation-only frames.
-- `renderSceneCombatFeedback.ts` owns a render-only player lunge toward `combat.engagement.targetCoord`, using engagement staging and target coordinates plus combat start time without mutating gameplay position.
+- `usePixiWorld` delays hostile-click and roaming-chase combat start until any full movement transition into the staging hex finishes, then stamps the combat-intro lunge and only auto-starts combat after that lunge duration completes.
+- `renderSceneCombatFeedback.ts` owns a render-only player lunge toward `combat.engagement.targetCoord`, using engagement staging and target coordinates plus combat-intro start time without mutating gameplay position, and it keeps the player visually held at that offset while combat remains active.
+- World movement transitions can carry a `playerOffsetAtStart` seed so a victory auto-step into a preserved hostile target continues from the held lunge offset through the normal full hex-slide duration instead of restarting from hex center.
 - The renderer consumes a bounded gameplay-authored `worldFloatingTextEvents` list and displays damage, critical-damage, and healing text above resolved player or hostile badge anchors, including defeated-enemy fallback anchors until the event lifetime expires.
 - Animated sky, atmosphere, cloud, overlay, and firelight layers use their own lower-cadence token, so hover or selection redraws inside the same animation bucket do not reset those animated stage layers again.
 - Deterministic ground-cover presentation and cloud inputs are memoized in bounded caches.
@@ -66,7 +68,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - The Pixi canvas uses density-aware sizing so browser zoom and high-DPI displays keep the world viewport fitted to CSS pixels while renderer resolution tracks `window.devicePixelRatio` changes on resize within the current graphics preset cap.
 - Persisted settings now hydrate both Pixi renderer initialization flags, a preset-derived renderer density cap, and the live Pixi render-FPS cap through a dedicated plain `localStorage` `settings` payload that is read before the initial game and Pixi setup; `usePixiWorld` captures init-time flags for the current page lifetime, marks their controls as reload-required, and keeps live terrain-background plus render-FPS changes on the redraw invalidation path.
 - Hover-analysis caching now invalidates from gameplay-state versions that materially affect interaction resolution rather than from every broad `tiles` or `enemies` container identity change.
-- Player movement cooldown and revealed roaming dungeon enemy movement cooldowns render as outer arcs just outside the badge MP ring instead of as separate under-icon bars.
+- Player movement cooldown and revealed roaming dungeon enemy movement cooldowns render as outer arcs that touch the badge MP ring with no gap instead of as separate under-icon bars.
 
 ## Main Implementation Areas
 

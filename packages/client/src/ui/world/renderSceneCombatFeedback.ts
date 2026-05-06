@@ -3,7 +3,6 @@ import { getAppliedInterfaceFontStack } from '../../app/interfaceFonts';
 import { hexKey } from '../../game/hex';
 import type { WorldFloatingTextEvent } from '../../game/types';
 import type { GameState, HexCoord } from '../../game/stateTypes';
-import { WORLD_COMBAT_LUNGE_DURATION_MS } from '../../game/worldCombatPresentation';
 import { isWorldBossEnemyId } from '../../game/worldBoss';
 import { ENTITY_BADGE_RADIUS_SCALE } from './renderSceneEntityBadge';
 import { tileToPoint } from './renderSceneMath';
@@ -15,10 +14,9 @@ import { setTextPosition, setTextScale, takeText } from './renderScenePools';
 import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
 import type { SceneCache } from './renderSceneCache';
 import { ENEMY_GROUP_BADGE_OFFSET } from './renderSceneShared';
+import { getWorldCombatLungeOffset } from './worldCombatLunge';
 
 const WORLD_FLOATING_TEXT_LIFETIME_MS = 1_200;
-const PLAYER_LUNGE_DISTANCE_RATIO = 0.16;
-const PLAYER_LUNGE_MIN_PX = 8;
 const FLOATING_TEXT_RISE_PX = 18;
 const FLOATING_TEXT_BASE_OFFSET_PX = 12;
 const DAMAGE_COLOR = 0xff2d55;
@@ -42,6 +40,13 @@ interface HostileMarkerAnchorSet {
   enemy: FloatingTextAnchor;
 }
 
+interface CombatLungeDescriptor {
+  phase: 'animating' | 'held';
+  startedAtMs: number;
+  stagingCoord: HexCoord;
+  targetCoord: HexCoord;
+}
+
 export function getCombatFeedbackRenderToken({
   state,
   worldRenderFrameMs,
@@ -59,13 +64,12 @@ export function getCombatFeedbackRenderToken({
     hasFeedback = true;
     token = mixToken(token, coordToken(lunge.stagingCoord));
     token = mixToken(token, coordToken(lunge.targetCoord));
-    token = mixToken(token, lunge.startedAtMs ?? 0);
+    token = mixToken(token, lunge.startedAtMs);
     if (lunge.phase === 'animating') {
       token = mixToken(
         token,
         Math.floor(
-          (worldTimeMs - (lunge.startedAtMs ?? worldTimeMs)) /
-            worldRenderFrameMs,
+          (worldTimeMs - lunge.startedAtMs) / worldRenderFrameMs,
         ) + 1,
       );
     }
@@ -106,34 +110,14 @@ export function getCombatLungeOffset({
     return { x: 0, y: 0 };
   }
 
-  const targetDelta = tileToPoint(
-    {
-      q: descriptor.targetCoord.q - descriptor.stagingCoord.q,
-      r: descriptor.targetCoord.r - descriptor.stagingCoord.r,
-    },
-    0,
-    0,
+  return getWorldCombatLungeOffset({
     hexSize,
-  );
-  const distance = Math.hypot(targetDelta.x, targetDelta.y);
-  if (distance <= 0) {
-    return { x: 0, y: 0 };
-  }
-
-  const progress = getCombatLungeProgress(descriptor, worldTimeMs);
-  if (progress <= 0) {
-    return { x: 0, y: 0 };
-  }
-
-  const lungeDistance = Math.min(
-    distance * PLAYER_LUNGE_DISTANCE_RATIO,
-    Math.max(PLAYER_LUNGE_MIN_PX, hexSize * PLAYER_LUNGE_DISTANCE_RATIO),
-  );
-
-  return {
-    x: (targetDelta.x / distance) * lungeDistance * progress,
-    y: (targetDelta.y / distance) * lungeDistance * progress,
-  };
+    phase: descriptor.phase,
+    stagingCoord: descriptor.stagingCoord,
+    startedAtMs: descriptor.startedAtMs,
+    targetCoord: descriptor.targetCoord,
+    worldTimeMs,
+  });
 }
 
 export function renderSceneCombatFeedback({
@@ -326,7 +310,7 @@ function getFloatingTextScale(kind: WorldFloatingTextEvent['kind']) {
       : NORMAL_TEXT_SCALE;
 }
 
-function getCombatLungeDescriptor(state: GameState) {
+function getCombatLungeDescriptor(state: GameState): CombatLungeDescriptor | null {
   const targetCoord = state.combat?.engagement?.targetCoord;
   const stagingCoord = state.combat?.engagement?.stagingCoord;
   if (
@@ -348,24 +332,6 @@ function getCombatLungeDescriptor(state: GameState) {
     stagingCoord,
     targetCoord,
   };
-}
-
-function getCombatLungeProgress(
-  descriptor: NonNullable<ReturnType<typeof getCombatLungeDescriptor>>,
-  worldTimeMs: number,
-) {
-  if (descriptor.phase === 'held') {
-    return 1;
-  }
-
-  const rawProgress = Math.max(
-    0,
-    Math.min(
-      1,
-      (worldTimeMs - descriptor.startedAtMs) / WORLD_COMBAT_LUNGE_DURATION_MS,
-    ),
-  );
-  return Math.sin((rawProgress * Math.PI) / 2);
 }
 
 function createHostileMarkerAnchorSet(

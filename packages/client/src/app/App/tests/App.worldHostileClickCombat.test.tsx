@@ -8,6 +8,8 @@ import { WORLD_MOVE_HEX_COOLDOWN_MS } from '../../../game/config';
 import { syncCombatEncounterEnemies } from '../../../game/stateCombatEncounterSync';
 import type { GameState } from '../../../game/stateTypes';
 import { WORLD_COMBAT_LUNGE_DURATION_MS } from '../../../game/worldCombatPresentation';
+import { getWorldCombatLungeOffset } from '../../../ui/world/worldCombatLunge';
+import { getWorldHexSize } from '../../../ui/world/renderSceneMath';
 import { WORLD_MOVE_VISUAL_DURATION_MS } from '../world/movement/worldMovementTransition';
 import {
   createHydratedAppGame,
@@ -247,7 +249,30 @@ describe('App world hostile click combat', () => {
       const postResolutionCall = renderScene.mock.calls
         .slice(renderCallCountBeforeResolution)
         .find((call) => call[8]?.movementCooldown != null);
+      const app = postResolutionCall?.[0];
       const renderOptions = postResolutionCall?.[8];
+      const expectedHeldOffset =
+        app && renderOptions?.movementTransition
+          ? getWorldCombatLungeOffset({
+              hexSize: getWorldHexSize(app.screen, resolvedGame?.radius ?? 0),
+              phase: 'held',
+              stagingCoord: { q: 1, r: 0 },
+              startedAtMs: 0,
+              targetCoord: { q: 2, r: 0 },
+              worldTimeMs: WORLD_COMBAT_LUNGE_DURATION_MS,
+            })
+          : null;
+      expect(renderOptions?.movementTransition).toMatchObject({
+        durationMs: WORLD_MOVE_VISUAL_DURATION_MS,
+        fromCoord: { q: 1, r: 0 },
+        toCoord: { q: 2, r: 0 },
+      });
+      expect(
+        renderOptions?.movementTransition?.playerOffsetAtStart?.x ?? 0,
+      ).toBeCloseTo(expectedHeldOffset?.x ?? 0, 5);
+      expect(
+        renderOptions?.movementTransition?.playerOffsetAtStart?.y ?? 0,
+      ).toBeCloseTo(expectedHeldOffset?.y ?? 0, 5);
       expect(renderOptions?.movementCooldown).toMatchObject({
         durationMs: WORLD_MOVE_HEX_COOLDOWN_MS,
       });

@@ -24,7 +24,6 @@ const PLAYER_BAR_FILL_ALPHA = 0.95;
 const MOVEMENT_COOLDOWN_BAR_COLOR = 0xfacc15;
 const PLAYER_BADGE_OUTER_RADIUS_SCALE = 0.78;
 const HOSTILE_BADGE_OUTER_RADIUS_SCALE = 0.76;
-const COOLDOWN_ARC_GAP_PX = 3;
 
 export function renderPlayerMovementCooldown({
   scene,
@@ -183,10 +182,7 @@ export function getHostileEnemyBadgeOuterRadius(enemyIconSize: number) {
 }
 
 function getMovementCooldownArcBand(badgeOuterRadius: number) {
-  return expandEntityBadgeArcBand(
-    getEntityBadgeArcBand(badgeOuterRadius),
-    COOLDOWN_ARC_GAP_PX,
-  );
+  return expandEntityBadgeArcBand(getEntityBadgeArcBand(badgeOuterRadius), 0);
 }
 
 function renderMovementCooldownArc({
