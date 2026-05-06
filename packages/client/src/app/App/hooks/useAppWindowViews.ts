@@ -8,7 +8,7 @@ import type { ActionBarSlots } from '../actionBar';
 import type { AppWindowsViewState } from '../AppWindows.types';
 import type { ItemContextMenuState } from '../types';
 
-type WindowViewsPlayerSlice = Pick<
+type WindowViewsPlayerState = Pick<
   GameState['player'],
   | 'coord'
   | 'equipment'
@@ -41,7 +41,7 @@ interface UseAppWindowViewsArgs {
   interactLabel: string | null;
   filteredLogs: GameState['logs'];
   logFilters: Record<LogKind, boolean>;
-  playerSlice: WindowViewsPlayerSlice;
+  playerState: WindowViewsPlayerState;
   tileLootSnapshot: AppWindowsViewState['loot']['snapshot'];
   lootWindowVisible: boolean;
   canBulkProspectEquipment: boolean;
@@ -78,7 +78,7 @@ export function useAppWindowViews({
   interactLabel,
   filteredLogs,
   logFilters,
-  playerSlice,
+  playerState,
   tileLootSnapshot,
   lootWindowVisible,
   canBulkProspectEquipment,
@@ -96,34 +96,34 @@ export function useAppWindowViews({
   const hero = useMemo(
     () => ({
       overview: heroOverview,
-      hunger: playerSlice.hunger,
-      thirst: playerSlice.thirst,
+      hunger: playerState.hunger,
+      thirst: playerState.thirst,
     }),
-    [heroOverview, playerSlice.hunger, playerSlice.thirst],
+    [heroOverview, playerState.hunger, playerState.thirst],
   );
 
   const player = useMemo(
     () => ({
-      coord: playerSlice.coord,
-      mana: playerSlice.mana,
+      coord: playerState.coord,
+      mana: playerState.mana,
     }),
-    [playerSlice.coord, playerSlice.mana],
+    [playerState.coord, playerState.mana],
   );
 
   const inventory = useMemo(
     () => ({
       actionBarSlots,
-      level: playerSlice.level,
-      equipment: playerSlice.equipment,
-      inventory: playerSlice.inventory,
-      learnedRecipeIds: playerSlice.learnedRecipeIds,
+      level: playerState.level,
+      equipment: playerState.equipment,
+      inventory: playerState.inventory,
+      learnedRecipeIds: playerState.learnedRecipeIds,
     }),
     [
       actionBarSlots,
-      playerSlice.level,
-      playerSlice.equipment,
-      playerSlice.inventory,
-      playerSlice.learnedRecipeIds,
+      playerState.level,
+      playerState.equipment,
+      playerState.inventory,
+      playerState.learnedRecipeIds,
     ],
   );
 
