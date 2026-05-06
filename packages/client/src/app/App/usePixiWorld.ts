@@ -10,19 +10,14 @@ import {
 } from 'react';
 import type { Application } from 'pixi.js';
 import type { TooltipPosition } from '@realmfall/ui';
-import { WORLD_MOVE_HEX_COOLDOWN_MS } from '../../game/config';
 import { hexKey, hexesInRange } from '../../game/hex';
-import { startCombat } from '../../game/stateCombat';
 import {
   getActiveWorld,
   replaceWorldCollections,
 } from '../../game/dungeons/worldState';
 import type { GameState, HexCoord } from '../../game/stateTypes';
-import { WORLD_COMBAT_LUNGE_DURATION_MS } from '../../game/worldCombatPresentation';
-import { getWorldHexSize } from '../../ui/world/renderSceneMath';
 import { type VisibleWorldTile } from '../../ui/world/visibleWorldTiles';
 import type { WorldMapCameraState } from '../../ui/world/worldMapCamera';
-import { getWorldCombatLungeOffset } from '../../ui/world/worldCombatLunge';
 import {
   normalizeCloudTransparency,
   normalizeWorldRenderFps,
@@ -36,6 +31,13 @@ import {
 import { sameCoord } from './usePixiWorldHover';
 import type { WorldHoverAnalysisController } from './world/pixiWorldHoverInteractions';
 import type { WorldMapDragState } from './world/pixiWorldInteractions';
+import {
+  autoStartPendingCombat,
+  getPendingCombatUpdatePlan,
+  getPostCombatAutoStepTransition,
+  stampPendingCombatIntro,
+  type PendingVictoryTransitionOffset,
+} from './world/pixiWorldPendingCombat';
 import type { PixiWorldInitGraphicsSettings } from './world/pixiWorldBootstrap';
 import type { WorldTileResolutionOverlayEntry } from './world/tileResolution/worldTileResolutionCoordinator';
 import {
@@ -186,11 +188,8 @@ export function usePixiWorld({
   const renderInvalidationRef = useRef(0);
   const movementCooldownEndAtRef = useRef<number | null>(null);
   const movementTransitionRef = useRef<WorldMovementTransition | null>(null);
-  const pendingVictoryTransitionOffsetRef = useRef<{
-    fromCoord: HexCoord;
-    offset: { x: number; y: number };
-    toCoord: HexCoord;
-  } | null>(null);
+  const pendingVictoryTransitionOffsetRef =
+    useRef<PendingVictoryTransitionOffset | null>(null);
   const movementControllerRef = useRef<WorldMovementController | null>(null);
   const combatIntroTimerRef = useRef<number | null>(null);
   const [canvasReady, setCanvasReady] = useState(false);
@@ -240,33 +239,25 @@ export function usePixiWorld({
 
   useEffect(() => {
     const previousGame = previousGameRef.current;
-    const previousEngagement = previousGame.combat?.engagement;
-    if (
-      previousGame !== game &&
-      previousEngagement?.autoStepOnVictory &&
-      previousEngagement.targetCoord !== null &&
-      game.combat === null &&
-      sameCoord(game.player.coord, previousEngagement.targetCoord) &&
-      !sameCoord(previousGame.player.coord, previousEngagement.targetCoord)
-    ) {
-      const carriedOffset = getPostCombatTransitionOffset({
-        app: appRef.current,
-        previousGame,
-      });
-      pendingVictoryTransitionOffsetRef.current = carriedOffset
-        ? {
-            fromCoord: previousGame.player.coord,
-            offset: carriedOffset,
-            toCoord: previousEngagement.targetCoord,
-          }
-        : null;
+    const postCombatAutoStepTransition = getPostCombatAutoStepTransition({
+      app: appRef.current,
+      game,
+      nowMs: performance.now(),
+      previousGame,
+    });
 
-      const cooldownEndAtMs = performance.now() + WORLD_MOVE_HEX_COOLDOWN_MS;
+    if (postCombatAutoStepTransition) {
+      pendingVictoryTransitionOffsetRef.current =
+        postCombatAutoStepTransition.pendingVictoryTransitionOffset;
+
       const movementController = movementControllerRef.current;
       if (movementController) {
-        movementController.seedCooldownUntil(cooldownEndAtMs);
+        movementController.seedCooldownUntil(
+          postCombatAutoStepTransition.cooldownEndAtMs,
+        );
       } else {
-        movementCooldownEndAtRef.current = cooldownEndAtMs;
+        movementCooldownEndAtRef.current =
+          postCombatAutoStepTransition.cooldownEndAtMs;
         renderInvalidationRef.current += 1;
       }
     }
@@ -513,75 +504,41 @@ export function usePixiWorld({
       return;
     }
 
-    const pendingCombat = game.combat;
-    if (pendingCombat.startedAtMs == null) {
-      const remainingApproachMs = getPendingCombatApproachDelayMs({
-        combat: pendingCombat,
-        movementTransition: movementTransitionRef.current,
-        nowMs: performance.now(),
-        playerCoord,
-      });
-      if (remainingApproachMs > 0) {
-        combatIntroTimerRef.current = window.setTimeout(() => {
-          setGame((current) =>
-            stampPendingCombatIntro({
+    const pendingCombatPlan = getPendingCombatUpdatePlan({
+      combat: game.combat,
+      movementNowMs: performance.now(),
+      movementTransition: movementTransitionRef.current,
+      playerCoord,
+      worldTimeMs: worldTimeMsRef.current,
+    });
+    if (pendingCombatPlan.action === 'none') {
+      return;
+    }
+
+    const runPendingCombatPlan = () =>
+      setGame((current) =>
+        pendingCombatPlan.action === 'stamp'
+          ? stampPendingCombatIntro({
+              current,
+              gameRef,
+              worldTimeMs: worldTimeMsRef.current,
+            })
+          : autoStartPendingCombat({
               current,
               gameRef,
               worldTimeMs: worldTimeMsRef.current,
             }),
-          );
-        }, remainingApproachMs);
-        return;
-      }
-
-      if (hasPendingCombatLunge(pendingCombat)) {
-        setGame((current) =>
-          stampPendingCombatIntro({
-            current,
-            gameRef,
-            worldTimeMs: worldTimeMsRef.current,
-          }),
-        );
-        return;
-      }
-
-      setGame((current) =>
-        autoStartPendingCombat({
-          current,
-          gameRef,
-          worldTimeMs: worldTimeMsRef.current,
-        }),
       );
+
+    if (pendingCombatPlan.delayMs === 0) {
+      runPendingCombatPlan();
       return;
     }
 
-    const remainingIntroMs = hasPendingCombatLunge(pendingCombat)
-      ? Math.max(
-          0,
-          WORLD_COMBAT_LUNGE_DURATION_MS -
-            Math.max(0, worldTimeMsRef.current - pendingCombat.startedAtMs),
-        )
-      : 0;
-    if (remainingIntroMs === 0) {
-      setGame((current) =>
-        autoStartPendingCombat({
-          current,
-          gameRef,
-          worldTimeMs: worldTimeMsRef.current,
-        }),
-      );
-      return;
-    }
-
-    combatIntroTimerRef.current = window.setTimeout(() => {
-      setGame((current) =>
-        autoStartPendingCombat({
-          current,
-          gameRef,
-          worldTimeMs: worldTimeMsRef.current,
-        }),
-      );
-    }, remainingIntroMs);
+    combatIntroTimerRef.current = window.setTimeout(
+      runPendingCombatPlan,
+      pendingCombatPlan.delayMs,
+    );
 
     return () => {
       if (combatIntroTimerRef.current !== null) {
@@ -858,121 +815,4 @@ function syncTileResolutionCoordinator(
     resolvedTiles: game.tiles,
     seed: game.seed,
   });
-}
-
-function getPendingCombatApproachDelayMs({
-  combat,
-  movementTransition,
-  nowMs,
-  playerCoord,
-}: {
-  combat: NonNullable<GameState['combat']>;
-  movementTransition: WorldMovementTransition | null;
-  nowMs: number;
-  playerCoord: HexCoord;
-}) {
-  if (!hasPendingCombatLunge(combat)) {
-    return 0;
-  }
-
-  if (
-    !movementTransition ||
-    !sameCoord(movementTransition.toCoord, playerCoord)
-  ) {
-    return 0;
-  }
-
-  return Math.max(
-    0,
-    movementTransition.startedAtMs + movementTransition.durationMs - nowMs,
-  );
-}
-
-function hasPendingCombatLunge(combat: NonNullable<GameState['combat']>) {
-  const targetCoord = combat.engagement?.targetCoord;
-  const stagingCoord = combat.engagement?.stagingCoord;
-  return Boolean(
-    targetCoord && stagingCoord && !sameCoord(targetCoord, stagingCoord),
-  );
-}
-
-function stampPendingCombatIntro({
-  current,
-  gameRef,
-  worldTimeMs,
-}: {
-  current: GameState;
-  gameRef: MutableRefObject<GameState>;
-  worldTimeMs: number;
-}) {
-  if (
-    !current.combat ||
-    current.combat.started ||
-    current.combat.startedAtMs != null
-  ) {
-    return current;
-  }
-
-  const next = {
-    ...current,
-    combat: {
-      ...current.combat,
-      startedAtMs: worldTimeMs,
-    },
-  };
-  gameRef.current = next;
-  return next;
-}
-
-function autoStartPendingCombat({
-  current,
-  gameRef,
-  worldTimeMs,
-}: {
-  current: GameState;
-  gameRef: MutableRefObject<GameState>;
-  worldTimeMs: number;
-}) {
-  if (!current.combat || current.combat.started) {
-    return current;
-  }
-
-  const next = startCombat({
-    ...current,
-    worldTimeMs,
-  });
-  gameRef.current = next;
-  return next;
-}
-
-function getPostCombatTransitionOffset({
-  app,
-  previousGame,
-}: {
-  app: Application | null;
-  previousGame: GameState;
-}) {
-  const combat = previousGame.combat;
-  const engagement = combat?.engagement;
-  if (
-    !app ||
-    combat === null ||
-    combat.startedAtMs == null ||
-    !engagement?.stagingCoord ||
-    !engagement.targetCoord
-  ) {
-    return null;
-  }
-
-  const hexSize = getWorldHexSize(app.screen, previousGame.radius);
-  const offset = getWorldCombatLungeOffset({
-    hexSize,
-    phase: combat.started ? 'held' : 'animating',
-    stagingCoord: engagement.stagingCoord,
-    startedAtMs: combat.startedAtMs,
-    targetCoord: engagement.targetCoord,
-    worldTimeMs: previousGame.worldTimeMs,
-  });
-
-  return Math.hypot(offset.x, offset.y) > 0 ? offset : null;
 }
