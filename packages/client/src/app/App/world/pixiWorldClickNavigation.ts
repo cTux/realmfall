@@ -54,8 +54,13 @@ export function createWorldClickHandler({
       return;
     }
 
+    const current = gameRef.current;
+    if (current.combat) {
+      return;
+    }
+
     const scenePoint = getScenePoint(clientX, clientY);
-    const hexSize = getWorldHexSize(app.screen, gameRef.current.radius);
+    const hexSize = getWorldHexSize(app.screen, current.radius);
     const worldCenter = getWorldMovementTransitionSceneCenter({
       hexSize,
       nowMs: performance.now(),
@@ -71,7 +76,6 @@ export function createWorldClickHandler({
       q: playerCoordRef.current.q + clickedOffset.q,
       r: playerCoordRef.current.r + clickedOffset.r,
     };
-    const current = gameRef.current;
     const distance = hexDistance(playerCoordRef.current, target);
     if (distance === 1) {
       const tile = getResolvedTileAt(current, target);

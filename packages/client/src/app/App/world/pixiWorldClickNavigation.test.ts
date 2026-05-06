@@ -46,6 +46,59 @@ describe('createWorldClickHandler', () => {
     ]);
   });
 
+  it('ignores movement clicks while combat is active', () => {
+    const game = createGame(2, 'combat-active-click-command');
+    const movementController = createMovementController();
+    game.combat = {
+      coord: { q: 1, r: 0 },
+      enemyIds: ['enemy-1,0-0'],
+      engagement: {
+        autoStepOnVictory: false,
+        engageMode: 'tile-step',
+        originCoord: { q: 0, r: 0 },
+        stagingCoord: { q: 1, r: 0 },
+        targetCoord: { q: 1, r: 0 },
+      },
+      started: true,
+      startedAtMs: 0,
+      player: {
+        abilityIds: ['kick'],
+        cooldownEndsAt: {},
+        globalCooldownEndsAt: 0,
+        globalCooldownMs: 2_000,
+        hp: 10,
+        mana: 5,
+      },
+    } as never;
+    const adjacentPoint = tileToPoint(
+      { q: 1, r: 0 },
+      app.screen.width / 2,
+      app.screen.height / 2,
+      getWorldHexSize(app.screen, game.radius),
+    );
+    const selectedRef = { current: game.player.coord };
+    const renderInvalidationRef = { current: 0 };
+
+    const handleClick = createWorldClickHandler({
+      app: app as never,
+      gameRef: { current: game },
+      getScenePoint: () => ({ x: adjacentPoint.x, y: adjacentPoint.y }),
+      pausedRef: { current: false },
+      playerCoordRef: { current: game.player.coord },
+      renderInvalidationRef,
+      selectedRef,
+      movementController,
+    });
+
+    handleClick(320, 240);
+
+    expect(movementController.replaceQueuedPath).not.toHaveBeenCalled();
+    expect(movementController.queueHostileApproach).not.toHaveBeenCalled();
+    expect(movementController.startHostileEngagement).not.toHaveBeenCalled();
+    expect(selectedRef.current).toEqual(game.player.coord);
+    expect(renderInvalidationRef.current).toBe(0);
+  });
+
   it('maps clicks against the animated world center during a move transition', () => {
     const performanceNowSpy = vi.spyOn(performance, 'now').mockReturnValue(0);
     const game = createGame(2, 'transition-click-command');

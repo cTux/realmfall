@@ -271,6 +271,45 @@ describe('pixiWorldRenderLoop', () => {
     performanceNowSpy.mockRestore();
   });
 
+  it('suppresses the player movement cooldown render while combat is active', () => {
+    const performanceNowSpy = vi.spyOn(performance, 'now').mockReturnValue(500);
+    const renderScene = vi.fn();
+    const movementCooldownEndAtRef = { current: 1_500 as number | null };
+    const renderFrame = createWorldRenderFrame({
+      app: {} as never,
+      renderScene,
+      gameRef: {
+        current: {
+          combat: { started: true },
+          player: { coord: { q: 0, r: 0 } },
+        },
+      } as never,
+      visibleTilesRef: {
+        current: [{ coord: { q: 0, r: 0 }, terrain: 'plains' }],
+      } as never,
+      selectedRef: { current: { q: 0, r: 0 } } as never,
+      hoveredMoveRef: { current: null },
+      hoveredSafePathRef: { current: null },
+      showTerrainBackgroundsRef: { current: true },
+      worldRenderFpsRef: { current: DEFAULT_WORLD_RENDER_FPS },
+      pausedRef: { current: false },
+      pausedAnimationMsRef: { current: null },
+      worldTimeMsRef: { current: 0 },
+      renderInvalidationRef: { current: 0 },
+      lastRenderSnapshotRef: { current: createInitialWorldRenderSnapshot() },
+      movementCooldownEndAtRef,
+    } as never);
+
+    renderFrame();
+
+    expect(renderScene).toHaveBeenCalledTimes(1);
+    expect(renderScene.mock.calls[0]?.[8]).not.toHaveProperty(
+      'movementCooldown',
+    );
+
+    performanceNowSpy.mockRestore();
+  });
+
   it('keeps cooldown redraws on wall-clock time while world animation is paused', () => {
     let now = 500;
     const performanceNowSpy = vi
