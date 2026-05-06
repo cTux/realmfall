@@ -51,9 +51,8 @@ describe('App canvas setup', () => {
   it('hydrates Pixi initialization flags from saved graphics settings', async () => {
     loadEncryptedState.mockResolvedValue(null);
     saveGraphicsSettings({
+      ...applyGraphicsPreset('balanced'),
       preset: 'custom',
-      resolutionCap: 1.5,
-      worldRenderFps: DEFAULT_WORLD_RENDER_FPS,
       antialias: false,
       autoDensity: false,
       clearBeforeRender: false,
@@ -94,6 +93,8 @@ describe('App canvas setup', () => {
 
     expect(renderScene).toHaveBeenCalled();
     expect(renderScene.mock.calls[0]?.[8]).toEqual({
+      cloudTransparency: 0,
+      showClouds: true,
       showTerrainBackgrounds: false,
       worldRenderFps: DEFAULT_WORLD_RENDER_FPS,
     });

@@ -472,6 +472,85 @@ describe('GameSettingsWindowContent', () => {
     });
   });
 
+  it('saves cloud visibility and transparency inside the graphics payload', async () => {
+    const onSave = vi.fn(async () => undefined);
+
+    await act(async () => {
+      root.render(
+        <GameSettingsWindowContent
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
+          graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          interfaceSettings={DEFAULT_INTERFACE_SETTINGS}
+          gameplaySettings={DEFAULT_GAMEPLAY_SETTINGS}
+          onResetSaveArea={async () => undefined}
+          onSave={onSave}
+          onSaveAndReload={async () => undefined}
+        />,
+      );
+    });
+
+    const cloudTransparencyField = Array.from(
+      host.querySelectorAll('label'),
+    ).find((candidate) =>
+      candidate.textContent?.includes(
+        t('ui.settings.graphics.cloudTransparency.label'),
+      ),
+    );
+    const cloudTransparencySlider = cloudTransparencyField?.querySelector(
+      'input[type="range"]',
+    ) as HTMLInputElement | null;
+    const showCloudsSwitch = Array.from(host.querySelectorAll('label'))
+      .find((candidate) =>
+        candidate.textContent?.includes(
+          t('ui.settings.graphics.showClouds.label'),
+        ),
+      )
+      ?.querySelector('input[type="checkbox"]');
+    const saveButton = Array.from(host.querySelectorAll('button')).find(
+      (candidate) => candidate.textContent === t('ui.settings.actions.save'),
+    );
+
+    expect(cloudTransparencySlider).not.toBeNull();
+    expect(showCloudsSwitch).toBeDefined();
+    expect(saveButton).toBeDefined();
+
+    await act(async () => {
+      if (cloudTransparencySlider) {
+        const setValue = Object.getOwnPropertyDescriptor(
+          HTMLInputElement.prototype,
+          'value',
+        )?.set;
+
+        setValue?.call(cloudTransparencySlider, '65');
+        cloudTransparencySlider.dispatchEvent(
+          new Event('input', { bubbles: true }),
+        );
+      }
+    });
+
+    await act(async () => {
+      showCloudsSwitch?.dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      );
+    });
+
+    await act(async () => {
+      saveButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    expect(onSave).toHaveBeenCalledWith({
+      audio: DEFAULT_AUDIO_SETTINGS,
+      gameplay: DEFAULT_GAMEPLAY_SETTINGS,
+      graphics: {
+        ...DEFAULT_GRAPHICS_SETTINGS,
+        preset: 'custom',
+        cloudTransparency: 65,
+        showClouds: false,
+      },
+      interface: DEFAULT_INTERFACE_SETTINGS,
+    });
+  });
+
   it('marks renderer initialization graphics toggles as reload-required', async () => {
     await act(async () => {
       root.render(
