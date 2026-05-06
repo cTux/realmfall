@@ -57,10 +57,12 @@ export function ItemSlotButton({
   onEmptyMouseEnter,
   onMouseLeave,
 }: ItemSlotButtonProps) {
+  const bridgeItem = item as Parameters<typeof itemTint>[0];
   const tint =
-    tintOverride ?? (item ? itemTint(item) : 'rgba(148, 163, 184, 0.32)');
+    tintOverride ??
+    (bridgeItem ? itemTint(bridgeItem) : 'rgba(148, 163, 184, 0.32)');
   const borderColor =
-    borderColorOverride ?? (item ? itemBorderColor(item) : tint);
+    borderColorOverride ?? (bridgeItem ? itemBorderColor(bridgeItem) : tint);
   const insetShadow = getInsetShadow(borderColor);
   const isInteractive = Boolean(
     !disabled &&
@@ -110,8 +112,12 @@ export function ItemSlotButton({
       {showIcon ? (
         <span
           className={styles.icon}
-          style={iconMaskStyle(iconForItem(item, slot), tint)}
-          aria-label={item && !ariaLabel ? formatItemLabel(item) : undefined}
+          style={iconMaskStyle(iconForItem(bridgeItem, slot), tint)}
+          aria-label={
+            item && !ariaLabel
+              ? formatItemLabel(item as Parameters<typeof formatItemLabel>[0])
+              : undefined
+          }
         />
       ) : null}
       {resolvedBadgeLabel ? (

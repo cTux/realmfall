@@ -15,10 +15,12 @@ This spec covers the reusable UI component library in `packages/ui`, its Storybo
 - Legacy client-local copies of shared controls such as `ActionBar`, `Tooltip`, `ContextMenu`, and `ItemSlot` have been removed; client coverage now asserts the shared exports directly instead of comparing parallel implementations.
 - `packages/client` receives the library through a workspace dependency (`@realmfall/ui`) added in
   `packages/client/package.json`.
-- `packages/ui` can bridge to existing client-owned i18n, gameplay, and Storybook fixture helpers through narrow local re-export modules under `packages/ui/src` while the reusable component implementations stay consolidated in the shared package.
-- Shared gameplay-aware controls inside `packages/ui` own narrow structural view contracts under `packages/ui/src/game` for item-centric display and interaction state instead of importing broad client gameplay state types directly.
+- `packages/ui` can bridge to existing client-owned i18n and Storybook fixture helpers through narrow local modules under `packages/ui/src` while the reusable component implementations stay consolidated in the shared package.
+- Shared gameplay-aware controls inside `packages/ui` own narrow structural view contracts and helper logic under `packages/ui/src/game` for item-centric display and interaction state instead of importing broad client gameplay state types directly.
+- `packages/ui/src/game` is a UI-owned contract layer. Its content ids, tags, and item classification helpers do not re-export `packages/client/src/game/content/*`, and `packages/ui/src/game/boundary.test.ts` enforces that boundary.
 - Shared controls that only need gameplay-derived scalar values, such as corruption break chance text, receive those values from the client caller through props instead of importing client gameplay config into the shared package.
 - Shared display-only chrome such as `WindowLabel` and `WindowDock` now render from structural props owned in `packages/ui` instead of importing client window registries or client-only label types just to render text.
+- Shared `packages/ui` stories that only need representative gameplay-shaped items use local fixture objects or existing Storybook fixtures instead of routing through `packages/ui/src/game` into client gameplay builders.
 - Shared buttons and button-like controls use one Slate Lift surface system, with the canonical palette and shared state selectors defined in `packages/client/src/styles/_ui.scss` and forwarded to the shared package through `packages/ui/src/styles/_ui.scss`.
 - The Slate Lift resting fills stay lighter than the shared window title bar background, while selected and opened states reuse a brighter active fill so toggled controls read as elevated from the surrounding shell chrome.
 - The shared `Button` primitive exposes the neutral and destructive surface choice through a `tone` prop, while preserving the shared compact-size path used by title-bar controls.
@@ -42,6 +44,7 @@ This spec covers the reusable UI component library in `packages/ui`, its Storybo
 - `packages/ui/.storybook/main.ts`
 - `packages/ui/.storybook/preview.ts`
 - `packages/ui/src/index.ts`
+- `packages/ui/src/game/*`
 - `packages/ui/src/components/LoadingSpinner/*`
 - `packages/ui/src/components/ActionBar/*`
 - `packages/ui/src/components/Button/*`

@@ -1,4 +1,4 @@
-import { getItemCategory } from './content/items';
+import { isConsumableItem } from './content/items';
 import type { ItemView } from './stateTypes';
 
 export const ACTION_BAR_SLOT_COUNT = 9;
@@ -19,7 +19,7 @@ export function createDefaultActionBarSlots<
 export function getConsumablesFromInventory<TItem extends ItemView>(
   inventory: TItem[],
 ) {
-  return inventory.filter((item) => getItemCategory(item) === 'consumable');
+  return inventory.filter(isConsumableItem);
 }
 
 export function findActionBarItem<TItem extends ItemView>(

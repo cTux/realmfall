@@ -1,20 +1,34 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { getItemCategory } from '../../game/content/items';
-import {
-  createStorybookFixtures,
-  noop,
-  storySurfaceDecorator,
-} from '../storybook/storybookHelpers';
+import { GameTag } from '../../game/content/tags';
+import type { ItemView } from '../../game/stateTypes';
+import { noop, storySurfaceDecorator } from '../storybook/storybookHelpers';
 import { ItemContextMenu } from './ItemContextMenu';
 
-const fixtures = createStorybookFixtures();
+const equippableItem = createStoryItem({
+  id: 'storybook-scout-hood',
+  itemKey: 'scout-hood',
+  name: 'Scout Hood',
+  slot: 'head',
+  rarity: 'uncommon',
+  defense: 4,
+  tags: [GameTag.ItemArmor, GameTag.ItemEquipment],
+});
+
+const consumableItem = createStoryItem({
+  id: 'storybook-trail-ration',
+  itemKey: 'trail-ration',
+  name: 'Trail Ration',
+  quantity: 3,
+  hunger: 12,
+  tags: [GameTag.ItemConsumable, GameTag.ItemFood, GameTag.ItemStackable],
+});
 
 const meta = {
   title: 'Components/ContextMenu',
   component: ItemContextMenu,
   decorators: [storySurfaceDecorator],
   args: {
-    item: fixtures.inventory[0],
+    item: equippableItem,
     x: 120,
     y: 80,
     canEquip: true,
@@ -34,10 +48,7 @@ export const Equippable: Story = {};
 
 export const Consumable: Story = {
   args: {
-    item:
-      fixtures.inventory.find(
-        (item) => getItemCategory(item) === 'consumable',
-      ) ?? fixtures.inventory[0],
+    item: consumableItem,
     canEquip: false,
     canUse: true,
   },
@@ -94,3 +105,20 @@ export const TownAction: Story = {
     onSell: noop,
   },
 };
+
+function createStoryItem(overrides: Partial<ItemView>): ItemView {
+  return {
+    id: 'storybook-item',
+    name: 'Storybook Item',
+    quantity: 1,
+    tier: 1,
+    rarity: 'common',
+    power: 0,
+    defense: 0,
+    maxHp: 0,
+    healing: 0,
+    hunger: 0,
+    thirst: 0,
+    ...overrides,
+  };
+}
