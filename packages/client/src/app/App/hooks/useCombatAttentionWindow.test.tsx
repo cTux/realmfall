@@ -59,6 +59,7 @@ function Harness({
   useHexInfoWindowPromotion({
     combat,
     currentLootAvailable: false,
+    playerCoord,
     currentStructure: undefined,
     suppressAutoOpen: false,
     setWindowShown,

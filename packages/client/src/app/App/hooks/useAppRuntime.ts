@@ -160,6 +160,7 @@ export function useAppRuntime() {
   useHexInfoWindowPromotion({
     combat: bootstrap.game.combat,
     currentLootAvailable: gameView.currentTile.items.length > 0,
+    playerCoord: bootstrap.game.player.coord,
     currentStructure: gameView.currentTile.structure,
     suppressAutoOpen: pixiWorld.queuedTravelAutoOpenSuppressed,
     setWindowShown: controllerMutators.setWindowShown,

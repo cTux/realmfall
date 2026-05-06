@@ -122,6 +122,7 @@ describe('App hydration and interactions', () => {
       );
     });
     await flushLazyModules();
+    expect(findHexContentDockButton(host)?.dataset.opened).toBe('false');
     expect(host.textContent).not.toContain(
       renderWindowHotkeyLabelText(WINDOW_LABELS.hero),
     );
@@ -434,3 +435,9 @@ describe('App hydration and interactions', () => {
     host.remove();
   });
 });
+
+function findHexContentDockButton(host: HTMLElement) {
+  return Array.from(host.querySelectorAll('button')).find((button) =>
+    button.getAttribute('aria-label')?.startsWith('Toggle Hex Content window'),
+  ) as HTMLButtonElement | undefined;
+}

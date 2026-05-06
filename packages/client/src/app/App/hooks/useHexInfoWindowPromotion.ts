@@ -12,6 +12,7 @@ import type { WindowVisibilityState } from '../../constants';
 interface UseHexInfoWindowPromotionArgs {
   combat: GameState['combat'];
   currentLootAvailable: boolean;
+  playerCoord: GameState['player']['coord'];
   currentStructure?: Tile['structure'];
   suppressAutoOpen: boolean;
   setWindowShown: Dispatch<SetStateAction<WindowVisibilityState>>;
@@ -21,6 +22,7 @@ interface UseHexInfoWindowPromotionArgs {
 export function useHexInfoWindowPromotion({
   combat,
   currentLootAvailable,
+  playerCoord,
   currentStructure,
   suppressAutoOpen,
   setWindowShown,
@@ -28,68 +30,73 @@ export function useHexInfoWindowPromotion({
 }: UseHexInfoWindowPromotionArgs) {
   const previousCombatRef = useRef(combat);
   const previousHexInfoShownRef = useRef(windowShown.hexInfo);
-  const previousAutoOpenReasonRef = useRef(
-    hasAutoHexInfoReason({
-      combat,
-      currentLootAvailable,
-      currentStructure,
-      windowShownCombat: windowShown.combat,
-      windowShownLoot: windowShown.loot,
-    }),
-  );
-  const manualHexInfoPinnedRef = useRef(
-    windowShown.hexInfo && !previousAutoOpenReasonRef.current,
-  );
+  const manualHexInfoOverrideRef = useRef<{
+    contextKey: string;
+    visible: boolean;
+  } | null>(null);
+  const syncedHexInfoVisibilityRef = useRef<boolean | null>(null);
 
   useLayoutEffect(() => {
     const hadCombat = previousCombatRef.current != null;
-    const previousHexInfoShown = previousHexInfoShownRef.current;
-    const previousAutoOpenReason = previousAutoOpenReasonRef.current;
-    const autoOpenReason = hasAutoHexInfoReason({
+    const contextKey = createHexInfoContextKey({
       combat,
       currentLootAvailable,
       currentStructure,
-      windowShownCombat: windowShown.combat,
-      windowShownLoot: windowShown.loot,
+      playerCoord,
     });
+    const previousHexInfoShown = previousHexInfoShownRef.current;
+    const visibilityChanged = previousHexInfoShown !== windowShown.hexInfo;
 
-    if (windowShown.hexInfo) {
-      if (
-        !autoOpenReason &&
-        (!previousAutoOpenReason ||
-          previousHexInfoShown !== windowShown.hexInfo)
-      ) {
-        manualHexInfoPinnedRef.current = true;
+    if (manualHexInfoOverrideRef.current?.contextKey !== contextKey) {
+      manualHexInfoOverrideRef.current = null;
+    }
+
+    if (visibilityChanged) {
+      if (syncedHexInfoVisibilityRef.current === windowShown.hexInfo) {
+        syncedHexInfoVisibilityRef.current = null;
+      } else {
+        manualHexInfoOverrideRef.current = {
+          contextKey,
+          visible: windowShown.hexInfo,
+        };
       }
-    } else if (previousHexInfoShown !== windowShown.hexInfo) {
-      manualHexInfoPinnedRef.current = false;
     }
 
     if (suppressAutoOpen) {
       previousCombatRef.current = combat;
       previousHexInfoShownRef.current = windowShown.hexInfo;
-      previousAutoOpenReasonRef.current = autoOpenReason;
       return;
     }
 
     setWindowShown((current) => {
+      const currentContextKey = createHexInfoContextKey({
+        combat,
+        currentLootAvailable,
+        currentStructure,
+        playerCoord,
+      });
+      const manualOverrideVisible =
+        manualHexInfoOverrideRef.current?.contextKey === currentContextKey
+          ? manualHexInfoOverrideRef.current.visible
+          : null;
       const shouldPreserveOpenAfterCombat =
         combat == null && hadCombat && current.combat;
       const shouldShowHexInfo =
-        manualHexInfoPinnedRef.current ||
-        shouldPreserveOpenAfterCombat ||
-        hasAutoHexInfoReason({
-          combat,
-          currentLootAvailable,
-          currentStructure,
-          windowShownCombat: current.combat,
-          windowShownLoot: current.loot,
-        });
+        manualOverrideVisible ??
+        (shouldPreserveOpenAfterCombat ||
+          hasAutoHexInfoReason({
+            combat,
+            currentLootAvailable,
+            currentStructure,
+            windowShownCombat: current.combat,
+            windowShownLoot: current.loot,
+          }));
 
       if (current.hexInfo === shouldShowHexInfo && !current.loot) {
         return current;
       }
 
+      syncedHexInfoVisibilityRef.current = shouldShowHexInfo;
       return {
         ...current,
         hexInfo: shouldShowHexInfo,
@@ -100,17 +107,37 @@ export function useHexInfoWindowPromotion({
 
     previousCombatRef.current = combat;
     previousHexInfoShownRef.current = windowShown.hexInfo;
-    previousAutoOpenReasonRef.current = autoOpenReason;
   }, [
     combat,
     currentLootAvailable,
     currentStructure,
+    playerCoord,
     suppressAutoOpen,
     setWindowShown,
     windowShown.combat,
     windowShown.hexInfo,
     windowShown.loot,
   ]);
+}
+
+function createHexInfoContextKey({
+  combat,
+  currentLootAvailable,
+  currentStructure,
+  playerCoord,
+}: {
+  combat: GameState['combat'];
+  currentLootAvailable: boolean;
+  currentStructure?: Tile['structure'];
+  playerCoord: GameState['player']['coord'];
+}) {
+  return [
+    playerCoord.q,
+    playerCoord.r,
+    currentStructure ?? 'none',
+    currentLootAvailable ? 'loot' : 'no-loot',
+    combat ? 'combat' : 'no-combat',
+  ].join('|');
 }
 
 function hasAutoHexInfoReason({

@@ -19,6 +19,7 @@ describe('useHexInfoWindowPromotion', () => {
 
     await renderHarness(root, {
       currentLootAvailable: false,
+      playerCoord: { q: 0, r: 0 },
       currentStructure: undefined,
     });
     expect(host.firstElementChild?.getAttribute('data-opened')).toBe('false');
@@ -30,9 +31,74 @@ describe('useHexInfoWindowPromotion', () => {
 
     await renderHarness(root, {
       currentLootAvailable: false,
+      playerCoord: { q: 0, r: 0 },
       currentStructure: undefined,
     });
     expect(host.firstElementChild?.getAttribute('data-opened')).toBe('true');
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('allows closing hex content after a manual toggle on an empty hex', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+
+    await renderHarness(root, {
+      currentLootAvailable: false,
+      playerCoord: { q: 0, r: 0 },
+      currentStructure: undefined,
+    });
+
+    await act(async () => {
+      (host.querySelector('button') as HTMLButtonElement | null)?.click();
+    });
+    expect(host.firstElementChild?.getAttribute('data-opened')).toBe('true');
+
+    await act(async () => {
+      (host.querySelector('button') as HTMLButtonElement | null)?.click();
+    });
+    expect(host.firstElementChild?.getAttribute('data-opened')).toBe('false');
+
+    await renderHarness(root, {
+      currentLootAvailable: false,
+      playerCoord: { q: 0, r: 0 },
+      currentStructure: undefined,
+    });
+    expect(host.firstElementChild?.getAttribute('data-opened')).toBe('false');
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('allows closing hex content while a structure auto-open reason remains active', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+
+    await renderHarness(root, {
+      currentLootAvailable: false,
+      playerCoord: { q: 0, r: 0 },
+      currentStructure: 'forge',
+    });
+    expect(host.firstElementChild?.getAttribute('data-opened')).toBe('true');
+
+    await act(async () => {
+      (host.querySelector('button') as HTMLButtonElement | null)?.click();
+    });
+    expect(host.firstElementChild?.getAttribute('data-opened')).toBe('false');
+
+    await renderHarness(root, {
+      currentLootAvailable: false,
+      playerCoord: { q: 0, r: 0 },
+      currentStructure: 'forge',
+    });
+    expect(host.firstElementChild?.getAttribute('data-opened')).toBe('false');
 
     await act(async () => {
       root.unmount();
@@ -47,12 +113,14 @@ describe('useHexInfoWindowPromotion', () => {
 
     await renderHarness(root, {
       currentLootAvailable: false,
+      playerCoord: { q: 0, r: 0 },
       currentStructure: 'forge',
     });
     expect(host.firstElementChild?.getAttribute('data-opened')).toBe('true');
 
     await renderHarness(root, {
       currentLootAvailable: false,
+      playerCoord: { q: 1, r: 0 },
       currentStructure: undefined,
     });
     expect(host.firstElementChild?.getAttribute('data-opened')).toBe('false');
@@ -66,9 +134,11 @@ describe('useHexInfoWindowPromotion', () => {
 
 function Harness({
   currentLootAvailable,
+  playerCoord,
   currentStructure,
 }: {
   currentLootAvailable: boolean;
+  playerCoord: { q: number; r: number };
   currentStructure: Tile['structure'];
 }) {
   const [windowShown, setWindowShown] = useState(() =>
@@ -78,6 +148,7 @@ function Harness({
   useHexInfoWindowPromotion({
     combat: null,
     currentLootAvailable,
+    playerCoord,
     currentStructure,
     suppressAutoOpen: false,
     setWindowShown,
