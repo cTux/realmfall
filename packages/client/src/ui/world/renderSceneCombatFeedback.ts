@@ -3,6 +3,7 @@ import { getAppliedInterfaceFontStack } from '../../app/interfaceFonts';
 import { hexKey } from '../../game/hex';
 import type { WorldFloatingTextEvent } from '../../game/types';
 import type { GameState, HexCoord } from '../../game/stateTypes';
+import { WORLD_COMBAT_LUNGE_DURATION_MS } from '../../game/worldCombatPresentation';
 import { isWorldBossEnemyId } from '../../game/worldBoss';
 import { ENTITY_BADGE_RADIUS_SCALE } from './renderSceneEntityBadge';
 import { tileToPoint } from './renderSceneMath';
@@ -16,7 +17,6 @@ import type { SceneCache } from './renderSceneCache';
 import { ENEMY_GROUP_BADGE_OFFSET } from './renderSceneShared';
 
 const WORLD_FLOATING_TEXT_LIFETIME_MS = 1_200;
-const PLAYER_LUNGE_DURATION_MS = 180;
 const PLAYER_LUNGE_DISTANCE_RATIO = 0.16;
 const PLAYER_LUNGE_MIN_PX = 8;
 const FLOATING_TEXT_RISE_PX = 18;
@@ -54,13 +54,13 @@ export function getCombatFeedbackRenderToken({
   let token = 2166136261;
   let hasFeedback = false;
 
-  const lunge = getCombatLungeDescriptor(state, worldTimeMs);
+  const lunge = getCombatLungeDescriptor(state);
   if (lunge) {
     hasFeedback = true;
     token = mixToken(token, coordToken(lunge.stagingCoord));
     token = mixToken(token, coordToken(lunge.targetCoord));
     token = mixToken(token, lunge.startedAtMs ?? 0);
-    if (lunge.animating) {
+    if (lunge.phase === 'animating') {
       token = mixToken(
         token,
         Math.floor(
@@ -101,7 +101,7 @@ export function getCombatLungeOffset({
   state: GameState;
   worldTimeMs: number;
 }) {
-  const descriptor = getCombatLungeDescriptor(state, worldTimeMs);
+  const descriptor = getCombatLungeDescriptor(state);
   if (!descriptor) {
     return { x: 0, y: 0 };
   }
@@ -326,11 +326,11 @@ function getFloatingTextScale(kind: WorldFloatingTextEvent['kind']) {
       : NORMAL_TEXT_SCALE;
 }
 
-function getCombatLungeDescriptor(state: GameState, worldTimeMs: number) {
+function getCombatLungeDescriptor(state: GameState) {
   const targetCoord = state.combat?.engagement?.targetCoord;
   const stagingCoord = state.combat?.engagement?.stagingCoord;
   if (
-    !state.combat?.started ||
+    !state.combat ||
     !targetCoord ||
     !stagingCoord ||
     sameCoord(targetCoord, stagingCoord)
@@ -338,15 +338,12 @@ function getCombatLungeDescriptor(state: GameState, worldTimeMs: number) {
     return null;
   }
 
-  if (
-    state.combat.startedAtMs != null &&
-    worldTimeMs >= state.combat.startedAtMs + PLAYER_LUNGE_DURATION_MS
-  ) {
+  if (state.combat.startedAtMs == null) {
     return null;
   }
 
   return {
-    animating: state.combat.startedAtMs != null,
+    phase: state.combat.started ? 'held' : 'animating',
     startedAtMs: state.combat.startedAtMs,
     stagingCoord,
     targetCoord,
@@ -357,7 +354,7 @@ function getCombatLungeProgress(
   descriptor: NonNullable<ReturnType<typeof getCombatLungeDescriptor>>,
   worldTimeMs: number,
 ) {
-  if (descriptor.startedAtMs == null) {
+  if (descriptor.phase === 'held') {
     return 1;
   }
 
@@ -365,10 +362,10 @@ function getCombatLungeProgress(
     0,
     Math.min(
       1,
-      (worldTimeMs - descriptor.startedAtMs) / PLAYER_LUNGE_DURATION_MS,
+      (worldTimeMs - descriptor.startedAtMs) / WORLD_COMBAT_LUNGE_DURATION_MS,
     ),
   );
-  return Math.sin(rawProgress * Math.PI);
+  return Math.sin((rawProgress * Math.PI) / 2);
 }
 
 function createHostileMarkerAnchorSet(

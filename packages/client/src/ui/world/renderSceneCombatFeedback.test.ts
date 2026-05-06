@@ -379,7 +379,7 @@ describe('renderScene combat feedback', () => {
     expect(Math.abs(bossText!.position.y - genericEnemyY)).toBeGreaterThan(12);
   });
 
-  it('visually lunges the player wrapper toward the hostile target without changing gameplay coordinates', async () => {
+  it('animates the player wrapper into the hostile target during the pre-combat lunge without changing gameplay coordinates', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-player-lunge');
     const baselineApp = createMockApp();
@@ -411,7 +411,7 @@ describe('renderScene combat feedback', () => {
     game.combat = {
       coord: { q: 0, r: 0 },
       enemyIds: ['enemy-1,0-0'],
-      started: true,
+      started: false,
       startedAtMs: 0,
       engagement: {
         autoStepOnVictory: false,
@@ -494,7 +494,7 @@ describe('renderScene combat feedback', () => {
     expect(game.player.coord).toEqual({ q: 0, r: 0 });
   });
 
-  it('returns the player wrapper to baseline after the opening lunge window elapses', async () => {
+  it('keeps the player wrapper lunged after the intro window while combat remains active', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createLungeCombatGame('render-scene-player-lunge-relax');
     const baselineApp = createMockApp();
@@ -543,11 +543,74 @@ describe('renderScene combat feedback', () => {
 
     expect(baselineWrapper).toBeDefined();
     expect(settledWrapper).toBeDefined();
-    expect(settledWrapper!.position.x).toBeCloseTo(
+    expect(settledWrapper!.position.x).toBeGreaterThan(
+      baselineWrapper!.position.x,
+    );
+    expect(settledWrapper!.position.y).toBeCloseTo(
+      baselineWrapper!.position.y,
+      4,
+    );
+  });
+
+  it('does not offset the player wrapper before the pre-combat lunge starts', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createLungeCombatGame('render-scene-player-lunge-pending');
+    const baselineApp = createMockApp();
+    const pendingApp = createMockApp();
+
+    renderScene(
+      baselineApp as never,
+      {
+        ...game,
+        combat: null,
+      },
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        worldTimeMs: 0,
+      } as never,
+    );
+
+    renderScene(
+      pendingApp as never,
+      {
+        ...game,
+        combat: {
+          ...game.combat!,
+          started: false,
+          startedAtMs: undefined,
+        },
+        worldTimeMs: 0,
+      },
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        worldTimeMs: 0,
+      } as never,
+    );
+
+    const baselineWrapper = getPlayerLayer(baselineApp).children[2] as
+      | MockContainer
+      | undefined;
+    const pendingWrapper = getPlayerLayer(pendingApp).children[2] as
+      | MockContainer
+      | undefined;
+
+    expect(baselineWrapper).toBeDefined();
+    expect(pendingWrapper).toBeDefined();
+    expect(pendingWrapper!.position.x).toBeCloseTo(
       baselineWrapper!.position.x,
       4,
     );
-    expect(settledWrapper!.position.y).toBeCloseTo(
+    expect(pendingWrapper!.position.y).toBeCloseTo(
       baselineWrapper!.position.y,
       4,
     );

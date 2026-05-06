@@ -91,7 +91,8 @@ describe('dungeon enemy world movement', () => {
     expect(secondStep.enemies[enemyId]?.coord).toEqual(ENTRANCE_COORD);
     expect(secondStep.combat?.coord).toEqual(ENTRANCE_COORD);
     expect(secondStep.combat?.enemyIds).toEqual([enemyId]);
-    expect(secondStep.combat?.started).toBe(true);
+    expect(secondStep.combat?.started).toBe(false);
+    expect(secondStep.combat?.startedAtMs).toBeUndefined();
     expect(secondStep.combat?.engagement).toMatchObject({
       autoStepOnVictory: true,
       engageMode: 'enemy-chase',

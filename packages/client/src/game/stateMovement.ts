@@ -6,7 +6,10 @@ import { hexDistance, type HexCoord } from './hex';
 import { addLog } from './logs';
 import { createRng } from './random';
 import { isPassable } from './shared';
-import { createStartedCombatEncounter } from './stateCombatEngagement';
+import {
+  createPendingCombatEncounter,
+  createStartedCombatEncounter,
+} from './stateCombatEngagement';
 import { cloneForWorldMutation, message } from './stateMutationHelpers';
 import { getSafePathToTile } from './statePathfinding';
 import { applySurvivalDecay, respawnAtNearestTown } from './stateSurvival';
@@ -53,7 +56,7 @@ export function moveToTile(
       : [];
   if (adjacentHostileEngagement.length > 0) {
     const adjacentTargetCoord = options.engageTargetCoord!;
-    const combat = createStartedCombatEncounter(next, {
+    const combat = createPendingCombatEncounter(next, {
       autoStepOnVictory: true,
       engageMode: 'adjacent-click',
       enemyIds: adjacentHostileEngagement,
@@ -109,7 +112,7 @@ export function moveToTile(
       ? []
       : getHostileEnemyIds(next, stagedHostileTarget);
   if (stagedHostileTarget !== null && stagedHostileEnemyIds.length > 0) {
-    const combat = createStartedCombatEncounter(next, {
+    const combat = createPendingCombatEncounter(next, {
       autoStepOnVictory: true,
       engageMode: 'staged-click',
       enemyIds: stagedHostileEnemyIds,

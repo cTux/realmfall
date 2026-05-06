@@ -12,7 +12,9 @@ import type { Application } from 'pixi.js';
 import type { TooltipPosition } from '@realmfall/ui';
 import { WORLD_MOVE_HEX_COOLDOWN_MS } from '../../game/config';
 import { hexKey, hexesInRange } from '../../game/hex';
+import { startCombat } from '../../game/stateCombat';
 import type { GameState, HexCoord } from '../../game/stateTypes';
+import { WORLD_COMBAT_LUNGE_DURATION_MS } from '../../game/worldCombatPresentation';
 import { type VisibleWorldTile } from '../../ui/world/visibleWorldTiles';
 import type { WorldMapCameraState } from '../../ui/world/worldMapCamera';
 import {
@@ -169,6 +171,7 @@ export function usePixiWorld({
   const movementCooldownEndAtRef = useRef<number | null>(null);
   const movementTransitionRef = useRef<WorldMovementTransition | null>(null);
   const movementControllerRef = useRef<WorldMovementController | null>(null);
+  const combatIntroTimerRef = useRef<number | null>(null);
   const [canvasReady, setCanvasReady] = useState(false);
   const [canvasError, setCanvasError] = useState(false);
   const [
@@ -455,6 +458,94 @@ export function usePixiWorld({
   }, [game.radius, game.tiles, playerCoord]);
 
   useEffect(() => {
+    if (combatIntroTimerRef.current !== null) {
+      window.clearTimeout(combatIntroTimerRef.current);
+      combatIntroTimerRef.current = null;
+    }
+
+    if (paused || !game.combat || game.combat.started) {
+      return;
+    }
+
+    const pendingCombat = game.combat;
+    if (pendingCombat.startedAtMs == null) {
+      const remainingApproachMs = getPendingCombatApproachDelayMs({
+        combat: pendingCombat,
+        movementTransition: movementTransitionRef.current,
+        nowMs: performance.now(),
+        playerCoord,
+      });
+      if (remainingApproachMs > 0) {
+        combatIntroTimerRef.current = window.setTimeout(() => {
+          setGame((current) =>
+            stampPendingCombatIntro({
+              current,
+              gameRef,
+              worldTimeMs: worldTimeMsRef.current,
+            }),
+          );
+        }, remainingApproachMs);
+        return;
+      }
+
+      if (hasPendingCombatLunge(pendingCombat)) {
+        setGame((current) =>
+          stampPendingCombatIntro({
+            current,
+            gameRef,
+            worldTimeMs: worldTimeMsRef.current,
+          }),
+        );
+        return;
+      }
+
+      setGame((current) =>
+        autoStartPendingCombat({
+          current,
+          gameRef,
+          worldTimeMs: worldTimeMsRef.current,
+        }),
+      );
+      return;
+    }
+
+    const remainingIntroMs = hasPendingCombatLunge(pendingCombat)
+      ? Math.max(
+          0,
+          WORLD_COMBAT_LUNGE_DURATION_MS -
+            Math.max(0, worldTimeMsRef.current - pendingCombat.startedAtMs),
+        )
+      : 0;
+    if (remainingIntroMs === 0) {
+      setGame((current) =>
+        autoStartPendingCombat({
+          current,
+          gameRef,
+          worldTimeMs: worldTimeMsRef.current,
+        }),
+      );
+      return;
+    }
+
+    combatIntroTimerRef.current = window.setTimeout(() => {
+      setGame((current) =>
+        autoStartPendingCombat({
+          current,
+          gameRef,
+          worldTimeMs: worldTimeMsRef.current,
+        }),
+      );
+    }, remainingIntroMs);
+
+    return () => {
+      if (combatIntroTimerRef.current !== null) {
+        window.clearTimeout(combatIntroTimerRef.current);
+        combatIntroTimerRef.current = null;
+      }
+    };
+  }, [game.combat, gameRef, paused, playerCoord, setGame, worldTimeMsRef]);
+
+  useEffect(() => {
     if (!enabled) {
       return;
     }
@@ -719,4 +810,89 @@ function syncTileResolutionCoordinator(
     resolvedTiles: game.tiles,
     seed: game.seed,
   });
+}
+
+function getPendingCombatApproachDelayMs({
+  combat,
+  movementTransition,
+  nowMs,
+  playerCoord,
+}: {
+  combat: NonNullable<GameState['combat']>;
+  movementTransition: WorldMovementTransition | null;
+  nowMs: number;
+  playerCoord: HexCoord;
+}) {
+  if (!hasPendingCombatLunge(combat)) {
+    return 0;
+  }
+
+  if (
+    !movementTransition ||
+    !sameCoord(movementTransition.toCoord, playerCoord)
+  ) {
+    return 0;
+  }
+
+  return Math.max(
+    0,
+    movementTransition.startedAtMs + movementTransition.durationMs - nowMs,
+  );
+}
+
+function hasPendingCombatLunge(combat: NonNullable<GameState['combat']>) {
+  const targetCoord = combat.engagement?.targetCoord;
+  const stagingCoord = combat.engagement?.stagingCoord;
+  return Boolean(
+    targetCoord && stagingCoord && !sameCoord(targetCoord, stagingCoord),
+  );
+}
+
+function stampPendingCombatIntro({
+  current,
+  gameRef,
+  worldTimeMs,
+}: {
+  current: GameState;
+  gameRef: MutableRefObject<GameState>;
+  worldTimeMs: number;
+}) {
+  if (
+    !current.combat ||
+    current.combat.started ||
+    current.combat.startedAtMs != null
+  ) {
+    return current;
+  }
+
+  const next = {
+    ...current,
+    combat: {
+      ...current.combat,
+      startedAtMs: worldTimeMs,
+    },
+  };
+  gameRef.current = next;
+  return next;
+}
+
+function autoStartPendingCombat({
+  current,
+  gameRef,
+  worldTimeMs,
+}: {
+  current: GameState;
+  gameRef: MutableRefObject<GameState>;
+  worldTimeMs: number;
+}) {
+  if (!current.combat || current.combat.started) {
+    return current;
+  }
+
+  const next = startCombat({
+    ...current,
+    worldTimeMs,
+  });
+  gameRef.current = next;
+  return next;
 }

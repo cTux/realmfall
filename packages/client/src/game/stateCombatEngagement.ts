@@ -18,6 +18,46 @@ export function createStartedCombatEncounter(
     worldTimeMs: number;
   },
 ): GameState['combat'] {
+  return createCombatEncounter(state, {
+    started: true,
+    enemyIds,
+    worldTimeMs,
+    ...engagement,
+  });
+}
+
+export function createPendingCombatEncounter(
+  state: GameState,
+  {
+    enemyIds,
+    worldTimeMs,
+    ...engagement
+  }: CombatEngagementMetadata & {
+    enemyIds: string[];
+    worldTimeMs: number;
+  },
+): GameState['combat'] {
+  return createCombatEncounter(state, {
+    started: false,
+    enemyIds,
+    worldTimeMs,
+    ...engagement,
+  });
+}
+
+function createCombatEncounter(
+  state: GameState,
+  {
+    enemyIds,
+    started,
+    worldTimeMs,
+    ...engagement
+  }: CombatEngagementMetadata & {
+    enemyIds: string[];
+    started: boolean;
+    worldTimeMs: number;
+  },
+) {
   if (enemyIds.length === 0) {
     return null;
   }
@@ -27,8 +67,8 @@ export function createStartedCombatEncounter(
   return {
     coord: { ...engagement.stagingCoord },
     enemyIds: [...enemyIds],
-    started: true,
-    startedAtMs: worldTimeMs,
+    started,
+    ...(started ? { startedAtMs: worldTimeMs } : {}),
     engagement: getCombatEngagementOrDefault({
       coord: engagement.stagingCoord,
       engagement,

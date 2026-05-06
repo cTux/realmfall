@@ -1,0 +1,1 @@
+export const WORLD_COMBAT_LUNGE_DURATION_MS = 180;

@@ -6,7 +6,7 @@ import {
 import { getActiveWorld } from './dungeons/worldState';
 import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
 import { createRng } from './random';
-import { createStartedCombatEncounter } from './stateCombatEngagement';
+import { createPendingCombatEncounter } from './stateCombatEngagement';
 import { getHostileEnemyIds } from './stateWorldQueries';
 import { isPassable } from './shared';
 import type { Enemy, GameState } from './types';
@@ -271,7 +271,7 @@ function startDungeonEnemyCombat(
     return;
   }
 
-  state.combat = createStartedCombatEncounter(state, {
+  state.combat = createPendingCombatEncounter(state, {
     autoStepOnVictory: true,
     engageMode: 'enemy-chase',
     enemyIds: hostileEnemyIds,

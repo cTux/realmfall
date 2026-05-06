@@ -5,11 +5,12 @@ import { startCombat } from './stateCombat';
 import { syncCombatEncounterEnemies } from './stateCombatEncounterSync';
 import {
   applyCombatVictoryAutoStep,
+  createPendingCombatEncounter,
   createStartedCombatEncounter,
 } from './stateCombatEngagement';
 
 describe('stateCombatEngagement', () => {
-  it('creates an already-started adjacent-click encounter without moving the player first', () => {
+  it('creates a pending adjacent-click encounter without moving the player first', () => {
     const game = createGame(3, 'adjacent-click-engagement');
     const targetCoord = { q: 1, r: 0 };
     const enemyId = 'enemy-1,0-0';
@@ -35,7 +36,7 @@ describe('stateCombatEngagement', () => {
       elite: false,
     };
 
-    const combat = createStartedCombatEncounter(game, {
+    const combat = createPendingCombatEncounter(game, {
       autoStepOnVictory: true,
       engageMode: 'adjacent-click',
       enemyIds: [enemyId],
@@ -45,7 +46,8 @@ describe('stateCombatEngagement', () => {
       worldTimeMs: game.worldTimeMs,
     });
 
-    expect(combat?.started).toBe(true);
+    expect(combat?.started).toBe(false);
+    expect(combat?.startedAtMs).toBeUndefined();
     expect(combat?.coord).toEqual({ q: 0, r: 0 });
     expect(combat?.engagement).toMatchObject({
       autoStepOnVictory: true,

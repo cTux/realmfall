@@ -60,7 +60,7 @@ export function startCombat(state: GameState): GameState {
 
   const next = cloneForWorldMutation(state);
   next.combat!.started = true;
-  next.combat!.startedAtMs = next.worldTimeMs;
+  next.combat!.startedAtMs ??= next.worldTimeMs;
   next.combat!.engagement ??= createDefaultCombatEngagement(next.combat!.coord);
   addLog(
     next,
