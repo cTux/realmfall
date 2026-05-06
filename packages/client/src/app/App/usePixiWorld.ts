@@ -20,6 +20,7 @@ import { type VisibleWorldTile } from '../../ui/world/visibleWorldTiles';
 import type { WorldMapCameraState } from '../../ui/world/worldMapCamera';
 import { getWorldCombatLungeOffset } from '../../ui/world/worldCombatLunge';
 import {
+  normalizeCloudTransparency,
   normalizeWorldRenderFps,
   type GraphicsSettings,
 } from '../graphicsSettings';
@@ -120,7 +121,12 @@ export function usePixiWorld({
   setGame,
   setTooltip,
 }: UsePixiWorldArgs) {
-  const { showTerrainBackgrounds, worldRenderFps } = graphicsSettings;
+  const {
+    cloudTransparency,
+    showClouds,
+    showTerrainBackgrounds,
+    worldRenderFps,
+  } = graphicsSettings;
   const playerCoordQ = game.player.coord.q;
   const playerCoordR = game.player.coord.r;
   const playerCoord = useMemo(
@@ -165,6 +171,10 @@ export function usePixiWorld({
   const hoverAnalysisVersionRef = useRef(0);
   const hoverSnapshotRef = useRef<WorldHoverSnapshot>(undefined!);
   const previousGameRef = useRef(game);
+  const showCloudsRef = useRef(showClouds);
+  const cloudTransparencyRef = useRef(
+    normalizeCloudTransparency(cloudTransparency),
+  );
   const showTerrainBackgroundsRef = useRef(showTerrainBackgrounds);
   const showTooltipTagsRef = useRef(showTooltipTags);
   const worldRenderFpsRef = useRef(normalizeWorldRenderFps(worldRenderFps));
@@ -265,6 +275,17 @@ export function usePixiWorld({
     pausedAnimationMsRef.current = paused ? performance.now() : null;
     renderInvalidationRef.current += 1;
   }, [paused]);
+
+  useEffect(() => {
+    showCloudsRef.current = showClouds;
+    renderInvalidationRef.current += 1;
+  }, [showClouds]);
+
+  useEffect(() => {
+    cloudTransparencyRef.current =
+      normalizeCloudTransparency(cloudTransparency);
+    renderInvalidationRef.current += 1;
+  }, [cloudTransparency]);
 
   useEffect(() => {
     showTerrainBackgroundsRef.current = showTerrainBackgrounds;
@@ -737,6 +758,8 @@ export function usePixiWorld({
             selectedRef,
             movementController,
             setTooltip,
+            showCloudsRef,
+            cloudTransparencyRef,
             showTooltipTagsRef,
             showTerrainBackgroundsRef,
             worldRenderFpsRef,

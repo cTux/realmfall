@@ -14,6 +14,8 @@ export interface WorldRenderSnapshot {
   movementCooldownEndAtMs: number | null;
   movementCooldownRenderToken: number;
   movementTransitionRenderToken: number;
+  showClouds: boolean;
+  cloudTransparency: number;
   showTerrainBackgrounds: boolean;
   worldRenderFps: number;
 }
@@ -32,6 +34,8 @@ export function createInitialWorldRenderSnapshot(): WorldRenderSnapshot {
     movementCooldownEndAtMs: null,
     movementCooldownRenderToken: -1,
     movementTransitionRenderToken: -1,
+    showClouds: true,
+    cloudTransparency: 0,
     showTerrainBackgrounds: true,
     worldRenderFps: 0,
   };

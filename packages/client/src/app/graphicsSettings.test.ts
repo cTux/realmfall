@@ -80,12 +80,14 @@ describe('graphics settings persistence', () => {
       worldRenderFps: 12,
       antialias: false,
       autoDensity: false,
+      cloudTransparency: 'misty' as unknown as number,
       clearBeforeRender: 'later' as unknown as boolean,
       preserveDrawingBuffer: true,
       premultipliedAlpha: false,
+      showClouds: 'yes' as unknown as boolean,
       showTerrainBackgrounds: false,
       useContextAlpha: false,
-    });
+    } as Parameters<typeof saveGraphicsSettings>[0]);
 
     expect(
       JSON.parse(
@@ -98,11 +100,32 @@ describe('graphics settings persistence', () => {
       worldRenderFps: MIN_WORLD_RENDER_FPS,
       antialias: false,
       autoDensity: false,
+      cloudTransparency: 0,
       clearBeforeRender: DEFAULT_GRAPHICS_SETTINGS.clearBeforeRender,
       preserveDrawingBuffer: true,
       premultipliedAlpha: false,
+      showClouds: true,
       showTerrainBackgrounds: false,
       useContextAlpha: false,
+    });
+  });
+
+  it('clamps persisted cloud transparency into the supported graphics range', () => {
+    window.localStorage.setItem(
+      PERSISTED_SETTINGS_STORAGE_KEYS.graphics,
+      JSON.stringify({
+        ...applyGraphicsPreset('balanced'),
+        preset: 'custom',
+        cloudTransparency: 999,
+        showClouds: false,
+      }),
+    );
+
+    expect(loadGraphicsSettings()).toEqual({
+      ...applyGraphicsPreset('balanced'),
+      preset: 'custom',
+      cloudTransparency: 100,
+      showClouds: false,
     });
   });
 

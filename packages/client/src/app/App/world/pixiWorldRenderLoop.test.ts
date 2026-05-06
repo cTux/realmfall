@@ -182,6 +182,60 @@ describe('pixiWorldRenderLoop', () => {
     performanceNowSpy.mockRestore();
   });
 
+  it('re-renders when live cloud settings change', () => {
+    const performanceNowSpy = vi.spyOn(performance, 'now').mockReturnValue(0);
+    const renderScene = vi.fn();
+    const game = { player: { coord: { q: 0, r: 0 } } };
+    const visibleTiles = [{ coord: { q: 0, r: 0 }, terrain: 'plains' }];
+    const selected = { q: 0, r: 0 };
+    const showCloudsRef = { current: true };
+    const cloudTransparencyRef = { current: 0 };
+    const renderFrame = createWorldRenderFrame({
+      app: {} as never,
+      renderScene,
+      gameRef: { current: game } as never,
+      visibleTilesRef: { current: visibleTiles } as never,
+      selectedRef: { current: selected } as never,
+      hoveredMoveRef: { current: null },
+      hoveredSafePathRef: { current: null },
+      showTerrainBackgroundsRef: { current: true },
+      showCloudsRef,
+      cloudTransparencyRef,
+      worldRenderFpsRef: { current: DEFAULT_WORLD_RENDER_FPS },
+      pausedRef: { current: false },
+      pausedAnimationMsRef: { current: null },
+      worldTimeMsRef: { current: 0 },
+      renderInvalidationRef: { current: 0 },
+      lastRenderSnapshotRef: { current: createInitialWorldRenderSnapshot() },
+    } as never);
+
+    renderFrame();
+    renderFrame();
+
+    expect(renderScene).toHaveBeenCalledTimes(1);
+
+    showCloudsRef.current = false;
+    renderFrame();
+
+    expect(renderScene).toHaveBeenCalledTimes(2);
+    expect(renderScene.mock.calls[1]?.[8]).toMatchObject({
+      cloudTransparency: 0,
+      showClouds: false,
+    });
+
+    showCloudsRef.current = true;
+    cloudTransparencyRef.current = 55;
+    renderFrame();
+
+    expect(renderScene).toHaveBeenCalledTimes(3);
+    expect(renderScene.mock.calls[2]?.[8]).toMatchObject({
+      cloudTransparency: 55,
+      showClouds: true,
+    });
+
+    performanceNowSpy.mockRestore();
+  });
+
   it('uses the selected render FPS for animation buckets', () => {
     let now = 0;
     const performanceNowSpy = vi

@@ -86,9 +86,21 @@ export function renderCloudLayer(
   cloudInputs: CloudRenderInput[],
   shadowOffset: { x: number; y: number },
   parallaxOffset = { x: 0, y: 0 },
+  showClouds = true,
+  cloudTransparency = 0,
 ) {
+  const surfaceCloudVisibility =
+    1 - normalizeCloudTransparency(cloudTransparency);
+
   for (let cloudIndex = 0; cloudIndex < cloudInputs.length; cloudIndex += 1) {
     const cloudInput = cloudInputs[cloudIndex]!;
+    if (
+      cloudInput.kind === 'cloud' &&
+      (!showClouds || surfaceCloudVisibility <= 0)
+    ) {
+      continue;
+    }
+
     const scale = cloudInput.scale;
     const width = (cloudInput.kind === 'bat' ? 54 : 92) * scale;
     const height = (cloudInput.kind === 'bat' ? 54 : 92) * scale;
@@ -114,11 +126,15 @@ export function renderCloudLayer(
         yTravel,
       ) - yPadding;
     const icon = cloudInput.icon;
-    const shadowOpacity = cloudInput.shadowOpacity;
-    const cloudOpacity = Math.max(
-      cloudInput.kind === 'bat' ? 0.28 : 0.24,
-      cloudInput.cloudOpacity + lighting.cloudAlphaBoost,
-    );
+    const shadowOpacity =
+      cloudInput.kind === 'bat'
+        ? cloudInput.shadowOpacity
+        : cloudInput.shadowOpacity * surfaceCloudVisibility;
+    const cloudOpacity =
+      Math.max(
+        cloudInput.kind === 'bat' ? 0.28 : 0.24,
+        cloudInput.cloudOpacity + lighting.cloudAlphaBoost,
+      ) * (cloudInput.kind === 'bat' ? 1 : surfaceCloudVisibility);
 
     if (cloudInput.kind === 'bat') {
       const bat = takeSprite(cloudPool, icon);
@@ -199,6 +215,10 @@ export function renderCloudLayer(
 
 function wrapCloudAxis(value: number, span: number) {
   return ((value % span) + span) % span;
+}
+
+function normalizeCloudTransparency(value: number) {
+  return Math.min(1, Math.max(0, value / 100));
 }
 
 export function renderEdgeWaterfall(

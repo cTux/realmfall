@@ -44,7 +44,9 @@ import {
 import type { VisibleWorldTile } from './visibleWorldTiles';
 
 interface RenderSceneOptions {
+  cloudTransparency?: number;
   showTerrainBackgrounds?: boolean;
+  showClouds?: boolean;
   queuedPath?: HexCoord[] | null;
   worldRenderFps?: number;
   worldTimeMs?: number;
@@ -108,6 +110,10 @@ export function renderScene(
   const worldBossIconSize = hexSize * 3.4;
   const playerIconSize = hexSize * 0.95;
   const terrainArtSize = hexSize * 2;
+  const showClouds = options.showClouds ?? true;
+  const cloudTransparency = normalizeRenderCloudTransparency(
+    options.cloudTransparency,
+  );
   const showTerrainBackgrounds = options.showTerrainBackgrounds ?? true;
   const worldRenderFrameMs = getWorldRenderFrameMs(
     options.worldRenderFps ?? DEFAULT_WORLD_RENDER_FPS,
@@ -185,6 +191,8 @@ export function renderScene(
       worldRenderFrameMs,
       worldTimeMs: renderWorldTimeMs,
     }),
+    showClouds ? 'clouds:on' : 'clouds:off',
+    `cloudTransparency:${cloudTransparency}`,
   ].join(':');
   const displayVisibleTiles = movementTransition
     ? (movementTransition.displayTiles ?? [
@@ -349,6 +357,7 @@ export function renderScene(
       animationMs,
       animatedRenderToken,
       app,
+      cloudTransparency,
       cloudInputs,
       fullscreenVisualEffects,
       hexSize,
@@ -363,6 +372,7 @@ export function renderScene(
       playerCoord: state.player.coord,
       state,
       movementTransitionRevealState,
+      showClouds,
       visibleTileRenderInputs: renderTokens.visibleTileRenderInputs,
       worldKind: currentWorldKind,
       worldTimeMs: renderWorldTimeMs,
@@ -488,6 +498,16 @@ function getWorldHexSizeOffset({
 
 function mixRenderToken(token: number, value: number) {
   return Math.imul(token ^ value, 16777619) >>> 0;
+}
+
+function normalizeRenderCloudTransparency(value: number | undefined) {
+  const numericValue = typeof value === 'number' ? value : Number.NaN;
+
+  if (!Number.isFinite(numericValue)) {
+    return 0;
+  }
+
+  return Math.min(100, Math.max(0, Math.round(numericValue)));
 }
 
 function getPlayerResourceRenderToken({

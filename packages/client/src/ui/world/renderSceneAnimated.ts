@@ -28,6 +28,7 @@ interface RenderAnimatedSceneOptions {
   scene: SceneCache;
   animationMs: number;
   animatedRenderToken: string;
+  cloudTransparency: number;
   cloudInputs: ReturnType<
     typeof import('./renderSceneEnvironment').buildCloudRenderInputs
   >;
@@ -51,6 +52,7 @@ interface RenderAnimatedSceneOptions {
   playerIconSize: number;
   playerTransitionOffset: { x: number; y: number };
   state: GameState;
+  showClouds: boolean;
   visibleTileRenderInputs: VisibleTileRenderInput[];
   worldKind: WorldKind;
   worldTimeMs: number;
@@ -61,6 +63,7 @@ export function renderAnimatedScene({
   scene,
   animationMs,
   animatedRenderToken,
+  cloudTransparency,
   cloudInputs,
   fullscreenVisualEffects,
   hexSize,
@@ -74,6 +77,7 @@ export function renderAnimatedScene({
   playerIconSize,
   playerTransitionOffset,
   state,
+  showClouds,
   visibleTileRenderInputs,
   worldKind,
   worldTimeMs,
@@ -157,6 +161,8 @@ export function renderAnimatedScene({
     cloudInputs,
     lightingState.shadowOffset,
     cloudParallaxOffset,
+    showClouds,
+    cloudTransparency,
   );
   renderWorldOverlay(
     app,

@@ -3,10 +3,13 @@ import {
   applyGraphicsPreset,
   GRAPHICS_PRESET_OPTIONS,
   GRAPHICS_SETTINGS_OPTIONS,
+  MAX_CLOUD_TRANSPARENCY,
   MAX_WORLD_RENDER_FPS,
+  MIN_CLOUD_TRANSPARENCY,
   MIN_WORLD_RENDER_FPS,
   WORLD_RENDER_FPS_STEP,
   getWorldRenderFpsPerformanceImpact,
+  normalizeCloudTransparency,
   normalizeWorldRenderFps,
   type GraphicsPerformanceImpact,
 } from '../../../app/graphicsSettings';
@@ -113,6 +116,44 @@ export function GameSettingsGraphicsPanel({
             onChange((current) => ({
               ...current,
               worldRenderFps,
+            }));
+          }}
+        />
+      </label>
+      <label className={styles.rangeField}>
+        <span className={styles.rangeHeader}>
+          <span className={styles.rangeLabel}>
+            {t('ui.settings.graphics.cloudTransparency.label')}
+          </span>
+          <span className={styles.rangeValue}>
+            {t('ui.settings.graphics.cloudTransparency.value', {
+              percent: graphicsSettings.cloudTransparency,
+            })}
+          </span>
+        </span>
+        <span className={styles.rangeDescription}>
+          <GraphicsSettingMeta
+            description={t(
+              'ui.settings.graphics.cloudTransparency.description',
+            )}
+            performanceImpact="low"
+            performanceImpactLabel={performanceImpactLabel}
+          />
+        </span>
+        <input
+          type="range"
+          min={MIN_CLOUD_TRANSPARENCY}
+          max={MAX_CLOUD_TRANSPARENCY}
+          step={1}
+          value={graphicsSettings.cloudTransparency}
+          onChange={(event) => {
+            const cloudTransparency = normalizeCloudTransparency(
+              Number(event.currentTarget.value),
+            );
+
+            onChange((current) => ({
+              ...current,
+              cloudTransparency,
             }));
           }}
         />
