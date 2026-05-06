@@ -10,11 +10,17 @@ import {
 } from 'react';
 import type { Application } from 'pixi.js';
 import type { TooltipPosition } from '@realmfall/ui';
+import { WORLD_MOVE_HEX_COOLDOWN_MS } from '../../game/config';
 import { hexKey, hexesInRange } from '../../game/hex';
+import { startCombat } from '../../game/stateCombat';
 import type { GameState, HexCoord } from '../../game/stateTypes';
+import { WORLD_COMBAT_LUNGE_DURATION_MS } from '../../game/worldCombatPresentation';
+import { getWorldHexSize } from '../../ui/world/renderSceneMath';
 import { type VisibleWorldTile } from '../../ui/world/visibleWorldTiles';
 import type { WorldMapCameraState } from '../../ui/world/worldMapCamera';
+import { getWorldCombatLungeOffset } from '../../ui/world/worldCombatLunge';
 import {
+  normalizeCloudTransparency,
   normalizeWorldRenderFps,
   type GraphicsSettings,
 } from '../graphicsSettings';
@@ -92,8 +98,14 @@ interface WorldMovementController {
   clear(): void;
   dispose(): void;
   getQueuedPath(): HexCoord[] | null;
+  queueHostileApproach(
+    nextSteps: HexCoord[],
+    engageTargetCoord: HexCoord,
+  ): void;
   releaseCombatAutoOpenSuppression(): void;
   replaceQueuedPath(nextSteps: HexCoord[]): void;
+  seedCooldownUntil(endAtMs: number): void;
+  startHostileEngagement(targetCoord: HexCoord): void;
 }
 
 export function usePixiWorld({
@@ -109,7 +121,12 @@ export function usePixiWorld({
   setGame,
   setTooltip,
 }: UsePixiWorldArgs) {
-  const { showTerrainBackgrounds, worldRenderFps } = graphicsSettings;
+  const {
+    cloudTransparency,
+    showClouds,
+    showTerrainBackgrounds,
+    worldRenderFps,
+  } = graphicsSettings;
   const playerCoordQ = game.player.coord.q;
   const playerCoordR = game.player.coord.r;
   const playerCoord = useMemo(
@@ -153,6 +170,11 @@ export function usePixiWorld({
     useRef<WorldHoverAnalysisController | null>(null);
   const hoverAnalysisVersionRef = useRef(0);
   const hoverSnapshotRef = useRef<WorldHoverSnapshot>(undefined!);
+  const previousGameRef = useRef(game);
+  const showCloudsRef = useRef(showClouds);
+  const cloudTransparencyRef = useRef(
+    normalizeCloudTransparency(cloudTransparency),
+  );
   const showTerrainBackgroundsRef = useRef(showTerrainBackgrounds);
   const showTooltipTagsRef = useRef(showTooltipTags);
   const worldRenderFpsRef = useRef(normalizeWorldRenderFps(worldRenderFps));
@@ -160,7 +182,13 @@ export function usePixiWorld({
   const renderInvalidationRef = useRef(0);
   const movementCooldownEndAtRef = useRef<number | null>(null);
   const movementTransitionRef = useRef<WorldMovementTransition | null>(null);
+  const pendingVictoryTransitionOffsetRef = useRef<{
+    fromCoord: HexCoord;
+    offset: { x: number; y: number };
+    toCoord: HexCoord;
+  } | null>(null);
   const movementControllerRef = useRef<WorldMovementController | null>(null);
+  const combatIntroTimerRef = useRef<number | null>(null);
   const [canvasReady, setCanvasReady] = useState(false);
   const [canvasError, setCanvasError] = useState(false);
   const [
@@ -207,10 +235,57 @@ export function usePixiWorld({
   }, [game, gameRef]);
 
   useEffect(() => {
+    const previousGame = previousGameRef.current;
+    const previousEngagement = previousGame.combat?.engagement;
+    if (
+      previousGame !== game &&
+      previousEngagement?.autoStepOnVictory &&
+      previousEngagement.targetCoord !== null &&
+      game.combat === null &&
+      sameCoord(game.player.coord, previousEngagement.targetCoord) &&
+      !sameCoord(previousGame.player.coord, previousEngagement.targetCoord)
+    ) {
+      const carriedOffset = getPostCombatTransitionOffset({
+        app: appRef.current,
+        previousGame,
+      });
+      pendingVictoryTransitionOffsetRef.current = carriedOffset
+        ? {
+            fromCoord: previousGame.player.coord,
+            offset: carriedOffset,
+            toCoord: previousEngagement.targetCoord,
+          }
+        : null;
+
+      const cooldownEndAtMs = performance.now() + WORLD_MOVE_HEX_COOLDOWN_MS;
+      const movementController = movementControllerRef.current;
+      if (movementController) {
+        movementController.seedCooldownUntil(cooldownEndAtMs);
+      } else {
+        movementCooldownEndAtRef.current = cooldownEndAtMs;
+        renderInvalidationRef.current += 1;
+      }
+    }
+
+    previousGameRef.current = game;
+  }, [game]);
+
+  useEffect(() => {
     pausedRef.current = paused;
     pausedAnimationMsRef.current = paused ? performance.now() : null;
     renderInvalidationRef.current += 1;
   }, [paused]);
+
+  useEffect(() => {
+    showCloudsRef.current = showClouds;
+    renderInvalidationRef.current += 1;
+  }, [showClouds]);
+
+  useEffect(() => {
+    cloudTransparencyRef.current =
+      normalizeCloudTransparency(cloudTransparency);
+    renderInvalidationRef.current += 1;
+  }, [cloudTransparency]);
 
   useEffect(() => {
     showTerrainBackgroundsRef.current = showTerrainBackgrounds;
@@ -401,10 +476,21 @@ export function usePixiWorld({
       return;
     }
 
+    const pendingVictoryTransitionOffset =
+      pendingVictoryTransitionOffsetRef.current;
+    const playerOffsetAtStart =
+      pendingVictoryTransitionOffset &&
+      sameCoord(pendingVictoryTransitionOffset.fromCoord, previousPlayerCoord) &&
+      sameCoord(pendingVictoryTransitionOffset.toCoord, playerCoord)
+        ? pendingVictoryTransitionOffset.offset
+        : undefined;
+    pendingVictoryTransitionOffsetRef.current = null;
+
     const nextTransition = createWorldMovementTransition({
       durationMs: WORLD_MOVE_VISUAL_DURATION_MS,
       fromCoord: previousPlayerCoord,
       nextVisibleTiles,
+      playerOffsetAtStart,
       previousVisibleTiles,
       startedAtMs: performance.now(),
       toCoord: playerCoord,
@@ -421,6 +507,94 @@ export function usePixiWorld({
       renderInvalidationRef.current += 1;
     }
   }, [game.radius, game.tiles, playerCoord]);
+
+  useEffect(() => {
+    if (combatIntroTimerRef.current !== null) {
+      window.clearTimeout(combatIntroTimerRef.current);
+      combatIntroTimerRef.current = null;
+    }
+
+    if (paused || !game.combat || game.combat.started) {
+      return;
+    }
+
+    const pendingCombat = game.combat;
+    if (pendingCombat.startedAtMs == null) {
+      const remainingApproachMs = getPendingCombatApproachDelayMs({
+        combat: pendingCombat,
+        movementTransition: movementTransitionRef.current,
+        nowMs: performance.now(),
+        playerCoord,
+      });
+      if (remainingApproachMs > 0) {
+        combatIntroTimerRef.current = window.setTimeout(() => {
+          setGame((current) =>
+            stampPendingCombatIntro({
+              current,
+              gameRef,
+              worldTimeMs: worldTimeMsRef.current,
+            }),
+          );
+        }, remainingApproachMs);
+        return;
+      }
+
+      if (hasPendingCombatLunge(pendingCombat)) {
+        setGame((current) =>
+          stampPendingCombatIntro({
+            current,
+            gameRef,
+            worldTimeMs: worldTimeMsRef.current,
+          }),
+        );
+        return;
+      }
+
+      setGame((current) =>
+        autoStartPendingCombat({
+          current,
+          gameRef,
+          worldTimeMs: worldTimeMsRef.current,
+        }),
+      );
+      return;
+    }
+
+    const remainingIntroMs = hasPendingCombatLunge(pendingCombat)
+      ? Math.max(
+          0,
+          WORLD_COMBAT_LUNGE_DURATION_MS -
+            Math.max(0, worldTimeMsRef.current - pendingCombat.startedAtMs),
+        )
+      : 0;
+    if (remainingIntroMs === 0) {
+      setGame((current) =>
+        autoStartPendingCombat({
+          current,
+          gameRef,
+          worldTimeMs: worldTimeMsRef.current,
+        }),
+      );
+      return;
+    }
+
+    combatIntroTimerRef.current = window.setTimeout(() => {
+      setGame((current) =>
+        autoStartPendingCombat({
+          current,
+          gameRef,
+          worldTimeMs: worldTimeMsRef.current,
+        }),
+      );
+    }, remainingIntroMs);
+
+    return () => {
+      if (combatIntroTimerRef.current !== null) {
+        window.clearTimeout(combatIntroTimerRef.current);
+        combatIntroTimerRef.current = null;
+      }
+    };
+  }, [game.combat, gameRef, paused, playerCoord, setGame, worldTimeMsRef]);
 
   useEffect(() => {
     if (!enabled) {
@@ -584,6 +758,8 @@ export function usePixiWorld({
             selectedRef,
             movementController,
             setTooltip,
+            showCloudsRef,
+            cloudTransparencyRef,
             showTooltipTagsRef,
             showTerrainBackgroundsRef,
             worldRenderFpsRef,
@@ -687,4 +863,121 @@ function syncTileResolutionCoordinator(
     resolvedTiles: game.tiles,
     seed: game.seed,
   });
+}
+
+function getPendingCombatApproachDelayMs({
+  combat,
+  movementTransition,
+  nowMs,
+  playerCoord,
+}: {
+  combat: NonNullable<GameState['combat']>;
+  movementTransition: WorldMovementTransition | null;
+  nowMs: number;
+  playerCoord: HexCoord;
+}) {
+  if (!hasPendingCombatLunge(combat)) {
+    return 0;
+  }
+
+  if (
+    !movementTransition ||
+    !sameCoord(movementTransition.toCoord, playerCoord)
+  ) {
+    return 0;
+  }
+
+  return Math.max(
+    0,
+    movementTransition.startedAtMs + movementTransition.durationMs - nowMs,
+  );
+}
+
+function hasPendingCombatLunge(combat: NonNullable<GameState['combat']>) {
+  const targetCoord = combat.engagement?.targetCoord;
+  const stagingCoord = combat.engagement?.stagingCoord;
+  return Boolean(
+    targetCoord && stagingCoord && !sameCoord(targetCoord, stagingCoord),
+  );
+}
+
+function stampPendingCombatIntro({
+  current,
+  gameRef,
+  worldTimeMs,
+}: {
+  current: GameState;
+  gameRef: MutableRefObject<GameState>;
+  worldTimeMs: number;
+}) {
+  if (
+    !current.combat ||
+    current.combat.started ||
+    current.combat.startedAtMs != null
+  ) {
+    return current;
+  }
+
+  const next = {
+    ...current,
+    combat: {
+      ...current.combat,
+      startedAtMs: worldTimeMs,
+    },
+  };
+  gameRef.current = next;
+  return next;
+}
+
+function autoStartPendingCombat({
+  current,
+  gameRef,
+  worldTimeMs,
+}: {
+  current: GameState;
+  gameRef: MutableRefObject<GameState>;
+  worldTimeMs: number;
+}) {
+  if (!current.combat || current.combat.started) {
+    return current;
+  }
+
+  const next = startCombat({
+    ...current,
+    worldTimeMs,
+  });
+  gameRef.current = next;
+  return next;
+}
+
+function getPostCombatTransitionOffset({
+  app,
+  previousGame,
+}: {
+  app: Application | null;
+  previousGame: GameState;
+}) {
+  const combat = previousGame.combat;
+  const engagement = combat?.engagement;
+  if (
+    !app ||
+    combat === null ||
+    combat.startedAtMs == null ||
+    !engagement?.stagingCoord ||
+    !engagement.targetCoord
+  ) {
+    return null;
+  }
+
+  const hexSize = getWorldHexSize(app.screen, previousGame.radius);
+  const offset = getWorldCombatLungeOffset({
+    hexSize,
+    phase: combat.started ? 'held' : 'animating',
+    stagingCoord: engagement.stagingCoord,
+    startedAtMs: combat.startedAtMs,
+    targetCoord: engagement.targetCoord,
+    worldTimeMs: previousGame.worldTimeMs,
+  });
+
+  return Math.hypot(offset.x, offset.y) > 0 ? offset : null;
 }

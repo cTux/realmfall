@@ -288,6 +288,28 @@ export interface CombatEnemyEncounterState {
   treasureGoblin?: CombatTreasureGoblinEncounterState;
 }
 
+export interface CombatEngagementMetadata {
+  engageMode: 'adjacent-click' | 'staged-click' | 'enemy-chase' | 'tile-step';
+  originCoord: HexCoord;
+  stagingCoord: HexCoord;
+  targetCoord: HexCoord | null;
+  autoStepOnVictory: boolean;
+}
+
+export type WorldFloatingTextAnchor =
+  | { kind: 'player'; coord: HexCoord }
+  | { kind: 'enemy'; enemyId: string; coord: HexCoord };
+
+export type WorldFloatingTextKind = 'damage' | 'critical-damage' | 'healing';
+
+export interface WorldFloatingTextEvent {
+  id: string;
+  anchor: WorldFloatingTextAnchor;
+  amount: number;
+  createdAtMs: number;
+  kind: WorldFloatingTextKind;
+}
+
 export interface Tile {
   coord: HexCoord;
   terrain: Terrain;
@@ -347,6 +369,7 @@ export interface CombatState {
   enemyIds: string[];
   started: boolean;
   startedAtMs?: number;
+  engagement?: CombatEngagementMetadata;
   player: CombatActorState;
   enemies: Record<string, CombatActorState>;
   enemyStateById: Record<string, CombatEnemyEncounterState>;
@@ -450,6 +473,7 @@ export interface GameState {
   playerLevelUpVisualEndsAt?: number;
   logSequence: number;
   logs: LogEntry[];
+  worldFloatingTextEvents: WorldFloatingTextEvent[];
   tiles: Record<string, Tile>;
   enemies: Record<string, Enemy>;
   player: Player;

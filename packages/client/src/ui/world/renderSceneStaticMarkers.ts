@@ -26,9 +26,11 @@ import {
 import { ENEMY_GROUP_LABEL_STYLE, type SceneCache } from './renderSceneCache';
 import {
   ENEMY_GROUP_BADGE_OFFSET,
+  getStructureBadgeBackgroundColor,
   getStructureHexIconTint,
   registerAnimatedWorldMarker,
 } from './renderSceneShared';
+import { getDungeonEnemyAnimatedMovementTransition } from './renderSceneDungeonEnemyTransitions';
 import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
 import {
   getVisibleWorldTileRevealProgress,
@@ -43,6 +45,7 @@ const WORLD_BOSS_ICON_SCALE = 0.92 * 0.8 * 0.8 * 1.1 * 1.1 * 1.05 * 1.05;
 export function renderStaticMarkers({
   animationMs,
   enemyIconSize,
+  hexSize,
   markerIdentityKeyBase,
   point,
   scene,
@@ -57,6 +60,7 @@ export function renderStaticMarkers({
 }: {
   animationMs: number;
   enemyIconSize: number;
+  hexSize: number;
   markerIdentityKeyBase: string | null;
   point: { x: number; y: number };
   scene: SceneCache;
@@ -113,20 +117,11 @@ export function renderStaticMarkers({
       },
     );
     const tint = getStructureHexIconTint(tile.structure);
-    const structureBadgeIconSize =
-      structureIconSize * STRUCTURE_BADGE_ICON_SCALE;
-    configureEntityBadgeSprite(marker, {
+    const structureBadgeIconSize = configureResourceStyleBadgeSprite(marker, {
       alpha: resolvedMarkerAlpha,
-      backgroundAlpha: ENTITY_BADGE_STRUCTURE_BACKGROUND_ALPHA,
-      backgroundColor: ENTITY_BADGE_BACKGROUND_COLORS.default,
-      borderWidth: ENTITY_BADGE_STRUCTURE_BORDER_WIDTH,
-      iconSize: structureBadgeIconSize,
+      backgroundColor: getStructureBadgeBackgroundColor(tile.structure),
+      iconSize: structureIconSize,
       iconTint: tint,
-      outerRadius:
-        structureIconSize *
-        0.76 *
-        ENTITY_BADGE_RADIUS_SCALE *
-        STRUCTURE_BADGE_RADIUS_SCALE,
       point,
       shadowOffset,
     });
@@ -199,9 +194,9 @@ export function renderStaticMarkers({
         scene.worldStaticMarkerSprites,
         enemyIconFor(leadEnemy),
         {
-          stableKey: getMarkerIdentityKey(
-            isBossCenter ? 'world-boss' : 'enemy',
-          ),
+          stableKey: isBossCenter
+            ? getMarkerIdentityKey('world-boss')
+            : `enemy:${leadEnemy.id}`,
         },
       );
       const tint = enemyIconTintFor(highestRarityEnemy);
@@ -246,6 +241,17 @@ export function renderStaticMarkers({
         tint,
         isBossCenter ? 'worldBoss' : 'enemy',
         resolvedMarkerAlpha,
+        isBossCenter
+          ? undefined
+          : {
+              animationKey: leadEnemy.id,
+              enemyId: leadEnemy.id,
+              movementTransition: getDungeonEnemyAnimatedMovementTransition({
+                enemy: leadEnemy,
+                hexSize,
+                scene,
+              }),
+            },
       );
     }
   }
@@ -267,28 +273,65 @@ export function renderStaticMarkers({
         stableKey: getMarkerIdentityKey('forgotten-loot'),
       },
     );
-    configureShadowedSprite(
-      marker,
-      0xfde68a,
-      enemyIconSize,
-      enemyIconSize,
-      resolvedMarkerAlpha,
-      shadowOffset,
+    const forgottenLootIconSize = configureResourceStyleBadgeSprite(marker, {
+      alpha: resolvedMarkerAlpha,
+      backgroundColor: ENTITY_BADGE_BACKGROUND_COLORS.default,
+      iconSize: structureIconSize,
+      iconTint: 0xfde68a,
       point,
-    );
+      shadowOffset,
+    });
     registerAnimatedWorldMarker(
       scene,
       state.seed,
       tile.coord,
       marker,
       point,
-      enemyIconSize,
-      enemyIconSize,
+      forgottenLootIconSize,
+      forgottenLootIconSize,
       0xfde68a,
       'forgottenLoot',
       resolvedMarkerAlpha,
     );
   }
+}
+
+function configureResourceStyleBadgeSprite(
+  entry: Parameters<typeof configureEntityBadgeSprite>[0],
+  {
+    alpha,
+    backgroundColor,
+    iconSize,
+    iconTint,
+    point,
+    shadowOffset,
+  }: {
+    alpha: number;
+    backgroundColor: number;
+    iconSize: number;
+    iconTint: number;
+    point: { x: number; y: number };
+    shadowOffset: { x: number; y: number };
+  },
+) {
+  const badgeIconSize = iconSize * STRUCTURE_BADGE_ICON_SCALE;
+  configureEntityBadgeSprite(entry, {
+    alpha,
+    backgroundAlpha: ENTITY_BADGE_STRUCTURE_BACKGROUND_ALPHA,
+    backgroundColor,
+    borderWidth: ENTITY_BADGE_STRUCTURE_BORDER_WIDTH,
+    iconSize: badgeIconSize,
+    iconTint,
+    outerRadius:
+      iconSize *
+      0.76 *
+      ENTITY_BADGE_RADIUS_SCALE *
+      STRUCTURE_BADGE_RADIUS_SCALE,
+    point,
+    shadowOffset,
+  });
+
+  return badgeIconSize;
 }
 
 function renderEnemyGroupBadge(

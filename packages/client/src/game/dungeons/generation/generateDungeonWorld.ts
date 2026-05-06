@@ -73,6 +73,7 @@ export function generateDungeonWorld({
       index,
       'dungeon',
       false,
+      { levelCoord: surfaceCoord },
     );
     enemy.dungeonSpawnCoord = { ...coord };
 
@@ -91,6 +92,7 @@ export function generateDungeonWorld({
     false,
     {
       enemyId: finalEliteEnemyId,
+      levelCoord: surfaceCoord,
       rarity: 'legendary',
     },
   );

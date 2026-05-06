@@ -64,3 +64,38 @@ export function getSafePathToTile(state: PathfindingState, target: HexCoord) {
 
   return null;
 }
+
+export function getSafePathToHostileStagingTile(
+  state: PathfindingState,
+  hostileTarget: HexCoord,
+) {
+  const candidatePaths = hexNeighbors(hostileTarget)
+    .filter((coord) => getHostileEnemyIds(state, coord).length === 0)
+    .map((coord) => ({
+      coord,
+      path: getSafePathToTile(state, coord),
+    }))
+    .filter(
+      (
+        candidate,
+      ): candidate is {
+        coord: HexCoord;
+        path: HexCoord[];
+      } => candidate.path !== null && candidate.path.length > 0,
+    )
+    .sort((left, right) => {
+      const lengthDelta = left.path.length - right.path.length;
+      if (lengthDelta !== 0) {
+        return lengthDelta;
+      }
+
+      const qDelta = left.coord.q - right.coord.q;
+      if (qDelta !== 0) {
+        return qDelta;
+      }
+
+      return left.coord.r - right.coord.r;
+    });
+
+  return candidatePaths[0]?.path ?? null;
+}

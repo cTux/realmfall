@@ -137,6 +137,7 @@ export function renderTilePasses({
       renderStaticTile({
         emphasized,
         enemyIconSize,
+        hexSize,
         animationMs,
         isHomeTile,
         markerIdentityKeyBase: tileKey,

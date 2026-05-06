@@ -2,18 +2,44 @@ import { createCombatActorState } from './combat';
 import type { HexCoord } from './hex';
 import { getPlayerCombatStats } from './progression';
 import { createCombatEnemyEncounterState } from './stateCombatTreasureGoblin';
-import type { GameState } from './types';
+import type { CombatEngagementMetadata, GameState } from './types';
+
+export function createDefaultCombatEngagement(
+  coord: HexCoord,
+): CombatEngagementMetadata {
+  return {
+    engageMode: 'tile-step',
+    originCoord: { ...coord },
+    stagingCoord: { ...coord },
+    targetCoord: { ...coord },
+    autoStepOnVictory: false,
+  };
+}
+
+export function cloneCombatEngagementMetadata(
+  engagement: CombatEngagementMetadata,
+): CombatEngagementMetadata {
+  return {
+    autoStepOnVictory: engagement.autoStepOnVictory,
+    engageMode: engagement.engageMode,
+    originCoord: { ...engagement.originCoord },
+    stagingCoord: { ...engagement.stagingCoord },
+    targetCoord: engagement.targetCoord ? { ...engagement.targetCoord } : null,
+  };
+}
 
 export function createCombatState(
   state: GameState,
   coord: HexCoord,
   enemyIds: string[],
   worldTimeMs: number,
+  engagement = createDefaultCombatEngagement(coord),
 ): GameState['combat'] {
   return {
-    coord,
+    coord: { ...coord },
     enemyIds: [...enemyIds],
     started: false,
+    engagement: cloneCombatEngagementMetadata(engagement),
     player: createCombatActorState(
       worldTimeMs,
       getPlayerCombatStats(state.player).abilityIds,

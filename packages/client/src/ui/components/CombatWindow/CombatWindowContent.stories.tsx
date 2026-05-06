@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { useEffect, useState } from 'react';
 import { getAbilityDefinition } from '../../../game/abilities';
 import { createCombatActorState } from '../../../game/combat';
 import type { CombatActorState, CombatState, Enemy } from '../../../game/types';
@@ -10,7 +9,6 @@ const WORLD_TIME_MS = 12_000;
 const WINDOW_POSITION = { x: 64, y: 48 };
 const noopHoverDetail: CombatWindowProps['onHoverDetail'] = () => undefined;
 const noopLeaveDetail: CombatWindowProps['onLeaveDetail'] = () => undefined;
-const noopStart = () => undefined;
 const noopMove = () => undefined;
 const noopClose = () => undefined;
 
@@ -30,19 +28,12 @@ const meta = {
     visible: true,
     onClose: noopClose,
     worldTimeMs: WORLD_TIME_MS,
-    onStart: noopStart,
     onHoverDetail: noopHoverDetail,
     onLeaveDetail: noopLeaveDetail,
   },
   parameters: {
     controls: {
-      exclude: [
-        'onMove',
-        'onClose',
-        'onStart',
-        'onHoverDetail',
-        'onLeaveDetail',
-      ],
+      exclude: ['onMove', 'onClose', 'onHoverDetail', 'onLeaveDetail'],
     },
   },
   render: (args) => <CombatWindowStory {...args} />,
@@ -52,16 +43,8 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const EncounterWaitingForStart: Story = {
+export const LegacyPendingEncounter: Story = {
   args: buildBattleScenario({ started: false }),
-};
-
-export const EncounterStartsFromButton: Story = {
-  args: buildBattleScenario({ started: false }),
-  play: async ({ canvasElement }) => {
-    const startButton = await waitForButton(canvasElement, 'Q Start');
-    startButton.click();
-  },
 };
 
 export const SkirmishInProgress: Story = {
@@ -139,53 +122,7 @@ export const EnemyStatTooltipPreview: Story = {
 };
 
 function CombatWindowStory(args: CombatWindowProps) {
-  const [combat, setCombat] = useState(args.combat);
-
-  useEffect(() => {
-    setCombat(args.combat);
-  }, [args.combat]);
-
-  return (
-    <CombatWindow
-      {...args}
-      combat={combat}
-      onStart={() => {
-        args.onStart();
-        setCombat((current) => ({
-          ...current,
-          started: true,
-        }));
-      }}
-    />
-  );
-}
-
-async function waitForButton(
-  canvasElement: HTMLElement,
-  label: string,
-): Promise<HTMLButtonElement> {
-  const timeoutMs = 2_000;
-  const startedAt = Date.now();
-
-  return new Promise((resolve, reject) => {
-    const check = () => {
-      const buttons = Array.from(canvasElement.querySelectorAll('button'));
-      const match = buttons.find((button): button is HTMLButtonElement =>
-        button.textContent?.includes(label),
-      );
-      if (match) {
-        resolve(match);
-        return;
-      }
-      if (Date.now() - startedAt >= timeoutMs) {
-        reject(new Error(`Timed out waiting for button: ${label}`));
-        return;
-      }
-      window.requestAnimationFrame(check);
-    };
-
-    check();
-  });
+  return <CombatWindow {...args} />;
 }
 
 function buildBattleScenario({

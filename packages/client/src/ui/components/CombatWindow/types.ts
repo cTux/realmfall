@@ -34,7 +34,6 @@ export interface CombatWindowProps
   enemies: Enemy[];
   showTooltipTags?: boolean;
   worldTimeMs?: number;
-  onStart: () => void;
   onHoverDetail: NonNullable<WindowDetailTooltipHandlers['onHoverDetail']>;
   onLeaveDetail: NonNullable<WindowDetailTooltipHandlers['onLeaveDetail']>;
   onHoverHeaderAction?: WindowDetailTooltipHandlers['onHoverDetail'];

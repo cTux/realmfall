@@ -13,6 +13,7 @@ import {
 import type { VisibleWorldTile } from '../../../ui/world/visibleWorldTiles';
 import {
   DEFAULT_WORLD_RENDER_FPS,
+  normalizeCloudTransparency,
   normalizeWorldRenderFps,
 } from '../../graphicsSettings';
 import { sameCoord } from '../usePixiWorldHover';
@@ -43,6 +44,8 @@ export function createWorldRenderFrame({
   getQueuedPath,
   hoveredMoveRef,
   hoveredSafePathRef,
+  showCloudsRef,
+  cloudTransparencyRef,
   showTerrainBackgroundsRef,
   worldRenderFpsRef,
   pausedRef,
@@ -61,6 +64,8 @@ export function createWorldRenderFrame({
   getQueuedPath?: () => HexCoord[] | null;
   hoveredMoveRef: MutableRefObject<HexCoord | null>;
   hoveredSafePathRef: MutableRefObject<HexCoord[] | null>;
+  showCloudsRef?: MutableRefObject<boolean>;
+  cloudTransparencyRef?: MutableRefObject<number>;
   showTerrainBackgroundsRef: MutableRefObject<boolean>;
   worldRenderFpsRef: MutableRefObject<number>;
   pausedRef: MutableRefObject<boolean>;
@@ -91,6 +96,10 @@ export function createWorldRenderFrame({
     const lastRenderSnapshot = lastRenderSnapshotRef.current;
     const invalidationToken = renderInvalidationRef.current;
     const iconTextureVersion = getWorldIconTextureVersion();
+    const showClouds = showCloudsRef?.current ?? true;
+    const cloudTransparency = normalizeCloudTransparency(
+      cloudTransparencyRef?.current ?? 0,
+    );
     const showTerrainBackgrounds = showTerrainBackgroundsRef.current;
     const movementCooldownEndAtMs = movementCooldownEndAtRef?.current ?? null;
     const rawMovementTransition = movementTransitionRef?.current ?? null;
@@ -117,11 +126,16 @@ export function createWorldRenderFrame({
         worldRenderFrameMs,
       },
     );
-    const movementCooldownRenderToken = getMovementCooldownRenderToken({
-      endAtMs: movementCooldownEndAtMs,
-      nowMs: wallClockMs,
-      worldRenderFrameMs,
-    });
+    const combatActive =
+      currentGame.combat?.started === true ||
+      currentGame.combat?.startedAtMs != null;
+    const movementCooldownRenderToken = combatActive
+      ? -1
+      : getMovementCooldownRenderToken({
+          endAtMs: movementCooldownEndAtMs,
+          nowMs: wallClockMs,
+          worldRenderFrameMs,
+        });
 
     if (
       !sameCoord(lastReachableWarmPlayerCoord, currentGame.player.coord) ||
@@ -158,6 +172,8 @@ export function createWorldRenderFrame({
         movementCooldownRenderToken &&
       lastRenderSnapshot.movementTransitionRenderToken ===
         movementTransitionRenderToken &&
+      lastRenderSnapshot.showClouds === showClouds &&
+      lastRenderSnapshot.cloudTransparency === cloudTransparency &&
       lastRenderSnapshot.showTerrainBackgrounds === showTerrainBackgrounds &&
       lastRenderSnapshot.worldRenderFps === worldRenderFps &&
       sameCoord(lastRenderSnapshot.selected, currentSelected) &&
@@ -181,11 +197,13 @@ export function createWorldRenderFrame({
       movementCooldownEndAtMs,
       movementCooldownRenderToken,
       movementTransitionRenderToken,
+      showClouds,
+      cloudTransparency,
       showTerrainBackgrounds,
       worldRenderFps,
     };
     const movementCooldown =
-      movementCooldownEndAtMs === null
+      combatActive || movementCooldownEndAtMs === null
         ? null
         : {
             durationMs: WORLD_MOVE_HEX_COOLDOWN_MS,
@@ -206,12 +224,16 @@ export function createWorldRenderFrame({
             movementCooldown,
             movementTransition: currentMovementTransition,
             ...(currentQueuedPath ? { queuedPath: currentQueuedPath } : {}),
+            showClouds,
+            cloudTransparency,
             showTerrainBackgrounds,
             worldTimeMs: worldTimeMsRef.current,
             worldRenderFps,
           }
         : {
             ...(currentQueuedPath ? { queuedPath: currentQueuedPath } : {}),
+            showClouds,
+            cloudTransparency,
             showTerrainBackgrounds,
             worldTimeMs: worldTimeMsRef.current,
             worldRenderFps,

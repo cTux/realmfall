@@ -24,17 +24,32 @@ const ENTITY_BADGE_BORDER_COLOR = 0x000000;
 export const ENTITY_BADGE_RADIUS_SCALE = 0.9;
 export const ENTITY_BADGE_STRUCTURE_BACKGROUND_ALPHA = 0.4;
 export const ENTITY_BADGE_STRUCTURE_BORDER_WIDTH = 1;
+export const ENTITY_BADGE_HP_ARC_ANGLES = {
+  endAngle: Math.PI * 2,
+  startAngle: Math.PI,
+} as const;
+export const ENTITY_BADGE_MP_ARC_ANGLES = {
+  endAngle: 0,
+  startAngle: Math.PI,
+} as const;
 
 export const ENTITY_BADGE_BACKGROUND_COLORS = {
   default: 0x123524,
   enemy: 0x2a0505,
-  player: 0x041821,
+  player: 0x4ade80,
+  structure: 0x082f49,
 } as const;
 
 export const ENTITY_BADGE_HP_FILL_COLOR = 0xff2d55;
 export const ENTITY_BADGE_HP_TRACK_COLOR = 0x450a0a;
 export const ENTITY_BADGE_MP_FILL_COLOR = 0x38bdf8;
 export const ENTITY_BADGE_MP_TRACK_COLOR = 0x172554;
+
+export interface EntityBadgeArcBand {
+  innerRadius: number;
+  outerRadius: number;
+  thickness: number;
+}
 
 interface EntityBadgeOptions {
   alpha: number;
@@ -156,58 +171,50 @@ export function decorateEntityBadge(
     return;
   }
 
-  const ringOuterRadius = Math.max(outerRadius - ENTITY_BADGE_ARC_INSET, 1);
-  const ringInnerRadius = Math.max(
-    1,
-    ringOuterRadius -
-      Math.max(
-        ENTITY_BADGE_MIN_ARC_THICKNESS,
-        outerRadius * ENTITY_BADGE_ARC_THICKNESS_RATIO,
-      ),
-  );
+  const resourceArcBand = getEntityBadgeArcBand(outerRadius);
 
-  drawBadgeArc(entry.badgeTrackGraphics, {
+  drawEntityBadgeArc(entry.badgeTrackGraphics, {
     alpha: alpha * ENTITY_BADGE_ARC_TRACK_ALPHA,
     color: ENTITY_BADGE_HP_TRACK_COLOR,
-    endAngle: Math.PI * 2,
-    innerRadius: ringInnerRadius,
-    outerRadius: ringOuterRadius,
+    endAngle: ENTITY_BADGE_HP_ARC_ANGLES.endAngle,
+    innerRadius: resourceArcBand.innerRadius,
+    outerRadius: resourceArcBand.outerRadius,
     progress: 1,
-    startAngle: Math.PI,
+    startAngle: ENTITY_BADGE_HP_ARC_ANGLES.startAngle,
   });
-  drawBadgeArc(entry.badgeTrackGraphics, {
+  drawEntityBadgeArc(entry.badgeTrackGraphics, {
     alpha: alpha * ENTITY_BADGE_ARC_TRACK_ALPHA,
     color: ENTITY_BADGE_MP_TRACK_COLOR,
-    endAngle: 0,
-    innerRadius: ringInnerRadius,
-    outerRadius: ringOuterRadius,
+    endAngle: ENTITY_BADGE_MP_ARC_ANGLES.endAngle,
+    innerRadius: resourceArcBand.innerRadius,
+    outerRadius: resourceArcBand.outerRadius,
     progress: 1,
-    startAngle: Math.PI,
+    startAngle: ENTITY_BADGE_MP_ARC_ANGLES.startAngle,
   });
 
   const hpProgress = getResourceProgress(hp.current, hp.max);
   if (hpProgress > 0) {
-    drawBadgeArc(entry.badgeFillGraphics, {
+    drawEntityBadgeArc(entry.badgeFillGraphics, {
       alpha: alpha * ENTITY_BADGE_ARC_ALPHA,
       color: ENTITY_BADGE_HP_FILL_COLOR,
-      endAngle: Math.PI * 2,
-      innerRadius: ringInnerRadius,
-      outerRadius: ringOuterRadius,
+      endAngle: ENTITY_BADGE_HP_ARC_ANGLES.endAngle,
+      innerRadius: resourceArcBand.innerRadius,
+      outerRadius: resourceArcBand.outerRadius,
       progress: hpProgress,
-      startAngle: Math.PI,
+      startAngle: ENTITY_BADGE_HP_ARC_ANGLES.startAngle,
     });
   }
 
   const manaProgress = getResourceProgress(mana.current, mana.max);
   if (manaProgress > 0) {
-    drawBadgeArc(entry.badgeFillGraphics, {
+    drawEntityBadgeArc(entry.badgeFillGraphics, {
       alpha: alpha * ENTITY_BADGE_ARC_ALPHA,
       color: ENTITY_BADGE_MP_FILL_COLOR,
-      endAngle: 0,
-      innerRadius: ringInnerRadius,
-      outerRadius: ringOuterRadius,
+      endAngle: ENTITY_BADGE_MP_ARC_ANGLES.endAngle,
+      innerRadius: resourceArcBand.innerRadius,
+      outerRadius: resourceArcBand.outerRadius,
       progress: manaProgress,
-      startAngle: Math.PI,
+      startAngle: ENTITY_BADGE_MP_ARC_ANGLES.startAngle,
     });
   }
 
@@ -217,7 +224,7 @@ export function decorateEntityBadge(
       label: levelLabel,
       outerRadius,
       placement: 'top',
-      ringInnerRadius,
+      ringInnerRadius: resourceArcBand.innerRadius,
     });
   }
 
@@ -227,9 +234,36 @@ export function decorateEntityBadge(
       label: countLabel,
       outerRadius,
       placement: 'bottom',
-      ringInnerRadius,
+      ringInnerRadius: resourceArcBand.innerRadius,
     });
   }
+}
+
+export function getEntityBadgeArcBand(outerRadius: number): EntityBadgeArcBand {
+  const resolvedOuterRadius = Math.max(outerRadius - ENTITY_BADGE_ARC_INSET, 1);
+  const thickness = Math.max(
+    ENTITY_BADGE_MIN_ARC_THICKNESS,
+    outerRadius * ENTITY_BADGE_ARC_THICKNESS_RATIO,
+  );
+
+  return {
+    innerRadius: Math.max(1, resolvedOuterRadius - thickness),
+    outerRadius: resolvedOuterRadius,
+    thickness,
+  };
+}
+
+export function expandEntityBadgeArcBand(
+  band: EntityBadgeArcBand,
+  gap: number,
+  thickness = band.thickness,
+): EntityBadgeArcBand {
+  const innerRadius = band.outerRadius + Math.max(0, gap);
+  return {
+    innerRadius,
+    outerRadius: innerRadius + Math.max(1, thickness),
+    thickness: Math.max(1, thickness),
+  };
 }
 
 function renderBadgePlate(
@@ -280,7 +314,7 @@ function renderBadgePlate(
   setTextPosition(text, 0, plateCenterY);
 }
 
-function drawBadgeArc(
+export function drawEntityBadgeArc(
   graphics: ShadowedSpriteEntry['badgeTrackGraphics'],
   {
     alpha,

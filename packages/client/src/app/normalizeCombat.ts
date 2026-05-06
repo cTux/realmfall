@@ -1,5 +1,7 @@
 import type { GameState } from '../game/stateTypes';
+import type { CombatEngagementMetadata } from '../game/types';
 import { TREASURE_GOBLIN_BALANCE } from '../game/config';
+import { createDefaultCombatEngagement } from '../game/stateCombatState';
 import {
   isCooldownMap,
   isFiniteNumber,
@@ -39,6 +41,9 @@ export function normalizeCombatState(value: unknown) {
     ...(isFiniteNumber(value.startedAtMs)
       ? { startedAtMs: value.startedAtMs }
       : {}),
+    engagement:
+      normalizeCombatEngagement(value.engagement) ??
+      createDefaultCombatEngagement(coord),
     player,
     enemies,
     enemyStateById: normalizeCombatEnemyEncounterStates(
@@ -133,6 +138,36 @@ function normalizeCombatCastState(value: unknown) {
   };
 }
 
+function normalizeCombatEngagement(
+  value: unknown,
+): CombatEngagementMetadata | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const originCoord = normalizeHexCoord(value.originCoord);
+  const stagingCoord = normalizeHexCoord(value.stagingCoord);
+  const targetCoord =
+    value.targetCoord === null ? null : normalizeHexCoord(value.targetCoord);
+  if (
+    !originCoord ||
+    !stagingCoord ||
+    (value.targetCoord !== null && !targetCoord) ||
+    typeof value.autoStepOnVictory !== 'boolean' ||
+    !isCombatEngageMode(value.engageMode)
+  ) {
+    return null;
+  }
+
+  return {
+    autoStepOnVictory: value.autoStepOnVictory,
+    engageMode: value.engageMode,
+    originCoord,
+    stagingCoord,
+    targetCoord,
+  };
+}
+
 function normalizeCombatEnemyEncounterStates(
   value: unknown,
   enemyIds: string[],
@@ -187,5 +222,16 @@ function isValidTreasureGoblinFleeHitsRequired(
     isValidNonNegativeInteger(value) &&
     value >= TREASURE_GOBLIN_BALANCE.fleeHitsMin &&
     value <= TREASURE_GOBLIN_BALANCE.fleeHitsMax
+  );
+}
+
+function isCombatEngageMode(
+  value: unknown,
+): value is CombatEngagementMetadata['engageMode'] {
+  return (
+    value === 'adjacent-click' ||
+    value === 'staged-click' ||
+    value === 'enemy-chase' ||
+    value === 'tile-step'
   );
 }

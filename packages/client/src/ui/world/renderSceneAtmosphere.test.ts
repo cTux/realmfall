@@ -194,6 +194,63 @@ describe('renderScene atmosphere', () => {
     expect(Math.min(...cloudAlphas)).toBeGreaterThanOrEqual(0.38);
   });
 
+  it('hides surface cloud sprites and shadows when clouds are disabled', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-cloud-toggle');
+    const app = createMockApp();
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      { showClouds: false } as Parameters<typeof renderScene>[8],
+    );
+
+    expect(getCloudLayer(app).children).toHaveLength(0);
+    expect(getCloudShadowLayer(app).children).toHaveLength(0);
+  });
+
+  it('applies cloud transparency to the rendered surface cloud opacity', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-cloud-transparency');
+    const defaultApp = createMockApp();
+    const transparentApp = createMockApp();
+
+    renderScene(
+      defaultApp as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+    renderScene(
+      transparentApp as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      { cloudTransparency: 65 } as Parameters<typeof renderScene>[8],
+    );
+
+    const defaultAlpha = (getCloudLayer(defaultApp).children[0] as MockSprite)
+      .alpha;
+    const transparentAlpha = (
+      getCloudLayer(transparentApp).children[0] as MockSprite
+    ).alpha;
+
+    expect(defaultAlpha).toBeGreaterThan(0);
+    expect(transparentAlpha).toBeCloseTo(defaultAlpha * 0.35);
+  });
+
   it('spreads clouds across varied heights', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(3, 'render-scene-ground-cover');

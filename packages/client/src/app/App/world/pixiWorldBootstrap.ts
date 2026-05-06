@@ -64,6 +64,8 @@ interface BootstrapPixiWorldCanvasArgs {
   selectedRef: MutableRefObject<HexCoord>;
   movementController: WorldMovementController;
   setTooltip: (nextTooltip: TooltipState | null) => void;
+  showCloudsRef: MutableRefObject<boolean>;
+  cloudTransparencyRef: MutableRefObject<number>;
   showTooltipTagsRef: MutableRefObject<boolean>;
   showTerrainBackgroundsRef: MutableRefObject<boolean>;
   worldRenderFpsRef: MutableRefObject<number>;
@@ -101,6 +103,8 @@ export async function bootstrapPixiWorldCanvas({
   selectedRef,
   movementController,
   setTooltip,
+  showCloudsRef,
+  cloudTransparencyRef,
   showTooltipTagsRef,
   showTerrainBackgroundsRef,
   worldRenderFpsRef,
@@ -225,6 +229,8 @@ export async function bootstrapPixiWorldCanvas({
     getQueuedPath: movementController.getQueuedPath,
     hoveredMoveRef,
     hoveredSafePathRef,
+    showCloudsRef,
+    cloudTransparencyRef,
     showTerrainBackgroundsRef,
     worldRenderFpsRef,
     pausedRef,

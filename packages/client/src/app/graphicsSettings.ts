@@ -1,6 +1,7 @@
 import {
   isStoredSettingsRecord,
   normalizeStoredBoolean,
+  normalizeStoredFiniteNumber,
 } from './settingsNormalization';
 import { createSettingsSectionStore } from './settingsSectionStore';
 import {
@@ -26,10 +27,15 @@ export type GraphicsPresetId =
 export type GraphicsResolutionCap = 1 | 1.5 | 2;
 export type GraphicsPerformanceImpact = 'high' | 'medium' | 'low';
 
+export const MIN_CLOUD_TRANSPARENCY = 0;
+export const MAX_CLOUD_TRANSPARENCY = 100;
+
 export interface GraphicsSettings {
   preset: GraphicsPresetId;
   resolutionCap: GraphicsResolutionCap;
   worldRenderFps: number;
+  showClouds: boolean;
+  cloudTransparency: number;
   antialias: boolean;
   autoDensity: boolean;
   clearBeforeRender: boolean;
@@ -43,7 +49,7 @@ type PresetGraphicsSettings = Omit<GraphicsSettings, 'preset'>;
 
 type GraphicsToggleSettingKey = Exclude<
   keyof GraphicsSettings,
-  'preset' | 'resolutionCap' | 'worldRenderFps'
+  'preset' | 'resolutionCap' | 'worldRenderFps' | 'cloudTransparency'
 >;
 
 export interface GraphicsSettingsOptionDefinition {
@@ -66,6 +72,8 @@ const GRAPHICS_PRESET_SETTINGS = {
   quality: {
     resolutionCap: 2,
     worldRenderFps: DEFAULT_WORLD_RENDER_FPS,
+    showClouds: true,
+    cloudTransparency: MIN_CLOUD_TRANSPARENCY,
     antialias: true,
     autoDensity: true,
     clearBeforeRender: true,
@@ -77,6 +85,8 @@ const GRAPHICS_PRESET_SETTINGS = {
   balanced: {
     resolutionCap: 1.5,
     worldRenderFps: DEFAULT_WORLD_RENDER_FPS,
+    showClouds: true,
+    cloudTransparency: MIN_CLOUD_TRANSPARENCY,
     antialias: true,
     autoDensity: true,
     clearBeforeRender: true,
@@ -88,6 +98,8 @@ const GRAPHICS_PRESET_SETTINGS = {
   performance: {
     resolutionCap: 1,
     worldRenderFps: DEFAULT_WORLD_RENDER_FPS,
+    showClouds: true,
+    cloudTransparency: MIN_CLOUD_TRANSPARENCY,
     antialias: false,
     autoDensity: true,
     clearBeforeRender: true,
@@ -202,7 +214,26 @@ export function getWorldRenderFpsPerformanceImpact(
   return 'low';
 }
 
+export function normalizeCloudTransparency(
+  value: unknown,
+  fallback = MIN_CLOUD_TRANSPARENCY,
+) {
+  return Math.min(
+    MAX_CLOUD_TRANSPARENCY,
+    Math.max(
+      MIN_CLOUD_TRANSPARENCY,
+      Math.round(normalizeStoredFiniteNumber(value, fallback)),
+    ),
+  );
+}
+
 export const GRAPHICS_SETTINGS_OPTIONS: GraphicsSettingsOptionDefinition[] = [
+  {
+    key: 'showClouds',
+    labelKey: 'ui.settings.graphics.showClouds.label',
+    descriptionKey: 'ui.settings.graphics.showClouds.description',
+    performanceImpact: 'medium',
+  },
   {
     key: 'antialias',
     labelKey: 'ui.settings.graphics.antialias.label',
@@ -284,6 +315,14 @@ function normalizeGraphicsSettings(settings: unknown): GraphicsSettings {
       settings.worldRenderFps,
       presetDefaults.worldRenderFps,
     ),
+    showClouds: normalizeStoredBoolean(
+      settings.showClouds,
+      presetDefaults.showClouds,
+    ),
+    cloudTransparency: normalizeCloudTransparency(
+      settings.cloudTransparency,
+      presetDefaults.cloudTransparency,
+    ),
     antialias: normalizeStoredBoolean(
       settings.antialias,
       presetDefaults.antialias,
@@ -342,6 +381,8 @@ function stripPreset(
   return {
     resolutionCap: settings.resolutionCap,
     worldRenderFps: settings.worldRenderFps,
+    showClouds: settings.showClouds,
+    cloudTransparency: settings.cloudTransparency,
     antialias: settings.antialias,
     autoDensity: settings.autoDensity,
     clearBeforeRender: settings.clearBeforeRender,
@@ -359,6 +400,8 @@ function graphicsSettingsEqual(
   return (
     current.resolutionCap === expected.resolutionCap &&
     current.worldRenderFps === expected.worldRenderFps &&
+    current.showClouds === expected.showClouds &&
+    current.cloudTransparency === expected.cloudTransparency &&
     current.antialias === expected.antialias &&
     current.autoDensity === expected.autoDensity &&
     current.clearBeforeRender === expected.clearBeforeRender &&

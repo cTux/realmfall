@@ -87,7 +87,6 @@ export interface InventoryActions {
 }
 
 export interface HexActions {
-  onStartCombat: () => void;
   onForfeitCombat: () => void;
   onInteract: () => void;
   onProspect: () => void;

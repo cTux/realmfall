@@ -15,7 +15,7 @@ import {
 } from './stateCombatTestHelpers';
 
 describe('game state combat encounters', () => {
-  it('opens and resolves combat encounters on enemy tiles', () => {
+  it('keeps startCombat(moveToTile(...)) compatible for immediate-start encounters', () => {
     const game = createCombatEncounterGame('combat-seed');
     const target = seedCombatEncounter(game, {
       id: 'enemy-2,0-0',
@@ -29,10 +29,8 @@ describe('game state combat encounters', () => {
       elite: false,
     });
 
-    const encountered = moveToTile(game, target);
-    expect(encountered.combat).not.toBeNull();
+    const resolved = startCombat(moveToTile(game, target));
 
-    const resolved = startCombat(encountered);
     expect(resolved.combat).toBeNull();
     expect(getEnemiesAt(resolved, target)).toHaveLength(0);
     expect(
@@ -42,14 +40,14 @@ describe('game state combat encounters', () => {
     ).toBe(true);
   });
 
-  it('creates an encounter that waits for Start before battle begins', () => {
-    const game = createCombatEncounterGame('combat-start-seed');
+  it('starts battle immediately when entering a hostile tile', () => {
+    const game = createCombatEncounterGame('combat-immediate-start');
     const target = seedCombatEncounter(game, {
       id: 'enemy-2,0-0',
       name: 'Wolf',
       tier: 1,
-      hp: 5,
-      maxHp: 5,
+      hp: 200,
+      maxHp: 200,
       attack: 2,
       defense: 0,
       xp: 5,
@@ -57,14 +55,15 @@ describe('game state combat encounters', () => {
     });
 
     const encountered = moveToTile(game, target);
-    expect(encountered.combat?.started).toBe(false);
-    expect(progressCombat(encountered)).toBe(encountered);
-    expect(encountered.enemies['enemy-2,0-0']?.hp).toBe(5);
+    const advanced = startCombat(encountered);
+
+    expect(encountered.combat?.started).toBe(true);
+    expect(advanced.enemies['enemy-2,0-0']?.hp).toBeLessThan(
+      encountered.enemies['enemy-2,0-0']?.hp ?? Infinity,
+    );
     expect(
-      encountered.logs.some((entry) =>
-        /press start to begin the battle/i.test(entry.text),
-      ),
-    ).toBe(true);
+      encountered.logs.some((entry) => /press start/i.test(entry.text)),
+    ).toBe(false);
   });
 
   it('lets the player forfeit a battle after combat has started', () => {
@@ -84,11 +83,11 @@ describe('game state combat encounters', () => {
     game.worldTimeMs = 75_000;
 
     const encountered = moveToTile(game, target);
-    const started = startCombat(encountered);
+    const progressed = startCombat(encountered);
 
-    expect(started.combat?.startedAtMs).toBe(encountered.worldTimeMs);
+    expect(progressed.combat?.startedAtMs).toBe(encountered.worldTimeMs);
 
-    const forfeited = forfeitCombat(started);
+    const forfeited = forfeitCombat(progressed);
 
     expect(forfeited.combat).toBeNull();
     expect(forfeited.player.coord).toEqual({ q: 0, r: 0 });
@@ -122,7 +121,7 @@ describe('game state combat encounters', () => {
       firstEncounter.combat?.enemyStateById['enemy-2,0-0']?.treasureGoblin
         ?.fleeHitsRequired;
 
-    const forfeited = forfeitCombat(startCombat(firstEncounter));
+    const forfeited = forfeitCombat(firstEncounter);
     forfeited.worldTimeMs = 98_765;
     forfeited.player.coord = { q: 1, r: 0 };
 
@@ -156,7 +155,7 @@ describe('game state combat encounters', () => {
     );
 
     const encountered = moveToTile(game, target);
-    const resolved = startCombat(encountered);
+    const resolved = progressCombat(encountered);
 
     expect(
       getTileAt(resolved, target).items.some(
@@ -206,7 +205,7 @@ describe('game state combat encounters', () => {
     game.player.coord = { q: 1, r: 0 };
 
     const encountered = moveToTile(game, target);
-    const resolvedRound = startCombat(encountered);
+    const resolvedRound = progressCombat(encountered);
 
     expect(resolvedRound.combat?.enemyIds).toHaveLength(2);
     expect(

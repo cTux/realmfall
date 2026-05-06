@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { hexDistance } from '../../hex';
+import { hexDistance, hexKey } from '../../hex';
+import { terrainTier } from '../../shared';
 import { isPassableTerrain } from '../../worldTerrain';
 import { generateDungeonWorld } from './generateDungeonWorld';
 
@@ -61,5 +62,24 @@ describe('generateDungeonWorld', () => {
     expect(
       wallTiles.every((tile) => isPassableTerrain(tile.terrain) === false),
     ).toBe(true);
+  });
+
+  it('inherits overworld entrance distance scaling for every dungeon enemy', () => {
+    const surfaceCoord = { q: 24, r: 0 };
+    const world = generateDungeonWorld({
+      dungeonId: 'dungeon:generator:24,0',
+      gameRadius: 6,
+      seed: 'generator-distance-scaling-seed',
+      surfaceCoord,
+    });
+
+    Object.values(world.enemies).forEach((enemy) => {
+      const terrain = world.tiles[hexKey(enemy.coord)]?.terrain;
+
+      expect(terrain).toBeDefined();
+      expect(enemy.tier).toBeGreaterThanOrEqual(
+        terrainTier(surfaceCoord, terrain!) + 2,
+      );
+    });
   });
 });

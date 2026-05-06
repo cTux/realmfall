@@ -52,12 +52,10 @@ describe('useKeyboardShortcuts', () => {
         canSetHomeAction: false,
         canTerritoryAction: false,
         combatDeathAvailable: false,
-        combatStartAvailable: false,
         hexContentWindowShown: false,
         interactLabel: null,
         lootSnapshotLength: 0,
         onForfeitCombat: vi.fn(),
-        onStartCombat: vi.fn(),
         onInteract: vi.fn(),
         onHealTerritoryNpc: vi.fn(),
         onSetHome: vi.fn(),
@@ -107,12 +105,10 @@ describe('useKeyboardShortcuts', () => {
         canSetHomeAction: false,
         canTerritoryAction: false,
         combatDeathAvailable: false,
-        combatStartAvailable: false,
         hexContentWindowShown: false,
         interactLabel: null,
         lootSnapshotLength: 0,
         onForfeitCombat: vi.fn(),
-        onStartCombat: vi.fn(),
         onInteract: vi.fn(),
         onHealTerritoryNpc: vi.fn(),
         onSetHome: vi.fn(),
@@ -167,12 +163,10 @@ describe('useKeyboardShortcuts', () => {
         canSetHomeAction: false,
         canTerritoryAction: false,
         combatDeathAvailable: false,
-        combatStartAvailable: false,
         hexContentWindowShown: false,
         interactLabel: null,
         lootSnapshotLength: 0,
         onForfeitCombat: vi.fn(),
-        onStartCombat: vi.fn(),
         onInteract: vi.fn(),
         onHealTerritoryNpc: vi.fn(),
         onSetHome: vi.fn(),
@@ -224,12 +218,10 @@ describe('useKeyboardShortcuts', () => {
         canSetHomeAction: false,
         canTerritoryAction: true,
         combatDeathAvailable: false,
-        combatStartAvailable: false,
         hexContentWindowShown: true,
         interactLabel: null,
         lootSnapshotLength: 0,
         onForfeitCombat: vi.fn(),
-        onStartCombat: vi.fn(),
         onInteract: vi.fn(),
         onHealTerritoryNpc: vi.fn(),
         onSetHome: vi.fn(),
@@ -271,12 +263,10 @@ describe('useKeyboardShortcuts', () => {
         canSetHomeAction: true,
         canTerritoryAction: false,
         combatDeathAvailable: false,
-        combatStartAvailable: false,
         hexContentWindowShown: true,
         interactLabel: null,
         lootSnapshotLength: 0,
         onForfeitCombat: vi.fn(),
-        onStartCombat: vi.fn(),
         onInteract: vi.fn(),
         onHealTerritoryNpc: vi.fn(),
         onSetHome,
@@ -318,12 +308,10 @@ describe('useKeyboardShortcuts', () => {
         canSetHomeAction: false,
         canTerritoryAction: false,
         combatDeathAvailable: false,
-        combatStartAvailable: false,
         hexContentWindowShown: true,
         interactLabel: null,
         lootSnapshotLength: 0,
         onForfeitCombat: vi.fn(),
-        onStartCombat: vi.fn(),
         onInteract: vi.fn(),
         onHealTerritoryNpc: vi.fn(),
         onSetHome: vi.fn(),
@@ -365,12 +353,10 @@ describe('useKeyboardShortcuts', () => {
         canSetHomeAction: false,
         canTerritoryAction: false,
         combatDeathAvailable: false,
-        combatStartAvailable: false,
         hexContentWindowShown: true,
         interactLabel: null,
         lootSnapshotLength: 0,
         onForfeitCombat: vi.fn(),
-        onStartCombat: vi.fn(),
         onInteract: vi.fn(),
         onHealTerritoryNpc: vi.fn(),
         onSetHome: vi.fn(),
@@ -412,12 +398,10 @@ describe('useKeyboardShortcuts', () => {
         canSetHomeAction: false,
         canTerritoryAction: false,
         combatDeathAvailable: true,
-        combatStartAvailable: false,
         hexContentWindowShown: true,
         interactLabel: null,
         lootSnapshotLength: 0,
         onForfeitCombat,
-        onStartCombat: vi.fn(),
         onInteract: vi.fn(),
         onHealTerritoryNpc: vi.fn(),
         onSetHome: vi.fn(),
@@ -460,12 +444,10 @@ describe('useKeyboardShortcuts', () => {
         canSetHomeAction: false,
         canTerritoryAction: false,
         combatDeathAvailable: false,
-        combatStartAvailable: false,
         hexContentWindowShown: true,
         interactLabel: null,
         lootSnapshotLength: 0,
         onForfeitCombat: vi.fn(),
-        onStartCombat: vi.fn(),
         onInteract: vi.fn(),
         onHealTerritoryNpc,
         onSetHome: vi.fn(),
@@ -497,6 +479,53 @@ describe('useKeyboardShortcuts', () => {
     expect(onSellAll).not.toHaveBeenCalled();
   });
 
+  it('triggers interact on Q before other hex actions when an interact label exists', async () => {
+    const onInteract = vi.fn();
+    const onProspect = vi.fn();
+
+    function TestHarness() {
+      useKeyboardShortcuts({
+        canBulkProspectEquipment: true,
+        canBulkSellEquipment: false,
+        canHealTerritoryNpc: false,
+        canSetHomeAction: false,
+        canTerritoryAction: false,
+        combatDeathAvailable: false,
+        hexContentWindowShown: true,
+        interactLabel: '(Q) Enter Ruins',
+        lootSnapshotLength: 0,
+        onForfeitCombat: vi.fn(),
+        onInteract,
+        onHealTerritoryNpc: vi.fn(),
+        onSetHome: vi.fn(),
+        onTerritoryAction: vi.fn(),
+        onTakeAllLoot: vi.fn(),
+        onCloseAllWindows: vi.fn(),
+        onProspect,
+        onSellAll: vi.fn(),
+        onTogglePause: vi.fn(),
+        onToggleDockWindow: vi.fn(),
+        onUseActionBarSlot: vi.fn(),
+        windowShown: buildWindowShown(true),
+      });
+
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<TestHarness />);
+    });
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { bubbles: true, key: 'q' }),
+      );
+    });
+
+    expect(onInteract).toHaveBeenCalledTimes(1);
+    expect(onProspect).not.toHaveBeenCalled();
+  });
+
   it('prioritizes bulk sell over take-all on E when both are available', async () => {
     const onSellAll = vi.fn();
     const onTakeAllLoot = vi.fn();
@@ -509,12 +538,10 @@ describe('useKeyboardShortcuts', () => {
         canSetHomeAction: false,
         canTerritoryAction: false,
         combatDeathAvailable: false,
-        combatStartAvailable: false,
         hexContentWindowShown: true,
         interactLabel: null,
         lootSnapshotLength: 2,
         onForfeitCombat: vi.fn(),
-        onStartCombat: vi.fn(),
         onInteract: vi.fn(),
         onHealTerritoryNpc: vi.fn(),
         onSetHome: vi.fn(),
@@ -558,12 +585,10 @@ describe('useKeyboardShortcuts', () => {
         canSetHomeAction: false,
         canTerritoryAction: false,
         combatDeathAvailable: false,
-        combatStartAvailable: false,
         hexContentWindowShown: false,
         interactLabel: null,
         lootSnapshotLength: 0,
         onForfeitCombat: vi.fn(),
-        onStartCombat: vi.fn(),
         onInteract: vi.fn(),
         onHealTerritoryNpc: vi.fn(),
         onSetHome: vi.fn(),

@@ -1,5 +1,5 @@
 import { type Application } from 'pixi.js';
-import type { HexCoord, WorldKind } from '../../game/stateTypes';
+import type { GameState, HexCoord, WorldKind } from '../../game/stateTypes';
 import { scaleColor } from './timeOfDay';
 import { animateWorldMarkers } from './renderSceneMarkerAnimations';
 import {
@@ -13,6 +13,10 @@ import {
   type SceneCache,
 } from './renderSceneCache';
 import {
+  getCombatLungeOffset,
+  renderSceneCombatFeedback,
+} from './renderSceneCombatFeedback';
+import {
   renderDungeonEnemyMovementCooldowns,
   renderPlayerMovementCooldown,
 } from './renderScenePlayerBars';
@@ -24,6 +28,7 @@ interface RenderAnimatedSceneOptions {
   scene: SceneCache;
   animationMs: number;
   animatedRenderToken: string;
+  cloudTransparency: number;
   cloudInputs: ReturnType<
     typeof import('./renderSceneEnvironment').buildCloudRenderInputs
   >;
@@ -39,11 +44,15 @@ interface RenderAnimatedSceneOptions {
     endAtMs: number;
     nowMs: number;
   } | null;
+  enemyIconSize: number;
   movementTransitionRevealState: MovementTransitionRevealState | null;
   playerCoord: HexCoord;
   cloudParallaxOffset: { x: number; y: number };
   origin: { x: number; y: number };
   playerIconSize: number;
+  playerTransitionOffset: { x: number; y: number };
+  state: GameState;
+  showClouds: boolean;
   visibleTileRenderInputs: VisibleTileRenderInput[];
   worldKind: WorldKind;
   worldTimeMs: number;
@@ -54,16 +63,21 @@ export function renderAnimatedScene({
   scene,
   animationMs,
   animatedRenderToken,
+  cloudTransparency,
   cloudInputs,
   fullscreenVisualEffects,
   hexSize,
   lightingState,
   movementCooldown,
+  enemyIconSize,
   movementTransitionRevealState,
   playerCoord,
   cloudParallaxOffset,
   origin,
   playerIconSize,
+  playerTransitionOffset,
+  state,
+  showClouds,
   visibleTileRenderInputs,
   worldKind,
   worldTimeMs,
@@ -85,6 +99,20 @@ export function renderAnimatedScene({
     );
   });
 
+  const combatLungeOffset = getCombatLungeOffset({
+    hexSize,
+    state,
+    worldTimeMs,
+  });
+  const playerLungeOffset = {
+    x: combatLungeOffset.x + playerTransitionOffset.x,
+    y: combatLungeOffset.y + playerTransitionOffset.y,
+  };
+  const playerOrigin = {
+    x: origin.x + playerLungeOffset.x,
+    y: origin.y + playerLungeOffset.y,
+  };
+
   configureShadowedSprite(
     scene.player,
     scaleColor(
@@ -95,23 +123,32 @@ export function renderAnimatedScene({
     playerIconSize,
     1,
     lightingState.shadowOffset,
-    origin,
+    playerOrigin,
   );
   renderPlayerMovementCooldown({
     scene,
-    hexSize,
-    origin,
     playerIconSize,
     movementCooldown,
   });
   renderDungeonEnemyMovementCooldowns({
     scene,
-    hexSize,
+    enemyIconSize,
     movementTransitionRevealState,
-    origin,
     playerCoord,
     visibleTileRenderInputs,
     worldKind,
+    worldTimeMs,
+  });
+  renderSceneCombatFeedback({
+    enemyIconSize,
+    hexSize,
+    origin,
+    playerCoord,
+    playerIconSize,
+    playerLungeOffset,
+    scene,
+    state,
+    visibleTileRenderInputs,
     worldTimeMs,
   });
 
@@ -124,6 +161,8 @@ export function renderAnimatedScene({
     cloudInputs,
     lightingState.shadowOffset,
     cloudParallaxOffset,
+    showClouds,
+    cloudTransparency,
   );
   renderWorldOverlay(
     app,

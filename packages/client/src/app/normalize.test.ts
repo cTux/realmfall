@@ -243,7 +243,16 @@ describe('normalizeLoadedGame', () => {
       },
     };
 
-    expect(normalizeLoadedGame(game)?.combat).toEqual(game.combat);
+    expect(normalizeLoadedGame(game)?.combat).toEqual({
+      ...game.combat,
+      engagement: {
+        autoStepOnVictory: false,
+        engageMode: 'tile-step',
+        originCoord: coord,
+        stagingCoord: coord,
+        targetCoord: coord,
+      },
+    });
   });
 
   it('defaults invalid combat encounter metadata safely during hydration', () => {
@@ -377,6 +386,78 @@ describe('normalizeLoadedGame', () => {
     ).toEqual({
       [enemyId]: {},
     });
+  });
+
+  it('normalizes combat engagement metadata and drops persisted floating-text leftovers', () => {
+    const baseline = createGame(3, 'normalize-combat-engagement');
+    const normalized = normalizeLoadedGame({
+      seed: 'normalize-combat-engagement',
+      radius: 3,
+      player: baseline.player,
+      tiles: {},
+      enemies: {},
+      logs: [],
+      worlds: baseline.worlds,
+      surfaceWorldId: 'surface',
+      activeWorldId: 'surface',
+      dungeonEntrances: {},
+      activeDungeon: null,
+      homeHex: { q: 0, r: 0 },
+      turn: 0,
+      worldTimeMs: 1234,
+      dayPhase: 'day',
+      bloodMoonActive: false,
+      bloodMoonCheckedTonight: false,
+      bloodMoonCycle: 0,
+      harvestMoonActive: false,
+      harvestMoonCheckedTonight: false,
+      harvestMoonCycle: 0,
+      lastEarthshakeDay: 0,
+      gameOver: false,
+      logSequence: 0,
+      worldFloatingTextEvents: [
+        {
+          id: 'stale-event',
+          anchor: { kind: 'player', coord: { q: 0, r: 0 } },
+          amount: 7,
+          createdAtMs: 1200,
+          kind: 'damage',
+        },
+      ],
+      combat: {
+        coord: { q: 0, r: 0 },
+        enemyIds: ['enemy-0,0-0'],
+        started: true,
+        startedAtMs: 1234,
+        engagement: {
+          engageMode: 'adjacent-click',
+          originCoord: { q: 0, r: 0 },
+          stagingCoord: { q: 0, r: 0 },
+          targetCoord: { q: 1, r: 0 },
+          autoStepOnVictory: true,
+        },
+        player: {
+          abilityIds: ['kick'],
+          globalCooldownMs: 1500,
+          globalCooldownEndsAt: 1234,
+          cooldownEndsAt: {},
+          casting: null,
+        },
+        enemies: {
+          'enemy-0,0-0': {
+            abilityIds: ['kick'],
+            globalCooldownMs: 1500,
+            globalCooldownEndsAt: 1234,
+            cooldownEndsAt: {},
+            casting: null,
+          },
+        },
+        enemyStateById: { 'enemy-0,0-0': {} },
+      },
+    });
+
+    expect(normalized?.combat?.engagement?.targetCoord).toEqual({ q: 1, r: 0 });
+    expect(normalized?.worldFloatingTextEvents ?? []).toEqual([]);
   });
 
   it('normalizes dungeon world registries and the dungeon chest structure', () => {

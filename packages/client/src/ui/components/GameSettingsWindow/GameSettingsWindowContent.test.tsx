@@ -20,7 +20,6 @@ const DEFAULT_INTERFACE_SETTINGS = {
 const DEFAULT_GAMEPLAY_SETTINGS = {
   autoGatherResources: false,
   autoLoot: false,
-  autoStartCombat: false,
 };
 
 describe('GameSettingsWindowContent', () => {
@@ -473,6 +472,85 @@ describe('GameSettingsWindowContent', () => {
     });
   });
 
+  it('saves cloud visibility and transparency inside the graphics payload', async () => {
+    const onSave = vi.fn(async () => undefined);
+
+    await act(async () => {
+      root.render(
+        <GameSettingsWindowContent
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
+          graphicsSettings={DEFAULT_GRAPHICS_SETTINGS}
+          interfaceSettings={DEFAULT_INTERFACE_SETTINGS}
+          gameplaySettings={DEFAULT_GAMEPLAY_SETTINGS}
+          onResetSaveArea={async () => undefined}
+          onSave={onSave}
+          onSaveAndReload={async () => undefined}
+        />,
+      );
+    });
+
+    const cloudTransparencyField = Array.from(
+      host.querySelectorAll('label'),
+    ).find((candidate) =>
+      candidate.textContent?.includes(
+        t('ui.settings.graphics.cloudTransparency.label'),
+      ),
+    );
+    const cloudTransparencySlider = cloudTransparencyField?.querySelector(
+      'input[type="range"]',
+    ) as HTMLInputElement | null;
+    const showCloudsSwitch = Array.from(host.querySelectorAll('label'))
+      .find((candidate) =>
+        candidate.textContent?.includes(
+          t('ui.settings.graphics.showClouds.label'),
+        ),
+      )
+      ?.querySelector('input[type="checkbox"]');
+    const saveButton = Array.from(host.querySelectorAll('button')).find(
+      (candidate) => candidate.textContent === t('ui.settings.actions.save'),
+    );
+
+    expect(cloudTransparencySlider).not.toBeNull();
+    expect(showCloudsSwitch).toBeDefined();
+    expect(saveButton).toBeDefined();
+
+    await act(async () => {
+      if (cloudTransparencySlider) {
+        const setValue = Object.getOwnPropertyDescriptor(
+          HTMLInputElement.prototype,
+          'value',
+        )?.set;
+
+        setValue?.call(cloudTransparencySlider, '65');
+        cloudTransparencySlider.dispatchEvent(
+          new Event('input', { bubbles: true }),
+        );
+      }
+    });
+
+    await act(async () => {
+      showCloudsSwitch?.dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      );
+    });
+
+    await act(async () => {
+      saveButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    expect(onSave).toHaveBeenCalledWith({
+      audio: DEFAULT_AUDIO_SETTINGS,
+      gameplay: DEFAULT_GAMEPLAY_SETTINGS,
+      graphics: {
+        ...DEFAULT_GRAPHICS_SETTINGS,
+        preset: 'custom',
+        cloudTransparency: 65,
+        showClouds: false,
+      },
+      interface: DEFAULT_INTERFACE_SETTINGS,
+    });
+  });
+
   it('marks renderer initialization graphics toggles as reload-required', async () => {
     await act(async () => {
       root.render(
@@ -761,7 +839,7 @@ describe('GameSettingsWindowContent', () => {
     ]);
   });
 
-  it('saves interface language, font, font size, interface scale, and transparency plus gameplay automation toggles in the payload', async () => {
+  it('saves interface language, font, font size, interface scale, and transparency plus the remaining gameplay automation toggles in the payload', async () => {
     const onSave = vi.fn(async () => undefined);
 
     await act(async () => {
@@ -893,13 +971,13 @@ describe('GameSettingsWindowContent', () => {
         ),
       )
       ?.querySelector('input[type="checkbox"]');
-    const autoStartCombatSwitch = Array.from(host.querySelectorAll('label'))
-      .find((candidate) =>
-        candidate.textContent?.includes(
-          t('ui.settings.gameplay.autoStartCombat.label'),
-        ),
-      )
-      ?.querySelector('input[type="checkbox"]');
+    const autoStartCombatLabel = Array.from(
+      host.querySelectorAll('label'),
+    ).find((candidate) =>
+      candidate.textContent?.includes(
+        t('ui.settings.gameplay.autoStartCombat.label'),
+      ),
+    );
     const autoGatherResourcesSwitch = Array.from(host.querySelectorAll('label'))
       .find((candidate) =>
         candidate.textContent?.includes(
@@ -912,15 +990,12 @@ describe('GameSettingsWindowContent', () => {
     );
 
     expect(autoLootSwitch).toBeDefined();
-    expect(autoStartCombatSwitch).toBeDefined();
+    expect(autoStartCombatLabel).toBeUndefined();
     expect(autoGatherResourcesSwitch).toBeDefined();
     expect(saveButton).toBeDefined();
 
     await act(async () => {
       autoLootSwitch?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-      autoStartCombatSwitch?.dispatchEvent(
-        new MouseEvent('click', { bubbles: true }),
-      );
       autoGatherResourcesSwitch?.dispatchEvent(
         new MouseEvent('click', { bubbles: true }),
       );
@@ -944,7 +1019,6 @@ describe('GameSettingsWindowContent', () => {
       gameplay: {
         autoGatherResources: true,
         autoLoot: true,
-        autoStartCombat: true,
       },
     });
   });

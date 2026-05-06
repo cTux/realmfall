@@ -1,9 +1,12 @@
 import { act, useState, type Dispatch, type SetStateAction } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
+import { moveToTile } from '../../../game/state';
 import { createGame } from '../../../game/stateFactory';
 import { getResolvedCurrentTile } from '../../../game/stateSelectors';
 import type { GameState } from '../../../game/stateTypes';
+import type { GameplaySettings } from '../../gameplaySettings';
 import { useGameplayAutomation } from '../hooks/useGameplayAutomation';
+import { createHydratedAppGame } from './appTestHarness';
 
 describe('useGameplayAutomation', () => {
   let host: HTMLDivElement;
@@ -63,7 +66,6 @@ describe('useGameplayAutomation', () => {
         gameplaySettings: {
           autoGatherResources: true,
           autoLoot: false,
-          autoStartCombat: false,
         },
         paused: false,
         setGame,
@@ -88,5 +90,63 @@ describe('useGameplayAutomation', () => {
       renderedGameRef.current.logs.filter((entry) => entry.kind === 'loot'),
     ).toHaveLength(1);
     expect(setGameCallCount).toBe(1);
+  });
+
+  it('does not treat combat as an automation branch even when legacy auto-start data is present', async () => {
+    const initialGame = moveToTile(createHydratedAppGame(), {
+      q: 1,
+      r: 0,
+    });
+    initialGame.combat = initialGame.combat
+      ? {
+          ...initialGame.combat,
+          started: false,
+          startedAtMs: undefined,
+        }
+      : null;
+
+    const worldTimeMsRef = { current: initialGame.worldTimeMs };
+    const renderedGameRef: { current: GameState } = { current: initialGame };
+    let setGameCallCount = 0;
+    const legacyGameplaySettings = {
+      autoGatherResources: false,
+      autoLoot: false,
+      autoStartCombat: true,
+    } as unknown as GameplaySettings;
+
+    function Harness() {
+      const [game, setGameState] = useState(initialGame);
+      renderedGameRef.current = game;
+      const currentTile = getResolvedCurrentTile(game) ?? {
+        coord: game.player.coord,
+        terrain: 'plains',
+        items: [],
+        enemyIds: [],
+      };
+      const setGame: Dispatch<SetStateAction<GameState>> = (value) => {
+        setGameCallCount += 1;
+        setGameState(value);
+      };
+
+      useGameplayAutomation({
+        combat: game.combat,
+        currentTile,
+        enabled: true,
+        gameplaySettings: legacyGameplaySettings,
+        paused: false,
+        setGame,
+        worldTimeMsRef,
+      });
+
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<Harness />);
+      await Promise.resolve();
+    });
+
+    expect(renderedGameRef.current.combat?.started).toBe(false);
+    expect(setGameCallCount).toBe(0);
   });
 });
