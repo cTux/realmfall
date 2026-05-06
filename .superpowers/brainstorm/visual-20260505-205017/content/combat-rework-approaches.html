@@ -1,0 +1,122 @@
+<h2>Combat Rework Direction</h2>
+<p class="subtitle">
+  Pick the implementation shape that feels right. I recommend <strong>B</strong>
+  because it keeps the new combat behavior consistent across click-to-engage and
+  dungeon chase encounters.
+</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <div class="label">Approach A</div>
+      <h3>App-Layer Intent</h3>
+      <p>
+        Keep most combat state unchanged. Intercept enemy-hex clicks in the world
+        controller, remember the clicked enemy hex in app state, and resolve the
+        post-victory step from the UI layer.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>Smallest initial diff</li>
+            <li>Least churn in combat modules</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Cons</h4>
+          <ul>
+            <li>Special-cases click flow</li>
+            <li>Dungeon chase logic has to duplicate the same idea</li>
+            <li>Post-combat movement intent lives outside gameplay state</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <div class="label">Approach B (Recommended)</div>
+      <h3>Encounter Metadata In Game State</h3>
+      <p>
+        Extend encounter creation with metadata about how the fight started:
+        clicked enemy hex, staging hex, and whether victory should auto-step onto
+        the target. Combat always auto-starts, and the renderer consumes the same
+        encounter metadata for the visual lunge and floating text anchors.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>One rule-set for clicks and dungeon chase</li>
+            <li>Post-combat auto-step becomes deterministic</li>
+            <li>Visual world overlays can derive from real combat intent</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Cons</h4>
+          <ul>
+            <li>Touches encounter creation and combat completion paths</li>
+            <li>Needs a few more state and test updates</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <div class="label">Approach C</div>
+      <h3>Full Position Virtualization</h3>
+      <p>
+        Move the player into the enemy hex in gameplay state at encounter start,
+        then emulate the pre-combat or post-combat position visually and logically
+        from there.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>Single occupied hex during combat</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Cons</h4>
+          <ul>
+            <li>Breaks your no-move-cost rule for adjacent engagement</li>
+            <li>More regression risk in movement, loot, and dungeon pursuit</li>
+            <li>Harder to explain with deferred victory movement</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Recommended Flow</h3>
+  <div class="mockup">
+    <div class="mockup-header">Approach B Behavior Timeline</div>
+    <div class="mockup-body">
+      <div class="split">
+        <div>
+          <div class="label">Adjacent Enemy Click</div>
+          <p>1. Click enemy hex.</p>
+          <p>2. No real move, no move cooldown.</p>
+          <p>3. Combat auto-starts immediately.</p>
+          <p>4. Player badge visually lunges toward the enemy hex.</p>
+          <p>5. On victory, player auto-steps onto that hex and starts movement cooldown.</p>
+        </div>
+        <div>
+          <div class="label">Far Enemy Click / Dungeon Chase</div>
+          <p>1. Move toward the nearest adjacent staging hex.</p>
+          <p>2. Start combat immediately on arrival or on enemy chase contact.</p>
+          <p>3. Keep the original enemy hex as the post-victory destination.</p>
+          <p>4. On victory, auto-step into that target hex and start movement cooldown.</p>
+          <p>5. HP/MP rings and floating damage/heal text stay attached to world hex frames.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
