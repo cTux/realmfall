@@ -12,6 +12,7 @@ This spec covers browser save storage, direct hydration of the current save shap
 - Graphics, audio, interface, gameplay, and world-map settings persist separately in plain `localStorage` under dedicated area keys outside the encrypted save areas, so startup can hydrate renderer initialization inputs, shell font and transparency preferences, gameplay automation defaults, live world-render controls such as cloud visibility and transparency, and world-map initialization inputs before the game save finishes loading.
 - The app persists snapshots with world time and UI window state while intentionally excluding transient log history from the saved payload.
 - The root gameplay save persists surface-world data plus lightweight dungeon routing metadata such as `surfaceWorldId`, `activeWorldId`, `activeDungeon`, and `dungeonEntrances`, while each dungeon world body persists under its own dedicated key.
+- Root-save snapshot building projects the gameplay state through the shared surface-world alias helper before serialization, so saved `tiles` and `enemies` always match the persisted surface-world body instead of a hand-built surface fallback.
 - `src/persistence/storage.ts` wraps saved JSON in AES-GCM using a client-side passphrase-derived key.
 - That wrapper is implementation obfuscation for local saves, not a real security boundary or meaningful client-side secret protection.
 - Clearing the graphics settings area also removes the retired `realmfall-graphics-settings` key when it is present.

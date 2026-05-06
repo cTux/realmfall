@@ -1,4 +1,8 @@
 import type { GameState, LogKind } from '../../../game/stateTypes';
+import {
+  createSurfaceWorldAliasState,
+  getSurfaceWorld,
+} from '../../../game/dungeons/worldState';
 import type { PersistedData } from '../../../persistence/storage';
 import type { WindowPositions, WindowVisibilityState } from '../../constants';
 import type { ActionBarSlots } from '../actionBar';
@@ -41,12 +45,13 @@ function buildPersistedGameSnapshot({
   game: GameState;
   worldTimeMs: number;
 }) {
-  const surfaceWorld = game.worlds[game.surfaceWorldId];
-  const surfaceTiles = surfaceWorld?.tiles ?? game.tiles;
-  const surfaceEnemies = surfaceWorld?.enemies ?? game.enemies;
+  const surfaceAliases = createSurfaceWorldAliasState(game);
+  const surfaceWorld = getSurfaceWorld(game);
+  const surfaceTiles = surfaceAliases.tiles;
+  const surfaceEnemies = surfaceAliases.enemies;
 
   return {
-    ...game,
+    ...surfaceAliases,
     worldTimeMs,
     logs: [],
     worlds: {

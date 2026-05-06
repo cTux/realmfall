@@ -13,6 +13,10 @@ import type { TooltipPosition } from '@realmfall/ui';
 import { WORLD_MOVE_HEX_COOLDOWN_MS } from '../../game/config';
 import { hexKey, hexesInRange } from '../../game/hex';
 import { startCombat } from '../../game/stateCombat';
+import {
+  getActiveWorld,
+  replaceWorldCollections,
+} from '../../game/dungeons/worldState';
 import type { GameState, HexCoord } from '../../game/stateTypes';
 import { WORLD_COMBAT_LUNGE_DURATION_MS } from '../../game/worldCombatPresentation';
 import { getWorldHexSize } from '../../ui/world/renderSceneMath';
@@ -372,11 +376,6 @@ export function usePixiWorld({
           setGame((current) => {
             const nextTiles = { ...current.tiles };
             const nextEnemies = { ...current.enemies };
-            const activeWorldId =
-              current.worlds[current.activeWorldId] !== undefined
-                ? current.activeWorldId
-                : current.surfaceWorldId;
-            const activeWorld = current.worlds[activeWorldId];
 
             for (const resolvedPayload of payloads.map(
               hydrateResolvedWorldTilePayload,
@@ -387,22 +386,15 @@ export function usePixiWorld({
               }
             }
 
-            const nextGame = {
-              ...current,
-              worlds:
-                activeWorld === undefined
-                  ? current.worlds
-                  : {
-                      ...current.worlds,
-                      [activeWorldId]: {
-                        ...activeWorld,
-                        tiles: nextTiles,
-                        enemies: nextEnemies,
-                      },
-                    },
+            const activeWorld = getActiveWorld(current);
+            if (!activeWorld) {
+              return current;
+            }
+
+            const nextGame = replaceWorldCollections(current, activeWorld.id, {
               tiles: nextTiles,
               enemies: nextEnemies,
-            };
+            });
             gameRef.current = nextGame;
             return nextGame;
           });
@@ -480,7 +472,10 @@ export function usePixiWorld({
       pendingVictoryTransitionOffsetRef.current;
     const playerOffsetAtStart =
       pendingVictoryTransitionOffset &&
-      sameCoord(pendingVictoryTransitionOffset.fromCoord, previousPlayerCoord) &&
+      sameCoord(
+        pendingVictoryTransitionOffset.fromCoord,
+        previousPlayerCoord,
+      ) &&
       sameCoord(pendingVictoryTransitionOffset.toCoord, playerCoord)
         ? pendingVictoryTransitionOffset.offset
         : undefined;

@@ -6,7 +6,7 @@ This spec covers the worker-first request and response pipeline that resolves vi
 
 ## Current Solution
 
-- `GameState.tiles` stores only resolved tiles and remains the canonical gameplay source.
+- `GameState.tiles` and `GameState.enemies` mirror the currently active world aliases, and the worker merge path writes through the shared active-world alias helpers instead of mutating root maps plus `worlds[...]` separately.
 - The client computes the visible ring around the player and requests missing coords in batches through a `TileResolutionSource`.
 - The first `TileResolutionSource` implementation uses a Vite module worker built on `easy-web-worker`.
 - Stale frontier requests are canceled through `easy-cancelable-promise`, and late responses are ignored by request id.

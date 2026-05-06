@@ -94,6 +94,29 @@ export function createSurfaceWorldAliasState<T extends SurfaceWorldAliasState>(
   });
 }
 
+export function replaceWorldCollections<T extends ActiveWorldAliasState>(
+  state: T,
+  worldId: string,
+  { enemies, tiles }: Pick<GameWorldState, 'enemies' | 'tiles'>,
+) {
+  const world = state.worlds[worldId];
+  if (!world) {
+    return state;
+  }
+
+  return syncActiveWorldAliases({
+    ...state,
+    worlds: {
+      ...state.worlds,
+      [worldId]: {
+        ...world,
+        tiles,
+        enemies,
+      },
+    },
+  });
+}
+
 export function getEnemySpawnStructure(
   state: WorldRegistryState,
   tile: Pick<Tile, 'structure'>,
