@@ -18,6 +18,7 @@ This spec covers the client-side movement request boundary, real-time cooldown q
 - Hostile-click encounters that auto-step onto their preserved hostile target after victory seed the same normal movement cooldown controller as any other approved one-hex move, and the follow-up transition carries the held combat-lunge offset into the full-duration hex slide.
 - Roaming dungeon enemies patrol and chase on the same wall-clock cooldown duration as player movement, and chase contact uses the same staged arrival, lunge, and delayed combat-start sequence as player-triggered hostile clicks.
 - Pixi renders a yellow outer cooldown arc from wall-clock time that leans directly on the player MP ring with no gap, hides that player arc while combat is active, and lets roaming dungeon enemies reuse the same touching outer-ring presentation on revealed tiles during their movement cooldown.
+- Those player and roaming-enemy cooldown arcs are attached to the badge wrapper itself instead of to detached overlay layers, so they inherit the same bob, scale, and movement interpolation as the badge frame they surround.
 
 ## Main Implementation Areas
 

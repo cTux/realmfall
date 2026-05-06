@@ -23,6 +23,7 @@ This spec covers surface dungeon entrances, dungeon-world generation, dungeon en
 - The dungeon entrance tile is safe, and dungeon enemies spawn only inside the dungeon world.
 - Each dungeon contains one legendary final guard, plus one closed `dungeon-chest` placed at the far end of the layout.
 - Non-guard dungeon enemies patrol around their initial spawn hex on the shared world-movement cadence, show the same outer yellow movement-cooldown arc just outside their MP ring on revealed dungeon tiles, and chase the player when they come within `2` hexes.
+- Revealed roaming dungeon enemies animate each one-hex patrol or chase step over the full `1000 ms` movement cadence instead of teleporting or flashing through intermediate marker positions.
 - Dungeon enemy chase movement follows the shortest passable path toward the player instead of relying on greedy straight-line stepping, while patrol movement remains spawn-leashed.
 - When a roaming dungeon enemy's chase path reaches the player, the enemy starts combat immediately through the same engagement model used by hostile world clicks instead of waiting for a separate start action.
 - Dungeon enemy patrol movement is leashed to the spawn area, while the final guard remains stationary.

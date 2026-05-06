@@ -10,8 +10,10 @@ import {
   expandEntityBadgeArcBand,
   getEntityBadgeArcBand,
 } from './renderSceneEntityBadge';
-import { tileToPoint } from './renderSceneMath';
-import { takeGraphics, type GraphicsPool } from './renderScenePools';
+import {
+  resetShadowedSpriteBadgeOverlay,
+  type ShadowedSpriteEntry,
+} from './renderScenePools';
 import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
 import {
   getVisibleTileRevealState,
@@ -23,16 +25,15 @@ const PLAYER_BAR_TRACK_ALPHA = 0.85;
 const PLAYER_BAR_FILL_ALPHA = 0.95;
 const MOVEMENT_COOLDOWN_BAR_COLOR = 0xfacc15;
 const PLAYER_BADGE_OUTER_RADIUS_SCALE = 0.78;
+export const PLAYER_BADGE_BACKGROUND_ALPHA = 0.752;
 const HOSTILE_BADGE_OUTER_RADIUS_SCALE = 0.76;
 
 export function renderPlayerMovementCooldown({
   scene,
-  origin,
   playerIconSize,
   movementCooldown,
 }: {
   scene: SceneCache;
-  origin: { x: number; y: number };
   playerIconSize: number;
   movementCooldown: {
     durationMs: number;
@@ -40,6 +41,7 @@ export function renderPlayerMovementCooldown({
     nowMs: number;
   } | null;
 }) {
+  resetShadowedSpriteBadgeOverlay(scene.player);
   if (!movementCooldown) {
     return;
   }
@@ -56,18 +58,15 @@ export function renderPlayerMovementCooldown({
     cooldownBand: getMovementCooldownArcBand(
       getPlayerBadgeOuterRadius(playerIconSize),
     ),
-    origin,
+    entry: scene.player,
     progress: Math.min(1, remainingMs / movementCooldown.durationMs),
-    trackPool: scene.playerCooldownGraphics,
   });
 }
 
 export function renderDungeonEnemyMovementCooldowns({
   scene,
   enemyIconSize,
-  hexSize,
   movementTransitionRevealState,
-  origin,
   playerCoord,
   visibleTileRenderInputs,
   worldKind,
@@ -75,14 +74,17 @@ export function renderDungeonEnemyMovementCooldowns({
 }: {
   scene: SceneCache;
   enemyIconSize: number;
-  hexSize: number;
-  origin: { x: number; y: number };
   movementTransitionRevealState: MovementTransitionRevealState | null;
   playerCoord: HexCoord;
   visibleTileRenderInputs: VisibleTileRenderInput[];
   worldKind: WorldKind;
   worldTimeMs: number;
 }) {
+  scene.animatedWorldMarkers.forEach((marker) => {
+    if (marker.kind === 'enemy') {
+      resetShadowedSpriteBadgeOverlay(marker.entry);
+    }
+  });
   if (worldKind !== 'dungeon') {
     return;
   }
@@ -101,38 +103,34 @@ export function renderDungeonEnemyMovementCooldowns({
       continue;
     }
 
-    const point = tileToPoint(
-      {
-        q: tile.coord.q - playerCoord.q,
-        r: tile.coord.r - playerCoord.r,
-      },
-      origin.x,
-      origin.y,
-      hexSize,
-    );
-
-    for (const enemy of enemies) {
-      if (
-        enemy.dungeonMovementCooldownEndsAt === undefined ||
-        enemy.dungeonMovementCooldownEndsAt <= worldTimeMs
-      ) {
-        continue;
-      }
-
-      renderMovementCooldownArc({
-        cooldownBand,
-        origin: {
-          x: point.x,
-          y: point.y - 2,
-        },
-        progress: Math.min(
-          1,
-          (enemy.dungeonMovementCooldownEndsAt - worldTimeMs) /
-            WORLD_MOVE_HEX_COOLDOWN_MS,
-        ),
-        trackPool: scene.worldAnimatedMarkerBadgeGraphics,
-      });
+    const leadEnemy = enemies[0];
+    if (!leadEnemy) {
+      continue;
     }
+    if (
+      leadEnemy.dungeonMovementCooldownEndsAt === undefined ||
+      leadEnemy.dungeonMovementCooldownEndsAt <= worldTimeMs
+    ) {
+      continue;
+    }
+
+    const marker = scene.animatedWorldMarkers.find(
+      (candidate) =>
+        candidate.kind === 'enemy' && candidate.enemyId === leadEnemy.id,
+    );
+    if (!marker) {
+      continue;
+    }
+
+    renderMovementCooldownArc({
+      cooldownBand,
+      entry: marker.entry,
+      progress: Math.min(
+        1,
+        (leadEnemy.dungeonMovementCooldownEndsAt - worldTimeMs) /
+          WORLD_MOVE_HEX_COOLDOWN_MS,
+      ),
+    });
   }
 }
 
@@ -154,6 +152,7 @@ export function renderPlayerResourceBars({
 }) {
   decorateEntityBadge(scene.player, {
     alpha: 1,
+    backgroundAlpha: PLAYER_BADGE_BACKGROUND_ALPHA,
     backgroundColor: ENTITY_BADGE_BACKGROUND_COLORS.player,
     hp: {
       current: playerCombatStats.hp,
@@ -187,17 +186,16 @@ function getMovementCooldownArcBand(badgeOuterRadius: number) {
 
 function renderMovementCooldownArc({
   cooldownBand,
-  origin,
+  entry,
   progress,
-  trackPool,
 }: {
   cooldownBand: ReturnType<typeof getMovementCooldownArcBand>;
-  origin: { x: number; y: number };
+  entry: ShadowedSpriteEntry;
   progress: number;
-  trackPool: GraphicsPool;
 }) {
-  const trackGraphic = takeGraphics(trackPool);
-  trackGraphic.position.set(origin.x, origin.y);
+  const trackGraphic = entry.badgeOverlayGraphics;
+  trackGraphic.clear();
+  trackGraphic.visible = true;
   drawEntityBadgeArc(trackGraphic, {
     alpha: PLAYER_BAR_TRACK_ALPHA,
     color: PLAYER_BAR_TRACK_COLOR,
@@ -212,9 +210,7 @@ function renderMovementCooldownArc({
     return;
   }
 
-  const fillGraphic = takeGraphics(trackPool);
-  fillGraphic.position.set(origin.x, origin.y);
-  drawEntityBadgeArc(fillGraphic, {
+  drawEntityBadgeArc(trackGraphic, {
     alpha: PLAYER_BAR_FILL_ALPHA,
     color: MOVEMENT_COOLDOWN_BAR_COLOR,
     endAngle: ENTITY_BADGE_MP_ARC_ANGLES.endAngle,

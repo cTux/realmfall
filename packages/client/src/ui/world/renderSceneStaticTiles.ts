@@ -25,6 +25,7 @@ export function renderStaticTile({
   emphasized,
   enemyIconSize,
   animationMs,
+  hexSize,
   isHomeTile,
   markerIdentityKeyBase,
   isPlayerTile,
@@ -49,6 +50,7 @@ export function renderStaticTile({
   emphasized: boolean;
   enemyIconSize: number;
   animationMs: number;
+  hexSize: number;
   isHomeTile: boolean;
   markerIdentityKeyBase: string | null;
   isPlayerTile: boolean;
@@ -129,6 +131,7 @@ export function renderStaticTile({
     renderStaticMarkers({
       animationMs,
       enemyIconSize,
+      hexSize,
       markerIdentityKeyBase,
       point,
       scene,

@@ -44,6 +44,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - World movement transitions can carry a `playerOffsetAtStart` seed so a victory auto-step into a preserved hostile target continues from the held lunge offset through the normal full hex-slide duration instead of restarting from hex center.
 - The renderer consumes a bounded gameplay-authored `worldFloatingTextEvents` list and displays damage, critical-damage, and healing text above resolved player or hostile badge anchors, including defeated-enemy fallback anchors until the event lifetime expires.
 - Animated sky, atmosphere, cloud, overlay, and firelight layers use their own lower-cadence token, so hover or selection redraws inside the same animation bucket do not reset those animated stage layers again.
+- Revealed roaming dungeon enemies interpolate between adjacent hexes through scene-local marker transitions over the same `1000 ms` cadence as player movement, and a static marker rebuild forces the same-frame animated pass so those movers do not blink at the destination before the interpolation applies.
 - Deterministic ground-cover presentation and cloud inputs are memoized in bounded caches.
 - Hot animated atmosphere and cloud paths keep repeated layer configs at module scope and use indexed loops for cloud clusters, shadow layers, light shafts, and celestial halos so animation-only frames do not allocate those config arrays or callback closures repeatedly.
 - The world renderer includes time-of-day lighting, atmosphere passes, overlay tinting, and optional fish-eye processing.
@@ -69,7 +70,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - The Pixi canvas uses density-aware sizing so browser zoom and high-DPI displays keep the world viewport fitted to CSS pixels while renderer resolution tracks `window.devicePixelRatio` changes on resize within the current graphics preset cap.
 - Persisted settings now hydrate both Pixi renderer initialization flags, a preset-derived renderer density cap, and the live Pixi render-FPS cap through a dedicated plain `localStorage` `settings` payload that is read before the initial game and Pixi setup; `usePixiWorld` captures init-time flags for the current page lifetime, marks their controls as reload-required, and keeps live terrain-background plus render-FPS changes on the redraw invalidation path.
 - Hover-analysis caching now invalidates from gameplay-state versions that materially affect interaction resolution rather than from every broad `tiles` or `enemies` container identity change.
-- Player movement cooldown and revealed roaming dungeon enemy movement cooldowns render as outer arcs that touch the badge MP ring with no gap instead of as separate under-icon bars.
+- Player movement cooldown and revealed roaming dungeon enemy movement cooldowns render as outer arcs that touch the badge MP ring with no gap instead of as separate under-icon bars, and those arcs live on the same badge wrapper so they follow frame animation and movement exactly.
 
 ## Main Implementation Areas
 

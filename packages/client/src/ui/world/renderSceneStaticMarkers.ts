@@ -30,6 +30,7 @@ import {
   getStructureHexIconTint,
   registerAnimatedWorldMarker,
 } from './renderSceneShared';
+import { getDungeonEnemyAnimatedMovementTransition } from './renderSceneDungeonEnemyTransitions';
 import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
 import {
   getVisibleWorldTileRevealProgress,
@@ -44,6 +45,7 @@ const WORLD_BOSS_ICON_SCALE = 0.92 * 0.8 * 0.8 * 1.1 * 1.1 * 1.05 * 1.05;
 export function renderStaticMarkers({
   animationMs,
   enemyIconSize,
+  hexSize,
   markerIdentityKeyBase,
   point,
   scene,
@@ -58,6 +60,7 @@ export function renderStaticMarkers({
 }: {
   animationMs: number;
   enemyIconSize: number;
+  hexSize: number;
   markerIdentityKeyBase: string | null;
   point: { x: number; y: number };
   scene: SceneCache;
@@ -200,9 +203,9 @@ export function renderStaticMarkers({
         scene.worldStaticMarkerSprites,
         enemyIconFor(leadEnemy),
         {
-          stableKey: getMarkerIdentityKey(
-            isBossCenter ? 'world-boss' : 'enemy',
-          ),
+          stableKey: isBossCenter
+            ? getMarkerIdentityKey('world-boss')
+            : `enemy:${leadEnemy.id}`,
         },
       );
       const tint = enemyIconTintFor(highestRarityEnemy);
@@ -247,6 +250,17 @@ export function renderStaticMarkers({
         tint,
         isBossCenter ? 'worldBoss' : 'enemy',
         resolvedMarkerAlpha,
+        isBossCenter
+          ? undefined
+          : {
+              animationKey: leadEnemy.id,
+              enemyId: leadEnemy.id,
+              movementTransition: getDungeonEnemyAnimatedMovementTransition({
+                enemy: leadEnemy,
+                hexSize,
+                scene,
+              }),
+            },
       );
     }
   }

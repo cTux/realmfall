@@ -123,16 +123,13 @@ export function renderAnimatedScene({
   );
   renderPlayerMovementCooldown({
     scene,
-    origin: playerOrigin,
     playerIconSize,
     movementCooldown,
   });
   renderDungeonEnemyMovementCooldowns({
     scene,
     enemyIconSize,
-    hexSize,
     movementTransitionRevealState,
-    origin,
     playerCoord,
     visibleTileRenderInputs,
     worldKind,

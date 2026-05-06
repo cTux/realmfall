@@ -11,6 +11,7 @@ import { buildCloudRenderInputs } from './renderSceneEnvironment';
 import { ENTITY_BADGE_BACKGROUND_COLORS } from './renderSceneEntityBadge';
 import {
   createAnimatedWorldMarker,
+  type AnimatedWorldMarkerMovementTransition,
   type WorldMarkerAnimationKind,
 } from './renderSceneMarkerAnimations';
 import { makeHex, type tileToPoint } from './renderSceneMath';
@@ -63,14 +64,22 @@ export function registerAnimatedWorldMarker(
   tint: number,
   kind: WorldMarkerAnimationKind,
   alpha = 1,
+  options?: {
+    animationKey?: string;
+    enemyId?: string;
+    movementTransition?: AnimatedWorldMarkerMovementTransition;
+  },
 ) {
   scene.animatedWorldMarkers.push(
     createAnimatedWorldMarker({
       alpha,
+      animationKey: options?.animationKey,
       coord,
+      enemyId: options?.enemyId,
       entry,
       height,
       kind,
+      movementTransition: options?.movementTransition,
       point,
       seed,
       tint,

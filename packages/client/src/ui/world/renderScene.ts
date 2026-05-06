@@ -34,6 +34,7 @@ import {
 import { getCombatFeedbackRenderToken } from './renderSceneCombatFeedback';
 import { renderTilePasses } from './renderSceneTilePasses';
 import { renderAnimatedScene } from './renderSceneAnimated';
+import { syncDungeonEnemyMovementTransitions } from './renderSceneDungeonEnemyTransitions';
 import { renderPlayerResourceBars } from './renderScenePlayerBars';
 import { getMovementTransitionRevealState } from './renderSceneVisibility';
 import {
@@ -115,6 +116,7 @@ export function renderScene(
   const renderWorldTimeMs = options.worldTimeMs ?? state.worldTimeMs;
   const movementCooldown = options.movementCooldown ?? null;
   const movementTransition = options.movementTransition ?? null;
+  syncDungeonEnemyMovementTransitions(scene, state, animationMs);
   const movementTransitionRenderToken = getMovementTransitionRenderToken(
     movementTransition,
     worldRenderFrameMs,
@@ -184,8 +186,6 @@ export function renderScene(
       worldTimeMs: renderWorldTimeMs,
     }),
   ].join(':');
-  const shouldRenderAnimated =
-    screenChanged || scene.animatedRenderToken !== animatedRenderToken;
   const displayVisibleTiles = movementTransition
     ? (movementTransition.displayTiles ?? [
         ...visibleTiles,
@@ -211,6 +211,10 @@ export function renderScene(
     screenChanged ||
     scene.staticRenderToken !== staticRenderToken ||
     scene.visibleEnemyBadgeRenderToken !== visibleEnemyBadgeRenderToken;
+  const shouldRenderAnimated =
+    screenChanged ||
+    shouldRenderStatic ||
+    scene.animatedRenderToken !== animatedRenderToken;
   const shouldRenderInteraction =
     shouldRenderStatic ||
     scene.playerResourceRenderToken !== playerResourceRenderToken ||
