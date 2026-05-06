@@ -69,6 +69,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `useAppShortcutRuntime` owns shortcut-only availability wiring such as home-setting eligibility, keeping `useAppRuntime` from recomputing action gates inline next to unrelated lifecycle and persistence setup.
 - `useAppWindowRuntime` owns the memoized window view and action composition path before `AppWindows` props are assembled, so the top-level runtime hook does not rebuild the full window contract in the same block as combat automation and world bootstrap wiring.
 - `useAppWindowRuntime` adapts grouped controller, settings, gameplay-view, and transition slices into the narrower `useAppWindowViews` and `useAppWindowActions` inputs, so the top-level runtime passes responsibility buckets instead of hand-assembling the entire window contract inline.
+- `useWindowTransitions` stays composition-first by wiring loot and combat windows through the shared `src/app/App/hooks/useDeferredWindowLifecycle.ts` hook, which owns the common requestAnimationFrame enter, delayed unmount, and snapshot-retention lifecycle for deferred window content.
 - `useAppPersistence` keeps hydration and latest-input tracking in the hook while local `persistence/` helpers own segment serialization and autosave scheduling, separating save bootstrapping from debounce, idle-flush, and queued-write mechanics.
 - `useCombatAutomation` schedules the next combat step from the earliest pending combat event across actor cooldowns, cast completions, combat status-effect ticks, and effect expirations.
 - `useCombatAutomation` receives the specific combat-facing slices it reads, such as `combat`, `playerStatusEffects`, and the enemy lookup, so unrelated top-level game-state clones do not reschedule the combat timer path.
@@ -119,6 +120,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `src/app/App/hooks/useAppShortcutRuntime.ts`
 - `src/app/App/hooks/useAppWorldClock.ts`
 - `src/app/App/hooks/useAppWindowRuntime.ts`
+- `src/app/App/hooks/useDeferredWindowLifecycle.ts`
 - `src/app/App/hooks/useAppWindowsProps.ts`
 - `src/app/App/hooks/useHexGameplayView.ts`
 - `src/app/App/hooks/useAppWindowHandlers.ts`

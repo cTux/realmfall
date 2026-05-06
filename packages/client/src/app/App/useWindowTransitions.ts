@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { Enemy, GameState, Item, Tile } from '../../game/stateTypes';
+import { useDeferredWindowLifecycle } from './hooks/useDeferredWindowLifecycle';
 
 interface UseWindowTransitionsOptions {
   combat: GameState['combat'];
@@ -22,66 +23,24 @@ export function useWindowTransitions({
     !combat && lootWindowKey && !suppressLootAutoOpen,
   );
 
-  const [keepLootWindowMounted, setKeepLootWindowMounted] =
-    useState(showLootWindow);
-  const [lootWindowVisible, setLootWindowVisible] = useState(showLootWindow);
-  const [tileLootSnapshot, setTileLootSnapshot] = useState<Item[]>(
-    currentTile.items,
-  );
-
-  useEffect(() => {
-    if (showLootWindow) {
-      setTileLootSnapshot(currentTile.items);
-      setKeepLootWindowMounted(true);
-      const frame = window.requestAnimationFrame(() =>
-        setLootWindowVisible(true),
-      );
-      return () => window.cancelAnimationFrame(frame);
-    }
-
-    setLootWindowVisible(false);
-    const timeout = window.setTimeout(
-      () => setKeepLootWindowMounted(false),
-      180,
-    );
-    return () => window.clearTimeout(timeout);
-  }, [currentTile.items, showLootWindow]);
-
-  const [keepCombatWindowMounted, setKeepCombatWindowMounted] = useState(
-    Boolean(combat),
-  );
-  const [combatWindowVisible, setCombatWindowVisible] = useState(
-    Boolean(combat),
-  );
-  const [combatSnapshot, setCombatSnapshot] = useState<{
+  const lootWindow = useDeferredWindowLifecycle<Item[]>({
+    active: showLootWindow,
+    snapshot: currentTile.items,
+  });
+  const combatWindow = useDeferredWindowLifecycle<{
     combat: NonNullable<GameState['combat']>;
     enemies: Enemy[];
-  } | null>(combat ? { combat, enemies: combatEnemies } : null);
-
-  useEffect(() => {
-    if (combat) {
-      setCombatSnapshot({ combat, enemies: combatEnemies });
-      setKeepCombatWindowMounted(true);
-      const frame = window.requestAnimationFrame(() =>
-        setCombatWindowVisible(true),
-      );
-      return () => window.cancelAnimationFrame(frame);
-    }
-
-    setCombatWindowVisible(false);
-    const timeout = window.setTimeout(
-      () => setKeepCombatWindowMounted(false),
-      180,
-    );
-    return () => window.clearTimeout(timeout);
-  }, [combat, combatEnemies]);
+  } | null>({
+    active: Boolean(combat),
+    snapshot: combat ? { combat, enemies: combatEnemies } : null,
+  });
 
   return {
-    combatSnapshot,
-    combatWindowVisible,
-    tileLootSnapshot,
-    lootWindowVisible,
-    keepCombatWindowMounted,
-    keepLootWindowMounted,
+    combatSnapshot: combatWindow.snapshot,
+    combatWindowVisible: combatWindow.visible,
+    tileLootSnapshot: lootWindow.snapshot,
+    lootWindowVisible: lootWindow.visible,
+    keepCombatWindowMounted: combatWindow.mounted,
+    keepLootWindowMounted: lootWindow.mounted,
   };
 }
