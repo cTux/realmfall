@@ -37,6 +37,7 @@ export const ENTITY_BADGE_BACKGROUND_COLORS = {
   default: 0x123524,
   enemy: 0x2a0505,
   player: 0x041821,
+  structure: 0x082f49,
 } as const;
 
 export const ENTITY_BADGE_HP_FILL_COLOR = 0xff2d55;

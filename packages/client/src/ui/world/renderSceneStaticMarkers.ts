@@ -26,6 +26,7 @@ import {
 import { ENEMY_GROUP_LABEL_STYLE, type SceneCache } from './renderSceneCache';
 import {
   ENEMY_GROUP_BADGE_OFFSET,
+  getStructureBadgeBackgroundColor,
   getStructureHexIconTint,
   registerAnimatedWorldMarker,
 } from './renderSceneShared';
@@ -118,7 +119,7 @@ export function renderStaticMarkers({
     configureEntityBadgeSprite(marker, {
       alpha: resolvedMarkerAlpha,
       backgroundAlpha: ENTITY_BADGE_STRUCTURE_BACKGROUND_ALPHA,
-      backgroundColor: ENTITY_BADGE_BACKGROUND_COLORS.default,
+      backgroundColor: getStructureBadgeBackgroundColor(tile.structure),
       borderWidth: ENTITY_BADGE_STRUCTURE_BORDER_WIDTH,
       iconSize: structureBadgeIconSize,
       iconTint: tint,

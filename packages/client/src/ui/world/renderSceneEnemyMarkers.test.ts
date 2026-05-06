@@ -22,7 +22,8 @@ const ENEMY_HEALTH_TRACK_COLOR = 0x450a0a;
 const ENEMY_MANA_TRACK_COLOR = 0x172554;
 const BADGE_PLATE_BACKGROUND_COLOR = 0x000000;
 const BADGE_PLATE_TEXT_COLOR = 0xffffff;
-const STRUCTURE_BACKGROUND_COLOR = 0x123524;
+const RESOURCE_BACKGROUND_COLOR = 0x123524;
+const STRUCTURE_BACKGROUND_COLOR = 0x082f49;
 const STRUCTURE_BACKGROUND_ALPHA = 0.4;
 const STRUCTURE_BORDER_COLOR = 0x000000;
 
@@ -180,8 +181,8 @@ describe('renderScene enemy markers', () => {
     expect(rareEnemyMarker).toBeDefined();
     expect(whiteStructureMarker).toBeDefined();
     expect(copperOreMarker).toBeDefined();
-    assertStructureBadgeWrapper(townWrapper);
-    assertStructureBadgeWrapper(oreWrapper);
+    assertStructureBadgeWrapper(townWrapper, STRUCTURE_BACKGROUND_COLOR);
+    assertStructureBadgeWrapper(oreWrapper, RESOURCE_BACKGROUND_COLOR);
   });
 
   it('updates a cached enemy marker tint when only visible enemy rarity changes', async () => {
@@ -811,7 +812,10 @@ function findMarkerWrapperByIcon(markerLayer: MockContainer, icon: string) {
   }) as MockContainer | undefined;
 }
 
-function assertStructureBadgeWrapper(wrapper: MockContainer | undefined) {
+function assertStructureBadgeWrapper(
+  wrapper: MockContainer | undefined,
+  expectedBackgroundColor: number,
+) {
   expect(wrapper).toBeDefined();
   const descendants = collectDescendants(wrapper!);
   const graphics = descendants.filter(
@@ -825,7 +829,7 @@ function assertStructureBadgeWrapper(wrapper: MockContainer | undefined) {
       graphic.drawEllipse.mock.calls.length > 0 &&
       graphic.beginFill.mock.calls.some(
         ([fillColor, alpha]) =>
-          fillColor === STRUCTURE_BACKGROUND_COLOR &&
+          fillColor === expectedBackgroundColor &&
           alpha === STRUCTURE_BACKGROUND_ALPHA,
       ),
   );

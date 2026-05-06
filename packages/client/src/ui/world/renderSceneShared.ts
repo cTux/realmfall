@@ -8,6 +8,7 @@ import {
   setBoundedCachedValue,
 } from './renderSceneCache';
 import { buildCloudRenderInputs } from './renderSceneEnvironment';
+import { ENTITY_BADGE_BACKGROUND_COLORS } from './renderSceneEntityBadge';
 import {
   createAnimatedWorldMarker,
   type WorldMarkerAnimationKind,
@@ -116,6 +117,14 @@ export function getStructureHexIconTint(structure: Tile['structure']) {
   }
 
   return STRUCTURE_HEX_ICON_TINT;
+}
+
+export function getStructureBadgeBackgroundColor(structure: Tile['structure']) {
+  if (structure && getStructureConfig(structure).gathering) {
+    return ENTITY_BADGE_BACKGROUND_COLORS.default;
+  }
+
+  return ENTITY_BADGE_BACKGROUND_COLORS.structure;
 }
 
 export function structureEmitsCampfireLight(structure: Tile['structure']) {
