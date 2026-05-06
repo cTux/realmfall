@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef } from 'react';
+import { isEnemyInitiatedCombat } from '../../../game/stateCombatEngagement';
 import type { GameState, HexCoord } from '../../../game/stateTypes';
 
 export function useCombatAttentionWindow({
@@ -42,6 +43,7 @@ export function useCombatAttentionWindow({
       hasCombat &&
       !hadCombat &&
       playerMoved &&
+      !isEnemyInitiatedCombat(combat) &&
       !windowShownHexInfo &&
       !suppressHexInfoAutoOpen
     ) {

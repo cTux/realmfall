@@ -157,7 +157,7 @@ export function useAppRuntime() {
     !dungeonTransition.hasTransitionError;
 
   useHexInfoWindowPromotion({
-    combatActive: bootstrap.game.combat != null,
+    combat: bootstrap.game.combat,
     currentLootAvailable: gameView.currentTile.items.length > 0,
     currentStructure: gameView.currentTile.structure,
     suppressAutoOpen: pixiWorld.queuedTravelAutoOpenSuppressed,

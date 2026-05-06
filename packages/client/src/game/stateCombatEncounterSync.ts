@@ -3,7 +3,10 @@ import { createCombatActorState } from './combat';
 import { clearConsumableCooldownIfOutOfCombat } from './combatActivity';
 import { hexKey } from './hex';
 import { addLog } from './logs';
-import { applyCombatVictoryAutoStep } from './stateCombatEngagement';
+import {
+  applyCombatVictoryAutoStep,
+  getCombatEncounterCoord,
+} from './stateCombatEngagement';
 import { createCombatEnemyEncounterState } from './stateCombatTreasureGoblin';
 import type { GameState } from './types';
 import { buildTileForState, normalizeStructureState } from './world';
@@ -57,8 +60,4 @@ export function syncCombatEncounterEnemies(state: GameState) {
       );
     }
   }
-}
-
-function getCombatEncounterCoord(combat: NonNullable<GameState['combat']>) {
-  return combat.engagement?.targetCoord ?? combat.coord;
 }

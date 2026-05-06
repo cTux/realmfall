@@ -23,6 +23,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - Combat ability tiles render the live ability icon asset and visually desaturate and fade while the ability is unavailable, without showing a ticking cooldown overlay.
 - Combat entity cards show HP and mana bars only; active casts do not render a separate cast bar.
 - Combat entity cards snap their ability-availability view models to a short visual cadence instead of rebuilding every card on every world-clock tick.
+- Combat content in the hex info window resolves the active enemy party from the preserved encounter target, so staged hostile fights and dungeon chase fights show the engaged enemies even when the player remains on a different staging hex.
 - World-map combat feedback keeps the player badge and the engaged hostile marker badges synchronized to live HP and mana values during combat, shows bounded floating damage and healing text above those badge anchors, and applies a brief render-only player lunge toward the engaged target.
 - The player world badge keeps a light-green circular fill with slightly lower opacity than the default entity-badge fill so the icon remains readable without flattening the terrain beneath it.
 - Action bar consumable bindings clear themselves once the assigned stack no longer exists in inventory, so depleted consumables do not linger as unavailable stale slots.
@@ -38,6 +39,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - While the hex info window is open on a surface dungeon entrance, the content body surfaces `Enter dungeon`.
 - While the hex info window is open on the dungeon entrance tile inside a dungeon world, the content body surfaces `Leave dungeon`.
 - While the hex info window is open on the final dungeon chest tile, the content body surfaces `Open dungeon chest`.
+- Enemy-initiated dungeon chase combat does not auto-open the hex info window; the player must open that window manually if they want to inspect combat content during a chase-triggered fight.
 - The hex info content body omits passive terrain, structure, territory, empty-state, and section-title copy so non-combat tiles present only actionable controls, bars, and item slots.
 - Item-slot containers rendered inside the hex info content window use shared stable style constants at `0.8x` of the shared slot sizes so town stock, loot, and item-modification slots stay visually subordinate to the main inventory surfaces without receiving fresh style-object props on every content render.
 - Town stock in the hex info content window wraps its item slots with a flex row layout instead of CSS grid so slot spacing follows the shared item-slot sizing more predictably.

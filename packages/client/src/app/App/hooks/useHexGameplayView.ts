@@ -17,6 +17,7 @@ import {
 } from '../../../game/stateSelectors';
 import { getActiveWorld } from '../../../game/dungeons/worldState';
 import { getResolvedCurrentHexClaimStatus } from '../../../game/stateClaims';
+import { getCombatEncounterCoord } from '../../../game/stateCombatEngagement';
 import {
   FACTION_NPC_HEAL_COST,
   getCurrentHexFactionNpcHealStatus,
@@ -129,7 +130,10 @@ export function useHexGameplayView({
     [coord, resolvedCurrentTile, seed, tiles, worldDayIndex],
   );
   const combatEnemies = useMemo(
-    () => (combat ? getEnemiesAt(enemyLookupInput, combat.coord) : []),
+    () =>
+      combat
+        ? getEnemiesAt(enemyLookupInput, getCombatEncounterCoord(combat))
+        : [],
     [combat, enemyLookupInput],
   );
   const currentTileHostileEnemyCount = useMemo(

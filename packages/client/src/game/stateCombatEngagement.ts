@@ -112,6 +112,18 @@ export function getCombatEngagementOrDefault(
   };
 }
 
+export function getCombatEncounterCoord(
+  combat: Pick<CombatState, 'coord' | 'engagement'>,
+) {
+  return combat.engagement?.targetCoord ?? combat.coord;
+}
+
+export function isEnemyInitiatedCombat(
+  combat: Pick<CombatState, 'engagement'> | null | undefined,
+) {
+  return combat?.engagement?.engageMode === 'enemy-chase';
+}
+
 export function applyCombatVictoryAutoStep(state: GameState) {
   const targetCoord = state.combat?.engagement?.targetCoord;
   if (

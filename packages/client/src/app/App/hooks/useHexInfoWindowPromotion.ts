@@ -1,10 +1,11 @@
 import { useEffect, type Dispatch, type SetStateAction } from 'react';
 import { getRecipeSkillForStructure } from '../../../game/crafting';
-import type { Tile } from '../../../game/stateTypes';
+import { isEnemyInitiatedCombat } from '../../../game/stateCombatEngagement';
+import type { GameState, Tile } from '../../../game/stateTypes';
 import type { WindowVisibilityState } from '../../constants';
 
 interface UseHexInfoWindowPromotionArgs {
-  combatActive: boolean;
+  combat: GameState['combat'];
   currentLootAvailable: boolean;
   currentStructure?: Tile['structure'];
   suppressAutoOpen: boolean;
@@ -13,7 +14,7 @@ interface UseHexInfoWindowPromotionArgs {
 }
 
 export function useHexInfoWindowPromotion({
-  combatActive,
+  combat,
   currentLootAvailable,
   currentStructure,
   suppressAutoOpen,
@@ -29,10 +30,12 @@ export function useHexInfoWindowPromotion({
       const shouldAutoOpenStructureInfo =
         currentStructure != null &&
         getRecipeSkillForStructure(currentStructure) == null;
+      const shouldAutoOpenCombatInfo =
+        combat != null && !isEnemyInitiatedCombat(combat);
       const shouldShowHexInfo =
         shouldAutoOpenStructureInfo ||
         currentLootAvailable ||
-        combatActive ||
+        shouldAutoOpenCombatInfo ||
         current.loot ||
         current.combat;
 
@@ -52,7 +55,7 @@ export function useHexInfoWindowPromotion({
       };
     });
   }, [
-    combatActive,
+    combat,
     currentLootAvailable,
     currentStructure,
     suppressAutoOpen,
