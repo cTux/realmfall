@@ -15,10 +15,13 @@ export type WorldMarkerAnimationKind =
 
 interface AnimatedWorldMarkerOptions {
   alpha: number;
+  animationKey?: string;
   coord: HexCoord;
+  enemyId?: string;
   entry: ShadowedSpriteEntry;
   height: number;
   kind: WorldMarkerAnimationKind;
+  movementTransition?: AnimatedWorldMarkerMovementTransition;
   point: { x: number; y: number };
   seed: string;
   tint: number;
@@ -34,6 +37,8 @@ interface WorldMarkerLightingState {
 export interface AnimatedWorldMarker {
   baseAlpha: number;
   baseHeight: number;
+  enemyId?: string;
+  movementTransition?: AnimatedWorldMarkerMovementTransition;
   basePoint: { x: number; y: number };
   baseTint: number;
   baseWidth: number;
@@ -44,21 +49,34 @@ export interface AnimatedWorldMarker {
   timeScale: number;
 }
 
+export interface AnimatedWorldMarkerMovementTransition {
+  durationMs: number;
+  offsetAtStart: { x: number; y: number };
+  startedAtMs: number;
+}
+
 export function createAnimatedWorldMarker({
   alpha,
+  animationKey,
   coord,
+  enemyId,
   entry,
   height,
   kind,
+  movementTransition,
   point,
   seed,
   tint,
   width,
 }: AnimatedWorldMarkerOptions): AnimatedWorldMarker {
-  const rng = createRng(`${seed}:${hexKey(coord)}:${kind}`);
+  const rng = createRng(
+    animationKey ? `${seed}:${kind}:${animationKey}` : `${seed}:${hexKey(coord)}:${kind}`,
+  );
   return {
     baseAlpha: alpha,
     baseHeight: height,
+    enemyId,
+    movementTransition,
     basePoint: { ...point },
     baseTint: tint,
     baseWidth: width,
@@ -76,12 +94,18 @@ export function animateWorldMarkers(
   lighting: WorldMarkerLightingState,
 ) {
   markers.forEach((marker) =>
-    animateWorldMarker(marker, animationMs * marker.timeScale, lighting),
+    animateWorldMarker(
+      marker,
+      animationMs,
+      animationMs * marker.timeScale,
+      lighting,
+    ),
   );
 }
 
 function animateWorldMarker(
   marker: AnimatedWorldMarker,
+  movementAnimationMs: number,
   animationMs: number,
   lighting: WorldMarkerLightingState,
 ) {
@@ -163,9 +187,13 @@ function animateWorldMarker(
     }
   }
 
+  const movementOffset = getAnimatedMarkerMovementOffset(
+    marker,
+    movementAnimationMs,
+  );
   marker.entry.wrapper.position.set(
-    marker.basePoint.x,
-    marker.basePoint.y + yOffset,
+    marker.basePoint.x + movementOffset.x,
+    marker.basePoint.y + movementOffset.y + yOffset,
   );
   marker.entry.wrapper.scale.set(scale, scale);
   marker.entry.wrapper.rotation = rotation;
@@ -173,6 +201,33 @@ function animateWorldMarker(
   marker.entry.sprite.tint = tint;
   marker.entry.sprite.width = marker.baseWidth;
   marker.entry.sprite.height = marker.baseHeight;
+}
+
+function getAnimatedMarkerMovementOffset(
+  marker: AnimatedWorldMarker,
+  animationMs: number,
+) {
+  const transition = marker.movementTransition;
+  if (!transition) {
+    return { x: 0, y: 0 };
+  }
+
+  if (animationMs >= transition.startedAtMs + transition.durationMs) {
+    return { x: 0, y: 0 };
+  }
+
+  const progress = Math.max(
+    0,
+    Math.min(
+      1,
+      (animationMs - transition.startedAtMs) / transition.durationMs,
+    ),
+  );
+  const remainingProgress = 1 - progress;
+  return {
+    x: transition.offsetAtStart.x * remainingProgress,
+    y: transition.offsetAtStart.y * remainingProgress,
+  };
 }
 
 export function sampleHostileMarkerJump(progress: number) {

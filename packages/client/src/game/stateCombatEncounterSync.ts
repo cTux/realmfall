@@ -3,6 +3,10 @@ import { createCombatActorState } from './combat';
 import { clearConsumableCooldownIfOutOfCombat } from './combatActivity';
 import { hexKey } from './hex';
 import { addLog } from './logs';
+import {
+  applyCombatVictoryAutoStep,
+  getCombatEncounterCoord,
+} from './stateCombatEngagement';
 import { createCombatEnemyEncounterState } from './stateCombatTreasureGoblin';
 import type { GameState } from './types';
 import { buildTileForState, normalizeStructureState } from './world';
@@ -10,14 +14,15 @@ import { buildTileForState, normalizeStructureState } from './world';
 export function syncCombatEncounterEnemies(state: GameState) {
   if (!state.combat) return;
 
+  const encounterCoord = getCombatEncounterCoord(state.combat);
   const tile =
-    state.tiles[hexKey(state.combat.coord)] ??
-    buildTileForState(state, state.combat.coord);
+    state.tiles[hexKey(encounterCoord)] ??
+    buildTileForState(state, encounterCoord);
   const enemyIds = tile.enemyIds.filter((enemyId) =>
     Boolean(state.enemies[enemyId]),
   );
 
-  state.tiles[hexKey(state.combat.coord)] = normalizeStructureState({
+  state.tiles[hexKey(encounterCoord)] = normalizeStructureState({
     ...tile,
     enemyIds,
   });
@@ -40,8 +45,19 @@ export function syncCombatEncounterEnemies(state: GameState) {
   state.combat.enemyIds = enemyIds;
 
   if (enemyIds.length === 0) {
+    const moved = applyCombatVictoryAutoStep(state);
     state.combat = null;
     clearConsumableCooldownIfOutOfCombat(state);
     addLog(state, 'combat', t('game.message.combat.over'));
+    if (moved) {
+      addLog(
+        state,
+        'movement',
+        t('game.message.travel.toHex', {
+          q: state.player.coord.q,
+          r: state.player.coord.r,
+        }),
+      );
+    }
   }
 }

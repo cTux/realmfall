@@ -12,7 +12,8 @@ import {
 
 setupRenderSceneTestEnvironment();
 
-const PLAYER_BACKGROUND_COLOR = 0x041821;
+const PLAYER_BACKGROUND_COLOR = 0x4ade80;
+const PLAYER_BACKGROUND_ALPHA = 0.6;
 const PLAYER_HEALTH_TRACK_COLOR = 0x450a0a;
 const PLAYER_HEALTH_FILL_COLOR = 0xff2d55;
 const PLAYER_MANA_TRACK_COLOR = 0x172554;
@@ -37,7 +38,7 @@ describe('renderScene player resource bars', () => {
     vi.unstubAllGlobals();
   });
 
-  it('renders the player inside a darker circular badge with top HP, bottom MP, and a level plate', async () => {
+  it('renders the player inside a green circular badge with top HP, bottom MP, and a level plate', async () => {
     const { renderScene } = await import('./renderScene');
     const { applyInterfaceFontFamily, resolveInterfaceFontStack } =
       await import('../../app/interfaceFonts');
@@ -86,7 +87,9 @@ describe('renderScene player resource bars', () => {
     expect(backgroundGraphic).toBeDefined();
     expect(
       backgroundGraphic?.beginFill.mock.calls.some(
-        ([fillColor]) => fillColor === PLAYER_BACKGROUND_COLOR,
+        ([fillColor, alpha]) =>
+          fillColor === PLAYER_BACKGROUND_COLOR &&
+          alpha === PLAYER_BACKGROUND_ALPHA,
       ),
     ).toBe(true);
     expect(backgroundGraphic?.lineStyle).not.toHaveBeenCalled();

@@ -31,8 +31,10 @@ import {
   WORLD_MAP_CLOUD_PARALLAX_FACTOR,
   ZERO_SHADOW_OFFSET,
 } from './renderSceneShared';
+import { getCombatFeedbackRenderToken } from './renderSceneCombatFeedback';
 import { renderTilePasses } from './renderSceneTilePasses';
 import { renderAnimatedScene } from './renderSceneAnimated';
+import { syncDungeonEnemyMovementTransitions } from './renderSceneDungeonEnemyTransitions';
 import { renderPlayerResourceBars } from './renderScenePlayerBars';
 import { getMovementTransitionRevealState } from './renderSceneVisibility';
 import {
@@ -63,6 +65,10 @@ interface RenderSceneMovementTransition {
   incomingTiles: VisibleWorldTile[];
   nowMs: number;
   outgoingTiles: VisibleWorldTile[];
+  playerOffsetAtStart?: {
+    x: number;
+    y: number;
+  };
   startedAtMs: number;
   toCoord: HexCoord;
 }
@@ -110,6 +116,7 @@ export function renderScene(
   const renderWorldTimeMs = options.worldTimeMs ?? state.worldTimeMs;
   const movementCooldown = options.movementCooldown ?? null;
   const movementTransition = options.movementTransition ?? null;
+  syncDungeonEnemyMovementTransitions(scene, state, animationMs);
   const movementTransitionRenderToken = getMovementTransitionRenderToken(
     movementTransition,
     worldRenderFrameMs,
@@ -130,6 +137,8 @@ export function renderScene(
     movementTransition,
     hexSize,
   );
+  const playerTransitionOffset =
+    getMovementTransitionPlayerOffset(movementTransition);
   const worldMapScale =
     typeof scene.worldMap.scale.x === 'number' ? scene.worldMap.scale.x : 1;
   const cloudParallaxOffset = {
@@ -171,9 +180,12 @@ export function renderScene(
       worldRenderFrameMs,
     ),
     getMovementCooldownRenderToken(movementCooldown, worldRenderFrameMs),
+    getCombatFeedbackRenderToken({
+      state,
+      worldRenderFrameMs,
+      worldTimeMs: renderWorldTimeMs,
+    }),
   ].join(':');
-  const shouldRenderAnimated =
-    screenChanged || scene.animatedRenderToken !== animatedRenderToken;
   const displayVisibleTiles = movementTransition
     ? (movementTransition.displayTiles ?? [
         ...visibleTiles,
@@ -187,12 +199,22 @@ export function renderScene(
     animationMs,
     worldRenderFrameMs,
   );
+  const visibleEnemyBadgeRenderToken = getVisibleEnemyBadgeRenderToken(
+    state.combat?.enemyIds,
+    renderTokens.visibleTileRenderInputs,
+  );
   const staticRenderToken =
     movementTransitionRenderToken === -1
       ? renderTokens.static
       : mixRenderToken(renderTokens.static, movementTransitionRenderToken);
   const shouldRenderStatic =
-    screenChanged || scene.staticRenderToken !== staticRenderToken;
+    screenChanged ||
+    scene.staticRenderToken !== staticRenderToken ||
+    scene.visibleEnemyBadgeRenderToken !== visibleEnemyBadgeRenderToken;
+  const shouldRenderAnimated =
+    screenChanged ||
+    shouldRenderStatic ||
+    scene.animatedRenderToken !== animatedRenderToken;
   const shouldRenderInteraction =
     shouldRenderStatic ||
     scene.playerResourceRenderToken !== playerResourceRenderToken ||
@@ -305,6 +327,7 @@ export function renderScene(
   if (shouldRenderStatic) {
     completeStaticSceneRender(scene);
     scene.staticRenderToken = staticRenderToken;
+    scene.visibleEnemyBadgeRenderToken = visibleEnemyBadgeRenderToken;
   }
 
   if (shouldRenderInteraction) {
@@ -331,11 +354,14 @@ export function renderScene(
       hexSize,
       lightingState,
       movementCooldown,
+      enemyIconSize,
       cloudParallaxOffset,
       origin,
       playerIconSize,
+      playerTransitionOffset,
       scene,
       playerCoord: state.player.coord,
+      state,
       movementTransitionRevealState,
       visibleTileRenderInputs: renderTokens.visibleTileRenderInputs,
       worldKind: currentWorldKind,
@@ -407,6 +433,25 @@ function getMovementTransitionOffset(
   });
 }
 
+function getMovementTransitionPlayerOffset(
+  movementTransition: RenderSceneMovementTransition | null,
+) {
+  if (!movementTransition?.playerOffsetAtStart) {
+    return { x: 0, y: 0 };
+  }
+
+  const progress = getMovementTransitionProgress(movementTransition);
+  if (progress === null) {
+    return { x: 0, y: 0 };
+  }
+
+  const remainingProgress = 1 - progress;
+  return {
+    x: movementTransition.playerOffsetAtStart.x * remainingProgress,
+    y: movementTransition.playerOffsetAtStart.y * remainingProgress,
+  };
+}
+
 function getMovementTransitionProgress(
   movementTransition: RenderSceneMovementTransition,
 ) {
@@ -458,4 +503,58 @@ function getPlayerResourceRenderToken({
   level: number;
 }) {
   return [level, hp, maxHp, mana, maxMana].join(':');
+}
+
+function getVisibleEnemyBadgeRenderToken(
+  engagedEnemyIds: string[] | undefined,
+  visibleTileRenderInputs: ReturnType<
+    typeof getSceneRenderTokens
+  >['visibleTileRenderInputs'],
+) {
+  if (!engagedEnemyIds?.length) {
+    return -1;
+  }
+
+  const engagedEnemyIdSet = new Set(engagedEnemyIds);
+  let token = 2166136261;
+  let hasVisibleEngagedEnemy = false;
+
+  visibleTileRenderInputs.forEach(({ hostileEnemies, tile }) => {
+    const engagedHostiles = hostileEnemies.filter((enemy) =>
+      engagedEnemyIdSet.has(enemy.id),
+    );
+    if (engagedHostiles.length === 0) {
+      return;
+    }
+
+    hasVisibleEngagedEnemy = true;
+    token = mixRenderToken(token, coordToken(tile.coord));
+
+    engagedHostiles.forEach((enemy) => {
+      token = mixRenderToken(token, hashRenderString(enemy.id));
+      token = mixRenderToken(token, enemy.hp);
+      token = mixRenderToken(token, enemy.maxHp);
+      token = mixRenderToken(token, enemy.mana ?? 0);
+      token = mixRenderToken(token, enemy.maxMana ?? 0);
+    });
+  });
+
+  return hasVisibleEngagedEnemy ? token : -1;
+}
+
+function hashRenderString(value: string) {
+  let token = 2166136261;
+
+  for (let index = 0; index < value.length; index += 1) {
+    token = mixRenderToken(token, value.charCodeAt(index));
+  }
+
+  return token;
+}
+
+function coordToken(coord: HexCoord) {
+  let token = 2166136261;
+  token = mixRenderToken(token, coord.q + 2048);
+  token = mixRenderToken(token, coord.r + 2048);
+  return token;
 }

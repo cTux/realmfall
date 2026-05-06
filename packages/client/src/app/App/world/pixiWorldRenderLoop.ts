@@ -117,11 +117,16 @@ export function createWorldRenderFrame({
         worldRenderFrameMs,
       },
     );
-    const movementCooldownRenderToken = getMovementCooldownRenderToken({
-      endAtMs: movementCooldownEndAtMs,
-      nowMs: wallClockMs,
-      worldRenderFrameMs,
-    });
+    const combatActive =
+      currentGame.combat?.started === true ||
+      currentGame.combat?.startedAtMs != null;
+    const movementCooldownRenderToken = combatActive
+      ? -1
+      : getMovementCooldownRenderToken({
+          endAtMs: movementCooldownEndAtMs,
+          nowMs: wallClockMs,
+          worldRenderFrameMs,
+        });
 
     if (
       !sameCoord(lastReachableWarmPlayerCoord, currentGame.player.coord) ||
@@ -185,7 +190,7 @@ export function createWorldRenderFrame({
       worldRenderFps,
     };
     const movementCooldown =
-      movementCooldownEndAtMs === null
+      combatActive || movementCooldownEndAtMs === null
         ? null
         : {
             durationMs: WORLD_MOVE_HEX_COOLDOWN_MS,

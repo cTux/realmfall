@@ -14,6 +14,7 @@ import { useAppSettingsActions } from './useAppSettingsActions';
 import { useAppShortcutRuntime } from './useAppShortcutRuntime';
 import { useAppWindowRuntime } from './useAppWindowRuntime';
 import { useCombatAttentionWindow } from './useCombatAttentionWindow';
+import { useCombatHexInfoPersistence } from './useCombatHexInfoPersistence';
 import { useAppWorldClock } from './useAppWorldClock';
 import { useCraftingRecipeBookPromotion } from './useCraftingRecipeBookPromotion';
 import { useGameplayAutomation } from './useGameplayAutomation';
@@ -157,8 +158,9 @@ export function useAppRuntime() {
     !dungeonTransition.hasTransitionError;
 
   useHexInfoWindowPromotion({
-    combatActive: bootstrap.game.combat != null,
+    combat: bootstrap.game.combat,
     currentLootAvailable: gameView.currentTile.items.length > 0,
+    playerCoord: bootstrap.game.player.coord,
     currentStructure: gameView.currentTile.structure,
     suppressAutoOpen: pixiWorld.queuedTravelAutoOpenSuppressed,
     setWindowShown: controllerMutators.setWindowShown,
@@ -183,6 +185,12 @@ export function useAppRuntime() {
     playerCoord: bootstrap.game.player.coord,
     suppressHexInfoAutoOpen: pixiWorld.queuedTravelAutoOpenSuppressed,
     setWindowVisibility: controllerMutators.setWindowVisibility,
+    windowShownHexInfo: controllerState.windowShown.hexInfo,
+  });
+  useCombatHexInfoPersistence({
+    combat: bootstrap.game.combat,
+    setWindowShown: controllerMutators.setWindowShown,
+    windowShownCombat: controllerState.windowShown.combat,
     windowShownHexInfo: controllerState.windowShown.hexInfo,
   });
 
@@ -214,7 +222,6 @@ export function useAppRuntime() {
     homeHex: bootstrap.game.homeHex,
     interactLabel,
     onForfeitCombat: controllerActions.handleForfeitCombat,
-    onStartCombat: controllerActions.handleStartCombat,
     onInteract: handleInteract,
     onHealTerritoryNpc: controllerActions.handleHealTerritoryNpc,
     onSetHome: settingsActions.handleSetHome,
@@ -290,7 +297,6 @@ export function useAppRuntime() {
       handleSetHome: settingsActions.handleSetHome,
       handleSetItemLocked: controllerActions.handleSetItemLocked,
       handleSort: controllerActions.handleSort,
-      handleStartCombat: controllerActions.handleStartCombat,
       handleTakeAllLoot: controllerActions.handleTakeAllLoot,
       handleTakeLootItem: controllerActions.handleTakeLootItem,
       handleUnequip: controllerActions.handleUnequip,

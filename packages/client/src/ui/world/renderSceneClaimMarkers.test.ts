@@ -5,6 +5,7 @@ import {
   createMockApp,
   getMarkerLayer,
   MockContainer,
+  MockGraphics,
   MockSprite,
   playerIcon,
   setupRenderSceneTestEnvironment,
@@ -12,6 +13,10 @@ import {
 } from './renderSceneTestHelpers';
 
 setupRenderSceneTestEnvironment();
+
+const RESOURCE_BACKGROUND_COLOR = 0x123524;
+const RESOURCE_BACKGROUND_ALPHA = 0.4;
+const RESOURCE_BORDER_COLOR = 0x000000;
 
 describe('renderScene claim markers', () => {
   it('uses NPC marker icon on faction claim tiles', async () => {
@@ -199,10 +204,50 @@ describe('renderScene claim markers', () => {
     const markerSprites = collectDescendants(getMarkerLayer(app)).filter(
       (child): child is MockSprite => child instanceof MockSprite,
     );
+    const markerWrapper = findMarkerWrapperByIcon(
+      getMarkerLayer(app),
+      WorldIcons.ForgottenLoot,
+    );
+    const markerGraphics = collectDescendants(markerWrapper!).filter(
+      (child): child is MockGraphics => child instanceof MockGraphics,
+    );
     const forgottenLootMarker = markerSprites.find(
       (child) => child.icon === WorldIcons.ForgottenLoot,
     );
 
     expect(forgottenLootMarker).toBeDefined();
+    expect(markerWrapper).toBeDefined();
+    expect(
+      markerGraphics.some(
+        (graphic) =>
+          graphic.drawEllipse.mock.calls.length > 0 &&
+          graphic.beginFill.mock.calls.some(
+            ([fillColor, alpha]) =>
+              fillColor === RESOURCE_BACKGROUND_COLOR &&
+              alpha === RESOURCE_BACKGROUND_ALPHA,
+          ),
+      ),
+    ).toBe(true);
+    expect(
+      markerGraphics.some((graphic) =>
+        graphic.lineStyle.mock.calls.some(
+          ([width, color, alpha]) =>
+            width === 1 && color === RESOURCE_BORDER_COLOR && alpha === 1,
+        ),
+      ),
+    ).toBe(true);
   });
 });
+
+function findMarkerWrapperByIcon(markerLayer: MockContainer, icon: string) {
+  return markerLayer.children.find((child) => {
+    if (!(child instanceof MockContainer)) {
+      return false;
+    }
+
+    return collectDescendants(child).some(
+      (descendant) =>
+        descendant instanceof MockSprite && descendant.icon === icon,
+    );
+  }) as MockContainer | undefined;
+}

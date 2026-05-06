@@ -10,6 +10,10 @@ export interface WorldMovementTransition {
   fromCoord: HexCoord;
   incomingTiles: VisibleWorldTile[];
   outgoingTiles: VisibleWorldTile[];
+  playerOffsetAtStart?: {
+    x: number;
+    y: number;
+  };
   startedAtMs: number;
   toCoord: HexCoord;
 }
@@ -23,6 +27,7 @@ export function createWorldMovementTransition({
   fromCoord,
   nextVisibleTiles,
   previousVisibleTiles,
+  playerOffsetAtStart,
   startedAtMs,
   toCoord,
 }: {
@@ -30,6 +35,10 @@ export function createWorldMovementTransition({
   fromCoord: HexCoord;
   nextVisibleTiles: VisibleWorldTile[];
   previousVisibleTiles: VisibleWorldTile[];
+  playerOffsetAtStart?: {
+    x: number;
+    y: number;
+  };
   startedAtMs: number;
   toCoord: HexCoord;
 }) {
@@ -64,6 +73,7 @@ export function createWorldMovementTransition({
     fromCoord,
     incomingTiles,
     outgoingTiles,
+    playerOffsetAtStart,
     startedAtMs,
     toCoord,
   } satisfies WorldMovementTransition;

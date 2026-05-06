@@ -108,6 +108,7 @@ export function normalizeLoadedGame(game: unknown): GameState | null {
       ? game.logSequence
       : baseline.logSequence,
     logs: [],
+    worldFloatingTextEvents: [],
     tiles,
     enemies,
     player,
@@ -772,3 +773,4 @@ function clonePlayer(player: GameState['player']) {
     })),
   };
 }
+

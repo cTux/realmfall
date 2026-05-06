@@ -1,4 +1,3 @@
-import { t } from '../i18n';
 import {
   DUNGEON_ENEMY_CHASE_RADIUS,
   DUNGEON_ENEMY_SPAWN_LEASH_RADIUS,
@@ -6,9 +5,8 @@ import {
 } from './config';
 import { getActiveWorld } from './dungeons/worldState';
 import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
-import { addLog } from './logs';
 import { createRng } from './random';
-import { createCombatState } from './stateCombatState';
+import { createPendingCombatEncounter } from './stateCombatEngagement';
 import { getHostileEnemyIds } from './stateWorldQueries';
 import { isPassable } from './shared';
 import type { Enemy, GameState } from './types';
@@ -31,7 +29,12 @@ export function syncActiveDungeonEnemyMovement(state: GameState) {
 
   const initialHostileEnemyIds = getHostileEnemyIds(state, state.player.coord);
   if (initialHostileEnemyIds.length > 0) {
-    startDungeonEnemyCombat(state, state.player.coord, initialHostileEnemyIds);
+    startDungeonEnemyCombat(
+      state,
+      state.player.coord,
+      initialHostileEnemyIds,
+      null,
+    );
     return true;
   }
 
@@ -74,16 +77,25 @@ export function syncActiveDungeonEnemyMovement(state: GameState) {
       continue;
     }
 
-    moveDungeonEnemy(state, enemy, target);
-    changed = true;
-
+    const previousCoord = { ...enemy.coord };
     if (sameCoord(target, state.player.coord)) {
-      const hostileEnemyIds = getHostileEnemyIds(state, state.player.coord);
-      if (hostileEnemyIds.length > 0) {
-        startDungeonEnemyCombat(state, state.player.coord, hostileEnemyIds);
-      }
+      startDungeonEnemyCombat(
+        state,
+        state.player.coord,
+        [
+          enemy.id,
+          ...getHostileEnemyIds(state, state.player.coord).filter(
+            (hostileEnemyId) => hostileEnemyId !== enemy.id,
+          ),
+        ],
+        previousCoord,
+      );
+      changed = true;
       break;
     }
+
+    moveDungeonEnemy(state, enemy, target);
+    changed = true;
   }
 
   return changed;
@@ -256,27 +268,21 @@ function startDungeonEnemyCombat(
   state: GameState,
   coord: HexCoord,
   hostileEnemyIds: string[],
+  targetCoord: HexCoord | null = coord,
 ) {
   if (state.combat || hostileEnemyIds.length === 0) {
     return;
   }
 
-  state.combat = createCombatState(
-    state,
-    coord,
-    hostileEnemyIds,
-    state.worldTimeMs,
-  );
-  addLog(
-    state,
-    'combat',
-    t(
-      hostileEnemyIds.length === 1
-        ? 'game.message.combat.encounter.one'
-        : 'game.message.combat.encounter.other',
-      { count: hostileEnemyIds.length },
-    ),
-  );
+  state.combat = createPendingCombatEncounter(state, {
+    autoStepOnVictory: false,
+    engageMode: 'enemy-chase',
+    enemyIds: hostileEnemyIds,
+    originCoord: coord,
+    stagingCoord: coord,
+    targetCoord,
+    worldTimeMs: state.worldTimeMs,
+  });
 }
 
 function shuffleCoords(coords: HexCoord[], seed: string) {

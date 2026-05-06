@@ -96,7 +96,7 @@ describe('treasure goblin combat behavior', () => {
     applyPlayerAbility(game, 'kick', goblinId);
 
     expect(game.combat).not.toBeNull();
-    expect(game.combat?.started).toBe(false);
+    expect(game.combat?.started).toBe(true);
     expect(game.combat?.coord).toEqual({ q: 2, r: 0 });
     expect(game.combat?.enemyIds).toEqual([otherEnemyId]);
     expect(game.enemies[goblinId]?.coord).toEqual(escapeCoord);
@@ -106,6 +106,54 @@ describe('treasure goblin combat behavior', () => {
     expect(game.logs.some((entry) => /battle is over/i.test(entry.text))).toBe(
       true,
     );
+  });
+
+  it('preserves a null engagement target when a goblin escape rebuilds the encounter', () => {
+    const game = createTreasureGoblinCombatGame(
+      'treasure-goblin-null-target-follow-on',
+    );
+    const goblinId = game.combat!.enemyIds[0]!;
+    const otherEnemyId = 'enemy-2,0-1';
+    const escapeCoord = { q: 4, r: 0 };
+
+    game.combat!.engagement = {
+      autoStepOnVictory: true,
+      engageMode: 'enemy-chase',
+      originCoord: { q: 1, r: 0 },
+      stagingCoord: { q: 2, r: 0 },
+      targetCoord: null,
+    };
+    game.tiles['2,0']!.enemyIds.push(otherEnemyId);
+    game.enemies[otherEnemyId] = {
+      id: otherEnemyId,
+      enemyTypeId: 'wolf',
+      name: 'Wolf',
+      coord: { q: 2, r: 0 },
+      rarity: 'common',
+      tier: 1,
+      hp: 30,
+      maxHp: 30,
+      attack: 3,
+      defense: 0,
+      xp: 2,
+      elite: false,
+      statusEffects: [],
+      abilityIds: ['kick'],
+    };
+    game.combat!.enemyIds.push(otherEnemyId);
+    game.combat!.enemies[otherEnemyId] = createCombatActorState(0, ['kick']);
+    game.combat!.enemyStateById[otherEnemyId] = {};
+    game.combat!.enemyStateById[goblinId] = {
+      treasureGoblin: {
+        damageHitsTaken: TREASURE_GOBLIN_BALANCE.fleeHitsMax - 1,
+        fleeHitsRequired: TREASURE_GOBLIN_BALANCE.fleeHitsMax,
+      },
+    };
+    blockEscapeTilesExcept(game, escapeCoord);
+
+    applyPlayerAbility(game, 'kick', goblinId);
+
+    expect(game.combat?.engagement?.targetCoord).toBeNull();
   });
 
   it('zero-damage hits do not advance flee progress', () => {

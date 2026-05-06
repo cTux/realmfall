@@ -5,7 +5,6 @@ import {
   type MutableRefObject,
   type SetStateAction,
 } from 'react';
-import { startCombat } from '../../../game/stateCombat';
 import { takeAllTileItems } from '../../../game/stateInventoryActions';
 import type { GameState, Tile } from '../../../game/stateTypes';
 import { interactWithStructureUntilDepleted } from '../../../game/stateWorldActions';
@@ -48,11 +47,6 @@ export function useGameplayAutomation({
       return;
     }
 
-    if (gameplaySettings.autoStartCombat && combat && !combat.started) {
-      applyTransition(startCombat);
-      return;
-    }
-
     if (combat) {
       return;
     }
@@ -74,7 +68,6 @@ export function useGameplayAutomation({
     enabled,
     gameplaySettings.autoGatherResources,
     gameplaySettings.autoLoot,
-    gameplaySettings.autoStartCombat,
     paused,
   ]);
 }

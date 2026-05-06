@@ -35,6 +35,7 @@ import {
   type WorldMapFishEyeFilter,
 } from './worldMapFishEyeRuntime';
 import type { AnimatedWorldMarker } from './renderSceneMarkerAnimations';
+import type { DungeonEnemyMovementTransition } from './renderSceneDungeonEnemyTransitions';
 import type { VisibleWorldTile } from './visibleWorldTiles';
 
 const SCENE_CACHE_KEY = Symbol('renderSceneCache');
@@ -101,6 +102,12 @@ export interface SceneCache {
   cloudInputsBySeed: Map<string, CloudRenderInput[]>;
   campfireLightPoints: Array<{ x: number; y: number }>;
   animatedWorldMarkers: AnimatedWorldMarker[];
+  dungeonEnemyMovementTransitionsByEnemyId: Map<
+    string,
+    DungeonEnemyMovementTransition
+  >;
+  dungeonEnemyLastCoordsById: Map<string, { q: number; r: number }>;
+  dungeonEnemyTransitionWorldId: string | null;
   player: ShadowedSpriteEntry;
   derivedRenderVisibleTilesSource: VisibleWorldTile[] | null;
   derivedRenderEnemiesSource: Record<string, unknown> | null;
@@ -114,6 +121,7 @@ export interface SceneCache {
   derivedStaticRenderToken: number | null;
   derivedInteractionRenderToken: number | null;
   staticRenderToken: number | null;
+  visibleEnemyBadgeRenderToken: number | null;
   interactionRenderToken: number | null;
   playerResourceRenderToken: string | null;
   animatedRenderToken: string | null;
@@ -237,6 +245,9 @@ export function getSceneCache(app: Application) {
     cloudInputsBySeed: new Map(),
     campfireLightPoints: [],
     animatedWorldMarkers: [],
+    dungeonEnemyMovementTransitionsByEnemyId: new Map(),
+    dungeonEnemyLastCoordsById: new Map(),
+    dungeonEnemyTransitionWorldId: null,
     player,
     derivedRenderVisibleTilesSource: null,
     derivedRenderEnemiesSource: null,
@@ -250,6 +261,7 @@ export function getSceneCache(app: Application) {
     derivedStaticRenderToken: null,
     derivedInteractionRenderToken: null,
     staticRenderToken: null,
+    visibleEnemyBadgeRenderToken: null,
     interactionRenderToken: null,
     playerResourceRenderToken: null,
     animatedRenderToken: null,

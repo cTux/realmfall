@@ -1,19 +1,34 @@
 import { t } from '../i18n';
+import { EnemyTypeId } from './content/ids';
+import { enemyKey, makeEnemy, nextEnemySpawnIndex } from './combat';
+import { GAME_CONFIG } from './config';
 import { hexDistance, type HexCoord } from './hex';
 import { addLog } from './logs';
-import { EnemyTypeId } from './content/ids';
-import { GAME_CONFIG } from './config';
 import { createRng } from './random';
-import { enemyKey, makeEnemy, nextEnemySpawnIndex } from './combat';
 import { isPassable } from './shared';
-import { createCombatState } from './stateCombat';
+import {
+  createPendingCombatEncounter,
+  createStartedCombatEncounter,
+} from './stateCombatEngagement';
 import { cloneForWorldMutation, message } from './stateMutationHelpers';
 import { getSafePathToTile } from './statePathfinding';
 import { applySurvivalDecay, respawnAtNearestTown } from './stateSurvival';
 import { getHostileEnemyIds, getResolvedTileAt } from './stateWorldQueries';
-import type { GameState, Tile } from './types';
+import type { CombatEngagementMetadata, GameState, Tile } from './types';
 
-export function moveToTile(state: GameState, target: HexCoord): GameState {
+interface MoveToTileOptions {
+  engageMode?: Extract<
+    CombatEngagementMetadata['engageMode'],
+    'adjacent-click' | 'staged-click'
+  >;
+  engageTargetCoord?: HexCoord;
+}
+
+export function moveToTile(
+  state: GameState,
+  target: HexCoord,
+  options: MoveToTileOptions = {},
+): GameState {
   if (state.gameOver) return state;
   if (state.combat) {
     return message(state, t('game.message.combat.finishCurrentBattleFirst'));
@@ -34,6 +49,29 @@ export function moveToTile(state: GameState, target: HexCoord): GameState {
     return message(next, t('game.message.travel.blockedTerrain'));
   }
 
+  const adjacentHostileEngagement =
+    options.engageMode === 'adjacent-click' &&
+    options.engageTargetCoord !== undefined
+      ? getHostileEnemyIds(next, options.engageTargetCoord)
+      : [];
+  if (adjacentHostileEngagement.length > 0) {
+    const adjacentTargetCoord = options.engageTargetCoord!;
+    const combat = createPendingCombatEncounter(next, {
+      autoStepOnVictory: true,
+      engageMode: 'adjacent-click',
+      enemyIds: adjacentHostileEngagement,
+      originCoord: current,
+      stagingCoord: current,
+      targetCoord: adjacentTargetCoord,
+      worldTimeMs: next.worldTimeMs,
+    });
+    if (combat) {
+      combat.coord = { ...adjacentTargetCoord };
+    }
+    next.combat = combat;
+    return next;
+  }
+
   next.turn += 1;
   applySurvivalDecay(next);
   next.player.coord = target;
@@ -52,22 +90,41 @@ export function moveToTile(state: GameState, target: HexCoord): GameState {
 
   const hostileEnemyIds = getHostileEnemyIds(next, target);
   if (hostileEnemyIds.length > 0) {
-    next.combat = createCombatState(
-      next,
-      target,
-      hostileEnemyIds,
-      next.worldTimeMs,
-    );
-    addLog(
-      next,
-      'combat',
-      t(
-        hostileEnemyIds.length === 1
-          ? 'game.message.combat.encounter.one'
-          : 'game.message.combat.encounter.other',
-        { count: hostileEnemyIds.length },
-      ),
-    );
+    next.combat = createStartedCombatEncounter(next, {
+      autoStepOnVictory: false,
+      engageMode: 'tile-step',
+      enemyIds: hostileEnemyIds,
+      originCoord: current,
+      stagingCoord: target,
+      targetCoord: target,
+      worldTimeMs: next.worldTimeMs,
+    });
+    return next;
+  }
+
+  const stagedHostileTarget: HexCoord | null =
+    options.engageMode === 'staged-click' &&
+    options.engageTargetCoord !== undefined
+      ? options.engageTargetCoord
+      : null;
+  const stagedHostileEnemyIds =
+    stagedHostileTarget === null
+      ? []
+      : getHostileEnemyIds(next, stagedHostileTarget);
+  if (stagedHostileTarget !== null && stagedHostileEnemyIds.length > 0) {
+    const combat = createPendingCombatEncounter(next, {
+      autoStepOnVictory: true,
+      engageMode: 'staged-click',
+      enemyIds: stagedHostileEnemyIds,
+      originCoord: current,
+      stagingCoord: target,
+      targetCoord: stagedHostileTarget,
+      worldTimeMs: next.worldTimeMs,
+    });
+    if (combat) {
+      combat.coord = { ...stagedHostileTarget };
+    }
+    next.combat = combat;
     return next;
   }
 

@@ -1,6 +1,16 @@
 import { createCombatActorState } from './combat';
 import { syncActiveWorldAliases } from './dungeons/worldState';
-import type { CombatState, Enemy, GameState, Player, Tile } from './types';
+import { getCombatEngagementOrDefault } from './stateCombatEngagement';
+import { cloneWorldFloatingTextAnchor } from './worldFloatingText';
+import type {
+  CombatState,
+  Enemy,
+  GameState,
+  Player,
+  Tile,
+  WorldFloatingTextAnchor,
+  WorldFloatingTextEvent,
+} from './types';
 
 interface CopyStateSlices {
   homeHex?: boolean;
@@ -35,6 +45,8 @@ export function copyGameState(
       : null,
     homeHex: slices.homeHex ? { ...state.homeHex } : state.homeHex,
     logs: slices.logs ? [...state.logs] : state.logs,
+    worldFloatingTextEvents:
+      state.worldFloatingTextEvents?.map(copyWorldFloatingTextEvent) ?? [],
     combat: slices.combat
       ? copyCombatState(state.combat, state.worldTimeMs)
       : state.combat,
@@ -95,6 +107,7 @@ function copyCombatState(
     ...combat,
     coord: { ...combat.coord },
     enemyIds: [...combat.enemyIds],
+    engagement: getCombatEngagementOrDefault(combat),
     player: {
       ...combatPlayer,
       abilityIds: [...combatPlayer.abilityIds],
@@ -125,6 +138,17 @@ function copyCombatState(
       ]),
     ),
   };
+}
+
+function copyWorldFloatingTextEvent(event: WorldFloatingTextEvent) {
+  return {
+    ...event,
+    anchor: copyWorldFloatingTextAnchor(event.anchor),
+  };
+}
+
+function copyWorldFloatingTextAnchor(anchor: WorldFloatingTextAnchor) {
+  return cloneWorldFloatingTextAnchor(anchor);
 }
 
 function copyTiles(tiles: GameState['tiles']) {

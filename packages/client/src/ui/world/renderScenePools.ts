@@ -18,6 +18,7 @@ export interface ShadowedSpriteEntry {
   badgeBackground: Graphics;
   badgeTrackGraphics: Graphics;
   badgeFillGraphics: Graphics;
+  badgeOverlayGraphics: Graphics;
   badgePlateGraphics: Graphics;
   badgePrimaryText: Text;
   badgeSecondaryText: Text;
@@ -244,6 +245,7 @@ export function createShadowedSprite(icon: string): ShadowedSpriteEntry {
   const badgeBackground = new Graphics();
   const badgeTrackGraphics = new Graphics();
   const badgeFillGraphics = new Graphics();
+  const badgeOverlayGraphics = new Graphics();
   const badgePlateGraphics = new Graphics();
   const badgePrimaryText = new Text({ text: '' });
   const badgeSecondaryText = new Text({ text: '' });
@@ -267,12 +269,14 @@ export function createShadowedSprite(icon: string): ShadowedSpriteEntry {
   sprite.anchor.set(0.5);
   wrapper.addChild(sprite);
   wrapper.addChild(badgeFillGraphics);
+  wrapper.addChild(badgeOverlayGraphics);
   wrapper.addChild(badgePlateGraphics);
   wrapper.addChild(badgePrimaryText);
   wrapper.addChild(badgeSecondaryText);
   resetShadowedSpriteBadge({
     badgeBackground,
     badgeFillGraphics,
+    badgeOverlayGraphics,
     badgePlateGraphics,
     badgePrimaryText,
     badgeSecondaryText,
@@ -287,6 +291,7 @@ export function createShadowedSprite(icon: string): ShadowedSpriteEntry {
     badgeBackground,
     badgeTrackGraphics,
     badgeFillGraphics,
+    badgeOverlayGraphics,
     badgePlateGraphics,
     badgePrimaryText,
     badgeSecondaryText,
@@ -371,6 +376,8 @@ export function resetShadowedSpriteBadge(entry: ShadowedSpriteEntry) {
   clearGraphics(entry.badgeTrackGraphics);
   entry.badgeFillGraphics.visible = false;
   clearGraphics(entry.badgeFillGraphics);
+  entry.badgeOverlayGraphics.visible = false;
+  clearGraphics(entry.badgeOverlayGraphics);
   entry.badgePlateGraphics.visible = false;
   clearGraphics(entry.badgePlateGraphics);
 
@@ -381,6 +388,11 @@ export function resetShadowedSpriteBadge(entry: ShadowedSpriteEntry) {
     setTextPosition(text, 0, 0);
     setTextScale(text, 1, 1);
   });
+}
+
+export function resetShadowedSpriteBadgeOverlay(entry: ShadowedSpriteEntry) {
+  entry.badgeOverlayGraphics.visible = false;
+  clearGraphics(entry.badgeOverlayGraphics);
 }
 
 function setTextAnchor(text: Text, value: number) {

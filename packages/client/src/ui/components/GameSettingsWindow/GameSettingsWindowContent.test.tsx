@@ -20,7 +20,6 @@ const DEFAULT_INTERFACE_SETTINGS = {
 const DEFAULT_GAMEPLAY_SETTINGS = {
   autoGatherResources: false,
   autoLoot: false,
-  autoStartCombat: false,
 };
 
 describe('GameSettingsWindowContent', () => {
@@ -761,7 +760,7 @@ describe('GameSettingsWindowContent', () => {
     ]);
   });
 
-  it('saves interface language, font, font size, interface scale, and transparency plus gameplay automation toggles in the payload', async () => {
+  it('saves interface language, font, font size, interface scale, and transparency plus the remaining gameplay automation toggles in the payload', async () => {
     const onSave = vi.fn(async () => undefined);
 
     await act(async () => {
@@ -893,13 +892,13 @@ describe('GameSettingsWindowContent', () => {
         ),
       )
       ?.querySelector('input[type="checkbox"]');
-    const autoStartCombatSwitch = Array.from(host.querySelectorAll('label'))
-      .find((candidate) =>
-        candidate.textContent?.includes(
-          t('ui.settings.gameplay.autoStartCombat.label'),
-        ),
-      )
-      ?.querySelector('input[type="checkbox"]');
+    const autoStartCombatLabel = Array.from(
+      host.querySelectorAll('label'),
+    ).find((candidate) =>
+      candidate.textContent?.includes(
+        t('ui.settings.gameplay.autoStartCombat.label'),
+      ),
+    );
     const autoGatherResourcesSwitch = Array.from(host.querySelectorAll('label'))
       .find((candidate) =>
         candidate.textContent?.includes(
@@ -912,15 +911,12 @@ describe('GameSettingsWindowContent', () => {
     );
 
     expect(autoLootSwitch).toBeDefined();
-    expect(autoStartCombatSwitch).toBeDefined();
+    expect(autoStartCombatLabel).toBeUndefined();
     expect(autoGatherResourcesSwitch).toBeDefined();
     expect(saveButton).toBeDefined();
 
     await act(async () => {
       autoLootSwitch?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-      autoStartCombatSwitch?.dispatchEvent(
-        new MouseEvent('click', { bubbles: true }),
-      );
       autoGatherResourcesSwitch?.dispatchEvent(
         new MouseEvent('click', { bubbles: true }),
       );
@@ -944,7 +940,6 @@ describe('GameSettingsWindowContent', () => {
       gameplay: {
         autoGatherResources: true,
         autoLoot: true,
-        autoStartCombat: true,
       },
     });
   });

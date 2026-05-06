@@ -50,4 +50,21 @@ describe('worldMovementTransition', () => {
       outgoingTiles: [{ coord: { q: -2, r: 0 } }],
     });
   });
+
+  it('preserves an initial player offset for post-combat visual continuation', () => {
+    expect(
+      createWorldMovementTransition({
+        fromCoord: { q: 1, r: 0 },
+        nextVisibleTiles: [],
+        previousVisibleTiles: [],
+        startedAtMs: 0,
+        toCoord: { q: 2, r: 0 },
+        playerOffsetAtStart: { x: 18, y: -4 },
+      }),
+    ).toMatchObject({
+      fromCoord: { q: 1, r: 0 },
+      toCoord: { q: 2, r: 0 },
+      playerOffsetAtStart: { x: 18, y: -4 },
+    });
+  });
 });

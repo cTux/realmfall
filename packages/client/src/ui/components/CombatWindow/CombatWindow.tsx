@@ -1,7 +1,5 @@
 import { t } from '../../../i18n';
 import { createDeferredWindowComponent } from '../deferredWindowComponent';
-import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
-import inventoryStyles from '../InventoryWindow/styles.module.scss';
 import type { CombatWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -24,28 +22,11 @@ export const CombatWindow = createDeferredWindowComponent<
     onMove,
     visible,
     onClose,
-    combat,
-    onStart,
     onHoverDetail,
     onLeaveDetail,
-    onHoverHeaderAction,
   }) => ({
     title: t('ui.window.combat.plain'),
-    headerActions: !combat.started ? (
-      <WindowHeaderActionButton
-        className={inventoryStyles.headerButton}
-        onClick={onStart}
-        tooltipTitle={t('ui.combat.startAction')}
-        tooltipLines={[
-          { kind: 'text', text: t('ui.tooltip.window.startCombat') },
-        ]}
-        tooltipBorderColor="rgba(248, 250, 252, 0.9)"
-        onHoverDetail={onHoverHeaderAction}
-        onLeaveDetail={onLeaveDetail}
-      >
-        {t('ui.combat.startAction')}
-      </WindowHeaderActionButton>
-    ) : null,
+    headerActions: null,
     position,
     onMove,
     className: styles.window,

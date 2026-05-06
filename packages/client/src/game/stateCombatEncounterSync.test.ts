@@ -96,4 +96,52 @@ describe('combat encounter sync', () => {
       [survivingEnemyId]: {},
     });
   });
+
+  it('cleans the engagement target tile after the last chased enemy dies', () => {
+    const game = createGame(3, 'combat-sync-chase-target');
+    const stagingCoord = { q: 0, r: 0 };
+    const targetCoord = { q: 1, r: 0 };
+    const enemyId = 'enemy-1,0-0';
+
+    game.player.coord = { ...stagingCoord };
+    game.tiles['0,0'] = {
+      coord: stagingCoord,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: [],
+    };
+    game.tiles['1,0'] = {
+      coord: targetCoord,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: [enemyId],
+    };
+    game.combat = {
+      coord: stagingCoord,
+      enemyIds: [enemyId],
+      started: true,
+      engagement: {
+        autoStepOnVictory: false,
+        engageMode: 'enemy-chase',
+        originCoord: { ...stagingCoord },
+        stagingCoord: { ...stagingCoord },
+        targetCoord: { ...targetCoord },
+      },
+      player: createCombatActorState(0, ['kick']),
+      enemies: {
+        [enemyId]: createCombatActorState(0, ['kick']),
+      },
+      enemyStateById: {
+        [enemyId]: {},
+      },
+    };
+
+    syncCombatEncounterEnemies(game);
+
+    expect(game.tiles['1,0']?.enemyIds).toEqual([]);
+    expect(game.combat).toBeNull();
+    expect(game.player.coord).toEqual(stagingCoord);
+  });
 });

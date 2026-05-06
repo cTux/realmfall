@@ -33,6 +33,10 @@ import { syncCombatPlayerLoadout } from './stateCombatState';
 import { getPlayerThirstValue, PLAYER_SURVIVAL_MAX } from './survival';
 import { countTerrainChangesForSet, setTerrainInRadius } from './world';
 import { teleportHome } from './stateSurvival';
+import {
+  appendWorldFloatingTextEvent,
+  createPlayerFloatingTextAnchor,
+} from './worldFloatingText';
 import type { EquipmentSlot, GameState, Item, Terrain } from './types';
 
 const CONSUMABLE_COOLDOWN_MS = 2_000;
@@ -277,6 +281,11 @@ function applyConsumableEffects(
     switch (effect.kind) {
       case 'healing':
         state.player.hp += effect.amount;
+        appendWorldFloatingTextEvent(state, {
+          anchor: createPlayerFloatingTextAnchor(state.player),
+          amount: effect.amount,
+          kind: 'healing',
+        });
         break;
       case 'mana':
         state.player.mana += effect.amount;

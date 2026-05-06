@@ -6,9 +6,16 @@ This spec covers encounter activation, actor timing, and combat resolution.
 
 ## Current Behavior
 
-- Entering a tile with hostile enemies opens a combat state.
-- Combat must be started explicitly from the combat window.
+- Any encounter source creates combat immediately, but hostile world clicks and roaming dungeon enemy chase contact only mark combat as started after their shared visual intro completes.
+- Hostile world clicks never move the player onto the hostile hex before the encounter begins.
+- Clicking an adjacent hostile hex keeps the current hex as the staging hex, runs the short lunge toward the target, and starts combat only after that lunge completes while preserving the hostile hex as the encounter target.
+- Clicking a farther hostile hex paths only to the nearest reachable adjacent staging hex, waits for the full move arrival, then runs the short lunge and starts combat there against the originally clicked hostile hex while preserving that hostile target through the encounter.
+- Roaming dungeon enemy chase contact uses that same staged intro model, preserving the enemy hex as the encounter target and keeping the chaser on that initiating hex instead of starting combat on the contact tick or moving it under the player.
 - Battles that run for longer than `60s` surface a `Dea(t)h` title-bar action that accepts defeat, kills the player, and respawns them at their home hex.
+- While combat is active, the world presentation keeps the player visually held in the lunged position instead of snapping them back to the staging-hex center.
+- Winning a hostile-click encounter can auto-step the player onto the preserved hostile target after the final enemy dies, and that full hex move continues from the held lunge offset while the app applies the normal movement cooldown for the step.
+- Winning a roaming dungeon chase encounter ends on the staging hex instead of moving the player onto the chaser's prior hex.
+- Combat teardown clears defeated enemies from the preserved encounter target hex before control returns, so staged hostile fights and roaming chase fights do not leave ghost enemies behind.
 - While combat is active, regular travel is blocked.
 - Combat uses actor state for the player and each enemy.
 - Every actor has a global cooldown.

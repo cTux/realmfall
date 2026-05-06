@@ -14,14 +14,17 @@ import {
   createMockApp,
   getBadgeLayer,
   MockGraphics,
+  MockContainer,
   setupRenderSceneTestEnvironment,
 } from './renderSceneTestHelpers';
+import { getWorldHexSize, tileToPoint } from './renderSceneMath';
 
 setupRenderSceneTestEnvironment();
 
 describe('renderScene dungeon enemy movement', () => {
   it('draws a movement cooldown bar for a visible roaming dungeon enemy', async () => {
     const { renderScene } = await import('./renderScene');
+    const { getSceneCache } = await import('./renderSceneCache');
     const game = createDungeonRenderGame();
     const app = createMockApp();
 
@@ -39,18 +42,37 @@ describe('renderScene dungeon enemy movement', () => {
       } as never,
     );
 
+    const scene = getSceneCache(app as never);
+    const enemyMarker = scene.animatedWorldMarkers.find(
+      (marker) => marker.kind === 'enemy',
+    );
+    const wrapper = enemyMarker?.entry.wrapper as MockContainer | undefined;
+
+    expect(enemyMarker).toBeDefined();
+    expect(wrapper).toBeDefined();
+
+    const wrapperGraphics = collectDescendants(wrapper!).filter(
+      (child): child is MockGraphics =>
+        child instanceof MockGraphics && child.visible,
+    );
     const badgeGraphics = collectDescendants(getBadgeLayer(app)).filter(
       (child): child is MockGraphics =>
         child instanceof MockGraphics && child.visible,
     );
-
+    expect(
+      wrapperGraphics.some((graphic) =>
+        graphic.beginFill.mock.calls.some(
+          ([color, alpha]) => color === 0xfacc15 && alpha === 0.95,
+        ),
+      ),
+    ).toBe(true);
     expect(
       badgeGraphics.some((graphic) =>
         graphic.beginFill.mock.calls.some(
           ([color, alpha]) => color === 0xfacc15 && alpha === 0.95,
         ),
       ),
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it('does not draw a movement cooldown bar for a fogged outgoing dungeon tile during transition', async () => {
@@ -93,6 +115,101 @@ describe('renderScene dungeon enemy movement', () => {
         ),
       ),
     ).toBe(false);
+  });
+
+  it('moves a roaming dungeon enemy smoothly from the previous hex over the full move duration', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { getSceneCache } = await import('./renderSceneCache');
+    const game = createDungeonRenderGame();
+    const app = createMockApp();
+    const enemyId = 'dungeon-roamer';
+    const enemy = game.enemies[enemyId]!;
+    const previousCoord = { ...enemy.coord };
+    const nextCoord = { q: 2, r: 0 };
+    game.tiles[hexKey(nextCoord)] = makeDungeonTile(nextCoord);
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        worldTimeMs: 0,
+      } as never,
+    );
+
+    game.tiles[hexKey(previousCoord)]!.enemyIds = [];
+    game.tiles[hexKey(nextCoord)]!.enemyIds = [enemyId];
+    enemy.coord = { ...nextCoord };
+    enemy.dungeonMovementCooldownEndsAt = WORLD_MOVE_HEX_COOLDOWN_MS;
+
+    const visibleTiles = getVisibleTiles(game);
+    const hexSize = getWorldHexSize(app.screen, game.radius);
+    const previousPoint = tileToPoint(previousCoord, 400, 300, hexSize);
+    const nextPoint = tileToPoint(nextCoord, 400, 300, hexSize);
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        worldTimeMs: 0,
+      } as never,
+    );
+
+    const scene = getSceneCache(app as never);
+    const enemyMarker = scene.animatedWorldMarkers.find(
+      (marker) => marker.kind === 'enemy',
+    );
+    const wrapper = enemyMarker?.entry.wrapper as MockContainer | undefined;
+
+    expect(enemyMarker).toBeDefined();
+    expect(wrapper).toBeDefined();
+    expect(wrapper?.position.x).toBeCloseTo(previousPoint.x, 4);
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      500,
+      null,
+      {
+        worldTimeMs: 500,
+      } as never,
+    );
+
+    expect(wrapper?.position.x).toBeCloseTo(
+      (previousPoint.x + nextPoint.x) / 2,
+      4,
+    );
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      1_000,
+      null,
+      {
+        worldTimeMs: 1_000,
+      } as never,
+    );
+
+    expect(wrapper?.position.x).toBeCloseTo(nextPoint.x, 4);
   });
 });
 

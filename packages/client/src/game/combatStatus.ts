@@ -3,6 +3,11 @@ import { getEnemyCombatDefense, mitigateDamageByDefense } from './combatDamage';
 import { getPlayerCombatStats } from './progression';
 import { resolveCombatProcCount } from './combatProcs';
 import { recordTreasureGoblinDamageHits } from './stateCombatTreasureGoblin';
+import {
+  appendWorldFloatingTextEvent,
+  createEnemyFloatingTextAnchor,
+  createPlayerFloatingTextAnchor,
+} from './worldFloatingText';
 import type {
   AbilityRuntimeDefinition,
   Enemy,
@@ -100,6 +105,13 @@ export function applyLifesteal(
     ),
   );
   state.player.hp += healed;
+  if (healed > 0) {
+    appendWorldFloatingTextEvent(state, {
+      anchor: createPlayerFloatingTextAnchor(state.player),
+      amount: healed,
+      kind: 'healing',
+    });
+  }
   return healed;
 }
 
@@ -111,7 +123,6 @@ export function applyPlayerOnHitEffects(
 ) {
   if (damage <= 0) return;
 
-  applyLifesteal(state, damage, playerStats);
   applyStatusProcToEnemy(
     state,
     enemy,
@@ -281,12 +292,34 @@ export function processEnemyStatusEffects(
             ? Math.max(1, Math.floor(enemy.maxHp * ((effect.value ?? 1) / 100)))
             : 0;
         if (damagePerTick > 0) {
-          enemy.hp = Math.max(0, enemy.hp - damagePerTick * tickCount);
+          const damage = Math.max(
+            0,
+            Math.min(enemy.hp, damagePerTick * tickCount),
+          );
+          enemy.hp = Math.max(0, enemy.hp - damage);
           damageHitCount += tickCount;
+          if (damage > 0) {
+            appendWorldFloatingTextEvent(state, {
+              anchor: createEnemyFloatingTextAnchor(enemy),
+              amount: damage,
+              kind: 'damage',
+            });
+          }
           changed = true;
         }
         if (healPerTick > 0) {
-          enemy.hp = Math.min(enemy.maxHp, enemy.hp + healPerTick * tickCount);
+          const healed = Math.max(
+            0,
+            Math.min(enemy.maxHp - enemy.hp, healPerTick * tickCount),
+          );
+          enemy.hp = Math.min(enemy.maxHp, enemy.hp + healed);
+          if (healed > 0) {
+            appendWorldFloatingTextEvent(state, {
+              anchor: createEnemyFloatingTextAnchor(enemy),
+              amount: healed,
+              kind: 'healing',
+            });
+          }
           changed = true;
         }
       }

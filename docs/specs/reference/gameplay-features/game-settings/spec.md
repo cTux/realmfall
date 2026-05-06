@@ -24,7 +24,8 @@ This spec covers the desktop-style game settings window, its dock and hotkey acc
 - `Font size` scales explicit HTML UI typography without scaling the Pixi canvas or enlarging window chrome.
 - `Interface size` scales the dock, windows, overlays, and controls through anchored HTML UI surfaces without scaling the world canvas, world-positioned overlays, or the screen anchors used for map input.
 - Interface font choices use bundled local font files, and `Save` waits for the selected font to finish loading before the shell updates so window chrome does not flash back to a fallback face.
-- The gameplay tab stores automation toggles for auto-loot, auto-start combat, and auto-gather resources.
+- The gameplay tab stores automation toggles for auto-loot and auto-gather resources.
+- Legacy persisted `autoStartCombat` values are ignored during gameplay-settings hydration.
 - Graphics, audio, interface, gameplay, and world-map settings each persist in their own dedicated plain `localStorage` area outside the encrypted save areas, and the shared settings storage helper normalizes those values before startup or live save flows consume them.
 - Graphics settings are normalized on load and save so malformed persisted values fall back to the current defaults instead of reaching Pixi initialization.
 - `Save` persists the current settings immediately without reloading.
@@ -46,7 +47,7 @@ This spec covers the desktop-style game settings window, its dock and hotkey acc
 - Change the game font, use `Save`, and confirm the shell updates to the selected bundled font without a page reload. Reload manually and confirm the same font is active during the next bootstrap.
 - Change `Font size`, use `Save`, and confirm text grows or shrinks without changing window chrome dimensions.
 - Change `Interface size`, use `Save`, and confirm dock, windows, overlays, and controls scale while the Pixi world canvas stays unchanged, the action bar and dock stay anchored, and world-map movement or hover input keeps working.
-- Change interface transparency and gameplay automation toggles, use `Save`, and confirm the persisted values survive a manual reload.
+- Change interface transparency plus the remaining gameplay automation toggles, use `Save`, and confirm the persisted values survive a manual reload.
 - Trigger a gameplay voice line, toggle mute or reduced-motion muting before the clip finishes, and confirm the active line stops immediately.
 - Inspect the production build or network panel before activation and confirm the gameplay voice bridge and selected WAV clip modules are not requested.
 - Trigger a gameplay voice line, enable reduced motion in the OS or browser while the clip is playing, and confirm the active line stops immediately without requiring another in-game state update.

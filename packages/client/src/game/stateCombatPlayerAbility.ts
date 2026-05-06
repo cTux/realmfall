@@ -29,6 +29,11 @@ import { addLog } from './logs';
 import { getPlayerCombatStats } from './progression';
 import { handleEnemyDefeat } from './stateCombatEnemyDefeat';
 import { recordTreasureGoblinDamageHits } from './stateCombatTreasureGoblin';
+import {
+  appendWorldFloatingTextEvent,
+  createEnemyFloatingTextAnchor,
+  createPlayerFloatingTextAnchor,
+} from './worldFloatingText';
 import type { AbilityId, GameState } from './types';
 
 export function applyPlayerAbility(
@@ -207,6 +212,13 @@ function dealPlayerDamageToEnemy(
     ),
   );
   if (damageResolution.damage > 0) {
+    appendWorldFloatingTextEvent(state, {
+      anchor: createEnemyFloatingTextAnchor(enemy),
+      amount: damageResolution.damage,
+      kind: damageResolution.critical ? 'critical-damage' : 'damage',
+    });
+  }
+  if (damageResolution.damage > 0) {
     recordTreasureGoblinDamageHits(state, enemy);
   }
   return damageResolution.damage;
@@ -234,6 +246,13 @@ function healPlayerTargets(
     const maxHp = getPlayerCombatStats(state.player).maxHp;
     const healed = Math.max(0, Math.min(maxHp - target.hp, amount));
     target.hp += healed;
+    if (healed > 0) {
+      appendWorldFloatingTextEvent(state, {
+        anchor: createPlayerFloatingTextAnchor(target),
+        amount: healed,
+        kind: 'healing',
+      });
+    }
     return sum + healed;
   }, 0);
 }

@@ -47,6 +47,7 @@ export function createGame(
     playerLevelUpVisualEndsAt: 0,
     logSequence: 3,
     logs: createFreshLogsAtTime(seed, 0),
+    worldFloatingTextEvents: [],
     tiles: surfaceWorld.tiles,
     enemies: surfaceWorld.enemies,
     combat: null,
