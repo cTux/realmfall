@@ -38,6 +38,7 @@ This spec covers enemy generation plus the blood moon, harvest moon, and earthsh
 - `src/game/state.ts`
 - `src/game/stateWorldEvents.ts`
 - `src/game/stateRewards.ts`
+- `src/game/stateRewards/enemyLoot.ts`
 - `src/game/combat.ts`
 - `src/game/world.ts`
 - `src/game/territories.ts`

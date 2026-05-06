@@ -71,6 +71,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - `src/game/world.ts`
 - `src/game/state.ts`
 - `src/game/stateRewards.ts`
+- `src/game/stateRewards/enemyLoot.ts`
 - `src/game/generatedCraftingRecipes.ts`
 - `src/game/content/items`
 - `src/game/content/generatedIconPools.ts`

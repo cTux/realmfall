@@ -3,25 +3,25 @@ import {
   getEnemyDropRarityChanceScale,
   getEnemyItemDropChance,
   maybeDropLockedChestOpener,
-} from './stateRewards';
+} from '../enemyLoot';
 import {
-  ENEMY_ITEM_BLOOD_MOON_RARITY_CHANCE_MULTIPLIER,
-  ENEMY_ITEM_DUNGEON_RARITY_CHANCE_MULTIPLIER,
-  GAME_CONFIG,
   ENEMY_GOLD_DROP_CHANCES,
+  ENEMY_ITEM_BLOOD_MOON_RARITY_CHANCE_MULTIPLIER,
   ENEMY_ITEM_DROP_CHANCES,
+  ENEMY_ITEM_DUNGEON_RARITY_CHANCE_MULTIPLIER,
   ENEMY_RECIPE_DROP_CHANCES,
+  GAME_CONFIG,
   HOME_SCROLL_DROP_CHANCES,
   TREASURE_GOBLIN_GOLD_MULTIPLIER,
   TREASURE_GOBLIN_ITEM_DROP_MULTIPLIERS,
-} from './config';
+} from '../../config';
 import {
   createCombatEncounterGame,
   seedCombatEncounter,
-} from './stateCombatTestHelpers';
-import { getItemCategory, getItemConfigByKey } from './content/items';
-import { ItemId } from './content/ids';
-import { getTileAt } from './state';
+} from '../../stateCombatTestHelpers';
+import { getItemCategory, getItemConfigByKey } from '../../content/items';
+import { ItemId } from '../../content/ids';
+import { getTileAt } from '../../state';
 
 const originalEnemyItemDropChances = {
   chance: { ...ENEMY_ITEM_DROP_CHANCES.chance },
@@ -67,7 +67,7 @@ function classifyDropKind(
   return getItemCategory(item);
 }
 
-describe('state rewards', () => {
+describe('state reward enemy loot', () => {
   afterEach(() => {
     resetDropChances();
   });
@@ -136,9 +136,9 @@ describe('state rewards', () => {
     ENEMY_ITEM_DROP_CHANCES.kindChances = {
       artifact: 1,
       armor: 1,
+      consumable: 1,
       offhand: 1,
       weapon: 1,
-      consumable: 1,
     };
     ENEMY_GOLD_DROP_CHANCES.base = 0;
     ENEMY_GOLD_DROP_CHANCES.max = 0;
