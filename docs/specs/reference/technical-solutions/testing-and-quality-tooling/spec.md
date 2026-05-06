@@ -21,8 +21,6 @@ This spec covers the repository quality baseline and current test coverage shape
 - Because the current repository is on Vitest 4, the Vite config uses a local compatibility shim for the plugin's runner and setup hooks instead of the package's older custom-pool entrypoint, and each project layers its own setup file over that shared cache path.
 - `pnpm dev` and `pnpm serve` both run on local HTTPS using the shared localhost self-signed certificate helper, and cached certificates are regenerated automatically when they expire so secure-origin local workflows do not get stuck on stale TLS files.
 - The repository toolchain is pinned to Node `v25.9.0` through `.nvmrc`, with `package.json` `engines` set to `25.x` and GitHub Actions reading the same version file, keeping local commands, CI, and scheduled automation on the same runtime line.
-- Root `devDependencies` include `mneme-ai`, `.mneme/config.json` defines the repo-local Mneme baseline, and the SQLite index under `.mneme/*.db*` remains a local runtime artifact instead of committed state.
-- Local repository-history tooling can query that Mneme baseline through `mneme ask`, `mneme why`, or `mneme mcp`, with `mneme index` refreshing the repo memory when it goes stale.
 - Oxlint is the enforced JavaScript and TypeScript lint gate, with its canonical configuration stored in `.oxlintrc.json`.
 - Oxlint enforces React hook rules for TypeScript and TSX sources, including `react/rules-of-hooks` and `react/exhaustive-deps` as error-level checks.
 - `pnpm lint` is the shared repository lint gate and runs both Oxlint and Stylelint, while `pnpm lint:css` remains available for stylesheet-only local checks.

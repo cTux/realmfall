@@ -12,7 +12,7 @@
 - When the workflow chooses commit-time full validation, keep the pre-commit hook responsible for the repository-wide typecheck, lint, test, and strict build-budget gates instead of splitting those checks across pre-commit and pre-push.
 - When the workflow chooses commit-time full validation, keep the pre-push hook as a no-op so contributors do not pay the same repository-wide gates twice.
 - Treat a staged `package.json` change that only updates the `version` field as lightweight release metadata, not as a shared-input change that forces the full repository test suite.
-- When repository-history, rationale, authorship, or semantic change questions matter, prefer the local `mnemeRealmfall` Mneme MCP server when it is available, or the repo-local `mneme` CLI, and fall back to raw `git` only for trivial lookups or when Mneme is unavailable.
+- When repository-history, rationale, authorship, or semantic change questions matter, inspect the relevant Git history directly instead of inferring from the current worktree alone.
 - Prefer the smallest correct change that fits the existing structure.
 - Apply the DRY principle. When logic, UI structure, or configuration patterns repeat, prefer extracting or extending an existing shared helper, component, or module instead of copying the pattern again.
 - When a requested JavaScript or TypeScript syntax preference can be enforced mechanically, prefer enabling or adjusting the corresponding Oxlint rule instead of relying only on contributor discipline, using Oxlint JS plugins only when the rule is not available natively.

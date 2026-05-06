@@ -6,7 +6,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 ## Before Coding
 
 - Load `docs/RULES.md`, then only the scoped rule files that match the task.
-- When the local Mneme setup is available, use it first for semantic repo-history, authorship, and rationale questions through `mneme ask`, `mneme why`, or the local Mneme MCP server, and refresh the local index when those answers go stale.
+- When repository-history, authorship, or rationale questions matter, inspect the relevant Git history directly before inferring from the current worktree alone.
 - Treat `docs/WORKFLOW.md` and `docs/PROJECT_REVIEW.md` as supporting references, not canonical policy sources.
 - Use Node `v25.9.0` from `.nvmrc` for local commands and automation.
 - Follow the matching scoped rule file for recurring policy questions instead of expanding this file with parallel rule lists.
