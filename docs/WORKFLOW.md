@@ -6,6 +6,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 ## Before Coding
 
 - Load `docs/RULES.md`, then only the scoped rule files that match the task.
+- When the local Mneme setup is available, use it first for semantic repo-history, authorship, and rationale questions through `mneme ask`, `mneme why`, or the local Mneme MCP server, and refresh the local index when those answers go stale.
 - Treat `docs/WORKFLOW.md` and `docs/PROJECT_REVIEW.md` as supporting references, not canonical policy sources.
 - Use Node `v25.9.0` from `.nvmrc` for local commands and automation.
 - Follow the matching scoped rule file for recurring policy questions instead of expanding this file with parallel rule lists.
@@ -25,6 +26,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 - Use `pnpm git:commit -- -m "<message>"` for routine commits. It increments the `package.json` patch version, stages that bump, then delegates to `git commit` through the repository helper.
 - Plain `git commit` also runs the patch-version bump through the Husky pre-commit hook. Stage or stash unrelated `package.json` edits first, because the bump refuses to run when that file has unstaged changes.
 - The Husky pre-commit hook now runs both the staged-file checks and the repository-wide validation path (`typecheck`, `lint`, `test`, and `build:budget:strict`). The pre-push hook intentionally does nothing.
+- Mneme guard can be installed locally as an additive staged-change scan for secrets and vulnerability patterns, but it must stay layered onto the existing Husky hook chain rather than replacing the repository-owned pre-commit workflow.
 - Generate commit messages from the actual change set.
 - Keep commit messages focused on the behavioral change instead of enumerating every touched doc file.
 - Use `pnpm git:deploy` from a clean tracked worktree to build the app with the GitHub Pages base path and publish `dist/` to `origin/gh-pages`. Configure GitHub Pages to serve the `gh-pages` branch from `/`.
