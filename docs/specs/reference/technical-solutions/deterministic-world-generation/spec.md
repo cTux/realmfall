@@ -14,6 +14,7 @@ This spec covers the seeded generation model used for terrain, structures, enemi
 - This prevents the initial spawn from producing blocked or hostile world states.
 - The early exploration ring softens blocked or highly corrupted biome results into safer transition terrain so the opening movement space stays navigable even when the broader biome field trends harsh.
 - Terrain and coordinate context are converted into progression tier data that influences enemies, loot, and generated equipment.
+- World-generated loot families resolve from weighted `game.config.ts` chance maps, keeping consumables common while preserving lower-frequency weapon, armor, offhand, and artifact rolls on deterministic world caches.
 - Surface dungeon entrances use stable deterministic ids derived from the root seed plus the entrance coordinate, so the same entrance always resolves to the same dungeon world.
 - Dungeon generation uses the root seed plus dungeon id to select a weighted layout family, a terrain theme package, a final chest location, a final elite location, and the interior enemy distribution.
 - The dungeon generator guarantees at least `200` passable hexes, a safe entrance tile, a far-end chest tile, and impassable theme wall terrain around the playable footprint.

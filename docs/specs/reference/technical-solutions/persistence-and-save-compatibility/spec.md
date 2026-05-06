@@ -20,6 +20,7 @@ This spec covers browser save storage, direct hydration of the current save shap
 - Save normalization keeps `src/app/normalize.ts` as the public surface while focused helpers split gameplay payloads, combat payloads, item payloads, UI payloads, shared validators, and narrow compatibility backfills into separate modules so save-shape updates touch narrower files.
 - Gameplay hydration uses the current runtime default game state as the canonical baseline, then applies valid persisted values field-by-field so additive save-shape changes do not wipe player progress.
 - Missing or invalid persisted gameplay values fall back to current defaults instead of rejecting the entire gameplay save.
+- Save hydration reuses the canonical gameplay clone helpers from `src/game/stateClone.ts` when it needs fallback tiles, enemies, equipment, player state, or world aliases, so nested item stats and tile stock metadata do not drift between runtime copies and persistence copies.
 - Hydration loads dedicated dungeon bodies for registered entrances and the active dungeon run when those keys exist, then reattaches the active-world aliases to the loaded world registry.
 - The app does not depend on explicit save schema version checks for additive gameplay save evolution.
 - If the active dungeon body is missing at hydration time, the app falls back to the surface world, clears combat, and restores the player's coordinate to the stored surface entrance context instead of rejecting the whole save.

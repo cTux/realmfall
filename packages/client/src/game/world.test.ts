@@ -12,19 +12,28 @@ import { buildRegularTile } from './worldTileGeneration';
 import { pickTerrain } from './worldTerrain';
 
 describe('world loot roll mapping', () => {
-  it('maps world-generated item kinds to equal random buckets', () => {
+  it('maps world-generated item kinds to weighted random buckets', () => {
     expect(pickWorldGeneratedItemKind(0.0)).toBe('artifact');
-    expect(pickWorldGeneratedItemKind(0.2)).toBe('weapon');
-    expect(pickWorldGeneratedItemKind(0.4)).toBe('offhand');
-    expect(pickWorldGeneratedItemKind(0.6)).toBe('armor');
+    expect(pickWorldGeneratedItemKind(0.059999)).toBe('artifact');
+    expect(pickWorldGeneratedItemKind(0.060001)).toBe('weapon');
+    expect(pickWorldGeneratedItemKind(0.159999)).toBe('weapon');
+    expect(pickWorldGeneratedItemKind(0.160001)).toBe('offhand');
+    expect(pickWorldGeneratedItemKind(0.259999)).toBe('offhand');
+    expect(pickWorldGeneratedItemKind(0.260001)).toBe('armor');
+    expect(pickWorldGeneratedItemKind(0.379999)).toBe('armor');
+    expect(pickWorldGeneratedItemKind(0.380001)).toBe('consumable');
     expect(pickWorldGeneratedItemKind(0.8)).toBe('consumable');
   });
 
-  it('maps blood moon item kinds to equal random buckets', () => {
+  it('maps blood moon item kinds to weighted random buckets', () => {
     expect(pickBloodMoonItemKind(0.0)).toBe('artifact');
-    expect(pickBloodMoonItemKind(0.25)).toBe('weapon');
-    expect(pickBloodMoonItemKind(0.5)).toBe('offhand');
-    expect(pickBloodMoonItemKind(0.75)).toBe('armor');
+    expect(pickBloodMoonItemKind(0.199999)).toBe('artifact');
+    expect(pickBloodMoonItemKind(0.200001)).toBe('weapon');
+    expect(pickBloodMoonItemKind(0.499999)).toBe('weapon');
+    expect(pickBloodMoonItemKind(0.500001)).toBe('offhand');
+    expect(pickBloodMoonItemKind(0.749999)).toBe('offhand');
+    expect(pickBloodMoonItemKind(0.750001)).toBe('armor');
+    expect(pickBloodMoonItemKind(0.99)).toBe('armor');
   });
 
   it('inverts loot rolls into deterministic outcome rolls', () => {

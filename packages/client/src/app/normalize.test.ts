@@ -68,6 +68,74 @@ describe('normalizeLoadedGame', () => {
     );
   });
 
+  it('deep-clones nested tile and item fields during hydration and world fallback reuse', () => {
+    const game = createGame(3, 'normalize-deep-clone-seed');
+    const homeKey = `${game.homeHex.q},${game.homeHex.r}`;
+
+    game.player.inventory[0] = {
+      ...game.player.inventory[0]!,
+      secondaryStats: [{ key: 'attackSpeed', value: 3 }],
+    };
+    game.player.equipment.weapon = {
+      ...game.player.inventory[0]!,
+      id: 'equipped-weapon',
+      slot: 'weapon',
+      secondaryStats: [{ key: 'criticalStrikeChance', value: 4 }],
+    };
+    game.tiles[homeKey] = {
+      coord: { ...game.homeHex },
+      terrain: 'plains',
+      enemyIds: [],
+      structure: undefined,
+      townStockDay: 12,
+      townStockPurchasedItemIds: ['stock-1'],
+      items: [
+        {
+          ...game.player.inventory[0]!,
+          id: 'tile-item-1',
+          secondaryStats: [{ key: 'blockChance', value: 2 }],
+        },
+      ],
+    };
+
+    const saved = structuredClone(game);
+    (saved as unknown as { worlds: unknown }).worlds = null;
+
+    const normalized = normalizeLoadedGame(saved);
+    expect(normalized).not.toBeNull();
+    const normalizedTile = normalized?.tiles[homeKey];
+    const normalizedWorldTile =
+      normalized?.worlds[normalized.surfaceWorldId]?.tiles[homeKey];
+
+    expect(normalizedTile?.townStockDay).toBe(12);
+    expect(normalizedTile?.townStockPurchasedItemIds).toEqual(['stock-1']);
+    expect(normalizedTile?.townStockPurchasedItemIds).not.toBe(
+      saved.tiles[homeKey]?.townStockPurchasedItemIds,
+    );
+    expect(normalizedTile?.items[0]?.secondaryStats).toEqual([
+      { key: 'blockChance', value: 2 },
+    ]);
+    expect(normalizedTile?.items[0]?.secondaryStats).not.toBe(
+      saved.tiles[homeKey]?.items[0]?.secondaryStats,
+    );
+    expect(normalized?.player.inventory[0]?.secondaryStats).toEqual([
+      { key: 'attackSpeed', value: 3 },
+    ]);
+    expect(normalized?.player.inventory[0]?.secondaryStats).not.toBe(
+      saved.player.inventory[0]?.secondaryStats,
+    );
+    expect(normalized?.player.equipment.weapon?.secondaryStats).toEqual([
+      { key: 'criticalStrikeChance', value: 4 },
+    ]);
+    expect(normalized?.player.equipment.weapon?.secondaryStats).not.toBe(
+      saved.player.equipment.weapon?.secondaryStats,
+    );
+    expect(normalizedWorldTile?.townStockPurchasedItemIds).toEqual(['stock-1']);
+    expect(normalizedWorldTile?.items[0]?.secondaryStats).toEqual([
+      { key: 'blockChance', value: 2 },
+    ]);
+  });
+
   it('falls back invalid nested player fields to defaults instead of rejecting the save', () => {
     const game = createGame(3, 'normalize-invalid-player-field-seed');
     const saved = structuredClone(game);

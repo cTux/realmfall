@@ -45,7 +45,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - Item tooltips and display names surface modification state directly: reforged secondary stats are pink, enchanted secondary stats are cyan, corrupted items append `[Corrupted]` with a red item title, and equippable items show at most one visible empty base-secondary slot at a time.
 - Loot can be taken item-by-item or collected from a tile in bulk.
 - World-generated weapons, armor, offhands, and artifacts scale by terrain tier and context, including generated shoulders, bracers, belts, shields, magical offhands, and one-handed or two-handed weapon archetypes.
-- World loot and blood moon bonus gear now choose their top-level item family from equal random buckets instead of weighted family chances, so weapons, armor, offhands, artifacts, and consumables do not skew toward accessory-heavy drops.
+- World loot and blood moon bonus gear now choose their top-level item family from weighted `game.config.ts` maps. Surface world caches remain consumable-heavy, while blood moon bonus gear leans toward weapons, armor, and offhands more than artifacts.
 - Offhand shields and magical spheres always include a block-chance secondary stat, including both generated drops and fixed crafted icon variants.
 - Enemy bonus drops now evaluate item-kind chances in ascending order from lowest to highest; each successful chance rolls an independent item drop so rarer kinds remain reachable while higher-chance kinds can still drop too.
 - Dungeon and blood moon rewards bias toward better rarity floors.
