@@ -120,12 +120,15 @@ export function makeEnemy(
     enemyTypeId?: EnemyTypeKey;
     aggressive?: boolean;
     allowTreasureGoblinOverride?: boolean;
+    levelCoord?: HexCoord;
     rarity?: EnemyRarity;
     name?: string;
     worldBoss?: boolean;
   },
 ): Enemy {
-  const tier = terrainTier(coord, terrain) + (structure === 'dungeon' ? 2 : 0);
+  const tierCoord = options?.levelCoord ?? coord;
+  const tier =
+    terrainTier(tierCoord, terrain) + (structure === 'dungeon' ? 2 : 0);
   const roll = noise(`${seed}:enemy:type:${structure ?? 'field'}`, coord);
   const worldBoss =
     options?.worldBoss ?? isWorldBossEnemyId(options?.enemyId ?? '');
