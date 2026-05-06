@@ -16,8 +16,7 @@ import {
   enemyTooltip,
   structureTooltip,
 } from './tooltips';
-import { DockPanel as WindowDock } from '@realmfall/ui';
-import { WindowLabel } from './components/WindowLabel/WindowLabel';
+import { DockPanel as WindowDock, WindowLabel } from '@realmfall/ui';
 import { WINDOW_LABELS } from './windowLabels';
 
 function createItem(overrides: Partial<Item> = {}): Item {
@@ -390,7 +389,7 @@ describe('ui helper coverage', () => {
   it('renders window labels without a hotkey span when absent', () => {
     const markup = renderToStaticMarkup(
       <WindowLabel
-        label={{ plain: 'Loot', prefix: '', hotkey: '', suffix: 'Loot' }}
+        label={{ prefix: '', hotkey: '', suffix: 'Loot' }}
         hotkeyClassName="hotkey"
         suffix=" window"
       />,

@@ -31,6 +31,11 @@ export { DockPanel, WindowDock } from './components/DockPanel';
 export type { DockPanelEntry, WindowDockEntry } from './components/DockPanel';
 export { ItemSlot, ItemSlotButton } from './components/ItemSlot';
 export type { ItemSlotProps, ItemSlotButtonProps } from './components/ItemSlot';
+export { WindowLabel } from './components/WindowLabel';
+export type {
+  WindowLabelParts,
+  WindowLabelProps,
+} from './components/WindowLabel';
 export {
   Tooltip,
   GameTooltip,

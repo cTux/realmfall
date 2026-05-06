@@ -10,7 +10,6 @@ const sharedComponentStoryDirs = new Map<string, string>([
   ['GameTooltip', 'Tooltip'],
   ['ItemContextMenu', 'ContextMenu'],
   ['ItemSlotButton', 'ItemSlot'],
-  ['WindowDock', 'DockPanel'],
 ]);
 
 describe('storybook coverage', () => {

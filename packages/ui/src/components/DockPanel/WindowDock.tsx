@@ -1,33 +1,37 @@
-import { memo, useState, type Dispatch, type SetStateAction } from 'react';
+import {
+  memo,
+  useState,
+  type Dispatch,
+  type ReactElement,
+  type SetStateAction,
+} from 'react';
 import { useUiAudio } from '../../app/audio/UiAudioContext';
-import type { WindowKey } from '../../app/constants';
 import { t } from '../../i18n';
-import type { WindowLabelDefinition } from '../../windowLabels';
 import { Button } from '../Button/Button';
-import { WindowLabel } from '../WindowLabel/WindowLabel';
+import { WindowLabel, type WindowLabelParts } from '../WindowLabel/WindowLabel';
 import labelStyles from '../windowLabels.module.scss';
 import styles from './styles.module.scss';
 
-export interface WindowDockEntry {
-  key: WindowKey;
+export interface WindowDockEntry<Key extends string = string> {
+  key: Key;
   label: string;
-  title: WindowLabelDefinition;
+  title: WindowLabelParts;
   icon: string;
   shown: boolean;
   requiresAttention?: boolean;
   align?: 'start' | 'end';
 }
 
-interface WindowDockProps {
-  entries: WindowDockEntry[];
-  onToggle: (key: WindowKey) => void;
+interface WindowDockProps<Key extends string> {
+  entries: WindowDockEntry<Key>[];
+  onToggle: (key: Key) => void;
 }
 
-export const WindowDock = memo(function WindowDock({
+function WindowDockInner<Key extends string>({
   entries,
   onToggle,
-}: WindowDockProps) {
-  const [activeTooltip, setActiveTooltip] = useState<WindowKey | null>(null);
+}: WindowDockProps<Key>) {
+  const [activeTooltip, setActiveTooltip] = useState<Key | null>(null);
   const startEntries = entries.filter((entry) => entry.align !== 'end');
   const endEntries = entries.filter((entry) => entry.align === 'end');
 
@@ -61,21 +65,25 @@ export const WindowDock = memo(function WindowDock({
       </div>
     </aside>
   );
-});
-
-interface DockButtonProps {
-  entry: WindowDockEntry;
-  activeTooltip: WindowKey | null;
-  onToggle: (key: WindowKey) => void;
-  setActiveTooltip: Dispatch<SetStateAction<WindowKey | null>>;
 }
 
-function DockButton({
+export const WindowDock = memo(WindowDockInner) as <Key extends string>(
+  props: WindowDockProps<Key>,
+) => ReactElement;
+
+interface DockButtonProps<Key extends string> {
+  entry: WindowDockEntry<Key>;
+  activeTooltip: Key | null;
+  onToggle: (key: Key) => void;
+  setActiveTooltip: Dispatch<SetStateAction<Key | null>>;
+}
+
+function DockButton<Key extends string>({
   entry,
   activeTooltip,
   onToggle,
   setActiveTooltip,
-}: DockButtonProps) {
+}: DockButtonProps<Key>) {
   const audio = useUiAudio();
 
   return (
