@@ -14,6 +14,7 @@ import { useAppSettingsActions } from './useAppSettingsActions';
 import { useAppShortcutRuntime } from './useAppShortcutRuntime';
 import { useAppWindowRuntime } from './useAppWindowRuntime';
 import { useCombatAttentionWindow } from './useCombatAttentionWindow';
+import { useCombatHexInfoPersistence } from './useCombatHexInfoPersistence';
 import { useAppWorldClock } from './useAppWorldClock';
 import { useCraftingRecipeBookPromotion } from './useCraftingRecipeBookPromotion';
 import { useGameplayAutomation } from './useGameplayAutomation';
@@ -183,6 +184,12 @@ export function useAppRuntime() {
     playerCoord: bootstrap.game.player.coord,
     suppressHexInfoAutoOpen: pixiWorld.queuedTravelAutoOpenSuppressed,
     setWindowVisibility: controllerMutators.setWindowVisibility,
+    windowShownHexInfo: controllerState.windowShown.hexInfo,
+  });
+  useCombatHexInfoPersistence({
+    combat: bootstrap.game.combat,
+    setWindowShown: controllerMutators.setWindowShown,
+    windowShownCombat: controllerState.windowShown.combat,
     windowShownHexInfo: controllerState.windowShown.hexInfo,
   });
 

@@ -40,6 +40,7 @@ This spec covers the gameplay features that are surfaced through the desktop-sty
 - While the hex info window is open on the dungeon entrance tile inside a dungeon world, the content body surfaces `Leave dungeon`.
 - While the hex info window is open on the final dungeon chest tile, the content body surfaces `Open dungeon chest`.
 - Enemy-initiated dungeon chase combat does not auto-open the hex info window; the player must open that window manually if they want to inspect combat content during a chase-triggered fight.
+- When the hex info window is open during combat, the first post-combat surface render keeps that same window open instead of auto-closing it as the battle state clears.
 - The hex info content body omits passive terrain, structure, territory, empty-state, and section-title copy so non-combat tiles present only actionable controls, bars, and item slots.
 - Item-slot containers rendered inside the hex info content window use shared stable style constants at `0.8x` of the shared slot sizes so town stock, loot, and item-modification slots stay visually subordinate to the main inventory surfaces without receiving fresh style-object props on every content render.
 - Town stock in the hex info content window wraps its item slots with a flex row layout instead of CSS grid so slot spacing follows the shared item-slot sizing more predictably.

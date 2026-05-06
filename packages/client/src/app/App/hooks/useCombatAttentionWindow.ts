@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { isEnemyInitiatedCombat } from '../../../game/stateCombatEngagement';
 import type { GameState, HexCoord } from '../../../game/stateTypes';
 
@@ -20,6 +20,8 @@ export function useCombatAttentionWindow({
   const combatAutoOpenReadyRef = useRef(false);
   const previousCombatRef = useRef<GameState['combat']>(combat);
   const previousPlayerCoordRef = useRef(playerCoord);
+  const previousWindowShownHexInfoRef = useRef(windowShownHexInfo);
+  const reopenAfterCombatEndRef = useRef(false);
 
   useLayoutEffect(() => {
     if (!hydrated) {
@@ -30,11 +32,13 @@ export function useCombatAttentionWindow({
       combatAutoOpenReadyRef.current = true;
       previousCombatRef.current = combat;
       previousPlayerCoordRef.current = playerCoord;
+      previousWindowShownHexInfoRef.current = windowShownHexInfo;
       return;
     }
 
     const hadCombat = Boolean(previousCombatRef.current);
     const hasCombat = Boolean(combat);
+    const hadHexInfoWindow = previousWindowShownHexInfoRef.current;
     const playerMoved =
       previousPlayerCoordRef.current.q !== playerCoord.q ||
       previousPlayerCoordRef.current.r !== playerCoord.r;
@@ -49,9 +53,13 @@ export function useCombatAttentionWindow({
     ) {
       setWindowVisibility('hexInfo', true);
     }
+    if (!hasCombat && hadCombat && (hadHexInfoWindow || windowShownHexInfo)) {
+      reopenAfterCombatEndRef.current = true;
+    }
 
     previousCombatRef.current = combat;
     previousPlayerCoordRef.current = playerCoord;
+    previousWindowShownHexInfoRef.current = windowShownHexInfo;
   }, [
     combat,
     hydrated,
@@ -60,4 +68,13 @@ export function useCombatAttentionWindow({
     suppressHexInfoAutoOpen,
     windowShownHexInfo,
   ]);
+
+  useEffect(() => {
+    if (!hydrated || combat != null || !reopenAfterCombatEndRef.current) {
+      return;
+    }
+
+    reopenAfterCombatEndRef.current = false;
+    setWindowVisibility('hexInfo', true);
+  }, [combat, hydrated, setWindowVisibility]);
 }

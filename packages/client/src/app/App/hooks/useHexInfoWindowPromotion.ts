@@ -1,4 +1,9 @@
-import { useEffect, type Dispatch, type SetStateAction } from 'react';
+import {
+  useLayoutEffect,
+  useRef,
+  type Dispatch,
+  type SetStateAction,
+} from 'react';
 import { getRecipeSkillForStructure } from '../../../game/crafting';
 import { isEnemyInitiatedCombat } from '../../../game/stateCombatEngagement';
 import type { GameState, Tile } from '../../../game/stateTypes';
@@ -21,8 +26,13 @@ export function useHexInfoWindowPromotion({
   setWindowShown,
   windowShown,
 }: UseHexInfoWindowPromotionArgs) {
-  useEffect(() => {
+  const previousCombatRef = useRef(combat);
+
+  useLayoutEffect(() => {
+    const hadCombat = previousCombatRef.current != null;
+
     if (suppressAutoOpen) {
+      previousCombatRef.current = combat;
       return;
     }
 
@@ -32,18 +42,17 @@ export function useHexInfoWindowPromotion({
         getRecipeSkillForStructure(currentStructure) == null;
       const shouldAutoOpenCombatInfo =
         combat != null && !isEnemyInitiatedCombat(combat);
+      const shouldPreserveOpenAfterCombat =
+        combat == null && hadCombat && current.combat;
       const shouldShowHexInfo =
+        shouldPreserveOpenAfterCombat ||
         shouldAutoOpenStructureInfo ||
         currentLootAvailable ||
         shouldAutoOpenCombatInfo ||
         current.loot ||
         current.combat;
 
-      if (
-        current.hexInfo === shouldShowHexInfo &&
-        !current.loot &&
-        !current.combat
-      ) {
+      if (current.hexInfo === shouldShowHexInfo && !current.loot) {
         return current;
       }
 
@@ -51,16 +60,18 @@ export function useHexInfoWindowPromotion({
         ...current,
         hexInfo: shouldShowHexInfo,
         loot: false,
-        combat: false,
+        combat: current.combat,
       };
     });
+
+    previousCombatRef.current = combat;
   }, [
     combat,
     currentLootAvailable,
     currentStructure,
     suppressAutoOpen,
     setWindowShown,
-    windowShown.combat,
+    windowShown.hexInfo,
     windowShown.loot,
   ]);
 }
