@@ -33,10 +33,9 @@
 - When Mneme guard is installed locally, keep it additive to the active Git hook chain. Do not replace the repository-owned Husky pre-commit workflow; Mneme's staged secret and vulnerability scan should run before or alongside the Husky checks, not instead of them.
 - When the workflow intentionally prefers faster pushes, keep the repository-wide TypeScript, test, and build gates on pre-commit and document that commit-latency tradeoff clearly in contributor workflow docs.
 - When the workflow intentionally prefers faster pushes, keep the pre-push hook empty so repository-wide validation is paid once per commit rather than once per commit and again per push.
-- Keep scheduled dependency automation aligned with the repository toolchain. Use the repo-pinned package-manager version in CI jobs and keep audit steps read-only instead of mutating dependencies inside the workflow.
 - Keep GitHub Actions least-privilege by default. Declare explicit workflow permissions, disable persisted checkout credentials unless a job needs them, and prefer reviewed repository logic or the GitHub CLI over third-party PR automation in write-capable jobs.
-- Keep pull-request validation split into independent jobs when that meaningfully reduces wall-clock feedback time, and align each job with the narrowest local command set that still covers the affected packages, such as `pnpm test`, `pnpm test:jsdom`, or `pnpm build:budget:strict`.
+- Keep pull-request and default-branch validation split into independent jobs when that meaningfully reduces wall-clock feedback time, and align each job with the narrowest local command set that still covers the affected packages, such as `pnpm test`, `pnpm test:jsdom`, or `pnpm build:budget:strict`.
 - Keep documentation-only pull requests off the runtime CI path when the diff cannot affect shipped code, toolchain behavior, or workflow execution.
 - Before a workflow uses `git push --force-with-lease` against a reusable branch, fetch the matching remote branch into a local remote-tracking ref inside the job so the lease checks current remote state instead of stale or missing ref data.
-- Non-draft same-repository PRs targeting the repository default branch can auto-resolve package.json version conflicts through the `auto-rebase-package-json` workflow job.
-- Pushes to the repository default branch run an automated Pages deployment job that installs dependencies and executes `pnpm git:deploy` for publishing.
+- Non-draft same-repository PRs targeting the repository default branch can auto-resolve package.json version conflicts through the pull-request auto-rebase workflow.
+- Published GitHub releases run the automated Pages deployment job that installs dependencies and executes `pnpm git:deploy` for publishing.

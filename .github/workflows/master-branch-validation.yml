@@ -1,16 +1,8 @@
-name: Pull Request
+name: Master Branch Validation
 
 on:
-  pull_request:
-    paths-ignore:
-      - 'docs/**'
-      - 'README.md'
-      - 'AGENTS.md'
-      - 'CLAUDE.md'
-      - '.github/copilot-instructions.md'
   push:
     branches:
-      - main
       - master
     paths-ignore:
       - 'docs/**'
@@ -26,55 +18,55 @@ permissions:
   contents: read
 
 jobs:
-  typecheck-and-lint:
+  validate-typecheck-and-lint:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out repository
+      - name: Check out repository content
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
         with:
           persist-credentials: false
 
-      - name: Set up pnpm
+      - name: Set up pnpm package manager
         uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
 
-      - name: Set up Node.js
+      - name: Set up Node.js runtime
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with:
           node-version-file: '.nvmrc'
           cache: pnpm
 
-      - name: Install dependencies
+      - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Typecheck
+      - name: Run workspace type checks
         run: pnpm typecheck
 
-      - name: Lint
+      - name: Run workspace lint checks
         run: pnpm lint
 
-  test-node:
+  validate-node-test-suite:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out repository
+      - name: Check out repository content
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
         with:
           persist-credentials: false
 
-      - name: Set up pnpm
+      - name: Set up pnpm package manager
         uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
 
-      - name: Set up Node.js
+      - name: Set up Node.js runtime
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with:
           node-version-file: '.nvmrc'
           cache: pnpm
 
-      - name: Install dependencies
+      - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Restore Vitest cache
+      - name: Restore Vitest cache directory
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
         with:
           path: .tests/vitest-cache
@@ -92,29 +84,29 @@ jobs:
           restore-keys: |
             vitest-cache-${{ runner.os }}-
 
-      - name: Run workspace tests
+      - name: Run workspace automated tests
         run: pnpm test
 
-  build:
+  validate-production-build-and-budget:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out repository
+      - name: Check out repository content
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
         with:
           persist-credentials: false
 
-      - name: Set up pnpm
+      - name: Set up pnpm package manager
         uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
 
-      - name: Set up Node.js
+      - name: Set up Node.js runtime
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with:
           node-version-file: '.nvmrc'
           cache: pnpm
 
-      - name: Install dependencies
+      - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build with strict bundle budget
+      - name: Run the production build with strict bundle budgets
         run: pnpm build:budget:strict

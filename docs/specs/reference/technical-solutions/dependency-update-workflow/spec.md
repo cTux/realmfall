@@ -2,7 +2,7 @@
 
 ## Scope
 
-This spec covers the local and automated workflow for inspecting, applying, validating, and committing dependency updates.
+This spec covers the local workflow for inspecting, applying, validating, and committing dependency updates.
 
 ## Current Solution
 
@@ -13,7 +13,7 @@ This spec covers the local and automated workflow for inspecting, applying, vali
 - By default, the mutating update scripts stage `package.json` and `pnpm-lock.yaml`, then delegate to `pnpm git:commit` with a conventional `chore(dependencies)` message so dependency refresh commits use the same repository commit wrapper and automatic patch-version bump as ordinary local commits.
 - Passing `--no-commit` leaves the updated manifests in the working tree after the sanity checks finish, which allows automation to stage and publish the refreshed dependency set through a separate branch or pull-request workflow.
 - The dependency update script fails when the refresh or sanity-check flow produces tracked edits outside `package.json` and `pnpm-lock.yaml`, so automated dependency commits cannot silently absorb unrelated repository churn.
-- The scheduled dependency-update workflow installs the repository toolchain, runs `pnpm update:minor -- --no-commit`, audits the refreshed tree with read-only `pnpm audit --json`, and then creates or updates the reusable dependency pull request branch.
+- There is no committed GitHub Actions workflow that opens dependency refresh pull requests automatically; automation should invoke the local update scripts and publish any resulting branch separately.
 
 ## Main Implementation Areas
 
@@ -24,4 +24,3 @@ This spec covers the local and automated workflow for inspecting, applying, vali
 - `scripts/commit-version-bump.mjs`
 - `scripts/git-commit.mjs`
 - `scripts/tests/dependency-updates.test.ts`
-- `.github/workflows/dependencies-update.yml`
