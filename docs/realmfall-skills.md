@@ -9,6 +9,7 @@ Use this index to choose the right skill before a coding or planning request.
 ## Specialist skills
 
 - `realmfall-dev`: General implementation and refactor tasks in `src`, scripts, and configs.
+- `realmfall-ui-audit`: UI, accessibility, interaction, Storybook, and UX audits for React/browser surfaces.
 - `realmfall-review`: Code review, bug-risk detection, and edge-case review.
 - `realmfall-pixi`: Rendering, interaction, hover, invalidation, and frame-time work.
 - `realmfall-quality`: Validation planning (`typecheck`, `lint`, tests, budgets).
@@ -18,6 +19,7 @@ Use this index to choose the right skill before a coding or planning request.
 ## Quick routing guide
 
 - Feature implementation: `realmfall-dev` (or `realmfall-router` first).
+- UI or accessibility audit: `realmfall-ui-audit`.
 - Performance regressions: `realmfall-pixi` (+ `realmfall-quality` after changes).
 - Release or branch operations: `realmfall-devops`.
 - World content edits: `realmfall-story`.
