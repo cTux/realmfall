@@ -4,8 +4,19 @@ import {
   isEquippableItemCategory,
 } from './game/content/items';
 import { EquipmentSlotId } from './game/content/ids';
-import { resolveAssetUrl, resolveIconAsset } from './iconAssets';
+import { resolveIconAsset } from './iconAssets';
 import { getConfiguredItemTint, getConsumableIconTint } from './itemMetadata';
+import weaponIcon from '../../client/src/assets/icons/plain-dagger.svg';
+import armorIcon from '../../client/src/assets/icons/checked-shield.svg';
+import artifactIcon from '../../client/src/assets/icons/ankh.svg';
+import consumableIcon from '../../client/src/assets/icons/potion-ball.svg';
+import hoodIcon from '../../client/src/assets/icons/hood.svg';
+import gauntletIcon from '../../client/src/assets/icons/mailed-fist.svg';
+import bootsIcon from '../../client/src/assets/icons/steeltoe-boots.svg';
+import orbIcon from '../../client/src/assets/icons/crystal-ball.svg';
+import totemIcon from '../../client/src/assets/icons/totem.svg';
+import chestIcon from '../../client/src/assets/icons/spiked-armor.svg';
+import scrollQuillIcon from '../../client/src/assets/game-icons/delapouite/scroll-quill.svg';
 
 const RECIPE_PAGE_TINT = '#22c55e';
 const FALLBACK_TINT = '#f8fafc';
@@ -18,22 +29,18 @@ const MANA_ITEM_TAG = 'item.mana';
 const CLOTH_TAG = 'item.cloth';
 const TOTEM_ITEM_TAG = 'item.totem';
 
-const iconUrl = resolveAssetUrl;
-
 const Icons = {
-  Weapon: iconUrl('../../../client/src/assets/icons/plain-dagger.svg'),
-  Armor: iconUrl('../../../client/src/assets/icons/checked-shield.svg'),
-  Artifact: iconUrl('../../../client/src/assets/icons/ankh.svg'),
-  Consumable: iconUrl('../../../client/src/assets/icons/potion-ball.svg'),
-  Hood: iconUrl('../../../client/src/assets/icons/hood.svg'),
-  Gauntlet: iconUrl('../../../client/src/assets/icons/mailed-fist.svg'),
-  Boots: iconUrl('../../../client/src/assets/icons/steeltoe-boots.svg'),
-  Orb: iconUrl('../../../client/src/assets/icons/crystal-ball.svg'),
-  Totem: iconUrl('../../../client/src/assets/icons/totem.svg'),
-  Chest: iconUrl('../../../client/src/assets/icons/spiked-armor.svg'),
-  ScrollQuill: iconUrl(
-    '../../../client/src/game-icons/delapouite/scroll-quill.svg',
-  ),
+  Weapon: weaponIcon,
+  Armor: armorIcon,
+  Artifact: artifactIcon,
+  Consumable: consumableIcon,
+  Hood: hoodIcon,
+  Gauntlet: gauntletIcon,
+  Boots: bootsIcon,
+  Orb: orbIcon,
+  Totem: totemIcon,
+  Chest: chestIcon,
+  ScrollQuill: scrollQuillIcon,
 } as const;
 
 const ItemSlotIcon: Record<EquipmentSlot, string> = {
