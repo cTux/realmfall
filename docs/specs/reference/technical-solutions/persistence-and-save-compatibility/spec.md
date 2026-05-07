@@ -18,7 +18,7 @@ This spec covers browser save storage, direct hydration of the current save shap
 - Clearing the graphics settings area also removes the retired `realmfall-graphics-settings` key when it is present.
 - Loaded saves are validated before hydration, and malformed game or UI areas are rejected independently instead of being merged straight into runtime state or blocking the other valid area from hydrating.
 - Save normalization derives gameplay enum and union allowlists from shared game constants and content ids, so persistence validation tracks the canonical runtime model instead of maintaining parallel literal lists.
-- Save normalization keeps `src/app/normalize.ts` as the public surface while focused helpers split gameplay payloads, combat payloads, item payloads, UI payloads, shared validators, and narrow compatibility backfills into separate modules so save-shape updates touch narrower files.
+- Save normalization keeps `src/app/normalize.ts` as the public surface while focused helpers split orchestration, world and dungeon hydration, tile payloads, enemy payloads, player and inventory payloads, combat payloads, UI payloads, shared validators, and narrow compatibility backfills into separate modules so save-shape updates touch narrower files.
 - Gameplay hydration uses the current runtime default game state as the canonical baseline, then applies valid persisted values field-by-field so additive save-shape changes do not wipe player progress.
 - Missing or invalid persisted gameplay values fall back to current defaults instead of rejecting the entire gameplay save.
 - Save hydration reuses the canonical gameplay clone helpers from `src/game/stateClone.ts` when it needs fallback tiles, enemies, equipment, player state, or world aliases, so nested item stats and tile stock metadata do not drift between runtime copies and persistence copies.
@@ -46,6 +46,11 @@ This spec covers browser save storage, direct hydration of the current save shap
 - `src/persistence/saveAreas.ts`
 - `src/app/normalize.ts`
 - `src/app/normalizeGameState.ts`
+- `src/app/normalizeWorldState.ts`
+- `src/app/normalizeTileState.ts`
+- `src/app/normalizeEnemyState.ts`
+- `src/app/normalizePlayerState.ts`
+- `src/app/normalizeInventoryState.ts`
 - `src/app/normalizeCombat.ts`
 - `src/app/normalizeItems.ts`
 - `src/app/normalizeUiState.ts`
