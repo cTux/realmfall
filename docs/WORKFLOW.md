@@ -32,14 +32,12 @@ Use this file for contributor process only. Canonical project guidance lives in
 - Use `pnpm build` for the shared workspace build path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
 - Use `pnpm test` for the shared server-plus-client automated test path, with the client side running the full Vitest matrix through `test:all`.
 - If the active pre-commit hook already covers the gates needed for the current change, commit without rerunning those same checks immediately beforehand.
-- Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build:budget:strict` before committing only when you bypass hooks, when you need to verify the full commit-validation path manually, or when you are debugging a hook failure.
+- Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` before committing only when you bypass hooks, when you need to verify the full commit-validation path manually, or when you are debugging a hook failure.
 - Use `pnpm dev:server`, `pnpm build:server`, and `pnpm start:server` for the server package lifecycle.
 - Use `pnpm update:check` to inspect available dependency updates without modifying the worktree.
 - Run `pnpm update:minor` or `pnpm update:major` from a clean tracked worktree when you want an automated dependency refresh. Pass `-- --no-commit` when automation needs the refreshed manifests without creating a local commit.
 - Run `pnpm format` when you need the repository-wide Prettier check path.
-- Run `pnpm build:budget` when startup chunks or lazy-loading strategy change. The command reports the tracked envelope and warns on overruns without failing the build.
-- Run `pnpm build:budget:strict` when a budget overrun must fail local or CI validation.
-- Run `pnpm build:duplicate-deps` only when auditing dependency duplication. The duplicate-deps plugin is intentionally kept off the normal build path so routine builds stay focused on budget and correctness signals.
+- Run `pnpm build:duplicate-deps` only when auditing dependency duplication. The duplicate-deps plugin is intentionally kept off the normal build path so routine builds stay focused on correctness and explicit audit signals.
 - Run `pnpm build:visualize` when you need an interactive bundle treemap audit. The command writes `.tests/bundle/visualizer.html` and keeps the visualizer plugin off the normal build path.
 - Use `?perf=1` or `localStorage["realmfall:perf"] = "1"` during manual browser checks when you need `window.__REALMFALL_PERF__.snapshot()`.
 

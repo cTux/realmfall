@@ -3,7 +3,7 @@ import { memo, useEffect, useMemo, useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { getAbilityDefinition } from '../../../game/abilities';
 import { getStatusEffectDefinition } from '../../../game/content/statusEffects';
-import type { LogEntry, LogRichSegment } from '../../../game/types';
+import type { LogEntry, LogRichSegment } from '../../../game/stateTypes';
 import { t } from '../../../i18n';
 import { parseWorldCalendarDateTime } from '../../world/timeOfDay';
 import { rarityColor } from '../../rarity';

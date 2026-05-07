@@ -1,7 +1,7 @@
 import React from 'react';
 import { DEFAULT_WINDOWS } from '../app/constants';
 import { createSkillRecord } from '../game/skillRecords';
-import { Skill } from '../game/types';
+import { Skill } from '../game/stateTypes';
 import { RecipeBookWindow } from './components/RecipeBookWindow';
 import { mountUi } from './uiTestHelpers';
 

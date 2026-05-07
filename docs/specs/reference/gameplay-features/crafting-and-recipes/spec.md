@@ -16,6 +16,7 @@ This spec covers the recipe book, recipe learning, and crafting execution.
 - Crafting consumes required inputs and materializes a configured output item.
 - The recipe book shows both learned and unlearned recipes, splits them into right-side profession tabs ordered as cooking, smelting, then crafting, supports resizing, and can be filtered by a crafting material from the inventory context menu.
 - The crafting tab also supports per-equipment-slot icon filters at the top of the panel so players can show and hide recipes by equipped slot.
+- Recipe-book tab policy, crafting-slot filter metadata, preview-slot items, and visible recipe filtering live in focused `RecipeBookWindow` helpers so the main content component stays centered on composition and virtualization.
 - Learned recipes stay interactive, recipes craftable right now sort ahead of other entries within each profession tab, remaining learned recipes sort ahead of unlearned ones, entries show inventory-style recipe slots, keep learned crafting recipe borders on the output rarity while the slot icon stays white when craftable and turns red when the player lacks materials, fuel, or the right crafting site, and expose a hover tooltip with the crafting-site icon plus tint-aware icon-backed material requirements and a separate fuel-materials section that makes the fuel choice explicit as one alternative option rather than a cumulative requirement.
 - Unlearned recipes remain visible but disabled, keep a muted disabled border instead of the output rarity border, and expose no hover tooltip.
 - Crafting coverage is rebuilt entirely from the equippable icon pools: every icon variation for helmets, shoulders, chest armor, bracers, gloves, belts, leggings, boots, cloaks, one-handed weapons, offhands, wands, magical spheres, shields, two-handed weapons, rings, and necklaces has exactly one configured base item and exactly one crafting recipe-book entry.
@@ -39,3 +40,7 @@ This spec covers the recipe book, recipe learning, and crafting execution.
 - `src/game/state.ts`
 - `src/game/stateCrafting.ts`
 - `src/ui/components/RecipeBookWindow/RecipeBookWindowContent.tsx`
+- `src/ui/components/RecipeBookWindow/useRecipeBookFilters.ts`
+- `src/ui/components/RecipeBookWindow/recipeBookTabs.ts`
+- `src/ui/components/RecipeBookWindow/recipeBookCraftingFilters.ts`
+- `src/ui/components/RecipeBookWindow/RecipeBookVirtualRow.tsx`

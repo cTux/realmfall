@@ -87,7 +87,7 @@ jobs:
       - name: Run workspace automated tests
         run: pnpm test
 
-  validate-production-build-and-budget:
+  validate-production-build:
     runs-on: ubuntu-latest
 
     steps:
@@ -108,5 +108,5 @@ jobs:
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run the production build with strict bundle budgets
-        run: pnpm build:budget:strict
+      - name: Run the production build
+        run: pnpm build

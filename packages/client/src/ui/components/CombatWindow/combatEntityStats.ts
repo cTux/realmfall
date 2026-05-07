@@ -9,7 +9,7 @@ import {
   getEnemySuppressDamageReduction,
 } from '../../../game/stateCombat';
 import type { Enemy } from '../../../game/stateTypes';
-import type { SecondaryStatKey } from '../../../game/types';
+import type { SecondaryStatKey } from '../../../game/stateTypes';
 import { buildStatSheetTooltipLines } from '../statSheet';
 
 const ENEMY_STAT_SHEET_SECONDARY_KEYS: SecondaryStatKey[] = [

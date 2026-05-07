@@ -5,7 +5,7 @@ import {
 } from './normalize';
 import { ENEMY_TYPE_IDS } from '../game/content/ids';
 import { createCombatActorState } from '../game/combat';
-import { RARITY_ORDER, STRUCTURE_TYPES, TERRAINS } from '../game/types';
+import { RARITY_ORDER, STRUCTURE_TYPES, TERRAINS } from '../game/stateTypes';
 import { createGame } from '../game/stateFactory';
 import { createDefaultActionBarSlots } from './App/actionBar';
 import {

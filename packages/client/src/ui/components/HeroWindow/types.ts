@@ -4,7 +4,7 @@ import type {
   SkillName,
   StatusEffectId,
 } from '../../../game/stateTypes';
-import type { SecondaryStatKey } from '../../../game/types';
+import type { SecondaryStatKey } from '../../../game/stateTypes';
 import type { ManagedWindowShellProps } from '../managedWindowProps';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 

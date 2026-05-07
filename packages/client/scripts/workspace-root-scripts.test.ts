@@ -14,8 +14,7 @@ describe('root workspace scripts', () => {
     expect(packageJson.scripts.lint).toBe(
       'pnpm --filter @realmfall/common lint && pnpm --filter @realmfall/server lint && pnpm --filter @realmfall/ui lint && pnpm --filter @realmfall/client lint',
     );
-    expect(packageJson.scripts['build:budget:strict']).toBe(
-      'pnpm --filter @realmfall/common build && pnpm --filter @realmfall/server build && pnpm --filter @realmfall/ui build && pnpm --filter @realmfall/client build:budget:strict',
-    );
+    expect(packageJson.scripts['build:budget']).toBeUndefined();
+    expect(packageJson.scripts['build:budget:strict']).toBeUndefined();
   });
 });

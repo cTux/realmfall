@@ -6,7 +6,7 @@ import type {
   AbilityDefinition,
   PlayerStatusEffect,
   StatusEffectId,
-} from '../../game/types';
+} from '../../game/stateTypes';
 import { t } from '../../i18n';
 import { formatStatusEffectLabel } from '../../i18n/labels';
 import { type TooltipLine, tagTooltipLines } from './shared';

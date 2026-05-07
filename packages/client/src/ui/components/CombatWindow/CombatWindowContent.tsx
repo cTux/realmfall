@@ -5,7 +5,7 @@ import { DEFAULT_ENEMY_MANA } from '../../../game/combat';
 import { getStatusEffectDefinition } from '../../../game/content/statusEffects';
 import { getEnemyCombatAttack } from '../../../game/stateCombat';
 import type { CombatActorState } from '../../../game/stateTypes';
-import type { PlayerStatusEffect } from '../../../game/types';
+import type { PlayerStatusEffect } from '../../../game/stateTypes';
 import { t } from '../../../i18n';
 import {
   formatEnemyRarityLabel,

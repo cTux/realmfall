@@ -54,7 +54,7 @@ This spec covers the desktop-style game settings window, its dock and hotkey acc
 - Open the `Saves` tab, cancel a reset prompt, and confirm the selected save area is unchanged.
 - Reset `Adventure` or `Window layout`, confirm the page reloads, and confirm only that saved area falls back to defaults on the next hydration.
 - Reset `Audio settings`, `Graphics settings`, `Interface settings`, `Gameplay settings`, or `World map`, confirm the page reloads, and confirm the targeted settings area returns to defaults without clearing the others.
-- Run renderer-focused verification on the world map path after changing settings-related code: confirm normal hover interaction avoids avoidable redraw churn, confirm the world ticker owns the redraw loop, and confirm startup chunk growth stays within the existing `pnpm build:budget` envelope.
+- Run renderer-focused verification on the world map path after changing settings-related code: confirm normal hover interaction avoids avoidable redraw churn, confirm the world ticker owns the redraw loop, and confirm the production build and lazy-loading behavior remain intact.
 
 ## Main Implementation Areas
 

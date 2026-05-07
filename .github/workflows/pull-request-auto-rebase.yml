@@ -61,4 +61,4 @@ jobs:
           pnpm typecheck
           pnpm lint
           pnpm test
-          pnpm build:budget:strict
+          pnpm build

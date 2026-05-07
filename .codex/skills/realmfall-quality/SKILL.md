@@ -1,6 +1,6 @@
 ---
 name: realmfall-quality
-description: Use for test, lint, typecheck, build budget, and verification-path planning in Realmfall.
+description: Use for test, lint, typecheck, build, and verification-path planning in Realmfall.
 metadata:
   short-description: Realmfall quality and validation workflow skill
 ---
@@ -21,14 +21,14 @@ Use this skill when the user asks for validation strategy, pre-commit alignment,
 - `docs/RULES.md`
 - `docs/rules/60-testing.md`
 - `docs/rules/00-general.md`
-- `docs/rules/50-build-and-bundle.md` (when bundle/perf budgets are impacted)
+- `docs/rules/50-build-and-bundle.md` (when build-output or perf concerns are impacted)
 
 ## Primary commands
 
 - `pnpm typecheck`
 - `pnpm lint`
 - `pnpm test`
-- `pnpm build:budget:strict`
+- `pnpm build`
 - `pnpm quality:staged` (when applicable to staged changes)
 
 ## Workflow notes

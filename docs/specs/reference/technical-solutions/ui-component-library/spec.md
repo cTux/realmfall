@@ -16,8 +16,10 @@ This spec covers the reusable UI component library in `packages/ui`, its Storybo
 - `packages/client` receives the library through a workspace dependency (`@realmfall/ui`) added in
   `packages/client/package.json`.
 - `packages/ui` can bridge to existing client-owned i18n and Storybook fixture helpers through narrow local modules under `packages/ui/src` while the reusable component implementations stay consolidated in the shared package.
+- Shared package-owned UI helpers such as `packages/ui/src/icons.ts`, `packages/ui/src/iconAssets.ts`, `packages/ui/src/itemMetadata.ts`, `packages/ui/src/formatters.ts`, `packages/ui/src/tooltips.ts`, and `packages/ui/src/tooltipPlacement.ts` resolve shared display concerns locally instead of re-exporting `packages/client/src/ui/*`.
 - Shared gameplay-aware controls inside `packages/ui` own narrow structural view contracts and helper logic under `packages/ui/src/game` for item-centric display and interaction state instead of importing broad client gameplay state types directly.
-- `packages/ui/src/game` is a UI-owned contract layer. Its content ids, tags, and item classification helpers do not re-export `packages/client/src/game/content/*`, and `packages/ui/src/game/boundary.test.ts` enforces that boundary.
+- `packages/ui/src/game` is a UI-owned contract layer. Its content ids, tags, and item classification helpers do not re-export `packages/client/src/game/content/*`.
+- `packages/ui/src/game/boundary.test.ts` enforces the broader shared-package boundary across `packages/ui/src/**`, allowing only the explicit bridge modules for client-owned i18n, Storybook helpers, and the shared UI audio context.
 - Shared controls that only need gameplay-derived scalar values, such as corruption break chance text, receive those values from the client caller through props instead of importing client gameplay config into the shared package.
 - Shared display-only chrome such as `WindowLabel` and `WindowDock` now render from structural props owned in `packages/ui` instead of importing client window registries or client-only label types just to render text.
 - Shared `packages/ui` stories that only need representative gameplay-shaped items use local fixture objects or existing Storybook fixtures instead of routing through `packages/ui/src/game` into client gameplay builders.
@@ -45,6 +47,12 @@ This spec covers the reusable UI component library in `packages/ui`, its Storybo
 - `packages/ui/.storybook/preview.ts`
 - `packages/ui/src/index.ts`
 - `packages/ui/src/game/*`
+- `packages/ui/src/icons.ts`
+- `packages/ui/src/iconAssets.ts`
+- `packages/ui/src/itemMetadata.ts`
+- `packages/ui/src/formatters.ts`
+- `packages/ui/src/tooltips.ts`
+- `packages/ui/src/tooltipPlacement.ts`
 - `packages/ui/src/components/LoadingSpinner/*`
 - `packages/ui/src/components/ActionBar/*`
 - `packages/ui/src/components/Button/*`

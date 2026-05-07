@@ -1,6 +1,6 @@
 import { getAbilityDefinition } from '../../../game/abilities';
 import { useWorldClockTime } from '../../../app/App/worldClockStore';
-import type { PlayerStatusEffect } from '../../../game/types';
+import type { PlayerStatusEffect } from '../../../game/stateTypes';
 import { t } from '../../../i18n';
 import { formatStatusEffectLabel } from '../../../i18n/labels';
 import { statusEffectIcon, statusEffectTint } from '../../statusEffects';

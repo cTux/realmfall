@@ -7,7 +7,7 @@ import type {
   SecondaryStatKey,
   SkillName,
   Terrain,
-} from '../game/types';
+} from '../game/stateTypes';
 import { t } from './index';
 
 type DungeonTerrainTheme = 'brick' | 'mud' | 'obsidian';

@@ -1,5 +1,6 @@
 import type { HexCoord } from '../hex';
-import type { Enemy, Tile } from '../types';
+import type { Enemy } from '../enemyTypes';
+import type { Tile } from '../worldTypes';
 
 export const SURFACE_WORLD_ID = 'surface' as const;
 

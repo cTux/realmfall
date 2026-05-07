@@ -1,7 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { getAbilityDefinition } from '../../../game/abilities';
 import { createCombatActorState } from '../../../game/combat';
-import type { CombatActorState, CombatState, Enemy } from '../../../game/types';
+import type {
+  CombatActorState,
+  CombatState,
+  Enemy,
+} from '../../../game/stateTypes';
 import { CombatWindow } from './CombatWindow';
 import type { CombatPartyMember, CombatWindowProps } from './types';
 

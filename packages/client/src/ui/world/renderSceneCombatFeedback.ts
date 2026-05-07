@@ -1,7 +1,7 @@
 import { TextStyle } from 'pixi.js';
 import { getAppliedInterfaceFontStack } from '../../app/interfaceFonts';
 import { hexKey } from '../../game/hex';
-import type { WorldFloatingTextEvent } from '../../game/types';
+import type { WorldFloatingTextEvent } from '../../game/stateTypes';
 import type { GameState, HexCoord } from '../../game/stateTypes';
 import { isWorldBossEnemyId } from '../../game/worldBoss';
 import { ENTITY_BADGE_RADIUS_SCALE } from './renderSceneEntityBadge';
@@ -68,9 +68,7 @@ export function getCombatFeedbackRenderToken({
     if (lunge.phase === 'animating') {
       token = mixToken(
         token,
-        Math.floor(
-          (worldTimeMs - lunge.startedAtMs) / worldRenderFrameMs,
-        ) + 1,
+        Math.floor((worldTimeMs - lunge.startedAtMs) / worldRenderFrameMs) + 1,
       );
     }
   }
@@ -337,7 +335,9 @@ function getFloatingTextScale(kind: WorldFloatingTextEvent['kind']) {
       : NORMAL_TEXT_SCALE;
 }
 
-function getCombatLungeDescriptor(state: GameState): CombatLungeDescriptor | null {
+function getCombatLungeDescriptor(
+  state: GameState,
+): CombatLungeDescriptor | null {
   const targetCoord = state.combat?.engagement?.targetCoord;
   const stagingCoord = state.combat?.engagement?.stagingCoord;
   if (

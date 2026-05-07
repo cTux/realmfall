@@ -1,5 +1,4 @@
-import type { GameState } from '../game/stateTypes';
-import type { CombatEngagementMetadata } from '../game/types';
+import type { CombatEngagementMetadata, GameState } from '../game/stateTypes';
 import { TREASURE_GOBLIN_BALANCE } from '../game/config';
 import { createDefaultCombatEngagement } from '../game/stateCombatState';
 import {

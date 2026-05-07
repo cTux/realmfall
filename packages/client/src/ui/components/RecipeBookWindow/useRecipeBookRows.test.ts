@@ -1,4 +1,4 @@
-import { Skill } from '../../../game/types';
+import { Skill } from '../../../game/stateTypes';
 import {
   DEFAULT_RECIPE_SKILL_LEVELS,
   createRecipe,

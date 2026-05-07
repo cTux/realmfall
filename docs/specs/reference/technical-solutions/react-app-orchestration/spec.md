@@ -65,7 +65,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `useAppSettingsActions` waits for the selected interface font to load before persisting and applying interface-setting changes, keeping live font switches aligned with the current document shell.
 - `useAppRuntime` groups those orchestration hooks into one local composition layer so the entry component no longer needs one large destructuring block for controllers, derived views, transitions, and shell props.
 - `useWorldTileResolutionLifecycle` merges resolved worker payloads back through the shared active-world alias helper, so root `tiles` and `enemies` stay synchronized with the active world without a second hand-maintained merge path.
-- `usePixiWorld` delegates world tile-resolution lifecycle and visible-tile sync updates to `src/app/App/world/tileResolution/useWorldTileResolutionLifecycle.ts`, then consumes that shared `visibleTilesRef` for movement transitions, hover refresh, and Pixi bootstrap wiring.
+- `usePixiWorld` stays as the public world-view facade while neighboring lifecycle hooks under `src/app/App/world/` own render-settings sync, post-combat carryover seeding, pending-combat intro timing, hover reset or refresh behavior, queued-travel suppression release, and Pixi bootstrap state, with tile-resolution updates still flowing through `src/app/App/world/tileResolution/useWorldTileResolutionLifecycle.ts`.
 - `useDungeonTransitionController` owns dungeon enter or leave transitions, loading any persisted dungeon body before activation and surfacing transition state through the same top-level app readiness and retry path used by world bootstrap.
 - `useAppShortcutRuntime` owns shortcut-only availability wiring such as home-setting eligibility, keeping `useAppRuntime` from recomputing action gates inline next to unrelated lifecycle and persistence setup.
 - `useAppWindowRuntime` owns the memoized window view and action composition path before `AppWindows` props are assembled, so the top-level runtime hook does not rebuild the full window contract in the same block as combat automation and world bootstrap wiring.
@@ -129,6 +129,12 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `src/app/App/hooks/useHexInfoView.ts`
 - `src/app/App/hooks/useRecipeWindowStructure.ts`
 - `src/app/App/hooks/useCombatPlayerParty.ts`
+- `src/app/App/usePixiWorld.ts`
+- `src/app/App/world/usePixiWorldRenderSettingsSync.ts`
+- `src/app/App/world/usePixiWorldPendingCombatLifecycle.ts`
+- `src/app/App/world/usePixiWorldHoverLifecycle.ts`
+- `src/app/App/world/usePixiWorldBootstrapLifecycle.ts`
+- `src/app/App/world/usePixiWorldQueuedTravelSuppression.ts`
 - `src/app/App/components/AppDeferredWindows.tsx`
 - `src/app/App/components/appDeferredWindowRegistry.tsx`
 - `src/app/App/useWindowTransitions.ts`

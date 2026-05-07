@@ -1,5 +1,5 @@
 import { createCombatActorState } from '../../../../game/combat';
-import type { CombatState } from '../../../../game/types';
+import type { CombatState } from '../../../../game/stateTypes';
 import { setWorldClockTime } from '../../../../app/App/worldClockStore';
 import { t } from '../../../../i18n';
 import { stripBracketHotkeyLabel } from '../../../hotkeyLabels';

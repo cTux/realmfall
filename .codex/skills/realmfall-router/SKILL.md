@@ -27,25 +27,31 @@ Use this skill when a task arrives and you need to choose the best specialized R
 ## Routing map
 
 Route to `realmfall-dev` when:
+
 - implementation/refactor/edit tasks in `src`, scripts, or config
 - UI/game behavior changes outside deep Pixi loops
 
 Route to `realmfall-review` when:
+
 - explicit request for code review
 - bug-risk audit
 - regression/edge-case scan
 
 Route to `realmfall-pixi` when:
+
 - Pixi rendering, interaction, hover path, frame-time, or invalidation work
 
 Route to `realmfall-quality` when:
-- validation strategy, testing scope, lint/typecheck/build budget planning
+
+- validation strategy, testing scope, lint/typecheck/build planning
 - commit-readiness checks
 
 Route to `realmfall-devops` when:
+
 - deploy, branch operations, version bumps, update scripts, release workflow
 
 Route to `realmfall-story` when:
+
 - lore, world content, names/IDs, events/items/factions/locations, narrative text
 
 ## Escalation rule

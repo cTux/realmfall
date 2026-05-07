@@ -15,7 +15,7 @@ import {
   getVisibleItemSecondaryEmptySlotCount,
 } from '../../game/itemModifications';
 import type { Item } from '../../game/stateTypes';
-import type { SecondaryStatKey } from '../../game/types';
+import type { SecondaryStatKey } from '../../game/stateTypes';
 import { t } from '../../i18n';
 import {
   formatEquipmentSlotLabel,

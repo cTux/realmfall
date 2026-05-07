@@ -1,7 +1,7 @@
 import type { EnemyTypeKey, ItemKey } from '../../../game/content/ids';
 import type { DebugEquipmentType } from '../../../game/stateDebug';
 import type { ItemRarity } from '../../../game/stateTypes';
-import type { EnemyRarity } from '../../../game/types';
+import type { EnemyRarity } from '../../../game/stateTypes';
 import type { ManagedWindowShellProps } from '../managedWindowProps';
 
 export interface DebugWindowProps extends ManagedWindowShellProps {

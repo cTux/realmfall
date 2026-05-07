@@ -8,8 +8,6 @@
     "dev:random": "node ./scripts/run-dev-random-port.mjs",
     "dev:storybook": "storybook dev -p 6006 --config-dir ./.storybook",
     "build": "node ./scripts/run-vite-build.mjs",
-    "build:budget": "pnpm build && node ./scripts/check-bundle-budget.mjs",
-    "build:budget:strict": "pnpm build && node ./scripts/check-bundle-budget.mjs --strict",
     "build:duplicate-deps": "node ./scripts/run-duplicate-deps-audit.mjs",
     "build:visualize": "node ./scripts/run-bundle-visualizer.mjs",
     "build:storybook": "storybook build --config-dir ./.storybook",

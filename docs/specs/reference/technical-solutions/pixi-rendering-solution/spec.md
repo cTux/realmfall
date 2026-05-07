@@ -59,7 +59,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - The world bootstrap keeps world-only icon preloading, scene-cache setup, and world-hover tooltip helpers behind the same async world bootstrap boundary as Pixi and scene rendering, so the initial `App` chunk does not absorb renderer-only code before the world canvas mounts.
 - `src/app/App/world/pixiWorldPendingCombat.ts` owns delayed hostile-click combat intro timing, pending combat auto-start decisions, and victory carryover offset seeding so `usePixiWorld.ts` can delegate that combat-staging branch instead of keeping it inline with tile-resolution and bootstrap effects.
 - Visible world-icon preloading derives its dynamic icon set from the visible tiles plus the enemy lookup those tiles reference, rather than from a broad `GameState` object, so the preload path tracks the actual world marker inputs it consumes.
-- `usePixiWorld` delegates tile-resolution lifecycle, Pixi canvas bootstrap, render-loop comparison, pointer interaction wiring, and camera persistence to neighboring `src/app/App/world` modules so the hook stays centered on refs, invalidation state, movement transitions, and bootstrap status.
+- `usePixiWorld` delegates tile-resolution lifecycle, render-settings sync, post-combat carryover seeding, pending-combat intro timing, hover reset or refresh behavior, queued-travel suppression release, Pixi canvas bootstrap, render-loop comparison, pointer interaction wiring, and camera persistence to neighboring `src/app/App/world` modules so the hook stays centered on refs, invalidation state, movement transitions, and bootstrap status.
 - While the fisheye feature flag is off, the live world runtime imports a no-op fisheye adapter instead of the shader implementation, so normal Pixi bootstrap does not load or construct the disabled filter.
 - The world bootstrap blocks only on the icon textures needed for the initial visible viewport, while the remaining icon catalog warms in background idle slices after the first canvas paint.
 - If Pixi world bootstrap fails during async module loading, visible-icon texture preload, or renderer initialization, the app surfaces a world-canvas error state with a retry action instead of leaving the shell in a loading-only state.
@@ -78,6 +78,11 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 ## Main Implementation Areas
 
 - `src/app/App/usePixiWorld.ts`
+- `src/app/App/world/usePixiWorldRenderSettingsSync.ts`
+- `src/app/App/world/usePixiWorldPendingCombatLifecycle.ts`
+- `src/app/App/world/usePixiWorldHoverLifecycle.ts`
+- `src/app/App/world/usePixiWorldBootstrapLifecycle.ts`
+- `src/app/App/world/usePixiWorldQueuedTravelSuppression.ts`
 - `src/app/App/world/tileResolution/useWorldTileResolutionLifecycle.ts`
 - `src/app/App/world/pixiWorldBootstrap.ts`
 - `src/app/App/world/pixiWorldRenderLoop.ts`
