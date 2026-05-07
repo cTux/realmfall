@@ -26,12 +26,13 @@ Use this file for contributor process only. Canonical project guidance lives in
 - Use `pnpm git:deploy` from a clean tracked worktree to build the app with the GitHub Pages base path and publish `dist/` to `origin/gh-pages`. Configure GitHub Pages to serve the `gh-pages` branch from `/`.
 - Use `pnpm git:prune-gone-branches -- --dry-run` to preview local branches whose tracked remote ref was deleted, then rerun without `--dry-run` to remove them. Add `-- --safe` only when you want Git to keep its merged-branch protection.
 - Use `pnpm git:rebase-master-and-push` from a clean, already-committed feature branch when you need to replay it onto the default branch advertised by `origin/HEAD` and publish the rewritten branch. The script auto-resolves `package.json` version conflicts when they occur, refuses to rewrite the current remote default branch directly, and then fetches the remote branch before `--force-with-lease`.
-- Run targeted tests and any area-specific commands before committing. Prefer `pnpm test:node` for client gameplay, persistence, i18n, and script coverage, and `pnpm test:jsdom` for shared UI plus client React, Pixi, and other browser-surface coverage.
+- Run targeted tests and any area-specific commands during development when they help you iterate. Prefer `pnpm test:node` for client gameplay, persistence, i18n, and script coverage, and `pnpm test:jsdom` for shared UI plus client React, Pixi, and other browser-surface coverage.
 - Use `pnpm typecheck` for the shared workspace typecheck path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
 - Use `pnpm lint` for the shared workspace lint path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
 - Use `pnpm build` for the shared workspace build path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
 - Use `pnpm test` for the shared server-plus-client automated test path, with the client side running the full Vitest matrix through `test:all`.
-- Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build:budget:strict` before committing when you bypass hooks or need to verify the full commit-validation path manually.
+- If the active pre-commit hook already covers the gates needed for the current change, commit without rerunning those same checks immediately beforehand.
+- Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build:budget:strict` before committing only when you bypass hooks, when you need to verify the full commit-validation path manually, or when you are debugging a hook failure.
 - Use `pnpm dev:server`, `pnpm build:server`, and `pnpm start:server` for the server package lifecycle.
 - Use `pnpm update:check` to inspect available dependency updates without modifying the worktree.
 - Run `pnpm update:minor` or `pnpm update:major` from a clean tracked worktree when you want an automated dependency refresh. Pass `-- --no-commit` when automation needs the refreshed manifests without creating a local commit.

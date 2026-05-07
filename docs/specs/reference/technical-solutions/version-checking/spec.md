@@ -16,6 +16,7 @@ This spec covers the shipped version metadata flow from `package.json` into the 
 - Routine contributor commits increment the `package.json` patch version before the commit is created, making the package release version advance monotonically with local commit history.
 - `scripts/commit-version-bump.mjs` owns the patch bump, stages `package.json`, skips when the helper has already bumped the version, and refuses to run when `package.json` has unstaged edits so unrelated manifest changes are not pulled into the commit.
 - `pnpm git:commit` runs the bump script before delegating to `git commit`, while `.husky/pre-commit` runs the same script for plain `git commit` before the staged and repository-wide validation steps. The helper marks the commit environment so the hook does not apply a second bump.
+- When the active pre-commit hook already covers the validation needed for a commit, contributors rely on that hook instead of rerunning the same manual checks immediately beforehand.
 
 ## Main Implementation Areas
 
