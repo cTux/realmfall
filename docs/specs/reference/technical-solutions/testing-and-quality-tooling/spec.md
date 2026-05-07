@@ -13,7 +13,6 @@ This spec covers the repository quality baseline and current test coverage shape
 - Dedicated memory-leak scripts run a custom `fuite` dock-window toggle scenario against local HTTPS dev and production builds, writing JSON analysis snapshots into `.tests/memory-leaks/`.
 - The browser performance harness activates only when `?perf=1`, `?realmfallPerf=1`, `localStorage["realmfall:perf"] = "1"`, or a test-only forced install is present, exposing `window.__REALMFALL_PERF__` with a `snapshot()` API for startup marks, React commits, Pixi render-pass counters, scenario timings, long tasks, and long animation frames.
 - The harness records bootstrap milestones from `src/main.tsx`, the first ready app shell mark, optional React Profiler commits around `App`, and Pixi render counters from the world render facade, so manual browser checks can correlate window toggles, hover paths, and map redraw breadth without enabling collection for normal sessions.
-- Because the current repository is on Vitest 4, the Vite config uses a local compatibility shim for the plugin's runner and setup hooks instead of the package's older custom-pool entrypoint, and each project layers its own setup file over that shared cache path.
 - `pnpm dev` and `pnpm serve` both run on local HTTPS using the shared localhost self-signed certificate helper, and cached certificates are regenerated automatically when they expire so secure-origin local workflows do not get stuck on stale TLS files.
 - The repository toolchain is pinned to Node `v25.9.0` through `.nvmrc`, with `package.json` `engines` set to `25.x` and GitHub Actions reading the same version file, keeping local commands, CI, and scheduled automation on the same runtime line.
 - Oxlint is the enforced JavaScript and TypeScript lint gate, with its canonical configuration stored in `.oxlintrc.json`.
@@ -48,7 +47,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - The Vite config raises the generic chunk-size warning limit above the repository's intentional `state` and `pixi` shared chunks so routine production builds stay focused on actionable warnings rather than a lower default threshold.
 - Non-blocking startup chrome such as the version-status overlay stays deferred behind a lazy chunk so polling and refresh affordances do not enlarge the first-interaction bootstrap graph.
 - Repeated localized content families, such as expansion recipe descriptions that vary only by item slot, keep concise shared phrasing so locale growth does not add duplication unnecessarily.
-- The pull-request and master-branch validation workflows restore and save `.tests/vitest-cache` with `actions/cache` in the `validate-node-test-suite` job, hash the Vite and TypeScript config inputs plus shared Vitest setup files, declare explicit read-only `contents: read` permissions, keep checkout credentials disabled, skip documentation-only diffs where applicable, run `pnpm test` in that job for the server package plus the client `node` project, and keep `validate-typecheck-and-lint`, `validate-node-test-suite`, and `validate-production-build` as independent jobs.
+- The pull-request and master-branch validation workflows declare explicit read-only `contents: read` permissions, keep checkout credentials disabled, skip documentation-only diffs where applicable, run `pnpm test` in the `validate-node-test-suite` job for the server package plus the client `node` project, and keep `validate-typecheck-and-lint`, `validate-node-test-suite`, and `validate-production-build` as independent jobs.
 - Dependency refresh automation uses the dedicated `Dependency Update Workflow` path, where the mutating scripts rewrite dependency ranges, refresh the lockfile, and run the full repository sanity command set before any commit or PR publication step.
 - No committed GitHub Actions workflow currently publishes dependency-refresh pull requests; any future automation should continue to reuse the local dependency update scripts rather than introducing a separate mutation path.
 - Slow app integration tests that rely on lazy chunks, timer advancement, or full render cycles set explicit file-level or per-test timeouts so hook and CI runs do not fail on default five-second limits under heavier suite load.
@@ -96,7 +95,6 @@ This spec covers the repository quality baseline and current test coverage shape
 - `src/test/setup.shared.ts`
 - `.github/workflows/pull-request-validation.yml`
 - `.github/workflows/master-branch-validation.yml`
-- `scripts/vitest-cache/*.mjs`
 - `vite.config.ts`
 - `vite/chunks.ts`
 - `vite/https.ts`

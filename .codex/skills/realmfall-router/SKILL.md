@@ -13,7 +13,7 @@ Use this skill when a task arrives and you need to choose the best specialized R
 
 - broad task intake
 - multi-domain work (e.g., code + docs + performance)
-- any request where it is unclear whether to use `realmfall-dev`, `realmfall-review`, `realmfall-pixi`, `realmfall-quality`, `realmfall-devops`, or `realmfall-story`.
+- any request where it is unclear whether to use `realmfall-dev`, `realmfall-ui-audit`, `realmfall-review`, `realmfall-pixi`, `realmfall-quality`, `realmfall-devops`, or `realmfall-story`.
 
 ## Canonical load order
 
@@ -30,6 +30,13 @@ Route to `realmfall-dev` when:
 
 - implementation/refactor/edit tasks in `src`, scripts, or config
 - UI/game behavior changes outside deep Pixi loops
+
+Route to `realmfall-ui-audit` when:
+
+- UI or UX audit requests
+- accessibility or keyboard-interaction review
+- Storybook/shared-component review
+- browser-surface interaction review that is primarily about usability rather than gameplay correctness
 
 Route to `realmfall-review` when:
 

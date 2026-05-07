@@ -4,6 +4,8 @@
 
 - Use `pnpm` for project commands. Do not switch examples or contributor guidance to `npm`.
 - For pnpm v11+, keep repo-level pnpm settings such as `overrides`, build-approval allowlists, and output toggles in `pnpm-workspace.yaml`; do not rely on the root `package.json` `pnpm` field or project `.npmrc` for non-auth pnpm behavior.
+- Keep shared third-party version ranges in the default catalog in `pnpm-workspace.yaml` and reference them from package manifests with `catalog:` when multiple workspace packages depend on the same package.
+- Keep each workspace package's direct runtime dependencies, peer dependencies, and local tooling in that package's own `package.json`; do not centralize package-owned dependencies in the root manifest just to avoid repeating version strings.
 - Keep TypeScript strictness, Oxlint, Prettier, tests, and Husky hooks working. New changes should not weaken existing quality gates.
 - Keep Oxlint as the only JavaScript and TypeScript linter in the repository. Do not reintroduce ESLint or Biome unless the task explicitly changes the lint toolchain.
 - Keep React hook lint checks on the enforced Oxlint path for TypeScript and TSX files, including invalid hook usage and effect dependency validation.

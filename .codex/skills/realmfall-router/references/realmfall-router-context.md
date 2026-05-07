@@ -8,6 +8,7 @@
 
 Available destination skills:
 - `realmfall-dev`
+- `realmfall-ui-audit`
 - `realmfall-review`
 - `realmfall-pixi`
 - `realmfall-quality`

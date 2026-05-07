@@ -1,0 +1,4 @@
+interface:
+  display_name: "Realmfall UI Audit"
+  short_description: "Review Realmfall UI, accessibility, and interaction risks."
+  default_prompt: "Review the targeted UI surface against Realmfall UI rules first, then apply the generic web UI checklist only where it fits."
