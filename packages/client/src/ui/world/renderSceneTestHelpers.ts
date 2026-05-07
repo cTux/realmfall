@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, vi } from 'vitest';
 import { createGame } from '../../game/stateFactory';
 import { hexKey, hexNeighbors } from '../../game/hex';
+import { getVisibleTiles } from '../../game/stateSelectors';
 import gluttonyIcon from '../../assets/icons/gluttony.svg';
 import playerIcon from '../../assets/icons/visored-helm.svg';
 import wolfHeadIcon from '../../assets/icons/wolf-head.svg';
@@ -242,6 +243,51 @@ export function createMockApp(width = 800, height = 600): MockApp {
   };
 }
 
+type RenderSceneFrameOptions = {
+  app?: MockApp;
+  focusCoord?: { q: number; r: number };
+  game?: ReturnType<typeof createGame>;
+  nowMs?: number;
+  overlayState?: unknown;
+  radius?: number;
+  screen?: { height: number; width: number };
+  seed?: string;
+  visibleTiles?: ReturnType<typeof getVisibleTiles>;
+  worldTimeMinutes?: number;
+};
+
+export async function renderSceneFrame({
+  app,
+  focusCoord,
+  game,
+  nowMs = 0,
+  overlayState,
+  radius = 2,
+  screen,
+  seed = 'render-scene-test',
+  visibleTiles,
+  worldTimeMinutes = 12 * 60,
+}: RenderSceneFrameOptions = {}) {
+  const { renderScene } = await import('./renderScene');
+  const nextGame = game ?? createGame(radius, seed);
+  const nextApp = app ?? createMockApp(screen?.width, screen?.height);
+  const nextVisibleTiles = visibleTiles ?? getVisibleTiles(nextGame);
+
+  renderScene(
+    nextApp as never,
+    nextGame,
+    nextVisibleTiles,
+    focusCoord ?? nextGame.player.coord,
+    null,
+    worldTimeMinutes,
+    nowMs,
+    null,
+    overlayState as never,
+  );
+
+  return { app: nextApp, game: nextGame, visibleTiles: nextVisibleTiles };
+}
+
 export function collectDescendants(root: MockContainer): unknown[] {
   return root.children.flatMap((child) => {
     if (child instanceof MockContainer) {
@@ -255,6 +301,20 @@ export function countDrawnPolygons(root: MockContainer) {
   return collectDescendants(root)
     .filter((child): child is MockGraphics => child instanceof MockGraphics)
     .reduce((sum, child) => sum + child.drawPolygon.mock.calls.length, 0);
+}
+
+export function getVisibleGraphics(root: MockContainer) {
+  return collectDescendants(root).filter(
+    (child): child is MockGraphics =>
+      child instanceof MockGraphics && child.visible,
+  );
+}
+
+export function getVisibleSprites(root: MockContainer) {
+  return collectDescendants(root).filter(
+    (child): child is MockSprite =>
+      child instanceof MockSprite && child.visible,
+  );
 }
 
 export function getWorldMap(app: MockApp) {
@@ -295,6 +355,124 @@ export function getCloudShadowLayer(app: MockApp) {
 
 export function getCloudLayer(app: MockApp) {
   return app.stage.children[5] as MockContainer;
+}
+
+export function findGraphicAt(
+  graphics: MockGraphics[],
+  point: { x: number; y: number },
+  tolerance = 0.01,
+) {
+  return graphics.find((graphic) => {
+    const [polygon] = graphic.drawPolygon.mock.calls[0] ?? [];
+    if (!Array.isArray(polygon) || polygon.length < 6) {
+      return false;
+    }
+
+    const center = getPolygonCenter(polygon);
+    return (
+      Math.abs(center.x - point.x) < tolerance &&
+      Math.abs(center.y - point.y) < tolerance
+    );
+  });
+}
+
+export function findSpriteAt(
+  sprites: MockSprite[],
+  point: { x: number; y: number },
+  tolerance = 0.01,
+) {
+  return sprites.find(
+    (sprite) =>
+      Math.abs(sprite.position.x - point.x) < tolerance &&
+      Math.abs(sprite.position.y - point.y) < tolerance,
+  );
+}
+
+export function findContainerAt(
+  containers: MockContainer[],
+  point: { x: number; y: number },
+  tolerance = 1,
+) {
+  return containers.find(
+    (container) =>
+      Math.abs(container.position.x - point.x) < tolerance &&
+      Math.abs(container.position.y - point.y) < tolerance,
+  );
+}
+
+function getPolygonCenter(points: number[]) {
+  const vertexCount = points.length / 2;
+  let sumX = 0;
+  let sumY = 0;
+
+  for (let index = 0; index < points.length; index += 2) {
+    sumX += points[index]!;
+    sumY += points[index + 1]!;
+  }
+
+  return {
+    x: sumX / vertexCount,
+    y: sumY / vertexCount,
+  };
+}
+
+export function getAverageGraphicY(graphic: MockGraphics) {
+  const lastCall =
+    graphic.drawPolygon.mock.calls[graphic.drawPolygon.mock.calls.length - 1];
+  const points = lastCall?.[0] as number[] | undefined;
+  if (!points || points.length === 0) {
+    return 0;
+  }
+
+  return (
+    points.reduce(
+      (sum, value, index) => sum + (index % 2 === 1 ? value : 0),
+      0,
+    ) /
+    (points.length / 2)
+  );
+}
+
+export function getMaxGraphicRadius(graphic: MockGraphics) {
+  const lastCall =
+    graphic.drawPolygon.mock.calls[graphic.drawPolygon.mock.calls.length - 1];
+  const points = lastCall?.[0] as number[] | undefined;
+  if (!points || points.length === 0) {
+    return 0;
+  }
+
+  let maxRadius = 0;
+  for (let index = 0; index < points.length; index += 2) {
+    maxRadius = Math.max(
+      maxRadius,
+      Math.hypot(points[index] ?? 0, points[index + 1] ?? 0),
+    );
+  }
+
+  return maxRadius;
+}
+
+export function getMinGraphicRadius(graphic: MockGraphics) {
+  const lastCall =
+    graphic.drawPolygon.mock.calls[graphic.drawPolygon.mock.calls.length - 1];
+  const points = lastCall?.[0] as number[] | undefined;
+  if (!points || points.length === 0) {
+    return 0;
+  }
+
+  let minRadius = Number.POSITIVE_INFINITY;
+  for (let index = 0; index < points.length; index += 2) {
+    minRadius = Math.min(
+      minRadius,
+      Math.hypot(points[index] ?? 0, points[index + 1] ?? 0),
+    );
+  }
+
+  return Number.isFinite(minRadius) ? minRadius : 0;
+}
+
+export function getGraphicThickness(graphic: MockGraphics) {
+  return getMaxGraphicRadius(graphic) - getMinGraphicRadius(graphic);
 }
 
 export function createPlacedWorldBossRenderGame() {

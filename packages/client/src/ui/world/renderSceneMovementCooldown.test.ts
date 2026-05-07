@@ -4,14 +4,24 @@ import { getVisibleTiles } from '../../game/stateSelectors';
 import {
   collectDescendants,
   createMockApp,
+  findContainerAt,
+  findGraphicAt,
+  findSpriteAt,
+  getAverageGraphicY,
   getMarkerLayer,
+  getGraphicThickness,
+  getMaxGraphicRadius,
+  getMinGraphicRadius,
   getPlayerLayer,
+  getVisibleGraphics,
+  getVisibleSprites,
   getCloudLayer,
   getWorld,
   getWorldGroundLayer,
   MockContainer,
   MockGraphics,
   MockSprite,
+  renderSceneFrame,
   setupRenderSceneTestEnvironment,
 } from './renderSceneTestHelpers';
 import { getWorldHexSize, tileToPoint } from './renderSceneMath';
@@ -36,32 +46,18 @@ describe('renderScene movement cooldown', () => {
   });
 
   it('draws a yellow outer cooldown arc that touches the player mana ring with no gap while movement cooldown remains active', async () => {
-    const { renderScene } = await import('./renderScene');
-    const game = createGame(2, 'render-scene-move-cooldown');
-    const app = createMockApp();
-
-    renderScene(
-      app as never,
-      game,
-      getVisibleTiles(game),
-      game.player.coord,
-      null,
-      12 * 60,
-      250,
-      null,
-      {
+    const { app } = await renderSceneFrame({
+      game: createGame(2, 'render-scene-move-cooldown'),
+      nowMs: 250,
+      overlayState: {
         movementCooldown: {
           durationMs: 1_000,
           endAtMs: 1_000,
           nowMs: 250,
         },
-      } as never,
-    );
-
-    const cooldownGraphics = collectDescendants(getPlayerLayer(app)).filter(
-      (child): child is MockGraphics =>
-        child instanceof MockGraphics && child.visible,
-    );
+      },
+    });
+    const cooldownGraphics = getVisibleGraphics(getPlayerLayer(app));
 
     expect(
       cooldownGraphics.some((graphic) =>
@@ -111,7 +107,6 @@ describe('renderScene movement cooldown', () => {
   });
 
   it('keeps the player wrapper forward during a carried transition and eases it back to center by the end', async () => {
-    const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-post-combat-carry');
     const baselineApp = createMockApp();
     const startApp = createMockApp();
@@ -131,63 +126,40 @@ describe('renderScene movement cooldown', () => {
       toCoord: { q: 2, r: 0 },
     };
 
-    renderScene(
-      baselineApp as never,
+    await renderSceneFrame({ app: baselineApp, game, visibleTiles });
+    await renderSceneFrame({
+      app: startApp,
       game,
-      visibleTiles,
-      game.player.coord,
-      null,
-      12 * 60,
-      0,
-    );
-    renderScene(
-      startApp as never,
-      game,
-      visibleTiles,
-      game.player.coord,
-      null,
-      12 * 60,
-      0,
-      null,
-      {
+      overlayState: {
         movementTransition: {
           ...carriedTransition,
           nowMs: 0,
         },
-      } as never,
-    );
-    renderScene(
-      midApp as never,
-      game,
+      },
       visibleTiles,
-      game.player.coord,
-      null,
-      12 * 60,
-      0,
-      null,
-      {
+    });
+    await renderSceneFrame({
+      app: midApp,
+      game,
+      overlayState: {
         movementTransition: {
           ...carriedTransition,
           nowMs: 500,
         },
-      } as never,
-    );
-    renderScene(
-      endApp as never,
-      game,
+      },
       visibleTiles,
-      game.player.coord,
-      null,
-      12 * 60,
-      0,
-      null,
-      {
+    });
+    await renderSceneFrame({
+      app: endApp,
+      game,
+      overlayState: {
         movementTransition: {
           ...carriedTransition,
           nowMs: 1_000,
         },
-      } as never,
-    );
+      },
+      visibleTiles,
+    });
 
     const baselineWrapper = getPlayerLayer(baselineApp).children[2] as
       | MockContainer
@@ -214,33 +186,20 @@ describe('renderScene movement cooldown', () => {
       9,
       4,
     );
-    expect(endWrapper!.position.x).toBeCloseTo(
-      baselineWrapper!.position.x,
-      4,
-    );
+    expect(endWrapper!.position.x).toBeCloseTo(baselineWrapper!.position.x, 4);
   });
 
   it('renders queued path hexes with a green tint at a lower alpha', async () => {
-    const { renderScene } = await import('./renderScene');
-    const game = createGame(3, 'render-scene-queued-safe-path');
-    const app = createMockApp();
-
-    renderScene(
-      app as never,
-      game,
-      getVisibleTiles(game),
-      { q: 2, r: 0 },
-      null,
-      12 * 60,
-      0,
-      null,
-      {
+    const { app } = await renderSceneFrame({
+      focusCoord: { q: 2, r: 0 },
+      game: createGame(3, 'render-scene-queued-safe-path'),
+      overlayState: {
         queuedPath: [
           { q: 1, r: 0 },
           { q: 2, r: 0 },
         ],
-      } as never,
-    );
+      },
+    });
 
     const queuedPathTint = collectDescendants(getWorld(app)).filter(
       (child) =>
@@ -254,51 +213,39 @@ describe('renderScene movement cooldown', () => {
   });
 
   it('hides the cooldown bar once the wall-clock deadline has passed', async () => {
-    const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-move-cooldown-expired');
     const app = createMockApp();
     const visibleTiles = getVisibleTiles(game);
 
-    renderScene(
-      app as never,
+    await renderSceneFrame({
+      app,
       game,
-      visibleTiles,
-      game.player.coord,
-      null,
-      12 * 60,
-      250,
-      null,
-      {
+      nowMs: 250,
+      overlayState: {
         movementCooldown: {
           durationMs: 1_000,
           endAtMs: 1_000,
           nowMs: 250,
         },
-      } as never,
-    );
-
-    renderScene(
-      app as never,
-      game,
+      },
       visibleTiles,
-      game.player.coord,
-      null,
-      12 * 60,
-      250,
-      null,
-      {
+    });
+
+    await renderSceneFrame({
+      app,
+      game,
+      nowMs: 250,
+      overlayState: {
         movementCooldown: {
           durationMs: 1_000,
           endAtMs: 1_000,
           nowMs: 1_000,
         },
-      } as never,
-    );
+      },
+      visibleTiles,
+    });
 
-    const cooldownGraphics = collectDescendants(getPlayerLayer(app)).filter(
-      (child): child is MockGraphics =>
-        child instanceof MockGraphics && child.visible,
-    );
+    const cooldownGraphics = getVisibleGraphics(getPlayerLayer(app));
 
     expect(
       cooldownGraphics.some((graphic) => {
@@ -575,10 +522,7 @@ describe('renderScene movement cooldown', () => {
       } as never,
     );
 
-    const terrainSprites = collectDescendants(getWorldGroundLayer(app)).filter(
-      (child): child is MockSprite =>
-        child instanceof MockSprite && child.visible,
-    );
+    const terrainSprites = getVisibleSprites(getWorldGroundLayer(app));
     const hexSize = getWorldHexSize(app.screen, game.radius);
     const outgoingPoint = tileToPoint({ q: -3, r: 0 }, 400, 300, hexSize);
     const incomingPoint = tileToPoint({ q: 2, r: 0 }, 400, 300, hexSize);
@@ -637,10 +581,7 @@ describe('renderScene movement cooldown', () => {
       app.screen.height / 2,
       hexSize,
     );
-    const terrainSprites = collectDescendants(getWorldGroundLayer(app)).filter(
-      (child): child is MockSprite =>
-        child instanceof MockSprite && child.visible,
-    );
+    const terrainSprites = getVisibleSprites(getWorldGroundLayer(app));
     const fogGraphics = collectDescendants(getWorld(app)).filter(
       (child): child is MockGraphics =>
         child instanceof MockGraphics &&
@@ -1045,121 +986,3 @@ describe('renderScene movement cooldown', () => {
     ).toHaveLength(expectedPoints.length);
   });
 });
-
-function findGraphicAt(
-  graphics: MockGraphics[],
-  point: { x: number; y: number },
-  tolerance = 0.01,
-) {
-  return graphics.find((graphic) => {
-    const [polygon] = graphic.drawPolygon.mock.calls[0] ?? [];
-    if (!Array.isArray(polygon) || polygon.length < 6) {
-      return false;
-    }
-
-    const center = getPolygonCenter(polygon);
-    return (
-      Math.abs(center.x - point.x) < tolerance &&
-      Math.abs(center.y - point.y) < tolerance
-    );
-  });
-}
-
-function findSpriteAt(
-  sprites: MockSprite[],
-  point: { x: number; y: number },
-  tolerance = 0.01,
-) {
-  return sprites.find(
-    (sprite) =>
-      Math.abs(sprite.position.x - point.x) < tolerance &&
-      Math.abs(sprite.position.y - point.y) < tolerance,
-  );
-}
-
-function findContainerAt(
-  containers: MockContainer[],
-  point: { x: number; y: number },
-  tolerance = 1,
-) {
-  return containers.find(
-    (container) =>
-      Math.abs(container.position.x - point.x) < tolerance &&
-      Math.abs(container.position.y - point.y) < tolerance,
-  );
-}
-
-function getPolygonCenter(points: number[]) {
-  const vertexCount = points.length / 2;
-  let sumX = 0;
-  let sumY = 0;
-
-  for (let index = 0; index < points.length; index += 2) {
-    sumX += points[index]!;
-    sumY += points[index + 1]!;
-  }
-
-  return {
-    x: sumX / vertexCount,
-    y: sumY / vertexCount,
-  };
-}
-
-function getAverageGraphicY(graphic: MockGraphics) {
-  const lastCall =
-    graphic.drawPolygon.mock.calls[graphic.drawPolygon.mock.calls.length - 1];
-  const points = lastCall?.[0] as number[] | undefined;
-  if (!points || points.length === 0) {
-    return 0;
-  }
-
-  return (
-    points.reduce(
-      (sum, value, index) => sum + (index % 2 === 1 ? value : 0),
-      0,
-    ) /
-    (points.length / 2)
-  );
-}
-
-function getMaxGraphicRadius(graphic: MockGraphics) {
-  const lastCall =
-    graphic.drawPolygon.mock.calls[graphic.drawPolygon.mock.calls.length - 1];
-  const points = lastCall?.[0] as number[] | undefined;
-  if (!points || points.length === 0) {
-    return 0;
-  }
-
-  let maxRadius = 0;
-  for (let index = 0; index < points.length; index += 2) {
-    maxRadius = Math.max(
-      maxRadius,
-      Math.hypot(points[index] ?? 0, points[index + 1] ?? 0),
-    );
-  }
-
-  return maxRadius;
-}
-
-function getMinGraphicRadius(graphic: MockGraphics) {
-  const lastCall =
-    graphic.drawPolygon.mock.calls[graphic.drawPolygon.mock.calls.length - 1];
-  const points = lastCall?.[0] as number[] | undefined;
-  if (!points || points.length === 0) {
-    return 0;
-  }
-
-  let minRadius = Number.POSITIVE_INFINITY;
-  for (let index = 0; index < points.length; index += 2) {
-    minRadius = Math.min(
-      minRadius,
-      Math.hypot(points[index] ?? 0, points[index + 1] ?? 0),
-    );
-  }
-
-  return Number.isFinite(minRadius) ? minRadius : 0;
-}
-
-function getGraphicThickness(graphic: MockGraphics) {
-  return getMaxGraphicRadius(graphic) - getMinGraphicRadius(graphic);
-}

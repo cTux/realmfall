@@ -22,7 +22,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 ## Command Index
 
 - Use Conventional Commits.
-- Use `pnpm git:commit -- -m "<message>"` for routine commits. It increments the `package.json` patch version, stages that bump, then delegates to `git commit` through the repository helper.
+- Use `pnpm git:commit -m "<message>"` for routine commits. It increments the `package.json` patch version, stages that bump, then delegates to `git commit` through the repository helper.
 - Use `pnpm git:deploy` from a clean tracked worktree to build the app with the GitHub Pages base path and publish `dist/` to `origin/gh-pages`. Configure GitHub Pages to serve the `gh-pages` branch from `/`.
 - Use `pnpm git:prune-gone-branches -- --dry-run` to preview local branches whose tracked remote ref was deleted, then rerun without `--dry-run` to remove them. Add `-- --safe` only when you want Git to keep its merged-branch protection.
 - Use `pnpm git:rebase-master-and-push` from a clean, already-committed feature branch when you need to replay it onto the default branch advertised by `origin/HEAD` and publish the rewritten branch. The script auto-resolves `package.json` version conflicts when they occur, refuses to rewrite the current remote default branch directly, and then fetches the remote branch before `--force-with-lease`.

@@ -6,7 +6,12 @@
 - Every issue fix should be followed by adding or adjusting tests that cover the fixed behavior, unless the repository cannot reasonably test that path yet. In that case, document the gap explicitly.
 - When a fix changes expected behavior, also update the corresponding spec requirement in the same task when the repository already documents that area.
 - Favor deterministic tests for game-state changes and rendering calculations.
-- Place tests in a colocated `tests/` directory for the feature or module they exercise.
+- Place tests in a colocated `tests/` or `__tests__/` directory for the feature or module they exercise.
+- Prefer a sibling `__tests__/` directory when one feature needs multiple spec files plus a dedicated testkit, especially for jsdom component suites.
+- When a suite adopts the `__tests__/` structure, keep focused `*.spec.test.ts(x)` files beside one feature-owned `*Testkit.ts(x)` entrypoint instead of leaving another broad sibling `*.test.tsx` file at the component root.
+- Keep spec files minimal. Drive repeated setup, DOM interaction, and assertion plumbing through the testkit so the spec reads in terms of domain-facing `actions`, `mock`, and `expect` operations rather than raw selectors and event dispatch.
+- Keep testkit APIs human-readable and intent-first. Prefer method names that describe user or domain behavior, such as `openTab`, `clickDataResetFor`, `confirmPromptReject`, or `expect.resetNotTriggeredFor`, instead of exposing low-level selector mechanics in the spec surface.
+- Keep the testkit file itself limited to imports plus the exported class. Move standalone constants, label-key maps, types, DOM helpers, environment setup, deep-merge utilities, and other free functions into `__tests__/utils/*`.
 - Keep test files under roughly `250` lines when practical. Split larger suites by concern instead of accumulating all coverage in one file.
 - Keep DOM-free Vitest coverage on the `node` project and reserve the `jsdom` project for tests that need browser globals, React rendering, Pixi canvas behavior, or other DOM APIs.
 - When adding or moving tests, choose the narrowest Vitest project that matches the runtime surface so gameplay-only changes do not pay browser-environment startup cost.
