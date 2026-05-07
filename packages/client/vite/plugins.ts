@@ -1,4 +1,3 @@
-import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import babel from '@rolldown/plugin-babel';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
@@ -24,7 +23,7 @@ export function createAppModulePreloadPlugin(): Plugin {
 
   return {
     name: 'realmfall-app-modulepreload',
-      configResolved(config) {
+    configResolved(config) {
       base = config.base;
     },
     transformIndexHtml: {
@@ -91,31 +90,6 @@ export function createVersionManifestPlugin(appBuildVersion: string): Plugin {
   };
 }
 
-export function vitestCachePlugin(): Plugin {
-  const defaults = {
-    dir: '.tests/vitest-cache',
-    states: ['pass'],
-    silent: false,
-  } as const;
-
-  return {
-    name: 'realmfall-vitest-cache',
-    config: () => ({
-      test: {
-        // Vitest 4 supports runner/globalSetup, while the package's
-        // default export currently routes to its Vitest 3 custom pool path.
-        vCache: defaults,
-        runner: fileURLToPath(
-          new URL('../scripts/vitest-cache/runner.mjs', import.meta.url),
-        ),
-        globalSetup: fileURLToPath(
-          new URL('../scripts/vitest-cache/setup.mjs', import.meta.url),
-        ),
-      },
-    }),
-  };
-}
-
 export function minifyJsonAssetsPlugin(): Plugin {
   return {
     name: 'realmfall-minify-json-assets',
@@ -143,7 +117,6 @@ function minifyJsonAsset(asset: { source: string | Uint8Array }) {
 interface CreateVitePluginsOptions {
   appBuildVersion: string;
   isStorybookScript: boolean;
-  isVitestRun: boolean;
   runBundleVisualizer: boolean;
   runDuplicateDepsAudit: boolean;
 }
@@ -151,12 +124,10 @@ interface CreateVitePluginsOptions {
 export function createVitePlugins({
   appBuildVersion,
   isStorybookScript,
-  isVitestRun,
   runBundleVisualizer,
   runDuplicateDepsAudit,
 }: CreateVitePluginsOptions): PluginOption[] {
   return [
-    isVitestRun && vitestCachePlugin(),
     react(),
     babel({
       presets: [reactCompilerPreset()],

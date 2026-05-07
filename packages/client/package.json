@@ -34,7 +34,6 @@
     "valibot": "^1.4.0"
   },
   "devDependencies": {
-    "@raegen/vite-plugin-vitest-cache": "^0.3.7",
     "@rolldown/plugin-babel": "0.2.3",
     "@storybook/react-vite": "catalog:",
     "@types/node": "catalog:",
