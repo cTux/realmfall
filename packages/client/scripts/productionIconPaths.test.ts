@@ -46,10 +46,20 @@ describe('production icon paths', () => {
       .filter((filePath) => filePath.endsWith('.js'))
       .map((filePath) => readFileSync(filePath, 'utf8'))
       .join('\n');
+    const canonicalCoinsIcon = readFileSync(
+      join(outDir, 'assets', 'icons', 'coins.svg'),
+      'utf8',
+    );
+    const legacyCoinsIcon = readFileSync(
+      join(outDir, 'assets', 'icons', 'coins-oRujGmZO.svg'),
+      'utf8',
+    );
 
     expect(bundleText).not.toContain('client/src/assets/icons');
     expect(bundleText).not.toContain('client/src/assets/game-icons');
     expect(bundleText).not.toContain('/src/assets/icons/generated/');
     expect(bundleText).not.toContain('/src/game-icons/');
+    expect(bundleText).toContain('/assets/icons/coins.svg');
+    expect(legacyCoinsIcon.trim()).toBe(canonicalCoinsIcon.trim());
   }, 120_000);
 });
