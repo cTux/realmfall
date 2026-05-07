@@ -12,7 +12,8 @@ This spec covers the repository layer boundaries, state transition shape, and co
 - Repeated app-controller command families that only adapt gameplay transitions into UI handlers stay in focused neighbors such as `packages/client/src/app/App/hooks/gameActionHandlers/*` instead of regrowing broad orchestration hooks with hand-wired callback lists.
 - `packages/client/src/ui/components` contains client-only React window components and presentational UI, while `packages/ui/src/components` contains shared reusable controls consumed through `@realmfall/ui`.
 - Shared `packages/ui` controls keep UI-owned view contracts and helper logic under `packages/ui/src/game` and receive caller-derived action metadata instead of importing client `stateTypes`, app-only controller types, or gameplay config modules into the shared package implementation.
-- `packages/ui/src/game` does not re-export `packages/client/src/game/content/*`; a local boundary test keeps that subtree UI-owned.
+- Shared package-owned helpers for icons, tooltip placement, tooltip lines, compact formatting, and generated icon resolution live under `packages/ui/src/*` instead of re-exporting `packages/client/src/ui/*`.
+- `packages/ui/src/game` does not re-export `packages/client/src/game/content/*`, and `packages/ui/src/game/boundary.test.ts` now enforces the broader `packages/ui/src/**` no-client-import boundary outside the explicit bridge modules for i18n, Storybook fixtures, and the UI audio context.
 - `packages/client/src/ui/world` contains Pixi world rendering, render math, scene caches, pools, and atmosphere helpers.
 - `packages/client/src/persistence` contains local save storage helpers.
 - `packages/server/src` contains the server runtime entrypoint, HTTP routes, and server-only version metadata resolution.
