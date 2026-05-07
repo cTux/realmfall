@@ -16,6 +16,7 @@ This spec covers the canonical rules model and the project spec structure itself
 - Historical or shipped implementation-note workspaces are trimmed to one short `brief.md` plus canonical links, and long `plan.md` files are deleted once the workspace stops being active.
 - Documentation entrypoints such as `docs/specs/README.md` and `docs/implementation-notes/README.md` stay navigation-only and route readers to canonical rules or reference specs.
 - `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md` remain generated thin loaders from `scripts/sync-ai-entrypoints.mjs`, so recurring delegation policy lives in the canonical rules instead of being hand-maintained in each entrypoint.
+- Repo-native Codex workflow skills live in committed `.codex/skills/`, with `docs/realmfall-skills.md` routing requests to the right skill. External skills may inform those files, but project-managed `.agents/skills/` install output from `skills.sh` is not committed directly.
 - Transient implementation-note artifacts use names such as `brief.md`, `plan.md`, `research.md`, and `checklist.md`; `spec.md` is reserved for canonical reference documents under `docs/specs`.
 - Parallel transient-doc trees do not stay in the live `docs/` path after retirement; their content belongs in `docs/implementation-notes`, and the retired tree is deleted.
 - Implemented gameplay features and technical solutions each keep their own dedicated spec file under `docs/specs`, with index documents used only for navigation.
@@ -26,10 +27,12 @@ This spec covers the canonical rules model and the project spec structure itself
 - `docs/rules/00-general.md`
 - `docs/rules/61-documentation.md`
 - `docs/WORKFLOW.md`
+- `docs/realmfall-skills.md`
 - `README.md`
 - `AGENTS.md`
 - `CLAUDE.md`
 - `.github/copilot-instructions.md`
+- `.codex/skills`
 - `scripts/sync-ai-entrypoints.mjs`
 - `docs/specs`
 - `docs/implementation-notes`

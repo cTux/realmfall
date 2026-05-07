@@ -9,6 +9,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 - Pull `docs/WORKFLOW.md`, `docs/PROJECT_REVIEW.md`, package READMEs, or lore docs only when the scoped rules or current task need them.
 - Use Node `v25.9.0` from `.nvmrc` for local commands and automation.
 - Check [`docs/realmfall-skills.md`](./realmfall-skills.md) before choosing a workflow-routing specialist skill.
+- Keep repo-native skills in committed `.codex/skills/`; do not commit raw `skills.sh` project-install output under `.agents/skills/`.
 - Check the matching package README when the task is scoped to `packages/client`, `packages/server`, `packages/common`, or `packages/ui`.
 
 ## Daily Loop
@@ -41,6 +42,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 
 - Update the matching spec in `docs/specs` whenever a shipped behavior or technical solution changes.
 - Keep transient plans, review snapshots, and checklists in `docs/implementation-notes`, not `docs/specs`.
+- When an external skill is worth keeping, adapt the durable guidance into `.codex/skills/` and update [`docs/realmfall-skills.md`](./realmfall-skills.md) instead of committing the installer-managed `.agents/skills/` copy.
 - When Serena is used locally, commit only `.serena/project.yml`; keep `.serena/project.local.yml`, `.serena/memories/`, caches, and other local Serena artifacts ignored unless a task explicitly needs a shared Serena memory file.
 - If Serena is used across git worktrees, point the global `project_serena_folder_location` at a shared external folder and pre-create that target so Serena does not fall back to each worktree-local `.serena`.
 - Collapse shipped or historical implementation-note workspaces back to a short `brief.md` with canonical links.
