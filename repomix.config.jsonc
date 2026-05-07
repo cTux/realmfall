@@ -1,0 +1,58 @@
+{
+  "$schema": "https://repomix.com/schemas/latest/schema.json",
+  "output": {
+    "filePath": "repomix-output.xml",
+    "style": "xml",
+    "compress": true,
+    "fileSummary": true,
+    "directoryStructure": true,
+    "files": true,
+    "topFilesLength": 15,
+    "truncateBase64": true,
+    "git": {
+      "sortByChanges": true
+    }
+  },
+  "include": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "README.md",
+    ".nvmrc",
+    ".npmrc",
+    ".oxlintrc.json",
+    ".stylelintrc.json",
+    "commitlint.config.js",
+    "prettier.config.cjs",
+    "package.json",
+    "pnpm-workspace.yaml",
+    ".github/workflows/**",
+    ".husky/**",
+    "docs/RULES.md",
+    "docs/rules/**",
+    "docs/WORKFLOW.md",
+    "docs/PROJECT_REVIEW.md",
+    "docs/realmfall-skills.md",
+    "packages/**",
+    "scripts/**"
+  ],
+  "ignore": {
+    "useGitignore": true,
+    "useDotIgnore": true,
+    "useDefaultPatterns": true,
+    "customPatterns": [
+      "repomix-output.*",
+      "docs/specs/**",
+      "docs/implementation-notes/**",
+      "packages/client/public/assets/**",
+      "packages/client/src/assets/**",
+      "packages/client/src/i18n/locales/**",
+      "**/*.{svg,png,jpg,jpeg,webp,gif,mp3,wav,ogg,ttf,woff,woff2}"
+    ]
+  },
+  "security": {
+    "enableSecurityCheck": true
+  },
+  "tokenCount": {
+    "encoding": "o200k_base"
+  }
+}
