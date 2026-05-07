@@ -26,7 +26,7 @@ Use this skill for deployment, branch maintenance, and git-process tasks in this
 
 ## Canonical commands
 
-- `pnpm git:commit -- -m "<message>"`
+- `pnpm git:commit -m "<message>"`
 - `pnpm git:deploy`
 - `pnpm git:prune-gone-branches -- --dry-run`
 - `pnpm git:prune-gone-branches`
