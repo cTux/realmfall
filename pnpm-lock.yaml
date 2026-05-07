@@ -8,6 +8,10 @@ overrides:
   '@xmldom/xmldom': 0.8.13
   serialize-javascript@<=7.0.2: '>=7.0.3'
   serialize-javascript@<7.0.5: '>=7.0.5'
+  axios@>=1.0.0 <1.15.1: ^1.15.1
+  axios@>=1.0.0 <1.15.2: ^1.15.2
+  basic-ftp@<=5.3.0: ^5.3.1
+  ip-address@<=10.1.0: ^10.1.1
 
 importers:
   .:
@@ -3143,10 +3147,10 @@ packages:
         integrity: sha512-2t/sy01ArdHHE0vRH5Hsay+RtCZt3dLPji7W7/MMOCEgze5b7SNDC4j5H6FnVgPkI1MTNFGzHdHrVXDDl7QSSQ==,
       }
 
-  axios@1.15.0:
+  axios@1.16.0:
     resolution:
       {
-        integrity: sha512-wWyJDlAatxk30ZJer+GeCWS209sA42X+N5jU2jy6oHTp7ufw8uzUTVFBX9+wTfAlhiJXGS0Bq7X6efruWjuK9Q==,
+        integrity: sha512-6hp5CwvTPlN2A31g5dxnwAX0orzM7pmCRDLnZSX772mv8WDqICwFjowHuPs04Mc8deIld1+ejhtaMn5vp6b+1w==,
       }
 
   b4a@1.8.0:
@@ -3252,10 +3256,10 @@ packages:
     engines: { node: '>=6.0.0' }
     hasBin: true
 
-  basic-ftp@5.3.0:
+  basic-ftp@5.3.1:
     resolution:
       {
-        integrity: sha512-5K9eNNn7ywHPsYnFwjKgYH8Hf8B5emh7JKcPaVjjrMJFQQwGpwowEnZNEtHs7DfR7hCZsmaK3VA4HUK0YarT+w==,
+        integrity: sha512-bopVNp6ugyA150DDuZfPFdt1KZ5a94ZDiwX4hMgZDzF+GttD80lEy8kj98kbyhLXnPvhtIo93mdnLIjpCAeeOw==,
       }
     engines: { node: '>=10.0.0' }
 
@@ -4696,10 +4700,10 @@ packages:
       }
     engines: { node: ^20.17.0 || >=22.9.0 }
 
-  ip-address@10.1.0:
+  ip-address@10.2.0:
     resolution:
       {
-        integrity: sha512-XXADHxXmvT9+CRxhXg56LJovE+bmWnEWB78LB83VZTprKTmaC5QfruXocxzTZ2Kl0DNwKuBdlIhjL8LeY8Sf8Q==,
+        integrity: sha512-/+S6j4E9AHvW9SWMSEY9Xfy66O5PWvVEJ08O0y5JGyEKQpojb0K0GKpz/v5HJ/G0vi3D2sjGK78119oXZeE0qA==,
       }
     engines: { node: '>= 12' }
 
@@ -8929,7 +8933,7 @@ snapshots:
       '@fastify/error': 4.2.0
       fastq: 1.20.1
 
-  axios@1.15.0:
+  axios@1.16.0:
     dependencies:
       follow-redirects: 1.16.0
       form-data: 4.0.5
@@ -8983,7 +8987,7 @@ snapshots:
 
   baseline-browser-mapping@2.10.16: {}
 
-  basic-ftp@5.3.0: {}
+  basic-ftp@5.3.1: {}
 
   bidi-js@1.0.3:
     dependencies:
@@ -9728,7 +9732,7 @@ snapshots:
 
   get-uri@6.0.5:
     dependencies:
-      basic-ftp: 5.3.0
+      basic-ftp: 5.3.1
       data-uri-to-buffer: 6.0.2
       debug: 4.4.3
     transitivePeerDependencies:
@@ -9871,7 +9875,7 @@ snapshots:
 
   ini@6.0.0: {}
 
-  ip-address@10.1.0: {}
+  ip-address@10.2.0: {}
 
   ipaddr.js@2.3.0: {}
 
@@ -10933,7 +10937,7 @@ snapshots:
 
   socks@2.8.7:
     dependencies:
-      ip-address: 10.1.0
+      ip-address: 10.2.0
       smart-buffer: 4.2.0
 
   sonic-boom@4.2.1:
@@ -11392,7 +11396,7 @@ snapshots:
   unplugin-detect-duplicated-deps@2.0.0(rollup@4.60.1):
     dependencies:
       '@rollup/pluginutils': 5.3.0(rollup@4.60.1)
-      axios: 1.15.0
+      axios: 1.16.0
       cardinal: 2.1.1
       consola: 3.4.2
       picocolors: 1.1.1
