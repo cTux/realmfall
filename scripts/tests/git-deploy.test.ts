@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -80,6 +81,20 @@ describe('git deploy helpers', () => {
       REALMFALL_VITE_BASE: DEPLOY_BASE_PATH,
     });
     expect(input.REALMFALL_VITE_BASE).toBe('/old/');
+  });
+
+  it('declares the GitHub Pages Vite base env for turbo build tasks', () => {
+    const turboConfig = JSON.parse(
+      readFileSync(new URL('../../turbo.json', import.meta.url), 'utf8'),
+    ) as {
+      tasks?: {
+        build?: {
+          env?: string[];
+        };
+      };
+    };
+
+    expect(turboConfig.tasks?.build?.env).toContain('REALMFALL_VITE_BASE');
   });
 
   it('filters clean git status output', () => {
