@@ -1,7 +1,15 @@
 packages:
   - 'packages/*'
+fund: false
+minimumReleaseAge: 0
 allowBuilds:
   '@parcel/watcher': true
+  better-sqlite3: true
   esbuild: true
+  protobufjs: true
   puppeteer: true
   sharp: true
+overrides:
+  '@xmldom/xmldom': '0.8.13'
+  'serialize-javascript@<=7.0.2': '>=7.0.3'
+  'serialize-javascript@<7.0.5': '>=7.0.5'

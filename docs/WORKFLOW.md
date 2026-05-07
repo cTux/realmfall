@@ -22,7 +22,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 ## Command Index
 
 - Use Conventional Commits.
-- Use `pnpm git:commit -m "<message>"` for routine commits. It increments the `package.json` patch version, stages that bump, then delegates to `git commit` through the repository helper.
+- Use `pnpm git:commit -m "<message>"` for routine commits. It increments the `package.json` patch version, stages that bump, then delegates to `git commit` through the repository helper. Do not insert an extra `--` before `-m`; this helper forwards arguments directly to `git commit`.
 - Use `pnpm git:deploy` from a clean tracked worktree to build the app with the GitHub Pages base path and publish `dist/` to `origin/gh-pages`. Configure GitHub Pages to serve the `gh-pages` branch from `/`.
 - Use `pnpm git:prune-gone-branches -- --dry-run` to preview local branches whose tracked remote ref was deleted, then rerun without `--dry-run` to remove them. Add `-- --safe` only when you want Git to keep its merged-branch protection.
 - Use `pnpm git:rebase-master-and-push` from a clean, already-committed feature branch when you need to replay it onto the default branch advertised by `origin/HEAD` and publish the rewritten branch. The script auto-resolves `package.json` version conflicts when they occur, refuses to rewrite the current remote default branch directly, and then fetches the remote branch before `--force-with-lease`.
@@ -39,6 +39,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 - Run `pnpm format` when you need the repository-wide Prettier check path.
 - Run `pnpm build:duplicate-deps` only when auditing dependency duplication. The duplicate-deps plugin is intentionally kept off the normal build path so routine builds stay focused on correctness and explicit audit signals.
 - Run `pnpm build:visualize` when you need an interactive bundle treemap audit. The command writes `.tests/bundle/visualizer.html` and keeps the visualizer plugin off the normal build path.
+- When invoking Git Bash through the desktop shell tool from a PowerShell host, prefer `bash -lc '...'` so PowerShell does not consume embedded double quotes that belong to the Bash command.
 - Use `?perf=1` or `localStorage["realmfall:perf"] = "1"` during manual browser checks when you need `window.__REALMFALL_PERF__.snapshot()`.
 
 ## Documentation Workflow

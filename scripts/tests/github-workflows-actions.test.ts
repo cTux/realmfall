@@ -1,5 +1,14 @@
 import { readFileSync } from 'node:fs';
 
+const rootPackageJson = JSON.parse(readFileSync('package.json', 'utf8'));
+const packageManagerVersion = rootPackageJson.packageManager.match(
+  /^pnpm@(?<version>.+)$/,
+)?.groups?.version;
+
+if (!packageManagerVersion) {
+  throw new Error('Expected the root packageManager field to pin pnpm.');
+}
+
 const workflowActionExpectations = [
   {
     filePath: '.github/workflows/pull-request-validation.yml',
@@ -46,6 +55,15 @@ describe('GitHub workflow action pins', () => {
       for (const action of actions) {
         expect(workflow).toContain(action);
       }
+    },
+  );
+
+  it.each(workflowActionExpectations)(
+    'keeps $filePath on the root pnpm packageManager version',
+    ({ filePath }) => {
+      const workflow = readFileSync(filePath, 'utf8');
+
+      expect(workflow).toContain(`version: ${packageManagerVersion}`);
     },
   );
 });
