@@ -116,6 +116,7 @@ describe('useAppWindowRuntime', () => {
       heroOverview: { level: 2 },
       inventoryCountsByItemKey: { fiber: 2 },
       itemModification: null,
+      outpostBuildStatus: { canBuild: false, buildables: [], reason: null },
       recipes: [],
       recipeSkillLevels: {},
       territoryNpcHealStatus: { canHeal: false },

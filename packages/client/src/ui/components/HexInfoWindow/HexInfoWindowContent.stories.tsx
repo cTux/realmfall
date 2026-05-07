@@ -17,6 +17,7 @@ import { HexInfoWindowContent } from './HexInfoWindowContent';
 import type { HexInfoWindowProps } from './types';
 
 const noopBuyItem: HexInfoWindowProps['onBuyItem'] = () => undefined;
+const noopBuildOutpost: HexInfoWindowProps['onBuildOutpost'] = () => undefined;
 const noopHoverItem: HexInfoWindowProps['onHoverItem'] = () => undefined;
 const noopLeaveItem: HexInfoWindowProps['onLeaveItem'] = () => undefined;
 const noopAction: () => void = () => {};
@@ -43,11 +44,13 @@ const meta = {
     onHealTerritoryNpc: noopAction,
     onProspect: noopAction,
     onSellAll: noopAction,
+    onBuildOutpost: noopBuildOutpost,
     onBuyItem: noopBuyItem,
     onTakeAll: noopAction,
     onTakeItem: noopBuyItem,
     onHoverItem: noopHoverItem,
     onLeaveItem: noopLeaveItem,
+    outpostBuildPickerActive: false,
   },
   parameters: {
     controls: {
@@ -57,6 +60,7 @@ const meta = {
         'onHealTerritoryNpc',
         'onProspect',
         'onSellAll',
+        'onBuildOutpost',
         'onBuyItem',
         'onTakeAll',
         'onTakeItem',
@@ -85,6 +89,9 @@ export const EmptyPlains: Story = {
     territoryNpcHealExplanation: null,
     canBulkProspectEquipment: false,
     canBulkSellEquipment: false,
+    canBuildOutpost: false,
+    outpostBuildOptions: [],
+    outpostBuildPickerActive: false,
     itemModification: null,
     territoryActionExplanation: null,
     bulkProspectEquipmentExplanation: null,
@@ -316,6 +323,9 @@ function buildStructureArgs(
     territoryNpcHealExplanation: overrides.territoryNpcHealExplanation ?? null,
     canBulkProspectEquipment: overrides.canBulkProspectEquipment ?? false,
     canBulkSellEquipment: overrides.canBulkSellEquipment ?? false,
+    canBuildOutpost: overrides.canBuildOutpost ?? false,
+    outpostBuildOptions: overrides.outpostBuildOptions ?? [],
+    outpostBuildPickerActive: overrides.outpostBuildPickerActive ?? false,
     itemModification: overrides.itemModification ?? null,
     territoryActionExplanation: overrides.territoryActionExplanation ?? null,
     bulkProspectEquipmentExplanation:
@@ -392,6 +402,7 @@ type StoryArgs = Omit<
   | 'onHealTerritoryNpc'
   | 'onProspect'
   | 'onSellAll'
+  | 'onBuildOutpost'
   | 'onBuyItem'
   | 'onTakeAll'
   | 'onTakeItem'

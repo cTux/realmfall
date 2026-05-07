@@ -1,3 +1,5 @@
+import { buildItemFromConfig } from './content/items';
+import type { ItemKey } from './content/ids';
 import type { GameState } from './types';
 
 export function addBannerMaterials(
@@ -5,34 +7,27 @@ export function addBannerMaterials(
   quantity: number,
   idPrefix: string,
 ) {
+  addResourceItems(
+    game,
+    [
+      { itemKey: 'cloth', quantity },
+      { itemKey: 'sticks', quantity },
+    ],
+    idPrefix,
+  );
+}
+
+export function addResourceItems(
+  game: GameState,
+  items: Array<{ itemKey: ItemKey; quantity: number }>,
+  idPrefix: string,
+) {
   game.player.inventory.push(
-    {
-      id: `${idPrefix}-cloth`,
-      itemKey: 'cloth',
-      name: 'Cloth',
-      quantity,
-      tier: 1,
-      rarity: 'common',
-      power: 0,
-      defense: 0,
-      maxHp: 0,
-      healing: 0,
-      hunger: 0,
-      thirst: 0,
-    },
-    {
-      id: `${idPrefix}-sticks`,
-      itemKey: 'sticks',
-      name: 'Sticks',
-      quantity,
-      tier: 1,
-      rarity: 'common',
-      power: 0,
-      defense: 0,
-      maxHp: 0,
-      healing: 0,
-      hunger: 0,
-      thirst: 0,
-    },
+    ...items.map(({ itemKey, quantity }, index) =>
+      buildItemFromConfig(itemKey, {
+        id: `${idPrefix}-${itemKey}-${index}`,
+        quantity,
+      }),
+    ),
   );
 }

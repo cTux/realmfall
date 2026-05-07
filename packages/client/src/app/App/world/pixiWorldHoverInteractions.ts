@@ -10,9 +10,9 @@ import {
   getEnemiesAt,
   getResolvedTileAt,
 } from '../../../game/stateWorldQueries';
+import { getCurrentWorldRevealRadius } from '../../../game/stateOutposts';
 import type { GameState } from '../../../game/stateTypes';
 import { getWorldHexSize } from '../../../ui/world/renderSceneMath';
-import { WORLD_REVEAL_RADIUS } from '../../constants';
 import type { TooltipState } from '../types';
 import {
   applyHoverSnapshot,
@@ -333,7 +333,7 @@ export function createWorldHoverInteractions({
 
     const current = gameRef.current;
     const distance = hexDistance(playerCoordRef.current, target);
-    const withinVisibleMap = distance <= WORLD_REVEAL_RADIUS;
+    const withinVisibleMap = distance <= getCurrentWorldRevealRadius(current);
     const hoverCacheKey = getHoverAnalysisCacheKey(current, target);
     const cachedHoverSnapshot =
       hoverAnalysisCacheRef.current.get(hoverCacheKey);

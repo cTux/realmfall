@@ -457,4 +457,54 @@ describe('createWorldClickHandler', () => {
       getSafePathToTileSpy.mockRestore();
     }
   });
+
+  it('queues a farther safe path while the player is inside watchtower scouting range', () => {
+    const game = createGame(6, 'watchtower-click-command');
+    const movementController = createMovementController();
+    game.tiles['0,0'] = {
+      ...game.tiles['0,0'],
+      claim: {
+        borderColor: '#22c55e',
+        ownerId: 'player-territory',
+        ownerName: 'Player Territory',
+        ownerType: 'player',
+      },
+      structure: 'watchtower',
+    };
+    for (let q = 1; q <= 5; q += 1) {
+      game.tiles[`${q},0`] = {
+        coord: { q, r: 0 },
+        terrain: 'plains',
+        items: [],
+        enemyIds: [],
+      };
+    }
+    const distantPoint = tileToPoint(
+      { q: 5, r: 0 },
+      app.screen.width / 2,
+      app.screen.height / 2,
+      getWorldHexSize(app.screen, game.radius),
+    );
+
+    const handleClick = createWorldClickHandler({
+      app: app as never,
+      gameRef: { current: game },
+      getScenePoint: () => ({ x: distantPoint.x, y: distantPoint.y }),
+      pausedRef: { current: false },
+      playerCoordRef: { current: game.player.coord },
+      renderInvalidationRef: { current: 0 },
+      selectedRef: { current: game.player.coord },
+      movementController,
+    });
+
+    handleClick(320, 240);
+
+    expect(movementController.replaceQueuedPath).toHaveBeenCalledWith([
+      { q: 1, r: 0 },
+      { q: 2, r: 0 },
+      { q: 3, r: 0 },
+      { q: 4, r: 0 },
+      { q: 5, r: 0 },
+    ]);
+  });
 });

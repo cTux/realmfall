@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { useWorldClockTime } from '../../../app/App/worldClockStore';
 import { t } from '../../../i18n';
 import type { TooltipLine } from '../../tooltips';
@@ -39,6 +39,8 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   canInteract,
   canBulkProspectEquipment,
   canBulkSellEquipment,
+  canBuildOutpost = false,
+  outpostBuildOptions = [],
   itemModification,
   canTerritoryAction,
   territoryActionKind = 'claim',
@@ -51,6 +53,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   onInteract,
   onProspect,
   onSellAll,
+  onBuildOutpost = () => undefined,
   onApplyItemModification = () => undefined,
   onClearItemModificationSelection = () => undefined,
   onSelectItemModificationReforgeStat = () => undefined,
@@ -78,6 +81,15 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   onHoverDetail,
   onLeaveDetail,
 }: HexInfoWindowProps) {
+  const [outpostBuildPickerActive, setOutpostBuildPickerActive] =
+    useState(false);
+
+  useEffect(() => {
+    if (!canBuildOutpost) {
+      setOutpostBuildPickerActive(false);
+    }
+  }, [canBuildOutpost]);
+
   const liveWorldTimeMs = useWorldClockTime();
   const headerInteractLabel =
     interactLabel && interactLabel.includes('(')
@@ -134,6 +146,12 @@ export const HexInfoWindow = memo(function HexInfoWindow({
     territoryActionKind === 'unclaim'
       ? 'rgba(248, 113, 113, 0.9)'
       : 'rgba(74, 222, 128, 0.9)';
+  const handleBuildOutpost = (
+    outpostType: (typeof outpostBuildOptions)[number]['type'],
+  ) => {
+    setOutpostBuildPickerActive(false);
+    onBuildOutpost(outpostType);
+  };
 
   return (
     <DeferredWindowShell
@@ -178,6 +196,22 @@ export const HexInfoWindow = memo(function HexInfoWindow({
               {t('ui.hexInfo.sellAllAction')}
             </WindowHeaderActionButton>
           ) : null}
+          {canBuildOutpost ? (
+            <WindowHeaderActionButton
+              className={inventoryStyles.headerButton}
+              ariaPressed={outpostBuildPickerActive}
+              onClick={() => setOutpostBuildPickerActive((current) => !current)}
+              tooltipTitle={t('ui.hexInfo.buildOutpostAction')}
+              tooltipLines={[
+                { kind: 'text', text: t('ui.tooltip.window.buildOutpost') },
+              ]}
+              tooltipBorderColor="rgba(250, 204, 21, 0.9)"
+              onHoverDetail={onHoverDetail}
+              onLeaveDetail={onLeaveDetail}
+            >
+              {t('ui.hexInfo.buildOutpostAction')}
+            </WindowHeaderActionButton>
+          ) : null}
           {canTerritoryAction ? (
             <WindowHeaderActionButton
               className={inventoryStyles.headerButton}
@@ -220,6 +254,9 @@ export const HexInfoWindow = memo(function HexInfoWindow({
         canInteract,
         canBulkProspectEquipment,
         canBulkSellEquipment,
+        canBuildOutpost,
+        outpostBuildPickerActive,
+        outpostBuildOptions,
         itemModification,
         territoryActionKind,
         canTerritoryAction,
@@ -232,6 +269,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
         onInteract,
         onProspect,
         onSellAll,
+        onBuildOutpost: handleBuildOutpost,
         onApplyItemModification,
         onClearItemModificationSelection,
         onSelectItemModificationReforgeStat,

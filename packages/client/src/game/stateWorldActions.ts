@@ -1,11 +1,10 @@
 import { hexKey, type HexCoord } from './hex';
 import { t } from '../i18n';
+import { structureTitle } from './content/i18n';
 import { formatSkillLabel } from '../i18n/labels';
 import { addLog } from './logs';
 import { addItemToInventory, spendGold } from './inventory';
 import { clearConsumableCooldownIfOutOfCombat } from './combatActivity';
-import { GAME_TAGS } from './content/tags';
-import { hasItemTag } from './content/items';
 import {
   gatheringYieldBonus,
   getPlayerCombatStats,
@@ -39,6 +38,10 @@ import {
 import { getCurrentHexClaimStatus } from './stateClaims';
 import { activateDungeonWorld, leaveDungeonWorld } from './stateDungeonActions';
 import { openDungeonChest } from './stateDungeonChest';
+import {
+  getCurrentHexOutpostBuildStatus,
+  type OutpostBuildableType,
+} from './stateOutposts';
 import { applySurvivalDecay, respawnAtNearestTown } from './stateSurvival';
 import { getCurrentTile, getTileAt } from './stateWorldQueries';
 import type { GameState, Item } from './types';
@@ -121,6 +124,54 @@ export function claimCurrentHex(state: GameState): GameState {
     t('game.message.claim.success', {
       q: next.player.coord.q,
       r: next.player.coord.r,
+    }),
+  );
+  return next;
+}
+
+export function buildOutpostAtCurrentHex(
+  state: GameState,
+  outpostType: OutpostBuildableType,
+): GameState {
+  if (state.gameOver) return state;
+
+  const status = getCurrentHexOutpostBuildStatus(state);
+  const buildable = status.buildables.find(
+    (candidate) => candidate.type === outpostType,
+  );
+  if (!buildable?.canBuild) {
+    return message(
+      state,
+      buildable?.reason ??
+        status.reason ??
+        t('game.message.outpost.unavailable'),
+    );
+  }
+
+  const next = cloneForPlayerAndTileMutation(state);
+  ensureTileState(next, next.player.coord);
+  const key = hexKey(next.player.coord);
+  const tile = next.tiles[key];
+
+  buildable.costs.forEach((cost) => {
+    consumeInventoryResource(
+      next.player.inventory,
+      cost.itemKey,
+      cost.quantity,
+    );
+  });
+  tile.structure = outpostType;
+  tile.structureHp = undefined;
+  tile.structureMaxHp = undefined;
+  next.tiles[key] = { ...tile };
+
+  addLog(
+    next,
+    'system',
+    t('game.message.outpost.built', {
+      q: next.player.coord.q,
+      r: next.player.coord.r,
+      structure: structureTitle(outpostType),
     }),
   );
   return next;
@@ -345,7 +396,7 @@ export function healAtFactionNpc(state: GameState): GameState {
 
 function consumeInventoryResource(
   inventory: Item[],
-  itemKey: 'cloth' | 'sticks',
+  itemKey: string,
   quantity: number,
 ) {
   let remaining = quantity;
@@ -355,10 +406,7 @@ function consumeInventoryResource(
     index -= 1
   ) {
     const item = inventory[index];
-    if (
-      !hasItemTag(item, GAME_TAGS.item.resource) ||
-      item.itemKey !== itemKey
-    ) {
+    if (item.itemKey !== itemKey) {
       continue;
     }
 

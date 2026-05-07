@@ -1,4 +1,6 @@
 import { t } from '../../../../i18n';
+import { itemName } from '../../../../game/content/i18n';
+import { getStructureConfig } from '../../../../game/state';
 import { createLazyWindowComponent } from '../../../../ui/components/lazyWindowComponent';
 import type { HexViewState } from '../../AppWindows.types';
 import { loadNamedWindowModule } from './lazyDeferredWindowModule';
@@ -40,6 +42,17 @@ export const hexInfoDeferredWindow: AppDeferredWindowDescriptor = {
       canInteract={Boolean(views.hex.interactLabel)}
       canBulkProspectEquipment={views.hex.canBulkProspectEquipment}
       canBulkSellEquipment={views.hex.canBulkSellEquipment}
+      canBuildOutpost={views.hex.outpostBuildStatus.canBuild}
+      outpostBuildOptions={views.hex.outpostBuildStatus.buildables.map(
+        (buildable) => ({
+          costLabel: formatOutpostCostLabel(buildable.costs),
+          description: getStructureConfig(buildable.type).description,
+          disabled: !buildable.canBuild,
+          disabledReason: buildable.reason,
+          title: getStructureConfig(buildable.type).title,
+          type: buildable.type,
+        }),
+      )}
       itemModification={views.hex.itemModification}
       canTerritoryAction={views.hex.claimStatus.canClaim}
       territoryActionKind={
@@ -58,6 +71,7 @@ export const hexInfoDeferredWindow: AppDeferredWindowDescriptor = {
       onInteract={actions.hex.onInteract}
       onProspect={actions.hex.onProspect}
       onSellAll={actions.hex.onSellAll}
+      onBuildOutpost={actions.hex.onBuildOutpost}
       onApplyItemModification={actions.hex.onApplySelectedItemModification}
       onClearItemModificationSelection={
         actions.hex.onClearSelectedItemModification
@@ -102,4 +116,12 @@ function claimStatusActionLabel(action: HexViewState['claimStatus']['action']) {
     default:
       return t('ui.hexInfo.claimAction');
   }
+}
+
+function formatOutpostCostLabel(
+  costs: HexViewState['outpostBuildStatus']['buildables'][number]['costs'],
+) {
+  return costs
+    .map((cost) => `${cost.quantity} ${itemName(cost.itemKey)}`)
+    .join(', ');
 }

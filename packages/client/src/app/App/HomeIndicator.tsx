@@ -14,6 +14,7 @@ interface HomeIndicatorProps {
   hostRef: RefObject<HTMLDivElement | null>;
   playerCoord: HexCoord;
   radius: number;
+  visibleRadius?: number;
 }
 
 export const HomeIndicator = memo(function HomeIndicator({
@@ -24,6 +25,7 @@ export const HomeIndicator = memo(function HomeIndicator({
   hostRef,
   playerCoord,
   radius,
+  visibleRadius = WORLD_REVEAL_RADIUS,
 }: HomeIndicatorProps) {
   const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
 
@@ -88,7 +90,7 @@ export const HomeIndicator = memo(function HomeIndicator({
 
     return targets.flatMap((target, index) => {
       const targetDistance = hexDistance(playerCoord, target.coord);
-      if (targetDistance <= WORLD_REVEAL_RADIUS) return [];
+      if (targetDistance <= visibleRadius) return [];
 
       const targetPoint = tileToPoint(
         {
@@ -106,7 +108,7 @@ export const HomeIndicator = memo(function HomeIndicator({
       const magnitude = Math.hypot(vector.x, vector.y);
       if (!magnitude) return [];
 
-      const ringScale = WORLD_REVEAL_RADIUS / targetDistance;
+      const ringScale = visibleRadius / targetDistance;
       const borderOffset = 18 + index * 24;
       const normalized = {
         x: vector.x / magnitude,
@@ -130,6 +132,7 @@ export const HomeIndicator = memo(function HomeIndicator({
     homeHex,
     playerCoord,
     radius,
+    visibleRadius,
     viewportSize,
   ]);
 

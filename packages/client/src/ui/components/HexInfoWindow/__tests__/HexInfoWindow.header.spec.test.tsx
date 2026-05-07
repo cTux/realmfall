@@ -28,4 +28,27 @@ describe('HexInfoWindow header', () => {
 
     await testkit.expect.combatForfeitButtonVisible();
   });
+
+  it('expands the outpost picker from the header action and forwards the selected build', async () => {
+    await testkit.actions.mount({
+      canBuildOutpost: true,
+      outpostBuildOptions: [
+        {
+          costLabel: '3 Logs, 2 Stone, 1 Cloth',
+          description:
+            'A raised perch that extends scouting across nearby shardland.',
+          disabled: false,
+          disabledReason: null,
+          title: 'Watchtower',
+          type: 'watchtower',
+        },
+      ],
+    });
+
+    await testkit.clickButtonByText('Build outpost');
+    await testkit.expect.outpostOptionVisible('Watchtower');
+    await testkit.clickButtonByText('Build');
+
+    expect(testkit.mock.onBuildOutpost).toHaveBeenCalledWith('watchtower');
+  });
 });

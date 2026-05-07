@@ -6,6 +6,7 @@ import type { GraphicsSettings } from '../graphicsSettings';
 import type { InterfaceSettings } from '../interfaceSettings';
 import type { ResettableSaveAreaId } from '../../persistence/saveAreas';
 import type { InventorySortMode } from '../../game/inventory';
+import type { OutpostBuildableType } from '../../game/stateOutposts';
 import type {
   EquipmentSlot,
   Item,
@@ -92,6 +93,7 @@ export interface HexActions {
   onProspect: () => void;
   onSellAll: () => void;
   onBuyTownItem: (itemId: string) => void;
+  onBuildOutpost: (outpostType: OutpostBuildableType) => void;
   onClaimHex: () => void;
   onHealTerritoryNpc: () => void;
   onApplySelectedItemModification: () => void;

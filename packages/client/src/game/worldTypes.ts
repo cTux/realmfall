@@ -55,6 +55,7 @@ export const STRUCTURE_TYPES = [
   'furnace',
   'mana-font',
   'workshop',
+  'watchtower',
   'town',
   'corruption-altar',
   'dungeon',

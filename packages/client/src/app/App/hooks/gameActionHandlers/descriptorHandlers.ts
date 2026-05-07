@@ -36,10 +36,12 @@ import type {
 } from '../../../../game/stateTypes';
 import type { EnemyRarity } from '../../../../game/stateTypes';
 import {
+  buildOutpostAtCurrentHex,
   claimCurrentHex,
   healAtFactionNpc,
   interactWithStructure,
 } from '../../../../game/stateWorldActions';
+import type { OutpostBuildableType } from '../../../../game/stateOutposts';
 import { createLoggedGameTransition } from '../useLoggedGameCommand';
 import {
   createEquipmentSlotLoggedTransition,
@@ -72,6 +74,7 @@ interface TownStockItemCommandHandlers {
 }
 
 interface StaticCommandHandlers {
+  handleBuildOutpost: (outpostType: OutpostBuildableType) => void;
   handleClaimHex: () => void;
   handleCraftRecipe: (recipeId: string, count?: number | 'max') => void;
   handleForfeitCombat: () => void;
@@ -209,6 +212,11 @@ const townStockItemCommandDescriptors = {
 };
 
 const staticCommandDescriptors = {
+  handleBuildOutpost: {
+    describe: () => t('game.log.command.buildOutpost'),
+    transition: (state, outpostType: OutpostBuildableType) =>
+      buildOutpostAtCurrentHex(state, outpostType),
+  },
   handleClaimHex: {
     describe: () => t('game.log.command.claimHex'),
     transition: claimCurrentHex,
@@ -375,6 +383,9 @@ export function buildStaticCommandHandlers(
   applyGameTransition: ApplyGameTransition,
 ): StaticCommandHandlers {
   return {
+    handleBuildOutpost: createStaticCommandHandler<
+      Parameters<StaticCommandHandlers['handleBuildOutpost']>
+    >(applyGameTransition, staticCommandDescriptors.handleBuildOutpost),
     handleClaimHex: createStaticCommandHandler(
       applyGameTransition,
       staticCommandDescriptors.handleClaimHex,

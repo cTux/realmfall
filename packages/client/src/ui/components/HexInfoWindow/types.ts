@@ -1,5 +1,6 @@
 import type { MouseEvent as ReactMouseEvent } from 'react';
 import type { ItemModificationKind } from '../../../game/itemModifications';
+import type { OutpostBuildableType } from '../../../game/stateOutposts';
 import type {
   CombatState,
   Enemy,
@@ -26,6 +27,15 @@ export interface HexInfoWindowProps
   canInteract: boolean;
   canBulkProspectEquipment: boolean;
   canBulkSellEquipment: boolean;
+  canBuildOutpost: boolean;
+  outpostBuildOptions: Array<{
+    costLabel: string;
+    description: string;
+    disabled: boolean;
+    disabledReason: string | null;
+    title: string;
+    type: OutpostBuildableType;
+  }>;
   itemModification?: {
     kind: ItemModificationKind;
     hint: string;
@@ -50,6 +60,7 @@ export interface HexInfoWindowProps
   onInteract: () => void;
   onProspect: () => void;
   onSellAll: () => void;
+  onBuildOutpost: (outpostType: OutpostBuildableType) => void;
   onApplyItemModification?: () => void;
   onClearItemModificationSelection?: () => void;
   onSelectItemModificationReforgeStat?: (statIndex: number) => void;

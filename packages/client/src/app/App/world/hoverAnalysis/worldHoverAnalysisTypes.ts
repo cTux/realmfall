@@ -23,6 +23,7 @@ export function buildWorldHoverAnalysisState(
   state: GameState,
 ): WorldHoverAnalysisState {
   return {
+    activeWorldId: state.activeWorldId,
     bloodMoonActive: state.bloodMoonActive,
     combat: state.combat,
     enemies: state.enemies,
@@ -33,5 +34,6 @@ export function buildWorldHoverAnalysisState(
     radius: state.radius,
     seed: state.seed,
     tiles: state.tiles,
+    worlds: state.worlds,
   };
 }

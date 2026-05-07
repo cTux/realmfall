@@ -8,6 +8,7 @@ import {
 } from 'react';
 import { Button, LoadingSpinner } from '@realmfall/ui';
 import { getActiveWorld } from '../../../game/dungeons/worldState';
+import { getCurrentWorldRevealRadius } from '../../../game/stateOutposts';
 import type { GameState, HexCoord } from '../../../game/stateTypes';
 import { t } from '../../../i18n';
 import { recordStartupMark } from '../../../performance/performanceHarness';
@@ -168,6 +169,7 @@ export function AppShell({
               homeHex={game.homeHex}
               playerCoord={game.player.coord}
               radius={game.radius}
+              visibleRadius={getCurrentWorldRevealRadius(game)}
             />
           </Suspense>
           <div className={styles.uiShell}>

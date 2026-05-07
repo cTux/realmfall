@@ -2,6 +2,7 @@ import type { MutableRefObject } from 'react';
 import type { Application } from 'pixi.js';
 import { hexAtPoint, hexDistance, type HexCoord } from '../../../game/hex';
 import { isPassable } from '../../../game/shared';
+import { getCurrentWorldRevealRadius } from '../../../game/stateOutposts';
 import {
   getSafePathToHostileStagingTile,
   getSafePathToTile,
@@ -12,7 +13,6 @@ import {
 } from '../../../game/stateWorldQueries';
 import type { GameState } from '../../../game/stateTypes';
 import { getWorldHexSize } from '../../../ui/world/renderSceneMath';
-import { WORLD_REVEAL_RADIUS } from '../../constants';
 import type { WorldScenePointMapper } from './pixiWorldCamera';
 import {
   getWorldMovementTransitionSceneCenter,
@@ -77,6 +77,7 @@ export function createWorldClickHandler({
       r: playerCoordRef.current.r + clickedOffset.r,
     };
     const distance = hexDistance(playerCoordRef.current, target);
+    const revealRadius = getCurrentWorldRevealRadius(current);
     if (distance === 1) {
       const tile = getResolvedTileAt(current, target);
       if (!tile || !isPassable(tile.terrain)) {
@@ -96,7 +97,7 @@ export function createWorldClickHandler({
       return;
     }
 
-    if (distance === 0 || distance > WORLD_REVEAL_RADIUS) {
+    if (distance === 0 || distance > revealRadius) {
       return;
     }
 

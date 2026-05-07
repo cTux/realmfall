@@ -9,6 +9,7 @@ import {
   getResolvedCurrentTile,
   getTileAt,
 } from './stateWorldQueries';
+import { isOutpostBuildableStructureType } from './stateOutposts';
 import type { GameState, Item } from './types';
 import { isPlayerClaim } from './territories';
 import { isWorldBossEnemyId } from './worldBoss';
@@ -112,6 +113,14 @@ function getClaimStatusCore({
   const playerClaims = getPlayerClaimedTiles(claimState);
   if (tile.claim) {
     if (isPlayerClaim(tile.claim)) {
+      if (isOutpostBuildableStructureType(tile.structure)) {
+        return {
+          action: 'none' as const,
+          canClaim: false,
+          reason: t('game.message.claim.status.outpostAnchored'),
+        };
+      }
+
       return canUnclaimWithoutSplittingTerritory(playerClaims, tile.coord)
         ? {
             action: 'unclaim' as const,

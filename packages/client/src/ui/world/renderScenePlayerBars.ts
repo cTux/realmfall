@@ -68,6 +68,7 @@ export function renderDungeonEnemyMovementCooldowns({
   enemyIconSize,
   movementTransitionRevealState,
   playerCoord,
+  revealRadius,
   visibleTileRenderInputs,
   worldKind,
   worldTimeMs,
@@ -76,6 +77,7 @@ export function renderDungeonEnemyMovementCooldowns({
   enemyIconSize: number;
   movementTransitionRevealState: MovementTransitionRevealState | null;
   playerCoord: HexCoord;
+  revealRadius: number;
   visibleTileRenderInputs: VisibleTileRenderInput[];
   worldKind: WorldKind;
   worldTimeMs: number;
@@ -97,6 +99,7 @@ export function renderDungeonEnemyMovementCooldowns({
     const revealState = getVisibleTileRevealState({
       movementTransitionState: movementTransitionRevealState,
       playerCoord,
+      revealRadius,
       tile,
     });
     if (!revealState.revealed || !revealState.resolved) {

@@ -29,6 +29,7 @@ import { runeForgeStructureConfig } from './runeForge';
 import { tinOreStructureConfig } from './tinOre';
 import { townStructureConfig } from './town';
 import { treeStructureConfig } from './tree';
+import { watchtowerStructureConfig } from './watchtower';
 import { workshopStructureConfig } from './workshop';
 
 const RAW_STRUCTURE_CONFIGS = [
@@ -42,6 +43,7 @@ const RAW_STRUCTURE_CONFIGS = [
   manaFontStructureConfig,
   furnaceStructureConfig,
   workshopStructureConfig,
+  watchtowerStructureConfig,
   campStructureConfig,
   herbsStructureConfig,
   treeStructureConfig,
