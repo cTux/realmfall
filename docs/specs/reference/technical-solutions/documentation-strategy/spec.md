@@ -8,7 +8,7 @@ This spec covers the canonical rules model and the project spec structure itself
 
 - Contributor policy is canonical in `docs/RULES.md` and the scoped rule files under `docs/rules/`, especially `docs/rules/61-documentation.md` for documentation expectations.
 - Technical-solution specs stay implementation-oriented and link back to the scoped rule files when they need recurring contributor policy such as naming, verification, or workflow guidance.
-- Serena project configuration is treated as repository-owned only at `.serena/project.yml`; local Serena overrides, memories, caches, and other runtime artifacts remain ignored unless a task explicitly introduces a shared Serena memory file.
+- Serena project configuration is treated as repository-owned only at `.serena/project.yml`; local Serena overrides, memories, caches, and other runtime artifacts remain ignored unless a task explicitly introduces a shared Serena memory file, and worktree-shared Serena data is kept in an external folder configured through the user's global Serena settings.
 - `README.md` is product-facing, and `docs/WORKFLOW.md` is a process-facing command index. Neither is intended to be a second source of canonical contributor policy.
 - `docs/specs` holds canonical implemented reference specs.
 - `docs/implementation-notes` holds transient briefs, plans, research notes, issue workspaces, and checklists while work is active. Canonical shipped behavior belongs in `docs/specs`.
