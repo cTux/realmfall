@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 
 const workflowActionExpectations = [
   {
-    filePath: '.github/workflows/pull-request.yml',
+    filePath: '.github/workflows/pull-request-validation.yml',
     actions: [
       'actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd',
       'pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa',
@@ -11,7 +11,16 @@ const workflowActionExpectations = [
     ],
   },
   {
-    filePath: '.github/workflows/dependencies-update.yml',
+    filePath: '.github/workflows/master-branch-validation.yml',
+    actions: [
+      'actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd',
+      'pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa',
+      'actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444',
+      'actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830',
+    ],
+  },
+  {
+    filePath: '.github/workflows/pull-request-auto-rebase.yml',
     actions: [
       'actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd',
       'pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa',
@@ -19,7 +28,7 @@ const workflowActionExpectations = [
     ],
   },
   {
-    filePath: '.github/workflows/ci-cd-automation.yml',
+    filePath: '.github/workflows/release-pages-deploy.yml',
     actions: [
       'actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd',
       'pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa',

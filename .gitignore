@@ -7,6 +7,5 @@ coverage
 *.log
 *.tsbuildinfo
 storybook-static
-.mneme/*.db*
 .tests
 repomix-output.*
