@@ -14,6 +14,7 @@
 
 - `pnpm --filter @realmfall/client dev`
 - `pnpm --filter @realmfall/client build`
+- `pnpm --filter @realmfall/client serve`
 - `pnpm --filter @realmfall/client typecheck`
 - `pnpm --filter @realmfall/client lint`
 - `pnpm --filter @realmfall/client test`

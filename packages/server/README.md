@@ -10,6 +10,7 @@
 
 - `pnpm --filter @realmfall/server dev`
 - `pnpm --filter @realmfall/server build`
+- `pnpm --filter @realmfall/server serve`
 - `pnpm --filter @realmfall/server start`
 - `pnpm --filter @realmfall/server typecheck`
 - `pnpm --filter @realmfall/server lint`
