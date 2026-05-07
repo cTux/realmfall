@@ -13,6 +13,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - Dedicated memory-leak scripts run a custom `fuite` dock-window toggle scenario against local HTTPS dev and production builds, writing JSON analysis snapshots into `.tests/memory-leaks/`.
 - The browser performance harness activates only when `?perf=1`, `?realmfallPerf=1`, `localStorage["realmfall:perf"] = "1"`, or a test-only forced install is present, exposing `window.__REALMFALL_PERF__` with a `snapshot()` API for startup marks, React commits, Pixi render-pass counters, scenario timings, long tasks, and long animation frames.
 - The harness records bootstrap milestones from `src/main.tsx`, the first ready app shell mark, optional React Profiler commits around `App`, and Pixi render counters from the world render facade, so manual browser checks can correlate window toggles, hover paths, and map redraw breadth without enabling collection for normal sessions.
+- `pnpm dev` launches the client Vite dev server plus the server source runtime through a shared workspace service runner without a production build step, while `pnpm serve` runs the built client and server outputs through that same managed multi-service orchestration path.
 - `pnpm dev` and `pnpm serve` both run on local HTTPS using the shared localhost self-signed certificate helper, and cached certificates are regenerated automatically when they expire so secure-origin local workflows do not get stuck on stale TLS files.
 - The repository toolchain is pinned to Node `v25.9.0` through `.nvmrc`, with `package.json` `engines` set to `25.x` and GitHub Actions reading the same version file, keeping local commands, CI, and scheduled automation on the same runtime line.
 - Oxlint is the enforced JavaScript and TypeScript lint gate, with its canonical configuration stored in `.oxlintrc.json`.
@@ -66,6 +67,9 @@ This spec covers the repository quality baseline and current test coverage shape
 - `scripts/fuite-dock-toggle-scenario.mjs`
 - `scripts/managed-child-process.mjs`
 - `scripts/pnpm-command.mjs`
+- `scripts/run-dev.mjs`
+- `scripts/run-serve.mjs`
+- `scripts/workspace-services.mjs`
 - `scripts/run-pre-push-quality.mjs`
 - `scripts/run-vite-build.helpers.mjs`
 - `scripts/run-vite-build.mjs`
@@ -84,6 +88,8 @@ This spec covers the repository quality baseline and current test coverage shape
 - `prettier.config.cjs`
 - `src/ui/components/**/*.stories.tsx`
 - `packages/ui/src/components/**/*.stories.tsx`
+- `packages/server/src/dev.ts`
+- `packages/server/src/runtime.ts`
 - `.storybook/preview.ts`
 - `.storybook/preview.scss`
 - `src/ui/components/storybook/storybookPreview.tsx`

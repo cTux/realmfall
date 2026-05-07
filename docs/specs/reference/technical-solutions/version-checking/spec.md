@@ -11,6 +11,7 @@ This spec covers the shipped version metadata flow from `package.json` into the 
 - The client Vite config serves `/version.json` during local development and emits `dist/version.json` during production builds with the shape `{ "version": "<package version plus git build metadata>" }`.
 - `packages/server/src/version.ts` derives the server build version from the same root `package.json` source and the same git short SHA strategy, falling back to the plain release version when git metadata is unavailable.
 - `packages/server/src/app.ts` exposes `GET /api/version`, returning `{ "version": "<package version plus git build metadata>" }`.
+- `pnpm dev` runs both the client Vite server and the server source runtime behind local HTTPS without a production build step, so secure-origin local checks use the live source path.
 - `pnpm serve` runs the built `dist` output behind local HTTPS using a generated self-signed localhost certificate so release-like checks exercise the secure origin path.
 - The app mounts an in-game version-status widget in the bottom-right corner, polls `/version.json`, shows yellow while checking, green when versions match, red when they differ, and exposes a reload action only for the mismatched state.
 - Routine contributor commits increment the `package.json` patch version before the commit is created, making the package release version advance monotonically with local commit history.
@@ -27,4 +28,6 @@ This spec covers the shipped version metadata flow from `package.json` into the 
 - `packages/client/src/version.ts`
 - `packages/client/src/main.tsx`
 - `packages/server/src/app.ts`
+- `packages/server/src/dev.ts`
+- `packages/server/src/runtime.ts`
 - `packages/server/src/version.ts`
