@@ -27,6 +27,8 @@ pnpm install
 pnpm dev
 ```
 
+`pnpm dev` launches the client and server local HTTPS dev runtimes together.
+
 ## Common Commands
 
 - `pnpm dev`

@@ -1,26 +1,23 @@
 import process from 'node:process';
 import { pathToFileURL } from 'node:url';
-import { createPnpmInvocation } from '../packages/client/scripts/pnpm-command.mjs';
 import {
   createWorkspaceServiceInvocations,
-  runWorkspaceCommand,
   runWorkspaceServices,
 } from './workspace-services.mjs';
 
-export function createWorkspaceServePlan(environment = process.env) {
+export function createWorkspaceDevPlan(environment = process.env) {
   return {
-    build: createPnpmInvocation(['build'], environment),
     services: createWorkspaceServiceInvocations(
       [
         {
           name: 'client',
           packageName: '@realmfall/client',
-          script: 'serve',
+          script: 'dev',
         },
         {
           name: 'server',
           packageName: '@realmfall/server',
-          script: 'serve',
+          script: 'dev',
         },
       ],
       environment,
@@ -28,9 +25,8 @@ export function createWorkspaceServePlan(environment = process.env) {
   };
 }
 
-export async function runWorkspaceServe(environment = process.env) {
-  const plan = createWorkspaceServePlan(environment);
-  await runWorkspaceCommand(plan.build, environment);
+export async function runWorkspaceDev(environment = process.env) {
+  const plan = createWorkspaceDevPlan(environment);
   await runWorkspaceServices(plan.services, environment);
 }
 
@@ -38,5 +34,5 @@ if (
   process.argv[1] &&
   import.meta.url === pathToFileURL(process.argv[1]).href
 ) {
-  await runWorkspaceServe();
+  await runWorkspaceDev();
 }

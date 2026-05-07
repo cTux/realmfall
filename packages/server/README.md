@@ -20,6 +20,8 @@
 
 - The endpoint reads the canonical game version from the root `package.json`.
 - Build metadata appends the current git short SHA when the repository is available, matching the client build-version format.
+- `pnpm --filter @realmfall/server dev` runs the source server entry on `https://localhost:3001` with the shared localhost certificate helper.
+- `pnpm --filter @realmfall/server serve` runs the built server entry on the same HTTPS origin so release-like local checks use matching TLS behavior.
 
 ## Related Docs
 
