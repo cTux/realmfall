@@ -8,14 +8,9 @@ This spec covers the repository quality baseline and current test coverage shape
 
 - Client-side `src/*` and `scripts/*` paths below live under `packages/client/` after the monorepo split unless the path explicitly names another package.
 - The repository uses TypeScript strict mode, Oxlint, Stylelint, Prettier, Vitest, Husky, Vite, and Storybook.
-- `pnpm typecheck` runs the shared workspace typecheck path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
-- `pnpm lint` runs the shared workspace lint path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
-- `pnpm build` runs the shared workspace build path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
-- `pnpm build:budget:strict` runs the shared workspace build path for `packages/common`, `packages/server`, and `packages/ui`, then runs the client production build plus the strict startup budget check.
-- `pnpm test` runs the server package test suite and the client `node` Vitest project, keeping the root automated test path meaningful after the monorepo split without depending on the broader jsdom suite.
-- `pnpm test:node` runs the client DOM-free Vitest project for gameplay, persistence, i18n, and script tests, while `pnpm test:jsdom` runs the shared UI jsdom suite plus the client browser-surface project for React, Pixi, and other DOM-dependent tests.
-- `pnpm test:memory:leaks` starts the local HTTPS Vite dev server and runs `fuite` against `https://localhost:5173` with a custom dock-window toggle scenario because the app does not expose internal navigation links for the default `fuite` scenario, writing the latest JSON analysis to `.tests/memory-leaks/latest.json` for follow-up review.
-- `pnpm test:memory:leaks:prod` builds the app, serves the production bundle over local HTTPS at `https://localhost:4174`, and runs the same `fuite` scenario there, writing the JSON analysis to `.tests/memory-leaks/prod.json` so memory-retention checks can be compared between dev and production behavior.
+- Root verification entrypoints cover the shared workspace typecheck, lint, build, and automated test paths across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`, while package-local scripts keep narrower verification available for iteration.
+- Client Vitest coverage is split between a DOM-free `node` project for gameplay, persistence, i18n, and script tests and a `jsdom` project for React, Pixi, and other browser-surface tests.
+- Dedicated memory-leak scripts run a custom `fuite` dock-window toggle scenario against local HTTPS dev and production builds, writing JSON analysis snapshots into `.tests/memory-leaks/`.
 - The browser performance harness activates only when `?perf=1`, `?realmfallPerf=1`, `localStorage["realmfall:perf"] = "1"`, or a test-only forced install is present, exposing `window.__REALMFALL_PERF__` with a `snapshot()` API for startup marks, React commits, Pixi render-pass counters, scenario timings, long tasks, and long animation frames.
 - The harness records bootstrap milestones from `src/main.tsx`, the first ready app shell mark, optional React Profiler commits around `App`, and Pixi render counters from the world render facade, so manual browser checks can correlate window toggles, hover paths, and map redraw breadth without enabling collection for normal sessions.
 - Because the current repository is on Vitest 4, the Vite config uses a local compatibility shim for the plugin's runner and setup hooks instead of the package's older custom-pool entrypoint, and each project layers its own setup file over that shared cache path.
@@ -23,11 +18,9 @@ This spec covers the repository quality baseline and current test coverage shape
 - The repository toolchain is pinned to Node `v25.9.0` through `.nvmrc`, with `package.json` `engines` set to `25.x` and GitHub Actions reading the same version file, keeping local commands, CI, and scheduled automation on the same runtime line.
 - Oxlint is the enforced JavaScript and TypeScript lint gate, with its canonical configuration stored in `.oxlintrc.json`.
 - Oxlint enforces React hook rules for TypeScript and TSX sources, including `react/rules-of-hooks` and `react/exhaustive-deps` as error-level checks.
-- `pnpm lint` is the shared repository lint gate and runs both Oxlint and Stylelint, while `pnpm lint:css` remains available for stylesheet-only local checks.
-- The Husky pre-commit hook runs the shared commit-version bump before staged quality checks and then runs the repository-wide validation path (`typecheck`, `lint`, `test`, and `build:budget:strict`) so plain `git commit` receives the same package patch-version increment and full verification path as `pnpm git:commit`.
-- When that pre-commit hook already covers the validation scope needed for a change, contributors do not rerun those same gates manually immediately before committing; manual reruns are reserved for development-time iteration, bypassed hooks, or debugging failing commit validation.
-- When contributors install `mneme guard`, it layers onto the active Husky hook chain as an additive staged-diff secret and vulnerability scan rather than replacing the repository-owned version bump, staged quality, and repository-wide validation path.
-- The Husky pre-push hook is intentionally a no-op because the repository-wide validation path now runs during pre-commit.
+- Stylelint stays on the shared repository lint path beside Oxlint, while `pnpm lint:css` remains available for stylesheet-only local checks.
+- The Husky pre-commit hook runs the shared commit-version bump before staged quality checks and then runs the repository-wide validation path (`typecheck`, `lint`, `test`, and `build:budget:strict`) so plain `git commit` receives the same patch-version increment and verification scope as the repository commit helper.
+- The Husky pre-push hook is intentionally a no-op because the repository-wide validation path runs during pre-commit.
 - `pnpm git:deploy` builds the Vite app with the `/realmfall/` GitHub Pages base path, writes `.nojekyll`, publishes the generated `dist/` contents through a temporary `gh-pages` worktree, and pushes with a lease-aware plan when the remote branch already exists.
 - The committed repository baseline is kept Prettier-clean so a failing `pnpm format` run points to current drift instead of long-lived formatting debt.
 - Ordinary `pnpm` installs keep dependency advisory output enabled so newly disclosed package issues are visible during routine local and CI dependency refreshes.
@@ -70,6 +63,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - The memory-leak runner uses the same `pnpm` entrypoint path instead of shelling through `cmd.exe`, keeping its browser-test arguments out of Windows shell parsing.
 - Async script runners that wrap `vite`, `serve`, `pnpm`, or other nested Node processes go through a shared managed-child helper that tears down the full child process tree when the parent exits or is interrupted, preventing orphaned Windows `node.exe` processes from lingering after wrapper scripts stop.
 - The duplicate-deps audit runner uses that same pnpm invocation helper on Windows instead of routing `pnpm build` through `cmd.exe`.
+- Contributor command selection and hook-usage policy stay canonical in `docs/WORKFLOW.md` and `docs/rules/60-testing.md`; this spec keeps the shipped tooling architecture and coverage shape only.
 
 ## Main Implementation Areas
 
