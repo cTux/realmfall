@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Skill } from '../../../game/types';
+import { Skill } from '../../../game/stateTypes';
 import {
   createRecipeBookArgs,
   createStorybookFixtures,

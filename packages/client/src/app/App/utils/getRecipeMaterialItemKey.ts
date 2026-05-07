@@ -1,6 +1,6 @@
 import { getItemConfigByKey } from '../../../game/content/items';
 import { GAME_TAGS } from '../../../game/content/tags';
-import type { Item } from '../../../game/types';
+import type { Item } from '../../../game/stateTypes';
 
 export function getRecipeMaterialItemKey(item: Pick<Item, 'itemKey' | 'tags'>) {
   if (!item.itemKey) return null;

@@ -3,7 +3,7 @@ import type {
   CombatState,
   Enemy,
 } from '../../../game/stateTypes';
-import type { PlayerStatusEffect } from '../../../game/types';
+import type { PlayerStatusEffect } from '../../../game/stateTypes';
 import type { ManagedWindowShellProps } from '../managedWindowProps';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 

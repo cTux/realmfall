@@ -13,7 +13,7 @@ import {
   type GameState,
   type Item,
 } from '../game/stateTypes';
-import { RARITY_ORDER, STRUCTURE_TYPES, TERRAINS } from '../game/types';
+import { RARITY_ORDER, STRUCTURE_TYPES, TERRAINS } from '../game/stateTypes';
 
 const SKILL_NAMES = Object.values(Skill);
 const ENEMY_TYPE_ID_SET = new Set<string>(ENEMY_TYPE_IDS);

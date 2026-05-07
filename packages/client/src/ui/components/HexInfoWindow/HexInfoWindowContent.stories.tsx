@@ -12,7 +12,7 @@ import {
   structureActionLabel,
   structureDefinition,
 } from '../../../game/world';
-import type { CombatState, StructureType } from '../../../game/types';
+import type { CombatState, StructureType } from '../../../game/stateTypes';
 import { HexInfoWindowContent } from './HexInfoWindowContent';
 import type { HexInfoWindowProps } from './types';
 

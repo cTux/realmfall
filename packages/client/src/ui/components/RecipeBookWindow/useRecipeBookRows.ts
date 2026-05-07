@@ -5,7 +5,7 @@ import {
   getRecipeOutput,
   getRecipeRequiredStructure,
 } from '../../../game/crafting';
-import { Skill, type RecipeBookEntry } from '../../../game/types';
+import { Skill, type RecipeBookEntry } from '../../../game/stateTypes';
 import type { Tile } from '../../../game/stateTypes';
 import { t } from '../../../i18n';
 import type { TooltipLine } from '../../tooltips';

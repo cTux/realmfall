@@ -5,7 +5,7 @@ import { DEFAULT_WINDOWS } from '../app/constants';
 import { GameTag } from '../game/content/tags';
 import { createGame } from '../game/stateFactory';
 import { getPlayerOverview } from '../game/stateSelectors';
-import { Skill } from '../game/types';
+import { Skill } from '../game/stateTypes';
 import { EquipmentWindow } from './components/EquipmentWindow';
 import { HeroWindow } from './components/HeroWindow';
 import { InventoryWindow } from './components/InventoryWindow';

@@ -6,7 +6,7 @@ import {
   ITEM_CONFIGS,
 } from '../../game/content/items';
 import { createGame } from '../../game/stateFactory';
-import { RARITY_ORDER } from '../../game/types';
+import { RARITY_ORDER } from '../../game/stateTypes';
 
 const ALL_ITEM_KEYS = ITEM_CONFIGS.map((config) => config.key) as [
   string,

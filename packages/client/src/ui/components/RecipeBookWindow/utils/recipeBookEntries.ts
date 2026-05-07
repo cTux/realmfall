@@ -1,5 +1,5 @@
 import { getRecipeRequiredStructure } from '../../../../game/crafting';
-import type { RecipeBookEntry } from '../../../../game/types';
+import type { RecipeBookEntry } from '../../../../game/stateTypes';
 
 interface RecipeBookEntryContext {
   currentStructure?: string;

@@ -17,12 +17,14 @@ export { Skill } from './types';
 export type {
   AbilityDefinition,
   AbilityId,
+  CombatEngagementMetadata,
   CombatActorState,
   CombatCastState,
   CombatEnemyEncounterState,
   CombatState,
   CombatTreasureGoblinEncounterState,
   Enemy,
+  EnemyRarity,
   Equipment,
   EquipmentSlot,
   GameState,
@@ -34,6 +36,7 @@ export type {
   LogRichSegment,
   Player,
   PlayerStatusEffect,
+  SecondaryStatKey,
   RecipeBookEntry,
   RecipeDefinition,
   RecipeRequirement,
@@ -46,5 +49,13 @@ export type {
   TileClaim,
   Tile,
   TownStockEntry,
+  WorldFloatingTextEvent,
 } from './types';
-export { EQUIPMENT_SLOTS, LOG_KINDS, RARITY_ORDER, SKILL_NAMES } from './types';
+export {
+  EQUIPMENT_SLOTS,
+  LOG_KINDS,
+  RARITY_ORDER,
+  SKILL_NAMES,
+  STRUCTURE_TYPES,
+  TERRAINS,
+} from './types';

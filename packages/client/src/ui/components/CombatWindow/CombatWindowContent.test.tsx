@@ -6,7 +6,7 @@ import type {
   CombatState,
   Enemy,
   PlayerStatusEffect,
-} from '../../../game/types';
+} from '../../../game/stateTypes';
 import { t } from '../../../i18n';
 import { CombatWindowContent } from './CombatWindowContent';
 import type { CombatPartyMember } from './types';

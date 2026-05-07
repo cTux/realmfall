@@ -1,6 +1,6 @@
 import { GameTag } from '../game/content/tags';
 import { getAbilityDefinition } from '../game/abilities';
-import { Skill } from '../game/types';
+import { Skill } from '../game/stateTypes';
 import {
   abilityTooltipLines,
   enemyTooltip,

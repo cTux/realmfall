@@ -18,7 +18,7 @@ import {
   EQUIPMENT_SLOTS,
   Skill,
   type EquipmentSlot,
-} from '../../../game/types';
+} from '../../../game/stateTypes';
 import { t } from '../../../i18n';
 import {
   formatEquipmentSlotLabel,
