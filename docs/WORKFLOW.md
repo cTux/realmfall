@@ -37,5 +37,6 @@ Use this file for contributor process only. Canonical project guidance lives in
 - Update the matching spec in `docs/specs` whenever a shipped behavior or technical solution changes.
 - Keep transient plans, review snapshots, and checklists in `docs/implementation-notes`, not `docs/specs`.
 - When Serena is used locally, commit only `.serena/project.yml`; keep `.serena/project.local.yml`, `.serena/memories/`, caches, and other local Serena artifacts ignored unless a task explicitly needs a shared Serena memory file.
+- If Serena is used across git worktrees, point the global `project_serena_folder_location` at a shared external folder and pre-create that target so Serena does not fall back to each worktree-local `.serena`.
 - Collapse shipped or historical implementation-note workspaces back to a short `brief.md` with canonical links.
 - For hook policy, CI scope, wording hygiene, and generated-entrypoint rules, defer to `docs/rules/60-testing.md`, `docs/rules/61-documentation.md`, and the matching technical-solution specs.
