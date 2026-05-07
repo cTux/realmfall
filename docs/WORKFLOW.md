@@ -19,6 +19,11 @@ Use this file for contributor process only. Canonical project guidance lives in
 1. Run the narrowest relevant verification commands for the changed area.
 1. Record any verification gaps before finishing.
 
+## Sub-Agent Handoffs
+
+- Before delegating implementation, define the goal, owned files or modules, preserved behaviors and non-regression requirements, acceptance criteria, required verification, and the escalation condition for broader shared-behavior changes or missing context.
+- Use the default `gpt-5.3-codex-spark` implementation path only for bounded mechanical tasks. Tighten the handoff first, or keep the work on the main thread or a stronger implementation model, when the task touches shared rendering, cross-cutting UI behavior, or other regression-sensitive code.
+
 ## Command Index
 
 - Use Conventional Commits.

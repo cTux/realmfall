@@ -23,6 +23,9 @@
 - Auto-bump the `package.json` patch version for routine commits through the shared commit-version bump script. Keep the bump guarded so it never stages unrelated unstaged `package.json` edits, and keep contributor guidance aligned with the helper script and Husky hook.
 - Do not use `&&` when composing PowerShell command chains for commit workflows; use `;` or separate commands because PowerShell does not treat `&&` as a command separator.
 - Preserve existing behavior unless the task explicitly changes behavior.
+- When delegating implementation to a sub-agent, provide a handoff contract that names the goal, owned scope or files, preserved behaviors and non-regression constraints, acceptance criteria, required verification, and an escalation path for missing context or broader shared-behavior changes such as returning `NEEDS_CONTEXT` instead of guessing.
+- Do not reject a delegated implementation for violating constraints that were never stated in the handoff contract.
+- Use `gpt-5.3-codex-spark` for plan-driven implementation delegation only when the task is bounded and mechanical and the handoff contract is complete. When a task touches shared rendering, cross-cutting UI behavior, or other regression-sensitive code, tighten the contract first or keep the implementation on the main thread or a stronger implementation model.
 - Favor existing project patterns over introducing new abstractions, state layers, or architectural styles without a clear need.
 - Keep documentation grounded in the current shipped behavior and known constraints, not aspirational plans.
 - Keep browser security headers aligned across Vite dev, Vite preview, and static serving paths when the same runtime behavior is expected in each environment.
