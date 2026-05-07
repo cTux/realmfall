@@ -7,7 +7,12 @@ const componentsDir = resolve(process.cwd(), 'src/ui/components');
 describe('storybook coverage', () => {
   it('keeps a story for each top-level UI component directory', () => {
     const missingDirs = readdirSync(componentsDir, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory() && entry.name !== 'storybook')
+      .filter(
+        (entry) =>
+          entry.isDirectory() &&
+          entry.name !== 'storybook' &&
+          entry.name !== '__tests__',
+      )
       .map((entry) => entry.name)
       .filter((name) => !hasComponentStoryCoverage(name));
 
