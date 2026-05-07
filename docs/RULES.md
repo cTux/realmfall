@@ -23,7 +23,7 @@
 - Persistence, save shape, autosave behavior: `docs/rules/20-persistence.md`
 - React UI, Storybook, i18n, window behavior: `docs/rules/30-react-ui.md`
 - Pixi, hover paths, render invalidation, frame-time concerns: `docs/rules/40-pixi-performance.md`
-- Bundle shape, lazy loading, startup chunk budgets: `docs/rules/50-build-and-bundle.md`
+- Bundle shape, lazy loading, build output, and startup path discipline: `docs/rules/50-build-and-bundle.md`
 - Tests, verification tooling, CI, staged and pre-push quality paths: `docs/rules/60-testing.md`
 - Specs, contributor-facing docs, workflow wording, AI entrypoint sync rules: `docs/rules/61-documentation.md`
 

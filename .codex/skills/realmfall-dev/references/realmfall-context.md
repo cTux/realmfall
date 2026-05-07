@@ -15,7 +15,7 @@
 - `pnpm typecheck`
 - `pnpm test:node`
 - `pnpm test:jsdom`
-- `pnpm build:budget:strict`
+- `pnpm build`
 - `pnpm quality:staged`
 - `pnpm sync:ai-entrypoints`
 
@@ -24,4 +24,3 @@
 - `pnpm` is the required package manager for project commands.
 - Keep TypeScript, linting, and formatting quality intact.
 - Preserve existing behavior unless the request explicitly asks for a behavior change.
-

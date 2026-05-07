@@ -39,7 +39,6 @@ pnpm dev
 - `pnpm test:jsdom`
 - `pnpm build`
 - `pnpm build:server`
-- `pnpm build:budget`
 - `pnpm build:visualize`
 
 ## Repository Layout

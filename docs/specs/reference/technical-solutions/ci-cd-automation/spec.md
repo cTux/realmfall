@@ -6,11 +6,11 @@ This spec covers the continuous integration flow for pull requests, default-bran
 
 ## Current Solution
 
-- The pull-request validation workflow in `.github/workflows/pull-request-validation.yml` runs `validate-typecheck-and-lint`, `validate-node-test-suite`, and `validate-production-build-and-budget`, does not run the browser-facing `test-jsdom` project, runs `pnpm test` for the server package plus the client `node` project, and runs `pnpm build:budget:strict` for the shared workspace build path plus the client startup-budget gate.
+- The pull-request validation workflow in `.github/workflows/pull-request-validation.yml` runs `validate-typecheck-and-lint`, `validate-node-test-suite`, and `validate-production-build`, does not run the browser-facing `test-jsdom` project, runs `pnpm test` for the server package plus the client `node` project, and runs `pnpm build` for the shared workspace production build path.
 - The master-branch validation workflow in `.github/workflows/master-branch-validation.yml` runs the same validation job split for pushes to `master`.
 - The pull-request auto-rebase workflow in `.github/workflows/pull-request-auto-rebase.yml` runs on `pull_request_target` for non-draft same-repository pull requests targeting the repository default branch.
 - The auto-rebase job checks out the base repository history, switches to the PR head branch, and runs `node scripts/rebase-master-and-push.mjs`.
-- After the rebase, the job installs dependencies and runs `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build:budget:strict` before any branch update push.
+- After the rebase, the job installs dependencies and runs `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` before any branch update push.
 - `scripts/rebase-master-and-push.mjs` auto-resolves `package.json` version conflicts during rebase by extracting the stage-1, stage-2, and stage-3 package versions, computing the next valid patch version, and replacing only the `version` conflict in `package.json`.
 - If conflicts remain after auto-resolution, the rebase helper fails so manual review is required before the branch can be merged.
 - If no unexpected conflicts remain, the job continues the rebase and pushes with `--force-with-lease`, keeping the PR branch current with the repository default branch resolved to `origin/HEAD`.

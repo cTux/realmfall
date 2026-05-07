@@ -27,7 +27,7 @@ Use when the user asks for:
    - `docs/rules/20-persistence.md` (save/load behavior)
    - `docs/rules/30-react-ui.md` (UI work)
    - `docs/rules/40-pixi-performance.md` (Pixi/render work)
-   - `docs/rules/50-build-and-bundle.md` (bundling/perf budgets)
+   - `docs/rules/50-build-and-bundle.md` (bundling/build-output concerns)
    - `docs/rules/60-testing.md` (quality gates and verification expectations)
    - `docs/rules/61-documentation.md` (spec/doc updates)
 3. Keep `docs/WORKFLOW.md`, `docs/PROJECT_REVIEW.md`, and `docs/lore/REALMFALL.md` as supporting references.
@@ -53,7 +53,7 @@ If node modules are missing, install dependencies with `pnpm install` before run
    - `pnpm typecheck`
    - `pnpm test:node`
    - `pnpm test:jsdom`
-   - `pnpm build:budget:strict` (when build-impacting behavior changes)
+   - `pnpm build` (when build-impacting behavior changes)
 4. For contributor/process changes, keep spec/docs updates synchronized with `docs/WORKFLOW.md` and scoped rule files.
 5. For commit preparation, follow repository workflow in `docs/WORKFLOW.md`.
 
