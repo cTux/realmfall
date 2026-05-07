@@ -11,6 +11,7 @@ Use this file for contributor process only. Canonical project guidance lives in
 - Check [`docs/realmfall-skills.md`](./realmfall-skills.md) before choosing a workflow-routing specialist skill.
 - Keep repo-native skills in committed `.codex/skills/`; do not commit raw `skills.sh` project-install output under `.agents/skills/`.
 - Check the matching package README when the task is scoped to `packages/client`, `packages/server`, `packages/common`, or `packages/ui`.
+- Keep shared dependency versions in `pnpm-workspace.yaml` and keep each direct dependency declaration in the owning package manifest, using `catalog:` when multiple packages share the same version.
 
 ## Daily Loop
 

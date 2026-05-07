@@ -16,7 +16,6 @@ const workflowActionExpectations = [
       'actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd',
       'pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa',
       'actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444',
-      'actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830',
     ],
   },
   {
@@ -25,7 +24,6 @@ const workflowActionExpectations = [
       'actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd',
       'pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa',
       'actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444',
-      'actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830',
     ],
   },
   {

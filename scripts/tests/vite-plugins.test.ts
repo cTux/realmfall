@@ -47,7 +47,6 @@ describe('Vite plugin policy', () => {
     createVitePlugins({
       appBuildVersion: 'test-version',
       isStorybookScript: false,
-      isVitestRun: false,
       runBundleVisualizer: false,
       runDuplicateDepsAudit: false,
     });
@@ -60,20 +59,6 @@ describe('Vite plugin policy', () => {
         presets: [reactCompilerPreset],
       },
     ]);
-  });
-
-  it('keeps the Vitest cache plugin ahead of React transforms during test runs', () => {
-    const plugins = createVitePlugins({
-      appBuildVersion: 'test-version',
-      isStorybookScript: false,
-      isVitestRun: true,
-      runBundleVisualizer: false,
-      runDuplicateDepsAudit: false,
-    });
-
-    expect(JSON.stringify(plugins.slice(0, 3))).toContain(
-      'realmfall-vitest-cache',
-    );
   });
 
   it('minifies emitted JSON assets without changing non-JSON assets', () => {
@@ -193,8 +178,8 @@ describe('Vite plugin policy', () => {
             fileName: 'assets/js/App-abc.js',
           },
         },
-      } as never,
-    )).toEqual([
+      } as never),
+    ).toEqual([
       {
         tag: 'link',
         attrs: {

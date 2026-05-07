@@ -47,14 +47,12 @@ export default defineConfig({
     headers: createSecurityHeaders(RESPONSE_CONTENT_SECURITY_POLICY),
   },
   plugins: (() => {
-    const isVitestRun = Boolean(process.env.VITEST);
     const isStorybookScript =
       process.env.npm_lifecycle_event?.includes('storybook') ?? false;
 
     return createVitePlugins({
       appBuildVersion,
       isStorybookScript,
-      isVitestRun,
       runBundleVisualizer: RUN_BUNDLE_VISUALIZER,
       runDuplicateDepsAudit: RUN_DUPLICATE_DEPS_AUDIT,
     });
