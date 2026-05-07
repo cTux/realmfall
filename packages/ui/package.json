@@ -10,15 +10,14 @@
     "./loading-spinner": "./src/components/LoadingSpinner/LoadingSpinner.tsx"
   },
   "scripts": {
-    "dev": "vite --config ./vite.config.ts",
+    "dev:storybook": "storybook dev -p 6008 --config-dir ./.storybook",
     "build": "tsc -p ./tsconfig.build.json && vite build --config ./vite.config.ts",
+    "build:storybook": "storybook build --config-dir ./.storybook",
     "typecheck": "tsc -p ./tsconfig.json --noEmit",
     "lint": "pnpm lint:oxlint && pnpm lint:css",
     "lint:oxlint": "oxlint -c ../../.oxlintrc.json src ./.storybook ./vite.config.ts",
     "lint:css": "stylelint \"src/**/*.{css,scss}\"",
-    "test:jsdom": "vitest run --environment jsdom --globals",
-    "dev:storybook": "storybook dev -p 6008 --config-dir ./.storybook",
-    "build:storybook": "storybook build --config-dir ./.storybook"
+    "test:jsdom": "vitest run --environment jsdom --globals"
   },
   "peerDependencies": {
     "react": "^19.2.6",

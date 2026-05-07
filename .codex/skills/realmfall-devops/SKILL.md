@@ -26,14 +26,9 @@ Use this skill for deployment, branch maintenance, and git-process tasks in this
 
 ## Canonical commands
 
-- `pnpm git:commit -m "<message>"`
-- `pnpm git:deploy`
-- `pnpm git:prune-gone-branches -- --dry-run`
-- `pnpm git:prune-gone-branches`
-- `pnpm git:rebase-master-and-push`
-- `pnpm update:check`
-- `pnpm update:minor`
-- `pnpm update:major`
+- `pnpm git:prune -- --dry-run`
+- `pnpm git:prune`
+- `pnpm deps:update`
 
 ## Constraints
 

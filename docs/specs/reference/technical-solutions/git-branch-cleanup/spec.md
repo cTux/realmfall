@@ -6,7 +6,6 @@ This spec covers the repository-local helper that removes local branches whose t
 
 ## Current Solution
 
-- `pnpm git:prune-gone-branches` runs `node scripts/prune-gone-branches.mjs`.
 - The script fetches every configured remote with `git fetch --all --prune --prune-tags` before it scans local branches, unless the caller opts out with `--no-fetch`.
 - It reads local branch metadata from `git for-each-ref`, matches branches against the current `refs/remotes/*` set, and treats only branches with a configured remote-tracking upstream that no longer exists as cleanup candidates.
 - The current checked-out branch is never treated as a cleanup candidate, even if its upstream ref was deleted.

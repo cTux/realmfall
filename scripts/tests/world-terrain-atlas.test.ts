@@ -32,8 +32,8 @@ describe('world terrain atlas pipeline', () => {
       readFileSync(join(process.cwd(), 'package.json'), 'utf8'),
     ) as { scripts: Record<string, string> };
 
-    expect(packageJson.scripts['assets:world-atlas']).toBe(
-      'pnpm --filter @realmfall/client assets:world-atlas',
+    expect(packageJson.scripts['build:client:assets']).toBe(
+      'pnpm --filter @realmfall/client build:client:assets',
     );
     expect(
       existsSync(

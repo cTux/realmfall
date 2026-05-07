@@ -29,7 +29,6 @@ Use this skill when the user asks for validation strategy, pre-commit alignment,
 - `pnpm lint`
 - `pnpm test`
 - `pnpm build`
-- `pnpm quality:staged` (when applicable to staged changes)
 
 ## Workflow notes
 

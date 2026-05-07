@@ -22,9 +22,15 @@ importers:
       '@commitlint/config-conventional':
         specifier: ^20.5.3
         version: 20.5.3
+      concurrently:
+        specifier: ^9.2.1
+        version: 9.2.1
       husky:
         specifier: ^9.1.7
         version: 9.1.7
+      turbo:
+        specifier: ^2.9.9
+        version: 2.9.9
 
   packages/client:
     dependencies:
@@ -95,9 +101,6 @@ importers:
       babel-plugin-react-compiler:
         specifier: 1.0.0
         version: 1.0.0
-      concurrently:
-        specifier: ^9.2.1
-        version: 9.2.1
       fast-check:
         specifier: ^4.7.0
         version: 4.7.0
@@ -2720,6 +2723,54 @@ packages:
       {
         integrity: sha512-C5Mc6rdnsaJDjO3UpGW/CQTHtCKaYlScZTly4JIu97Jxo/odCiH0ITnDXSJPTOrEKk/ycSZ0AOgTmkDtkOsvIA==,
       }
+
+  '@turbo/darwin-64@2.9.9':
+    resolution:
+      {
+        integrity: sha512-hTEiNu2ABZZOO1qbjnKASI8eF3BdOOzU6iKv5w5uGOK65DDMc10cS40N1kqM99YT0uSAGUwNu6GdFctRPeEeVA==,
+      }
+    cpu: [x64]
+    os: [darwin]
+
+  '@turbo/darwin-arm64@2.9.9':
+    resolution:
+      {
+        integrity: sha512-MinO40EEcP5mJiTVpfjtEulsEBhVeryfq21QhYtJZ8hQJLHGgy459rcmDVAY8/JERe4dkVU4KW+zoLF22o01EA==,
+      }
+    cpu: [arm64]
+    os: [darwin]
+
+  '@turbo/linux-64@2.9.9':
+    resolution:
+      {
+        integrity: sha512-7JNLw88Isk+gMlbsC8pulLDkrqe2B827ZsKFEHilb17AC6Xn/62pzH7afjY7fEU6Ayp4XP/vGhlRWOzqBvBvIQ==,
+      }
+    cpu: [x64]
+    os: [linux]
+
+  '@turbo/linux-arm64@2.9.9':
+    resolution:
+      {
+        integrity: sha512-0pnXDwPw1rHii98JZPRg7SvsjIzy7jrhkwGU9Jy5fVYoMdYd3P2vbtLfII+OJ0Mm4Ar5yykdHDTz3RWiRI1o9g==,
+      }
+    cpu: [arm64]
+    os: [linux]
+
+  '@turbo/windows-64@2.9.9':
+    resolution:
+      {
+        integrity: sha512-vjDQycz4gQVvIq4n2rPtiiIESwJlAc406qtkiZlqyL+fHZEd9SxYNlBIFYtc5cuMuwrk+sIKrhN7XvwjmvS9YQ==,
+      }
+    cpu: [x64]
+    os: [win32]
+
+  '@turbo/windows-arm64@2.9.9':
+    resolution:
+      {
+        integrity: sha512-V6NiH43oCctepbOdQFp7UjqLyK8p6Tt824QA+G4TE+B1BBHu80A0W8OCL+H7uBJ3XZjAj/hvPDw3k3l65DoDGw==,
+      }
+    cpu: [arm64]
+    os: [win32]
 
   '@tybys/wasm-util@0.10.1':
     resolution:
@@ -6963,6 +7014,13 @@ packages:
         integrity: sha512-McnNiV1l8RYeY8tBgEpuodCC1mLUdbSN+CYBL7kJsJNInOP8UjDDEwdk6Mw60vdLLrr5NHKZhMAOSrR2NZuQ+w==,
       }
 
+  turbo@2.9.9:
+    resolution:
+      {
+        integrity: sha512-3xfzXE/yTjhh0S5dIWlE+3E+J9A09REpLI1ZqVh2+HrNZoVzZn0pkvjiRgVK/Ev3PF9XnaTwCntTx+CADWXcyA==,
+      }
+    hasBin: true
+
   type-fest@0.7.1:
     resolution:
       {
@@ -8689,6 +8747,24 @@ snapshots:
       '@testing-library/dom': 10.4.1
 
   '@tootallnate/quickjs-emscripten@0.23.0': {}
+
+  '@turbo/darwin-64@2.9.9':
+    optional: true
+
+  '@turbo/darwin-arm64@2.9.9':
+    optional: true
+
+  '@turbo/linux-64@2.9.9':
+    optional: true
+
+  '@turbo/linux-arm64@2.9.9':
+    optional: true
+
+  '@turbo/windows-64@2.9.9':
+    optional: true
+
+  '@turbo/windows-arm64@2.9.9':
+    optional: true
 
   '@tybys/wasm-util@0.10.1':
     dependencies:
@@ -11378,6 +11454,15 @@ snapshots:
   tunnel-agent@0.6.0:
     dependencies:
       safe-buffer: 5.2.1
+
+  turbo@2.9.9:
+    optionalDependencies:
+      '@turbo/darwin-64': 2.9.9
+      '@turbo/darwin-arm64': 2.9.9
+      '@turbo/linux-64': 2.9.9
+      '@turbo/linux-arm64': 2.9.9
+      '@turbo/windows-64': 2.9.9
+      '@turbo/windows-arm64': 2.9.9
 
   type-fest@0.7.1: {}
 

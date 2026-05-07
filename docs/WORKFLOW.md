@@ -22,10 +22,6 @@ Use this file for contributor process only. Canonical project guidance lives in
 ## Command Index
 
 - Use Conventional Commits.
-- Use `pnpm git:commit -m "<message>"` for routine commits. It increments the `package.json` patch version, stages that bump, then delegates to `git commit` through the repository helper. Do not insert an extra `--` before `-m`; this helper forwards arguments directly to `git commit`.
-- Use `pnpm git:deploy` from a clean tracked worktree to build the app with the GitHub Pages base path and publish `dist/` to `origin/gh-pages`. Configure GitHub Pages to serve the `gh-pages` branch from `/`.
-- Use `pnpm git:prune-gone-branches -- --dry-run` to preview local branches whose tracked remote ref was deleted, then rerun without `--dry-run` to remove them. Add `-- --safe` only when you want Git to keep its merged-branch protection.
-- Use `pnpm git:rebase-master-and-push` from a clean, already-committed feature branch when you need to replay it onto the default branch advertised by `origin/HEAD` and publish the rewritten branch. The script auto-resolves `package.json` version conflicts when they occur, refuses to rewrite the current remote default branch directly, and then fetches the remote branch before `--force-with-lease`.
 - Run targeted tests and any area-specific commands during development when they help you iterate. Prefer `pnpm test:node` for client gameplay, persistence, i18n, and script coverage, and `pnpm test:jsdom` for shared UI plus client React, Pixi, and other browser-surface coverage.
 - Use `pnpm typecheck` for the shared workspace typecheck path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
 - Use `pnpm lint` for the shared workspace lint path across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`.
@@ -33,12 +29,6 @@ Use this file for contributor process only. Canonical project guidance lives in
 - Use `pnpm test` for the shared server-plus-client automated test path, with the client side running the full Vitest matrix through `test:all`.
 - If the active pre-commit hook already covers the gates needed for the current change, commit without rerunning those same checks immediately beforehand.
 - Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` before committing only when you bypass hooks, when you need to verify the full commit-validation path manually, or when you are debugging a hook failure.
-- Use `pnpm dev:server`, `pnpm build:server`, and `pnpm start:server` for the server package lifecycle.
-- Use `pnpm update:check` to inspect available dependency updates without modifying the worktree.
-- Run `pnpm update:minor` or `pnpm update:major` from a clean tracked worktree when you want an automated dependency refresh. Pass `-- --no-commit` when automation needs the refreshed manifests without creating a local commit.
-- Run `pnpm format` when you need the repository-wide Prettier check path.
-- Run `pnpm build:duplicate-deps` only when auditing dependency duplication. The duplicate-deps plugin is intentionally kept off the normal build path so routine builds stay focused on correctness and explicit audit signals.
-- Run `pnpm build:visualize` when you need an interactive bundle treemap audit. The command writes `.tests/bundle/visualizer.html` and keeps the visualizer plugin off the normal build path.
 - When invoking Git Bash through the desktop shell tool from a PowerShell host, prefer `bash -lc '...'` so PowerShell does not consume embedded double quotes that belong to the Bash command.
 - Use `?perf=1` or `localStorage["realmfall:perf"] = "1"` during manual browser checks when you need `window.__REALMFALL_PERF__.snapshot()`.
 
@@ -46,7 +36,6 @@ Use this file for contributor process only. Canonical project guidance lives in
 
 - Update the matching spec in `docs/specs` whenever a shipped behavior or technical solution changes.
 - Keep transient plans, review snapshots, and checklists in `docs/implementation-notes`, not `docs/specs`.
-- When the shared AI instruction entrypoint wording changes, run `pnpm sync:ai-entrypoints` instead of hand-editing `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md` separately.
 - When Serena is used locally, commit only `.serena/project.yml`; keep `.serena/project.local.yml`, `.serena/memories/`, caches, and other local Serena artifacts ignored unless a task explicitly needs a shared Serena memory file.
 - Collapse shipped or historical implementation-note workspaces back to a short `brief.md` with canonical links.
 - For hook policy, CI scope, wording hygiene, and generated-entrypoint rules, defer to `docs/rules/60-testing.md`, `docs/rules/61-documentation.md`, and the matching technical-solution specs.

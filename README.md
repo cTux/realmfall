@@ -30,16 +30,10 @@ pnpm dev
 ## Common Commands
 
 - `pnpm dev`
-- `pnpm dev:server`
-- `pnpm dev:storybook`
 - `pnpm typecheck`
 - `pnpm lint`
 - `pnpm test`
-- `pnpm test:node`
-- `pnpm test:jsdom`
 - `pnpm build`
-- `pnpm build:server`
-- `pnpm build:visualize`
 
 ## Repository Layout
 

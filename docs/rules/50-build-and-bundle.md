@@ -8,7 +8,6 @@
 - Treat the existing infinite retry loop for lazy window chunks as an intentional offline or eventual-consistency tradeoff. Do not flag that retry strategy as a general browser-resilience issue during best-practice reviews unless the task explicitly targets chunk-failure behavior.
 - Treat bundle growth as a real performance cost, especially on the initial app path and in Pixi-heavy features.
 - Keep one-off bundle audits, such as duplicate-dependency detection, behind explicit commands instead of paying their plugin cost on every production build.
-- Keep visual bundle treemap audits behind explicit commands such as `pnpm build:visualize` instead of enabling the visualizer plugin on every production build.
 - Keep `vite.config.ts` focused on top-level assembly. Move chunk routing, plugin wiring, local HTTPS certificate setup, and Vitest project definitions into neighboring `vite/*` helpers instead of regrowing one multi-responsibility config module.
 - Tune Vite's generic chunk-size warning so it does not compete with the repository's intentional lazy-loading strategy or known large shared chunks such as `state` and `pixi`.
 - Keep diagnostic or refresh-only startup chrome, such as version polling widgets, off the bootstrap path when a lazy client-side load preserves first interaction and gameplay behavior.

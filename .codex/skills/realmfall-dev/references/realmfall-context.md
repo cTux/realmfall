@@ -13,11 +13,8 @@
 
 - `pnpm lint`
 - `pnpm typecheck`
-- `pnpm test:node`
-- `pnpm test:jsdom`
+- `pnpm test`
 - `pnpm build`
-- `pnpm quality:staged`
-- `pnpm sync:ai-entrypoints`
 
 ## Behavior constraints
 

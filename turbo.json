@@ -1,0 +1,96 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "tasks": {
+    "dev": {
+      "persistent": true,
+      "cache": false,
+      "dependsOn": ["^dev:client", "^dev:server"]
+    },
+    "dev:client": {},
+    "dev:server": {},
+
+    "dev:storybook": {
+      "persistent": true,
+      "cache": false,
+      "dependsOn": ["^dev:ui:storybook", "^dev:client:storybook"]
+    },
+    "dev:ui:storybook": {},
+    "dev:client:storybook": {},
+
+    "serve": {
+      "dependsOn": ["^serve:client", "^serve:server"]
+    },
+    "serve:client": {
+      "dependsOn": ["^build:client"],
+      "outputs": ["dist"]
+    },
+    "serve:server": {
+      "dependsOn": ["^build:server"],
+      "outputs": ["dist"]
+    },
+
+    "build": {
+      "dependsOn": [
+        "^build:common",
+        "^build:ui",
+        "^build:ui:storybook",
+        "^build:client",
+        "^build:client:storybook",
+        "^build:server"
+      ]
+    },
+    "build:common": {
+      "outputs": ["dist"]
+    },
+    "build:ui": {
+      "outputs": ["dist"]
+    },
+    "build:ui:storybook": {
+      "outputs": ["dist"]
+    },
+    "build:client": {
+      "dependsOn": ["^build:common", "^build:ui", "^build:client:assets"],
+      "outputs": ["dist"]
+    },
+    "build:client:storybook": {
+      "dependsOn": ["^build:common", "^build:ui"],
+      "outputs": ["dist"]
+    },
+    "build:client:assets": {
+      "outputs": ["src/assets/generated"]
+    },
+    "build:server": {
+      "dependsOn": ["^build:common"],
+      "outputs": ["dist"]
+    },
+
+    "typecheck": {
+      "dependsOn": [
+        "^typecheck:common",
+        "^typecheck:ui",
+        "^typecheck:client",
+        "^typecheck:server"
+      ]
+    },
+    "typecheck:common": {},
+    "typecheck:ui": {},
+    "typecheck:client": {},
+    "typecheck:server": {},
+
+    "lint": {
+      "dependsOn": ["^lint:common", "^lint:ui", "^lint:client", "^lint:server"]
+    },
+    "lint:common": {},
+    "lint:ui": {},
+    "lint:client": {},
+    "lint:server": {},
+
+    "test": {
+      "dependsOn": ["^test:common", "^test:ui", "^test:client", "^test:server"]
+    },
+    "test:common": {},
+    "test:ui": {},
+    "test:client": {},
+    "test:server": {}
+  }
+}

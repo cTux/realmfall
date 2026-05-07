@@ -1,4 +1,4 @@
-node scripts/commit-version-bump.mjs
-pnpm quality:staged
-node scripts/run-pre-push-quality.mjs
+pnpm auto:version:bump
+pnpm auto:pre:commit
+pnpm auto:pre:push
 git update-index --again
