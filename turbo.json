@@ -30,6 +30,7 @@
     },
 
     "build": {
+      "env": ["REALMFALL_VITE_BASE"],
       "dependsOn": [
         "^build:common",
         "^build:ui",
