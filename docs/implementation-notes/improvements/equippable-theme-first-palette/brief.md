@@ -1,19 +1,11 @@
 # Equippable Theme-First Palette
 
-This note captures the approved transient design context for expanding
-equippable inventory tint variation after the inventory color rework.
+Historical note for the shipped equippable theme-first palette work.
 
-## Goal
+Canonical references:
 
-- Increase equippable icon color variation across the full equipment catalog.
-- Keep rarity-colored borders unchanged for equippables.
-- Make theme or material identity the first visual read and slot family the
-  second read.
-- Keep non-equippable white borders and recipe-page green scroll-quill behavior
-  unchanged.
-
-## Approved Decisions
-
+- Gameplay behavior: [Items, Loot, And Equipment](../../../specs/reference/gameplay-features/items-loot-and-equipment/spec.md)
+- Related gameplay: [Inventory And Economy](../../../specs/reference/gameplay-features/inventory-and-economy/spec.md)
 - Use the approved `Tight Family` direction with a low-intensity slot split.
 - Detect expansion-set families from the stable current item-key prefixes:
   `ashen`, `dawn`, `dusk`, `ember`, `hollow`, `ironbound`, `moss`, `rift`,

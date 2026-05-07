@@ -12,6 +12,16 @@ const REDISTRIBUTED_INGOT_KEYS = [
   'platinum-ingot',
 ] as const;
 
+function getRecipe(outputItemKey: string) {
+  const recipe = GENERATED_CRAFTING_RECIPES.find(
+    ({ output }) => output.itemKey === outputItemKey,
+  );
+  if (!recipe) {
+    throw new Error(`Expected recipe for ${outputItemKey}.`);
+  }
+  return recipe;
+}
+
 describe('generated crafting recipes', () => {
   it('splits redistributed metal gear recipes across all existing ingots', () => {
     const redistributedRecipes = GENERATED_CRAFTING_RECIPES.filter(
@@ -101,12 +111,13 @@ describe('generated crafting recipes', () => {
     ).toBe(true);
   });
 
-  it('assigns generated ring recipes evenly to left and right ring slots', () => {
+  it('assigns generated ring recipes with the preserved left-first mirrored split', () => {
     const ringRecipes = GENERATED_CRAFTING_RECIPES.filter(
       ({ output }) => output.itemKey?.startsWith('icon-ring-') ?? false,
     );
     const expectedLeft = Math.ceil(ringRecipes.length / 2);
     const expectedRight = Math.floor(ringRecipes.length / 2);
+    const outputSlots = ringRecipes.map(({ output }) => output.slot);
     const left = ringRecipes.filter(
       ({ output }) => output.slot === EquipmentSlotId.RingLeft,
     ).length;
@@ -116,5 +127,67 @@ describe('generated crafting recipes', () => {
 
     expect(left).toBe(expectedLeft);
     expect(right).toBe(expectedRight);
+    expect(outputSlots).toEqual([
+      ...Array.from({ length: expectedLeft }, () => EquipmentSlotId.RingLeft),
+      ...Array.from({ length: expectedRight }, () => EquipmentSlotId.RingRight),
+    ]);
+  });
+
+  it('preserves generated recipe ids and output item keys', () => {
+    GENERATED_CRAFTING_RECIPES.forEach((recipe) => {
+      expect(recipe.output.itemKey).toBeTruthy();
+      expect(recipe.id).toBe(`craft-${recipe.output.itemKey}`);
+      expect(recipe.output.id).toBe(`crafted-${recipe.output.itemKey}`);
+    });
+  });
+
+  it('preserves ingredient profiles for each generated crafting family', () => {
+    expect(getRecipe('icon-wand-01').ingredients).toEqual([
+      { itemKey: 'tin-ingot', quantity: 2 },
+      { itemKey: 'arcane-dust', quantity: 2 },
+      { itemKey: 'sticks', quantity: 1 },
+    ]);
+    expect(getRecipe('icon-magical-sphere-01').ingredients).toEqual([
+      { itemKey: 'gold-ingot', quantity: 2 },
+      { itemKey: 'platinum-ingot', quantity: 1 },
+      { itemKey: 'arcane-dust', quantity: 3 },
+    ]);
+    expect(getRecipe('icon-shield-01').ingredients).toEqual([
+      { itemKey: 'iron-ingot', quantity: 2 },
+      { itemKey: 'logs', quantity: 1 },
+      { itemKey: 'leather-scraps', quantity: 2 },
+    ]);
+    expect(getRecipe('icon-ring-01').ingredients).toEqual([
+      { itemKey: 'gold-ingot', quantity: 1 },
+      { itemKey: 'arcane-dust', quantity: 2 },
+    ]);
+    expect(getRecipe('icon-necklace-01').ingredients).toEqual([
+      { itemKey: 'gold-ingot', quantity: 1 },
+      { itemKey: 'platinum-ingot', quantity: 1 },
+      { itemKey: 'arcane-dust', quantity: 2 },
+    ]);
+    expect(getRecipe('icon-two-handed-sword-01').ingredients).toEqual([
+      { itemKey: 'iron-ingot', quantity: 4 },
+      { itemKey: 'logs', quantity: 1 },
+    ]);
+    expect(getRecipe('icon-sword-01').ingredients).toEqual([
+      { itemKey: 'tin-ingot', quantity: 2 },
+      { itemKey: 'sticks', quantity: 1 },
+    ]);
+    expect(getRecipe('icon-chest-01').ingredients).toEqual([
+      { itemKey: 'cloth', quantity: 4 },
+      { itemKey: 'leather-scraps', quantity: 4 },
+      { itemKey: 'copper-ingot', quantity: 2 },
+    ]);
+    expect(getRecipe('icon-helmet-01').ingredients).toEqual([
+      { itemKey: 'cloth', quantity: 2 },
+      { itemKey: 'leather-scraps', quantity: 2 },
+      { itemKey: 'copper-ingot', quantity: 1 },
+    ]);
+    expect(getRecipe('icon-bracers-01').ingredients).toEqual([
+      { itemKey: 'leather-scraps', quantity: 2 },
+      { itemKey: 'cloth', quantity: 1 },
+      { itemKey: 'platinum-ingot', quantity: 1 },
+    ]);
   });
 });

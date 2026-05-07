@@ -47,6 +47,43 @@ describe('useGameActionHandlers', () => {
     host.remove();
   });
 
+  it('includes the resolved inventory item name in item command logs', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    let latestGame = createGame(2, 'logged-sell-item-command');
+    const gameRef: { current: GameState } = { current: latestGame };
+    const item = latestGame.player.inventory[0]!;
+    let handlers: ReturnType<typeof useGameActionHandlers> | null = null;
+
+    function Harness() {
+      handlers = useGameActionHandlers({
+        paused: false,
+        setGame: (value) => {
+          latestGame = typeof value === 'function' ? value(latestGame) : value;
+          gameRef.current = latestGame;
+        },
+        worldTimeMsRef: { current: gameRef.current.worldTimeMs },
+      });
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<Harness />);
+    });
+
+    await act(async () => {
+      handlers?.handleSellItem(item.id);
+    });
+
+    expect(latestGame.logs[0]?.text).toContain(item.name);
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
   it('does not log a command entry when paused blocks the command', async () => {
     const host = document.createElement('div');
     document.body.appendChild(host);
@@ -77,6 +114,46 @@ describe('useGameActionHandlers', () => {
     });
 
     expect(latestGame.logSequence).toBe(initialSequence);
+
+    await act(async () => {
+      root.unmount();
+    });
+    host.remove();
+  });
+
+  it('uses descriptor-driven inventory handlers for dynamic lock command logs', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    let latestGame = createGame(2, 'descriptor-lock-command');
+    const gameRef: { current: GameState } = { current: latestGame };
+    const item = latestGame.player.inventory[0]!;
+    let handlers: ReturnType<typeof useGameActionHandlers> | null = null;
+
+    function Harness() {
+      handlers = useGameActionHandlers({
+        paused: false,
+        setGame: (value) => {
+          latestGame = typeof value === 'function' ? value(latestGame) : value;
+          gameRef.current = latestGame;
+        },
+        worldTimeMsRef: { current: gameRef.current.worldTimeMs },
+      });
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<Harness />);
+    });
+
+    await act(async () => {
+      handlers?.handleSetItemLocked(item.id, true);
+    });
+
+    expect(
+      latestGame.player.inventory.find(({ id }) => id === item.id)?.locked,
+    ).toBe(true);
+    expect(latestGame.logs[0]?.text).toContain(item.name);
 
     await act(async () => {
       root.unmount();

@@ -9,7 +9,10 @@ This spec covers the repository layer boundaries, state transition shape, and co
 - Client-side `src/*` paths below live under `packages/client/` after the monorepo split.
 - `packages/client/src/game` contains gameplay and simulation rules.
 - `packages/client/src/app` contains app orchestration, hydration, persistence wiring, clock wiring, and controller hooks.
+- Repeated app-controller command families that only adapt gameplay transitions into UI handlers stay in focused neighbors such as `packages/client/src/app/App/hooks/gameActionHandlers/*` instead of regrowing broad orchestration hooks with hand-wired callback lists.
 - `packages/client/src/ui/components` contains client-only React window components and presentational UI, while `packages/ui/src/components` contains shared reusable controls consumed through `@realmfall/ui`.
+- Shared `packages/ui` controls keep UI-owned view contracts and helper logic under `packages/ui/src/game` and receive caller-derived action metadata instead of importing client `stateTypes`, app-only controller types, or gameplay config modules into the shared package implementation.
+- `packages/ui/src/game` does not re-export `packages/client/src/game/content/*`; a local boundary test keeps that subtree UI-owned.
 - `packages/client/src/ui/world` contains Pixi world rendering, render math, scene caches, pools, and atmosphere helpers.
 - `packages/client/src/persistence` contains local save storage helpers.
 - `packages/server/src` contains the server runtime entrypoint, HTTP routes, and server-only version metadata resolution.
@@ -18,8 +21,11 @@ This spec covers the repository layer boundaries, state transition shape, and co
 - Save hydration enters through `src/app/normalize.ts`, while focused helpers such as `src/app/normalizeGameState.ts`, `src/app/normalizeCombat.ts`, `src/app/normalizeItems.ts`, `src/app/normalizeUiState.ts`, `src/app/normalizeShared.ts`, and `src/app/normalizeCompatibility.ts` own narrower validation and compatibility concerns.
 - Read-only game creation, queries, and shared gameplay types are split across `src/game/stateFactory.ts`, `src/game/stateSelectors.ts`, and `src/game/stateTypes.ts`, which keeps UI and renderer imports off the broad mutation entrypoint.
 - `src/game/state.ts` remains the stable mutation facade, while focused neighbors such as `src/game/stateWorldQueries.ts`, `src/game/stateRewards.ts`, `src/game/stateWorldEvents.ts`, `src/game/stateInventoryActions.ts`, and `src/game/stateItemActions.ts` own narrower gameplay responsibilities.
+- `src/game/stateRewards.ts` stays as the stable reward entrypoint, while `src/game/stateRewards/gathering.ts` and `src/game/stateRewards/enemyLoot.ts` own the two main reward families behind that facade.
+- Active-world and surface-world alias semantics live in `src/game/dungeons/worldState.ts`, and surface-only systems such as blood moon, harvest moon, and earthshake reuse those helpers instead of rebuilding one-off alias shims.
 - Shared consumable effect descriptors live in `src/game/consumables.ts`, and both tooltip formatting plus item-use resolution consume that shared descriptor model instead of rebuilding parallel consumable-effect rules in UI and gameplay modules.
 - Item, enemy, and structure content keep thin public facades under `src/game/content/**/index.ts`, with neighboring catalog, selection, and builder helpers assembling the live registries.
+- Recipe requirement tables use canonical item-key helpers, while structure capability lookups derive from `src/game/content/structures` metadata so gameplay runtime code does not duplicate localized requirement names or structure-name capability branches.
 - Broad gameplay families move behind dedicated folders once they outgrow a couple of neighboring files, with root-level facades preserved for stable import paths.
 - Ability-definition assembly now lives under `src/game/content/abilities/*`, with `src/game/abilityCatalog.ts` and its school-specific root files kept as compatibility facades.
 - Progression implementation and tests now live under `src/game/progression/*`, with `src/game/progression.ts` and the legacy helper entrypoints kept as thin re-export surfaces.
@@ -44,6 +50,7 @@ This spec covers the repository layer boundaries, state transition shape, and co
 - `packages/client/src/ui/components`
 - `packages/client/src/ui/world`
 - `packages/client/src/persistence`
+- `packages/ui/src/game`
 - `packages/ui/src/components`
 - `packages/server/src`
 - `packages/common/src`

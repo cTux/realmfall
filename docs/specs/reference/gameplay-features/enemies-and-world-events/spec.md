@@ -21,6 +21,7 @@ This spec covers enemy generation plus the blood moon, harvest moon, and earthsh
 - Enemy classification such as animal, elite, dungeon, and world-boss behavior resolves from canonical enemy ids and tags instead of display-name checks.
 - Blood moon checks occur during the rise window at night.
 - Blood moon, harvest moon, and earthshake mutate only the surface world. When the player is inside a dungeon, those systems resolve their center from the active run's stored surface entrance context instead of spawning inside the dungeon world.
+- Surface-only world events resolve their tile and enemy writes through the shared surface-world alias helper instead of rebuilding ad hoc root-state shims in each event flow.
 - When active, blood moon enemies spawn in clusters around the current surface event center except on blocked tiles.
 - Blood moon scales enemy max HP, attack, and defense to 110% of their stored base values while preserving each enemy's current HP ratio through the transition.
 - Blood moon increases combat danger and improves loot outcomes, while higher-rarity enemies also improve ordinary gold, consumable, and recipe drop quality.
@@ -37,6 +38,7 @@ This spec covers enemy generation plus the blood moon, harvest moon, and earthsh
 - `src/game/state.ts`
 - `src/game/stateWorldEvents.ts`
 - `src/game/stateRewards.ts`
+- `src/game/stateRewards/enemyLoot.ts`
 - `src/game/combat.ts`
 - `src/game/world.ts`
 - `src/game/territories.ts`

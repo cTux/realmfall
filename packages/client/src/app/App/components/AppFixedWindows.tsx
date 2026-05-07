@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { t } from '../../../i18n';
+import { ITEM_MODIFICATION_BALANCE } from '../../../game/config';
 import {
   canWearItem,
   canEquipItem,
@@ -67,9 +68,23 @@ export const AppFixedWindows = memo(function AppFixedWindows({
       <ActionBar
         inventory={inventoryView.inventory}
         slots={inventoryView.actionBarSlots}
-        onAssignSlot={inventoryActions.onAssignActionBarSlot}
+        onAssignSlot={(slotIndex, item) =>
+          inventoryActions.onAssignActionBarSlot(
+            slotIndex,
+            item as Parameters<
+              typeof inventoryActions.onAssignActionBarSlot
+            >[1],
+          )
+        }
         onClearSlot={inventoryActions.onClearActionBarSlot}
-        onHoverItem={tooltipActions.onShowActionBarItemTooltip}
+        onHoverItem={(event, item) =>
+          tooltipActions.onShowActionBarItemTooltip(
+            event,
+            item as Parameters<
+              typeof tooltipActions.onShowActionBarItemTooltip
+            >[1],
+          )
+        }
         onLeaveItem={tooltipActions.onCloseTooltip}
       />
       <HeroWindow
@@ -105,6 +120,9 @@ export const AppFixedWindows = memo(function AppFixedWindows({
           reforgeOptions={itemMenu.reforgeOptions}
           enchantCost={itemMenu.enchantCost}
           corruptCost={itemMenu.corruptCost}
+          corruptBreakChancePercent={Math.round(
+            ITEM_MODIFICATION_BALANCE.corrupt.breakChance * 100,
+          )}
           onEquip={() => {
             if (itemMenu.slot) {
               inventoryActions.onUnequip(itemMenu.slot);

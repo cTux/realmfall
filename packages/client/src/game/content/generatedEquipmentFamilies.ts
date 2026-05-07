@@ -17,7 +17,22 @@ interface GeneratedDropDefinition {
   generatedStats: NonNullable<ItemConfig['generatedStats']>;
 }
 
-interface GeneratedCraftDefinition {
+interface GeneratedMirroredDropVariantDefinition {
+  key: ItemConfig['key'];
+  slot: ItemConfig['slot'];
+}
+
+export type GeneratedCraftIngredient =
+  | {
+      itemKey: ItemConfig['key'];
+      quantity: number;
+    }
+  | {
+      kind: 'redistributed-ingot';
+      quantity: number;
+    };
+
+export interface GeneratedCraftDefinition {
   keyPrefix: string;
   slot: ItemConfig['slot'];
   tier: number;
@@ -25,6 +40,18 @@ interface GeneratedCraftDefinition {
   power: number;
   defense: number;
   maxHp: number;
+  ingredients: readonly GeneratedCraftIngredient[];
+}
+
+interface GeneratedMirroredCraftSlotDistribution {
+  slots: readonly NonNullable<ItemConfig['slot']>[];
+  oddCountBias: 'first';
+}
+
+interface GeneratedRingFamilyDefinition {
+  generatedStats: NonNullable<ItemConfig['generatedStats']>;
+  mirroredDropVariants: readonly GeneratedMirroredDropVariantDefinition[];
+  craftedSlotDistribution: GeneratedMirroredCraftSlotDistribution;
 }
 
 export interface GeneratedEquipmentFamilyDefinition {
@@ -35,7 +62,92 @@ export interface GeneratedEquipmentFamilyDefinition {
   grantedAbilityPool?: ItemConfig['grantedAbilityPool'];
   drop?: GeneratedDropDefinition;
   craft?: GeneratedCraftDefinition;
+  ring?: GeneratedRingFamilyDefinition;
 }
+
+const LEATHER_TRIM_CRAFT_INGREDIENTS = [
+  { itemKey: 'leather-scraps', quantity: 2 },
+  { itemKey: 'cloth', quantity: 1 },
+  { kind: 'redistributed-ingot', quantity: 1 },
+] as const satisfies readonly GeneratedCraftIngredient[];
+
+const PADDED_ARMOR_CRAFT_INGREDIENTS = [
+  { itemKey: 'cloth', quantity: 2 },
+  { itemKey: 'leather-scraps', quantity: 2 },
+  { kind: 'redistributed-ingot', quantity: 1 },
+] as const satisfies readonly GeneratedCraftIngredient[];
+
+const CHEST_ARMOR_CRAFT_INGREDIENTS = [
+  { itemKey: 'cloth', quantity: 4 },
+  { itemKey: 'leather-scraps', quantity: 4 },
+  { kind: 'redistributed-ingot', quantity: 2 },
+] as const satisfies readonly GeneratedCraftIngredient[];
+
+const ONE_HANDED_WEAPON_CRAFT_INGREDIENTS = [
+  { kind: 'redistributed-ingot', quantity: 2 },
+  { itemKey: 'sticks', quantity: 1 },
+] as const satisfies readonly GeneratedCraftIngredient[];
+
+const TWO_HANDED_WEAPON_CRAFT_INGREDIENTS = [
+  { kind: 'redistributed-ingot', quantity: 4 },
+  { itemKey: 'logs', quantity: 1 },
+] as const satisfies readonly GeneratedCraftIngredient[];
+
+const SHIELD_CRAFT_INGREDIENTS = [
+  { kind: 'redistributed-ingot', quantity: 2 },
+  { itemKey: 'logs', quantity: 1 },
+  { itemKey: 'leather-scraps', quantity: 2 },
+] as const satisfies readonly GeneratedCraftIngredient[];
+
+const RING_CRAFT_INGREDIENTS = [
+  { itemKey: 'gold-ingot', quantity: 1 },
+  { itemKey: 'arcane-dust', quantity: 2 },
+] as const satisfies readonly GeneratedCraftIngredient[];
+
+const NECKLACE_CRAFT_INGREDIENTS = [
+  { itemKey: 'gold-ingot', quantity: 1 },
+  { itemKey: 'platinum-ingot', quantity: 1 },
+  { itemKey: 'arcane-dust', quantity: 2 },
+] as const satisfies readonly GeneratedCraftIngredient[];
+
+const WAND_CRAFT_INGREDIENTS = [
+  { itemKey: 'tin-ingot', quantity: 2 },
+  { itemKey: 'arcane-dust', quantity: 2 },
+  { itemKey: 'sticks', quantity: 1 },
+] as const satisfies readonly GeneratedCraftIngredient[];
+
+const MAGICAL_SPHERE_CRAFT_INGREDIENTS = [
+  { itemKey: 'gold-ingot', quantity: 2 },
+  { itemKey: 'platinum-ingot', quantity: 1 },
+  { itemKey: 'arcane-dust', quantity: 3 },
+] as const satisfies readonly GeneratedCraftIngredient[];
+
+const GENERATED_RING_STATS = {
+  basePower: 1,
+  powerPerTier: 1,
+  baseDefense: 1,
+  defensePerTier: 1,
+  baseMaxHp: 1,
+  maxHpPerTier: 1,
+  randomMainStatPool: ['power', 'defense', 'maxHp'],
+  randomMainStatCount: 2,
+} as const satisfies NonNullable<ItemConfig['generatedStats']>;
+
+const GENERATED_RING_DROP_VARIANTS = [
+  {
+    key: 'generated-ring-left',
+    slot: EquipmentSlotId.RingLeft,
+  },
+  {
+    key: 'generated-ring-right',
+    slot: EquipmentSlotId.RingRight,
+  },
+] as const satisfies readonly GeneratedMirroredDropVariantDefinition[];
+
+const GENERATED_RING_CRAFTED_SLOT_DISTRIBUTION = {
+  slots: [EquipmentSlotId.RingLeft, EquipmentSlotId.RingRight],
+  oddCountBias: 'first',
+} as const satisfies GeneratedMirroredCraftSlotDistribution;
 
 export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefinition[] =
   [
@@ -61,6 +173,7 @@ export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefi
         power: 0,
         defense: 2,
         maxHp: 1,
+        ingredients: PADDED_ARMOR_CRAFT_INGREDIENTS,
       },
     },
     {
@@ -85,6 +198,7 @@ export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefi
         power: 0,
         defense: 2,
         maxHp: 1,
+        ingredients: PADDED_ARMOR_CRAFT_INGREDIENTS,
       },
     },
     {
@@ -109,6 +223,7 @@ export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefi
         power: 0,
         defense: 3,
         maxHp: 2,
+        ingredients: CHEST_ARMOR_CRAFT_INGREDIENTS,
       },
     },
     {
@@ -133,6 +248,7 @@ export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefi
         power: 0,
         defense: 1,
         maxHp: 1,
+        ingredients: LEATHER_TRIM_CRAFT_INGREDIENTS,
       },
     },
     {
@@ -157,6 +273,7 @@ export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefi
         power: 0,
         defense: 1,
         maxHp: 1,
+        ingredients: LEATHER_TRIM_CRAFT_INGREDIENTS,
       },
     },
     {
@@ -181,6 +298,7 @@ export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefi
         power: 0,
         defense: 1,
         maxHp: 1,
+        ingredients: LEATHER_TRIM_CRAFT_INGREDIENTS,
       },
     },
     {
@@ -205,6 +323,7 @@ export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefi
         power: 0,
         defense: 2,
         maxHp: 1,
+        ingredients: PADDED_ARMOR_CRAFT_INGREDIENTS,
       },
     },
     {
@@ -229,6 +348,7 @@ export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefi
         power: 0,
         defense: 1,
         maxHp: 1,
+        ingredients: PADDED_ARMOR_CRAFT_INGREDIENTS,
       },
     },
     {
@@ -257,25 +377,17 @@ export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefi
         power: 0,
         defense: 1,
         maxHp: 2,
+        ingredients: PADDED_ARMOR_CRAFT_INGREDIENTS,
       },
     },
     {
       familyKey: 'ring',
       group: 'accessory',
       category: 'artifact',
-      drop: {
-        key: 'generated-ring-left',
-        slot: EquipmentSlotId.RingLeft,
-        generatedStats: {
-          basePower: 1,
-          powerPerTier: 1,
-          baseDefense: 1,
-          defensePerTier: 1,
-          baseMaxHp: 1,
-          maxHpPerTier: 1,
-          randomMainStatPool: ['power', 'defense', 'maxHp'],
-          randomMainStatCount: 2,
-        },
+      ring: {
+        generatedStats: GENERATED_RING_STATS,
+        mirroredDropVariants: GENERATED_RING_DROP_VARIANTS,
+        craftedSlotDistribution: GENERATED_RING_CRAFTED_SLOT_DISTRIBUTION,
       },
       craft: {
         keyPrefix: 'icon-ring',
@@ -285,25 +397,7 @@ export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefi
         power: 2,
         defense: 0,
         maxHp: 2,
-      },
-    },
-    {
-      familyKey: 'ring',
-      group: 'accessory',
-      category: 'artifact',
-      drop: {
-        key: 'generated-ring-right',
-        slot: EquipmentSlotId.RingRight,
-        generatedStats: {
-          basePower: 1,
-          powerPerTier: 1,
-          baseDefense: 1,
-          defensePerTier: 1,
-          baseMaxHp: 1,
-          maxHpPerTier: 1,
-          randomMainStatPool: ['power', 'defense', 'maxHp'],
-          randomMainStatCount: 2,
-        },
+        ingredients: RING_CRAFT_INGREDIENTS,
       },
     },
     {
@@ -332,6 +426,7 @@ export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefi
         power: 1,
         defense: 1,
         maxHp: 3,
+        ingredients: NECKLACE_CRAFT_INGREDIENTS,
       },
     },
     {
@@ -354,6 +449,7 @@ export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefi
         power: 5,
         defense: 0,
         maxHp: 0,
+        ingredients: ONE_HANDED_WEAPON_CRAFT_INGREDIENTS,
       },
       grantedAbilityPool: ['crushingBlow', 'whirlwind', 'magmaStrike'],
     },
@@ -377,6 +473,7 @@ export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefi
         power: 5,
         defense: 0,
         maxHp: 0,
+        ingredients: ONE_HANDED_WEAPON_CRAFT_INGREDIENTS,
       },
       grantedAbilityPool: ['slash', 'impale', 'iceLance'],
     },
@@ -400,6 +497,7 @@ export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefi
         power: 5,
         defense: 0,
         maxHp: 1,
+        ingredients: ONE_HANDED_WEAPON_CRAFT_INGREDIENTS,
       },
       grantedAbilityPool: ['crushingBlow', 'thunderClap', 'staticField'],
     },
@@ -423,6 +521,7 @@ export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefi
         power: 4,
         defense: 0,
         maxHp: 0,
+        ingredients: ONE_HANDED_WEAPON_CRAFT_INGREDIENTS,
       },
       grantedAbilityPool: ['slash', 'hamstring', 'cinderBurst'],
     },
@@ -446,6 +545,7 @@ export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefi
         power: 6,
         defense: 0,
         maxHp: 0,
+        ingredients: WAND_CRAFT_INGREDIENTS,
       },
       grantedAbilityPool: [
         'fireball',
@@ -490,6 +590,7 @@ export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefi
         power: 2,
         defense: 0,
         maxHp: 3,
+        ingredients: MAGICAL_SPHERE_CRAFT_INGREDIENTS,
       },
       grantedAbilityPool: MAGICAL_OFFHAND_ABILITY_POOL,
     },
@@ -515,6 +616,7 @@ export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefi
         power: 0,
         defense: 4,
         maxHp: 2,
+        ingredients: SHIELD_CRAFT_INGREDIENTS,
       },
       grantedAbilityPool: SHIELD_OFFHAND_ABILITY_POOL,
     },
@@ -539,6 +641,7 @@ export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefi
         power: 8,
         defense: 0,
         maxHp: 2,
+        ingredients: TWO_HANDED_WEAPON_CRAFT_INGREDIENTS,
       },
       grantedAbilityPool: ['whirlwind', 'impale', 'blizzard'],
     },
@@ -563,6 +666,7 @@ export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefi
         power: 8,
         defense: 0,
         maxHp: 2,
+        ingredients: TWO_HANDED_WEAPON_CRAFT_INGREDIENTS,
       },
       grantedAbilityPool: ['whirlwind', 'magmaStrike', 'wildfire'],
     },
@@ -587,6 +691,7 @@ export const GENERATED_EQUIPMENT_FAMILIES: readonly GeneratedEquipmentFamilyDefi
         power: 8,
         defense: 0,
         maxHp: 3,
+        ingredients: TWO_HANDED_WEAPON_CRAFT_INGREDIENTS,
       },
       grantedAbilityPool: ['stormSurge', 'thunderClap', 'crushingBlow'],
     },

@@ -4,7 +4,6 @@ import { buildItemFromConfig } from '../game/content/items';
 import { ItemId } from '../game/content/ids';
 import { GameTag } from '../game/content/tags';
 import type { Item } from '../game/stateTypes';
-import { ItemSlotButton as ClientItemSlotButton } from './components/ItemSlotButton/ItemSlotButton';
 
 describe('ui item slot colors', () => {
   it('keeps rarity borders while splitting equippable tint within the same themed set', () => {
@@ -129,13 +128,13 @@ describe('ui item slot colors', () => {
     expect(markup).not.toContain('background-color:#cbd5e1');
   });
 
-  it('renders exact-color edge-wash inset shadows for client slot rgba border overrides', () => {
+  it('renders exact-color edge-wash inset shadows for shared slot rgba border overrides', () => {
     const townKnife = buildItemFromConfig('town-knife', {
       id: 'town-knife-rgba-border',
     });
 
     const markup = renderToStaticMarkup(
-      <ClientItemSlotButton
+      <SharedItemSlotButton
         item={townKnife}
         size="compact"
         borderColorOverride="rgba(96, 165, 250, 0.58)"

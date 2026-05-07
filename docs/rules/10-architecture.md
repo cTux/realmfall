@@ -5,6 +5,8 @@
 - Client-side `src/*` paths in this file resolve under `packages/client/` unless a rule explicitly names another package.
 - Keep gameplay and simulation rules in `packages/client/src/game` so they stay testable and mostly UI-independent.
 - Keep React app orchestration in `packages/client/src/app`, client-only presentational UI in `packages/client/src/ui/components`, and shared reusable UI controls in `packages/ui/src/components`.
+- When shared `packages/ui` controls need gameplay-shaped data, define narrow structural contracts under `packages/ui/src/game` and keep client-only state modules out of the shared component import graph.
+- Do not re-export `packages/client/src/game/content/*` through `packages/ui/src/game`. Keep `packages/ui/src/game` as a UI-owned contract and helper layer.
 - Keep Pixi world rendering concerns in `packages/client/src/ui/world` rather than mixing them into gameplay rules.
 - Keep HTTP entrypoints, request handlers, and other server-only runtime code in `packages/server/src`.
 - Keep cross-runtime shared types, schemas, and utilities in `packages/common/src`, and keep that package free of client-only or server-only side effects.
@@ -19,8 +21,10 @@
 - Keep movement traversal entrypoints in `src/game/stateMovement.ts` and world-clock transitions in `src/game/stateWorldClock.ts` so `src/game/state.ts` stays a thin public surface instead of regrowing another mixed-responsibility block.
 - When UI, renderer, Storybook, or test code only needs builders, selectors, or types, import those narrower `src/game/state*.ts` modules instead of routing through `src/game/state.ts`.
 - In `src/app` and `src/ui`, import `src/game/state.ts` only when the code needs mutation-oriented entrypoints that do not yet live in a narrower gameplay module. Route types, selectors, builders, and other read-only helpers through `src/game/stateTypes.ts`, `src/game/stateSelectors.ts`, `src/game/stateFactory.ts`, or the owning focused module.
-- Keep gameplay reward resolution and world-event spawning in focused helpers such as `src/game/stateRewards.ts` and `src/game/stateWorldEvents.ts` instead of extending `src/game/state.ts` with more domain-specific internals.
+- Keep `src/game/stateRewards.ts` as the stable reward facade and move gathering plus enemy-loot internals into focused neighboring `src/game/stateRewards/*` helpers instead of regrowing one mixed reward module or extending `src/game/state.ts` with more domain-specific internals.
 - Keep structure-specific render flags, item-modification capabilities, and gather-behavior taxonomy in `StructureConfig` metadata or canonical structure tags. Do not rebuild parallel structure-name allowlists in renderer, reward, or UI modules.
+- Keep recipe requirement identity canonical and item-key based. Build recipe ingredient and fuel tables from shared requirement helpers, localize requirement names at the read layer, and do not preserve runtime display-name matching fallbacks.
+- Derive recipe-station capability from canonical `StructureConfig.functionsProvided` metadata instead of open-coding camp, furnace, or workshop branches in gameplay helpers.
 - Keep inventory sorting, town trade, prospecting, item locking, and tile-loot transfer mutations in focused state helper modules such as `src/game/stateInventoryActions.ts` instead of expanding `src/game/state.ts` with another broad block of item-management flows.
 - Keep item activation, equip or unequip flows, consumable use, recipe-page learning, and consumable-cooldown mutation logic in focused helpers such as `src/game/stateItemActions.ts` instead of rebuilding another item-behavior block inside `src/game/state.ts`.
 - Keep shared consumable effect descriptors in `src/game/consumables.ts` and have tooltip builders plus item-use mutation flows render from that shared shape instead of maintaining parallel effect tables in gameplay and UI modules.
@@ -37,6 +41,7 @@
 - Keep `src/game/world.ts` as the public world-generation facade. Put deterministic tile assembly and generated-item factories in neighboring helpers such as `src/game/worldTileGeneration.ts` and `src/game/worldGeneratedItems.ts` so spawn, loot, and factory changes do not pile into one broad world module.
 - Keep `src/game/content/enemies/index.ts` and `src/game/content/structures/index.ts` as thin public facades. Put catalog assembly in neighboring `enemyCatalog.ts` and `structureCatalog.ts`, spawn selection in `enemySelection.ts` and `structureSelection.ts`, and taxonomy tags on the owning configs or local tag-rule helpers.
 - Keep `src/app/App/App.tsx` centered on top-level hook composition. Move shell markup, auto-open window effects, and other single-purpose orchestration branches into local components or hooks under `src/app/App/components` and `src/app/App/hooks`.
+- Keep world tile-resolution lifecycle wiring in a focused neighboring module such as `src/app/App/world/tileResolution/useWorldTileResolutionLifecycle.ts` instead of regrowing `src/app/App/usePixiWorld.ts` with coordinator bootstrap, overlay updates, resolved-payload merges, and visible-tile sync effects inline.
 - Name `AppWindows` view and action slices after the responsibility they serve, such as `inventory` and `hex`. Do not hide mixed inventory or hex-interaction state behind broad buckets like `player` or `world`.
 - Keep configurable balancing and world values in `game.config.ts` or dedicated config modules instead of scattering magic numbers through UI code.
 - Keep the gameplay-config shape canonical in `src/game/gameConfigSchema.ts`, and type `game.config.ts` through that shared schema instead of recreating the nested contract in runtime helper modules.
@@ -45,6 +50,7 @@
 - Keep `src/game/content/items/index.ts` as the thin public item-content facade. Put catalog assembly in `itemCatalog.ts`, item builders and cloning in `itemBuilders.ts`, and category or tag inference in `itemClassification.ts` plus `itemCategoryRules.ts`.
 - Keep item-specific tags, icon pools, category overrides, and granted-ability pools on the owning item config or a narrow family helper such as generated-equipment builders. Do not rebuild those overrides in `src/game/content/items/index.ts`.
 - Keep shared generated-equipment family metadata in one canonical helper under `src/game/content`, and derive world-drop generated configs plus craftable icon configs from that helper instead of maintaining parallel family tables.
+- Model mirrored generated-equipment drop variants and crafted-slot distributions declaratively on the owning family metadata, and expand them from the generated-equipment builders instead of duplicating near-identical family rows or precomputing per-icon slot arrays.
 - Give every unique enemy its own configuration file for its gameplay and presentation data, including icon and non-chance enemy-specific values.
 - Give every unique structure its own configuration file for its gameplay and presentation data, including icon, provided functions, and non-chance structure-specific values.
 - Vendor gameplay icon assets in the repository and load them from local files. Do not point shipped item, enemy, structure, generated-equipment, or similar runtime icon paths at remote URLs.

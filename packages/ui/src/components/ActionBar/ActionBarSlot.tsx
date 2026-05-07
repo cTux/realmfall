@@ -1,16 +1,16 @@
 import type { MouseEvent as ReactMouseEvent } from 'react';
 import { t } from '../../i18n';
-import type { Item } from '../../game/stateTypes';
+import type { ItemView } from '../../game/stateTypes';
 import { ItemSlot } from '../ItemSlot';
 import styles from './styles.module.scss';
 
 export interface ActionBarSlotProps {
   slotIndex: number;
-  item?: Item;
+  item?: ItemView;
   depleted?: boolean;
   onClick: () => void;
   onClear: () => void;
-  onHoverItem?: (event: ReactMouseEvent<HTMLElement>, item: Item) => void;
+  onHoverItem?: (event: ReactMouseEvent<HTMLElement>, item: ItemView) => void;
   onLeaveItem?: () => void;
 }
 
@@ -46,7 +46,7 @@ export function ActionBarSlot({
   );
 }
 
-function getActionBarSlotLabel(slotIndex: number, item?: Item) {
+function getActionBarSlotLabel(slotIndex: number, item?: ItemView) {
   if (!item) {
     return t('ui.actionBar.slot.emptyLabel', { hotkey: slotIndex + 1 });
   }

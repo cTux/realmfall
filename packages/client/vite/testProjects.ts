@@ -7,6 +7,7 @@ export const VITEST_NODE_INCLUDE = [
   'src/app/tests/**/*.test.ts',
   'src/app/App/tests/reuseVisibleTilesIfUnchanged.test.ts',
   'src/app/App/world/pixiWorldClickNavigation.test.ts',
+  'src/app/App/world/pixiWorldPendingCombat.test.ts',
   'src/app/App/world/hoverAnalysis/**/*.test.ts',
   'src/app/App/world/pixiWorldRenderLoop.test.ts',
   'src/app/App/world/movement/**/*.test.ts',

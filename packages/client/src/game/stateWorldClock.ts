@@ -10,6 +10,7 @@ import {
 } from './config';
 import { getPlayerCombatStats } from './progression';
 import { syncEnemyBloodMoonState } from './combat';
+import { createSurfaceWorldAliasState } from './dungeons/worldState';
 import {
   addLog,
   getDayPhase,
@@ -231,10 +232,5 @@ function regenerateOutOfCombatResources(
 }
 
 function syncSurfaceEnemyBloodMoonState(state: GameState, active: boolean) {
-  const surfaceWorld = state.worlds[state.surfaceWorldId];
-  if (!surfaceWorld) {
-    return;
-  }
-
-  syncEnemyBloodMoonState(surfaceWorld.enemies, active);
+  syncEnemyBloodMoonState(createSurfaceWorldAliasState(state).enemies, active);
 }

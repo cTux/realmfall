@@ -82,14 +82,6 @@ export const DUNGEON_ENEMY_CHASE_RADIUS =
 export const DUNGEON_ENEMY_SPAWN_LEASH_RADIUS =
   GAME_CONFIG.worldGeneration.dungeon.enemyMovement.spawnLeashRadius;
 
-const WORLD_GENERATED_ITEM_KIND_ORDER = [
-  'artifact',
-  'weapon',
-  'offhand',
-  'armor',
-  'consumable',
-] as const;
-
 export const BLOOD_MOON_CHANCE = GAME_CONFIG.events.bloodMoon.activation;
 export const BLOOD_MOON_ENEMY_SPAWN_CHANCES = {
   near: GAME_CONFIG.events.bloodMoon.enemySpawnNear,
@@ -127,13 +119,6 @@ export const ENEMY_ITEM_DUNGEON_RARITY_CHANCE_MULTIPLIER =
 export const HOME_SCROLL_DROP_CHANCES = GAME_CONFIG.drops.homeScroll;
 export const GATHERING_BYPRODUCT_CHANCES = GAME_CONFIG.drops.gatheringByproduct;
 export const BLOOD_MOON_ITEM_KIND_CHANCES = GAME_CONFIG.drops.bloodMoonItemKind;
-
-const BLOOD_MOON_ITEM_KIND_ORDER = [
-  'artifact',
-  'weapon',
-  'offhand',
-  'armor',
-] as const;
 
 export const TERRITORY_FACTION_REGION_SPAWN_CHANCE =
   GAME_CONFIG.territories.factionRegion.spawn;
@@ -191,18 +176,9 @@ export function pickHarvestMoonResourceType(roll: number) {
 }
 
 export function pickWorldGeneratedItemKind(roll: number) {
-  return pickByEqualBuckets(roll, WORLD_GENERATED_ITEM_KIND_ORDER);
+  return pickByChanceMap(roll, WORLD_GENERATED_ITEM_KIND_CHANCES);
 }
 
 export function pickBloodMoonItemKind(roll: number) {
-  return pickByEqualBuckets(roll, BLOOD_MOON_ITEM_KIND_ORDER);
-}
-
-function pickByEqualBuckets<const T extends readonly string[]>(
-  roll: number,
-  values: T,
-): T[number] {
-  const normalizedRoll = Math.max(0, Math.min(0.999999, roll));
-  const index = Math.floor(normalizedRoll * values.length);
-  return values[index] ?? values[values.length - 1]!;
+  return pickByChanceMap(roll, BLOOD_MOON_ITEM_KIND_CHANCES);
 }

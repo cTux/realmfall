@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { GAME_TAGS } from '../tags';
 import { CRAFTABLE_ICON_ITEM_CONFIGS } from '../generatedCraftingEquipment';
+import { GENERATED_EQUIPMENT_FAMILIES } from '../generatedEquipmentFamilies';
+import { EquipmentSlotId } from '../ids';
 import { GENERATED_ICON_POOLS } from '../generatedEquipment';
 import { campSpearItemConfig } from './campSpear';
 import { clothItemConfig } from './cloth';
@@ -75,5 +77,44 @@ describe('item config metadata ownership', () => {
 
     expect(magicalSphere?.grantedAbilityPool).toBeTruthy();
     expect(shield?.grantedAbilityPool).toBeTruthy();
+  });
+
+  it('keeps generated crafting ingredient and declarative ring metadata on the family configs', () => {
+    const ringFamily = GENERATED_EQUIPMENT_FAMILIES.find(
+      (family) => family.familyKey === 'ring' && family.craft !== undefined,
+    );
+    const ringCraft = ringFamily?.craft;
+    const swordCraft = GENERATED_EQUIPMENT_FAMILIES.find(
+      (family) => family.familyKey === 'sword' && family.craft !== undefined,
+    )?.craft;
+    const magicalSphereCraft = GENERATED_EQUIPMENT_FAMILIES.find(
+      (family) =>
+        family.familyKey === 'magicalSphere' && family.craft !== undefined,
+    )?.craft;
+
+    expect(
+      GENERATED_EQUIPMENT_FAMILIES.filter(
+        (family) => family.familyKey === 'ring',
+      ),
+    ).toHaveLength(1);
+    expect(ringFamily?.ring?.mirroredDropVariants).toEqual([
+      { key: 'generated-ring-left', slot: EquipmentSlotId.RingLeft },
+      { key: 'generated-ring-right', slot: EquipmentSlotId.RingRight },
+    ]);
+    expect(ringFamily?.ring?.craftedSlotDistribution).toEqual({
+      slots: [EquipmentSlotId.RingLeft, EquipmentSlotId.RingRight],
+      oddCountBias: 'first',
+    });
+    expect(ringCraft?.slot).toBe(EquipmentSlotId.RingLeft);
+
+    expect(swordCraft?.ingredients).toEqual([
+      { kind: 'redistributed-ingot', quantity: 2 },
+      { itemKey: 'sticks', quantity: 1 },
+    ]);
+    expect(magicalSphereCraft?.ingredients).toEqual([
+      { itemKey: 'gold-ingot', quantity: 2 },
+      { itemKey: 'platinum-ingot', quantity: 1 },
+      { itemKey: 'arcane-dust', quantity: 3 },
+    ]);
   });
 });

@@ -24,7 +24,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - A canonical window registry backs window visibility resets, default positions, dock composition, dock icons, hotkey derivation, deferred-window order, mounted-window derivation, and persistence normalization so app wiring does not repeat the same window inventory in multiple modules.
 - `useAppGameView` keeps selector dependencies scoped to the gameplay slices each derived view actually reads, using narrow selector inputs instead of force-casting partial objects to `GameState`, so unrelated root-state clones do not invalidate every memoized view model together.
 - `useAppGameView` now receives explicit gameplay slices such as `player`, `tiles`, `logs`, `combat`, `enemies`, `seed`, and `worldDayIndex` instead of a broad `game` object, and nearby selectors such as `getTownStockForDay` expose matching narrow state inputs when the UI only needs a subset of `GameState`.
-- `useAppWindowViews` receives the specific gameplay slices it reads, such as `playerSlice`, `combatState`, `homeHex`, and `tileLootSnapshot`, so the window composition layer does not depend on the full `game` object or mislabeled inventory-shaped loot state.
+- `useAppWindowViews` receives the specific gameplay slices it reads, such as `playerState`, `combatState`, `homeHex`, and `tileLootSnapshot`, so the window composition layer does not depend on the full `game` object or mislabeled inventory-shaped loot state.
 - `AppWindows` owns the dock-entry composition, stable move and close handler maps, and narrow window-specific view models so `App.tsx` does not keep expanding as the desktop window surface grows.
 - `useAppWindowsProps` builds the nested `layout`, `views`, and `actions` payload passed to `AppWindows`, keeping `App.tsx` from rebuilding that whole prop tree inline.
 - `useAppWindowViews` and `useAppWindowActions` assemble the memoized window view slices and grouped action maps before `useAppWindowsProps` runs, so `App.tsx` coordinates lifecycle hooks without also owning every window-facing memo block directly.
@@ -48,6 +48,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `useAppControllers` delegates app settings state, recipe-book material-filter state, and the loot/combat-to-hex-info window promotion effect to focused neighboring hooks so the controller layer stays composition-first.
 - `useAppControllers` exposes an explicit grouped contract with `state`, `actions`, and `mutators`, so callers can depend on stable responsibility buckets instead of a broad untyped bag of controller fields.
 - `useGameActionHandlers` routes gameplay mutations through a shared timed-transition helper so controller actions inject the current world time consistently without repeating the same wrapper at every call site.
+- `useGameActionHandlers` delegates repeated logged-command description shapes to neighboring `src/app/App/hooks/gameActionHandlers/*` helpers, with local descriptor records and focused builders covering the repeated inventory, town-stock, static, equipment-slot, and lazy debug command families so the hook stays focused on pause gating, timed transition injection, and final handler wiring instead of rebuilding the same command-log adapters inline.
 - `useLoggedGameCommand` wraps intentional command transitions at the app layer and appends localized `command` log entries only when the wrapped transition produces a state change, so command visibility stays centralized without turning passive UI events into log noise.
 - `useActionBarController` owns action-bar slot reconciliation, assignment, and slot activation so inventory-backed hotbar behavior does not share a file with unrelated window or menu state.
 - `useActionBarController` routes covered action-bar activations through the shared logged-command helper, so using a valid bound consumable produces both the player-command entry and the resulting gameplay log output.
@@ -63,9 +64,13 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `useAppSettingsActions` keeps save-reset, settings persistence, and home-hex shell actions in one local hook instead of mixing those imperative flows into the main app component body.
 - `useAppSettingsActions` waits for the selected interface font to load before persisting and applying interface-setting changes, keeping live font switches aligned with the current document shell.
 - `useAppRuntime` groups those orchestration hooks into one local composition layer so the entry component no longer needs one large destructuring block for controllers, derived views, transitions, and shell props.
+- `useWorldTileResolutionLifecycle` merges resolved worker payloads back through the shared active-world alias helper, so root `tiles` and `enemies` stay synchronized with the active world without a second hand-maintained merge path.
+- `usePixiWorld` delegates world tile-resolution lifecycle and visible-tile sync updates to `src/app/App/world/tileResolution/useWorldTileResolutionLifecycle.ts`, then consumes that shared `visibleTilesRef` for movement transitions, hover refresh, and Pixi bootstrap wiring.
 - `useDungeonTransitionController` owns dungeon enter or leave transitions, loading any persisted dungeon body before activation and surfacing transition state through the same top-level app readiness and retry path used by world bootstrap.
 - `useAppShortcutRuntime` owns shortcut-only availability wiring such as home-setting eligibility, keeping `useAppRuntime` from recomputing action gates inline next to unrelated lifecycle and persistence setup.
 - `useAppWindowRuntime` owns the memoized window view and action composition path before `AppWindows` props are assembled, so the top-level runtime hook does not rebuild the full window contract in the same block as combat automation and world bootstrap wiring.
+- `useAppWindowRuntime` adapts grouped controller, settings, gameplay-view, and transition slices into the narrower `useAppWindowViews` and `useAppWindowActions` inputs, so the top-level runtime passes responsibility buckets instead of hand-assembling the entire window contract inline.
+- `useWindowTransitions` stays composition-first by wiring loot and combat windows through the shared `src/app/App/hooks/useDeferredWindowLifecycle.ts` hook, which owns the common requestAnimationFrame enter, delayed unmount, and snapshot-retention lifecycle for deferred window content.
 - `useAppPersistence` keeps hydration and latest-input tracking in the hook while local `persistence/` helpers own segment serialization and autosave scheduling, separating save bootstrapping from debounce, idle-flush, and queued-write mechanics.
 - `useCombatAutomation` schedules the next combat step from the earliest pending combat event across actor cooldowns, cast completions, combat status-effect ticks, and effect expirations.
 - `useCombatAutomation` receives the specific combat-facing slices it reads, such as `combat`, `playerStatusEffects`, and the enemy lookup, so unrelated top-level game-state clones do not reschedule the combat timer path.
@@ -116,6 +121,7 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `src/app/App/hooks/useAppShortcutRuntime.ts`
 - `src/app/App/hooks/useAppWorldClock.ts`
 - `src/app/App/hooks/useAppWindowRuntime.ts`
+- `src/app/App/hooks/useDeferredWindowLifecycle.ts`
 - `src/app/App/hooks/useAppWindowsProps.ts`
 - `src/app/App/hooks/useHexGameplayView.ts`
 - `src/app/App/hooks/useAppWindowHandlers.ts`

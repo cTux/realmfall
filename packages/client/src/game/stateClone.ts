@@ -6,6 +6,7 @@ import type {
   CombatState,
   Enemy,
   GameState,
+  Item,
   Player,
   Tile,
   WorldFloatingTextAnchor,
@@ -52,7 +53,7 @@ export function copyGameState(
       : state.combat,
     tiles: state.tiles,
     enemies: state.enemies,
-    player: slices.player ? copyPlayer(state.player) : state.player,
+    player: slices.player ? clonePlayer(state.player) : state.player,
   };
 
   return syncActiveWorldAliases(next);
@@ -64,8 +65,8 @@ function copyWorlds(worlds: GameState['worlds']): GameState['worlds'] {
       worldId,
       {
         ...world,
-        tiles: copyTiles(world.tiles),
-        enemies: copyEnemies(world.enemies),
+        tiles: cloneTiles(world.tiles),
+        enemies: cloneEnemies(world.enemies),
         ...(world.kind !== 'dungeon'
           ? {}
           : {
@@ -151,20 +152,38 @@ function copyWorldFloatingTextAnchor(anchor: WorldFloatingTextAnchor) {
   return cloneWorldFloatingTextAnchor(anchor);
 }
 
-function copyTiles(tiles: GameState['tiles']) {
+export function cloneTiles(tiles: GameState['tiles']) {
   return Object.fromEntries(
-    Object.entries(tiles).map(([key, tile]) => [key, copyTile(tile)]),
+    Object.entries(tiles).map(([key, tile]) => [key, cloneTile(tile)]),
   );
 }
 
-function copyTile(tile: Tile): Tile {
+export function cloneItem(item: Item): Item {
+  return {
+    ...item,
+    ...(item.tags === undefined ? {} : { tags: [...item.tags] }),
+    secondaryStats: item.secondaryStats?.map((stat) => ({ ...stat })),
+  };
+}
+
+export function cloneItems(items: Item[]): Item[] {
+  return items.map(cloneItem);
+}
+
+function cloneStatusEffect(statusEffect: Player['statusEffects'][number]) {
+  return {
+    ...statusEffect,
+    ...(statusEffect.tags === undefined
+      ? {}
+      : { tags: [...statusEffect.tags] }),
+  };
+}
+
+export function cloneTile(tile: Tile): Tile {
   return {
     ...tile,
     coord: { ...tile.coord },
-    items: tile.items.map((item) => ({
-      ...item,
-      secondaryStats: item.secondaryStats?.map((stat) => ({ ...stat })),
-    })),
+    items: cloneItems(tile.items),
     enemyIds: [...tile.enemyIds],
     townStockDay: tile.townStockDay,
     townStockPurchasedItemIds: tile.townStockPurchasedItemIds
@@ -179,24 +198,39 @@ function copyTile(tile: Tile): Tile {
   };
 }
 
-function copyEnemies(enemies: GameState['enemies']) {
+export function cloneEnemies(enemies: GameState['enemies']) {
   return Object.fromEntries(
-    Object.entries(enemies).map(([key, enemy]) => [key, copyEnemy(enemy)]),
+    Object.entries(enemies).map(([key, enemy]) => [key, cloneEnemy(enemy)]),
   );
 }
 
-function copyEnemy(enemy: Enemy): Enemy {
+export function cloneEnemy(enemy: Enemy): Enemy {
   return {
     ...enemy,
     coord: { ...enemy.coord },
+    ...(enemy.tags === undefined ? {} : { tags: [...enemy.tags] }),
     ...(enemy.dungeonSpawnCoord === undefined
       ? {}
       : { dungeonSpawnCoord: { ...enemy.dungeonSpawnCoord } }),
-    statusEffects: enemy.statusEffects?.map((effect) => ({ ...effect })),
+    statusEffects: enemy.statusEffects?.map(cloneStatusEffect),
+    ...(enemy.abilityIds === undefined
+      ? {}
+      : { abilityIds: [...enemy.abilityIds] }),
   };
 }
 
-function copyPlayer(player: Player): Player {
+export function cloneEquipment(
+  equipment: Player['equipment'],
+): Player['equipment'] {
+  return Object.fromEntries(
+    Object.entries(equipment).map(([key, item]) => [
+      key,
+      item ? cloneItem(item) : item,
+    ]),
+  ) as Player['equipment'];
+}
+
+export function clonePlayer(player: Player): Player {
   return {
     ...player,
     coord: { ...player.coord },
@@ -205,21 +239,8 @@ function copyPlayer(player: Player): Player {
     skills: Object.fromEntries(
       Object.entries(player.skills).map(([key, value]) => [key, { ...value }]),
     ) as Player['skills'],
-    inventory: player.inventory.map((item) => ({
-      ...item,
-      secondaryStats: item.secondaryStats?.map((stat) => ({ ...stat })),
-    })),
-    equipment: Object.fromEntries(
-      Object.entries(player.equipment).map(([key, item]) => [
-        key,
-        item
-          ? {
-              ...item,
-              secondaryStats: item.secondaryStats?.map((stat) => ({ ...stat })),
-            }
-          : item,
-      ]),
-    ),
-    statusEffects: player.statusEffects.map((effect) => ({ ...effect })),
+    inventory: cloneItems(player.inventory),
+    equipment: cloneEquipment(player.equipment),
+    statusEffects: player.statusEffects.map(cloneStatusEffect),
   };
 }

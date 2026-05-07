@@ -11,9 +11,11 @@ import {
   pickSatisfiedRequirement,
   RECIPE_BOOK_RECIPES,
 } from './crafting';
+import { materializeRecipeOutput } from './craftingOutputs';
 import { addLog } from './logs';
-import { addItemToInventory, materializeRecipeOutput } from './inventory';
+import { addItemToInventory } from './inventory';
 import { gainSkillXp } from './progression';
+import { getRecipeActionForSkill } from './recipeStations';
 import { cloneForPlayerMutation, message } from './stateMutationHelpers';
 import { getCurrentTile } from './stateWorldQueries';
 
@@ -69,14 +71,7 @@ function craftRecipeOnce(
     return { ok: false, error: t('game.message.recipe.notLearned') };
   }
   const requiredStructure = getRecipeRequiredStructure(recipe);
-  const recipeAction =
-    recipe.skill === Skill.Hand
-      ? 'craft'
-      : recipe.skill === Skill.Cooking
-        ? 'cook'
-        : recipe.skill === Skill.Smelting
-          ? 'smelt'
-          : 'craft';
+  const recipeAction = getRecipeActionForSkill(recipe.skill);
   if (
     requiredStructure &&
     getCurrentTile(state).structure !== requiredStructure

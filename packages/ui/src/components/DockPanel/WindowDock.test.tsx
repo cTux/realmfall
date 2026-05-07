@@ -105,7 +105,6 @@ function createEntry(): WindowDockEntry {
     key: 'inventory',
     label: 'Inventory',
     title: {
-      plain: 'Inventory',
       prefix: '(',
       hotkey: 'I',
       suffix: ')nventory',

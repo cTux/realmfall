@@ -3,15 +3,6 @@ import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const componentsDir = resolve(process.cwd(), 'src/ui/components');
-const sharedComponentsDir = resolve(process.cwd(), '../ui/src/components');
-
-const sharedComponentStoryDirs = new Map<string, string>([
-  ['ActionBar', 'ActionBar'],
-  ['GameTooltip', 'Tooltip'],
-  ['ItemContextMenu', 'ContextMenu'],
-  ['ItemSlotButton', 'ItemSlot'],
-  ['WindowDock', 'DockPanel'],
-]);
 
 describe('storybook coverage', () => {
   it('keeps a story for each top-level UI component directory', () => {
@@ -82,11 +73,6 @@ function hasStoryFile(directory: string): boolean {
 }
 
 function hasComponentStoryCoverage(componentDirectoryName: string) {
-  const sharedDirectory = sharedComponentStoryDirs.get(componentDirectoryName);
-  if (sharedDirectory) {
-    return hasStoryFile(join(sharedComponentsDir, sharedDirectory));
-  }
-
   return hasStoryFile(join(componentsDir, componentDirectoryName));
 }
 

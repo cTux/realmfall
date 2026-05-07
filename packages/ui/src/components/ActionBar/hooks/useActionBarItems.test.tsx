@@ -1,8 +1,8 @@
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
-import { createDefaultActionBarSlots } from '../../../app/App/actionBar';
+import { createDefaultActionBarSlots } from '../../../game/actionBar';
 import { GameTag } from '../../../game/content/tags';
-import type { Item } from '../../../game/stateTypes';
+import type { ItemView } from '../../../game/stateTypes';
 import { useActionBarItems } from './useActionBarItems';
 
 type ActionBarItems = ReturnType<typeof useActionBarItems>;
@@ -15,7 +15,7 @@ describe('useActionBarItems', () => {
   });
 
   it('keeps consumable and slot derivation stable across unrelated rerenders', async () => {
-    const trailRation: Item = {
+    const trailRation: ItemView = {
       id: 'trail-ration-1',
       itemKey: 'trail-ration',
       name: 'Trail Ration',

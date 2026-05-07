@@ -1,11 +1,11 @@
 import { buildItemFromConfig } from './content/items';
+import {
+  buildRecipeRequirement,
+  DEFAULT_COOKING_FUEL_OPTIONS,
+} from './recipeRequirements';
 import { Skill, type RecipeDefinition } from './types';
 
-const COOKING_FUEL_OPTIONS = [
-  { itemKey: 'coal', name: 'Coal', quantity: 1 },
-  { itemKey: 'logs', name: 'Logs', quantity: 2 },
-  { itemKey: 'sticks', name: 'Sticks', quantity: 8 },
-] as const;
+const ingredient = buildRecipeRequirement;
 
 export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
   {
@@ -15,11 +15,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('garden-stew'),
     ingredients: [
-      { itemKey: 'herbs', name: 'Herbs', quantity: 1 },
-      { itemKey: 'cabbage', name: 'Cabbage', quantity: 1 },
-      { itemKey: 'carrot', name: 'Carrot', quantity: 1 },
+      ingredient('herbs', 1),
+      ingredient('cabbage', 1),
+      ingredient('carrot', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-root-medley',
@@ -28,11 +28,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('root-medley'),
     ingredients: [
-      { itemKey: 'beet', name: 'Beet', quantity: 1 },
-      { itemKey: 'carrot', name: 'Carrot', quantity: 1 },
-      { itemKey: 'leek', name: 'Leek', quantity: 1 },
+      ingredient('beet', 1),
+      ingredient('carrot', 1),
+      ingredient('leek', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-pepper-skillet',
@@ -41,11 +41,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('pepper-skillet'),
     ingredients: [
-      { itemKey: 'pepper', name: 'Pepper', quantity: 1 },
-      { itemKey: 'tomato', name: 'Tomato', quantity: 1 },
-      { itemKey: 'garlic', name: 'Garlic', quantity: 1 },
+      ingredient('pepper', 1),
+      ingredient('tomato', 1),
+      ingredient('garlic', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-cabbage-broth',
@@ -54,11 +54,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('cabbage-broth'),
     ingredients: [
-      { itemKey: 'cabbage', name: 'Cabbage', quantity: 1 },
-      { itemKey: 'herbs', name: 'Herbs', quantity: 1 },
-      { itemKey: 'garlic', name: 'Garlic', quantity: 1 },
+      ingredient('cabbage', 1),
+      ingredient('herbs', 1),
+      ingredient('garlic', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-herb-salad',
@@ -67,11 +67,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('herb-salad'),
     ingredients: [
-      { itemKey: 'herbs', name: 'Herbs', quantity: 1 },
-      { itemKey: 'tomato', name: 'Tomato', quantity: 1 },
-      { itemKey: 'lemon', name: 'Lemon', quantity: 1 },
+      ingredient('herbs', 1),
+      ingredient('tomato', 1),
+      ingredient('lemon', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-cherry-compote',
@@ -80,11 +80,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('cherry-compote'),
     ingredients: [
-      { itemKey: 'cherry', name: 'Cherry', quantity: 1 },
-      { itemKey: 'apple', name: 'Apple', quantity: 1 },
-      { itemKey: 'lemon', name: 'Lemon', quantity: 1 },
+      ingredient('cherry', 1),
+      ingredient('apple', 1),
+      ingredient('lemon', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-garlic-leek-soup',
@@ -93,11 +93,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('garlic-leek-soup'),
     ingredients: [
-      { itemKey: 'garlic', name: 'Garlic', quantity: 1 },
-      { itemKey: 'leek', name: 'Leek', quantity: 1 },
-      { itemKey: 'herbs', name: 'Herbs', quantity: 1 },
+      ingredient('garlic', 1),
+      ingredient('leek', 1),
+      ingredient('herbs', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-lemon-pea-mix',
@@ -106,11 +106,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('lemon-pea-mix'),
     ingredients: [
-      { itemKey: 'lemon', name: 'Lemon', quantity: 1 },
-      { itemKey: 'peas', name: 'Peas', quantity: 1 },
-      { itemKey: 'herbs', name: 'Herbs', quantity: 1 },
+      ingredient('lemon', 1),
+      ingredient('peas', 1),
+      ingredient('herbs', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-ratatouille',
@@ -119,11 +119,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('ratatouille'),
     ingredients: [
-      { itemKey: 'aubergine', name: 'Aubergine', quantity: 1 },
-      { itemKey: 'tomato', name: 'Tomato', quantity: 1 },
-      { itemKey: 'pepper', name: 'Pepper', quantity: 1 },
+      ingredient('aubergine', 1),
+      ingredient('tomato', 1),
+      ingredient('pepper', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-orchard-mix',
@@ -132,11 +132,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('orchard-mix'),
     ingredients: [
-      { itemKey: 'apple', name: 'Apple', quantity: 1 },
-      { itemKey: 'cherry', name: 'Cherry', quantity: 1 },
-      { itemKey: 'lemon', name: 'Lemon', quantity: 1 },
+      ingredient('apple', 1),
+      ingredient('cherry', 1),
+      ingredient('lemon', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-beet-tonic',
@@ -145,11 +145,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('beet-tonic'),
     ingredients: [
-      { itemKey: 'beet', name: 'Beet', quantity: 1 },
-      { itemKey: 'lemon', name: 'Lemon', quantity: 1 },
-      { itemKey: 'herbs', name: 'Herbs', quantity: 1 },
+      ingredient('beet', 1),
+      ingredient('lemon', 1),
+      ingredient('herbs', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-carrot-braise',
@@ -158,11 +158,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('carrot-braise'),
     ingredients: [
-      { itemKey: 'carrot', name: 'Carrot', quantity: 1 },
-      { itemKey: 'garlic', name: 'Garlic', quantity: 1 },
-      { itemKey: 'herbs', name: 'Herbs', quantity: 1 },
+      ingredient('carrot', 1),
+      ingredient('garlic', 1),
+      ingredient('herbs', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-summer-salad',
@@ -171,11 +171,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('summer-salad'),
     ingredients: [
-      { itemKey: 'tomato', name: 'Tomato', quantity: 1 },
-      { itemKey: 'peas', name: 'Peas', quantity: 1 },
-      { itemKey: 'pepper', name: 'Pepper', quantity: 1 },
+      ingredient('tomato', 1),
+      ingredient('peas', 1),
+      ingredient('pepper', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-harvest-succotash',
@@ -184,11 +184,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('harvest-succotash'),
     ingredients: [
-      { itemKey: 'peas', name: 'Peas', quantity: 1 },
-      { itemKey: 'pepper', name: 'Pepper', quantity: 1 },
-      { itemKey: 'tomato', name: 'Tomato', quantity: 1 },
+      ingredient('peas', 1),
+      ingredient('pepper', 1),
+      ingredient('tomato', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-lemon-herb-broth',
@@ -197,11 +197,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('lemon-herb-broth'),
     ingredients: [
-      { itemKey: 'lemon', name: 'Lemon', quantity: 1 },
-      { itemKey: 'herbs', name: 'Herbs', quantity: 1 },
-      { itemKey: 'garlic', name: 'Garlic', quantity: 1 },
+      ingredient('lemon', 1),
+      ingredient('herbs', 1),
+      ingredient('garlic', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-stuffed-aubergine',
@@ -210,11 +210,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('stuffed-aubergine'),
     ingredients: [
-      { itemKey: 'aubergine', name: 'Aubergine', quantity: 1 },
-      { itemKey: 'pepper', name: 'Pepper', quantity: 1 },
-      { itemKey: 'tomato', name: 'Tomato', quantity: 1 },
+      ingredient('aubergine', 1),
+      ingredient('pepper', 1),
+      ingredient('tomato', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-rustic-veg-mash',
@@ -223,11 +223,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('rustic-veg-mash'),
     ingredients: [
-      { itemKey: 'beet', name: 'Beet', quantity: 1 },
-      { itemKey: 'cabbage', name: 'Cabbage', quantity: 1 },
-      { itemKey: 'carrot', name: 'Carrot', quantity: 1 },
+      ingredient('beet', 1),
+      ingredient('cabbage', 1),
+      ingredient('carrot', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-peasant-stew',
@@ -236,11 +236,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('peasant-stew'),
     ingredients: [
-      { itemKey: 'cabbage', name: 'Cabbage', quantity: 1 },
-      { itemKey: 'leek', name: 'Leek', quantity: 1 },
-      { itemKey: 'peas', name: 'Peas', quantity: 1 },
+      ingredient('cabbage', 1),
+      ingredient('leek', 1),
+      ingredient('peas', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-cherry-apple-crisp',
@@ -249,11 +249,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('cherry-apple-crisp'),
     ingredients: [
-      { itemKey: 'cherry', name: 'Cherry', quantity: 1 },
-      { itemKey: 'apple', name: 'Apple', quantity: 1 },
-      { itemKey: 'beet', name: 'Beet', quantity: 1 },
+      ingredient('cherry', 1),
+      ingredient('apple', 1),
+      ingredient('beet', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-hearty-veg-stew',
@@ -262,11 +262,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('hearty-veg-stew'),
     ingredients: [
-      { itemKey: 'cabbage', name: 'Cabbage', quantity: 1 },
-      { itemKey: 'carrot', name: 'Carrot', quantity: 1 },
-      { itemKey: 'aubergine', name: 'Aubergine', quantity: 1 },
+      ingredient('cabbage', 1),
+      ingredient('carrot', 1),
+      ingredient('aubergine', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-herb-roasted-meat',
@@ -275,11 +275,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('herb-roasted-meat'),
     ingredients: [
-      { itemKey: 'meat', name: 'Meat', quantity: 1 },
-      { itemKey: 'herbs', name: 'Herbs', quantity: 1 },
-      { itemKey: 'garlic', name: 'Garlic', quantity: 1 },
+      ingredient('meat', 1),
+      ingredient('herbs', 1),
+      ingredient('garlic', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-pepper-steak',
@@ -288,11 +288,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('pepper-steak'),
     ingredients: [
-      { itemKey: 'meat', name: 'Meat', quantity: 1 },
-      { itemKey: 'pepper', name: 'Pepper', quantity: 1 },
-      { itemKey: 'tomato', name: 'Tomato', quantity: 1 },
+      ingredient('meat', 1),
+      ingredient('pepper', 1),
+      ingredient('tomato', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-cabbage-meat-stew',
@@ -301,11 +301,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('cabbage-meat-stew'),
     ingredients: [
-      { itemKey: 'meat', name: 'Meat', quantity: 1 },
-      { itemKey: 'cabbage', name: 'Cabbage', quantity: 1 },
-      { itemKey: 'leek', name: 'Leek', quantity: 1 },
+      ingredient('meat', 1),
+      ingredient('cabbage', 1),
+      ingredient('leek', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-garlic-meat-skewers',
@@ -314,11 +314,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('garlic-meat-skewers'),
     ingredients: [
-      { itemKey: 'meat', name: 'Meat', quantity: 1 },
-      { itemKey: 'garlic', name: 'Garlic', quantity: 1 },
-      { itemKey: 'pepper', name: 'Pepper', quantity: 1 },
+      ingredient('meat', 1),
+      ingredient('garlic', 1),
+      ingredient('pepper', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-cherry-glazed-meat',
@@ -327,11 +327,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('cherry-glazed-meat'),
     ingredients: [
-      { itemKey: 'meat', name: 'Meat', quantity: 1 },
-      { itemKey: 'cherry', name: 'Cherry', quantity: 1 },
-      { itemKey: 'lemon', name: 'Lemon', quantity: 1 },
+      ingredient('meat', 1),
+      ingredient('cherry', 1),
+      ingredient('lemon', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-lemon-cutlet',
@@ -340,11 +340,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('lemon-cutlet'),
     ingredients: [
-      { itemKey: 'meat', name: 'Meat', quantity: 1 },
-      { itemKey: 'lemon', name: 'Lemon', quantity: 1 },
-      { itemKey: 'herbs', name: 'Herbs', quantity: 1 },
+      ingredient('meat', 1),
+      ingredient('lemon', 1),
+      ingredient('herbs', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-hunter-stew',
@@ -353,11 +353,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('hunter-stew'),
     ingredients: [
-      { itemKey: 'meat', name: 'Meat', quantity: 1 },
-      { itemKey: 'carrot', name: 'Carrot', quantity: 1 },
-      { itemKey: 'cabbage', name: 'Cabbage', quantity: 1 },
+      ingredient('meat', 1),
+      ingredient('carrot', 1),
+      ingredient('cabbage', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-meat-and-peas-braise',
@@ -366,11 +366,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('meat-and-peas-braise'),
     ingredients: [
-      { itemKey: 'meat', name: 'Meat', quantity: 1 },
-      { itemKey: 'peas', name: 'Peas', quantity: 1 },
-      { itemKey: 'garlic', name: 'Garlic', quantity: 1 },
+      ingredient('meat', 1),
+      ingredient('peas', 1),
+      ingredient('garlic', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-aubergine-meat-skillet',
@@ -379,11 +379,11 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('aubergine-meat-skillet'),
     ingredients: [
-      { itemKey: 'meat', name: 'Meat', quantity: 1 },
-      { itemKey: 'aubergine', name: 'Aubergine', quantity: 1 },
-      { itemKey: 'tomato', name: 'Tomato', quantity: 1 },
+      ingredient('meat', 1),
+      ingredient('aubergine', 1),
+      ingredient('tomato', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
     id: 'cook-orchard-roast',
@@ -392,10 +392,10 @@ export const HARVEST_COOKING_RECIPES: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('orchard-roast'),
     ingredients: [
-      { itemKey: 'meat', name: 'Meat', quantity: 1 },
-      { itemKey: 'apple', name: 'Apple', quantity: 1 },
-      { itemKey: 'cherry', name: 'Cherry', quantity: 1 },
+      ingredient('meat', 1),
+      ingredient('apple', 1),
+      ingredient('cherry', 1),
     ],
-    fuelOptions: [...COOKING_FUEL_OPTIONS],
+    fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
 ];

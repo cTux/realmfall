@@ -1,4 +1,3 @@
-import { makeCookedFish } from './inventory';
 import { GENERATED_CRAFTING_RECIPES } from './generatedCraftingRecipes';
 import { HARVEST_COOKING_RECIPES } from './harvestCookingRecipes';
 import { t } from '../i18n';
@@ -6,11 +5,14 @@ import { getGeneratedCraftingLore } from './content/generatedCraftingLore';
 import { itemName, recipeDescription, recipeName } from './content/i18n';
 import { buildItemFromConfig, getItemConfigByKey } from './content/items';
 import {
-  Skill,
-  type RecipeBookEntry,
-  type SkillName,
-  type StructureType,
-} from './types';
+  buildRecipeRequirement,
+  DEFAULT_COOKING_FUEL_OPTIONS,
+} from './recipeRequirements';
+export {
+  getRecipeRequiredStructure,
+  getRecipeSkillForStructure,
+} from './recipeStations';
+import { Skill, type RecipeBookEntry, type SkillName } from './types';
 import type {
   GameState,
   Item,
@@ -135,25 +137,7 @@ export function toggleFavoriteRecipe(state: GameState, recipeId: string) {
 }
 
 export function describeRequirement(requirement: RecipeRequirement) {
-  return `${requirement.quantity} ${requirement.name}`;
-}
-
-export function getRecipeRequiredStructure(
-  recipe: Pick<RecipeDefinition, 'skill'>,
-): StructureType | null {
-  if (recipe.skill === Skill.Hand) return null;
-  if (recipe.skill === Skill.Cooking) return 'camp';
-  if (recipe.skill === Skill.Smelting) return 'furnace';
-  return 'workshop';
-}
-
-export function getRecipeSkillForStructure(
-  structure?: StructureType,
-): SkillName | null {
-  if (structure === 'camp') return Skill.Cooking;
-  if (structure === 'furnace') return Skill.Smelting;
-  if (structure === 'workshop') return Skill.Crafting;
-  return null;
+  return `${requirement.quantity} ${getRequirementName(requirement)}`;
 }
 
 export function recipeUsesItemKey(
@@ -185,9 +169,7 @@ export function getRecipeOutput(
 function matchesRequirement(item: Item, requirement: RecipeRequirement) {
   return (
     item.quantity >= requirement.quantity &&
-    (requirement.itemKey
-      ? item.itemKey === requirement.itemKey
-      : item.name === requirement.name)
+    item.itemKey === requirement.itemKey
   );
 }
 
@@ -195,12 +177,6 @@ const RECIPE_REQUIREMENT_SCALE = 10;
 const RECIPE_FUEL_SCALE = 1;
 const COOKING_RECIPE_REQUIREMENT_SCALE = 1;
 const SMELTING_RECIPE_REQUIREMENT_SCALE = 1;
-const DEFAULT_COOKING_FUEL_OPTIONS: RecipeRequirement[] = [
-  { itemKey: 'coal', name: 'Coal', quantity: 1 },
-  { itemKey: 'logs', name: 'Logs', quantity: 2 },
-  { itemKey: 'sticks', name: 'Sticks', quantity: 8 },
-];
-
 function scaleRequirements(
   requirements: RecipeRequirement[],
   multiplier: number,
@@ -218,15 +194,15 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
     description: 'Twist flax fibers into workable cloth by hand.',
     skill: Skill.Hand,
     output: buildItemFromConfig('cloth'),
-    ingredients: [{ itemKey: 'flax', name: 'Flax', quantity: 1 }],
+    ingredients: [buildRecipeRequirement('flax', 1)],
   },
   {
     id: 'cook-cooked-fish',
     name: 'Cooked Fish',
     description: 'Cook raw fish over a small fire.',
     skill: Skill.Cooking,
-    output: makeCookedFish(),
-    ingredients: [{ itemKey: 'raw-fish', name: 'Raw Fish', quantity: 1 }],
+    output: buildItemFromConfig('cooked-fish'),
+    ingredients: [buildRecipeRequirement('raw-fish', 1)],
     fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
@@ -235,7 +211,7 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
     description: 'Refine a copper ore haul into a workable ingot.',
     skill: Skill.Smelting,
     output: buildItemFromConfig('copper-ingot'),
-    ingredients: [{ itemKey: 'copper-ore', name: 'Copper Ore', quantity: 1 }],
+    ingredients: [buildRecipeRequirement('copper-ore', 1)],
     fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
@@ -244,7 +220,7 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
     description: 'Smelt soft tin ore into a workable ingot for finer crafting.',
     skill: Skill.Smelting,
     output: buildItemFromConfig('tin-ingot'),
-    ingredients: [{ itemKey: 'tin-ore', name: 'Tin Ore', quantity: 1 }],
+    ingredients: [buildRecipeRequirement('tin-ore', 1)],
     fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
@@ -253,7 +229,7 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
     description: 'Smelt raw iron ore down into an ingot fit for crafting.',
     skill: Skill.Smelting,
     output: buildItemFromConfig('iron-ingot'),
-    ingredients: [{ itemKey: 'iron-ore', name: 'Iron Ore', quantity: 1 }],
+    ingredients: [buildRecipeRequirement('iron-ore', 1)],
     fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
@@ -263,7 +239,7 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
       'Refine bright gold ore into an ingot suited to precise metalwork.',
     skill: Skill.Smelting,
     output: buildItemFromConfig('gold-ingot'),
-    ingredients: [{ itemKey: 'gold-ore', name: 'Gold Ore', quantity: 1 }],
+    ingredients: [buildRecipeRequirement('gold-ore', 1)],
     fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
@@ -273,9 +249,7 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
       'Drive the furnace hotter and refine platinum ore into a pale ingot.',
     skill: Skill.Smelting,
     output: buildItemFromConfig('platinum-ingot'),
-    ingredients: [
-      { itemKey: 'platinum-ore', name: 'Platinum Ore', quantity: 1 },
-    ],
+    ingredients: [buildRecipeRequirement('platinum-ore', 1)],
     fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   {
@@ -285,8 +259,8 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
     skill: Skill.Cooking,
     output: buildItemFromConfig('trail-ration'),
     ingredients: [
-      { itemKey: 'cooked-fish', name: 'Cooked Fish', quantity: 1 },
-      { itemKey: 'herbs', name: 'Herbs', quantity: 1 },
+      buildRecipeRequirement('cooked-fish', 1),
+      buildRecipeRequirement('herbs', 1),
     ],
     fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
@@ -296,7 +270,7 @@ const RAW_RECIPE_BOOK_RECIPES_BASE: RecipeDefinition[] = [
     description: 'Boil water clean and bottle it for the march ahead.',
     skill: Skill.Cooking,
     output: buildItemFromConfig('water-flask'),
-    ingredients: [{ itemKey: 'herbs', name: 'Herbs', quantity: 1 }],
+    ingredients: [buildRecipeRequirement('herbs', 1)],
     fuelOptions: DEFAULT_COOKING_FUEL_OPTIONS,
   },
   ...HARVEST_COOKING_RECIPES,
@@ -355,15 +329,10 @@ function localizeRecipeDefinition(recipe: RecipeDefinition) {
 }
 
 function localizeRequirementName(requirement: RecipeRequirement) {
-  if (!requirement.itemKey) {
-    return requirement;
-  }
-
   defineLocalizedProperty(
     requirement,
     'name',
-    () =>
-      getItemConfigByKey(requirement.itemKey!)?.name ?? requirement.itemKey!,
+    () => getItemConfigByKey(requirement.itemKey)?.name ?? requirement.itemKey,
   );
 
   return requirement;
@@ -382,6 +351,14 @@ function localizeItemName(item: Item) {
   );
 
   return item;
+}
+
+function getRequirementName(requirement: RecipeRequirement) {
+  return (
+    requirement.name ??
+    getItemConfigByKey(requirement.itemKey)?.name ??
+    requirement.itemKey
+  );
 }
 
 function defineLocalizedProperty<T extends object, K extends keyof T>(

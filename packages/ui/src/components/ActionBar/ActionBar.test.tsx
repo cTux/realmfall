@@ -2,7 +2,7 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { vi } from 'vitest';
 import { GameTag } from '../../game/content/tags';
-import type { Item } from '../../game/stateTypes';
+import type { ItemView } from '../../game/stateTypes';
 import { loadI18n } from '../../i18n';
 import { ActionBar } from './ActionBar';
 import enTranslations from '../../../../client/src/i18n/locales/en.json';
@@ -44,7 +44,7 @@ describe('ActionBar', () => {
   });
 
   it('does not render cooldown overlays for populated slots', async () => {
-    const trailRation: Item = {
+    const trailRation: ItemView = {
       id: 'trail-ration-1',
       itemKey: 'trail-ration',
       name: 'Trail Ration',

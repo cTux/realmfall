@@ -1,19 +1,11 @@
 # Crafting Ingot Redistribution
 
-This note captures the transient design context for redistributing generated
-workshop recipes across the existing smelted ingot set.
+Historical note for the shipped workshop ingot redistribution work.
 
-## Goal
+Canonical references:
 
-Replace the old concentration on `iron-ingot` in generated workshop recipes
-with a deterministic spread across `copper-ingot`, `tin-ingot`, `iron-ingot`,
-`gold-ingot`, and `platinum-ingot` while keeping balance close to the existing
-catalog.
-
-## Constraints
-
-- Keep recipes deterministic.
-- Keep one canonical recipe per output.
+- Gameplay behavior: [Crafting And Recipes](../../../specs/reference/gameplay-features/crafting-and-recipes/spec.md)
+- Related gameplay: [Items, Loot, And Equipment](../../../specs/reference/gameplay-features/items-loot-and-equipment/spec.md)
 - Do not introduce "any ingot" ingredient logic.
 - Preserve non-metal ingredients and quantity costs.
 

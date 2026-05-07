@@ -10,15 +10,8 @@ import {
 } from 'react';
 import type { Application } from 'pixi.js';
 import type { TooltipPosition } from '@realmfall/ui';
-import { WORLD_MOVE_HEX_COOLDOWN_MS } from '../../game/config';
-import { hexKey, hexesInRange } from '../../game/hex';
-import { startCombat } from '../../game/stateCombat';
 import type { GameState, HexCoord } from '../../game/stateTypes';
-import { WORLD_COMBAT_LUNGE_DURATION_MS } from '../../game/worldCombatPresentation';
-import { getWorldHexSize } from '../../ui/world/renderSceneMath';
-import { type VisibleWorldTile } from '../../ui/world/visibleWorldTiles';
 import type { WorldMapCameraState } from '../../ui/world/worldMapCamera';
-import { getWorldCombatLungeOffset } from '../../ui/world/worldCombatLunge';
 import {
   normalizeCloudTransparency,
   normalizeWorldRenderFps,
@@ -32,8 +25,18 @@ import {
 import { sameCoord } from './usePixiWorldHover';
 import type { WorldHoverAnalysisController } from './world/pixiWorldHoverInteractions';
 import type { WorldMapDragState } from './world/pixiWorldInteractions';
+import {
+  autoStartPendingCombat,
+  getPendingCombatUpdatePlan,
+  getPostCombatAutoStepTransition,
+  stampPendingCombatIntro,
+  type PendingVictoryTransitionOffset,
+} from './world/pixiWorldPendingCombat';
 import type { PixiWorldInitGraphicsSettings } from './world/pixiWorldBootstrap';
-import type { WorldTileResolutionOverlayEntry } from './world/tileResolution/worldTileResolutionCoordinator';
+import {
+  useWorldTileResolutionLifecycle,
+  type VisibleTilesUpdate,
+} from './world/tileResolution/useWorldTileResolutionLifecycle';
 import {
   createInitialWorldRenderSnapshot,
   type WorldRenderSnapshot,
@@ -44,35 +47,6 @@ import {
   type WorldMovementTransition,
 } from './world/movement/worldMovementTransition';
 import type { WorldMovementAutoOpenSuppressionState } from './world/movement/worldMovementController';
-
-type VisibleWorldResolutionState = Pick<
-  GameState,
-  'bloodMoonActive' | 'radius' | 'seed'
-> & {
-  playerCoord: HexCoord;
-  resolvedTiles: GameState['tiles'];
-};
-
-interface TileResolutionCoordinator {
-  dispose(): Promise<void>;
-  syncVisibleCoords(state: VisibleWorldResolutionState): Promise<void>;
-}
-
-interface VisibleWorldTileBuildArgs {
-  overlay: ReadonlyMap<string, WorldTileResolutionOverlayEntry>;
-  playerCoord: HexCoord;
-  radius: GameState['radius'];
-  resolvedTiles: GameState['tiles'];
-}
-
-type BuildVisibleWorldTiles = (
-  args: VisibleWorldTileBuildArgs,
-) => VisibleWorldTile[];
-
-type ReuseVisibleTiles = (
-  previousVisibleTiles: VisibleWorldTile[],
-  nextVisibleTiles: VisibleWorldTile[],
-) => VisibleWorldTile[];
 
 const DEFAULT_WORLD_MAP_CAMERA: WorldMapCameraState = {
   zoom: 1,
@@ -140,17 +114,6 @@ export function usePixiWorld({
   );
   const worldTooltipKeyRef = useRef<string | null>(null);
   const playerCoordRef = useRef(game.player.coord);
-  const resolutionCoordinatorRef = useRef<TileResolutionCoordinator | null>(
-    null,
-  );
-  const resolutionOverlayRef = useRef<
-    ReadonlyMap<string, WorldTileResolutionOverlayEntry>
-  >(new Map());
-  const buildVisibleTilesRef = useRef<BuildVisibleWorldTiles>(
-    buildResolvedVisibleWorldTiles,
-  );
-  const reuseVisibleTilesRef = useRef<ReuseVisibleTiles>((_, next) => next);
-  const visibleTilesRef = useRef<VisibleWorldTile[]>(undefined!);
   const hoverPointerRef = useRef<{ clientX: number; clientY: number } | null>(
     null,
   );
@@ -182,11 +145,8 @@ export function usePixiWorld({
   const renderInvalidationRef = useRef(0);
   const movementCooldownEndAtRef = useRef<number | null>(null);
   const movementTransitionRef = useRef<WorldMovementTransition | null>(null);
-  const pendingVictoryTransitionOffsetRef = useRef<{
-    fromCoord: HexCoord;
-    offset: { x: number; y: number };
-    toCoord: HexCoord;
-  } | null>(null);
+  const pendingVictoryTransitionOffsetRef =
+    useRef<PendingVictoryTransitionOffset | null>(null);
   const movementControllerRef = useRef<WorldMovementController | null>(null);
   const combatIntroTimerRef = useRef<number | null>(null);
   const [canvasReady, setCanvasReady] = useState(false);
@@ -201,15 +161,6 @@ export function usePixiWorld({
     setCanvasError(false);
     setBootstrapAttempt((current) => current + 1);
   }, []);
-
-  if (visibleTilesRef.current === undefined) {
-    visibleTilesRef.current = buildVisibleTilesRef.current({
-      overlay: resolutionOverlayRef.current,
-      playerCoord: game.player.coord,
-      radius: game.radius,
-      resolvedTiles: game.tiles,
-    });
-  }
 
   if (hoverAnalysisCacheRef.current === undefined) {
     hoverAnalysisCacheRef.current = new Map<string, WorldHoverSnapshot>();
@@ -230,39 +181,79 @@ export function usePixiWorld({
       getPixiInitGraphicsSettings(graphicsSettings);
   }
 
+  const handleVisibleTilesUpdated = useCallback(
+    ({
+      nextVisibleTiles,
+      playerCoord,
+      previousPlayerCoord,
+      previousVisibleTiles,
+    }: VisibleTilesUpdate) => {
+      if (sameCoord(previousPlayerCoord, playerCoord)) {
+        return;
+      }
+
+      const pendingVictoryTransitionOffset =
+        pendingVictoryTransitionOffsetRef.current;
+      const playerOffsetAtStart =
+        pendingVictoryTransitionOffset &&
+        sameCoord(
+          pendingVictoryTransitionOffset.fromCoord,
+          previousPlayerCoord,
+        ) &&
+        sameCoord(pendingVictoryTransitionOffset.toCoord, playerCoord)
+          ? pendingVictoryTransitionOffset.offset
+          : undefined;
+      pendingVictoryTransitionOffsetRef.current = null;
+
+      const nextTransition = createWorldMovementTransition({
+        durationMs: WORLD_MOVE_VISUAL_DURATION_MS,
+        fromCoord: previousPlayerCoord,
+        nextVisibleTiles,
+        playerOffsetAtStart,
+        previousVisibleTiles,
+        startedAtMs: performance.now(),
+        toCoord: playerCoord,
+      });
+
+      if (nextTransition) {
+        movementTransitionRef.current = nextTransition;
+        renderInvalidationRef.current += 1;
+        return;
+      }
+
+      if (movementTransitionRef.current !== null) {
+        movementTransitionRef.current = null;
+        renderInvalidationRef.current += 1;
+      }
+    },
+    [],
+  );
+
   useEffect(() => {
     gameRef.current = game;
   }, [game, gameRef]);
 
   useEffect(() => {
     const previousGame = previousGameRef.current;
-    const previousEngagement = previousGame.combat?.engagement;
-    if (
-      previousGame !== game &&
-      previousEngagement?.autoStepOnVictory &&
-      previousEngagement.targetCoord !== null &&
-      game.combat === null &&
-      sameCoord(game.player.coord, previousEngagement.targetCoord) &&
-      !sameCoord(previousGame.player.coord, previousEngagement.targetCoord)
-    ) {
-      const carriedOffset = getPostCombatTransitionOffset({
-        app: appRef.current,
-        previousGame,
-      });
-      pendingVictoryTransitionOffsetRef.current = carriedOffset
-        ? {
-            fromCoord: previousGame.player.coord,
-            offset: carriedOffset,
-            toCoord: previousEngagement.targetCoord,
-          }
-        : null;
+    const postCombatAutoStepTransition = getPostCombatAutoStepTransition({
+      app: appRef.current,
+      game,
+      nowMs: performance.now(),
+      previousGame,
+    });
 
-      const cooldownEndAtMs = performance.now() + WORLD_MOVE_HEX_COOLDOWN_MS;
+    if (postCombatAutoStepTransition) {
+      pendingVictoryTransitionOffsetRef.current =
+        postCombatAutoStepTransition.pendingVictoryTransitionOffset;
+
       const movementController = movementControllerRef.current;
       if (movementController) {
-        movementController.seedCooldownUntil(cooldownEndAtMs);
+        movementController.seedCooldownUntil(
+          postCombatAutoStepTransition.cooldownEndAtMs,
+        );
       } else {
-        movementCooldownEndAtRef.current = cooldownEndAtMs;
+        movementCooldownEndAtRef.current =
+          postCombatAutoStepTransition.cooldownEndAtMs;
         renderInvalidationRef.current += 1;
       }
     }
@@ -309,204 +300,16 @@ export function usePixiWorld({
     app.ticker.maxFPS = normalizedWorldRenderFps;
   }, [worldRenderFps]);
 
-  useEffect(() => {
-    if (!enabled) {
-      return;
-    }
-
-    if (resolutionCoordinatorRef.current !== null) {
-      return;
-    }
-
-    let disposed = false;
-    let coordinator: TileResolutionCoordinator | null = null;
-
-    const initializeCoordinator = async () => {
-      const [
-        { buildVisibleWorldTiles },
-        { reuseVisibleTilesIfUnchanged },
-        { hydrateResolvedWorldTilePayload },
-        { createLocalTileResolutionSource },
-        { createWorkerTileResolutionSource },
-        { createWorldTileResolutionCoordinator },
-      ] = await Promise.all([
-        import('./world/buildVisibleWorldTiles'),
-        import('./selectors/reuseVisibleTilesIfUnchanged'),
-        import('../../game/worldTileResolutionRuntime'),
-        import('./world/tileResolution/createLocalTileResolutionSource'),
-        import('./world/tileResolution/createWorkerTileResolutionSource'),
-        import('./world/tileResolution/worldTileResolutionCoordinator'),
-      ]);
-
-      if (disposed || resolutionCoordinatorRef.current !== null) {
-        return;
-      }
-
-      buildVisibleTilesRef.current = buildVisibleWorldTiles;
-      reuseVisibleTilesRef.current = reuseVisibleTilesIfUnchanged;
-      visibleTilesRef.current = reuseVisibleTilesRef.current(
-        visibleTilesRef.current,
-        buildVisibleTilesRef.current({
-          overlay: resolutionOverlayRef.current,
-          playerCoord: playerCoordRef.current,
-          radius: gameRef.current.radius,
-          resolvedTiles: gameRef.current.tiles,
-        }),
-      );
-      renderInvalidationRef.current += 1;
-
-      let source;
-      try {
-        source = createWorkerTileResolutionSource();
-      } catch {
-        source = createLocalTileResolutionSource();
-      }
-
-      coordinator = createWorldTileResolutionCoordinator({
-        now: () => performance.now(),
-        onMergeResolvedTiles: (payloads) => {
-          if (payloads.length === 0) {
-            return;
-          }
-
-          setGame((current) => {
-            const nextTiles = { ...current.tiles };
-            const nextEnemies = { ...current.enemies };
-            const activeWorldId =
-              current.worlds[current.activeWorldId] !== undefined
-                ? current.activeWorldId
-                : current.surfaceWorldId;
-            const activeWorld = current.worlds[activeWorldId];
-
-            for (const resolvedPayload of payloads.map(
-              hydrateResolvedWorldTilePayload,
-            )) {
-              nextTiles[hexKey(resolvedPayload.coord)] = resolvedPayload.tile;
-              for (const enemy of resolvedPayload.enemies) {
-                nextEnemies[enemy.id] ??= enemy;
-              }
-            }
-
-            const nextGame = {
-              ...current,
-              worlds:
-                activeWorld === undefined
-                  ? current.worlds
-                  : {
-                      ...current.worlds,
-                      [activeWorldId]: {
-                        ...activeWorld,
-                        tiles: nextTiles,
-                        enemies: nextEnemies,
-                      },
-                    },
-              tiles: nextTiles,
-              enemies: nextEnemies,
-            };
-            gameRef.current = nextGame;
-            return nextGame;
-          });
-        },
-        onOverlayChange: (overlay) => {
-          resolutionOverlayRef.current = overlay;
-          visibleTilesRef.current = reuseVisibleTilesRef.current(
-            visibleTilesRef.current,
-            buildVisibleTilesRef.current({
-              overlay,
-              playerCoord: playerCoordRef.current,
-              radius: gameRef.current.radius,
-              resolvedTiles: gameRef.current.tiles,
-            }),
-          );
-          renderInvalidationRef.current += 1;
-        },
-        source,
-      });
-
-      if (disposed) {
-        void coordinator.dispose();
-        coordinator = null;
-        return;
-      }
-
-      resolutionCoordinatorRef.current = coordinator;
-      try {
-        await syncTileResolutionCoordinator(coordinator, gameRef.current);
-      } catch (error) {
-        if (!disposed) {
-          console.error(error);
-        }
-      }
-    };
-
-    void initializeCoordinator().catch((error: unknown) => {
-      if (!disposed) {
-        console.error(error);
-      }
-    });
-
-    return () => {
-      disposed = true;
-      if (resolutionCoordinatorRef.current === coordinator && coordinator) {
-        resolutionCoordinatorRef.current = null;
-      }
-      if (coordinator !== null) {
-        void coordinator.dispose();
-      }
-    };
-  }, [enabled, gameRef, setGame]);
-
-  useEffect(() => {
-    const previousPlayerCoord = playerCoordRef.current;
-    const previousVisibleTiles = visibleTilesRef.current;
-    const nextVisibleTiles = reuseVisibleTilesRef.current(
-      visibleTilesRef.current,
-      buildVisibleTilesRef.current({
-        overlay: resolutionOverlayRef.current,
-        playerCoord,
-        radius: game.radius,
-        resolvedTiles: game.tiles,
-      }),
-    );
-
-    playerCoordRef.current = playerCoord;
-    visibleTilesRef.current = nextVisibleTiles;
-
-    if (sameCoord(previousPlayerCoord, playerCoord)) {
-      return;
-    }
-
-    const pendingVictoryTransitionOffset =
-      pendingVictoryTransitionOffsetRef.current;
-    const playerOffsetAtStart =
-      pendingVictoryTransitionOffset &&
-      sameCoord(pendingVictoryTransitionOffset.fromCoord, previousPlayerCoord) &&
-      sameCoord(pendingVictoryTransitionOffset.toCoord, playerCoord)
-        ? pendingVictoryTransitionOffset.offset
-        : undefined;
-    pendingVictoryTransitionOffsetRef.current = null;
-
-    const nextTransition = createWorldMovementTransition({
-      durationMs: WORLD_MOVE_VISUAL_DURATION_MS,
-      fromCoord: previousPlayerCoord,
-      nextVisibleTiles,
-      playerOffsetAtStart,
-      previousVisibleTiles,
-      startedAtMs: performance.now(),
-      toCoord: playerCoord,
-    });
-
-    if (nextTransition) {
-      movementTransitionRef.current = nextTransition;
-      renderInvalidationRef.current += 1;
-      return;
-    }
-
-    if (movementTransitionRef.current !== null) {
-      movementTransitionRef.current = null;
-      renderInvalidationRef.current += 1;
-    }
-  }, [game.radius, game.tiles, playerCoord]);
+  const { visibleTilesRef } = useWorldTileResolutionLifecycle({
+    enabled,
+    game,
+    gameRef,
+    onVisibleTilesUpdated: handleVisibleTilesUpdated,
+    playerCoord,
+    playerCoordRef,
+    renderInvalidationRef,
+    setGame,
+  });
 
   useEffect(() => {
     if (combatIntroTimerRef.current !== null) {
@@ -518,75 +321,41 @@ export function usePixiWorld({
       return;
     }
 
-    const pendingCombat = game.combat;
-    if (pendingCombat.startedAtMs == null) {
-      const remainingApproachMs = getPendingCombatApproachDelayMs({
-        combat: pendingCombat,
-        movementTransition: movementTransitionRef.current,
-        nowMs: performance.now(),
-        playerCoord,
-      });
-      if (remainingApproachMs > 0) {
-        combatIntroTimerRef.current = window.setTimeout(() => {
-          setGame((current) =>
-            stampPendingCombatIntro({
+    const pendingCombatPlan = getPendingCombatUpdatePlan({
+      combat: game.combat,
+      movementNowMs: performance.now(),
+      movementTransition: movementTransitionRef.current,
+      playerCoord,
+      worldTimeMs: worldTimeMsRef.current,
+    });
+    if (pendingCombatPlan.action === 'none') {
+      return;
+    }
+
+    const runPendingCombatPlan = () =>
+      setGame((current) =>
+        pendingCombatPlan.action === 'stamp'
+          ? stampPendingCombatIntro({
+              current,
+              gameRef,
+              worldTimeMs: worldTimeMsRef.current,
+            })
+          : autoStartPendingCombat({
               current,
               gameRef,
               worldTimeMs: worldTimeMsRef.current,
             }),
-          );
-        }, remainingApproachMs);
-        return;
-      }
-
-      if (hasPendingCombatLunge(pendingCombat)) {
-        setGame((current) =>
-          stampPendingCombatIntro({
-            current,
-            gameRef,
-            worldTimeMs: worldTimeMsRef.current,
-          }),
-        );
-        return;
-      }
-
-      setGame((current) =>
-        autoStartPendingCombat({
-          current,
-          gameRef,
-          worldTimeMs: worldTimeMsRef.current,
-        }),
       );
+
+    if (pendingCombatPlan.delayMs === 0) {
+      runPendingCombatPlan();
       return;
     }
 
-    const remainingIntroMs = hasPendingCombatLunge(pendingCombat)
-      ? Math.max(
-          0,
-          WORLD_COMBAT_LUNGE_DURATION_MS -
-            Math.max(0, worldTimeMsRef.current - pendingCombat.startedAtMs),
-        )
-      : 0;
-    if (remainingIntroMs === 0) {
-      setGame((current) =>
-        autoStartPendingCombat({
-          current,
-          gameRef,
-          worldTimeMs: worldTimeMsRef.current,
-        }),
-      );
-      return;
-    }
-
-    combatIntroTimerRef.current = window.setTimeout(() => {
-      setGame((current) =>
-        autoStartPendingCombat({
-          current,
-          gameRef,
-          worldTimeMs: worldTimeMsRef.current,
-        }),
-      );
-    }, remainingIntroMs);
+    combatIntroTimerRef.current = window.setTimeout(
+      runPendingCombatPlan,
+      pendingCombatPlan.delayMs,
+    );
 
     return () => {
       if (combatIntroTimerRef.current !== null) {
@@ -595,36 +364,6 @@ export function usePixiWorld({
       }
     };
   }, [game.combat, gameRef, paused, playerCoord, setGame, worldTimeMsRef]);
-
-  useEffect(() => {
-    if (!enabled) {
-      return;
-    }
-
-    const coordinator = resolutionCoordinatorRef.current;
-    if (!coordinator) {
-      return;
-    }
-
-    void coordinator
-      .syncVisibleCoords({
-        bloodMoonActive: game.bloodMoonActive,
-        playerCoord,
-        radius: game.radius,
-        resolvedTiles: game.tiles,
-        seed: game.seed,
-      })
-      .catch((error: unknown) => {
-        console.error(error);
-      });
-  }, [
-    enabled,
-    game.bloodMoonActive,
-    playerCoord,
-    game.radius,
-    game.seed,
-    game.tiles,
-  ]);
 
   useEffect(() => {
     selectedRef.current = playerCoord;
@@ -802,6 +541,7 @@ export function usePixiWorld({
     setGame,
     setTooltip,
     tooltipPositionRef,
+    visibleTilesRef,
     worldTimeMsRef,
   ]);
 
@@ -827,157 +567,4 @@ function getPixiInitGraphicsSettings(
     resolutionCap: graphicsSettings.resolutionCap,
     useContextAlpha: graphicsSettings.useContextAlpha,
   };
-}
-
-function buildResolvedVisibleWorldTiles({
-  playerCoord,
-  radius,
-  resolvedTiles,
-}: VisibleWorldTileBuildArgs): VisibleWorldTile[] {
-  return hexesInRange(playerCoord, radius).map((coord) => {
-    const tile = resolvedTiles[hexKey(coord)];
-    return (
-      tile ?? {
-        coord,
-        requestedAt: 0,
-        unknown: true,
-        terrain: 'mountain',
-        items: [],
-        enemyIds: [],
-      }
-    );
-  });
-}
-
-function syncTileResolutionCoordinator(
-  coordinator: TileResolutionCoordinator,
-  game: Pick<
-    GameState,
-    'bloodMoonActive' | 'player' | 'radius' | 'seed' | 'tiles'
-  >,
-) {
-  return coordinator.syncVisibleCoords({
-    bloodMoonActive: game.bloodMoonActive,
-    playerCoord: game.player.coord,
-    radius: game.radius,
-    resolvedTiles: game.tiles,
-    seed: game.seed,
-  });
-}
-
-function getPendingCombatApproachDelayMs({
-  combat,
-  movementTransition,
-  nowMs,
-  playerCoord,
-}: {
-  combat: NonNullable<GameState['combat']>;
-  movementTransition: WorldMovementTransition | null;
-  nowMs: number;
-  playerCoord: HexCoord;
-}) {
-  if (!hasPendingCombatLunge(combat)) {
-    return 0;
-  }
-
-  if (
-    !movementTransition ||
-    !sameCoord(movementTransition.toCoord, playerCoord)
-  ) {
-    return 0;
-  }
-
-  return Math.max(
-    0,
-    movementTransition.startedAtMs + movementTransition.durationMs - nowMs,
-  );
-}
-
-function hasPendingCombatLunge(combat: NonNullable<GameState['combat']>) {
-  const targetCoord = combat.engagement?.targetCoord;
-  const stagingCoord = combat.engagement?.stagingCoord;
-  return Boolean(
-    targetCoord && stagingCoord && !sameCoord(targetCoord, stagingCoord),
-  );
-}
-
-function stampPendingCombatIntro({
-  current,
-  gameRef,
-  worldTimeMs,
-}: {
-  current: GameState;
-  gameRef: MutableRefObject<GameState>;
-  worldTimeMs: number;
-}) {
-  if (
-    !current.combat ||
-    current.combat.started ||
-    current.combat.startedAtMs != null
-  ) {
-    return current;
-  }
-
-  const next = {
-    ...current,
-    combat: {
-      ...current.combat,
-      startedAtMs: worldTimeMs,
-    },
-  };
-  gameRef.current = next;
-  return next;
-}
-
-function autoStartPendingCombat({
-  current,
-  gameRef,
-  worldTimeMs,
-}: {
-  current: GameState;
-  gameRef: MutableRefObject<GameState>;
-  worldTimeMs: number;
-}) {
-  if (!current.combat || current.combat.started) {
-    return current;
-  }
-
-  const next = startCombat({
-    ...current,
-    worldTimeMs,
-  });
-  gameRef.current = next;
-  return next;
-}
-
-function getPostCombatTransitionOffset({
-  app,
-  previousGame,
-}: {
-  app: Application | null;
-  previousGame: GameState;
-}) {
-  const combat = previousGame.combat;
-  const engagement = combat?.engagement;
-  if (
-    !app ||
-    combat === null ||
-    combat.startedAtMs == null ||
-    !engagement?.stagingCoord ||
-    !engagement.targetCoord
-  ) {
-    return null;
-  }
-
-  const hexSize = getWorldHexSize(app.screen, previousGame.radius);
-  const offset = getWorldCombatLungeOffset({
-    hexSize,
-    phase: combat.started ? 'held' : 'animating',
-    stagingCoord: engagement.stagingCoord,
-    startedAtMs: combat.startedAtMs,
-    targetCoord: engagement.targetCoord,
-    worldTimeMs: previousGame.worldTimeMs,
-  });
-
-  return Math.hypot(offset.x, offset.y) > 0 ? offset : null;
 }

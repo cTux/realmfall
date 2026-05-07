@@ -31,8 +31,8 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - When the browser performance harness is active, `renderScene` forwards the latest render-pass counters into `window.__REALMFALL_PERF__`, letting manual scenarios compare hover, pan, and window-toggle redraw breadth against the static, interaction, and animated layer counters.
 - Static redraws build one shared visible-tile render input list and reuse it for static render-token derivation plus marker composition, so enemy lookups are not repeated for the same tile during one redraw.
 - When offscreen enemy-only clones leave the visible-enemy token unchanged, the scene cache advances its stored `enemies` source reference so later animation ticks do not keep recomputing the visible-enemy token against the same unchanged state.
-- `usePixiWorld` reuses the previous `visibleTiles` array when unrelated state clones leave the visible tile set untouched, and render-version caching keys off those stable world-facing inputs plus the specific enemy and world flags that actually affect Pixi output.
-- `usePixiWorld` updates the cached visible-tile list only when world-facing inputs such as player position, world radius, seed, or visible tile data change, instead of recomputing visible tiles on every unrelated root-state clone.
+- `useWorldTileResolutionLifecycle` reuses the previous `visibleTiles` array when unrelated state clones leave the visible tile set untouched, and render-version caching keys off those stable world-facing inputs plus the specific enemy and world flags that actually affect Pixi output.
+- `useWorldTileResolutionLifecycle` updates the cached visible-tile list only when world-facing inputs such as player position, world radius, seed, or visible tile data change, instead of recomputing visible tiles on every unrelated root-state clone.
 - Visible-tile reuse metadata is attached to whichever array `usePixiWorld` keeps, including caller-seeded reused arrays, so later unchanged updates can hit the no-recompute fast path instead of paying for another full visibility rebuild.
 - Once static layers are cached, animation-only frames reuse cached hot-structure light points for campfires and furnaces and skip the full visible-tile traversal instead of repeating enemy lookup and marker preparation work on every ticker tick.
 - Cached world-marker wrappers now keep deterministic per-hex animation metadata, so animation-only frames can pulse or bob hostile markers by mutating live sprite transforms instead of rebuilding static marker pools.
@@ -57,8 +57,9 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - The custom world-map fisheye shader follows Pixi v8 filter shader semantics on both stages: the vertex shader emits `vTextureCoord`, and the fragment shader consumes `in vec2 vTextureCoord` and samples `uTexture` so the filter can compile cleanly when the fisheye path is enabled again.
 - World SVG icon URLs are promoted into `ImageSource`-backed textures before sprite creation, so Pixi marker sprites do not depend on string-based asset lookup in the browser runtime.
 - The world bootstrap keeps world-only icon preloading, scene-cache setup, and world-hover tooltip helpers behind the same async world bootstrap boundary as Pixi and scene rendering, so the initial `App` chunk does not absorb renderer-only code before the world canvas mounts.
+- `src/app/App/world/pixiWorldPendingCombat.ts` owns delayed hostile-click combat intro timing, pending combat auto-start decisions, and victory carryover offset seeding so `usePixiWorld.ts` can delegate that combat-staging branch instead of keeping it inline with tile-resolution and bootstrap effects.
 - Visible world-icon preloading derives its dynamic icon set from the visible tiles plus the enemy lookup those tiles reference, rather than from a broad `GameState` object, so the preload path tracks the actual world marker inputs it consumes.
-- `usePixiWorld` delegates Pixi canvas bootstrap, render-loop comparison, pointer interaction wiring, and camera persistence to neighboring `src/app/App/world` modules so the hook stays centered on refs, invalidation state, and bootstrap status.
+- `usePixiWorld` delegates tile-resolution lifecycle, Pixi canvas bootstrap, render-loop comparison, pointer interaction wiring, and camera persistence to neighboring `src/app/App/world` modules so the hook stays centered on refs, invalidation state, movement transitions, and bootstrap status.
 - While the fisheye feature flag is off, the live world runtime imports a no-op fisheye adapter instead of the shader implementation, so normal Pixi bootstrap does not load or construct the disabled filter.
 - The world bootstrap blocks only on the icon textures needed for the initial visible viewport, while the remaining icon catalog warms in background idle slices after the first canvas paint.
 - If Pixi world bootstrap fails during async module loading, visible-icon texture preload, or renderer initialization, the app surfaces a world-canvas error state with a retry action instead of leaving the shell in a loading-only state.
@@ -77,6 +78,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 ## Main Implementation Areas
 
 - `src/app/App/usePixiWorld.ts`
+- `src/app/App/world/tileResolution/useWorldTileResolutionLifecycle.ts`
 - `src/app/App/world/pixiWorldBootstrap.ts`
 - `src/app/App/world/pixiWorldRenderLoop.ts`
 - `src/app/App/world/pixiWorldCamera.ts`

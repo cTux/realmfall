@@ -1,7 +1,10 @@
 # Implementation Notes
 
 `docs/implementation-notes` stores transient planning material that is not a
-canonical description of shipped behavior.
+canonical description of shipped behavior. Active workspaces can keep
+`plan.md`, `research.md`, or checklists while work is in flight; historical or
+shipped workspaces should collapse back to one short `brief.md` with canonical
+links.
 
 Common workspace groups:
 

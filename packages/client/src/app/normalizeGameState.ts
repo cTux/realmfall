@@ -1,6 +1,15 @@
 import { syncPlayerBaseStats } from '../game/balance';
 import { normalizeConfiguredEnemyName } from '../game/configuredEnemyName';
 import { syncActiveWorldAliases } from '../game/dungeons/worldState';
+import {
+  cloneEnemies,
+  cloneEnemy,
+  cloneEquipment,
+  cloneItems,
+  clonePlayer,
+  cloneTile,
+  cloneTiles,
+} from '../game/stateClone';
 import type {
   DungeonWorldMetadata,
   GameWorldState,
@@ -388,6 +397,18 @@ function normalizeTile(
       : fallback?.structureMaxHp === undefined
         ? {}
         : { structureMaxHp: fallback.structureMaxHp }),
+    ...(isFiniteNumber(value.townStockDay)
+      ? { townStockDay: value.townStockDay }
+      : fallback?.townStockDay === undefined
+        ? {}
+        : { townStockDay: fallback.townStockDay }),
+    ...(isStringArray(value.townStockPurchasedItemIds)
+      ? { townStockPurchasedItemIds: [...value.townStockPurchasedItemIds] }
+      : fallback?.townStockPurchasedItemIds === undefined
+        ? {}
+        : {
+            townStockPurchasedItemIds: [...fallback.townStockPurchasedItemIds],
+          }),
     items,
     enemyIds: isStringArray(value.enemyIds)
       ? [...value.enemyIds]
@@ -685,7 +706,7 @@ function normalizeEquipment(
 
 function normalizeItemArray(value: unknown, fallback: Item[]) {
   if (!Array.isArray(value)) {
-    return fallback.map((item) => ({ ...item }));
+    return cloneItems(fallback);
   }
 
   const items = value.flatMap((item) => {
@@ -696,81 +717,5 @@ function normalizeItemArray(value: unknown, fallback: Item[]) {
 
   return items.length > 0 || value.length === 0
     ? consolidatedItems
-    : fallback.map((item) => ({ ...item }));
+    : cloneItems(fallback);
 }
-
-function cloneTile(tile: GameState['tiles'][string]) {
-  return {
-    ...tile,
-    coord: { ...tile.coord },
-    items: tile.items.map((item) => ({ ...item })),
-    enemyIds: [...tile.enemyIds],
-    ...(tile.claim === undefined
-      ? {}
-      : {
-          claim: {
-            ...tile.claim,
-            ...(tile.claim.npc === undefined
-              ? {}
-              : { npc: { ...tile.claim.npc } }),
-          },
-        }),
-  };
-}
-
-function cloneTiles(tiles: GameState['tiles']) {
-  return Object.fromEntries(
-    Object.entries(tiles).map(([key, tile]) => [key, cloneTile(tile)]),
-  ) as GameState['tiles'];
-}
-
-function cloneEnemy(enemy: GameState['enemies'][string]) {
-  return {
-    ...enemy,
-    coord: { ...enemy.coord },
-    ...(enemy.dungeonSpawnCoord === undefined
-      ? {}
-      : { dungeonSpawnCoord: { ...enemy.dungeonSpawnCoord } }),
-    ...(enemy.tags === undefined ? {} : { tags: [...enemy.tags] }),
-    ...(enemy.statusEffects === undefined
-      ? {}
-      : {
-          statusEffects: enemy.statusEffects.map((effect) => ({
-            ...effect,
-            ...(effect.tags === undefined ? {} : { tags: [...effect.tags] }),
-          })),
-        }),
-    ...(enemy.abilityIds === undefined
-      ? {}
-      : { abilityIds: [...enemy.abilityIds] }),
-  };
-}
-
-function cloneEnemies(enemies: GameState['enemies']) {
-  return Object.fromEntries(
-    Object.entries(enemies).map(([key, enemy]) => [key, cloneEnemy(enemy)]),
-  ) as GameState['enemies'];
-}
-
-function cloneEquipment(equipment: GameState['player']['equipment']) {
-  return Object.fromEntries(
-    Object.entries(equipment).map(([key, item]) => [key, { ...item }]),
-  ) as GameState['player']['equipment'];
-}
-
-function clonePlayer(player: GameState['player']) {
-  return {
-    ...player,
-    coord: { ...player.coord },
-    skills: normalizeSkills(player.skills, player.skills),
-    learnedRecipeIds: [...player.learnedRecipeIds],
-    favoriteRecipeIds: [...player.favoriteRecipeIds],
-    inventory: player.inventory.map((item) => ({ ...item })),
-    equipment: cloneEquipment(player.equipment),
-    statusEffects: player.statusEffects.map((effect) => ({
-      ...effect,
-      ...(effect.tags === undefined ? {} : { tags: [...effect.tags] }),
-    })),
-  };
-}
-

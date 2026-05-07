@@ -10,7 +10,10 @@ import {
 } from './config';
 import { createRng } from './random';
 import { makeEnemy, nextEnemySpawnIndex } from './combat';
-import { getSurfaceWorld } from './dungeons/worldState';
+import {
+  createSurfaceWorldAliasState,
+  getSurfaceWorld,
+} from './dungeons/worldState';
 import { hexDistance, hexKey, type HexCoord } from './hex';
 import { addLog, getWorldDayIndex } from './logs';
 import { isPassable } from './shared';
@@ -269,14 +272,7 @@ function ensureSurfaceTileState(state: GameState, coord: HexCoord) {
     return buildSurfaceTile(state.seed, coord);
   }
 
-  ensureTileState(
-    {
-      ...state,
-      activeWorldId: state.surfaceWorldId,
-      tiles: surfaceWorld.tiles,
-      enemies: surfaceWorld.enemies,
-    },
-    coord,
-  );
-  return surfaceWorld.tiles[hexKey(coord)]!;
+  const surfaceState = createSurfaceWorldAliasState(state);
+  ensureTileState(surfaceState, coord);
+  return surfaceState.tiles[hexKey(coord)]!;
 }

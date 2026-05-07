@@ -14,6 +14,10 @@ type ActiveWorldAliasState = Pick<
   GameState,
   'activeWorldId' | 'worlds' | 'tiles' | 'enemies'
 >;
+type SurfaceWorldAliasState = Pick<
+  GameState,
+  'surfaceWorldId' | 'activeWorldId' | 'worlds' | 'tiles' | 'enemies'
+>;
 
 export function createSurfaceWorldState(): SurfaceWorldState {
   return {
@@ -79,6 +83,38 @@ export function setActiveWorld<T extends ActiveWorldAliasState>(
 ): T {
   state.activeWorldId = worldId;
   return syncActiveWorldAliases(state);
+}
+
+export function createSurfaceWorldAliasState<T extends SurfaceWorldAliasState>(
+  state: T,
+) {
+  return syncActiveWorldAliases({
+    ...state,
+    activeWorldId: state.surfaceWorldId,
+  });
+}
+
+export function replaceWorldCollections<T extends ActiveWorldAliasState>(
+  state: T,
+  worldId: string,
+  { enemies, tiles }: Pick<GameWorldState, 'enemies' | 'tiles'>,
+) {
+  const world = state.worlds[worldId];
+  if (!world) {
+    return state;
+  }
+
+  return syncActiveWorldAliases({
+    ...state,
+    worlds: {
+      ...state.worlds,
+      [worldId]: {
+        ...world,
+        tiles,
+        enemies,
+      },
+    },
+  });
 }
 
 export function getEnemySpawnStructure(

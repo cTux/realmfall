@@ -11,5 +11,7 @@ Supporting docs:
 
 - [Implementation Notes](../implementation-notes/README.md)
 - [Rules](../RULES.md)
+- [Architecture Rules](../rules/10-architecture.md)
+- [React UI Rules](../rules/30-react-ui.md)
 
 Keep this file navigation-only.

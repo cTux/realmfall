@@ -381,8 +381,8 @@ export interface TownStockEntry {
 }
 
 export interface RecipeRequirement {
-  itemKey?: string;
-  name: string;
+  itemKey: ItemKey;
+  name?: string;
   quantity: number;
 }
 

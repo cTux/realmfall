@@ -1,6 +1,5 @@
 import { memo, useEffect, useRef } from 'react';
 import { t } from '../../i18n';
-import { ITEM_MODIFICATION_BALANCE } from '../../game/config';
 import type { ItemContextMenuProps } from './types';
 import styles from './styles.module.scss';
 
@@ -19,6 +18,7 @@ export const ItemContextMenu = memo(function ItemContextMenu({
   reforgeOptions = [],
   enchantCost = null,
   corruptCost = null,
+  corruptBreakChancePercent = null,
   onEquip,
   onUse,
   onDrop,
@@ -108,9 +108,7 @@ export const ItemContextMenu = memo(function ItemContextMenu({
           <button className={styles.action} onClick={onCorrupt}>
             {t('ui.itemMenu.corruptAction', {
               gold: corruptCost,
-              chance: Math.round(
-                ITEM_MODIFICATION_BALANCE.corrupt.breakChance * 100,
-              ),
+              chance: corruptBreakChancePercent ?? 0,
             })}
           </button>
         ) : null}

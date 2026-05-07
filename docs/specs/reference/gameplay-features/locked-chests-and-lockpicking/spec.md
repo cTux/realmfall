@@ -25,6 +25,7 @@ This spec covers locked chest world spawns, chest opener items, the lockpicking 
 - `src/game/stateLockedChests.ts`
 - `src/game/stateItemActions.ts`
 - `src/game/stateRewards.ts`
+- `src/game/stateRewards/enemyLoot.ts`
 - `src/game/combat.ts`
 - `src/game/content/items`
 - `src/game/content/structures`

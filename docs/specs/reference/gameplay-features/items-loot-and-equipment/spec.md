@@ -45,7 +45,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - Item tooltips and display names surface modification state directly: reforged secondary stats are pink, enchanted secondary stats are cyan, corrupted items append `[Corrupted]` with a red item title, and equippable items show at most one visible empty base-secondary slot at a time.
 - Loot can be taken item-by-item or collected from a tile in bulk.
 - World-generated weapons, armor, offhands, and artifacts scale by terrain tier and context, including generated shoulders, bracers, belts, shields, magical offhands, and one-handed or two-handed weapon archetypes.
-- World loot and blood moon bonus gear now choose their top-level item family from equal random buckets instead of weighted family chances, so weapons, armor, offhands, artifacts, and consumables do not skew toward accessory-heavy drops.
+- World loot and blood moon bonus gear now choose their top-level item family from weighted `game.config.ts` maps. Surface world caches remain consumable-heavy, while blood moon bonus gear leans toward weapons, armor, and offhands more than artifacts.
 - Offhand shields and magical spheres always include a block-chance secondary stat, including both generated drops and fixed crafted icon variants.
 - Enemy bonus drops now evaluate item-kind chances in ascending order from lowest to highest; each successful chance rolls an independent item drop so rarer kinds remain reachable while higher-chance kinds can still drop too.
 - Dungeon and blood moon rewards bias toward better rarity floors.
@@ -55,12 +55,15 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - Generated weapons and offhands now roll a deterministic granted combat ability that matches the item archetype, and equipped combatants surface those granted abilities in battle on top of the baseline `Kick`.
 - Crafted and fixed offhand gear such as bucklers, shields, magical spheres, and totems also roll a deterministic active ability from an archetype-appropriate pool.
 - Equippable item tooltips surface the granted combat ability directly so players can see the rolled skill before equipping the item.
-- Generated drop configs and craftable icon configs now derive their shared slot, category, icon-pool id family, offhand-occupancy, and granted-ability metadata from one canonical generated-equipment family manifest, so icon-family ownership does not drift between world drops and workshop outputs.
+- Generated drop configs and craftable icon configs now derive their shared slot, category, icon-pool id family, offhand-occupancy, granted-ability metadata, mirrored ring drop variants, and ring craft-slot distribution from one canonical generated-equipment family manifest, so icon-family ownership does not drift between world drops and workshop outputs.
+- Generated craftable icon recipes now derive ingredient sources and the preserved left-first ring slot split from that same generated-equipment family manifest instead of prefix-based recipe heuristics.
+- Recipe-page construction and crafted-output materialization now live in crafting-owned helpers, leaving `inventory.ts` focused on inventory mechanics instead of recipe ownership.
 - Item content keeps `src/game/content/items/index.ts` as a thin public facade while `itemCatalog.ts` assembles hydrated configs, `itemBuilders.ts` owns configured and generated item construction, and `itemClassification.ts` plus `itemCategoryRules.ts` own category and tag inference.
 
 ## Main Implementation Areas
 
 - `src/game/inventory.ts`
+- `src/game/craftingOutputs.ts`
 - `src/game/itemModifications.ts`
 - `src/game/consumables.ts`
 - `src/game/stateItemActions.ts`
@@ -68,6 +71,8 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - `src/game/world.ts`
 - `src/game/state.ts`
 - `src/game/stateRewards.ts`
+- `src/game/stateRewards/enemyLoot.ts`
+- `src/game/generatedCraftingRecipes.ts`
 - `src/game/content/items`
 - `src/game/content/generatedIconPools.ts`
 - `src/ui/generatedIconAssets.ts`

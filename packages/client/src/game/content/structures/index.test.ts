@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { ContentIcons } from '../icons';
 import { GAME_TAGS } from '../tags';
-import { getStructureConfig, pickStructureType } from './index';
+import {
+  getStructureConfig,
+  getStructureTypesProvidingFunction,
+  pickStructureType,
+} from './index';
 
 describe('pickStructureType', () => {
   it('uses the expected global and resource spawn bands across terrains', () => {
@@ -106,5 +110,14 @@ describe('localized structure config text', () => {
     );
     expect(furnace.title).toBe('Furnace');
     expect(furnace.tint).toBe(0xffffff);
+  });
+});
+
+describe('structure capabilities', () => {
+  it('indexes structure functions from canonical structure metadata', () => {
+    expect(getStructureTypesProvidingFunction('cook')).toEqual(['camp']);
+    expect(getStructureTypesProvidingFunction('smelt')).toEqual(['furnace']);
+    expect(getStructureTypesProvidingFunction('craft')).toEqual(['workshop']);
+    expect(getStructureTypesProvidingFunction('trade')).toEqual(['town']);
   });
 });

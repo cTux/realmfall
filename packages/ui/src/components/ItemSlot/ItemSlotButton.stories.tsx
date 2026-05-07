@@ -1,28 +1,49 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { EquipmentSlotId, ItemId } from '../../game/content/ids';
-import { buildItemFromConfig } from '../../game/content/items';
+import { EquipmentSlotId } from '../../game/content/ids';
 import { GameTag } from '../../game/content/tags';
-import {
-  createStorybookFixtures,
-  noop,
-  storySurfaceDecorator,
-} from '../storybook/storybookHelpers';
+import type { ItemView } from '../../game/stateTypes';
+import { noop, storySurfaceDecorator } from '../storybook/storybookHelpers';
 import { ItemSlotButton } from './ItemSlotButton';
 
-const fixtures = createStorybookFixtures();
-const filledItem =
-  fixtures.inventory.find((item) => item.slot) ?? fixtures.inventory[0];
-const stormBlade = buildItemFromConfig('storm-blade', {
-  id: 'storybook-storm-blade',
+const filledItem = createStoryItem({
+  id: 'storybook-camp-spear',
+  itemKey: 'camp-spear',
+  name: 'Camp Spear',
+  slot: EquipmentSlotId.Weapon,
   rarity: 'rare',
+  power: 6,
+  tags: [GameTag.ItemWeapon, GameTag.ItemEquipment],
 });
-const ashenCloak = buildItemFromConfig('ashen-cloak', {
+
+const stormBlade = createStoryItem({
+  id: 'storybook-storm-blade',
+  itemKey: 'storm-blade',
+  name: 'Storm Blade',
+  slot: EquipmentSlotId.Weapon,
+  rarity: 'rare',
+  power: 12,
+  tags: [GameTag.ItemWeapon, GameTag.ItemEquipment],
+});
+
+const ashenCloak = createStoryItem({
   id: 'storybook-ashen-cloak',
+  itemKey: 'ashen-cloak',
+  name: 'Ashen Cloak',
+  slot: EquipmentSlotId.Cloak,
   rarity: 'uncommon',
+  maxHp: 18,
+  tags: [GameTag.ItemArtifact, GameTag.ItemEquipment],
 });
-const voidCharm = buildItemFromConfig('void-charm', {
+
+const voidCharm = createStoryItem({
   id: 'storybook-void-charm',
+  itemKey: 'void-charm',
+  name: 'Void Charm',
+  slot: EquipmentSlotId.Relic,
   rarity: 'epic',
+  power: 4,
+  maxHp: 10,
+  tags: [GameTag.ItemArtifact, GameTag.ItemEquipment],
 });
 
 const meta = {
@@ -30,9 +51,7 @@ const meta = {
   component: ItemSlotButton,
   decorators: [storySurfaceDecorator],
   args: {
-    item: filledItem
-      ? { ...filledItem, rarity: 'rare' }
-      : fixtures.inventory[0],
+    item: filledItem,
     onClick: noop,
     onContextMenu: noop,
     onMouseEnter: noop,
@@ -85,22 +104,31 @@ export const EmptyEquipmentSlot: Story = {
 export const RecipePage: Story = {
   args: {
     size: 'compact',
-    item: {
+    item: createStoryItem({
       id: 'storybook-recipe-page',
-      itemKey: ItemId.RecipeBook,
+      itemKey: 'recipe-book',
       recipeId: 'craft-icon-axe-01',
       icon: 'recipe.svg',
       name: 'Recipe: Axe 01',
       tags: [GameTag.ItemResource, GameTag.ItemRecipe],
-      quantity: 1,
-      tier: 1,
       rarity: 'uncommon',
-      power: 0,
-      defense: 0,
-      maxHp: 0,
-      healing: 0,
-      hunger: 0,
-      thirst: 0,
-    },
+    }),
   },
 };
+
+function createStoryItem(overrides: Partial<ItemView>): ItemView {
+  return {
+    id: 'storybook-item',
+    name: 'Storybook Item',
+    quantity: 1,
+    tier: 1,
+    rarity: 'common',
+    power: 0,
+    defense: 0,
+    maxHp: 0,
+    healing: 0,
+    hunger: 0,
+    thirst: 0,
+    ...overrides,
+  };
+}

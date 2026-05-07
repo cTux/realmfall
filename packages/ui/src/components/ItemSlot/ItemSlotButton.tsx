@@ -2,7 +2,7 @@ import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react';
 import { formatCompactNumber } from '../../formatters';
 import { formatEquipmentSlotLabel, formatItemLabel } from '../../i18n/labels';
 import { t } from '../../i18n';
-import type { EquipmentSlot, Item } from '../../game/stateTypes';
+import type { EquipmentSlotView, ItemView } from '../../game/stateTypes';
 import { iconForItem, itemBorderColor, itemTint } from '../../icons';
 import styles from './styles.module.scss';
 
@@ -14,8 +14,8 @@ interface ItemSlotCornerIcon {
 
 export interface ItemSlotButtonProps {
   ariaLabel?: string;
-  item?: Item;
-  slot?: EquipmentSlot;
+  item?: ItemView;
+  slot?: EquipmentSlotView;
   size?: 'default' | 'compact';
   className?: string;
   style?: CSSProperties;
@@ -57,10 +57,12 @@ export function ItemSlotButton({
   onEmptyMouseEnter,
   onMouseLeave,
 }: ItemSlotButtonProps) {
+  const bridgeItem = item as Parameters<typeof itemTint>[0];
   const tint =
-    tintOverride ?? (item ? itemTint(item) : 'rgba(148, 163, 184, 0.32)');
+    tintOverride ??
+    (bridgeItem ? itemTint(bridgeItem) : 'rgba(148, 163, 184, 0.32)');
   const borderColor =
-    borderColorOverride ?? (item ? itemBorderColor(item) : tint);
+    borderColorOverride ?? (bridgeItem ? itemBorderColor(bridgeItem) : tint);
   const insetShadow = getInsetShadow(borderColor);
   const isInteractive = Boolean(
     !disabled &&
@@ -110,8 +112,12 @@ export function ItemSlotButton({
       {showIcon ? (
         <span
           className={styles.icon}
-          style={iconMaskStyle(iconForItem(item, slot), tint)}
-          aria-label={item && !ariaLabel ? formatItemLabel(item) : undefined}
+          style={iconMaskStyle(iconForItem(bridgeItem, slot), tint)}
+          aria-label={
+            item && !ariaLabel
+              ? formatItemLabel(item as Parameters<typeof formatItemLabel>[0])
+              : undefined
+          }
         />
       ) : null}
       {resolvedBadgeLabel ? (
@@ -137,7 +143,7 @@ export function ItemSlotButton({
   );
 }
 
-function getEmptySlotLabel(slot?: EquipmentSlot) {
+function getEmptySlotLabel(slot?: EquipmentSlotView) {
   if (!slot) return t('ui.common.empty');
   return `${formatEquipmentSlotLabel(slot)} ${t('ui.common.empty').toLowerCase()}`;
 }
