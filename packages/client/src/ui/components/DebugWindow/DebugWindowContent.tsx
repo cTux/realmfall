@@ -5,8 +5,8 @@ import {
   getItemConfigCategory,
   isEquippableItemCategory,
 } from '../../../game/content/items';
-import type { DebugEquipmentType } from '../../../game/stateDebug';
-import { DEBUG_EQUIPMENT_TYPES } from '../../../game/stateDebug';
+import type { DebugEquipmentType } from '../../../game/stateDebugWindow';
+import { DEBUG_EQUIPMENT_TYPES } from '../../../game/stateDebugWindow';
 import { RARITY_ORDER } from '../../../game/stateTypes';
 import { t } from '../../../i18n';
 import type { DebugWindowContentProps } from './types';
