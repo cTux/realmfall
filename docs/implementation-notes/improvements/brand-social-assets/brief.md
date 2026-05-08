@@ -1,6 +1,7 @@
 # Brand Social Assets
 
-Active design note for the Realmfall favicon and square social avatar refresh.
+Historical note for the shipped Realmfall favicon and square social avatar
+refresh.
 
 Canonical references:
 
