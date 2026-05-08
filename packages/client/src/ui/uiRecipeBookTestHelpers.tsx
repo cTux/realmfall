@@ -1,23 +1,25 @@
 import React from 'react';
-import { DEFAULT_WINDOWS } from '../app/constants';
 import { createSkillRecord } from '../game/skillRecords';
 import { Skill } from '../game/stateTypes';
-import { RecipeBookWindow } from './components/RecipeBookWindow';
+import { RecipeBookWindowContent } from './components/RecipeBookWindow/RecipeBookWindowContent';
 import { mountUi } from './uiTestHelpers';
+import recipeStyles from './components/RecipeBookWindow/styles.module.scss';
 
-type RecipeBookWindowProps = React.ComponentProps<typeof RecipeBookWindow>;
-type RecipeBookRecipe = NonNullable<RecipeBookWindowProps['recipes']>[number];
+type RecipeBookWindowContentProps = React.ComponentProps<
+  typeof RecipeBookWindowContent
+>;
+type RecipeBookRecipe = NonNullable<
+  RecipeBookWindowContentProps['recipes']
+>[number];
 type RecipeOverride = Omit<Partial<RecipeBookRecipe>, 'output'> & {
   output?: Partial<RecipeBookRecipe['output']>;
 };
 
 export const DEFAULT_RECIPE_SKILL_LEVELS = createSkillRecord(
   () => 1,
-) satisfies RecipeBookWindowProps['recipeSkillLevels'];
+) satisfies RecipeBookWindowContentProps['recipeSkillLevels'];
 
 const defaultRecipeBookProps = {
-  position: DEFAULT_WINDOWS.recipes,
-  onMove: () => {},
   currentStructure: 'camp',
   recipeSkillLevels: DEFAULT_RECIPE_SKILL_LEVELS,
   recipes: [],
@@ -27,7 +29,7 @@ const defaultRecipeBookProps = {
   onResetMaterialFilter: () => {},
   onCraft: () => {},
   onToggleFavoriteRecipe: () => {},
-} satisfies RecipeBookWindowProps;
+} satisfies RecipeBookWindowContentProps;
 
 export function createRecipe(overrides: RecipeOverride = {}): RecipeBookRecipe {
   const baseRecipe: RecipeBookRecipe = {
@@ -68,9 +70,13 @@ export function createRecipe(overrides: RecipeOverride = {}): RecipeBookRecipe {
 }
 
 export function mountRecipeBook(
-  overrides: Partial<RecipeBookWindowProps> = {},
+  overrides: Partial<RecipeBookWindowContentProps> = {},
 ) {
   return mountUi(
-    <RecipeBookWindow {...defaultRecipeBookProps} {...overrides} />,
+    <div className={recipeStyles.window}>
+      <div className={recipeStyles.windowBody}>
+        <RecipeBookWindowContent {...defaultRecipeBookProps} {...overrides} />
+      </div>
+    </div>,
   );
 }
