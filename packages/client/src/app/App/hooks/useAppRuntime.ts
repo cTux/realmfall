@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo } from 'react';
+import { getActiveWorld } from '../../../game/dungeons/worldState';
 import { getWorldDayIndex } from '../../../game/logs';
 import { getResolvedCurrentTile } from '../../../game/stateSelectors';
+import { getCurrentWorldRevealRadius } from '../../../game/stateOutposts';
 import { useAppControllers } from '../useAppControllers';
 import { getHexInteractActionLabel, useAppGameView } from '../useAppGameView';
 import { useAppPersistence } from '../useAppPersistence';
@@ -20,6 +22,7 @@ import { useCraftingRecipeBookPromotion } from './useCraftingRecipeBookPromotion
 import { useGameplayAutomation } from './useGameplayAutomation';
 import { useDungeonTransitionController } from './useDungeonTransitionController';
 import { useHexInfoWindowPromotion } from './useHexInfoWindowPromotion';
+import type { AppShellState } from '../AppShell.types';
 
 export function useAppRuntime() {
   const bootstrap = useAppBootstrapState();
@@ -258,12 +261,73 @@ export function useAppRuntime() {
     tooltipPositionRef: bootstrap.tooltipPositionRef,
     windowTransitions,
   });
+  const activeWorld = useMemo(
+    () =>
+      getActiveWorld({
+        activeWorldId: bootstrap.game.activeWorldId,
+        worlds: bootstrap.game.worlds,
+      }),
+    [bootstrap.game.activeWorldId, bootstrap.game.worlds],
+  );
+  const currentWorldKind = activeWorld?.kind ?? 'surface';
+  const dungeonExitHex =
+    activeWorld?.kind === 'dungeon' ? activeWorld.dungeon.entranceCoord : null;
+  const worldRevealRadius = useMemo(
+    () =>
+      getCurrentWorldRevealRadius({
+        activeWorldId: bootstrap.game.activeWorldId,
+        player: { coord: bootstrap.game.player.coord },
+        tiles: bootstrap.game.tiles,
+        worlds: bootstrap.game.worlds,
+      }),
+    [
+      bootstrap.game.activeWorldId,
+      bootstrap.game.player.coord,
+      bootstrap.game.tiles,
+      bootstrap.game.worlds,
+    ],
+  );
+  const shellState = useMemo(
+    () =>
+      ({
+        homeIndicator: {
+          currentWorldKind,
+          dungeonExitHex,
+          homeHex: bootstrap.game.homeHex,
+          playerCoord: bootstrap.game.player.coord,
+          radius: bootstrap.game.radius,
+          visibleRadius: worldRevealRadius,
+        },
+        voicePlayback: {
+          combat: bootstrap.game.combat,
+          logSequence: bootstrap.game.logSequence,
+          logs: bootstrap.game.logs,
+          player: {
+            hp: bootstrap.game.player.hp,
+            statusEffects: bootstrap.game.player.statusEffects,
+          },
+        },
+      }) satisfies AppShellState,
+    [
+      bootstrap.game.combat,
+      bootstrap.game.homeHex,
+      bootstrap.game.logs,
+      bootstrap.game.logSequence,
+      bootstrap.game.player.coord,
+      bootstrap.game.player.hp,
+      bootstrap.game.player.statusEffects,
+      bootstrap.game.radius,
+      currentWorldKind,
+      dungeonExitHex,
+      worldRevealRadius,
+    ],
+  );
 
   return {
     audioSettings: controllerState.audioSettings,
     backgroundMusicMood: gameView.backgroundMusicMood,
     claimedHex: gameView.firstClaimedHex,
-    game: bootstrap.game,
+    shellState,
     hostRef: pixiWorld.hostRef,
     interfaceSettings: controllerState.interfaceSettings,
     isReady,

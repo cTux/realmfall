@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useState, type MouseEvent } from 'react';
 import { Button } from '@realmfall/ui-react';
-import { loadI18n } from '../../../i18n';
+import { loadI18n } from '../../../i18n/bootstrap';
 import type { TooltipLine } from '../../tooltips';
 
 type HoverDetailHandler = (

@@ -37,7 +37,7 @@ describe('main bootstrap', { timeout: 10000 }, () => {
       default: { createRoot },
     }));
 
-    vi.doMock('./i18n', () => ({
+    vi.doMock('./i18n/bootstrap', () => ({
       loadI18n,
       t: (key: string) => key,
     }));
@@ -69,7 +69,7 @@ describe('main bootstrap', { timeout: 10000 }, () => {
     window.localStorage.clear();
     document.body.innerHTML = '';
     vi.doUnmock('react-dom/client');
-    vi.doUnmock('./i18n');
+    vi.doUnmock('./i18n/bootstrap');
     vi.doUnmock('./app/interfaceSettings');
     vi.doUnmock('./app/interfaceFonts');
     vi.doUnmock('./app/App');

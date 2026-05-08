@@ -49,6 +49,9 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `useAppControllers` exposes an explicit grouped contract with `state`, `actions`, and `mutators`, so callers can depend on stable responsibility buckets instead of a broad untyped bag of controller fields.
 - `useGameActionHandlers` routes gameplay mutations through a shared timed-transition helper so controller actions inject the current world time consistently without repeating the same wrapper at every call site.
 - `useGameActionHandlers` delegates repeated logged-command description shapes to neighboring `src/app/App/hooks/gameActionHandlers/*` helpers, with local descriptor records and a typed registry assembly pass per command family (inventory, town-stock, static, equipment-slot, and lazy debug) so the hook stays focused on pause gating, timed transition injection, and final handler wiring instead of rebuilding the same command-log adapters inline.
+- Lazy debug mutations stay behind the `stateDebug` dynamic import path, while
+  the debug window's eager constants and types live in a tiny neighboring module
+  instead of the shared gameplay state barrel.
 - `useLoggedGameCommand` wraps intentional command transitions at the app layer and appends localized `command` log entries only when the wrapped transition produces a state change, so command visibility stays centralized without turning passive UI events into log noise.
 - `useActionBarController` owns action-bar slot reconciliation, assignment, and slot activation so inventory-backed hotbar behavior does not share a file with unrelated window or menu state.
 - `useActionBarController` routes covered action-bar activations through the shared logged-command helper, so using a valid bound consumable produces both the player-command entry and the resulting gameplay log output.
@@ -64,8 +67,11 @@ This spec covers the top-level React hook composition and derived view-model pat
 - `useAppSettingsActions` keeps save-reset, settings persistence, and home-hex shell actions in one local hook instead of mixing those imperative flows into the main app component body.
 - `useAppSettingsActions` waits for the selected interface font to load before persisting and applying interface-setting changes, keeping live font switches aligned with the current document shell.
 - `useAppRuntime` groups those orchestration hooks into one local composition layer so the entry component no longer needs one large destructuring block for controllers, derived views, transitions, and shell props.
+- `useAppRuntime` assembles a dedicated `shellState` payload for `AppShell`, keeping
+  home-indicator and recorded-voice inputs on narrow slices instead of passing
+  the full `GameState` through the shell path.
 - `useWorldTileResolutionLifecycle` merges resolved worker payloads back through the shared active-world alias helper, so root `tiles` and `enemies` stay synchronized with the active world without a second hand-maintained merge path.
-- `usePixiWorld` stays as the public world-view facade while focused neighboring hooks own `usePixiWorldRenderSettingsSync`, `usePixiWorldPendingCombatLifecycle`, `usePixiWorldHoverLifecycle`, `usePixiWorldQueuedTravelSuppression`, and `usePixiWorldBootstrapLifecycle` behavior, with tile-resolution updates still flowing through `src/app/App/world/tileResolution/useWorldTileResolutionLifecycle.ts`.
+- `usePixiWorld` stays as the public world-view facade while focused neighboring hooks own `usePixiWorldRenderSettingsSync`, `usePixiWorldPendingCombatLifecycle`, `usePixiWorldHoverLifecycle`, `usePixiWorldQueuedTravelSuppression`, and `usePixiWorldBootstrapLifecycle` behavior, with tile-resolution updates flowing through `src/app/App/world/tileResolution/useWorldTileResolutionLifecycle.ts`.
 - `useDungeonTransitionController` owns dungeon enter or leave transitions, loading any persisted dungeon body before activation and surfacing transition state through the same top-level app readiness and retry path used by world bootstrap.
 - `useAppShortcutRuntime` owns shortcut-only availability wiring such as home-setting eligibility, keeping `useAppRuntime` from recomputing action gates inline next to unrelated lifecycle and persistence setup.
 - `useAppWindowRuntime` owns the memoized window view and action composition path before `AppWindows` props are assembled, so the top-level runtime hook does not rebuild the full window contract in the same block as combat automation and world bootstrap wiring.
@@ -79,10 +85,16 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Actionable world-click travel routes adjacent movement and safe-path travel through the same logged-command helper used by controller actions, while non-actionable clicks such as blocked terrain or out-of-range targets return early without adding command entries.
 - Secondary stage overlays such as the home-direction marker and version polling panel stay behind lazy boundaries so the `App` entry prioritizes world bootstrap and core window composition.
 - `AppShell` owns the lazy audio bridges, home-direction marker shell, pause overlay, and loading chrome so the main app entry can stay focused on hook composition and data flow.
+- `AppShell` receives that dedicated shell-state contract rather than the full
+  `GameState`, so unrelated gameplay clones do not force shell recomposition
+  just to keep the voice bridge and home indicator up to date.
 - That loading chrome is reused for dungeon world entry and exit, so world switching blocks interaction behind the fullscreen shell overlay instead of opening a window-local spinner.
 - `AppShell` lazy-loads the desktop window surface separately from the canvas shell, keeping fixed and deferred window composition out of the first App chunk while the world canvas bootstraps.
 - `AppShell` mounts optional recorded-voice and background-music bridges only after the first keyboard, pointer, mouse, or touch activation, keeping their asset manifests and deferred background-music `howler` work out of the pre-interaction path while the lighter UI-audio bridge remains ready for document-level settings.
 - `AppShell` passes a memoized voice playback event slice to the recorded-voice bridge instead of the full `GameState`, limiting voice event checks to combat, log, HP, and status-effect changes.
+- `AppWindows` stays behind a memo boundary so unchanged window props do not
+  rerender the dock, fixed windows, and deferred window composition on
+  unrelated shell updates.
 - The world-clock hook pauses its `requestAnimationFrame` loop while the document is hidden and resumes from a clean tick when the tab becomes visible again, avoiding idle background frame churn without desynchronizing world time.
 - Windows that only need the live world clock for cooldown or display state subscribe inside the leaf content component, so wrapper shells and suspense boundaries do not rerender on every clock tick.
 - Window dragging and resizing keep movement local to the window shell until pointer release, which avoids pushing every pointer delta through shared app state during the interaction.

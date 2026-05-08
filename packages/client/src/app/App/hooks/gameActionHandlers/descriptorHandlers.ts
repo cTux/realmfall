@@ -4,7 +4,7 @@ import type { InventorySortMode } from '../../../../game/inventory';
 import { craftRecipe } from '../../../../game/stateCrafting';
 import { forfeitCombat } from '../../../../game/stateCombat';
 import type { EnemyTypeKey, ItemKey } from '../../../../game/content/ids';
-import type { DebugEquipmentType } from '../../../../game/stateDebug';
+import type { DebugEquipmentType } from '../../../../game/stateDebugWindow';
 import {
   buyTownItem,
   dropEquippedItem,

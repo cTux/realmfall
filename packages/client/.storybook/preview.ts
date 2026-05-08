@@ -1,5 +1,5 @@
 import type { Preview } from '@storybook/react-vite';
-import { loadI18n } from '../src/i18n';
+import { loadI18n } from '../src/i18n/bootstrap';
 import '../src/styles/base.scss';
 import './preview.scss';
 

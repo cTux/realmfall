@@ -14,6 +14,9 @@
 - Keep bootstrap refs, initial settings hydration, pause state, and shortcut-binding orchestration in focused hooks such as `useAppBootstrapState` and `useAppShortcutBindings` instead of rebuilding that setup directly inside `src/app/App/App.tsx`.
 - Use lazy initializers for startup-only React state such as initial settings and default game creation. Do not put storage reads, world creation, or other nontrivial startup work directly inside `useRef(...)` arguments because those expressions run during every render.
 - When `src/app/App/App.tsx` starts coordinating many top-level hooks and effect branches together, move that graph into a focused composition hook such as `useAppRuntime` and keep the entry component limited to `AppShell` assembly.
+- When `AppShell` only needs shell-local slices such as home-indicator inputs or
+  recorded-voice playback state, pass a dedicated shell contract instead of the
+  full `GameState`.
 - Keep `useAppRuntime` composition-first. When shortcut availability or window wiring starts expanding inside it, move those branches into focused neighbors such as `useAppShortcutRuntime` and `useAppWindowRuntime` instead of letting one orchestration hook own every nested argument object directly.
 - Keep `useAppWindowRuntime` responsible for adapting grouped controller, settings, gameplay-view, and transition slices into window view and action inputs so `useAppRuntime` does not rebuild another large window-facing argument object inline.
 - When multiple deferred windows share the same entered, mounted, timeout, and snapshot-retention lifecycle, extract that lifecycle into a focused local hook under `src/app/App/hooks` and keep `useWindowTransitions` as a thin composition layer over the shared helper.

@@ -18,6 +18,10 @@
 - Use lazy refs for expensive world hook defaults such as visible tiles, hover caches, and render snapshots. Avoid `useRef(expensiveFactory())` in world hooks because the argument is evaluated on every render.
 - Keep `src/ui/world/renderScene.ts` as a thin orchestration facade. Move static-tile drawing, static-marker composition, interaction overlays, claim-border drawing, animated-only redraw work, and shared render helpers into neighboring `renderScene*.ts` modules instead of rebuilding one broad renderer file.
 - Key static and interaction Pixi redraw invalidation off stable world-render inputs or explicit render-version tokens instead of whole `GameState` identity when broad state cloning would otherwise thrash cached layers.
+- When the render loop needs previous-state context for adjacent movement or
+  post-combat carryover suppression, cache only the narrow player and combat
+  guard fields it actually reads instead of storing the whole `GameState` in
+  the frame snapshot.
 - Reuse `visibleTiles` arrays and other world-facing selector outputs across unrelated state clones when the visible tile set and relevant world data did not change, so Pixi invalidation can key off stable inputs instead of broad app state identity.
 - Avoid recomputing full visible-tile arrays only to decide whether the previous array could have been reused. Reuse checks should be cheaper than the redraw work they protect.
 - Carry shared visible-tile render inputs through token derivation and static marker rendering so tile-level enemy lookups are paid once per static redraw.
@@ -28,6 +32,9 @@
 - Put hover, selection, and other short-lived interaction highlights on their own invalidated layer so pointer-state changes do not force a rebuild of the full world scene.
 - Reserve per-frame ticker redraws for genuinely animated layers such as clouds, atmosphere, overlays, firelight, and similar time-driven effects; static layers should refresh only when their actual inputs change.
 - Keep `pointermove` handlers focused on pointer-to-world translation, cache lookup, and lightweight state handoff. Expensive hover analysis such as pathfinding, enemy aggregation, or tooltip assembly should be throttled or precomputed when it becomes measurable on that path.
+- Keep hover-analysis worker sync payloads on a nearby active-world slice with
+  precomputed reveal-radius inputs. Do not clone full `tiles`, `enemies`, or
+  `worlds` containers into the worker on every hover refresh.
 - Split world-map interaction orchestration by responsibility. Keep hover analysis, click navigation, drag-pan state, zoom filtering, and shared pointer helpers in focused modules under `src/app/App/world/`, and keep `pixiWorldInteractions.ts` as the attachment/composition layer instead of letting one listener file own every interaction branch.
 - When static redraw invalidation needs enemy or structure presentation data, prefer carrying forward precomputed render inputs instead of repeating tile-level lookup work during both token derivation and render execution.
 - On Pixi bootstrap, block only on the world icon textures needed for the initial visible viewport. Warm the rest of the icon catalog in background idle slices so first paint is not tied to offscreen marker assets.

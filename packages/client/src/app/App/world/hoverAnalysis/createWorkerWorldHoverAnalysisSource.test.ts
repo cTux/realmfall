@@ -44,13 +44,12 @@ describe('createWorkerWorldHoverAnalysisSource', () => {
       ],
     };
     const state = {
-      bloodMoonActive: false,
       combat: null,
       enemies: {},
       gameOver: false,
       player: { coord: { q: 0, r: 0 } },
       radius: 3,
-      seed: 'hover-worker-fallback',
+      revealRadius: 4,
       tiles: {},
     };
 

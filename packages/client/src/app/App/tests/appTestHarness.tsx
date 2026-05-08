@@ -291,7 +291,7 @@ export async function flushAnimationFrame() {
 }
 
 export async function renderApp() {
-  const { loadI18n } = await import('../../../i18n');
+  const { loadI18n } = await import('../../../i18n/bootstrap');
   await loadI18n();
   const { App } = await import('../index');
   const host = document.createElement('div');

@@ -35,15 +35,7 @@ import {
 } from './stateWorldEvents';
 import { ensureTileState } from './world';
 import type { EnemyRarity, GameState, ItemRarity } from './types';
-
-export const DEBUG_EQUIPMENT_TYPES = [
-  'weapon',
-  'offhand',
-  'armor',
-  'artifact',
-] as const;
-
-export type DebugEquipmentType = (typeof DEBUG_EQUIPMENT_TYPES)[number];
+import type { DebugEquipmentType } from './stateDebugWindow';
 
 interface AddDebugEquipmentItemOptions {
   rarity: ItemRarity;

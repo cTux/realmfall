@@ -1,4 +1,3 @@
-import { LoadingSpinner } from '@realmfall/ui-react/loading-spinner';
 import { useEffect, useState } from 'react';
 import { t } from '../../i18n';
 import styles from './BootstrapErrorScreen.module.scss';
@@ -12,6 +11,11 @@ type BootstrapErrorScreenProps = {
 };
 
 const BOOTSTRAP_ERROR_COPY = {
+  title: 'ui.loading.bootstrapErrorTitle',
+  countdown: 'ui.loading.bootstrapRetryCountdown',
+};
+
+const FALLBACK_COPY = {
   title: 'Realmfall failed to load.',
   countdown: 'Trying to recover automatically in {seconds} sec.',
 };
@@ -44,19 +48,14 @@ export function BootstrapErrorScreen({
   return (
     <div aria-live="assertive" role="alert" className={styles.screen}>
       <div className={styles.content}>
-        <LoadingSpinner />
+        <span aria-hidden="true" className={styles.loadingSpinner} />
         <strong className={styles.title}>
-          {translateBootstrapCopy(
-            'ui.loading.bootstrapErrorTitle',
-            BOOTSTRAP_ERROR_COPY.title,
-          )}
+          {resolveCopy(BOOTSTRAP_ERROR_COPY.title, FALLBACK_COPY.title)}
         </strong>
         <p className={styles.message}>
-          {translateBootstrapCopy(
-            'ui.loading.bootstrapRetryCountdown',
-            BOOTSTRAP_ERROR_COPY.countdown,
-            { seconds: secondsRemaining },
-          )}
+          {resolveCopy(BOOTSTRAP_ERROR_COPY.countdown, FALLBACK_COPY.countdown, {
+            seconds: secondsRemaining,
+          })}
         </p>
       </div>
     </div>
@@ -65,20 +64,6 @@ export function BootstrapErrorScreen({
 
 function reloadCurrentPage() {
   window.location.reload();
-}
-
-function translateBootstrapCopy(
-  key: string,
-  fallback: string,
-  params?: Record<string, number>,
-) {
-  const translated = t(key, params);
-
-  if (translated === key) {
-    return interpolate(fallback, params);
-  }
-
-  return translated;
 }
 
 function interpolate(template: string, params?: Record<string, number>) {
@@ -90,4 +75,16 @@ function interpolate(template: string, params?: Record<string, number>) {
     const value = params[token];
     return value == null ? `{${token}}` : String(value);
   });
+}
+
+function resolveCopy(key: string, fallback: string, params?: Record<string, number>) {
+  const translation = t(key);
+  return interpolationFromTranslation(translation === key ? fallback : translation, params);
+}
+
+function interpolationFromTranslation(
+  template: string,
+  params?: Record<string, number>,
+) {
+  return interpolate(template, params);
 }

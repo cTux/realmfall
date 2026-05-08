@@ -27,6 +27,10 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Static-tile drawing lives in `src/ui/world/renderSceneStaticTiles.ts`, static-marker composition lives in `src/ui/world/renderSceneStaticMarkers.ts`, interaction overlays live in `src/ui/world/renderSceneInteractionTiles.ts`, claim-border drawing lives in `src/ui/world/renderSceneClaimBorders.ts`, animated-only redraw work lives in `src/ui/world/renderSceneAnimated.ts`, and shared render constants plus cache-backed helpers live in `src/ui/world/renderSceneShared.ts`.
 - Cached scene state avoids unnecessary rebuilds when screen size, derived static-world render inputs, selected tile, or path highlights have not changed.
 - Static and interaction redraw invalidation derives from render-specific version keys rather than whole `GameState` identity, so log-only or other non-world state clones do not rebuild unchanged Pixi layers.
+- The ticker snapshot stores a narrow world-render token plus the previous
+  player and auto-step guard inputs it needs for movement suppression, rather
+  than the full `GameState`, so adjacent-move and post-combat carryover guards
+  stay correct without broad state clones busting the frame bailout.
 - Static invalidation now ignores offscreen enemy container churn by comparing only the enemy presentation inputs that belong to visible tiles before rebuilding cached layers.
 - Player and hostile world badges reuse shared entity-badge helpers, and combat-time badge refresh updates the player plus the engaged hostile subset with live HP and mana values without forcing unrelated visible hostile markers to redraw.
 - The scene cache exposes lightweight render-pass counters for total, static, interaction, and animated passes. Profiling and future cache-as-texture experiments should use those counters to prove that stable static layers are avoiding rebuilds before adding GPU texture caching.
@@ -75,6 +79,9 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - The Pixi canvas uses density-aware sizing so browser zoom and high-DPI displays keep the world viewport fitted to CSS pixels while renderer resolution tracks `window.devicePixelRatio` changes on resize within the current graphics preset cap.
 - Persisted settings now hydrate both Pixi renderer initialization flags, a preset-derived renderer density cap, and the live Pixi render-FPS cap through a dedicated plain `localStorage` `settings` payload that is read before the initial game and Pixi setup; `usePixiWorld` captures init-time flags for the current page lifetime, marks their controls as reload-required, and keeps live terrain-background, surface-cloud visibility, surface-cloud transparency, plus render-FPS changes on the redraw invalidation path.
 - Hover-analysis caching now invalidates from gameplay-state versions that materially affect interaction resolution rather than from every broad `tiles` or `enemies` container identity change.
+- Hover-analysis worker sync now ships a capped nearby tile and enemy slice plus
+  precomputed reveal-radius inputs, so pointer-hover refreshes avoid cloning
+  full world containers into the worker path.
 - Player movement cooldown and revealed roaming dungeon enemy movement cooldowns render as outer arcs that touch the badge MP ring with no gap instead of as separate under-icon bars, and those arcs live on the same badge wrapper so they follow frame animation and movement exactly.
 
 ## Main Implementation Areas

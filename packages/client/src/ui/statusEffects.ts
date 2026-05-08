@@ -1,13 +1,17 @@
-import sparklesIcon from '../assets/icons/sparkles.svg';
 import {
   getStatusEffectDefinition,
   type StatusEffectDefinition,
 } from '../game/content/statusEffects';
 import { StatusEffectTypeId } from '../game/content/ids';
+import { CONTENT_ICON_IDS } from '../game/content/iconIds';
 import type { StatusEffectId } from '../game/stateTypes';
+import { resolveIconAsset } from './iconAssets';
 
 export function statusEffectIcon(effect: StatusEffectId | string) {
-  return getEffectDefinition(effect)?.icon ?? sparklesIcon;
+  return resolveIconAsset(
+    getEffectDefinition(effect)?.icon ??
+      CONTENT_ICON_IDS.Sparkles,
+  );
 }
 
 export function statusEffectTint(

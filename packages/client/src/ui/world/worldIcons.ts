@@ -29,6 +29,7 @@ import {
   terrainArtFor,
   type WorldTerrainAtlasFrameId,
 } from './worldTerrainArt';
+import { resolveIconAsset } from '../iconAssets';
 
 const WORLD_ICON_BACKGROUND_WARMUP_BATCH_SIZE = 4;
 const WORLD_ICON_WARMUP_FALLBACK_SLICE_MS = 8;
@@ -56,10 +57,10 @@ export function enemyIconFor(
   enemy: Pick<Enemy, 'enemyTypeId' | 'name'> | string,
 ) {
   const enemyTypeId = typeof enemy === 'string' ? enemy : enemy.enemyTypeId;
-  return (
+  return resolveWorldIconAssetId(
     (enemyTypeId ? getEnemyConfig(enemyTypeId)?.icon : undefined) ??
-    getEnemyConfig('wolf')?.icon ??
-    WorldIcons.Player
+      getEnemyConfig('wolf')?.icon ??
+      WorldIcons.Player,
   );
 }
 
@@ -74,7 +75,7 @@ export function enemyIconTintFor(
 }
 
 export function structureIconFor(structure: StructureType) {
-  return getStructureConfig(structure).icon;
+  return resolveWorldIconAssetId(getStructureConfig(structure).icon);
 }
 
 export function getStructureMarkerIcon({
@@ -94,8 +95,10 @@ export function getWorldIconAssetIds() {
     new Set([
       ...getCoreWorldIconAssetIds(),
       ...getWorldTerrainAssetIds(),
-      ...ENEMY_CONFIGS.map((config) => config.icon),
-      ...STRUCTURE_CONFIGS.map((config) => config.icon),
+      ...ENEMY_CONFIGS.map((config) => resolveWorldIconAssetId(config.icon)),
+      ...STRUCTURE_CONFIGS.map((config) =>
+        resolveWorldIconAssetId(config.icon),
+      ),
     ]),
   );
 }
@@ -293,7 +296,7 @@ function collectWorldIconAssetIdsForTiles({
     }
 
     if (tile.claim?.npc?.enemyId) {
-      iconAssetIds.add(WorldIcons.Village);
+      iconAssetIds.add(resolveWorldIconAssetId(WorldIcons.Village));
     }
 
     resolveEnemies(tile).forEach((enemy) => {
@@ -302,6 +305,12 @@ function collectWorldIconAssetIdsForTiles({
   }
 
   return iconAssetIds;
+}
+
+function resolveWorldIconAssetId(icon: string) {
+  return isWorldTerrainFrameId(icon)
+    ? icon
+    : resolveIconAsset(icon) ?? icon;
 }
 
 function loadStandaloneWorldIconTexture(icon: string) {

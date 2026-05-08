@@ -15,7 +15,7 @@ import type {
 } from '../../game/stateTypes';
 import type { EnemyRarity } from '../../game/stateTypes';
 import type { TooltipItem } from './types';
-import type { DebugEquipmentType } from '../../game/stateDebug';
+import type { DebugEquipmentType } from '../../game/stateDebugWindow';
 import type { EnemyTypeKey, ItemKey } from '../../game/content/ids';
 
 export interface WindowActions {

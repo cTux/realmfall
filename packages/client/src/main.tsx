@@ -5,8 +5,7 @@ import {
   loadInterfaceFontFamily,
 } from './app/interfaceFonts';
 import { loadInterfaceSettings } from './app/interfaceSettings';
-import { loadI18n } from './i18n';
-import { LoadingSpinner } from '@realmfall/ui-react/loading-spinner';
+import { loadI18n } from './i18n/bootstrap';
 import { BootstrapErrorScreen } from './ui/components/BootstrapErrorScreen';
 import { installGlobalVersion } from './version';
 import './styles/base.scss';
@@ -67,6 +66,15 @@ async function bootstrap() {
 }
 
 function BootstrapShell() {
+  const spinnerStyle: React.CSSProperties = {
+    animation: '0.75s linear infinite spin',
+    border: '3px solid rgba(255, 255, 255, 0.35)',
+    borderTop: '3px solid #fff',
+    borderRadius: '9999px',
+    height: '2rem',
+    width: '2rem',
+  };
+
   return (
     <div
       aria-busy="true"
@@ -82,7 +90,7 @@ function BootstrapShell() {
         position: 'fixed',
       }}
     >
-      <LoadingSpinner />
+      <div aria-hidden="true" style={spinnerStyle} />
     </div>
   );
 }

@@ -17,7 +17,10 @@ import {
   normalizeWorldRenderFps,
 } from '../../graphicsSettings';
 import { sameCoord } from '../usePixiWorldHover';
-import type { WorldRenderSnapshot } from './worldRenderSnapshot';
+import {
+  getWorldRenderToken,
+  type WorldRenderSnapshot,
+} from './worldRenderSnapshot';
 import {
   getWorldMovementTransitionRenderState,
   getWorldMovementTransitionRenderToken,
@@ -102,6 +105,7 @@ export function createWorldRenderFrame({
     );
     const showTerrainBackgrounds = showTerrainBackgroundsRef.current;
     const movementCooldownEndAtMs = movementCooldownEndAtRef?.current ?? null;
+    const worldRenderToken = getWorldRenderToken(currentGame);
     const rawMovementTransition = movementTransitionRef?.current ?? null;
     const activeMovementTransition = getWorldMovementTransitionRenderState(
       rawMovementTransition,
@@ -149,16 +153,20 @@ export function createWorldRenderFrame({
     }
 
     const movedBeforeTransitionRefsUpdated =
-      lastRenderSnapshot.game !== null &&
+      lastRenderSnapshot.previousPlayerCoord !== null &&
       currentMovementTransition === null &&
       (isWaitingForAdjacentMoveTransition({
         currentCoord: currentGame.player.coord,
         movementCooldownEndAtMs,
-        previousCoord: lastRenderSnapshot.game.player.coord,
+        previousCoord: lastRenderSnapshot.previousPlayerCoord,
       }) ||
         isWaitingForPostCombatAutoStepTransition({
-          currentGame,
-          previousGame: lastRenderSnapshot.game,
+          currentGameCoord: currentGame.player.coord,
+          previousCombatAutoStepOnVictory:
+            lastRenderSnapshot.previousCombatAutoStepOnVictory,
+          previousCombatAutoStepTargetCoord:
+            lastRenderSnapshot.previousCombatAutoStepTargetCoord,
+          previousPlayerCoord: lastRenderSnapshot.previousPlayerCoord,
         }));
 
     if (movedBeforeTransitionRefsUpdated) {
@@ -166,7 +174,7 @@ export function createWorldRenderFrame({
     }
 
     if (
-      lastRenderSnapshot.game === currentGame &&
+      lastRenderSnapshot.worldRenderToken === worldRenderToken &&
       lastRenderSnapshot.visibleTiles === currentVisibleTiles &&
       lastRenderSnapshot.animationBucket === animationBucket &&
       lastRenderSnapshot.invalidationToken === invalidationToken &&
@@ -189,7 +197,7 @@ export function createWorldRenderFrame({
     }
 
     lastRenderSnapshotRef.current = {
-      game: currentGame,
+      worldRenderToken,
       visibleTiles: currentVisibleTiles,
       selected: currentSelected,
       queuedPath: currentQueuedPath,
@@ -205,6 +213,11 @@ export function createWorldRenderFrame({
       cloudTransparency,
       showTerrainBackgrounds,
       worldRenderFps,
+      previousPlayerCoord: { ...currentGame.player.coord },
+      previousCombatAutoStepOnVictory:
+        currentGame.combat?.engagement?.autoStepOnVictory === true,
+      previousCombatAutoStepTargetCoord:
+        currentGame.combat?.engagement?.targetCoord ?? null,
     };
     const movementCooldown =
       combatActive || movementCooldownEndAtMs === null
@@ -274,20 +287,21 @@ function isWaitingForAdjacentMoveTransition({
 }
 
 function isWaitingForPostCombatAutoStepTransition({
-  currentGame,
-  previousGame,
+  currentGameCoord,
+  previousCombatAutoStepOnVictory,
+  previousCombatAutoStepTargetCoord,
+  previousPlayerCoord,
 }: {
-  currentGame: GameState;
-  previousGame: GameState;
+  currentGameCoord: HexCoord;
+  previousCombatAutoStepOnVictory: boolean;
+  previousCombatAutoStepTargetCoord: HexCoord | null;
+  previousPlayerCoord: HexCoord;
 }) {
-  const previousEngagement = previousGame.combat?.engagement;
-
   return Boolean(
-    previousEngagement?.autoStepOnVictory &&
-    previousEngagement.targetCoord &&
-    currentGame.combat === null &&
-    sameCoord(currentGame.player.coord, previousEngagement.targetCoord) &&
-    !sameCoord(previousGame.player.coord, previousEngagement.targetCoord),
+    previousCombatAutoStepOnVictory &&
+    previousCombatAutoStepTargetCoord &&
+    !sameCoord(previousPlayerCoord, previousCombatAutoStepTargetCoord) &&
+    sameCoord(currentGameCoord, previousCombatAutoStepTargetCoord),
   );
 }
 
