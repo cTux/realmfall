@@ -2,7 +2,7 @@ import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { vi } from 'vitest';
-import { ItemId } from '../game/content/ids';
+import { ItemId } from './helpersTestkit';
 import { buildItemFromConfig } from '../game/content/items';
 import { GameTag } from '../game/content/tags';
 import type { Enemy, Item, Tile } from '../game/stateTypes';

@@ -1,5 +1,5 @@
 import { createGame, startCombat } from '../../game/state';
-import { detectVoicePlaybackEvent } from './voiceEvents';
+import { detectVoicePlaybackEvent } from './voiceEventsTestkit';
 
 describe('detectVoicePlaybackEvent', () => {
   it('detects player damage before other combat events', () => {

@@ -3,8 +3,8 @@ import { buildItemFromConfig, getItemConfigByKey } from '../game/content/items';
 import { ItemId } from '../game/content/ids';
 import { makeRecipePage } from '../game/inventory';
 import { InventoryWindowContent } from './components/InventoryWindow/InventoryWindowContent';
-import { createRecipe } from './uiRecipeBookTestHelpers';
-import { mountUi, setupUiTestEnvironment } from './uiTestHelpers';
+import { createRecipe } from './uiRecipeBookTestkit';
+import { mountUi, setupUiTestEnvironment } from './uiTestkit';
 
 setupUiTestEnvironment();
 

@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { createGame } from '../../../game/state';
-import { useAppWorldClock } from '../hooks/useAppWorldClock';
+import { useAppWorldClock } from './useAppWorldClockTestkit';
 
 interface ClockHarnessHandle {
   getRenderCount: () => number;

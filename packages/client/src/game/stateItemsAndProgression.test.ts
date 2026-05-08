@@ -27,11 +27,11 @@ import {
   resolveEnemyEncounter,
   seedEnemyEncounter,
   setActiveCombat,
-} from './stateItemsAndProgressionTestHelpers';
+} from './stateItemsAndProgressionTestkit';
 import {
   addBannerMaterials,
   addResourceItems,
-} from './stateWorldActionsTestHelpers';
+} from './stateWorldActionsTestkit';
 
 describe('game state items and progression', () => {
   it('can use consumables and drop inventory items onto the ground', () => {

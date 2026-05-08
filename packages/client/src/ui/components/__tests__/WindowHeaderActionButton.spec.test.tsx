@@ -1,4 +1,4 @@
-import { setupUiTestEnvironment } from '../../uiTestHelpers';
+import { setupUiTestEnvironment } from '../../uiTestkit';
 import { WindowHeaderActionButtonTestkit } from './WindowHeaderActionButtonTestkit';
 
 setupUiTestEnvironment();

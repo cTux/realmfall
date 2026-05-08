@@ -3,7 +3,7 @@ import {
   DEFAULT_AUDIO_SETTINGS,
   loadAudioSettings,
   saveAudioSettings,
-} from './audioSettings';
+} from './audioSettingsTestkit';
 import { PERSISTED_SETTINGS_STORAGE_KEYS } from './settingsStorage';
 
 describe('audio settings persistence', () => {

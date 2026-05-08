@@ -7,7 +7,7 @@ import {
   levelThreshold,
   masteryLevelThreshold,
   resolveExperienceAward,
-} from './index';
+} from './indexTestkit';
 import { addLog } from '../logs';
 import { createGame } from '../state';
 

@@ -6,7 +6,7 @@ import {
   flushLazyModules,
   loadEncryptedState,
   renderApp,
-} from './appTestHarness';
+} from './appTestkit';
 
 const createWorkerWorldHoverAnalysisSource = vi.fn();
 

@@ -1,6 +1,6 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { useVersionStatus, VERSION_POLL_INTERVAL_MS } from './useVersionStatus';
+import { useVersionStatus, VERSION_POLL_INTERVAL_MS } from './useVersionStatusTestkit';
 
 function VersionStatusHarness() {
   const state = useVersionStatus('1.0.0');

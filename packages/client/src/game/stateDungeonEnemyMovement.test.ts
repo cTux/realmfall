@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { WORLD_MOVE_HEX_COOLDOWN_MS } from './config';
+import { WORLD_MOVE_HEX_COOLDOWN_MS } from './stateDungeonEnemyMovementTestkit';
 import { makeEnemy } from './combat';
 import { createDungeonWorldState } from './dungeons/worldState';
 import { hexKey, type HexCoord } from './hex';

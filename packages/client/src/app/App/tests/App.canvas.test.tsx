@@ -17,7 +17,7 @@ import {
   tickerCallbacks,
   tickerMaxFpsValues,
   warmWorldIconTexturesInBackground,
-} from './appTestHarness';
+} from './appTestkit';
 
 describe('App canvas setup', () => {
   it('caps the Pixi resolution with the default balanced preset', async () => {

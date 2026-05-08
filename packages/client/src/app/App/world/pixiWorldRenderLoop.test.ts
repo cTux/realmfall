@@ -28,7 +28,7 @@ import {
   WORLD_ANIMATION_FPS,
   configureWorldTickerCadence,
   createWorldRenderFrame,
-} from './pixiWorldRenderLoop';
+} from './pixiWorldRenderLoopTestkit';
 import { createInitialWorldRenderSnapshot } from './worldRenderSnapshot';
 import {
   DEFAULT_WORLD_RENDER_FPS,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { makeWorldGeneratedItem } from './worldGeneratedItems';
+import { makeWorldGeneratedItem } from './worldGeneratedItemsTestkit';
 
 describe('world generated items', () => {
   it('uses the consumable bucket for the top loot roll band', () => {

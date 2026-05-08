@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { canSetHomeAction } from './homeActionAvailability';
+import { canSetHomeAction } from './homeActionAvailabilityTestkit';
 
 const factionClaim = {
   borderColor: '#fff',

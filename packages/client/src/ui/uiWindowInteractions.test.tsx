@@ -3,7 +3,7 @@ import { ContextMenu as ItemContextMenu } from '@realmfall/ui';
 import { vi } from 'vitest';
 import type { Item } from '../game/stateTypes';
 import { DraggableWindow } from './components/DraggableWindow';
-import { mountUi, setupUiTestEnvironment } from './uiTestHelpers';
+import { mountUi, setupUiTestEnvironment } from './uiTestkit';
 import type { WindowPosition } from '../app/constants';
 
 setupUiTestEnvironment();

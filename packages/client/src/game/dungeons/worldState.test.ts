@@ -9,7 +9,7 @@ import {
   setActiveWorld,
   syncActiveWorldAliases,
   SURFACE_WORLD_ID,
-} from './worldState';
+} from './worldStateTestkit';
 
 describe('worldState', () => {
   it('keeps top-level tiles and enemies aliased to the active world only', () => {

@@ -1,4 +1,4 @@
-import { getConsumableEffectDescriptors } from './consumables';
+import { getConsumableEffectDescriptors } from './consumablesTestkit';
 import { buildItemFromConfig } from './content/items';
 import { createGame, useItem } from './state';
 

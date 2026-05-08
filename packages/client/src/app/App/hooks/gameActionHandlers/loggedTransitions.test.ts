@@ -5,7 +5,7 @@ import {
   createInventoryItemLoggedTransition,
   createStaticLoggedTransition,
   createTownStockItemLoggedTransition,
-} from './loggedTransitions';
+} from './loggedTransitionsTestkit';
 
 describe('loggedTransitions helpers', () => {
   it('logs the resolved inventory item name for inventory commands', () => {

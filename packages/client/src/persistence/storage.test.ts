@@ -21,7 +21,7 @@ describe('encrypted storage', () => {
       loadEncryptedState,
       saveEncryptedState,
       PERSISTED_SAVE_STORAGE_KEYS,
-    } = await import('./storage');
+      } = await import('./storageTestkit');
 
     await saveEncryptedState(payload);
 
@@ -43,7 +43,7 @@ describe('encrypted storage', () => {
 
     vi.stubGlobal('indexedDB', indexedDB);
 
-    const { saveEncryptedState } = await import('./storage');
+    const { saveEncryptedState } = await import('./storageTestkit');
 
     await saveEncryptedState({ game: { turn: 1 } });
     await saveEncryptedState({ ui: { windowShown: { hero: true } } });
@@ -65,7 +65,7 @@ describe('encrypted storage', () => {
     let storageKeys!: Record<'game' | 'ui', string>;
     {
       const { PERSISTED_SAVE_STORAGE_KEYS, saveEncryptedState } =
-        await import('./storage');
+        await import('./storageTestkit');
       storageKeys = PERSISTED_SAVE_STORAGE_KEYS;
       await saveEncryptedState(payload);
     }
@@ -80,7 +80,7 @@ describe('encrypted storage', () => {
     const { records, indexedDB } = createIndexedDbMock();
     vi.stubGlobal('indexedDB', indexedDB);
 
-    const { loadEncryptedState } = await import('./storage');
+    const { loadEncryptedState } = await import('./storageTestkit');
 
     await expect(loadEncryptedState()).resolves.toEqual(payload);
     expect(records.get(storageKeys.game)).toBe(legacyGamePayload);
@@ -94,7 +94,7 @@ describe('encrypted storage', () => {
       loadEncryptedState,
       saveEncryptedState,
       PERSISTED_SAVE_STORAGE_KEYS,
-    } = await import('./storage');
+    } = await import('./storageTestkit');
 
     await saveEncryptedState({
       game: { turn: 4 },
@@ -109,7 +109,7 @@ describe('encrypted storage', () => {
 
   it('returns null for missing or invalid payloads when IndexedDB is unavailable', async () => {
     const { loadEncryptedState, PERSISTED_SAVE_STORAGE_KEYS } =
-      await import('./storage');
+      await import('./storageTestkit');
 
     await expect(loadEncryptedState()).resolves.toBeNull();
 
@@ -126,7 +126,7 @@ describe('encrypted storage', () => {
       getDungeonSaveStorageKey,
       loadEncryptedDungeonState,
       saveEncryptedDungeonState,
-    } = await import('./storage');
+    } = await import('./storageTestkit');
 
     await saveEncryptedDungeonState('dungeon:storage-seed:1,0', {
       id: 'dungeon:storage-seed:1,0',
@@ -162,7 +162,7 @@ describe('encrypted storage', () => {
       clearEncryptedDungeonStates,
       getDungeonSaveStorageKey,
       saveEncryptedDungeonState,
-    } = await import('./storage');
+    } = await import('./storageTestkit');
 
     await saveEncryptedDungeonState('dungeon:storage-seed:2,-1', {
       id: 'dungeon:storage-seed:2,-1',

@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import { loadRetryingWindowModule } from './lazyWindowComponent';
+import { loadRetryingWindowModule } from './lazyWindowComponentTestkit';
 
 describe('loadRetryingWindowModule', () => {
   beforeEach(() => {

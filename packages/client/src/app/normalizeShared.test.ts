@@ -12,7 +12,7 @@ import {
   isTerrain,
   normalizeEnemyTypeId,
   normalizeHexCoord,
-} from './normalizeShared';
+} from './normalizeSharedTestkit';
 
 describe('normalizeShared', () => {
   it('normalizes valid hex coordinates and rejects malformed values', () => {

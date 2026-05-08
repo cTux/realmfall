@@ -2,7 +2,7 @@ import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { DEFAULT_WINDOWS, DEFAULT_WINDOW_VISIBILITY } from '../../constants';
 import type { AppWindowsActions, AppWindowsProps } from '../AppWindows.types';
-import { useAppWindowRuntime } from './useAppWindowRuntime';
+import { useAppWindowRuntime } from './useAppWindowRuntimeTestkit';
 import { useAppWindowActions } from './useAppWindowActions';
 import { useAppWindowViews } from './useAppWindowViews';
 import { useAppWindowsProps } from './useAppWindowsProps';

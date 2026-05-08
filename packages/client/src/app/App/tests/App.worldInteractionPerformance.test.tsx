@@ -6,7 +6,7 @@ import {
   flushLazyModules,
   loadEncryptedState,
   renderApp,
-} from './appTestHarness';
+} from './appTestkit';
 
 describe('App world interaction performance', () => {
   it('skips tile generation for unrevealed distant hover targets', async () => {

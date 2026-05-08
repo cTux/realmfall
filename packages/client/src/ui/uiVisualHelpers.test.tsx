@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { ItemSlot as ItemSlotButton } from '@realmfall/ui';
-import { getInventoryItemAction } from '../app/App/utils/getInventoryItemAction';
+import { getInventoryItemAction } from './uiVisualHelpersTestkit';
 import { GameTag } from '../game/content/tags';
 import { getAbilityDefinition } from '../game/abilities';
 import { getItemConfigByKey } from '../game/stateSelectors';

@@ -6,7 +6,7 @@ import {
   MAX_WORLD_RENDER_FPS,
   MIN_WORLD_RENDER_FPS,
   saveGraphicsSettings,
-} from './graphicsSettings';
+} from './graphicsSettingsTestkit';
 import { PERSISTED_SETTINGS_STORAGE_KEYS } from './settingsStorage';
 
 describe('graphics settings persistence', () => {

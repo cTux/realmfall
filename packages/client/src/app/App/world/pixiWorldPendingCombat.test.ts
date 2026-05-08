@@ -10,7 +10,7 @@ import {
   getPendingCombatUpdatePlan,
   getPostCombatAutoStepTransition,
   stampPendingCombatIntro,
-} from './pixiWorldPendingCombat';
+} from './pixiWorldPendingCombatTestkit';
 
 function createPendingCombatGame() {
   const game = createGame(3, 'pixi-world-pending-combat');

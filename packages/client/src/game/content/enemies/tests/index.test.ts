@@ -1,5 +1,5 @@
 import { GAME_TAGS } from '../../tags';
-import { getEnemyConfig, isAnimalEnemyType, pickEnemyConfig } from '../index';
+import { getEnemyConfig, isAnimalEnemyType, pickEnemyConfig } from './indexTestkit';
 
 describe('enemy content registry', () => {
   it('resolves configs only from canonical enemy type ids', () => {

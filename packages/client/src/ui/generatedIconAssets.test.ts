@@ -7,7 +7,7 @@ import {
 import {
   GENERATED_ICON_ASSET_POOLS,
   resolveGeneratedIconAsset,
-} from './generatedIconAssets';
+} from './generatedIconAssetsTestkit';
 
 describe('generated icon assets', () => {
   it('keeps UI asset pools aligned with gameplay generated icon ids', () => {

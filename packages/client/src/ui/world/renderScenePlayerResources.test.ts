@@ -8,7 +8,7 @@ import {
   MockSprite,
   MockText,
   setupRenderSceneTestEnvironment,
-} from './renderSceneTestHelpers';
+} from './renderSceneTestkit';
 
 setupRenderSceneTestEnvironment();
 

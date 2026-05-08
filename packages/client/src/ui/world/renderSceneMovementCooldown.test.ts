@@ -23,7 +23,7 @@ import {
   MockSprite,
   renderSceneFrame,
   setupRenderSceneTestEnvironment,
-} from './renderSceneTestHelpers';
+} from './renderSceneTestkit';
 import { getWorldHexSize, tileToPoint } from './renderSceneMath';
 
 setupRenderSceneTestEnvironment();

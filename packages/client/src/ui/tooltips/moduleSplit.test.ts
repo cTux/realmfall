@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Item } from '../../game/stateTypes';
+import type { Item } from './moduleSplitTestkit';
 import { itemTooltipLines } from './itemTooltips';
 import { abilityTooltipLines } from './abilityTooltips';
 

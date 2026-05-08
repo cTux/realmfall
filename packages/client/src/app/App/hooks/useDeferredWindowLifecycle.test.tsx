@@ -1,6 +1,6 @@
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
-import { useDeferredWindowLifecycle } from './useDeferredWindowLifecycle';
+import { useDeferredWindowLifecycle } from './useDeferredWindowLifecycleTestkit';
 
 describe('useDeferredWindowLifecycle', () => {
   beforeEach(() => {

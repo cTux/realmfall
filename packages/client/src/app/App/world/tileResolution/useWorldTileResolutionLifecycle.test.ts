@@ -3,7 +3,7 @@ import { hydrateResolvedWorldTilePayload } from '../../../../game/worldTileResol
 import {
   mergeResolvedWorldTilePayloads,
   syncTileResolutionCoordinator,
-} from './useWorldTileResolutionLifecycle';
+} from './useWorldTileResolutionLifecycleTestkit';
 
 describe('useWorldTileResolutionLifecycle helpers', () => {
   it('merges resolved payloads through the active-world aliases', () => {

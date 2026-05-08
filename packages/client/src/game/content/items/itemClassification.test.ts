@@ -3,7 +3,7 @@ import {
   getItemCategory,
   getItemConfigCategory,
   inferItemTags,
-} from './itemClassification';
+} from './itemClassificationTestkit';
 import { townKnifeItemConfig } from './townKnife';
 
 describe('item classification helpers', () => {

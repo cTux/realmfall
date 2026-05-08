@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ABILITIES } from './abilities';
+import { ABILITIES } from './combatEquipmentStatsTestkit';
 import { createCombatActorState } from './combat';
 import { getPlayerOverview } from './progression';
 import { createGame, startCombat } from './state';

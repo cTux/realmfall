@@ -1,4 +1,4 @@
-import { hexAtPoint, hexDistance, hexKey, hexNeighbors } from './hex';
+import { hexAtPoint, hexDistance, hexKey, hexNeighbors } from './hexTestkit';
 
 describe('hex helpers', () => {
   it('builds stable keys and distances', () => {

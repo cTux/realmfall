@@ -1,4 +1,4 @@
-import { GameTag } from '../game/content/tags';
+import { GameTag } from './uiTooltipEntityContentTestkit';
 import { getAbilityDefinition } from '../game/abilities';
 import { Skill } from '../game/stateTypes';
 import {

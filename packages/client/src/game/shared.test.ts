@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { resolveCascadingRarity } from './shared';
+import { resolveCascadingRarity } from './sharedTestkit';
 
 describe('cascading rarity resolution', () => {
   it('checks rarity chances from legendary down to uncommon before falling back to common', () => {

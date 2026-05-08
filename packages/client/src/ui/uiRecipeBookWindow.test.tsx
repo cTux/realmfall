@@ -1,8 +1,8 @@
 import { act } from 'react';
 import { vi } from 'vitest';
 import { Skill } from '../game/stateTypes';
-import { createRecipe, mountRecipeBook } from './uiRecipeBookTestHelpers';
-import { setupUiTestEnvironment } from './uiTestHelpers';
+import { createRecipe, mountRecipeBook } from './uiRecipeBookTestkit';
+import { setupUiTestEnvironment } from './uiTestkit';
 
 setupUiTestEnvironment();
 

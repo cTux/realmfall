@@ -7,7 +7,7 @@ import {
   getWorld,
   MockGraphics,
   setupRenderSceneTestEnvironment,
-} from './renderSceneTestHelpers';
+} from './renderSceneTestkit';
 
 setupRenderSceneTestEnvironment();
 

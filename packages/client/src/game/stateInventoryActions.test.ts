@@ -15,7 +15,7 @@ import {
   startCombat,
   takeAllTileItems,
   takeTileItem,
-} from './state';
+} from './stateInventoryActionsTestkit';
 import { GAME_DAY_DURATION_MS } from './config';
 import { buildItemFromConfig } from './content/items';
 import { ItemId } from './content/ids';

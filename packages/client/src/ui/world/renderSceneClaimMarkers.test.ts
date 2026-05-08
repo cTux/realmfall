@@ -10,7 +10,7 @@ import {
   playerIcon,
   setupRenderSceneTestEnvironment,
   wolfHeadIcon,
-} from './renderSceneTestHelpers';
+} from './renderSceneTestkit';
 
 setupRenderSceneTestEnvironment();
 

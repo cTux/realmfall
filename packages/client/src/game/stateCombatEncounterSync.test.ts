@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createCombatActorState } from './combat';
-import { syncCombatEncounterEnemies } from './stateCombatEncounterSync';
+import { syncCombatEncounterEnemies } from './stateCombatEncounterSyncTestkit';
 import { createGame } from './stateFactory';
 
 describe('combat encounter sync', () => {

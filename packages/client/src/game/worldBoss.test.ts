@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import * as shared from './shared';
 import { hexKey } from './hex';
 import * as worldTerrain from './worldTerrain';
-import { isWorldBossCenter } from './worldBoss';
+import { isWorldBossCenter } from './worldBossTestkit';
 
 describe('worldBoss', () => {
   it('keeps distant boss spawning probabilistic by capping distance weighting', () => {

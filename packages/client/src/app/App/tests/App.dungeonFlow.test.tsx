@@ -12,7 +12,7 @@ import {
   loadEncryptedDungeonState,
   loadEncryptedState,
   renderApp,
-} from './appTestHarness';
+} from './appTestkit';
 
 let latestGame: GameState | null = null;
 let setGameRef: MutableRefObject<Dispatch<SetStateAction<GameState>> | null> = {

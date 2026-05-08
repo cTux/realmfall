@@ -7,7 +7,7 @@ import {
   getEnemiesAt,
   getPlayerClaimedTiles,
   getResolvedTileAt,
-} from './stateWorldQueries';
+} from './stateWorldQueriesTestkit';
 import { buildTile } from './world';
 
 describe('stateWorldQueries', () => {

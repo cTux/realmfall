@@ -9,7 +9,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   createWorldTileResolutionCoordinator,
   type WorldTileResolutionOverlayEntry,
-} from './worldTileResolutionCoordinator';
+} from './worldTileResolutionCoordinatorTestkit';
 
 const buildResolvedTilePayload = (
   coord: TileResolutionCoord,

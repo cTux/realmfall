@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   getItemModificationKindForStructure,
   getItemModificationStructureHint,
-} from './itemModifications';
+} from './itemModificationsTestkit';
 
 describe('item modification structures', () => {
   it('reads modification kind and hint text from structure config metadata', () => {

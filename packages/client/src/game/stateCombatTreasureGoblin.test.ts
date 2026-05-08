@@ -10,7 +10,7 @@ import { applyPlayerAbility } from './stateCombatPlayerAbility';
 import {
   findTreasureGoblinEscapeCoord,
   isTreasureGoblinEnemy,
-} from './stateCombatTreasureGoblin';
+} from './stateCombatTreasureGoblinTestkit';
 import type { GameState } from './types';
 import { processEnemyStatusEffects } from './combatStatus';
 import { handleEnemyDefeat } from './stateCombatEnemyDefeat';

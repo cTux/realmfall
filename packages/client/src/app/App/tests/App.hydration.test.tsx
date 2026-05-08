@@ -15,7 +15,7 @@ import {
   renderApp,
   renderScene,
   saveEncryptedState,
-} from './appTestHarness';
+} from './appTestkit';
 
 describe('App hydration and interactions', () => {
   it('hydrates saved state, handles ui interactions, and responds to map input', async () => {

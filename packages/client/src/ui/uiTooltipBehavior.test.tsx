@@ -7,7 +7,7 @@ import {
 } from '@realmfall/ui';
 import { getTooltipPlacementForRect } from './tooltipPlacement';
 import { rarityColor } from './rarity';
-import { setupUiTestEnvironment } from './uiTestHelpers';
+import { setupUiTestEnvironment } from './uiTestkit';
 
 setupUiTestEnvironment();
 

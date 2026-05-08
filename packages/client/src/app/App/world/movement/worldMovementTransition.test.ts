@@ -1,5 +1,5 @@
 import type { VisibleWorldTile } from '../../../../ui/world/visibleWorldTiles';
-import { createWorldMovementTransition } from './worldMovementTransition';
+import { createWorldMovementTransition } from './worldMovementTransitionTestkit';
 
 describe('worldMovementTransition', () => {
   it('tracks incoming and outgoing edge tiles for a one-hex move', () => {

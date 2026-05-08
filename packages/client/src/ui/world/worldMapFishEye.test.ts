@@ -1,7 +1,7 @@
 import {
   mapWorldMapFishEyeDisplayPointToSourcePoint,
   mapWorldMapFishEyeSourcePointToDisplayPoint,
-} from './worldMapFishEye';
+} from './worldMapFishEyeTestkit';
 
 describe('worldMapFishEye', () => {
   const screen = { width: 800, height: 600 };

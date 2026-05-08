@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getLockpickBreakChance, isLockedChestMimic } from './lockedChests';
+import { getLockpickBreakChance, isLockedChestMimic } from './lockedChestsTestkit';
 
 describe('locked chest rules', () => {
   it('reduces lockpick break chance by 0.5 percent per level down to the 25 percent floor', () => {

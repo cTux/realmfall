@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { makeEnemy } from './combat';
 import { activateDungeonWorld } from './stateDungeonActions';
 import { createGame } from './stateFactory';
-import { syncBloodMoon } from './stateWorldClock';
+import { syncBloodMoon } from './stateWorldClockTestkit';
 import type { GameState } from './types';
 
 function getDungeonWorld(game: GameState, dungeonId: string) {

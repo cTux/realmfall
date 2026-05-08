@@ -9,7 +9,7 @@ import {
   parseWorldCalendarDateTime,
   getTimeOfDayLighting,
   getWorldTimeMinutesFromTimestamp,
-} from './timeOfDay';
+} from './timeOfDayTestkit';
 import rawGameConfig from '../../../game.config';
 
 describe('timeOfDay', () => {

@@ -7,7 +7,7 @@ import {
   applyCombatVictoryAutoStep,
   createPendingCombatEncounter,
   createStartedCombatEncounter,
-} from './stateCombatEngagement';
+} from './stateCombatEngagementTestkit';
 
 describe('stateCombatEngagement', () => {
   it('creates a pending adjacent-click encounter without moving the player first', () => {

@@ -3,7 +3,7 @@ import {
   flushLazyModules,
   loadEncryptedState,
   renderApp,
-} from './appTestHarness';
+} from './appTestkit';
 
 describe('App debug window', () => {
   beforeEach(() => {

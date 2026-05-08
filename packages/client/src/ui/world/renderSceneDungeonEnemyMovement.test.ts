@@ -16,7 +16,7 @@ import {
   MockGraphics,
   MockContainer,
   setupRenderSceneTestEnvironment,
-} from './renderSceneTestHelpers';
+} from './renderSceneTestkit';
 import { getWorldHexSize, tileToPoint } from './renderSceneMath';
 
 setupRenderSceneTestEnvironment();

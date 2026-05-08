@@ -1,4 +1,4 @@
-import { createWorkspaceDevPlan } from '../../../scripts/run-dev.mjs';
+import { createWorkspaceDevPlan } from './run-devTestkit';
 
 describe('workspace dev plan', () => {
   it('launches both dev targets without a build step', () => {

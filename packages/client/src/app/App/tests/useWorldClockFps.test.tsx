@@ -1,6 +1,6 @@
 import React, { act, forwardRef, useImperativeHandle, useRef } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { useWorldClockFps } from '../useWorldClockFps';
+import { useWorldClockFps } from './useWorldClockFpsTestkit';
 
 interface ClockHarnessHandle {
   getWorldTimeMs: () => number;

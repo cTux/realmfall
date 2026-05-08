@@ -4,7 +4,7 @@ import {
   buildEnemyAbilityIds,
   buildEquippedAbilityIds,
   DEFAULT_ABILITY_ID,
-} from './abilities';
+} from './abilitiesTestkit';
 import {
   buildGeneratedItemFromConfig,
   buildItemFromConfig,

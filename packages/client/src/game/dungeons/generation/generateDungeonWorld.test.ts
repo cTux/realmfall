@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { hexDistance, hexKey } from '../../hex';
 import { terrainTier } from '../../shared';
 import { isPassableTerrain } from '../../worldTerrain';
-import { generateDungeonWorld } from './generateDungeonWorld';
+import { generateDungeonWorld } from './generateDungeonWorldTestkit';
 
 describe('generateDungeonWorld', () => {
   it('builds a deterministic padded dungeon with 200+ passable tiles and a final chest', () => {

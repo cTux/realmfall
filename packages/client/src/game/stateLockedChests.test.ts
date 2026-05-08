@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { buildItemFromConfig } from './content/items';
+import { buildItemFromConfig } from './stateLockedChestsTestkit';
 import { ItemId } from './content/ids';
 import * as lockedChestRules from './lockedChests';
 import { createGame, getTileAt, Skill, useItem } from './state';

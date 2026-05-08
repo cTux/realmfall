@@ -39,7 +39,7 @@ vi.mock('../../../persistence/storage', () => ({
   saveEncryptedState,
 }));
 
-import { useAppPersistence } from '../useAppPersistence';
+import { useAppPersistence } from './useAppPersistenceTestkit';
 
 interface PersistenceHarnessHandle {
   getGame: () => GameState;

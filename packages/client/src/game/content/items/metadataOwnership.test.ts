@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { GAME_TAGS } from '../tags';
+import { GAME_TAGS } from './metadataOwnershipTestkit';
 import { CRAFTABLE_ICON_ITEM_CONFIGS } from '../generatedCraftingEquipment';
 import { GENERATED_EQUIPMENT_FAMILIES } from '../generatedEquipmentFamilies';
 import { EquipmentSlotId } from '../ids';

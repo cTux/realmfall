@@ -5,7 +5,7 @@ import {
   progressCombat,
 } from '../../../game/stateCombat';
 import type { GameState } from '../../../game/stateTypes';
-import { useCombatAutomation } from '../useCombatAutomation';
+import { useCombatAutomation } from './useCombatAutomationTestkit';
 
 vi.mock('../../../game/stateCombat', async () => {
   const actual = await vi.importActual<

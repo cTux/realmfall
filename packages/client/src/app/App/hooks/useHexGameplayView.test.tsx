@@ -1,6 +1,6 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { createStartedCombatEncounter } from '../../../game/stateCombatEngagement';
+import { createStartedCombatEncounter } from './useHexGameplayViewTestkit';
 import { createGame } from '../../../game/stateFactory';
 
 describe('useHexGameplayView', () => {

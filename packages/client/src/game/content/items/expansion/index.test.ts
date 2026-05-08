@@ -1,4 +1,4 @@
-import { CRAFTED_EXPANSION_ITEM_CONFIGS } from './index';
+import { CRAFTED_EXPANSION_ITEM_CONFIGS } from './indexTestkit';
 
 describe('crafted expansion item configs', () => {
   it('discovers unique configs from the expansion directory', () => {

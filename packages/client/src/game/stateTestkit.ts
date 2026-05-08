@@ -24,3 +24,5 @@ export class StateTestkit {
       makeCombatState(...args),
   };
 }
+
+export * from './stateTestHelpers';

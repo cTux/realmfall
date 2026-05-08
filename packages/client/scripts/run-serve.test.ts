@@ -1,4 +1,4 @@
-import { createWorkspaceServePlan } from '../../../scripts/run-serve.mjs';
+import { createWorkspaceServePlan } from './run-serveTestkit';
 
 describe('workspace serve plan', () => {
   it('builds the workspace before launching both serve targets', () => {

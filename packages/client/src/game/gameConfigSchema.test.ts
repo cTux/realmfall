@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import rawGameConfig from '../../game.config';
 import { GAME_CONFIG } from './config';
-import { defineGameConfig } from './gameConfigSchema';
+import { defineGameConfig } from './gameConfigSchemaTestkit';
 
 describe('game config schema', () => {
   it('keeps the shared config helper as an identity function', () => {

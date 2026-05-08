@@ -1,7 +1,7 @@
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { DEFAULT_WINDOW_VISIBILITY } from '../../constants';
-import { useMountedWindows } from './useMountedWindows';
+import { useMountedWindows } from './useMountedWindowsTestkit';
 
 describe('useMountedWindows', () => {
   beforeEach(() => {

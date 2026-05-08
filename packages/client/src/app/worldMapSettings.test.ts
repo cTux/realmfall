@@ -2,7 +2,7 @@ import {
   clearWorldMapSettings,
   loadWorldMapSettings,
   saveWorldMapSettings,
-} from './worldMapSettings';
+} from './worldMapSettingsTestkit';
 import { PERSISTED_SETTINGS_STORAGE_KEYS } from './settingsStorage';
 
 describe('world map settings persistence', () => {

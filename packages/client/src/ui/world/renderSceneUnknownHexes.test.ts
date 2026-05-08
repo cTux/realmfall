@@ -8,7 +8,7 @@ import {
   MockContainer,
   MockSprite,
   setupRenderSceneTestEnvironment,
-} from './renderSceneTestHelpers';
+} from './renderSceneTestkit';
 import {
   createUnknownVisibleWorldTile,
   type VisibleWorldTile,

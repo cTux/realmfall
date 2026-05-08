@@ -4,7 +4,7 @@ import {
   getItemCategory,
   getItemConfigByKey,
 } from './content/items';
-import { buildTownStock, getTownStockPrice } from './economy';
+import { buildTownStock, getTownStockPrice } from './economyTestkit';
 
 describe('town stock pricing', () => {
   it('scales buy prices sharply with item rarity', () => {

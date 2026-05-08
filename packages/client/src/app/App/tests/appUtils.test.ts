@@ -2,7 +2,7 @@ import {
   DEFAULT_WINDOW_VISIBILITY,
   WINDOW_DOCK_KEYS,
   WINDOW_REGISTRY,
-} from '../../constants';
+} from './appUtilsTestkit';
 import { GameTag } from '../../../game/content/tags';
 import { getDockEntries } from '../utils/getDockEntries';
 import { getInventoryItemAction } from '../utils/getInventoryItemAction';

@@ -16,8 +16,8 @@ import recipeStyles from './components/RecipeBookWindow/styles.module.scss';
 import {
   createRecipe,
   DEFAULT_RECIPE_SKILL_LEVELS,
-} from './uiRecipeBookTestHelpers';
-import { mountUi, renderMarkup, setupUiTestEnvironment } from './uiTestHelpers';
+} from './uiRecipeBookTestkit';
+import { mountUi, renderMarkup, setupUiTestEnvironment } from './uiTestkit';
 
 setupUiTestEnvironment();
 

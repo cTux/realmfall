@@ -64,8 +64,9 @@ describe('createWorkerTileResolutionSource', () => {
       ),
     });
 
-    const { createWorkerTileResolutionSource } =
-      await import('./createWorkerTileResolutionSource');
+    const { createWorkerTileResolutionSource } = await import(
+      './createWorkerTileResolutionSourceTestkit'
+    );
     const source = createWorkerTileResolutionSource();
 
     expect(MockWorker.instances).toHaveLength(1);
@@ -107,8 +108,9 @@ describe('createWorkerTileResolutionSource', () => {
       resolve: localResolve,
     });
 
-    const { createWorkerTileResolutionSource } =
-      await import('./createWorkerTileResolutionSource');
+    const { createWorkerTileResolutionSource } = await import(
+      './createWorkerTileResolutionSourceTestkit'
+    );
     const source = createWorkerTileResolutionSource();
     const resultPromise = source.resolve(request);
     const [, options] = createEasyWebWorker.mock.calls[0] ?? [];

@@ -8,7 +8,7 @@ describe('worldTerrainArt', () => {
       getWorldTerrainAssetIds,
       getWorldTerrainFrameId,
       terrainArtFor,
-    } = await import('./worldTerrainArt');
+    } = await import('./worldTerrainArtTestkit');
 
     const terrains = Object.keys(worldTerrainAtlasManifest.frames) as Array<
       keyof typeof worldTerrainAtlasManifest.frames

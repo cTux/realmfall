@@ -5,7 +5,7 @@ import type { GameState, Item } from '../../../game/stateTypes';
 import { createGame } from '../../../game/stateFactory';
 import { settleUi, setupUiTestEnvironment } from '../../../ui/uiTestHelpers';
 import { getTooltipState, resetTooltipState } from '../tooltipStore';
-import { useItemTooltipController } from './useItemTooltipController';
+import { useItemTooltipController } from './useItemTooltipControllerTestkit';
 
 setupUiTestEnvironment();
 

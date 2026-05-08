@@ -71,8 +71,9 @@ describe('createWorkerWorldHoverAnalysisSource', () => {
       syncState: localSyncState,
     });
 
-    const { createWorkerWorldHoverAnalysisSource } =
-      await import('./createWorkerWorldHoverAnalysisSource');
+    const { createWorkerWorldHoverAnalysisSource } = await import(
+      './createWorkerWorldHoverAnalysisSourceTestkit'
+    );
     const source = createWorkerWorldHoverAnalysisSource();
 
     await source.syncState(state);

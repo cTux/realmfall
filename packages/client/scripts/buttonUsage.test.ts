@@ -1,8 +1,11 @@
-import { readdirSync, readFileSync } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { relative } from 'node:path';
 import { describe, expect, it } from 'vitest';
-
-const sourceRoot = resolve(process.cwd(), 'src');
+import {
+  collectTsxFiles,
+  isTestFile,
+  sourceRoot,
+} from './buttonUsageTestkit';
 const rawButtonPattern = /<button(?:\s|>)/;
 
 describe('client button usage', () => {
@@ -19,18 +22,3 @@ describe('client button usage', () => {
     expect(offendingFiles).toEqual([]);
   });
 });
-
-function collectTsxFiles(directory: string): string[] {
-  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
-    const fullPath = join(directory, entry.name);
-    if (entry.isDirectory()) {
-      return collectTsxFiles(fullPath);
-    }
-
-    return entry.isFile() && entry.name.endsWith('.tsx') ? [fullPath] : [];
-  });
-}
-
-function isTestFile(filePath: string) {
-  return filePath.endsWith('.test.tsx') || filePath.endsWith('.test.ts');
-}

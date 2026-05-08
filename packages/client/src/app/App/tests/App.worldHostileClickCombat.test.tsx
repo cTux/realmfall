@@ -20,12 +20,12 @@ import {
   renderScene,
   renderApp,
   waitForAppSelector,
-} from './appTestHarness';
+} from './appTestkit';
 import {
   clickWorldTile,
   getRenderedGame,
   renderTickerFrame,
-} from './appWorldMovementTestHelpers';
+} from './appWorldMovementTestkit';
 
 const WORLD_HOSTILE_CLICK_COMBAT_TIMEOUT_MS = 20_000;
 

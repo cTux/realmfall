@@ -86,7 +86,7 @@ describe('renderScenePools', () => {
       createShadowedSpritePool,
       resetShadowedSpritePool,
       takeShadowedSprite,
-    } = await import('./renderScenePools');
+    } = await import('./renderScenePoolsTestkit');
     const { Container } = await import('pixi.js');
 
     const pool = createShadowedSpritePool(new Container());
@@ -115,8 +115,9 @@ describe('renderScenePools', () => {
   });
 
   it('adds a black 2px outline behind configured world markers', async () => {
-    const { configureShadowedSprite, createShadowedSprite } =
-      await import('./renderScenePools');
+    const { configureShadowedSprite, createShadowedSprite } = await import(
+      './renderScenePoolsTestkit'
+    );
 
     getWorldIconTexture.mockReturnValue({ icon: 'wolf', revision: 1 });
 
@@ -141,7 +142,9 @@ describe('renderScenePools', () => {
   });
 
   it('creates pooled text with the Pixi v8 object constructor signature', async () => {
-    const { createTextPool, takeText } = await import('./renderScenePools');
+    const { createTextPool, takeText } = await import(
+      './renderScenePoolsTestkit'
+    );
     const pixiModule =
       (await import('pixi.js')) as unknown as typeof import('pixi.js') & {
         __textConstructorCalls: unknown[][];
