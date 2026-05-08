@@ -2,6 +2,12 @@ export {
   LoadingSpinner,
   type LoadingSpinnerProps,
 } from './components/LoadingSpinner/LoadingSpinner';
+export {
+  DEFAULT_UI_AUDIO_CONTROLLER,
+  UiAudioProvider,
+  useUiAudio,
+} from './app/audio/UiAudioContext';
+export type { UiAudioController } from './app/audio/UiAudioContext';
 export { Button, type ButtonProps } from './components/Button/Button';
 export { Window } from './components/Window/Window';
 export type {

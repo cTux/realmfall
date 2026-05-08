@@ -4,7 +4,6 @@ import { join } from 'node:path';
 const ALLOWED_CLIENT_BRIDGE_FILES = new Set([
   'src/i18n/labels.ts',
   'src/i18n/index.ts',
-  'src/app/audio/UiAudioContext.tsx',
   'src/components/storybook/storybookHelpers.tsx',
   'src/bridges/generatedIconAssets.ts',
 ]);
