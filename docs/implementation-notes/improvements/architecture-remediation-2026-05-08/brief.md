@@ -2,6 +2,8 @@
 
 This workspace tracks the implementation plan for the architecture and code-duplication issues found in the repository review on 2026-05-08.
 
+The active plan also captures narrowly scoped follow-up fixes discovered during verification when those fixes are required to land the architecture work safely.
+
 Canonical guidance:
 
 - `docs/RULES.md`

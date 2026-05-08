@@ -4,7 +4,7 @@
 
 **Goal:** Remove high-risk shared-package boundary leaks, collapse duplicated UI helper logic into canonical modules, and split the two largest mixed-responsibility runtime files into focused orchestration helpers without changing shipped behavior.
 
-**Architecture:** The work is divided into commit-sized refactors. First, collapse exact and near-exact duplication around shared UI helpers and item presentation metadata so `packages/ui` becomes the canonical owner. Next, eliminate `packages/ui` runtime imports from `packages/client` except for any explicitly retained Storybook-only fixture bridge. Finally, split the large Pixi orchestration files by lifecycle and render-phase responsibility so the public entrypoints stay thin.
+**Architecture:** The work is divided into commit-sized refactors. First, collapse exact and near-exact duplication around shared UI helpers and item presentation metadata so `packages/ui` becomes the canonical owner. Next, eliminate `packages/ui` runtime imports from `packages/client` except for the explicitly retained Storybook helper bridge and the isolated shared SCSS surface-token forward. Finally, split the large Pixi orchestration files by lifecycle and render-phase responsibility so the public entrypoints stay thin.
 
 **Tech Stack:** TypeScript, React, Vite, Vitest, pnpm workspaces, Pixi.js, Storybook.
 
@@ -264,6 +264,31 @@
 
 ---
 
+### Task 6a: Stabilize recipe-book content tests after the boundary move
+
+**Intent:** Keep the architecture-remediation commit flow reliable by removing unrelated lazy-window timing from content-level recipe-book tests and making virtualization assertions deterministic.
+
+**Files:**
+
+- Modify: `packages/client/src/ui/uiRecipeBookTestHelpers.tsx`
+- Modify: `packages/client/src/ui/uiRecipeBookWindow.test.tsx`
+
+- [ ] Mount `RecipeBookWindowContent` directly in the recipe-book content test helper instead of routing content assertions through the deferred `RecipeBookWindow` shell.
+- [ ] Keep the shell-focused `RecipeBookWindow` coverage in `packages/client/src/ui/uiWindowShells.test.tsx` as the wrapper-level check.
+- [ ] Add an explicit UI settle step after virtualized recipe-list scrolling before asserting on the later rows.
+- [ ] Verify with: `pnpm --filter @realmfall/client exec vitest run --project jsdom src/ui/uiRecipeBookWindow.test.tsx`
+- [ ] Verify with: `pnpm --filter @realmfall/client exec vitest run --project jsdom src/ui/uiWindowShells.test.tsx`
+- [ ] Commit only this fix.
+
+**Acceptance criteria:**
+
+- Recipe-book content tests no longer depend on deferred window loading behavior.
+- The large-list virtualization assertion is deterministic under full-suite load.
+
+**Commit message:** `test(client): stabilize recipe book content suite`
+
+---
+
 ### Task 7: Split `usePixiWorld` by lifecycle responsibility
 
 **Intent:** Turn `packages/client/src/app/App/usePixiWorld.ts` into a thin public facade by moving grouped lifecycle logic into focused neighboring hooks.
@@ -346,7 +371,7 @@
   - `docs/specs/reference/technical-solutions/ui-component-library/spec.md`
   - `docs/specs/reference/technical-solutions/documentation-strategy/spec.md`
 
-- [ ] Reduce the allowed boundary exceptions to Storybook-only helper bridges if any remain justified.
+- [ ] Keep the allowed TypeScript boundary exceptions limited to the Storybook helper bridge and document the separate shared SCSS surface-token forward explicitly.
 - [ ] Update the architecture rule text so future tasks do not reintroduce client-owned runtime helpers into `packages/ui`.
 - [ ] Align the technical-solution specs with the shipped post-refactor boundary, helper ownership, and remaining exception policy.
 - [ ] Verify with: `pnpm --filter @realmfall/ui test:jsdom -- --run packages/ui/src/game/__tests__/boundary.spec.test.ts`
