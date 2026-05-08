@@ -2,10 +2,7 @@ import { ABILITY_ICON_IDS } from '../game/content/iconIds';
 import {
   CONTENT_ICON_IDS,
   STATUS_EFFECT_ICON_IDS,
-  type AbilityIconId,
-  type ContentIconId,
   type GameplayIconId,
-  type StatusEffectIconId,
 } from '../game/content/iconIds';
 import playerIcon from '../assets/icons/visored-helm.svg';
 import enemyIcon from '../assets/icons/wolf-head.svg';
@@ -252,11 +249,11 @@ const CONTENT_ICON_ASSET_IDS = mapIconAssetsById(
   CONTENT_ICON_ASSETS_BY_KEY,
 );
 const ABILITY_ICON_ASSET_IDS = mapIconAssetsById(
-  ABILITY_ICON_IDS as Record<AbilityIconId, string>,
+  ABILITY_ICON_IDS,
   ABILITY_ICON_ASSETS_BY_KEY,
 );
 const STATUS_EFFECT_ICON_ASSET_IDS = mapIconAssetsById(
-  STATUS_EFFECT_ICON_IDS as Record<StatusEffectIconId, string>,
+  STATUS_EFFECT_ICON_IDS,
   STATUS_EFFECT_ICON_ASSETS_BY_KEY,
 );
 
@@ -273,14 +270,20 @@ export function resolveGameplayIconAsset(
 }
 
 function mapIconAssetsById<
-  K extends string,
-  IdMap extends Record<K, string>,
+  IconIdsByKey extends Record<string, string>,
 >(
-  iconIds: IdMap,
-  iconAssetByKey: Record<K, string>,
+  iconIds: IconIdsByKey,
+  iconAssetByKey: Record<keyof IconIdsByKey & string, string>,
 ) {
-  const entries = Object.entries(iconIds) as Array<[K, string]>;
-  return Object.fromEntries(
-    entries.map(([key, iconId]) => [iconId, iconAssetByKey[key]]),
-  ) as Record<string, string>;
+  const entries = Object.entries(iconIds) as Array<
+    [keyof IconIdsByKey & string, IconIdsByKey[keyof IconIdsByKey]]
+  >;
+  const iconAssetsById = {} as Record<
+    IconIdsByKey[keyof IconIdsByKey],
+    string
+  >;
+  for (const [iconKey, iconId] of entries) {
+    iconAssetsById[iconId] = iconAssetByKey[iconKey];
+  }
+  return iconAssetsById;
 }
