@@ -40,7 +40,8 @@ pnpm dev
 ## Repository Layout
 
 - [`packages/client`](./packages/client/README.md): browser game package, gameplay runtime, Pixi world, persistence, and client-only UI orchestration.
-- [`packages/server-world`](./packages/server-world/README.md): Node server-world package, currently exposing `GET /api/version`.
+- [`packages/server-world`](./packages/server-world/README.md): Node world-service package, currently exposing `GET /api/version`.
+- [`packages/server-auth`](./packages/server-auth/README.md): standalone Node auth service package for Google player verification and realm-directory responses.
 - [`packages/common`](./packages/common/README.md): shared client/server package for future cross-runtime types and utilities.
 - [`packages/ui`](./packages/ui/README.md): shared reusable UI component library.
 - `docs`: canonical cross-package rules, workflow notes, specs, lore, and transient review material.
@@ -49,7 +50,7 @@ pnpm dev
 
 - Contributor rules: `docs/RULES.md`
 - Contributor workflow: `docs/WORKFLOW.md`
-- Package docs: `packages/client/README.md`, `packages/server-world/README.md`, `packages/common/README.md`, `packages/ui/README.md`
+- Package docs: `packages/client/README.md`, `packages/server-world/README.md`, `packages/server-auth/README.md`, `packages/common/README.md`, `packages/ui/README.md`
 - Codex skills index: [`docs/realmfall-skills.md`](./docs/realmfall-skills.md)
 - Reference specs: `docs/specs/reference/gameplay-features/README.md` and `docs/specs/reference/technical-solutions/README.md`
 - Lore: `docs/lore/REALMFALL.md`

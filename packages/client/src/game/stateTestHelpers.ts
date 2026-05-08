@@ -3,6 +3,11 @@ import { makeEnemy } from './combat';
 import { hexKey } from './hex';
 import { buildTile } from './world';
 
+const GENERATED_WORLD_BOSS_FIXTURE = {
+  seed: 'generated-footprint-reservation-4',
+  center: { q: 5, r: 2 },
+} as const;
+
 export function createPlacedWorldBossEncounter() {
   const game = createGame(8, 'placed-world-boss-seed');
   const center = { q: 4, r: 0 };
@@ -45,6 +50,19 @@ export function createPlacedWorldBossEncounter() {
 }
 
 export function createGeneratedWorldBossEncounter() {
+  const fixtureGame = createGame(20, GENERATED_WORLD_BOSS_FIXTURE.seed);
+  if (
+    buildTile(
+      fixtureGame.seed,
+      GENERATED_WORLD_BOSS_FIXTURE.center,
+    ).enemyIds.some((enemyId) => enemyId.startsWith('world-boss-'))
+  ) {
+    return {
+      game: fixtureGame,
+      center: { ...GENERATED_WORLD_BOSS_FIXTURE.center },
+    };
+  }
+
   for (let seedIndex = 0; seedIndex < 32; seedIndex += 1) {
     const game = createGame(20, `generated-footprint-reservation-${seedIndex}`);
 

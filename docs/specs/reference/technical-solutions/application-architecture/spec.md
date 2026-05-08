@@ -19,7 +19,8 @@ This spec covers the repository layer boundaries, state transition shape, and co
 - `packages/ui/src/game` does not re-export `packages/client/src/game/content/*`, and `packages/ui/src/game/__tests__/boundary.spec.test.ts` now enforces the broader `packages/ui/src/**` no-client-import boundary for TypeScript modules, leaving only the Storybook fixture helper as an explicit bridge while `packages/ui/src/styles/_ui.scss` remains the isolated shared surface-token forward.
 - `packages/client/src/ui/world` contains Pixi world rendering, render math, scene caches, pools, and atmosphere helpers.
 - `packages/client/src/persistence` contains local save storage helpers.
-- `packages/server-world/src` contains the server runtime entrypoint, HTTP routes, and server-only version metadata resolution.
+- `packages/server-world/src` contains the world-service runtime entrypoint, HTTP routes, and server-only version metadata resolution.
+- `packages/server-auth/src` contains the standalone auth-service runtime, Google token verification, realm-directory routes, and auth-specific version metadata resolution.
 - `packages/common/src` is reserved for cross-runtime shared code and remains empty until a client/server abstraction is genuinely shared.
 - Game mutations are performed through state transition functions in `src/game/state.ts` that clone the incoming game state and return the next state.
 - Save hydration enters through `src/app/normalize.ts`, while focused helpers such as `src/app/normalizeGameState.ts`, `src/app/normalizeCombat.ts`, `src/app/normalizeItems.ts`, `src/app/normalizeUiState.ts`, `src/app/normalizeShared.ts`, and `src/app/normalizeCompatibility.ts` own narrower validation and compatibility concerns.
@@ -43,7 +44,7 @@ This spec covers the repository layer boundaries, state transition shape, and co
 - React controllers invoke these transitions with the current world time injected from refs.
 - Shared selectors derive view-ready data without pushing gameplay logic down into windows.
 - Unique items, enemies, and structures live in dedicated content files under `src/game/content`.
-- Package-local setup and command notes live in `packages/client/README.md`, `packages/server-world/README.md`, `packages/common/README.md`, and `packages/ui/README.md`, while `docs/specs` stays canonical for cross-package technical solutions.
+- Package-local setup and command notes live in `packages/client/README.md`, `packages/server-world/README.md`, `packages/server-auth/README.md`, `packages/common/README.md`, and `packages/ui/README.md`, while `docs/specs` stays canonical for cross-package technical solutions.
 
 ## Main Implementation Areas
 
@@ -60,4 +61,5 @@ This spec covers the repository layer boundaries, state transition shape, and co
 - `packages/ui/src/game`
 - `packages/ui/src/components`
 - `packages/server-world/src`
+- `packages/server-auth/src`
 - `packages/common/src`
