@@ -1,11 +1,11 @@
 import { act, useState, type Dispatch, type SetStateAction } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import {
-  getCombatAutomationDelay,
-  progressCombat,
-} from '../../../game/stateCombat';
+import { getCombatAutomationDelay } from '../../../game/stateCombat';
 import type { GameState } from '../../../game/stateTypes';
 import { useCombatAutomation } from './useCombatAutomationTestkit';
+
+const progressCombatTransition = vi.fn();
+const disposeTransitionSource = vi.fn(async () => undefined);
 
 vi.mock('../../../game/stateCombat', async () => {
   const actual = await vi.importActual<
@@ -15,9 +15,17 @@ vi.mock('../../../game/stateCombat', async () => {
   return {
     ...actual,
     getCombatAutomationDelay: vi.fn(),
-    progressCombat: vi.fn((state) => state),
   };
 });
+
+vi.mock('../gameplay/createWorkerGameplayTransitionSource', () => ({
+  createWorkerGameplayTransitionSource: vi.fn(() => ({
+    dispose: disposeTransitionSource,
+    moveToTile: vi.fn(),
+    progressCombat: progressCombatTransition,
+    startCombat: vi.fn(),
+  })),
+}));
 
 describe('useCombatAutomation', () => {
   let host: HTMLDivElement;
@@ -40,7 +48,15 @@ describe('useCombatAutomation', () => {
     host = document.createElement('div');
     document.body.appendChild(host);
     root = createRoot(host);
+    worldTimeMsRef.current = 0;
     vi.mocked(getCombatAutomationDelay).mockReturnValue(250);
+    progressCombatTransition.mockImplementation(async (state) => ({
+      changed: true,
+      state: {
+        ...state,
+        worldTimeMs: worldTimeMsRef.current,
+      },
+    }));
   });
 
   afterEach(async () => {
@@ -52,11 +68,22 @@ describe('useCombatAutomation', () => {
 
   it('does not schedule combat automation while the game is paused', async () => {
     const setGame = vi.fn();
+    const gameRef = {
+      current: {
+        combat: { started: true } as GameState['combat'],
+        enemies: {},
+        player: {
+          mana: 0,
+          statusEffects: [],
+        },
+      } as unknown as GameState,
+    };
 
     function TestHarness() {
       useCombatAutomation({
-        combat: { started: true } as GameState['combat'],
+        combat: gameRef.current.combat,
         enemyLookup: {},
+        gameRef,
         paused: true,
         playerMana: 0,
         playerStatusEffects: [],
@@ -74,16 +101,27 @@ describe('useCombatAutomation', () => {
 
     expect(getCombatAutomationDelay).not.toHaveBeenCalled();
     expect(setGame).not.toHaveBeenCalled();
-    expect(progressCombat).not.toHaveBeenCalled();
+    expect(progressCombatTransition).not.toHaveBeenCalled();
   });
 
   it('schedules the next combat step after unpausing', async () => {
     const setGame = vi.fn();
+    const gameRef = {
+      current: {
+        combat: { started: true } as GameState['combat'],
+        enemies: {},
+        player: {
+          mana: 0,
+          statusEffects: [],
+        },
+      } as unknown as GameState,
+    };
 
     function TestHarness({ paused }: { paused: boolean }) {
       useCombatAutomation({
-        combat: { started: true } as GameState['combat'],
+        combat: gameRef.current.combat,
         enemyLookup: {},
+        gameRef,
         paused,
         playerMana: 0,
         playerStatusEffects: [],
@@ -124,10 +162,13 @@ describe('useCombatAutomation', () => {
           statusEffects: [],
         } as Pick<GameState['player'], 'mana' | 'statusEffects'>,
       });
+      const gameRef = { current: game as unknown as GameState };
+      gameRef.current = game as unknown as GameState;
 
       useCombatAutomation({
         combat: game.combat,
         enemyLookup: game.enemies,
+        gameRef,
         paused: false,
         playerMana: game.player.mana,
         playerStatusEffects: game.player.statusEffects,
@@ -146,7 +187,7 @@ describe('useCombatAutomation', () => {
       await vi.advanceTimersByTimeAsync(250);
     });
 
-    expect(progressCombat).toHaveBeenCalledTimes(1);
+    expect(progressCombatTransition).toHaveBeenCalledTimes(1);
 
     worldTimeMsRef.current = 250;
 
@@ -154,7 +195,7 @@ describe('useCombatAutomation', () => {
       await vi.advanceTimersByTimeAsync(250);
     });
 
-    expect(progressCombat).toHaveBeenCalledTimes(2);
+    expect(progressCombatTransition).toHaveBeenCalledTimes(2);
   });
 
   it('ignores unrelated parent rerenders when the combat slices are unchanged', async () => {
@@ -162,6 +203,16 @@ describe('useCombatAutomation', () => {
     const combat = { started: true } as GameState['combat'];
     const playerStatusEffects: GameState['player']['statusEffects'] = [];
     const enemyLookup: GameState['enemies'] = {};
+    const gameRef = {
+      current: {
+        combat,
+        enemies: enemyLookup,
+        player: {
+          mana: 0,
+          statusEffects: playerStatusEffects,
+        },
+      } as unknown as GameState,
+    };
 
     function TestHarness({ unrelated }: { unrelated: number }) {
       const appState = {
@@ -174,6 +225,7 @@ describe('useCombatAutomation', () => {
       useCombatAutomation({
         combat: appState.combat,
         enemyLookup: appState.enemies,
+        gameRef,
         paused: false,
         playerMana: 0,
         playerStatusEffects: appState.player.statusEffects,

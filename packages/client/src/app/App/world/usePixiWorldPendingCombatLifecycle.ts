@@ -1,15 +1,17 @@
 import {
   useEffect,
+  useRef,
   type Dispatch,
   type MutableRefObject,
   type SetStateAction,
 } from 'react';
 import type { Application } from 'pixi.js';
 import type { GameState, HexCoord } from '../../../game/stateTypes';
+import { createWorkerGameplayTransitionSource } from '../gameplay/createWorkerGameplayTransitionSource';
+import type { GameplayTransitionSource } from '../gameplay/gameplayTransitionSourceTypes';
 import type { WorldMovementTransition } from './movement/worldMovementTransition';
 import type { WorldMovementController } from './pixiWorldLifecycleTypes';
 import {
-  autoStartPendingCombat,
   getPendingCombatUpdatePlan,
   getPostCombatAutoStepTransition,
   stampPendingCombatIntro,
@@ -93,6 +95,21 @@ export function usePixiWorldPendingCombatIntroLifecycle({
   setGame,
   worldTimeMsRef,
 }: UsePixiWorldPendingCombatIntroLifecycleArgs): void {
+  const gameplayTransitionSourceRef = useRef<GameplayTransitionSource>(
+    undefined!,
+  );
+  if (gameplayTransitionSourceRef.current === undefined) {
+    gameplayTransitionSourceRef.current =
+      createWorkerGameplayTransitionSource();
+  }
+
+  useEffect(
+    () => () => {
+      void gameplayTransitionSourceRef.current.dispose();
+    },
+    [],
+  );
+
   useEffect(() => {
     if (combatIntroTimerRef.current !== null) {
       window.clearTimeout(combatIntroTimerRef.current);
@@ -107,6 +124,7 @@ export function usePixiWorldPendingCombatIntroLifecycle({
       return;
     }
 
+    let cancelled = false;
     const pendingCombatPlan = getPendingCombatUpdatePlan({
       combat,
       movementNowMs: performance.now(),
@@ -118,20 +136,38 @@ export function usePixiWorldPendingCombatIntroLifecycle({
       return;
     }
 
-    const runPendingCombatPlan = () =>
-      setGame((current) =>
-        pendingCombatPlan.action === 'stamp'
-          ? stampPendingCombatIntro({
-              current,
-              gameRef,
-              worldTimeMs: worldTimeMsRef.current,
-            })
-          : autoStartPendingCombat({
-              current,
-              gameRef,
-              worldTimeMs: worldTimeMsRef.current,
-            }),
-      );
+    const runPendingCombatPlan = () => {
+      if (cancelled) {
+        return;
+      }
+
+      if (pendingCombatPlan.action === 'stamp') {
+        const next = stampPendingCombatIntro({
+          current: gameRef.current,
+          gameRef,
+          worldTimeMs: worldTimeMsRef.current,
+        });
+        gameRef.current = next;
+        setGame(next);
+        return;
+      }
+
+      void gameplayTransitionSourceRef.current
+        .startCombat(gameRef.current, worldTimeMsRef.current)
+        .then((result) => {
+          if (cancelled) {
+            return;
+          }
+
+          gameRef.current = result.state;
+          setGame(result.state);
+        })
+        .catch((error: unknown) => {
+          if (!cancelled) {
+            console.error(error);
+          }
+        });
+    };
 
     if (pendingCombatPlan.delayMs === 0) {
       runPendingCombatPlan();
@@ -144,6 +180,7 @@ export function usePixiWorldPendingCombatIntroLifecycle({
     );
 
     return () => {
+      cancelled = true;
       if (combatIntroTimerRef.current !== null) {
         window.clearTimeout(combatIntroTimerRef.current);
         combatIntroTimerRef.current = null;

@@ -9,6 +9,7 @@ This spec covers the internal combat data structures and event-driven enemy stat
 - Combat uses per-actor state objects that track abilities, cooldowns, effective cooldown adjustments, global cooldown, and optional casting state.
 - Combat automation timing derives from combat actor state plus live combat status effects on the player and current enemies, so ticking effects and expirations advance on time even when the next ability cooldown is far away.
 - Encounter setup remains on the world-travel path in `state.ts`, while `stateCombat.ts` coordinates combat start and combat-step scheduling through focused neighboring helpers.
+- The App runtime routes combat auto-start and combat automation ticks through the same worker-backed gameplay transition source used by movement, with a local fallback preserving behavior when worker startup or execution fails.
 - All shipped encounter sources route through `stateCombatEngagement.ts`, so tile-step, hostile-click, and dungeon-chase encounters are created with `started: true` and no manual-start phase.
 - Combat engagement metadata now records `engageMode`, `originCoord`, `stagingCoord`, `targetCoord`, and `autoStepOnVictory` so hostile-click staging, dungeon chase contact, and deferred victory stepping all share one normalized runtime shape.
 - Encounter teardown can apply a deferred post-victory step onto the preserved engagement target before combat clears for hostile-click encounters, while roaming chase encounters clear in place on the staging hex.

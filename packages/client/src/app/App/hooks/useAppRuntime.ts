@@ -204,6 +204,7 @@ export function useAppRuntime() {
   useCombatAutomation({
     combat: bootstrap.game.combat,
     enemyLookup: bootstrap.game.enemies,
+    gameRef: bootstrap.gameRef,
     paused: bootstrap.paused,
     playerMana: bootstrap.game.player.mana,
     playerStatusEffects: bootstrap.game.player.statusEffects,

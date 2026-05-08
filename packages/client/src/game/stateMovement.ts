@@ -16,7 +16,7 @@ import { applySurvivalDecay, respawnAtNearestTown } from './stateSurvival';
 import { getHostileEnemyIds, getResolvedTileAt } from './stateWorldQueries';
 import type { CombatEngagementMetadata, GameState, Tile } from './types';
 
-interface MoveToTileOptions {
+export interface MoveToTileOptions {
   engageMode?: Extract<
     CombatEngagementMetadata['engageMode'],
     'adjacent-click' | 'staged-click'

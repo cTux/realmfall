@@ -339,6 +339,7 @@ describe('createWorldMovementController', () => {
     });
     await flushMicrotasks();
     await flushMicrotasks();
+    await flushMicrotasks();
 
     expect(requestedTargets).toEqual([
       { q: 1, r: 0 },
@@ -470,6 +471,7 @@ describe('createWorldMovementController', () => {
       { q: 1, r: 0 },
       { q: 2, r: 0 },
     ]);
+    await flushMicrotasks();
     await flushMicrotasks();
 
     expect(currentCoord).toEqual({ q: 1, r: 0 });
