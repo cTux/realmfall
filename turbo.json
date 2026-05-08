@@ -4,10 +4,10 @@
     "dev": {
       "persistent": true,
       "cache": false,
-      "dependsOn": ["^dev:client", "^dev:server"]
+      "dependsOn": ["^dev:client", "^dev:server-world"]
     },
     "dev:client": {},
-    "dev:server": {},
+    "dev:server-world": {},
 
     "dev:storybook": {
       "persistent": true,
@@ -18,14 +18,14 @@
     "dev:client:storybook": {},
 
     "serve": {
-      "dependsOn": ["^serve:client", "^serve:server"]
+      "dependsOn": ["^serve:client", "^serve:server-world"]
     },
     "serve:client": {
       "dependsOn": ["^build:client"],
       "outputs": ["dist"]
     },
-    "serve:server": {
-      "dependsOn": ["^build:server"],
+    "serve:server-world": {
+      "dependsOn": ["^build:server-world"],
       "outputs": ["dist"]
     },
 
@@ -37,7 +37,7 @@
         "^build:ui:storybook",
         "^build:client",
         "^build:client:storybook",
-        "^build:server"
+        "^build:server-world"
       ]
     },
     "build:common": {
@@ -60,7 +60,7 @@
     "build:client:assets": {
       "outputs": ["src/assets/generated"]
     },
-    "build:server": {
+    "build:server-world": {
       "dependsOn": ["^build:common"],
       "outputs": ["dist"]
     },
@@ -70,28 +70,38 @@
         "^typecheck:common",
         "^typecheck:ui",
         "^typecheck:client",
-        "^typecheck:server"
+        "^typecheck:server-world"
       ]
     },
     "typecheck:common": {},
     "typecheck:ui": {},
     "typecheck:client": {},
-    "typecheck:server": {},
+    "typecheck:server-world": {},
 
     "lint": {
-      "dependsOn": ["^lint:common", "^lint:ui", "^lint:client", "^lint:server"]
+      "dependsOn": [
+        "^lint:common",
+        "^lint:ui",
+        "^lint:client",
+        "^lint:server-world"
+      ]
     },
     "lint:common": {},
     "lint:ui": {},
     "lint:client": {},
-    "lint:server": {},
+    "lint:server-world": {},
 
     "test": {
-      "dependsOn": ["^test:common", "^test:ui", "^test:client", "^test:server"]
+      "dependsOn": [
+        "^test:common",
+        "^test:ui",
+        "^test:client",
+        "^test:server-world"
+      ]
     },
     "test:common": {},
     "test:ui": {},
     "test:client": {},
-    "test:server": {}
+    "test:server-world": {}
   }
 }

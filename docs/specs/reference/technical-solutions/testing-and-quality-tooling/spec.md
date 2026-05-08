@@ -8,7 +8,7 @@ This spec covers the repository quality baseline and current test coverage shape
 
 - Client-side `src/*` and `scripts/*` paths below live under `packages/client/` after the monorepo split unless the path explicitly names another package.
 - The repository uses TypeScript strict mode, Oxlint, Stylelint, Prettier, Vitest, Husky, Vite, and Storybook.
-- Root verification entrypoints cover the shared workspace typecheck, lint, build, and automated test paths across `packages/common`, `packages/server`, `packages/ui`, and `packages/client`, while package-local scripts keep narrower verification available for iteration.
+- Root verification entrypoints cover the shared workspace typecheck, lint, build, and automated test paths across `packages/common`, `packages/server-world`, `packages/ui`, and `packages/client`, while package-local scripts keep narrower verification available for iteration.
 - Client Vitest coverage is split between a DOM-free `node` project for gameplay, persistence, i18n, and script tests and a `jsdom` project for React, Pixi, and other browser-surface tests.
 - Dedicated memory-leak scripts run a custom `fuite` dock-window toggle scenario against local HTTPS dev and production builds, writing JSON analysis snapshots into `.tests/memory-leaks/`.
 - The browser performance harness activates only when `?perf=1`, `?realmfallPerf=1`, `localStorage["realmfall:perf"] = "1"`, or a test-only forced install is present, exposing `window.__REALMFALL_PERF__` with a `snapshot()` API for startup marks, React commits, Pixi render-pass counters, scenario timings, long tasks, and long animation frames.
@@ -89,8 +89,8 @@ This spec covers the repository quality baseline and current test coverage shape
 - `prettier.config.cjs`
 - `src/ui/components/**/*.stories.tsx`
 - `packages/ui/src/components/**/*.stories.tsx`
-- `packages/server/src/dev.ts`
-- `packages/server/src/runtime.ts`
+- `packages/server-world/src/dev.ts`
+- `packages/server-world/src/runtime.ts`
 - `.storybook/preview.ts`
 - `.storybook/preview.scss`
 - `src/ui/components/storybook/storybookPreview.tsx`

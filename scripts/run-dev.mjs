@@ -15,8 +15,8 @@ export function createWorkspaceDevPlan(environment = process.env) {
           script: 'dev',
         },
         {
-          name: 'server',
-          packageName: '@realmfall/server',
+          name: 'server-world',
+          packageName: '@realmfall/server-world',
           script: 'dev',
         },
       ],
