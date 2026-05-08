@@ -4,13 +4,15 @@ import { hydrateResolvedWorldTilePayload } from './worldTileResolutionRuntimeTes
 
 function createPayload(
   enemy: ResolvedWorldTilePayload['enemies'][number],
+  item?: ResolvedWorldTilePayload['tile']['items'][number],
 ): ResolvedWorldTilePayload {
+  const items = item ? [item] : [];
   return {
     coord: { q: 2, r: -1 },
     tile: {
       coord: { q: 2, r: -1 },
       terrain: 'forest',
-      items: [],
+      items,
       enemyIds: [enemy.id],
     },
     enemies: [enemy],
@@ -58,5 +60,44 @@ describe('hydrateResolvedWorldTilePayload', () => {
     );
 
     expect(hydrated.enemies[0]?.name).toBe('Sera');
+  });
+
+  it('retains item tint metadata when present in payloads', () => {
+    const hydrated = hydrateResolvedWorldTilePayload(
+      createPayload(
+        {
+          id: 'enemy-2,-1-2',
+          enemyTypeId: 'wolf',
+          name: 'Sera',
+          coord: { q: 2, r: -1 },
+          rarity: 'common',
+          tier: 1,
+          hp: 10,
+          maxHp: 10,
+          attack: 3,
+          defense: 1,
+          xp: 5,
+          elite: false,
+        },
+        {
+          id: 'item-1',
+          itemKey: 'pepper',
+          name: 'Pepper',
+          quantity: 1,
+          tier: 1,
+          rarity: 'common',
+          power: 0,
+          defense: 0,
+          maxHp: 0,
+          healing: 0,
+          hunger: 1,
+          thirst: 0,
+          icon: '/assets/icons/pepper.svg',
+          tint: '#00ff00',
+        },
+      ),
+    );
+
+    expect(hydrated.tile.items[0]?.tint).toBe('#00ff00');
   });
 });

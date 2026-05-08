@@ -48,6 +48,7 @@ export interface Item {
   locked?: boolean;
   slot?: EquipmentSlot;
   icon?: string;
+  tint?: string;
   name: string;
   quantity: number;
   tier: number;

@@ -31,6 +31,7 @@ export interface TileResolutionItem {
   locked?: boolean;
   slot?: string;
   icon?: string;
+  tint?: string;
   name: string;
   quantity: number;
   tier: number;

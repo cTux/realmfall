@@ -11,6 +11,7 @@ This spec covers item structure, generated gear, loot sources, and player equipm
 - Resource items now include raw ores plus smelted ingots, with metal gear recipes consuming ingots instead of raw ore or chunks.
 - Equippable drops are now built from a base-item dictionary keyed by stable ids, while combat stats, rarity, and instance ids are rolled per dropped instance instead of being baked into the base definition.
 - Stackable items consolidate in inventory when they share stack identity derived from canonical item identity.
+- Item contracts now carry optional materialized visual metadata (e.g., `tint` and `icon`) for configured items, allowing shared and client render paths to use aligned item visuals from runtime data while preserving older payload fallback behavior.
 - The player can equip gear into dedicated slots including weapon, offhand, head, shoulders, chest, bracers, hands, belt, legs, feet, rings, amulet, and cloak.
 - Equipped gear modifies derived player stats such as attack, defense, and max HP.
 - Item tiers are capped at `100`.
