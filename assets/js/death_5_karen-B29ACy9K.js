@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/death_5_karen-CHTjeHY8.flac`;export{e as default};

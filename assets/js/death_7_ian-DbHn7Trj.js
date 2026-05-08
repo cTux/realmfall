@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/death_7_ian-DK2YKk_f.flac`;export{e as default};

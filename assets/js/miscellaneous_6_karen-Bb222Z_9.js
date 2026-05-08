@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/miscellaneous_6_karen-D4I218Zq.flac`;export{e as default};

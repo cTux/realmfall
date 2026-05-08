@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/farewell_3_meghan-Bfi-LEHG.flac`;export{e as default};

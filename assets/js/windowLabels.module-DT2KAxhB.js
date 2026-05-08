@@ -1,0 +1,1 @@
+var e={hotkey:`_hotkey_4c77r_1`};export{e as t};

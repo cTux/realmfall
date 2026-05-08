@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/shouting_8_karen-DiQFA-xW.flac`;export{e as default};

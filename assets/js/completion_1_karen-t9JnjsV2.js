@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/completion_1_karen-DC--DVLK.flac`;export{e as default};

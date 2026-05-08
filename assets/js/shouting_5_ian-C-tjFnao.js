@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/shouting_5_ian-BkflCASC.flac`;export{e as default};

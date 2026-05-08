@@ -1,0 +1,1 @@
+function e(e=window.location.search){return new URLSearchParams(e).get(`debug`)===`true`}export{e as t};

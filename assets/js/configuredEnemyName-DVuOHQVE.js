@@ -1,0 +1,1 @@
+import{jt as e}from"./state-oKJnSzjg.js";function t(t,n){return n&&t===`game.enemy.${n}.name`?e(n)?.name??t:t}export{t};

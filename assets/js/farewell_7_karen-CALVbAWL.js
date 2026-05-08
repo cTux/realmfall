@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/farewell_7_karen-Ch-5yJpk.flac`;export{e as default};

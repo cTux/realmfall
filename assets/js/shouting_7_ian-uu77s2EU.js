@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/shouting_7_ian-B9-aklwn.flac`;export{e as default};

@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/shouting_5_alex-DaebwP_8.flac`;export{e as default};

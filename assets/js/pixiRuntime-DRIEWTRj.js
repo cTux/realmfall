@@ -1,0 +1,1 @@
+import{n as e}from"./pixi-CpdyZbPV.js";export{e as Application};

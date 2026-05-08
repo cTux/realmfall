@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/guilhermebernardes-hopeless-119866-D8ZJ2gz0.mp3`;export{e as default};

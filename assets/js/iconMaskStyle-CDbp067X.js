@@ -1,0 +1,1 @@
+function e(e){let t=`url("${e}") center / contain no-repeat`;return{WebkitMask:t,mask:t}}export{e as t};

@@ -1,0 +1,1 @@
+import{Er as e,Tr as t}from"./state-oKJnSzjg.js";function n(n){return(n%t+t)%t/t*e}function r(e){return Math.max(1,Math.floor(e/t)+1)}export{n,r as t};

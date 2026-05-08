@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/confirmation_8_alex-B_GQhJXr.flac`;export{e as default};

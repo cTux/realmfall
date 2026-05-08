@@ -1,0 +1,1 @@
+var e=`/realmfall/assets/misc/farewell_1_ian-BYW4EeSH.flac`;export{e as default};

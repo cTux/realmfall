@@ -1,0 +1,1 @@
+var e={window:`_window_comu1_1`,windowBody:`_windowBody_comu1_9`,layout:`_layout_comu1_14`,stats:`_stats_comu1_22`,summary:`_summary_comu1_32`,section:`_section_comu1_36`,sectionTitle:`_sectionTitle_comu1_42`,statGrid:`_statGrid_comu1_51`,statRow:`_statRow_comu1_56`,statLabel:`_statLabel_comu1_67`,statValue:`_statValue_comu1_73`};export{e as t};
