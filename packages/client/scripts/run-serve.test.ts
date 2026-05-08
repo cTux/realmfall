@@ -11,7 +11,7 @@ describe('workspace serve plan', () => {
     expect(plan.services).toEqual([
       {
         command: process.execPath,
-        args: ['/tmp/pnpm.cjs', '--filter', '@realmfall/client', 'serve'],
+        args: ['/tmp/pnpm.cjs', '--filter', '@realmfall/client-web', 'serve'],
         name: 'client',
       },
       {

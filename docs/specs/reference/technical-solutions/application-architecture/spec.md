@@ -10,13 +10,13 @@ This spec covers the repository layer boundaries, state transition shape, and co
 - `packages/client/src/game` contains gameplay and simulation rules.
 - `packages/client/src/app` contains app orchestration, hydration, persistence wiring, clock wiring, and controller hooks.
 - Repeated app-controller command families that only adapt gameplay transitions into UI handlers stay in focused neighbors such as `packages/client/src/app/App/hooks/gameActionHandlers/*` instead of regrowing broad orchestration hooks with hand-wired callback lists.
-- `packages/client/src/ui/components` contains client-only React window components and presentational UI, while `packages/ui/src/components` contains shared reusable controls consumed through `@realmfall/ui`.
+- `packages/client/src/ui/components` contains client-only React window components and presentational UI, while `packages/ui/src/components` contains shared reusable controls consumed through `@realmfall/ui-react`.
 - Shared `packages/ui` controls keep UI-owned view contracts and helper logic under `packages/ui/src/game` and receive caller-derived action metadata instead of importing client `stateTypes`, app-only controller types, or gameplay config modules into the shared package implementation.
 - Shared package-owned helpers for icons, tooltip placement, tooltip lines, compact formatting, and generated icon resolution live under `packages/ui/src/*` instead of re-exporting `packages/client/src/ui/*`.
 - Shared translation state now lives in `packages/ui/src/i18n`, while `packages/client/src/i18n/index.ts` remains responsible for loading locale assets and seeding the shared contract at runtime.
-- Shared item presentation ownership in `@realmfall/ui` includes canonical slot-based item-category fallback rules, item tag constants required by shared UI display logic, icon-kind selection, configured tint lookup, and equippable tint family/tone selection.
+- Shared item presentation ownership in `@realmfall/ui-react` includes canonical slot-based item-category fallback rules, item tag constants required by shared UI display logic, icon-kind selection, configured tint lookup, and equippable tint family/tone selection.
 - Runtime item contracts are aligned to carry optional `tint` on built/configured items so shared item tint decisions can prefer materialized presentation data without re-querying configuration.
-- `packages/client/src/ui/icons.ts` only adds client-only concerns (enemy, structure, skill, and configured item overrides) and delegates shared item display decisions to `@realmfall/ui`.
+- `packages/client/src/ui/icons.ts` only adds client-only concerns (enemy, structure, skill, and configured item overrides) and delegates shared item display decisions to `@realmfall/ui-react`.
 - `packages/ui/src/game` does not re-export `packages/client/src/game/content/*`, and `packages/ui/src/game/__tests__/boundary.spec.test.ts` now enforces the broader `packages/ui/src/**` no-client-import boundary for TypeScript modules, leaving only the Storybook fixture helper as an explicit bridge while `packages/ui/src/styles/_ui.scss` remains the isolated shared surface-token forward.
 - `packages/client/src/ui/world` contains Pixi world rendering, render math, scene caches, pools, and atmosphere helpers.
 - `packages/client/src/persistence` contains local save storage helpers.

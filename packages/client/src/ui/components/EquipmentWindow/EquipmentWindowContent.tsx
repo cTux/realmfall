@@ -1,4 +1,4 @@
-import { ItemSlot as ItemSlotButton } from '@realmfall/ui';
+import { ItemSlot as ItemSlotButton } from '@realmfall/ui-react';
 import type { CSSProperties } from 'react';
 import silhouetteImage from '../../../assets/images/silhouette.png';
 import { EquipmentSlotId } from '../../../game/content/ids';

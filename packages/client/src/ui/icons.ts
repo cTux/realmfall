@@ -71,7 +71,7 @@ import {
   isEquippableItemCategory,
   ItemCategoryIconKey,
   RECIPE_PAGE_TINT,
-} from '@realmfall/ui';
+} from '@realmfall/ui-react';
 import { GameTag } from '../game/content/tags';
 
 export const Icons = {

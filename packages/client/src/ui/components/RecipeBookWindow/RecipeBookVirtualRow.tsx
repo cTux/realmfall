@@ -1,4 +1,4 @@
-import { Button, ItemSlot as ItemSlotButton } from '@realmfall/ui';
+import { Button, ItemSlot as ItemSlotButton } from '@realmfall/ui-react';
 import roundStarIcon from '../../../assets/icons/round-star.svg';
 import { t } from '../../../i18n';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';

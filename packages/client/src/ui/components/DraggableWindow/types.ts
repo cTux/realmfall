@@ -3,4 +3,4 @@ export type {
   WindowPosition,
   WindowResizeBounds,
   WindowStackLayer,
-} from '@realmfall/ui';
+} from '@realmfall/ui-react';

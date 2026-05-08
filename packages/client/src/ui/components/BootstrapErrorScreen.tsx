@@ -1,4 +1,4 @@
-import { LoadingSpinner } from '@realmfall/ui/loading-spinner';
+import { LoadingSpinner } from '@realmfall/ui-react/loading-spinner';
 import { useEffect, useState } from 'react';
 import { t } from '../../i18n';
 import styles from './BootstrapErrorScreen.module.scss';

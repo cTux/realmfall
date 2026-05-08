@@ -1,4 +1,4 @@
-import { Button } from '@realmfall/ui';
+import { Button } from '@realmfall/ui-react';
 import { t } from '../../../i18n';
 import type { TooltipLine } from '../../tooltips';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';

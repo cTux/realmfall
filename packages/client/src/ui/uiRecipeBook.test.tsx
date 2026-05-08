@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import {
   ItemSlot as ItemSlotButton,
   Tooltip as GameTooltip,
-} from '@realmfall/ui';
+} from '@realmfall/ui-react';
 import { DEFAULT_WINDOWS } from '../app/constants';
 import { getRecipeMaterialItemKey } from '../app/App/utils/getRecipeMaterialItemKey';
 import { GameTag } from '../game/content/tags';

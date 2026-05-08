@@ -1,4 +1,4 @@
 export {
   GENERATED_ICON_ASSET_POOLS,
   resolveGeneratedIconAsset,
-} from '@realmfall/ui';
+} from '@realmfall/ui-react';

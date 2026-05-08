@@ -1,7 +1,7 @@
 import { ItemId } from '../ids';
 import type { ItemConfig } from '../types';
 import { GAME_TAGS, getEquipmentSlotTag, uniqueTags } from '../tags';
-import { getItemCategory as getSharedItemCategory } from '@realmfall/ui';
+import { getItemCategory as getSharedItemCategory } from '@realmfall/ui-react';
 
 export type ItemCategory = ReturnType<typeof getSharedItemCategory>;
 

@@ -33,7 +33,7 @@ describe('world terrain atlas pipeline', () => {
     ) as { scripts: Record<string, string> };
 
     expect(packageJson.scripts['build:client:assets']).toBe(
-      'pnpm --filter @realmfall/client build:client:assets',
+      'pnpm --filter @realmfall/client-web build:client:assets',
     );
     expect(
       existsSync(

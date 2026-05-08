@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState, type ComponentProps } from 'react';
 import { storyPanelDecorator } from '../storybook/storybookHelpers';
-import { Switch } from '@realmfall/ui';
+import { Switch } from '@realmfall/ui-react';
 
 const meta = {
   title: 'Components/Switch',

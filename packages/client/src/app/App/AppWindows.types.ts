@@ -1,5 +1,5 @@
 import type { MutableRefObject } from 'react';
-import type { TooltipPosition } from '@realmfall/ui';
+import type { TooltipPosition } from '@realmfall/ui-react';
 import type { WindowPositions, WindowVisibilityState } from '../constants';
 import type { AppWindowsActions } from './AppWindows.actionTypes';
 import type { AppWindowsViewState } from './AppWindows.viewTypes';

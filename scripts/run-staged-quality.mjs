@@ -79,7 +79,7 @@ if (prettierFiles.length > 0) {
   logStep(`Running Prettier --write on ${prettierFiles.length} staged file(s)`);
   const pnpm = createPnpmInvocation([
     '--filter',
-    '@realmfall/client',
+    '@realmfall/client-web',
     'exec',
     'prettier',
     '--write',
@@ -94,7 +94,7 @@ if (lintClientFiles.length > 0) {
   logStep(`Running Oxlint --fix on ${lintClientFiles.length} staged file(s)`);
   const pnpm = createPnpmInvocation([
     '--filter',
-    '@realmfall/client',
+    '@realmfall/client-web',
     'exec',
     'oxlint',
     '-c',
@@ -111,7 +111,7 @@ if (stylelintFiles.length > 0) {
   logStep(`Running Stylelint on ${stylelintFiles.length} staged file(s)`);
   const pnpm = createPnpmInvocation([
     '--filter',
-    '@realmfall/client',
+    '@realmfall/client-web',
     'exec',
     'stylelint',
     ...toAbsolutePaths(stylelintFiles),
@@ -133,7 +133,7 @@ if (vitestRelatedFiles.length > 0) {
   );
   const pnpm = createPnpmInvocation([
     '--filter',
-    '@realmfall/client',
+    '@realmfall/client-web',
     'exec',
     'vitest',
     'related',

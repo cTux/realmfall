@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Button, ItemSlot as ItemSlotButton } from '@realmfall/ui';
+import { Button, ItemSlot as ItemSlotButton } from '@realmfall/ui-react';
 import { canSellItem } from '../../../game/inventory';
 import { t } from '../../../i18n';
 import { iconForItem, Icons } from '../../icons';

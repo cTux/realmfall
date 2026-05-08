@@ -1,1 +1,1 @@
-export { formatCompactNumber, formatCompactNumberish } from '@realmfall/ui';
+export { formatCompactNumber, formatCompactNumberish } from '@realmfall/ui-react';

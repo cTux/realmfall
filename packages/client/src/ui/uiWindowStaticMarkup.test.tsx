@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tooltip as GameTooltip } from '@realmfall/ui';
+import { Tooltip as GameTooltip } from '@realmfall/ui-react';
 import { t } from '../i18n';
 import { getAbilityDefinition } from '../game/abilities';
 import { getItemConfigByKey, getPlayerOverview } from '../game/stateSelectors';

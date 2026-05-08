@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState, type ComponentProps } from 'react';
 import { storyPanelDecorator, noop } from '../storybook/storybookHelpers';
-import { Tabs } from '@realmfall/ui';
+import { Tabs } from '@realmfall/ui-react';
 
 const meta = {
   title: 'Components/Tabs',

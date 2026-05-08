@@ -1,4 +1,4 @@
-import { Button, Switch } from '@realmfall/ui';
+import { Button, Switch } from '@realmfall/ui-react';
 import {
   AUDIO_SETTINGS_SOUND_EFFECT_OPTIONS,
   AUDIO_SETTINGS_TOGGLE_OPTIONS,
