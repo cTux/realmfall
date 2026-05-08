@@ -2,7 +2,7 @@ import { t } from '../i18n';
 import { WORLD_REVEAL_RADIUS } from './config';
 import { ItemId, type ItemKey } from './content/ids';
 import { itemName, structureTitle } from './content/i18n';
-import { getActiveWorld } from './dungeons/worldState';
+import { getActiveWorld, getSurfaceWorld } from './dungeons/worldState';
 import { hexesInRange, hexKey } from './hex';
 import { isPlayerClaim } from './territories';
 import { getCurrentTile, getResolvedCurrentTile } from './stateWorldQueries';
@@ -19,6 +19,14 @@ const OUTPOST_BUILDABLES = [
       { itemKey: ItemId.Cloth, quantity: 1 },
     ],
     type: 'watchtower',
+  },
+  {
+    costs: [
+      { itemKey: ItemId.Stone, quantity: 4 },
+      { itemKey: ItemId.Cloth, quantity: 2 },
+      { itemKey: ItemId.ArcaneDust, quantity: 1 },
+    ],
+    type: 'mana-anchor',
   },
 ] as const;
 
@@ -53,6 +61,11 @@ type WatchtowerRevealState = Pick<GameState, 'tiles'> &
   Partial<Pick<GameState, 'activeWorldId' | 'worlds'>> & {
     player: Pick<GameState['player'], 'coord'>;
   };
+
+type PreferredReturnHexState = Pick<
+  GameState,
+  'homeHex' | 'manaAnchorHex' | 'surfaceWorldId' | 'worlds'
+>;
 
 export function getCurrentHexOutpostBuildStatus(
   state: OutpostBuildState,
@@ -94,6 +107,32 @@ export function isOutpostBuildableStructureType(
   structure: GameState['tiles'][string]['structure'],
 ): structure is OutpostBuildableType {
   return OUTPOST_BUILDABLES.some((buildable) => buildable.type === structure);
+}
+
+export function getPreferredReturnHex(state: PreferredReturnHexState) {
+  return getBoundManaAnchorHex(state) ?? state.homeHex;
+}
+
+export function getBoundManaAnchorHex({
+  manaAnchorHex,
+  surfaceWorldId,
+  worlds,
+}: Pick<GameState, 'manaAnchorHex' | 'surfaceWorldId' | 'worlds'>) {
+  if (!manaAnchorHex) {
+    return null;
+  }
+
+  const surfaceTile =
+    getSurfaceWorld({ worlds })?.tiles[hexKey(manaAnchorHex)] ??
+    worlds[surfaceWorldId]?.tiles[hexKey(manaAnchorHex)];
+  if (
+    surfaceTile?.structure !== 'mana-anchor' ||
+    !isPlayerClaim(surfaceTile.claim)
+  ) {
+    return null;
+  }
+
+  return manaAnchorHex;
 }
 
 function getOutpostBuildStatusCore(

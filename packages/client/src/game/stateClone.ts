@@ -15,6 +15,7 @@ import type {
 
 interface CopyStateSlices {
   homeHex?: boolean;
+  manaAnchorHex?: boolean;
   logs?: boolean;
   combat?: boolean;
   tiles?: boolean;
@@ -45,6 +46,10 @@ export function copyGameState(
         }
       : null,
     homeHex: slices.homeHex ? { ...state.homeHex } : state.homeHex,
+    manaAnchorHex:
+      slices.manaAnchorHex && state.manaAnchorHex
+        ? { ...state.manaAnchorHex }
+        : state.manaAnchorHex,
     logs: slices.logs ? [...state.logs] : state.logs,
     worldFloatingTextEvents:
       state.worldFloatingTextEvents?.map(copyWorldFloatingTextEvent) ?? [],

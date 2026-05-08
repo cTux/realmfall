@@ -33,6 +33,7 @@ export function createGame(
     dungeonEntrances: {},
     activeDungeon: null,
     homeHex: { q: 0, r: 0 },
+    manaAnchorHex: null,
     turn: 0,
     worldTimeMs: 0,
     dayPhase: 'night',

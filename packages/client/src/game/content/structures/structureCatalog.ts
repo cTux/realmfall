@@ -22,6 +22,7 @@ import { herbsStructureConfig } from './herbs';
 import { ironOreStructureConfig } from './ironOre';
 import { lakeStructureConfig } from './lake';
 import { lockedChestStructureConfig } from './lockedChest';
+import { manaAnchorStructureConfig } from './manaAnchor';
 import { manaFontStructureConfig } from './manaFont';
 import { platinumOreStructureConfig } from './platinumOre';
 import { pondStructureConfig } from './pond';
@@ -41,6 +42,7 @@ const RAW_STRUCTURE_CONFIGS = [
   runeForgeStructureConfig,
   townStructureConfig,
   manaFontStructureConfig,
+  manaAnchorStructureConfig,
   furnaceStructureConfig,
   workshopStructureConfig,
   watchtowerStructureConfig,

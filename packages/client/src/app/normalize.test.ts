@@ -68,6 +68,18 @@ describe('normalizeLoadedGame', () => {
     );
   });
 
+  it('preserves a valid saved mana anchor binding', () => {
+    const game = createGame(3, 'normalize-mana-anchor-seed');
+    const saved = {
+      ...structuredClone(game),
+      manaAnchorHex: { q: 2, r: -1 },
+    };
+
+    expect(normalizeLoadedGame(saved)).toMatchObject({
+      manaAnchorHex: { q: 2, r: -1 },
+    });
+  });
+
   it('deep-clones nested tile and item fields during hydration and world fallback reuse', () => {
     const game = createGame(3, 'normalize-deep-clone-seed');
     const homeKey = `${game.homeHex.q},${game.homeHex.r}`;

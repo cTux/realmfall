@@ -20,6 +20,7 @@ import {
   structureDefinition,
 } from './world';
 import {
+  cloneForOutpostMutation,
   cloneForHomeMutation,
   cloneForPlayerMutation,
   cloneForPlayerAndTileMutation,
@@ -39,6 +40,7 @@ import { getCurrentHexClaimStatus } from './stateClaims';
 import { activateDungeonWorld, leaveDungeonWorld } from './stateDungeonActions';
 import { openDungeonChest } from './stateDungeonChest';
 import {
+  getBoundManaAnchorHex,
   getCurrentHexOutpostBuildStatus,
   type OutpostBuildableType,
 } from './stateOutposts';
@@ -148,10 +150,27 @@ export function buildOutpostAtCurrentHex(
     );
   }
 
-  const next = cloneForPlayerAndTileMutation(state);
+  const next =
+    outpostType === 'mana-anchor'
+      ? cloneForOutpostMutation(state)
+      : cloneForPlayerAndTileMutation(state);
   ensureTileState(next, next.player.coord);
   const key = hexKey(next.player.coord);
   const tile = next.tiles[key];
+
+  if (outpostType === 'mana-anchor') {
+    const previousAnchorHex = getBoundManaAnchorHex(next);
+    if (previousAnchorHex) {
+      const previousKey = hexKey(previousAnchorHex);
+      const previousTile = next.tiles[previousKey];
+      if (previousTile) {
+        previousTile.structure = undefined;
+        previousTile.structureHp = undefined;
+        previousTile.structureMaxHp = undefined;
+        next.tiles[previousKey] = { ...previousTile };
+      }
+    }
+  }
 
   buildable.costs.forEach((cost) => {
     consumeInventoryResource(
@@ -164,6 +183,9 @@ export function buildOutpostAtCurrentHex(
   tile.structureHp = undefined;
   tile.structureMaxHp = undefined;
   next.tiles[key] = { ...tile };
+  if (outpostType === 'mana-anchor') {
+    next.manaAnchorHex = { ...tile.coord };
+  }
 
   addLog(
     next,

@@ -1,13 +1,20 @@
 import { t } from '../i18n';
 import {
+  buildOutpostAtCurrentHex,
+  claimCurrentHex,
   createGame,
   getTileAt,
   interactWithStructure,
   interactWithStructureUntilDepleted,
+  moveToTile,
   setHomeHex,
 } from './state';
 import { getStructureConfig } from './content/structures';
 import { Skill } from './types';
+import {
+  addBannerMaterials,
+  addResourceItems,
+} from './stateWorldActionsTestHelpers';
 
 describe('game state world gathering and home', () => {
   it('gathers from structures, grants resources, and levels the matching skill', () => {
@@ -205,6 +212,39 @@ describe('game state world gathering and home', () => {
     expect(homeTile.structure).toBeUndefined();
     expect(homeTile.items).toEqual([]);
     expect(homeTile.enemyIds).toEqual([]);
+  });
+
+  it('respawns at the active mana anchor before the home hex after lethal survival decay', () => {
+    let game = createGame(3, 'respawn-mana-anchor-seed');
+    game.homeHex = { q: -2, r: 1 };
+    game.dayPhase = 'day';
+    addBannerMaterials(game, 1, 'respawn-mana-anchor-claim');
+    addResourceItems(
+      game,
+      [
+        { itemKey: 'stone', quantity: 4 },
+        { itemKey: 'cloth', quantity: 2 },
+        { itemKey: 'arcane-dust', quantity: 1 },
+      ],
+      'respawn-mana-anchor-build',
+    );
+    game = claimCurrentHex(game);
+    game = buildOutpostAtCurrentHex(game, 'mana-anchor');
+    game.player.hp = 1;
+    game.player.hunger = 0;
+    game.player.thirst = 0;
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+
+    const respawned = moveToTile(game, { q: 1, r: 0 });
+
+    expect(respawned.player.coord).toEqual({ q: 0, r: 0 });
+    expect(respawned.player.coord).not.toEqual(game.homeHex);
+    expect(respawned.logs.some((entry) => /0, 0/i.test(entry.text))).toBe(true);
   });
 
   it('prevents setting home on another territory', () => {

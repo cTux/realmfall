@@ -54,6 +54,7 @@ export const STRUCTURE_TYPES = [
   'camp',
   'furnace',
   'mana-font',
+  'mana-anchor',
   'workshop',
   'watchtower',
   'town',

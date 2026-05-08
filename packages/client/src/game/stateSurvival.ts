@@ -4,6 +4,7 @@ import { getActiveWorld, setActiveWorld } from './dungeons/worldState';
 import { mitigateDamageByDefense } from './combatDamage';
 import { addLog } from './logs';
 import { getPlayerCombatStats } from './progression';
+import { getPreferredReturnHex } from './stateOutposts';
 import {
   getPlayerThirstValue,
   PLAYER_SURVIVAL_MAX,
@@ -14,12 +15,13 @@ import type { HexCoord } from './hex';
 import type { GameState, Item, PlayerStatusEffect } from './types';
 
 export function teleportHome(state: GameState, itemIndex: number, item: Item) {
+  const returnHex = { ...getPreferredReturnHex(state) };
   state.player.inventory[itemIndex]!.quantity -= 1;
   if (state.player.inventory[itemIndex]!.quantity <= 0) {
     state.player.inventory.splice(itemIndex, 1);
   }
   leaveDungeonForSurface(state);
-  state.player.coord = { ...state.homeHex };
+  state.player.coord = returnHex;
   state.combat = null;
   clearConsumableCooldownIfOutOfCombat(state);
   addLog(state, 'system', t('game.message.home.scroll', { item: item.name }));
@@ -27,9 +29,9 @@ export function teleportHome(state: GameState, itemIndex: number, item: Item) {
 
 export function respawnAtNearestTown(state: GameState, from: HexCoord) {
   void from;
+  const returnHex = { ...getPreferredReturnHex(state) };
   leaveDungeonForSurface(state);
-  const homeHex = { ...state.homeHex };
-  state.player.coord = homeHex;
+  state.player.coord = returnHex;
   state.player.hunger = PLAYER_SURVIVAL_MAX;
   state.player.thirst = PLAYER_SURVIVAL_MAX;
   upsertPlayerStatusEffect(state.player.statusEffects, {
@@ -47,7 +49,7 @@ export function respawnAtNearestTown(state: GameState, from: HexCoord) {
   addLog(
     state,
     'system',
-    t('game.message.combat.respawn', { q: homeHex.q, r: homeHex.r }),
+    t('game.message.combat.respawn', { q: returnHex.q, r: returnHex.r }),
   );
 }
 

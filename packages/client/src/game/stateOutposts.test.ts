@@ -44,6 +44,75 @@ describe('game state outposts', () => {
     );
   });
 
+  it('builds a mana anchor on a claimed hex and binds return effects to it', () => {
+    let game = createGame(6, 'mana-anchor-build-seed');
+    addBannerMaterials(game, 1, 'mana-anchor-claim');
+    game = claimCurrentHex(game);
+    addResourceItems(
+      game,
+      [
+        { itemKey: 'stone', quantity: 4 },
+        { itemKey: 'cloth', quantity: 2 },
+        { itemKey: 'arcane-dust', quantity: 1 },
+      ],
+      'mana-anchor-build',
+    );
+
+    const built = buildOutpostAtCurrentHex(game, 'mana-anchor');
+
+    expect(getTileAt(built, { q: 0, r: 0 })).toMatchObject({
+      claim: { ownerType: 'player' },
+      structure: 'mana-anchor',
+    });
+    expect(built).toMatchObject({
+      manaAnchorHex: { q: 0, r: 0 },
+    });
+    expect(
+      built.player.inventory.some(
+        (item) =>
+          item.itemKey != null &&
+          ['stone', 'cloth', 'arcane-dust'].includes(item.itemKey),
+      ),
+    ).toBe(false);
+    expect(built.logs.some((entry) => /mana anchor/i.test(entry.text))).toBe(
+      true,
+    );
+  });
+
+  it('rebinds the active mana anchor when a new one is built on another claim', () => {
+    let game = createGame(6, 'mana-anchor-rebind-seed');
+    addBannerMaterials(game, 2, 'mana-anchor-rebind-claim');
+    addResourceItems(
+      game,
+      [
+        { itemKey: 'stone', quantity: 8 },
+        { itemKey: 'cloth', quantity: 4 },
+        { itemKey: 'arcane-dust', quantity: 2 },
+      ],
+      'mana-anchor-rebind-build',
+    );
+
+    game = claimCurrentHex(game);
+    game = buildOutpostAtCurrentHex(game, 'mana-anchor');
+    game.player.coord = { q: 1, r: 0 };
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+      claim: undefined,
+    };
+    game = claimCurrentHex(game);
+
+    const rebound = buildOutpostAtCurrentHex(game, 'mana-anchor');
+
+    expect(getTileAt(rebound, { q: 0, r: 0 }).structure).toBeUndefined();
+    expect(getTileAt(rebound, { q: 1, r: 0 }).structure).toBe('mana-anchor');
+    expect(rebound).toMatchObject({
+      manaAnchorHex: { q: 1, r: 0 },
+    });
+  });
+
   it('blocks unclaiming a player watchtower hex until outpost removal exists', () => {
     let game = createGame(6, 'watchtower-claim-block-seed');
     addBannerMaterials(game, 1, 'watchtower-claim-block');
