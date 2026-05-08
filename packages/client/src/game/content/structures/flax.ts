@@ -11,7 +11,7 @@ import { ItemId } from '../ids';
 import { GAME_TAGS } from '../tags';
 import type { StructureConfig } from '../types';
 import { Skill } from '../../types';
-import { buildGatheringStructureTags } from './structureTagRules';
+import { buildFlaxGatheringStructureTags } from './structureTagRules';
 
 export const flaxStructureConfig: StructureConfig = {
   type: 'flax',
@@ -20,7 +20,10 @@ export const flaxStructureConfig: StructureConfig = {
   icon: ContentIcons.Flax,
   tint: 0x84cc16,
   functionsProvided: ['harvest-flax'],
-  tags: buildGatheringStructureTags(Skill.Gathering, GAME_TAGS.structure.herbs),
+  tags: buildFlaxGatheringStructureTags(
+    Skill.Gathering,
+    GAME_TAGS.structure.herbs,
+  ),
   appearanceChanceByTerrain: {
     meadow: 0.84,
     plains: 0.83,

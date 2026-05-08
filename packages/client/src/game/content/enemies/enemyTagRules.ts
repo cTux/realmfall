@@ -1,3 +1,4 @@
+import { EnemyTypeId, type EnemyTypeKey } from '../ids';
 import { GAME_TAGS, uniqueTags, type GameTag } from '../tags';
 
 export function buildEnemyTags({
@@ -14,5 +15,20 @@ export function buildEnemyTags({
     animal ? GAME_TAGS.enemy.animal : undefined,
     worldBoss ? GAME_TAGS.enemy.worldBoss : undefined,
     ...(tags ?? []),
+  );
+}
+
+export function isTreasureGoblinLikeEnemyLootSource(options: {
+  tags?: readonly GameTag[];
+  enemyTypeId?: EnemyTypeKey;
+}) {
+  const normalizedEnemyTypeId =
+    options.enemyTypeId === undefined ? '' : options.enemyTypeId.toString();
+  return (
+    options.tags?.includes(GAME_TAGS.enemy.treasureGoblin) ||
+    options.tags?.includes(GAME_TAGS.enemy.mimic) ||
+    normalizedEnemyTypeId === EnemyTypeId.TreasureGoblin ||
+    normalizedEnemyTypeId === EnemyTypeId.Mimic ||
+    normalizedEnemyTypeId.toLowerCase() === 'mimic'
   );
 }

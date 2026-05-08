@@ -37,13 +37,13 @@ const ARMOR_SLOTS = new Set<EquipmentSlotValue>([
   EquipmentSlotId.Legs,
   EquipmentSlotId.Feet,
   EquipmentSlotId.Offhand,
+  EquipmentSlotId.Cloak,
 ]);
 
 const ARTIFACT_SLOTS = new Set<EquipmentSlotValue>([
   EquipmentSlotId.RingLeft,
   EquipmentSlotId.RingRight,
   EquipmentSlotId.Amulet,
-  EquipmentSlotId.Cloak,
   EquipmentSlotId.Relic,
 ]);
 

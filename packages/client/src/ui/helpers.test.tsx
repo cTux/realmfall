@@ -139,6 +139,19 @@ describe('ui helper coverage', () => {
       ),
     ).toBe('#22c55e');
     expect(
+      buildItemFromConfig('gold', {
+        id: 'gold-2',
+      }).tint,
+    ).toBe('#fbbf24');
+    expect(
+      itemTint(
+        buildItemFromConfig('beet-tonic', {
+          id: 'beet-tonic-tint-override',
+          tint: '#00ff00',
+        }),
+      ),
+    ).toBe('#00ff00');
+    expect(
       itemTint(
         buildItemFromConfig('beet-tonic', {
           id: 'beet-tonic-1',

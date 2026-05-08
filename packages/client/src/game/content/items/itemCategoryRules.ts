@@ -1,13 +1,9 @@
-import { EquipmentSlotId, ItemId } from '../ids';
+import { ItemId } from '../ids';
 import type { ItemConfig } from '../types';
 import { GAME_TAGS, getEquipmentSlotTag, uniqueTags } from '../tags';
+import { getItemCategory as getSharedItemCategory } from '@realmfall/ui';
 
-export type ItemCategory =
-  | 'weapon'
-  | 'armor'
-  | 'artifact'
-  | 'consumable'
-  | 'resource';
+export type ItemCategory = ReturnType<typeof getSharedItemCategory>;
 
 export const CONSUMABLE_ITEM_KEYS = new Set<string>([
   ItemId.TrailRation,
@@ -15,25 +11,6 @@ export const CONSUMABLE_ITEM_KEYS = new Set<string>([
   ItemId.CookedFish,
   ItemId.HomeScroll,
   ItemId.WaterFlask,
-]);
-
-export const ARTIFACT_SLOTS = new Set<string>([
-  EquipmentSlotId.RingLeft,
-  EquipmentSlotId.RingRight,
-  EquipmentSlotId.Amulet,
-]);
-
-export const ARMOR_SLOTS = new Set<string>([
-  EquipmentSlotId.Offhand,
-  EquipmentSlotId.Head,
-  EquipmentSlotId.Shoulders,
-  EquipmentSlotId.Chest,
-  EquipmentSlotId.Bracers,
-  EquipmentSlotId.Hands,
-  EquipmentSlotId.Belt,
-  EquipmentSlotId.Legs,
-  EquipmentSlotId.Feet,
-  EquipmentSlotId.Cloak,
 ]);
 
 export function buildItemConfigTags(
@@ -67,12 +44,7 @@ export function getItemConfigCategory(
   >,
 ): ItemCategory {
   if (config.category) return config.category;
-  if (config.slot === EquipmentSlotId.Weapon) return 'weapon';
-  if (config.slot && ARTIFACT_SLOTS.has(config.slot)) return 'artifact';
-  if (config.slot && ARMOR_SLOTS.has(config.slot)) return 'armor';
+  const category = getSharedItemCategory(config);
   if (CONSUMABLE_ITEM_KEYS.has(config.key)) return 'consumable';
-  if (config.healing > 0 || config.hunger > 0 || (config.thirst ?? 0) > 0) {
-    return 'consumable';
-  }
-  return 'resource';
+  return category;
 }

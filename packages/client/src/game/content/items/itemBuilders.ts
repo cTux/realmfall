@@ -42,6 +42,7 @@ export function buildItemFromConfig(
     icon:
       overrides.icon ??
       pickConfigIcon(config.iconPool, config.icon, overrides.id ?? config.key),
+    tint: overrides.tint ?? config.tint,
     name: overrides.name ?? config.name,
     quantity: overrides.quantity ?? config.defaultQuantity ?? 1,
     tier,
@@ -143,6 +144,7 @@ export function cloneConfiguredItem(item: Item) {
     reforgedSecondaryStatIndex: item.reforgedSecondaryStatIndex,
     enchantedSecondaryStatIndex: item.enchantedSecondaryStatIndex,
     corrupted: item.corrupted,
+    tint: item.tint,
     icon: item.icon,
     tags: item.tags ?? config.tags ?? [],
     grantedAbilityId: item.grantedAbilityId,

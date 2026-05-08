@@ -1,4 +1,6 @@
 import { GATHERING_BYPRODUCT_CHANCES } from '../../config';
+import { getGatheringByproductKind } from '../../content/structures';
+import { GAME_TAGS } from '../../content/tags';
 import { structureDefinition } from '../../world';
 import { createGame } from '../../state';
 import { buildGatheringRewards, maybeGatherByproduct } from './gatheringTestkit';
@@ -81,5 +83,15 @@ describe('state reward gathering', () => {
     expect(treeByproduct?.item.itemKey).toBe('sticks');
     expect(oreByproduct?.item.itemKey).toBe('stone');
     expect(flaxByproduct?.item.itemKey).toBe('string');
+
+    expect(getGatheringByproductKind(undefined)).toBeNull();
+  });
+
+  it('uses canonical byproduct tags for tree, ore, and flax', () => {
+    expect(getGatheringByproductKind([GAME_TAGS.structure.tree])).toBe('tree');
+    expect(getGatheringByproductKind([GAME_TAGS.structure.ore])).toBe('ore');
+    expect(
+      getGatheringByproductKind([GAME_TAGS.structure.byproductString]),
+    ).toBe('string');
   });
 });

@@ -216,6 +216,24 @@ describe('worldIcons', () => {
     expect(icons).not.toContain(structureIconFor('town'));
   });
 
+  it('chooses structure marker icons through one helper', async () => {
+    const { WorldIcons, getStructureMarkerIcon, structureIconFor } =
+      await import('./worldIcons');
+
+    expect(
+      getStructureMarkerIcon({
+        structure: 'town',
+        claim: { ownerType: 'faction' },
+      }),
+    ).toBe(WorldIcons.Castle);
+    expect(
+      getStructureMarkerIcon({
+        structure: 'town',
+        claim: { ownerType: 'player' },
+      }),
+    ).toBe(structureIconFor('town'));
+  });
+
   it('collects next movement ring icons including synthesized enemy markers', async () => {
     const {
       WorldIcons,

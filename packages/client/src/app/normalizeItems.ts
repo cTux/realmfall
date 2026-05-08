@@ -53,6 +53,7 @@ export function normalizeItem(value: unknown): Item | null {
     (value.locked !== undefined && typeof value.locked !== 'boolean') ||
     (value.slot !== undefined && !isEquipmentSlot(value.slot)) ||
     (value.icon !== undefined && typeof value.icon !== 'string') ||
+    (value.tint !== undefined && typeof value.tint !== 'string') ||
     (value.hunger !== undefined && !isFiniteNumber(value.hunger)) ||
     (value.thirst !== undefined && !isFiniteNumber(value.thirst)) ||
     (value.secondaryStatCapacity !== undefined &&
@@ -86,6 +87,7 @@ export function normalizeItem(value: unknown): Item | null {
       : undefined;
   const configuredItem =
     value.itemKey !== undefined ? getItemConfigByKey(value.itemKey) : undefined;
+  const configuredItemTint = value.tint ?? configuredItem?.tint;
   const rarity =
     configuredItem && getItemConfigCategory(configuredItem) === 'consumable'
       ? configuredItem.rarity
@@ -101,6 +103,9 @@ export function normalizeItem(value: unknown): Item | null {
     ...(value.locked === undefined ? {} : { locked: value.locked }),
     ...(value.slot === undefined ? {} : { slot: value.slot }),
     ...(value.icon === undefined ? {} : { icon: value.icon }),
+    ...(configuredItemTint === undefined
+      ? {}
+      : { tint: configuredItemTint as Item['tint'] }),
     name: configuredItem?.name ?? value.name,
     quantity: value.quantity,
     tier: clampItemLevel(value.tier),

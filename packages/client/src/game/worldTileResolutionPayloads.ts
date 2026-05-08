@@ -128,6 +128,7 @@ function mapItem(item: TileResolutionItem): TileResolutionItem {
     locked: item.locked,
     slot: item.slot,
     icon: item.icon,
+    tint: item.tint,
     name: item.name,
     quantity: item.quantity,
     tier: item.tier,

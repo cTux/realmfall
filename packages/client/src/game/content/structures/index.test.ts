@@ -60,6 +60,9 @@ describe('pickStructureType', () => {
     expect(getStructureConfig('copper-ore').tags).toContain(
       GAME_TAGS.structure.ore,
     );
+    expect(getStructureConfig('flax').tags).toContain(
+      GAME_TAGS.structure.byproductString,
+    );
     expect(getStructureConfig('rune-forge').itemModification).toEqual({
       kind: 'reforge',
       hintKey: 'ui.hexInfo.structureHint.runeForge',

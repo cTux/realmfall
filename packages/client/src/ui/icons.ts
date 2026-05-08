@@ -228,9 +228,7 @@ export function itemBorderColor(item?: Item) {
 export function itemTint(item?: Item) {
   if (!item) return rarityColor('common');
   if (isRecipePage(item)) return RECIPE_PAGE_TINT;
-
-  const configuredItem = getItemConfig(item);
-  if (configuredItem?.tint) return configuredItem.tint;
+  if (item.tint) return item.tint;
 
   return getItemTintFallback(item) ?? DEFAULT_ITEM_BORDER_TINT;
 }

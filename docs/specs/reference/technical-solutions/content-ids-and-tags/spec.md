@@ -13,15 +13,16 @@ This spec covers canonical type ids and gameplay tags for item configs, enemy co
 - Item configs and runtime items no longer store a separate `kind`; item behavior is derived from canonical ids, equipment slots, and hydrated tags instead.
 - Item-specific tags, icon-pool hints, category overrides, and granted-ability pools are declared on the owning item config or generated-item family helper before registry assembly.
 - Generated craftable icon families also own their workshop ingredient sources, mirrored ring drop keys, and ring craft-slot distribution, so crafting outputs and recipes project from canonical family metadata instead of item-key prefix rules.
-- `src/game/content/items/index.ts` remains the public item-content facade while `itemCatalog.ts` assembles hydrated configs and `itemClassification.ts` plus `itemCategoryRules.ts` own shared category and tag inference rules.
+- `src/game/content/items/index.ts` remains the public item-content facade while `itemCatalog.ts` assembles hydrated configs and `itemClassification.ts` plus `itemCategoryRules.ts` reuse shared, slot-based category inference from `@realmfall/ui` and extend it with client category/configuration paths.
 - Gathering structures keep canonical `rewardItemKey` values separate from localized reward labels so harvesting never derives item ids from display text.
+- Gathering byproducts use a tag-driven path (`structure.byproduct.string`) for flax, rather than checking `structure === 'flax'` in reward calculation.
 - Equippable items use the shared equipment-slot enum instead of raw slot strings in content definitions and generator paths.
 - Every configured enemy type defines a stable enum-backed `id` separate from its localized display name.
 - Enemy taxonomy tags are declared on the owning enemy configs through local tag helpers, and `src/game/content/enemies/index.ts` stays a thin facade over `enemyCatalog.ts` plus `enemySelection.ts`.
 - Every status effect id resolves through a shared enum-backed status-effect definition registry.
 - `src/game/content/tags.ts` provides enum-backed gameplay tags plus grouped lookup objects for ergonomic usage.
 - Configured items, enemies, and structures hydrate with tag arrays derived from their canonical definitions.
-- Structure configs also carry the structure-scoped behavior metadata that other systems need, such as item-modification capabilities and tag-derived gather or render groupings, so renderer and gameplay helpers do not keep parallel structure-name switches.
+- Structure configs also carry the structure-scoped behavior metadata that other systems need, such as item-modification capabilities and taxonomies for byproducts and marker rendering, so renderer and gameplay helpers do not keep parallel structure-name switches.
 - Structure category and type tags are declared on the owning configs through local tag helpers, and `src/game/content/structures/index.ts` stays a thin facade over `structureCatalog.ts` plus `structureSelection.ts`.
 - Equippable items also receive slot-specific tags derived from the shared equipment-slot enum, such as `item.slot.weapon` and `item.slot.head`.
 - Skills use the shared `Skill` enum instead of raw string ids so progression, structures, recipes, normalization, and UI all reference the same canonical identifiers.
@@ -40,6 +41,7 @@ This spec covers canonical type ids and gameplay tags for item configs, enemy co
 - `src/game/content/structures`
 - `src/game/inventory.ts`
 - `src/game/crafting.ts`
+- `src/game/content/structures/structureTagRules.ts`
 - `src/game/combat.ts`
 - `src/game/state.ts`
 - `src/app/normalize.ts`

@@ -35,6 +35,23 @@ describe('shared item metadata', () => {
     ).toBe('#64748b');
   });
 
+  it('prefers item tint when it is already materialized on the item object', () => {
+    expect(
+      getItemTintFallback({
+        itemKey: 'wayfarer-cloak',
+        tint: '#000000',
+        slot: 'cloak',
+        tags: ['item.slot.cloak'],
+        power: 0,
+        defense: 2,
+        maxHp: 0,
+        healing: 0,
+        hunger: 0,
+        thirst: 0,
+      } as unknown as Item),
+    ).toBe('#000000');
+  });
+
   it('uses the dawn set dark tone for equipable dawn cloaks', () => {
     const dawnCloak = {
       itemKey: 'dawn-cloak',

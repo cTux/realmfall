@@ -323,171 +323,121 @@ const debugCommandDescriptors = {
   >;
 };
 
+type CommandHandlerRegistryBuilder<
+  Handlers,
+  Descriptors extends { [K in keyof Handlers]: unknown },
+> = (
+  applyGameTransition: ApplyGameTransition,
+  descriptor: Descriptors[keyof Handlers],
+) => Handlers[keyof Handlers];
+
+function buildCommandHandlersFromDescriptors<
+  Handlers,
+  Descriptors extends { [K in keyof Handlers]: unknown },
+>(
+  applyGameTransition: ApplyGameTransition,
+  descriptors: Descriptors,
+  createHandler: CommandHandlerRegistryBuilder<Handlers, Descriptors>,
+): Handlers {
+  const handlers = {} as Handlers;
+
+  for (const name in descriptors) {
+    const key = name as unknown as keyof Handlers;
+    const descriptor = descriptors[key as keyof Descriptors] as Descriptors[keyof Handlers];
+    handlers[key as keyof Handlers] = createHandler(
+      applyGameTransition,
+      descriptor,
+    ) as Handlers[keyof Handlers];
+  }
+
+  return handlers;
+}
+
 export function buildInventoryItemCommandHandlers(
   applyGameTransition: ApplyGameTransition,
 ): InventoryItemCommandHandlers {
-  return {
-    handleActivateInventoryItem: createInventoryItemCommandHandler(
-      applyGameTransition,
-      inventoryItemCommandDescriptors.handleActivateInventoryItem,
-    ),
-    handleCorruptItem: createInventoryItemCommandHandler(
-      applyGameTransition,
-      inventoryItemCommandDescriptors.handleCorruptItem,
-    ),
-    handleDropItem: createInventoryItemCommandHandler(
-      applyGameTransition,
-      inventoryItemCommandDescriptors.handleDropItem,
-    ),
-    handleEnchantItem: createInventoryItemCommandHandler(
-      applyGameTransition,
-      inventoryItemCommandDescriptors.handleEnchantItem,
-    ),
-    handleEquipItem: createInventoryItemCommandHandler(
-      applyGameTransition,
-      inventoryItemCommandDescriptors.handleEquipItem,
-    ),
-    handleProspectItem: createInventoryItemCommandHandler(
-      applyGameTransition,
-      inventoryItemCommandDescriptors.handleProspectItem,
-    ),
-    handleReforgeItem: createInventoryItemCommandHandler<
-      Parameters<InventoryItemCommandHandlers['handleReforgeItem']>
-    >(applyGameTransition, inventoryItemCommandDescriptors.handleReforgeItem),
-    handleSellItem: createInventoryItemCommandHandler(
-      applyGameTransition,
-      inventoryItemCommandDescriptors.handleSellItem,
-    ),
-    handleSetItemLocked: createInventoryItemCommandHandler<
-      Parameters<InventoryItemCommandHandlers['handleSetItemLocked']>
-    >(applyGameTransition, inventoryItemCommandDescriptors.handleSetItemLocked),
-    handleUseItem: createInventoryItemCommandHandler(
-      applyGameTransition,
-      inventoryItemCommandDescriptors.handleUseItem,
-    ),
-  };
+  return buildCommandHandlersFromDescriptors<
+    InventoryItemCommandHandlers,
+    typeof inventoryItemCommandDescriptors
+  >(
+    applyGameTransition,
+    inventoryItemCommandDescriptors,
+    (transition, descriptor) =>
+      createInventoryItemCommandHandler(
+        transition,
+        descriptor as InventoryItemCommandDescriptor<CommandArgs>,
+      ),
+  );
 }
 
 export function buildTownStockItemCommandHandlers(
   applyGameTransition: ApplyGameTransition,
 ): TownStockItemCommandHandlers {
-  return {
-    handleBuyTownItem: createTownStockItemCommandHandler(
-      applyGameTransition,
-      townStockItemCommandDescriptors.handleBuyTownItem,
-    ),
-  };
+  return buildCommandHandlersFromDescriptors<
+    TownStockItemCommandHandlers,
+    typeof townStockItemCommandDescriptors
+  >(
+    applyGameTransition,
+    townStockItemCommandDescriptors,
+    (transition, descriptor) =>
+      createTownStockItemCommandHandler(
+        transition,
+        descriptor as TownStockItemCommandDescriptor<CommandArgs>,
+      ),
+  );
 }
 
 export function buildStaticCommandHandlers(
   applyGameTransition: ApplyGameTransition,
 ): StaticCommandHandlers {
-  return {
-    handleBuildOutpost: createStaticCommandHandler<
-      Parameters<StaticCommandHandlers['handleBuildOutpost']>
-    >(applyGameTransition, staticCommandDescriptors.handleBuildOutpost),
-    handleClaimHex: createStaticCommandHandler(
-      applyGameTransition,
-      staticCommandDescriptors.handleClaimHex,
-    ),
-    handleCraftRecipe: createStaticCommandHandler<
-      Parameters<StaticCommandHandlers['handleCraftRecipe']>
-    >(applyGameTransition, staticCommandDescriptors.handleCraftRecipe),
-    handleForfeitCombat: createStaticCommandHandler(
-      applyGameTransition,
-      staticCommandDescriptors.handleForfeitCombat,
-    ),
-    handleHealTerritoryNpc: createStaticCommandHandler(
-      applyGameTransition,
-      staticCommandDescriptors.handleHealTerritoryNpc,
-    ),
-    handleInteract: createStaticCommandHandler(
-      applyGameTransition,
-      staticCommandDescriptors.handleInteract,
-    ),
-    handleProspect: createStaticCommandHandler(
-      applyGameTransition,
-      staticCommandDescriptors.handleProspect,
-    ),
-    handleSellAll: createStaticCommandHandler(
-      applyGameTransition,
-      staticCommandDescriptors.handleSellAll,
-    ),
-    handleSort: createStaticCommandHandler(
-      applyGameTransition,
-      staticCommandDescriptors.handleSort,
-    ),
-    handleTakeAllLoot: createStaticCommandHandler(
-      applyGameTransition,
-      staticCommandDescriptors.handleTakeAllLoot,
-    ),
-    handleTakeLootItem: createStaticCommandHandler<
-      Parameters<StaticCommandHandlers['handleTakeLootItem']>
-    >(applyGameTransition, staticCommandDescriptors.handleTakeLootItem),
-  };
+  return buildCommandHandlersFromDescriptors<
+    StaticCommandHandlers,
+    typeof staticCommandDescriptors
+  >(
+    applyGameTransition,
+    staticCommandDescriptors,
+    (transition, descriptor) =>
+      createStaticCommandHandler(
+        transition,
+        descriptor as StaticCommandDescriptor<CommandArgs>,
+      ),
+  );
 }
 
 export function buildEquipmentSlotCommandHandlers(
   applyGameTransition: ApplyGameTransition,
 ): EquipmentSlotCommandHandlers {
-  return {
-    handleDropEquippedItem: createEquipmentSlotCommandHandler(
-      applyGameTransition,
-      equipmentSlotCommandDescriptors.handleDropEquippedItem,
-    ),
-    handleUnequip: createEquipmentSlotCommandHandler(
-      applyGameTransition,
-      equipmentSlotCommandDescriptors.handleUnequip,
-    ),
-  };
+  return buildCommandHandlersFromDescriptors<
+    EquipmentSlotCommandHandlers,
+    typeof equipmentSlotCommandDescriptors
+  >(
+    applyGameTransition,
+    equipmentSlotCommandDescriptors,
+    (transition, descriptor) =>
+      createEquipmentSlotCommandHandler(
+        transition,
+        descriptor as EquipmentSlotCommandDescriptor,
+      ),
+  );
 }
 
 export function buildDebugCommandHandlers(
   applyGameTransition: ApplyGameTransition,
   loadStateDebugModule: () => Promise<DebugStateModule> = loadDefaultStateDebugModule,
 ): DebugCommandHandlers {
-  return {
-    handleCreateDebugDropItem: createDebugCommandHandler(
-      applyGameTransition,
-      debugCommandDescriptors.handleCreateDebugDropItem,
-      loadStateDebugModule,
-    ),
-    handleCreateDebugEquipmentItem: createDebugCommandHandler(
-      applyGameTransition,
-      debugCommandDescriptors.handleCreateDebugEquipmentItem,
-      loadStateDebugModule,
-    ),
-    handleSetDebugMorning: createDebugCommandHandler(
-      applyGameTransition,
-      debugCommandDescriptors.handleSetDebugMorning,
-      loadStateDebugModule,
-    ),
-    handleSetDebugNight: createDebugCommandHandler(
-      applyGameTransition,
-      debugCommandDescriptors.handleSetDebugNight,
-      loadStateDebugModule,
-    ),
-    handleSpawnDebugEnemyNearby: createDebugCommandHandler(
-      applyGameTransition,
-      debugCommandDescriptors.handleSpawnDebugEnemyNearby,
-      loadStateDebugModule,
-    ),
-    handleTriggerDebugBloodMoon: createDebugCommandHandler(
-      applyGameTransition,
-      debugCommandDescriptors.handleTriggerDebugBloodMoon,
-      loadStateDebugModule,
-    ),
-    handleTriggerDebugEarthquake: createDebugCommandHandler(
-      applyGameTransition,
-      debugCommandDescriptors.handleTriggerDebugEarthquake,
-      loadStateDebugModule,
-    ),
-    handleTriggerDebugHarvestMoon: createDebugCommandHandler(
-      applyGameTransition,
-      debugCommandDescriptors.handleTriggerDebugHarvestMoon,
-      loadStateDebugModule,
-    ),
-  };
+  return buildCommandHandlersFromDescriptors<
+    DebugCommandHandlers,
+    typeof debugCommandDescriptors
+  >(
+    applyGameTransition,
+    debugCommandDescriptors,
+    (transition, descriptor) =>
+      createDebugCommandHandler(
+        transition,
+        descriptor as DebugCommandDescriptor<CommandArgs>,
+        loadStateDebugModule,
+      ),
+  );
 }
 
 export function createToggleFavoriteRecipeHandler(

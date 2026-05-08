@@ -1,6 +1,7 @@
 import type { ResolvedWorldTilePayload } from '@realmfall/common';
 import { normalizeConfiguredEnemyName } from './configuredEnemyName';
 import type { Enemy, Item, PlayerStatusEffect, Tile, TileClaim } from './types';
+import { getItemConfigByKey } from './content/items';
 
 export function hydrateResolvedWorldTilePayload(
   payload: ResolvedWorldTilePayload,
@@ -36,6 +37,8 @@ function hydrateTile(tile: ResolvedWorldTilePayload['tile']): Tile {
 function hydrateItem(
   item: ResolvedWorldTilePayload['tile']['items'][number],
 ): Item {
+  const configuredItem =
+    item.itemKey !== undefined ? getItemConfigByKey(item.itemKey) : undefined;
   return {
     id: item.id,
     itemKey: item.itemKey as Item['itemKey'],
@@ -44,6 +47,9 @@ function hydrateItem(
     locked: item.locked,
     slot: item.slot as Item['slot'],
     icon: item.icon,
+    tint:
+      item.tint ??
+      (configuredItem ? configuredItem.tint : undefined),
     name: item.name,
     quantity: item.quantity,
     tier: item.tier,

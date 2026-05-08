@@ -21,7 +21,7 @@ This spec covers deterministic hex-world traversal, visibility, and safe-path tr
 - Surface dungeon entrances are permanent structure landmarks and do not host surface enemies.
 - The top global structure band includes rare locked chest hexes above dungeons, and their shared tile tooltip explains that the player must stand on the hex and use a lockpick or chest key.
 - A mimic uses the same locked chest world marker and tooltip as an ordinary chest until the player spends an opener on that tile.
-- Faction-owned town tiles use a distinct castle marker, while faction NPC claim markers continue using their separate village-style icon.
+- Faction-owned town tiles use a distinct castle marker through shared structure marker resolution logic, while faction NPC claim markers continue using their separate village-style icon.
 - The player marker stays visually clean on the current hex, with structure, enemy, and NPC claim marker icons suppressed on that same tile instead of stacking underneath the player icon.
 - Claim borders remain visible above home, hover, loot, selection, and safe-path overlays so highlight effects do not cover territory edges.
 - Manual movement is one adjacent hex at a time.

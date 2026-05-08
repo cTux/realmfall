@@ -309,6 +309,7 @@ type ItemTintProbe = Pick<
   Item,
   | 'itemKey'
   | 'slot'
+  | 'tint'
   | 'icon'
   | 'tags'
   | 'healing'
@@ -352,6 +353,8 @@ export function getConsumableIconTint(icon: string) {
 }
 
 export function getItemTintFallback(item: ItemTintProbe) {
+  if (item.tint) return item.tint;
+
   const itemKeyTint = item.itemKey
     ? getItemTintByItemKey(item.itemKey)
     : undefined;

@@ -14,6 +14,7 @@ export interface ItemView {
   locked?: boolean;
   slot?: EquipmentSlotView;
   icon?: string;
+  tint?: string;
   name: string;
   quantity: number;
   tier: number;

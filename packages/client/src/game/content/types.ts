@@ -155,6 +155,7 @@ export interface ItemBuildOverrides {
   locked?: Item['locked'];
   name?: string;
   icon?: Item['icon'];
+  tint?: Item['tint'];
   tags?: Item['tags'];
   grantedAbilityId?: Item['grantedAbilityId'];
 }
