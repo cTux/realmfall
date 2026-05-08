@@ -14,6 +14,7 @@ describe('item classification helpers', () => {
 
   it('classifies sparse cloaks as armor consistently across shared and client callers', () => {
     const sparseCloak = {
+      name: 'Cloak Fragment',
       slot: 'cloak',
       power: 0,
       defense: 4,
@@ -21,7 +22,7 @@ describe('item classification helpers', () => {
       healing: 0,
       hunger: 0,
       thirst: 0,
-    };
+    } as const;
 
     expect(getSharedItemCategory(sparseCloak)).toBe('armor');
     expect(getItemCategory(sparseCloak)).toBe('armor');
@@ -29,6 +30,7 @@ describe('item classification helpers', () => {
 
   it('classifies sparse relics as artifact consistently across shared and client callers', () => {
     const sparseRelic = {
+      name: 'Spurious Relic',
       itemKey: 'generated-spurious-relic',
       slot: 'relic',
       power: 0,
@@ -37,7 +39,7 @@ describe('item classification helpers', () => {
       healing: 0,
       hunger: 0,
       thirst: 0,
-    };
+    } as const;
 
     expect(getSharedItemCategory(sparseRelic)).toBe('artifact');
     expect(getItemCategory(sparseRelic)).toBe('artifact');
