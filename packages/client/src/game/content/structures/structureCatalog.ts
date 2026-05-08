@@ -22,6 +22,7 @@ import { herbsStructureConfig } from './herbs';
 import { ironOreStructureConfig } from './ironOre';
 import { lakeStructureConfig } from './lake';
 import { lockedChestStructureConfig } from './lockedChest';
+import { manaAnchorStructureConfig } from './manaAnchor';
 import { manaFontStructureConfig } from './manaFont';
 import { platinumOreStructureConfig } from './platinumOre';
 import { pondStructureConfig } from './pond';
@@ -29,6 +30,7 @@ import { runeForgeStructureConfig } from './runeForge';
 import { tinOreStructureConfig } from './tinOre';
 import { townStructureConfig } from './town';
 import { treeStructureConfig } from './tree';
+import { watchtowerStructureConfig } from './watchtower';
 import { workshopStructureConfig } from './workshop';
 
 const RAW_STRUCTURE_CONFIGS = [
@@ -40,8 +42,10 @@ const RAW_STRUCTURE_CONFIGS = [
   runeForgeStructureConfig,
   townStructureConfig,
   manaFontStructureConfig,
+  manaAnchorStructureConfig,
   furnaceStructureConfig,
   workshopStructureConfig,
+  watchtowerStructureConfig,
   campStructureConfig,
   herbsStructureConfig,
   treeStructureConfig,

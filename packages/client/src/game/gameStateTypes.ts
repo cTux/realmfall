@@ -20,6 +20,7 @@ export interface GameState {
   dungeonEntrances: Record<string, DungeonEntranceRecord>;
   activeDungeon: ActiveDungeonRun | null;
   homeHex: HexCoord;
+  manaAnchorHex: HexCoord | null;
   turn: number;
   worldTimeMs: number;
   dayPhase: 'day' | 'night';

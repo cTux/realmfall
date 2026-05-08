@@ -33,6 +33,7 @@ export function useAppWindowRuntime({
     itemMenu: controllerState.itemMenu,
     interfaceSettings: controllerState.interfaceSettings,
     claimStatus: gameView.claimStatus,
+    outpostBuildStatus: gameView.outpostBuildStatus,
     territoryNpcHealStatus: gameView.territoryNpcHealStatus,
     interactLabel,
     filteredLogs: gameView.filteredLogs,
@@ -58,6 +59,7 @@ export function useAppWindowRuntime({
     handleActivateInventoryItem: controllerActions.handleActivateInventoryItem,
     handleAssignActionBarSlot: controllerActions.handleAssignActionBarSlot,
     handleBuyTownItem: controllerActions.handleBuyTownItem,
+    handleBuildOutpost: controllerActions.handleBuildOutpost,
     handleClaimHex: controllerActions.handleClaimHex,
     handleCreateDebugDropItem: controllerActions.handleCreateDebugDropItem,
     handleCreateDebugEquipmentItem:

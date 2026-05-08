@@ -1,5 +1,7 @@
 import {
   activateDungeonWorld,
+  buildOutpostAtCurrentHex,
+  claimCurrentHex,
   dropInventoryItem,
   EQUIPMENT_SLOTS,
   equipItem,
@@ -26,6 +28,10 @@ import {
   seedEnemyEncounter,
   setActiveCombat,
 } from './stateItemsAndProgressionTestHelpers';
+import {
+  addBannerMaterials,
+  addResourceItems,
+} from './stateWorldActionsTestHelpers';
 
 describe('game state items and progression', () => {
   it('can use consumables and drop inventory items onto the ground', () => {
@@ -154,7 +160,7 @@ describe('game state items and progression', () => {
     expect(returned.player.coord).toEqual(game.homeHex);
     expect(hasInventoryItem(returned, 'home-scroll-1')).toBe(false);
     expect(
-      returned.logs.some((entry) => /returns you home/i.test(entry.text)),
+      returned.logs.some((entry) => /returns you to safety/i.test(entry.text)),
     ).toBe(true);
   });
 
@@ -179,6 +185,46 @@ describe('game state items and progression', () => {
 
     expect(entered.activeDungeon).not.toBeNull();
     expect(returned.player.coord).toEqual(game.homeHex);
+    expect(returned.activeWorldId).toBe(returned.surfaceWorldId);
+    expect(returned.activeDungeon).toBeNull();
+  });
+
+  it('uses a hearthshard wayscroll to leave a dungeon and return to the active mana anchor before home', () => {
+    const game = createItemsAndProgressionGame(
+      'home-scroll-prefers-mana-anchor-seed',
+    );
+    const surfaceCoord = { q: 1, r: 0 };
+    game.homeHex = { q: -2, r: 1 };
+    addBannerMaterials(game, 1, 'home-scroll-anchor-claim');
+    addResourceItems(
+      game,
+      [
+        { itemKey: 'stone', quantity: 4 },
+        { itemKey: 'cloth', quantity: 2 },
+        { itemKey: 'arcane-dust', quantity: 1 },
+      ],
+      'home-scroll-anchor-build',
+    );
+    const anchored = buildOutpostAtCurrentHex(
+      claimCurrentHex(game),
+      'mana-anchor',
+    );
+    anchored.player.coord = surfaceCoord;
+    anchored.tiles['1,0'] = {
+      coord: surfaceCoord,
+      terrain: 'plains',
+      structure: 'dungeon',
+      items: [],
+      enemyIds: [],
+    };
+    addHomeScroll(anchored, 'home-scroll-anchor');
+
+    const entered = activateDungeonWorld(anchored);
+    const returned = useItem(entered, 'home-scroll-anchor');
+
+    expect(entered.activeDungeon).not.toBeNull();
+    expect(returned.player.coord).toEqual({ q: 0, r: 0 });
+    expect(returned.player.coord).not.toEqual(game.homeHex);
     expect(returned.activeWorldId).toBe(returned.surfaceWorldId);
     expect(returned.activeDungeon).toBeNull();
   });

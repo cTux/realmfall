@@ -120,6 +120,52 @@
   background: rgb(15 23 42 / 55%);
 }
 
+.outpostPanel {
+  margin-top: 0.65rem;
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.7rem;
+  border: 1px solid rgb(250 204 21 / 22%);
+  border-radius: 12px;
+  background: rgb(15 23 42 / 55%);
+}
+
+.outpostGrid {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.outpostCard {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.65rem;
+  border: 1px solid rgb(148 163 184 / 18%);
+  border-radius: 10px;
+  background: rgb(2 6 23 / 24%);
+}
+
+.outpostCardDisabled {
+  opacity: 0.72;
+}
+
+.outpostCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.outpostCost {
+  color: #fbbf24;
+  font-size: ui.scaled-font-size(0.82rem);
+  font-weight: 700;
+}
+
+.outpostDisabledReason {
+  color: #fca5a5;
+  font-size: ui.scaled-font-size(0.82rem);
+}
+
 .itemModificationHeader {
   display: flex;
   align-items: center;

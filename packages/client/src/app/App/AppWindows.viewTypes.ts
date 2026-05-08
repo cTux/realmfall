@@ -3,6 +3,7 @@ import { getCurrentHexClaimStatus } from '../../game/stateClaims';
 import { getRecipeBookEntries } from '../../game/stateCrafting';
 import { getTownStockForDay } from '../../game/stateInventoryActions';
 import { getCurrentHexFactionNpcHealStatus } from '../../game/stateFactionNpc';
+import { getResolvedCurrentHexOutpostBuildStatus } from '../../game/stateOutposts';
 import { getEnemiesAt } from '../../game/stateWorldQueries';
 import type {
   GameState,
@@ -69,6 +70,9 @@ export interface HexViewState {
   canBulkProspectEquipment: boolean;
   canBulkSellEquipment: boolean;
   itemModification: HexItemModificationViewState | null;
+  outpostBuildStatus: ReturnType<
+    typeof getResolvedCurrentHexOutpostBuildStatus
+  >;
   claimStatus: ReturnType<typeof getCurrentHexClaimStatus>;
   territoryNpcHealStatus: ReturnType<typeof getCurrentHexFactionNpcHealStatus>;
   bulkProspectEquipmentExplanation: string | null;

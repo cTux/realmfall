@@ -47,6 +47,7 @@ interface RenderAnimatedSceneOptions {
   enemyIconSize: number;
   movementTransitionRevealState: MovementTransitionRevealState | null;
   playerCoord: HexCoord;
+  revealRadius: number;
   cloudParallaxOffset: { x: number; y: number };
   origin: { x: number; y: number };
   playerIconSize: number;
@@ -72,6 +73,7 @@ export function renderAnimatedScene({
   enemyIconSize,
   movementTransitionRevealState,
   playerCoord,
+  revealRadius,
   cloudParallaxOffset,
   origin,
   playerIconSize,
@@ -135,6 +137,7 @@ export function renderAnimatedScene({
     enemyIconSize,
     movementTransitionRevealState,
     playerCoord,
+    revealRadius,
     visibleTileRenderInputs,
     worldKind,
     worldTimeMs,

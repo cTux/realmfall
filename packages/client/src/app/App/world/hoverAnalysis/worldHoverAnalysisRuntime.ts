@@ -1,8 +1,8 @@
 import { hexDistance, type HexCoord } from '../../../../game/hex';
 import { isPassable } from '../../../../game/shared';
+import { getCurrentWorldRevealRadius } from '../../../../game/stateOutposts';
 import { getSafePathToTile } from '../../../../game/statePathfinding';
 import { getResolvedTileAt } from '../../../../game/stateWorldQueries';
-import { WORLD_REVEAL_RADIUS } from '../../../constants';
 import type {
   WorldHoverAnalysisResult,
   WorldHoverAnalysisState,
@@ -18,8 +18,9 @@ export function analyzeWorldHoverTarget(
   target: HexCoord,
 ): WorldHoverAnalysisResult {
   const distance = hexDistance(state.player.coord, target);
+  const revealRadius = getCurrentWorldRevealRadius(state);
 
-  if (distance === 0 || distance > WORLD_REVEAL_RADIUS) {
+  if (distance === 0 || distance > revealRadius) {
     return EMPTY_WORLD_HOVER_ANALYSIS_RESULT;
   }
 

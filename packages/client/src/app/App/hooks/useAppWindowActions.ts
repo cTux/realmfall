@@ -7,6 +7,7 @@ interface UseAppWindowActionsArgs {
   handleActivateInventoryItem: AppWindowsActions['inventory']['onActivateItem'];
   handleAssignActionBarSlot: AppWindowsActions['inventory']['onAssignActionBarSlot'];
   handleBuyTownItem: AppWindowsActions['hex']['onBuyTownItem'];
+  handleBuildOutpost: AppWindowsActions['hex']['onBuildOutpost'];
   handleClaimHex: AppWindowsActions['hex']['onClaimHex'];
   handleCreateDebugDropItem: AppWindowsActions['debug']['onCreateDropItem'];
   handleCreateDebugEquipmentItem: AppWindowsActions['debug']['onCreateEquipmentItem'];
@@ -69,6 +70,7 @@ export function useAppWindowActions({
   handleActivateInventoryItem,
   handleAssignActionBarSlot,
   handleBuyTownItem,
+  handleBuildOutpost,
   handleClaimHex,
   handleCreateDebugDropItem,
   handleCreateDebugEquipmentItem,
@@ -210,6 +212,7 @@ export function useAppWindowActions({
       onProspect: handleProspect,
       onSellAll: handleSellAll,
       onBuyTownItem: handleBuyTownItem,
+      onBuildOutpost: handleBuildOutpost,
       onClaimHex: handleClaimHex,
       onHealTerritoryNpc: handleHealTerritoryNpc,
       onApplySelectedItemModification: handleApplySelectedItemModification,
@@ -222,6 +225,7 @@ export function useAppWindowActions({
     [
       handleApplySelectedItemModification,
       handleBuyTownItem,
+      handleBuildOutpost,
       handleClaimHex,
       handleHealTerritoryNpc,
       handleClearSelectedItemModification,

@@ -124,6 +124,7 @@ export class HexInfoWindowContentTestkit {
 
     return {
       ...contentProps,
+      outpostBuildPickerActive: false,
       onTakeAll: this.mock.onTakeAll,
       onTakeItem: this.mock.onTakeItem,
       onHoverItem: this.mock.onHoverItem,

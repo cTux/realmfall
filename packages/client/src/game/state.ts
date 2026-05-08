@@ -81,6 +81,15 @@ export {
 export type { VisibleTilesState } from './stateWorldQueries';
 export { getCurrentHexClaimStatus } from './stateClaims';
 export { getCurrentHexFactionNpcHealStatus } from './stateFactionNpc';
+export {
+  getCurrentHexOutpostBuildStatus,
+  getCurrentWorldRevealRadius,
+  getResolvedCurrentHexOutpostBuildStatus,
+  type OutpostBuildCost,
+  type OutpostBuildOptionStatus,
+  type OutpostBuildStatus,
+  type OutpostBuildableType,
+} from './stateOutposts';
 export { getSafePathToTile } from './statePathfinding';
 export { createGame } from './stateFactory';
 export { moveAlongSafePath, moveToTile } from './stateMovement';
@@ -93,6 +102,7 @@ export {
 } from './stateDungeonActions';
 export { openDungeonChest } from './stateDungeonChest';
 export {
+  buildOutpostAtCurrentHex,
   claimCurrentHex,
   healAtFactionNpc,
   interactWithStructure,

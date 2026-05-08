@@ -22,6 +22,7 @@ import {
   FACTION_NPC_HEAL_COST,
   getCurrentHexFactionNpcHealStatus,
 } from '../../../game/stateFactionNpc';
+import { getResolvedCurrentHexOutpostBuildStatus } from '../../../game/stateOutposts';
 import { getResolvedTileAt } from '../../../game/stateWorldQueries';
 import type { GameState, Item } from '../../../game/stateTypes';
 import { isGatheringStructure } from '../../../game/world';
@@ -48,6 +49,9 @@ type EnemyLookupInput = Parameters<typeof getEnemiesAt>[0];
 type ClaimStatusInput = Parameters<typeof getCurrentHexClaimStatus>[0];
 type FactionNpcHealStatusInput = Parameters<
   typeof getCurrentHexFactionNpcHealStatus
+>[0];
+type OutpostBuildStatusInput = Parameters<
+  typeof getResolvedCurrentHexOutpostBuildStatus
 >[0];
 
 export function useHexGameplayView({
@@ -96,6 +100,19 @@ export function useHexGameplayView({
       tiles,
     }),
     [player, seed, tiles],
+  );
+  const outpostBuildStatusInput = useMemo<OutpostBuildStatusInput>(
+    () => ({
+      activeWorldId,
+      combat,
+      player: {
+        coord,
+        inventory,
+      },
+      tiles,
+      worlds,
+    }),
+    [activeWorldId, combat, coord, inventory, tiles, worlds],
   );
   const resolvedCurrentTile = useMemo(
     () => getResolvedTileAt({ tiles }, coord),
@@ -225,6 +242,10 @@ export function useHexGameplayView({
           },
     [factionNpcHealStatusInput, resolvedCurrentTile],
   );
+  const outpostBuildStatus = useMemo(
+    () => getResolvedCurrentHexOutpostBuildStatus(outpostBuildStatusInput),
+    [outpostBuildStatusInput],
+  );
   const currentWorldKind = useMemo(
     () => getActiveWorld({ activeWorldId, worlds })?.kind ?? 'surface',
     [activeWorldId, worlds],
@@ -251,6 +272,7 @@ export function useHexGameplayView({
     gold,
     interactAction,
     itemModification,
+    outpostBuildStatus,
     territoryNpcHealStatus,
     townStock,
   };

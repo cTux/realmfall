@@ -37,6 +37,7 @@ interface UseAppWindowViewsArgs {
   itemMenu: ItemContextMenuState | null;
   interfaceSettings: InterfaceSettings;
   claimStatus: AppWindowsViewState['hex']['claimStatus'];
+  outpostBuildStatus: AppWindowsViewState['hex']['outpostBuildStatus'];
   territoryNpcHealStatus: AppWindowsViewState['hex']['territoryNpcHealStatus'];
   interactLabel: string | null;
   filteredLogs: GameState['logs'];
@@ -74,6 +75,7 @@ export function useAppWindowViews({
   itemMenu,
   interfaceSettings,
   claimStatus,
+  outpostBuildStatus,
   territoryNpcHealStatus,
   interactLabel,
   filteredLogs,
@@ -137,6 +139,7 @@ export function useAppWindowViews({
       canBulkProspectEquipment,
       canBulkSellEquipment,
       itemModification,
+      outpostBuildStatus,
       claimStatus,
       territoryNpcHealStatus,
       bulkProspectEquipmentExplanation,
@@ -155,6 +158,7 @@ export function useAppWindowViews({
       homeHex,
       interactLabel,
       itemModification,
+      outpostBuildStatus,
       bulkProspectEquipmentExplanation,
       bulkSellEquipmentExplanation,
       territoryNpcHealStatus,

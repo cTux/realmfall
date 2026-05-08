@@ -1,6 +1,7 @@
 import { type Application } from 'pixi.js';
 import { getActiveWorld } from '../../game/dungeons/worldState';
 import { hexKey } from '../../game/hex';
+import { getCurrentWorldRevealRadius } from '../../game/stateOutposts';
 import { getPlayerCombatStats } from '../../game/stateSelectors';
 import type { GameState, HexCoord, WorldKind } from '../../game/stateTypes';
 import { recordPixiRenderCounts } from '../../performance/performanceHarness';
@@ -129,6 +130,7 @@ export function renderScene(
   );
   const movementTransitionRevealState =
     getMovementTransitionRevealState(movementTransition);
+  const revealRadius = getCurrentWorldRevealRadius(state);
   const playerCombatStats = getPlayerCombatStats(state.player);
   const playerResourceRenderToken = getPlayerResourceRenderToken({
     ...playerCombatStats,
@@ -301,6 +303,7 @@ export function renderScene(
       hexSize,
       currentWorldKind,
       queuedPathKeys,
+      revealRadius,
       hoveredMove,
       hoveredSafePathKeys,
       origin,
@@ -368,6 +371,7 @@ export function renderScene(
       origin,
       playerIconSize,
       playerTransitionOffset,
+      revealRadius,
       scene,
       playerCoord: state.player.coord,
       state,

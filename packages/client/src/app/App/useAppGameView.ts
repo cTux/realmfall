@@ -127,6 +127,7 @@ export function useAppGameView({
     inventoryCountsByItemKey,
     bulkProspectEquipmentExplanation:
       hexGameplay.bulkProspectEquipmentExplanation,
+    outpostBuildStatus: hexGameplay.outpostBuildStatus,
     recipes,
     recipeSkillLevels,
     bulkSellEquipmentExplanation: hexGameplay.bulkSellEquipmentExplanation,

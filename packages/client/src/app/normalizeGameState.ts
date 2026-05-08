@@ -24,6 +24,8 @@ export function normalizeLoadedGame(game: unknown): GameState | null {
 
   const baseline = createNormalizationBaseline(game);
   const homeHex = normalizeHexCoord(game.homeHex) ?? baseline.homeHex;
+  const manaAnchorHex =
+    normalizeHexCoord(game.manaAnchorHex) ?? baseline.manaAnchorHex;
   const player = normalizePlayer(game.player, baseline.player);
   const combat =
     game.combat === null
@@ -58,6 +60,7 @@ export function normalizeLoadedGame(game: unknown): GameState | null {
     dungeonEntrances: normalizeDungeonEntrances(game.dungeonEntrances),
     activeDungeon: normalizeActiveDungeon(game.activeDungeon),
     homeHex,
+    manaAnchorHex,
     turn: isFiniteNumber(game.turn) ? game.turn : baseline.turn,
     worldTimeMs: isFiniteNumber(game.worldTimeMs)
       ? game.worldTimeMs

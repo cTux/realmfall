@@ -1,4 +1,3 @@
-import { WORLD_REVEAL_RADIUS } from '../../app/constants';
 import { hexDistance, hexKey, type HexCoord } from '../../game/hex';
 import {
   isUnknownVisibleWorldTile,
@@ -34,10 +33,12 @@ export function getMovementTransitionRevealState(
 export function getVisibleTileRevealState({
   movementTransitionState,
   playerCoord,
+  revealRadius,
   tile,
 }: {
   movementTransitionState: MovementTransitionRevealState | null;
   playerCoord: HexCoord;
+  revealRadius: number;
   tile: VisibleWorldTile;
 }) {
   const isOutgoing =
@@ -51,6 +52,6 @@ export function getVisibleTileRevealState({
     distance,
     isOutgoing,
     resolved: !isUnknownVisibleWorldTile(tile),
-    revealed: distance <= WORLD_REVEAL_RADIUS,
+    revealed: distance <= revealRadius,
   };
 }

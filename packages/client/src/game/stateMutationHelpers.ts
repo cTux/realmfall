@@ -41,6 +41,15 @@ export function cloneForPlayerAndTileMutation(state: GameState) {
   });
 }
 
+export function cloneForOutpostMutation(state: GameState) {
+  return copyGameState(state, {
+    logs: true,
+    tiles: true,
+    player: true,
+    manaAnchorHex: true,
+  });
+}
+
 export function cloneForPlayerCombatAndTileMutation(state: GameState) {
   return copyGameState(state, {
     logs: true,

@@ -40,6 +40,7 @@ interface RenderTilePassesOptions {
   currentWorldKind: WorldKind;
   hexSize: number;
   queuedPathKeys: Set<string> | null;
+  revealRadius: number;
   hoveredMove: HexCoord | null;
   hoveredSafePathKeys: Set<string> | null;
   origin: { x: number; y: number };
@@ -66,6 +67,7 @@ export function renderTilePasses({
   currentWorldKind,
   hexSize,
   queuedPathKeys,
+  revealRadius,
   hoveredMove,
   hoveredSafePathKeys,
   origin,
@@ -96,6 +98,7 @@ export function renderTilePasses({
     const { distance, revealed } = getVisibleTileRevealState({
       movementTransitionState: movementTransitionRevealState,
       playerCoord: state.player.coord,
+      revealRadius,
       tile,
     });
     const isPlayerTile =

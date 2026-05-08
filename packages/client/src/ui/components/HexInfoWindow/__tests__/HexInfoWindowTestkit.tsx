@@ -1,3 +1,4 @@
+import { act } from 'react';
 import { vi, expect } from 'vitest';
 import { mountUi } from '../../../uiTestHelpers';
 import { t } from '../../../../i18n';
@@ -14,6 +15,7 @@ export class HexInfoWindowTestkit {
     onInteract: vi.fn(),
     onProspect: vi.fn(),
     onSellAll: vi.fn(),
+    onBuildOutpost: vi.fn(),
     onTerritoryAction: vi.fn(),
     onHealTerritoryNpc: vi.fn(),
     onBuyItem: vi.fn(),
@@ -32,6 +34,7 @@ export class HexInfoWindowTestkit {
           onInteract: this.mock.onInteract,
           onProspect: this.mock.onProspect,
           onSellAll: this.mock.onSellAll,
+          onBuildOutpost: this.mock.onBuildOutpost,
           onTerritoryAction: this.mock.onTerritoryAction,
           onHealTerritoryNpc: this.mock.onHealTerritoryNpc,
           onBuyItem: this.mock.onBuyItem,
@@ -77,6 +80,9 @@ export class HexInfoWindowTestkit {
 
       expect(forfeitButton).toBeDefined();
     },
+    outpostOptionVisible: async (title: string) => {
+      expect(this.host.textContent).toContain(title);
+    },
   };
 
   constructor() {
@@ -109,6 +115,14 @@ export class HexInfoWindowTestkit {
     return Array.from(
       this.host.querySelectorAll<HTMLButtonElement>('button'),
     ).find((button) => button.textContent === text);
+  }
+
+  async clickButtonByText(text: string) {
+    const target = this.findButtonByText(text);
+    expect(target).toBeDefined();
+    await act(async () => {
+      target?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
   }
 
   private get host() {

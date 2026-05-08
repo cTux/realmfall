@@ -16,13 +16,17 @@ import styles from './styles.module.scss';
 type HexInfoWindowContentProps = Omit<
   HexInfoWindowProps,
   'position' | 'onMove' | 'visible' | 'onClose' | 'isHome' | 'onSetHome'
->;
+> & {
+  outpostBuildPickerActive: boolean;
+};
 
 export function HexInfoWindowContent({
   hexDescription,
   interactLabel,
   canInteract,
   canBulkProspectEquipment,
+  outpostBuildPickerActive,
+  outpostBuildOptions,
   itemModification,
   onInteract,
   onApplyItemModification = () => undefined,
@@ -30,6 +34,7 @@ export function HexInfoWindowContent({
   onSelectItemModificationReforgeStat = () => undefined,
   onToggleItemModificationPicker = () => undefined,
   onProspect,
+  onBuildOutpost,
   structureHp,
   structureMaxHp,
   townStock,
@@ -59,6 +64,7 @@ export function HexInfoWindowContent({
     combat ||
     (structureHp != null && structureMaxHp != null) ||
     canBulkProspectEquipment ||
+    outpostBuildPickerActive ||
     itemModification ||
     townStock.length > 0 ||
     loot.length > 0,
@@ -137,6 +143,53 @@ export function HexInfoWindowContent({
                       hotkeyClassName={labelStyles.hotkey}
                     />
                   </Button>
+                </div>
+              ) : null}
+              {outpostBuildPickerActive ? (
+                <div className={styles.outpostPanel}>
+                  <div className={styles.sectionHeader}>
+                    <span className={styles.sectionTitle}>
+                      {t('ui.hexInfo.outpostPanelTitle')}
+                    </span>
+                  </div>
+                  <div className={styles.outpostGrid}>
+                    {outpostBuildOptions.map((option) => (
+                      <div
+                        key={option.type}
+                        className={`${styles.outpostCard} ${
+                          option.disabled ? styles.outpostCardDisabled : ''
+                        }`.trim()}
+                      >
+                        <div className={styles.outpostCardHeader}>
+                          <span className={styles.shopTitle}>
+                            {option.title}
+                          </span>
+                          <span className={styles.outpostCost}>
+                            {t('ui.hexInfo.outpostCostLabel', {
+                              cost: option.costLabel,
+                            })}
+                          </span>
+                        </div>
+                        <p className={styles.description}>
+                          {option.description}
+                        </p>
+                        {option.disabledReason ? (
+                          <div className={styles.outpostDisabledReason}>
+                            {option.disabledReason}
+                          </div>
+                        ) : null}
+                        <div className={styles.actions}>
+                          <Button
+                            type="button"
+                            disabled={option.disabled}
+                            onClick={() => onBuildOutpost(option.type)}
+                          >
+                            {t('ui.hexInfo.outpostBuildButton')}
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : null}
               {!hasContent ? (
