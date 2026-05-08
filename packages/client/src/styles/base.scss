@@ -170,6 +170,12 @@ button {
   font-size: 0.8rem;
 }
 
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (width <= 980px) {
   .floatingWindow,
   .inventoryWindow,

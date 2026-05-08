@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import { loadI18n } from '../i18n';
+import { loadI18n } from '../i18n/bootstrap';
 import enTranslations from '../i18n/locales/en.json';
 
 function createStorageMock() {

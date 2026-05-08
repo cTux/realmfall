@@ -19,6 +19,17 @@ const STATE_CHUNK_MODULES = [
   '/src/ui/rarity.ts',
 ];
 
+const I18N_CHUNK_MODULES = [
+  '/ui/src/i18n/bootstrap.ts',
+  '/ui/src/i18n/index.ts',
+  '/ui/src/i18n/runtime.ts',
+  '/ui/src/i18n/state.ts',
+  '/packages/ui/src/i18n/bootstrap.ts',
+  '/packages/ui/src/i18n/index.ts',
+  '/packages/ui/src/i18n/runtime.ts',
+  '/packages/ui/src/i18n/state.ts',
+];
+
 function getBaseFileName(fileName: string) {
   return fileName.replace(/\\/g, '/').split('/').pop() ?? fileName;
 }
@@ -106,8 +117,29 @@ function getAppChunk(id: string) {
   return undefined;
 }
 
+function getI18nChunk(id: string) {
+  const normalizedId = id.replace(/\\/g, '/');
+
+  if (
+    I18N_CHUNK_MODULES.some((modulePath) => normalizedId.includes(modulePath))
+  ) {
+    return 'i18n';
+  }
+
+  if (normalizedId.includes('/ui/src/i18n/') && normalizedId.includes('/src/')) {
+    return 'i18n';
+  }
+
+  return undefined;
+}
+
 export function getManualChunk(id: string) {
-  return getBuildRuntimeChunk(id) ?? getVendorChunk(id) ?? getAppChunk(id);
+  return (
+    getBuildRuntimeChunk(id) ??
+    getVendorChunk(id) ??
+    getI18nChunk(id) ??
+    getAppChunk(id)
+  );
 }
 
 export function resolveModulePreloadDependencies(

@@ -1,6 +1,5 @@
-export type TranslationValue = string | number;
-
 export {
+  type TranslationValue,
   clearTranslations,
   getCurrentLanguage,
   setLocaleTranslations,

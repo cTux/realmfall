@@ -113,7 +113,7 @@ describe('enemy rarity', () => {
   it('refreshes world boss names after i18n loads when the enemy spawned first', async () => {
     vi.resetModules();
 
-    const i18n = await import('../i18n');
+    const { loadI18n } = await import('../i18n/bootstrap');
     const { makeEnemy: makeIsolatedEnemy } = await import('./combat');
 
     const enemy = makeIsolatedEnemy(
@@ -129,7 +129,7 @@ describe('enemy rarity', () => {
       },
     );
 
-    await i18n.loadI18n();
+    await loadI18n();
 
     expect(enemy.name).toBe('Gluttony');
   });

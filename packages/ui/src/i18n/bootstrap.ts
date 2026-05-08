@@ -1,0 +1,1 @@
+export { setLocaleTranslations } from './runtime';

@@ -26,7 +26,7 @@ describe('useHexGameplayView', () => {
       };
     });
 
-    const { loadI18n } = await import('../../../i18n');
+    const { loadI18n } = await import('../../../i18n/bootstrap');
     await loadI18n();
     const { useHexGameplayView } = await import('./useHexGameplayView');
 
@@ -118,7 +118,7 @@ describe('useHexGameplayView', () => {
       worldTimeMs: game.worldTimeMs,
     });
 
-    const { loadI18n } = await import('../../../i18n');
+    const { loadI18n } = await import('../../../i18n/bootstrap');
     await loadI18n();
     const { useHexGameplayView } = await import('./useHexGameplayView');
 
