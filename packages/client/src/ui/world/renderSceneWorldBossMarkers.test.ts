@@ -14,6 +14,7 @@ import {
 setupRenderSceneTestEnvironment();
 
 const WORLD_BOSS_BACKGROUND_COLOR = 0x2a0505;
+const WORLD_BOSS_IDLE_BORDER_WIDTH = 2;
 const WORLD_BOSS_HP_TRACK_COLOR = 0x450a0a;
 const WORLD_BOSS_MP_TRACK_COLOR = 0x172554;
 const BADGE_PLATE_BACKGROUND_COLOR = 0x000000;
@@ -90,7 +91,11 @@ describe('renderScene world boss markers', () => {
     );
 
     expect(backgroundGraphic).toBeDefined();
-    expect(backgroundGraphic?.lineStyle).not.toHaveBeenCalled();
+    expect(backgroundGraphic?.lineStyle).toHaveBeenCalledWith(
+      WORLD_BOSS_IDLE_BORDER_WIDTH,
+      BADGE_PLATE_BACKGROUND_COLOR,
+      1,
+    );
     const bossIconSprites = worldBossSprites.filter(
       (child) => child.icon === worldBossIcon,
     );
@@ -99,14 +104,8 @@ describe('renderScene world boss markers', () => {
     expect(mainSprite?.width ?? 0).toBeLessThan(
       getEllipseRadius(backgroundGraphic!) * 1.8,
     );
-    expect(topTrack).toBeDefined();
-    expect(bottomTrack).toBeDefined();
-    expect(
-      getGraphicThickness(topTrack!) / getMaxGraphicRadius(topTrack!),
-    ).toBeLessThanOrEqual(0.1);
-    expect(
-      getMaxGraphicRadius(topTrack!) - getEllipseRadius(backgroundGraphic!),
-    ).toBeCloseTo(0, 3);
+    expect(topTrack).toBeUndefined();
+    expect(bottomTrack).toBeUndefined();
     expect(levelText).toBeDefined();
     expect(levelText?.scale.x).toBeLessThanOrEqual(0.6);
     expect(levelText?.scale.y).toBeLessThanOrEqual(0.6);
@@ -123,11 +122,6 @@ describe('renderScene world boss markers', () => {
         ([, , , height]) => (height as number) <= 14,
       ),
     ).toBe(true);
-    assertPlateOverlapsRingCenter(badgePlateGraphic!, topTrack!, 'top');
-    expect(levelText?.position.y).toBeCloseTo(
-      -getGraphicCenterRadius(topTrack!),
-      1,
-    );
     expect(mainSprite?.tint).toBe(0xfb923c);
     expect(mainSprite?.width).toBeGreaterThanOrEqual(58);
     expect(mainSprite?.width).toBeLessThan(70);
@@ -178,61 +172,6 @@ function getEllipseRadius(graphic: MockGraphics) {
     number,
   ];
   return radiusX;
-}
-
-function getMaxGraphicRadius(graphic: MockGraphics) {
-  return Math.max(
-    ...graphic.drawPolygon.mock.calls.flatMap(([points]) => {
-      const numericPoints = points as number[];
-      const radii: number[] = [];
-      for (let index = 0; index < numericPoints.length; index += 2) {
-        radii.push(
-          Math.hypot(numericPoints[index] ?? 0, numericPoints[index + 1] ?? 0),
-        );
-      }
-      return radii;
-    }),
-  );
-}
-
-function getMinGraphicRadius(graphic: MockGraphics) {
-  return Math.min(
-    ...graphic.drawPolygon.mock.calls.flatMap(([points]) => {
-      const numericPoints = points as number[];
-      const radii: number[] = [];
-      for (let index = 0; index < numericPoints.length; index += 2) {
-        radii.push(
-          Math.hypot(numericPoints[index] ?? 0, numericPoints[index + 1] ?? 0),
-        );
-      }
-      return radii;
-    }),
-  );
-}
-
-function getGraphicThickness(graphic: MockGraphics) {
-  return getMaxGraphicRadius(graphic) - getMinGraphicRadius(graphic);
-}
-
-function getGraphicCenterRadius(graphic: MockGraphics) {
-  return (getMaxGraphicRadius(graphic) + getMinGraphicRadius(graphic)) / 2;
-}
-
-function assertPlateOverlapsRingCenter(
-  graphic: MockGraphics,
-  ringGraphic: MockGraphics,
-  placement: 'bottom' | 'top',
-) {
-  const ringCenter =
-    (placement === 'top' ? -1 : 1) * getGraphicCenterRadius(ringGraphic);
-
-  expect(
-    graphic.drawRect.mock.calls.some(([, y, , height]) => {
-      const plateTop = y as number;
-      const plateBottom = (y as number) + (height as number);
-      return plateTop < ringCenter && plateBottom > ringCenter;
-    }),
-  ).toBe(true);
 }
 
 function getTextFill(text: MockText) {

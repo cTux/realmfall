@@ -18,6 +18,7 @@ interface UseGameplayAutomationOptions {
   gameplaySettings: GameplaySettings;
   paused: boolean;
   setGame: Dispatch<SetStateAction<GameState>>;
+  suppressAutoLoot?: boolean;
   worldTimeMsRef: MutableRefObject<number>;
 }
 
@@ -28,6 +29,7 @@ export function useGameplayAutomation({
   gameplaySettings,
   paused,
   setGame,
+  suppressAutoLoot = false,
   worldTimeMsRef,
 }: UseGameplayAutomationOptions) {
   const applyTransition = useEffectEvent(
@@ -51,7 +53,11 @@ export function useGameplayAutomation({
       return;
     }
 
-    if (gameplaySettings.autoLoot && currentTile.items.length > 0) {
+    if (
+      !suppressAutoLoot &&
+      gameplaySettings.autoLoot &&
+      currentTile.items.length > 0
+    ) {
       applyTransition(takeAllTileItems);
       return;
     }
@@ -69,5 +75,6 @@ export function useGameplayAutomation({
     gameplaySettings.autoGatherResources,
     gameplaySettings.autoLoot,
     paused,
+    suppressAutoLoot,
   ]);
 }

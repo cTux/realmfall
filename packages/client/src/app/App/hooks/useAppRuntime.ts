@@ -125,6 +125,7 @@ export function useAppRuntime() {
     gameplaySettings: controllerState.gameplaySettings,
     paused: bootstrap.paused,
     setGame: bootstrap.setGame,
+    suppressAutoLoot: pixiWorld.queuedTravelAutoOpenSuppressed,
     worldTimeMsRef: bootstrap.worldTimeMsRef,
   });
   const windowTransitions = useWindowTransitions({
