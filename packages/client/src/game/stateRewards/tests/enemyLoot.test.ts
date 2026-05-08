@@ -15,13 +15,12 @@ import {
   TREASURE_GOBLIN_GOLD_MULTIPLIER,
   TREASURE_GOBLIN_ITEM_DROP_MULTIPLIERS,
 } from '../../config';
-import {
-  createCombatEncounterGame,
-  seedCombatEncounter,
-} from '../../stateCombatTestHelpers';
+import { StateCombatTestkit } from '../../stateCombatTestkit';
 import { getItemCategory, getItemConfigByKey } from '../../content/items';
 import { ItemId } from '../../content/ids';
 import { getTileAt } from '../../state';
+
+const combatTestkit = new StateCombatTestkit();
 
 const originalEnemyItemDropChances = {
   chance: { ...ENEMY_ITEM_DROP_CHANCES.chance },
@@ -73,9 +72,9 @@ describe('state reward enemy loot', () => {
   });
 
   it('checks enemy item kinds in ascending chance order and supports partial drops', () => {
-    const game = createCombatEncounterGame('o:52');
+    const game = combatTestkit.actions.createEncounterGame('o:52');
     const target = { q: 2, r: 0 };
-    seedCombatEncounter(game, {
+    combatTestkit.actions.seedEncounter(game, {
       id: 'enemy-test',
       name: 'Raider',
       coord: target,
@@ -115,9 +114,9 @@ describe('state reward enemy loot', () => {
   });
 
   it('can drop multiple enemy item kinds when every kind check succeeds', () => {
-    const game = createCombatEncounterGame('o:52');
+    const game = combatTestkit.actions.createEncounterGame('o:52');
     const target = { q: 2, r: 0 };
-    seedCombatEncounter(game, {
+    combatTestkit.actions.seedEncounter(game, {
       id: 'enemy-test',
       name: 'Raider',
       coord: target,
@@ -157,9 +156,11 @@ describe('state reward enemy loot', () => {
   });
 
   it('keeps world-boss consumable drops at their configured rarity', () => {
-    const game = createCombatEncounterGame('world-boss-consumable-rarity');
+    const game = combatTestkit.actions.createEncounterGame(
+      'world-boss-consumable-rarity',
+    );
     const target = { q: 2, r: 0 };
-    seedCombatEncounter(game, {
+    combatTestkit.actions.seedEncounter(game, {
       id: 'enemy-boss-consumable',
       name: 'Boss',
       coord: target,
@@ -204,14 +205,14 @@ describe('state reward enemy loot', () => {
   });
 
   it('triples treasure goblin item-drop chance', () => {
-    const ordinaryGame = createCombatEncounterGame(
+    const ordinaryGame = combatTestkit.actions.createEncounterGame(
       'treasure-goblin-item-chance',
     );
-    const treasureGoblinGame = createCombatEncounterGame(
+    const treasureGoblinGame = combatTestkit.actions.createEncounterGame(
       'treasure-goblin-item-chance',
     );
 
-    seedCombatEncounter(ordinaryGame, {
+    combatTestkit.actions.seedEncounter(ordinaryGame, {
       id: 'enemy-drop-chance',
       name: 'Raider',
       coord: { q: 2, r: 0 },
@@ -223,7 +224,7 @@ describe('state reward enemy loot', () => {
       xp: 5,
       elite: false,
     });
-    seedCombatEncounter(treasureGoblinGame, {
+    combatTestkit.actions.seedEncounter(treasureGoblinGame, {
       id: 'enemy-drop-chance',
       name: 'Treasure Goblin',
       enemyTypeId: 'treasure-goblin',
@@ -250,10 +251,10 @@ describe('state reward enemy loot', () => {
   });
 
   it('triples treasure goblin item rarity scale on top of other multipliers', () => {
-    const ordinaryGame = createCombatEncounterGame(
+    const ordinaryGame = combatTestkit.actions.createEncounterGame(
       'treasure-goblin-rarity-scale',
     );
-    const treasureGoblinGame = createCombatEncounterGame(
+    const treasureGoblinGame = combatTestkit.actions.createEncounterGame(
       'treasure-goblin-rarity-scale',
     );
     const target = { q: 2, r: 0 };
@@ -261,7 +262,7 @@ describe('state reward enemy loot', () => {
     ordinaryGame.bloodMoonActive = true;
     treasureGoblinGame.bloodMoonActive = true;
 
-    seedCombatEncounter(
+    combatTestkit.actions.seedEncounter(
       ordinaryGame,
       {
         id: 'enemy-rarity-scale',
@@ -277,7 +278,7 @@ describe('state reward enemy loot', () => {
       },
       { structure: 'dungeon' },
     );
-    seedCombatEncounter(
+    combatTestkit.actions.seedEncounter(
       treasureGoblinGame,
       {
         id: 'enemy-rarity-scale',
@@ -314,15 +315,17 @@ describe('state reward enemy loot', () => {
   });
 
   it('applies treasure goblin item reward multipliers to mimics without applying treasure goblin gold scaling', () => {
-    const ordinaryGame = createCombatEncounterGame('mimic-item-rewards');
-    const mimicGame = createCombatEncounterGame('mimic-item-rewards');
+    const ordinaryGame =
+      combatTestkit.actions.createEncounterGame('mimic-item-rewards');
+    const mimicGame =
+      combatTestkit.actions.createEncounterGame('mimic-item-rewards');
     const target = { q: 2, r: 0 };
 
     ENEMY_ITEM_DROP_CHANCES.chance.base = 0.2;
     ENEMY_ITEM_DROP_CHANCES.chance.perRarity = 0;
     ENEMY_ITEM_DROP_CHANCES.chance.max = 1;
 
-    seedCombatEncounter(ordinaryGame, {
+    combatTestkit.actions.seedEncounter(ordinaryGame, {
       id: 'ordinary-item-reward-enemy',
       name: 'Wolf',
       enemyTypeId: 'wolf',
@@ -336,7 +339,7 @@ describe('state reward enemy loot', () => {
       elite: false,
       rarity: 'legendary',
     });
-    seedCombatEncounter(mimicGame, {
+    combatTestkit.actions.seedEncounter(mimicGame, {
       id: 'mimic-item-reward-enemy',
       name: 'Mimic',
       enemyTypeId: 'mimic',
@@ -365,13 +368,15 @@ describe('state reward enemy loot', () => {
   });
 
   it('multiplies treasure goblin gold quantity after the normal drop succeeds', () => {
-    const ordinaryGame = createCombatEncounterGame('treasure-goblin-gold');
-    const treasureGoblinGame = createCombatEncounterGame(
+    const ordinaryGame = combatTestkit.actions.createEncounterGame(
+      'treasure-goblin-gold',
+    );
+    const treasureGoblinGame = combatTestkit.actions.createEncounterGame(
       'treasure-goblin-gold',
     );
     const target = { q: 2, r: 0 };
 
-    seedCombatEncounter(ordinaryGame, {
+    combatTestkit.actions.seedEncounter(ordinaryGame, {
       id: 'enemy-gold',
       name: 'Raider',
       coord: target,
@@ -383,7 +388,7 @@ describe('state reward enemy loot', () => {
       xp: 5,
       elite: false,
     });
-    seedCombatEncounter(treasureGoblinGame, {
+    combatTestkit.actions.seedEncounter(treasureGoblinGame, {
       id: 'enemy-gold',
       name: 'Treasure Goblin',
       enemyTypeId: 'treasure-goblin',
@@ -431,8 +436,10 @@ describe('state reward enemy loot', () => {
   });
 
   it('drops lockpicks and chest keys through dedicated forced-chance helpers', () => {
-    const game = createCombatEncounterGame('locked-chest-opener-drops');
-    const target = seedCombatEncounter(game, {
+    const game = combatTestkit.actions.createEncounterGame(
+      'locked-chest-opener-drops',
+    );
+    const target = combatTestkit.actions.seedEncounter(game, {
       id: 'enemy-chest-openers',
       name: 'Raider',
       coord: { q: 2, r: 0 },

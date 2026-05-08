@@ -6,17 +6,16 @@ import {
   getSafePathToTile,
   getTileAt,
 } from './state';
-import {
-  addBannerMaterials,
-  addResourceItems,
-} from './stateWorldActionsTestHelpers';
+import { StateWorldActionsTestkit } from './stateWorldActionsTestkit';
+
+const worldActionsTestkit = new StateWorldActionsTestkit();
 
 describe('game state outposts', () => {
   it('builds a watchtower on a claimed hex by consuming the required materials', () => {
     let game = createGame(6, 'watchtower-build-seed');
-    addBannerMaterials(game, 1, 'watchtower-claim');
+    worldActionsTestkit.actions.addBannerMaterials(game, 1, 'watchtower-claim');
     game = claimCurrentHex(game);
-    addResourceItems(
+    worldActionsTestkit.actions.addResourceItems(
       game,
       [
         { itemKey: 'logs', quantity: 3 },
@@ -46,9 +45,13 @@ describe('game state outposts', () => {
 
   it('builds a mana anchor on a claimed hex and binds return effects to it', () => {
     let game = createGame(6, 'mana-anchor-build-seed');
-    addBannerMaterials(game, 1, 'mana-anchor-claim');
+    worldActionsTestkit.actions.addBannerMaterials(
+      game,
+      1,
+      'mana-anchor-claim',
+    );
     game = claimCurrentHex(game);
-    addResourceItems(
+    worldActionsTestkit.actions.addResourceItems(
       game,
       [
         { itemKey: 'stone', quantity: 4 },
@@ -81,8 +84,12 @@ describe('game state outposts', () => {
 
   it('rebinds the active mana anchor when a new one is built on another claim', () => {
     let game = createGame(6, 'mana-anchor-rebind-seed');
-    addBannerMaterials(game, 2, 'mana-anchor-rebind-claim');
-    addResourceItems(
+    worldActionsTestkit.actions.addBannerMaterials(
+      game,
+      2,
+      'mana-anchor-rebind-claim',
+    );
+    worldActionsTestkit.actions.addResourceItems(
       game,
       [
         { itemKey: 'stone', quantity: 8 },
@@ -115,9 +122,13 @@ describe('game state outposts', () => {
 
   it('blocks unclaiming a player watchtower hex until outpost removal exists', () => {
     let game = createGame(6, 'watchtower-claim-block-seed');
-    addBannerMaterials(game, 1, 'watchtower-claim-block');
+    worldActionsTestkit.actions.addBannerMaterials(
+      game,
+      1,
+      'watchtower-claim-block',
+    );
     game = claimCurrentHex(game);
-    addResourceItems(
+    worldActionsTestkit.actions.addResourceItems(
       game,
       [
         { itemKey: 'logs', quantity: 3 },
@@ -141,9 +152,13 @@ describe('game state outposts', () => {
 
   it('extends safe-path scouting beyond the base reveal radius while the player is inside watchtower range', () => {
     let game = createGame(WORLD_REVEAL_RADIUS + 3, 'watchtower-scout-seed');
-    addBannerMaterials(game, 1, 'watchtower-scout-claim');
+    worldActionsTestkit.actions.addBannerMaterials(
+      game,
+      1,
+      'watchtower-scout-claim',
+    );
     game = claimCurrentHex(game);
-    addResourceItems(
+    worldActionsTestkit.actions.addResourceItems(
       game,
       [
         { itemKey: 'logs', quantity: 3 },

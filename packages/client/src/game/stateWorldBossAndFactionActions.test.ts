@@ -9,16 +9,17 @@ import {
   getVisibleTiles,
   healAtFactionNpc,
 } from './state';
-import {
-  createGeneratedWorldBossEncounter,
-  createPlacedWorldBossEncounter,
-} from './stateTestHelpers';
+import { StateTestkit } from './stateTestkit';
 import { buildTile } from './world';
-import { addBannerMaterials } from './stateWorldActionsTestHelpers';
+import { StateWorldActionsTestkit } from './stateWorldActionsTestkit';
+
+const stateTestkit = new StateTestkit();
+const worldActionsTestkit = new StateWorldActionsTestkit();
 
 describe('game state world boss and faction actions', () => {
   it('treats non-center world boss footprint hexes as occupied until the boss dies', () => {
-    const { game, center, bossId } = createPlacedWorldBossEncounter();
+    const { game, center, bossId } =
+      stateTestkit.actions.createPlacedWorldBossEncounter();
     const footprintHex = getVisibleTiles({
       ...game,
       player: { ...game.player, coord: center },
@@ -27,7 +28,7 @@ describe('game state world boss and faction actions', () => {
     expect(footprintHex).toBeDefined();
 
     game.player.coord = footprintHex!;
-    addBannerMaterials(game, 1, 'footprint-claim');
+    worldActionsTestkit.actions.addBannerMaterials(game, 1, 'footprint-claim');
 
     const blocked = claimCurrentHex(game);
     expect(getTileAt(blocked, footprintHex!).claim).toBeUndefined();
@@ -46,7 +47,8 @@ describe('game state world boss and faction actions', () => {
   });
 
   it('reserves generated boss footprint hexes even before the center tile is loaded', () => {
-    const { game, center } = createGeneratedWorldBossEncounter();
+    const { game, center } =
+      stateTestkit.actions.createGeneratedWorldBossEncounter();
     const footprintHex =
       hexNeighbors(center).find((coord) => {
         const tile = buildTile(game.seed, coord);
@@ -56,7 +58,11 @@ describe('game state world boss and faction actions', () => {
     game.player.coord = footprintHex;
     game.tiles[hexKey(footprintHex)] = buildTile(game.seed, footprintHex);
     delete game.tiles[hexKey(center)];
-    addBannerMaterials(game, 1, 'generated-footprint-claim');
+    worldActionsTestkit.actions.addBannerMaterials(
+      game,
+      1,
+      'generated-footprint-claim',
+    );
 
     const blocked = claimCurrentHex(game);
 
