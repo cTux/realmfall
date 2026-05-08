@@ -338,18 +338,77 @@ function loadImageTexture(imageUrl: string, errorMessage: string) {
     const image = new Image();
 
     image.onload = () => {
-      const texture = new Texture({
-        source: new ImageSource({
-          resource: image,
-        }),
-      });
-      resolve(texture);
+      void createLoadedImageTexture(imageUrl, image).then(resolve, reject);
     };
     image.onerror = () => {
       reject(new Error(errorMessage));
     };
     image.src = imageUrl;
   });
+}
+
+async function createLoadedImageTexture(
+  imageUrl: string,
+  image: HTMLImageElement,
+) {
+  if (typeof image.decode === 'function') {
+    try {
+      await image.decode();
+    } catch {
+      // Some browsers reject decode() for already-complete SVG data URIs.
+      // The successful onload path is enough for the canvas raster fallback below.
+    }
+  }
+
+  return new Texture({
+    source: new ImageSource({
+      resource: shouldRasterizeLoadedImage(imageUrl)
+        ? rasterizeLoadedImage(image)
+        : image,
+    }),
+  });
+}
+
+function shouldRasterizeLoadedImage(imageUrl: string) {
+  return (
+    imageUrl.startsWith('data:image/svg+xml') ||
+    /\.svg(?:$|[?#])/i.test(imageUrl)
+  );
+}
+
+function rasterizeLoadedImage(image: HTMLImageElement) {
+  const width = Math.max(1, image.naturalWidth || image.width || 1);
+  const height = Math.max(1, image.naturalHeight || image.height || 1);
+  const canvas = createRasterizationCanvas(width, height);
+  const context = canvas.getContext('2d') as
+    | CanvasRenderingContext2D
+    | OffscreenCanvasRenderingContext2D
+    | null;
+
+  if (!context) {
+    throw new Error('World icon rasterization canvas is unavailable.');
+  }
+
+  context.clearRect(0, 0, width, height);
+  context.drawImage(image, 0, 0, width, height);
+  return canvas;
+}
+
+function createRasterizationCanvas(width: number, height: number) {
+  if (typeof document !== 'undefined') {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    return canvas;
+  }
+
+  if (typeof OffscreenCanvas !== 'undefined') {
+    return new OffscreenCanvas(width, height);
+  }
+
+  throw new Error(
+    'World icon rasterization requested before a canvas is available.',
+  );
 }
 
 function takeValidWorldIconTexture(cache: Map<string, Texture>, icon: string) {

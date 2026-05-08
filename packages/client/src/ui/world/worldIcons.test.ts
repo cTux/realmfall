@@ -43,8 +43,12 @@ describe('worldIcons', () => {
     const originalImage = globalThis.Image;
     const originalNavigatorUserAgent = globalThis.navigator.userAgent;
     class MockImage {
+      naturalHeight = 150;
+      naturalWidth = 150;
       onload: (() => void) | null = null;
       onerror: (() => void) | null = null;
+      height = 150;
+      width = 150;
 
       set src(_value: string) {
         queueMicrotask(() => this.onload?.());
@@ -68,6 +72,63 @@ describe('worldIcons', () => {
 
       expect(texture).toBeDefined();
       expect(Texture.from).not.toHaveBeenCalled();
+    } finally {
+      if (originalImage === undefined) {
+        vi.unstubAllGlobals();
+      } else {
+        vi.stubGlobal('Image', originalImage);
+      }
+      Object.defineProperty(globalThis.navigator, 'userAgent', {
+        configurable: true,
+        value: originalNavigatorUserAgent,
+      });
+    }
+  });
+
+  it('rasterizes standalone SVG icons to canvas resources before Pixi upload', async () => {
+    const originalImage = globalThis.Image;
+    const originalNavigatorUserAgent = globalThis.navigator.userAgent;
+
+    class MockImage {
+      naturalHeight = 150;
+      naturalWidth = 150;
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      height = 150;
+      width = 150;
+      decode = vi.fn().mockResolvedValue(undefined);
+
+      set src(_value: string) {
+        queueMicrotask(() => this.onload?.());
+      }
+    }
+
+    try {
+      vi.resetModules();
+      vi.stubGlobal('Image', MockImage as unknown as typeof Image);
+      Object.defineProperty(globalThis.navigator, 'userAgent', {
+        configurable: true,
+        value: 'Mozilla/5.0',
+      });
+
+      const { WorldIcons, ensureWorldIconTexturesLoaded, getWorldIconTexture } =
+        await import('./worldIcons');
+
+      await ensureWorldIconTexturesLoaded([WorldIcons.Player]);
+      const texture = getWorldIconTexture(WorldIcons.Player) as unknown as {
+        options: {
+          source: {
+            options: {
+              resource: unknown;
+            };
+          };
+        };
+      };
+      const resource = texture.options.source.options.resource;
+
+      expect(resource).toBeInstanceOf(HTMLCanvasElement);
+      expect((resource as HTMLCanvasElement).width).toBe(150);
+      expect((resource as HTMLCanvasElement).height).toBe(150);
     } finally {
       if (originalImage === undefined) {
         vi.unstubAllGlobals();
@@ -353,6 +414,7 @@ describe('worldIcons', () => {
 
       createdImages[0].onload?.();
       await Promise.resolve();
+      await Promise.resolve();
 
       expect(getWorldIconTexture(WorldIcons.Player)).not.toBe(placeholder);
 
@@ -366,6 +428,7 @@ describe('worldIcons', () => {
       } as IdleDeadline);
 
       createdImages[1].onload?.();
+      await Promise.resolve();
       await Promise.resolve();
 
       expect(getWorldIconTexture(WorldIcons.Castle)).toBeDefined();
