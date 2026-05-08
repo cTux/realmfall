@@ -12,7 +12,7 @@ This spec covers the client-side movement request boundary, real-time cooldown q
 - Approved steps apply immediately through `moveToTile` and do not advance `worldTimeMs`.
 - Multi-step travel auto-continues by requesting the next adjacent step after the active cooldown expires.
 - Clicking a new destination during cooldown replaces queued continuation without resetting the active cooldown.
-- Multi-step queued travel suppresses automatic `hexInfo`, recipe-book, and loot-window opening on intermediate transit hexes.
+- Multi-step queued travel suppresses automatic `hexInfo`, recipe-book, loot-window opening, and auto-loot collection on intermediate transit hexes while leaving resource auto-gather available when that gameplay setting is enabled.
 - Replacing the queued destination during cooldown updates the final eligible destination and does not replay window opens from the abandoned path.
 - If a queued hostile destination resolves into staged combat, the remaining queue clears immediately and the handoff moves into the combat-intro sequence instead of continuing travel.
 - Hostile-click encounters that auto-step onto their preserved hostile target after victory seed the same normal movement cooldown controller as any other approved one-hex move, and the follow-up transition carries the held combat-lunge offset into the full-duration hex slide.
