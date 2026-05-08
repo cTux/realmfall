@@ -22,4 +22,5 @@ Implemented technical solutions are split into dedicated spec files:
 - [Dependency Update Workflow](./dependency-update-workflow/spec.md)
 - [Testing And Quality Tooling](./testing-and-quality-tooling/spec.md)
 - [Documentation Strategy](./documentation-strategy/spec.md)
+- [Player Auth And Realm Directory](./player-auth-and-realm-directory/spec.md)
 - [Version Checking](./version-checking/spec.md)

@@ -10,7 +10,7 @@
 - Do not re-export `packages/client/src/game/content/*` through `packages/ui/src/game`. Keep `packages/ui/src/game` as a UI-owned contract and helper layer.
 - Keep the shared i18n contract in `packages/ui/src/i18n`, and have `packages/client/src/i18n/index.ts` seed that contract at runtime instead of re-exporting client i18n through `@realmfall/ui`.
 - Keep Pixi world rendering concerns in `packages/client/src/ui/world` rather than mixing them into gameplay rules.
-- Keep HTTP entrypoints, request handlers, and other server-only runtime code in `packages/server-world/src`.
+- Keep HTTP entrypoints, request handlers, and other server-only runtime code in `packages/server-world/src` or `packages/server-auth/src`.
 - Keep cross-runtime shared types, schemas, and utilities in `packages/common/src`, and keep that package free of client-only or server-only side effects.
 - Prefer colocated structure inside a feature or component directory: place single-use hooks in a local `hooks/` directory, single-use selectors in a local `selectors/` directory, single-use utilities in a local `utils/` directory, and tests in a local `tests/` directory.
 - Place shared hooks in `src/hooks`, shared selectors in `src/selectors`, and shared utilities in `src/utils` when multiple features depend on the same module.

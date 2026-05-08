@@ -1,0 +1,28 @@
+{
+  "name": "@realmfall/server-auth",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "dev": "tsx watch src/dev.ts",
+    "build": "tsc -p ./tsconfig.build.json",
+    "serve": "node ./scripts/serve-https.mjs",
+    "start": "node ./dist/index.js",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit",
+    "lint": "oxlint -c ../../.oxlintrc.json src vitest.config.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "fastify": "^5.8.5",
+    "google-auth-library": "^10.6.2"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "oxlint": "catalog:",
+    "tsx": "^4.21.0",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
