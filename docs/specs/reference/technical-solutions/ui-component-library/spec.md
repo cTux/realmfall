@@ -21,7 +21,7 @@ This spec covers the reusable UI component library in `packages/ui`, its Storybo
 - `packages/ui/src/game` is a UI-owned contract layer. Its content ids, tags, and item classification helpers do not re-export `packages/client/src/game/content/*`.
 - Item presentation metadata in `packages/ui` is the single source for shared gameplay-shaped rules: category inference fallback, tag constants used by these rules, icon-kind mapping, and tint family/tone fallbacks.
 - `packages/client/src/ui/icons.ts` keeps enemy, structure, skill, and local configured item behavior and then delegates shared item icon/tint behavior to `@realmfall/ui`.
-- `packages/ui/src/game/boundary.test.ts` enforces the broader shared-package boundary across `packages/ui/src/**`, allowing only the explicit bridge modules for client-owned i18n, Storybook helpers, and generated icon assets.
+- `packages/ui/src/game/boundary.test.ts` enforces the broader shared-package boundary across `packages/ui/src/**`, allowing only the explicit bridge modules for client-owned i18n and Storybook helpers.
 - Shared controls that only need gameplay-derived scalar values, such as corruption break chance text, receive those values from the client caller through props instead of importing client gameplay config into the shared package.
 - Shared display-only chrome such as `WindowLabel` and `WindowDock` now render from structural props owned in `packages/ui` instead of importing client window registries or client-only label types just to render text.
 - Shared `packages/ui` stories that only need representative gameplay-shaped items use local fixture objects or existing Storybook fixtures instead of routing through `packages/ui/src/game` into client gameplay builders.

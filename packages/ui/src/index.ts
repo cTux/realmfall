@@ -79,6 +79,21 @@ export type {
   WindowLabelProps,
 } from './components/WindowLabel';
 export {
+  GENERATED_ICON_ID_PREFIX,
+  GENERATED_ICON_POOL_SIZES,
+  GENERATED_ICON_POOLS,
+  type GeneratedIconId,
+  type GeneratedIconPoolKey,
+  type ParsedGeneratedIconId,
+  getGeneratedIconId,
+  parseGeneratedIconId,
+  isGeneratedIconId,
+} from './generatedIconPools';
+export {
+  GENERATED_ICON_ASSET_POOLS,
+  resolveGeneratedIconAsset,
+} from './generatedIconAssets';
+export {
   Tooltip,
   GameTooltip,
   syncFollowCursorTooltipPosition,

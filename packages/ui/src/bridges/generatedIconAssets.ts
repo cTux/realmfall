@@ -1,1 +1,1 @@
-export { GENERATED_ICON_ASSET_POOLS } from '../../../client/src/ui/generatedIconAssets';
+export { GENERATED_ICON_ASSET_POOLS } from '../generatedIconAssets';
