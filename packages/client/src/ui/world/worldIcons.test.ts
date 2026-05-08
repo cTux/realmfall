@@ -147,7 +147,6 @@ describe('worldIcons', () => {
       WorldIcons,
       enemyIconFor,
       getVisibleWorldIconAssetIds,
-      getStructureMarkerIcon,
       structureIconFor,
     } = await import('./worldIcons');
     const { terrainArtFor } = await import('./worldTerrainArt');
