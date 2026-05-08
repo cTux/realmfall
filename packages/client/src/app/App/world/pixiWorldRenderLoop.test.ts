@@ -29,12 +29,16 @@ import {
   configureWorldTickerCadence,
   createWorldRenderFrame,
 } from './pixiWorldRenderLoopTestkit';
-import { createInitialWorldRenderSnapshot } from './worldRenderSnapshot';
+import {
+  createInitialWorldRenderSnapshot,
+  getWorldRenderToken,
+} from './worldRenderSnapshot';
 import {
   DEFAULT_WORLD_RENDER_FPS,
   MAX_WORLD_RENDER_FPS,
   MIN_WORLD_RENDER_FPS,
 } from '../../graphicsSettings';
+import type { GameState } from '../../../game/stateTypes';
 
 describe('pixiWorldRenderLoop', () => {
   beforeEach(() => {
@@ -98,6 +102,42 @@ describe('pixiWorldRenderLoop', () => {
     renderFrame();
 
     expect(renderScene).toHaveBeenCalledTimes(2);
+
+    performanceNowSpy.mockRestore();
+  });
+
+  it('does not re-render when gameplay clones mutate unrelated fields', () => {
+    const performanceNowSpy = vi.spyOn(performance, 'now').mockReturnValue(0);
+    const renderScene = vi.fn();
+    const game = {
+      player: { coord: { q: 0, r: 0 } },
+      turn: 1,
+    } as unknown as GameState;
+    const gameRef = { current: game };
+    const renderFrame = createWorldRenderFrame({
+      app: {} as never,
+      renderScene,
+      gameRef,
+      visibleTilesRef: {
+        current: [{ coord: { q: 0, r: 0 }, terrain: 'plains' }],
+      } as never,
+      selectedRef: { current: { q: 0, r: 0 } } as never,
+      hoveredMoveRef: { current: null },
+      hoveredSafePathRef: { current: null },
+      showTerrainBackgroundsRef: { current: true },
+      worldRenderFpsRef: { current: DEFAULT_WORLD_RENDER_FPS },
+      pausedRef: { current: false },
+      pausedAnimationMsRef: { current: null },
+      worldTimeMsRef: { current: 0 },
+      renderInvalidationRef: { current: 0 },
+      lastRenderSnapshotRef: { current: createInitialWorldRenderSnapshot() },
+    });
+
+    renderFrame();
+    gameRef.current = { ...game, turn: 2 };
+    renderFrame();
+
+    expect(renderScene).toHaveBeenCalledTimes(1);
 
     performanceNowSpy.mockRestore();
   });
@@ -567,7 +607,10 @@ describe('pixiWorldRenderLoop', () => {
         current: {
           ...createInitialWorldRenderSnapshot(),
           animationBucket: 0,
-          game: previousGame as never,
+          worldRenderToken: getWorldRenderToken(previousGame as never),
+          previousPlayerCoord: { ...previousGame.player.coord },
+          previousCombatAutoStepOnVictory: false,
+          previousCombatAutoStepTargetCoord: { q: 1, r: 0 },
           hoveredMove: null,
           hoveredSafePath: null,
           iconTextureVersion: 0,
@@ -618,7 +661,10 @@ describe('pixiWorldRenderLoop', () => {
         current: {
           ...createInitialWorldRenderSnapshot(),
           animationBucket: 0,
-          game: previousGame as never,
+          worldRenderToken: getWorldRenderToken(previousGame as never),
+          previousPlayerCoord: { ...previousGame.player.coord },
+          previousCombatAutoStepOnVictory: false,
+          previousCombatAutoStepTargetCoord: { q: 1, r: 0 },
           hoveredMove: null,
           hoveredSafePath: null,
           iconTextureVersion: 0,
@@ -679,7 +725,10 @@ describe('pixiWorldRenderLoop', () => {
         current: {
           ...createInitialWorldRenderSnapshot(),
           animationBucket: 0,
-          game: previousGame as never,
+          worldRenderToken: getWorldRenderToken(previousGame as never),
+          previousPlayerCoord: { ...previousGame.player.coord },
+          previousCombatAutoStepOnVictory: true,
+          previousCombatAutoStepTargetCoord: { q: 1, r: 0 },
           hoveredMove: null,
           hoveredSafePath: null,
           iconTextureVersion: 0,
@@ -732,7 +781,10 @@ describe('pixiWorldRenderLoop', () => {
         current: {
           ...createInitialWorldRenderSnapshot(),
           animationBucket: 0,
-          game: previousGame as never,
+          worldRenderToken: getWorldRenderToken(previousGame as never),
+          previousPlayerCoord: { ...previousGame.player.coord },
+          previousCombatAutoStepOnVictory: false,
+          previousCombatAutoStepTargetCoord: null,
           hoveredMove: null,
           hoveredSafePath: null,
           iconTextureVersion: 0,
@@ -792,7 +844,10 @@ describe('pixiWorldRenderLoop', () => {
         current: {
           ...createInitialWorldRenderSnapshot(),
           animationBucket: 0,
-          game: previousGame as never,
+          worldRenderToken: getWorldRenderToken(previousGame as never),
+          previousPlayerCoord: { ...previousGame.player.coord },
+          previousCombatAutoStepOnVictory: false,
+          previousCombatAutoStepTargetCoord: null,
           hoveredMove: null,
           hoveredSafePath: null,
           iconTextureVersion: 0,
