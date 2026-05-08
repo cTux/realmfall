@@ -4,6 +4,9 @@ import { DEFAULT_AUDIO_SETTINGS } from '../../audioSettings';
 import { DEFAULT_UI_AUDIO_CONTROLLER } from '../../audio/UiAudioContext';
 import type { AppWindowsProps } from '../AppWindows.types';
 import { createGame } from '../../../game/stateFactory';
+import { getCurrentWorldRevealRadius } from '../../../game/stateOutposts';
+import { getActiveWorld } from '../../../game/dungeons/worldState';
+import type { AppShellState } from '../AppShell.types';
 import { AppShell } from './AppShellTestkit';
 
 vi.mock('../AppWindows', () => ({
@@ -64,13 +67,39 @@ describe('AppShell', () => {
       },
     } as unknown as AppWindowsProps;
 
+    const game = createGame(2, 'app-shell-interface-scale');
+    const activeWorld = getActiveWorld({
+      activeWorldId: game.activeWorldId,
+      worlds: game.worlds,
+    });
+    const shellState: AppShellState = {
+      homeIndicator: {
+        currentWorldKind: activeWorld?.kind ?? 'surface',
+        dungeonExitHex:
+          activeWorld?.kind === 'dungeon' ? activeWorld.dungeon.entranceCoord : null,
+        homeHex: game.homeHex,
+        playerCoord: game.player.coord,
+        radius: game.radius,
+        visibleRadius: getCurrentWorldRevealRadius(game),
+      },
+      voicePlayback: {
+        combat: game.combat,
+        logSequence: game.logSequence,
+        logs: game.logs,
+        player: {
+          hp: game.player.hp,
+          statusEffects: game.player.statusEffects,
+        },
+      },
+    };
+
     await act(async () => {
       root.render(
         <AppShell
           audioSettings={DEFAULT_AUDIO_SETTINGS}
           backgroundMusicMood="ambient"
           claimedHex={null}
-          game={createGame(2, 'app-shell-interface-scale')}
+          shellState={shellState}
           hostRef={hostRef}
           interfaceSettings={{
             language: 'en',

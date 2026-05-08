@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { WINDOW_DOCK_KEYS } from '../constants';
 import { isDebugWindowRequested } from '../debugWindow';
 import type { AppWindowsProps } from './AppWindows.types';
@@ -12,7 +12,7 @@ import { useRecipeWindowStructure } from './hooks/useRecipeWindowStructure';
 import { useManagedWindowProps } from './hooks/useManagedWindowProps';
 import { getDockEntries } from './utils/getDockEntries';
 
-export function AppWindows(props: AppWindowsProps) {
+export const AppWindows = memo(function AppWindows(props: AppWindowsProps) {
   const debugWindowEnabled = isDebugWindowRequested();
   const dockAttention = useMemo(
     () => ({
@@ -132,4 +132,4 @@ export function AppWindows(props: AppWindowsProps) {
       />
     </>
   );
-}
+});

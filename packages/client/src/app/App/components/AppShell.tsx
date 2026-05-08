@@ -7,9 +7,7 @@ import {
   type MutableRefObject,
 } from 'react';
 import { Button, LoadingSpinner } from '@realmfall/ui-react';
-import { getActiveWorld } from '../../../game/dungeons/worldState';
-import { getCurrentWorldRevealRadius } from '../../../game/stateOutposts';
-import type { GameState, HexCoord } from '../../../game/stateTypes';
+import type { HexCoord } from '../../../game/stateTypes';
 import { t } from '../../../i18n';
 import { recordStartupMark } from '../../../performance/performanceHarness';
 import type { BackgroundMusicMood } from '../../audio/backgroundMusic';
@@ -21,6 +19,7 @@ import type { AudioSettings } from '../../audioSettings';
 import { applyInterfaceFontFamily } from '../../interfaceFonts';
 import type { InterfaceSettings } from '../../interfaceSettings';
 import type { AppWindowsProps } from '../AppWindows.types';
+import type { AppShellState } from '../AppShell.types';
 import styles from '../styles.module.scss';
 import { PauseOverlay } from './PauseOverlay';
 import { useAudioBridgeActivation } from './useAudioBridgeActivation';
@@ -60,7 +59,7 @@ export function AppShell({
   audioSettings,
   backgroundMusicMood,
   claimedHex,
-  game,
+  shellState,
   hostRef,
   interfaceSettings,
   isReady,
@@ -74,7 +73,7 @@ export function AppShell({
   audioSettings: AudioSettings;
   backgroundMusicMood: BackgroundMusicMood;
   claimedHex: HexCoord | null;
-  game: GameState;
+  shellState: AppShellState;
   hostRef: MutableRefObject<HTMLDivElement | null>;
   interfaceSettings: InterfaceSettings;
   isReady: boolean;
@@ -86,8 +85,7 @@ export function AppShell({
   onUiAudioChange: (nextController: UiAudioController) => void;
 }) {
   const audioBridgeActivated = useAudioBridgeActivation();
-  const { combat, logSequence, logs } = game;
-  const { hp, statusEffects } = game.player;
+  const { homeIndicator, voicePlayback } = shellState;
   useEffect(() => {
     if (isReady) {
       recordStartupMark('app-ready');
@@ -99,27 +97,23 @@ export function AppShell({
 
   const voicePlaybackState = useMemo(
     () => ({
-      combat,
-      logSequence,
-      logs,
+      combat: voicePlayback.combat,
+      logSequence: voicePlayback.logSequence,
+      logs: voicePlayback.logs,
       player: {
-        hp,
-        statusEffects,
+        hp: voicePlayback.player.hp,
+        statusEffects: voicePlayback.player.statusEffects,
       },
     }),
-    [combat, hp, logSequence, logs, statusEffects],
+    [
+      voicePlayback.combat,
+      voicePlayback.logSequence,
+      voicePlayback.logs,
+      voicePlayback.player.hp,
+      voicePlayback.player.statusEffects,
+    ],
   );
-  const activeWorld = useMemo(
-    () =>
-      getActiveWorld({
-        activeWorldId: game.activeWorldId,
-        worlds: game.worlds,
-      }),
-    [game.activeWorldId, game.worlds],
-  );
-  const currentWorldKind = activeWorld?.kind ?? 'surface';
-  const dungeonExitHex =
-    activeWorld?.kind === 'dungeon' ? activeWorld.dungeon.entranceCoord : null;
+
   const appRootStyle = useMemo(
     () =>
       ({
@@ -163,13 +157,13 @@ export function AppShell({
           <Suspense fallback={null}>
             <HomeIndicator
               claimedHex={claimedHex}
-              currentWorldKind={currentWorldKind}
-              dungeonExitHex={dungeonExitHex}
+              currentWorldKind={homeIndicator.currentWorldKind}
+              dungeonExitHex={homeIndicator.dungeonExitHex}
               hostRef={hostRef}
-              homeHex={game.homeHex}
-              playerCoord={game.player.coord}
-              radius={game.radius}
-              visibleRadius={getCurrentWorldRevealRadius(game)}
+              homeHex={homeIndicator.homeHex}
+              playerCoord={homeIndicator.playerCoord}
+              radius={homeIndicator.radius}
+              visibleRadius={homeIndicator.visibleRadius}
             />
           </Suspense>
           <div className={styles.uiShell}>

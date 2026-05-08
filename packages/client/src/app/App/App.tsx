@@ -23,7 +23,7 @@ export function App() {
       audioSettings={appRuntime.audioSettings}
       backgroundMusicMood={appRuntime.backgroundMusicMood}
       claimedHex={appRuntime.claimedHex}
-      game={appRuntime.game}
+      shellState={appRuntime.shellState}
       hostRef={appRuntime.hostRef}
       interfaceSettings={appRuntime.interfaceSettings}
       isReady={appRuntime.isReady}
