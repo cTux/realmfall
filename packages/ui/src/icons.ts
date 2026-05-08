@@ -13,17 +13,17 @@ import {
   ItemCategoryIconKey,
   RECIPE_PAGE_TINT,
 } from './itemMetadata';
-import weaponIcon from '../../client/src/assets/icons/plain-dagger.svg';
-import armorIcon from '../../client/src/assets/icons/checked-shield.svg';
-import artifactIcon from '../../client/src/assets/icons/ankh.svg';
-import consumableIcon from '../../client/src/assets/icons/potion-ball.svg';
-import hoodIcon from '../../client/src/assets/icons/hood.svg';
-import gauntletIcon from '../../client/src/assets/icons/mailed-fist.svg';
-import bootsIcon from '../../client/src/assets/icons/steeltoe-boots.svg';
-import orbIcon from '../../client/src/assets/icons/crystal-ball.svg';
-import chestIcon from '../../client/src/assets/icons/spiked-armor.svg';
-import scrollQuillIcon from '../../client/src/assets/game-icons/delapouite/scroll-quill.svg';
-import totemIcon from '../../client/src/assets/icons/totem.svg';
+import weaponIcon from './assets/icons/plain-dagger.svg';
+import armorIcon from './assets/icons/checked-shield.svg';
+import artifactIcon from './assets/icons/ankh.svg';
+import consumableIcon from './assets/icons/potion-ball.svg';
+import hoodIcon from './assets/icons/hood.svg';
+import gauntletIcon from './assets/icons/mailed-fist.svg';
+import bootsIcon from './assets/icons/steeltoe-boots.svg';
+import orbIcon from './assets/icons/crystal-ball.svg';
+import chestIcon from './assets/icons/spiked-armor.svg';
+import scrollQuillIcon from './assets/game-icons/delapouite/scroll-quill.svg';
+import totemIcon from './assets/icons/totem.svg';
 
 const TOTEM_ITEM_TAG = GAME_TAGS.item.totem;
 
