@@ -13,6 +13,9 @@ This spec covers canonical type ids and gameplay tags for item configs, enemy co
 - Item configs and runtime items no longer store a separate `kind`; item behavior is derived from canonical ids, equipment slots, and hydrated tags instead.
 - Item-specific tags, icon-pool hints, category overrides, and granted-ability pools are declared on the owning item config or generated-item family helper before registry assembly.
 - Generated craftable icon families also own their workshop ingredient sources, mirrored ring drop keys, and ring craft-slot distribution, so crafting outputs and recipes project from canonical family metadata instead of item-key prefix rules.
+- Gameplay-facing content icons, ability icons, and status-effect icons resolve
+  from stable icon ids in content definitions, while UI asset modules translate
+  those ids to concrete SVG URLs at the presentation edge.
 - `src/game/content/items/index.ts` remains the public item-content facade while `itemCatalog.ts` assembles hydrated configs and `itemClassification.ts` plus `itemCategoryRules.ts` reuse shared, slot-based category inference from `@realmfall/ui-react` and extend it with client category/configuration paths.
 - Gathering structures keep canonical `rewardItemKey` values separate from localized reward labels so harvesting never derives item ids from display text.
 - Gathering byproducts use a tag-driven path (`structure.byproduct.string`) for flax, rather than checking `structure === 'flax'` in reward calculation.

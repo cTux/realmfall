@@ -9,6 +9,13 @@ This spec covers locale loading and key-based user-facing copy.
 - Locale data is loaded dynamically by language.
 - `en` is the current default baseline.
 - App bootstrap renders a non-localized loading shell immediately, fetches the active locale asset before importing `App`, and keeps translation bytes out of the bootstrap JS graph.
+- Bootstrap translation helpers resolve through the narrow
+  `@realmfall/ui-react/i18n` export instead of the broad UI package barrel, so
+  startup locale loading does not pull the shared UI entry onto the bootstrap
+  path.
+- Build chunking keeps that bootstrap i18n runtime in a dedicated `i18n` chunk,
+  so locale loading does not make the large gameplay `state` chunk a bootstrap
+  dependency.
 - User-facing copy is expected to live in locale resources and label helpers, including gameplay state messages and content-definition labels.
 - Shared tooltip helpers also source user-facing fragments from locale resources instead of assembling inline English copy inside UI modules.
 - The translation layer resolves token replacement through keyed templates.
