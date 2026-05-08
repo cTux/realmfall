@@ -77,6 +77,18 @@ export function structureIconFor(structure: StructureType) {
   return getStructureConfig(structure).icon;
 }
 
+export function getStructureMarkerIcon({
+  claim,
+  structure,
+}: {
+  structure: StructureType;
+  claim?: { ownerType?: string };
+}) {
+  return structure === 'town' && claim?.ownerType === 'faction'
+    ? WorldIcons.Castle
+    : structureIconFor(structure);
+}
+
 export function getWorldIconAssetIds() {
   return Array.from(
     new Set([
@@ -269,9 +281,10 @@ function collectWorldIconAssetIdsForTiles({
 
     if (tile.structure) {
       iconAssetIds.add(
-        tile.structure === 'town' && tile.claim?.ownerType === 'faction'
-          ? WorldIcons.Castle
-          : structureIconFor(tile.structure),
+        getStructureMarkerIcon({
+          structure: tile.structure,
+          claim: tile.claim,
+        }),
       );
     }
 

@@ -91,6 +91,7 @@ export enum GameTag {
   StructureHerbs = 'structure.herbs',
   StructureOre = 'structure.ore',
   StructureFishing = 'structure.fishing',
+  StructureByproductString = 'structure.byproduct.string',
 }
 
 export const GAME_TAGS = {
@@ -194,6 +195,7 @@ export const GAME_TAGS = {
     herbs: GameTag.StructureHerbs,
     ore: GameTag.StructureOre,
     fishing: GameTag.StructureFishing,
+    byproductString: GameTag.StructureByproductString,
   },
 } as const;
 

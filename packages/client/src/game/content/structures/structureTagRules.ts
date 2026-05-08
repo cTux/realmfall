@@ -27,3 +27,38 @@ export function buildGatheringStructureTags(
     ...getSkillTags(skill),
   );
 }
+
+export type GatheringByproductKind = 'tree' | 'ore' | 'string';
+
+export function getGatheringByproductKind(
+  structureTags: readonly GameTag[] | undefined,
+) {
+  if (!structureTags) {
+    return null;
+  }
+
+  if (structureTags.includes(GAME_TAGS.structure.ore)) {
+    return 'ore';
+  }
+
+  if (structureTags.includes(GAME_TAGS.structure.tree)) {
+    return 'tree';
+  }
+
+  if (structureTags.includes(GAME_TAGS.structure.byproductString)) {
+    return 'string';
+  }
+
+  return null;
+}
+
+export function buildFlaxGatheringStructureTags(
+  skill: SkillName,
+  ...tags: GameTag[]
+) {
+  return buildGatheringStructureTags(
+    skill,
+    ...tags,
+    GAME_TAGS.structure.byproductString,
+  );
+}

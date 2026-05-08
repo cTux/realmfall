@@ -9,7 +9,7 @@ import {
   WorldIcons,
   enemyIconFor,
   enemyIconTintFor,
-  structureIconFor,
+  getStructureMarkerIcon,
 } from './worldIcons';
 import {
   configureEntityBadgeSprite,
@@ -118,9 +118,10 @@ export function renderStaticMarkers({
   if (tile.structure) {
     const marker = takeShadowedSprite(
       scene.worldStaticMarkerSprites,
-      tile.structure === 'town' && tile.claim?.ownerType === 'faction'
-        ? WorldIcons.Castle
-        : structureIconFor(tile.structure),
+      getStructureMarkerIcon({
+        structure: tile.structure,
+        claim: tile.claim,
+      }),
       {
         stableKey: getMarkerIdentityKey('structure'),
       },

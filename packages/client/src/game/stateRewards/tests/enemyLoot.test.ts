@@ -4,6 +4,7 @@ import {
   getEnemyItemDropChance,
   maybeDropLockedChestOpener,
 } from '../enemyLoot';
+import { isTreasureGoblinLikeEnemyLootSource } from '../../content/enemies';
 import {
   ENEMY_GOLD_DROP_CHANCES,
   ENEMY_ITEM_BLOOD_MOON_RARITY_CHANCE_MULTIPLIER,
@@ -314,6 +315,14 @@ describe('state reward enemy loot', () => {
     );
   });
 
+  it('supports legacy mimic enemy ids without byproduct tags', () => {
+    expect(
+      isTreasureGoblinLikeEnemyLootSource({
+        enemyTypeId: 'mimic',
+      }),
+    ).toBe(true);
+  });
+
   it('applies treasure goblin item reward multipliers to mimics without applying treasure goblin gold scaling', () => {
     const ordinaryGame =
       combatTestkit.actions.createEncounterGame('mimic-item-rewards');
@@ -365,6 +374,10 @@ describe('state reward enemy loot', () => {
     expect(getEnemyDropRarityChanceScale(mimicGame, mimicEnemy)).toBe(
       TREASURE_GOBLIN_ITEM_DROP_MULTIPLIERS.rarityMultiplier,
     );
+    expect(isTreasureGoblinLikeEnemyLootSource(mimicEnemy)).toBe(true);
+    expect(
+      isTreasureGoblinLikeEnemyLootSource(ordinaryLegendary),
+    ).toBe(false);
   });
 
   it('multiplies treasure goblin gold quantity after the normal drop succeeds', () => {

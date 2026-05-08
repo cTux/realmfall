@@ -17,6 +17,7 @@ import { createRng } from '../random';
 import { itemName } from '../content/i18n';
 import { ItemId } from '../content/ids';
 import { buildItemFromConfig, getConsumableItemKeys } from '../content/items';
+import { isTreasureGoblinLikeEnemyLootSource } from '../content/enemies';
 import { TERRAFORMING_CONSUMABLE_ITEM_KEYS } from '../content/items/terraformingConsumables';
 import { GAME_TAGS } from '../content/tags';
 import { enemyRarityIndex, isAnimalEnemy } from '../combat';
@@ -538,5 +539,5 @@ function makeBloodMoonDrop(
 }
 
 function hasTreasureGoblinItemRewardMultipliers(enemy: Enemy) {
-  return isTreasureGoblinEnemy(enemy) || enemy.enemyTypeId === 'mimic';
+  return isTreasureGoblinLikeEnemyLootSource(enemy);
 }

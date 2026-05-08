@@ -2,8 +2,10 @@ import { t } from '../../i18n';
 import { createRng } from '../random';
 import { itemName } from '../content/i18n';
 import { ItemId } from '../content/ids';
-import { getStructureConfig } from '../content/structures';
-import { GAME_TAGS } from '../content/tags';
+import {
+  getGatheringByproductKind,
+  getStructureConfig,
+} from '../content/structures';
 import { GATHERING_BYPRODUCT_CHANCES } from '../config';
 import { hexKey } from '../hex';
 import { describeItemStack, makeResourceStack } from '../inventory';
@@ -57,14 +59,9 @@ export function maybeGatherByproduct(
   structure: GatheringStructureType,
   definition: GatheringDefinition,
 ) {
-  const structureTags = getStructureConfig(structure).tags ?? [];
-  const byproductKind = structureTags.includes(GAME_TAGS.structure.tree)
-    ? 'tree'
-    : structureTags.includes(GAME_TAGS.structure.ore)
-      ? 'ore'
-      : structure === 'flax'
-        ? 'flax'
-        : null;
+  const byproductKind = getGatheringByproductKind(
+    getStructureConfig(structure).tags,
+  );
   if (!byproductKind) return null;
 
   const byproductItemKey =
@@ -77,31 +74,32 @@ export function maybeGatherByproduct(
   const rng = createRng(
     `${state.seed}:gather-byproduct:${structure}:${state.turn}:${hexKey(state.player.coord)}`,
   );
+  const byproductChance =
+    byproductKind === 'string'
+      ? 1
+      : GATHERING_BYPRODUCT_CHANCES[byproductKind];
   if (
-    rng() >=
-    (byproductKind === 'tree'
-      ? GATHERING_BYPRODUCT_CHANCES.tree
-      : byproductKind === 'ore'
-        ? GATHERING_BYPRODUCT_CHANCES.ore
-        : 1)
+    rng() >= byproductChance
   ) {
     return null;
   }
 
+  const text =
+    byproductKind === 'tree'
+      ? t('game.message.gather.byproduct.sticks', {
+          item: itemName(ItemId.Sticks),
+        })
+      : byproductKind === 'ore'
+        ? t('game.message.gather.byproduct.stone', {
+            item: itemName(ItemId.Stone),
+          })
+        : t('game.message.gather.byproduct.string', {
+            item: itemName(ItemId.String),
+          });
+
   return {
     item: makeResourceStack(byproductItemKey, definition.rewardTier, 1),
-    text:
-      byproductKind === 'tree'
-        ? t('game.message.gather.byproduct.sticks', {
-            item: itemName(ItemId.Sticks),
-          })
-        : byproductKind === 'ore'
-          ? t('game.message.gather.byproduct.stone', {
-              item: itemName(ItemId.Stone),
-            })
-          : t('game.message.gather.byproduct.string', {
-              item: itemName(ItemId.String),
-            }),
+    text,
   };
 }
 
