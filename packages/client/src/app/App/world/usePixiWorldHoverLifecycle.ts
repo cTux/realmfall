@@ -12,13 +12,10 @@ interface UsePixiWorldHoverLifecycleArgs {
   playerCoord: HexCoord;
   game: Pick<
     GameState,
-    | 'bloodMoonActive'
     | 'combat'
-    | 'enemies'
     | 'gameOver'
+    | 'activeWorldId'
     | 'radius'
-    | 'seed'
-    | 'tiles'
     | 'turn'
   >;
   hoverAnalysisCacheRef: MutableRefObject<Map<string, WorldHoverSnapshot>>;
@@ -91,13 +88,10 @@ export function usePixiWorldHoverLifecycle({
     hoverAnalysisControllerRef.current?.refreshHoverAnalysis();
   }, [
     hoverAnalysisControllerRef,
-    game.bloodMoonActive,
     game.combat,
-    game.enemies,
     game.gameOver,
+    game.activeWorldId,
     game.radius,
-    game.seed,
-    game.tiles,
     game.turn,
   ]);
 

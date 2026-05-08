@@ -1,7 +1,19 @@
-import type { GameState, HexCoord } from '../../../../game/stateTypes';
-import type { PathfindingState } from '../../../../game/statePathfinding';
+import { getCurrentWorldRevealRadius } from '../../../../game/stateOutposts';
+import { getTileAt } from '../../../../game/stateWorldQueries';
+import { hexesInRange, hexKey, type HexCoord } from '../../../../game/hex';
+import type { Enemy, GameState, Tile } from '../../../../game/stateTypes';
 
-export type WorldHoverAnalysisState = PathfindingState;
+export interface WorldHoverAnalysisState {
+  combat: GameState['combat'];
+  enemies: Record<string, Enemy>;
+  gameOver: boolean;
+  player: {
+    coord: HexCoord;
+  };
+  radius: number;
+  revealRadius: number;
+  tiles: Record<string, Tile>;
+}
 
 export interface WorldHoverAnalysisResult {
   actionable: boolean;
@@ -22,18 +34,33 @@ export interface WorldHoverAnalysisWorker {
 export function buildWorldHoverAnalysisState(
   state: GameState,
 ): WorldHoverAnalysisState {
+  const revealRadius = getCurrentWorldRevealRadius(state);
+  const maxHoverRadius = Math.max(state.radius, revealRadius);
+  const tiles: Record<string, Tile> = {};
+  const enemies: Record<string, Enemy> = {};
+
+  for (const coord of hexesInRange(state.player.coord, maxHoverRadius)) {
+    const tile = getTileAt(state, coord);
+    const tileKey = hexKey(coord);
+    tiles[tileKey] = tile;
+
+    for (const enemyId of tile.enemyIds) {
+      const enemy = state.enemies[enemyId];
+      if (enemy !== undefined) {
+        enemies[enemyId] = enemy;
+      }
+    }
+  }
+
   return {
-    activeWorldId: state.activeWorldId,
-    bloodMoonActive: state.bloodMoonActive,
     combat: state.combat,
-    enemies: state.enemies,
+    enemies,
     gameOver: state.gameOver,
     player: {
       coord: state.player.coord,
     },
     radius: state.radius,
-    seed: state.seed,
-    tiles: state.tiles,
-    worlds: state.worlds,
+    revealRadius,
+    tiles,
   };
 }
