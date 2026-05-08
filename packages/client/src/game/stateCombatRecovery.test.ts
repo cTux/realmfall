@@ -5,15 +5,15 @@ import {
   startCombat,
   syncPlayerStatusEffects,
 } from './state';
-import {
-  createCombatEncounterGame,
-  seedCombatEncounter,
-} from './stateCombatTestHelpers';
+import { StateCombatTestkit } from './stateCombatTestkit';
+
+const combatTestkit = new StateCombatTestkit();
 
 describe('game state combat recovery', () => {
   it('respawns the player at the home hex with death effects applied', () => {
-    const game = createCombatEncounterGame('death-respawn-seed');
-    seedCombatEncounter(game, {
+    const game =
+      combatTestkit.actions.createEncounterGame('death-respawn-seed');
+    combatTestkit.actions.seedEncounter(game, {
       id: 'enemy-2,0-0',
       name: 'Wolf',
       tier: 1,

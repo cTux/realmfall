@@ -9,15 +9,14 @@ import {
   startCombat,
 } from './state';
 import { Skill } from './types';
-import {
-  createCombatEncounterGame,
-  seedCombatEncounter,
-} from './stateCombatTestHelpers';
+import { StateCombatTestkit } from './stateCombatTestkit';
+
+const combatTestkit = new StateCombatTestkit();
 
 describe('game state combat encounters', () => {
   it('keeps startCombat(moveToTile(...)) compatible for immediate-start encounters', () => {
-    const game = createCombatEncounterGame('combat-seed');
-    const target = seedCombatEncounter(game, {
+    const game = combatTestkit.actions.createEncounterGame('combat-seed');
+    const target = combatTestkit.actions.seedEncounter(game, {
       id: 'enemy-2,0-0',
       name: 'Wolf',
       tier: 1,
@@ -41,8 +40,10 @@ describe('game state combat encounters', () => {
   });
 
   it('starts battle immediately when entering a hostile tile', () => {
-    const game = createCombatEncounterGame('combat-immediate-start');
-    const target = seedCombatEncounter(game, {
+    const game = combatTestkit.actions.createEncounterGame(
+      'combat-immediate-start',
+    );
+    const target = combatTestkit.actions.seedEncounter(game, {
       id: 'enemy-2,0-0',
       name: 'Wolf',
       tier: 1,
@@ -67,8 +68,10 @@ describe('game state combat encounters', () => {
   });
 
   it('lets the player forfeit a battle after combat has started', () => {
-    const game = createCombatEncounterGame('combat-forfeit-seed');
-    const target = seedCombatEncounter(game, {
+    const game = combatTestkit.actions.createEncounterGame(
+      'combat-forfeit-seed',
+    );
+    const target = combatTestkit.actions.seedEncounter(game, {
       id: 'enemy-2,0-0',
       name: 'Wolf',
       tier: 1,
@@ -98,8 +101,10 @@ describe('game state combat encounters', () => {
   });
 
   it('rolls treasure goblin encounter thresholds per battle instead of per enemy id', () => {
-    const game = createCombatEncounterGame('combat-treasure-goblin-seed');
-    const target = seedCombatEncounter(game, {
+    const game = combatTestkit.actions.createEncounterGame(
+      'combat-treasure-goblin-seed',
+    );
+    const target = combatTestkit.actions.seedEncounter(game, {
       id: 'enemy-2,0-0',
       enemyTypeId: 'treasure-goblin',
       name: 'Treasure Goblin',
@@ -136,8 +141,8 @@ describe('game state combat encounters', () => {
   });
 
   it('automatically skins animal enemies on kill', () => {
-    const game = createCombatEncounterGame('skinning-seed');
-    const target = seedCombatEncounter(
+    const game = combatTestkit.actions.createEncounterGame('skinning-seed');
+    const target = combatTestkit.actions.seedEncounter(
       game,
       {
         id: 'enemy-2,0-0',

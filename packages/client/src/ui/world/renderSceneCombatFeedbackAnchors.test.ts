@@ -1,13 +1,17 @@
 import { applyEnemyAbility } from '../../game/stateCombatEnemyAbility';
 import { applyPlayerAbility } from '../../game/stateCombatPlayerAbility';
-import {
-  createCombatEncounterGame,
-  seedCombatEncounter,
-} from '../../game/stateCombatTestHelpers';
+import { StateCombatTestkit } from '../../game/stateCombatTestkit';
 import { createCombatState } from '../../game/stateCombatState';
 import { getVisibleTiles } from '../../game/stateSelectors';
-import { collectDescendants, createMockApp, getLabelsLayer, setupRenderSceneTestEnvironment } from './renderSceneTestHelpers';
+import {
+  collectDescendants,
+  createMockApp,
+  getLabelsLayer,
+  setupRenderSceneTestEnvironment,
+} from './renderSceneTestHelpers';
 import { getWorldHexSize, tileToPoint } from './renderSceneMath';
+
+const combatTestkit = new StateCombatTestkit();
 
 setupRenderSceneTestEnvironment();
 
@@ -31,8 +35,10 @@ describe('renderScene combat feedback anchors', () => {
 
   it('renders player damage text above the enemy target instead of above the player attacker', async () => {
     const { renderScene } = await import('./renderScene');
-    const game = createCombatEncounterGame('combat-feedback-player-target-anchor');
-    const targetCoord = seedCombatEncounter(game, {
+    const game = combatTestkit.actions.createEncounterGame(
+      'combat-feedback-player-target-anchor',
+    );
+    const targetCoord = combatTestkit.actions.seedEncounter(game, {
       id: 'enemy-2,0-0',
       name: 'Wolf',
       tier: 1,
@@ -109,7 +115,11 @@ describe('renderScene combat feedback anchors', () => {
     const text = getVisibleFloatingTexts(app).find(
       (candidate) => candidate.text === `${scenario.damageEvent.amount}`,
     );
-    const enemyPoint = getRelativePoint(app, scenario.game, scenario.targetCoord);
+    const enemyPoint = getRelativePoint(
+      app,
+      scenario.game,
+      scenario.targetCoord,
+    );
     const playerPoint = getRelativePoint(
       app,
       scenario.game,
@@ -168,7 +178,9 @@ describe('renderScene combat feedback anchors', () => {
 
   it('renders enemy healing text above the healed ally target instead of above the caster', async () => {
     const { renderScene } = await import('./renderScene');
-    const game = createCombatEncounterGame('combat-feedback-enemy-heal-target-anchor');
+    const game = combatTestkit.actions.createEncounterGame(
+      'combat-feedback-enemy-heal-target-anchor',
+    );
     const casterCoord = { q: 2, r: 0 };
     const allyCoord = { q: 2, r: 1 };
     const app = createMockApp();
@@ -272,7 +284,7 @@ function getVisibleFloatingTexts(app: ReturnType<typeof createMockApp>) {
 
 function getRelativePoint(
   app: ReturnType<typeof createMockApp>,
-  game: ReturnType<typeof createCombatEncounterGame>,
+  game: ReturnType<StateCombatTestkit['actions']['createEncounterGame']>,
   coord: { q: number; r: number },
 ) {
   const hexSize = getWorldHexSize(app.screen, game.radius);
@@ -295,10 +307,10 @@ type FloatingTextNode = {
 
 function createEnemyDamageScenario() {
   for (let index = 0; index < 32; index += 1) {
-    const game = createCombatEncounterGame(
+    const game = combatTestkit.actions.createEncounterGame(
       `combat-feedback-enemy-target-anchor:${index}`,
     );
-    const targetCoord = seedCombatEncounter(game, {
+    const targetCoord = combatTestkit.actions.seedEncounter(game, {
       id: 'enemy-2,0-0',
       name: 'Wolf',
       tier: 1,

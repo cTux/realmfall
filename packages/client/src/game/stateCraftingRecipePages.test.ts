@@ -9,7 +9,9 @@ import {
 } from './state';
 import { GameTag } from './content/tags';
 import { getRecipeBookEntries } from './state';
-import { findResolvedEnemyRecipeDrop } from './stateCraftingTestHelpers';
+import { StateCraftingTestkit } from './stateCraftingTestkit';
+
+const craftingTestkit = new StateCraftingTestkit();
 
 describe('game state crafting recipe pages', () => {
   it('learns a dropped recipe page when used', () => {
@@ -135,7 +137,10 @@ describe('game state crafting recipe pages', () => {
   });
 
   it('unlocks the matching recipe book entry after looting and using an enemy recipe page', () => {
-    const dropped = findResolvedEnemyRecipeDrop('recipe-loot-use-seed', 400);
+    const dropped = craftingTestkit.actions.findResolvedEnemyRecipeDrop(
+      'recipe-loot-use-seed',
+      400,
+    );
 
     expect(dropped).not.toBeNull();
 

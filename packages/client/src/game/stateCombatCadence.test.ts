@@ -1,14 +1,14 @@
 import { createGame, progressCombat, startCombat, moveToTile } from './state';
 import { createCombatActorState } from './combat';
-import {
-  createCombatEncounterGame,
-  seedCombatEncounter,
-} from './stateCombatTestHelpers';
+import { StateCombatTestkit } from './stateCombatTestkit';
+
+const combatTestkit = new StateCombatTestkit();
 
 describe('game state combat cadence', () => {
   it('respects global cooldown and ability cooldown between player casts', () => {
-    const game = createCombatEncounterGame('kick-cooldown-seed');
-    const target = seedCombatEncounter(game, {
+    const game =
+      combatTestkit.actions.createEncounterGame('kick-cooldown-seed');
+    const target = combatTestkit.actions.seedEncounter(game, {
       id: 'enemy-2,0-0',
       name: 'Training Dummy',
       tier: 1,
@@ -47,8 +47,10 @@ describe('game state combat cadence', () => {
   });
 
   it('slows player cooldowns when thirst applies the debuff', () => {
-    const game = createCombatEncounterGame('thirst-cooldown-seed');
-    const target = seedCombatEncounter(game, {
+    const game = combatTestkit.actions.createEncounterGame(
+      'thirst-cooldown-seed',
+    );
+    const target = combatTestkit.actions.seedEncounter(game, {
       id: 'enemy-2,0-0',
       name: 'Training Dummy',
       tier: 1,
@@ -87,8 +89,8 @@ describe('game state combat cadence', () => {
   });
 
   it('lets enemies cast Kick on their own cooldown loop', () => {
-    const game = createCombatEncounterGame('enemy-kick-seed');
-    const target = seedCombatEncounter(game, {
+    const game = combatTestkit.actions.createEncounterGame('enemy-kick-seed');
+    const target = combatTestkit.actions.seedEncounter(game, {
       id: 'enemy-2,0-0',
       name: 'Wolf',
       tier: 1,

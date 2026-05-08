@@ -9,17 +9,7 @@ const ALLOWED_CLIENT_BRIDGE_FILES = new Set([
   'src/bridges/generatedIconAssets.ts',
 ]);
 
-function isEnforcedBoundaryFile(filePath: string) {
-  const normalized = filePath.split('\\').join('/');
-  return (
-    !ALLOWED_CLIENT_BRIDGE_FILES.has(normalized) &&
-    !normalized.endsWith('.test.ts') &&
-    !normalized.endsWith('.test.tsx') &&
-    !normalized.endsWith('.stories.tsx')
-  );
-}
-
-function collectSourceFiles(root: string, files: string[] = []) {
+export function collectSourceFiles(root: string, files: string[] = []) {
   for (const entry of readdirSync(root, { withFileTypes: true })) {
     const fullPath = join(root, entry.name);
 
@@ -41,13 +31,9 @@ function collectSourceFiles(root: string, files: string[] = []) {
   return files;
 }
 
-function getClientImportSpecifiers(filePath: string) {
+export function getClientImportSpecifiers(filePath: string) {
   const source = readFileSync(filePath, 'utf8');
   const imports = [...source.matchAll(/from\s+['"]([^'"]+)['"]/g)];
-  const isAssetSpecifier = (specifier: string) =>
-    /\.(?:svg|png|jpg|jpeg|webp|gif|avif|mp3|wav|ogg|json|css|scss|sass|less)$/.test(
-      specifier,
-    );
 
   return imports
     .map((match) => match[1] ?? '')
@@ -55,17 +41,18 @@ function getClientImportSpecifiers(filePath: string) {
     .filter((specifier) => !isAssetSpecifier(specifier));
 }
 
-describe('ui game package boundaries', () => {
-  it('enforces no direct client imports outside explicit bridge modules', () => {
-    const sourceFiles = collectSourceFiles('src');
+function isAssetSpecifier(specifier: string) {
+  return /\.(?:svg|png|jpg|jpeg|webp|gif|avif|mp3|wav|ogg|json|css|scss|sass|less)$/.test(
+    specifier,
+  );
+}
 
-    const violations = sourceFiles.flatMap((filePath) =>
-      getClientImportSpecifiers(filePath).map((specifier) => ({
-        filePath,
-        specifier,
-      })),
-    );
-
-    expect(violations).toEqual([]);
-  });
-});
+function isEnforcedBoundaryFile(filePath: string) {
+  const normalized = filePath.split('\\').join('/');
+  return (
+    !ALLOWED_CLIENT_BRIDGE_FILES.has(normalized) &&
+    !normalized.endsWith('.test.ts') &&
+    !normalized.endsWith('.test.tsx') &&
+    !normalized.endsWith('.stories.tsx')
+  );
+}

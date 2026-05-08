@@ -15,12 +15,10 @@ import {
   WORLD_REVEAL_RADIUS,
 } from './config';
 import { EnemyTypeId } from './content/ids';
-import {
-  findEnemy,
-  findFactionNpcTile,
-  findFactionTownTile,
-} from './stateTestHelpers';
+import { StateTestkit } from './stateTestkit';
 import { worldTimeMsFromMinutes } from './logs';
+
+const stateTestkit = new StateTestkit();
 
 describe('game state exploration', () => {
   it('creates a centered start in a visible hex viewport', () => {
@@ -44,8 +42,8 @@ describe('game state exploration', () => {
 
   it('scales enemy level with distance from the origin', () => {
     const game = createGame(3, 'far-seed');
-    const near = findEnemy(game, 2, 8);
-    const far = findEnemy(game, 28, 36);
+    const near = stateTestkit.actions.findEnemy(game, 2, 8);
+    const far = stateTestkit.actions.findEnemy(game, 28, 36);
 
     expect(near).toBeDefined();
     expect(far).toBeDefined();
@@ -107,8 +105,8 @@ describe('game state exploration', () => {
 
   it('generates faction territories with borders, neutral residents, and safe interiors', () => {
     const game = createGame(6, 'faction-territory-seed');
-    const factionNpcTile = findFactionNpcTile(game, 36);
-    const factionTownTile = findFactionTownTile(game, 36);
+    const factionNpcTile = stateTestkit.actions.findFactionNpcTile(game, 36);
+    const factionTownTile = stateTestkit.actions.findFactionTownTile(game, 36);
 
     expect(factionNpcTile).toBeDefined();
     expect(factionTownTile).toBeDefined();

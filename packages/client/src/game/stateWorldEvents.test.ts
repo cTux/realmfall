@@ -21,9 +21,11 @@ import {
 import { hexDistance } from './hex';
 import { getWorldDayIndex } from './logs';
 import { getItemCategory } from './content/items';
-import { createPlacedWorldBossEncounter } from './stateTestHelpers';
+import { StateTestkit } from './stateTestkit';
 import { spawnBloodMoonEnemies } from './stateWorldEvents';
 import { buildTile } from './world';
+
+const stateTestkit = new StateTestkit();
 
 describe('game state world events', () => {
   it('can trigger a blood moon that strengthens enemies and floods nearby tiles', () => {
@@ -450,7 +452,8 @@ describe('game state world events', () => {
   });
 
   it('spawns world bosses with boosted stats, a footprint, and guaranteed premium loot', () => {
-    const { game, center } = createPlacedWorldBossEncounter();
+    const { game, center } =
+      stateTestkit.actions.createPlacedWorldBossEncounter();
     const centerTile = getTileAt(game, center);
     const worldBoss = getEnemyAt(game, center);
     const ordinaryEnemy = makeEnemy(
@@ -541,7 +544,8 @@ describe('game state world events', () => {
   });
 
   it('does not promote ordinary spawns on a boss-center hex into world bosses', () => {
-    const { game, center } = createPlacedWorldBossEncounter();
+    const { game, center } =
+      stateTestkit.actions.createPlacedWorldBossEncounter();
     const centerTile = getTileAt(game, center);
 
     const ordinarySpawn = makeEnemy(

@@ -11,10 +11,9 @@ import {
 } from './state';
 import { getStructureConfig } from './content/structures';
 import { Skill } from './types';
-import {
-  addBannerMaterials,
-  addResourceItems,
-} from './stateWorldActionsTestHelpers';
+import { StateWorldActionsTestkit } from './stateWorldActionsTestkit';
+
+const worldActionsTestkit = new StateWorldActionsTestkit();
 
 describe('game state world gathering and home', () => {
   it('gathers from structures, grants resources, and levels the matching skill', () => {
@@ -218,8 +217,12 @@ describe('game state world gathering and home', () => {
     let game = createGame(3, 'respawn-mana-anchor-seed');
     game.homeHex = { q: -2, r: 1 };
     game.dayPhase = 'day';
-    addBannerMaterials(game, 1, 'respawn-mana-anchor-claim');
-    addResourceItems(
+    worldActionsTestkit.actions.addBannerMaterials(
+      game,
+      1,
+      'respawn-mana-anchor-claim',
+    );
+    worldActionsTestkit.actions.addResourceItems(
       game,
       [
         { itemKey: 'stone', quantity: 4 },

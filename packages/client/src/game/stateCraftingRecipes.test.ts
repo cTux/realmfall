@@ -1,7 +1,9 @@
 import { craftRecipe, createGame, getRecipeBookEntries } from './state';
 import { buildItemFromConfig } from './content/items';
 import { Skill } from './types';
-import { buildRecipeInventory } from './stateCraftingTestHelpers';
+import { StateCraftingTestkit } from './stateCraftingTestkit';
+
+const craftingTestkit = new StateCraftingTestkit();
 
 describe('game state crafting recipes', () => {
   it('crafts cloth by hand without requiring a structure', () => {
@@ -76,7 +78,7 @@ describe('game state crafting recipes', () => {
     game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'workshop' };
     game.player.learnedRecipeIds.push('craft-icon-axe-01');
     game.player.inventory.push(
-      ...buildRecipeInventory('craft-icon-axe-01', 20),
+      ...craftingTestkit.actions.buildRecipeInventory('craft-icon-axe-01', 20),
     );
 
     const crafted = craftRecipe(game, 'craft-icon-axe-01');
@@ -99,7 +101,10 @@ describe('game state crafting recipes', () => {
         game.tiles['0,0'] = { ...game.tiles['0,0'], structure: 'workshop' };
         game.player.learnedRecipeIds.push('craft-icon-axe-01');
         game.player.inventory.push(
-          ...buildRecipeInventory('craft-icon-axe-01', 20),
+          ...craftingTestkit.actions.buildRecipeInventory(
+            'craft-icon-axe-01',
+            20,
+          ),
         );
 
         return craftRecipe(game, 'craft-icon-axe-01').player.inventory.find(

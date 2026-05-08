@@ -1,10 +1,12 @@
 import { claimCurrentHex, createGame, getTileAt } from './state';
-import { addBannerMaterials } from './stateWorldActionsTestHelpers';
+import { StateWorldActionsTestkit } from './stateWorldActionsTestkit';
+
+const worldActionsTestkit = new StateWorldActionsTestkit();
 
 describe('game state world claims', () => {
   it('claims an empty passable hex by consuming cloth and sticks', () => {
     const game = createGame(3, 'claim-hex-seed');
-    addBannerMaterials(game, 1, 'claim-hex');
+    worldActionsTestkit.actions.addBannerMaterials(game, 1, 'claim-hex');
 
     const claimed = claimCurrentHex(game);
 
@@ -22,7 +24,7 @@ describe('game state world claims', () => {
 
   it('requires new claims to connect to the existing player territory', () => {
     let game = createGame(4, 'claim-connect-seed');
-    addBannerMaterials(game, 2, 'claim-connect');
+    worldActionsTestkit.actions.addBannerMaterials(game, 2, 'claim-connect');
     game = claimCurrentHex(game);
     game.player.coord = { q: 2, r: 0 };
     game.tiles['2,0'] = {
@@ -45,7 +47,7 @@ describe('game state world claims', () => {
 
   it('limits the player territory to 5 claimed hexes', () => {
     let game = createGame(6, 'claim-limit-seed');
-    addBannerMaterials(game, 6, 'claim-limit');
+    worldActionsTestkit.actions.addBannerMaterials(game, 6, 'claim-limit');
 
     for (const coord of [
       { q: 0, r: 0 },
@@ -84,7 +86,11 @@ describe('game state world claims', () => {
 
   it('allows unclaiming a player hex when the remaining territory stays connected', () => {
     let game = createGame(4, 'claim-unclaim-leaf-seed');
-    addBannerMaterials(game, 2, 'claim-unclaim-leaf');
+    worldActionsTestkit.actions.addBannerMaterials(
+      game,
+      2,
+      'claim-unclaim-leaf',
+    );
 
     for (const coord of [
       { q: 0, r: 0 },
@@ -117,7 +123,11 @@ describe('game state world claims', () => {
 
   it('blocks unclaiming a player hex when it would split the territory', () => {
     let game = createGame(5, 'claim-unclaim-split-seed');
-    addBannerMaterials(game, 3, 'claim-unclaim-split');
+    worldActionsTestkit.actions.addBannerMaterials(
+      game,
+      3,
+      'claim-unclaim-split',
+    );
 
     for (const coord of [
       { q: 0, r: 0 },

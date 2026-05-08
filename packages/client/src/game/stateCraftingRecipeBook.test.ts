@@ -3,11 +3,16 @@ import {
   getRecipeBookEntries,
   toggleFavoriteRecipe,
 } from './state';
-import { findResolvedEnemyRecipeDrop } from './stateCraftingTestHelpers';
+import { StateCraftingTestkit } from './stateCraftingTestkit';
+
+const craftingTestkit = new StateCraftingTestkit();
 
 describe('game state crafting recipe book', () => {
   it('can drop an unlearned recipe from enemies', () => {
-    const dropped = findResolvedEnemyRecipeDrop('recipe-drop-seed', 200);
+    const dropped = craftingTestkit.actions.findResolvedEnemyRecipeDrop(
+      'recipe-drop-seed',
+      200,
+    );
 
     expect(dropped).not.toBeNull();
   });
@@ -30,7 +35,7 @@ describe('game state crafting recipe book', () => {
   });
 
   it('can drop the hand cloth recipe from enemies', () => {
-    const dropped = findResolvedEnemyRecipeDrop(
+    const dropped = craftingTestkit.actions.findResolvedEnemyRecipeDrop(
       'hand-recipe-drop-seed',
       500,
       'hand-cloth',
