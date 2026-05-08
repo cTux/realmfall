@@ -23,4 +23,5 @@ Implemented technical solutions are split into dedicated spec files:
 - [Testing And Quality Tooling](./testing-and-quality-tooling/spec.md)
 - [Documentation Strategy](./documentation-strategy/spec.md)
 - [Player Auth And Realm Directory](./player-auth-and-realm-directory/spec.md)
+- [Chat Service](./chat-service/spec.md)
 - [Version Checking](./version-checking/spec.md)
