@@ -1,5 +1,7 @@
 import { defineGameConfig } from './src/game/gameConfigSchema';
 
+const moveHexDurationMs = 1_000;
+
 const gameConfig = defineGameConfig({
   balance: {
     combat: {
@@ -258,7 +260,9 @@ const gameConfig = defineGameConfig({
     // Real milliseconds required for one complete 24-hour in-game day.
     dayDurationMs: 5 * 60_000,
     // Real-time cooldown applied after each hex the player successfully crosses.
-    moveHexCooldownMs: 1_000,
+    moveHexCooldownMs: moveHexDurationMs,
+    // Shared world-move animation duration for player travel, enemy travel, and fog transitions.
+    moveHexVisualDurationMs: moveHexDurationMs,
   },
   worldGeneration: {
     terrain: {

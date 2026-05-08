@@ -537,6 +537,104 @@ describe('renderScene movement cooldown', () => {
     expect(findTransitionSpriteAt(incomingPoint)?.alpha).toBeCloseTo(0, 4);
   });
 
+  it('fades fog in smoothly for tiles that leave the reveal radius during movement', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(6, 'render-scene-move-transition-reveal-fog-in');
+    const app = createMockApp(960, 720);
+
+    game.player.coord = { q: 1, r: 0 };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        movementTransition: {
+          durationMs: 1_000,
+          fromCoord: { q: 0, r: 0 },
+          incomingTiles: [],
+          nowMs: 500,
+          outgoingTiles: [],
+          startedAtMs: 0,
+          toCoord: { q: 1, r: 0 },
+        },
+      } as never,
+    );
+
+    const hexSize = getWorldHexSize(app.screen, game.radius);
+    const fadingFogPoint = tileToPoint(
+      { q: -5, r: 0 },
+      app.screen.width / 2,
+      app.screen.height / 2,
+      hexSize,
+    );
+    const terrainSprites = getVisibleSprites(getWorldGroundLayer(app));
+    const fogGraphics = collectDescendants(getWorld(app)).filter(
+      (child): child is MockGraphics =>
+        child instanceof MockGraphics &&
+        child.beginFill.mock.calls.some(
+          ([color, alpha]) => color === 0x020617 && alpha === 0.39,
+        ),
+    );
+
+    expect(findSpriteAt(terrainSprites, fadingFogPoint)).toBeDefined();
+    expect(findGraphicAt(fogGraphics, fadingFogPoint)).toBeDefined();
+  });
+
+  it('fades fog out smoothly for tiles that enter the reveal radius during movement', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(6, 'render-scene-move-transition-reveal-fog-out');
+    const app = createMockApp(960, 720);
+
+    game.player.coord = { q: 1, r: 0 };
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        movementTransition: {
+          durationMs: 1_000,
+          fromCoord: { q: 0, r: 0 },
+          incomingTiles: [],
+          nowMs: 500,
+          outgoingTiles: [],
+          startedAtMs: 0,
+          toCoord: { q: 1, r: 0 },
+        },
+      } as never,
+    );
+
+    const hexSize = getWorldHexSize(app.screen, game.radius);
+    const fadingRevealPoint = tileToPoint(
+      { q: 4, r: 0 },
+      app.screen.width / 2,
+      app.screen.height / 2,
+      hexSize,
+    );
+    const terrainSprites = getVisibleSprites(getWorldGroundLayer(app));
+    const fogGraphics = collectDescendants(getWorld(app)).filter(
+      (child): child is MockGraphics =>
+        child instanceof MockGraphics &&
+        child.beginFill.mock.calls.some(
+          ([color, alpha]) => color === 0x020617 && alpha === 0.39,
+        ),
+    );
+
+    expect(findSpriteAt(terrainSprites, fadingRevealPoint)).toBeDefined();
+    expect(findGraphicAt(fogGraphics, fadingRevealPoint)).toBeDefined();
+  });
+
   it('keeps outgoing edge tiles under fog when they were never revealed', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(6, 'render-scene-move-transition-outgoing-fog');

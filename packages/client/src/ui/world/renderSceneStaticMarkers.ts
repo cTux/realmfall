@@ -54,6 +54,7 @@ export function renderStaticMarkers({
   structureIconSize,
   tile,
   appearanceAlpha,
+  revealAlpha,
   visibleTileMap,
   visibleTileRenderInput,
   worldBossIconSize,
@@ -69,10 +70,15 @@ export function renderStaticMarkers({
   structureIconSize: number;
   tile: VisibleWorldTile;
   appearanceAlpha: number;
+  revealAlpha: number;
   visibleTileMap: Map<string, VisibleWorldTile> | null;
   visibleTileRenderInput: VisibleTileRenderInput;
   worldBossIconSize: number;
 }) {
+  if (appearanceAlpha <= 0 && revealAlpha <= 0) {
+    return;
+  }
+
   const revealProgress = getVisibleWorldTileRevealProgress(tile, animationMs);
   const resolvedMarkerAlpha = revealProgress * appearanceAlpha;
   const unknownMarkerAlpha = isUnknownVisibleWorldTile(tile)

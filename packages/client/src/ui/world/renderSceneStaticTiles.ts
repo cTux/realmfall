@@ -32,8 +32,8 @@ export function renderStaticTile({
   nextCampfireLightPoints,
   point,
   poly,
-  revealed,
   appearanceAlpha,
+  revealAlpha,
   safePolygon,
   scene,
   shadowOffset,
@@ -54,11 +54,11 @@ export function renderStaticTile({
   isHomeTile: boolean;
   markerIdentityKeyBase: string | null;
   isPlayerTile: boolean;
-  nextCampfireLightPoints: Array<{ x: number; y: number }>;
+  nextCampfireLightPoints: Array<{ alpha: number; x: number; y: number }>;
   point: { x: number; y: number };
   poly: number[];
-  revealed: boolean;
   appearanceAlpha: number;
+  revealAlpha: number;
   safePolygon: number[];
   scene: SceneCache;
   shadowOffset: { x: number; y: number };
@@ -80,6 +80,7 @@ export function renderStaticTile({
   const fillAlpha =
     (emphasized || tile.terrain.startsWith('dungeon-') ? style.alpha : 0.8) *
     appearanceAlpha;
+  const resolvedAppearanceAlpha = appearanceAlpha * revealAlpha;
   const shape = takeGraphics(scene.worldGroundGraphics);
   shape
     .poly(poly)
@@ -102,29 +103,25 @@ export function renderStaticTile({
     });
   }
 
-  if (!revealed) {
-    const fog = takeGraphics(scene.worldStaticDetailGraphics);
-    fog.poly(poly).fill({ color: 0x020617, alpha: 0.78 * appearanceAlpha });
-    return;
-  }
-
   const revealProgress = getVisibleWorldTileRevealProgress(tile, animationMs);
 
   if (showTerrainBackgrounds && !isUnknownVisibleWorldTile(tile)) {
     const terrainAlpha =
-      (emphasized ? 0.84 : 0.76) * revealProgress * appearanceAlpha;
-    const terrainSprite = takeSprite(
-      scene.worldTerrainSprites,
-      terrainArtFor(tile.terrain),
-    );
-    configureSprite(
-      terrainSprite,
-      0xffffff,
-      terrainArtSize,
-      terrainArtSize,
-      terrainAlpha,
-      point,
-    );
+      (emphasized ? 0.84 : 0.76) * revealProgress * resolvedAppearanceAlpha;
+    if (revealAlpha > 0) {
+      const terrainSprite = takeSprite(
+        scene.worldTerrainSprites,
+        terrainArtFor(tile.terrain),
+      );
+      configureSprite(
+        terrainSprite,
+        0xffffff,
+        terrainArtSize,
+        terrainArtSize,
+        terrainAlpha,
+        point,
+      );
+    }
   }
 
   if (!isPlayerTile) {
@@ -139,7 +136,8 @@ export function renderStaticTile({
       state,
       structureIconSize,
       tile,
-      appearanceAlpha,
+      appearanceAlpha: resolvedAppearanceAlpha,
+      revealAlpha,
       visibleTileMap,
       visibleTileRenderInput,
       worldBossIconSize,
@@ -153,11 +151,23 @@ export function renderStaticTile({
       tile,
       poly,
       visibleTileMap,
-      appearanceAlpha,
+      resolvedAppearanceAlpha,
     );
   }
 
-  if (structureEmitsCampfireLight(tile.structure)) {
-    nextCampfireLightPoints.push(point);
+  const fogAlpha = 0.78 * appearanceAlpha * (1 - revealAlpha);
+  if (fogAlpha > 0) {
+    const fog = takeGraphics(scene.worldStaticDetailGraphics);
+    fog.poly(poly).fill({ color: 0x020617, alpha: fogAlpha });
+  }
+
+  if (
+    structureEmitsCampfireLight(tile.structure) &&
+    resolvedAppearanceAlpha > 0
+  ) {
+    nextCampfireLightPoints.push({
+      ...point,
+      alpha: resolvedAppearanceAlpha,
+    });
   }
 }

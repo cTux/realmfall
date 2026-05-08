@@ -100,7 +100,7 @@ export interface SceneCache {
   cloudShadowSprites: SpritePool;
   cloudSprites: SpritePool;
   cloudInputsBySeed: Map<string, CloudRenderInput[]>;
-  campfireLightPoints: Array<{ x: number; y: number }>;
+  campfireLightPoints: Array<{ alpha: number; x: number; y: number }>;
   animatedWorldMarkers: AnimatedWorldMarker[];
   dungeonEnemyMovementTransitionsByEnemyId: Map<
     string,

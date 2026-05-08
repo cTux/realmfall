@@ -183,6 +183,7 @@ export const gameConfigSchema = v.strictObject({
   worldClock: v.strictObject({
     dayDurationMs: finiteNumberSchema,
     moveHexCooldownMs: finiteNumberSchema,
+    moveHexVisualDurationMs: finiteNumberSchema,
   }),
   worldGeneration: v.strictObject({
     terrain: createRequiredNumberMapSchema(TERRAINS),

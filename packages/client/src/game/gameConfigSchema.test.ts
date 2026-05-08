@@ -173,6 +173,7 @@ describe('game config schema', () => {
       worldClock: {
         dayDurationMs: 1,
         moveHexCooldownMs: 1,
+        moveHexVisualDurationMs: 1,
       },
       worldGeneration: {
         terrain: {
@@ -373,9 +374,14 @@ describe('game config schema', () => {
   });
 
   it('exposes the movement cooldown config through the runtime surface', () => {
+    const rawWorldClock = rawGameConfig.worldClock as Record<string, unknown>;
+    const runtimeWorldClock = GAME_CONFIG.worldClock as Record<string, unknown>;
+
     expect(GAME_CONFIG).toBe(rawGameConfig);
     expect(rawGameConfig.worldClock.moveHexCooldownMs).toBe(1_000);
     expect(GAME_CONFIG.worldClock.moveHexCooldownMs).toBe(1_000);
+    expect(rawWorldClock.moveHexVisualDurationMs).toBe(1_000);
+    expect(runtimeWorldClock.moveHexVisualDurationMs).toBe(1_000);
     expect(rawGameConfig.worldClock).not.toHaveProperty('moveHexDurationMs');
     expect(GAME_CONFIG.worldClock).not.toHaveProperty('moveHexDurationMs');
   });

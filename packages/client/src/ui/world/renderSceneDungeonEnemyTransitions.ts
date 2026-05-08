@@ -1,7 +1,7 @@
+import { WORLD_MOVE_VISUAL_DURATION_MS } from '../../game/config';
 import { getActiveWorld } from '../../game/dungeons/worldState';
 import { hexDistance, type HexCoord } from '../../game/hex';
 import type { Enemy, GameState } from '../../game/stateTypes';
-import { WORLD_MOVE_VISUAL_DURATION_MS } from '../../app/App/world/movement/worldMovementTransition';
 import { tileToPoint } from './renderSceneMath';
 import type { SceneCache } from './renderSceneCache';
 import type { AnimatedWorldMarkerMovementTransition } from './renderSceneMarkerAnimations';
@@ -68,7 +68,9 @@ export function getDungeonEnemyAnimatedMovementTransition({
   hexSize: number;
   scene: SceneCache;
 }) {
-  const transition = scene.dungeonEnemyMovementTransitionsByEnemyId.get(enemy.id);
+  const transition = scene.dungeonEnemyMovementTransitionsByEnemyId.get(
+    enemy.id,
+  );
   if (!transition || !sameCoord(transition.toCoord, enemy.coord)) {
     return undefined;
   }
@@ -98,10 +100,9 @@ function clearDungeonEnemyMovementTransitionState(scene: SceneCache) {
 
 function captureDungeonEnemyCoords(enemies: GameState['enemies']) {
   return new Map(
-    Object.values(enemies).map((enemy) => [
-      enemy.id,
-      { ...enemy.coord },
-    ] as const),
+    Object.values(enemies).map(
+      (enemy) => [enemy.id, { ...enemy.coord }] as const,
+    ),
   );
 }
 

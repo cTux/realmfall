@@ -9,6 +9,7 @@ import {
 } from 'react';
 import type { Application } from 'pixi.js';
 import type { TooltipPosition } from '@realmfall/ui';
+import { WORLD_MOVE_VISUAL_DURATION_MS } from '../../game/config';
 import type { GameState, HexCoord } from '../../game/stateTypes';
 import type { WorldMapCameraState } from '../../ui/world/worldMapCamera';
 import {
@@ -28,7 +29,6 @@ import type { PixiWorldInitGraphicsSettings } from './world/pixiWorldBootstrap';
 import { useWorldTileResolutionLifecycle } from './world/tileResolution/useWorldTileResolutionLifecycle';
 import {
   createWorldMovementTransition,
-  WORLD_MOVE_VISUAL_DURATION_MS,
   type WorldMovementTransition,
 } from './world/movement/worldMovementTransition';
 import type { WorldMovementController } from './world/pixiWorldLifecycleTypes';
