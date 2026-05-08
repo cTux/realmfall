@@ -17,6 +17,7 @@
     "lint": "pnpm lint:oxlint && pnpm lint:css",
     "lint:oxlint": "oxlint -c ../../.oxlintrc.json src ./.storybook ./vite.config.ts",
     "lint:css": "stylelint \"src/**/*.{css,scss}\"",
+    "test": "pnpm test:jsdom",
     "test:jsdom": "vitest run --environment jsdom --globals"
   },
   "peerDependencies": {
