@@ -27,8 +27,8 @@ Compass` silhouette.
 
 ## Deliverables
 
-- One light-surface favicon variant for light browser chrome.
-- One dark-surface favicon variant for dark browser chrome.
+- One transparent-alpha dark-mark favicon variant for light browser chrome.
+- One transparent-alpha light-mark favicon variant for dark browser chrome.
 - One square social avatar for Telegram and Discord.
 
 ## Shared Visual Language
@@ -44,13 +44,15 @@ Compass` silhouette.
 
 ## Per-Asset Treatment
 
-- The light favicon should use darker steel and sapphire values so the mark
-  holds on white or light browser surfaces.
-- The dark favicon should use brighter silver and ice-blue values so the mark
-  holds on dark browser surfaces.
-- The square social avatar should use a dark blue-slate background with subtle
-  atmospheric depth, but it should not add secondary symbols or alter the core
-  silhouette.
+- The light-surface browser favicon should use a transparent background and
+  darker steel and sapphire values so the mark holds on white or light browser
+  surfaces.
+- The dark-surface browser favicon should use a transparent background and
+  brighter silver and ice-blue values so the mark holds on dark browser
+  surfaces.
+- The square social avatar should remain an opaque dark blue-slate tile with
+  subtle atmospheric depth, but it should not add secondary symbols or alter
+  the core silhouette.
 
 ## Tone And Constraints
 
@@ -81,7 +83,8 @@ Compass` silhouette.
 
 ## Verification Direction
 
-- Check the favicon exports against both light and dark browser surfaces.
+- Check the favicon exports against both light and dark browser surfaces and
+  confirm transparent corners plus an open hex center.
 - Validate the social avatar at small square sizes typical for Telegram and
   Discord channel listings.
 - Keep any generated asset filenames or replacements explicit in the
