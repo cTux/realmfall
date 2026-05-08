@@ -5,6 +5,7 @@ import { GameTag } from '../game/content/tags';
 import { getAbilityDefinition } from '../game/abilities';
 import type { Item } from '../game/stateTypes';
 import { sellValue } from '../game/inventory';
+import { resolveIconAsset } from './iconAssets';
 import { comparisonLines, itemTooltipLines } from './tooltips';
 import { Icons } from './icons';
 import {
@@ -69,7 +70,7 @@ describe('ui tooltip item content', () => {
       kind: 'stat',
       label: 'Ability',
       value: getAbilityDefinition('slash').name,
-      icon: getAbilityDefinition('slash').icon,
+      icon: resolveIconAsset(getAbilityDefinition('slash').icon),
       tone: 'item',
     });
     expect(comparisonTooltipLines).toContainEqual({

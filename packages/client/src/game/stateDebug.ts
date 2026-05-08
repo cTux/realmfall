@@ -35,7 +35,6 @@ import {
 } from './stateWorldEvents';
 import { ensureTileState } from './world';
 import type { EnemyRarity, GameState, ItemRarity } from './types';
-import { DEBUG_EQUIPMENT_TYPES } from './stateDebugWindow';
 import type { DebugEquipmentType } from './stateDebugWindow';
 
 interface AddDebugEquipmentItemOptions {

@@ -13,9 +13,11 @@ interface UsePixiWorldHoverLifecycleArgs {
   game: Pick<
     GameState,
     | 'combat'
+    | 'enemies'
     | 'gameOver'
     | 'activeWorldId'
     | 'radius'
+    | 'tiles'
     | 'turn'
   >;
   hoverAnalysisCacheRef: MutableRefObject<Map<string, WorldHoverSnapshot>>;
@@ -89,9 +91,11 @@ export function usePixiWorldHoverLifecycle({
   }, [
     hoverAnalysisControllerRef,
     game.combat,
+    game.enemies,
     game.gameOver,
     game.activeWorldId,
     game.radius,
+    game.tiles,
     game.turn,
   ]);
 

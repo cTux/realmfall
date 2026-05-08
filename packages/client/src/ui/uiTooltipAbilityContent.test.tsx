@@ -1,5 +1,6 @@
 import { GameTag } from './uiTooltipAbilityContentTestkit';
 import { getStatusEffectDefinition } from '../game/content/statusEffects';
+import { resolveIconAsset } from './iconAssets';
 import { abilityTooltipLines, statusEffectTooltipLines } from './tooltips';
 
 describe('ui tooltip ability content', () => {
@@ -52,7 +53,7 @@ describe('ui tooltip ability content', () => {
       kind: 'stat',
       label: 'Effect',
       value: 'Shocked',
-      icon: getStatusEffectDefinition('shocked')?.icon,
+      icon: resolveIconAsset(getStatusEffectDefinition('shocked')?.icon ?? ''),
       iconTint: getStatusEffectDefinition('shocked')?.tint,
       tone: 'negative',
     });
@@ -78,7 +79,7 @@ describe('ui tooltip ability content', () => {
       kind: 'stat',
       label: 'Effect',
       value: 'Guard',
-      icon: getStatusEffectDefinition('guard')?.icon,
+      icon: resolveIconAsset(getStatusEffectDefinition('guard')?.icon ?? ''),
       iconTint: getStatusEffectDefinition('guard')?.tint,
       tone: 'item',
     });

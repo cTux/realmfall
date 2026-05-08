@@ -12,6 +12,7 @@ import type { Item } from '../game/stateTypes';
 import { InventoryWindow } from './components/InventoryWindow';
 import { getRecipeCraftCount } from './components/RecipeBookWindow/RecipeBookWindowContent';
 import { compareRecipeBookEntries } from './components/RecipeBookWindow/utils/recipeBookEntries';
+import { resolveIconAsset } from './iconAssets';
 import { iconForItem } from './icons';
 import { createRecipe } from './uiRecipeBookTestkit';
 import { renderMarkup, setupUiTestEnvironment } from './uiTestkit';
@@ -34,7 +35,9 @@ describe('ui recipe book logic and markup', () => {
       hunger: 0,
     };
 
-    expect(iconForItem(cloth)).toBe(getItemConfigByKey('cloth')?.icon);
+    expect(iconForItem(cloth)).toBe(
+      resolveIconAsset(getItemConfigByKey('cloth')?.icon ?? ''),
+    );
   });
 
   it('resolves recipe material filters from canonical item configs', () => {
