@@ -40,6 +40,33 @@ export type {
   ItemRarity,
   ItemView,
 } from './game/stateTypes';
+export {
+  getItemCategory,
+  hasItemTag,
+  inferItemTagsByCategory,
+  isConsumableItem,
+  isEquippableItemCategory,
+  type ItemCategory,
+  type ItemClassificationInput,
+} from './game/content/items';
+export {
+  type GameTag,
+  GAME_TAGS,
+  getEquipmentSlotTag,
+  uniqueTags,
+} from './game/content/tags';
+export {
+  DEFAULT_EQUIPPABLE_TINT,
+  DEFAULT_ITEM_BORDER_TINT,
+  RECIPE_PAGE_TINT,
+  getConsumableIconTint,
+  getConfiguredItemTint,
+  getEquippableTint,
+  getItemKindIcon,
+  getItemTintByItemKey,
+  getItemTintFallback,
+  type ItemCategoryIconKey,
+} from './itemMetadata';
 export { WindowLabel } from './components/WindowLabel';
 export type {
   WindowLabelParts,

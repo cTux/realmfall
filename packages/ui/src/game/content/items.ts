@@ -1,5 +1,10 @@
 import { EquipmentSlotId, type EquipmentSlotValue, type ItemKey } from './ids';
-import { GAME_TAGS, type GameTag } from './tags';
+import {
+  GAME_TAGS,
+  getEquipmentSlotTag,
+  type GameTag,
+  uniqueTags,
+} from './tags';
 
 export type ItemCategory =
   | 'weapon'
@@ -9,7 +14,7 @@ export type ItemCategory =
   | 'resource';
 
 export interface ItemClassificationInput {
-  name: string;
+  name?: string;
   itemKey?: ItemKey;
   slot?: EquipmentSlotValue;
   recipeId?: string;
@@ -99,6 +104,30 @@ export function getItemCategory(item: ItemClassificationInput): ItemCategory {
 
 export function isConsumableItem(item: ItemClassificationInput) {
   return getItemCategory(item) === 'consumable';
+}
+
+export function inferItemTagsByCategory(
+  item: ItemClassificationInput,
+  category: ItemCategory,
+) {
+  return uniqueTags(
+    ...(item.tags ?? []),
+    category === 'consumable' || category === 'resource'
+      ? GAME_TAGS.item.stackable
+      : undefined,
+    category === 'consumable' ? GAME_TAGS.item.consumable : undefined,
+    category === 'resource' ? GAME_TAGS.item.resource : undefined,
+    category === 'weapon' || category === 'armor' || category === 'artifact'
+      ? GAME_TAGS.item.equipment
+      : undefined,
+    category === 'weapon' ? GAME_TAGS.item.weapon : undefined,
+    category === 'armor' ? GAME_TAGS.item.armor : undefined,
+    category === 'artifact' ? GAME_TAGS.item.artifact : undefined,
+    item.slot ? getEquipmentSlotTag(item.slot) : undefined,
+    item.healing && item.healing > 0 ? GAME_TAGS.item.healing : undefined,
+    item.hunger && item.hunger > 0 ? GAME_TAGS.item.food : undefined,
+    item.thirst && item.thirst > 0 ? GAME_TAGS.item.drink : undefined,
+  );
 }
 
 export function isEquippableItemCategory(category: ItemCategory) {
