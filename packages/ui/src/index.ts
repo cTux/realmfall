@@ -17,6 +17,7 @@ export type {
 } from './components/Window/types';
 export { Switch } from './components/Switch/Switch';
 export { Tabs, type TabDefinition } from './components/Tabs/Tabs';
+export { formatCompactNumber, formatCompactNumberish } from './formatters';
 export { ActionBar, ActionBarSlot } from './components/ActionBar';
 export type {
   ActionBarProps,
@@ -49,6 +50,8 @@ export {
   GameTooltip,
   syncFollowCursorTooltipPosition,
 } from './components/Tooltip';
+export { getTooltipPlacementForRect } from './tooltipPlacement';
+export type { TooltipPlacement } from './tooltipPlacement';
 export type {
   TooltipData,
   TooltipPosition,
@@ -56,3 +59,5 @@ export type {
   GameTooltipData,
   GameTooltipProps,
 } from './components/Tooltip';
+export { tagTooltipLines } from './tooltips';
+export type { TooltipLine } from './tooltips';

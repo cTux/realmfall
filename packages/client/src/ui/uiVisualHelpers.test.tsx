@@ -1,5 +1,9 @@
 import { renderToStaticMarkup } from 'react-dom/server';
-import { ItemSlot as ItemSlotButton } from '@realmfall/ui';
+import {
+  ItemSlot as ItemSlotButton,
+  formatCompactNumber,
+  formatCompactNumberish,
+} from '@realmfall/ui';
 import { getInventoryItemAction } from './uiVisualHelpersTestkit';
 import { GameTag } from '../game/content/tags';
 import { getAbilityDefinition } from '../game/abilities';
@@ -9,7 +13,6 @@ import {
   DEFAULT_WINDOW_VISIBILITY,
   DEFAULT_WINDOWS,
 } from '../app/constants';
-import { formatCompactNumber, formatCompactNumberish } from './formatters';
 import {
   enemyIconFor,
   enemyTint,

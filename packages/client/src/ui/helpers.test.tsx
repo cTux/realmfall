@@ -6,7 +6,12 @@ import { ItemId } from './helpersTestkit';
 import { buildItemFromConfig } from '../game/content/items';
 import { GameTag } from '../game/content/tags';
 import type { Enemy, Item, Tile } from '../game/stateTypes';
-import { formatCompactNumber, formatCompactNumberish } from './formatters';
+import {
+  DockPanel as WindowDock,
+  WindowLabel,
+  formatCompactNumber,
+  formatCompactNumberish,
+} from '@realmfall/ui';
 import { renderWindowHotkeyLabelText } from './hotkeyLabels';
 import { Icons, iconForItem, itemTint, SkillIcon } from './icons';
 import { rarityColor } from './rarity';
@@ -16,7 +21,6 @@ import {
   enemyTooltip,
   structureTooltip,
 } from './tooltips';
-import { DockPanel as WindowDock, WindowLabel } from '@realmfall/ui';
 import { WINDOW_LABELS } from './windowLabels';
 
 function createItem(overrides: Partial<Item> = {}): Item {
