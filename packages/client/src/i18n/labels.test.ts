@@ -15,7 +15,7 @@ vi.mock('./index', () => ({
 describe('terrain label formatting', () => {
   it('uses theme-level labels for dungeon terrain variants', async () => {
     const { formatTerrainDescription, formatTerrainLabel } =
-      await import('./labels');
+      await import('./labelsTestkit');
 
     expect(formatTerrainLabel('dungeon-brick-floor')).toBe('Brick Halls');
     expect(formatTerrainDescription('dungeon-brick-wall')).toBe('Brick Halls');
@@ -27,7 +27,7 @@ describe('terrain label formatting', () => {
 
   it('keeps surface terrain labels on the direct terrain keys', async () => {
     const { formatTerrainDescription, formatTerrainLabel } =
-      await import('./labels');
+      await import('./labelsTestkit');
 
     expect(formatTerrainLabel('plains')).toBe('Plains');
     expect(formatTerrainDescription('plains')).toBe(

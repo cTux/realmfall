@@ -2,7 +2,7 @@ import {
   getVoiceClipCount,
   getVoiceClipUrls,
   pickVoiceClipUrl,
-} from './voiceLibrary';
+} from './voiceLibraryTestkit';
 
 describe('voiceLibrary', () => {
   it('indexes voice clips without requiring eager url imports', async () => {

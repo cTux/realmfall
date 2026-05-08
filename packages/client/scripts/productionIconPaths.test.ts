@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { afterEach, describe, expect, it } from 'vitest';
 import { build, mergeConfig } from 'vite';
-import viteConfig from '../vite.config';
+import viteConfig from './productionIconPathsTestkit';
 
 function collectFiles(root: string, files: string[] = []) {
   for (const entry of readdirSync(root, { withFileTypes: true })) {

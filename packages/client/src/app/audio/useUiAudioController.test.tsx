@@ -1,6 +1,6 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { useUiAudioController } from './useUiAudioController';
+import { useUiAudioController } from './useUiAudioControllerTestkit';
 import { DEFAULT_AUDIO_SETTINGS } from '../audioSettings';
 import type { UiAudioController } from './UiAudioContext';
 

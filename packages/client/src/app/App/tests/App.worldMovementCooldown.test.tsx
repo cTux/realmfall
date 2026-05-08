@@ -15,14 +15,14 @@ import {
   renderScene,
   renderApp,
   waitForAppSelector,
-} from './appTestHarness';
+} from './appTestkit';
 import {
   clickWorldTile,
   findRecipeBookDockButton,
   getRenderedGame,
   getTab,
   renderTickerFrame,
-} from './appWorldMovementTestHelpers';
+} from './appWorldMovementTestkit';
 
 let combatAutomationSetGameRef: MutableRefObject<Dispatch<
   SetStateAction<GameState>

@@ -2,7 +2,7 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { createGame } from '../../game/stateFactory';
 import { DEFAULT_AUDIO_SETTINGS } from '../audioSettings';
-import { VoiceAudioControllerBridge } from './VoiceAudioControllerBridge';
+import { VoiceAudioControllerBridge } from './VoiceAudioControllerBridgeTestkit';
 import { selectVoicePlaybackEventState } from './voiceEvents';
 
 const { getVoiceClipUrlsMock, pickVoiceClipUrlMock } = vi.hoisted(() => ({

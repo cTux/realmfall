@@ -1,6 +1,6 @@
 import { clearAudioSettings } from './audioSettings';
 import { clearGraphicsSettings } from './graphicsSettings';
-import { PERSISTED_SETTINGS_STORAGE_KEYS } from './settingsStorage';
+import { PERSISTED_SETTINGS_STORAGE_KEYS } from './settingsStorageTestkit';
 import { clearWorldMapSettings } from './worldMapSettings';
 
 describe('settings storage recovery', () => {

@@ -2,7 +2,7 @@ import {
   DEFAULT_WORLD_MAP_CAMERA,
   mapWorldMapScreenPointToScenePoint,
   zoomWorldMapCameraAtPoint,
-} from './worldMapCamera';
+} from './worldMapCameraTestkit';
 
 describe('worldMapCamera', () => {
   it('maps screen points back into scene points after pan and zoom', () => {

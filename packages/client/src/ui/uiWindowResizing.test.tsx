@@ -4,7 +4,7 @@ import { DEFAULT_WINDOWS, type WindowPosition } from '../app/constants';
 import { createGame } from '../game/stateFactory';
 import { DraggableWindow } from './components/DraggableWindow';
 import { LootWindow } from './components/LootWindow';
-import { mountUi, setupUiTestEnvironment } from './uiTestHelpers';
+import { mountUi, setupUiTestEnvironment } from './uiTestkit';
 
 setupUiTestEnvironment();
 

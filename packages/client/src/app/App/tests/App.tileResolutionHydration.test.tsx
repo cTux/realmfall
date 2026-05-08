@@ -4,7 +4,7 @@ import {
   flushLazyModules,
   loadEncryptedState,
   renderApp,
-} from './appTestHarness';
+} from './appTestkit';
 
 const createWorkerTileResolutionSource = vi.fn();
 const createLocalTileResolutionSource = vi.fn();

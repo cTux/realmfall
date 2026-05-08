@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import {
   DEV_CONTENT_SECURITY_POLICY,
   RESPONSE_CONTENT_SECURITY_POLICY,
-} from '../vite.security';
+} from './viteSecurityHeadersTestkit';
 
 describe('client security headers', () => {
   it('allows runtime audio media sources in dev and preview CSPs', () => {

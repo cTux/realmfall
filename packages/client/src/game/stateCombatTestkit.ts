@@ -10,3 +10,5 @@ export class StateCombatTestkit {
       seedCombatEncounter(...args),
   };
 }
+
+export * from './stateCombatTestHelpers';

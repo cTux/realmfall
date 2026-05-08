@@ -1,5 +1,5 @@
 import { InventoryWindowTestkit } from './InventoryWindowTestkit';
-import { setupUiTestEnvironment } from '../../../uiTestHelpers';
+import { setupUiTestEnvironment } from '../../../uiTestkit';
 
 setupUiTestEnvironment();
 

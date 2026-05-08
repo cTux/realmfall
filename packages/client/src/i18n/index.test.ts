@@ -6,7 +6,7 @@ async function importI18nModule() {
     default: '/assets/misc/en-test.json',
   }));
 
-  return import('./index');
+  return import('./indexTestkit');
 }
 
 describe('i18n loader', () => {

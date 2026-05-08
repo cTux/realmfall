@@ -2,7 +2,7 @@ import { Skill } from '../../../game/stateTypes';
 import {
   DEFAULT_RECIPE_SKILL_LEVELS,
   createRecipe,
-} from '../../uiRecipeBookTestHelpers';
+} from '../../uiRecipeBookTestkit';
 import { buildRecipeBookRows } from './useRecipeBookRows';
 
 describe('buildRecipeBookRows', () => {

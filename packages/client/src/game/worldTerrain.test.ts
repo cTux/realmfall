@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
 import { isPassable } from './shared';
-import { pickTerrain } from './worldTerrain';
+import { pickTerrain } from './worldTerrainTestkit';
 
 describe('worldTerrain', () => {
   it('keeps terrain generation deterministic for the same seed and coordinate', () => {

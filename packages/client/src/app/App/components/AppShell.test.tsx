@@ -4,7 +4,7 @@ import { DEFAULT_AUDIO_SETTINGS } from '../../audioSettings';
 import { DEFAULT_UI_AUDIO_CONTROLLER } from '../../audio/UiAudioContext';
 import type { AppWindowsProps } from '../AppWindows.types';
 import { createGame } from '../../../game/stateFactory';
-import { AppShell } from './AppShell';
+import { AppShell } from './AppShellTestkit';
 
 vi.mock('../AppWindows', () => ({
   AppWindows: () => <div data-testid="app-windows">windows</div>,

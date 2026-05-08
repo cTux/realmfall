@@ -6,7 +6,7 @@ import {
   flushLazyModules,
   loadEncryptedState,
   renderApp,
-} from './appTestHarness';
+} from './appTestkit';
 
 const HEX_ITEM_MODIFICATION_TIMEOUT_MS = 20_000;
 

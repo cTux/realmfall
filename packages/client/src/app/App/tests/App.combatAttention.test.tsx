@@ -13,7 +13,7 @@ import {
   flushLazyModules,
   loadEncryptedState,
   renderApp,
-} from './appTestHarness';
+} from './appTestkit';
 
 let setGameRef: MutableRefObject<Dispatch<SetStateAction<GameState>> | null> = {
   current: null,

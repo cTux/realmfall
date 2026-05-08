@@ -5,7 +5,7 @@ import {
   getPlayerBaseStatsForLevel,
   scaleMainItemStatForLevel,
   scaleSecondaryItemStatForLevel,
-} from './balance';
+} from './balanceTestkit';
 import { buildItemFromConfig } from './content/items';
 import { NON_CHANCE_BASED_SECONDARY_STAT_KEYS } from './itemSecondaryStats';
 import { getPlayerOverview } from './progression';

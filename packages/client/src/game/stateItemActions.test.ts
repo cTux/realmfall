@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { buildItemFromConfig } from './content/items';
 import { createCombatState, startCombat } from './stateCombat';
 import { createGame } from './stateFactory';
-import { equipItem, unequipItem } from './stateItemActions';
+import { equipItem, unequipItem } from './stateItemActionsTestkit';
 
 function createEncounterState() {
   const game = createGame(3, 'state-item-actions-combat-sync');

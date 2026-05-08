@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { createSettingsSectionStore } from './settingsSectionStore';
+import { createSettingsSectionStore } from './settingsSectionStoreTestkit';
 
 describe('settings section store', () => {
   beforeEach(() => {

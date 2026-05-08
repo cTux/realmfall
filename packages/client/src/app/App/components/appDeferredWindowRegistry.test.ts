@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   APP_DEFERRED_WINDOW_KEYS,
   getMountedDeferredWindowKeys,
-} from './appDeferredWindowRegistry';
+} from './appDeferredWindowRegistryTestkit';
 
 describe('app deferred window registry', () => {
   it('derives one canonical deferred window order from the window registry', () => {

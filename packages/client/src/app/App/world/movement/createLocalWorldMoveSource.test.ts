@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createLocalWorldMoveSource } from './createLocalWorldMoveSource';
+import { createLocalWorldMoveSource } from './createLocalWorldMoveSourceTestkit';
 
 describe('createLocalWorldMoveSource', () => {
   it('approves an immediate move request and echoes the request id', async () => {

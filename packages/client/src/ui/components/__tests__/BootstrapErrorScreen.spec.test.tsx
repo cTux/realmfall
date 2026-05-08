@@ -1,4 +1,4 @@
-import { setupUiTestEnvironment } from '../../uiTestHelpers';
+import { setupUiTestEnvironment } from '../../uiTestkit';
 import { BOOTSTRAP_ERROR_RELOAD_DELAY_MS } from '../BootstrapErrorScreen';
 import { BootstrapErrorScreenTestkit } from './BootstrapErrorScreenTestkit';
 

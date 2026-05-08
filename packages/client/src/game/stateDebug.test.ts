@@ -7,7 +7,7 @@ import {
   forceDebugHarvestMoon,
   setDebugMorning,
   spawnDebugEnemyNearby,
-} from './stateDebug';
+} from './stateDebugTestkit';
 
 describe('game state debug helpers', () => {
   it('adds a requested-rarity equipment item to the inventory', () => {

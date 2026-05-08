@@ -1,4 +1,4 @@
-import { createRng } from './random';
+import { createRng } from './stateItemModificationActionsTestkit';
 import {
   corruptInventoryItem,
   createGame,

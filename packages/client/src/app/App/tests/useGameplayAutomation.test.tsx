@@ -6,7 +6,7 @@ import { getResolvedCurrentTile } from '../../../game/stateSelectors';
 import type { GameState } from '../../../game/stateTypes';
 import type { GameplaySettings } from '../../gameplaySettings';
 import { useGameplayAutomation } from '../hooks/useGameplayAutomation';
-import { createHydratedAppGame } from './appTestHarness';
+import { createHydratedAppGame } from './appTestkit';
 
 describe('useGameplayAutomation', () => {
   let host: HTMLDivElement;

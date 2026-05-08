@@ -11,3 +11,5 @@ export class StateWorldActionsTestkit {
       addResourceItems(...args),
   };
 }
+
+export * from './stateWorldActionsTestHelpers';

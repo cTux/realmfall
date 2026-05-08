@@ -3,7 +3,7 @@ import { processEnemyStatusEffects } from './combatStatus';
 import { StatusEffectTypeId } from './content/ids';
 import { GAME_DAY_DURATION_MS, GAME_DAY_MINUTES } from './config';
 import { createGame, moveToTile } from './state';
-import { processPlayerStatusEffects } from './stateSurvival';
+import { processPlayerStatusEffects } from './stateSurvivalTestkit';
 
 describe('game state survival timing', () => {
   it('damages the player each move while hunger and thirst debuffs are active', () => {

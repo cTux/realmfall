@@ -5,7 +5,7 @@ describe('renderSceneCache', () => {
     'bounds scene caches with LRU-style eviction',
     async () => {
       const { getCachedValue, SCENE_CACHE_LIMITS, setBoundedCachedValue } =
-        await import('./renderSceneCache');
+        await import('./renderSceneCacheTestkit');
 
       const cache = new Map<string, string>();
       const maxEntries = 3;

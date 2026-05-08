@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ItemId } from '../ids';
-import { getConsumableItemKeys } from './itemCatalog';
+import { getConsumableItemKeys } from './itemCatalogTestkit';
 
 describe('item catalog', () => {
   it('keeps chest openers out of generic consumable pools', () => {

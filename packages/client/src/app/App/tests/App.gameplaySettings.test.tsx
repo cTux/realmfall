@@ -4,8 +4,8 @@ import {
   renderApp,
   createHydratedAppGame,
   loadEncryptedState,
-} from './appTestHarness';
-import { getRenderedGame } from './appWorldMovementTestHelpers';
+} from './appTestkit';
+import { getRenderedGame } from './appWorldMovementTestkit';
 
 const GAMEPLAY_SETTINGS_STORAGE_KEY = 'realmfall-settings-gameplay';
 

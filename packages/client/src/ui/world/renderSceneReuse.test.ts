@@ -6,7 +6,7 @@ import {
   getWorld,
   setupRenderSceneTestEnvironment,
   textureFrom,
-} from './renderSceneTestHelpers';
+} from './renderSceneTestkit';
 
 setupRenderSceneTestEnvironment();
 

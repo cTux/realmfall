@@ -3,7 +3,7 @@ import {
   tileToPoint,
 } from '../../../ui/world/renderSceneMath';
 import { createGame } from '../../../game/stateFactory';
-import { createWorldClickHandler } from './pixiWorldClickNavigation';
+import { createWorldClickHandler } from './pixiWorldClickNavigationTestkit';
 
 function createMovementController() {
   return {

@@ -1,8 +1,11 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-
-const componentsDir = resolve(process.cwd(), 'src/ui/components');
+import {
+  componentsDir,
+  hasComponentStoryCoverage,
+  isStandaloneComponentFile,
+} from './storybookCoverageTestkit';
 
 describe('storybook coverage', () => {
   it('keeps a story for each top-level UI component directory', () => {
@@ -66,25 +69,3 @@ describe('storybook coverage', () => {
     expect(dictionaryData).toContain('STATUS_EFFECT_DEFINITIONS');
   });
 });
-
-function hasStoryFile(directory: string): boolean {
-  return readdirSync(directory, { withFileTypes: true }).some((entry) => {
-    const fullPath = join(directory, entry.name);
-    if (entry.isDirectory()) {
-      return hasStoryFile(fullPath);
-    }
-    return entry.isFile() && entry.name.endsWith('.stories.tsx');
-  });
-}
-
-function hasComponentStoryCoverage(componentDirectoryName: string) {
-  return hasStoryFile(join(componentsDir, componentDirectoryName));
-}
-
-function isStandaloneComponentFile(name: string) {
-  return (
-    !name.endsWith('.stories.tsx') &&
-    !name.endsWith('.test.tsx') &&
-    /^[A-Z]/.test(name)
-  );
-}

@@ -1,7 +1,7 @@
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createServeHttpsInvocation } from './serve-https.mjs';
+import { createServeHttpsInvocation } from './serve-httpsTestkit';
 
 const require = createRequire(import.meta.url);
 const packageRoot = fileURLToPath(new URL('..', import.meta.url));

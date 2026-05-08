@@ -4,7 +4,7 @@ describe('game content i18n bootstrap order', () => {
   it('resolves item, recipe, structure, and enemy text after i18n loads', async () => {
     vi.resetModules();
 
-    const i18n = await import('../../i18n');
+    const i18n = await import('./i18nBootstrapOrderTestkit');
     const { buildItemFromConfig } = await import('./items');
     const { RECIPE_BOOK_RECIPES } = await import('../crafting');
     const { getEnemyConfig } = await import('./enemies');

@@ -1,5 +1,5 @@
 import fc from 'fast-check';
-import { normalizeLoadedGame, normalizeSavedUiItem } from '../normalize';
+import { normalizeLoadedGame, normalizeSavedUiItem } from './normalizePropertyTestkit';
 import {
   buildItemFromConfig,
   getConsumableItemKeys,

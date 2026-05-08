@@ -1,4 +1,4 @@
-import { resolveBackgroundMusicMood } from './backgroundMusic';
+import { resolveBackgroundMusicMood } from './backgroundMusicTestkit';
 import { BACKGROUND_MUSIC_PLAYLISTS } from './backgroundMusicLibrary';
 import {
   createBackgroundMusicCycleState,

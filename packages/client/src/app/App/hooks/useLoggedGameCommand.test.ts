@@ -1,5 +1,5 @@
 import { createGame } from '../../../game/stateFactory';
-import { createLoggedGameTransition } from './useLoggedGameCommand';
+import { createLoggedGameTransition } from './useLoggedGameCommandTestkit';
 
 describe('createLoggedGameTransition', () => {
   it('adds a command log when the transition changes state', () => {

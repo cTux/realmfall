@@ -2,8 +2,8 @@ import React from 'react';
 import { HexInfoWindow } from './components/HexInfoWindow';
 import { stripBracketHotkeyLabel } from './hotkeyLabels';
 import { t } from '../i18n';
-import { renderMarkup, setupUiTestEnvironment } from './uiTestHelpers';
-import { buildBaseHexInfoProps } from './uiWindowMarkupTestHelpers';
+import { renderMarkup, setupUiTestEnvironment } from './uiTestkit';
+import { buildBaseHexInfoProps } from './uiWindowMarkupTestkit';
 
 setupUiTestEnvironment();
 

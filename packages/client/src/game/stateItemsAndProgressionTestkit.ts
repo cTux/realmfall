@@ -41,3 +41,5 @@ export class StateItemsAndProgressionTestkit {
       setActiveCombat(...args),
   };
 }
+
+export * from './stateItemsAndProgressionTestHelpers';

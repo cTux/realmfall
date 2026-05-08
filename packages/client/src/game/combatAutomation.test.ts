@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createCombatActorState } from './combat';
+import { createCombatActorState } from './combatAutomationTestkit';
 import { StatusEffectTypeId } from './content/ids';
 import { createGame, getCombatAutomationDelay } from './state';
 

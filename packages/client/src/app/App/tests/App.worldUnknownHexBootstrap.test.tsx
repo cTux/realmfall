@@ -4,7 +4,7 @@ import {
   flushLazyModules,
   loadEncryptedState,
   renderApp,
-} from './appTestHarness';
+} from './appTestkit';
 
 describe('App unknown hex bootstrap', () => {
   it('preloads the first world frame with unknown placeholders for missing visible tiles', async () => {

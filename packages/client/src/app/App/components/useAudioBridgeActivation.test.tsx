@@ -1,6 +1,6 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { useAudioBridgeActivation } from './useAudioBridgeActivation';
+import { useAudioBridgeActivation } from './useAudioBridgeActivationTestkit';
 
 describe('useAudioBridgeActivation', () => {
   let host: HTMLDivElement;

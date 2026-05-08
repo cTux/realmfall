@@ -13,7 +13,7 @@ import {
   playerIcon,
   setupRenderSceneTestEnvironment,
   textureFrom,
-} from './renderSceneTestHelpers';
+} from './renderSceneTestkit';
 
 setupRenderSceneTestEnvironment();
 

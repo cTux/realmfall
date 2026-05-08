@@ -11,7 +11,7 @@ import {
   renderScene,
   tickerCallbacks,
   waitForAppSelector,
-} from './appTestHarness';
+} from './appTestkit';
 import { PERSISTED_SETTINGS_STORAGE_KEYS } from '../../settingsStorage';
 
 describe('App world input', () => {

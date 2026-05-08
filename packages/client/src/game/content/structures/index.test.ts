@@ -5,7 +5,7 @@ import {
   getStructureConfig,
   getStructureTypesProvidingFunction,
   pickStructureType,
-} from './index';
+} from './indexTestkit';
 
 describe('pickStructureType', () => {
   it('uses the expected global and resource spawn bands across terrains', () => {

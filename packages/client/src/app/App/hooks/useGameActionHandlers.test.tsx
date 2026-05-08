@@ -2,7 +2,7 @@ import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createGame } from '../../../game/stateFactory';
 import type { GameState } from '../../../game/stateTypes';
-import { useGameActionHandlers } from './useGameActionHandlers';
+import { useGameActionHandlers } from './useGameActionHandlersTestkit';
 
 describe('useGameActionHandlers', () => {
   beforeAll(() => {

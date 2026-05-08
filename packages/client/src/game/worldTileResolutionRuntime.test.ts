@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ResolvedWorldTilePayload } from '@realmfall/common';
-import { hydrateResolvedWorldTilePayload } from './worldTileResolutionRuntime';
+import { hydrateResolvedWorldTilePayload } from './worldTileResolutionRuntimeTestkit';
 
 function createPayload(
   enemy: ResolvedWorldTilePayload['enemies'][number],

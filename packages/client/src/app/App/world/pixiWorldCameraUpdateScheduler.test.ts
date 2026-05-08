@@ -1,6 +1,6 @@
 import type { Container } from 'pixi.js';
 import { describe, expect, it, vi } from 'vitest';
-import { createWorldMapCameraUpdateScheduler } from './pixiWorldCameraUpdateScheduler';
+import { createWorldMapCameraUpdateScheduler } from './pixiWorldCameraUpdateSchedulerTestkit';
 
 function createContainer() {
   return {

@@ -18,7 +18,7 @@ import { LogWindow } from './components/LogWindow';
 import { LootWindow } from './components/LootWindow';
 import { RecipeBookWindow } from './components/RecipeBookWindow';
 import { SkillsWindow } from './components/SkillsWindow';
-import { renderMarkup, setupUiTestEnvironment } from './uiTestHelpers';
+import { renderMarkup, setupUiTestEnvironment } from './uiTestkit';
 import { DEFAULT_LOG_FILTERS } from '../app/constants';
 import { resolveIconAsset } from './iconAssets';
 import { WINDOW_LABELS } from './windowLabels';
@@ -29,7 +29,7 @@ import {
   equippedWindowItem,
   inventoryWindowItem,
   recipeWindowSkillLevels,
-} from './uiWindowMarkupTestHelpers';
+} from './uiWindowMarkupTestkit';
 
 setupUiTestEnvironment();
 

@@ -1,4 +1,4 @@
-import { GameTag } from '../game/content/tags';
+import { GameTag } from './uiTooltipAbilityContentTestkit';
 import { getStatusEffectDefinition } from '../game/content/statusEffects';
 import { abilityTooltipLines, statusEffectTooltipLines } from './tooltips';
 

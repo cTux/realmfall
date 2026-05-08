@@ -8,7 +8,7 @@ import {
   createMockApp,
   getLabelsLayer,
   setupRenderSceneTestEnvironment,
-} from './renderSceneTestHelpers';
+} from './renderSceneTestkit';
 import { getWorldHexSize, tileToPoint } from './renderSceneMath';
 
 const combatTestkit = new StateCombatTestkit();

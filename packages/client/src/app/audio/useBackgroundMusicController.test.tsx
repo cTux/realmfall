@@ -1,7 +1,7 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { DEFAULT_AUDIO_SETTINGS } from '../audioSettings';
-import { useBackgroundMusicController } from './useBackgroundMusicController';
+import { useBackgroundMusicController } from './useBackgroundMusicControllerTestkit';
 
 interface MockHowlInstance {
   fade: ReturnType<typeof vi.fn>;

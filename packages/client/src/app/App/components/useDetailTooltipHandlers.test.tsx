@@ -1,6 +1,6 @@
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
-import { useDetailTooltipHandlers } from './useDetailTooltipHandlers';
+import { useDetailTooltipHandlers } from './useDetailTooltipHandlersTestkit';
 
 type DetailTooltipHandlers = ReturnType<typeof useDetailTooltipHandlers>;
 

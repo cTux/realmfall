@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createWindowVisibilityState } from '../../../app/constants';
 import { getDockEntries } from '../../../app/App/utils/getDockEntries';
-import { createStorybookFixtures } from './storybookHelpers';
+import { createStorybookFixtures } from './storybookTestkit';
 
 describe('createStorybookFixtures', () => {
   it('derives dock entries from the runtime dock builder', () => {

@@ -5,12 +5,12 @@ import {
   loadEncryptedState,
   renderApp,
   waitForAppSelector,
-} from './appTestHarness';
+} from './appTestkit';
 import {
   clickWorldTile,
   getRenderedGame,
   renderTickerFrame,
-} from './appWorldMovementTestHelpers';
+} from './appWorldMovementTestkit';
 
 const createWorkerTileResolutionSource = vi.fn();
 const createLocalTileResolutionSource = vi.fn();

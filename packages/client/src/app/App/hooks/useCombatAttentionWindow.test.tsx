@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { createStartedCombatEncounter } from '../../../game/stateCombatEngagement';
 import type { GameState, HexCoord } from '../../../game/stateTypes';
 import { createWindowVisibilityState } from '../../constants';
-import { createHydratedAppGame } from '../tests/appTestHarness';
+import { createHydratedAppGame } from '../tests/appTestkit';
 import { useCombatAttentionWindow } from './useCombatAttentionWindow';
 import { useHexInfoWindowPromotion } from './useHexInfoWindowPromotion';
 

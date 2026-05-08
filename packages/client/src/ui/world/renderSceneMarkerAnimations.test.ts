@@ -1,4 +1,4 @@
-import { createGame } from '../../game/stateFactory';
+import { createGame } from './renderSceneMarkerAnimationsTestkit';
 import { getVisibleTiles } from '../../game/stateSelectors';
 import { hexKey, hexNeighbors } from '../../game/hex';
 

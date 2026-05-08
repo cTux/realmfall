@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { matchesActivePointer } from './pixiWorldInteractionShared';
+import { matchesActivePointer } from './pixiWorldInteractionModulesTestkit';
 import { shouldIgnoreWorldMapWheelGesture } from './pixiWorldMapZoom';
 
 describe('pixi world interaction helper modules', () => {

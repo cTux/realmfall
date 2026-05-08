@@ -13,8 +13,8 @@ import { InventoryWindow } from './components/InventoryWindow';
 import { getRecipeCraftCount } from './components/RecipeBookWindow/RecipeBookWindowContent';
 import { compareRecipeBookEntries } from './components/RecipeBookWindow/utils/recipeBookEntries';
 import { iconForItem } from './icons';
-import { createRecipe } from './uiRecipeBookTestHelpers';
-import { renderMarkup, setupUiTestEnvironment } from './uiTestHelpers';
+import { createRecipe } from './uiRecipeBookTestkit';
+import { renderMarkup, setupUiTestEnvironment } from './uiTestkit';
 
 setupUiTestEnvironment();
 

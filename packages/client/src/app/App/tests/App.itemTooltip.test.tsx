@@ -5,7 +5,7 @@ import {
   flushLazyModules,
   loadEncryptedState,
   renderApp,
-} from './appTestHarness';
+} from './appTestkit';
 
 const REJECTED_TOOLTIP_CHUNK_TEST_TIMEOUT_MS = 20_000;
 const loadItemTooltipModuleMock = vi.hoisted(() => vi.fn());

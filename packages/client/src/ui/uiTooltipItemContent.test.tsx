@@ -14,7 +14,7 @@ import {
   recipePageTooltipItem,
   resourceTooltipItem,
   weaponTooltipItem,
-} from './uiTooltipContentTestHelpers';
+} from './uiTooltipContentTestkit';
 
 describe('ui tooltip item content', () => {
   it('shows comparison-only stats for preview items and base stats otherwise', () => {

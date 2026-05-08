@@ -9,7 +9,7 @@ import {
   MockGraphics,
   MockText,
   setupRenderSceneTestEnvironment,
-} from './renderSceneTestHelpers';
+} from './renderSceneTestkit';
 
 setupRenderSceneTestEnvironment();
 

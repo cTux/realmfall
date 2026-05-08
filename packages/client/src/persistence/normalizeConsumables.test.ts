@@ -1,4 +1,4 @@
-import { normalizeLoadedGame, normalizeSavedUiItem } from '../app/normalize';
+import { normalizeLoadedGame, normalizeSavedUiItem } from './normalizeConsumablesTestkit';
 import { buildItemFromConfig } from '../game/content/items';
 import { createGame } from '../game/stateFactory';
 

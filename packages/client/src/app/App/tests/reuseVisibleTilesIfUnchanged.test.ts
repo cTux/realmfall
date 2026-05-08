@@ -2,7 +2,7 @@ import {
   createUnknownVisibleWorldTile,
   type VisibleWorldTile,
 } from '../../../ui/world/visibleWorldTiles';
-import { reuseVisibleTilesIfUnchanged } from '../selectors/reuseVisibleTilesIfUnchanged';
+import { reuseVisibleTilesIfUnchanged } from './reuseVisibleTilesIfUnchangedTestkit';
 
 describe('reuseVisibleTilesIfUnchanged', () => {
   it('reuses the previous visibleTiles array when render keys are unchanged', () => {

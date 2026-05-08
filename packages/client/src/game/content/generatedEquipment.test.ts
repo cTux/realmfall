@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { CRAFTABLE_ICON_ITEM_CONFIGS } from './generatedCraftingEquipment';
 import { GENERATED_EQUIPMENT_FAMILIES } from './generatedEquipmentFamilies';
 import { GENERATED_ICON_POOLS, isGeneratedIconId } from './generatedIconPools';
-import { GENERATED_EQUIPMENT_CONFIGS } from './generatedEquipment';
+import { GENERATED_EQUIPMENT_CONFIGS } from './generatedEquipmentTestkit';
 
 describe('generated equipment icons', () => {
   const packageRoot = resolve(

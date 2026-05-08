@@ -1,7 +1,7 @@
 import { GATHERING_BYPRODUCT_CHANCES } from '../../config';
 import { structureDefinition } from '../../world';
 import { createGame } from '../../state';
-import { buildGatheringRewards, maybeGatherByproduct } from '../gathering';
+import { buildGatheringRewards, maybeGatherByproduct } from './gatheringTestkit';
 
 const originalGatheringByproductChances = {
   ...GATHERING_BYPRODUCT_CHANCES,

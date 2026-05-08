@@ -1,6 +1,6 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { useKeyboardShortcuts } from './useKeyboardShortcuts';
+import { useKeyboardShortcuts } from './useKeyboardShortcutsTestkit';
 
 function buildWindowShown(hexInfo = false) {
   return {

@@ -6,7 +6,7 @@ import {
   renderApp,
   saveEncryptedState,
   waitForAppSelector,
-} from './appTestHarness';
+} from './appTestkit';
 
 async function flushAutosaveTimers(ms = 5000) {
   await vi.advanceTimersByTimeAsync(ms);

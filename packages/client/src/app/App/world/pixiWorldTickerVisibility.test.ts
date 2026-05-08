@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { attachPixiWorldTickerVisibilityPause } from './pixiWorldTickerVisibility';
+import { attachPixiWorldTickerVisibilityPause } from './pixiWorldTickerVisibilityTestkit';
 
 function createVisibilityTarget(visibilityState: DocumentVisibilityState) {
   const target = new EventTarget() as EventTarget & {

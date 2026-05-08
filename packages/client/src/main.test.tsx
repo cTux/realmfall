@@ -78,7 +78,7 @@ describe('main bootstrap', { timeout: 10000 }, () => {
   it('mounts the app into the root element', async () => {
     document.body.innerHTML = '<div id="root"></div>';
 
-    await import('./main');
+    await import('./mainTestkit');
 
     expect(createRoot).toHaveBeenCalledWith(
       document.getElementById('root'),
@@ -109,7 +109,7 @@ describe('main bootstrap', { timeout: 10000 }, () => {
         }),
     );
 
-    await import('./main');
+    await import('./mainTestkit');
     await Promise.resolve();
 
     expect(loadI18n).toHaveBeenCalledWith('en');
@@ -140,7 +140,7 @@ describe('main bootstrap', { timeout: 10000 }, () => {
         }),
     );
 
-    await import('./main');
+    await import('./mainTestkit');
     await Promise.resolve();
 
     expect(applyInterfaceFontFamily).toHaveBeenCalledWith('ubuntu');
@@ -158,7 +158,7 @@ describe('main bootstrap', { timeout: 10000 }, () => {
     document.body.innerHTML = '<div id="root"></div>';
     window.localStorage.setItem('realmfall:perf', '1');
 
-    await import('./main');
+    await import('./mainTestkit');
     await vi.dynamicImportSettled();
     await Promise.resolve();
 
@@ -180,7 +180,7 @@ describe('main bootstrap', { timeout: 10000 }, () => {
   it('renders a spinner-only bootstrap shell before the app loads', async () => {
     document.body.innerHTML = '<div id="root"></div>';
 
-    await import('./main');
+    await import('./mainTestkit');
 
     const firstRender = render.mock.calls[0]?.[0] as StrictModeElement;
     const bootstrapShellElement = firstRender.props
@@ -196,7 +196,7 @@ describe('main bootstrap', { timeout: 10000 }, () => {
   it('prevents the native browser context menu globally', async () => {
     document.body.innerHTML = '<div id="root"></div>';
 
-    await import('./main');
+    await import('./mainTestkit');
 
     const event = new MouseEvent('contextmenu', {
       bubbles: true,
@@ -211,7 +211,7 @@ describe('main bootstrap', { timeout: 10000 }, () => {
   it('reports root-level render errors through the configured handler', async () => {
     document.body.innerHTML = '<div id="root"></div>';
 
-    await import('./main');
+    await import('./mainTestkit');
 
     const rootOptions = (createRoot.mock.calls as unknown[][])[0]?.[1] as {
       onCaughtError: (error: unknown) => void;
@@ -232,7 +232,7 @@ describe('main bootstrap', { timeout: 10000 }, () => {
     const error = new Error('locale load failed');
     loadI18n.mockRejectedValueOnce(error);
 
-    await import('./main');
+    await import('./mainTestkit');
     await Promise.resolve();
     await vi.dynamicImportSettled();
     await Promise.resolve();

@@ -1,6 +1,6 @@
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
-import { useAppBootstrapState } from './useAppBootstrapState';
+import { useAppBootstrapState } from './useAppBootstrapStateTestkit';
 
 const createGameMock = vi.hoisted(() => vi.fn());
 const loadAudioSettingsMock = vi.hoisted(() => vi.fn());

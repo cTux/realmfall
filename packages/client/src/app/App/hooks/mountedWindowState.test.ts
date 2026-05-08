@@ -1,5 +1,5 @@
 import { DEFAULT_WINDOW_VISIBILITY } from '../../constants';
-import { createManagedMountedWindowState } from './mountedWindowState';
+import { createManagedMountedWindowState } from './mountedWindowStateTestkit';
 
 describe('mountedWindowState', () => {
   it('derives mounted-window visibility from the window registry', () => {

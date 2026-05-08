@@ -2,7 +2,7 @@ import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { describe, expect, it, vi } from 'vitest';
 import type { TooltipLine } from '../../tooltips';
-import { StorybookPreviewRuntime } from './storybookPreview';
+import { StorybookPreviewRuntime } from './storybookPreviewTestkit';
 
 describe('StorybookPreviewRuntime', () => {
   it('injects hover-detail handlers that render the shared tooltip', async () => {

@@ -6,7 +6,7 @@ import {
   enemyRarityMultiplier,
   makeEnemy,
   resolveEnemyRarity,
-} from './combat';
+} from './combatTestkit';
 import { GAME_CONFIG } from './config';
 import {
   DEFAULT_CRITICAL_STRIKE_CHANCE,

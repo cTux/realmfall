@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { useState } from 'react';
 import type { Tile } from '../../../game/stateTypes';
 import { createWindowVisibilityState } from '../../constants';
-import { useHexInfoWindowPromotion } from './useHexInfoWindowPromotion';
+import { useHexInfoWindowPromotion } from './useHexInfoWindowPromotionTestkit';
 
 describe('useHexInfoWindowPromotion', () => {
   beforeAll(() => {

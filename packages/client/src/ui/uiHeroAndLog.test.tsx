@@ -9,7 +9,7 @@ import { HeroWindow } from './components/HeroWindow';
 import { LogWindow } from './components/LogWindow';
 import { LogWindowContent } from './components/LogWindow/LogWindowContent';
 import { renderWindowHotkeyLabelText } from './hotkeyLabels';
-import { renderMarkup, setupUiTestEnvironment } from './uiTestHelpers';
+import { renderMarkup, setupUiTestEnvironment } from './uiTestkit';
 import { WINDOW_LABELS } from './windowLabels';
 
 setupUiTestEnvironment();

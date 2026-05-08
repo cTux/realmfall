@@ -7,7 +7,7 @@ import {
 } from './config';
 import { createGame } from './state';
 import { spawnDebugEnemyNearby } from './stateDebug';
-import { ensureTileState, resolveLootOutcomeRoll } from './world';
+import { ensureTileState, resolveLootOutcomeRoll } from './worldTestkit';
 import { buildRegularTile } from './worldTileGeneration';
 import { pickTerrain } from './worldTerrain';
 

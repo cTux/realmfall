@@ -1,4 +1,4 @@
-import { setupUiTestEnvironment } from '../../uiTestHelpers';
+import { setupUiTestEnvironment } from '../../uiTestkit';
 import { WINDOW_LOADING_WARNING_DELAY_MS } from '../WindowLoadingState';
 import { WindowLoadingStateTestkit } from './WindowLoadingStateTestkit';
 import { t } from '../../../i18n';

@@ -6,14 +6,14 @@ import {
   loadEncryptedState,
   renderApp,
   waitForAppSelector,
-} from './appTestHarness';
+} from './appTestkit';
 import {
   clickWorldTile,
   findRecipeBookDockButton,
   getRenderedGame,
   getTab,
   renderTickerFrame,
-} from './appWorldMovementTestHelpers';
+} from './appWorldMovementTestkit';
 
 const GAMEPLAY_SETTINGS_STORAGE_KEY = 'realmfall-settings-gameplay';
 

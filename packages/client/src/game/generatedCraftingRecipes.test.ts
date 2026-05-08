@@ -1,7 +1,7 @@
 import { EquipmentSlotId } from './content/ids';
 import { buildItemFromConfig } from './content/items';
 import { RECIPE_BOOK_RECIPES } from './crafting';
-import { GENERATED_CRAFTING_RECIPES } from './generatedCraftingRecipes';
+import { GENERATED_CRAFTING_RECIPES } from './generatedCraftingRecipesTestkit';
 import { craftRecipe, createGame } from './state';
 
 const REDISTRIBUTED_INGOT_KEYS = [

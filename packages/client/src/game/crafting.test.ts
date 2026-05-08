@@ -5,7 +5,7 @@ import {
   getRecipeSkillForStructure,
   hasAllRequirements,
   RECIPE_BOOK_RECIPES,
-} from './crafting';
+} from './craftingTestkit';
 import { Skill, type Item, type RecipeRequirement } from './types';
 
 function buildInventoryItem(

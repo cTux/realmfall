@@ -1,6 +1,6 @@
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
-import { HomeIndicator } from './HomeIndicator';
+import { HomeIndicator } from './HomeIndicatorTestkit';
 
 describe('HomeIndicator', () => {
   beforeAll(() => {

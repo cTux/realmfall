@@ -5,7 +5,7 @@ import { t } from '../../../../i18n';
 import {
   buildDebugCommandHandlers,
   buildInventoryItemCommandHandlers,
-} from './descriptorHandlers';
+} from './descriptorHandlersTestkit';
 
 describe('descriptorHandlers', () => {
   it('builds inventory handlers from descriptors, including dynamic log keys', () => {

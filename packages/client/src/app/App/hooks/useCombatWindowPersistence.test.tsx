@@ -6,7 +6,7 @@ import {
   flushLazyModules,
   loadEncryptedState,
   renderApp,
-} from '../tests/appTestHarness';
+} from '../tests/appTestkit';
 import { renderWindowHotkeyLabelText } from '../../../ui/hotkeyLabels';
 import { WINDOW_LABELS } from '../../../ui/windowLabels';
 

@@ -3,7 +3,7 @@ import { hexKey } from './hex';
 import { createGame } from './stateFactory';
 import { respawnAtNearestTown } from './stateSurvival';
 import { openDungeonChest } from './stateDungeonChest';
-import { activateDungeonWorld, leaveDungeonWorld } from './stateDungeonActions';
+import { activateDungeonWorld, leaveDungeonWorld } from './stateDungeonActionsTestkit';
 import type { GameState } from './types';
 
 function seedSurfaceDungeonEntrance(seed = 'dungeon-gameplay-flow') {

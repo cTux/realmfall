@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ResolveWorldTilesRequest } from '@realmfall/common';
-import { resolveWorldTiles } from './worldTileResolutionPayloads';
+import { resolveWorldTiles } from './worldTileResolutionPayloadsTestkit';
 
 describe('resolveWorldTiles', () => {
   it('builds deterministic payloads with enemy references resolved', () => {

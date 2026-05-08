@@ -9,7 +9,7 @@ import {
   getPlayerLayer,
   MockContainer,
   setupRenderSceneTestEnvironment,
-} from './renderSceneTestHelpers';
+} from './renderSceneTestkit';
 
 setupRenderSceneTestEnvironment();
 
@@ -311,7 +311,7 @@ describe('renderScene combat feedback', () => {
     const { getHostileEnemyBadgeOuterRadius } =
       await import('./renderScenePlayerBars');
     const { createPlacedWorldBossRenderGame } =
-      await import('./renderSceneTestHelpers');
+      await import('./renderSceneTestkit');
     const { game, center } = createPlacedWorldBossRenderGame();
     const app = createMockApp(960, 720);
     const bossId = game.tiles['4,0']?.enemyIds[0];

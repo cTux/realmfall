@@ -3,7 +3,7 @@ import {
   DEFAULT_INTERFACE_SETTINGS,
   loadInterfaceSettings,
   saveInterfaceSettings,
-} from './interfaceSettings';
+} from './interfaceSettingsTestkit';
 import { PERSISTED_SETTINGS_STORAGE_KEYS } from './settingsStorage';
 
 describe('interface settings persistence', () => {

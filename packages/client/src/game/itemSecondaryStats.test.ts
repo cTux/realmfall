@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildGeneratedItemFromConfig,
   buildItemFromConfig,
-} from './content/items';
+} from './itemSecondaryStatsTestkit';
 
 describe('generated item secondary stats', () => {
   it('gives shields a default block chance secondary stat', () => {
