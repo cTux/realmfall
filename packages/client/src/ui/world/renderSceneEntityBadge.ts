@@ -167,55 +167,52 @@ export function decorateEntityBadge(
     });
   }
 
-  if (!hp || !mana) {
-    return;
-  }
-
   const resourceArcBand = getEntityBadgeArcBand(outerRadius);
-
-  drawEntityBadgeArc(entry.badgeTrackGraphics, {
-    alpha: alpha * ENTITY_BADGE_ARC_TRACK_ALPHA,
-    color: ENTITY_BADGE_HP_TRACK_COLOR,
-    endAngle: ENTITY_BADGE_HP_ARC_ANGLES.endAngle,
-    innerRadius: resourceArcBand.innerRadius,
-    outerRadius: resourceArcBand.outerRadius,
-    progress: 1,
-    startAngle: ENTITY_BADGE_HP_ARC_ANGLES.startAngle,
-  });
-  drawEntityBadgeArc(entry.badgeTrackGraphics, {
-    alpha: alpha * ENTITY_BADGE_ARC_TRACK_ALPHA,
-    color: ENTITY_BADGE_MP_TRACK_COLOR,
-    endAngle: ENTITY_BADGE_MP_ARC_ANGLES.endAngle,
-    innerRadius: resourceArcBand.innerRadius,
-    outerRadius: resourceArcBand.outerRadius,
-    progress: 1,
-    startAngle: ENTITY_BADGE_MP_ARC_ANGLES.startAngle,
-  });
-
-  const hpProgress = getResourceProgress(hp.current, hp.max);
-  if (hpProgress > 0) {
-    drawEntityBadgeArc(entry.badgeFillGraphics, {
-      alpha: alpha * ENTITY_BADGE_ARC_ALPHA,
-      color: ENTITY_BADGE_HP_FILL_COLOR,
+  if (hp && mana) {
+    drawEntityBadgeArc(entry.badgeTrackGraphics, {
+      alpha: alpha * ENTITY_BADGE_ARC_TRACK_ALPHA,
+      color: ENTITY_BADGE_HP_TRACK_COLOR,
       endAngle: ENTITY_BADGE_HP_ARC_ANGLES.endAngle,
       innerRadius: resourceArcBand.innerRadius,
       outerRadius: resourceArcBand.outerRadius,
-      progress: hpProgress,
+      progress: 1,
       startAngle: ENTITY_BADGE_HP_ARC_ANGLES.startAngle,
     });
-  }
-
-  const manaProgress = getResourceProgress(mana.current, mana.max);
-  if (manaProgress > 0) {
-    drawEntityBadgeArc(entry.badgeFillGraphics, {
-      alpha: alpha * ENTITY_BADGE_ARC_ALPHA,
-      color: ENTITY_BADGE_MP_FILL_COLOR,
+    drawEntityBadgeArc(entry.badgeTrackGraphics, {
+      alpha: alpha * ENTITY_BADGE_ARC_TRACK_ALPHA,
+      color: ENTITY_BADGE_MP_TRACK_COLOR,
       endAngle: ENTITY_BADGE_MP_ARC_ANGLES.endAngle,
       innerRadius: resourceArcBand.innerRadius,
       outerRadius: resourceArcBand.outerRadius,
-      progress: manaProgress,
+      progress: 1,
       startAngle: ENTITY_BADGE_MP_ARC_ANGLES.startAngle,
     });
+
+    const hpProgress = getResourceProgress(hp.current, hp.max);
+    if (hpProgress > 0) {
+      drawEntityBadgeArc(entry.badgeFillGraphics, {
+        alpha: alpha * ENTITY_BADGE_ARC_ALPHA,
+        color: ENTITY_BADGE_HP_FILL_COLOR,
+        endAngle: ENTITY_BADGE_HP_ARC_ANGLES.endAngle,
+        innerRadius: resourceArcBand.innerRadius,
+        outerRadius: resourceArcBand.outerRadius,
+        progress: hpProgress,
+        startAngle: ENTITY_BADGE_HP_ARC_ANGLES.startAngle,
+      });
+    }
+
+    const manaProgress = getResourceProgress(mana.current, mana.max);
+    if (manaProgress > 0) {
+      drawEntityBadgeArc(entry.badgeFillGraphics, {
+        alpha: alpha * ENTITY_BADGE_ARC_ALPHA,
+        color: ENTITY_BADGE_MP_FILL_COLOR,
+        endAngle: ENTITY_BADGE_MP_ARC_ANGLES.endAngle,
+        innerRadius: resourceArcBand.innerRadius,
+        outerRadius: resourceArcBand.outerRadius,
+        progress: manaProgress,
+        startAngle: ENTITY_BADGE_MP_ARC_ANGLES.startAngle,
+      });
+    }
   }
 
   if (levelLabel) {
