@@ -2,11 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const ALLOWED_CLIENT_BRIDGE_FILES = new Set([
-  'src/i18n/labels.ts',
-  'src/i18n/index.ts',
-  'src/app/audio/UiAudioContext.tsx',
   'src/components/storybook/storybookHelpers.tsx',
-  'src/bridges/generatedIconAssets.ts',
 ]);
 
 export function collectSourceFiles(root: string, files: string[] = []) {
@@ -42,7 +38,7 @@ export function getClientImportSpecifiers(filePath: string) {
 }
 
 function isAssetSpecifier(specifier: string) {
-  return /\.(?:svg|png|jpg|jpeg|webp|gif|avif|mp3|wav|ogg|json|css|scss|sass|less)$/.test(
+  return /\.(?:svg|png|jpg|jpeg|webp|gif|avif|mp3|wav|ogg|json|css|scss|sass|less)(?:\?.*)?$/.test(
     specifier,
   );
 }

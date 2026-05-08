@@ -13,6 +13,7 @@ This spec covers the canonical rules model and the project spec structure itself
 - `README.md` is product-facing, and `docs/WORKFLOW.md` is a process-facing command index. Neither is intended to be a second source of canonical contributor policy.
 - `docs/specs` holds canonical implemented reference specs.
 - `docs/implementation-notes` holds transient briefs, plans, research notes, issue workspaces, and checklists while work is active. Canonical shipped behavior belongs in `docs/specs`.
+- Active implementation-note plans may add narrowly scoped follow-up tasks discovered during verification, but those follow-ups stay in the same workspace until they are either committed or intentionally deferred.
 - Historical or shipped implementation-note workspaces are trimmed to one short `brief.md` plus canonical links, and long `plan.md` files are deleted once the workspace stops being active.
 - Documentation entrypoints such as `docs/specs/README.md` and `docs/implementation-notes/README.md` stay navigation-only and route readers to canonical rules or reference specs.
 - `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md` remain generated thin loaders from `scripts/sync-ai-entrypoints.mjs`, so recurring delegation policy lives in the canonical rules instead of being hand-maintained in each entrypoint.

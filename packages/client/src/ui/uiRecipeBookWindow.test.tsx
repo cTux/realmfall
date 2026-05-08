@@ -2,7 +2,7 @@ import { act } from 'react';
 import { vi } from 'vitest';
 import { Skill } from '../game/stateTypes';
 import { createRecipe, mountRecipeBook } from './uiRecipeBookTestkit';
-import { setupUiTestEnvironment } from './uiTestkit';
+import { settleUi, setupUiTestEnvironment } from './uiTestkit';
 
 setupUiTestEnvironment();
 
@@ -148,6 +148,7 @@ describe('ui recipe book window surfaces', () => {
         recipeList.dispatchEvent(new Event('scroll', { bubbles: true }));
       }
     });
+    await settleUi();
 
     expect(ui.host.textContent).toContain('Recipe 100');
 

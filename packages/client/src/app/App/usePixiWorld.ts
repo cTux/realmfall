@@ -34,17 +34,18 @@ import {
 import type { WorldMovementController } from './world/pixiWorldLifecycleTypes';
 import { usePixiWorldBootstrapLifecycle } from './world/usePixiWorldBootstrapLifecycle';
 import {
-  autoStartPendingCombat,
-  getPendingCombatUpdatePlan,
-  getPostCombatAutoStepTransition,
-  stampPendingCombatIntro,
-  type PendingVictoryTransitionOffset,
-} from './world/pixiWorldPendingCombat';
-import {
   createInitialWorldRenderSnapshot,
   type WorldRenderSnapshot,
 } from './world/worldRenderSnapshot';
 import type { VisibleTilesUpdate } from './world/tileResolution/useWorldTileResolutionLifecycle';
+import { usePixiWorldHoverLifecycle } from './world/usePixiWorldHoverLifecycle';
+import {
+  usePixiWorldPendingCombatIntroLifecycle,
+  usePixiWorldPendingCombatSeedLifecycle,
+} from './world/usePixiWorldPendingCombatLifecycle';
+import { usePixiWorldQueuedTravelSuppression } from './world/usePixiWorldQueuedTravelSuppression';
+import { usePixiWorldRenderSettingsSync } from './world/usePixiWorldRenderSettingsSync';
+import type { PendingVictoryTransitionOffset } from './world/pixiWorldPendingCombat';
 
 const DEFAULT_WORLD_MAP_CAMERA: WorldMapCameraState = {
   zoom: 1,
@@ -205,76 +206,7 @@ export function usePixiWorld({
     gameRef.current = game;
   }, [game, gameRef]);
 
-  useEffect(() => {
-    pausedRef.current = paused;
-    pausedAnimationMsRef.current = paused ? performance.now() : null;
-    renderInvalidationRef.current += 1;
-  }, [paused, pausedAnimationMsRef, pausedRef, renderInvalidationRef]);
-
-  useEffect(() => {
-    showCloudsRef.current = showClouds;
-    renderInvalidationRef.current += 1;
-  }, [renderInvalidationRef, showClouds, showCloudsRef]);
-
-  useEffect(() => {
-    cloudTransparencyRef.current =
-      normalizeCloudTransparency(cloudTransparency);
-    renderInvalidationRef.current += 1;
-  }, [cloudTransparency, cloudTransparencyRef, renderInvalidationRef]);
-
-  useEffect(() => {
-    showTerrainBackgroundsRef.current = showTerrainBackgrounds;
-    renderInvalidationRef.current += 1;
-  }, [
-    renderInvalidationRef,
-    showTerrainBackgrounds,
-    showTerrainBackgroundsRef,
-  ]);
-
-  useEffect(() => {
-    showTooltipTagsRef.current = showTooltipTags;
-  }, [showTooltipTags, showTooltipTagsRef]);
-
-  useEffect(() => {
-    const normalizedWorldRenderFps = normalizeWorldRenderFps(worldRenderFps);
-    worldRenderFpsRef.current = normalizedWorldRenderFps;
-    renderInvalidationRef.current += 1;
-
-    const app = appRef.current;
-    if (!app) {
-      return;
-    }
-
-    app.ticker.maxFPS = normalizedWorldRenderFps;
-  }, [appRef, worldRenderFps, renderInvalidationRef, worldRenderFpsRef]);
-
-  useEffect(() => {
-    const previousGame = previousGameRef.current;
-    const postCombatAutoStepTransition = getPostCombatAutoStepTransition({
-      app: appRef.current,
-      game,
-      nowMs: performance.now(),
-      previousGame,
-    });
-
-    if (postCombatAutoStepTransition) {
-      pendingVictoryTransitionOffsetRef.current =
-        postCombatAutoStepTransition.pendingVictoryTransitionOffset;
-
-      const movementController = movementControllerRef.current;
-      if (movementController) {
-        movementController.seedCooldownUntil(
-          postCombatAutoStepTransition.cooldownEndAtMs,
-        );
-      } else {
-        movementCooldownEndAtRef.current =
-          postCombatAutoStepTransition.cooldownEndAtMs;
-        renderInvalidationRef.current += 1;
-      }
-    }
-
-    previousGameRef.current = game;
-  }, [
+  usePixiWorldPendingCombatSeedLifecycle({
     appRef,
     game,
     movementCooldownEndAtRef,
@@ -282,7 +214,7 @@ export function usePixiWorld({
     pendingVictoryTransitionOffsetRef,
     previousGameRef,
     renderInvalidationRef,
-  ]);
+  });
 
   const { visibleTilesRef } = useWorldTileResolutionLifecycle({
     enabled,
@@ -295,89 +227,39 @@ export function usePixiWorld({
     setGame,
   });
 
-  useEffect(() => {
-    if (combatIntroTimerRef.current !== null) {
-      window.clearTimeout(combatIntroTimerRef.current);
-      combatIntroTimerRef.current = null;
-    }
-
-    if (paused || !game.combat || game.combat.started) {
-      return;
-    }
-
-    const pendingCombatPlan = getPendingCombatUpdatePlan({
-      combat: game.combat,
-      movementNowMs: performance.now(),
-      movementTransition: movementTransitionRef.current,
-      playerCoord,
-      worldTimeMs: worldTimeMsRef.current,
-    });
-    if (pendingCombatPlan.action === 'none') {
-      return;
-    }
-
-    const runPendingCombatPlan = () =>
-      setGame((current) =>
-        pendingCombatPlan.action === 'stamp'
-          ? stampPendingCombatIntro({
-              current,
-              gameRef,
-              worldTimeMs: worldTimeMsRef.current,
-            })
-          : autoStartPendingCombat({
-              current,
-              gameRef,
-              worldTimeMs: worldTimeMsRef.current,
-            }),
-      );
-
-    if (pendingCombatPlan.delayMs === 0) {
-      runPendingCombatPlan();
-      return;
-    }
-
-    combatIntroTimerRef.current = window.setTimeout(
-      runPendingCombatPlan,
-      pendingCombatPlan.delayMs,
-    );
-
-    return () => {
-      if (combatIntroTimerRef.current !== null) {
-        window.clearTimeout(combatIntroTimerRef.current);
-        combatIntroTimerRef.current = null;
-      }
-    };
-  }, [
+  usePixiWorldPendingCombatIntroLifecycle({
+    combat: game.combat,
     combatIntroTimerRef,
-    game.combat,
     gameRef,
     movementTransitionRef,
     paused,
     playerCoord,
     setGame,
     worldTimeMsRef,
-  ]);
+  });
 
-  useEffect(() => {
-    selectedRef.current = playerCoord;
-    const hoverAnalysisController = hoverAnalysisControllerRef.current;
-    if (hoverAnalysisController) {
-      hoverAnalysisController.resetHoverAnalysis();
-      return;
-    }
+  usePixiWorldRenderSettingsSync({
+    appRef,
+    cloudTransparency,
+    cloudTransparencyRef,
+    paused,
+    pausedAnimationMsRef,
+    pausedRef,
+    renderInvalidationRef,
+    showClouds,
+    showCloudsRef,
+    showTerrainBackgrounds,
+    showTerrainBackgroundsRef,
+    showTooltipTags,
+    showTooltipTagsRef,
+    worldRenderFps,
+    worldRenderFpsRef,
+  });
 
-    hoverAnalysisVersionRef.current += 1;
-    hoverAnalysisCacheRef.current.clear();
-    hoverPointerRef.current = null;
-    hoverSnapshotRef.current = createEmptyWorldHoverSnapshot(
-      hoverAnalysisVersionRef.current,
-    );
-    hoveredMoveRef.current = null;
-    hoveredSafePathRef.current = null;
-    worldTooltipKeyRef.current = null;
-    tooltipPositionRef.current = null;
-    setTooltip(null);
-  }, [
+  usePixiWorldHoverLifecycle({
+    interactionBlocked,
+    playerCoord,
+    game: game,
     hoverAnalysisCacheRef,
     hoverAnalysisControllerRef,
     hoverAnalysisVersionRef,
@@ -385,43 +267,11 @@ export function usePixiWorld({
     hoverSnapshotRef,
     hoveredMoveRef,
     hoveredSafePathRef,
-    playerCoord,
     selectedRef,
     setTooltip,
     tooltipPositionRef,
     worldTooltipKeyRef,
-  ]);
-
-  useEffect(() => {
-    hoverAnalysisControllerRef.current?.refreshHoverAnalysis();
-  }, [
-    hoverAnalysisControllerRef,
-    game.bloodMoonActive,
-    game.combat,
-    game.enemies,
-    game.gameOver,
-    game.radius,
-    game.seed,
-    game.tiles,
-    game.turn,
-  ]);
-
-  useEffect(() => {
-    if (!interactionBlocked) {
-      return;
-    }
-
-    hoverAnalysisControllerRef.current?.resetHoverAnalysis();
-    worldTooltipKeyRef.current = null;
-    tooltipPositionRef.current = null;
-    setTooltip(null);
-  }, [
-    interactionBlocked,
-    hoverAnalysisControllerRef,
-    setTooltip,
-    tooltipPositionRef,
-    worldTooltipKeyRef,
-  ]);
+  });
 
   const initGraphicsSettings = initGraphicsSettingsRef.current!;
 
@@ -469,20 +319,11 @@ export function usePixiWorld({
     worldTooltipKeyRef,
   });
 
-  useEffect(() => {
-    if (!game.combat) {
-      if (queuedTravelAutoOpenSuppressionState === 'combat') {
-        movementControllerRef.current?.releaseCombatAutoOpenSuppression();
-      }
-      return;
-    }
-
-    movementControllerRef.current?.clear();
-  }, [
-    game.combat,
+  usePixiWorldQueuedTravelSuppression({
+    combat: game.combat,
     movementControllerRef,
     queuedTravelAutoOpenSuppressionState,
-  ]);
+  });
 
   return {
     hostRef,

@@ -22,6 +22,8 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - The renderer reuses graphics and sprites through dedicated pool helpers.
 - `src/ui/world/renderScene.ts` now stays focused on screen sizing, render-token invalidation, layer lifecycle coordination, and top-level pass orchestration.
 - `src/ui/world/renderSceneTilePasses.ts` now stays focused on visible-tile traversal and pass coordination.
+- `src/ui/world/renderSceneFrameState.ts` now prepares the per-frame render context (scene lookup, movement offsets, animation tokens, visibility inputs, fish-eye/cloud offsets) consumed by `renderScene`.
+- `src/ui/world/renderScenePhasePlan.ts` now owns the static/interaction/animated pass decision matrix and returns a declarative phase plan used by `renderScene`.
 - Static-tile drawing lives in `src/ui/world/renderSceneStaticTiles.ts`, static-marker composition lives in `src/ui/world/renderSceneStaticMarkers.ts`, interaction overlays live in `src/ui/world/renderSceneInteractionTiles.ts`, claim-border drawing lives in `src/ui/world/renderSceneClaimBorders.ts`, animated-only redraw work lives in `src/ui/world/renderSceneAnimated.ts`, and shared render constants plus cache-backed helpers live in `src/ui/world/renderSceneShared.ts`.
 - Cached scene state avoids unnecessary rebuilds when screen size, derived static-world render inputs, selected tile, or path highlights have not changed.
 - Static and interaction redraw invalidation derives from render-specific version keys rather than whole `GameState` identity, so log-only or other non-world state clones do not rebuild unchanged Pixi layers.
@@ -59,7 +61,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - The world bootstrap keeps world-only icon preloading, scene-cache setup, and world-hover tooltip helpers behind the same async world bootstrap boundary as Pixi and scene rendering, so the initial `App` chunk does not absorb renderer-only code before the world canvas mounts.
 - `src/app/App/world/pixiWorldPendingCombat.ts` owns delayed hostile-click combat intro timing, pending combat auto-start decisions, and victory carryover offset seeding so `usePixiWorld.ts` can delegate that combat-staging branch instead of keeping it inline with tile-resolution and bootstrap effects.
 - Visible world-icon preloading derives its dynamic icon set from the visible tiles plus the enemy lookup those tiles reference, rather than from a broad `GameState` object, so the preload path tracks the actual world marker inputs it consumes.
-- `usePixiWorld` delegates tile-resolution lifecycle, render-settings sync, post-combat carryover seeding, pending-combat intro timing, hover reset or refresh behavior, queued-travel suppression release, Pixi canvas bootstrap, render-loop comparison, pointer interaction wiring, and camera persistence to neighboring `src/app/App/world` modules so the hook stays centered on refs, invalidation state, movement transitions, and bootstrap status.
+- `usePixiWorld` delegates tile-resolution lifecycle, render-settings sync, post-combat carryover seeding, pending-combat intro timing, hover reset or refresh behavior, queued-travel suppression release, and Pixi canvas bootstrap to dedicated hooks (`usePixiWorldRenderSettingsSync`, `usePixiWorldPendingCombatLifecycle`, `usePixiWorldHoverLifecycle`, `usePixiWorldQueuedTravelSuppression`, `usePixiWorldBootstrapLifecycle`) so the hook stays centered on refs, invalidation state, movement transitions, and bootstrap status.
 - While the fisheye feature flag is off, the live world runtime imports a no-op fisheye adapter instead of the shader implementation, so normal Pixi bootstrap does not load or construct the disabled filter.
 - The world bootstrap blocks only on the icon textures needed for the initial visible viewport, while the remaining icon catalog warms in background idle slices after the first canvas paint.
 - If Pixi world bootstrap fails during async module loading, visible-icon texture preload, or renderer initialization, the app surfaces a world-canvas error state with a retry action instead of leaving the shell in a loading-only state.
@@ -90,6 +92,9 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - `src/app/App/world/pixiWorldInteractions.ts`
 - `src/ui/world/pixiRuntime.ts`
 - `src/ui/world/renderScene.ts`
+- `src/ui/world/renderSceneMovementTokens.ts`
+- `src/ui/world/renderSceneFrameState.ts`
+- `src/ui/world/renderScenePhasePlan.ts`
 - `src/ui/world/renderSceneTilePasses.ts`
 - `src/ui/world/renderSceneStaticTiles.ts`
 - `src/ui/world/renderSceneStaticMarkers.ts`

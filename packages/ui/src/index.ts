@@ -2,6 +2,12 @@ export {
   LoadingSpinner,
   type LoadingSpinnerProps,
 } from './components/LoadingSpinner/LoadingSpinner';
+export {
+  DEFAULT_UI_AUDIO_CONTROLLER,
+  UiAudioProvider,
+  useUiAudio,
+} from './app/audio/UiAudioContext';
+export type { UiAudioController } from './app/audio/UiAudioContext';
 export { Button, type ButtonProps } from './components/Button/Button';
 export { Window } from './components/Window/Window';
 export type {
@@ -17,6 +23,7 @@ export type {
 } from './components/Window/types';
 export { Switch } from './components/Switch/Switch';
 export { Tabs, type TabDefinition } from './components/Tabs/Tabs';
+export { formatCompactNumber, formatCompactNumberish } from './formatters';
 export { ActionBar, ActionBarSlot } from './components/ActionBar';
 export type {
   ActionBarProps,
@@ -39,16 +46,67 @@ export type {
   ItemRarity,
   ItemView,
 } from './game/stateTypes';
+export {
+  getItemCategory,
+  hasItemTag,
+  inferItemTagsByCategory,
+  isConsumableItem,
+  isEquippableItemCategory,
+  type ItemCategory,
+  type ItemClassificationInput,
+} from './game/content/items';
+export {
+  type GameTag,
+  GAME_TAGS,
+  getEquipmentSlotTag,
+  uniqueTags,
+} from './game/content/tags';
+export {
+  DEFAULT_EQUIPPABLE_TINT,
+  DEFAULT_ITEM_BORDER_TINT,
+  RECIPE_PAGE_TINT,
+  getConsumableIconTint,
+  getConfiguredItemTint,
+  getEquippableTint,
+  getItemKindIcon,
+  getItemTintByItemKey,
+  getItemTintFallback,
+  type ItemCategoryIconKey,
+} from './itemMetadata';
 export { WindowLabel } from './components/WindowLabel';
 export type {
   WindowLabelParts,
   WindowLabelProps,
 } from './components/WindowLabel';
 export {
+  GENERATED_ICON_ID_PREFIX,
+  GENERATED_ICON_POOL_SIZES,
+  GENERATED_ICON_POOLS,
+  type GeneratedIconId,
+  type GeneratedIconPoolKey,
+  type ParsedGeneratedIconId,
+  getGeneratedIconId,
+  parseGeneratedIconId,
+  isGeneratedIconId,
+} from './generatedIconPools';
+export {
+  GENERATED_ICON_ASSET_POOLS,
+  resolveGeneratedIconAsset,
+} from './generatedIconAssets';
+export {
   Tooltip,
   GameTooltip,
   syncFollowCursorTooltipPosition,
 } from './components/Tooltip';
+export {
+  clearTranslations,
+  getCurrentLanguage,
+  setLocaleTranslations,
+  t,
+  type TranslationValue,
+} from './i18n';
+export { getTooltipPlacementForRect } from './tooltipPlacement';
+export type { TooltipPlacement } from './tooltipPlacement';
 export type {
   TooltipData,
   TooltipPosition,
@@ -56,3 +114,5 @@ export type {
   GameTooltipData,
   GameTooltipProps,
 } from './components/Tooltip';
+export { tagTooltipLines } from './tooltips';
+export type { TooltipLine } from './tooltips';

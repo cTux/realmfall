@@ -6,7 +6,13 @@ import { ItemId } from './helpersTestkit';
 import { buildItemFromConfig } from '../game/content/items';
 import { GameTag } from '../game/content/tags';
 import type { Enemy, Item, Tile } from '../game/stateTypes';
-import { formatCompactNumber, formatCompactNumberish } from './formatters';
+import {
+  DockPanel as WindowDock,
+  WindowLabel,
+  formatCompactNumber,
+  formatCompactNumberish,
+  getItemCategory,
+} from '@realmfall/ui';
 import { renderWindowHotkeyLabelText } from './hotkeyLabels';
 import { Icons, iconForItem, itemTint, SkillIcon } from './icons';
 import { rarityColor } from './rarity';
@@ -16,7 +22,6 @@ import {
   enemyTooltip,
   structureTooltip,
 } from './tooltips';
-import { DockPanel as WindowDock, WindowLabel } from '@realmfall/ui';
 import { WINDOW_LABELS } from './windowLabels';
 
 function createItem(overrides: Partial<Item> = {}): Item {
@@ -114,16 +119,18 @@ describe('ui helper coverage', () => {
     expect(
       itemTint(createItem({ itemKey: 'gold', name: 'Gold', slot: undefined })),
     ).toBe('#fbbf24');
+    const ironBladeItem = createItem({
+      itemKey: undefined,
+      slot: 'weapon',
+      rarity: 'rare',
+      name: 'Iron Blade',
+      power: 1,
+    });
     expect(
-      itemTint(
-        createItem({
-          itemKey: undefined,
-          slot: 'weapon',
-          rarity: 'rare',
-          name: 'Iron Blade',
-        }),
-      ),
-    ).toBe('#cbd5e1');
+      getItemCategory({ ...ironBladeItem, slot: ironBladeItem.slot, power: 1 }),
+    ).toBe('weapon');
+    expect(ironBladeItem.slot).toBe('weapon');
+    expect(itemTint(ironBladeItem)).toBe('#cbd5e1');
     expect(
       itemTint(
         buildItemFromConfig('pepper', {
@@ -219,6 +226,7 @@ describe('ui helper coverage', () => {
           itemKey: 'unknown-equippable',
           slot: 'weapon',
           name: 'Unknown Weapon',
+          power: 1,
         }),
       ),
     ).toBe('#cbd5e1');
@@ -226,6 +234,30 @@ describe('ui helper coverage', () => {
 
   it('uses the dedicated miner icon for the mining skill', () => {
     expect(SkillIcon.mining).toBe(Icons.Miner);
+  });
+
+  it('resolves category-driven item icon and tint from shared presentation rules', () => {
+    expect(
+      iconForItem(
+        createItem({
+          itemKey: 'generic-armor',
+          defense: 2,
+          tags: [GameTag.ItemArmor],
+        }),
+      ),
+    ).toBe(Icons.Armor);
+
+    expect(
+      itemTint(
+        createItem({
+          itemKey: 'dawn-cloak',
+          slot: 'cloak',
+          tags: [GameTag.ItemArmor, GameTag.ItemCloth],
+          power: 0,
+          defense: 1,
+        }),
+      ),
+    ).toBe('#b45309');
   });
 
   it('covers tooltip branches for grouped enemies and structure variants', () => {

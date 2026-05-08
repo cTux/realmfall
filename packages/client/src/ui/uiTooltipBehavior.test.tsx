@@ -4,8 +4,8 @@ import { vi } from 'vitest';
 import {
   syncFollowCursorTooltipPosition,
   Tooltip as GameTooltip,
+  getTooltipPlacementForRect,
 } from '@realmfall/ui';
-import { getTooltipPlacementForRect } from './tooltipPlacement';
 import { rarityColor } from './rarity';
 import { setupUiTestEnvironment } from './uiTestkit';
 

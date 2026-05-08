@@ -1,7 +1,7 @@
 import type { Enemy, StructureType, Tile } from '../../game/stateTypes';
 import { buildEnemyTooltip, buildStructureTooltip } from '../tooltipContent';
-import type { TooltipLine } from '../tooltips/shared';
-import { tagTooltipLines } from '../tooltips/shared';
+import type { TooltipLine } from '@realmfall/ui';
+import { tagTooltipLines } from '@realmfall/ui';
 
 type WorldTooltipLine = Pick<
   TooltipLine,
