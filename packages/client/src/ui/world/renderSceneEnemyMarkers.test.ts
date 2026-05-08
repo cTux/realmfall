@@ -18,6 +18,7 @@ import {
 setupRenderSceneTestEnvironment();
 
 const ENEMY_BACKGROUND_COLOR = 0x2a0505;
+const ENEMY_BADGE_IDLE_BORDER_WIDTH = 2;
 const ENEMY_HEALTH_TRACK_COLOR = 0x450a0a;
 const ENEMY_MANA_TRACK_COLOR = 0x172554;
 const BADGE_PLATE_BACKGROUND_COLOR = 0x000000;
@@ -247,7 +248,7 @@ describe('renderScene enemy markers', () => {
     expect(updatedMarkers.some((child) => child.tint === 0xc084fc)).toBe(true);
   });
 
-  it('renders hostile markers inside a red circular badge with top level and bottom count plates', async () => {
+  it('renders idle hostile markers inside a red circular badge with a 2px black border and top level and bottom count plates', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-enemy-count-badge');
     game.tiles['1,0'] = {
@@ -356,13 +357,22 @@ describe('renderScene enemy markers', () => {
       ENEMY_HEALTH_TRACK_COLOR,
       'top',
     );
+    const manaTrack = findMarkerArc(
+      badgeGraphics,
+      ENEMY_MANA_TRACK_COLOR,
+      'bottom',
+    );
     const badgeSprites = markerDescendants.filter(
       (child): child is MockSprite => child instanceof MockSprite,
     );
     const badgeSprite = badgeSprites[badgeSprites.length - 1];
 
     expect(backgroundGraphic).toBeDefined();
-    expect(backgroundGraphic?.lineStyle).not.toHaveBeenCalled();
+    expect(backgroundGraphic?.lineStyle).toHaveBeenCalledWith(
+      ENEMY_BADGE_IDLE_BORDER_WIDTH,
+      BADGE_PLATE_BACKGROUND_COLOR,
+      1,
+    );
     expect(getEllipseRadius(backgroundGraphic!)).toBeLessThan(
       (badgeSprite?.width ?? Number.POSITIVE_INFINITY) * 0.7,
     );
@@ -392,40 +402,8 @@ describe('renderScene enemy markers', () => {
         ([, , , height]) => (height as number) <= 10,
       ),
     ).toBe(true);
-    expect(healthTrack).toBeDefined();
-    expect(
-      getGraphicThickness(healthTrack!) / getMaxGraphicRadius(healthTrack!),
-    ).toBeLessThanOrEqual(0.1);
-    expect(
-      getMaxGraphicRadius(healthTrack!) - getEllipseRadius(backgroundGraphic!),
-    ).toBeCloseTo(0, 3);
-    assertPlateOverlapsRingCenter(
-      badgePlateGraphic!,
-      healthTrack!,
-      badgeTexts.find((child) => child.text === '2' && child.position.y < 0)
-        ? 'top'
-        : 'bottom',
-    );
-    const manaTrack = findMarkerArc(
-      badgeGraphics,
-      ENEMY_MANA_TRACK_COLOR,
-      'bottom',
-    );
-    expect(manaTrack).toBeDefined();
-    assertPlateOverlapsRingCenter(badgePlateGraphic!, manaTrack!, 'bottom');
-    expect(levelText?.position.y).toBeCloseTo(
-      -getGraphicCenterRadius(healthTrack!),
-      1,
-    );
-    expect(countText?.position.y).toBeCloseTo(
-      getGraphicCenterRadius(manaTrack!),
-      1,
-    );
-    expect(
-      findMarkerArc(badgeGraphics, ENEMY_HEALTH_TRACK_COLOR, 'top'),
-    ).toBeDefined();
-    expect(findMarkerArc(badgeGraphics, 0xff2d55, 'top')).toBeDefined();
-    expect(findMarkerArc(badgeGraphics, 0x38bdf8, 'bottom')).toBeDefined();
+    expect(healthTrack).toBeUndefined();
+    expect(manaTrack).toBeUndefined();
   });
 
   it('renders an enemy count badge for dungeon hexes', async () => {
@@ -498,30 +476,6 @@ describe('renderScene enemy markers', () => {
     );
     const app = createMockApp();
     const visibleTiles = getVisibleTiles(game);
-
-    renderScene(
-      app as never,
-      game,
-      visibleTiles,
-      game.player.coord,
-      null,
-      12 * 60,
-    );
-
-    const initialGraphics = collectDescendants(getMarkerLayer(app)).filter(
-      (child): child is MockGraphics =>
-        child instanceof MockGraphics && child.visible,
-    );
-    const initialHpArc = findMarkerArc(initialGraphics, 0xff2d55, 'top');
-    const initialManaArc = findMarkerArc(initialGraphics, 0x38bdf8, 'bottom');
-    const initialHpCallCount = initialHpArc?.drawPolygon.mock.calls.length ?? 0;
-    const initialManaCallCount =
-      initialManaArc?.drawPolygon.mock.calls.length ?? 0;
-    expect(initialHpArc).toBeDefined();
-    expect(initialManaArc).toBeDefined();
-
-    game.enemies['enemy-1,0-0']!.hp = 0;
-    game.enemies['enemy-1,0-0']!.mana = 1;
     game.combat = {
       coord: { q: 0, r: 0 },
       enemyIds: ['enemy-1,0-0'],
@@ -554,6 +508,30 @@ describe('renderScene enemy markers', () => {
         'enemy-1,0-0': {},
       },
     };
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    const initialGraphics = collectDescendants(getMarkerLayer(app)).filter(
+      (child): child is MockGraphics =>
+        child instanceof MockGraphics && child.visible,
+    );
+    const initialHpArc = findMarkerArc(initialGraphics, 0xff2d55, 'top');
+    const initialManaArc = findMarkerArc(initialGraphics, 0x38bdf8, 'bottom');
+    const initialHpCallCount = initialHpArc?.drawPolygon.mock.calls.length ?? 0;
+    const initialManaCallCount =
+      initialManaArc?.drawPolygon.mock.calls.length ?? 0;
+    expect(initialHpArc).toBeDefined();
+    expect(initialManaArc).toBeDefined();
+
+    game.enemies['enemy-1,0-0']!.hp = 0;
+    game.enemies['enemy-1,0-0']!.mana = 1;
 
     renderScene(
       app as never,
@@ -731,61 +709,6 @@ function getEllipseRadius(graphic: MockGraphics) {
     number,
   ];
   return radiusX;
-}
-
-function getMaxGraphicRadius(graphic: MockGraphics) {
-  return Math.max(
-    ...graphic.drawPolygon.mock.calls.flatMap(([points]) => {
-      const numericPoints = points as number[];
-      const radii: number[] = [];
-      for (let index = 0; index < numericPoints.length; index += 2) {
-        radii.push(
-          Math.hypot(numericPoints[index] ?? 0, numericPoints[index + 1] ?? 0),
-        );
-      }
-      return radii;
-    }),
-  );
-}
-
-function getMinGraphicRadius(graphic: MockGraphics) {
-  return Math.min(
-    ...graphic.drawPolygon.mock.calls.flatMap(([points]) => {
-      const numericPoints = points as number[];
-      const radii: number[] = [];
-      for (let index = 0; index < numericPoints.length; index += 2) {
-        radii.push(
-          Math.hypot(numericPoints[index] ?? 0, numericPoints[index + 1] ?? 0),
-        );
-      }
-      return radii;
-    }),
-  );
-}
-
-function getGraphicThickness(graphic: MockGraphics) {
-  return getMaxGraphicRadius(graphic) - getMinGraphicRadius(graphic);
-}
-
-function getGraphicCenterRadius(graphic: MockGraphics) {
-  return (getMaxGraphicRadius(graphic) + getMinGraphicRadius(graphic)) / 2;
-}
-
-function assertPlateOverlapsRingCenter(
-  graphic: MockGraphics,
-  ringGraphic: MockGraphics,
-  placement: 'bottom' | 'top',
-) {
-  const ringCenter =
-    (placement === 'top' ? -1 : 1) * getGraphicCenterRadius(ringGraphic);
-
-  expect(
-    graphic.drawRect.mock.calls.some(([, y, , height]) => {
-      const plateTop = y as number;
-      const plateBottom = (y as number) + (height as number);
-      return plateTop < ringCenter && plateBottom > ringCenter;
-    }),
-  ).toBe(true);
 }
 
 function sumDrawPolygonCalls(graphics: MockGraphics[]) {

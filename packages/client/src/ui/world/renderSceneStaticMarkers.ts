@@ -78,6 +78,9 @@ export function renderStaticMarkers({
   const unknownMarkerAlpha = isUnknownVisibleWorldTile(tile)
     ? appearanceAlpha
     : (1 - revealProgress) * appearanceAlpha;
+  const engagedEnemyIdSet = state.combat?.enemyIds
+    ? new Set(state.combat.enemyIds)
+    : null;
   const getMarkerIdentityKey = (markerKind: string) =>
     markerIdentityKeyBase === null
       ? undefined
@@ -189,6 +192,9 @@ export function renderStaticMarkers({
     const isBossCenter = tile.enemyIds.some((enemyId) =>
       isWorldBossEnemyId(enemyId),
     );
+    const showCombatBars =
+      engagedEnemyIdSet !== null &&
+      hostileEnemies.some((enemy) => engagedEnemyIdSet.has(enemy.id));
     if (!worldBossCenter || isBossCenter) {
       const sprite = takeShadowedSprite(
         scene.worldStaticMarkerSprites,
@@ -213,18 +219,23 @@ export function renderStaticMarkers({
       configureEntityBadgeSprite(sprite, {
         alpha: resolvedMarkerAlpha,
         backgroundColor: ENTITY_BADGE_BACKGROUND_COLORS.enemy,
+        borderWidth: showCombatBars ? undefined : 2,
         countLabel: enemies.length >= 2 ? enemies.length.toString() : undefined,
-        hp: {
-          current: leadEnemy.hp,
-          max: leadEnemy.maxHp,
-        },
+        hp: showCombatBars
+          ? {
+              current: leadEnemy.hp,
+              max: leadEnemy.maxHp,
+            }
+          : undefined,
         iconSize: markerIconSize,
         iconTint: tint,
         levelLabel: leadEnemy.tier.toString(),
-        mana: {
-          current: leadEnemy.mana ?? 0,
-          max: leadEnemy.maxMana ?? 0,
-        },
+        mana: showCombatBars
+          ? {
+              current: leadEnemy.mana ?? 0,
+              max: leadEnemy.maxMana ?? 0,
+            }
+          : undefined,
         outerRadius:
           markerSize * (isBossCenter ? 0.58 : 0.76) * ENTITY_BADGE_RADIUS_SCALE,
         point: markerPoint,
