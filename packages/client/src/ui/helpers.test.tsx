@@ -12,7 +12,7 @@ import {
   formatCompactNumber,
   formatCompactNumberish,
   getItemCategory,
-} from '@realmfall/ui';
+} from '@realmfall/ui-react';
 import { renderWindowHotkeyLabelText } from './hotkeyLabels';
 import { Icons, iconForItem, itemTint, SkillIcon } from './icons';
 import { rarityColor } from './rarity';

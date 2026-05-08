@@ -47,7 +47,7 @@ Use this skill when the user asks for:
 
 ## Useful verification paths
 
-- `pnpm --filter @realmfall/ui test:jsdom`
-- `pnpm --filter @realmfall/client test:jsdom`
+- `pnpm --filter @realmfall/ui-react test:jsdom`
+- `pnpm --filter @realmfall/client-web test:jsdom`
 - `pnpm lint`
 - `pnpm typecheck`

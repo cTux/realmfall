@@ -1,6 +1,6 @@
 # Realmfall UI
 
-`@realmfall/ui` is the shared component library for the client package.
+`@realmfall/ui-react` is the shared component library for the client package.
 
 ## Purpose
 
@@ -25,14 +25,14 @@
 10. When a shared Storybook story only needs representative gameplay-shaped items, prefer local fixture objects or existing Storybook fixtures instead of routing through `packages/ui/src/game` into client content builders.
 11. Keep side effects in small helper functions or hooks near the component folder if behavior grows.
 12. Add or update tests if the component has domain behavior (not required for presentational-only components).
-13. Run `pnpm --filter @realmfall/ui dev:storybook` for visual review.
+13. Run `pnpm --filter @realmfall/ui-react dev:storybook` for visual review.
 
 ## Local commands
 
-- `pnpm --filter @realmfall/ui typecheck`
-- `pnpm --filter @realmfall/ui lint`
-- `pnpm --filter @realmfall/ui build`
-- `pnpm --filter @realmfall/ui test`
-- `pnpm --filter @realmfall/ui test:jsdom`
-- `pnpm --filter @realmfall/ui dev:storybook`
-- `pnpm --filter @realmfall/ui build:storybook`
+- `pnpm --filter @realmfall/ui-react typecheck`
+- `pnpm --filter @realmfall/ui-react lint`
+- `pnpm --filter @realmfall/ui-react build`
+- `pnpm --filter @realmfall/ui-react test`
+- `pnpm --filter @realmfall/ui-react test:jsdom`
+- `pnpm --filter @realmfall/ui-react dev:storybook`
+- `pnpm --filter @realmfall/ui-react build:storybook`

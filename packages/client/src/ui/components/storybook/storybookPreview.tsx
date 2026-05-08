@@ -9,7 +9,7 @@ import {
   Tooltip as GameTooltip,
   type TooltipPosition,
   getTooltipPlacementForRect,
-} from '@realmfall/ui';
+} from '@realmfall/ui-react';
 import {
   resetTooltipState,
   setTooltipState,

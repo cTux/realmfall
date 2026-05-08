@@ -1,4 +1,4 @@
-import { ResizableWindow, Window } from '@realmfall/ui';
+import { ResizableWindow, Window } from '@realmfall/ui-react';
 import type { DraggableWindowProps } from './types';
 
 export function DraggableWindow(props: DraggableWindowProps) {

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import type { TooltipPosition } from '@realmfall/ui';
+import type { TooltipPosition } from '@realmfall/ui-react';
 import type { MutableRefObject } from 'react';
 import { type HexCoord, type GameState } from '../../../game/stateTypes';
 import { createEmptyWorldHoverSnapshot } from './worldHoverSnapshot';

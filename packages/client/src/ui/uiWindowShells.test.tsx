@@ -1,5 +1,5 @@
 import React, { act } from 'react';
-import { ContextMenu as ItemContextMenu } from '@realmfall/ui';
+import { ContextMenu as ItemContextMenu } from '@realmfall/ui-react';
 import { vi } from 'vitest';
 import { DEFAULT_WINDOWS } from '../app/constants';
 import { GameTag } from '../game/content/tags';

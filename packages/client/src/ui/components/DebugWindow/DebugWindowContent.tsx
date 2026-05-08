@@ -1,4 +1,4 @@
-import { Button } from '@realmfall/ui';
+import { Button } from '@realmfall/ui-react';
 import { ENEMY_CONFIGS } from '../../../game/content/enemies';
 import {
   ITEM_CONFIGS,

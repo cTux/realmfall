@@ -1,6 +1,6 @@
 import type { MutableRefObject } from 'react';
 import type { Application, Container } from 'pixi.js';
-import type { TooltipPosition } from '@realmfall/ui';
+import type { TooltipPosition } from '@realmfall/ui-react';
 import type { HexCoord } from '../../../game/hex';
 import type { GameState } from '../../../game/stateTypes';
 import { type WorldMapCameraState } from '../../../ui/world/worldMapCamera';

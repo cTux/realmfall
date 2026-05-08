@@ -62,5 +62,5 @@ Use this checklist as a secondary audit pass after applying Realmfall's scoped r
 
 - Prefer the repo's desktop-style window model over generic page-navigation advice.
 - Prefer the shared custom tooltip system over native `title` tooltips on existing tooltip-driven controls.
-- Shared client buttons should route through `Button` from `@realmfall/ui`.
+- Shared client buttons should route through `Button` from `@realmfall/ui-react`.
 - Treat Storybook coverage as part of the review surface for shared components and client-only windows when behavior changes.

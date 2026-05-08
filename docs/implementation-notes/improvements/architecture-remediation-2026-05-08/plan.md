@@ -80,11 +80,11 @@
 - Modify: `packages/client/src/ui/uiVisualHelpers.test.tsx`
 - Modify: `packages/client/src/ui/uiTooltipBehavior.test.tsx`
 
-- [ ] Replace local client helper implementations with thin re-exports or direct imports from `@realmfall/ui`.
+- [ ] Replace local client helper implementations with thin re-exports or direct imports from `@realmfall/ui-react`.
 - [ ] Keep `itemTooltipLines`, `enemyTooltip`, and other client-only tooltip builders in `packages/client`, but make their shared `TooltipLine` and `tagTooltipLines` dependency come from the shared package.
 - [ ] Update tests to import the canonical helper surface once, not both copies.
-- [ ] Verify with: `pnpm --filter @realmfall/client test:jsdom -- --run packages/client/src/ui/helpers.test.tsx packages/client/src/ui/uiVisualHelpers.test.tsx packages/client/src/ui/uiTooltipBehavior.test.tsx`
-- [ ] Verify with: `pnpm --filter @realmfall/client typecheck`
+- [ ] Verify with: `pnpm --filter @realmfall/client-web test:jsdom -- --run packages/client/src/ui/helpers.test.tsx packages/client/src/ui/uiVisualHelpers.test.tsx packages/client/src/ui/uiTooltipBehavior.test.tsx`
+- [ ] Verify with: `pnpm --filter @realmfall/client-web typecheck`
 - [ ] Commit only this fix.
 
 **Acceptance criteria:**
@@ -121,9 +121,9 @@
 - [ ] Slim `packages/client/src/ui/icons.ts` so it owns only client-only concerns such as enemy, structure, and skill icon resolution plus any wrappers needed around shared item presentation helpers.
 - [ ] Remove known drift points found in review, including the mismatched armor icon mapping, the extra `beet-tonic` entry that only exists in one package, and the differing set tint values.
 - [ ] Add focused tests that compare shared item presentation results for representative items instead of allowing the two packages to drift silently.
-- [ ] Verify with: `pnpm --filter @realmfall/ui test:jsdom`
-- [ ] Verify with: `pnpm --filter @realmfall/client test:node -- --run packages/client/src/game/*.test.ts packages/client/src/ui/worldIcons.test.ts`
-- [ ] Verify with: `pnpm --filter @realmfall/client typecheck`
+- [ ] Verify with: `pnpm --filter @realmfall/ui-react test:jsdom`
+- [ ] Verify with: `pnpm --filter @realmfall/client-web test:node -- --run packages/client/src/game/*.test.ts packages/client/src/ui/worldIcons.test.ts`
+- [ ] Verify with: `pnpm --filter @realmfall/client-web typecheck`
 - [ ] Commit only this fix.
 
 **Acceptance criteria:**
@@ -151,11 +151,11 @@
   - `docs/specs/reference/technical-solutions/application-architecture/spec.md`
 
 - [ ] Copy the canonical `UiAudioController` contract and provider implementation into `packages/ui`.
-- [ ] Convert the client-local file into a thin compatibility re-export from `@realmfall/ui` or remove it if no longer needed.
+- [ ] Convert the client-local file into a thin compatibility re-export from `@realmfall/ui-react` or remove it if no longer needed.
 - [ ] Tighten the shared-package boundary test so this file is no longer an allowed bridge exception.
-- [ ] Verify with: `pnpm --filter @realmfall/ui test:jsdom`
-- [ ] Verify with: `pnpm --filter @realmfall/client test:jsdom -- --run packages/client/src/app/audio/*.test.tsx`
-- [ ] Verify with: `pnpm --filter @realmfall/client typecheck`
+- [ ] Verify with: `pnpm --filter @realmfall/ui-react test:jsdom`
+- [ ] Verify with: `pnpm --filter @realmfall/client-web test:jsdom -- --run packages/client/src/app/audio/*.test.tsx`
+- [ ] Verify with: `pnpm --filter @realmfall/client-web typecheck`
 - [ ] Commit only this fix.
 
 **Acceptance criteria:**
@@ -186,9 +186,9 @@
 - [ ] Keep the client file as a compatibility re-export only if client call sites still need the old path.
 - [ ] Remove `packages/ui/src/bridges/generatedIconAssets.ts` as a client bridge or reduce it to a local shared-package module with no client import.
 - [ ] Tighten the boundary test to drop this bridge exception.
-- [ ] Verify with: `pnpm --filter @realmfall/ui build`
-- [ ] Verify with: `pnpm --filter @realmfall/client test:node -- --run packages/client/src/ui/generatedIconAssets.test.ts packages/client/src/ui/tooltips/moduleSplit.test.ts`
-- [ ] Verify with: `pnpm --filter @realmfall/client typecheck`
+- [ ] Verify with: `pnpm --filter @realmfall/ui-react build`
+- [ ] Verify with: `pnpm --filter @realmfall/client-web test:node -- --run packages/client/src/ui/generatedIconAssets.test.ts packages/client/src/ui/tooltips/moduleSplit.test.ts`
+- [ ] Verify with: `pnpm --filter @realmfall/client-web typecheck`
 - [ ] Commit only this fix.
 
 **Acceptance criteria:**
@@ -202,7 +202,7 @@
 
 ### Task 5: Remove shared-package runtime asset imports from `packages/client`
 
-**Intent:** Stop `packages/ui/src/icons.ts` from importing SVG assets through `../../client/src/...` paths.
+**Intent:** Stop `packages/ui/src/icons.ts` from importing SVG assets through `../../client-web/src/...` paths.
 
 **Files:**
 
@@ -216,8 +216,8 @@
 - [ ] Move the shared icon assets used by `packages/ui` into the shared package or a neutral shared asset path that does not live under `packages/client/src`.
 - [ ] Update imports in `packages/ui/src/icons.ts` to point only at shared-package-owned asset files.
 - [ ] Leave client-only world and gameplay icon assets in `packages/client` if they are not used by the shared package.
-- [ ] Verify with: `pnpm --filter @realmfall/ui build`
-- [ ] Verify with: `pnpm --filter @realmfall/ui test:jsdom`
+- [ ] Verify with: `pnpm --filter @realmfall/ui-react build`
+- [ ] Verify with: `pnpm --filter @realmfall/ui-react test:jsdom`
 - [ ] Commit only this fix.
 
 **Acceptance criteria:**
@@ -249,9 +249,9 @@
 - [ ] Keep existing translated copy unchanged by wiring the client’s translation implementation into the new contract.
 - [ ] Update shared tests and Storybook fixtures to provide deterministic translation stubs locally.
 - [ ] Tighten the boundary test so runtime i18n bridging from client is no longer allowed.
-- [ ] Verify with: `pnpm --filter @realmfall/ui test:jsdom`
-- [ ] Verify with: `pnpm --filter @realmfall/client test:jsdom`
-- [ ] Verify with: `pnpm --filter @realmfall/client typecheck`
+- [ ] Verify with: `pnpm --filter @realmfall/ui-react test:jsdom`
+- [ ] Verify with: `pnpm --filter @realmfall/client-web test:jsdom`
+- [ ] Verify with: `pnpm --filter @realmfall/client-web typecheck`
 - [ ] Commit only this fix.
 
 **Acceptance criteria:**
@@ -276,8 +276,8 @@
 - [ ] Mount `RecipeBookWindowContent` directly in the recipe-book content test helper instead of routing content assertions through the deferred `RecipeBookWindow` shell.
 - [ ] Keep the shell-focused `RecipeBookWindow` coverage in `packages/client/src/ui/uiWindowShells.test.tsx` as the wrapper-level check.
 - [ ] Add an explicit UI settle step after virtualized recipe-list scrolling before asserting on the later rows.
-- [ ] Verify with: `pnpm --filter @realmfall/client exec vitest run --project jsdom src/ui/uiRecipeBookWindow.test.tsx`
-- [ ] Verify with: `pnpm --filter @realmfall/client exec vitest run --project jsdom src/ui/uiWindowShells.test.tsx`
+- [ ] Verify with: `pnpm --filter @realmfall/client-web exec vitest run --project jsdom src/ui/uiRecipeBookWindow.test.tsx`
+- [ ] Verify with: `pnpm --filter @realmfall/client-web exec vitest run --project jsdom src/ui/uiWindowShells.test.tsx`
 - [ ] Commit only this fix.
 
 **Acceptance criteria:**
@@ -311,8 +311,8 @@
 - [ ] Extract hover reset and refresh behavior into a dedicated hook.
 - [ ] Extract queued-travel suppression release behavior into a dedicated hook.
 - [ ] Keep `usePixiWorld` responsible only for ref setup, lifecycle composition, tile-resolution hookup, bootstrap invocation, and the returned canvas state.
-- [ ] Verify with: `pnpm --filter @realmfall/client test:jsdom -- --run packages/client/src/app/App/world/**/*.test.ts packages/client/src/app/App/tests/App.canvas.test.tsx`
-- [ ] Verify with: `pnpm --filter @realmfall/client typecheck`
+- [ ] Verify with: `pnpm --filter @realmfall/client-web test:jsdom -- --run packages/client/src/app/App/world/**/*.test.ts packages/client/src/app/App/tests/App.canvas.test.tsx`
+- [ ] Verify with: `pnpm --filter @realmfall/client-web typecheck`
 - [ ] Commit only this fix.
 
 **Acceptance criteria:**
@@ -344,8 +344,8 @@
 - [ ] Move the decision logic for static, interaction, and animated passes into a helper that returns a declarative phase plan.
 - [ ] Keep the public `renderScene` function as the thin shell that reads the phase plan and executes pass helpers.
 - [ ] Preserve current render invalidation behavior and render-counter recording.
-- [ ] Verify with: `pnpm --filter @realmfall/client test:node -- --run packages/client/src/ui/world/*.test.ts`
-- [ ] Verify with: `pnpm --filter @realmfall/client typecheck`
+- [ ] Verify with: `pnpm --filter @realmfall/client-web test:node -- --run packages/client/src/ui/world/*.test.ts`
+- [ ] Verify with: `pnpm --filter @realmfall/client-web typecheck`
 - [ ] Commit only this fix.
 
 **Acceptance criteria:**
@@ -374,7 +374,7 @@
 - [ ] Keep the allowed TypeScript boundary exceptions limited to the Storybook helper bridge and document the separate shared SCSS surface-token forward explicitly.
 - [ ] Update the architecture rule text so future tasks do not reintroduce client-owned runtime helpers into `packages/ui`.
 - [ ] Align the technical-solution specs with the shipped post-refactor boundary, helper ownership, and remaining exception policy.
-- [ ] Verify with: `pnpm --filter @realmfall/ui test:jsdom -- --run packages/ui/src/game/__tests__/boundary.spec.test.ts`
+- [ ] Verify with: `pnpm --filter @realmfall/ui-react test:jsdom -- --run packages/ui/src/game/__tests__/boundary.spec.test.ts`
 - [ ] Verify with: `pnpm typecheck`
 - [ ] Commit only this fix.
 

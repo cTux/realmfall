@@ -3,7 +3,7 @@ import {
   ItemSlot as ItemSlotButton,
   formatCompactNumber,
   formatCompactNumberish,
-} from '@realmfall/ui';
+} from '@realmfall/ui-react';
 import { getInventoryItemAction } from './uiVisualHelpersTestkit';
 import { GameTag } from '../game/content/tags';
 import { getAbilityDefinition } from '../game/abilities';

@@ -11,7 +11,7 @@ export function createWorkspaceDevPlan(environment = process.env) {
       [
         {
           name: 'client',
-          packageName: '@realmfall/client',
+          packageName: '@realmfall/client-web',
           script: 'dev',
         },
         {

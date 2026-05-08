@@ -8,4 +8,4 @@ export {
   getGeneratedIconId,
   parseGeneratedIconId,
   isGeneratedIconId,
-} from '@realmfall/ui/generatedIconPools';
+} from '@realmfall/ui-react/generatedIconPools';

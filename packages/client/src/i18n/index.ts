@@ -1,5 +1,5 @@
 import enLocaleUrl from './locales/en.json?url';
-import { getCurrentLanguage, setLocaleTranslations, t } from '@realmfall/ui';
+import { getCurrentLanguage, setLocaleTranslations, t } from '@realmfall/ui-react';
 const LOCALE_ASSET_URLS: Record<string, string> = {
   en: enLocaleUrl,
 };

@@ -9,7 +9,7 @@ describe('workspace dev plan', () => {
     expect(plan.services).toEqual([
       {
         command: process.execPath,
-        args: ['/tmp/pnpm.cjs', '--filter', '@realmfall/client', 'dev'],
+        args: ['/tmp/pnpm.cjs', '--filter', '@realmfall/client-web', 'dev'],
         name: 'client',
       },
       {

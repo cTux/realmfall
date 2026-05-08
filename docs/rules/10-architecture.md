@@ -8,7 +8,7 @@
 - When shared `packages/ui` controls need gameplay-shaped data, define narrow structural contracts under `packages/ui/src/game` and keep client-only state modules out of the shared component import graph.
 - Do not import runtime TypeScript modules from `packages/client/src` into `packages/ui/src`. The only allowed TypeScript exception is the Storybook fixture helper bridge at `packages/ui/src/components/storybook/storybookHelpers.tsx`, while the shared surface-token stylesheet forward stays isolated at `packages/ui/src/styles/_ui.scss`.
 - Do not re-export `packages/client/src/game/content/*` through `packages/ui/src/game`. Keep `packages/ui/src/game` as a UI-owned contract and helper layer.
-- Keep the shared i18n contract in `packages/ui/src/i18n`, and have `packages/client/src/i18n/index.ts` seed that contract at runtime instead of re-exporting client i18n through `@realmfall/ui`.
+- Keep the shared i18n contract in `packages/ui/src/i18n`, and have `packages/client/src/i18n/index.ts` seed that contract at runtime instead of re-exporting client i18n through `@realmfall/ui-react`.
 - Keep Pixi world rendering concerns in `packages/client/src/ui/world` rather than mixing them into gameplay rules.
 - Keep HTTP entrypoints, request handlers, and other server-only runtime code in `packages/server-world/src` or `packages/server-auth/src`.
 - Keep cross-runtime shared types, schemas, and utilities in `packages/common/src`, and keep that package free of client-only or server-only side effects.

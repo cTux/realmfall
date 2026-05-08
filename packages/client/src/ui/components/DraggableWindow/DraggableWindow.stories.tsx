@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { ComponentProps } from 'react';
 import { useState } from 'react';
-import { Button } from '@realmfall/ui';
+import { Button } from '@realmfall/ui-react';
 import {
   STORYBOOK_WINDOW_POSITION,
   storySurfaceDecorator,

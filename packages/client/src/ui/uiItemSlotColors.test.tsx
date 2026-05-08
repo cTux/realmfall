@@ -1,5 +1,5 @@
 import { renderToStaticMarkup } from 'react-dom/server';
-import { ItemSlot as SharedItemSlotButton } from '@realmfall/ui';
+import { ItemSlot as SharedItemSlotButton } from '@realmfall/ui-react';
 import { buildItemFromConfig } from './uiItemSlotColorsTestkit';
 import { ItemId } from '../game/content/ids';
 import { GameTag } from '../game/content/tags';

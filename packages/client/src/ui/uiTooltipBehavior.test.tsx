@@ -5,7 +5,7 @@ import {
   syncFollowCursorTooltipPosition,
   Tooltip as GameTooltip,
   getTooltipPlacementForRect,
-} from '@realmfall/ui';
+} from '@realmfall/ui-react';
 import { rarityColor } from './rarity';
 import { setupUiTestEnvironment } from './uiTestkit';
 

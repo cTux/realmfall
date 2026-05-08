@@ -1,4 +1,4 @@
-import { Button } from '@realmfall/ui';
+import { Button } from '@realmfall/ui-react';
 import { memo, useEffect, useState } from 'react';
 import {
   INVENTORY_SORT_MODES,

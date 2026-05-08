@@ -3,7 +3,7 @@ import type { Application } from 'pixi.js';
 import {
   syncFollowCursorTooltipPosition,
   type TooltipPosition,
-} from '@realmfall/ui';
+} from '@realmfall/ui-react';
 import { hexAtPoint, hexDistance, type HexCoord } from '../../../game/hex';
 import { isPassable } from '../../../game/shared';
 import {

@@ -6,7 +6,7 @@ import {
 } from './app/interfaceFonts';
 import { loadInterfaceSettings } from './app/interfaceSettings';
 import { loadI18n } from './i18n';
-import { LoadingSpinner } from '@realmfall/ui/loading-spinner';
+import { LoadingSpinner } from '@realmfall/ui-react/loading-spinner';
 import { BootstrapErrorScreen } from './ui/components/BootstrapErrorScreen';
 import { installGlobalVersion } from './version';
 import './styles/base.scss';

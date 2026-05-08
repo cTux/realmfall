@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getItemCategory as getSharedItemCategory } from '@realmfall/ui';
+import { getItemCategory as getSharedItemCategory } from '@realmfall/ui-react';
 import {
   getItemCategory,
   getItemConfigCategory,

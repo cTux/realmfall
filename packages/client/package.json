@@ -1,5 +1,5 @@
 {
-  "name": "@realmfall/client",
+  "name": "@realmfall/client-web",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@realmfall/common": "workspace:*",
-    "@realmfall/ui": "workspace:*",
+    "@realmfall/ui-react": "workspace:*",
     "@rexa-developer/tiks": "^0.1.9",
     "@tanstack/react-virtual": "^3.13.24",
     "comlink": "^4.4.2",

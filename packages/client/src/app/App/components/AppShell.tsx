@@ -6,7 +6,7 @@ import {
   type CSSProperties,
   type MutableRefObject,
 } from 'react';
-import { Button, LoadingSpinner } from '@realmfall/ui';
+import { Button, LoadingSpinner } from '@realmfall/ui-react';
 import { getActiveWorld } from '../../../game/dungeons/worldState';
 import { getCurrentWorldRevealRadius } from '../../../game/stateOutposts';
 import type { GameState, HexCoord } from '../../../game/stateTypes';

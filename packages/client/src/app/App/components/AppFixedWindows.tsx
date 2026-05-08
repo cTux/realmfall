@@ -12,7 +12,7 @@ import {
   ContextMenu as ItemContextMenu,
   DockPanel as WindowDock,
   Tooltip as GameTooltip,
-} from '@realmfall/ui';
+} from '@realmfall/ui-react';
 import { HeroWindow } from '../../../ui/components/HeroWindow';
 import type {
   AppWindowsActions,

@@ -1,5 +1,5 @@
-export type { TooltipPlacement } from '@realmfall/ui';
-export { getTooltipPlacementForRect } from '@realmfall/ui';
+export type { TooltipPlacement } from '@realmfall/ui-react';
+export { getTooltipPlacementForRect } from '@realmfall/ui-react';
 
 export interface TooltipAnchorRect {
   left: number;

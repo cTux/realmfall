@@ -1,4 +1,4 @@
-import { Button } from '@realmfall/ui';
+import { Button } from '@realmfall/ui-react';
 import { useUiAudio } from '../../../app/audio/UiAudioContext';
 import {
   RESETTABLE_SAVE_AREA_IDS,

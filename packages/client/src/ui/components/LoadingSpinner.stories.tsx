@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { LoadingSpinner } from '@realmfall/ui';
+import { LoadingSpinner } from '@realmfall/ui-react';
 import { storyPanelDecorator } from './storybook/storybookHelpers';
 
 const meta = {

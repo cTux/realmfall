@@ -3,7 +3,7 @@ import { type GameTag } from '../tags';
 import {
   getItemCategory as getSharedItemCategory,
   inferItemTagsByCategory,
-} from '@realmfall/ui';
+} from '@realmfall/ui-react';
 import { getItemConfigByKey } from './itemCatalog';
 import {
   CONSUMABLE_ITEM_KEYS,
