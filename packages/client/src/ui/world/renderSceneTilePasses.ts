@@ -87,7 +87,11 @@ export function renderTilePasses({
   worldBossIconSize,
   scene,
 }: RenderTilePassesOptions) {
-  const nextCampfireLightPoints: Array<{ x: number; y: number }> = [];
+  const nextCampfireLightPoints: Array<{
+    alpha: number;
+    x: number;
+    y: number;
+  }> = [];
   const movementTransitionState =
     getMovementTransitionState(movementTransition);
 
@@ -95,12 +99,14 @@ export function renderTilePasses({
     const tileKey = hexKey(tile.coord);
     const isOutgoingTile =
       movementTransitionState?.outgoingTileKeys.has(tileKey) ?? false;
-    const { distance, revealed } = getVisibleTileRevealState({
-      movementTransitionState: movementTransitionRevealState,
-      playerCoord: state.player.coord,
-      revealRadius,
-      tile,
-    });
+    const { distance, revealed, visualRevealAlpha } = getVisibleTileRevealState(
+      {
+        movementTransitionState: movementTransitionRevealState,
+        playerCoord: state.player.coord,
+        revealRadius,
+        tile,
+      },
+    );
     const isPlayerTile =
       tile.coord.q === state.player.coord.q &&
       tile.coord.r === state.player.coord.r;
@@ -148,8 +154,8 @@ export function renderTilePasses({
         nextCampfireLightPoints,
         point,
         poly,
-        revealed,
         appearanceAlpha,
+        revealAlpha: visualRevealAlpha,
         safePolygon,
         scene,
         shadowOffset,

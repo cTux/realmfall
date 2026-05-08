@@ -102,7 +102,7 @@ export function renderDungeonEnemyMovementCooldowns({
       revealRadius,
       tile,
     });
-    if (!revealState.revealed || !revealState.resolved) {
+    if (revealState.visualRevealAlpha <= 0 || !revealState.resolved) {
       continue;
     }
 
@@ -126,6 +126,7 @@ export function renderDungeonEnemyMovementCooldowns({
     }
 
     renderMovementCooldownArc({
+      alpha: revealState.visualRevealAlpha,
       cooldownBand,
       entry: marker.entry,
       progress: Math.min(
@@ -188,10 +189,12 @@ function getMovementCooldownArcBand(badgeOuterRadius: number) {
 }
 
 function renderMovementCooldownArc({
+  alpha = 1,
   cooldownBand,
   entry,
   progress,
 }: {
+  alpha?: number;
   cooldownBand: ReturnType<typeof getMovementCooldownArcBand>;
   entry: ShadowedSpriteEntry;
   progress: number;
@@ -200,7 +203,7 @@ function renderMovementCooldownArc({
   trackGraphic.clear();
   trackGraphic.visible = true;
   drawEntityBadgeArc(trackGraphic, {
-    alpha: PLAYER_BAR_TRACK_ALPHA,
+    alpha: PLAYER_BAR_TRACK_ALPHA * alpha,
     color: PLAYER_BAR_TRACK_COLOR,
     endAngle: ENTITY_BADGE_MP_ARC_ANGLES.endAngle,
     innerRadius: cooldownBand.innerRadius,
@@ -214,7 +217,7 @@ function renderMovementCooldownArc({
   }
 
   drawEntityBadgeArc(trackGraphic, {
-    alpha: PLAYER_BAR_FILL_ALPHA,
+    alpha: PLAYER_BAR_FILL_ALPHA * alpha,
     color: MOVEMENT_COOLDOWN_BAR_COLOR,
     endAngle: ENTITY_BADGE_MP_ARC_ANGLES.endAngle,
     innerRadius: cooldownBand.innerRadius,

@@ -98,6 +98,7 @@ export function renderAnimatedScene({
       lightingState.lighting.ambientBrightness,
       lightingState.lighting,
       animationMs,
+      point.alpha,
     );
   });
 

@@ -4,13 +4,15 @@ import {
   type MutableRefObject,
   type SetStateAction,
 } from 'react';
-import { WORLD_MOVE_HEX_COOLDOWN_MS } from '../../../game/config';
+import {
+  WORLD_MOVE_HEX_COOLDOWN_MS,
+  WORLD_MOVE_VISUAL_DURATION_MS,
+} from '../../../game/config';
 import { syncCombatEncounterEnemies } from '../../../game/stateCombatEncounterSync';
 import type { GameState } from '../../../game/stateTypes';
 import { WORLD_COMBAT_LUNGE_DURATION_MS } from '../../../game/worldCombatPresentation';
 import { getWorldCombatLungeOffset } from '../../../ui/world/worldCombatLunge';
 import { getWorldHexSize } from '../../../ui/world/renderSceneMath';
-import { WORLD_MOVE_VISUAL_DURATION_MS } from '../world/movement/worldMovementTransition';
 import {
   createHydratedAppGame,
   flushLazyModules,

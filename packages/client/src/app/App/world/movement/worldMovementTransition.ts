@@ -1,8 +1,7 @@
+import { WORLD_MOVE_VISUAL_DURATION_MS } from '../../../../game/config';
 import { hexDistance, hexKey, type HexCoord } from '../../../../game/hex';
 import { tileToPoint } from '../../../../ui/world/renderSceneMath';
 import type { VisibleWorldTile } from '../../../../ui/world/visibleWorldTiles';
-
-export const WORLD_MOVE_VISUAL_DURATION_MS = 1_000;
 
 export interface WorldMovementTransition {
   displayTiles: VisibleWorldTile[];

@@ -12,6 +12,8 @@ export const GAME_DAY_MINUTES = 1440;
 export const GAME_DAY_DURATION_MS = GAME_CONFIG.worldClock.dayDurationMs;
 export const WORLD_MOVE_HEX_COOLDOWN_MS =
   GAME_CONFIG.worldClock.moveHexCooldownMs;
+export const WORLD_MOVE_VISUAL_DURATION_MS =
+  GAME_CONFIG.worldClock.moveHexVisualDurationMs;
 export const SUNRISE_START = 300;
 export const DAYLIGHT_START = 420;
 export const MOONRISE_START = 1080;

@@ -275,6 +275,7 @@ export function renderCampfireLight(
   ambientBrightness: number,
   lighting: ReturnType<typeof getTimeOfDayLighting>,
   animationMs: number,
+  alpha = 1,
 ) {
   const nightGlow = Math.max(
     0,
@@ -298,7 +299,7 @@ export function renderCampfireLight(
     )
     .fill({
       color: haloTint,
-      alpha: 0.036 * nightGlow * flicker,
+      alpha: 0.036 * nightGlow * flicker * alpha,
     });
 
   const midGlow = takeGraphics(graphicsPool);
@@ -312,7 +313,7 @@ export function renderCampfireLight(
     )
     .fill({
       color: haloTint,
-      alpha: 0.084 * nightGlow * pulse,
+      alpha: 0.084 * nightGlow * pulse * alpha,
     });
 
   const heatWash = takeGraphics(graphicsPool);
@@ -321,7 +322,7 @@ export function renderCampfireLight(
     .ellipse(point.x, point.y + hexSize * 0.08, hexSize * 0.96, hexSize * 0.68)
     .fill({
       color: scaleColor(0xfdba74, 0.9 + ambientBrightness * 0.22),
-      alpha: 0.14 * nightGlow * (0.98 + flicker * 0.05),
+      alpha: 0.14 * nightGlow * (0.98 + flicker * 0.05) * alpha,
     });
 
   const emberCore = takeGraphics(graphicsPool);
@@ -330,7 +331,7 @@ export function renderCampfireLight(
     .ellipse(point.x, point.y + hexSize * 0.08, hexSize * 0.4, hexSize * 0.26)
     .fill({
       color: emberTint,
-      alpha: 0.24 * nightGlow * (1 + flicker * 0.04),
+      alpha: 0.24 * nightGlow * (1 + flicker * 0.04) * alpha,
     });
 }
 

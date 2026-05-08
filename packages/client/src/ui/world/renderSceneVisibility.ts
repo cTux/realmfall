@@ -7,13 +7,17 @@ import {
 export interface MovementTransitionRevealState {
   fromCoord: HexCoord;
   outgoingTileKeys: Set<string>;
+  progress: number;
 }
 
 export function getMovementTransitionRevealState(
   movementTransition:
     | {
+        durationMs: number;
         fromCoord: HexCoord;
+        nowMs: number;
         outgoingTiles: VisibleWorldTile[];
+        startedAtMs: number;
       }
     | null
     | undefined,
@@ -27,6 +31,7 @@ export function getMovementTransitionRevealState(
     outgoingTileKeys: new Set(
       movementTransition.outgoingTiles.map((tile) => hexKey(tile.coord)),
     ),
+    progress: getMovementTransitionRevealProgress(movementTransition),
   } satisfies MovementTransitionRevealState;
 }
 
@@ -43,15 +48,56 @@ export function getVisibleTileRevealState({
 }) {
   const isOutgoing =
     movementTransitionState?.outgoingTileKeys.has(hexKey(tile.coord)) ?? false;
-  const revealOrigin = isOutgoing
-    ? (movementTransitionState?.fromCoord ?? playerCoord)
-    : playerCoord;
-  const distance = hexDistance(revealOrigin, tile.coord);
+  const previousDistance = hexDistance(
+    movementTransitionState?.fromCoord ?? playerCoord,
+    tile.coord,
+  );
+  const distance = hexDistance(playerCoord, tile.coord);
+  const wasRevealed = previousDistance <= revealRadius;
+  const revealed = distance <= revealRadius;
 
   return {
     distance,
     isOutgoing,
     resolved: !isUnknownVisibleWorldTile(tile),
-    revealed: distance <= revealRadius,
+    revealed,
+    visualRevealAlpha: getVisualRevealAlpha(
+      movementTransitionState,
+      wasRevealed,
+      revealed,
+    ),
   };
+}
+
+function getMovementTransitionRevealProgress(movementTransition: {
+  durationMs: number;
+  nowMs: number;
+  startedAtMs: number;
+}) {
+  if (movementTransition.durationMs <= 0) {
+    return 1;
+  }
+
+  return Math.max(
+    0,
+    Math.min(
+      1,
+      (movementTransition.nowMs - movementTransition.startedAtMs) /
+        movementTransition.durationMs,
+    ),
+  );
+}
+
+function getVisualRevealAlpha(
+  movementTransitionState: MovementTransitionRevealState | null,
+  wasRevealed: boolean,
+  revealed: boolean,
+) {
+  if (!movementTransitionState || wasRevealed === revealed) {
+    return revealed ? 1 : 0;
+  }
+
+  return wasRevealed
+    ? 1 - movementTransitionState.progress
+    : movementTransitionState.progress;
 }
