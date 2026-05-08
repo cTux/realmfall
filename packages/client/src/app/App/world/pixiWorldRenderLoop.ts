@@ -151,11 +151,15 @@ export function createWorldRenderFrame({
     const movedBeforeTransitionRefsUpdated =
       lastRenderSnapshot.game !== null &&
       currentMovementTransition === null &&
-      movementCooldownEndAtMs !== null &&
-      hexDistance(
-        lastRenderSnapshot.game.player.coord,
-        currentGame.player.coord,
-      ) === 1;
+      (isWaitingForAdjacentMoveTransition({
+        currentCoord: currentGame.player.coord,
+        movementCooldownEndAtMs,
+        previousCoord: lastRenderSnapshot.game.player.coord,
+      }) ||
+        isWaitingForPostCombatAutoStepTransition({
+          currentGame,
+          previousGame: lastRenderSnapshot.game,
+        }));
 
     if (movedBeforeTransitionRefsUpdated) {
       return;
@@ -252,6 +256,39 @@ function sameCoordList(left: HexCoord[] | null, right: HexCoord[] | null) {
   }
 
   return left.every((coord, index) => sameCoord(coord, right[index] ?? null));
+}
+
+function isWaitingForAdjacentMoveTransition({
+  currentCoord,
+  movementCooldownEndAtMs,
+  previousCoord,
+}: {
+  currentCoord: HexCoord;
+  movementCooldownEndAtMs: number | null;
+  previousCoord: HexCoord;
+}) {
+  return (
+    movementCooldownEndAtMs !== null &&
+    hexDistance(previousCoord, currentCoord) === 1
+  );
+}
+
+function isWaitingForPostCombatAutoStepTransition({
+  currentGame,
+  previousGame,
+}: {
+  currentGame: GameState;
+  previousGame: GameState;
+}) {
+  const previousEngagement = previousGame.combat?.engagement;
+
+  return Boolean(
+    previousEngagement?.autoStepOnVictory &&
+    previousEngagement.targetCoord &&
+    currentGame.combat === null &&
+    sameCoord(currentGame.player.coord, previousEngagement.targetCoord) &&
+    !sameCoord(previousGame.player.coord, previousEngagement.targetCoord),
+  );
 }
 
 function getMovementCooldownRenderToken({

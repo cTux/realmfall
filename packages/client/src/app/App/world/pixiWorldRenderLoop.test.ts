@@ -642,6 +642,68 @@ describe('pixiWorldRenderLoop', () => {
     performanceNowSpy.mockRestore();
   });
 
+  it('skips the post-combat auto-step frame before movement refs are seeded', () => {
+    const performanceNowSpy = vi.spyOn(performance, 'now').mockReturnValue(0);
+    const renderScene = vi.fn();
+    const previousGame = {
+      combat: {
+        engagement: {
+          autoStepOnVictory: true,
+          stagingCoord: { q: 0, r: 0 },
+          targetCoord: { q: 1, r: 0 },
+        },
+      },
+      player: { coord: { q: 0, r: 0 } },
+    };
+    const nextGame = {
+      combat: null,
+      player: { coord: { q: 1, r: 0 } },
+    };
+    const renderFrame = createWorldRenderFrame({
+      app: {} as never,
+      renderScene,
+      gameRef: { current: nextGame } as never,
+      visibleTilesRef: {
+        current: [{ coord: { q: 1, r: 0 }, terrain: 'plains' }],
+      } as never,
+      selectedRef: { current: { q: 1, r: 0 } } as never,
+      hoveredMoveRef: { current: null },
+      hoveredSafePathRef: { current: null },
+      showTerrainBackgroundsRef: { current: true },
+      worldRenderFpsRef: { current: DEFAULT_WORLD_RENDER_FPS },
+      pausedRef: { current: false },
+      pausedAnimationMsRef: { current: null },
+      worldTimeMsRef: { current: 0 },
+      renderInvalidationRef: { current: 0 },
+      lastRenderSnapshotRef: {
+        current: {
+          ...createInitialWorldRenderSnapshot(),
+          animationBucket: 0,
+          game: previousGame as never,
+          hoveredMove: null,
+          hoveredSafePath: null,
+          iconTextureVersion: 0,
+          invalidationToken: 0,
+          movementCooldownEndAtMs: null,
+          movementCooldownRenderToken: -1,
+          movementTransitionRenderToken: -1,
+          selected: { q: 0, r: 0 },
+          showTerrainBackgrounds: true,
+          visibleTiles: [{ coord: { q: 0, r: 0 }, terrain: 'plains' }] as never,
+          worldRenderFps: DEFAULT_WORLD_RENDER_FPS,
+        },
+      },
+      movementCooldownEndAtRef: { current: null },
+      movementTransitionRef: { current: null },
+    });
+
+    renderFrame();
+
+    expect(renderScene).not.toHaveBeenCalled();
+
+    performanceNowSpy.mockRestore();
+  });
+
   it('treats an expired transition ref as missing while the next adjacent move is waiting for fresh transition refs', () => {
     const performanceNowSpy = vi
       .spyOn(performance, 'now')
