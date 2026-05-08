@@ -19,7 +19,7 @@ This spec covers the local workflow for inspecting, applying, validating, and co
 - `package.json`
 - `packages/client/package.json`
 - `packages/common/package.json`
-- `packages/server/package.json`
+- `packages/server-world/package.json`
 - `packages/ui/package.json`
 - `packages/client/scripts/dependency-updates.mjs`
 - `packages/client/scripts/dependency-updates.helpers.mjs`

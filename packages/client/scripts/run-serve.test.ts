@@ -16,8 +16,8 @@ describe('workspace serve plan', () => {
       },
       {
         command: process.execPath,
-        args: ['/tmp/pnpm.cjs', '--filter', '@realmfall/server', 'serve'],
-        name: 'server',
+        args: ['/tmp/pnpm.cjs', '--filter', '@realmfall/server-world', 'serve'],
+        name: 'server-world',
       },
     ]);
   });

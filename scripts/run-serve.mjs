@@ -18,8 +18,8 @@ export function createWorkspaceServePlan(environment = process.env) {
           script: 'serve',
         },
         {
-          name: 'server',
-          packageName: '@realmfall/server',
+          name: 'server-world',
+          packageName: '@realmfall/server-world',
           script: 'serve',
         },
       ],
