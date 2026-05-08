@@ -98,6 +98,13 @@ export {
   GameTooltip,
   syncFollowCursorTooltipPosition,
 } from './components/Tooltip';
+export {
+  clearTranslations,
+  getCurrentLanguage,
+  setLocaleTranslations,
+  t,
+  type TranslationValue,
+} from './i18n';
 export { getTooltipPlacementForRect } from './tooltipPlacement';
 export type { TooltipPlacement } from './tooltipPlacement';
 export type {

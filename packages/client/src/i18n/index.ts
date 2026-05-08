@@ -1,9 +1,5 @@
 import enLocaleUrl from './locales/en.json?url';
-
-type TranslationValue = string | number;
-
-let translations: Record<string, string> = {};
-let currentLanguage = 'en';
+import { getCurrentLanguage, setLocaleTranslations, t } from '@realmfall/ui';
 const LOCALE_ASSET_URLS: Record<string, string> = {
   en: enLocaleUrl,
 };
@@ -19,25 +15,9 @@ export async function loadI18n(language = 'en') {
     throw new Error(`Failed to load locale asset: ${language}`);
   }
 
-  translations = (await response.json()) as Record<string, string>;
-  currentLanguage = language;
+  const translations = (await response.json()) as Record<string, string>;
+  setLocaleTranslations(language, translations);
   return translations;
 }
 
-export function getCurrentLanguage() {
-  return currentLanguage;
-}
-
-export function t(
-  key: string,
-  params?: Record<string, TranslationValue | undefined>,
-) {
-  const template = translations[key];
-  if (!template) return key;
-  if (!params) return template;
-
-  return template.replace(/\{(\w+)\}/g, (_, token: string) => {
-    const value = params[token];
-    return value == null ? `{${token}}` : String(value);
-  });
-}
+export { getCurrentLanguage, t };

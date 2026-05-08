@@ -2,8 +2,6 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const ALLOWED_CLIENT_BRIDGE_FILES = new Set([
-  'src/i18n/labels.ts',
-  'src/i18n/index.ts',
   'src/components/storybook/storybookHelpers.tsx',
 ]);
 
