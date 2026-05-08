@@ -1,35 +1,3 @@
-import heartPlusIcon from '../assets/game-icons/zeromancer/heart-plus.svg';
-import heartMinusIcon from '../assets/game-icons/zeromancer/heart-minus.svg';
-import swordSliceIcon from '../assets/game-icons/lorc/sword-slice.svg';
-import swordClashIcon from '../assets/game-icons/lorc/sword-clash.svg';
-import thrownSpearIcon from '../assets/game-icons/lorc/thrown-spear.svg';
-import smashingArrowsIcon from '../assets/game-icons/lorc/smash-arrows.svg';
-import whirlwindIcon from '../assets/game-icons/lorc/whirlwind.svg';
-import fireballIcon from '../assets/game-icons/lorc/fireball.svg';
-import fireWaveIcon from '../assets/game-icons/lorc/fire-wave.svg';
-import fireRingIcon from '../assets/game-icons/lorc/fire-ring.svg';
-import fireRayIcon from '../assets/game-icons/lorc/fire-ray.svg';
-import threeBurningBallsIcon from '../assets/game-icons/lorc/three-burning-balls.svg';
-import wildfiresIcon from '../assets/game-icons/lorc/wildfires.svg';
-import chainLightningIcon from '../assets/game-icons/willdabeast/chain-lightning.svg';
-import thunderballIcon from '../assets/game-icons/lorc/thunderball.svg';
-import thunderStruckIcon from '../assets/game-icons/lorc/thunder-struck.svg';
-import lightningStormIcon from '../assets/game-icons/lorc/lightning-storm.svg';
-import lightningArcIcon from '../assets/game-icons/lorc/lightning-arc.svg';
-import staticWavesIcon from '../assets/game-icons/lorc/static-waves.svg';
-import iceBoltIcon from '../assets/game-icons/lorc/ice-bolt.svg';
-import iceSpearIcon from '../assets/game-icons/lorc/ice-spear.svg';
-import icebergsIcon from '../assets/game-icons/lorc/icebergs.svg';
-import personInBlizzardIcon from '../assets/game-icons/lorc/person-in-blizzard.svg';
-import snowflakeIcon from '../assets/game-icons/lorc/snowflake-2.svg';
-import brainFreezeIcon from '../assets/game-icons/lorc/brain-freeze.svg';
-import healingIcon from '../assets/game-icons/delapouite/healing.svg';
-import healthPotionIcon from '../assets/game-icons/delapouite/health-potion.svg';
-import knightBannerIcon from '../assets/game-icons/delapouite/knight-banner.svg';
-import verticalBannerIcon from '../assets/game-icons/delapouite/vertical-banner.svg';
-import shieldIcon from '../assets/game-icons/sbed/shield.svg';
-import magicShieldIcon from '../assets/game-icons/lorc/magic-shield.svg';
-import sparklesIcon from '../assets/game-icons/delapouite/sparkles.svg';
 import { t } from '../i18n';
 import { formatAbilityLabel, formatStatusEffectLabel } from '../i18n/labels';
 import {
@@ -48,44 +16,9 @@ import type {
   AbilityId,
   AbilityRuntimeDefinition,
 } from './types';
+import { ABILITY_ICON_IDS } from './content/iconIds';
 
-const ABILITY_ICONS: Record<AbilityId, string> = {
-  kick: smashingArrowsIcon,
-  slash: swordSliceIcon,
-  crushingBlow: swordClashIcon,
-  hamstring: thrownSpearIcon,
-  whirlwind: whirlwindIcon,
-  impale: fireRayIcon,
-  emberShot: fireRayIcon,
-  fireball: fireballIcon,
-  searingNova: fireRingIcon,
-  cinderBurst: threeBurningBallsIcon,
-  magmaStrike: fireWaveIcon,
-  wildfire: wildfiresIcon,
-  sparkJolt: lightningArcIcon,
-  arcBolt: thunderballIcon,
-  thunderClap: thunderStruckIcon,
-  chainLightning: chainLightningIcon,
-  stormSurge: lightningStormIcon,
-  staticField: staticWavesIcon,
-  frostShard: iceBoltIcon,
-  iceLance: iceSpearIcon,
-  freezingWave: icebergsIcon,
-  coldSnap: snowflakeIcon,
-  blizzard: personInBlizzardIcon,
-  brainFreeze: brainFreezeIcon,
-  mendWounds: heartPlusIcon,
-  fieldDressing: healthPotionIcon,
-  soothingMist: healingIcon,
-  rallyingCry: knightBannerIcon,
-  battlePrayer: sparklesIcon,
-  warBanner: verticalBannerIcon,
-  ironGuard: shieldIcon,
-  arcWard: magicShieldIcon,
-  witheringHex: heartMinusIcon,
-  sunderArmor: heartMinusIcon,
-  enfeeblingPulse: heartMinusIcon,
-};
+const ABILITY_ICONS: Record<AbilityId, string> = ABILITY_ICON_IDS;
 
 export const ABILITIES: Record<AbilityId, AbilityDefinition> =
   Object.fromEntries(
@@ -96,7 +29,7 @@ export const ABILITIES: Record<AbilityId, AbilityDefinition> =
           ...definition,
           name: formatAbilityLabel(abilityId),
           description: buildAbilityDescription(definition),
-          icon: ABILITY_ICONS[abilityId] ?? smashingArrowsIcon,
+          icon: ABILITY_ICONS[abilityId] ?? ABILITY_ICON_IDS.kick,
         },
       ],
     ),

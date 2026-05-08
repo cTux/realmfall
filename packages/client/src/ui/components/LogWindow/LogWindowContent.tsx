@@ -7,6 +7,7 @@ import type { LogEntry, LogRichSegment } from '../../../game/stateTypes';
 import { t } from '../../../i18n';
 import { parseWorldCalendarDateTime } from '../../world/timeOfDay';
 import { rarityColor } from '../../rarity';
+import { resolveIconAsset } from '../../iconAssets';
 import { statusEffectIcon, statusEffectTint } from '../../statusEffects';
 import {
   abilityTooltipLines,
@@ -364,7 +365,7 @@ function sourceIconStyle(
 ): CSSProperties {
   if (segment.source.kind === 'ability') {
     const ability = getAbilityDefinition(segment.source.abilityId);
-    return maskStyle(ability.icon, '#f8fafc');
+    return maskStyle(resolveIconAsset(ability.icon), '#f8fafc');
   }
 
   if (segment.source.kind === 'secondaryStat') {
@@ -376,8 +377,8 @@ function sourceIconStyle(
 
   return maskStyle(
     statusEffectIcon(segment.source.effectId),
-    statusEffectTint(
-      segment.source.effectId,
+      statusEffectTint(
+        segment.source.effectId,
       segment.source.tone ??
         (getStatusEffectDefinition(segment.source.effectId)?.tone === 'buff'
           ? 'buff'
@@ -451,19 +452,23 @@ function getSecondaryStatIcon(
 ) {
   switch (stat) {
     case 'lifestealAmount':
-      return getStatusEffectDefinition('restoration')?.icon ?? '';
+      return resolveIconAsset(
+        getStatusEffectDefinition('restoration')?.icon ?? '',
+      );
     case 'criticalStrikeChance':
     case 'criticalStrikeDamage':
-      return getAbilityDefinition('slash').icon;
+      return resolveIconAsset(getAbilityDefinition('slash').icon);
     case 'dodgeChance':
-      return getAbilityDefinition('hamstring').icon;
+      return resolveIconAsset(getAbilityDefinition('hamstring').icon);
     case 'blockChance':
-      return getAbilityDefinition('kick').icon;
+      return resolveIconAsset(getAbilityDefinition('kick').icon);
     case 'suppressDamageChance':
     case 'suppressDamageReduction':
-      return getStatusEffectDefinition('guard')?.icon ?? '';
+      return resolveIconAsset(
+        getStatusEffectDefinition('guard')?.icon ?? '',
+      );
     default:
-      return getStatusEffectDefinition('power')?.icon ?? '';
+      return resolveIconAsset(getStatusEffectDefinition('power')?.icon ?? '');
   }
 }
 

@@ -3,6 +3,7 @@ import { useWorldClockTime } from '../../../app/App/worldClockStore';
 import type { PlayerStatusEffect } from '../../../game/stateTypes';
 import { t } from '../../../i18n';
 import { formatStatusEffectLabel } from '../../../i18n/labels';
+import { resolveIconAsset } from '../../iconAssets';
 import { statusEffectIcon, statusEffectTint } from '../../statusEffects';
 import { abilityTooltipLines, statusEffectTooltipLines } from '../../tooltips';
 import {
@@ -168,7 +169,7 @@ function buildAbilityIcons(
     return {
       id: ability.id,
       label: ability.name,
-      icon: ability.icon,
+      icon: resolveIconAsset(ability.icon),
       tint: '#f8fafc',
       borderColor: 'rgb(148 163 184 / 35%)',
       tooltipTitle: ability.name,

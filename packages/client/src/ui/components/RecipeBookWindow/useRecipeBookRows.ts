@@ -9,6 +9,7 @@ import { Skill, type RecipeBookEntry } from '../../../game/stateTypes';
 import type { Tile } from '../../../game/stateTypes';
 import { t } from '../../../i18n';
 import type { TooltipLine } from '../../tooltips';
+import { resolveIconAsset } from '../../iconAssets';
 import {
   canCraftRecipeEntry,
   getRecipeCraftAvailabilityCount,
@@ -128,7 +129,7 @@ function buildRecipeTooltipLines(
       kind: 'stat' as const,
       label: t('ui.recipeBook.tooltip.siteLabel'),
       value: requiredStructureLabel,
-      icon: requiredStructureConfig?.icon,
+      icon: resolveIconAsset(requiredStructureConfig?.icon ?? ''),
       iconTint: requiredStructureConfig
         ? pixiTintToCss(requiredStructureConfig.tint)
         : undefined,
@@ -150,7 +151,7 @@ function buildRecipeTooltipLines(
         kind: 'stat' as const,
         label: ingredient.name,
         value: `${owned}/${ingredient.quantity}`,
-        icon: itemConfig?.icon,
+        icon: resolveIconAsset(itemConfig?.icon ?? ''),
         iconTint: itemConfig?.tint,
         tone:
           owned >= ingredient.quantity
@@ -180,7 +181,7 @@ function buildRecipeTooltipLines(
               kind: 'stat' as const,
               label: fuel.name,
               value: `${owned}/${fuel.quantity}`,
-              icon: itemConfig?.icon,
+              icon: resolveIconAsset(itemConfig?.icon ?? ''),
               iconTint: itemConfig?.tint,
               tone:
                 owned >= fuel.quantity

@@ -9,6 +9,7 @@ import type {
 } from '../../game/stateTypes';
 import { t } from '../../i18n';
 import { formatStatusEffectLabel } from '../../i18n/labels';
+import { resolveIconAsset } from '../iconAssets';
 import { type TooltipLine, tagTooltipLines } from './shared';
 
 export function abilityTooltipLines(
@@ -147,7 +148,7 @@ function abilityStatusEffectLines(
       kind: 'stat' as const,
       label: t('ui.ability.effect'),
       value: formatStatusEffectLabel(effectId),
-      icon: definition?.icon,
+      icon: definition?.icon ? resolveIconAsset(definition.icon) : undefined,
       iconTint: definition?.tint,
       tone:
         definition?.tone === 'debuff'

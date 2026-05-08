@@ -22,6 +22,7 @@ import {
   formatSecondaryStatLabel,
 } from '../../i18n/labels';
 import { Icons } from '../icons';
+import { resolveIconAsset } from '../iconAssets';
 import { type TooltipLine, tagTooltipLines } from './shared';
 
 interface ItemTooltipOptions {
@@ -102,7 +103,7 @@ export function itemTooltipLines(
           kind: 'stat' as const,
           label: t('ui.tooltip.grantedAbilityLabel'),
           value: ability.name,
-          icon: ability.icon,
+          icon: resolveIconAsset(ability.icon),
           tone: 'item' as const,
         };
       })()

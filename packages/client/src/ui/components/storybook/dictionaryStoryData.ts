@@ -2,6 +2,7 @@ import { ABILITIES } from '../../../game/abilities';
 import { buildItemFromConfig } from '../../../game/content/items';
 import { STATUS_EFFECT_DEFINITIONS } from '../../../game/content/statusEffects';
 import { enemyIconFor, enemyTint, iconForItem } from '../../icons';
+import { resolveIconAsset } from '../../iconAssets';
 import { rarityColor } from '../../rarity';
 import {
   abilityTooltipLines,
@@ -87,7 +88,7 @@ export function loadDictionaryCatalogs() {
     structures: fixtures.structures.map((config) => ({
       id: config.type,
       label: config.title,
-      icon: config.icon,
+      icon: resolveIconAsset(config.icon),
       tint: `#${config.tint.toString(16).padStart(6, '0')}`,
       borderColor: 'rgba(148, 163, 184, 0.9)',
       tooltipLines:
@@ -102,7 +103,7 @@ export function loadDictionaryCatalogs() {
     abilities: Object.values(ABILITIES).map((ability) => ({
       id: ability.id,
       label: ability.name,
-      icon: ability.icon,
+      icon: resolveIconAsset(ability.icon),
       tint: '#f8fafc',
       borderColor: 'rgba(148, 163, 184, 0.9)',
       tooltipLines: abilityTooltipLines(ability, ability.target),
@@ -112,7 +113,7 @@ export function loadDictionaryCatalogs() {
       .map((definition) => ({
         id: definition.id,
         label: formatStatusEffectLabel(definition.id),
-        icon: definition.icon,
+        icon: resolveIconAsset(definition.icon),
         tint: definition.tint,
         borderColor: 'rgba(34, 197, 94, 0.9)',
         tooltipLines: statusEffectTooltipLines(definition.id, 'buff'),
@@ -122,7 +123,7 @@ export function loadDictionaryCatalogs() {
       .map((definition) => ({
         id: definition.id,
         label: formatStatusEffectLabel(definition.id),
-        icon: definition.icon,
+        icon: resolveIconAsset(definition.icon),
         tint: definition.tint,
         borderColor: 'rgba(239, 68, 68, 0.9)',
         tooltipLines: statusEffectTooltipLines(definition.id, 'debuff'),
