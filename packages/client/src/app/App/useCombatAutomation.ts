@@ -5,14 +5,14 @@ import {
   type MutableRefObject,
   type SetStateAction,
 } from 'react';
-import {
-  getCombatAutomationDelay,
-  progressCombat,
-} from '../../game/stateCombat';
+import { createWorkerGameplayTransitionSource } from './gameplay/createWorkerGameplayTransitionSource';
+import { getCombatAutomationDelay } from '../../game/stateCombat';
 import type { GameState } from '../../game/stateTypes';
+import type { GameplayTransitionSource } from './gameplay/gameplayTransitionSourceTypes';
 
 interface UseCombatAutomationOptions {
   combat: GameState['combat'];
+  gameRef: MutableRefObject<GameState>;
   playerMana: GameState['player']['mana'];
   playerStatusEffects: GameState['player']['statusEffects'];
   enemyLookup: GameState['enemies'];
@@ -23,6 +23,7 @@ interface UseCombatAutomationOptions {
 
 export function useCombatAutomation({
   combat,
+  gameRef,
   playerMana,
   playerStatusEffects,
   enemyLookup,
@@ -30,8 +31,17 @@ export function useCombatAutomation({
   setGame,
   worldTimeMsRef,
 }: UseCombatAutomationOptions) {
+  const gameplayTransitionSourceRef = useRef<GameplayTransitionSource>(
+    undefined!,
+  );
+  if (gameplayTransitionSourceRef.current === undefined) {
+    gameplayTransitionSourceRef.current =
+      createWorkerGameplayTransitionSource();
+  }
+
   const latestInputsRef = useRef<UseCombatAutomationOptions>({
     combat,
+    gameRef,
     playerMana,
     playerStatusEffects,
     enemyLookup,
@@ -41,6 +51,7 @@ export function useCombatAutomation({
   });
   latestInputsRef.current = {
     combat,
+    gameRef,
     playerMana,
     playerStatusEffects,
     enemyLookup,
@@ -48,6 +59,13 @@ export function useCombatAutomation({
     setGame,
     worldTimeMsRef,
   };
+
+  useEffect(
+    () => () => {
+      void gameplayTransitionSourceRef.current.dispose();
+    },
+    [],
+  );
 
   useEffect(() => {
     if (paused || !combat?.started) return;
@@ -81,14 +99,26 @@ export function useCombatAutomation({
       timeout = window.setTimeout(() => {
         if (cancelled) return;
 
-        const nextInputs = latestInputsRef.current;
-        nextInputs.setGame((current) =>
-          progressCombat({
-            ...current,
-            worldTimeMs: nextInputs.worldTimeMsRef.current,
-          }),
-        );
-        scheduleNextStep();
+        void gameplayTransitionSourceRef.current
+          .progressCombat(
+            latestInputsRef.current.gameRef.current,
+            latestInputsRef.current.worldTimeMsRef.current,
+          )
+          .then((result) => {
+            if (cancelled) {
+              return;
+            }
+
+            const nextInputs = latestInputsRef.current;
+            nextInputs.gameRef.current = result.state;
+            nextInputs.setGame(result.state);
+            scheduleNextStep();
+          })
+          .catch((error: unknown) => {
+            if (!cancelled) {
+              console.error(error);
+            }
+          });
       }, delay);
     };
 
@@ -103,6 +133,7 @@ export function useCombatAutomation({
   }, [
     combat,
     enemyLookup,
+    gameRef,
     paused,
     playerMana,
     playerStatusEffects,

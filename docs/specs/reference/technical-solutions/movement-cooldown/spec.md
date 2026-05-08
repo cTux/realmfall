@@ -9,7 +9,7 @@ This spec covers the client-side movement request boundary, real-time cooldown q
 - World movement uses a shared one-step request and response contract from `@realmfall/common`.
 - The local move source returns either `ok: true` with `cooldownMs` or `ok: false` with `remainingCooldownMs`.
 - The App world layer owns queued movement, the cooldown deadline, and retry scheduling outside deterministic `GameState`.
-- Approved steps apply immediately through `moveToTile` and do not advance `worldTimeMs`.
+- Approved steps apply immediately through a worker-backed gameplay transition source that delegates to `moveToTile` and falls back to the local implementation when workers are unavailable or fail, and those steps do not advance `worldTimeMs`.
 - Multi-step travel auto-continues by requesting the next adjacent step after the active cooldown expires.
 - Clicking a new destination during cooldown replaces queued continuation without resetting the active cooldown.
 - Multi-step queued travel suppresses automatic `hexInfo`, recipe-book, loot-window opening, and auto-loot collection on intermediate transit hexes while leaving resource auto-gather available when that gameplay setting is enabled.

@@ -1,7 +1,7 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import { t } from '../../../../i18n';
-import { moveToTile } from '../../../../game/stateMovement';
 import type { GameState, HexCoord } from '../../../../game/stateTypes';
+import { createWorkerGameplayTransitionSource } from '../../gameplay/createWorkerGameplayTransitionSource';
 import { createLoggedGameTransition } from '../../hooks/useLoggedGameCommand';
 import { createLocalWorldMoveSource } from './createLocalWorldMoveSource';
 import {
@@ -35,23 +35,32 @@ export function createAppWorldMovementController({
   worldTimeMsRef,
   movementCooldownEndAtRef,
 }: CreateAppWorldMovementControllerArgs) {
-  return createWorldMovementController({
+  const gameplayTransitionSource = createWorkerGameplayTransitionSource();
+  const controller = createWorldMovementController({
     moveSource: createLocalWorldMoveSource({ now }),
     now,
     getCurrentCoord: () => gameRef.current.player.coord,
     schedule: (callback, delayMs) => setTimeout(callback, delayMs),
     clearScheduled: (timerId) => clearTimeout(timerId),
-    applyApprovedStep: (
+    async applyApprovedStep(
       target: HexCoord,
       options?: ApplyWorldMovementStepOptions,
-    ) => {
-      const nextState = createLoggedGameTransition({
-        describe: () => t('game.log.command.moveToTile'),
-        transition: (timedState) => moveToTile(timedState, target, options),
-      })({
+    ) {
+      const timedState = {
         ...gameRef.current,
         worldTimeMs: worldTimeMsRef.current,
-      });
+      };
+      const result = await gameplayTransitionSource.moveToTile(
+        timedState,
+        target,
+        options,
+      );
+      const nextState = result.changed
+        ? createLoggedGameTransition({
+            describe: () => t('game.log.command.moveToTile'),
+            transition: () => result.state,
+          })(timedState)
+        : result.state;
       gameRef.current = nextState;
       worldTimeMsRef.current = nextState.worldTimeMs;
       setGame(nextState);
@@ -66,4 +75,12 @@ export function createAppWorldMovementController({
     },
     onAutoOpenSuppressionStateChange,
   });
+
+  return {
+    ...controller,
+    dispose() {
+      controller.dispose();
+      void gameplayTransitionSource.dispose();
+    },
+  };
 }

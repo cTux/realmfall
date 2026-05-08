@@ -46,7 +46,7 @@ export function createWorldMovementController({
   applyApprovedStep: (
     step: HexCoord,
     options?: ApplyApprovedStepOptions,
-  ) => ApplyApprovedStepResult;
+  ) => ApplyApprovedStepResult | Promise<ApplyApprovedStepResult>;
   onCooldownChange: (endAtMs: number | null) => void;
   onAutoOpenSuppressionStateChange?: (
     state: WorldMovementAutoOpenSuppressionState,
@@ -227,8 +227,8 @@ export function createWorldMovementController({
         return;
       }
 
-      activeRequest = null;
       if (response.requestId !== requestId) {
+        activeRequest = null;
         return;
       }
 
@@ -238,6 +238,7 @@ export function createWorldMovementController({
       const retryDelayMs = syncCooldown(cooldownDeadlineMs);
 
       if (!response.ok) {
+        activeRequest = null;
         if (queuedSteps.length > 0) {
           if (retryDelayMs === 0) {
             void requestNextStep();
@@ -259,7 +260,15 @@ export function createWorldMovementController({
         }
       }
 
-      const appliedStep = applyApprovedStep(request.step, request.applyOptions);
+      const appliedStep = await applyApprovedStep(
+        request.step,
+        request.applyOptions,
+      );
+      if (disposed || activeRequest?.requestId !== requestId) {
+        return;
+      }
+
+      activeRequest = null;
 
       if (appliedStep.combatStarted) {
         clearQueuedTravel({ nextAutoOpenSuppressionState: 'combat' });
@@ -310,16 +319,29 @@ export function createWorldMovementController({
 
     startHostileEngagement(targetCoord: HexCoord) {
       clearQueuedTravel();
-      const appliedStep = applyApprovedStep(targetCoord, {
-        engageMode: 'adjacent-click',
-        engageTargetCoord: targetCoord,
-      });
-      if (appliedStep.combatStarted) {
-        emitAutoOpenSuppressionStateChange('combat');
-        return;
-      }
+      void Promise.resolve(
+        applyApprovedStep(targetCoord, {
+          engageMode: 'adjacent-click',
+          engageTargetCoord: targetCoord,
+        }),
+      )
+        .then((appliedStep) => {
+          if (disposed) {
+            return;
+          }
 
-      clearCooldownIfExpired();
+          if (appliedStep.combatStarted) {
+            emitAutoOpenSuppressionStateChange('combat');
+            return;
+          }
+
+          clearCooldownIfExpired();
+        })
+        .catch(() => {
+          if (!disposed) {
+            clearCooldownIfExpired();
+          }
+        });
     },
 
     clear() {
