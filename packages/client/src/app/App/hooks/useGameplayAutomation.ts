@@ -5,7 +5,7 @@ import {
   type MutableRefObject,
   type SetStateAction,
 } from 'react';
-import { takeAllTileItems } from '../../../game/stateInventoryActions';
+import { takeTileItems } from '../../../game/stateInventoryActions';
 import type { GameState, Tile } from '../../../game/stateTypes';
 import { interactWithStructureUntilDepleted } from '../../../game/stateWorldActions';
 import { isGatheringStructure } from '../../../game/world';
@@ -16,6 +16,7 @@ interface UseGameplayAutomationOptions {
   currentTile: Tile;
   enabled: boolean;
   gameplaySettings: GameplaySettings;
+  ignoredAutoLootItemIds?: ReadonlySet<string>;
   paused: boolean;
   setGame: Dispatch<SetStateAction<GameState>>;
   suppressAutoLoot?: boolean;
@@ -27,6 +28,7 @@ export function useGameplayAutomation({
   currentTile,
   enabled,
   gameplaySettings,
+  ignoredAutoLootItemIds,
   paused,
   setGame,
   suppressAutoLoot = false,
@@ -53,12 +55,16 @@ export function useGameplayAutomation({
       return;
     }
 
+    const autoLootableItemIds = currentTile.items
+      .filter((item) => !ignoredAutoLootItemIds?.has(item.id))
+      .map((item) => item.id);
+
     if (
       !suppressAutoLoot &&
       gameplaySettings.autoLoot &&
-      currentTile.items.length > 0
+      autoLootableItemIds.length > 0
     ) {
-      applyTransition(takeAllTileItems);
+      applyTransition((state) => takeTileItems(state, autoLootableItemIds));
       return;
     }
 
@@ -74,6 +80,7 @@ export function useGameplayAutomation({
     enabled,
     gameplaySettings.autoGatherResources,
     gameplaySettings.autoLoot,
+    ignoredAutoLootItemIds,
     paused,
     suppressAutoLoot,
   ]);

@@ -126,6 +126,7 @@ export function useAppRuntime() {
     currentTile: gameView.currentTile,
     enabled: persistence.hydrated,
     gameplaySettings: controllerState.gameplaySettings,
+    ignoredAutoLootItemIds: controllerState.autoLootIgnoredItemIds,
     paused: bootstrap.paused,
     setGame: bootstrap.setGame,
     suppressAutoLoot: pixiWorld.queuedTravelAutoOpenSuppressed,

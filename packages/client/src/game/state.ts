@@ -129,6 +129,7 @@ export {
   setInventoryItemLocked,
   sortInventory,
   takeAllTileItems,
+  takeTileItems,
   takeTileItem,
 } from './stateInventoryActions';
 export {
