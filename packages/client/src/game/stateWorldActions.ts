@@ -300,7 +300,7 @@ export function interactWithStructureUntilDepleted(
   state: GameState,
 ): GameState {
   if (state.gameOver) return state;
-  if (state.combat) {
+  if (state.combat && !canGatherDuringPendingStagedCombat(state)) {
     return message(state, t('game.message.combat.finishCurrentBattleFirst'));
   }
 
@@ -480,5 +480,21 @@ function addAutoGatherLog(
       action,
       item: describeItemStacks(aggregatedRewards),
     }),
+  );
+}
+
+function canGatherDuringPendingStagedCombat(state: GameState) {
+  const combat = state.combat;
+  if (!combat || combat.started) {
+    return false;
+  }
+
+  if (combat.engagement?.engageMode !== 'staged-click') {
+    return false;
+  }
+
+  return (
+    combat.engagement.stagingCoord.q === state.player.coord.q &&
+    combat.engagement.stagingCoord.r === state.player.coord.r
   );
 }

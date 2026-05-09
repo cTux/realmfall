@@ -51,7 +51,15 @@ export function useGameplayAutomation({
       return;
     }
 
-    if (combat) {
+    const canAutoGatherPendingStagedCombat =
+      combat != null &&
+      !combat.started &&
+      combat.engagement?.engageMode === 'staged-click' &&
+      isGatheringStructure(currentTile.structure) &&
+      combat.engagement.stagingCoord.q === currentTile.coord.q &&
+      combat.engagement.stagingCoord.r === currentTile.coord.r;
+
+    if (combat && !canAutoGatherPendingStagedCombat) {
       return;
     }
 

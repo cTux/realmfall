@@ -1,6 +1,7 @@
 import { act, useState, type Dispatch, type SetStateAction } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { moveToTile } from '../../../game/state';
+import { createPendingCombatEncounter } from '../../../game/stateCombatEngagement';
 import { createGame } from '../../../game/stateFactory';
 import { getResolvedCurrentTile } from '../../../game/stateSelectors';
 import type { GameState } from '../../../game/stateTypes';
@@ -223,5 +224,118 @@ describe('useGameplayAutomation', () => {
         (item) => item.id === 'dropped-ration',
       ),
     ).toBe(false);
+  });
+
+  it('auto-gathers a staging herb node before pending staged-click combat begins', async () => {
+    const initialGame = createGame(2, 'pending-staged-herb-auto-gather');
+    const startingInventoryIds = new Set(
+      initialGame.player.inventory.map((item) => item.id),
+    );
+    initialGame.player.coord = { q: 1, r: 0 };
+    initialGame.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      items: [],
+      structure: 'herbs',
+      structureHp: 1,
+      structureMaxHp: 1,
+      enemyIds: [],
+    };
+    initialGame.tiles['2,0'] = {
+      coord: { q: 2, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: ['enemy-2,0-0'],
+    };
+    initialGame.enemies['enemy-2,0-0'] = {
+      id: 'enemy-2,0-0',
+      enemyTypeId: 'wolf',
+      name: 'Wolf',
+      coord: { q: 2, r: 0 },
+      tier: 1,
+      hp: 5,
+      maxHp: 5,
+      attack: 0,
+      defense: 0,
+      xp: 1,
+      elite: false,
+    };
+    initialGame.combat = createPendingCombatEncounter(initialGame, {
+      autoStepOnVictory: true,
+      engageMode: 'staged-click',
+      enemyIds: ['enemy-2,0-0'],
+      originCoord: { q: 0, r: 0 },
+      stagingCoord: { q: 1, r: 0 },
+      targetCoord: { q: 2, r: 0 },
+      worldTimeMs: initialGame.worldTimeMs,
+    });
+
+    const worldTimeMsRef = { current: initialGame.worldTimeMs };
+    const renderedGameRef: { current: GameState } = { current: initialGame };
+    let setGameCallCount = 0;
+
+    function Harness() {
+      const [game, setGameState] = useState(initialGame);
+      renderedGameRef.current = game;
+      const currentTile = getResolvedCurrentTile(game) ?? {
+        coord: game.player.coord,
+        terrain: 'plains',
+        items: [],
+        enemyIds: [],
+      };
+      const setGame: Dispatch<SetStateAction<GameState>> = (value) => {
+        setGameCallCount += 1;
+        setGameState(value);
+      };
+
+      useGameplayAutomation({
+        combat: game.combat,
+        currentTile,
+        enabled: true,
+        gameplaySettings: {
+          autoGatherResources: true,
+          autoLoot: false,
+        },
+        paused: false,
+        setGame,
+        worldTimeMsRef,
+      });
+
+      return null;
+    }
+
+    await act(async () => {
+      root.render(<Harness />);
+      await Promise.resolve();
+    });
+
+    expect(renderedGameRef.current.tiles['1,0']?.structure).toBeUndefined();
+    expect(
+      renderedGameRef.current.player.inventory.some(
+        (item) =>
+          !startingInventoryIds.has(item.id) &&
+          item.itemKey != null &&
+          [
+            'apple',
+            'aubergine',
+            'beet',
+            'cabbage',
+            'carrot',
+            'cherry',
+            'garlic',
+            'herbs',
+            'leek',
+            'lemon',
+            'peas',
+            'pepper',
+            'tomato',
+          ].includes(item.itemKey),
+      ),
+    ).toBe(true);
+    expect(renderedGameRef.current.combat?.started).toBe(false);
+    expect(renderedGameRef.current.combat?.engagement?.engageMode).toBe(
+      'staged-click',
+    );
+    expect(setGameCallCount).toBe(1);
   });
 });

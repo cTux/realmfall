@@ -36,7 +36,7 @@ This spec covers deterministic hex-world traversal, visibility, and safe-path tr
 - Safe-path travel auto-continues one resolved hex at a time across cooldown windows and does not advance `worldTimeMs`.
 - Safe-path routing avoids impassable terrain and hostile occupied intermediate tiles. For a visible hostile destination, the queued path ends on the nearest reachable adjacent staging hex so the combat intro can begin there without stepping through danger or onto the hostile hex first.
 - Intermediate hexes crossed during queued far-target travel are transit-only for automatic window behavior and do not auto-loot pass-through drops.
-- Queued far-target travel may still auto-gather an intermediate resource node when the gameplay setting for automatic resource gathering is enabled.
+- Queued far-target travel may still auto-gather an intermediate resource node when the gameplay setting for automatic resource gathering is enabled, including the final safe staging hex before a distant hostile click finishes its pending combat intro.
 - The arrived final destination may auto-open its normal tile window behavior when queued travel ends without combat.
 - Winning a hostile-click encounter can auto-step the player from its staging hex onto the hostile destination, and that `1000 ms` follow-up move continues from the held lunge offset through the normal full-step visual duration while the normal `1000 ms` movement cooldown runs for that step.
 - Night ambushes interrupt queued travel, clear the remaining queue, and stop the player on the ambush hex.
