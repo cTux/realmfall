@@ -14,6 +14,7 @@ import {
   sortInventory,
   startCombat,
   takeAllTileItems,
+  takeTileItems,
   takeTileItem,
 } from './stateInventoryActionsTestkit';
 import { GAME_DAY_DURATION_MS } from './config';
@@ -177,6 +178,49 @@ describe('game state inventory actions', () => {
         ?.quantity,
     ).toBe(4);
     expect(getTileAt(taken, { q: 0, r: 0 }).items).toHaveLength(0);
+  });
+
+  it('takes only the selected tile loot ids when partial auto-loot is needed', () => {
+    const game = createGame(3, 'take-selected-loot-seed');
+    game.tiles['0,0'] = {
+      ...game.tiles['0,0'],
+      items: [
+        {
+          id: 'dropped-ration',
+          name: 'Trail Ration',
+          itemKey: 'trail-ration',
+          quantity: 1,
+          tier: 1,
+          rarity: 'common',
+          power: 0,
+          defense: 0,
+          maxHp: 0,
+          healing: 8,
+          hunger: 12,
+        },
+        {
+          id: 'resource-gold-1',
+          name: 'Gold',
+          itemKey: 'gold',
+          quantity: 7,
+          tier: 1,
+          rarity: 'common',
+          power: 0,
+          defense: 0,
+          maxHp: 0,
+          healing: 0,
+          hunger: 0,
+        },
+      ],
+    };
+
+    const taken = takeTileItems(game, ['resource-gold-1']);
+
+    expect(getGoldAmount(taken.player.inventory)).toBe(7);
+    expect(getTileAt(taken, { q: 0, r: 0 }).items).toHaveLength(1);
+    expect(getTileAt(taken, { q: 0, r: 0 }).items[0]?.id).toBe(
+      'dropped-ration',
+    );
   });
 
   it('sorts, prospects, and sells inventory into gold and resources', () => {

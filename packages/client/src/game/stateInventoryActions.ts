@@ -267,6 +267,16 @@ export function buyTownItem(state: GameState, itemId: string): GameState {
 }
 
 export function takeAllTileItems(state: GameState): GameState {
+  return takeTileItems(
+    state,
+    getCurrentTile(state).items.map((item) => item.id),
+  );
+}
+
+export function takeTileItems(
+  state: GameState,
+  itemIds: readonly string[],
+): GameState {
   const next = cloneForPlayerAndTileMutation(state);
   ensureTileState(next, next.player.coord);
   const key = hexKey(next.player.coord);
@@ -275,13 +285,26 @@ export function takeAllTileItems(state: GameState): GameState {
     return message(state, t('game.message.loot.nothingHere'));
   }
 
-  tile.items.forEach((item) => addItemToInventory(next.player.inventory, item));
-  next.tiles[key] = normalizeStructureState({ ...tile, items: [] });
+  const requestedItemIds = new Set(itemIds);
+  const itemsToTake = tile.items.filter((item) =>
+    requestedItemIds.has(item.id),
+  );
+  if (itemsToTake.length === 0) {
+    return message(state, t('game.message.loot.nothingHere'));
+  }
+
+  itemsToTake.forEach((item) =>
+    addItemToInventory(next.player.inventory, item),
+  );
+  next.tiles[key] = normalizeStructureState({
+    ...tile,
+    items: tile.items.filter((item) => !requestedItemIds.has(item.id)),
+  });
   addLog(
     next,
     'loot',
     t('game.message.loot.takeMany', {
-      items: tile.items.map((item) => describeItemStack(item)).join(', '),
+      items: itemsToTake.map((item) => describeItemStack(item)).join(', '),
     }),
   );
   return next;

@@ -1,5 +1,6 @@
 import {
   useCallback,
+  useState,
   type Dispatch,
   type MouseEvent as ReactMouseEvent,
   type MutableRefObject,
@@ -41,6 +42,7 @@ export interface AppControllers {
   state: {
     actionBarSlots: ReturnType<typeof useActionBarController>['actionBarSlots'];
     audioSettings: AudioSettings;
+    autoLootIgnoredItemIds: ReadonlySet<string>;
     gameplaySettings: GameplaySettings;
     graphicsSettings: GraphicsSettings;
     hexItemModificationPickerActive: boolean;
@@ -161,6 +163,9 @@ export function useAppControllers({
   tooltipPositionRef,
   worldTimeMsRef,
 }: UseAppControllersOptions): AppControllers {
+  const [autoLootIgnoredItemIds, setAutoLootIgnoredItemIds] = useState<
+    ReadonlySet<string>
+  >(() => new Set());
   const {
     audioSettings,
     gameplaySettings,
@@ -198,6 +203,39 @@ export function useAppControllers({
     setGame,
     worldTimeMsRef,
   });
+  const rememberDroppedItemId = useCallback((itemId?: string) => {
+    if (!itemId) {
+      return;
+    }
+
+    setAutoLootIgnoredItemIds((current) => {
+      if (current.has(itemId)) {
+        return current;
+      }
+
+      return new Set([...current, itemId]);
+    });
+  }, []);
+  const handleDropItem = useCallback(
+    (itemId: string) => {
+      const dropAllowed = inventory.some((item) => item.id === itemId);
+      gameActionHandlers.handleDropItem(itemId);
+      if (!paused && dropAllowed) {
+        rememberDroppedItemId(itemId);
+      }
+    },
+    [gameActionHandlers, inventory, paused, rememberDroppedItemId],
+  );
+  const handleDropEquippedItem = useCallback(
+    (slot: keyof typeof equipment) => {
+      const itemId = equipment[slot]?.id;
+      gameActionHandlers.handleDropEquippedItem(slot);
+      if (!paused) {
+        rememberDroppedItemId(itemId);
+      }
+    },
+    [equipment, gameActionHandlers, paused, rememberDroppedItemId],
+  );
   const {
     applySelectedItemModification,
     clearSelectedItem,
@@ -264,6 +302,7 @@ export function useAppControllers({
     state: {
       actionBarSlots,
       audioSettings,
+      autoLootIgnoredItemIds,
       gameplaySettings,
       graphicsSettings,
       hexItemModificationPickerActive,
@@ -280,6 +319,8 @@ export function useAppControllers({
     },
     actions: {
       ...gameActionHandlers,
+      handleDropEquippedItem,
+      handleDropItem,
       applySelectedItemModification,
       clearSelectedItem,
       closeAllWindows,
